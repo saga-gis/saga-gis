@@ -1,0 +1,25 @@
+/* XPM */
+static char *tb_map_mode_select_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"18 16 3 1",
+". c Black",
+"X c #848284",
+"  c #C6C3C6",
+/* pixels */
+"  .               ",
+"  X..             ",
+"  X....           ",
+"   X......        ",
+"   X........      ",
+"    X.........    ",
+"    X.....XXXX    ",
+"    X......       ",
+"     X..X...      ",
+"     X.. X...     ",
+"      X.  X...    ",
+"      X.   X...   ",
+"       X    X...  ",
+"             X..  ",
+"              XX  ",
+"                  "
+};

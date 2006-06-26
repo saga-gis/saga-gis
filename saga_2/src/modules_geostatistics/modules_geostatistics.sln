@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual C++ Express 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "geostatistics_grid", "geostatistics\geostatistics_grid\geostatistics_grid.vcproj", "{F4FB1BD0-D462-436D-806D-258A44ED173F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "geostatistics_kriging", "geostatistics\geostatistics_kriging\geostatistics_kriging.vcproj", "{B8D0DD94-E8B6-4949-B508-CB0ACA1D1EAF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "geostatistics_points", "geostatistics\geostatistics_points\geostatistics_points.vcproj", "{43A31EE5-2B9A-4B01-A715-86C9CCA13F0E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F4FB1BD0-D462-436D-806D-258A44ED173F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F4FB1BD0-D462-436D-806D-258A44ED173F}.Debug|Win32.Build.0 = Debug|Win32
+		{F4FB1BD0-D462-436D-806D-258A44ED173F}.Release|Win32.ActiveCfg = Release|Win32
+		{F4FB1BD0-D462-436D-806D-258A44ED173F}.Release|Win32.Build.0 = Release|Win32
+		{B8D0DD94-E8B6-4949-B508-CB0ACA1D1EAF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B8D0DD94-E8B6-4949-B508-CB0ACA1D1EAF}.Debug|Win32.Build.0 = Debug|Win32
+		{B8D0DD94-E8B6-4949-B508-CB0ACA1D1EAF}.Release|Win32.ActiveCfg = Release|Win32
+		{B8D0DD94-E8B6-4949-B508-CB0ACA1D1EAF}.Release|Win32.Build.0 = Release|Win32
+		{43A31EE5-2B9A-4B01-A715-86C9CCA13F0E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{43A31EE5-2B9A-4B01-A715-86C9CCA13F0E}.Debug|Win32.Build.0 = Debug|Win32
+		{43A31EE5-2B9A-4B01-A715-86C9CCA13F0E}.Release|Win32.ActiveCfg = Release|Win32
+		{43A31EE5-2B9A-4B01-A715-86C9CCA13F0E}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,26 @@
+/* XPM */
+static char *wksp_shapes_line_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 4 1",
+"o c Black",
+"X c #00FFFF",
+". c #0000FF",
+"  c None",
+/* pixels */
+"                ",
+"                ",
+"    ...     ... ",
+"    .X.     .X. ",
+"    ...     ... ",
+"    o o     o   ",
+"    o o     o   ",
+"   o   o   o    ",
+"   o   o   o    ",
+"  o     o o     ",
+"  o     o o     ",
+"...     ...     ",
+".X.     .X.     ",
+"...     ...     ",
+"                ",
+"                "
+};

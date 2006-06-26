@@ -1,0 +1,1 @@
+SUBDIRS = geostatistics_points geostatistics_kriging geostatistics_grid

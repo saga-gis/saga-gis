@@ -1,0 +1,73 @@
+# Project: ta_channels
+# MinGW Makefile
+# Created by O. Conrad
+
+PRJ_NAME = ta_channels
+BIN_SAGA = $(SAGA)\bin\saga_mingw
+TMP_SAGA = $(SAGA)\bin\tmp\saga_mingw
+MLB_TEMP = $(TMP_SAGA)\$(PRJ_NAME)
+MLB_PATH = $(BIN_SAGA)\modules
+MLB_NAME = $(MLB_PATH)\$(PRJ_NAME).dll
+LIB_NAME = $(MLB_PATH)\lib$(PRJ_NAME).a
+
+CPP      = g++.exe
+LD       = dllwrap.exe
+
+DEP_INCS = 
+DEP_DEFS = 
+DEP_LIBS = 
+DEP_LFLG = 
+
+OBJ      = $(MLB_TEMP)/ChannelNetwork.o $(MLB_TEMP)/ChannelNetwork_Altitude.o $(MLB_TEMP)/ChannelNetwork_Distance.o $(MLB_TEMP)/D8_Flow_Analysis.o $(MLB_TEMP)/Helper.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/Strahler.o $(MLB_TEMP)/Watersheds.o $(MLB_TEMP)/Watersheds_ext.o
+
+CXXFLAGS = -I"$(MINGW)/include" -I"$(SAGA)/src/saga_core" -D$(PRJ_NAME)_EXPORTS -DBUILDING_DLL=1 -D_SAGA_MSW -D_SAGA_MINGW -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -fexpensive-optimizations -Os -O2 -O3 $(DEP_INCS) $(DEP_DEFS)
+
+LIBS     = -L"$(MINGW)/lib" -L"$(WXWIN)/lib/gcc_lib" $(DEP_LIBS) $(BIN_SAGA)/libsaga_api.a
+LDFLAGS  = --no-export-all-symbols --add-stdcall-alias --driver-name c++ $(DEP_LFLG)
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before $(MLB_NAME) all-after
+
+clean: clean-custom
+	rm -f $(OBJ) $(MLB_NAME)
+
+$(TMP_SAGA):
+	if not exist $(TMP_SAGA) mkdir $(TMP_SAGA)
+
+$(MLB_TEMP): $(TMP_SAGA)
+	if not exist $(MLB_TEMP) mkdir $(MLB_TEMP)
+
+$(MLB_PATH):
+	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
+
+$(MLB_NAME): $(OBJ) $(MLB_PATH)
+	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
+
+
+$(MLB_TEMP)/ChannelNetwork.o: ./ChannelNetwork.cpp $(MLB_TEMP)
+	$(CPP) -c ./ChannelNetwork.cpp -o $(MLB_TEMP)/ChannelNetwork.o $(CXXFLAGS)
+
+$(MLB_TEMP)/ChannelNetwork_Altitude.o: ./ChannelNetwork_Altitude.cpp $(MLB_TEMP)
+	$(CPP) -c ./ChannelNetwork_Altitude.cpp -o $(MLB_TEMP)/ChannelNetwork_Altitude.o $(CXXFLAGS)
+
+$(MLB_TEMP)/ChannelNetwork_Distance.o: ./ChannelNetwork_Distance.cpp $(MLB_TEMP)
+	$(CPP) -c ./ChannelNetwork_Distance.cpp -o $(MLB_TEMP)/ChannelNetwork_Distance.o $(CXXFLAGS)
+
+$(MLB_TEMP)/D8_Flow_Analysis.o: ./D8_Flow_Analysis.cpp $(MLB_TEMP)
+	$(CPP) -c ./D8_Flow_Analysis.cpp -o $(MLB_TEMP)/D8_Flow_Analysis.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Helper.o: ./Helper.cpp $(MLB_TEMP)
+	$(CPP) -c ./Helper.cpp -o $(MLB_TEMP)/Helper.o $(CXXFLAGS)
+
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Strahler.o: ./Strahler.cpp $(MLB_TEMP)
+	$(CPP) -c ./Strahler.cpp -o $(MLB_TEMP)/Strahler.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Watersheds.o: ./Watersheds.cpp $(MLB_TEMP)
+	$(CPP) -c ./Watersheds.cpp -o $(MLB_TEMP)/Watersheds.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Watersheds_ext.o: ./Watersheds_ext.cpp $(MLB_TEMP)
+	$(CPP) -c ./Watersheds_ext.cpp -o $(MLB_TEMP)/Watersheds_ext.o $(CXXFLAGS)

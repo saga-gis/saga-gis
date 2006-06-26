@@ -1,0 +1,14 @@
+# Linux GCC Makefile
+# Created by O. Conrad
+
+export SAGA = /develop/saga_2.0/saga_2.0
+
+PROJECTS = ./contrib_boggia_massei/contrib_boggia_massei ./contrib_t_wutzler/contrib_t_wutzler
+
+all:
+	@for i in $(PROJECTS); do (cd $$i && $(MAKE) -fmakefile.linux); done
+
+clean:
+	@for i in $(PROJECTS); do (cd $$i && $(MAKE) -fmakefile.linux clean); done
+
+.PHONY: all clean

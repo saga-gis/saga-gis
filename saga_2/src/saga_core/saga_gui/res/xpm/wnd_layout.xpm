@@ -1,0 +1,30 @@
+/* XPM */
+static char *wnd_layout_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 8 1",
+". c Black",
+"X c #FFFFFF",
+"# c #000084",
+"o c #00FFFF",
+"+ c #007BFF",
+"@ c #0000FF",
+"  c None",
+"O c #00C6FF",
+/* pixels */
+"                ",
+"...........     ",
+".XXXXXXXX.X.    ",
+".XoooOO++.XX.   ",
+".XoooO++@.XXX.  ",
+".XOOoO++@.XXXX. ",
+".XOOOO+@@.XXXXX.",
+".XO++++@#.......",
+".X+++++@###X@@X.",
+".X++@@@@@##X@@X.",
+".X+@@@@@###X##X.",
+".X@@###@@##X##X.",
+".XXXXXXXXXXXXXX.",
+"................",
+"                ",
+"                "
+};

@@ -1,0 +1,28 @@
+/* XPM */
+static char *wksp_table_manager_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 6 1",
+"X c Black",
+"o c #FFFFFF",
+"+ c #C6C6C6",
+"O c #848484",
+"  c #0000FF",
+". c None",
+/* pixels */
+"            ....",
+"            ....",
+"XooooOoooooX....",
+"Xo            ..",
+"XO            ..",
+"XoXooooOoooooX..",
+"XoXo            ",
+"XOXO            ",
+"XoXoXooooOoooooX",
+"XXXoXooooOoooooX",
+"..XOXOOOOOOOOOOX",
+"..XoXooooO+++++X",
+"..XXXooooO+++++X",
+"....XOOOOOOOOOOX",
+"....XooooO+++++X",
+"....XXXXXXXXXXXX"
+};

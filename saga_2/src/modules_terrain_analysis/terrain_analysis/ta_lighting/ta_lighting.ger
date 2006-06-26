@@ -1,0 +1,171 @@
+ENTRY(MLB_NAME)
+	"Reliefanalyse - Beleuchtung, Sichtbarkeit"
+
+ENTRY(MLB_DESC)
+	"Beleuchtungsmodelle und Sichtbarkeitsanalyse auf Basis Digitaler Geländemodelle"
+
+ENTRY(MLB_MENU)
+	"Reliefanalyse|Beleuchtung"
+
+ENTRY(Analytical Hillshading)
+	"Beleuchtungsmodell"
+
+ENTRY(Analytical hillshading calculation.\n(c) 2001 by Olaf Conrad, Goettingen.\nemail: oconrad@gwdg.de)
+	"Berechnung eines Beleuchtungsmodells.\n(c) 2001 by Olaf Conrad, Goettingen.\nemail: oconrad@gwdg.de"
+
+ENTRY(April)
+	""
+
+ENTRY(August)
+	""
+
+ENTRY(Azimuth [°])
+	"Azimut [°]"
+
+ENTRY(Daily Time Resolution)
+	"Zeitliche Auflösung (Tagesgang)"
+
+ENTRY(Day)
+	"Tag"
+
+ENTRY(December)
+	"Dezember"
+
+ENTRY(Declination [°])
+	"Deklination [°]"
+
+ENTRY(Declination of the light source, measured in degree above the horizon.)
+	"Deklination der Lichtquelle, gemessen in Grad über dem Horizont."
+
+ENTRY(Differentiate Shadowed Areas)
+	"Differenzierung abgeschatteter Gebiete"
+
+ENTRY(Direction of the light source, measured in degree clockwise from the north direction.)
+	"Richtung der Lichtquelle, gemessen in Grad im Uhrzeigersinn von der Nordrichtung."
+
+ENTRY(Duration of Insolation)
+	"Einstrahlungsdauer"
+
+ENTRY(Elevation)
+	"Höhe"
+
+ENTRY(Exaggeration)
+	"Überhöhung"
+
+ENTRY(February)
+	"Februar"
+
+ENTRY(Height)
+	"Höhe"
+
+ENTRY(Height of the light source above ground.)
+	"Höhe der Lichtquelle über dem Gelände."
+
+ENTRY(January)
+	"Januar"
+
+ENTRY(July)
+	"Juli"
+
+ENTRY(June)
+	"Juni"
+
+ENTRY(Latitude [°])
+	"Breite [°]"
+
+ENTRY(Light Source Shading)
+	"Lichtquelle"
+
+ENTRY(Lighting calculations for digital terrain models.)
+	"Beleuchtungsberechnung für Digitale Geländemodelle."
+
+ENTRY(March)
+	"März"
+
+ENTRY(May)
+	"Mai"
+
+ENTRY(Month)
+	"Monat"
+
+ENTRY(November)
+	""
+
+ENTRY(October)
+	"Oktober"
+
+ENTRY(Olaf Conrad, Göttingen (c) 2001)
+	""
+
+ENTRY(One Year)
+	"Jahr"
+
+ENTRY(Range of Days)
+	"Tage"
+
+ENTRY(Ray Tracing)
+	"Strahlverfolgung"
+
+ENTRY(September)
+	""
+
+ENTRY(Shading Method)
+	"Schummerungsmethode"
+
+ENTRY(Show each time step during calculation.)
+	"Zeige jeden Zeitschritt während der Berechnung."
+
+ENTRY(Simple)
+	"Einfach"
+
+ENTRY(Simulation Time)
+	"Simulationszeitraum"
+
+ENTRY(Single Day)
+	"Tag"
+
+ENTRY(Solar Constant [W/m²])
+	"Solarkonstante [W/m²]"
+
+ENTRY(Solar Radiation)
+	"Sonnenstrahlung"
+
+ENTRY(Terrain Analysis: Lighting)
+	"Reliefanalyse: Beleuchtung"
+
+ENTRY(Terrain Analysis|Lighting)
+	"Reliefanalyse|Beleuchtung"
+
+ENTRY(The angle between the surface and the incoming light beams, measured in radians.)
+	"Der Winkel zwischen der Oberfläche und der einfallenden Lichtstrahlen, gemessen in Bogenmaß."
+
+ENTRY(The terrain exaggeration factor allows to increase the shading contrasts in flat areas.)
+	"Die Geländeüberhöhung erlaubt stärkere Kontraste in flachen Bereichen."
+
+ENTRY(Time Span [day of year])
+	"Zeitspanne [Tag des Jahres]"
+
+ENTRY(Time Span [h])
+	"Zeitspanne [h]"
+
+ENTRY(Time Step [h])
+	"Zeitschrittweite [h]"
+
+ENTRY(Time Step [number of days])
+	"Zeitschritt [Anzahl der Tage]"
+
+ENTRY(Time span used for the calculation of daily radiation sums.)
+	"Zeitraum, der für die Berechnung berücksichtigt wird."
+
+ENTRY(Time step size used for the calculation of daily radiation sums.)
+	"Zeitschrittweite, die für die Berechnung täglicher Einstrahlungssummen benutzt wird."
+
+ENTRY(Transmittance of Atmosphere [%])
+	"Durchlässigkeit der Atmosphäre [%]"
+
+ENTRY(Unit)
+	"Einheit"
+
+ENTRY(Update View)
+	"Zwischenergebnisse anzeigen"
+

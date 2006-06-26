@@ -1,0 +1,28 @@
+/* XPM */
+static char *wnd_table_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 6 1",
+"X c Black",
+"o c #FFFFFF",
+"+ c #C6C6C6",
+"O c #848484",
+". c #0000FF",
+"  c None",
+/* pixels */
+"                ",
+"................",
+"................",
+"XooooOooooOooooX",
+"XooooOooooOooooX",
+"XOOOOOOOOOOOOOOX",
+"XooooO++++O++++X",
+"XooooO++++O++++X",
+"XOOOOOOOOOOOOOOX",
+"XooooO++++O++++X",
+"XooooO++++O++++X",
+"XOOOOOOOOOOOOOOX",
+"XooooO++++O++++X",
+"XooooO++++O++++X",
+"XXXXXXXXXXXXXXXX",
+"                "
+};

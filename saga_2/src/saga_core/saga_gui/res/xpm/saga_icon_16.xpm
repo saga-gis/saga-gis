@@ -1,0 +1,25 @@
+/* XPM */
+static char *saga_icon_16_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 3 1",
+". c #00FFFF",
+"X c #0000FF",
+"  c None",
+/* pixels */
+"      .....   . ",
+"    .XXXXX...X. ",
+"   XXXXXXXXX.X. ",
+"  XX    .  XXX..",
+" XX.   X..XXXXX.",
+" XX.. XXX..  XX ",
+"XXXX.X XXX..    ",
+"X.XXX.. XXX..   ",
+"X. XXX...XXX....",
+"X.. XXXXXXXXXXX.",
+"XX.  XXX..    X.",
+" X..  XXX..  XX ",
+" XX..  XXX.. X. ",
+"  XX... XXX.XX  ",
+"   XXX...XXXX   ",
+"     XXXXXX     "
+};

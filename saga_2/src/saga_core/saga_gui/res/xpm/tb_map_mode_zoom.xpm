@@ -1,0 +1,26 @@
+/* XPM */
+static char *tb_map_mode_zoom_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"18 16 4 1",
+"o c Black",
+"X c #FFFFFF",
+". c #848284",
+"  c #C6C3C6",
+/* pixels */
+"    ....          ",
+"  ..XXXX..        ",
+" .XXXoXXXX.       ",
+" .XXXoXXXX.       ",
+".XXoooooXooooooo  ",
+".XXXXoXXXXX.   o  ",
+".XXXXoXXXXX.   o  ",
+".XXXXXXXXXX.   o  ",
+" .XXXoXXXX.    o  ",
+" .XXXoXXXX.    o  ",
+"  ..XoXX....   o  ",
+"    .o.. ....  o  ",
+"     o    .... o  ",
+"     ooooooooooo  ",
+"            ...   ",
+"                  "
+};

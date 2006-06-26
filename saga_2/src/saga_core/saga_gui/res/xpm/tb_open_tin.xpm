@@ -1,0 +1,29 @@
+/* XPM */
+static char *tb_open_tin_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 7 1",
+"O c Black",
+"@ c #0039FF",
+". c #000084",
+"+ c #00FFFF",
+"o c #0000C0",
+"  c None",
+"X c #00C6FF",
+/* pixels */
+" ...            ",
+"..X........     ",
+".XXXXXXXXX.     ",
+".XXXXXXXXX. ooo ",
+".XXXooo..OOOo+o ",
+".XXXo+oOO@@@ooo ",
+".XX.ooo@@@@O@O  ",
+".X.@@O@@@@O@.O  ",
+"..@@@O@@@O@. O  ",
+".....O..O..  O  ",
+"     O O      O ",
+"    ooo       O ",
+"    o+oOO     O ",
+"    ooo  OO  ooo",
+"           OOo+o",
+"             ooo"
+};

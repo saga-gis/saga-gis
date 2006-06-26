@@ -1,0 +1,30 @@
+/* XPM */
+static char *tb_open_table_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 8 1",
+"+ c Black",
+"@ c #FFFFFF",
+"o c #0039FF",
+". c #000084",
+"O c #0000C0",
+"# c #848484",
+"  c None",
+"X c #00C6FF",
+/* pixels */
+" ...            ",
+"..X........     ",
+".XXXXXXXXX.     ",
+".XXXXXXXXX.     ",
+".XXX........... ",
+".XXX.ooooooooo. ",
+".XX.ooooooooo.  ",
+".X.ooooooooo.   ",
+"..oooOOOOOOOOOOO",
+".....OOOOOOOOOOO",
+"     +@@@@#@@@@+",
+"     +@@@@#@@@@+",
+"     +#########+",
+"     +@@@@#    +",
+"     +@@@@#    +",
+"     +++++++++++"
+};

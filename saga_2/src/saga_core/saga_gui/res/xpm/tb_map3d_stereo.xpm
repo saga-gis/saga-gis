@@ -1,0 +1,27 @@
+/* XPM */
+static char *tb_map3d_stereo_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 5 1",
+". c #FFFFFF",
+"X c #FF0000",
+"O c #848484",
+"  c None",
+"o c #00FF00",
+/* pixels */
+"                ",
+"                ",
+"                ",
+"............... ",
+"..XXXX...oooo..O",
+".XXXXXX.oooooo.O",
+".XXXXXX.oooooo.O",
+".XXXXXX.oooooo.O",
+"..XXXX...oooo..O",
+".......O.......O",
+"......OO ......O",
+" OOOOOO   OOOOOO",
+"                ",
+"                ",
+"                ",
+"                "
+};

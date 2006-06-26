@@ -1,0 +1,4 @@
+AAAA                    ICON    DISCARDABLE     "saga.ico"
+SAGA_ICON               ICON    DISCARDABLE     "saga.ico"
+
+WXBITMAP_STD_COLOURS    BITMAP  MOVEABLE PURE   "colours.bmp"

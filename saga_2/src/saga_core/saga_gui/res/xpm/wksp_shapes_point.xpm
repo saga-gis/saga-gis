@@ -1,0 +1,25 @@
+/* XPM */
+static char *wksp_shapes_point_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 3 1",
+"X c #00FFFF",
+". c #0000FF",
+"  c None",
+/* pixels */
+"                ",
+"                ",
+"                ",
+"   ...   ...    ",
+"   .X.   .X.    ",
+"   ...   ...    ",
+"                ",
+"                ",
+"           ...  ",
+"           .X.  ",
+"     ...   ...  ",
+"     .X.        ",
+"     ...        ",
+"                ",
+"                ",
+"                "
+};

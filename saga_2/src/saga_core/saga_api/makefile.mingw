@@ -1,0 +1,220 @@
+# Project: SAGA_API
+# Makefile for MinGW, created by O.Conrad
+
+TOP_SAGA  = $(SAGA)/bin
+BIN_SAGA  = $(TOP_SAGA)/saga_mingw
+OBJ_SAGA  = $(TOP_SAGA)/tmp/saga_mingw/saga_api
+
+LIB_GCC   = $(MINGW)/lib
+INC_GCC   = $(MINGW)/include
+DLL_NAME  = $(BIN_SAGA)/saga_api.dll
+LIB_NAME  = $(BIN_SAGA)/libsaga_api.a
+
+CPP       = g++.exe
+LD        = dllwrap.exe
+
+OBJ       = $(TMP_SAGA)api_callback.o $(TMP_SAGA)api_colors.o $(TMP_SAGA)api_core.o $(TMP_SAGA)api_file.o $(TMP_SAGA)api_history.o $(TMP_SAGA)api_memory.o $(TMP_SAGA)api_string.o $(TMP_SAGA)api_translator.o $(TMP_SAGA)dataobject.o $(TMP_SAGA)geo_classes.o $(TMP_SAGA)geo_functions.o $(TMP_SAGA)grid.o $(TMP_SAGA)grid_io.o $(TMP_SAGA)grid_memory.o $(TMP_SAGA)grid_operation.o $(TMP_SAGA)grid_system.o $(TMP_SAGA)html_document.o $(TMP_SAGA)mat_formula.o $(TMP_SAGA)mat_grid_radius.o $(TMP_SAGA)mat_indexing.o $(TMP_SAGA)mat_matrix.o $(TMP_SAGA)mat_regression.o $(TMP_SAGA)mat_regression_multiple.o $(TMP_SAGA)mat_spline.o $(TMP_SAGA)mat_tools.o $(TMP_SAGA)mat_trend.o $(TMP_SAGA)module.o $(TMP_SAGA)module_grid.o $(TMP_SAGA)module_grid_interactive.o $(TMP_SAGA)module_interactive.o $(TMP_SAGA)module_interactive_base.o $(TMP_SAGA)module_library_interface.o $(TMP_SAGA)parameter.o $(TMP_SAGA)parameter_data.o $(TMP_SAGA)parameters.o $(TMP_SAGA)pdf_document.o $(TMP_SAGA)saga_api.o $(TMP_SAGA)shape.o $(TMP_SAGA)shape_line.o $(TMP_SAGA)shape_point.o $(TMP_SAGA)shape_points.o $(TMP_SAGA)shape_polygon.o $(TMP_SAGA)shapes.o $(TMP_SAGA)shapes_io.o $(TMP_SAGA)shapes_search.o $(TMP_SAGA)shapes_selection.o $(TMP_SAGA)svg_graph.o $(TMP_SAGA)table.o $(TMP_SAGA)table_dbase.o $(TMP_SAGA)table_io.o $(TMP_SAGA)table_record.o $(TMP_SAGA)table_selection.o $(TMP_SAGA)tin.o $(TMP_SAGA)tin_elements.o $(TMP_SAGA)tin_triangulation.o
+
+DEF_SAGA  = -D_SAGA_API_EXPORTS -D_SAGA_MSW -D_SAGA_MINGW -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
+DEF_WIN   = -D__WXMSW__ -DNOPCH
+#DEF_WIN   = -DHAVE_W32API_H -D__WINDOWS__ -D__WIN32__ -D__GNUWIN32__ -D__MINGW32__ -D__WXMSW__
+CXXINCS   = -I"$(WXWIN)/include" -I"$(WXWIN)/lib/gcc_lib/msw" -I"$(HARU)" -I"$(LIB_GCC)/gcc/mingw32/3.4.2/include" -I"$(INC_GCC)" -I"$(INC_GCC)/c++/3.4.2/backward" -I"$(INC_GCC)/c++/3.4.2/mingw32" -I"$(INC_GCC)/c++/3.4.2"
+CXXFLAGS  = $(CXXINCS) $(DEF_SAGA) $(DEF_WIN) -mthreads -O3 -Wno-ctor-dtor-privacy
+
+LIBS_WX   = -L"$(WXWIN)/lib/gcc_lib" -lwxmsw26_core -lwxbase26 -L"$(HARU)" -lharu
+LIBS      = $(LIBS_WX) -L"$(LIB_GCC)" -lwxtiff -lwxjpeg -lwxpng -lwxzlib -lwxregex -lwxexpat -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lwinspool -lwinmm -lshell32 -lcomctl32 -lole32 -loleaut32 -luuid -lrpcrt4 -ladvapi32 -lwsock32 -lodbc32
+LDFLAGS   = --export-all --driver-name c++ -mthreads -mwindows
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before $(DLL_NAME) all-after
+
+clean: clean-custom
+	rm -f $(OBJ) $(DLL_NAME) $(LIB_NAME)
+
+$(TOP_SAGA):
+	if not exist $(TOP_SAGA) mkdir $(TOP_SAGA)
+
+$(BIN_SAGA): $(TOP_SAGA)
+	if not exist $(BIN_SAGA) mkdir $(BIN_SAGA)
+
+$(TOP_SAGA)/tmp: $(TOP_SAGA)
+	if not exist $(TOP_SAGA)/tmp mkdir $(TOP_SAGA)/tmp
+
+$(TOP_SAGA)/tmp/saga_mingw: $(TOP_SAGA)/tmp
+	if not exist $(TOP_SAGA)/tmp/saga_mingw mkdir $(TOP_SAGA)/tmp/saga_mingw
+
+$(OBJ_SAGA): $(TOP_SAGA)/tmp/saga_mingw
+	if not exist $(OBJ_SAGA) mkdir $(OBJ_SAGA)
+
+$(TMP_SAGA): $(OBJ_SAGA)
+	if not exist $(TMP_SAGA) mkdir $(TMP_SAGA)
+
+#$(DLL_NAME): $(TMP_SAGA) $(BIN_SAGA) $(OBJ)
+$(DLL_NAME): $(OBJ)
+	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(DLL_NAME)
+
+$(TMP_SAGA)api_callback.o: api_callback.cpp
+	$(CPP) -c api_callback.cpp -o $(TMP_SAGA)api_callback.o $(CXXFLAGS)
+
+$(TMP_SAGA)api_colors.o: api_colors.cpp
+	$(CPP) -c api_colors.cpp -o $(TMP_SAGA)api_colors.o $(CXXFLAGS)
+
+$(TMP_SAGA)api_core.o: api_core.cpp
+	$(CPP) -c api_core.cpp -o $(TMP_SAGA)api_core.o $(CXXFLAGS)
+
+$(TMP_SAGA)api_file.o: api_file.cpp
+	$(CPP) -c api_file.cpp -o $(TMP_SAGA)api_file.o $(CXXFLAGS)
+
+$(TMP_SAGA)api_history.o: api_history.cpp
+	$(CPP) -c api_history.cpp -o $(TMP_SAGA)api_history.o $(CXXFLAGS)
+
+$(TMP_SAGA)api_memory.o: api_memory.cpp
+	$(CPP) -c api_memory.cpp -o $(TMP_SAGA)api_memory.o $(CXXFLAGS)
+
+$(TMP_SAGA)api_string.o: api_string.cpp
+	$(CPP) -c api_string.cpp -o $(TMP_SAGA)api_string.o $(CXXFLAGS)
+
+$(TMP_SAGA)api_translator.o: api_translator.cpp
+	$(CPP) -c api_translator.cpp -o $(TMP_SAGA)api_translator.o $(CXXFLAGS)
+
+$(TMP_SAGA)dataobject.o: dataobject.cpp
+	$(CPP) -c dataobject.cpp -o $(TMP_SAGA)dataobject.o $(CXXFLAGS)
+
+$(TMP_SAGA)geo_classes.o: geo_classes.cpp
+	$(CPP) -c geo_classes.cpp -o $(TMP_SAGA)geo_classes.o $(CXXFLAGS)
+
+$(TMP_SAGA)geo_functions.o: geo_functions.cpp
+	$(CPP) -c geo_functions.cpp -o $(TMP_SAGA)geo_functions.o $(CXXFLAGS)
+
+$(TMP_SAGA)grid.o: grid.cpp
+	$(CPP) -c grid.cpp -o $(TMP_SAGA)grid.o $(CXXFLAGS)
+
+$(TMP_SAGA)grid_io.o: grid_io.cpp
+	$(CPP) -c grid_io.cpp -o $(TMP_SAGA)grid_io.o $(CXXFLAGS)
+
+$(TMP_SAGA)grid_memory.o: grid_memory.cpp
+	$(CPP) -c grid_memory.cpp -o $(TMP_SAGA)grid_memory.o $(CXXFLAGS)
+
+$(TMP_SAGA)grid_operation.o: grid_operation.cpp
+	$(CPP) -c grid_operation.cpp -o $(TMP_SAGA)grid_operation.o $(CXXFLAGS)
+
+$(TMP_SAGA)grid_system.o: grid_system.cpp
+	$(CPP) -c grid_system.cpp -o $(TMP_SAGA)grid_system.o $(CXXFLAGS)
+
+$(TMP_SAGA)html_document.o: html_document.cpp
+	$(CPP) -c html_document.cpp -o $(TMP_SAGA)html_document.o $(CXXFLAGS)
+
+$(TMP_SAGA)mat_formula.o: mat_formula.cpp
+	$(CPP) -c mat_formula.cpp -o $(TMP_SAGA)mat_formula.o $(CXXFLAGS)
+
+$(TMP_SAGA)mat_grid_radius.o: mat_grid_radius.cpp
+	$(CPP) -c mat_grid_radius.cpp -o $(TMP_SAGA)mat_grid_radius.o $(CXXFLAGS)
+
+$(TMP_SAGA)mat_indexing.o: mat_indexing.cpp
+	$(CPP) -c mat_indexing.cpp -o $(TMP_SAGA)mat_indexing.o $(CXXFLAGS)
+
+$(TMP_SAGA)mat_matrix.o: mat_matrix.cpp
+	$(CPP) -c mat_matrix.cpp -o $(TMP_SAGA)mat_matrix.o $(CXXFLAGS)
+
+$(TMP_SAGA)mat_regression.o: mat_regression.cpp
+	$(CPP) -c mat_regression.cpp -o $(TMP_SAGA)mat_regression.o $(CXXFLAGS)
+
+$(TMP_SAGA)mat_regression_multiple.o: mat_regression_multiple.cpp
+	$(CPP) -c mat_regression_multiple.cpp -o $(TMP_SAGA)mat_regression_multiple.o $(CXXFLAGS)
+
+$(TMP_SAGA)mat_spline.o: mat_spline.cpp
+	$(CPP) -c mat_spline.cpp -o $(TMP_SAGA)mat_spline.o $(CXXFLAGS)
+
+$(TMP_SAGA)mat_tools.o: mat_tools.cpp
+	$(CPP) -c mat_tools.cpp -o $(TMP_SAGA)mat_tools.o $(CXXFLAGS)
+
+$(TMP_SAGA)mat_trend.o: mat_trend.cpp
+	$(CPP) -c mat_trend.cpp -o $(TMP_SAGA)mat_trend.o $(CXXFLAGS)
+
+$(TMP_SAGA)module.o: module.cpp
+	$(CPP) -c module.cpp -o $(TMP_SAGA)module.o $(CXXFLAGS)
+
+$(TMP_SAGA)module_grid.o: module_grid.cpp
+	$(CPP) -c module_grid.cpp -o $(TMP_SAGA)module_grid.o $(CXXFLAGS)
+
+$(TMP_SAGA)module_grid_interactive.o: module_grid_interactive.cpp
+	$(CPP) -c module_grid_interactive.cpp -o $(TMP_SAGA)module_grid_interactive.o $(CXXFLAGS)
+
+$(TMP_SAGA)module_interactive.o: module_interactive.cpp
+	$(CPP) -c module_interactive.cpp -o $(TMP_SAGA)module_interactive.o $(CXXFLAGS)
+
+$(TMP_SAGA)module_interactive_base.o: module_interactive_base.cpp
+	$(CPP) -c module_interactive_base.cpp -o $(TMP_SAGA)module_interactive_base.o $(CXXFLAGS)
+
+$(TMP_SAGA)module_library_interface.o: module_library_interface.cpp
+	$(CPP) -c module_library_interface.cpp -o $(TMP_SAGA)module_library_interface.o $(CXXFLAGS)
+
+$(TMP_SAGA)parameter.o: parameter.cpp
+	$(CPP) -c parameter.cpp -o $(TMP_SAGA)parameter.o $(CXXFLAGS)
+
+$(TMP_SAGA)parameter_data.o: parameter_data.cpp
+	$(CPP) -c parameter_data.cpp -o $(TMP_SAGA)parameter_data.o $(CXXFLAGS)
+
+$(TMP_SAGA)parameters.o: parameters.cpp
+	$(CPP) -c parameters.cpp -o $(TMP_SAGA)parameters.o $(CXXFLAGS)
+
+$(TMP_SAGA)pdf_document.o: pdf_document.cpp
+	$(CPP) -c pdf_document.cpp -o $(TMP_SAGA)pdf_document.o $(CXXFLAGS)
+
+$(TMP_SAGA)saga_api.o: saga_api.cpp
+	$(CPP) -c saga_api.cpp -o $(TMP_SAGA)saga_api.o $(CXXFLAGS)
+
+$(TMP_SAGA)shape.o: shape.cpp
+	$(CPP) -c shape.cpp -o $(TMP_SAGA)shape.o $(CXXFLAGS)
+
+$(TMP_SAGA)shape_line.o: shape_line.cpp
+	$(CPP) -c shape_line.cpp -o $(TMP_SAGA)shape_line.o $(CXXFLAGS)
+
+$(TMP_SAGA)shape_point.o: shape_point.cpp
+	$(CPP) -c shape_point.cpp -o $(TMP_SAGA)shape_point.o $(CXXFLAGS)
+
+$(TMP_SAGA)shape_points.o: shape_points.cpp
+	$(CPP) -c shape_points.cpp -o $(TMP_SAGA)shape_points.o $(CXXFLAGS)
+
+$(TMP_SAGA)shape_polygon.o: shape_polygon.cpp
+	$(CPP) -c shape_polygon.cpp -o $(TMP_SAGA)shape_polygon.o $(CXXFLAGS)
+
+$(TMP_SAGA)shapes.o: shapes.cpp
+	$(CPP) -c shapes.cpp -o $(TMP_SAGA)shapes.o $(CXXFLAGS)
+
+$(TMP_SAGA)shapes_io.o: shapes_io.cpp
+	$(CPP) -c shapes_io.cpp -o $(TMP_SAGA)shapes_io.o $(CXXFLAGS)
+
+$(TMP_SAGA)shapes_search.o: shapes_search.cpp
+	$(CPP) -c shapes_search.cpp -o $(TMP_SAGA)shapes_search.o $(CXXFLAGS)
+
+$(TMP_SAGA)shapes_selection.o: shapes_selection.cpp
+	$(CPP) -c shapes_selection.cpp -o $(TMP_SAGA)shapes_selection.o $(CXXFLAGS)
+
+$(TMP_SAGA)svg_graph.o: svg_graph.cpp
+	$(CPP) -c svg_graph.cpp -o $(TMP_SAGA)svg_graph.o $(CXXFLAGS)
+
+$(TMP_SAGA)table.o: table.cpp
+	$(CPP) -c table.cpp -o $(TMP_SAGA)table.o $(CXXFLAGS)
+
+$(TMP_SAGA)table_dbase.o: table_dbase.cpp
+	$(CPP) -c table_dbase.cpp -o $(TMP_SAGA)table_dbase.o $(CXXFLAGS)
+
+$(TMP_SAGA)table_io.o: table_io.cpp
+	$(CPP) -c table_io.cpp -o $(TMP_SAGA)table_io.o $(CXXFLAGS)
+
+$(TMP_SAGA)table_record.o: table_record.cpp
+	$(CPP) -c table_record.cpp -o $(TMP_SAGA)table_record.o $(CXXFLAGS)
+
+$(TMP_SAGA)table_selection.o: table_selection.cpp
+	$(CPP) -c table_selection.cpp -o $(TMP_SAGA)table_selection.o $(CXXFLAGS)
+
+$(TMP_SAGA)tin.o: tin.cpp
+	$(CPP) -c tin.cpp -o $(TMP_SAGA)tin.o $(CXXFLAGS)
+
+$(TMP_SAGA)tin_elements.o: tin_elements.cpp
+	$(CPP) -c tin_elements.cpp -o $(TMP_SAGA)tin_elements.o $(CXXFLAGS)
+
+$(TMP_SAGA)tin_triangulation.o: tin_triangulation.cpp
+	$(CPP) -c tin_triangulation.cpp -o $(TMP_SAGA)tin_triangulation.o $(CXXFLAGS)

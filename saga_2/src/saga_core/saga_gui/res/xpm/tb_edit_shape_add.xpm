@@ -1,0 +1,28 @@
+/* XPM */
+static char *tb_edit_shape_add_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"18 16 6 1",
+". c Black",
+"X c #FFFFFF",
+"o c #848284",
+"O c #000084",
+"+ c #00FFFF",
+"  c #C6C3C6",
+/* pixels */
+"      .....       ",
+"     .X.o.X.      ",
+"    .XXX.XXX.     ",
+"   .XXXXXXXXX.    ",
+"  .XXXXXXXXXXX.   ",
+" .XXXXXXXXXOOOX.  ",
+".XXXXXXXXXXO+OXX. ",
+"o.XXXXXXXXXO+OX.o ",
+" o.XXXXXXXXO+O.o  ",
+"  o.XXXOOOOO+OOOOO",
+"   o.XXO+++++++++O",
+"    o.XOOOOO+OOOOO",
+"     o.XXX.O+O    ",
+"      o.X.oO+O    ",
+"       o.o O+O    ",
+"        o  OOO    "
+};

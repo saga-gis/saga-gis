@@ -1,0 +1,737 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "contrib_t_wutzler"=.\modules_contrib\contrib_t_wutzler\contrib_t_wutzler\contrib_t_wutzler.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "geostatistics_grid"=.\modules_geostatistics\geostatistics\geostatistics_grid\geostatistics_grid.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "geostatistics_kriging"=.\modules_geostatistics\geostatistics\geostatistics_kriging\geostatistics_kriging.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "geostatistics_points"=.\modules_geostatistics\geostatistics\geostatistics_points\geostatistics_points.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "grid_analysis"=.\modules\grid\grid_analysis\grid_analysis.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "grid_calculus"=.\modules\grid\grid_calculus\grid_calculus.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "grid_discretisation"=.\modules\grid\grid_discretisation\grid_discretisation.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "grid_filter"=.\modules\grid\grid_filter\grid_filter.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "grid_gridding"=.\modules\grid\grid_gridding\grid_gridding.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "grid_tools"=.\modules\grid\grid_tools\grid_tools.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "grid_visualisation"=.\modules\grid\grid_visualisation\grid_visualisation.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "io_esri_e00"=.\modules_io\esri_e00\io_esri_e00\io_esri_e00.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "io_gps"=.\modules_io\gps\io_gps\io_gps.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "io_grid"=.\modules_io\grid\io_grid\io_grid.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "io_grid_gdal"=.\modules_io_gdal\io_grid_gdal\io_grid_gdal\io_grid_gdal.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "io_grid_image"=.\modules_io\grid\io_grid_image\io_grid_image.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "io_shapes"=.\modules_io\shapes\io_shapes\io_shapes.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "io_table_odbc"=.\modules_io\table\io_table_odbc\io_table_odbc.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "lectures_introduction"=.\modules_lectures\lectures\lectures_introduction\lectures_introduction.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "pj_georeference"=.\modules_projection\pj_georeference\pj_georeference\pj_georeference.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "pj_geotrans"=.\modules_projection\pj_geotrans\pj_geotrans\pj_geotrans.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "pj_proj4"=.\modules_projection\pj_proj4\pj_proj4\pj_proj4.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "recreations_fractals"=.\modules_recreations\recreations\recreations_fractals\recreations_fractals.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "recreations_games"=.\modules_recreations\recreations\recreations_games\recreations_games.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "saga_api"=.\saga_core\saga_api\saga_api.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "saga_cmd"=.\saga_core\saga_cmd\saga_cmd.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "saga_gui"=.\saga_core\saga_gui\saga_gui.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "shapes_grid"=.\modules\shapes\shapes_grid\shapes_grid.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "shapes_lines"=.\modules\shapes\shapes_lines\shapes_lines.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "shapes_lines_ex"=.\modules\shapes\shapes_lines_ex\shapes_lines_ex.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "shapes_points"=.\modules\shapes\shapes_points\shapes_points.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "shapes_polygons"=.\modules\shapes\shapes_polygons\shapes_polygons.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "shapes_tools"=.\modules\shapes\shapes_tools\shapes_tools.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sim_cellular_automata"=.\modules_simulation\cellular_automata\sim_cellular_automata\sim_cellular_automata.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sim_ecosystems_hugget"=.\modules_simulation\ecosystems\sim_ecosystems_hugget\sim_ecosystems_hugget.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sim_fire_spreading"=.\modules_simulation\fire\fire_spreading\sim_fire_spreading.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name grid_tools
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sim_hydrology"=.\modules_simulation\hydrology\sim_hydrology\sim_hydrology.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "ta_channels"=.\modules_terrain_analysis\terrain_analysis\ta_channels\ta_channels.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "ta_compound"=.\modules_terrain_analysis\terrain_analysis\ta_compound\ta_compound.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ta_channels
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ta_hydrology
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ta_lighting
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ta_morphometry
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ta_preprocessor
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "ta_hydrology"=.\modules_terrain_analysis\terrain_analysis\ta_hydrology\ta_hydrology.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "ta_lighting"=.\modules_terrain_analysis\terrain_analysis\ta_lighting\ta_lighting.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "ta_morphometry"=.\modules_terrain_analysis\terrain_analysis\ta_morphometry\ta_morphometry.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "ta_preprocessor"=.\modules_terrain_analysis\terrain_analysis\ta_preprocessor\ta_preprocessor.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "ta_profiles"=.\modules_terrain_analysis\terrain_analysis\ta_profiles\ta_profiles.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "table_calculus"=.\modules\table\table_calculus\table_calculus.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "table_tools"=.\modules\table\table_tools\table_tools.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "tin_tools"=.\modules\tin\tin_tools\tin_tools.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+

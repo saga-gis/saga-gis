@@ -1,0 +1,29 @@
+/* XPM */
+static char *wksp_map_manager_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 7 1",
+"  c Black",
+"X c #FFFFFF",
+"@ c #000084",
+"o c #00FFFF",
+"O c #00ADFF",
+"+ c #0000FF",
+". c None",
+/* pixels */
+"            ....",
+" XXXXXXXXXX ....",
+" XoooOO+X@X ....",
+" X            ..",
+" X XXXXXXXXXX ..",
+" X XoooOO+X@X ..",
+" X X            ",
+" X X XXXXXXXXXX ",
+" X X XoooOO+X@X ",
+"   X XoooO++X+X ",
+".. X XOOOO+@X+X ",
+".. X XOOOO+@XOX ",
+"..   X++++++XOX ",
+".... X@@+++@XoX ",
+".... XXXXXXXXXX ",
+"....            "
+};

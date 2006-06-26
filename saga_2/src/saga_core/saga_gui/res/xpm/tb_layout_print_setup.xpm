@@ -1,0 +1,28 @@
+/* XPM */
+static char *tb_layout_print_setup_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 6 1",
+". c Black",
+"+ c #FFFFFF",
+"o c #00FFFF",
+"O c #848484",
+"X c #0000FF",
+"  c None",
+/* pixels */
+"                ",
+"     .........  ",
+"    .        .  ",
+"    .X.......   ",
+"  X.XX      .   ",
+"  XXooXXX. .... ",
+"  XoXXoX   . . .",
+"XXoX  XoX.. . ..",
+".XoX  XoXX . . .",
+"..XoXXoX.....  .",
+".XXXooXXOO  . . ",
+".   XX X++  ... ",
+"....X........ . ",
+" .         . .  ",
+"  ...........   ",
+"                "
+};

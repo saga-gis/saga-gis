@@ -1,0 +1,25 @@
+/* XPM */
+static char *tb_edit_shape_add_part_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"18 16 3 1",
+". c #000084",
+"X c #00FFFF",
+"  c #C6C3C6",
+/* pixels */
+"                  ",
+"                  ",
+"                  ",
+"                  ",
+"                  ",
+"           ...    ",
+"           .X.    ",
+"           .X.    ",
+"           .X.    ",
+"       .....X.....",
+"       .XXXXXXXXX.",
+"       .....X.....",
+"           .X.    ",
+"           .X.    ",
+"           .X.    ",
+"           ...    "
+};

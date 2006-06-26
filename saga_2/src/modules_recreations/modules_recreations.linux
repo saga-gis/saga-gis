@@ -1,0 +1,14 @@
+# Linux GCC Makefile
+# Created by O. Conrad
+
+export SAGA = /develop/saga_2.0/saga_2.0
+
+PROJECTS = ./recreations/recreations_fractals ./recreations/recreations_games
+
+all:
+	@for i in $(PROJECTS); do (cd $$i && $(MAKE) -fmakefile.linux); done
+
+clean:
+	@for i in $(PROJECTS); do (cd $$i && $(MAKE) -fmakefile.linux clean); done
+
+.PHONY: all clean

@@ -1,0 +1,187 @@
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                         SAGA                          //
+//                                                       //
+//      System for Automated Geoscientific Analyses      //
+//                                                       //
+//                    User Interface                     //
+//                                                       //
+//                    Program: SAGA                      //
+//                                                       //
+//-------------------------------------------------------//
+//                                                       //
+//                WKSP_Shapes_Points.cpp                 //
+//                                                       //
+//          Copyright (C) 2005 by Olaf Conrad            //
+//                                                       //
+//-------------------------------------------------------//
+//                                                       //
+// This file is part of 'SAGA - System for Automated     //
+// Geoscientific Analyses'. SAGA is free software; you   //
+// can redistribute it and/or modify it under the terms  //
+// of the GNU General Public License as published by the //
+// Free Software Foundation; version 2 of the License.   //
+//                                                       //
+// SAGA is distributed in the hope that it will be       //
+// useful, but WITHOUT ANY WARRANTY; without even the    //
+// implied warranty of MERCHANTABILITY or FITNESS FOR A  //
+// PARTICULAR PURPOSE. See the GNU General Public        //
+// License for more details.                             //
+//                                                       //
+// You should have received a copy of the GNU General    //
+// Public License along with this program; if not,       //
+// write to the Free Software Foundation, Inc.,          //
+// 59 Temple Place - Suite 330, Boston, MA 02111-1307,   //
+// USA.                                                  //
+//                                                       //
+//-------------------------------------------------------//
+//                                                       //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Goettingen               //
+//                Goldschmidtstr. 5                      //
+//                37077 Goettingen                       //
+//                Germany                                //
+//                                                       //
+//    e-mail:     oconrad@saga-gis.org                   //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#include <saga_api/saga_api.h>
+
+#include "res_commands.h"
+#include "res_dialogs.h"
+
+#include "helper.h"
+
+#include "wksp_map_control.h"
+
+#include "wksp_shapes_points.h"
+#include "wksp_table.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CWKSP_Shapes_Points::CWKSP_Shapes_Points(CShapes *pShapes)
+	: CWKSP_Shapes_Point(pShapes)
+{
+	Create_Parameters();
+}
+
+//---------------------------------------------------------
+CWKSP_Shapes_Points::~CWKSP_Shapes_Points(void)
+{
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Shapes_Points::On_Create_Parameters(void)
+{
+	CWKSP_Shapes_Point::On_Create_Parameters();
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Shapes_Points::On_DataObject_Changed(void)
+{
+	CWKSP_Shapes_Point::On_DataObject_Changed();
+}
+
+//---------------------------------------------------------
+void CWKSP_Shapes_Points::On_Parameters_Changed(void)
+{
+	CWKSP_Shapes_Point::On_Parameters_Changed();
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CWKSP_Shapes_Points::On_Parameter_Changed(CParameters *pParameters, CParameter *pParameter)
+{
+	CWKSP_Shapes_Point::On_Parameter_Changed(pParameters, pParameter);
+
+	return( 1 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Shapes_Points::_Draw_Initialize(CWKSP_Map_DC &dc_Map)
+{
+	CWKSP_Shapes_Point::_Draw_Initialize(dc_Map);
+}
+
+//---------------------------------------------------------
+void CWKSP_Shapes_Points::_Draw_Shape(CWKSP_Map_DC &dc_Map, CShape *pShape, bool bSelection)
+{
+	int			iPart, iPoint;
+	TAPI_iPoint	p;
+
+	//-----------------------------------------------------
+	CWKSP_Shapes_Point::_Draw_Shape(dc_Map, pShape, bSelection);
+
+	for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+	{
+		for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+		{
+			p	= dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
+
+			Draw_Symbol(dc_Map.dc, p.x, p.y, 5);
+		}
+	}
+}
+
+//---------------------------------------------------------
+void CWKSP_Shapes_Points::_Draw_Label(CWKSP_Map_DC &dc_Map, CShape *pShape)
+{
+	TAPI_iPoint	p(dc_Map.World2DC(pShape->Get_Extent().Get_Center()));
+
+	dc_Map.dc.DrawText(pShape->Get_Record()->asString(m_iLabel), p.x, p.y);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

@@ -1,0 +1,28 @@
+/* XPM */
+static char *wksp_grid_manager_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 6 1",
+"  c Black",
+"+ c #FFFFFF",
+"O c #00FFFF",
+"o c #848484",
+"X c #0000FF",
+". c None",
+/* pixels */
+"          ......",
+" XXoXXoXX ......",
+" XXoXXoXX ......",
+" oo          ...",
+" XX OOoOOoOO ...",
+" XX OOoOOoOO ...",
+" oo oo          ",
+" XX OO ++o++o++ ",
+" XX OO ++o++o++ ",
+"    oo oooooooo ",
+"... OO ++o++o++ ",
+"... OO ++o++o++ ",
+"...    oooooooo ",
+"...... ++o++o++ ",
+"...... ++o++o++ ",
+"......          "
+};

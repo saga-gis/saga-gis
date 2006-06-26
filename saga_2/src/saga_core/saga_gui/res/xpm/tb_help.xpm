@@ -1,0 +1,25 @@
+/* XPM */
+static char *tb_help_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 3 1",
+". c #000080",
+"X c #00FFFF",
+"  c None",
+/* pixels */
+"                ",
+"     ......     ",
+"    .XXXXX..    ",
+"   .XX...XX..   ",
+"   .X..  .X..   ",
+"   .X.. .XX..   ",
+"    .. .XX..    ",
+"      .XX..     ",
+"      .X..      ",
+"      .X..      ",
+"      .X..      ",
+"       ..       ",
+"      .XX..     ",
+"      .XX..     ",
+"       ...      ",
+"                "
+};

@@ -1,0 +1,14 @@
+# Linux GCC Makefile
+# Created by O. Conrad
+
+export SAGA = /windows/E/saga/saga_2/src
+
+PROJECTS = ./modules_geostatistics/geostatistics/geostatistics_grid ./modules_geostatistics/geostatistics/geostatistics_kriging ./modules_geostatistics/geostatistics/geostatistics_points ./modules/grid/grid_analysis ./modules/grid/grid_calculus ./modules/grid/grid_discretisation ./modules/grid/grid_filter ./modules/grid/grid_gridding ./modules/grid/grid_tools ./modules/grid/grid_visualisation ./modules_io/esri_e00/io_esri_e00 ./modules_io/gps/io_gps ./modules_io/grid/io_grid ./modules_io_gdal/io_grid_gdal/io_grid_gdal ./modules_io/grid/io_grid_image ./modules_io/shapes/io_shapes ./modules_lectures/lectures/lectures_introduction ./modules_projection/pj_georeference/pj_georeference ./modules_projection/pj_geotrans/pj_geotrans ./modules_projection/pj_proj4/pj_proj4 ./modules_recreations/recreations/recreations_fractals ./modules_recreations/recreations/recreations_games ./modules/shapes/shapes_grid ./modules/shapes/shapes_lines ./modules/shapes/shapes_points ./modules/shapes/shapes_polygons ./modules/shapes/shapes_tools ./modules_simulation/cellular_automata/sim_cellular_automata ./modules_simulation/ecosystems/sim_ecosystems_hugget ./modules_simulation/fire/fire_spreading ./modules_simulation/hydrology/sim_hydrology ./modules_terrain_analysis/terrain_analysis/ta_channels ./modules_terrain_analysis/terrain_analysis/ta_compound ./modules_terrain_analysis/terrain_analysis/ta_hydrology ./modules_terrain_analysis/terrain_analysis/ta_lighting ./modules_terrain_analysis/terrain_analysis/ta_morphometry ./modules_terrain_analysis/terrain_analysis/ta_preprocessor ./modules_terrain_analysis/terrain_analysis/ta_profiles ./modules/table/table_calculus ./modules/table/table_tools ./modules/tin/tin_tools
+
+all:
+	@for i in $(PROJECTS); do (cd $$i && $(MAKE) -fmakefile.linux); done
+
+clean:
+	@for i in $(PROJECTS); do (cd $$i && $(MAKE) -fmakefile.linux clean); done
+
+.PHONY: all clean

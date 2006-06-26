@@ -1,0 +1,82 @@
+# Project: pj_georeference
+# MinGW Makefile
+# Created by O. Conrad
+
+PRJ_NAME = pj_georeference
+BIN_SAGA = $(SAGA)\bin\saga_mingw
+TMP_SAGA = $(SAGA)\bin\tmp\saga_mingw
+MLB_TEMP = $(TMP_SAGA)\$(PRJ_NAME)
+MLB_PATH = $(BIN_SAGA)\modules
+MLB_NAME = $(MLB_PATH)\$(PRJ_NAME).dll
+LIB_NAME = $(MLB_PATH)\lib$(PRJ_NAME).a
+
+CPP      = g++.exe
+LD       = dllwrap.exe
+
+DEP_INCS = 
+DEP_DEFS = 
+DEP_LIBS = 
+DEP_LFLG = 
+
+OBJ      = $(MLB_TEMP)/Collect_Points.o $(MLB_TEMP)/Georef_Engine.o $(MLB_TEMP)/Georef_Grid.o $(MLB_TEMP)/Georef_Shapes.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/enorm.o $(MLB_TEMP)/fdjac2.o $(MLB_TEMP)/lmdif.o $(MLB_TEMP)/lmdif0.o $(MLB_TEMP)/lmpar.o $(MLB_TEMP)/qrfac.o $(MLB_TEMP)/qrsolv.o
+
+CXXFLAGS = -I"$(MINGW)/include" -I"$(SAGA)/src/saga_core" -D$(PRJ_NAME)_EXPORTS -DBUILDING_DLL=1 -D_SAGA_MSW -D_SAGA_MINGW -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -fexpensive-optimizations -Os -O2 -O3 $(DEP_INCS) $(DEP_DEFS)
+
+LIBS     = -L"$(MINGW)/lib" -L"$(WXWIN)/lib/gcc_lib" $(DEP_LIBS) $(BIN_SAGA)/libsaga_api.a
+LDFLAGS  = --no-export-all-symbols --add-stdcall-alias --driver-name c++ $(DEP_LFLG)
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before $(MLB_NAME) all-after
+
+clean: clean-custom
+	rm -f $(OBJ) $(MLB_NAME)
+
+$(TMP_SAGA):
+	if not exist $(TMP_SAGA) mkdir $(TMP_SAGA)
+
+$(MLB_TEMP): $(TMP_SAGA)
+	if not exist $(MLB_TEMP) mkdir $(MLB_TEMP)
+
+$(MLB_PATH):
+	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
+
+$(MLB_NAME): $(OBJ) $(MLB_PATH)
+	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
+
+
+$(MLB_TEMP)/Collect_Points.o: ./Collect_Points.cpp $(MLB_TEMP)
+	$(CPP) -c ./Collect_Points.cpp -o $(MLB_TEMP)/Collect_Points.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Georef_Engine.o: ./Georef_Engine.cpp $(MLB_TEMP)
+	$(CPP) -c ./Georef_Engine.cpp -o $(MLB_TEMP)/Georef_Engine.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Georef_Grid.o: ./Georef_Grid.cpp $(MLB_TEMP)
+	$(CPP) -c ./Georef_Grid.cpp -o $(MLB_TEMP)/Georef_Grid.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Georef_Shapes.o: ./Georef_Shapes.cpp $(MLB_TEMP)
+	$(CPP) -c ./Georef_Shapes.cpp -o $(MLB_TEMP)/Georef_Shapes.o $(CXXFLAGS)
+
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
+
+$(MLB_TEMP)/enorm.o: ./enorm.c $(MLB_TEMP)
+	$(CPP) -c ./enorm.c -o $(MLB_TEMP)/enorm.o $(CXXFLAGS)
+
+$(MLB_TEMP)/fdjac2.o: ./fdjac2.c $(MLB_TEMP)
+	$(CPP) -c ./fdjac2.c -o $(MLB_TEMP)/fdjac2.o $(CXXFLAGS)
+
+$(MLB_TEMP)/lmdif.o: ./lmdif.c $(MLB_TEMP)
+	$(CPP) -c ./lmdif.c -o $(MLB_TEMP)/lmdif.o $(CXXFLAGS)
+
+$(MLB_TEMP)/lmdif0.o: ./lmdif0.c $(MLB_TEMP)
+	$(CPP) -c ./lmdif0.c -o $(MLB_TEMP)/lmdif0.o $(CXXFLAGS)
+
+$(MLB_TEMP)/lmpar.o: ./lmpar.c $(MLB_TEMP)
+	$(CPP) -c ./lmpar.c -o $(MLB_TEMP)/lmpar.o $(CXXFLAGS)
+
+$(MLB_TEMP)/qrfac.o: ./qrfac.c $(MLB_TEMP)
+	$(CPP) -c ./qrfac.c -o $(MLB_TEMP)/qrfac.o $(CXXFLAGS)
+
+$(MLB_TEMP)/qrsolv.o: ./qrsolv.c $(MLB_TEMP)
+	$(CPP) -c ./qrsolv.c -o $(MLB_TEMP)/qrsolv.o $(CXXFLAGS)

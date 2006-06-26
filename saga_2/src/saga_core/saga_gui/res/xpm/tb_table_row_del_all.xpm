@@ -1,0 +1,25 @@
+/* XPM */
+static char *tb_table_row_del_all_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 3 1",
+"X c #FFFFFF",
+". c #000084",
+"  c None",
+/* pixels */
+"                ",
+"                ",
+"  ...XXX XXXXX. ",
+"  ....XX XXX..  ",
+"  X....X XX..X  ",
+"     ...  ..    ",
+"  XXXX.....XXX  ",
+"  XXXXX...XXXX  ",
+"  XXXX.....XXX  ",
+"     ...  ..    ",
+"  XX...X XX..X  ",
+"  X...XX XXX.X  ",
+"  ....XX XXXX.  ",
+"  ...           ",
+"   .          . ",
+"                "
+};

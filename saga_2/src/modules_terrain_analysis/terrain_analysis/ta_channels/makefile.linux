@@ -1,0 +1,77 @@
+# Project: ta_channels
+# Linux GCC Makefile
+# Created by O. Conrad
+
+PRJ_NAME = ta_channels
+BIN_SAGA = $(SAGA)/../bin/saga_gtk
+TMP_SAGA = $(SAGA)/../bin/tmp/saga_gtk
+INC_SAGA = $(SAGA)/saga_core
+MLB_TEMP = $(TMP_SAGA)/$(PRJ_NAME)
+MLB_PATH = $(BIN_SAGA)/modules
+MLB_NAME = $(MLB_PATH)/$(PRJ_NAME).so
+
+CPP      = g++
+LD       = g++
+
+DEP_INCS = 
+DEP_DEFS = 
+DEP_LIBS = 
+DEP_LFLG = 
+
+OBJ      = $(MLB_TEMP)/ChannelNetwork.o $(MLB_TEMP)/ChannelNetwork_Altitude.o $(MLB_TEMP)/ChannelNetwork_Distance.o $(MLB_TEMP)/D8_Flow_Analysis.o $(MLB_TEMP)/Helper.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/Strahler.o $(MLB_TEMP)/Watersheds.o $(MLB_TEMP)/Watersheds_ext.o
+
+DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
+CXX_INCS = -I/usr/lib/glib/include -I/usr/include/glib-1.2
+CXX_DEFS = -D_REENTRANT -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -DGTK_NO_CHECK_CASTS
+CXX_FLGS = -O2 -MMD -pthread -fPIC
+CXXFLAGS = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEP_INCS) $(DEP_DEFS) -I$(INC_SAGA) $(DEF_SAGA)
+
+LDFLAGS  = -shared $(DEP_LFLG)
+LIBS     = $(DEP_LIBS)
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before $(MLB_NAME) all-after
+
+clean: clean-custom
+	rm -f $(OBJ) $(MLB_NAME)
+
+$(TMP_SAGA):
+	-mkdir $(TMP_SAGA)
+
+$(MLB_TEMP): $(TMP_SAGA)
+	-mkdir $(MLB_TEMP)
+
+$(MLB_PATH):
+	-mkdir $(MLB_PATH)
+
+$(MLB_NAME): $(OBJ) $(MLB_PATH)
+	$(LD) $(LDFLAGS) -o $(MLB_NAME) $(OBJ) $(LIBS)
+
+
+$(MLB_TEMP)/ChannelNetwork.o: ./ChannelNetwork.cpp $(MLB_TEMP)
+	$(CPP) -c ./ChannelNetwork.cpp -o $(MLB_TEMP)/ChannelNetwork.o $(CXXFLAGS)
+
+$(MLB_TEMP)/ChannelNetwork_Altitude.o: ./ChannelNetwork_Altitude.cpp $(MLB_TEMP)
+	$(CPP) -c ./ChannelNetwork_Altitude.cpp -o $(MLB_TEMP)/ChannelNetwork_Altitude.o $(CXXFLAGS)
+
+$(MLB_TEMP)/ChannelNetwork_Distance.o: ./ChannelNetwork_Distance.cpp $(MLB_TEMP)
+	$(CPP) -c ./ChannelNetwork_Distance.cpp -o $(MLB_TEMP)/ChannelNetwork_Distance.o $(CXXFLAGS)
+
+$(MLB_TEMP)/D8_Flow_Analysis.o: ./D8_Flow_Analysis.cpp $(MLB_TEMP)
+	$(CPP) -c ./D8_Flow_Analysis.cpp -o $(MLB_TEMP)/D8_Flow_Analysis.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Helper.o: ./Helper.cpp $(MLB_TEMP)
+	$(CPP) -c ./Helper.cpp -o $(MLB_TEMP)/Helper.o $(CXXFLAGS)
+
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Strahler.o: ./Strahler.cpp $(MLB_TEMP)
+	$(CPP) -c ./Strahler.cpp -o $(MLB_TEMP)/Strahler.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Watersheds.o: ./Watersheds.cpp $(MLB_TEMP)
+	$(CPP) -c ./Watersheds.cpp -o $(MLB_TEMP)/Watersheds.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Watersheds_ext.o: ./Watersheds_ext.cpp $(MLB_TEMP)
+	$(CPP) -c ./Watersheds_ext.cpp -o $(MLB_TEMP)/Watersheds_ext.o $(CXXFLAGS)

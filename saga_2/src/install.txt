@@ -1,0 +1,257 @@
+------------------------------------------------------------------------
+
+SAGA 2.0 Installation Instructions
+
+_____________________________________________________________________
+1 Simple User Installation
+
+1.0 General
+
+This chapter describes what to do, if you simply want to use SAGA.
+
+
+1.1 MS-Windows
+
+version: SAGA 2.0b (December 7, 2005)
+download: http://sourceforge.net/projects/saga-gis/
+file: saga_2.0b_051207_wxmsw_vc.zip
+
+Unzip all files to a directory of your choice. You can immediately start working 
+with SAGA. Simply find the file 'saga_gui.exe' and execute it. Then the first 
+you should do is to load some are all of the module libraries, that come with 
+SAGA. To do this choose 'Modules  Load Module Library' in the SAGA main menu. 
+You find the libraries in the subfolder 'modules' of your SAGA installation path.
+
+1.2 Linux
+
+version: SAGA 2.0b (December 7, 2005)
+download: http://sourceforge.net/projects/saga-gis/
+file: saga_2.0b_051207_wxgtk.tar.gz
+
+Unzip all files to a directory of your choice. To run SAGA 2.0 you first have to 
+copy SAGA's API library 'libsaga_api.so' to a location, that is listed in the LD_LIBRARY_PATH 
+environment variable. Copy the library into one of the standard directories (e.g., 
+/usr/lib) and run ldconfig. If you can't or don't want to install the library in 
+a standard place (e.g., you don't have the right to modify /usr/lib), then you 
+might want to add the library's location to the LD_LIBRARY_PATH environment 
+variable:
+
+$ export LD_LIBRARY_PATH=/usr/local/saga_2.0:$LD_LIBRARY_PATH
+
+Now find the file 'saga_gui' and execute it (make sure the executable flag is 
+set). Now the next you should do is to load some are all of the module libraries, 
+that come with SAGA. To do this choose 'Modules  Load Module Library' in the 
+SAGA main menu. You find the libraries in the subfolder 'modules' of your SAGA 
+installation path.
+
+Remarks:
+SAGA depends on GTK+2. wxWidgets has not to be installed, because the
+wxWidgets libraries have been statically linked to SAGA 2.0.
+
+_____________________________________________________________________
+2 Scientific Developer Installation
+
+2.0 General
+
+This chapter describes how to install SAGA, if you want not only to use it but 
+also plan to develop own module libraries. For your convenience you do not need 
+to follow the installation procedure, that is described in chapter 3. You only 
+need access to some of the SAGA API header files and the SAGA API library. 
+Anyway, to make it as easy as possible, we...
+
+
+2.0.0 Install the SAGA sources
+
+version: SAGA 2.0b (December 7, 2005)
+download: http://sourceforge.net/projects/saga-gis/
+file: saga_2.0b_051207_src.zip
+
+Create a folder where you want to install SAGA, e.g.
+
+>md D:\saga
+
+and unzip the sources to this folder. Keep the original folder structure as 
+given by the zip file. All SAGA source files should now be located in a 
+subfolder 'src'.
+
+
+2.0.1 Install SAGA binaries
+
+Basically you just need to follow the instructions of chapter 1 'Simple User 
+Installation' of this installation guide. But choose as destination a subfolder 
+of your saga source folder with respect to the following naming convention:
+a) MS Windows: [SAGA installation path]\bin\saga_vc
+b) Linux: [SAGA installation path]\bin\saga_gtk
+
+Example:
+>md D:\saga\bin
+>md D:\saga\bin\saga_vc
+
+2.0.2 Environment settings
+
+a) MS Windows
+Add an environment variable with the path to your SAGA sources, e.g.:
+
+>SET SAGA = D:\saga_2
+
+b) Linux
+Go to the folder of the SAGA API sources, i.e:
+
+>cd [SAGA installation path]/src/saga_core/saga_api
+
+Log in as super user
+
+>su
+
+and execute the shell script 'saga_api_inst.sh'
+
+>./saga_api_inst.sh
+
+This will copy the SAGA API headers to '/usr/local/include', so they can be 
+found by the gcc compiler.
+
+
+2.0.2 Compiling module libraries
+
+Test the installation by compiling some or all of module libraries either by 
+using Visual Studio workspaces (e.g. 'D:\saga\src\modules\modules.dsw') or Linux 
+make files. If this works you can use any of the library sources as template for 
+your own projects.
+
+
+Remarks:
+Required SAGA API headers are:
+api_core.h
+dataobject.h
+geo_tools.h
+grid.h
+mat_tools.h
+module.h
+parameters.h
+pdf_document.h
+shapes.h
+table.h
+tin.h
+saga_api.h
+
+_____________________________________________________________________
+3 SAGA Developer Installation
+
+3.1 MS-Windows
+
+3.1.1 wxWidgets Cross-Platform GUI Library
+
+version: wxWidgets 2.6.2
+download: http://www.wxwidgets.org/
+file: wxMSW-2.6.2.zip
+
+
+Required libraries:
+- wxexpat
+- wxjpeg
+- wxpng
+- wxregex
+- wxtiff
+- wxzlib
+- adv
+- base
+- core
+- html
+- odbc (optional)
+- xml
+
+Add an environment variable with the path to your wxWidgets installation:
+
+>SET WXWIN = D:\DEVELOP\wxWidgets-2.6.2
+
+
+3.1.2 wxFL
+
+
+3.1.3 wxPropertyGrid
+
+version: wxPropertyGrid 1.1.3 (January 15, 2006)
+download: http://wxpropgrid.sourceforge.net/
+file: wxpropgrid-1.1.3-src.tar.gz
+>* SL >*
+or file: wxpropgrid-1.1.4-win.exe
+- run .exe file or unzip to wxWidgets directory
+- open propgrid.dsw with MS VC++ from directory
+  - ...\wxWidgets-x.x.x\contrib\build\propgrid\
+  - compile Win32 Debug and Release versions with Build - Batch build
+  
+- using wxPropertyGrid version 1.1.3 or higher you need to
+  change "wxPropertyGridManager" to "wxPropertyGrid"
+  - in SAGA_gui source files: parameters_control.cpp and parameters_control.h
+>* SL >*
+
+
+
+3.1.3 wxDockIt (wxExtended)
+
+version: wxDockIt 2.1 (July 23, 2005)
+download: http://wxextended.sourceforge.net/
+file: wxDockIt_2.1.zip
+
+Remarks:
+You probably get an error message when compiling wxDockIt using the VC makefiles 
+from the command line due to a type definition conflict. You can simply solve 
+this problem by removing the type definition in line 22 from file 'gdi_msw.cpp':
+
+>typedef long LONG_PTR, *PLONG_PTR;
+
+>* SL >*
+Using the *.dsw files with MS VC++ compilers does probably not work.
+Install from command prompt instead:
+  - execute VCVARS32.BAT
+  - Change to directory ...\wxDockit\build\msw
+  - open makefile.vc with a text editor
+    - check settings:
+      - WX_SHARED = 0
+      - WX_DEBUG  = 1  (debug version)
+      - run nmake -fmakefile.vc from command prompt
+    - change settings in makefile.vc
+      - WX_DEBUG = 0 (release version)
+      - save makefile.vc
+      - run nmake -fmakefile.vc again to compile the release version as well
+>* SL >*
+
+
+3.1.4 Haru Free PDF Library
+
+version: libharu 1.2.2 (May 21, 2005)
+download: http://sourceforge.net/projects/libharu/
+file: libharu_1_2_2_win.tar.gz
+
+The Haru library sources provide makefiles for several compilers including 'makefile.msvc' 
+for the VC++ compiler. After initialising the environment settings for the 
+compiler (i.e. calling 'VCVARS32.BAT' in the VC installation directory), execute 
+the makefile:
+
+>D:\DEVELOP\HARU\nmake -f makefile.msvc
+
+Add an environment variable with the path to your Haru installation:
+
+>SET HARU = D:\DEVELOP\HARU
+
+Remarks:
+You might have to remove the '_NOT_SUPPORT_STD' define from the VCFLAGS in the 
+file 'makefile.msvc' when using VC++ versions newer than 6.0
+
+>VCFLAGS=-Imsvc -EHa -MT -TP -nologo -D__WIN32__
+
+
+
+3.2 Linux
+
+3.2.4 Haru Free PDF Library
+
+version: libharu 1.2.2 (May 21, 2005)
+download: http://sourceforge.net/projects/libharu/
+file: libharu_1_2_2.tgz
+  
+
+
+ ------------------------------------------------------------------------
+
+

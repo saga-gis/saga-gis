@@ -1,0 +1,28 @@
+/* XPM */
+static char *tb_edit_shape_del_point_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 6 1",
+". c Black",
+"o c #FFFFFF",
+"X c #000084",
+"  c #C6C6C6",
+"+ c #00FFFF",
+"O c #0000FF",
+/* pixels */
+"      ...       ",
+" XXX  .o.    X  ",
+" XXXX ...  XX   ",
+"  XXXX    XX    ",
+"    XXX  XX     ",
+"     XXXXX  OOO ",
+"      XXX   O+O ",
+"     XXXXX  OOO ",
+"    XXX  XX     ",
+"   XXX    XX    ",
+"  XXX      X    ",
+" XXXX...    X   ",
+" XXX .o.        ",
+"  X  ... ... X  ",
+"         .o.    ",
+"         ...    "
+};

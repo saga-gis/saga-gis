@@ -1,0 +1,25 @@
+/* XPM */
+static char *tb_map3d_properties_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 3 1",
+"X c #000084",
+". c #0000FF",
+"  c None",
+/* pixels */
+"                ",
+" ....           ",
+"..XX..          ",
+" XX ..X         ",
+"    ..X .....   ",
+"  ...XX ..XX..  ",
+"   X..  ..X  .. ",
+"    ..X ..X  ..X",
+"    ..X ..X  ..X",
+"..  ..X ..X  ..X",
+" ....XX ..X  ..X",
+"  XXXX  ..X  ..X",
+"        ..X ..XX",
+"        .....XX ",
+"         XXXXX  ",
+"                "
+};

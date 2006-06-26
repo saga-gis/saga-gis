@@ -1,0 +1,27 @@
+/* XPM */
+static char *tb_table_col_del_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 5 1",
+". c Black",
+"O c #FFFFFF",
+"  c #C6C6C6",
+"X c #00FFFF",
+"o c #0000FF",
+/* pixels */
+"     .XXX.      ",
+"  o  .XXX.    o ",
+"   o .XXX.  o   ",
+"   oo.XXX.oo    ",
+"    oo...oo     ",
+"     oo oo      ",
+"      ooo       ",
+"      ooo       ",
+"     ooooo      ",
+"....ooo ooo.... ",
+".OOooo   ooooO. ",
+".Oooo     oooo. ",
+".Oooo     .oooo ",
+".Ooo.     .Ooo. ",
+".OOO.     .OOO. ",
+".OOO.     .OOO. "
+};

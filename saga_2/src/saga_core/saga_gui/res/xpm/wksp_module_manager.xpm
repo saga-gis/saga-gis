@@ -1,0 +1,27 @@
+/* XPM */
+static char *wksp_module_manager_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 5 1",
+". c Black",
+"O c #FFFFFF",
+"o c #00FFFF",
+"X c #0000FF",
+"  c None",
+/* pixels */
+"             ...",
+".....      ...X.",
+".XXX....  .oo.X.",
+".XOX.OO.  .oo.X.",
+".XXX.OO.  .oo.X.",
+".XOX.OO. .oo..X.",
+".XXX.OO. .oo..X.",
+".XXX.OO. .oo..X.",
+".XOX.OO..oo. .X.",
+".XOX.OO..oo. .X.",
+".XOX.OO..oo. .X.",
+".XXX.OO.oo.  .X.",
+".XOX.OO.oo.  .X.",
+".XXX.OO.oo.  .X.",
+"..........   ...",
+"                "
+};

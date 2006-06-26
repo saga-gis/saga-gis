@@ -1,0 +1,28 @@
+/* XPM */
+static char *tb_open_module_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 6 1",
+"o c #0039FF",
+". c #000084",
+"+ c #00FFFF",
+"O c #0000C0",
+"  c None",
+"X c #00C6FF",
+/* pixels */
+" ...            ",
+"..X........     ",
+".XXXXXXXXX.     ",
+".XXXXXXXXX.     ",
+".XXX........... ",
+".XXX.ooooooooo. ",
+".XX.ooooooOoo.  ",
+".X.oooooooOO.O  ",
+"..oooooOOO++OO  ",
+"........O+OO+O  ",
+"       O+O  O+OO",
+"      OO+O  O+O ",
+"        O+OO+O  ",
+"        OO++OOO ",
+"        O OO    ",
+"           O    "
+};

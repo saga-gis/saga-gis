@@ -1,0 +1,1521 @@
+ENTRY(<none>)
+	"<kein>"
+
+ENTRY(About SAGA)
+	"Über SAGA"
+
+ENTRY(Create Modules Report)
+	"Erstelle Modul Bericht"
+
+ENTRY(Currently no help files exist for SAGA.\nIt depends on your support, if you will find any help at this place in future!\nThanks a lot...)
+	""
+
+ENTRY(Frame Size)
+	"Rahmen Größe"
+
+ENTRY(Height)
+	"Höhe"
+
+ENTRY(Image Properties)
+	"Bild Eigenschaften"
+
+ENTRY(Legend)
+	"Legende"
+
+ENTRY(Legend Zoom)
+	"Legende: Vergrößerung"
+
+ENTRY(Maximum)
+	""
+
+ENTRY(Minimum)
+	""
+
+ENTRY(Options)
+	"Optionen"
+
+ENTRY(SAGA Help)
+	"SAGA Hilfe"
+
+ENTRY(Text Files (*.txt)|*.txt|All Files|*.*)
+	"Text Dateien (*.txt)|*.txt|Alle Dateien|*.*"
+
+ENTRY(Width)
+	"Breite"
+
+ENTRY([BTN] Add)
+	"Hinzufügen"
+
+ENTRY([BTN] Apply)
+	"Anwenden"
+
+ENTRY([BTN] Button)
+	"Button"
+
+ENTRY([BTN] Cancel)
+	"Abbrechen"
+
+ENTRY([BTN] Clear)
+	"Alles löschen"
+
+ENTRY([BTN] Count)
+	"Anzahl"
+
+ENTRY([BTN] Delete)
+	"Löschen"
+
+ENTRY([BTN] Down)
+	"Ab"
+
+ENTRY([BTN] Execute)
+	"Ausführen"
+
+ENTRY([BTN] Insert)
+	"Einfügen"
+
+ENTRY([BTN] Invert)
+	"Invertieren"
+
+ENTRY([BTN] Load)
+	"Laden"
+
+ENTRY([BTN] Mirror)
+	"Spiegeln"
+
+ENTRY([BTN] Okay)
+	"Okay"
+
+ENTRY([BTN] Random)
+	"Zufall"
+
+ENTRY([BTN] Restore)
+	"Wiederherstellen"
+
+ENTRY([BTN] Save)
+	"Speichern"
+
+ENTRY([BTN] Up)
+	"Auf"
+
+ENTRY([CAP] 3D-View)
+	"3D-Ansicht"
+
+ENTRY([CAP] 3D-View: Player Sequence)
+	"3D-Ansicht: Abspielsequenz"
+
+ENTRY([CAP] About SAGA)
+	"Über SAGA"
+
+ENTRY([CAP] Active)
+	"Aktiv"
+
+ENTRY([CAP] Always Show)
+	"Always Show"
+
+ENTRY([CAP] Anaglyph)
+	"Anaglyph"
+
+ENTRY([CAP] Arithmetic Mean)
+	"Mittelwert"
+
+ENTRY([CAP] Attribute)
+	"Attribut"
+
+ENTRY([CAP] Attributes)
+	"Attribute"
+
+ENTRY([CAP] Author)
+	"Autor"
+
+ENTRY([CAP] Background Color)
+	"Hintergrundfarbe"
+
+ENTRY([CAP] Buffer Size)
+	"Puffergröße"
+
+ENTRY([CAP] Cell Size)
+	"Zellgröße"
+
+ENTRY([CAP] Cell size)
+	"Zellgröße"
+
+ENTRY([CAP] Circles)
+	"Kreise"
+
+ENTRY([CAP] Classification)
+	"Klassifikation"
+
+ENTRY([CAP] Color)
+	"Farbe"
+
+ENTRY([CAP] Colors)
+	"Farben"
+
+ENTRY([CAP] Compression Ratio)
+	"Kompressionsrate"
+
+ENTRY([CAP] Data)
+	"Daten"
+
+ENTRY([CAP] Date)
+	"Datum"
+
+ENTRY([CAP] Decimals)
+	"Dezimalstellen"
+
+ENTRY([CAP] Default)
+	"Default"
+
+ENTRY([CAP] Delete)
+	"Löschen"
+
+ENTRY([CAP] Description)
+	"Beschreibung"
+
+ENTRY([CAP] Diagram)
+	"Diagramm"
+
+ENTRY([CAP] Display)
+	"Darstellung"
+
+ENTRY([CAP] Display Resolution)
+	"Auflösung"
+
+ENTRY([CAP] Display Type)
+	"Darstellungsart"
+
+ENTRY([CAP] Display: Cell Values)
+	"Display: Cell Values"
+
+ENTRY([CAP] Display: Color Classification)
+	"Display: Color Classification"
+
+ENTRY([CAP] Display: Label)
+	"Display: Label"
+
+ENTRY([CAP] Display: Size)
+	"Display: Size"
+
+ENTRY([CAP] Display: Visibility)
+	"Display: Visibility"
+
+ENTRY([CAP] East/West)
+	"Ost/West"
+
+ENTRY([CAP] Edit Shapes)
+	"Vektordaten editieren"
+
+ENTRY([CAP] Elevation)
+	"Höhe"
+
+ENTRY([CAP] Entry)
+	"Eintrag"
+
+ENTRY([CAP] Errors)
+	"Fehler"
+
+ENTRY([CAP] Exaggeration)
+	"Überhöhung"
+
+ENTRY([CAP] Execution)
+	"Execution"
+
+ENTRY([CAP] Exit)
+	"Beenden"
+
+ENTRY([CAP] Eye Distance [°])
+	"Augenabstand [°]"
+
+ENTRY([CAP] Field)
+	"Feld"
+
+ENTRY([CAP] File)
+	"Datei"
+
+ENTRY([CAP] Fill Style)
+	"Füllstil"
+
+ENTRY([CAP] Fit Map Scale)
+	"Maßstab anpassen"
+
+ENTRY([CAP] Font)
+	"Schriftart"
+
+ENTRY([CAP] General)
+	"Allgemein"
+
+ENTRY([CAP] Graduated Color)
+	"Abgestufte Farben"
+
+ENTRY([CAP] Grid)
+	"Raster"
+
+ENTRY([CAP] Grid System)
+	"Raster System"
+
+ENTRY([CAP] Grid Systems)
+	"Raster Systeme"
+
+ENTRY([CAP] Grids)
+	"Raster"
+
+ENTRY([CAP] Histogram)
+	"Histogramm"
+
+ENTRY([CAP] History)
+	"Geschichte"
+
+ENTRY([CAP] Index)
+	"Index"
+
+ENTRY([CAP] Information)
+	"Information"
+
+ENTRY([CAP] Input)
+	"Eingabe"
+
+ENTRY([CAP] Interpolated)
+	"Interpoliert"
+
+ENTRY([CAP] Interpolation)
+	"Interpolation"
+
+ENTRY([CAP] Label)
+	"Beschriftung"
+
+ENTRY([CAP] Language)
+	"Sprache"
+
+ENTRY([CAP] Load Colors)
+	"Lade Farben"
+
+ENTRY([CAP] Load Grid)
+	"Lade Raster"
+
+ENTRY([CAP] Load Module Library)
+	"Lade Modulbibliothek"
+
+ENTRY([CAP] Load Parameters)
+	"Lade Parameter"
+
+ENTRY([CAP] Load Project)
+	"Lade Projekt"
+
+ENTRY([CAP] Load Shapes)
+	"Lade Vektordaten"
+
+ENTRY([CAP] Load T.I.N.)
+	"Lade T.I.N."
+
+ENTRY([CAP] Load Table)
+	"Lade Tabelle"
+
+ENTRY([CAP] Load Text)
+	"Lade Text"
+
+ENTRY([CAP] Logarithmic Stretch Factor)
+	"Logarithmische Streckung"
+
+ENTRY([CAP] Lookup Table)
+	"Nachschlagetabelle"
+
+ENTRY([CAP] Map)
+	"Karte"
+
+ENTRY([CAP] Map Layout)
+	"Kartenlayout"
+
+ENTRY([CAP] Map Scale)
+	"Maßstab"
+
+ENTRY([CAP] Map Selection)
+	"Kartenauswahl"
+
+ENTRY([CAP] Maps)
+	"Karten"
+
+ENTRY([CAP] Memory)
+	"Speicher"
+
+ENTRY([CAP] Memory Handling)
+	"Speicherverwaltung"
+
+ENTRY([CAP] Memory Size)
+	"Speicherbedarf"
+
+ENTRY([CAP] Messages)
+	"Nachrichten"
+
+ENTRY([CAP] Mode)
+	"Modus"
+
+ENTRY([CAP] Modified)
+	"Modifiziert"
+
+ENTRY([CAP] Module Execution)
+	"Modulausführung"
+
+ENTRY([CAP] Module Libraries)
+	"Modulbibliotheken"
+
+ENTRY([CAP] Module Library)
+	"Modulbibliothek"
+
+ENTRY([CAP] Modules)
+	"Module"
+
+ENTRY([CAP] Name)
+	"Name"
+
+ENTRY([CAP] No Data)
+	"Keine Daten"
+
+ENTRY([CAP] Number Of Cells)
+	"Anzahl der Zellen"
+
+ENTRY([CAP] Number Of Grids)
+	"Anzahl der Rasterdatensätze"
+
+ENTRY([CAP] Number Of Shapes)
+	"Anzahl der Vektordatensätze"
+
+ENTRY([CAP] Number of cells)
+	"Anzahl der Zellen"
+
+ENTRY([CAP] Options)
+	"Optionen"
+
+ENTRY([CAP] Outline)
+	"Umrandung"
+
+ENTRY([CAP] Outline Color)
+	"Outline Color"
+
+ENTRY([CAP] Parameters)
+	"Parameter"
+
+ENTRY([CAP] Perspectivic Distance)
+	"Perspektivischer Abstand"
+
+ENTRY([CAP] Points)
+	"Punkte"
+
+ENTRY([CAP] Print Preview)
+	"Druckvorschau"
+
+ENTRY([CAP] Projection)
+	"Projektion"
+
+ENTRY([CAP] Properties)
+	"Eigenschaften"
+
+ENTRY([CAP] Regression Details)
+	"Regressionsdetails"
+
+ENTRY([CAP] Regression Formula)
+	"Regressionsformel"
+
+ENTRY([CAP] Relative Font Size)
+	"Relative Font Size"
+
+ENTRY([CAP] Relative font size)
+	"Relative Schriftgröße"
+
+ENTRY([CAP] Rotation [°])
+	"Rotation [°]"
+
+ENTRY([CAP] Save)
+	"Save"
+
+ENTRY([CAP] Save As Image)
+	"Als Bild speichern..."
+
+ENTRY([CAP] Save Colors)
+	"Farben speichern"
+
+ENTRY([CAP] Save Grid)
+	"Raster speichern"
+
+ENTRY([CAP] Save Modified Data Objects)
+	"Modifizierte Datensätze speichern"
+
+ENTRY([CAP] Save Parameters)
+	"Parameter speichern"
+
+ENTRY([CAP] Save Project)
+	"Projekt speichern"
+
+ENTRY([CAP] Save Shapes)
+	"Vektordaten speichern"
+
+ENTRY([CAP] Save T.I.N.)
+	"T.I.N. speichern"
+
+ENTRY([CAP] Save Table)
+	"Tabelle speichern"
+
+ENTRY([CAP] Save Text)
+	"Text speichern"
+
+ENTRY([CAP] Scale Dependent)
+	"Scale Dependent"
+
+ENTRY([CAP] Scatterplot)
+	"Scatterplot"
+
+ENTRY([CAP] Select File)
+	"Datei wählen"
+
+ENTRY([CAP] Shapes)
+	"Vektordaten"
+
+ENTRY([CAP] Show)
+	"Anzeigen"
+
+ENTRY([CAP] Show Edges)
+	"Kanten anzeigen"
+
+ENTRY([CAP] Show Legend)
+	"Legende anzeigen"
+
+ENTRY([CAP] Show Points)
+	"Punkte anzeigen"
+
+ENTRY([CAP] Show Regression Curve)
+	"Regressionskurve anzeigen"
+
+ENTRY([CAP] Show Values)
+	"Werte anzeigen"
+
+ENTRY([CAP] Size Range)
+	"Größenspanne"
+
+ENTRY([CAP] Size by...)
+	"Größe nach..."
+
+ENTRY([CAP] Source Resolution)
+	"Quellauflösung"
+
+ENTRY([CAP] South/North)
+	"Süd/Nord"
+
+ENTRY([CAP] Standard)
+	"Standard"
+
+ENTRY([CAP] Standard Deviation)
+	"Standardabweichung"
+
+ENTRY([CAP] T.I.N.)
+	"T.I.N."
+
+ENTRY([CAP] Table)
+	"Tabelle"
+
+ENTRY([CAP] Table description)
+	"Tabellenbeschreibung"
+
+ENTRY([CAP] Tables)
+	"Tabellen"
+
+ENTRY([CAP] This Is Not A Caption!)
+	"This Is Not A Caption!"
+
+ENTRY([CAP] Transparency [%])
+	"Transparenz"
+
+ENTRY([CAP] Type)
+	"Typ"
+
+ENTRY([CAP] Unique Symbol)
+	"Einheitliches Symbol"
+
+ENTRY([CAP] Unit)
+	"Einheit"
+
+ENTRY([CAP] Value)
+	"Wert"
+
+ENTRY([CAP] Value Range)
+	"Wertebereich"
+
+ENTRY([CAP] Version)
+	"Version"
+
+ENTRY([CAP] Workspace)
+	"Arbeitsumgebung"
+
+ENTRY([CAP] Z-Factor)
+	"Z-Faktor"
+
+ENTRY([CAP] [no items])
+	"[keine Objekte]"
+
+ENTRY([CMD] About)
+	"Über"
+
+ENTRY([CMD] About SAGA)
+	"Über SAGA"
+
+ENTRY([CMD] Add Part)
+	"Segment hinzufügen"
+
+ENTRY([CMD] Add Position [A])
+	"Position hinzufügen [A]"
+
+ENTRY([CMD] Add Project)
+	"Projekt hinzufügen"
+
+ENTRY([CMD] Add Shape)
+	"Objekt hinzufügen"
+
+ENTRY([CMD] Anaglyph [S])
+	"Anaglyph [S]"
+
+ENTRY([CMD] Arrange Icons)
+	"Ikonen anordnen"
+
+ENTRY([CMD] Backward)
+	"Zurück"
+
+ENTRY([CMD] Cascade)
+	"Überlappend"
+
+ENTRY([CMD] Central Projection)
+	"Zentralprojektion"
+
+ENTRY([CMD] Close)
+	"Schließen"
+
+ENTRY([CMD] Convert To Table)
+	"In Tabelle umwandeln"
+
+ENTRY([CMD] Create Normalised Classification)
+	"Normalisierte Klassifikation erstellen"
+
+ENTRY([CMD] Cumulative)
+	"Kumulativ"
+
+ENTRY([CMD] Decrease Exaggeration [F1])
+	"Überhöhung verringern [F1]"
+
+ENTRY([CMD] Decrease Eye Distance [F5])
+	"Augenabstand verringern [F5]"
+
+ENTRY([CMD] Decrease Perspectivic Distance)
+	"Perspektivischen Abstand verringern"
+
+ENTRY([CMD] Delete All Positions)
+	"Alle Positionen löschen"
+
+ENTRY([CMD] Delete Last Position [D])
+	"Letzte Position löschen [D]"
+
+ENTRY([CMD] Delete Selected Part)
+	"Ausgewähltes Segment löschen"
+
+ENTRY([CMD] Delete Selected Point)
+	"Ausgewählten Punkt löschen"
+
+ENTRY([CMD] Delete Selected Shape(s)
+	"Ausgewählte Vektorobjekte löschen"
+
+ENTRY([CMD] Delete Selected Shape(s))
+	"Delete Selected Shape(s)"
+
+ENTRY([CMD] Down)
+	"Ab"
+
+ENTRY([CMD] Edit Positions)
+	"Positionen editieren"
+
+ENTRY([CMD] Edit Selected Shape)
+	"Ausgewähltes Vektorobjekt editieren"
+
+ENTRY([CMD] Execute)
+	"Ausführen"
+
+ENTRY([CMD] Exit)
+	"Beenden"
+
+ENTRY([CMD] Exit SAGA)
+	"SAGA beenden"
+
+ENTRY([CMD] Fit Grid Colors To Map Extent)
+	"Rasterfarben an Ausschnitt anpassen"
+
+ENTRY([CMD] Fit Scale...)
+	"Maßstab anpassen"
+
+ENTRY([CMD] Forward)
+	"Vorwärts"
+
+ENTRY([CMD] Help)
+	"Hilfe"
+
+ENTRY([CMD] Increase Exaggeration [F2])
+	"Überhöhung verstärken [F2]"
+
+ENTRY([CMD] Increase Eye Distance [F6])
+	"Augenabstand verstärken [F6]"
+
+ENTRY([CMD] Increase Perspectivic Distance)
+	"Perspektivischen Abstand verstärken"
+
+ENTRY([CMD] Interpolated Colors)
+	"Interpolierte Farben"
+
+ENTRY([CMD] Language)
+	"Sprache"
+
+ENTRY([CMD] Left)
+	"Links"
+
+ENTRY([CMD] Load Grid)
+	"Lade Raster"
+
+ENTRY([CMD] Load Module Library)
+	"Lade Modulbibliothek"
+
+ENTRY([CMD] Load Project)
+	"Lade Projekt"
+
+ENTRY([CMD] Load Shapes)
+	"Lade Vektordaten"
+
+ENTRY([CMD] Load T.I.N.)
+	"Lade T.I.N."
+
+ENTRY([CMD] Load Table)
+	"Lade Tabelle"
+
+ENTRY([CMD] Move Down)
+	"Move Down"
+
+ENTRY([CMD] Move To Bottom)
+	"Ganz nach unten"
+
+ENTRY([CMD] Move To Down)
+	"Nach unten"
+
+ENTRY([CMD] Move To Top)
+	"Ganz nach oben"
+
+ENTRY([CMD] Move To Up)
+	"Nach oben"
+
+ENTRY([CMD] Move Up)
+	"Move Up"
+
+ENTRY([CMD] Next)
+	"Nächstes"
+
+ENTRY([CMD] Page Setup)
+	"Seite einrichten"
+
+ENTRY([CMD] Pan)
+	"Verschieben"
+
+ENTRY([CMD] Play And Save As Images...)
+	"Abspielen und als Bilder speichern"
+
+ENTRY([CMD] Play Loop [L])
+	"Wiederholt abspielen"
+
+ENTRY([CMD] Play Once [P])
+	"Apspielen"
+
+ENTRY([CMD] Previous)
+	"Voriges"
+
+ENTRY([CMD] Print)
+	"Drucken"
+
+ENTRY([CMD] Print Preview)
+	"Druckvorschau"
+
+ENTRY([CMD] Print Setup)
+	"Drucker einrichten"
+
+ENTRY([CMD] Properties)
+	"Eigenschaften"
+
+ENTRY([CMD] Right)
+	"Rechts"
+
+ENTRY([CMD] Save As Image)
+	"Save As Image"
+
+ENTRY([CMD] Save As Image...)
+	"Als Bild speichern..."
+
+ENTRY([CMD] Save Grid)
+	"Raster speichern"
+
+ENTRY([CMD] Save Grid As...)
+	"Raster speichern unter..."
+
+ENTRY([CMD] Save Project)
+	"Projekt speichern"
+
+ENTRY([CMD] Save Shapes)
+	"Vektordaten speichern"
+
+ENTRY([CMD] Save Shapes As...)
+	"Vektordaten speichern unter..."
+
+ENTRY([CMD] Save T.I.N.)
+	"T.I.N. speichern"
+
+ENTRY([CMD] Save T.I.N. As...)
+	"T.I.N. speichern unter..."
+
+ENTRY([CMD] Save Table)
+	"Tabelle speichern"
+
+ENTRY([CMD] Save Table As...)
+	"Tabelle speichern unter..."
+
+ENTRY([CMD] Select)
+	"Auswählen"
+
+ENTRY([CMD] Show 3D-View)
+	"3D-Ansicht anzeigen"
+
+ENTRY([CMD] Show Active)
+	"Aktives Objekt anzeigen"
+
+ENTRY([CMD] Show Diagram)
+	"Diagramm anzeigen"
+
+ENTRY([CMD] Show Grid)
+	"Raster anzeigen"
+
+ENTRY([CMD] Show Histogram)
+	"Histogramm anzeigen"
+
+ENTRY([CMD] Show Horizontal Legend)
+	"Legende horizontal anzeigen"
+
+ENTRY([CMD] Show Information)
+	"Information anzeigen"
+
+ENTRY([CMD] Show Map)
+	"Karte anzeigen"
+
+ENTRY([CMD] Show Print Layout)
+	"Kartenlayout anzeigen"
+
+ENTRY([CMD] Show Scatterplot)
+	"Scatterplot anzeigen"
+
+ENTRY([CMD] Show Shapes)
+	"Vektordaten anzeigen"
+
+ENTRY([CMD] Show T.I.N.)
+	"T.I.N. anzeigen"
+
+ENTRY([CMD] Show Table)
+	"Tabelle anzeigen"
+
+ENTRY([CMD] Show Toolbar)
+	"Werkzeugleiste anzeigen"
+
+ENTRY([CMD] Show Vertical Legend)
+	"Legende vertikal anzeigen"
+
+ENTRY([CMD] Show Workspace)
+	"Arbeitsumgebung anzeigen"
+
+ENTRY([CMD] Synchronise Map Extents)
+	"Kartenausschnitte synchronisieren"
+
+ENTRY([CMD] Tile Horizontally)
+	"Horizontal anordnen"
+
+ENTRY([CMD] Tile Vertically)
+	"Vertikal anordnen"
+
+ENTRY([CMD] UNRECOGNISED COMMAND ID)
+	"UNRECOGNISED COMMAND ID"
+
+ENTRY([CMD] Up)
+	"Auf"
+
+ENTRY([CMD] Zoom)
+	"Vergrößerung"
+
+ENTRY([CMD] Zoom To Active Layer)
+	"Aktive Schicht anzeigen"
+
+ENTRY([CMD] Zoom To Full Extent)
+	"Volle Ausdehnung anzeigen"
+
+ENTRY([CMD] Zoom To Previous Extent)
+	"Vorigen Ausschnitt anzeigen"
+
+ENTRY([CMD] Zoom To Selection)
+	"Auswahl anzeigen"
+
+ENTRY([COL] Classes)
+	"Classes"
+
+ENTRY([DAT] Cell size)
+	"Zellgröße"
+
+ENTRY([DAT] Grid)
+	"Grid"
+
+ENTRY([DAT] Line)
+	"Line"
+
+ENTRY([DAT] Lower left corner)
+	"Linke untere Ecke"
+
+ENTRY([DAT] Number of cells)
+	"Anzahl der Zellen"
+
+ENTRY([DAT] Point)
+	"Point"
+
+ENTRY([DAT] Points)
+	"Points"
+
+ENTRY([DAT] Polygon)
+	"Polygon"
+
+ENTRY([DAT] Resampling)
+	"Resampling"
+
+ENTRY([DAT] Save shapes)
+	"Vektordaten speichern"
+
+ENTRY([DAT] Shapes)
+	"Shapes"
+
+ENTRY([DAT] T.I.N.)
+	"T.I.N."
+
+ENTRY([DAT] Table)
+	"Table"
+
+ENTRY([DAT] Undefined)
+	"Undefined"
+
+ENTRY([DAT] [not set])
+	"[nicht gesetzt]"
+
+ENTRY([DAT] new)
+	"neu"
+
+ENTRY([DLG] Add layer to selected map)
+	"Datensatz zu ausgewählter Karte hinzufügen"
+
+ENTRY([DLG] Delete selected shape(s)
+	"Ausgewählte Vektorobjekte löschen"
+
+ENTRY([DLG] Delete selected shape(s).)
+	"Delete selected shape(s)."
+
+ENTRY([DLG] Invalid parameters!)
+	"Ungültige Parameter"
+
+ENTRY([DLG] Please enter a numeric value:)
+	"Bitte geben Sie einen Zahlenwert ein:"
+
+ENTRY([DLG] Restart is needed to apply language changes.)
+	"Sie müssen das Programm neu starten, um die Spracheinstellungen anzuwenden."
+
+ENTRY([DLG] Save changes?)
+	"Änderungen speichern?"
+
+ENTRY([DLG] Scale 1 : )
+	"Maßstab 1 : "
+
+ENTRY([DLG] Select a language)
+	"Sprache auswählen"
+
+ENTRY([DLG] Set selected values to no data.)
+	"Auswahl als \'Keine Daten\' markieren."
+
+ENTRY([ERR] Access Violation)
+	"Access Violation"
+
+ENTRY([ERR] Calculation Error)
+	"Calculation Error"
+
+ENTRY([ERR] Can't execute a module while another runs)
+	"Modul kann nicht ausgeführt werden, während ein anderes läuft"
+
+ENTRY([ERR] Error: Continue anyway ?)
+	"Error: Continue anyway ?"
+
+ENTRY([ERR] Grid file could not be opened.)
+	"Rasterdatei konnte nicht geöffnet werden"
+
+ENTRY([ERR] Grid file could not be saved.)
+	"Raster konnte nicht gespeichert werden"
+
+ENTRY([ERR] Invalid data set!)
+	"Ungültiger Datensatz!"
+
+ENTRY([ERR] Invalid data!)
+	"Ungültige Daten!"
+
+ENTRY([ERR] Invalid display size!)
+	"Ungültiger Ausgabebereich!"
+
+ENTRY([ERR] Invalid library)
+	"Ungültige Bibliothek"
+
+ENTRY([ERR] Library could not be loaded)
+	"Bibliothek konnte nicht geöffnet werden"
+
+ENTRY([ERR] Library does not contain any modules)
+	"Bibliothek enthält keine Module"
+
+ENTRY([ERR] Library has already been loaded)
+	"Bibliothek wurde bereits geladen"
+
+ENTRY([ERR] Shape file could not be opened.)
+	"Vektordatei konnte nicht geöffnet werden"
+
+ENTRY([ERR] Shape file header is invalid.)
+	"Vektordateikopf ist ungültig"
+
+ENTRY([ERR] Shape file is corrupted.)
+	"Vektordatei ist korrumpiert"
+
+ENTRY([ERR] Shape index file could not be opened.)
+	"Vektor-Indexdatei konnte nicht geöffnet werden"
+
+ENTRY([ERR] There was a problem printing.\nPerhaps your current printer is not set correctly?)
+	"Es gab ein Druckproblem.\nVielleicht ist Ihr Drucker nicht korrekt eingestellt?"
+
+ENTRY([ERR] Unknown Error)
+	"Unknown Error"
+
+ENTRY([ERR] You canceled printing)
+	"Sie haben den Druckvorgang abgebrochen"
+
+ENTRY([FIL] All Files|*.*)
+	"Alle Dateien|*.*"
+
+ENTRY([FIL] ESRI Shape Files (*.shp)
+	"Vektordaten (*.shp)|*.shp|Alle Dateien|*.*"
+
+ENTRY([FIL] ESRI Shape Files (*.shp)|*.shp|All Files|*.*)
+	"ESRI Shape Files (*.shp)|*.shp|All Files|*.*"
+
+ENTRY([FIL] Grids (*.dgm)
+	"Rasterdaten (*.dgm)|*.dgm;*.grd|Alle Dateien|*.*"
+
+ENTRY([FIL] Grids (*.dgm)|*.dgm;*.grd|All Files|*.*)
+	"Grids (*.dgm)|*.dgm;*.grd|All Files|*.*"
+
+ENTRY([FIL] Grids (*.dgm)|*.dgm|All Files|*.*)
+	"Grids (*.dgm)|*.dgm|All Files|*.*"
+
+ENTRY([FIL] SAGA Colors (*.pal)
+	"SAGA Farben (*.pal)|*.pal|Alle Dateien|*.*"
+
+ENTRY([FIL] SAGA Colors (*.pal)|*.pal|All Files|*.*)
+	"SAGA Colors (*.pal)|*.pal|All Files|*.*"
+
+ENTRY([FIL] SAGA Module Libraries (*.mlb, *.dll, *.so)
+	"SAGA Modulbibliotheken (*.mlb, *.dll, *.so)|*.mlb;*.dll;*.so|Alle Dateien|*.*"
+
+ENTRY([FIL] SAGA Module Libraries (*.mlb, *.dll, *.so)|*.mlb;*.dll;*.so|All Files|*.*)
+	"SAGA Module Libraries (*.mlb, *.dll, *.so)|*.mlb;*.dll;*.so|All Files|*.*"
+
+ENTRY([FIL] SAGA Parameter Files (*.sprm)
+	"SAGA Parameterdateien (*.sprm)|*.sprm|Alle Dateien|*.*"
+
+ENTRY([FIL] SAGA Parameter Files (*.sprm)|*.sprm|All Files|*.*)
+	"SAGA Parameter Files (*.sprm)|*.sprm|All Files|*.*"
+
+ENTRY([FIL] SAGA Project (*.sprj)
+	"SAGA Projekte (*.sprj)|*.sprj|Alle Dateien|*.*"
+
+ENTRY([FIL] SAGA Project (*.sprj)|*.sprj|All Files|*.*)
+	"SAGA Project (*.sprj)|*.sprj|All Files|*.*"
+
+ENTRY([FIL] Tables (*.txt, *.dbf)
+	"Tabellen (*.txt, *.dbf)|*.txt;*.dbf|Alle Dateien|*.*"
+
+ENTRY([FIL] Tables (*.txt, *.dbf)|*.txt;*.dbf|All Files|*.*)
+	"Tables (*.txt, *.dbf)|*.txt;*.dbf|All Files|*.*"
+
+ENTRY([FIL] Text Files (*.txt)
+	"Textdateien (*.txt)|*.txt|Alle Dateien|*.*"
+
+ENTRY([FIL] Text Files (*.txt)|*.txt|All Files|*.*)
+	"Text Files (*.txt)|*.txt|All Files|*.*"
+
+ENTRY([FLD] Central Projection)
+	"Zentralprojektion"
+
+ENTRY([FLD] Exaggeration)
+	"Überhöhung"
+
+ENTRY([FLD] Name)
+	"Name"
+
+ENTRY([FLD] Rotate X)
+	"Drehung X"
+
+ENTRY([FLD] Rotate Y)
+	"Drehung Y"
+
+ENTRY([FLD] Rotate Z)
+	"Drehung Z"
+
+ENTRY([FLD] Shift X)
+	"Verschiebung X"
+
+ENTRY([FLD] Shift Y)
+	"Verschiebung Y"
+
+ENTRY([FLD] Shift Z)
+	"Verschiebung Z"
+
+ENTRY([FLD] Steps to Next)
+	"Anzahl der Schritte"
+
+ENTRY([FLD] Value)
+	"Wert"
+
+ENTRY([HLP] Execute Module)
+	"Modul ausführen"
+
+ENTRY([HST] Created with Module)
+	"Created with Module"
+
+ENTRY([HST] File loaded)
+	"Datei wurde geladen"
+
+ENTRY([HST] Grid addition)
+	"Raster Addition"
+
+ENTRY([HST] Grid denormalisation)
+	"Raster Denormalisierung"
+
+ENTRY([HST] Grid division)
+	"Raster Division"
+
+ENTRY([HST] Grid multiplication)
+	"Raster Multiplikation"
+
+ENTRY([HST] Grid normalisation)
+	"Raster Normalisierung"
+
+ENTRY([HST] Grid operation)
+	"Raster Operation"
+
+ENTRY([HST] Grid subtraction)
+	"Raster Subtraktion"
+
+ENTRY([HST] Horizontally mirrored)
+	"Horizontale Spiegelung"
+
+ENTRY([HST] Input List)
+	"Input List"
+
+ENTRY([HST] Input: )
+	"Input: "
+
+ENTRY([HST] Inversion)
+	"Invertierung"
+
+ENTRY([HST] Option)
+	"Option"
+
+ENTRY([HST] Value addition)
+	"Addition eines Wertes"
+
+ENTRY([HST] Value assigned to grid)
+	"Zuweisung eines Wertes"
+
+ENTRY([HST] Value division)
+	"Division durch einen Wert"
+
+ENTRY([HST] Value multiplication)
+	"Multiplikation eines Wertes"
+
+ENTRY([HST] Value subtraction)
+	"Subtraktion eines Wertes"
+
+ENTRY([HST] Vertically mirrored)
+	"Vertikale Spiegelung"
+
+ENTRY([MNU] ?)
+	"?"
+
+ENTRY([MNU] Edit)
+	"Editieren"
+
+ENTRY([MNU] File)
+	"Datei"
+
+ENTRY([MNU] Grid)
+	"Rasterdaten"
+
+ENTRY([MNU] Help)
+	"Hilfe"
+
+ENTRY([MNU] Modules)
+	"Module"
+
+ENTRY([MNU] Project)
+	"Projekt"
+
+ENTRY([MNU] Rotation)
+	"Rotation"
+
+ENTRY([MNU] Sequencer)
+	"Sequenzer"
+
+ENTRY([MNU] Shapes)
+	"Vektordaten"
+
+ENTRY([MNU] Shift)
+	"Verschiebung"
+
+ENTRY([MNU] T.I.N.)
+	"T.I.N."
+
+ENTRY([MNU] Table)
+	"Tabelle"
+
+ENTRY([MNU] Window)
+	"Fenster"
+
+ENTRY([MSG] Build Histogram...)
+	"Histogramm erstellen..."
+
+ENTRY([MSG] Close)
+	"Schließe"
+
+ENTRY([MSG] Close Library)
+	"Schließe Bibliothek"
+
+ENTRY([MSG] Close table)
+	"Schließe Tabelle"
+
+ENTRY([MSG] Could not load project.)
+	"Projekt konnte nicht geladen werden"
+
+ENTRY([MSG] Create T.I.N. from shapes)
+	"Erstelle T.I.N. aus Vektordaten"
+
+ENTRY([MSG] Execute module)
+	"Modulausführung"
+
+ENTRY([MSG] Interactive module execution failed)
+	"Ausführung des interaktiven Moduls schlug fehl"
+
+ENTRY([MSG] Interactive module execution has been started)
+	"Ausführung des interaktiven Moduls wurde gestartet"
+
+ENTRY([MSG] Interactive module execution has been stopped)
+	"Ausführung des interaktiven Moduls wurde beendet"
+
+ENTRY([MSG] Load grid)
+	"Lade Rasterdaten"
+
+ENTRY([MSG] Load library)
+	"Lade Bibliothek"
+
+ENTRY([MSG] Load project)
+	"Lade Projekt"
+
+ENTRY([MSG] Load shapes)
+	"Lade Vektordaten"
+
+ENTRY([MSG] Load table)
+	"Lade Tabelle"
+
+ENTRY([MSG] Module execution failed)
+	"Modulausführung schlug fehl"
+
+ENTRY([MSG] Module execution succeeded)
+	"Modul wurde erfolgreich ausgeführt"
+
+ENTRY([MSG] Project has been saved.)
+	"Projekt wurde gespeichert"
+
+ENTRY([MSG] Project has been successfully loaded.)
+	"Projekt wurde erfolgreich geladen"
+
+ENTRY([MSG] Save grid)
+	"Rasterdaten speichern"
+
+ENTRY([MSG] Save shapes)
+	"Vektordaten speichern"
+
+ENTRY([MSG] Save table)
+	"Tabelle speichern"
+
+ENTRY([MSG] failed)
+	"fehlgeschlagen"
+
+ENTRY([MSG] okay)
+	"erfolgreich"
+
+ENTRY([PRM] Boolean)
+	"Wahrheitswert"
+
+ENTRY([PRM] Choice)
+	"Auswahl"
+
+ENTRY([PRM] Color)
+	"Farbe"
+
+ENTRY([PRM] Colors)
+	"Farben"
+
+ENTRY([PRM] Data Objects)
+	"Data Objects"
+
+ENTRY([PRM] Degree)
+	"Grad"
+
+ENTRY([PRM] File path)
+	"Dateipfad"
+
+ENTRY([PRM] Floating point)
+	"Fließkommazahl"
+
+ENTRY([PRM] Font)
+	"Schrift"
+
+ENTRY([PRM] Grid)
+	"Raster"
+
+ENTRY([PRM] Grid list)
+	"Liste von Rastern"
+
+ENTRY([PRM] Grid system)
+	"Rastersystem"
+
+ENTRY([PRM] Integer)
+	"Ganzzahl"
+
+ENTRY([PRM] Long text)
+	"Langer Text"
+
+ENTRY([PRM] Node)
+	"Knoten"
+
+ENTRY([PRM] Options)
+	"Options"
+
+ENTRY([PRM] Parameter)
+	"Parameter"
+
+ENTRY([PRM] Shapes)
+	"Vektordaten"
+
+ENTRY([PRM] Shapes list)
+	"Liste von Vektordaten"
+
+ENTRY([PRM] Static table)
+	"Statische Tabelle"
+
+ENTRY([PRM] T.I.N.)
+	"T.I.N."
+
+ENTRY([PRM] T.I.N. list)
+	"Liste von T.I.N."
+
+ENTRY([PRM] Table)
+	"Tabelle"
+
+ENTRY([PRM] Table field)
+	"Tabellenfeld"
+
+ENTRY([PRM] Table list)
+	"Liste von Tabellen"
+
+ENTRY([PRM] Text)
+	"Text"
+
+ENTRY([PRM] Value range)
+	"Wertebereich"
+
+ENTRY([TXT] Do you want to delete the selection?)
+	"Wollen Sie die Auswahl entfernen?"
+
+ENTRY([TXT] Do you want to exit SAGA?)
+	"Wollen Sie SAGA beenden?"
+
+ENTRY([TXT] No data loaded.)
+	"Keine Daten geladen."
+
+ENTRY([TXT] No description available)
+	"Keine Beschreibung verfügbar"
+
+ENTRY([TXT] No history available.)
+	"Keine Geschichte vorhanden."
+
+ENTRY([TXT] No parameters available.)
+	"Keine Parameter verfügbar"
+
+ENTRY([TXT] SAGA\nSystem for Automated Geoscientific Analyses\nVersion 2.0)
+	"SAGA\nSystem für Automatisierte Geowissenschaftliche Analysen\nVersion 2.0"
+
+ENTRY([TXT] This is not a text!)
+	"This is not a text!"
+
+ENTRY([TXT] grid system)
+	"Rastersystem"
+
+ENTRY([TXT] grid systems)
+	"Rastersysteme"
+
+ENTRY([TXT] unknown)
+	"unbekannt"
+
+ENTRY([VAL] B-Spline)
+	"B-Spline"
+
+ENTRY([VAL] Backward Diagonal)
+	"Schräg nach links"
+
+ENTRY([VAL] Bicubic Spline)
+	"Bikubischer Spline"
+
+ENTRY([VAL] Bilinear)
+	"Bilinear"
+
+ENTRY([VAL] Cross)
+	"Gekreuzt"
+
+ENTRY([VAL] Cross Diagonal)
+	"Schräg gekreuzt"
+
+ENTRY([VAL] Dot And Dash)
+	"Punkt und Strich"
+
+ENTRY([VAL] Dotted)
+	"Gepunktet"
+
+ENTRY([VAL] File Cache)
+	"Dateipuffer"
+
+ENTRY([VAL] Forward Diagonal)
+	"Schräg nach rechts"
+
+ENTRY([VAL] Graduated Color)
+	"Abgestufter Farbverlauf"
+
+ENTRY([VAL] Horizontal)
+	"Horizontal"
+
+ENTRY([VAL] Inverse Distance)
+	"Umgekehrte Distanz"
+
+ENTRY([VAL] Linear)
+	"Linear"
+
+ENTRY([VAL] Logarithmic (down)
+	"Logarithmisch (abwärts)"
+
+ENTRY([VAL] Logarithmic (down))
+	"Logarithmic (down)"
+
+ENTRY([VAL] Logarithmic (up)
+	"Logarithmisch (aufwärts)"
+
+ENTRY([VAL] Logarithmic (up))
+	"Logarithmic (up)"
+
+ENTRY([VAL] Long Dashed)
+	"Lange Striche"
+
+ENTRY([VAL] Lookup Table)
+	"Nachschlagetabelle"
+
+ENTRY([VAL] New)
+	"Neu"
+
+ENTRY([VAL] No objects)
+	"Keine Objekte"
+
+ENTRY([VAL] None)
+	"Nicht vorhanden"
+
+ENTRY([VAL] Normal)
+	"Normal"
+
+ENTRY([VAL] Opaque)
+	"Undurchsichtig"
+
+ENTRY([VAL] RGB)
+	"RGB"
+
+ENTRY([VAL] RTL Compression)
+	"RTL Komprimierung"
+
+ENTRY([VAL] Shade)
+	"Shade"
+
+ENTRY([VAL] Short Dashed)
+	"Kurze Striche"
+
+ENTRY([VAL] Solid)
+	"Solide"
+
+ENTRY([VAL] Transparent)
+	"Transparent"
+
+ENTRY([VAL] Unique Symbol)
+	"Einheitliches Symbol"
+
+ENTRY([VAL] Vertical)
+	"Vertikal"
+
+ENTRY([VAL] [all grid systems])
+	"[alle Rastersysteme]"
+
+ENTRY([VAL] [create])
+	"[erstellen]"
+
+ENTRY([VAL] [default])
+	"[Standardwert]"
+
+ENTRY([VAL] [no choice available])
+	"[keine Auswahl verfügbar]"
+
+ENTRY([VAL] [no fields])
+	"[keine Felder verfügbar]"
+
+ENTRY([VAL] [none])
+	"[nicht vorhanden]"
+
+ENTRY([VAL] [not set])
+	"[nicht gesetzt]"
+
+ENTRY([VAL] no)
+	"nein"
+
+ENTRY([VAL] object)
+	"Objekt"
+
+ENTRY([VAL] objects)
+	"Objekte"
+
+ENTRY([VAL] ready)
+	"fertig"
+
+ENTRY([VAL] yes)
+	"ja"
+
+ENTRY(lng)
+	""
+
+ENTRY(r)
+	""
+
+ENTRY(°)
+	""
+

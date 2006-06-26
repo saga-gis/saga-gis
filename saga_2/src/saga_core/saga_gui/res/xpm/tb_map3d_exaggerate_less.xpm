@@ -1,0 +1,26 @@
+/* XPM */
+static char *tb_map3d_exaggerate_less_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 4 1",
+"o c Black",
+"X c #848284",
+". c #C6C6C6",
+"  c #C6C3C6",
+/* pixels */
+" ...............",
+"       XX       ",
+"      Xo X      ",
+"     X o  XX    ",
+"    X  o    X   ",
+"   X   o    oX  ",
+"  X    o    oX  ",
+"XXo    o    o X ",
+"  o    o    o  X",
+"  o    o    o   ",
+"  o    o    o   ",
+"  o   ooo   o   ",
+" ooo   o   ooo  ",
+"  o  XXXXXX o   ",
+"XXXXX      XXX  ",
+"              XX"
+};

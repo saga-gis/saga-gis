@@ -1,0 +1,62 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual C++ Express 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_channels", "terrain_analysis\ta_channels\ta_channels.vcproj", "{E04994DC-069B-472F-BEE3-E694FE068C3F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_compound", "terrain_analysis\ta_compound\ta_compound.vcproj", "{8F4F705E-EA5E-4D8F-A6BA-8ABDFA00FCA3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_hydrology", "terrain_analysis\ta_hydrology\ta_hydrology.vcproj", "{0604221F-34D1-4CD4-A5FA-E30A023FFA23}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_indices", "terrain_analysis\ta_indices\ta_indices.vcproj", "{392B896A-D533-4E40-8E71-0C1C1E0C0285}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_lighting", "terrain_analysis\ta_lighting\ta_lighting.vcproj", "{7BF009FA-BFE2-4F65-A777-C72D5702B216}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_morphometry", "terrain_analysis\ta_morphometry\ta_morphometry.vcproj", "{84767786-70E4-43E8-8055-70CA65E5D72C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_preprocessor", "terrain_analysis\ta_preprocessor\ta_preprocessor.vcproj", "{3BD0C03F-184B-4E84-90C5-9C2DA1DFD37D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_profiles", "terrain_analysis\ta_profiles\ta_profiles.vcproj", "{C9D8F2E3-0738-4271-880D-D5BCA03D2A24}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E04994DC-069B-472F-BEE3-E694FE068C3F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E04994DC-069B-472F-BEE3-E694FE068C3F}.Debug|Win32.Build.0 = Debug|Win32
+		{E04994DC-069B-472F-BEE3-E694FE068C3F}.Release|Win32.ActiveCfg = Release|Win32
+		{E04994DC-069B-472F-BEE3-E694FE068C3F}.Release|Win32.Build.0 = Release|Win32
+		{8F4F705E-EA5E-4D8F-A6BA-8ABDFA00FCA3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8F4F705E-EA5E-4D8F-A6BA-8ABDFA00FCA3}.Debug|Win32.Build.0 = Debug|Win32
+		{8F4F705E-EA5E-4D8F-A6BA-8ABDFA00FCA3}.Release|Win32.ActiveCfg = Release|Win32
+		{8F4F705E-EA5E-4D8F-A6BA-8ABDFA00FCA3}.Release|Win32.Build.0 = Release|Win32
+		{0604221F-34D1-4CD4-A5FA-E30A023FFA23}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0604221F-34D1-4CD4-A5FA-E30A023FFA23}.Debug|Win32.Build.0 = Debug|Win32
+		{0604221F-34D1-4CD4-A5FA-E30A023FFA23}.Release|Win32.ActiveCfg = Release|Win32
+		{0604221F-34D1-4CD4-A5FA-E30A023FFA23}.Release|Win32.Build.0 = Release|Win32
+		{392B896A-D533-4E40-8E71-0C1C1E0C0285}.Debug|Win32.ActiveCfg = Debug|Win32
+		{392B896A-D533-4E40-8E71-0C1C1E0C0285}.Debug|Win32.Build.0 = Debug|Win32
+		{392B896A-D533-4E40-8E71-0C1C1E0C0285}.Release|Win32.ActiveCfg = Release|Win32
+		{392B896A-D533-4E40-8E71-0C1C1E0C0285}.Release|Win32.Build.0 = Release|Win32
+		{7BF009FA-BFE2-4F65-A777-C72D5702B216}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7BF009FA-BFE2-4F65-A777-C72D5702B216}.Debug|Win32.Build.0 = Debug|Win32
+		{7BF009FA-BFE2-4F65-A777-C72D5702B216}.Release|Win32.ActiveCfg = Release|Win32
+		{7BF009FA-BFE2-4F65-A777-C72D5702B216}.Release|Win32.Build.0 = Release|Win32
+		{84767786-70E4-43E8-8055-70CA65E5D72C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{84767786-70E4-43E8-8055-70CA65E5D72C}.Debug|Win32.Build.0 = Debug|Win32
+		{84767786-70E4-43E8-8055-70CA65E5D72C}.Release|Win32.ActiveCfg = Release|Win32
+		{84767786-70E4-43E8-8055-70CA65E5D72C}.Release|Win32.Build.0 = Release|Win32
+		{3BD0C03F-184B-4E84-90C5-9C2DA1DFD37D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3BD0C03F-184B-4E84-90C5-9C2DA1DFD37D}.Debug|Win32.Build.0 = Debug|Win32
+		{3BD0C03F-184B-4E84-90C5-9C2DA1DFD37D}.Release|Win32.ActiveCfg = Release|Win32
+		{3BD0C03F-184B-4E84-90C5-9C2DA1DFD37D}.Release|Win32.Build.0 = Release|Win32
+		{C9D8F2E3-0738-4271-880D-D5BCA03D2A24}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C9D8F2E3-0738-4271-880D-D5BCA03D2A24}.Debug|Win32.Build.0 = Debug|Win32
+		{C9D8F2E3-0738-4271-880D-D5BCA03D2A24}.Release|Win32.ActiveCfg = Release|Win32
+		{C9D8F2E3-0738-4271-880D-D5BCA03D2A24}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

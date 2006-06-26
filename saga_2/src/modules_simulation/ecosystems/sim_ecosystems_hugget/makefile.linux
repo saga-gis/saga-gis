@@ -1,0 +1,62 @@
+# Project: sim_ecosystems_hugget
+# Linux GCC Makefile
+# Created by O. Conrad
+
+PRJ_NAME = sim_ecosystems_hugget
+BIN_SAGA = $(SAGA)/../bin/saga_gtk
+TMP_SAGA = $(SAGA)/../bin/tmp/saga_gtk
+INC_SAGA = $(SAGA)/saga_core
+MLB_TEMP = $(TMP_SAGA)/$(PRJ_NAME)
+MLB_PATH = $(BIN_SAGA)/modules
+MLB_NAME = $(MLB_PATH)/$(PRJ_NAME).so
+
+CPP      = g++
+LD       = g++
+
+DEP_INCS = 
+DEP_DEFS = 
+DEP_LIBS = 
+DEP_LFLG = 
+
+OBJ      = $(MLB_TEMP)/Hugget_01.o $(MLB_TEMP)/Hugget_02.o $(MLB_TEMP)/Hugget_03.o $(MLB_TEMP)/MLB_Interface.o
+
+DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
+CXX_INCS = -I/usr/lib/glib/include -I/usr/include/glib-1.2
+CXX_DEFS = -D_REENTRANT -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -DGTK_NO_CHECK_CASTS
+CXX_FLGS = -O2 -MMD -pthread -fPIC
+CXXFLAGS = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEP_INCS) $(DEP_DEFS) -I$(INC_SAGA) $(DEF_SAGA)
+
+LDFLAGS  = -shared $(DEP_LFLG)
+LIBS     = $(DEP_LIBS)
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before $(MLB_NAME) all-after
+
+clean: clean-custom
+	rm -f $(OBJ) $(MLB_NAME)
+
+$(TMP_SAGA):
+	-mkdir $(TMP_SAGA)
+
+$(MLB_TEMP): $(TMP_SAGA)
+	-mkdir $(MLB_TEMP)
+
+$(MLB_PATH):
+	-mkdir $(MLB_PATH)
+
+$(MLB_NAME): $(OBJ) $(MLB_PATH)
+	$(LD) $(LDFLAGS) -o $(MLB_NAME) $(OBJ) $(LIBS)
+
+
+$(MLB_TEMP)/Hugget_01.o: ./Hugget_01.cpp $(MLB_TEMP)
+	$(CPP) -c ./Hugget_01.cpp -o $(MLB_TEMP)/Hugget_01.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Hugget_02.o: ./Hugget_02.cpp $(MLB_TEMP)
+	$(CPP) -c ./Hugget_02.cpp -o $(MLB_TEMP)/Hugget_02.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Hugget_03.o: ./Hugget_03.cpp $(MLB_TEMP)
+	$(CPP) -c ./Hugget_03.cpp -o $(MLB_TEMP)/Hugget_03.o $(CXXFLAGS)
+
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)

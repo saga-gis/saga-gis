@@ -1,0 +1,30 @@
+/* XPM */
+static char *tb_map_legend_horizontal_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 8 1",
+". c Black",
+"# c #808080",
+"X c #000084",
+"@ c #00FFFF",
+"O c #007BFF",
+"o c #0000FF",
+"  c None",
+"+ c #00C6FF",
+/* pixels */
+"                ",
+" .............. ",
+" .            . ",
+" . XXooOO++@@ . ",
+" . XXooOO++@@ . ",
+" . XXooOO++@@ . ",
+" .            . ",
+" . # # # # #  . ",
+" . #   # # #  . ",
+" . # #   # #  . ",
+" . # #   #    . ",
+" .            . ",
+" .       #    . ",
+" .            . ",
+" .............. ",
+"                "
+};

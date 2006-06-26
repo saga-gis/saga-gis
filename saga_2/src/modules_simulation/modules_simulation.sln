@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual C++ Express 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_cellular_automata", "cellular_automata\sim_cellular_automata\sim_cellular_automata.vcproj", "{EE0BFC7F-C5F2-4224-885F-EE10245AC768}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_ecosystems_hugget", "ecosystems\sim_ecosystems_hugget\sim_ecosystems_hugget.vcproj", "{C276EC44-C3EF-453D-A5E1-A1797B83C1EC}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_hydrology", "hydrology\sim_hydrology\sim_hydrology.vcproj", "{8F41149E-3262-410B-AB0E-D764253644EA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EE0BFC7F-C5F2-4224-885F-EE10245AC768}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EE0BFC7F-C5F2-4224-885F-EE10245AC768}.Debug|Win32.Build.0 = Debug|Win32
+		{EE0BFC7F-C5F2-4224-885F-EE10245AC768}.Release|Win32.ActiveCfg = Release|Win32
+		{EE0BFC7F-C5F2-4224-885F-EE10245AC768}.Release|Win32.Build.0 = Release|Win32
+		{C276EC44-C3EF-453D-A5E1-A1797B83C1EC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C276EC44-C3EF-453D-A5E1-A1797B83C1EC}.Debug|Win32.Build.0 = Debug|Win32
+		{C276EC44-C3EF-453D-A5E1-A1797B83C1EC}.Release|Win32.ActiveCfg = Release|Win32
+		{C276EC44-C3EF-453D-A5E1-A1797B83C1EC}.Release|Win32.Build.0 = Release|Win32
+		{8F41149E-3262-410B-AB0E-D764253644EA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8F41149E-3262-410B-AB0E-D764253644EA}.Debug|Win32.Build.0 = Debug|Win32
+		{8F41149E-3262-410B-AB0E-D764253644EA}.Release|Win32.ActiveCfg = Release|Win32
+		{8F41149E-3262-410B-AB0E-D764253644EA}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,63 @@
+# Catchment name
+Subcatchment 1
+
+# A:		Total catchment area
+#									  [m^2]
+#
+# qs0:		Initial subsurface flow per unit area
+#									  [m/h]
+#		   "The first streamflow input is assumed to represent
+#		    only the subsurface flow contribution in the watershed."
+#								- Ref[S.C.Liaw]
+# lnTe:		Areal average of ln(T0) = ln(Te)
+#								    [ln(m^2/h)]
+# m:		Model parameter
+#									    [m]
+# Sr0:		Initial root zone storage deficit
+#									    [m]
+# Srmax:	Maximum root zone storage deficit
+#									    [m]
+# td:		Unsaturated zone time delay per unit storage deficit
+#		   ( > 0.0)						    [h]
+#  OR
+# -alpha:	Effective vertical hydraulic gradient
+#		   ( <= 0.0)	-10 means that alpha = 10
+# vch:		Main channel routing velocity
+#									  [m/h]
+# vr:		Internal subcatchment routing velocity
+#									  [m/h]
+#
+# infex:	Calculate infiltration excess if not zero (integer)
+# K0:		Surface hydraulic conductivity
+#									  [m/h]
+# psi:		Wetting front suction
+#									    [m]
+# dtheta:	Water content change across the wetting front
+#
+# nch:		Number of distance increments
+#
+# d:		Distance from catchment
+#									    [m]
+#		   The first value should be the mainstream distance from
+#		   the subcatchment outlet to the catchment outlet.
+# Ad_r:		Cumulative area ratio of subcatchment (0.0 to 1.0)
+#		   The first value should be zero.
+# 
+
+#     A
+# [m^2]
+      1
+
+#    qs0  lnTe      m    Sr0  Srmax   td/alpha    vch     vr 
+3.28e-05    5.  0.032  0.002   0.05        50.  3600.  3600. 
+
+# infex   K   psi  dtheta
+      1  1.  0.02     0.1
+ 
+# nch
+    3
+
+#   d  Ad_r
+  500     0
+ 1000   0.5
+ 1500     1

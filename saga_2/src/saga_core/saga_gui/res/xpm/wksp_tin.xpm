@@ -1,0 +1,26 @@
+/* XPM */
+static char *wksp_tin_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 4 1",
+"X c Black",
+"o c #00FFFF",
+". c #0000FF",
+"  c None",
+/* pixels */
+"                ",
+"                ",
+"           ...  ",
+"   ...  XXX.o.  ",
+"   .o.XX   ...  ",
+"   ...    X X   ",
+"    X    X  X   ",
+"    X   X   X   ",
+"    X  X    X   ",
+"    X X      X  ",
+"   ...       X  ",
+"   .o.XX     X  ",
+"   ...  XX  ... ",
+"          XX.o. ",
+"            ... ",
+"                "
+};

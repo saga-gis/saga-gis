@@ -1,0 +1,27 @@
+/* XPM */
+static char *nb_info_execution_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 5 1",
+"X c #FFFFFF",
+". c #000080",
+"O c #00FFFF",
+"o c #0000FF",
+"  c None",
+/* pixels */
+"       ....     ",
+"     ........   ",
+"    ....XX....  ",
+"   .....XX..... ",
+"   ............ ",
+"  .....XXX......",
+"  ...o..XX......",
+"  o.oo..XX......",
+"  ooOOoooX......",
+"  oOooOoXX..... ",
+"ooOo..oOoXX.... ",
+" oOo..oOoo....  ",
+"  oOooOo.....   ",
+" oooOOoo...     ",
+"    oo o        ",
+"    o           "
+};

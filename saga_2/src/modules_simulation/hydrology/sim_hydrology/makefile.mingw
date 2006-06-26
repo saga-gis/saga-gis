@@ -1,0 +1,67 @@
+# Project: sim_hydrology
+# MinGW Makefile
+# Created by O. Conrad
+
+PRJ_NAME = sim_hydrology
+BIN_SAGA = $(SAGA)\bin\saga_mingw
+TMP_SAGA = $(SAGA)\bin\tmp\saga_mingw
+MLB_TEMP = $(TMP_SAGA)\$(PRJ_NAME)
+MLB_PATH = $(BIN_SAGA)\modules
+MLB_NAME = $(MLB_PATH)\$(PRJ_NAME).dll
+LIB_NAME = $(MLB_PATH)\lib$(PRJ_NAME).a
+
+CPP      = g++.exe
+LD       = dllwrap.exe
+
+DEP_INCS = 
+DEP_DEFS = 
+DEP_LIBS = 
+DEP_LFLG = 
+
+OBJ      = $(MLB_TEMP)/DVWK_SoilMoisture.o $(MLB_TEMP)/IDW.o $(MLB_TEMP)/KinWav_D8.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/topmodel.o $(MLB_TEMP)/topmodel_values.o $(MLB_TEMP)/WaterRetentionCapacity.o
+
+CXXFLAGS = -I"$(MINGW)/include" -I"$(SAGA)/src/saga_core" -D$(PRJ_NAME)_EXPORTS -DBUILDING_DLL=1 -D_SAGA_MSW -D_SAGA_MINGW -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -fexpensive-optimizations -Os -O2 -O3 $(DEP_INCS) $(DEP_DEFS)
+
+LIBS     = -L"$(MINGW)/lib" -L"$(WXWIN)/lib/gcc_lib" $(DEP_LIBS) $(BIN_SAGA)/libsaga_api.a
+LDFLAGS  = --no-export-all-symbols --add-stdcall-alias --driver-name c++ $(DEP_LFLG)
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before $(MLB_NAME) all-after
+
+clean: clean-custom
+	rm -f $(OBJ) $(MLB_NAME)
+
+$(TMP_SAGA):
+	if not exist $(TMP_SAGA) mkdir $(TMP_SAGA)
+
+$(MLB_TEMP): $(TMP_SAGA)
+	if not exist $(MLB_TEMP) mkdir $(MLB_TEMP)
+
+$(MLB_PATH):
+	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
+
+$(MLB_NAME): $(OBJ) $(MLB_PATH)
+	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
+
+
+$(MLB_TEMP)/DVWK_SoilMoisture.o: ./DVWK_SoilMoisture.cpp $(MLB_TEMP)
+	$(CPP) -c ./DVWK_SoilMoisture.cpp -o $(MLB_TEMP)/DVWK_SoilMoisture.o $(CXXFLAGS)
+
+$(MLB_TEMP)/IDW.o: ./IDW.cpp $(MLB_TEMP)
+	$(CPP) -c ./IDW.cpp -o $(MLB_TEMP)/IDW.o $(CXXFLAGS)
+
+$(MLB_TEMP)/KinWav_D8.o: ./KinWav_D8.cpp $(MLB_TEMP)
+	$(CPP) -c ./KinWav_D8.cpp -o $(MLB_TEMP)/KinWav_D8.o $(CXXFLAGS)
+
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
+
+$(MLB_TEMP)/topmodel.o: ./topmodel.cpp $(MLB_TEMP)
+	$(CPP) -c ./topmodel.cpp -o $(MLB_TEMP)/topmodel.o $(CXXFLAGS)
+
+$(MLB_TEMP)/topmodel_values.o: ./topmodel_values.cpp $(MLB_TEMP)
+	$(CPP) -c ./topmodel_values.cpp -o $(MLB_TEMP)/topmodel_values.o $(CXXFLAGS)
+
+$(MLB_TEMP)/WaterRetentionCapacity.o: ./WaterRetentionCapacity.cpp $(MLB_TEMP)
+	$(CPP) -c ./WaterRetentionCapacity.cpp -o $(MLB_TEMP)/WaterRetentionCapacity.o $(CXXFLAGS)

@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual C++ Express 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "saga_api", "saga_api\saga_api.vcproj", "{56662121-D449-48F5-AFC8-7F6F120406CE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "saga_cmd", "saga_cmd\saga_cmd.vcproj", "{BFC0F503-D669-4689-B89F-EB8841399D46}"
+	ProjectSection(ProjectDependencies) = postProject
+		{56662121-D449-48F5-AFC8-7F6F120406CE} = {56662121-D449-48F5-AFC8-7F6F120406CE}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "saga_gui", "saga_gui\saga_gui.vcproj", "{F19C30A0-87BA-49B0-95ED-C53A77879CE4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{56662121-D449-48F5-AFC8-7F6F120406CE} = {56662121-D449-48F5-AFC8-7F6F120406CE}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{56662121-D449-48F5-AFC8-7F6F120406CE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{56662121-D449-48F5-AFC8-7F6F120406CE}.Debug|Win32.Build.0 = Debug|Win32
+		{56662121-D449-48F5-AFC8-7F6F120406CE}.Release|Win32.ActiveCfg = Release|Win32
+		{56662121-D449-48F5-AFC8-7F6F120406CE}.Release|Win32.Build.0 = Release|Win32
+		{BFC0F503-D669-4689-B89F-EB8841399D46}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BFC0F503-D669-4689-B89F-EB8841399D46}.Debug|Win32.Build.0 = Debug|Win32
+		{BFC0F503-D669-4689-B89F-EB8841399D46}.Release|Win32.ActiveCfg = Release|Win32
+		{BFC0F503-D669-4689-B89F-EB8841399D46}.Release|Win32.Build.0 = Release|Win32
+		{F19C30A0-87BA-49B0-95ED-C53A77879CE4}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F19C30A0-87BA-49B0-95ED-C53A77879CE4}.Debug|Win32.Build.0 = Debug|Win32
+		{F19C30A0-87BA-49B0-95ED-C53A77879CE4}.Release|Win32.ActiveCfg = Release|Win32
+		{F19C30A0-87BA-49B0-95ED-C53A77879CE4}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

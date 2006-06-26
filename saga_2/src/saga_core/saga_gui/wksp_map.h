@@ -1,0 +1,196 @@
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                         SAGA                          //
+//                                                       //
+//      System for Automated Geoscientific Analyses      //
+//                                                       //
+//                    User Interface                     //
+//                                                       //
+//                    Program: SAGA                      //
+//                                                       //
+//-------------------------------------------------------//
+//                                                       //
+//                     WKSP_Map.h                        //
+//                                                       //
+//          Copyright (C) 2005 by Olaf Conrad            //
+//                                                       //
+//-------------------------------------------------------//
+//                                                       //
+// This file is part of 'SAGA - System for Automated     //
+// Geoscientific Analyses'. SAGA is free software; you   //
+// can redistribute it and/or modify it under the terms  //
+// of the GNU General Public License as published by the //
+// Free Software Foundation; version 2 of the License.   //
+//                                                       //
+// SAGA is distributed in the hope that it will be       //
+// useful, but WITHOUT ANY WARRANTY; without even the    //
+// implied warranty of MERCHANTABILITY or FITNESS FOR A  //
+// PARTICULAR PURPOSE. See the GNU General Public        //
+// License for more details.                             //
+//                                                       //
+// You should have received a copy of the GNU General    //
+// Public License along with this program; if not,       //
+// write to the Free Software Foundation, Inc.,          //
+// 59 Temple Place - Suite 330, Boston, MA 02111-1307,   //
+// USA.                                                  //
+//                                                       //
+//-------------------------------------------------------//
+//                                                       //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Goettingen               //
+//                Goldschmidtstr. 5                      //
+//                37077 Goettingen                       //
+//                Germany                                //
+//                                                       //
+//    e-mail:     oconrad@saga-gis.org                   //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Map_H
+#define _HEADER_INCLUDED__SAGA_GUI__WKSP_Map_H
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#include <saga_api/saga_api.h>
+
+#include "wksp_base_manager.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define LEGEND_LAYOUT_HORIZONTAL	0x01
+#define LEGEND_LAYOUT_VERTICAL		0x02
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CWKSP_Map : public CWKSP_Base_Manager
+{
+public:
+	CWKSP_Map(void);
+	virtual ~CWKSP_Map(void);
+
+	virtual TWKSP_Item			Get_Type				(void)		{	return( WKSP_ITEM_Map );	}
+
+	virtual wxString			Get_Name				(void);
+	virtual wxString			Get_Description			(void);
+
+	virtual wxMenu *			Get_Menu(void);
+
+	virtual bool				On_Command				(int Cmd_ID);
+	virtual bool				On_Command_UI			(wxUpdateUIEvent &event);
+
+	virtual CParameters *		Get_Parameters			(void)		{	return( &m_Parameters );	}
+	virtual void				Parameters_Changed		(void);
+
+	const CGEO_Rect &			Get_Extent				(void)		{	return( m_Extent );	}
+	void						Set_Extent				(TGEO_Rect Extent);
+	void						Set_Extent				(void);
+	void						Set_Extent_Last			(void);
+	void						Set_Extent_Full			(void);
+	void						Set_Extent_Active		(void);
+	void						Set_Extent_Selection	(void);
+	void						Synchronize_Extents		(void);
+
+	class CWKSP_Map_Layer *		Add_Layer				(class CWKSP_Layer *pLayer);
+	int							Get_Layer				(class CWKSP_Layer *pLayer);
+	class CWKSP_Map_Layer *		Get_Layer				(int i)		{	return( (class CWKSP_Map_Layer *)Get_Item(i) );	}
+	bool						Update					(class CWKSP_Layer *pLayer, bool bMapOnly);
+	class CWKSP_Map_Layer *		Find_Layer				(class CWKSP_Layer *pLayer);
+
+	void						On_Delete				(class CWKSP_Map_Layer *pLayer);
+
+	void						View_Closes				(class wxMDIChildFrame *pView);
+	void						View_Refresh			(bool bMapOnly);
+	class CVIEW_Map *			View_Get				(void)		{	return( m_pView );		}
+	void						View_Show				(bool bShow);
+	void						View_Toggle				(void);
+	class CVIEW_Map_3D *		View_3D_Get				(void)		{	return( m_pView_3D );	}
+	void						View_3D_Show			(bool bShow);
+	void						View_3D_Toggle			(void);
+	class CVIEW_Layout *		View_Layout_Get			(void)		{	return( m_pLayout );	}
+	void						View_Layout_Show		(bool bShow);
+	void						View_Layout_Toggle		(void);
+
+	CGEO_Rect					Get_World				(wxRect rClient);
+	CGEO_Point					Get_World				(wxRect rClient, wxPoint ptClient);
+
+	bool						Get_Image				(wxImage &Image, CGEO_Rect &rWorld);
+	void						SaveAs_Image			(void);
+	void						SaveAs_PDF_Indexed		(void);
+	void						SaveAs_Interactive_SVG	(void);
+
+	void						Draw_PDF				(class CPDF_Document *pPDF, const char *FilePath_Maps, int Image_ID, const char *Icon_File, const char *sTitle, CGEO_Rect rWorld, bool bRoundScale, int iField, CShapes *m_pDivisions);
+
+	void						Draw_Map				(wxDC &dc, double Zoom, const wxRect &rClient, bool bEdit, int Background = COLOR_DEF_WHITE);
+	void						Draw_Map				(wxDC &dc, const CGEO_Rect &rWorld, double Zoom, const wxRect &rClient, bool bEdit, int Background = COLOR_DEF_WHITE);
+	void						Draw_Frame				(wxDC &dc, wxRect rMap, int Width);
+	void						Draw_Frame				(wxDC &dc, const CGEO_Rect &rWorld, wxRect rMap, int Width);
+	bool						Draw_Legend				(wxDC &dc, double Zoom_Map, double Zoom, wxPoint Position, wxSize *pSize = NULL, int Layout = LEGEND_LAYOUT_VERTICAL);
+
+	bool						Get_Legend_Size			(wxSize &Size, double Zoom_Map = 1.0, double Zoom = 1.0, int Layout = LEGEND_LAYOUT_VERTICAL);
+
+	int							Get_Frame_Width			(void);
+	int							Get_Print_Resolution	(void);
+	int							Get_Print_Frame			(void);
+	int							Get_Print_Legend		(void);
+
+
+private:
+
+	CGEO_Rect					m_Extent, m_Extent_Last;
+
+	CParameters					m_Parameters;
+
+	class CVIEW_Map				*m_pView;
+
+	class CVIEW_Map_3D			*m_pView_3D;
+
+	class CVIEW_Layout			*m_pLayout;
+
+	class CVIEW_Layout_Info		*m_pLayout_Info;
+
+
+	void						_Create_Parameters		(void);
+	static int					_On_Parameter_Changed	(CParameter *pParameter);
+	int							On_Parameter_Changed	(CParameters *pParameters, CParameter *pParameter);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Map_H
