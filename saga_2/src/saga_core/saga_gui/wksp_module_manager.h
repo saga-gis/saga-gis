@@ -87,8 +87,8 @@ public:
 	CWKSP_Module_Manager(void);
 	virtual ~CWKSP_Module_Manager(void);
 
-	void							Create				(void);
-	void							Destroy				(void);
+	bool							Initialise			(void);
+	bool							Finalise			(void);
 
 	virtual TWKSP_Item				Get_Type			(void)		{	return( WKSP_ITEM_Module_Manager );	}
 

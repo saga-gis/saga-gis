@@ -161,22 +161,28 @@ bool CWKSP_Project::Load(const char *FileName, bool bAdd)
 }
 
 //---------------------------------------------------------
+bool CWKSP_Project::Save(void)
+{
+	wxString	FileName;
+
+	return( DLG_Save(FileName, ID_DLG_PROJECT_SAVE) && _Save(FileName, true) );
+}
+
+//---------------------------------------------------------
 bool CWKSP_Project::Save(bool bSaveAsOnError)
 {
 	if( Has_File_Name() )
 	{
-		return( _Save(m_File_Name) );
+		return( _Save(m_File_Name, true) );
 	}
 
-	return( bSaveAsOnError ? Save_As() : false );
+	return( bSaveAsOnError ? Save() : false );
 }
 
 //---------------------------------------------------------
-bool CWKSP_Project::Save_As(void)
+bool CWKSP_Project::Save(const char *FileName, bool bSaveModified)
 {
-	wxString	FileName;
-
-	return( DLG_Save(FileName, ID_DLG_PROJECT_SAVE) && _Save(FileName) );
+	return( _Save(FileName, bSaveModified) );
 }
 
 
@@ -252,7 +258,7 @@ bool CWKSP_Project::_Load(const char *FileName, bool bAdd)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Project::_Save(const char *FileName)
+bool CWKSP_Project::_Save(const char *FileName, bool bSaveModified)
 {
 	int						i, j;
 	CAPI_String				ProjectDir;
@@ -263,11 +269,14 @@ bool CWKSP_Project::_Save(const char *FileName)
 	CWKSP_Grid_Manager		*pGrids;
 
 	//-----------------------------------------------------
+	if( bSaveModified && !Save_Modified(g_pData) )
+	{
+		return( false );
+	}
+
 	if( (Stream = fopen(FileName, "wb")) != NULL )
 	{
 		ProjectDir	= API_Extract_File_Path(FileName);
-
-		Save_Modified(g_pData);
 
 		fprintf(Stream, "\n%s\n", DATA_ENTRIES_BEGIN);
 

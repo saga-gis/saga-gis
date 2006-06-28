@@ -87,6 +87,9 @@ public:
 	CWKSP_Data_Manager(void);
 	virtual ~CWKSP_Data_Manager(void);
 
+	bool							Initialise			(void);
+	bool							Finalise			(void);
+
 	virtual TWKSP_Item				Get_Type			(void)		{	return( WKSP_ITEM_Data_Manager );	}
 
 	virtual wxString				Get_Name			(void);
@@ -115,7 +118,6 @@ public:
 	bool							Check_Parameters	(class CParameters *pParameters);
 	bool							Check_Parameter		(class CParameter  *pParameter);
 
-	bool							ReOpen_Project		(void);
 	bool							Open_CMD			(int Cmd_ID);
 	bool							Open				(const char *FileName);
 	bool							Open				(int DataType);

@@ -125,7 +125,7 @@ CWKSP_Module_Manager::~CWKSP_Module_Manager(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Module_Manager::Create(void)
+bool CWKSP_Module_Manager::Initialise(void)
 {
 	_Config_Read();
 
@@ -133,12 +133,16 @@ void CWKSP_Module_Manager::Create(void)
 	{
 		_Open_Directory(g_pSAGA->Get_App_Path());
 	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
-void CWKSP_Module_Manager::Destroy(void)
+bool CWKSP_Module_Manager::Finalise(void)
 {
 	_Config_Write();
+
+	return( true );
 }
 
 

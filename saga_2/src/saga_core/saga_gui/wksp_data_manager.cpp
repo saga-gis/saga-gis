@@ -58,7 +58,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <wx/filename.h>
+
 #include <saga_api/saga_api.h>
+
+#include "saga.h"
 
 #include "res_commands.h"
 #include "res_dialogs.h"
@@ -136,12 +140,6 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	}
 
 	//-----------------------------------------------------
-	if( CONFIG_Read("/DATA", "PROJECT_AUTOLOAD"	, bValue) == false )
-	{
-		bValue	= true;
-	}
-
-	//-----------------------------------------------------
 	CParameter	*pNode;
 
 	m_Parameters.Create(this, "", "");
@@ -177,32 +175,91 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 		API_Grid_Cache_Get_Confirm()
 	);
 
+	//-----------------------------------------------------
+	if( CONFIG_Read("/DATA", "PROJECT_START"			, lValue) == false )
+	{
+		lValue	= 2;
+	}
+
 	pNode	= m_Parameters.Add_Node(NULL, "NODE_GENERAL", LNG("General"), "");
 
-	m_Parameters.Add_Value(
-		pNode	, "PROJECT_AUTOLOAD"		, LNG("Load project on restart"),
+	m_Parameters.Add_Choice(
+		pNode	, "PROJECT_START"			, LNG("Start Project"),
 		LNG(""),
-		PARAMETER_TYPE_Bool, bValue
+		wxString::Format("%s|%s|%s|",
+			LNG("empty"),
+			LNG("last opened"),
+			LNG("automatically save and load")
+		), lValue
 	);
 }
 
 //---------------------------------------------------------
 CWKSP_Data_Manager::~CWKSP_Data_Manager(void)
 {
-	g_pData			= NULL;
+	g_pData	= NULL;
 
+	delete(m_pProject);
+	delete(m_pMenu_Files);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Data_Manager::Initialise(void)
+{
+	wxString	FileName;
+
+	if( m_pProject->Has_File_Name() )
+	{
+		return( m_pProject->Load(false) );
+	}
+	else
+	{
+		return( CONFIG_Read("/DATA", "PROJECT_FILE", FileName) && wxFileExists(FileName) && m_pProject->Load(FileName, false) );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Data_Manager::Finalise(void)
+{
 	//-----------------------------------------------------
 	CONFIG_Write("/DATA/GRIDS", "CACHE_TMP_DIR"		,		API_Grid_Cache_Get_Directory());
 	CONFIG_Write("/DATA/GRIDS", "CACHE_AUTO"		,		API_Grid_Cache_Get_Automatic());
 	CONFIG_Write("/DATA/GRIDS", "CACHE_THRESHOLD"	, (long)API_Grid_Cache_Get_Threshold());
 	CONFIG_Write("/DATA/GRIDS", "CACHE_CONFIRM"		, (long)API_Grid_Cache_Get_Confirm  ());
 
-	CONFIG_Write("/DATA", "PROJECT_AUTOLOAD"		, m_Parameters("PROJECT_AUTOLOAD")->asBool());
-	CONFIG_Write("/DATA", "PROJECT_FILE"			, m_Parameters("PROJECT_AUTOLOAD")->asBool() ? m_pProject->Get_File_Name() : "");
-
 	//-----------------------------------------------------
-	delete(m_pProject);
-	delete(m_pMenu_Files);
+	wxFileName	fProject(g_pSAGA->Get_App_Path(), "project", "sprj");
+
+	CONFIG_Write("/DATA", "PROJECT_START"			, (long)m_Parameters("PROJECT_START")->asInt());
+
+	switch( m_Parameters("PROJECT_START")->asInt() )
+	{
+	case 0:	// empty
+		wxRemoveFile(fProject.GetFullPath());
+		CONFIG_Write("/DATA", "PROJECT_FILE", "");
+		break;
+
+	case 1:	// last opened
+		wxRemoveFile(fProject.GetFullPath());
+		CONFIG_Write("/DATA", "PROJECT_FILE", m_pProject->Get_File_Name());
+		break;
+
+	case 2:	// automatically save and load		
+		m_pProject->Save(fProject.GetFullPath(), false);
+		CONFIG_Write("/DATA", "PROJECT_FILE", m_pProject->Get_File_Name());
+		break;
+	}
+
+	return( true );
 }
 
 
@@ -326,7 +383,7 @@ bool CWKSP_Data_Manager::On_Command(int Cmd_ID)
 	case ID_CMD_DATA_PROJECT_OPEN:		m_pProject->Load(false);		break;
 	case ID_CMD_DATA_PROJECT_OPEN_ADD:	m_pProject->Load(true);			break;
 	case ID_CMD_DATA_PROJECT_SAVE:		m_pProject->Save(true);			break;
-	case ID_CMD_DATA_PROJECT_SAVE_AS:	m_pProject->Save_As();			break;
+	case ID_CMD_DATA_PROJECT_SAVE_AS:	m_pProject->Save();				break;
 
 	//-----------------------------------------------------
 	case ID_CMD_TABLES_OPEN:			Open(DATAOBJECT_TYPE_Table);	break;
@@ -483,23 +540,6 @@ bool CWKSP_Data_Manager::Check_Parameter(CParameter *pParameter)
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CWKSP_Data_Manager::ReOpen_Project(void)
-{
-	wxString	FileName;
-
-	if( m_pProject->Has_File_Name() )
-	{
-		return( m_pProject->Load(false) );
-	}
-	else
-	{
-		return( CONFIG_Read("/DATA", "PROJECT_FILE", FileName) && wxFileExists(FileName) && m_pProject->Load(FileName, false) );
-	}
-
-	return( false );
-}
 
 //---------------------------------------------------------
 bool CWKSP_Data_Manager::Open_CMD(int Cmd_ID)
@@ -701,6 +741,7 @@ bool CWKSP_Data_Manager::Close(bool bSilent)
 	}
 	else if( (bSilent || DLG_Message_Confirm(LNG("[TXT] Close all data sets"), LNG("[CAP] Close"))) && Save_Modified(this) )
 	{
+		Finalise();
 		g_pACTIVE->Get_Parameters()->Restore_Parameters();
 		g_pMaps->Close(true);
 

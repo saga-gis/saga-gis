@@ -231,9 +231,9 @@ CSAGA_Frame::CSAGA_Frame(void)
 
 	Update();
 
-	if( g_pData->ReOpen_Project() )
+	if( g_pData->Initialise() )
 	{
-		Refresh();
+		Refresh(false);
 	}
 }
 
@@ -244,7 +244,7 @@ CSAGA_Frame::~CSAGA_Frame(void)
 
 	API_Set_Callback(NULL);
 
-	g_pSAGA_Frame		= NULL;
+	g_pSAGA_Frame	= NULL;
 }
 
 
@@ -261,6 +261,8 @@ void CSAGA_Frame::On_Close(wxCloseEvent &event)
 	{
 		if( !g_pModule && DLG_Message_Confirm(ID_DLG_CLOSE) && g_pData->Close(true) )
 		{
+			g_pModules->Finalise();
+
 			Destroy();
 		}
 		else
@@ -275,6 +277,8 @@ void CSAGA_Frame::On_Close(wxCloseEvent &event)
 	}
 	else
 	{
+		g_pModules->Finalise();
+
 		g_pData->Close(true);
 
 		event.Skip();

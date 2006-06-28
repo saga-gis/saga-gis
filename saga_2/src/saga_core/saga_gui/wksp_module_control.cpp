@@ -132,13 +132,13 @@ CWKSP_Module_Control::CWKSP_Module_Control(wxWindow *pParent)
 	//-----------------------------------------------------
 	_Set_Manager(new CWKSP_Module_Manager);
 
-	Get_Manager()->Create();
+	Get_Manager()->Initialise();
 }
 
 //---------------------------------------------------------
 CWKSP_Module_Control::~CWKSP_Module_Control(void)
 {
-	Get_Manager()->Destroy();
+//	Get_Manager()->Finalise();
 
 	_Del_Item(m_pManager, true);
 
