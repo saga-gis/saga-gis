@@ -241,7 +241,12 @@ bool CWKSP_Data_Manager::Finalise(void)
 
 	CONFIG_Write("/DATA", "PROJECT_START"			, (long)m_Parameters("PROJECT_START")->asInt());
 
-	switch( m_Parameters("PROJECT_START")->asInt() )
+	if( Get_Count() == 0 )
+	{
+		wxRemoveFile(fProject.GetFullPath());
+		CONFIG_Write("/DATA", "PROJECT_FILE", "");
+	}
+	else switch( m_Parameters("PROJECT_START")->asInt() )
 	{
 	case 0:	// empty
 		wxRemoveFile(fProject.GetFullPath());
