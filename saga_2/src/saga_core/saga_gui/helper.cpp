@@ -414,7 +414,7 @@ bool		CONFIG_Write(const char *Group, const char *Entry, const char *Value)
 
 	pConfig->SetPath(wxString::Format("/%s", Group));
 
-	return( pConfig->Write(Entry, Value) );
+	return( pConfig->Write(Entry, Value) ? pConfig->Flush() : false );
 }
 
 //---------------------------------------------------------
@@ -424,7 +424,7 @@ bool		CONFIG_Write(const char *Group, const char *Entry, long Value)
 
 	pConfig->SetPath(wxString::Format("/%s", Group));
 
-	return( pConfig->Write(Entry, Value) );
+	return( pConfig->Write(Entry, Value) ? pConfig->Flush() : false );
 }
 
 //---------------------------------------------------------
@@ -434,7 +434,7 @@ bool		CONFIG_Write(const char *Group, const char *Entry, double Value)
 
 	pConfig->SetPath(wxString::Format("/%s", Group));
 
-	return( pConfig->Write(Entry, Value) );
+	return( pConfig->Write(Entry, Value) ? pConfig->Flush() : false );
 }
 
 //---------------------------------------------------------
@@ -444,7 +444,7 @@ bool		CONFIG_Write(const char *Group, const char *Entry, bool Value)
 
 	pConfig->SetPath(wxString::Format("/%s", Group));
 
-	return( pConfig->Write(Entry, Value) );
+	return( pConfig->Write(Entry, Value) ? pConfig->Flush() : false );
 }
 
 //---------------------------------------------------------
@@ -452,7 +452,7 @@ bool		CONFIG_Delete(const char *Group)
 {
 	wxConfigBase	*pConfig	= wxConfigBase::Get();
 
-	return( pConfig->DeleteGroup(Group) );
+	return( pConfig->DeleteGroup(Group) ? pConfig->Flush() : false );
 }
 
 bool		CONFIG_Delete(const char *Group, const char *Entry)
@@ -461,7 +461,7 @@ bool		CONFIG_Delete(const char *Group, const char *Entry)
 
 	pConfig->SetPath(wxString::Format("/%s", Group));
 
-	return( pConfig->DeleteEntry(Entry) );
+	return( pConfig->DeleteEntry(Entry) ? pConfig->Flush() : false );
 }
 
 
