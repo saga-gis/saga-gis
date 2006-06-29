@@ -151,13 +151,13 @@ bool CWKSP_Project::Load(bool bAdd)
 {
 	wxString	FileName;
 
-	return( DLG_Open(FileName, ID_DLG_PROJECT_OPEN) && _Load(FileName, bAdd) );
+	return( DLG_Open(FileName, ID_DLG_PROJECT_OPEN) && _Load(FileName, bAdd, true) );
 }
 
 //---------------------------------------------------------
-bool CWKSP_Project::Load(const char *FileName, bool bAdd)
+bool CWKSP_Project::Load(const char *FileName, bool bAdd, bool bUpdateMenu)
 {
-	return( _Load(FileName, bAdd) );
+	return( _Load(FileName, bAdd, bUpdateMenu) );
 }
 
 //---------------------------------------------------------
@@ -165,7 +165,7 @@ bool CWKSP_Project::Save(void)
 {
 	wxString	FileName;
 
-	return( DLG_Save(FileName, ID_DLG_PROJECT_SAVE) && _Save(FileName, true) );
+	return( DLG_Save(FileName, ID_DLG_PROJECT_SAVE) && _Save(FileName, true, true) );
 }
 
 //---------------------------------------------------------
@@ -173,7 +173,7 @@ bool CWKSP_Project::Save(bool bSaveAsOnError)
 {
 	if( Has_File_Name() )
 	{
-		return( _Save(m_File_Name, true) );
+		return( _Save(m_File_Name, true, true) );
 	}
 
 	return( bSaveAsOnError ? Save() : false );
@@ -182,7 +182,7 @@ bool CWKSP_Project::Save(bool bSaveAsOnError)
 //---------------------------------------------------------
 bool CWKSP_Project::Save(const char *FileName, bool bSaveModified)
 {
-	return( _Save(FileName, bSaveModified) );
+	return( _Save(FileName, bSaveModified, false) );
 }
 
 
@@ -193,7 +193,7 @@ bool CWKSP_Project::Save(const char *FileName, bool bSaveModified)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Project::_Load(const char *FileName, bool bAdd)
+bool CWKSP_Project::_Load(const char *FileName, bool bAdd, bool bUpdateMenu)
 {
 	bool		bSuccess;
 	FILE		*Stream;
@@ -241,7 +241,8 @@ bool CWKSP_Project::_Load(const char *FileName, bool bAdd)
 	{
 		m_File_Name	= FileName;
 
-		g_pData->Get_FileMenus()->Recent_Add(DATAOBJECT_TYPE_Undefined, FileName);
+		if( bUpdateMenu )
+			g_pData->Get_FileMenus()->Recent_Add(DATAOBJECT_TYPE_Undefined, FileName);
 
 		MSG_General_Add(LNG("[MSG] Project has been successfully loaded."), true, true);
 
@@ -249,7 +250,8 @@ bool CWKSP_Project::_Load(const char *FileName, bool bAdd)
 	}
 	else
 	{
-		g_pData->Get_FileMenus()->Recent_Del(DATAOBJECT_TYPE_Undefined, FileName);
+		if( bUpdateMenu )
+			g_pData->Get_FileMenus()->Recent_Del(DATAOBJECT_TYPE_Undefined, FileName);
 
 		MSG_General_Add(LNG("[MSG] Could not load project."), true, true);
 
@@ -258,7 +260,7 @@ bool CWKSP_Project::_Load(const char *FileName, bool bAdd)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Project::_Save(const char *FileName, bool bSaveModified)
+bool CWKSP_Project::_Save(const char *FileName, bool bSaveModified, bool bUpdateMenu)
 {
 	int						i, j;
 	CAPI_String				ProjectDir;
@@ -351,7 +353,8 @@ bool CWKSP_Project::_Save(const char *FileName, bool bSaveModified)
 
 		m_File_Name	= FileName;
 
-		g_pData->Get_FileMenus()->Recent_Add(DATAOBJECT_TYPE_Undefined, m_File_Name);
+		if( bUpdateMenu )
+			g_pData->Get_FileMenus()->Recent_Add(DATAOBJECT_TYPE_Undefined, FileName);
 
 		MSG_General_Add(LNG("[MSG] Project has been saved."), true, true);
 
@@ -359,6 +362,9 @@ bool CWKSP_Project::_Save(const char *FileName, bool bSaveModified)
 	}
 
 	m_File_Name.Clear();
+
+	if( bUpdateMenu )
+		g_pData->Get_FileMenus()->Recent_Del(DATAOBJECT_TYPE_Undefined, FileName);
 
 	MSG_General_Add(LNG("[MSG] Could not save project."), true, true);
 

@@ -221,7 +221,7 @@ bool CWKSP_Data_Manager::Initialise(void)
 	}
 	else
 	{
-		return( CONFIG_Read("/DATA", "PROJECT_FILE", FileName) && wxFileExists(FileName) && m_pProject->Load(FileName, false) );
+		return( CONFIG_Read("/DATA", "PROJECT_FILE", FileName) && wxFileExists(FileName) && m_pProject->Load(FileName, false, false) );
 	}
 
 	return( false );
@@ -237,7 +237,7 @@ bool CWKSP_Data_Manager::Finalise(void)
 	CONFIG_Write("/DATA/GRIDS", "CACHE_CONFIRM"		, (long)API_Grid_Cache_Get_Confirm  ());
 
 	//-----------------------------------------------------
-	wxFileName	fProject(g_pSAGA->Get_App_Path(), "project", "sprj");
+	wxFileName	fProject(g_pSAGA->Get_App_Path(), "session", "sprj");
 
 	CONFIG_Write("/DATA", "PROJECT_START"			, (long)m_Parameters("PROJECT_START")->asInt());
 
@@ -566,7 +566,8 @@ bool CWKSP_Data_Manager::Open(const char *File_Name)
 		return( Open(DATAOBJECT_TYPE_Shapes, File_Name) != NULL );
 	}
 
-	if( API_Cmp_File_Extension(File_Name, "dgm")
+	if(	API_Cmp_File_Extension(File_Name, "sgrd")
+	||	API_Cmp_File_Extension(File_Name, "dgm")
 	||	API_Cmp_File_Extension(File_Name, "grd") )
 	{
 		return( Open(DATAOBJECT_TYPE_Grid  , File_Name) != NULL );
@@ -574,7 +575,7 @@ bool CWKSP_Data_Manager::Open(const char *File_Name)
 
 	if( API_Cmp_File_Extension(File_Name, "sprj") )
 	{
-		return( m_pProject->Load(File_Name, false) );
+		return( m_pProject->Load(File_Name, false, true) );
 	}
 
 	return( false );

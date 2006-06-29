@@ -79,7 +79,7 @@ public:
 	bool					Has_File_Name		(void);
 
 	bool					Load				(bool bAdd);
-	bool					Load				(const char *FileName, bool bAdd);
+	bool					Load				(const char *FileName, bool bAdd, bool bUpdateMenu);
 
 	bool					Save				(void);
 	bool					Save				(bool bSaveAsOnError);
@@ -92,8 +92,8 @@ private:
 
 	wxString				m_File_Name;
 
-	bool					_Load				(const char *FileName, bool bAdd);
-	bool					_Save				(const char *FileName, bool bSaveModified);
+	bool					_Load				(const char *FileName, bool bAdd, bool bUpdateMenu);
+	bool					_Save				(const char *FileName, bool bSaveModified, bool bUpdateMenu);
 
 	bool					_Load_Data			(FILE *Stream, const char *ProjectDir);
 	bool					_Save_Data			(FILE *Stream, const char *ProjectDir, class CDataObject *pDataObject, class CParameters *pParameters);

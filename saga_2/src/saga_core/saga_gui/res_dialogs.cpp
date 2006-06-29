@@ -178,40 +178,40 @@ const char * DLG_Get_FILE_Filter(int ID_DLG)
 	switch( ID_DLG )
 	{
 	case ID_DLG_WKSP_OPEN:			return( LNG("[FIL] "
-		"All Recognised Files"					"|*.sprj;*.mlb;*.dll;*.so;*.dgm;*.grd;*.shp;*.txt;*.dbf|"
+		"All Recognised Files"					"|*.sprj;*.mlb;*.dll;*.so;*sgrd;*.dgm;*.grd;*.shp;*.txt;*.dbf|"
 		"SAGA Project (*.sprj)"					"|*.sprj|"
 		"SAGA Module Libraries (*.dll, *.so)"	"|*.mlb;*.dll;*.so|"
-		"Grids (*.dgm)"							"|*.dgm;*.grd|"
+		"Grids (*.sgrd, *.dgm)"					"|*.sgrd;*.dgm;*.grd|"
 		"ESRI Shape Files (*.shp)"				"|*.shp|"
 		"Tables (*.txt, *.dbf)"					"|*.txt;*.dbf|"
 		"All Files"								"|*.*"
 	) );
 
-	case ID_DLG_MODULES_OPEN:		return( LNG("[FIL] SAGA Module Libraries (*.dll, *.so)"	"|*.mlb;*.dll;*.so"	"|All Files|*.*") );
+	case ID_DLG_MODULES_OPEN:		return( LNG("[FIL] SAGA Module Libraries (*.dll, *.so)"	"|*.mlb;*.dll;*.so"		"|All Files|*.*") );
 
 	case ID_DLG_PROJECT_OPEN:
-	case ID_DLG_PROJECT_SAVE:		return( LNG("[FIL] SAGA Projects (*.sprj)"				"|*.sprj"			"|All Files|*.*") );
+	case ID_DLG_PROJECT_SAVE:		return( LNG("[FIL] SAGA Projects (*.sprj)"				"|*.sprj"				"|All Files|*.*") );
 
-	case ID_DLG_GRIDS_OPEN:			return( LNG("[FIL] Grids (*.dgm)"						"|*.dgm;*.grd"		"|All Files|*.*") );
-	case ID_DLG_GRIDS_SAVE:			return( LNG("[FIL] Grids (*.dgm)"						"|*.dgm"			"|All Files|*.*") );
+	case ID_DLG_GRIDS_OPEN:			return( LNG("[FIL] Grids (*.sgrd, *.dgm)"				"|*.sgrd;*.dgm;*.grd"	"|All Files|*.*") );
+	case ID_DLG_GRIDS_SAVE:			return( LNG("[FIL] Grids (*.sgrd)"						"|*.sgrd"				"|All Files|*.*") );
 
 	case ID_DLG_SHAPES_OPEN:
-	case ID_DLG_SHAPES_SAVE:		return( LNG("[FIL] ESRI Shape Files (*.shp)"			"|*.shp"			"|All Files|*.*") );
+	case ID_DLG_SHAPES_SAVE:		return( LNG("[FIL] ESRI Shape Files (*.shp)"			"|*.shp"				"|All Files|*.*") );
 
-	case ID_DLG_TABLES_OPEN:		return( LNG("[FIL] Tables (*.txt, *.dbf)"				"|*.txt;*.dbf"		"|All Files|*.*") );
-	case ID_DLG_TABLES_SAVE:		return( LNG("[FIL] Text (*.txt)|*.txt|DBase (*.dbf)"	"|*.dbf"			"|All Files|*.*") );
+	case ID_DLG_TABLES_OPEN:		return( LNG("[FIL] Tables (*.txt, *.dbf)"				"|*.txt;*.dbf"			"|All Files|*.*") );
+	case ID_DLG_TABLES_SAVE:		return( LNG("[FIL] Text (*.txt)|*.txt|DBase (*.dbf)"	"|*.dbf"				"|All Files|*.*") );
 
 	case ID_DLG_TIN_OPEN:
-	case ID_DLG_TIN_SAVE:			return( LNG("[FIL] ESRI Shape Files (*.shp)"			"|*.shp"			"|All Files|*.*") );
+	case ID_DLG_TIN_SAVE:			return( LNG("[FIL] ESRI Shape Files (*.shp)"			"|*.shp"				"|All Files|*.*") );
 
 	case ID_DLG_TEXT_OPEN:
-	case ID_DLG_TEXT_SAVE:			return( LNG("[FIL] Text Files (*.txt)"					"|*.txt"			"|All Files|*.*") );
+	case ID_DLG_TEXT_SAVE:			return( LNG("[FIL] Text Files (*.txt)"					"|*.txt"				"|All Files|*.*") );
 
 	case ID_DLG_PARAMETERS_OPEN:
-	case ID_DLG_PARAMETERS_SAVE:	return( LNG("[FIL] SAGA Parameter Files (*.sprm)"		"|*.sprm"			"|All Files|*.*") );
+	case ID_DLG_PARAMETERS_SAVE:	return( LNG("[FIL] SAGA Parameter Files (*.sprm)"		"|*.sprm"				"|All Files|*.*") );
 
 	case ID_DLG_COLORS_OPEN:
-	case ID_DLG_COLORS_SAVE:		return( LNG("[FIL] SAGA Colors (*.pal)"					"|*.pal"			"|All Files|*.*") );
+	case ID_DLG_COLORS_SAVE:		return( LNG("[FIL] SAGA Colors (*.pal)"					"|*.pal"				"|All Files|*.*") );
 	}
 
 	return( LNG("[FIL] All Files|*.*") );

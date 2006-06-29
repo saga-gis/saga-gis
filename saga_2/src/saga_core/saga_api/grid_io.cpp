@@ -549,8 +549,6 @@ bool CGrid::_Load_Native(const char *File_Header, TGrid_Memory_Type Memory_Type)
 		//-------------------------------------------------
 		// Load Header...
 
-		File_Data		= API_Make_File_Path(NULL, File_Header, "dat");
-
 		hdr_Type		= GRID_TYPE_Count;
 		hdr_Offset		= 0;
 		hdr_bFlip		= false;
@@ -624,7 +622,9 @@ bool CGrid::_Load_Native(const char *File_Header, TGrid_Memory_Type Memory_Type)
 					m_Type	= GRID_TYPE_Float;
 				}
 
-				if( (Stream = fopen(File_Data, "r")) != NULL )
+				if(	(File_Data.Length() > 0 && (Stream = fopen(File_Data			, "r")) != NULL)
+				||	(Stream = fopen(API_Make_File_Path(NULL, File_Header,  "dat")	, "r")) != NULL
+				||	(Stream = fopen(API_Make_File_Path(NULL, File_Header, "sdat")	, "r")) != NULL )
 				{
 					fseek(Stream, hdr_Offset, SEEK_SET);
 					bResult	= _Load_ASCII(Stream, Memory_Type);
@@ -647,11 +647,16 @@ bool CGrid::_Load_Native(const char *File_Header, TGrid_Memory_Type Memory_Type)
 					return( true );
 				}
 
-				if( _Memory_Create(Memory_Type) && (Stream = fopen(File_Data, "rb")) != NULL )
+				if( _Memory_Create(Memory_Type) )
 				{
-					fseek(Stream, hdr_Offset, SEEK_SET);
-					bResult	= _Load_Binary(Stream, hdr_Type, hdr_bFlip, hdr_bSwapBytes);
-					fclose(Stream);
+					if(	(File_Data.Length() > 0 && (Stream = fopen(File_Data			, "rb")) != NULL)
+					||	(Stream = fopen(API_Make_File_Path(NULL, File_Header,  "dat")	, "rb")) != NULL
+					||	(Stream = fopen(API_Make_File_Path(NULL, File_Header, "sdat")	, "rb")) != NULL )
+					{
+						fseek(Stream, hdr_Offset, SEEK_SET);
+						bResult	= _Load_Binary(Stream, hdr_Type, hdr_bFlip, hdr_bSwapBytes);
+						fclose(Stream);
+					}
 				}
 			}
 		}
@@ -663,13 +668,10 @@ bool CGrid::_Load_Native(const char *File_Header, TGrid_Memory_Type Memory_Type)
 //---------------------------------------------------------
 bool CGrid::_Save_Native(const char *File_Name, int xA, int yA, int xN, int yN, bool bBinary)
 {
-	bool		bResult		= false;
-	FILE		*Stream;
-	CAPI_String	fName;
+	bool	bResult		= false;
+	FILE	*Stream;
 
-	fName	= API_Make_File_Path(NULL, File_Name, "dgm");
-
-	if( (Stream = fopen(fName.c_str(), "w")) != NULL )
+	if(	(Stream = fopen(API_Make_File_Path(NULL, File_Name, "sgrd"), "w")) != NULL )
 	{
 		//-------------------------------------------------
 		// Header...
@@ -695,9 +697,7 @@ bool CGrid::_Save_Native(const char *File_Name, int xA, int yA, int xN, int yN, 
 		//-------------------------------------------------
 		// Data...
 
-		fName	= API_Make_File_Path(NULL, File_Name, "dat");
-
-		if( (Stream = fopen(fName.c_str(), "wb")) != NULL )
+		if( (Stream = fopen(API_Make_File_Path(NULL, File_Name, "sdat"), "wb")) != NULL )
 		{
 			if( bBinary )
 			{
