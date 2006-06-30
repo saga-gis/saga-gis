@@ -129,7 +129,7 @@ private:
 	void							_Config_Read		(void);
 	void							_Config_Write		(void);
 
-	void							_Open_Directory		(const char *sDirectory);
+	int								_Open_Directory		(const char *sDirectory);
 
 	void							_Make_Report		(void);
 	void							_Make_HTML_Docs		(void);

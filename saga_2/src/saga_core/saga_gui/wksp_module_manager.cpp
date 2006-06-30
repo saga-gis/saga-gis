@@ -131,6 +131,9 @@ bool CWKSP_Module_Manager::Initialise(void)
 
 	if( Get_Count() == 0 )
 	{
+#if defined(_SAGA_LINUX)
+		if( _Open_Directory("/usr/local/lib/saga") == 0 )
+#endif
 		_Open_Directory(g_pSAGA->Get_App_Path());
 	}
 
@@ -325,8 +328,9 @@ void CWKSP_Module_Manager::_Config_Write(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Module_Manager::_Open_Directory(const char *sDirectory)
+int CWKSP_Module_Manager::_Open_Directory(const char *sDirectory)
 {
+	int			nOpened	= 0;
 	wxDir		Dir;
 	wxString	FileName;
 
@@ -336,7 +340,10 @@ void CWKSP_Module_Manager::_Open_Directory(const char *sDirectory)
 		{
 			do
 			{	if( FileName.Find("saga_api") < 0 )
-				Open(API_Make_File_Path(Dir.GetName(), FileName, NULL));
+				if( Open(API_Make_File_Path(Dir.GetName(), FileName, NULL)) )
+				{
+					nOpened++;
+				}
 			}
 			while( Dir.GetNext(&FileName) );
 		}
@@ -345,11 +352,13 @@ void CWKSP_Module_Manager::_Open_Directory(const char *sDirectory)
 		{
 			do
 			{
-				_Open_Directory(API_Make_File_Path(Dir.GetName(), FileName, NULL));
+				nOpened	+= _Open_Directory(API_Make_File_Path(Dir.GetName(), FileName, NULL));
 			}
 			while( Dir.GetNext(&FileName) );
 		}
 	}
+
+	return( nOpened );
 }
 
 
