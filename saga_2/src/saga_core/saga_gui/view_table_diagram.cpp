@@ -227,12 +227,39 @@ void CVIEW_Table_Diagram::_Destroy_Fields(void)
 //---------------------------------------------------------
 bool CVIEW_Table_Diagram::_Set_Fields(void)
 {
-	int		iField;
-
 	_Destroy_Fields();
 
 	if( m_pTable && m_pTable->Get_Field_Count() > 0 )
 	{
+		const char	*sField;
+		int			iField;
+
+		iField		= m_Parameters("_DIAGRAM_XFIELD")->asInt();
+		sField		= m_Parameters("_DIAGRAM_XFIELD")->asChoice()->Get_Item(iField);
+		m_xField	= -1;
+
+		for(iField=0; iField<m_pTable->Get_Field_Count(); iField++)
+		{
+			if( strcmp(sField, m_pTable->Get_Field_Name(iField)) == 0 )
+			{
+				m_xMin	= m_pTable->Get_MinValue(iField);
+				m_xMax	= m_pTable->Get_MaxValue(iField);
+
+				if( m_xMin < m_xMax )
+				{
+					m_xField	= iField;
+				}
+				break;
+			}
+		}
+
+		if( m_xField < 0 )
+		{
+			m_xMin	= 1;
+			m_xMax	= 1 + m_pTable->Get_Record_Count();
+		}
+
+		//-------------------------------------------------
 		for(iField=0; iField<m_pTable->Get_Field_Count(); iField++)
 		{
 			if(	m_pTable->Get_Field_Type(iField) != TABLE_FIELDTYPE_String
@@ -271,6 +298,7 @@ bool CVIEW_Table_Diagram::_Set_Fields(void)
 void CVIEW_Table_Diagram::_Initialize(void)
 {
 	int			iField;
+	CAPI_String	sFields_All, sFields_Num;
 	CParameter	*pNode, *pFields, *pColors;
 
 	//-----------------------------------------------------
@@ -302,7 +330,13 @@ void CVIEW_Table_Diagram::_Initialize(void)
 					LNG("[CAP] Color"),
 					PARAMETER_TYPE_Color, m_Colors.Get_Color(iField)
 				);
+
+				sFields_Num.Append(m_pTable->Get_Field_Name(iField));
+				sFields_Num.Append("|");
 			}
+
+			sFields_All.Append(m_pTable->Get_Field_Name(iField));
+			sFields_All.Append("|");
 		}
 
 		pNode	= m_Parameters.Add_Node(
@@ -311,18 +345,44 @@ void CVIEW_Table_Diagram::_Initialize(void)
 		);
 
 		m_Parameters.Add_Choice(
-			pNode, "_DIAGRAM_TYPE"	, LNG("[CAP] Display Type"),
+			pNode, "_DIAGRAM_TYPE"		, LNG("[CAP] Display Type"),
 			"",
-			LNG("Bars|"
-			"Lines and Points|"
-			"Lines|"
-			"Points|"), 1
+			wxString::Format("%s|%s|%s|%s|",
+				LNG("Bars"),
+				LNG("Lines and Points"),
+				LNG("Lines"),
+				LNG("Points")
+			), 1
 		);
 
 		m_pFont	= m_Parameters.Add_Font(
-			pNode, "_DIAGRAM_FONT"	, LNG("[CAP] Font"),
+			pNode, "_DIAGRAM_FONT"		, LNG("[CAP] Font"),
 			""
 		)->asFont();
+
+		m_Parameters.Add_Value(
+			pNode, "_DIAGRAM_LEGEND"	, LNG("[CAP] Legend"),
+			"",
+			PARAMETER_TYPE_Bool, true
+		);
+
+		sFields_Num.Append(LNG("[CAP] [none]"));
+		sFields_Num.Append("|");
+
+		m_Parameters.Add_Choice(
+			pNode, "_DIAGRAM_XFIELD"	, LNG("[CAP] X Axis"),
+			"",
+			sFields_Num, m_pTable->Get_Field_Count() + 1
+		);
+
+		sFields_All.Append(LNG("[CAP] [none]"));
+		sFields_All.Append("|");
+
+		m_Parameters.Add_Choice(
+			pNode, "_DIAGRAM_LABEL"		, LNG("[CAP] X Label"),
+			"",
+			sFields_All, m_pTable->Get_Field_Count() + 1
+		);
 
 		_Set_Fields();
 	}
@@ -362,37 +422,33 @@ bool CVIEW_Table_Diagram::_DLG_Parameters(void)
 //---------------------------------------------------------
 void CVIEW_Table_Diagram::Draw(wxDC &dc, wxRect rDraw)
 {
-	wxRect	r(_Draw_Get_rDiagram(rDraw));
-
 	if( m_pFont )
 	{
 		dc.SetFont(*m_pFont);
 	}
 
-	_Draw_Diagram(dc, r);
-}
-
-//---------------------------------------------------------
-wxRect CVIEW_Table_Diagram::_Draw_Get_rDiagram(wxRect r)
-{
-	return(	wxRect(
-		wxPoint(r.GetLeft()  +  80, r.GetTop()    + 10),
-		wxPoint(r.GetRight() - 100, r.GetBottom() - 40)
-	));
+	_Draw_Diagram(dc, rDraw);
 }
 
 //---------------------------------------------------------
 void CVIEW_Table_Diagram::_Draw_Diagram(wxDC &dc, wxRect rDC)
 {
-	int		iField;
-	double	dx, dy;
-	wxRect	r;
-
 	if( m_nFields > 0 && m_zMax > m_zMin )
 	{
-		r	= rDC;
+		bool	bLegend	= m_Parameters("_DIAGRAM_LEGEND")->asBool();
+		int		iField;
+		double	dx, dy;
+		wxRect	r;
 
-		dx	= (double)r.GetWidth()	/ (double)m_pTable->Get_Record_Count();
+		r	= bLegend
+			? wxRect(	wxPoint(rDC.GetLeft()  +  80, rDC.GetTop()    + 10),
+						wxPoint(rDC.GetRight() - 100, rDC.GetBottom() - 40))
+			: wxRect(	wxPoint(rDC.GetLeft()  +  80, rDC.GetTop()    + 10),
+						wxPoint(rDC.GetRight() -  10, rDC.GetBottom() - 40));
+
+		dx	= m_xField < 0
+			? (double)r.GetWidth()	/ (double)m_pTable->Get_Record_Count()
+			: (double)r.GetWidth()	/ (m_xMax - m_xMin);
 		dy	= (double)r.GetHeight()	/ (m_zMax - m_zMin);
 
 		//-------------------------------------------------
@@ -412,12 +468,13 @@ void CVIEW_Table_Diagram::_Draw_Diagram(wxDC &dc, wxRect rDC)
 				}
 			}
 
-			r	= wxRect(
-					wxPoint(r.GetRight()  , rDC.GetTop()),
-					wxPoint(rDC.GetRight(), rDC.GetBottom())
-				);
+			if( bLegend )
+			{
+				r	= wxRect(	wxPoint(r  .GetRight(), rDC.GetTop()),
+								wxPoint(rDC.GetRight(), rDC.GetBottom()));
 
-			_Draw_Legend(dc, r);
+				_Draw_Legend(dc, r);
+			}
 		}
 		else
 		{
@@ -440,9 +497,10 @@ void CVIEW_Table_Diagram::_Draw_Frame(wxDC &dc, wxRect r, double dx, double dy)
 	const int	dyFont		= 12,
 				Precision	= 3;
 
-	int		ix, iRecord, iStep, nSteps, iLabel;
-	double	z, dz, dzStep;
-	wxFont	Font;
+	int			ix, iRecord, iStep, nSteps, iLabel;
+	double		z, dz, dzStep;
+	wxFont		Font;
+	wxString	sLabel;
 
 	//-----------------------------------------------------
 	Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);
@@ -452,19 +510,45 @@ void CVIEW_Table_Diagram::_Draw_Frame(wxDC &dc, wxRect r, double dx, double dy)
 	Font.SetPointSize((int)(0.7 * dyFont));
 	dc.SetFont(Font);
 
-	iLabel	= -1;
-	iStep	= dx > dyFont ? 1 : (int)(1 + (dyFont + 5) / dx);
-
-	for(iRecord=0; iRecord<m_pTable->Get_Record_Count(); iRecord+=iStep)
+	if( m_xField < 0 )
 	{
-		ix	= r.GetLeft() + (int)(dx * iRecord);
+		iLabel	= m_Parameters("_DIAGRAM_LABEL")->asInt();	if( iLabel >= m_pTable->Get_Field_Count() )	iLabel	= -1;
+		iStep	= dx > dyFont ? 1 : (int)(1 + (dyFont + 5) / dx);
 
-		dc.DrawLine(ix, r.GetBottom(), ix, r.GetBottom() + 5);
+		for(iRecord=0; iRecord<m_pTable->Get_Record_Count(); iRecord+=iStep)
+		{
+			ix	= r.GetLeft() + (int)(dx * iRecord);
 
-		Draw_Text(dc, TEXTALIGN_CENTERRIGHT, ix, r.GetBottom() + 7, 45.0, iLabel < 0
-			? wxString::Format("%d", iRecord).c_str()
-			: m_pTable->Get_Record_byIndex(iRecord)->asString(iLabel)
-		);
+			dc.DrawLine(ix, r.GetBottom(), ix, r.GetBottom() + 5);
+
+			if( iLabel >= 0 )
+			{
+				sLabel.Printf(m_pTable->Get_Record_byIndex(iRecord)->asString(iLabel));
+			}
+			else
+			{
+				sLabel.Printf("%d", iRecord);
+			}
+
+			Draw_Text(dc, TEXTALIGN_CENTERRIGHT, ix, r.GetBottom() + 7, 45.0, sLabel);
+		}
+	}
+	else
+	{
+		nSteps		= r.GetWidth()			/ (dyFont + 5);
+		dzStep		= (double)r.GetWidth()	/ nSteps;
+		dz			= (m_xMax - m_xMin)		/ nSteps;
+
+		for(iStep=0, z=m_xMin; iStep<=nSteps; iStep++, z+=dz)
+		{
+			ix		= r.GetLeft()	+ (int)(dzStep * iStep);
+
+			dc.DrawLine(ix, r.GetBottom(), ix, r.GetBottom() + 5);
+
+			sLabel.Printf("%.*f", Precision, z);
+
+			Draw_Text(dc, TEXTALIGN_CENTERRIGHT, ix, r.GetBottom() + 7, 45.0, sLabel);
+		}
 	}
 
 	//-----------------------------------------------------
@@ -544,15 +628,19 @@ void CVIEW_Table_Diagram::_Draw_Line(wxDC &dc, wxRect r, double dx, double dy, i
 
 	if( bLine && m_pTable->Get_Record_Count() > 1 )
 	{
-		ix	= r.GetLeft();
-		iy	= r.GetBottom()	- (int)(dy * (m_pTable->Get_Record_byIndex(0)->asDouble(iField) - m_zMin));
+		ix	= m_xField < 0
+			? r.GetLeft()	+ 0
+			: r.GetLeft()	+ (int)(dx * (m_pTable->Get_Record_byIndex(0)->asDouble(m_xField) - m_xMin));
+		iy	= r.GetBottom()	- (int)(dy * (m_pTable->Get_Record_byIndex(0)->asDouble(  iField) - m_zMin));
 
 		for(iRecord=1; iRecord<m_pTable->Get_Record_Count(); iRecord++)
 		{
 			jx	= ix;
 			jy	= iy;
-			ix	= r.GetLeft()	+ (int)(dx * iRecord);
-			iy	= r.GetBottom()	- (int)(dy * (m_pTable->Get_Record_byIndex(iRecord)->asDouble(iField) - m_zMin));
+			ix	= m_xField < 0
+				? r.GetLeft()	+ (int)(dx * iRecord)
+				: r.GetLeft()	+ (int)(dx * (m_pTable->Get_Record_byIndex(iRecord)->asDouble(m_xField) - m_xMin));
+			iy	= r.GetBottom()	- (int)(dy * (m_pTable->Get_Record_byIndex(iRecord)->asDouble(  iField) - m_zMin));
 
 			dc.DrawLine(jx, jy, ix, iy);
 		}
@@ -562,8 +650,10 @@ void CVIEW_Table_Diagram::_Draw_Line(wxDC &dc, wxRect r, double dx, double dy, i
 	{
 		for(iRecord=0; iRecord<m_pTable->Get_Record_Count(); iRecord++)
 		{
-			ix	= r.GetLeft()	+ (int)(dx * iRecord);
-			iy	= r.GetBottom()	- (int)(dy * (m_pTable->Get_Record_byIndex(iRecord)->asDouble(iField) - m_zMin));
+			ix	= m_xField < 0
+				? r.GetLeft()	+ (int)(dx * iRecord)
+				: r.GetLeft()	+ (int)(dx * (m_pTable->Get_Record_byIndex(iRecord)->asDouble(m_xField) - m_xMin));
+			iy	= r.GetBottom()	- (int)(dy * (m_pTable->Get_Record_byIndex(iRecord)->asDouble(  iField) - m_zMin));
 
 			dc.DrawCircle(ix, iy, 2);
 		}

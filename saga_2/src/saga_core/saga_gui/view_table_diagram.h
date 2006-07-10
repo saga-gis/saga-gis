@@ -102,9 +102,9 @@ public:
 
 private:
 
-	int								m_nFields, *m_Fields;
+	int								m_nFields, *m_Fields, m_xField;
 
-	double							m_zMin, m_zMax;
+	double							m_zMin, m_zMax, m_xMin, m_xMax;
 
 	CColors							m_Colors;
 
@@ -124,7 +124,6 @@ private:
 
 	bool							_DLG_Parameters		(void);
 
-	wxRect							_Draw_Get_rDiagram	(wxRect r);
 	void							_Draw_Diagram		(wxDC &dc, wxRect r);
 	void							_Draw_Frame			(wxDC &dc, wxRect r, double dx, double dy);
 	void							_Draw_Legend		(wxDC &dc, wxRect r);

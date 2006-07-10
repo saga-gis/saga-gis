@@ -227,6 +227,9 @@ void CVIEW_Map_3D_Image::Set_Source(int Resolution)
 	{
 		TPoint		*pPoint;
 
+		if( Resolution > 0 )
+			m_Resolution	= Resolution;
+
 		m_xyRatio	= xyRatio;
 
 		if( m_xyRatio > 1.0 )
