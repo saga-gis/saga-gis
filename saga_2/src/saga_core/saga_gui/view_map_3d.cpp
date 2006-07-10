@@ -658,17 +658,8 @@ void CVIEW_Map_3D::_Parms_Create(void)
 		PARAMETER_TYPE_Color, COLOR_GET_RGB(0, 0, 0)
 	);
 
-	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "SOURCE", LNG("[CAP] Source Resolution"), "");
-
 	m_Parameters.Add_Value(
-		pNode	, "SRC_NX"			, "X",
-		"",
-		PARAMETER_TYPE_Int, 200, 10, true
-	);
-
-	m_Parameters.Add_Value(
-		pNode	, "SRC_NY"			, "Y",
+		NULL	, "SRC_RESOLUTION"	, "Resolution",
 		"",
 		PARAMETER_TYPE_Int, 200, 10, true
 	);
@@ -727,10 +718,7 @@ bool CVIEW_Map_3D::_Parms_Update(bool bGet, CVIEW_Map_3D_Image *pImage)
 		}
 
 		//-------------------------------------------------
-		pImage->Set_Source(
-			m_Parameters("SRC_NX")->asInt(),
-			m_Parameters("SRC_NY")->asInt()
-		);
+		pImage->Set_Source(m_Parameters("SRC_RESOLUTION")->asInt());
 
 		return( pImage->m_pDEM != NULL );
 	}
@@ -805,15 +793,13 @@ void CVIEW_Map_3D::_Parms_Command(int Command)
 		return;
 
 	case ID_CMD_MAP3D_SRC_RES_LESS:
-		m_Parameters("SRC_NX")			->Set_Value(m_pImage->m_nxPoints - STEP_SRC_RES);
-		m_Parameters("SRC_NY")			->Set_Value(m_pImage->m_nyPoints - STEP_SRC_RES);
+		m_Parameters("SRC_RESOLUTION")	->Set_Value(m_pImage->m_Resolution - STEP_SRC_RES);
 
 		_Parms_Update(true);
 		return;
 
 	case ID_CMD_MAP3D_SRC_RES_MORE:
-		m_Parameters("SRC_NX")			->Set_Value(m_pImage->m_nxPoints + STEP_SRC_RES);
-		m_Parameters("SRC_NY")			->Set_Value(m_pImage->m_nyPoints + STEP_SRC_RES);
+		m_Parameters("SRC_RESOLUTION")	->Set_Value(m_pImage->m_Resolution + STEP_SRC_RES);
 
 		_Parms_Update(true);
 		return;

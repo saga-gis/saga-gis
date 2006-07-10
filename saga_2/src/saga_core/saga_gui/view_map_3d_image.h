@@ -105,7 +105,7 @@ public:
 
 	bool							m_bCentral, m_bStereo, m_bInterpol, m_Src_bUpdate;
 
-	int								m_img_nx, m_img_ny, m_nxPoints, m_nyPoints, m_BkColor, m_Figure;
+	int								m_img_nx, m_img_ny, m_Resolution, m_nxPoints, m_nyPoints, m_BkColor, m_Figure;
 
 	double							m_xRotate, m_yRotate, m_zRotate,
 									m_xShift, m_yShift, m_zShift,
@@ -115,8 +115,7 @@ public:
 	CGrid							*m_pDEM;
 
 
-	void							Set_Source				(int NX, int NY);
-	void							Set_Source				(void);
+	void							Set_Source				(int Resolution = -1);
 
 	void							Set_Image				(int NX, int NY);
 	void							Set_Image				(void);
@@ -144,7 +143,8 @@ private:
 
 	double							r_sin_x, r_sin_y, r_sin_z,
 									r_cos_x, r_cos_y, r_cos_z,
-									r_kx, r_ky, r_m, r_ext, r_fig;
+									r_kx, r_ky, r_m, r_ext, r_fig,
+									m_xyRatio;
 
 	TPoint							**m_Points;
 

@@ -93,20 +93,22 @@
 //---------------------------------------------------------
 CVIEW_Map_3D_Image::CVIEW_Map_3D_Image(CVIEW_Map_3D *pParent, CWKSP_Map *pMap)
 {
-	m_pParent	= pParent;
-	m_pMap		= pMap;
+	m_pParent		= pParent;
+	m_pMap			= pMap;
 
-	m_pDEM		= NULL;
+	m_pDEM			= NULL;
 
-	m_img_z		= NULL;
-	m_img_nx	= 0;
-	m_img_ny	= 0;
+	m_img_z			= NULL;
+	m_img_nx		= 0;
+	m_img_ny		= 0;
 
-	m_Points	= NULL;
-	m_nxPoints	= 0;
-	m_nyPoints	= 0;
+	m_Points		= NULL;
+	m_nxPoints		= 0;
+	m_nyPoints		= 0;
+	m_Resolution	= 200;
+	m_xyRatio		= 1.0;
 
-	m_bInterpol	= false;
+	m_bInterpol		= false;
 
 	//-----------------------------------------------------
 	((BYTE *)&m_Missing)[3]	= 0xff;
@@ -210,39 +212,45 @@ void CVIEW_Map_3D_Image::Save(const char *file, int type)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CVIEW_Map_3D_Image::Set_Source(int NX, int NY)
+void CVIEW_Map_3D_Image::Set_Source(int Resolution)
 {
-	int		n;
-	TPoint	*pPoint;
+	BYTE		*Color, Mask[3];
+	int			x, y;
+	double		z, xPos, yPos, dx, dy, zMin, zMax, xyRatio;
+	CGEO_Rect	rSource(m_pMap->Get_Extent());
+	wxImage		img;
 
-	if( !m_Points || NX != m_nxPoints || NY != m_nyPoints )
+	//-----------------------------------------------------
+	xyRatio		= rSource.Get_XRange() / rSource.Get_YRange();
+
+	if( !m_Points || (Resolution > 0 && Resolution != m_Resolution) || xyRatio != m_xyRatio )
 	{
-		m_nxPoints	= NX;
-		m_nyPoints	= NY;
-		n			= NX * NY;
-		pPoint		= m_Points ? m_Points[0] : NULL;
-		pPoint		= (TPoint  *)API_Realloc( pPoint ,  n * sizeof(TPoint  ));
-		m_Points	= (TPoint **)API_Realloc(m_Points, NY * sizeof(TPoint *));
+		TPoint		*pPoint;
 
-		for(n=0; n<NY; n++, pPoint+=NX)
+		m_xyRatio	= xyRatio;
+
+		if( m_xyRatio > 1.0 )
+		{
+			m_nxPoints	= m_Resolution;
+			m_nyPoints	= (int)(m_Resolution / m_xyRatio);
+		}
+		else
+		{
+			m_nxPoints	= (int)(m_Resolution * m_xyRatio);
+			m_nyPoints	= m_Resolution;
+		}
+
+		pPoint		= m_Points ? m_Points[0] : NULL;
+		pPoint		= (TPoint  *)API_Realloc( pPoint , m_nxPoints * m_nyPoints * sizeof(TPoint  ));
+		m_Points	= (TPoint **)API_Realloc(m_Points,              m_nyPoints * sizeof(TPoint *));
+
+		for(int n=0; n<m_nyPoints; n++, pPoint+=m_nxPoints)
 		{
 			m_Points[n]	= pPoint;
 		}
 
 		m_Src_bUpdate	= true;
 	}
-
-	Set_Source();
-}
-
-//---------------------------------------------------------
-void CVIEW_Map_3D_Image::Set_Source(void)
-{
-	BYTE		*Color, Mask[3];
-	int			x, y;
-	double		z, xPos, yPos, dx, dy, zMin, zMax;
-	CGEO_Rect	rSource;
-	wxImage		img;
 
 	//-----------------------------------------------------
 	if( m_Src_bUpdate && m_Points && m_pDEM )
@@ -439,14 +447,25 @@ void CVIEW_Map_3D_Image::Set_Image(void)
 void CVIEW_Map_3D_Image::_Rotate_Matrix(double xRotate, double yRotate, double zRotate)
 {
 	int		x, y;
-	double	px, py, pz, ix, iy, dx, dy, dz;
+	double	px, py, pz, ix, iy, dx, dy, dz, xRange, yRange;
 	TPoint	*p;
+
+	if( m_xyRatio > 1.0 )
+	{
+		xRange	= RANGE;
+		yRange	= RANGE / m_xyRatio;
+	}
+	else
+	{
+		xRange	= RANGE * m_xyRatio;
+		yRange	= RANGE;
+	}
 
 	//-----------------------------------------------------
 	r_fig	= sqrt(2.0) * m_Figure_Weight * RANGE;
 
-	dx		=  RANGE / m_nxPoints;
-	dy		=  RANGE / m_nyPoints;
+	dx		=  xRange / m_nxPoints;
+	dy		=  yRange / m_nyPoints;
 	dz		= -RANGE * m_Exaggeration / m_Range;
 
 	r_sin_x	= sin(xRotate);
@@ -475,9 +494,9 @@ void CVIEW_Map_3D_Image::_Rotate_Matrix(double xRotate, double yRotate, double z
 	r_ext	= -r_ext / 2.0;
 
 	//-----------------------------------------------------
-	for(y=0, iy=-RANGE/2.0; y<m_nyPoints; y++, iy+=dy)
+	for(y=0, iy=-yRange/2.0; y<m_nyPoints; y++, iy+=dy)
 	{
-		for(x=0, ix=-RANGE/2.0, p=m_Points[y]; x<m_nxPoints; x++, ix+=dx, p++)
+		for(x=0, ix=-xRange/2.0, p=m_Points[y]; x<m_nxPoints; x++, ix+=dx, p++)
 		{
 			if( (p->Flags & FLAG_DATA) != 0 && _Rotate_Point(ix, iy, dz * p->zDEM, px, py, pz) )
 			{
