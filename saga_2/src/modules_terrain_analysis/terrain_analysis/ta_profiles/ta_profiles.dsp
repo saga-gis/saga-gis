@@ -94,6 +94,10 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\Grid_Cross_Profiles.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Grid_CrossSections.cpp
 # End Source File
 # Begin Source File
@@ -128,6 +132,10 @@ SOURCE=.\PDFDocEngine_CrossSections.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\Grid_Cross_Profiles.h
+# End Source File
 # Begin Source File
 
 SOURCE=.\Grid_CrossSections.h

@@ -251,6 +251,11 @@ bool CModule_Library::Execute(int argc, char *argv[])
 		_Destroy_DataObjects(bResult);
 	}
 
+	if( !bResult )
+	{
+		Print_Error(LNG("executing module"), m_pSelected->Get_Name());
+	}
+
 	return( bResult );
 }
 

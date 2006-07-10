@@ -217,6 +217,10 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath=".\Grid_Cross_Profiles.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Grid_CrossSections.cpp"
 				>
 				<FileConfiguration
@@ -397,6 +401,10 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl"
 			>
+			<File
+				RelativePath=".\Grid_Cross_Profiles.h"
+				>
+			</File>
 			<File
 				RelativePath="Grid_CrossSections.h"
 				>

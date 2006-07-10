@@ -18,7 +18,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/Grid_Classes_To_Shapes.o $(MLB_TEMP)/Grid_Polygon_Clip.o $(MLB_TEMP)/Grid_Statistics_AddTo_Polygon.o $(MLB_TEMP)/Grid_To_Contour.o $(MLB_TEMP)/Grid_To_Points.o $(MLB_TEMP)/Grid_To_Points_Random.o $(MLB_TEMP)/Grid_Values_AddTo_Points.o $(MLB_TEMP)/Grid_Values_AddTo_Shapes.o $(MLB_TEMP)/MLB_Interface.o
+OBJ      = $(MLB_TEMP)/Grid_Classes_To_Shapes.o $(MLB_TEMP)/Grid_Polygon_Clip.o $(MLB_TEMP)/Grid_Statistics_AddTo_Polygon.o $(MLB_TEMP)/Grid_To_Contour.o $(MLB_TEMP)/Grid_To_Gradient.o $(MLB_TEMP)/Grid_To_Points.o $(MLB_TEMP)/Grid_To_Points_Random.o $(MLB_TEMP)/Grid_Values_AddTo_Points.o $(MLB_TEMP)/Grid_Values_AddTo_Shapes.o $(MLB_TEMP)/MLB_Interface.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS = -I/usr/lib/glib/include -I/usr/include/glib-1.2
@@ -60,6 +60,9 @@ $(MLB_TEMP)/Grid_Statistics_AddTo_Polygon.o: ./Grid_Statistics_AddTo_Polygon.cpp
 
 $(MLB_TEMP)/Grid_To_Contour.o: ./Grid_To_Contour.cpp $(MLB_TEMP)
 	$(CPP) -c ./Grid_To_Contour.cpp -o $(MLB_TEMP)/Grid_To_Contour.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Grid_To_Gradient.o: ./Grid_To_Gradient.cpp $(MLB_TEMP)
+	$(CPP) -c ./Grid_To_Gradient.cpp -o $(MLB_TEMP)/Grid_To_Gradient.o $(CXXFLAGS)
 
 $(MLB_TEMP)/Grid_To_Points.o: ./Grid_To_Points.cpp $(MLB_TEMP)
 	$(CPP) -c ./Grid_To_Points.cpp -o $(MLB_TEMP)/Grid_To_Points.o $(CXXFLAGS)

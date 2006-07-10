@@ -287,6 +287,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Grid_To_Gradient.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Grid_To_Points.cpp"
 				>
 				<FileConfiguration
@@ -415,6 +419,10 @@
 			</File>
 			<File
 				RelativePath="Grid_To_Contour.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Grid_To_Gradient.h"
 				>
 			</File>
 			<File

@@ -109,6 +109,10 @@ SOURCE=.\Grid_To_Contour.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Grid_To_Gradient.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Grid_To_Points.cpp
 # End Source File
 # Begin Source File
@@ -146,6 +150,10 @@ SOURCE=.\Grid_Statistics_AddTo_Polygon.h
 # Begin Source File
 
 SOURCE=.\Grid_To_Contour.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Grid_To_Gradient.h
 # End Source File
 # Begin Source File
 

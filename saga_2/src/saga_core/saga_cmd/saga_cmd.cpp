@@ -76,7 +76,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SAGA_CMD_VERSION	"2.0.0b"
+#define SAGA_CMD_VERSION	"2.0"
 #define SAGA_ENV_LIBPATH	"SAGA_MLB"
 
 #define OPT_CREATE_BATCH	"-create_batch"
@@ -90,7 +90,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void		Execute			(const char *MLB_Path, const char *FileName, const char *ModuleName, int argc, char *argv[]);
+bool		Execute			(const char *MLB_Path, const char *FileName, const char *ModuleName, int argc, char *argv[]);
 
 void		Error_Library	(const char *MLB_Path);
 void		Error_Module	(const char *MLB_Path, const char *FileName);
@@ -119,6 +119,8 @@ _try
 #endif
 //---------------------------------------------------------
 
+	bool	bResult	= false;
+
 	if( wxInitialize() )
 	{
 		wxString	MLB_Path, ENV_Path;
@@ -143,15 +145,15 @@ _try
 		switch( argc )
 		{
 		case 1: 
-			Error_Library	(MLB_Path);
+			Error_Library		(MLB_Path);
 			break;
 
 		case 2:
-			Error_Module	(MLB_Path, argv[1]);
+			Error_Module		(MLB_Path, argv[1]);
 			break;
 
 		default:
- 			Execute			(MLB_Path, argv[1], argv[2], argc, argv);
+ 			bResult	= Execute	(MLB_Path, argv[1], argv[2], argc, argv);
 			break;
 		}
 
@@ -183,7 +185,7 @@ _except(1)
 #endif
 //---------------------------------------------------------
 
-	return( 0 );
+	return( bResult ? 0 : 1 );
 }
 
 
@@ -194,8 +196,9 @@ _except(1)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void		Execute(const char *MLB_Path, const char *FileName, const char *ModuleName, int argc, char *argv[])
+bool		Execute(const char *MLB_Path, const char *FileName, const char *ModuleName, int argc, char *argv[])
 {
+	bool			bResult	= false;
 	int				i;
 	CModule_Library	Library;
 
@@ -235,14 +238,11 @@ void		Execute(const char *MLB_Path, const char *FileName, const char *ModuleName
 		}
 
 		Set_Library(&Library);
-
-		if( !Library.Execute(argc - i, argv + i) )
-		{
-			Print_Error(LNG("executing module"), Library.Get_Selected()->Get_Name());
-		}
-
+		bResult	= Library.Execute(argc - i, argv + i);
 		Set_Library(NULL);
 	}
+
+	return( bResult );
 }
 
 

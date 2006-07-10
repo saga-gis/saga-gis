@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                  Grid_To_Gradient.cpp                 //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2006 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -53,111 +53,128 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
-#include "MLB_Interface.h"
-
-
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-
-const char * Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Shapes - Grid") );
-
-	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad (c) 2002") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools related to gridded and vector data (conversions, combinations, etc.).") );
-
-	case MLB_INFO_Version:
-		return( "1.0" );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Shapes|Grid") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "Grid_Values_AddTo_Points.h"
-#include "Grid_Values_AddTo_Shapes.h"
-#include "Grid_Statistics_AddTo_Polygon.h"
-#include "Grid_To_Points.h"
-#include "Grid_To_Points_Random.h"
-#include "Grid_To_Contour.h"
-#include "Grid_Classes_To_Shapes.h"
-#include "Grid_Polygon_Clip.h"
 #include "Grid_To_Gradient.h"
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CModule *		Create_Module(int i)
+CGrid_To_Gradient::CGrid_To_Gradient(void)
 {
-	// Don't forget to continuously enumerate the case switches
-	// when adding new modules! Also bear in mind that the
-	// enumeration always has to start with [case 0:] and
-	// that [default:] must return NULL!...
+	//-----------------------------------------------------
+	Set_Name(_TL("Gradient from Grid"));
 
-	CModule	*pModule;
+	Set_Author(_TL("Copyrights (c) 2006 by Olaf Conrad"));
 
-	switch( i )
+	Set_Description(_TL(
+		"Create lines indicating the gradient. ")
+	);
+
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid(
+		NULL, "GRID"		, _TL("Grid"),
+		"",
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Shapes(
+		NULL, "SHAPES"		, _TL("Gradient"),
+		"",
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Value(
+		NULL, "SIZE_MIN"	, _TL("Minimum Size"),
+		"",
+		PARAMETER_TYPE_Double, 1.0, 0.0, true
+	);
+
+	Parameters.Add_Value(
+		NULL, "SIZE_MAX"	, _TL("Maximum Size"),
+		"",
+		PARAMETER_TYPE_Double, 10.0
+	);
+
+	Parameters.Add_Choice(
+		NULL, "STYLE"		, _TL("Style"),
+		"",
+		CAPI_String::Format("%s|",
+			_TL("Line"),
+			_TL("Arrow")
+		), 0
+	);
+}
+
+//---------------------------------------------------------
+CGrid_To_Gradient::~CGrid_To_Gradient(void)
+{}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_To_Gradient::On_Execute(void)
+{
+	bool	bTangens	= false;
+	int		Style, x, y;
+	double	sMin, sRange, Slope, Aspect, xPt, yPt;
+	CGrid	*pGrid;
+	CShapes	*pShapes;
+	CShape	*pShape;
+
+	//-----------------------------------------------------
+	pGrid	= Parameters("GRID")		->asGrid();
+	pShapes	= Parameters("SHAPES")		->asShapes();
+	Style	= Parameters("STYLE")		->asInt();
+	sMin	= Parameters("SIZE_MIN")	->asDouble();
+	sRange	= Parameters("SIZE_MAX")	->asDouble() - sMin;
+
+	pShapes->Create(SHAPE_TYPE_Line, CAPI_String::Format("%s [%s]", pGrid->Get_Name(), _TL("Gradient")));
+	pShapes->Get_Table().Add_Field("X"	, TABLE_FIELDTYPE_Double);
+	pShapes->Get_Table().Add_Field("Y"	, TABLE_FIELDTYPE_Double);
+	pShapes->Get_Table().Add_Field("S"	, TABLE_FIELDTYPE_Double);
+	pShapes->Get_Table().Add_Field("A"	, TABLE_FIELDTYPE_Double);
+
+	//-----------------------------------------------------
+	for(y=0, yPt=Get_YMin(); y<Get_NY() && Set_Progress(y); y++, yPt+=Get_Cellsize())
 	{
-	case 0:
-		pModule	= new CGrid_Values_AddTo_Points;
-		break;
+		for(x=0, xPt=Get_XMin(); x<Get_NX(); x++, xPt+=Get_Cellsize())
+		{
+			if( pGrid->Get_Gradient(x, y, Slope, Aspect) )
+			{
+				pShape	= pShapes->Add_Shape();
+				pShape->Get_Record()->Set_Value(0, xPt);
+				pShape->Get_Record()->Set_Value(1, yPt);
+				pShape->Get_Record()->Set_Value(2, Slope);
+				pShape->Get_Record()->Set_Value(3, Aspect);
+				pShape->Add_Point(xPt, yPt);
 
-	case 1:
-		pModule	= new CGrid_Values_AddTo_Shapes;
-		break;
+				Slope	= sMin + sRange * (bTangens ? tan(Slope) : Slope / M_PI_090);
 
-	case 2:
-		pModule	= new CGrid_Statistics_AddTo_Polygon;
-		break;
-
-	case 3:
-		pModule	= new CGrid_To_Points;
-		break;
-
-	case 4:
-		pModule	= new CGrid_To_Points_Random;
-		break;
-
-	case 5:
-		pModule	= new CGrid_To_Contour;
-		break;
-
-	case 6:
-		pModule	= new CGrid_Classes_To_Shapes;
-		break;
-
-	case 7:
-		pModule	= new CGrid_Polygon_Clip;
-		break;
-
-	case 8:
-		pModule	= new CGrid_To_Gradient;
-		break;
-
-	default:
-		pModule	= NULL;
-		break;
+				pShape->Add_Point(
+					xPt + sin(Aspect) * Slope,
+					yPt + cos(Aspect) * Slope
+				);
+			}
+		}
 	}
 
-	return( pModule );
+	//-----------------------------------------------------
+	return( true );
 }
 
 
@@ -168,8 +185,3 @@ CModule *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA

@@ -90,8 +90,8 @@ const char * Get_Info(int i)
 #include "Grid_Swath_Profile.h"
 #include "Grid_ProfileFromPoints.h"
 #include "Grid_CrossSections.h"
+#include "Grid_Cross_Profiles.h"
 
-//#include "CrossSections.h"
 
 //---------------------------------------------------------
 CModule *		Create_Module(int i)
@@ -116,12 +116,12 @@ CModule *		Create_Module(int i)
 		pModule	= new CProfileFromPoints;
 		break;
 
-/*	case 4:
-		pModule	= new CGrid_CrossSections;
-		break;*/
-
 	case 4:
 		pModule	= new CGrid_CrossSections;
+		break;
+
+	case 5:
+		pModule	= new CGrid_Cross_Profiles;
 		break;
 
 	default:
