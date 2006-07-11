@@ -102,7 +102,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSurfer_BLN_Export : public CModule_Grid
+class CSurfer_BLN_Export : public CModule
 {
 public:
 	CSurfer_BLN_Export(void);

@@ -66,13 +66,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_IO_GDAL : public CModule_Grid
+class CGrid_IO_GDAL : public CModule
 {
 public:
 	CGrid_IO_GDAL(void);
 	virtual ~CGrid_IO_GDAL(void);
 
-	virtual bool				is_ProjectDependent(void)			{	return( false );				}
     void						Gdal_To_World (double GeoTransform[6], int x, int y, double &GeoX, double &GeoY );
 	void						World_To_Saga (CGrid *grid , double GeoX, double GeoY, int &x, int &y );
 

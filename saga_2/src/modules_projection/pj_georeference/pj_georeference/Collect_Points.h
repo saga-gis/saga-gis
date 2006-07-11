@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CCollect_Points : public CModule_Grid_Interactive
+class CCollect_Points : public CModule_Interactive
 {
 public:
 	CCollect_Points(void);

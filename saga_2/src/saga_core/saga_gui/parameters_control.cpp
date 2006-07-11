@@ -311,7 +311,7 @@ void CParameters_Control::_Add_Properties(CParameters *pParameters)
 				break;
 
 			case PARAMETER_TYPE_Grid_System:
-				if( pParameters->Get_Parameter(i)->Get_Children_Count() > 0 )
+				if(1|| pParameters->Get_Parameter(i)->Get_Children_Count() > 0 )
 				{
 					CHECK_DATA_NODE(pGrids	, "[PRM] Grids" , "_DATAOBJECT_GRIDS");
 				}

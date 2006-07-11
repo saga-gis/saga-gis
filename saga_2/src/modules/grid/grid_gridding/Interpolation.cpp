@@ -96,9 +96,9 @@ CInterpolation::CInterpolation(void)
 		"",
 
 		CAPI_String::Format("%s|%s|%s|",
-			_TL("User defined"),
-			_TL("Grid Project"),
-			_TL("Grid")
+			_TL("user defined"),
+			_TL("grid system"),
+			_TL("grid")
 		), 0
 	);
 
@@ -124,6 +124,14 @@ CInterpolation::CInterpolation(void)
 
 	pNode_1	= pParameters->Add_Range(
 		pNode_0	, "Y_EXTENT"	, _TL("Y-Extent"),
+		""
+	);
+
+	//-----------------------------------------------------
+	pParameters	= Add_Extra_Parameters("SYSTEM", _TL("Choose Grid System"), "");
+
+	pNode_0	= pParameters->Add_Grid_System(
+		NULL	, "SYSTEM"		, _TL("Grid System"),
 		""
 	);
 
@@ -194,37 +202,6 @@ CGrid * CInterpolation::_Get_Target_Grid(CParameters *pParameters, CShapes *pSha
 	return( API_Create_Grid(GRID_TYPE_Float, nx, ny, Cell_Size, xMin, yMin) );
 }
 
-//---------------------------------------------------------
-CShapes * CInterpolation::_Get_Point_Shapes(CShapes *pShapes)
-{
-	int		iShape, iPart, iPoint;
-	CShape	*pShape, *pPoint;
-	CShapes	*pPoints;
-
-	if( pShapes->Get_Type() != SHAPE_TYPE_Point )
-	{
-		pPoints	= API_Create_Shapes(SHAPE_TYPE_Point, NULL, &pShapes->Get_Table());
-
-		for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
-		{
-			pShape	= pShapes->Get_Shape(iShape);
-
-			for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
-			{
-				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
-				{
-					pPoint	= pPoints->Add_Shape(pShape->Get_Record());
-					pPoint->Add_Point(pShape->Get_Point(iPoint, iPart));
-				}
-			}
-		}
-
-		return( pPoints );
-	}
-
-	return( pShapes );
-}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -235,8 +212,9 @@ CShapes * CInterpolation::_Get_Point_Shapes(CShapes *pShapes)
 //---------------------------------------------------------
 bool CInterpolation::On_Execute(void)
 {
-	bool	bResult	= false;
-	CShapes	*pShapes, *pPoints;
+	bool			bResult	= false;
+	CGrid_System	*pSystem;
+	CShapes			*pShapes;
 
 	//-----------------------------------------------------
 	pShapes		= Parameters("SHAPES")	->asShapes();
@@ -256,9 +234,9 @@ bool CInterpolation::On_Execute(void)
 			break;
 
 		case 1:	// Grid Project...
-			if( Dlg_Extra_Parameters("GRID") )
+			if( Dlg_Extra_Parameters("SYSTEM") && (pSystem = Get_Extra_Parameters("SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System()) != NULL )
 			{
-				pGrid	= API_Create_Grid(Get_Extra_Parameters("GRID")->Get_Parameter("GRID")->asGrid());
+				pGrid	= API_Create_Grid(*pSystem, GRID_TYPE_Float);
 			}
 			break;
 
@@ -280,16 +258,11 @@ bool CInterpolation::On_Execute(void)
 			//---------------------------------------------
 			if( Use_SearchEngine() )
 			{
-				if( SearchEngine.Create(pPoints = _Get_Point_Shapes(pShapes)) )
+				if( SearchEngine.Create(pShapes) )
 				{
 					bResult	= Interpolate();
 				
 					SearchEngine.Destroy();
-				}
-
-				if( pPoints != pShapes )
-				{
-					delete(pPoints);
 				}
 			}
 			else

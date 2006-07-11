@@ -88,6 +88,7 @@ void CShapes_Search::_On_Construction(void)
 {
 	m_pPoints		= NULL;
 	m_nPoints		= 0;
+	m_bDestroy		= false;
 
 	m_nSelected		= 0;
 	m_Selected		= NULL;
@@ -124,9 +125,17 @@ void CShapes_Search::Destroy(void)
 	m_Idx			= NULL;
 	m_Pos			= NULL;
 
+	//-----------------------------------------------------
+	if( m_bDestroy && m_pPoints )
+	{
+		delete(m_pPoints);
+	}
+
 	m_pPoints		= NULL;
 	m_nPoints		= 0;
+	m_bDestroy		= false;
 
+	//-----------------------------------------------------
 	if( m_Selected )
 	{
 		API_Free(m_Selected);
@@ -149,40 +158,71 @@ void CShapes_Search::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CShapes_Search::Create(CShapes *apPoints)
+bool CShapes_Search::Create(CShapes *pShapes)
 {
-	int		iPoint;
+	int		iShape, iPart, iPoint;
+	CShape	*pShape, *pPoint;
 	double	*Value;
 
 	Destroy();
 
-	if( apPoints && apPoints->Get_Type() == SHAPE_TYPE_Point && apPoints->Get_Count() > 1 )
+	//-----------------------------------------------------
+	if( pShapes && pShapes->is_Valid() )
 	{
-		m_pPoints	= apPoints;
-		m_nPoints	= m_pPoints->Get_Count();
-
-		//-------------------------------------------------
-		Value		= (double     *)API_Malloc(m_nPoints * sizeof(double));
-		m_Pos		= (TGEO_Point *)API_Malloc(m_nPoints * sizeof(TGEO_Point));
-		m_Idx		= (int        *)API_Malloc(m_nPoints * sizeof(int));
-
-		for(iPoint=0; iPoint<m_nPoints; iPoint++)
+		if( pShapes->Get_Type() == SHAPE_TYPE_Point )
 		{
-			Value[iPoint]	= m_pPoints->Get_Shape(iPoint)->Get_Point(0).x;
+			m_bDestroy	= false;
+			m_pPoints	= pShapes;
+		}
+		else
+		{
+			m_bDestroy	= true;
+			m_pPoints	= API_Create_Shapes(SHAPE_TYPE_Point, NULL, &pShapes->Get_Table());
+
+			for(iShape=0; iShape<pShapes->Get_Count() && ::API_Callback_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+			{
+				pShape	= pShapes->Get_Shape(iShape);
+
+				for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+				{
+					for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+					{
+						pPoint	= m_pPoints->Add_Shape(pShape->Get_Record());
+						pPoint->Add_Point(pShape->Get_Point(iPoint, iPart));
+					}
+				}
+			}
 		}
 
-		MAT_Create_Index(m_nPoints, Value, true, m_Idx);
-
-		for(iPoint=0; iPoint<m_nPoints; iPoint++)
-		{
-			m_Pos[iPoint]	= m_pPoints->Get_Shape(m_Idx[iPoint])->Get_Point(0);
-		}
-
 		//-------------------------------------------------
-		API_Free(Value);
+		if( m_pPoints->Get_Count() > 1 )
+		{
+			m_nPoints	= m_pPoints->Get_Count();
 
-		return( true );
+			Value		= (double     *)API_Malloc(m_nPoints * sizeof(double));
+			m_Pos		= (TGEO_Point *)API_Malloc(m_nPoints * sizeof(TGEO_Point));
+			m_Idx		= (int        *)API_Malloc(m_nPoints * sizeof(int));
+
+			for(iPoint=0; iPoint<m_nPoints; iPoint++)
+			{
+				Value[iPoint]	= m_pPoints->Get_Shape(iPoint)->Get_Point(0).x;
+			}
+
+			MAT_Create_Index(m_nPoints, Value, true, m_Idx);
+
+			for(iPoint=0; iPoint<m_nPoints; iPoint++)
+			{
+				m_Pos[iPoint]	= m_pPoints->Get_Shape(m_Idx[iPoint])->Get_Point(0);
+			}
+
+			API_Free(Value);
+
+			return( true );
+		}
 	}
+
+	//-----------------------------------------------------
+	Destroy();
 
 	return( false );
 }

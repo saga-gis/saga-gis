@@ -536,6 +536,8 @@ public:
 
 protected:
 
+	bool					m_bDestroy;
+
 	int						m_nPoints, *m_Idx, m_nSelected, m_Selected_Buf, *m_Selected_Idx;
 
 	double					*m_Selected_Dst;

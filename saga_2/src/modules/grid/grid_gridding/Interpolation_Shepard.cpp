@@ -105,6 +105,7 @@ CInterpolation_Shepard::CInterpolation_Shepard(void)
 CInterpolation_Shepard::~CInterpolation_Shepard(void)
 {}
 
+
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
@@ -155,6 +156,37 @@ void CInterpolation_Shepard::On_Finalize_Parameters(void)
 	free(x_vals);
 	free(y_vals);
 	free(f_vals);
+}
+
+//---------------------------------------------------------
+CShapes * CInterpolation_Shepard::_Get_Point_Shapes(CShapes *pShapes)
+{
+	int		iShape, iPart, iPoint;
+	CShape	*pShape, *pPoint;
+	CShapes	*pPoints;
+
+	if( pShapes->Get_Type() != SHAPE_TYPE_Point )
+	{
+		pPoints	= API_Create_Shapes(SHAPE_TYPE_Point, NULL, &pShapes->Get_Table());
+
+		for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		{
+			pShape	= pShapes->Get_Shape(iShape);
+
+			for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			{
+				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				{
+					pPoint	= pPoints->Add_Shape(pShape->Get_Record());
+					pPoint->Add_Point(pShape->Get_Point(iPoint, iPart));
+				}
+			}
+		}
+
+		return( pPoints );
+	}
+
+	return( pShapes );
 }
 
 //---------------------------------------------------------

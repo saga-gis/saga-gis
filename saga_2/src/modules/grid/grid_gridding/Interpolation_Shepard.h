@@ -96,6 +96,8 @@ protected:
 	virtual bool		On_Initialize_Parameters(void);
 	virtual void		On_Finalize_Parameters	(void);
 
+	CShapes *			_Get_Point_Shapes(CShapes *pShapes);
+
 	virtual bool		Get_Grid_Value			(int x, int y);
 
 	void				Remove_Duplicate		(void);

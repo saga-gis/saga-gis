@@ -103,8 +103,6 @@ protected:
 
 	CGrid *					_Get_Target_Grid		(CParameters *pParameters, CShapes *pShapes);
 
-	CShapes *				_Get_Point_Shapes		(CShapes *pShapes);
-
 };
 
 #endif // #ifndef HEADER_INCLUDED__Interpolation_H

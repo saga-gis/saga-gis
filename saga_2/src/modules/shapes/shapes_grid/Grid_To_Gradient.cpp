@@ -94,6 +94,12 @@ CGrid_To_Gradient::CGrid_To_Gradient(void)
 	);
 
 	Parameters.Add_Value(
+		NULL, "STEP"		, _TL("Skip"),
+		"",
+		PARAMETER_TYPE_Int	, 1.0, 0.0, true
+	);
+
+	Parameters.Add_Value(
 		NULL, "SIZE_MIN"	, _TL("Minimum Size"),
 		"",
 		PARAMETER_TYPE_Double, 1.0, 0.0, true
@@ -130,8 +136,8 @@ CGrid_To_Gradient::~CGrid_To_Gradient(void)
 bool CGrid_To_Gradient::On_Execute(void)
 {
 	bool	bTangens	= false;
-	int		Style, x, y;
-	double	sMin, sRange, Slope, Aspect, xPt, yPt;
+	int		Style, Step, x, y;
+	double	sMin, sRange, Min, Max, dStep, Slope, Aspect, xPt, yPt;
 	CGrid	*pGrid;
 	CShapes	*pShapes;
 	CShape	*pShape;
@@ -139,9 +145,11 @@ bool CGrid_To_Gradient::On_Execute(void)
 	//-----------------------------------------------------
 	pGrid	= Parameters("GRID")		->asGrid();
 	pShapes	= Parameters("SHAPES")		->asShapes();
+	Step	= Parameters("STEP")		->asInt();
 	Style	= Parameters("STYLE")		->asInt();
 	sMin	= Parameters("SIZE_MIN")	->asDouble();
 	sRange	= Parameters("SIZE_MAX")	->asDouble() - sMin;
+	dStep	= Step * Get_Cellsize();
 
 	pShapes->Create(SHAPE_TYPE_Line, CAPI_String::Format("%s [%s]", pGrid->Get_Name(), _TL("Gradient")));
 	pShapes->Get_Table().Add_Field("X"	, TABLE_FIELDTYPE_Double);
@@ -150,9 +158,31 @@ bool CGrid_To_Gradient::On_Execute(void)
 	pShapes->Get_Table().Add_Field("A"	, TABLE_FIELDTYPE_Double);
 
 	//-----------------------------------------------------
-	for(y=0, yPt=Get_YMin(); y<Get_NY() && Set_Progress(y); y++, yPt+=Get_Cellsize())
+	for(y=0, Min=0.0, Max=-1.0; y<Get_NY() && Set_Progress(y); y+=Step)
 	{
-		for(x=0, xPt=Get_XMin(); x<Get_NX(); x++, xPt+=Get_Cellsize())
+		for(x=0; x<Get_NX(); x+=Step)
+		{
+			if( pGrid->Get_Gradient(x, y, Slope, Aspect) )
+			{
+				if( Min > Max )
+					Min	= Max	= Slope;
+				else if( Min > Slope )
+					Min	= Slope;
+				else if( Max < Slope )
+					Max	= Slope;
+			}
+		}
+	}
+
+	if( Min < Max )
+	{
+		sRange	= sRange / (Max - Min);
+	}
+
+	//-----------------------------------------------------
+	for(y=0, yPt=Get_YMin(); y<Get_NY() && Set_Progress(y); y+=Step, yPt+=dStep)
+	{
+		for(x=0, xPt=Get_XMin(); x<Get_NX(); x+=Step, xPt+=dStep)
 		{
 			if( pGrid->Get_Gradient(x, y, Slope, Aspect) )
 			{
@@ -163,7 +193,8 @@ bool CGrid_To_Gradient::On_Execute(void)
 				pShape->Get_Record()->Set_Value(3, Aspect);
 				pShape->Add_Point(xPt, yPt);
 
-				Slope	= sMin + sRange * (bTangens ? tan(Slope) : Slope / M_PI_090);
+		//		Slope	= sMin + sRange * (bTangens ? tan(Slope) : Slope / M_PI_090);
+				Slope	= sMin + sRange * (Slope - Min);
 
 				pShape->Add_Point(
 					xPt + sin(Aspect) * Slope,

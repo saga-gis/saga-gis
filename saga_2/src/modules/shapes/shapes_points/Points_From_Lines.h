@@ -21,7 +21,7 @@
 
 #include "MLB_Interface.h"
 
-class CPoints_From_Lines : public CModule_Grid {
+class CPoints_From_Lines : public CModule {
 
 public:
 	CPoints_From_Lines(void);

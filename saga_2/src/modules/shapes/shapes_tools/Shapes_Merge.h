@@ -24,7 +24,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CShapes_Merge : public CModule_Grid {
+class CShapes_Merge : public CModule {
 
 public:
 	CShapes_Merge(void);
