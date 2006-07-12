@@ -178,9 +178,12 @@ public:
 
 	CTIN_Point *				Get_Point				(int iPoint)	{	return( m_Points[iPoint % 3] );	}
 
-	const TGEO_Rect &			Get_Extent				(void)			{	return( m_Extent );	}
+	const CGEO_Rect &			Get_Extent				(void)			{	return( m_Extent );	}
 
 	double						Get_Area				(void)			{	return( m_Area );	}
+
+	bool						is_Containing			(const TGEO_Point &Point);
+	bool						is_Containing			(double x, double y);
 
 	bool						Get_Gradient			(int zField, double &Decline, double &Azimuth);
 
@@ -199,7 +202,7 @@ private:
 
 	TGEO_Point					m_Center;
 
-	TGEO_Rect					m_Extent;
+	CGEO_Rect					m_Extent;
 
 	CTIN_Point					*m_Points[3];
 

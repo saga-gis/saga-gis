@@ -300,28 +300,32 @@ CTIN_Triangle::CTIN_Triangle(CTIN_Point *a, CTIN_Point *b, CTIN_Point *c)
 	m_Points[2]		= c;
 
 	//-----------------------------------------------------
-	m_Extent.xMin	= m_Extent.xMax	= a->Get_X();
-	m_Extent.yMin	= m_Extent.yMax	= a->Get_Y();
+	double	xMin, yMin, xMax, yMax;
 
-	if(			m_Extent.xMin	> b->Get_X() )
-				m_Extent.xMin	= b->Get_X();
-	else if(	m_Extent.xMax	< b->Get_X() )
-				m_Extent.xMax	= b->Get_X();
+	xMin	= xMax	= a->Get_X();
+	yMin	= yMax	= a->Get_Y();
 
-	if(			m_Extent.yMin	> b->Get_Y() )
-				m_Extent.yMin	= b->Get_Y();
-	else if(	m_Extent.yMax	< b->Get_Y() )
-				m_Extent.yMax	= b->Get_Y();
+	if(			xMin	> b->Get_X() )
+				xMin	= b->Get_X();
+	else if(	xMax	< b->Get_X() )
+				xMax	= b->Get_X();
 
-	if(			m_Extent.xMin	> c->Get_X() )
-				m_Extent.xMin	= c->Get_X();
-	else if(	m_Extent.xMax	< c->Get_X() )
-				m_Extent.xMax	= c->Get_X();
+	if(			yMin	> b->Get_Y() )
+				yMin	= b->Get_Y();
+	else if(	yMax	< b->Get_Y() )
+				yMax	= b->Get_Y();
 
-	if(			m_Extent.yMin	> c->Get_Y() )
-				m_Extent.yMin	= c->Get_Y();
-	else if(	m_Extent.yMax	< c->Get_Y() )
-				m_Extent.yMax	= c->Get_Y();
+	if(			xMin	> c->Get_X() )
+				xMin	= c->Get_X();
+	else if(	xMax	< c->Get_X() )
+				xMax	= c->Get_X();
+
+	if(			yMin	> c->Get_Y() )
+				yMin	= c->Get_Y();
+	else if(	yMax	< c->Get_Y() )
+				yMax	= c->Get_Y();
+
+	m_Extent.Assign(xMin, yMin, xMax, yMax);
 
 	//-----------------------------------------------------
 	m_Area	= fabs(	a->Get_X() * (b->Get_Y() - c->Get_Y())
@@ -340,7 +344,42 @@ CTIN_Triangle::CTIN_Triangle(CTIN_Point *a, CTIN_Point *b, CTIN_Point *c)
 
 //---------------------------------------------------------
 CTIN_Triangle::~CTIN_Triangle(void)
+{}
+
+
+//---------------------------------------------------------
+bool CTIN_Triangle::is_Containing(const TGEO_Point &Point)
 {
+	return( is_Containing(Point.x, Point.y) );
+}
+
+//---------------------------------------------------------
+bool CTIN_Triangle::is_Containing(double x, double y)
+{
+	if( m_Extent.Contains(x, y) )
+	{
+		int			nCrossings;
+		TGEO_Point	A, B, C;
+
+		nCrossings	= 0;
+
+		A.x			= m_Extent.m_rect.xMin;
+		B.x			= x;
+		A.y = B.y	= y;
+
+		if( GEO_Get_Crossing(C, m_Points[0]->Get_Point(), m_Points[1]->Get_Point(), A, B) )
+			nCrossings++;
+
+		if( GEO_Get_Crossing(C, m_Points[1]->Get_Point(), m_Points[2]->Get_Point(), A, B) )
+			nCrossings++;
+
+		if( GEO_Get_Crossing(C, m_Points[2]->Get_Point(), m_Points[0]->Get_Point(), A, B) )
+			nCrossings++;
+
+		return( nCrossings == 1 );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------

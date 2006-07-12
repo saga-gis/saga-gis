@@ -356,9 +356,9 @@ public:
 	virtual bool				is_Valid			(void)	{	return( m_nParts > 0 && m_nPoints[0] > 2 );	}
 
 
-	bool						is_Containing		(TGEO_Point Point);
+	bool						is_Containing		(const TGEO_Point &Point);
 	bool						is_Containing		(double x, double y);
-	bool						is_Containing		(TGEO_Point Point, int iPart);
+	bool						is_Containing		(const TGEO_Point &Point, int iPart);
 	bool						is_Containing		(double x, double y, int iPart);
 
 	bool						is_Clockwise		(int iPart);

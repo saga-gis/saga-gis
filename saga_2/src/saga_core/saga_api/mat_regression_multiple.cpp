@@ -230,8 +230,8 @@ bool CMAT_Regression_Multiple::_Get_Regression(CTable *pValues)
 
 		//-------------------------------------------------
 		API_Free(B);
-		MATRIX_Free((void **)P);
-		MATRIX_Free((void **)X);
+		MATRIX_Free(P);
+		MATRIX_Free(X);
 
 		return( true );
 	}

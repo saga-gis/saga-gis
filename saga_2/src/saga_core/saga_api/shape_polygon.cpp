@@ -143,7 +143,7 @@ int CShape_Polygon::On_Intersects(TGEO_Rect Region)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CShape_Polygon::is_Containing(TGEO_Point Point)
+bool CShape_Polygon::is_Containing(const TGEO_Point &Point)
 {
 	return( is_Containing(Point.x, Point.y) );
 }
@@ -185,7 +185,7 @@ bool CShape_Polygon::is_Containing(double x, double y)
 }
 
 //---------------------------------------------------------
-bool CShape_Polygon::is_Containing(TGEO_Point Point, int iPart)
+bool CShape_Polygon::is_Containing(const TGEO_Point &Point, int iPart)
 {
 	return( is_Containing(Point.x, Point.y, iPart) );
 }

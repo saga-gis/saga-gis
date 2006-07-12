@@ -72,28 +72,34 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void **		MATRIX_Alloc(int ny, int nx, int Value_Size)
+void **		MATRIX_Alloc(int nRows, int nCols, int nValueBytes)
 {
-	char	**Matrix;
+	void	**Matrix;
 
-	Matrix		= (char **)API_Malloc(ny * sizeof(char *));
-	Matrix[0]	= (char  *)API_Malloc(ny * nx * Value_Size);
+	Matrix		= (void **)API_Malloc(nRows * sizeof(void *));
+	Matrix[0]	= (void  *)API_Malloc(nRows * nCols * nValueBytes);
 
-	nx	*= Value_Size * sizeof(char);
+	nCols	*= nValueBytes * sizeof(char);
 
-	for(int i=1; i<ny; i++)
+	for(int iRow=1; iRow<nRows; iRow++)
 	{
-		Matrix[i]	= Matrix[0] + i * nx;
+		Matrix[iRow]	= (char *)Matrix[0] + iRow * nCols;
 	}
 
-	return( (void **)Matrix );
+	return( Matrix );
 }
 
 //---------------------------------------------------------
-void		MATRIX_Free(void **Matrix)
+void **		MATRIX_Get_Copy(int nRows, int nCols, int nValueBytes, void **Matrix)
 {
-	API_Free(Matrix[0]);
-	API_Free(Matrix);
+	void	**Copy	= MATRIX_Alloc(nRows, nCols, nValueBytes);
+
+	for(int iRow=0; iRow<nRows; iRow++)
+	{
+		memcpy(Copy[iRow], Matrix[iRow], nCols * nValueBytes);
+	}
+
+	return( Copy );
 }
 
 
@@ -104,19 +110,153 @@ void		MATRIX_Free(void **Matrix)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		MATRIX_Invert(int nSize, double **Matrix)
+bool		MATRIX_Set_Identitiy(int nSize, double **Matrix)
 {
-	bool	bResult;
-	int		i, j, *Index;
-	double	*Vector, **Matrix_Tmp;
+	if( nSize > 0 )
+	{
+		for(int i=0; i<nSize; i++)
+		{
+			memset(Matrix[i], 0, nSize * sizeof(double));
 
-	bResult	= false;
+			Matrix[i][i]	= 1.0;
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool		MATRIX_Add(int nSize, double **A, double **B)
+{
+	if( nSize > 0 )
+	{
+		for(int i=0; i<nSize; i++)
+		{
+			for(int j=0; j<nSize; j++)
+			{
+				A[i][j]	+= B[j][i];
+			}
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool		MATRIX_Multiply(int nSize, double **Matrix, double Scalar)
+{
+	if( nSize > 0 )
+	{
+		for(int i=0; i<nSize; i++)
+		{
+			for(int j=0; j<nSize; j++)
+			{
+				Matrix[i][j]	*= Scalar;
+			}
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool		MATRIX_Multiply(int nSize, double **Matrix, double *Vector)
+{
+	if( nSize > 0 )
+	{
+		double	*X	= (double *)API_Calloc(nSize, sizeof(double));
+
+		for(int i=0; i<nSize; i++)
+		{
+			for(int j=0; j<nSize; j++)
+			{
+				X[i]	+= Matrix[i][j] * Vector[j];
+			}
+		}
+
+		memcpy(Vector, X, nSize * sizeof(double));
+
+		API_Free(X);
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool		MATRIX_Multiply(int nSize, double **A, double **B)
+{
+	if( nSize > 0 )
+	{
+		double	**C	= (double **)MATRIX_Get_Copy(nSize, nSize, sizeof(double), (void **)A);
+
+		for(int i=0; i<nSize; i++)
+		{
+			memset(A[i], 0, nSize * sizeof(double));
+
+			for(int j=0; j<nSize; j++)
+			{
+				A[i][j]	+= C[i][j] * B[j][i];
+			}
+		}
+
+		MATRIX_Free(C);
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool		MATRIX_Solve(int nSize, double **Matrix, double *Vector, bool bSilent)
+{
+	bool	bResult	= false;
+	int		*Permutation;
 
 	if( nSize > 1 )
 	{
-		Index	= (int *)API_Malloc(nSize * sizeof(int));
+		Permutation	= (int *)API_Malloc(nSize * sizeof(int));
 
-		if( MATRIX_LU_Decomposition(nSize, Matrix, Index) )
+		if( MATRIX_LU_Decomposition(nSize, Matrix, Permutation, bSilent) )
+		{
+			MATRIX_LU_Solve(nSize, Matrix, Permutation, Vector, bSilent);
+
+			bResult	= true;
+		}
+
+		API_Free(Permutation);
+	}
+
+	return( bResult );
+}
+
+//---------------------------------------------------------
+bool		MATRIX_Invert(int nSize, double **Matrix, bool bSilent)
+{
+	bool	bResult	= false;;
+	int		i, j, *Permutation;
+	double	*Vector, **Matrix_Tmp;
+
+	if( nSize > 1 )
+	{
+		Permutation	= (int *)API_Malloc(nSize * sizeof(int));
+
+		if( MATRIX_LU_Decomposition(nSize, Matrix, Permutation, bSilent) )
 		{
 			Vector			= (double  *)API_Malloc(nSize * sizeof(double));
 
@@ -130,12 +270,12 @@ bool		MATRIX_Invert(int nSize, double **Matrix)
 			}
 
 			//---------------------------------------------
-			for(j=0; j<nSize; j++)
+			for(j=0; j<nSize && (bSilent || API_Callback_Process_Set_Progress(i, nSize)); j++)
 			{
 				memset(Vector, 0, nSize * sizeof(double));
 				Vector[j]	= 1.0;
 
-				MATRIX_Solve(nSize, Matrix_Tmp, Index, Vector);
+				MATRIX_LU_Solve(nSize, Matrix_Tmp, Permutation, Vector, false);
 
 				for(i=0; i<nSize; i++)
 				{
@@ -152,21 +292,28 @@ bool		MATRIX_Invert(int nSize, double **Matrix)
 			bResult	= true;
 		}
 
-		API_Free(Index);
+		API_Free(Permutation);
 	}
 
 	return( bResult );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-bool		MATRIX_LU_Decomposition(int nSize, double **Matrix, int *Index)
+bool		MATRIX_LU_Decomposition(int nSize, double **Matrix, int *Permutation, bool bSilent)
 {
 	int		i, j, k, iMax	= 0;
 	double	dMax, d, Sum, *Vector;
 
 	Vector	= (double *)API_Malloc(nSize * sizeof(double));
 
-	for(i=0; i<nSize; i++)
+	for(i=0; i<nSize && (bSilent || API_Callback_Process_Set_Progress(i, nSize)); i++)
 	{
 		dMax	= 0.0;
 
@@ -188,7 +335,7 @@ bool		MATRIX_LU_Decomposition(int nSize, double **Matrix, int *Index)
 		Vector[i]	= 1.0 / dMax;
 	}
 
-	for(j=0; j<nSize; j++)
+	for(j=0; j<nSize && (bSilent || API_Callback_Process_Set_Progress(j, nSize)); j++)
 	{
 		for(i=0; i<j; i++)
 		{
@@ -234,7 +381,7 @@ bool		MATRIX_LU_Decomposition(int nSize, double **Matrix, int *Index)
 			Vector[iMax]	= Vector[j];
 		}
 
-		Index[j]	= iMax;
+		Permutation[j]	= iMax;
 
 		if( Matrix[j][j] == 0.0 )
 		{
@@ -254,19 +401,19 @@ bool		MATRIX_LU_Decomposition(int nSize, double **Matrix, int *Index)
 
 	API_Free(Vector);
 
-	return( true );
+	return( bSilent || API_Callback_Process_Get_Okay(false) );
 }
 
 //---------------------------------------------------------
-void		MATRIX_Solve(int nSize, double **Matrix, int *Index, double *Vector)
+void		MATRIX_LU_Solve(int nSize, double **Matrix, int *Permutation, double *Vector, bool bSilent)
 {
 	int		i, j, k;
 	double	Sum;
 
-	for(i=0, k=-1; i<nSize; i++)
+	for(i=0, k=-1; i<nSize && (bSilent || API_Callback_Process_Set_Progress(i, nSize)); i++)
 	{
-		Sum					= Vector[Index[i]];
-		Vector[Index[i]]	= Vector[i];
+		Sum						= Vector[Permutation[i]];
+		Vector[Permutation[i]]	= Vector[i];
 
 		if( k >= 0 )
 		{
@@ -277,19 +424,19 @@ void		MATRIX_Solve(int nSize, double **Matrix, int *Index, double *Vector)
 		}
 		else if( Sum )
 		{
-			k	= i;
+			k		= i;
 		}
 
 		Vector[i]	= Sum;
 	}
 
-	for(i=nSize-1; i>=0; i--)
+	for(i=nSize-1; i>=0 && (bSilent || API_Callback_Process_Set_Progress(nSize-i, nSize)); i--)
 	{
 		Sum			= Vector[i];
 
 		for(j=i+1; j<nSize; j++)
 		{
-			Sum			-= Matrix[i][j] * Vector[j];
+			Sum		-= Matrix[i][j] * Vector[j];
 		}
 
 		Vector[i]	= Sum / Matrix[i][i];

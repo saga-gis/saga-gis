@@ -139,12 +139,22 @@ SAGA_API_DLL_EXPORT int *			MAT_Create_Index		(int nValues, int (*Compare)(const
 SAGA_API_DLL_EXPORT bool			MAT_Create_Index		(int nValues, int (*Compare)(const int iElement_1, const int iElement_2), bool bAscending, int *Index);
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT void **			MATRIX_Alloc			(int ny, int nx, int Value_Size);
-SAGA_API_DLL_EXPORT void			MATRIX_Free				(void **Matrix);
+SAGA_API_DLL_EXPORT void **			MATRIX_Alloc			(int nRows, int nCols, int nValueBytes);
+SAGA_API_DLL_EXPORT void **			MATRIX_Get_Copy			(int nRows, int nCols, int nValueBytes, void **Matrix);
+#define								MATRIX_Free(M)			{	API_Free(M[0]);	API_Free(M);	}
 
-SAGA_API_DLL_EXPORT bool			MATRIX_Invert			(int nSize, double **Matrix);
-SAGA_API_DLL_EXPORT bool			MATRIX_LU_Decomposition	(int nSize, double **Matrix, int *Index);
-SAGA_API_DLL_EXPORT void			MATRIX_Solve			(int nSize, double **Matrix, int *Index, double *Vector);
+SAGA_API_DLL_EXPORT bool			MATRIX_Set_Identitiy	(int nSize, double **Matrix);
+
+SAGA_API_DLL_EXPORT bool			MATRIX_Add				(int nSize, double **A, double **B);
+
+SAGA_API_DLL_EXPORT bool			MATRIX_Multiply			(int nSize, double **Matrix, double Scalar);
+SAGA_API_DLL_EXPORT bool			MATRIX_Multiply			(int nSize, double **Matrix, double *Vector);
+SAGA_API_DLL_EXPORT bool			MATRIX_Multiply			(int nSize, double **A, double **B);
+
+SAGA_API_DLL_EXPORT bool			MATRIX_Solve			(int nSize, double **Matrix, double *Vector, bool bSilent = true);
+SAGA_API_DLL_EXPORT bool			MATRIX_Invert			(int nSize, double **Matrix, bool bSilent = true);
+SAGA_API_DLL_EXPORT bool			MATRIX_LU_Decomposition	(int nSize, double **Matrix, int *Permutation, bool bSilent = true);
+SAGA_API_DLL_EXPORT void			MATRIX_LU_Solve			(int nSize, double **Matrix, int *Permutation, double *Vector, bool bSilent = true);
 
 
 ///////////////////////////////////////////////////////////
