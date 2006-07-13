@@ -354,6 +354,9 @@ bool CTIN_Triangle::is_Containing(const TGEO_Point &Point)
 }
 
 //---------------------------------------------------------
+#define IS_ONLINE(A, B)	(A.y == B.y && ((A.x <= x && x <= B.x) || (B.x <= x && x <= A.x)))
+
+//---------------------------------------------------------
 bool CTIN_Triangle::is_Containing(double x, double y)
 {
 	if( m_Extent.Contains(x, y) )
@@ -361,9 +364,27 @@ bool CTIN_Triangle::is_Containing(double x, double y)
 		int			nCrossings;
 		TGEO_Point	A, B, C;
 
+		if(	(x == m_Points[0]->Get_Point().x && y == m_Points[0]->Get_Point().y)
+		||	(x == m_Points[1]->Get_Point().x && y == m_Points[1]->Get_Point().y)
+		||	(x == m_Points[2]->Get_Point().x && y == m_Points[2]->Get_Point().y) )
+			return( true );
+
+		if( y == m_Extent.Get_YMin() || y == m_Extent.Get_YMax() )
+		{
+			if(	IS_ONLINE(m_Points[0]->Get_Point(), m_Points[1]->Get_Point())
+			||	IS_ONLINE(m_Points[1]->Get_Point(), m_Points[2]->Get_Point())
+			||	IS_ONLINE(m_Points[2]->Get_Point(), m_Points[0]->Get_Point()) )
+				return( true );
+		}
+
 		nCrossings	= 0;
 
-		A.x			= m_Extent.m_rect.xMin;
+		if(	(y == m_Points[0]->Get_Point().y && x > m_Points[0]->Get_Point().x)
+		||	(y == m_Points[1]->Get_Point().y && x > m_Points[1]->Get_Point().x)
+		||	(y == m_Points[2]->Get_Point().y && x > m_Points[2]->Get_Point().x) )
+			nCrossings	= -1;
+
+		A.x			= m_Extent.m_rect.xMin - 1.0;
 		B.x			= x;
 		A.y = B.y	= y;
 
