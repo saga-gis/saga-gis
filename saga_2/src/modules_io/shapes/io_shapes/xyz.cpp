@@ -121,7 +121,7 @@ bool CXYZ_Export::On_Execute(void)
 	bool		bAll;
 	int			iShape, iPart, iPoint, iField;
 	FILE		*aus;
-	TGEO_Point	Point;
+	TSG_Point	Point;
 	CShape		*pShape;
 	CShapes		*pShapes;
 

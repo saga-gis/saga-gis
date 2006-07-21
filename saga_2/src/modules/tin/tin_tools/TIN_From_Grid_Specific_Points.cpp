@@ -253,8 +253,8 @@ bool CTIN_From_Grid_Specific_Points::Get_MarkHighestNB(CGrid *pResult, CGrid *pG
 	double	lo, hi, z;
 	CGrid	*clo, *chi;
 
-	clo		= API_Create_Grid(pGrid, GRID_TYPE_Char);
-	chi		= API_Create_Grid(pGrid, GRID_TYPE_Char);
+	clo		= SG_Create_Grid(pGrid, GRID_TYPE_Char);
+	chi		= SG_Create_Grid(pGrid, GRID_TYPE_Char);
 
 	// Pass 1: Auszaehlen...
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -333,8 +333,8 @@ bool CTIN_From_Grid_Specific_Points::Get_OppositeNB(CGrid *pResult, CGrid *pGrid
 	double	z, iz, jz;
 	CGrid	*clo, *chi;
 
-	clo		= API_Create_Grid(pGrid, GRID_TYPE_Char);
-	chi		= API_Create_Grid(pGrid, GRID_TYPE_Char);
+	clo		= SG_Create_Grid(pGrid, GRID_TYPE_Char);
+	chi		= SG_Create_Grid(pGrid, GRID_TYPE_Char);
 
 	// Pass 1: Auszaehlen...
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)

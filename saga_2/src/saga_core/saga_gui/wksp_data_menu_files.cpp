@@ -101,7 +101,7 @@ CWKSP_Data_Menu_Files::~CWKSP_Data_Menu_Files(void)
 
 	if( m_Menus )
 	{
-		API_Free(m_Menus);
+		SG_Free(m_Menus);
 	}
 }
 
@@ -127,7 +127,7 @@ void CWKSP_Data_Menu_Files::Add(wxMenu *pMenu)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_FRAME_QUIT);
 
 	//-----------------------------------------------------
-	m_Menus	= (wxMenu **)API_Realloc(m_Menus, (m_nMenus + 1) * sizeof(wxMenu *));
+	m_Menus	= (wxMenu **)SG_Realloc(m_Menus, (m_nMenus + 1) * sizeof(wxMenu *));
 	m_Menus[m_nMenus++]	= pMenu;
 }
 
@@ -145,7 +145,7 @@ void CWKSP_Data_Menu_Files::Del(wxMenu *pMenu)
 				m_Menus[i]	= m_Menus[i + 1];
 			}
 
-			m_Menus	= (wxMenu **)API_Realloc(m_Menus, m_nMenus * sizeof(wxMenu *));
+			m_Menus	= (wxMenu **)SG_Realloc(m_Menus, m_nMenus * sizeof(wxMenu *));
 		}
 	}
 }

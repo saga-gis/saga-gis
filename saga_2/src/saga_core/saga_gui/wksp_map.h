@@ -111,8 +111,8 @@ public:
 	virtual CParameters *		Get_Parameters			(void)		{	return( &m_Parameters );	}
 	virtual void				Parameters_Changed		(void);
 
-	const CGEO_Rect &			Get_Extent				(void)		{	return( m_Extent );	}
-	void						Set_Extent				(TGEO_Rect Extent);
+	const CSG_Rect &			Get_Extent				(void)		{	return( m_Extent );	}
+	void						Set_Extent				(TSG_Rect Extent);
 	void						Set_Extent				(void);
 	void						Set_Extent_Last			(void);
 	void						Set_Extent_Full			(void);
@@ -140,20 +140,20 @@ public:
 	void						View_Layout_Show		(bool bShow);
 	void						View_Layout_Toggle		(void);
 
-	CGEO_Rect					Get_World				(wxRect rClient);
-	CGEO_Point					Get_World				(wxRect rClient, wxPoint ptClient);
+	CSG_Rect					Get_World				(wxRect rClient);
+	CSG_Point					Get_World				(wxRect rClient, wxPoint ptClient);
 
-	bool						Get_Image				(wxImage &Image, CGEO_Rect &rWorld);
+	bool						Get_Image				(wxImage &Image, CSG_Rect &rWorld);
 	void						SaveAs_Image			(void);
 	void						SaveAs_PDF_Indexed		(void);
 	void						SaveAs_Interactive_SVG	(void);
 
-	void						Draw_PDF				(class CPDF_Document *pPDF, const char *FilePath_Maps, int Image_ID, const char *Icon_File, const char *sTitle, CGEO_Rect rWorld, bool bRoundScale, int iField, CShapes *m_pDivisions);
+	void						Draw_PDF				(class CDoc_PDF *pPDF, const char *FilePath_Maps, int Image_ID, const char *Icon_File, const char *sTitle, CSG_Rect rWorld, bool bRoundScale, int iField, CShapes *m_pDivisions);
 
 	void						Draw_Map				(wxDC &dc, double Zoom, const wxRect &rClient, bool bEdit, int Background = COLOR_DEF_WHITE);
-	void						Draw_Map				(wxDC &dc, const CGEO_Rect &rWorld, double Zoom, const wxRect &rClient, bool bEdit, int Background = COLOR_DEF_WHITE);
+	void						Draw_Map				(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wxRect &rClient, bool bEdit, int Background = COLOR_DEF_WHITE);
 	void						Draw_Frame				(wxDC &dc, wxRect rMap, int Width);
-	void						Draw_Frame				(wxDC &dc, const CGEO_Rect &rWorld, wxRect rMap, int Width);
+	void						Draw_Frame				(wxDC &dc, const CSG_Rect &rWorld, wxRect rMap, int Width);
 	bool						Draw_Legend				(wxDC &dc, double Zoom_Map, double Zoom, wxPoint Position, wxSize *pSize = NULL, int Layout = LEGEND_LAYOUT_VERTICAL);
 
 	bool						Get_Legend_Size			(wxSize &Size, double Zoom_Map = 1.0, double Zoom = 1.0, int Layout = LEGEND_LAYOUT_VERTICAL);
@@ -166,7 +166,7 @@ public:
 
 private:
 
-	CGEO_Rect					m_Extent, m_Extent_Last;
+	CSG_Rect					m_Extent, m_Extent_Last;
 
 	CParameters					m_Parameters;
 

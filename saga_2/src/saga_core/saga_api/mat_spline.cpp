@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CMAT_Spline::CMAT_Spline(void)
+CSG_Spline::CSG_Spline(void)
 {
 	m_xPoints	= NULL;
 	m_yPoints	= NULL;
@@ -83,7 +83,7 @@ CMAT_Spline::CMAT_Spline(void)
 }
 
 //---------------------------------------------------------
-CMAT_Spline::~CMAT_Spline(void)
+CSG_Spline::~CSG_Spline(void)
 {
 	Destroy();
 }
@@ -96,13 +96,13 @@ CMAT_Spline::~CMAT_Spline(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CMAT_Spline::Destroy(void)
+void CSG_Spline::Destroy(void)
 {
 	if( m_nBuffer > 0 )
 	{
-		API_Free(m_xPoints);
-		API_Free(m_yPoints);
-		API_Free(m_zPoints);
+		SG_Free(m_xPoints);
+		SG_Free(m_yPoints);
+		SG_Free(m_zPoints);
 
 		m_xPoints	= NULL;
 		m_yPoints	= NULL;
@@ -116,7 +116,7 @@ void CMAT_Spline::Destroy(void)
 }
 
 //---------------------------------------------------------
-void CMAT_Spline::Add_Value(double x, double y)
+void CSG_Spline::Add_Value(double x, double y)
 {
 	int		i, iAdd;
 
@@ -125,9 +125,9 @@ void CMAT_Spline::Add_Value(double x, double y)
 	if( m_nPoints >= m_nBuffer )
 	{
 		m_nBuffer	+= 64;
-		m_xPoints	 = (double *)API_Realloc(m_xPoints, m_nPoints * sizeof(double));
-		m_yPoints	 = (double *)API_Realloc(m_yPoints, m_nPoints * sizeof(double));
-		m_zPoints	 = (double *)API_Realloc(m_zPoints, m_nPoints * sizeof(double));
+		m_xPoints	 = (double *)SG_Realloc(m_xPoints, m_nPoints * sizeof(double));
+		m_yPoints	 = (double *)SG_Realloc(m_yPoints, m_nPoints * sizeof(double));
+		m_zPoints	 = (double *)SG_Realloc(m_zPoints, m_nPoints * sizeof(double));
 	}
 
 	m_nPoints++;
@@ -154,7 +154,7 @@ void CMAT_Spline::Add_Value(double x, double y)
 }
 
 //---------------------------------------------------------
-void CMAT_Spline::Set_Values(double *x, double *y, int n)
+void CSG_Spline::Set_Values(double *x, double *y, int n)
 {
 	int		i;
 
@@ -174,7 +174,7 @@ void CMAT_Spline::Set_Values(double *x, double *y, int n)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CMAT_Spline::Initialize(double y_A, double y_B)
+void CSG_Spline::Initialize(double y_A, double y_B)
 {
 	int		i, k;
 	double	p, qn, sig, un, *u;
@@ -182,7 +182,7 @@ void CMAT_Spline::Initialize(double y_A, double y_B)
 	if( m_nPoints > 2 )
 	{
 		m_bSplined	= true;
-		u			= (double *)API_Malloc(m_nPoints * sizeof(double));
+		u			= (double *)SG_Malloc(m_nPoints * sizeof(double));
 
 		if( y_A > 0.99e30 )
 		{
@@ -223,12 +223,12 @@ void CMAT_Spline::Initialize(double y_A, double y_B)
 			m_zPoints[k]	= m_zPoints[k] * m_zPoints[k + 1] + u[k];
 		}
 
-		API_Free(u);
+		SG_Free(u);
 	}
 }
 
 //---------------------------------------------------------
-bool CMAT_Spline::Get_Value(double x, double &y)
+bool CSG_Spline::Get_Value(double x, double &y)
 {
 	int		klo, khi, k;
 	double	h, b, a;

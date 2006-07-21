@@ -112,7 +112,7 @@
 //---------------------------------------------------------
 #define M_SQR(x)					((x) * (x))
 #define M_SQRT(x)					sqrt((double)(x))
-#define M_GET_DIST(x, y)			sqrt((double)((x)*(x) + (y)*(y)))
+#define M_GET_LENGTH(x, y)			sqrt((double)((x)*(x) + (y)*(y)))
 
 #define M_GET_MIN(a, b)				(((a) < (b)) ? (a) : (b))
 #define M_GET_MAX(a, b)				(((a) > (b)) ? (a) : (b))
@@ -126,35 +126,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT double			MAT_Square				(double x);
-
-//---------------------------------------------------------
-SAGA_API_DLL_EXPORT int *			MAT_Create_Index		(int nValues, int    *Values, bool bAscending);
-SAGA_API_DLL_EXPORT bool			MAT_Create_Index		(int nValues, int    *Values, bool bAscending, int *Index);
-
-SAGA_API_DLL_EXPORT int *			MAT_Create_Index		(int nValues, double *Values, bool bAscending);
-SAGA_API_DLL_EXPORT bool			MAT_Create_Index		(int nValues, double *Values, bool bAscending, int *Index);
-
-SAGA_API_DLL_EXPORT int *			MAT_Create_Index		(int nValues, int (*Compare)(const int iElement_1, const int iElement_2), bool bAscending);
-SAGA_API_DLL_EXPORT bool			MAT_Create_Index		(int nValues, int (*Compare)(const int iElement_1, const int iElement_2), bool bAscending, int *Index);
-
-//---------------------------------------------------------
-SAGA_API_DLL_EXPORT void **			MATRIX_Alloc			(int nRows, int nCols, int nValueBytes);
-SAGA_API_DLL_EXPORT void **			MATRIX_Get_Copy			(int nRows, int nCols, int nValueBytes, void **Matrix);
-#define								MATRIX_Free(M)			{	API_Free(M[0]);	API_Free(M);	}
-
-SAGA_API_DLL_EXPORT bool			MATRIX_Set_Identitiy	(int nSize, double **Matrix);
-
-SAGA_API_DLL_EXPORT bool			MATRIX_Add				(int nSize, double **A, double **B);
-
-SAGA_API_DLL_EXPORT bool			MATRIX_Multiply			(int nSize, double **Matrix, double Scalar);
-SAGA_API_DLL_EXPORT bool			MATRIX_Multiply			(int nSize, double **Matrix, double *Vector);
-SAGA_API_DLL_EXPORT bool			MATRIX_Multiply			(int nSize, double **A, double **B);
-
-SAGA_API_DLL_EXPORT bool			MATRIX_Solve			(int nSize, double **Matrix, double *Vector, bool bSilent = true);
-SAGA_API_DLL_EXPORT bool			MATRIX_Invert			(int nSize, double **Matrix, bool bSilent = true);
-SAGA_API_DLL_EXPORT bool			MATRIX_LU_Decomposition	(int nSize, double **Matrix, int *Permutation, bool bSilent = true);
-SAGA_API_DLL_EXPORT void			MATRIX_LU_Solve			(int nSize, double **Matrix, int *Permutation, double *Vector, bool bSilent = true);
+SAGA_API_DLL_EXPORT double		SG_Get_Square		(double x);
 
 
 ///////////////////////////////////////////////////////////
@@ -164,11 +136,205 @@ SAGA_API_DLL_EXPORT void			MATRIX_LU_Solve			(int nSize, double **Matrix, int *P
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CMAT_Spline
+typedef int (* TSG_PFNC_Compare) (const int iElement_1, const int iElement_2);
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Index
 {
 public:
-	CMAT_Spline(void);
-	virtual ~CMAT_Spline(void);
+	CSG_Index(void);
+	virtual ~CSG_Index(void);
+
+								CSG_Index			(int nValues, int    *Values, bool bAscending = true);
+	bool						Create				(int nValues, int    *Values, bool bAscending = true);
+
+								CSG_Index			(int nValues, double *Values, bool bAscending = true);
+	bool						Create				(int nValues, double *Values, bool bAscending = true);
+
+								CSG_Index			(int nValues, TSG_PFNC_Compare fCompare, bool bAscending = true);
+	bool						Create				(int nValues, TSG_PFNC_Compare fCompare, bool bAscending = true);
+
+	bool						Destroy				(void);
+
+	bool						is_Okay				(void)						const	{	return( m_nValues > 0 );	}
+	int							Get_Count			(void)						const	{	return( m_nValues );		}
+	int							Get_Index			(int i, bool bInv = false)	const	{	return( i >= 0 && i < m_nValues ? m_Index[bInv ? m_nValues-1-i : i] : -1 );	}
+	int							operator []			(int i)						const	{	return( i >= 0 && i < m_nValues ? m_Index[i] : -1 );	}
+
+
+private:
+
+	void						*m_Values;
+
+	int							m_nValues, *m_Index, m_iCompare;
+
+	TSG_PFNC_Compare			m_fCompare;
+
+
+	void						_On_Construction	(void);
+
+	bool						_Set_Array			(int nValues);
+	bool						_Set_Index			(bool bAscending);
+
+	int							_Compare			(const int iElement_1, const int iElement_2);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Vector
+{
+public:
+	CSG_Vector(void);
+	virtual ~CSG_Vector(void);
+
+								CSG_Vector			(const CSG_Vector &Vector);
+	bool						Create				(const CSG_Vector &Vector);
+
+								CSG_Vector			(int n);
+	bool						Create				(int n);
+
+	bool						Destroy				(void);
+
+	int							Get_N				(void)	const	{	return( m_n );		}
+	double &					operator []			(int x)			{	return( m_z[x] );	}
+	double *					Get_Data			(void)			{	return( m_z );		}
+
+	double						Get_Length			(void);
+
+	bool						is_Equal			(const CSG_Vector &Vector);
+
+	bool						Assign				(double Scalar);
+	bool						Assign				(const CSG_Vector &Vector);
+	bool						Add					(double Scalar);
+	bool						Add					(const CSG_Vector &Vector);
+	bool						Subtract			(const CSG_Vector &Vector);
+	bool						Multiply			(double Scalar);
+	bool						Multiply			(const CSG_Vector &Vector);
+	double						Multiply_Scalar		(const CSG_Vector &Vector);
+	bool						Multiply			(const class CSG_Matrix &Matrix);
+
+	bool						operator ==			(const CSG_Vector &Vector);
+	CSG_Vector &				operator =			(double Scalar);
+	CSG_Vector &				operator =			(const CSG_Vector &Vector);
+	CSG_Vector &				operator +=			(double Scalar);
+	CSG_Vector &				operator +=			(const CSG_Vector &Vector);
+	CSG_Vector &				operator -=			(double Scalar);
+	CSG_Vector &				operator -=			(const CSG_Vector &Vector);
+	CSG_Vector &				operator *=			(double Scalar);
+	CSG_Vector &				operator *=			(const CSG_Vector &Vector);
+	CSG_Vector &				operator *=			(const class CSG_Matrix &Matrix);
+	CSG_Vector					operator +			(double Scalar);
+	CSG_Vector					operator +			(const CSG_Vector &Vector);
+	CSG_Vector					operator -			(double Scalar);
+	CSG_Vector					operator -			(const CSG_Vector &Vector);
+	CSG_Vector					operator *			(double Scalar);
+	double						operator *			(const CSG_Vector &Vector);
+
+
+private:
+
+	int							m_n;
+
+	double						*m_z;
+
+
+	void						_On_Construction	(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Matrix
+{
+public:
+	CSG_Matrix(void);
+	virtual ~CSG_Matrix(void);
+
+								CSG_Matrix			(const CSG_Matrix &Matrix);
+	bool						Create				(const CSG_Matrix &Matrix);
+
+								CSG_Matrix			(int nx, int ny);
+	bool						Create				(int nx, int ny);
+
+	bool						Destroy				(void);
+
+	int							Get_NX				(void)	const	{	return( m_nx );		}
+	int							Get_NY				(void)	const	{	return( m_ny );		}
+	double *					operator []			(int y)	const	{	return( m_z[y] );	}
+	double **					Get_Data			(void)			{	return( m_z );		}
+
+	bool						is_Square			(void)	const	{	return( m_nx > 0 && m_nx == m_ny );	}
+	bool						is_Equal			(const CSG_Matrix &Matrix);
+
+	bool						Assign				(double Scalar);
+	bool						Assign				(const CSG_Matrix &Matrix);
+	bool						Add					(double Scalar);
+	bool						Add					(const CSG_Matrix &Matrix);
+	bool						Subtract			(const CSG_Matrix &Matrix);
+	bool						Multiply			(double Scalar);
+	bool						Multiply			(const CSG_Matrix &Matrix);
+
+	bool						operator ==			(const CSG_Matrix &Matrix);
+	CSG_Matrix &				operator =			(double Scalar);
+	CSG_Matrix &				operator =			(const CSG_Matrix &Matrix);
+	CSG_Matrix &				operator +=			(double Scalar);
+	CSG_Matrix &				operator +=			(const CSG_Matrix &Matrix);
+	CSG_Matrix &				operator -=			(double Scalar);
+	CSG_Matrix &				operator -=			(const CSG_Matrix &Matrix);
+	CSG_Matrix &				operator *=			(double Scalar);
+	CSG_Matrix &				operator *=			(const CSG_Matrix &Matrix);
+	CSG_Matrix					operator +			(double Scalar);
+	CSG_Matrix					operator +			(const CSG_Matrix &Matrix);
+	CSG_Matrix					operator -			(double Scalar);
+	CSG_Matrix					operator -			(const CSG_Matrix &Matrix);
+	CSG_Matrix					operator *			(double Scalar);
+	CSG_Matrix					operator *			(const CSG_Matrix &Matrix);
+
+	bool						Set_Identity		(void);
+	bool						Set_Transpose		(const CSG_Matrix &Matrix);
+	bool						Set_Inverse			(bool bSilent = true, int nSubSquare = 0);
+
+
+private:
+
+	int							m_nx, m_ny;
+
+	double						**m_z;
+
+
+	void						_On_Construction	(void);
+
+};
+
+//---------------------------------------------------------
+SAGA_API_DLL_EXPORT bool		SG_Matrix_Solve		(CSG_Matrix &Matrix, CSG_Vector &Vector, bool bSilent = true);
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Spline
+{
+public:
+	CSG_Spline(void);
+	virtual ~CSG_Spline(void);
 
 	void						Destroy				(void);
 
@@ -198,7 +364,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum
+typedef enum ESG_Regression_Type
 {
 	REGRESSION_Linear	= 0,	// Y = a + b * X
 	REGRESSION_Rez_X,			// Y = a + b / X
@@ -207,14 +373,14 @@ typedef enum
 	REGRESSION_Exp,				// Y = a * e^(b * X)
 	REGRESSION_Log				// Y = a + b * ln(X)
 }
-TMAT_Regression_Type;
+TSG_Regression_Type;
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CMAT_Regression
+class SAGA_API_DLL_EXPORT CSG_Regression
 {
 public:
-	CMAT_Regression(void);
-	virtual ~CMAT_Regression(void);
+	CSG_Regression(void);
+	virtual ~CSG_Regression(void);
 
 	void						Destroy				(void);
 
@@ -257,10 +423,10 @@ public:
 
 	const char *				asString			(void);
 
-	TMAT_Regression_Type		Get_Type			(void)			{	return( m_Type );	}
+	TSG_Regression_Type			Get_Type			(void)			{	return( m_Type );	}
 
-	bool						Calculate			(TMAT_Regression_Type Type = REGRESSION_Linear);
-	bool						Calculate			(int nValues, double *x, double *y, TMAT_Regression_Type Type = REGRESSION_Linear);
+	bool						Calculate			(TSG_Regression_Type Type = REGRESSION_Linear);
+	bool						Calculate			(int nValues, double *x, double *y, TSG_Regression_Type Type = REGRESSION_Linear);
 
 
 protected:
@@ -271,7 +437,7 @@ protected:
 								m_xMin, m_xMax, m_xMean, m_xVar, *m_x,
 								m_yMin, m_yMax, m_yMean, m_yVar, *m_y;
 
-	TMAT_Regression_Type		m_Type;
+	TSG_Regression_Type			m_Type;
 
 
 	bool						_Get_MinMeanMax		(double &xMin, double &xMean, double &xMax, double &yMin, double &yMean, double &yMax);
@@ -284,15 +450,15 @@ protected:
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CMAT_Regression_Multiple
+class SAGA_API_DLL_EXPORT CSG_Regression_Multiple
 {
 public:
-	CMAT_Regression_Multiple(void);
-	virtual ~CMAT_Regression_Multiple(void);
+	CSG_Regression_Multiple(void);
+	virtual ~CSG_Regression_Multiple(void);
 
 	void						Destroy				(void);
 
-	bool						Calculate			(class CTable *pValues);
+	bool						Calculate			(const class CTable &Values);
 
 	class CTable *				Get_Result			(void)	{	return( m_pResult );	}
 
@@ -309,9 +475,9 @@ protected:
 	class CTable				*m_pResult;
 
 
-	bool						_Get_Regression		(class CTable *pValues);
+	bool						_Get_Regression		(const class CTable &Values);
 
-	bool						_Get_Correlation	(class CTable *pValues);
+	bool						_Get_Correlation	(const class CTable &Values);
 	bool						_Get_Correlation	(int nValues, int nVariables, double **X, double *Y, int &iMax, double &rMax);
 
 	bool						_Eliminate			(int nValues, double *X, double *Y);
@@ -326,20 +492,20 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CMAT_Grid_Radius
+class SAGA_API_DLL_EXPORT CSG_Grid_Radius
 {
 public:
-	CMAT_Grid_Radius(int max_Radius = 0);
-	~CMAT_Grid_Radius(void);
+	CSG_Grid_Radius(int max_Radius = 0);
+	~CSG_Grid_Radius(void);
 
-	bool						Create		(int max_Radius);
-	void						Destroy		(void);
+	bool						Create				(int max_Radius);
+	void						Destroy				(void);
 
-	int							Get_Maximum	(void)			{	return( max_Radius );	}
+	int							Get_Maximum			(void)			{	return( max_Radius );	}
 
-	int							Get_nPoints	(int iRadius)	{	return( iRadius >= 0 && iRadius < max_Radius ? nPoints[iRadius] : 0 );	}
+	int							Get_nPoints			(int iRadius)	{	return( iRadius >= 0 && iRadius < max_Radius ? nPoints[iRadius] : 0 );	}
 
-	double						Get_Point	(int iRadius, int iPoint, int &x, int &y)
+	double						Get_Point			(int iRadius, int iPoint, int &x, int &y)
 	{
 		if( iRadius >= 0 && iRadius < max_Radius && iPoint >= 0 && iPoint < nPoints[iRadius] )
 		{
@@ -382,13 +548,13 @@ typedef double (*TMAT_Formula_Function_2)(double, double);
 typedef double (*TMAT_Formula_Function_3)(double, double, double);
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CMAT_Formula
+class SAGA_API_DLL_EXPORT CSG_Formula
 {
 public:
-	CMAT_Formula(void);
+	CSG_Formula(void);
 
-	static CAPI_String			Get_Help_Operators	(void);
-	static CAPI_String			Get_Help_Usage		(void);
+	static CSG_String			Get_Help_Operators	(void);
+	static CSG_String			Get_Help_Usage		(void);
 
 	bool						Get_Error			(int *Pos = NULL, const char **Msg = NULL);
 
@@ -400,7 +566,7 @@ public:
 	void						Set_Variable(char Variable, double Value);
 
 	bool						Set_Formula(const char *Formula);
-	CAPI_String					Get_Formula(void)	{	return( m_Formula );	}
+	CSG_String					Get_Formula(void)	{	return( m_Formula );	}
 
 	int							Del_Function(char *Name);
 	int							Add_Function(char *Name, TMAT_Formula_Function_1 f, int N_of_Pars, int Varying);
@@ -431,7 +597,7 @@ private:
 
 
 	//-----------------------------------------------------
-	CAPI_String					m_Formula;
+	CSG_String					m_Formula;
 
 	const char					*i_error; 
 	bool						used_vars['z' - 'a' + 1];
@@ -473,21 +639,21 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CMAT_Trend
+class SAGA_API_DLL_EXPORT CSG_Trend
 {
 public:
-	CMAT_Trend(void);
-	virtual ~CMAT_Trend(void);
+	CSG_Trend(void);
+	virtual ~CSG_Trend(void);
 
 	bool						Set_Formula			(const char *Formula = NULL);
-	CAPI_String					Get_Formula			(void);
+	CSG_String					Get_Formula			(void);
 
 	int							Get_Parameter_Count	(void) const	{	return( m_Params.m_Count );		}
 	double *					Get_Parameters		(void) const	{	return( m_Params.m_A );			}
 
 	void						Clr_Data			(void);
 	void						Set_Data			(double *xData, double *yData, int nData, bool bAdd = false);
-	void						Set_Data			(const CAPI_dPoints &Data, bool bAdd = false);
+	void						Set_Data			(const CSG_Points &Data, bool bAdd = false);
 	void						Add_Data			(double x, double y);
 	int							Get_Data_Count		(void) const	{	return( m_Data.Get_Count() );	}
 	double						Get_Data_X			(int Index)		{	return( m_Data.Get_X(Index) );	}
@@ -499,12 +665,12 @@ public:
 	double						Get_Max_Lambda		(void)			{	return( m_Lambda_Max);	}
 
 	bool						Get_Trend			(double *xData, double *yData, int nData, const char *Formula = NULL);
-	bool						Get_Trend			(const CAPI_dPoints &Data, const char *Formula = NULL);
+	bool						Get_Trend			(const CSG_Points &Data, const char *Formula = NULL);
 	bool						Get_Trend			(void);
 
 	bool						is_Okay				(void)			{	return( m_bOkay );		}
 
-	CAPI_String					Get_Error			(void);
+	CSG_String					Get_Error			(void);
 
 	double						Get_ChiSquare		(void);
 	double						Get_R2				(void);
@@ -540,11 +706,11 @@ private:
 
 	double						m_ChiSqr, m_ChiSqr_o, m_Lambda, m_Lambda_Max;
 
-	CAPI_dPoints				m_Data;
+	CSG_Points					m_Data;
 
 	CFncParams					m_Params;
 
-	CMAT_Formula				m_Formula;
+	CSG_Formula					m_Formula;
 
 
 	bool						_Fit_Function		(void);

@@ -106,7 +106,7 @@ CHillShade::CHillShade(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"			, _TL("Shading Method"),
 		"",
-		CAPI_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("Standard"),
 			_TL("Standard (max. 90Degree)"),
 			_TL("Combined Shading"),
@@ -148,7 +148,7 @@ CHillShade::~CHillShade(void)
 bool CHillShade::On_Execute(void)
 {
 	double	Azimuth, Declination;
-	CColors	Colors;
+	CSG_Colors	Colors;
 
 	//-----------------------------------------------------
 	pDTM			= Parameters("ELEVATION")	->asGrid();

@@ -1,4 +1,4 @@
-#include "saga_api/api_core.h"
+#include "MLB_Interface.h"
 
 class CPointsEx  
 {
@@ -20,7 +20,7 @@ private:
 
 	int								m_nPoints;
 
-	TAPI_iPoint						*m_Points;
+	TSG_Point_Int					*m_Points;
 	int								*m_ClosestPts;
 
 };

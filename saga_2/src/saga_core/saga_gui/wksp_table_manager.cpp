@@ -189,7 +189,7 @@ CWKSP_Table * CWKSP_Table_Manager::Add(CTable *pTable)
 //---------------------------------------------------------
 CTable * CWKSP_Table_Manager::Get_byFileName(const char *File_Name)
 {
-	CAPI_String	s(File_Name);
+	CSG_String	s(File_Name);
 
 	for(int i=0; i<Get_Count(); i++)
 	{

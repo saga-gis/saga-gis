@@ -108,7 +108,7 @@ CGrid_Value_Request::CGrid_Value_Request(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"			, _TL("Method"),
 		"",
-		CAPI_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s|",
 			_TL("Single value"),
 			_TL("Collect values")
 		), 4
@@ -117,7 +117,7 @@ CGrid_Value_Request::CGrid_Value_Request(void)
 	Parameters.Add_Choice(
 		NULL	, "INTERPOLATION"	, _TL("Interpolation"),
 		"",
-		CAPI_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|",
 			_TL("Nearest Neighbor"),
 			_TL("Bilinear Interpolation"),
 			_TL("Inverse Distance Interpolation"),
@@ -186,7 +186,7 @@ bool CGrid_Value_Request::On_Execute(void)
 }
 
 //---------------------------------------------------------
-bool CGrid_Value_Request::On_Execute_Position(CGEO_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CGrid_Value_Request::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
 {
 	int				iGrid;
 	double			Value;

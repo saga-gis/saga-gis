@@ -36,7 +36,7 @@ private:
 	CGrid *m_pDistanceGrid;
 	CShapes* m_pBasins;
 	CShapes* m_pHeaders;
-	CAPI_dPoints	m_Headers;
+	CSG_Points	m_Headers;
 	int m_fCells;
 	int m_iNumBasins;
 	float *m_fMaxDistance;
@@ -47,13 +47,13 @@ private:
 	void CreateShapesLayer();
 	bool isHeader(int,int);
 	bool isLastCell(int,int);
-	bool isTopHeader(CAPI_dPoints &,int, bool*);
+	bool isTopHeader(CSG_Points &,int, bool*);
 	void WriteBasin(int,int,int);
 	void DeleteBasin(int,int,int);
 	float DistanceToClosingPoint(int,int);
 	float OrographicIndex(float,float);
 	float MassivityIndex(float,float);
-	CAPI_String GraveliusType(float,float);
+	CSG_String GraveliusType(float,float);
 	void EquivalentRectangle(float,float,float&,float&);
 
 public:

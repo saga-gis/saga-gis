@@ -50,7 +50,7 @@ bool CTableCalculator::On_Execute(void){
 	CTable *pTable;
 	CTable_Record *pRecord;
 	const char *pFormula;
-	CMAT_Formula Formula;
+	CSG_Formula Formula;
 
 	pTable	= Parameters("TABLE")->asTable();
 	iFields = pTable->Get_Field_Count();

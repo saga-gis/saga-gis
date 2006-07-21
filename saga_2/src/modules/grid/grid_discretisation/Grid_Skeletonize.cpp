@@ -114,7 +114,7 @@ CGrid_Skeletonize::CGrid_Skeletonize(void)
 	Parameters.Add_Choice(
 		NULL, "INIT_METHOD"		, _TL("Initialisation"),
 		"",
-		CAPI_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s|",
 			_TL("Less than"),
 			_TL("Greater than") 
 		),1
@@ -149,7 +149,7 @@ bool CGrid_Skeletonize::On_Execute(void)
 {
 	int		n, Initiation;
 	double	Threshold;
-	CColors	Colors;
+	CSG_Colors	Colors;
 	CGrid	*pInput;
 
 	//-----------------------------------------------------
@@ -364,7 +364,7 @@ int CGrid_Skeletonize::Vectorize(CShapes *pShapes)
 	//-----------------------------------------------------
 	Lock_Destroy();
 
-	Message_Dlg(CAPI_String::Format("%d %s\n", nSegments, _TL("segments identified")), Get_Name());
+	Message_Dlg(CSG_String::Format("%d %s\n", nSegments, _TL("segments identified")), Get_Name());
 
 	return( nSegments );
 }
@@ -468,7 +468,7 @@ void CGrid_Skeletonize::Standard_Execute(void)
 
 	//-----------------------------------------------------
 	pPrev		= pResult;
-	pNext		= API_Create_Grid(pPrev);
+	pNext		= SG_Create_Grid(pPrev);
 
 	//-----------------------------------------------------
 	do
@@ -612,8 +612,8 @@ void CGrid_Skeletonize::Hilditch_Execute(void)
 
 	//-----------------------------------------------------
 	pPrev		= pResult;
-	pNext		= API_Create_Grid(pPrev);
-	pNC_Gaps	= API_Create_Grid(pPrev, GRID_TYPE_Char);
+	pNext		= SG_Create_Grid(pPrev);
+	pNC_Gaps	= SG_Create_Grid(pPrev, GRID_TYPE_Char);
 
 	//-----------------------------------------------------
 	do

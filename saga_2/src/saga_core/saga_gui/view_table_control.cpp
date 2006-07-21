@@ -449,7 +449,7 @@ void CVIEW_Table_Control::On_Change(wxGridEvent &event)
 void CVIEW_Table_Control::On_Field_Add(wxCommandEvent &event)
 {
 	int			i;
-	CAPI_String	sFields;
+	CSG_String	sFields;
 	CParameters	P;
 
 	//-----------------------------------------------------
@@ -470,7 +470,7 @@ void CVIEW_Table_Control::On_Field_Add(wxCommandEvent &event)
 	P.Add_Choice(
 		NULL	, "TYPE"	, LNG("Field Type"),
 		"",
-		CAPI_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|",
 			LNG("character string"),
 			LNG("1 byte integer"),
 			LNG("2 byte integer"),
@@ -491,7 +491,7 @@ void CVIEW_Table_Control::On_Field_Add(wxCommandEvent &event)
 	P.Add_Choice(
 		NULL	, "INSERT"	, LNG("Insert Method"),
 		"",
-		CAPI_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s|",
 			LNG("before"),
 			LNG("after")
 		), 1
@@ -541,7 +541,7 @@ void CVIEW_Table_Control::On_Field_Del(wxCommandEvent &event)
 	for(i=0; i<m_pTable->Get_Field_Count(); i++)
 	{
 		P.Add_Value(
-			NULL	, CAPI_String::Format("_%d_", i), m_pTable->Get_Field_Name(i),
+			NULL	, CSG_String::Format("_%d_", i), m_pTable->Get_Field_Name(i),
 			"",
 			PARAMETER_TYPE_Bool, false
 		);
@@ -552,7 +552,7 @@ void CVIEW_Table_Control::On_Field_Del(wxCommandEvent &event)
 	{
 		for(i=m_pTable->Get_Field_Count()-1; i>=0; i--)
 		{
-			if( P(CAPI_String::Format("_%d_", i))->asBool() )
+			if( P(CSG_String::Format("_%d_", i))->asBool() )
 			{
 				m_pTable->Del_Field(i);
 			}
@@ -570,7 +570,7 @@ void CVIEW_Table_Control::On_Field_Del_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_Field_Sort(wxCommandEvent &event)
 {
-	CAPI_String	sFields;
+	CSG_String	sFields;
 	CParameters	P;
 
 	//-----------------------------------------------------
@@ -591,7 +591,7 @@ void CVIEW_Table_Control::On_Field_Sort(wxCommandEvent &event)
 	P.Add_Choice(
 		NULL	, "METHOD"	, LNG("Direction"),
 		"",
-		CAPI_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|",
 			LNG("unsorted"),
 			LNG("ascending"),
 			LNG("descending")
@@ -847,7 +847,7 @@ void CVIEW_Table_Control::Update_Selection(void)
 
 	if( (n = m_pTable->Get_Selection_Count()) > 0 )
 	{
-		Selection	= (CTable_Record **)API_Malloc(n * sizeof(CTable_Record *));
+		Selection	= (CTable_Record **)SG_Malloc(n * sizeof(CTable_Record *));
 
 		for(i=0; i<n; i++)
 		{
@@ -870,7 +870,7 @@ void CVIEW_Table_Control::Update_Selection(void)
 			}
 		}
 
-		API_Free(Selection);
+		SG_Free(Selection);
 	}
 	else
 	{

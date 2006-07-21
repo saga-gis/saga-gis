@@ -20,11 +20,11 @@
 #include "ShapeSearchSelector.h"
 
 CShapeSearchSelector::CShapeSearchSelector(CShapes *pShapes,
-										   CAPI_String sExpression){
+										   CSG_String sExpression){
 
 	int i,j;
 	CTable_Record *pRecord;
-	CAPI_String sValue;
+	CSG_String sValue;
 	int iFields;
 
 	iFields = pShapes->Get_Table().Get_Field_Count();

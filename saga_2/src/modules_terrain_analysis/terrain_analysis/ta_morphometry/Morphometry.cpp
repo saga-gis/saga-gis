@@ -168,7 +168,7 @@ CMorphometry::CMorphometry(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
 		"",
-		CAPI_String::Format("%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|",
 			_TL("Maximum Slope (Travis et al. 1975)"),
 			_TL("Maximum Triangle Slope (Tarboton 1997)"),
 			_TL("Least Squares Fit Plane (Costa-Cabral & Burgess 1996)"),
@@ -195,7 +195,7 @@ CMorphometry::~CMorphometry(void)
 bool CMorphometry::On_Execute(void)
 {
 	int		x, y, Method;
-	CColors	Colors;
+	CSG_Colors	Colors;
 
 	//-----------------------------------------------------
 	Method		= Parameters("METHOD"   )->asInt();

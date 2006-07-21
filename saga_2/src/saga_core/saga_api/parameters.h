@@ -108,7 +108,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum
+typedef enum EParameter_Type
 {
 	PARAMETER_TYPE_Node		= 0,
 
@@ -212,7 +212,7 @@ protected:
 
 	int							m_Constraint;
 
-	CAPI_String					m_String;
+	CSG_String					m_String;
 
 	CParameter					*m_pOwner;
 
@@ -413,7 +413,7 @@ public:
 
 protected:
 
-	CAPI_String					**Items;
+	CSG_String					**Items;
 
 	int							nItems;
 
@@ -507,14 +507,14 @@ public:
 	void						Set_Flag_Directory		(bool bFlag);
 	bool						is_Directory			(void)	{	return( m_bDirectory );	}
 
-	bool						Get_FilePaths			(CAPI_Strings &FilePaths);
+	bool						Get_FilePaths			(CSG_Strings &FilePaths);
 
 
 protected:
 
 	bool						m_bSave, m_bMultiple, m_bDirectory;
 
-	CAPI_String					m_Filter;
+	CSG_String					m_Filter;
 
 
 	virtual void				On_Assign				(CParameter_Data *pSource);
@@ -578,7 +578,7 @@ public:
 
 protected:
 
-	CColors						m_Colors;
+	CSG_Colors					m_Colors;
 
 
 	virtual void				On_Assign				(CParameter_Data *pSource);
@@ -907,7 +907,7 @@ public:
 	const char *				Get_Identifier			(void);
 	const char *				Get_Name				(void);
 	const char *				Get_Description			(void);
-	CAPI_String					Get_Description			(int Flags, const char *Separator = "\n");
+	CSG_String					Get_Description			(int Flags, const char *Separator = "\n");
 
 	bool						is_Valid				(void)	{	return( m_pData->is_Valid() );		}
 	bool						is_Input				(void)	{	return( !!(m_pData->Get_Constraint() & PARAMETER_INPUT)	      );	}
@@ -938,7 +938,7 @@ public:
 
 	const char *				asString				(void)	{	return( (const char   *)m_pData->asString	() );	}
 	class wxFont *				asFont					(void)	{	return( (wxFont       *)m_pData->asPointer	() );	}
-	CColors *					asColors				(void)	{	return( (CColors      *)m_pData->asPointer	() );	}
+	CSG_Colors *				asColors				(void)	{	return( (CSG_Colors      *)m_pData->asPointer	() );	}
 	CGrid_System *				asGrid_System			(void)	{	return( (CGrid_System *)m_pData->asPointer	() );	}
 
 	CDataObject *				asDataObject			(void)	{	return( (CDataObject  *)m_pData->asPointer	() );	}
@@ -978,7 +978,7 @@ private:
 
 	CParameter					**m_Children;
 
-	CAPI_String					m_Identifier, m_Name, m_Description;
+	CSG_String					m_Identifier, m_Name, m_Description;
 
 	CParameter_Data				*m_pData;
 
@@ -1023,7 +1023,7 @@ public:
 	void						Set_Description			(const char *String);
 	const char *				Get_Description			(void);
 
-	void						Set_Translation			(CTranslator &Translator);
+	void						Set_Translation			(CSG_Translator &Translator);
 
 	//-----------------------------------------------------
 	void						Set_Callback_On_Parameter_Changed	(PFNC_Parameter_Changed pCallback);
@@ -1053,7 +1053,7 @@ public:
 	CParameter *				Add_FilePath			(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, const char *Filter = NULL, const char *Default = NULL, bool bSave = false, bool bDirectory = false, bool bMultiple = false);
 
 	CParameter *				Add_Font				(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, class wxFont *pInit = NULL);
-	CParameter *				Add_Colors				(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, CColors      *pInit = NULL);
+	CParameter *				Add_Colors				(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, CSG_Colors      *pInit = NULL);
 	CParameter *				Add_FixedTable			(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, CTable   *pTemplate = NULL);
 
 	CParameter *				Add_Grid_System			(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, CGrid_System *pInit = NULL);
@@ -1093,10 +1093,10 @@ public:
 	bool						DataObjects_Check		(bool bSilent = false);
 
 	//-----------------------------------------------------
-	bool						Get_String				(CAPI_String &String, bool bOptionsOnly);
+	bool						Get_String				(CSG_String &String, bool bOptionsOnly);
 	bool						Msg_String				(bool bOptionsOnly);
 
-	bool						Set_History				(CHistory &History, bool bOptions = true, bool bDataObjects = true);
+	bool						Set_History				(CSG_History &History, bool bOptions = true, bool bDataObjects = true);
 
 	CGrid_System *				Get_Grid_System			(void)	{	return( m_pGrid_System ? m_pGrid_System->asGrid_System() : NULL );	}
 
@@ -1109,7 +1109,7 @@ private:
 
 	bool						m_bCallback, m_bManaged;
 
-	CAPI_String					m_Identifier, m_Name, m_Description;
+	CSG_String					m_Identifier, m_Name, m_Description;
 
 	int							m_nParameters;
 

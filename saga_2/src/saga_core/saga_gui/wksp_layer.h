@@ -96,13 +96,13 @@ public:
 
 	void							DataObject_Changed		(void);
 	void							DataObject_Changed		(CParameters *pParameters);
-	void							DataObject_Changed		(CColors *pColors);
+	void							DataObject_Changed		(CSG_Colors *pColors);
 
 	CDataObject *					Get_Object				(void)	{	return( m_pObject );	}
-	CGEO_Rect						Get_Extent				(void);
+	CSG_Rect						Get_Extent				(void);
 
-	CColors *						Get_Colors				(void);
-	bool							Get_Colors				(CColors *pColors);
+	CSG_Colors *						Get_Colors				(void);
+	bool							Get_Colors				(CSG_Colors *pColors);
 	bool							Set_Color_Range			(double zMin, double zMax);
 
 	bool							Save					(void);
@@ -110,7 +110,7 @@ public:
 
 	virtual bool					Show					(class CWKSP_Map *pMap = NULL);
 
-	virtual wxString				Get_Value				(CGEO_Point ptWorld, double Epsilon)	= 0;
+	virtual wxString				Get_Value				(CSG_Point ptWorld, double Epsilon)	= 0;
 	virtual double					Get_Value_Range			(void)									= 0;
 
 	void							Draw					(CWKSP_Map_DC &dc_Map, bool bEdit);
@@ -119,7 +119,7 @@ public:
 
 	class CWKSP_Layer_Legend *		Get_Legend				(void)	{	return( m_pLegend );	}
 	bool							do_Legend				(void);
-	bool							do_Show					(CGEO_Rect const &rMap);
+	bool							do_Show					(CSG_Rect const &rMap);
 
 	void							Update_Views			(bool bMapsOnly);
 	void							View_Closes				(class wxMDIChildFrame *pView);
@@ -129,13 +129,13 @@ public:
 	void							Histogram_Toggle		(void);
 
 	wxMenu *						Edit_Get_Menu			(void);
-	TGEO_Rect						Edit_Get_Extent			(void);
+	TSG_Rect						Edit_Get_Extent			(void);
 	CTable *						Edit_Get_Attributes		(void)	{	return( &m_Edit_Attributes );	}
 	bool							Edit_Set_Attributes		(void);
 	bool							Edit_On_Key_Down		(int KeyCode);
-	bool							Edit_On_Mouse_Down		(CGEO_Point Point, double WorldToClient, int Key);
-	bool							Edit_On_Mouse_Up		(CGEO_Point Point, double WorldToClient, int Key);
-	bool							Edit_On_Mouse_Move		(wxWindow *pMap, CGEO_Rect rWorld, wxPoint pt, wxPoint ptLast, int Key);
+	bool							Edit_On_Mouse_Down		(CSG_Point Point, double WorldToClient, int Key);
+	bool							Edit_On_Mouse_Up		(CSG_Point Point, double WorldToClient, int Key);
+	bool							Edit_On_Mouse_Move		(wxWindow *pMap, CSG_Rect rWorld, wxPoint pt, wxPoint ptLast, int Key);
 
 
 protected:
@@ -146,7 +146,7 @@ protected:
 
 	CParameters						m_Parameters;
 
-	CGEO_Point						m_Edit_Mouse_Down;
+	CSG_Point						m_Edit_Mouse_Down;
 
 	CTable							m_Edit_Attributes;
 
@@ -170,12 +170,12 @@ protected:
 	virtual void					On_Draw					(CWKSP_Map_DC &dc_Map, bool bEdit)	= 0;
 
 	virtual wxMenu *				On_Edit_Get_Menu		(void)			{	return( NULL );	}
-	virtual TGEO_Rect				On_Edit_Get_Extent		(void)	= 0;
+	virtual TSG_Rect				On_Edit_Get_Extent		(void)	= 0;
 	virtual bool					On_Edit_Set_Attributes	(void)	= 0;
 	virtual bool					On_Edit_On_Key_Down		(int KeyCode)	{	return( false );	}
-	virtual bool					On_Edit_On_Mouse_Down	(CGEO_Point Point, double ClientToWorld, int Key)	{	return( false );	}
-	virtual bool					On_Edit_On_Mouse_Up		(CGEO_Point Point, double ClientToWorld, int Key)	{	return( false );	}
-	virtual bool					On_Edit_On_Mouse_Move	(wxWindow *pMap, CGEO_Rect rWorld, wxPoint pt, wxPoint ptLast, int Key)	{	return( false );	}
+	virtual bool					On_Edit_On_Mouse_Down	(CSG_Point Point, double ClientToWorld, int Key)	{	return( false );	}
+	virtual bool					On_Edit_On_Mouse_Up		(CSG_Point Point, double ClientToWorld, int Key)	{	return( false );	}
+	virtual bool					On_Edit_On_Mouse_Move	(wxWindow *pMap, CSG_Rect rWorld, wxPoint pt, wxPoint ptLast, int Key)	{	return( false );	}
 
 
 private:

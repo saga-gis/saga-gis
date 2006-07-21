@@ -130,10 +130,10 @@ CLife::~CLife(void)
 bool CLife::On_Execute(void)
 {
 	int		x, y, i;
-	CColors	Colors;
+	CSG_Colors	Colors;
 
 	//-----------------------------------------------------
-	pLife	= API_Create_Grid(GRID_TYPE_Byte, Parameters("NX")->asInt(), Parameters("NY")->asInt());
+	pLife	= SG_Create_Grid(GRID_TYPE_Byte, Parameters("NX")->asInt(), Parameters("NY")->asInt());
 	pLife->Set_Name(_TL("Conway's Life"));
 	Parameters("GRID")->Set_Value(pLife);
 
@@ -141,7 +141,7 @@ bool CLife::On_Execute(void)
 	Colors.Set_Palette(COLORS_PALETTE_YELLOW_BLUE, false, nColors);
 	DataObject_Set_Colors(pLife, Colors);
 
-	pCount	= API_Create_Grid(pLife);
+	pCount	= SG_Create_Grid(pLife);
 
 	//-----------------------------------------------------
 	srand((unsigned)time(NULL));
@@ -167,7 +167,7 @@ bool CLife::On_Execute(void)
 	{
 		DataObject_Update(pLife);
 
-		Process_Set_Text(CAPI_String::Format(_TL("%d. Life Cycle"), i));
+		Process_Set_Text(CSG_String::Format(_TL("%d. Life Cycle"), i));
 	}
 
 	//-----------------------------------------------------
@@ -175,7 +175,7 @@ bool CLife::On_Execute(void)
 
 	if( is_Progress() )
 	{
-		Message_Add(CAPI_String::Format(_TL("Dead after %d Life Cycles\n"), i));
+		Message_Add(CSG_String::Format(_TL("Dead after %d Life Cycles\n"), i));
 	}
 
 	return( true );

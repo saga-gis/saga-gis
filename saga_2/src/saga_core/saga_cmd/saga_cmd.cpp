@@ -138,8 +138,8 @@ _try
 
 		Print_Logo(MLB_Path);
 
-		API_Set_Callback(Get_Callback());
-		API_Get_Translator()->Create(API_Make_File_Path(wxGetCwd(), "saga", "lng"), false);
+		SG_Set_Callback(Get_Callback());
+		SG_Get_Translator()->Create(SG_File_Make_Path(wxGetCwd(), "saga", "lng"), false);
 
 		//-------------------------------------------------
 		switch( argc )

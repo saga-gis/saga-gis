@@ -86,7 +86,7 @@ CModule_Library_Interface::~CModule_Library_Interface(void)
 			delete(m_Modules[i]);
 		}
 
-		API_Free( m_Modules );
+		SG_Free( m_Modules );
 	}
 }
 
@@ -130,7 +130,7 @@ bool CModule_Library_Interface::Add_Module(CModule *pModule)
 		pModule->Set_Managed(true);
 		pModule->Set_Translation(m_Translator);
 
-		m_Modules				= (CModule **)API_Realloc(m_Modules, (m_nModules + 1) * sizeof(CModule *));
+		m_Modules				= (CModule **)SG_Realloc(m_Modules, (m_nModules + 1) * sizeof(CModule *));
 		m_Modules[m_nModules++]	= pModule;
 
 		return( true );

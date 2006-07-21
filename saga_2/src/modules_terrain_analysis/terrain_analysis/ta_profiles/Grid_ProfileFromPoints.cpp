@@ -106,7 +106,7 @@ bool CProfileFromPoints::On_Execute(void){
             c = 2 * HX;
             M = 2 * HY;
             for (;;) {                
-                fPartialDist = M_GET_DIST(x-iLastX, y-iLastY) * pGrid->Get_Cellsize();
+                fPartialDist = M_GET_LENGTH(x-iLastX, y-iLastY) * pGrid->Get_Cellsize();
                 if (pGrid->is_InGrid(x,y) && fPartialDist){
 					fDist+=fPartialDist;
                 	pRecord = pProfileTable->Add_Record();
@@ -130,7 +130,7 @@ bool CProfileFromPoints::On_Execute(void){
             c = 2 * HY;
             M = 2 * HX;
             for (;;) {
-                fPartialDist = M_GET_DIST(x-iLastX, y-iLastY) * pGrid->Get_Cellsize();
+                fPartialDist = M_GET_LENGTH(x-iLastX, y-iLastY) * pGrid->Get_Cellsize();
                 if (pGrid->is_InGrid(x,y) && fPartialDist){
 					fDist+=fPartialDist;
                 	pRecord = pProfileTable->Add_Record();

@@ -10,7 +10,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   svg_graph.cpp                       //
+//                     doc_svg.cpp                       //
 //                                                       //
 //                 Copyright (C) 2005 by                 //
 //                      Victor Olaya                     //
@@ -58,40 +58,49 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "svg_graph.h"
+#include "doc_svg.h"
 #include <time.h>
 
-CAPI_String OPENING_SVG_CODE_1 = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
-								"<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" "
-								"\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n"
-								"<svg version=\"1.1\" width=\"";
+//---------------------------------------------------------
+#define SVG_CODE_OPENING_1	"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"\
+							"<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" "\
+							"\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n"\
+							"<svg version=\"1.1\" width=\""
 
-CAPI_String OPENING_SVG_CODE_2 = "\"\n xmlns=\"http://www.w3.org/2000/svg\">\n";
+#define SVG_CODE_OPENING_2	"\"\n xmlns=\"http://www.w3.org/2000/svg\">\n"
 
-CAPI_String CLOSING_SVG_CODE = "</svg>";
+#define SVG_CODE_CLOSING	"</svg>"
 
-CSVG_Graph::CSVG_Graph(){}
 
-CSVG_Graph::~CSVG_Graph(){}
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-void CSVG_Graph::Open(int iWidth, int iHeight)
+//---------------------------------------------------------
+CDoc_SVG::CDoc_SVG(){}
+
+CDoc_SVG::~CDoc_SVG(){}
+
+void CDoc_SVG::Open(int iWidth, int iHeight)
 {
 
-	m_sSVGCode.Append(OPENING_SVG_CODE_1);
-	m_sSVGCode.Append(API_Get_String(iWidth,0));
+	m_sSVGCode.Append(SVG_CODE_OPENING_1);
+	m_sSVGCode.Append(SG_Get_String(iWidth,0));
 	m_sSVGCode.Append("\" height=\"");
-	m_sSVGCode.Append(API_Get_String(iHeight,0));
-	m_sSVGCode.Append(OPENING_SVG_CODE_2);
+	m_sSVGCode.Append(SG_Get_String(iHeight,0));
+	m_sSVGCode.Append(SVG_CODE_OPENING_2);
 
 	m_iWidth = iWidth;
 	m_iHeight = iHeight;
 
 }
 
-bool CSVG_Graph::Save(const char *Filename)
+bool CDoc_SVG::Save(const char *Filename)
 {
 
-	m_sSVGCode.Append(CLOSING_SVG_CODE);
+	m_sSVGCode.Append(SVG_CODE_CLOSING);
 
 	FILE	*Stream;
 
@@ -108,7 +117,7 @@ bool CSVG_Graph::Save(const char *Filename)
 
 }
 
-void CSVG_Graph::_AddAttribute(const char *Attribute, 
+void CDoc_SVG::_AddAttribute(const char *Attribute, 
 							   const char *Value)
 {
 
@@ -119,22 +128,22 @@ void CSVG_Graph::_AddAttribute(const char *Attribute,
 
 }
 
-void CSVG_Graph::_AddAttribute(const char *Attribute, 
+void CDoc_SVG::_AddAttribute(const char *Attribute, 
 							   int iValue)
 {
 
-	_AddAttribute(Attribute, API_Get_String(iValue, 0));
+	_AddAttribute(Attribute, SG_Get_String(iValue, 0));
 }
 
-void CSVG_Graph::_AddAttribute(const char *Attribute, 
+void CDoc_SVG::_AddAttribute(const char *Attribute, 
 							   double dValue)
 {
 
-	_AddAttribute(Attribute, API_Get_String(dValue, 2));
+	_AddAttribute(Attribute, SG_Get_String(dValue, 2));
 
 }
 
-void CSVG_Graph::Draw_Circle(double x, 
+void CDoc_SVG::Draw_Circle(double x, 
 							 double y, 
 							 double Radius, 
 							 int Fill_Color, 
@@ -143,13 +152,13 @@ void CSVG_Graph::Draw_Circle(double x,
 							 const char *Unit)
 {
 	
-	CAPI_String sWidth;
+	CSG_String sWidth;
 
 	m_sSVGCode.Append("<circle ");
 	_AddAttribute("cx", x);
 	_AddAttribute("cy", y);
 	_AddAttribute("r", Radius);
-	sWidth.Append(API_Get_String(Line_Width,2));
+	sWidth.Append(SG_Get_String(Line_Width,2));
 	sWidth.Append(Unit);
 	_AddAttribute("stroke-width", sWidth);
 	_AddAttribute("stroke", _Get_SVGColor(Line_Color));
@@ -158,7 +167,7 @@ void CSVG_Graph::Draw_Circle(double x,
 
 }
 
-void CSVG_Graph::Draw_LinkedCircle(double x, 
+void CDoc_SVG::Draw_LinkedCircle(double x, 
 								 double y, 
 								 double Radius, 
 								 const char *Link,
@@ -168,14 +177,14 @@ void CSVG_Graph::Draw_LinkedCircle(double x,
 								 const char *Unit)
 {
 	
-	CAPI_String sWidth;
-	CAPI_String sLink;
+	CSG_String sWidth;
+	CSG_String sLink;
 
 	m_sSVGCode.Append("<circle ");
 	_AddAttribute("cx", x);
 	_AddAttribute("cy", y);
 	_AddAttribute("r", Radius);
-	sWidth.Append(API_Get_String(Line_Width,2));
+	sWidth.Append(SG_Get_String(Line_Width,2));
 	sWidth.Append(Unit);
 	_AddAttribute("stroke-width", sWidth);
 	_AddAttribute("stroke", _Get_SVGColor(Line_Color));
@@ -188,7 +197,7 @@ void CSVG_Graph::Draw_LinkedCircle(double x,
 
 }
 
-void CSVG_Graph::Draw_Line(double xa, 
+void CDoc_SVG::Draw_Line(double xa, 
 						   double ya, 
 						   double xb, 
 						   double yb, 
@@ -197,39 +206,39 @@ void CSVG_Graph::Draw_Line(double xa,
 						   int Color)
 {
 
-	CAPI_String sWidth;
+	CSG_String sWidth;
 
 	m_sSVGCode.Append("<line ");
 	_AddAttribute("x1", xa);
 	_AddAttribute("x2", xb);
 	_AddAttribute("y1", ya);
 	_AddAttribute("y2", yb);
-	sWidth.Append(API_Get_String(Width,2));
+	sWidth.Append(SG_Get_String(Width,2));
 	sWidth.Append(Unit);
 	_AddAttribute("stroke-width", sWidth);	_AddAttribute("stroke", _Get_SVGColor(Color));
 	m_sSVGCode.Append("/>\n");
 
 }
 
-void CSVG_Graph::Draw_Line(CAPI_dPoints &Points, 
+void CDoc_SVG::Draw_Line(CSG_Points &Points, 
 						   double Width, 
 						   const char *Unit, 
 						   int Color)
 {
 	int i;
-	CAPI_String sPoints;
-	CAPI_String sWidth;
+	CSG_String sPoints;
+	CSG_String sWidth;
 	
 	for (i = 0; i < Points.Get_Count(); i++)
 	{
-		sPoints.Append(API_Get_String(Points.Get_X(i),2));
+		sPoints.Append(SG_Get_String(Points.Get_X(i),2));
 		sPoints.Append(",");
-		sPoints.Append(API_Get_String(Points.Get_Y(i),2));
+		sPoints.Append(SG_Get_String(Points.Get_Y(i),2));
 		sPoints.Append(" ");
 	}
 	m_sSVGCode.Append("<polyline ");
 	_AddAttribute("points", sPoints);	
-	sWidth.Append(API_Get_String(Width,2));
+	sWidth.Append(SG_Get_String(Width,2));
 	sWidth.Append(Unit);
 	_AddAttribute("stroke-width", sWidth);
 	_AddAttribute("stroke", _Get_SVGColor(Color));
@@ -238,7 +247,7 @@ void CSVG_Graph::Draw_Line(CAPI_dPoints &Points,
 
 }
 
-void CSVG_Graph::Draw_Rectangle(double xa, 
+void CDoc_SVG::Draw_Rectangle(double xa, 
 								double ya, 
 								double xb, 
 								double yb, 
@@ -247,7 +256,7 @@ void CSVG_Graph::Draw_Rectangle(double xa,
 								double Line_Width, 
 								const char *Unit)
 {
-	CAPI_dPoints	Points;
+	CSG_Points	Points;
 
 	Points.Add(xa, ya);
 	Points.Add(xb, ya);
@@ -257,7 +266,7 @@ void CSVG_Graph::Draw_Rectangle(double xa,
 	Draw_Polygon(Points, Fill_Color, Line_Color, Line_Width, Unit) ;
 }
 
-void CSVG_Graph::Draw_Rectangle(const CGEO_Rect &r, 
+void CDoc_SVG::Draw_Rectangle(const CSG_Rect &r, 
 								int Fill_Color, 
 								int Line_Color, 
 								double Line_Width, 
@@ -266,7 +275,7 @@ void CSVG_Graph::Draw_Rectangle(const CGEO_Rect &r,
 	Draw_Rectangle(r.Get_XMin(), r.Get_YMin(), r.Get_XMax(), r.Get_YMax(), Fill_Color, Line_Color, Line_Width) ;
 }
 
-void CSVG_Graph::Draw_Polygon(CAPI_dPoints &Points, 
+void CDoc_SVG::Draw_Polygon(CSG_Points &Points, 
 							  int Fill_Color, 
 							  int Line_Color, 
 							  double Line_Width, 
@@ -275,19 +284,19 @@ void CSVG_Graph::Draw_Polygon(CAPI_dPoints &Points,
 	if( Points.Get_Count() > 2 )
 	{
 		int i;
-		CAPI_String sPoints;
-		CAPI_String sWidth;
+		CSG_String sPoints;
+		CSG_String sWidth;
 		
 		for (i = 0; i < Points.Get_Count(); i++)
 		{
-			sPoints.Append(API_Get_String(Points.Get_X(i),2));
+			sPoints.Append(SG_Get_String(Points.Get_X(i),2));
 			sPoints.Append(",");
-			sPoints.Append(API_Get_String(Points.Get_Y(i),2));
+			sPoints.Append(SG_Get_String(Points.Get_Y(i),2));
 			sPoints.Append(" ");
 		}
 		m_sSVGCode.Append("<polygon ");
 		_AddAttribute("points", sPoints);
-		sWidth.Append(API_Get_String(Line_Width,2));
+		sWidth.Append(SG_Get_String(Line_Width,2));
 		sWidth.Append(Unit);
 		_AddAttribute("stroke-width", sWidth);				
 		_AddAttribute("stroke", _Get_SVGColor(Line_Color));
@@ -296,7 +305,7 @@ void CSVG_Graph::Draw_Polygon(CAPI_dPoints &Points,
 	}
 }
 
-void CSVG_Graph::Draw_LinkedPolygon(CAPI_dPoints &Points, 
+void CDoc_SVG::Draw_LinkedPolygon(CSG_Points &Points, 
 							  const char* Link,
 							  int Fill_Color, 
 							  int Line_Color, 
@@ -306,20 +315,20 @@ void CSVG_Graph::Draw_LinkedPolygon(CAPI_dPoints &Points,
 	if( Points.Get_Count() > 2 )
 	{
 		int i;
-		CAPI_String sPoints;
-		CAPI_String sWidth;
-		CAPI_String sLink;
+		CSG_String sPoints;
+		CSG_String sWidth;
+		CSG_String sLink;
 		
 		for (i = 0; i < Points.Get_Count(); i++)
 		{
-			sPoints.Append(API_Get_String(Points.Get_X(i),2));
+			sPoints.Append(SG_Get_String(Points.Get_X(i),2));
 			sPoints.Append(",");
-			sPoints.Append(API_Get_String(Points.Get_Y(i),2));
+			sPoints.Append(SG_Get_String(Points.Get_Y(i),2));
 			sPoints.Append(" ");
 		}
 		m_sSVGCode.Append("<polygon ");
 		_AddAttribute("points", sPoints);
-		sWidth.Append(API_Get_String(Line_Width,2));
+		sWidth.Append(SG_Get_String(Line_Width,2));
 		sWidth.Append(Unit);
 		_AddAttribute("stroke-width", sWidth);				
 		_AddAttribute("stroke", _Get_SVGColor(Line_Color));
@@ -332,7 +341,7 @@ void CSVG_Graph::Draw_LinkedPolygon(CAPI_dPoints &Points,
 	}
 }
 
-void CSVG_Graph::Draw_Text(double x, 
+void CDoc_SVG::Draw_Text(double x, 
 						 double y, 
 						 const char *Text, 
 						 int Color, 
@@ -342,10 +351,10 @@ void CSVG_Graph::Draw_Text(double x,
 						 TSVG_Alignment iAlignment)
 {
 
-	CAPI_String sAlignments[] = {"", "middle", "end"};
-	CAPI_String sSize;
+	CSG_String sAlignments[] = {"", "middle", "end"};
+	CSG_String sSize;
 	
-	sSize.Append(API_Get_String(dSize,2));
+	sSize.Append(SG_Get_String(dSize,2));
 	sSize.Append(Unit);
 	
 	m_sSVGCode.Append("<text ");
@@ -361,10 +370,10 @@ void CSVG_Graph::Draw_Text(double x,
 
 }
 
-CAPI_String CSVG_Graph::_Get_SVGColor(int iColor)
+CSG_String CDoc_SVG::_Get_SVGColor(int iColor)
 {
 
-	CAPI_String s;
+	CSG_String s;
 
 	if (iColor == COLOR_DEF_NONE)
 	{
@@ -373,11 +382,11 @@ CAPI_String CSVG_Graph::_Get_SVGColor(int iColor)
 	else if (iColor == COLOR_DEF_RANDOM)
 	{
 		s.Append("rgb(");
-		s.Append(API_Get_String((int)(255.0 * (double)rand() / (double)RAND_MAX),0));
+		s.Append(SG_Get_String((int)(255.0 * (double)rand() / (double)RAND_MAX),0));
 		s.Append(",");
-		s.Append(API_Get_String((int)(255.0 * (double)rand() / (double)RAND_MAX),0));
+		s.Append(SG_Get_String((int)(255.0 * (double)rand() / (double)RAND_MAX),0));
 		s.Append(",");
-		s.Append(API_Get_String((int)(255.0 * (double)rand() / (double)RAND_MAX),0));
+		s.Append(SG_Get_String((int)(255.0 * (double)rand() / (double)RAND_MAX),0));
 		s.Append(")");
 
 		return s;
@@ -385,11 +394,11 @@ CAPI_String CSVG_Graph::_Get_SVGColor(int iColor)
 	else
 	{
 		s.Append("rgb(");
-		s.Append(API_Get_String(COLOR_GET_R(iColor),0));
+		s.Append(SG_Get_String(COLOR_GET_R(iColor),0));
 		s.Append(",");
-		s.Append(API_Get_String(COLOR_GET_G(iColor),0));
+		s.Append(SG_Get_String(COLOR_GET_G(iColor),0));
 		s.Append(",");
-		s.Append(API_Get_String(COLOR_GET_B(iColor),0));
+		s.Append(SG_Get_String(COLOR_GET_B(iColor),0));
 		s.Append(")");
 
 		return s;

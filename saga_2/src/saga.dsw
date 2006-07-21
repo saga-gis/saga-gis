@@ -138,6 +138,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "grid_spline"=.\modules\grid\grid_spline\grid_spline.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "grid_tools"=.\modules\grid\grid_tools\grid_tools.dsp - Package Owner=<4>
 
 Package=<5>

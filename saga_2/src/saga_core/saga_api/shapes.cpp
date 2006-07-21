@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char *	API_Get_ShapeType_Name(TShape_Type Type)
+const char *	SG_Get_ShapeType_Name(TShape_Type Type)
 {
 	switch( Type )
 	{
@@ -92,25 +92,25 @@ const char *	API_Get_ShapeType_Name(TShape_Type Type)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CShapes *		API_Create_Shapes(void)
+CShapes *		SG_Create_Shapes(void)
 {
 	return( new CShapes );
 }
 
 //---------------------------------------------------------
-CShapes *		API_Create_Shapes(const CShapes &Shapes)
+CShapes *		SG_Create_Shapes(const CShapes &Shapes)
 {
 	return( new CShapes(Shapes) );
 }
 
 //---------------------------------------------------------
-CShapes *		API_Create_Shapes(const char *File_Name)
+CShapes *		SG_Create_Shapes(const char *File_Name)
 {
 	return( new CShapes(File_Name) );
 }
 
 //---------------------------------------------------------
-CShapes *		API_Create_Shapes(TShape_Type Type, char *Name, CTable *pStructure)
+CShapes *		SG_Create_Shapes(TShape_Type Type, char *Name, CTable *pStructure)
 {
 	return( new CShapes(Type, Name, pStructure) );
 }
@@ -267,7 +267,7 @@ bool CShapes::Destroy(void)
 			delete(m_Shapes[i]);
 		}
 
-		API_Free(m_Shapes);
+		SG_Free(m_Shapes);
 		m_Shapes	= NULL;
 		m_nShapes	= 0;
 	}
@@ -300,13 +300,13 @@ bool CShapes::Assign(CDataObject *pObject)
 
 		Create(pShapes->Get_Type(), pShapes->Get_Name(), &pShapes->Get_Table());
 
-		for(iShape=0; iShape<pShapes->Get_Count() && API_Callback_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		for(iShape=0; iShape<pShapes->Get_Count() && SG_Callback_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
 			pShape	= Add_Shape();
 			pShape->Assign(pShapes->Get_Shape(iShape));
 		}
 
-		API_Callback_Process_Set_Ready();
+		SG_Callback_Process_Set_Ready();
 
 		_Extent_Update();
 
@@ -385,7 +385,7 @@ CShape * CShapes::_Add_Shape(CTable_Record *pRecord)
 
 		if( pShape )
 		{
-			m_Shapes				= (CShape **)API_Realloc(m_Shapes, (m_nShapes + 1) * sizeof(CShape *));
+			m_Shapes				= (CShape **)SG_Realloc(m_Shapes, (m_nShapes + 1) * sizeof(CShape *));
 			m_Shapes[m_nShapes++]	= pShape;
 
 			m_bUpdate				= true;
@@ -434,7 +434,7 @@ bool CShapes::Del_Shape(int iShape)
 			m_Shapes[i]	= m_Shapes[i + 1];
 		}
 
-		m_Shapes	= (CShape **)API_Realloc(m_Shapes, m_nShapes * sizeof(CShape *));
+		m_Shapes	= (CShape **)SG_Realloc(m_Shapes, m_nShapes * sizeof(CShape *));
 
 		m_Table._Del_Record(iShape);
 
@@ -488,11 +488,11 @@ void CShapes::_Extent_Update(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CShape * CShapes::Get_Shape(TGEO_Point Point, double Epsilon)
+CShape * CShapes::Get_Shape(TSG_Point Point, double Epsilon)
 {
 	int			iShape;
 	double		d, dNearest;
-	CGEO_Rect	r(Point.x - Epsilon, Point.y - Epsilon, Point.x + Epsilon, Point.y + Epsilon);
+	CSG_Rect	r(Point.x - Epsilon, Point.y - Epsilon, Point.x + Epsilon, Point.y + Epsilon);
 	CShape		*pShape, *pNearest;
 
 	pNearest	= NULL;

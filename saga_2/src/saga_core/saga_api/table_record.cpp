@@ -81,7 +81,7 @@ CTable_Record::CTable_Record(CTable *pOwner, int Index)
 
 	if( m_pOwner && m_pOwner->Get_Field_Count() > 0 )
 	{
-		m_Values	= (CTable_Value **)API_Malloc(m_pOwner->Get_Field_Count() * sizeof(CTable_Value *));
+		m_Values	= (CTable_Value **)SG_Malloc(m_pOwner->Get_Field_Count() * sizeof(CTable_Value *));
 
 		for(int iField=0; iField<m_pOwner->Get_Field_Count(); iField++)
 		{
@@ -104,7 +104,7 @@ CTable_Record::~CTable_Record(void)
 			delete(m_Values[iField]);
 		}
 
-		API_Free(m_Values);
+		SG_Free(m_Values);
 	}
 }
 
@@ -155,7 +155,7 @@ bool CTable_Record::_Add_Field(int add_Field)
 		add_Field	= m_pOwner->Get_Field_Count() - 1;
 	}
 
-	m_Values	= (CTable_Value **)API_Realloc(m_Values, m_pOwner->Get_Field_Count() * sizeof(CTable_Value *));
+	m_Values	= (CTable_Value **)SG_Realloc(m_Values, m_pOwner->Get_Field_Count() * sizeof(CTable_Value *));
 
 	for(int iField=m_pOwner->Get_Field_Count()-1; iField>add_Field; iField--)
 	{
@@ -177,13 +177,13 @@ bool CTable_Record::_Del_Field(int del_Field)
 		m_Values[iField]	= m_Values[iField + 1];
 	}
 
-	m_Values	= (CTable_Value **)API_Realloc(m_Values, m_pOwner->Get_Field_Count() * sizeof(CTable_Value *));
+	m_Values	= (CTable_Value **)SG_Realloc(m_Values, m_pOwner->Get_Field_Count() * sizeof(CTable_Value *));
 
 	return( true );
 }
 
 //---------------------------------------------------------
-int CTable_Record::_Get_Field(const char *Field)
+int CTable_Record::_Get_Field(const char *Field) const
 {
 	if( Field && strlen(Field) > 0 )
 	{
@@ -312,12 +312,12 @@ bool CTable_Record::Set_NoData(const char *Field)
 }
 
 //---------------------------------------------------------
-bool CTable_Record::is_NoData(int iField)
+bool CTable_Record::is_NoData(int iField) const
 {
 	return( iField >= 0 && iField < m_pOwner->Get_Field_Count() ? m_Values[iField]->is_NoData() : true );
 }
 
-bool CTable_Record::is_NoData(const char *Field)
+bool CTable_Record::is_NoData(const char *Field) const
 {
 	return( is_NoData(_Get_Field(Field)) );
 }
@@ -330,34 +330,34 @@ bool CTable_Record::is_NoData(const char *Field)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char * CTable_Record::asString(int iField, int Decimals)
+const char * CTable_Record::asString(int iField, int Decimals) const
 {
 	return( iField >= 0 && iField < m_pOwner->Get_Field_Count() ? m_Values[iField]->asString(Decimals) : NULL );
 }
 
-const char * CTable_Record::asString(const char *Field, int Decimals)
+const char * CTable_Record::asString(const char *Field, int Decimals) const
 {
 	return( asString(_Get_Field(Field), Decimals) );
 }
 
 //---------------------------------------------------------
-int CTable_Record::asInt(int iField)
+int CTable_Record::asInt(int iField) const
 {
 	return( iField >= 0 && iField < m_pOwner->Get_Field_Count() ? m_Values[iField]->asInt() : 0 );
 }
 
-int CTable_Record::asInt(const char *Field)
+int CTable_Record::asInt(const char *Field) const
 {
 	return( asInt(_Get_Field(Field)) );
 }
 
 //---------------------------------------------------------
-double CTable_Record::asDouble(int iField)
+double CTable_Record::asDouble(int iField) const
 {
 	return( iField >= 0 && iField < m_pOwner->Get_Field_Count() ? m_Values[iField]->asDouble() : 0.0 );
 }
 
-double CTable_Record::asDouble(const char *Field)
+double CTable_Record::asDouble(const char *Field) const
 {
 	return( asDouble(_Get_Field(Field)) );
 }

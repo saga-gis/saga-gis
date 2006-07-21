@@ -105,7 +105,7 @@ CShapes2Grid::CShapes2Grid(void)
 		NULL	, "TARGET_TYPE"	, _TL("Target Dimensions"),
 		"",
 
-		CAPI_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|",
 			_TL("User defined"),
 			_TL("Grid Project"),
 			_TL("Grid")
@@ -140,7 +140,7 @@ CShapes2Grid::CShapes2Grid(void)
 	pNode_0	= pParameters->Add_Choice(
 		NULL	, "GRID_TYPE"	, _TL("Target Grid Type"),
 		"",
-		CAPI_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|",
 			_TL("Integer (1 byte)"),
 			_TL("Integer (2 byte)"),
 			_TL("Integer (4 byte)"),
@@ -161,7 +161,7 @@ CShapes2Grid::CShapes2Grid(void)
 	pNode_0	= pParameters->Add_Choice(
 		NULL	, "GRID_TYPE"	, _TL("Target Grid Type"),
 		"",
-		CAPI_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|",
 			_TL("Integer (1 byte)"),
 			_TL("Integer (2 byte)"),
 			_TL("Integer (4 byte)"),
@@ -239,7 +239,7 @@ CGrid * CShapes2Grid::Get_Target_Grid(CParameters *pParameters, CShapes *pShapes
 	nx			= 1 + (int)((xMax - xMin) / Cell_Size);
 	ny			= 1 + (int)((yMax - yMin) / Cell_Size);
 
-	return( API_Create_Grid(Get_Grid_Type(pParameters->Get_Parameter("GRID_TYPE")->asInt()), nx, ny, Cell_Size, xMin, yMin) );
+	return( SG_Create_Grid(Get_Grid_Type(pParameters->Get_Parameter("GRID_TYPE")->asInt()), nx, ny, Cell_Size, xMin, yMin) );
 }
 
 
@@ -274,7 +274,7 @@ bool CShapes2Grid::On_Execute(void)
 		case 1:	// Grid Project...
 			if( Dlg_Extra_Parameters("GRIDPRJ") )
 			{
-				pGrid	= API_Create_Grid(
+				pGrid	= SG_Create_Grid(
 					Get_Extra_Parameters("GRIDPRJ")->Get_Parameter("GRID")->asGrid(),
 					Get_Grid_Type(Get_Extra_Parameters("GRIDPRJ")->Get_Parameter("GRID_TYPE")->asInt())
 				);
@@ -301,7 +301,7 @@ bool CShapes2Grid::On_Execute(void)
 			if( iField >= 0 && iField < pShapes->Get_Table().Get_Field_Count()
 			&&	pShapes->Get_Table().Get_Field_Type(iField) != TABLE_FIELDTYPE_String )
 			{
-				pGrid->Set_Name(CAPI_String::Format("%s [%s]", pShapes->Get_Name(), pShapes->Get_Table().Get_Field_Name(iField)));
+				pGrid->Set_Name(CSG_String::Format("%s [%s]", pShapes->Get_Name(), pShapes->Get_Table().Get_Field_Name(iField)));
 
 				for(i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
 				{
@@ -368,7 +368,7 @@ bool CShapes2Grid::On_Execute(void)
 void CShapes2Grid::Gridding_Point(CShape *pShape, double Value)
 {
 	int			iPart, iPoint, x, y;
-	TGEO_Point	p;
+	TSG_Point	p;
 
 	for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 	{
@@ -392,7 +392,7 @@ void CShapes2Grid::Gridding_Line(CShape *pShape, double Value)
 {
 	int			iPart, iPoint, x, y, sig;
 	double		xa, ya, dx, dy, ix, iy;
-	TGEO_Point	pa, pb;
+	TSG_Point	pa, pb;
 
 	for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 	{
@@ -468,12 +468,12 @@ void CShapes2Grid::Gridding_Polygon(CShape *pShape, double Value)
 
 	double		yPos;
 
-	TGEO_Point	pLeft, pRight, pa, pb, p;
+	TSG_Point	pLeft, pRight, pa, pb, p;
 
-	CGEO_Rect	Extent;
+	CSG_Rect	Extent;
 
 	//-----------------------------------------------------
-	bCrossing	= (bool *)API_Malloc(pGrid->Get_NX() * sizeof(bool));
+	bCrossing	= (bool *)SG_Malloc(pGrid->Get_NX() * sizeof(bool));
 
 	Extent		= pShape->Get_Extent();
 
@@ -509,7 +509,7 @@ void CShapes2Grid::Gridding_Polygon(CShape *pShape, double Value)
 					if(	(	(pa.y <= yPos && yPos < pb.y)
 						||	(pa.y > yPos && yPos >= pb.y)	)	)
 					{
-						GEO_Get_Crossing(p, pa, pb, pLeft, pRight, false);
+						SG_Get_Crossing(p, pa, pb, pLeft, pRight, false);
 
 						ix	= (int)((p.x - pGrid->Get_XMin()) / pGrid->Get_Cellsize() + 1.0);
 
@@ -543,5 +543,5 @@ void CShapes2Grid::Gridding_Polygon(CShape *pShape, double Value)
 	}
 
 	//-------------------------------------------------
-	API_Free(bCrossing);
+	SG_Free(bCrossing);
 }

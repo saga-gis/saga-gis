@@ -136,10 +136,10 @@ bool CShape_Points::On_Assign(CShape *pShape)
 //---------------------------------------------------------
 int CShape_Points::_Add_Part(void)
 {
-	m_Points			= (TGEO_Point **)	API_Realloc( m_Points, (m_nParts + 1) * sizeof(TGEO_Point *));
+	m_Points			= (TSG_Point **)	SG_Realloc( m_Points, (m_nParts + 1) * sizeof(TSG_Point *));
 	m_Points[m_nParts]	= NULL;
 
-	m_nPoints			= (int *)			API_Realloc(m_nPoints, (m_nParts + 1) * sizeof(int));
+	m_nPoints			= (int *)			SG_Realloc(m_nPoints, (m_nParts + 1) * sizeof(int));
 	m_nPoints[m_nParts]	= 0;
 
 	m_nParts++;
@@ -156,7 +156,7 @@ int CShape_Points::Del_Part(int del_Part)
 	{
 		if( m_Points[del_Part] != NULL )
 		{
-			API_Free(m_Points[del_Part]);
+			SG_Free(m_Points[del_Part]);
 		}
 
 		m_nParts--;
@@ -167,8 +167,8 @@ int CShape_Points::Del_Part(int del_Part)
 			m_nPoints[iPart]	= m_nPoints[iPart + 1];
 		}
 
-		m_Points	= (TGEO_Point **)API_Realloc(m_Points, m_nParts * sizeof(TGEO_Point *));
-		m_nPoints	= (int          *)API_Realloc(m_nPoints, m_nParts * sizeof(int));
+		m_Points	= (TSG_Point **)SG_Realloc(m_Points, m_nParts * sizeof(TSG_Point *));
+		m_nPoints	= (int          *)SG_Realloc(m_nPoints, m_nParts * sizeof(int));
 
 		_Extent_Invalidate();
 	}
@@ -217,7 +217,7 @@ int CShape_Points::Ins_Point(double x, double y, int iPoint, int iPart)
 
 	if( iPart >= 0 && iPart < m_nParts && iPoint >= 0 && iPoint <= m_nPoints[iPart] )
 	{
-		m_Points[iPart]	= (TGEO_Point *)API_Realloc(m_Points[iPart], (m_nPoints[iPart] + 1) * sizeof(TGEO_Point));
+		m_Points[iPart]	= (TSG_Point *)SG_Realloc(m_Points[iPart], (m_nPoints[iPart] + 1) * sizeof(TSG_Point));
 
 		for(i=m_nPoints[iPart]; i>iPoint; i--)
 		{
@@ -240,7 +240,7 @@ int CShape_Points::Ins_Point(double x, double y, int iPoint, int iPart)
 //---------------------------------------------------------
 int CShape_Points::Set_Point(double x, double y, int iPoint, int iPart)
 {
-	TGEO_Point	*pPoint;
+	TSG_Point	*pPoint;
 
 	if( iPart >= 0 && iPart < m_nParts && iPoint >= 0 && iPoint < m_nPoints[iPart] )
 	{
@@ -277,7 +277,7 @@ int CShape_Points::Del_Point(int del_Point, int iPart)
 				m_Points[iPart][iPoint]	= m_Points[iPart][iPoint + 1];
 			}
 
-			m_Points[iPart]	= (TGEO_Point *)API_Realloc(m_Points[iPart], m_nPoints[iPart] * sizeof(TGEO_Point));
+			m_Points[iPart]	= (TSG_Point *)SG_Realloc(m_Points[iPart], m_nPoints[iPart] * sizeof(TSG_Point));
 		}
 
 		_Extent_Invalidate();
@@ -299,8 +299,8 @@ int CShape_Points::Del_Point(int del_Point, int iPart)
 void CShape_Points::_Extent_Update(void)
 {
 	int			iPart, iPoint;
-	TGEO_Point	*pPoint;
-	TGEO_Rect	r;
+	TSG_Point	*pPoint;
+	TSG_Rect	r;
 
 	if( m_bUpdate )
 	{
@@ -353,19 +353,19 @@ void CShape_Points::_Extent_Update(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CShape_Points::Get_Distance(TGEO_Point Point)
+double CShape_Points::Get_Distance(TSG_Point Point)
 {
-	TGEO_Point	Next;
+	TSG_Point	Next;
 
 	return( Get_Distance(Point, Next) );
 }
 
 //---------------------------------------------------------
-double CShape_Points::Get_Distance(TGEO_Point Point, TGEO_Point &Next)
+double CShape_Points::Get_Distance(TSG_Point Point, TSG_Point &Next)
 {
 	int			iPart;
 	double		d, Distance;
-	TGEO_Point	pt;
+	TSG_Point	pt;
 
 	Distance	= Get_Distance(Point, Next, 0);
 
@@ -383,19 +383,19 @@ double CShape_Points::Get_Distance(TGEO_Point Point, TGEO_Point &Next)
 }
 
 //---------------------------------------------------------
-double CShape_Points::Get_Distance(TGEO_Point Point, int iPart)
+double CShape_Points::Get_Distance(TSG_Point Point, int iPart)
 {
-	TGEO_Point	Next;
+	TSG_Point	Next;
 
 	return( Get_Distance(Point, Next, iPart) );
 }
 
 //---------------------------------------------------------
-double CShape_Points::Get_Distance(TGEO_Point Point, TGEO_Point &Next, int iPart)
+double CShape_Points::Get_Distance(TSG_Point Point, TSG_Point &Next, int iPart)
 {
 	int			i;
 	double		d, Distance;
-	TGEO_Point	*pA;
+	TSG_Point	*pA;
 
 	Distance	= -1.0;
 
@@ -403,7 +403,7 @@ double CShape_Points::Get_Distance(TGEO_Point Point, TGEO_Point &Next, int iPart
 	{
 		for(i=0, pA=m_Points[iPart]; i<m_nPoints[iPart] && Distance!=0.0; i++, pA++)
 		{
-			if(	(d = GEO_Get_Distance(Point, *pA)) < Distance || Distance < 0.0 )
+			if(	(d = SG_Get_Distance(Point, *pA)) < Distance || Distance < 0.0 )
 			{
 				Distance	= d;
 				Next		= *pA;
@@ -422,10 +422,10 @@ double CShape_Points::Get_Distance(TGEO_Point Point, TGEO_Point &Next, int iPart
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CShape_Points::On_Intersects(TGEO_Rect Extent)
+int CShape_Points::On_Intersects(TSG_Rect Extent)
 {
 	int			iPart, iPoint;
-	TGEO_Point	*p;
+	TSG_Point	*p;
 
 	for(iPart=0; iPart<m_nParts; iPart++)
 	{

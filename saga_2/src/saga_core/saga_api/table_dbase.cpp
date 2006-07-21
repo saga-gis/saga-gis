@@ -125,7 +125,7 @@ bool CTable_DBase::Open(const char *FileName, int anFields, TFieldDesc *aFieldDe
 		bReadOnly	= false;
 
 		nFields		= anFields;
-		FieldDesc	= (TFieldDesc *)API_Malloc(nFields * sizeof(TFieldDesc));
+		FieldDesc	= (TFieldDesc *)SG_Malloc(nFields * sizeof(TFieldDesc));
 		memcpy(FieldDesc, aFieldDesc, nFields * sizeof(TFieldDesc));
 
 		Header_Write();
@@ -177,19 +177,19 @@ void CTable_DBase::Close(void)
 	//-----------------------------------------------------
 	if( Record )
 	{
-		API_Free(Record);
+		SG_Free(Record);
 		Record			= NULL;
 	}
 
 	if( FieldOffset )
 	{
-		API_Free(FieldOffset);
+		SG_Free(FieldOffset);
 		FieldOffset		= NULL;
 	}
 
 	if( FieldDesc )
 	{
-		API_Free(FieldDesc);
+		SG_Free(FieldDesc);
 		FieldDesc		= NULL;
 	}
 
@@ -197,7 +197,7 @@ void CTable_DBase::Close(void)
 
 	if( Result_String )
 	{
-		API_Free(Result_String);
+		SG_Free(Result_String);
 		Result_String	= NULL;
 	}
 
@@ -234,7 +234,7 @@ void CTable_DBase::Header_Write(void)
 	int			iField;
 	time_t		ltime;
 	struct tm	*pTime;
-	CAPI_String	s;
+	CSG_String	s;
 
 	if( bOpen && !bReadOnly )
 	{
@@ -362,7 +362,7 @@ bool CTable_DBase::Header_Read(void)
 
 		while(	ftell(hFile) < (long)nHeaderBytes - 1 && !feof(hFile) )
 		{
-			FieldDesc	= (TFieldDesc *)API_Realloc(FieldDesc, (nFields + 1) * sizeof(TFieldDesc));
+			FieldDesc	= (TFieldDesc *)SG_Realloc(FieldDesc, (nFields + 1) * sizeof(TFieldDesc));
 			FieldDesc[nFields].Name[12]	= '\0';
 
 			fread( FieldDesc[nFields].Name			, sizeof(char), 11, hFile);	// 0-10		Field Name ASCII padded with 0x00
@@ -409,8 +409,8 @@ void CTable_DBase::Init_Record(void)
 {
 	int		iField, iPos;
 
-	Record		= (char *)API_Realloc(Record		, nRecordBytes	* sizeof(char));
-	FieldOffset	= (int  *)API_Realloc(FieldOffset	, nFields		* sizeof(int )); 
+	Record		= (char *)SG_Realloc(Record		, nRecordBytes	* sizeof(char));
+	FieldOffset	= (int  *)SG_Realloc(FieldOffset	, nFields		* sizeof(int )); 
 
 	for(iField=0, iPos=1; iField<nFields; iField++)
 	{
@@ -537,10 +537,10 @@ int CTable_DBase::asInt(int iField)
 	{
 		if( FieldDesc[iField].Type == DBF_FT_NUMERIC )
 		{
-			s		= (char *)API_Calloc(FieldDesc[iField].Width + 1, sizeof(char));
+			s		= (char *)SG_Calloc(FieldDesc[iField].Width + 1, sizeof(char));
 			memcpy(s, Record + FieldOffset[iField], FieldDesc[iField].Width);
 			Result	= atoi(s);
-			API_Free(s);
+			SG_Free(s);
 		}
 	}
 
@@ -557,10 +557,10 @@ double CTable_DBase::asDouble(int iField)
 	{
 		if( FieldDesc[iField].Type == DBF_FT_NUMERIC )
 		{
-			s		= (char *)API_Calloc(FieldDesc[iField].Width + 1, sizeof(char));
+			s		= (char *)SG_Calloc(FieldDesc[iField].Width + 1, sizeof(char));
 			memcpy(s, Record + FieldOffset[iField], FieldDesc[iField].Width);
 			Result	= atof(s);
-			API_Free(s);
+			SG_Free(s);
 		}
 	}
 
@@ -575,7 +575,7 @@ char * CTable_DBase::asString(int iField)
 	if( bOpen && iField >= 0 && iField < nFields )
 	{
 		i					= FieldDesc[iField].Width;
-		Result_String		= (char *)API_Realloc(Result_String, (i + 1) * sizeof(char));
+		Result_String		= (char *)SG_Realloc(Result_String, (i + 1) * sizeof(char));
 		memcpy(Result_String, Record + FieldOffset[iField], FieldDesc[iField].Width);
 
 		Result_String[i--]	= '\0';

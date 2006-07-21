@@ -62,7 +62,7 @@
 #include <wx/dcmemory.h>
 #include <wx/filename.h>
 
-#include <saga_api/pdf_document.h>
+#include <saga_api/doc_pdf.h>
 #include "svg_interactive_map.h"
 
 #include "res_commands.h"
@@ -448,7 +448,7 @@ bool CWKSP_Map::Update(CWKSP_Layer *pLayer, bool bMapOnly)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Map::Set_Extent(TGEO_Rect Extent)
+void CWKSP_Map::Set_Extent(TSG_Rect Extent)
 {
 	if( Extent.xMax - Extent.xMin == 0.0 )
 	{
@@ -482,7 +482,7 @@ void CWKSP_Map::Set_Extent(void)
 
 	if( DLG_Parameters(&p) )
 	{
-		CGEO_Rect	Extent(	p("X")->asRange()->Get_LoVal(),
+		CSG_Rect	Extent(	p("X")->asRange()->Get_LoVal(),
 							p("Y")->asRange()->Get_LoVal(),
 							p("X")->asRange()->Get_HiVal(),
 							p("Y")->asRange()->Get_HiVal()	);
@@ -502,7 +502,7 @@ void CWKSP_Map::Set_Extent_Full(void)
 {
 	if( Get_Count() > 0 )
 	{
-		CGEO_Rect	Extent(Get_Layer(0)->Get_Layer()->Get_Extent());
+		CSG_Rect	Extent(Get_Layer(0)->Get_Layer()->Get_Extent());
 
 		for(int i=1; i<Get_Count(); i++)
 		{
@@ -681,10 +681,10 @@ void CWKSP_Map::View_Layout_Toggle(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGEO_Rect CWKSP_Map::Get_World(wxRect rClient)
+CSG_Rect CWKSP_Map::Get_World(wxRect rClient)
 {
 	double		d, dWorld, dClient;
-	TGEO_Rect	Extent;
+	TSG_Rect	Extent;
 
 	Extent	= m_Extent.m_rect;
 
@@ -704,19 +704,19 @@ CGEO_Rect CWKSP_Map::Get_World(wxRect rClient)
 		Extent.yMax	-= d;
 	}
 
-	return( CGEO_Rect(Extent) );
+	return( CSG_Rect(Extent) );
 }
 
 //---------------------------------------------------------
-CGEO_Point CWKSP_Map::Get_World(wxRect rClient, wxPoint ptClient)
+CSG_Point CWKSP_Map::Get_World(wxRect rClient, wxPoint ptClient)
 {
 	double		d;
-	CGEO_Rect	rWorld(Get_World(rClient));
+	CSG_Rect	rWorld(Get_World(rClient));
 
 	ptClient.y	= rClient.GetHeight() - ptClient.y;
 	d			= rWorld.Get_XRange() / (double)rClient.GetWidth();
 
-	return( CGEO_Point(
+	return( CSG_Point(
 		rWorld.Get_XMin() + ptClient.x * d,
 		rWorld.Get_YMin() + ptClient.y * d)
 	);
@@ -735,7 +735,7 @@ CGEO_Point CWKSP_Map::Get_World(wxRect rClient, wxPoint ptClient)
 #define MASK_B	255
 
 //---------------------------------------------------------
-bool CWKSP_Map::Get_Image(wxImage &Image, CGEO_Rect &rWorld)
+bool CWKSP_Map::Get_Image(wxImage &Image, CSG_Rect &rWorld)
 {
 	if( Image.GetWidth() > 0 && Image.GetHeight() > 0 )
 	{
@@ -920,11 +920,11 @@ void CWKSP_Map::SaveAs_PDF_Indexed(void)
 	{
 		bool			bResult, bRoundScale;
 		int				iField;
-		CAPI_String		Name, FileName, FileName_Icon, FilePath_Maps;
-		CGEO_Rect		rOverview, rMap;
+		CSG_String		Name, FileName, FileName_Icon, FilePath_Maps;
+		CSG_Rect		rOverview, rMap;
 		CShapes			*pShapes;
 	//	CGrid			*pGrid;
-		CPDF_Document	PDF;
+		CDoc_PDF	PDF;
 
 		MSG_General_Add(wxString::Format("%s...", LNG("[MSG] Save to PDF")), true, true);
 
@@ -957,14 +957,14 @@ void CWKSP_Map::SaveAs_PDF_Indexed(void)
 			PDF.Layout_Add_Box( 60.0,  75.0, 100.0,  80.0, "TITLE");
 			PDF.Layout_Add_Box( 50.0,  80.0, 100.0, 100.0, "DESCRIPTION");
 
-			FilePath_Maps	= API_Make_File_Path(API_Extract_File_Path(FileName), API_Extract_File_Name(FileName, false));
+			FilePath_Maps	= SG_File_Make_Path(SG_File_Get_Path(FileName), SG_File_Get_Name(FileName, false));
 			rOverview		= pShapes ? pShapes->Get_Extent() : Get_Extent();
 		//	rOverview		= pShapes ? pShapes->Get_Extent() : (pGrid ? pGrid->Get_Extent() : Get_Extent());
 
 			//---------------------------------------------
 		//	PDF.Draw_Text		(PDF.Layout_Get_Box("TITLE").Get_XMin(), PDF.Layout_Get_Box("TITLE").Get_YCenter(), LNG("This is a Test!!!"), 24);
 		//	PDF.Draw_Rectangle	(PDF.Layout_Get_Box("DIVISIONS"));
-		//	PDF.Draw_Grid		(PDF.Layout_Get_Box("DIVISIONS"), Parameters("GRID")->asGrid(), CColors(), 0.0, 0.0, 0, &rOverview);
+		//	PDF.Draw_Grid		(PDF.Layout_Get_Box("DIVISIONS"), Parameters("GRID")->asGrid(), CSG_Colors(), 0.0, 0.0, 0, &rOverview);
 		//	PDF.Draw_Shapes		(PDF.Layout_Get_Box("DIVISIONS"), pShapes, PDF_STYLE_POLYGON_STROKE, COLOR_DEF_GREEN, COLOR_DEF_BLACK, 1, &rOverview);
 		//	PDF.Draw_Graticule	(PDF.Layout_Get_Box("DIVISIONS"), rOverview);
 
@@ -973,7 +973,7 @@ void CWKSP_Map::SaveAs_PDF_Indexed(void)
 
 			if( pShapes )
 			{
-				for(int i=0; i<pShapes->Get_Count() && API_Callback_Process_Set_Progress(i, pShapes->Get_Count()); i++)
+				for(int i=0; i<pShapes->Get_Count() && SG_Callback_Process_Set_Progress(i, pShapes->Get_Count()); i++)
 				{
 					Draw_PDF(&PDF, FilePath_Maps, i, FileName_Icon, Name, pShapes->Get_Shape(i)->Get_Extent(), bRoundScale, iField, pShapes);
 				}
@@ -991,12 +991,12 @@ void CWKSP_Map::SaveAs_PDF_Indexed(void)
 }
 
 //---------------------------------------------------------
-void CWKSP_Map::Draw_PDF(CPDF_Document *pPDF, const char *FilePath_Maps, int Image_ID, const char *FileName_Icon, const char *Title, CGEO_Rect rWorld, bool bRoundScale, int iField, CShapes *pShapes)
+void CWKSP_Map::Draw_PDF(CDoc_PDF *pPDF, const char *FilePath_Maps, int Image_ID, const char *FileName_Icon, const char *Title, CSG_Rect rWorld, bool bRoundScale, int iField, CShapes *pShapes)
 {
 	int			FrameSize_1	= 20, FrameSize_2	= 10;
 	double		d, e, Scale, Ratio;
-	CAPI_String	FileName, Description, s;
-	CGEO_Rect	rBox;
+	CSG_String	FileName, Description, s;
+	CSG_Rect	rBox;
 	wxRect		rBMP;
 	wxBitmap	BMP;
 	wxMemoryDC	dc;
@@ -1030,8 +1030,8 @@ void CWKSP_Map::Draw_PDF(CPDF_Document *pPDF, const char *FilePath_Maps, int Ima
 
 		Draw_Map(dc, rWorld, 1.0, rBMP, false);
 		dc.SelectObject(wxNullBitmap);
-		API_Directory_Make(FilePath_Maps);
-		FileName	= API_Make_File_Path(FilePath_Maps, wxString::Format("image_%03d", Image_ID + 1), "png");
+		SG_Directory_Make(FilePath_Maps);
+		FileName	= SG_File_Make_Path(FilePath_Maps, wxString::Format("image_%03d", Image_ID + 1), "png");
 		BMP.SaveFile(FileName.c_str(), wxBITMAP_TYPE_PNG);
 
 		pPDF->Draw_Image	(rBox, FileName);
@@ -1056,7 +1056,7 @@ void CWKSP_Map::Draw_PDF(CPDF_Document *pPDF, const char *FilePath_Maps, int Ima
 
 		if( pShapes )
 		{
-			CGEO_Rect	rShapes(pShapes->Get_Extent());
+			CSG_Rect	rShapes(pShapes->Get_Extent());
 
 			rShapes.Inflate(5.0, true);
 			rBox.Deflate(FrameSize_2, false);
@@ -1115,7 +1115,7 @@ void CWKSP_Map::Draw_PDF(CPDF_Document *pPDF, const char *FilePath_Maps, int Ima
 			}
 		}
 
-		Description.Append(wxString::Format("%s 1:%s", LNG("Scale"), API_Get_String(Scale, 2).c_str()));
+		Description.Append(wxString::Format("%s 1:%s", LNG("Scale"), SG_Get_String(Scale, 2).c_str()));
 
 		pPDF->Draw_Text(rBox.Get_XMin(), rBox.Get_YMax(), Description, 12, PDF_STYLE_TEXT_ALIGN_H_LEFT|PDF_STYLE_TEXT_ALIGN_V_TOP);
 	}
@@ -1147,7 +1147,7 @@ void CWKSP_Map::SaveAs_Interactive_SVG(void)
 	//-----------------------------------------------------
 	if( DLG_Parameters(&Parameters) )
 	{
-		CAPI_String				FileName;
+		CSG_String				FileName;
 		CShapes					*pIndexLayer;
 		CSVG_Interactive_Map	SVG;
 
@@ -1176,7 +1176,7 @@ void CWKSP_Map::Draw_Map(wxDC &dc, double Zoom, const wxRect &rClient, bool bEdi
 }
 
 //---------------------------------------------------------
-void CWKSP_Map::Draw_Map(wxDC &dc, const CGEO_Rect &rWorld, double Zoom, const wxRect &rClient, bool bEdit, int Background)
+void CWKSP_Map::Draw_Map(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wxRect &rClient, bool bEdit, int Background)
 {
 	CWKSP_Layer		*pLayer;
 	CWKSP_Map_DC	dc_Map(rWorld, rClient, Zoom, Background);
@@ -1200,7 +1200,7 @@ void CWKSP_Map::Draw_Frame(wxDC &dc, wxRect rMap, int Width)
 	Draw_Frame(dc, Get_World(rMap), rMap, Width);
 }
 
-void CWKSP_Map::Draw_Frame(wxDC &dc, const CGEO_Rect &rWorld, wxRect rMap, int Width)
+void CWKSP_Map::Draw_Frame(wxDC &dc, const CSG_Rect &rWorld, wxRect rMap, int Width)
 {
 	wxRect		r, rFrame(rMap);
 

@@ -673,7 +673,7 @@ bool CParameters_PG_DoublesValue::_Create(CParameter *pParameter)
 
 		case PARAMETER_TYPE_Range:
 			m_nValues	= 2;
-			m_Values	= (double *)API_Malloc(m_nValues * sizeof(double));
+			m_Values	= (double *)SG_Malloc(m_nValues * sizeof(double));
 			m_Labels	= new wxString[m_nValues];
 
 			m_Labels[0]	= LNG("Minimum");
@@ -682,7 +682,7 @@ bool CParameters_PG_DoublesValue::_Create(CParameter *pParameter)
 
 		case PARAMETER_TYPE_Degree:
 			m_nValues	= 3;
-			m_Values	= (double *)API_Malloc(m_nValues * sizeof(double));
+			m_Values	= (double *)SG_Malloc(m_nValues * sizeof(double));
 			m_Labels	= new wxString[m_nValues];
 
 			m_Labels[0]	= LNG("°");
@@ -706,7 +706,7 @@ void CParameters_PG_DoublesValue::_Destroy(void)
 {
 	if( m_nValues > 0 )
 	{
-		API_Free(m_Values);
+		SG_Free(m_Values);
 		delete[](m_Labels);
 
 		m_nValues		= 0;
@@ -1109,7 +1109,7 @@ void CParameters_PG_ColorsClass::OnCustomPaint(wxDC &dc, const wxRect &r, wxPGPa
 {
 	int		i, ax, bx;
 	double	dx;
-	CColors	*pColors;
+	CSG_Colors	*pColors;
 
 	if( m_value.m_pParameter && m_value.m_pParameter->Get_Type() == PARAMETER_TYPE_Colors )
 	{

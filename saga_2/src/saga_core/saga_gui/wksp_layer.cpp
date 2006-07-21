@@ -135,7 +135,7 @@ CWKSP_Layer::~CWKSP_Layer(void)
 			MSG_General_Add(
   				wxString::Format("%s %s: %s...",
 					LNG("[MSG] Close"),
-					API_Get_DataObject_Name(m_pObject->Get_ObjectType()),
+					SG_Get_DataObject_Name(m_pObject->Get_ObjectType()),
 					m_pObject->Get_Name()
      			),
 				true, true
@@ -440,7 +440,7 @@ void CWKSP_Layer::DataObject_Changed(CParameters *pParameters)
 	DataObject_Changed();
 }
 
-void CWKSP_Layer::DataObject_Changed(CColors *pColors)
+void CWKSP_Layer::DataObject_Changed(CSG_Colors *pColors)
 {
 	if( m_pClassify->Get_Metric_Colors() && pColors )
 	{
@@ -528,7 +528,7 @@ int CWKSP_Layer::On_Parameter_Changed(CParameters *pParameters, CParameter *pPar
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGEO_Rect CWKSP_Layer::Get_Extent(void)
+CSG_Rect CWKSP_Layer::Get_Extent(void)
 {
 	if( m_pObject )
 	{
@@ -548,7 +548,7 @@ CGEO_Rect CWKSP_Layer::Get_Extent(void)
 		}
 	}
 
-	return( CGEO_Rect(0.0, 0.0, 0.0, 0.0) );
+	return( CSG_Rect(0.0, 0.0, 0.0, 0.0) );
 }
 
 
@@ -559,13 +559,13 @@ CGEO_Rect CWKSP_Layer::Get_Extent(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CColors * CWKSP_Layer::Get_Colors(void)
+CSG_Colors * CWKSP_Layer::Get_Colors(void)
 {
 	return( m_pClassify->Get_Metric_Colors() );
 }
 
 //---------------------------------------------------------
-bool CWKSP_Layer::Get_Colors(CColors *pColors)
+bool CWKSP_Layer::Get_Colors(CSG_Colors *pColors)
 {
 	if( m_pClassify->Get_Metric_Colors() && pColors )
 	{
@@ -600,7 +600,7 @@ bool CWKSP_Layer::do_Legend(void)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Layer::do_Show(CGEO_Rect const &rMap)
+bool CWKSP_Layer::do_Show(CSG_Rect const &rMap)
 {
 	double				d;
 	CParameter_Range	*pRange;
@@ -737,7 +737,7 @@ wxMenu * CWKSP_Layer::Edit_Get_Menu(void)
 }
 
 //---------------------------------------------------------
-TGEO_Rect CWKSP_Layer::Edit_Get_Extent(void)
+TSG_Rect CWKSP_Layer::Edit_Get_Extent(void)
 {
 	return( On_Edit_Get_Extent() );
 }
@@ -755,7 +755,7 @@ bool CWKSP_Layer::Edit_On_Key_Down(int KeyCode)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Layer::Edit_On_Mouse_Down(CGEO_Point Point, double ClientToWorld, int Key)
+bool CWKSP_Layer::Edit_On_Mouse_Down(CSG_Point Point, double ClientToWorld, int Key)
 {
 	m_Edit_Mouse_Down	= Point;
 
@@ -763,13 +763,13 @@ bool CWKSP_Layer::Edit_On_Mouse_Down(CGEO_Point Point, double ClientToWorld, int
 }
 
 //---------------------------------------------------------
-bool CWKSP_Layer::Edit_On_Mouse_Up(CGEO_Point Point, double ClientToWorld, int Key)
+bool CWKSP_Layer::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key)
 {
 	return( On_Edit_On_Mouse_Up(Point, ClientToWorld, Key) );
 }
 
 //---------------------------------------------------------
-bool CWKSP_Layer::Edit_On_Mouse_Move(wxWindow *pMap, CGEO_Rect rWorld, wxPoint pt, wxPoint ptLast, int Key)
+bool CWKSP_Layer::Edit_On_Mouse_Move(wxWindow *pMap, CSG_Rect rWorld, wxPoint pt, wxPoint ptLast, int Key)
 {
 	return( On_Edit_On_Mouse_Move(pMap, rWorld, pt, ptLast, Key) );
 }

@@ -101,12 +101,12 @@ enum
 class CWKSP_Map_DC
 {
 public:
-	CWKSP_Map_DC(const CGEO_Rect &rWorld, const wxRect &rDC, double Scale, int Background);
+	CWKSP_Map_DC(const CSG_Rect &rWorld, const wxRect &rDC, double Scale, int Background);
 	virtual ~CWKSP_Map_DC(void);
 
 	double						m_World2DC, m_DC2World, m_Scale;
 
-	CGEO_Rect					m_rWorld;
+	CSG_Rect					m_rWorld;
 
 	wxRect						m_rDC;
 
@@ -117,7 +117,7 @@ public:
 	double						xWorld2DC				(double x)		{	return(                     (int)(0.5 + (x - m_rWorld.Get_XMin()) * m_World2DC) );	}
 	double						yWorld2DC				(double y)		{	return( m_rDC.GetHeight() - (int)(0.5 + (y - m_rWorld.Get_YMin()) * m_World2DC) );	}
 
-	TAPI_iPoint					World2DC				(TGEO_Point p)	{	TAPI_iPoint _p; _p.x = (int)xWorld2DC(p.x), _p.y = (int)yWorld2DC(p.y); return( _p );	}
+	TSG_Point_Int					World2DC				(TSG_Point p)	{	TSG_Point_Int _p; _p.x = (int)xWorld2DC(p.x), _p.y = (int)yWorld2DC(p.y); return( _p );	}
 
 	//-----------------------------------------------------
 	void						Set_Font				(wxFont &Font);

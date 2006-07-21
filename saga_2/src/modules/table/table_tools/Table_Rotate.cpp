@@ -123,11 +123,11 @@ bool CTable_Rotate::On_Execute(void)
 		else
 		{
 			bCopy	= false;
-			pOutput	= API_Create_Table();
+			pOutput	= SG_Create_Table();
 		}
 
 		pOutput->Destroy();
-		pOutput->Set_Name(CAPI_String::Format(_TL("%s [rotated]"), pInput->Get_Name()));
+		pOutput->Set_Name(CSG_String::Format(_TL("%s [rotated]"), pInput->Get_Name()));
 
 		FieldType	= TABLE_FIELDTYPE_String;
 

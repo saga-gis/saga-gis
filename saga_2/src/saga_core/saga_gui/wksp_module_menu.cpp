@@ -75,7 +75,7 @@
 //---------------------------------------------------------
 CWKSP_Module_Menu::CWKSP_Module_Menu(void)
 {
-	m_Recent	= (CWKSP_Module **)API_Calloc(RECENT_COUNT, sizeof(CWKSP_Module *));
+	m_Recent	= (CWKSP_Module **)SG_Calloc(RECENT_COUNT, sizeof(CWKSP_Module *));
 
 	m_Menus		= NULL;
 	m_nMenus	= 0;
@@ -84,7 +84,7 @@ CWKSP_Module_Menu::CWKSP_Module_Menu(void)
 //---------------------------------------------------------
 CWKSP_Module_Menu::~CWKSP_Module_Menu(void)
 {
-	API_Free(m_Recent);
+	SG_Free(m_Recent);
 
 	Destroy();
 }
@@ -101,7 +101,7 @@ void CWKSP_Module_Menu::Destroy(void)
 {
 	if( m_Menus )
 	{
-		API_Free(m_Menus);
+		SG_Free(m_Menus);
 		m_Menus		= NULL;
 		m_nMenus	= 0;
 	}
@@ -112,7 +112,7 @@ void CWKSP_Module_Menu::Add(wxMenu *pMenu)
 {
 	_Update(pMenu);
 
-	m_Menus	= (wxMenu **)API_Realloc(m_Menus, (m_nMenus + 1) * sizeof(wxMenu *));
+	m_Menus	= (wxMenu **)SG_Realloc(m_Menus, (m_nMenus + 1) * sizeof(wxMenu *));
 	m_Menus[m_nMenus++]	= pMenu;
 }
 
@@ -130,7 +130,7 @@ void CWKSP_Module_Menu::Del(wxMenu *pMenu)
 				m_Menus[i]	= m_Menus[i + 1];
 			}
 
-			m_Menus	= (wxMenu **)API_Realloc(m_Menus, m_nMenus * sizeof(wxMenu *));
+			m_Menus	= (wxMenu **)SG_Realloc(m_Menus, m_nMenus * sizeof(wxMenu *));
 		}
 	}
 }

@@ -86,10 +86,10 @@ CShape_Polygon::~CShape_Polygon(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CShape_Polygon::On_Intersects(TGEO_Rect Region)
+int CShape_Polygon::On_Intersects(TSG_Rect Region)
 {
 	int			iPart, iPoint;
-	TGEO_Point	pa, pb, top_left, top_right, bottom_left, bottom_right, Point;
+	TSG_Point	pa, pb, top_left, top_right, bottom_left, bottom_right, Point;
 
 
 	//-----------------------------------------------------
@@ -110,10 +110,10 @@ int CShape_Polygon::On_Intersects(TGEO_Rect Region)
 			pa	= pb;
 			pb	= m_Points[iPart][iPoint];
 
-			if(	GEO_Get_Crossing(Point, pa, pb, bottom_left , bottom_right, true)
-			||	GEO_Get_Crossing(Point, pa, pb, bottom_left , top_left    , true)
-			||	GEO_Get_Crossing(Point, pa, pb, bottom_right, top_right   , true)
-			||	GEO_Get_Crossing(Point, pa, pb, top_left    , top_right   , true)	)
+			if(	SG_Get_Crossing(Point, pa, pb, bottom_left , bottom_right, true)
+			||	SG_Get_Crossing(Point, pa, pb, bottom_left , top_left    , true)
+			||	SG_Get_Crossing(Point, pa, pb, bottom_right, top_right   , true)
+			||	SG_Get_Crossing(Point, pa, pb, top_left    , top_right   , true)	)
 			{
 				return( 1 );
 			}
@@ -143,7 +143,7 @@ int CShape_Polygon::On_Intersects(TGEO_Rect Region)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CShape_Polygon::is_Containing(const TGEO_Point &Point)
+bool CShape_Polygon::is_Containing(const TSG_Point &Point)
 {
 	return( is_Containing(Point.x, Point.y) );
 }
@@ -151,7 +151,7 @@ bool CShape_Polygon::is_Containing(const TGEO_Point &Point)
 bool CShape_Polygon::is_Containing(double x, double y)
 {
 	int			iPart, iPoint, nCrossings;
-	TGEO_Point	A, B, C, *pA, *pB;
+	TSG_Point	A, B, C, *pA, *pB;
 
 	if( Get_Extent().Contains(x, y) )
 	{
@@ -170,7 +170,7 @@ bool CShape_Polygon::is_Containing(double x, double y)
 
 				for(iPoint=0; iPoint<m_nPoints[iPart]; iPoint++, pB=pA++)
 				{
-					if( GEO_Get_Crossing(C, *pA, *pB, A, B) )
+					if( SG_Get_Crossing(C, *pA, *pB, A, B) )
 					{
 						nCrossings++;
 					}
@@ -185,7 +185,7 @@ bool CShape_Polygon::is_Containing(double x, double y)
 }
 
 //---------------------------------------------------------
-bool CShape_Polygon::is_Containing(const TGEO_Point &Point, int iPart)
+bool CShape_Polygon::is_Containing(const TSG_Point &Point, int iPart)
 {
 	return( is_Containing(Point.x, Point.y, iPart) );
 }
@@ -193,7 +193,7 @@ bool CShape_Polygon::is_Containing(const TGEO_Point &Point, int iPart)
 bool CShape_Polygon::is_Containing(double x, double y, int iPart)
 {
 	int			iPoint, nCrossings;
-	TGEO_Point	A, B, C, *pA, *pB;
+	TSG_Point	A, B, C, *pA, *pB;
 
 	if(	m_Extent.Contains(x, y) && iPart >= 0 && iPart < m_nParts && m_nPoints[iPart] > 2 )
 	{
@@ -208,7 +208,7 @@ bool CShape_Polygon::is_Containing(double x, double y, int iPart)
 
 		for(iPoint=0; iPoint<m_nPoints[iPart]; iPoint++, pB=pA++)
 		{
-			if( GEO_Get_Crossing(C, *pA, *pB, A, B) )
+			if( SG_Get_Crossing(C, *pA, *pB, A, B) )
 			{
 				nCrossings++;
 			}
@@ -281,7 +281,7 @@ double CShape_Polygon::Get_Perimeter(int iPart)
 {
 	int			iPoint;
 	double		Length;
-	TGEO_Point	*pA, *pB;
+	TSG_Point	*pA, *pB;
 
 	if( iPart >= 0 && iPart < m_nParts && m_nPoints[iPart] > 2 )
 	{
@@ -290,7 +290,7 @@ double CShape_Polygon::Get_Perimeter(int iPart)
 
 		for(iPoint=0, Length=0.0; iPoint<m_nPoints[iPart]; iPoint++, pB=pA++)
 		{
-			Length	+= GEO_Get_Distance(*pA, *pB);
+			Length	+= SG_Get_Distance(*pA, *pB);
 		}
 
 		return( Length );
@@ -331,7 +331,7 @@ double CShape_Polygon::_Get_Area(int iPart)
 {
 	int			iPoint;
 	double		Area;
-	TGEO_Point	*pA, *pB;
+	TSG_Point	*pA, *pB;
 
 	Area	= 0.0;
 
@@ -359,11 +359,11 @@ double CShape_Polygon::_Get_Area(int iPart)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-TGEO_Point CShape_Polygon::Get_Centroid(void)
+TSG_Point CShape_Polygon::Get_Centroid(void)
 {
 	int			iPart, iPoint;
 	double		d, a;
-	TGEO_Point	c, *pA, *pB;
+	TSG_Point	c, *pA, *pB;
 
 	c.x	= c.y	= a	= 0.0;
 
@@ -394,11 +394,11 @@ TGEO_Point CShape_Polygon::Get_Centroid(void)
 }
 
 //---------------------------------------------------------
-TGEO_Point CShape_Polygon::Get_Centroid(int iPart)
+TSG_Point CShape_Polygon::Get_Centroid(int iPart)
 {
 	int			iPoint;
 	double		d, a;
-	TGEO_Point	c, *pA, *pB;
+	TSG_Point	c, *pA, *pB;
 
 	c.x	= c.y	= 0.0;
 
@@ -435,11 +435,11 @@ TGEO_Point CShape_Polygon::Get_Centroid(int iPart)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CShape_Polygon::Get_Distance(TGEO_Point Point, TGEO_Point &Next, int iPart)
+double CShape_Polygon::Get_Distance(TSG_Point Point, TSG_Point &Next, int iPart)
 {
 	int			i;
 	double		d, Distance;
-	TGEO_Point	*pA, *pB, pt;
+	TSG_Point	*pA, *pB, pt;
 
 	Distance	= -1.0;
 
@@ -454,11 +454,11 @@ double CShape_Polygon::Get_Distance(TGEO_Point Point, TGEO_Point &Next, int iPar
 			pB	= m_Points[iPart] + m_nPoints[iPart] - 1;
 			pA	= m_Points[iPart];
 
-			Distance	= GEO_Get_Nearest_Point_On_Line(Point, *pA, *pB, Next);
+			Distance	= SG_Get_Nearest_Point_On_Line(Point, *pA, *pB, Next);
 
 			for(i=0; i<m_nPoints[iPart] && Distance!=0.0; i++, pB=pA++)
 			{
-				if(	(d = GEO_Get_Nearest_Point_On_Line(Point, *pA, *pB, pt)) >= 0.0
+				if(	(d = SG_Get_Nearest_Point_On_Line(Point, *pA, *pB, pt)) >= 0.0
 				&&	(d < Distance || Distance < 0.0) )
 				{
 					Distance	= d;

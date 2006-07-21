@@ -98,7 +98,7 @@ public:
 	CShapes *					Get_Shapes				(void)	{	return( m_pShapes );	}
 	class CWKSP_Table *			Get_Table				(void)	{	return( m_pTable );		}
 
-	virtual wxString			Get_Value				(CGEO_Point ptWorld, double Epsilon);
+	virtual wxString			Get_Value				(CSG_Point ptWorld, double Epsilon);
 	virtual double				Get_Value_Range			(void);
 
 	bool						asImage					(CGrid *pImage);
@@ -114,7 +114,7 @@ protected:
 
 	wxColour					m_Def_Color;
 
-	CAPI_iPoints				m_Chart;
+	CSG_Points_Int				m_Chart;
 
 	CParameters					m_Chart_Options;
 
@@ -159,13 +159,13 @@ protected:
 	// Editing...
 
 	virtual wxMenu *			On_Edit_Get_Menu		(void);
-	virtual TGEO_Rect			On_Edit_Get_Extent		(void);
+	virtual TSG_Rect			On_Edit_Get_Extent		(void);
 	virtual bool				On_Edit_Set_Attributes	(void);
 
 	virtual bool				On_Edit_On_Key_Down		(int KeyCode);
-	virtual bool				On_Edit_On_Mouse_Down	(CGEO_Point Point, double ClientToWorld, int Key);
-	virtual bool				On_Edit_On_Mouse_Up		(CGEO_Point Point, double ClientToWorld, int Key);
-	virtual bool				On_Edit_On_Mouse_Move	(wxWindow *pMap, CGEO_Rect rWorld, wxPoint pt, wxPoint ptLast, int Key);
+	virtual bool				On_Edit_On_Mouse_Down	(CSG_Point Point, double ClientToWorld, int Key);
+	virtual bool				On_Edit_On_Mouse_Up		(CSG_Point Point, double ClientToWorld, int Key);
+	virtual bool				On_Edit_On_Mouse_Move	(wxWindow *pMap, CSG_Rect rWorld, wxPoint pt, wxPoint ptLast, int Key);
 
 	void						_LUT_Create				(void);
 
@@ -181,17 +181,17 @@ protected:
 	bool						_Edit_Part_Del			(void);
 	bool						_Edit_Point_Del			(void);
 
-	void						_Edit_Shape_Draw_Point	(wxDC &dc, TAPI_iPoint Point, bool bSelected);
+	void						_Edit_Shape_Draw_Point	(wxDC &dc, TSG_Point_Int Point, bool bSelected);
 	void						_Edit_Shape_Draw_Point	(wxDC &dc, int x, int y, bool bSelected);
-	virtual void				_Edit_Shape_Draw_Move	(wxDC &dc, CGEO_Rect rWorld, double ClientToWorld, wxPoint Point);
+	virtual void				_Edit_Shape_Draw_Move	(wxDC &dc, CSG_Rect rWorld, double ClientToWorld, wxPoint Point);
 	virtual void				_Edit_Shape_Draw		(CWKSP_Map_DC &dc_Map);
 
-	virtual int					_Edit_Shape_HitTest		(CGEO_Point Point, double max_Dist, int &iPart, int &iPoint);
+	virtual int					_Edit_Shape_HitTest		(CSG_Point Point, double max_Dist, int &iPart, int &iPoint);
 
-	void						_Edit_Snap_Point		(CGEO_Point &Point, double ClientToWorld);
-	void						_Edit_Snap_Point		(CGEO_Point Point, CGEO_Point &snap_Point, double &snap_Dist, CShapes *pShapes, bool bLine);
-	void						_Edit_Snap_Point		(CGEO_Point Point, CGEO_Point &snap_Point, double &snap_Dist, CShape *pShape);
-	virtual void				_Edit_Snap_Point_ToLine (CGEO_Point Point, CGEO_Point &snap_Point, double &snap_Dist, CShape *pShape);
+	void						_Edit_Snap_Point		(CSG_Point &Point, double ClientToWorld);
+	void						_Edit_Snap_Point		(CSG_Point Point, CSG_Point &snap_Point, double &snap_Dist, CShapes *pShapes, bool bLine);
+	void						_Edit_Snap_Point		(CSG_Point Point, CSG_Point &snap_Point, double &snap_Dist, CShape *pShape);
+	virtual void				_Edit_Snap_Point_ToLine (CSG_Point Point, CSG_Point &snap_Point, double &snap_Dist, CShape *pShape);
 
 };
 

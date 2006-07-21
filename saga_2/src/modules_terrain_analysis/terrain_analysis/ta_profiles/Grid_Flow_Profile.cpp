@@ -146,7 +146,7 @@ bool CGrid_Flow_Profile::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Flow_Profile::On_Execute_Position(CGEO_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CGrid_Flow_Profile::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
 {
 	switch( Mode )
 	{
@@ -169,14 +169,14 @@ bool CGrid_Flow_Profile::On_Execute_Position(CGEO_Point ptWorld, TModule_Interac
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Flow_Profile::Set_Profile(TGEO_Point ptWorld)
+bool CGrid_Flow_Profile::Set_Profile(TSG_Point ptWorld)
 {
 	int			x, y, i;
 
 	//-----------------------------------------------------
 	if( Get_System()->Get_World_to_Grid(x, y, ptWorld) && m_pDEM->is_InGrid(x, y) )
 	{
-		m_pPoints->Create(SHAPE_TYPE_Point, CAPI_String::Format(_TL("Profile [%s]"), m_pDEM->Get_Name()));
+		m_pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("Profile [%s]"), m_pDEM->Get_Name()));
 
 		m_pPoints->Get_Table().Add_Field("ID"				, TABLE_FIELDTYPE_Int);
 		m_pPoints->Get_Table().Add_Field(_TL("Distance")			, TABLE_FIELDTYPE_Double);
@@ -191,7 +191,7 @@ bool CGrid_Flow_Profile::Set_Profile(TGEO_Point ptWorld)
 		}
 
 		//-----------------------------------------------------
-		m_pLine->Create(SHAPE_TYPE_Line, CAPI_String::Format(_TL("Profile [%s]"), m_pDEM->Get_Name()));
+		m_pLine->Create(SHAPE_TYPE_Line, CSG_String::Format(_TL("Profile [%s]"), m_pDEM->Get_Name()));
 		m_pLine->Get_Table().Add_Field("ID"	, TABLE_FIELDTYPE_Int);
 		m_pLine->Add_Shape()->Get_Record()->Set_Value(0, 1);
 
@@ -231,7 +231,7 @@ bool CGrid_Flow_Profile::Add_Point(int x, int y)
 {
 	int			i;
 	double		z, Distance, Distance_2;
-	TGEO_Point	Point;
+	TSG_Point	Point;
 	CShape		*pPoint, *pLast;
 
 	if( m_pDEM->is_InGrid(x, y) )
@@ -247,7 +247,7 @@ bool CGrid_Flow_Profile::Add_Point(int x, int y)
 		else
 		{
 			pLast		= m_pPoints->Get_Shape(m_pPoints->Get_Count() - 1);
-			Distance	= sqrt(MAT_Square(Point.x - pLast->Get_Point(0).x) + MAT_Square(Point.y - pLast->Get_Point(0).y));
+			Distance	= SG_Get_Distance(Point, pLast->Get_Point(0));
 
 			Distance_2	= pLast->Get_Record()->asDouble(5) - z;
 			Distance_2	= sqrt(Distance*Distance + Distance_2*Distance_2);

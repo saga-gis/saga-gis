@@ -109,7 +109,7 @@ bool CGrid_FractalDimension::On_Execute(void)
 	//-----------------------------------------------------
 	if( dimCount > 0 )
 	{
-		dimAreas	= (double *)API_Calloc(dimCount, sizeof(double));
+		dimAreas	= (double *)SG_Calloc(dimCount, sizeof(double));
 
 		for(i=0; i<dimCount && Set_Progress(i, dimCount); i++)
 		{
@@ -140,7 +140,7 @@ bool CGrid_FractalDimension::On_Execute(void)
 		}
 
 		//-------------------------------------------------
-		API_Free(dimAreas);
+		SG_Free(dimAreas);
 
 		return( true );
 	}

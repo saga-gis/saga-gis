@@ -54,7 +54,7 @@ bool CIDW::Get_Grid_Value(int x, int y)
 {
 	int			iPoint, nPoints;
 	double		zSum, dSum, d, dx, xPos, yPos;
-	TGEO_Point	Point;
+	TSG_Point	Point;
 	CShape		*pPoint;
 
 	nPoints = m_pPoints->Get_Count();

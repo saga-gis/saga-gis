@@ -340,7 +340,7 @@ int CWKSP_Module_Manager::_Open_Directory(const char *sDirectory)
 		{
 			do
 			{	if( FileName.Find("saga_api") < 0 )
-				if( Open(API_Make_File_Path(Dir.GetName(), FileName, NULL)) )
+				if( Open(SG_File_Make_Path(Dir.GetName(), FileName, NULL)) )
 				{
 					nOpened++;
 				}
@@ -352,7 +352,7 @@ int CWKSP_Module_Manager::_Open_Directory(const char *sDirectory)
 		{
 			do
 			{
-				nOpened	+= _Open_Directory(API_Make_File_Path(Dir.GetName(), FileName, NULL));
+				nOpened	+= _Open_Directory(SG_File_Make_Path(Dir.GetName(), FileName, NULL));
 			}
 			while( Dir.GetNext(&FileName) );
 		}
@@ -392,9 +392,9 @@ bool CWKSP_Module_Manager::Open(const char *File_Name)
 	CWKSP_Module_Library	*pLibrary;
 
 	//-----------------------------------------------------
-	if( API_Cmp_File_Extension(File_Name, "mlb")
-	||	API_Cmp_File_Extension(File_Name, "dll")
-	||	API_Cmp_File_Extension(File_Name, "so") )
+	if( SG_File_Cmp_Extension(File_Name, "mlb")
+	||	SG_File_Cmp_Extension(File_Name, "dll")
+	||	SG_File_Cmp_Extension(File_Name, "so") )
 	{
 		MSG_General_Add(wxString::Format("%s: %s...", LNG("[MSG] Load library"), File_Name), true, true);
 
@@ -489,7 +489,7 @@ void CWKSP_Module_Manager::_Make_Report(void)
 
 		for(i=0; i<Get_Count(); i++)
 		{
-			fprintf(Stream, "%s (%s)\t%s\t", Get_Library(i)->Get_Name().c_str(), API_Extract_File_Name(Get_Library(i)->Get_File_Name(), true).c_str(), Get_Library(i)->Get_Info(MLB_INFO_Description));
+			fprintf(Stream, "%s (%s)\t%s\t", Get_Library(i)->Get_Name().c_str(), SG_File_Get_Name(Get_Library(i)->Get_File_Name(), true).c_str(), Get_Library(i)->Get_Info(MLB_INFO_Description));
 
 			for(j=0; j<Get_Library(i)->Get_Count(); j++)
 			{

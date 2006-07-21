@@ -134,9 +134,9 @@ bool CGrid_Export::On_Execute(void)
 	fName	= Parameters("FILE")	->asString();
 
 	//-----------------------------------------------------
-	if( API_Callback_DataObject_asImage(pGrid, &Grid) )
+	if( SG_Callback_DataObject_asImage(pGrid, &Grid) )
 	{
-		if( !API_Callback_DataObject_asImage(pShade, &Shade) )
+		if( !SG_Callback_DataObject_asImage(pShade, &Shade) )
 		{
 			pShade	= NULL;
 		}

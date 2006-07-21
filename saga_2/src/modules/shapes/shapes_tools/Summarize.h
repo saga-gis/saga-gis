@@ -38,7 +38,7 @@ private:
 	CShapes *m_pShapes;
 	CTable *m_pTable;
 	bool *m_bIncludeParam;
-	std::vector<CAPI_String> m_ClassesID;
+	std::vector<CSG_String> m_ClassesID;
 	int *m_pClasses;
 	int *m_pCount;
 	CParameters *m_pExtraParameters;

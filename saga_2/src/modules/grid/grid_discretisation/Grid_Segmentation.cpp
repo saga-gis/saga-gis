@@ -78,15 +78,15 @@ CSegment::CSegment(int aSegment, double aValue, int axSeed, int aySeed)
 	nConnects		= 0;
 	maxConnects		= 10;
 
-	Connect			= (int *)API_Malloc(maxConnects * sizeof(int));
-	Segment			= (int *)API_Malloc(maxConnects * sizeof(int));
+	Connect			= (int *)SG_Malloc(maxConnects * sizeof(int));
+	Segment			= (int *)SG_Malloc(maxConnects * sizeof(int));
 }
 
 //---------------------------------------------------------
 CSegment::~CSegment(void)
 {
-	API_Free(Connect);
-	API_Free(Segment);
+	SG_Free(Connect);
+	SG_Free(Segment);
 }
 
 //---------------------------------------------------------
@@ -107,8 +107,8 @@ inline void CSegment::Set_Segment(int jSegment, int jConnect)
 	if( nConnects >= maxConnects )
 	{
 		maxConnects		+= 10;
-		Connect			= (int *)API_Realloc(Connect,maxConnects * sizeof(int));
-		Segment			= (int *)API_Realloc(Segment,maxConnects * sizeof(int));
+		Connect			= (int *)SG_Realloc(Connect,maxConnects * sizeof(int));
+		Segment			= (int *)SG_Realloc(Segment,maxConnects * sizeof(int));
 	}
 
 	Connect[nConnects]	= jConnect;
@@ -174,7 +174,7 @@ CGrid_Segmentation::CGrid_Segmentation(void)
 	Parameters.Add_Choice(
 		Parameters("RESULT"), "OUTPUT_TYPE", _TL("Output"),
 		_TL("The values of the resultant grid can be either the seed value (e.g. the local maximum) or the enumerated segment id."),
-		CAPI_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s|",
 			_TL("Seed Value"),
 			_TL("Segment ID")
 		), 1
@@ -248,7 +248,7 @@ bool CGrid_Segmentation::On_Execute(void)
 		for(y=0; y<nSegments; y++)
 			delete(Segments[y]);
 
-		API_Free(Segments);
+		SG_Free(Segments);
 	}
 
 	//-----------------------------------------------------
@@ -395,7 +395,7 @@ bool CGrid_Segmentation::Get_Initials(void)
 			{
 				nSegments++;
 				pSegments->Set_Value(x,y, nSegments);
-				Segments				= (CSegment **)API_Realloc(Segments,nSegments * sizeof(CSegment *));
+				Segments				= (CSegment **)SG_Realloc(Segments,nSegments * sizeof(CSegment *));
 				Segments[nSegments-1]	= (CSegment  *)new CSegment(nSegments,d,x,y);
 			}
 		}

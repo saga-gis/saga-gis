@@ -110,7 +110,7 @@ public:
 	bool						is_Executing	(void);
 
 	bool						Execute			(bool bDialog);
-	bool						Execute			(CGEO_Point ptWorld, TModule_Interactive_Mode Mode, int Keys);
+	bool						Execute			(CSG_Point ptWorld, TModule_Interactive_Mode Mode, int Keys);
 
 	void						Make_Report		(FILE *Stream);
 

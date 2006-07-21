@@ -101,7 +101,7 @@ CGrid_Orientation::CGrid_Orientation(void)
 	Parameters.Add_Choice(
 		NULL, "METHOD"	, _TL("Method"),
 		"",
-		CAPI_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("Copy"),
 			_TL("Flip"),
 			_TL("Mirror"),

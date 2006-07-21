@@ -11,7 +11,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   html_document.h                     //
+//                      doc_html.h                       //
 //                                                       //
 //                 Copyright (C) 2005 by                 //
 //                      Victor Olaya                     //
@@ -61,8 +61,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__SAGA_API__html_document_H
-#define HEADER_INCLUDED__SAGA_API__html_document_H
+#ifndef HEADER_INCLUDED__SAGA_API__doc_html_H
+#define HEADER_INCLUDED__SAGA_API__doc_html_H
 
 
 ///////////////////////////////////////////////////////////
@@ -73,13 +73,22 @@
 
 //---------------------------------------------------------
 #include "shapes.h"
-#include "svg_graph.h"
+#include "doc_svg.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #define HTML_GRAPH_TYPE_BARS					1
 #define HTML_GRAPH_TYPE_LINES					2
 
 #define HTML_COLOR_RANDOM						-2
+
+
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
@@ -87,17 +96,17 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CHTML_Document
+class SAGA_API_DLL_EXPORT CDoc_HTML
 {
 public:
-	CHTML_Document(void);
-	virtual ~CHTML_Document(void);
+	CDoc_HTML(void);
+	virtual ~CDoc_HTML(void);
 
 	void						Open						(const char *Title);
 	bool						Save						(const char *FileName);
 
 	void						AddCurve					(const char *Filename,
-															CAPI_dPoints &Points,
+															CSG_Points &Points,
 															const char *Description,
 															int iGraphType,
 															bool bIncludeTableData);
@@ -110,7 +119,7 @@ public:
 	void						AddLineBreak				();
 	void						AddHeader					(const char *Text, int iOrder);
 	void						AddHyperlink				(const char *Text, const char *URL);
-	CAPI_String					GetHyperlinkCode			(const char *Text, const char *URL);
+	CSG_String					GetHyperlinkCode			(const char *Text, const char *URL);
 
 	void						AddImage					(const char *Filename);
 	void						AddThumbnail				(const char *Filename,
@@ -137,17 +146,17 @@ public:
 
 private:
 
-	CAPI_String					m_sHTMLCode;
+	CSG_String					m_sHTMLCode;
 
-	bool						_Draw_Shape					(CSVG_Graph &SVG,
+	bool						_Draw_Shape					(CDoc_SVG &SVG,
 															CShape *pShape,
-															CGEO_Rect GlobalRect,
+															CSG_Rect GlobalRect,
 															int Fill_Color, 
 															int Line_Color, 
 															int Line_Width, 
 															int Point_Width);
 
-	void						_AddBicolumTable			(CAPI_dPoints *pData);
+	void						_AddBicolumTable			(CSG_Points *pData);
 
 };
 
@@ -159,4 +168,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__SAGA_API__html_document_H
+#endif // #ifndef HEADER_INCLUDED__SAGA_API__doc_html_H

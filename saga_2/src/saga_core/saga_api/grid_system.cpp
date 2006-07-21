@@ -84,7 +84,7 @@ CGrid_System::CGrid_System(const CGrid_System &System)
 }
 
 //---------------------------------------------------------
-CGrid_System::CGrid_System(double Cellsize, const CGEO_Rect &Extent)
+CGrid_System::CGrid_System(double Cellsize, const CSG_Rect &Extent)
 {
 	m_Cellsize	= -1.0;
 
@@ -120,7 +120,7 @@ CGrid_System::~CGrid_System(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_System::is_Valid(void)
+bool CGrid_System::is_Valid(void) const
 {
 	return( m_Cellsize > 0.0 );
 }
@@ -133,12 +133,12 @@ const char * CGrid_System::Get_Name(bool bShort)
 		if( bShort )
 		{
 			m_Name.Printf("%.*f; %dx %dy; %.*fW %.*fS",
-				API_Get_Significant_Decimals(Get_Cellsize()),
+				SG_Get_Significant_Decimals(Get_Cellsize()),
 				Get_Cellsize(),
 				Get_NX(),
 				Get_NY(),
-				API_Get_Significant_Decimals(Get_XMin()), Get_XMin(),
-				API_Get_Significant_Decimals(Get_YMin()), Get_YMin()
+				SG_Get_Significant_Decimals(Get_XMin()), Get_XMin(),
+				SG_Get_Significant_Decimals(Get_YMin()), Get_YMin()
 			);
 		}
 		else
@@ -194,7 +194,7 @@ bool CGrid_System::Assign(const CGrid_System &System)
 }
 
 //---------------------------------------------------------
-bool CGrid_System::Assign(double Cellsize, const CGEO_Rect &Extent)
+bool CGrid_System::Assign(double Cellsize, const CSG_Rect &Extent)
 {
 	return( Assign(Cellsize, Extent.m_rect.xMin, Extent.m_rect.yMin, Extent.m_rect.xMax, Extent.m_rect.yMax) );
 }
@@ -250,7 +250,7 @@ bool CGrid_System::is_Equal(const CGrid_System &System) const
 }
 
 //---------------------------------------------------------
-bool CGrid_System::is_Equal(double Cellsize, const TGEO_Rect &Extent) const
+bool CGrid_System::is_Equal(double Cellsize, const TSG_Rect &Extent) const
 {
 	return( m_Cellsize == Cellsize && m_Extent == Extent );
 }

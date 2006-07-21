@@ -477,7 +477,7 @@ void CWKSP_Grid::On_Parameters_Changed(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxString CWKSP_Grid::Get_Value(CGEO_Point ptWorld, double Epsilon)
+wxString CWKSP_Grid::Get_Value(CSG_Point ptWorld, double Epsilon)
 {
 	double		Value;
 	wxString	s;
@@ -550,11 +550,11 @@ bool CWKSP_Grid::On_Edit_On_Key_Down(int KeyCode)
 #define SELECTION_MAX	20
 
 //---------------------------------------------------------
-bool CWKSP_Grid::On_Edit_On_Mouse_Up(CGEO_Point Point, double ClientToWorld, int Key)
+bool CWKSP_Grid::On_Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key)
 {
 	int				x, y;
 	CTable_Record	*pRecord;
-	CGEO_Rect		rWorld(m_Edit_Mouse_Down, Point);
+	CSG_Rect		rWorld(m_Edit_Mouse_Down, Point);
 
 	m_Sel_xOff	= m_pGrid->Get_System().Get_xWorld_to_Grid(rWorld.Get_XMin());
 	if( m_Sel_xOff < 0 )
@@ -642,11 +642,11 @@ bool CWKSP_Grid::On_Edit_Set_Attributes(void)
 }
 
 //---------------------------------------------------------
-TGEO_Rect CWKSP_Grid::On_Edit_Get_Extent(void)
+TSG_Rect CWKSP_Grid::On_Edit_Get_Extent(void)
 {
 	if( m_Sel_xN >= 0 )
 	{
-		return( CGEO_Rect(
+		return( CSG_Rect(
 			-m_pGrid->Get_Cellsize() / 2.0 + m_pGrid->Get_System().Get_xGrid_to_World(m_Sel_xOff),
 			-m_pGrid->Get_Cellsize() / 2.0 + m_pGrid->Get_System().Get_yGrid_to_World(m_Sel_yOff),
 			-m_pGrid->Get_Cellsize() / 2.0 + m_pGrid->Get_System().Get_xGrid_to_World(m_Sel_xOff + m_Sel_xN),
@@ -695,7 +695,7 @@ bool CWKSP_Grid::_Edit_Del_Selection(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Grid::Fit_Color_Range(CGEO_Rect rWorld)
+bool CWKSP_Grid::Fit_Color_Range(CSG_Rect rWorld)
 {
 	int		x, y, xMin, yMin, xMax, yMax;
 	double	z, zMin, zMax;
@@ -949,7 +949,7 @@ void CWKSP_Grid::_Draw_Grid_Points(CWKSP_Map_DC &dc_Map, int Interpolation)
 {
 	int			xDC, yDC, axDC, ayDC, bxDC, byDC, Color;
 	double		x, y, z;
-	CGEO_Rect	rGrid(m_pGrid->Get_Extent());
+	CSG_Rect	rGrid(m_pGrid->Get_Extent());
 
 	rGrid.Inflate(m_pGrid->Get_Cellsize() / 2.0, false);
 	rGrid.Intersect(dc_Map.m_rWorld);
@@ -1060,14 +1060,14 @@ void CWKSP_Grid::_Draw_Edit(CWKSP_Map_DC &dc_Map)
 {
 	if( m_Sel_xN >= 0 )
 	{
-		CGEO_Rect	r(
+		CSG_Rect	r(
 			-m_pGrid->Get_Cellsize() / 2.0 + m_pGrid->Get_System().Get_xGrid_to_World(m_Sel_xOff),
 			-m_pGrid->Get_Cellsize() / 2.0 + m_pGrid->Get_System().Get_yGrid_to_World(m_Sel_yOff),
 			-m_pGrid->Get_Cellsize() / 2.0 + m_pGrid->Get_System().Get_xGrid_to_World(m_Sel_xOff + m_Sel_xN),
 			-m_pGrid->Get_Cellsize() / 2.0 + m_pGrid->Get_System().Get_yGrid_to_World(m_Sel_yOff + m_Sel_yN)
 		);
 
-		TAPI_iPoint		a(dc_Map.World2DC(r.Get_TopLeft())),
+		TSG_Point_Int		a(dc_Map.World2DC(r.Get_TopLeft())),
 						b(dc_Map.World2DC(r.Get_BottomRight()));
 
 		a.x	-= 1;

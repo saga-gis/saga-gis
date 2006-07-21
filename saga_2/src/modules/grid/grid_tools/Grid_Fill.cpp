@@ -178,7 +178,7 @@ bool CGrid_Fill::On_Execute(void)
 	
 }
 
-bool CGrid_Fill::On_Execute_Position(CGEO_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CGrid_Fill::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
 {
 	CGrid_System	*System;
 	int				x, y, neu_x, neu_y; 

@@ -158,7 +158,7 @@ bool CGrid_Swath_Profile::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Swath_Profile::On_Execute_Position(CGEO_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CGrid_Swath_Profile::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
 {
 	switch( Mode )
 	{
@@ -169,7 +169,7 @@ bool CGrid_Swath_Profile::On_Execute_Position(CGEO_Point ptWorld, TModule_Intera
 		if( !m_bAdd )
 		{
 			m_bAdd	= true;
-			m_pLine->Create(SHAPE_TYPE_Line, CAPI_String::Format("Profile [%s]", m_pDEM->Get_Name()));
+			m_pLine->Create(SHAPE_TYPE_Line, CSG_String::Format("Profile [%s]", m_pDEM->Get_Name()));
 			m_pLine->Get_Table().Add_Field("ID"	, TABLE_FIELDTYPE_Int);
 			m_pLine->Add_Shape()->Get_Record()->Set_Value(0, 1);
 		}
@@ -200,11 +200,11 @@ bool CGrid_Swath_Profile::Set_Profile(void)
 {
 	int			i;
 	double		d;
-	CGEO_Point	A, B, P, Left, Right;
+	CSG_Point	A, B, P, Left, Right;
 	CShape		*pLine, *pLeft, *pRight;
 
 	//-----------------------------------------------------
-	m_pPoints->Create(SHAPE_TYPE_Point, CAPI_String::Format(_TL("Profile [%s]"), m_pDEM->Get_Name()));
+	m_pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("Profile [%s]"), m_pDEM->Get_Name()));
 
 	m_pPoints->Get_Table().Add_Field("ID"			, TABLE_FIELDTYPE_Int);
 	m_pPoints->Get_Table().Add_Field("D"			, TABLE_FIELDTYPE_Double);
@@ -220,11 +220,11 @@ bool CGrid_Swath_Profile::Set_Profile(void)
 	for(i=0; i<m_pValues->Get_Count(); i++)
 	{
 		m_pPoints->Get_Table().Add_Field(m_pValues->asGrid(i)->Get_Name(), TABLE_FIELDTYPE_Double);
-		m_pPoints->Get_Table().Add_Field(CAPI_String::Format(_TL("%s [mean]")	, m_pValues->asGrid(i)->Get_Name()), TABLE_FIELDTYPE_Double);
-		m_pPoints->Get_Table().Add_Field(CAPI_String::Format(_TL("%s [min]"	)	, m_pValues->asGrid(i)->Get_Name()), TABLE_FIELDTYPE_Double);
-		m_pPoints->Get_Table().Add_Field(CAPI_String::Format(_TL("%s [max]"	)	, m_pValues->asGrid(i)->Get_Name()), TABLE_FIELDTYPE_Double);
-		m_pPoints->Get_Table().Add_Field(CAPI_String::Format(_TL("%s [min_sd]")	, m_pValues->asGrid(i)->Get_Name()), TABLE_FIELDTYPE_Double);
-		m_pPoints->Get_Table().Add_Field(CAPI_String::Format(_TL("%s [max_sd]")	, m_pValues->asGrid(i)->Get_Name()), TABLE_FIELDTYPE_Double);
+		m_pPoints->Get_Table().Add_Field(CSG_String::Format(_TL("%s [mean]")	, m_pValues->asGrid(i)->Get_Name()), TABLE_FIELDTYPE_Double);
+		m_pPoints->Get_Table().Add_Field(CSG_String::Format(_TL("%s [min]"	)	, m_pValues->asGrid(i)->Get_Name()), TABLE_FIELDTYPE_Double);
+		m_pPoints->Get_Table().Add_Field(CSG_String::Format(_TL("%s [max]"	)	, m_pValues->asGrid(i)->Get_Name()), TABLE_FIELDTYPE_Double);
+		m_pPoints->Get_Table().Add_Field(CSG_String::Format(_TL("%s [min_sd]")	, m_pValues->asGrid(i)->Get_Name()), TABLE_FIELDTYPE_Double);
+		m_pPoints->Get_Table().Add_Field(CSG_String::Format(_TL("%s [max_sd]")	, m_pValues->asGrid(i)->Get_Name()), TABLE_FIELDTYPE_Double);
 	}
 
 	//-----------------------------------------------------
@@ -273,10 +273,10 @@ bool CGrid_Swath_Profile::Set_Profile(void)
 }
 
 //---------------------------------------------------------
-bool CGrid_Swath_Profile::Set_Profile(CGEO_Point A, CGEO_Point B, CGEO_Point Left, CGEO_Point Right)
+bool CGrid_Swath_Profile::Set_Profile(CSG_Point A, CSG_Point B, CSG_Point Left, CSG_Point Right)
 {
 	double		dx, dy, d, n;
-	CGEO_Point	p, dStep, Step;
+	CSG_Point	p, dStep, Step;
 
 	//-----------------------------------------------------
 	dx	= fabs(B.Get_X() - A.Get_X());
@@ -344,7 +344,7 @@ bool CGrid_Swath_Profile::Set_Profile(CGEO_Point A, CGEO_Point B, CGEO_Point Lef
 }
 
 //---------------------------------------------------------
-bool CGrid_Swath_Profile::Add_Point(CGEO_Point Point, CGEO_Point Left, CGEO_Point Right, CGEO_Point Step)
+bool CGrid_Swath_Profile::Add_Point(CSG_Point Point, CSG_Point Left, CSG_Point Right, CSG_Point Step)
 {
 	int		i, j;
 	double	Distance;
@@ -359,7 +359,7 @@ bool CGrid_Swath_Profile::Add_Point(CGEO_Point Point, CGEO_Point Left, CGEO_Poin
 		else
 		{
 			pLast		= m_pPoints->Get_Shape(m_pPoints->Get_Count() - 1);
-			Distance	= sqrt(MAT_Square(Point.Get_X() - pLast->Get_Point(0).x) + MAT_Square(Point.Get_Y() - pLast->Get_Point(0).y));
+			Distance	= SG_Get_Distance(Point, pLast->Get_Point(0));
 
 			if( Distance == 0.0 )
 			{
@@ -393,7 +393,7 @@ bool CGrid_Swath_Profile::Add_Point(CGEO_Point Point, CGEO_Point Left, CGEO_Poin
 }
 
 //---------------------------------------------------------
-bool CGrid_Swath_Profile::Add_Swath(CTable_Record *pRecord, int iEntry, CGrid *pGrid, CGEO_Point Left, CGEO_Point Right, CGEO_Point Step)
+bool CGrid_Swath_Profile::Add_Swath(CTable_Record *pRecord, int iEntry, CGrid *pGrid, CSG_Point Left, CSG_Point Right, CSG_Point Step)
 {
 	int		n;
 	double	z, Sum, Sum2, Min, Max, iRun, dRun, nRun;

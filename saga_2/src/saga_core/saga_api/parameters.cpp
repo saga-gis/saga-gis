@@ -146,7 +146,7 @@ void CParameters::Destroy(void)
 			delete(m_Parameters[i]);
 		}
 
-		API_Free(m_Parameters);
+		SG_Free(m_Parameters);
 
 		m_Parameters	= NULL;
 		m_nParameters	= 0;
@@ -215,7 +215,7 @@ const char * CParameters::Get_Description(void)
 }
 
 //---------------------------------------------------------
-void CParameters::Set_Translation(CTranslator &Translator)
+void CParameters::Set_Translation(CSG_Translator &Translator)
 {
 	m_Name			= Translator.Get_Translation(m_Name);
 	m_Description	= Translator.Get_Translation(m_Description);
@@ -332,7 +332,7 @@ CParameter * CParameters::Add_Font(CParameter *pParent, const char *Identifier, 
 }
 
 //---------------------------------------------------------
-CParameter * CParameters::Add_Colors(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, CColors *pInit)
+CParameter * CParameters::Add_Colors(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, CSG_Colors *pInit)
 {
 	CParameter			*pParameter;
 
@@ -390,7 +390,7 @@ CParameter * CParameters::Add_Grid(CParameter *pParent, const char *Identifier, 
 		}
 		else
 		{
-			pParent	= Add_Grid_System(pParent, CAPI_String::Format("%s_GRIDSYSTEM", Identifier), LNG("[PRM] Grid system"), "");
+			pParent	= Add_Grid_System(pParent, CSG_String::Format("%s_GRIDSYSTEM", Identifier), LNG("[PRM] Grid system"), "");
 		}
 	}
 
@@ -688,7 +688,7 @@ CParameter * CParameters::_Add(CParameter *pParent, const char *Identifier, cons
 {
 	CParameter	*pParameter;
 
-	m_Parameters	= (CParameter **)API_Realloc(m_Parameters, (m_nParameters + 1) * sizeof(CParameter *));
+	m_Parameters	= (CParameter **)SG_Realloc(m_Parameters, (m_nParameters + 1) * sizeof(CParameter *));
 
 	pParameter		= m_Parameters[m_nParameters++]	= new CParameter(this, pParent, Identifier, Name, Description, Type, Constraint);
 
@@ -995,7 +995,7 @@ bool CParameters::Serialize(FILE *Stream, bool bSave)
 {
 	int			i;
 	CParameter	*pParameter;
-	CAPI_String	sLine;
+	CSG_String	sLine;
 
 	if( Stream )
 	{
@@ -1025,15 +1025,15 @@ bool CParameters::Serialize(FILE *Stream, bool bSave)
 		//-------------------------------------------------
 		else
 		{
-			while( API_Read_Line(Stream, sLine) && sLine.Cmp(PARAMETER_ENTRIES_BEGIN) );
+			while( SG_Read_Line(Stream, sLine) && sLine.Cmp(PARAMETER_ENTRIES_BEGIN) );
 
 			if( !sLine.Cmp(PARAMETER_ENTRIES_BEGIN) )
 			{
-				while( API_Read_Line(Stream, sLine) && sLine.Cmp(PARAMETER_ENTRIES_END) )
+				while( SG_Read_Line(Stream, sLine) && sLine.Cmp(PARAMETER_ENTRIES_END) )
 				{
 					if( !sLine.Cmp(PARAMETER_ENTRY_BEGIN) )
 					{
-						if( API_Read_Line(Stream, sLine) && (pParameter = Get_Parameter(sLine)) != NULL )
+						if( SG_Read_Line(Stream, sLine) && (pParameter = Get_Parameter(sLine)) != NULL )
 						{
 							pParameter->Serialize(Stream, false);
 						}
@@ -1059,7 +1059,7 @@ bool CParameters::Serialize(FILE *Stream, bool bSave)
 bool CParameters::DataObjects_Check(bool bSilent)
 {
 	bool	bInvalid, bResult	= true;
-	CAPI_String	s;
+	CSG_String	s;
 
 	//-----------------------------------------------------
 	for(int i=0; i<Get_Count(); i++)
@@ -1096,14 +1096,14 @@ bool CParameters::DataObjects_Check(bool bSilent)
 		if( bInvalid )
 		{
 			bResult	= false;
-			s.Append(CAPI_String::Format("\n%s: %s", m_Parameters[i]->Get_Type_Name(), m_Parameters[i]->Get_Name()));
+			s.Append(CSG_String::Format("\n%s: %s", m_Parameters[i]->Get_Type_Name(), m_Parameters[i]->Get_Name()));
 		}
 	}
 
 	//-----------------------------------------------------
 	if( !bResult && !bSilent )
 	{
-		API_Callback_Dlg_Message(CAPI_String::Format("%s\n%s", LNG("[DLG] Invalid parameters!"), s.c_str()), Get_Name());
+		SG_Callback_Dlg_Message(CSG_String::Format("%s\n%s", LNG("[DLG] Invalid parameters!"), s.c_str()), Get_Name());
 	}
 
 	return( bResult );
@@ -1143,20 +1143,20 @@ bool CParameters::DataObjects_Create(void)
 					if(	p->Get_Parent() && p->Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System
 					&&	(pGrid_System = p->Get_Parent()->asGrid_System()) != NULL && pGrid_System->is_Valid() )
 					{
-						pDataObject	= API_Create_Grid(*pGrid_System, ((CParameter_Grid *)p->Get_Data())->Get_Preferred_Type());
+						pDataObject	= SG_Create_Grid(*pGrid_System, ((CParameter_Grid *)p->Get_Data())->Get_Preferred_Type());
 					}
 					break;
 
 				case PARAMETER_TYPE_Table:
-					pDataObject	= API_Create_Table();
+					pDataObject	= SG_Create_Table();
 					break;
 
 				case PARAMETER_TYPE_Shapes:
-					pDataObject	= API_Create_Shapes(((CParameter_Shapes *)p->Get_Data())->Get_Shape_Type());
+					pDataObject	= SG_Create_Shapes(((CParameter_Shapes *)p->Get_Data())->Get_Shape_Type());
 					break;
 
 				case PARAMETER_TYPE_TIN:
-					pDataObject	= API_Create_TIN();
+					pDataObject	= SG_Create_TIN();
 					break;
 				}
 
@@ -1165,7 +1165,7 @@ bool CParameters::DataObjects_Create(void)
 				if( pDataObject )
 				{
 					pDataObject->Set_Name(p->Get_Name());
-					API_Callback_DataObject_Add(pDataObject, false);
+					SG_Callback_DataObject_Add(pDataObject, false);
 				}
 			}
 		}
@@ -1201,16 +1201,16 @@ bool CParameters::DataObjects_Synchronize(void)
 					{
 						if( p->asDataObject() )
 						{
-							API_Callback_DataObject_Add		(p->asDataObject(), false);
-							API_Callback_DataObject_Update	(p->asDataObject(), false, NULL);
+							SG_Callback_DataObject_Add		(p->asDataObject(), false);
+							SG_Callback_DataObject_Update	(p->asDataObject(), false, NULL);
 						}
 					}
 					else if( p->is_DataObject_List() )
 					{
 						for(int j=0; j<p->asList()->Get_Count(); j++)
 						{
-							API_Callback_DataObject_Add		(p->asList()->asDataObject(j), false);
-							API_Callback_DataObject_Update	(p->asList()->asDataObject(j), false, NULL);
+							SG_Callback_DataObject_Add		(p->asList()->asDataObject(j), false);
+							SG_Callback_DataObject_Update	(p->asList()->asDataObject(j), false, NULL);
 						}
 					}
 				}
@@ -1229,7 +1229,7 @@ bool CParameters::DataObjects_Synchronize(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CParameters::Get_String(CAPI_String &String, bool bOptionsOnly)
+bool CParameters::Get_String(CSG_String &String, bool bOptionsOnly)
 {
 	bool	bResult	= false;
 
@@ -1243,7 +1243,7 @@ bool CParameters::Get_String(CAPI_String &String, bool bOptionsOnly)
 			{
 				bResult	= true;
 
-				String.Append(CAPI_String::Format("\n[%s] %s: %s",
+				String.Append(CSG_String::Format("\n[%s] %s: %s",
 					m_Parameters[i]->Get_Type_Name(),
 					m_Parameters[i]->Get_Name(),
 					m_Parameters[i]->asString())
@@ -1258,11 +1258,11 @@ bool CParameters::Get_String(CAPI_String &String, bool bOptionsOnly)
 //---------------------------------------------------------
 bool CParameters::Msg_String(bool bOptionsOnly)
 {
-	CAPI_String	s;
+	CSG_String	s;
 
 	if( Get_String(s, bOptionsOnly) )
 	{
-		API_Callback_Message_Add_Execution(s, true);
+		SG_Callback_Message_Add_Execution(s, true);
 
 		return( true );
 	}
@@ -1271,7 +1271,7 @@ bool CParameters::Msg_String(bool bOptionsOnly)
 }
 
 //---------------------------------------------------------
-bool CParameters::Set_History(CHistory &History, bool bOptions, bool bDataObjects)
+bool CParameters::Set_History(CSG_History &History, bool bOptions, bool bDataObjects)
 {
 	int			i, j;
 	CDataObject	*pObject;

@@ -56,7 +56,7 @@ bool CShapes_Merge::On_Execute(void){
 
 	CTable *pTable;
 	CShapes *pShapes, *pOutput;
-	TGEO_Point	Point;
+	TSG_Point	Point;
 	CShape *pShape, *pShape2;
 	CParameter_Shapes_List	*pShapesList;
 	CShapes* pMainShapes;
@@ -64,7 +64,7 @@ bool CShapes_Merge::On_Execute(void){
 	int iLayer, iField;
 	int iFieldMain, iFieldAdditional;
 	std::vector<int> FieldsMain, FieldsAdditional;
-	CAPI_String sName1,sName2;
+	CSG_String sName1,sName2;
 	
 	pOutput = Parameters("OUT")->asShapes();
 	pMainShapes = Parameters("MAIN")->asShapes();

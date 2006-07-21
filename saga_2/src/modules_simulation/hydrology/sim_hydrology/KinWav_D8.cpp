@@ -126,13 +126,10 @@ CKinWav_D8::~CKinWav_D8(void)
 //---------------------------------------------------------
 bool CKinWav_D8::Initialize(void)
 {
-	char	s[64];
-
-	int		x, y, i, ix, iy, iMax;
-
-	double	z, dz, dzMax, Roughness, t;
-
-	CColors	Colors;
+	int			x, y, i, ix, iy, iMax;
+	double		z, dz, dzMax, Roughness, t;
+	CSG_Colors	Colors;
+	CSG_String	s;
 
 
 	//-----------------------------------------------------
@@ -216,10 +213,10 @@ bool CKinWav_D8::Initialize(void)
 					if( pGauges )
 					{
 						i				= pGauges->Get_Field_Count() - 1;
-						sprintf(s, "GAUGE_%02d", i + 1);
+						s.Printf("GAUGE_%02d", i + 1);
 						pGauges->Add_Field(s, TABLE_FIELDTYPE_Double);
 
-						pos_Gauges		= (TPoint *)API_Realloc(pos_Gauges, (i + 1) * sizeof(TPoint));
+						pos_Gauges		= (TPoint *)SG_Realloc(pos_Gauges, (i + 1) * sizeof(TPoint));
 						pos_Gauges[i].x	= x;
 						pos_Gauges[i].y	= y;
 					}
@@ -287,7 +284,7 @@ bool CKinWav_D8::Finalize(void)
 
 	if( pos_Gauges )
 	{
-		API_Free(pos_Gauges);
+		SG_Free(pos_Gauges);
 	}
 
 	return( true );
@@ -303,12 +300,9 @@ bool CKinWav_D8::Finalize(void)
 //---------------------------------------------------------
 bool CKinWav_D8::On_Execute(void)
 {
-	char			s[128];
-
 	int				x, y, n;
-
 	double			Time, Time_End;
-
+	CSG_String		s;
 	CTable_Record	*pRecord;
 
 	//-----------------------------------------------------
@@ -329,7 +323,7 @@ bool CKinWav_D8::On_Execute(void)
 //			}
 //			else	P	= 0.0;
 
-			sprintf(s, _TL("Simulation Time [h]: %f / %f"), Time, Time_End);
+			s.Printf(_TL("Simulation Time [h]: %f / %f"), Time, Time_End);
 			Process_Set_Text(s);
 
 			//---------------------------------------------

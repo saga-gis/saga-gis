@@ -83,7 +83,7 @@ protected:
 
 private:
 
-	bool					Tile_Load(const char *sTile, TGEO_Rect &rTile, CGrid *pOut, TGEO_Rect &rOut);
+	bool					Tile_Load(const char *sTile, TSG_Rect &rTile, CGrid *pOut, TSG_Rect &rOut);
 	FILE *					Tile_Open(const char *sTile);
 
 };

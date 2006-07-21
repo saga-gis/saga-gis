@@ -55,7 +55,7 @@ bool CQueryBuilder::On_Execute(void){
 
 	CShapes* pShapes;
 	CTable *pTable;
-	CAPI_String sExpression;
+	CSG_String sExpression;
 	CQueryParser *pParser;	
 	bool *pRecordWasSelected;
 	int *pSelectedRecords;

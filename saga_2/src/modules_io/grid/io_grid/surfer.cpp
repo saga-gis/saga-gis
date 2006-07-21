@@ -107,7 +107,7 @@ CSurfer_Import::CSurfer_Import(void)
 		NULL	, "NODATA"	, _TL("No Data Value"),
 		"",
 
-		CAPI_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s|",
 			_TL("Surfer's No Data Value"),
 			_TL("User Defined")
 		), 0
@@ -179,9 +179,9 @@ bool CSurfer_Import::On_Execute(void)
 					fread(&lValue, 1, sizeof(long)	, Stream);	// SectionSize...
 
 					//-------------------------------------
-					if( !feof(Stream) && (pGrid = API_Create_Grid(GRID_TYPE_Double, NX, NY, DX, xMin, yMin)) != NULL )
+					if( !feof(Stream) && (pGrid = SG_Create_Grid(GRID_TYPE_Double, NX, NY, DX, xMin, yMin)) != NULL )
 					{
-						dLine	= (double *)API_Malloc(pGrid->Get_NX() * sizeof(double));
+						dLine	= (double *)SG_Malloc(pGrid->Get_NX() * sizeof(double));
 
 						for(y=0; y<pGrid->Get_NY() && !feof(Stream) && Set_Progress(y, pGrid->Get_NY()); y++)
 						{
@@ -193,7 +193,7 @@ bool CSurfer_Import::On_Execute(void)
 							}
 						}
 
-						API_Free(dLine);
+						SG_Free(dLine);
 					}
 				}
 			}
@@ -221,9 +221,9 @@ bool CSurfer_Import::On_Execute(void)
 			fread(&dValue	, 1, sizeof(double)	, Stream);	// ZMax...
 
 			//---------------------------------------------
-			if( !feof(Stream) && (pGrid = API_Create_Grid(GRID_TYPE_Float, NX, NY, DX, xMin, yMin)) != NULL )
+			if( !feof(Stream) && (pGrid = SG_Create_Grid(GRID_TYPE_Float, NX, NY, DX, xMin, yMin)) != NULL )
 			{
-				fLine	= (float *)API_Malloc(pGrid->Get_NX() * sizeof(float));
+				fLine	= (float *)SG_Malloc(pGrid->Get_NX() * sizeof(float));
 
 				for(y=0; y<pGrid->Get_NY() && !feof(Stream) && Set_Progress(y, pGrid->Get_NY()); y++)
 				{
@@ -235,7 +235,7 @@ bool CSurfer_Import::On_Execute(void)
 					}
 				}
 
-				API_Free(fLine);
+				SG_Free(fLine);
 			}
 		}
 
@@ -255,7 +255,7 @@ bool CSurfer_Import::On_Execute(void)
 			fscanf(Stream, "%lf %lf", &dValue, &dValue);
 
 			//---------------------------------------------
-			if( !feof(Stream) && (pGrid = API_Create_Grid(GRID_TYPE_Float, NX, NY, DX, xMin, yMin)) != NULL )
+			if( !feof(Stream) && (pGrid = SG_Create_Grid(GRID_TYPE_Float, NX, NY, DX, xMin, yMin)) != NULL )
 			{
 				for(y=0; y<pGrid->Get_NY() && !feof(Stream) && Set_Progress(y, pGrid->Get_NY()); y++)
 				{
@@ -388,7 +388,7 @@ bool CSurfer_Export::On_Execute(void)
 			fwrite(&dValue	, 1, sizeof(double), Stream);
 
 			//---------------------------------------------
-			fLine	= (float *)API_Malloc(pGrid->Get_NX() * sizeof(float));
+			fLine	= (float *)SG_Malloc(pGrid->Get_NX() * sizeof(float));
 
 			for(y=0; y<pGrid->Get_NY() && Set_Progress(y, pGrid->Get_NY()); y++)
 			{
@@ -400,7 +400,7 @@ bool CSurfer_Export::On_Execute(void)
 				fwrite(fLine, pGrid->Get_NX(), sizeof(float), Stream);
 			}
 
-			API_Free(fLine);
+			SG_Free(fLine);
 
 			fclose(Stream);
 

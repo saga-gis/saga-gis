@@ -27,7 +27,7 @@
 class CShapeSearchSelector  
 {
 public:
-	CShapeSearchSelector(CShapes*,CAPI_String);
+	CShapeSearchSelector(CShapes*,CSG_String);
 	virtual ~CShapeSearchSelector();
 	int& GetSelectedRecords();
 	int GetSelectedRecordsCount();

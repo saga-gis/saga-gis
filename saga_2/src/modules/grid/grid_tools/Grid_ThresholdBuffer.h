@@ -33,8 +33,10 @@ private:
 	CGrid* m_pThresholdGrid;
 	double m_dThreshold;
 	int m_iThresholdType;
-	CAPI_3D_iPoints	m_pCentralPoints;
-	CAPI_3D_iPoints	m_pAdjPoints;
+//	CAPI_3D_iPoints	m_pCentralPoints;
+//	CAPI_3D_iPoints	m_pAdjPoints;
+	CSG_Points_Int	m_pCentralPoints;
+	CSG_Points_Int	m_pAdjPoints;
 	
 	void BufferPoint(int,int);
 

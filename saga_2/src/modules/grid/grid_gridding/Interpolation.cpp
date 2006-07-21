@@ -95,7 +95,7 @@ CInterpolation::CInterpolation(void)
 		NULL	, "TARGET_TYPE"	, _TL("Target Dimensions"),
 		"",
 
-		CAPI_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|",
 			_TL("user defined"),
 			_TL("grid system"),
 			_TL("grid")
@@ -199,7 +199,7 @@ CGrid * CInterpolation::_Get_Target_Grid(CParameters *pParameters, CShapes *pSha
 	nx			= 1 + (int)((xMax - xMin) / Cell_Size);
 	ny			= 1 + (int)((yMax - yMin) / Cell_Size);
 
-	return( API_Create_Grid(GRID_TYPE_Float, nx, ny, Cell_Size, xMin, yMin) );
+	return( SG_Create_Grid(GRID_TYPE_Float, nx, ny, Cell_Size, xMin, yMin) );
 }
 
 
@@ -236,7 +236,7 @@ bool CInterpolation::On_Execute(void)
 		case 1:	// Grid Project...
 			if( Dlg_Extra_Parameters("SYSTEM") && (pSystem = Get_Extra_Parameters("SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System()) != NULL )
 			{
-				pGrid	= API_Create_Grid(*pSystem, GRID_TYPE_Float);
+				pGrid	= SG_Create_Grid(*pSystem, GRID_TYPE_Float);
 			}
 			break;
 
@@ -251,7 +251,7 @@ bool CInterpolation::On_Execute(void)
 		//-------------------------------------------------
 		if( pGrid )
 		{
-			pGrid->Set_Name(CAPI_String::Format("%s (%s)", pShapes->Get_Name(), Get_Name()));
+			pGrid->Set_Name(CSG_String::Format("%s (%s)", pShapes->Get_Name(), Get_Name()));
 			pGrid->Assign_NoData();
 			Parameters("OUTPUT")->Set_Value(pGrid);
 

@@ -90,7 +90,7 @@ private:
 
 	int							m_Interpolation;
 
-	CMAT_Regression_Multiple	m_Regression;
+	CSG_Regression_Multiple		m_Regression;
 
 
 	bool						Get_Regression		(CParameter_Grid_List *pGrids, CShapes *pShapes, int iAttribute);

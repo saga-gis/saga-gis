@@ -127,7 +127,7 @@ bool CSurfer_BLN_Import::On_Execute(void)
 	double			x, y;
 	FILE			*Stream;
 	TShape_Type		Type;
-	CAPI_String		FileName, sLine, sName, sDesc, sTemp;
+	CSG_String		FileName, sLine, sName, sDesc, sTemp;
 	CTable_Record	*pRecord;
 	CTable			*pTable;
 	CShape			*pShape;
@@ -151,13 +151,13 @@ bool CSurfer_BLN_Import::On_Execute(void)
 		bOk		= true;
 		ID		= 0;
 
-		pShapes->Create(Type, API_Extract_File_Name(FileName, true));
+		pShapes->Create(Type, SG_File_Get_Name(FileName, true));
 
 		if( Type == SHAPE_TYPE_Point )
 		{
 			if( pTable == NULL )
 			{
-				pTable	= API_Create_Table();
+				pTable	= SG_Create_Table();
 				Parameters("TABLE")->Set_Value(pTable);
 			}
 			else
@@ -183,9 +183,9 @@ bool CSurfer_BLN_Import::On_Execute(void)
 		}
 
 		//-------------------------------------------------
-		while( bOk && API_Read_Line(Stream, sLine) && sLine.BeforeFirst(',').asInt(nPoints) && nPoints > 0 && Process_Get_Okay(true) )
+		while( bOk && SG_Read_Line(Stream, sLine) && sLine.BeforeFirst(',').asInt(nPoints) && nPoints > 0 && Process_Get_Okay(true) )
 		{
-			Process_Set_Text(CAPI_String::Format("%d. %s", ++ID, _TL("shape in process")));
+			Process_Set_Text(CSG_String::Format("%d. %s", ++ID, _TL("shape in process")));
 
 			sTemp	= sLine.AfterFirst (',');	sLine	= sTemp;
 			Flag	= sLine.BeforeFirst(',').asInt();
@@ -208,7 +208,7 @@ bool CSurfer_BLN_Import::On_Execute(void)
 
 				for(iPoint=0; iPoint<nPoints && bOk; iPoint++)
 				{
-					if( (bOk = API_Read_Line(Stream, sLine)) == true )
+					if( (bOk = SG_Read_Line(Stream, sLine)) == true )
 					{
 						pShape	= pShapes->Add_Shape();
 						pShape->Get_Record()->Set_Value(0, iPoint + 1);
@@ -231,7 +231,7 @@ bool CSurfer_BLN_Import::On_Execute(void)
 
 				for(iPoint=0; iPoint<nPoints && bOk; iPoint++)
 				{
-					if( (bOk = API_Read_Line(Stream, sLine)) == true )
+					if( (bOk = SG_Read_Line(Stream, sLine)) == true )
 					{
 						x	= sLine.BeforeFirst(',').asDouble();
 						y	= sLine.AfterFirst (',').asDouble();
@@ -337,7 +337,7 @@ bool CSurfer_BLN_Export::On_Execute(void)
 	int			iShape, iPart, iPoint, iName, iDesc, iZVal, Flag;
 	double		z;
 	FILE		*Stream;
-	TGEO_Point	p;
+	TSG_Point	p;
 	CShape		*pShape;
 	CShapes		*pShapes;
 

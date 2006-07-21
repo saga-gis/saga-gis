@@ -109,7 +109,7 @@ bool CGrid_Plotter::On_Execute(void)
 
 	const char *formel  = Parameters("FORMUL")->asString();
 
-	CMAT_Formula Formel;
+	CSG_Formula Formel;
 
 	Formel.Set_Formula(formel);
 
@@ -117,7 +117,7 @@ bool CGrid_Plotter::On_Execute(void)
 	const char * Msg;
 	if (Formel.Get_Error(&Pos,&Msg))
 	{
-		CAPI_String	msg;
+		CSG_String	msg;
 		msg.Printf(_TL("Error at character #%d of the function: \n%s\n"), Pos, formel);
 		
 		Message_Add(msg);

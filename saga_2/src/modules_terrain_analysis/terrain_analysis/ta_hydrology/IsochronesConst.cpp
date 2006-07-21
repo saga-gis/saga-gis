@@ -99,7 +99,7 @@ bool CIsochronesConst::On_Execute_Finish(void)
 	return( true );
 }
 
-bool CIsochronesConst::On_Execute_Position(CGEO_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CIsochronesConst::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
 {	
 	int x,y;
 	int iX, iY;		

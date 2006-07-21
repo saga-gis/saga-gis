@@ -577,7 +577,7 @@ bool CWKSP_Module::Execute(bool bDialog)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Module::Execute(CGEO_Point ptWorld, TModule_Interactive_Mode Mode, int Keys)
+bool CWKSP_Module::Execute(CSG_Point ptWorld, TModule_Interactive_Mode Mode, int Keys)
 {
 	bool	bResult	= false;
 

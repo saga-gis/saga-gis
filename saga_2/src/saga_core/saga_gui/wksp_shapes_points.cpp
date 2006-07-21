@@ -153,7 +153,7 @@ void CWKSP_Shapes_Points::_Draw_Initialize(CWKSP_Map_DC &dc_Map)
 void CWKSP_Shapes_Points::_Draw_Shape(CWKSP_Map_DC &dc_Map, CShape *pShape, bool bSelection)
 {
 	int			iPart, iPoint;
-	TAPI_iPoint	p;
+	TSG_Point_Int	p;
 
 	//-----------------------------------------------------
 	CWKSP_Shapes_Point::_Draw_Shape(dc_Map, pShape, bSelection);
@@ -172,7 +172,7 @@ void CWKSP_Shapes_Points::_Draw_Shape(CWKSP_Map_DC &dc_Map, CShape *pShape, bool
 //---------------------------------------------------------
 void CWKSP_Shapes_Points::_Draw_Label(CWKSP_Map_DC &dc_Map, CShape *pShape)
 {
-	TAPI_iPoint	p(dc_Map.World2DC(pShape->Get_Extent().Get_Center()));
+	TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Extent().Get_Center()));
 
 	dc_Map.dc.DrawText(pShape->Get_Record()->asString(m_iLabel), p.x, p.y);
 }

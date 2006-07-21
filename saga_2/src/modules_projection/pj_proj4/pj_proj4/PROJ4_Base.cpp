@@ -108,7 +108,7 @@ bool CPROJ4_Base::Initialize(void)
 	struct PJ_ELLPS		*pEllipses;
 //	struct PJ_DATUMS	*pDatums;
 	struct PJ_UNITS		*pUnits;
-	CAPI_String			sList, sName, sDesc;
+	CSG_String			sList, sName, sDesc;
 	CParameter			*pNode_0, *pNode_1, *pNode_2, *pNode_3;
 
 	//-----------------------------------------------------
@@ -149,8 +149,8 @@ bool CPROJ4_Base::Initialize(void)
 				}
 			}
 
-			sList	+= CAPI_String::Format("%s|", sName.c_str());
-			sDesc	+= CAPI_String::Format("\n[%s] %s", pProjections->id, *pProjections->descr);
+			sList	+= CSG_String::Format("%s|", sName.c_str());
+			sDesc	+= CSG_String::Format("\n[%s] %s", pProjections->id, *pProjections->descr);
 
 			Initialize_ExtraParms(pProjections, sName);
 		}
@@ -183,7 +183,7 @@ bool CPROJ4_Base::Initialize(void)
 
 		for(pEllipses=pj_ellps; pEllipses->id; ++pEllipses)
 		{
-			sList	+= CAPI_String::Format("%s (%s, %s)|", pEllipses->name, pEllipses->major, pEllipses->ell);
+			sList	+= CSG_String::Format("%s (%s, %s)|", pEllipses->name, pEllipses->major, pEllipses->ell);
 		}
 
 		if( sList.Length() > 0 )
@@ -239,11 +239,11 @@ bool CPROJ4_Base::Initialize(void)
 
 		for(pDatums=pj_datums; pDatums->id; ++pDatums)
 		{
-			sList	+= CAPI_String::Format(sName, "%s (%s) ", pDatums->defn, pDatums->ellipse_id);
+			sList	+= CSG_String::Format(sName, "%s (%s) ", pDatums->defn, pDatums->ellipse_id);
 
 			if( pDatums->comments != NULL && strlen(pDatums->comments) > 0 )
 			{
-				sList	+= CAPI_String::Format(%s", pDatums->comments);
+				sList	+= CSG_String::Format(%s", pDatums->comments);
 			}
 
 			sList	+= '|';
@@ -266,7 +266,7 @@ bool CPROJ4_Base::Initialize(void)
 
 		for(pUnits=pj_units; pUnits->id; ++pUnits)
 		{
-			sList	+= CAPI_String::Format("%s (%s)|", pUnits->name, pUnits->to_meter);
+			sList	+= CSG_String::Format("%s (%s)|", pUnits->name, pUnits->to_meter);
 		}
 
 		if( sList.Length() > 0 )
@@ -580,8 +580,8 @@ bool CPROJ4_Base::On_Execute(void)
 
 //---------------------------------------------------------
 #define ADD_PARG(sKey, sVal)	s.Printf(sKey, sVal);\
-								pargv			= (char **)API_Realloc(pargv, (pargc + 1) * sizeof(char *));\
-								pargv[pargc]	= (char  *)API_Malloc((s.Length() + 1)    * sizeof(char  ));\
+								pargv			= (char **)SG_Realloc(pargv, (pargc + 1) * sizeof(char *));\
+								pargv[pargc]	= (char  *)SG_Malloc((s.Length() + 1)    * sizeof(char  ));\
 								memcpy(pargv[pargc], s.c_str(), s.Length() + 1);\
 								pargc++;
 
@@ -591,7 +591,7 @@ bool CPROJ4_Base::Set_Transformation(bool bHistory)
 	bool		bResult;
 	char		**pargv;
 	int			pargc, i;
-	CAPI_String	s;
+	CSG_String	s;
 
 	//-----------------------------------------------------
 	bResult		= true;
@@ -671,10 +671,10 @@ bool CPROJ4_Base::Set_Transformation(bool bHistory)
 	//-----------------------------------------------------
 	for(i=0; i<pargc; i++)
 	{
-		API_Free(pargv[i]);
+		SG_Free(pargv[i]);
 	}
 
-	API_Free(pargv);
+	SG_Free(pargv);
 
 	return( bResult );
 }
@@ -684,7 +684,7 @@ bool CPROJ4_Base::Get_ExtraParms(int &pargc, char ***p_pargv, char *id)
 {
 	char		**pargv;
 	int			i;
-	CAPI_String	s, sFormat;
+	CSG_String	s, sFormat;
 	CParameters	*pParms;
 	CParameter	*pParm;
 
@@ -761,7 +761,7 @@ bool CPROJ4_Base::Set_Transformation_Inverse(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPROJ4_Base::Get_Converted(TGEO_Point &Point)
+bool CPROJ4_Base::Get_Converted(TSG_Point &Point)
 {
 	return( Get_Converted(Point.x, Point.y) );
 }

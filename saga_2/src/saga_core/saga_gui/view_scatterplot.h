@@ -124,7 +124,7 @@ private:
 
 	CTable							*m_pTable;
 
-	CMAT_Regression					m_Regression;
+	CSG_Regression					m_Regression;
 
 	CParameters						m_Parameters;
 

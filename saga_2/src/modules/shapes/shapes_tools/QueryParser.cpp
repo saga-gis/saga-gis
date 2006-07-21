@@ -19,9 +19,9 @@
 
 #include "QueryParser.h"
 
-CQueryParser::CQueryParser(CShapes *pShapes, CAPI_String sExpression){
+CQueryParser::CQueryParser(CShapes *pShapes, CSG_String sExpression){
 
-	CMAT_Formula Formula;
+	CSG_Formula Formula;
 	int i,j;
 	int iFields;
 	CTable *pTable;

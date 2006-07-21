@@ -116,7 +116,7 @@ bool CTable_Create_Empty::On_Execute(void)
 {
 	int					iField, nFields, iType;
 	TTable_FieldType	Type;
-	CAPI_String			Name, Types, s;
+	CSG_String			Name, Types, s;
 	CTable				*pTable;
 	CParameters			P;
 	CParameter			*pNode;
@@ -141,7 +141,7 @@ bool CTable_Create_Empty::On_Execute(void)
 	for(iField=1; iField<=nFields; iField++)
 	{
 		s.Printf("NODE_%03d", iField);
-		pNode	= P.Add_Node(NULL, s, CAPI_String::Format("%d. %s", iField, _TL("Field")), "");
+		pNode	= P.Add_Node(NULL, s, CSG_String::Format("%d. %s", iField, _TL("Field")), "");
 
 		s.Printf("FIELD_%03d", iField);
 		P.Add_String(pNode, s, _TL("Name"), _TL(""), s);
@@ -157,8 +157,8 @@ bool CTable_Create_Empty::On_Execute(void)
 
 		for(iField=0; iField<nFields; iField++)
 		{
-			Name	= P(CAPI_String::Format("FIELD_%03d", iField + 1).c_str())->asString();
-			iType	= P(CAPI_String::Format("TYPE_%03d" , iField + 1).c_str())->asInt();
+			Name	= P(CSG_String::Format("FIELD_%03d", iField + 1).c_str())->asString();
+			iType	= P(CSG_String::Format("TYPE_%03d" , iField + 1).c_str())->asInt();
 
 			switch( iType )
 			{

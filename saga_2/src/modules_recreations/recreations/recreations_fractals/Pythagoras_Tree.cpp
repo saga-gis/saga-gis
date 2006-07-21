@@ -141,7 +141,7 @@ CPythagoras_Tree::~CPythagoras_Tree(void)
 //---------------------------------------------------------
 bool CPythagoras_Tree::On_Execute(void)
 {
-	TGEO_Point	pt_A, pt_B;
+	TSG_Point	pt_A, pt_B;
 
 	pShapes		= Parameters("RESULT")	->asShapes();
 	pShapes->Create(Parameters("TYPE")->asInt() == 0 ? SHAPE_TYPE_Line : SHAPE_TYPE_Polygon, _TL("Pythagoras' Tree"));
@@ -185,10 +185,10 @@ bool CPythagoras_Tree::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CPythagoras_Tree::Set_Quadrat(TGEO_Point pt_A0, TGEO_Point pt_B0)
+void CPythagoras_Tree::Set_Quadrat(TSG_Point pt_A0, TSG_Point pt_B0)
 {
 	double		dx, dy;
-	TGEO_Point	pt_A1, pt_B1;
+	TSG_Point	pt_A1, pt_B1;
 
 	if( Process_Get_Okay(false) )
 	{
@@ -252,7 +252,7 @@ void CPythagoras_Tree::Set_Quadrat(TGEO_Point pt_A0, TGEO_Point pt_B0)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CPythagoras_Tree::Add_Shape(TGEO_Point pt_A, TGEO_Point pt_B, TGEO_Point pt_C, TGEO_Point pt_D)
+void CPythagoras_Tree::Add_Shape(TSG_Point pt_A, TSG_Point pt_B, TSG_Point pt_C, TSG_Point pt_D)
 {
 	CShape	*pShape;
 
@@ -272,7 +272,7 @@ void CPythagoras_Tree::Add_Shape(TGEO_Point pt_A, TGEO_Point pt_B, TGEO_Point pt
 }
 
 //---------------------------------------------------------
-void CPythagoras_Tree::Add_Shape(TGEO_Point pt_A, TGEO_Point pt_B, TGEO_Point pt_C)
+void CPythagoras_Tree::Add_Shape(TSG_Point pt_A, TSG_Point pt_B, TSG_Point pt_C)
 {
 	CShape	*pShape;
 

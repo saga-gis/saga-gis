@@ -179,7 +179,7 @@ int CPit_Router::Get_Routes(CGrid *pDEM, CGrid *pRoute, double Threshold)
 		//-------------------------------------------------
 		// 1. Pits/Flats finden...
 
-		API_Callback_Process_Set_Text("Find Pits");
+		SG_Callback_Process_Set_Text("Find Pits");
 
 		nPits	= Find_Pits();
 
@@ -188,7 +188,7 @@ int CPit_Router::Get_Routes(CGrid *pDEM, CGrid *pRoute, double Threshold)
 			//---------------------------------------------
 			// 2. Pit/Flat-Zugehoerigkeiten u. pot. m_Outlets finden...
 
-			API_Callback_Process_Set_Text(_TL("Find Outlets"));
+			SG_Callback_Process_Set_Text(_TL("Find Outlets"));
 
 			Find_Outlets(nPits);
 
@@ -196,7 +196,7 @@ int CPit_Router::Get_Routes(CGrid *pDEM, CGrid *pRoute, double Threshold)
 			//---------------------------------------------
 			// 3. Routing vornehmen...
 
-			API_Callback_Process_Set_Text(_TL("Routing"));
+			SG_Callback_Process_Set_Text(_TL("Routing"));
 
 			iPit	= 0;
 
@@ -204,7 +204,7 @@ int CPit_Router::Get_Routes(CGrid *pDEM, CGrid *pRoute, double Threshold)
 			{
 				pOutlet	= m_Outlets;
 
-				while( pOutlet && API_Callback_Process_Get_Okay(false) )
+				while( pOutlet && SG_Callback_Process_Get_Okay(false) )
 				{
 					pNext	= pOutlet->Next;
 					n		= Find_Route(pOutlet);
@@ -213,7 +213,7 @@ int CPit_Router::Get_Routes(CGrid *pDEM, CGrid *pRoute, double Threshold)
 					{
 						pOutlet	= m_Outlets;
 						iPit	+= n;
-						API_Callback_Process_Set_Progress(iPit, nPits);
+						SG_Callback_Process_Set_Progress(iPit, nPits);
 					}
 					else
 					{
@@ -234,7 +234,7 @@ int CPit_Router::Get_Routes(CGrid *pDEM, CGrid *pRoute, double Threshold)
 					}
 				}
 			}
-			while( iPit < nPits && API_Callback_Process_Set_Progress(iPit, nPits) );
+			while( iPit < nPits && SG_Callback_Process_Set_Progress(iPit, nPits) );
 		}
 	}
 
@@ -247,7 +247,7 @@ int CPit_Router::Get_Routes(CGrid *pDEM, CGrid *pRoute, double Threshold)
 	{
 		if( nPits > 0 )
 		{
-			Message_Add(CAPI_String::Format(_TL("%d sinks have been processed."), nPits));
+			Message_Add(CSG_String::Format(_TL("%d sinks have been processed."), nPits));
 
 			return( nPits );
 		}
@@ -277,7 +277,7 @@ bool CPit_Router::Initialize(void)
 	{
 		m_pRoute->Assign();
 
-		m_pPits		= API_Create_Grid(m_pDEM, GRID_TYPE_Int);
+		m_pPits		= SG_Create_Grid(m_pDEM, GRID_TYPE_Int);
 		m_pPits->Assign();
 
 		m_Pit		= NULL;
@@ -306,7 +306,7 @@ void CPit_Router::Finalize(void)
 
 	if( m_Pit )
 	{
-		API_Free(m_Pit);
+		SG_Free(m_Pit);
 		m_Pit		= NULL;
 	}
 
@@ -318,14 +318,14 @@ void CPit_Router::Finalize(void)
 
 	if( m_Flat )
 	{
-		API_Free(m_Flat);
+		SG_Free(m_Flat);
 		m_Flat		= NULL;
 	}
 
 	while( m_Outlets )
 	{
 		pOutlet		= m_Outlets->Next;
-		API_Free(m_Outlets);
+		SG_Free(m_Outlets);
 		m_Outlets	= pOutlet;
 	}
 
@@ -352,7 +352,7 @@ int CPit_Router::Find_Pits(void)
 	nFlats		= 0;
 	nPits		= 0;
 
-	for(n=0; n<m_System.Get_NCells() && API_Callback_Process_Set_Progress(n, m_System.Get_NCells()); n++)
+	for(n=0; n<m_System.Get_NCells() && SG_Callback_Process_Set_Progress(n, m_System.Get_NCells()); n++)
 	{
 		m_pDEM->Get_Sorted(n,x,y,false);	// von tief nach hoch...
 
@@ -386,7 +386,7 @@ int CPit_Router::Find_Pits(void)
 
 				m_pPits->Set_Value(x,y, nPits);
 
-				m_Pit				= (TPit *)API_Realloc(m_Pit, nPits * sizeof(TPit));
+				m_Pit				= (TPit *)SG_Realloc(m_Pit, nPits * sizeof(TPit));
 				pPit			= m_Pit + nPits - 1;
 				pPit->bDrained	= false;
 				pPit->z			= z;
@@ -395,7 +395,7 @@ int CPit_Router::Find_Pits(void)
 				{
 					nFlats++;
 
-					m_Flat			= (TGEO_iRect *)API_Realloc(m_Flat, nFlats * sizeof(TGEO_iRect));
+					m_Flat			= (TGEO_iRect *)SG_Realloc(m_Flat, nFlats * sizeof(TGEO_iRect));
 
 					Mark_Flat(x, y, m_Flat + nFlats - 1, nFlats, nPits);
 				}
@@ -421,15 +421,15 @@ int CPit_Router::Find_Outlets(int nPits)
 	TPit_Outlet	*pOutlet;
 
 	//-----------------------------------------------------
-	if( nPits > 0 && API_Callback_Process_Get_Okay(false) )
+	if( nPits > 0 && SG_Callback_Process_Get_Okay(false) )
 	{
 		pOutlet		= NULL;
 
-		m_nJunctions	= (int  *)API_Calloc(nPits, sizeof(int  ));
-		m_Junction	= (int **)API_Calloc(nPits, sizeof(int *));
+		m_nJunctions	= (int  *)SG_Calloc(nPits, sizeof(int  ));
+		m_Junction	= (int **)SG_Calloc(nPits, sizeof(int *));
 
 		//-------------------------------------------------
-		for(n=0; n<m_System.Get_NCells() && API_Callback_Process_Set_Progress(n, m_System.Get_NCells()); n++)
+		for(n=0; n<m_System.Get_NCells() && SG_Callback_Process_Set_Progress(n, m_System.Get_NCells()); n++)
 		{
 			m_pDEM->Get_Sorted(n, x, y, false);	// von tief nach hoch...
 
@@ -497,13 +497,13 @@ int CPit_Router::Find_Outlets(int nPits)
 				{
 					if( pOutlet )
 					{
-						pOutlet->Next		= (TPit_Outlet *)API_Malloc(sizeof(TPit_Outlet));
+						pOutlet->Next		= (TPit_Outlet *)SG_Malloc(sizeof(TPit_Outlet));
 						pOutlet->Next->Prev	= pOutlet;
 						pOutlet				= pOutlet->Next;
 					}
 					else
 					{
-						m_Outlets	= pOutlet	= (TPit_Outlet *)API_Malloc(sizeof(TPit_Outlet));
+						m_Outlets	= pOutlet	= (TPit_Outlet *)SG_Malloc(sizeof(TPit_Outlet));
 						m_Outlets->Prev		= NULL;
 					}
 
@@ -545,13 +545,13 @@ int CPit_Router::Find_Outlets(int nPits)
 		{
 			if( m_Junction[i] )
 			{
-				API_Free(m_Junction[i]);
+				SG_Free(m_Junction[i]);
 			}
 		}
 
-		API_Free(m_Junction);
+		SG_Free(m_Junction);
 
-		API_Free(m_nJunctions);
+		SG_Free(m_nJunctions);
 	}
 
 	return( 0 );
@@ -664,7 +664,7 @@ int CPit_Router::Find_Route(TPit_Outlet *pOutlet)
 				}
 				else
 				{
-					API_Callback_Message_Add_Error("Routing Error");
+					SG_Callback_Message_Add_Error("Routing Error");
 				}
 			}
 
@@ -705,7 +705,7 @@ int CPit_Router::Find_Route(TPit_Outlet *pOutlet)
 			pOutlet->Next->Prev	= pOutlet->Prev;
 		}
 
-		API_Free(pOutlet);
+		SG_Free(pOutlet);
 	}
 
 	return( nPitsDrained );
@@ -736,7 +736,7 @@ void CPit_Router::Add_Junction(int iID, int jID)
 
 		i	= m_nJunctions[iID];
 
-		m_Junction[iID]			= (int *)API_Realloc(m_Junction[iID], i * sizeof(int));
+		m_Junction[iID]			= (int *)SG_Realloc(m_Junction[iID], i * sizeof(int));
 		m_Junction[iID][i-1]	= jID;
 	}
 }
@@ -919,7 +919,7 @@ void CPit_Router::Mark_Flat(int x, int y, TGEO_iRect *pFlat, int Flat_ID, int Pi
 	//-----------------------------------------------------
 	if( !m_pFlats )
 	{
-		m_pFlats		= API_Create_Grid(m_pDEM, GRID_TYPE_Int);
+		m_pFlats		= SG_Create_Grid(m_pDEM, GRID_TYPE_Int);
 		//m_pFlats->Set_Cache(false);
 	}
 
@@ -975,9 +975,9 @@ void CPit_Router::Mark_Flat(int x, int y, TGEO_iRect *pFlat, int Flat_ID, int Pi
 			if( nStack <= iStack )
 			{
 				nStack	= iStack + 32;
-				xMem	= (int  *)API_Realloc(xMem, nStack * sizeof(int ));
-				yMem	= (int  *)API_Realloc(yMem, nStack * sizeof(int ));
-				iMem	= (int  *)API_Realloc(iMem, nStack * sizeof(int ));
+				xMem	= (int  *)SG_Realloc(xMem, nStack * sizeof(int ));
+				yMem	= (int  *)SG_Realloc(yMem, nStack * sizeof(int ));
+				iMem	= (int  *)SG_Realloc(iMem, nStack * sizeof(int ));
 			}
 
 			xMem[iStack]	= x;
@@ -1006,9 +1006,9 @@ void CPit_Router::Mark_Flat(int x, int y, TGEO_iRect *pFlat, int Flat_ID, int Pi
 	//-----------------------------------------------------
 	if( nStack > 0 )
 	{
-		API_Free(xMem);
-		API_Free(yMem);
-		API_Free(iMem);
+		SG_Free(xMem);
+		SG_Free(yMem);
+		SG_Free(iMem);
 	}
 }
 

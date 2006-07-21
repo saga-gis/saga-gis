@@ -177,8 +177,8 @@ bool CSRTM30_Import::On_Execute(void)
 	//-----------------------------------------------------
 	int			xTile, yTile;
 	double		xMin, xMax, yMin, yMax;
-	TGEO_Rect	rOut, rTile;
-	CAPI_String	sTile;
+	TSG_Rect	rOut, rTile;
+	CSG_String	sTile;
 	CGrid		*pOut;
 
 	//-----------------------------------------------------
@@ -193,7 +193,7 @@ bool CSRTM30_Import::On_Execute(void)
 	rOut.yMax	= rOut.yMin + (int)((yMax - yMin) / dSize);
 
 	//-----------------------------------------------------
-	pOut		= API_Create_Grid(GRID_TYPE_Short,
+	pOut		= SG_Create_Grid(GRID_TYPE_Short,
 					(int)(rOut.xMax - rOut.xMin),
 					(int)(rOut.yMax - rOut.yMin),
 					dSize,
@@ -232,12 +232,12 @@ bool CSRTM30_Import::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSRTM30_Import::Tile_Load(const char *sTile, TGEO_Rect &rTile, CGrid *pOut, TGEO_Rect &rOut)
+bool CSRTM30_Import::Tile_Load(const char *sTile, TSG_Rect &rTile, CGrid *pOut, TSG_Rect &rOut)
 {
 	short		Value;
 	int			x, y, xOut, yOut;
 	FILE		*Stream;
-	CGEO_Rect	r(rTile);
+	CSG_Rect	r(rTile);
 
 	if( r.Intersects(rOut) != INTERSECTION_None && (Stream = Tile_Open(sTile)) != NULL )
 	{
@@ -249,7 +249,7 @@ bool CSRTM30_Import::Tile_Load(const char *sTile, TGEO_Rect &rTile, CGrid *pOut,
 
 				if(	xOut >= 0 && xOut < pOut->Get_NX() && yOut >= 0 && yOut < pOut->Get_NY() )
 				{
-					API_Swap_Bytes(&Value, sizeof(short));
+					SG_Swap_Bytes(&Value, sizeof(short));
 
 					pOut->Set_Value(xOut, yOut, Value);
 				}

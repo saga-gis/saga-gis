@@ -115,7 +115,7 @@ protected:
 private:
 
 	bool					Stream_Find_NextWhiteChar	(FILE *Stream);
-	bool					Stream_Get_StringInQuota	(FILE *Stream, CAPI_String &String);
+	bool					Stream_Get_StringInQuota	(FILE *Stream, CSG_String &String);
 
 };
 

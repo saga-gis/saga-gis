@@ -90,7 +90,7 @@ protected:
 
 private:
 
-	void					Get_MinMax				(double &xMin, double &xMax, double &yMin, double &yMax, TGEO_Point Point);
+	void					Get_MinMax				(double &xMin, double &xMax, double &yMin, double &yMax, TSG_Point Point);
 	CGrid *					Get_Target_Userdef		(CGrid *pSource, bool bNearest);
 	CGrid *					Get_Target_Autofit		(CGrid *pSource, double Grid_Size, int AutoExtMode, bool bNearest);
 

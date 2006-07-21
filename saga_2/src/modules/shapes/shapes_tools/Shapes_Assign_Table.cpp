@@ -121,7 +121,7 @@ CShapes_Assign_Table::CShapes_Assign_Table(void)
 		NULL	, "METHOD"		, _TL("Attributes"),
 		"",
 
-		CAPI_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s|",
 			_TL("append"),
 			_TL("replace")
 		)
@@ -131,7 +131,7 @@ CShapes_Assign_Table::CShapes_Assign_Table(void)
 		NULL	, "ADDALL"		, _TL("Copy Rule"),
 		"",
 
-		CAPI_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s|",
 			_TL("all shapes"),
 			_TL("only shapes with table entry")
 		)
@@ -154,7 +154,7 @@ bool CShapes_Assign_Table::On_Execute(void)
 {
 	bool			bAddAll;
 	int				iShape, iPart, iPoint, iField, jField, off_Field, iRecord, Method, id_Shapes, id_Table;
-	CAPI_String		sID;
+	CSG_String		sID;
 	CTable			*pTable_A;
 	CTable_Record	*pRecord_A;
 	CShapes			*pShapes_A, *pShapes_B;
@@ -177,12 +177,12 @@ bool CShapes_Assign_Table::On_Execute(void)
 	{
 		if( pShapes_A == pShapes_B || pShapes_A->Get_Type() != pShapes_B->Get_Type() )
 		{
-			Parameters("SHAPES_OUT")->Set_Value(pShapes_B = API_Create_Shapes());
+			Parameters("SHAPES_OUT")->Set_Value(pShapes_B = SG_Create_Shapes());
 		}
 
 		if( Method == METHOD_ADD )
 		{
-			pShapes_B->Create(pShapes_A->Get_Type(), CAPI_String::Format("%s / %s", pShapes_A->Get_Name(), pTable_A->Get_Name()), &pShapes_A->Get_Table());
+			pShapes_B->Create(pShapes_A->Get_Type(), CSG_String::Format("%s / %s", pShapes_A->Get_Name(), pTable_A->Get_Name()), &pShapes_A->Get_Table());
 			off_Field	= pShapes_A->Get_Table().Get_Field_Count();
 
 			for(iField=0; iField<pTable_A->Get_Field_Count(); iField++)
@@ -193,7 +193,7 @@ bool CShapes_Assign_Table::On_Execute(void)
 		}
 		else	//  METHOD_REPLACE
 		{
-			pShapes_B->Create(pShapes_A->Get_Type(), CAPI_String::Format("%s / %s", pShapes_A->Get_Name(), pTable_A->Get_Name()), pTable_A);
+			pShapes_B->Create(pShapes_A->Get_Type(), CSG_String::Format("%s / %s", pShapes_A->Get_Name(), pTable_A->Get_Name()), pTable_A);
 			off_Field	= 0;
 		}
 

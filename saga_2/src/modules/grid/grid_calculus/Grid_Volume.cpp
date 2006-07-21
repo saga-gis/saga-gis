@@ -87,7 +87,7 @@ CGrid_Volume::CGrid_Volume(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"	, _TL("Method"),
 		"",
-		CAPI_String::Format("%s|%s|%s|%s|", 
+		CSG_String::Format("%s|%s|%s|%s|", 
 			_TL("Count Only Above Base Level"), 
 			_TL("Count Only Below Base Level"),
 			_TL("Subtract Volumes Below Base Level"),
@@ -119,7 +119,7 @@ bool CGrid_Volume::On_Execute(void)
 	int			x, y, Method;
 	double		Level, Volume, z;
 	CGrid		*pGrid;
-	CAPI_String	s;
+	CSG_String	s;
 
 	//-----------------------------------------------------
 	pGrid	= Parameters("GRID")	->asGrid();

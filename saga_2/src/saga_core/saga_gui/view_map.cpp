@@ -315,7 +315,7 @@ void CVIEW_Map::Ruler_Refresh(void)
 {
 	if( m_Ruler_Size > 0 )
 	{
-		CGEO_Rect	rWorld(m_pMap->Get_World(m_pControl->GetRect()));
+		CSG_Rect	rWorld(m_pMap->Get_World(m_pControl->GetRect()));
 
 		m_pRuler_X1->Set_Range(rWorld.Get_XMin(), rWorld.Get_XMax());
 		m_pRuler_X2->Set_Range(rWorld.Get_XMin(), rWorld.Get_XMax());

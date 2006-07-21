@@ -11,7 +11,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     svg_graph.h                       //
+//                      doc_svg.h                        //
 //                                                       //
 //                 Copyright (C) 2005 by                 //
 //                     Victor Olaya                      //
@@ -61,8 +61,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__SAGA_API__svg_graph_H
-#define HEADER_INCLUDED__SAGA_API__svg_graph_H
+#ifndef HEADER_INCLUDED__SAGA_API__doc_svg_H
+#define HEADER_INCLUDED__SAGA_API__doc_svg_H
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum
+typedef enum ESVG_Alignment
 {
 	SVG_ALIGNMENT_Left	= 0,
 	SVG_ALIGNMENT_Center,
@@ -98,21 +98,21 @@ TSVG_Alignment;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSVG_Graph
+class SAGA_API_DLL_EXPORT CDoc_SVG
 {
 public:
-	CSVG_Graph(void);
-	virtual ~CSVG_Graph(void);
+	CDoc_SVG(void);
+	virtual ~CDoc_SVG(void);
 
 	void						Open						(int iWidth, int iHeight);
 	bool						Save						(const char *FileName);
 
 	void						Draw_Line					(double xa, double ya, double xb, double yb	, double Width = 1., const char *Unit = "", int Color = COLOR_DEF_BLACK);
-	void						Draw_Line					(CAPI_dPoints &Points						, double Width = 1., const char *Unit = "", int Color = COLOR_DEF_BLACK);
+	void						Draw_Line					(CSG_Points &Points						, double Width = 1., const char *Unit = "", int Color = COLOR_DEF_BLACK);
 	void						Draw_Rectangle				(double xa, double ya, double xb, double yb	, int Fill_Color = COLOR_DEF_WHITE, int Line_Color = COLOR_DEF_BLACK, double Line_Width = 1., const char *Unit = "");
-	void						Draw_Rectangle				(const CGEO_Rect &r							, int Fill_Color = COLOR_DEF_WHITE, int Line_Color = COLOR_DEF_BLACK, double Line_Width = 1., const char *Unit = "");
-	void						Draw_Polygon				(CAPI_dPoints &Points						, int Fill_Color = COLOR_DEF_GREEN, int Line_Color = COLOR_DEF_BLACK, double Line_Width = 1., const char *Unit = "");
-	void						Draw_LinkedPolygon			(CAPI_dPoints &Points, const char *Link		, int Fill_Color = COLOR_DEF_GREEN, int Line_Color = COLOR_DEF_BLACK, double Line_Width = 1., const char *Unit = "");
+	void						Draw_Rectangle				(const CSG_Rect &r							, int Fill_Color = COLOR_DEF_WHITE, int Line_Color = COLOR_DEF_BLACK, double Line_Width = 1., const char *Unit = "");
+	void						Draw_Polygon				(CSG_Points &Points						, int Fill_Color = COLOR_DEF_GREEN, int Line_Color = COLOR_DEF_BLACK, double Line_Width = 1., const char *Unit = "");
+	void						Draw_LinkedPolygon			(CSG_Points &Points, const char *Link		, int Fill_Color = COLOR_DEF_GREEN, int Line_Color = COLOR_DEF_BLACK, double Line_Width = 1., const char *Unit = "");
 	void						Draw_Circle					(double x, double y, double Radius			, int Fill_Color = COLOR_DEF_RED  , int Line_Color = COLOR_DEF_BLACK, double Line_Width = 1., const char *Unit = "");
 	void						Draw_LinkedCircle			(double x, double y, double Radius, const char *Link, int Fill_Color = COLOR_DEF_RED  , int Line_Color = COLOR_DEF_BLACK, double Line_Width = 1., const char *Unit = "");
 
@@ -120,11 +120,11 @@ public:
 
 protected:
 
-	CAPI_String					m_sSVGCode;
+	CSG_String					m_sSVGCode;
 	void						_AddAttribute				(const char *Attribute, const char *Value);
 	void						_AddAttribute				(const char *Attribute, int Value);
 	void						_AddAttribute				(const char *Attribute, double Value);
-	CAPI_String					_Get_SVGColor				(int iColor);
+	CSG_String					_Get_SVGColor				(int iColor);
 
 private:
 	
@@ -139,4 +139,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif //#ifndef HEADER_INCLUDED__SAGA_API__svg_graph_H
+#endif //#ifndef HEADER_INCLUDED__SAGA_API__doc_svg_H

@@ -137,11 +137,11 @@ bool CNewton::On_Execute(void)
 
 	method			= Parameters("METHOD")->asInt();
 
-	pResult			= API_Create_Grid(GRID_TYPE_Double, x, y, dx, xMin, yMin);
+	pResult			= SG_Create_Grid(GRID_TYPE_Double, x, y, dx, xMin, yMin);
 	pResult->Set_Name("Newton [A]");
 	Parameters("RESULT")->Set_Value(pResult);
 
-	pShade			= API_Create_Grid(GRID_TYPE_Double, x, y, dx, xMin, yMin);
+	pShade			= SG_Create_Grid(GRID_TYPE_Double, x, y, dx, xMin, yMin);
 	pShade->Set_Name("Newton [B]");
 	Parameters("SHADE")	->Set_Value(pShade);
 
@@ -250,7 +250,7 @@ bool CNewton::doNewton()
 
 
 
-bool CNewton::On_Execute_Position(CGEO_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CNewton::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
 {
 	//-----------------------------------------------------
 	if(	Mode != MODULE_INTERACTIVE_LDOWN && Mode != MODULE_INTERACTIVE_RDOWN )

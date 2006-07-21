@@ -297,7 +297,7 @@ bool CSolarRadiation::On_Execute(void)
 	//-----------------------------------------------------
 	int		Day_Step, Day_Start, Day_Stop;
 	double	Latitude, Hour_Step, Hour_Start, Hour_Stop;
-	CColors	Colors;
+	CSG_Colors	Colors;
 
 	//-----------------------------------------------------
 	m_pDTM			= Parameters("ELEVATION")	->asGrid();
@@ -320,7 +320,7 @@ bool CSolarRadiation::On_Execute(void)
 	Hour_Stop		= Parameters("HOUR_RANGE")	->asRange()->Get_HiVal();
 
 	//-----------------------------------------------------
-	m_pSum			= API_Create_Grid(m_pDTM);
+	m_pSum			= SG_Create_Grid(m_pDTM);
 
 	//-----------------------------------------------------
 	switch( Parameters("TIMESPAN")->asInt() )
@@ -407,8 +407,8 @@ void CSolarRadiation::Execute_SumOfDays(double Latitude_RAD, double Hour_Step, d
 	//-----------------------------------------------------
 	else
 	{
-		pSumOfDays		= API_Create_Grid(m_pDTM);
-		pDur_Total		= API_Create_Grid(m_pDTM);
+		pSumOfDays		= SG_Create_Grid(m_pDTM);
+		pDur_Total		= SG_Create_Grid(m_pDTM);
 
 		if( Day_Step < 1 || Day_Step > nDays )
 		{
@@ -483,7 +483,7 @@ void CSolarRadiation::Get_DailySum(double Latitude_RAD, double Hour_Step, double
 	//-----------------------------------------------------
 	for(time=Hour_Start, bNight=false; time<Hour_Stop && is_Progress(); time+=Hour_Step)
 	{
-		Process_Set_Text(CAPI_String::Format(_TL("%d. Day of Year, Local Time: %dh %02dm"), Day + 1, (int)time, (int)(60.0 * fmod(time, 1.0))));
+		Process_Set_Text(CSG_String::Format(_TL("%d. Day of Year, Local Time: %dh %02dm"), Day + 1, (int)time, (int)(60.0 * fmod(time, 1.0))));
 
 		if( bProgressBar )
 		{

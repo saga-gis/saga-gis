@@ -98,12 +98,12 @@ public:
 	virtual bool				On_Command				(int Cmd_ID);
 	virtual bool				On_Command_UI			(wxUpdateUIEvent &event);
 
-	virtual wxString			Get_Value				(CGEO_Point ptWorld, double Epsilon);
+	virtual wxString			Get_Value				(CSG_Point ptWorld, double Epsilon);
 	virtual double				Get_Value_Range			(void);
 
 	CGrid *						Get_Grid				(void)	{	return( m_pGrid );	}
 
-	bool						Fit_Color_Range			(CGEO_Rect rWorld);
+	bool						Fit_Color_Range			(CSG_Rect rWorld);
 
 	bool						asImage					(CGrid *pImage);
 
@@ -118,9 +118,9 @@ protected:
 	virtual void				On_Parameters_Changed	(void);
 
 	virtual bool				On_Edit_On_Key_Down		(int KeyCode);
-	virtual bool				On_Edit_On_Mouse_Up		(CGEO_Point Point, double ClientToWorld, int Key);
+	virtual bool				On_Edit_On_Mouse_Up		(CSG_Point Point, double ClientToWorld, int Key);
 	virtual bool				On_Edit_Set_Attributes	(void);
-	virtual TGEO_Rect			On_Edit_Get_Extent		(void);
+	virtual TSG_Rect			On_Edit_Get_Extent		(void);
 
 	virtual void				On_Draw					(CWKSP_Map_DC &dc_Map, bool bEdit);
 

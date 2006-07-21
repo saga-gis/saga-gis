@@ -11,7 +11,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   html_document.cpp                   //
+//                     doc_html.cpp                      //
 //                                                       //
 //                 Copyright (C) 2005 by                 //
 //                      Victor Olaya                     //
@@ -54,9 +54,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include "doc_html.h"
 
-#include "html_document.h"
-
+//---------------------------------------------------------
 #define GRAPH_WIDTH		700
 #define GRAPH_HEIGHT	350
 #define MAP_WIDTH		700.
@@ -64,37 +64,43 @@
 #define OFFSET_X		50
 #define OFFSET_Y		50
 
-CAPI_String OPENING_HTML_CODE_1 ("<html>\n"
-								"<head>"
-								"<title>");
+//---------------------------------------------------------
+#define HTML_CODE_OPENING_1	"<html>\n<head><title>"
 
-CAPI_String OPENING_HTML_CODE_2 ("</title>\n"
-								"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\n"
-								"</head>\n"
-								"<body bgcolor=\"#FFFFFF\" text=\"#000000\">\n");
+#define HTML_CODE_OPENING_2	"</title>\n"\
+	"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\n"\
+	"</head>\n"\
+	"<body bgcolor=\"#FFFFFF\" text=\"#000000\">\n"
 
-CAPI_String CLOSING_HTML_CODE ("</body>\n"
-									"</html>");
+#define HTML_CODE_CLOSING	"</body>\n</html>"
 
-CHTML_Document::CHTML_Document(){}
 
-CHTML_Document::~CHTML_Document(){}
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-void CHTML_Document::Open(const char *Title)
+//---------------------------------------------------------
+CDoc_HTML::CDoc_HTML(){}
+
+CDoc_HTML::~CDoc_HTML(){}
+
+void CDoc_HTML::Open(const char *Title)
 {
 
 	m_sHTMLCode.Clear();
 
-	m_sHTMLCode.Append(OPENING_HTML_CODE_1);
+	m_sHTMLCode.Append(HTML_CODE_OPENING_1);
 	m_sHTMLCode.Append(Title);
-	m_sHTMLCode.Append(OPENING_HTML_CODE_2);
+	m_sHTMLCode.Append(HTML_CODE_OPENING_2);
 
 }
 
-bool CHTML_Document::Save(const char *Filename)
+bool CDoc_HTML::Save(const char *Filename)
 {
 
-	m_sHTMLCode.Append(CLOSING_HTML_CODE);
+	m_sHTMLCode.Append(HTML_CODE_CLOSING);
 
 	FILE	*Stream;
 
@@ -111,7 +117,7 @@ bool CHTML_Document::Save(const char *Filename)
 
 }
 
-void CHTML_Document::AddParagraph(const char *Text)
+void CDoc_HTML::AddParagraph(const char *Text)
 {
 
 	m_sHTMLCode.Append("<p align=\"left\">");
@@ -120,27 +126,27 @@ void CHTML_Document::AddParagraph(const char *Text)
 
 }
 
-void CHTML_Document::AddLineBreak()
+void CDoc_HTML::AddLineBreak()
 {
 
 	m_sHTMLCode.Append("</br>");	
 
 }
-void CHTML_Document::AddHeader(const char *Text,
+void CDoc_HTML::AddHeader(const char *Text,
 							int iOrder)
 {
 
 	m_sHTMLCode.Append("<h");
-	m_sHTMLCode.Append(API_Get_String(iOrder,0));
+	m_sHTMLCode.Append(SG_Get_String(iOrder,0));
 	m_sHTMLCode.Append(" align=\"left\">");
 	m_sHTMLCode.Append(Text);
 	m_sHTMLCode.Append("</h");
-	m_sHTMLCode.Append(API_Get_String(iOrder,0));
+	m_sHTMLCode.Append(SG_Get_String(iOrder,0));
 	m_sHTMLCode.Append(">\n");
 
 }
 
-void CHTML_Document::AddHyperlink(const char *Text,
+void CDoc_HTML::AddHyperlink(const char *Text,
 								const char *URL)
 {
 
@@ -152,10 +158,10 @@ void CHTML_Document::AddHyperlink(const char *Text,
 
 }
 
-CAPI_String CHTML_Document::GetHyperlinkCode(const char *Text,
+CSG_String CDoc_HTML::GetHyperlinkCode(const char *Text,
 									const char *URL)
 {
-	CAPI_String s;
+	CSG_String s;
 
 	s.Append("<a href=\"");
 	s.Append(URL);
@@ -166,7 +172,7 @@ CAPI_String CHTML_Document::GetHyperlinkCode(const char *Text,
 	return s;
 
 }
-void CHTML_Document::AddImage(const char *Filename)
+void CDoc_HTML::AddImage(const char *Filename)
 {
 
 	m_sHTMLCode.Append("<img src=\"");
@@ -175,7 +181,7 @@ void CHTML_Document::AddImage(const char *Filename)
 
 }
 
-void CHTML_Document::AddThumbnail(const char *Filename,
+void CDoc_HTML::AddThumbnail(const char *Filename,
 								int iWidth,
 								bool bIsPercent)
 {
@@ -186,7 +192,7 @@ void CHTML_Document::AddThumbnail(const char *Filename,
     m_sHTMLCode.Append("<img src=\"");
     m_sHTMLCode.Append(Filename);
     m_sHTMLCode.Append("\" width=");
-    m_sHTMLCode.Append(API_Get_String(iWidth,0));
+    m_sHTMLCode.Append(SG_Get_String(iWidth,0));
     if (bIsPercent)
     {
 		m_sHTMLCode.Append("%");
@@ -195,7 +201,7 @@ void CHTML_Document::AddThumbnail(const char *Filename,
 
 }
 
-void CHTML_Document::AddThumbnails(const char **Filename,
+void CDoc_HTML::AddThumbnails(const char **Filename,
 								int iImages,
 								int iThumbnailsPerRow)
 {
@@ -212,7 +218,7 @@ void CHTML_Document::AddThumbnails(const char **Filename,
 
 		for (j=0; j<iThumbnailsPerRow; j++){
 			m_sHTMLCode.Append("<td width=\"");
-			m_sHTMLCode.Append(API_Get_String(iWidth));
+			m_sHTMLCode.Append(SG_Get_String(iWidth));
 			m_sHTMLCode.Append("%\" align=\"center\">");
 			AddThumbnail(Filename[iImage], 100, true);
 			iImage++;
@@ -228,35 +234,35 @@ void CHTML_Document::AddThumbnails(const char **Filename,
 
 }
 
-void CHTML_Document::StartUnorderedList()
+void CDoc_HTML::StartUnorderedList()
 {
 
 	m_sHTMLCode.Append("<ul>\n");
 
 }
 
-void CHTML_Document::StartOrderedList()
+void CDoc_HTML::StartOrderedList()
 {
 
 	m_sHTMLCode.Append("<ol>\n");
 
 }
 
-void CHTML_Document::CloseUnorderedList()
+void CDoc_HTML::CloseUnorderedList()
 {
 
 	m_sHTMLCode.Append("</ul>\n");
 
 }
 
-void CHTML_Document::CloseOrderedList()
+void CDoc_HTML::CloseOrderedList()
 {
 
 	m_sHTMLCode.Append("</ol>\n");
 
 }
 
-void CHTML_Document::AddListElement(const char *Text)
+void CDoc_HTML::AddListElement(const char *Text)
 {
 
 	m_sHTMLCode.Append("<li>");
@@ -265,7 +271,7 @@ void CHTML_Document::AddListElement(const char *Text)
 
 }
 
-void CHTML_Document::AddOrderedList(const char **Text, int iElements)
+void CDoc_HTML::AddOrderedList(const char **Text, int iElements)
 {
 
 	StartOrderedList();
@@ -277,7 +283,7 @@ void CHTML_Document::AddOrderedList(const char **Text, int iElements)
 
 }
 
-void CHTML_Document::AddUnorderedList(const char **Text, int iElements)
+void CDoc_HTML::AddUnorderedList(const char **Text, int iElements)
 {
 
 	StartUnorderedList();
@@ -289,8 +295,8 @@ void CHTML_Document::AddUnorderedList(const char **Text, int iElements)
 
 }
 
-void CHTML_Document::AddCurve(const char *Filename,
-								CAPI_dPoints &Data,
+void CDoc_HTML::AddCurve(const char *Filename,
+								CSG_Points &Data,
 								const char *Description,
 								int iGraphType,
 								bool bIncludeTableData)
@@ -306,15 +312,15 @@ void CHTML_Document::AddCurve(const char *Filename,
 	double fStep;
     double fX, fY, fY2;
 	double fMaxX, fMinX;
-	CAPI_String sValue;
-	CAPI_String sTableFilename;
-	CAPI_dPoints Points;
-	CSVG_Graph SVG;
+	CSG_String sValue;
+	CSG_String sTableFilename;
+	CSG_Points Points;
+	CDoc_SVG SVG;
 
 	m_sHTMLCode.Append("<object type=\"image/svg+xml\" width=\"");
-	m_sHTMLCode.Append(API_Get_String(GRAPH_WIDTH + OFFSET_X, 0));
+	m_sHTMLCode.Append(SG_Get_String(GRAPH_WIDTH + OFFSET_X, 0));
 	m_sHTMLCode.Append("\" height=\"");
-	m_sHTMLCode.Append(API_Get_String(GRAPH_HEIGHT + OFFSET_Y, 0));
+	m_sHTMLCode.Append(SG_Get_String(GRAPH_HEIGHT + OFFSET_Y, 0));
 	m_sHTMLCode.Append("\" data=\"file://");
 	m_sHTMLCode.Append(Filename);
 	m_sHTMLCode.Append("\"></object><br>\n");
@@ -401,7 +407,7 @@ void CHTML_Document::AddCurve(const char *Filename,
         if (fY >= 0 && fY <= GRAPH_HEIGHT)
 		{
 			SVG.Draw_Line(OFFSET_X - 10, fY, GRAPH_WIDTH + OFFSET_X, fY);
-			SVG.Draw_Text(OFFSET_X - 10, fY, API_Get_String(fMinLine + fStep * i, 1), 0, "Verdana", 8, "", SVG_ALIGNMENT_Right);
+			SVG.Draw_Text(OFFSET_X - 10, fY, SG_Get_String(fMinLine + fStep * i, 1), 0, "Verdana", 8, "", SVG_ALIGNMENT_Right);
         }
     }
 
@@ -460,11 +466,11 @@ void CHTML_Document::AddCurve(const char *Filename,
 			if (fX >= OFFSET_X && fX <= GRAPH_WIDTH + OFFSET_X){
 				if (fabs(fStep * i +fMinLine) > 100000)
 				{
-					sValue = API_Get_String(fStep * i +fMinLine);
+					sValue = SG_Get_String(fStep * i +fMinLine);
 				}
 				else
 				{
-					sValue = API_Get_String(fStep * i + fMinLine, 2, true);
+					sValue = SG_Get_String(fStep * i + fMinLine, 2, true);
 				}
 				SVG.Draw_Text(fX, GRAPH_HEIGHT + 10, sValue, 0, "Verdana", 8, "", SVG_ALIGNMENT_Center);
 				SVG.Draw_Line(fX, GRAPH_HEIGHT, fX, GRAPH_HEIGHT - 5);
@@ -479,7 +485,7 @@ void CHTML_Document::AddCurve(const char *Filename,
 
 	if (bIncludeTableData)
 	{
-		CHTML_Document HTMLDoc;
+		CDoc_HTML HTMLDoc;
 		HTMLDoc.Open(LNG("Data Table"));
 
 		sTableFilename = Filename;
@@ -499,7 +505,7 @@ void CHTML_Document::AddCurve(const char *Filename,
 
 }//method
 
-void CHTML_Document::_AddBicolumTable(CAPI_dPoints *pData)
+void CDoc_HTML::_AddBicolumTable(CSG_Points *pData)
 {
 
 	int i;
@@ -513,10 +519,10 @@ void CHTML_Document::_AddBicolumTable(CAPI_dPoints *pData)
 	{
 		m_sHTMLCode.Append("<tr>\n");
 		m_sHTMLCode.Append("<td width=\"50%\" align=\"center\">");
-		m_sHTMLCode.Append(API_Get_String(pData->Get_X(i),2));
+		m_sHTMLCode.Append(SG_Get_String(pData->Get_X(i),2));
 		m_sHTMLCode.Append("</td>");
 		m_sHTMLCode.Append("<td width=\"50%\" align=\"center\">");
-		m_sHTMLCode.Append(API_Get_String(pData->Get_Y(i),2));
+		m_sHTMLCode.Append(SG_Get_String(pData->Get_Y(i),2));
 		m_sHTMLCode.Append("</td>");
 		m_sHTMLCode.Append("\n</tr>\n");
 	}
@@ -528,7 +534,7 @@ void CHTML_Document::_AddBicolumTable(CAPI_dPoints *pData)
 
 }
 
-void CHTML_Document::AddTable(const char ***Table,
+void CDoc_HTML::AddTable(const char ***Table,
 								int iRows,
 								int iCols,
 								const char *Description)
@@ -550,7 +556,7 @@ void CHTML_Document::AddTable(const char ***Table,
 		}
 		for (j=0; j<iCols; j++){
 			m_sHTMLCode.Append("<td width=\"");
-			m_sHTMLCode.Append(API_Get_String(iWidth,0));
+			m_sHTMLCode.Append(SG_Get_String(iWidth,0));
 			m_sHTMLCode.Append("%\" align=\"center\">");
 			try
 			{
@@ -569,7 +575,7 @@ void CHTML_Document::AddTable(const char ***Table,
 
 }
 
-void CHTML_Document::AddTable(CTable *pTable)
+void CDoc_HTML::AddTable(CTable *pTable)
 {
 
 	int i,j;
@@ -580,7 +586,7 @@ void CHTML_Document::AddTable(CTable *pTable)
 	m_sHTMLCode.Append("<tr bgcolor=\"#CCCCCC\">\n");
 	for (i=0; i<pTable->Get_Field_Count(); i++){
 		m_sHTMLCode.Append("<td width=\"");
-		m_sHTMLCode.Append(API_Get_String(iWidth,0));
+		m_sHTMLCode.Append(SG_Get_String(iWidth,0));
 		m_sHTMLCode.Append("%\" align=\"center\">");
 		m_sHTMLCode.Append(pTable->Get_Field_Name(i));
 		m_sHTMLCode.Append("</td>");
@@ -592,7 +598,7 @@ void CHTML_Document::AddTable(CTable *pTable)
 		m_sHTMLCode.Append("<tr>\n");
 		for (j=0; j<pTable->Get_Field_Count(); j++){
 			m_sHTMLCode.Append("<td width=\"");
-			m_sHTMLCode.Append(API_Get_String(iWidth,0));
+			m_sHTMLCode.Append(SG_Get_String(iWidth,0));
 			m_sHTMLCode.Append("%\" align=\"center\">");
 			try
 			{
@@ -611,16 +617,16 @@ void CHTML_Document::AddTable(CTable *pTable)
 
 }
 
-bool CHTML_Document::_Draw_Shape(CSVG_Graph &SVG, CShape *pShape, CGEO_Rect GlobalRect, int Fill_Color, int Line_Color, int Line_Width, int Point_Width)
+bool CDoc_HTML::_Draw_Shape(CDoc_SVG &SVG, CShape *pShape, CSG_Rect GlobalRect, int Fill_Color, int Line_Color, int Line_Width, int Point_Width)
 {
 	if( pShape && pShape->is_Valid() )
 	{
-		int				iPart, iPoint;
-		double			x,y;
-		TGEO_Point		Point;
-		CAPI_dPoints	Points;
-		double			dWidth, dHeight;
-		double			dOffsetX, dOffsetY;
+		int			iPart, iPoint;
+		double		x,y;
+		TSG_Point	Point;
+		CSG_Points	Points;
+		double		dWidth, dHeight;
+		double		dOffsetX, dOffsetY;
 
 		if (GlobalRect.Get_XRange() / GlobalRect.Get_YRange() > MAP_WIDTH / MAP_HEIGHT)
 		{
@@ -683,11 +689,11 @@ bool CHTML_Document::_Draw_Shape(CSVG_Graph &SVG, CShape *pShape, CGEO_Rect Glob
 	return( false );
 }
 
-bool CHTML_Document::Draw_Shapes(CShapes *pShapes, const char *Filename, int Fill_Color, int Line_Color, int Line_Width)
+bool CDoc_HTML::Draw_Shapes(CShapes *pShapes, const char *Filename, int Fill_Color, int Line_Color, int Line_Width)
 {
 
-	CSVG_Graph SVG;
-	CGEO_Rect r;
+	CDoc_SVG	SVG;
+	CSG_Rect	r;
 
 	if( pShapes && pShapes->is_Valid())
 	{
@@ -702,9 +708,9 @@ bool CHTML_Document::Draw_Shapes(CShapes *pShapes, const char *Filename, int Fil
 		SVG.Save(Filename);
 
 		m_sHTMLCode.Append("<center>\n<object type=\"image/svg+xml\" width=\"");
-		m_sHTMLCode.Append(API_Get_String(MAP_WIDTH, 0));
+		m_sHTMLCode.Append(SG_Get_String(MAP_WIDTH, 0));
 		m_sHTMLCode.Append("\" height=\"");
-		m_sHTMLCode.Append(API_Get_String(MAP_HEIGHT, 0));
+		m_sHTMLCode.Append(SG_Get_String(MAP_HEIGHT, 0));
 		m_sHTMLCode.Append("\" data=\"file://");
 		m_sHTMLCode.Append(Filename);
 		m_sHTMLCode.Append("\"></object></center><br>\n");

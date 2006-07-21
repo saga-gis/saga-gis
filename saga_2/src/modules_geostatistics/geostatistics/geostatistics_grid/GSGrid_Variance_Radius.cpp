@@ -108,7 +108,7 @@ CGSGrid_Variance_Radius::CGSGrid_Variance_Radius(void)
 	Parameters.Add_Choice(
 		NULL	, "OUTPUT"		, _TL("Type of Output"),
 		"",
-		CAPI_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s|",
 			_TL("Cells"),
 			_TL("Map Units")
 		), 0
@@ -144,7 +144,7 @@ bool CGSGrid_Variance_Radius::On_Execute(void)
 
 	pGrid			= Parameters("INPUT")->asGrid();
 	pResult			= Parameters("RESULT")->asGrid();
-	pResult->Set_Name(CAPI_String::Format("Radius with Variance >= %f", stopVariance));
+	pResult->Set_Name(CSG_String::Format("Radius with Variance >= %f", stopVariance));
 
 	//-----------------------------------------------------
 	Initialize();
@@ -177,8 +177,8 @@ void CGSGrid_Variance_Radius::Initialize(void)
 	double	d;
 
 	//-----------------------------------------------------
-	pInput	= API_Create_Grid(pGrid);
-	pInputQ	= API_Create_Grid(pGrid);
+	pInput	= SG_Create_Grid(pGrid);
+	pInputQ	= SG_Create_Grid(pGrid);
 
 	for(y=0; y<Get_NY(); y++)
 	{

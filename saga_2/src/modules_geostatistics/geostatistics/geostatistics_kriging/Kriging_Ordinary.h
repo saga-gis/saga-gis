@@ -61,11 +61,15 @@
 #ifndef _INTERPOLATION_KRIGING_ORDINARY_H
 #define _INTERPOLATION_KRIGING_ORDINARY_H
 
-//---------------------------------------------------------
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "Kriging_Base.h"
+#include "Kriging_Ordinary_Global.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -75,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CKriging_Ordinary : public CModule
+class geostatistics_kriging_EXPORT CKriging_Ordinary : public CKriging_Ordinary_Global
 {
 public:
 	CKriging_Ordinary(void);
@@ -84,36 +88,28 @@ public:
 
 protected:
 
-	virtual bool			On_Execute(void);
+	virtual bool			On_Initialise	(void);
+
+	virtual bool			Get_Value		(double x, double y, double &z, double &Variance);
 
 
 private:
 
-	bool					bLogarithmic;
+	int						m_nPoints_Min, m_nPoints_Max;
 
-	int						Model, zField,
-							nPoints_Min, nPoints_Max;
-
-	double					*Gammas, **Weights,
-							Nugget, Scale, Range,
-							BLIN, BEXP, APOW, BPOW,
-							max_Radius;
-
-	TGEO_Position			*Points;
-
-	CGrid					*pGrid, *pVariance;
-
-	CShapes_Search			SearchEngine;
+	double					m_Radius;
 
 
-	CGrid *					Get_Target_Grid(CParameters *pParameters, CShapes *pShapes);
-	CShapes *				Get_Point_Shapes(CShapes *pShapes);
-
-	double					Get_Weight(double Distance);
-	int						Get_Weights(double x, double y);
-
-	bool					Get_Grid_Value(int x, int y);
+	int						Get_Weights		(double x, double y);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef _INTERPOLATION_KRIGING_ORDINARY_H

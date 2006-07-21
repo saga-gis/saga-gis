@@ -139,7 +139,7 @@ bool CGrid_Values_AddTo_Shapes::On_Execute(void)
 
 		if( pResult == Parameters("SHAPES")->asShapes() )
 		{
-			pShapes		= API_Create_Shapes(*pResult);
+			pShapes		= SG_Create_Shapes(*pResult);
 		}
 		else
 		{
@@ -190,7 +190,7 @@ void CGrid_Values_AddTo_Shapes::Get_Data_Point(CShape *pShape)
 {
 	int			iPart, iPoint, nValues, iGrid, Interpolation = 1;
 	double		Value_Sum;
-	TGEO_Point	Point;
+	TSG_Point	Point;
 	CGrid		*pGrid;
 	CShape		*pShape_Result;
 

@@ -28,7 +28,7 @@ class CQueryParser
 {
 public:
 
-	CQueryParser(CShapes*, CAPI_String);
+	CQueryParser(CShapes*, CSG_String);
 	virtual ~CQueryParser();
 	int& GetSelectedRecords();
 	int GetSelectedRecordsCount();

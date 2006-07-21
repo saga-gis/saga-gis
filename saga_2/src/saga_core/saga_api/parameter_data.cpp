@@ -579,13 +579,13 @@ CParameter_Degree::~CParameter_Degree(void)
 //---------------------------------------------------------
 bool CParameter_Degree::Set_Value(void *Value)
 {
-	return( CParameter_Double::Set_Value(API_DegreeStr2Double((const char *)Value)) );
+	return( CParameter_Double::Set_Value(SG_Degree_To_Double((const char *)Value)) );
 }
 
 //---------------------------------------------------------
 const char * CParameter_Degree::asString(void)
 {
-	m_String	= API_Double2DegreeStr(asDouble());
+	m_String	= SG_Double_To_Degree(asDouble());
 
 	return( m_String );
 }
@@ -741,7 +741,7 @@ void CParameter_Choice::Del_Items(void)
 			delete(Items[i]);
 		}
 
-		API_Free(Items);
+		SG_Free(Items);
 
 		nItems		= 0;
 		Items		= NULL;
@@ -755,7 +755,7 @@ void CParameter_Choice::Set_Items(const char *String)
 {
 	const char	*s;
 	int			n;
-	CAPI_String	sItem;
+	CSG_String	sItem;
 
 	Del_Items();
 
@@ -768,8 +768,8 @@ void CParameter_Choice::Set_Items(const char *String)
 		sItem	= sItem.BeforeFirst('|');
 		n		= sItem.Length();
 
-		Items			= (CAPI_String **)API_Realloc(Items, (nItems + 1) * sizeof(CAPI_String *));
-		Items[nItems]	= new CAPI_String(sItem);
+		Items			= (CSG_String **)SG_Realloc(Items, (nItems + 1) * sizeof(CSG_String *));
+		Items[nItems]	= new CSG_String(sItem);
 		nItems++;
 
 		s	+= n + 1;
@@ -779,8 +779,8 @@ void CParameter_Choice::Set_Items(const char *String)
 	if( nItems == 0 )
 	{
 		nItems		= 1;
-		Items		= (CAPI_String **)API_Malloc(nItems * sizeof(CAPI_String *));
-		Items[0]	= new CAPI_String(LNG("[VAL] [not set]"));
+		Items		= (CSG_String **)SG_Malloc(nItems * sizeof(CSG_String *));
+		Items[0]	= new CSG_String(LNG("[VAL] [not set]"));
 	}
 
 	Set_Minimum(0, true);
@@ -808,11 +808,11 @@ void CParameter_Choice::On_Assign(CParameter_Data *pSource)
 	if( ((CParameter_Choice *)pSource)->nItems > 0 )
 	{
 		nItems		= ((CParameter_Choice *)pSource)->nItems;
-		Items		= (CAPI_String **)API_Malloc(nItems * sizeof(CAPI_String *));
+		Items		= (CSG_String **)SG_Malloc(nItems * sizeof(CSG_String *));
 
 		for(i=0; i<nItems; i++)
 		{
-			Items[i]	= new CAPI_String(((CParameter_Choice *)pSource)->Items[i]->c_str());
+			Items[i]	= new CSG_String(((CParameter_Choice *)pSource)->Items[i]->c_str());
 		}
 	}
 
@@ -898,7 +898,7 @@ bool CParameter_String::On_Serialize(FILE *Stream, bool bSave)
 	}
 	else
 	{
-		return( API_Read_Line(Stream, m_String) );
+		return( SG_Read_Line(Stream, m_String) );
 	}
 
 	return( true );
@@ -933,11 +933,11 @@ bool CParameter_Text::On_Serialize(FILE *Stream, bool bSave)
 	}
 	else
 	{
-		CAPI_String	sLine;
+		CSG_String	sLine;
 
 		m_String.Clear();
 
-		while( API_Read_Line(Stream, sLine) && sLine.Cmp(ENTRY_TEXT_END) )
+		while( SG_Read_Line(Stream, sLine) && sLine.Cmp(ENTRY_TEXT_END) )
 		{
 			if( m_String.Length() > 0 )
 			{
@@ -1008,7 +1008,7 @@ void CParameter_FilePath::Set_Flag_Directory(bool bFlag)
 }
 
 //---------------------------------------------------------
-bool CParameter_FilePath::Get_FilePaths(CAPI_Strings &FilePaths)
+bool CParameter_FilePath::Get_FilePaths(CSG_Strings &FilePaths)
 {
 	FilePaths.Clear();
 
@@ -1020,7 +1020,7 @@ bool CParameter_FilePath::Get_FilePaths(CAPI_Strings &FilePaths)
 		}
 		else
 		{
-			CAPI_String	s(m_String), sTmp;
+			CSG_String	s(m_String), sTmp;
 
 			while( s.Length() > 2 )
 			{
@@ -1284,7 +1284,7 @@ bool CParameter_Grid_System::Set_Value(void *Value)
 				case PARAMETER_TYPE_Grid:
 					pGrid	= pParameters->Get_Parameter(i)->asGrid();
 
-					if(	!API_Callback_DataObject_Check(pGrid, DATAOBJECT_TYPE_Grid) || (pGrid != DATAOBJECT_NOTSET && pGrid != DATAOBJECT_CREATE && !m_System.is_Equal(pGrid->Get_System())) )
+					if(	!SG_Callback_DataObject_Check(pGrid, DATAOBJECT_TYPE_Grid) || (pGrid != DATAOBJECT_NOTSET && pGrid != DATAOBJECT_CREATE && !m_System.is_Equal(pGrid->Get_System())) )
 					{
 						pParameters->Get_Parameter(i)->Set_Value(DATAOBJECT_NOTSET);
 					}
@@ -1295,7 +1295,7 @@ bool CParameter_Grid_System::Set_Value(void *Value)
 
 					for(j=pGrids->Get_Count()-1; j>=0; j--)
 					{
-						if( !API_Callback_DataObject_Check(pGrids->asGrid(j), DATAOBJECT_TYPE_Grid) || m_System.is_Equal(pGrids->asGrid(j)->Get_System()) == false )
+						if( !SG_Callback_DataObject_Check(pGrids->asGrid(j), DATAOBJECT_TYPE_Grid) || m_System.is_Equal(pGrids->asGrid(j)->Get_System()) == false )
 						{
 							pGrids->Del_Item(j);
 						}
@@ -1328,7 +1328,7 @@ void CParameter_Grid_System::On_Assign(CParameter_Data *pSource)
 bool CParameter_Grid_System::On_Serialize(FILE *Stream, bool bSave)
 {
 	double		Cellsize;
-	TGEO_Rect	Extent;
+	TSG_Rect	Extent;
 
 	if( bSave )
 	{
@@ -1344,7 +1344,7 @@ bool CParameter_Grid_System::On_Serialize(FILE *Stream, bool bSave)
 		fread (&Cellsize, 1, sizeof(Cellsize), Stream);
 		fread (&Extent  , 1, sizeof(Extent)  , Stream);
 
-		m_System.Assign(Cellsize, CGEO_Rect(Extent));
+		m_System.Assign(Cellsize, CSG_Rect(Extent));
 	}
 
 	return( true );
@@ -1540,9 +1540,9 @@ bool CParameter_DataObject::On_Serialize(FILE *Stream, bool bSave)
 	}
 	else
 	{
-		CAPI_String	sLine;
+		CSG_String	sLine;
 
-		if( API_Read_Line(Stream, sLine) )
+		if( SG_Read_Line(Stream, sLine) )
 		{
 			if( !sLine.Cmp(ENTRY_DATAOBJECT_CREATE) )
 			{
@@ -1550,7 +1550,7 @@ bool CParameter_DataObject::On_Serialize(FILE *Stream, bool bSave)
 			}
 			else
 			{
-				Set_Value(API_Callback_DataObject_Find(sLine, -1));
+				Set_Value(SG_Callback_DataObject_Find(sLine, -1));
 			}
 		}
 	}
@@ -1584,7 +1584,7 @@ bool CParameter_DataObject_Output::Set_Value(void *Value)
 	{
 		m_pDataObject	= pDataObject;
 
-		API_Callback_DataObject_Add(m_pDataObject, false);
+		SG_Callback_DataObject_Add(m_pDataObject, false);
 
 		return( true );
 	}
@@ -1889,7 +1889,7 @@ void CParameter_List::Add_Item(CDataObject *pObject)
 {
 	if( pObject )
 	{
-		m_Objects	= (CDataObject **)API_Realloc(m_Objects, (m_nObjects + 1) * sizeof(CDataObject *));
+		m_Objects	= (CDataObject **)SG_Realloc(m_Objects, (m_nObjects + 1) * sizeof(CDataObject *));
 		m_Objects[m_nObjects++]	= pObject;
 	}
 }
@@ -1908,7 +1908,7 @@ int CParameter_List::Del_Item(int iObject)
 			m_Objects[i]	= m_Objects[i + 1];
 		}
 
-		m_Objects	= (CDataObject **)API_Realloc(m_Objects, m_nObjects * sizeof(CDataObject *));
+		m_Objects	= (CDataObject **)SG_Realloc(m_Objects, m_nObjects * sizeof(CDataObject *));
 	}
 
 	return( m_nObjects );
@@ -1934,7 +1934,7 @@ void CParameter_List::Del_Items(void)
 {
 	if( m_nObjects > 0 )
 	{
-		API_Free(m_Objects);
+		SG_Free(m_Objects);
 		m_Objects	= NULL;
 		m_nObjects	= 0;
 	}
@@ -1968,12 +1968,12 @@ bool CParameter_List::On_Serialize(FILE *Stream, bool bSave)
 	}
 	else
 	{
-		CAPI_String	sLine;
+		CSG_String	sLine;
 		CDataObject	*pObject;
 
-		while( API_Read_Line(Stream, sLine) && sLine.Cmp(ENTRY_DATAOBJECTLIST_END) )
+		while( SG_Read_Line(Stream, sLine) && sLine.Cmp(ENTRY_DATAOBJECTLIST_END) )
 		{
-			if( (pObject = API_Callback_DataObject_Find(sLine, -1)) != NULL )
+			if( (pObject = SG_Callback_DataObject_Find(sLine, -1)) != NULL )
 			{
 				Add_Item(pObject);
 			}

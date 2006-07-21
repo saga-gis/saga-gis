@@ -213,12 +213,12 @@ bool CGrid_Statistics_AddTo_Polygon::Get_ShapeIDs(CShapes *pShapes, CGrid *pShap
 	bool		bFill, *bCrossing;
 	int			x, y, ix, xStart, xStop, iShape, iPart, iPoint;
 	double		yPos;
-	TGEO_Point	pLeft, pRight, pa, pb, p;
-	TGEO_Rect	Extent;
+	TSG_Point	pLeft, pRight, pa, pb, p;
+	TSG_Rect	Extent;
 	CShape		*pShape;
 
 	//-----------------------------------------------------
-	bCrossing	= (bool *)API_Malloc(pShapeIDs->Get_NX() * sizeof(bool));
+	bCrossing	= (bool *)SG_Malloc(pShapeIDs->Get_NX() * sizeof(bool));
 
 	//-----------------------------------------------------
 	for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
@@ -259,7 +259,7 @@ bool CGrid_Statistics_AddTo_Polygon::Get_ShapeIDs(CShapes *pShapes, CGrid *pShap
 						if(	(	(pa.y <= yPos && yPos < pb.y)
 							||	(pa.y > yPos && yPos >= pb.y)	)	)
 						{
-							GEO_Get_Crossing(p, pa, pb, pLeft, pRight, false);
+							SG_Get_Crossing(p, pa, pb, pLeft, pRight, false);
 
 							ix	= (int)((p.x - pShapeIDs->Get_XMin()) / pShapeIDs->Get_Cellsize() + 1.0);
 
@@ -295,7 +295,7 @@ bool CGrid_Statistics_AddTo_Polygon::Get_ShapeIDs(CShapes *pShapes, CGrid *pShap
 	}
 
 	//-----------------------------------------------------
-	API_Free(bCrossing);
+	SG_Free(bCrossing);
 
 	return( true );
 }

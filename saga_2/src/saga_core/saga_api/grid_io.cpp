@@ -82,9 +82,9 @@ bool CGrid::_Load(const char *File_Name, TGrid_Type Type, TGrid_Memory_Type Memo
 	m_Type	= Type;
 
 	//-----------------------------------------------------
-	API_Callback_Message_Add(CAPI_String::Format("%s: %s...", LNG("[MSG] Load grid"), File_Name), true);
+	SG_Callback_Message_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Load grid"), File_Name), true);
 
-	if( API_Cmp_File_Extension(File_Name, "grd") )
+	if( SG_File_Cmp_Extension(File_Name, "grd") )
 	{
 		bResult	= _Load_Surfer(File_Name, Memory_Type);
 	}
@@ -106,15 +106,15 @@ bool CGrid::_Load(const char *File_Name, TGrid_Type Type, TGrid_Memory_Type Memo
 			Get_History().Add_Entry(LNG("[HST] Loaded from file"), File_Name);
 		}
 
-		API_Callback_Message_Add(LNG("[MSG] okay"), false);
+		SG_Callback_Message_Add(LNG("[MSG] okay"), false);
 	}
 	else
 	{
 		Destroy();
 
-		API_Callback_Message_Add(LNG("[MSG] failed"), false);
+		SG_Callback_Message_Add(LNG("[MSG] failed"), false);
 
-		API_Callback_Message_Add_Error(LNG("[ERR] Grid file could not be opened."));
+		SG_Callback_Message_Add_Error(LNG("[ERR] Grid file could not be opened."));
 	}
 
 	//-----------------------------------------------------
@@ -153,7 +153,7 @@ bool CGrid::Save(const char *File_Name, int Format, int xA, int yA, int xN, int 
 	}
 
 	//-----------------------------------------------------
-	API_Callback_Message_Add(CAPI_String::Format("%s: %s...", LNG("[MSG] Save grid"), File_Name), true);
+	SG_Callback_Message_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Save grid"), File_Name), true);
 
 	switch( Format )
 	{
@@ -176,13 +176,13 @@ bool CGrid::Save(const char *File_Name, int Format, int xA, int yA, int xN, int 
 
 		Get_History().Save(File_Name, HISTORY_EXT_GRID);
 
-		API_Callback_Message_Add(LNG("[MSG] okay"), false);
+		SG_Callback_Message_Add(LNG("[MSG] okay"), false);
 	}
 	else
 	{
-		API_Callback_Message_Add(LNG("[MSG] failed"), false);
+		SG_Callback_Message_Add(LNG("[MSG] failed"), false);
 
-		API_Callback_Message_Add_Error(LNG("[ERR] Grid file could not be saved."));
+		SG_Callback_Message_Add_Error(LNG("[ERR] Grid file could not be saved."));
 	}
 
 	return( bResult );
@@ -238,16 +238,16 @@ bool CGrid::_Load_Binary(FILE *Stream, TGrid_Type File_Type, bool bFlip, bool bS
 
 			if( m_Type == File_Type && m_Memory_Type == GRID_MEMORY_Normal )
 			{
-				for(iy=0; iy<Get_NY() && !feof(Stream) && API_Callback_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
+				for(iy=0; iy<Get_NY() && !feof(Stream) && SG_Callback_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
 				{
 					fread(m_Values[y], sizeof(char), nxBytes, Stream);
 				}
 			}
 			else
 			{
-				Line	= (char *)API_Malloc(nxBytes);
+				Line	= (char *)SG_Malloc(nxBytes);
 
-				for(iy=0; iy<Get_NY() && !feof(Stream) && API_Callback_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
+				for(iy=0; iy<Get_NY() && !feof(Stream) && SG_Callback_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
 				{
 					fread(Line		, nxBytes	, sizeof(char), Stream);
 
@@ -260,7 +260,7 @@ bool CGrid::_Load_Binary(FILE *Stream, TGrid_Type File_Type, bool bFlip, bool bS
 					}
 				}
 
-				API_Free(Line);
+				SG_Free(Line);
 			}
 		}
 
@@ -272,16 +272,16 @@ bool CGrid::_Load_Binary(FILE *Stream, TGrid_Type File_Type, bool bFlip, bool bS
 
 			if( m_Type == File_Type && m_Memory_Type == GRID_MEMORY_Normal && !bSwapBytes )
 			{
-				for(iy=0; iy<Get_NY() && !feof(Stream) && API_Callback_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
+				for(iy=0; iy<Get_NY() && !feof(Stream) && SG_Callback_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
 				{
 					fread(m_Values[y], sizeof(char), nxBytes, Stream);
 				}
 			}
 			else
 			{
-				Line	= (char *)API_Malloc(nxBytes);
+				Line	= (char *)SG_Malloc(nxBytes);
 
-				for(iy=0; iy<Get_NY() && !feof(Stream) && API_Callback_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
+				for(iy=0; iy<Get_NY() && !feof(Stream) && SG_Callback_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
 				{
 					fread(Line		, nxBytes	, sizeof(char), Stream);
 
@@ -308,12 +308,12 @@ bool CGrid::_Load_Binary(FILE *Stream, TGrid_Type File_Type, bool bFlip, bool bS
 					}
 				}
 
-				API_Free(Line);
+				SG_Free(Line);
 			}
 		}
 
 		//-------------------------------------------------
-		API_Callback_Process_Set_Ready();
+		SG_Callback_Process_Set_Ready();
 
 		return( true );
 	}
@@ -352,16 +352,16 @@ bool CGrid::_Save_Binary(FILE *Stream, int xA, int yA, int xN, int yN, TGrid_Typ
 			{
 				axBytes		= xA / 8;
 
-				for(iy=0; iy<yN && API_Callback_Process_Set_Progress(iy, yN); iy++, y+=dy)
+				for(iy=0; iy<yN && SG_Callback_Process_Set_Progress(iy, yN); iy++, y+=dy)
 				{
 					fwrite((char *)m_Values[y] + axBytes, nxBytes, sizeof(char), Stream);
 				}
 			}
 			else
 			{
-				Line	= (char *)API_Malloc(nxBytes);
+				Line	= (char *)SG_Malloc(nxBytes);
 
-				for(iy=0; iy<yN && API_Callback_Process_Set_Progress(iy, yN); iy++, y+=dy)
+				for(iy=0; iy<yN && SG_Callback_Process_Set_Progress(iy, yN); iy++, y+=dy)
 				{
 					for(ix=0, x=xA, pValue=Line; ix<xN; pValue++)
 					{
@@ -374,7 +374,7 @@ bool CGrid::_Save_Binary(FILE *Stream, int xA, int yA, int xN, int yN, TGrid_Typ
 					fwrite(Line		, nxBytes	, sizeof(char), Stream);
 				}
 
-				API_Free(Line);
+				SG_Free(Line);
 			}
 		}
 
@@ -388,16 +388,16 @@ bool CGrid::_Save_Binary(FILE *Stream, int xA, int yA, int xN, int yN, TGrid_Typ
 			{
 				axBytes	= xA * nValueBytes;
 
-				for(iy=0; iy<yN && API_Callback_Process_Set_Progress(iy, yN); iy++, y+=dy)
+				for(iy=0; iy<yN && SG_Callback_Process_Set_Progress(iy, yN); iy++, y+=dy)
 				{
 					fwrite((char *)m_Values[y] + axBytes, nxBytes, sizeof(char), Stream);
 				}
 			}
 			else
 			{
-				Line	= (char *)API_Malloc(nxBytes);
+				Line	= (char *)SG_Malloc(nxBytes);
 
-				for(iy=0; iy<yN && API_Callback_Process_Set_Progress(iy, yN); iy++, y+=dy)
+				for(iy=0; iy<yN && SG_Callback_Process_Set_Progress(iy, yN); iy++, y+=dy)
 				{
 					for(ix=0, x=xA, pValue=Line; ix<xN; ix++, x++, pValue+=nValueBytes)
 					{
@@ -424,12 +424,12 @@ bool CGrid::_Save_Binary(FILE *Stream, int xA, int yA, int xN, int yN, TGrid_Typ
 					fwrite(Line		, nxBytes	, sizeof(char), Stream);
 				}
 
-				API_Free(Line);
+				SG_Free(Line);
 			}
 		}
 
 		//-------------------------------------------------
-		API_Callback_Process_Set_Ready();
+		SG_Callback_Process_Set_Ready();
 
 		return( true );
 	}
@@ -466,7 +466,7 @@ bool CGrid::_Load_ASCII(FILE *Stream, TGrid_Memory_Type Memory_Type, bool bFlip)
 		}
 
 		//-------------------------------------------------
-		for(iy=0; iy<Get_NY() && API_Callback_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
+		for(iy=0; iy<Get_NY() && SG_Callback_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
 		{
 			for(x=0; x<Get_NX(); x++)
 			{
@@ -476,7 +476,7 @@ bool CGrid::_Load_ASCII(FILE *Stream, TGrid_Memory_Type Memory_Type, bool bFlip)
 			}
 		}
 
-		API_Callback_Process_Set_Ready();
+		SG_Callback_Process_Set_Ready();
 
 		return( true );
 	}
@@ -505,7 +505,7 @@ bool CGrid::_Save_ASCII(FILE *Stream, int xA, int yA, int xN, int yN, bool bFlip
 		}
 
 		//-------------------------------------------------
-		for(iy=0; iy<yN && API_Callback_Process_Set_Progress(iy, yN); iy++, y+=dy)
+		for(iy=0; iy<yN && SG_Callback_Process_Set_Progress(iy, yN); iy++, y+=dy)
 		{
 			for(ix=0, x=xA; ix<xN; ix++, x++)
 			{
@@ -515,7 +515,7 @@ bool CGrid::_Save_ASCII(FILE *Stream, int xA, int yA, int xN, int yN, bool bFlip
 			fprintf(Stream, "\n");
 		}
 
-		API_Callback_Process_Set_Ready();
+		SG_Callback_Process_Set_Ready();
 
 		return( true );
 	}
@@ -539,7 +539,7 @@ bool CGrid::_Load_Native(const char *File_Header, TGrid_Memory_Type Memory_Type)
 	FILE			*Stream;
 	TGrid_Type		hdr_Type;
 	CGrid_System	System;
-	CAPI_String		File_Data, Value;
+	CSG_String		File_Data, Value;
 
 	//-----------------------------------------------------
 	bResult	= false;
@@ -581,13 +581,13 @@ bool CGrid::_Load_Native(const char *File_Header, TGrid_Memory_Type Memory_Type)
 			case GRID_FILE_KEY_TOPTOBOTTOM:		hdr_bFlip		= Value.Find(GRID_FILE_KEY_TRUE) >= 0;	break;
 
 			case GRID_FILE_KEY_DATAFILE_NAME:
-				if( API_Extract_File_Path(Value).Length() > 0 )
+				if( SG_File_Get_Path(Value).Length() > 0 )
 				{
 					File_Data	= Value;
 				}
 				else
 				{
-					File_Data	= API_Make_File_Path(API_Extract_File_Path(Value), Value);
+					File_Data	= SG_File_Make_Path(SG_File_Get_Path(Value), Value);
 				}
 				break;
 
@@ -623,8 +623,8 @@ bool CGrid::_Load_Native(const char *File_Header, TGrid_Memory_Type Memory_Type)
 				}
 
 				if(	(File_Data.Length() > 0 && (Stream = fopen(File_Data			, "r")) != NULL)
-				||	(Stream = fopen(API_Make_File_Path(NULL, File_Header,  "dat")	, "r")) != NULL
-				||	(Stream = fopen(API_Make_File_Path(NULL, File_Header, "sdat")	, "r")) != NULL )
+				||	(Stream = fopen(SG_File_Make_Path(NULL, File_Header,  "dat")	, "r")) != NULL
+				||	(Stream = fopen(SG_File_Make_Path(NULL, File_Header, "sdat")	, "r")) != NULL )
 				{
 					fseek(Stream, hdr_Offset, SEEK_SET);
 					bResult	= _Load_ASCII(Stream, Memory_Type);
@@ -650,8 +650,8 @@ bool CGrid::_Load_Native(const char *File_Header, TGrid_Memory_Type Memory_Type)
 				if( _Memory_Create(Memory_Type) )
 				{
 					if(	(File_Data.Length() > 0 && (Stream = fopen(File_Data			, "rb")) != NULL)
-					||	(Stream = fopen(API_Make_File_Path(NULL, File_Header,  "dat")	, "rb")) != NULL
-					||	(Stream = fopen(API_Make_File_Path(NULL, File_Header, "sdat")	, "rb")) != NULL )
+					||	(Stream = fopen(SG_File_Make_Path(NULL, File_Header,  "dat")	, "rb")) != NULL
+					||	(Stream = fopen(SG_File_Make_Path(NULL, File_Header, "sdat")	, "rb")) != NULL )
 					{
 						fseek(Stream, hdr_Offset, SEEK_SET);
 						bResult	= _Load_Binary(Stream, hdr_Type, hdr_bFlip, hdr_bSwapBytes);
@@ -671,7 +671,7 @@ bool CGrid::_Save_Native(const char *File_Name, int xA, int yA, int xN, int yN, 
 	bool	bResult		= false;
 	FILE	*Stream;
 
-	if(	(Stream = fopen(API_Make_File_Path(NULL, File_Name, "sgrd"), "w")) != NULL )
+	if(	(Stream = fopen(SG_File_Make_Path(NULL, File_Name, "sgrd"), "w")) != NULL )
 	{
 		//-------------------------------------------------
 		// Header...
@@ -697,7 +697,7 @@ bool CGrid::_Save_Native(const char *File_Name, int xA, int yA, int xN, int yN, 
 		//-------------------------------------------------
 		// Data...
 
-		if( (Stream = fopen(API_Make_File_Path(NULL, File_Name, "sdat"), "wb")) != NULL )
+		if( (Stream = fopen(SG_File_Make_Path(NULL, File_Name, "sdat"), "wb")) != NULL )
 		{
 			if( bBinary )
 			{
@@ -723,12 +723,12 @@ bool CGrid::_Save_Native(const char *File_Name, int xA, int yA, int xN, int yN, 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CGrid::_Load_Native_Get_Key(FILE *Stream, CAPI_String &Value)
+int CGrid::_Load_Native_Get_Key(FILE *Stream, CSG_String &Value)
 {
 	int			i;
-	CAPI_String	sLine;
+	CSG_String	sLine;
 
-	if( API_Read_Line(Stream, sLine) && (i = sLine.Find('=')) > 0 )
+	if( SG_Read_Line(Stream, sLine) && (i = sLine.Find('=')) > 0 )
 	{
 		Value.Printf(sLine.AfterFirst('='));
 		Value.Remove_WhiteChars();
@@ -795,9 +795,9 @@ bool CGrid::_Load_Surfer(const char *File_Name, TGrid_Memory_Type Memory_Type)
 			{
 				bResult	= true;
 
-				fLine	= (float *)API_Malloc(Get_NX() * sizeof(float));
+				fLine	= (float *)SG_Malloc(Get_NX() * sizeof(float));
 
-				for(y=0; y<Get_NY() && !feof(Stream) && API_Callback_Process_Set_Progress(y, Get_NY()); y++)
+				for(y=0; y<Get_NY() && !feof(Stream) && SG_Callback_Process_Set_Progress(y, Get_NY()); y++)
 				{
 					fread(fLine, Get_NX(), sizeof(float), Stream);
 
@@ -807,7 +807,7 @@ bool CGrid::_Load_Surfer(const char *File_Name, TGrid_Memory_Type Memory_Type)
 					}
 				}
 
-				API_Free(fLine);
+				SG_Free(fLine);
 			}
 		}
 
@@ -832,7 +832,7 @@ bool CGrid::_Load_Surfer(const char *File_Name, TGrid_Memory_Type Memory_Type)
 			{
 				bResult	= true;
 
-				for(y=0; y<Get_NY() && !feof(Stream) && API_Callback_Process_Set_Progress(y, Get_NY()); y++)
+				for(y=0; y<Get_NY() && !feof(Stream) && SG_Callback_Process_Set_Progress(y, Get_NY()); y++)
 				{
 					for(x=0; x<Get_NX(); x++)
 					{
@@ -847,7 +847,7 @@ bool CGrid::_Load_Surfer(const char *File_Name, TGrid_Memory_Type Memory_Type)
 		//-------------------------------------------------
 		fclose(Stream);
 
-		API_Callback_Process_Set_Ready();
+		SG_Callback_Process_Set_Ready();
 	}
 
 	return( bResult );

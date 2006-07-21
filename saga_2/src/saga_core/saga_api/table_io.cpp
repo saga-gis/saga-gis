@@ -76,25 +76,25 @@
 bool CTable::_Load(const char *File_Name, int Format, char Separator)
 {
 	bool		bResult;
-	CAPI_String	fName;
+	CSG_String	fName;
 
 	_Destroy();
 
-	API_Callback_Message_Add(CAPI_String::Format("%s: %s...", LNG("[MSG] Load table"), File_Name), true);
+	SG_Callback_Message_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Load table"), File_Name), true);
 
 	//-----------------------------------------------------
 	if( Format <= TABLE_FILETYPE_Undefined || Format > TABLE_FILETYPE_DBase )
 	{
-		if( API_Cmp_File_Extension(File_Name, "dbf") )
+		if( SG_File_Cmp_Extension(File_Name, "dbf") )
 		{
 			Format	= TABLE_FILETYPE_DBase;
 		}
-		else if( API_Cmp_File_Extension(File_Name, "csv") )
+		else if( SG_File_Cmp_Extension(File_Name, "csv") )
 		{
 			Format	= TABLE_FILETYPE_Text;
 			Separator	= ';';
 		}
-		else //if( API_Cmp_File_Extension(File_Name, "txt") )
+		else //if( SG_File_Cmp_Extension(File_Name, "txt") )
 		{
 			Format	= TABLE_FILETYPE_Text;
 		}
@@ -131,12 +131,12 @@ bool CTable::_Load(const char *File_Name, int Format, char Separator)
 			Get_History().Add_Entry(LNG("[HST] Loaded from file"), File_Name);
 		}
 
-		API_Callback_Message_Add(LNG("[MSG] okay"), false);
+		SG_Callback_Message_Add(LNG("[MSG] okay"), false);
 
 		return( true );
 	}
 
-	API_Callback_Message_Add(LNG("[MSG] failed"), false);
+	SG_Callback_Message_Add(LNG("[MSG] failed"), false);
 
 	return( false );
 }
@@ -152,21 +152,21 @@ bool CTable::Save(const char *File_Name, int Format, char Separator)
 {
 	bool	bResult;
 
-	API_Callback_Message_Add(CAPI_String::Format("%s: %s...", LNG("[MSG] Save table"), File_Name), true);
+	SG_Callback_Message_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Save table"), File_Name), true);
 
 	//-----------------------------------------------------
 	if( Format <= TABLE_FILETYPE_Undefined || Format > TABLE_FILETYPE_DBase )
 	{
-		if( API_Cmp_File_Extension(File_Name, "dbf") )
+		if( SG_File_Cmp_Extension(File_Name, "dbf") )
 		{
 			Format	= TABLE_FILETYPE_DBase;
 		}
-		else if( API_Cmp_File_Extension(File_Name, "csv") )
+		else if( SG_File_Cmp_Extension(File_Name, "csv") )
 		{
 			Format	= TABLE_FILETYPE_Text;
 			Separator	= ';';
 		}
-		else //if( API_Cmp_File_Extension(File_Name, "txt") )
+		else //if( SG_File_Cmp_Extension(File_Name, "txt") )
 		{
 			Format	= TABLE_FILETYPE_Text;
 		}
@@ -198,12 +198,12 @@ bool CTable::Save(const char *File_Name, int Format, char Separator)
 
 		Get_History().Save(File_Name, HISTORY_EXT_TABLE);
 
-		API_Callback_Message_Add(LNG("[MSG] okay"), false);
+		SG_Callback_Message_Add(LNG("[MSG] okay"), false);
 
 		return( true );
 	}
 
-	API_Callback_Message_Add(LNG("[MSG] failed"), false);
+	SG_Callback_Message_Add(LNG("[MSG] failed"), false);
 
 	return( false );
 }
@@ -224,7 +224,7 @@ bool CTable::_Load_Text(const char *File_Name, bool bHeadline, char Separator)
 	FILE			*Stream;
 	CTable_Record	*pRecord;
 	CTable			newTable;
-	CAPI_String		sLine, sField;
+	CSG_String		sLine, sField;
 
 	//-----------------------------------------------------
 	if( (Stream = fopen(File_Name, "r")) != NULL )
@@ -233,7 +233,7 @@ bool CTable::_Load_Text(const char *File_Name, bool bHeadline, char Separator)
 		fLength	= ftell(Stream);
 		fseek(Stream, 0, SEEK_SET);
 
-		if( API_Read_Line(Stream, sLine) )
+		if( SG_Read_Line(Stream, sLine) )
 		{
 			while( (i = sLine.Find(Separator)) >= 0 )
 			{
@@ -259,7 +259,7 @@ bool CTable::_Load_Text(const char *File_Name, bool bHeadline, char Separator)
 
 			bContinue	= true;
 
-			while( bContinue && API_Read_Line(Stream, sLine) && API_Callback_Process_Set_Progress(ftell(Stream), fLength) )
+			while( bContinue && SG_Read_Line(Stream, sLine) && SG_Callback_Process_Set_Progress(ftell(Stream), fLength) )
 			{
 				sLine.Append(Separator);
 
@@ -318,7 +318,7 @@ bool CTable::_Load_Text(const char *File_Name, bool bHeadline, char Separator)
 					}
 				}
 
-				for(iRecord=0; iRecord<newTable.Get_Record_Count() && API_Callback_Process_Set_Progress(iRecord, newTable.Get_Record_Count()); iRecord++)
+				for(iRecord=0; iRecord<newTable.Get_Record_Count() && SG_Callback_Process_Set_Progress(iRecord, newTable.Get_Record_Count()); iRecord++)
 				{
 					pRecord	= _Add_Record();
 
@@ -343,7 +343,7 @@ bool CTable::_Load_Text(const char *File_Name, bool bHeadline, char Separator)
 			}
 		}
 
-		API_Callback_Process_Set_Ready();
+		SG_Callback_Process_Set_Ready();
 
 		fclose(Stream);
 	}
@@ -366,7 +366,7 @@ bool CTable::_Save_Text(const char *File_Name, bool bHeadline, char Separator)
 				fprintf(Stream, "%s%c", Get_Field_Name(iField), iField < Get_Field_Count() - 1 ? Separator : '\n');
 			}
 
-			for(iRecord=0; iRecord<Get_Record_Count() && API_Callback_Process_Set_Progress(iRecord, Get_Record_Count()); iRecord++)
+			for(iRecord=0; iRecord<Get_Record_Count() && SG_Callback_Process_Set_Progress(iRecord, Get_Record_Count()); iRecord++)
 			{
 				for(iField=0; iField<Get_Field_Count(); iField++)
 				{
@@ -375,7 +375,7 @@ bool CTable::_Save_Text(const char *File_Name, bool bHeadline, char Separator)
 				}
 			}
 
-			API_Callback_Process_Set_Ready();
+			SG_Callback_Process_Set_Ready();
 
 			fclose(Stream);
 
@@ -463,9 +463,9 @@ bool CTable::_Load_DBase(const char *File_Name)
 					}
 				}
 			}
-			while( dbf.Move_Next() && API_Callback_Process_Set_Progress(dbf.Get_File_Position(), dbf.Get_File_Length()) );
+			while( dbf.Move_Next() && SG_Callback_Process_Set_Progress(dbf.Get_File_Position(), dbf.Get_File_Length()) );
 
-			API_Callback_Process_Set_Ready();
+			SG_Callback_Process_Set_Ready();
 
 			_Range_Invalidate();
 		}
@@ -485,7 +485,7 @@ bool CTable::_Save_DBase(const char *File_Name)
 	CTable_DBase::TFieldDesc	*dbfFieldDesc;
 
 	//-----------------------------------------------------
-	dbfFieldDesc	= (CTable_DBase::TFieldDesc *)API_Calloc(Get_Field_Count(), sizeof(CTable_DBase::TFieldDesc));
+	dbfFieldDesc	= (CTable_DBase::TFieldDesc *)SG_Calloc(Get_Field_Count(), sizeof(CTable_DBase::TFieldDesc));
 
 	for(iField=0; iField<Get_Field_Count(); iField++)
 	{
@@ -529,10 +529,10 @@ bool CTable::_Save_DBase(const char *File_Name)
 
 	dbf.Open(File_Name, Get_Field_Count(), dbfFieldDesc);
 
-	API_Free(dbfFieldDesc);
+	SG_Free(dbfFieldDesc);
 
 	//-----------------------------------------------------
-	for(iRecord=0; iRecord<Get_Record_Count() && API_Callback_Process_Set_Progress(iRecord, Get_Record_Count()); iRecord++)
+	for(iRecord=0; iRecord<Get_Record_Count() && SG_Callback_Process_Set_Progress(iRecord, Get_Record_Count()); iRecord++)
 	{
 		pRecord	= Get_Record(iRecord);
 
@@ -555,7 +555,7 @@ bool CTable::_Save_DBase(const char *File_Name)
 		dbf.Flush_Record();
 	}
 
-	API_Callback_Process_Set_Ready();
+	SG_Callback_Process_Set_Ready();
 
 	return( true );
 }
@@ -573,7 +573,7 @@ bool CTable::Serialize(FILE *Stream, bool bSave)
 	char			Separator	= '\t';
 	int				iField, nFields, iRecord, nRecords, FieldType;
 	CTable_Record	*pRecord;
-	CAPI_String		s, sLine;
+	CSG_String		s, sLine;
 
 	//-----------------------------------------------------
 	if( bSave )
@@ -597,13 +597,13 @@ bool CTable::Serialize(FILE *Stream, bool bSave)
 	}
 
 	//-----------------------------------------------------
-	else if( API_Read_Line(Stream, sLine) && sscanf(sLine, "%d %d", &nFields, &nRecords) == 2 && nFields > 0 )
+	else if( SG_Read_Line(Stream, sLine) && sscanf(sLine, "%d %d", &nFields, &nRecords) == 2 && nFields > 0 )
 	{
 		_Destroy();
 
 		for(iField=0; iField<nFields; iField++)
 		{
-			if( API_Read_Line(Stream, sLine) && sscanf(sLine, "%d", &FieldType) == 1 )
+			if( SG_Read_Line(Stream, sLine) && sscanf(sLine, "%d", &FieldType) == 1 )
 			{
 				Add_Field(sLine.AfterFirst('\"').BeforeFirst('\"'), (TTable_FieldType)FieldType);
 			}
@@ -611,7 +611,7 @@ bool CTable::Serialize(FILE *Stream, bool bSave)
 
 		for(iRecord=0; iRecord<nRecords; iRecord++)
 		{
-			if( API_Read_Line(Stream, sLine) )
+			if( SG_Read_Line(Stream, sLine) )
 			{
 				pRecord	= _Add_Record();
 

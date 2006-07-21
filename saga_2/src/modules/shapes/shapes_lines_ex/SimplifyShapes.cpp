@@ -102,13 +102,13 @@ bool CSimplifyShapes::On_Execute(void){
 	double dTolerance = Parameters("TOLERANCE")->asDouble();
 	int iNumPoints = Parameters("NUMPOINTS")->asInt();
 	int iMethod = Parameters("METHOD")->asInt();
-	TGEO_Point	Pt;	
+	TSG_Point	Pt;	
 	CShape *pShape, *pShape2;
 	int i;
 
 	if(pIn == pOut){
 		bCopy = true;
-		pOut = API_Create_Shapes();
+		pOut = SG_Create_Shapes();
 	}//if
 	else{
 		bCopy = false;

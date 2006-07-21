@@ -83,7 +83,7 @@ public:
 protected:
 
 	virtual bool				On_Execute(void);
-	virtual bool				On_Execute_Position(CGEO_Point ptWorld, TModule_Interactive_Mode Mode);
+	virtual bool				On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
 
 
 private:
@@ -95,7 +95,7 @@ private:
 	CParameter_Grid_List		*m_pValues;
 
 
-	bool						Set_Profile(TGEO_Point ptWorld);
+	bool						Set_Profile(TSG_Point ptWorld);
 	void						Set_Profile(int x, int y);
 
 	bool						Add_Point(int x, int y);

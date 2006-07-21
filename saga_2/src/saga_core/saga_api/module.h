@@ -81,7 +81,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum
+typedef enum EModule_Type
 {
 	MODULE_TYPE_Base			= 0,
 	MODULE_TYPE_Interactive,
@@ -98,7 +98,7 @@ TModule_Type;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum
+typedef enum EModule_Error
 {
 	MODULE_ERROR_Unknown		= 0,
 	MODULE_ERROR_Calculation
@@ -138,10 +138,10 @@ public:
 	int							Get_Extra_Parameters_Count	(void)	{	return( m_npParameters );	}
 
 	virtual bool				is_Interactive				(void)	{	return( false );	}
-	bool						is_Progress					(void)	{	return( API_Callback_Process_Get_Okay(false) );	}
+	bool						is_Progress					(void)	{	return( SG_Callback_Process_Get_Okay(false) );	}
 	bool						is_Executing				(void)	{	return( m_bExecutes );	}
 
-	void						Set_Translation				(CTranslator &Translator);
+	void						Set_Translation				(CSG_Translator &Translator);
 	void						Set_Managed					(bool bOn = true);
 	void						Set_Show_Progress			(bool bOn = true);
 
@@ -152,7 +152,7 @@ protected:
 
 	CParameters					Parameters;
 
-	CHistory					History_Supplement;
+	CSG_History					History_Supplement;
 
 
 	//-----------------------------------------------------
@@ -195,8 +195,8 @@ protected:
 
 	void						DataObject_Update_All		(void);
 
-	bool						DataObject_Get_Colors		(CDataObject *pDataObject, CColors &Colors);
-	bool						DataObject_Set_Colors		(CDataObject *pDataObject, CColors &Colors);
+	bool						DataObject_Get_Colors		(CDataObject *pDataObject, CSG_Colors &Colors);
+	bool						DataObject_Set_Colors		(CDataObject *pDataObject, CSG_Colors &Colors);
 
 
 private:
@@ -207,7 +207,7 @@ private:
 
 	CParameters					**m_pParameters;
 
-	CAPI_String					m_Author;
+	CSG_String					m_Author;
 
 
 	void						_Set_Output_History			(void);
@@ -287,7 +287,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum
+typedef enum EModule_Interactive_Mode
 {
 	MODULE_INTERACTIVE_UNDEFINED		= 0,
 	MODULE_INTERACTIVE_LDOWN,
@@ -307,7 +307,7 @@ typedef enum
 TModule_Interactive_Mode;
 
 //---------------------------------------------------------
-typedef enum
+typedef enum EModule_Interactive_DragMode
 {
 	MODULE_INTERACTIVE_DRAG_NONE		= 0,
 	MODULE_INTERACTIVE_DRAG_LINE,
@@ -334,7 +334,7 @@ public:
 	CModule_Interactive_Base(void);
 	virtual ~CModule_Interactive_Base(void);
 
-	bool						Execute_Position		(CGEO_Point ptWorld, TModule_Interactive_Mode Mode, int Keys);
+	bool						Execute_Position		(CSG_Point ptWorld, TModule_Interactive_Mode Mode, int Keys);
 	bool						Execute_Keyboard		(int Character, int Keys);
 	bool						Execute_Finish			(void);
 
@@ -343,15 +343,15 @@ public:
 
 protected:
 
-	virtual bool				On_Execute_Position		(CGEO_Point ptWorld, TModule_Interactive_Mode Mode);
+	virtual bool				On_Execute_Position		(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
 	virtual bool				On_Execute_Keyboard		(int Character);
 	virtual bool				On_Execute_Finish		(void);
 
-	CGEO_Point &				Get_Position			(void)	{	return( m_Point );					}
+	CSG_Point &					Get_Position			(void)	{	return( m_Point );					}
 	double						Get_xPosition			(void)	{	return( m_Point.m_point.x );		}
 	double						Get_yPosition			(void)	{	return( m_Point.m_point.y );		}
 
-	CGEO_Point &				Get_Position_Last		(void)	{	return( m_Point_Last );				}
+	CSG_Point &					Get_Position_Last		(void)	{	return( m_Point_Last );				}
 	double						Get_xPosition_Last		(void)	{	return( m_Point_Last.m_point.x );	}
 	double						Get_yPosition_Last		(void)	{	return( m_Point_Last.m_point.y );	}
 
@@ -366,7 +366,7 @@ private:
 
 	int							m_Keys, m_Drag_Mode;
 
-	CGEO_Point					m_Point, m_Point_Last;
+	CSG_Point					m_Point, m_Point_Last;
 
 	CModule						*m_pModule;
 
@@ -428,7 +428,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum
+typedef enum EMLB_Info
 {
 	MLB_INFO_Name	= 0,
 	MLB_INFO_Description,
@@ -468,9 +468,9 @@ private:
 
 	CModule						**m_Modules;
 
-	CAPI_String					m_File_Name;
+	CSG_String					m_File_Name;
 
-	CTranslator					m_Translator;
+	CSG_Translator				m_Translator;
 
 };
 

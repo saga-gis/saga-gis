@@ -82,7 +82,7 @@ CTIN_Point::CTIN_Point(void)
 }
 
 //---------------------------------------------------------
-CTIN_Point::CTIN_Point(int ID, TGEO_Point Point, CTable_Record *pRecord)
+CTIN_Point::CTIN_Point(int ID, TSG_Point Point, CTable_Record *pRecord)
 {
 	m_ID			= ID;
 	m_Point			= Point;
@@ -110,7 +110,7 @@ bool CTIN_Point::_Add_Triangle(CTIN_Triangle *pTriangle)
 		}
 	}
 
-	m_Triangles	= (CTIN_Triangle **)API_Realloc(m_Triangles, (m_nTriangles + 1) * sizeof(CTIN_Triangle *));
+	m_Triangles	= (CTIN_Triangle **)SG_Realloc(m_Triangles, (m_nTriangles + 1) * sizeof(CTIN_Triangle *));
 	m_Triangles[m_nTriangles++]	= pTriangle;
 
 //	_Add_Neighbor(pTriangle->Get_Point(0));
@@ -136,7 +136,7 @@ bool CTIN_Point::_Add_Neighbor(CTIN_Point *pNeighbor)
 		}
 	}
 
-	m_Neighbors	= (CTIN_Point **)API_Realloc(m_Neighbors, (m_nNeighbors + 1) * sizeof(CTIN_Point *));
+	m_Neighbors	= (CTIN_Point **)SG_Realloc(m_Neighbors, (m_nNeighbors + 1) * sizeof(CTIN_Point *));
 	m_Neighbors[m_nNeighbors++]	= pNeighbor;
 
 	return( true );
@@ -147,14 +147,14 @@ bool CTIN_Point::_Del_Relations(void)
 {
 	if( m_nTriangles > 0 )
 	{
-		API_Free(m_Triangles);
+		SG_Free(m_Triangles);
 		m_Triangles		= NULL;
 		m_nTriangles	= 0;
 	}
 
 	if( m_nNeighbors > 0 )
 	{
-		API_Free(m_Neighbors);
+		SG_Free(m_Neighbors);
 		m_Neighbors		= NULL;
 		m_nNeighbors	= 0;
 	}
@@ -203,7 +203,7 @@ int TIN_Compare_Triangle_Center(const void *pp1, const void *pp2)
 }
 
 //---------------------------------------------------------
-bool CTIN_Point::Get_Polygon(TGEO_Point **ppPoints, int &nPoints)
+bool CTIN_Point::Get_Polygon(TSG_Point **ppPoints, int &nPoints)
 {
 	int		i;
 	double	**p;
@@ -211,21 +211,21 @@ bool CTIN_Point::Get_Polygon(TGEO_Point **ppPoints, int &nPoints)
 	if( m_nTriangles >= 3 )
 	{
 		//-------------------------------------------------
-		p	= (double **)API_Malloc(m_nTriangles * sizeof(double *));
+		p	= (double **)SG_Malloc(m_nTriangles * sizeof(double *));
 
 		for(i=0; i<m_nTriangles; i++)
 		{
-			p[i]	= (double *)API_Malloc(3 * sizeof(double));
+			p[i]	= (double *)SG_Malloc(3 * sizeof(double));
 			p[i][0]	= m_Triangles[i]->Get_CircumCircle_Point().x;
 			p[i][1]	= m_Triangles[i]->Get_CircumCircle_Point().y;
-			p[i][2]	= GEO_Get_Angle_Of_Direction(p[i][0] - m_Point.x, p[i][1] - m_Point.y);
+			p[i][2]	= SG_Get_Angle_Of_Direction(p[i][0] - m_Point.x, p[i][1] - m_Point.y);
 		}
 
 		qsort(p, m_nTriangles, sizeof(double *), TIN_Compare_Triangle_Center);
 
 		//-------------------------------------------------
 		nPoints		= m_nTriangles;
-		*ppPoints	= (TGEO_Point *)API_Malloc(nPoints * sizeof(TGEO_Point));
+		*ppPoints	= (TSG_Point *)SG_Malloc(nPoints * sizeof(TSG_Point));
 
 		for(i=0; i<m_nTriangles; i++)
 		{
@@ -236,10 +236,10 @@ bool CTIN_Point::Get_Polygon(TGEO_Point **ppPoints, int &nPoints)
 		//-------------------------------------------------
 		for(i=0; i<m_nTriangles; i++)
 		{
-			API_Free(p[i]);
+			SG_Free(p[i]);
 		}
 
-		API_Free(p);
+		SG_Free(p);
 
 		return( true );
 	}
@@ -252,13 +252,13 @@ double CTIN_Point::Get_Polygon_Area(void)
 {
 	int			nPoints;
 	double		Area;
-	TGEO_Point	*pPoints;
+	TSG_Point	*pPoints;
 
 	if( Get_Polygon(&pPoints, nPoints) )
 	{
-		Area	= GEO_Get_Polygon_Area(pPoints, nPoints);
+		Area	= SG_Get_Polygon_Area(pPoints, nPoints);
 
-		API_Free(pPoints);
+		SG_Free(pPoints);
 
 		return( Area );
 	}
@@ -333,13 +333,13 @@ CTIN_Triangle::CTIN_Triangle(CTIN_Point *a, CTIN_Point *b, CTIN_Point *c)
 				+	c->Get_X() * (a->Get_Y() - b->Get_Y())	) / 2.0;
 
 	//-----------------------------------------------------
-	TGEO_Point	Points[3];
+	TSG_Point	Points[3];
 
 	Points[0]	= m_Points[0]->Get_Point();
 	Points[1]	= m_Points[1]->Get_Point();
 	Points[2]	= m_Points[2]->Get_Point();
 
-	GEO_Get_Triangle_CircumCircle(Points, m_Center, m_Radius);
+	SG_Get_Triangle_CircumCircle(Points, m_Center, m_Radius);
 }
 
 //---------------------------------------------------------
@@ -348,7 +348,7 @@ CTIN_Triangle::~CTIN_Triangle(void)
 
 
 //---------------------------------------------------------
-bool CTIN_Triangle::is_Containing(const TGEO_Point &Point)
+bool CTIN_Triangle::is_Containing(const TSG_Point &Point)
 {
 	return( is_Containing(Point.x, Point.y) );
 }
@@ -362,7 +362,7 @@ bool CTIN_Triangle::is_Containing(double x, double y)
 	if( m_Extent.Contains(x, y) )
 	{
 		int			nCrossings;
-		TGEO_Point	A, B, C;
+		TSG_Point	A, B, C;
 
 		if(	(x == m_Points[0]->Get_Point().x && y == m_Points[0]->Get_Point().y)
 		||	(x == m_Points[1]->Get_Point().x && y == m_Points[1]->Get_Point().y)
@@ -388,13 +388,13 @@ bool CTIN_Triangle::is_Containing(double x, double y)
 		B.x			= x;
 		A.y = B.y	= y;
 
-		if( GEO_Get_Crossing(C, m_Points[0]->Get_Point(), m_Points[1]->Get_Point(), A, B) )
+		if( SG_Get_Crossing(C, m_Points[0]->Get_Point(), m_Points[1]->Get_Point(), A, B) )
 			nCrossings++;
 
-		if( GEO_Get_Crossing(C, m_Points[1]->Get_Point(), m_Points[2]->Get_Point(), A, B) )
+		if( SG_Get_Crossing(C, m_Points[1]->Get_Point(), m_Points[2]->Get_Point(), A, B) )
 			nCrossings++;
 
-		if( GEO_Get_Crossing(C, m_Points[2]->Get_Point(), m_Points[0]->Get_Point(), A, B) )
+		if( SG_Get_Crossing(C, m_Points[2]->Get_Point(), m_Points[0]->Get_Point(), A, B) )
 			nCrossings++;
 
 		return( nCrossings == 1 );

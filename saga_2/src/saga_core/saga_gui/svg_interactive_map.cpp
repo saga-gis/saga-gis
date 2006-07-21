@@ -102,7 +102,7 @@ CSVG_Interactive_Map::~CSVG_Interactive_Map(void)
 void CSVG_Interactive_Map::Create_From_Map(CWKSP_Map *pMap, CShapes *pIndexLayer, const char *Filename)
 {
 	//-----------------------------------------------------
-	m_Directory	= API_Extract_File_Path(Filename);
+	m_Directory	= SG_File_Get_Path(Filename);
 
 	_Add_Opening(pMap->Get_Extent());
 
@@ -131,13 +131,13 @@ void CSVG_Interactive_Map::Create_From_Map(CWKSP_Map *pMap, CShapes *pIndexLayer
 	Save(Filename);
 
 	//-----------------------------------------------------
-	_Write_Code(API_Make_File_Path(m_Directory, "checkbox"			, "js"), _Get_Code_CheckBox	());
-	_Write_Code(API_Make_File_Path(m_Directory, "mapApp"			, "js"), _Get_Code_MapApp	());
-	_Write_Code(API_Make_File_Path(m_Directory, "timer"				, "js"), _Get_Code_Timer	());
-	_Write_Code(API_Make_File_Path(m_Directory, "slider"			, "js"), _Get_Code_Slider	());
-	_Write_Code(API_Make_File_Path(m_Directory, "helper_functions"	, "js"), _Get_Code_Helper	());
-	_Write_Code(API_Make_File_Path(m_Directory, "button"			, "js"), _Get_Code_Buttons	());
-	_Write_Code(API_Make_File_Path(m_Directory, "navigation"		, "js"), CAPI_String::Format("%s%s", _Get_Code_Navigation_1(), _Get_Code_Navigation_2()));
+	_Write_Code(SG_File_Make_Path(m_Directory, "checkbox"			, "js"), _Get_Code_CheckBox	());
+	_Write_Code(SG_File_Make_Path(m_Directory, "mapApp"			, "js"), _Get_Code_MapApp	());
+	_Write_Code(SG_File_Make_Path(m_Directory, "timer"				, "js"), _Get_Code_Timer	());
+	_Write_Code(SG_File_Make_Path(m_Directory, "slider"			, "js"), _Get_Code_Slider	());
+	_Write_Code(SG_File_Make_Path(m_Directory, "helper_functions"	, "js"), _Get_Code_Helper	());
+	_Write_Code(SG_File_Make_Path(m_Directory, "button"			, "js"), _Get_Code_Buttons	());
+	_Write_Code(SG_File_Make_Path(m_Directory, "navigation"		, "js"), CSG_String::Format("%s%s", _Get_Code_Navigation_1(), _Get_Code_Navigation_2()));
 }
 
 //---------------------------------------------------------
@@ -161,16 +161,16 @@ void CSVG_Interactive_Map::_Write_Code(const char *FileName, const char *Code)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSVG_Interactive_Map::_Add_Opening(CGEO_Rect r)
+void CSVG_Interactive_Map::_Add_Opening(CSG_Rect r)
 {
-	CAPI_String sViewBox;
+	CSG_String sViewBox;
 	double Width, Height;
 	double OffsetX, OffsetY;
 
 	m_sSVGCode.Append(_Get_Opening_Code_1());
-	m_sSVGCode.Append(API_Get_String(r.Get_XRange(),2));
+	m_sSVGCode.Append(SG_Get_String(r.Get_XRange(),2));
 	m_sSVGCode.Append(",");
-	m_sSVGCode.Append(API_Get_String(r.Get_XRange() / 400.,2));
+	m_sSVGCode.Append(SG_Get_String(r.Get_XRange() / 400.,2));
 	m_sSVGCode.Append(_Get_Opening_Code_2());
 
 	if (r.Get_XRange() / r.Get_YRange()  > MAP_WINDOW_WIDTH / MAP_WINDOW_HEIGHT)
@@ -187,13 +187,13 @@ void CSVG_Interactive_Map::_Add_Opening(CGEO_Rect r)
 	OffsetX = (Width - r.Get_XRange()) / 2.;
 	OffsetY = (Height - r.Get_YRange()) / 2.;
 
-	sViewBox.Append(API_Get_String(r.Get_XMin() - OffsetX,2));
+	sViewBox.Append(SG_Get_String(r.Get_XMin() - OffsetX,2));
 	sViewBox.Append(" ");
-	sViewBox.Append(API_Get_String(-r.Get_YMax() - OffsetY,2));
+	sViewBox.Append(SG_Get_String(-r.Get_YMax() - OffsetY,2));
 	sViewBox.Append(" ");
-	sViewBox.Append(API_Get_String(Width,2));
+	sViewBox.Append(SG_Get_String(Width,2));
 	sViewBox.Append(" ");
-	sViewBox.Append(API_Get_String(Height,2));
+	sViewBox.Append(SG_Get_String(Height,2));
 
 	_AddAttribute("viewBox", sViewBox);	
 	m_sSVGCode.Append(">\n");
@@ -364,10 +364,10 @@ const char * CSVG_Interactive_Map::_Get_Opening_Code_2(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSVG_Interactive_Map::_Add_ReferenceMap(CShapes *pIndexLayer, CGEO_Rect r)
+void CSVG_Interactive_Map::_Add_ReferenceMap(CShapes *pIndexLayer, CSG_Rect r)
 {
 	int i;
-	CAPI_String sViewBox;
+	CSG_String sViewBox;
 	double Line_Width, Point_Width;
 	double Width, Height;
 	double OffsetX, OffsetY;
@@ -387,13 +387,13 @@ void CSVG_Interactive_Map::_Add_ReferenceMap(CShapes *pIndexLayer, CGEO_Rect r)
 	OffsetX = (Width - r.Get_XRange()) / 2.;
 	OffsetY = (Height - r.Get_YRange()) / 2.;
 
-	sViewBox.Append(API_Get_String(r.Get_XMin() - OffsetX,2));
+	sViewBox.Append(SG_Get_String(r.Get_XMin() - OffsetX,2));
 	sViewBox.Append(" ");
-	sViewBox.Append(API_Get_String(- r.Get_YMax() - OffsetY,2));
+	sViewBox.Append(SG_Get_String(- r.Get_YMax() - OffsetY,2));
 	sViewBox.Append(" ");
-	sViewBox.Append(API_Get_String(Width,2));
+	sViewBox.Append(SG_Get_String(Width,2));
 	sViewBox.Append(" ");
-	sViewBox.Append(API_Get_String(Height,2));
+	sViewBox.Append(SG_Get_String(Height,2));
 
 	_AddAttribute("viewBox", sViewBox);	
 
@@ -431,7 +431,7 @@ void CSVG_Interactive_Map::_Add_Grid(CWKSP_Grid *pLayer)
 	
 	if( pLayer->Get_Image_Grid(&BMP) )
 	{
-		Filename = API_Make_File_Path(m_Directory.c_str(), pLayer->Get_Object()->Get_Name(),"jpg");
+		Filename = SG_File_Make_Path(m_Directory.c_str(), pLayer->Get_Object()->Get_Name(),"jpg");
 		BMP.SaveFile(Filename, wxBITMAP_TYPE_JPEG);
 		m_sSVGCode.Append("<image ");
 		_AddAttribute("id",pLayer->Get_Object()->Get_Name());
@@ -439,7 +439,7 @@ void CSVG_Interactive_Map::_Add_Grid(CWKSP_Grid *pLayer)
 		_AddAttribute("y",-((CGrid*)pLayer->Get_Object())->Get_YMax());
 		_AddAttribute("width",((CGrid*)pLayer->Get_Object())->Get_XRange());
 		_AddAttribute("height",((CGrid*)pLayer->Get_Object())->Get_YRange());
-		_AddAttribute("xlink:href", API_Extract_File_Name(Filename, true));
+		_AddAttribute("xlink:href", SG_File_Get_Name(Filename, true));
 		m_sSVGCode.Append("/>");
 	}
 }
@@ -453,7 +453,7 @@ void CSVG_Interactive_Map::_Add_Shapes(CWKSP_Shapes *pLayer)
 	double Line_Width, Point_Width;
 	double dSize;
 	CShape *pShape;
-	CAPI_String sLabel;
+	CSG_String sLabel;
 
 	m_sSVGCode.Append("<g id=\"");
 	m_sSVGCode.Append(pLayer->Get_Object()->Get_Name());		
@@ -504,7 +504,7 @@ void CSVG_Interactive_Map::_Add_Label(const char* Label, CShape *pShape, double 
 {
 
 	int iPoint, iPart;
-	TGEO_Point Point;
+	TSG_Point Point;
 
 	switch( pShape->Get_Type() )
 	{
@@ -542,8 +542,8 @@ bool CSVG_Interactive_Map::_Add_Shape(CShape *pShape, int Fill_Color, int Line_C
 	if( pShape && pShape->is_Valid() )
 	{
 		int				iPart, iPoint;
-		TGEO_Point		Point;
-		CAPI_dPoints	Points;
+		TSG_Point		Point;
+		CSG_Points	Points;
 
 		for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{
@@ -593,7 +593,7 @@ void CSVG_Interactive_Map::_Add_CheckBoxes(CWKSP_Map *pMap)
 {
 
 	int i;
-	CAPI_String s;
+	CSG_String s;
 	int x,y;
 	int iRow = 1;
 	
@@ -617,9 +617,9 @@ void CSVG_Interactive_Map::_Add_CheckBoxes(CWKSP_Map *pMap)
 	
 		m_sSVGCode.Append("<g ");
 		s = "translate(";
-		s.Append(API_Get_String(x,0));
+		s.Append(SG_Get_String(x,0));
 		s.Append(" ");
-		s.Append(API_Get_String(y,0));
+		s.Append(SG_Get_String(y,0));
 		s.Append(")");
 		_AddAttribute("transform", s);
 		m_sSVGCode.Append(">\n");

@@ -53,8 +53,8 @@ private:
 
 	int m_iLength;
 
-	CAPI_iPoints	m_CentralPoints;
-	CAPI_iPoints	m_AdjPoints;
+	CSG_Points_Int	m_CentralPoints;
+	CSG_Points_Int	m_AdjPoints;
 
 	int *m_pLength; 
 	int m_iMaxTime; //in s

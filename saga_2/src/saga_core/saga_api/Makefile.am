@@ -12,6 +12,9 @@ api_memory.cpp\
 api_string.cpp\
 api_translator.cpp\
 dataobject.cpp\
+doc_html.cpp\
+doc_pdf.cpp\
+doc_svg.cpp\
 geo_classes.cpp\
 geo_functions.cpp\
 grid.cpp\
@@ -19,7 +22,6 @@ grid_io.cpp\
 grid_memory.cpp\
 grid_operation.cpp\
 grid_system.cpp\
-html_document.cpp\
 mat_formula.cpp\
 mat_grid_radius.cpp\
 mat_indexing.cpp\
@@ -38,7 +40,6 @@ module_library_interface.cpp\
 parameter.cpp\
 parameter_data.cpp\
 parameters.cpp\
-pdf_document.cpp\
 saga_api.cpp\
 shape.cpp\
 shape_line.cpp\
@@ -49,7 +50,6 @@ shapes.cpp\
 shapes_io.cpp\
 shapes_search.cpp\
 shapes_selection.cpp\
-svg_graph.cpp\
 table.cpp\
 table_dbase.cpp\
 table_io.cpp\
@@ -60,16 +60,16 @@ tin_elements.cpp\
 tin_triangulation.cpp\
 api_core.h\
 dataobject.h\
+doc_html.h\
+doc_pdf.h\
+doc_svg.h\
 geo_tools.h\
 grid.h\
-html_document.h\
 mat_tools.h\
 module.h\
 parameters.h\
-pdf_document.h\
 saga_api.h\
 shapes.h\
-svg_graph.h\
 table.h\
 table_dbase.h\
 table_value.h\

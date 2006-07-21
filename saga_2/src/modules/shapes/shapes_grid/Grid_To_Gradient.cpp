@@ -114,7 +114,7 @@ CGrid_To_Gradient::CGrid_To_Gradient(void)
 	Parameters.Add_Choice(
 		NULL, "STYLE"		, _TL("Style"),
 		"",
-		CAPI_String::Format("%s|",
+		CSG_String::Format("%s|",
 			_TL("Line"),
 			_TL("Arrow")
 		), 0
@@ -151,7 +151,7 @@ bool CGrid_To_Gradient::On_Execute(void)
 	sRange	= Parameters("SIZE_MAX")	->asDouble() - sMin;
 	dStep	= Step * Get_Cellsize();
 
-	pShapes->Create(SHAPE_TYPE_Line, CAPI_String::Format("%s [%s]", pGrid->Get_Name(), _TL("Gradient")));
+	pShapes->Create(SHAPE_TYPE_Line, CSG_String::Format("%s [%s]", pGrid->Get_Name(), _TL("Gradient")));
 	pShapes->Get_Table().Add_Field("X"	, TABLE_FIELDTYPE_Double);
 	pShapes->Get_Table().Add_Field("Y"	, TABLE_FIELDTYPE_Double);
 	pShapes->Get_Table().Add_Field("S"	, TABLE_FIELDTYPE_Double);

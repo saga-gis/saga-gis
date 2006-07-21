@@ -331,11 +331,11 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 	{
 		Gridname = pStatList->asGrid(iGrid)->Get_Name();
 
-		pOutTab->Add_Field(CAPI_String::Format(_TL("%s_MIN")   , Gridname), TABLE_FIELDTYPE_Double);
-		pOutTab->Add_Field(CAPI_String::Format(_TL("%s_MAX")   , Gridname), TABLE_FIELDTYPE_Double);
-		pOutTab->Add_Field(CAPI_String::Format(_TL("%s_MEAN")  , Gridname), TABLE_FIELDTYPE_Double);
-		pOutTab->Add_Field(CAPI_String::Format(_TL("%s_STDDEV"), Gridname), TABLE_FIELDTYPE_Double);
-		pOutTab->Add_Field(CAPI_String::Format(_TL("%s_SUM")   , Gridname), TABLE_FIELDTYPE_Double);
+		pOutTab->Add_Field(CSG_String::Format(_TL("%s_MIN")   , Gridname), TABLE_FIELDTYPE_Double);
+		pOutTab->Add_Field(CSG_String::Format(_TL("%s_MAX")   , Gridname), TABLE_FIELDTYPE_Double);
+		pOutTab->Add_Field(CSG_String::Format(_TL("%s_MEAN")  , Gridname), TABLE_FIELDTYPE_Double);
+		pOutTab->Add_Field(CSG_String::Format(_TL("%s_STDDEV"), Gridname), TABLE_FIELDTYPE_Double);
+		pOutTab->Add_Field(CSG_String::Format(_TL("%s_SUM")   , Gridname), TABLE_FIELDTYPE_Double);
 	}
 
 
@@ -418,7 +418,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 
 	if( NDcountStat > 0 )
 	{
-		Message_Add(CAPI_String::Format(_TL("\n\n\nWARNING: Encountered %d no-data value(s) in statistic grid(s)!\n\n\n"), NDcountStat));
+		Message_Add(CSG_String::Format(_TL("\n\n\nWARNING: Encountered %d no-data value(s) in statistic grid(s)!\n\n\n"), NDcountStat));
 	}
 
 	return (true);

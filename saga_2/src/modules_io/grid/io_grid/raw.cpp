@@ -212,7 +212,7 @@ bool CRaw_Import::On_Execute(void)
 	double		dxy, xmin, ymin, zFactor, zNoData;
 	FILE		*Stream;
 	TGrid_Type	data_type;
-	CAPI_String	FileName, Unit;
+	CSG_String	FileName, Unit;
 	CGrid		*pGrid;
 
 	//-----------------------------------------------------
@@ -254,7 +254,7 @@ bool CRaw_Import::On_Execute(void)
 			pGrid->Set_Unit			(Unit);
 			pGrid->Set_ZFactor		(zFactor);
 			pGrid->Set_NoData_Value	(zNoData);
-			pGrid->Set_Name			(API_Extract_File_Name(FileName, true));
+			pGrid->Set_Name			(SG_File_Get_Name(FileName, true));
 
 			Parameters("GRID")->Set_Value(pGrid);
 		}
@@ -292,10 +292,10 @@ CGrid * CRaw_Import::Load_Data(FILE *Stream, TGrid_Type data_type, int nx, int n
 		//-------------------------------------------------
 		if( !feof(Stream) )
 		{
-			pGrid			= API_Create_Grid(data_type, nx, ny, dxy, xmin, ymin);
+			pGrid			= SG_Create_Grid(data_type, nx, ny, dxy, xmin, ymin);
 			nBytes_Value	= GRID_TYPE_SIZES[data_type];
 			nBytes_Line		= nBytes_Value * nx;
-			pLine			= (char *)API_Malloc(nBytes_Line);
+			pLine			= (char *)SG_Malloc(nBytes_Line);
 
 			//---------------------------------------------
 			for(y=0; y<pGrid->Get_NY() && !feof(Stream) && Set_Progress(y, pGrid->Get_NY()); y++)
@@ -311,7 +311,7 @@ CGrid * CRaw_Import::Load_Data(FILE *Stream, TGrid_Type data_type, int nx, int n
 				{
 					if( bBig )
 					{
-						API_Swap_Bytes(pValue, nBytes_Value);
+						SG_Swap_Bytes(pValue, nBytes_Value);
 					}
 
 					switch( data_type )
@@ -334,7 +334,7 @@ CGrid * CRaw_Import::Load_Data(FILE *Stream, TGrid_Type data_type, int nx, int n
 			}
 
 			//---------------------------------------------
-			API_Free(pLine);
+			SG_Free(pLine);
 
 			if( bDown )
 			{

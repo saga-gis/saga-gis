@@ -176,13 +176,13 @@ void CGrid_To_Contour::Contour_Create(double zMin, double zMax, double zStep)
 
 	//-----------------------------------------------------
 	// Initialize...
-	col		= (char **)API_Calloc(Get_NY(), sizeof(char *));
-	row		= (char **)API_Calloc(Get_NY(), sizeof(char *));
+	col		= (char **)SG_Calloc(Get_NY(), sizeof(char *));
+	row		= (char **)SG_Calloc(Get_NY(), sizeof(char *));
 
 	for(y=0; y<Get_NY(); y++)
 	{
-		col[y]	= (char *)API_Calloc(Get_NX(), sizeof(char));
-		row[y]	= (char *)API_Calloc(Get_NX(), sizeof(char));
+		col[y]	= (char *)SG_Calloc(Get_NX(), sizeof(char));
+		row[y]	= (char *)SG_Calloc(Get_NX(), sizeof(char));
 	}
 
 	if( zStep <= 0 )
@@ -231,12 +231,12 @@ void CGrid_To_Contour::Contour_Create(double zMin, double zMax, double zStep)
 	// Finalize...
 	for(y=0; y<Get_NY(); y++)
 	{
-		API_Free(col[y]);
-		API_Free(row[y]);
+		SG_Free(col[y]);
+		SG_Free(row[y]);
 	}
 
-	API_Free(col);
-	API_Free(row);
+	SG_Free(col);
+	SG_Free(row);
 }
 
 //---------------------------------------------------------

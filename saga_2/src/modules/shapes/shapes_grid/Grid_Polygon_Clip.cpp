@@ -154,7 +154,7 @@ bool CGrid_Polygon_Clip::On_Execute(void)
 		// calculate GridSystem parameters pGrid_out	
 		if( Get_Mask(pShapes, &Mask) && Get_Extent(ax, nx, ay, ny, &Mask) )
 		{
-			pGrid_out	= API_Create_Grid(					// creating the output grid GridSystem
+			pGrid_out	= SG_Create_Grid(					// creating the output grid GridSystem
 				pGrid_in->Get_Type(), nx, ny, pGrid_in->Get_Cellsize(),
 				pGrid_in->Get_XMin() + ax * pGrid_in->Get_Cellsize(),
 				pGrid_in->Get_YMin() + ay * pGrid_in->Get_Cellsize()
@@ -246,14 +246,14 @@ bool CGrid_Polygon_Clip::Get_Mask(CShapes *pShapes, CGrid *pMask)
 	bool		bFill, *bCrossing;
 	int			x, y, ix, xStart, xStop, iShape, iPart, iPoint;
 	double		yPos;
-	TGEO_Point	pLeft, pRight, pa, pb, p;
-	TGEO_Rect	Extent;
+	TSG_Point	pLeft, pRight, pa, pb, p;
+	TSG_Rect	Extent;
 	CShape		*pShape;
 
 	//-----------------------------------------------------
 	pMask->Assign(MASK_OFF);
 
-	bCrossing	= (bool *)API_Malloc(pMask->Get_NX() * sizeof(bool));
+	bCrossing	= (bool *)SG_Malloc(pMask->Get_NX() * sizeof(bool));
 
 	//-----------------------------------------------------
 	for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
@@ -295,7 +295,7 @@ bool CGrid_Polygon_Clip::Get_Mask(CShapes *pShapes, CGrid *pMask)
 						if(	(	(pa.y <= yPos && yPos < pb.y)
 							||	(pa.y > yPos && yPos >= pb.y)	)	)
 						{
-							GEO_Get_Crossing(p, pa, pb, pLeft, pRight, false);
+							SG_Get_Crossing(p, pa, pb, pLeft, pRight, false);
 
 							ix	= (int)((p.x - pMask->Get_XMin()) / pMask->Get_Cellsize() + 1.0);
 
@@ -331,7 +331,7 @@ bool CGrid_Polygon_Clip::Get_Mask(CShapes *pShapes, CGrid *pMask)
 	}
 
 	//-----------------------------------------------------
-	API_Free(bCrossing);
+	SG_Free(bCrossing);
 
 	return( true );
 }

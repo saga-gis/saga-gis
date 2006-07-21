@@ -427,7 +427,7 @@ bool CSAGA_Wetness_Index::Get_Area_Modified(CGrid *pDEM, CGrid *pC, CGrid *pCS, 
 			}
 		}
 
-		Process_Set_Text(CAPI_String::Format("Modify: %d. iteration [%d > 0]", i, n));
+		Process_Set_Text(CSG_String::Format("Modify: %d. iteration [%d > 0]", i, n));
 	}
 
 	//-----------------------------------------------------

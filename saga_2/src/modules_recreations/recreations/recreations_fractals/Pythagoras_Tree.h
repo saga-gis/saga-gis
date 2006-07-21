@@ -95,10 +95,10 @@ private:
 	CShapes					*pShapes;
 
 
-	void					Set_Quadrat	(TGEO_Point pt_A, TGEO_Point pt_B);
+	void					Set_Quadrat	(TSG_Point pt_A, TSG_Point pt_B);
 
-	void					Add_Shape	(TGEO_Point pt_A, TGEO_Point pt_B, TGEO_Point pt_C, TGEO_Point pt_D);
-	void					Add_Shape	(TGEO_Point pt_A, TGEO_Point pt_B, TGEO_Point pt_C);
+	void					Add_Shape	(TSG_Point pt_A, TSG_Point pt_B, TSG_Point pt_C, TSG_Point pt_D);
+	void					Add_Shape	(TSG_Point pt_A, TSG_Point pt_B, TSG_Point pt_C);
 
 };
 

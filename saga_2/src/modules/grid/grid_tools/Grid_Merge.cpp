@@ -104,7 +104,7 @@ CGrid_Merge::CGrid_Merge(void)
 	Parameters.Add_Choice(
 		NULL	, "TYPE"		, _TL("Preferred data storage type"),
 		"",
-		CAPI_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|",
 			_TL("1 bit"),
 			_TL("1 byte unsigned"),
 			_TL("1 byte signed"),
@@ -143,7 +143,7 @@ CGrid_Merge::CGrid_Merge(void)
 	Parameters.Add_Choice(
 		NULL	, "INTERPOL"	, _TL("Interpolation"),
 		"",
-		CAPI_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|",
 			_TL("Nearest Neighbor"),
 			_TL("Bilinear Interpolation"),
 			_TL("Inverse Distance Interpolation"),
@@ -170,7 +170,7 @@ bool CGrid_Merge::On_Execute(void)
 	int						iGrid, nGrids, nx, ny, x, y, Interpol;
 	double					d, Cellsize, xPos, yPos;
 	TGrid_Type				Type;
-	CGEO_Rect				Extent;
+	CSG_Rect				Extent;
 	CGrid					*pGrid, *pMerge;
 	CParameter_Grid_List	*pParm_Grids;
 
@@ -238,7 +238,7 @@ bool CGrid_Merge::On_Execute(void)
 			nx		= 1 + (int)((Extent.m_rect.xMax - Extent.m_rect.xMin) / Cellsize);
 			ny		= 1 + (int)((Extent.m_rect.yMax - Extent.m_rect.yMin) / Cellsize);
 
-			pMerge	= API_Create_Grid(Type, nx, ny, Cellsize, Extent.m_rect.xMin, Extent.m_rect.yMin);
+			pMerge	= SG_Create_Grid(Type, nx, ny, Cellsize, Extent.m_rect.xMin, Extent.m_rect.yMin);
 
 			Parameters("GRID")->Set_Value(pMerge);
 		}
@@ -252,7 +252,7 @@ bool CGrid_Merge::On_Execute(void)
 
 		for(iGrid=0; iGrid<nGrids; iGrid++)
 		{
-			Process_Set_Text(CAPI_String::Format(_TL("Merging grid %d of %d..."), iGrid + 1, nGrids));
+			Process_Set_Text(CSG_String::Format(_TL("Merging grid %d of %d..."), iGrid + 1, nGrids));
 
 			pGrid	= pParm_Grids->asGrid(iGrid);
 

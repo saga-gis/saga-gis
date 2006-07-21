@@ -72,34 +72,90 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void **		MATRIX_Alloc(int nRows, int nCols, int nValueBytes)
+bool		SG_Matrix_LU_Decomposition	(int n, int *Permutation, double **Matrix, bool bSilent);
+bool		SG_Matrix_LU_Solve			(int n, int *Permutation, double **Matrix, double *Vector, bool bSilent);
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Vector::CSG_Vector(void)
 {
-	void	**Matrix;
-
-	Matrix		= (void **)API_Malloc(nRows * sizeof(void *));
-	Matrix[0]	= (void  *)API_Malloc(nRows * nCols * nValueBytes);
-
-	nCols	*= nValueBytes * sizeof(char);
-
-	for(int iRow=1; iRow<nRows; iRow++)
-	{
-		Matrix[iRow]	= (char *)Matrix[0] + iRow * nCols;
-	}
-
-	return( Matrix );
+	_On_Construction();
 }
 
 //---------------------------------------------------------
-void **		MATRIX_Get_Copy(int nRows, int nCols, int nValueBytes, void **Matrix)
+CSG_Vector::CSG_Vector(const CSG_Vector &Vector)
 {
-	void	**Copy	= MATRIX_Alloc(nRows, nCols, nValueBytes);
+	_On_Construction();
 
-	for(int iRow=0; iRow<nRows; iRow++)
+	Create(Vector);
+}
+
+bool CSG_Vector::Create(const CSG_Vector &Vector)
+{
+	return( Assign(Vector) );
+}
+
+//---------------------------------------------------------
+CSG_Vector::CSG_Vector(int n)
+{
+	_On_Construction();
+
+	Create(n);
+}
+
+bool CSG_Vector::Create(int n)
+{
+	if( n > 0 )
 	{
-		memcpy(Copy[iRow], Matrix[iRow], nCols * nValueBytes);
+		if( n != m_n )
+		{
+			Destroy();
+
+			m_n	= n;
+			m_z	= (double *)SG_Calloc(m_n, sizeof(double));
+		}
+		else
+		{
+			memset(m_z, 0, m_n * sizeof(double));
+		}
+
+		return( true );
 	}
 
-	return( Copy );
+	Destroy();
+
+	return( false );
+}
+
+//---------------------------------------------------------
+CSG_Vector::~CSG_Vector(void)
+{
+	Destroy();
+}
+
+bool CSG_Vector::Destroy(void)
+{
+	if( m_z )
+	{
+		SG_Free(m_z);
+		m_z	= NULL;
+		m_n	= 0;
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+void CSG_Vector::_On_Construction(void)
+{
+	m_z	= NULL;
+	m_n	= 0;
 }
 
 
@@ -110,33 +166,40 @@ void **		MATRIX_Get_Copy(int nRows, int nCols, int nValueBytes, void **Matrix)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		MATRIX_Set_Identitiy(int nSize, double **Matrix)
+double CSG_Vector::Get_Length(void)
 {
-	if( nSize > 0 )
+	if( m_n > 0 )
 	{
-		for(int i=0; i<nSize; i++)
-		{
-			memset(Matrix[i], 0, nSize * sizeof(double));
+		double	z	= 0.0;
 
-			Matrix[i][i]	= 1.0;
+		for(int i=0; i<m_n; i++)
+		{
+			z	+= m_z[i] * m_z[i];
 		}
 
-		return( true );
+		return( pow(z, 1.0 / m_n) );
 	}
 
-	return( false );
+	return( 0.0 );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-bool		MATRIX_Add(int nSize, double **A, double **B)
+bool CSG_Vector::is_Equal(const CSG_Vector &Vector)
 {
-	if( nSize > 0 )
+	if( m_n == Vector.m_n )
 	{
-		for(int i=0; i<nSize; i++)
+		for(int i=0; i<m_n; i++)
 		{
-			for(int j=0; j<nSize; j++)
+			if( m_z[i] != Vector.m_z[i] )
 			{
-				A[i][j]	+= B[j][i];
+				return( false );
 			}
 		}
 
@@ -147,16 +210,13 @@ bool		MATRIX_Add(int nSize, double **A, double **B)
 }
 
 //---------------------------------------------------------
-bool		MATRIX_Multiply(int nSize, double **Matrix, double Scalar)
+bool CSG_Vector::Assign(double Scalar)
 {
-	if( nSize > 0 )
+	if( m_n > 0 )
 	{
-		for(int i=0; i<nSize; i++)
+		for(int i=0; i<m_n; i++)
 		{
-			for(int j=0; j<nSize; j++)
-			{
-				Matrix[i][j]	*= Scalar;
-			}
+			m_z[i]	= Scalar;
 		}
 
 		return( true );
@@ -166,23 +226,11 @@ bool		MATRIX_Multiply(int nSize, double **Matrix, double Scalar)
 }
 
 //---------------------------------------------------------
-bool		MATRIX_Multiply(int nSize, double **Matrix, double *Vector)
+bool CSG_Vector::Assign(const CSG_Vector &Vector)
 {
-	if( nSize > 0 )
+	if( Create(Vector.m_n) )
 	{
-		double	*X	= (double *)API_Calloc(nSize, sizeof(double));
-
-		for(int i=0; i<nSize; i++)
-		{
-			for(int j=0; j<nSize; j++)
-			{
-				X[i]	+= Matrix[i][j] * Vector[j];
-			}
-		}
-
-		memcpy(Vector, X, nSize * sizeof(double));
-
-		API_Free(X);
+		memcpy(m_z, Vector.m_z, m_n * sizeof(double));
 
 		return( true );
 	}
@@ -191,23 +239,118 @@ bool		MATRIX_Multiply(int nSize, double **Matrix, double *Vector)
 }
 
 //---------------------------------------------------------
-bool		MATRIX_Multiply(int nSize, double **A, double **B)
+bool CSG_Vector::Add(double Scalar)
 {
-	if( nSize > 0 )
+	if( m_n > 0 )
 	{
-		double	**C	= (double **)MATRIX_Get_Copy(nSize, nSize, sizeof(double), (void **)A);
-
-		for(int i=0; i<nSize; i++)
+		for(int i=0; i<m_n; i++)
 		{
-			memset(A[i], 0, nSize * sizeof(double));
-
-			for(int j=0; j<nSize; j++)
-			{
-				A[i][j]	+= C[i][j] * B[j][i];
-			}
+			m_z[i]	+= Scalar;
 		}
 
-		MATRIX_Free(C);
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Vector::Add(const class CSG_Vector &Vector)
+{
+	if( m_n == Vector.m_n && m_n > 0 )
+	{
+		for(int i=0; i<m_n; i++)
+		{
+			m_z[i]	+= Vector.m_z[i];
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Vector::Subtract(const class CSG_Vector &Vector)
+{
+	if( m_n == Vector.m_n && m_n > 0 )
+	{
+		for(int i=0; i<m_n; i++)
+		{
+			m_z[i]	-= Vector.m_z[i];
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Vector::Multiply(double Scalar)
+{
+	if( m_n > 0 )
+	{
+		for(int i=0; i<m_n; i++)
+		{
+			m_z[i]	*= Scalar;
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Vector::Multiply(const class CSG_Vector &Vector)
+{
+	if( m_n == Vector.m_n && m_n == 3 )
+	{
+		CSG_Vector	v(*this);
+
+		m_z[0]	= v[1] * Vector.m_z[2] - v[2] * Vector.m_z[1];
+		m_z[1]	= v[2] * Vector.m_z[0] - v[0] * Vector.m_z[2];
+		m_z[2]	= v[0] * Vector.m_z[1] - v[1] * Vector.m_z[0];
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+double CSG_Vector::Multiply_Scalar(const class CSG_Vector &Vector)
+{
+	double	z	= 0.0;
+
+	if( m_n == Vector.m_n )
+	{
+		for(int i=0; i<m_n; i++)
+		{
+			z	+= m_z[i] * Vector.m_z[i];
+		}
+	}
+
+	return( z );
+}
+
+//---------------------------------------------------------
+bool CSG_Vector::Multiply(const CSG_Matrix &Matrix)
+{
+	if( m_n == Matrix.Get_NX() && m_n == Matrix.Get_NY() )
+	{
+		CSG_Vector	v(*this);
+
+		for(int y=0; y<Matrix.Get_NY(); y++)
+		{
+			m_z[y]	= 0;
+
+			for(int x=0; x<Matrix.Get_NX(); x++)
+			{
+				m_z[y]	+= Matrix[y][x] * v[x];
+			}
+		}
 
 		return( true );
 	}
@@ -223,76 +366,591 @@ bool		MATRIX_Multiply(int nSize, double **A, double **B)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		MATRIX_Solve(int nSize, double **Matrix, double *Vector, bool bSilent)
+bool CSG_Vector::operator == (const CSG_Vector &Vector)
+{
+	return( is_Equal(Vector) );
+}
+
+//---------------------------------------------------------
+CSG_Vector & CSG_Vector::operator = (double Scalar)
+{
+	Assign(Scalar);
+
+	return( *this );
+}
+
+CSG_Vector & CSG_Vector::operator = (const CSG_Vector &Vector)
+{
+	Assign(Vector);
+
+	return( *this );
+}
+
+//---------------------------------------------------------
+CSG_Vector & CSG_Vector::operator += (double Scalar)
+{
+	Add(Scalar);
+
+	return( *this );
+}
+
+CSG_Vector & CSG_Vector::operator += (const class CSG_Vector &Vector)
+{
+	Add(Vector);
+
+	return( *this );
+}
+
+//---------------------------------------------------------
+CSG_Vector & CSG_Vector::operator -= (double Scalar)
+{
+	Add(-Scalar);
+
+	return( *this );
+}
+
+CSG_Vector & CSG_Vector::operator -= (const class CSG_Vector &Vector)
+{
+	Subtract(Vector);
+
+	return( *this );
+}
+
+//---------------------------------------------------------
+CSG_Vector & CSG_Vector::operator *= (double Scalar)
+{
+	Multiply(Scalar);
+
+	return( *this );
+}
+
+CSG_Vector & CSG_Vector::operator *= (const class CSG_Vector &Vector)
+{
+	Multiply(Vector);
+
+	return( *this );
+}
+
+CSG_Vector & CSG_Vector::operator *= (const CSG_Matrix &Matrix)
+{
+	Multiply(Matrix);
+
+	return( *this );
+}
+
+//---------------------------------------------------------
+CSG_Vector CSG_Vector::operator + (double Scalar)
+{
+	CSG_Vector	v(*this);
+
+	v.Add(Scalar);
+
+	return( v );
+}
+
+CSG_Vector CSG_Vector::operator + (const class CSG_Vector &Vector)
+{
+	CSG_Vector	v(*this);
+
+	v.Add(Vector);
+
+	return( v );
+}
+
+//---------------------------------------------------------
+CSG_Vector CSG_Vector::operator - (double Scalar)
+{
+	CSG_Vector	v(*this);
+
+	v.Add(-Scalar);
+
+	return( v );
+}
+
+CSG_Vector CSG_Vector::operator - (const class CSG_Vector &Vector)
+{
+	CSG_Vector	v(*this);
+
+	v.Subtract(Vector);
+
+	return( v );
+}
+
+//---------------------------------------------------------
+CSG_Vector CSG_Vector::operator * (double Scalar)
+{
+	CSG_Vector	v(*this);
+
+	v.Multiply(Scalar);
+
+	return( v );
+}
+
+double CSG_Vector::operator * (const class CSG_Vector &Vector)
+{
+	return( Multiply_Scalar(Vector) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Matrix::CSG_Matrix(void)
+{
+	_On_Construction();
+}
+
+//---------------------------------------------------------
+CSG_Matrix::CSG_Matrix(const CSG_Matrix &Matrix)
+{
+	_On_Construction();
+
+	Create(Matrix);
+}
+
+bool CSG_Matrix::Create(const CSG_Matrix &Matrix)
+{
+	return( Assign(Matrix) );
+}
+
+//---------------------------------------------------------
+CSG_Matrix::CSG_Matrix(int nx, int ny)
+{
+	_On_Construction();
+
+	Create(nx, ny);
+}
+
+bool CSG_Matrix::Create(int nx, int ny)
+{
+	if( nx > 0 && ny > 0 )
+	{
+		if( nx != m_nx || ny != m_ny )
+		{
+			m_nx	= nx;
+			m_ny	= ny;
+			m_z		= (double **)SG_Calloc(m_ny       , sizeof(double *));
+			m_z[0]	= (double  *)SG_Calloc(m_ny * m_nx, sizeof(double  ));
+
+			for(ny=1; ny<m_ny; ny++)
+			{
+				m_z[ny]	= m_z[ny - 1] + nx;
+			}
+		}
+		else
+		{
+			memset(m_z[0], 0, m_ny * m_nx * sizeof(double));
+		}
+
+		return( true );
+	}
+
+	Destroy();
+
+	return( false );
+}
+
+//---------------------------------------------------------
+CSG_Matrix::~CSG_Matrix(void)
+{
+	Destroy();
+}
+
+bool CSG_Matrix::Destroy(void)
+{
+	if( m_z )
+	{
+		SG_Free(m_z[0]);
+		SG_Free(m_z);
+		m_z		= NULL;
+		m_nx	= 0;
+		m_ny	= 0;
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+void CSG_Matrix::_On_Construction(void)
+{
+	m_z		= NULL;
+	m_nx	= 0;
+	m_ny	= 0;
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Matrix::is_Equal(const CSG_Matrix &Matrix)
+{
+	if( m_nx == Matrix.m_nx && m_ny == Matrix.m_ny )
+	{
+		for(int y=0; y<m_ny; y++)
+		{
+			for(int x=0; x<m_nx; x++)
+			{
+				if( m_z[y][x] != Matrix.m_z[y][x] )
+				{
+					return( false );
+				}
+			}
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Matrix::Assign(double Scalar)
+{
+	if( m_nx > 0 && m_ny > 0 )
+	{
+		for(int y=0; y<m_ny; y++)
+		{
+			for(int x=0; x<m_nx; x++)
+			{
+				m_z[y][x]	= Scalar;
+			}
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Matrix::Assign(const CSG_Matrix &Matrix)
+{
+	if( Create(Matrix.m_nx, Matrix.m_ny) )
+	{
+		memcpy(m_z[0], Matrix.m_z[0], m_nx * m_ny * sizeof(double));
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Matrix::Add(double Scalar)
+{
+	if( m_nx > 0 && m_ny > 0 )
+	{
+		for(int y=0; y<m_ny; y++)
+		{
+			for(int x=0; x<m_nx; x++)
+			{
+				m_z[y][x]	+= Scalar;
+			}
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Matrix::Add(const CSG_Matrix &Matrix)
+{
+	if( m_nx == Matrix.m_nx && m_ny == Matrix.m_ny )
+	{
+		for(int y=0; y<m_ny; y++)
+		{
+			for(int x=0; x<m_nx; x++)
+			{
+				m_z[y][x]	+= Matrix.m_z[y][x];
+			}
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Matrix::Subtract(const CSG_Matrix &Matrix)
+{
+	if( m_nx == Matrix.m_nx && m_ny == Matrix.m_ny )
+	{
+		for(int y=0; y<m_ny; y++)
+		{
+			for(int x=0; x<m_nx; x++)
+			{
+				m_z[y][x]	-= Matrix.m_z[y][x];
+			}
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Matrix::Multiply(double Scalar)
+{
+	if( m_nx > 0 && m_ny > 0 )
+	{
+		for(int y=0; y<m_ny; y++)
+		{
+			for(int x=0; x<m_nx; x++)
+			{
+				m_z[y][x]	*= Scalar;
+			}
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+bool CSG_Matrix::Multiply(const CSG_Matrix &Matrix)
+{
+	if( m_nx == Matrix.m_nx && m_ny == Matrix.m_ny )
+	{
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Matrix::operator == (const CSG_Matrix &Matrix)
+{
+	return( is_Equal(Matrix) );
+}
+
+//---------------------------------------------------------
+CSG_Matrix & CSG_Matrix::operator = (double Scalar)
+{
+	Assign(Scalar);
+
+	return( *this );
+}
+
+CSG_Matrix & CSG_Matrix::operator = (const CSG_Matrix &Matrix)
+{
+	Assign(Matrix);
+
+	return( *this );
+}
+
+//---------------------------------------------------------
+CSG_Matrix & CSG_Matrix::operator += (double Scalar)
+{
+	Add(Scalar);
+
+	return( *this );
+}
+
+CSG_Matrix & CSG_Matrix::operator += (const CSG_Matrix &Matrix)
+{
+	Add(Matrix);
+
+	return( *this );
+}
+
+//---------------------------------------------------------
+CSG_Matrix & CSG_Matrix::operator -= (double Scalar)
+{
+	Add(-Scalar);
+
+	return( *this );
+}
+
+CSG_Matrix & CSG_Matrix::operator -= (const CSG_Matrix &Matrix)
+{
+	Subtract(Matrix);
+
+	return( *this );
+}
+
+//---------------------------------------------------------
+CSG_Matrix & CSG_Matrix::operator *= (double Scalar)
+{
+	Multiply(Scalar);
+
+	return( *this );
+}
+
+CSG_Matrix & CSG_Matrix::operator *= (const CSG_Matrix &Matrix)
+{
+	Multiply(Matrix);
+
+	return( *this );
+}
+
+//---------------------------------------------------------
+CSG_Matrix CSG_Matrix::operator + (double Scalar)
+{
+	CSG_Matrix	m(*this);
+
+	m.Add(Scalar);
+
+	return( m );
+}
+
+CSG_Matrix CSG_Matrix::operator + (const CSG_Matrix &Matrix)
+{
+	CSG_Matrix	m(*this);
+
+	m.Add(Matrix);
+
+	return( m );
+}
+
+//---------------------------------------------------------
+CSG_Matrix CSG_Matrix::operator - (double Scalar)
+{
+	CSG_Matrix	m(*this);
+
+	m.Add(-Scalar);
+
+	return( m );
+}
+
+CSG_Matrix CSG_Matrix::operator - (const CSG_Matrix &Matrix)
+{
+	CSG_Matrix	m(*this);
+
+	m.Subtract(Matrix);
+
+	return( m );
+}
+
+//---------------------------------------------------------
+CSG_Matrix CSG_Matrix::operator * (double Scalar)
+{
+	CSG_Matrix	m(*this);
+
+	m.Multiply(Scalar);
+
+	return( m );
+}
+
+CSG_Matrix CSG_Matrix::operator * (const CSG_Matrix &Matrix)
+{
+	CSG_Matrix	m(*this);
+
+	m.Multiply(Matrix);
+
+	return( m );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Matrix::Set_Identity(void)
+{
+	if( m_nx > 0 && m_ny > 0 )
+	{
+		for(int y=0; y<m_ny; y++)
+		{
+			for(int x=0; x<m_nx; x++)
+			{
+				m_z[y][x]	= x == y ? 1.0 : 0.0;
+			}
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Matrix::Set_Transpose(const CSG_Matrix &Matrix)
+{
+	if( Matrix.m_nx > 0 && Matrix.m_ny > 0 )
+	{
+		Create(Matrix.m_ny, Matrix.m_nx);
+
+		for(int y=0; y<m_ny; y++)
+		{
+			for(int x=0; x<m_nx; x++)
+			{
+				m_z[y][x]	= Matrix.m_z[x][y];
+			}
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Matrix::Set_Inverse(bool bSilent, int nSubSquare)
 {
 	bool	bResult	= false;
-	int		*Permutation;
+	int		n		= 0;
 
-	if( nSize > 1 )
+	//-----------------------------------------------------
+	if( nSubSquare > 0 )
 	{
-		Permutation	= (int *)API_Malloc(nSize * sizeof(int));
-
-		if( MATRIX_LU_Decomposition(nSize, Matrix, Permutation, bSilent) )
-		{
-			MATRIX_LU_Solve(nSize, Matrix, Permutation, Vector, bSilent);
-
-			bResult	= true;
-		}
-
-		API_Free(Permutation);
+		n	= nSubSquare;
+		if( n > m_nx )	n	= m_nx;
+		if( n > m_ny )	n	= m_ny;
+	}
+	else if( is_Square() )
+	{
+		n	= m_nx;
 	}
 
-	return( bResult );
-}
-
-//---------------------------------------------------------
-bool		MATRIX_Invert(int nSize, double **Matrix, bool bSilent)
-{
-	bool	bResult	= false;;
-	int		i, j, *Permutation;
-	double	*Vector, **Matrix_Tmp;
-
-	if( nSize > 1 )
+	//-----------------------------------------------------
+	if( n > 0 )
 	{
-		Permutation	= (int *)API_Malloc(nSize * sizeof(int));
+		int			*Permutation	= (int *)SG_Malloc(n * sizeof(int));
+		CSG_Matrix	Matrix(*this);
 
-		if( MATRIX_LU_Decomposition(nSize, Matrix, Permutation, bSilent) )
+		if( SG_Matrix_LU_Decomposition(n, Permutation, Matrix.Get_Data(), bSilent) )
 		{
-			Vector			= (double  *)API_Malloc(nSize * sizeof(double));
+			CSG_Vector	Vector(n);
 
-			Matrix_Tmp		= (double **)API_Malloc(nSize * sizeof(double *));
-			Matrix_Tmp[0]	= (double  *)API_Malloc(nSize * nSize * sizeof(double));
-
-			for(j=0; j<nSize; j++)
+			for(int j=0; j<n && (bSilent || SG_Callback_Process_Set_Progress(j, n)); j++)
 			{
-				Matrix_Tmp[j]	= Matrix_Tmp[0] + j * nSize;
-				memcpy(Matrix_Tmp[j], Matrix[j], nSize * sizeof(double));
-			}
-
-			//---------------------------------------------
-			for(j=0; j<nSize && (bSilent || API_Callback_Process_Set_Progress(i, nSize)); j++)
-			{
-				memset(Vector, 0, nSize * sizeof(double));
+				Vector.Assign(0.0);
 				Vector[j]	= 1.0;
 
-				MATRIX_LU_Solve(nSize, Matrix_Tmp, Permutation, Vector, false);
+				SG_Matrix_LU_Solve(n, Permutation, Matrix.Get_Data(), Vector.Get_Data(), true);
 
-				for(i=0; i<nSize; i++)
+				for(int i=0; i<n; i++)
 				{
-					Matrix[i][j]	= Vector[i];
+					m_z[i][j]	= Vector[i];
 				}
 			}
 
-			//---------------------------------------------
-			API_Free(Vector);
-
-			API_Free(Matrix_Tmp[0]);
-			API_Free(Matrix_Tmp);
-
 			bResult	= true;
 		}
 
-		API_Free(Permutation);
+		SG_Free(Permutation);
 	}
 
 	return( bResult );
@@ -306,18 +964,49 @@ bool		MATRIX_Invert(int nSize, double **Matrix, bool bSilent)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		MATRIX_LU_Decomposition(int nSize, double **Matrix, int *Permutation, bool bSilent)
+bool		SG_Matrix_Solve(CSG_Matrix &Matrix, CSG_Vector &Vector, bool bSilent)
 {
-	int		i, j, k, iMax	= 0;
-	double	dMax, d, Sum, *Vector;
+	bool	bResult	= false;
+	int		n		= Vector.Get_N();
 
-	Vector	= (double *)API_Malloc(nSize * sizeof(double));
+	if( n > 0 && n == Matrix.Get_NX() && n == Matrix.Get_NY() )
+	{
+		int	*Permutation	= (int *)SG_Malloc(n * sizeof(int));
 
-	for(i=0; i<nSize && (bSilent || API_Callback_Process_Set_Progress(i, nSize)); i++)
+		if( SG_Matrix_LU_Decomposition(n, Permutation, Matrix.Get_Data(), bSilent) )
+		{
+			SG_Matrix_LU_Solve(n, Permutation, Matrix.Get_Data(), Vector.Get_Data(), bSilent);
+
+			bResult	= true;
+		}
+
+		SG_Free(Permutation);
+	}
+
+	return( bResult );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool		SG_Matrix_LU_Decomposition(int n, int *Permutation, double **Matrix, bool bSilent)
+{
+	int			i, j, k, iMax;
+	double		dMax, d, Sum;
+	CSG_Vector	Vector;
+	
+	Vector.Create(n);
+
+	for(i=0, iMax=0; i<n && (bSilent || SG_Callback_Process_Set_Progress(i, n)); i++)
 	{
 		dMax	= 0.0;
 
-		for(j=0; j<nSize; j++)
+		for(j=0; j<n; j++)
 		{
 			if( (d = fabs(Matrix[i][j])) > dMax )
 			{
@@ -327,15 +1016,13 @@ bool		MATRIX_LU_Decomposition(int nSize, double **Matrix, int *Permutation, bool
 
 		if( dMax <= 0.0 )	// singular matrix !!!...
 		{
-			API_Free(Vector);
-
 			return( false );
 		}
 
 		Vector[i]	= 1.0 / dMax;
 	}
 
-	for(j=0; j<nSize && (bSilent || API_Callback_Process_Set_Progress(j, nSize)); j++)
+	for(j=0; j<n && (bSilent || SG_Callback_Process_Set_Progress(j, n)); j++)
 	{
 		for(i=0; i<j; i++)
 		{
@@ -349,9 +1036,7 @@ bool		MATRIX_LU_Decomposition(int nSize, double **Matrix, int *Permutation, bool
 			Matrix[i][j]	= Sum;
 		}
 
-		dMax		= 0.0;
-
-		for(i=j; i<nSize; i++)
+		for(i=j, dMax=0.0; i<n; i++)
 		{
 			Sum		= Matrix[i][j];
 
@@ -371,7 +1056,7 @@ bool		MATRIX_LU_Decomposition(int nSize, double **Matrix, int *Permutation, bool
 
 		if( j != iMax )
 		{
-			for(k=0; k<nSize; k++)
+			for(k=0; k<n; k++)
 			{
 				d				= Matrix[iMax][k];
 				Matrix[iMax][k]	= Matrix[j   ][k];
@@ -388,29 +1073,27 @@ bool		MATRIX_LU_Decomposition(int nSize, double **Matrix, int *Permutation, bool
 			Matrix[j][j]	= M_TINY;
 		}
 
-		if( j != nSize )
+		if( j != n )
 		{
 			d	= 1.0 / (Matrix[j][j]);
 
-			for(i=j+1; i<nSize; i++)
+			for(i=j+1; i<n; i++)
 			{
 				Matrix[i][j]	*= d;
 			}
 		}
 	}
 
-	API_Free(Vector);
-
-	return( bSilent || API_Callback_Process_Get_Okay(false) );
+	return( bSilent || SG_Callback_Process_Get_Okay(false) );
 }
 
 //---------------------------------------------------------
-void		MATRIX_LU_Solve(int nSize, double **Matrix, int *Permutation, double *Vector, bool bSilent)
+bool		SG_Matrix_LU_Solve(int n, int *Permutation, double **Matrix, double *Vector, bool bSilent)
 {
 	int		i, j, k;
 	double	Sum;
 
-	for(i=0, k=-1; i<nSize && (bSilent || API_Callback_Process_Set_Progress(i, nSize)); i++)
+	for(i=0, k=-1; i<n && (bSilent || SG_Callback_Process_Set_Progress(i, n)); i++)
 	{
 		Sum						= Vector[Permutation[i]];
 		Vector[Permutation[i]]	= Vector[i];
@@ -430,17 +1113,19 @@ void		MATRIX_LU_Solve(int nSize, double **Matrix, int *Permutation, double *Vect
 		Vector[i]	= Sum;
 	}
 
-	for(i=nSize-1; i>=0 && (bSilent || API_Callback_Process_Set_Progress(nSize-i, nSize)); i--)
+	for(i=n-1; i>=0 && (bSilent || SG_Callback_Process_Set_Progress(n-i, n)); i--)
 	{
 		Sum			= Vector[i];
 
-		for(j=i+1; j<nSize; j++)
+		for(j=i+1; j<n; j++)
 		{
 			Sum		-= Matrix[i][j] * Vector[j];
 		}
 
 		Vector[i]	= Sum / Matrix[i][i];
 	}
+
+	return( true );
 }
 
 

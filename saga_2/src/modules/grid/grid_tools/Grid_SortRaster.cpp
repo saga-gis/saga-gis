@@ -61,7 +61,7 @@ bool CSortRaster::On_Execute(void){
 	int iCell=0;
 
 	if (pGrid == pSortedGrid){
-		pSortedGrid = API_Create_Grid(pGrid);
+		pSortedGrid = SG_Create_Grid(pGrid);
 		bCopy = true;
 	}//if
 

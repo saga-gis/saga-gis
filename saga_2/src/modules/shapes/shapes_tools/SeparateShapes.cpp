@@ -71,30 +71,30 @@ bool CSeparateShapes::On_Execute(void){
 	int iField = Parameters("FIELD")->asInt();
 	CShapes *pInput = Parameters("INPUT")->asShapes();
 	CShapes *pOutput; 
-	CAPI_String sPath = Parameters("OUTPUTPATH")->asString();;
-	CAPI_String sFilename;
-	CAPI_String sName;
+	CSG_String sPath = Parameters("OUTPUTPATH")->asString();;
+	CSG_String sFilename;
+	CSG_String sName;
 	CTable *pTable;
 
 	pTable	= &pInput->Get_Table();
 
-	if( !API_Directory_Make(sPath) )
+	if( !SG_Directory_Make(sPath) )
 	{
 		return( false );
 	}
  
 	for (i = 0; i < pInput->Get_Count(); i++){		
 		if (iNaming == NAMING_NUMERIC){
-			sName.Printf("%s_%s", pInput->Get_Name(), API_Get_String(i).c_str());
+			sName.Printf("%s_%s", pInput->Get_Name(), SG_Get_String(i).c_str());
 		}//if
 		else{
 			sName.Printf("%s", pTable->Get_Record(i)->asString(iField));
 		}//else
 
-		pOutput = API_Create_Shapes(pInput->Get_Type());
+		pOutput = SG_Create_Shapes(pInput->Get_Type());
 		pOutput->Set_Name(sName.c_str());
 
-		sFilename	= API_Make_File_Path(sPath, sName, ".shp");
+		sFilename	= SG_File_Make_Path(sPath, sName, ".shp");
 		
 		for (j=0; j<pTable->Get_Field_Count(); j++){
 			pOutput->Get_Table().Add_Field(pTable->Get_Field_Name(j), pTable->Get_Field_Type(j));	

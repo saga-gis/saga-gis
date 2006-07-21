@@ -126,7 +126,7 @@ bool CGrid_Gaps::On_Execute(void)
 		pResult		= pInput;
 		Parameters("RESULT")->Set_Value(pResult);
 
-		pInput		= API_Create_Grid(pInput);
+		pInput		= SG_Create_Grid(pInput);
 		pInput->Assign(pResult);
 
 		bKillInput	= true;

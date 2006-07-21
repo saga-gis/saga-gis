@@ -81,7 +81,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum
+typedef enum ETable_FileType
 {
 	TABLE_FILETYPE_Undefined	= 0,
 	TABLE_FILETYPE_Text,
@@ -91,7 +91,7 @@ typedef enum
 TTable_FileType;
 
 //---------------------------------------------------------
-typedef enum
+typedef enum ETable_Index_Order
 {
 	TABLE_INDEX_None			= 0,
 	TABLE_INDEX_Up,
@@ -107,7 +107,7 @@ TTable_Index_Order;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum
+typedef enum ETable_FieldType
 {
 	TABLE_FIELDTYPE_None		= 0,
 	TABLE_FIELDTYPE_Char,
@@ -151,7 +151,7 @@ class SAGA_API_DLL_EXPORT CTable_Record
 public:
 
 	class CTable *				Get_Owner		(void)				{	return( m_pOwner );	}
-	int							Get_Index		(void)				{	return( m_Index );	}
+	int							Get_Index		(void)	const		{	return( m_Index );	}
 
 	bool						Set_Value		(int        iField, const char *Value);
 	bool						Set_Value		(const char *Field, const char *Value);
@@ -164,29 +164,31 @@ public:
 
 	bool						Set_NoData		(int        iField);
 	bool						Set_NoData		(const char *Field);
-	bool						is_NoData		(int        iField);
-	bool						is_NoData		(const char *Field);
+	bool						is_NoData		(int        iField)	const;
+	bool						is_NoData		(const char *Field)	const;
 
-	const char *				asString		(int        iField, int Decimals = -1);
-	const char *				asString		(const char *Field, int Decimals = -1);
+	const char *				asString		(int        iField, int Decimals = -1)	const;
+	const char *				asString		(const char *Field, int Decimals = -1)	const;
 
-	char						asChar			(int        iField)	{	return( (char  )asInt   (iField) );	}
-	char						asChar			(const char *Field)	{	return( (char  )asInt   ( Field) );	}
-	short						asShort			(int        iField)	{	return( (short )asInt   (iField) );	}
-	short						asShort			(const char *Field)	{	return( (short )asInt   ( Field) );	}
-	int							asInt			(int        iField);
-	int							asInt			(const char *Field);
-	long						asLong			(int        iField)	{	return( (long  )asInt   (iField) );	}
-	long						asLong			(const char *Field)	{	return( (long  )asInt   ( Field) );	}
+	char						asChar			(int        iField)	const	{	return( (char  )asInt   (iField) );	}
+	char						asChar			(const char *Field)	const	{	return( (char  )asInt   ( Field) );	}
+	short						asShort			(int        iField)	const	{	return( (short )asInt   (iField) );	}
+	short						asShort			(const char *Field)	const	{	return( (short )asInt   ( Field) );	}
+	int							asInt			(int        iField)	const;
+	int							asInt			(const char *Field)	const;
+	long						asLong			(int        iField)	const	{	return( (long  )asInt   (iField) );	}
+	long						asLong			(const char *Field)	const	{	return( (long  )asInt   ( Field) );	}
 
-	float						asFloat			(int        iField)	{	return( (float )asDouble(iField) );	}
-	float						asFloat			(const char *Field)	{	return( (float )asDouble( Field) );	}
-	double						asDouble		(int        iField);
-	double						asDouble		(const char *Field);
+	float						asFloat			(int        iField)	const	{	return( (float )asDouble(iField) );	}
+	float						asFloat			(const char *Field)	const	{	return( (float )asDouble( Field) );	}
+	double						asDouble		(int        iField)	const;
+	double						asDouble		(const char *Field)	const;
+
+	double						operator []		(int        iField)	const	{	return(         asDouble(iField) );	}
 
 	void						Assign			(CTable_Record *pValues);
 
-	bool						is_Selected		(void)				{	return( m_bSelected );	}
+	bool						is_Selected		(void)				const	{	return( m_bSelected );	}
 
 
 protected:
@@ -209,7 +211,7 @@ protected:
 	bool						_Add_Field		(int add_Field);
 	bool						_Del_Field		(int del_Field);
 
-	int							_Get_Field		(const char *Field);
+	int							_Get_Field	 	(const char *Field)	const;
 
 };
 
@@ -244,7 +246,7 @@ public:
 
 	virtual bool				Destroy				(void);
 
-	virtual TDataObject_Type	Get_ObjectType		(void)				{	return( DATAOBJECT_TYPE_Table );	}
+	virtual TDataObject_Type	Get_ObjectType		(void)	const			{	return( DATAOBJECT_TYPE_Table );	}
 
 	virtual bool				Assign				(CDataObject *pSource);
 	bool						Assign_Values		(CTable *pTable);
@@ -254,22 +256,22 @@ public:
 	bool						Serialize			(FILE *Stream, bool bSave);
 
 	//-----------------------------------------------------
-	CDataObject *				Get_Owner			(void)				{	return( m_pOwner );			}
-	bool						is_Private			(void)				{	return( m_pOwner != NULL );	}
+	CDataObject *				Get_Owner			(void)					{	return( m_pOwner );			}
+	bool						is_Private			(void)	const			{	return( m_pOwner != NULL );	}
 
-	virtual bool				is_Valid			(void)				{	return( m_nFields > 0 );	}
-	bool						is_Compatible		(CTable *pTable, bool bExactMatch = false);
+	virtual bool				is_Valid			(void)	const			{	return( m_nFields > 0 );	}
+	bool						is_Compatible		(CTable *pTable, bool bExactMatch = false)	const;
 
 	//-----------------------------------------------------
 	void						Add_Field			(const char *Name, TTable_FieldType Type, int iField = -1);
 	bool						Del_Field			(int iField);
 
-	int							Get_Field_Count		(void)				{	return( m_nFields );	}
-	const char *				Get_Field_Name		(int iField)		{	return( iField >= 0 && iField < m_nFields ? m_Field_Name[iField]->c_str() : NULL );			}
-	TTable_FieldType			Get_Field_Type		(int iField)		{	return( iField >= 0 && iField < m_nFields ? m_Field_Type[iField] : TABLE_FIELDTYPE_None );	}
+	int							Get_Field_Count		(void)			const	{	return( m_nFields );	}
+	const char *				Get_Field_Name		(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Name[iField]->c_str() : NULL );			}
+	TTable_FieldType			Get_Field_Type		(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Type[iField] : TABLE_FIELDTYPE_None );	}
 
-	double						Get_MinValue		(int iField)		{	return( _Range_Update(iField) ? m_Field_Val_Min[iField] : 0.0 );	}
-	double						Get_MaxValue		(int iField)		{	return( _Range_Update(iField) ? m_Field_Val_Max[iField] : 0.0 );	}
+	double						Get_MinValue		(int iField)	const	{	return( _Range_Update(iField) ? m_Field_Val_Min[iField] : 0.0 );	}
+	double						Get_MaxValue		(int iField)	const	{	return( _Range_Update(iField) ? m_Field_Val_Max[iField] : 0.0 );	}
 
 	//-----------------------------------------------------
 	CTable_Record *				Add_Record			(             CTable_Record *pValues = NULL);
@@ -277,10 +279,11 @@ public:
 	bool						Del_Record			(int iRecord);
 	bool						Del_Records			(void);
 
-	int							Get_Record_Count	(void)				{	return( m_nRecords );	}
-	CTable_Record *				Get_Record			(int iRecord)		{	return( iRecord >= 0 && iRecord < m_nRecords ? m_Records[iRecord] : NULL );	}
+	int							Get_Record_Count	(void)			const	{	return( m_nRecords );	}
+	CTable_Record *				Get_Record			(int iRecord)	const	{	return( iRecord >= 0 && iRecord < m_nRecords ? m_Records[iRecord] : NULL );	}
+	CTable_Record &				operator []			(int iRecord)	const	{	return( *Get_Record(iRecord) );	}
 
-	CTable_Record *				Get_Record_byIndex	(int Index)
+	CTable_Record *				Get_Record_byIndex	(int Index)		const
 	{
 		if( Index >= 0 && Index < m_nRecords )
 		{
@@ -299,12 +302,12 @@ public:
 	bool						Set_Value			(int iRecord, int iField, const char  *Value);
 	bool						Set_Value			(int iRecord, int iField, double       Value);
 
-	bool						Get_Value			(int iRecord, int iField, CAPI_String &Value);
-	bool						Get_Value			(int iRecord, int iField, double      &Value);
+	bool						Get_Value			(int iRecord, int iField, CSG_String  &Value)	const;
+	bool						Get_Value			(int iRecord, int iField, double      &Value)	const;
 
 	//-----------------------------------------------------
-	int							Get_Selection_Count	(void)				{	return( m_nSelected );	}
-	CTable_Record *				Get_Selection		(int Index = 0)		{	return( Index >= 0 && Index < m_nSelected ? m_Selected[Index] : NULL );	}
+	int							Get_Selection_Count	(void)			const	{	return( m_nSelected );	}
+	CTable_Record *				Get_Selection		(int Index = 0)	const	{	return( Index >= 0 && Index < m_nSelected ? m_Selected[Index] : NULL );	}
 
 	bool						Select				(int iRecord					, bool bInvert = false);
 	bool						Select				(CTable_Record *pRecord = NULL	, bool bInvert = false);
@@ -315,10 +318,10 @@ public:
 	bool						Set_Index			(int iField, TTable_Index_Order Order);
 	bool						Toggle_Index		(int iField);
 
-	bool						is_Indexed			(void)				{	return( m_Index_Order != TABLE_INDEX_None );	}
+	bool						is_Indexed			(void)	const		{	return( m_Index_Order != TABLE_INDEX_None );	}
 
-	int							Get_Index_Field		(void)				{	return( m_Index_Field );	}
-	TTable_Index_Order			Get_Index_Order		(void)				{	return( m_Index_Order );	}
+	int							Get_Index_Field		(void)	const		{	return( m_Index_Field );	}
+	TTable_Index_Order			Get_Index_Order		(void)	const		{	return( m_Index_Order );	}
 
 
 protected:
@@ -333,7 +336,7 @@ protected:
 
 	CTable_Record				**m_Records, **m_Selected;
 
-	CAPI_String					**m_Field_Name;
+	CSG_String					**m_Field_Name;
 
 	CDataObject					*m_pOwner;
 
@@ -354,9 +357,9 @@ protected:
 	bool						_Del_Record			(int iRecord);
 	bool						_Del_Records		(void);
 
-	bool						_Range_Invalidate	(void);
-	bool						_Range_Invalidate	(int iField);
-	bool						_Range_Update		(int iField);
+	bool						_Range_Invalidate	(void)			const;
+	bool						_Range_Invalidate	(int iField)	const;
+	bool						_Range_Update		(int iField)	const;
 
 	bool						_Load				(const char *File_Name, int Format, char Separator);
 	bool						_Load_Text			(const char *File_Name, bool bHeadline, char Separator);
@@ -379,16 +382,16 @@ protected:
 
 //---------------------------------------------------------
 /** Safe table construction */
-SAGA_API_DLL_EXPORT CTable *	API_Create_Table	(void);
+SAGA_API_DLL_EXPORT CTable *	SG_Create_Table	(void);
 
 /** Safe table construction */
-SAGA_API_DLL_EXPORT CTable *	API_Create_Table	(const CTable &Table);
+SAGA_API_DLL_EXPORT CTable *	SG_Create_Table	(const CTable &Table);
 
 /** Safe table construction */
-SAGA_API_DLL_EXPORT CTable *	API_Create_Table	(const char *FileName);
+SAGA_API_DLL_EXPORT CTable *	SG_Create_Table	(const char *FileName);
 
 /** Safe table construction */
-SAGA_API_DLL_EXPORT CTable *	API_Create_Table	(CTable *pStructure);
+SAGA_API_DLL_EXPORT CTable *	SG_Create_Table	(CTable *pStructure);
 
 
 ///////////////////////////////////////////////////////////

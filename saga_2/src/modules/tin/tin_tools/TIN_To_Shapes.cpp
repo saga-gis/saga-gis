@@ -147,7 +147,7 @@ bool CTIN_To_Shapes::On_Execute(void)
 
 	//-----------------------------------------------------
 	pShapes		= Parameters("POINTS")		->asShapes();
-	pShapes->Create(SHAPE_TYPE_Point, CAPI_String::Format(_TL("%s [T.I.N.]"), pTIN->Get_Name()));
+	pShapes->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("%s [T.I.N.]"), pTIN->Get_Name()));
 
 	pShapes->Get_Table().Add_Field("POINT_ID", TABLE_FIELDTYPE_Int);
 	for(j=0; j<pTIN->Get_Table().Get_Field_Count(); j++)
@@ -171,7 +171,7 @@ bool CTIN_To_Shapes::On_Execute(void)
 
 	//-----------------------------------------------------
 	pShapes		= Parameters("EDGES")	->asShapes();
-	pShapes->Create(SHAPE_TYPE_Line, CAPI_String::Format(_TL("%s [T.I.N.]"), pTIN->Get_Name()));
+	pShapes->Create(SHAPE_TYPE_Line, CSG_String::Format(_TL("%s [T.I.N.]"), pTIN->Get_Name()));
 
 	pShapes->Get_Table().Add_Field("ID"			, TABLE_FIELDTYPE_Int);
 	pShapes->Get_Table().Add_Field("POINT_ID_A"	, TABLE_FIELDTYPE_Int);
@@ -192,7 +192,7 @@ bool CTIN_To_Shapes::On_Execute(void)
 
 	//-----------------------------------------------------
 	pShapes		= Parameters("TRIANGLES")	->asShapes();
-	pShapes->Create(SHAPE_TYPE_Polygon, CAPI_String::Format(_TL("%s [T.I.N.]"), pTIN->Get_Name()));
+	pShapes->Create(SHAPE_TYPE_Polygon, CSG_String::Format(_TL("%s [T.I.N.]"), pTIN->Get_Name()));
 
 	pShapes->Get_Table().Add_Field("ID"			, TABLE_FIELDTYPE_Int);
 	pShapes->Get_Table().Add_Field("POINT_ID_A"	, TABLE_FIELDTYPE_Int);
@@ -216,7 +216,7 @@ bool CTIN_To_Shapes::On_Execute(void)
 
 	//-----------------------------------------------------
 	pShapes		= Parameters("CENTER")		->asShapes();
-	pShapes->Create(SHAPE_TYPE_Point, CAPI_String::Format(_TL("%s [T.I.N.]"), pTIN->Get_Name()));
+	pShapes->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("%s [T.I.N.]"), pTIN->Get_Name()));
 
 	pShapes->Get_Table().Add_Field("ID"			, TABLE_FIELDTYPE_Int);
 	pShapes->Get_Table().Add_Field("POINT_ID_A"	, TABLE_FIELDTYPE_Int);
@@ -238,10 +238,10 @@ bool CTIN_To_Shapes::On_Execute(void)
 
 	//-----------------------------------------------------
 	int			nPoints;
-	TGEO_Point	*Points;
+	TSG_Point	*Points;
 
 	pShapes		= Parameters("POLYGONS")	->asShapes();
-	pShapes->Create(SHAPE_TYPE_Polygon, CAPI_String::Format(_TL("%s [T.I.N.]"), pTIN->Get_Name()));
+	pShapes->Create(SHAPE_TYPE_Polygon, CSG_String::Format(_TL("%s [T.I.N.]"), pTIN->Get_Name()));
 
 	pShapes->Get_Table().Add_Field("POINT_ID", TABLE_FIELDTYPE_Int);
 	for(j=0; j<pTIN->Get_Table().Get_Field_Count(); j++)
@@ -262,7 +262,7 @@ bool CTIN_To_Shapes::On_Execute(void)
 				pShape->Add_Point(Points[j]);
 			}
 
-			API_Free(Points);
+			SG_Free(Points);
 
 			pShape->Get_Record()->Set_Value(0, 1 + i);
 			for(j=0; j<pTIN->Get_Table().Get_Field_Count(); j++)

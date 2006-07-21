@@ -93,10 +93,8 @@ void CShapes_Search::_On_Construction(void)
 	m_nSelected		= 0;
 	m_Selected		= NULL;
 	m_Selected_Dst	= NULL;
-	m_Selected_Idx	= NULL;
 	m_Selected_Buf	= 0;
 
-	m_Idx			= NULL;
 	m_Pos			= NULL;
 }
 
@@ -118,12 +116,11 @@ void CShapes_Search::Destroy(void)
 {
 	if( m_nPoints > 0 )
 	{
-		API_Free(m_Idx);
-		API_Free(m_Pos);
+		SG_Free(m_Pos);
 	}
 
-	m_Idx			= NULL;
 	m_Pos			= NULL;
+	m_Idx			.Destroy();
 
 	//-----------------------------------------------------
 	if( m_bDestroy && m_pPoints )
@@ -138,16 +135,16 @@ void CShapes_Search::Destroy(void)
 	//-----------------------------------------------------
 	if( m_Selected )
 	{
-		API_Free(m_Selected);
-		API_Free(m_Selected_Dst);
-		API_Free(m_Selected_Idx);
+		SG_Free(m_Selected);
+		SG_Free(m_Selected_Dst);
 	}
 
 	m_Selected		= NULL;
 	m_Selected_Dst	= NULL;
-	m_Selected_Idx	= NULL;
 	m_nSelected		= 0;
 	m_Selected_Buf	= 0;
+
+	m_Selected_Idx	.Destroy();
 }
 
 
@@ -177,9 +174,9 @@ bool CShapes_Search::Create(CShapes *pShapes)
 		else
 		{
 			m_bDestroy	= true;
-			m_pPoints	= API_Create_Shapes(SHAPE_TYPE_Point, NULL, &pShapes->Get_Table());
+			m_pPoints	= SG_Create_Shapes(SHAPE_TYPE_Point, NULL, &pShapes->Get_Table());
 
-			for(iShape=0; iShape<pShapes->Get_Count() && ::API_Callback_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+			for(iShape=0; iShape<pShapes->Get_Count() && ::SG_Callback_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 			{
 				pShape	= pShapes->Get_Shape(iShape);
 
@@ -199,23 +196,22 @@ bool CShapes_Search::Create(CShapes *pShapes)
 		{
 			m_nPoints	= m_pPoints->Get_Count();
 
-			Value		= (double     *)API_Malloc(m_nPoints * sizeof(double));
-			m_Pos		= (TGEO_Point *)API_Malloc(m_nPoints * sizeof(TGEO_Point));
-			m_Idx		= (int        *)API_Malloc(m_nPoints * sizeof(int));
+			Value		= (double    *)SG_Malloc(m_nPoints * sizeof(double));
+			m_Pos		= (TSG_Point *)SG_Malloc(m_nPoints * sizeof(TSG_Point));
 
 			for(iPoint=0; iPoint<m_nPoints; iPoint++)
 			{
 				Value[iPoint]	= m_pPoints->Get_Shape(iPoint)->Get_Point(0).x;
 			}
 
-			MAT_Create_Index(m_nPoints, Value, true, m_Idx);
+			m_Idx.Create(m_nPoints, Value, true);
 
 			for(iPoint=0; iPoint<m_nPoints; iPoint++)
 			{
 				m_Pos[iPoint]	= m_pPoints->Get_Shape(m_Idx[iPoint])->Get_Point(0);
 			}
 
-			API_Free(Value);
+			SG_Free(Value);
 
 			return( true );
 		}
@@ -494,18 +490,16 @@ void CShapes_Search::_Select_Add(CShape *pPoint, double Distance)
 	{
 		m_Selected_Buf	+= 8;
 
-		m_Selected		= (CShape **)API_Realloc(m_Selected    , m_Selected_Buf * sizeof(CShape *));
-		m_Selected_Dst	= (double  *)API_Realloc(m_Selected_Dst, m_Selected_Buf * sizeof(double  ));
-		m_Selected_Idx	= (int     *)API_Realloc(m_Selected_Idx, m_Selected_Buf * sizeof(int     ));
+		m_Selected		= (CShape **)SG_Realloc(m_Selected    , m_Selected_Buf * sizeof(CShape *));
+		m_Selected_Dst	= (double  *)SG_Realloc(m_Selected_Dst, m_Selected_Buf * sizeof(double  ));
 	}
 
 	m_Selected    [m_nSelected]	= pPoint;
 	m_Selected_Dst[m_nSelected]	= Distance;
-	m_Selected_Idx[m_nSelected]	= m_nSelected++;
 }
 
 //---------------------------------------------------------
-int CShapes_Search::Select_Radius(double x, double y, double Radius, bool bSort)
+int CShapes_Search::Select_Radius(double x, double y, double Radius, bool bSort, int MaxPoints)
 {
 	int			ix, xLeft, xRight;
 	double		d, dx, Radius_2;
@@ -533,12 +527,12 @@ int CShapes_Search::Select_Radius(double x, double y, double Radius, bool bSort)
 		}
 	}
 
-	if( bSort )
+	if( bSort || (MaxPoints > 0 && MaxPoints < m_nSelected) )
 	{
-		MAT_Create_Index(m_nSelected, m_Selected_Dst, true, m_Selected_Idx);
+		m_Selected_Idx.Create(m_nSelected, m_Selected_Dst, true);
 	}
 
-	return( m_nSelected );
+	return( MaxPoints <= 0 || MaxPoints > m_nSelected ? m_nSelected : MaxPoints );
 }
 
 

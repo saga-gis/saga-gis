@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Map_DC::CWKSP_Map_DC(const CGEO_Rect &rWorld, const wxRect &rDC, double Scale, int Background)
+CWKSP_Map_DC::CWKSP_Map_DC(const CSG_Rect &rWorld, const wxRect &rDC, double Scale, int Background)
 {
 	m_rWorld		= rWorld;
 	m_rDC			= rDC;
@@ -287,7 +287,7 @@ void CWKSP_Map_DC::Draw_Polygon(CShape_Polygon *pPolygon)
 //	TEST_Draw_Polygon(pPolygon);	return;	// testing alternative polygon drawing
 
 	int			iPart, iPoint, jPoint, *nPoints;
-	TGEO_Point	p;
+	TSG_Point	p;
 	wxPoint		*Points;
 
 	//-----------------------------------------------------
@@ -361,7 +361,7 @@ void CWKSP_Map_DC::TEST_Draw_Polygon(CShape_Polygon *pPolygon)
 	IMG_Draw_Begin(0.5);
 
 	int			iPart, iPoint, ix, iy, jx, jy, idy, jdy;
-	TGEO_Point	p;
+	TSG_Point	p;
 	CGrid		Mask(GRID_TYPE_Byte, m_rDC.GetWidth(), m_rDC.GetHeight());
 
 	for(iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)

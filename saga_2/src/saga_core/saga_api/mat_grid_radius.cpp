@@ -71,7 +71,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CMAT_Grid_Radius::CMAT_Grid_Radius(int _max_Radius)
+CSG_Grid_Radius::CSG_Grid_Radius(int _max_Radius)
 {
 	max_Radius		= 0;
 
@@ -79,7 +79,7 @@ CMAT_Grid_Radius::CMAT_Grid_Radius(int _max_Radius)
 }
 
 //---------------------------------------------------------
-CMAT_Grid_Radius::~CMAT_Grid_Radius(void)
+CSG_Grid_Radius::~CSG_Grid_Radius(void)
 {
 	Destroy();
 }
@@ -92,7 +92,7 @@ CMAT_Grid_Radius::~CMAT_Grid_Radius(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CMAT_Grid_Radius::Create(int _max_Radius)
+bool CSG_Grid_Radius::Create(int _max_Radius)
 {
 	int		x, y, nMask, ix, iy, Radius;
 	double	dRadius;
@@ -105,8 +105,8 @@ bool CMAT_Grid_Radius::Create(int _max_Radius)
 	{
 		max_Radius	= _max_Radius;
 
-		nPoints		= (int *)				API_Calloc(max_Radius, sizeof(int));
-		Points		= (TMAT_Grid_Radius **)	API_Calloc(max_Radius, sizeof(TMAT_Grid_Radius *));
+		nPoints		= (int *)				SG_Calloc(max_Radius, sizeof(int));
+		Points		= (TMAT_Grid_Radius **)	SG_Calloc(max_Radius, sizeof(TMAT_Grid_Radius *));
 
 		nMask		= 1 + 2 * max_Radius;
 		gMask.Create(GRID_TYPE_Double, nMask, nMask);
@@ -115,7 +115,7 @@ bool CMAT_Grid_Radius::Create(int _max_Radius)
 		{
 			for(ix=-max_Radius, x=0; x<nMask; ix++, x++)
 			{
-				gMask.Set_Value(x, y, dRadius = M_GET_DIST(ix, iy));
+				gMask.Set_Value(x, y, dRadius = M_GET_LENGTH(ix, iy));
 
 				if( (Radius = (int)dRadius) < max_Radius )
 				{
@@ -127,7 +127,7 @@ bool CMAT_Grid_Radius::Create(int _max_Radius)
 		//-------------------------------------------------
 		for(Radius=0; Radius<max_Radius; Radius++)
 		{
-			Points[Radius]	= (TMAT_Grid_Radius *)API_Calloc(nPoints[Radius], sizeof(TMAT_Grid_Radius));
+			Points[Radius]	= (TMAT_Grid_Radius *)SG_Calloc(nPoints[Radius], sizeof(TMAT_Grid_Radius));
 			nPoints[Radius]	= 0;
 		}
 
@@ -154,7 +154,7 @@ bool CMAT_Grid_Radius::Create(int _max_Radius)
 }
 
 //---------------------------------------------------------
-void CMAT_Grid_Radius::Destroy(void)
+void CSG_Grid_Radius::Destroy(void)
 {
 	int		i;
 
@@ -164,12 +164,12 @@ void CMAT_Grid_Radius::Destroy(void)
 		{
 			if( Points[i] )
 			{
-				API_Free(Points[i]);
+				SG_Free(Points[i]);
 			}
 		}
 
-		API_Free(Points);
-		API_Free(nPoints);
+		SG_Free(Points);
+		SG_Free(nPoints);
 
 		max_Radius	= 0;
 	}

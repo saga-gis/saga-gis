@@ -167,7 +167,7 @@ CShapes * CInterpolation_Shepard::_Get_Point_Shapes(CShapes *pShapes)
 
 	if( pShapes->Get_Type() != SHAPE_TYPE_Point )
 	{
-		pPoints	= API_Create_Shapes(SHAPE_TYPE_Point, NULL, &pShapes->Get_Table());
+		pPoints	= SG_Create_Shapes(SHAPE_TYPE_Point, NULL, &pShapes->Get_Table());
 
 		for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{

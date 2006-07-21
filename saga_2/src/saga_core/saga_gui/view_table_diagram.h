@@ -106,7 +106,7 @@ private:
 
 	double							m_zMin, m_zMax, m_xMin, m_xMax;
 
-	CColors							m_Colors;
+	CSG_Colors							m_Colors;
 
 	CTable							*m_pTable, m_Structure;
 

@@ -92,11 +92,11 @@ private:
 
 	double					m_Cell_Height;
 
-	CGEO_Rect				m_rTitle, m_rShape, m_rTable;
+	CSG_Rect				m_rTitle, m_rShape, m_rTable;
 
 	CShapes					*m_pShapes;
 
-	class CPDF_Document		*m_pPDF;
+	class CDoc_PDF		*m_pPDF;
 
 
 	bool					Add_Shapes			(void);

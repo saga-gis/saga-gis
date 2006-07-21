@@ -137,8 +137,8 @@ public:
 	bool							Show				(class CDataObject *pObject);
 	bool							asImage				(class CDataObject *pObject, class CGrid *pImage);
 
-	bool							Get_Colors			(class CDataObject *pObject, class CColors *pColors);
-	bool							Set_Colors			(class CDataObject *pObject, class CColors *pColors);
+	bool							Get_Colors			(class CDataObject *pObject, class CSG_Colors *pColors);
+	bool							Set_Colors			(class CDataObject *pObject, class CSG_Colors *pColors);
 
 
 private:

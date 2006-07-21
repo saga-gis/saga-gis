@@ -128,7 +128,7 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_SYMBOL_TYPE"		, LNG("[CAP] Symbol Type"),
 		"",
 
-		CAPI_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
 			LNG("circle"),
 			LNG("square"),
 			LNG("rhombus"),
@@ -149,7 +149,7 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	m_Parameters.Add_FilePath(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_SYMBOL_IMAGE"	, LNG("[CAP] Symbol Image"),
 		"",
-		CAPI_String::Format(
+		CSG_String::Format(
 			"%s|*.bmp;*.ico;*.gif;*.jpg;*.jif;*.jpeg;*.pcx;*.png;*.pnm;*.tif;*.tiff;*.xpm|"
 			"%s (*.bmp)|*.bmp|"
 			"%s (*.jpg)|*.jpg|"
@@ -392,7 +392,7 @@ void CWKSP_Shapes_Point::_Draw_Shape(CWKSP_Map_DC &dc_Map, CShape *pShape, bool 
 		}
 
 		//-------------------------------------------------
-		TAPI_iPoint	p(dc_Map.World2DC(pShape->Get_Point(0)));
+		TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Point(0)));
 
 		Draw_Symbol(dc_Map.dc, p.x, p.y, Size);
 
@@ -408,7 +408,7 @@ void CWKSP_Shapes_Point::_Draw_Shape(CWKSP_Map_DC &dc_Map, CShape *pShape, bool 
 //---------------------------------------------------------
 void CWKSP_Shapes_Point::_Draw_Label(CWKSP_Map_DC &dc_Map, CShape *pShape)
 {
-	TAPI_iPoint	p(dc_Map.World2DC(pShape->Get_Point(0)));
+	TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Point(0)));
 
 	Draw_Text(dc_Map.dc, TEXTALIGN_TOPCENTER, p.x, p.y, pShape->Get_Record()->asString(m_iLabel));
 }

@@ -92,7 +92,7 @@ public:
 
 	int							Get_ID					(void)			{	return( m_ID );			}
 
-	const TGEO_Point &			Get_Point				(void)			{	return( m_Point );		}
+	const TSG_Point &			Get_Point				(void)			{	return( m_Point );		}
 
 	double						Get_X					(void)			{	return( m_Point.x );	}
 	double						Get_Y					(void)			{	return( m_Point.y );	}
@@ -106,20 +106,20 @@ public:
 	int							Get_Triangle_Count		(void)			{	return( m_nTriangles );	}
 	CTIN_Triangle *				Get_Triangle			(int iTriangle)	{	return( iTriangle >= 0 && iTriangle < m_nTriangles ? m_Triangles[iTriangle] : NULL );	}
 
-	bool						Get_Polygon				(TGEO_Point **ppPoints, int &nPoints);
+	bool						Get_Polygon				(TSG_Point **ppPoints, int &nPoints);
 	double						Get_Polygon_Area		(void);
 
 
 private:
 
 	CTIN_Point(void);
-	CTIN_Point(int ID, TGEO_Point Point, CTable_Record *pRecord);
+	CTIN_Point(int ID, TSG_Point Point, CTable_Record *pRecord);
 	virtual ~CTIN_Point(void);
 
 
 	int							m_ID, m_nNeighbors, m_nTriangles;
 
-	TGEO_Point					m_Point;
+	TSG_Point					m_Point;
 
 	CTable_Record				*m_pRecord;
 
@@ -178,18 +178,18 @@ public:
 
 	CTIN_Point *				Get_Point				(int iPoint)	{	return( m_Points[iPoint % 3] );	}
 
-	const CGEO_Rect &			Get_Extent				(void)			{	return( m_Extent );	}
+	const CSG_Rect &			Get_Extent				(void)			{	return( m_Extent );	}
 
 	double						Get_Area				(void)			{	return( m_Area );	}
 
-	bool						is_Containing			(const TGEO_Point &Point);
+	bool						is_Containing			(const TSG_Point &Point);
 	bool						is_Containing			(double x, double y);
 
 	bool						Get_Gradient			(int zField, double &Decline, double &Azimuth);
 
-	void						Get_CircumCircle		(TGEO_Point &Point, double &Radius)	{	Point	= m_Center;	Radius	= m_Radius;	}
+	void						Get_CircumCircle		(TSG_Point &Point, double &Radius)	{	Point	= m_Center;	Radius	= m_Radius;	}
 	double						Get_CircumCircle_Radius	(void)			{	return( m_Radius );	}
-	TGEO_Point					Get_CircumCircle_Point	(void)			{	return( m_Center );	}
+	TSG_Point					Get_CircumCircle_Point	(void)			{	return( m_Center );	}
 
 
 private:
@@ -200,9 +200,9 @@ private:
 
 	double						m_Area, m_Radius;
 
-	TGEO_Point					m_Center;
+	TSG_Point					m_Center;
 
-	CGEO_Rect					m_Extent;
+	CSG_Rect					m_Extent;
 
 	CTIN_Point					*m_Points[3];
 
@@ -235,29 +235,31 @@ public:
 
 	virtual bool				Destroy					(void);
 
-	virtual TDataObject_Type	Get_ObjectType			(void)			{	return( DATAOBJECT_TYPE_TIN );	}
+	virtual TDataObject_Type	Get_ObjectType			(void)		const	{	return( DATAOBJECT_TYPE_TIN );	}
 
 	virtual bool				Assign					(CDataObject *pObject);
 
 	virtual bool				Save					(const char *File_Name, int Format = 0);
 
-	virtual bool				is_Valid				(void)			{	return( m_nPoints >= 3 );	}
+	virtual bool				is_Valid				(void)		const	{	return( m_nPoints >= 3 );	}
 
-	CTable &					Get_Table				(void)			{	return( m_Table );		}
+	CTable &					Get_Table				(void)				{	return( m_Table );		}
 
-	CTIN_Point *				Add_Point				(TGEO_Point Point, CTable_Record *pRecord, bool bUpdateNow);
+	bool						Update					(void);
+
+	CTIN_Point *				Add_Point				(TSG_Point Point, CTable_Record *pRecord, bool bUpdateNow);
 	bool						Del_Point				(int iPoint, bool bUpdateNow);
 
-	int							Get_Point_Count			(void)			{	return( m_nPoints );	}
-	CTIN_Point *				Get_Point				(int Index)		{	return( Index >= 0 && Index < m_nPoints    ? m_Points[Index]    : NULL );	}
+	int							Get_Point_Count			(void)		const	{	return( m_nPoints );	}
+	CTIN_Point *				Get_Point				(int Index)	const	{	return( Index >= 0 && Index < m_nPoints    ? m_Points[Index]    : NULL );	}
 
-	int							Get_Edge_Count			(void)			{	return( m_nEdges );		}
-	CTIN_Edge *					Get_Edge				(int Index)		{	return( Index >= 0 && Index < m_nEdges     ? m_Edges[Index]     : NULL );	}
+	int							Get_Edge_Count			(void)		const	{	return( m_nEdges );		}
+	CTIN_Edge *					Get_Edge				(int Index)	const	{	return( Index >= 0 && Index < m_nEdges     ? m_Edges[Index]     : NULL );	}
 
-	int							Get_Triangle_Count		(void)			{	return( m_nTriangles );	}
-	CTIN_Triangle *				Get_Triangle			(int Index)		{	return( Index >= 0 && Index < m_nTriangles ? m_Triangles[Index] : NULL );	}
+	int							Get_Triangle_Count		(void)		const	{	return( m_nTriangles );	}
+	CTIN_Triangle *				Get_Triangle			(int Index)	const	{	return( Index >= 0 && Index < m_nTriangles ? m_Triangles[Index] : NULL );	}
 
-	CGEO_Rect					Get_Extent				(void)			{	_Extent_Update();	return( m_Extent );	}
+	CSG_Rect					Get_Extent				(void)				{	_Extent_Update();	return( m_Extent );	}
 
 
 protected:
@@ -287,7 +289,7 @@ protected:
 
 	CTIN_Triangle				**m_Triangles;
 
-	CGEO_Rect					m_Extent;
+	CSG_Rect					m_Extent;
 
 	CTable						m_Table;
 
@@ -318,16 +320,16 @@ protected:
 
 //---------------------------------------------------------
 /** Safe TIN construction */
-SAGA_API_DLL_EXPORT CTIN *		API_Create_TIN			(void);
+SAGA_API_DLL_EXPORT CTIN *		SG_Create_TIN			(void);
 
 /** Safe TIN construction */
-SAGA_API_DLL_EXPORT CTIN *		API_Create_TIN			(const CTIN &TIN);
+SAGA_API_DLL_EXPORT CTIN *		SG_Create_TIN			(const CTIN &TIN);
 
 /** Safe TIN construction */
-SAGA_API_DLL_EXPORT CTIN *		API_Create_TIN			(CShapes *pShapes);
+SAGA_API_DLL_EXPORT CTIN *		SG_Create_TIN			(CShapes *pShapes);
 
 /** Safe TIN construction */
-SAGA_API_DLL_EXPORT CTIN *		API_Create_TIN			(const char *File_Name);
+SAGA_API_DLL_EXPORT CTIN *		SG_Create_TIN			(const char *File_Name);
 
 
 ///////////////////////////////////////////////////////////

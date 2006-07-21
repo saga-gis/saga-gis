@@ -169,7 +169,7 @@ bool CMandelbrot::On_Execute(void)
 	m_xJulia		= Parameters("JULIA_X")	->asDouble();
 	m_yJulia		= Parameters("JULIA_Y")	->asDouble();
 
-	m_pGrid			= API_Create_Grid(GRID_TYPE_Int, Parameters("NX")->asInt(), Parameters("NY")->asInt());
+	m_pGrid			= SG_Create_Grid(GRID_TYPE_Int, Parameters("NX")->asInt(), Parameters("NY")->asInt());
 	m_pGrid->Set_Name(m_Method == 0 ? _TL("Mandelbrot Set") : _TL("Julia Set"));
 	Parameters("GRID")->Set_Value(m_pGrid);
 
@@ -189,7 +189,7 @@ bool CMandelbrot::On_Execute(void)
 						if( a.Get_Y() > b.Get_Y() )	{	d	= a.m_point.y; a.m_point.y	= b.m_point.y; b.m_point.y	= d;	}
 
 //---------------------------------------------------------
-bool CMandelbrot::On_Execute_Position(CGEO_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CMandelbrot::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
 {
 	double	d;
 

@@ -123,19 +123,14 @@ bool CInterpolation_InverseDistance::Get_Grid_Value(int x, int y)
 {
 	int			iPoint, nPoints;
 	double		zSum, dSum, d, dx, xPos, yPos;
-	TGEO_Point	Point;
+	TSG_Point	Point;
 	CShape		*pPoint;
 
 	xPos	= pGrid->Get_XMin() + x * pGrid->Get_Cellsize();
 	yPos	= pGrid->Get_YMin() + y * pGrid->Get_Cellsize();
 
-	if( (nPoints = SearchEngine.Select_Radius(xPos, yPos, InvDist_Radius, true)) > 0 )
+	if( (nPoints = SearchEngine.Select_Radius(xPos, yPos, InvDist_Radius, true, InvDist_MaxPoints)) > 0 )
 	{
-		if( nPoints > InvDist_MaxPoints )
-		{
-			nPoints	= InvDist_MaxPoints;
-		}
-
 		for(iPoint=0, zSum=0.0, dSum=0.0; iPoint<nPoints; iPoint++)
 		{
 			if( (pPoint = SearchEngine.Get_Selected_Point(iPoint)) != NULL )

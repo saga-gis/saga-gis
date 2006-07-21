@@ -74,7 +74,7 @@ CWatersheds_ext::CWatersheds_ext(void){
 						"FRAGMENTATION", 
 						_TL("Basin subdivision"), 
 						"", 
-						CAPI_String::Format("%s|%s|",
+						CSG_String::Format("%s|%s|",
 							_TL("Only closing points on main stream"),
 							_TL("All")
 						),0
@@ -119,8 +119,8 @@ void CWatersheds_ext::CalculateBasin() {
 	int iNextX, iNextY;
 	int iX, iY;
     bool bAddPoint;
-	TAPI_dPoint		P;
-	CAPI_dPoints	Crossings;  
+	TSG_Point		P;
+	CSG_Points	Crossings;  
 
 	Process_Set_Text(_TL("Calculating Subbasins..."));
 	
@@ -167,7 +167,7 @@ void CWatersheds_ext::CalculateBasin() {
 	
 	float fMaxDistance = -1;
 	float fDistance = 0;
-	TAPI_dPoint	LongestRiverHeader;
+	TSG_Point	LongestRiverHeader;
 	
 	for (i = 0; i < m_Headers.Get_Count(); i++) {
 	    fDistance = DistanceToClosingPoint(m_Headers.Get_Point(i).x, m_Headers.Get_Point(i).y);
@@ -182,8 +182,8 @@ void CWatersheds_ext::CalculateBasin() {
 		
 	if (m_iFragmentationType == FRAGMENTATION_TO_MAIN) {
 
-		CAPI_dPoints	CrossingsNext;
-		CAPI_dPoints	CrossingsAtPrincipal;
+		CSG_Points	CrossingsNext;
+		CSG_Points	CrossingsAtPrincipal;
 		
 	    for (i = 0; i < Crossings.Get_Count(); i++) {
 	        getNextCell(m_pDEM, m_pChannelsGrid, Crossings.Get_Point(i).x,Crossings.Get_Point(i).y, iNextX,iNextY);
@@ -223,7 +223,7 @@ void CWatersheds_ext::CalculateBasin() {
 	m_fHeightDif = new float[Crossings.Get_Count()+1];
 	m_fHeightDif[0] = fHeightDif;
 
-	m_pDistanceGrid = API_Create_Grid(m_pDEM,GRID_TYPE_Float);
+	m_pDistanceGrid = SG_Create_Grid(m_pDEM,GRID_TYPE_Float);
 	m_pDistanceGrid->Assign((double)0);
 
 	m_iNumBasins = 1;
@@ -255,7 +255,7 @@ void CWatersheds_ext::CreateShapesLayer(){ //first shape (0) is the whole basin.
 	CTable *pTable;
 	CTable_Record *pRecord, *pRecord2;
 	CShape *pSubbasin;
-	TGEO_Point	Point;	
+	TSG_Point	Point;	
 	float fArea=0, fPerim=0;
 	float fSide1, fSide2;
 	float fConcTime;
@@ -273,7 +273,7 @@ void CWatersheds_ext::CreateShapesLayer(){ //first shape (0) is the whole basin.
 	float * fSoilLoss;
 	float * fCNValidCells;
 	float * fSoilLossValidCells;
-	CAPI_String sSubbasins;
+	CSG_String sSubbasins;
 	int iOffsetX[] = {0, 1, 1, 1, 0, -1, -1, -1};
     int iOffsetY[] = {-1, -1, 0, 1, 1, 1, 0, -1};
     int iDirection;
@@ -415,8 +415,8 @@ out2:
 		pSubbasin->Get_Record()->Set_Value(4, fArea/10000.0);
 		pSubbasin->Get_Record()->Set_Value(10, GraveliusType(fPerim, fArea).c_str());
 		if (fSide1!=NO_EQUIVALENT_RECTANGLE){
-			pSubbasin->Get_Record()->Set_Value(11, API_Get_String(fSide1).c_str());
-			pSubbasin->Get_Record()->Set_Value(12, API_Get_String(fSide2).c_str());
+			pSubbasin->Get_Record()->Set_Value(11, SG_Get_String(fSide1).c_str());
+			pSubbasin->Get_Record()->Set_Value(12, SG_Get_String(fSide2).c_str());
 		}//if
 		else{
 			pSubbasin->Get_Record()->Set_Value(11, "---");
@@ -462,8 +462,8 @@ out2:
 		for (j = 0; j<pTable->Get_Record_Count(); j++){
 			iDownstreamBasin = pTable->Get_Record(j)->asInt(9);
 			if (iDownstreamBasin == iCode){
-				sSubbasins = CAPI_String(pTable->Get_Record(i)->asString(8)) + " " 
-					+ API_Get_String(pTable->Get_Record(j)->asInt(0));
+				sSubbasins = CSG_String(pTable->Get_Record(i)->asString(8)) + " " 
+					+ SG_Get_String(pTable->Get_Record(j)->asInt(0));
 				pTable->Get_Record(i)->Set_Value(8, sSubbasins.c_str());
 			}//if
 		}//for
@@ -584,7 +584,7 @@ void CWatersheds_ext::WriteBasin(int iX, int iY, int iBasinNumber) {
                         getNextCell(m_pDEM, iX + i, iY + j, iNextX, iNextY);
                         if (iNextX == iX && iNextY == iY) {
 							fDistance = m_pDistanceGrid->asDouble(iX,iY)
-								+ M_GET_DIST(i,j)*m_pDEM->Get_Cellsize();
+								+ M_GET_LENGTH(i,j)*m_pDEM->Get_Cellsize();
                             m_pDistanceGrid->Set_Value(iX+i, iY+j,fDistance) ;
 							if (fDistance > m_fMaxDistance[iBasinNumber]){
 								m_fMaxDistance[iBasinNumber] = fDistance;
@@ -624,7 +624,7 @@ void CWatersheds_ext::DeleteBasin(int iX, int iY, int iBasinNumber) {
 }// method
 
 
-bool CWatersheds_ext::isTopHeader(CAPI_dPoints &Headers,
+bool CWatersheds_ext::isTopHeader(CSG_Points &Headers,
 							int iIndex,							
 							bool* bCalculated) {
 			
@@ -685,10 +685,10 @@ float CWatersheds_ext::DistanceToClosingPoint(int iX, int iY){ // in m
 
 }// method
 
-CAPI_String CWatersheds_ext::GraveliusType(float fPerimeter, //in m
+CSG_String CWatersheds_ext::GraveliusType(float fPerimeter, //in m
 									   float fArea){ //in m2
             		
-	CAPI_String sType;
+	CSG_String sType;
 	float fGraveliusIndex = 0.28 * fPerimeter / sqrt(fArea);
 	
     if (fGraveliusIndex > 1.75) {

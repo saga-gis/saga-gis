@@ -98,7 +98,7 @@ CPit_Eliminator::CPit_Eliminator(void)
 	Parameters.Add_Choice(
 		NULL, "METHOD"		, _TL("Method"),
 		"",
-		CAPI_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s|",
 			_TL("Deepen Drainage Routes"),
 			_TL("Fill Sinks")
 		), 1
@@ -144,7 +144,7 @@ bool CPit_Eliminator::On_Execute(void)
 
 	if( bKillRoute )
 	{
-		pRoute	= API_Create_Grid(pDTM);
+		pRoute	= SG_Create_Grid(pDTM);
 		nPits	= Router.Get_Routes(pDTM, pRoute);
 	}
 	else
@@ -203,7 +203,7 @@ void CPit_Eliminator::Create_goRoute(void)
 {
 	int		x, y;
 
-	goRoute	= API_Create_Grid(pRoute);
+	goRoute	= SG_Create_Grid(pRoute);
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{

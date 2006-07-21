@@ -165,7 +165,7 @@ bool CGSPoints_Semi_Variances::On_Execute(void)
 	);
 
 	//-----------------------------------------------------
-	pTable->Set_Name(CAPI_String::Format("%s [%s]: %s",
+	pTable->Set_Name(CSG_String::Format("%s [%s]: %s",
 		pShapes->Get_Name(),
 		pShapes->Get_Table().Get_Field_Name(Parameters("FIELD")->asInt()),
 		"Semivariances")
@@ -188,7 +188,7 @@ void CGSPoints_Semi_Variances::Get_Differences(CShapes *pShapes, CTable *pTable,
 	double			d, dx, dy, iz, z;
 	CShape			*pShape_i, *pShape_j;
 	CTable_Record	*pRecord;
-	TGEO_Point		Pt_i, Pt_j;
+	TSG_Point		Pt_i, Pt_j;
 
 	//-----------------------------------------------------
 	pTable->Destroy();

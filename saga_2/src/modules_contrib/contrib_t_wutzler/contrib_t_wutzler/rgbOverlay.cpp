@@ -179,7 +179,7 @@ bool CRGBOverlay::On_Execute(void)
 	}
 
 	//------------- adjust ColorRamp -----------
-	CColors colors;
+	CSG_Colors colors;
 	double colFac = 256.0 / COLORBASE;
 	double colFacStrech = colFac / COLORBASE;
 	DataObject_Get_Colors( pRGBGrid, colors );

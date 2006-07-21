@@ -128,7 +128,7 @@ bool CTransformShapes::On_Execute(void){
 	m_dAngle = Parameters("ANGLE")->asDouble() * M_DEG_TO_RAD;
 	m_dAnchorX = Parameters("ANCHORX")->asDouble();
 	m_dAnchorY = Parameters("ANCHORY")->asDouble();
-	TGEO_Point	Point;	
+	TSG_Point	Point;	
 	CShape *pShape, *pShape2;
 	CShapes *pIn = Parameters("IN")->asShapes();
 	CShapes *pOut= Parameters("OUT")->asShapes();
@@ -137,7 +137,7 @@ bool CTransformShapes::On_Execute(void){
 
 	if(pIn == pOut){
 		bCopy = true;
-		pOut	= API_Create_Shapes();
+		pOut	= SG_Create_Shapes();
 	}//if
 	else{
 		bCopy = false;

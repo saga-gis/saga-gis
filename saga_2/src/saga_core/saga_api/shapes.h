@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum
+typedef enum EShape_Type
 {
 	SHAPE_TYPE_Undefined		= 0,
 	SHAPE_TYPE_Point,
@@ -91,7 +91,7 @@ typedef enum
 TShape_Type;
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT const char *	API_Get_ShapeType_Name	(TShape_Type Type);
+SAGA_API_DLL_EXPORT const char *	SG_Get_ShapeType_Name	(TShape_Type Type);
 
 
 ///////////////////////////////////////////////////////////
@@ -127,27 +127,27 @@ public:
 	virtual int					Set_Point			(double x, double y, int iPoint, int iPart = 0)	= 0;
 	virtual int					Del_Point			(                    int iPoint, int iPart = 0)	= 0;
 
-	int							Add_Point			(TGEO_Point Point,               int iPart = 0);
-	int							Ins_Point			(TGEO_Point Point,   int iPoint, int iPart = 0);
-	int							Set_Point			(TGEO_Point Point,   int iPoint, int iPart = 0);
+	int							Add_Point			(TSG_Point Point,               int iPart = 0);
+	int							Ins_Point			(TSG_Point Point,   int iPoint, int iPart = 0);
+	int							Set_Point			(TSG_Point Point,   int iPoint, int iPart = 0);
 
 	virtual int					Del_Part			(int iPart)										= 0;
 	virtual int					Del_AllParts		(void)											= 0;
 
 	virtual int					Get_Part_Count		(void)											= 0;
 	virtual int					Get_Point_Count		(int iPart)										= 0;
-	virtual TGEO_Point			Get_Point			(int iPoint, int iPart = 0)						= 0;
+	virtual TSG_Point			Get_Point			(int iPoint, int iPart = 0)						= 0;
 
 
 	//-----------------------------------------------------
-	virtual CGEO_Rect			Get_Extent			(void)											= 0;
+	virtual CSG_Rect			Get_Extent			(void)											= 0;
 
-	int							Intersects			(TGEO_Rect Extent);
+	int							Intersects			(TSG_Rect Extent);
 
-	virtual double				Get_Distance		(TGEO_Point Point)								= 0;
-	virtual double				Get_Distance		(TGEO_Point Point, int iPart)					= 0;
-	virtual double				Get_Distance		(TGEO_Point Point, TGEO_Point &Next)			= 0;
-	virtual double				Get_Distance		(TGEO_Point Point, TGEO_Point &Next, int iPart)	= 0;
+	virtual double				Get_Distance		(TSG_Point Point)								= 0;
+	virtual double				Get_Distance		(TSG_Point Point, int iPart)					= 0;
+	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next)			= 0;
+	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next, int iPart)	= 0;
 
 
 protected:
@@ -161,7 +161,7 @@ protected:
 	virtual ~CShape(void);
 
 	virtual bool				On_Assign			(CShape *pShape)								= 0;
-	virtual int					On_Intersects		(TGEO_Rect Extent)								= 0;
+	virtual int					On_Intersects		(TSG_Rect Extent)								= 0;
 
 	virtual void				_Extent_Invalidate	(void);
 
@@ -193,14 +193,14 @@ public:
 
 	virtual int					Get_Part_Count		(void)												{	return( 1 );				}
 	virtual int					Get_Point_Count		(int iPart)											{	return( 1 );				}
-	virtual TGEO_Point			Get_Point			(int iPoint, int iPart = 0)							{	return( m_Point );			}
+	virtual TSG_Point			Get_Point			(int iPoint, int iPart = 0)							{	return( m_Point );			}
 
-	virtual CGEO_Rect			Get_Extent			(void);
+	virtual CSG_Rect			Get_Extent			(void);
 
-	virtual double				Get_Distance		(TGEO_Point Point)									{	return( GEO_Get_Distance(Point, m_Point) );	}
-	virtual double				Get_Distance		(TGEO_Point Point, int iPart)						{	return( GEO_Get_Distance(Point, m_Point) );	}
-	virtual double				Get_Distance		(TGEO_Point Point, TGEO_Point &Next)				{	Next = m_Point; return( GEO_Get_Distance(Point, m_Point) );	}
-	virtual double				Get_Distance		(TGEO_Point Point, TGEO_Point &Next, int iPart)		{	Next = m_Point; return( GEO_Get_Distance(Point, m_Point) );	}
+	virtual double				Get_Distance		(TSG_Point Point)									{	return( SG_Get_Distance(Point, m_Point) );	}
+	virtual double				Get_Distance		(TSG_Point Point, int iPart)						{	return( SG_Get_Distance(Point, m_Point) );	}
+	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next)					{	Next = m_Point; return( SG_Get_Distance(Point, m_Point) );	}
+	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next, int iPart)		{	Next = m_Point; return( SG_Get_Distance(Point, m_Point) );	}
 
 
 protected:
@@ -209,11 +209,11 @@ protected:
 	virtual ~CShape_Point(void);
 
 
-	TGEO_Point					m_Point;
+	TSG_Point					m_Point;
 
 
 	virtual bool				On_Assign			(CShape *pShape);
-	virtual int					On_Intersects		(TGEO_Rect Region);
+	virtual int					On_Intersects		(TSG_Rect Region);
 
 };
 
@@ -253,24 +253,22 @@ public:
 		return( iPart >= 0 && iPart < m_nParts ? m_nPoints[iPart] : 0 );
 	}
 
-	virtual TGEO_Point			Get_Point			(int iPoint, int iPart = 0)
+	virtual TSG_Point			Get_Point			(int iPoint, int iPart = 0)
 	{
 		if( iPart >= 0 && iPart < m_nParts && iPoint >= 0 && iPoint < m_nPoints[iPart] )
 		{
 			return( m_Points[iPart][iPoint] );
 		}
 
-		CGEO_Point	Point;
-
-		return( Point.m_point );
+		return( CSG_Point(0.0, 0.0) );
 	}
 
-	virtual CGEO_Rect			Get_Extent			(void)	{	_Extent_Update();	return( m_Extent );	}
+	virtual CSG_Rect			Get_Extent			(void)	{	_Extent_Update();	return( m_Extent );	}
 
-	virtual double				Get_Distance		(TGEO_Point Point);
-	virtual double				Get_Distance		(TGEO_Point Point, int iPart);
-	virtual double				Get_Distance		(TGEO_Point Point, TGEO_Point &Next);
-	virtual double				Get_Distance		(TGEO_Point Point, TGEO_Point &Next, int iPart);
+	virtual double				Get_Distance		(TSG_Point Point);
+	virtual double				Get_Distance		(TSG_Point Point, int iPart);
+	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next);
+	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next, int iPart);
 
 
 protected:
@@ -283,9 +281,9 @@ protected:
 
 	int							*m_nPoints, m_nParts;
 
-	TGEO_Point					**m_Points;
+	TSG_Point					**m_Points;
 
-	CGEO_Rect					m_Extent;
+	CSG_Rect					m_Extent;
 
 
 	int							_Add_Part			(void);
@@ -304,7 +302,7 @@ protected:
 
 	virtual bool				On_Assign			(CShape *pShape);
 
-	virtual int					On_Intersects		(TGEO_Rect Region);
+	virtual int					On_Intersects		(TSG_Rect Region);
 
 };
 
@@ -327,7 +325,7 @@ public:
 	double						Get_Length			(void);
 	double						Get_Length			(int iPart);
 
-	virtual double				Get_Distance		(TGEO_Point Point, TGEO_Point &Next, int iPart);
+	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next, int iPart);
 
 
 protected:
@@ -335,7 +333,7 @@ protected:
 	CShape_Line(class CShapes *pOwner, CTable_Record *pRecord);
 	virtual ~CShape_Line(void);
 
-	virtual int					On_Intersects		(TGEO_Rect Region);
+	virtual int					On_Intersects		(TSG_Rect Region);
 
 };
 
@@ -356,9 +354,9 @@ public:
 	virtual bool				is_Valid			(void)	{	return( m_nParts > 0 && m_nPoints[0] > 2 );	}
 
 
-	bool						is_Containing		(const TGEO_Point &Point);
+	bool						is_Containing		(const TSG_Point &Point);
 	bool						is_Containing		(double x, double y);
-	bool						is_Containing		(const TGEO_Point &Point, int iPart);
+	bool						is_Containing		(const TSG_Point &Point, int iPart);
 	bool						is_Containing		(double x, double y, int iPart);
 
 	bool						is_Clockwise		(int iPart);
@@ -371,10 +369,10 @@ public:
 	double						Get_Area			(void);
 	double						Get_Area			(int iPart);
 
-	TGEO_Point					Get_Centroid		(void);
-	TGEO_Point					Get_Centroid		(int iPart);
+	TSG_Point					Get_Centroid		(void);
+	TSG_Point					Get_Centroid		(int iPart);
 
-	virtual double				Get_Distance		(TGEO_Point Point, TGEO_Point &Next, int iPart);
+	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next, int iPart);
 
 
 protected:
@@ -382,7 +380,7 @@ protected:
 	CShape_Polygon(class CShapes *pOwner, CTable_Record *pRecord);
 	virtual ~CShape_Polygon(void);
 
-	virtual int					On_Intersects		(TGEO_Rect Region);
+	virtual int					On_Intersects		(TSG_Rect Region);
 
 	double						_Get_Area			(int iPart);
 
@@ -417,37 +415,37 @@ public:
 
 	virtual bool				Destroy					(void);
 
-	virtual TDataObject_Type	Get_ObjectType			(void)				{	return( DATAOBJECT_TYPE_Shapes );	}
+	virtual TDataObject_Type	Get_ObjectType			(void)	const		{	return( DATAOBJECT_TYPE_Shapes );	}
 
 	virtual bool				Assign					(CDataObject *pObject);
 
 	virtual bool				Save					(const char *File_Name, int Format = 0);
 
-	virtual bool				is_Valid				(void)				{	return( m_Type != SHAPE_TYPE_Undefined && m_nShapes >= 0 );				}
+	virtual bool				is_Valid				(void)	const		{	return( m_Type != SHAPE_TYPE_Undefined && m_nShapes >= 0 );				}
 
-	TShape_Type					Get_Type				(void)				{	return( m_Type );		}
+	TShape_Type					Get_Type				(void)	const		{	return( m_Type );		}
 
 	CTable &					Get_Table				(void)				{	return( m_Table );		}
 
-	CGEO_Rect					Get_Extent				(void)				{	_Extent_Update();	return( m_Extent );	}
+	CSG_Rect					Get_Extent				(void)				{	_Extent_Update();	return( m_Extent );	}
 
 	//-----------------------------------------------------
 	CShape *					Add_Shape				(CTable_Record *pValues = NULL);
 	bool						Del_Shape				(int iShape);
 	bool						Del_Shape				(CShape *pShape);
 
-	int							Get_Count				(void)				{	return( m_nShapes );	}
+	int							Get_Count				(void)	const		{	return( m_nShapes );	}
 	CShape *					Get_Shape				(int iShape)		{	return( iShape >= 0 && iShape < m_nShapes ? m_Shapes[iShape] : NULL );	}
 	int							Get_Shape_Index			(CShape *pShape)	{	return( pShape ? pShape->Get_Record()->Get_Index() : -1 );	}
 
-	CShape *					Get_Shape				(TGEO_Point Point, double Epsilon = 0.0);
+	CShape *					Get_Shape				(TSG_Point Point, double Epsilon = 0.0);
 
 	//-----------------------------------------------------
 	int							Get_Selection_Count		(void)				{	return( m_Table.m_nSelected );	}
 	CShape *					Get_Selection			(int Index = 0);
-	const CGEO_Rect &			Get_Selection_Extent	(void);
+	const CSG_Rect &			Get_Selection_Extent	(void);
 
-	bool						Select					(TGEO_Rect Extent		, bool bInvert = false);
+	bool						Select					(TSG_Rect Extent		, bool bInvert = false);
 	bool						Select					(int iShape				, bool bInvert = false);
 	bool						Select					(CShape *pShape = NULL	, bool bInvert = false);
 
@@ -462,7 +460,7 @@ protected:
 
 	TShape_Type					m_Type;
 
-	CGEO_Rect					m_Extent;
+	CSG_Rect					m_Extent, m_Extent_Selected;
 
 	CTable						m_Table;
 
@@ -490,16 +488,16 @@ protected:
 
 //---------------------------------------------------------
 /** Safe shapes construction */
-SAGA_API_DLL_EXPORT CShapes *	API_Create_Shapes		(void);
+SAGA_API_DLL_EXPORT CShapes *	SG_Create_Shapes		(void);
 
 /** Safe shapes construction */
-SAGA_API_DLL_EXPORT CShapes *	API_Create_Shapes		(const CShapes &Shapes);
+SAGA_API_DLL_EXPORT CShapes *	SG_Create_Shapes		(const CShapes &Shapes);
 
 /** Safe shapes construction */
-SAGA_API_DLL_EXPORT CShapes *	API_Create_Shapes		(const char *FileName);
+SAGA_API_DLL_EXPORT CShapes *	SG_Create_Shapes		(const char *FileName);
 
 /** Safe shapes construction */
-SAGA_API_DLL_EXPORT CShapes *	API_Create_Shapes		(TShape_Type Type, char *Name = NULL, CTable *pStructure = NULL);
+SAGA_API_DLL_EXPORT CShapes *	SG_Create_Shapes		(TShape_Type Type, char *Name = NULL, CTable *pStructure = NULL);
 
 
 ///////////////////////////////////////////////////////////
@@ -525,12 +523,20 @@ public:
 	CShape *				Get_Point_Nearest	(double x, double y);
 	CShape *				Get_Point_Nearest	(double x, double y, int iQuadrant);
 
-	int						Select_Radius		(double x, double y, double Radius, bool bSort);
+	int						Select_Radius		(double x, double y, double Radius, bool bSort = false, int MaxPoints = -1);
 	int						Get_Selected_Count	(void)	{	return( m_nSelected );		}
 
 	CShape *				Get_Selected_Point	(int iSelected)
 	{
-		return( iSelected >= 0 && iSelected < m_nSelected ? m_Selected[m_Selected_Idx[iSelected]] : NULL );
+		if( iSelected >= 0 && iSelected < m_nSelected )
+		{
+			return( m_nSelected == m_Selected_Idx.Get_Count()
+				? m_Selected[m_Selected_Idx[iSelected]]
+				: m_Selected               [iSelected]
+			);
+		}
+
+		return( NULL );
 	}
 
 
@@ -538,11 +544,13 @@ protected:
 
 	bool					m_bDestroy;
 
-	int						m_nPoints, *m_Idx, m_nSelected, m_Selected_Buf, *m_Selected_Idx;
+	int						m_nPoints, m_nSelected, m_Selected_Buf;
 
 	double					*m_Selected_Dst;
 
-	TGEO_Point				*m_Pos;
+	TSG_Point				*m_Pos;
+
+	CSG_Index				m_Idx, m_Selected_Idx;
 
 	CShape					**m_Selected;
 

@@ -28,7 +28,7 @@ CShapeSelector::CShapeSelector(CShapes *pShapes,
 	float fArea, fArea2;
 	CShape *pShape, *pShape2, *pIntersect;
 	bool bSelect;
-	TGEO_Point Point;
+	TSG_Point Point;
 	CShapes	Intersect;
 
 	Intersect.Create(SHAPE_TYPE_Polygon);
@@ -147,7 +147,7 @@ bool CShapeSelector::GPC_Intersection(CShape *pShape_A, CShape *pShape_B, CShape
 bool CShapeSelector::GPC_Create_Polygon(CShape *pShape, gpc_polygon *pPolygon)
 {
 	int				iPoint, iPart;
-	TGEO_Point		Point;
+	TSG_Point		Point;
 	gpc_vertex		*Contour;
 	gpc_vertex_list	vList;
 

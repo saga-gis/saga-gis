@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-enum
+enum ERegression_Fields
 {
 	MRFIELD_NR	= 0,
 	MRFIELD_NAME,
@@ -90,7 +90,7 @@ enum
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CMAT_Regression_Multiple::CMAT_Regression_Multiple(void)
+CSG_Regression_Multiple::CSG_Regression_Multiple(void)
 {
 	m_pResult	= new CTable;
 
@@ -102,7 +102,7 @@ CMAT_Regression_Multiple::CMAT_Regression_Multiple(void)
 }
 
 //---------------------------------------------------------
-CMAT_Regression_Multiple::~CMAT_Regression_Multiple(void)
+CSG_Regression_Multiple::~CSG_Regression_Multiple(void)
 {
 	delete(m_pResult);
 }
@@ -115,7 +115,7 @@ CMAT_Regression_Multiple::~CMAT_Regression_Multiple(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CMAT_Regression_Multiple::Destroy(void)
+void CSG_Regression_Multiple::Destroy(void)
 {
 	m_pResult->Del_Records();
 }
@@ -128,7 +128,7 @@ void CMAT_Regression_Multiple::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CMAT_Regression_Multiple::Calculate(CTable *pValues)
+bool CSG_Regression_Multiple::Calculate(const CTable &Values)
 {
 	int				i, nVariables, nValues;
 	CTable_Record	*pRecord;
@@ -136,20 +136,19 @@ bool CMAT_Regression_Multiple::Calculate(CTable *pValues)
 	//-----------------------------------------------------
 	Destroy();
 
-	if(	(nVariables = pValues->Get_Field_Count() - 1) > 0
-	&&	(nValues    = pValues->Get_Record_Count()) > nVariables )
+	if(	(nVariables = Values.Get_Field_Count() - 1) > 0
+	&&	(nValues    = Values.Get_Record_Count()) > nVariables )
 	{
 		for(i=0; i<=nVariables; i++)
 		{
 			pRecord	= m_pResult->Add_Record();
 			pRecord->Set_Value(MRFIELD_NR	, i);
-			pRecord->Set_Value(MRFIELD_NAME	, pValues->Get_Field_Name(i));
+			pRecord->Set_Value(MRFIELD_NAME	, Values.Get_Field_Name(i));
 		}
 
 		//-------------------------------------------------
-		_Get_Regression(pValues);
-
-		_Get_Correlation(pValues);
+		_Get_Regression (Values);
+		_Get_Correlation(Values);
 
 		return( true );
 	}
@@ -165,24 +164,26 @@ bool CMAT_Regression_Multiple::Calculate(CTable *pValues)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CMAT_Regression_Multiple::_Get_Regression(CTable *pValues)
+bool CSG_Regression_Multiple::_Get_Regression(const CTable &Values)
 {
-	int		i, j, k, nVariables, nValues;
-	double	sum, *B, **P, **X, *Y;
+	int			i, j, k, nVariables, nValues;
+	double		sum;
+	CSG_Vector	B, Y;
+	CSG_Matrix	P, X;
 
-	if(	(nVariables = pValues->Get_Field_Count() - 1) > 0
-	&&	(nValues    = pValues->Get_Record_Count()) > nVariables )
+	if(	(nVariables = Values.Get_Field_Count() - 1) > 0
+	&&	(nValues    = Values.Get_Record_Count()) > nVariables )
 	{
-		B		= (double  *)API_Malloc( (nVariables + 1) * sizeof(double));
-		P		= (double **)MATRIX_Alloc(nVariables + 1, nVariables + 1, sizeof(double));
+		B.Create(nVariables + 1);
+		P.Create(nVariables + 1, nVariables + 1);
 
-		Y		= (double  *)API_Malloc(nValues * sizeof(double));
-		X		= (double **)MATRIX_Alloc(nVariables + 1, nValues, sizeof(double));
+		Y.Create(nValues);
+		X.Create(nValues, nVariables + 1);
 
 		//-------------------------------------------------
 		for(k=0; k<nValues; k++)
 		{
-			Y[k]	= pValues->Get_Record(k)->asDouble(0);
+			Y[k]	= Values[k][0];
 			X[0][k] = 1.0;
 		}
 
@@ -190,7 +191,7 @@ bool CMAT_Regression_Multiple::_Get_Regression(CTable *pValues)
 		{
 			for(k=0; k<nValues; k++)
 			{
-				X[i][k] = pValues->Get_Record(k)->asDouble(i);
+				X[i][k] = Values[k][i];
 			}
 		}
 
@@ -215,7 +216,7 @@ bool CMAT_Regression_Multiple::_Get_Regression(CTable *pValues)
 			}
 		}
 
-		MATRIX_Invert(nVariables + 1, P);
+		P.Set_Inverse();
 
 		//-------------------------------------------------
 		for(i=0; i<=nVariables; i++)
@@ -229,10 +230,6 @@ bool CMAT_Regression_Multiple::_Get_Regression(CTable *pValues)
 		}
 
 		//-------------------------------------------------
-		API_Free(B);
-		MATRIX_Free(P);
-		MATRIX_Free(X);
-
 		return( true );
 	}
 
@@ -247,21 +244,23 @@ bool CMAT_Regression_Multiple::_Get_Regression(CTable *pValues)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CMAT_Regression_Multiple::_Get_Correlation(CTable *pValues)
+bool CSG_Regression_Multiple::_Get_Correlation(const class CTable &Values)
 {
-	int		i, j, nVariables, nValues;
-	double	**Values, r2, r2_sum;
+	int			i, j, nVariables, nValues;
+	double		r2, r2_sum;
+	CSG_Matrix	z;
 
-	if(	(nVariables = pValues->Get_Field_Count() - 1) > 0
-	&&	(nValues    = pValues->Get_Record_Count()) > nVariables )
+	//-----------------------------------------------------
+	if(	(nVariables = Values.Get_Field_Count() - 1) > 0
+	&&	(nValues    = Values.Get_Record_Count()) > nVariables )
 	{
-		Values	= (double **)MATRIX_Alloc(nVariables + 1, nValues, sizeof(double));
+		z.Create(nValues, nVariables + 1);
 
 		for(i=0; i<=nVariables; i++)
 		{
 			for(j=0; j<nValues; j++)
 			{
-				Values[i][j]	= pValues->Get_Record(j)->asDouble(i);
+				z[i][j]	= Values[j][i];
 			}
 		}
 
@@ -271,7 +270,7 @@ bool CMAT_Regression_Multiple::_Get_Correlation(CTable *pValues)
 
 		for(i=0, r2_sum=0.0; i<nVariables; i++)
 		{
-			_Get_Correlation(nValues, nVariables, Values + 1, Values[0], j, r2);
+			_Get_Correlation(nValues, nVariables, z.Get_Data() + 1, z[0], j, r2);
 
 			r2_sum	+= (1.0 - r2_sum) * r2;
 
@@ -280,9 +279,6 @@ bool CMAT_Regression_Multiple::_Get_Correlation(CTable *pValues)
 		}
 
 		//-------------------------------------------------
-		API_Free(Values[0]);
-		API_Free(Values);
-
 		return( true );
 	}
 
@@ -290,11 +286,11 @@ bool CMAT_Regression_Multiple::_Get_Correlation(CTable *pValues)
 }
 
 //---------------------------------------------------------
-bool CMAT_Regression_Multiple::_Get_Correlation(int nValues, int nVariables, double **X, double *Y, int &iMax, double &rMax)
+bool CSG_Regression_Multiple::_Get_Correlation(int nValues, int nVariables, double **X, double *Y, int &iMax, double &rMax)
 {
 	int				i, n;
 	double			*XMax;
-	CMAT_Regression	r;
+	CSG_Regression	r;
 
 	//-----------------------------------------------------
 	for(i=0, n=0, iMax=-1, rMax=0.0; i<nVariables; i++)
@@ -332,9 +328,9 @@ bool CMAT_Regression_Multiple::_Get_Correlation(int nValues, int nVariables, dou
 }
 
 //---------------------------------------------------------
-bool CMAT_Regression_Multiple::_Eliminate(int nValues, double *X, double *Y)
+bool CSG_Regression_Multiple::_Eliminate(int nValues, double *X, double *Y)
 {
-	CMAT_Regression	r;
+	CSG_Regression	r;
 
 	if( r.Calculate(nValues, X, Y) )
 	{
@@ -357,7 +353,7 @@ bool CMAT_Regression_Multiple::_Eliminate(int nValues, double *X, double *Y)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CMAT_Regression_Multiple::Get_Ordered(int iOrder)
+int CSG_Regression_Multiple::Get_Ordered(int iOrder)
 {
 	for(int i=0; i<m_pResult->Get_Record_Count(); i++)
 	{
@@ -371,7 +367,7 @@ int CMAT_Regression_Multiple::Get_Ordered(int iOrder)
 }
 
 //---------------------------------------------------------
-int CMAT_Regression_Multiple::Get_Order(int iVariable)
+int CSG_Regression_Multiple::Get_Order(int iVariable)
 {
 	if( ++iVariable > 0 && iVariable < m_pResult->Get_Record_Count() )
 	{
@@ -382,7 +378,7 @@ int CMAT_Regression_Multiple::Get_Order(int iVariable)
 }
 
 //---------------------------------------------------------
-double CMAT_Regression_Multiple::Get_R2(int iVariable)
+double CSG_Regression_Multiple::Get_R2(int iVariable)
 {
 	if( ++iVariable > 0 && iVariable < m_pResult->Get_Record_Count() )
 	{
@@ -393,7 +389,7 @@ double CMAT_Regression_Multiple::Get_R2(int iVariable)
 }
 
 //---------------------------------------------------------
-double CMAT_Regression_Multiple::Get_R2_Change(int iVariable)
+double CSG_Regression_Multiple::Get_R2_Change(int iVariable)
 {
 	int		iOrder	= Get_Order(iVariable);
 
@@ -411,7 +407,7 @@ double CMAT_Regression_Multiple::Get_R2_Change(int iVariable)
 }
 
 //---------------------------------------------------------
-double CMAT_Regression_Multiple::Get_RConst(void)
+double CSG_Regression_Multiple::Get_RConst(void)
 {
 	if( m_pResult->Get_Record_Count() > 1 )
 	{
@@ -422,7 +418,7 @@ double CMAT_Regression_Multiple::Get_RConst(void)
 }
 
 //---------------------------------------------------------
-double CMAT_Regression_Multiple::Get_RCoeff(int iVariable)
+double CSG_Regression_Multiple::Get_RCoeff(int iVariable)
 {
 	if( ++iVariable > 0 && iVariable < m_pResult->Get_Record_Count() )
 	{

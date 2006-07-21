@@ -46,14 +46,14 @@ bool CSlopeLength::On_Execute(void){
 	int x,y;
 	int n;
 	double	slope, aspect;
-	CColors Colors;
+	CSG_Colors Colors;
 
 	m_pSlopeLengthGrid = Parameters("LENGTH")->asGrid();
 	m_pDEM = Parameters("DEM")->asGrid();
 
 	m_pSlopeLengthGrid->Assign(0.0);
 	
-	m_pSlopeGrid = API_Create_Grid(m_pDEM, GRID_TYPE_Double);
+	m_pSlopeGrid = SG_Create_Grid(m_pDEM, GRID_TYPE_Double);
 	
 	for(y=0; y<Get_NY() && Set_Progress(y); y++){		
 		for(x=0; x<Get_NX(); x++){

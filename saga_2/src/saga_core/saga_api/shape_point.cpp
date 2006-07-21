@@ -124,13 +124,13 @@ int CShape_Point::Add_Point(double x, double y, int iPart)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGEO_Rect CShape_Point::Get_Extent(void)
+CSG_Rect CShape_Point::Get_Extent(void)
 {
-	return( CGEO_Rect(m_Point.x, m_Point.y, m_Point.x, m_Point.y) );
+	return( CSG_Rect(m_Point.x, m_Point.y, m_Point.x, m_Point.y) );
 }
 
 //---------------------------------------------------------
-int CShape_Point::On_Intersects(TGEO_Rect Extent)
+int CShape_Point::On_Intersects(TSG_Rect Extent)
 {
 	return(	Extent.xMin <= m_Point.x && m_Point.x <= Extent.xMax
 		&&	Extent.yMin <= m_Point.y && m_Point.y <= Extent.yMax

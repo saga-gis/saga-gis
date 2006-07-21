@@ -107,7 +107,7 @@ bool CModule_Library::Create(const char *FileName, const char *FilePath)
 	//-----------------------------------------------------
 	Destroy();
 
-	m_FileName	= API_Make_File_Path(FilePath, FileName, NULL).c_str();
+	m_FileName	= SG_File_Make_Path(FilePath, FileName, NULL).c_str();
 
 	m_Library.Load(m_FileName);
 
@@ -130,7 +130,7 @@ bool CModule_Library::Create(const char *FileName, const char *FilePath)
 		{
 			while( (pModule = pInterface->Get_Module(m_nModules)) != NULL )
 			{
-				m_Modules	= (CModule **)API_Realloc(m_Modules, (m_nModules + 1) * sizeof(CModule *));
+				m_Modules	= (CModule **)SG_Realloc(m_Modules, (m_nModules + 1) * sizeof(CModule *));
 				m_Modules[m_nModules++]	= pModule;
 			}
 
@@ -151,7 +151,7 @@ void CModule_Library::Destroy(void)
 {
 	if( m_nModules > 0 )
 	{
-		API_Free(m_Modules);
+		SG_Free(m_Modules);
 		m_nModules	= 0;
 		m_Modules	= NULL;
 		m_pSelected	= NULL;

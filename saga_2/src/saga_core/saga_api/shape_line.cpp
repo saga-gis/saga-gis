@@ -86,10 +86,10 @@ CShape_Line::~CShape_Line(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CShape_Line::On_Intersects(TGEO_Rect Extent)
+int CShape_Line::On_Intersects(TSG_Rect Extent)
 {
 	int			iPart, iPoint;
-	TGEO_Point	*pA, *pB, Crossing;
+	TSG_Point	*pA, *pB, Crossing;
 
 	for(iPart=0; iPart<m_nParts; iPart++)
 	{
@@ -100,7 +100,7 @@ int CShape_Line::On_Intersects(TGEO_Rect Extent)
 
 			for(iPoint=1; iPoint<m_nPoints[iPart]; iPoint++, pB=pA++)
 			{
-				if( GEO_Get_Crossing_InRegion(Crossing, *pA, *pB, Extent) )
+				if( SG_Get_Crossing_InRegion(Crossing, *pA, *pB, Extent) )
 				{
 					return( 1 );
 				}
@@ -137,7 +137,7 @@ double CShape_Line::Get_Length(int iPart)
 {
 	int			iPoint;
 	double		Length;
-	TGEO_Point	*pA, *pB;
+	TSG_Point	*pA, *pB;
 
 	if( iPart >= 0 && iPart < m_nParts && m_nPoints[iPart] > 1 )
 	{
@@ -146,7 +146,7 @@ double CShape_Line::Get_Length(int iPart)
 
 		for(iPoint=1, Length=0.0; iPoint<m_nPoints[iPart]; iPoint++, pB=pA++)
 		{
-			Length	+= GEO_Get_Distance(*pA, *pB);
+			Length	+= SG_Get_Distance(*pA, *pB);
 		}
 
 		return( Length );
@@ -163,11 +163,11 @@ double CShape_Line::Get_Length(int iPart)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CShape_Line::Get_Distance(TGEO_Point Point, TGEO_Point &Next, int iPart)
+double CShape_Line::Get_Distance(TSG_Point Point, TSG_Point &Next, int iPart)
 {
 	int			i;
 	double		d, Distance;
-	TGEO_Point	*pA, *pB, pt;
+	TSG_Point	*pA, *pB, pt;
 
 	Distance	= -1.0;
 
@@ -176,11 +176,11 @@ double CShape_Line::Get_Distance(TGEO_Point Point, TGEO_Point &Next, int iPart)
 		pB	= m_Points[iPart];
 		pA	= pB + 1;
 
-		Distance	= GEO_Get_Nearest_Point_On_Line(Point, *pA, *pB, Next);
+		Distance	= SG_Get_Nearest_Point_On_Line(Point, *pA, *pB, Next);
 
 		for(i=1; i<m_nPoints[iPart] && Distance!=0.0; i++, pB=pA++)
 		{
-			if(	(d = GEO_Get_Nearest_Point_On_Line(Point, *pA, *pB, pt)) >= 0.0
+			if(	(d = SG_Get_Nearest_Point_On_Line(Point, *pA, *pB, pt)) >= 0.0
 			&&	(d < Distance || Distance < 0.0) )
 			{
 				Distance	= d;

@@ -11,7 +11,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   pdf_document.h                      //
+//                      doc_pdf.h                        //
 //                                                       //
 //                 Copyright (C) 2005 by                 //
 //              Victor Olaya, Olaf Conrad                //
@@ -61,8 +61,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__SAGA_API__pdf_document_H
-#define HEADER_INCLUDED__SAGA_API__pdf_document_H
+#ifndef HEADER_INCLUDED__SAGA_API__doc_pdf_H
+#define HEADER_INCLUDED__SAGA_API__doc_pdf_H
 
 
 ///////////////////////////////////////////////////////////
@@ -130,7 +130,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum
+typedef enum EPDF_Font_Type
 {
 	PDF_FONT_DEFAULT	= 0,
 	PDF_FONT_Helvetica,
@@ -151,7 +151,7 @@ typedef enum
 TPDF_Font_Type;
 
 //---------------------------------------------------------
-typedef enum
+typedef enum EPDF_Page_Size
 {
 	PDF_PAGE_SIZE_A4		= 1,
 	PDF_PAGE_SIZE_A3,
@@ -160,7 +160,7 @@ typedef enum
 TPDF_Page_Size;
 
 //---------------------------------------------------------
-typedef enum
+typedef enum EPDF_Title_Level
 {
 	PDF_TITLE	= 0,
 	PDF_TITLE_01,
@@ -177,12 +177,12 @@ TPDF_Title_Level;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CPDF_Document
+class SAGA_API_DLL_EXPORT CDoc_PDF
 {
 public:
-	CPDF_Document(void);
-	CPDF_Document(TPDF_Page_Size Size, int Orientation = PDF_PAGE_ORIENTATION_PORTRAIT, const char *Title = NULL);
-	virtual ~CPDF_Document(void);
+	CDoc_PDF(void);
+	CDoc_PDF(TPDF_Page_Size Size, int Orientation = PDF_PAGE_ORIENTATION_PORTRAIT, const char *Title = NULL);
+	virtual ~CDoc_PDF(void);
 
 	bool						Open						(TPDF_Page_Size Size = PDF_PAGE_SIZE_A4, int Orientation = PDF_PAGE_ORIENTATION_PORTRAIT, const char *Title = NULL);
 	bool						Open						(const char *Title);
@@ -204,49 +204,49 @@ public:
 
 	bool						Set_Size_Page				(TPDF_Page_Size Size, int Orientation = PDF_PAGE_ORIENTATION_PORTRAIT);
 	bool						Set_Size_Page				(double Width, double Height);
-	const CGEO_Rect &			Get_Size_Page				(void)	{	return( m_Size_Paper );		}
-	const CGEO_Rect &			Get_Margins					(void)	{	return( m_Size_Margins );	}
+	const CSG_Rect &			Get_Size_Page				(void)	{	return( m_Size_Paper );		}
+	const CSG_Rect &			Get_Margins					(void)	{	return( m_Size_Margins );	}
 
 	bool						Layout_Add_Box				(double xMin_Percent, double yMin_Percent, double xMax_Percent, double yMax_Percent, const char *ID = NULL);
-	bool						Layout_Add_Box				(const CGEO_Rect &Box_Percent, const char *ID = NULL);
-	const CGEO_Rect &			Layout_Get_Box				(int iBox)	{	return( iBox >= 0 && iBox < m_Boxes.Get_Count() ? m_Boxes[iBox] : m_Size_Margins );	}
-	const CGEO_Rect &			Layout_Get_Box				(const char *ID);
+	bool						Layout_Add_Box				(const CSG_Rect &Box_Percent, const char *ID = NULL);
+	const CSG_Rect &			Layout_Get_Box				(int iBox)	{	return( iBox >= 0 && iBox < m_Boxes.Get_Count() ? m_Boxes[iBox] : m_Size_Margins );	}
+	const CSG_Rect &			Layout_Get_Box				(const char *ID);
 	void						Layout_Set_Box_Space		(double Space, bool bPercent);
 
 	bool						Draw_Point					(double x, double y, double Width, int Style = PDF_STYLE_POINT_SQUARE|PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = COLOR_DEF_WHITE, int Line_Color = COLOR_DEF_BLACK, int Line_Width = 0);
 	bool						Draw_Line					(double xa, double ya, double xb, double yb	, int Width = 0, int Color = COLOR_DEF_BLACK, int Style = 0);
-	bool						Draw_Line					(CAPI_dPoints &Points						, int Width = 0, int Color = COLOR_DEF_BLACK, int Style = 0);
+	bool						Draw_Line					(CSG_Points &Points							, int Width = 0, int Color = COLOR_DEF_BLACK, int Style = 0);
 	bool						Draw_Rectangle				(double xa, double ya, double xb, double yb	, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = COLOR_DEF_WHITE, int Line_Color = COLOR_DEF_BLACK, int Line_Width = 0);
-	bool						Draw_Rectangle				(const CGEO_Rect &r							, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = COLOR_DEF_WHITE, int Line_Color = COLOR_DEF_BLACK, int Line_Width = 0);
-	bool						Draw_Polygon				(CAPI_dPoints &Points						, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = COLOR_DEF_GREEN, int Line_Color = COLOR_DEF_BLACK, int Line_Width = 0);
+	bool						Draw_Rectangle				(const CSG_Rect &r							, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = COLOR_DEF_WHITE, int Line_Color = COLOR_DEF_BLACK, int Line_Width = 0);
+	bool						Draw_Polygon				(CSG_Points &Points							, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = COLOR_DEF_GREEN, int Line_Color = COLOR_DEF_BLACK, int Line_Width = 0);
 	bool						Draw_Text					(double x, double y, const char   *Text, int Size, int Style = PDF_STYLE_TEXT_ALIGN_H_LEFT|PDF_STYLE_TEXT_ALIGN_V_TOP, double Angle = 0.0, int Color = COLOR_DEF_BLACK, TPDF_Font_Type Font = PDF_FONT_DEFAULT);
-	bool						Draw_Text					(double x, double y, CAPI_Strings &Text, int Size, int Style = PDF_STYLE_TEXT_ALIGN_H_LEFT|PDF_STYLE_TEXT_ALIGN_V_TOP, double Angle = 0.0, int Color = COLOR_DEF_BLACK, TPDF_Font_Type Font = PDF_FONT_DEFAULT);
+	bool						Draw_Text					(double x, double y, CSG_Strings  &Text, int Size, int Style = PDF_STYLE_TEXT_ALIGN_H_LEFT|PDF_STYLE_TEXT_ALIGN_V_TOP, double Angle = 0.0, int Color = COLOR_DEF_BLACK, TPDF_Font_Type Font = PDF_FONT_DEFAULT);
 	bool						Draw_Image					(double x, double y, double dx, double dy	, const char *FileName);
-	bool						Draw_Image					(const CGEO_Rect &r							, const char *FileName);
+	bool						Draw_Image					(const CSG_Rect &r							, const char *FileName);
 
-	bool						Draw_Graticule				(const CGEO_Rect &r, const CGEO_Rect &rWorld, int Size = 10);
-	void						Draw_Curve					(CAPI_dPoints &Data, const CGEO_Rect &r, int iGraphType);
+	bool						Draw_Graticule				(const CSG_Rect &r, const CSG_Rect &rWorld, int Size = 10);
+	void						Draw_Curve					(CSG_Points &Data, const CSG_Rect &r, int iGraphType);
 
-	bool						Draw_Table					(const CGEO_Rect &r, CTable *pTable					, double CellHeight = 0.0, double HeaderHeightRel = 1.5);
-	bool						Draw_Table					(const CGEO_Rect &r, CTable *pTable, int nColumns	, double CellHeight = 0.0, double HeaderHeightRel = 1.5);
+	bool						Draw_Table					(const CSG_Rect &r, CTable *pTable					, double CellHeight = 0.0, double HeaderHeightRel = 1.5);
+	bool						Draw_Table					(const CSG_Rect &r, CTable *pTable, int nColumns	, double CellHeight = 0.0, double HeaderHeightRel = 1.5);
 
-	bool						Draw_Shape					(const CGEO_Rect &r, CShape  *pShape , int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = COLOR_DEF_GREEN, int Line_Color = COLOR_DEF_BLACK, int Line_Width = 0, CGEO_Rect *prWorld = NULL);
-	bool						Draw_Shapes					(const CGEO_Rect &r, CShapes *pShapes, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = COLOR_DEF_GREEN, int Line_Color = COLOR_DEF_BLACK, int Line_Width = 0, CGEO_Rect *prWorld = NULL);
+	bool						Draw_Shape					(const CSG_Rect &r, CShape  *pShape , int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = COLOR_DEF_GREEN, int Line_Color = COLOR_DEF_BLACK, int Line_Width = 0, CSG_Rect *prWorld = NULL);
+	bool						Draw_Shapes					(const CSG_Rect &r, CShapes *pShapes, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = COLOR_DEF_GREEN, int Line_Color = COLOR_DEF_BLACK, int Line_Width = 0, CSG_Rect *prWorld = NULL);
 
-	bool						Draw_Grid					(const CGEO_Rect &r, CGrid *pGrid, const CColors &Colors, double zMin = 0.0, double zMax = 0.0, int Style = 0, CGEO_Rect *prWorld = NULL);
+	bool						Draw_Grid					(const CSG_Rect &r, CGrid *pGrid, const CSG_Colors &Colors, double zMin = 0.0, double zMax = 0.0, int Style = 0, CSG_Rect *prWorld = NULL);
 
 
 protected:
 
 	bool						_Fit_Rectangle				(double &x, double &y, double &dx, double &dy, double XToY_Ratio, bool bShrink);
-	bool						_Fit_Rectangle				(CGEO_Rect &r, double XToY_Ratio, bool bShrink);
+	bool						_Fit_Rectangle				(CSG_Rect &r, double XToY_Ratio, bool bShrink);
 
 	bool						_Add_Outline_Item			(const char *Title, class PdfPage *pPage, TPDF_Title_Level Level = PDF_TITLE);
 
-	bool						_Draw_Ruler					(const CGEO_Rect &r, double zMin, double zMax, bool bHorizontal, bool bAscendent, bool bTickAtTop);
+	bool						_Draw_Ruler					(const CSG_Rect &r, double zMin, double zMax, bool bHorizontal, bool bAscendent, bool bTickAtTop);
 	bool						_Draw_Text					(double x, double y, const char *Text, int Size, int Style, double Angle, int Color, TPDF_Font_Type Font);
-	bool						_Draw_Table					(CGEO_Rect r, CTable *pTable, int iRecord, int nRecords, double CellHeight, double HeaderHeightRel);
-	bool						_Draw_Shape					(CGEO_Rect r, CShape *pShape, double xMin, double yMin, double World2PDF, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = COLOR_DEF_GREEN, int Line_Color = COLOR_DEF_BLACK, int Line_Width = 0, int Point_Width = 5);
+	bool						_Draw_Table					(CSG_Rect r, CTable *pTable, int iRecord, int nRecords, double CellHeight, double HeaderHeightRel);
+	bool						_Draw_Shape					(CSG_Rect r, CShape *pShape, double xMin, double yMin, double World2PDF, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = COLOR_DEF_GREEN, int Line_Color = COLOR_DEF_BLACK, int Line_Width = 0, int Point_Width = 5);
 
 	TPDF_Title_Level			_Get_Lowest_Level_Outline_Item	(void);
 
@@ -259,13 +259,13 @@ private:
 
 	double						m_Boxes_Space;
 
-	CGEO_Rect					m_Size_Paper, m_Size_Margins;
+	CSG_Rect					m_Size_Paper, m_Size_Margins;
 
-	CGEO_Rects					m_Boxes_Percent, m_Boxes;
+	CSG_Rects					m_Boxes_Percent, m_Boxes;
 
-	CAPI_String					m_Font_Default;
+	CSG_String					m_Font_Default;
 
-	CAPI_Strings				m_Boxes_ID;
+	CSG_Strings					m_Boxes_ID;
 
 	class PdfDoc				*m_pPDF;
 
@@ -293,4 +293,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__SAGA_API__pdf_document_H
+#endif // #ifndef HEADER_INCLUDED__SAGA_API__doc_pdf_H

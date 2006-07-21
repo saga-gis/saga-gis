@@ -149,7 +149,7 @@ bool CGrid_Profile::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Profile::On_Execute_Position(CGEO_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CGrid_Profile::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
 {
 	switch( Mode )
 	{
@@ -160,7 +160,7 @@ bool CGrid_Profile::On_Execute_Position(CGEO_Point ptWorld, TModule_Interactive_
 		if( !m_bAdd )
 		{
 			m_bAdd	= true;
-			m_pLine->Create(SHAPE_TYPE_Line, CAPI_String::Format("Profile [%s]", m_pDEM->Get_Name()));
+			m_pLine->Create(SHAPE_TYPE_Line, CSG_String::Format("Profile [%s]", m_pDEM->Get_Name()));
 			m_pLine->Get_Table().Add_Field("ID"	, TABLE_FIELDTYPE_Int);
 			m_pLine->Add_Shape()->Get_Record()->Set_Value(0, 1);
 		}
@@ -190,11 +190,11 @@ bool CGrid_Profile::On_Execute_Position(CGEO_Point ptWorld, TModule_Interactive_
 bool CGrid_Profile::Set_Profile(void)
 {
 	int			i;
-	TGEO_Point	A, B;
+	TSG_Point	A, B;
 	CShape		*pLine;
 
 	//-----------------------------------------------------
-	m_pPoints->Create(SHAPE_TYPE_Point, CAPI_String::Format(_TL("Profile [%s]"), m_pDEM->Get_Name()));
+	m_pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("Profile [%s]"), m_pDEM->Get_Name()));
 
 	m_pPoints->Get_Table().Add_Field("ID"				, TABLE_FIELDTYPE_Int);
 	m_pPoints->Get_Table().Add_Field(_TL("Distance")			, TABLE_FIELDTYPE_Double);
@@ -230,10 +230,10 @@ bool CGrid_Profile::Set_Profile(void)
 }
 
 //---------------------------------------------------------
-bool CGrid_Profile::Set_Profile(TGEO_Point A, TGEO_Point B)
+bool CGrid_Profile::Set_Profile(TSG_Point A, TSG_Point B)
 {
 	double		dx, dy, d, n;
-	TGEO_Point	p;
+	TSG_Point	p;
 
 	//-----------------------------------------------------
 	dx	= fabs(B.x - A.x);
@@ -278,7 +278,7 @@ bool CGrid_Profile::Set_Profile(TGEO_Point A, TGEO_Point B)
 }
 
 //---------------------------------------------------------
-bool CGrid_Profile::Add_Point(CGEO_Point Point)
+bool CGrid_Profile::Add_Point(CSG_Point Point)
 {
 	int			x, y, i;
 	double		z, Distance, Distance_2;
@@ -296,7 +296,7 @@ bool CGrid_Profile::Add_Point(CGEO_Point Point)
 		else
 		{
 			pLast		= m_pPoints->Get_Shape(m_pPoints->Get_Count() - 1);
-			Distance	= sqrt(MAT_Square(Point.Get_X() - pLast->Get_Point(0).x) + MAT_Square(Point.Get_Y() - pLast->Get_Point(0).y));
+			Distance	= SG_Get_Distance(Point, pLast->Get_Point(0));
 
 			if( Distance == 0.0 )
 			{

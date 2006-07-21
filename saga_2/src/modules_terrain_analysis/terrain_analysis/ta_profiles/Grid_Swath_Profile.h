@@ -82,7 +82,7 @@ public:
 protected:
 
 	virtual bool				On_Execute			(void);
-	virtual bool				On_Execute_Position	(CGEO_Point ptWorld, TModule_Interactive_Mode Mode);
+	virtual bool				On_Execute_Position	(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
 
 
 private:
@@ -99,10 +99,10 @@ private:
 
 
 	bool						Set_Profile	(void);
-	bool						Set_Profile	(CGEO_Point A, CGEO_Point B, CGEO_Point Left, CGEO_Point Right);
+	bool						Set_Profile	(CSG_Point A, CSG_Point B, CSG_Point Left, CSG_Point Right);
 
-	bool						Add_Point	(CGEO_Point Point, CGEO_Point Left, CGEO_Point Right, CGEO_Point Step);
-	bool						Add_Swath	(CTable_Record *pRecord, int iEntry, CGrid *pGrid, CGEO_Point Left, CGEO_Point Right, CGEO_Point Step);
+	bool						Add_Point	(CSG_Point Point, CSG_Point Left, CSG_Point Right, CSG_Point Step);
+	bool						Add_Swath	(CTable_Record *pRecord, int iEntry, CGrid *pGrid, CSG_Point Left, CSG_Point Right, CSG_Point Step);
 
 };
 

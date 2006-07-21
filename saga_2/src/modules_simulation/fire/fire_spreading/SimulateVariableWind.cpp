@@ -252,7 +252,7 @@ bool CSimulateVariableWind::AssignParameters(){
 
 	if (!m_iWindDirGrids){
 		m_pWindDirGrids = new CGrid*[1];
-		m_pWindDirGrids[0] = API_Create_Grid(m_pDEM);
+		m_pWindDirGrids[0] = SG_Create_Grid(m_pDEM);
 		m_pWindDirGrids[0]->Assign(Parameters("DEFAULTWINDDIR")->asDouble());
 		m_bDeleteWindDirGrid = true;
 	}//if
@@ -262,7 +262,7 @@ bool CSimulateVariableWind::AssignParameters(){
 	
 	if (!m_iWindSpdGrids){
 		m_pWindSpdGrids = new CGrid*[1];
-		m_pWindSpdGrids[0] = API_Create_Grid(m_pDEM);
+		m_pWindSpdGrids[0] = SG_Create_Grid(m_pDEM);
 		m_pWindSpdGrids[0]->Assign(Parameters("DEFAULTWINDSPD")->asDouble());
 		m_bDeleteWindSpdGrid = true;
 	}//if
@@ -299,12 +299,12 @@ bool CSimulateVariableWind::AssignParameters(){
 		}//for
 	}//for
 
-	m_pReactionIntensityGrid = API_Create_Grid(m_pDEM, GRID_TYPE_Double);
-	m_pEffectiveWindGrid = API_Create_Grid(m_pDEM, GRID_TYPE_Double);
-	m_pHeatPerUnitAreaGrid = API_Create_Grid(m_pDEM, GRID_TYPE_Double);
+	m_pReactionIntensityGrid = SG_Create_Grid(m_pDEM, GRID_TYPE_Double);
+	m_pEffectiveWindGrid = SG_Create_Grid(m_pDEM, GRID_TYPE_Double);
+	m_pHeatPerUnitAreaGrid = SG_Create_Grid(m_pDEM, GRID_TYPE_Double);
 
-	m_pSlopeGrid = API_Create_Grid(m_pDEM, GRID_TYPE_Double);
-	m_pAspectGrid = API_Create_Grid(m_pDEM, GRID_TYPE_Double);
+	m_pSlopeGrid = SG_Create_Grid(m_pDEM, GRID_TYPE_Double);
+	m_pAspectGrid = SG_Create_Grid(m_pDEM, GRID_TYPE_Double);
 
 	CMorphometry Morphometry;
 	if(	!Morphometry.Get_Parameters()->Set_Parameter("ELEVATION", PARAMETER_TYPE_Grid, m_pDEM)
@@ -506,7 +506,7 @@ float CSimulateVariableWind::getWindDirection(int iX,
 
 void CSimulateVariableWind::CreateReport(){
 
-	CAPI_String sReportFile;
+	CSG_String sReportFile;
 	std::ofstream file;
 	int i;
 
@@ -536,41 +536,41 @@ void CSimulateVariableWind::CreateReport(){
 		file << "\t\t Modelos de combustible (por area) \n:  ";
 		for (i = 0; i < 12; i++){
 			if (m_pAreaByFuelModel[i]){
-				file << "\t\t\t * " + API_Get_String(i + 1, 0) + " : " + API_Get_String(m_pAreaByFuelModel[i]) + " ha\n";
+				file << "\t\t\t * " + SG_Get_String(i + 1, 0) + " : " + SG_Get_String(m_pAreaByFuelModel[i]) + " ha\n";
 			}//if
 		}//for		
-		file << "\t\t Humedad de los combustibles muertos (1 h): " + API_Get_String(m_fDeadFuelMoisture) + " %\n";
+		file << "\t\t Humedad de los combustibles muertos (1 h): " + SG_Get_String(m_fDeadFuelMoisture) + " %\n";
 		file << "\t\t Velocidad del viento a media llama: \n" ;
 		for(i = 0; i < m_iWindSpdGrids; i++){
-			file << "\t\t\t * " + API_Get_String(i * m_fInterval, 0) + " min: " 
-					+ API_Get_String(m_pMeanWindSpd[i]) + "Km/h\n";
+			file << "\t\t\t * " + SG_Get_String(i * m_fInterval, 0) + " min: " 
+					+ SG_Get_String(m_pMeanWindSpd[i]) + "Km/h\n";
 		}//for
 		file << "\t\t Dirección del vector viento, desde el norte geográfico: \n";
 		for(i = 0; i < m_iWindDirGrids; i++){
-			file << "\t\t\t * " + API_Get_String(i * m_fInterval, 0) + " min: " 
-					+ API_Get_String(m_pMeanWindDir[i]) + "º\n";
+			file << "\t\t\t * " + SG_Get_String(i * m_fInterval, 0) + " min: " 
+					+ SG_Get_String(m_pMeanWindDir[i]) + "º\n";
 		}//for
 
-		file << "\t\t Pendiente del terreno media: " + API_Get_String(m_fSlope) + " %\n";       
-		file << "\t\t Orientación del terreno: " + API_Get_String(m_fAspect) + "º\n";
-		file << "\t\t Foco de partida: X = " + API_Get_String(Parameters("COORDX")->asDouble(), 0) + " / Y = "
-				+ API_Get_String(Parameters("COORDY")->asDouble(), 0) + "\n";
+		file << "\t\t Pendiente del terreno media: " + SG_Get_String(m_fSlope) + " %\n";       
+		file << "\t\t Orientación del terreno: " + SG_Get_String(m_fAspect) + "º\n";
+		file << "\t\t Foco de partida: X = " + SG_Get_String(Parameters("COORDX")->asDouble(), 0) + " / Y = "
+				+ SG_Get_String(Parameters("COORDY")->asDouble(), 0) + "\n";
 		file << "\t\t Tiempo de simulación: 3.0 h";
 
 		file << "\n\n\t Resultado de la simulación\n";
 		file << "\t --------------------------------\n\n";	
-		file << "\t\t Velocidad de propagación: " + API_Get_String(m_fMeanSpeed) + " m/min\n";
-		file << "\t\t Calor por unidad de area: " + API_Get_String(m_fHeatPerUnitArea) + " kJ/m^2\n"; //revisar unidades!!
-		file << "\t\t Intensidad de la línea de fuego: " + API_Get_String(m_fIntensity) + " kCal/m\n";
-		file << "\t\t Longitud de la llama: " + API_Get_String(m_fFlameHeight) + " m\n";
-		file << "\t\t Intensidad de reacción: " + API_Get_String(m_fReactionIntensity) + " kCal/m2\n";
-		file << "\t\t Velocidad efectiva del viento: " + API_Get_String(m_fEffectiveWind / KMH2FTMIN) + " Km/h\n";
-		file << "\t\t Dirección de máxima propagación, desde el norte geográfico: " + API_Get_String(m_fMaxSpreadDir) + "º\n";
-		file << "\t\t Area: " + API_Get_String(m_fArea / 10000) + " ha\n";
-		file << "\t\t Perímetro: " + API_Get_String(m_fPerimeter) + "m\n";
+		file << "\t\t Velocidad de propagación: " + SG_Get_String(m_fMeanSpeed) + " m/min\n";
+		file << "\t\t Calor por unidad de area: " + SG_Get_String(m_fHeatPerUnitArea) + " kJ/m^2\n"; //revisar unidades!!
+		file << "\t\t Intensidad de la línea de fuego: " + SG_Get_String(m_fIntensity) + " kCal/m\n";
+		file << "\t\t Longitud de la llama: " + SG_Get_String(m_fFlameHeight) + " m\n";
+		file << "\t\t Intensidad de reacción: " + SG_Get_String(m_fReactionIntensity) + " kCal/m2\n";
+		file << "\t\t Velocidad efectiva del viento: " + SG_Get_String(m_fEffectiveWind / KMH2FTMIN) + " Km/h\n";
+		file << "\t\t Dirección de máxima propagación, desde el norte geográfico: " + SG_Get_String(m_fMaxSpreadDir) + "º\n";
+		file << "\t\t Area: " + SG_Get_String(m_fArea / 10000) + " ha\n";
+		file << "\t\t Perímetro: " + SG_Get_String(m_fPerimeter) + "m\n";
 		//Razón Longitud/Ancho:                   1.9
-		file << "\t\t Distancia de propagación hacia delante: " + API_Get_String(m_fFrontDistance) + " m\n";
-		file << "\t\t Distancia de propagación hacia atrás: " +  API_Get_String(m_fRearDistance) + " m\n";
+		file << "\t\t Distancia de propagación hacia delante: " + SG_Get_String(m_fFrontDistance) + " m\n";
+		file << "\t\t Distancia de propagación hacia atrás: " +  SG_Get_String(m_fRearDistance) + " m\n";
 
 		file.close();
 

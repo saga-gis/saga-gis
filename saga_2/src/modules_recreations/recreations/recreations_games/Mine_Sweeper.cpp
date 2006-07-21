@@ -135,7 +135,7 @@ CMine_Sweeper::~CMine_Sweeper(void)
 bool CMine_Sweeper::MakeBoard(int level)
 {
 	int		i, x, y;
-	CColors	Colors;
+	CSG_Colors	Colors;
 
 	switch( level )
 	{
@@ -149,7 +149,7 @@ bool CMine_Sweeper::MakeBoard(int level)
 			break;
 	}
 
-	pInput	= API_Create_Grid(GRID_TYPE_Int,SPRITE_SIZE*Mine_NX, SPRITE_SIZE*Mine_NY);
+	pInput	= SG_Create_Grid(GRID_TYPE_Int,SPRITE_SIZE*Mine_NX, SPRITE_SIZE*Mine_NY);
 	pInput->Set_Name(_TL("Mine Sweeper"));
 	Parameters("GRID")->Set_Value(pInput);
 
@@ -258,7 +258,7 @@ bool CMine_Sweeper::Get_Grid_Pos(int &x, int &y)
 }
 
 
-bool CMine_Sweeper::On_Execute_Position(CGEO_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CMine_Sweeper::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
 {
 	int ok = true;
 	
@@ -303,12 +303,12 @@ bool CMine_Sweeper::On_Execute_Position(CGEO_Point ptWorld, TModule_Interactive_
 			
 			time= Time->Time();
 			
-			Message_Add(CAPI_String::Format(":-) Time:%ds Mines:%d\n",time,N_Mines-MarkedMines));
+			Message_Add(CSG_String::Format(":-) Time:%ds Mines:%d\n",time,N_Mines-MarkedMines));
 			
 			if (OpenFields == Mine_NX*Mine_NY-N_Mines  )
 			{
-				Message_Add(CAPI_String::Format(_TL(":-) :-) you are a winner :-) :-) Time:%ds\n"),time));
-				Message_Dlg(CAPI_String::Format(_TL(":-) :-) you are a winner :-) :-) Time:%ds\n"),time));
+				Message_Add(CSG_String::Format(_TL(":-) :-) you are a winner :-) :-) Time:%ds\n"),time));
+				Message_Dlg(CSG_String::Format(_TL(":-) :-) you are a winner :-) :-) Time:%ds\n"),time));
 			
 				Show_GameBoard(true);
 
@@ -319,8 +319,8 @@ bool CMine_Sweeper::On_Execute_Position(CGEO_Point ptWorld, TModule_Interactive_
 		{
 			Show_GameBoard(true);
 
-			Message_Dlg(CAPI_String::Format(_TL(":-( :-( you are a loser :-( :-(")));
-			Message_Add(CAPI_String::Format(_TL(":-( :-( you are a loser :-( :-(")));
+			Message_Dlg(CSG_String::Format(_TL(":-( :-( you are a loser :-( :-(")));
+			Message_Add(CSG_String::Format(_TL(":-( :-( you are a loser :-( :-(")));
 
 			First_Click=true;
 		}

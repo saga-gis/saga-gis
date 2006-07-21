@@ -256,7 +256,7 @@ bool CGrid_RGB_Composite::On_Execute(void)
 {
 	int		x, y, r, g, b, a;
 	double	rMin, gMin, bMin, aMin, rRange, gRange, bRange, aRange;
-	CColors	Colors;
+	CSG_Colors	Colors;
 	CGrid	*pR, *pG, *pB, *pA, *pRGB;
 
 	//-----------------------------------------------------

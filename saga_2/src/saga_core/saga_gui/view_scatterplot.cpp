@@ -364,7 +364,7 @@ void CVIEW_ScatterPlot::On_Parameters(wxCommandEvent &event)
 	{
 		if( m_Parameters("TYPE")->asInt() != m_Regression.Get_Type() )
 		{
-			m_Regression.Calculate((TMAT_Regression_Type)m_Parameters("TYPE")->asInt());
+			m_Regression.Calculate((TSG_Regression_Type)m_Parameters("TYPE")->asInt());
 		}
 
 		Refresh();
@@ -543,7 +543,7 @@ void CVIEW_ScatterPlot::_Draw_Image(wxDC &dc, wxRect r, double dx, double dy)
 {
 	int		x, y, i, ax, ay, bx, by, Resolution;
 	CGrid	Count;
-	CColors	*pColors	= m_Parameters("COLORS")->asColors();
+	CSG_Colors	*pColors	= m_Parameters("COLORS")->asColors();
 	wxPen	Pen;
 
 	//-----------------------------------------------------

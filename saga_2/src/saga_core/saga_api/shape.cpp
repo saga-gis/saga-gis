@@ -116,19 +116,19 @@ TShape_Type CShape::Get_Type(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CShape::Add_Point(TGEO_Point Point, int iPart)
+int CShape::Add_Point(TSG_Point Point, int iPart)
 {
 	return( Add_Point(Point.x, Point.y, iPart) );
 }
 
 //---------------------------------------------------------
-int CShape::Ins_Point(TGEO_Point Point, int iPoint, int iPart)
+int CShape::Ins_Point(TSG_Point Point, int iPoint, int iPart)
 {
 	return( Ins_Point(Point.x, Point.y, iPoint, iPart) );
 }
 
 //---------------------------------------------------------
-int CShape::Set_Point(TGEO_Point Point, int iPoint, int iPart)
+int CShape::Set_Point(TSG_Point Point, int iPoint, int iPart)
 {
 	return( Set_Point(Point.x, Point.y, iPoint, iPart) );
 }
@@ -154,10 +154,10 @@ inline void CShape::_Extent_Invalidate(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CShape::Intersects(TGEO_Rect _Region)
+int CShape::Intersects(TSG_Rect _Region)
 {
 	int			Result;
-	CGEO_Rect	r(_Region);
+	CSG_Rect	r(_Region);
 
 	switch( r.Intersects(Get_Extent()) )
 	{

@@ -87,10 +87,10 @@ bool CJoinTables::On_Execute(void){
 			&&	id_Table  >= 0 && id_Table  < pTable->Get_Field_Count() ){
 
 		bCopy		= Parameters("SHAPES")->asShapes() == Parameters("SHAPES_OUT")->asShapes();
-		pShapes_Out	= bCopy ? API_Create_Shapes() : Parameters("SHAPES_OUT")->asShapes();
+		pShapes_Out	= bCopy ? SG_Create_Shapes() : Parameters("SHAPES_OUT")->asShapes();
 
 		pShapes_Out->Create(pShapes->Get_Type());
-		pShapes_Out->Set_Name(CAPI_String::Format("%s / %s", pShapes->Get_Name(), pTable->Get_Name()));
+		pShapes_Out->Set_Name(CSG_String::Format("%s / %s", pShapes->Get_Name(), pTable->Get_Name()));
 		pShapes_Out->Get_Table().Create(pTable);
 
 		pShapesTable = &pShapes->Get_Table();

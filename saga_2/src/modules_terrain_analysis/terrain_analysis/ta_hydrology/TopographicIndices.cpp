@@ -138,7 +138,7 @@ bool CTopographicIndices::On_Execute(void)
 	bool	bTopmodel	= false;
 	int		x, y;
 	double	Area, Slope, tan_Slope, Kf, Mean_Kf, Mean_TWI;
-	CColors	Colors;
+	CSG_Colors	Colors;
 	CGrid	*pArea, *pSlope, *pKf, *pTWI, *pSPI, *pLSF;
 
 	//-----------------------------------------------------

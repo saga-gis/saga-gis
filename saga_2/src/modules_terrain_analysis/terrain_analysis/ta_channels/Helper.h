@@ -27,7 +27,7 @@
 void getNextCell(CGrid*,int,int,int &,int &);
 void getNextCell(CGrid*,CGrid*,int,int,int&,int&);
 double FlowDistance(CGrid*,CGrid*,int,int,int,int,int);
-TAPI_dPoint ** RiverProfile(int, int, CGrid*, CGrid*, CGrid*, int &);
-TAPI_dPoint  * RiverCoords (int, int, CGrid*, CGrid*, int &);
+TSG_Point ** RiverProfile(int, int, CGrid*, CGrid*, CGrid*, int &);
+TSG_Point  * RiverCoords (int, int, CGrid*, CGrid*, int &);
 float DrainageDensity(CShapes*, CShapes*, CGrid*, CGrid*);
 void ClosingPoint(CGrid*, CGrid*, int &, int &);

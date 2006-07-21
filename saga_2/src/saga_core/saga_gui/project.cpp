@@ -197,7 +197,7 @@ bool CWKSP_Project::_Load(const char *FileName, bool bAdd, bool bUpdateMenu)
 {
 	bool		bSuccess;
 	FILE		*Stream;
-	CAPI_String	sLine, ProjectDir;
+	CSG_String	sLine, ProjectDir;
 
 	//-----------------------------------------------------
 	bSuccess	= false;
@@ -207,9 +207,9 @@ bool CWKSP_Project::_Load(const char *FileName, bool bAdd, bool bUpdateMenu)
 	//-----------------------------------------------------
 	if( (Stream = fopen(FileName, "rb")) != NULL )
 	{
-		ProjectDir	= API_Extract_File_Path(FileName);
+		ProjectDir	= SG_File_Get_Path(FileName);
 
-		while( API_Read_Line(Stream, sLine) && sLine.Cmp(DATA_ENTRIES_BEGIN) );
+		while( SG_Read_Line(Stream, sLine) && sLine.Cmp(DATA_ENTRIES_BEGIN) );
 
 		if( !sLine.Cmp(DATA_ENTRIES_BEGIN) )
 		{
@@ -226,7 +226,7 @@ bool CWKSP_Project::_Load(const char *FileName, bool bAdd, bool bUpdateMenu)
 		}
 
 		//-------------------------------------------------
-		while( API_Read_Line(Stream, sLine) && sLine.Cmp(MAP_ENTRIES_BEGIN) );
+		while( SG_Read_Line(Stream, sLine) && sLine.Cmp(MAP_ENTRIES_BEGIN) );
 
 		if( !sLine.Cmp(MAP_ENTRIES_BEGIN) )
 		{
@@ -263,7 +263,7 @@ bool CWKSP_Project::_Load(const char *FileName, bool bAdd, bool bUpdateMenu)
 bool CWKSP_Project::_Save(const char *FileName, bool bSaveModified, bool bUpdateMenu)
 {
 	int						i, j;
-	CAPI_String				ProjectDir;
+	CSG_String				ProjectDir;
 	FILE					*Stream;
 	CWKSP_Table_Manager		*pTables;
 	CWKSP_Shapes_Manager	*pShapes;
@@ -278,7 +278,7 @@ bool CWKSP_Project::_Save(const char *FileName, bool bSaveModified, bool bUpdate
 
 	if( (Stream = fopen(FileName, "wb")) != NULL )
 	{
-		ProjectDir	= API_Extract_File_Path(FileName);
+		ProjectDir	= SG_File_Get_Path(FileName);
 
 		fprintf(Stream, "\n%s\n", DATA_ENTRIES_BEGIN);
 
@@ -382,14 +382,14 @@ bool CWKSP_Project::_Save(const char *FileName, bool bSaveModified, bool bUpdate
 bool CWKSP_Project::_Load_Data(FILE *Stream, const char *ProjectDir)
 {
 	int				Type;
-	CAPI_String		sLine, sPath;
+	CSG_String		sLine, sPath;
 	CWKSP_Base_Item	*pItem;
 
-	while( API_Read_Line(Stream, sLine) && sLine.Cmp(DATA_ENTRY_BEGIN) && sLine.Cmp(DATA_ENTRIES_END) );
+	while( SG_Read_Line(Stream, sLine) && sLine.Cmp(DATA_ENTRY_BEGIN) && sLine.Cmp(DATA_ENTRIES_END) );
 
 	if( !sLine.Cmp(DATA_ENTRY_BEGIN) )
 	{
-		if(	API_Read_Line(Stream, sPath) && API_Read_Line(Stream, sLine) && sLine.asInt(Type) )
+		if(	SG_Read_Line(Stream, sPath) && SG_Read_Line(Stream, sLine) && sLine.asInt(Type) )
 		{
 			if( wxFileExists(sPath.c_str()) || wxFileExists((sPath = Get_FilePath_Absolute(ProjectDir, sPath)).c_str()) )
 			{
@@ -444,20 +444,20 @@ bool CWKSP_Project::_Save_Data(FILE *Stream, const char *ProjectDir, CDataObject
 //---------------------------------------------------------
 bool CWKSP_Project::_Load_Map(FILE *Stream, const char *ProjectDir)
 {
-	TGEO_Rect		r;
-	CAPI_String		sLine;
+	TSG_Rect		r;
+	CSG_String		sLine;
 	CWKSP_Base_Item	*pItem;
 	CWKSP_Map		*pMap;
 
-	while( API_Read_Line(Stream, sLine) && sLine.Cmp(MAP_ENTRY_BEGIN) && sLine.Cmp(MAP_ENTRIES_END) );
+	while( SG_Read_Line(Stream, sLine) && sLine.Cmp(MAP_ENTRY_BEGIN) && sLine.Cmp(MAP_ENTRIES_END) );
 
 	if( !sLine.Cmp(MAP_ENTRY_BEGIN) )
 	{
-		if(	API_Read_Line(Stream, sLine) && sscanf(sLine, "%lf %lf %lf %lf", &r.xMin, &r.xMax, &r.yMin, &r.yMax) == 4 )
+		if(	SG_Read_Line(Stream, sLine) && sscanf(sLine, "%lf %lf %lf %lf", &r.xMin, &r.xMax, &r.yMin, &r.yMax) == 4 )
 		{
 			pMap	= NULL;
 
-			while( API_Read_Line(Stream, sLine) && sLine.Cmp(MAP_ENTRY_END) )
+			while( SG_Read_Line(Stream, sLine) && sLine.Cmp(MAP_ENTRY_END) )
 			{
 				sLine	= Get_FilePath_Absolute(ProjectDir, sLine).c_str();
 

@@ -17,8 +17,8 @@ void CPointsEx::Clear(void)
 {
 	if( m_Points )
 	{
-		API_Free(m_Points);
-		API_Free(m_ClosestPts);
+		SG_Free(m_Points);
+		SG_Free(m_ClosestPts);
 	}
 
 	m_nPoints	= 0;
@@ -28,8 +28,8 @@ void CPointsEx::Clear(void)
 
 bool CPointsEx::Add(int x, int y, int iClosestPt)
 {
-	m_Points	= (TAPI_iPoint *)API_Realloc(m_Points, (m_nPoints + 1) * sizeof(TAPI_iPoint));
-	m_ClosestPts = (int*)API_Realloc(m_ClosestPts, (m_nPoints + 1) * sizeof(int));
+	m_Points	= (TSG_Point_Int *)SG_Realloc(m_Points, (m_nPoints + 1) * sizeof(TSG_Point_Int));
+	m_ClosestPts = (int*)SG_Realloc(m_ClosestPts, (m_nPoints + 1) * sizeof(int));
 	
 	m_Points[m_nPoints].x	= x;
 	m_Points[m_nPoints].y	= y;

@@ -121,22 +121,22 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 
 	if( CONFIG_Read("/DATA/GRIDS", "CACHE_TMP_DIR"		, sValue) )
 	{
-		API_Grid_Cache_Set_Directory(sValue);
+		SG_Grid_Cache_Set_Directory(sValue);
 	}
 
 	if( CONFIG_Read("/DATA/GRIDS", "CACHE_AUTO"			, bValue) )
 	{
-		API_Grid_Cache_Set_Automatic(bValue);
+		SG_Grid_Cache_Set_Automatic(bValue);
 	}
 
 	if( CONFIG_Read("/DATA/GRIDS", "CACHE_THRESHOLD"	, lValue) )
 	{
-		API_Grid_Cache_Set_Threshold(lValue);
+		SG_Grid_Cache_Set_Threshold(lValue);
 	}
 
 	if( CONFIG_Read("/DATA/GRIDS", "CACHE_CONFIRM"		, lValue) )
 	{
-		API_Grid_Cache_Set_Confirm  (lValue);
+		SG_Grid_Cache_Set_Confirm  (lValue);
 	}
 
 	//-----------------------------------------------------
@@ -149,19 +149,19 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_FilePath(
 		pNode	, "GRID_MEM_CACHE_TMPDIR"	, LNG("Temporary files"),
 		LNG("Directory, where temporary cache files shall be saved."),
-		NULL, API_Grid_Cache_Get_Directory(), true, true
+		NULL, SG_Grid_Cache_Get_Directory(), true, true
 	);
 
 	m_Parameters.Add_Value(
 		pNode	, "GRID_MEM_CACHE_AUTO"		, LNG("Automatic mode"),
 		LNG("Activate file caching automatically, if memory size exceeds the threshold value."),
-		PARAMETER_TYPE_Bool, API_Grid_Cache_Get_Automatic()
+		PARAMETER_TYPE_Bool, SG_Grid_Cache_Get_Automatic()
 	);
 
 	m_Parameters.Add_Value(
 		pNode	, "GRID_MEM_CACHE_THRSHLD"	, LNG("Threshold for automatic mode [MB]"),
 		LNG(""),
-		PARAMETER_TYPE_Double, API_Grid_Cache_Get_Threshold_MB(), 0.0, true
+		PARAMETER_TYPE_Double, SG_Grid_Cache_Get_Threshold_MB(), 0.0, true
 	);
 
 	m_Parameters.Add_Choice(
@@ -172,7 +172,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 			LNG("confirm"),
 			LNG("confirm with options")
 		),
-		API_Grid_Cache_Get_Confirm()
+		SG_Grid_Cache_Get_Confirm()
 	);
 
 	//-----------------------------------------------------
@@ -231,10 +231,10 @@ bool CWKSP_Data_Manager::Initialise(void)
 bool CWKSP_Data_Manager::Finalise(void)
 {
 	//-----------------------------------------------------
-	CONFIG_Write("/DATA/GRIDS", "CACHE_TMP_DIR"		,		API_Grid_Cache_Get_Directory());
-	CONFIG_Write("/DATA/GRIDS", "CACHE_AUTO"		,		API_Grid_Cache_Get_Automatic());
-	CONFIG_Write("/DATA/GRIDS", "CACHE_THRESHOLD"	, (long)API_Grid_Cache_Get_Threshold());
-	CONFIG_Write("/DATA/GRIDS", "CACHE_CONFIRM"		, (long)API_Grid_Cache_Get_Confirm  ());
+	CONFIG_Write("/DATA/GRIDS", "CACHE_TMP_DIR"		,		SG_Grid_Cache_Get_Directory());
+	CONFIG_Write("/DATA/GRIDS", "CACHE_AUTO"		,		SG_Grid_Cache_Get_Automatic());
+	CONFIG_Write("/DATA/GRIDS", "CACHE_THRESHOLD"	, (long)SG_Grid_Cache_Get_Threshold());
+	CONFIG_Write("/DATA/GRIDS", "CACHE_CONFIRM"		, (long)SG_Grid_Cache_Get_Confirm  ());
 
 	//-----------------------------------------------------
 	wxFileName	fProject(g_pSAGA->Get_App_Path(), "session", "sprj");
@@ -443,10 +443,10 @@ bool CWKSP_Data_Manager::On_Command_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CWKSP_Data_Manager::Parameters_Changed(void)
 {
-	API_Grid_Cache_Set_Automatic	(m_Parameters("GRID_MEM_CACHE_AUTO")	->asBool());
-	API_Grid_Cache_Set_Threshold_MB	(m_Parameters("GRID_MEM_CACHE_THRSHLD")	->asDouble());
-	API_Grid_Cache_Set_Confirm		(m_Parameters("GRID_MEM_CACHE_CONFIRM")	->asInt());
-	API_Grid_Cache_Set_Directory	(m_Parameters("GRID_MEM_CACHE_TMPDIR")	->asString());
+	SG_Grid_Cache_Set_Automatic		(m_Parameters("GRID_MEM_CACHE_AUTO")	->asBool());
+	SG_Grid_Cache_Set_Threshold_MB	(m_Parameters("GRID_MEM_CACHE_THRSHLD")	->asDouble());
+	SG_Grid_Cache_Set_Confirm		(m_Parameters("GRID_MEM_CACHE_CONFIRM")	->asInt());
+	SG_Grid_Cache_Set_Directory		(m_Parameters("GRID_MEM_CACHE_TMPDIR")	->asString());
 }
 
 
@@ -555,25 +555,25 @@ bool CWKSP_Data_Manager::Open_CMD(int Cmd_ID)
 //---------------------------------------------------------
 bool CWKSP_Data_Manager::Open(const char *File_Name)
 {
-	if( API_Cmp_File_Extension(File_Name, "txt")
-	||	API_Cmp_File_Extension(File_Name, "dbf") )
+	if( SG_File_Cmp_Extension(File_Name, "txt")
+	||	SG_File_Cmp_Extension(File_Name, "dbf") )
 	{
 		return( Open(DATAOBJECT_TYPE_Table , File_Name) != NULL );
 	}
 
-	if( API_Cmp_File_Extension(File_Name, "shp") )
+	if( SG_File_Cmp_Extension(File_Name, "shp") )
 	{
 		return( Open(DATAOBJECT_TYPE_Shapes, File_Name) != NULL );
 	}
 
-	if(	API_Cmp_File_Extension(File_Name, "sgrd")
-	||	API_Cmp_File_Extension(File_Name, "dgm")
-	||	API_Cmp_File_Extension(File_Name, "grd") )
+	if(	SG_File_Cmp_Extension(File_Name, "sgrd")
+	||	SG_File_Cmp_Extension(File_Name, "dgm")
+	||	SG_File_Cmp_Extension(File_Name, "grd") )
 	{
 		return( Open(DATAOBJECT_TYPE_Grid  , File_Name) != NULL );
 	}
 
-	if( API_Cmp_File_Extension(File_Name, "sprj") )
+	if( SG_File_Cmp_Extension(File_Name, "sprj") )
 	{
 		return( m_pProject->Load(File_Name, false, true) );
 	}
@@ -974,7 +974,7 @@ bool CWKSP_Data_Manager::asImage(CDataObject *pObject, CGrid *pImage)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Data_Manager::Get_Colors(CDataObject *pObject, CColors *pColors)
+bool CWKSP_Data_Manager::Get_Colors(CDataObject *pObject, CSG_Colors *pColors)
 {
 	if( pObject && pColors )
 	{
@@ -998,7 +998,7 @@ bool CWKSP_Data_Manager::Get_Colors(CDataObject *pObject, CColors *pColors)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Data_Manager::Set_Colors(CDataObject *pObject, CColors *pColors)
+bool CWKSP_Data_Manager::Set_Colors(CDataObject *pObject, CSG_Colors *pColors)
 {
 	if( pObject && pColors )
 	{
@@ -1041,7 +1041,7 @@ bool CWKSP_Data_Manager::Get_DataObject_List(CParameters *pParameters)
 	if( pParameters )
 	{
 		int					i, j;
-		CAPI_String			s;
+		CSG_String			s;
 		CWKSP_Shapes_Type	*pShapes;
 
 		pParameters->Destroy();

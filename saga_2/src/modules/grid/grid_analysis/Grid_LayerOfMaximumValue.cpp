@@ -47,7 +47,7 @@ CLayerOfMaximumValue::CLayerOfMaximumValue(void)
 						"CRITERIA", 
 						_TL("Method"), 
 						"", 
-						CAPI_String::Format("%s|%s|",_TL("Maximum"), _TL("Minimum")),						
+						CSG_String::Format("%s|%s|",_TL("Maximum"), _TL("Minimum")),						
 						0);
 }
 

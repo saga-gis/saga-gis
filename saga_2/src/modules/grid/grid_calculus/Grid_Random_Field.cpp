@@ -129,7 +129,7 @@ CGrid_Random_Field::CGrid_Random_Field(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
 		"",
-		CAPI_String::Format("%s|%s|",_TL("Uniform"), _TL("Gaussian")), 
+		CSG_String::Format("%s|%s|",_TL("Uniform"), _TL("Gaussian")), 
 		1
 	);
 
@@ -181,7 +181,7 @@ bool CGrid_Random_Field::On_Execute(void)
 	CGrid	*pGrid;
 
 	//-----------------------------------------------------
-	pGrid	= API_Create_Grid(
+	pGrid	= SG_Create_Grid(
 		GRID_TYPE_Float,
 		Parameters("NX")		->asInt(),
 		Parameters("NY")		->asInt(),

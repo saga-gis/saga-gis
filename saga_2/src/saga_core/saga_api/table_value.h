@@ -141,7 +141,7 @@ public:
 	//-----------------------------------------------------
 	virtual bool				Set_Value		(double      Value)
 	{
-		CAPI_String	s;
+		CSG_String	s;
 
 		s.Printf("%f", Value);
 
@@ -160,7 +160,7 @@ public:
 
 private:
 
-	CAPI_String					m_Value;
+	CSG_String					m_Value;
 
 };
 
@@ -181,7 +181,7 @@ public:
 	//-----------------------------------------------------
 	virtual bool				Set_Value		(const char *Value)
 	{
-		return( Set_Value(API_DateStr2Double(Value)) );
+		return( Set_Value(SG_Date_To_Double(Value)) );
 	}
 
 	//-----------------------------------------------------
@@ -189,7 +189,7 @@ public:
 	{
 		if( m_Value != (int)Value )
 		{
-			m_Date	= API_Double2DateStr(Value);
+			m_Date	= SG_Double_To_Date(Value);
 			m_Value	= (int)Value;
 
 			return( true );
@@ -212,7 +212,7 @@ private:
 
 	int							m_Value;
 
-	CAPI_String					m_Date;
+	CSG_String					m_Date;
 
 };
 
@@ -234,7 +234,7 @@ public:
 	virtual bool				Set_Value		(const char *Value)
 	{
 		double		d;
-		CAPI_String	s(Value);
+		CSG_String	s(Value);
 
 		return( s.asDouble(d) ? Set_Value(d) : false );
 	}
@@ -259,7 +259,7 @@ public:
 	//-----------------------------------------------------
 	virtual const char *		asString		(int Decimals)
 	{
-		static CAPI_String	s;
+		static CSG_String	s;
 
 		s.Printf("%d", m_Value);
 
@@ -295,7 +295,7 @@ public:
 	virtual bool				Set_Value		(const char *Value)
 	{
 		double		d;
-		CAPI_String	s(Value);
+		CSG_String	s(Value);
 
 		return( s.asDouble(d) ? Set_Value(d) : false );
 	}
@@ -320,7 +320,7 @@ public:
 	//-----------------------------------------------------
 	virtual const char *		asString		(int Decimals)
 	{
-		static CAPI_String	s;
+		static CSG_String	s;
 
 		if( Decimals > 0 )
 		{

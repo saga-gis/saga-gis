@@ -61,8 +61,12 @@
 #ifndef HEADER_INCLUDED__Kriging_Universal_Global_H
 #define HEADER_INCLUDED__Kriging_Universal_Global_H
 
-//---------------------------------------------------------
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #include "Kriging_Base.h"
@@ -75,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CKriging_Universal_Global : public CModule_Grid
+class geostatistics_kriging_EXPORT CKriging_Universal_Global : public CKriging_Base
 {
 public:
 	CKriging_Universal_Global(void);
@@ -84,31 +88,28 @@ public:
 
 protected:
 
-	virtual bool			On_Execute(void);
+	int						m_Interpolation;
+
+	CParameter_Grid_List	*m_pGrids;
+
+
+	virtual bool			On_Initialise	(void);
+
+	virtual bool			Get_Value		(double x, double y, double &z, double &Variance);
 
 
 private:
 
-	bool					bLogarithmic;
-
-	int						Model, nPoints, nGrids;
-
-	double					*Gammas, **Weights,
-							Nugget, Scale, Range,
-							BLIN, BEXP, APOW, BPOW;
-
-	TGEO_Position			*Points;
-
-	CGrid					*pGrid, *pVariance;
-
-	CParameter_Grid_List	*pGrids;
-
-
-	double					Get_Weight (double Distance);
-	int						Get_Weights(CShapes *pShapes, int zField);
-
-	bool					Get_Grid_Value(int x, int y);
+	bool					Get_Weights		(void);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Kriging_Universal_Global_H

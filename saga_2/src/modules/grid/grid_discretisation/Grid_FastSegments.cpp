@@ -111,7 +111,7 @@ CGrid_FastSegments::CGrid_FastSegments(void)
 		NULL	, "METHOD"		, _TL("Method"),
 		_TL("Choose if you want to segmentate either on minima or on maxima."),
 
-		CAPI_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s|",
 			_TL("Minima"),
 			_TL("Maxima")
 		), 0
@@ -121,7 +121,7 @@ CGrid_FastSegments::CGrid_FastSegments(void)
 		NULL	, "VALUES"		, _TL("Output"),
 		_TL("The values of the resultant grid can be either the seed value (e.g. the local maximum) or the enumerated segment id."),
 
-		CAPI_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s|",
 			_TL("Segment ID"),
 			_TL("Seed Value")
 		), 1
@@ -182,7 +182,7 @@ bool CGrid_FastSegments::On_Execute(void)
 			}
 		}
 
-		API_Free(m_Values);
+		SG_Free(m_Values);
 	}
 
 	return( true );
@@ -237,7 +237,7 @@ void CGrid_FastSegments::Set_Cell(int x, int y)
 		{
 		case 0:
 			id					= ++m_nSegments;
-			m_Values			= (double *)API_Realloc(m_Values, m_nSegments * sizeof(double));
+			m_Values			= (double *)SG_Realloc(m_Values, m_nSegments * sizeof(double));
 			m_Values[id - 1]	= m_pGrid->asDouble(x, y);
 
 			m_pSegments	->Set_Value	(x, y, id);

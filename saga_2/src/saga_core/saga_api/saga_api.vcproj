@@ -414,6 +414,18 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\doc_html.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\doc_pdf.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\doc_svg.cpp"
+				>
+			</File>
+			<File
 				RelativePath="geo_classes.cpp"
 				>
 				<FileConfiguration
@@ -547,28 +559,6 @@
 			</File>
 			<File
 				RelativePath="grid_system.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="html_document.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -968,28 +958,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="pdf_document.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="saga_api.cpp"
 				>
 				<FileConfiguration
@@ -1210,28 +1178,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="svg_graph.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="table.cpp"
 				>
 				<FileConfiguration
@@ -1421,15 +1367,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\doc_html.h"
+				>
+			</File>
+			<File
+				RelativePath=".\doc_pdf.h"
+				>
+			</File>
+			<File
+				RelativePath=".\doc_svg.h"
+				>
+			</File>
+			<File
 				RelativePath="GEO_Tools.h"
 				>
 			</File>
 			<File
 				RelativePath="Grid.h"
-				>
-			</File>
-			<File
-				RelativePath="html_document.h"
 				>
 			</File>
 			<File
@@ -1445,19 +1399,11 @@
 				>
 			</File>
 			<File
-				RelativePath="pdf_document.h"
-				>
-			</File>
-			<File
 				RelativePath="saga_api.h"
 				>
 			</File>
 			<File
 				RelativePath="Shapes.h"
-				>
-			</File>
-			<File
-				RelativePath="svg_graph.h"
 				>
 			</File>
 			<File

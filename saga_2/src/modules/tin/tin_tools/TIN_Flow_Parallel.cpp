@@ -217,7 +217,7 @@ void CTIN_Flow_Parallel::Let_it_flow_multiple(CTIN_Point *pPoint)
 
 	if( pPoint->Get_Neighbor_Count() > 0 )
 	{
-		dz	= (double *)API_Malloc(pPoint->Get_Neighbor_Count() * sizeof(double));
+		dz	= (double *)SG_Malloc(pPoint->Get_Neighbor_Count() * sizeof(double));
 
 		for(i=0, dzSum=0.0; i<pPoint->Get_Neighbor_Count(); i++)
 		{
@@ -246,7 +246,7 @@ void CTIN_Flow_Parallel::Let_it_flow_multiple(CTIN_Point *pPoint)
 			}
 		}
 
-		API_Free(dz);
+		SG_Free(dz);
 	}
 
 	pPoint->Get_Record()->Set_Value(m_iSpecific, Area > 0.0 ? 1.0 / Area : -1.0);

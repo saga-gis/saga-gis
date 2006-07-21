@@ -89,10 +89,10 @@ CWKSP_Layer_Classify::~CWKSP_Layer_Classify(void)
 {
 	if( m_HST_Count )
 	{
-		API_Free(m_HST_Count);
+		SG_Free(m_HST_Count);
 		m_HST_Count	= NULL;
 
-		API_Free(m_HST_Cumul);
+		SG_Free(m_HST_Cumul);
 		m_HST_Cumul	= NULL;
 	}
 }
@@ -105,7 +105,7 @@ CWKSP_Layer_Classify::~CWKSP_Layer_Classify(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Layer_Classify::Initialise(CWKSP_Layer *pLayer, CTable *pLUT, CColors *pColors)
+bool CWKSP_Layer_Classify::Initialise(CWKSP_Layer *pLayer, CTable *pLUT, CSG_Colors *pColors)
 {
 	m_pLayer	= pLayer;
 	m_pLUT		= pLUT;
@@ -395,8 +395,8 @@ bool CWKSP_Layer_Classify::Histogram_Update(void)
 	//-----------------------------------------------------
 	if( m_HST_Count )
 	{
-		API_Free(m_HST_Count);
-		API_Free(m_HST_Cumul);
+		SG_Free(m_HST_Count);
+		SG_Free(m_HST_Cumul);
 		m_HST_Count	= NULL;
 		m_HST_Cumul	= NULL;
 	}
@@ -406,8 +406,8 @@ bool CWKSP_Layer_Classify::Histogram_Update(void)
 	{
 		STATUSBAR_Set_Text(LNG("[MSG] Build Histogram..."));
 
-		m_HST_Count	= (int *)API_Calloc(Get_Class_Count(), sizeof(int));
-		m_HST_Cumul	= (int *)API_Calloc(Get_Class_Count(), sizeof(int));
+		m_HST_Count	= (int *)SG_Calloc(Get_Class_Count(), sizeof(int));
+		m_HST_Cumul	= (int *)SG_Calloc(Get_Class_Count(), sizeof(int));
 
 		switch( m_pLayer->Get_Type() )
 		{

@@ -131,7 +131,7 @@ wxString CWKSP_Shapes::Get_Description(void)
 	));
 
 	s.Append(wxString::Format("<tr><td>%s</td><td>%s</td></tr>",
-		LNG("[CAP] Type")					, API_Get_ShapeType_Name(m_pShapes->Get_Type())
+		LNG("[CAP] Type")					, SG_Get_ShapeType_Name(m_pShapes->Get_Type())
 	));
 
 	s.Append(wxString::Format("<tr><td>%s</td><td>%d</td></tr>",
@@ -441,8 +441,8 @@ void CWKSP_Shapes::_LUT_Create(void)
 	int					iField, iRecord, old_Field, iID;
 	double				dValue;
 	TTable_Index_Order	old_Order;
-	CColors				Colors;
-	CAPI_String			sFields, sValue;
+	CSG_Colors				Colors;
+	CSG_String			sFields, sValue;
 	CTable_Record		*pRecord, *pRecord_LUT;
 	CTable				*pTable, *pLUT;
 	CParameters			Parameters;
@@ -472,7 +472,7 @@ void CWKSP_Shapes::_LUT_Create(void)
 
 			if( pTable->Get_Field_Type(iField) == TABLE_FIELDTYPE_String )
 			{
-				pTable->Add_Field(CAPI_String::Format("%s_LUT", pTable->Get_Field_Name(iField)), TABLE_FIELDTYPE_Int);
+				pTable->Add_Field(CSG_String::Format("%s_LUT", pTable->Get_Field_Name(iField)), TABLE_FIELDTYPE_Int);
 				iID		= pTable->Get_Field_Count() - 1;
 			}
 			else
@@ -537,7 +537,7 @@ void CWKSP_Shapes::_LUT_Create(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxString CWKSP_Shapes::Get_Value(CGEO_Point ptWorld, double Epsilon)
+wxString CWKSP_Shapes::Get_Value(CSG_Point ptWorld, double Epsilon)
 {
 	CShape		*pShape;
 
@@ -862,8 +862,8 @@ bool CWKSP_Shapes::_Chart_Set_Options(void)
 	if( 1 )
 	{
 		int			i, n;
-		CColors		Colors;
-		CAPI_String	sFields;
+		CSG_Colors		Colors;
+		CSG_String	sFields;
 		CParameter	*pFields, *pColors;
 		CTable		*pTable	= &m_pShapes->Get_Table();
 
@@ -880,7 +880,7 @@ bool CWKSP_Shapes::_Chart_Set_Options(void)
 			pChart->Add_Choice(
 				NULL, "TYPE"	, LNG("Chart Type"),
 				"",
-				CAPI_String::Format("%s|%s|%s|%s|",
+				CSG_String::Format("%s|%s|%s|%s|",
 					LNG("bar"),
 					LNG("bar (not outlined)"),
 					LNG("pie"),
@@ -891,7 +891,7 @@ bool CWKSP_Shapes::_Chart_Set_Options(void)
 			pChart->Add_Choice(
 				NULL, "SIZE_FIELD"		, LNG("[CAP] Size by Attribute"),
 				"",
-				CAPI_String::Format("%s|", LNG("[VAL] [not set]")), 0
+				CSG_String::Format("%s|", LNG("[VAL] [not set]")), 0
 			);
 
 			pChart->Add_Choice(
@@ -924,7 +924,7 @@ bool CWKSP_Shapes::_Chart_Set_Options(void)
 			{
 				if( pTable->Get_Field_Type(i) != TABLE_FIELDTYPE_String )
 				{
-					sFields.Append(CAPI_String::Format("%s|", pTable->Get_Field_Name(i)));
+					sFields.Append(CSG_String::Format("%s|", pTable->Get_Field_Name(i)));
 
 					pChart->Add_Value(
 						pFields	, wxString::Format("FIELD_%d", i), pTable->Get_Field_Name(i),
@@ -940,7 +940,7 @@ bool CWKSP_Shapes::_Chart_Set_Options(void)
 				}
 			}
 
-			sFields.Append(CAPI_String::Format("%s|", LNG("[VAL] [none]")));
+			sFields.Append(CSG_String::Format("%s|", LNG("[VAL] [none]")));
 			pFields	= pChart->Get_Parameter("SIZE_FIELD");
 			pFields->asChoice()->Set_Items(sFields);
 			pFields->Set_Value(m_pShapes->Get_Table().Get_Field_Count());
@@ -995,7 +995,7 @@ void CWKSP_Shapes::_Draw_Chart(CWKSP_Map_DC &dc_Map, CShape *pShape)
 	{
 		int			s;
 		double		dSize	= m_Chart_sSize;
-		TAPI_iPoint	p;
+		TSG_Point_Int	p;
 
 		if( m_Chart_sField >= 0 )
 		{

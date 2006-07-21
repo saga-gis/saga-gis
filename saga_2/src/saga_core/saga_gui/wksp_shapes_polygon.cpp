@@ -252,7 +252,7 @@ void CWKSP_Shapes_Polygon::_Draw_Shape(CWKSP_Map_DC &dc_Map, CShape *pShape, boo
 void CWKSP_Shapes_Polygon::_Draw_Label(CWKSP_Map_DC &dc_Map, CShape *pShape)
 {
 	int			iPart;
-	TGEO_Point	p;
+	TSG_Point	p;
 
 	if( 0 )
 	{
@@ -293,10 +293,10 @@ void CWKSP_Shapes_Polygon::_Draw_Label(CWKSP_Map_DC &dc_Map, CShape *pShape)
 									(int)((rWorld.Get_YMax() - ptWorld.y) / ClientToWorld));	}
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Polygon::_Edit_Shape_Draw_Move(wxDC &dc, CGEO_Rect rWorld, double ClientToWorld, wxPoint Point)
+void CWKSP_Shapes_Polygon::_Edit_Shape_Draw_Move(wxDC &dc, CSG_Rect rWorld, double ClientToWorld, wxPoint Point)
 {
 	int			nPoints;
-	TGEO_Point	ptWorld;
+	TSG_Point	ptWorld;
 
 	if( m_Edit_pShape && m_Edit_iPart >= 0 )
 	{
@@ -331,7 +331,7 @@ void CWKSP_Shapes_Polygon::_Edit_Shape_Draw_Move(wxDC &dc, CGEO_Rect rWorld, dou
 void CWKSP_Shapes_Polygon::_Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
 {
 	int			iPart, iPoint;
-	TAPI_iPoint	ptA, ptB;
+	TSG_Point_Int	ptA, ptB;
 
 	if( m_Edit_pShape )
 	{
@@ -365,11 +365,11 @@ void CWKSP_Shapes_Polygon::_Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
 }
 
 //---------------------------------------------------------
-int CWKSP_Shapes_Polygon::_Edit_Shape_HitTest(CGEO_Point pos_Point, double max_Dist, int &pos_iPart, int &pos_iPoint)
+int CWKSP_Shapes_Polygon::_Edit_Shape_HitTest(CSG_Point pos_Point, double max_Dist, int &pos_iPart, int &pos_iPoint)
 {
 	int			Result, iPart, iPoint;
 	double		d;
-	TGEO_Point	A, B, Point, hit_Point;
+	TSG_Point	A, B, Point, hit_Point;
 
 	Result	= CWKSP_Shapes::_Edit_Shape_HitTest(pos_Point, max_Dist, pos_iPart, pos_iPoint);
 
@@ -382,7 +382,7 @@ int CWKSP_Shapes_Polygon::_Edit_Shape_HitTest(CGEO_Point pos_Point, double max_D
 			for(iPoint=0; iPoint<m_Edit_pShape->Get_Point_Count(iPart); iPoint++)
 			{
 				A	= m_Edit_pShape->Get_Point(iPoint, iPart);
-				d	= GEO_Get_Nearest_Point_On_Line(pos_Point, A, B, Point, true);
+				d	= SG_Get_Nearest_Point_On_Line(pos_Point, A, B, Point, true);
 				B	= A;
 
 				if( d >= 0.0 && (0.0 > max_Dist || d < max_Dist) )
@@ -406,11 +406,11 @@ int CWKSP_Shapes_Polygon::_Edit_Shape_HitTest(CGEO_Point pos_Point, double max_D
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Polygon::_Edit_Snap_Point_ToLine(CGEO_Point pos_Point, CGEO_Point &snap_Point, double &snap_Dist, CShape *pShape)
+void CWKSP_Shapes_Polygon::_Edit_Snap_Point_ToLine(CSG_Point pos_Point, CSG_Point &snap_Point, double &snap_Dist, CShape *pShape)
 {
 	int			iPart, iPoint;
 	double		d;
-	TGEO_Point	A, B, Point;
+	TSG_Point	A, B, Point;
 
 	for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 	{
@@ -419,7 +419,7 @@ void CWKSP_Shapes_Polygon::_Edit_Snap_Point_ToLine(CGEO_Point pos_Point, CGEO_Po
 		for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 		{
 			A	= pShape->Get_Point(iPoint, iPart);
-			d	= GEO_Get_Nearest_Point_On_Line(pos_Point, A, B, Point, true);
+			d	= SG_Get_Nearest_Point_On_Line(pos_Point, A, B, Point, true);
 			B	= A;
 
 			if( d >= 0.0 && d < snap_Dist )
@@ -442,7 +442,7 @@ void CWKSP_Shapes_Polygon::_Edit_Snap_Point_ToLine(CGEO_Point pos_Point, CGEO_Po
 void CWKSP_Shapes_Polygon::_Draw_Polygon_Points(CWKSP_Map_DC &dc_Map, CShape_Polygon *pPolygon)
 {
 	int			iPart, iPoint;
-	TGEO_Point	Point;
+	TSG_Point	Point;
 
 	dc_Map.dc.SetPen(*wxBLACK_PEN);
 	dc_Map.dc.SetBrush(*wxWHITE_BRUSH);

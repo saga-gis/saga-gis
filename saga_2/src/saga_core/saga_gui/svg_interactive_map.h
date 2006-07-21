@@ -64,7 +64,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <saga_api/svg_graph.h>
+#include <saga_api/doc_svg.h>
 
 #include "wksp_map.h"
 #include "wksp_shapes.h"
@@ -78,7 +78,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSVG_Interactive_Map : public CSVG_Graph
+class CSVG_Interactive_Map : public CDoc_SVG
 {
 public:
 	CSVG_Interactive_Map(void);
@@ -89,13 +89,13 @@ public:
 
 private:
 
-	CAPI_String			m_Directory;
+	CSG_String			m_Directory;
 	double				m_dWidth;
 
 
 	void				_Write_Code					(const char *FileName, const char *Code);
 
-	void				_Add_Opening				(CGEO_Rect r);
+	void				_Add_Opening				(CSG_Rect r);
 	const char *		_Get_Opening_Code_1			(void);
 	const char *		_Get_Opening_Code_2			(void);
 
@@ -103,7 +103,7 @@ private:
 	void				_Add_Shapes					(CWKSP_Shapes *pLayer);
 	bool				_Add_Shape					(CShape *pShape, int Fill_Color, int Line_Color, double Line_Width, double Point_Width);
 	void				_Add_Grid					(CWKSP_Grid *pLayer);
-	void				_Add_ReferenceMap			(CShapes *pIndexLayer, CGEO_Rect r);
+	void				_Add_ReferenceMap			(CShapes *pIndexLayer, CSG_Rect r);
 	void				_Add_Label					(const char* Label, CShape *pShape, double dSize, const char* Unit);
 
 	const char *		_Get_Code_1					(void);

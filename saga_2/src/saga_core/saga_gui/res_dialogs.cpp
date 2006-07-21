@@ -352,7 +352,7 @@ bool		DLG_List_TIN(const char *Caption, CParameter_TIN_List *pList)
 }
 
 //---------------------------------------------------------
-bool		DLG_Colors(CColors *pColors)
+bool		DLG_Colors(CSG_Colors *pColors)
 {
 	CDLG_Colors		dlg(pColors);
 
@@ -517,7 +517,7 @@ bool		DLG_Directory(wxString &Directory, const char *Caption, const char *def_Di
 
 bool		DLG_Directory(wxString &Directory, const char *Caption)
 {
-	return( DLG_Directory(Directory, Caption, API_Extract_File_Path(Directory)) );
+	return( DLG_Directory(Directory, Caption, SG_File_Get_Path(Directory)) );
 }
 
 //---------------------------------------------------------
@@ -543,7 +543,7 @@ bool		DLG_Save(wxString &File_Path, int ID_DLG)
 
 	if( DLG_Save(File_Path, DLG_Get_FILE_Caption(ID_DLG), def_Dir, "", DLG_Get_FILE_Filter(ID_DLG)) )
 	{
-		CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(ID_DLG), API_Extract_File_Path(File_Path));
+		CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(ID_DLG), SG_File_Get_Path(File_Path));
 
 		return( true );
 	}
@@ -553,7 +553,7 @@ bool		DLG_Save(wxString &File_Path, int ID_DLG)
 
 bool		DLG_Save(wxString &File_Path, const char *Caption, const char *Filter)
 {
-	return( DLG_Save(File_Path, Caption, API_Extract_File_Path(File_Path), API_Extract_File_Name(File_Path, true), Filter) );
+	return( DLG_Save(File_Path, Caption, SG_File_Get_Path(File_Path), SG_File_Get_Name(File_Path, true), Filter) );
 }
 
 //---------------------------------------------------------
@@ -579,7 +579,7 @@ bool		DLG_Open(wxString &File_Path, int ID_DLG)
 
 	if( DLG_Open(File_Path, DLG_Get_FILE_Caption(ID_DLG), def_Dir, "", DLG_Get_FILE_Filter(ID_DLG)) )
 	{
-		CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(ID_DLG), API_Extract_File_Path(File_Path));
+		CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(ID_DLG), SG_File_Get_Path(File_Path));
 
 		return( true );
 	}
@@ -589,7 +589,7 @@ bool		DLG_Open(wxString &File_Path, int ID_DLG)
 
 bool		DLG_Open(wxString &File_Path, const char *Caption, const char *Filter)
 {
-	return( DLG_Open(File_Path, Caption, API_Extract_File_Path(File_Path), API_Extract_File_Name(File_Path, true), Filter) );
+	return( DLG_Open(File_Path, Caption, SG_File_Get_Path(File_Path), SG_File_Get_Name(File_Path, true), Filter) );
 }
 
 //---------------------------------------------------------
@@ -615,7 +615,7 @@ bool		DLG_Open(wxArrayString &File_Paths, int ID_DLG)
 
 	if( DLG_Open(File_Paths, DLG_Get_FILE_Caption(ID_DLG), def_Dir, DLG_Get_FILE_Filter(ID_DLG)) )
 	{
-		CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(ID_DLG), API_Extract_File_Path(File_Paths[0]));
+		CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(ID_DLG), SG_File_Get_Path(File_Paths[0]));
 
 		return( true );
 	}

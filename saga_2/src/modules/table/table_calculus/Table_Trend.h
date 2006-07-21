@@ -85,7 +85,7 @@ protected:
 
 private:
 
-	CMAT_Trend					m_Trend;
+	CSG_Trend					m_Trend;
 
 };
 

@@ -12,7 +12,7 @@
 //                                                       //
 //                    Kriging_Base.h                     //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2006 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -72,11 +72,57 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef struct
+class geostatistics_kriging_EXPORT CKriging_Base : public CModule
 {
-	double	x, y, z;
-}
-TGEO_Position;
+public:
+	CKriging_Base(void);
+	virtual ~CKriging_Base(void);
+
+	virtual const char *	Get_MenuPath	(void)	{	return( _TL("R:Kriging") );	}
+
+
+protected:
+
+	virtual bool			On_Execute		(void);
+
+
+	int						m_zField;
+
+	CSG_Points_3D			m_Points;
+
+	CSG_Vector				m_G;
+
+	CSG_Matrix				m_W;
+
+	CShapes_Search			m_Search;
+
+	CGrid					*m_pGrid, *m_pVariance;
+
+	CShapes					*m_pShapes;
+
+
+	virtual bool			On_Initialise	(void)	{	return( true );	}
+
+	virtual bool			Get_Value		(double x, double y, double &z, double &Variance)	= 0;
+
+	double					Get_Weight		(double Distance);
+	double					Get_Weight		(double dx, double dy);
+
+
+private:
+
+	bool					m_bLog;
+
+	int						m_Model;
+
+	double					m_Nugget, m_Sill, m_Range, m_BLIN, m_BEXP, m_APOW, m_BPOW;
+
+
+	bool					_Get_Points		(void);
+	bool					_Get_Grid		(void);
+	CGrid *					_Get_Grid		(TSG_Rect Extent);
+
+};
 
 
 ///////////////////////////////////////////////////////////

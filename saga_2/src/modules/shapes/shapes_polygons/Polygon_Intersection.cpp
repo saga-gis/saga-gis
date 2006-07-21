@@ -132,7 +132,7 @@ CPolygon_Intersection::~CPolygon_Intersection(void)
 //---------------------------------------------------------
 bool CPolygon_Intersection::On_Execute(void)
 {
-	CAPI_String	sName;
+	CSG_String	sName;
 	CShapes		*pShapes_A, *pShapes_B, *pShapes_AB;
 
 	pShapes_A	= Parameters("SHAPES_A")->asShapes();
@@ -512,7 +512,7 @@ bool CPolygon_Intersection::GPC_Difference(CShape *pShape_A, CShape *pShape_B, C
 bool CPolygon_Intersection::GPC_Create_Polygon(CShape *pShape, gpc_polygon *pPolygon)
 {
 	int				iPoint, iPart;
-	TGEO_Point		Point;
+	TSG_Point		Point;
 	gpc_vertex		*Contour;
 	gpc_vertex_list	vList;
 

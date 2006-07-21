@@ -142,11 +142,11 @@ CHugget_03::~CHugget_03(void)
 bool CHugget_03::On_Execute(void)
 {
 	bool		bUpdate;
-	char		s[256];
 	int			iStep, nSteps;
 	double		sTime, dTime, N_Init, N_Rain;
 	CGrid		*pDEM, *pN, N_1, S[8];
-	CColors		Colors;
+	CSG_Colors	Colors;
+	CSG_String	s;
 
 	//-----------------------------------------------------
 	sTime	= Parameters("TIME_SPAN")	->asDouble();
@@ -175,7 +175,7 @@ bool CHugget_03::On_Execute(void)
 	//-----------------------------------------------------
 	for(iStep=0; iStep<=nSteps && Set_Progress(iStep, nSteps); iStep++)
 	{
-		sprintf(s, "Time [a]: %f (%f)", dTime * iStep, sTime);
+		s.Printf("Time [a]: %f (%f)", dTime * iStep, sTime);
 		Process_Set_Text(s);
 
 		if( bUpdate )

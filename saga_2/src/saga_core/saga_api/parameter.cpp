@@ -134,7 +134,7 @@ CParameter::CParameter(CParameters *pOwner, CParameter *pParent, const char *Ide
 		break;
 
 	case PARAMETER_TYPE_Range:
-		API_Free(m_Children);
+		SG_Free(m_Children);
 		m_nChildren		= 0;
 		m_Children		= NULL;
 		break;
@@ -146,7 +146,7 @@ CParameter::~CParameter(void)
 {
 	if( m_Children )
 	{
-		API_Free(m_Children);
+		SG_Free(m_Children);
 	}
 
 	if( m_pData )
@@ -165,7 +165,7 @@ CParameter::~CParameter(void)
 //---------------------------------------------------------
 void CParameter::_Add_Child(CParameter *pChild)
 {
-	m_Children	= (CParameter **)API_Realloc(m_Children, (m_nChildren + 1) * sizeof(CParameter *));
+	m_Children	= (CParameter **)SG_Realloc(m_Children, (m_nChildren + 1) * sizeof(CParameter *));
 	m_Children[m_nChildren++]	= pChild;
 }
 
@@ -301,31 +301,31 @@ const char * CParameter::Get_Description(void)
 #define SEPARATE	if( bSeparate )	s.Append(Separator);	bSeparate	= true;
 
 //---------------------------------------------------------
-CAPI_String CParameter::Get_Description(int Flags, const char *Separator)
+CSG_String CParameter::Get_Description(int Flags, const char *Separator)
 {
 	bool		bSeparate	= false;
 	int			i;
-	CAPI_String	s;
+	CSG_String	s;
 
 	//-----------------------------------------------------
 	if( (Flags & PARAMETER_DESCRIPTION_NAME) != 0 )
 	{
 		SEPARATE;
-		s.Append(CAPI_String::Format("%s", Get_Name()));
+		s.Append(CSG_String::Format("%s", Get_Name()));
 	}
 
 	//-----------------------------------------------------
 	if( (Flags & PARAMETER_DESCRIPTION_TYPE) != 0 )
 	{
 		SEPARATE;
-		s.Append(CAPI_String::Format("[%s]", Get_Type_Name()));
+		s.Append(CSG_String::Format("[%s]", Get_Type_Name()));
 	}
 
 	//-----------------------------------------------------
 	if( (Flags & PARAMETER_DESCRIPTION_OPTIONAL) != 0 && is_Optional() )
 	{
 		SEPARATE;
-		s.Append(CAPI_String::Format("[%s]", LNG("optional")));
+		s.Append(CSG_String::Format("[%s]", LNG("optional")));
 	}
 
 	//-----------------------------------------------------
@@ -339,11 +339,11 @@ CAPI_String CParameter::Get_Description(int Flags, const char *Separator)
 		case PARAMETER_TYPE_Choice:
 			SEPARATE;
 
-			s.Append(CAPI_String::Format("%s:%s", LNG("Choices"), Separator));
+			s.Append(CSG_String::Format("%s:%s", LNG("Choices"), Separator));
 
 			for(i=0; i<asChoice()->Get_Count(); i++)
 			{
-				s.Append(CAPI_String::Format("[%d] %s%s", i, asChoice()->Get_Item(i), Separator));
+				s.Append(CSG_String::Format("[%d] %s%s", i, asChoice()->Get_Item(i), Separator));
 			}
 			break;
 
@@ -354,15 +354,15 @@ CAPI_String CParameter::Get_Description(int Flags, const char *Separator)
 
 			if( asValue()->has_Minimum() && asValue()->has_Maximum() )
 			{
-				s.Append(CAPI_String::Format("%f < x < %f", asValue()->Get_Minimum(), asValue()->Get_Maximum()));
+				s.Append(CSG_String::Format("%f < x < %f", asValue()->Get_Minimum(), asValue()->Get_Maximum()));
 			}
 			else if( asValue()->has_Minimum() )
 			{
-				s.Append(CAPI_String::Format("%f < x", asValue()->Get_Minimum()));
+				s.Append(CSG_String::Format("%f < x", asValue()->Get_Minimum()));
 			}
 			else if( asValue()->has_Maximum() )
 			{
-				s.Append(CAPI_String::Format("%s < %f", asValue()->Get_Maximum()));
+				s.Append(CSG_String::Format("%s < %f", asValue()->Get_Maximum()));
 			}
 			break;
 
@@ -372,22 +372,22 @@ CAPI_String CParameter::Get_Description(int Flags, const char *Separator)
 		case PARAMETER_TYPE_FixedTable:
 			SEPARATE;
 
-			s.Append(CAPI_String::Format("%d %s:%s", asTable()->Get_Field_Count(), LNG("Fields"), Separator));
+			s.Append(CSG_String::Format("%d %s:%s", asTable()->Get_Field_Count(), LNG("Fields"), Separator));
 
 			for(i=0; i<asTable()->Get_Field_Count(); i++)
 			{
-				s.Append(CAPI_String::Format("- %d. [%s] %s%s", i + 1, TABLE_FieldType_Names[asTable()->Get_Field_Type(i)], asTable()->Get_Field_Name(i), Separator));
+				s.Append(CSG_String::Format("- %d. [%s] %s%s", i + 1, TABLE_FieldType_Names[asTable()->Get_Field_Type(i)], asTable()->Get_Field_Name(i), Separator));
 			}
 			break;
 
 		case PARAMETER_TYPE_Parameters:
 			SEPARATE;
 
-			s.Append(CAPI_String::Format("%d %s:%s", asParameters()->Get_Count(), LNG("Parameters"), Separator));
+			s.Append(CSG_String::Format("%d %s:%s", asParameters()->Get_Count(), LNG("Parameters"), Separator));
 
 			for(i=0; i<asParameters()->Get_Count(); i++)
 			{
-				s.Append(CAPI_String::Format("- %d. %s%s", i + 1, asParameters()->Get_Parameter(i)->Get_Description(Flags, Separator).c_str(), Separator));
+				s.Append(CSG_String::Format("- %d. %s%s", i + 1, asParameters()->Get_Parameter(i)->Get_Description(Flags, Separator).c_str(), Separator));
 			}
 			break;
 		}
@@ -482,7 +482,7 @@ bool CParameter::Assign(CParameter *pSource)
 //---------------------------------------------------------
 bool CParameter::Serialize(FILE *Stream, bool bSave)
 {
-	CAPI_String	sLine;
+	CSG_String	sLine;
 
 	if( bSave )
 	{
@@ -490,7 +490,7 @@ bool CParameter::Serialize(FILE *Stream, bool bSave)
 
 		return( m_pData->Serialize(Stream, bSave) );
 	}
-	else if( API_Read_Line(Stream, sLine) && sLine.asInt() == Get_Type() )
+	else if( SG_Read_Line(Stream, sLine) && sLine.asInt() == Get_Type() )
 	{
 		return( m_pData->Serialize(Stream, bSave) );
 	}

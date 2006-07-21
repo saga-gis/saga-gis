@@ -256,7 +256,7 @@ bool CTOPMODEL::On_Execute(void)
 	bool			bInfiltration;
 	int				iClass, nClasses, iTime, nTimeSteps, n, k;
 	double			Precipitation, Evaporation, Infiltration, Infiltration_Excess;
-	CColors			Colors;
+	CSG_Colors			Colors;
 	CGrid			*pAtanB, *pMoist, gClass;
 	CTable_Record	*pRecord;
 	CTable			*pTable;

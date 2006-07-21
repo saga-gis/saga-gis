@@ -145,7 +145,7 @@ CGrid_Resample::CGrid_Resample(void)
 	pNode	= pParameters->Add_Choice(
 		NULL	, "METHOD"		, _TL("Interpolation Method"),
 		"",
-		CAPI_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|",
 			_TL("Nearest Neighbor"),
 			_TL("Bilinear Interpolation"),
 			_TL("Inverse Distance Interpolation"),
@@ -161,7 +161,7 @@ CGrid_Resample::CGrid_Resample(void)
 	pNode	= pParameters->Add_Choice(
 		NULL	, "METHOD"		, _TL("Interpolation Method"),
 		"",
-		CAPI_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|",
 			_TL("Nearest Neighbor"),
 			_TL("Bilinear Interpolation"),
 			_TL("Inverse Distance Interpolation"),
@@ -333,7 +333,7 @@ bool CGrid_Resample::On_Execute(void)
 		{
 			if( !pOutput )
 			{
-				pOutput	= API_Create_Grid(System, Parameters("KEEP_TYPE")->asBool() || (Interpolation == GRID_INTERPOLATION_NearestNeighbour) ? pInput->Get_Type() : GRID_TYPE_Undefined);
+				pOutput	= SG_Create_Grid(System, Parameters("KEEP_TYPE")->asBool() || (Interpolation == GRID_INTERPOLATION_NearestNeighbour) ? pInput->Get_Type() : GRID_TYPE_Undefined);
 			}
 
 			pOutput->Set_Name(pInput->Get_Name());

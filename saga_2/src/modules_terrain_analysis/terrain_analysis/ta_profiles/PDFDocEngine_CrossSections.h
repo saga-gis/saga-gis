@@ -21,7 +21,7 @@
 #endif // _MSC_VER > 1000
 
 #include <vector>
-#include <saga_api/pdf_document.h>
+#include <saga_api/doc_pdf.h>
 #include "Intersection_GPC.h"
 
 #define OFFSET_X 100
@@ -48,16 +48,16 @@
 #define SLOPE_RATIO (1. / 3.)
 #define LONG_SEGMENT 5000.
 
-class CPDFDocEngine_CrossSections : public CPDF_Document   
+class CPDFDocEngine_CrossSections : public CDoc_PDF   
 {
 
 public:
 		
 	CPDFDocEngine_CrossSections();
 	~CPDFDocEngine_CrossSections();
-	void AddCrossSections(TAPI_dPoint **,float*,TAPI_dPoint *,int,int,int);	
-	void AddLongitudinalProfile(TAPI_dPoint *, float*, int);
-	void AddVolumesTable(TAPI_dPoint *,TAPI_dPoint **,float*,TAPI_dPoint *,int,int,int);	
+	void AddCrossSections(TSG_Point **,float*,TSG_Point *,int,int,int);	
+	void AddLongitudinalProfile(TSG_Point *, float*, int);
+	void AddVolumesTable(TSG_Point *,TSG_Point **,float*,TSG_Point *,int,int,int);	
 
 private:
 
@@ -65,14 +65,14 @@ private:
 	int m_iCanvasHeight;
 	int m_iTableWidth;
 	int m_iOffsetY;
-	CAPI_String m_sName;
+	CSG_String m_sName;
 
-	void AddCrossSection(TAPI_dPoint *,TAPI_dPoint *,int,int);
-	void DrawGuitar(TAPI_dPoint *,float*, int);
+	void AddCrossSection(TSG_Point *,TSG_Point *,int,int);
+	void DrawGuitar(TSG_Point *,float*, int);
 	void AddGuitarValue(float,float,float,float,int);
-	void AdjustSections(TAPI_dPoint *,TAPI_dPoint *,std::vector<TAPI_dPoint >&,std::vector<TAPI_dPoint >&,float,int&,int&);
+	void AdjustSections(TSG_Point *,TSG_Point *,std::vector<TSG_Point >&,std::vector<TSG_Point >&,float,int&,int&);
 	void Intersect_Lines(float,float,float,float,float,float,float,float,float&,float&);
-	void CalculateAreas(TAPI_dPoint*,TAPI_dPoint*,float,int,int,float&,float&);
+	void CalculateAreas(TSG_Point*,TSG_Point*,float,int,int,float&,float&);
 	bool GPC_Intersection(CShape *pShape_A, CShape *pShape_B, CShape *pShape_AB);
 	bool GPC_Create_Polygon(CShape *pShape, gpc_polygon *pPolygon);
 

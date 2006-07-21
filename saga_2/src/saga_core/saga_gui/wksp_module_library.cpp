@@ -113,11 +113,11 @@ CWKSP_Module_Library::CWKSP_Module_Library(const char *FileName)
 	//-----------------------------------------------------
 	if( wxGetEnv(ENV_LIB_PATH, &sPath) && sPath.Length() > 0 )
 	{
-		wxSetEnv(ENV_LIB_PATH, wxString::Format("%s%c%s", sPath.c_str(), ENV_LIB_SEPA, API_Extract_File_Path(FileName).c_str()));
+		wxSetEnv(ENV_LIB_PATH, wxString::Format("%s%c%s", sPath.c_str(), ENV_LIB_SEPA, SG_File_Get_Path(FileName).c_str()));
 	}
 	else
 	{
-		wxSetEnv(ENV_LIB_PATH, API_Extract_File_Path(FileName).c_str());
+		wxSetEnv(ENV_LIB_PATH, SG_File_Get_Path(FileName).c_str());
 	}
 
 	//-----------------------------------------------------

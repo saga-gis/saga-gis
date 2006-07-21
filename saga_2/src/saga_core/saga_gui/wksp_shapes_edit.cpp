@@ -108,7 +108,7 @@ wxMenu * CWKSP_Shapes::On_Edit_Get_Menu(void)
 }
 
 //---------------------------------------------------------
-TGEO_Rect CWKSP_Shapes::On_Edit_Get_Extent(void)
+TSG_Rect CWKSP_Shapes::On_Edit_Get_Extent(void)
 {
 	if( m_Edit_pShape )
 	{
@@ -163,7 +163,7 @@ bool CWKSP_Shapes::On_Edit_On_Key_Down(int KeyCode)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Shapes::On_Edit_On_Mouse_Down(CGEO_Point Point, double ClientToWorld, int Key)
+bool CWKSP_Shapes::On_Edit_On_Mouse_Down(CSG_Point Point, double ClientToWorld, int Key)
 {
 	int		iPart, iPoint;
 
@@ -205,9 +205,9 @@ bool CWKSP_Shapes::On_Edit_On_Mouse_Down(CGEO_Point Point, double ClientToWorld,
 }
 
 //---------------------------------------------------------
-bool CWKSP_Shapes::On_Edit_On_Mouse_Up(CGEO_Point Point, double ClientToWorld, int Key)
+bool CWKSP_Shapes::On_Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key)
 {
-	CGEO_Rect		rWorld(m_Edit_Mouse_Down, Point);
+	CSG_Rect		rWorld(m_Edit_Mouse_Down, Point);
 	CTable_Record	*pRecord;
 	wxFileName		FileName;
 
@@ -311,7 +311,7 @@ bool CWKSP_Shapes::On_Edit_On_Mouse_Up(CGEO_Point Point, double ClientToWorld, i
 }
 
 //---------------------------------------------------------
-bool CWKSP_Shapes::On_Edit_On_Mouse_Move(wxWindow *pMap, CGEO_Rect rWorld, wxPoint pt, wxPoint ptLast, int Key)
+bool CWKSP_Shapes::On_Edit_On_Mouse_Move(wxWindow *pMap, CSG_Rect rWorld, wxPoint pt, wxPoint ptLast, int Key)
 {
 	if( m_Edit_pShape )
 	{
@@ -336,7 +336,7 @@ bool CWKSP_Shapes::On_Edit_On_Mouse_Move(wxWindow *pMap, CGEO_Rect rWorld, wxPoi
 		else
 		{
 			int			iPart, iPoint;
-			CGEO_Point	Point(rWorld.Get_XMin() + pt.x * ClientToWorld, rWorld.Get_YMax() - pt.y * ClientToWorld);
+			CSG_Point	Point(rWorld.Get_XMin() + pt.x * ClientToWorld, rWorld.Get_YMax() - pt.y * ClientToWorld);
 
 			switch( _Edit_Shape_HitTest(Point, EDIT_TICKMARK_SIZE * ClientToWorld, iPart, iPoint) )
 			{
@@ -605,7 +605,7 @@ bool CWKSP_Shapes::_Edit_Point_Del(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Shapes::_Edit_Shape_Draw_Point(wxDC &dc, TAPI_iPoint Point, bool bSelected)
+void CWKSP_Shapes::_Edit_Shape_Draw_Point(wxDC &dc, TSG_Point_Int Point, bool bSelected)
 {
 	_Edit_Shape_Draw_Point(dc, Point.x, Point.y, bSelected);
 }
@@ -638,7 +638,7 @@ void CWKSP_Shapes::_Edit_Shape_Draw_Point(wxDC &dc, int x, int y, bool bSelected
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes::_Edit_Shape_Draw_Move(wxDC &dc, CGEO_Rect rWorld, double ClientToWorld, wxPoint Point)
+void CWKSP_Shapes::_Edit_Shape_Draw_Move(wxDC &dc, CSG_Rect rWorld, double ClientToWorld, wxPoint Point)
 {
 	_Edit_Shape_Draw_Point(dc, Point.x, Point.y, false);
 }
@@ -680,7 +680,7 @@ void CWKSP_Shapes::_Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Shapes::_Edit_Snap_Point(CGEO_Point &Point, double ClientToWorld)
+void CWKSP_Shapes::_Edit_Snap_Point(CSG_Point &Point, double ClientToWorld)
 {
 	if( m_Edit_pShape )
 	{
@@ -690,7 +690,7 @@ void CWKSP_Shapes::_Edit_Snap_Point(CGEO_Point &Point, double ClientToWorld)
 		{
 			int			i;
 			double		snap_Dist, max_Dist;
-			CGEO_Point	snap_Point;
+			CSG_Point	snap_Point;
 
 			max_Dist	= m_Parameters("EDIT_SNAP_DIST")->asDouble() * ClientToWorld;
 			snap_Dist	= max_Dist + 1.0;
@@ -721,11 +721,11 @@ void CWKSP_Shapes::_Edit_Snap_Point(CGEO_Point &Point, double ClientToWorld)
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes::_Edit_Snap_Point(CGEO_Point Point, CGEO_Point &snap_Point, double &snap_Dist, CShapes *pShapes, bool bLine)
+void CWKSP_Shapes::_Edit_Snap_Point(CSG_Point Point, CSG_Point &snap_Point, double &snap_Dist, CShapes *pShapes, bool bLine)
 {
 	CShape	*pSelected	= pShapes->Get_Selection();
 
-	if( pShapes->Select(CGEO_Rect(Point.Get_X() - snap_Dist, Point.Get_Y() - snap_Dist, Point.Get_X() + snap_Dist, Point.Get_Y() + snap_Dist)) )
+	if( pShapes->Select(CSG_Rect(Point.Get_X() - snap_Dist, Point.Get_Y() - snap_Dist, Point.Get_X() + snap_Dist, Point.Get_Y() + snap_Dist)) )
 	{
 		for(int i=0; i<pShapes->Get_Selection_Count(); i++)
 		{
@@ -747,11 +747,11 @@ void CWKSP_Shapes::_Edit_Snap_Point(CGEO_Point Point, CGEO_Point &snap_Point, do
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes::_Edit_Snap_Point(CGEO_Point pos_Point, CGEO_Point &snap_Point, double &snap_Dist, CShape *pShape)
+void CWKSP_Shapes::_Edit_Snap_Point(CSG_Point pos_Point, CSG_Point &snap_Point, double &snap_Dist, CShape *pShape)
 {
 	int			iPart, iPoint;
 	double		d, dx, dy;
-	TGEO_Point	Point;
+	TSG_Point	Point;
 
 	for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 	{
@@ -772,7 +772,7 @@ void CWKSP_Shapes::_Edit_Snap_Point(CGEO_Point pos_Point, CGEO_Point &snap_Point
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes::_Edit_Snap_Point_ToLine(CGEO_Point pos_Point, CGEO_Point &snap_Point, double &snap_Dist, CShape *pShape)
+void CWKSP_Shapes::_Edit_Snap_Point_ToLine(CSG_Point pos_Point, CSG_Point &snap_Point, double &snap_Dist, CShape *pShape)
 {
 }
 
@@ -784,11 +784,11 @@ void CWKSP_Shapes::_Edit_Snap_Point_ToLine(CGEO_Point pos_Point, CGEO_Point &sna
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CWKSP_Shapes::_Edit_Shape_HitTest(CGEO_Point pos_Point, double max_Dist, int &pos_iPart, int &pos_iPoint)
+int CWKSP_Shapes::_Edit_Shape_HitTest(CSG_Point pos_Point, double max_Dist, int &pos_iPart, int &pos_iPoint)
 {
 	int			Result, iPart, iPoint;
 	double		d, dx, dy;
-	TGEO_Point	Point;
+	TSG_Point	Point;
 
 	Result		= 0;
 

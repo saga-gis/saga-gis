@@ -87,19 +87,19 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CMAT_Trend::CFncParams::CFncParams(void)
+CSG_Trend::CFncParams::CFncParams(void)
 {
 	m_Count		= 0;
 }
 
 //---------------------------------------------------------
-CMAT_Trend::CFncParams::~CFncParams(void)
+CSG_Trend::CFncParams::~CFncParams(void)
 {
 	Destroy();
 }
 
 //---------------------------------------------------------
-bool CMAT_Trend::CFncParams::Create(const char *Variables, int nVariables)
+bool CSG_Trend::CFncParams::Create(const char *Variables, int nVariables)
 {
 	int		i;
 
@@ -109,19 +109,19 @@ bool CMAT_Trend::CFncParams::Create(const char *Variables, int nVariables)
 
 		m_Count		= nVariables;
 
-		m_Variables	= (char    *)API_Calloc(m_Count, sizeof(char));
-		m_A			= (double  *)API_Calloc(m_Count, sizeof(double));
-		m_Atry		= (double  *)API_Calloc(m_Count, sizeof(double));
-		m_Beta		= (double  *)API_Calloc(m_Count, sizeof(double));
-		m_dA		= (double  *)API_Calloc(m_Count, sizeof(double));
-		m_dA2		= (double  *)API_Calloc(m_Count, sizeof(double));
-		m_Alpha		= (double **)API_Calloc(m_Count, sizeof(double *));
-		m_Covar		= (double **)API_Calloc(m_Count, sizeof(double *));
+		m_Variables	= (char    *)SG_Calloc(m_Count, sizeof(char));
+		m_A			= (double  *)SG_Calloc(m_Count, sizeof(double));
+		m_Atry		= (double  *)SG_Calloc(m_Count, sizeof(double));
+		m_Beta		= (double  *)SG_Calloc(m_Count, sizeof(double));
+		m_dA		= (double  *)SG_Calloc(m_Count, sizeof(double));
+		m_dA2		= (double  *)SG_Calloc(m_Count, sizeof(double));
+		m_Alpha		= (double **)SG_Calloc(m_Count, sizeof(double *));
+		m_Covar		= (double **)SG_Calloc(m_Count, sizeof(double *));
 
 		for(i=0; i<m_Count; i++)
 		{
-			m_Alpha[i]		= (double *)API_Calloc(m_Count, sizeof(double));
-			m_Covar[i]		= (double *)API_Calloc(m_Count, sizeof(double));
+			m_Alpha[i]		= (double *)SG_Calloc(m_Count, sizeof(double));
+			m_Covar[i]		= (double *)SG_Calloc(m_Count, sizeof(double));
 		}
 	}
 
@@ -135,24 +135,24 @@ bool CMAT_Trend::CFncParams::Create(const char *Variables, int nVariables)
 }
 
 //---------------------------------------------------------
-bool CMAT_Trend::CFncParams::Destroy(void)
+bool CSG_Trend::CFncParams::Destroy(void)
 {
 	if( m_Count > 0 )
 	{
 		for(int i=0; i<m_Count; i++)
 		{
-			API_Free(m_Alpha[i]);
-			API_Free(m_Covar[i]);
+			SG_Free(m_Alpha[i]);
+			SG_Free(m_Covar[i]);
 		}
 
-		API_Free(m_Variables);
-		API_Free(m_A);
-		API_Free(m_Atry);
-		API_Free(m_Beta);
-		API_Free(m_dA);
-		API_Free(m_dA2);
-		API_Free(m_Alpha);
-		API_Free(m_Covar);
+		SG_Free(m_Variables);
+		SG_Free(m_A);
+		SG_Free(m_Atry);
+		SG_Free(m_Beta);
+		SG_Free(m_dA);
+		SG_Free(m_dA2);
+		SG_Free(m_Alpha);
+		SG_Free(m_Covar);
 
 		m_Count	= 0;
 	}
@@ -168,7 +168,7 @@ bool CMAT_Trend::CFncParams::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CMAT_Trend::CMAT_Trend(void)
+CSG_Trend::CSG_Trend(void)
 {
 	m_Lambda_Max	= 10000;
 	m_Iter_Max		= 1000;
@@ -177,7 +177,7 @@ CMAT_Trend::CMAT_Trend(void)
 }
 
 //---------------------------------------------------------
-CMAT_Trend::~CMAT_Trend(void)
+CSG_Trend::~CSG_Trend(void)
 {
 }
 
@@ -189,13 +189,13 @@ CMAT_Trend::~CMAT_Trend(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CMAT_Trend::Set_Formula(const char *Formula)
+bool CSG_Trend::Set_Formula(const char *Formula)
 {
 	m_bOkay	= false;
 
 	if( m_Formula.Set_Formula(Formula) )
 	{
-		CAPI_String	vars, uvars(m_Formula.Get_Used_Var());
+		CSG_String	vars, uvars(m_Formula.Get_Used_Var());
 
 		for(unsigned int i=0; i<uvars.Length(); i++)
 		{
@@ -221,7 +221,7 @@ bool CMAT_Trend::Set_Formula(const char *Formula)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CMAT_Trend::Clr_Data(void)
+void CSG_Trend::Clr_Data(void)
 {
 	m_Data.Clear();
 
@@ -229,7 +229,7 @@ void CMAT_Trend::Clr_Data(void)
 }
 
 //---------------------------------------------------------
-void CMAT_Trend::Set_Data(double *xData, double *yData, int nData, bool bAdd)
+void CSG_Trend::Set_Data(double *xData, double *yData, int nData, bool bAdd)
 {
 	if( !bAdd )
 	{
@@ -245,7 +245,7 @@ void CMAT_Trend::Set_Data(double *xData, double *yData, int nData, bool bAdd)
 }
 
 //---------------------------------------------------------
-void CMAT_Trend::Set_Data(const CAPI_dPoints &Data, bool bAdd)
+void CSG_Trend::Set_Data(const CSG_Points &Data, bool bAdd)
 {
 	if( !bAdd )
 	{
@@ -261,7 +261,7 @@ void CMAT_Trend::Set_Data(const CAPI_dPoints &Data, bool bAdd)
 }
 
 //---------------------------------------------------------
-void CMAT_Trend::Add_Data(double x, double y)
+void CSG_Trend::Add_Data(double x, double y)
 {
 	m_Data.Add(x, y);
 
@@ -276,7 +276,7 @@ void CMAT_Trend::Add_Data(double x, double y)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CMAT_Trend::Set_Max_Iterations(int Iterations)
+bool CSG_Trend::Set_Max_Iterations(int Iterations)
 {
 	if( Iterations > 0 )
 	{
@@ -289,7 +289,7 @@ bool CMAT_Trend::Set_Max_Iterations(int Iterations)
 }
 
 //---------------------------------------------------------
-bool CMAT_Trend::Set_Max_Lambda(double Lambda)
+bool CSG_Trend::Set_Max_Lambda(double Lambda)
 {
 	if( Lambda > 0.0 )
 	{
@@ -309,7 +309,7 @@ bool CMAT_Trend::Set_Max_Lambda(double Lambda)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CMAT_Trend::Get_Trend(double *xData, double *yData, int nData, const char *Formula)
+bool CSG_Trend::Get_Trend(double *xData, double *yData, int nData, const char *Formula)
 {
 	Set_Data(xData, yData, false);
 
@@ -322,7 +322,7 @@ bool CMAT_Trend::Get_Trend(double *xData, double *yData, int nData, const char *
 }
 
 //---------------------------------------------------------
-bool CMAT_Trend::Get_Trend(const CAPI_dPoints &Data, const char *Formula)
+bool CSG_Trend::Get_Trend(const CSG_Points &Data, const char *Formula)
 {
 	Set_Data(Data, false);
 
@@ -335,7 +335,7 @@ bool CMAT_Trend::Get_Trend(const CAPI_dPoints &Data, const char *Formula)
 }
 
 //---------------------------------------------------------
-bool CMAT_Trend::Get_Trend(void)
+bool CSG_Trend::Get_Trend(void)
 {
 	if( !m_Formula.Get_Error(NULL, NULL) )
 	{
@@ -360,7 +360,7 @@ bool CMAT_Trend::Get_Trend(void)
 				}
 
 				//-----------------------------------------
-				for(i=0; i<m_Iter_Max && m_Lambda<m_Lambda_Max && m_bOkay && API_Callback_Process_Get_Okay(false); i++)
+				for(i=0; i<m_Iter_Max && m_Lambda<m_Lambda_Max && m_bOkay && SG_Callback_Process_Get_Okay(false); i++)
 				{
 					m_bOkay	= _Fit_Function();
 				}
@@ -384,8 +384,8 @@ bool CMAT_Trend::Get_Trend(void)
 
 			for(i=0, y_o=0.0, y_t=0.0; i<m_Data.Get_Count(); i++)
 			{
-				y_o	+= MAT_Square(y_m - m_Data.Get_Y(i));
-				y_t	+= MAT_Square(y_m - m_Formula.Val(m_Data.Get_X(i)));
+				y_o	+= SG_Get_Square(y_m - m_Data.Get_Y(i));
+				y_t	+= SG_Get_Square(y_m - m_Formula.Val(m_Data.Get_X(i)));
 			}
 
 			m_ChiSqr_o	= y_o > 0.0 ? y_t / y_o : 1.0;
@@ -403,11 +403,11 @@ bool CMAT_Trend::Get_Trend(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CAPI_String CMAT_Trend::Get_Error(void)
+CSG_String CSG_Trend::Get_Error(void)
 {
 	int			Position;
 	const char	*Message;
-	CAPI_String	s;
+	CSG_String	s;
 
 	if( m_bOkay )
 	{
@@ -425,17 +425,17 @@ CAPI_String CMAT_Trend::Get_Error(void)
 }
 
 //---------------------------------------------------------
-CAPI_String CMAT_Trend::Get_Formula(void)
+CSG_String CSG_Trend::Get_Formula(void)
 {
-	CAPI_String	s;
+	CSG_String	s;
 
-	s.Printf(CAPI_String::Format("%s\n", m_Formula.Get_Formula().c_str()));
+	s.Printf(CSG_String::Format("%s\n", m_Formula.Get_Formula().c_str()));
 
 	if( m_bOkay )
 	{
 		for(int i=0; i<m_Params.m_Count; i++)
 		{
-			s.Append(CAPI_String::Format("%c = %g\n", m_Params.m_Variables[i], m_Params.m_A[i]));
+			s.Append(CSG_String::Format("%c = %g\n", m_Params.m_Variables[i], m_Params.m_A[i]));
 		}
 	}
 
@@ -443,7 +443,7 @@ CAPI_String CMAT_Trend::Get_Formula(void)
 }
 
 //---------------------------------------------------------
-double CMAT_Trend::Get_ChiSquare(void)
+double CSG_Trend::Get_ChiSquare(void)
 {
 	if( m_bOkay )
 	{
@@ -455,7 +455,7 @@ double CMAT_Trend::Get_ChiSquare(void)
 }
 
 //---------------------------------------------------------
-double CMAT_Trend::Get_R2(void)
+double CSG_Trend::Get_R2(void)
 {
 	if( m_bOkay )
 	{
@@ -466,7 +466,7 @@ double CMAT_Trend::Get_R2(void)
 }
 
 //---------------------------------------------------------
-double CMAT_Trend::Get_Value(double x)
+double CSG_Trend::Get_Value(double x)
 {
 	if( m_bOkay )
 	{
@@ -484,7 +484,7 @@ double CMAT_Trend::Get_Value(double x)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CMAT_Trend::_Fit_Function(void)
+bool CSG_Trend::_Fit_Function(void)
 {
 	int		i, j;
 
@@ -571,15 +571,15 @@ bool CMAT_Trend::_Fit_Function(void)
 }
 
 //---------------------------------------------------------
-bool CMAT_Trend::_Get_Gaussj(void)
+bool CSG_Trend::_Get_Gaussj(void)
 {
 	int		i, j, k, iCol, iRow, *indxc, *indxr, *ipiv;
 	double	big, pivinv, temp;
 
 	//-----------------------------------------------------
-	indxc	= (int *)API_Calloc(m_Params.m_Count, sizeof(int));
-	indxr	= (int *)API_Calloc(m_Params.m_Count, sizeof(int));
-	ipiv	= (int *)API_Calloc(m_Params.m_Count, sizeof(int));
+	indxc	= (int *)SG_Calloc(m_Params.m_Count, sizeof(int));
+	indxr	= (int *)SG_Calloc(m_Params.m_Count, sizeof(int));
+	ipiv	= (int *)SG_Calloc(m_Params.m_Count, sizeof(int));
 	
 	for(i=0; i<m_Params.m_Count; i++)
 	{
@@ -606,7 +606,7 @@ bool CMAT_Trend::_Get_Gaussj(void)
 					}
 					else if( ipiv[k] > 1 )
 					{
-						API_Free(indxc);	API_Free(indxr);	API_Free(ipiv);	return( false );	// singular matrix...
+						SG_Free(indxc);	SG_Free(indxr);	SG_Free(ipiv);	return( false );	// singular matrix...
 					}
 				}
 			}
@@ -614,7 +614,7 @@ bool CMAT_Trend::_Get_Gaussj(void)
 
 		if( iCol < 0 || iRow < 0 )
 		{
-			API_Free(indxc);	API_Free(indxr);	API_Free(ipiv);	return( false );	// singular matrix...
+			SG_Free(indxc);	SG_Free(indxr);	SG_Free(ipiv);	return( false );	// singular matrix...
 		}
 
 		//-------------------------------------------------
@@ -635,7 +635,7 @@ bool CMAT_Trend::_Get_Gaussj(void)
 
 		if( fabs(m_Params.m_Covar[iCol][iCol]) < 1E-300 )
 		{
-			API_Free(indxc);	API_Free(indxr);	API_Free(ipiv);	return( false );	// singular matrix...
+			SG_Free(indxc);	SG_Free(indxr);	SG_Free(ipiv);	return( false );	// singular matrix...
 		}
 
 		//-------------------------------------------------
@@ -679,15 +679,15 @@ bool CMAT_Trend::_Get_Gaussj(void)
 	}
 
 	//-----------------------------------------------------
-	API_Free(indxc);
-	API_Free(indxr);
-	API_Free(ipiv);
+	SG_Free(indxc);
+	SG_Free(indxr);
+	SG_Free(ipiv);
 
 	return( true );
 }
 
 //---------------------------------------------------------
-bool CMAT_Trend::_Get_mrqcof(double *Parameters, double **Alpha, double *Beta)
+bool CSG_Trend::_Get_mrqcof(double *Parameters, double **Alpha, double *Beta)
 {
 	int		i, j, k;
 	double	y, dy, *dy_da;
@@ -704,7 +704,7 @@ bool CMAT_Trend::_Get_mrqcof(double *Parameters, double **Alpha, double *Beta)
 	}
 
 	//-----------------------------------------------------
-	dy_da	= (double *)API_Calloc(m_Params.m_Count, sizeof(double));
+	dy_da	= (double *)SG_Calloc(m_Params.m_Count, sizeof(double));
 
 	for(k=0, m_ChiSqr=0.0; k<m_Data.Get_Count(); k++)
 	{
@@ -725,7 +725,7 @@ bool CMAT_Trend::_Get_mrqcof(double *Parameters, double **Alpha, double *Beta)
 		m_ChiSqr	+= dy * dy;
 	}
 
-	API_Free(dy_da);
+	SG_Free(dy_da);
 
 	//-----------------------------------------------------
 	for(i=1; i<m_Params.m_Count; i++)
@@ -747,7 +747,7 @@ bool CMAT_Trend::_Get_mrqcof(double *Parameters, double **Alpha, double *Beta)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CMAT_Trend::_Get_Function(double x, double *Parameters, double &y, double *dy_da)
+void CSG_Trend::_Get_Function(double x, double *Parameters, double &y, double *dy_da)
 {
 	int		i;
 

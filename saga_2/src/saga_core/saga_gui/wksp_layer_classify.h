@@ -122,7 +122,7 @@ public: ///////////////////////////////////////////////////
 	CWKSP_Layer_Classify(void);
 	virtual ~CWKSP_Layer_Classify(void);
 
-	bool						Initialise				(class CWKSP_Layer *pLayer, CTable *pLUT, CColors *pColors);
+	bool						Initialise				(class CWKSP_Layer *pLayer, CTable *pLUT, CSG_Colors *pColors);
 
 	void						Set_Mode				(int Mode);
 	int							Get_Mode				(void)		{	return( m_Mode );		}
@@ -132,7 +132,7 @@ public: ///////////////////////////////////////////////////
 
 	void						Set_Metric				(int Mode, double LogFactor, double zMin, double zMax);
 	int							Get_Metric_Mode			(void)		{	return( m_zMode );		}
-	CColors *					Get_Metric_Colors		(void)		{	return( m_pColors );	}
+	CSG_Colors *					Get_Metric_Colors		(void)		{	return( m_pColors );	}
 
 	void						Metric2EqualElements	(void);
 
@@ -357,7 +357,7 @@ protected: ////////////////////////////////////////////////
 
 	double						m_zMin, m_zRange, m_zLogRange, m_zLogMax;
 
-	CColors						*m_pColors;
+	CSG_Colors						*m_pColors;
 
 	CTable						*m_pLUT;
 

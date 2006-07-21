@@ -138,7 +138,7 @@ CGSGrid_Regression_Multiple::CGSGrid_Regression_Multiple(void)
 	Parameters.Add_Choice(
 		NULL	,"INTERPOL"		, _TL("Grid Interpolation"),
 		"",
-		CAPI_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|",
 			_TL("Nearest Neighbor"),
 			_TL("Bilinear Interpolation"),
 			_TL("Inverse Distance Interpolation"),
@@ -215,7 +215,7 @@ bool CGSGrid_Regression_Multiple::Get_Regression(CParameter_Grid_List *pGrids, C
 {
 	int				iShape, iPart, iPoint, iGrid;
 	double			zShape, zGrid;
-	TGEO_Point		Point;
+	TSG_Point		Point;
 	CTable			Table;
 	CTable_Record	*pRecord;
 	CShape			*pShape;
@@ -260,7 +260,7 @@ bool CGSGrid_Regression_Multiple::Get_Regression(CParameter_Grid_List *pGrids, C
 	}
 
 	//-----------------------------------------------------
-	return( m_Regression.Calculate(&Table) );
+	return( m_Regression.Calculate(Table) );
 }
 
 //---------------------------------------------------------
@@ -305,13 +305,13 @@ bool CGSGrid_Regression_Multiple::Set_Residuals(CShapes *pShapes, int iAttribute
 {
 	int			iPoint, iPart, iShape;
 	double		zShape, zGrid;
-	TGEO_Point	Point;
+	TSG_Point	Point;
 	CShape		*pShape, *pResidual;
 
 	//-----------------------------------------------------
 	if( pResiduals )
 	{
-		pResiduals->Create(SHAPE_TYPE_Point, CAPI_String::Format("%s [%s]", pShapes->Get_Name(), _TL("Residuals")));
+		pResiduals->Create(SHAPE_TYPE_Point, CSG_String::Format("%s [%s]", pShapes->Get_Name(), _TL("Residuals")));
 		pResiduals->Get_Table().Add_Field(pShapes->Get_Table().Get_Field_Name(iAttribute), TABLE_FIELDTYPE_Double);
 		pResiduals->Get_Table().Add_Field("TREND"	, TABLE_FIELDTYPE_Double);
 		pResiduals->Get_Table().Add_Field("RESIDUAL", TABLE_FIELDTYPE_Double);
@@ -351,25 +351,25 @@ void CGSGrid_Regression_Multiple::Set_Message(CParameter_Grid_List *pGrids)
 	int		i, j;
 
 	Message_Add("\n", false);
-	Message_Add(CAPI_String::Format("\n%s:", _TL("Regression")), false);
-	Message_Add(CAPI_String::Format("\n Y = %f", m_Regression.Get_RConst()), false);
+	Message_Add(CSG_String::Format("\n%s:", _TL("Regression")), false);
+	Message_Add(CSG_String::Format("\n Y = %f", m_Regression.Get_RConst()), false);
 
 	for(i=0; i<pGrids->Get_Count(); i++)
 	{
 		if( (j = m_Regression.Get_Ordered(i)) >= 0 && j < pGrids->Get_Count() )
 		{
-			Message_Add(CAPI_String::Format(" %+f*[%s]", m_Regression.Get_RCoeff(j), pGrids->asGrid(j)->Get_Name()), false);
+			Message_Add(CSG_String::Format(" %+f*[%s]", m_Regression.Get_RCoeff(j), pGrids->asGrid(j)->Get_Name()), false);
 		}
 	}
 
 	Message_Add("\n", false);
-	Message_Add(CAPI_String::Format("\n%s:", _TL("Correlation")), false);
+	Message_Add(CSG_String::Format("\n%s:", _TL("Correlation")), false);
 
 	for(i=0; i<pGrids->Get_Count(); i++)
 	{
 		if( (j = m_Regression.Get_Ordered(i)) >= 0 && j < pGrids->Get_Count() )
 		{
-			Message_Add(CAPI_String::Format("\n%d: R² = %f%% [%f%%] -> %s", i + 1, 100.0 * m_Regression.Get_R2(j), 100.0 * m_Regression.Get_R2_Change(j), pGrids->asGrid(j)->Get_Name()), false);
+			Message_Add(CSG_String::Format("\n%d: R² = %f%% [%f%%] -> %s", i + 1, 100.0 * m_Regression.Get_R2(j), 100.0 * m_Regression.Get_R2_Change(j), pGrids->asGrid(j)->Get_Name()), false);
 		}
 	}
 

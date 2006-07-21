@@ -130,7 +130,7 @@ bool				DLG_List_Table			(const char *Caption, class CParameter_Table_List  *pLi
 bool				DLG_List_Shapes			(const char *Caption, class CParameter_Shapes_List *pList);
 bool				DLG_List_TIN			(const char *Caption, class CParameter_TIN_List    *pList);
 
-bool				DLG_Colors				(class CColors *pColors);
+bool				DLG_Colors				(class CSG_Colors *pColors);
 bool				DLG_Colors				(int &Palette);
 bool				DLG_Color				(long &Colour);
 

@@ -72,7 +72,7 @@ bool CWaterRetentionCapacity::On_Execute(void){
 	CGrid* pDEM = Parameters("DEM")->asGrid();
 	
 	m_pRetention = Parameters("RETENTION")->asGrid();
-	m_pSlope = API_Create_Grid(pDEM);
+	m_pSlope = SG_Create_Grid(pDEM);
 	m_pOutput = Parameters("OUTPUT")->asShapes();
 
 	m_pOutput->Assign(pShapes);

@@ -297,7 +297,7 @@ int CWKSP_TIN::On_Parameter_Changed(CParameters *pParameters, CParameter *pParam
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxString CWKSP_TIN::Get_Value(CGEO_Point ptWorld, double Epsilon)
+wxString CWKSP_TIN::Get_Value(CSG_Point ptWorld, double Epsilon)
 {
 	return( "" );
 }
@@ -339,9 +339,9 @@ bool CWKSP_TIN::asImage(CGrid *pImage)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_TIN::On_Edit_On_Mouse_Up(CGEO_Point Point, double ClientToWorld, int Key)
+bool CWKSP_TIN::On_Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key)
 {
-	CGEO_Rect	rWorld(m_Edit_Mouse_Down, Point);
+	CSG_Rect	rWorld(m_Edit_Mouse_Down, Point);
 
 	if( rWorld.Get_XRange() == 0.0 && rWorld.Get_YRange() == 0.0 )
 	{
@@ -358,7 +358,7 @@ bool CWKSP_TIN::On_Edit_Set_Attributes(void)
 }
 
 //---------------------------------------------------------
-TGEO_Rect CWKSP_TIN::On_Edit_Get_Extent(void)
+TSG_Rect CWKSP_TIN::On_Edit_Get_Extent(void)
 {
 	return( m_pTIN->Get_Extent() );
 }
@@ -403,7 +403,7 @@ void CWKSP_TIN::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 void CWKSP_TIN::_Draw_Points(CWKSP_Map_DC &dc_Map)
 {
 	int			i;
-	TAPI_iPoint	Point;
+	TSG_Point_Int	Point;
 
 	for(i=0; i<m_pTIN->Get_Point_Count(); i++)
 	{
@@ -418,7 +418,7 @@ void CWKSP_TIN::_Draw_Edges(CWKSP_Map_DC &dc_Map)
 {
 	int			i;
 	CTIN_Edge	*pEdge;
-	TAPI_iPoint	Point[2];
+	TSG_Point_Int	Point[2];
 
 	for(i=0; i<m_pTIN->Get_Edge_Count(); i++)
 	{
@@ -435,7 +435,7 @@ void CWKSP_TIN::_Draw_Edges(CWKSP_Map_DC &dc_Map)
 void CWKSP_TIN::_Draw_Triangles(CWKSP_Map_DC &dc_Map)
 {
 	int				iTriangle, iPoint;
-	TAPI_iPoint		Point;
+	TSG_Point_Int		Point;
 	TPoint			p[3];
 	CTIN_Triangle	*pTriangle;
 

@@ -110,7 +110,7 @@ bool CGStat_Export::On_Execute(void)
 {
 	int			iShape, iPart, iPoint, iField;
 	FILE		*Stream;
-	TGEO_Point	Point;
+	TSG_Point	Point;
 	CShape		*pShape;
 	CShapes		*pShapes;
 
@@ -278,7 +278,7 @@ bool CGStat_Import::On_Execute(void)
 	int			i, nFields, fLength;
 	double		x, y, Value;
 	FILE		*Stream;
-	CAPI_String	s;
+	CSG_String	s;
 	CShape		*pShape;
 	CShapes		*pShapes;
 
@@ -292,7 +292,7 @@ bool CGStat_Import::On_Execute(void)
 		fLength	= ftell(Stream);
 		fseek(Stream, 0, SEEK_SET);
 
-		if( fLength > 0 && API_Read_Line(Stream, s) )
+		if( fLength > 0 && SG_Read_Line(Stream, s) )
 		{
 			//---------------------------------------------
 			// Point...
@@ -305,12 +305,12 @@ bool CGStat_Import::On_Execute(void)
 
 				// Field Count...
 				fscanf(Stream, "%d", &nFields);
-				API_Read_Line(Stream, s);	// zur naexten Zeile...
+				SG_Read_Line(Stream, s);	// zur naexten Zeile...
 
 				// Fields...
 				for(i=0; i<nFields; i++)
 				{
-					if( API_Read_Line(Stream, s) )
+					if( SG_Read_Line(Stream, s) )
 					{
 						if( !s.Cmp("[ignore]") || s[0] == '%' )
 						{
@@ -360,7 +360,7 @@ bool CGStat_Import::On_Execute(void)
 								}
 							}
 
-							API_Read_Line(Stream, s);
+							SG_Read_Line(Stream, s);
 						}
 					}
 				}
@@ -446,7 +446,7 @@ bool CGStat_Import::Stream_Find_NextWhiteChar(FILE *Stream)
 }
 
 //---------------------------------------------------------
-bool CGStat_Import::Stream_Get_StringInQuota(FILE *Stream, CAPI_String &String)
+bool CGStat_Import::Stream_Get_StringInQuota(FILE *Stream, CSG_String &String)
 {
 	char	c;
 

@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char *	SAGA_API_Get_Version(void)
+const char *	SAGA_SG_Get_Version(void)
 {
 	return( "SAGA Application Programming Interface - Version: " SAGA_API_VERSION );
 }

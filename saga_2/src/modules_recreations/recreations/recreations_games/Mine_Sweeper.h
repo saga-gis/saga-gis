@@ -98,7 +98,7 @@ protected:
 
 	virtual bool			On_Execute(void);
 	virtual bool			On_Execute_Finish	(void);
-	virtual bool			On_Execute_Position	(CGEO_Point ptWorld, TModule_Interactive_Mode Mode);
+	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
 
 	bool					Get_Grid_Pos(int &x, int &y);
 

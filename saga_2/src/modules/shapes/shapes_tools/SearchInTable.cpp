@@ -53,7 +53,7 @@ CSearchInTable::~CSearchInTable(void){}
 
 bool CSearchInTable::On_Execute(void){
 
-	CAPI_String sExpression;
+	CSG_String sExpression;
 	CShapes *pShapes;
 	CTable *pTable;
 	CShapeSearchSelector *pSelector;	

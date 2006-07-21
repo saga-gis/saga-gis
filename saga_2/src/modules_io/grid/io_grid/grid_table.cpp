@@ -173,7 +173,7 @@ bool CGrid_Table_Import::On_Execute(void)
 	int				x, y, nx, ny;
 	double			dxy, xmin, ymin, zFactor, zNoData;
 	TGrid_Type		data_type;
-	CAPI_String		FileName, Unit;
+	CSG_String		FileName, Unit;
 	CGrid			*pGrid;
 	CTable			Table;
 	CTable_Record	*pRecord;
@@ -204,7 +204,7 @@ bool CGrid_Table_Import::On_Execute(void)
 	//-----------------------------------------------------
 	if( Table.Create(FileName) && (nx = Table.Get_Field_Count()) > 0 && (ny = Table.Get_Record_Count()) > 0 )
 	{
-		pGrid	= API_Create_Grid(data_type, nx, ny, dxy, xmin, ymin);
+		pGrid	= SG_Create_Grid(data_type, nx, ny, dxy, xmin, ymin);
 
 		for(y=0; y<ny && Set_Progress(y, ny); y++)
 		{
@@ -219,7 +219,7 @@ bool CGrid_Table_Import::On_Execute(void)
 		pGrid->Set_Unit			(Unit);
 		pGrid->Set_ZFactor		(zFactor);
 		pGrid->Set_NoData_Value	(zNoData);
-		pGrid->Set_Name			(API_Extract_File_Name(FileName, true));
+		pGrid->Set_Name			(SG_File_Get_Name(FileName, true));
 
 		Parameters("GRID")->Set_Value(pGrid);
 

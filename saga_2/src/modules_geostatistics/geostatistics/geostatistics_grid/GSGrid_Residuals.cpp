@@ -117,7 +117,7 @@ CGSGrid_Residuals::~CGSGrid_Residuals(void)
 bool CGSGrid_Residuals::On_Execute(void)
 {
 	int		x, y;
-	CColors	Colors;
+	CSG_Colors	Colors;
 
 	//-----------------------------------------------------
 	pInput		= Parameters("INPUT")		->asGrid();
@@ -138,7 +138,7 @@ bool CGSGrid_Residuals::On_Execute(void)
 	DataObject_Set_Colors(pPercentile	, Colors);
 
 	//-----------------------------------------------------
-	pRadius		= new CMAT_Grid_Radius(Parameters("RADIUS")->asInt() + 1);
+	pRadius		= new CSG_Grid_Radius(Parameters("RADIUS")->asInt() + 1);
 
 	for(y=0, x=1; y<pRadius->Get_Maximum(); y++)
 	{

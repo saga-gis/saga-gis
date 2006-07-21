@@ -218,7 +218,7 @@ void CVIEW_Table_Diagram::_Destroy_Fields(void)
 {
 	if( m_nFields > 0 )
 	{
-		API_Free(m_Fields);
+		SG_Free(m_Fields);
 		m_Fields	= NULL;
 		m_nFields	= 0;
 	}
@@ -265,7 +265,7 @@ bool CVIEW_Table_Diagram::_Set_Fields(void)
 			if(	m_pTable->Get_Field_Type(iField) != TABLE_FIELDTYPE_String
 			&&	m_Parameters(wxString::Format("FIELD_%d", iField))->asBool() )
 			{
-				m_Fields			= (int *)API_Realloc(m_Fields, (m_nFields + 1) * sizeof(int));
+				m_Fields			= (int *)SG_Realloc(m_Fields, (m_nFields + 1) * sizeof(int));
 				m_Fields[m_nFields]	= iField;
 
 				m_Colors.Set_Color(iField, m_Parameters(wxString::Format("COLOR_%d", iField))->asColor());
@@ -298,7 +298,7 @@ bool CVIEW_Table_Diagram::_Set_Fields(void)
 void CVIEW_Table_Diagram::_Initialize(void)
 {
 	int			iField;
-	CAPI_String	sFields_All, sFields_Num;
+	CSG_String	sFields_All, sFields_Num;
 	CParameter	*pNode, *pFields, *pColors;
 
 	//-----------------------------------------------------

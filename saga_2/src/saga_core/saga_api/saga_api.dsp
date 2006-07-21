@@ -130,6 +130,18 @@ SOURCE=.\dataobject.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\doc_html.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\doc_pdf.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\doc_svg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\geo_classes.cpp
 # End Source File
 # Begin Source File
@@ -155,10 +167,6 @@ SOURCE=.\grid_operation.cpp
 # Begin Source File
 
 SOURCE=.\grid_system.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\html_document.cpp
 # End Source File
 # Begin Source File
 
@@ -234,10 +242,6 @@ SOURCE=.\parameters.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\pdf_document.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\saga_api.cpp
 # End Source File
 # Begin Source File
@@ -275,10 +279,6 @@ SOURCE=.\shapes_search.cpp
 # Begin Source File
 
 SOURCE=.\shapes_selection.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\svg_graph.cpp
 # End Source File
 # Begin Source File
 
@@ -326,15 +326,23 @@ SOURCE=.\DataObject.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\doc_html.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\doc_pdf.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\doc_svg.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\GEO_Tools.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\Grid.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\html_document.h
 # End Source File
 # Begin Source File
 
@@ -350,19 +358,11 @@ SOURCE=.\Parameters.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\pdf_document.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\saga_api.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\Shapes.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\svg_graph.h
 # End Source File
 # Begin Source File
 

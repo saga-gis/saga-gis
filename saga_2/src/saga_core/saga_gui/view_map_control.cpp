@@ -193,7 +193,7 @@ bool CVIEW_Map_Control::Set_Mode(int Mode)
 }
 
 //---------------------------------------------------------
-inline void CVIEW_Map_Control::_Set_StatusBar(CGEO_Point ptWorld)
+inline void CVIEW_Map_Control::_Set_StatusBar(CSG_Point ptWorld)
 {
 	STATUSBAR_Set_Text(wxString::Format("X%f", ptWorld.Get_X()), STATUSBAR_VIEW_X);
 	STATUSBAR_Set_Text(wxString::Format("Y%f", ptWorld.Get_Y()), STATUSBAR_VIEW_Y);
@@ -226,10 +226,10 @@ inline wxRect CVIEW_Map_Control::_Get_Client(void)
 }
 
 //---------------------------------------------------------
-inline wxPoint CVIEW_Map_Control::_Get_Client(TGEO_Point Point)
+inline wxPoint CVIEW_Map_Control::_Get_Client(TSG_Point Point)
 {
 	wxRect		rClient(_Get_Client());
-	CGEO_Rect	rWorld(m_pMap->Get_World(rClient));
+	CSG_Rect	rWorld(m_pMap->Get_World(rClient));
 	double		World2DC	= (double)rClient.GetWidth() / rWorld.Get_XRange();
 
 	return( wxPoint(          (int)(0.5 + (Point.x - rWorld.Get_XMin()) * World2DC),
@@ -238,7 +238,7 @@ inline wxPoint CVIEW_Map_Control::_Get_Client(TGEO_Point Point)
 }
 
 //---------------------------------------------------------
-inline CGEO_Point CVIEW_Map_Control::_Get_World(wxPoint ptClient)
+inline CSG_Point CVIEW_Map_Control::_Get_World(wxPoint ptClient)
 {
 	return( m_pMap->Get_World(_Get_Client(), ptClient) );
 }
@@ -247,7 +247,7 @@ inline CGEO_Point CVIEW_Map_Control::_Get_World(wxPoint ptClient)
 inline double CVIEW_Map_Control::_Get_World(double xClient)
 {
 	wxRect		rClient(_Get_Client());
-	CGEO_Rect	rWorld(m_pMap->Get_World(rClient));
+	CSG_Rect	rWorld(m_pMap->Get_World(rClient));
 
 	return( xClient * rWorld.Get_XRange() / (double)rClient.GetWidth() );
 }
@@ -279,7 +279,7 @@ void CVIEW_Map_Control::_Draw_Inverse(wxPoint ptA, wxPoint ptB)
 			break;
 
 		case MODULE_INTERACTIVE_DRAG_CIRCLE:
-			dc.DrawCircle		(ptA.x, ptA.y, (int)sqrt(MAT_Square(ptB.x - ptA.x) + MAT_Square(ptB.y - ptA.y)));
+			dc.DrawCircle		(ptA.x, ptA.y, (int)SG_Get_Distance(ptA.x, ptA.y, ptB.x, ptB.y));
 			break;
 		}
 	}
@@ -307,8 +307,8 @@ void CVIEW_Map_Control::_Draw_Inverse(wxPoint ptA, wxPoint ptB_Old, wxPoint ptB_
 			break;
 
 		case MODULE_INTERACTIVE_DRAG_CIRCLE:
-			dc.DrawCircle		(ptA.x, ptA.y, (int)sqrt(MAT_Square(ptB_Old.x - ptA.x) + MAT_Square(ptB_Old.y - ptA.y)));
-			dc.DrawCircle		(ptA.x, ptA.y, (int)sqrt(MAT_Square(ptB_New.x - ptA.x) + MAT_Square(ptB_New.y - ptA.y)));
+			dc.DrawCircle		(ptA.x, ptA.y, (int)SG_Get_Distance(ptA.x, ptA.y, ptB_Old.x, ptB_Old.y));
+			dc.DrawCircle		(ptA.x, ptA.y, (int)SG_Get_Distance(ptA.x, ptA.y, ptB_New.x, ptB_New.y));
 			break;
 		}
 	}
@@ -324,7 +324,7 @@ void CVIEW_Map_Control::_Draw_Inverse(wxPoint ptA, wxPoint ptB_Old, wxPoint ptB_
 //---------------------------------------------------------
 bool CVIEW_Map_Control::_Zoom(wxPoint A, wxPoint B)
 {
-	CGEO_Rect	rWorld;
+	CSG_Rect	rWorld;
 
 	if( A.x == B.x && A.y == B.y )
 	{
@@ -338,9 +338,9 @@ bool CVIEW_Map_Control::_Zoom(wxPoint A, wxPoint B)
 	return( true );
 }
 
-bool CVIEW_Map_Control::_Zoom(CGEO_Point ptCenter, bool bZoomIn)
+bool CVIEW_Map_Control::_Zoom(CSG_Point ptCenter, bool bZoomIn)
 {
-	CGEO_Rect	rWorld(m_pMap->Get_Extent());
+	CSG_Rect	rWorld(m_pMap->Get_Extent());
 
 	rWorld.Move(ptCenter - rWorld.Get_Center());
 
@@ -387,7 +387,7 @@ bool CVIEW_Map_Control::_Move(wxPoint &A, wxPoint B)
 {
 	if( A.x != B.x || A.y != B.y )
 	{
-		CGEO_Rect	rWorld;
+		CSG_Rect	rWorld;
 
 		rWorld.Assign(m_pMap->Get_Extent());
 		rWorld.Move(_Get_World(A) - _Get_World(B));
@@ -418,7 +418,7 @@ void CVIEW_Map_Control::_Distance_Reset(void)
 {
 	if( m_pDistance )
 	{
-		API_Free(m_pDistance);
+		SG_Free(m_pDistance);
 	}
 
 	m_Distance		= 0.0;
@@ -432,12 +432,12 @@ void CVIEW_Map_Control::_Distance_Reset(void)
 //---------------------------------------------------------
 void CVIEW_Map_Control::_Distance_Add(wxPoint Point)
 {
-	m_pDistance	= (TGEO_Point *)API_Realloc(m_pDistance, (m_nDistance + 1) * sizeof(TGEO_Point));
+	m_pDistance	= (TSG_Point *)SG_Realloc(m_pDistance, (m_nDistance + 1) * sizeof(TSG_Point));
 	m_pDistance[m_nDistance++]	= _Get_World(Point);
 
 	if( m_nDistance > 1 )
 	{
-		m_Distance	+= GEO_Get_Distance(m_pDistance[m_nDistance - 1], m_pDistance[m_nDistance - 2]);
+		m_Distance	+= SG_Get_Distance(m_pDistance[m_nDistance - 1], m_pDistance[m_nDistance - 2]);
 	}
 
 	m_Distance_Move	= 0.0;
@@ -877,7 +877,7 @@ void CVIEW_Map_Control::On_Mouse_Motion(wxMouseEvent &event)
 			dc.SetLogicalFunction(wxINVERT);
 			dc.DrawLine(Last.x, Last.y, m_Mouse_Move       .x, m_Mouse_Move       .y);
 			dc.DrawLine(Last.x, Last.y, event.GetPosition().x, event.GetPosition().y);
-			m_Distance_Move	= GEO_Get_Distance(m_pDistance[m_nDistance - 1], _Get_World(event.GetPosition()));
+			m_Distance_Move	= SG_Get_Distance(m_pDistance[m_nDistance - 1], _Get_World(event.GetPosition()));
 		}
 		break;
 

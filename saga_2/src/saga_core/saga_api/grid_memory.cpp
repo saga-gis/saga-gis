@@ -73,16 +73,16 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-static CAPI_String	GRID_CACHE_Directory;
+static CSG_String	GRID_CACHE_Directory;
 
-const char *		API_Grid_Cache_Get_Directory(void)
+const char *		SG_Grid_Cache_Get_Directory(void)
 {
 	return( GRID_CACHE_Directory );
 }
 
-void				API_Grid_Cache_Set_Directory(const char *Directory)
+void				SG_Grid_Cache_Set_Directory(const char *Directory)
 {
-	if( API_Directory_isValid(Directory) )
+	if( SG_Directory_isValid(Directory) )
 	{
 		GRID_CACHE_Directory.Printf(Directory);
 	}
@@ -91,12 +91,12 @@ void				API_Grid_Cache_Set_Directory(const char *Directory)
 //---------------------------------------------------------
 static bool			GRID_CACHE_bAutomatic	= false;
 
-void				API_Grid_Cache_Set_Automatic(bool bOn)
+void				SG_Grid_Cache_Set_Automatic(bool bOn)
 {
 	GRID_CACHE_bAutomatic	= bOn;
 }
 
-bool				API_Grid_Cache_Get_Automatic(void)
+bool				SG_Grid_Cache_Get_Automatic(void)
 {
 	return( GRID_CACHE_bAutomatic );
 }
@@ -104,12 +104,12 @@ bool				API_Grid_Cache_Get_Automatic(void)
 //---------------------------------------------------------
 static int			GRID_CACHE_Confirm		= 1;
 
-void				API_Grid_Cache_Set_Confirm(int Confirm)
+void				SG_Grid_Cache_Set_Confirm(int Confirm)
 {
 	GRID_CACHE_Confirm		= Confirm;
 }
 
-int					API_Grid_Cache_Get_Confirm(void)
+int					SG_Grid_Cache_Get_Confirm(void)
 {
 	return( GRID_CACHE_Confirm );
 }
@@ -117,7 +117,7 @@ int					API_Grid_Cache_Get_Confirm(void)
 //---------------------------------------------------------
 static int			GRID_CACHE_Threshold	= 40 * N_MEGABYTE_BYTES;
 
-void				API_Grid_Cache_Set_Threshold(int nBytes)
+void				SG_Grid_Cache_Set_Threshold(int nBytes)
 {
 	if( nBytes >= 0 )
 	{
@@ -125,17 +125,17 @@ void				API_Grid_Cache_Set_Threshold(int nBytes)
 	}
 }
 
-void				API_Grid_Cache_Set_Threshold_MB(double nMegabytes)
+void				SG_Grid_Cache_Set_Threshold_MB(double nMegabytes)
 {
-	API_Grid_Cache_Set_Threshold((int)(nMegabytes * N_MEGABYTE_BYTES));
+	SG_Grid_Cache_Set_Threshold((int)(nMegabytes * N_MEGABYTE_BYTES));
 }
 
-int					API_Grid_Cache_Get_Threshold(void)
+int					SG_Grid_Cache_Get_Threshold(void)
 {
 	return( GRID_CACHE_Threshold );
 }
 
-double				API_Grid_Cache_Get_Threshold_MB(void)
+double				SG_Grid_Cache_Get_Threshold_MB(void)
 {
 	return( (double)GRID_CACHE_Threshold / (double)N_MEGABYTE_BYTES );
 }
@@ -166,7 +166,7 @@ bool CGrid::_Memory_Create(TGrid_Memory_Type Memory_Type)
 
 			case 1:
 				{
-					CAPI_String	s;
+					CSG_String	s;
 
 					s.Printf("%s\n%s\n%s: %.2fMB",
 						LNG("Shall I activate file caching for new grid."),
@@ -175,7 +175,7 @@ bool CGrid::_Memory_Create(TGrid_Memory_Type Memory_Type)
 						(Get_NCells() * Get_nValueBytes()) / (double)N_MEGABYTE_BYTES
 					);
 
-					if( API_Callback_Dlg_Continue(s, LNG("Activate Grid File Cache?")) )
+					if( SG_Callback_Dlg_Continue(s, LNG("Activate Grid File Cache?")) )
 					{
 						Memory_Type	= GRID_MEMORY_Cache;
 					}
@@ -189,10 +189,10 @@ bool CGrid::_Memory_Create(TGrid_Memory_Type Memory_Type)
 					p.Add_Value(
 						NULL	, "BUFFERSIZE"	, LNG("Buffer Size [MB]"),
 						"",
-						PARAMETER_TYPE_Double, API_Grid_Cache_Get_Threshold_MB(), 0.0, true
+						PARAMETER_TYPE_Double, SG_Grid_Cache_Get_Threshold_MB(), 0.0, true
 					);
 
-					if( API_Callback_Dlg_Parameters(&p, LNG("Activate Grid File Cache?")) )
+					if( SG_Callback_Dlg_Parameters(&p, LNG("Activate Grid File Cache?")) )
 					{
 						Memory_Type	= GRID_MEMORY_Cache;
 
@@ -249,11 +249,11 @@ void CGrid::_LineBuffer_Create(void)
 {
 	_LineBuffer_Destroy();
 
-	LineBuffer			= (TGrid_Memory_Line *)API_Malloc(LineBuffer_Count * sizeof(TGrid_Memory_Line));
+	LineBuffer			= (TGrid_Memory_Line *)SG_Malloc(LineBuffer_Count * sizeof(TGrid_Memory_Line));
 
 	for(int i=0; i<LineBuffer_Count; i++)
 	{
-		LineBuffer[i].Data		= (char *)API_Malloc(_LineBuffer_Get_nBytes());
+		LineBuffer[i].Data		= (char *)SG_Malloc(_LineBuffer_Get_nBytes());
 		LineBuffer[i].y			= -1;
 		LineBuffer[i].bModified	= false;
 	}
@@ -268,11 +268,11 @@ void CGrid::_LineBuffer_Destroy(void)
 		{
 			if( LineBuffer[i].Data )
 			{
-				API_Free(LineBuffer[i].Data);
+				SG_Free(LineBuffer[i].Data);
 			}
 		}
 
-		API_Free(LineBuffer);
+		SG_Free(LineBuffer);
 
 		LineBuffer	= NULL;
 	}
@@ -302,11 +302,11 @@ bool CGrid::Set_Buffer_Size(int Size)
 			{
 				if( Size > LineBuffer_Count )
 				{
-					LineBuffer			= (TGrid_Memory_Line *)API_Realloc(LineBuffer, Size * sizeof(TGrid_Memory_Line));
+					LineBuffer			= (TGrid_Memory_Line *)SG_Realloc(LineBuffer, Size * sizeof(TGrid_Memory_Line));
 
 					for(i=LineBuffer_Count; i<Size; i++)
 					{
-						LineBuffer[i].Data		= (char *)API_Malloc(_LineBuffer_Get_nBytes());
+						LineBuffer[i].Data		= (char *)SG_Malloc(_LineBuffer_Get_nBytes());
 						LineBuffer[i].y			= -1;
 						LineBuffer[i].bModified	= false;
 					}
@@ -317,11 +317,11 @@ bool CGrid::Set_Buffer_Size(int Size)
 					{
 						if( LineBuffer[i].Data )
 						{
-							API_Free(LineBuffer[i].Data);
+							SG_Free(LineBuffer[i].Data);
 						}
 					}
 
-					LineBuffer			= (TGrid_Memory_Line *)API_Realloc(LineBuffer, Size * sizeof(TGrid_Memory_Line));
+					LineBuffer			= (TGrid_Memory_Line *)SG_Realloc(LineBuffer, Size * sizeof(TGrid_Memory_Line));
 				}
 			}
 
@@ -528,11 +528,11 @@ bool CGrid::_Array_Create(void)
 	{
 		_Array_Destroy();
 
-		m_Values	= (void **)API_Malloc(Get_NY() * sizeof(void *));
+		m_Values	= (void **)SG_Malloc(Get_NY() * sizeof(void *));
 
 		for(int y=0; y<Get_NY(); y++)
 		{
-			m_Values[y]	= (void *)API_Calloc(1, _Get_nLineBytes());
+			m_Values[y]	= (void *)SG_Calloc(1, _Get_nLineBytes());
 		}
 
 		return( true );
@@ -550,11 +550,11 @@ void CGrid::_Array_Destroy(void)
 		{
 			if( m_Values[y] )
 			{
-				API_Free(m_Values[y]);
+				SG_Free(m_Values[y]);
 			}
 		}
 
-		API_Free(m_Values);
+		SG_Free(m_Values);
 
 		m_Values	= NULL;
 	}
@@ -622,7 +622,7 @@ bool CGrid::_Cache_Create(void)
 
 	if( m_System.is_Valid() && m_Type > 0 && m_Type < GRID_TYPE_Count && m_Memory_Type == GRID_MEMORY_Normal )
 	{
-		Cache_Path	= API_Get_Temp_File_Name("SAGA_GRID", API_Grid_Cache_Get_Directory());
+		Cache_Path	= SG_Get_Temp_File_Name("SAGA_GRID", SG_Grid_Cache_Get_Directory());
 
 		if( (Cache_Stream = fopen(Cache_Path, "wb+")) != NULL )
 		{
@@ -638,22 +638,22 @@ bool CGrid::_Cache_Create(void)
 
 			if( m_Values )
 			{
-				Line.Data	= (char *)API_Malloc(_LineBuffer_Get_nBytes());
+				Line.Data	= (char *)SG_Malloc(_LineBuffer_Get_nBytes());
 
-				for(Line.y=0; Line.y<Get_NY() && API_Callback_Process_Set_Progress(Line.y, Get_NY()); Line.y++)
+				for(Line.y=0; Line.y<Get_NY() && SG_Callback_Process_Set_Progress(Line.y, Get_NY()); Line.y++)
 				{
 					Line.bModified	= true;
 					memcpy(Line.Data, m_Values[Line.y], _LineBuffer_Get_nBytes());
 					_Cache_LineBuffer_Save(&Line);
-					API_Free(m_Values[Line.y]);
+					SG_Free(m_Values[Line.y]);
 				}
 
-				API_Free(Line.Data);
+				SG_Free(Line.Data);
 
-				API_Free(m_Values);
+				SG_Free(m_Values);
 				m_Values	= NULL;
 
-				API_Callback_Process_Set_Ready();
+				SG_Callback_Process_Set_Ready();
 			}
 
 			m_Memory_bLock	= false;
@@ -681,7 +681,7 @@ bool CGrid::_Cache_Destroy(bool bMemory_Restore)
 
 		if( bMemory_Restore && _Array_Create() )
 		{
-			for(y=0; y<Get_NY() && API_Callback_Process_Set_Progress(y, Get_NY()); y++)
+			for(y=0; y<Get_NY() && SG_Callback_Process_Set_Progress(y, Get_NY()); y++)
 			{
 				if( (pLine = _LineBuffer_Get_Line(y)) != NULL )
 				{
@@ -689,7 +689,7 @@ bool CGrid::_Cache_Destroy(bool bMemory_Restore)
 				}
 			}
 
-			API_Callback_Process_Set_Ready();
+			SG_Callback_Process_Set_Ready();
 		}
 
 		_LineBuffer_Destroy();
@@ -703,7 +703,7 @@ bool CGrid::_Cache_Destroy(bool bMemory_Restore)
 
 		if( Cache_bTemp )
 		{
-			API_Remove_File(Cache_Path);
+			SG_File_Delete(Cache_Path);
 		}
 
 		return( true );
@@ -850,11 +850,11 @@ bool CGrid::_Compr_Create(void)
 	{
 		m_Memory_bLock	= true;
 
-		Line.Data		= (char *)API_Calloc(1, _Get_nLineBytes());
+		Line.Data		= (char *)SG_Calloc(1, _Get_nLineBytes());
 
 		if( m_Values )	// compress loaded data...
 		{
-			for(Line.y=0; Line.y<Get_NY() && API_Callback_Process_Set_Progress(Line.y, Get_NY()); Line.y++)
+			for(Line.y=0; Line.y<Get_NY() && SG_Callback_Process_Set_Progress(Line.y, Get_NY()); Line.y++)
 			{
 				memcpy(Line.Data, m_Values[Line.y], _LineBuffer_Get_nBytes());
 				Line.bModified	= true;
@@ -863,24 +863,24 @@ bool CGrid::_Compr_Create(void)
 		}
 		else			// create empty grid...
 		{
-			m_Values	= (void **)API_Malloc(Get_NY() * sizeof(void *));
+			m_Values	= (void **)SG_Malloc(Get_NY() * sizeof(void *));
 
-			for(Line.y=0; Line.y<Get_NY() && API_Callback_Process_Set_Progress(Line.y, Get_NY()); Line.y++)
+			for(Line.y=0; Line.y<Get_NY() && SG_Callback_Process_Set_Progress(Line.y, Get_NY()); Line.y++)
 			{
-				m_Values[Line.y]	= (void *)API_Calloc(1, _LineBuffer_Get_nBytes());
+				m_Values[Line.y]	= (void *)SG_Calloc(1, _LineBuffer_Get_nBytes());
 				Line.bModified	= true;
 				_Compr_LineBuffer_Save(&Line);
 			}
 		}
 
-		API_Free(Line.Data);
+		SG_Free(Line.Data);
 
 		_LineBuffer_Create();
 
 		m_Memory_bLock	= false;
 		m_Memory_Type	= GRID_MEMORY_Compression;
 
-		API_Callback_Process_Set_Ready();
+		SG_Callback_Process_Set_Ready();
 	}
 
 	return( is_Compressed() );
@@ -899,18 +899,18 @@ bool CGrid::_Compr_Destroy(bool bMemory_Restore)
 		{
 			_LineBuffer_Flush();
 
-			Line.Data		= (char *)API_Calloc(1, _Get_nLineBytes());
+			Line.Data		= (char *)SG_Calloc(1, _Get_nLineBytes());
 
-			for(int y=0; y<Get_NY() && API_Callback_Process_Set_Progress(y, Get_NY()); y++)
+			for(int y=0; y<Get_NY() && SG_Callback_Process_Set_Progress(y, Get_NY()); y++)
 			{
 				_Compr_LineBuffer_Load(&Line, y);
-				m_Values[y]	= (void *)API_Realloc(m_Values[y], _Get_nLineBytes());
+				m_Values[y]	= (void *)SG_Realloc(m_Values[y], _Get_nLineBytes());
 				memcpy(m_Values[y], Line.Data, _LineBuffer_Get_nBytes());
 			}
 
-			API_Free(Line.Data);
+			SG_Free(Line.Data);
 
-			API_Callback_Process_Set_Ready();
+			SG_Callback_Process_Set_Ready();
 		}
 		else
 		{
@@ -950,7 +950,7 @@ void CGrid::_Compr_LineBuffer_Save(TGrid_Memory_Line *pLine)
 			Threshold	= 1 + (sizeof(WORD) + sizeof(bool) + Get_nValueBytes()) / Get_nValueBytes();
 
 			nBytesTotal	= Line_Pos	= sizeof(nBytesTotal);
-			pResult		= (char *)API_Malloc(nBytesTotal);
+			pResult		= (char *)SG_Malloc(nBytesTotal);
 			pNoCompress	= pLine->Data;
 			nNoCompress	= 0;
 
@@ -986,7 +986,7 @@ void CGrid::_Compr_LineBuffer_Save(TGrid_Memory_Line *pLine)
 					if( nNoCompress > 0 )
 					{
 						nBytesTotal	+= sizeof(WORD) + sizeof(bool) + nNoCompress * Get_nValueBytes();
-						pResult	= (char *)API_Realloc(pResult, nBytesTotal);
+						pResult	= (char *)SG_Realloc(pResult, nBytesTotal);
 
 						*((WORD *)(pResult + Line_Pos))	= nNoCompress;
 						Line_Pos	+= sizeof(WORD);
@@ -1000,7 +1000,7 @@ void CGrid::_Compr_LineBuffer_Save(TGrid_Memory_Line *pLine)
 					}
 					else
 					{
-						pResult	= (char *)API_Realloc(pResult, nBytesTotal);
+						pResult	= (char *)SG_Realloc(pResult, nBytesTotal);
 					}
 
 					*((WORD *)(pResult + Line_Pos))	= nCompress;
@@ -1020,7 +1020,7 @@ void CGrid::_Compr_LineBuffer_Save(TGrid_Memory_Line *pLine)
 			if( nNoCompress > 0 )
 			{
 				nBytesTotal	+= sizeof(WORD) + sizeof(bool) + nNoCompress * Get_nValueBytes();
-				pResult	= (char *)API_Realloc(pResult, nBytesTotal);
+				pResult	= (char *)SG_Realloc(pResult, nBytesTotal);
 
 				*((WORD *)(pResult + Line_Pos))	= nNoCompress;
 				Line_Pos	+= sizeof(WORD);
@@ -1035,7 +1035,7 @@ void CGrid::_Compr_LineBuffer_Save(TGrid_Memory_Line *pLine)
 
 			if( m_Values[pLine->y] )
 			{
-				API_Free(m_Values[pLine->y]);
+				SG_Free(m_Values[pLine->y]);
 			}
 
 			m_Values[pLine->y]	= pResult;

@@ -42,7 +42,7 @@ bool CPolygon_Geometrics::On_Execute(void){
 
 	CTable *pTable;
 	CShapes *pPolygs;
-	TGEO_Point	Point, Point2;	
+	TSG_Point	Point, Point2;	
 	CShape *pShape;
 	double dArea;
 	double dPerim;

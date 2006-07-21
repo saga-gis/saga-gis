@@ -95,7 +95,7 @@ CModule::~CModule(void)
 			delete(m_pParameters[i]);
 		}
 
-		API_Free(m_pParameters);
+		SG_Free(m_pParameters);
 	}
 
 	Destroy();
@@ -117,7 +117,7 @@ void CModule::Destroy(void)
 
 	if( m_bManaged )
 	{
-		API_Callback_Process_Set_Okay();
+		SG_Callback_Process_Set_Okay();
 	}
 }
 
@@ -169,7 +169,7 @@ const char * CModule::Get_Author(void)
 }
 
 //---------------------------------------------------------
-void CModule::Set_Translation(CTranslator &Translator)
+void CModule::Set_Translation(CSG_Translator &Translator)
 {
 	Parameters.Set_Translation(Translator);
 
@@ -217,7 +217,7 @@ _try
 
 			if( !Process_Get_Okay(false) )
 			{
-				API_Callback_Message_Add(LNG("[MSG] Execution has been stopped by user!"), true);
+				SG_Callback_Message_Add(LNG("[MSG] Execution has been stopped by user!"), true);
 			}
 
 			Destroy();
@@ -277,7 +277,7 @@ void CModule::Set_Show_Progress(bool bOn)
 //---------------------------------------------------------
 bool CModule::Dlg_Parameters(CParameters *pParameters, const char *Caption)
 {
-	return( API_Callback_Dlg_Parameters(pParameters, Caption) );
+	return( SG_Callback_Dlg_Parameters(pParameters, Caption) );
 }
 
 //---------------------------------------------------------
@@ -311,7 +311,7 @@ CParameters * CModule::Add_Extra_Parameters(const char *Identifier, const char *
 {
 	CParameters	*pParameters;
 
-	m_pParameters	= (CParameters **)API_Realloc(m_pParameters, (m_npParameters + 1) * sizeof(CParameters *));
+	m_pParameters	= (CParameters **)SG_Realloc(m_pParameters, (m_npParameters + 1) * sizeof(CParameters *));
 	pParameters		= m_pParameters[m_npParameters++]	= new CParameters();
 
 	pParameters->Create(this, Name, Description, Identifier);
@@ -324,7 +324,7 @@ CParameters * CModule::Add_Extra_Parameters(const char *Identifier, const char *
 CParameters * CModule::Get_Extra_Parameters(const char *Identifier)
 {
 	int			i;
-	CAPI_String	sIdentifier(Identifier);
+	CSG_String	sIdentifier(Identifier);
 
 	for(i=0; i<m_npParameters; i++)
 	{
@@ -360,13 +360,13 @@ int CModule::Dlg_Extra_Parameters(const char *Identifier)
 //---------------------------------------------------------
 bool CModule::Process_Get_Okay(bool bBlink)
 {
-	return( API_Callback_Process_Get_Okay(bBlink) );
+	return( SG_Callback_Process_Get_Okay(bBlink) );
 }
 
 //---------------------------------------------------------
 void CModule::Process_Set_Text(const char *Text)
 {
-	API_Callback_Process_Set_Text(Text);
+	SG_Callback_Process_Set_Text(Text);
 }
 
 //---------------------------------------------------------
@@ -378,7 +378,7 @@ bool CModule::Set_Progress(int Position)
 //---------------------------------------------------------
 bool CModule::Set_Progress(double Position, double Range)
 {
-	return( m_bShow_Progress ? API_Callback_Process_Set_Progress(Position, Range) : Process_Get_Okay(false) );
+	return( m_bShow_Progress ? SG_Callback_Process_Set_Progress(Position, Range) : Process_Get_Okay(false) );
 }
 
 
@@ -393,18 +393,18 @@ void CModule::Message_Dlg(const char *Text, const char *Caption)
 {
 	if( Caption && Caption[0] != '\0' )
 	{
-		API_Callback_Dlg_Message(Text, Caption);
+		SG_Callback_Dlg_Message(Text, Caption);
 	}
 	else
 	{
-		API_Callback_Dlg_Message(Text, Get_Name());
+		SG_Callback_Dlg_Message(Text, Get_Name());
 	}
 }
 
 //---------------------------------------------------------
 void CModule::Message_Add(const char *Text, bool bNewLine)
 {
-	API_Callback_Message_Add_Execution(Text, bNewLine);
+	SG_Callback_Message_Add_Execution(Text, bNewLine);
 }
 
 //---------------------------------------------------------
@@ -423,14 +423,14 @@ bool CModule::Error_Set(TModule_Error Error_ID)
 //---------------------------------------------------------
 bool CModule::Error_Set(const char *Error_Text)
 {
-	API_Callback_Message_Add_Error(Error_Text);
+	SG_Callback_Message_Add_Error(Error_Text);
 
-	if( API_Callback_Process_Get_Okay(false) && !m_bError_Ignore )
+	if( SG_Callback_Process_Get_Okay(false) && !m_bError_Ignore )
 	{
-		switch( API_Callback_Dlg_Error(Error_Text, LNG("[ERR] Error: Continue anyway ?")) )
+		switch( SG_Callback_Dlg_Error(Error_Text, LNG("[ERR] Error: Continue anyway ?")) )
 		{
 		case 0: default:
-			API_Callback_Process_Set_Okay(false);
+			SG_Callback_Process_Set_Okay(false);
 			break;
 
 		case 1:
@@ -439,7 +439,7 @@ bool CModule::Error_Set(const char *Error_Text)
 		}
 	}
 
-	return( API_Callback_Process_Get_Okay(false) );
+	return( SG_Callback_Process_Get_Okay(false) );
 }
 
 
@@ -452,13 +452,13 @@ bool CModule::Error_Set(const char *Error_Text)
 //---------------------------------------------------------
 bool CModule::DataObject_Add(CDataObject *pDataObject, bool bUpdate)
 {
-	return( m_bManaged ? API_Callback_DataObject_Add(pDataObject, bUpdate) : false );
+	return( m_bManaged ? SG_Callback_DataObject_Add(pDataObject, bUpdate) : false );
 }
 
 //---------------------------------------------------------
 bool CModule::DataObject_Update(CDataObject *pDataObject, bool bShow)
 {
-	return( API_Callback_DataObject_Update(pDataObject, bShow, NULL) );
+	return( SG_Callback_DataObject_Update(pDataObject, bShow, NULL) );
 }
 
 bool CModule::DataObject_Update(CDataObject *pDataObject, double Parm_1, double Parm_2, bool bShow)
@@ -480,7 +480,7 @@ bool CModule::DataObject_Update(CDataObject *pDataObject, double Parm_1, double 
 			break;
 		}
 
-		return( API_Callback_DataObject_Update(pDataObject, bShow, &Parameters) );
+		return( SG_Callback_DataObject_Update(pDataObject, bShow, &Parameters) );
 	}
 
 	return( false );
@@ -509,14 +509,14 @@ void CModule::DataObject_Update_All(void)
 }
 
 //---------------------------------------------------------
-bool CModule::DataObject_Get_Colors(CDataObject *pDataObject, CColors &Colors)
+bool CModule::DataObject_Get_Colors(CDataObject *pDataObject, CSG_Colors &Colors)
 {
-	return( API_Callback_DataObject_Colors_Get(pDataObject, &Colors) );
+	return( SG_Callback_DataObject_Colors_Get(pDataObject, &Colors) );
 }
 
-bool CModule::DataObject_Set_Colors(CDataObject *pDataObject, CColors &Colors)
+bool CModule::DataObject_Set_Colors(CDataObject *pDataObject, CSG_Colors &Colors)
 {
-	return( API_Callback_DataObject_Colors_Set(pDataObject, &Colors) );
+	return( SG_Callback_DataObject_Colors_Set(pDataObject, &Colors) );
 }
 
 
@@ -529,7 +529,7 @@ bool CModule::DataObject_Set_Colors(CDataObject *pDataObject, CColors &Colors)
 //---------------------------------------------------------
 void CModule::_Set_Output_History(void)
 {
-	CHistory	History;
+	CSG_History	History;
 
 	//-----------------------------------------------------
 	History.Add_Entry(LNG("[HST] Created with module"), Get_Name());

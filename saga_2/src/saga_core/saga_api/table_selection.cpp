@@ -79,7 +79,7 @@ bool CTable::_Destroy_Selection(void)
 			m_Selected[iRecord]->m_bSelected	= false;
 		}
 
-		API_Free(m_Selected);
+		SG_Free(m_Selected);
 		m_Selected	= NULL;
 		m_nSelected	= 0;
 	}
@@ -110,7 +110,7 @@ bool CTable::Select(int iRecord, bool bInvert)
 		if( pRecord->m_bSelected == false )
 		{
 			m_nSelected++;
-			m_Selected	= (CTable_Record **)API_Realloc(m_Selected, m_nSelected * sizeof(CTable_Record *));
+			m_Selected	= (CTable_Record **)SG_Realloc(m_Selected, m_nSelected * sizeof(CTable_Record *));
 			m_Selected[m_nSelected - 1]	= pRecord;
 			pRecord->m_bSelected		= true;
 		}
@@ -129,7 +129,7 @@ bool CTable::Select(int iRecord, bool bInvert)
 				}
 			}
 
-			m_Selected	= (CTable_Record **)API_Realloc(m_Selected, m_nSelected * sizeof(CTable_Record *));
+			m_Selected	= (CTable_Record **)SG_Realloc(m_Selected, m_nSelected * sizeof(CTable_Record *));
 			pRecord->m_bSelected		= false;
 		}
 

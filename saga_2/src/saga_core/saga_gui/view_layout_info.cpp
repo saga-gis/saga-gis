@@ -280,7 +280,7 @@ void CVIEW_Layout_Info::Fit_Scale(void)
 	int			fMap;
 	double		zMap, zLegend, Scale, dx, dy;
 	wxRect		rMap, rLegend;
-	CGEO_Rect	rWorld;
+	CSG_Rect	rWorld;
 
 	if( _Get_Layout(Get_PaperSize(), zMap, fMap, rMap, zLegend, rLegend) )
 	{

@@ -133,7 +133,7 @@ bool CTIN::_Triangulate(void)
 	_Destroy_Triangles();
 
 	//-----------------------------------------------------
-	Points		= (CTIN_Point **)API_Malloc(m_nPoints * sizeof(CTIN_Point *));
+	Points		= (CTIN_Point **)SG_Malloc(m_nPoints * sizeof(CTIN_Point *));
 
 	for(i=0; i<m_nPoints; i++)
 	{
@@ -157,7 +157,7 @@ bool CTIN::_Triangulate(void)
 	}
 
 	//-----------------------------------------------------
-	Points		= (CTIN_Point **)API_Realloc(Points, (m_nPoints + 3) * sizeof(CTIN_Point *));
+	Points		= (CTIN_Point **)SG_Realloc(Points, (m_nPoints + 3) * sizeof(CTIN_Point *));
 
 	for(i=m_nPoints; i<m_nPoints+3; i++)
 	{
@@ -165,17 +165,17 @@ bool CTIN::_Triangulate(void)
 	}
 
 	//-----------------------------------------------------
-	Triangles	= (TTIN_Triangle *)API_Malloc(3 * m_nPoints * sizeof(TTIN_Triangle));
+	Triangles	= (TTIN_Triangle *)SG_Malloc(3 * m_nPoints * sizeof(TTIN_Triangle));
 
 	if( (bResult = _Triangulate(Points, m_nPoints, Triangles, nTriangles)) == true )
 	{
-		for(i=0; i<nTriangles && API_Callback_Process_Set_Progress(i, nTriangles); i++)
+		for(i=0; i<nTriangles && SG_Callback_Process_Set_Progress(i, nTriangles); i++)
 		{
 			_Add_Triangle(Points[Triangles[i].p1], Points[Triangles[i].p2], Points[Triangles[i].p3]);
 		}
 	}
 
-	API_Free(Triangles);
+	SG_Free(Triangles);
 
 	//-----------------------------------------------------
 	for(i=m_nPoints; i<m_nPoints+3; i++)
@@ -183,9 +183,9 @@ bool CTIN::_Triangulate(void)
 		delete(Points[i]);
 	}
 
-	API_Free(Points);
+	SG_Free(Points);
 
-	API_Callback_Process_Set_Ready();
+	SG_Callback_Process_Set_Ready();
 
 	return( bResult );
 }
@@ -214,7 +214,7 @@ bool CTIN::_Triangulate(CTIN_Point **Points, int nPoints, TTIN_Triangle *Triangl
 	//-----------------------------------------------------
 	// Allocate memory for the completeness list, flag for each triangle
 	trimax	= 4 * nPoints;
-	if( (complete	= (int       *)API_Malloc(trimax * sizeof(int))) == NULL )
+	if( (complete	= (int       *)SG_Malloc(trimax * sizeof(int))) == NULL )
 	{
 		status	= 1;
 		goto skip;
@@ -222,7 +222,7 @@ bool CTIN::_Triangulate(CTIN_Point **Points, int nPoints, TTIN_Triangle *Triangl
 
 	//-----------------------------------------------------
 	// Allocate memory for the edge list
-	if( (edges		= (TTIN_Edge *)API_Malloc(emax   * sizeof(TTIN_Edge))) == NULL )
+	if( (edges		= (TTIN_Edge *)SG_Malloc(emax   * sizeof(TTIN_Edge))) == NULL )
 	{
 		status	= 2;
 		goto skip;
@@ -260,7 +260,7 @@ bool CTIN::_Triangulate(CTIN_Point **Points, int nPoints, TTIN_Triangle *Triangl
 
 	//-----------------------------------------------------
 	//	Include each point one at a time into the existing mesh
-	for(i=0; i<nPoints && API_Callback_Process_Set_Progress(i, nPoints); i++)
+	for(i=0; i<nPoints && SG_Callback_Process_Set_Progress(i, nPoints); i++)
 	{
 		xp		= Points[i]->m_Point.x;
 		yp		= Points[i]->m_Point.y;
@@ -299,7 +299,7 @@ bool CTIN::_Triangulate(CTIN_Point **Points, int nPoints, TTIN_Triangle *Triangl
 				{
 					emax	+= 100;
 
-					if( (edges = (TTIN_Edge *)API_Realloc(edges, emax * sizeof(TTIN_Edge))) == NULL )
+					if( (edges = (TTIN_Edge *)SG_Realloc(edges, emax * sizeof(TTIN_Edge))) == NULL )
 					{
 						status	= 3;
 						goto skip;
@@ -395,12 +395,12 @@ bool CTIN::_Triangulate(CTIN_Point **Points, int nPoints, TTIN_Triangle *Triangl
 
 	if( edges )
 	{
-		API_Free(edges);
+		SG_Free(edges);
 	}
 
 	if( complete )
 	{
-		API_Free(complete);
+		SG_Free(complete);
 	}
 
 	return( status == 0 );

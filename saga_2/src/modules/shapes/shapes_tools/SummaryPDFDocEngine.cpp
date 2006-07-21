@@ -32,7 +32,7 @@ CSummaryPDFDocEngine::~CSummaryPDFDocEngine(){}
 void CSummaryPDFDocEngine::AddClassSummaryPage(CShapes *pShapes, 
 											   CTable *pTable,
 											   int iClass,
-											   CAPI_String sTitle){
+											   CSG_String sTitle){
 
 	int i;
 	double fPaperHeight;
@@ -40,8 +40,8 @@ void CSummaryPDFDocEngine::AddClassSummaryPage(CShapes *pShapes,
 	double fX, fY;
 	CTable *pClassTable;
 	CTable_Record *pRecord;
-	CGEO_Rect CanvasExtent, TableExtent;
-	TGEO_Rect Extent;
+	CSG_Rect CanvasExtent, TableExtent;
+	TSG_Rect Extent;
 	
 
 	Add_Page(PDF_PAGE_SIZE_A3, PDF_PAGE_ORIENTATION_LANDSCAPE);
@@ -79,7 +79,7 @@ void CSummaryPDFDocEngine::AddClassSummaryPage(CShapes *pShapes,
 
 	Draw_Graticule(CanvasExtent, Extent);
 
-	pClassTable = API_Create_Table();
+	pClassTable = SG_Create_Table();
 	pClassTable->Add_Field(_TL("Field"), TABLE_FIELDTYPE_String );
 	pClassTable->Add_Field(_TL("Value"), TABLE_FIELDTYPE_Double);
 
@@ -101,13 +101,13 @@ void CSummaryPDFDocEngine::AddSummaryStatisticsPage(CTable* pTable){
 	int i,j;
 	double fX, fY;
 	double fPaperHeight;
-	CAPI_dPoints Data;
-	CAPI_String *pNames;
-	CGEO_Rect r;
+	CSG_Points Data;
+	CSG_String *pNames;
+	CSG_Rect r;
 
 	fPaperHeight = Get_Size_Page().Get_YRange();
 
-	pNames = new CAPI_String [pTable->Get_Record_Count()];
+	pNames = new CSG_String [pTable->Get_Record_Count()];
 	for (i = 0; i < pTable->Get_Record_Count(); i++){
 		pNames[i] = pTable->Get_Record(i)->asString(0);
 	}//for
@@ -131,9 +131,9 @@ void CSummaryPDFDocEngine::AddSummaryStatisticsPage(CTable* pTable){
 
 }//method
 
-void CSummaryPDFDocEngine::AddBarGraphStatistics(CAPI_dPoints &Data,
-										CAPI_String *pNames,
-										const CGEO_Rect &r){
+void CSummaryPDFDocEngine::AddBarGraphStatistics(CSG_Points &Data,
+										CSG_String *pNames,
+										const CSG_Rect &r){
 
 	int i;
     int iMag;
@@ -145,8 +145,8 @@ void CSummaryPDFDocEngine::AddBarGraphStatistics(CAPI_dPoints &Data,
     double fX, fY;
 	double fPaperHeight;
 	double fAngle;
-	CAPI_String sValue;
-	CAPI_dPoints Points;
+	CSG_String sValue;
+	CSG_Points Points;
 
 	fPaperHeight = Get_Size_Page().Get_YRange();
 

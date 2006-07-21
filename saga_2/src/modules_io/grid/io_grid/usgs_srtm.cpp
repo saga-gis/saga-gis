@@ -131,14 +131,14 @@ bool CUSGS_SRTM_Import::On_Execute(void)
 	short		*sLine;
 	double		xMin, yMin, D;
 	FILE		*Stream;
-	CAPI_String	fName;
+	CSG_String	fName;
 	CGrid		*pGrid;
 
 	//-----------------------------------------------------
 	pGrid	= NULL;
 
 	//-----------------------------------------------------
-	fName	= API_Extract_File_Name(Parameters("FILE")->asString(), false);
+	fName	= SG_File_Get_Name(Parameters("FILE")->asString(), false);
 	fName.Make_Upper();
 
 	yMin	= (fName[0] == 'N' ?  1.0 : -1.0) * atoi(fName.c_str() + 1);
@@ -164,13 +164,13 @@ bool CUSGS_SRTM_Import::On_Execute(void)
 	//-----------------------------------------------------
 	if( (Stream = fopen(Parameters("FILE")->asString(), "rb")) != NULL )
 	{
-		if( (pGrid = API_Create_Grid(GRID_TYPE_Float, N, N, D, xMin, yMin)) != NULL )
+		if( (pGrid = SG_Create_Grid(GRID_TYPE_Float, N, N, D, xMin, yMin)) != NULL )
 		{
 			pGrid->Set_Name			(fName);
 			pGrid->Set_NoData_Value	(-32768);
 
 			//---------------------------------------------
-			sLine	= (short *)API_Malloc(N * sizeof(short));
+			sLine	= (short *)SG_Malloc(N * sizeof(short));
 
 			for(y=0; y<N && !feof(Stream) && Set_Progress(y, N); y++)
 			{
@@ -178,13 +178,13 @@ bool CUSGS_SRTM_Import::On_Execute(void)
 
 				for(x=0; x<N; x++)
 				{
-					API_Swap_Bytes(sLine + x, sizeof(short));
+					SG_Swap_Bytes(sLine + x, sizeof(short));
 
 					pGrid->Set_Value(x, N - 1 - y, sLine[x]);
 				}
 			}
 
-			API_Free(sLine);
+			SG_Free(sLine);
 
 			Parameters("GRID")->Set_Value(pGrid);
 		}

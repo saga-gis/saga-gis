@@ -67,7 +67,7 @@
 CGrid_IO_GDAL::CGrid_IO_GDAL(void)
 {
 	//-----------------------------------------------------
-	CAPI_String	formats;
+	CSG_String	formats;
 	int iDriver;
 
 	GDALAllRegister();
@@ -92,7 +92,7 @@ CGrid_IO_GDAL::CGrid_IO_GDAL(void)
                 GDALDriverH hDriver = GDALGetDriver(iDriver);
                 
 				formats.Append(
-					CAPI_String::Format("%s: %s\n",
+					CSG_String::Format("%s: %s\n",
                         GDALGetDriverShortName(hDriver),
                         GDALGetDriverLongName (hDriver)	)
 				);
@@ -135,7 +135,7 @@ bool CGrid_IO_GDAL::On_Execute(void)
 	int		i;
 	double GeoX, GeoY; 
 	GDALDataset  *pDataset;
-	CAPI_String	msg;
+	CSG_String	msg;
    
 	pDataset = (GDALDataset *) GDALOpen( Parameters("FILE_DATA")->asString(), GA_ReadOnly );
   
@@ -158,14 +158,14 @@ bool CGrid_IO_GDAL::On_Execute(void)
 
 		if( pDataset->GetProjectionRef()  != NULL )
 		{
-			Message_Add(CAPI_String::Format("Projection is `%s'\n", pDataset->GetProjectionRef()));
+			Message_Add(CSG_String::Format("Projection is `%s'\n", pDataset->GetProjectionRef()));
 		}
 
 		if( pDataset->GetGeoTransform( adfGeoTransform ) == CE_None )
 		{
-			Message_Add(CAPI_String::Format("Origin = (%.6f,%.6f)\n", adfGeoTransform[0], adfGeoTransform[3]));
+			Message_Add(CSG_String::Format("Origin = (%.6f,%.6f)\n", adfGeoTransform[0], adfGeoTransform[3]));
 
-			Message_Add(CAPI_String::Format("Pixel Size = (%.6f,%.6f)\n", adfGeoTransform[1], adfGeoTransform[5]));
+			Message_Add(CSG_String::Format("Pixel Size = (%.6f,%.6f)\n", adfGeoTransform[1], adfGeoTransform[5]));
 		}
 		
 
@@ -184,7 +184,7 @@ bool CGrid_IO_GDAL::On_Execute(void)
 				Gdal_To_World(adfGeoTransform, 0 , pDataset->GetRasterYSize(), GeoX,  GeoY );
 			}
 			
-			CGrid *pGrid = API_Create_Grid(
+			CGrid *pGrid = SG_Create_Grid(
 				GRID_TYPE_Float,  
 				pDataset->GetRasterXSize(),
 				pDataset->GetRasterYSize(),

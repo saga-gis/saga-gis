@@ -22,7 +22,7 @@
 #define VERY_LARGE_NUMBER 9999999999.
 #define IS_OUTSIDE -1
 
-CAPI_String	sParamName[]	= {"[Sum]", "[Average]", "[Variance]", "[Minimum]", "[Maximum]"};
+CSG_String	sParamName[]	= {"[Sum]", "[Average]", "[Variance]", "[Minimum]", "[Maximum]"};
 
 CPolygonStatisticsFromPoints::CPolygonStatisticsFromPoints(){
 				   
@@ -62,7 +62,7 @@ bool CPolygonStatisticsFromPoints::On_Execute(void){
 	m_pPolygons = Parameters("POLYGONS")->asShapes();
 	CTable *pShapesTable, *pTable;
 	CParameter **pExtraParameter;
-	CAPI_String sName;
+	CSG_String sName;
 	
 	pTable = &m_pPoints->Get_Table();
 	pShapesTable = &m_pPolygons->Get_Table();
@@ -74,7 +74,7 @@ bool CPolygonStatisticsFromPoints::On_Execute(void){
 			if (pTable->Get_Field_Type(i) > 1 && pTable->Get_Field_Type(i) < 7){ //is numeric field
 				sName.Printf("%s%s", pTable->Get_Field_Name(i), _TL(sParamName[j]));
 				pExtraParameter[i * 5 + j] = m_pExtraParameters->Add_Value(NULL,
-																			API_Get_String(i * 5 + j,0).c_str(), 
+																			SG_Get_String(i * 5 + j,0).c_str(), 
 																			sName.c_str(),
 																			"",
 																			PARAMETER_TYPE_Bool, 
@@ -84,7 +84,7 @@ bool CPolygonStatisticsFromPoints::On_Execute(void){
 	}//for
 	if(Dlg_Extra_Parameters("EXTRA")){
 		for (i = 0; i < pTable->Get_Field_Count() * 5; i++){
-			sName = API_Get_String(i);
+			sName = SG_Get_String(i);
 			try{
 				m_bIncludeParam[i] = Get_Extra_Parameters("EXTRA")->Get_Parameter(sName.c_str())->asBool();
 			}//try
@@ -118,7 +118,7 @@ void CPolygonStatisticsFromPoints::CalculateStatistics(){
 	CShape *pPoly, *pShape;
 	CTable *pPointsTable, *pPolygonsTable;
 	CTable_Record *pRecord;
-	CAPI_String sName;
+	CSG_String sName;
 	float *pSum;
 	float *pMin;
 	float *pMax;

@@ -21,7 +21,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include <saga_api/pdf_document.h>
+#include <saga_api/doc_pdf.h>
 
 #define PDF_PAGE_WIDTH_A4       596
 #define PDF_PAGE_HEIGHT_A4      842
@@ -42,18 +42,18 @@
 #define GRATICULE_SEPARATION 20
 #define SUMMARY_TABLE_CELL_HEIGHT 13.0
 
-class CSummaryPDFDocEngine : public CPDF_Document 
+class CSummaryPDFDocEngine : public CDoc_PDF 
 {
 public:
 
 	CSummaryPDFDocEngine();
 	virtual ~CSummaryPDFDocEngine();
-	void AddClassSummaryPage(CShapes*, CTable*, int, CAPI_String);
+	void AddClassSummaryPage(CShapes*, CTable*, int, CSG_String);
 	void AddSummaryStatisticsPage(CTable* pTable);
 
 private:
 
-	void AddBarGraphStatistics(CAPI_dPoints &, CAPI_String*,	const CGEO_Rect &);
+	void AddBarGraphStatistics(CSG_Points &, CSG_String*,	const CSG_Rect &);
 
 };
 

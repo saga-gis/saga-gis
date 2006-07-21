@@ -68,7 +68,7 @@ CThresholdBuffer::CThresholdBuffer(void){
 						"THRESHOLDTYPE",
 						_TL("Threshold Type"),
 						"",
-						CAPI_String::Format("%s|%s|",
+						CSG_String::Format("%s|%s|",
 							_TL("Absolute"),
 							_TL("Relative from cell value")
 						));
@@ -128,7 +128,7 @@ void CThresholdBuffer::BufferPoint(int x, int y){
 		dThreshold = m_dThreshold;
 	}//else
 
-	m_pCentralPoints.Add(x,y, 0);
+	m_pCentralPoints.Add(x,y);
 	m_pBuffer->Set_Value(x,y,FEATURE);
 
 	while (m_pCentralPoints.Get_Count()!=0){
@@ -153,7 +153,7 @@ void CThresholdBuffer::BufferPoint(int x, int y){
 							}//else
 							if(dValue < dThreshold){
 								m_pBuffer->Set_Value(x2, y2, BUFFER);
-								m_pAdjPoints.Add(x2,y2, 0);
+								m_pAdjPoints.Add(x2,y2);
 							}//if
 						}//if
 					}//if
@@ -165,7 +165,7 @@ void CThresholdBuffer::BufferPoint(int x, int y){
 		for (iPt=0; iPt<m_pAdjPoints.Get_Count(); iPt++){
 			x= m_pAdjPoints.Get_X(iPt);
 			y = m_pAdjPoints.Get_Y(iPt);
-			m_pCentralPoints.Add(x, y, 0);
+			m_pCentralPoints.Add(x, y);
 		}//for
 		m_pAdjPoints.Clear();
 

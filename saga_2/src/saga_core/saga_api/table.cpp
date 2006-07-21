@@ -72,25 +72,25 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTable * API_Create_Table(void)
+CTable * SG_Create_Table(void)
 {
 	return( new CTable );
 }
 
 //---------------------------------------------------------
-CTable * API_Create_Table(const CTable &Table)
+CTable * SG_Create_Table(const CTable &Table)
 {
 	return( new CTable(Table) );
 }
 
 //---------------------------------------------------------
-CTable * API_Create_Table(const char *FileName)
+CTable * SG_Create_Table(const char *FileName)
 {
 	return( new CTable(FileName) );
 }
 
 //---------------------------------------------------------
-CTable * API_Create_Table(CTable *pStructure)
+CTable * SG_Create_Table(CTable *pStructure)
 {
 	return( new CTable(pStructure) );
 }
@@ -251,10 +251,10 @@ bool CTable::_Destroy(void)
 
 		m_nFields		= 0;
 
-		API_Free(m_Field_Name);
-		API_Free(m_Field_Type);
-		API_Free(m_Field_Val_Min);
-		API_Free(m_Field_Val_Max);
+		SG_Free(m_Field_Name);
+		SG_Free(m_Field_Type);
+		SG_Free(m_Field_Val_Min);
+		SG_Free(m_Field_Val_Max);
 
 		m_Field_Name	= NULL;
 		m_Field_Type	= NULL;
@@ -354,13 +354,11 @@ bool CTable::Assign_Values(CTable *pTable)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTable::is_Compatible(CTable *pTable, bool bExactMatch)
+bool CTable::is_Compatible(CTable *pTable, bool bExactMatch) const
 {
-	int		i;
-
 	if( Get_Field_Count() == pTable->Get_Field_Count() )
 	{
-		for(i=0; i<Get_Field_Count(); i++)
+		for(int i=0; i<Get_Field_Count(); i++)
 		{
 			if( bExactMatch )
 			{
@@ -414,10 +412,10 @@ void CTable::Add_Field(const char *Name, TTable_FieldType Type, int add_Field)
 	//-----------------------------------------------------
 	m_nFields++;
 
-	m_Field_Name	= (CAPI_String     **)API_Realloc(m_Field_Name		, m_nFields * sizeof(CAPI_String *));
-	m_Field_Type	= (TTable_FieldType *)API_Realloc(m_Field_Type		, m_nFields * sizeof(TTable_FieldType));
-	m_Field_Val_Min	= (double           *)API_Realloc(m_Field_Val_Min	, m_nFields * sizeof(double));
-	m_Field_Val_Max	= (double           *)API_Realloc(m_Field_Val_Max	, m_nFields * sizeof(double));
+	m_Field_Name	= (CSG_String      **)SG_Realloc(m_Field_Name		, m_nFields * sizeof(CSG_String *));
+	m_Field_Type	= (TTable_FieldType *)SG_Realloc(m_Field_Type		, m_nFields * sizeof(TTable_FieldType));
+	m_Field_Val_Min	= (double           *)SG_Realloc(m_Field_Val_Min	, m_nFields * sizeof(double));
+	m_Field_Val_Max	= (double           *)SG_Realloc(m_Field_Val_Max	, m_nFields * sizeof(double));
 
 	//-----------------------------------------------------
 	for(iField=m_nFields-1; iField>add_Field; iField--)
@@ -429,7 +427,7 @@ void CTable::Add_Field(const char *Name, TTable_FieldType Type, int add_Field)
 	}
 
 	//-----------------------------------------------------
-	m_Field_Name   [add_Field]	= new CAPI_String(Name);
+	m_Field_Name   [add_Field]	= new CSG_String(Name);
 	m_Field_Type   [add_Field]	= Type;
 	m_Field_Val_Min[add_Field]	= 0.0;
 	m_Field_Val_Max[add_Field]	= 0.0;
@@ -465,10 +463,10 @@ bool CTable::Del_Field(int del_Field)
 		}
 
 		//-------------------------------------------------
-		m_Field_Name	= (CAPI_String     **)API_Realloc(m_Field_Name		, m_nFields * sizeof(CAPI_String *));
-		m_Field_Type	= (TTable_FieldType *)API_Realloc(m_Field_Type		, m_nFields * sizeof(TTable_FieldType));
-		m_Field_Val_Min	= (double           *)API_Realloc(m_Field_Val_Min	, m_nFields * sizeof(double));
-		m_Field_Val_Max	= (double           *)API_Realloc(m_Field_Val_Max	, m_nFields * sizeof(double));
+		m_Field_Name	= (CSG_String     **)SG_Realloc(m_Field_Name		, m_nFields * sizeof(CSG_String *));
+		m_Field_Type	= (TTable_FieldType *)SG_Realloc(m_Field_Type		, m_nFields * sizeof(TTable_FieldType));
+		m_Field_Val_Min	= (double           *)SG_Realloc(m_Field_Val_Min	, m_nFields * sizeof(double));
+		m_Field_Val_Max	= (double           *)SG_Realloc(m_Field_Val_Max	, m_nFields * sizeof(double));
 
 		//-------------------------------------------------
 		for(iRecord=0; iRecord<m_nRecords; iRecord++)
@@ -504,12 +502,12 @@ CTable_Record * CTable::_Add_Record(CTable_Record *pValues)
 	//-----------------------------------------------------
 	if( is_Indexed() )
 	{
-		m_Index				= (int *)API_Realloc(m_Index, (m_nRecords + 1) * sizeof(int));
+		m_Index				= (int *)SG_Realloc(m_Index, (m_nRecords + 1) * sizeof(int));
 		m_Index[m_nRecords]	= m_nRecords;
 	}
 
 	//-----------------------------------------------------
-	m_Records				= (CTable_Record **)API_Realloc(m_Records, (m_nRecords + 1) * sizeof(CTable_Record *));
+	m_Records				= (CTable_Record **)SG_Realloc(m_Records, (m_nRecords + 1) * sizeof(CTable_Record *));
 	m_Records[m_nRecords]	= pRecord	= new CTable_Record(this, m_nRecords);
 	m_nRecords++;
 
@@ -549,7 +547,7 @@ CTable_Record * CTable::_Ins_Record(int iRecord, CTable_Record *pValues)
 	//-----------------------------------------------------
 	if( is_Indexed() )
 	{
-		m_Index				= (int *)API_Realloc(m_Index, (m_nRecords + 1) * sizeof(int));
+		m_Index				= (int *)SG_Realloc(m_Index, (m_nRecords + 1) * sizeof(int));
 
 		for(i=m_nRecords; i>iRecord; i--)
 		{
@@ -560,7 +558,7 @@ CTable_Record * CTable::_Ins_Record(int iRecord, CTable_Record *pValues)
 	}
 
 	//-----------------------------------------------------
-	m_Records				= (CTable_Record **)API_Realloc(m_Records, (m_nRecords + 1) * sizeof(CTable_Record *));
+	m_Records				= (CTable_Record **)SG_Realloc(m_Records, (m_nRecords + 1) * sizeof(CTable_Record *));
 
 	for(i=m_nRecords; i>iRecord; i--)
 	{
@@ -605,7 +603,7 @@ bool CTable::_Del_Record(int iRecord)
 			m_Records[i]->m_Index	= i;
 		}
 
-		m_Records	= (CTable_Record **)API_Realloc(m_Records, m_nRecords * sizeof(CTable_Record *));
+		m_Records	= (CTable_Record **)SG_Realloc(m_Records, m_nRecords * sizeof(CTable_Record *));
 
 		if( is_Indexed() )
 		{
@@ -620,7 +618,7 @@ bool CTable::_Del_Record(int iRecord)
 				}
 			}
 
-			m_Index	= (int *)API_Realloc(m_Index, m_nRecords * sizeof(int));
+			m_Index	= (int *)SG_Realloc(m_Index, m_nRecords * sizeof(int));
 
 			for(i=0; i<m_nRecords; i++)
 			{
@@ -657,7 +655,7 @@ bool CTable::_Del_Records(void)
 			delete(m_Records[iRecord]);
 		}
 
-		API_Free(m_Records);
+		SG_Free(m_Records);
 		m_Records	= NULL;
 		m_nRecords	= 0;
 
@@ -701,7 +699,7 @@ bool CTable::Set_Value(int iRecord, int iField, double       Value)
 }
 
 //---------------------------------------------------------
-bool CTable::Get_Value(int iRecord, int iField, CAPI_String &Value)
+bool CTable::Get_Value(int iRecord, int iField, CSG_String &Value) const
 {
 	CTable_Record	*pRecord;
 
@@ -716,7 +714,7 @@ bool CTable::Get_Value(int iRecord, int iField, CAPI_String &Value)
 }
 
 //---------------------------------------------------------
-bool CTable::Get_Value(int iRecord, int iField, double      &Value)
+bool CTable::Get_Value(int iRecord, int iField, double      &Value) const
 {
 	CTable_Record	*pRecord;
 
@@ -738,7 +736,7 @@ bool CTable::Get_Value(int iRecord, int iField, double      &Value)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTable::_Range_Invalidate(void)
+bool CTable::_Range_Invalidate(void) const
 {
 	int		iField;
 
@@ -751,7 +749,7 @@ bool CTable::_Range_Invalidate(void)
 }
 
 //---------------------------------------------------------
-bool CTable::_Range_Invalidate(int iField)
+bool CTable::_Range_Invalidate(int iField) const
 {
 	if( iField >= 0 && iField < m_nFields )
 	{
@@ -765,7 +763,7 @@ bool CTable::_Range_Invalidate(int iField)
 }
 
 //---------------------------------------------------------
-bool CTable::_Range_Update(int iField)
+bool CTable::_Range_Update(int iField) const
 {
 	int				iRecord;
 	double			Value;
@@ -873,7 +871,7 @@ void CTable::_Index_Create(int iField)
 
 	if( m_Index == NULL )
 	{
-		m_Index	= (int *)API_Malloc(m_nRecords * sizeof(int));
+		m_Index	= (int *)SG_Malloc(m_nRecords * sizeof(int));
 	}
 
 	for(j=0; j<m_nRecords; j++)
@@ -881,7 +879,7 @@ void CTable::_Index_Create(int iField)
 		m_Index[j]	= j;
 	}
 
-	istack	= (int *)API_Malloc(nstack * sizeof(int));
+	istack	= (int *)SG_Malloc(nstack * sizeof(int));
 
 	//-----------------------------------------------------
 	for(;;)
@@ -951,7 +949,7 @@ void CTable::_Index_Create(int iField)
 			if( jstack >= nstack )
 			{
 				nstack	+= 64;
-				istack	= (int *)API_Realloc(istack, nstack * sizeof(int));
+				istack	= (int *)SG_Realloc(istack, nstack * sizeof(int));
 			}
 
 			if( ir - i + 1 >= j - l )
@@ -969,7 +967,7 @@ void CTable::_Index_Create(int iField)
 		}
 	}
 
-	API_Free(istack);
+	SG_Free(istack);
 }
 
 #undef SORT_SWAP
@@ -982,7 +980,7 @@ void CTable::_Index_Destroy(void)
 
 	if( m_Index )
 	{
-		API_Free(m_Index);
+		SG_Free(m_Index);
 
 		m_Index	= NULL;
 	}

@@ -113,7 +113,7 @@ CPROJ4_Grid::CPROJ4_Grid(void)
 		"TARGET_TYPE"	, _TL("Target"),
 		"",
 
-		CAPI_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|",
 			_TL("User defined"),
 			_TL("Automatic fit"),
 			_TL("Grid Project"),
@@ -126,7 +126,7 @@ CPROJ4_Grid::CPROJ4_Grid(void)
 		Parameters("TARGET_NODE")	, "INTERPOLATION"	, _TL("Grid Interpolation"),
 		"",
 
-		CAPI_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|",
 			_TL("Nearest Neigbhor"),
 			_TL("Bilinear Interpolation"),
 			_TL("Inverse Distance Interpolation"),
@@ -243,7 +243,7 @@ bool CPROJ4_Grid::On_Execute_Conversion(void)
 	case 2:	// select grid project...
 		if( Dlg_Extra_Parameters("GET_GRID") )
 		{
-			pGrid	= API_Create_Grid(
+			pGrid	= SG_Create_Grid(
 						Get_Extra_Parameters("GET_GRID")->Get_Parameter("GRID")->asGrid()
 					);
 		}
@@ -374,7 +374,7 @@ int CPROJ4_Grid::On_Parameter_Changed(CParameters *pParameters, CParameter *pPar
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline void CPROJ4_Grid::Get_MinMax(double &xMin, double &xMax, double &yMin, double &yMax, TGEO_Point Point)
+inline void CPROJ4_Grid::Get_MinMax(double &xMin, double &xMax, double &yMin, double &yMax, TSG_Point Point)
 {
 	if( Get_Converted(Point) )
 	{
@@ -411,7 +411,7 @@ CGrid * CPROJ4_Grid::Get_Target_Userdef(CGrid *pSource, bool bNearest)
 {
 	int			x, y;
 	double		xMin, yMin, xMax, yMax, size;
-	TGEO_Point	Pt_Source;
+	TSG_Point	Pt_Source;
 	CGrid		*pTarget;
 	CParameters	*pParameters;
 
@@ -459,7 +459,7 @@ CGrid * CPROJ4_Grid::Get_Target_Userdef(CGrid *pSource, bool bNearest)
 			{
 				size	= pParameters->Get_Parameter("SIZE")->asDouble();
 
-				pTarget	= API_Create_Grid(
+				pTarget	= SG_Create_Grid(
 					bNearest ? pSource->Get_Type() : GRID_TYPE_Float,
 					pParameters->Get_Parameter("NX")->asInt(),
 					pParameters->Get_Parameter("NY")->asInt(),
@@ -479,7 +479,7 @@ CGrid * CPROJ4_Grid::Get_Target_Autofit(CGrid *pSource, double Grid_Size, int Au
 {
 	int			x, y;
 	double		xMin, yMin, xMax, yMax;
-	TGEO_Point	Pt_Source;
+	TSG_Point	Pt_Source;
 	CGrid		*pTarget;
 
 	pTarget	= NULL;
@@ -532,7 +532,7 @@ CGrid * CPROJ4_Grid::Get_Target_Autofit(CGrid *pSource, double Grid_Size, int Au
 		//---------------------------------------------
 		if( is_Progress() && xMin < xMax && yMin < yMax )
 		{
-			pTarget	= API_Create_Grid(
+			pTarget	= SG_Create_Grid(
 				bNearest ? pSource->Get_Type() : GRID_TYPE_Float,
 				1 + (int)((xMax - xMin) / Grid_Size),
 				1 + (int)((yMax - yMin) / Grid_Size),
@@ -557,7 +557,7 @@ bool CPROJ4_Grid::Set_Grid(CGrid *pSource, CGrid *pTarget, int Interpol)
 {
 	int			x, y;
 	double		z;
-	TGEO_Point	Pt_Source, Pt_Target;
+	TSG_Point	Pt_Source, Pt_Target;
 
 	if( pSource && pTarget && Set_Transformation_Inverse() )
 	{
@@ -597,7 +597,7 @@ bool CPROJ4_Grid::Set_Grid(CGrid *pSource, CGrid *pTarget, int Interpol)
 bool CPROJ4_Grid::Set_Shapes(CGrid *pSource, CShapes *pTarget)
 {
 	int			x, y;
-	TGEO_Point	Pt_Source, Pt_Target;
+	TSG_Point	Pt_Source, Pt_Target;
 	CShape		*pShape;
 
 	if( pSource && pTarget )

@@ -229,7 +229,7 @@ CWKSP_Shapes * CWKSP_Shapes_Manager::Add(CShapes *pShapes)
 //---------------------------------------------------------
 CShapes * CWKSP_Shapes_Manager::Get_byFileName(const char *File_Name)
 {
-	CAPI_String	s(File_Name);
+	CSG_String	s(File_Name);
 	CWKSP_Shapes_Type	*pType;
 
 	for(int i=0; i<Get_Count(); i++)
@@ -319,7 +319,7 @@ bool CWKSP_Shapes_Manager::asImage(CShapes *pShapes, CGrid *pImage)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Shapes_Manager::Get_Colors(CShapes *pShapes, CColors *pColors)
+bool CWKSP_Shapes_Manager::Get_Colors(CShapes *pShapes, CSG_Colors *pColors)
 {
 	CWKSP_Shapes	*pItem;
 
@@ -332,7 +332,7 @@ bool CWKSP_Shapes_Manager::Get_Colors(CShapes *pShapes, CColors *pColors)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Shapes_Manager::Set_Colors(CShapes *pShapes, CColors *pColors)
+bool CWKSP_Shapes_Manager::Set_Colors(CShapes *pShapes, CSG_Colors *pColors)
 {
 	CWKSP_Shapes	*pItem;
 

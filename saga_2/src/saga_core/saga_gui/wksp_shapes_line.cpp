@@ -249,7 +249,7 @@ void CWKSP_Shapes_Line::_Draw_Initialize(CWKSP_Map_DC &dc_Map)
 void CWKSP_Shapes_Line::_Draw_Shape(CWKSP_Map_DC &dc_Map, CShape *pShape, bool bSelection)
 {
 	int			iPart, iPoint;
-	TAPI_iPoint	ptA, ptB;
+	TSG_Point_Int	ptA, ptB;
 
 	//-----------------------------------------------------
 	if( bSelection )
@@ -322,7 +322,7 @@ void CWKSP_Shapes_Line::_Draw_Label(CWKSP_Map_DC &dc_Map, CShape *pShape)
 	bool			bLabel;
 	int				iPart, iPoint;
 	double			d;
-	TAPI_iPoint		ptA, ptB;
+	TSG_Point_Int		ptA, ptB;
 	wxCoord			sx, sy;
 	wxString		s(pShape->Get_Record()->asString(m_iLabel, m_Label_Prec));
 
@@ -343,7 +343,7 @@ void CWKSP_Shapes_Line::_Draw_Label(CWKSP_Map_DC &dc_Map, CShape *pShape)
 					ptB		= ptA;
 					ptA		= dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
 
-					if( (d += sqrt(MAT_Square(ptA.x - ptB.x) + MAT_Square(ptA.y - ptB.y))) > m_Label_Freq * sx )
+					if( (d += SG_Get_Distance(ptA.x, ptA.y, ptB.x, ptB.y)) > m_Label_Freq * sx )
 					{
 						bLabel	= true;
 						ptB		= ptA;
@@ -355,13 +355,13 @@ void CWKSP_Shapes_Line::_Draw_Label(CWKSP_Map_DC &dc_Map, CShape *pShape)
 				{
 					ptA		= dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
 
-					if( sqrt(MAT_Square(ptB.x - ptA.x) + MAT_Square(ptB.y - ptA.y)) > sx )
+					if( SG_Get_Distance(ptA.x, ptA.y, ptB.x, ptB.y) > sx )
 					{
 						bLabel	= false;
 						d		= 0.0;
 
 						dc_Map.dc.DrawRotatedText(s, ptB.x, ptB.y, 
-							M_RAD_TO_DEG * GEO_Get_Angle_Of_Direction(ptB.x - ptA.x, ptA.y - ptB.y)
+							M_RAD_TO_DEG * SG_Get_Angle_Of_Direction(ptB.x - ptA.x, ptA.y - ptB.y)
 						);
 
 					//	dc_Map.dc.DrawCircle(ptA.x, ptA.y, 3);	dc_Map.dc.DrawCircle(ptB.x, ptB.y, 3);
@@ -386,10 +386,10 @@ void CWKSP_Shapes_Line::_Draw_Label(CWKSP_Map_DC &dc_Map, CShape *pShape)
 									(int)((rWorld.Get_YMax() - ptWorld.y) / ClientToWorld));	}
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Line::_Edit_Shape_Draw_Move(wxDC &dc, CGEO_Rect rWorld, double ClientToWorld, wxPoint Point)
+void CWKSP_Shapes_Line::_Edit_Shape_Draw_Move(wxDC &dc, CSG_Rect rWorld, double ClientToWorld, wxPoint Point)
 {
 	int			nPoints;
-	TGEO_Point	ptWorld;
+	TSG_Point	ptWorld;
 
 	if( m_Edit_pShape && m_Edit_iPart >= 0 )
 	{
@@ -422,7 +422,7 @@ void CWKSP_Shapes_Line::_Edit_Shape_Draw_Move(wxDC &dc, CGEO_Rect rWorld, double
 void CWKSP_Shapes_Line::_Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
 {
 	int			iPart, iPoint;
-	TAPI_iPoint	ptA, ptB;
+	TSG_Point_Int	ptA, ptB;
 
 	if( m_Edit_pShape )
 	{
@@ -449,11 +449,11 @@ void CWKSP_Shapes_Line::_Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
 }
 
 //---------------------------------------------------------
-int CWKSP_Shapes_Line::_Edit_Shape_HitTest(CGEO_Point pos_Point, double max_Dist, int &pos_iPart, int &pos_iPoint)
+int CWKSP_Shapes_Line::_Edit_Shape_HitTest(CSG_Point pos_Point, double max_Dist, int &pos_iPart, int &pos_iPoint)
 {
 	int			Result, iPart, iPoint;
 	double		d;
-	TGEO_Point	A, B, Point, hit_Point;
+	TSG_Point	A, B, Point, hit_Point;
 
 	Result	= CWKSP_Shapes::_Edit_Shape_HitTest(pos_Point, max_Dist, pos_iPart, pos_iPoint);
 
@@ -466,7 +466,7 @@ int CWKSP_Shapes_Line::_Edit_Shape_HitTest(CGEO_Point pos_Point, double max_Dist
 			for(iPoint=1; iPoint<m_Edit_pShape->Get_Point_Count(iPart); iPoint++)
 			{
 				A	= m_Edit_pShape->Get_Point(iPoint, iPart);
-				d	= GEO_Get_Nearest_Point_On_Line(pos_Point, A, B, Point, true);
+				d	= SG_Get_Nearest_Point_On_Line(pos_Point, A, B, Point, true);
 				B	= A;
 
 				if( d >= 0.0 && (0.0 > max_Dist || d < max_Dist) )
@@ -490,11 +490,11 @@ int CWKSP_Shapes_Line::_Edit_Shape_HitTest(CGEO_Point pos_Point, double max_Dist
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Line::_Edit_Snap_Point_ToLine(CGEO_Point pos_Point, CGEO_Point &snap_Point, double &snap_Dist, CShape *pShape)
+void CWKSP_Shapes_Line::_Edit_Snap_Point_ToLine(CSG_Point pos_Point, CSG_Point &snap_Point, double &snap_Dist, CShape *pShape)
 {
 	int			iPart, iPoint;
 	double		d;
-	TGEO_Point	A, B, Point;
+	TSG_Point	A, B, Point;
 
 	for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 	{
@@ -503,7 +503,7 @@ void CWKSP_Shapes_Line::_Edit_Snap_Point_ToLine(CGEO_Point pos_Point, CGEO_Point
 		for(iPoint=1; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 		{
 			A	= pShape->Get_Point(iPoint, iPart);
-			d	= GEO_Get_Nearest_Point_On_Line(pos_Point, A, B, Point, true);
+			d	= SG_Get_Nearest_Point_On_Line(pos_Point, A, B, Point, true);
 			B	= A;
 
 			if( d >= 0.0 && d < snap_Dist )

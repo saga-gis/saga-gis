@@ -112,7 +112,7 @@ bool CTable_Enumerate::On_Execute(void)
 {
 	int					iField, iField_ID, iID, iRecord, old_Field;
 	TTable_Index_Order	old_Order;
-	CAPI_String			Value;
+	CSG_String			Value;
 	CTable				*pTable, *pOutput;
 	CTable_Record		*pRecord;
 

@@ -91,19 +91,19 @@
 #define Max_ctable 255
 
 
-static double pi(void);
-static double atan_2	(double x, double val);
-static double _fmod_	(double x, double val);
-static double gt		(double x, double val);
-static double lt		(double x, double val);
-static double eq		(double x, double val);
-static double makeint	(double x);
-static double ifelse	(double sw, double x, double y);
-static double N			(double a, double x, double y);
+static double f_pi		(void);
+static double f_atan2	(double x, double val);
+static double f_fmod	(double x, double val);
+static double f_gt		(double x, double val);
+static double f_lt		(double x, double val);
+static double f_eq		(double x, double val);
+static double f_int		(double x);
+static double f_ifelse	(double sw, double x, double y);
+static double f_N		(double a, double x, double y);
 
 #define STD_LIB_NUM 20
 
-static CMAT_Formula::TMAT_Formula_Item ftable[Max_ctable]	=
+static CSG_Formula::TMAT_Formula_Item gSG_Functions[Max_ctable]	=
 {
 	{"exp"		,							exp		, 1, 0},	//  1
 	{"ln"		,							log		, 1, 0},	//  2
@@ -113,44 +113,44 @@ static CMAT_Formula::TMAT_Formula_Item ftable[Max_ctable]	=
 	{"asin"		,							asin	, 1, 0},	//  6
 	{"acos"		,							acos	, 1, 0},	//  7
 	{"atan"		,							atan	, 1, 0},	//  8
-	{"atan2"	, (TMAT_Formula_Function_1)	atan_2	, 2, 0},	//  9
+	{"atan2"	, (TMAT_Formula_Function_1)	f_atan2	, 2, 0},	//  9
 	{"abs"		,							fabs	, 1, 0},	// 10
 	{"sqrt"		,							sqrt	, 1, 0},	// 11
-	{"gt"		, (TMAT_Formula_Function_1)	gt		, 2, 0},	// 12
-	{"lt"		, (TMAT_Formula_Function_1)	lt		, 2, 0},	// 13
-	{"eq"		, (TMAT_Formula_Function_1)	eq		, 2, 0},	// 14
-	{"pi"		, (TMAT_Formula_Function_1)	pi		, 0, 0},	// 15
-	{"int"		, (TMAT_Formula_Function_1)	makeint	, 1, 0},	// 16
-	{"ifelse"	, (TMAT_Formula_Function_1)	ifelse	, 3, 0},	// 17
-	{"mod"		, (TMAT_Formula_Function_1)	_fmod_	, 2, 0},	// 18
-	{"N"		, (TMAT_Formula_Function_1)	N		, 3, 0},	// 19
+	{"gt"		, (TMAT_Formula_Function_1)	f_gt	, 2, 0},	// 12
+	{"lt"		, (TMAT_Formula_Function_1)	f_lt	, 2, 0},	// 13
+	{"eq"		, (TMAT_Formula_Function_1)	f_eq	, 2, 0},	// 14
+	{"pi"		, (TMAT_Formula_Function_1)	f_pi	, 0, 0},	// 15
+	{"int"		, (TMAT_Formula_Function_1)	f_int	, 1, 0},	// 16
+	{"ifelse"	, (TMAT_Formula_Function_1)	f_ifelse, 3, 0},	// 17
+	{"mod"		, (TMAT_Formula_Function_1)	f_fmod	, 2, 0},	// 18
+	{"N"		, (TMAT_Formula_Function_1)	f_N		, 3, 0},	// 19
 	{NULL		,							NULL	, 0, 0}
 };
 
-CMAT_Formula::CMAT_Formula()
+CSG_Formula::CSG_Formula()
 {
 	errmes = NULL;
 }
 
-inline int CMAT_Formula::isoper(char c)
+inline int CSG_Formula::isoper(char c)
 {
 	return ((c == '+') ||(c == '-') ||(c == '*') ||(c == '/')
 		||(c == '^'));
 }
 
-inline int CMAT_Formula::is_code_oper(BYTE c)
+inline int CSG_Formula::is_code_oper(BYTE c)
 {
 	return ((c == '+') ||(c == '-') ||(c == '*') ||(c == '/')
 		||(c == '^') ||(c == 'M'));
 }
 
-inline int CMAT_Formula::isin_real(char c)
+inline int CSG_Formula::isin_real(char c)
 {
 	return (isdigit(c) || c == '.' || c == 'E');
 }
 
 //---------------------------------------------------------
-bool CMAT_Formula::Set_Formula(const char *Source)
+bool CSG_Formula::Set_Formula(const char *Source)
 {
 	if( Source )
 	{
@@ -164,25 +164,25 @@ bool CMAT_Formula::Set_Formula(const char *Source)
 	return( false );
 }
 
-double CMAT_Formula::Val()
+double CSG_Formula::Val()
 {
 	fset_error(NULL);
 	return value(function);
 }
 
-void CMAT_Formula::Set_Variable(char Var, double Value)
+void CSG_Formula::Set_Variable(char Var, double Value)
 {
 	param[Var - 'a'] = Value;
 }
 
-double CMAT_Formula::Val(double x)
+double CSG_Formula::Val(double x)
 {
 	fset_error(NULL);
 	param['x'-'a'] = x;
 	return value(function);
 }
 
-double CMAT_Formula::Val(char *Args, ...)
+double CSG_Formula::Val(char *Args, ...)
 {
 	va_list ap;
 	double result;
@@ -195,7 +195,7 @@ double CMAT_Formula::Val(char *Args, ...)
 	return result;
 }
 
-double CMAT_Formula::Val(double *vals, int n)
+double CSG_Formula::Val(double *vals, int n)
 {
 	double result;
 	
@@ -207,7 +207,7 @@ double CMAT_Formula::Val(double *vals, int n)
 }
 
 //---------------------------------------------------------
-CAPI_String CMAT_Formula::Get_Help_Operators(void)
+CSG_String CSG_Formula::Get_Help_Operators(void)
 {
 	return(LNG(
 		"+ Addition\n"
@@ -237,7 +237,7 @@ CAPI_String CMAT_Formula::Get_Help_Operators(void)
 }
 
 //---------------------------------------------------------
-CAPI_String CMAT_Formula::Get_Help_Usage(void)
+CSG_String CSG_Formula::Get_Help_Usage(void)
 {
 	return(LNG(
 		"Use single characters to define the parameters of your function f(x)\n"
@@ -246,7 +246,7 @@ CAPI_String CMAT_Formula::Get_Help_Usage(void)
 }
 
 //---------------------------------------------------------
-bool CMAT_Formula::Get_Error(int *pos, const char **msg)
+bool CSG_Formula::Get_Error(int *pos, const char **msg)
 {
 	if( !fnot_empty(function) )
 	{
@@ -267,9 +267,9 @@ bool CMAT_Formula::Get_Error(int *pos, const char **msg)
 }
 
 //---------------------------------------------------------
-const char * CMAT_Formula::Get_Used_Var(void)
+const char * CSG_Formula::Get_Used_Var(void)
 {
-	static CAPI_String	ret;
+	static CSG_String	ret;
 
 	ret.Clear();
 
@@ -310,7 +310,7 @@ const char * CMAT_Formula::Get_Used_Var(void)
 	return ret;
 }*/
 
-int CMAT_Formula::Del_Function(char *name)
+int CSG_Formula::Del_Function(char *name)
 /* If the function exists, it is deleted and a non - negative value
     is returned. */
 /* Otherwise, -1 is returned. */
@@ -326,15 +326,15 @@ int CMAT_Formula::Del_Function(char *name)
 		fset_error("original functions may not be deleted");
 		return -1;
 	}
-	free(ftable[place].name);
-	for (scan = &ftable[place]; scan->f != NULL; scan++)
+	free(gSG_Functions[place].name);
+	for (scan = &gSG_Functions[place]; scan->f != NULL; scan++)
 	{
 		scan->name  =(scan + 1)->name;
 		scan->f     =(scan + 1) -> f;
 		scan->n_pars =(scan + 1) -> n_pars;
 	}
 	fset_error(NULL);
-	return scan - ftable;
+	return scan - gSG_Functions;
 } /*end of fdel */
 
 
@@ -346,7 +346,7 @@ int CMAT_Formula::Del_Function(char *name)
  * Result: 0 is rendered if there is an error
  * 1 is rendered otherwise
 */
-int CMAT_Formula::Add_Function(char *name, TMAT_Formula_Function_1 f, int n_pars, int varying)
+int CSG_Formula::Add_Function(char *name, TMAT_Formula_Function_1 f, int n_pars, int varying)
 {
 	TMAT_Formula_Item *where;
 	
@@ -355,7 +355,7 @@ int CMAT_Formula::Add_Function(char *name, TMAT_Formula_Function_1 f, int n_pars
 		fset_error("invalid number of parameters");
 		return 0;
 	}
-	for (where = ftable; where->f != NULL && strcmp(name, where->name); where++)
+	for (where = gSG_Functions; where->f != NULL && strcmp(name, where->name); where++)
 	{
 		;
 	}
@@ -366,7 +366,7 @@ int CMAT_Formula::Add_Function(char *name, TMAT_Formula_Function_1 f, int n_pars
 		where->n_pars = n_pars;   /*old function is superseded */
 		fset_error(NULL);
 		return 1;
-	} else if ((where - ftable) >= Max_ctable - 1)
+	} else if ((where - gSG_Functions) >= Max_ctable - 1)
 	{
 		fset_error("function table full");
 		return 0;
@@ -392,30 +392,30 @@ int CMAT_Formula::Add_Function(char *name, TMAT_Formula_Function_1 f, int n_pars
 //-----------------------------------------------------------------------------
 
 
-int CMAT_Formula::read_table(int i, char *name, int *n_pars, int *varying)
+int CSG_Formula::read_table(int i, char *name, int *n_pars, int *varying)
 {
-	if (!ftable[i].f)
+	if (!gSG_Functions[i].f)
 	{
 		fset_error("index out of bounds");
 		return 0;
 	}
 	else 
 	{
-		strcpy(name, ftable[i].name);
-		*n_pars = ftable[i].n_pars;
-		*varying = ftable[i].varying;
+		strcpy(name, gSG_Functions[i].name);
+		*n_pars = gSG_Functions[i].n_pars;
+		*varying = gSG_Functions[i].varying;
 		fset_error(NULL);
 		return 1;
 	}
 }
 
-int CMAT_Formula::where_table(char *name)
+int CSG_Formula::where_table(char *name)
 /* If the function exists, where_table() returns the index of its name
     in the table. Otherwise, it returns -1. */
 {
 	TMAT_Formula_Item *table_p;
 	
-	for (table_p = ftable; table_p->f != NULL &&
+	for (table_p = gSG_Functions; table_p->f != NULL &&
         strcmp(name, table_p->name); table_p++)
 		;
 		if (table_p->f == NULL) /*The end of the table has been reached,
@@ -427,12 +427,12 @@ int CMAT_Formula::where_table(char *name)
 		else 
 		{
 			fset_error(NULL);
-			return table_p - ftable;
+			return table_p - gSG_Functions;
 		}
 }
 
 
-void CMAT_Formula::fset_error(char *s)
+void CSG_Formula::fset_error(char *s)
 /* fset_error(NULL) and fset_error("") erase
    any previous error message */
 {
@@ -443,14 +443,14 @@ void CMAT_Formula::fset_error(char *s)
 		errmes = s;
 }
 
-const char *CMAT_Formula::fget_error(void)
+const char *CSG_Formula::fget_error(void)
 {
 	return errmes;
 }
 
 
 #define BUFSIZE 500
-double CMAT_Formula::value(TMAT_Formula func)
+double CSG_Formula::value(TMAT_Formula func)
 {
 	double buffer[BUFSIZE];
 	register double *bufp = buffer;
@@ -502,21 +502,21 @@ double CMAT_Formula::value(TMAT_Formula func)
 				result = pow(*(--bufp), y);
 				*bufp++ = result;
 				break;
-			case 'F':switch (ftable[*function].n_pars)
+			case 'F':switch (gSG_Functions[*function].n_pars)
 					 {
-			case 0:*bufp++ =((TMAT_Formula_Function_0)ftable[*function++].f)();
+			case 0:*bufp++ =((TMAT_Formula_Function_0)gSG_Functions[*function++].f)();
 				break;
 			case 1:x = *--bufp;
-				*bufp++ = ftable[*function++].f(x);
+				*bufp++ = gSG_Functions[*function++].f(x);
 				break;
 			case 2:y = *--bufp;
 				x = *--bufp;
-				*bufp++ =((TMAT_Formula_Function_2)ftable[*function++].f)(x, y);
+				*bufp++ =((TMAT_Formula_Function_2)gSG_Functions[*function++].f)(x, y);
 				break;
 			case 3:z = *--bufp;
 				y = *--bufp;
 				x = *--bufp;
-				*bufp++ =((TMAT_Formula_Function_3)ftable[*function++].f)(x, y, z);
+				*bufp++ =((TMAT_Formula_Function_3)gSG_Functions[*function++].f)(x, y, z);
 				break;
 			default:fset_error("I2: too many parameters\n");
 				return 0;
@@ -532,21 +532,21 @@ finish: if ((bufp - buffer) != 1)
 } 
 
 
-void CMAT_Formula::destrf(TMAT_Formula old)
+void CSG_Formula::destrf(TMAT_Formula old)
 {
 	fset_error(NULL);
-	API_Free(old.code);
-	API_Free(old.ctable);
+	SG_Free(old.code);
+	SG_Free(old.ctable);
 }
 
-void CMAT_Formula::make_empty(TMAT_Formula f)
+void CSG_Formula::make_empty(TMAT_Formula f)
 {
 	fset_error(NULL);
 	f.code = NULL;
 	f.ctable = NULL;
 }
 
-int CMAT_Formula::fnot_empty(TMAT_Formula f)
+int CSG_Formula::fnot_empty(TMAT_Formula f)
 {
 	return (f.code != NULL);
 }
@@ -555,7 +555,7 @@ int CMAT_Formula::fnot_empty(TMAT_Formula f)
 /* Interpreting functions                                */
 
 
-int CMAT_Formula::max_size(const char *source)
+int CSG_Formula::max_size(const char *source)
 {
 	int numbers = 0;
 	int functions = 0;
@@ -613,7 +613,7 @@ int CMAT_Formula::max_size(const char *source)
 }
 
 
-CMAT_Formula::TMAT_Formula CMAT_Formula::translate(const char *sourc, const char *args, int *leng, int *error)
+CSG_Formula::TMAT_Formula CSG_Formula::translate(const char *sourc, const char *args, int *leng, int *error)
 {
 	BYTE *result;
 	char *source;
@@ -628,7 +628,7 @@ CMAT_Formula::TMAT_Formula CMAT_Formula::translate(const char *sourc, const char
 	
 	i_error = NULL;
 	
-	source =(char *) API_Malloc(strlen(sourc) + 1);
+	source =(char *) SG_Malloc(strlen(sourc) + 1);
 	if (source == NULL) 
 	{
 		fset_error("no memory");
@@ -656,7 +656,7 @@ CMAT_Formula::TMAT_Formula CMAT_Formula::translate(const char *sourc, const char
 				*error = i_error - source;
 				returned.code = NULL;
 				returned.ctable = NULL;
-				API_Free(source);
+				SG_Free(source);
 				return (returned);
 			}
 		}
@@ -664,28 +664,28 @@ CMAT_Formula::TMAT_Formula CMAT_Formula::translate(const char *sourc, const char
 	
 	size_estim = max_size(source); 
 	
-	if (!(function =(BYTE *) API_Malloc(size_estim))) 
+	if (!(function =(BYTE *) SG_Malloc(size_estim))) 
 	{
 		fset_error("no memory");
 		*leng = 0;
 		*error = -1;
 		returned.code = NULL;
 		returned.ctable = NULL;
-		API_Free(source);
+		SG_Free(source);
 		return (returned);
 	}
 	
 	
 	i_pctable = 0;
-	if (!(i_ctable =(double *) API_Malloc(Max_ctable * sizeof(double)))) 
+	if (!(i_ctable =(double *) SG_Malloc(Max_ctable * sizeof(double)))) 
 	{
 		fset_error("no memory");
-		API_Free(function);
+		SG_Free(function);
 		*leng = 0;
 		*error = -1;
 		returned.code = NULL;
 		returned.ctable = NULL;
-		API_Free(source);
+		SG_Free(source);
 		return (returned);
 	}
 	ctable = i_ctable;
@@ -696,8 +696,8 @@ CMAT_Formula::TMAT_Formula CMAT_Formula::translate(const char *sourc, const char
 	
 	if (!result || fget_error()) 
 	{
-		API_Free(function);
-		API_Free(i_ctable);
+		SG_Free(function);
+		SG_Free(i_ctable);
 		*leng = 0;
 		if (i_error)
 			*error = i_error - source;
@@ -705,7 +705,7 @@ CMAT_Formula::TMAT_Formula CMAT_Formula::translate(const char *sourc, const char
 			*error = -1; 
 		returned.code = NULL;
 		returned.ctable = NULL;
-		API_Free(source);
+		SG_Free(source);
 		return (returned);
 	}
 	else 
@@ -721,26 +721,26 @@ CMAT_Formula::TMAT_Formula CMAT_Formula::translate(const char *sourc, const char
 			fset_error("I4: size estimate too small");
 			returned.code = NULL;
 			returned.ctable = NULL;
-			API_Free(source);
+			SG_Free(source);
 			return (returned);
 		}
 		else if (((*leng) + 1) * sizeof(BYTE) < size_estim) 
 		{
-			nfunc =(BYTE *) API_Malloc(((*leng) + 1) * sizeof(BYTE));
+			nfunc =(BYTE *) SG_Malloc(((*leng) + 1) * sizeof(BYTE));
 			if (nfunc) 
 			{
 				memcpy(nfunc, function, ((*leng) + 1) * sizeof(BYTE));
-				API_Free(function);
+				SG_Free(function);
 				function = nfunc;
 			}
 							 } 
 		if (i_pctable < Max_ctable) 
 		{
-			ctable =(double *) API_Malloc(i_pctable * sizeof(double));
+			ctable =(double *) SG_Malloc(i_pctable * sizeof(double));
 			if (ctable) 
 			{
 				memcpy(ctable, i_ctable, i_pctable * sizeof(double));
-				API_Free(i_ctable);
+				SG_Free(i_ctable);
 			}
 			else 
 				ctable = i_ctable;
@@ -751,12 +751,12 @@ CMAT_Formula::TMAT_Formula CMAT_Formula::translate(const char *sourc, const char
 		returned.code = function;
 		returned.ctable = ctable;
 		fset_error(NULL);
-		API_Free(source);
+		SG_Free(source);
 		return (returned);
 	} 
 }  
 
-BYTE *CMAT_Formula::comp_time(BYTE *function, BYTE *fend, int npars)
+BYTE *CSG_Formula::comp_time(BYTE *function, BYTE *fend, int npars)
  
 {
 	BYTE *scan;
@@ -774,7 +774,7 @@ BYTE *CMAT_Formula::comp_time(BYTE *function, BYTE *fend, int npars)
 	}
 	
 	if (!((scan == fend -(sizeof((BYTE) 'F') + sizeof(BYTE))
-		&& *(fend - 2) == 'F' && ftable[*(fend - 1)].varying == 0) ||
+		&& *(fend - 2) == 'F' && gSG_Functions[*(fend - 1)].varying == 0) ||
 		(scan == fend - sizeof(BYTE)
 		&& is_code_oper(*(fend - 1))))
 		)
@@ -795,7 +795,7 @@ BYTE *CMAT_Formula::comp_time(BYTE *function, BYTE *fend, int npars)
 	return function;
 } 
 
-char *CMAT_Formula::my_strtok(char *s)
+char *CSG_Formula::my_strtok(char *s)
 {
 	int pars;
 	static char *token = NULL;
@@ -835,7 +835,7 @@ char *CMAT_Formula::my_strtok(char *s)
 
 
 
-BYTE *CMAT_Formula::i_trans(BYTE *function, char *begin, char *end)
+BYTE *CSG_Formula::i_trans(BYTE *function, char *begin, char *end)
 {
 	int pars;     
 	char *scan;
@@ -1026,7 +1026,7 @@ BYTE *CMAT_Formula::i_trans(BYTE *function, char *begin, char *end)
 		i_error = endf;
 		return NULL;
 	}
-	if (ftable[n_function].n_pars == 0)
+	if (gSG_Functions[n_function].n_pars == 0)
 	{
 		/*function without parameters(e.g. pi()) */
 		space = 1;
@@ -1054,7 +1054,7 @@ BYTE *CMAT_Formula::i_trans(BYTE *function, char *begin, char *end)
 	{    /*function with parameters*/
 		tempch = *(end - 1);
 		*(end - 1) = '\0';
-		par_buf =(char *) API_Malloc(strlen(endf + 1) + 1);
+		par_buf =(char *) SG_Malloc(strlen(endf + 1) + 1);
 		if (!par_buf)
 		{    
 			fset_error("no memory"); 
@@ -1065,7 +1065,7 @@ BYTE *CMAT_Formula::i_trans(BYTE *function, char *begin, char *end)
 		strcpy(par_buf, endf + 1);
 		*(end - 1) = tempch;
 		
-		for (i = 0; i < ftable[n_function].n_pars; i++)
+		for (i = 0; i < gSG_Functions[n_function].n_pars; i++)
 		{
 			if ((temps = my_strtok((i == 0) ? par_buf : NULL)) == NULL)
 				break; 
@@ -1073,34 +1073,34 @@ BYTE *CMAT_Formula::i_trans(BYTE *function, char *begin, char *end)
 		}
 		if (temps == NULL)
 		{
-			API_Free(par_buf);
+			SG_Free(par_buf);
 			i_error = end - 2;
 			fset_error("too few parameters");
 			return NULL;
 		}
 		if ((temps = my_strtok(NULL)) != NULL)
 		{
-			API_Free(par_buf);
+			SG_Free(par_buf);
 			i_error =(temps - par_buf) +(endf + 1); 
 			fset_error("too many parameters");
 			return NULL;
 		}
 		
 		tempu = function;
-		for (i = 0; i < ftable[n_function].n_pars; i++)
+		for (i = 0; i < gSG_Functions[n_function].n_pars; i++)
 			if (!(tempu = i_trans(tempu, paramstr[i],
 				paramstr[i] + strlen(paramstr[i]))))
 			{
 				i_error =(i_error - par_buf) +(endf + 1); 
-				API_Free(par_buf);
+				SG_Free(par_buf);
 				
 				return NULL; 
 			}
 			/* OK */
-			API_Free(par_buf);
+			SG_Free(par_buf);
 			*tempu++ = 'F';
 			*tempu++ = n_function;
-			tempu = comp_time(function, tempu, ftable[n_function].n_pars);
+			tempu = comp_time(function, tempu, gSG_Functions[n_function].n_pars);
 			if (fget_error())
 				return NULL; /* internal error in comp_time */
 			else 
@@ -1119,55 +1119,55 @@ BYTE *CMAT_Formula::i_trans(BYTE *function, char *begin, char *end)
 #define eps 1e-9
 
 //---------------------------------------------------------
-static double pi(void)
+static double f_pi(void)
 {
 	return( M_PI );
 }
 
 //---------------------------------------------------------
-static double atan_2(double x, double val)
+static double f_atan2(double x, double val)
 {
 	return( atan2(x, val) );
 }
 
 //---------------------------------------------------------
-static double _fmod_(double x, double val)
+static double f_fmod(double x, double val)
 {
 	return( fmod(x, val) );
 }
 
 //---------------------------------------------------------
-static double gt(double x, double val)
+static double f_gt(double x, double val)
 {
 	return( x > val ? 1.0 : 0.0 );
 }
 
 //---------------------------------------------------------
-static double lt(double x, double val)
+static double f_lt(double x, double val)
 {
 	return( x < val ? 1.0 : 0.0 );
 }
 
 //---------------------------------------------------------
-static double eq(double x, double val)
+static double f_eq(double x, double val)
 {
 	return( fabs(x - val) < eps ? 1.0 : 0.0 );
 }
 
 //---------------------------------------------------------
-static double makeint(double x)
+static double f_int(double x)
 {
 	return( (int)(x) );
 }
 
 //---------------------------------------------------------
-static double ifelse(double condition, double x, double y)
+static double f_ifelse(double condition, double x, double y)
 {
 	return( fabs(condition - 1.0) < eps ? x : y );
 }
 
 //---------------------------------------------------------
-static double N(double a, double x, double y)
+static double f_N(double a, double x, double y)
 {
 /*	int xpos, ypos;
 	xpos =(int)(_x_ + x);

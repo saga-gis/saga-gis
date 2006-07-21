@@ -83,7 +83,7 @@ const char * Get_Info(int i)
 		return( "1.0" );
 
 	case MLB_INFO_Menu_Path:
-		return( _TL("Geostatistics|Kriging" ));
+		return( _TL("Geostatistics" ));
 	}
 }
 
@@ -102,11 +102,6 @@ const char * Get_Info(int i)
 
 CModule *		Create_Module(int i)
 {
-	// Don't forget to continuously enumerate the case switches
-	// when adding new modules! Also bear in mind that the
-	// enumeration always has to start with [case 0:] and
-	// that [default:] must return NULL!...
-
 	CModule	*pModule;
 
 	switch( i )

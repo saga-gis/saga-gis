@@ -121,7 +121,7 @@ CVisibility_Point::~CVisibility_Point(void)
 //---------------------------------------------------------
 bool CVisibility_Point::On_Execute(void)
 {
-	CColors	Colors;
+	CSG_Colors	Colors;
 
 	m_pDTM			= Parameters("ELEVATION")	->asGrid();
 	m_pVisibility	= Parameters("VISIBILITY")	->asGrid();
@@ -158,7 +158,7 @@ bool CVisibility_Point::On_Execute(void)
 }
 
 //---------------------------------------------------------
-bool CVisibility_Point::On_Execute_Position(CGEO_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CVisibility_Point::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
 {
 	int		x, y, x_Pos, y_Pos;
 

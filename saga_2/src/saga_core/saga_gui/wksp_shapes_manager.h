@@ -106,8 +106,8 @@ public:
 	bool						Show			(class CShapes *pShapes);
 	bool						asImage			(class CShapes *pShapes, class CGrid *pImage);
 
-	bool						Get_Colors		(class CShapes *pShapes, class CColors *pColors);
-	bool						Set_Colors		(class CShapes *pShapes, class CColors *pColors);
+	bool						Get_Colors		(class CShapes *pShapes, class CSG_Colors *pColors);
+	bool						Set_Colors		(class CShapes *pShapes, class CSG_Colors *pColors);
 
 
 private:

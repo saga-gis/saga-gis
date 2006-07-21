@@ -109,7 +109,7 @@ bool CShapes::Select(CShape *pShape, bool bInvert)
 }
 
 //---------------------------------------------------------
-bool CShapes::Select(TGEO_Rect Extent, bool bInvert)
+bool CShapes::Select(TSG_Rect Extent, bool bInvert)
 {
 	if( !bInvert )
 	{
@@ -135,25 +135,23 @@ bool CShapes::Select(TGEO_Rect Extent, bool bInvert)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const CGEO_Rect & CShapes::Get_Selection_Extent(void)
+const CSG_Rect & CShapes::Get_Selection_Extent(void)
 {
-	static CGEO_Rect	Extent;
-
 	if( Get_Selection_Count() > 0 )
 	{
-		Extent	= Get_Selection(0)->Get_Extent();
+		m_Extent_Selected	= Get_Selection(0)->Get_Extent();
 
 		for(int i=1; i<Get_Selection_Count(); i++)
 		{
-			Extent.Union(Get_Selection(i)->Get_Extent());
+			m_Extent_Selected.Union(Get_Selection(i)->Get_Extent());
 		}
 	}
 	else
 	{
-		Extent.Assign(0.0, 0.0, 0.0, 0.0);
+		m_Extent_Selected.Assign(0.0, 0.0, 0.0, 0.0);
 	}
 
-	return( Extent );
+	return( m_Extent_Selected );
 }
 
 

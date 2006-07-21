@@ -50,7 +50,7 @@ bool CTableCalculatorShapes::On_Execute(void){
 	CTable *pTable;
 	CTable_Record *pRecord;
 	const char *pFormula;
-	CMAT_Formula Formula;
+	CSG_Formula Formula;
 
 	pShapes = Parameters("SHAPES")->asShapes();
 	pTable	= &pShapes->Get_Table();

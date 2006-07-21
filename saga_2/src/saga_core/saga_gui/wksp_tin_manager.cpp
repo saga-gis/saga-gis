@@ -189,7 +189,7 @@ CWKSP_TIN * CWKSP_TIN_Manager::Add(CTIN *pTIN)
 //---------------------------------------------------------
 CTIN * CWKSP_TIN_Manager::Get_byFileName(const char *File_Name)
 {
-	CAPI_String	s(File_Name);
+	CSG_String	s(File_Name);
 
 	for(int i=0; i<Get_Count(); i++)
 	{
@@ -273,7 +273,7 @@ bool CWKSP_TIN_Manager::asImage(CTIN *pTIN, CGrid *pImage)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_TIN_Manager::Get_Colors(CTIN *pTIN, CColors *pColors)
+bool CWKSP_TIN_Manager::Get_Colors(CTIN *pTIN, CSG_Colors *pColors)
 {
 	CWKSP_TIN	*pItem;
 
@@ -286,7 +286,7 @@ bool CWKSP_TIN_Manager::Get_Colors(CTIN *pTIN, CColors *pColors)
 }
 
 //---------------------------------------------------------
-bool CWKSP_TIN_Manager::Set_Colors(CTIN *pTIN, CColors *pColors)
+bool CWKSP_TIN_Manager::Set_Colors(CTIN *pTIN, CSG_Colors *pColors)
 {
 	CWKSP_TIN	*pItem;
 

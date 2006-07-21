@@ -95,7 +95,7 @@ CGrid_Normalise::CGrid_Normalise(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"	, _TL("Method"),
 		"",
-		CAPI_String::Format("%s|%s|", _TL("Standard Deviation"), _TL("(0.0 < x < 1.0)"))
+		CSG_String::Format("%s|%s|", _TL("Standard Deviation"), _TL("(0.0 < x < 1.0)"))
 	);
 }
 
@@ -126,7 +126,7 @@ bool CGrid_Normalise::On_Execute(void)
 		pOutput->Assign(pInput);
 	}
 
-	pOutput->Set_Name(CAPI_String::Format("%s (%s)", pInput->Get_Name(), _TL("Grid_Normalised")));
+	pOutput->Set_Name(CSG_String::Format("%s (%s)", pInput->Get_Name(), _TL("Grid_Normalised")));
 
 	//-----------------------------------------------------
 	switch( Parameters("METHOD")->asInt() )

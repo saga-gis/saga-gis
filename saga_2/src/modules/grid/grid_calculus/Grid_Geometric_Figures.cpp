@@ -101,7 +101,7 @@ CGrid_Geometric_Figures::CGrid_Geometric_Figures(void)
 	Parameters.Add_Choice(
 		NULL, "FIGURE"		, _TL("Figure"),
 		"",
-		CAPI_String::Format("%s|%s|%s|", _TL("Cone (up)"), _TL("Cone (down)"), _TL("Plane")), 
+		CSG_String::Format("%s|%s|%s|", _TL("Cone (up)"), _TL("Cone (down)"), _TL("Plane")), 
 		0
 	);
 
@@ -135,7 +135,7 @@ bool CGrid_Geometric_Figures::On_Execute(void)
 	DXY		= Parameters("CELL_SIZE")	->asDouble();
 
 	Parameters("RESULT")->asGridList()->Add_Item(
-		pGrid	= API_Create_Grid(GRID_TYPE_Float, NXY, NXY, DXY)
+		pGrid	= SG_Create_Grid(GRID_TYPE_Float, NXY, NXY, DXY)
 	);
 
 	//-----------------------------------------------------
@@ -205,7 +205,7 @@ void CGrid_Geometric_Figures::Create_Plane(CGrid *pGrid, double Direction)
 	double	xPos, yPos, z, dSin, dCos, Max;
 
 	//-----------------------------------------------------
-	pGrid->Set_Name(CAPI_String::Format(_TL("Plane (%.2fDegree)"), Direction));
+	pGrid->Set_Name(CSG_String::Format(_TL("Plane (%.2fDegree)"), Direction));
 
 	Max		= sqrt(2.0) * pGrid->Get_Cellsize() * pGrid->Get_Cellsize() / 4.0;
 

@@ -119,7 +119,7 @@ bool CPROJ4_Shapes::On_Execute_Conversion(void)
 	bool		bCopy, bDropped;
 	char		sMessage[256];
 	int			iShape, iPart, iPoint, nDropped;
-	TGEO_Point	Point;
+	TSG_Point	Point;
 	CShape		*pShape_Source, *pShape_Target;
 	CShapes		*pSource, *pTarget;
 
@@ -133,7 +133,7 @@ bool CPROJ4_Shapes::On_Execute_Conversion(void)
 		{
 			bCopy		= true;
 
-			pTarget		= API_Create_Shapes();
+			pTarget		= SG_Create_Shapes();
 		}
 		else
 		{

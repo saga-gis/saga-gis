@@ -148,6 +148,14 @@ make -fmakefile.mingw
 POPD
 
 ECHO ###################################
+ECHO grid_spline
+ECHO -----------------------------------
+
+PUSHD .\modules\grid\grid_spline
+make -fmakefile.mingw
+POPD
+
+ECHO ###################################
 ECHO grid_tools
 ECHO -----------------------------------
 

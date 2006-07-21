@@ -122,14 +122,14 @@ CVIEW_Map_3D_Image::~CVIEW_Map_3D_Image(void)
 {
 	if( m_img_z )
 	{
-		API_Free(m_img_z[0]);
-		API_Free(m_img_z);
+		SG_Free(m_img_z[0]);
+		SG_Free(m_img_z);
 	}
 
 	if( m_Points )
 	{
-		API_Free(m_Points[0]);
-		API_Free(m_Points);
+		SG_Free(m_Points[0]);
+		SG_Free(m_Points);
 	}
 }
 
@@ -217,7 +217,7 @@ void CVIEW_Map_3D_Image::Set_Source(int Resolution)
 	BYTE		*Color, Mask[3];
 	int			x, y;
 	double		z, xPos, yPos, dx, dy, zMin, zMax, xyRatio;
-	CGEO_Rect	rSource(m_pMap->Get_Extent());
+	CSG_Rect	rSource(m_pMap->Get_Extent());
 	wxImage		img;
 
 	//-----------------------------------------------------
@@ -244,8 +244,8 @@ void CVIEW_Map_3D_Image::Set_Source(int Resolution)
 		}
 
 		pPoint		= m_Points ? m_Points[0] : NULL;
-		pPoint		= (TPoint  *)API_Realloc( pPoint , m_nxPoints * m_nyPoints * sizeof(TPoint  ));
-		m_Points	= (TPoint **)API_Realloc(m_Points,              m_nyPoints * sizeof(TPoint *));
+		pPoint		= (TPoint  *)SG_Realloc( pPoint , m_nxPoints * m_nyPoints * sizeof(TPoint  ));
+		m_Points	= (TPoint **)SG_Realloc(m_Points,              m_nyPoints * sizeof(TPoint *));
 
 		for(int n=0; n<m_nyPoints; n++, pPoint+=m_nxPoints)
 		{
@@ -359,8 +359,8 @@ void CVIEW_Map_3D_Image::Set_Image(int NX, int NY)
 		m_img_ny	= m_img.GetHeight();
 
 		pz		= m_img_z ? m_img_z[0] : NULL;
-		pz		= (float  *)API_Realloc(pz     , NY * NX * sizeof(float  ));
-		m_img_z	= (float **)API_Realloc(m_img_z, NY      * sizeof(float *));
+		pz		= (float  *)SG_Realloc(pz     , NY * NX * sizeof(float  ));
+		m_img_z	= (float **)SG_Realloc(m_img_z, NY      * sizeof(float *));
 
 		for(y=0; y<NY; y++, pz+=NX)
 		{
@@ -405,7 +405,7 @@ void CVIEW_Map_3D_Image::Set_Image(void)
 			_Rotate_Matrix(m_xRotate, m_yRotate + 0.5 * m_Stereo, m_zRotate);
 			_Draw_Image();
 
-			r			= (BYTE *)API_Malloc(n * sizeof(BYTE));
+			r			= (BYTE *)SG_Malloc(n * sizeof(BYTE));
 
 			for(i=0, p=m_img.GetData(); i<n; i++, p+=3)
 			{
@@ -426,7 +426,7 @@ void CVIEW_Map_3D_Image::Set_Image(void)
 				p[2]	= BkStereo;
 			}
 
-			API_Free(r);
+			SG_Free(r);
 		}
 
 		if( m_pParent )

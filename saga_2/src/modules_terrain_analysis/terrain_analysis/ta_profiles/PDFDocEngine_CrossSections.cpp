@@ -28,18 +28,18 @@ CPDFDocEngine_CrossSections::CPDFDocEngine_CrossSections(){}
 
 CPDFDocEngine_CrossSections::~CPDFDocEngine_CrossSections(){}
 
-void CPDFDocEngine_CrossSections::AddCrossSections(TAPI_dPoint ** pCrossSections, 
+void CPDFDocEngine_CrossSections::AddCrossSections(TSG_Point ** pCrossSections, 
 									 float *pHeight,
-									 TAPI_dPoint * pRoadSection,
+									 TSG_Point * pRoadSection,
 									 int iSections,
 									 int iCrossSectionPoints,
 									 int iRoadPoints){
 	
 	int i,j;
-	std::vector<TAPI_dPoint> ModifiedRoadSection;
-	std::vector<TAPI_dPoint> ModifiedCrossSection;
-	TAPI_dPoint  *pModifiedRoadSection;
-	TAPI_dPoint  *pModifiedCrossSection;
+	std::vector<TSG_Point> ModifiedRoadSection;
+	std::vector<TSG_Point> ModifiedCrossSection;
+	TSG_Point  *pModifiedRoadSection;
+	TSG_Point  *pModifiedCrossSection;
 	int iCrossSectionPointsB;
 	int iRoadPointsB;
 	
@@ -56,8 +56,8 @@ void CPDFDocEngine_CrossSections::AddCrossSections(TAPI_dPoint ** pCrossSections
 		AdjustSections(pCrossSections[i], pRoadSection, ModifiedCrossSection, ModifiedRoadSection,
 						pHeight[i], iCrossSectionPointsB, iRoadPointsB);
 
-		pModifiedCrossSection = new TAPI_dPoint [iCrossSectionPointsB];
-		pModifiedRoadSection = new TAPI_dPoint [iRoadPointsB];
+		pModifiedCrossSection = new TSG_Point [iCrossSectionPointsB];
+		pModifiedRoadSection = new TSG_Point [iRoadPointsB];
 		for (j = 0; j < iCrossSectionPointsB; j++){
 			pModifiedCrossSection[j] = ModifiedCrossSection[j];
 		}//for
@@ -74,8 +74,8 @@ void CPDFDocEngine_CrossSections::AddCrossSections(TAPI_dPoint ** pCrossSections
 	
 }//method
 
-void CPDFDocEngine_CrossSections::AddCrossSection(TAPI_dPoint * pCrossSection,
-									 TAPI_dPoint * pRoadSection,
+void CPDFDocEngine_CrossSections::AddCrossSection(TSG_Point * pCrossSection,
+									 TSG_Point * pRoadSection,
 									 int iCrossSectionPoints,
 									 int iRoadPoints){
 
@@ -92,8 +92,8 @@ void CPDFDocEngine_CrossSections::AddCrossSection(TAPI_dPoint * pCrossSection,
 	float fDifX, fDifY;
 	float fRatio;
 	float fHeight;
-	CAPI_String sValue;
-	CAPI_dPoints Points;
+	CSG_String sValue;
+	CSG_Points Points;
 
 	iFirstPoint = 0;
 	iLastPoint = iCrossSectionPoints - 1;
@@ -185,8 +185,8 @@ void CPDFDocEngine_CrossSections::AddCrossSection(TAPI_dPoint * pCrossSection,
                 - ((fMinLine + fStep * i - fMinY) / (fMaxY - fMinY)) * CROSS_SECTION_HEIGHT;		
         if (fY <= m_iOffsetY + CROSS_SECTION_HEIGHT && fY >= m_iOffsetY) {
 			fY = fHeight - fY;
-			sValue = API_Get_String(fMinLine + fStep * (float) i);			
-			Draw_Text(OFFSET_X - 10, fY, API_Get_String(fMinLine + fStep * (float) i).c_str(),
+			sValue = SG_Get_String(fMinLine + fStep * (float) i);			
+			Draw_Text(OFFSET_X - 10, fY, SG_Get_String(fMinLine + fStep * (float) i).c_str(),
 					9, PDF_STYLE_TEXT_ALIGN_H_RIGHT);
 			Draw_Line(OFFSET_X, fY, OFFSET_X - 5, fY, 0);
         }// if
@@ -213,15 +213,15 @@ void CPDFDocEngine_CrossSections::AddCrossSection(TAPI_dPoint * pCrossSection,
 		fX = OFFSET_X + ((fStep * (float) i-fOffsetX) / (fMaxX-fMinX)) * CROSS_SECTION_WIDTH;
 		if (fX >= OFFSET_X && fX < OFFSET_X + CROSS_SECTION_WIDTH){
 			if (fabs(fStep * (float)i+fMinLine) > 100000) {
-				sValue = API_Get_String(fStep * (float)i+fMinLine);
+				sValue = SG_Get_String(fStep * (float)i+fMinLine);
 			}// if 
 			else {
-				sValue = API_Get_String(fStep * (float)i+fMinLine, 2, true);
+				sValue = SG_Get_String(fStep * (float)i+fMinLine, 2, true);
 			}// else
 			Draw_Line (fX, fHeight - m_iOffsetY - CROSS_SECTION_HEIGHT,
 						fX, fHeight - m_iOffsetY - CROSS_SECTION_HEIGHT - 10);
 			Draw_Text(fX, fHeight - m_iOffsetY - CROSS_SECTION_HEIGHT - 15, 
-					API_Get_String(fMinLine + fStep * (float) i).c_str(), 9, 
+					SG_Get_String(fMinLine + fStep * (float) i).c_str(), 9, 
 					PDF_STYLE_TEXT_ALIGN_H_CENTER | PDF_STYLE_TEXT_ALIGN_V_TOP );
 		}//if
 	}// for
@@ -275,10 +275,10 @@ void CPDFDocEngine_CrossSections::AddCrossSection(TAPI_dPoint * pCrossSection,
 
 }//method
 
-void CPDFDocEngine_CrossSections::AddVolumesTable(TAPI_dPoint * pProfile,
-									TAPI_dPoint ** pCrossSections, 
+void CPDFDocEngine_CrossSections::AddVolumesTable(TSG_Point * pProfile,
+									TSG_Point ** pCrossSections, 
 									 float *pHeight,
-									 TAPI_dPoint * pRoadSection,
+									 TSG_Point * pRoadSection,
 									 int iSections,
 									 int iCrossSectionPoints,
 									 int iRoadPoints){
@@ -294,7 +294,7 @@ void CPDFDocEngine_CrossSections::AddVolumesTable(TAPI_dPoint * pProfile,
 	float fInPrev, fOutPrev;
 	float fVolume;
 	float fHeight;
-	CAPI_String sHeader[] = {_TL("Section"),_TL("Dist."),_TL("Area +"),_TL("Area -"),_TL("Partial D."),_TL("Vol. +"), _TL("Vol. -")};
+	CSG_String sHeader[] = {_TL("Section"),_TL("Dist."),_TL("Area +"),_TL("Area -"),_TL("Partial D."),_TL("Vol. +"), _TL("Vol. -")};
 			
 	Add_Page_Title(_TL("Volumes"), PDF_TITLE_01);
 
@@ -333,19 +333,19 @@ void CPDFDocEngine_CrossSections::AddVolumesTable(TAPI_dPoint * pProfile,
 		fY = OFFSET_Y + VOLUMES_TABLE_HEADER_SEPARATION + VOLUMES_TABLE_ROW_HEIGHT * (iRow + .6);
 		fY = fHeight - fY;
 		fX = OFFSET_X + (VOLUMES_TABLE_COLUMN_WIDTH) / 2.;
-		Draw_Text(fX, fY, API_Get_String(i,0).c_str(), 10, PDF_STYLE_TEXT_ALIGN_H_CENTER);
+		Draw_Text(fX, fY, SG_Get_String(i,0).c_str(), 10, PDF_STYLE_TEXT_ALIGN_H_CENTER);
 
 		fX = OFFSET_X + VOLUMES_TABLE_COLUMN_WIDTH + (VOLUMES_TABLE_COLUMN_WIDTH) / 2.;
-		Draw_Text(fX, fY, API_Get_String(fDist,0).c_str(), 10, PDF_STYLE_TEXT_ALIGN_H_CENTER);
+		Draw_Text(fX, fY, SG_Get_String(fDist,0).c_str(), 10, PDF_STYLE_TEXT_ALIGN_H_CENTER);
 
 		CalculateAreas(pCrossSections[i], pRoadSection, pHeight[i], iCrossSectionPoints, 
 						iRoadPoints,fIn, fOut);
 
 		fX = OFFSET_X + VOLUMES_TABLE_COLUMN_WIDTH * 2 + (VOLUMES_TABLE_COLUMN_WIDTH) / 2.;
-		Draw_Text(fX, fY, API_Get_String(fIn,0).c_str(), 10, PDF_STYLE_TEXT_ALIGN_H_CENTER);
+		Draw_Text(fX, fY, SG_Get_String(fIn,0).c_str(), 10, PDF_STYLE_TEXT_ALIGN_H_CENTER);
 
 		fX = OFFSET_X + VOLUMES_TABLE_COLUMN_WIDTH * 3 + (VOLUMES_TABLE_COLUMN_WIDTH) / 2.;
-		Draw_Text(fX, fY, API_Get_String(fOut,0).c_str(), 10, PDF_STYLE_TEXT_ALIGN_H_CENTER);
+		Draw_Text(fX, fY, SG_Get_String(fOut,0).c_str(), 10, PDF_STYLE_TEXT_ALIGN_H_CENTER);
 
 		if (iRow > 0){
 			for (j = 4; j < 7; j++){
@@ -360,15 +360,15 @@ void CPDFDocEngine_CrossSections::AddVolumesTable(TAPI_dPoint * pProfile,
 
 			fDist = (pProfile[i].x - pProfile[i-1].x);
 			fX = OFFSET_X + VOLUMES_TABLE_COLUMN_WIDTH * 4 + (VOLUMES_TABLE_COLUMN_WIDTH) / 2.;
-			Draw_Text(fX, fY, API_Get_String(fDist,0).c_str(), 10, PDF_STYLE_TEXT_ALIGN_H_CENTER);
+			Draw_Text(fX, fY, SG_Get_String(fDist,0).c_str(), 10, PDF_STYLE_TEXT_ALIGN_H_CENTER);
 
 			fVolume = (pProfile[i].x - pProfile[i-1].x) * (fIn + fInPrev) / 2.;
 			fX = OFFSET_X + VOLUMES_TABLE_COLUMN_WIDTH * 5 + (VOLUMES_TABLE_COLUMN_WIDTH) / 2.;
-			Draw_Text(fX, fY, API_Get_String(fVolume,0).c_str(), 10, PDF_STYLE_TEXT_ALIGN_H_CENTER);
+			Draw_Text(fX, fY, SG_Get_String(fVolume,0).c_str(), 10, PDF_STYLE_TEXT_ALIGN_H_CENTER);
 			
 			fVolume = (pProfile[i].x - pProfile[i-1].x) * (fOut + fOutPrev) / 2.;
 			fX = OFFSET_X + VOLUMES_TABLE_COLUMN_WIDTH * 6 + (VOLUMES_TABLE_COLUMN_WIDTH) / 2.;
-			Draw_Text(fX, fY, API_Get_String(fVolume,0).c_str(), 10, PDF_STYLE_TEXT_ALIGN_H_CENTER);
+			Draw_Text(fX, fY, SG_Get_String(fVolume,0).c_str(), 10, PDF_STYLE_TEXT_ALIGN_H_CENTER);
 		}//if
 
 		fInPrev = fIn;
@@ -379,10 +379,10 @@ void CPDFDocEngine_CrossSections::AddVolumesTable(TAPI_dPoint * pProfile,
 
 }//Method
 
-void CPDFDocEngine_CrossSections::AdjustSections(TAPI_dPoint * pCrossSection,
-									TAPI_dPoint * pRoadSection,
-									std::vector<TAPI_dPoint > &ModifiedCrossSection,
-									std::vector<TAPI_dPoint > &ModifiedRoadSection,
+void CPDFDocEngine_CrossSections::AdjustSections(TSG_Point * pCrossSection,
+									TSG_Point * pRoadSection,
+									std::vector<TSG_Point > &ModifiedCrossSection,
+									std::vector<TSG_Point > &ModifiedRoadSection,
 									float fHeight,
 									int &iCrossSectionPoints, 
 									int &iRoadPoints){
@@ -393,7 +393,7 @@ void CPDFDocEngine_CrossSections::AdjustSections(TAPI_dPoint * pCrossSection,
 	int iRoadPointsToAdd = 0;
 	int iCrossSectionPointsToAdd = 0;
 	float fX, fY;
-	TAPI_dPoint  P;
+	TSG_Point  P;
 
 	ModifiedCrossSection.clear();
 	ModifiedRoadSection.clear();
@@ -672,8 +672,8 @@ void CPDFDocEngine_CrossSections::Intersect_Lines(float x0,float y0,float x1,flo
 
 } //method
 
-void CPDFDocEngine_CrossSections::CalculateAreas(TAPI_dPoint * pCrossSection,
-									TAPI_dPoint * pRoadSection,
+void CPDFDocEngine_CrossSections::CalculateAreas(TSG_Point * pCrossSection,
+									TSG_Point * pRoadSection,
 									float fHeight,
 									int iCrossSectionPoints, 
 									int iRoadPoints,
@@ -754,7 +754,7 @@ void CPDFDocEngine_CrossSections::CalculateAreas(TAPI_dPoint * pCrossSection,
 				
 }//method
 
-void CPDFDocEngine_CrossSections::AddLongitudinalProfile(TAPI_dPoint * pProfile,
+void CPDFDocEngine_CrossSections::AddLongitudinalProfile(TSG_Point * pProfile,
 											float *pHeight,
 											int iNumPoints){
 
@@ -767,8 +767,8 @@ void CPDFDocEngine_CrossSections::AddLongitudinalProfile(TAPI_dPoint * pProfile,
 	float fStep;
     float fX, fY;
 	float fOffsetX;
-	CAPI_String sValue;
-	CAPI_dPoints Points;
+	CSG_String sValue;
+	CSG_Points Points;
 	float fHeight;
 	
 	Add_Page_Title(_TL("Longitudinal Profile"), PDF_TITLE_01);
@@ -826,8 +826,8 @@ void CPDFDocEngine_CrossSections::AddLongitudinalProfile(TAPI_dPoint * pProfile,
                 - ((fMinLine + fStep * i - fMinY) / (fMaxY - fMinY)) * PROFILE_HEIGHT;		
         if (fY <= m_iOffsetY + PROFILE_HEIGHT && fY >= m_iOffsetY) {
 			fY = fHeight - fY;
-			sValue = API_Get_String(fMinLine + fStep * (float) i);
-			Draw_Text(fX - 10, fY, API_Get_String(fMinLine + fStep * (float) i).c_str(), 9,
+			sValue = SG_Get_String(fMinLine + fStep * (float) i);
+			Draw_Text(fX - 10, fY, SG_Get_String(fMinLine + fStep * (float) i).c_str(), 9,
 				PDF_STYLE_TEXT_ALIGN_H_RIGHT);
 			Draw_Line(fX, fY, fX - 5, fY, 0);
         }// if
@@ -857,13 +857,13 @@ void CPDFDocEngine_CrossSections::AddLongitudinalProfile(TAPI_dPoint * pProfile,
 		if (fX>=OFFSET_Y + GUITAR_LEYEND_WIDTH + SEPARATION 
 				&& fX < OFFSET_Y + GUITAR_LEYEND_WIDTH + SEPARATION + PROFILE_WIDTH){
 			if (fabs(fStep * (float)i+fMinLine) > 100000) {
-				sValue = API_Get_String(fStep * (float)i+fMinLine);
+				sValue = SG_Get_String(fStep * (float)i+fMinLine);
 			}// if 
 			else {
-				sValue = API_Get_String(fStep * (float)i+fMinLine, 2, true);
+				sValue = SG_Get_String(fStep * (float)i+fMinLine, 2, true);
 			}// else
 			Draw_Text(fX, fHeight - m_iOffsetY - PROFILE_HEIGHT - 15,
-				API_Get_String(fMinLine + fStep * (float) i).c_str(), 9,
+				SG_Get_String(fMinLine + fStep * (float) i).c_str(), 9,
 				PDF_STYLE_TEXT_ALIGN_H_CENTER | PDF_STYLE_TEXT_ALIGN_V_TOP);
 			Draw_Line(fX, fHeight - m_iOffsetY - PROFILE_HEIGHT,
 					fX, fHeight - m_iOffsetY - PROFILE_HEIGHT - 10, 0);
@@ -916,7 +916,7 @@ void CPDFDocEngine_CrossSections::AddLongitudinalProfile(TAPI_dPoint * pProfile,
 
 }//method
 
-void CPDFDocEngine_CrossSections::DrawGuitar(TAPI_dPoint *pProfile, 
+void CPDFDocEngine_CrossSections::DrawGuitar(TSG_Point *pProfile, 
 							   float *pHeight, 
 							   int iNumPoints){
 
@@ -924,8 +924,8 @@ void CPDFDocEngine_CrossSections::DrawGuitar(TAPI_dPoint *pProfile,
 	float fY;
 	float fMinX, fMaxX;
 	float fDif;
-	CAPI_String sValue;
-	CAPI_String sField [] = {"Distancia","Dist. Parcial.", "Elevacion del terreno", "Elevación de la calzada", " ", " "};
+	CSG_String sValue;
+	CSG_String sField [] = {"Distancia","Dist. Parcial.", "Elevacion del terreno", "Elevación de la calzada", " ", " "};
 	float fHeight;
 
 	fMinX = pProfile[0].x;
@@ -991,7 +991,7 @@ void CPDFDocEngine_CrossSections::AddGuitarValue(float fXValue,
 	fY += 3;
 	fX += 3;
 	
-	Draw_Text(fX, fY, API_Get_String(fValue, 2).c_str(), 8, 
+	Draw_Text(fX, fY, SG_Get_String(fValue, 2).c_str(), 8, 
 			0, 
 			3.14159/2.);
 		
@@ -1047,7 +1047,7 @@ bool CPDFDocEngine_CrossSections::GPC_Intersection(CShape *pShape_A, CShape *pSh
 bool CPDFDocEngine_CrossSections::GPC_Create_Polygon(CShape *pShape, gpc_polygon *pPolygon)
 {
 	int				iPoint, iPart;
-	TGEO_Point		Point;
+	TSG_Point		Point;
 	gpc_vertex		*Contour;
 	gpc_vertex_list	vList;
 

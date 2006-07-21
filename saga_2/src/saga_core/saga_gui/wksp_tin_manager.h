@@ -106,8 +106,8 @@ public:
 	bool						Show			(class CTIN *pTIN);
 	bool						asImage			(class CTIN *pTIN, class CGrid *pImage);
 
-	bool						Get_Colors		(class CTIN *pTIN, class CColors *pColors);
-	bool						Set_Colors		(class CTIN *pTIN, class CColors *pColors);
+	bool						Get_Colors		(class CTIN *pTIN, class CSG_Colors *pColors);
+	bool						Set_Colors		(class CTIN *pTIN, class CSG_Colors *pColors);
 
 
 private:

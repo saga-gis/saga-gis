@@ -58,7 +58,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <saga_api/pdf_document.h>
+#include <saga_api/doc_pdf.h>
 #include "Shapes_Report.h"
 
 
@@ -181,8 +181,8 @@ bool CShapes_Report::On_Execute(void)
 {
 	int				Page_Orientation;
 	TPDF_Page_Size	Page_Size;
-	CAPI_String		FileName(Parameters("FILENAME")	->asString());
-	CPDF_Document	PDF;
+	CSG_String		FileName(Parameters("FILENAME")	->asString());
+	CDoc_PDF	PDF;
 
 	//-----------------------------------------------------
 	m_pShapes		= Parameters("SHAPES")		->asShapes();
@@ -208,7 +208,7 @@ bool CShapes_Report::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( FileName.Length() > 0 && PDF.Open(Page_Size, Page_Orientation, CAPI_String::Format("%s: %s", _TL("Summary"), m_pShapes->Get_Name())) )
+	if( FileName.Length() > 0 && PDF.Open(Page_Size, Page_Orientation, CSG_String::Format("%s: %s", _TL("Summary"), m_pShapes->Get_Name())) )
 	{
 		double	d	= Parameters("LAYOUT_BREAK")->asDouble();
 
@@ -253,9 +253,9 @@ bool CShapes_Report::Add_Shapes(void)
 	if( m_pShapes && m_pShapes->is_Valid() && m_pPDF && m_pPDF->Add_Page() )
 	{
 		bool			bAddAll;
-		CGEO_Rect		r(m_rShape), rWorld(m_pShapes->Get_Extent());
-		CAPI_String		Title;
-		CAPI_Strings	sLeft, sRight;
+		CSG_Rect		r(m_rShape), rWorld(m_pShapes->Get_Extent());
+		CSG_String		Title;
+		CSG_Strings	sLeft, sRight;
 
 		//-------------------------------------------------
 		m_pPDF->Draw_Text(m_rTitle.Get_XCenter(), m_rTitle.Get_YCenter(), _TL("Overview"), (int)(0.7 * m_rTitle.Get_YRange()), PDF_STYLE_TEXT_ALIGN_H_CENTER|PDF_STYLE_TEXT_ALIGN_V_CENTER|PDF_STYLE_TEXT_UNDERLINE);
@@ -268,10 +268,10 @@ bool CShapes_Report::Add_Shapes(void)
 		m_pPDF->Draw_Graticule(r, rWorld, 10);
 
 		//-------------------------------------------------
-		sLeft	.Add(CAPI_String::Format("%s:"	, _TL("Name")));
-		sRight	.Add(CAPI_String::Format("%s"	, m_pShapes->Get_Name()));
-		sLeft	.Add(CAPI_String::Format("%s:"	, _TL("Count")));
-		sRight	.Add(CAPI_String::Format("%d"	, m_pShapes->Get_Count()));
+		sLeft	.Add(CSG_String::Format("%s:"	, _TL("Name")));
+		sRight	.Add(CSG_String::Format("%s"	, m_pShapes->Get_Name()));
+		sLeft	.Add(CSG_String::Format("%s:"	, _TL("Count")));
+		sRight	.Add(CSG_String::Format("%d"	, m_pShapes->Get_Count()));
 
 		m_pPDF->Draw_Text(m_rTable.Get_XMin()   , m_rTable.Get_YMax(), sLeft , 8, PDF_STYLE_TEXT_ALIGN_H_LEFT|PDF_STYLE_TEXT_ALIGN_V_TOP);
 		m_pPDF->Draw_Text(m_rTable.Get_XCenter(), m_rTable.Get_YMax(), sRight, 8, PDF_STYLE_TEXT_ALIGN_H_LEFT|PDF_STYLE_TEXT_ALIGN_V_TOP);
@@ -300,7 +300,7 @@ bool CShapes_Report::Add_Shape(CShape *pShape, const char *Title)
 {
 	if( m_pPDF && m_pPDF->Is_Ready_To_Draw() && pShape && pShape->is_Valid() && m_pPDF->Add_Page() )
 	{
-		CGEO_Rect	r(m_rShape), rWorld(pShape->Get_Extent());
+		CSG_Rect	r(m_rShape), rWorld(pShape->Get_Extent());
 
 		//-------------------------------------------------
 		m_pPDF->Add_Outline_Item(Title);

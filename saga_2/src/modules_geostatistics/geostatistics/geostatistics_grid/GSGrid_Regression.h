@@ -90,10 +90,10 @@ private:
 
 	int						m_Interpolation;
 
-	CMAT_Regression			m_Regression;
+	CSG_Regression			m_Regression;
 
 
-	bool					Get_Regression		(CGrid *pGrid, CShapes *pShapes, CShapes *pResiduals, int iAttribute, TMAT_Regression_Type Type);
+	bool					Get_Regression		(CGrid *pGrid, CShapes *pShapes, CShapes *pResiduals, int iAttribute, TSG_Regression_Type Type);
 	bool					Set_Regression		(CGrid *pGrid, CGrid *pRegression);
 	bool					Set_Residuals		(CShapes *pResiduals);
 

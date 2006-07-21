@@ -94,13 +94,13 @@ CModule_Interactive_Base::~CModule_Interactive_Base(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CModule_Interactive_Base::Execute_Position(CGEO_Point ptWorld, TModule_Interactive_Mode Mode, int Keys)
+bool CModule_Interactive_Base::Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode, int Keys)
 {
 	bool	bResult	= false;
 
 	if( m_pModule && !m_pModule->m_bExecutes )
 	{
-		API_Callback_Process_Set_Okay();
+		SG_Callback_Process_Set_Okay();
 
 		m_pModule->m_bExecutes		= true;
 		m_pModule->m_bError_Ignore	= false;
@@ -120,7 +120,7 @@ bool CModule_Interactive_Base::Execute_Position(CGEO_Point ptWorld, TModule_Inte
 	return( bResult );
 }
 
-bool CModule_Interactive_Base::On_Execute_Position(CGEO_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CModule_Interactive_Base::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
 {
 	return( false );
 }
@@ -132,7 +132,7 @@ bool CModule_Interactive_Base::Execute_Keyboard(int Character, int Keys)
 
 	if( m_pModule && !m_pModule->m_bExecutes )
 	{
-		API_Callback_Process_Set_Okay();
+		SG_Callback_Process_Set_Okay();
 
 		m_pModule->m_bExecutes		= true;
 		m_pModule->m_bError_Ignore	= false;
@@ -161,7 +161,7 @@ bool CModule_Interactive_Base::Execute_Finish(void)
 
 	if( m_pModule && !m_pModule->m_bExecutes )
 	{
-		API_Callback_Process_Set_Okay();
+		SG_Callback_Process_Set_Okay();
 
 		m_pModule->m_bExecutes		= true;
 		m_pModule->m_bError_Ignore	= false;

@@ -130,7 +130,7 @@ private:
 
 	double						m_Distance, m_Distance_Move;
 
-	TGEO_Point					*m_pDistance;
+	TSG_Point					*m_pDistance;
 
 	wxPoint						m_Mouse_Down, m_Mouse_Move;
 
@@ -141,18 +141,18 @@ private:
 	class CWKSP_Map				*m_pMap;
 
 
-	void						_Set_StatusBar		(CGEO_Point ptWorld);
+	void						_Set_StatusBar		(CSG_Point ptWorld);
 
 	wxRect						_Get_Client			(void);
-	wxPoint						_Get_Client			(TGEO_Point Point);
-	CGEO_Point					_Get_World			(wxPoint ptClient);
+	wxPoint						_Get_Client			(TSG_Point Point);
+	CSG_Point					_Get_World			(wxPoint ptClient);
 	double						_Get_World			(double xClient);
 
 	void						_Draw_Inverse		(wxPoint ptA, wxPoint ptB);
 	void						_Draw_Inverse		(wxPoint ptA, wxPoint ptB_Old, wxPoint ptB_New);
 
 	bool						_Zoom				(wxPoint  A, wxPoint B);
-	bool						_Zoom				(CGEO_Point ptCenter, bool bZoomIn);
+	bool						_Zoom				(CSG_Point ptCenter, bool bZoomIn);
 	bool						_Pan				(wxPoint  A, wxPoint B);
 	bool						_Move				(wxPoint &A, wxPoint B);
 	bool						_Move				(wxPoint ptMove);

@@ -110,10 +110,10 @@ protected:
 	virtual void				_Draw_Shape				(CWKSP_Map_DC &dc_Map, CShape *pShape, bool bSelection);
 	virtual void				_Draw_Label				(CWKSP_Map_DC &dc_Map, CShape *pShape);
 
-	virtual void				_Edit_Shape_Draw_Move	(wxDC &dc, CGEO_Rect rWorld, double ClientToWorld, wxPoint Point);
+	virtual void				_Edit_Shape_Draw_Move	(wxDC &dc, CSG_Rect rWorld, double ClientToWorld, wxPoint Point);
 	virtual void				_Edit_Shape_Draw		(CWKSP_Map_DC &dc_Map);
-	virtual int					_Edit_Shape_HitTest		(CGEO_Point Point, double max_Dist, int &iPart, int &iPoint);
-	virtual void				_Edit_Snap_Point_ToLine (CGEO_Point Point, CGEO_Point &snap_Point, double &snap_Dist, CShape *pShape);
+	virtual int					_Edit_Shape_HitTest		(CSG_Point Point, double max_Dist, int &iPart, int &iPoint);
+	virtual void				_Edit_Snap_Point_ToLine (CSG_Point Point, CSG_Point &snap_Point, double &snap_Dist, CShape *pShape);
 
 };
 

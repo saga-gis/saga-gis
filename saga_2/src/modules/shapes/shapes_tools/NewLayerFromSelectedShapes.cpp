@@ -50,12 +50,12 @@ bool CNewLayerFromSelectedShapes::On_Execute(void){
 	CShapes *pInput = Parameters("INPUT")->asShapes();
 	CShapes *pOutput; //= Parameters("OUTPUT")->asShapes();
 	CTable *pTable;
-	CAPI_String sName;
+	CSG_String sName;
 
 	pTable	= &pInput->Get_Table();
-	pOutput = API_Create_Shapes(pInput->Get_Type());
+	pOutput = SG_Create_Shapes(pInput->Get_Type());
 	
-	sName = CAPI_String(pInput->Get_Name()) + _TL("(Selected)");
+	sName = CSG_String(pInput->Get_Name()) + _TL("(Selected)");
 	pOutput->Set_Name(sName.c_str());
 
 	for (i=0; i<pTable->Get_Field_Count(); i++){

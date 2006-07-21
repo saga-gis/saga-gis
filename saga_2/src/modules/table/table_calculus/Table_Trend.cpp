@@ -102,7 +102,7 @@ void CTable_Trend_Base::Initialise(void)
 		NULL	, "FORMULAS"	, _TL("Pre-defined Formulas"),
 		"",
 
-		CAPI_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|",
 			_TL("Linear: a + b * x"),
 			_TL("Quadric: a + b * x + c * x^2"),
 			_TL("Cubic: a + b * x + c * x^2 + d * x^3"),
@@ -161,7 +161,7 @@ int CTable_Trend_Base::On_Parameter_Changed(CParameters *pParameters, CParameter
 bool CTable_Trend_Base::Get_Trend(CTable *pTable)
 {
 	int				i, j, xField, yField;
-	CAPI_String		Name;
+	CSG_String		Name;
 	CTable_Record	*pRecord;
 
 	//-----------------------------------------------------
@@ -183,7 +183,7 @@ bool CTable_Trend_Base::Get_Trend(CTable *pTable)
 		if( m_Trend.Get_Trend() )
 		{
 			Message_Add(m_Trend.Get_Formula());
-			Message_Add(CAPI_String::Format("R²: %f", 100.0 * m_Trend.Get_R2()));
+			Message_Add(CSG_String::Format("R²: %f", 100.0 * m_Trend.Get_R2()));
 
 			if( Parameters("TREND")->asTable() == NULL )
 			{

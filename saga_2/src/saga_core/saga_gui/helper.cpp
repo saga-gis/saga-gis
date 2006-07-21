@@ -87,7 +87,7 @@ wxString	Get_SignificantDecimals_String(double Value, int maxDecimals)
 {
 	wxString	s;
 
-	s.Printf("%.*f", API_Get_Significant_Decimals(Value, maxDecimals), Value);
+	s.Printf("%.*f", SG_Get_Significant_Decimals(Value, maxDecimals), Value);
 
 	return( s );
 }
@@ -156,7 +156,7 @@ wxString	Get_FilePath_Absolute(const char *Directory, const char *FileName)
 	}
 
 	return( wxString::Format("%s%s", Directory, FileName) );
-//	return( API_Make_File_Path(Directory, FileName, NULL).c_str() );
+//	return( SG_File_Make_Path(Directory, FileName, NULL).c_str() );
 }
 
 //---------------------------------------------------------

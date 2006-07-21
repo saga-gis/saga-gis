@@ -63,7 +63,7 @@ CSudoku::~CSudoku(void)
 bool CSudoku::On_Execute(void)
 {
 	int		i;
-	CColors	Colors;
+	CSG_Colors	Colors;
 	
 	m_pSudoku		= new int  * [9];
 	m_pFixedCells	= new bool * [9];
@@ -72,7 +72,7 @@ bool CSudoku::On_Execute(void)
 		m_pFixedCells[i]	= new bool[9];
 	}
 
-	m_pBoard = API_Create_Grid(GRID_TYPE_Int, BOARD_SIZE, BOARD_SIZE, 1);
+	m_pBoard = SG_Create_Grid(GRID_TYPE_Int, BOARD_SIZE, BOARD_SIZE, 1);
 	m_pBoard->Set_Name("Sudoku");
 	Parameters("GRID")->Set_Value(m_pBoard);
 
@@ -126,7 +126,7 @@ void CSudoku::CreateSudoku()
 }
 
 
-bool CSudoku::On_Execute_Position(CGEO_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CSudoku::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
 {
 
 	int iXGrid, iYGrid;

@@ -153,8 +153,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_ecosystems_hugget", "mo
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_fire_spreading", "modules_simulation\fire\fire_spreading\sim_fire_spreading.vcproj", "{FD9F2813-F6C3-483A-BD03-61192782D932}"
 	ProjectSection(ProjectDependencies) = postProject
-		{56662121-D449-48F5-AFC8-7F6F120406CE} = {56662121-D449-48F5-AFC8-7F6F120406CE}
 		{D3BC1970-7073-4288-96E1-5B7669EE2731} = {D3BC1970-7073-4288-96E1-5B7669EE2731}
+		{56662121-D449-48F5-AFC8-7F6F120406CE} = {56662121-D449-48F5-AFC8-7F6F120406CE}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_hydrology", "modules_simulation\hydrology\sim_hydrology\sim_hydrology.vcproj", "{40AC8341-8903-45AB-AA7F-1E1E6349F6C9}"
@@ -169,12 +169,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_channels", "modules_terr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_compound", "modules_terrain_analysis\terrain_analysis\ta_compound\ta_compound.vcproj", "{2255CB7F-1862-47C5-8A0E-7A6C8A0B2F5B}"
 	ProjectSection(ProjectDependencies) = postProject
-		{FF0CB20E-524A-4B92-81F7-8EDB48CDD639} = {FF0CB20E-524A-4B92-81F7-8EDB48CDD639}
-		{56662121-D449-48F5-AFC8-7F6F120406CE} = {56662121-D449-48F5-AFC8-7F6F120406CE}
 		{A548F3B9-792D-4B87-80E6-AC46009DD72A} = {A548F3B9-792D-4B87-80E6-AC46009DD72A}
 		{5B4CEC88-7260-4186-B2D2-6B95151A8307} = {5B4CEC88-7260-4186-B2D2-6B95151A8307}
 		{27A06575-775F-4028-80CD-AD072592871D} = {27A06575-775F-4028-80CD-AD072592871D}
+		{56662121-D449-48F5-AFC8-7F6F120406CE} = {56662121-D449-48F5-AFC8-7F6F120406CE}
 		{17EC3616-F349-4A2B-B94F-9369292EE1E9} = {17EC3616-F349-4A2B-B94F-9369292EE1E9}
+		{FF0CB20E-524A-4B92-81F7-8EDB48CDD639} = {FF0CB20E-524A-4B92-81F7-8EDB48CDD639}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_hydrology", "modules_terrain_analysis\terrain_analysis\ta_hydrology\ta_hydrology.vcproj", "{17EC3616-F349-4A2B-B94F-9369292EE1E9}"
@@ -225,6 +225,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "saga_cmd", "saga_core\saga_
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "saga_gui", "saga_core\saga_gui\saga_gui.vcproj", "{F19C30A0-87BA-49B0-95ED-C53A77879CE4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{56662121-D449-48F5-AFC8-7F6F120406CE} = {56662121-D449-48F5-AFC8-7F6F120406CE}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grid_spline", "modules\grid\grid_spline\grid_spline.vcproj", "{90D794B0-C145-4C2C-8918-7D7E57B82D57}"
 	ProjectSection(ProjectDependencies) = postProject
 		{56662121-D449-48F5-AFC8-7F6F120406CE} = {56662121-D449-48F5-AFC8-7F6F120406CE}
 	EndProjectSection
@@ -415,6 +420,10 @@ Global
 		{F19C30A0-87BA-49B0-95ED-C53A77879CE4}.Debug|Win32.Build.0 = Debug|Win32
 		{F19C30A0-87BA-49B0-95ED-C53A77879CE4}.Release|Win32.ActiveCfg = Release|Win32
 		{F19C30A0-87BA-49B0-95ED-C53A77879CE4}.Release|Win32.Build.0 = Release|Win32
+		{90D794B0-C145-4C2C-8918-7D7E57B82D57}.Debug|Win32.ActiveCfg = Debug|Win32
+		{90D794B0-C145-4C2C-8918-7D7E57B82D57}.Debug|Win32.Build.0 = Debug|Win32
+		{90D794B0-C145-4C2C-8918-7D7E57B82D57}.Release|Win32.ActiveCfg = Release|Win32
+		{90D794B0-C145-4C2C-8918-7D7E57B82D57}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

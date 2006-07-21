@@ -153,7 +153,7 @@ bool CSAGA::OnInit(void)
 	_Init_Config();
 
 	//-----------------------------------------------------
-	API_Get_Translator()->Create(API_Make_File_Path(wxGetCwd(), "saga", "lng"), false);
+	SG_Get_Translator()->Create(SG_File_Make_Path(wxGetCwd(), "saga", "lng"), false);
 
 	//-----------------------------------------------------
 	SetTopWindow(new CSAGA_Frame());
@@ -197,9 +197,9 @@ void CSAGA::_Init_Config(void)
 	SetVendorName("SAGA-GIS.org");
 
 	#if   defined(__VISUALC__) && defined(_DEBUG)
-		SetAppName(CAPI_String::Format("SAGA VC%d [Debug]", __VISUALC__).c_str());
+		SetAppName(CSG_String::Format("SAGA VC%d [Debug]", __VISUALC__).c_str());
 	#elif defined(__VISUALC__)
-		SetAppName(CAPI_String::Format("SAGA VC%d"        , __VISUALC__).c_str());
+		SetAppName(CSG_String::Format("SAGA VC%d"        , __VISUALC__).c_str());
 	#elif defined(__MINGW32__)
 		SetAppName("SAGA MinGW");
 	#else
@@ -234,7 +234,7 @@ void CSAGA::_Init_Config(void)
 //---------------------------------------------------------
 wxString CSAGA::Get_App_Path(void)
 {
-	return( API_Extract_File_Path(argv[0]).c_str() );
+	return( SG_File_Get_Path(argv[0]).c_str() );
 }
 
 

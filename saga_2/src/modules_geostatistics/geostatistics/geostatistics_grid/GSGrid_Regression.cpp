@@ -130,7 +130,7 @@ CGSGrid_Regression::CGSGrid_Regression(void)
 	Parameters.Add_Choice(
 		NULL	,"INTERPOL"		, _TL("Grid Interpolation"),
 		"",
-		CAPI_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|",
 			_TL("Nearest Neighbor"),
 			_TL("Bilinear Interpolation"),
 			_TL("Inverse Distance Interpolation"),
@@ -166,7 +166,7 @@ CGSGrid_Regression::~CGSGrid_Regression(void)
 bool CGSGrid_Regression::On_Execute(void)
 {
 	int						iAttribute;
-	TMAT_Regression_Type	Type;
+	TSG_Regression_Type	Type;
 	CShapes					*pShapes, *pResiduals;
 	CGrid					*pGrid, *pRegression;
 
@@ -217,11 +217,11 @@ bool CGSGrid_Regression::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGSGrid_Regression::Get_Regression(CGrid *pGrid, CShapes *pShapes, CShapes *pResiduals, int iAttribute, TMAT_Regression_Type Type)
+bool CGSGrid_Regression::Get_Regression(CGrid *pGrid, CShapes *pShapes, CShapes *pResiduals, int iAttribute, TSG_Regression_Type Type)
 {
 	int			iShape, iPart, iPoint;
 	double		zShape, zGrid;
-	TGEO_Point	Point;
+	TSG_Point	Point;
 	CShape		*pShape, *pResidual;
 
 	//-----------------------------------------------------

@@ -152,14 +152,14 @@ CGrid_Import::~CGrid_Import(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define ADD_GRID(g, s, t)	g	= API_Create_Grid(t, img.GetWidth(), img.GetHeight(), Cellsize, xMin, yMin); g->Set_Name(s);
+#define ADD_GRID(g, s, t)	g	= SG_Create_Grid(t, img.GetWidth(), img.GetHeight(), Cellsize, xMin, yMin); g->Set_Name(s);
 
 //---------------------------------------------------------
 bool CGrid_Import::On_Execute(void)
 {
 	int					x, y, yy, Method;
 	double				d, Cellsize, xMin, yMin;
-	CColors				Colors;
+	CSG_Colors				Colors;
 	CGrid				*pR, *pG, *pB;
 	FILE				*Stream;
 	wxFileName			fName;

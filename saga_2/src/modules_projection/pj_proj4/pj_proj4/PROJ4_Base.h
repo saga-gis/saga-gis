@@ -92,7 +92,7 @@ protected:
 	bool				Set_Transformation_Inverse	(void);
 
 	bool				Get_Converted				(double &x, double &y);
-	bool				Get_Converted				(TGEO_Point &Point);
+	bool				Get_Converted				(TSG_Point &Point);
 
 
 private:

@@ -170,7 +170,7 @@ double FlowDistance(CGrid *pDEM,
 /*
 #include <vector>
 
-TAPI_dPoint ** RiverProfile(int iX, 
+TSG_Point ** RiverProfile(int iX, 
 				  int iY, 
 				  CGrid* pDEM, 
 				  CGrid* pBasinGrid,
@@ -180,10 +180,10 @@ TAPI_dPoint ** RiverProfile(int iX,
     int i;
 	float fLength = 0;        	
 	int iNextX, iNextY;
-	CAPI_dPoints	Profile;
-	CAPI_dPoints	Ext;
-	TAPI_dPoint		P;
-	TAPI_dPoint		**pProfile;
+	CSG_Points	Profile;
+	CSG_Points	Ext;
+	TSG_Point		P;
+	TSG_Point		**pProfile;
 	iProfileLength = 0;
 	
 	if (!pBasinGrid->is_NoData(iX,iY)) {
@@ -232,9 +232,9 @@ Pt* RiverCoords(int iX,  //the resulting coords are grid coords,
 
     float fLength = 0;        	
 	int iNextX, iNextY;
-	CAPI_dPoints	Profile;
-	TAPI_dPoint		P;
-	TAPI_dPoint		*pProfile;
+	CSG_Points	Profile;
+	TSG_Point		P;
+	TSG_Point		*pProfile;
 	iProfileLength = 0;
 	
 	if (!pBasinGrid->is_NoData(iX,iY)) {

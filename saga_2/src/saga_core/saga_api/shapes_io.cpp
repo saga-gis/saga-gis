@@ -82,19 +82,19 @@ bool CShapes::_Load_ESRI(const char *File_Name)
 
 	FILE		*Stream;
 
-	TGEO_Point	dPoint;
+	TSG_Point	dPoint;
 
-	TGEO_Rect	dRect;
+	TSG_Rect	dRect;
 
 	CShape		*pShape;
 
-	CAPI_String	fName;
+	CSG_String	fName;
 
 
 	//-----------------------------------------------------
 	// Load Attributes...
 
-	fName	= API_Make_File_Path(NULL, File_Name, "dbf");
+	fName	= SG_File_Make_Path(NULL, File_Name, "dbf");
 
 	if( !m_Table._Create(fName, '\t') || m_Table.Get_Record_Count() == 0 )
 	{
@@ -104,15 +104,15 @@ bool CShapes::_Load_ESRI(const char *File_Name)
 	//-----------------------------------------------------
 	// Open Shapes File...
 
-	API_Callback_Message_Add(CAPI_String::Format("%s: %s...", LNG("[MSG] Load shapes"), File_Name), true);
+	SG_Callback_Message_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Load shapes"), File_Name), true);
 
-	fName	= API_Make_File_Path(NULL, File_Name, "shp");
+	fName	= SG_File_Make_Path(NULL, File_Name, "shp");
 
 	if( (Stream = fopen(fName, "rb")) == NULL )
 	{
-		API_Callback_Message_Add(LNG("[MSG] failed"), false);
+		SG_Callback_Message_Add(LNG("[MSG] failed"), false);
 
-		API_Callback_Message_Add_Error(LNG("[ERR] Shape file could not be opened."));
+		SG_Callback_Message_Add_Error(LNG("[ERR] Shape file could not be opened."));
 
 		return( false );
 	}
@@ -122,15 +122,15 @@ bool CShapes::_Load_ESRI(const char *File_Name)
 
 	fread(buf_Header, 100, sizeof(char), Stream);
 
-	FileCode	= API_Read_Int		(buf_Header +  0, true );	// Byte 0		-> File Code 9994 Integer Big...
+	FileCode	= SG_Read_Int		(buf_Header +  0, true );	// Byte 0		-> File Code 9994 Integer Big...
 	// ...														// Byte 4-20	-> Unused 0 Integer Big...
-	FileLength	= API_Read_Int		(buf_Header + 24, true );	// Byte 24		-> File Length File Length Integer Big...
-	Version		= API_Read_Int		(buf_Header + 28, false);	// Byte 28		-> Version 1000 Integer Little...
-	Type_File	= API_Read_Int		(buf_Header + 32, false);	// Byte 32		-> Shape m_Type Shape m_Type Integer Little...
-	dRect.xMin	= API_Read_Double	(buf_Header + 36, false);	// Byte 36		-> Bounding Box Xmin Double Little...
-	dRect.yMin	= API_Read_Double	(buf_Header + 44, false);	// Byte 44		-> Bounding Box Ymin Double Little...
-	dRect.xMax	= API_Read_Double	(buf_Header + 52, false);	// Byte 52		-> Bounding Box Xmax Double Little...
-	dRect.yMax	= API_Read_Double	(buf_Header + 60, false);	// Byte 60		-> Bounding Box Ymax Double Little...
+	FileLength	= SG_Read_Int		(buf_Header + 24, true );	// Byte 24		-> File Length File Length Integer Big...
+	Version		= SG_Read_Int		(buf_Header + 28, false);	// Byte 28		-> Version 1000 Integer Little...
+	Type_File	= SG_Read_Int		(buf_Header + 32, false);	// Byte 32		-> Shape m_Type Shape m_Type Integer Little...
+	dRect.xMin	= SG_Read_Double	(buf_Header + 36, false);	// Byte 36		-> Bounding Box Xmin Double Little...
+	dRect.yMin	= SG_Read_Double	(buf_Header + 44, false);	// Byte 44		-> Bounding Box Ymin Double Little...
+	dRect.xMax	= SG_Read_Double	(buf_Header + 52, false);	// Byte 52		-> Bounding Box Xmax Double Little...
+	dRect.yMax	= SG_Read_Double	(buf_Header + 60, false);	// Byte 60		-> Bounding Box Ymax Double Little...
 	// ...														// Byte 68*		-> Bounding Box Zmin Double Little...
 	// ...														// Byte 76*		-> Bounding Box Zmax Double Little...
 	// ...														// Byte 84*		-> Bounding Box Mmin Double Little...
@@ -163,9 +163,9 @@ bool CShapes::_Load_ESRI(const char *File_Name)
 
 	if( feof(Stream) || FileCode != 9994 || Version != 1000 || m_Type == SHAPE_TYPE_Undefined )
 	{
-		API_Callback_Message_Add(LNG("[MSG] failed"), false);
+		SG_Callback_Message_Add(LNG("[MSG] failed"), false);
 
-		API_Callback_Message_Add_Error(LNG("[ERR] Shape file header is invalid."));
+		SG_Callback_Message_Add_Error(LNG("[ERR] Shape file header is invalid."));
 
 		fclose(Stream);
 
@@ -178,18 +178,18 @@ bool CShapes::_Load_ESRI(const char *File_Name)
 	buf_nParts	= 0;
 	buf_nPoints	= NULL;
 
-	for(iShape=0; iShape<m_Table.Get_Record_Count() && API_Callback_Process_Set_Progress(iShape, m_Table.Get_Record_Count()); iShape++)
+	for(iShape=0; iShape<m_Table.Get_Record_Count() && SG_Callback_Process_Set_Progress(iShape, m_Table.Get_Record_Count()); iShape++)
 	{
-		RecordNumber	= API_Read_Int(Stream, true);
-		ContentLength	= API_Read_Int(Stream, true);
+		RecordNumber	= SG_Read_Int(Stream, true);
+		ContentLength	= SG_Read_Int(Stream, true);
 
 		fread(&Type_Shape, 1, sizeof(int), Stream);
 
 		if( Type_Shape != Type_File || feof(Stream) )
 		{
-			API_Callback_Message_Add(LNG("[MSG] failed"), false);
+			SG_Callback_Message_Add(LNG("[MSG] failed"), false);
 
-			API_Callback_Message_Add_Error(LNG("[ERR] Shape file is corrupted."));
+			SG_Callback_Message_Add_Error(LNG("[ERR] Shape file is corrupted."));
 
 			break;
 		}
@@ -201,25 +201,25 @@ bool CShapes::_Load_ESRI(const char *File_Name)
 			{
 			//---------------------------------------------
 			case 1:			// Point...
-				fread(&dPoint	, 1, sizeof(TGEO_Point), Stream);
+				fread(&dPoint	, 1, sizeof(TSG_Point), Stream);
 				pShape->Add_Point(dPoint.x, dPoint.y);
 				break;
 
 			//---------------------------------------------
 			case 8:			// Multipoint...
-				fread(&dRect	, 1, sizeof(TGEO_Rect)	, Stream);
+				fread(&dRect	, 1, sizeof(TSG_Rect)	, Stream);
 				fread(&nPoints	, 1, sizeof(int)		, Stream);
 
 				for(iPoint=0; iPoint<nPoints; iPoint++)
 				{
-					fread(&dPoint, 1, sizeof(TGEO_Point), Stream);
+					fread(&dPoint, 1, sizeof(TSG_Point), Stream);
 					pShape->Add_Point(dPoint.x, dPoint.y);
 				}
 				break;
 
 			//---------------------------------------------
 			case 3: case 5:	// Line, Polygon...
-				fread(&dRect	, 1, sizeof(TGEO_Rect)	, Stream);
+				fread(&dRect	, 1, sizeof(TSG_Rect)	, Stream);
 				fread(&nParts	, 1, sizeof(int)		, Stream);
 				fread(&nPoints	, 1, sizeof(int)		, Stream);
 
@@ -227,7 +227,7 @@ bool CShapes::_Load_ESRI(const char *File_Name)
 				if( buf_nParts <= nParts )
 				{
 					buf_nParts	= nParts + 1;
-					buf_nPoints	= (int *)API_Realloc(buf_nPoints, buf_nParts * sizeof(int));
+					buf_nPoints	= (int *)SG_Realloc(buf_nPoints, buf_nParts * sizeof(int));
 				}
 
 				for(iPart=0; iPart<nParts; iPart++)
@@ -245,7 +245,7 @@ bool CShapes::_Load_ESRI(const char *File_Name)
 						iPart++;
 					}
 
-					fread(&dPoint, 1, sizeof(TGEO_Point), Stream);
+					fread(&dPoint, 1, sizeof(TSG_Point), Stream);
 					pShape->Add_Point(dPoint.x, dPoint.y, iPart);
 				}
 				break;
@@ -253,16 +253,16 @@ bool CShapes::_Load_ESRI(const char *File_Name)
 		}
 	}
 
-	API_Callback_Message_Add(LNG("[MSG] okay"), false);
+	SG_Callback_Message_Add(LNG("[MSG] okay"), false);
 
-	API_Callback_Process_Set_Ready();
+	SG_Callback_Process_Set_Ready();
 
 	//-----------------------------------------------------
 	// Clean up...
 
 	if( buf_nPoints )
 	{
-		API_Free(buf_nPoints);
+		SG_Free(buf_nPoints);
 	}
 
 	fclose(Stream);
@@ -278,10 +278,10 @@ bool CShapes::_Load_ESRI(const char *File_Name)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define Save_ESRI_RecordHeader	API_Write_Int(Stream	, RecordNumber++, true);\
-								API_Write_Int(Stream	, ContentLength	, true);\
-								API_Write_Int(Stream_Idx, FileLength	, true);\
-								API_Write_Int(Stream_Idx, ContentLength	, true);\
+#define Save_ESRI_RecordHeader	SG_Write_Int(Stream	, RecordNumber++, true);\
+								SG_Write_Int(Stream	, ContentLength	, true);\
+								SG_Write_Int(Stream_Idx, FileLength	, true);\
+								SG_Write_Int(Stream_Idx, ContentLength	, true);\
 								FileLength		+= 4 + ContentLength;\
 								FileLength_idx	+= 4;\
 
@@ -296,13 +296,13 @@ bool CShapes::_Save_ESRI(const char *File_Name)
 
 	FILE		*Stream, *Stream_Idx;
 
-	TGEO_Point	dPoint;
+	TSG_Point	dPoint;
 
-	TGEO_Rect	dRect;
+	TSG_Rect	dRect;
 
 	CShape		*pShape;
 
-	CAPI_String	fName;
+	CSG_String	fName;
 
 
 	//-----------------------------------------------------
@@ -334,33 +334,33 @@ bool CShapes::_Save_ESRI(const char *File_Name)
 	//-----------------------------------------------------
 	// File Access...
 
-	API_Callback_Message_Add(CAPI_String::Format("%s: %s...", LNG("[MSG] Save shapes"), File_Name), true);
+	SG_Callback_Message_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Save shapes"), File_Name), true);
 
-	fName	= API_Make_File_Path(NULL, File_Name, "shx");
+	fName	= SG_File_Make_Path(NULL, File_Name, "shx");
 
 	if( (Stream_Idx = fopen(fName, "wb")) == NULL )
 	{
-		API_Callback_Message_Add(LNG("[MSG] failed"), false);
+		SG_Callback_Message_Add(LNG("[MSG] failed"), false);
 
-		API_Callback_Message_Add_Error(LNG("[ERR] Shape index file could not be opened."));
+		SG_Callback_Message_Add_Error(LNG("[ERR] Shape index file could not be opened."));
 
 		return( false );
 	}
 
-	fName	= API_Make_File_Path(NULL, File_Name, "shp");
+	fName	= SG_File_Make_Path(NULL, File_Name, "shp");
 
 	if( (Stream     = fopen(fName, "wb")) == NULL )
 	{
 		fclose(Stream_Idx);
 
-		API_Callback_Message_Add(LNG("[MSG] failed"), false);
+		SG_Callback_Message_Add(LNG("[MSG] failed"), false);
 
-		API_Callback_Message_Add_Error(LNG("[ERR] Shape file could not be opened."));
+		SG_Callback_Message_Add_Error(LNG("[ERR] Shape file could not be opened."));
 
 		return( false );
 	}
 
-	API_Callback_Process_Set_Text(CAPI_String::Format("%s: %s", LNG("[DAT] Save shapes"), fName.c_str()));
+	SG_Callback_Process_Set_Text(CSG_String::Format("%s: %s", LNG("[DAT] Save shapes"), fName.c_str()));
 
 	//-----------------------------------------------------
 	// Save Header...
@@ -369,23 +369,23 @@ bool CShapes::_Save_ESRI(const char *File_Name)
 
 	dRect	= m_Extent.m_rect;
 
-	API_Write_Int	(buf_Header	+  0, 9994		, true );	// Byte 0	-> File Code 9994 Integer Big...
-	API_Write_Int	(buf_Header +  4, 0			, true );	// Byte 4	-> unused Integer Big...
-	API_Write_Int	(buf_Header +  8, 0			, true );	// Byte 8	-> unused Integer Big...
-	API_Write_Int	(buf_Header + 12, 0			, true );	// Byte 12	-> unused Integer Big...
-	API_Write_Int	(buf_Header + 16, 0			, true );	// Byte 16	-> unused Integer Big...
-	API_Write_Int	(buf_Header + 20, 0			, true );	// Byte 20	-> unused Integer Big...
-	API_Write_Int	(buf_Header + 24, 0			, true );	// Byte 24	-> File Length File Length Integer Big...
-	API_Write_Int	(buf_Header + 28, 1000		, false);	// Byte 28	-> Version 1000 Integer Little...
-	API_Write_Int	(buf_Header + 32, Type_File	, false);	// Byte 32	-> Shape m_Type Shape m_Type Integer Little...
-	API_Write_Double(buf_Header + 36, dRect.xMin, false);	// Byte 36	-> Bounding Box Xmin Double Little...
-	API_Write_Double(buf_Header + 44, dRect.yMin, false);	// Byte 44	-> Bounding Box Ymin Double Little...
-	API_Write_Double(buf_Header + 52, dRect.xMax, false);	// Byte 52	-> Bounding Box Xmax Double Little...
-	API_Write_Double(buf_Header + 60, dRect.yMax, false);	// Byte 60	-> Bounding Box Ymax Double Little...
-	API_Write_Double(buf_Header + 68, 0			, false);	// Byte 68	-> Bounding Box Zmin Double Little...
-	API_Write_Double(buf_Header + 76, 0			, false);	// Byte 76	-> Bounding Box Zmax Double Little...
-	API_Write_Double(buf_Header + 84, 0			, false);	// Byte 84	-> Bounding Box Mmin Double Little...
-	API_Write_Double(buf_Header + 92, 0			, false);	// Byte 92	-> Bounding Box Mmax Double Little...
+	SG_Write_Int	(buf_Header	+  0, 9994		, true );	// Byte 0	-> File Code 9994 Integer Big...
+	SG_Write_Int	(buf_Header +  4, 0			, true );	// Byte 4	-> unused Integer Big...
+	SG_Write_Int	(buf_Header +  8, 0			, true );	// Byte 8	-> unused Integer Big...
+	SG_Write_Int	(buf_Header + 12, 0			, true );	// Byte 12	-> unused Integer Big...
+	SG_Write_Int	(buf_Header + 16, 0			, true );	// Byte 16	-> unused Integer Big...
+	SG_Write_Int	(buf_Header + 20, 0			, true );	// Byte 20	-> unused Integer Big...
+	SG_Write_Int	(buf_Header + 24, 0			, true );	// Byte 24	-> File Length File Length Integer Big...
+	SG_Write_Int	(buf_Header + 28, 1000		, false);	// Byte 28	-> Version 1000 Integer Little...
+	SG_Write_Int	(buf_Header + 32, Type_File	, false);	// Byte 32	-> Shape m_Type Shape m_Type Integer Little...
+	SG_Write_Double(buf_Header + 36, dRect.xMin, false);	// Byte 36	-> Bounding Box Xmin Double Little...
+	SG_Write_Double(buf_Header + 44, dRect.yMin, false);	// Byte 44	-> Bounding Box Ymin Double Little...
+	SG_Write_Double(buf_Header + 52, dRect.xMax, false);	// Byte 52	-> Bounding Box Xmax Double Little...
+	SG_Write_Double(buf_Header + 60, dRect.yMax, false);	// Byte 60	-> Bounding Box Ymax Double Little...
+	SG_Write_Double(buf_Header + 68, 0			, false);	// Byte 68	-> Bounding Box Zmin Double Little...
+	SG_Write_Double(buf_Header + 76, 0			, false);	// Byte 76	-> Bounding Box Zmax Double Little...
+	SG_Write_Double(buf_Header + 84, 0			, false);	// Byte 84	-> Bounding Box Mmin Double Little...
+	SG_Write_Double(buf_Header + 92, 0			, false);	// Byte 92	-> Bounding Box Mmax Double Little...
 
 	fwrite(buf_Header, 100, sizeof(char), Stream);
 	fwrite(buf_Header, 100, sizeof(char), Stream_Idx);
@@ -398,7 +398,7 @@ bool CShapes::_Save_ESRI(const char *File_Name)
 	//-----------------------------------------------------
 	// Save Shapes...
 
-	for(iShape=0; iShape<Get_Count() && API_Callback_Process_Set_Progress(iShape, Get_Count()); iShape++)
+	for(iShape=0; iShape<Get_Count() && SG_Callback_Process_Set_Progress(iShape, Get_Count()); iShape++)
 	{
 		pShape	= Get_Shape(iShape);
 
@@ -418,7 +418,7 @@ bool CShapes::_Save_ESRI(const char *File_Name)
 			//---------------------------------------------
 			// Shape-Points...
 			dPoint			= pShape->Get_Point(0);
-			fwrite(&dPoint		, 1, sizeof(TGEO_Point), Stream);
+			fwrite(&dPoint		, 1, sizeof(TSG_Point), Stream);
 			break;
 
 		//-------------------------------------------------
@@ -440,7 +440,7 @@ bool CShapes::_Save_ESRI(const char *File_Name)
 			dRect			= pShape->Get_Extent();
 
 			fwrite(&Type_File	, 1, sizeof(Type_File)	, Stream);
-			fwrite(&dRect		, 1, sizeof(TGEO_Rect)	, Stream);
+			fwrite(&dRect		, 1, sizeof(TSG_Rect)	, Stream);
 			fwrite(&nPoints		, 1, sizeof(int)		, Stream);
 
 			//-----------------------------------------
@@ -450,7 +450,7 @@ bool CShapes::_Save_ESRI(const char *File_Name)
 				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
 					dPoint		= pShape->Get_Point(iPoint, iPart);
-					fwrite(&dPoint, 1, sizeof(TGEO_Point), Stream);
+					fwrite(&dPoint, 1, sizeof(TSG_Point), Stream);
 				}
 			}
 			break;
@@ -475,7 +475,7 @@ bool CShapes::_Save_ESRI(const char *File_Name)
 			iPart			= pShape->Get_Part_Count();
 
 			fwrite(&Type_File	, 1, sizeof(Type_File)	, Stream);
-			fwrite(&dRect		, 1, sizeof(TGEO_Rect)	, Stream);
+			fwrite(&dRect		, 1, sizeof(TSG_Rect)	, Stream);
 			fwrite(&iPart		, 1, sizeof(int)		, Stream);
 			fwrite(&nPoints		, 1, sizeof(int)		, Stream);
 
@@ -492,7 +492,7 @@ bool CShapes::_Save_ESRI(const char *File_Name)
 				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
 					dPoint		= pShape->Get_Point(iPoint, iPart);
-					fwrite(&dPoint, 1, sizeof(TGEO_Point), Stream);
+					fwrite(&dPoint, 1, sizeof(TSG_Point), Stream);
 				}
 			}
 			break;
@@ -505,20 +505,20 @@ bool CShapes::_Save_ESRI(const char *File_Name)
 	fseek(Stream	, 24, SEEK_SET);
 	fseek(Stream_Idx, 24, SEEK_SET);
 
-	API_Write_Int(Stream	, FileLength	, true);
-	API_Write_Int(Stream_Idx, FileLength_idx, true);
+	SG_Write_Int(Stream	, FileLength	, true);
+	SG_Write_Int(Stream_Idx, FileLength_idx, true);
 
 	fclose(Stream);
 	fclose(Stream_Idx);
 
-	API_Callback_Message_Add(LNG("[MSG] okay"), false);
+	SG_Callback_Message_Add(LNG("[MSG] okay"), false);
 
-	API_Callback_Process_Set_Ready();
+	SG_Callback_Process_Set_Ready();
 
 	//-----------------------------------------------------
 	// Attributes...
 
-	fName	= API_Make_File_Path(NULL, File_Name, "dbf");
+	fName	= SG_File_Make_Path(NULL, File_Name, "dbf");
 
 	return( m_Table.Save(fName, TABLE_FILETYPE_DBase) );
 }

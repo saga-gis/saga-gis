@@ -99,7 +99,7 @@ CGrid_Value_Type::CGrid_Value_Type(void)
 	pNode	= Parameters.Add_Choice(
 		NULL	, "TYPE"	, _TL("Data storage type"),
 		"",
-		CAPI_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|",
 			_TL("1 bit"),
 			_TL("1 byte unsigned"),
 			_TL("1 byte signed"),

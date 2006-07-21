@@ -120,7 +120,7 @@ CHypsometry::CHypsometry(void)
 		NULL	, "SORTING"		, _TL("Sort"),
 		"",
 
-		CAPI_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s|",
 			_TL("up"),
 			_TL("down")
 		), 1
@@ -130,7 +130,7 @@ CHypsometry::CHypsometry(void)
 		NULL	, "METHOD"		, _TL("Classification Constant"),
 		"",
 
-		CAPI_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s|",
 			_TL("height"),
 			_TL("area")
 		), 1
@@ -177,7 +177,7 @@ bool CHypsometry::On_Execute(void)
 	zMax		= Parameters("BZRANGE")		->asBool() ? Parameters("ZRANGE")->asRange()->Get_HiVal() : 0.0;
 	
 	pTable->Destroy();
-	pTable->Set_Name(CAPI_String::Format("%s: %s", _TL("Hypsometric Curve"), pDEM->Get_Name()));
+	pTable->Set_Name(CSG_String::Format("%s: %s", _TL("Hypsometric Curve"), pDEM->Get_Name()));
 	pTable->Add_Field(_TL("Relative Height"), TABLE_FIELDTYPE_Double);
 	pTable->Add_Field(_TL("Relative Area")	, TABLE_FIELDTYPE_Double);
 	pTable->Add_Field(_TL("Absolute Height"), TABLE_FIELDTYPE_Double);
@@ -245,7 +245,7 @@ bool CHypsometry::Calculate_A(CGrid *pDEM, CTable *pTable, bool bDown, int nClas
 
 	if( A > 0 && Min < Max )
 	{
-		Cells_Count	= (long *)API_Calloc(nClasses + 1, sizeof(long));
+		Cells_Count	= (long *)SG_Calloc(nClasses + 1, sizeof(long));
 
 		for(n=0; n<pDEM->Get_NCells() && Set_Progress_NCells(n); n++)
 		{
@@ -273,7 +273,7 @@ bool CHypsometry::Calculate_A(CGrid *pDEM, CTable *pTable, bool bDown, int nClas
 			pRecord->Set_Value(3, a * pDEM->Get_Cellarea());		// Absolute Area
 		}
 
-		API_Free(Cells_Count);
+		SG_Free(Cells_Count);
 
 		return( false );
 	}
@@ -339,7 +339,7 @@ bool CHypsometry::Calculate_B(CGrid *pDEM, CTable *pTable, bool bDown, int nClas
 		pTable->Add_Field(_TL("Absolute Height"), TABLE_FIELDTYPE_Double);
 		pTable->Add_Field(_TL("Absolute Area")	, TABLE_FIELDTYPE_Double);
 
-		pTable->Set_Name(CAPI_String::Format("%s: %s", _TL("Hypsometric Curve"), pDEM->Get_Name()));
+		pTable->Set_Name(CSG_String::Format("%s: %s", _TL("Hypsometric Curve"), pDEM->Get_Name()));
 
 		//-------------------------------------------------
 		nStep	= nRange / nClasses;

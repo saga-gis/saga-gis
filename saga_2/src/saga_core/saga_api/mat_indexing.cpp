@@ -70,7 +70,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define INDEX_SWAP(a,b)	{itemp=(a);(a)=(b);(b)=itemp;}
+#define SG_INDEX_COMPARE_INT		0
+#define SG_INDEX_COMPARE_DOUBLE		1
+#define SG_INDEX_COMPARE_FUNCTION	2
 
 
 ///////////////////////////////////////////////////////////
@@ -80,114 +82,180 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void	*MAT_Index_Values;
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-int		MAT_Index_Compare_Int		(const int iElement_1, const int iElement_2)
+CSG_Index::CSG_Index(void)
 {
-	return( ((int *)MAT_Index_Values)[iElement_1] - ((int *)MAT_Index_Values)[iElement_2] );
+	_On_Construction();
 }
 
 //---------------------------------------------------------
-int *	MAT_Create_Index(int nValues, int *Values, bool bAscending)
+CSG_Index::CSG_Index(int nValues, int *Values, bool bAscending)
 {
-	MAT_Index_Values	= Values;
+	_On_Construction();
 
-	return( MAT_Create_Index(nValues, MAT_Index_Compare_Int, bAscending) );
+	Create(nValues, Values, bAscending);
 }
 
-//---------------------------------------------------------
-bool	MAT_Create_Index(int nValues, int *Values, bool bAscending, int *Index)
+bool CSG_Index::Create(int nValues, int *Values, bool bAscending)
 {
-	MAT_Index_Values	= Values;
+	m_iCompare	= SG_INDEX_COMPARE_INT;
+	m_Values	= Values;
 
-	return( MAT_Create_Index(nValues, MAT_Index_Compare_Int, bAscending, Index) );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-int		MAT_Index_Compare_Double	(const int iElement_1, const int iElement_2)
-{
-	double	d	= ((double *)MAT_Index_Values)[iElement_1] - ((double *)MAT_Index_Values)[iElement_2];
-
-	return( d < 0.0 ? -1 : (d > 0.0 ? 1 : 0) );
-}
-
-//---------------------------------------------------------
-int *	MAT_Create_Index(int nValues, double *Values, bool bAscending)
-{
-	MAT_Index_Values	= Values;
-
-	return( MAT_Create_Index(nValues, MAT_Index_Compare_Double, bAscending) );
-}
-
-//---------------------------------------------------------
-bool	MAT_Create_Index(int nValues, double *Values, bool bAscending, int *Index)
-{
-	MAT_Index_Values	= Values;
-
-	return( MAT_Create_Index(nValues, MAT_Index_Compare_Double, bAscending, Index) );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-int *	MAT_Create_Index(int nValues, int (*Compare)(const int iElement_1, const int iElement_2), bool bAscending)
-{
-	int		*Index;
-
-	if( nValues > 0 )
+	if( _Set_Array(nValues) && _Set_Index(bAscending) )
 	{
-		Index	= (int *)API_Malloc(nValues * sizeof(int));
-
-		if( MAT_Create_Index(nValues, Compare, bAscending, Index) )
-		{
-			return( Index );
-		}
-
-		API_Free(Index);
+		return( true );
 	}
 
-	return( NULL );
+	Destroy();
+
+	return( false );
 }
 
 //---------------------------------------------------------
-bool	MAT_Create_Index(int nValues, int (*Compare)(const int iElement_1, const int iElement_2), bool bAscending, int *Index)
+CSG_Index::CSG_Index(int nValues, double *Values, bool bAscending)
+{
+	_On_Construction();
+
+	Create(nValues, Values, bAscending);
+}
+
+bool CSG_Index::Create(int nValues, double *Values, bool bAscending)
+{
+	m_iCompare	= SG_INDEX_COMPARE_DOUBLE;
+	m_Values	= Values;
+
+	if( _Set_Array(nValues) && _Set_Index(bAscending) )
+	{
+		return( true );
+	}
+
+	Destroy();
+
+	return( false );
+}
+
+//---------------------------------------------------------
+CSG_Index::CSG_Index(int nValues, TSG_PFNC_Compare fCompare, bool bAscending)
+{
+	_On_Construction();
+
+	Create(nValues, fCompare, bAscending);
+}
+
+bool CSG_Index::Create(int nValues, TSG_PFNC_Compare fCompare, bool bAscending)
+{
+	m_iCompare	= SG_INDEX_COMPARE_FUNCTION;
+	m_fCompare	= fCompare;
+
+	if( _Set_Array(nValues) && _Set_Index(bAscending) )
+	{
+		return( true );
+	}
+
+	Destroy();
+
+	return( false );
+}
+
+//---------------------------------------------------------
+CSG_Index::~CSG_Index(void)
+{
+	Destroy();
+}
+
+bool CSG_Index::Destroy(void)
+{
+	if( m_Values )
+	{
+		SG_Free(m_Values);
+	}
+
+	_On_Construction();
+
+	return( true );
+}
+
+//---------------------------------------------------------
+void CSG_Index::_On_Construction(void)
+{
+	m_nValues	= 0;
+	m_Values	= NULL;
+}
+
+//---------------------------------------------------------
+bool CSG_Index::_Set_Array(int nValues)
+{
+	if( nValues > 0 )
+	{
+		if( nValues != m_nValues )
+		{
+			m_nValues	= nValues;
+			m_Values	= SG_Realloc(m_Values, m_nValues * sizeof(int));
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+inline int CSG_Index::_Compare(const int iElement_1, const int iElement_2)
+{
+	double	d;
+
+	switch( m_iCompare )
+	{
+	case SG_INDEX_COMPARE_INT:
+		return(  ((int *)m_Values)[iElement_1] - ((int    *)m_Values)[iElement_2] );
+
+	case SG_INDEX_COMPARE_DOUBLE:
+		d	= ((double *)m_Values)[iElement_1] - ((double *)m_Values)[iElement_2];
+
+		return( d < 0.0 ? -1 : (d > 0.0 ? 1 : 0) );
+
+	case SG_INDEX_COMPARE_FUNCTION:
+		return( m_fCompare(iElement_1, iElement_2) );
+	}
+
+	return( 0 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define SG_INDEX_SWAP(a, b)	{itemp=(a);(a)=(b);(b)=itemp;}
+
+//---------------------------------------------------------
+bool CSG_Index::_Set_Index(bool bAscending)
 {
 	const int	M	= 7;
 
 	int		indxt, itemp, *istack,
 			i, j, k, a,
 			l		= 0,
-			ir		= nValues - 1,
+			ir		= m_nValues - 1,
 			nstack	= 64,
 			jstack	= 0;
 
 	//-----------------------------------------------------
-	for(j=0; j<nValues; j++)
+	for(j=0; j<m_nValues; j++)
 	{
-		Index[j]	= j;
+		m_Index[j]	= j;
 	}
 
-	istack	= (int *)API_Malloc(nstack * sizeof(int));
+	istack	= (int *)SG_Malloc(nstack * sizeof(int));
 
 	//-----------------------------------------------------
 	for(;;)
@@ -196,19 +264,19 @@ bool	MAT_Create_Index(int nValues, int (*Compare)(const int iElement_1, const in
 		{
 			for(j=l+1; j<=ir; j++)
 			{
-				a		= indxt	= Index[j];
+				a		= indxt	= m_Index[j];
 
 				for(i=j-1; i>=0; i--)
 				{
-					if( Compare(Index[i], a) <= 0 )
+					if( _Compare(m_Index[i], a) <= 0 )
 					{
 						break;
 					}
 
-					Index[i + 1]	= Index[i];
+					m_Index[i + 1]	= m_Index[i];
 				}
 
-				Index[i + 1]	= indxt;
+				m_Index[i + 1]	= indxt;
 			}
 
 			if( jstack == 0 )
@@ -222,42 +290,42 @@ bool	MAT_Create_Index(int nValues, int (*Compare)(const int iElement_1, const in
 		else
 		{
 			k		= (l + ir) >> 1;
-			INDEX_SWAP(Index[k], Index[l + 1]);
+			SG_INDEX_SWAP(m_Index[k], m_Index[l + 1]);
 
-			if( Compare   (Index[l + 1], Index[ir]) > 0 )
-				INDEX_SWAP(Index[l + 1], Index[ir]);
+			if( _Compare     (m_Index[l + 1], m_Index[ir]) > 0 )
+				SG_INDEX_SWAP(m_Index[l + 1], m_Index[ir]);
 
-			if( Compare   (Index[l    ], Index[ir]) > 0 )
-				INDEX_SWAP(Index[l    ], Index[ir]);
+			if( _Compare     (m_Index[l    ], m_Index[ir]) > 0 )
+				SG_INDEX_SWAP(m_Index[l    ], m_Index[ir]);
 
-			if( Compare   (Index[l + 1], Index[l ]) > 0 )
-				INDEX_SWAP(Index[l + 1], Index[l ]);
+			if( _Compare     (m_Index[l + 1], m_Index[l ]) > 0 )
+				SG_INDEX_SWAP(m_Index[l + 1], m_Index[l ]);
 
 			i		= l + 1;
 			j		= ir;
-			a		= indxt	= Index[l];
+			a		= indxt	= m_Index[l];
 
 			for(;;)
 			{
-				do	i++;	while( Compare(Index[i], a) < 0 );
-				do	j--;	while( Compare(Index[j], a) > 0 );
+				do	i++;	while( _Compare(m_Index[i], a) < 0 );
+				do	j--;	while( _Compare(m_Index[j], a) > 0 );
 
 				if( j < i )
 				{
 					break;
 				}
 
-				INDEX_SWAP(Index[i], Index[j]);
+				SG_INDEX_SWAP(m_Index[i], m_Index[j]);
 			}
 
-			Index[l]	= Index[j];
-			Index[j]	= indxt;
+			m_Index[l]	= m_Index[j];
+			m_Index[j]	= indxt;
 			jstack		+= 2;
 
 			if( jstack >= nstack )
 			{
 				nstack	+= 64;
-				istack	= (int *)API_Realloc(istack, nstack * sizeof(int));
+				istack	= (int *)SG_Realloc(istack, nstack * sizeof(int));
 			}
 
 			if( ir - i + 1 >= j - l )
@@ -278,15 +346,15 @@ bool	MAT_Create_Index(int nValues, int (*Compare)(const int iElement_1, const in
 	//-----------------------------------------------------
 	if( !bAscending )
 	{
-		for(i=0, j=nValues-1; i<j; i++, j--)
+		for(i=0, j=m_nValues-1; i<j; i++, j--)
 		{
-			k			= Index[i];
-			Index[i]	= Index[j];
-			Index[j]	= k;
+			k			= m_Index[i];
+			m_Index[i]	= m_Index[j];
+			m_Index[j]	= k;
 		}
 	}
 
-	API_Free(istack);
+	SG_Free(istack);
 
 	return( true );
 }

@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CMAT_Regression::CMAT_Regression(void)
+CSG_Regression::CSG_Regression(void)
 {
 	m_nBuffer	= 0;
 	m_nValues	= 0;
@@ -81,7 +81,7 @@ CMAT_Regression::CMAT_Regression(void)
 }
 
 //---------------------------------------------------------
-CMAT_Regression::~CMAT_Regression(void)
+CSG_Regression::~CSG_Regression(void)
 {
 	Destroy();
 }
@@ -94,12 +94,12 @@ CMAT_Regression::~CMAT_Regression(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CMAT_Regression::Destroy(void)
+void CSG_Regression::Destroy(void)
 {
 	if( m_nBuffer > 0 )
 	{
-		API_Free(m_x);
-		API_Free(m_y);
+		SG_Free(m_x);
+		SG_Free(m_y);
 
 		m_nBuffer	= 0;
 	}
@@ -117,13 +117,13 @@ void CMAT_Regression::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CMAT_Regression::Add_Values(double x, double y)
+void CSG_Regression::Add_Values(double x, double y)
 {
 	if( m_nValues >= m_nBuffer )
 	{
 		m_nBuffer	+= 64;
-		m_x	= (double *)API_Realloc(m_x, m_nBuffer * sizeof(double));
-		m_y	= (double *)API_Realloc(m_y, m_nBuffer * sizeof(double));
+		m_x	= (double *)SG_Realloc(m_x, m_nBuffer * sizeof(double));
+		m_y	= (double *)SG_Realloc(m_y, m_nBuffer * sizeof(double));
 	}
 
 	m_x[m_nValues]	= x;
@@ -133,7 +133,7 @@ void CMAT_Regression::Add_Values(double x, double y)
 }
 
 //---------------------------------------------------------
-void CMAT_Regression::Set_Values(int nValues, double *x, double *y)
+void CSG_Regression::Set_Values(int nValues, double *x, double *y)
 {
 	Destroy();
 
@@ -151,9 +151,9 @@ void CMAT_Regression::Set_Values(int nValues, double *x, double *y)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char * CMAT_Regression::asString(void)
+const char * CSG_Regression::asString(void)
 {
-	static CAPI_String	s;
+	static CSG_String	s;
 
 	s.Printf(
 		"N = %d\n"
@@ -177,7 +177,7 @@ const char * CMAT_Regression::asString(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CMAT_Regression::Get_x(double y)
+double CSG_Regression::Get_x(double y)
 {
 	if( m_nValues > 0.0 )
 	{
@@ -213,7 +213,7 @@ double CMAT_Regression::Get_x(double y)
 }
 
 //---------------------------------------------------------
-double CMAT_Regression::Get_y(double x)
+double CSG_Regression::Get_y(double x)
 {
 	if( m_nValues > 0.0 )
 	{
@@ -253,7 +253,7 @@ double CMAT_Regression::Get_y(double x)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CMAT_Regression::_Get_MinMeanMax(double &xMin, double &xMean, double &xMax, double &yMin, double &yMean, double &yMax)
+bool CSG_Regression::_Get_MinMeanMax(double &xMin, double &xMean, double &xMax, double &yMin, double &yMean, double &yMax)
 {
 	int		i;
 	double	x, y;
@@ -289,7 +289,7 @@ bool CMAT_Regression::_Get_MinMeanMax(double &xMin, double &xMean, double &xMax,
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline double CMAT_Regression::_Y_Transform(double y)
+inline double CSG_Regression::_Y_Transform(double y)
 {
 	switch( m_Type )
 	{
@@ -308,7 +308,7 @@ inline double CMAT_Regression::_Y_Transform(double y)
 }
 
 //---------------------------------------------------------
-inline double CMAT_Regression::_X_Transform(double x)
+inline double CSG_Regression::_X_Transform(double x)
 {
 	switch( m_Type )
 	{
@@ -334,7 +334,7 @@ inline double CMAT_Regression::_X_Transform(double x)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CMAT_Regression::_Linear(void)
+bool CSG_Regression::_Linear(void)
 {
 	int		i;
 	double	x, y, s_xx, s_xy, s_x, s_y, s_dx2, s_dy2, s_dxdy;
@@ -403,7 +403,7 @@ bool CMAT_Regression::_Linear(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CMAT_Regression::Calculate(TMAT_Regression_Type Type)
+bool CSG_Regression::Calculate(TSG_Regression_Type Type)
 {
 	double	d;
 
@@ -458,7 +458,7 @@ bool CMAT_Regression::Calculate(TMAT_Regression_Type Type)
 }
 
 //---------------------------------------------------------
-bool CMAT_Regression::Calculate(int nValues, double *x, double *y, TMAT_Regression_Type Type)
+bool CSG_Regression::Calculate(int nValues, double *x, double *y, TSG_Regression_Type Type)
 {
 	bool	bResult;
 

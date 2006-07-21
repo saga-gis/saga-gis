@@ -98,7 +98,7 @@ CSurfaceSpecificPoints::CSurfaceSpecificPoints(void)
 	pNode	= Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
 		_TL("Algorithm for the detection of Surface Specific Points"),
-		CAPI_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|",
 			_TL("Mark Highest Neighbour"),
 			_TL("Opposite Neighbours"),
 			_TL("Flow Direction"),
@@ -175,8 +175,8 @@ void CSurfaceSpecificPoints::Do_MarkHighestNB(CGrid *pGrid, CGrid *pResult)	// B
 
 	CGrid	*clo, *chi;
 
-	clo		= API_Create_Grid(pGrid, GRID_TYPE_Char);
-	chi		= API_Create_Grid(pGrid, GRID_TYPE_Char);
+	clo		= SG_Create_Grid(pGrid, GRID_TYPE_Char);
+	chi		= SG_Create_Grid(pGrid, GRID_TYPE_Char);
 
 	// Pass 1: Auszaehlen...
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -255,8 +255,8 @@ void CSurfaceSpecificPoints::Do_OppositeNB(CGrid *pGrid, CGrid *pResult)
 
 	CGrid	*clo, *chi;
 
-	clo		= API_Create_Grid(pGrid, GRID_TYPE_Char);
-	chi		= API_Create_Grid(pGrid, GRID_TYPE_Char);
+	clo		= SG_Create_Grid(pGrid, GRID_TYPE_Char);
+	chi		= SG_Create_Grid(pGrid, GRID_TYPE_Char);
 
 	// Pass 1: Auszaehlen...
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)

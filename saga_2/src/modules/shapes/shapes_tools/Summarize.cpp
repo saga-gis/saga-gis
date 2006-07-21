@@ -20,12 +20,12 @@
 
 #define VERY_LARGE_NUMBER 9999999999.
 
-CAPI_String sParam[] = {"[Sum]", "[Mean]", "[Variance]", "[Minimum]", "[Maximum]"};
+CSG_String sParam[] = {"[Sum]", "[Mean]", "[Variance]", "[Minimum]", "[Maximum]"};
 
 CSummarize::CSummarize(void){
 
 	CParameter *pNode;
-	CAPI_String sName;
+	CSG_String sName;
 
 	Parameters.Set_Name(_TL("Summary"));
 	Parameters.Set_Description(_TL("(c) 2004 by Victor Olaya. summary."));
@@ -83,7 +83,7 @@ bool CSummarize::On_Execute(void){
 	int i,j;
 	CTable *pShapesTable;
 	CParameter **pExtraParameter;
-	CAPI_String sName, sFilePath;
+	CSG_String sName, sFilePath;
 
 	m_iField = Parameters("FIELD")->asInt();
 	m_pShapes = Parameters("SHAPES")->asShapes();
@@ -99,7 +99,7 @@ bool CSummarize::On_Execute(void){
 				sName = pShapesTable->Get_Field_Name(i);
 				sName.Append(_TL(sParam[j]));
 				pExtraParameter[i * 5 + j] = m_pExtraParameters->Add_Value(NULL,
-																			API_Get_String(i * 5 + j,0).c_str(),
+																			SG_Get_String(i * 5 + j,0).c_str(),
 																			sName.c_str(),
 																			"",
 																			PARAMETER_TYPE_Bool,
@@ -114,7 +114,7 @@ bool CSummarize::On_Execute(void){
 
 	if(Dlg_Extra_Parameters("EXTRA")){
 		for (i = 0; i < pShapesTable->Get_Field_Count() * 5; i++){
-			sName = API_Get_String(i,0);
+			sName = SG_Get_String(i,0);
 			if (m_bIncludeParam[i]){
 				m_bIncludeParam[i] = Get_Extra_Parameters("EXTRA")->Get_Parameter(sName.c_str())->asBool();
 			}//if			
@@ -128,7 +128,7 @@ bool CSummarize::On_Execute(void){
 				sName.Append(m_pShapes->Get_Name());
 				m_DocEngine.Open(PDF_PAGE_SIZE_A3, PDF_PAGE_ORIENTATION_LANDSCAPE, sName);
 				CreatePDFDocs();
-				sFilePath = API_Make_File_Path(Parameters("OUTPUTPATH")->asString(), sName, "pdf");
+				sFilePath = SG_File_Make_Path(Parameters("OUTPUTPATH")->asString(), sName, "pdf");
 				if (m_DocEngine.Save(sFilePath)){
 					if (!m_DocEngine.Close()){
 						Message_Add(_TL("\n\n ** Error : Could not close PDF engine ** \n\n"));
@@ -195,7 +195,7 @@ void CSummarize::Summarize(){
 
 	CTable *pShapesTable;
 	CTable_Record *pRecord;
-	CAPI_String sName;
+	CSG_String sName;
 	float *pSum;
 	float *pMin;
 	float *pMax;

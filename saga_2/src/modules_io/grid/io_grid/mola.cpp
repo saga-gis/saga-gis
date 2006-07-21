@@ -127,7 +127,7 @@ bool CMOLA_Import::On_Execute(void)
 	FILE		*Stream;
 	TGrid_Type	Type;
 	CGrid		*pGrid;
-	CAPI_String	fName, sName;
+	CSG_String	fName, sName;
 
 	//-----------------------------------------------------
 	pGrid	= NULL;
@@ -158,7 +158,7 @@ bool CMOLA_Import::On_Execute(void)
 	//    Image Model [MDIM] archives.)
 	//  v is a letter indicating the product version.
 
-	fName	= API_Extract_File_Name(Parameters("FILE")->asString(), false);
+	fName	= SG_File_Get_Name(Parameters("FILE")->asString(), false);
 	fName.Make_Upper();
 
 	if( fName.Length() < 12 )
@@ -257,13 +257,13 @@ bool CMOLA_Import::On_Execute(void)
 	//-----------------------------------------------------
 	if( (Stream = fopen(Parameters("FILE")->asString(), "rb")) != NULL )
 	{
-		if( (pGrid = API_Create_Grid(Type, NX, NY, D, xMin + D / 2.0, yMin + D / 2.0)) != NULL )
+		if( (pGrid = SG_Create_Grid(Type, NX, NY, D, xMin + D / 2.0, yMin + D / 2.0)) != NULL )
 		{
 			pGrid->Set_Name(sName);
 			pGrid->Set_NoData_Value(-999999);
 
 			//---------------------------------------------
-			sLine	= (short *)API_Malloc(NX * sizeof(short));
+			sLine	= (short *)SG_Malloc(NX * sizeof(short));
 
 			for(y=0; y<NY && !feof(Stream) && Set_Progress(y, NY); y++)
 			{
@@ -275,7 +275,7 @@ bool CMOLA_Import::On_Execute(void)
 				{
 					for(xa=0; xa<NX; xa++)
 					{
-						API_Swap_Bytes(sLine + xa, sizeof(short));
+						SG_Swap_Bytes(sLine + xa, sizeof(short));
 
 						pGrid->Set_Value(xa, yy, sLine[xa]);
 					}
@@ -284,8 +284,8 @@ bool CMOLA_Import::On_Execute(void)
 				{
 					for(xa=0, xb=NX/2; xb<NX; xa++, xb++)
 					{
-						API_Swap_Bytes(sLine + xa, sizeof(short));
-						API_Swap_Bytes(sLine + xb, sizeof(short));
+						SG_Swap_Bytes(sLine + xa, sizeof(short));
+						SG_Swap_Bytes(sLine + xb, sizeof(short));
 
 						pGrid->Set_Value(xa, yy, sLine[xb]);
 						pGrid->Set_Value(xb, yy, sLine[xa]);
@@ -294,7 +294,7 @@ bool CMOLA_Import::On_Execute(void)
 			}
 
 			//---------------------------------------------
-			API_Free(sLine);
+			SG_Free(sLine);
 
 			Parameters("GRID")->Set_Value(pGrid);
 

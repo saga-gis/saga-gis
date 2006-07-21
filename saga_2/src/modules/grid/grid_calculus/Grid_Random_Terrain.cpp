@@ -47,7 +47,7 @@ CGrid_Random_Terrain::CGrid_Random_Terrain(void)
 		"TARGET_TYPE", 
 		_TL("Target Dimensions"),
 		"",
-		CAPI_String::Format("%s|%s|%s|",_TL("User defined"), _TL("Grid Project"), _TL("Grid")), 
+		CSG_String::Format("%s|%s|%s|",_TL("User defined"), _TL("Grid Project"), _TL("Grid")), 
 		0);
 
 	Parameters.Add_Grid_List(
@@ -114,7 +114,7 @@ CGrid * CGrid_Random_Terrain::Get_Target_Grid(CParameters *pParameters )
 	iRows = pParameters->Get_Parameter("ROWS")->asInt();
 	iCols = pParameters->Get_Parameter("COLS")->asInt();
 	
-	return( API_Create_Grid(GRID_TYPE_Float, iCols, iRows, iCellSize, 0, 0) );
+	return( SG_Create_Grid(GRID_TYPE_Float, iCols, iRows, iCellSize, 0, 0) );
 }
 
 bool CGrid_Random_Terrain::On_Execute(void)
@@ -136,7 +136,7 @@ bool CGrid_Random_Terrain::On_Execute(void)
 	case 1:	// Grid Project...
 		if( Dlg_Extra_Parameters("GRID") )
 		{
-			pGrid	= API_Create_Grid(Get_Extra_Parameters("GRID")->Get_Parameter("GRID")->asGrid());
+			pGrid	= SG_Create_Grid(Get_Extra_Parameters("GRID")->Get_Parameter("GRID")->asGrid());
 		}
 		break;
 
@@ -186,7 +186,7 @@ void CGrid_Random_Terrain::addBump(CGrid* pGrid, int iRadius){
 			x2 = x+i;
 			y2 = y+j;
 			if (x2>0 && y2>0 && x2<pGrid->Get_NX() && y2 < pGrid->Get_NY()){
-				dDist= M_GET_DIST(x-x2, y-y2);
+				dDist= M_GET_LENGTH(x-x2, y-y2);
 				if (dDist<=iRadius){
 					dOffset = (iRadius * iRadius) - (dDist * dDist);
 					dValue = pGrid->asDouble(x2,y2);

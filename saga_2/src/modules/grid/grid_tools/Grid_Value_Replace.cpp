@@ -102,7 +102,7 @@ CGrid_Value_Replace::CGrid_Value_Replace(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Replace Condition"),
 		"",
-		CAPI_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|",
 			_TL("Grid value equals low value"),
 			_TL("Low value < grid value < high value"),
 			_TL("Low value <= grid value < high value")

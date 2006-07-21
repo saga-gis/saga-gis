@@ -97,7 +97,7 @@ private:
 
 	double					*Values;
 
-	CMAT_Grid_Radius		*pRadius;
+	CSG_Grid_Radius		*pRadius;
 
 	CGrid					*pInput, *pMean, *pDiff, *pStdDev, *pRange, *pDevMean, *pPercentile;
 

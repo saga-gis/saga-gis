@@ -70,25 +70,25 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTIN * API_Create_TIN(void)
+CTIN * SG_Create_TIN(void)
 {
 	return( new CTIN );
 }
 
 //---------------------------------------------------------
-CTIN * API_Create_TIN(const CTIN &TIN)
+CTIN * SG_Create_TIN(const CTIN &TIN)
 {
 	return( new CTIN(TIN) );
 }
 
 //---------------------------------------------------------
-CTIN * API_Create_TIN(const char *File_Name)
+CTIN * SG_Create_TIN(const char *File_Name)
 {
 	return( new CTIN(File_Name) );
 }
 
 //---------------------------------------------------------
-CTIN * API_Create_TIN(CShapes *pShapes)
+CTIN * SG_Create_TIN(CShapes *pShapes)
 {
 	return( new CTIN(pShapes) );
 }
@@ -197,7 +197,7 @@ bool CTIN::Create(CShapes *pShapes)
 	{
 		Destroy();
 
-		API_Callback_Message_Add(CAPI_String::Format("%s: %s...", LNG("[MSG] Create T.I.N. from shapes"), pShapes->Get_Name()), true);
+		SG_Callback_Message_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Create T.I.N. from shapes"), pShapes->Get_Name()), true);
 
 		Set_Name(pShapes->Get_Name());
 
@@ -207,7 +207,7 @@ bool CTIN::Create(CShapes *pShapes)
 		m_Table.Set_Name(pShapes->Get_Name());
 
 		//-------------------------------------------------
-		for(iShape=0; iShape<pShapes->Get_Count() && API_Callback_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		for(iShape=0; iShape<pShapes->Get_Count() && SG_Callback_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
 			pShape	= pShapes->Get_Shape(iShape);
 
@@ -220,17 +220,17 @@ bool CTIN::Create(CShapes *pShapes)
 			}
 		}
 
-		API_Callback_Process_Set_Ready();
+		SG_Callback_Process_Set_Ready();
 
 		if( _Triangulate() )
 		{
-			API_Callback_Message_Add(LNG("[MSG] okay"), false);
+			SG_Callback_Message_Add(LNG("[MSG] okay"), false);
 
 			return( true );
 		}
 	}
 
-	API_Callback_Message_Add(LNG("[MSG] failed"), false);
+	SG_Callback_Message_Add(LNG("[MSG] failed"), false);
 
 	return( false );
 }
@@ -279,7 +279,7 @@ bool CTIN::_Destroy_Points(void)
 			delete(m_Points[i]);
 		}
 
-		API_Free(m_Points);
+		SG_Free(m_Points);
 		m_Points		= NULL;
 		m_nPoints		= 0;
 	}
@@ -297,7 +297,7 @@ bool CTIN::_Destroy_Edges(void)
 			delete(m_Edges[i]);
 		}
 
-		API_Free(m_Edges);
+		SG_Free(m_Edges);
 		m_Edges			= NULL;
 		m_nEdges		= 0;
 	}
@@ -315,7 +315,7 @@ bool CTIN::_Destroy_Triangles(void)
 			delete(m_Triangles[i]);
 		}
 
-		API_Free(m_Triangles);
+		SG_Free(m_Triangles);
 		m_Triangles		= NULL;
 		m_nTriangles	= 0;
 	}
@@ -398,7 +398,13 @@ bool CTIN::Save(const char *File_Name, int Format)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTIN_Point * CTIN::Add_Point(TGEO_Point Point, CTable_Record *pRecord, bool bUpdateNow)
+bool CTIN::Update(void)
+{
+	return( _Triangulate() );
+}
+
+//---------------------------------------------------------
+CTIN_Point * CTIN::Add_Point(TSG_Point Point, CTable_Record *pRecord, bool bUpdateNow)
 {
 /*	for(int i=0; i<m_nPoints; i++)
 	{
@@ -410,7 +416,7 @@ CTIN_Point * CTIN::Add_Point(TGEO_Point Point, CTable_Record *pRecord, bool bUpd
 */
 
 	//-----------------------------------------------------
-	m_Points			= (CTIN_Point **)API_Realloc(m_Points, (m_nPoints + 1) * sizeof(CTIN_Point *));
+	m_Points			= (CTIN_Point **)SG_Realloc(m_Points, (m_nPoints + 1) * sizeof(CTIN_Point *));
 	m_Points[m_nPoints]	= new CTIN_Point(m_nPoints, Point, m_Table._Add_Record(pRecord));
 	m_nPoints++;
 
@@ -440,7 +446,7 @@ bool CTIN::Del_Point(int iPoint, bool bUpdateNow)
 			m_Points[i]	= m_Points[i + 1];
 		}
 
-		m_Points	= (CTIN_Point **)API_Realloc(m_Points, m_nPoints * sizeof(CTIN_Point *));
+		m_Points	= (CTIN_Point **)SG_Realloc(m_Points, m_nPoints * sizeof(CTIN_Point *));
 
 		m_Table._Del_Record(iPoint);
 
@@ -467,7 +473,7 @@ bool CTIN::Del_Point(int iPoint, bool bUpdateNow)
 //---------------------------------------------------------
 inline bool CTIN::_Add_Edge(CTIN_Point *a, CTIN_Point *b)
 {
-	m_Edges		= (CTIN_Edge **)API_Realloc(m_Edges, (m_nEdges + 1) * sizeof(CTIN_Edge *));
+	m_Edges		= (CTIN_Edge **)SG_Realloc(m_Edges, (m_nEdges + 1) * sizeof(CTIN_Edge *));
 	m_Edges[m_nEdges++]	= new CTIN_Edge(a, b);
 
 	return( true );
@@ -478,7 +484,7 @@ bool CTIN::_Add_Triangle(CTIN_Point *a, CTIN_Point *b, CTIN_Point *c)
 {
 	CTIN_Triangle	*pTriangle;
 
-	m_Triangles	= (CTIN_Triangle **)API_Realloc(m_Triangles, (m_nTriangles + 1) * sizeof(CTIN_Triangle *));
+	m_Triangles	= (CTIN_Triangle **)SG_Realloc(m_Triangles, (m_nTriangles + 1) * sizeof(CTIN_Triangle *));
 	m_Triangles[m_nTriangles++]	= pTriangle = new CTIN_Triangle(a, b, c);
 
 	if( a->_Add_Neighbor(b) )
@@ -516,19 +522,18 @@ bool CTIN::_Add_Triangle(CTIN_Point *a, CTIN_Point *b, CTIN_Point *c)
 //---------------------------------------------------------
 void CTIN::_Extent_Update(void)
 {
-	int			i;
-	TGEO_Rect	r;
-
 	if( m_bUpdate )
 	{
 		if( m_nPoints > 0 )
 		{
+			TSG_Rect	r;
+
 			m_Extent.Assign(
 				m_Points[0]->Get_X(), m_Points[0]->Get_Y(),
 				m_Points[0]->Get_X(), m_Points[0]->Get_Y()
 			);
 
-			for(i=1; i<m_nPoints; i++)
+			for(int i=1; i<m_nPoints; i++)
 			{
 				r.xMin	= r.xMax	= m_Points[i]->Get_X();
 				r.yMin	= r.yMax	= m_Points[i]->Get_Y();
