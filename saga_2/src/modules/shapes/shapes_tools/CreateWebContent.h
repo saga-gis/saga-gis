@@ -33,20 +33,20 @@ public:
 protected:
 
 	virtual bool				On_Execute(void);
-	virtual bool				On_Execute_Position(CGEO_Point ptWorld, TModule_Interactive_Mode Mode);
+	virtual bool				On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
 	virtual bool				On_Execute_Finish(void);
 
 private:
 
 	bool						m_bDown;
-	CGEO_Point					m_ptDown;
+	CSG_Point					m_ptDown;
 	CShapes						*m_pShapes;
 	int							m_iField, m_iNameField;
-	CAPI_String					m_sOutputPath;
+	CSG_String					m_sOutputPath;
 
-	std::vector<CAPI_String>	*m_Pictures;
-	std::vector<CAPI_String>	*m_Links;
-	std::vector<CAPI_String>	*m_LinksDescription;
+	std::vector<CSG_String>	*m_Pictures;
+	std::vector<CSG_String>	*m_Links;
+	std::vector<CSG_String>	*m_LinksDescription;
 
 };
 

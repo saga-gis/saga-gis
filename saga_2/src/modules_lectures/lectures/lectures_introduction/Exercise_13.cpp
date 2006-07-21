@@ -312,7 +312,7 @@ void CExercise_13::Transformation(CShapes *pShapes_A, CShapes *pShapes_B, double
 {
 	int			iShape, iPart, iPoint;
 	double		x;
-	TGEO_Point	p;
+	TSG_Point	p;
 	CShape		*pShape_A, *pShape_B;
 
 

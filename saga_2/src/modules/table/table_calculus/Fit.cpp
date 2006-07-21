@@ -58,7 +58,7 @@
 
 #define EPS 0.001
 
-CMAT_Formula Formel;
+CSG_Formula Formel;
 
 char vars[26]; 
 

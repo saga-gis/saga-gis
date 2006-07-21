@@ -76,12 +76,22 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//						Enumerations					 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum
+#define	SG_IS_BETWEEN(a, x, b)	(((a) <= (x) && (x) <= (b)) || ((b) <= (x) && (x) <= (a)))
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+typedef enum ESG_Intersection
 {
 	INTERSECTION_None			 = 0,
 	INTERSECTION_Identical,
@@ -89,7 +99,7 @@ typedef enum
 	INTERSECTION_Contained,
 	INTERSECTION_Contains
 }
-TGEO_Intersection;
+TSG_Intersection;
 
 
 ///////////////////////////////////////////////////////////
@@ -99,47 +109,75 @@ TGEO_Intersection;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef struct
+typedef struct SSG_Point
 {
 	double						x, y;
 }
-TGEO_Point;
+TSG_Point;
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CGEO_Point
+typedef struct SSG_Point_Int
+{
+	int							x, y;
+}
+TSG_Point_Int;
+
+//---------------------------------------------------------
+typedef struct SSG_Point_3D
+{
+	double						x, y, z;
+}
+TSG_Point_3D;
+
+//---------------------------------------------------------
+typedef struct SSG_Rect
+{
+	double						xMin, yMin, xMax, yMax;
+}
+TSG_Rect;
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Point
 {
 public:
-	CGEO_Point(void);
-	CGEO_Point(const CGEO_Point &Point);
-	CGEO_Point(const TGEO_Point &Point);
-	CGEO_Point(double x, double y);
+	CSG_Point(void);
+	CSG_Point(const CSG_Point &Point);
+	CSG_Point(const TSG_Point &Point);
+	CSG_Point(double x, double y);
 
-	~CGEO_Point(void);
+	~CSG_Point(void);
 
-	operator TGEO_Point &						(void)			{	return( m_point );		}
+	operator TSG_Point &						(void)			{	return( m_point );		}
 
-	double						Get_X			(void) const	{	return( m_point.x );	}
-	double						Get_Y			(void) const	{	return( m_point.y );	}
+	double						Get_X			(void)	const	{	return( m_point.x );	}
+	double						Get_Y			(void)	const	{	return( m_point.y );	}
 
-	bool						operator ==		(const CGEO_Point &Point) const;
-	bool						operator !=		(const CGEO_Point &Point) const;
+	bool						operator ==		(const CSG_Point &Point)	const;
+	bool						operator !=		(const CSG_Point &Point)	const;
 
-	CGEO_Point &				operator  =		(const CGEO_Point &Point);
-	void						operator +=		(const CGEO_Point &Point);
-	void						operator -=		(const CGEO_Point &Point);
+	CSG_Point &					operator  =		(const CSG_Point &Point);
+	void						operator +=		(const CSG_Point &Point);
+	void						operator -=		(const CSG_Point &Point);
 
-	CGEO_Point					operator +		(const CGEO_Point &Point) const;
-	CGEO_Point					operator -		(const CGEO_Point &Point) const;
+	CSG_Point					operator +		(const CSG_Point &Point)	const;
+	CSG_Point					operator -		(const CSG_Point &Point)	const;
 
 	void						Assign			(double x, double y);
-	void						Assign			(const CGEO_Point &Point);
+	void						Assign			(const CSG_Point &Point);
 
-	bool						is_Equal		(double x, double y) const;
-	bool						is_Equal		(const CGEO_Point &Point) const;
+	bool						is_Equal		(double x, double y)		const;
+	bool						is_Equal		(const CSG_Point &Point)	const;
 
 
 	//-----------------------------------------------------
-	TGEO_Point					m_point;
+	TSG_Point					m_point;
 
 };
 
@@ -151,44 +189,144 @@ public:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef struct
-{
-	double						xMin, yMin, xMax, yMax;
-}
-TGEO_Rect;
-
-//---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CGEO_Rect
+class SAGA_API_DLL_EXPORT CSG_Points
 {
 public:
-	CGEO_Rect(void);
-	CGEO_Rect(const CGEO_Rect &Rect);
-	CGEO_Rect(const TGEO_Rect &Rect);
-	CGEO_Rect(const CGEO_Point &A, const CGEO_Point &B);
-	CGEO_Rect(double xMin, double yMin, double xMax, double yMax);
+	CSG_Points(void);
+	virtual ~CSG_Points(void);
 
-	~CGEO_Rect(void);
+	void						Clear			(void);
 
-	operator TGEO_Rect &						(void)	{	return( m_rect );	}
+	CSG_Points &				operator  =		(const CSG_Points &Points);
+	bool						Assign			(const CSG_Points &Points);
 
-	bool						operator ==		(const CGEO_Rect &Rect) const;
-	bool						operator !=		(const CGEO_Rect &Rect) const;
+	bool						Add				(double x, double y);
+	bool						Add				(const TSG_Point &Point);
+	bool						Del				(int Index);
 
-	CGEO_Rect &					operator  =		(const CGEO_Rect &Rect);
-	void						operator +=		(const CGEO_Point &Point);
-	void						operator -=		(const CGEO_Point &Point);
+	bool						Set_Count		(int nPoints);
+	int							Get_Count		(void)		const	{	return( m_nPoints );	}
+
+	TSG_Point &					operator []		(int Index)			{	return( m_Points[Index]   );	}
+	TSG_Point &					Get_Point		(int Index)			{	return( m_Points[Index]   );	}
+	double						Get_X			(int Index) const	{	return( m_Points[Index].x );	}
+	double						Get_Y			(int Index) const	{	return( m_Points[Index].y );	}
+
+
+private:
+
+	int							m_nPoints;
+
+	TSG_Point					*m_Points;
+
+};
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Points_Int
+{
+public:
+	CSG_Points_Int(void);
+	virtual ~CSG_Points_Int(void);
+
+	void						Clear			(void);
+
+	CSG_Points_Int &			operator  =		(const CSG_Points_Int &Points);
+	bool						Assign			(const CSG_Points_Int &Points);
+
+	bool						Add				(int x, int y);
+	bool						Add				(const TSG_Point_Int &Point);
+	bool						Del				(int Index);
+
+	bool						Set_Count		(int nPoints);
+	int							Get_Count		(void)		const	{	return( m_nPoints );	}
+
+	TSG_Point_Int &				operator []		(int Index)			{	return( m_Points[Index]   );	}
+	TSG_Point_Int &				Get_Point		(int Index)			{	return( m_Points[Index]   );	}
+	int							Get_X			(int Index) const	{	return( m_Points[Index].x );	}
+	int							Get_Y			(int Index) const	{	return( m_Points[Index].y );	}
+
+
+private:
+
+	int							m_nPoints;
+
+	TSG_Point_Int				*m_Points;
+
+};
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Points_3D
+{
+public:
+	CSG_Points_3D(void);
+	virtual ~CSG_Points_3D(void);
+
+	void						Clear			(void);
+
+	CSG_Points_3D &				operator  =		(const CSG_Points_3D &Points);
+	bool						Assign			(const CSG_Points_3D &Points);
+
+	bool						Add				(double x, double y, double z);
+	bool						Add				(const TSG_Point_3D &Point);
+	bool						Del				(int Index);
+
+	bool						Set_Count		(int nPoints);
+	int							Get_Count		(void)		const	{	return( m_nPoints );	}
+
+	TSG_Point_3D &				operator []		(int Index)			{	return( m_Points[Index]   );	}
+	TSG_Point_3D &				Get_Point		(int Index)			{	return( m_Points[Index]   );	}
+	double						Get_X			(int Index)	const	{	return( m_Points[Index].x );	}
+	double						Get_Y			(int Index)	const	{	return( m_Points[Index].y );	}
+	double						Get_Z			(int Index)	const	{	return( m_Points[Index].z );	}
+
+
+private:
+
+	int							m_nPoints;
+
+	TSG_Point_3D				*m_Points;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Rect
+{
+public:
+	CSG_Rect(void);
+	CSG_Rect(const CSG_Rect &Rect);
+	CSG_Rect(const TSG_Rect &Rect);
+	CSG_Rect(const CSG_Point &A, const CSG_Point &B);
+	CSG_Rect(double xMin, double yMin, double xMax, double yMax);
+
+	~CSG_Rect(void);
+
+	operator TSG_Rect &							(void)	{	return( m_rect );	}
+
+	bool						operator ==		(const CSG_Rect &Rect) const;
+	bool						operator !=		(const CSG_Rect &Rect) const;
+
+	CSG_Rect &					operator  =		(const CSG_Rect &Rect);
+	void						operator +=		(const CSG_Point &Point);
+	void						operator -=		(const CSG_Point &Point);
 
 	void						Assign			(double xMin, double yMin, double xMax, double yMax);
-	void						Assign			(const CGEO_Point &A, const CGEO_Point &B);
-	void						Assign			(const CGEO_Rect &Rect);
+	void						Assign			(const CSG_Point &A, const CSG_Point &B);
+	void						Assign			(const CSG_Rect &Rect);
 
 	void						Set_BottomLeft	(double x, double y);
-	void						Set_BottomLeft	(const CGEO_Point &Point);
+	void						Set_BottomLeft	(const CSG_Point &Point);
 	void						Set_TopRight	(double x, double y);
-	void						Set_TopRight	(const CGEO_Point &Point);
+	void						Set_TopRight	(const CSG_Point &Point);
 
 	bool						is_Equal		(double xMin, double yMin, double xMax, double yMax) const;
-	bool						is_Equal		(const CGEO_Rect &Rect) const;
+	bool						is_Equal		(const CSG_Rect &Rect) const;
 
 	double						Get_XMin		(void) const	{	return( m_rect.xMin );	}
 	double						Get_XMax		(void) const	{	return( m_rect.xMax );	}
@@ -198,62 +336,62 @@ public:
 	double						Get_XRange		(void) const	{	return( m_rect.xMax - m_rect.xMin );	}
 	double						Get_YRange		(void) const	{	return( m_rect.yMax - m_rect.yMin );	}
 
-	CGEO_Point					Get_TopLeft		(void)			{	return( CGEO_Point(m_rect.xMin, m_rect.yMax) );	}
-	CGEO_Point					Get_BottomRight	(void)			{	return( CGEO_Point(m_rect.xMax, m_rect.yMin) );	}
+	CSG_Point					Get_TopLeft		(void)			{	return( CSG_Point(m_rect.xMin, m_rect.yMax) );	}
+	CSG_Point					Get_BottomRight	(void)			{	return( CSG_Point(m_rect.xMax, m_rect.yMin) );	}
 
-	CGEO_Point					Get_Center		(void) const	{	return( CGEO_Point(Get_XCenter(), Get_YCenter()) );	}
+	CSG_Point					Get_Center		(void) const	{	return( CSG_Point(Get_XCenter(), Get_YCenter()) );	}
 	double						Get_XCenter		(void) const	{	return( (m_rect.xMin + m_rect.xMax) / 2.0 );	}
 	double						Get_YCenter		(void) const	{	return( (m_rect.yMin + m_rect.yMax) / 2.0 );	}
 
 	void						Move			(double dx, double dy);
-	void						Move			(const CGEO_Point &Point);
+	void						Move			(const CSG_Point &Point);
 
 	void						Inflate			(double d, bool bPercent = true);
 	void						Deflate			(double d, bool bPercent = true);
 	void						Inflate			(double dx, double dy, bool bPercent = true);
 	void						Deflate			(double dx, double dy, bool bPercent = true);
 
-	void						Union			(const CGEO_Rect &Rect);
-	bool						Intersect		(const CGEO_Rect &Rect);
+	void						Union			(const CSG_Rect &Rect);
+	bool						Intersect		(const CSG_Rect &Rect);
 
-	TGEO_Intersection			Intersects		(const CGEO_Rect &Rect)		const;
+	TSG_Intersection			Intersects		(const CSG_Rect &Rect)		const;
 
 	bool						Contains		(double x, double y)		const;
-	bool						Contains		(const CGEO_Point &Point)	const;
+	bool						Contains		(const CSG_Point &Point)	const;
 
 
 	//-----------------------------------------------------
-	TGEO_Rect					m_rect;
+	TSG_Rect					m_rect;
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CGEO_Rects
+class SAGA_API_DLL_EXPORT CSG_Rects
 {
 public:
-	CGEO_Rects(void);
-	virtual ~CGEO_Rects(void);
+	CSG_Rects(void);
+	virtual ~CSG_Rects(void);
 
-	void							Clear				(void);
+	void						Clear			(void);
 
-	CGEO_Rects &					operator  =			(const CGEO_Rects &Points);
-	bool							Assign				(const CGEO_Rects &Points);
+	CSG_Rects &					operator  =		(const CSG_Rects &Points);
+	bool						Assign			(const CSG_Rects &Points);
 
-	bool							Add					(void);
-	bool							Add					(double xMin, double yMin, double xMax, double yMax);
-	bool							Add					(const CGEO_Rect &Rect);
+	bool						Add				(void);
+	bool						Add				(double xMin, double yMin, double xMax, double yMax);
+	bool						Add				(const CSG_Rect &Rect);
 
-	int								Get_Count			(void)		{	return( m_nRects );	}
+	int							Get_Count		(void)	const	{	return( m_nRects );	}
 
-	CGEO_Rect &						operator []			(int Index)	{	return( *m_Rects[Index] );	}
-	CGEO_Rect &						Get_Rect			(int Index)	{	return( *m_Rects[Index] );	}
+	CSG_Rect &					operator []		(int Index)		{	return( *m_Rects[Index] );	}
+	CSG_Rect &					Get_Rect		(int Index)		{	return( *m_Rects[Index] );	}
 
 
 private:
 
-	int								m_nRects;
+	int							m_nRects;
 
-	CGEO_Rect						**m_Rects;
+	CSG_Rect					**m_Rects;
 
 };
 
@@ -265,19 +403,24 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT double		GEO_Get_Distance				(double xA, double yA, double xB, double yB);
-SAGA_API_DLL_EXPORT double		GEO_Get_Distance				(TGEO_Point A, TGEO_Point B);
+SAGA_API_DLL_EXPORT double		SG_Get_Length					(double dx, double dy);
+SAGA_API_DLL_EXPORT double		SG_Get_Distance					(double ax, double ay, double bx, double by);
+SAGA_API_DLL_EXPORT double		SG_Get_Distance					(TSG_Point A, TSG_Point B);
 
-SAGA_API_DLL_EXPORT double		GEO_Get_Angle_Of_Direction		(double x, double y);
+SAGA_API_DLL_EXPORT double		SG_Get_Angle_Of_Direction		(double dx, double dy);
+SAGA_API_DLL_EXPORT double		SG_Get_Angle_Of_Direction		(double ax, double ay, double bx, double by);
+SAGA_API_DLL_EXPORT double		SG_Get_Angle_Of_Direction		(const TSG_Point &A);
+SAGA_API_DLL_EXPORT double		SG_Get_Angle_Of_Direction		(const TSG_Point &A, const TSG_Point &B);
 
-SAGA_API_DLL_EXPORT bool		GEO_Get_Crossing				(TGEO_Point &Crossing, TGEO_Point a1, TGEO_Point a2, TGEO_Point b1, TGEO_Point b2, bool bExactMatch = true);
-SAGA_API_DLL_EXPORT bool		GEO_Get_Crossing_InRegion		(TGEO_Point &Crossing, TGEO_Point a, TGEO_Point b, TGEO_Rect Region);
+SAGA_API_DLL_EXPORT bool		SG_Get_Crossing					(TSG_Point &Crossing, TSG_Point a1, TSG_Point a2, TSG_Point b1, TSG_Point b2, bool bExactMatch = true);
+SAGA_API_DLL_EXPORT bool		SG_Get_Crossing_InRegion		(TSG_Point &Crossing, TSG_Point a, TSG_Point b, TSG_Rect Region);
 
-SAGA_API_DLL_EXPORT double		GEO_Get_Nearest_Point_On_Line	(TGEO_Point Point, TGEO_Point Ln_A, TGEO_Point Ln_B, TGEO_Point &Ln_Point, bool bExactMatch = true);
+SAGA_API_DLL_EXPORT double		SG_Get_Nearest_Point_On_Line	(TSG_Point Point, TSG_Point Ln_A, TSG_Point Ln_B, TSG_Point &Ln_Point, bool bExactMatch = true);
 
-SAGA_API_DLL_EXPORT bool		GEO_Get_Triangle_CircumCircle	(TGEO_Point Triangle[3], TGEO_Point &Point, double &Radius);
+SAGA_API_DLL_EXPORT bool		SG_Get_Triangle_CircumCircle	(TSG_Point Triangle[3], TSG_Point &Point, double &Radius);
 
-SAGA_API_DLL_EXPORT double		GEO_Get_Polygon_Area			(TGEO_Point *Points, int nPoints);
+SAGA_API_DLL_EXPORT double		SG_Get_Polygon_Area				(TSG_Point *Points, int nPoints);
+SAGA_API_DLL_EXPORT double		SG_Get_Polygon_Area				(const CSG_Points &Points);
 
 
 ///////////////////////////////////////////////////////////

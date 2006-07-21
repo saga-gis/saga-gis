@@ -130,7 +130,7 @@ void CCost_Anisotropic::CalculateCost(){
 						}//if
 						else{
 							double dPartialCost=CalculateCostInDirection(iX,iY,i,j);
-							dCost = m_pAccCostGrid->asDouble(iX,iY) + dPartialCost* M_GET_DIST(i, j);
+							dCost = m_pAccCostGrid->asDouble(iX,iY) + dPartialCost* M_GET_LENGTH(i, j);
 							if (m_pAccCostGrid->asDouble(iX+i,iY+j)==NO_DATA){
 								iUsedCells++;
 								m_pAccCostGrid->Set_Value(iX+i,iY+j,dCost);

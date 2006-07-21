@@ -159,7 +159,7 @@ CFlow_AreaDownslope::CFlow_AreaDownslope(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
 		"",
-		CAPI_String::Format("%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|",
 			_TL("Deterministic 8"),
 			_TL("Rho 8"),
 			_TL("Braunschweiger Reliefmodell"),
@@ -278,7 +278,7 @@ bool CFlow_AreaDownslope::On_Execute_Finish(void)
 }
 
 //---------------------------------------------------------
-bool CFlow_AreaDownslope::On_Execute_Position(CGEO_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CFlow_AreaDownslope::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
 {
 	if( pFlow && Mode == MODULE_INTERACTIVE_LDOWN )
 	{

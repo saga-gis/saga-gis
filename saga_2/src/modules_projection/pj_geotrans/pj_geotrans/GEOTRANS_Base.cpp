@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CGEOTRANS_Base::CGEOTRANS_Base(void)
 {
-//	CAPI_String	Path(API_Extract_File_Path(MLB_Interface.Get_File_Name()));
+//	CSG_String	Path(SG_File_Get_Path(MLB_Interface.Get_File_Name()));
 	CParameter	*pNode_0, *pNode_Source, *pNode_Target;
 
 	bInitialized	= false;
@@ -79,25 +79,25 @@ CGEOTRANS_Base::CGEOTRANS_Base(void)
 	Parameters.Add_FilePath(
 		NULL, "DATA_ELLIPSOID"	, _TL("Ellipsoids"),
 		"",
-		NULL //, API_Make_File_Path(Path, "Projection_GeoTRANS_Ellipsoid.dat")
+		NULL //, SG_File_Make_Path(Path, "Projection_GeoTRANS_Ellipsoid.dat")
 	);
 
 	Parameters.Add_FilePath(
 		NULL, "DATA_DATUM_7"	, _TL("Datums (7 Parameters)"),
 		"",
-		NULL //, API_Make_File_Path(Path, "Projection_GeoTRANS_Datum_7.dat")
+		NULL //, SG_File_Make_Path(Path, "Projection_GeoTRANS_Datum_7.dat")
 	);
 
 	Parameters.Add_FilePath(
 		NULL, "DATA_DATUM_3"	, _TL("Datums (3 Parameters)"),
 		"",
-		NULL //, API_Make_File_Path(Path, "Projection_GeoTRANS_Datum_3.dat")
+		NULL //, SG_File_Make_Path(Path, "Projection_GeoTRANS_Datum_3.dat")
 	);
 
 	Parameters.Add_FilePath(
 		NULL, "DATA_GEOID"		, _TL("Geoid"),
 		"",
-		NULL //, API_Make_File_Path(Path, "Projection_GeoTRANS_Geoid_EGM96.dat")
+		NULL //, SG_File_Make_Path(Path, "Projection_GeoTRANS_Geoid_EGM96.dat")
 	);
 
 
@@ -162,7 +162,7 @@ bool CGEOTRANS_Base::Initialize(void)
 {
 	char		datum_code[10], datum_name[40], system_name[50];
 	long		error_code, i, count;
-	CAPI_String	sList;
+	CSG_String	sList;
 
 	//-----------------------------------------------------
 	if( bInitialized
@@ -196,7 +196,7 @@ bool CGEOTRANS_Base::Initialize(void)
 			for(i=0; i<count; i++)
 			{
 				error_code	= Get_Coordinate_System_Name(i + 1, system_name);
-				sList.Append(CAPI_String::Format("%s|", system_name));
+				sList.Append(CSG_String::Format("%s|", system_name));
 			}
 
 			if( sList.Length() > 0 )
@@ -219,7 +219,7 @@ bool CGEOTRANS_Base::Initialize(void)
 			{
 				error_code	= Get_Datum_Code(i + 1, datum_code);
 				error_code	= Get_Datum_Name(i + 1, datum_name);
-				sList.Append(CAPI_String::Format("%-8s: %s|", datum_code, datum_name));
+				sList.Append(CSG_String::Format("%-8s: %s|", datum_code, datum_name));
 			}
 
 			if( sList.Length() > 0 )
@@ -242,7 +242,7 @@ bool CGEOTRANS_Base::Initialize(void)
 //---------------------------------------------------------
 CParameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Type, bool bShow_Dialog)
 {
-	CAPI_String	sName, sIdentifier;
+	CSG_String	sName, sIdentifier;
 	CParameters	*pParameters;
 
 	//-----------------------------------------------------
@@ -1291,7 +1291,7 @@ bool CGEOTRANS_Base::Get_Converted(double &x, double &y, double &z)
 	return( Convert_Set(x, y, z) && Convert(Interactive) == 0 && Convert_Get(x, y, z) );
 }
 
-bool CGEOTRANS_Base::Get_Converted(TGEO_Point &Point)
+bool CGEOTRANS_Base::Get_Converted(TSG_Point &Point)
 {
 	return( Get_Converted(Point.x, Point.y) );
 }

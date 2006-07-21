@@ -221,12 +221,12 @@ bool CGrid_3D_Image::On_Execute(void)
 		nx			= Parameters("NX")->asInt();
 		ny			= Parameters("NY")->asInt();
 
-		m_pRGB		= API_Create_Grid(GRID_TYPE_Int		, nx, ny, 1.0);
+		m_pRGB		= SG_Create_Grid(GRID_TYPE_Int		, nx, ny, 1.0);
 	}
 
 	if( !m_pRGB_Z || !m_pRGB_Z->is_Compatible(m_pRGB->Get_System()) )
 	{
-		m_pRGB_Z	= API_Create_Grid(m_pRGB, GRID_TYPE_Float);
+		m_pRGB_Z	= SG_Create_Grid(m_pRGB, GRID_TYPE_Float);
 	}
 
 	m_pRGB			->Set_Name(_TL("3D Image"));
@@ -270,9 +270,9 @@ void CGrid_3D_Image::_Set_Grid(void)
 	T3DPoint	*a, *b, *c, *d, p[3];
 
 	//-----------------------------------------------------
-	a	= (T3DPoint *)API_Malloc(sizeof(T3DPoint) *  Get_NX());
-	b	= (T3DPoint *)API_Malloc(sizeof(T3DPoint) *  Get_NX());
-	c	= (T3DPoint *)API_Malloc(sizeof(T3DPoint) * (Get_NX() - 1));
+	a	= (T3DPoint *)SG_Malloc(sizeof(T3DPoint) *  Get_NX());
+	b	= (T3DPoint *)SG_Malloc(sizeof(T3DPoint) *  Get_NX());
+	c	= (T3DPoint *)SG_Malloc(sizeof(T3DPoint) * (Get_NX() - 1));
 
 	//-----------------------------------------------------
 	_Get_Line(0, b);
@@ -296,14 +296,14 @@ void CGrid_3D_Image::_Set_Grid(void)
 	}
 
 	//-----------------------------------------------------
-	API_Free(a);
-	API_Free(b);
-	API_Free(c);
+	SG_Free(a);
+	SG_Free(b);
+	SG_Free(c);
 
 	//-----------------------------------------------------
 	DataObject_Add(m_pRGB_Z);
 	DataObject_Add(m_pRGB);
-	CColors	Colors(100, COLORS_PALETTE_BLACK_WHITE);
+	CSG_Colors	Colors(100, COLORS_PALETTE_BLACK_WHITE);
 	DataObject_Set_Colors(m_pRGB, Colors);
 }
 
@@ -313,15 +313,15 @@ void CGrid_3D_Image::_Set_Shapes(CShapes *pInput)
 	int			iShape, iPart, iPoint;
 	double		x, y, z, dx, dy;
 	T3DPoint	p;
-	TGEO_Point	Point;
+	TSG_Point	Point;
 	CShape		*pShape;
 	CShapes		*pOutput;
 
 	if( pInput && pInput->is_Valid() )
 	{
-		Process_Set_Text(CAPI_String::Format(_TL("Project \'%s\'"), pInput->Get_Name()));
+		Process_Set_Text(CSG_String::Format(_TL("Project \'%s\'"), pInput->Get_Name()));
 
-		pOutput	= API_Create_Shapes(*pInput);
+		pOutput	= SG_Create_Shapes(*pInput);
 		dx		= (double)Get_NX() / Get_System()->Get_XRange();
 		dy		= (double)Get_NY() / Get_System()->Get_YRange();
 

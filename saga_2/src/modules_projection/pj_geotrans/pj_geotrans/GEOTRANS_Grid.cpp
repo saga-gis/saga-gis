@@ -110,7 +110,7 @@ CGEOTRANS_Grid::CGEOTRANS_Grid(void)
 		"TARGET_TYPE"	, _TL("Target"),
 		"",
 
-		CAPI_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|",
 			_TL("User defined"),
 			_TL("Automatic fit"),
 			_TL("Grid Project"),
@@ -123,7 +123,7 @@ CGEOTRANS_Grid::CGEOTRANS_Grid(void)
 		Parameters("TARGET_NODE")	, "INTERPOLATION"	, _TL("Grid Interpolation"),
 		"",
 
-		CAPI_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|",
 			_TL("Nearest Neigbhor"),
 			_TL("Bilinear Interpolation"),
 			_TL("Inverse Distance Interpolation"),
@@ -240,7 +240,7 @@ bool CGEOTRANS_Grid::On_Execute_Conversion(void)
 	case 2:	// select grid project...
 		if( Dlg_Extra_Parameters("GET_GRID") )
 		{
-			pGrid	= API_Create_Grid(
+			pGrid	= SG_Create_Grid(
 						Get_Extra_Parameters("GET_GRID")->Get_Parameter("GRID")->asGrid()
 					);
 		}
@@ -371,7 +371,7 @@ int CGEOTRANS_Grid::On_Parameter_Changed(CParameters *pParameters, CParameter *p
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline void CGEOTRANS_Grid::Get_MinMax(double &xMin, double &xMax, double &yMin, double &yMax, TGEO_Point Point)
+inline void CGEOTRANS_Grid::Get_MinMax(double &xMin, double &xMax, double &yMin, double &yMax, TSG_Point Point)
 {
 	if( Get_Converted(Point) )
 	{
@@ -408,7 +408,7 @@ CGrid * CGEOTRANS_Grid::Get_Target_Userdef(CGrid *pSource, bool bNearest)
 {
 	int			x, y;
 	double		xMin, yMin, xMax, yMax, size;
-	TGEO_Point	Pt_Source;
+	TSG_Point	Pt_Source;
 	CGrid		*pTarget;
 	CParameters	*pParameters;
 
@@ -456,7 +456,7 @@ CGrid * CGEOTRANS_Grid::Get_Target_Userdef(CGrid *pSource, bool bNearest)
 			{
 				size	= pParameters->Get_Parameter("SIZE")->asDouble();
 
-				pTarget	= API_Create_Grid(
+				pTarget	= SG_Create_Grid(
 					bNearest ? pSource->Get_Type() : GRID_TYPE_Float,
 					pParameters->Get_Parameter("NX")->asInt(),
 					pParameters->Get_Parameter("NY")->asInt(),
@@ -476,7 +476,7 @@ CGrid * CGEOTRANS_Grid::Get_Target_Autofit(CGrid *pSource, double Grid_Size, int
 {
 	int			x, y;
 	double		xMin, yMin, xMax, yMax;
-	TGEO_Point	Pt_Source;
+	TSG_Point	Pt_Source;
 	CGrid		*pTarget;
 
 	pTarget	= NULL;
@@ -529,7 +529,7 @@ CGrid * CGEOTRANS_Grid::Get_Target_Autofit(CGrid *pSource, double Grid_Size, int
 		//---------------------------------------------
 		if( is_Progress() && xMin < xMax && yMin < yMax )
 		{
-			pTarget	= API_Create_Grid(
+			pTarget	= SG_Create_Grid(
 				bNearest ? pSource->Get_Type() : GRID_TYPE_Float,
 				1 + (int)((xMax - xMin) / Grid_Size),
 				1 + (int)((yMax - yMin) / Grid_Size),
@@ -554,7 +554,7 @@ bool CGEOTRANS_Grid::Set_Grid(CGrid *pSource, CGrid *pTarget, int Interpol)
 {
 	int			x, y;
 	double		z;
-	TGEO_Point	Pt_Source, Pt_Target;
+	TSG_Point	Pt_Source, Pt_Target;
 
 	if( pSource && pTarget && Set_Transformation_Inverse() )
 	{
@@ -594,7 +594,7 @@ bool CGEOTRANS_Grid::Set_Grid(CGrid *pSource, CGrid *pTarget, int Interpol)
 bool CGEOTRANS_Grid::Set_Shapes(CGrid *pSource, CShapes *pTarget)
 {
 	int			x, y;
-	TGEO_Point	Pt_Source, Pt_Target;
+	TSG_Point	Pt_Source, Pt_Target;
 	CShape		*pShape;
 
 	if( pSource && pTarget )

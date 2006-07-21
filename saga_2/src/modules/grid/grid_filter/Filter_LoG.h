@@ -80,7 +80,7 @@ protected:
 
 private:
 
-	CMAT_Grid_Radius	*pRadius;
+	CSG_Grid_Radius	*pRadius;
 
 	CGrid				*pInput;
 

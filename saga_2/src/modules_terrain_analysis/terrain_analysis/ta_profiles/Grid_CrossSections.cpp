@@ -120,7 +120,7 @@ bool CGrid_CrossSections::On_Execute(void){
 	CShapes *pLines;
 	CShape *pShape, *pSection;
 	CGrid *pDEM;
-	TGEO_Point	Point, Point2;
+	TSG_Point	Point, Point2;
 	float fInterval;
 	float fStepX, fStepY;
 	int iNumPoints;
@@ -143,7 +143,7 @@ bool CGrid_CrossSections::On_Execute(void){
 
 	if(pLines == m_pSections){
 		bCopy = true;
-		m_pSections	= API_Create_Shapes();
+		m_pSections	= SG_Create_Shapes();
 	}//if
 	else{
 		bCopy = false;
@@ -151,12 +151,12 @@ bool CGrid_CrossSections::On_Execute(void){
 
 	m_pSections->Create(SHAPE_TYPE_Line, _TL("Cross Sections"));
 	for (i = iNumPoints; i > 0; i--){
-		m_pSections->Get_Table().Add_Field(CAPI_String::Format("-%s", API_Get_String(fInterval * i, 2).c_str()),
+		m_pSections->Get_Table().Add_Field(CSG_String::Format("-%s", SG_Get_String(fInterval * i, 2).c_str()),
 										TABLE_FIELDTYPE_Double);
 	}//for
 	m_pSections->Get_Table().Add_Field("0", TABLE_FIELDTYPE_Double);
 	for (i = 1; i < iNumPoints +1; i++){
-		m_pSections->Get_Table().Add_Field(API_Get_String(fInterval * i).c_str(), TABLE_FIELDTYPE_Double);
+		m_pSections->Get_Table().Add_Field(SG_Get_String(fInterval * i).c_str(), TABLE_FIELDTYPE_Double);
 	}//for
 	for(i=0; i<pLines->Get_Count() && Set_Progress(i, pLines->Get_Count()); i++){
 		pShape = pLines->Get_Shape(i);
@@ -211,11 +211,11 @@ bool CGrid_CrossSections::On_Execute(void){
 
 void CGrid_CrossSections::CreatePDFDocs(){
 
-	CAPI_String sFilePath;
+	CSG_String sFilePath;
 			
 	if (Parameters("OUTPUTPATH")->asString()){
 		m_DocEngine.Open(_TL("SECTIONS"));
-		sFilePath = API_Make_File_Path(Parameters("OUTPUTPATH")->asString(), _TL("Sections"), "pdf");
+		sFilePath = SG_File_Make_Path(Parameters("OUTPUTPATH")->asString(), _TL("Sections"), "pdf");
 	}//if
 	else{
 		Message_Add(_TL("\n** Error : Invalid parameters **\n"));
@@ -254,13 +254,13 @@ void CGrid_CrossSections::AddLongitudinalProfiles(){
 	bool bValid;
 	CShape *pShape;
 	CTable *pTable;
-	TGEO_Point	Point, Point2;
+	TSG_Point	Point, Point2;
 	CShapes* pLines = Parameters("LINES")->asShapes();
 
 	pTable = &m_pSections->Get_Table();
 	iSections = pTable->Get_Record_Count();
 
-	m_pProfile = new TAPI_dPoint[iSections];
+	m_pProfile = new TSG_Point[iSections];
 
 	for(i=0; i<pLines->Get_Count() && Set_Progress(i, pLines->Get_Count()); i++){
 		pShape = pLines->Get_Shape(i);
@@ -342,21 +342,21 @@ void CGrid_CrossSections::AddCrossSections(){
 	int iNumPoints = Parameters("NUMPOINTS")->asInt();
 	float fInterval = (float) Parameters("INTERVAL")->asDouble();
 	CTable *pTable;
-	TAPI_dPoint *pRoadSection;
-	TAPI_dPoint **pCrossSections;
+	TSG_Point *pRoadSection;
+	TSG_Point **pCrossSections;
 	double dWidth = Parameters("WIDTH")->asDouble();
 
-	pRoadSection = new TAPI_dPoint [2];
+	pRoadSection = new TSG_Point [2];
 	pRoadSection[0].x = -dWidth / 2.;
 	pRoadSection[0].y = 0;
 	pRoadSection[1].x = dWidth / 2.;
 	pRoadSection[1].y = 0;
 
 	pTable = &m_pSections->Get_Table();
-	pCrossSections = new TAPI_dPoint *[pTable->Get_Record_Count()];
+	pCrossSections = new TSG_Point *[pTable->Get_Record_Count()];
 
 	for (i = 0; i < pTable->Get_Record_Count(); i++){
-		pCrossSections[i] = new TAPI_dPoint [pTable->Get_Field_Count()];
+		pCrossSections[i] = new TSG_Point [pTable->Get_Field_Count()];
 		for (j = 0; j < pTable->Get_Field_Count(); j++){
 			pCrossSections[i][j].x = -fInterval * iNumPoints + fInterval * j;
 			pCrossSections[i][j].y = pTable->Get_Record(i)->asFloat(j);

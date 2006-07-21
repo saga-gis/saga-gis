@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char *	API_Get_DataObject_Name(TDataObject_Type Type)
+const char *	SG_Get_DataObject_Name(TDataObject_Type Type)
 {
 	switch( Type )
 	{
@@ -128,7 +128,7 @@ void CDataObject::Set_Name(const char *Name)
 	m_Name.Printf(Name ? Name : LNG("[DAT] new"));
 }
 
-const char * CDataObject::Get_Name(void)
+const char * CDataObject::Get_Name(void) const
 {
 	return( m_Name.c_str() );
 }
@@ -140,7 +140,7 @@ void CDataObject::Set_File_Path(const char *File_Path)
 	{
 		m_File_Path.Printf(File_Path);
 
-		m_Name	= API_Extract_File_Name(File_Path, true);
+		m_Name	= SG_File_Get_Name(File_Path, true);
 
 		m_bModified	= false;
 	}
@@ -152,7 +152,7 @@ void CDataObject::Set_File_Path(const char *File_Path)
 	}
 }
 
-const char * CDataObject::Get_File_Path(bool bNullAsString)
+const char * CDataObject::Get_File_Path(bool bNullAsString)	const
 {
 	return(	m_File_Path.Length() > 0
 		?	m_File_Path.c_str()
@@ -166,7 +166,7 @@ void CDataObject::Set_File_Type(int File_Type)
 	m_File_Type	= File_Type;
 }
 
-int CDataObject::Get_File_Type(void)
+int CDataObject::Get_File_Type(void) const
 {
 	return( m_File_Type );
 }

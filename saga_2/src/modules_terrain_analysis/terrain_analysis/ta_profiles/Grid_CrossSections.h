@@ -34,7 +34,7 @@ private:
 	CPDFDocEngine_CrossSections m_DocEngine;
 	CShapes *m_pSections;
 	float *m_pHeight;
-	TAPI_dPoint *m_pProfile;
+	TSG_Point *m_pProfile;
 
 	void CreatePDFDocs();
 	void AddLongitudinalProfiles();

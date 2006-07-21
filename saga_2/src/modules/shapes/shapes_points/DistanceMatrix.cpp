@@ -50,7 +50,7 @@ bool CDistanceMatrix::On_Execute(void){
 
 	int i,j,k;	
 	double dDist;
-	CAPI_dPoints	Points;
+	CSG_Points	Points;
 	CShapes *pShapes = Parameters("POINTS")->asShapes();
 	CTable *pTable = Parameters("TABLE")->asTable();
 	CShape *pShape;
@@ -68,7 +68,7 @@ bool CDistanceMatrix::On_Execute(void){
 		}//for
 	}//for
 	for (i = 0; i < Points.Get_Count(); i++){
-		pTable->Add_Field(API_Get_String(i).c_str(), TABLE_FIELDTYPE_Double);
+		pTable->Add_Field(SG_Get_String(i).c_str(), TABLE_FIELDTYPE_Double);
 	}//for
 	for (i = 0; i < Points.Get_Count(); i++){
 		pTable->Add_Record();

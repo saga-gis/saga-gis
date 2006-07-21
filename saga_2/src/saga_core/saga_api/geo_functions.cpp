@@ -71,26 +71,22 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define	IS_BETWEEN(a, x, b)		((a <= x && x <= b) || (b <= x && x <= a))
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-double		GEO_Get_Distance(double xA, double yA, double xB, double yB)
+double		SG_Get_Length(double dx, double dy)
 {
-	xA	-= xB;
-	yA	-= yB;
-
-	return( sqrt(xA*xA + yA*yA) );
+	return( sqrt(dx*dx + dy*dy) );
 }
 
 //---------------------------------------------------------
-double		GEO_Get_Distance(TGEO_Point A, TGEO_Point B)
+double		SG_Get_Distance(double ax, double ay, double bx, double by)
+{
+	ax	-= bx;
+	ay	-= by;
+
+	return( sqrt(ax*ax + ay*ay) );
+}
+
+//---------------------------------------------------------
+double		SG_Get_Distance(TSG_Point A, TSG_Point B)
 {
 	A.x -= B.x;
 	A.y -= B.y;
@@ -106,16 +102,31 @@ double		GEO_Get_Distance(TGEO_Point A, TGEO_Point B)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double		GEO_Get_Angle_Of_Direction(double x, double y)
+double		SG_Get_Angle_Of_Direction(double dx, double dy)
 {
-	double	d;
+	return(	dx != 0.0 ?	M_PI_180 + atan2(dy, dx)	: (
+			dy  > 0.0 ?	M_PI_270					: (
+			dy  < 0.0 ?	M_PI_090					:
+						0.0							) )
+	);
+}
 
-	if( x != 0.0 )
-		d	= M_PI_180 + atan2(y, x);
-	else
-		d	= y > 0.0 ? M_PI_270 : (y < 0.0 ? M_PI_090 : 0.0);
+//---------------------------------------------------------
+double		SG_Get_Angle_Of_Direction(double ax, double ay, double bx, double by)
+{
+	return( SG_Get_Angle_Of_Direction(bx - ax, by - ay) );
+}
 
-	return( d );
+//---------------------------------------------------------
+double		SG_Get_Angle_Of_Direction(const TSG_Point &A)
+{
+	return( SG_Get_Angle_Of_Direction(A.x, A.y) );
+}
+
+//---------------------------------------------------------
+double		SG_Get_Angle_Of_Direction(const TSG_Point &A, const TSG_Point &B)
+{
+	return( SG_Get_Angle_Of_Direction(B.x - A.x, B.y - A.y) );
 }
 
 
@@ -126,7 +137,7 @@ double		GEO_Get_Angle_Of_Direction(double x, double y)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool	GEO_Get_Crossing(TGEO_Point &Crossing, TGEO_Point a1, TGEO_Point a2, TGEO_Point b1, TGEO_Point b2, bool bExactMatch)
+bool	SG_Get_Crossing(TSG_Point &Crossing, TSG_Point a1, TSG_Point a2, TSG_Point b1, TSG_Point b2, bool bExactMatch)
 {
 	double	lambda, div, a_dx, a_dy, b_dx, b_dy;
 
@@ -162,11 +173,11 @@ bool	GEO_Get_Crossing(TGEO_Point &Crossing, TGEO_Point a1, TGEO_Point a2, TGEO_P
 }
 
 //---------------------------------------------------------
-bool	GEO_Get_Crossing_InRegion(TGEO_Point &Crossing, TGEO_Point a, TGEO_Point b, TGEO_Rect Region)
+bool	SG_Get_Crossing_InRegion(TSG_Point &Crossing, TSG_Point a, TSG_Point b, TSG_Rect Region)
 {
 	bool		bResult;
-	TGEO_Point	pExt_XY, pExt_X, pExt_Y;
-	CGEO_Rect	r(Region);
+	TSG_Point	pExt_XY, pExt_X, pExt_Y;
+	CSG_Rect	r(Region);
 
 	//-----------------------------------------------------
 	if( !r.Contains(a) && r.Contains(b) )
@@ -214,9 +225,9 @@ bool	GEO_Get_Crossing_InRegion(TGEO_Point &Crossing, TGEO_Point a, TGEO_Point b,
 		}
 
 		//-------------------------------------------------
-		if( !GEO_Get_Crossing(Crossing, a, b, pExt_X, pExt_XY) )
+		if( !SG_Get_Crossing(Crossing, a, b, pExt_X, pExt_XY) )
 		{
-			if( !GEO_Get_Crossing(Crossing, a, b, pExt_Y, pExt_XY) )
+			if( !SG_Get_Crossing(Crossing, a, b, pExt_Y, pExt_XY) )
 			{
 				bResult	= false;
 			}
@@ -234,17 +245,17 @@ bool	GEO_Get_Crossing_InRegion(TGEO_Point &Crossing, TGEO_Point a, TGEO_Point b,
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double		GEO_Get_Nearest_Point_On_Line(TGEO_Point Point, TGEO_Point Ln_A, TGEO_Point Ln_B, TGEO_Point &Ln_Point, bool bExactMatch)
+double		SG_Get_Nearest_Point_On_Line(TSG_Point Point, TSG_Point Ln_A, TSG_Point Ln_B, TSG_Point &Ln_Point, bool bExactMatch)
 {
 	double		dx, dy, Distance, d;
-	TGEO_Point	Point_B;
+	TSG_Point	Point_B;
 
 	Point_B.x	= Point.x - (Ln_B.y - Ln_A.y);
 	Point_B.y	= Point.y + (Ln_B.x - Ln_A.x);
 
-	if( GEO_Get_Crossing(Ln_Point, Ln_A, Ln_B, Point, Point_B, false) )
+	if( SG_Get_Crossing(Ln_Point, Ln_A, Ln_B, Point, Point_B, false) )
 	{
-		if( !bExactMatch || (bExactMatch && IS_BETWEEN(Ln_A.x, Ln_Point.x, Ln_B.x) && IS_BETWEEN(Ln_A.y, Ln_Point.y, Ln_B.y)) )
+		if( !bExactMatch || (bExactMatch && SG_IS_BETWEEN(Ln_A.x, Ln_Point.x, Ln_B.x) && SG_IS_BETWEEN(Ln_A.y, Ln_Point.y, Ln_B.y)) )
 		{
 			dx			= Point.x - Ln_Point.x;
 			dy			= Point.y - Ln_Point.y;
@@ -290,9 +301,9 @@ double		GEO_Get_Nearest_Point_On_Line(TGEO_Point Point, TGEO_Point Ln_A, TGEO_Po
 #define C	Triangle[2]
 
 //---------------------------------------------------------
-bool		GEO_Get_Triangle_CircumCircle(TGEO_Point Triangle[3], TGEO_Point &Point, double &Radius)
+bool		SG_Get_Triangle_CircumCircle(TSG_Point Triangle[3], TSG_Point &Point, double &Radius)
 {
-	TGEO_Point	AB, AC, AB_M, AC_M, AB_N, AC_N;
+	TSG_Point	AB, AC, AB_M, AC_M, AB_N, AC_N;
 
 	AB.x	= B.x - A.x;
 	AB.y	= B.y - A.y;
@@ -308,7 +319,7 @@ bool		GEO_Get_Triangle_CircumCircle(TGEO_Point Triangle[3], TGEO_Point &Point, d
 	AC_N.x	= AC_M.x - AC.y;
 	AC_N.y	= AC_M.y + AC.x;
 
-	if( GEO_Get_Crossing(Point, AB_M, AB_N, AC_M, AC_N, false) )
+	if( SG_Get_Crossing(Point, AB_M, AB_N, AC_M, AC_N, false) )
 	{
 		AB.x	= A.x - Point.x;
 		AB.y	= A.y - Point.y;
@@ -334,24 +345,37 @@ bool		GEO_Get_Triangle_CircumCircle(TGEO_Point Triangle[3], TGEO_Point &Point, d
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double		GEO_Get_Polygon_Area(TGEO_Point *Points, int nPoints)
+double		SG_Get_Polygon_Area(TSG_Point *Points, int nPoints)
 {
-	int			iPoint;
-	double		Area;
-	TGEO_Point	*jP, *iP;
-
-	Area	= 0.0;
+	double	Area	= 0.0;
 
 	if( nPoints >= 3 )
 	{
-		jP		= Points + nPoints - 1;
+		int			i;
+		TSG_Point	*jP, *iP;
 
-		for(iPoint=0; iPoint<nPoints; iPoint++)
+		for(i=0, iP=Points, jP=Points+nPoints-1; i<nPoints; i++, jP=iP++)
 		{
-			iP		= jP;
-			jP		= Points + iPoint;
+			Area	+= (jP->x * iP->y) - (iP->x * jP->y);
+		}
 
-			Area	+= (iP->x * jP->y) - (jP->x * iP->y);
+		Area	/= 2.0;
+	}
+
+	return( Area );
+}
+
+//---------------------------------------------------------
+double		SG_Get_Polygon_Area(const CSG_Points &Points)
+{
+	double	Area	= 0.0;
+
+	if( Points.Get_Count() >= 3 )
+	{
+		for(int i=0, j=Points.Get_Count()-1; i<Points.Get_Count(); j=i++)
+		{
+			Area	+= (Points.Get_X(j) * Points.Get_Y(i))
+					 - (Points.Get_X(i) * Points.Get_Y(j));
 		}
 
 		Area	/= 2.0;

@@ -103,7 +103,7 @@ CConvergence_Radius::CConvergence_Radius(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
 		"",
-		CAPI_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|",
 			_TL("Standard"),
 			_TL("Distance Weighted (Linear)"),
 			_TL("Distance Weighted (Inverse)")
@@ -119,7 +119,7 @@ CConvergence_Radius::CConvergence_Radius(void)
 	Parameters.Add_Choice(
 		NULL	, "DIFF"		, _TL("Difference"),
 		"",
-		CAPI_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s|",
 			_TL("direction to the center cell"),
 			_TL("center cell's aspect direcion")
 		), 0
@@ -140,7 +140,7 @@ CConvergence_Radius::~CConvergence_Radius(void)
 //---------------------------------------------------------
 bool CConvergence_Radius::On_Execute(void)
 {
-	CColors	Colors;
+	CSG_Colors	Colors;
 	CGrid	*pDTM, *pConvergence_Radius;
 
 	pDTM				= Parameters("ELEVATION")	->asGrid();
@@ -197,7 +197,7 @@ bool CConvergence_Radius::Initialize(CGrid *pDTM, int Radius)
 		{
 			for(ix=0, x=-m_Radius; ix<m_Diameter; ix++, x++)
 			{
-				d	= M_GET_DIST(x, y);
+				d	= M_GET_LENGTH(x, y);
 
 				if( d < 1 || d > m_Radius )
 				{

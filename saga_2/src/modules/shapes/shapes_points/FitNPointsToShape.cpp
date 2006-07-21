@@ -72,7 +72,7 @@ bool CFitNPointsToShape::On_Execute(void){
 	double dDist;
 	double dDistInf, dDistSup;
 	bool bFirstTime;
-	TGEO_Rect Extent;
+	TSG_Rect Extent;
 
 	pShapes = Parameters("SHAPES")->asShapes();
 	pPoints = Parameters("POINTS")->asShapes();
@@ -80,7 +80,7 @@ bool CFitNPointsToShape::On_Execute(void){
 
 	if(pShapes == pPoints){
 		bCopy = true;
-		pPoints	= API_Create_Shapes();
+		pPoints	= SG_Create_Shapes();
 	}//if
 	else{
 		bCopy = false;

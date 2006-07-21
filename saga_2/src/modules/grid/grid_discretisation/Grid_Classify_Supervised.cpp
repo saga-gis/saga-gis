@@ -138,7 +138,7 @@ CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"			, _TL("Method"),
 		"",
-		CAPI_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s|",
 			_TL("Minimum Distance"),
 			_TL("Maximum Likelihood")
 		), 0
@@ -188,7 +188,7 @@ bool CGrid_Classify_Supervised::On_Execute(void)
 
 		for(int i=0; i<pGrids->Get_Count(); i++)
 		{
-			pGrid	= API_Create_Grid(pGrids->asGrid(i), GRID_TYPE_Float);
+			pGrid	= SG_Create_Grid(pGrids->asGrid(i), GRID_TYPE_Float);
 			pGrid->Assign(pGrids->asGrid(i));
 			pGrid->Normalise();
 			P("GRIDS")->asGridList()->Add_Item(pGrid);
@@ -237,7 +237,7 @@ bool CGrid_Classify_Supervised::Get_Class_Information(CParameter_Grid_List *pGri
 {
 	int				x, y, iGrid, iClass, iPolygon;
 	double			d, n;
-	TGEO_Point		p;
+	TSG_Point		p;
 	CTable_Record	*pClass;
 	CShape_Polygon	*pPolygon;
 
@@ -253,8 +253,8 @@ bool CGrid_Classify_Supervised::Get_Class_Information(CParameter_Grid_List *pGri
 
 		for(iGrid=0; iGrid<pGrids->Get_Count(); iGrid++)
 		{
-			pClasses->Add_Field(CAPI_String::Format(_TL("MEAN_%02d")  , iGrid + 1), TABLE_FIELDTYPE_Double);
-			pClasses->Add_Field(CAPI_String::Format(_TL("STDDEV_%02d"), iGrid + 1), TABLE_FIELDTYPE_Double);
+			pClasses->Add_Field(CSG_String::Format(_TL("MEAN_%02d")  , iGrid + 1), TABLE_FIELDTYPE_Double);
+			pClasses->Add_Field(CSG_String::Format(_TL("STDDEV_%02d"), iGrid + 1), TABLE_FIELDTYPE_Double);
 		}
 
 		//-------------------------------------------------
@@ -389,8 +389,8 @@ bool CGrid_Classify_Supervised::Do_Minimum_Distance(CParameter_Grid_List *pGrids
 	double	dMin, d, e, **m;
 
 	//-----------------------------------------------------
-	m		= (double **)API_Malloc(sizeof(double *) * pClasses->Get_Record_Count());
-	m[0]	= (double  *)API_Malloc(sizeof(double  ) * pClasses->Get_Record_Count() * pGrids->Get_Count());
+	m		= (double **)SG_Malloc(sizeof(double *) * pClasses->Get_Record_Count());
+	m[0]	= (double  *)SG_Malloc(sizeof(double  ) * pClasses->Get_Record_Count() * pGrids->Get_Count());
 
 	for(iClass=0; iClass<pClasses->Get_Record_Count(); iClass++)
 	{
@@ -434,8 +434,8 @@ bool CGrid_Classify_Supervised::Do_Minimum_Distance(CParameter_Grid_List *pGrids
 	}
 
 	//-----------------------------------------------------
-	API_Free(m[0]);
-	API_Free(m);
+	SG_Free(m[0]);
+	SG_Free(m);
 
 	return( true );
 }
@@ -454,12 +454,12 @@ bool CGrid_Classify_Supervised::Do_Maximum_Likelihood(CParameter_Grid_List *pGri
 	double	dMax, d, e, **m, **s, **k;
 
 	//-----------------------------------------------------
-	m		= (double **)API_Malloc(sizeof(double *) * pClasses->Get_Record_Count());
-	m[0]	= (double  *)API_Malloc(sizeof(double  ) * pClasses->Get_Record_Count() * pGrids->Get_Count());
-	s		= (double **)API_Malloc(sizeof(double *) * pClasses->Get_Record_Count());
-	s[0]	= (double  *)API_Malloc(sizeof(double  ) * pClasses->Get_Record_Count() * pGrids->Get_Count());
-	k		= (double **)API_Malloc(sizeof(double *) * pClasses->Get_Record_Count());
-	k[0]	= (double  *)API_Malloc(sizeof(double  ) * pClasses->Get_Record_Count() * pGrids->Get_Count());
+	m		= (double **)SG_Malloc(sizeof(double *) * pClasses->Get_Record_Count());
+	m[0]	= (double  *)SG_Malloc(sizeof(double  ) * pClasses->Get_Record_Count() * pGrids->Get_Count());
+	s		= (double **)SG_Malloc(sizeof(double *) * pClasses->Get_Record_Count());
+	s[0]	= (double  *)SG_Malloc(sizeof(double  ) * pClasses->Get_Record_Count() * pGrids->Get_Count());
+	k		= (double **)SG_Malloc(sizeof(double *) * pClasses->Get_Record_Count());
+	k[0]	= (double  *)SG_Malloc(sizeof(double  ) * pClasses->Get_Record_Count() * pGrids->Get_Count());
 
 	for(iClass=0; iClass<pClasses->Get_Record_Count(); iClass++)
 	{
@@ -508,12 +508,12 @@ bool CGrid_Classify_Supervised::Do_Maximum_Likelihood(CParameter_Grid_List *pGri
 	}
 
 	//-----------------------------------------------------
-	API_Free(m[0]);
-	API_Free(m);
-	API_Free(s[0]);
-	API_Free(s);
-	API_Free(k[0]);
-	API_Free(k);
+	SG_Free(m[0]);
+	SG_Free(m);
+	SG_Free(s[0]);
+	SG_Free(s);
+	SG_Free(k[0]);
+	SG_Free(k);
 
 	return( true );
 }

@@ -94,7 +94,7 @@ CGrid_Colors_Fit::CGrid_Colors_Fit(void)
 		NULL	, "SCALE"	, _TL("Scale"),
 		"",
 
-		CAPI_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s|",
 			_TL("Grid range"),
 			_TL("User defined range")
 		), 0
@@ -124,7 +124,7 @@ bool CGrid_Colors_Fit::On_Execute(void)
 	int		iColor;
 	long	aC, bC;
 	double	aZ, bZ, dColor, zMin, zRange;
-	CColors	Colors_Old, Colors_New;
+	CSG_Colors	Colors_Old, Colors_New;
 	CGrid	*pGrid;
 
 	pGrid	= Parameters("GRID")->asGrid();
@@ -185,7 +185,7 @@ bool CGrid_Colors_Fit::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGrid_Colors_Fit::_Set_Colors(CColors &Colors, double pos_a, long color_a, double pos_b, long color_b)
+void CGrid_Colors_Fit::_Set_Colors(CSG_Colors &Colors, double pos_a, long color_a, double pos_b, long color_b)
 {
 	int		a, b;
 

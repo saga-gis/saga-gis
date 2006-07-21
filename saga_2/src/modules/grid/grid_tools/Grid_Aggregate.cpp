@@ -129,7 +129,7 @@ bool CGrid_Aggregate::On_Execute(void)
 
 	CGrid *pGrid = Parameters("INPUT")->asGrid();
 
-	CGrid *pOutput = API_Create_Grid(pGrid->Get_Type(), iNX, iNY, pGrid->Get_Cellsize() * iSize, 
+	CGrid *pOutput = SG_Create_Grid(pGrid->Get_Type(), iNX, iNY, pGrid->Get_Cellsize() * iSize, 
 					pGrid->Get_XMin(), pGrid->Get_YMin());
 
 	pOutput->Set_Name(pGrid->Get_Name());

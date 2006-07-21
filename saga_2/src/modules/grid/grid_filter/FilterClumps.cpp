@@ -55,8 +55,8 @@ bool CFilterClumps::On_Execute(void){
 	int iArea;
 	m_pInputGrid = Parameters("GRID")->asGrid();
 	m_pOutputGrid = Parameters("OUTPUT")->asGrid();
-	m_pMaskGrid = API_Create_Grid(m_pInputGrid);
-	m_pMaskGridB = API_Create_Grid(m_pInputGrid);
+	m_pMaskGrid = SG_Create_Grid(m_pInputGrid);
+	m_pMaskGridB = SG_Create_Grid(m_pInputGrid);
 	int iThreshold = Parameters("THRESHOLD")->asInt();
 
 	m_CentralPoints	.Clear();

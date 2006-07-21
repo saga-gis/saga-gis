@@ -84,7 +84,7 @@ static CModule_Library	*g_pLibrary	= NULL;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int		Callback(TAPI_Callback_ID ID, long Param_1, long Param_2)
+int		Callback(TSG_Callback_ID ID, long Param_1, long Param_2)
 {
 	static int	iBuisy		= 0;
 
@@ -292,7 +292,7 @@ int		Callback(TAPI_Callback_ID ID, long Param_1, long Param_2)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-PFNC_Callback	Get_Callback	(void)
+TSG_PFNC_Callback	Get_Callback	(void)
 {
 	return( &Callback );
 }

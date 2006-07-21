@@ -97,11 +97,11 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CDLG_Colors::CDLG_Colors(CColors *pColors)
+CDLG_Colors::CDLG_Colors(CSG_Colors *pColors)
 	: CDLG_Base(-1, LNG("[CAP] Colors"))
 {
 	m_pOriginal	= pColors;
-	m_pColors	= new CColors();
+	m_pColors	= new CSG_Colors();
 	m_pColors->Assign(pColors);
 
 	m_pControl	= new CDLG_Colors_Control(this, m_pColors);

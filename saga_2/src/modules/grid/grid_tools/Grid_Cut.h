@@ -93,19 +93,19 @@ protected:
 	virtual int				On_Parameter_Changed	(CParameters *pParameters, CParameter *pParameter);
 
 	virtual bool			On_Execute				(void);
-	virtual bool			On_Execute_Position		(CGEO_Point ptWorld, TModule_Interactive_Mode Mode);
+	virtual bool			On_Execute_Position		(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
 
 
 private:
 
 	bool					m_bDown;
 
-	CGEO_Point				m_ptDown;
+	CSG_Point				m_ptDown;
 
 	CGrid					*m_pInput;
 
 
-	TGEO_Point				Fit_to_Grid				(TGEO_Point pt);
+	TSG_Point				Fit_to_Grid				(TSG_Point pt);
 
 };
 

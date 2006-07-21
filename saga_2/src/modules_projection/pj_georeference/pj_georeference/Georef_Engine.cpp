@@ -90,7 +90,7 @@ CGeoref_Engine::~CGeoref_Engine(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGeoref_Engine::Get_Converted(TGEO_Point &Point, bool bInverse)
+bool CGeoref_Engine::Get_Converted(TSG_Point &Point, bool bInverse)
 {
 	return( Get_Converted(Point.x, Point.y, bInverse) );
 }
@@ -127,8 +127,8 @@ bool CGeoref_Engine::Get_Converted(double &x, double &y, bool bInverse)
 bool CGeoref_Engine::Set_Engine(CShapes *pSource, CShapes *pTarget)
 {
 	int				iShape, iPart, iPoint;
-	TGEO_Point		Point;
-	CAPI_dPoints	Pts_Source, Pts_Target;
+	TSG_Point		Point;
+	CSG_Points	Pts_Source, Pts_Target;
 	CShape			*pShape;
 
 	if( pSource && pTarget )
@@ -171,8 +171,8 @@ bool CGeoref_Engine::Set_Engine(CShapes *pSource, CShapes *pTarget)
 bool CGeoref_Engine::Set_Engine(CShapes *pSource, int xField, int yField)
 {
 	int				iShape;
-	TGEO_Point		Point;
-	CAPI_dPoints	Pts_Source, Pts_Target;
+	TSG_Point		Point;
+	CSG_Points	Pts_Source, Pts_Target;
 	CShape			*pShape;
 
 	if( pSource && pSource->Get_Type() == SHAPE_TYPE_Point
@@ -204,7 +204,7 @@ bool CGeoref_Engine::Set_Engine(CShapes *pSource, int xField, int yField)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CAPI_dPoints	*g_pPts_Source, *g_pPts_Target;
+CSG_Points	*g_pPts_Source, *g_pPts_Target;
 
 //---------------------------------------------------------
 void fcn_linear(int m, int n, double x[], double fv[], int *iflag)
@@ -260,7 +260,7 @@ void fcn_linear_2_inverse(int m, int n, double x[], double fv[], int *iflag)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGeoref_Engine::_Set_Engine(CAPI_dPoints *pPts_Source, CAPI_dPoints *pPts_Target)
+bool CGeoref_Engine::_Set_Engine(CSG_Points *pPts_Source, CSG_Points *pPts_Target)
 {
 	int			*msk, info, ecode, nfev, nData, i;
 	double		*fvec;
@@ -294,14 +294,14 @@ bool CGeoref_Engine::_Set_Engine(CAPI_dPoints *pPts_Source, CAPI_dPoints *pPts_T
 
 	//-----------------------------------------------------
 	nData	= 2 * pPts_Source->Get_Count();
-	fvec	= (double *)API_Calloc(nData, sizeof(double));
+	fvec	= (double *)SG_Calloc(nData, sizeof(double));
 
 	for(i=0; i<nData; i++)
 	{
 		fvec[i]	= 0.0;
 	}
 
-	msk		= (int    *)API_Malloc(m_nParms * sizeof(int));
+	msk		= (int    *)SG_Malloc(m_nParms * sizeof(int));
 
 	for(i=0; i<m_nParms; i++)
 	{
@@ -312,26 +312,26 @@ bool CGeoref_Engine::_Set_Engine(CAPI_dPoints *pPts_Source, CAPI_dPoints *pPts_T
 	//-----------------------------------------------------
 	ecode	= lmdif0(fcn_linear        , nData, m_nParms, m_x    , msk, fvec, sqrt(2.220446049250313e-16), &info, &nfev);
 
-	m_Message.Append(CAPI_String::Format("\n%d %s\n", nfev, _TL("function evaluations")));
-	m_Message.Append(CAPI_String::Format("x\n"));
-	m_Message.Append(CAPI_String::Format("%lf %lf %lf %lf %lf %lf\n", m_x[0], m_x[1], m_x[2], m_x[3], m_x[4], m_x[5]));
-	m_Message.Append(CAPI_String::Format("%s\n", _TL("fvec")));
-	m_Message.Append(CAPI_String::Format("%lg %lg %lg %lg %lg %lg\n", fvec[0], fvec[1], fvec[2], fvec[3], fvec[4], fvec[5]));
-	m_Message.Append(CAPI_String::Format("%s = %.15e\n", _TL("function norm"), enorm(nData, fvec)));
+	m_Message.Append(CSG_String::Format("\n%d %s\n", nfev, _TL("function evaluations")));
+	m_Message.Append(CSG_String::Format("x\n"));
+	m_Message.Append(CSG_String::Format("%lf %lf %lf %lf %lf %lf\n", m_x[0], m_x[1], m_x[2], m_x[3], m_x[4], m_x[5]));
+	m_Message.Append(CSG_String::Format("%s\n", _TL("fvec")));
+	m_Message.Append(CSG_String::Format("%lg %lg %lg %lg %lg %lg\n", fvec[0], fvec[1], fvec[2], fvec[3], fvec[4], fvec[5]));
+	m_Message.Append(CSG_String::Format("%s = %.15e\n", _TL("function norm"), enorm(nData, fvec)));
 
 	//-----------------------------------------------------
 	ecode	= lmdif0(fcn_linear_inverse, nData, m_nParms, m_x_inv, msk, fvec, sqrt(2.220446049250313e-16), &info, &nfev);
 
-	m_Message.Append(CAPI_String::Format("\n%d inverse function evaluations\n", nfev));
-	m_Message.Append(CAPI_String::Format("x\n"));
-	m_Message.Append(CAPI_String::Format("%lf %lf %lf %lf %lf %lf\n", m_x_inv[0], m_x_inv[1], m_x_inv[2], m_x_inv[3], m_x_inv[4], m_x_inv[5]));
-	m_Message.Append(CAPI_String::Format("%s\n", _TL("fvec")));
-	m_Message.Append(CAPI_String::Format("%lg %lg %lg %lg %lg %lg\n", fvec[0], fvec[1], fvec[2], fvec[3], fvec[4], fvec[5]));
-	m_Message.Append(CAPI_String::Format("%s = %.15e\n", _TL("function norm"), enorm(nData, fvec)));
+	m_Message.Append(CSG_String::Format("\n%d inverse function evaluations\n", nfev));
+	m_Message.Append(CSG_String::Format("x\n"));
+	m_Message.Append(CSG_String::Format("%lf %lf %lf %lf %lf %lf\n", m_x_inv[0], m_x_inv[1], m_x_inv[2], m_x_inv[3], m_x_inv[4], m_x_inv[5]));
+	m_Message.Append(CSG_String::Format("%s\n", _TL("fvec")));
+	m_Message.Append(CSG_String::Format("%lg %lg %lg %lg %lg %lg\n", fvec[0], fvec[1], fvec[2], fvec[3], fvec[4], fvec[5]));
+	m_Message.Append(CSG_String::Format("%s = %.15e\n", _TL("function norm"), enorm(nData, fvec)));
 
 	//-----------------------------------------------------
-	API_Free(fvec);
-	API_Free(msk);
+	SG_Free(fvec);
+	SG_Free(msk);
 
 	return( true );
 }

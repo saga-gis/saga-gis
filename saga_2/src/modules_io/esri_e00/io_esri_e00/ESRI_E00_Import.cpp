@@ -205,7 +205,7 @@ bool CESRI_E00_Import::Open(const char *FileName)
 	//-----------------------------------------------------
 	if( FileName == NULL || (hReadPtr = E00ReadOpen(FileName)) == NULL )
 	{
-		Error_Set(CAPI_String::Format(_TL("%s - not found\n"), FileName));
+		Error_Set(CSG_String::Format(_TL("%s - not found\n"), FileName));
 
 		return( false );
 	}
@@ -213,7 +213,7 @@ bool CESRI_E00_Import::Open(const char *FileName)
 	//-----------------------------------------------------
 	if( (Line = E00ReadNextLine(hReadPtr)) == NULL )
 	{
-		Error_Set(CAPI_String::Format(_TL("\"%s\" is not an Arc-info_Table Export file !\n"), FileName));
+		Error_Set(CSG_String::Format(_TL("\"%s\" is not an Arc-info_Table Export file !\n"), FileName));
 
 		return( false );
 	}
@@ -221,7 +221,7 @@ bool CESRI_E00_Import::Open(const char *FileName)
 	//-----------------------------------------------------
 	if( strncmp(Line, "EXP", 3) )
 	{
-		Error_Set(CAPI_String::Format(_TL("\"%s\" is not an Arc-info_Table Export file !\n"), FileName));
+		Error_Set(CSG_String::Format(_TL("\"%s\" is not an Arc-info_Table Export file !\n"), FileName));
 
 		return( false );
 	}
@@ -537,7 +537,7 @@ CGrid * CESRI_E00_Import::getraster(int prec, double scale)
 
 	//-----------------------------------------------------
 	case 1:
-		pGrid	= API_Create_Grid(GRID_TYPE_Int, cols, rows, xres, xmin, ymin);
+		pGrid	= SG_Create_Grid(GRID_TYPE_Int, cols, rows, xres, xmin, ymin);
 		pGrid->Set_NoData_Value(nul_val);
 
 		for(y=0; y<rows && line && Set_Progress(y, rows); y++)
@@ -559,7 +559,7 @@ CGrid * CESRI_E00_Import::getraster(int prec, double scale)
 
 	//-----------------------------------------------------
 	case 2:
-		pGrid	= API_Create_Grid(GRID_TYPE_Float, cols, rows, xres, xmin, ymin);
+		pGrid	= SG_Create_Grid(GRID_TYPE_Float, cols, rows, xres, xmin, ymin);
 		pGrid->Set_NoData_Value(nul_val);
 
 		for(y=0; y<rows && line && Set_Progress(y, rows); y++)
@@ -581,7 +581,7 @@ CGrid * CESRI_E00_Import::getraster(int prec, double scale)
 
 	//-----------------------------------------------------
 	case 3:
-		pGrid	= API_Create_Grid(GRID_TYPE_Double, cols, rows, xres, xmin, ymin);
+		pGrid	= SG_Create_Grid(GRID_TYPE_Double, cols, rows, xres, xmin, ymin);
 		pGrid->Set_NoData_Value(nul_val);
 
 		for(y=0; y<rows && line && Set_Progress(y, rows); y++)
@@ -632,7 +632,7 @@ CShapes * CESRI_E00_Import::getarcs(int prec, double scale, TShape_Type &shape_t
 	CShapes	*pShapes;
 
 	//-----------------------------------------------------
-	pShapes	= API_Create_Shapes(shape_type);
+	pShapes	= SG_Create_Shapes(shape_type);
 	pShapes->Get_Table().Add_Field("ID"	, TABLE_FIELDTYPE_Int);
 	pShapes->Get_Table().Add_Field("ID#"	, TABLE_FIELDTYPE_Int);
 	pShapes->Get_Table().Add_Field("FNODE"	, TABLE_FIELDTYPE_Int);
@@ -645,7 +645,7 @@ CShapes * CESRI_E00_Import::getarcs(int prec, double scale, TShape_Type &shape_t
 	//-----------------------------------------------------
 	do
 	{
-		Process_Set_Text(CAPI_String::Format("Loaded arcs: %d", pShapes->Get_Count()));
+		Process_Set_Text(CSG_String::Format("Loaded arcs: %d", pShapes->Get_Count()));
 
 		if( (line = E00ReadNextLine(hReadPtr)) == NULL )
 		{
@@ -732,7 +732,7 @@ CShapes * CESRI_E00_Import::Arcs2Polygons(CShapes *pArcs)
 	//-----------------------------------------------------
 	Process_Set_Text("Arcs to polygons");
 
-	pPolygons	= API_Create_Shapes(SHAPE_TYPE_Polygon);
+	pPolygons	= SG_Create_Shapes(SHAPE_TYPE_Polygon);
 	pPolygons->Get_Table().Add_Field("ID", TABLE_FIELDTYPE_Int);
 
 	nArcs		= pArcs->Get_Count();
@@ -880,7 +880,7 @@ CShapes * CESRI_E00_Import::getlabels(int prec, double scale)	// shape_type: LIN
 	CShapes	*pShapes;
 	CShape	*pShape;
 
-	pShapes	= API_Create_Shapes(SHAPE_TYPE_Point);
+	pShapes	= SG_Create_Shapes(SHAPE_TYPE_Point);
 
 	pShapes->Get_Table().Add_Field("ID#"	, TABLE_FIELDTYPE_Int);
 	pShapes->Get_Table().Add_Field("ID"	, TABLE_FIELDTYPE_Int);
@@ -938,7 +938,7 @@ CShapes * CESRI_E00_Import::getsites(int prec, double scale)
 	CShape	*pShape;
 	CShapes	*pShapes;
 
-	pShapes	= API_Create_Shapes(SHAPE_TYPE_Point);
+	pShapes	= SG_Create_Shapes(SHAPE_TYPE_Point);
 	pShapes->Get_Table().Add_Field("ID", TABLE_FIELDTYPE_Int);
 
 	while( (line = E00ReadNextLine(hReadPtr)) != NULL )
@@ -1045,7 +1045,7 @@ int CESRI_E00_Import::info_Get_Tables(void)
 
 	char				tmp[12], *p;
 	int					i;
-	CAPI_String			s;
+	CSG_String			s;
 	CTable				*pTable;
 	struct info_Table	info;
 
@@ -1156,7 +1156,7 @@ int CESRI_E00_Import::info_Get_Tables(void)
 
 			if     ( !s.CmpNoCase("bnd") )	// coverage boundaries
 			{
-				pBND	= API_Create_Shapes(SHAPE_TYPE_Polygon, "Boundary");
+				pBND	= SG_Create_Shapes(SHAPE_TYPE_Polygon, "Boundary");
 				pBND->Get_Table().Add_Field("XMIN", TABLE_FIELDTYPE_Double);
 				pBND->Get_Table().Add_Field("YMIN", TABLE_FIELDTYPE_Double);
 				pBND->Get_Table().Add_Field("XMAX", TABLE_FIELDTYPE_Double);
@@ -1176,7 +1176,7 @@ int CESRI_E00_Import::info_Get_Tables(void)
 			}
 			else if( !s.CmpNoCase("tic") )	// tick marks
 			{
-				pTIC	= API_Create_Shapes(SHAPE_TYPE_Point, "Tick Points");
+				pTIC	= SG_Create_Shapes(SHAPE_TYPE_Point, "Tick Points");
 				pTIC->Get_Table().Add_Field("ID", TABLE_FIELDTYPE_Int);
 				pTIC->Get_Table().Add_Field("X" , TABLE_FIELDTYPE_Double);
 				pTIC->Get_Table().Add_Field("Y" , TABLE_FIELDTYPE_Double);
@@ -1218,7 +1218,7 @@ CTable * CESRI_E00_Import::info_Get_Table(struct info_Table info)
 	buffer_record	= (char *)malloc(info.length + 3);
 	buffer_item		= (char *)malloc(info.length + 3);
 
-	pTable			= API_Create_Table();
+	pTable			= SG_Create_Table();
 	pTable->Set_Name(info.Name);
 
 	//-----------------------------------------------------

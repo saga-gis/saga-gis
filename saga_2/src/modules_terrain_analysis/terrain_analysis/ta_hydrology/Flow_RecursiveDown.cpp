@@ -112,7 +112,7 @@ CFlow_RecursiveDown::CFlow_RecursiveDown(void)
 	Parameters.Add_Choice(
 		NULL	, "Method"		, _TL("Method"),
 		"",
-		CAPI_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|",
 			_TL("Rho 8"),
 			_TL("Kinematic Routing Algorithm"),
 			_TL("DEMON")
@@ -158,7 +158,7 @@ void CFlow_RecursiveDown::On_Initialize(void)
 	DEMON_minDQV	= Parameters("MINDQV"	)->asDouble();
 	bFlowPathWeight	= Parameters("CORRECT"	)->asBool();
 
-	pLinear			= 1 ? API_Create_Grid(pDTM, GRID_TYPE_Float) : NULL;
+	pLinear			= 1 ? SG_Create_Grid(pDTM, GRID_TYPE_Float) : NULL;
 
 	//-----------------------------------------------------
 	Lock_Create();
@@ -176,8 +176,8 @@ void CFlow_RecursiveDown::On_Initialize(void)
 	//-----------------------------------------------------
 	case 1:	case 2:		// KRA, DEMON...
 
-		pDir		= API_Create_Grid(pDTM, GRID_TYPE_Char);
-		pDif		= API_Create_Grid(pDTM, GRID_TYPE_Float);
+		pDir		= SG_Create_Grid(pDTM, GRID_TYPE_Char);
+		pDif		= SG_Create_Grid(pDTM, GRID_TYPE_Float);
 
 		for(y=0; y<Get_NY() && Set_Progress(y); y++)
 		{

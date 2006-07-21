@@ -255,7 +255,7 @@ bool CChannelNetwork::On_Execute(void)
 
 	Process_Set_Text("Channel Network: Pass 2");
 
-	pStart				= API_Create_Grid(pDTM, GRID_TYPE_Char);
+	pStart				= SG_Create_Grid(pDTM, GRID_TYPE_Char);
 	Init_pGrid			= Parameters("INIT_GRID")	->asGrid();
 	Init_Method			= Parameters("INIT_METHOD")	->asInt();
 	Init_Threshold		= Parameters("INIT_VALUE")	->asDouble();
@@ -301,7 +301,7 @@ bool CChannelNetwork::On_Execute(void)
 
 	if( Direction )
 	{
-		API_Free( Direction );
+		SG_Free( Direction );
 	}
 
 	pChannels->Assign();
@@ -576,7 +576,7 @@ void CChannelNetwork::Set_Channel_Route(int x, int y)
 					if( n >= Direction_Buffer )
 					{
 						Direction_Buffer	+= BUFFER_GROWSIZE;
-						Direction			= (int *)API_Realloc(Direction, Direction_Buffer * sizeof(int));
+						Direction			= (int *)SG_Realloc(Direction, Direction_Buffer * sizeof(int));
 					}
 
 					Direction[n++]	= goDir;

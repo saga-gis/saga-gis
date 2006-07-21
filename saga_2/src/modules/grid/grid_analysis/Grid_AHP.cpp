@@ -61,7 +61,7 @@ bool CAHP::On_Execute(void){
 	CTable_Record *pRecord;
 	CTable *pTable;
 	CParameter_Grid_List* pGridsList;
-	CAPI_String sMessage;
+	CSG_String sMessage;
 
 	pTable = Parameters("TABLE")->asTable();
 	pOutputGrid = Parameters("OUTPUT")->asGrid();
@@ -99,7 +99,7 @@ bool CAHP::On_Execute(void){
 				fSum += pMatrix[i][j];
 			}//for
 			pCoefs[i] = fSum / (float) pGridsList->Get_Count();
-			sMessage = _TL("Weight for grid ") + API_Get_String(i,0) + " = " + API_Get_String(pCoefs[i]);
+			sMessage = _TL("Weight for grid ") + SG_Get_String(i,0) + " = " + SG_Get_String(pCoefs[i]);
 			Message_Add(sMessage.c_str());
 		}//for
 

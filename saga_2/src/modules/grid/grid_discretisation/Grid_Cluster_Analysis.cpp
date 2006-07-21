@@ -121,7 +121,7 @@ CGrid_Cluster_Analysis::CGrid_Cluster_Analysis(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
 		"",
-		CAPI_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|",
 			_TL("Iterative Minimum Distance (Forgy 1965)"),
 			_TL("Hill-Climbing (Rubin 1967)"),
 			_TL("Combined Minimum Distance / Hillclimbing") 
@@ -176,13 +176,13 @@ bool CGrid_Cluster_Analysis::On_Execute(void)
 	//-----------------------------------------------------
 	if( nGrids > 0 )
 	{
-		Grids		= (CGrid **)API_Malloc(nGrids * sizeof(CGrid *));
+		Grids		= (CGrid **)SG_Malloc(nGrids * sizeof(CGrid *));
 
 		if( Parameters("NORMALISE")->asBool() )
 		{
 			for(i=0; i<nGrids; i++)
 			{
-				Grids[i]	= API_Create_Grid(pGrids->asGrid(i), GRID_TYPE_Float);
+				Grids[i]	= SG_Create_Grid(pGrids->asGrid(i), GRID_TYPE_Float);
 				Grids[i]->Assign(pGrids->asGrid(i));
 				Grids[i]->Normalise();
 			}
@@ -197,13 +197,13 @@ bool CGrid_Cluster_Analysis::On_Execute(void)
 
 		pCluster->Assign(-1);
 
-		nMembers	= (int     *)API_Malloc(nCluster * sizeof(int));
-		Variances	= (double  *)API_Malloc(nCluster * sizeof(double));
-		Centroids	= (double **)API_Malloc(nCluster * sizeof(double *));
+		nMembers	= (int     *)SG_Malloc(nCluster * sizeof(int));
+		Variances	= (double  *)SG_Malloc(nCluster * sizeof(double));
+		Centroids	= (double **)SG_Malloc(nCluster * sizeof(double *));
 
 		for(i=0; i<nCluster; i++)
 		{
-			Centroids[i]	= (double  *)API_Malloc(nGrids * sizeof(double));
+			Centroids[i]	= (double  *)SG_Malloc(nGrids * sizeof(double));
 		}
 
 		//-------------------------------------------------
@@ -249,16 +249,16 @@ bool CGrid_Cluster_Analysis::On_Execute(void)
 
 		Write_Result(Parameters("STATISTICS")->asTable(), nElements, nCluster, SP);
 
-		API_Free(Grids);
+		SG_Free(Grids);
 
 		for(i=0; i<nCluster; i++)
 		{
-			API_Free(Centroids[i]);
+			SG_Free(Centroids[i]);
 		}
 
-		API_Free(Centroids);
-		API_Free(Variances);
-		API_Free(nMembers);
+		SG_Free(Centroids);
+		SG_Free(Variances);
+		SG_Free(nMembers);
 
 		return( true );
 	}
@@ -277,7 +277,7 @@ bool CGrid_Cluster_Analysis::On_Execute(void)
 void CGrid_Cluster_Analysis::Write_Result(CTable *pTable, long nElements, int nCluster, double SP)
 {
 	int				i, j;
-	CAPI_String		s;
+	CSG_String		s;
 	CTable_Record	*pRecord;
 
 	pTable->Destroy();
@@ -298,7 +298,7 @@ void CGrid_Cluster_Analysis::Write_Result(CTable *pTable, long nElements, int nC
 
 	for(j=0; j<nGrids; j++)
 	{
-		s.Append(CAPI_String::Format("\t%02d_%s", j + 1, Grids[j]->Get_Name()));
+		s.Append(CSG_String::Format("\t%02d_%s", j + 1, Grids[j]->Get_Name()));
 		pTable->Add_Field(Grids[j]->Get_Name(), TABLE_FIELDTYPE_Double);
 	}
 
@@ -315,7 +315,7 @@ void CGrid_Cluster_Analysis::Write_Result(CTable *pTable, long nElements, int nC
 
 		for(j=0; j<nGrids; j++)
 		{
-			s.Append(CAPI_String::Format("\t%f", Centroids[i][j]));
+			s.Append(CSG_String::Format("\t%f", Centroids[i][j]));
 
 			pRecord->Set_Value(j + 3, Centroids[i][j]);
 		}
@@ -476,7 +476,7 @@ double CGrid_Cluster_Analysis::MinimumDistance(long &nElements, int nCluster)
 			bContinue	= false;
 		}
 
-		Process_Set_Text(CAPI_String::Format(
+		Process_Set_Text(CSG_String::Format(
 			"Pass %d - Variance changed: %f", nPasses, SP_Last < 0.0 ? SP : SP_Last - SP
 		));
 
@@ -693,7 +693,7 @@ double CGrid_Cluster_Analysis::HillClimbing(long &nElements, int nCluster)
 			}
 		}
 
-		Process_Set_Text(CAPI_String::Format(
+		Process_Set_Text(CSG_String::Format(
 			"Pass %d - Variance changed: %f", nPasses, SP_Last < 0.0 ? SP : SP_Last - SP
 		));
 

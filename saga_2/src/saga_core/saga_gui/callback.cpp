@@ -74,7 +74,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int		Callback(TAPI_Callback_ID ID, long Param_1, long Param_2)
+int		Callback(TSG_Callback_ID ID, long Param_1, long Param_2)
 {
 	int		Result;
 
@@ -271,7 +271,7 @@ int		Callback(TAPI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_COLORS_GET:
 
-		Result	= g_pData->Get_Colors((CDataObject *)Param_1, (CColors *)Param_2) ? 1 : 0;
+		Result	= g_pData->Get_Colors((CDataObject *)Param_1, (CSG_Colors *)Param_2) ? 1 : 0;
 
 		break;
 
@@ -279,7 +279,7 @@ int		Callback(TAPI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_COLORS_SET:
 
-		Result	= g_pData->Set_Colors((CDataObject *)Param_1, (CColors *)Param_2) ? 1 : 0;
+		Result	= g_pData->Set_Colors((CDataObject *)Param_1, (CSG_Colors *)Param_2) ? 1 : 0;
 
 		break;
 
@@ -317,7 +317,7 @@ int		Callback(TAPI_Callback_ID ID, long Param_1, long Param_2)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-PFNC_Callback	Get_Callback(void)
+TSG_PFNC_Callback	Get_Callback(void)
 {
 	return( &Callback );
 }

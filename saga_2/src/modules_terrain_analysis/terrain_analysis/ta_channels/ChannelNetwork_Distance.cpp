@@ -243,7 +243,7 @@ void CChannelNetwork_Distance::Initialize_D8(void)
 {
 	int		x, y;
 
-	pFlow	= API_Create_Grid(pDTM, GRID_TYPE_Char);
+	pFlow	= SG_Create_Grid(pDTM, GRID_TYPE_Char);
 
 	for(y=0; y<Get_NY(); y++)
 	{
@@ -304,8 +304,8 @@ void CChannelNetwork_Distance::Initialize_MFD(void)
 
 	double	*Flow, z, dz, zSum;
 
-	pFlow	= API_Create_Grid(pDTM, GRID_TYPE_Long);
-	Flow	= (double *)API_Calloc(8 * Get_NCells(), sizeof(double));
+	pFlow	= SG_Create_Grid(pDTM, GRID_TYPE_Long);
+	Flow	= (double *)SG_Calloc(8 * Get_NCells(), sizeof(double));
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
@@ -344,13 +344,13 @@ void CChannelNetwork_Distance::Initialize_MFD(void)
 		}
 	}
 
-	pMFDSum	= API_Create_Grid(pDTM, GRID_TYPE_Float);
+	pMFDSum	= SG_Create_Grid(pDTM, GRID_TYPE_Float);
 }
 
 //---------------------------------------------------------
 void CChannelNetwork_Distance::Finalize_MFD(void)
 {
-	API_Free((double *)pFlow->asLong(0));
+	SG_Free((double *)pFlow->asLong(0));
 
 	delete(pFlow);
 

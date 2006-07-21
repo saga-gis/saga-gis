@@ -71,10 +71,10 @@ bool CFlowDepth::On_Execute(void){
 	m_dThreshold	= Parameters("THRESHOLD")	->asDouble();
 	m_dFlow			= Parameters("FLOW")		->asDouble();
 
-	m_pCatchArea	= API_Create_Grid(m_pDEM, GRID_TYPE_Float);
-	m_pBasinGrid	= API_Create_Grid(m_pDEM, GRID_TYPE_Int);
-	m_pSlope		= API_Create_Grid(m_pDEM, GRID_TYPE_Float);
-	m_pAspect		= API_Create_Grid(m_pDEM, GRID_TYPE_Float);
+	m_pCatchArea	= SG_Create_Grid(m_pDEM, GRID_TYPE_Float);
+	m_pBasinGrid	= SG_Create_Grid(m_pDEM, GRID_TYPE_Int);
+	m_pSlope		= SG_Create_Grid(m_pDEM, GRID_TYPE_Float);
+	m_pAspect		= SG_Create_Grid(m_pDEM, GRID_TYPE_Float);
 
 	m_pFlowDepth->Set_NoData_Value(0.);
 
@@ -118,7 +118,7 @@ bool CFlowDepth::On_Execute_Finish(){
 
 }//method
 
-bool CFlowDepth::On_Execute_Position(CGEO_Point ptWorld, TModule_Interactive_Mode Mode){	
+bool CFlowDepth::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode){	
 
 	int iX, iY;	
 	int iNextX, iNextY;
@@ -292,7 +292,7 @@ bool CFlowDepth::getWetAreaAndPerimeter(int iX,
 	iStepY = pStepX[iDir]; 
 	iStepX = pStepY[iDir]; 
 	
-	fDist = M_GET_DIST(iStepX, iStepY) * m_pDEM->Get_Cellsize();
+	fDist = M_GET_LENGTH(iStepX, iStepY) * m_pDEM->Get_Cellsize();
 	
 	do{
 		iX2 = iX + iStepX * i;

@@ -106,7 +106,7 @@ CGrid_Completion::CGrid_Completion(void)
 	Parameters.Add_Choice(
 		NULL	, "INTERPOLATION"	, _TL("Interpolation Method"),
 		"",
-		CAPI_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|",
 			_TL("Nearest Neighbor"),
 			_TL("Bilinear Interpolation"),
 			_TL("Inverse Distance Interpolation"),

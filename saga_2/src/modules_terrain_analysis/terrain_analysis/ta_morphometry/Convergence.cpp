@@ -95,7 +95,7 @@ CConvergence::CConvergence(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
 		"",
-		CAPI_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s|",
 			_TL("Aspect"),
 			_TL("Gradient")
 		),0
@@ -116,7 +116,7 @@ CConvergence::~CConvergence(void)
 //---------------------------------------------------------
 bool CConvergence::On_Execute(void)
 {
-	CColors	Colors;
+	CSG_Colors	Colors;
 
 	pDTM			= Parameters("ELEVATION")	->asGrid();
 	pConvergence	= Parameters("RESULT")		->asGrid();

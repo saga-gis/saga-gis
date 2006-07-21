@@ -115,7 +115,7 @@ bool CGEOTRANS_Shapes::On_Execute_Conversion(void)
 {
 	bool		bCopy, bDropped;
 	int			iShape, iPart, iPoint, nDropped;
-	TGEO_Point	Point;
+	TSG_Point	Point;
 	CShape		*pShape_Source, *pShape_Target;
 	CShapes		*pSource, *pTarget;
 
@@ -129,7 +129,7 @@ bool CGEOTRANS_Shapes::On_Execute_Conversion(void)
 		{
 			bCopy		= true;
 
-			pTarget		= API_Create_Shapes();
+			pTarget		= SG_Create_Shapes();
 		}
 		else
 		{
@@ -171,7 +171,7 @@ bool CGEOTRANS_Shapes::On_Execute_Conversion(void)
 		//-------------------------------------------------
 		if( nDropped > 0 )
 		{
-			Message_Add(CAPI_String::Format(_TL("%d have been dropped"), nDropped));
+			Message_Add(CSG_String::Format(_TL("%d have been dropped"), nDropped));
 		}
 
 		if( bCopy )

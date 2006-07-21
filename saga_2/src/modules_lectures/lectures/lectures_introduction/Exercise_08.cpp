@@ -124,7 +124,7 @@ bool CExercise_08::On_Execute(void)
 {
 	bool	bResult;
 	int		Method;
-	CColors	Colors;
+	CSG_Colors	Colors;
 
 	//-----------------------------------------------------
 	// Get parameter settings...

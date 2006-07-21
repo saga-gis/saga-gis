@@ -52,8 +52,8 @@ private:
 	
 	FuelCatalogPtr m_Catalog;    /* fuel catalog handle */
 
-	CAPI_iPoints	m_CentralPoints;
-	CAPI_iPoints	m_AdjPoints;
+	CSG_Points_Int	m_CentralPoints;
+	CSG_Points_Int	m_AdjPoints;
 
 	int m_iInterval;
 	int m_iNumEvents;

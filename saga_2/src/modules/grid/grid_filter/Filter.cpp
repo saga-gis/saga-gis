@@ -99,7 +99,7 @@ CFilter::CFilter(void)
 	Parameters.Add_Choice(
 		NULL, "SEARCH_MODE"	, _TL("Search Mode"),
 		"",
-		CAPI_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s|",
 			_TL("Square"),
 			_TL("Circle")
 		), 1
@@ -108,7 +108,7 @@ CFilter::CFilter(void)
 	Parameters.Add_Choice(
 		NULL, "METHOD"		, _TL("Filter"),
 		"",
-		CAPI_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|",
 			_TL("Smooth"),
 			_TL("Sharpen"),
 			_TL("Edge")
@@ -154,7 +154,7 @@ bool CFilter::On_Execute(void)
 
 	if( !pResult || pResult == pInput )
 	{
-		pResult	= API_Create_Grid(pInput);
+		pResult	= SG_Create_Grid(pInput);
 	}
 
 	Mode		= Parameters("SEARCH_MODE")->asInt();
@@ -167,7 +167,7 @@ bool CFilter::On_Execute(void)
 		break;
 
 	case 1:
-		pRadius		= new CMAT_Grid_Radius(Radius + 1);
+		pRadius		= new CSG_Grid_Radius(Radius + 1);
 		break;
 	}
 

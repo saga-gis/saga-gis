@@ -33,8 +33,8 @@ private:
 	int CalculateCellBlockArea();
 	void EliminateClump();
 
-	CAPI_iPoints	m_CentralPoints;
-	CAPI_iPoints	m_AdjPoints;
+	CSG_Points_Int	m_CentralPoints;
+	CSG_Points_Int	m_AdjPoints;
 
 	CGrid *m_pInputGrid;
 	CGrid *m_pOutputGrid;

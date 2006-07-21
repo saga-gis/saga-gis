@@ -99,7 +99,7 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CDLG_Colors_Control::CDLG_Colors_Control(wxWindow *pParent, CColors *pColors)
+CDLG_Colors_Control::CDLG_Colors_Control(wxWindow *pParent, CSG_Colors *pColors)
 	: wxPanel(pParent, -1, wxDefaultPosition, wxDefaultSize)
 {
 	m_pColors	= pColors;

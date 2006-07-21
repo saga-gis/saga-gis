@@ -132,7 +132,7 @@ void CCost_Isotropic::CalculateCost(){
 						}//if
 						else{
 							double dPartialCost=(m_pCostGrid->asDouble(iX,iY)+m_pCostGrid->asDouble(iX+i,iY+j))/2.0;
-							dCost = m_pAccCostGrid->asDouble(iX,iY) + dPartialCost * M_GET_DIST(i, j);					
+							dCost = m_pAccCostGrid->asDouble(iX,iY) + dPartialCost * M_GET_LENGTH(i, j);					
 							if (m_pAccCostGrid->asDouble(iX+i,iY+j)==NO_DATA || 
 									m_pAccCostGrid->asDouble(iX+i,iY+j)>dCost + m_dThreshold){								
 								m_pAccCostGrid->Set_Value(iX+i,iY+j,dCost);

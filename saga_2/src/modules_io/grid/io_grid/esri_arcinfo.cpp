@@ -124,7 +124,7 @@ bool CESRI_ArcInfo_Import::On_Execute(void)
 	int			x, y, iy;
 	float		Value, *Line;
 	FILE		*Stream;
-	CAPI_String	fName;
+	CSG_String	fName;
 	CGrid		*pGrid;
 
 	//-----------------------------------------------------
@@ -136,20 +136,20 @@ bool CESRI_ArcInfo_Import::On_Execute(void)
 		//-------------------------------------------------
 		// Binary...
 
-		if(	API_Cmp_File_Extension(Parameters("FILE")->asString(), "flt")
-		||	API_Cmp_File_Extension(Parameters("FILE")->asString(), "hdr") )
+		if(	SG_File_Cmp_Extension(Parameters("FILE")->asString(), "flt")
+		||	SG_File_Cmp_Extension(Parameters("FILE")->asString(), "hdr") )
 		{
-			fName	= API_Make_File_Path("", Parameters("FILE")->asString(), "hdr");
+			fName	= SG_File_Make_Path("", Parameters("FILE")->asString(), "hdr");
 
 			if( (Stream = fopen(fName, "r")) != NULL )
 			{
 				pGrid	= Read_Header(Stream);
 
-				fName	= API_Make_File_Path("", Parameters("FILE")->asString(), "flt");
+				fName	= SG_File_Make_Path("", Parameters("FILE")->asString(), "flt");
 
 				if( pGrid && (Stream = fopen(fName, "rb")) != NULL )
 				{
-					Line	= (float *)API_Malloc(pGrid->Get_NX() * sizeof(float));
+					Line	= (float *)SG_Malloc(pGrid->Get_NX() * sizeof(float));
 
 					for(iy=0, y=pGrid->Get_NY()-1; iy<pGrid->Get_NY() && !feof(Stream) && Set_Progress(iy, pGrid->Get_NY()); iy++, y--)
 					{
@@ -161,7 +161,7 @@ bool CESRI_ArcInfo_Import::On_Execute(void)
 						}
 					}
 
-					API_Free(Line);
+					SG_Free(Line);
 
 					fclose(Stream);
 				}
@@ -196,7 +196,7 @@ bool CESRI_ArcInfo_Import::On_Execute(void)
 		//-------------------------------------------------
 		if( pGrid )
 		{
-			pGrid->Set_Name(API_Extract_File_Name(Parameters("FILE")->asString(), false));
+			pGrid->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false));
 
 			Parameters("GRID")->Set_Value(pGrid);
 
@@ -214,7 +214,7 @@ CGrid * CESRI_ArcInfo_Import::Read_Header(FILE *Stream)
 	char		buffer[32];
 	int			NX, NY;
 	double		CellSize, xMin, yMin, NoData;
-	CAPI_String	s;
+	CSG_String	s;
 	CGrid		*pGrid;
 
 	//-----------------------------------------------------
@@ -302,7 +302,7 @@ CGrid * CESRI_ArcInfo_Import::Read_Header(FILE *Stream)
 			yMin	+= CellSize / 2.0;
 
 		//-------------------------------------------------
-		if( (pGrid = API_Create_Grid(GRID_TYPE_Float, NX, NY, CellSize, xMin, yMin)) != NULL )
+		if( (pGrid = SG_Create_Grid(GRID_TYPE_Float, NX, NY, CellSize, xMin, yMin)) != NULL )
 		{
 			pGrid->Set_NoData_Value(NoData);
 
@@ -390,7 +390,7 @@ bool CESRI_ArcInfo_Export::On_Execute(void)
 	float		*Line;
 	FILE		*Stream;
 	CGrid		*pGrid;
-	CAPI_String	fName;
+	CSG_String	fName;
 
 	//-----------------------------------------------------
 	bResult	= false;
@@ -402,7 +402,7 @@ bool CESRI_ArcInfo_Export::On_Execute(void)
 
 	if( Parameters("FORMAT")->asInt() == 0 )
 	{
-		fName	= API_Make_File_Path("", Parameters("FILE")->asString(), "hdr");
+		fName	= SG_File_Make_Path("", Parameters("FILE")->asString(), "hdr");
 
 		if( (Stream = fopen(fName, "w")) != NULL )
 		{
@@ -410,11 +410,11 @@ bool CESRI_ArcInfo_Export::On_Execute(void)
 			{
 				fclose(Stream);
 
-				fName	= API_Make_File_Path("", Parameters("FILE")->asString(), "flt");
+				fName	= SG_File_Make_Path("", Parameters("FILE")->asString(), "flt");
 
 				if( (Stream = fopen(fName, "wb")) != NULL )
 				{
-					Line	= (float *)API_Malloc(pGrid->Get_NX() * sizeof(float));
+					Line	= (float *)SG_Malloc(pGrid->Get_NX() * sizeof(float));
 
 					for(iy=0, y=pGrid->Get_NY()-1; iy<pGrid->Get_NY() && Set_Progress(iy, pGrid->Get_NY()); iy++, y--)
 					{
@@ -426,7 +426,7 @@ bool CESRI_ArcInfo_Export::On_Execute(void)
 						fwrite(Line, pGrid->Get_NX(), sizeof(float), Stream);
 					}
 
-					API_Free(Line);
+					SG_Free(Line);
 
 					fclose(Stream);
 

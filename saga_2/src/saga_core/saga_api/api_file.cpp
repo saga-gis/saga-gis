@@ -73,15 +73,15 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool			API_Directory_isValid(const char *Directory)
+bool			SG_Directory_isValid(const char *Directory)
 {
 	return( Directory != NULL && *Directory != '\0' && wxFileName::DirExists(Directory) );
 }
 
 //---------------------------------------------------------
-bool			API_Directory_Make(const char *Directory)
+bool			SG_Directory_Make(const char *Directory)
 {
-	if( API_Directory_isValid(Directory) )
+	if( SG_Directory_isValid(Directory) )
 	{
 		return( true );
 	}
@@ -97,7 +97,7 @@ bool			API_Directory_Make(const char *Directory)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool			API_Remove_File(const char *FileName)
+bool			SG_File_Delete(const char *FileName)
 {
 	if( FileName )
 	{
@@ -110,7 +110,7 @@ bool			API_Remove_File(const char *FileName)
 }
 
 //---------------------------------------------------------
-CAPI_String		API_Get_CWD(void)
+CSG_String		SG_Get_CWD(void)
 {
 	return( wxGetCwd().c_str() );
 }
@@ -123,14 +123,14 @@ CAPI_String		API_Get_CWD(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CAPI_String		API_Get_Temp_File_Name(const char *Prefix, const char *Directory)
+CSG_String		SG_Get_Temp_File_Name(const char *Prefix, const char *Directory)
 {
-	if( !API_Directory_isValid(Directory) )
+	if( !SG_Directory_isValid(Directory) )
 	{
 		return( wxFileName::CreateTempFileName(Prefix).c_str() );
 	}
 
-	return( wxFileName::CreateTempFileName(API_Make_File_Path(Directory, Prefix).c_str()).c_str() );
+	return( wxFileName::CreateTempFileName(SG_File_Make_Path(Directory, Prefix).c_str()).c_str() );
 }
 
 
@@ -141,10 +141,10 @@ CAPI_String		API_Get_Temp_File_Name(const char *Prefix, const char *Directory)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CAPI_String		API_Extract_File_Name(const char *full_Path, bool bExtension)
+CSG_String		SG_File_Get_Name(const char *full_Path, bool bExtension)
 {
 	wxFileName	fn(full_Path);
-	CAPI_String	s;
+	CSG_String	s;
 
 	s.Printf(bExtension ? fn.GetFullName().c_str() : fn.GetName().c_str());
 
@@ -152,7 +152,7 @@ CAPI_String		API_Extract_File_Name(const char *full_Path, bool bExtension)
 }
 
 //---------------------------------------------------------
-CAPI_String		API_Extract_File_Path(const char *full_Path)
+CSG_String		SG_File_Get_Path(const char *full_Path)
 {
 	wxFileName	fn(full_Path);
 
@@ -160,27 +160,27 @@ CAPI_String		API_Extract_File_Path(const char *full_Path)
 }
 
 //---------------------------------------------------------
-CAPI_String		API_Make_File_Path(const char *Directory, const char *Name, const char *Extension)
+CSG_String		SG_File_Make_Path(const char *Directory, const char *Name, const char *Extension)
 {
 	wxFileName	fn;
 
-	fn.AssignDir(API_Directory_isValid(Directory) ? Directory : API_Extract_File_Path(Name).c_str());
+	fn.AssignDir(SG_Directory_isValid(Directory) ? Directory : SG_File_Get_Path(Name).c_str());
 
 	if( Extension && *Extension != '\0' )
 	{
-		fn.SetName		(API_Extract_File_Name(Name, false).c_str());
+		fn.SetName		(SG_File_Get_Name(Name, false).c_str());
 		fn.SetExt		(Extension);
 	}
 	else
 	{
-		fn.SetFullName	(API_Extract_File_Name(Name,  true).c_str());
+		fn.SetFullName	(SG_File_Get_Name(Name,  true).c_str());
 	}
 
 	return( fn.GetFullPath().c_str() );
 }
 
 //---------------------------------------------------------
-bool			API_Cmp_File_Extension(const char *File_Name, const char *Extension)
+bool			SG_File_Cmp_Extension(const char *File_Name, const char *Extension)
 {
 	wxFileName	fn(File_Name);
 
@@ -195,7 +195,7 @@ bool			API_Cmp_File_Extension(const char *File_Name, const char *Extension)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool			API_Read_Line(FILE *Stream, CAPI_String &Line)
+bool			SG_Read_Line(FILE *Stream, CSG_String &Line)
 {
 	char	c;
 
@@ -222,7 +222,7 @@ bool			API_Read_Line(FILE *Stream, CAPI_String &Line)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int				API_Read_Int(FILE *Stream, bool bBig)
+int				SG_Read_Int(FILE *Stream, bool bBig)
 {
 	int		Value;
 
@@ -230,24 +230,24 @@ int				API_Read_Int(FILE *Stream, bool bBig)
 
 	if( bBig )
 	{
-		API_Swap_Bytes(&Value, sizeof(Value));
+		SG_Swap_Bytes(&Value, sizeof(Value));
 	}
 
 	return( Value );
 }
 
-void			API_Write_Int(FILE *Stream, int Value, bool bBig)
+void			SG_Write_Int(FILE *Stream, int Value, bool bBig)
 {
 	if( bBig )
 	{
-		API_Swap_Bytes(&Value, sizeof(Value));
+		SG_Swap_Bytes(&Value, sizeof(Value));
 	}
 
 	fwrite(&Value, 1, sizeof(Value), Stream);
 }
 
 //---------------------------------------------------------
-double			API_Read_Double(FILE *Stream, bool bBig)
+double			SG_Read_Double(FILE *Stream, bool bBig)
 {
 	double	Value;
 
@@ -255,63 +255,63 @@ double			API_Read_Double(FILE *Stream, bool bBig)
 
 	if( bBig )
 	{
-		API_Swap_Bytes(&Value, sizeof(Value));
+		SG_Swap_Bytes(&Value, sizeof(Value));
 	}
 
 	return( Value );
 }
 
-void			API_Write_Double(FILE *Stream, double Value, bool bBig)
+void			SG_Write_Double(FILE *Stream, double Value, bool bBig)
 {
 	if( bBig )
 	{
-		API_Swap_Bytes(&Value, sizeof(Value));
+		SG_Swap_Bytes(&Value, sizeof(Value));
 	}
 
 	fwrite(&Value, 1, sizeof(Value), Stream);
 }
 
 //---------------------------------------------------------
-int				API_Read_Int(char *Buffer, bool bBig)
+int				SG_Read_Int(char *Buffer, bool bBig)
 {
 	int		Value	= *(int *)Buffer;
 
 	if( bBig )
 	{
-		API_Swap_Bytes(&Value, sizeof(Value));
+		SG_Swap_Bytes(&Value, sizeof(Value));
 	}
 
 	return( Value );
 }
 
-void			API_Write_Int(char *Buffer, int Value, bool bBig)
+void			SG_Write_Int(char *Buffer, int Value, bool bBig)
 {
 	if( bBig )
 	{
-		API_Swap_Bytes(&Value, sizeof(Value));
+		SG_Swap_Bytes(&Value, sizeof(Value));
 	}
 
 	*((int *)Buffer)	= Value;
 }
 
 //---------------------------------------------------------
-double			API_Read_Double(char *Buffer, bool bBig)
+double			SG_Read_Double(char *Buffer, bool bBig)
 {
 	double	Value	= *(double *)Buffer;
 
 	if( bBig )
 	{
-		API_Swap_Bytes(&Value, sizeof(Value));
+		SG_Swap_Bytes(&Value, sizeof(Value));
 	}
 
 	return( Value );
 }
 
-void			API_Write_Double(char *Buffer, double Value, bool bBig)
+void			SG_Write_Double(char *Buffer, double Value, bool bBig)
 {
 	if( bBig )
 	{
-		API_Swap_Bytes(&Value, sizeof(Value));
+		SG_Swap_Bytes(&Value, sizeof(Value));
 	}
 
 	*(double *)Buffer	= Value;

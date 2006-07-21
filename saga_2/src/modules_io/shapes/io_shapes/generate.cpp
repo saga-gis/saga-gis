@@ -111,7 +111,7 @@ bool CGenerate_Export::On_Execute(void)
 {
 	int				iShape, iPart, iPoint, iField;
 	FILE			*aus;
-	TGEO_Point		Point;
+	TSG_Point		Point;
 	CShape			*pShape;
 	CShapes			*pLayer;
 

@@ -85,8 +85,8 @@ public:
 	CFlow_AreaUpslope(void);
 	virtual ~CFlow_AreaUpslope(void);
 
-	CAPI_String				Get_Description		(void);
-	CAPI_String				Get_Methods			(void);
+	CSG_String				Get_Description		(void);
+	CSG_String				Get_Methods			(void);
 
 	bool					Initialise			(int Method, CGrid *pDTM, CGrid *pRoute, CGrid *pFlow, double MFD_Converge);
 	bool					Finalise			(void);
@@ -135,7 +135,7 @@ protected:
 
 	virtual bool			On_Execute			(void);
 	virtual bool			On_Execute_Finish	(void);
-	virtual bool			On_Execute_Position	(CGEO_Point ptWorld, TModule_Interactive_Mode Mode);
+	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
 
 
 private:

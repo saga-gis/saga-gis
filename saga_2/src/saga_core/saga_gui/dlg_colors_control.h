@@ -84,7 +84,7 @@ class CDLG_Colors_Control : public wxPanel
 	DECLARE_CLASS(CDLG_Colors_Control)
 
 public:
-	CDLG_Colors_Control(wxWindow *pParent, class CColors *pColors);
+	CDLG_Colors_Control(wxWindow *pParent, class CSG_Colors *pColors);
 	virtual ~CDLG_Colors_Control(void);
 
 	void						On_Size				(wxSizeEvent &event);
@@ -105,7 +105,7 @@ protected:
 
 	wxRect						m_red, m_green, m_blue, m_sum, m_rgb;
 
-	class CColors				*m_pColors;
+	class CSG_Colors				*m_pColors;
 
 
 	void						Draw_Box			(wxDC &dc, int BoxID);

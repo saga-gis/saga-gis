@@ -89,7 +89,7 @@ private:
 	CGrid						*m_pDEM;
 
 
-	bool						Get_Profile			(CShape *pProfile, TGEO_Point A, TGEO_Point B, int nSamples);
+	bool						Get_Profile			(CShape *pProfile, TSG_Point A, TSG_Point B, int nSamples);
 
 	void						Make_Report			(const char *FileName, CGrid *pDEM, CShapes *pLines, CShapes *pProfiles, double Distance);
 

@@ -147,7 +147,7 @@ bool CExercise_11::On_Execute(void)
 	int			iStep, nSteps;
 	double		sTime, dTime, N_Init, N_Rain;
 	CGrid		*pDEM;
-	CColors		Colors;
+	CSG_Colors		Colors;
 
 	//-----------------------------------------------------
 	sTime	= Parameters("TIME_SPAN")	->asDouble();
@@ -171,7 +171,7 @@ bool CExercise_11::On_Execute(void)
 	//-----------------------------------------------------
 	for(iStep=0; iStep<=nSteps && Set_Progress(iStep, nSteps); iStep++)
 	{
-		Process_Set_Text(CAPI_String::Format("Time [a]: %f (%f)", dTime * iStep, sTime));
+		Process_Set_Text(CSG_String::Format("Time [a]: %f (%f)", dTime * iStep, sTime));
 
 		if( bUpdate )
 		{

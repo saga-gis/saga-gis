@@ -214,7 +214,7 @@ wxString CDLG_About::_Get_Version(void)
 		"Portions (c) 2005, 2006 by Victor Olaya\n"
 		"\n"
 		"GNU Lesser General Public License (LGPL)\n",
-		SAGA_API_Get_Version()
+		SAGA_SG_Get_Version()
 	));
 
 	s.Append(

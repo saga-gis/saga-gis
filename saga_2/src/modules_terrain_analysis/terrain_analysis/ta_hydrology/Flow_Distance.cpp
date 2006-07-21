@@ -139,7 +139,7 @@ CFlow_Distance::CFlow_Distance(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Flow Routing Algorithm"),
 		"",
-		CAPI_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s|",
 			_TL("Deterministic 8 (D8)"),
 			_TL("Multiple Flow Direction (FD8)")
 		), 1
@@ -169,7 +169,7 @@ bool CFlow_Distance::On_Execute(void)
 	bool	bSeeds;
 	int		x, y, n, Method;
 	CGrid	*pSeed;
-	CColors	Colors;
+	CSG_Colors	Colors;
 
 	//-------------------------------------------------
 	m_pDTM		= Parameters("ELEVATION")	->asGrid();
@@ -180,7 +180,7 @@ bool CFlow_Distance::On_Execute(void)
 	bSeeds		= Parameters("SEEDS_ONLY")	->asBool();
 	Method		= Parameters("METHOD")		->asInt();
 
-	m_pWeight	= API_Create_Grid(m_pLength, GRID_TYPE_Float);
+	m_pWeight	= SG_Create_Grid(m_pLength, GRID_TYPE_Float);
 	m_pWeight	->Assign(0.0);
 	m_pLength	->Assign(0.0);
 

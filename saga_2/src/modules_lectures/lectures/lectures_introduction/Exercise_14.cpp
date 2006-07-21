@@ -179,7 +179,7 @@ bool CExercise_14::Initialise(int Threshold)
 {
 	int		x, y, i, ix, iy, Dir;
 	double	z, dz, dzMax;
-	CColors	Colors;
+	CSG_Colors	Colors;
 
 	//-----------------------------------------------------
 	m_pDir	= new CGrid(m_pDTM, GRID_TYPE_Char);

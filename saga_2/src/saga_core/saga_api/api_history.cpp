@@ -86,29 +86,29 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CHistory_Entry::CHistory_Entry(const char *Date, const char *Name, const char *Entry, CHistory *pHistory)
+CSG_History_Entry::CSG_History_Entry(const char *Date, const char *Name, const char *Entry, CSG_History *pHistory)
 {
-	m_Date		= Date ? Date : API_Get_CurrentTimeStr().c_str();
+	m_Date		= Date ? Date : SG_Get_CurrentTimeStr().c_str();
 	m_Name		= Name ? Name : "Entry";
 	m_Entry		= Entry;
 	m_pHistory	= pHistory && pHistory->Get_Count() > 0
-				? new CHistory(*pHistory)
+				? new CSG_History(*pHistory)
 				: NULL;
 }
 
 //---------------------------------------------------------
-CHistory_Entry::CHistory_Entry(const CHistory_Entry &Entry)
+CSG_History_Entry::CSG_History_Entry(const CSG_History_Entry &Entry)
 {
 	m_Date		= Entry.m_Date;
 	m_Name		= Entry.m_Name;
 	m_Entry		= Entry.m_Entry;
 	m_pHistory	= Entry.m_pHistory && Entry.m_pHistory->Get_Count() > 0
-				? new CHistory(*Entry.m_pHistory)
+				? new CSG_History(*Entry.m_pHistory)
 				: NULL;
 }
 
 //---------------------------------------------------------
-CHistory_Entry::~CHistory_Entry(void)
+CSG_History_Entry::~CSG_History_Entry(void)
 {
 	if( m_pHistory )
 	{
@@ -124,14 +124,14 @@ CHistory_Entry::~CHistory_Entry(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CHistory::CHistory(void)
+CSG_History::CSG_History(void)
 {
 	m_nEntries	= 0;
 	m_pEntries	= NULL;
 }
 
 //---------------------------------------------------------
-CHistory::CHistory(const CHistory &History)
+CSG_History::CSG_History(const CSG_History &History)
 {
 	m_nEntries	= 0;
 	m_pEntries	= NULL;
@@ -140,13 +140,13 @@ CHistory::CHistory(const CHistory &History)
 }
 
 //---------------------------------------------------------
-CHistory::~CHistory(void)
+CSG_History::~CSG_History(void)
 {
 	Destroy();
 }
 
 //---------------------------------------------------------
-void CHistory::Destroy(void)
+void CSG_History::Destroy(void)
 {
 	if( m_nEntries > 0 )
 	{
@@ -155,7 +155,7 @@ void CHistory::Destroy(void)
 			delete(m_pEntries[i]);
 		}
 
-		API_Free(m_pEntries);
+		SG_Free(m_pEntries);
 	}
 
 	m_nEntries	= 0;
@@ -163,7 +163,7 @@ void CHistory::Destroy(void)
 }
 
 //---------------------------------------------------------
-void CHistory::Assign(const CHistory &History, bool bAdd)
+void CSG_History::Assign(const CSG_History &History, bool bAdd)
 {
 	if( !bAdd )
 	{
@@ -172,23 +172,23 @@ void CHistory::Assign(const CHistory &History, bool bAdd)
 
 	for(int i=0; i<History.m_nEntries; i++)
 	{
-		_Add_Entry(new CHistory_Entry(*History.m_pEntries[i]));
+		_Add_Entry(new CSG_History_Entry(*History.m_pEntries[i]));
 	}
 }
 
 //---------------------------------------------------------
-void CHistory::Add_Entry(const char *Name, const char *Entry, CHistory *pHistory)
+void CSG_History::Add_Entry(const char *Name, const char *Entry, CSG_History *pHistory)
 {
 	if( Entry && strlen(Entry) > 0 )
 	{
-		_Add_Entry(new CHistory_Entry(NULL, Name, Entry, pHistory));
+		_Add_Entry(new CSG_History_Entry(NULL, Name, Entry, pHistory));
 	}
 }
 
 //---------------------------------------------------------
-void CHistory::_Add_Entry(CHistory_Entry *pEntry)
+void CSG_History::_Add_Entry(CSG_History_Entry *pEntry)
 {
-	m_pEntries	= (CHistory_Entry **)API_Realloc(m_pEntries, (m_nEntries + 1) * sizeof(CHistory_Entry *));
+	m_pEntries	= (CSG_History_Entry **)SG_Realloc(m_pEntries, (m_nEntries + 1) * sizeof(CSG_History_Entry *));
 	m_pEntries[m_nEntries++]	= pEntry;
 }
 
@@ -200,18 +200,18 @@ void CHistory::_Add_Entry(CHistory_Entry *pEntry)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CHistory::Load(const char *File_Name, const char *File_Extension)
+bool CSG_History::Load(const char *File_Name, const char *File_Extension)
 {
 	bool		bResult	= false;
 	FILE		*Stream;
-	CAPI_String	sLine, fName(API_Make_File_Path(NULL, File_Name, File_Extension));
+	CSG_String	sLine, fName(SG_File_Make_Path(NULL, File_Name, File_Extension));
 
 	Destroy();
 
 	if( (Stream = fopen(fName, "r")) != NULL )
 	{
-		if(	API_Read_Line(Stream, sLine) && !sLine.Cmp(HISTORY_VERSION)
-		&&	API_Read_Line(Stream, sLine) && !sLine.Cmp(HISTORY_BEGIN) )
+		if(	SG_Read_Line(Stream, sLine) && !sLine.Cmp(HISTORY_VERSION)
+		&&	SG_Read_Line(Stream, sLine) && !sLine.Cmp(HISTORY_BEGIN) )
 		{
 			bResult	= _Load(Stream);
 		}
@@ -223,11 +223,11 @@ bool CHistory::Load(const char *File_Name, const char *File_Extension)
 }
 
 //---------------------------------------------------------
-bool CHistory::Save(const char *File_Name, const char *File_Extension)
+bool CSG_History::Save(const char *File_Name, const char *File_Extension)
 {
 	bool		bResult	= false;
 	FILE		*Stream;
-	CAPI_String	fName(API_Make_File_Path(NULL, File_Name, File_Extension));
+	CSG_String	fName(SG_File_Make_Path(NULL, File_Name, File_Extension));
 
 	if( m_nEntries > 0 && (Stream = fopen(fName, "w")) != NULL )
 	{
@@ -242,25 +242,25 @@ bool CHistory::Save(const char *File_Name, const char *File_Extension)
 }
 
 //---------------------------------------------------------
-bool CHistory::_Load(FILE *Stream)
+bool CSG_History::_Load(FILE *Stream)
 {
 	Destroy();
 
 	if( Stream )
 	{
-		CAPI_String	sLine, Name, Entry, Date;
-		CHistory	History;
+		CSG_String	sLine, Name, Entry, Date;
+		CSG_History	History;
 
-		while( API_Read_Line(Stream, sLine) && sLine.Cmp(HISTORY_END) )
+		while( SG_Read_Line(Stream, sLine) && sLine.Cmp(HISTORY_END) )
 		{
 			if(	!sLine.Cmp(HISTORY_ENTRY_BEGIN) )
 			{
-				API_Read_Line(Stream, Date);
-				API_Read_Line(Stream, Name);
+				SG_Read_Line(Stream, Date);
+				SG_Read_Line(Stream, Name);
 
 				Entry.Clear();
 
-				while( API_Read_Line(Stream, sLine) && sLine.Cmp(HISTORY_ENTRY_END) && sLine.Cmp(HISTORY_BEGIN) )
+				while( SG_Read_Line(Stream, sLine) && sLine.Cmp(HISTORY_ENTRY_END) && sLine.Cmp(HISTORY_BEGIN) )
 				{
 					Entry.Append(sLine);
 				}
@@ -270,7 +270,7 @@ bool CHistory::_Load(FILE *Stream)
 					History._Load(Stream);
 				}
 
-				_Add_Entry(new CHistory_Entry(Date, Name, Entry, &History));
+				_Add_Entry(new CSG_History_Entry(Date, Name, Entry, &History));
 			}
 		}
 	}
@@ -279,7 +279,7 @@ bool CHistory::_Load(FILE *Stream)
 }
 
 //---------------------------------------------------------
-bool CHistory::_Save(FILE *Stream)
+bool CSG_History::_Save(FILE *Stream)
 {
 	if( Stream )
 	{
@@ -316,9 +316,9 @@ bool CHistory::_Save(FILE *Stream)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CAPI_String CHistory::Get_HTML(void)
+CSG_String CSG_History::Get_HTML(void)
 {
-	CAPI_String	s;
+	CSG_String	s;
 
 	if( m_nEntries > 0 )
 	{
@@ -326,7 +326,7 @@ CAPI_String CHistory::Get_HTML(void)
 
 		for(int i=0; i<m_nEntries; i++)
 		{
-			s.Append(CAPI_String::Format("<li>[%s] <b>%s:</b> %s</li>\n",
+			s.Append(CSG_String::Format("<li>[%s] <b>%s:</b> %s</li>\n",
 				m_pEntries[i]->Get_Date(),
 				m_pEntries[i]->Get_Name(),
 				m_pEntries[i]->Get_Entry()

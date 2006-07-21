@@ -112,7 +112,7 @@ CErdas_LAN_Import::~CErdas_LAN_Import(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SWAP(v)		if( bSwap ) API_Swap_Bytes(&v, sizeof(v));
+#define SWAP(v)		if( bSwap ) SG_Swap_Bytes(&v, sizeof(v));
 
 //---------------------------------------------------------
 bool CErdas_LAN_Import::On_Execute(void)
@@ -128,9 +128,9 @@ bool CErdas_LAN_Import::On_Execute(void)
 	double					Cellsize, xMin, yMin, Value;
 	FILE					*Stream;
 	TGrid_Type				gType;
-	CColors					Colors;
+	CSG_Colors					Colors;
 	CParameter_Grid_List	*Grids;
-	CAPI_String				FileName;
+	CSG_String				FileName;
 
 	//-----------------------------------------------------
 	Grids		= Parameters("GRIDS")	->asGridList();
@@ -196,12 +196,12 @@ bool CErdas_LAN_Import::On_Execute(void)
 				break;
 			}
 
-			Line	= (BYTE *)API_Malloc(nLine * sizeof(BYTE));
+			Line	= (BYTE *)SG_Malloc(nLine * sizeof(BYTE));
 
 			for(i=0; i<nBands; i++)
 			{
-				Grids->Add_Item(API_Create_Grid(gType, nx, ny, Cellsize, xMin, yMin));
-				Grids->asGrid(i)->Set_Name(CAPI_String::Format("%s [%d]", API_Extract_File_Name(FileName, false).c_str(), i + 1));
+				Grids->Add_Item(SG_Create_Grid(gType, nx, ny, Cellsize, xMin, yMin));
+				Grids->asGrid(i)->Set_Name(CSG_String::Format("%s [%d]", SG_File_Get_Name(FileName, false).c_str(), i + 1));
 			}
 
 			//---------------------------------------------
@@ -235,7 +235,7 @@ bool CErdas_LAN_Import::On_Execute(void)
 						case 2:
 							if( bSwap )
 							{
-								API_Swap_Bytes(pLine, 2);
+								SG_Swap_Bytes(pLine, 2);
 							}
 
 							Value	= *((short *)pLine);
@@ -249,7 +249,7 @@ bool CErdas_LAN_Import::On_Execute(void)
 			}
 
 			//---------------------------------------------
-			API_Free(Line);
+			SG_Free(Line);
 
 			Colors.Set_Palette(COLORS_PALETTE_BLACK_WHITE);
 

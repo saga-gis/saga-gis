@@ -88,10 +88,10 @@ public:
 	bool			Set_Engine			(CShapes *pSource, CShapes *pTarget);
 	bool			Set_Engine			(CShapes *pSource, int xField, int yField);
 
-	bool			Get_Converted		(TGEO_Point &Point   , bool bInverse = false);
+	bool			Get_Converted		(TSG_Point &Point   , bool bInverse = false);
 	bool			Get_Converted		(double &x, double &y, bool bInverse = false);
 
-	CAPI_String		Get_Message			(void)	{	return( m_Message );	}
+	CSG_String		Get_Message			(void)	{	return( m_Message );	}
 
 
 private:
@@ -100,10 +100,10 @@ private:
 
 	double			m_x[10], m_x_inv[10];
 
-	CAPI_String		m_Message;
+	CSG_String		m_Message;
 
 
-	bool			_Set_Engine			(CAPI_dPoints *pPts_Source, CAPI_dPoints *pPts_Target);
+	bool			_Set_Engine			(CSG_Points *pPts_Source, CSG_Points *pPts_Target);
 
 };
 

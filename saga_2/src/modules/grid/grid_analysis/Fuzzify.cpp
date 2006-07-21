@@ -65,7 +65,7 @@ CFuzzify::CFuzzify(void){
 						"TYPE", 
 						_TL("Membership function type"), 
 						"", 
-						CAPI_String::Format("%s|%s|%s|",
+						CSG_String::Format("%s|%s|%s|",
 							_TL("Linear"),
 							_TL("Sigmoidal"),
 							_TL("j-shaped")
@@ -95,7 +95,7 @@ bool CFuzzify::On_Execute(void){
 	int iType = Parameters("TYPE")->asInt();
 	double dValue;
 	double dX, dW;
-	CColors	Colors;
+	CSG_Colors	Colors;
 
 	if (dPtA>dPtB || dPtB>dPtC || dPtC>dPtD){
 		Message_Add(_TL("** ERROR : Invalid control points ** \n"));

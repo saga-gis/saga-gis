@@ -157,7 +157,7 @@ bool CExercise_07::On_Execute(void)
 	bool	bCell;
 	int		x, y, Step, xCell, yCell;
 	CGrid	*pLength;
-	CColors	Colors;
+	CSG_Colors	Colors;
 
 	//-----------------------------------------------------
 	// Get parameter settings...

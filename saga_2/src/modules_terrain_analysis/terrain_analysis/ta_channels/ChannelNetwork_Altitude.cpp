@@ -159,12 +159,12 @@ bool CChannelNetwork_Altitude::On_Execute(void)
 	//-----------------------------------------------------
 	pResult->Assign_NoData();
 
-	pT_Chnl			= API_Create_Grid(pResult, GRID_TYPE_Byte);
-	pT_Temp			= API_Create_Grid(pResult);
+	pT_Chnl			= SG_Create_Grid(pResult, GRID_TYPE_Byte);
+	pT_Temp			= SG_Create_Grid(pResult);
 
 	for(nCells=nCells_Start, iStep=1; nCells>0; nCells/=2, iStep++)
 	{
-		Process_Set_Text(CAPI_String::Format("%d [%d]", iStep, nSteps + 1));
+		Process_Set_Text(CSG_String::Format("%d [%d]", iStep, nSteps + 1));
 
 		Initialize_Surface(nCells);
 

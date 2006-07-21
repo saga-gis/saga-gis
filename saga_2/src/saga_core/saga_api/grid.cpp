@@ -80,37 +80,37 @@ BYTE	CGrid::m_Bitmask[8]	= { 0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80 };
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGrid * API_Create_Grid(void)
+CGrid * SG_Create_Grid(void)
 {
 	return( new CGrid );
 }
 
 //---------------------------------------------------------
-CGrid * API_Create_Grid(const CGrid &Grid)
+CGrid * SG_Create_Grid(const CGrid &Grid)
 {
 	return( new CGrid(Grid) );
 }
 
 //---------------------------------------------------------
-CGrid * API_Create_Grid(const char *File_Name, TGrid_Type Type, TGrid_Memory_Type Memory_Type)
+CGrid * SG_Create_Grid(const char *File_Name, TGrid_Type Type, TGrid_Memory_Type Memory_Type)
 {
 	return( new CGrid(File_Name, Type, Memory_Type) );
 }
 
 //---------------------------------------------------------
-CGrid * API_Create_Grid(CGrid *pGrid, TGrid_Type Type, TGrid_Memory_Type Memory_Type)
+CGrid * SG_Create_Grid(CGrid *pGrid, TGrid_Type Type, TGrid_Memory_Type Memory_Type)
 {
 	return( new CGrid(pGrid, Type, Memory_Type) );
 }
 
 //---------------------------------------------------------
-CGrid * API_Create_Grid(CGrid_System &System, TGrid_Type Type, TGrid_Memory_Type Memory_Type)
+CGrid * SG_Create_Grid(CGrid_System &System, TGrid_Type Type, TGrid_Memory_Type Memory_Type)
 {
 	return( new CGrid(System, Type, Memory_Type) );
 }
 
 //---------------------------------------------------------
-CGrid * API_Create_Grid(TGrid_Type Type, int NX, int NY, double Cellsize, double xMin, double yMin, TGrid_Memory_Type Memory_Type)
+CGrid * SG_Create_Grid(TGrid_Type Type, int NX, int NY, double Cellsize, double xMin, double yMin, TGrid_Memory_Type Memory_Type)
 {
 	return( new CGrid(Type, NX, NY, Cellsize, xMin, yMin, Memory_Type) );
 }
@@ -413,7 +413,7 @@ void CGrid::Set_NoData_Value_Range(double loValue, double hiValue)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid::is_Valid(void)
+bool CGrid::is_Valid(void) const
 {
 	if(	m_System.is_Valid() && m_Type > 0 && m_Type < GRID_TYPE_Count )
 	{
@@ -431,22 +431,27 @@ bool CGrid::is_Valid(void)
 }
 
 //---------------------------------------------------------
-TGEO_Intersection CGrid::is_Intersecting(const CGEO_Rect &Extent) const
+TSG_Intersection CGrid::is_Intersecting(const CSG_Rect &Extent) const
 {
 	return( Get_Extent().Intersects(Extent.m_rect) );
 }
 
-TGEO_Intersection CGrid::is_Intersecting(const TGEO_Rect &Extent) const
+TSG_Intersection CGrid::is_Intersecting(const TSG_Rect &Extent) const
 {
 	return( Get_Extent().Intersects(Extent) );
 }
 
-TGEO_Intersection CGrid::is_Intersecting(double xMin, double yMin, double xMax, double yMax) const
+TSG_Intersection CGrid::is_Intersecting(double xMin, double yMin, double xMax, double yMax) const
 {
-	return( is_Intersecting(CGEO_Rect(xMin, yMin, xMax, yMax)) );
+	return( is_Intersecting(CSG_Rect(xMin, yMin, xMax, yMax)) );
 }
 
 //---------------------------------------------------------
+bool CGrid::is_Compatible(CGrid *pGrid) const
+{
+	return( pGrid && is_Compatible(pGrid->Get_System()) );
+}
+
 bool CGrid::is_Compatible(const CGrid_System &System) const
 {
 	return( m_System == System );
@@ -465,7 +470,7 @@ bool CGrid::is_Compatible(int NX, int NY, double Cellsize, double xMin, double y
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CGrid::Get_Value(TGEO_Point Position, int Interpolation, bool bZFactor)
+double CGrid::Get_Value(TSG_Point Position, int Interpolation, bool bZFactor)
 {
 	double	Value;
 
@@ -479,7 +484,7 @@ double CGrid::Get_Value(double xPosition, double yPosition, int Interpolation, b
 	return( Get_Value(xPosition, yPosition, Value, Interpolation, bZFactor) ? Value : m_NoData_Value );
 }
 
-bool CGrid::Get_Value(TGEO_Point Position, double &Value, int Interpolation, bool bZFactor)
+bool CGrid::Get_Value(TSG_Point Position, double &Value, int Interpolation, bool bZFactor)
 {
 	return( Get_Value(Position.x, Position.y, Value, Interpolation, bZFactor) );
 }
@@ -761,7 +766,7 @@ bool CGrid::Update_Statistics(bool bEnforce)
 		m_Variance	= 0.0;
 		nValues		= 0;
 
-		for(y=0; y<Get_NY() && API_Callback_Process_Set_Progress(y, Get_NY()); y++)
+		for(y=0; y<Get_NY() && SG_Callback_Process_Set_Progress(y, Get_NY()); y++)
 		{
 			for(x=0; x<Get_NX(); x++)
 			{
@@ -795,7 +800,7 @@ bool CGrid::Update_Statistics(bool bEnforce)
 
 		m_bUpdate	= false;
 
-		API_Callback_Process_Set_Ready();
+		SG_Callback_Process_Set_Ready();
 	}
 
 	return( m_bUpdate == false );
@@ -833,9 +838,9 @@ bool CGrid::_Sort_Execute(void)
 	long	i, j, *Index;
 
 	//-----------------------------------------------------
-	API_Callback_Process_Set_Text(CAPI_String::Format("%s: %s", LNG("Create index"), Get_Name()));
+	SG_Callback_Process_Set_Text(CSG_String::Format("%s: %s", LNG("Create index"), Get_Name()));
 
-	Index	= (long *)API_Calloc(Get_NCells(), sizeof(long));
+	Index	= (long *)SG_Calloc(Get_NCells(), sizeof(long));
 
 	//-----------------------------------------------------
 	if( (m_bSorted = _Sort_Index(Index)) == false )
@@ -851,9 +856,9 @@ bool CGrid::_Sort_Execute(void)
 
 		if( !m_Sort_2b )
 		{
-			m_Sort_2b		= (unsigned short **)API_Calloc(2			, sizeof(unsigned short *));
-			m_Sort_2b[0]	= (unsigned short  *)API_Calloc(Get_NCells(), sizeof(unsigned short));
-			m_Sort_2b[1]	= (unsigned short  *)API_Calloc(Get_NCells(), sizeof(unsigned short));
+			m_Sort_2b		= (unsigned short **)SG_Calloc(2			, sizeof(unsigned short *));
+			m_Sort_2b[0]	= (unsigned short  *)SG_Calloc(Get_NCells(), sizeof(unsigned short));
+			m_Sort_2b[1]	= (unsigned short  *)SG_Calloc(Get_NCells(), sizeof(unsigned short));
 		}
 
 		for(i=0; i<Get_NCells(); i++)
@@ -872,9 +877,9 @@ bool CGrid::_Sort_Execute(void)
 
 		if( !m_Sort_4b )
 		{
-			m_Sort_4b		= (int **)API_Calloc(2           , sizeof(int *));
-			m_Sort_4b[0]	= (int  *)API_Calloc(Get_NCells(), sizeof(int));
-			m_Sort_4b[1]	= (int  *)API_Calloc(Get_NCells(), sizeof(int));
+			m_Sort_4b		= (int **)SG_Calloc(2           , sizeof(int *));
+			m_Sort_4b[0]	= (int  *)SG_Calloc(Get_NCells(), sizeof(int));
+			m_Sort_4b[1]	= (int  *)SG_Calloc(Get_NCells(), sizeof(int));
 		}
 
 		for(i=0; i<Get_NCells(); i++)
@@ -886,10 +891,10 @@ bool CGrid::_Sort_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	API_Free(Index);
+	SG_Free(Index);
 
-	API_Callback_Process_Set_Ready();
-	API_Callback_Process_Set_Text(LNG("ready"));
+	SG_Callback_Process_Set_Ready();
+	SG_Callback_Process_Set_Text(LNG("ready"));
 
 	return( m_bSorted );
 }
@@ -901,17 +906,17 @@ void CGrid::Sort_Discard(void)
 
 	if( m_Sort_2b )
 	{
-		API_Free(m_Sort_2b[0]);
-		API_Free(m_Sort_2b[1]);
-		API_Free(m_Sort_2b);
+		SG_Free(m_Sort_2b[0]);
+		SG_Free(m_Sort_2b[1]);
+		SG_Free(m_Sort_2b);
 		m_Sort_2b	= NULL;
 	}
 
 	if( m_Sort_4b )
 	{
-		API_Free(m_Sort_4b[0]);
-		API_Free(m_Sort_4b[1]);
-		API_Free(m_Sort_4b);
+		SG_Free(m_Sort_4b[0]);
+		SG_Free(m_Sort_4b[1]);
+		SG_Free(m_Sort_4b);
 		m_Sort_4b	= NULL;
 	}
 }
@@ -950,16 +955,16 @@ bool CGrid::_Sort_Index(long *Index)
 		ir		= Get_NCells() - 1;
 
 		nstack	= 64;
-		istack	= (int *)API_Malloc(nstack * sizeof(int));
+		istack	= (int *)SG_Malloc(nstack * sizeof(int));
 		jstack	= 0;
 
 		for(;;)
 		{
 			if( ir - l < M )
 			{
-				if( !API_Callback_Process_Set_Progress(n += M - 1, nCells) )
+				if( !SG_Callback_Process_Set_Progress(n += M - 1, nCells) )
 				{
-					API_Free(istack);
+					SG_Free(istack);
 
 					return( false );
 				}
@@ -1032,7 +1037,7 @@ bool CGrid::_Sort_Index(long *Index)
 				if( jstack >= nstack )
 				{
 					nstack	+= 64;
-					istack	= (int *)API_Realloc(istack, nstack * sizeof(int));
+					istack	= (int *)SG_Realloc(istack, nstack * sizeof(int));
 				}
 
 				if( ir - i + 1 >= j - l )
@@ -1051,7 +1056,7 @@ bool CGrid::_Sort_Index(long *Index)
 		}
 
 		//-------------------------------------------------
-		API_Free(istack);
+		SG_Free(istack);
 
 		return( true );
 	}

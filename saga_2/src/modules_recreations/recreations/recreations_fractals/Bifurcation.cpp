@@ -120,7 +120,7 @@ bool CBifurcation::On_Execute(void)
 
 	for(i=0; i<nValues; i++)
 	{
-		pTable->Add_Field(CAPI_String::Format("VALUE_%d", i + 1), TABLE_FIELDTYPE_Double);
+		pTable->Add_Field(CSG_String::Format("VALUE_%d", i + 1), TABLE_FIELDTYPE_Double);
 	}
 
 	for(r=min; r<=max; r+=dr)

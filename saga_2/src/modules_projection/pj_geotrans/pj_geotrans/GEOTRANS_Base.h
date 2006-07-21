@@ -93,7 +93,7 @@ protected:
 
 	bool				Get_Converted				(double &x, double &y, double &z);
 	bool				Get_Converted				(double &x, double &y);
-	bool				Get_Converted				(TGEO_Point &Point);
+	bool				Get_Converted				(TSG_Point &Point);
 
 
 private:
@@ -106,7 +106,7 @@ private:
 
 	Coordinate_Type		Type_Input, Type_Output;
 
-	CAPI_String			fn_Ellipsoid, fn_Datum3, fn_Datum7, fn_Geoid;
+	CSG_String			fn_Ellipsoid, fn_Datum3, fn_Datum7, fn_Geoid;
 
 	CParameters			*pProjection;
 

@@ -219,9 +219,9 @@ bool CGrid_Cut::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Cut::On_Execute_Position(CGEO_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CGrid_Cut::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
 {
-	CGEO_Rect		r;
+	CSG_Rect		r;
 	CGrid_System	System;
 	CGrid			*pCut;
 	CParameters		*pParameters;
@@ -267,7 +267,7 @@ bool CGrid_Cut::On_Execute_Position(CGEO_Point ptWorld, TModule_Interactive_Mode
 
 				if( r.Intersect(m_pInput->Get_Extent()) && System.Assign(m_pInput->Get_Cellsize(), r) )
 				{
-					pCut	= API_Create_Grid(System, m_pInput->Get_Type());
+					pCut	= SG_Create_Grid(System, m_pInput->Get_Type());
 					pCut->Assign(m_pInput, GRID_INTERPOLATION_NearestNeighbour);
 					pCut->Set_Name(m_pInput->Get_Name());
 					Parameters("CUT")->Set_Value(pCut);
@@ -289,7 +289,7 @@ bool CGrid_Cut::On_Execute_Position(CGEO_Point ptWorld, TModule_Interactive_Mode
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-TGEO_Point CGrid_Cut::Fit_to_Grid(TGEO_Point pt)
+TSG_Point CGrid_Cut::Fit_to_Grid(TSG_Point pt)
 {
 	pt.x	= m_pInput->Get_XMin() + m_pInput->Get_Cellsize() * (int)(0.5 + (pt.x - m_pInput->Get_XMin()) / m_pInput->Get_Cellsize());
 	pt.y	= m_pInput->Get_YMin() + m_pInput->Get_Cellsize() * (int)(0.5 + (pt.y - m_pInput->Get_YMin()) / m_pInput->Get_Cellsize());

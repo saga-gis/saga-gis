@@ -55,7 +55,7 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//					class CColors						 //
+//					class CSG_Colors					 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -85,7 +85,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CColors::CColors(void)
+CSG_Colors::CSG_Colors(void)
 {
 	m_Colors	= NULL;
 	m_nColors	= 0;
@@ -94,7 +94,7 @@ CColors::CColors(void)
 }
 
 //---------------------------------------------------------
-CColors::CColors(int nColors, int Palette, bool bRevert)
+CSG_Colors::CSG_Colors(int nColors, int Palette, bool bRevert)
 {
 	m_Colors	= NULL;
 	m_nColors	= 0;
@@ -110,7 +110,7 @@ CColors::CColors(int nColors, int Palette, bool bRevert)
 }
 
 //---------------------------------------------------------
-CColors::~CColors(void)
+CSG_Colors::~CSG_Colors(void)
 {
 	Destroy();
 }
@@ -123,11 +123,11 @@ CColors::~CColors(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CColors::Destroy(void)
+void CSG_Colors::Destroy(void)
 {
 	if( m_nColors > 0 )
 	{
-		API_Free(m_Colors);
+		SG_Free(m_Colors);
 
 		m_Colors	= NULL;
 		m_nColors	= 0;
@@ -142,7 +142,7 @@ void CColors::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CColors::Set_Count(int nColors)
+bool CSG_Colors::Set_Count(int nColors)
 {
 	int		i, j, ja, jb;
 	long	*Colors;
@@ -156,7 +156,7 @@ bool CColors::Set_Count(int nColors)
 		}
 		else
 		{
-			Colors	= (long *)API_Malloc(nColors * sizeof(long));
+			Colors	= (long *)SG_Malloc(nColors * sizeof(long));
 
 			//---------------------------------------------
 			if( nColors < m_nColors )
@@ -206,7 +206,7 @@ bool CColors::Set_Count(int nColors)
 			}
 
 			//---------------------------------------------
-			API_Free(m_Colors);
+			SG_Free(m_Colors);
 
 			m_nColors	= nColors;
 			m_Colors	= Colors;
@@ -226,7 +226,7 @@ bool CColors::Set_Count(int nColors)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CColors::Set_Color(int Index, long Color)
+bool CSG_Colors::Set_Color(int Index, long Color)
 {
 	if( Index >= 0 && Index < m_nColors )
 	{
@@ -239,31 +239,31 @@ bool CColors::Set_Color(int Index, long Color)
 }
 
 //---------------------------------------------------------
-bool CColors::Set_Color(int Index, int Red, int Green, int Blue)
+bool CSG_Colors::Set_Color(int Index, int Red, int Green, int Blue)
 {
 	return( Set_Color(Index, COLOR_GET_RGB(Red, Green, Blue)) );
 }
 
 //---------------------------------------------------------
-bool CColors::Set_Red(int Index, int Value)
+bool CSG_Colors::Set_Red(int Index, int Value)
 {
 	return( Set_Color(Index, Value			, Get_Green(Index)	, Get_Blue(Index)) );
 }
 
 //---------------------------------------------------------
-bool CColors::Set_Green(int Index, int Value)
+bool CSG_Colors::Set_Green(int Index, int Value)
 {
 	return( Set_Color(Index, Get_Red(Index)	, Value				, Get_Blue(Index)) );
 }
 
 //---------------------------------------------------------
-bool CColors::Set_Blue(int Index, int Value)
+bool CSG_Colors::Set_Blue(int Index, int Value)
 {
 	return( Set_Color(Index, Get_Red(Index)	, Get_Green(Index)	, Value) );
 }
 
 //---------------------------------------------------------
-bool CColors::Set_Brightness(int Index, int Value)
+bool CSG_Colors::Set_Brightness(int Index, int Value)
 {
 	double	r, g, b, ds;
 
@@ -301,7 +301,7 @@ bool CColors::Set_Brightness(int Index, int Value)
 }
 
 //---------------------------------------------------------
-void CColors::_Set_Brightness(double &a, double &b, double &c, int Pass)
+void CSG_Colors::_Set_Brightness(double &a, double &b, double &c, int Pass)
 {
 	if( a > 255 )
 	{
@@ -352,7 +352,7 @@ void CColors::_Set_Brightness(double &a, double &b, double &c, int Pass)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CColors::Set_Default(int nColors)
+bool CSG_Colors::Set_Default(int nColors)
 {
 	int		i;
 	double	d, dStep;
@@ -360,7 +360,7 @@ bool CColors::Set_Default(int nColors)
 	if( nColors > 0 )
 	{
 		m_nColors	= nColors;
-		m_Colors	= (long *)API_Realloc(m_Colors, m_nColors * sizeof(long));
+		m_Colors	= (long *)SG_Realloc(m_Colors, m_nColors * sizeof(long));
 
 		dStep		= 2 * M_PI / (double)Get_Count();
 
@@ -380,7 +380,7 @@ bool CColors::Set_Default(int nColors)
 }
 
 //---------------------------------------------------------
-bool CColors::Set_Palette(int Index, bool bRevert, int nColors)
+bool CSG_Colors::Set_Palette(int Index, bool bRevert, int nColors)
 {
 	switch( Index )
 	{
@@ -538,13 +538,13 @@ bool CColors::Set_Palette(int Index, bool bRevert, int nColors)
 }
 
 //---------------------------------------------------------
-bool CColors::Set_Ramp(long Color_A, long Color_B)
+bool CSG_Colors::Set_Ramp(long Color_A, long Color_B)
 {
 	return( Set_Ramp(Color_A, Color_B, 0, Get_Count() - 1) );
 }
 
 //---------------------------------------------------------
-bool CColors::Set_Ramp(long Color_A, long Color_B, int iColor_A, int iColor_B)
+bool CSG_Colors::Set_Ramp(long Color_A, long Color_B, int iColor_A, int iColor_B)
 {
 	int		i, n, ar, ag, ab;
 	double	dr, dg, db;
@@ -595,13 +595,13 @@ bool CColors::Set_Ramp(long Color_A, long Color_B, int iColor_A, int iColor_B)
 }
 
 //---------------------------------------------------------
-bool CColors::Set_Ramp_Brighness(int Brightness_A, int Brightness_B)
+bool CSG_Colors::Set_Ramp_Brighness(int Brightness_A, int Brightness_B)
 {
 	return( Set_Ramp_Brighness(Brightness_A, Brightness_B, 0, Get_Count() - 1) );
 }
 
 //---------------------------------------------------------
-bool CColors::Set_Ramp_Brighness(int Brightness_A, int Brightness_B, int iColor_A, int iColor_B)
+bool CSG_Colors::Set_Ramp_Brighness(int Brightness_A, int Brightness_B, int iColor_A, int iColor_B)
 {
 	int		i, n;
 	double	dBrightness;
@@ -648,7 +648,7 @@ bool CColors::Set_Ramp_Brighness(int Brightness_A, int Brightness_B, int iColor_
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CColors::Random(void)
+bool CSG_Colors::Random(void)
 {
 	int		i;
 
@@ -665,7 +665,7 @@ bool CColors::Random(void)
 }
 
 //---------------------------------------------------------
-bool CColors::Invert(void)
+bool CSG_Colors::Invert(void)
 {
 	int		i;
 
@@ -678,7 +678,7 @@ bool CColors::Invert(void)
 }
 
 //---------------------------------------------------------
-bool CColors::Revert(void)
+bool CSG_Colors::Revert(void)
 {
 	int		i, j;
 	long	c;
@@ -701,12 +701,12 @@ bool CColors::Revert(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CColors::Assign(CColors *pSource)
+bool CSG_Colors::Assign(CSG_Colors *pSource)
 {
 	if( pSource && pSource->m_nColors > 0 )
 	{
 		m_nColors	= pSource->m_nColors;
-		m_Colors	= (long *)API_Realloc(m_Colors, m_nColors * sizeof(long));
+		m_Colors	= (long *)SG_Realloc(m_Colors, m_nColors * sizeof(long));
 
 		memcpy(m_Colors, pSource->m_Colors, m_nColors * sizeof(long));
 
@@ -724,7 +724,7 @@ bool CColors::Assign(CColors *pSource)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CColors::Load(const char *File_Name)
+bool CSG_Colors::Load(const char *File_Name)
 {
 	char	Version[sizeof(COLORS_SERIAL_VERSION_BINARY)];
 	FILE	*Stream;
@@ -751,7 +751,7 @@ bool CColors::Load(const char *File_Name)
 }
 
 //---------------------------------------------------------
-bool CColors::Save(const char *File_Name, bool bBinary)
+bool CSG_Colors::Save(const char *File_Name, bool bBinary)
 {
 	FILE	*Stream;
 
@@ -784,7 +784,7 @@ bool CColors::Save(const char *File_Name, bool bBinary)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CColors::Serialize(FILE *Stream, bool bSave, bool bBinary)
+bool CSG_Colors::Serialize(FILE *Stream, bool bSave, bool bBinary)
 {
 	int		i, r, g, b;
 

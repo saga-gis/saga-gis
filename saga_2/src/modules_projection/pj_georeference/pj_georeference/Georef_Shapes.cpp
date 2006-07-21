@@ -131,7 +131,7 @@ CGeoref_Shapes::~CGeoref_Shapes(void)
 bool CGeoref_Shapes::On_Execute(void)
 {
 	int				iShape, iPart, iPoint, xField, yField;
-	TGEO_Point		Point;
+	TSG_Point		Point;
 	CShapes			*pShapes_A, *pShapes_B;
 	CShape			*pShape_A, *pShape_B;
 	CGeoref_Engine	Engine;

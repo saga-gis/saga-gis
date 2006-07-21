@@ -60,109 +60,108 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <memory.h>
+
 #include "geo_tools.h"
 
-//---------------------------------------------------------
-#define	IS_BETWEEN(a, x, b)		((a <= x && x <= b) || (b <= x && x <= a))
-
 
 ///////////////////////////////////////////////////////////
 //														 //
-//						CGEO_Point						 //
+//						CSG_Point						 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGEO_Point::CGEO_Point(void)
+CSG_Point::CSG_Point(void)
 {
 	Assign(0.0, 0.0);
 }
 
-CGEO_Point::CGEO_Point(const CGEO_Point &Point)
+CSG_Point::CSG_Point(const CSG_Point &Point)
 {
 	Assign(Point);
 }
 
-CGEO_Point::CGEO_Point(const TGEO_Point &Point)
+CSG_Point::CSG_Point(const TSG_Point &Point)
 {
 	Assign(Point.x, Point.y);
 }
 
-CGEO_Point::CGEO_Point(double x, double y)
+CSG_Point::CSG_Point(double x, double y)
 {
 	Assign(x, y);
 }
 
 //---------------------------------------------------------
-CGEO_Point::~CGEO_Point(void)
+CSG_Point::~CSG_Point(void)
 {
 }
 
 //---------------------------------------------------------
-bool CGEO_Point::operator == (const CGEO_Point &Point) const
+bool CSG_Point::operator == (const CSG_Point &Point) const
 {
 	return( is_Equal(Point) );
 }
 
-bool CGEO_Point::operator != (const CGEO_Point &Point) const
+bool CSG_Point::operator != (const CSG_Point &Point) const
 {
 	return( !is_Equal(Point) );
 }
 
-CGEO_Point & CGEO_Point::operator = (const CGEO_Point &Point)
+CSG_Point & CSG_Point::operator = (const CSG_Point &Point)
 {
 	Assign(Point);
 
 	return( *this );
 }
 
-void CGEO_Point::operator += (const CGEO_Point &Point)
+void CSG_Point::operator += (const CSG_Point &Point)
 {
 	m_point.x	+= Point.Get_X();
 	m_point.y	+= Point.Get_Y();
 }
 
-void CGEO_Point::operator -= (const CGEO_Point &Point)
+void CSG_Point::operator -= (const CSG_Point &Point)
 {
 	m_point.x	-= Point.Get_X();
 	m_point.y	-= Point.Get_Y();
 }
 
-CGEO_Point CGEO_Point::operator + (const CGEO_Point &Point) const
+CSG_Point CSG_Point::operator + (const CSG_Point &Point) const
 {
-	return( CGEO_Point(
+	return( CSG_Point(
 		m_point.x + Point.Get_X(),
 		m_point.y + Point.Get_Y())
 	);
 }
 
-CGEO_Point CGEO_Point::operator - (const CGEO_Point &Point) const
+CSG_Point CSG_Point::operator - (const CSG_Point &Point) const
 {
-	return( CGEO_Point(
+	return( CSG_Point(
 		m_point.x - Point.Get_X(),
 		m_point.y - Point.Get_Y())
 	);
 }
 
 //---------------------------------------------------------
-void CGEO_Point::Assign(double x, double y)
+void CSG_Point::Assign(double x, double y)
 {
 	m_point.x	= x;
 	m_point.y	= y;
 }
 
-void CGEO_Point::Assign(const CGEO_Point &Point)
+void CSG_Point::Assign(const CSG_Point &Point)
 {
 	m_point		= Point.m_point;
 }
 
 //---------------------------------------------------------
-bool CGEO_Point::is_Equal(double x, double y) const
+bool CSG_Point::is_Equal(double x, double y) const
 {
 	return(	m_point.x == x && m_point.y == y );
 }
 
-bool CGEO_Point::is_Equal(const CGEO_Point &Point) const
+bool CSG_Point::is_Equal(const CSG_Point &Point) const
 {
 	return(	is_Equal(Point.Get_X(), Point.Get_Y()) );
 }
@@ -170,71 +169,389 @@ bool CGEO_Point::is_Equal(const CGEO_Point &Point) const
 
 ///////////////////////////////////////////////////////////
 //														 //
-//						CGEO_Rect						 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGEO_Rect::CGEO_Rect(void)
+CSG_Points::CSG_Points(void)
+{
+	m_nPoints	= 0;
+	m_Points	= NULL;
+}
+
+//---------------------------------------------------------
+CSG_Points::~CSG_Points(void)
+{
+	Clear();
+}
+
+//---------------------------------------------------------
+void CSG_Points::Clear(void)
+{
+	if( m_Points )
+	{
+		SG_Free(m_Points);
+	}
+
+	m_nPoints	= 0;
+	m_Points	= NULL;
+}
+
+//---------------------------------------------------------
+bool CSG_Points::Assign(const CSG_Points &Points)
+{
+	Set_Count(Points.m_nPoints);
+
+	if( m_nPoints > 0 )
+	{
+		memcpy(m_Points, Points.m_Points, m_nPoints * sizeof(TSG_Point));
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+CSG_Points & CSG_Points::operator  = (const CSG_Points &Points)
+{
+	Assign(Points);
+
+	return( *this );
+}
+
+//---------------------------------------------------------
+bool CSG_Points::Set_Count(int nPoints)
+{
+	m_nPoints	= nPoints;
+	m_Points	= (TSG_Point *)SG_Realloc(m_Points, m_nPoints * sizeof(TSG_Point));
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Points::Add(double x, double y)
+{
+	m_Points	= (TSG_Point *)SG_Realloc(m_Points, (m_nPoints + 1) * sizeof(TSG_Point));
+	m_Points[m_nPoints].x	= x;
+	m_Points[m_nPoints].y	= y;
+	m_nPoints++;
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Points::Add(const TSG_Point &Point)
+{
+	return( Add(Point.x, Point.y) );
+}
+
+//---------------------------------------------------------
+bool CSG_Points::Del(int Index)
+{
+	if( Index >= 0 && Index < m_nPoints )
+	{
+		m_nPoints--;
+
+		if( m_nPoints > 0 )
+		{
+			for(TSG_Point *A=m_Points+Index, *B=m_Points+Index+1; Index<m_nPoints; Index++, A++, B++)
+			{
+				*A	= *B;
+			}
+
+			m_Points	= (TSG_Point *)SG_Realloc(m_Points, m_nPoints * sizeof(TSG_Point));
+		}
+		else
+		{
+			SG_Free(m_Points);
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Points_Int::CSG_Points_Int(void)
+{
+	m_nPoints	= 0;
+	m_Points	= NULL;
+}
+
+//---------------------------------------------------------
+CSG_Points_Int::~CSG_Points_Int(void)
+{
+	Clear();
+}
+
+//---------------------------------------------------------
+void CSG_Points_Int::Clear(void)
+{
+	if( m_Points )
+	{
+		SG_Free(m_Points);
+	}
+
+	m_nPoints	= 0;
+	m_Points	= NULL;
+}
+
+//---------------------------------------------------------
+bool CSG_Points_Int::Assign(const CSG_Points_Int &Points)
+{
+	Set_Count(Points.m_nPoints);
+
+	if( m_nPoints > 0 )
+	{
+		memcpy(m_Points, Points.m_Points, m_nPoints * sizeof(TSG_Point_Int));
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+CSG_Points_Int & CSG_Points_Int::operator  = (const CSG_Points_Int &Points)
+{
+	Assign(Points);
+
+	return( *this );
+}
+
+//---------------------------------------------------------
+bool CSG_Points_Int::Set_Count(int nPoints)
+{
+	m_nPoints	= nPoints;
+	m_Points	= (TSG_Point_Int *)SG_Realloc(m_Points, m_nPoints * sizeof(TSG_Point_Int));
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Points_Int::Add(int x, int y)
+{
+	m_Points	= (TSG_Point_Int *)SG_Realloc(m_Points, (m_nPoints + 1) * sizeof(TSG_Point_Int));
+	m_Points[m_nPoints].x	= x;
+	m_Points[m_nPoints].y	= y;
+	m_nPoints++;
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Points_Int::Add(const TSG_Point_Int &Point)
+{
+	return( Add(Point.x, Point.y) );
+}
+
+//---------------------------------------------------------
+bool CSG_Points_Int::Del(int Index)
+{
+	if( Index >= 0 && Index < m_nPoints )
+	{
+		m_nPoints--;
+
+		if( m_nPoints > 0 )
+		{
+			for(TSG_Point_Int *A=m_Points+Index, *B=m_Points+Index+1; Index<m_nPoints; Index++, A++, B++)
+			{
+				*A	= *B;
+			}
+
+			m_Points	= (TSG_Point_Int *)SG_Realloc(m_Points, m_nPoints * sizeof(TSG_Point_Int));
+		}
+		else
+		{
+			SG_Free(m_Points);
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Points_3D::CSG_Points_3D(void)
+{
+	m_nPoints	= 0;
+	m_Points	= NULL;
+}
+
+//---------------------------------------------------------
+CSG_Points_3D::~CSG_Points_3D(void)
+{
+	Clear();
+}
+
+//---------------------------------------------------------
+void CSG_Points_3D::Clear(void)
+{
+	if( m_Points )
+	{
+		SG_Free(m_Points);
+	}
+
+	m_nPoints	= 0;
+	m_Points	= NULL;
+}
+
+//---------------------------------------------------------
+bool CSG_Points_3D::Assign(const CSG_Points_3D &Points)
+{
+	Set_Count(Points.m_nPoints);
+
+	if( m_nPoints > 0 )
+	{
+		memcpy(m_Points, Points.m_Points, m_nPoints * sizeof(TSG_Point_3D));
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+CSG_Points_3D & CSG_Points_3D::operator  = (const CSG_Points_3D &Points)
+{
+	Assign(Points);
+
+	return( *this );
+}
+
+//---------------------------------------------------------
+bool CSG_Points_3D::Set_Count(int nPoints)
+{
+	m_nPoints	= nPoints;
+	m_Points	= (TSG_Point_3D *)SG_Realloc(m_Points, m_nPoints * sizeof(TSG_Point_3D));
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Points_3D::Add(double x, double y, double z)
+{
+	m_Points	= (TSG_Point_3D *)SG_Realloc(m_Points, (m_nPoints + 1) * sizeof(TSG_Point_3D));
+	m_Points[m_nPoints].x	= x;
+	m_Points[m_nPoints].y	= y;
+	m_Points[m_nPoints].z	= z;
+	m_nPoints++;
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Points_3D::Add(const TSG_Point_3D &Point)
+{
+	return( Add(Point.x, Point.y, Point.z) );
+}
+
+//---------------------------------------------------------
+bool CSG_Points_3D::Del(int Index)
+{
+	if( Index >= 0 && Index < m_nPoints )
+	{
+		m_nPoints--;
+
+		if( m_nPoints > 0 )
+		{
+			for(TSG_Point_3D *A=m_Points+Index, *B=m_Points+Index+1; Index<m_nPoints; Index++, A++, B++)
+			{
+				*A	= *B;
+			}
+
+			m_Points	= (TSG_Point_3D *)SG_Realloc(m_Points, m_nPoints * sizeof(TSG_Point_3D));
+		}
+		else
+		{
+			SG_Free(m_Points);
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//						CSG_Rect						 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Rect::CSG_Rect(void)
 {
 	Assign(0.0, 0.0, 0.0, 0.0);
 }
 
-CGEO_Rect::CGEO_Rect(const CGEO_Rect &Rect)
+CSG_Rect::CSG_Rect(const CSG_Rect &Rect)
 {
 	Assign(Rect.m_rect);
 }
 
-CGEO_Rect::CGEO_Rect(const TGEO_Rect &Rect)
+CSG_Rect::CSG_Rect(const TSG_Rect &Rect)
 {
 	Assign(Rect.xMin, Rect.yMin, Rect.xMax, Rect.yMax);
 }
 
-CGEO_Rect::CGEO_Rect(const CGEO_Point &A, const CGEO_Point &B)
+CSG_Rect::CSG_Rect(const CSG_Point &A, const CSG_Point &B)
 {
 	Assign(A.Get_X(), A.Get_Y(), B.Get_X(), B.Get_Y());
 }
 
-CGEO_Rect::CGEO_Rect(double xMin, double yMin, double xMax, double yMax)
+CSG_Rect::CSG_Rect(double xMin, double yMin, double xMax, double yMax)
 {
 	Assign(xMin, yMin, xMax, yMax);
 }
 
 //---------------------------------------------------------
-CGEO_Rect::~CGEO_Rect(void)
-{
-}
+CSG_Rect::~CSG_Rect(void)
+{}
 
 //---------------------------------------------------------
-bool CGEO_Rect::operator == (const CGEO_Rect &Rect) const
+bool CSG_Rect::operator == (const CSG_Rect &Rect) const
 {
 	return( is_Equal(Rect) );
 }
 
-bool CGEO_Rect::operator != (const CGEO_Rect &Rect) const
+bool CSG_Rect::operator != (const CSG_Rect &Rect) const
 {
 	return( !is_Equal(Rect) );
 }
 
-CGEO_Rect & CGEO_Rect::operator = (const CGEO_Rect &Rect)
+CSG_Rect & CSG_Rect::operator = (const CSG_Rect &Rect)
 {
 	Assign(Rect);
 
 	return( *this );
 }
 
-void CGEO_Rect::operator += (const CGEO_Point &Point)
+void CSG_Rect::operator += (const CSG_Point &Point)
 {
 	Move( Point.Get_X(),  Point.Get_Y());
 }
 
-void CGEO_Rect::operator -= (const CGEO_Point &Point)
+void CSG_Rect::operator -= (const CSG_Point &Point)
 {
 	Move(-Point.Get_Y(), -Point.Get_Y());
 }
 
 //---------------------------------------------------------
-void CGEO_Rect::Assign(double xMin, double yMin, double xMax, double yMax)
+void CSG_Rect::Assign(double xMin, double yMin, double xMax, double yMax)
 {
 	double	d;
 
@@ -258,51 +575,51 @@ void CGEO_Rect::Assign(double xMin, double yMin, double xMax, double yMax)
 	}
 }
 
-void CGEO_Rect::Assign(const CGEO_Point &A, const CGEO_Point &B)
+void CSG_Rect::Assign(const CSG_Point &A, const CSG_Point &B)
 {
 	Assign(A.Get_X(), A.Get_Y(), B.Get_X(), B.Get_Y());
 }
 
-void CGEO_Rect::Assign(const CGEO_Rect &Rect)
+void CSG_Rect::Assign(const CSG_Rect &Rect)
 {
 	Assign(Rect.Get_XMin(), Rect.Get_YMin(), Rect.Get_XMax(), Rect.Get_YMax());
 }
 
 //---------------------------------------------------------
-void CGEO_Rect::Set_BottomLeft(double x, double y)
+void CSG_Rect::Set_BottomLeft(double x, double y)
 {
 	Assign(x, y, m_rect.xMax, m_rect.yMax);
 }
 
-void CGEO_Rect::Set_BottomLeft(const CGEO_Point &Point)
+void CSG_Rect::Set_BottomLeft(const CSG_Point &Point)
 {
 	Set_BottomLeft(Point.Get_X(), Point.Get_Y() );
 }
 
-void CGEO_Rect::Set_TopRight(double x, double y)
+void CSG_Rect::Set_TopRight(double x, double y)
 {
 	Assign(m_rect.xMin, m_rect.yMin, x, y);
 }
 
-void CGEO_Rect::Set_TopRight(const CGEO_Point &Point)
+void CSG_Rect::Set_TopRight(const CSG_Point &Point)
 {
 	Set_TopRight(Point.Get_X(), Point.Get_Y() );
 }
 
 //---------------------------------------------------------
-bool CGEO_Rect::is_Equal(double xMin, double yMin, double xMax, double yMax) const
+bool CSG_Rect::is_Equal(double xMin, double yMin, double xMax, double yMax) const
 {
 	return(	m_rect.xMin == xMin && m_rect.yMin == yMin
 		&&	m_rect.xMax == xMax && m_rect.yMax == yMax	);
 }
 
-bool CGEO_Rect::is_Equal(const CGEO_Rect &Rect) const
+bool CSG_Rect::is_Equal(const CSG_Rect &Rect) const
 {
 	return(	is_Equal(Rect.Get_XMin(), Rect.Get_YMin(), Rect.Get_XMax(), Rect.Get_YMax()) );
 }
 
 //---------------------------------------------------------
-void CGEO_Rect::Move(double dx, double dy)
+void CSG_Rect::Move(double dx, double dy)
 {
 	m_rect.xMin	+= dx;
 	m_rect.yMin	+= dy;
@@ -310,13 +627,13 @@ void CGEO_Rect::Move(double dx, double dy)
 	m_rect.yMax	+= dy;
 }
 
-void CGEO_Rect::Move(const CGEO_Point &Point)
+void CSG_Rect::Move(const CSG_Point &Point)
 {
 	Move(Point.Get_X(), Point.Get_Y());
 }
 
 //---------------------------------------------------------
-void CGEO_Rect::Inflate(double dx, double dy, bool bPercent)
+void CSG_Rect::Inflate(double dx, double dy, bool bPercent)
 {
 	if( bPercent )
 	{
@@ -330,23 +647,23 @@ void CGEO_Rect::Inflate(double dx, double dy, bool bPercent)
 	);
 }
 
-void CGEO_Rect::Inflate(double d, bool bPercent)
+void CSG_Rect::Inflate(double d, bool bPercent)
 {
 	Inflate(d, d, bPercent);
 }
 
-void CGEO_Rect::Deflate(double dx, double dy, bool bPercent)
+void CSG_Rect::Deflate(double dx, double dy, bool bPercent)
 {
 	Inflate(-dx, -dy, bPercent);
 }
 
-void CGEO_Rect::Deflate(double d, bool bPercent)
+void CSG_Rect::Deflate(double d, bool bPercent)
 {
 	Deflate(d, d, bPercent);
 }
 
 //---------------------------------------------------------
-void CGEO_Rect::Union(const CGEO_Rect &Rect)
+void CSG_Rect::Union(const CSG_Rect &Rect)
 {
 	if( m_rect.xMin > Rect.Get_XMin() )
 	{
@@ -370,7 +687,7 @@ void CGEO_Rect::Union(const CGEO_Rect &Rect)
 }
 
 //---------------------------------------------------------
-bool CGEO_Rect::Intersect(const CGEO_Rect &Rect)
+bool CSG_Rect::Intersect(const CSG_Rect &Rect)
 {
 	switch( Intersects(Rect) )
 	{
@@ -412,7 +729,7 @@ bool CGEO_Rect::Intersect(const CGEO_Rect &Rect)
 }
 
 //---------------------------------------------------------
-TGEO_Intersection CGEO_Rect::Intersects(const CGEO_Rect &Rect) const
+TSG_Intersection CSG_Rect::Intersects(const CSG_Rect &Rect) const
 {
 	if(	m_rect.xMax < Rect.Get_XMin() || Rect.Get_XMax() < m_rect.xMin
 	||	m_rect.yMax < Rect.Get_YMin() || Rect.Get_YMax() < m_rect.yMin )
@@ -441,14 +758,14 @@ TGEO_Intersection CGEO_Rect::Intersects(const CGEO_Rect &Rect) const
 }
 
 //---------------------------------------------------------
-bool CGEO_Rect::Contains(double x, double y) const
+bool CSG_Rect::Contains(double x, double y) const
 {
 	return(	m_rect.xMin <= x && x <= m_rect.xMax
 		&&	m_rect.yMin <= y && y <= m_rect.yMax
 	);
 }
 
-bool CGEO_Rect::Contains(const CGEO_Point &Point) const
+bool CSG_Rect::Contains(const CSG_Point &Point) const
 {
 	return( Contains(Point.Get_X(), Point.Get_Y()) );
 }
@@ -461,20 +778,20 @@ bool CGEO_Rect::Contains(const CGEO_Point &Point) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGEO_Rects::CGEO_Rects(void)
+CSG_Rects::CSG_Rects(void)
 {
 	m_nRects	= 0;
 	m_Rects		= NULL;
 }
 
 //---------------------------------------------------------
-CGEO_Rects::~CGEO_Rects(void)
+CSG_Rects::~CSG_Rects(void)
 {
 	Clear();
 }
 
 //---------------------------------------------------------
-void CGEO_Rects::Clear(void)
+void CSG_Rects::Clear(void)
 {
 	if( m_Rects )
 	{
@@ -483,7 +800,7 @@ void CGEO_Rects::Clear(void)
 			delete(m_Rects[i]);
 		}
 
-		API_Free(m_Rects);
+		SG_Free(m_Rects);
 	}
 
 	m_nRects	= 0;
@@ -491,7 +808,7 @@ void CGEO_Rects::Clear(void)
 }
 
 //---------------------------------------------------------
-bool CGEO_Rects::Assign(const CGEO_Rects &Rects)
+bool CSG_Rects::Assign(const CSG_Rects &Rects)
 {
 	Clear();
 
@@ -504,7 +821,7 @@ bool CGEO_Rects::Assign(const CGEO_Rects &Rects)
 }
 
 //---------------------------------------------------------
-CGEO_Rects & CGEO_Rects::operator  = (const CGEO_Rects &Rects)
+CSG_Rects & CSG_Rects::operator  = (const CSG_Rects &Rects)
 {
 	Assign(Rects);
 
@@ -512,22 +829,22 @@ CGEO_Rects & CGEO_Rects::operator  = (const CGEO_Rects &Rects)
 }
 
 //---------------------------------------------------------
-bool CGEO_Rects::Add(void)
+bool CSG_Rects::Add(void)
 {
-	return( Add(CGEO_Rect()) );
+	return( Add(CSG_Rect()) );
 }
 
 //---------------------------------------------------------
-bool CGEO_Rects::Add(double xMin, double yMin, double xMax, double yMax)
+bool CSG_Rects::Add(double xMin, double yMin, double xMax, double yMax)
 {
-	return( Add(CGEO_Rect(xMin, yMin, xMax, yMax)) );
+	return( Add(CSG_Rect(xMin, yMin, xMax, yMax)) );
 }
 
 //---------------------------------------------------------
-bool CGEO_Rects::Add(const CGEO_Rect &Rect)
+bool CSG_Rects::Add(const CSG_Rect &Rect)
 {
-	m_Rects				= (CGEO_Rect **)API_Realloc(m_Rects, (m_nRects + 1) * sizeof(CGEO_Rect *));
-	m_Rects[m_nRects]	= new CGEO_Rect(Rect);
+	m_Rects				= (CSG_Rect **)SG_Realloc(m_Rects, (m_nRects + 1) * sizeof(CSG_Rect *));
+	m_Rects[m_nRects]	= new CSG_Rect(Rect);
 	m_nRects++;
 
 	return( true );

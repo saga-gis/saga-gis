@@ -140,7 +140,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum
+typedef enum ESG_Callback_ID
 {
 	CALLBACK_PROCESS_GET_OKAY,
 	CALLBACK_PROCESS_SET_OKAY,
@@ -172,45 +172,45 @@ typedef enum
 
 	CALLBACK_GUI_GET_WINDOW
 }
-TAPI_Callback_ID;
+TSG_Callback_ID;
 
 //---------------------------------------------------------
-typedef int (* PFNC_Callback) (TAPI_Callback_ID ID, long pParam_1, long pParam_2);
+typedef int (* TSG_PFNC_Callback) (TSG_Callback_ID ID, long pParam_1, long pParam_2);
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT bool				API_Set_Callback					(PFNC_Callback Callback);
-SAGA_API_DLL_EXPORT PFNC_Callback		API_Get_Callback					(void);
+SAGA_API_DLL_EXPORT bool				SG_Set_Callback						(TSG_PFNC_Callback Callback);
+SAGA_API_DLL_EXPORT TSG_PFNC_Callback	SG_Get_Callback						(void);
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT bool				API_Callback_Process_Get_Okay		(bool bBlink);
-SAGA_API_DLL_EXPORT bool				API_Callback_Process_Set_Okay		(bool bOkay = true);
-SAGA_API_DLL_EXPORT bool				API_Callback_Process_Set_Progress	(double Position, double Range);
-SAGA_API_DLL_EXPORT bool				API_Callback_Process_Set_Ready		(void);
-SAGA_API_DLL_EXPORT void				API_Callback_Process_Set_Text		(const char *Text);
+SAGA_API_DLL_EXPORT bool				SG_Callback_Process_Get_Okay		(bool bBlink);
+SAGA_API_DLL_EXPORT bool				SG_Callback_Process_Set_Okay		(bool bOkay = true);
+SAGA_API_DLL_EXPORT bool				SG_Callback_Process_Set_Progress	(double Position, double Range);
+SAGA_API_DLL_EXPORT bool				SG_Callback_Process_Set_Ready		(void);
+SAGA_API_DLL_EXPORT void				SG_Callback_Process_Set_Text		(const char *Text);
 
-SAGA_API_DLL_EXPORT void				API_Callback_Dlg_Message			(const char *Message, const char *Caption);
-SAGA_API_DLL_EXPORT bool				API_Callback_Dlg_Continue			(const char *Message, const char *Caption);
-SAGA_API_DLL_EXPORT int					API_Callback_Dlg_Error				(const char *Message, const char *Caption);
+SAGA_API_DLL_EXPORT void				SG_Callback_Dlg_Message				(const char *Message, const char *Caption);
+SAGA_API_DLL_EXPORT bool				SG_Callback_Dlg_Continue			(const char *Message, const char *Caption);
+SAGA_API_DLL_EXPORT int					SG_Callback_Dlg_Error				(const char *Message, const char *Caption);
 
-SAGA_API_DLL_EXPORT bool				API_Callback_Dlg_Parameters			(class CParameters *pParameters, const char *Caption);
+SAGA_API_DLL_EXPORT bool				SG_Callback_Dlg_Parameters			(class CParameters *pParameters, const char *Caption);
 
-SAGA_API_DLL_EXPORT void				API_Callback_Message_Add			(const char *Message, bool bNewLine);
-SAGA_API_DLL_EXPORT void				API_Callback_Message_Add_Error		(const char *Message);
-SAGA_API_DLL_EXPORT void				API_Callback_Message_Add_Execution	(const char *Message, bool bNewLine);
+SAGA_API_DLL_EXPORT void				SG_Callback_Message_Add				(const char *Message, bool bNewLine);
+SAGA_API_DLL_EXPORT void				SG_Callback_Message_Add_Error		(const char *Message);
+SAGA_API_DLL_EXPORT void				SG_Callback_Message_Add_Execution	(const char *Message, bool bNewLine);
 
-SAGA_API_DLL_EXPORT class CDataObject *	API_Callback_DataObject_Find		(const char *File_Name         , int Object_Type);
-SAGA_API_DLL_EXPORT bool				API_Callback_DataObject_Check		(class CDataObject *pDataObject, int Object_Type);
-SAGA_API_DLL_EXPORT bool				API_Callback_DataObject_Add			(class CDataObject *pDataObject, bool bShow);
-SAGA_API_DLL_EXPORT bool				API_Callback_DataObject_Update		(class CDataObject *pDataObject, bool bShow, class CParameters *pParameters);
-SAGA_API_DLL_EXPORT bool				API_Callback_DataObject_Show		(class CDataObject *pDataObject);
-SAGA_API_DLL_EXPORT bool				API_Callback_DataObject_asImage		(class CDataObject *pDataObject, class CGrid *pGrid);
+SAGA_API_DLL_EXPORT class CDataObject *	SG_Callback_DataObject_Find			(const char *File_Name         , int Object_Type);
+SAGA_API_DLL_EXPORT bool				SG_Callback_DataObject_Check		(class CDataObject *pDataObject, int Object_Type);
+SAGA_API_DLL_EXPORT bool				SG_Callback_DataObject_Add			(class CDataObject *pDataObject, bool bShow);
+SAGA_API_DLL_EXPORT bool				SG_Callback_DataObject_Update		(class CDataObject *pDataObject, bool bShow, class CParameters *pParameters);
+SAGA_API_DLL_EXPORT bool				SG_Callback_DataObject_Show			(class CDataObject *pDataObject);
+SAGA_API_DLL_EXPORT bool				SG_Callback_DataObject_asImage		(class CDataObject *pDataObject, class CGrid *pGrid);
 
-SAGA_API_DLL_EXPORT bool				API_Callback_DataObject_Colors_Get	(class CDataObject *pDataObject, class CColors *pColors);
-SAGA_API_DLL_EXPORT bool				API_Callback_DataObject_Colors_Set	(class CDataObject *pDataObject, class CColors *pColors);
+SAGA_API_DLL_EXPORT bool				SG_Callback_DataObject_Colors_Get	(class CDataObject *pDataObject, class CSG_Colors *pColors);
+SAGA_API_DLL_EXPORT bool				SG_Callback_DataObject_Colors_Set	(class CDataObject *pDataObject, class CSG_Colors *pColors);
 
-SAGA_API_DLL_EXPORT bool				API_Callback_DataObject_Get_All		(class CParameters *pParameters);
+SAGA_API_DLL_EXPORT bool				SG_Callback_DataObject_Get_All		(class CParameters *pParameters);
 
-SAGA_API_DLL_EXPORT void *				API_Callback_Get_Window_Main		(void);
+SAGA_API_DLL_EXPORT void *				SG_Callback_Get_Window_Main			(void);
 
 
 ///////////////////////////////////////////////////////////
@@ -220,177 +220,12 @@ SAGA_API_DLL_EXPORT void *				API_Callback_Get_Window_Main		(void);
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT void *			API_Malloc			(size_t size);
-SAGA_API_DLL_EXPORT void *			API_Calloc			(size_t num, size_t size);
-SAGA_API_DLL_EXPORT void *			API_Realloc			(void *memblock, size_t size);
-SAGA_API_DLL_EXPORT void			API_Free			(void *memblock);
+SAGA_API_DLL_EXPORT void *			SG_Malloc			(size_t size);
+SAGA_API_DLL_EXPORT void *			SG_Calloc			(size_t num, size_t size);
+SAGA_API_DLL_EXPORT void *			SG_Realloc			(void *memblock, size_t size);
+SAGA_API_DLL_EXPORT void			SG_Free				(void *memblock);
 
-SAGA_API_DLL_EXPORT void			API_Swap_Bytes		(void *Value, int nValueBytes);
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//						Points							 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-typedef struct
-{
-	int								x, y;
-}
-TAPI_iPoint;
-
-//---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CAPI_iPoints
-{
-public:
-	CAPI_iPoints(void);
-	virtual ~CAPI_iPoints(void);
-
-	void							Clear				(void);
-
-	CAPI_iPoints &					operator  =			(const CAPI_iPoints &Points);
-	bool							Assign				(const CAPI_iPoints &Points);
-
-	bool							Add					(int x, int y);
-	bool							Add					(const TAPI_iPoint &Point);
-
-	bool							Set_Count			(int nPoints);
-	int								Get_Count			(void) const		{	return( m_nPoints );	}
-
-	TAPI_iPoint &					operator []			(int Index)			{	return( m_Points[Index]   );	}
-	TAPI_iPoint &					Get_Point			(int Index)			{	return( m_Points[Index]   );	}
-	int								Get_X				(int Index) const	{	return( m_Points[Index].x );	}
-	int								Get_Y				(int Index) const	{	return( m_Points[Index].y );	}
-
-
-private:
-
-	int								m_nPoints;
-
-	TAPI_iPoint						*m_Points;
-
-};
-
-//---------------------------------------------------------
-typedef struct
-{
-	double							x, y;
-}
-TAPI_dPoint;
-
-//---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CAPI_dPoints
-{
-public:
-	CAPI_dPoints(void);
-	virtual ~CAPI_dPoints(void);
-
-	void							Clear				(void);
-
-	CAPI_dPoints &					operator  =			(const CAPI_dPoints &Points);
-	bool							Assign				(const CAPI_dPoints &Points);
-
-	bool							Add					(double x, double y);
-	bool							Add					(const TAPI_dPoint &Point);
-
-	bool							Set_Count			(int nPoints);
-	int								Get_Count			(void) const		{	return( m_nPoints );	}
-
-	TAPI_dPoint &					operator []			(int Index)			{	return( m_Points[Index]   );	}
-	TAPI_dPoint &					Get_Point			(int Index)			{	return( m_Points[Index]   );	}
-	double							Get_X				(int Index) const	{	return( m_Points[Index].x );	}
-	double							Get_Y				(int Index) const	{	return( m_Points[Index].y );	}
-
-
-private:
-
-	int								m_nPoints;
-
-	TAPI_dPoint						*m_Points;
-
-};
-
-//---------------------------------------------------------
-typedef struct
-{
-	int								x, y, z;
-}
-TAPI_3D_iPoint;
-
-//---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CAPI_3D_iPoints
-{
-public:
-	CAPI_3D_iPoints(void);
-	virtual ~CAPI_3D_iPoints(void);
-
-	void							Clear				(void);
-
-	CAPI_3D_iPoints &				operator  =			(const CAPI_3D_iPoints &Points);
-	bool							Assign				(const CAPI_3D_iPoints &Points);
-
-	bool							Add					(int x, int y, int z);
-	bool							Add					(const TAPI_3D_iPoint &Point);
-
-	bool							Set_Count			(int nPoints);
-	int								Get_Count			(void)		{	return( m_nPoints );	}
-
-	TAPI_3D_iPoint &				operator []			(int Index)	{	return( m_Points[Index]   );	}
-	TAPI_3D_iPoint &				Get_Point			(int Index)	{	return( m_Points[Index]   );	}
-	int								Get_X				(int Index)	{	return( m_Points[Index].x );	}
-	int								Get_Y				(int Index)	{	return( m_Points[Index].y );	}
-	int								Get_Z				(int Index)	{	return( m_Points[Index].z );	}
-
-
-private:
-
-	int								m_nPoints;
-
-	TAPI_3D_iPoint					*m_Points;
-
-};
-
-//---------------------------------------------------------
-typedef struct
-{
-	double							x, y, z;
-}
-TAPI_3D_dPoint;
-
-//---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CAPI_3D_dPoints
-{
-public:
-	CAPI_3D_dPoints(void);
-	virtual ~CAPI_3D_dPoints(void);
-
-	void							Clear				(void);
-
-	CAPI_3D_dPoints &				operator  =			(const CAPI_3D_dPoints &Points);
-	bool							Assign				(const CAPI_3D_dPoints &Points);
-
-	bool							Add					(double x, double y, double z);
-	bool							Add					(const TAPI_3D_dPoint &Point);
-
-	bool							Set_Count			(int nPoints);
-	int								Get_Count			(void)		{	return( m_nPoints );	}
-
-	TAPI_3D_dPoint &				operator []			(int Index)	{	return( m_Points[Index]   );	}
-	TAPI_3D_dPoint &				Get_Point			(int Index)	{	return( m_Points[Index]   );	}
-	double							Get_X				(int Index)	{	return( m_Points[Index].x );	}
-	double							Get_Y				(int Index)	{	return( m_Points[Index].y );	}
-	double							Get_Z				(int Index)	{	return( m_Points[Index].z );	}
-
-
-private:
-
-	int								m_nPoints;
-
-	TAPI_3D_dPoint					*m_Points;
-
-};
+SAGA_API_DLL_EXPORT void			SG_Swap_Bytes		(void *Value, int nValueBytes);
 
 
 ///////////////////////////////////////////////////////////
@@ -400,48 +235,52 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CAPI_String
+class SAGA_API_DLL_EXPORT CSG_String
 {
 public:
-	CAPI_String(void);
-	CAPI_String(const CAPI_String &String);
-	CAPI_String(const char *String);
-	CAPI_String(char Character);
+	CSG_String(void);
+	CSG_String(const CSG_String &String);
+	CSG_String(const char *String);
+	CSG_String(char Character);
 
-	virtual ~CAPI_String(void);
+	virtual ~CSG_String(void);
 
-	const char *					c_str				(void);
-	operator const char *								(void)	{	return( c_str() );	}
+	const char *					c_str				(void)	const;
+	operator const char *								(void)	const	{	return( c_str() );	}
 
-	size_t							Length				(void);
+	size_t							Length				(void)	const;
 
 	void							Clear				(void);
 	int								Printf				(const char *Format, ...);
-	static CAPI_String				Format				(const char *Format, ...);
+	static CSG_String				Format				(const char *Format, ...);
 
-	CAPI_String &					Append				(const char *String);
-	CAPI_String &					Append				(char Character);
+	CSG_String &					Append				(const char *String);
+	CSG_String &					Append				(char Character);
 
-	CAPI_String &					operator =			(const CAPI_String &String);
-	CAPI_String &					operator =			(const char *String);
-	CAPI_String &					operator =			(char Character);
+	CSG_String &					operator =			(const CSG_String &String);
+	CSG_String &					operator =			(const char *String);
+	CSG_String &					operator =			(char Character);
 
-	void							operator +=			(const CAPI_String &String);
+	CSG_String						operator +			(const CSG_String &String)		const;
+	CSG_String						operator +			(const char *String)			const;
+	CSG_String						operator +			(char Character)				const;
+
+	void							operator +=			(const CSG_String &String);
 	void							operator +=			(const char *String);
 	void							operator +=			(char Character);
 
 	char &							operator []			(int i);
 
-	int								Cmp					(const char *String);
-	int								CmpNoCase			(const char *String);
+	int								Cmp					(const char *String)			const;
+	int								CmpNoCase			(const char *String)			const;
 
-	CAPI_String &					Make_Lower			(void);
-	CAPI_String &					Make_Upper			(void);
+	CSG_String &					Make_Lower			(void);
+	CSG_String &					Make_Upper			(void);
 
 	size_t							Replace				(const char *sOld, const char *sNew, bool replaceAll = true);
 
-	CAPI_String &					Remove				(size_t pos);
-	CAPI_String &					Remove				(size_t pos, size_t len);
+	CSG_String &					Remove				(size_t pos);
+	CSG_String &					Remove				(size_t pos, size_t len);
 
 	int								Remove_WhiteChars	(bool fromEnd = false);
 
@@ -449,19 +288,19 @@ public:
 	int								Find				(const char *String);
 	bool							Contains			(const char *String);
 
-	CAPI_String						AfterFirst			(char Character) const;
-	CAPI_String						AfterLast			(char Character) const;
-	CAPI_String						BeforeFirst			(char Character) const;
-	CAPI_String						BeforeLast			(char Character) const;
+	CSG_String						AfterFirst			(char Character)				const;
+	CSG_String						AfterLast			(char Character)				const;
+	CSG_String						BeforeFirst			(char Character)				const;
+	CSG_String						BeforeLast			(char Character)				const;
 
-	CAPI_String						Right				(size_t count) const;
-	CAPI_String						Mid					(size_t first, size_t count) const;
-	CAPI_String						Left				(size_t count) const;
+	CSG_String						Right				(size_t count)					const;
+	CSG_String						Mid					(size_t first, size_t count)	const;
+	CSG_String						Left				(size_t count) const;
 
-	int								asInt				(void);
-	bool							asInt				(int &Value);
-	double							asDouble			(void);
-	bool							asDouble			(double &Value);
+	int								asInt				(void)							const;
+	bool							asInt				(int &Value)					const;
+	double							asDouble			(void)							const;
+	bool							asDouble			(double &Value)					const;
 
 
 protected:
@@ -471,55 +310,53 @@ protected:
 };
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT CAPI_String		operator +			(const CAPI_String &x, const CAPI_String &y);
-SAGA_API_DLL_EXPORT CAPI_String		operator +			(const CAPI_String &x, const char *y);
-SAGA_API_DLL_EXPORT CAPI_String		operator +			(const CAPI_String &x, char y);
-SAGA_API_DLL_EXPORT CAPI_String		operator +			(const char *x, const CAPI_String &y);
+SAGA_API_DLL_EXPORT CSG_String		operator +			(const char *A, const CSG_String &B);
+SAGA_API_DLL_EXPORT CSG_String		operator +			(char        A, const CSG_String &B);
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CAPI_Strings
+class SAGA_API_DLL_EXPORT CSG_Strings
 {
 public:
-	CAPI_Strings(void);
-	CAPI_Strings(const CAPI_Strings &Strings);
-	CAPI_Strings(int nStrings, const char **Strings);
+	CSG_Strings(void);
+	CSG_Strings(const CSG_Strings &Strings);
+	CSG_Strings(int nStrings, const char **Strings);
 
-	virtual ~CAPI_Strings(void);
+	virtual ~CSG_Strings(void);
 
 	void							Clear				(void);
 
-	CAPI_Strings &					operator  =			(const CAPI_Strings &Strings);
-	bool							Assign				(const CAPI_Strings &Strings);
+	CSG_Strings &					operator  =			(const CSG_Strings &Strings);
+	bool							Assign				(const CSG_Strings &Strings);
 
-	bool							Add					(const CAPI_String &String);
+	bool							Add					(const CSG_String &String);
 
 	bool							Set_Count			(int nStrings);
 	int								Get_Count			(void)				{	return( m_nStrings );	}
 
-	CAPI_String &					operator []			(int Index) const	{	return( *m_Strings[Index]   );	}
-	CAPI_String &					Get_String			(int Index) const	{	return( *m_Strings[Index]   );	}
+	CSG_String &					operator []			(int Index) const	{	return( *m_Strings[Index]   );	}
+	CSG_String &					Get_String			(int Index) const	{	return( *m_Strings[Index]   );	}
 
 
 protected:
 
 	int								m_nStrings;
 
-	CAPI_String						**m_Strings;
+	CSG_String						**m_Strings;
 
 };
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT CAPI_String		API_Get_CurrentTimeStr			(bool bWithDate = true);
+SAGA_API_DLL_EXPORT CSG_String		SG_Get_CurrentTimeStr			(bool bWithDate = true);
 
-SAGA_API_DLL_EXPORT double			API_DegreeStr2Double			(const char *String);
-SAGA_API_DLL_EXPORT CAPI_String		API_Double2DegreeStr			(double Value);
+SAGA_API_DLL_EXPORT double			SG_Degree_To_Double				(const char *String);
+SAGA_API_DLL_EXPORT CSG_String		SG_Double_To_Degree				(double Value);
 
-SAGA_API_DLL_EXPORT double			API_DateStr2Double				(const char *String);
-SAGA_API_DLL_EXPORT CAPI_String		API_Double2DateStr				(double Value);
+SAGA_API_DLL_EXPORT double			SG_Date_To_Double				(const char *String);
+SAGA_API_DLL_EXPORT CSG_String		SG_Double_To_Date				(double Value);
 
-SAGA_API_DLL_EXPORT int				API_Get_Significant_Decimals	(double Value, int maxDecimals = 6);
+SAGA_API_DLL_EXPORT int				SG_Get_Significant_Decimals		(double Value, int maxDecimals = 6);
 
-SAGA_API_DLL_EXPORT CAPI_String		API_Get_String					(double Value, int Precision = 2, bool bScientific = false);
+SAGA_API_DLL_EXPORT CSG_String		SG_Get_String					(double Value, int Precision = 2, bool bScientific = false);
 
 
 ///////////////////////////////////////////////////////////
@@ -529,31 +366,31 @@ SAGA_API_DLL_EXPORT CAPI_String		API_Get_String					(double Value, int Precision
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT bool			API_Directory_isValid			(const char *Directory);
-SAGA_API_DLL_EXPORT bool			API_Directory_Make				(const char *Directory);
+SAGA_API_DLL_EXPORT bool			SG_Directory_isValid	(const char *Directory);
+SAGA_API_DLL_EXPORT bool			SG_Directory_Make		(const char *Directory);
 
-SAGA_API_DLL_EXPORT bool			API_Remove_File					(const char *FileName);
-SAGA_API_DLL_EXPORT CAPI_String		API_Get_CWD						(void);
+SAGA_API_DLL_EXPORT bool			SG_File_Delete			(const char *FileName);
+SAGA_API_DLL_EXPORT CSG_String		SG_Get_CWD				(void);
 
-SAGA_API_DLL_EXPORT CAPI_String		API_Get_Temp_File_Name			(const char *Prefix, const char *Directory);
+SAGA_API_DLL_EXPORT CSG_String		SG_Get_Temp_File_Name	(const char *Prefix, const char *Directory);
 
-SAGA_API_DLL_EXPORT CAPI_String		API_Extract_File_Name			(const char *full_Path, bool bExtension);
-SAGA_API_DLL_EXPORT CAPI_String		API_Extract_File_Path			(const char *full_Path);
+SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Name		(const char *full_Path, bool bExtension);
+SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Path		(const char *full_Path);
 
-SAGA_API_DLL_EXPORT CAPI_String		API_Make_File_Path				(const char *Directory, const char *Name, const char *Extension = NULL);
+SAGA_API_DLL_EXPORT CSG_String		SG_File_Make_Path		(const char *Directory, const char *Name, const char *Extension = NULL);
 
-SAGA_API_DLL_EXPORT bool			API_Cmp_File_Extension			(const char *File_Name, const char *Extension);
+SAGA_API_DLL_EXPORT bool			SG_File_Cmp_Extension	(const char *File_Name, const char *Extension);
 
-SAGA_API_DLL_EXPORT bool			API_Read_Line					(FILE *Stream, CAPI_String &Line);
+SAGA_API_DLL_EXPORT bool			SG_Read_Line			(FILE *Stream, CSG_String &Line);
 
-SAGA_API_DLL_EXPORT int				API_Read_Int					(FILE *Stream				, bool bBig);
-SAGA_API_DLL_EXPORT void			API_Write_Int					(FILE *Stream, int Value	, bool bBig);
-SAGA_API_DLL_EXPORT double			API_Read_Double					(FILE *Stream				, bool bBig);
-SAGA_API_DLL_EXPORT void			API_Write_Double				(FILE *Stream, double Value	, bool bBig);
-SAGA_API_DLL_EXPORT int				API_Read_Int					(char *Buffer				, bool bBig);
-SAGA_API_DLL_EXPORT void			API_Write_Int					(char *Buffer, int Value	, bool bBig);
-SAGA_API_DLL_EXPORT double			API_Read_Double					(char *Buffer				, bool bBig);
-SAGA_API_DLL_EXPORT void			API_Write_Double				(char *Buffer, double Value	, bool bBig);
+SAGA_API_DLL_EXPORT int				SG_Read_Int				(FILE *Stream				, bool bBig);
+SAGA_API_DLL_EXPORT void			SG_Write_Int			(FILE *Stream, int Value	, bool bBig);
+SAGA_API_DLL_EXPORT double			SG_Read_Double			(FILE *Stream				, bool bBig);
+SAGA_API_DLL_EXPORT void			SG_Write_Double			(FILE *Stream, double Value	, bool bBig);
+SAGA_API_DLL_EXPORT int				SG_Read_Int				(char *Buffer				, bool bBig);
+SAGA_API_DLL_EXPORT void			SG_Write_Int			(char *Buffer, int Value	, bool bBig);
+SAGA_API_DLL_EXPORT double			SG_Read_Double			(char *Buffer				, bool bBig);
+SAGA_API_DLL_EXPORT void			SG_Write_Double			(char *Buffer, double Value	, bool bBig);
 
 
 ///////////////////////////////////////////////////////////
@@ -563,7 +400,7 @@ SAGA_API_DLL_EXPORT void			API_Write_Double				(char *Buffer, double Value	, boo
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CTranslator
+class SAGA_API_DLL_EXPORT CSG_Translator
 {
 private:
 
@@ -578,15 +415,15 @@ private:
 
 		~CTranslation(void)	{}
 
-		CAPI_String					m_Text, m_Translation;
+		CSG_String					m_Text, m_Translation;
 	};
 
 
 public:
-	CTranslator(void);
-	CTranslator(const char *File_Name, bool bSetExtension = true);
+	CSG_Translator(void);
+	CSG_Translator(const char *File_Name, bool bSetExtension = true);
 
-	virtual ~CTranslator(void);
+	virtual ~CSG_Translator(void);
 
 	bool							Create				(const char *File_Name, bool bSetExtension = true);
 	void							Destroy				(void);
@@ -612,9 +449,9 @@ private:
 };
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT CTranslator *	API_Get_Translator	(void);
+SAGA_API_DLL_EXPORT CSG_Translator *	SG_Get_Translator	(void);
 
-SAGA_API_DLL_EXPORT const char *	LNG					(const char *Text);
+SAGA_API_DLL_EXPORT const char *		LNG					(const char *Text);
 
 
 ///////////////////////////////////////////////////////////
@@ -654,7 +491,7 @@ SAGA_API_DLL_EXPORT const char *	LNG					(const char *Text);
 #define COLOR_DEF_RANDOM			-2
 
 //---------------------------------------------------------
-enum
+enum EColor_Palettes
 {
 	COLORS_PALETTE_DEFAULT		= 0,
 	COLORS_PALETTE_DEFAULT_BRIGHT,
@@ -683,12 +520,12 @@ enum
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CColors
+class SAGA_API_DLL_EXPORT CSG_Colors
 {
 public:
-	CColors(void);
-	CColors(int nColors, int Palette = COLORS_PALETTE_DEFAULT, bool bRevert = false);
-	virtual ~CColors(void);
+	CSG_Colors(void);
+	CSG_Colors(int nColors, int Palette = COLORS_PALETTE_DEFAULT, bool bRevert = false);
+	virtual ~CSG_Colors(void);
 
 	void							Destroy				(void);
 
@@ -719,7 +556,7 @@ public:
 	bool							Invert				(void);
 	bool							Revert				(void);
 
-	bool							Assign				(CColors *pSource);
+	bool							Assign				(CSG_Colors *pSource);
 
 	bool							Load				(const char *File_Name);
 	bool							Save				(const char *File_Name, bool bBinary);
@@ -746,59 +583,59 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CHistory_Entry
+class SAGA_API_DLL_EXPORT CSG_History_Entry
 {
-	friend class CHistory;
+	friend class CSG_History;
 
 public:
 
 	const char *					Get_Date			(void)	{	return( m_Date );		}
 	const char *					Get_Name			(void)	{	return( m_Name );		}
 	const char *					Get_Entry			(void)	{	return( m_Entry );		}
-	class CHistory *				Get_History			(void)	{	return( m_pHistory );	}
+	class CSG_History *				Get_History			(void)	{	return( m_pHistory );	}
 
 
 private:
 
-	CHistory_Entry(const char *Date, const char *Name, const char *Entry, class CHistory *pHistory);
-	CHistory_Entry(const CHistory_Entry &Entry);
-	virtual ~CHistory_Entry(void);
+	CSG_History_Entry(const char *Date, const char *Name, const char *Entry, class CSG_History *pHistory);
+	CSG_History_Entry(const CSG_History_Entry &Entry);
+	virtual ~CSG_History_Entry(void);
 
-	CAPI_String						m_Date, m_Name, m_Entry;
+	CSG_String						m_Date, m_Name, m_Entry;
 
-	class CHistory					*m_pHistory;
+	class CSG_History					*m_pHistory;
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CHistory
+class SAGA_API_DLL_EXPORT CSG_History
 {
 public:
-	CHistory(void);
-	CHistory(const CHistory &History);
-	virtual ~CHistory(void);
+	CSG_History(void);
+	CSG_History(const CSG_History &History);
+	virtual ~CSG_History(void);
 
 	void							Destroy				(void);
-	void							Assign				(const CHistory &History, bool bAdd = false);
+	void							Assign				(const CSG_History &History, bool bAdd = false);
 
 	int								Get_Count			(void)			{	return( m_nEntries );	}
-	CHistory_Entry *				Get_Entry			(int iEntry)	{	return( iEntry >= 0 && iEntry < m_nEntries ? m_pEntries[iEntry] : NULL );	}
-	void							Add_Entry			(const char *Name, const char *Entry, CHistory *pHistory = NULL);
+	CSG_History_Entry *				Get_Entry			(int iEntry)	{	return( iEntry >= 0 && iEntry < m_nEntries ? m_pEntries[iEntry] : NULL );	}
+	void							Add_Entry			(const char *Name, const char *Entry, CSG_History *pHistory = NULL);
 
 	bool							Load				(const char *File_Name, const char *File_Extension);
 	bool							Save				(const char *File_Name, const char *File_Extension);
 
-	CAPI_String						Get_HTML			(void);
+	CSG_String						Get_HTML			(void);
 
 
 private:
 
 	int								m_nEntries;
 
-	CHistory_Entry					**m_pEntries;
+	CSG_History_Entry					**m_pEntries;
 
 
-	void							_Add_Entry			(CHistory_Entry *pEntry);
+	void							_Add_Entry			(CSG_History_Entry *pEntry);
 
 	bool							_Load				(FILE *Stream);
 	bool							_Save				(FILE *Stream);

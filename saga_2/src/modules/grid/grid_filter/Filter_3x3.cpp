@@ -150,8 +150,8 @@ bool CFilter_3x3::On_Execute(void)
 	dx		= (fdx - 1) / 2;
 	dy		= (fdy - 1) / 2;
 
-	f		= (double **)API_Malloc(fdy * sizeof(double *));
-	f[0]	= (double  *)API_Malloc(fdy * fdx * sizeof(double));
+	f		= (double **)SG_Malloc(fdy * sizeof(double *));
+	f[0]	= (double  *)SG_Malloc(fdy * fdx * sizeof(double));
 
 	for(fy=0; fy<fdy; fy++)
 	{
@@ -196,8 +196,8 @@ bool CFilter_3x3::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	API_Free(f[0]);
-	API_Free(f);
+	SG_Free(f[0]);
+	SG_Free(f);
 
 	return( true );
 }

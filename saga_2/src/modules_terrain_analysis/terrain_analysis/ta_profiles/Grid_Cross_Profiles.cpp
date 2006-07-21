@@ -58,7 +58,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <saga_api/pdf_document.h>
+#include <saga_api/doc_pdf.h>
 
 #include "Grid_Cross_Profiles.h"
 
@@ -149,7 +149,7 @@ bool CGrid_Cross_Profiles::On_Execute(void)
 {
 	int			iLine, iPart, iPoint, nSamples;
 	double		Distance, Length, dLine, dist, dx, dy;
-	TGEO_Point	iPt, jPt, dPt, aPt, bPt;
+	TSG_Point	iPt, jPt, dPt, aPt, bPt;
 	CShapes		*pLines, *pProfiles;
 	CShape		*pLine, *pProfile;
 
@@ -169,7 +169,7 @@ bool CGrid_Cross_Profiles::On_Execute(void)
 
 	for(iPoint=0; iPoint<nSamples; iPoint++)
 	{
-		pProfiles->Get_Table().Add_Field(CAPI_String::Format("X%03d", iPoint), TABLE_FIELDTYPE_Double);
+		pProfiles->Get_Table().Add_Field(CSG_String::Format("X%03d", iPoint), TABLE_FIELDTYPE_Double);
 	}
 
 	//-----------------------------------------------------
@@ -247,7 +247,7 @@ bool CGrid_Cross_Profiles::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Cross_Profiles::Get_Profile(CShape *pProfile, TGEO_Point A, TGEO_Point B, int nSamples)
+bool CGrid_Cross_Profiles::Get_Profile(CShape *pProfile, TSG_Point A, TSG_Point B, int nSamples)
 {
 	if( 1 )
 	{
@@ -297,10 +297,10 @@ void CGrid_Cross_Profiles::Make_Report(const char *FileName, CGrid *pDEM, CShape
 	if( FileName )
 	{
 		int				iProfile, iPoint, nSamples, iBox;
-		CGEO_Rect		r;
+		CSG_Rect		r;
 		CShape			*pProfile, *pLine;
 		CShapes			Profile;
-		CPDF_Document	pdf;
+		CDoc_PDF	pdf;
 
 		pdf.Open(PDF_PAGE_SIZE_A4, PDF_PAGE_ORIENTATION_PORTRAIT, _TL("Cross Profiles"));
 		pdf.Layout_Add_Box(5,  5, 95, 20);

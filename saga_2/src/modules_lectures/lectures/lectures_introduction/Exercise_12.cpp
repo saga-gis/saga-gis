@@ -130,7 +130,7 @@ bool CExercise_12::On_Execute(void)
 {
 	int			iShape, iPart, iPoint;
 	double		dx, dy;
-	TGEO_Point	Point;
+	TSG_Point	Point;
 	CShapes		*pShapes_A, *pShapes_B;
 	CShape		*pShape_A, *pShape_B;
 

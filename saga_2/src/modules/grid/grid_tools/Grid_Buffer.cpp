@@ -97,7 +97,7 @@ bool CGrid_Buffer::On_Execute(void){
 					for (int j=-iBufDist ; j<iBufDist ; j++){
 						x2 = max(min(Get_NX()-1,x+i),0);
 						y2 = max(min(Get_NY()-1,y+j),0);
-						dDist= M_GET_DIST(x-x2, y-y2);
+						dDist= M_GET_LENGTH(x-x2, y-y2);
 						if (dDist<dBufDist){
 							dValue = pFeatures->asDouble(x2,y2);
 							if (dValue != 0 && dValue!= pFeatures->Get_NoData_Value()){

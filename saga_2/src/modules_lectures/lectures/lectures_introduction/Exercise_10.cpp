@@ -123,7 +123,7 @@ bool CExercise_10::On_Execute(void)
 {
 	bool	bAlive;
 	int		x, y, i;
-	CColors	Colors;
+	CSG_Colors	Colors;
 
 
 	//-----------------------------------------------------
@@ -159,15 +159,15 @@ bool CExercise_10::On_Execute(void)
 	//-----------------------------------------------------
 	// Execution...
 
-	m_pTemp		= API_Create_Grid(m_pLife, GRID_TYPE_Byte);
+	m_pTemp		= SG_Create_Grid(m_pLife, GRID_TYPE_Byte);
 
 	for(i=1, bAlive=true; bAlive && Process_Get_Okay(true); i++)
 	{
-		Process_Set_Text(CAPI_String::Format("%d %s", i, _TL("Life Cycle")));
+		Process_Set_Text(CSG_String::Format("%d %s", i, _TL("Life Cycle")));
 
 		if( (bAlive = Next_Step()) == false )
 		{
-			Message_Add(CAPI_String::Format("%s %d %s\n", _TL("Dead after"), i, _TL("Life Cycles")));
+			Message_Add(CSG_String::Format("%s %d %s\n", _TL("Dead after"), i, _TL("Life Cycles")));
 		}
 	}
 

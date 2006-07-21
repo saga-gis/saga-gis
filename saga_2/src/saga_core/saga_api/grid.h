@@ -81,7 +81,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum
+typedef enum EGrid_Type
 {
 	GRID_TYPE_Undefined		= 0,
 	GRID_TYPE_Byte,
@@ -138,7 +138,7 @@ const char GRID_TYPE_SIZES[GRID_TYPE_Count]	=
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum
+typedef enum EGrid_Memory_Type
 {
 	GRID_MEMORY_Normal					= 0,
 	GRID_MEMORY_Cache,
@@ -154,7 +154,7 @@ TGrid_Memory_Type;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum
+typedef enum EGrid_File_Format
 {
 	GRID_FILE_FORMAT_Undefined			= 0,
 	GRID_FILE_FORMAT_Binary,
@@ -163,7 +163,7 @@ typedef enum
 TGrid_File_Format;
 
 //---------------------------------------------------------
-typedef enum
+typedef enum EGrid_File_Key
 {
 	GRID_FILE_KEY_NAME					= 0,
 	GRID_FILE_KEY_DESCRIPTION,
@@ -216,7 +216,7 @@ const char	GRID_FILE_KEY_NAMES[GRID_FILE_KEY_Count][32]	=
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum
+typedef enum EGrid_Interpolation
 {
 	GRID_INTERPOLATION_NearestNeighbour	= 0,
 	GRID_INTERPOLATION_Bilinear,
@@ -228,7 +228,7 @@ typedef enum
 TGrid_Interpolation;
 
 //---------------------------------------------------------
-typedef enum
+typedef enum EGrid_Operation
 {
 	GRID_OPERATION_Addition				= 0,
 	GRID_OPERATION_Subtraction,
@@ -250,7 +250,7 @@ class SAGA_API_DLL_EXPORT CGrid_System
 public:
 	CGrid_System(void);
 	CGrid_System(const CGrid_System &System);
-	CGrid_System(double Cellsize, const CGEO_Rect &Extent);
+	CGrid_System(double Cellsize, const CSG_Rect &Extent);
 	CGrid_System(double Cellsize, double xMin, double yMin, double xMax, double yMax);
 	CGrid_System(double Cellsize, double xMin, double yMin, int NX, int NY);
 
@@ -258,13 +258,13 @@ public:
 
 
 	//-----------------------------------------------------
-	bool						is_Valid			(void);
+	bool						is_Valid			(void)	const;
 
 	const char *				Get_Name			(bool bShort = true);
 
 	double						Get_Cellsize		(void)	const	{	return( m_Cellsize );				}
 	double						Get_Cellarea		(void)	const	{	return( m_Cellarea );				}
-	const CGEO_Rect &			Get_Extent			(void)	const	{	return( m_Extent );					}
+	const CSG_Rect &			Get_Extent			(void)	const	{	return( m_Extent );					}
 
 	int							Get_NX				(void)	const	{	return( m_NX );						}
 	int							Get_NY				(void)	const	{	return( m_NY );						}
@@ -284,19 +284,19 @@ public:
 	void						operator =			(const CGrid_System &System);
 
 	bool						Assign				(const CGrid_System &System);
-	bool						Assign				(double Cellsize, const CGEO_Rect &Extent);
+	bool						Assign				(double Cellsize, const CSG_Rect &Extent);
 	bool						Assign				(double Cellsize, double xMin, double yMin, double xMax, double yMax);
 	bool						Assign				(double Cellsize, double xMin, double yMin, int NX, int NY);
 
 	bool						is_Equal			(const CGrid_System &System) const;
-	bool						is_Equal			(double Cellsize, const TGEO_Rect &Extent) const;
+	bool						is_Equal			(double Cellsize, const TSG_Rect &Extent) const;
 
 
 	//-----------------------------------------------------
 	double						Fit_xto_Grid_System	(double x)	const	{	return( Get_XMin() + m_Cellsize * (int)(0.5 + (x - Get_XMin()) / m_Cellsize) );	}
 	double						Fit_yto_Grid_System	(double y)	const	{	return( Get_YMin() + m_Cellsize * (int)(0.5 + (y - Get_YMin()) / m_Cellsize) );	}
 
-	TGEO_Point					Fit_to_Grid_System	(TGEO_Point ptWorld)	const
+	TSG_Point					Fit_to_Grid_System	(TSG_Point ptWorld)	const
 	{
 		ptWorld.x	= Fit_xto_Grid_System(ptWorld.x);
 		ptWorld.y	= Fit_yto_Grid_System(ptWorld.y);
@@ -309,9 +309,9 @@ public:
 	double						Get_xGrid_to_World	(int xGrid)	const	{	return( Get_XMin() + xGrid * m_Cellsize );	}
 	double						Get_yGrid_to_World	(int yGrid)	const	{	return( Get_YMin() + yGrid * m_Cellsize );	}
 
-	TGEO_Point					Get_Grid_to_World	(int xGrid, int yGrid)	const
+	TSG_Point					Get_Grid_to_World	(int xGrid, int yGrid)	const
 	{
-		TGEO_Point	pt;
+		TSG_Point	pt;
 
 		pt.x	= Get_xGrid_to_World(xGrid);
 		pt.y	= Get_yGrid_to_World(yGrid);
@@ -329,7 +329,7 @@ public:
 		return( is_InGrid(xGrid = Get_xWorld_to_Grid(xWorld), yGrid = Get_yWorld_to_Grid(yWorld)) );
 	}
 
-	bool						Get_World_to_Grid	(int &xGrid, int &yGrid, TGEO_Point ptWorld)	const
+	bool						Get_World_to_Grid	(int &xGrid, int &yGrid, TSG_Point ptWorld)	const
 	{
 		return( is_InGrid(xGrid = Get_xWorld_to_Grid(ptWorld.x), yGrid = Get_yWorld_to_Grid(ptWorld.y)) );
 	}
@@ -375,9 +375,9 @@ private:	///////////////////////////////////////////////
 
 	double						m_Cellsize, m_Cellarea, m_Diagonal;
 
-	CGEO_Rect					m_Extent;
+	CSG_Rect					m_Extent;
 
-	CAPI_String					m_Name;
+	CSG_String					m_Name;
 
 };
 
@@ -425,7 +425,7 @@ public:		///////////////////////////////////////////////
 	//-----------------------------------------------------
 	/** Data object type information.
 	*/
-	virtual TDataObject_Type	Get_ObjectType	(void)			{	return( DATAOBJECT_TYPE_Grid );		}
+	virtual TDataObject_Type	Get_ObjectType	(void)	const	{	return( DATAOBJECT_TYPE_Grid );		}
 
 
 	//-----------------------------------------------------
@@ -450,7 +450,7 @@ public:		///////////////////////////////////////////////
 	double						Get_Cellsize	(void)	const	{	return( m_System.Get_Cellsize() );	}
 	double						Get_Cellarea	(void)	const	{	return( m_System.Get_Cellarea() );	}
 
-	const CGEO_Rect &			Get_Extent		(void)	const	{	return( m_System.Get_Extent() );	}
+	const CSG_Rect &			Get_Extent		(void)	const	{	return( m_System.Get_Extent() );	}
 
 	double						Get_XMin		(void)	const	{	return( m_System.Get_XMin() );		}
 	double						Get_XMax		(void)	const	{	return( m_System.Get_XMax() );		}
@@ -484,18 +484,19 @@ public:		///////////////////////////////////////////////
 	//-----------------------------------------------------
 	// Checks...
 
-	virtual bool				is_Valid		(void);
+	virtual bool				is_Valid		(void)	const;
 
-	TGEO_Intersection			is_Intersecting	(const CGEO_Rect &Extent) const;
-	TGEO_Intersection			is_Intersecting	(const TGEO_Rect &Extent) const;
-	TGEO_Intersection			is_Intersecting	(double xMin, double yMin, double xMax, double yMax) const;
+	TSG_Intersection			is_Intersecting	(const CSG_Rect &Extent) const;
+	TSG_Intersection			is_Intersecting	(const TSG_Rect &Extent) const;
+	TSG_Intersection			is_Intersecting	(double xMin, double yMin, double xMax, double yMax) const;
 
+	bool						is_Compatible	(CGrid *pGrid) const;
 	bool						is_Compatible	(const CGrid_System &System) const;
 	bool						is_Compatible	(int NX, int NY, double Cellsize, double xMin, double yMin) const;
 
 	bool						is_InGrid(int x, int y, bool bCheckNoData = true)	{	return( m_System.is_InGrid(x, y) && (!bCheckNoData || (bCheckNoData && !is_NoData(x, y))) );	}
 	bool						is_InGrid_byPos	(double xPos, double yPos)			{	return( xPos >= Get_XMin() && xPos <= Get_XMax() && yPos >= Get_YMin() && yPos <= Get_YMax() );	}
-	bool						is_InGrid_byPos	(TGEO_Point Position)				{	return( is_InGrid_byPos(Position.x, Position.y) );	}
+	bool						is_InGrid_byPos	(TSG_Point Position)				{	return( is_InGrid_byPos(Position.x, Position.y) );	}
 
 
 	//-----------------------------------------------------
@@ -639,9 +640,9 @@ public:		///////////////////////////////////////////////
 	// Get Value...
 
 	double						Get_Value(double xPos, double yPos, int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false);
-	double						Get_Value(TGEO_Point Position     , int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false);
+	double						Get_Value(TSG_Point Position     , int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false);
 	bool						Get_Value(double xPos, double yPos, double &Value, int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false);
-	bool						Get_Value(TGEO_Point Position     , double &Value, int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false);
+	bool						Get_Value(TSG_Point Position     , double &Value, int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false);
 
 	virtual BYTE				asByte	(int x, int y, bool bZFactor = false)	{	return( (BYTE )asDouble(x, y, bZFactor) );	}
 	virtual BYTE				asByte	(      long n, bool bZFactor = false)	{	return( (BYTE )asDouble(   n, bZFactor) );	}
@@ -771,7 +772,7 @@ private:	///////////////////////////////////////////////
 
 	CGrid_System				m_System;
 
-	CAPI_String					m_Description, m_Unit, Cache_Path;
+	CSG_String					m_Description, m_Unit, Cache_Path;
 
 
 	//-----------------------------------------------------
@@ -843,7 +844,7 @@ private:	///////////////////////////////////////////////
 	bool						_Load_Native			(const char *File_Header, TGrid_Memory_Type aMemory_Type);
 	bool						_Save_Native			(const char *File_Header, int xA, int yA, int xN, int yN, bool bBinary = true);
 
-	int							_Load_Native_Get_Key	(FILE *Stream, CAPI_String &Line);
+	int							_Load_Native_Get_Key	(FILE *Stream, CSG_String &Line);
 
 	bool						_Load_Surfer			(const char *File_Name, TGrid_Memory_Type aMemory_Type);
 
@@ -876,40 +877,40 @@ private:	///////////////////////////////////////////////
 
 //---------------------------------------------------------
 /** Safe grid construction */
-SAGA_API_DLL_EXPORT CGrid *			API_Create_Grid		(void);
+SAGA_API_DLL_EXPORT CGrid *			SG_Create_Grid		(void);
 
 /** Safe grid construction */
-SAGA_API_DLL_EXPORT CGrid *			API_Create_Grid		(const CGrid &Grid);
+SAGA_API_DLL_EXPORT CGrid *			SG_Create_Grid		(const CGrid &Grid);
 
 /** Safe grid construction */
-SAGA_API_DLL_EXPORT CGrid *			API_Create_Grid		(const char *FileName, TGrid_Type Type = GRID_TYPE_Undefined, TGrid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
+SAGA_API_DLL_EXPORT CGrid *			SG_Create_Grid		(const char *FileName, TGrid_Type Type = GRID_TYPE_Undefined, TGrid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
 
 /** Safe grid construction */
-SAGA_API_DLL_EXPORT CGrid *			API_Create_Grid		(CGrid *pGrid, TGrid_Type Type = GRID_TYPE_Undefined, TGrid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
+SAGA_API_DLL_EXPORT CGrid *			SG_Create_Grid		(CGrid *pGrid, TGrid_Type Type = GRID_TYPE_Undefined, TGrid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
 
 /** Safe grid construction */
-SAGA_API_DLL_EXPORT CGrid *			API_Create_Grid		(CGrid_System &System, TGrid_Type Type, TGrid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
+SAGA_API_DLL_EXPORT CGrid *			SG_Create_Grid		(CGrid_System &System, TGrid_Type Type, TGrid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
 
 /** Safe grid construction */
-SAGA_API_DLL_EXPORT CGrid *			API_Create_Grid		(TGrid_Type Type, int NX, int NY, double Cellsize = 0.0, double xMin = 0.0, double yMin = 0.0, TGrid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
+SAGA_API_DLL_EXPORT CGrid *			SG_Create_Grid		(TGrid_Type Type, int NX, int NY, double Cellsize = 0.0, double xMin = 0.0, double yMin = 0.0, TGrid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
 
 //---------------------------------------------------------
 /** Get default directory for grid caching */
-SAGA_API_DLL_EXPORT const char *	API_Grid_Cache_Get_Directory	(void);
+SAGA_API_DLL_EXPORT const char *	SG_Grid_Cache_Get_Directory		(void);
 
 /** Set default directory for grid caching */
-SAGA_API_DLL_EXPORT void			API_Grid_Cache_Set_Directory	(const char *Directory);
+SAGA_API_DLL_EXPORT void			SG_Grid_Cache_Set_Directory		(const char *Directory);
 
-SAGA_API_DLL_EXPORT void			API_Grid_Cache_Set_Automatic	(bool bOn);
-SAGA_API_DLL_EXPORT bool			API_Grid_Cache_Get_Automatic	(void);
+SAGA_API_DLL_EXPORT void			SG_Grid_Cache_Set_Automatic		(bool bOn);
+SAGA_API_DLL_EXPORT bool			SG_Grid_Cache_Get_Automatic		(void);
 
-SAGA_API_DLL_EXPORT void			API_Grid_Cache_Set_Confirm		(int Confirm);
-SAGA_API_DLL_EXPORT int				API_Grid_Cache_Get_Confirm		(void);
+SAGA_API_DLL_EXPORT void			SG_Grid_Cache_Set_Confirm		(int Confirm);
+SAGA_API_DLL_EXPORT int				SG_Grid_Cache_Get_Confirm		(void);
 
-SAGA_API_DLL_EXPORT void			API_Grid_Cache_Set_Threshold	(int nBytes);
-SAGA_API_DLL_EXPORT void			API_Grid_Cache_Set_Threshold_MB	(double nMegabytes);
-SAGA_API_DLL_EXPORT int				API_Grid_Cache_Get_Threshold	(void);
-SAGA_API_DLL_EXPORT double			API_Grid_Cache_Get_Threshold_MB	(void);
+SAGA_API_DLL_EXPORT void			SG_Grid_Cache_Set_Threshold		(int nBytes);
+SAGA_API_DLL_EXPORT void			SG_Grid_Cache_Set_Threshold_MB	(double nMegabytes);
+SAGA_API_DLL_EXPORT int				SG_Grid_Cache_Get_Threshold		(void);
+SAGA_API_DLL_EXPORT double			SG_Grid_Cache_Get_Threshold_MB	(void);
 
 
 ///////////////////////////////////////////////////////////

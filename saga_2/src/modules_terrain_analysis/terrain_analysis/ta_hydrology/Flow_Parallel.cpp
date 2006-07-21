@@ -134,7 +134,7 @@ CFlow_Parallel::CFlow_Parallel(void)
 	Parameters.Add_Choice(
 		NULL	, "Method"		, _TL("Method"),
 		"",
-		CAPI_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|",
 			_TL("Deterministic 8"),
 			_TL("Rho 8"),
 			_TL("Braunschweiger Reliefmodell"),

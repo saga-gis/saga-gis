@@ -212,7 +212,7 @@ bool CDVWK_SoilMoisture::On_Execute(void)
 {
 	int		Day, x, y, i, LandUseID;
 	CGrid	*pGrid;
-	CColors	Colors;
+	CSG_Colors	Colors;
 
 	//-----------------------------------------------------
 	if( pClimate->Get_Record_Count() > 0 )
@@ -228,7 +228,7 @@ bool CDVWK_SoilMoisture::On_Execute(void)
 		DataObject_Set_Colors(pWi_mm, Colors);
 
 		//-------------------------------------------------
-		pLandUse	= API_Create_Grid(pWi_mm, pCropCoeff->Get_Record_Count() < 127 ? GRID_TYPE_Char : GRID_TYPE_Int);
+		pLandUse	= SG_Create_Grid(pWi_mm, pCropCoeff->Get_Record_Count() < 127 ? GRID_TYPE_Char : GRID_TYPE_Int);
 		pLandUse->Assign(Parameters("LANDUSE_DEF")->asInt());
 
 		if( (pGrid = Parameters("LANDUSE")->asGrid()) != NULL )

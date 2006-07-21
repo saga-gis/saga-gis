@@ -105,10 +105,10 @@ bool CCreateChartLayer::On_Execute(void){
 		m_fMinValue = pInput->Get_Table().Get_MinValue(iSizeField);
 
 		if (iType == TYPE_PIE){		
-			m_pOutput = API_Create_Shapes(SHAPE_TYPE_Polygon, (char*)_TL("Chart (sectors):"));				
+			m_pOutput = SG_Create_Shapes(SHAPE_TYPE_Polygon, (char*)_TL("Chart (sectors):"));				
 		}//if
 		else{
-			m_pOutput = API_Create_Shapes(SHAPE_TYPE_Polygon, (char*)_TL("Chart (bars):"));
+			m_pOutput = SG_Create_Shapes(SHAPE_TYPE_Polygon, (char*)_TL("Chart (bars):"));
 		}//else
 
 		m_pOutput->Get_Table().Add_Field(_TL("Field (ID)"), TABLE_FIELDTYPE_Int);
@@ -146,7 +146,7 @@ bool CCreateChartLayer::GetExtraParameters(){
 	CTable *pShapesTable;
 	CShapes *pInput;
 	CParameter *pParam;
-	CAPI_String sName;
+	CSG_String sName;
 	bool bIsValidSelection = false;
 
 	pInput = Parameters("INPUT")->asShapes();
@@ -157,7 +157,7 @@ bool CCreateChartLayer::GetExtraParameters(){
 	for (i = 0; i < pShapesTable->Get_Field_Count(); i++){		
 		if (pShapesTable->Get_Field_Type(i) > 1 && pShapesTable->Get_Field_Type(i) < 7){ //is numeric field
 			m_pExtraParameters->Add_Value(NULL,
-											API_Get_String(i,0).c_str(),
+											SG_Get_String(i,0).c_str(),
 											pShapesTable->Get_Field_Name(i),
 											"",
 											PARAMETER_TYPE_Bool,
@@ -166,7 +166,7 @@ bool CCreateChartLayer::GetExtraParameters(){
 	}//for
 	if(Dlg_Extra_Parameters("EXTRA")){
 		for (i = 0; i < pShapesTable->Get_Field_Count(); i++){
-			sName = API_Get_String(i,0);
+			sName = SG_Get_String(i,0);
 			if (pParam = Get_Extra_Parameters("EXTRA")->Get_Parameter(sName.c_str())){
 				m_bIncludeParam[i] = pParam->asBool();
 				bIsValidSelection = true;
@@ -200,7 +200,7 @@ void CCreateChartLayer::AddPieChart(CShape* pShape, int iType){
 	double dX, dY;
 	CShape *pSector;
 	CTable_Record *pRecord;
-	TGEO_Point Point;
+	TSG_Point Point;
 		
 	iSizeField = Parameters("SIZE")->asInt();
 
@@ -266,7 +266,7 @@ void CCreateChartLayer::AddBarChart(CShape* pShape, int iType){
 	double dX, dY;
 	CShape *pSector;
 	CTable_Record *pRecord;
-	TGEO_Point Point;
+	TSG_Point Point;
 		
 	iSizeField = Parameters("SIZE")->asInt();
 	pRecord = pShape->Get_Record();
@@ -338,12 +338,12 @@ void CCreateChartLayer::AddBarChart(CShape* pShape, int iType){
 
 }//method
 
-TGEO_Point CCreateChartLayer::GetLineMidPoint(CShape_Line *pLine){
+TSG_Point CCreateChartLayer::GetLineMidPoint(CShape_Line *pLine){
 
 	int i;
 	float fDist, fAccDist = 0;
 	float fLength = pLine->Get_Length(0) / 2.;
-	TGEO_Point Point, Point2, ReturnPoint;
+	TSG_Point Point, Point2, ReturnPoint;
 
 	for (i = 0; i < pLine->Get_Point_Count(0) - 1; i++){
 		Point = pLine->Get_Point(i);

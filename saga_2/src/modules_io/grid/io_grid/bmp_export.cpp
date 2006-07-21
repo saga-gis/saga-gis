@@ -120,7 +120,7 @@ bool CBMP_Export::On_Execute(void)
 	int			x, y, Value, nBytes_Image, nBytes_Line;
 	FILE		*Stream;
 	CGrid		*pGrid;
-	CAPI_String	FileName;
+	CSG_String	FileName;
 
 	//-----------------------------------------------------
 	pGrid		= Parameters("IMAGE")	->asGrid();
@@ -159,7 +159,7 @@ bool CBMP_Export::On_Execute(void)
 		Write_DWORD	(Stream, 0);								// biClrImportant;
 
 		//-------------------------------------------------
-		Line	= (char *)API_Calloc(nBytes_Line, sizeof(char));
+		Line	= (char *)SG_Calloc(nBytes_Line, sizeof(char));
 
 		for(y=0; y<Get_NY() && Set_Progress(y); y++)
 		{
@@ -175,12 +175,12 @@ bool CBMP_Export::On_Execute(void)
 			fwrite(Line, sizeof(char), nBytes_Line, Stream);
 		}
 
-		API_Free(Line);
+		SG_Free(Line);
 
 		//-------------------------------------------------
 		fclose(Stream);
 
-		FileName	= API_Make_File_Path(API_Extract_File_Path(FileName), API_Extract_File_Name(FileName, false), "bpw");
+		FileName	= SG_File_Make_Path(SG_File_Get_Path(FileName), SG_File_Get_Name(FileName, false), "bpw");
 
 		if( (Stream = fopen(FileName, "w")) != NULL )
 		{

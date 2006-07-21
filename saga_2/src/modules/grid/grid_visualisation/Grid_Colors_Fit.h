@@ -93,7 +93,7 @@ protected:
 
 private:
 
-	void					_Set_Colors		(CColors &Colors, double pos_a, long color_a, double pos_b, long color_b);
+	void					_Set_Colors		(CSG_Colors &Colors, double pos_a, long color_a, double pos_b, long color_b);
 
 };
 

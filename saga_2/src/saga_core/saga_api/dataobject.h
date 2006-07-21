@@ -83,7 +83,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum
+typedef enum EDataObject_Type
 {
 	DATAOBJECT_TYPE_Grid,
 	DATAOBJECT_TYPE_Table,
@@ -94,7 +94,7 @@ typedef enum
 TDataObject_Type;
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT const char *	API_Get_DataObject_Name	(TDataObject_Type Type);
+SAGA_API_DLL_EXPORT const char *	SG_Get_DataObject_Name	(TDataObject_Type Type);
 
 //---------------------------------------------------------
 #define HISTORY_EXT_GRID		"hgrd"
@@ -129,24 +129,24 @@ public:
 
 	virtual bool				Destroy			(void);
 
-	virtual TDataObject_Type	Get_ObjectType	(void)									= 0;
+	virtual TDataObject_Type	Get_ObjectType	(void)	const							= 0;
 
-	virtual bool				is_Valid		(void)									= 0;
+	virtual bool				is_Valid		(void)	const							= 0;
 
 	virtual bool				Save			(const char *File_Path, int Format = 0)	= 0;
 
 	virtual bool				Assign			(CDataObject *pObject);
 
 	void						Set_Name		(const char *Name);
-	const char *				Get_Name		(void);
+	const char *				Get_Name		(void)	const;
 
-	const char *				Get_File_Path	(bool bNullAsString = false);
-	int							Get_File_Type	(void);
+	const char *				Get_File_Path	(bool bNullAsString = false)	const;
+	int							Get_File_Type	(void)	const;
 
 	virtual void				Set_Modified	(bool bFlag = true)	{	m_bModified	= bFlag;	}
-	bool						is_Modified		(void)				{	return( m_bModified );	}
+	bool						is_Modified		(void)	const		{	return( m_bModified );	}
 
-	CHistory &					Get_History		(void)				{	return( m_History );	}
+	CSG_History &				Get_History		(void)				{	return( m_History );	}
 
 
 protected:
@@ -161,9 +161,9 @@ private:
 
 	int							m_File_Type;
 
-	CAPI_String					m_Name, m_File_Path;
+	CSG_String					m_Name, m_File_Path;
 
-	CHistory					m_History;
+	CSG_History					m_History;
 
 };
 

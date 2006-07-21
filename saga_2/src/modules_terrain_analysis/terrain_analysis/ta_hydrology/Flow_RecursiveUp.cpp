@@ -134,7 +134,7 @@ CFlow_RecursiveUp::CFlow_RecursiveUp(void)
 	Parameters.Add_Choice(
 		NULL	, "Method"		, _TL("Method"),
 		"",
-		CAPI_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("Deterministic 8"),
 			_TL("Rho 8"),
 			_TL("Deterministic Infinity"),
@@ -180,12 +180,12 @@ void CFlow_RecursiveUp::On_Create(void)
 	//-----------------------------------------------------
 	On_Destroy();
 
-	Flow	= (double ***)API_Malloc(    Get_NY()  * sizeof(double **));
-	p		= (double   *)API_Malloc(8 * Get_NCells() * sizeof(double   ));
+	Flow	= (double ***)SG_Malloc(    Get_NY()  * sizeof(double **));
+	p		= (double   *)SG_Malloc(8 * Get_NCells() * sizeof(double   ));
 
 	for(y=0; y<Get_NY(); y++)
 	{
-		Flow[y]	= (double **)API_Malloc( Get_NX()  * sizeof(double  *));
+		Flow[y]	= (double **)SG_Malloc( Get_NX()  * sizeof(double  *));
 
 		for(x=0; x<Get_NX(); x++, p+=8)
 		{
@@ -240,14 +240,14 @@ void CFlow_RecursiveUp::On_Destroy(void)
 
 	if( Flow )
 	{
-		API_Free(Flow[0][0]);
+		SG_Free(Flow[0][0]);
 
 		for(y=0; y<Get_NY(); y++)
 		{
-			API_Free(Flow[y]);
+			SG_Free(Flow[y]);
 		}
 
-		API_Free(Flow);
+		SG_Free(Flow);
 
 		Flow	= NULL;
 	}

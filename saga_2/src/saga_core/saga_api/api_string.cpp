@@ -75,28 +75,28 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CAPI_String::CAPI_String(void)
+CSG_String::CSG_String(void)
 {
 	m_pString	= new wxString;
 }
 
-CAPI_String::CAPI_String(const CAPI_String &String)
+CSG_String::CSG_String(const CSG_String &String)
 {
 	m_pString	= new wxString(*String.m_pString);
 }
 
-CAPI_String::CAPI_String(const char *String)
+CSG_String::CSG_String(const char *String)
 {
 	m_pString	= new wxString(String);
 }
 
-CAPI_String::CAPI_String(char Character)
+CSG_String::CSG_String(char Character)
 {
 	m_pString	= new wxString(Character);
 }
 
 //---------------------------------------------------------
-CAPI_String::~CAPI_String(void)
+CSG_String::~CSG_String(void)
 {
 	delete(m_pString);
 }
@@ -109,13 +109,13 @@ CAPI_String::~CAPI_String(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char * CAPI_String::c_str(void)
+const char * CSG_String::c_str(void) const
 {
 	return( m_pString->c_str() );
 }
 
 //---------------------------------------------------------
-size_t CAPI_String::Length(void)
+size_t CSG_String::Length(void)	const
 {
 	return( m_pString->Length() );
 }
@@ -128,13 +128,13 @@ size_t CAPI_String::Length(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CAPI_String::Clear(void)
+void CSG_String::Clear(void)
 {
 	m_pString->Clear();
 }
 
 //---------------------------------------------------------
-int CAPI_String::Printf(const char *Format, ...)
+int CSG_String::Printf(const char *Format, ...)
 {
 	va_list	argptr;
 
@@ -148,10 +148,10 @@ int CAPI_String::Printf(const char *Format, ...)
 }
 
 //---------------------------------------------------------
-CAPI_String CAPI_String::Format(const char *Format, ...)
+CSG_String CSG_String::Format(const char *Format, ...)
 {
 	va_list		argptr;
-	CAPI_String	s;
+	CSG_String	s;
 
 	va_start(argptr, Format);
 
@@ -163,14 +163,14 @@ CAPI_String CAPI_String::Format(const char *Format, ...)
 }
 
 //---------------------------------------------------------
-CAPI_String & CAPI_String::Append(const char *String)
+CSG_String & CSG_String::Append(const char *String)
 {
 	m_pString->Append(String);
 
 	return( *this );
 }
 
-CAPI_String & CAPI_String::Append(char Character)
+CSG_String & CSG_String::Append(char Character)
 {
 	m_pString->Append(Character);
 
@@ -185,21 +185,21 @@ CAPI_String & CAPI_String::Append(char Character)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CAPI_String & CAPI_String::operator = (const CAPI_String &String)
+CSG_String & CSG_String::operator = (const CSG_String &String)
 {
 	*m_pString	= *String.m_pString;
 
 	return( *this );
 }
 
-CAPI_String & CAPI_String::operator = (const char *String)
+CSG_String & CSG_String::operator = (const char *String)
 {
 	*m_pString	= String;
 
 	return( *this );
 }
 
-CAPI_String & CAPI_String::operator = (char Character)
+CSG_String & CSG_String::operator = (char Character)
 {
 	*m_pString	= Character;
 
@@ -207,23 +207,69 @@ CAPI_String & CAPI_String::operator = (char Character)
 }
 
 //---------------------------------------------------------
-void CAPI_String::operator += (const CAPI_String &String)
+CSG_String CSG_String::operator + (const CSG_String &String) const
+{
+	CSG_String	s(*this);
+
+	s	+= String;
+
+	return( s );
+}
+
+CSG_String CSG_String::operator + (const char *String) const
+{
+	CSG_String	s(*this);
+
+	s	+= String;
+
+	return( s );
+}
+
+CSG_String CSG_String::operator + (char Character) const
+{
+	CSG_String	s(*this);
+
+	s	+= Character;
+
+	return( s );
+}
+
+CSG_String		operator + (const char *A, const CSG_String &B)
+{
+	CSG_String	s(A);
+
+	s	+= B;
+
+	return( s );
+}
+
+CSG_String		operator + (char A, const CSG_String &B)
+{
+	CSG_String	s(A);
+
+	s	+= B;
+
+	return( s );
+}
+
+//---------------------------------------------------------
+void CSG_String::operator += (const CSG_String &String)
 {
 	*m_pString	+= *String.m_pString;
 }
 
-void CAPI_String::operator += (const char *String)
+void CSG_String::operator += (const char *String)
 {
 	*m_pString	+= String;
 }
 
-void CAPI_String::operator += (char Character)
+void CSG_String::operator += (char Character)
 {
 	*m_pString	+= Character;
 }
 
 //---------------------------------------------------------
-char & CAPI_String::operator [] (int i)
+char & CSG_String::operator [] (int i)
 {
 	return( m_pString->GetWritableChar(i) );
 }
@@ -236,19 +282,19 @@ char & CAPI_String::operator [] (int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CAPI_String::Cmp(const char *String)
+int CSG_String::Cmp(const char *String)	const
 {
 	return( m_pString->Cmp(String) );
 }
 
 //---------------------------------------------------------
-int CAPI_String::CmpNoCase(const char *String)
+int CSG_String::CmpNoCase(const char *String) const
 {
 	return( m_pString->CmpNoCase(String) );
 }
 
 //---------------------------------------------------------
-CAPI_String & CAPI_String::Make_Lower(void)
+CSG_String & CSG_String::Make_Lower(void)
 {
 	m_pString->MakeLower();
 
@@ -256,7 +302,7 @@ CAPI_String & CAPI_String::Make_Lower(void)
 }
 
 //---------------------------------------------------------
-CAPI_String & CAPI_String::Make_Upper(void)
+CSG_String & CSG_String::Make_Upper(void)
 {
 	m_pString->MakeUpper();
 
@@ -270,13 +316,13 @@ CAPI_String & CAPI_String::Make_Upper(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-size_t CAPI_String::Replace(const char *sOld, const char *sNew, bool replaceAll)
+size_t CSG_String::Replace(const char *sOld, const char *sNew, bool replaceAll)
 {
 	return( m_pString->Replace(sOld, sNew, replaceAll) );
 }
 
 //---------------------------------------------------------
-CAPI_String & CAPI_String::Remove(size_t pos)
+CSG_String & CSG_String::Remove(size_t pos)
 {
 	m_pString->Remove(pos);
 
@@ -284,7 +330,7 @@ CAPI_String & CAPI_String::Remove(size_t pos)
 }
 
 //---------------------------------------------------------
-CAPI_String & CAPI_String::Remove(size_t pos, size_t len)
+CSG_String & CSG_String::Remove(size_t pos, size_t len)
 {
 	m_pString->Remove(pos, len);
 
@@ -299,7 +345,7 @@ CAPI_String & CAPI_String::Remove(size_t pos, size_t len)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CAPI_String::Remove_WhiteChars(bool fromEnd)
+int CSG_String::Remove_WhiteChars(bool fromEnd)
 {
 	int		n, c;
 
@@ -351,19 +397,19 @@ int CAPI_String::Remove_WhiteChars(bool fromEnd)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CAPI_String::Find(char Character, bool fromEnd)
+int CSG_String::Find(char Character, bool fromEnd)
 {
 	return( m_pString->Find(Character, fromEnd) );
 }
 
 //---------------------------------------------------------
-int CAPI_String::Find(const char *String)
+int CSG_String::Find(const char *String)
 {
 	return( m_pString->Find(String) );
 }
 
 //---------------------------------------------------------
-bool CAPI_String::Contains(const char *String)
+bool CSG_String::Contains(const char *String)
 {
 	return( m_pString->Contains(String) );
 }
@@ -376,52 +422,27 @@ bool CAPI_String::Contains(const char *String)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CAPI_String CAPI_String::AfterFirst(char Character) const
+CSG_String CSG_String::AfterFirst(char Character) const
 {
-	return( CAPI_String(m_pString->AfterFirst(Character).c_str()) );
+	return( CSG_String(m_pString->AfterFirst(Character).c_str()) );
 }
 
 //---------------------------------------------------------
-CAPI_String CAPI_String::AfterLast(char Character) const
+CSG_String CSG_String::AfterLast(char Character) const
 {
-	return( CAPI_String(m_pString->AfterLast(Character).c_str()) );
+	return( CSG_String(m_pString->AfterLast(Character).c_str()) );
 }
 
 //---------------------------------------------------------
-CAPI_String CAPI_String::BeforeFirst(char Character) const
+CSG_String CSG_String::BeforeFirst(char Character) const
 {
-	return( CAPI_String(m_pString->BeforeFirst(Character).c_str()) );
+	return( CSG_String(m_pString->BeforeFirst(Character).c_str()) );
 }
 
 //---------------------------------------------------------
-CAPI_String CAPI_String::BeforeLast(char Character) const
+CSG_String CSG_String::BeforeLast(char Character) const
 {
-	return( CAPI_String(m_pString->BeforeLast(Character).c_str()) );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CAPI_String CAPI_String::Right(size_t count) const
-{
-	return( CAPI_String(m_pString->Right(count).c_str()) );
-}
-
-//---------------------------------------------------------
-CAPI_String CAPI_String::Mid(size_t first, size_t count) const
-{
-	return( CAPI_String(m_pString->Mid(first, count).c_str()) );
-}
-
-//---------------------------------------------------------
-CAPI_String CAPI_String::Left(size_t count) const
-{
-	return( CAPI_String(m_pString->Left(count).c_str()) );
+	return( CSG_String(m_pString->BeforeLast(Character).c_str()) );
 }
 
 
@@ -432,7 +453,32 @@ CAPI_String CAPI_String::Left(size_t count) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CAPI_String::asInt(void)
+CSG_String CSG_String::Right(size_t count) const
+{
+	return( CSG_String(m_pString->Right(count).c_str()) );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_String::Mid(size_t first, size_t count) const
+{
+	return( CSG_String(m_pString->Mid(first, count).c_str()) );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_String::Left(size_t count) const
+{
+	return( CSG_String(m_pString->Left(count).c_str()) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CSG_String::asInt(void) const
 {
 	int		Value	= 0;
 
@@ -443,7 +489,7 @@ int CAPI_String::asInt(void)
 //	return( asInt(Value) ? Value : 0 );
 }
 
-bool CAPI_String::asInt(int &Value)
+bool CSG_String::asInt(int &Value) const
 {
 	long	lValue;
 
@@ -458,7 +504,7 @@ bool CAPI_String::asInt(int &Value)
 }
 
 //---------------------------------------------------------
-double CAPI_String::asDouble(void)
+double CSG_String::asDouble(void) const
 {
 	double	Value	= 0.0;
 
@@ -469,7 +515,7 @@ double CAPI_String::asDouble(void)
 //	return( asDouble(Value) ? Value : 0.0 );
 }
 
-bool CAPI_String::asDouble(double &Value)
+bool CSG_String::asDouble(double &Value) const
 {
 	return( m_pString->ToDouble(&Value) );
 }
@@ -482,58 +528,14 @@ bool CAPI_String::asDouble(double &Value)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CAPI_String		operator + (const CAPI_String &x, const CAPI_String &y)
-{
-	CAPI_String	s(x), sy(y);
-
-	s	+= sy;
-
-	return( s );
-}
-
-CAPI_String		operator + (const CAPI_String &x, const char *y)
-{
-	CAPI_String	s(x);
-
-	s	+= y;
-
-	return( s );
-}
-
-CAPI_String		operator + (const CAPI_String &x, char y)
-{
-	CAPI_String	s(x);
-
-	s	+= y;
-
-	return( s );
-}
-
-CAPI_String		operator + (const char *x, const CAPI_String &y)
-{
-	CAPI_String	s(x), sy(y);
-
-	s	+= sy;
-
-	return( s );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CAPI_Strings::CAPI_Strings(void)
+CSG_Strings::CSG_Strings(void)
 {
 	m_nStrings	= 0;
 	m_Strings	= NULL;
 }
 
 //---------------------------------------------------------
-CAPI_Strings::CAPI_Strings(const CAPI_Strings &Strings)
+CSG_Strings::CSG_Strings(const CSG_Strings &Strings)
 {
 	m_nStrings	= 0;
 	m_Strings	= NULL;
@@ -542,7 +544,7 @@ CAPI_Strings::CAPI_Strings(const CAPI_Strings &Strings)
 }
 
 //---------------------------------------------------------
-CAPI_Strings::CAPI_Strings(int nStrings, const char **Strings)
+CSG_Strings::CSG_Strings(int nStrings, const char **Strings)
 {
 	m_nStrings	= 0;
 	m_Strings	= NULL;
@@ -554,13 +556,13 @@ CAPI_Strings::CAPI_Strings(int nStrings, const char **Strings)
 }
 
 //---------------------------------------------------------
-CAPI_Strings::~CAPI_Strings(void)
+CSG_Strings::~CSG_Strings(void)
 {
 	Clear();
 }
 
 //---------------------------------------------------------
-void CAPI_Strings::Clear(void)
+void CSG_Strings::Clear(void)
 {
 	for(int i=0; i<m_nStrings; i++)
 	{
@@ -569,7 +571,7 @@ void CAPI_Strings::Clear(void)
 
 	if( m_Strings )
 	{
-		API_Free(m_Strings);
+		SG_Free(m_Strings);
 	}
 
 	m_nStrings	= 0;
@@ -577,7 +579,7 @@ void CAPI_Strings::Clear(void)
 }
 
 //---------------------------------------------------------
-bool CAPI_Strings::Assign(const CAPI_Strings &Strings)
+bool CSG_Strings::Assign(const CSG_Strings &Strings)
 {
 	Clear();
 
@@ -590,7 +592,7 @@ bool CAPI_Strings::Assign(const CAPI_Strings &Strings)
 }
 
 //---------------------------------------------------------
-CAPI_Strings & CAPI_Strings::operator  = (const CAPI_Strings &Strings)
+CSG_Strings & CSG_Strings::operator  = (const CSG_Strings &Strings)
 {
 	Assign(Strings);
 
@@ -598,17 +600,17 @@ CAPI_Strings & CAPI_Strings::operator  = (const CAPI_Strings &Strings)
 }
 
 //---------------------------------------------------------
-bool CAPI_Strings::Add(const CAPI_String &String)
+bool CSG_Strings::Add(const CSG_String &String)
 {
-	m_Strings	= (CAPI_String **)API_Realloc(m_Strings, (m_nStrings + 1) * sizeof(CAPI_String *));
-	m_Strings[m_nStrings]	= new CAPI_String(String);
+	m_Strings	= (CSG_String **)SG_Realloc(m_Strings, (m_nStrings + 1) * sizeof(CSG_String *));
+	m_Strings[m_nStrings]	= new CSG_String(String);
 	m_nStrings++;
 
 	return( true );
 }
 
 //---------------------------------------------------------
-bool CAPI_Strings::Set_Count(int nStrings)
+bool CSG_Strings::Set_Count(int nStrings)
 {
 	Clear();
 
@@ -628,9 +630,9 @@ bool CAPI_Strings::Set_Count(int nStrings)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CAPI_String		API_Get_CurrentTimeStr(bool bWithDate)
+CSG_String		SG_Get_CurrentTimeStr(bool bWithDate)
 {
-	CAPI_String	s;
+	CSG_String	s;
 	wxDateTime	t;
 
 	t.SetToCurrent();
@@ -654,12 +656,12 @@ CAPI_String		API_Get_CurrentTimeStr(bool bWithDate)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CAPI_String		API_Double2DegreeStr(double Value)
+CSG_String		SG_Double_To_Degree(double Value)
 {
 	char		c;
 	int			d, h;
 	double		s;
-	CAPI_String	String;
+	CSG_String	String;
 
 	if( Value < 0.0 )
 	{
@@ -684,10 +686,10 @@ CAPI_String		API_Double2DegreeStr(double Value)
 }
 
 //---------------------------------------------------------
-double			API_DegreeStr2Double(const char *String)
+double			SG_Degree_To_Double(const char *String)
 {
 	double		d, h, s, sig;
-	CAPI_String	sVal(String);
+	CSG_String	sVal(String);
 
 	sig	= 1.0;
 	d	= h	= s	= 0.0;
@@ -712,7 +714,7 @@ double			API_DegreeStr2Double(const char *String)
 }
 
 //---------------------------------------------------------
-CAPI_String		API_Double2DateStr(double Value)
+CSG_String		SG_Double_To_Date(double Value)
 {
 	int		y, m, d;
 
@@ -720,17 +722,17 @@ CAPI_String		API_Double2DateStr(double Value)
 	m	= (int)(Value / 100);	Value	-= m * 100;
 	d	= (int)(Value / 1);
 
-	return( CAPI_String::Format("%02d.%02d.%04d", d, m, y) );
+	return( CSG_String::Format("%02d.%02d.%04d", d, m, y) );
 }
 
 //---------------------------------------------------------
-double			API_DateStr2Double(const char *String)
+double			SG_Date_To_Double(const char *String)
 {
 	int			d, m, y;
 
 	if( String )
 	{
-		CAPI_String	s(String), sValue;
+		CSG_String	s(String), sValue;
 
 		sValue	= s.AfterLast	('.');
 		y		= sValue.asInt();
@@ -758,7 +760,7 @@ double			API_DateStr2Double(const char *String)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int				API_Get_Significant_Decimals(double Value, int maxDecimals)
+int				SG_Get_Significant_Decimals(double Value, int maxDecimals)
 {
 	int		Decimals;
 	double	Reminder;
@@ -788,9 +790,9 @@ int				API_Get_Significant_Decimals(double Value, int maxDecimals)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CAPI_String		API_Get_String(double Value, int Precision, bool bScientific)
+CSG_String		SG_Get_String(double Value, int Precision, bool bScientific)
 {
-	CAPI_String	s;
+	CSG_String	s;
 
 	s.Printf("%.*f", Precision, Value);
 

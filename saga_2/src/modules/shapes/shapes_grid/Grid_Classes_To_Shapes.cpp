@@ -152,14 +152,14 @@ void CGrid_Classes_To_Shapes::Discrete_Create(void)
 	int		x, y, ID;
 
 	//-----------------------------------------------------
-	Lock	= (int  **)API_Calloc(Get_NY()    , sizeof(int  *));
-	Area	= (char **)API_Calloc(Get_NY() + 1, sizeof(char *));
+	Lock	= (int  **)SG_Calloc(Get_NY()    , sizeof(int  *));
+	Area	= (char **)SG_Calloc(Get_NY() + 1, sizeof(char *));
 	for(y=0; y<Get_NY(); y++)
 	{
-		Lock[y]	= (int  *)API_Calloc(Get_NX()    , sizeof(int ));
-		Area[y]	= (char *)API_Calloc(Get_NX() + 1, sizeof(char));
+		Lock[y]	= (int  *)SG_Calloc(Get_NX()    , sizeof(int ));
+		Area[y]	= (char *)SG_Calloc(Get_NX() + 1, sizeof(char));
 	}
-	Area[Get_NY()]	= (char *)API_Calloc(Get_NX() + 1, sizeof(char));
+	Area[Get_NY()]	= (char *)SG_Calloc(Get_NX() + 1, sizeof(char));
 
 	//-----------------------------------------------------
 	for(y=0, ID=1; y<Get_NY() && Set_Progress(y); y++)
@@ -178,13 +178,13 @@ void CGrid_Classes_To_Shapes::Discrete_Create(void)
 	//-----------------------------------------------------
 	for(y=0; y<Get_NY(); y++)
 	{
-		API_Free(Lock[y]);
-		API_Free(Area[y]);
+		SG_Free(Lock[y]);
+		SG_Free(Area[y]);
 	}
 
-	API_Free(Area[Get_NY()]);
-	API_Free(Lock);
-	API_Free(Area);
+	SG_Free(Area[Get_NY()]);
+	SG_Free(Lock);
+	SG_Free(Area);
 }
 
 //---------------------------------------------------------
@@ -227,9 +227,9 @@ void CGrid_Classes_To_Shapes::Discrete_Lock(int x, int y, int ID)
 			if( nStack <= iStack )
 			{
 				nStack	+= 50;
-				goStack	= (char *)API_Realloc(goStack	,nStack * sizeof(char));
-				xStack	= (int  *)API_Realloc(xStack	,nStack * sizeof(int ));
-				yStack	= (int  *)API_Realloc(yStack	,nStack * sizeof(int ));
+				goStack	= (char *)SG_Realloc(goStack	,nStack * sizeof(char));
+				xStack	= (int  *)SG_Realloc(xStack	,nStack * sizeof(int ));
+				yStack	= (int  *)SG_Realloc(yStack	,nStack * sizeof(int ));
 			}
 
 			goStack[iStack]	= 0;
@@ -319,9 +319,9 @@ void CGrid_Classes_To_Shapes::Discrete_Lock(int x, int y, int ID)
 	//-----------------------------------------------------
 	if(goStack)
 	{
-		API_Free(goStack);
-		API_Free(xStack);
-		API_Free(yStack);
+		SG_Free(goStack);
+		SG_Free(xStack);
+		SG_Free(yStack);
 	}
 }
 

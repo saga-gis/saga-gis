@@ -89,7 +89,7 @@ CFlow_AreaUpslope::~CFlow_AreaUpslope(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CAPI_String CFlow_AreaUpslope::Get_Description(void)
+CSG_String CFlow_AreaUpslope::Get_Description(void)
 {
 	return(
 		_TL(
@@ -123,9 +123,9 @@ CAPI_String CFlow_AreaUpslope::Get_Description(void)
 }
 
 //---------------------------------------------------------
-CAPI_String CFlow_AreaUpslope::Get_Methods(void)
+CSG_String CFlow_AreaUpslope::Get_Methods(void)
 {
-	return( CAPI_String::Format("%s|%s|%s|",
+	return( CSG_String::Format("%s|%s|%s|",
 		_TL("Deterministic 8"),
 		_TL("Deterministic Infinity"),
 		_TL("Multiple Flow Direction")
@@ -211,7 +211,7 @@ bool CFlow_AreaUpslope::Get_Area(void)
 
 	if( m_pDTM && m_pFlow )
 	{
-		for(i=0; i<m_pDTM->Get_NCells() && API_Callback_Process_Set_Progress(i, m_pDTM->Get_NCells()); i++)
+		for(i=0; i<m_pDTM->Get_NCells() && SG_Callback_Process_Set_Progress(i, m_pDTM->Get_NCells()); i++)
 		{
 			m_pDTM->Get_Sorted(i, x, y, false);
 
@@ -221,7 +221,7 @@ bool CFlow_AreaUpslope::Get_Area(void)
 			}
 		}
 
-		for(i++; i<m_pDTM->Get_NCells() && API_Callback_Process_Set_Progress(i, m_pDTM->Get_NCells()); i++)
+		for(i++; i<m_pDTM->Get_NCells() && SG_Callback_Process_Set_Progress(i, m_pDTM->Get_NCells()); i++)
 		{
 			m_pDTM->Get_Sorted(i, x, y, false);
 
@@ -379,7 +379,7 @@ CFlow_AreaUpslope_Interactive::CFlow_AreaUpslope_Interactive(void)
 	Set_Name		(_TL("Upslope Area"));
 	Set_Author		(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description	(CAPI_String::Format("%s_______\n%s", m_Calculator.Get_Description().c_str(),
+	Set_Description	(CSG_String::Format("%s_______\n%s", m_Calculator.Get_Description().c_str(),
 		_TL("Interactive version (left mouse clicks will trigger the calculation for the selected cell).")
 	));
 
@@ -429,7 +429,7 @@ bool CFlow_AreaUpslope_Interactive::On_Execute(void)
 		Parameters("AREA")		->asGrid(),
 		Parameters("CONVERGE")	->asDouble()	) )
 	{
-		CColors	Colors;
+		CSG_Colors	Colors;
 		Colors.Set_Palette(COLORS_PALETTE_WHITE_BLUE);
 		DataObject_Set_Colors(Parameters("AREA")->asGrid(), Colors);
 
@@ -446,7 +446,7 @@ bool CFlow_AreaUpslope_Interactive::On_Execute_Finish(void)
 }
 
 //---------------------------------------------------------
-bool CFlow_AreaUpslope_Interactive::On_Execute_Position(CGEO_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CFlow_AreaUpslope_Interactive::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
 {
 	if(	Mode == MODULE_INTERACTIVE_LDOWN && m_Calculator.Get_Area(Get_xGrid(), Get_yGrid()) )
 	{
@@ -471,7 +471,7 @@ CFlow_AreaUpslope_Area::CFlow_AreaUpslope_Area(void)
 	Set_Name		(_TL("Upslope Area"));
 	Set_Author		(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description	(CAPI_String::Format("%s_______\n%s", m_Calculator.Get_Description().c_str(),
+	Set_Description	(CSG_String::Format("%s_______\n%s", m_Calculator.Get_Description().c_str(),
 		_TL("This version uses all valid cells (not \'no data\' values) of given target grid to determine the contributing area.")
 	));
 
@@ -550,7 +550,7 @@ bool CFlow_AreaUpslope_Area::On_Execute(void)
 			{
 				m_Calculator.Get_Area();
 
-				CColors	Colors;
+				CSG_Colors	Colors;
 				Colors.Set_Palette(COLORS_PALETTE_WHITE_BLUE);
 				DataObject_Set_Colors(Parameters("AREA")->asGrid(), Colors);
 			}

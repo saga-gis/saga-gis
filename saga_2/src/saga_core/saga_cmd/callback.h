@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-PFNC_Callback	Get_Callback	(void);
+TSG_PFNC_Callback	Get_Callback	(void);
 
 void			Set_Library		(class CModule_Library *pLibrary);
 

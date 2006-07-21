@@ -180,11 +180,11 @@ bool CForecasting::AssignParameters(){
     Fire_FlameLengthTable(m_Catalog, 500, 0.1);
 
 	if (!m_pBaseProbabilityGrid){
-		m_pBaseProbabilityGrid = API_Create_Grid(m_pDEM, GRID_TYPE_Double);
+		m_pBaseProbabilityGrid = SG_Create_Grid(m_pDEM, GRID_TYPE_Double);
 		m_pBaseProbabilityGrid->Assign(1);
 	}//if
 	if (!m_pValueGrid){
-		m_pValueGrid = API_Create_Grid(m_pDEM, GRID_TYPE_Double);
+		m_pValueGrid = SG_Create_Grid(m_pDEM, GRID_TYPE_Double);
 		m_pValueGrid->Assign(1);
 	}//if
 
@@ -225,8 +225,8 @@ bool CForecasting::AssignParameters(){
 	// calculate slope and aspect using CGrid class'
 	// built-in function (after Zevenbergen & Thorne)...
 
-	m_pSlopeGrid	= API_Create_Grid(m_pDEM, GRID_TYPE_Double);
-	m_pAspectGrid	= API_Create_Grid(m_pDEM, GRID_TYPE_Double);
+	m_pSlopeGrid	= SG_Create_Grid(m_pDEM, GRID_TYPE_Double);
+	m_pAspectGrid	= SG_Create_Grid(m_pDEM, GRID_TYPE_Double);
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{		
@@ -249,7 +249,7 @@ bool CForecasting::AssignParameters(){
 
 
 	//-----------------------------------------------------
-	m_pTimeGrid = API_Create_Grid(m_pDEM, GRID_TYPE_Double);
+	m_pTimeGrid = SG_Create_Grid(m_pDEM, GRID_TYPE_Double);
 
 	m_pTimeGrid->Assign((double)0);
 	m_pDangerGrid->Assign((double)0);
@@ -269,7 +269,7 @@ void CForecasting::CalculateGrids(){
 	int iRecommendedNumFires;
 	double dDanger;
 	double dTotalBurntArea = 0;
-	CAPI_String sMessage;
+	CSG_String sMessage;
 
 	m_CentralPoints	.Clear();
 	m_AdjPoints		.Clear();
@@ -314,8 +314,10 @@ void CForecasting::CalculateGrids(){
 	float dRatio = (float)(dTotalBurntArea / (m_pDEM->Get_Cellsize() * m_pDEM->Get_Cellsize()));
 	if (dRatio < MIN_RATIO_BURNT_AREA){
 		iRecommendedNumFires =(int)((float) m_iNumEvents / dRatio * (float) MIN_RATIO_BURNT_AREA);
-		sMessage = _TL("** Warning : Number of events might not be representative.\n"
-					"Minimum number recommended: ") + API_Get_String(iRecommendedNumFires, 0) + "\n";
+		sMessage.Printf(_TL("** Warning : Number of events might not be representative.\n"
+					"Minimum number recommended: "));
+		sMessage	+= SG_Get_String(iRecommendedNumFires, 0);
+		sMessage	+= "\n";
 		Message_Add(sMessage.c_str());
 	}//if
 

@@ -41,8 +41,8 @@ private:
 	double					m_dK;
 	double					m_dThreshold;
 
-	CAPI_iPoints			m_CentralPoints;
-	CAPI_iPoints			m_AdjPoints;
+	CSG_Points_Int			m_CentralPoints;
+	CSG_Points_Int			m_AdjPoints;
 
 	CGrid					*m_pCostGrid;
 	CGrid					*m_pDirectionGrid;

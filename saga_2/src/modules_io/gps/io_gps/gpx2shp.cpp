@@ -79,10 +79,10 @@ CGPX2SHP::~CGPX2SHP(){
 
 bool CGPX2SHP::On_Execute(void){
 
-	CAPI_String sCmd;
-	CAPI_String sFile = Parameters("FILE")->asString();
-	CAPI_String sBasePath = Parameters("BASEPATH")->asString();
-	CAPI_String sShapefile;
+	CSG_String sCmd;
+	CSG_String sFile = Parameters("FILE")->asString();
+	CSG_String sBasePath = Parameters("BASEPATH")->asString();
+	CSG_String sShapefile;
 	bool bWaypoints = Parameters("WAYPOINTS")->asBool();
 	bool bTrackpoints = Parameters("TRACKPOINTS")->asBool();
 	bool bRoutes = Parameters("ROUTES")->asBool();
@@ -107,15 +107,15 @@ bool CGPX2SHP::On_Execute(void){
 
 	if (bAdd){
 		if (bWaypoints){
-			pShapes	= API_Create_Shapes(API_Make_File_Path(NULL, sFile, "_wpt.shp"));
+			pShapes	= SG_Create_Shapes(SG_File_Make_Path(NULL, sFile, "_wpt.shp"));
 			DataObject_Add(pShapes, false);
 		}//if
 		if (bTrackpoints){
-			pShapes	= API_Create_Shapes(API_Make_File_Path(NULL, sFile, "_trk.shp"));
+			pShapes	= SG_Create_Shapes(SG_File_Make_Path(NULL, sFile, "_trk.shp"));
 			DataObject_Add(pShapes, false);
 		}//if
 		if (bRoutes){
-			pShapes	= API_Create_Shapes(API_Make_File_Path(NULL, sFile, "_rte.shp"));
+			pShapes	= SG_Create_Shapes(SG_File_Make_Path(NULL, sFile, "_rte.shp"));
 			DataObject_Add(pShapes, false);
 		}//if					
 	}//if

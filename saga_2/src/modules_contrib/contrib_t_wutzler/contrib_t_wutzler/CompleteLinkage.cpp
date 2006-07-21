@@ -219,22 +219,22 @@ bool CCompleteLinkage::On_Execute(void){
 	pMinDistDir		= Parameters("MinDistDirGrid")->asGrid();
 
 	if( pMinDist == NULL ){
-		pMinDist = API_Create_Grid(GRID_TYPE_Double, Get_NX(), Get_NY(), Get_Cellsize());
+		pMinDist = SG_Create_Grid(GRID_TYPE_Double, Get_NX(), Get_NY(), Get_Cellsize());
 		pMinDist->Set_Name("MinDist");
 	}
 	if( pMinDistDir == NULL ){
-		pMinDistDir = API_Create_Grid( GRID_TYPE_Double, Get_NX(), Get_NY(), Get_Cellsize());
+		pMinDistDir = SG_Create_Grid( GRID_TYPE_Double, Get_NX(), Get_NY(), Get_Cellsize());
 		pMinDistDir->Set_Name("MinDistDir");
 	}
  
 	//-------------  Region Grids ---------------	
 	{int rnx = ceil( Get_NX() / (double) regionExtent ); // without (double) its an integer division
 	int rny = ceil( Get_NY() / (double) regionExtent );
-	pRegionMinDistGrid = API_Create_Grid(GRID_TYPE_Double, rnx, rny, Get_Cellsize()*regionExtent);
+	pRegionMinDistGrid = SG_Create_Grid(GRID_TYPE_Double, rnx, rny, Get_Cellsize()*regionExtent);
 	pRegionMinDistGrid->Set_Name("MinDist Region");
-	pRegionMinPixelGrid = API_Create_Grid(GRID_TYPE_Long, rnx, rny, Get_Cellsize()*regionExtent);
+	pRegionMinPixelGrid = SG_Create_Grid(GRID_TYPE_Long, rnx, rny, Get_Cellsize()*regionExtent);
 	pRegionMinPixelGrid->Set_Name("Regions MinPixel");
-	pRegionNdvCntGrid = API_Create_Grid(GRID_TYPE_Long, rnx, rny, Get_Cellsize()*regionExtent);
+	pRegionNdvCntGrid = SG_Create_Grid(GRID_TYPE_Long, rnx, rny, Get_Cellsize()*regionExtent);
 	pRegionNdvCntGrid->Set_Name("Regions Count of No-DataValue-Pixels");
 	}
 
@@ -588,7 +588,7 @@ double CCompleteLinkage::calculateEucledianDistance(int x1, int y1, int x2, int 
 CGrid *CCompleteLinkage::copyGrid(CGrid *fromGrid, TGrid_Type gridType){
 	int x,y;
 	CGrid *targetGrid;
-	targetGrid = API_Create_Grid(gridType, Get_NX(), Get_NY(), Get_Cellsize());
+	targetGrid = SG_Create_Grid(gridType, Get_NX(), Get_NY(), Get_Cellsize());
 	for(y=0; y<Get_NY();  y++){
 		for(x=0; x<Get_NX(); x++){
 			switch( gridType ) {
@@ -792,7 +792,7 @@ void CCompleteLinkage::removeOrphantClasses(
 	int x,y;
 	
 	// clear oprhants Grid
-	//pOrphantsGrid = API_Create_Grid(GRID_TYPE_Double, Get_NX(), Get_NY(), Get_Cellsize()); input parameter
+	//pOrphantsGrid = SG_Create_Grid(GRID_TYPE_Double, Get_NX(), Get_NY(), Get_Cellsize()); input parameter
 	if( pOrphantsGrid != NULL ){
 		double ndv = pOrphantsGrid->Get_NoData_Value();
 		for(y=0; y<Get_NY(); y++){
@@ -1603,7 +1603,7 @@ void CCompleteLinkage::checkOutput(long step){
 	for( int i = 0; i < MAX_OUTPUT_GRIDS; i++ ){
 		if( (pOutputGridAdd[i] != NULL) && (step == outputStep[i])){
 			pOutputGridAdd[i]->Assign( pClassGrid );
-			CColors colors;
+			CSG_Colors colors;
 			DataObject_Get_Colors( pOutputGridAdd[i], colors );
 			colors.Random();
 			DataObject_Set_Colors( pOutputGridAdd[i], colors );

@@ -39,7 +39,7 @@ private:
 	void AddPieChart(CShape*, int);
 	void AddBarChart(CShape*, int);
 	bool GetExtraParameters();
-	TGEO_Point GetLineMidPoint(CShape_Line*);
+	TSG_Point GetLineMidPoint(CShape_Line*);
 
 protected:
 	virtual bool On_Execute(void);

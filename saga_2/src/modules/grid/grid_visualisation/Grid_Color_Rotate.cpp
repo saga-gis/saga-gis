@@ -102,7 +102,7 @@ bool CGrid_Color_Rotate::On_Execute(void)
 	int		i;
 	long	c;
 	CGrid	*pGrid;
-	CColors	*pColors;
+	CSG_Colors	*pColors;
 
 	pGrid	= Parameters("GRID")->asGrid();
 	pColors	= Parameters("COLORS")->asColors();

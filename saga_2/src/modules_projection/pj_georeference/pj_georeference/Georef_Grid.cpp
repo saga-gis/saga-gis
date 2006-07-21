@@ -136,7 +136,7 @@ CGeoref_Grid::CGeoref_Grid(void)
 		"TARGET_TYPE"	, _TL("Target"),
 		"",
 
-		CAPI_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|",
 			_TL("User defined"),
 			_TL("Automatic fit"),
 			_TL("Grid Project"),
@@ -149,7 +149,7 @@ CGeoref_Grid::CGeoref_Grid(void)
 		Parameters("TARGET_NODE")	, "INTERPOLATION"	, _TL("Grid Interpolation"),
 		"",
 
-		CAPI_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|",
 			_TL("Nearest Neigbhor"),
 			_TL("Bilinear Interpolation"),
 			_TL("Inverse Distance Interpolation"),
@@ -169,7 +169,7 @@ CGeoref_Grid::CGeoref_Grid(void)
 	pParameters->Add_Choice(
 		NULL, "AUTOEXTMODE"	, _TL("Fit Size")	, "",
 
-		CAPI_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s|",
 			_TL("Extent only (fast)"),
 			_TL("Check each point")
 		), 0
@@ -381,7 +381,7 @@ bool CGeoref_Grid::Get_Conversion(void)
 	case 2:	// select grid project...
 		if( Dlg_Extra_Parameters("GET_GRID") )
 		{
-			pGrid	= API_Create_Grid(
+			pGrid	= SG_Create_Grid(
 						Get_Extra_Parameters("GET_GRID")->Get_Parameter("GRID")->asGrid()
 					);
 		}
@@ -438,7 +438,7 @@ CGrid * CGeoref_Grid::Get_Target_Userdef(CGrid *pSource, TGrid_Type Type)
 {
 	int			x, y;
 	double		xMin, yMin, xMax, yMax, size;
-	TGEO_Point	Pt_Source;
+	TSG_Point	Pt_Source;
 	CGrid		*pTarget;
 	CParameters	*pParameters;
 
@@ -486,7 +486,7 @@ CGrid * CGeoref_Grid::Get_Target_Userdef(CGrid *pSource, TGrid_Type Type)
 			{
 				size	= pParameters->Get_Parameter("SIZE")->asDouble();
 
-				pTarget	= API_Create_Grid(
+				pTarget	= SG_Create_Grid(
 					Type,
 					pParameters->Get_Parameter("NX")->asInt(),
 					pParameters->Get_Parameter("NY")->asInt(),
@@ -506,7 +506,7 @@ CGrid * CGeoref_Grid::Get_Target_Autofit(CGrid *pSource, double Grid_Size, int A
 {
 	int			x, y;
 	double		xMin, yMin, xMax, yMax;
-	TGEO_Point	Pt_Source;
+	TSG_Point	Pt_Source;
 	CGrid		*pTarget;
 
 	pTarget	= NULL;
@@ -559,7 +559,7 @@ CGrid * CGeoref_Grid::Get_Target_Autofit(CGrid *pSource, double Grid_Size, int A
 		//---------------------------------------------
 		if( is_Progress() && xMin < xMax && yMin < yMax )
 		{
-			pTarget	= API_Create_Grid(
+			pTarget	= SG_Create_Grid(
 				Type,
 				1 + (int)((xMax - xMin) / Grid_Size),
 				1 + (int)((yMax - yMin) / Grid_Size),
@@ -573,7 +573,7 @@ CGrid * CGeoref_Grid::Get_Target_Autofit(CGrid *pSource, double Grid_Size, int A
 }
 
 //---------------------------------------------------------
-inline void CGeoref_Grid::Get_MinMax(double &xMin, double &xMax, double &yMin, double &yMax, TGEO_Point Point)
+inline void CGeoref_Grid::Get_MinMax(double &xMin, double &xMax, double &yMin, double &yMax, TSG_Point Point)
 {
 	if( m_Engine.Get_Converted(Point) )
 	{
@@ -617,7 +617,7 @@ bool CGeoref_Grid::Set_Grid(CGrid *pSource, CGrid *pTarget, int Interpolation)
 {
 	int			x, y;
 	double		z;
-	TGEO_Point	Pt_Source, Pt_Target;
+	TSG_Point	Pt_Source, Pt_Target;
 
 	if( pSource && pTarget )
 	{
@@ -661,7 +661,7 @@ bool CGeoref_Grid::Set_Grid(CGrid *pSource, CGrid *pTarget, int Interpolation)
 bool CGeoref_Grid::Set_Shapes(CGrid *pSource, CShapes *pTarget)
 {
 	int			x, y;
-	TGEO_Point	Pt_Source, Pt_Target;
+	TSG_Point	Pt_Source, Pt_Target;
 	CShape		*pShape;
 
 	if( pSource && pTarget )

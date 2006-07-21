@@ -83,7 +83,7 @@ private:
 
 	E00ReadPtr				hReadPtr;
 
-	CAPI_String				e00_Name;
+	CSG_String				e00_Name;
 
 	CTable					*pPAT, *pAAT;
 

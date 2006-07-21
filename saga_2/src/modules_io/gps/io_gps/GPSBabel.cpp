@@ -18,7 +18,7 @@
 *******************************************************************************/
 #include "GPSBabel.h"
 
-CAPI_String	sGPSBabelID[]	=
+CSG_String	sGPSBabelID[]	=
 {
 	"geo",
 	"gpsman",
@@ -140,10 +140,10 @@ CGPSBabel::~CGPSBabel(){
 
 bool CGPSBabel::On_Execute(void){
 
-	CAPI_String sCmd;
-	CAPI_String sInputFile = Parameters("INPUT")->asString();
-	CAPI_String sOutputFile = Parameters("OUTPUT")->asString();
-	CAPI_String sBasePath = Parameters("BASEPATH")->asString();
+	CSG_String sCmd;
+	CSG_String sInputFile = Parameters("INPUT")->asString();
+	CSG_String sOutputFile = Parameters("OUTPUT")->asString();
+	CSG_String sBasePath = Parameters("BASEPATH")->asString();
 	int iInputFormat = Parameters("FORMATIN")->asInt();
 	int iOutputFormat = Parameters("FORMATOUT")->asInt();
 

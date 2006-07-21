@@ -74,25 +74,25 @@
 #ifndef _WINDOWS_
 
 //---------------------------------------------------------
-void *		API_Malloc(size_t size)
+void *		SG_Malloc(size_t size)
 {
 	return( malloc(size) );
 }
 
 //---------------------------------------------------------
-void *		API_Calloc(size_t num, size_t size)
+void *		SG_Calloc(size_t num, size_t size)
 {
 	return( calloc(num, size) );
 }
 
 //---------------------------------------------------------
-void *		API_Realloc(void *memblock, size_t new_size)
+void *		SG_Realloc(void *memblock, size_t new_size)
 {
 	return( realloc(memblock, new_size) );
 }
 
 //---------------------------------------------------------
-void		API_Free(void *memblock)
+void		SG_Free(void *memblock)
 {
 	if( memblock )
 	{
@@ -114,17 +114,17 @@ void		API_Free(void *memblock)
 
 #else	// ifndef _WINDOWS_
 
-void *		API_Malloc(size_t size)
+void *		SG_Malloc(size_t size)
 {
 	return( HeapAlloc(GetProcessHeap(), 0, size) );
 }
 
-void *		API_Calloc(size_t num, size_t size)
+void *		SG_Calloc(size_t num, size_t size)
 {
 	return( HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, num * size) );
 }
 
-void *		API_Realloc(void *memblock, size_t new_size)
+void *		SG_Realloc(void *memblock, size_t new_size)
 {
 	if( new_size > 0 )
 	{
@@ -139,13 +139,13 @@ void *		API_Realloc(void *memblock, size_t new_size)
 	}
 	else
 	{
-		API_Free(memblock);
+		SG_Free(memblock);
 
 		return( NULL );
 	}
 }
 
-void		API_Free(void *memblock)
+void		SG_Free(void *memblock)
 {
 	if( memblock )
 	{
@@ -163,7 +163,7 @@ void		API_Free(void *memblock)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void			API_Swap_Bytes(void *Value, int nValueBytes)
+void			SG_Swap_Bytes(void *Value, int nValueBytes)
 {
 	char	Byte, *pA, *pB;
 

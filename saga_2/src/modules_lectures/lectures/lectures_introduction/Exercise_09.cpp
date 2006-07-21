@@ -116,7 +116,7 @@ bool CExercise_09::On_Execute(void)
 {
 	int		x, y;
 	CGrid	*pDTM;
-	CColors	Colors;
+	CSG_Colors	Colors;
 
 	//-----------------------------------------------------
 	// Get parameter settings...

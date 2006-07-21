@@ -158,7 +158,7 @@ bool CFlow::On_Execute(void)
 	bool	bResult	= false;
 	long	n;
 	double	d;
-	CColors	Colors;
+	CSG_Colors	Colors;
 
 	//-------------------------------------------------
 	pDTM			= Parameters("ELEVATION")	->asGrid();
@@ -202,7 +202,7 @@ bool CFlow::On_Execute(void)
 	if( pCatch_Aspect )
 	{
 		pCatch_Aspect	->Assign(0.0);
-		pCatch_AspectY	 = API_Create_Grid(pCatch_Aspect);
+		pCatch_AspectY	 = SG_Create_Grid(pCatch_Aspect);
 	}
 
 	if( pFlowPath )

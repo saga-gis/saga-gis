@@ -120,7 +120,7 @@ CGet_Table::CGet_Table(void)
 	);
 
 	//-----------------------------------------------------
-	m_DSN	= (char *)API_Malloc((1 + SQL_MAX_DSN_LENGTH) * sizeof(char));
+	m_DSN	= (char *)SG_Malloc((1 + SQL_MAX_DSN_LENGTH) * sizeof(char));
 
 	_Initialize();
 }
@@ -132,7 +132,7 @@ CGet_Table::~CGet_Table(void)
 
 	wxDELETE(m_DBC_Inf);
 
-	API_Free(m_DSN);
+	SG_Free(m_DSN);
 }
 
 
@@ -292,8 +292,8 @@ bool CGet_Table::_Get_Data(CTable *pTable, wxDbTable *pDBTable)
 	//-----------------------------------------------------
 	if( (nFields = pDBTable->GetNumberOfColumns()) > 0 )
 	{
-		Values		= (char **)API_Malloc(nFields * sizeof(char *));
-		Values[0]	= (char  *)API_Malloc(nFields * 256 * sizeof(char));
+		Values		= (char **)SG_Malloc(nFields * sizeof(char *));
+		Values[0]	= (char  *)SG_Malloc(nFields * 256 * sizeof(char));
 		pTable->Destroy();
 
 		ColDefs		= pDBTable->GetDb()->GetColumns(pDBTable->GetTableName(), &numCols);
@@ -342,8 +342,8 @@ bool CGet_Table::_Get_Data(CTable *pTable, wxDbTable *pDBTable)
 		}
 
 		//-----------------------------------------------------
-		API_Free(Values[0]);
-		API_Free(Values);
+		SG_Free(Values[0]);
+		SG_Free(Values);
 
 		return( pTable->Get_Record_Count() > 0 );
 	}

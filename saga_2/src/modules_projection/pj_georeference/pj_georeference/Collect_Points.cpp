@@ -146,7 +146,7 @@ bool CCollect_Points::On_Execute(void)
 }
 
 //---------------------------------------------------------
-bool CCollect_Points::On_Execute_Position(CGEO_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CCollect_Points::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
 {
 	if( Mode == MODULE_INTERACTIVE_LDOWN && Dlg_Extra_Parameters("REFERENCE") )
 	{

@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 #include "CreateWebContent.h"
-#include <saga_api/html_document.h>
+#include <saga_api/doc_html.h>
 
 CCreateWebContent::CCreateWebContent(void)
 {
@@ -64,18 +64,18 @@ bool CCreateWebContent::On_Execute(void)
 	m_pShapes->Get_Table().Add_Field("HTML", TABLE_FIELDTYPE_String);
 	m_iField = m_pShapes->Get_Table().Get_Field_Count() - 1;
 	
-	m_Pictures = new std::vector<CAPI_String> [m_pShapes->Get_Count()];
-	m_Links = new std::vector<CAPI_String> [m_pShapes->Get_Count()];
-	m_LinksDescription = new std::vector<CAPI_String> [m_pShapes->Get_Count()];
+	m_Pictures = new std::vector<CSG_String> [m_pShapes->Get_Count()];
+	m_Links = new std::vector<CSG_String> [m_pShapes->Get_Count()];
+	m_LinksDescription = new std::vector<CSG_String> [m_pShapes->Get_Count()];
 
 	return true ;
 }
 
-bool CCreateWebContent::On_Execute_Position(CGEO_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CCreateWebContent::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
 {
 	int i;
 	int iIndex, iShape;
-	CGEO_Rect r;
+	CSG_Rect r;
 
 	switch( Mode ){
 	case MODULE_INTERACTIVE_LDOWN:
@@ -108,8 +108,8 @@ bool CCreateWebContent::On_Execute_Position(CGEO_Point ptWorld, TModule_Interact
 
 	case MODULE_INTERACTIVE_RDOWN:
 
-		CAPI_String	sFileName;
-		CAPI_Strings	files;
+		CSG_String	sFileName;
+		CSG_Strings	files;
 		CParameters	dlg_files;
 		dlg_files.Add_FilePath(NULL, "FILES", _TL("Files"), "", _TL("Images|*.bmp;*.jpg;*.png;*.tif|HTML Files|*.htm|All Files|*.*"), NULL, false, false, true);
 
@@ -120,19 +120,19 @@ bool CCreateWebContent::On_Execute_Position(CGEO_Point ptWorld, TModule_Interact
 				for (i = 0; i < files.Get_Count(); i++)
 				{
 					sFileName = "file://";
-					sFileName.Append((CAPI_String)files[i]);
-					if (API_Cmp_File_Extension (files[i],"htm")){						
-						m_LinksDescription[iIndex].push_back(API_Extract_File_Name(files[i], true));
+					sFileName.Append((CSG_String)files[i]);
+					if (SG_File_Cmp_Extension (files[i],"htm")){						
+						m_LinksDescription[iIndex].push_back(SG_File_Get_Name(files[i], true));
 						m_Links[iIndex].push_back(sFileName);
 					}//if
-					else if (API_Cmp_File_Extension (files[i],"bmp") 
-							|| API_Cmp_File_Extension (files[i],"jpg") 
-							|| API_Cmp_File_Extension (files[i],"png") 				
-							|| API_Cmp_File_Extension (files[i],"tif")){
+					else if (SG_File_Cmp_Extension (files[i],"bmp") 
+							|| SG_File_Cmp_Extension (files[i],"jpg") 
+							|| SG_File_Cmp_Extension (files[i],"png") 				
+							|| SG_File_Cmp_Extension (files[i],"tif")){
 						m_Pictures[iIndex].push_back(sFileName);
 					}//else
 				}				
-				sFileName = API_Make_File_Path(m_sOutputPath.c_str(), m_pShapes->Get_Shape(iIndex)->Get_Record()->asString(m_iNameField), "htm");
+				sFileName = SG_File_Make_Path(m_sOutputPath.c_str(), m_pShapes->Get_Shape(iIndex)->Get_Record()->asString(m_iNameField), "htm");
 				m_pShapes->Get_Shape(iIndex)->Get_Record()->Set_Value(m_iField, sFileName);
 			}
 		}
@@ -147,8 +147,8 @@ bool CCreateWebContent::On_Execute_Position(CGEO_Point ptWorld, TModule_Interact
 bool CCreateWebContent::On_Execute_Finish(void){
 
 	int i,j;
-	CAPI_String sFileName;
-	CHTML_Document HTMLDoc;
+	CSG_String sFileName;
+	CDoc_HTML HTMLDoc;
 
 	for (i = 0; i < m_pShapes->Get_Count(); i++){
 		Set_Progress(i, m_pShapes->Get_Count());
@@ -168,7 +168,7 @@ bool CCreateWebContent::On_Execute_Finish(void){
 				HTMLDoc.AddLineBreak();
 			}//for
 
-			sFileName = API_Make_File_Path(m_sOutputPath.c_str(), m_pShapes->Get_Shape(i)->Get_Record()->asString(m_iNameField), "htm");
+			sFileName = SG_File_Make_Path(m_sOutputPath.c_str(), m_pShapes->Get_Shape(i)->Get_Record()->asString(m_iNameField), "htm");
 			HTMLDoc.Save(sFileName);
 		}//if
 

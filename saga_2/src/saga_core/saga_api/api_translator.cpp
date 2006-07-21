@@ -72,12 +72,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTranslator		API_Translator;
+CSG_Translator		gSG_Translator;
 
 //---------------------------------------------------------
-CTranslator *	API_Get_Translator(void)
+CSG_Translator *	SG_Get_Translator(void)
 {
-	return( &API_Translator );
+	return( &gSG_Translator );
 }
 
 
@@ -90,7 +90,7 @@ CTranslator *	API_Get_Translator(void)
 //---------------------------------------------------------
 const char *	LNG(const char *Text)
 {
-	return( API_Translator.Get_Translation(Text) );
+	return( gSG_Translator.Get_Translation(Text) );
 }
 
 
@@ -101,14 +101,14 @@ const char *	LNG(const char *Text)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTranslator::CTranslator(void)
+CSG_Translator::CSG_Translator(void)
 {
 	m_nTranslations	= 0;
 	m_Translations	= NULL;
 }
 
 //---------------------------------------------------------
-CTranslator::CTranslator(const char *File_Name, bool bSetExtension)
+CSG_Translator::CSG_Translator(const char *File_Name, bool bSetExtension)
 {
 	m_nTranslations	= 0;
 	m_Translations	= NULL;
@@ -117,20 +117,20 @@ CTranslator::CTranslator(const char *File_Name, bool bSetExtension)
 }
 
 //---------------------------------------------------------
-CTranslator::~CTranslator(void)
+CSG_Translator::~CSG_Translator(void)
 {
 	Destroy();
 }
 
 //---------------------------------------------------------
-void CTranslator::Destroy(void)
+void CSG_Translator::Destroy(void)
 {
 	for(int i=0; i<m_nTranslations; i++)
 	{
 		delete(m_Translations[i]);
 	}
 
-	API_Free(m_Translations);
+	SG_Free(m_Translations);
 
 	m_nTranslations	= 0;
 	m_Translations	= NULL;
@@ -144,17 +144,17 @@ void CTranslator::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTranslator::Create(const char *File_Name, bool bSetExtension)
+bool CSG_Translator::Create(const char *File_Name, bool bSetExtension)
 {
 	int			a, b;
 	FILE		*Stream;
-	CAPI_String	Line, Text, Translation, LNG_File;
+	CSG_String	Line, Text, Translation, LNG_File;
 
 	Destroy();
 
 	if( bSetExtension )
 	{
-		LNG_File	= API_Make_File_Path(NULL, File_Name, "lng");
+		LNG_File	= SG_File_Make_Path(NULL, File_Name, "lng");
 	}
 	else
 	{
@@ -163,7 +163,7 @@ bool CTranslator::Create(const char *File_Name, bool bSetExtension)
 
 	if( File_Name && (Stream = fopen(LNG_File, "r")) != NULL )
 	{
-		while( API_Read_Line(Stream, Line) )
+		while( SG_Read_Line(Stream, Line) )
 		{
 			if( Line.Find("ENTRY") >= 0 && (a = Line.Find('(')) >= 0 && (b = Line.Find(')', true)) >= 0 )
 			{
@@ -189,7 +189,7 @@ bool CTranslator::Create(const char *File_Name, bool bSetExtension)
 }
 
 //---------------------------------------------------------
-void CTranslator::_Add_Translation(const char *Text, const char *Translation)
+void CSG_Translator::_Add_Translation(const char *Text, const char *Translation)
 {
 	int		i, Insert;
 
@@ -198,7 +198,7 @@ void CTranslator::_Add_Translation(const char *Text, const char *Translation)
 	if( Insert == m_nTranslations || m_Translations[Insert]->m_Text.Cmp(Text) )
 	{
 		m_nTranslations++;
-		m_Translations	= (CTranslation **)API_Realloc(m_Translations, m_nTranslations * sizeof(CTranslation *));
+		m_Translations	= (CTranslation **)SG_Realloc(m_Translations, m_nTranslations * sizeof(CTranslation *));
 
 		for(i=m_nTranslations-1; i>Insert; i--)
 		{
@@ -217,7 +217,7 @@ void CTranslator::_Add_Translation(const char *Text, const char *Translation)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CTranslator::_Get_Index(const char *Text)
+int CSG_Translator::_Get_Index(const char *Text)
 {
 	int		a, b, i, c;
 
@@ -276,26 +276,26 @@ int CTranslator::_Get_Index(const char *Text)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char * CTranslator::Get_Text(int Index)
+const char * CSG_Translator::Get_Text(int Index)
 {
 	return( Index >= 0 && Index < m_nTranslations ? m_Translations[Index]->m_Text : "" );
 }
 
 //---------------------------------------------------------
-const char * CTranslator::Get_Translation(int Index)
+const char * CSG_Translator::Get_Translation(int Index)
 {
 	return( Index >= 0 && Index < m_nTranslations ? m_Translations[Index]->m_Translation : "" );
 }
 
 //---------------------------------------------------------
-const char * CTranslator::Get_Translation(const char *Text)
+const char * CSG_Translator::Get_Translation(const char *Text)
 {
 	if( Text )
 	{
 		if( m_nTranslations > 0 )
 		{
 			int			i;
-			CAPI_String	s(Text);
+			CSG_String	s(Text);
 
 			if( *Text == '{' )
 			{

@@ -46,7 +46,7 @@ CConstantGrid::~CConstantGrid(void)
 bool CConstantGrid::On_Execute(void){
 	
 	CGrid* pBaseGrid = Parameters("GRID")->asGrid(); 
-	CGrid* pGrid = API_Create_Grid(pBaseGrid);
+	CGrid* pGrid = SG_Create_Grid(pBaseGrid);
 	double dValue = Parameters("VALUE")->asDouble();
 
 	pGrid->Assign(dValue);

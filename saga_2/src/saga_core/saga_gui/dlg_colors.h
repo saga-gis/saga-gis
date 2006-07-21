@@ -84,7 +84,7 @@ class CDLG_Colors : public CDLG_Base
 	DECLARE_CLASS(CDLG_Colors)
 
 public:
-	CDLG_Colors(class CColors *pColors);
+	CDLG_Colors(class CSG_Colors *pColors);
 	virtual ~CDLG_Colors(void);
 
 	void						On_Load			(wxCommandEvent &event);
@@ -99,7 +99,7 @@ public:
 
 protected:
 
-	class CColors				*m_pColors, *m_pOriginal;
+	class CSG_Colors				*m_pColors, *m_pOriginal;
 
 	class CDLG_Colors_Control	*m_pControl;
 
