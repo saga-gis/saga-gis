@@ -102,7 +102,7 @@ CGridding_Spline_Base::CGridding_Spline_Base(void)
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Extra_Parameters("USER"	, _TL("User defined grid")	, "");
+	pParameters	= Add_Extra_Parameters("USER", _TL("User defined grid")	, "");
 
 	pParameters->Add_Value(
 		NULL	, "CELL_SIZE"	, _TL("Grid Size"),

@@ -451,15 +451,18 @@ bool CKriging_Base::_Get_Grid(void)
 			m_pVariance	= SG_Create_Grid(m_pGrid, GRID_TYPE_Float);
 		}
 
-		m_pGrid		->Set_Name(CSG_String::Format("%s (%s)", pShapes->Get_Name(), Get_Name()));
-		m_pGrid		->Assign_NoData();
-		Parameters("GRID")		->Set_Value(m_pGrid);
+		m_pGrid->Set_Name(CSG_String::Format("%s (%s)", pShapes->Get_Name(), Get_Name()));
+		Parameters("GRID")->Set_Value(m_pGrid);
 
 		if( m_pVariance )
 		{
-			m_pVariance	->Set_Name(CSG_String::Format("%s (%s - %s)", pShapes->Get_Name(), Get_Name(), _TL("Variance")));
-			m_pVariance	->Assign_NoData();
-			Parameters("VARIANCE")	->Set_Value(m_pVariance);
+			m_pVariance->Set_Name(CSG_String::Format("%s (%s - %s)", pShapes->Get_Name(), Get_Name(), _TL("Variance")));
+			Parameters("VARIANCE")->Set_Value(m_pVariance);
+		}
+
+		if( Parameters("TARGET")->asInt() == 2 )
+		{
+			Get_Extra_Parameters("GRID")->Get_Parameter("VARIANCE")->Set_Value(m_pVariance);
 		}
 	}
 

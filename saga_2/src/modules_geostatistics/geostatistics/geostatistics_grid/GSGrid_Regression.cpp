@@ -192,6 +192,8 @@ bool CGSGrid_Regression::On_Execute(void)
 	//-----------------------------------------------------
 	if( Get_Regression(pGrid, pShapes, pResiduals, iAttribute, Type) )
 	{
+		pRegression->Set_Name(CSG_String::Format("%s (%s)", pShapes->Get_Name(), Get_Name()));
+
 		Set_Regression(pGrid, pRegression);
 
 		Set_Residuals(pResiduals);

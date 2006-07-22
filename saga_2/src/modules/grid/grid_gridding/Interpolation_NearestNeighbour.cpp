@@ -70,11 +70,11 @@
 //---------------------------------------------------------
 CInterpolation_NearestNeighbour::CInterpolation_NearestNeighbour(void)
 {
-	Set_Name(_TL("Nearest Neighbour"));
+	Set_Name		(_TL("Nearest Neighbour"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TL(
 		"Nearest Neighbour method for grid interpolation from irregular distributed points.")
 	);
 }
@@ -91,22 +91,22 @@ CInterpolation_NearestNeighbour::~CInterpolation_NearestNeighbour(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CInterpolation_NearestNeighbour::Get_Grid_Value(int x, int y)
+bool CInterpolation_NearestNeighbour::On_Initialize(void)
 {
-	double	xPos, yPos;
-	CShape	*pShape;
+	return( Set_Search_Engine() );
+}
 
-	xPos	= pGrid->Get_XMin() + x * pGrid->Get_Cellsize();
-	yPos	= pGrid->Get_YMin() + y * pGrid->Get_Cellsize();
+//---------------------------------------------------------
+bool CInterpolation_NearestNeighbour::Get_Value(double x, double y, double &z)
+{
+	CShape	*pPoint;
 
-	if( (pShape = SearchEngine.Get_Point_Nearest(xPos, yPos)) != NULL )
+	if( (pPoint = m_Search.Get_Point_Nearest(x, y)) != NULL )
 	{
-		pGrid->Set_Value(x, y, pShape->Get_Record()->asDouble(zField));
+		z	= pPoint->Get_Record()->asDouble(m_zField);
 
 		return( true );
 	}
-
-	pGrid->Set_NoData(x, y);
 
 	return( false );
 }

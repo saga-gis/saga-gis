@@ -70,11 +70,11 @@
 //---------------------------------------------------------
 CInterpolation_Shepard::CInterpolation_Shepard(void)
 {
-	Set_Name(_TL("Modifed Quadratic Shepard"));
+	Set_Name		(_TL("Modifed Quadratic Shepard"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Andre Ringeler"));
+	Set_Author		(_TL("Copyrights (c) 2003 by Andre Ringeler"));
 
-	Set_Description(_TL(
+	Set_Description	(_TL(
 		"Modified  Quadratic Shepard method for grid interpolation "
 		"from irregular distributed points. This module is based on "
 		"Module 660 in TOMS.\n"
@@ -113,16 +113,13 @@ CInterpolation_Shepard::~CInterpolation_Shepard(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CInterpolation_Shepard::On_Initialize_Parameters(void)
+bool CInterpolation_Shepard::On_Initialize(void)
 {
-	CShapes	*pPoints;
-
 	Quadratic_Neighbors	= Parameters("QUADRATIC_NEIGHBORS")	->asInt();
 	Weighting_Neighbors	= Parameters("WEIGHTING_NEIGHBORS")	->asInt();
 
-	pShapes				= Parameters("SHAPES")				->asShapes();
-	pPoints				= _Get_Point_Shapes(pShapes);
-	MaxPoints			= pPoints->Get_Count();
+	m_pShapes			= Get_Points();
+	MaxPoints			= m_pShapes->Get_Count();
 
 	if( MaxPoints > 1 )
 	{
@@ -132,9 +129,9 @@ bool CInterpolation_Shepard::On_Initialize_Parameters(void)
 
 		for(int iPoint=0; iPoint<MaxPoints; iPoint++)
 		{
-			x_vals[iPoint]	= pPoints->Get_Shape(iPoint)->Get_Point(0).x;
-			y_vals[iPoint]	= pPoints->Get_Shape(iPoint)->Get_Point(0).y;
-			f_vals[iPoint]	= pPoints->Get_Shape(iPoint)->Get_Record()->asDouble(zField);
+			x_vals[iPoint]	= m_pShapes->Get_Shape(iPoint)->Get_Point(0).x;
+			y_vals[iPoint]	= m_pShapes->Get_Shape(iPoint)->Get_Point(0).y;
+			f_vals[iPoint]	= m_pShapes->Get_Shape(iPoint)->Get_Record()->asDouble(m_zField);
 		}
 
 		Remove_Duplicate();
@@ -142,72 +139,40 @@ bool CInterpolation_Shepard::On_Initialize_Parameters(void)
 		Interpolator.Interpolate(x_vals, y_vals, f_vals, MaxPoints - 1, Quadratic_Neighbors, Weighting_Neighbors);
 	}
 
-	if( pPoints != pShapes )
-	{
-		delete(pPoints);
-	}
-
 	return( MaxPoints > 1 );
 }
 
 //---------------------------------------------------------
-void CInterpolation_Shepard::On_Finalize_Parameters(void)
+bool CInterpolation_Shepard::On_Finalize(void)
 {
 	free(x_vals);
 	free(y_vals);
 	free(f_vals);
+
+	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CShapes * CInterpolation_Shepard::_Get_Point_Shapes(CShapes *pShapes)
+bool CInterpolation_Shepard::Get_Value(double x, double y, double &z)
 {
-	int		iShape, iPart, iPoint;
-	CShape	*pShape, *pPoint;
-	CShapes	*pPoints;
+	Interpolator.GetValue(x, y, z);
 
-	if( pShapes->Get_Type() != SHAPE_TYPE_Point )
-	{
-		pPoints	= SG_Create_Shapes(SHAPE_TYPE_Point, NULL, &pShapes->Get_Table());
-
-		for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
-		{
-			pShape	= pShapes->Get_Shape(iShape);
-
-			for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
-			{
-				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
-				{
-					pPoint	= pPoints->Add_Shape(pShape->Get_Record());
-					pPoint->Add_Point(pShape->Get_Point(iPoint, iPart));
-				}
-			}
-		}
-
-		return( pPoints );
-	}
-
-	return( pShapes );
+	return( true );
 }
 
-//---------------------------------------------------------
-bool CInterpolation_Shepard::Get_Grid_Value(int x, int y)
-{
-	double	xPos, yPos, Result;
 
-	xPos	= pGrid->Get_XMin() + x * pGrid->Get_Cellsize();
-	yPos	= pGrid->Get_YMin() + y * pGrid->Get_Cellsize();
-
-	if( MaxPoints > 1 )
-	{
-		Interpolator.GetValue(xPos, yPos, Result);
-
-		pGrid->Set_Value(x, y, Result );
-
-		return( true );
-	}
-
-	return( false );
-}
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 static int Comp_Func(const void * vData1, const void * vData2)
@@ -234,8 +199,10 @@ static int Comp_Func(const void * vData1, const void * vData2)
     return (0);
 }
 
+//---------------------------------------------------------
 #define eps 1e-7
 
+//---------------------------------------------------------
 void CInterpolation_Shepard::Remove_Duplicate()
 {
 	Data_Point * Data;
@@ -285,3 +252,12 @@ void CInterpolation_Shepard::Remove_Duplicate()
 
 	free( Data );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

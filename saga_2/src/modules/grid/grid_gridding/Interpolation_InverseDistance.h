@@ -88,16 +88,16 @@ public:
 
 protected:
 
-	virtual bool		On_Initialize_Parameters(void);
+	virtual bool			On_Initialize		(void);
 
-	virtual bool		Get_Grid_Value(int x, int y);
+	virtual bool			Get_Value			(double x, double y, double &z);
 
 
 private:
 
-	int					InvDist_MaxPoints;
+	int						m_nPoints_Max;
 
-	double				InvDist_Power, InvDist_Radius;
+	double					m_Power, m_Radius;
 
 };
 

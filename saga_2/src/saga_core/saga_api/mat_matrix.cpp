@@ -102,14 +102,14 @@ bool CSG_Vector::Create(const CSG_Vector &Vector)
 }
 
 //---------------------------------------------------------
-CSG_Vector::CSG_Vector(int n)
+CSG_Vector::CSG_Vector(int n, double *Data)
 {
 	_On_Construction();
 
-	Create(n);
+	Create(n, Data);
 }
 
-bool CSG_Vector::Create(int n)
+bool CSG_Vector::Create(int n, double *Data)
 {
 	if( n > 0 )
 	{
@@ -118,11 +118,16 @@ bool CSG_Vector::Create(int n)
 			Destroy();
 
 			m_n	= n;
-			m_z	= (double *)SG_Calloc(m_n, sizeof(double));
+			m_z	= (double *)SG_Malloc(m_n * sizeof(double));
+		}
+
+		if( Data )
+		{
+			memcpy(m_z, Data, m_n * sizeof(double));
 		}
 		else
 		{
-			memset(m_z, 0, m_n * sizeof(double));
+			memset(m_z,    0, m_n * sizeof(double));
 		}
 
 		return( true );
@@ -166,7 +171,27 @@ void CSG_Vector::_On_Construction(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CSG_Vector::Get_Length(void)
+CSG_String CSG_Vector::asString(void)
+{
+	CSG_String	s;
+
+	for(int i=0; i<m_n; i++)
+	{
+		s.Append(CSG_String::Format("%f\n", m_z[i]));
+	}
+
+	return( s );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+double CSG_Vector::Get_Length(void) const
 {
 	if( m_n > 0 )
 	{
@@ -191,7 +216,7 @@ double CSG_Vector::Get_Length(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Vector::is_Equal(const CSG_Vector &Vector)
+bool CSG_Vector::is_Equal(const CSG_Vector &Vector) const
 {
 	if( m_n == Vector.m_n )
 	{
@@ -320,7 +345,7 @@ bool CSG_Vector::Multiply(const class CSG_Vector &Vector)
 }
 
 //---------------------------------------------------------
-double CSG_Vector::Multiply_Scalar(const class CSG_Vector &Vector)
+double CSG_Vector::Multiply_Scalar(const class CSG_Vector &Vector) const
 {
 	double	z	= 0.0;
 
@@ -338,24 +363,7 @@ double CSG_Vector::Multiply_Scalar(const class CSG_Vector &Vector)
 //---------------------------------------------------------
 bool CSG_Vector::Multiply(const CSG_Matrix &Matrix)
 {
-	if( m_n == Matrix.Get_NX() && m_n == Matrix.Get_NY() )
-	{
-		CSG_Vector	v(*this);
-
-		for(int y=0; y<Matrix.Get_NY(); y++)
-		{
-			m_z[y]	= 0;
-
-			for(int x=0; x<Matrix.Get_NX(); x++)
-			{
-				m_z[y]	+= Matrix[y][x] * v[x];
-			}
-		}
-
-		return( true );
-	}
-
-	return( false );
+	return( Assign(Matrix.Multiply(*this)) );
 }
 
 
@@ -366,7 +374,7 @@ bool CSG_Vector::Multiply(const CSG_Matrix &Matrix)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Vector::operator == (const CSG_Vector &Vector)
+bool CSG_Vector::operator == (const CSG_Vector &Vector) const
 {
 	return( is_Equal(Vector) );
 }
@@ -439,7 +447,7 @@ CSG_Vector & CSG_Vector::operator *= (const CSG_Matrix &Matrix)
 }
 
 //---------------------------------------------------------
-CSG_Vector CSG_Vector::operator + (double Scalar)
+CSG_Vector CSG_Vector::operator + (double Scalar) const
 {
 	CSG_Vector	v(*this);
 
@@ -448,7 +456,7 @@ CSG_Vector CSG_Vector::operator + (double Scalar)
 	return( v );
 }
 
-CSG_Vector CSG_Vector::operator + (const class CSG_Vector &Vector)
+CSG_Vector CSG_Vector::operator + (const class CSG_Vector &Vector) const
 {
 	CSG_Vector	v(*this);
 
@@ -458,7 +466,7 @@ CSG_Vector CSG_Vector::operator + (const class CSG_Vector &Vector)
 }
 
 //---------------------------------------------------------
-CSG_Vector CSG_Vector::operator - (double Scalar)
+CSG_Vector CSG_Vector::operator - (double Scalar) const
 {
 	CSG_Vector	v(*this);
 
@@ -467,7 +475,7 @@ CSG_Vector CSG_Vector::operator - (double Scalar)
 	return( v );
 }
 
-CSG_Vector CSG_Vector::operator - (const class CSG_Vector &Vector)
+CSG_Vector CSG_Vector::operator - (const class CSG_Vector &Vector) const
 {
 	CSG_Vector	v(*this);
 
@@ -477,7 +485,7 @@ CSG_Vector CSG_Vector::operator - (const class CSG_Vector &Vector)
 }
 
 //---------------------------------------------------------
-CSG_Vector CSG_Vector::operator * (double Scalar)
+CSG_Vector CSG_Vector::operator * (double Scalar) const
 {
 	CSG_Vector	v(*this);
 
@@ -486,7 +494,7 @@ CSG_Vector CSG_Vector::operator * (double Scalar)
 	return( v );
 }
 
-double CSG_Vector::operator * (const class CSG_Vector &Vector)
+double CSG_Vector::operator * (const class CSG_Vector &Vector) const
 {
 	return( Multiply_Scalar(Vector) );
 }
@@ -518,14 +526,14 @@ bool CSG_Matrix::Create(const CSG_Matrix &Matrix)
 }
 
 //---------------------------------------------------------
-CSG_Matrix::CSG_Matrix(int nx, int ny)
+CSG_Matrix::CSG_Matrix(int nx, int ny, double *Data)
 {
 	_On_Construction();
 
-	Create(nx, ny);
+	Create(nx, ny, Data);
 }
 
-bool CSG_Matrix::Create(int nx, int ny)
+bool CSG_Matrix::Create(int nx, int ny, double *Data)
 {
 	if( nx > 0 && ny > 0 )
 	{
@@ -533,17 +541,22 @@ bool CSG_Matrix::Create(int nx, int ny)
 		{
 			m_nx	= nx;
 			m_ny	= ny;
-			m_z		= (double **)SG_Calloc(m_ny       , sizeof(double *));
-			m_z[0]	= (double  *)SG_Calloc(m_ny * m_nx, sizeof(double  ));
+			m_z		= (double **)SG_Malloc(m_ny        * sizeof(double *));
+			m_z[0]	= (double  *)SG_Malloc(m_ny * m_nx * sizeof(double  ));
 
 			for(ny=1; ny<m_ny; ny++)
 			{
 				m_z[ny]	= m_z[ny - 1] + nx;
 			}
 		}
+
+		if( Data )
+		{
+			memcpy(m_z[0], Data, m_ny * m_nx * sizeof(double));
+		}
 		else
 		{
-			memset(m_z[0], 0, m_ny * m_nx * sizeof(double));
+			memset(m_z[0],    0, m_ny * m_nx * sizeof(double));
 		}
 
 		return( true );
@@ -590,7 +603,54 @@ void CSG_Matrix::_On_Construction(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Matrix::is_Equal(const CSG_Matrix &Matrix)
+CSG_String CSG_Matrix::asString(void)
+{
+	CSG_String	s;
+
+	for(int y=0; y<m_ny; y++)
+	{
+		for(int x=0; x<m_nx; x++)
+		{
+			s.Append(CSG_String::Format("%f\t", m_z[y][x]));
+		}
+
+		s.Append("\n");
+	}
+
+	return( s );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+double CSG_Matrix::Get_Determinant(void)
+{
+	double	d	= 0.0;
+
+	for(int y=0; y<m_ny; y++)
+	{
+		for(int x=0; x<m_nx; x++)
+		{
+		}
+	}
+
+	return( d );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Matrix::is_Equal(const CSG_Matrix &Matrix) const
 {
 	if( m_nx == Matrix.m_nx && m_ny == Matrix.m_ny )
 	{
@@ -719,14 +779,55 @@ bool CSG_Matrix::Multiply(double Scalar)
 	return( false );
 }
 
-bool CSG_Matrix::Multiply(const CSG_Matrix &Matrix)
+CSG_Vector CSG_Matrix::Multiply(const CSG_Vector &Vector) const
 {
-	if( m_nx == Matrix.m_nx && m_ny == Matrix.m_ny )
+	CSG_Vector	v;
+
+	if( m_ny == Vector.Get_N() )
 	{
-		return( true );
+		v.Create(m_nx);
+
+		for(int x=0; x<m_nx; x++)
+		{
+			double	z	= 0.0;
+
+			for(int y=0; y<m_ny; y++)
+			{
+				z	+= m_z[y][x] * Vector.z(y);
+			}
+
+			v[x]	= z;
+		}
 	}
 
-	return( false );
+	return( v );
+}
+
+CSG_Matrix CSG_Matrix::Multiply(const CSG_Matrix &Matrix) const
+{
+	CSG_Matrix	m;
+
+	if( m_nx == Matrix.m_ny )
+	{
+		m.Create(m_nx, Matrix.m_ny);
+
+		for(int y=0; y<m.m_ny; y++)
+		{
+			for(int x=0; x<m.m_nx; x++)
+			{
+				double	z	= 0.0;
+
+				for(int n=0; n<m_nx; n++)
+				{
+					z	+= m_z[n][x] * Matrix.m_z[y][n];
+				}
+
+				m.m_z[y][x]	= z;
+			}
+		}
+	}
+
+	return( m );
 }
 
 
@@ -737,7 +838,7 @@ bool CSG_Matrix::Multiply(const CSG_Matrix &Matrix)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Matrix::operator == (const CSG_Matrix &Matrix)
+bool CSG_Matrix::operator == (const CSG_Matrix &Matrix) const
 {
 	return( is_Equal(Matrix) );
 }
@@ -803,7 +904,7 @@ CSG_Matrix & CSG_Matrix::operator *= (const CSG_Matrix &Matrix)
 }
 
 //---------------------------------------------------------
-CSG_Matrix CSG_Matrix::operator + (double Scalar)
+CSG_Matrix CSG_Matrix::operator + (double Scalar) const
 {
 	CSG_Matrix	m(*this);
 
@@ -812,7 +913,7 @@ CSG_Matrix CSG_Matrix::operator + (double Scalar)
 	return( m );
 }
 
-CSG_Matrix CSG_Matrix::operator + (const CSG_Matrix &Matrix)
+CSG_Matrix CSG_Matrix::operator + (const CSG_Matrix &Matrix) const
 {
 	CSG_Matrix	m(*this);
 
@@ -822,7 +923,7 @@ CSG_Matrix CSG_Matrix::operator + (const CSG_Matrix &Matrix)
 }
 
 //---------------------------------------------------------
-CSG_Matrix CSG_Matrix::operator - (double Scalar)
+CSG_Matrix CSG_Matrix::operator - (double Scalar) const
 {
 	CSG_Matrix	m(*this);
 
@@ -831,7 +932,7 @@ CSG_Matrix CSG_Matrix::operator - (double Scalar)
 	return( m );
 }
 
-CSG_Matrix CSG_Matrix::operator - (const CSG_Matrix &Matrix)
+CSG_Matrix CSG_Matrix::operator - (const CSG_Matrix &Matrix) const
 {
 	CSG_Matrix	m(*this);
 
@@ -841,7 +942,7 @@ CSG_Matrix CSG_Matrix::operator - (const CSG_Matrix &Matrix)
 }
 
 //---------------------------------------------------------
-CSG_Matrix CSG_Matrix::operator * (double Scalar)
+CSG_Matrix CSG_Matrix::operator * (double Scalar) const
 {
 	CSG_Matrix	m(*this);
 
@@ -850,13 +951,14 @@ CSG_Matrix CSG_Matrix::operator * (double Scalar)
 	return( m );
 }
 
-CSG_Matrix CSG_Matrix::operator * (const CSG_Matrix &Matrix)
+CSG_Vector CSG_Matrix::operator * (const CSG_Vector &Vector) const
 {
-	CSG_Matrix	m(*this);
+	return( Multiply(Vector) );
+}
 
-	m.Multiply(Matrix);
-
-	return( m );
+CSG_Matrix CSG_Matrix::operator * (const CSG_Matrix &Matrix) const
+{
+	return( Multiply(Matrix) );
 }
 
 

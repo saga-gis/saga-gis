@@ -197,18 +197,21 @@ public:
 								CSG_Vector			(const CSG_Vector &Vector);
 	bool						Create				(const CSG_Vector &Vector);
 
-								CSG_Vector			(int n);
-	bool						Create				(int n);
+								CSG_Vector			(int n, double *Data = NULL);
+	bool						Create				(int n, double *Data = NULL);
 
 	bool						Destroy				(void);
 
 	int							Get_N				(void)	const	{	return( m_n );		}
+	double						z					(int x)	const	{	return( m_z[x] );	}
 	double &					operator []			(int x)			{	return( m_z[x] );	}
 	double *					Get_Data			(void)			{	return( m_z );		}
 
-	double						Get_Length			(void);
+	CSG_String					asString			(void);
 
-	bool						is_Equal			(const CSG_Vector &Vector);
+	double						Get_Length			(void)						const;
+
+	bool						is_Equal			(const CSG_Vector &Vector)	const;
 
 	bool						Assign				(double Scalar);
 	bool						Assign				(const CSG_Vector &Vector);
@@ -217,10 +220,10 @@ public:
 	bool						Subtract			(const CSG_Vector &Vector);
 	bool						Multiply			(double Scalar);
 	bool						Multiply			(const CSG_Vector &Vector);
-	double						Multiply_Scalar		(const CSG_Vector &Vector);
+	double						Multiply_Scalar		(const CSG_Vector &Vector)	const;
 	bool						Multiply			(const class CSG_Matrix &Matrix);
 
-	bool						operator ==			(const CSG_Vector &Vector);
+	bool						operator ==			(const CSG_Vector &Vector)	const;
 	CSG_Vector &				operator =			(double Scalar);
 	CSG_Vector &				operator =			(const CSG_Vector &Vector);
 	CSG_Vector &				operator +=			(double Scalar);
@@ -230,12 +233,12 @@ public:
 	CSG_Vector &				operator *=			(double Scalar);
 	CSG_Vector &				operator *=			(const CSG_Vector &Vector);
 	CSG_Vector &				operator *=			(const class CSG_Matrix &Matrix);
-	CSG_Vector					operator +			(double Scalar);
-	CSG_Vector					operator +			(const CSG_Vector &Vector);
-	CSG_Vector					operator -			(double Scalar);
-	CSG_Vector					operator -			(const CSG_Vector &Vector);
-	CSG_Vector					operator *			(double Scalar);
-	double						operator *			(const CSG_Vector &Vector);
+	CSG_Vector					operator +			(double Scalar)				const;
+	CSG_Vector					operator +			(const CSG_Vector &Vector)	const;
+	CSG_Vector					operator -			(double Scalar)				const;
+	CSG_Vector					operator -			(const CSG_Vector &Vector)	const;
+	CSG_Vector					operator *			(double Scalar)				const;
+	double						operator *			(const CSG_Vector &Vector)	const;
 
 
 private:
@@ -266,18 +269,23 @@ public:
 								CSG_Matrix			(const CSG_Matrix &Matrix);
 	bool						Create				(const CSG_Matrix &Matrix);
 
-								CSG_Matrix			(int nx, int ny);
-	bool						Create				(int nx, int ny);
+								CSG_Matrix			(int nx, int ny, double *Data = NULL);
+	bool						Create				(int nx, int ny, double *Data = NULL);
 
 	bool						Destroy				(void);
 
 	int							Get_NX				(void)	const	{	return( m_nx );		}
 	int							Get_NY				(void)	const	{	return( m_ny );		}
+	double						z					(int y, int x)	const	{	return( m_z[y][x] );	}
 	double *					operator []			(int y)	const	{	return( m_z[y] );	}
 	double **					Get_Data			(void)			{	return( m_z );		}
 
+	CSG_String					asString			(void);
+
+	double						Get_Determinant		(void);
+
 	bool						is_Square			(void)	const	{	return( m_nx > 0 && m_nx == m_ny );	}
-	bool						is_Equal			(const CSG_Matrix &Matrix);
+	bool						is_Equal			(const CSG_Matrix &Matrix)	const;
 
 	bool						Assign				(double Scalar);
 	bool						Assign				(const CSG_Matrix &Matrix);
@@ -285,9 +293,10 @@ public:
 	bool						Add					(const CSG_Matrix &Matrix);
 	bool						Subtract			(const CSG_Matrix &Matrix);
 	bool						Multiply			(double Scalar);
-	bool						Multiply			(const CSG_Matrix &Matrix);
+	CSG_Vector					Multiply			(const CSG_Vector &Vector)	const;
+	CSG_Matrix					Multiply			(const CSG_Matrix &Matrix)	const;
 
-	bool						operator ==			(const CSG_Matrix &Matrix);
+	bool						operator ==			(const CSG_Matrix &Matrix)	const;
 	CSG_Matrix &				operator =			(double Scalar);
 	CSG_Matrix &				operator =			(const CSG_Matrix &Matrix);
 	CSG_Matrix &				operator +=			(double Scalar);
@@ -296,12 +305,13 @@ public:
 	CSG_Matrix &				operator -=			(const CSG_Matrix &Matrix);
 	CSG_Matrix &				operator *=			(double Scalar);
 	CSG_Matrix &				operator *=			(const CSG_Matrix &Matrix);
-	CSG_Matrix					operator +			(double Scalar);
-	CSG_Matrix					operator +			(const CSG_Matrix &Matrix);
-	CSG_Matrix					operator -			(double Scalar);
-	CSG_Matrix					operator -			(const CSG_Matrix &Matrix);
-	CSG_Matrix					operator *			(double Scalar);
-	CSG_Matrix					operator *			(const CSG_Matrix &Matrix);
+	CSG_Matrix					operator +			(double Scalar)				const;
+	CSG_Matrix					operator +			(const CSG_Matrix &Matrix)	const;
+	CSG_Matrix					operator -			(double Scalar)				const;
+	CSG_Matrix					operator -			(const CSG_Matrix &Matrix)	const;
+	CSG_Matrix					operator *			(double Scalar)				const;
+	CSG_Vector					operator *			(const CSG_Vector &Vector)	const;
+	CSG_Matrix					operator *			(const CSG_Matrix &Matrix)	const;
 
 	bool						Set_Identity		(void);
 	bool						Set_Transpose		(const CSG_Matrix &Matrix);

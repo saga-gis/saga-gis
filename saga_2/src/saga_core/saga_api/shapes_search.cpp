@@ -496,6 +496,7 @@ void CShapes_Search::_Select_Add(CShape *pPoint, double Distance)
 
 	m_Selected    [m_nSelected]	= pPoint;
 	m_Selected_Dst[m_nSelected]	= Distance;
+	m_nSelected++;
 }
 
 //---------------------------------------------------------

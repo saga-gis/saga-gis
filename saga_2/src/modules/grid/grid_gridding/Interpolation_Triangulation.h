@@ -81,10 +81,6 @@ public:
 
 protected:
 
-	virtual bool				On_Initialize_Parameters	(void)			{	return( true  );	}
-	virtual bool				Use_SearchEngine			(void)			{	return( false );	}
-	virtual bool				Get_Grid_Value				(int x, int y)	{	return( true );		}
-
 	virtual bool				Interpolate					(void);
 
 

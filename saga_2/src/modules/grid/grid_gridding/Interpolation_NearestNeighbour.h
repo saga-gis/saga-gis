@@ -88,7 +88,9 @@ public:
 
 protected:
 
-	virtual bool		Get_Grid_Value(int x, int y);
+	virtual bool			On_Initialize		(void);
+
+	virtual bool			Get_Value			(double x, double y, double &z);
 
 };
 

@@ -164,9 +164,9 @@ CSG_Index::~CSG_Index(void)
 
 bool CSG_Index::Destroy(void)
 {
-	if( m_Values )
+	if( m_Index )
 	{
-		SG_Free(m_Values);
+		SG_Free(m_Index);
 	}
 
 	_On_Construction();
@@ -178,7 +178,7 @@ bool CSG_Index::Destroy(void)
 void CSG_Index::_On_Construction(void)
 {
 	m_nValues	= 0;
-	m_Values	= NULL;
+	m_Index		= NULL;
 }
 
 //---------------------------------------------------------
@@ -189,7 +189,7 @@ bool CSG_Index::_Set_Array(int nValues)
 		if( nValues != m_nValues )
 		{
 			m_nValues	= nValues;
-			m_Values	= SG_Realloc(m_Values, m_nValues * sizeof(int));
+			m_Index		= (int *)SG_Realloc(m_Index, m_nValues * sizeof(int));
 		}
 
 		return( true );

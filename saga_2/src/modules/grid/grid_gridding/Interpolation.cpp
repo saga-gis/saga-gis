@@ -70,29 +70,28 @@
 //---------------------------------------------------------
 CInterpolation::CInterpolation(void)
 {
-	CParameter	*pNode_0, *pNode_1;
+	CParameter	*pNode;
 	CParameters	*pParameters;
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_Output(
-		NULL	, "OUTPUT"		, _TL("Interpolation"),
+		NULL	, "GRID"		, _TL("Grid"),
 		""
 	);
 
-	//-----------------------------------------------------
-	pNode_0	= Parameters.Add_Shapes(
+	pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES"		, _TL("Points"),
 		"",
 		PARAMETER_INPUT
 	);
 
-	pNode_1	= Parameters.Add_Table_Field(
-		pNode_0	, "FIELD"		, _TL("Attribute"),
+	Parameters.Add_Table_Field(
+		pNode	, "FIELD"		, _TL("Attribute"),
 		""
 	);
 
-	pNode_0	= Parameters.Add_Choice(
-		NULL	, "TARGET_TYPE"	, _TL("Target Dimensions"),
+	Parameters.Add_Choice(
+		NULL	, "TARGET"		, _TL("Target Grid"),
 		"",
 
 		CSG_String::Format("%s|%s|%s|",
@@ -103,42 +102,42 @@ CInterpolation::CInterpolation(void)
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Extra_Parameters("USER", _TL("User defined grid"), "");
+	pParameters	= Add_Extra_Parameters("USER", _TL("User defined grid")	, "");
 
-	pNode_0	= pParameters->Add_Value(
+	pParameters->Add_Value(
 		NULL	, "CELL_SIZE"	, _TL("Grid Size"),
 		"",
 		PARAMETER_TYPE_Double, 100.0, 0.0, true
 	);
 
-	pNode_0	= pParameters->Add_Value(
+	pNode	= pParameters->Add_Value(
 		NULL	, "FIT_EXTENT"	, _TL("Fit Extent"),
 		_TL("Automatically fits the grid to the shapes layers extent."),
 		PARAMETER_TYPE_Bool		, true
 	);
 
-	pNode_1	= pParameters->Add_Range(
-		pNode_0	, "X_EXTENT"	, _TL("X-Extent"),
+	pParameters->Add_Range(
+		pNode	, "X_EXTENT"	, _TL("X-Extent"),
 		""
 	);
 
-	pNode_1	= pParameters->Add_Range(
-		pNode_0	, "Y_EXTENT"	, _TL("Y-Extent"),
+	pParameters->Add_Range(
+		pNode	, "Y_EXTENT"	, _TL("Y-Extent"),
 		""
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Extra_Parameters("SYSTEM", _TL("Choose Grid System"), "");
+	pParameters	= Add_Extra_Parameters("SYSTEM"	, _TL("Choose Grid System")	, "");
 
-	pNode_0	= pParameters->Add_Grid_System(
+	pParameters->Add_Grid_System(
 		NULL	, "SYSTEM"		, _TL("Grid System"),
 		""
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Extra_Parameters("GRID", _TL("Choose Grid"), "");
+	pParameters	= Add_Extra_Parameters("GRID"	, _TL("Choose Grid")		, "");
 
-	pNode_0	= pParameters->Add_Grid(
+	pParameters->Add_Grid(
 		NULL	, "GRID"		, _TL("Grid"),
 		"",
 		PARAMETER_INPUT	, false
@@ -157,119 +156,26 @@ CInterpolation::~CInterpolation(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CInterpolation::On_Initialize_Parameters(void)
-{
-	return( true );
-}
-
-//---------------------------------------------------------
-void CInterpolation::On_Finalize_Parameters(void)
-{}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CGrid * CInterpolation::_Get_Target_Grid(CParameters *pParameters, CShapes *pShapes)
-{
-	int			nx, ny;
-	double		Cell_Size, xMin, yMin, xMax, yMax;
-
-	if( pParameters->Get_Parameter("FIT_EXTENT")->asBool() )
-	{
-		xMin	= pShapes->Get_Extent().m_rect.xMin;
-		yMin	= pShapes->Get_Extent().m_rect.yMin;
-		xMax	= pShapes->Get_Extent().m_rect.xMax;
-		yMax	= pShapes->Get_Extent().m_rect.yMax;
-	}
-	else
-	{
-		xMin	= pParameters->Get_Parameter("X_EXTENT")->asRange()->Get_LoVal();
-		yMin	= pParameters->Get_Parameter("Y_EXTENT")->asRange()->Get_LoVal();
-		xMax	= pParameters->Get_Parameter("X_EXTENT")->asRange()->Get_HiVal();
-		yMax	= pParameters->Get_Parameter("Y_EXTENT")->asRange()->Get_HiVal();
-	}
-
-	Cell_Size	= pParameters->Get_Parameter("CELL_SIZE")->asDouble();
-
-	nx			= 1 + (int)((xMax - xMin) / Cell_Size);
-	ny			= 1 + (int)((yMax - yMin) / Cell_Size);
-
-	return( SG_Create_Grid(GRID_TYPE_Float, nx, ny, Cell_Size, xMin, yMin) );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 bool CInterpolation::On_Execute(void)
 {
-	bool			bResult	= false;
-	CGrid_System	*pSystem;
-	CShapes			*pShapes;
+	bool	bResult	= false;
 
 	//-----------------------------------------------------
-	pShapes		= Parameters("SHAPES")	->asShapes();
-	zField		= Parameters("FIELD")	->asInt();
+	m_pShapes	= Parameters("SHAPES")	->asShapes();
+	m_zField	= Parameters("FIELD")	->asInt();
 
-	if( pShapes->Get_Table().Get_Field_Count() > 0 )
+	//-----------------------------------------------------
+	if( _Get_Grid() )
 	{
-		pGrid		= NULL;
+		bResult	= Interpolate();
+	}
 
-		switch( Parameters("TARGET_TYPE")->asInt() )
-		{
-		case 0:	// User defined...
-			if( Dlg_Extra_Parameters("USER") )
-			{
-				pGrid	= _Get_Target_Grid(Get_Extra_Parameters("USER"), pShapes);
-			}
-			break;
+	//-----------------------------------------------------
+	m_Search.Destroy();
 
-		case 1:	// Grid Project...
-			if( Dlg_Extra_Parameters("SYSTEM") && (pSystem = Get_Extra_Parameters("SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System()) != NULL )
-			{
-				pGrid	= SG_Create_Grid(*pSystem, GRID_TYPE_Float);
-			}
-			break;
-
-		case 2:	// Grid...
-			if( Dlg_Extra_Parameters("GRID") )
-			{
-				pGrid	= Get_Extra_Parameters("GRID")->Get_Parameter("GRID")->asGrid();
-			}
-			break;
-		}
-
-		//-------------------------------------------------
-		if( pGrid )
-		{
-			pGrid->Set_Name(CSG_String::Format("%s (%s)", pShapes->Get_Name(), Get_Name()));
-			pGrid->Assign_NoData();
-			Parameters("OUTPUT")->Set_Value(pGrid);
-
-			//---------------------------------------------
-			if( Use_SearchEngine() )
-			{
-				if( SearchEngine.Create(pShapes) )
-				{
-					bResult	= Interpolate();
-				
-					SearchEngine.Destroy();
-				}
-			}
-			else
-			{
-				bResult	= Interpolate();
-			}
-		}
+	if( m_pShapes != Parameters("SHAPES")->asShapes() )
+	{
+		delete(m_pShapes);
 	}
 
 	return( bResult );
@@ -278,24 +184,150 @@ bool CInterpolation::On_Execute(void)
 //---------------------------------------------------------
 bool CInterpolation::Interpolate(void)
 {
-	int		x, y;
-
-	if( On_Initialize_Parameters() )
+	if( On_Initialize() )
 	{
-		for(y=0; y<pGrid->Get_NY() && Set_Progress(y, pGrid->Get_NY()); y++)
+		int		ix, iy;
+		double	 x,  y, z;
+
+		for(iy=0, y=m_pGrid->Get_YMin(); iy<m_pGrid->Get_NY() && Set_Progress(iy, m_pGrid->Get_NY()); iy++, y+=m_pGrid->Get_Cellsize())
 		{
-			for(x=0; x<pGrid->Get_NX(); x++)
+			for(ix=0, x=m_pGrid->Get_XMin(); ix<m_pGrid->Get_NX(); ix++, x+=m_pGrid->Get_Cellsize())
 			{
-				Get_Grid_Value(x, y);
+				if( Get_Value(x, y, z) )
+				{
+					m_pGrid->Set_Value(ix, iy, z);
+				}
+				else
+				{
+					m_pGrid->Set_NoData(ix, iy);
+				}
 			}
 		}
 
-		On_Finalize_Parameters();
+		On_Finalize();
 
 		return( true );
 	}
 
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CShapes * CInterpolation::Get_Points(void)
+{
+	int		iShape, iPart, iPoint;
+	CShape	*pShape , *pPoint;
+	CShapes	*pPoints;
+
+	m_pShapes	= Parameters("SHAPES")	->asShapes();
+
+	if( m_pShapes->Get_Type() != SHAPE_TYPE_Point )
+	{
+		pPoints	= SG_Create_Shapes(SHAPE_TYPE_Point, "", &m_pShapes->Get_Table());
+
+		for(iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
+		{
+			pShape	= m_pShapes->Get_Shape(iShape);
+
+			for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			{
+				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				{
+					pPoint	= pPoints->Add_Shape(pShape->Get_Record());
+					pPoint->Add_Point(pShape->Get_Point(iPoint, iPart));
+				}
+			}
+		}
+
+		m_pShapes	= pPoints;
+	}
+
+	return( m_pShapes );
+}
+
+//---------------------------------------------------------
+bool CInterpolation::Set_Search_Engine(void)
+{
+	return( m_Search.Create(Get_Points()) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CInterpolation::_Get_Grid(void)
+{
+	CShapes	*pShapes;
+	
+	pShapes	= Parameters("SHAPES")->asShapes();
+	m_pGrid	= NULL;
+
+	//-------------------------------------------------
+	switch( Parameters("TARGET")->asInt() )
+	{
+	case 0:	// user defined...
+		if( Dlg_Extra_Parameters("USER") )
+		{
+			m_pGrid	= _Get_Grid(pShapes->Get_Extent());
+		}
+		break;
+
+	case 1:	// grid system...
+		if( Dlg_Extra_Parameters("SYSTEM") )
+		{
+			m_pGrid	= SG_Create_Grid(*Get_Extra_Parameters("SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System(), GRID_TYPE_Float);
+		}
+		break;
+
+	case 2:	// grid...
+		if( Dlg_Extra_Parameters("GRID") )
+		{
+			m_pGrid	= Get_Extra_Parameters("GRID")->Get_Parameter("GRID")->asGrid();
+		}
+		break;
+	}
+
+	//-------------------------------------------------
+	if( m_pGrid )
+	{
+		m_pGrid->Set_Name(CSG_String::Format("%s (%s)", pShapes->Get_Name(), Get_Name()));
+		Parameters("GRID")->Set_Value(m_pGrid);
+	}
+
+	//-----------------------------------------------------
+	return( m_pGrid != NULL );
+}
+
+//---------------------------------------------------------
+CGrid * CInterpolation::_Get_Grid(TSG_Rect Extent)
+{
+	CParameters	*P	= Get_Extra_Parameters("USER");
+
+	if( !P->Get_Parameter("FIT_EXTENT")->asBool() )
+	{
+		Extent.xMin	= P->Get_Parameter("X_EXTENT")->asRange()->Get_LoVal();
+		Extent.yMin	= P->Get_Parameter("Y_EXTENT")->asRange()->Get_LoVal();
+		Extent.xMax	= P->Get_Parameter("X_EXTENT")->asRange()->Get_HiVal();
+		Extent.yMax	= P->Get_Parameter("Y_EXTENT")->asRange()->Get_HiVal();
+	}
+
+	double	d	= P->Get_Parameter("CELL_SIZE")->asDouble();
+
+	int		nx	= 1 + (int)((Extent.xMax - Extent.xMin) / d);
+	int		ny	= 1 + (int)((Extent.yMax - Extent.yMin) / d);
+
+	return( nx > 1 && ny > 1 ? SG_Create_Grid(GRID_TYPE_Float, nx, ny, d, Extent.xMin, Extent.yMin) : NULL );
 }
 
 

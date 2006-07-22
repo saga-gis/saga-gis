@@ -180,6 +180,8 @@ bool CGSGrid_Regression_Multiple::On_Execute(void)
 	//-----------------------------------------------------
 	if( Get_Regression(pGrids, pShapes, iAttribute) )
 	{
+		pRegression->Set_Name(CSG_String::Format("%s (%s)", pShapes->Get_Name(), Get_Name()));
+
 		Set_Regression(pGrids, pRegression);
 
 		Set_Residuals(pShapes, iAttribute, pResiduals, pRegression);

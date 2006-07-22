@@ -61,6 +61,13 @@
 #ifndef HEADER_INCLUDED__Interpolation_H
 #define HEADER_INCLUDED__Interpolation_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
@@ -78,31 +85,47 @@ public:
 	CInterpolation(void);
 	virtual ~CInterpolation(void);
 
-	virtual const char *	Get_MenuPath			(void)	{	return( _TL("R:Interpolation from Points") );	}
+	virtual const char *	Get_MenuPath		(void)	{	return( _TL("R:Interpolation from Points") );	}
 
 
 protected:
 
-	int						zField;
-
-	CGrid					*pGrid;
-
-	CShapes_Search			SearchEngine;
+	virtual bool			On_Execute			(void);
 
 
-	virtual bool			On_Execute				(void);
+	int						m_zField;
 
-	virtual bool			On_Initialize_Parameters(void);
-	virtual void			On_Finalize_Parameters	(void);
+	CGrid					*m_pGrid;
 
-	virtual bool			Get_Grid_Value			(int x, int y)	= 0;
+	CShapes					*m_pShapes;
 
-	virtual bool			Interpolate				(void);
+	CShapes_Search			m_Search;
 
-	virtual bool			Use_SearchEngine		(void)	{	return( true );	};
 
-	CGrid *					_Get_Target_Grid		(CParameters *pParameters, CShapes *pShapes);
+	virtual bool			Interpolate			(void);
+
+	virtual bool			On_Initialize		(void)	{	return( true );	}
+	virtual bool			On_Finalize			(void)	{	return( true );	}
+
+	virtual bool			Get_Value			(double x, double y, double &z)	{	return( true );	}
+
+	CShapes *				Get_Points			(void);
+	bool					Set_Search_Engine	(void);
+
+
+private:
+
+	bool					_Get_Grid			(void);
+	CGrid *					_Get_Grid			(TSG_Rect Extent);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Interpolation_H

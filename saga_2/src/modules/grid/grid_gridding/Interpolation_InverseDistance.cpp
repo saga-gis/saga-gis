@@ -70,30 +70,30 @@
 //---------------------------------------------------------
 CInterpolation_InverseDistance::CInterpolation_InverseDistance(void)
 {
-	Set_Name(_TL("Inverse Distance"));
+	Set_Name		(_TL("Inverse Distance"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
-		"Inverse Distance method for grid interpolation from irregular distributed points.")
+	Set_Description	(_TL(
+		"Inverse distance to a power method for grid interpolation from irregular distributed points."
+	));
+
+	Parameters.Add_Value(
+		NULL	, "POWER"		, _TL("Inverse Distance: Power"),
+		"",
+		PARAMETER_TYPE_Double	, 1.0
 	);
 
 	Parameters.Add_Value(
-		NULL	, "INVDIST_POWER"	, _TL("Inverse Distance: Power"),
+		NULL	, "RADIUS"		, _TL("Search Radius"),
 		"",
-		PARAMETER_TYPE_Double		, 1.0
+		PARAMETER_TYPE_Double	, 100.0
 	);
 
 	Parameters.Add_Value(
-		NULL	, "INVDIST_RADIUS"	, _TL("Search Radius"),
+		NULL	, "NPOINTS"		, _TL("Maximum Points"),
 		"",
-		PARAMETER_TYPE_Double		, 100.0
-	);
-
-	Parameters.Add_Value(
-		NULL	, "INVDIST_POINTS"	, _TL("Maximum Points"),
-		"",
-		PARAMETER_TYPE_Int			, 10.0
+		PARAMETER_TYPE_Int		, 10.0
 	);
 }
 
@@ -109,61 +109,52 @@ CInterpolation_InverseDistance::~CInterpolation_InverseDistance(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CInterpolation_InverseDistance::On_Initialize_Parameters(void)
+bool CInterpolation_InverseDistance::On_Initialize(void)
 {
-	InvDist_Power		= Parameters("INVDIST_POWER")	->asDouble();
-	InvDist_Radius		= Parameters("INVDIST_RADIUS")	->asDouble();
-	InvDist_MaxPoints	= Parameters("INVDIST_POINTS")	->asInt();
+	m_Power			= Parameters("POWER")	->asDouble();
+	m_Radius		= Parameters("RADIUS")	->asDouble();
+	m_nPoints_Max	= Parameters("NPOINTS")	->asInt();
 
-	return( true );
+	return( Set_Search_Engine() );
 }
 
 //---------------------------------------------------------
-bool CInterpolation_InverseDistance::Get_Grid_Value(int x, int y)
+bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &z)
 {
-	int			iPoint, nPoints;
-	double		zSum, dSum, d, dx, xPos, yPos;
-	TSG_Point	Point;
+	int			i, n;
+	double		d, ds;
+	TSG_Point	p;
 	CShape		*pPoint;
 
-	xPos	= pGrid->Get_XMin() + x * pGrid->Get_Cellsize();
-	yPos	= pGrid->Get_YMin() + y * pGrid->Get_Cellsize();
-
-	if( (nPoints = SearchEngine.Select_Radius(xPos, yPos, InvDist_Radius, true, InvDist_MaxPoints)) > 0 )
+	if( (n = m_Search.Select_Radius(x, y, m_Radius, true, m_nPoints_Max)) > 0 )
 	{
-		for(iPoint=0, zSum=0.0, dSum=0.0; iPoint<nPoints; iPoint++)
+		for(i=0, p.x=0, p.y=y, z=0.0, ds=0.0; i<n; i++)
 		{
-			if( (pPoint = SearchEngine.Get_Selected_Point(iPoint)) != NULL )
+			if( (pPoint = m_Search.Get_Selected_Point(i)) != NULL )
 			{
-				Point	= pPoint->Get_Point(0);
-
-				dx		= Point.x - xPos;
-				d		= Point.y - yPos;
-				d		= sqrt(dx*dx + d*d);
+				d	= SG_Get_Distance(p, pPoint->Get_Point(0));
 
 				if( d <= 0.0 )
 				{
-					pGrid->Set_Value(x, y, pPoint->Get_Record()->asDouble(zField) );
+					z	= pPoint->Get_Record()->asDouble(m_zField);
 
 					return( true );
 				}
 
-				d		= pow(d, -InvDist_Power);
+				d	= pow(d, -m_Power);
 
-				zSum	+= d * pPoint->Get_Record()->asDouble(zField);
-				dSum	+= d;
+				z	+= d * pPoint->Get_Record()->asDouble(m_zField);
+				ds	+= d;
 			}
 		}
 
-		if( dSum > 0.0 )
+		if( ds > 0.0 )
 		{
-			pGrid->Set_Value(x, y, zSum / dSum );
+			z	/= ds;
 
 			return( true );
 		}
 	}
-
-	pGrid->Set_NoData(x, y);
 
 	return( false );
 }

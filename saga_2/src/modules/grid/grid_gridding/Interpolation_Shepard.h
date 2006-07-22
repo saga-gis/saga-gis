@@ -61,12 +61,17 @@
 #ifndef HEADER_INCLUDED__Interpolation_Shepard_H
 #define HEADER_INCLUDED__Interpolation_Shepard_H
 
-//---------------------------------------------------------
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #include "Interpolation.h"
 #include "Shepard.h"
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -83,6 +88,13 @@ typedef struct
 }
 Data_Point;
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 class CInterpolation_Shepard : public CInterpolation  
 {
@@ -93,28 +105,31 @@ public:
 
 protected:
 
-	virtual bool		On_Initialize_Parameters(void);
-	virtual void		On_Finalize_Parameters	(void);
+	virtual bool			On_Initialize		(void);
+	virtual bool			On_Finalize			(void);
 
-	CShapes *			_Get_Point_Shapes(CShapes *pShapes);
-
-	virtual bool		Get_Grid_Value			(int x, int y);
-
-	void				Remove_Duplicate		(void);
-
-	virtual bool		Use_SearchEngine		(void)	{	return( false );	};
+	virtual bool			Get_Value			(double x, double y, double &z);
 
 
 private:
 
-	int					MaxPoints, Quadratic_Neighbors, Weighting_Neighbors;
+	int						MaxPoints, Quadratic_Neighbors, Weighting_Neighbors;
 
-	CShapes				*pShapes;
+	double					*x_vals, *y_vals, *f_vals;
 
-	CShepard2d			Interpolator;
+	CShepard2d				Interpolator;
 
-	double				*x_vals, *y_vals, *f_vals;
+
+	void					Remove_Duplicate	(void);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Interpolation_Shepard_H

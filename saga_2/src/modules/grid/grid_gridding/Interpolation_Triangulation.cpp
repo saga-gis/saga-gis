@@ -70,13 +70,13 @@
 //---------------------------------------------------------
 CInterpolation_Triangulation::CInterpolation_Triangulation(void)
 {
-	Set_Name(_TL("Triangulation"));
+	Set_Name		(_TL("Triangulation"));
 
-	Set_Author(_TL("Copyrights (c) 2004 by Olaf Conrad"));
+	Set_Author		(_TL("Copyrights (c) 2004 by Olaf Conrad"));
 
-	Set_Description(_TL(
-		"Gridding of a shapes layer using Delaunay Triangulation.")
-	);
+	Set_Description	(_TL(
+		"Gridding of a shapes layer using Delaunay Triangulation."
+	));
 }
 
 //---------------------------------------------------------
@@ -93,35 +93,36 @@ CInterpolation_Triangulation::~CInterpolation_Triangulation(void)
 //---------------------------------------------------------
 bool CInterpolation_Triangulation::Interpolate(void)
 {
-	int				iTriangle, iPoint, zField;
+	int				iTriangle, iPoint;
 	TPoint			p[3];
 	CTIN_Triangle	*pTriangle;
 	CTIN			TIN;
-	CShapes			*pShapes;
 
-	pShapes		= Parameters("SHAPES")	->asShapes();
-	zField		= Parameters("FIELD")	->asInt();
-
-	TIN.Create(pShapes);
-
-	for(iTriangle=0; iTriangle<TIN.Get_Triangle_Count() && Set_Progress(iTriangle, TIN.Get_Triangle_Count()); iTriangle++)
+	if( TIN.Create(m_pShapes) )
 	{
-		pTriangle	= TIN.Get_Triangle(iTriangle);
+		m_pGrid->Assign_NoData();
 
-		if( pGrid->Get_Extent().Intersects(pTriangle->Get_Extent()) != INTERSECTION_None )
+		for(iTriangle=0; iTriangle<TIN.Get_Triangle_Count() && Set_Progress(iTriangle, TIN.Get_Triangle_Count()); iTriangle++)
 		{
-			for(iPoint=0; iPoint<3; iPoint++)
-			{
-				p[iPoint].x	= pGrid->Get_System().Get_xWorld_to_Grid(pTriangle->Get_Point(iPoint)->Get_X());
-				p[iPoint].y	= pGrid->Get_System().Get_yWorld_to_Grid(pTriangle->Get_Point(iPoint)->Get_Y());
-				p[iPoint].z	= pTriangle->Get_Point(iPoint)->Get_Record()->asDouble(zField);
-			}
+			pTriangle	= TIN.Get_Triangle(iTriangle);
 
-			Set_Triangle(p);
+			if( m_pGrid->Get_Extent().Intersects(pTriangle->Get_Extent()) != INTERSECTION_None )
+			{
+				for(iPoint=0; iPoint<3; iPoint++)
+				{
+					p[iPoint].x	= m_pGrid->Get_System().Get_xWorld_to_Grid(pTriangle->Get_Point(iPoint)->Get_X());
+					p[iPoint].y	= m_pGrid->Get_System().Get_yWorld_to_Grid(pTriangle->Get_Point(iPoint)->Get_Y());
+					p[iPoint].z	= pTriangle->Get_Point(iPoint)->Get_Record()->asDouble(m_zField);
+				}
+
+				Set_Triangle(p);
+			}
 		}
+
+		return( true );
 	}
 
-	return( true );
+	return( false );
 }
 
 
@@ -150,7 +151,7 @@ void CInterpolation_Triangulation::Set_Triangle(TPoint p[3])
 	//-----------------------------------------------------
 	if( p[2].y == p[0].y )
 	{
-		if( p[0].y >= 0 && p[0].y < pGrid->Get_NY() )
+		if( p[0].y >= 0 && p[0].y < m_pGrid->Get_NY() )
 		{
 			SORT_POINTS_X(1, 0);
 			SORT_POINTS_X(2, 0);
@@ -159,9 +160,9 @@ void CInterpolation_Triangulation::Set_Triangle(TPoint p[3])
 			//---------------------------------------------
 			if( p[2].x == p[0].x )
 			{
-				if(	p[0].x >= 0 && p[0].x < pGrid->Get_NX() )
+				if(	p[0].x >= 0 && p[0].x < m_pGrid->Get_NX() )
 				{
-					pGrid->Set_Value(p[0].x, p[0].y, p[0].z > p[1].z
+					m_pGrid->Set_Value(p[0].x, p[0].y, p[0].z > p[1].z
 						? (p[0].z > p[2].z ? p[0].z : p[2].z)
 						: (p[1].z > p[2].z ? p[1].z : p[2].z)
 					);
@@ -178,7 +179,7 @@ void CInterpolation_Triangulation::Set_Triangle(TPoint p[3])
 	}
 
 	//-----------------------------------------------------
-	else if( !((p[0].y < 0 && p[2].y < 0) || (p[0].y >= pGrid->Get_NY() && p[2].y >= pGrid->Get_NY())) )
+	else if( !((p[0].y < 0 && p[2].y < 0) || (p[0].y >= m_pGrid->Get_NY() && p[2].y >= m_pGrid->Get_NY())) )
 	{
 		dy		=  p[2].y - p[0].y;
 		dx_a	= (p[2].x - p[0].x) / dy;
@@ -204,9 +205,9 @@ void CInterpolation_Triangulation::Set_Triangle(TPoint p[3])
 					z_a		 = p[0].z - p[0].y * dz_a;
 				}
 
-				if( (y_j = p[j].y) > pGrid->Get_NY() )
+				if( (y_j = p[j].y) > m_pGrid->Get_NY() )
 				{
-					y_j		= pGrid->Get_NY();
+					y_j		= m_pGrid->Get_NY();
 				}
 
 				for( ; y<y_j; y++, x+=dx, z+=dz, x_a+=dx_a, z_a+=dz_a)
@@ -240,19 +241,19 @@ inline void CInterpolation_Triangulation::Set_Triangle_Line(int xa, int xb, int 
 			xa	 = 0;
 		}
 
-		if( xb >= pGrid->Get_NX() )
+		if( xb >= m_pGrid->Get_NX() )
 		{
-			xb	= pGrid->Get_NX() - 1;
+			xb	= m_pGrid->Get_NX() - 1;
 		}
 
 		for(int x=xa; x<=xb; x++, za+=dz)
 		{
-			pGrid->Set_Value(x, y, za);
+			m_pGrid->Set_Value(x, y, za);
 		}
 	}
-	else if( xa >= 0 && xa < pGrid->Get_NX() )
+	else if( xa >= 0 && xa < m_pGrid->Get_NX() )
 	{
-		pGrid->Set_Value(xa, y, za);
+		m_pGrid->Set_Value(xa, y, za);
 	}
 }
 
