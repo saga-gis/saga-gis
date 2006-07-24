@@ -3,7 +3,7 @@
 
 PRJ_NAME  = saga_cmd
 
-TOP_SAGA  = ./../../..
+TOP_SAGA  = $(SAGA)/..
 BIN_SAGA  = $(TOP_SAGA)/bin/saga_gtk
 TMP_SAGA  = $(TOP_SAGA)/bin/tmp/saga_gtk/$(PRJ_NAME)
 EXE_NAME  = $(BIN_SAGA)/$(PRJ_NAME)
@@ -54,7 +54,7 @@ $(TMP_SAGA): $(TOP_SAGA)/bin/tmp/saga_gtk
 $(EXE_NAME): $(OBJ) $(BIN_SAGA)
 	$(LD) $(LDFLAGS) -o $(EXE_NAME) $(OBJ) $(LIBS)
 
-#$(TMP_SAGA)/callback.o: callback.cpp $(TMP_SAGA)
+#$(TMP_SAGA)/callback.o: callback.cpp
 $(TMP_SAGA)/callback.o: callback.cpp $(TMP_SAGA)
 	$(CPP) -c callback.cpp -o $(TMP_SAGA)/callback.o $(CXXFLAGS)
 

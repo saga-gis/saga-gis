@@ -203,13 +203,11 @@ public:
 	bool						Destroy				(void);
 
 	int							Get_N				(void)	const	{	return( m_n );		}
-	double						z					(int x)	const	{	return( m_z[x] );	}
+	double *					Get_Data			(void)	const	{	return( m_z );		}
+	double						operator ()			(int x)	const	{	return( m_z[x] );	}
 	double &					operator []			(int x)			{	return( m_z[x] );	}
-	double *					Get_Data			(void)			{	return( m_z );		}
 
 	CSG_String					asString			(void);
-
-	double						Get_Length			(void)						const;
 
 	bool						is_Equal			(const CSG_Vector &Vector)	const;
 
@@ -240,6 +238,13 @@ public:
 	CSG_Vector					operator *			(double Scalar)				const;
 	double						operator *			(const CSG_Vector &Vector)	const;
 
+	bool						Set_Zero			(void);
+	bool						Set_Unity			(void);
+
+	double						Get_Length			(void)						const;
+	double						Get_Angle			(const CSG_Vector &Vector)	const;
+	CSG_Vector					Get_Unity			(void)						const;
+
 
 private:
 
@@ -251,6 +256,9 @@ private:
 	void						_On_Construction	(void);
 
 };
+
+//---------------------------------------------------------
+SAGA_API_DLL_EXPORT CSG_Vector	operator *			(double Scalar, const CSG_Vector &Vector);
 
 
 ///////////////////////////////////////////////////////////
@@ -274,15 +282,13 @@ public:
 
 	bool						Destroy				(void);
 
-	int							Get_NX				(void)	const	{	return( m_nx );		}
-	int							Get_NY				(void)	const	{	return( m_ny );		}
-	double						z					(int y, int x)	const	{	return( m_z[y][x] );	}
-	double *					operator []			(int y)	const	{	return( m_z[y] );	}
-	double **					Get_Data			(void)			{	return( m_z );		}
+	int							Get_NX				(void)			const	{	return( m_nx );			}
+	int							Get_NY				(void)			const	{	return( m_ny );			}
+	double **					Get_Data			(void)			const	{	return( m_z );			}
+	double						operator ()			(int y, int x)	const	{	return( m_z[y][x] );	}
+	double *					operator []			(int y)			const	{	return( m_z[y] );		}
 
 	CSG_String					asString			(void);
-
-	double						Get_Determinant		(void);
 
 	bool						is_Square			(void)	const	{	return( m_nx > 0 && m_nx == m_ny );	}
 	bool						is_Equal			(const CSG_Matrix &Matrix)	const;
@@ -313,9 +319,14 @@ public:
 	CSG_Vector					operator *			(const CSG_Vector &Vector)	const;
 	CSG_Matrix					operator *			(const CSG_Matrix &Matrix)	const;
 
+	bool						Set_Zero			(void);
 	bool						Set_Identity		(void);
-	bool						Set_Transpose		(const CSG_Matrix &Matrix);
+	bool						Set_Transpose		(void);
 	bool						Set_Inverse			(bool bSilent = true, int nSubSquare = 0);
+
+	double						Get_Determinant		(void)						const;
+	CSG_Matrix					Get_Transpose		(void)						const;
+	CSG_Matrix					Get_Inverse			(bool bSilent = true, int nSubSquare = 0)	const;
 
 
 private:
@@ -328,6 +339,9 @@ private:
 	void						_On_Construction	(void);
 
 };
+
+//---------------------------------------------------------
+SAGA_API_DLL_EXPORT CSG_Matrix	operator *			(double Scalar, const CSG_Matrix &Matrix);
 
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT bool		SG_Matrix_Solve		(CSG_Matrix &Matrix, CSG_Vector &Vector, bool bSilent = true);

@@ -3,7 +3,7 @@
 
 PRJ_NAME  = saga_gui
 
-TOP_SAGA  = ./../../..
+TOP_SAGA  = $(SAGA)/..
 BIN_SAGA  = $(TOP_SAGA)/bin/saga_gtk
 TMP_SAGA  = $(TOP_SAGA)/bin/tmp/saga_gtk/$(PRJ_NAME)
 EXE_NAME  = $(BIN_SAGA)/$(PRJ_NAME)
@@ -59,8 +59,8 @@ $(EXE_NAME): $(OBJ) $(BIN_SAGA)
 	$(LD) $(LDFLAGS) -o $(EXE_NAME) $(OBJ) $(LIBS)
 
 
-#$(TMP_SAGA)/active.o: active.cpp $(TMP_SAGA)
-$(TMP_SAGA)/active.o: active.cpp
+#$(TMP_SAGA)/active.o: active.cpp
+$(TMP_SAGA)/active.o: active.cpp $(TMP_SAGA)
 	$(CPP) -c active.cpp -o $(TMP_SAGA)/active.o $(CXXFLAGS)
 
 $(TMP_SAGA)/active_attributes.o: active_attributes.cpp

@@ -79,7 +79,7 @@
 //
 //     #include <saga_api/compatibility.h>
 //
-// instead of the standard header:
+// instead of the header:
 //
 //     #include <saga_api/saga_api.h>
 //
@@ -169,16 +169,16 @@ TGEO_iRect;
 #define Get_Module_Info						Get_Info
 
 //---------------------------------------------------------
-// ::Get_Callback()								: gone
-// ::SYS_Set_StringCopy							: gone, use CSG_String instead
-// ::SYS_Add_StringCopy							: gone, use CSG_String instead
-// CShapes::Get_Table()							: returns reference
-// CTable::Update_Statistics()					: gone
-// CColors::Set_Ramp()							: incompatible
-// CModule_Grid::Get_Gradient()					: gone, use CGrid::Get_Gradient() instead
-// CModule_Interactive::Execute_Finish()		: function has no arguments anymore
-// CModule_Interactive::On_Set_Position()		: function has no 'callback' argument anymore
-// CModule::Execute()							: function has no arguments anymore
+// ::Get_Callback()							: dropped
+// ::SYS_Set_StringCopy						: dropped, use CSG_String instead
+// ::SYS_Add_StringCopy						: dropped, use CSG_String instead
+// CShapes::Get_Table()						: returns reference
+// CTable::Update_Statistics()				: dropped
+// CColors::Set_Ramp()						: incompatible
+// CModule_Grid::Get_Gradient()				: dropped, use CGrid::Get_Gradient() instead
+// CModule_Interactive::Execute_Finish()	: function has no arguments anymore
+// CModule_Interactive::On_Set_Position()	: function has no 'callback' argument anymore
+// CModule::Execute()						: function has no arguments anymore
 
 
 ///////////////////////////////////////////////////////////
@@ -188,18 +188,18 @@ TGEO_iRect;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define PFNC_Callback					
+#define PFNC_Callback					TSG_PFNC_Callback
 #define API_Set_Callback				SG_Set_Callback
-#define API_Callback_					SG_Callback_
-#define API_Create_						SG_Create_
-#define API_Read_						SG_Read_
-#define API_Write_						SG_Write_
+#define API_Get_Callback				SG_Get_Callback
+#define API_Create_Grid					SG_Create_Grid
+#define API_Create_Shapes				SG_Create_Shapes
+#define API_Create_Table				SG_Create_Table
+#define API_Create_TIN					SG_Create_TIN
 #define API_Malloc						SG_Malloc
 #define API_Calloc						SG_Calloc
 #define API_Realloc						SG_Realloc
 #define API_Free						SG_Free
 #define API_Swap_Bytes					SG_Swap_Bytes
-#define API_Directory_					SG_Directory_
 #define API_DegreeStr2Double			SG_Degree_To_Double
 #define API_Double2DegreeStr			SG_Double_To_Degree
 #define API_DateStr2Double				SG_Date_To_Double
@@ -209,6 +209,11 @@ TGEO_iRect;
 #define API_Extract_File_Path			SG_File_Get_Path
 #define API_Make_File_Path				SG_File_Make_Path
 #define API_Cmp_File_Extension			SG_File_Cmp_Extension
+
+#define API_Callback_					SG_Callback_
+#define API_Directory_					SG_Directory_
+#define API_Read_						SG_Read_
+#define API_Write_						SG_Write_
 #define API_Get_						SG_Get_
 
 
@@ -230,6 +235,7 @@ TGEO_iRect;
 
 #define TGEO_Intersection				TSG_Intersection
 #define TGEO_Point						TSG_Point
+#define CGEO_Point						CSG_Point
 #define CGEO_Points						CSG_Points
 #define TAPI_dPoint						TSG_Point
 #define CAPI_dPoints					CSG_Points

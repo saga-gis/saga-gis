@@ -138,7 +138,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\..\..\..\..\bin\saga_vc_dbg\modules/grid_spline.tlb"
+				TypeLibraryName=".\..\..\..\..\bin\saga_vc8_dbg\modules/grid_spline.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -149,10 +149,10 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				PrecompiledHeaderFile=".\..\..\..\..\bin\tmp\saga_vc_dbg\grid_spline/grid_spline.pch"
-				AssemblerListingLocation=".\..\..\..\..\bin\tmp\saga_vc_dbg\grid_spline/"
-				ObjectFile=".\..\..\..\..\bin\tmp\saga_vc_dbg\grid_spline/"
-				ProgramDataBaseFileName=".\..\..\..\..\bin\tmp\saga_vc_dbg\grid_spline/"
+				PrecompiledHeaderFile=".\..\..\..\..\bin\tmp\saga_vc8_dbg\grid_spline/grid_spline.pch"
+				AssemblerListingLocation=".\..\..\..\..\bin\tmp\saga_vc8_dbg\grid_spline/"
+				ObjectFile=".\..\..\..\..\bin\tmp\saga_vc8_dbg\grid_spline/"
+				ProgramDataBaseFileName=".\..\..\..\..\bin\tmp\saga_vc8_dbg\grid_spline/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
@@ -171,14 +171,14 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib"
-				OutputFile=".\..\..\..\..\bin\saga_vc_dbg\modules/grid_spline.dll"
+				OutputFile=".\..\..\..\..\bin\saga_vc8_dbg\modules/grid_spline.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc_dbg"
+				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8_dbg"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\..\..\..\..\bin\saga_vc_dbg\modules/grid_spline.pdb"
+				ProgramDatabaseFile=".\..\..\..\..\bin\saga_vc8_dbg\modules/grid_spline.pdb"
 				SubSystem="2"
-				ImportLibrary=".\..\..\..\..\bin\saga_vc_dbg\modules/grid_spline.lib"
+				ImportLibrary=".\..\..\..\..\bin\saga_vc8_dbg\modules/grid_spline.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -193,7 +193,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\..\..\..\..\bin\saga_vc_dbg\modules/grid_spline.bsc"
+				OutputFile=".\..\..\..\..\bin\saga_vc8_dbg\modules/grid_spline.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"

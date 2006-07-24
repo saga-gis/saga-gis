@@ -191,31 +191,6 @@ CSG_String CSG_Vector::asString(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CSG_Vector::Get_Length(void) const
-{
-	if( m_n > 0 )
-	{
-		double	z	= 0.0;
-
-		for(int i=0; i<m_n; i++)
-		{
-			z	+= m_z[i] * m_z[i];
-		}
-
-		return( pow(z, 1.0 / m_n) );
-	}
-
-	return( 0.0 );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 bool CSG_Vector::is_Equal(const CSG_Vector &Vector) const
 {
 	if( m_n == Vector.m_n )
@@ -499,6 +474,106 @@ double CSG_Vector::operator * (const class CSG_Vector &Vector) const
 	return( Multiply_Scalar(Vector) );
 }
 
+CSG_Vector operator * (double Scalar, const CSG_Vector &Vector)
+{
+	return( Vector * Scalar );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Vector::Set_Zero(void)
+{
+	return( Create(m_n) );
+}
+
+//---------------------------------------------------------
+bool CSG_Vector::Set_Unity(void)
+{
+	double	Length;
+
+	if( (Length = Get_Length()) > 0.0 )
+	{
+		for(int i=0; i<m_n; i++)
+		{
+			m_z[i]	/= Length;
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+double CSG_Vector::Get_Length(void) const
+{
+	if( m_n > 0 )
+	{
+		double	z	= 0.0;
+
+		for(int i=0; i<m_n; i++)
+		{
+			z	+= m_z[i] * m_z[i];
+		}
+
+		return( sqrt(z) );
+	}
+
+	return( 0.0 );
+}
+
+//---------------------------------------------------------
+double CSG_Vector::Get_Angle(const CSG_Vector &Vector) const
+{
+	if( m_n > Vector.m_n )
+	{
+		return( Vector.Get_Angle(*this) );
+	}
+
+	int		i;
+	double	A, B, z;
+
+	if( (A = Get_Length()) > 0.0 && (B = Vector.Get_Length()) > 0.0 )
+	{
+		for(i=0, z=0.0; i<m_n; i++)
+		{
+			z	+= Vector.m_z[i] * m_z[i];
+		}
+
+		for(i=m_n; i<Vector.m_n; i++)
+		{
+			z	+= Vector.m_z[i];
+		}
+
+		return( acos(z / (A * B)) );
+	}
+
+	return( 0.0 );
+}
+
+//---------------------------------------------------------
+CSG_Vector CSG_Vector::Get_Unity(void) const
+{
+	CSG_Vector	v(*this);
+
+	v.Set_Unity();
+
+	return( v );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -618,28 +693,6 @@ CSG_String CSG_Matrix::asString(void)
 	}
 
 	return( s );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-double CSG_Matrix::Get_Determinant(void)
-{
-	double	d	= 0.0;
-
-	for(int y=0; y<m_ny; y++)
-	{
-		for(int x=0; x<m_nx; x++)
-		{
-		}
-	}
-
-	return( d );
 }
 
 
@@ -783,20 +836,18 @@ CSG_Vector CSG_Matrix::Multiply(const CSG_Vector &Vector) const
 {
 	CSG_Vector	v;
 
-	if( m_ny == Vector.Get_N() )
+	if( m_nx == Vector.Get_N() && v.Create(m_ny) )
 	{
-		v.Create(m_nx);
-
-		for(int x=0; x<m_nx; x++)
+		for(int y=0; y<m_ny; y++)
 		{
 			double	z	= 0.0;
 
-			for(int y=0; y<m_ny; y++)
+			for(int x=0; x<m_nx; x++)
 			{
-				z	+= m_z[y][x] * Vector.z(y);
+				z	+= m_z[y][x] * Vector(x);
 			}
 
-			v[x]	= z;
+			v[y]	= z;
 		}
 	}
 
@@ -807,10 +858,8 @@ CSG_Matrix CSG_Matrix::Multiply(const CSG_Matrix &Matrix) const
 {
 	CSG_Matrix	m;
 
-	if( m_nx == Matrix.m_ny )
+	if( m_nx == Matrix.m_ny && m.Create(Matrix.m_nx, m_ny) )
 	{
-		m.Create(m_nx, Matrix.m_ny);
-
 		for(int y=0; y<m.m_ny; y++)
 		{
 			for(int x=0; x<m.m_nx; x++)
@@ -819,7 +868,7 @@ CSG_Matrix CSG_Matrix::Multiply(const CSG_Matrix &Matrix) const
 
 				for(int n=0; n<m_nx; n++)
 				{
-					z	+= m_z[n][x] * Matrix.m_z[y][n];
+					z	+= m_z[y][n] * Matrix.m_z[n][x];
 				}
 
 				m.m_z[y][x]	= z;
@@ -961,12 +1010,23 @@ CSG_Matrix CSG_Matrix::operator * (const CSG_Matrix &Matrix) const
 	return( Multiply(Matrix) );
 }
 
+CSG_Matrix	operator * (double Scalar, const CSG_Matrix &Matrix)
+{
+	return( Matrix * Scalar );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Matrix::Set_Zero(void)
+{
+	return( Create(m_nx, m_ny) );
+}
 
 //---------------------------------------------------------
 bool CSG_Matrix::Set_Identity(void)
@@ -988,17 +1048,17 @@ bool CSG_Matrix::Set_Identity(void)
 }
 
 //---------------------------------------------------------
-bool CSG_Matrix::Set_Transpose(const CSG_Matrix &Matrix)
+bool CSG_Matrix::Set_Transpose(void)
 {
-	if( Matrix.m_nx > 0 && Matrix.m_ny > 0 )
+	CSG_Matrix	m;
+	
+	if( m.Create(*this) && Create(m_ny, m_nx) )
 	{
-		Create(Matrix.m_ny, Matrix.m_nx);
-
 		for(int y=0; y<m_ny; y++)
 		{
 			for(int x=0; x<m_nx; x++)
 			{
-				m_z[y][x]	= Matrix.m_z[x][y];
+				m_z[y][x]	= m.m_z[y][x];
 			}
 		}
 
@@ -1017,9 +1077,10 @@ bool CSG_Matrix::Set_Inverse(bool bSilent, int nSubSquare)
 	//-----------------------------------------------------
 	if( nSubSquare > 0 )
 	{
-		n	= nSubSquare;
-		if( n > m_nx )	n	= m_nx;
-		if( n > m_ny )	n	= m_ny;
+		if( nSubSquare <= m_nx && nSubSquare <= m_ny )
+		{
+			n	= nSubSquare;
+		}
 	}
 	else if( is_Square() )
 	{
@@ -1029,23 +1090,23 @@ bool CSG_Matrix::Set_Inverse(bool bSilent, int nSubSquare)
 	//-----------------------------------------------------
 	if( n > 0 )
 	{
-		int			*Permutation	= (int *)SG_Malloc(n * sizeof(int));
-		CSG_Matrix	Matrix(*this);
+		CSG_Matrix	m(*this);
+		int		*Permutation	= (int *)SG_Malloc(n * sizeof(int));
 
-		if( SG_Matrix_LU_Decomposition(n, Permutation, Matrix.Get_Data(), bSilent) )
+		if( SG_Matrix_LU_Decomposition(n, Permutation, m.Get_Data(), bSilent) )
 		{
-			CSG_Vector	Vector(n);
+			CSG_Vector	v(n);
 
 			for(int j=0; j<n && (bSilent || SG_Callback_Process_Set_Progress(j, n)); j++)
 			{
-				Vector.Assign(0.0);
-				Vector[j]	= 1.0;
+				v.Set_Zero();
+				v[j]	= 1.0;
 
-				SG_Matrix_LU_Solve(n, Permutation, Matrix.Get_Data(), Vector.Get_Data(), true);
+				SG_Matrix_LU_Solve(n, Permutation, m.Get_Data(), v.Get_Data(), true);
 
 				for(int i=0; i<n; i++)
 				{
-					m_z[i][j]	= Vector[i];
+					m_z[i][j]	= v[i];
 				}
 			}
 
@@ -1056,6 +1117,54 @@ bool CSG_Matrix::Set_Inverse(bool bSilent, int nSubSquare)
 	}
 
 	return( bResult );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+double CSG_Matrix::Get_Determinant(void) const
+{
+	double	d	= 0.0;
+
+	for(int y=0; y<m_ny; y++)
+	{
+		for(int x=0; x<m_nx; x++)
+		{
+		}
+	}
+
+	return( d );
+}
+
+//---------------------------------------------------------
+CSG_Matrix CSG_Matrix::Get_Transpose(void) const
+{
+	CSG_Matrix	m(m_ny, m_nx);
+
+	for(int y=0; y<m_ny; y++)
+	{
+		for(int x=0; x<m_nx; x++)
+		{
+			m.m_z[x][y]	= m_z[y][x];
+		}
+	}
+
+	return( m );
+}
+
+//---------------------------------------------------------
+CSG_Matrix CSG_Matrix::Get_Inverse(bool bSilent, int nSubSquare) const
+{
+	CSG_Matrix	m(*this);
+
+	m.Set_Inverse(bSilent, nSubSquare);
+
+	return( m );
 }
 
 
