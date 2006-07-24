@@ -4,6 +4,7 @@ AM_CXXFLAGS        = $(CXX_INCS) $(DEF_SAGA) $(DEP_INCS) $(DEP_DEFS)
 AM_LDFLAGS         = -shared $(DEP_LFLG) $(DEP_LIBS)
 pkglib_LTLIBRARIES = libta_profiles.la
 libta_profiles_la_SOURCES =\
+Grid_Cross_Profiles.cpp\
 Grid_CrossSections.cpp\
 Grid_Flow_Profile.cpp\
 Grid_Profile.cpp\
@@ -12,6 +13,7 @@ Grid_Swath_Profile.cpp\
 Intersection_GPC.c\
 MLB_Interface.cpp\
 PDFDocEngine_CrossSections.cpp\
+Grid_Cross_Profiles.h\
 Grid_CrossSections.h\
 Grid_Flow_Profile.h\
 Grid_Profile.h\
