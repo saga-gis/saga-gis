@@ -263,6 +263,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\SADO_SolarRadiation.cpp"
+				>
+			</File>
+			<File
 				RelativePath="SolarRadiation.cpp"
 				>
 				<FileConfiguration
@@ -317,6 +321,10 @@
 			</File>
 			<File
 				RelativePath="MLB_Interface.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SADO_SolarRadiation.h"
 				>
 			</File>
 			<File

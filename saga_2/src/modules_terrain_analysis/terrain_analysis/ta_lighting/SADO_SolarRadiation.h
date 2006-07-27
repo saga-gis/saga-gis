@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                      ta_lighting                      //
+//                     ta_lighting                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                 SADO_SolarRadiation.h                 //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2006 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -53,71 +53,72 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifndef HEADER_INCLUDED__SADO_SolarRadiation_H
+#define HEADER_INCLUDED__SADO_SolarRadiation_H
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-const char * Get_Info(int i)
+class ta_lighting_EXPORT CSADO_SolarRadiation : public CModule_Grid
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Terrain Analysis - Lighting, Visibility" ));
+public:
+	CSADO_SolarRadiation(void);
+	virtual ~CSADO_SolarRadiation(void);
 
-	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad, Goettingen (c) 2003" ));
+//	virtual const char *	Get_MenuPath			(void)	{	return( _TL("R:Lighting") );	}
 
-	case MLB_INFO_Description:
-		return( _TL("Lighting and visibility calculations for digital terrain models." ));
 
-	case MLB_INFO_Version:
-		return( "1.0" );
+protected:
 
-	case MLB_INFO_Menu_Path:
-		return( _TL("Terrain Analysis|Lighting" ));
-	}
-}
+	virtual bool			On_Execute				(void);
 
-//---------------------------------------------------------
-#include "HillShade.h"
-#include "Visibility_Point.h"
-#include "SolarRadiation.h"
-#include "SADO_SolarRadiation.h"
 
-//---------------------------------------------------------
-CModule * Create_Module(int i)
-{
-	CModule	*pModule;
+private:
 
-	switch( i )
-	{
-	case 0:
-		pModule	= new CHillShade;
-		break;
+	bool					m_bMoment, m_bHorizon, m_bBending,
+							m_bUpdateDirect, m_bUpdateDiffus, m_bUpdateTotal;
 
-	case 1:
-		pModule	= new CVisibility_Point;
-		break;
+	int						m_Day_A, m_Day_B, m_dDays;
 
-	case 2:
-		pModule	= new CSolarRadiation;
-		break;
+	double					m_Solar_Const, m_Atmosphere, m_VP, m_Latitude, m_Hour, m_dHour;
 
-	case 3:
-		pModule	= new CSADO_SolarRadiation;
-		break;
+	CGrid					*m_pDEM, *m_pVP, *m_pSumDirect, *m_pSumDiffus, *m_pSumTotal,
+							m_TmpDirect, m_TmpDiffus, m_TmpTotal,
+							m_Slope, m_Aspect, m_Lat, m_Lon, m_Decline, m_Azimuth;
 
-	default:
-		pModule	= NULL;
-		break;
-	}
 
-	return( pModule );
-}
+	bool					Initialise				(void);
+	bool					Finalise				(double SumFactor = 1.0);
+
+	bool					Get_Insolation			(void);
+	bool					Get_Insolation			(int Day, double Hour);
+
+	double					Get_Vapour_Exponent		(double VapourPressure);
+	double					Get_Vapour_A			(double VapourPressure);
+	bool					Set_Insolation			(double Decline, double Azimuth);
+
+	double					Get_Solar_Reduction		(double Elevation, double Decline, double Reduction);
+	double					Get_Solar_Direct		(int x, int y, double Decline, double Azimuth, double Exponent);
+	double					Get_Solar_Diffus		(int x, int y, double Decline, double A      , double Exponent);
+
+	bool					Get_Solar_Shadow		(int x, int y, double Decline, double Azimuth);
+
+	bool					Get_Solar_Position		(int Day, double Hour, double Lat, double Lon, double &Dec, double &Azi);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -127,8 +128,4 @@ CModule * Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__SADO_SolarRadiation_H

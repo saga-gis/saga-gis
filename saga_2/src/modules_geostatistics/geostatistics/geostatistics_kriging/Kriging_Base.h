@@ -58,8 +58,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef _INTERPOLATION_KRIGING_BASE_H
-#define _INTERPOLATION_KRIGING_BASE_H
+#ifndef HEADER_INCLUDED__Kriging_Base_H
+#define HEADER_INCLUDED__Kriging_Base_H
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
@@ -132,4 +132,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef _INTERPOLATION_KRIGING_BASE_H
+#endif // #ifndef HEADER_INCLUDED__Kriging_Base_H

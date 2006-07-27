@@ -94,6 +94,16 @@ CPROJ4_Grid::CPROJ4_Grid(void)
 		""
 	);
 
+	Parameters.Add_Grid_Output(
+		NULL	, "OUT_X"		, _TL("X Coordinates"),
+		""
+	);
+
+	Parameters.Add_Grid_Output(
+		NULL	, "OUT_Y"		, _TL("Y Coordinates"),
+		""
+	);
+
 	Parameters.Add_Shapes_Output(
 		NULL	, "OUT_SHAPES"	, _TL("Shapes"),
 		""
@@ -108,17 +118,24 @@ CPROJ4_Grid::CPROJ4_Grid(void)
 		PARAMETER_INPUT
 	);
 
+	Parameters.Add_Value(
+		Parameters("TARGET_NODE"),
+		"CREATE_XY"		, _TL("Create X/Y Grids"),
+		"",
+		PARAMETER_TYPE_Bool, false
+	);
+
 	Parameters.Add_Choice(
 		Parameters("TARGET_NODE"),
 		"TARGET_TYPE"	, _TL("Target"),
 		"",
 
 		CSG_String::Format("%s|%s|%s|%s|%s|",
-			_TL("User defined"),
-			_TL("Automatic fit"),
-			_TL("Grid Project"),
-			_TL("Grid"),
-			_TL("Shapes")
+			_TL("user defined"),
+			_TL("automatic fit"),
+			_TL("grid system"),
+			_TL("grid"),
+			_TL("shapes")
 		), 0
 	);
 
@@ -176,6 +193,14 @@ CPROJ4_Grid::CPROJ4_Grid(void)
 	);
 	pParameters->Add_Info_Value(
 		NULL, "NY"			, _TL("Rows")		, "", PARAMETER_TYPE_Int
+	);
+
+
+	//-----------------------------------------------------
+	pParameters	= Add_Extra_Parameters("GET_SYSTEM"		, _TL("Choose Grid")			, "");
+
+	pParameters->Add_Grid_System(
+		NULL, "SYSTEM"		, _TL("System")		, ""
 	);
 
 
@@ -240,11 +265,11 @@ bool CPROJ4_Grid::On_Execute_Conversion(void)
 		}
 		break;
 
-	case 2:	// select grid project...
-		if( Dlg_Extra_Parameters("GET_GRID") )
+	case 2:	// select grid system...
+		if( Dlg_Extra_Parameters("GET_SYSTEM") )
 		{
 			pGrid	= SG_Create_Grid(
-						Get_Extra_Parameters("GET_GRID")->Get_Parameter("GRID")->asGrid()
+						*Get_Extra_Parameters("GET_SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System()
 					);
 		}
 		break;
@@ -558,6 +583,7 @@ bool CPROJ4_Grid::Set_Grid(CGrid *pSource, CGrid *pTarget, int Interpol)
 	int			x, y;
 	double		z;
 	TSG_Point	Pt_Source, Pt_Target;
+	CGrid		*pX, *pY;
 
 	if( pSource && pTarget && Set_Transformation_Inverse() )
 	{
@@ -568,6 +594,23 @@ bool CPROJ4_Grid::Set_Grid(CGrid *pSource, CGrid *pTarget, int Interpol)
 
 		pTarget->Assign_NoData();
 
+		if( Parameters("CREATE_XY")->asBool() )
+		{
+			pX	= SG_Create_Grid(pTarget->Get_System(), GRID_TYPE_Float);
+			pX->Assign_NoData();
+			pX->Set_Name(_TL("X-Coordinate"));
+			Parameters("OUT_X")->Set_Value(pX);
+
+			pY	= SG_Create_Grid(pTarget->Get_System(), GRID_TYPE_Float);
+			pY->Assign_NoData();
+			pY->Set_Name(_TL("Y-Coordinate"));
+			Parameters("OUT_Y")->Set_Value(pY);
+		}
+		else
+		{
+			pX	= pY	= NULL;
+		}
+
 		//-------------------------------------------------
 		for(y=0, Pt_Target.y=pTarget->Get_YMin(); y<pTarget->Get_NY() && Set_Progress(y, pTarget->Get_NY()); y++, Pt_Target.y+=pTarget->Get_Cellsize())
 		{
@@ -577,11 +620,15 @@ bool CPROJ4_Grid::Set_Grid(CGrid *pSource, CGrid *pTarget, int Interpol)
 
 				if( Get_Converted(Pt_Source) )
 				{
-					z	= pSource->Get_Value(Pt_Source.x, Pt_Source.y, Interpol);
-
-					if( !pSource->is_NoData_Value(z) )
+					if( pSource->Get_Value(Pt_Source, z, Interpol) )
 					{
 						pTarget->Set_Value(x, y, z);
+					}
+
+					if( pX && pY )
+					{
+						pX->Set_Value(x, y, Pt_Source.x);
+						pY->Set_Value(x, y, Pt_Source.y);
 					}
 				}
 			}

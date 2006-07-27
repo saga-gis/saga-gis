@@ -104,7 +104,7 @@ CGrid * SG_Create_Grid(CGrid *pGrid, TGrid_Type Type, TGrid_Memory_Type Memory_T
 }
 
 //---------------------------------------------------------
-CGrid * SG_Create_Grid(CGrid_System &System, TGrid_Type Type, TGrid_Memory_Type Memory_Type)
+CGrid * SG_Create_Grid(const CGrid_System &System, TGrid_Type Type, TGrid_Memory_Type Memory_Type)
 {
 	return( new CGrid(System, Type, Memory_Type) );
 }

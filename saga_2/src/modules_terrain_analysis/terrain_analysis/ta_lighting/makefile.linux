@@ -18,7 +18,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/HillShade.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/SolarRadiation.o $(MLB_TEMP)/Visibility_Point.o
+OBJ      = $(MLB_TEMP)/HillShade.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/SADO_SolarRadiation.o $(MLB_TEMP)/SolarRadiation.o $(MLB_TEMP)/Visibility_Point.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS = -I/usr/lib/glib/include -I/usr/include/glib-1.2
@@ -54,6 +54,9 @@ $(MLB_TEMP)/HillShade.o: ./HillShade.cpp $(MLB_TEMP)
 
 $(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
+
+$(MLB_TEMP)/SADO_SolarRadiation.o: ./SADO_SolarRadiation.cpp $(MLB_TEMP)
+	$(CPP) -c ./SADO_SolarRadiation.cpp -o $(MLB_TEMP)/SADO_SolarRadiation.o $(CXXFLAGS)
 
 $(MLB_TEMP)/SolarRadiation.o: ./SolarRadiation.cpp $(MLB_TEMP)
 	$(CPP) -c ./SolarRadiation.cpp -o $(MLB_TEMP)/SolarRadiation.o $(CXXFLAGS)

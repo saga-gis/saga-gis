@@ -74,7 +74,7 @@ CSolarRadiation::CSolarRadiation(void)
 	CParameter	*pNode_0, *pNode_1, *pNode_2;
 
 	//-----------------------------------------------------
-	Set_Name(_TL("Solar Radiation"));
+	Set_Name(_TL("Incoming Solar Radiation"));
 
 	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
@@ -119,7 +119,7 @@ CSolarRadiation::CSolarRadiation(void)
 		"",
 
 		"kWh/m²|"
-		"kJ/m²|"				, 0
+		"J/m²|"					, 0
 	);
 
 
@@ -292,11 +292,11 @@ CSolarRadiation::~CSolarRadiation(void)
 //---------------------------------------------------------
 bool CSolarRadiation::On_Execute(void)
 {
-	static int	Month2Day[12]	= {	0, 31, 49, 80, 109, 140, 170, 201, 232, 272, 303, 333 };
+	static const int	Month2Day[12]	= {	0, 31, 49, 80, 109, 140, 170, 201, 232, 272, 303, 333 };
 
 	//-----------------------------------------------------
-	int		Day_Step, Day_Start, Day_Stop;
-	double	Latitude, Hour_Step, Hour_Start, Hour_Stop;
+	int			Day_Step, Day_Start, Day_Stop;
+	double		Latitude, Hour_Step, Hour_Start, Hour_Stop;
 	CSG_Colors	Colors;
 
 	//-----------------------------------------------------
@@ -353,18 +353,20 @@ bool CSolarRadiation::On_Execute(void)
 	//-----------------------------------------------------
 	delete( m_pSum );
 
-	Colors.Set_Ramp(COLOR_GET_RGB(  0,  63, 127), COLOR_GET_RGB(255, 255,   0));
+	Colors.Set_Count(100);
+	Colors.Set_Ramp(COLOR_GET_RGB(  0,   0,  64), COLOR_GET_RGB(255, 159,   0),  0, 50);
+	Colors.Set_Ramp(COLOR_GET_RGB(255, 159,   0), COLOR_GET_RGB(255, 255, 255), 50, 99);
 
 	DataObject_Set_Colors(m_pRadiation, Colors);
-	DataObject_Set_Colors(m_pDuration, Colors);
+	DataObject_Set_Colors(m_pDuration , Colors);
 
 	m_pDuration->Set_Unit("h");
 
 	if( Parameters("UNIT")->asInt() == 1 )	// Joule...
 	{
-		*m_pRadiation	*= 3600.0;	// 1 Ws = 1 J >> 1 Wh = 3600 J >> 1 kWh = 3600 kJ = 3600000 J
+		*m_pRadiation	*= 10.0 / 36.0;	// 1 J = 1 Ws = 1/(60*60) Wh = 1/3600 Wh >> 1 J = 1000/3600 kWh = 10/36 kWh
 
-		m_pRadiation->Set_Unit("kJ/m²");
+		m_pRadiation->Set_Unit("J/m²");
 	}
 	else
 	{
@@ -495,7 +497,7 @@ void CSolarRadiation::Get_DailySum(double Latitude_RAD, double Hour_Step, double
 		}
 
 		//-------------------------------------------------
-		if( Get_SolarPosition(Day, time, Latitude_RAD, 0, Sol_Azimuth, Sol_Height, false) )
+		if( Get_SolarPosition(Day, time, Latitude_RAD, 0.0, Sol_Azimuth, Sol_Height, false) )
 		{
 			bNight	= false;
 
@@ -505,7 +507,12 @@ void CSolarRadiation::Get_DailySum(double Latitude_RAD, double Hour_Step, double
 
 			for(int n=0; n<Get_NCells(); n++)
 			{
-				if( !m_pRadiation->is_NoData(n) )
+				if( m_pRadiation->is_NoData(n) )
+				{
+					m_pSum		->Set_NoData(n);
+					m_pDuration	->Set_NoData(n);
+				}
+				else
 				{
 					Solar_Angle	= m_pRadiation->asDouble(n);
 
@@ -673,9 +680,9 @@ C ====================================================================*/
 //---------------------------------------------------------
 bool CSolarRadiation::Get_SolarPosition(int Day, double Time, double LAT, double LON, double &Azimuth, double &Declination, bool bDegree)
 {
-	const int		Day2Month[13]	= {	0, 31, 49, 80, 109, 140, 170, 201, 232, 272, 303, 333, 366 };
+	static const int	Day2Month[13]	= {	0, 31, 49, 80, 109, 140, 170, 201, 232, 272, 303, 333, 366 };
 
-	const double	ECLIPTIC_OBL	= M_DEG_TO_RAD * 23.43999;	// obliquity of ecliptic
+	static const double	ECLIPTIC_OBL	= M_DEG_TO_RAD * 23.43999;	// obliquity of ecliptic
 
 	int		i;
 
@@ -709,7 +716,8 @@ bool CSolarRadiation::Get_SolarPosition(int Day, double Time, double LAT, double
 
 	//-----------------------------------------------------
 
-	UTime		= Time - LON * 12.0 / M_PI;
+//	UTime		= Time - LON * 12.0 / M_PI;
+	UTime		= Time;
 
 
 	//-----------------------------------------------------

@@ -889,7 +889,7 @@ SAGA_API_DLL_EXPORT CGrid *			SG_Create_Grid		(const char *FileName, TGrid_Type 
 SAGA_API_DLL_EXPORT CGrid *			SG_Create_Grid		(CGrid *pGrid, TGrid_Type Type = GRID_TYPE_Undefined, TGrid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
 
 /** Safe grid construction */
-SAGA_API_DLL_EXPORT CGrid *			SG_Create_Grid		(CGrid_System &System, TGrid_Type Type, TGrid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
+SAGA_API_DLL_EXPORT CGrid *			SG_Create_Grid		(const CGrid_System &System, TGrid_Type Type, TGrid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
 
 /** Safe grid construction */
 SAGA_API_DLL_EXPORT CGrid *			SG_Create_Grid		(TGrid_Type Type, int NX, int NY, double Cellsize = 0.0, double xMin = 0.0, double yMin = 0.0, TGrid_Memory_Type Memory_Type = GRID_MEMORY_Normal);

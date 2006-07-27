@@ -109,6 +109,10 @@ SOURCE=.\MLB_Interface.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\SADO_SolarRadiation.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\SolarRadiation.cpp
 # End Source File
 # Begin Source File
@@ -126,6 +130,10 @@ SOURCE=.\HillShade.h
 # Begin Source File
 
 SOURCE=.\MLB_Interface.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SADO_SolarRadiation.h
 # End Source File
 # Begin Source File
 
