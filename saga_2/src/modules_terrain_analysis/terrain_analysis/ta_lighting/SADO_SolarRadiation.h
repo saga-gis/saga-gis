@@ -97,7 +97,7 @@ private:
 
 	CGrid					*m_pDEM, *m_pVP, *m_pSumDirect, *m_pSumDiffus, *m_pSumTotal,
 							m_TmpDirect, m_TmpDiffus, m_TmpTotal,
-							m_Slope, m_Aspect, m_Lat, m_Lon, m_Decline, m_Azimuth;
+							m_Slope, m_Aspect, m_Shade, m_Lat, m_Lon, m_Decline, m_Azimuth;
 
 
 	bool					Initialise				(void);
@@ -114,7 +114,9 @@ private:
 	double					Get_Solar_Direct		(int x, int y, double Decline, double Azimuth, double Exponent);
 	double					Get_Solar_Diffus		(int x, int y, double Decline, double A      , double Exponent);
 
-	bool					Get_Solar_Shadow		(int x, int y, double Decline, double Azimuth);
+	bool					Get_Shade				(double Azimuth, double Decline);
+	void					Set_Shade				(int x, int y, double dx, double dy, double dz);
+	void					Set_Shade_Bended		(int x, int y, double dx, double dy, double dz, char iLock);
 
 	bool					Get_Solar_Position		(int Day, double Hour, double Lat, double Lon, double &Dec, double &Azi);
 

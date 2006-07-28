@@ -639,10 +639,10 @@ public:		///////////////////////////////////////////////
 	//-----------------------------------------------------
 	// Get Value...
 
-	double						Get_Value(double xPos, double yPos, int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false);
-	double						Get_Value(TSG_Point Position     , int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false);
-	bool						Get_Value(double xPos, double yPos, double &Value, int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false);
-	bool						Get_Value(TSG_Point Position     , double &Value, int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false);
+	double						Get_Value(double xPos, double yPos,                int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false, bool bByteWise = false);
+	double						Get_Value(TSG_Point Position      ,                int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false, bool bByteWise = false);
+	bool						Get_Value(double xPos, double yPos, double &Value, int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false, bool bByteWise = false);
+	bool						Get_Value(TSG_Point Position      , double &Value, int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false, bool bByteWise = false);
 
 	virtual BYTE				asByte	(int x, int y, bool bZFactor = false)	{	return( (BYTE )asDouble(x, y, bZFactor) );	}
 	virtual BYTE				asByte	(      long n, bool bZFactor = false)	{	return( (BYTE )asDouble(   n, bZFactor) );	}
@@ -857,11 +857,14 @@ private:	///////////////////////////////////////////////
 	// Interpolation subroutines...
 
 	double						_Get_ValAtPos_NearestNeighbour	(int x, int y, double dx, double dy);
-	double						_Get_ValAtPos_BiLinear			(int x, int y, double dx, double dy);
-	double						_Get_ValAtPos_InverseDistance	(int x, int y, double dx, double dy);
-	double						_Get_ValAtPos_BiCubicSpline		(int x, int y, double dx, double dy);
-	double						_Get_ValAtPos_BSpline			(int x, int y, double dx, double dy);
+	double						_Get_ValAtPos_BiLinear			(int x, int y, double dx, double dy, bool bByteWise);
+	double						_Get_ValAtPos_InverseDistance	(int x, int y, double dx, double dy, bool bByteWise);
+	double						_Get_ValAtPos_BiCubicSpline		(int x, int y, double dx, double dy, bool bByteWise);
+	double						_Get_ValAtPos_BiCubicSpline		(double dx, double dy, double z_xy[4][4]);
+	double						_Get_ValAtPos_BSpline			(int x, int y, double dx, double dy, bool bByteWise);
+	double						_Get_ValAtPos_BSpline			(double dx, double dy, double z_xy[4][4]);
 	bool						_Get_ValAtPos_Fill4x4Submatrix	(int x, int y, double z_xy[4][4]);
+	bool						_Get_ValAtPos_Fill4x4Submatrix	(int x, int y, double z_xy[4][4][4]);
 
 	bool						_Assign_Interpolated	(CGrid *pSource, TGrid_Interpolation Interpolation);
 	bool						_Assign_MeanValue		(CGrid *pSource);

@@ -73,11 +73,12 @@ CSADO_SolarRadiation::CSADO_SolarRadiation(void)
 	CParameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name		(_TL("Insolation (SADO)"));
+	Set_Name		(_TL("Insolation"));
 
 	Set_Author		(_TL("Copyrights (c) 2006 by Olaf Conrad"));
 
 	Set_Description	(_TL(
+		"Calculation of incoming solar radiation (insolation). "
 		"Based on the SADO (System for the Analysis of Discrete Surfaces) routines "
 		"developed by Boehner & Trachinow. "
 		"\n\n"
@@ -240,12 +241,12 @@ CSADO_SolarRadiation::CSADO_SolarRadiation(void)
 		pNode	, "LON_OFFSET"		, _TL("Local time relates to grid's..."),
 		_TL(""),
 
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("left"),
 			_TL("center"),
 			_TL("right"),
 			_TL("user defined reference")
-		), 3
+		), 1
 	);
 
 	Parameters.Add_Value(
@@ -353,6 +354,10 @@ bool CSADO_SolarRadiation::On_Execute(void)
 	{
 		Message_Dlg(_TL("No output grid has been choosen."), Get_Name());
 	}
+	else if( m_pSumDirect == m_pDEM || m_pSumDiffus == m_pDEM || m_pSumTotal == m_pDEM )
+	{
+		Message_Dlg(_TL("Output must not overwrite elevation grid."), Get_Name());
+	}
 	else
 	{
 		return( Get_Insolation() );
@@ -391,6 +396,7 @@ bool CSADO_SolarRadiation::Initialise(void)
 		if( m_bUpdateDirect )
 		{
 			m_TmpDirect.Create(*Get_System(), GRID_TYPE_Float);
+			DataObject_Update(m_pSumDirect, true);
 		}
 	}
 
@@ -403,6 +409,7 @@ bool CSADO_SolarRadiation::Initialise(void)
 		if( m_bUpdateDiffus )
 		{
 			m_TmpDiffus.Create(*Get_System(), GRID_TYPE_Float);
+			DataObject_Update(m_pSumDiffus, true);
 		}
 	}
 
@@ -415,10 +422,14 @@ bool CSADO_SolarRadiation::Initialise(void)
 		if( m_bUpdateTotal )
 		{
 			m_TmpTotal.Create(*Get_System(), GRID_TYPE_Float);
+			DataObject_Update(m_pSumTotal , true);
 		}
 	}
 
 	//-----------------------------------------------------
+	Process_Set_Text(_TL("initialising gradient..."));
+
+	m_Shade .Create(*Get_System(), GRID_TYPE_Byte);
 	m_Slope .Create(*Get_System(), GRID_TYPE_Float);
 	m_Aspect.Create(*Get_System(), GRID_TYPE_Float);
 
@@ -444,6 +455,8 @@ bool CSADO_SolarRadiation::Initialise(void)
 	//-----------------------------------------------------
 	if( m_bBending )
 	{
+		Process_Set_Text(_TL("initialising planetary bending..."));
+
 		CGrid	*pLat	= Parameters("GRD_LAT")->asGrid(),
 				*pLon	= Parameters("GRD_LON")->asGrid();
 
@@ -532,6 +545,7 @@ bool CSADO_SolarRadiation::Finalise(double SumFactor)
 	}
 
 	//-----------------------------------------------------
+	m_Shade		.Destroy();
 	m_Slope		.Destroy();
 	m_Aspect	.Destroy();
 
@@ -573,7 +587,7 @@ bool CSADO_SolarRadiation::Get_Insolation(void)
 		{
 			for(int Day=m_Day_A; Day<=m_Day_B && Process_Get_Okay(false); Day+=m_dDays)
 			{
-				for(double Hour=m_Hour; Hour<24.0 && Set_Progress(Hour, 24.0); Hour+=m_dHour)
+				for(double Hour=m_Hour; Hour<24.0 && Process_Get_Okay(false); Hour+=m_dHour)
 				{
 					Process_Set_Text(CSG_String::Format("%s: %d(%d-%d), %s: %f", _TL("Day"), Day, m_Day_A, m_Day_B, _TL("Hour"), Hour));
 
@@ -586,19 +600,19 @@ bool CSADO_SolarRadiation::Get_Insolation(void)
 						if( m_bUpdateDirect )
 						{
 							m_TmpDirect	+= *m_pSumDirect;
-							DataObject_Update(m_pSumDirect, true);
+							DataObject_Update(m_pSumDirect);
 						}
 
 						if( m_bUpdateDiffus )
 						{
 							m_TmpDiffus	+= *m_pSumDiffus;
-							DataObject_Update(m_pSumDiffus, true);
+							DataObject_Update(m_pSumDiffus);
 						}
 
 						if( m_bUpdateTotal )
 						{
 							m_TmpTotal	+= *m_pSumTotal;
-							DataObject_Update(m_pSumTotal , true);
+							DataObject_Update(m_pSumTotal);
 						}
 					}
 				}
@@ -619,7 +633,9 @@ bool CSADO_SolarRadiation::Get_Insolation(int Day, double Hour)
 
 	if( m_bBending )
 	{
-		for(int y=0; y<Get_NY(); y++)
+		bool	bGo	= false;
+
+		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 		{
 			for(int x=0; x<Get_NX(); x++)
 			{
@@ -627,10 +643,18 @@ bool CSADO_SolarRadiation::Get_Insolation(int Day, double Hour)
 
 				m_Azimuth.Set_Value(x, y, Azimuth);
 				m_Decline.Set_Value(x, y, Decline);
+
+				if( Decline > 0.0 )
+				{
+					bGo	= true;
+				}
 			}
 		}
 
-		return( Set_Insolation(Decline, Azimuth) );
+		if( bGo )
+		{
+			return( Set_Insolation(Decline, Azimuth) );
+		}
 	}
 	else if( Get_Solar_Position(Day, Hour, m_Latitude, 0.0, Decline, Azimuth) )
 	{
@@ -662,14 +686,15 @@ inline double CSADO_SolarRadiation::Get_Vapour_A(double VapourPressure)
 //---------------------------------------------------------
 bool CSADO_SolarRadiation::Set_Insolation(double Decline, double Azimuth)
 {
-	bool	bResult	= false;
 	int		x, y;
 	double	a, e, Direct, Diffus;
+
+	Get_Shade(Decline, Azimuth);
 
 	e	= Get_Vapour_Exponent	(m_VP);
 	a	= Get_Vapour_A			(m_VP);
 
-	for(y=0; y<Get_NY() && Process_Get_Okay(false); y++)
+	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
@@ -695,20 +720,18 @@ bool CSADO_SolarRadiation::Set_Insolation(double Decline, double Azimuth)
 
 				if( Decline > 0.0 )
 				{
-					bResult	= true;
-
 					Direct	= Get_Solar_Direct(x, y, Decline, Azimuth, e);
 					Diffus	= Get_Solar_Diffus(x, y, Decline, a      , e);
 
 					if( m_pSumDirect )	m_pSumDirect->Add_Value(x, y, Direct);
 					if( m_pSumDiffus )	m_pSumDiffus->Add_Value(x, y, Diffus);
-					if( m_pSumTotal )	m_pSumTotal ->Add_Value(x, y, Direct + Diffus);
+					if( m_pSumTotal  )	m_pSumTotal ->Add_Value(x, y, Direct + Diffus);
 				}
 			}
 		}
 	}
 
-	return( bResult );
+	return( true );
 }
 
 
@@ -727,13 +750,15 @@ inline double CSADO_SolarRadiation::Get_Solar_Reduction(double Elevation, double
 //---------------------------------------------------------
 inline double CSADO_SolarRadiation::Get_Solar_Direct(int x, int y, double Decline, double Azimuth, double Exponent)
 {
-	if( Get_Solar_Shadow(x, y, Decline, Azimuth) == false )
+	if( m_Shade.asInt(x, y) == 0 )
 	{
 		double	Angle, Slope;
 
 		Slope	= m_bHorizon ? 0.0 : m_Slope.asDouble(x, y);
+
 		Angle	= cos(Slope) * cos(Decline - M_PI_090)
-				+ sin(Slope) * sin(M_PI_090 - Decline) * cos(Azimuth - m_Aspect.asDouble(x, y));
+				+ sin(Slope) * sin(M_PI_090 - Decline)
+				* cos(Azimuth - m_Aspect.asDouble(x, y));
 
 		if( Angle > 0.0 )
 		{
@@ -771,110 +796,126 @@ inline double CSADO_SolarRadiation::Get_Solar_Diffus(int x, int y, double Declin
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define CHECK_SHADOW(X, Y)	if( (d = SG_Get_Distance(x, y, X, Y) * Get_Cellsize()) > 0.0 )\
-							{\
-								if( (t = (m_pDEM->asDouble(X, Y) - z) / d) > tMax )\
-								{\
-									tMax	= t;\
-								}\
-								\
-								if( (d = zMax / d) < tanDec || d < tMax )\
-								{\
-									return( false );\
-								}\
-								else if( tMax > tanDec )\
-								{\
-									return( true );\
-								}\
-							}
-
-//---------------------------------------------------------
-bool CSADO_SolarRadiation::Get_Solar_Shadow(int x, int y, double Decline, double Azimuth)
+bool CSADO_SolarRadiation::Get_Shade(double Decline, double Azimuth)
 {
-	static double	Zenith	= 89.9999 * M_DEG_TO_RAD;
-
-	bool	bGo;
-	int		dx, nx, ix, iy, iy_Last, jy;
-	double	dy, d, t, tMax, z, zMax, tanDec;
+	int		i, x, y, iLock;
+	double	dx, dy, dz;
 
 	//-----------------------------------------------------
-	if( Decline >= Zenith )
+	dz	= Azimuth + M_PI_180;
+	dx	= sin(dz);
+	dy	= cos(dz);
+
+	if( fabs(dx) > fabs(dy) )
 	{
-		return( false );
+		dy	/= fabs(dx);
+		dx	= dx < 0 ? -1 : 1;
 	}
-
-	//-----------------------------------------------------
-	Azimuth	= fmod(Azimuth, M_PI_360);	if( Azimuth < 0.0 )	Azimuth	+= M_PI_360;
-
-	if( Azimuth < M_PI_180 )
+	else if( fabs(dy) > fabs(dx) )
 	{
-		dx	= 1;
-		nx	= Get_NX() - 1;
+		dx	/= fabs(dy);
+		dy	= dy < 0 ? -1 : 1;
 	}
 	else
 	{
-		dx	= -1;
-		nx	= 0;
+		dx	= dx < 0 ? -1 : 1;
+		dy	= dy < 0 ? -1 : 1;
 	}
 
-	Azimuth	= M_PI_090 - Azimuth;
-
-	if(		 Azimuth	==  M_PI_090 )
-			 Azimuth	=   89.9999 * M_DEG_TO_RAD;
-	else if( Azimuth	== -M_PI_090 )
-			 Azimuth	= - 89.9999 * M_DEG_TO_RAD;
-	else if( Azimuth	== -M_PI_180 )
-			 Azimuth	= -179.9999 * M_DEG_TO_RAD;
-	else if( Azimuth	== -M_PI_270)
-			 Azimuth	= -269.9999 * M_DEG_TO_RAD;
-
-	dy		= tan(Azimuth);
+	dz	= tan(Decline) * sqrt(dx*dx + dy*dy) * Get_Cellsize();
 
 	//-----------------------------------------------------
-	z		= m_pDEM->asDouble(x, y);
-	zMax	= m_pDEM->Get_ZMax();
-	tanDec	= tan(Decline);
-	tMax	= 0.0;
-  
-	//-----------------------------------------------------
-	for(ix=x, iy=y, bGo=true; ix!=nx && bGo; ix+=dx)
+	m_Shade.Assign(0.0);
+
+	if( !m_bBending )
 	{
-		iy_Last	= iy;
-		iy		= y + (int)floor(dy * (ix - x + (dx > 0 ? 0.5 : -0.5)));
-
-		if( iy < 0 )
+		for(i=0; i<Get_NCells() && Set_Progress_NCells(i); i++)
 		{
-			bGo	= false;
-			iy	= 0;
-		}
-		else if( iy >= Get_NY() )
-		{
-			bGo	= false;
-			iy	= Get_NY() - 1;
-		}
-
-		//-------------------------------------------------
-		if( iy_Last < iy )
-		{
-			for(jy=iy_Last+1; jy<=iy; jy++)
+			if( m_pDEM->Get_Sorted(i, x, y) )//&& m_Shade.asInt(x, y) == 0 )
 			{
-				CHECK_SHADOW(ix, jy);
+				Set_Shade(x, y, dx, dy, dz);
 			}
 		}
-		else if( iy_Last > iy )
+	}
+	else
+	{
+		for(i=0, iLock=1; i<Get_NCells() && Set_Progress_NCells(i); i++, iLock++)
 		{
-			for(jy=iy_Last; jy>iy; jy--)
+			if( m_pDEM->Get_Sorted(i, x, y) )//&& m_Shade.asInt(x, y) == 0 )
 			{
-				CHECK_SHADOW(ix, jy);
+				if( iLock >= 255 )
+					iLock	= 1;
+
+				if( iLock == 1 )
+					Lock_Create();
+
+				Set_Shade_Bended(x, y, dx, dy, dz, iLock);
 			}
-		}
-		else if( iy_Last == iy ) 
-		{
-			CHECK_SHADOW(ix, iy);
 		}
 	}
 
-	return( false );
+	return( true );
+}
+
+//---------------------------------------------------------
+void CSADO_SolarRadiation::Set_Shade(int x, int y, double dx, double dy, double dz)
+{
+	for(double ix=x+0.5, iy=y+0.5, iz=m_pDEM->asDouble(x, y); ; )
+	{
+		x	= (int)(ix	+= dx);
+		y	= (int)(iy	+= dy);
+					iz	-= dz;
+
+		if( !is_InGrid(x, y) || m_pDEM->asDouble(x, y) > iz )
+		{
+			return;
+		}
+
+		m_Shade.Set_Value(x, y, 1);
+	}
+}
+
+//---------------------------------------------------------
+void CSADO_SolarRadiation::Set_Shade_Bended(int x, int y, double dx, double dy, double dz, char iLock)
+{
+	for(double ix=x+0.5, iy=y+0.5, iz=m_pDEM->asDouble(x, y); ; )
+	{
+		x	= (int)(ix	+= dx);
+		y	= (int)(iy	+= dy);
+					iz	-= dz;
+
+		if( !is_InGrid(x, y) || m_pDEM->asDouble(x, y) > iz || Lock_Get(x, y) == iLock )
+		{
+			return;
+		}
+
+		m_Shade.Set_Value(x, y, 1);
+
+		//---------------------------------------------
+		Lock_Set(x, y, iLock);
+
+		dz	= m_Azimuth.asDouble(x, y) + M_PI_180;
+		dx	= sin(dz);
+		dy	= cos(dz);
+
+		if( fabs(dx) > fabs(dy) )
+		{
+			dy	/= fabs(dx);
+			dx	= dx < 0 ? -1 : 1;
+		}
+		else if( fabs(dy) > fabs(dx) )
+		{
+			dx	/= fabs(dy);
+			dy	= dy < 0 ? -1 : 1;
+		}
+		else
+		{
+			dx	= dx < 0 ? -1 : 1;
+			dy	= dy < 0 ? -1 : 1;
+		}
+
+		dz	= tan(m_Decline.asDouble(x, y)) * sqrt(dx*dx + dy*dy) * Get_Cellsize();
+	}
 }
 
 
@@ -979,6 +1020,126 @@ inline bool CSADO_SolarRadiation::Get_Solar_Position(int Day, double Hour, doubl
 
 	return( Declination > 0.0 );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+/*/---------------------------------------------------------
+#define CHECK_SHADOW(X, Y)	if( (d = SG_Get_Distance(x, y, X, Y) * Get_Cellsize()) > 0.0 )\
+							{\
+								if( (t = (m_pDEM->asDouble(X, Y) - z) / d) > tMax )\
+								{\
+									tMax	= t;\
+								}\
+								\
+								if( (d = zMax / d) < tanDec || d < tMax )\
+								{\
+									return( false );\
+								}\
+								else if( tMax > tanDec )\
+								{\
+									return( true );\
+								}\
+							}
+
+//---------------------------------------------------------
+bool CSADO_SolarRadiation::Get_Solar_Shadow(int x, int y, double Decline, double Azimuth)
+{
+	static double	Zenith	= 89.9999 * M_DEG_TO_RAD;
+
+	//-----------------------------------------------------
+	if( Decline >= Zenith || Decline > m_Slope.Get_ZMax() )
+	{
+		return( false );
+	}
+
+	if( Decline <= 0.0 )
+	{
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	bool	bGo;
+	int		dx, nx, ix, iy, iy_Last, jy;
+	double	dy, d, t, tMax, z, zMax, tanDec;
+
+	//-----------------------------------------------------
+	Azimuth	= fmod(Azimuth, M_PI_360);	if( Azimuth < 0.0 )	Azimuth	+= M_PI_360;
+
+	if( Azimuth < M_PI_180 )
+	{
+		dx	= 1;
+		nx	= Get_NX() - 1;
+	}
+	else
+	{
+		dx	= -1;
+		nx	= 0;
+	}
+
+	Azimuth	= M_PI_090 - Azimuth;
+
+	if(		 Azimuth	==  M_PI_090 )
+			 Azimuth	=   89.9999 * M_DEG_TO_RAD;
+	else if( Azimuth	== -M_PI_090 )
+			 Azimuth	= - 89.9999 * M_DEG_TO_RAD;
+	else if( Azimuth	== -M_PI_180 )
+			 Azimuth	= -179.9999 * M_DEG_TO_RAD;
+	else if( Azimuth	== -M_PI_270)
+			 Azimuth	= -269.9999 * M_DEG_TO_RAD;
+
+	dy		= tan(Azimuth);
+
+	//-----------------------------------------------------
+	z		= m_pDEM->asDouble(x, y);
+	zMax	= m_pDEM->Get_ZMax();
+	tanDec	= tan(Decline);
+	tMax	= 0.0;
+  
+	//-----------------------------------------------------
+	for(ix=x, iy=y, bGo=true; ix!=nx && bGo; ix+=dx)
+	{
+		iy_Last	= iy;
+		iy		= y + (int)floor(dy * (ix - x + (dx > 0 ? 0.5 : -0.5)));
+
+		if( iy < 0 )
+		{
+			bGo	= false;
+			iy	= 0;
+		}
+		else if( iy >= Get_NY() )
+		{
+			bGo	= false;
+			iy	= Get_NY() - 1;
+		}
+
+		//-------------------------------------------------
+		if( iy_Last < iy )
+		{
+			for(jy=iy_Last+1; jy<=iy; jy++)
+			{
+				CHECK_SHADOW(ix, jy);
+			}
+		}
+		else if( iy_Last > iy )
+		{
+			for(jy=iy_Last; jy>iy; jy--)
+			{
+				CHECK_SHADOW(ix, jy);
+			}
+		}
+		else if( iy_Last == iy ) 
+		{
+			CHECK_SHADOW(ix, iy);
+		}
+	}
+
+	return( false );
+}/**/
 
 
 ///////////////////////////////////////////////////////////

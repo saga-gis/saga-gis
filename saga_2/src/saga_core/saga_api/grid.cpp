@@ -470,27 +470,27 @@ bool CGrid::is_Compatible(int NX, int NY, double Cellsize, double xMin, double y
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CGrid::Get_Value(TSG_Point Position, int Interpolation, bool bZFactor)
+double CGrid::Get_Value(TSG_Point Position, int Interpolation, bool bZFactor, bool bByteWise)
 {
 	double	Value;
 
-	return( Get_Value(Position.x, Position.y, Value, Interpolation, bZFactor) ? Value : m_NoData_Value );
+	return( Get_Value(Position.x, Position.y, Value, Interpolation, bZFactor, bByteWise) ? Value : m_NoData_Value );
 }
 
-double CGrid::Get_Value(double xPosition, double yPosition, int Interpolation, bool bZFactor)
+double CGrid::Get_Value(double xPosition, double yPosition, int Interpolation, bool bZFactor, bool bByteWise)
 {
 	double	Value;
 
-	return( Get_Value(xPosition, yPosition, Value, Interpolation, bZFactor) ? Value : m_NoData_Value );
+	return( Get_Value(xPosition, yPosition, Value, Interpolation, bZFactor, bByteWise) ? Value : m_NoData_Value );
 }
 
-bool CGrid::Get_Value(TSG_Point Position, double &Value, int Interpolation, bool bZFactor)
+bool CGrid::Get_Value(TSG_Point Position, double &Value, int Interpolation, bool bZFactor, bool bByteWise)
 {
-	return( Get_Value(Position.x, Position.y, Value, Interpolation, bZFactor) );
+	return( Get_Value(Position.x, Position.y, Value, Interpolation, bZFactor, bByteWise) );
 }
 
 //---------------------------------------------------------
-inline bool CGrid::Get_Value(double xPosition, double yPosition, double &Value, int Interpolation, bool bZFactor)
+inline bool CGrid::Get_Value(double xPosition, double yPosition, double &Value, int Interpolation, bool bZFactor, bool bByteWise)
 {
 	int		x, y;
 	double	dx, dy;
@@ -513,19 +513,19 @@ inline bool CGrid::Get_Value(double xPosition, double yPosition, double &Value, 
 			break;
 
 		case GRID_INTERPOLATION_Bilinear:
-			Value	= _Get_ValAtPos_BiLinear		(x, y, dx, dy);
+			Value	= _Get_ValAtPos_BiLinear		(x, y, dx, dy, bByteWise);
 			break;
 
 		case GRID_INTERPOLATION_InverseDistance:
-			Value	= _Get_ValAtPos_InverseDistance	(x, y, dx, dy);
+			Value	= _Get_ValAtPos_InverseDistance	(x, y, dx, dy, bByteWise);
 			break;
 
 		case GRID_INTERPOLATION_BicubicSpline:
-			Value	= _Get_ValAtPos_BiCubicSpline	(x, y, dx, dy);
+			Value	= _Get_ValAtPos_BiCubicSpline	(x, y, dx, dy, bByteWise);
 			break;
 
 		case GRID_INTERPOLATION_BSpline:
-			Value	= _Get_ValAtPos_BSpline			(x, y, dx, dy);
+			Value	= _Get_ValAtPos_BSpline			(x, y, dx, dy, bByteWise);
 			break;
 		}
 
@@ -558,42 +558,106 @@ inline double CGrid::_Get_ValAtPos_NearestNeighbour(int x, int y, double dx, dou
 }
 
 //---------------------------------------------------------
-#define BILINEAR_ADD(ix, iy, d)	if( is_InGrid(ix, iy) ) { z += d * asDouble(ix, iy); n += d; }
+#define BILINEAR_ADD(ix, iy, d)			if( is_InGrid(ix, iy) ) { n += d;\
+											z += d * asDouble(ix, iy); }
 
-inline double CGrid::_Get_ValAtPos_BiLinear(int x, int y, double dx, double dy)
+#define BILINEAR_ADD_BYTE(ix, iy, d)	if( is_InGrid(ix, iy) ) { n += d; v = asLong(ix, iy);\
+											z[0] += d * SG_GET_BYTE_0(v);\
+											z[1] += d * SG_GET_BYTE_1(v);\
+											z[2] += d * SG_GET_BYTE_2(v);\
+											z[3] += d * SG_GET_BYTE_3(v); }
+
+inline double CGrid::_Get_ValAtPos_BiLinear(int x, int y, double dx, double dy, bool bByteWise)
 {
-	double	z = 0.0, n = 0.0;
-
-	BILINEAR_ADD(x    , y    , (1.0 - dx) * (1.0 - dy));
-	BILINEAR_ADD(x + 1, y    , (      dx) * (1.0 - dy));
-	BILINEAR_ADD(x    , y + 1, (1.0 - dx) * (      dy));
-	BILINEAR_ADD(x + 1, y + 1, (      dx) * (      dy));
-
-	if( n > 0.0 )
+	if( !bByteWise )
 	{
-		return( z / n );
+		double	z = 0.0, n = 0.0;
+
+		BILINEAR_ADD(x    , y    , (1.0 - dx) * (1.0 - dy));
+		BILINEAR_ADD(x + 1, y    , (      dx) * (1.0 - dy));
+		BILINEAR_ADD(x    , y + 1, (1.0 - dx) * (      dy));
+		BILINEAR_ADD(x + 1, y + 1, (      dx) * (      dy));
+
+		if( n > 0.0 )
+		{
+			return( z / n );
+		}
+	}
+	else
+	{
+		long	v;
+		double	z[4], n = 0.0;
+
+		z[0] = z[1] = z[2] = z[3] = 0.0;
+
+		BILINEAR_ADD_BYTE(x    , y    , (1.0 - dx) * (1.0 - dy));
+		BILINEAR_ADD_BYTE(x + 1, y    , (      dx) * (1.0 - dy));
+		BILINEAR_ADD_BYTE(x    , y + 1, (1.0 - dx) * (      dy));
+		BILINEAR_ADD_BYTE(x + 1, y + 1, (      dx) * (      dy));
+
+		if( n > 0.0 )
+		{
+			z[0]	/= n;
+			z[1]	/= n;
+			z[2]	/= n;
+			z[3]	/= n;
+
+			return( SG_GET_LONG(z[0], z[1], z[2], z[3]) );
+		}
 	}
 
 	return( m_NoData_Value );
 }
 
 //---------------------------------------------------------
-#define INVERSEDIST_ADD(ix, iy, dsx, dsy)	if( is_InGrid(ix, iy) ) { d = 1.0 / sqrt(dsx*dsx + dsy*dsy); z += d * asDouble(ix, iy); n += d; }
+#define INVERSEDIST_ADD(ix, iy, dsx, dsy)		if( is_InGrid(ix, iy) ) { d = 1.0 / sqrt((dsx)*(dsx) + (dsy)*(dsy)); n += d;\
+													z += d * asDouble(ix, iy); }
 
-inline double CGrid::_Get_ValAtPos_InverseDistance(int x, int y, double dx, double dy)
+#define INVERSEDIST_ADD_BYTE(ix, iy, dsx, dsy)	if( is_InGrid(ix, iy) ) { d = 1.0 / sqrt((dsx)*(dsx) + (dsy)*(dsy)); n += d; v = asLong(ix, iy);\
+													z[0] += d * SG_GET_BYTE_0(v);\
+													z[1] += d * SG_GET_BYTE_1(v);\
+													z[2] += d * SG_GET_BYTE_2(v);\
+													z[3] += d * SG_GET_BYTE_3(v); }
+
+inline double CGrid::_Get_ValAtPos_InverseDistance(int x, int y, double dx, double dy, bool bByteWise)
 {
-	double	z = 0.0, n = 0.0, d;
-
 	if( dx > 0.0 || dy > 0.0 )
 	{
-		INVERSEDIST_ADD(x    , y    , (      dx), (      dy));
-		INVERSEDIST_ADD(x + 1, y    , (1.0 - dx), (      dy));
-		INVERSEDIST_ADD(x    , y + 1, (      dx), (1.0 - dy));
-		INVERSEDIST_ADD(x + 1, y + 1, (1.0 - dx), (1.0 - dy));
-
-		if( n > 0.0 )
+		if( !bByteWise )
 		{
-			return( z / n );
+			double	z = 0.0, n = 0.0, d;
+
+			INVERSEDIST_ADD(x    , y    ,       dx,       dy);
+			INVERSEDIST_ADD(x + 1, y    , 1.0 - dx,       dy);
+			INVERSEDIST_ADD(x    , y + 1,       dx, 1.0 - dy);
+			INVERSEDIST_ADD(x + 1, y + 1, 1.0 - dx, 1.0 - dy);
+
+			if( n > 0.0 )
+			{
+				return( z / n );
+			}
+		}
+		else
+		{
+			long	v;
+			double	z[4], n = 0.0, d;
+
+			z[0] = z[1] = z[2] = z[3] = 0.0;
+
+			INVERSEDIST_ADD_BYTE(x    , y    ,       dx,       dy);
+			INVERSEDIST_ADD_BYTE(x + 1, y    , 1.0 - dx,       dy);
+			INVERSEDIST_ADD_BYTE(x    , y + 1,       dx, 1.0 - dy);
+			INVERSEDIST_ADD_BYTE(x + 1, y + 1, 1.0 - dx, 1.0 - dy);
+
+			if( n > 0.0 )
+			{
+				z[0]	/= n;
+				z[1]	/= n;
+				z[2]	/= n;
+				z[3]	/= n;
+
+				return( SG_GET_LONG(z[0], z[1], z[2], z[3]) );
+			}
 		}
 	}
 	else
@@ -605,86 +669,133 @@ inline double CGrid::_Get_ValAtPos_InverseDistance(int x, int y, double dx, doub
 }
 
 //---------------------------------------------------------
-inline double CGrid::_Get_ValAtPos_BiCubicSpline(int x, int y, double dx, double dy)
+inline double CGrid::_Get_ValAtPos_BiCubicSpline(double dx, double dy, double z_xy[4][4])
 {
-	int		i;
-	double	a0, a2, a3, b1, b2, b3, c[4], z_xy[4][4];
+	double	a0, a2, a3, b1, b2, b3, c[4];
 
-	if( _Get_ValAtPos_Fill4x4Submatrix(x, y, z_xy) )
+	for(int i=0; i<4; i++)
 	{
-		for(i=0; i<4; i++)
-		{
-			a0		= z_xy[0][i] - z_xy[1][i];
-			a2		= z_xy[2][i] - z_xy[1][i];
-			a3		= z_xy[3][i] - z_xy[1][i];
-
-			b1		= -a0 / 3.0 + a2       - a3 / 6.0;
-			b2		=  a0 / 2.0 + a2 / 2.0;
-			b3		= -a0 / 6.0 - a2 / 2.0 + a3 / 6.0;
-
-			c[i]	= z_xy[1][i] + b1 * dx + b2 * dx*dx + b3 * dx*dx*dx;
-		}
-
-		a0		= c[0] - c[1];
-		a2		= c[2] - c[1];
-		a3		= c[3] - c[1];
+		a0		= z_xy[0][i] - z_xy[1][i];
+		a2		= z_xy[2][i] - z_xy[1][i];
+		a3		= z_xy[3][i] - z_xy[1][i];
 
 		b1		= -a0 / 3.0 + a2       - a3 / 6.0;
 		b2		=  a0 / 2.0 + a2 / 2.0;
 		b3		= -a0 / 6.0 - a2 / 2.0 + a3 / 6.0;
 
-		return( c[1] + b1 * dy + b2 * dy*dy + b3 * dy*dy*dy );
+		c[i]	= z_xy[1][i] + b1 * dx + b2 * dx*dx + b3 * dx*dx*dx;
 	}
 
-	return( _Get_ValAtPos_BiLinear(x, y, dx, dy) );
+	a0		= c[0] - c[1];
+	a2		= c[2] - c[1];
+	a3		= c[3] - c[1];
+
+	b1		= -a0 / 3.0 + a2       - a3 / 6.0;
+	b2		=  a0 / 2.0 + a2 / 2.0;
+	b3		= -a0 / 6.0 - a2 / 2.0 + a3 / 6.0;
+
+	return( c[1] + b1 * dy + b2 * dy*dy + b3 * dy*dy*dy );
+}
+
+inline double CGrid::_Get_ValAtPos_BiCubicSpline(int x, int y, double dx, double dy, bool bByteWise)
+{
+	if( !bByteWise )
+	{
+		double	z_xy[4][4];
+
+		if( _Get_ValAtPos_Fill4x4Submatrix(x, y, z_xy) )
+		{
+			return( _Get_ValAtPos_BiCubicSpline(dx, dy, z_xy) );
+		}
+	}
+	else
+	{
+		double	z_xy[4][4][4], z[4];
+
+		if( _Get_ValAtPos_Fill4x4Submatrix(x, y, z_xy) )
+		{
+			z[0]	= _Get_ValAtPos_BiCubicSpline(dx, dy, z_xy[0]);
+			z[1]	= _Get_ValAtPos_BiCubicSpline(dx, dy, z_xy[0]);
+			z[2]	= _Get_ValAtPos_BiCubicSpline(dx, dy, z_xy[0]);
+			z[3]	= _Get_ValAtPos_BiCubicSpline(dx, dy, z_xy[0]);
+
+			return( SG_GET_LONG(z[0], z[1], z[2], z[3]) );
+		}
+	}
+
+	return( _Get_ValAtPos_BiLinear(x, y, dx, dy, bByteWise) );
 }
 
 //---------------------------------------------------------
-inline double CGrid::_Get_ValAtPos_BSpline(int x, int y, double dx, double dy)
+inline double CGrid::_Get_ValAtPos_BSpline(double dx, double dy, double z_xy[4][4])
 {
 	int		i, ix, iy;
-	double	z, px, py, Rx[4], Ry[4], z_xy[4][4];
+	double	z, px, py, Rx[4], Ry[4];
 
-	if( _Get_ValAtPos_Fill4x4Submatrix(x, y, z_xy) )
+	for(i=0, px=-1.0-dx, py=-1.0-dy; i<4; i++, px++, py++)
 	{
-		for(i=0, px=-1.0-dx, py=-1.0-dy; i<4; i++, px++, py++)
-		{
-			Rx[i]	= 0.0;
-			Ry[i]	= 0.0;
+		Rx[i]	= 0.0;
+		Ry[i]	= 0.0;
 
-			if( (z = px + 2.0) > 0.0 )
-				Rx[i]	+=        z*z*z;
-			if( (z = px + 1.0) > 0.0 )
-				Rx[i]	+= -4.0 * z*z*z;
-			if( (z = px + 0.0) > 0.0 )
-				Rx[i]	+=  6.0 * z*z*z;
-			if( (z = px - 1.0) > 0.0 )
-				Rx[i]	+= -4.0 * z*z*z;
-			if( (z = py + 2.0) > 0.0 )
-				Ry[i]	+=        z*z*z;
-			if( (z = py + 1.0) > 0.0 )
-				Ry[i]	+= -4.0 * z*z*z;
-			if( (z = py + 0.0) > 0.0 )
-				Ry[i]	+=  6.0 * z*z*z;
-			if( (z = py - 1.0) > 0.0 )
-				Ry[i]	+= -4.0 * z*z*z;
+		if( (z = px + 2.0) > 0.0 )
+			Rx[i]	+=        z*z*z;
+		if( (z = px + 1.0) > 0.0 )
+			Rx[i]	+= -4.0 * z*z*z;
+		if( (z = px + 0.0) > 0.0 )
+			Rx[i]	+=  6.0 * z*z*z;
+		if( (z = px - 1.0) > 0.0 )
+			Rx[i]	+= -4.0 * z*z*z;
+		if( (z = py + 2.0) > 0.0 )
+			Ry[i]	+=        z*z*z;
+		if( (z = py + 1.0) > 0.0 )
+			Ry[i]	+= -4.0 * z*z*z;
+		if( (z = py + 0.0) > 0.0 )
+			Ry[i]	+=  6.0 * z*z*z;
+		if( (z = py - 1.0) > 0.0 )
+			Ry[i]	+= -4.0 * z*z*z;
 
-			Rx[i]	/= 6.0;
-			Ry[i]	/= 6.0;
-		}
-
-		for(iy=0, z=0.0; iy<4; iy++)
-		{
-			for(ix=0; ix<4; ix++)
-			{
-				z	+= z_xy[ix][iy] * Rx[ix] * Ry[iy];
-			}
-		}
-
-		return( z );
+		Rx[i]	/= 6.0;
+		Ry[i]	/= 6.0;
 	}
 
-	return( _Get_ValAtPos_BiLinear(x, y, dx, dy) );
+	for(iy=0, z=0.0; iy<4; iy++)
+	{
+		for(ix=0; ix<4; ix++)
+		{
+			z	+= z_xy[ix][iy] * Rx[ix] * Ry[iy];
+		}
+	}
+
+	return( z );
+}
+
+inline double CGrid::_Get_ValAtPos_BSpline(int x, int y, double dx, double dy, bool bByteWise)
+{
+	if( !bByteWise )
+	{
+		double	z_xy[4][4];
+
+		if( _Get_ValAtPos_Fill4x4Submatrix(x, y, z_xy) )
+		{
+			return( _Get_ValAtPos_BSpline(dx, dy, z_xy) );
+		}
+	}
+	else
+	{
+		double	z_xy[4][4][4], z[4];
+
+		if( _Get_ValAtPos_Fill4x4Submatrix(x, y, z_xy) )
+		{
+			z[0]	= _Get_ValAtPos_BSpline(dx, dy, z_xy[0]);
+			z[1]	= _Get_ValAtPos_BSpline(dx, dy, z_xy[1]);
+			z[2]	= _Get_ValAtPos_BSpline(dx, dy, z_xy[2]);
+			z[3]	= _Get_ValAtPos_BSpline(dx, dy, z_xy[3]);
+
+			return( SG_GET_LONG(z[0], z[1], z[2], z[3]) );
+		}
+	}
+
+	return( _Get_ValAtPos_BiLinear(x, y, dx, dy, bByteWise) );
 }
 
 //---------------------------------------------------------
@@ -702,6 +813,29 @@ inline bool CGrid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4][4
 			}
 
 			z_xy[ix][iy]	= asDouble(px, py);
+		}
+	}
+
+	return( true );
+}
+
+inline bool CGrid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4][4][4])
+{
+	for(int iy=0, py=y-1; iy<4; iy++, py++)
+	{
+		for(int ix=0, px=x-1; ix<4; ix++, px++)
+		{
+			if( !is_InGrid(px, py) )
+			{
+				return( false );
+			}
+
+			long	v	= asLong(px, py);
+
+			z_xy[0][ix][iy]	= SG_GET_BYTE_0(v);
+			z_xy[1][ix][iy]	= SG_GET_BYTE_1(v);
+			z_xy[2][ix][iy]	= SG_GET_BYTE_2(v);
+			z_xy[3][ix][iy]	= SG_GET_BYTE_3(v);
 		}
 	}
 

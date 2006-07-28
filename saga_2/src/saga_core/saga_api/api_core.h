@@ -227,6 +227,14 @@ SAGA_API_DLL_EXPORT void			SG_Free				(void *memblock);
 
 SAGA_API_DLL_EXPORT void			SG_Swap_Bytes		(void *Value, int nValueBytes);
 
+//---------------------------------------------------------
+#define SG_GET_LONG(b0, b1, b2, b3)	((long) (((BYTE)(b0) | ((WORD)(b1) << 8)) | (((DWORD)(BYTE)(b2)) << 16) | (((DWORD)(BYTE)(b3)) << 24)))
+
+#define SG_GET_BYTE_0(vLong)		((BYTE) ((vLong)      ))
+#define SG_GET_BYTE_1(vLong)		((BYTE) ((vLong) >>  8))
+#define SG_GET_BYTE_2(vLong)		((BYTE) ((vLong) >> 16))
+#define SG_GET_BYTE_3(vLong)		((BYTE) ((vLong) >> 24))
+
 
 ///////////////////////////////////////////////////////////
 //														 //

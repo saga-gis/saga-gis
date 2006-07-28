@@ -947,6 +947,7 @@ void CWKSP_Grid::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 //---------------------------------------------------------
 void CWKSP_Grid::_Draw_Grid_Points(CWKSP_Map_DC &dc_Map, int Interpolation)
 {
+	bool		bByteWise	= m_pClassify->Get_Mode() == CLASSIFY_RGB;
 	int			xDC, yDC, axDC, ayDC, bxDC, byDC, Color;
 	double		x, y, z;
 	CSG_Rect	rGrid(m_pGrid->Get_Extent());
@@ -963,7 +964,7 @@ void CWKSP_Grid::_Draw_Grid_Points(CWKSP_Map_DC &dc_Map, int Interpolation)
 	{
 		for(x=rGrid.Get_XMin(), xDC=axDC; xDC<bxDC; x+=dc_Map.m_DC2World, xDC++)
 		{
-			if( m_pGrid->Get_Value(x, y, z, Interpolation) && m_pClassify->Get_Class_Color_byValue(z, Color) )
+			if( m_pGrid->Get_Value(x, y, z, Interpolation, false, bByteWise) && m_pClassify->Get_Class_Color_byValue(z, Color) )
 			{
 				dc_Map.IMG_Set_Pixel(xDC, yDC, Color);
 			}
