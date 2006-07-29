@@ -437,7 +437,13 @@ bool CSG_Colors::Set_Palette(int Index, bool bRevert, int nColors)
 		break;
 
 	case COLORS_PALETTE_RED_GREEN:
-		Set_Ramp(COLOR_GET_RGB(255,   0,   0), COLOR_GET_RGB(  0, 255,   0));
+//		Set_Ramp(COLOR_GET_RGB(255,   0,   0), COLOR_GET_RGB(  0, 255,   0));
+		Set_Count(5);
+		Set_Color(0, COLOR_GET_RGB(  0, 255,   0));
+		Set_Color(1, COLOR_GET_RGB(191, 191,   0));
+		Set_Color(2, COLOR_GET_RGB(255, 127,   0));
+		Set_Color(3, COLOR_GET_RGB(223,  63,   0));
+		Set_Color(4, COLOR_GET_RGB( 63,   0,   0));
 		break;
 
 	case COLORS_PALETTE_RED_BLUE:

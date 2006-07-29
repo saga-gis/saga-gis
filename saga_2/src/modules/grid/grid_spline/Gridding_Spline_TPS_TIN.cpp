@@ -309,6 +309,8 @@ bool CGridding_Spline_TPS_TIN::_Add_Point(CTIN_Point *pPoint)
 //---------------------------------------------------------
 bool CGridding_Spline_TPS_TIN::_Get_TIN(CTIN &TIN)
 {
+	TIN.Destroy();
+
 	if( Parameters("FRAME")->asBool() )
 	{
 		int			iShape, iPart, iPoint, iCorner, iField, z[4];
@@ -359,16 +361,18 @@ bool CGridding_Spline_TPS_TIN::_Get_TIN(CTIN &TIN)
 				p.x	= x[iCorner];
 				p.y	= y[iCorner];
 
-				TIN.Add_Point(p, m_pShapes->Get_Shape(z[iCorner])->Get_Record(), iCorner == 3);
+				TIN.Add_Point(p, m_pShapes->Get_Shape(z[iCorner])->Get_Record(), false);
 			}
 		}
 
-		return( TIN.Get_Triangle_Count() > 0 );
+		TIN.Update();
 	}
 	else
 	{
-		return( TIN.Create(m_pShapes) );
+		TIN.Create(m_pShapes);
 	}
+
+	return( TIN.Get_Triangle_Count() > 0 );
 }
 
 
