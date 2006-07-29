@@ -715,9 +715,9 @@ inline double CGrid::_Get_ValAtPos_BiCubicSpline(int x, int y, double dx, double
 		if( _Get_ValAtPos_Fill4x4Submatrix(x, y, z_xy) )
 		{
 			z[0]	= _Get_ValAtPos_BiCubicSpline(dx, dy, z_xy[0]);
-			z[1]	= _Get_ValAtPos_BiCubicSpline(dx, dy, z_xy[0]);
-			z[2]	= _Get_ValAtPos_BiCubicSpline(dx, dy, z_xy[0]);
-			z[3]	= _Get_ValAtPos_BiCubicSpline(dx, dy, z_xy[0]);
+			z[1]	= _Get_ValAtPos_BiCubicSpline(dx, dy, z_xy[1]);
+			z[2]	= _Get_ValAtPos_BiCubicSpline(dx, dy, z_xy[2]);
+			z[3]	= _Get_ValAtPos_BiCubicSpline(dx, dy, z_xy[3]);
 
 			return( SG_GET_LONG(z[0], z[1], z[2], z[3]) );
 		}
