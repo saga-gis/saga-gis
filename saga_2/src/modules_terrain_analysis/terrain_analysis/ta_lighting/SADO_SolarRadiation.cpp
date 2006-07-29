@@ -798,50 +798,33 @@ inline double CSADO_SolarRadiation::Get_Solar_Diffus(int x, int y, double Declin
 //---------------------------------------------------------
 bool CSADO_SolarRadiation::Get_Shade(double Decline, double Azimuth)
 {
-	int		i, x, y, iLock;
-	double	dx, dy, dz;
-
-	//-----------------------------------------------------
-	dz	= Azimuth + M_PI_180;
-	dx	= sin(dz);
-	dy	= cos(dz);
-
-	if( fabs(dx) > fabs(dy) )
-	{
-		dy	/= fabs(dx);
-		dx	= dx < 0 ? -1 : 1;
-	}
-	else if( fabs(dy) > fabs(dx) )
-	{
-		dx	/= fabs(dy);
-		dy	= dy < 0 ? -1 : 1;
-	}
-	else
-	{
-		dx	= dx < 0 ? -1 : 1;
-		dy	= dy < 0 ? -1 : 1;
-	}
-
-	dz	= tan(Decline) * sqrt(dx*dx + dy*dy) * Get_Cellsize();
-
 	//-----------------------------------------------------
 	m_Shade.Assign(0.0);
 
 	if( !m_bBending )
 	{
+		int		i, x, y;
+		double	dx, dy, dz;
+
+		Get_Shade_Params(Decline, Azimuth, dx, dy, dz);
+
 		for(i=0; i<Get_NCells() && Set_Progress_NCells(i); i++)
 		{
-			if( m_pDEM->Get_Sorted(i, x, y) )//&& m_Shade.asInt(x, y) == 0 )
+			if( m_pDEM->Get_Sorted(i, x, y) && !Get_Shade_Complete(x, y) )
 			{
 				Set_Shade(x, y, dx, dy, dz);
 			}
 		}
 	}
+
+	//-----------------------------------------------------
 	else
 	{
+		int		i, x, y, iLock;
+
 		for(i=0, iLock=1; i<Get_NCells() && Set_Progress_NCells(i); i++, iLock++)
 		{
-			if( m_pDEM->Get_Sorted(i, x, y) )//&& m_Shade.asInt(x, y) == 0 )
+			if( m_pDEM->Get_Sorted(i, x, y) && !Get_Shade_Complete(x, y) )
 			{
 				if( iLock >= 255 )
 					iLock	= 1;
@@ -849,7 +832,7 @@ bool CSADO_SolarRadiation::Get_Shade(double Decline, double Azimuth)
 				if( iLock == 1 )
 					Lock_Create();
 
-				Set_Shade_Bended(x, y, dx, dy, dz, iLock);
+				Set_Shade_Bended(x, y, iLock);
 			}
 		}
 	}
@@ -876,8 +859,12 @@ void CSADO_SolarRadiation::Set_Shade(int x, int y, double dx, double dy, double 
 }
 
 //---------------------------------------------------------
-void CSADO_SolarRadiation::Set_Shade_Bended(int x, int y, double dx, double dy, double dz, char iLock)
+void CSADO_SolarRadiation::Set_Shade_Bended(int x, int y, char iLock)
 {
+	double	dx, dy, dz;
+
+	Get_Shade_Params(m_Decline.asDouble(x, y), m_Azimuth.asDouble(x, y), dx, dy, dz);
+
 	for(double ix=x+0.5, iy=y+0.5, iz=m_pDEM->asDouble(x, y); ; )
 	{
 		x	= (int)(ix	+= dx);
@@ -894,28 +881,56 @@ void CSADO_SolarRadiation::Set_Shade_Bended(int x, int y, double dx, double dy, 
 		//---------------------------------------------
 		Lock_Set(x, y, iLock);
 
-		dz	= m_Azimuth.asDouble(x, y) + M_PI_180;
-		dx	= sin(dz);
-		dy	= cos(dz);
-
-		if( fabs(dx) > fabs(dy) )
-		{
-			dy	/= fabs(dx);
-			dx	= dx < 0 ? -1 : 1;
-		}
-		else if( fabs(dy) > fabs(dx) )
-		{
-			dx	/= fabs(dy);
-			dy	= dy < 0 ? -1 : 1;
-		}
-		else
-		{
-			dx	= dx < 0 ? -1 : 1;
-			dy	= dy < 0 ? -1 : 1;
-		}
-
-		dz	= tan(m_Decline.asDouble(x, y)) * sqrt(dx*dx + dy*dy) * Get_Cellsize();
+		Get_Shade_Params(m_Decline.asDouble(x, y), m_Azimuth.asDouble(x, y), dx, dy, dz);
 	}
+}
+
+//---------------------------------------------------------
+inline bool CSADO_SolarRadiation::Get_Shade_Complete(int x, int y)
+{
+	if( m_Shade.asInt(x, y) == 1 )
+	{
+		for(int iy=y-1; iy<=y+1; iy++)
+		{
+			for(int ix=x-1; ix<x+1; ix++)
+			{
+				if( is_InGrid(ix, iy) && m_Shade.asInt(ix, iy) == 0 )
+				{
+					return( false );
+				}
+			}
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+inline void CSADO_SolarRadiation::Get_Shade_Params(double Decline, double Azimuth, double &dx, double &dy, double &dz)
+{
+	dz	= Azimuth + M_PI_180;
+	dx	= sin(dz);
+	dy	= cos(dz);
+
+	if( fabs(dx) > fabs(dy) )
+	{
+		dy	/= fabs(dx);
+		dx	= dx < 0 ? -1 : 1;
+	}
+	else if( fabs(dy) > fabs(dx) )
+	{
+		dx	/= fabs(dy);
+		dy	= dy < 0 ? -1 : 1;
+	}
+	else
+	{
+		dx	= dx < 0 ? -1 : 1;
+		dy	= dy < 0 ? -1 : 1;
+	}
+
+	dz	= tan(Decline) * sqrt(dx*dx + dy*dy) * Get_Cellsize();
 }
 
 

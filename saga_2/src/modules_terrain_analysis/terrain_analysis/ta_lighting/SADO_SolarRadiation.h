@@ -116,7 +116,9 @@ private:
 
 	bool					Get_Shade				(double Azimuth, double Decline);
 	void					Set_Shade				(int x, int y, double dx, double dy, double dz);
-	void					Set_Shade_Bended		(int x, int y, double dx, double dy, double dz, char iLock);
+	void					Set_Shade_Bended		(int x, int y, char iLock);
+	bool					Get_Shade_Complete		(int x, int y);
+	void					Get_Shade_Params		(double Decline, double Azimuth, double &dx, double &dy, double &dz);
 
 	bool					Get_Solar_Position		(int Day, double Hour, double Lat, double Lon, double &Dec, double &Azi);
 
