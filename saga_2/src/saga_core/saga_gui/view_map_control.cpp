@@ -603,7 +603,15 @@ void CVIEW_Map_Control::On_Mouse_LDown(wxMouseEvent &event)
 		}
 		else if( m_pMap->Find_Layer(Get_Active_Layer()) )
 		{
-			m_Drag_Mode		= MODULE_INTERACTIVE_DRAG_BOX;	//= MODULE_INTERACTIVE_DRAG_NONE
+			if( Get_Active_Layer()->Get_Type() == WKSP_ITEM_Grid )
+			{
+				m_Drag_Mode		= MODULE_INTERACTIVE_DRAG_BOX;
+			}
+			else //if( Get_Active_Layer()->Get_Type() == WKSP_ITEM_Shapes )
+			{
+				m_Drag_Mode		= MODULE_INTERACTIVE_DRAG_NONE;
+			}
+
 			Get_Active_Layer()->Edit_On_Mouse_Down(_Get_World(event.GetPosition()), _Get_World(1.0), GET_KEYS(event));
 		}
 		break;
