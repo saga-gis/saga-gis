@@ -1008,9 +1008,10 @@ void CWKSP_Grid::_Draw_Grid_Cells(CWKSP_Map_DC &dc_Map)
 //---------------------------------------------------------
 void CWKSP_Grid::_Draw_Values(CWKSP_Map_DC &dc_Map)
 {
-	int		x, y, xa, ya, xb, yb, Decimals;
-	double	xDC, yDC, axDC, ayDC, dDC, zFactor;
-	wxFont	Font;
+	int			x, y, xa, ya, xb, yb, Decimals;
+	double		xDC, yDC, axDC, ayDC, dDC, zFactor, Value;
+	wxString	s;
+	wxFont		Font;
 
 	//-----------------------------------------------------
 	if(	m_Parameters("VALUES_SHOW")->asBool() && (dDC = m_pGrid->Get_Cellsize() * dc_Map.m_World2DC) > 40 )
@@ -1047,9 +1048,20 @@ void CWKSP_Grid::_Draw_Values(CWKSP_Map_DC &dc_Map)
 			{
 				if( m_pGrid->is_InGrid(x, y) )
 				{
-					Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, (int)xDC, (int)yDC,
-						wxString::Format("%.*f", Decimals, zFactor * m_pGrid->asDouble(x, y))
-					);
+					Value	= m_pGrid->asDouble(x, y);
+
+					switch( m_pClassify->Get_Mode() )
+					{
+					case CLASSIFY_RGB:
+						s.Printf("R%03d G%03d B%03d", COLOR_GET_R((int)Value), COLOR_GET_G((int)Value), COLOR_GET_B((int)Value));
+						break;
+
+					default:
+						s.Printf("%.*f", Decimals, zFactor * Value);
+						break;
+					}
+
+					Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, (int)xDC, (int)yDC, s);
 				}
 			}
 		}

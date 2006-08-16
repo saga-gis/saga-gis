@@ -151,7 +151,7 @@ void CDLG_List_Shapes::_Set_Shapes(CWKSP_Shapes_Type *pType)
 		{
 			pShapes	= pType->Get_Shapes(i)->Get_Shapes();
 
-			for(j=0, bList=true; j<m_pAdd->GetCount() && bList; j++)
+			for(j=0, bList=true; j<(int)m_pAdd->GetCount() && bList; j++)
 			{
 				if( pShapes == m_pAdd->GetClientData(j) )
 				{

@@ -114,7 +114,7 @@ bool CVIEW_Layout_Info::Setup_Print(void)
 	wxPrintDialogData	Data(*m_pPrint);
 	wxPrintDialog		dlg(MDI_Get_Frame(), &Data);
 
-	dlg.GetPrintDialogData().SetSetupDialog(true);
+//	dlg.GetPrintDialogData().SetSetupDialog(true);
 	
 	if( dlg.ShowModal() == wxID_OK )
 	{

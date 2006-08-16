@@ -4,7 +4,7 @@
 // Author:      Mark McCormack
 // Modified by:
 // Created:     20/05/04
-// RCS-ID:      $Id: toolbutton_msw.cpp,v 1.1.1.1 2006-06-26 15:43:36 oconrad Exp $
+// RCS-ID:      $Id: toolbutton_msw.cpp,v 1.2 2006-08-16 18:27:30 oconrad Exp $
 // Copyright:   (c) 2004 Mark McCormack
 // Licence:     wxWindows license
 /////////////////////////////////////////////////////////////////////////////
@@ -13,6 +13,7 @@
 
 #ifndef wxEX_USE_GENERIC_TOOLBUTTON
 
+#include <wx/dcclient.h>
 #include <wx/gdi.h>
 #include <wx/settings.h>
 #include <wx/tooltip.h>
@@ -119,7 +120,7 @@ bool wxToolButton::MSWOnNotify( int WXUNUSED(idCtrl), WXLPARAM lParam, WXLPARAM 
                     }
 
                     // draw the item 
-                    wxDC dc;
+                    wxClientDC dc;
                     dc.SetHDC( (WXHDC)hdc );
                     wxRect cr( wxPoint( rcDraw.left, rcDraw.top ), wxPoint( rcDraw.right, rcDraw.bottom ) );
                     drawButtonImage( dc, cr );

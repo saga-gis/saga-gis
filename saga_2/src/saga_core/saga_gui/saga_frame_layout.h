@@ -74,6 +74,11 @@
 
 	class wxFrameLayout;
 
+#elif SAGA_GUI_FRAME_LAYOUT == 2
+	#define __SAGA_GUI_USE_wxAUI__
+
+	class wxFrameManager;
+
 #else
 	#define __SAGA_GUI_USE_wxDOCKIT__
 
@@ -152,6 +157,10 @@ private:
 	wxLayoutManager				*m_pLayout;
 
 	wxSlideBar					*m_pSlideBar;
+
+#elif defined(__SAGA_GUI_USE_wxAUI__)
+
+	wxFrameManager				*m_pLayout;
 
 #endif
 

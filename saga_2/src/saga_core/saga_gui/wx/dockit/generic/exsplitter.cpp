@@ -4,13 +4,14 @@
 // Author:      Mark McCormack
 // Modified by:
 // Created:     23/02/04
-// RCS-ID:      $Id: exsplitter.cpp,v 1.1.1.1 2006-06-26 15:43:34 oconrad Exp $
+// RCS-ID:      $Id: exsplitter.cpp,v 1.2 2006-08-16 18:27:30 oconrad Exp $
 // Copyright:   (c) 2004 Mark McCormack
 // Licence:     wxWindows license
 /////////////////////////////////////////////////////////////////////////////
 
 #include <wx/exsplitter.h>
 #include <wx/gdi.h>
+#include <wx/dcclient.h>
 #include <wx/dockhost.h>
 
 #include <wx/dcscreen.h>

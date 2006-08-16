@@ -4,7 +4,7 @@
 // Author:      Mark McCormack
 // Modified by:
 // Created:     23/02/04
-// RCS-ID:      $Id: dockpanel.cpp,v 1.1.1.1 2006-06-26 15:43:33 oconrad Exp $
+// RCS-ID:      $Id: dockpanel.cpp,v 1.2 2006-08-16 18:27:30 oconrad Exp $
 // Copyright:   (c) 2004 Mark McCormack
 // Licence:     wxWindows license
 /////////////////////////////////////////////////////////////////////////////
@@ -76,6 +76,7 @@ bool wxDockPanel::Create( wxWindow *parent, wxWindowID id, const wxString& name,
     
     // create grip window
     pGripWindow_ = new wxGripWindow( this, GetOrientation(), wxGdi::wxGRIP_STYLE_HEADER );
+//  pGripWindow_->SetLabel( parent->GetName() );
     pGripWindow_->SetLabel( parent->GetTitle() );
     
     // create close window

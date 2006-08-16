@@ -127,7 +127,7 @@ void CDLG_List_Table::_Set_Objects(void)
 		{
 			pTable	= pTables->Get_Table(i)->Get_Table();
 
-			for(j=0, bList=true; j<m_pAdd->GetCount() && bList; j++)
+			for(j=0, bList=true; j<(int)m_pAdd->GetCount() && bList; j++)
 			{
 				if( pTable == m_pAdd->GetClientData(j) )
 				{

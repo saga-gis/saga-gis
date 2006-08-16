@@ -177,7 +177,7 @@ void CDLG_List_Base::Save_Changes(void)
 {
 	m_pList->Del_Items();
 
-	for(int i=0; i<m_pAdd->GetCount(); i++)
+	for(unsigned int i=0; i<m_pAdd->GetCount(); i++)
 	{
 		m_pList->Add_Item((CDataObject *)m_pAdd->GetClientData(i));
 	}
@@ -279,10 +279,10 @@ void CDLG_List_Base::_Add(void)
 //---------------------------------------------------------
 void CDLG_List_Base::On_Up(wxCommandEvent &event)
 {
-	void		*pData;
-	int			i, j, n;
-	wxArrayInt	Selections;
-	wxString	String;
+	void			*pData;
+	unsigned int	i, j, n;
+	wxArrayInt		Selections;
+	wxString		String;
 
 	if( (n = m_pAdd->GetSelections(Selections)) > 0 && n < m_pAdd->GetCount() )
 	{
@@ -317,11 +317,11 @@ void CDLG_List_Base::On_Down(wxCommandEvent &event)
 	wxArrayInt	Selections;
 	wxString	String;
 
-	if( (n = m_pAdd->GetSelections(Selections)) > 0 && n < m_pAdd->GetCount() )
+	if( (n = m_pAdd->GetSelections(Selections)) > 0 && n < (int)m_pAdd->GetCount() )
 	{
 		Selections.Sort(ArrayInt_CMP_Down);
 
-		if( Selections.Item(0) < m_pAdd->GetCount() - 1 )
+		if( Selections.Item(0) < (int)m_pAdd->GetCount() - 1 )
 		{
 			for(i=0; i<(int)Selections.GetCount(); i++)
 			{

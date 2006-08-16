@@ -236,7 +236,7 @@ void CDLG_List_Grid::_Set_Grids(CWKSP_Grid_System *pSystem)
 		{
 			pGrid	= pSystem->Get_Grid(i)->Get_Grid();
 
-			for(j=0, bList=true; j<m_pAdd->GetCount() && bList; j++)
+			for(j=0, bList=true; j<(int)m_pAdd->GetCount() && bList; j++)
 			{
 				if( pGrid == m_pAdd->GetClientData(j) )
 				{

@@ -228,6 +228,7 @@ CSAGA_Frame::CSAGA_Frame(void)
 
 	//-----------------------------------------------------
 	m_pLayout->Show_Initially();
+	m_pLayout->Bar_Show(m_pTB_Main, true);
 
 	Update();
 

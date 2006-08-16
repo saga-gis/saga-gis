@@ -127,7 +127,7 @@ void CDLG_List_TIN::_Set_Objects(void)
 		{
 			pTIN	= pTINs->Get_TIN(i)->Get_TIN();
 
-			for(j=0, bList=true; j<m_pAdd->GetCount() && bList; j++)
+			for(j=0, bList=true; j<(int)m_pAdd->GetCount() && bList; j++)
 			{
 				if( pTIN == m_pAdd->GetClientData(j) )
 				{

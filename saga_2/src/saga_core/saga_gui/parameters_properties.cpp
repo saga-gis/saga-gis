@@ -383,7 +383,7 @@ int CParameters_PG_Choice::_DataObject_Init(void)
 //---------------------------------------------------------
 bool CParameters_PG_Choice::OnEvent(wxPropertyGrid *pPG, wxWindow *pPGCtrl, wxEvent &event)
 {
-	if( event.m_eventType == wxEVT_COMMAND_COMBOBOX_SELECTED )
+	if( event.GetEventType() == wxEVT_COMMAND_COMBOBOX_SELECTED )
 	{
 		if( m_pParameter && m_choices.IsOk() && m_index >= 0 && m_index < (int)m_choices.GetCount() )
 		{
@@ -1062,7 +1062,7 @@ wxString CParameters_PG_DialogedClass::GetValueAsString(int flags) const
 //---------------------------------------------------------
 bool CParameters_PG_DialogedClass::OnEvent(wxPropertyGrid *propgrid, wxWindow *primary, wxEvent &event)
 {
-	if( event.m_eventType == wxEVT_COMMAND_BUTTON_CLICKED )
+	if( event.GetEventType() == wxEVT_COMMAND_BUTTON_CLICKED )
 	{
 		if( m_value.Do_Dialog() )
 		{
