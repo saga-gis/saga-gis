@@ -476,11 +476,11 @@ private:
 
 //---------------------------------------------------------
 #define SYMBOL_MLB_Initialize		"MLB_Initialize"
-typedef bool						(* PFNC_MLB_Initialize)		(const char *);
+typedef bool						(* TSG_PFNC_MLB_Initialize)		(const char *);
 
 //---------------------------------------------------------
 #define SYMBOL_MLB_Get_Interface	"MLB_Get_Interface"
-typedef CModule_Library_Interface *	(* PFNC_MLB_Get_Interface)	(void);
+typedef CModule_Library_Interface *	(* TSG_PFNC_MLB_Get_Interface)	(void);
 
 //---------------------------------------------------------
 #define MLB_INTERFACE	CModule_Library_Interface		MLB_Interface;\

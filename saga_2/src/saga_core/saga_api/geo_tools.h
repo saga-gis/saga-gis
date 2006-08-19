@@ -405,17 +405,17 @@ private:
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT double		SG_Get_Length					(double dx, double dy);
 SAGA_API_DLL_EXPORT double		SG_Get_Distance					(double ax, double ay, double bx, double by);
-SAGA_API_DLL_EXPORT double		SG_Get_Distance					(TSG_Point A, TSG_Point B);
+SAGA_API_DLL_EXPORT double		SG_Get_Distance					(const TSG_Point &A, const TSG_Point &B);
 
 SAGA_API_DLL_EXPORT double		SG_Get_Angle_Of_Direction		(double dx, double dy);
 SAGA_API_DLL_EXPORT double		SG_Get_Angle_Of_Direction		(double ax, double ay, double bx, double by);
 SAGA_API_DLL_EXPORT double		SG_Get_Angle_Of_Direction		(const TSG_Point &A);
 SAGA_API_DLL_EXPORT double		SG_Get_Angle_Of_Direction		(const TSG_Point &A, const TSG_Point &B);
 
-SAGA_API_DLL_EXPORT bool		SG_Get_Crossing					(TSG_Point &Crossing, TSG_Point a1, TSG_Point a2, TSG_Point b1, TSG_Point b2, bool bExactMatch = true);
-SAGA_API_DLL_EXPORT bool		SG_Get_Crossing_InRegion		(TSG_Point &Crossing, TSG_Point a, TSG_Point b, TSG_Rect Region);
+SAGA_API_DLL_EXPORT bool		SG_Get_Crossing					(TSG_Point &Crossing, const TSG_Point &a1, const TSG_Point &a2, const TSG_Point &b1, const TSG_Point &b2, bool bExactMatch = true);
+SAGA_API_DLL_EXPORT bool		SG_Get_Crossing_InRegion		(TSG_Point &Crossing, const TSG_Point &a , const TSG_Point & b, const TSG_Rect &Region);
 
-SAGA_API_DLL_EXPORT double		SG_Get_Nearest_Point_On_Line	(TSG_Point Point, TSG_Point Ln_A, TSG_Point Ln_B, TSG_Point &Ln_Point, bool bExactMatch = true);
+SAGA_API_DLL_EXPORT double		SG_Get_Nearest_Point_On_Line	(const TSG_Point &Point, const TSG_Point &Ln_A, const TSG_Point &Ln_B, TSG_Point &Ln_Point, bool bExactMatch = true);
 
 SAGA_API_DLL_EXPORT bool		SG_Get_Triangle_CircumCircle	(TSG_Point Triangle[3], TSG_Point &Point, double &Radius);
 

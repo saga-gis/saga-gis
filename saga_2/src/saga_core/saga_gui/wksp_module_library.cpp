@@ -98,8 +98,8 @@
 //---------------------------------------------------------
 CWKSP_Module_Library::CWKSP_Module_Library(const char *FileName)
 {
-	PFNC_MLB_Initialize		MLB_Initialize;
-	PFNC_MLB_Get_Interface	MLB_Get_Interface;
+	TSG_PFNC_MLB_Initialize		MLB_Initialize;
+	TSG_PFNC_MLB_Get_Interface	MLB_Get_Interface;
 
 	wxString	sPath;
 	wxFileName	fName(FileName);
@@ -127,8 +127,8 @@ CWKSP_Module_Library::CWKSP_Module_Library(const char *FileName)
 	}
 	else
 	{
-		if( (MLB_Get_Interface	= (PFNC_MLB_Get_Interface)	m_Library.GetSymbol(SYMBOL_MLB_Get_Interface)) == NULL
-		||	(MLB_Initialize		= (PFNC_MLB_Initialize)		m_Library.GetSymbol(SYMBOL_MLB_Initialize)   ) == NULL
+		if( (MLB_Get_Interface	= (TSG_PFNC_MLB_Get_Interface)	m_Library.GetSymbol(SYMBOL_MLB_Get_Interface)) == NULL
+		||	(MLB_Initialize		= (TSG_PFNC_MLB_Initialize)		m_Library.GetSymbol(SYMBOL_MLB_Initialize)   ) == NULL
 		||	!(m_pInterface = MLB_Get_Interface()) || !MLB_Initialize(m_File_Name) )
 		{
 			MSG_Error_Add(wxString::Format("%s:\n%s", FileName, LNG("[ERR] Invalid library")), true);

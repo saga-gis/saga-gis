@@ -766,7 +766,7 @@ CParameter * CParameters::Get_Parameter(int iParameter)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CParameters::Set_Callback_On_Parameter_Changed(PFNC_Parameter_Changed Callback)
+void CParameters::Set_Callback_On_Parameter_Changed(TSG_PFNC_Parameter_Changed Callback)
 {
 	m_Callback	= Callback;
 }

@@ -86,12 +86,14 @@ double		SG_Get_Distance(double ax, double ay, double bx, double by)
 }
 
 //---------------------------------------------------------
-double		SG_Get_Distance(TSG_Point A, TSG_Point B)
+double		SG_Get_Distance(const TSG_Point &A, const TSG_Point &B)
 {
-	A.x -= B.x;
-	A.y -= B.y;
+	double	dx,	dy;
 
-	return( sqrt(A.x*A.x + A.y*A.y) );
+	dx	= B.x - A.y;
+	dy	= B.y - A.y;
+
+	return( sqrt(dx*dx + dy*dy) );
 }
 
 
@@ -137,7 +139,7 @@ double		SG_Get_Angle_Of_Direction(const TSG_Point &A, const TSG_Point &B)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool	SG_Get_Crossing(TSG_Point &Crossing, TSG_Point a1, TSG_Point a2, TSG_Point b1, TSG_Point b2, bool bExactMatch)
+bool	SG_Get_Crossing(TSG_Point &Crossing, const TSG_Point &a1, const TSG_Point &a2, const TSG_Point &b1, const TSG_Point &b2, bool bExactMatch)
 {
 	double	lambda, div, a_dx, a_dy, b_dx, b_dy;
 
@@ -173,11 +175,14 @@ bool	SG_Get_Crossing(TSG_Point &Crossing, TSG_Point a1, TSG_Point a2, TSG_Point 
 }
 
 //---------------------------------------------------------
-bool	SG_Get_Crossing_InRegion(TSG_Point &Crossing, TSG_Point a, TSG_Point b, TSG_Rect Region)
+bool	SG_Get_Crossing_InRegion(TSG_Point &Crossing, const TSG_Point &_a, const TSG_Point &_b, const TSG_Rect &Region)
 {
 	bool		bResult;
-	TSG_Point	pExt_XY, pExt_X, pExt_Y;
+	TSG_Point	a, b, pExt_XY, pExt_X, pExt_Y;
 	CSG_Rect	r(Region);
+
+	a	= _a;
+	b	= _b;
 
 	//-----------------------------------------------------
 	if( !r.Contains(a) && r.Contains(b) )
@@ -245,7 +250,7 @@ bool	SG_Get_Crossing_InRegion(TSG_Point &Crossing, TSG_Point a, TSG_Point b, TSG
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double		SG_Get_Nearest_Point_On_Line(TSG_Point Point, TSG_Point Ln_A, TSG_Point Ln_B, TSG_Point &Ln_Point, bool bExactMatch)
+double		SG_Get_Nearest_Point_On_Line(const TSG_Point &Point, const TSG_Point &Ln_A, const TSG_Point &Ln_B, TSG_Point &Ln_Point, bool bExactMatch)
 {
 	double		dx, dy, Distance, d;
 	TSG_Point	Point_B;

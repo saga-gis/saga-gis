@@ -98,8 +98,8 @@ CModule_Library::~CModule_Library(void)
 //---------------------------------------------------------
 bool CModule_Library::Create(const char *FileName, const char *FilePath)
 {
-	PFNC_MLB_Initialize			MLB_Initialize;
-	PFNC_MLB_Get_Interface		MLB_Get_Interface;
+	TSG_PFNC_MLB_Initialize		MLB_Initialize;
+	TSG_PFNC_MLB_Get_Interface	MLB_Get_Interface;
 
 	CModule_Library_Interface	*pInterface;
 	CModule						*pModule;
@@ -118,8 +118,8 @@ bool CModule_Library::Create(const char *FileName, const char *FilePath)
 	}
 	else
 	{
-		MLB_Initialize		= (PFNC_MLB_Initialize)		m_Library.GetSymbol(SYMBOL_MLB_Initialize);
-		MLB_Get_Interface	= (PFNC_MLB_Get_Interface)	m_Library.GetSymbol(SYMBOL_MLB_Get_Interface);
+		MLB_Initialize		= (TSG_PFNC_MLB_Initialize)		m_Library.GetSymbol(SYMBOL_MLB_Initialize);
+		MLB_Get_Interface	= (TSG_PFNC_MLB_Get_Interface)	m_Library.GetSymbol(SYMBOL_MLB_Get_Interface);
 
 		if(	!MLB_Get_Interface	|| !(pInterface = MLB_Get_Interface())
 		||	!MLB_Initialize		|| !MLB_Initialize(m_FileName) )

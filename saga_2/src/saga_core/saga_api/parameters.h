@@ -171,7 +171,7 @@ class CParameter;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef int		(* PFNC_Parameter_Changed)	(CParameter *pSender);
+typedef int		(* TSG_PFNC_Parameter_Changed)	(CParameter *pSender);
 
 
 ///////////////////////////////////////////////////////////
@@ -1026,7 +1026,7 @@ public:
 	void						Set_Translation			(CSG_Translator &Translator);
 
 	//-----------------------------------------------------
-	void						Set_Callback_On_Parameter_Changed	(PFNC_Parameter_Changed pCallback);
+	void						Set_Callback_On_Parameter_Changed	(TSG_PFNC_Parameter_Changed pCallback);
 	void						Set_Callback			(bool bActive = true);
 
 	//-----------------------------------------------------
@@ -1115,7 +1115,7 @@ private:
 
 	CParameter					**m_Parameters, *m_pGrid_System;
 
-	PFNC_Parameter_Changed		m_Callback;
+	TSG_PFNC_Parameter_Changed	m_Callback;
 
 
 	void						_On_Construction		(void);
