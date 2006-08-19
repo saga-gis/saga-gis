@@ -900,7 +900,7 @@ bool CGrid::Update_Statistics(bool bEnforce)
 		m_Variance	= 0.0;
 		nValues		= 0;
 
-		for(y=0; y<Get_NY() && SG_Callback_Process_Set_Progress(y, Get_NY()); y++)
+		for(y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 		{
 			for(x=0; x<Get_NX(); x++)
 			{
@@ -934,7 +934,7 @@ bool CGrid::Update_Statistics(bool bEnforce)
 
 		m_bUpdate	= false;
 
-		SG_Callback_Process_Set_Ready();
+		SG_UI_Process_Set_Ready();
 	}
 
 	return( m_bUpdate == false );
@@ -972,7 +972,7 @@ bool CGrid::_Sort_Execute(void)
 	long	i, j, *Index;
 
 	//-----------------------------------------------------
-	SG_Callback_Process_Set_Text(CSG_String::Format("%s: %s", LNG("Create index"), Get_Name()));
+	SG_UI_Process_Set_Text(CSG_String::Format("%s: %s", LNG("Create index"), Get_Name()));
 
 	Index	= (long *)SG_Calloc(Get_NCells(), sizeof(long));
 
@@ -1027,8 +1027,8 @@ bool CGrid::_Sort_Execute(void)
 	//-----------------------------------------------------
 	SG_Free(Index);
 
-	SG_Callback_Process_Set_Ready();
-	SG_Callback_Process_Set_Text(LNG("ready"));
+	SG_UI_Process_Set_Ready();
+	SG_UI_Process_Set_Text(LNG("ready"));
 
 	return( m_bSorted );
 }
@@ -1096,7 +1096,7 @@ bool CGrid::_Sort_Index(long *Index)
 		{
 			if( ir - l < M )
 			{
-				if( !SG_Callback_Process_Set_Progress(n += M - 1, nCells) )
+				if( !SG_UI_Process_Set_Progress(n += M - 1, nCells) )
 				{
 					SG_Free(istack);
 

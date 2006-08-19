@@ -130,7 +130,7 @@ bool CExercise_09::On_Execute(void)
 
 	m_pArea		->Assign(0.0);
 	m_pArea		->Set_Unit("m²");
-	Colors.Set_Ramp(COLOR_GET_RGB(255, 255, 255), COLOR_GET_RGB(0, 0, 127));
+	Colors.Set_Ramp(SG_GET_RGB(255, 255, 255), SG_GET_RGB(0, 0, 127));
 	DataObject_Set_Colors(m_pArea, Colors);
 
 

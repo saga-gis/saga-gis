@@ -115,7 +115,7 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_OUTLINE_COLOR"	, LNG("[CAP] Outline Color"),
 		"",
-		PARAMETER_TYPE_Color, COLOR_GET_RGB(0, 0, 0)
+		PARAMETER_TYPE_Color, SG_GET_RGB(0, 0, 0)
 	);
 
 	m_Parameters.Add_Value(
@@ -380,13 +380,13 @@ void CWKSP_Shapes_Point::_Draw_Shape(CWKSP_Map_DC &dc_Map, CShape *pShape, bool 
 			Color	= m_pClassify->Get_Class_Color_byValue(pShape->Get_Record()->asDouble(m_iColor));
 
 			wxBrush	Brush(m_Brush);
-			Brush.SetColour(COLOR_GET_R(Color), COLOR_GET_G(Color), COLOR_GET_B(Color));
+			Brush.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
 			dc_Map.dc.SetBrush(Brush);
 
 			if( !m_bOutline )
 			{
 				wxPen	Pen(m_Pen);
-				Pen.SetColour(COLOR_GET_R(Color), COLOR_GET_G(Color), COLOR_GET_B(Color));
+				Pen.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
 				dc_Map.dc.SetPen(Pen);
 			}
 		}

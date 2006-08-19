@@ -186,7 +186,7 @@ CSAGA_Frame::CSAGA_Frame(void)
 	m_pActive			= NULL;
 	m_pWKSP				= NULL;
 
-	SG_Set_Callback	(Get_Callback());
+	SG_Set_UI_Callback	(Get_Callback());
 
 	SetIcon				(IMG_Get_Icon(ID_IMG_SAGA_ICON_32));
 
@@ -243,7 +243,7 @@ CSAGA_Frame::~CSAGA_Frame(void)
 {
 	delete(m_pLayout);
 
-	SG_Set_Callback(NULL);
+	SG_Set_UI_Callback(NULL);
 
 	g_pSAGA_Frame	= NULL;
 }

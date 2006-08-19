@@ -134,9 +134,9 @@ bool CGrid_Export::On_Execute(void)
 	fName	= Parameters("FILE")	->asString();
 
 	//-----------------------------------------------------
-	if( SG_Callback_DataObject_asImage(pGrid, &Grid) )
+	if( SG_UI_DataObject_asImage(pGrid, &Grid) )
 	{
-		if( !SG_Callback_DataObject_asImage(pShade, &Shade) )
+		if( !SG_UI_DataObject_asImage(pShade, &Shade) )
 		{
 			pShade	= NULL;
 		}
@@ -149,15 +149,15 @@ bool CGrid_Export::On_Execute(void)
 			{
 				c	= Grid.asInt(x, y);
 
-				r	= COLOR_GET_R(c);
-				g	= COLOR_GET_G(c);
-				b	= COLOR_GET_B(c);
+				r	= SG_GET_R(c);
+				g	= SG_GET_G(c);
+				b	= SG_GET_B(c);
 
 				if( pShade )
 				{
 					c	= Shade.asInt(x, y);
 
-					d	= (COLOR_GET_R(c) + COLOR_GET_G(c) + COLOR_GET_B(c)) / (3.0 * 255.0);
+					d	= (SG_GET_R(c) + SG_GET_G(c) + SG_GET_B(c)) / (3.0 * 255.0);
 
 					r	= (int)(d * r);
 					g	= (int)(d * g);

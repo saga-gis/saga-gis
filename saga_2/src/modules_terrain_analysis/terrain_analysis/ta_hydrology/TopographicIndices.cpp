@@ -154,19 +154,19 @@ bool CTopographicIndices::On_Execute(void)
 
 	if( pTWI )
 	{
-		Colors.Set_Palette(COLORS_PALETTE_RED_GREY_BLUE, false);
+		Colors.Set_Palette(SG_COLORS_RED_GREY_BLUE, false);
 		DataObject_Set_Colors(pTWI, Colors);
 	}
 
 	if( pSPI )
 	{
-		Colors.Set_Palette(COLORS_PALETTE_RED_GREY_GREEN, true);
+		Colors.Set_Palette(SG_COLORS_RED_GREY_GREEN, true);
 		DataObject_Set_Colors(pSPI, Colors);
 	}
 
 	if( pLSF )
 	{
-		Colors.Set_Palette(COLORS_PALETTE_RED_GREY_GREEN, true);
+		Colors.Set_Palette(SG_COLORS_RED_GREY_GREEN, true);
 		DataObject_Set_Colors(pLSF, Colors);
 	}
 

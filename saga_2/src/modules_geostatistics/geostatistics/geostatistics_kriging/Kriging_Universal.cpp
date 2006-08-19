@@ -145,7 +145,18 @@ bool CKriging_Universal::Get_Value(double x, double y, double &z, double &v)
 	{
 		for(i=0; i<n; i++)
 		{
-			m_G[i]	= Get_Weight(x - m_Points[i].x, y - m_Points[i].y);
+			if( !m_bBlock )
+			{
+				m_G[i]	=	Get_Weight(x - m_Points[i].x, y - m_Points[i].y);
+			}
+			else
+			{
+				m_G[i]	= (	Get_Weight((x          ) - m_Points[i].x, (y          ) - m_Points[i].y)
+						+	Get_Weight((x + m_Block) - m_Points[i].x, (y + m_Block) - m_Points[i].y)
+						+	Get_Weight((x + m_Block) - m_Points[i].x, (y - m_Block) - m_Points[i].y)
+						+	Get_Weight((x - m_Block) - m_Points[i].x, (y + m_Block) - m_Points[i].y)
+						+	Get_Weight((x - m_Block) - m_Points[i].x, (y - m_Block) - m_Points[i].y) ) / 5.0;
+			}
 		}
 
 		m_G[n]	= 1.0;

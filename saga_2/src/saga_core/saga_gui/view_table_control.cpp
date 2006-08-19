@@ -85,7 +85,7 @@
 
 //---------------------------------------------------------
 #define SET_CELL_VALUE(REC, FLD, VAL)	SetCellValue(REC, FLD, VAL)
-#define SET_CELL_COLOR(REC, FLD, VAL)	SetCellBackgroundColour(REC, FLD, wxColour(COLOR_GET_R(VAL), COLOR_GET_G(VAL), COLOR_GET_B(VAL)))
+#define SET_CELL_COLOR(REC, FLD, VAL)	SetCellBackgroundColour(REC, FLD, wxColour(SG_GET_R(VAL), SG_GET_G(VAL), SG_GET_B(VAL)))
 
 
 ///////////////////////////////////////////////////////////

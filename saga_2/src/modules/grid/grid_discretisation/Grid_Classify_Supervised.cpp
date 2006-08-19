@@ -316,7 +316,7 @@ bool CGrid_Classify_Supervised::Get_Class_Information(CParameter_Grid_List *pGri
 				{
 					pClass	= pLUT->Add_Record();
 
-					pClass->Set_Value(0, COLOR_GET_RGB(rand() * 255.0 / RAND_MAX, rand() * 255.0 / RAND_MAX, rand() * 255.0 / RAND_MAX));
+					pClass->Set_Value(0, SG_GET_RGB(rand() * 255.0 / RAND_MAX, rand() * 255.0 / RAND_MAX, rand() * 255.0 / RAND_MAX));
 					pClass->Set_Value(1, pClasses->Get_Record(iClass)->asString(CLASS_ID));
 					pClass->Set_Value(2, pClasses->Get_Record(iClass)->asString(CLASS_ID));
 					pClass->Set_Value(3, iClass + 1);

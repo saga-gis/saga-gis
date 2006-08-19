@@ -225,7 +225,7 @@ public: ///////////////////////////////////////////////////
 			}
 
 			Color	= m_pColors->Get_Brightness(iClass);
-			Color	= COLOR_GET_RGB(Color, Color, Color);
+			Color	= SG_GET_RGB(Color, Color, Color);
 
 			return( true );
 		}

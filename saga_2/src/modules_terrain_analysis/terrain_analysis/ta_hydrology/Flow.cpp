@@ -167,9 +167,9 @@ bool CFlow::On_Execute(void)
 
 	pCatch			= Parameters("CAREA")		->asGrid();
 	Colors.Set_Count(3);
-	Colors.Set_Color(0, COLOR_GET_RGB(255, 255, 255));
-	Colors.Set_Color(1, COLOR_GET_RGB(127, 149, 190));
-	Colors.Set_Color(2, COLOR_GET_RGB(  0,   0,  63));
+	Colors.Set_Color(0, SG_GET_RGB(255, 255, 255));
+	Colors.Set_Color(1, SG_GET_RGB(127, 149, 190));
+	Colors.Set_Color(2, SG_GET_RGB(  0,   0,  63));
 	Colors.Set_Count(100);
 	DataObject_Set_Colors(pCatch, Colors);
 

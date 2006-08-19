@@ -191,7 +191,7 @@ bool CGrid::_Assign_Interpolated(CGrid *pGrid, TGrid_Interpolation Interpolation
 	int		x, y;
 	double	xPosition, yPosition;
 
-	for(y=0, yPosition=Get_YMin(); y<Get_NY() && SG_Callback_Process_Set_Progress(y, Get_NY()); y++, yPosition+=Get_Cellsize())
+	for(y=0, yPosition=Get_YMin(); y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++, yPosition+=Get_Cellsize())
 	{
 		for(x=0, xPosition=Get_XMin(); x<Get_NX(); x++, xPosition+=Get_Cellsize())
 		{
@@ -202,7 +202,7 @@ bool CGrid::_Assign_Interpolated(CGrid *pGrid, TGrid_Interpolation Interpolation
 	Get_History().Assign(pGrid->Get_History());
 	Get_History().Add_Entry(LNG("[DAT] Resampling"), CSG_String::Format("%f -> %f", pGrid->Get_Cellsize(), Get_Cellsize()));
 
-	SG_Callback_Process_Set_Ready();
+	SG_UI_Process_Set_Ready();
 
 	return( true );
 }
@@ -242,7 +242,7 @@ bool CGrid::_Assign_MeanValue(CGrid *pGrid)
 	{
 		Assign_NoData();
 
-		for(o_y=o_ay, i_y=i_ay; o_y<Get_NY() && i_y<pGrid->Get_NY() && SG_Callback_Process_Set_Progress(o_y, Get_NY()); o_y++, i_y+=i_dy)
+		for(o_y=o_ay, i_y=i_ay; o_y<Get_NY() && i_y<pGrid->Get_NY() && SG_UI_Process_Set_Progress(o_y, Get_NY()); o_y++, i_y+=i_dy)
 		{
 			iy_A	= (int)(0.5 + i_y - i_dy / 2.0);
 			if( iy_A < 0 )
@@ -284,7 +284,7 @@ bool CGrid::_Assign_MeanValue(CGrid *pGrid)
 		Get_History().Assign(pGrid->Get_History());
 		Get_History().Add_Entry(LNG("[DAT] Resampling"), CSG_String::Format("%f -> %f", pGrid->Get_Cellsize(), Get_Cellsize()));
 
-		SG_Callback_Process_Set_Ready();
+		SG_UI_Process_Set_Ready();
 
 		return( true );
 	}
@@ -374,7 +374,7 @@ void CGrid::_Operation_Arithmetic(CGrid *pGrid, TGrid_Operation Operation)
 						?	GRID_INTERPOLATION_NearestNeighbour
 						:	GRID_INTERPOLATION_BSpline;
 
-		for(y=0, yPosition=Get_YMin(); y<Get_NY() && SG_Callback_Process_Set_Progress(y, Get_NY()); y++, yPosition+=Get_Cellsize())
+		for(y=0, yPosition=Get_YMin(); y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++, yPosition+=Get_Cellsize())
 		{
 			for(x=0, xPosition=Get_XMin(); x<Get_NX(); x++, xPosition+=Get_Cellsize())
 			{
@@ -412,7 +412,7 @@ void CGrid::_Operation_Arithmetic(CGrid *pGrid, TGrid_Operation Operation)
 			}
 		}
 
-		SG_Callback_Process_Set_Ready();
+		SG_UI_Process_Set_Ready();
 
 		//-------------------------------------------------
 		switch( Operation )
@@ -470,7 +470,7 @@ void CGrid::_Operation_Arithmetic(double Value, TGrid_Operation Operation)
 	}
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && SG_Callback_Process_Set_Progress(y, Get_NY()); y++)
+	for(y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
@@ -492,7 +492,7 @@ void CGrid::_Operation_Arithmetic(double Value, TGrid_Operation Operation)
 		}
 	}
 
-	SG_Callback_Process_Set_Ready();
+	SG_UI_Process_Set_Ready();
 }
 
 
@@ -513,7 +513,7 @@ void CGrid::Invert(void)
 		zMin	= Get_ZMin();
 		zMax	= Get_ZMax();
 
-		for(y=0; y<Get_NY() && SG_Callback_Process_Set_Progress(y, Get_NY()); y++)
+		for(y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 		{
 			for(x=0; x<Get_NX(); x++)
 			{
@@ -524,7 +524,7 @@ void CGrid::Invert(void)
 			}
 		}
 
-		SG_Callback_Process_Set_Ready();
+		SG_UI_Process_Set_Ready();
 
 		Get_History().Add_Entry(LNG("[HST] Grid operation"), LNG("[HST] Inversion"));
 	}
@@ -540,7 +540,7 @@ void CGrid::Flip(void)
 	{
 		Line	= (double *)SG_Malloc(Get_NX() * sizeof(double));
 
-		for(yA=0, yB=Get_NY()-1; yA<yB && SG_Callback_Process_Set_Progress(2 * yA, Get_NY()); yA++, yB--)
+		for(yA=0, yB=Get_NY()-1; yA<yB && SG_UI_Process_Set_Progress(2 * yA, Get_NY()); yA++, yB--)
 		{
 			for(x=0; x<Get_NX(); x++)
 			{
@@ -560,7 +560,7 @@ void CGrid::Flip(void)
 			}
 		}
 
-		SG_Callback_Process_Set_Ready();
+		SG_UI_Process_Set_Ready();
 
 		SG_Free(Line);
 
@@ -576,7 +576,7 @@ void CGrid::Mirror(void)
 
 	if( is_Valid() )
 	{
-		for(y=0; y<Get_NY() && SG_Callback_Process_Set_Progress(y, Get_NY()); y++)
+		for(y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 		{
 			for(xA=0, xB=Get_NX()-1; xA<xB; xA++, xB--)
 			{
@@ -586,7 +586,7 @@ void CGrid::Mirror(void)
 			}
 		}
 
-		SG_Callback_Process_Set_Ready();
+		SG_UI_Process_Set_Ready();
 
 		Get_History().Add_Entry(LNG("[HST] Grid operation"), LNG("[HST] Horizontally mirrored"));
 	}
@@ -613,7 +613,7 @@ void CGrid::Normalise(void)
 		{
 			d	= sqrt(m_Variance);
 
-			for(y=0; y<Get_NY() && SG_Callback_Process_Set_Progress(y, Get_NY()); y++)
+			for(y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 			{
 				for(x=0; x<Get_NX(); x++)
 				{
@@ -624,7 +624,7 @@ void CGrid::Normalise(void)
 				}
 			}
 
-			SG_Callback_Process_Set_Ready();
+			SG_UI_Process_Set_Ready();
 
 			Get_History().Add_Entry(LNG("[HST] Grid normalisation"), CSG_String::Format("%f / %f", m_ArithMean, m_Variance));
 		}
@@ -640,7 +640,7 @@ void CGrid::DeNormalise(double ArithMean, double Variance)
 	{
 		Variance	= sqrt(Variance);
 
-		for(y=0; y<Get_NY() && SG_Callback_Process_Set_Progress(y, Get_NY()); y++)
+		for(y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 		{
 			for(x=0; x<Get_NX(); x++)
 			{
@@ -651,7 +651,7 @@ void CGrid::DeNormalise(double ArithMean, double Variance)
 			}
 		}
 
-		SG_Callback_Process_Set_Ready();
+		SG_UI_Process_Set_Ready();
 
 		Get_History().Add_Entry(LNG("[HST] Grid denormalisation"), CSG_String::Format("%f / %f", ArithMean, Variance));
 	}

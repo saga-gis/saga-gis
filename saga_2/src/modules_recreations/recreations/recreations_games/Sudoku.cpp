@@ -15,12 +15,12 @@ int	numbers[10][36][36];
 
 unsigned int cell_color[] =
 {
-	COLOR_GET_RGB(0,  0,  0), // 0 = black
-	COLOR_GET_RGB(255,  255,  255), // 1 = white
-	COLOR_GET_RGB(250, 250, 150), // 2 = yellow
-	COLOR_GET_RGB(200, 150, 100), // 3 = browm
-	COLOR_GET_RGB(0,  220, 0), // 4 = green	
-	COLOR_GET_RGB(200, 0 ,0) // 5 = red
+	SG_GET_RGB(0,  0,  0), // 0 = black
+	SG_GET_RGB(255,  255,  255), // 1 = white
+	SG_GET_RGB(250, 250, 150), // 2 = yellow
+	SG_GET_RGB(200, 150, 100), // 3 = browm
+	SG_GET_RGB(0,  220, 0), // 4 = green	
+	SG_GET_RGB(200, 0 ,0) // 5 = red
 };
 
 CSudoku::CSudoku(void)

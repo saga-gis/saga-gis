@@ -102,7 +102,7 @@ bool CFuzzify::On_Execute(void){
 		return false;
 	}//if
 
-	Colors.Set_Ramp(COLOR_GET_RGB(0, 0, 0),COLOR_GET_RGB(255, 255, 255));
+	Colors.Set_Ramp(SG_GET_RGB(0, 0, 0),SG_GET_RGB(255, 255, 255));
 	DataObject_Set_Colors(pOutput, Colors);
 	pOutput->Set_Name(_TL("Fuzzified"));
 

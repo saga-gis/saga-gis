@@ -138,7 +138,7 @@ _try
 
 		Print_Logo(MLB_Path);
 
-		SG_Set_Callback(Get_Callback());
+		SG_Set_UI_Callback(Get_Callback());
 		SG_Get_Translator()->Create(SG_File_Make_Path(wxGetCwd(), "saga", "lng"), false);
 
 		//-------------------------------------------------

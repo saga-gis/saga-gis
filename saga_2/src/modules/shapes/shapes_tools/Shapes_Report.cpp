@@ -114,13 +114,13 @@ CShapes_Report::CShapes_Report(void)
 	Parameters.Add_Value(
 		pNode	, "COLOR_LINE"	, _TL("Line Color"),
 		_TL(""),
-		PARAMETER_TYPE_Color, COLOR_DEF_BLACK
+		PARAMETER_TYPE_Color, SG_COLOR_BLACK
 	);
 
 	Parameters.Add_Value(
 		pNode	, "COLOR_FILL"	, _TL("Fill Color"),
 		_TL(""),
-		PARAMETER_TYPE_Color, COLOR_DEF_GREEN
+		PARAMETER_TYPE_Color, SG_COLOR_GREEN
 	);
 
 	//-----------------------------------------------------

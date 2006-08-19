@@ -213,14 +213,14 @@ public:
 	const CSG_Rect &			Layout_Get_Box				(const char *ID);
 	void						Layout_Set_Box_Space		(double Space, bool bPercent);
 
-	bool						Draw_Point					(double x, double y, double Width, int Style = PDF_STYLE_POINT_SQUARE|PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = COLOR_DEF_WHITE, int Line_Color = COLOR_DEF_BLACK, int Line_Width = 0);
-	bool						Draw_Line					(double xa, double ya, double xb, double yb	, int Width = 0, int Color = COLOR_DEF_BLACK, int Style = 0);
-	bool						Draw_Line					(CSG_Points &Points							, int Width = 0, int Color = COLOR_DEF_BLACK, int Style = 0);
-	bool						Draw_Rectangle				(double xa, double ya, double xb, double yb	, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = COLOR_DEF_WHITE, int Line_Color = COLOR_DEF_BLACK, int Line_Width = 0);
-	bool						Draw_Rectangle				(const CSG_Rect &r							, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = COLOR_DEF_WHITE, int Line_Color = COLOR_DEF_BLACK, int Line_Width = 0);
-	bool						Draw_Polygon				(CSG_Points &Points							, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = COLOR_DEF_GREEN, int Line_Color = COLOR_DEF_BLACK, int Line_Width = 0);
-	bool						Draw_Text					(double x, double y, const char   *Text, int Size, int Style = PDF_STYLE_TEXT_ALIGN_H_LEFT|PDF_STYLE_TEXT_ALIGN_V_TOP, double Angle = 0.0, int Color = COLOR_DEF_BLACK, TPDF_Font_Type Font = PDF_FONT_DEFAULT);
-	bool						Draw_Text					(double x, double y, CSG_Strings  &Text, int Size, int Style = PDF_STYLE_TEXT_ALIGN_H_LEFT|PDF_STYLE_TEXT_ALIGN_V_TOP, double Angle = 0.0, int Color = COLOR_DEF_BLACK, TPDF_Font_Type Font = PDF_FONT_DEFAULT);
+	bool						Draw_Point					(double x, double y, double Width, int Style = PDF_STYLE_POINT_SQUARE|PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = SG_COLOR_WHITE, int Line_Color = SG_COLOR_BLACK, int Line_Width = 0);
+	bool						Draw_Line					(double xa, double ya, double xb, double yb	, int Width = 0, int Color = SG_COLOR_BLACK, int Style = 0);
+	bool						Draw_Line					(CSG_Points &Points							, int Width = 0, int Color = SG_COLOR_BLACK, int Style = 0);
+	bool						Draw_Rectangle				(double xa, double ya, double xb, double yb	, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = SG_COLOR_WHITE, int Line_Color = SG_COLOR_BLACK, int Line_Width = 0);
+	bool						Draw_Rectangle				(const CSG_Rect &r							, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = SG_COLOR_WHITE, int Line_Color = SG_COLOR_BLACK, int Line_Width = 0);
+	bool						Draw_Polygon				(CSG_Points &Points							, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = SG_COLOR_GREEN, int Line_Color = SG_COLOR_BLACK, int Line_Width = 0);
+	bool						Draw_Text					(double x, double y, const char   *Text, int Size, int Style = PDF_STYLE_TEXT_ALIGN_H_LEFT|PDF_STYLE_TEXT_ALIGN_V_TOP, double Angle = 0.0, int Color = SG_COLOR_BLACK, TPDF_Font_Type Font = PDF_FONT_DEFAULT);
+	bool						Draw_Text					(double x, double y, CSG_Strings  &Text, int Size, int Style = PDF_STYLE_TEXT_ALIGN_H_LEFT|PDF_STYLE_TEXT_ALIGN_V_TOP, double Angle = 0.0, int Color = SG_COLOR_BLACK, TPDF_Font_Type Font = PDF_FONT_DEFAULT);
 	bool						Draw_Image					(double x, double y, double dx, double dy	, const char *FileName);
 	bool						Draw_Image					(const CSG_Rect &r							, const char *FileName);
 
@@ -230,8 +230,8 @@ public:
 	bool						Draw_Table					(const CSG_Rect &r, CTable *pTable					, double CellHeight = 0.0, double HeaderHeightRel = 1.5);
 	bool						Draw_Table					(const CSG_Rect &r, CTable *pTable, int nColumns	, double CellHeight = 0.0, double HeaderHeightRel = 1.5);
 
-	bool						Draw_Shape					(const CSG_Rect &r, CShape  *pShape , int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = COLOR_DEF_GREEN, int Line_Color = COLOR_DEF_BLACK, int Line_Width = 0, CSG_Rect *prWorld = NULL);
-	bool						Draw_Shapes					(const CSG_Rect &r, CShapes *pShapes, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = COLOR_DEF_GREEN, int Line_Color = COLOR_DEF_BLACK, int Line_Width = 0, CSG_Rect *prWorld = NULL);
+	bool						Draw_Shape					(const CSG_Rect &r, CShape  *pShape , int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = SG_COLOR_GREEN, int Line_Color = SG_COLOR_BLACK, int Line_Width = 0, CSG_Rect *prWorld = NULL);
+	bool						Draw_Shapes					(const CSG_Rect &r, CShapes *pShapes, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = SG_COLOR_GREEN, int Line_Color = SG_COLOR_BLACK, int Line_Width = 0, CSG_Rect *prWorld = NULL);
 
 	bool						Draw_Grid					(const CSG_Rect &r, CGrid *pGrid, const CSG_Colors &Colors, double zMin = 0.0, double zMax = 0.0, int Style = 0, CSG_Rect *prWorld = NULL);
 
@@ -246,7 +246,7 @@ protected:
 	bool						_Draw_Ruler					(const CSG_Rect &r, double zMin, double zMax, bool bHorizontal, bool bAscendent, bool bTickAtTop);
 	bool						_Draw_Text					(double x, double y, const char *Text, int Size, int Style, double Angle, int Color, TPDF_Font_Type Font);
 	bool						_Draw_Table					(CSG_Rect r, CTable *pTable, int iRecord, int nRecords, double CellHeight, double HeaderHeightRel);
-	bool						_Draw_Shape					(CSG_Rect r, CShape *pShape, double xMin, double yMin, double World2PDF, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = COLOR_DEF_GREEN, int Line_Color = COLOR_DEF_BLACK, int Line_Width = 0, int Point_Width = 5);
+	bool						_Draw_Shape					(CSG_Rect r, CShape *pShape, double xMin, double yMin, double World2PDF, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = SG_COLOR_GREEN, int Line_Color = SG_COLOR_BLACK, int Line_Width = 0, int Point_Width = 5);
 
 	TPDF_Title_Level			_Get_Lowest_Level_Outline_Item	(void);
 

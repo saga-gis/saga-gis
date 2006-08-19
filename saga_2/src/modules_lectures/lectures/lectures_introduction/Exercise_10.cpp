@@ -134,8 +134,8 @@ bool CExercise_10::On_Execute(void)
 	m_nColors	= Parameters("COLORS")->asInt();
 
 	Colors.Set_Count(m_nColors + 1);
-	Colors.Set_Ramp(COLOR_GET_RGB(127, 127, 127), COLOR_GET_RGB(0, 0, 0));
-	Colors.Set_Color(0, COLOR_GET_RGB(255, 255, 255));
+	Colors.Set_Ramp(SG_GET_RGB(127, 127, 127), SG_GET_RGB(0, 0, 0));
+	Colors.Set_Color(0, SG_GET_RGB(255, 255, 255));
 	DataObject_Set_Colors(m_pLife, Colors);
 
 

@@ -167,9 +167,9 @@ bool CBMP_Export::On_Execute(void)
 			{
 				Value		= pGrid->asInt(x, y);
 
-				pLine[0]	= COLOR_GET_B(Value);
-				pLine[1]	= COLOR_GET_G(Value);
-				pLine[2]	= COLOR_GET_R(Value);
+				pLine[0]	= SG_GET_B(Value);
+				pLine[1]	= SG_GET_G(Value);
+				pLine[2]	= SG_GET_R(Value);
 			}
 
 			fwrite(Line, sizeof(char), nBytes_Line, Stream);

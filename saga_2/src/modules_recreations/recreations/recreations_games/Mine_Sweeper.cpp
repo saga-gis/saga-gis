@@ -156,7 +156,7 @@ bool CMine_Sweeper::MakeBoard(int level)
 	Colors.Set_Count(16);
 	for ( i=0;i<16; i++)
 	{
-		Colors.Set_Color(i, COLOR_GET_RGB(mine_res_color[i*3],	mine_res_color[i*3+1],	mine_res_color[i*3+2]));
+		Colors.Set_Color(i, SG_GET_RGB(mine_res_color[i*3],	mine_res_color[i*3+1],	mine_res_color[i*3+2]));
 	}
 	DataObject_Set_Colors(pInput, Colors);
 	DataObject_Update(pInput, 0.0, 15.0, true);

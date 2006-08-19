@@ -354,8 +354,8 @@ bool CSolarRadiation::On_Execute(void)
 	delete( m_pSum );
 
 	Colors.Set_Count(100);
-	Colors.Set_Ramp(COLOR_GET_RGB(  0,   0,  64), COLOR_GET_RGB(255, 159,   0),  0, 50);
-	Colors.Set_Ramp(COLOR_GET_RGB(255, 159,   0), COLOR_GET_RGB(255, 255, 255), 50, 99);
+	Colors.Set_Ramp(SG_GET_RGB(  0,   0,  64), SG_GET_RGB(255, 159,   0),  0, 50);
+	Colors.Set_Ramp(SG_GET_RGB(255, 159,   0), SG_GET_RGB(255, 255, 255), 50, 99);
 
 	DataObject_Set_Colors(m_pRadiation, Colors);
 	DataObject_Set_Colors(m_pDuration , Colors);

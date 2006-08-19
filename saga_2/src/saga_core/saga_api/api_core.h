@@ -135,12 +135,12 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//						Callback						 //
+//						UI Callback						 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_Callback_ID
+typedef enum ESG_UI_Callback_ID
 {
 	CALLBACK_PROCESS_GET_OKAY,
 	CALLBACK_PROCESS_SET_OKAY,
@@ -172,45 +172,44 @@ typedef enum ESG_Callback_ID
 
 	CALLBACK_GUI_GET_WINDOW
 }
-TSG_Callback_ID;
+TSG_UI_Callback_ID;
 
 //---------------------------------------------------------
-typedef int (* TSG_PFNC_Callback) (TSG_Callback_ID ID, long pParam_1, long pParam_2);
+typedef int (* TSG_PFNC_UI_Callback) (TSG_UI_Callback_ID ID, long pParam_1, long pParam_2);
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT bool				SG_Set_Callback						(TSG_PFNC_Callback Callback);
-SAGA_API_DLL_EXPORT TSG_PFNC_Callback	SG_Get_Callback						(void);
+SAGA_API_DLL_EXPORT bool					SG_Set_UI_Callback			(TSG_PFNC_UI_Callback Function);
+SAGA_API_DLL_EXPORT TSG_PFNC_UI_Callback	SG_Get_UI_Callback			(void);
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT bool				SG_Callback_Process_Get_Okay		(bool bBlink);
-SAGA_API_DLL_EXPORT bool				SG_Callback_Process_Set_Okay		(bool bOkay = true);
-SAGA_API_DLL_EXPORT bool				SG_Callback_Process_Set_Progress	(double Position, double Range);
-SAGA_API_DLL_EXPORT bool				SG_Callback_Process_Set_Ready		(void);
-SAGA_API_DLL_EXPORT void				SG_Callback_Process_Set_Text		(const char *Text);
+SAGA_API_DLL_EXPORT bool					SG_UI_Process_Get_Okay		(bool bBlink);
+SAGA_API_DLL_EXPORT bool					SG_UI_Process_Set_Okay		(bool bOkay = true);
+SAGA_API_DLL_EXPORT bool					SG_UI_Process_Set_Progress	(double Position, double Range);
+SAGA_API_DLL_EXPORT bool					SG_UI_Process_Set_Ready		(void);
+SAGA_API_DLL_EXPORT void					SG_UI_Process_Set_Text		(const char *Text);
 
-SAGA_API_DLL_EXPORT void				SG_Callback_Dlg_Message				(const char *Message, const char *Caption);
-SAGA_API_DLL_EXPORT bool				SG_Callback_Dlg_Continue			(const char *Message, const char *Caption);
-SAGA_API_DLL_EXPORT int					SG_Callback_Dlg_Error				(const char *Message, const char *Caption);
+SAGA_API_DLL_EXPORT void					SG_UI_Dlg_Message			(const char *Message, const char *Caption);
+SAGA_API_DLL_EXPORT bool					SG_UI_Dlg_Continue			(const char *Message, const char *Caption);
+SAGA_API_DLL_EXPORT int						SG_UI_Dlg_Error				(const char *Message, const char *Caption);
+SAGA_API_DLL_EXPORT bool					SG_UI_Dlg_Parameters		(class CParameters *pParameters, const char *Caption);
 
-SAGA_API_DLL_EXPORT bool				SG_Callback_Dlg_Parameters			(class CParameters *pParameters, const char *Caption);
+SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add				(const char *Message, bool bNewLine);
+SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Error			(const char *Message);
+SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Execution		(const char *Message, bool bNewLine);
 
-SAGA_API_DLL_EXPORT void				SG_Callback_Message_Add				(const char *Message, bool bNewLine);
-SAGA_API_DLL_EXPORT void				SG_Callback_Message_Add_Error		(const char *Message);
-SAGA_API_DLL_EXPORT void				SG_Callback_Message_Add_Execution	(const char *Message, bool bNewLine);
+SAGA_API_DLL_EXPORT class CDataObject *		SG_UI_DataObject_Find		(const char *File_Name         , int Object_Type);
+SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Check		(class CDataObject *pDataObject, int Object_Type);
+SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Add		(class CDataObject *pDataObject, bool bShow);
+SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Update		(class CDataObject *pDataObject, bool bShow, class CParameters *pParameters);
+SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Show		(class CDataObject *pDataObject);
+SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_asImage	(class CDataObject *pDataObject, class CGrid *pGrid);
 
-SAGA_API_DLL_EXPORT class CDataObject *	SG_Callback_DataObject_Find			(const char *File_Name         , int Object_Type);
-SAGA_API_DLL_EXPORT bool				SG_Callback_DataObject_Check		(class CDataObject *pDataObject, int Object_Type);
-SAGA_API_DLL_EXPORT bool				SG_Callback_DataObject_Add			(class CDataObject *pDataObject, bool bShow);
-SAGA_API_DLL_EXPORT bool				SG_Callback_DataObject_Update		(class CDataObject *pDataObject, bool bShow, class CParameters *pParameters);
-SAGA_API_DLL_EXPORT bool				SG_Callback_DataObject_Show			(class CDataObject *pDataObject);
-SAGA_API_DLL_EXPORT bool				SG_Callback_DataObject_asImage		(class CDataObject *pDataObject, class CGrid *pGrid);
+SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Colors_Get	(class CDataObject *pDataObject, class CSG_Colors *pColors);
+SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Colors_Set	(class CDataObject *pDataObject, class CSG_Colors *pColors);
 
-SAGA_API_DLL_EXPORT bool				SG_Callback_DataObject_Colors_Get	(class CDataObject *pDataObject, class CSG_Colors *pColors);
-SAGA_API_DLL_EXPORT bool				SG_Callback_DataObject_Colors_Set	(class CDataObject *pDataObject, class CSG_Colors *pColors);
+SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Get_All	(class CParameters *pParameters);
 
-SAGA_API_DLL_EXPORT bool				SG_Callback_DataObject_Get_All		(class CParameters *pParameters);
-
-SAGA_API_DLL_EXPORT void *				SG_Callback_Get_Window_Main			(void);
+SAGA_API_DLL_EXPORT void *					SG_UI_Get_Window_Main		(void);
 
 
 ///////////////////////////////////////////////////////////
@@ -374,19 +373,15 @@ SAGA_API_DLL_EXPORT CSG_String		SG_Get_String					(double Value, int Precision =
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT bool			SG_Directory_isValid	(const char *Directory);
-SAGA_API_DLL_EXPORT bool			SG_Directory_Make		(const char *Directory);
+SAGA_API_DLL_EXPORT bool			SG_Dir_isValid			(const char *Directory);
+SAGA_API_DLL_EXPORT bool			SG_Dir_Create			(const char *Directory);
+SAGA_API_DLL_EXPORT CSG_String		SG_Dir_Get_Current		(void);
 
 SAGA_API_DLL_EXPORT bool			SG_File_Delete			(const char *FileName);
-SAGA_API_DLL_EXPORT CSG_String		SG_Get_CWD				(void);
-
-SAGA_API_DLL_EXPORT CSG_String		SG_Get_Temp_File_Name	(const char *Prefix, const char *Directory);
-
+SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_TmpName		(const char *Prefix, const char *Directory);
 SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Name		(const char *full_Path, bool bExtension);
 SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Path		(const char *full_Path);
-
 SAGA_API_DLL_EXPORT CSG_String		SG_File_Make_Path		(const char *Directory, const char *Name, const char *Extension = NULL);
-
 SAGA_API_DLL_EXPORT bool			SG_File_Cmp_Extension	(const char *File_Name, const char *Extension);
 
 SAGA_API_DLL_EXPORT bool			SG_Read_Line			(FILE *Stream, CSG_String &Line);
@@ -399,6 +394,130 @@ SAGA_API_DLL_EXPORT int				SG_Read_Int				(char *Buffer				, bool bBig);
 SAGA_API_DLL_EXPORT void			SG_Write_Int			(char *Buffer, int Value	, bool bBig);
 SAGA_API_DLL_EXPORT double			SG_Read_Double			(char *Buffer				, bool bBig);
 SAGA_API_DLL_EXPORT void			SG_Write_Double			(char *Buffer, double Value	, bool bBig);
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//						Colors							 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define SG_GET_RGB(r, g, b)			((DWORD) (((BYTE)(r) | ((WORD)(g) << 8)) | (((DWORD)(BYTE)(b)) << 16)))
+#define SG_GET_RGBA(r, g, b, a)		((DWORD) (((BYTE)(r) | ((WORD)(g) << 8)) | (((DWORD)(BYTE)(b)) << 16) | (((DWORD)(BYTE)(a)) << 24)))
+
+#define SG_GET_R(rgb)				((BYTE) ((rgb)      ))
+#define SG_GET_G(rgb)				((BYTE) ((rgb) >>  8))
+#define SG_GET_B(rgb)				((BYTE) ((rgb) >> 16))
+#define SG_GET_A(rgb)				((BYTE) ((rgb) >> 24))
+
+//---------------------------------------------------------
+#define SG_COLOR_BLACK				SG_GET_RGB(  0,   0,   0)
+#define SG_COLOR_GREY				SG_GET_RGB(128, 128, 128)
+#define SG_COLOR_GREY_LIGHT			SG_GET_RGB(192, 192, 192)
+#define SG_COLOR_WHITE				SG_GET_RGB(255, 255, 255)
+#define SG_COLOR_RED				SG_GET_RGB(255,   0,   0)
+#define SG_COLOR_RED_DARK			SG_GET_RGB(128,   0,   0)
+#define SG_COLOR_YELLOW				SG_GET_RGB(255, 255,   0)
+#define SG_COLOR_YELLOW_DARK		SG_GET_RGB(128, 128,   0)
+#define SG_COLOR_GREEN				SG_GET_RGB(  0, 255,   0)
+#define SG_COLOR_GREEN_DARK			SG_GET_RGB(  0, 128,   0)
+#define SG_COLOR_GREEN_LIGHT		SG_GET_RGB(  0, 255,   0)
+#define SG_COLOR_BLUE				SG_GET_RGB(  0,   0, 255)
+#define SG_COLOR_BLUE_DARK			SG_GET_RGB(  0,   0, 128)
+#define SG_COLOR_BLUE_LIGHT			SG_GET_RGB(  0, 255, 255)
+#define SG_COLOR_BLUE_GREEN			SG_GET_RGB(  0, 128, 128)
+#define SG_COLOR_PURPLE				SG_GET_RGB(128,   0, 128)
+#define SG_COLOR_PINK				SG_GET_RGB(255,   0, 255)
+#define SG_COLOR_NONE				-1
+#define SG_COLOR_RANDOM				-2
+
+//---------------------------------------------------------
+enum ESG_Colors
+{
+	SG_COLORS_DEFAULT			= 0,
+	SG_COLORS_DEFAULT_BRIGHT,
+	SG_COLORS_BLACK_WHITE,
+	SG_COLORS_BLACK_RED,
+	SG_COLORS_BLACK_GREEN,
+	SG_COLORS_BLACK_BLUE,
+	SG_COLORS_WHITE_RED,
+	SG_COLORS_WHITE_GREEN,
+	SG_COLORS_WHITE_BLUE,
+	SG_COLORS_YELLOW_RED,
+	SG_COLORS_YELLOW_GREEN,
+	SG_COLORS_YELLOW_BLUE,
+	SG_COLORS_RED_GREEN,
+	SG_COLORS_RED_BLUE,
+	SG_COLORS_GREEN_BLUE,
+	SG_COLORS_RED_GREY_BLUE,
+	SG_COLORS_RED_GREY_GREEN,
+	SG_COLORS_GREEN_GREY_BLUE,
+	SG_COLORS_RED_GREEN_BLUE,
+	SG_COLORS_RED_BLUE_GREEN,
+	SG_COLORS_GREEN_RED_BLUE,
+	SG_COLORS_RAINBOW,
+	SG_COLORS_NEON,
+	SG_COLORS_COUNT
+};
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Colors
+{
+public:
+	CSG_Colors(void);
+	CSG_Colors(int nColors, int Palette = SG_COLORS_DEFAULT, bool bRevert = false);
+	virtual ~CSG_Colors(void);
+
+	void							Destroy				(void);
+
+	bool							Set_Count			(int nColors);
+	int								Get_Count			(void) const		{	return( m_nColors );	}
+
+	long &							operator []			(int Index)			{	return( m_Colors[Index] );	}
+
+	bool							Set_Color			(int Index, long Color);
+	bool							Set_Color			(int Index, int Red, int Green, int Blue);
+	bool							Set_Red				(int Index, int Value);
+	bool							Set_Green			(int Index, int Value);
+	bool							Set_Blue			(int Index, int Value);
+	bool							Set_Brightness		(int Index, int Value);
+
+	long							Get_Color			(int Index) const	{	return( Index >= 0 && Index < m_nColors ? m_Colors[Index] : 0 );	}
+	long							Get_Red				(int Index) const	{	return( SG_GET_R(Get_Color(Index)) );	}
+	long							Get_Green			(int Index) const	{	return( SG_GET_G(Get_Color(Index)) );	}
+	long							Get_Blue			(int Index) const	{	return( SG_GET_B(Get_Color(Index)) );	}
+	long							Get_Brightness		(int Index) const	{	return( (Get_Red(Index) + Get_Green(Index) + Get_Blue(Index)) / 3 );	}
+
+	bool							Set_Default			(int nColors = 100);
+	bool							Set_Palette			(int Index, bool bRevert = false, int nColors = 100);
+	bool							Set_Ramp			(long Color_A, long Color_B);
+	bool							Set_Ramp			(long Color_A, long Color_B, int iColor_A, int iColor_B);
+	bool							Set_Ramp_Brighness	(int Brightness_A, int Brightness_B);
+	bool							Set_Ramp_Brighness	(int Brightness_A, int Brightness_B, int iColor_A, int iColor_B);
+
+	bool							Random				(void);
+	bool							Invert				(void);
+	bool							Revert				(void);
+
+	bool							Assign				(CSG_Colors *pSource);
+
+	bool							Load				(const char *File_Name);
+	bool							Save				(const char *File_Name, bool bBinary);
+
+	bool							Serialize			(FILE *Stream, bool bSave, bool bBinary);
+
+
+private:
+
+	int								m_nColors;
+
+	long							*m_Colors;
+
+
+	void							_Set_Brightness		(double &a, double &b, double &c, int Pass = 0);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -460,195 +579,6 @@ private:
 SAGA_API_DLL_EXPORT CSG_Translator *	SG_Get_Translator	(void);
 
 SAGA_API_DLL_EXPORT const char *		LNG					(const char *Text);
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//						Colors							 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#define COLOR_GET_RGB(r, g, b)		((DWORD) (((BYTE)(r) | ((WORD)(g) << 8)) | (((DWORD)(BYTE)(b)) << 16)))
-#define COLOR_GET_RGBA(r, g, b, a)	((DWORD) (((BYTE)(r) | ((WORD)(g) << 8)) | (((DWORD)(BYTE)(b)) << 16) | (((DWORD)(BYTE)(a)) << 24)))
-
-#define COLOR_GET_R(rgb)			((BYTE) ((rgb)      ))
-#define COLOR_GET_G(rgb)			((BYTE) ((rgb) >>  8))
-#define COLOR_GET_B(rgb)			((BYTE) ((rgb) >> 16))
-#define COLOR_GET_A(rgb)			((BYTE) ((rgb) >> 24))
-
-//---------------------------------------------------------
-#define COLOR_DEF_BLACK				COLOR_GET_RGB(  0,   0,   0)
-#define COLOR_DEF_GREY				COLOR_GET_RGB(128, 128, 128)
-#define COLOR_DEF_GREY_LIGHT		COLOR_GET_RGB(192, 192, 192)
-#define COLOR_DEF_WHITE				COLOR_GET_RGB(255, 255, 255)
-#define COLOR_DEF_RED				COLOR_GET_RGB(255,   0,   0)
-#define COLOR_DEF_RED_DARK			COLOR_GET_RGB(128,   0,   0)
-#define COLOR_DEF_YELLOW			COLOR_GET_RGB(255, 255,   0)
-#define COLOR_DEF_YELLOW_DARK		COLOR_GET_RGB(128, 128,   0)
-#define COLOR_DEF_GREEN				COLOR_GET_RGB(  0, 255,   0)
-#define COLOR_DEF_GREEN_DARK		COLOR_GET_RGB(  0, 128,   0)
-#define COLOR_DEF_GREEN_LIGHT		COLOR_GET_RGB(  0, 255,   0)
-#define COLOR_DEF_BLUE				COLOR_GET_RGB(  0,   0, 255)
-#define COLOR_DEF_BLUE_DARK			COLOR_GET_RGB(  0,   0, 128)
-#define COLOR_DEF_BLUE_LIGHT		COLOR_GET_RGB(  0, 255, 255)
-#define COLOR_DEF_BLUE_GREEN		COLOR_GET_RGB(  0, 128, 128)
-#define COLOR_DEF_PURPLE			COLOR_GET_RGB(128,   0, 128)
-#define COLOR_DEF_PINK				COLOR_GET_RGB(255,   0, 255)
-#define COLOR_DEF_NONE				-1
-#define COLOR_DEF_RANDOM			-2
-
-//---------------------------------------------------------
-enum EColor_Palettes
-{
-	COLORS_PALETTE_DEFAULT		= 0,
-	COLORS_PALETTE_DEFAULT_BRIGHT,
-	COLORS_PALETTE_BLACK_WHITE,
-	COLORS_PALETTE_BLACK_RED,
-	COLORS_PALETTE_BLACK_GREEN,
-	COLORS_PALETTE_BLACK_BLUE,
-	COLORS_PALETTE_WHITE_RED,
-	COLORS_PALETTE_WHITE_GREEN,
-	COLORS_PALETTE_WHITE_BLUE,
-	COLORS_PALETTE_YELLOW_RED,
-	COLORS_PALETTE_YELLOW_GREEN,
-	COLORS_PALETTE_YELLOW_BLUE,
-	COLORS_PALETTE_RED_GREEN,
-	COLORS_PALETTE_RED_BLUE,
-	COLORS_PALETTE_GREEN_BLUE,
-	COLORS_PALETTE_RED_GREY_BLUE,
-	COLORS_PALETTE_RED_GREY_GREEN,
-	COLORS_PALETTE_GREEN_GREY_BLUE,
-	COLORS_PALETTE_RED_GREEN_BLUE,
-	COLORS_PALETTE_RED_BLUE_GREEN,
-	COLORS_PALETTE_GREEN_RED_BLUE,
-	COLORS_PALETTE_RAINBOW,
-	COLORS_PALETTE_NEON,
-	COLORS_PALETTE_COUNT
-};
-
-//---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Colors
-{
-public:
-	CSG_Colors(void);
-	CSG_Colors(int nColors, int Palette = COLORS_PALETTE_DEFAULT, bool bRevert = false);
-	virtual ~CSG_Colors(void);
-
-	void							Destroy				(void);
-
-	bool							Set_Count			(int nColors);
-	int								Get_Count			(void) const		{	return( m_nColors );	}
-
-	bool							Set_Color			(int Index, long Color);
-	bool							Set_Color			(int Index, int Red, int Green, int Blue);
-	bool							Set_Red				(int Index, int Value);
-	bool							Set_Green			(int Index, int Value);
-	bool							Set_Blue			(int Index, int Value);
-	bool							Set_Brightness		(int Index, int Value);
-
-	long							Get_Color			(int Index) const	{	return( Index >= 0 && Index < m_nColors ? m_Colors[Index] : 0 );	}
-	long							Get_Red				(int Index) const	{	return( COLOR_GET_R(Get_Color(Index)) );	}
-	long							Get_Green			(int Index) const	{	return( COLOR_GET_G(Get_Color(Index)) );	}
-	long							Get_Blue			(int Index) const	{	return( COLOR_GET_B(Get_Color(Index)) );	}
-	long							Get_Brightness		(int Index) const	{	return( (Get_Red(Index) + Get_Green(Index) + Get_Blue(Index)) / 3 );	}
-
-	bool							Set_Default			(int nColors = 100);
-	bool							Set_Palette			(int Index, bool bRevert = false, int nColors = 100);
-	bool							Set_Ramp			(long Color_A, long Color_B);
-	bool							Set_Ramp			(long Color_A, long Color_B, int iColor_A, int iColor_B);
-	bool							Set_Ramp_Brighness	(int Brightness_A, int Brightness_B);
-	bool							Set_Ramp_Brighness	(int Brightness_A, int Brightness_B, int iColor_A, int iColor_B);
-
-	bool							Random				(void);
-	bool							Invert				(void);
-	bool							Revert				(void);
-
-	bool							Assign				(CSG_Colors *pSource);
-
-	bool							Load				(const char *File_Name);
-	bool							Save				(const char *File_Name, bool bBinary);
-
-	bool							Serialize			(FILE *Stream, bool bSave, bool bBinary);
-
-
-private:
-
-	int								m_nColors;
-
-	long							*m_Colors;
-
-
-	void							_Set_Brightness		(double &a, double &b, double &c, int Pass = 0);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//						History							 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_History_Entry
-{
-	friend class CSG_History;
-
-public:
-
-	const char *					Get_Date			(void)	{	return( m_Date );		}
-	const char *					Get_Name			(void)	{	return( m_Name );		}
-	const char *					Get_Entry			(void)	{	return( m_Entry );		}
-	class CSG_History *				Get_History			(void)	{	return( m_pHistory );	}
-
-
-private:
-
-	CSG_History_Entry(const char *Date, const char *Name, const char *Entry, class CSG_History *pHistory);
-	CSG_History_Entry(const CSG_History_Entry &Entry);
-	virtual ~CSG_History_Entry(void);
-
-	CSG_String						m_Date, m_Name, m_Entry;
-
-	class CSG_History					*m_pHistory;
-
-};
-
-//---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_History
-{
-public:
-	CSG_History(void);
-	CSG_History(const CSG_History &History);
-	virtual ~CSG_History(void);
-
-	void							Destroy				(void);
-	void							Assign				(const CSG_History &History, bool bAdd = false);
-
-	int								Get_Count			(void)			{	return( m_nEntries );	}
-	CSG_History_Entry *				Get_Entry			(int iEntry)	{	return( iEntry >= 0 && iEntry < m_nEntries ? m_pEntries[iEntry] : NULL );	}
-	void							Add_Entry			(const char *Name, const char *Entry, CSG_History *pHistory = NULL);
-
-	bool							Load				(const char *File_Name, const char *File_Extension);
-	bool							Save				(const char *File_Name, const char *File_Extension);
-
-	CSG_String						Get_HTML			(void);
-
-
-private:
-
-	int								m_nEntries;
-
-	CSG_History_Entry					**m_pEntries;
-
-
-	void							_Add_Entry			(CSG_History_Entry *pEntry);
-
-	bool							_Load				(FILE *Stream);
-	bool							_Save				(FILE *Stream);
-
-};
 
 
 ///////////////////////////////////////////////////////////

@@ -261,7 +261,7 @@ void CWKSP_TIN::On_Parameters_Changed(void)
 	}
 
 	long	DefColor	= m_Parameters("UNISYMBOL_COLOR")->asColor();
-	m_Color_Pen		= wxColour(COLOR_GET_R(DefColor), COLOR_GET_G(DefColor), COLOR_GET_B(DefColor));
+	m_Color_Pen		= wxColour(SG_GET_R(DefColor), SG_GET_G(DefColor), SG_GET_B(DefColor));
 }
 
 

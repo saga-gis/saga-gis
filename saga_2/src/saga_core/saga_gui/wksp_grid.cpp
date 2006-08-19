@@ -512,7 +512,7 @@ wxString CWKSP_Grid::Get_Value(CSG_Point ptWorld, double Epsilon)
 			break;
 
 		case CLASSIFY_RGB:
-			s.Printf("R%03d G%03d B%03d", COLOR_GET_R((int)Value), COLOR_GET_G((int)Value), COLOR_GET_B((int)Value));
+			s.Printf("R%03d G%03d B%03d", SG_GET_R((int)Value), SG_GET_G((int)Value), SG_GET_B((int)Value));
 			break;
 		}
 	}
@@ -762,7 +762,7 @@ bool CWKSP_Grid::asImage(CGrid *pImage)
 		{
 			for(x=0; x<pImage->Get_NX(); x++)
 			{
-				pImage->Set_Value(x, y, COLOR_GET_RGB(IMG.GetRed(x, y), IMG.GetGreen(x, y), IMG.GetBlue(x, y)));
+				pImage->Set_Value(x, y, SG_GET_RGB(IMG.GetRed(x, y), IMG.GetGreen(x, y), IMG.GetBlue(x, y)));
 			}
 		}
 
@@ -848,7 +848,7 @@ bool CWKSP_Grid::Get_Image_Grid(wxBitmap *pBMP)
 
 		wxMemoryDC		dc;
 		wxRect			r(0, 0, m_pGrid->Get_NX(), m_pGrid->Get_NY());
-		CWKSP_Map_DC	dc_Map(Get_Extent(), r, 1.0, COLOR_GET_RGB(255, 255, 255));
+		CWKSP_Map_DC	dc_Map(Get_Extent(), r, 1.0, SG_GET_RGB(255, 255, 255));
 
 		On_Draw(dc_Map, false);
 
@@ -1027,7 +1027,7 @@ void CWKSP_Grid::_Draw_Values(CWKSP_Map_DC &dc_Map)
 		dc_Map.dc.SetTextForeground(Get_Color_asWX(x));
 
 		x			=  m_Parameters("VALUES_FONT")		->asInt();
-		dc_Map.dc.SetTextForeground(wxColour(COLOR_GET_R(x), COLOR_GET_G(x), COLOR_GET_B(x)));
+		dc_Map.dc.SetTextForeground(wxColour(SG_GET_R(x), SG_GET_G(x), SG_GET_B(x)));
 
 		//-------------------------------------------------
 		xa		= m_pGrid->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMin());
@@ -1053,7 +1053,7 @@ void CWKSP_Grid::_Draw_Values(CWKSP_Map_DC &dc_Map)
 					switch( m_pClassify->Get_Mode() )
 					{
 					case CLASSIFY_RGB:
-						s.Printf("R%03d G%03d B%03d", COLOR_GET_R((int)Value), COLOR_GET_G((int)Value), COLOR_GET_B((int)Value));
+						s.Printf("R%03d G%03d B%03d", SG_GET_R((int)Value), SG_GET_G((int)Value), SG_GET_B((int)Value));
 						break;
 
 					default:

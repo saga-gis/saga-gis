@@ -71,22 +71,7 @@
 #include <wx/toolbar.h>
 
 //---------------------------------------------------------
-#if defined(__SAGA_GUI_USE_wxFL__)
-
-	#include <wx/dcscreen.h>
-	#include <wx/dcmemory.h>
-	#include <wx/fl/controlbar.h>	// core API
-	#include <wx/fl/barhintspl.h>	// bevel for bars with "X"s and grooves
-	#include <wx/fl/rowdragpl.h>	// NC-look with draggable rows
-	#include <wx/fl/cbcustom.h>		// customization plugin
-	#include <wx/fl/antiflickpl.h>	// double-buffered repaint of decorations
-	#include <wx/fl/hintanimpl.h>
-	#include <wx/fl/panedrawpl.h>
-	#include <wx/fl/gcupdatesmgr.h>
-	#include <wx/fl/dyntbarhnd.h>
-	#include <wx/fl/dyntbar.h>
-
-#elif defined(__SAGA_GUI_USE_wxDOCKIT__)
+#if defined(__SAGA_GUI_USE_wxDOCKIT__)
 
 	#include "wx/layoutmanager.h"
 	#include "wx/dockwindow.h"
@@ -113,19 +98,7 @@
 #define SAGA_BAR_STATES			4
 
 //---------------------------------------------------------
-#if defined(__SAGA_GUI_USE_wxFL__)
-
-	#define SAGA_BAR_DOCKED_H	wxCBAR_DOCKED_HORIZONTALLY
-	#define SAGA_BAR_DOCKED_V	wxCBAR_DOCKED_VERTICALLY
-	#define SAGA_BAR_FLOATING	wxCBAR_FLOATING
-	#define SAGA_BAR_HIDDEN		wxCBAR_HIDDEN
-
-	#define SAGA_BAR_ALIGN_L	FL_ALIGN_LEFT
-	#define SAGA_BAR_ALIGN_R	FL_ALIGN_RIGHT
-	#define SAGA_BAR_ALIGN_T	FL_ALIGN_TOP
-	#define SAGA_BAR_ALIGN_B	FL_ALIGN_BOTTOM
-
-#elif defined(__SAGA_GUI_USE_wxDOCKIT__)
+#if defined(__SAGA_GUI_USE_wxDOCKIT__)
 
 	#define SAGA_BAR_DOCKED_H	0
 	#define SAGA_BAR_DOCKED_V	1
@@ -176,11 +149,7 @@ const char *	SAGA_GUI_Get_Version_FrameLayout	(void)
 {
 	static wxString	s;
 
-#if defined(__SAGA_GUI_USE_wxFL__)
-
-	s.Printf("wxFrameLayout %f", WXCONTROLBAR_VERSION);
-
-#elif defined(__SAGA_GUI_USE_wxDOCKIT__)
+#if defined(__SAGA_GUI_USE_wxDOCKIT__)
 
 	s.Printf("wxDockit 2.1");
 
@@ -215,19 +184,7 @@ CSAGA_Frame_Layout::CSAGA_Frame_Layout(wxMDIParentFrame *pFrame)
 	_Bar_Initialise();
 
 	//-----------------------------------------------------
-#if defined(__SAGA_GUI_USE_wxFL__)
-
-	m_pLayout	= new wxFrameLayout(m_pFrame, m_pFrame->GetClientWindow());
-	m_pLayout	->SetUpdatesManager(new cbGCUpdatesMgr());
-	m_pLayout	->PushDefaultPlugins();
-	m_pLayout	->AddPlugin(CLASSINFO(cbPaneDrawPlugin));
-	m_pLayout	->AddPlugin(CLASSINFO(cbBarHintsPlugin), FL_ALIGN_BOTTOM_PANE|FL_ALIGN_LEFT_PANE|FL_ALIGN_RIGHT_PANE);
-	m_pLayout	->AddPlugin(CLASSINFO(cbHintAnimationPlugin));
-	m_pLayout	->AddPlugin(CLASSINFO(cbRowDragPlugin));
-	m_pLayout	->AddPlugin(CLASSINFO(cbAntiflickerPlugin));
-	m_pLayout	->AddPlugin(CLASSINFO(cbSimpleCustomizationPlugin));
-
-#elif defined(__SAGA_GUI_USE_wxDOCKIT__)
+#if defined(__SAGA_GUI_USE_wxDOCKIT__)
 
 	m_pSlideBar	= new wxSlideBar(m_pFrame, 0);
 	m_pSlideBar	->SetMode(wxSLIDE_MODE_COMPACT);	// wxSLIDE_MODE_SIMPLE);
@@ -319,7 +276,7 @@ CSAGA_Frame_Layout::~CSAGA_Frame_Layout(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <saga_api/saga_api.h>
+//#include <saga_api/saga_api.h>
 
 #include "info.h"
 #include "wksp.h"
@@ -328,15 +285,7 @@ CSAGA_Frame_Layout::~CSAGA_Frame_Layout(void)
 //---------------------------------------------------------
 void CSAGA_Frame_Layout::Show_Initially(void)
 {
-	m_pFrame->Show(true);
-
-#if defined(__SAGA_GUI_USE_wxFL__)
-
-	m_pFrame->SendSizeEvent();
-
-	m_pLayout->RefreshNow();
-
-#elif defined(__SAGA_GUI_USE_wxAUI__)
+#if defined(__SAGA_GUI_USE_wxAUI__)
 
 	m_pLayout->GetPane(m_pFrame->GetClientWindow()).Show().Center();
 
@@ -345,7 +294,7 @@ void CSAGA_Frame_Layout::Show_Initially(void)
 	m_pLayout->GetPane(g_pWKSP)		.Show().Left()	.Layer(0).Row(0).Position(0).BestSize(wxSize(200,100));
 
     wxPaneInfoArray& all_panes = m_pLayout->GetAllPanes();
-    for(int i=0, count=all_panes.GetCount(); i < count; ++i)
+    for(int i=0, count=all_panes.GetCount(); i<count; ++i)
 	{
         if(0&& all_panes.Item(i).IsToolbar() )
 		{
@@ -356,6 +305,8 @@ void CSAGA_Frame_Layout::Show_Initially(void)
 	m_pLayout->Update();
 
 #endif
+
+	m_pFrame->Show(true);
 }
 
 
@@ -427,31 +378,7 @@ void CSAGA_Frame_Layout::_Bar_Position_Read(wxWindow *pWindow, wxString Name, bo
 	pBar			= m_Bars + m_nBars - 1;
 	pBar->pWnd		= pWindow;
 
-#if defined(__SAGA_GUI_USE_wxFL__)
-
-	int			RowNo;
-
-	nx			= !bToolbar ? 100 : 10;
-	ny			= !bToolbar ? 100 : TOOLBAR_SIZE_IMG + 2 * (6 + TOOLBAR_SIZE_GAP);
-
-	cbDimInfo	DimInfo(nx, ny, ny, nx, nx, ny, false, 6, 6, !bToolbar ? NULL : new cbDynToolBarDimHandler());
-
-	CONFIG_READ(Entries, "STATE" , l, State		, SAGA_BAR_DOCKED_H);
-	CONFIG_READ(Entries, "ALIGN" , l, Alignment	, bToolbar ? SAGA_BAR_ALIGN_T : SAGA_BAR_ALIGN_B);
-	CONFIG_READ(Entries, "ROWNO" , l, RowNo		, 0);
-
-	for(int i=0; i<SAGA_BAR_STATES; i++)
-	{
-		CONFIG_READ(Entries, wxString::Format("%d_POS_X" , i), l, DimInfo.mBounds[i].x, SAGA_BAR_DEF_X);
-		CONFIG_READ(Entries, wxString::Format("%d_POS_Y" , i), l, DimInfo.mBounds[i].y, SAGA_BAR_DEF_Y);
-		CONFIG_READ(Entries, wxString::Format("%d_SIZE_X", i), l, DimInfo.mSizes [i].x, SAGA_BAR_DEF_NX);
-		CONFIG_READ(Entries, wxString::Format("%d_SIZE_Y", i), l, DimInfo.mSizes [i].y, SAGA_BAR_DEF_NY);
-	}
-
-	m_pLayout->AddBar(pWindow, DimInfo, Alignment, RowNo, 0, Name, false, State);
-	m_pLayout->RecalcLayout();
-
-#elif defined(__SAGA_GUI_USE_wxDOCKIT__)
+#if defined(__SAGA_GUI_USE_wxDOCKIT__)
 
 	pBar->pWnd_Dock	= NULL;
 	pBar->pWnd_Bar	= NULL;
@@ -534,29 +461,7 @@ void CSAGA_Frame_Layout::_Bar_Position_Write(TBar &Bar)
 
 	Entries.Printf("/FL/BAR%d", Bar.pWnd->GetId());
 
-#if defined(__SAGA_GUI_USE_wxFL__)
-
-	cbBarInfo	*pBar;
-
-	if( (pBar = m_pLayout->FindBarByWindow(Bar.pWnd)) != NULL )
-	{
-		CONFIG_Write(Entries, "STATE"	, (long)pBar->mState);
-		CONFIG_Write(Entries, "ALIGN"	, (long)pBar->mAlignment);
-		CONFIG_Write(Entries, "ROWNO"	, (long)pBar->mRowNo);
-		CONFIG_Write(Entries, "FPOSX"	, (long)pBar->mPosIfFloated.x);
-		CONFIG_Write(Entries, "FPOSY"	, (long)pBar->mPosIfFloated.y);
-		CONFIG_Write(Entries, "LRUPANE"	, (long)pBar->mDimInfo.mLRUPane);
-
-		for(int i=0; i<SAGA_BAR_STATES; i++)
-		{
-			CONFIG_Write(Entries, wxString::Format("%d_POS_X" , i), (long)pBar->mDimInfo.mBounds[i].x);
-			CONFIG_Write(Entries, wxString::Format("%d_POS_Y" , i), (long)pBar->mDimInfo.mBounds[i].y);
-			CONFIG_Write(Entries, wxString::Format("%d_SIZE_X", i), (long)pBar->mDimInfo.mSizes [i].x);
-			CONFIG_Write(Entries, wxString::Format("%d_SIZE_Y", i), (long)pBar->mDimInfo.mSizes [i].y);
-		}
-	}
-
-#elif defined(__SAGA_GUI_USE_wxDOCKIT__)
+#if defined(__SAGA_GUI_USE_wxDOCKIT__)
 
 	if( Bar.pWnd_Dock != NULL )
 	{
@@ -605,11 +510,7 @@ void CSAGA_Frame_Layout::_Bar_Position_Write(TBar &Bar)
 //---------------------------------------------------------
 void CSAGA_Frame_Layout::Bar_Toggle(wxWindow *pWindow)
 {
-#if defined(__SAGA_GUI_USE_wxFL__)
-
-	m_pLayout->InverseVisibility(m_pLayout->FindBarByWindow(pWindow));
-
-#elif defined(__SAGA_GUI_USE_wxDOCKIT__)
+#if defined(__SAGA_GUI_USE_wxDOCKIT__)
 
 	TBar	*pBar;
 
@@ -682,19 +583,7 @@ void CSAGA_Frame_Layout::Bar_Show(wxWindow *pWindow, bool bShow)
 //---------------------------------------------------------
 wxToolBarBase * CSAGA_Frame_Layout::TB_Create(int ID)
 {
-#if defined(__SAGA_GUI_USE_wxFL__)
-
-	return( new wxDynamicToolBar(m_pFrame, ID) );
-
-#elif defined(__SAGA_GUI_USE_wxDOCKIT__)
-
 	return( new wxToolBar(m_pFrame, ID, wxDefaultPosition, wxDefaultSize, wxTB_HORIZONTAL|wxTB_FLAT) );
-
-#elif defined(__SAGA_GUI_USE_wxAUI__)
-
-	return( new wxToolBar(m_pFrame, ID, wxDefaultPosition, wxDefaultSize, wxTB_HORIZONTAL|wxTB_FLAT) );
-
-#endif
 }
 
 //---------------------------------------------------------
@@ -710,47 +599,16 @@ void CSAGA_Frame_Layout::TB_Add(wxToolBarBase *pToolBar, const char *Name)
 //---------------------------------------------------------
 void CSAGA_Frame_Layout::TB_Add_Item(wxToolBarBase *pToolBar, bool bCheck, int Cmd_ID)
 {
-#if defined(__SAGA_GUI_USE_wxFL__)
-
 	if( bCheck )
-		((wxDynamicToolBar *)pToolBar)->AddTool(Cmd_ID, IMG_Get_Bitmap(CMD_Get_ImageID(Cmd_ID), TOOLBAR_SIZE_IMG), wxNullBitmap, true);
-	//	((wxDynamicToolBar *)pToolBar)->AddCheckTool(Cmd_ID, CMD_Get_Name(Cmd_ID), IMG_Get_Bitmap(CMD_Get_ImageID(Cmd_ID), TOOLBAR_SIZE_IMG), wxNullBitmap, CMD_Get_Help(Cmd_ID));
+		((wxToolBar *)pToolBar)->AddTool(Cmd_ID, CMD_Get_Name(Cmd_ID), IMG_Get_Bitmap(CMD_Get_ImageID(Cmd_ID), TOOLBAR_SIZE_IMG), CMD_Get_Help(Cmd_ID), wxITEM_CHECK);
 	else
-		((wxDynamicToolBar *)pToolBar)->AddTool(Cmd_ID, IMG_Get_Bitmap(CMD_Get_ImageID(Cmd_ID), TOOLBAR_SIZE_IMG), wxNullBitmap, false);
-
-#elif defined(__SAGA_GUI_USE_wxDOCKIT__)
-
-	if( bCheck )
-		((wxToolBar        *)pToolBar)->AddTool(Cmd_ID, CMD_Get_Name(Cmd_ID), IMG_Get_Bitmap(CMD_Get_ImageID(Cmd_ID), TOOLBAR_SIZE_IMG), CMD_Get_Help(Cmd_ID), wxITEM_CHECK);
-	else
-		((wxToolBar        *)pToolBar)->AddTool(Cmd_ID, CMD_Get_Name(Cmd_ID), IMG_Get_Bitmap(CMD_Get_ImageID(Cmd_ID), TOOLBAR_SIZE_IMG), CMD_Get_Help(Cmd_ID));
-
-#elif defined(__SAGA_GUI_USE_wxAUI__)
-
-	if( bCheck )
-		((wxToolBar        *)pToolBar)->AddTool(Cmd_ID, CMD_Get_Name(Cmd_ID), IMG_Get_Bitmap(CMD_Get_ImageID(Cmd_ID), TOOLBAR_SIZE_IMG), CMD_Get_Help(Cmd_ID), wxITEM_CHECK);
-	else
-		((wxToolBar        *)pToolBar)->AddTool(Cmd_ID, CMD_Get_Name(Cmd_ID), IMG_Get_Bitmap(CMD_Get_ImageID(Cmd_ID), TOOLBAR_SIZE_IMG), CMD_Get_Help(Cmd_ID));
-
-#endif
+		((wxToolBar *)pToolBar)->AddTool(Cmd_ID, CMD_Get_Name(Cmd_ID), IMG_Get_Bitmap(CMD_Get_ImageID(Cmd_ID), TOOLBAR_SIZE_IMG), CMD_Get_Help(Cmd_ID));
 }
 
 //---------------------------------------------------------
 void CSAGA_Frame_Layout::TB_Add_Separator(wxToolBarBase *pToolBar)
 {
-#if defined(__SAGA_GUI_USE_wxFL__)
-
-	((wxDynamicToolBar *)pToolBar)->AddSeparator();
-
-#elif defined(__SAGA_GUI_USE_wxDOCKIT__)
-
-	((wxToolBar        *)pToolBar)->AddSeparator();
-
-#elif defined(__SAGA_GUI_USE_wxAUI__)
-
-	((wxToolBar        *)pToolBar)->AddSeparator();
-
-#endif
+	((wxToolBar *)pToolBar)->AddSeparator();
 }
 
 

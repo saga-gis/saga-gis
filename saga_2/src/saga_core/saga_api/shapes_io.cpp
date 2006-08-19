@@ -104,15 +104,15 @@ bool CShapes::_Load_ESRI(const char *File_Name)
 	//-----------------------------------------------------
 	// Open Shapes File...
 
-	SG_Callback_Message_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Load shapes"), File_Name), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Load shapes"), File_Name), true);
 
 	fName	= SG_File_Make_Path(NULL, File_Name, "shp");
 
 	if( (Stream = fopen(fName, "rb")) == NULL )
 	{
-		SG_Callback_Message_Add(LNG("[MSG] failed"), false);
+		SG_UI_Msg_Add(LNG("[MSG] failed"), false);
 
-		SG_Callback_Message_Add_Error(LNG("[ERR] Shape file could not be opened."));
+		SG_UI_Msg_Add_Error(LNG("[ERR] Shape file could not be opened."));
 
 		return( false );
 	}
@@ -163,9 +163,9 @@ bool CShapes::_Load_ESRI(const char *File_Name)
 
 	if( feof(Stream) || FileCode != 9994 || Version != 1000 || m_Type == SHAPE_TYPE_Undefined )
 	{
-		SG_Callback_Message_Add(LNG("[MSG] failed"), false);
+		SG_UI_Msg_Add(LNG("[MSG] failed"), false);
 
-		SG_Callback_Message_Add_Error(LNG("[ERR] Shape file header is invalid."));
+		SG_UI_Msg_Add_Error(LNG("[ERR] Shape file header is invalid."));
 
 		fclose(Stream);
 
@@ -178,7 +178,7 @@ bool CShapes::_Load_ESRI(const char *File_Name)
 	buf_nParts	= 0;
 	buf_nPoints	= NULL;
 
-	for(iShape=0; iShape<m_Table.Get_Record_Count() && SG_Callback_Process_Set_Progress(iShape, m_Table.Get_Record_Count()); iShape++)
+	for(iShape=0; iShape<m_Table.Get_Record_Count() && SG_UI_Process_Set_Progress(iShape, m_Table.Get_Record_Count()); iShape++)
 	{
 		RecordNumber	= SG_Read_Int(Stream, true);
 		ContentLength	= SG_Read_Int(Stream, true);
@@ -187,9 +187,9 @@ bool CShapes::_Load_ESRI(const char *File_Name)
 
 		if( Type_Shape != Type_File || feof(Stream) )
 		{
-			SG_Callback_Message_Add(LNG("[MSG] failed"), false);
+			SG_UI_Msg_Add(LNG("[MSG] failed"), false);
 
-			SG_Callback_Message_Add_Error(LNG("[ERR] Shape file is corrupted."));
+			SG_UI_Msg_Add_Error(LNG("[ERR] Shape file is corrupted."));
 
 			break;
 		}
@@ -253,9 +253,9 @@ bool CShapes::_Load_ESRI(const char *File_Name)
 		}
 	}
 
-	SG_Callback_Message_Add(LNG("[MSG] okay"), false);
+	SG_UI_Msg_Add(LNG("[MSG] okay"), false);
 
-	SG_Callback_Process_Set_Ready();
+	SG_UI_Process_Set_Ready();
 
 	//-----------------------------------------------------
 	// Clean up...
@@ -334,15 +334,15 @@ bool CShapes::_Save_ESRI(const char *File_Name)
 	//-----------------------------------------------------
 	// File Access...
 
-	SG_Callback_Message_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Save shapes"), File_Name), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Save shapes"), File_Name), true);
 
 	fName	= SG_File_Make_Path(NULL, File_Name, "shx");
 
 	if( (Stream_Idx = fopen(fName, "wb")) == NULL )
 	{
-		SG_Callback_Message_Add(LNG("[MSG] failed"), false);
+		SG_UI_Msg_Add(LNG("[MSG] failed"), false);
 
-		SG_Callback_Message_Add_Error(LNG("[ERR] Shape index file could not be opened."));
+		SG_UI_Msg_Add_Error(LNG("[ERR] Shape index file could not be opened."));
 
 		return( false );
 	}
@@ -353,14 +353,14 @@ bool CShapes::_Save_ESRI(const char *File_Name)
 	{
 		fclose(Stream_Idx);
 
-		SG_Callback_Message_Add(LNG("[MSG] failed"), false);
+		SG_UI_Msg_Add(LNG("[MSG] failed"), false);
 
-		SG_Callback_Message_Add_Error(LNG("[ERR] Shape file could not be opened."));
+		SG_UI_Msg_Add_Error(LNG("[ERR] Shape file could not be opened."));
 
 		return( false );
 	}
 
-	SG_Callback_Process_Set_Text(CSG_String::Format("%s: %s", LNG("[DAT] Save shapes"), fName.c_str()));
+	SG_UI_Process_Set_Text(CSG_String::Format("%s: %s", LNG("[DAT] Save shapes"), fName.c_str()));
 
 	//-----------------------------------------------------
 	// Save Header...
@@ -398,7 +398,7 @@ bool CShapes::_Save_ESRI(const char *File_Name)
 	//-----------------------------------------------------
 	// Save Shapes...
 
-	for(iShape=0; iShape<Get_Count() && SG_Callback_Process_Set_Progress(iShape, Get_Count()); iShape++)
+	for(iShape=0; iShape<Get_Count() && SG_UI_Process_Set_Progress(iShape, Get_Count()); iShape++)
 	{
 		pShape	= Get_Shape(iShape);
 
@@ -511,9 +511,9 @@ bool CShapes::_Save_ESRI(const char *File_Name)
 	fclose(Stream);
 	fclose(Stream_Idx);
 
-	SG_Callback_Message_Add(LNG("[MSG] okay"), false);
+	SG_UI_Msg_Add(LNG("[MSG] okay"), false);
 
-	SG_Callback_Process_Set_Ready();
+	SG_UI_Process_Set_Ready();
 
 	//-----------------------------------------------------
 	// Attributes...

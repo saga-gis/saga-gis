@@ -1103,7 +1103,7 @@ bool CParameters::DataObjects_Check(bool bSilent)
 	//-----------------------------------------------------
 	if( !bResult && !bSilent )
 	{
-		SG_Callback_Dlg_Message(CSG_String::Format("%s\n%s", LNG("[DLG] Invalid parameters!"), s.c_str()), Get_Name());
+		SG_UI_Dlg_Message(CSG_String::Format("%s\n%s", LNG("[DLG] Invalid parameters!"), s.c_str()), Get_Name());
 	}
 
 	return( bResult );
@@ -1165,7 +1165,7 @@ bool CParameters::DataObjects_Create(void)
 				if( pDataObject )
 				{
 					pDataObject->Set_Name(p->Get_Name());
-					SG_Callback_DataObject_Add(pDataObject, false);
+					SG_UI_DataObject_Add(pDataObject, false);
 				}
 			}
 		}
@@ -1201,16 +1201,16 @@ bool CParameters::DataObjects_Synchronize(void)
 					{
 						if( p->asDataObject() )
 						{
-							SG_Callback_DataObject_Add		(p->asDataObject(), false);
-							SG_Callback_DataObject_Update	(p->asDataObject(), false, NULL);
+							SG_UI_DataObject_Add		(p->asDataObject(), false);
+							SG_UI_DataObject_Update	(p->asDataObject(), false, NULL);
 						}
 					}
 					else if( p->is_DataObject_List() )
 					{
 						for(int j=0; j<p->asList()->Get_Count(); j++)
 						{
-							SG_Callback_DataObject_Add		(p->asList()->asDataObject(j), false);
-							SG_Callback_DataObject_Update	(p->asList()->asDataObject(j), false, NULL);
+							SG_UI_DataObject_Add		(p->asList()->asDataObject(j), false);
+							SG_UI_DataObject_Update	(p->asList()->asDataObject(j), false, NULL);
 						}
 					}
 				}
@@ -1262,7 +1262,7 @@ bool CParameters::Msg_String(bool bOptionsOnly)
 
 	if( Get_String(s, bOptionsOnly) )
 	{
-		SG_Callback_Message_Add_Execution(s, true);
+		SG_UI_Msg_Add_Execution(s, true);
 
 		return( true );
 	}

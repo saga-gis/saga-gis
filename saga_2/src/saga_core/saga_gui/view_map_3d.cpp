@@ -655,7 +655,7 @@ void CVIEW_Map_3D::_Parms_Create(void)
 	m_Parameters.Add_Value(
 		NULL	, "BKGRD_COLOR"		, LNG("[CAP] Background Color"),
 		"",
-		PARAMETER_TYPE_Color, COLOR_GET_RGB(0, 0, 0)
+		PARAMETER_TYPE_Color, SG_GET_RGB(0, 0, 0)
 	);
 
 	m_Parameters.Add_Value(

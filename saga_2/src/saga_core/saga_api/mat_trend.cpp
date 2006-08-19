@@ -360,7 +360,7 @@ bool CSG_Trend::Get_Trend(void)
 				}
 
 				//-----------------------------------------
-				for(i=0; i<m_Iter_Max && m_Lambda<m_Lambda_Max && m_bOkay && SG_Callback_Process_Get_Okay(false); i++)
+				for(i=0; i<m_Iter_Max && m_Lambda<m_Lambda_Max && m_bOkay && SG_UI_Process_Get_Okay(false); i++)
 				{
 					m_bOkay	= _Fit_Function();
 				}

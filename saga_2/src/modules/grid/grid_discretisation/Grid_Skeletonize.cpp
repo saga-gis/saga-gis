@@ -159,7 +159,7 @@ bool CGrid_Skeletonize::On_Execute(void)
 	Initiation	= Parameters("INIT_METHOD")		->asInt();
 	Threshold	= Parameters("INIT_THRESHOLD")	->asDouble();
 
-	Colors.Set_Palette(COLORS_PALETTE_BLACK_WHITE, true);
+	Colors.Set_Palette(SG_COLORS_BLACK_WHITE, true);
 	DataObject_Set_Colors(pResult, Colors);
 	pResult->Assign(0.0);
 

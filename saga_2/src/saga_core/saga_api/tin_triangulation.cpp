@@ -169,7 +169,7 @@ bool CTIN::_Triangulate(void)
 
 	if( (bResult = _Triangulate(Points, m_nPoints, Triangles, nTriangles)) == true )
 	{
-		for(i=0; i<nTriangles && SG_Callback_Process_Set_Progress(i, nTriangles); i++)
+		for(i=0; i<nTriangles && SG_UI_Process_Set_Progress(i, nTriangles); i++)
 		{
 			_Add_Triangle(Points[Triangles[i].p1], Points[Triangles[i].p2], Points[Triangles[i].p3]);
 		}
@@ -185,7 +185,7 @@ bool CTIN::_Triangulate(void)
 
 	SG_Free(Points);
 
-	SG_Callback_Process_Set_Ready();
+	SG_UI_Process_Set_Ready();
 
 	return( bResult );
 }
@@ -260,7 +260,7 @@ bool CTIN::_Triangulate(CTIN_Point **Points, int nPoints, TTIN_Triangle *Triangl
 
 	//-----------------------------------------------------
 	//	Include each point one at a time into the existing mesh
-	for(i=0; i<nPoints && SG_Callback_Process_Set_Progress(i, nPoints); i++)
+	for(i=0; i<nPoints && SG_UI_Process_Set_Progress(i, nPoints); i++)
 	{
 		xp		= Points[i]->m_Point.x;
 		yp		= Points[i]->m_Point.y;

@@ -69,12 +69,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#if SAGA_GUI_FRAME_LAYOUT == 1
-	#define __SAGA_GUI_USE_wxFL__
-
-	class wxFrameLayout;
-
-#elif SAGA_GUI_FRAME_LAYOUT == 2
+#if SAGA_GUI_FRAME_LAYOUT == 2
 	#define __SAGA_GUI_USE_wxAUI__
 
 	class wxFrameManager;
@@ -148,11 +143,7 @@ private:
 
 	class wxMDIParentFrame		*m_pFrame;
 
-#ifdef __SAGA_GUI_USE_wxFL__
-
-	wxFrameLayout				*m_pLayout;
-
-#elif defined(__SAGA_GUI_USE_wxDOCKIT__)
+#if defined(__SAGA_GUI_USE_wxDOCKIT__)
 
 	wxLayoutManager				*m_pLayout;
 

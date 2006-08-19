@@ -215,7 +215,7 @@ bool CFlow_Distance::On_Execute(void)
 	//-------------------------------------------------
 	delete(m_pWeight);
 
-	Colors.Set_Palette(COLORS_PALETTE_WHITE_BLUE);
+	Colors.Set_Palette(SG_COLORS_WHITE_BLUE);
 	DataObject_Set_Colors(m_pLength, Colors);
 
 	return( true );

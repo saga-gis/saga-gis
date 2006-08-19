@@ -72,20 +72,20 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-TSG_PFNC_Callback	gSG_fCallback	= NULL;
+TSG_PFNC_UI_Callback	gSG_UI_Callback	= NULL;
 
 //---------------------------------------------------------
-bool			SG_Set_Callback(TSG_PFNC_Callback Callback)
+bool					SG_Set_UI_Callback(TSG_PFNC_UI_Callback Function)
 {
-	gSG_fCallback	= Callback;
+	gSG_UI_Callback	= Function;
 
 	return( true );
 }
 
 //---------------------------------------------------------
-TSG_PFNC_Callback	SG_Get_Callback(void)
+TSG_PFNC_UI_Callback	SG_Get_UI_Callback(void)
 {
-	return( gSG_fCallback );
+	return( gSG_UI_Callback );
 }
 
 
@@ -96,55 +96,55 @@ TSG_PFNC_Callback	SG_Get_Callback(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		SG_Callback_Process_Get_Okay(bool bBlink)
+bool		SG_UI_Process_Get_Okay(bool bBlink)
 {
-	if( gSG_fCallback )
+	if( gSG_UI_Callback )
 	{
-		return( gSG_fCallback(CALLBACK_PROCESS_GET_OKAY, bBlink ? 1 : 0, 0) != 0 );
+		return( gSG_UI_Callback(CALLBACK_PROCESS_GET_OKAY, bBlink ? 1 : 0, 0) != 0 );
 	}
 
 	return( true );
 }
 
 //---------------------------------------------------------
-bool		SG_Callback_Process_Set_Okay(bool bOkay)
+bool		SG_UI_Process_Set_Okay(bool bOkay)
 {
-	if( gSG_fCallback )
+	if( gSG_UI_Callback )
 	{
-		return( gSG_fCallback(CALLBACK_PROCESS_SET_OKAY, bOkay ? 1 : 0, 0) != 0 );
+		return( gSG_UI_Callback(CALLBACK_PROCESS_SET_OKAY, bOkay ? 1 : 0, 0) != 0 );
 	}
 
 	return( true );
 }
 
 //---------------------------------------------------------
-bool		SG_Callback_Process_Set_Progress(double Position, double Range)
+bool		SG_UI_Process_Set_Progress(double Position, double Range)
 {
-	if( gSG_fCallback )
+	if( gSG_UI_Callback )
 	{
-		return( gSG_fCallback(CALLBACK_PROCESS_SET_PROGRESS, (long)&Position, (long)&Range) != 0 );
+		return( gSG_UI_Callback(CALLBACK_PROCESS_SET_PROGRESS, (long)&Position, (long)&Range) != 0 );
 	}
 
 	return( true );
 }
 
 //---------------------------------------------------------
-bool		SG_Callback_Process_Set_Ready(void)
+bool		SG_UI_Process_Set_Ready(void)
 {
-	if( gSG_fCallback )
+	if( gSG_UI_Callback )
 	{
-		return( gSG_fCallback(CALLBACK_PROCESS_SET_READY, 0, 0) != 0 );
+		return( gSG_UI_Callback(CALLBACK_PROCESS_SET_READY, 0, 0) != 0 );
 	}
 
 	return( true );
 }
 
 //---------------------------------------------------------
-void		SG_Callback_Process_Set_Text(const char *Text)
+void		SG_UI_Process_Set_Text(const char *Text)
 {
-	if( gSG_fCallback )
+	if( gSG_UI_Callback )
 	{
-		gSG_fCallback(CALLBACK_PROCESS_SET_TEXT, (long)Text, 0);
+		gSG_UI_Callback(CALLBACK_PROCESS_SET_TEXT, (long)Text, 0);
 	}
 }
 
@@ -156,31 +156,31 @@ void		SG_Callback_Process_Set_Text(const char *Text)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void		SG_Callback_Dlg_Message(const char *Message, const char *Caption)
+void		SG_UI_Dlg_Message(const char *Message, const char *Caption)
 {
-	if( gSG_fCallback )
+	if( gSG_UI_Callback )
 	{
-		gSG_fCallback(CALLBACK_DLG_MESSAGE, (long)Message, (long)Caption);
+		gSG_UI_Callback(CALLBACK_DLG_MESSAGE, (long)Message, (long)Caption);
 	}
 }
 
 //---------------------------------------------------------
-bool		SG_Callback_Dlg_Continue(const char *Message, const char *Caption)
+bool		SG_UI_Dlg_Continue(const char *Message, const char *Caption)
 {
-	if( gSG_fCallback )
+	if( gSG_UI_Callback )
 	{
-		return( gSG_fCallback(CALLBACK_DLG_CONTINUE, (long)Message, (long)Caption) != 0 );
+		return( gSG_UI_Callback(CALLBACK_DLG_CONTINUE, (long)Message, (long)Caption) != 0 );
 	}
 
 	return( true );
 }
 
 //---------------------------------------------------------
-int			SG_Callback_Dlg_Error(const char *Message, const char *Caption)
+int			SG_UI_Dlg_Error(const char *Message, const char *Caption)
 {
-	if( gSG_fCallback )
+	if( gSG_UI_Callback )
 	{
-		return( gSG_fCallback(CALLBACK_DLG_ERROR, (long)Message, (long)Caption) );
+		return( gSG_UI_Callback(CALLBACK_DLG_ERROR, (long)Message, (long)Caption) );
 	}
 
 	return( 0 );
@@ -194,11 +194,11 @@ int			SG_Callback_Dlg_Error(const char *Message, const char *Caption)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		SG_Callback_Dlg_Parameters(CParameters *pParameters, const char *Caption)
+bool		SG_UI_Dlg_Parameters(CParameters *pParameters, const char *Caption)
 {
-	if( gSG_fCallback && pParameters )
+	if( gSG_UI_Callback && pParameters )
 	{
-		return( gSG_fCallback(CALLBACK_DLG_PARAMETERS, (long)pParameters, (long)Caption) != 0 );
+		return( gSG_UI_Callback(CALLBACK_DLG_PARAMETERS, (long)pParameters, (long)Caption) != 0 );
 	}
 
 	return( false );
@@ -212,29 +212,29 @@ bool		SG_Callback_Dlg_Parameters(CParameters *pParameters, const char *Caption)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void		SG_Callback_Message_Add(const char *Message, bool bNewLine)
+void		SG_UI_Msg_Add(const char *Message, bool bNewLine)
 {
-	if( gSG_fCallback )
+	if( gSG_UI_Callback )
 	{
-		gSG_fCallback(CALLBACK_MESSAGE_ADD, (long)Message, (long)bNewLine);
+		gSG_UI_Callback(CALLBACK_MESSAGE_ADD, (long)Message, (long)bNewLine);
 	}
 }
 
 //---------------------------------------------------------
-void		SG_Callback_Message_Add_Error(const char *Message)
+void		SG_UI_Msg_Add_Error(const char *Message)
 {
-	if( gSG_fCallback )
+	if( gSG_UI_Callback )
 	{
-		gSG_fCallback(CALLBACK_MESSAGE_ADD_ERROR, (long)Message, 0);
+		gSG_UI_Callback(CALLBACK_MESSAGE_ADD_ERROR, (long)Message, 0);
 	}
 }
 
 //---------------------------------------------------------
-void		SG_Callback_Message_Add_Execution(const char *Message, bool bNewLine)
+void		SG_UI_Msg_Add_Execution(const char *Message, bool bNewLine)
 {
-	if( gSG_fCallback )
+	if( gSG_UI_Callback )
 	{
-		gSG_fCallback(CALLBACK_MESSAGE_ADD_EXECUTION, (long)Message, (long)bNewLine);
+		gSG_UI_Callback(CALLBACK_MESSAGE_ADD_EXECUTION, (long)Message, (long)bNewLine);
 	}
 }
 
@@ -246,44 +246,44 @@ void		SG_Callback_Message_Add_Execution(const char *Message, bool bNewLine)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CDataObject *	SG_Callback_DataObject_Find(const char *File_Name, int Object_Type)
+class CDataObject *	SG_UI_DataObject_Find(const char *File_Name, int Object_Type)
 {
-	if( gSG_fCallback && File_Name )
+	if( gSG_UI_Callback && File_Name )
 	{
-		return( (class CDataObject *)gSG_fCallback(CALLBACK_DATAOBJECT_FIND_BY_FILE, (long)File_Name, Object_Type) );
+		return( (class CDataObject *)gSG_UI_Callback(CALLBACK_DATAOBJECT_FIND_BY_FILE, (long)File_Name, Object_Type) );
 	}
 
 	return( NULL );
 }
 
 //---------------------------------------------------------
-bool		SG_Callback_DataObject_Check(CDataObject *pDataObject, int Object_Type)
+bool		SG_UI_DataObject_Check(CDataObject *pDataObject, int Object_Type)
 {
-	if( gSG_fCallback && pDataObject )
+	if( gSG_UI_Callback && pDataObject )
 	{
-		return( gSG_fCallback(CALLBACK_DATAOBJECT_CHECK, (long)pDataObject, Object_Type) != 0 );
+		return( gSG_UI_Callback(CALLBACK_DATAOBJECT_CHECK, (long)pDataObject, Object_Type) != 0 );
 	}
 
 	return( false );
 }
 
 //---------------------------------------------------------
-bool		SG_Callback_DataObject_Add(CDataObject *pDataObject, bool bShow)
+bool		SG_UI_DataObject_Add(CDataObject *pDataObject, bool bShow)
 {
-	if( gSG_fCallback && pDataObject )
+	if( gSG_UI_Callback && pDataObject )
 	{
-		return( gSG_fCallback(CALLBACK_DATAOBJECT_ADD, (long)pDataObject, bShow ? 1 : 0) != 0 );
+		return( gSG_UI_Callback(CALLBACK_DATAOBJECT_ADD, (long)pDataObject, bShow ? 1 : 0) != 0 );
 	}
 
 	return( false );
 }
 
 //---------------------------------------------------------
-bool		SG_Callback_DataObject_Update(CDataObject *pDataObject, bool bShow, CParameters *pParameters)
+bool		SG_UI_DataObject_Update(CDataObject *pDataObject, bool bShow, CParameters *pParameters)
 {
 	CParameters	Parameters;
 
-	if( gSG_fCallback && pDataObject )
+	if( gSG_UI_Callback && pDataObject )
 	{
 		if( pDataObject->Get_ObjectType() == DATAOBJECT_TYPE_Grid && pParameters == NULL )
 		{
@@ -295,11 +295,11 @@ bool		SG_Callback_DataObject_Update(CDataObject *pDataObject, bool bShow, CParam
 			pParameters	= &Parameters;
 		}
 
-		if( gSG_fCallback(CALLBACK_DATAOBJECT_UPDATE, (long)pDataObject, (long)pParameters) != 0 )
+		if( gSG_UI_Callback(CALLBACK_DATAOBJECT_UPDATE, (long)pDataObject, (long)pParameters) != 0 )
 		{
 			if( bShow )
 			{
-				SG_Callback_DataObject_Show(pDataObject);
+				SG_UI_DataObject_Show(pDataObject);
 			}
 
 			return( true );
@@ -310,55 +310,55 @@ bool		SG_Callback_DataObject_Update(CDataObject *pDataObject, bool bShow, CParam
 }
 
 //---------------------------------------------------------
-bool		SG_Callback_DataObject_Show(CDataObject *pDataObject)
+bool		SG_UI_DataObject_Show(CDataObject *pDataObject)
 {
-	if( gSG_fCallback && pDataObject )
+	if( gSG_UI_Callback && pDataObject )
 	{
-		return( gSG_fCallback(CALLBACK_DATAOBJECT_SHOW, (long)pDataObject, 1) != 0 );
+		return( gSG_UI_Callback(CALLBACK_DATAOBJECT_SHOW, (long)pDataObject, 1) != 0 );
 	}
 
 	return( false );
 }
 
 //---------------------------------------------------------
-bool		SG_Callback_DataObject_asImage(CDataObject *pDataObject, CGrid *pGrid)
+bool		SG_UI_DataObject_asImage(CDataObject *pDataObject, CGrid *pGrid)
 {
-	if( gSG_fCallback && pDataObject )
+	if( gSG_UI_Callback && pDataObject )
 	{
-		return( gSG_fCallback(CALLBACK_DATAOBJECT_ASIMAGE, (long)pDataObject, (long)pGrid) != 0 );
+		return( gSG_UI_Callback(CALLBACK_DATAOBJECT_ASIMAGE, (long)pDataObject, (long)pGrid) != 0 );
 	}
 
 	return( false );
 }
 
 //---------------------------------------------------------
-bool		SG_Callback_DataObject_Colors_Get(CDataObject *pDataObject, CSG_Colors *pColors)
+bool		SG_UI_DataObject_Colors_Get(CDataObject *pDataObject, CSG_Colors *pColors)
 {
-	if( gSG_fCallback && pDataObject && pColors )
+	if( gSG_UI_Callback && pDataObject && pColors )
 	{
-		return( gSG_fCallback(CALLBACK_DATAOBJECT_COLORS_GET, (long)pDataObject, (long)pColors) != 0 );
+		return( gSG_UI_Callback(CALLBACK_DATAOBJECT_COLORS_GET, (long)pDataObject, (long)pColors) != 0 );
 	}
 
 	return( false );
 }
 
 //---------------------------------------------------------
-bool		SG_Callback_DataObject_Colors_Set(CDataObject *pDataObject, CSG_Colors *pColors)
+bool		SG_UI_DataObject_Colors_Set(CDataObject *pDataObject, CSG_Colors *pColors)
 {
-	if( gSG_fCallback && pDataObject && pColors )
+	if( gSG_UI_Callback && pDataObject && pColors )
 	{
-		return( gSG_fCallback(CALLBACK_DATAOBJECT_COLORS_SET, (long)pDataObject, (long)pColors) != 0 );
+		return( gSG_UI_Callback(CALLBACK_DATAOBJECT_COLORS_SET, (long)pDataObject, (long)pColors) != 0 );
 	}
 
 	return( false );
 }
 
 //---------------------------------------------------------
-bool		SG_Callback_DataObject_Get_All(class CParameters *pParameters)
+bool		SG_UI_DataObject_Get_All(class CParameters *pParameters)
 {
-	if( gSG_fCallback && pParameters )
+	if( gSG_UI_Callback && pParameters )
 	{
-		return( gSG_fCallback(CALLBACK_DATAOBJECT_GET_ALL, (long)pParameters, 0) != 0 );
+		return( gSG_UI_Callback(CALLBACK_DATAOBJECT_GET_ALL, (long)pParameters, 0) != 0 );
 	}
 
 	return( false );
@@ -372,11 +372,11 @@ bool		SG_Callback_DataObject_Get_All(class CParameters *pParameters)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void *		SG_Callback_Get_Window_Main(void)
+void *		SG_UI_Get_Window_Main(void)
 {
-	if( gSG_fCallback )
+	if( gSG_UI_Callback )
 	{
-		return( (void *)gSG_fCallback(CALLBACK_GUI_GET_WINDOW, 0, 0) );
+		return( (void *)gSG_UI_Callback(CALLBACK_GUI_GET_WINDOW, 0, 0) );
 	}
 
 	return( NULL );

@@ -382,10 +382,10 @@ bool CSADO_SolarRadiation::Initialise(void)
 	Process_Set_Text(_TL("initialising..."));
 
 	//-----------------------------------------------------
-	CSG_Colors	c(100, COLORS_PALETTE_YELLOW_RED, true);
+	CSG_Colors	c(100, SG_COLORS_YELLOW_RED, true);
 
-	c.Set_Ramp(COLOR_GET_RGB(  0,   0,  64), COLOR_GET_RGB(255, 159,   0),  0, 50);
-	c.Set_Ramp(COLOR_GET_RGB(255, 159,   0), COLOR_GET_RGB(255, 255, 255), 50, 99);
+	c.Set_Ramp(SG_GET_RGB(  0,   0,  64), SG_GET_RGB(255, 159,   0),  0, 50);
+	c.Set_Ramp(SG_GET_RGB(255, 159,   0), SG_GET_RGB(255, 255, 255), 50, 99);
 
 	if( m_pSumDirect )
 	{

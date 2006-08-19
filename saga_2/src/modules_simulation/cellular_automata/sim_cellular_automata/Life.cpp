@@ -138,7 +138,7 @@ bool CLife::On_Execute(void)
 	Parameters("GRID")->Set_Value(pLife);
 
 	nColors	= Parameters("FADECOLOR")->asInt();
-	Colors.Set_Palette(COLORS_PALETTE_YELLOW_BLUE, false, nColors);
+	Colors.Set_Palette(SG_COLORS_YELLOW_BLUE, false, nColors);
 	DataObject_Set_Colors(pLife, Colors);
 
 	pCount	= SG_Create_Grid(pLife);

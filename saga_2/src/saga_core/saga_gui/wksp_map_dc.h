@@ -138,7 +138,7 @@ public:
 	{
 		if( n >= 0 && n < m_img_nBytes )
 		{
-			BYTE	r	= COLOR_GET_R(Color), g	= COLOR_GET_G(Color), b	= COLOR_GET_B(Color);
+			BYTE	r	= SG_GET_R(Color), g	= SG_GET_G(Color), b	= SG_GET_B(Color);
 			double	d;
 
 			switch( m_img_mode )
@@ -164,7 +164,7 @@ public:
 				break;
 
 			case IMG_MODE_TRANSPARENT_ALPHA:
-				if( (d = COLOR_GET_A(Color) / 256.0) < 1.0 )
+				if( (d = SG_GET_A(Color) / 256.0) < 1.0 )
 				{
 					m_img_rgb[n + 0]	= (int)((1.0 - d) * r + d * m_img_dc_rgb[n + 0]);
 					m_img_rgb[n + 1]	= (int)((1.0 - d) * g + d * m_img_dc_rgb[n + 1]);

@@ -251,7 +251,7 @@ bool CErdas_LAN_Import::On_Execute(void)
 			//---------------------------------------------
 			SG_Free(Line);
 
-			Colors.Set_Palette(COLORS_PALETTE_BLACK_WHITE);
+			Colors.Set_Palette(SG_COLORS_BLACK_WHITE);
 
 			for(i=0; i<nBands; i++)
 			{

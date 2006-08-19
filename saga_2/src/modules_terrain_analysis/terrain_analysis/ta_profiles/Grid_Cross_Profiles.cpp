@@ -342,7 +342,7 @@ void CGrid_Cross_Profiles::Make_Report(const char *FileName, CGrid *pDEM, CShape
 //				pdf.Draw_Shapes		(pdf.Layout_Get_Box(iBox), &Profile);
 				r	= pLine->Get_Extent();	r.Inflate(10);
 				pdf.Draw_Graticule	(pdf.Layout_Get_Box(iBox), r, 15);
-				pdf.Draw_Shape		(pdf.Layout_Get_Box(iBox), pLine, PDF_STYLE_POLYGON_FILLSTROKE, COLOR_DEF_GREEN, COLOR_DEF_BLACK, 1, &r);
+				pdf.Draw_Shape		(pdf.Layout_Get_Box(iBox), pLine, PDF_STYLE_POLYGON_FILLSTROKE, SG_COLOR_GREEN, SG_COLOR_BLACK, 1, &r);
 
 				iBox++;
 			}

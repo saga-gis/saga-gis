@@ -140,7 +140,7 @@ CGrid_3D_Image::CGrid_3D_Image(void)
 	Parameters.Add_Value(
 		NULL	, "BKCOLOR"			, _TL("Background Color"),
 		"",
-		PARAMETER_TYPE_Color, COLOR_DEF_BLACK
+		PARAMETER_TYPE_Color, SG_COLOR_BLACK
 	);
 
 
@@ -303,7 +303,7 @@ void CGrid_3D_Image::_Set_Grid(void)
 	//-----------------------------------------------------
 	DataObject_Add(m_pRGB_Z);
 	DataObject_Add(m_pRGB);
-	CSG_Colors	Colors(100, COLORS_PALETTE_BLACK_WHITE);
+	CSG_Colors	Colors(100, SG_COLORS_BLACK_WHITE);
 	DataObject_Set_Colors(m_pRGB, Colors);
 }
 
@@ -368,9 +368,9 @@ void CGrid_3D_Image::_Get_Line(int y, T3DPoint *p)
 		}
 		else
 		{
-			p[x].r		= COLOR_GET_R(m_pImage->asInt(x, y));
-			p[x].g		= COLOR_GET_G(m_pImage->asInt(x, y));
-			p[x].b		= COLOR_GET_B(m_pImage->asInt(x, y));
+			p[x].r		= SG_GET_R(m_pImage->asInt(x, y));
+			p[x].g		= SG_GET_G(m_pImage->asInt(x, y));
+			p[x].b		= SG_GET_B(m_pImage->asInt(x, y));
 
 			_Get_Position(x, y, m_pDEM->asDouble(x, y), p[x]);
 		}
@@ -718,7 +718,7 @@ inline void CGrid_3D_Image::_Draw_Pixel(int x, int y, double z, BYTE r, BYTE g, 
 	if(	m_pRGB->is_InGrid(x, y, false) && (m_pRGB_Z->is_NoData(x, y) || z > m_pRGB_Z->asDouble(x, y)) )
 	{
 		m_pRGB_Z	->Set_Value(x, y, z);
-		m_pRGB		->Set_Value(x, y, COLOR_GET_RGB(r, g, b));
+		m_pRGB		->Set_Value(x, y, SG_GET_RGB(r, g, b));
 	}
 }
 

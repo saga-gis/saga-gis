@@ -300,13 +300,13 @@ bool CShapes::Assign(CDataObject *pObject)
 
 		Create(pShapes->Get_Type(), pShapes->Get_Name(), &pShapes->Get_Table());
 
-		for(iShape=0; iShape<pShapes->Get_Count() && SG_Callback_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		for(iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
 			pShape	= Add_Shape();
 			pShape->Assign(pShapes->Get_Shape(iShape));
 		}
 
-		SG_Callback_Process_Set_Ready();
+		SG_UI_Process_Set_Ready();
 
 		_Extent_Update();
 

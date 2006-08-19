@@ -100,7 +100,7 @@ bool CModule_Interactive_Base::Execute_Position(CSG_Point ptWorld, TModule_Inter
 
 	if( m_pModule && !m_pModule->m_bExecutes )
 	{
-		SG_Callback_Process_Set_Okay();
+		SG_UI_Process_Set_Okay();
 
 		m_pModule->m_bExecutes		= true;
 		m_pModule->m_bError_Ignore	= false;
@@ -132,7 +132,7 @@ bool CModule_Interactive_Base::Execute_Keyboard(int Character, int Keys)
 
 	if( m_pModule && !m_pModule->m_bExecutes )
 	{
-		SG_Callback_Process_Set_Okay();
+		SG_UI_Process_Set_Okay();
 
 		m_pModule->m_bExecutes		= true;
 		m_pModule->m_bError_Ignore	= false;
@@ -161,7 +161,7 @@ bool CModule_Interactive_Base::Execute_Finish(void)
 
 	if( m_pModule && !m_pModule->m_bExecutes )
 	{
-		SG_Callback_Process_Set_Okay();
+		SG_UI_Process_Set_Okay();
 
 		m_pModule->m_bExecutes		= true;
 		m_pModule->m_bError_Ignore	= false;

@@ -71,8 +71,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "api_core.h"
-#include "geo_tools.h"
 #include "mat_tools.h"
 
 
@@ -94,24 +92,84 @@ typedef enum EDataObject_Type
 TDataObject_Type;
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT const char *	SG_Get_DataObject_Name	(TDataObject_Type Type);
-
-//---------------------------------------------------------
 #define HISTORY_EXT_GRID		"hgrd"
 #define HISTORY_EXT_TABLE		"htab"
 #define HISTORY_EXT_SHAPES		"hshp"
 #define HISTORY_EXT_TIN			"htin"
 
+//---------------------------------------------------------
+#define DATAOBJECT_NOTSET		((void *)NULL)
+#define DATAOBJECT_CREATE		((void *)1)
+
+//---------------------------------------------------------
+SAGA_API_DLL_EXPORT const char *	SG_Get_DataObject_Name	(TDataObject_Type Type);
+
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//						History							 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define DATAOBJECT_NOTSET		((void *)NULL)
-#define DATAOBJECT_CREATE		((void *)1)
+class SAGA_API_DLL_EXPORT CSG_History_Entry
+{
+	friend class CSG_History;
+
+public:
+
+	const char *					Get_Date			(void)	{	return( m_Date );		}
+	const char *					Get_Name			(void)	{	return( m_Name );		}
+	const char *					Get_Entry			(void)	{	return( m_Entry );		}
+	class CSG_History *				Get_History			(void)	{	return( m_pHistory );	}
+
+
+private:
+
+	CSG_History_Entry(const char *Date, const char *Name, const char *Entry, class CSG_History *pHistory);
+	CSG_History_Entry(const CSG_History_Entry &Entry);
+	virtual ~CSG_History_Entry(void);
+
+	CSG_String						m_Date, m_Name, m_Entry;
+
+	class CSG_History				*m_pHistory;
+
+};
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_History
+{
+public:
+	CSG_History(void);
+	CSG_History(const CSG_History &History);
+	virtual ~CSG_History(void);
+
+	void							Destroy				(void);
+	void							Assign				(const CSG_History &History, bool bAdd = false);
+
+	int								Get_Count			(void)			{	return( m_nEntries );	}
+	CSG_History_Entry &				Get_Entry			(int iEntry)	{	return( *m_pEntries[iEntry] );	}
+	void							Add_Entry			(const char *Name, const char *Entry, CSG_History *pHistory = NULL);
+
+	bool							Load				(const char *File_Name, const char *File_Extension);
+	bool							Save				(const char *File_Name, const char *File_Extension);
+
+	CSG_String						Get_HTML			(void);
+
+
+private:
+
+	int								m_nEntries;
+
+	CSG_History_Entry				**m_pEntries;
+
+
+	void							_Add_Entry			(CSG_History_Entry *pEntry);
+
+	bool							_Load				(FILE *Stream);
+	bool							_Save				(FILE *Stream);
+
+};
 
 
 ///////////////////////////////////////////////////////////

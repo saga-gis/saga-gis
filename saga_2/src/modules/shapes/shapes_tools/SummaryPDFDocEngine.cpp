@@ -50,7 +50,7 @@ void CSummaryPDFDocEngine::AddClassSummaryPage(CShapes *pShapes,
 	fPaperHeight = Get_Size_Page().Get_YRange();
 
 	Draw_Text(PDF_PAGE_HEIGHT_A3 - OFFSET_X, fPaperHeight - OFFSET_Y, sTitle, 
-				25, PDF_STYLE_TEXT_ALIGN_H_RIGHT, 0.0, COLOR_GET_RGB(0, 0, 0));
+				25, PDF_STYLE_TEXT_ALIGN_H_RIGHT, 0.0, SG_GET_RGB(0, 0, 0));
 
 	Draw_Line(OFFSET_X, fPaperHeight - OFFSET_Y - 5, 
 				PDF_PAGE_HEIGHT_A3 - OFFSET_X, fPaperHeight - OFFSET_Y - 5, 4 );

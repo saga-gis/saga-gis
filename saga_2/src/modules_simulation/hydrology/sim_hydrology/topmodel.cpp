@@ -276,7 +276,7 @@ bool CTOPMODEL::On_Execute(void)
 	if( (pMoist = Parameters("MOIST")->asGrid()) != NULL )
 	{
 		pMoist->Set_Name(_TL("Soil Moisture Deficit"));
-		Colors.Set_Palette(COLORS_PALETTE_RED_GREY_BLUE, true);
+		Colors.Set_Palette(SG_COLORS_RED_GREY_BLUE, true);
 		DataObject_Set_Colors(pMoist, Colors);
 	}
 

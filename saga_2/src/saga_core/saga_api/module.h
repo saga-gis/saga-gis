@@ -138,7 +138,7 @@ public:
 	int							Get_Extra_Parameters_Count	(void)	{	return( m_npParameters );	}
 
 	virtual bool				is_Interactive				(void)	{	return( false );	}
-	bool						is_Progress					(void)	{	return( SG_Callback_Process_Get_Okay(false) );	}
+	bool						is_Progress					(void)	{	return( SG_UI_Process_Get_Okay(false) );	}
 	bool						is_Executing				(void)	{	return( m_bExecutes );	}
 
 	void						Set_Translation				(CSG_Translator &Translator);

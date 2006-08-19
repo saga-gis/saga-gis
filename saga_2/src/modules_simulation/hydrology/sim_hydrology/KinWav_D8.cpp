@@ -234,7 +234,7 @@ bool CKinWav_D8::Initialize(void)
 	pFlow		= Parameters("RUNOFF")->asGrid();
 	pFlow->Assign();
 
-	Colors.Set_Ramp(COLOR_GET_RGB(255, 255, 200), COLOR_GET_RGB(0, 65, 128));
+	Colors.Set_Ramp(SG_GET_RGB(255, 255, 200), SG_GET_RGB(0, 65, 128));
 	DataObject_Set_Colors(pFlow, Colors);
 
 	pFlow_Last	= new CGrid(pDTM, GRID_TYPE_Float);

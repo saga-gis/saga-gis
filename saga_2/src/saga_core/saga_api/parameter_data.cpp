@@ -1284,7 +1284,7 @@ bool CParameter_Grid_System::Set_Value(void *Value)
 				case PARAMETER_TYPE_Grid:
 					pGrid	= pParameters->Get_Parameter(i)->asGrid();
 
-					if(	!SG_Callback_DataObject_Check(pGrid, DATAOBJECT_TYPE_Grid) || (pGrid != DATAOBJECT_NOTSET && pGrid != DATAOBJECT_CREATE && !m_System.is_Equal(pGrid->Get_System())) )
+					if(	!SG_UI_DataObject_Check(pGrid, DATAOBJECT_TYPE_Grid) || (pGrid != DATAOBJECT_NOTSET && pGrid != DATAOBJECT_CREATE && !m_System.is_Equal(pGrid->Get_System())) )
 					{
 						pParameters->Get_Parameter(i)->Set_Value(DATAOBJECT_NOTSET);
 					}
@@ -1295,7 +1295,7 @@ bool CParameter_Grid_System::Set_Value(void *Value)
 
 					for(j=pGrids->Get_Count()-1; j>=0; j--)
 					{
-						if( !SG_Callback_DataObject_Check(pGrids->asGrid(j), DATAOBJECT_TYPE_Grid) || m_System.is_Equal(pGrids->asGrid(j)->Get_System()) == false )
+						if( !SG_UI_DataObject_Check(pGrids->asGrid(j), DATAOBJECT_TYPE_Grid) || m_System.is_Equal(pGrids->asGrid(j)->Get_System()) == false )
 						{
 							pGrids->Del_Item(j);
 						}
@@ -1550,7 +1550,7 @@ bool CParameter_DataObject::On_Serialize(FILE *Stream, bool bSave)
 			}
 			else
 			{
-				Set_Value(SG_Callback_DataObject_Find(sLine, -1));
+				Set_Value(SG_UI_DataObject_Find(sLine, -1));
 			}
 		}
 	}
@@ -1584,7 +1584,7 @@ bool CParameter_DataObject_Output::Set_Value(void *Value)
 	{
 		m_pDataObject	= pDataObject;
 
-		SG_Callback_DataObject_Add(m_pDataObject, false);
+		SG_UI_DataObject_Add(m_pDataObject, false);
 
 		return( true );
 	}
@@ -1973,7 +1973,7 @@ bool CParameter_List::On_Serialize(FILE *Stream, bool bSave)
 
 		while( SG_Read_Line(Stream, sLine) && sLine.Cmp(ENTRY_DATAOBJECTLIST_END) )
 		{
-			if( (pObject = SG_Callback_DataObject_Find(sLine, -1)) != NULL )
+			if( (pObject = SG_UI_DataObject_Find(sLine, -1)) != NULL )
 			{
 				Add_Item(pObject);
 			}

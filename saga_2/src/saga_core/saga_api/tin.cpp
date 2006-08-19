@@ -197,7 +197,7 @@ bool CTIN::Create(CShapes *pShapes)
 	{
 		Destroy();
 
-		SG_Callback_Message_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Create T.I.N. from shapes"), pShapes->Get_Name()), true);
+		SG_UI_Msg_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Create T.I.N. from shapes"), pShapes->Get_Name()), true);
 
 		Set_Name(pShapes->Get_Name());
 
@@ -207,7 +207,7 @@ bool CTIN::Create(CShapes *pShapes)
 		m_Table.Set_Name(pShapes->Get_Name());
 
 		//-------------------------------------------------
-		for(iShape=0; iShape<pShapes->Get_Count() && SG_Callback_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		for(iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
 			pShape	= pShapes->Get_Shape(iShape);
 
@@ -220,17 +220,17 @@ bool CTIN::Create(CShapes *pShapes)
 			}
 		}
 
-		SG_Callback_Process_Set_Ready();
+		SG_UI_Process_Set_Ready();
 
 		if( _Triangulate() )
 		{
-			SG_Callback_Message_Add(LNG("[MSG] okay"), false);
+			SG_UI_Msg_Add(LNG("[MSG] okay"), false);
 
 			return( true );
 		}
 	}
 
-	SG_Callback_Message_Add(LNG("[MSG] failed"), false);
+	SG_UI_Msg_Add(LNG("[MSG] failed"), false);
 
 	return( false );
 }

@@ -117,7 +117,7 @@ void CModule::Destroy(void)
 
 	if( m_bManaged )
 	{
-		SG_Callback_Process_Set_Okay();
+		SG_UI_Process_Set_Okay();
 	}
 }
 
@@ -217,7 +217,7 @@ _try
 
 			if( !Process_Get_Okay(false) )
 			{
-				SG_Callback_Message_Add(LNG("[MSG] Execution has been stopped by user!"), true);
+				SG_UI_Msg_Add(LNG("[MSG] Execution has been stopped by user!"), true);
 			}
 
 			Destroy();
@@ -277,7 +277,7 @@ void CModule::Set_Show_Progress(bool bOn)
 //---------------------------------------------------------
 bool CModule::Dlg_Parameters(CParameters *pParameters, const char *Caption)
 {
-	return( SG_Callback_Dlg_Parameters(pParameters, Caption) );
+	return( SG_UI_Dlg_Parameters(pParameters, Caption) );
 }
 
 //---------------------------------------------------------
@@ -360,13 +360,13 @@ int CModule::Dlg_Extra_Parameters(const char *Identifier)
 //---------------------------------------------------------
 bool CModule::Process_Get_Okay(bool bBlink)
 {
-	return( SG_Callback_Process_Get_Okay(bBlink) );
+	return( SG_UI_Process_Get_Okay(bBlink) );
 }
 
 //---------------------------------------------------------
 void CModule::Process_Set_Text(const char *Text)
 {
-	SG_Callback_Process_Set_Text(Text);
+	SG_UI_Process_Set_Text(Text);
 }
 
 //---------------------------------------------------------
@@ -378,7 +378,7 @@ bool CModule::Set_Progress(int Position)
 //---------------------------------------------------------
 bool CModule::Set_Progress(double Position, double Range)
 {
-	return( m_bShow_Progress ? SG_Callback_Process_Set_Progress(Position, Range) : Process_Get_Okay(false) );
+	return( m_bShow_Progress ? SG_UI_Process_Set_Progress(Position, Range) : Process_Get_Okay(false) );
 }
 
 
@@ -393,18 +393,18 @@ void CModule::Message_Dlg(const char *Text, const char *Caption)
 {
 	if( Caption && Caption[0] != '\0' )
 	{
-		SG_Callback_Dlg_Message(Text, Caption);
+		SG_UI_Dlg_Message(Text, Caption);
 	}
 	else
 	{
-		SG_Callback_Dlg_Message(Text, Get_Name());
+		SG_UI_Dlg_Message(Text, Get_Name());
 	}
 }
 
 //---------------------------------------------------------
 void CModule::Message_Add(const char *Text, bool bNewLine)
 {
-	SG_Callback_Message_Add_Execution(Text, bNewLine);
+	SG_UI_Msg_Add_Execution(Text, bNewLine);
 }
 
 //---------------------------------------------------------
@@ -423,14 +423,14 @@ bool CModule::Error_Set(TModule_Error Error_ID)
 //---------------------------------------------------------
 bool CModule::Error_Set(const char *Error_Text)
 {
-	SG_Callback_Message_Add_Error(Error_Text);
+	SG_UI_Msg_Add_Error(Error_Text);
 
-	if( SG_Callback_Process_Get_Okay(false) && !m_bError_Ignore )
+	if( SG_UI_Process_Get_Okay(false) && !m_bError_Ignore )
 	{
-		switch( SG_Callback_Dlg_Error(Error_Text, LNG("[ERR] Error: Continue anyway ?")) )
+		switch( SG_UI_Dlg_Error(Error_Text, LNG("[ERR] Error: Continue anyway ?")) )
 		{
 		case 0: default:
-			SG_Callback_Process_Set_Okay(false);
+			SG_UI_Process_Set_Okay(false);
 			break;
 
 		case 1:
@@ -439,7 +439,7 @@ bool CModule::Error_Set(const char *Error_Text)
 		}
 	}
 
-	return( SG_Callback_Process_Get_Okay(false) );
+	return( SG_UI_Process_Get_Okay(false) );
 }
 
 
@@ -452,13 +452,13 @@ bool CModule::Error_Set(const char *Error_Text)
 //---------------------------------------------------------
 bool CModule::DataObject_Add(CDataObject *pDataObject, bool bUpdate)
 {
-	return( m_bManaged ? SG_Callback_DataObject_Add(pDataObject, bUpdate) : false );
+	return( m_bManaged ? SG_UI_DataObject_Add(pDataObject, bUpdate) : false );
 }
 
 //---------------------------------------------------------
 bool CModule::DataObject_Update(CDataObject *pDataObject, bool bShow)
 {
-	return( SG_Callback_DataObject_Update(pDataObject, bShow, NULL) );
+	return( SG_UI_DataObject_Update(pDataObject, bShow, NULL) );
 }
 
 bool CModule::DataObject_Update(CDataObject *pDataObject, double Parm_1, double Parm_2, bool bShow)
@@ -480,7 +480,7 @@ bool CModule::DataObject_Update(CDataObject *pDataObject, double Parm_1, double 
 			break;
 		}
 
-		return( SG_Callback_DataObject_Update(pDataObject, bShow, &Parameters) );
+		return( SG_UI_DataObject_Update(pDataObject, bShow, &Parameters) );
 	}
 
 	return( false );
@@ -511,12 +511,12 @@ void CModule::DataObject_Update_All(void)
 //---------------------------------------------------------
 bool CModule::DataObject_Get_Colors(CDataObject *pDataObject, CSG_Colors &Colors)
 {
-	return( SG_Callback_DataObject_Colors_Get(pDataObject, &Colors) );
+	return( SG_UI_DataObject_Colors_Get(pDataObject, &Colors) );
 }
 
 bool CModule::DataObject_Set_Colors(CDataObject *pDataObject, CSG_Colors &Colors)
 {
-	return( SG_Callback_DataObject_Colors_Set(pDataObject, &Colors) );
+	return( SG_UI_DataObject_Colors_Set(pDataObject, &Colors) );
 }
 
 

@@ -211,7 +211,7 @@ bool CFlow_AreaUpslope::Get_Area(void)
 
 	if( m_pDTM && m_pFlow )
 	{
-		for(i=0; i<m_pDTM->Get_NCells() && SG_Callback_Process_Set_Progress(i, m_pDTM->Get_NCells()); i++)
+		for(i=0; i<m_pDTM->Get_NCells() && SG_UI_Process_Set_Progress(i, m_pDTM->Get_NCells()); i++)
 		{
 			m_pDTM->Get_Sorted(i, x, y, false);
 
@@ -221,7 +221,7 @@ bool CFlow_AreaUpslope::Get_Area(void)
 			}
 		}
 
-		for(i++; i<m_pDTM->Get_NCells() && SG_Callback_Process_Set_Progress(i, m_pDTM->Get_NCells()); i++)
+		for(i++; i<m_pDTM->Get_NCells() && SG_UI_Process_Set_Progress(i, m_pDTM->Get_NCells()); i++)
 		{
 			m_pDTM->Get_Sorted(i, x, y, false);
 
@@ -430,7 +430,7 @@ bool CFlow_AreaUpslope_Interactive::On_Execute(void)
 		Parameters("CONVERGE")	->asDouble()	) )
 	{
 		CSG_Colors	Colors;
-		Colors.Set_Palette(COLORS_PALETTE_WHITE_BLUE);
+		Colors.Set_Palette(SG_COLORS_WHITE_BLUE);
 		DataObject_Set_Colors(Parameters("AREA")->asGrid(), Colors);
 
 		return( true );
@@ -551,7 +551,7 @@ bool CFlow_AreaUpslope_Area::On_Execute(void)
 				m_Calculator.Get_Area();
 
 				CSG_Colors	Colors;
-				Colors.Set_Palette(COLORS_PALETTE_WHITE_BLUE);
+				Colors.Set_Palette(SG_COLORS_WHITE_BLUE);
 				DataObject_Set_Colors(Parameters("AREA")->asGrid(), Colors);
 			}
 		}

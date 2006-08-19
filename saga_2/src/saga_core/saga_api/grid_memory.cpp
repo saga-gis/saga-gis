@@ -82,7 +82,7 @@ const char *		SG_Grid_Cache_Get_Directory(void)
 
 void				SG_Grid_Cache_Set_Directory(const char *Directory)
 {
-	if( SG_Directory_isValid(Directory) )
+	if( SG_Dir_isValid(Directory) )
 	{
 		GRID_CACHE_Directory.Printf(Directory);
 	}
@@ -175,7 +175,7 @@ bool CGrid::_Memory_Create(TGrid_Memory_Type Memory_Type)
 						(Get_NCells() * Get_nValueBytes()) / (double)N_MEGABYTE_BYTES
 					);
 
-					if( SG_Callback_Dlg_Continue(s, LNG("Activate Grid File Cache?")) )
+					if( SG_UI_Dlg_Continue(s, LNG("Activate Grid File Cache?")) )
 					{
 						Memory_Type	= GRID_MEMORY_Cache;
 					}
@@ -192,7 +192,7 @@ bool CGrid::_Memory_Create(TGrid_Memory_Type Memory_Type)
 						PARAMETER_TYPE_Double, SG_Grid_Cache_Get_Threshold_MB(), 0.0, true
 					);
 
-					if( SG_Callback_Dlg_Parameters(&p, LNG("Activate Grid File Cache?")) )
+					if( SG_UI_Dlg_Parameters(&p, LNG("Activate Grid File Cache?")) )
 					{
 						Memory_Type	= GRID_MEMORY_Cache;
 
@@ -622,7 +622,7 @@ bool CGrid::_Cache_Create(void)
 
 	if( m_System.is_Valid() && m_Type > 0 && m_Type < GRID_TYPE_Count && m_Memory_Type == GRID_MEMORY_Normal )
 	{
-		Cache_Path	= SG_Get_Temp_File_Name("SAGA_GRID", SG_Grid_Cache_Get_Directory());
+		Cache_Path	= SG_File_Get_TmpName("sg_grd", SG_Grid_Cache_Get_Directory());
 
 		if( (Cache_Stream = fopen(Cache_Path, "wb+")) != NULL )
 		{
@@ -640,7 +640,7 @@ bool CGrid::_Cache_Create(void)
 			{
 				Line.Data	= (char *)SG_Malloc(_LineBuffer_Get_nBytes());
 
-				for(Line.y=0; Line.y<Get_NY() && SG_Callback_Process_Set_Progress(Line.y, Get_NY()); Line.y++)
+				for(Line.y=0; Line.y<Get_NY() && SG_UI_Process_Set_Progress(Line.y, Get_NY()); Line.y++)
 				{
 					Line.bModified	= true;
 					memcpy(Line.Data, m_Values[Line.y], _LineBuffer_Get_nBytes());
@@ -653,7 +653,7 @@ bool CGrid::_Cache_Create(void)
 				SG_Free(m_Values);
 				m_Values	= NULL;
 
-				SG_Callback_Process_Set_Ready();
+				SG_UI_Process_Set_Ready();
 			}
 
 			m_Memory_bLock	= false;
@@ -681,7 +681,7 @@ bool CGrid::_Cache_Destroy(bool bMemory_Restore)
 
 		if( bMemory_Restore && _Array_Create() )
 		{
-			for(y=0; y<Get_NY() && SG_Callback_Process_Set_Progress(y, Get_NY()); y++)
+			for(y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 			{
 				if( (pLine = _LineBuffer_Get_Line(y)) != NULL )
 				{
@@ -689,7 +689,7 @@ bool CGrid::_Cache_Destroy(bool bMemory_Restore)
 				}
 			}
 
-			SG_Callback_Process_Set_Ready();
+			SG_UI_Process_Set_Ready();
 		}
 
 		_LineBuffer_Destroy();
@@ -854,7 +854,7 @@ bool CGrid::_Compr_Create(void)
 
 		if( m_Values )	// compress loaded data...
 		{
-			for(Line.y=0; Line.y<Get_NY() && SG_Callback_Process_Set_Progress(Line.y, Get_NY()); Line.y++)
+			for(Line.y=0; Line.y<Get_NY() && SG_UI_Process_Set_Progress(Line.y, Get_NY()); Line.y++)
 			{
 				memcpy(Line.Data, m_Values[Line.y], _LineBuffer_Get_nBytes());
 				Line.bModified	= true;
@@ -865,7 +865,7 @@ bool CGrid::_Compr_Create(void)
 		{
 			m_Values	= (void **)SG_Malloc(Get_NY() * sizeof(void *));
 
-			for(Line.y=0; Line.y<Get_NY() && SG_Callback_Process_Set_Progress(Line.y, Get_NY()); Line.y++)
+			for(Line.y=0; Line.y<Get_NY() && SG_UI_Process_Set_Progress(Line.y, Get_NY()); Line.y++)
 			{
 				m_Values[Line.y]	= (void *)SG_Calloc(1, _LineBuffer_Get_nBytes());
 				Line.bModified	= true;
@@ -880,7 +880,7 @@ bool CGrid::_Compr_Create(void)
 		m_Memory_bLock	= false;
 		m_Memory_Type	= GRID_MEMORY_Compression;
 
-		SG_Callback_Process_Set_Ready();
+		SG_UI_Process_Set_Ready();
 	}
 
 	return( is_Compressed() );
@@ -901,7 +901,7 @@ bool CGrid::_Compr_Destroy(bool bMemory_Restore)
 
 			Line.Data		= (char *)SG_Calloc(1, _Get_nLineBytes());
 
-			for(int y=0; y<Get_NY() && SG_Callback_Process_Set_Progress(y, Get_NY()); y++)
+			for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 			{
 				_Compr_LineBuffer_Load(&Line, y);
 				m_Values[y]	= (void *)SG_Realloc(m_Values[y], _Get_nLineBytes());
@@ -910,7 +910,7 @@ bool CGrid::_Compr_Destroy(bool bMemory_Restore)
 
 			SG_Free(Line.Data);
 
-			SG_Callback_Process_Set_Ready();
+			SG_UI_Process_Set_Ready();
 		}
 		else
 		{

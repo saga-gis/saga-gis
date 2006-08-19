@@ -129,7 +129,7 @@ bool CGSGrid_Residuals::On_Execute(void)
 	pDevMean	= Parameters("DEVMEAN")		->asGrid();
 	pPercentile	= Parameters("PERCENTILE")	->asGrid();
 
-	Colors.Set_Palette(COLORS_PALETTE_RED_GREY_BLUE, true);
+	Colors.Set_Palette(SG_COLORS_RED_GREY_BLUE, true);
 
 	DataObject_Set_Colors(pDiff			, Colors);
 	DataObject_Set_Colors(pStdDev		, Colors);

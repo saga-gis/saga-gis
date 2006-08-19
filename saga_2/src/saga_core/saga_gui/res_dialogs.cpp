@@ -369,37 +369,37 @@ bool		DLG_Colors(CSG_Colors *pColors)
 //---------------------------------------------------------
 bool		DLG_Colors(int &Palette)
 {
-	wxString	Palettes[COLORS_PALETTE_COUNT];
+	wxString	Palettes[SG_COLORS_COUNT];
 
-	Palettes[COLORS_PALETTE_DEFAULT]			= LNG("default");
-	Palettes[COLORS_PALETTE_DEFAULT_BRIGHT]		= LNG("default (same brightness)");
-	Palettes[COLORS_PALETTE_BLACK_WHITE]		= LNG("greyscale");
-	Palettes[COLORS_PALETTE_BLACK_RED]			= LNG("black > red");
-	Palettes[COLORS_PALETTE_BLACK_GREEN]		= LNG("black > green");
-	Palettes[COLORS_PALETTE_BLACK_BLUE]			= LNG("black > blue");
-	Palettes[COLORS_PALETTE_WHITE_RED]			= LNG("white > red");
-	Palettes[COLORS_PALETTE_WHITE_GREEN]		= LNG("white > green");
-	Palettes[COLORS_PALETTE_WHITE_BLUE]			= LNG("white > blue");
-	Palettes[COLORS_PALETTE_YELLOW_RED]			= LNG("yellow > red");
-	Palettes[COLORS_PALETTE_YELLOW_GREEN]		= LNG("yellow > green");
-	Palettes[COLORS_PALETTE_YELLOW_BLUE]		= LNG("yellow > blue");
-	Palettes[COLORS_PALETTE_RED_GREEN]			= LNG("red > green");
-	Palettes[COLORS_PALETTE_RED_BLUE]			= LNG("red > blue");
-	Palettes[COLORS_PALETTE_GREEN_BLUE]			= LNG("green > blue");
-	Palettes[COLORS_PALETTE_RED_GREY_BLUE]		= LNG("red > grey > blue");
-	Palettes[COLORS_PALETTE_RED_GREY_GREEN]		= LNG("red > grey > green");
-	Palettes[COLORS_PALETTE_GREEN_GREY_BLUE]	= LNG("green > grey > blue");
-	Palettes[COLORS_PALETTE_RED_GREEN_BLUE]		= LNG("red > green > blue");
-	Palettes[COLORS_PALETTE_RED_BLUE_GREEN]		= LNG("red > blue > green");
-	Palettes[COLORS_PALETTE_GREEN_RED_BLUE]		= LNG("green > red > blue");
-	Palettes[COLORS_PALETTE_RAINBOW]			= LNG("Rainbow");
-	Palettes[COLORS_PALETTE_NEON]				= LNG("Neon");
+	Palettes[SG_COLORS_DEFAULT]			= LNG("default");
+	Palettes[SG_COLORS_DEFAULT_BRIGHT]	= LNG("default (same brightness)");
+	Palettes[SG_COLORS_BLACK_WHITE]		= LNG("greyscale");
+	Palettes[SG_COLORS_BLACK_RED]		= LNG("black > red");
+	Palettes[SG_COLORS_BLACK_GREEN]		= LNG("black > green");
+	Palettes[SG_COLORS_BLACK_BLUE]		= LNG("black > blue");
+	Palettes[SG_COLORS_WHITE_RED]		= LNG("white > red");
+	Palettes[SG_COLORS_WHITE_GREEN]		= LNG("white > green");
+	Palettes[SG_COLORS_WHITE_BLUE]		= LNG("white > blue");
+	Palettes[SG_COLORS_YELLOW_RED]		= LNG("yellow > red");
+	Palettes[SG_COLORS_YELLOW_GREEN]	= LNG("yellow > green");
+	Palettes[SG_COLORS_YELLOW_BLUE]		= LNG("yellow > blue");
+	Palettes[SG_COLORS_RED_GREEN]		= LNG("red > green");
+	Palettes[SG_COLORS_RED_BLUE]		= LNG("red > blue");
+	Palettes[SG_COLORS_GREEN_BLUE]		= LNG("green > blue");
+	Palettes[SG_COLORS_RED_GREY_BLUE]	= LNG("red > grey > blue");
+	Palettes[SG_COLORS_RED_GREY_GREEN]	= LNG("red > grey > green");
+	Palettes[SG_COLORS_GREEN_GREY_BLUE]	= LNG("green > grey > blue");
+	Palettes[SG_COLORS_RED_GREEN_BLUE]	= LNG("red > green > blue");
+	Palettes[SG_COLORS_RED_BLUE_GREEN]	= LNG("red > blue > green");
+	Palettes[SG_COLORS_GREEN_RED_BLUE]	= LNG("green > red > blue");
+	Palettes[SG_COLORS_RAINBOW]			= LNG("Rainbow");
+	Palettes[SG_COLORS_NEON]			= LNG("Neon");
 
 	wxSingleChoiceDialog	dlg(
 		MDI_Get_Frame(),
 		"",
 		LNG("[CAP] Preset Selection"),		
-		COLORS_PALETTE_COUNT, Palettes
+		SG_COLORS_COUNT, Palettes
 	);
 
 	if( dlg.ShowModal() == wxID_OK )
@@ -415,7 +415,7 @@ bool		DLG_Colors(int &Palette)
 //---------------------------------------------------------
 bool		DLG_Color(long &_Colour)
 {
-	wxColour		Colour(COLOR_GET_R(_Colour), COLOR_GET_G(_Colour), COLOR_GET_B(_Colour));
+	wxColour		Colour(SG_GET_R(_Colour), SG_GET_G(_Colour), SG_GET_B(_Colour));
 	wxColourDialog	dlg(MDI_Get_Frame());
 
 	dlg.GetColourData().SetColour(Colour);
@@ -434,7 +434,7 @@ bool		DLG_Color(long &_Colour)
 //---------------------------------------------------------
 bool		DLG_Font(wxFont *pFont, long &_Colour)
 {
-	wxColour		Colour(COLOR_GET_R(_Colour), COLOR_GET_G(_Colour), COLOR_GET_B(_Colour));
+	wxColour		Colour(SG_GET_R(_Colour), SG_GET_G(_Colour), SG_GET_B(_Colour));
 	wxFontDialog	dlg(MDI_Get_Frame());
 
 	dlg.GetFontData().SetInitialFont(*pFont);

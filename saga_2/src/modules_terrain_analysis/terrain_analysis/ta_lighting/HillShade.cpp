@@ -183,7 +183,7 @@ bool CHillShade::On_Execute(void)
 	pHillShade->Set_ZFactor(M_RAD_TO_DEG);
 
 	Colors.Set_Count(100);
-	Colors.Set_Ramp(COLOR_GET_RGB(255, 255, 255), COLOR_GET_RGB(0, 0, 0));
+	Colors.Set_Ramp(SG_GET_RGB(255, 255, 255), SG_GET_RGB(0, 0, 0));
 	DataObject_Set_Colors(pHillShade, Colors);
 
 	return( true );

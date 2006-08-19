@@ -1097,7 +1097,7 @@ bool CSG_Matrix::Set_Inverse(bool bSilent, int nSubSquare)
 		{
 			CSG_Vector	v(n);
 
-			for(int j=0; j<n && (bSilent || SG_Callback_Process_Set_Progress(j, n)); j++)
+			for(int j=0; j<n && (bSilent || SG_UI_Process_Set_Progress(j, n)); j++)
 			{
 				v.Set_Zero();
 				v[j]	= 1.0;
@@ -1213,7 +1213,7 @@ bool		SG_Matrix_LU_Decomposition(int n, int *Permutation, double **Matrix, bool 
 	
 	Vector.Create(n);
 
-	for(i=0, iMax=0; i<n && (bSilent || SG_Callback_Process_Set_Progress(i, n)); i++)
+	for(i=0, iMax=0; i<n && (bSilent || SG_UI_Process_Set_Progress(i, n)); i++)
 	{
 		dMax	= 0.0;
 
@@ -1233,7 +1233,7 @@ bool		SG_Matrix_LU_Decomposition(int n, int *Permutation, double **Matrix, bool 
 		Vector[i]	= 1.0 / dMax;
 	}
 
-	for(j=0; j<n && (bSilent || SG_Callback_Process_Set_Progress(j, n)); j++)
+	for(j=0; j<n && (bSilent || SG_UI_Process_Set_Progress(j, n)); j++)
 	{
 		for(i=0; i<j; i++)
 		{
@@ -1295,7 +1295,7 @@ bool		SG_Matrix_LU_Decomposition(int n, int *Permutation, double **Matrix, bool 
 		}
 	}
 
-	return( bSilent || SG_Callback_Process_Get_Okay(false) );
+	return( bSilent || SG_UI_Process_Get_Okay(false) );
 }
 
 //---------------------------------------------------------
@@ -1304,7 +1304,7 @@ bool		SG_Matrix_LU_Solve(int n, int *Permutation, double **Matrix, double *Vecto
 	int		i, j, k;
 	double	Sum;
 
-	for(i=0, k=-1; i<n && (bSilent || SG_Callback_Process_Set_Progress(i, n)); i++)
+	for(i=0, k=-1; i<n && (bSilent || SG_UI_Process_Set_Progress(i, n)); i++)
 	{
 		Sum						= Vector[Permutation[i]];
 		Vector[Permutation[i]]	= Vector[i];
@@ -1324,7 +1324,7 @@ bool		SG_Matrix_LU_Solve(int n, int *Permutation, double **Matrix, double *Vecto
 		Vector[i]	= Sum;
 	}
 
-	for(i=n-1; i>=0 && (bSilent || SG_Callback_Process_Set_Progress(n-i, n)); i--)
+	for(i=n-1; i>=0 && (bSilent || SG_UI_Process_Set_Progress(n-i, n)); i--)
 	{
 		Sum			= Vector[i];
 

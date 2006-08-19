@@ -149,8 +149,8 @@ bool CConvergence_Radius::On_Execute(void)
 	if( Initialize(pDTM, Parameters("RADIUS")->asInt()) )
 	{
 		Colors.Set_Count(100);
-		Colors.Set_Ramp(COLOR_GET_RGB(  0,   0, 127), COLOR_GET_RGB(255, 255, 255),  0, 49);
-		Colors.Set_Ramp(COLOR_GET_RGB(255, 255, 255), COLOR_GET_RGB(127,   0,   0), 50, 99);
+		Colors.Set_Ramp(SG_GET_RGB(  0,   0, 127), SG_GET_RGB(255, 255, 255),  0, 49);
+		Colors.Set_Ramp(SG_GET_RGB(255, 255, 255), SG_GET_RGB(127,   0,   0), 50, 99);
 		DataObject_Set_Colors(pConvergence_Radius, Colors);
 
 		pConvergence_Radius->Assign_NoData();

@@ -126,7 +126,7 @@ TGEO_iRect;
 #define M_PI_4								M_PI_045
 #define ALMOST_ZERO							0.0001
 
-#define RGB									COLOR_GET_RGB
+#define RGB									SG_GET_RGB
 
 #define SYS_Malloc							SG_Malloc
 #define SYS_Calloc							SG_Calloc
@@ -172,7 +172,7 @@ TGEO_iRect;
 // ::Get_Callback()							: dropped
 // ::SYS_Set_StringCopy						: dropped, use CSG_String instead
 // ::SYS_Add_StringCopy						: dropped, use CSG_String instead
-// CShapes::Get_Table()						: returns reference
+// CShapes::Get_Table()						: returns now reference instead of pointer
 // CTable::Update_Statistics()				: dropped
 // CColors::Set_Ramp()						: incompatible
 // CModule_Grid::Get_Gradient()				: dropped, use CGrid::Get_Gradient() instead
@@ -188,9 +188,9 @@ TGEO_iRect;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define PFNC_Callback					TSG_PFNC_Callback
-#define API_Set_Callback				SG_Set_Callback
-#define API_Get_Callback				SG_Get_Callback
+#define PFNC_Callback					TSG_PFNC_UI_Callback
+#define API_Set_Callback				SG_Set_UI_Callback
+#define API_Get_Callback				SG_Get_UI_Callback
 #define API_Create_Grid					SG_Create_Grid
 #define API_Create_Shapes				SG_Create_Shapes
 #define API_Create_Table				SG_Create_Table
@@ -210,8 +210,9 @@ TGEO_iRect;
 #define API_Make_File_Path				SG_File_Make_Path
 #define API_Cmp_File_Extension			SG_File_Cmp_Extension
 
-#define API_Callback_					SG_Callback_
-#define API_Directory_					SG_Directory_
+#define API_Callback_					SG_UI_Callback_
+#define API_Directory_isValid			SG_Dir_isValid
+#define API_Directory_Make				SG_Dir_Create
 #define API_Read_						SG_Read_
 #define API_Write_						SG_Write_
 #define API_Get_						SG_Get_
@@ -229,6 +230,9 @@ TGEO_iRect;
 #define CAPI_String						CSG_String
 #define CAPI_Strings					CSG_Strings
 #define CTranslator						CSG_Translator
+#define COLOR_GET_						SG_GET_
+#define COLOR_DEF_						SG_COLOR_
+#define COLOR_PALETTE_					SG_COLORS_
 #define CColors							CSG_Colors
 #define CHistory_Entry					CSG_History_Entry
 #define CHistory						CSG_History

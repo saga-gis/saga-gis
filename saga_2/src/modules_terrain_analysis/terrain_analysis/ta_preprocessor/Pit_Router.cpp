@@ -179,7 +179,7 @@ int CPit_Router::Get_Routes(CGrid *pDEM, CGrid *pRoute, double Threshold)
 		//-------------------------------------------------
 		// 1. Pits/Flats finden...
 
-		SG_Callback_Process_Set_Text("Find Pits");
+		SG_UI_Process_Set_Text("Find Pits");
 
 		nPits	= Find_Pits();
 
@@ -188,7 +188,7 @@ int CPit_Router::Get_Routes(CGrid *pDEM, CGrid *pRoute, double Threshold)
 			//---------------------------------------------
 			// 2. Pit/Flat-Zugehoerigkeiten u. pot. m_Outlets finden...
 
-			SG_Callback_Process_Set_Text(_TL("Find Outlets"));
+			SG_UI_Process_Set_Text(_TL("Find Outlets"));
 
 			Find_Outlets(nPits);
 
@@ -196,7 +196,7 @@ int CPit_Router::Get_Routes(CGrid *pDEM, CGrid *pRoute, double Threshold)
 			//---------------------------------------------
 			// 3. Routing vornehmen...
 
-			SG_Callback_Process_Set_Text(_TL("Routing"));
+			SG_UI_Process_Set_Text(_TL("Routing"));
 
 			iPit	= 0;
 
@@ -204,7 +204,7 @@ int CPit_Router::Get_Routes(CGrid *pDEM, CGrid *pRoute, double Threshold)
 			{
 				pOutlet	= m_Outlets;
 
-				while( pOutlet && SG_Callback_Process_Get_Okay(false) )
+				while( pOutlet && SG_UI_Process_Get_Okay(false) )
 				{
 					pNext	= pOutlet->Next;
 					n		= Find_Route(pOutlet);
@@ -213,7 +213,7 @@ int CPit_Router::Get_Routes(CGrid *pDEM, CGrid *pRoute, double Threshold)
 					{
 						pOutlet	= m_Outlets;
 						iPit	+= n;
-						SG_Callback_Process_Set_Progress(iPit, nPits);
+						SG_UI_Process_Set_Progress(iPit, nPits);
 					}
 					else
 					{
@@ -234,7 +234,7 @@ int CPit_Router::Get_Routes(CGrid *pDEM, CGrid *pRoute, double Threshold)
 					}
 				}
 			}
-			while( iPit < nPits && SG_Callback_Process_Set_Progress(iPit, nPits) );
+			while( iPit < nPits && SG_UI_Process_Set_Progress(iPit, nPits) );
 		}
 	}
 
@@ -352,7 +352,7 @@ int CPit_Router::Find_Pits(void)
 	nFlats		= 0;
 	nPits		= 0;
 
-	for(n=0; n<m_System.Get_NCells() && SG_Callback_Process_Set_Progress(n, m_System.Get_NCells()); n++)
+	for(n=0; n<m_System.Get_NCells() && SG_UI_Process_Set_Progress(n, m_System.Get_NCells()); n++)
 	{
 		m_pDEM->Get_Sorted(n,x,y,false);	// von tief nach hoch...
 
@@ -421,7 +421,7 @@ int CPit_Router::Find_Outlets(int nPits)
 	TPit_Outlet	*pOutlet;
 
 	//-----------------------------------------------------
-	if( nPits > 0 && SG_Callback_Process_Get_Okay(false) )
+	if( nPits > 0 && SG_UI_Process_Get_Okay(false) )
 	{
 		pOutlet		= NULL;
 
@@ -429,7 +429,7 @@ int CPit_Router::Find_Outlets(int nPits)
 		m_Junction	= (int **)SG_Calloc(nPits, sizeof(int *));
 
 		//-------------------------------------------------
-		for(n=0; n<m_System.Get_NCells() && SG_Callback_Process_Set_Progress(n, m_System.Get_NCells()); n++)
+		for(n=0; n<m_System.Get_NCells() && SG_UI_Process_Set_Progress(n, m_System.Get_NCells()); n++)
 		{
 			m_pDEM->Get_Sorted(n, x, y, false);	// von tief nach hoch...
 
@@ -664,7 +664,7 @@ int CPit_Router::Find_Route(TPit_Outlet *pOutlet)
 				}
 				else
 				{
-					SG_Callback_Message_Add_Error("Routing Error");
+					SG_UI_Msg_Add_Error("Routing Error");
 				}
 			}
 

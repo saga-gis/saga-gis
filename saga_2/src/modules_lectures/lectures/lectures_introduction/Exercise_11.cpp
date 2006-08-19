@@ -163,7 +163,7 @@ bool CExercise_11::On_Execute(void)
 
 	m_pN	= Parameters("NSTORE")		->asGrid();
 	m_pN->Assign(N_Init);
-	Colors.Set_Ramp(COLOR_GET_RGB(255, 255, 192), COLOR_GET_RGB(0, 63, 0));
+	Colors.Set_Ramp(SG_GET_RGB(255, 255, 192), SG_GET_RGB(0, 63, 0));
 	DataObject_Set_Colors(m_pN, Colors);
 
 	Initialize(pDEM);

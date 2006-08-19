@@ -193,13 +193,13 @@ wxString		Get_TableInfo_asHTML(CTable *pTable)
 //---------------------------------------------------------
 wxColour	Get_Color_asWX(int Color)
 {
-	return( wxColour(COLOR_GET_R(Color), COLOR_GET_G(Color), COLOR_GET_B(Color)) );
+	return( wxColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color)) );
 }
 
 //---------------------------------------------------------
 int			Get_Color_asInt(wxColour Color)
 {
-	return( COLOR_GET_RGB(Color.Red(), Color.Green(), Color.Blue()) );
+	return( SG_GET_RGB(Color.Red(), Color.Green(), Color.Blue()) );
 }
 
 //---------------------------------------------------------

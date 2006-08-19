@@ -297,7 +297,7 @@ void CWKSP_Layer::Create_Parameters(void)
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_UNISYMBOL")	, "UNISYMBOL_COLOR"		, LNG("[CAP] Color"),
 		"",
-		PARAMETER_TYPE_Color, COLOR_GET_RGB(0, 255, 0)
+		PARAMETER_TYPE_Color, SG_GET_RGB(0, 255, 0)
 	);
 
 

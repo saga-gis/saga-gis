@@ -167,7 +167,7 @@ bool CSG_Colors::Set_Count(int nColors)
 				{
 					j	= (int)(i * d);
 
-					Colors[i]	= COLOR_GET_RGB(Get_Red(j), Get_Green(j), Get_Blue(j));
+					Colors[i]	= SG_GET_RGB(Get_Red(j), Get_Green(j), Get_Blue(j));
 				}
 			}
 
@@ -191,7 +191,7 @@ bool CSG_Colors::Set_Count(int nColors)
 
 						for(j=ja; j<jb; j++)
 						{
-							Colors[j]	= COLOR_GET_RGB(
+							Colors[j]	= SG_GET_RGB(
 								Get_Red  (i) - (j - ja) * dRed,
 								Get_Green(i) - (j - ja) * dGreen,
 								Get_Blue (i) - (j - ja) * dBlue
@@ -241,7 +241,7 @@ bool CSG_Colors::Set_Color(int Index, long Color)
 //---------------------------------------------------------
 bool CSG_Colors::Set_Color(int Index, int Red, int Green, int Blue)
 {
-	return( Set_Color(Index, COLOR_GET_RGB(Red, Green, Blue)) );
+	return( Set_Color(Index, SG_GET_RGB(Red, Green, Blue)) );
 }
 
 //---------------------------------------------------------
@@ -387,148 +387,148 @@ bool CSG_Colors::Set_Palette(int Index, bool bRevert, int nColors)
 	default:
 		return( false );
 
-	case COLORS_PALETTE_DEFAULT:
+	case SG_COLORS_DEFAULT:
 		Set_Default(nColors);
 		break;
 
-	case COLORS_PALETTE_DEFAULT_BRIGHT:
+	case SG_COLORS_DEFAULT_BRIGHT:
 		Set_Default(nColors);
 		Set_Ramp_Brighness(127, 127);
 		break;
 
-	case COLORS_PALETTE_BLACK_WHITE:
-		Set_Ramp(COLOR_GET_RGB(  0,   0,   0), COLOR_GET_RGB(255, 255, 255));
+	case SG_COLORS_BLACK_WHITE:
+		Set_Ramp(SG_GET_RGB(  0,   0,   0), SG_GET_RGB(255, 255, 255));
 		break;
 
-	case COLORS_PALETTE_BLACK_RED:
-		Set_Ramp(COLOR_GET_RGB(  0,   0,   0), COLOR_GET_RGB(255,   0,   0));
+	case SG_COLORS_BLACK_RED:
+		Set_Ramp(SG_GET_RGB(  0,   0,   0), SG_GET_RGB(255,   0,   0));
 		break;
 
-	case COLORS_PALETTE_BLACK_GREEN:
-		Set_Ramp(COLOR_GET_RGB(  0,   0,   0), COLOR_GET_RGB(  0, 255,   0));
+	case SG_COLORS_BLACK_GREEN:
+		Set_Ramp(SG_GET_RGB(  0,   0,   0), SG_GET_RGB(  0, 255,   0));
 		break;
 
-	case COLORS_PALETTE_BLACK_BLUE:
-		Set_Ramp(COLOR_GET_RGB(  0,   0,   0), COLOR_GET_RGB(  0,   0, 255));
+	case SG_COLORS_BLACK_BLUE:
+		Set_Ramp(SG_GET_RGB(  0,   0,   0), SG_GET_RGB(  0,   0, 255));
 		break;
 
-	case COLORS_PALETTE_WHITE_RED:
-		Set_Ramp(COLOR_GET_RGB(255, 255, 255), COLOR_GET_RGB(255,   0,   0));
+	case SG_COLORS_WHITE_RED:
+		Set_Ramp(SG_GET_RGB(255, 255, 255), SG_GET_RGB(255,   0,   0));
 		break;
 
-	case COLORS_PALETTE_WHITE_GREEN:
-		Set_Ramp(COLOR_GET_RGB(255, 255, 255), COLOR_GET_RGB(  0, 127,   0));
+	case SG_COLORS_WHITE_GREEN:
+		Set_Ramp(SG_GET_RGB(255, 255, 255), SG_GET_RGB(  0, 127,   0));
 		break;
 
-	case COLORS_PALETTE_WHITE_BLUE:
-		Set_Ramp(COLOR_GET_RGB(255, 255, 255), COLOR_GET_RGB(  0,   0, 191));
+	case SG_COLORS_WHITE_BLUE:
+		Set_Ramp(SG_GET_RGB(255, 255, 255), SG_GET_RGB(  0,   0, 191));
 		break;
 
-	case COLORS_PALETTE_YELLOW_RED:
-		Set_Ramp(COLOR_GET_RGB(255, 255,   0), COLOR_GET_RGB(191,   0,   0));
+	case SG_COLORS_YELLOW_RED:
+		Set_Ramp(SG_GET_RGB(255, 255,   0), SG_GET_RGB(191,   0,   0));
 		break;
 
-	case COLORS_PALETTE_YELLOW_GREEN:
-		Set_Ramp(COLOR_GET_RGB(255, 255,   0), COLOR_GET_RGB(  0,  63,   0));
+	case SG_COLORS_YELLOW_GREEN:
+		Set_Ramp(SG_GET_RGB(255, 255,   0), SG_GET_RGB(  0,  63,   0));
 		break;
 
-	case COLORS_PALETTE_YELLOW_BLUE:
-		Set_Ramp(COLOR_GET_RGB(255, 255,   0), COLOR_GET_RGB(  0,   0,  255));
+	case SG_COLORS_YELLOW_BLUE:
+		Set_Ramp(SG_GET_RGB(255, 255,   0), SG_GET_RGB(  0,   0,  255));
 		break;
 
-	case COLORS_PALETTE_RED_GREEN:
-//		Set_Ramp(COLOR_GET_RGB(255,   0,   0), COLOR_GET_RGB(  0, 255,   0));
+	case SG_COLORS_RED_GREEN:
+//		Set_Ramp(SG_GET_RGB(255,   0,   0), SG_GET_RGB(  0, 255,   0));
 		Set_Count(5);
-		Set_Color(0, COLOR_GET_RGB(  0, 255,   0));
-		Set_Color(1, COLOR_GET_RGB(191, 191,   0));
-		Set_Color(2, COLOR_GET_RGB(255, 127,   0));
-		Set_Color(3, COLOR_GET_RGB(223,  63,   0));
-		Set_Color(4, COLOR_GET_RGB( 63,   0,   0));
+		Set_Color(0, SG_GET_RGB(  0, 255,   0));
+		Set_Color(1, SG_GET_RGB(191, 191,   0));
+		Set_Color(2, SG_GET_RGB(255, 127,   0));
+		Set_Color(3, SG_GET_RGB(223,  63,   0));
+		Set_Color(4, SG_GET_RGB( 63,   0,   0));
 		break;
 
-	case COLORS_PALETTE_RED_BLUE:
-		Set_Ramp(COLOR_GET_RGB(255,   0,   0), COLOR_GET_RGB(  0,   0, 255));
+	case SG_COLORS_RED_BLUE:
+		Set_Ramp(SG_GET_RGB(255,   0,   0), SG_GET_RGB(  0,   0, 255));
 		break;
 
-	case COLORS_PALETTE_GREEN_BLUE:
-		Set_Ramp(COLOR_GET_RGB(  0, 255,   0), COLOR_GET_RGB(  0,   0, 255));
+	case SG_COLORS_GREEN_BLUE:
+		Set_Ramp(SG_GET_RGB(  0, 255,   0), SG_GET_RGB(  0,   0, 255));
 		break;
 
-	case COLORS_PALETTE_RED_GREY_BLUE:
+	case SG_COLORS_RED_GREY_BLUE:
 		Set_Count(5);
-		Set_Color(0, COLOR_GET_RGB(127,   0,   0));
-		Set_Color(1, COLOR_GET_RGB(255, 127,   0));
-		Set_Color(2, COLOR_GET_RGB(200, 200, 200));
-		Set_Color(3, COLOR_GET_RGB(  0, 127, 255));
-		Set_Color(4, COLOR_GET_RGB(  0,   0, 127));
+		Set_Color(0, SG_GET_RGB(127,   0,   0));
+		Set_Color(1, SG_GET_RGB(255, 127,   0));
+		Set_Color(2, SG_GET_RGB(200, 200, 200));
+		Set_Color(3, SG_GET_RGB(  0, 127, 255));
+		Set_Color(4, SG_GET_RGB(  0,   0, 127));
 		break;
 
-	case COLORS_PALETTE_RED_GREY_GREEN:
+	case SG_COLORS_RED_GREY_GREEN:
 		Set_Count(5);
-		Set_Color(0, COLOR_GET_RGB(127,   0,   0));
-		Set_Color(1, COLOR_GET_RGB(255, 127,   0));
-		Set_Color(2, COLOR_GET_RGB(200, 200, 200));
-		Set_Color(3, COLOR_GET_RGB(  0, 255, 127));
-		Set_Color(4, COLOR_GET_RGB(  0, 127,   0));
+		Set_Color(0, SG_GET_RGB(127,   0,   0));
+		Set_Color(1, SG_GET_RGB(255, 127,   0));
+		Set_Color(2, SG_GET_RGB(200, 200, 200));
+		Set_Color(3, SG_GET_RGB(  0, 255, 127));
+		Set_Color(4, SG_GET_RGB(  0, 127,   0));
 		break;
 
-	case COLORS_PALETTE_GREEN_GREY_BLUE:
+	case SG_COLORS_GREEN_GREY_BLUE:
 		Set_Count(5);
-		Set_Color(0, COLOR_GET_RGB(  0, 127,   0));
-		Set_Color(1, COLOR_GET_RGB(127, 255,   0));
-		Set_Color(2, COLOR_GET_RGB(200, 200, 200));
-		Set_Color(3, COLOR_GET_RGB(  0, 127, 255));
-		Set_Color(4, COLOR_GET_RGB(  0,   0, 127));
+		Set_Color(0, SG_GET_RGB(  0, 127,   0));
+		Set_Color(1, SG_GET_RGB(127, 255,   0));
+		Set_Color(2, SG_GET_RGB(200, 200, 200));
+		Set_Color(3, SG_GET_RGB(  0, 127, 255));
+		Set_Color(4, SG_GET_RGB(  0,   0, 127));
 		break;
 
-	case COLORS_PALETTE_RED_GREEN_BLUE:
+	case SG_COLORS_RED_GREEN_BLUE:
 		Set_Count(5);
-		Set_Color(0, COLOR_GET_RGB(127,   0, 127));
-		Set_Color(1, COLOR_GET_RGB(255,   0,   0));
-		Set_Color(2, COLOR_GET_RGB(  0, 255,   0));
-		Set_Color(3, COLOR_GET_RGB(  0,   0, 255));
-		Set_Color(4, COLOR_GET_RGB(127,   0, 127));
+		Set_Color(0, SG_GET_RGB(127,   0, 127));
+		Set_Color(1, SG_GET_RGB(255,   0,   0));
+		Set_Color(2, SG_GET_RGB(  0, 255,   0));
+		Set_Color(3, SG_GET_RGB(  0,   0, 255));
+		Set_Color(4, SG_GET_RGB(127,   0, 127));
 		break;
 
-	case COLORS_PALETTE_RED_BLUE_GREEN:
+	case SG_COLORS_RED_BLUE_GREEN:
 		Set_Count(5);
-		Set_Color(0, COLOR_GET_RGB(127, 127,   0));
-		Set_Color(1, COLOR_GET_RGB(255,   0,   0));
-		Set_Color(2, COLOR_GET_RGB(  0,   0, 255));
-		Set_Color(3, COLOR_GET_RGB(  0, 255,   0));
-		Set_Color(4, COLOR_GET_RGB(127, 127,   0));
+		Set_Color(0, SG_GET_RGB(127, 127,   0));
+		Set_Color(1, SG_GET_RGB(255,   0,   0));
+		Set_Color(2, SG_GET_RGB(  0,   0, 255));
+		Set_Color(3, SG_GET_RGB(  0, 255,   0));
+		Set_Color(4, SG_GET_RGB(127, 127,   0));
 		break;
 
-	case COLORS_PALETTE_GREEN_RED_BLUE:
+	case SG_COLORS_GREEN_RED_BLUE:
 		Set_Count(5);
-		Set_Color(0, COLOR_GET_RGB(  0, 127, 127));
-		Set_Color(1, COLOR_GET_RGB(  0, 255,   0));
-		Set_Color(2, COLOR_GET_RGB(255,   0,   0));
-		Set_Color(3, COLOR_GET_RGB(  0,   0, 255));
-		Set_Color(4, COLOR_GET_RGB(  0, 127, 127));
+		Set_Color(0, SG_GET_RGB(  0, 127, 127));
+		Set_Color(1, SG_GET_RGB(  0, 255,   0));
+		Set_Color(2, SG_GET_RGB(255,   0,   0));
+		Set_Color(3, SG_GET_RGB(  0,   0, 255));
+		Set_Color(4, SG_GET_RGB(  0, 127, 127));
 		break;
 
-	case COLORS_PALETTE_RAINBOW:
+	case SG_COLORS_RAINBOW:
 		Set_Count(8);
-		Set_Color(0, COLOR_GET_RGB(127,   0, 127));
-		Set_Color(1, COLOR_GET_RGB(  0,   0, 255));
-		Set_Color(2, COLOR_GET_RGB(  0, 255, 255));
-		Set_Color(3, COLOR_GET_RGB(  0, 191,   0));
-		Set_Color(4, COLOR_GET_RGB(255, 255,   0));
-		Set_Color(5, COLOR_GET_RGB(255, 127,   0));
-		Set_Color(6, COLOR_GET_RGB(255,   0,   0));
-		Set_Color(7, COLOR_GET_RGB(127,   0,   0));
+		Set_Color(0, SG_GET_RGB(127,   0, 127));
+		Set_Color(1, SG_GET_RGB(  0,   0, 255));
+		Set_Color(2, SG_GET_RGB(  0, 255, 255));
+		Set_Color(3, SG_GET_RGB(  0, 191,   0));
+		Set_Color(4, SG_GET_RGB(255, 255,   0));
+		Set_Color(5, SG_GET_RGB(255, 127,   0));
+		Set_Color(6, SG_GET_RGB(255,   0,   0));
+		Set_Color(7, SG_GET_RGB(127,   0,   0));
 		break;
 
-	case COLORS_PALETTE_NEON:
+	case SG_COLORS_NEON:
 		Set_Count(7);
-		Set_Color(0, COLOR_GET_RGB(  0,   0,   0));
-		Set_Color(1, COLOR_GET_RGB(255,   0,   0));
-		Set_Color(2, COLOR_GET_RGB(  0,   0,   0));
-		Set_Color(3, COLOR_GET_RGB(255, 255,   0));
-		Set_Color(4, COLOR_GET_RGB(  0,   0,   0));
-		Set_Color(5, COLOR_GET_RGB(  0, 255,   0));
-		Set_Color(6, COLOR_GET_RGB(  0,   0,   0));
+		Set_Color(0, SG_GET_RGB(  0,   0,   0));
+		Set_Color(1, SG_GET_RGB(255,   0,   0));
+		Set_Color(2, SG_GET_RGB(  0,   0,   0));
+		Set_Color(3, SG_GET_RGB(255, 255,   0));
+		Set_Color(4, SG_GET_RGB(  0,   0,   0));
+		Set_Color(5, SG_GET_RGB(  0, 255,   0));
+		Set_Color(6, SG_GET_RGB(  0,   0,   0));
 		break;
 	}
 
@@ -576,14 +576,14 @@ bool CSG_Colors::Set_Ramp(long Color_A, long Color_B, int iColor_A, int iColor_B
 	//-----------------------------------------------------
 	if( (n = iColor_B - iColor_A) > 0 )
 	{
-		ar		= COLOR_GET_R(Color_A);
-		dr		= (double)(COLOR_GET_R(Color_B) - ar) / (double)n;
+		ar		= SG_GET_R(Color_A);
+		dr		= (double)(SG_GET_R(Color_B) - ar) / (double)n;
 
-		ag		= COLOR_GET_G(Color_A);
-		dg		= (double)(COLOR_GET_G(Color_B) - ag) / (double)n;
+		ag		= SG_GET_G(Color_A);
+		dg		= (double)(SG_GET_G(Color_B) - ag) / (double)n;
 
-		ab		= COLOR_GET_B(Color_A);
-		db		= (double)(COLOR_GET_B(Color_B) - ab) / (double)n;
+		ab		= SG_GET_B(Color_A);
+		db		= (double)(SG_GET_B(Color_B) - ab) / (double)n;
 
 		for(i=0; i<=n; i++)
 		{
@@ -846,7 +846,7 @@ bool CSG_Colors::Serialize(FILE *Stream, bool bSave, bool bBinary)
 					{
 						fscanf(Stream, "%d %d %d", &r, &g, &b);
 
-						m_Colors[i]	= COLOR_GET_RGB(r, g, b);
+						m_Colors[i]	= SG_GET_RGB(r, g, b);
 					}
 				}
 			}

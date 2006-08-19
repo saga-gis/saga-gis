@@ -388,7 +388,7 @@ void CWKSP_Layer_Legend::_Draw_Box_Image(wxDC &dc, int ay, CGrid *pGrid)
 		for(x=0, dx=0.0; x<nx; x++, dx+=d)
 		{
 			Color	= m_pClassify->Get_Class_Color_byValue(pGrid->asDouble((int)dx, (int)dy));
-			img.SetRGB(x, ny - 1 - y, COLOR_GET_R(Color), COLOR_GET_G(Color), COLOR_GET_B(Color));
+			img.SetRGB(x, ny - 1 - y, SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
 		}
 	}
 

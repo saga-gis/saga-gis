@@ -74,7 +74,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int		Callback(TSG_Callback_ID ID, long Param_1, long Param_2)
+int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 {
 	int		Result;
 
@@ -317,7 +317,7 @@ int		Callback(TSG_Callback_ID ID, long Param_1, long Param_2)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-TSG_PFNC_Callback	Get_Callback(void)
+TSG_PFNC_UI_Callback	Get_Callback(void)
 {
 	return( &Callback );
 }

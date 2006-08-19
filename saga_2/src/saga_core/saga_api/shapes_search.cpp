@@ -176,7 +176,7 @@ bool CShapes_Search::Create(CShapes *pShapes)
 			m_bDestroy	= true;
 			m_pPoints	= SG_Create_Shapes(SHAPE_TYPE_Point, NULL, &pShapes->Get_Table());
 
-			for(iShape=0; iShape<pShapes->Get_Count() && ::SG_Callback_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+			for(iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 			{
 				pShape	= pShapes->Get_Shape(iShape);
 

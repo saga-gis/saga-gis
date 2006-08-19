@@ -268,7 +268,7 @@ bool CGrid_RGB_Composite::On_Execute(void)
 	//-----------------------------------------------------
 	pRGB	= Parameters("GRID_RGB")->asGrid();
 	pRGB->Create(pRGB->Get_System(), GRID_TYPE_Int);
-	Colors.Set_Palette(COLORS_PALETTE_BLACK_WHITE);
+	Colors.Set_Palette(SG_COLORS_BLACK_WHITE);
 	DataObject_Set_Colors(pRGB, Colors);
 
 	//-----------------------------------------------------
@@ -290,11 +290,11 @@ bool CGrid_RGB_Composite::On_Execute(void)
 				a	= (int)(aRange * (pA->asDouble(x, y) - aMin));
 				if( a > 255 )	a	= 255;	else if( a < 0 )	a	= 0;
 
-				pRGB->Set_Value(x, y, COLOR_GET_RGBA(r, g, b, a));
+				pRGB->Set_Value(x, y, SG_GET_RGBA(r, g, b, a));
 			}
 			else
 			{
-				pRGB->Set_Value(x, y, COLOR_GET_RGB(r, g, b));
+				pRGB->Set_Value(x, y, SG_GET_RGB(r, g, b));
 			}
 		}
 	}

@@ -114,7 +114,7 @@ void CWKSP_Shapes_Polygon::On_Create_Parameters(void)
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_OUTLINE_COLOR"	, LNG("[CAP] Outline Color"),
 		"",
-		PARAMETER_TYPE_Color, COLOR_GET_RGB(0, 127, 0)
+		PARAMETER_TYPE_Color, SG_GET_RGB(0, 127, 0)
 	);
 
 	m_Parameters.Add_Value(
@@ -230,12 +230,12 @@ void CWKSP_Shapes_Polygon::_Draw_Shape(CWKSP_Map_DC &dc_Map, CShape *pShape, boo
 	{
 		int		Color	= m_pClassify->Get_Class_Color_byValue(pShape->Get_Record()->asDouble(m_iColor));
 
-		m_Brush.SetColour(COLOR_GET_R(Color), COLOR_GET_G(Color), COLOR_GET_B(Color));
+		m_Brush.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
 		dc_Map.dc.SetBrush(m_Brush);
 
 		if( !m_bOutline )
 		{
-			m_Pen.SetColour(COLOR_GET_R(Color), COLOR_GET_G(Color), COLOR_GET_B(Color));
+			m_Pen.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
 			dc_Map.dc.SetPen(m_Pen);
 		}
 

@@ -193,7 +193,7 @@ bool CThin_Plate_Spline::Create(double Regularization, bool bSilent)
 		//
 		// K is symmetrical so we really have to
 		// calculate only about half of the coefficients.
-		for(i=0, a=0.0; i<n && (bSilent || SG_Callback_Process_Set_Progress(i, n)); ++i )
+		for(i=0, a=0.0; i<n && (bSilent || SG_UI_Process_Set_Progress(i, n)); ++i )
 		{
 			Point	= m_Points[i];
 
@@ -247,7 +247,7 @@ bool CThin_Plate_Spline::Create(double Regularization, bool bSilent)
 		//-------------------------------------------------
 		// Solve the linear system "inplace"
 		if( !bSilent )
-			SG_Callback_Process_Set_Text(_TL("Solving Matrix"));
+			SG_UI_Process_Set_Text(_TL("Solving Matrix"));
 
 		bResult		= SG_Matrix_Solve(M, m_V, bSilent);
 	}

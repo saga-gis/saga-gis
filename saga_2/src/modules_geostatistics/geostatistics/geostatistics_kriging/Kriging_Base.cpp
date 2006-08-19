@@ -126,6 +126,18 @@ CKriging_Base::CKriging_Base(void)
 	);
 
 	Parameters.Add_Value(
+		NULL	, "BLOCK"		, _TL("Block Kriging"),
+		"",
+		PARAMETER_TYPE_Bool		, false
+	);
+
+	Parameters.Add_Value(
+		NULL	, "DBLOCK"		, _TL("Block Size"),
+		"",
+		PARAMETER_TYPE_Double	, 100.0, 0.0, true
+	);
+
+	Parameters.Add_Value(
 		NULL	, "BLOG"		, _TL("Logarithmic Transformation"),
 		"",
 		PARAMETER_TYPE_Bool
@@ -257,6 +269,9 @@ bool CKriging_Base::On_Execute(void)
 	m_Nugget	= Parameters("NUGGET")	->asDouble();
 	m_Sill		= Parameters("SILL")	->asDouble() - m_Nugget;	
 	m_Range		= Parameters("RANGE")	->asDouble();
+
+	m_Block		= Parameters("DBLOCK")	->asDouble() / 2.0;
+	m_bBlock	= Parameters("BLOCK")	->asBool() && m_Block > 0.0;
 
 	m_BLIN		= Parameters("LIN_B")	->asDouble();
 	m_BEXP		= Parameters("EXP_B")	->asDouble();

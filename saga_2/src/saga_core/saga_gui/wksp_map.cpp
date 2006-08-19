@@ -743,7 +743,7 @@ bool CWKSP_Map::Get_Image(wxImage &Image, CSG_Rect &rWorld)
 		wxMemoryDC	dc;
 
 		dc.SelectObject(BMP);
-		Draw_Map(dc, 1.0, wxRect(0, 0, Image.GetWidth(), Image.GetHeight()), false, COLOR_GET_RGB(MASK_R, MASK_G, MASK_B));
+		Draw_Map(dc, 1.0, wxRect(0, 0, Image.GetWidth(), Image.GetHeight()), false, SG_GET_RGB(MASK_R, MASK_G, MASK_B));
 		dc.SelectObject(wxNullBitmap);
 
 		rWorld	= Get_World(wxRect(0, 0, Image.GetWidth(), Image.GetHeight()));
@@ -965,7 +965,7 @@ void CWKSP_Map::SaveAs_PDF_Indexed(void)
 		//	PDF.Draw_Text		(PDF.Layout_Get_Box("TITLE").Get_XMin(), PDF.Layout_Get_Box("TITLE").Get_YCenter(), LNG("This is a Test!!!"), 24);
 		//	PDF.Draw_Rectangle	(PDF.Layout_Get_Box("DIVISIONS"));
 		//	PDF.Draw_Grid		(PDF.Layout_Get_Box("DIVISIONS"), Parameters("GRID")->asGrid(), CSG_Colors(), 0.0, 0.0, 0, &rOverview);
-		//	PDF.Draw_Shapes		(PDF.Layout_Get_Box("DIVISIONS"), pShapes, PDF_STYLE_POLYGON_STROKE, COLOR_DEF_GREEN, COLOR_DEF_BLACK, 1, &rOverview);
+		//	PDF.Draw_Shapes		(PDF.Layout_Get_Box("DIVISIONS"), pShapes, PDF_STYLE_POLYGON_STROKE, SG_COLOR_GREEN, SG_COLOR_BLACK, 1, &rOverview);
 		//	PDF.Draw_Graticule	(PDF.Layout_Get_Box("DIVISIONS"), rOverview);
 
 			//---------------------------------------------
@@ -973,7 +973,7 @@ void CWKSP_Map::SaveAs_PDF_Indexed(void)
 
 			if( pShapes )
 			{
-				for(int i=0; i<pShapes->Get_Count() && SG_Callback_Process_Set_Progress(i, pShapes->Get_Count()); i++)
+				for(int i=0; i<pShapes->Get_Count() && SG_UI_Process_Set_Progress(i, pShapes->Get_Count()); i++)
 				{
 					Draw_PDF(&PDF, FilePath_Maps, i, FileName_Icon, Name, pShapes->Get_Shape(i)->Get_Extent(), bRoundScale, iField, pShapes);
 				}
@@ -1030,7 +1030,7 @@ void CWKSP_Map::Draw_PDF(CDoc_PDF *pPDF, const char *FilePath_Maps, int Image_ID
 
 		Draw_Map(dc, rWorld, 1.0, rBMP, false);
 		dc.SelectObject(wxNullBitmap);
-		SG_Directory_Make(FilePath_Maps);
+		SG_Dir_Create(FilePath_Maps);
 		FileName	= SG_File_Make_Path(FilePath_Maps, wxString::Format("image_%03d", Image_ID + 1), "png");
 		BMP.SaveFile(FileName.c_str(), wxBITMAP_TYPE_PNG);
 
@@ -1062,11 +1062,11 @@ void CWKSP_Map::Draw_PDF(CDoc_PDF *pPDF, const char *FilePath_Maps, int Image_ID
 			rBox.Deflate(FrameSize_2, false);
 
 			pPDF->Draw_Graticule(rBox, rShapes, FrameSize_2);
-			pPDF->Draw_Shapes(rBox, pShapes, PDF_STYLE_POLYGON_FILLSTROKE, COLOR_DEF_GREEN, COLOR_DEF_BLACK, 0, &rShapes);
+			pPDF->Draw_Shapes(rBox, pShapes, PDF_STYLE_POLYGON_FILLSTROKE, SG_COLOR_GREEN, SG_COLOR_BLACK, 0, &rShapes);
 
 			if( Image_ID >= 0 && Image_ID < pShapes->Get_Count() )
 			{
-				pPDF->Draw_Shape(rBox, pShapes->Get_Shape(Image_ID), PDF_STYLE_POLYGON_FILLSTROKE, COLOR_DEF_YELLOW, COLOR_DEF_RED, 1, &rShapes);
+				pPDF->Draw_Shape(rBox, pShapes->Get_Shape(Image_ID), PDF_STYLE_POLYGON_FILLSTROKE, SG_COLOR_YELLOW, SG_COLOR_RED, 1, &rShapes);
 			}
 		}
 

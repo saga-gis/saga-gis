@@ -80,7 +80,7 @@ bool CTable::_Load(const char *File_Name, int Format, char Separator)
 
 	_Destroy();
 
-	SG_Callback_Message_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Load table"), File_Name), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Load table"), File_Name), true);
 
 	//-----------------------------------------------------
 	if( Format <= TABLE_FILETYPE_Undefined || Format > TABLE_FILETYPE_DBase )
@@ -131,12 +131,12 @@ bool CTable::_Load(const char *File_Name, int Format, char Separator)
 			Get_History().Add_Entry(LNG("[HST] Loaded from file"), File_Name);
 		}
 
-		SG_Callback_Message_Add(LNG("[MSG] okay"), false);
+		SG_UI_Msg_Add(LNG("[MSG] okay"), false);
 
 		return( true );
 	}
 
-	SG_Callback_Message_Add(LNG("[MSG] failed"), false);
+	SG_UI_Msg_Add(LNG("[MSG] failed"), false);
 
 	return( false );
 }
@@ -152,7 +152,7 @@ bool CTable::Save(const char *File_Name, int Format, char Separator)
 {
 	bool	bResult;
 
-	SG_Callback_Message_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Save table"), File_Name), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Save table"), File_Name), true);
 
 	//-----------------------------------------------------
 	if( Format <= TABLE_FILETYPE_Undefined || Format > TABLE_FILETYPE_DBase )
@@ -198,12 +198,12 @@ bool CTable::Save(const char *File_Name, int Format, char Separator)
 
 		Get_History().Save(File_Name, HISTORY_EXT_TABLE);
 
-		SG_Callback_Message_Add(LNG("[MSG] okay"), false);
+		SG_UI_Msg_Add(LNG("[MSG] okay"), false);
 
 		return( true );
 	}
 
-	SG_Callback_Message_Add(LNG("[MSG] failed"), false);
+	SG_UI_Msg_Add(LNG("[MSG] failed"), false);
 
 	return( false );
 }
@@ -259,7 +259,7 @@ bool CTable::_Load_Text(const char *File_Name, bool bHeadline, char Separator)
 
 			bContinue	= true;
 
-			while( bContinue && SG_Read_Line(Stream, sLine) && SG_Callback_Process_Set_Progress(ftell(Stream), fLength) )
+			while( bContinue && SG_Read_Line(Stream, sLine) && SG_UI_Process_Set_Progress(ftell(Stream), fLength) )
 			{
 				sLine.Append(Separator);
 
@@ -318,7 +318,7 @@ bool CTable::_Load_Text(const char *File_Name, bool bHeadline, char Separator)
 					}
 				}
 
-				for(iRecord=0; iRecord<newTable.Get_Record_Count() && SG_Callback_Process_Set_Progress(iRecord, newTable.Get_Record_Count()); iRecord++)
+				for(iRecord=0; iRecord<newTable.Get_Record_Count() && SG_UI_Process_Set_Progress(iRecord, newTable.Get_Record_Count()); iRecord++)
 				{
 					pRecord	= _Add_Record();
 
@@ -343,7 +343,7 @@ bool CTable::_Load_Text(const char *File_Name, bool bHeadline, char Separator)
 			}
 		}
 
-		SG_Callback_Process_Set_Ready();
+		SG_UI_Process_Set_Ready();
 
 		fclose(Stream);
 	}
@@ -366,7 +366,7 @@ bool CTable::_Save_Text(const char *File_Name, bool bHeadline, char Separator)
 				fprintf(Stream, "%s%c", Get_Field_Name(iField), iField < Get_Field_Count() - 1 ? Separator : '\n');
 			}
 
-			for(iRecord=0; iRecord<Get_Record_Count() && SG_Callback_Process_Set_Progress(iRecord, Get_Record_Count()); iRecord++)
+			for(iRecord=0; iRecord<Get_Record_Count() && SG_UI_Process_Set_Progress(iRecord, Get_Record_Count()); iRecord++)
 			{
 				for(iField=0; iField<Get_Field_Count(); iField++)
 				{
@@ -375,7 +375,7 @@ bool CTable::_Save_Text(const char *File_Name, bool bHeadline, char Separator)
 				}
 			}
 
-			SG_Callback_Process_Set_Ready();
+			SG_UI_Process_Set_Ready();
 
 			fclose(Stream);
 
@@ -463,9 +463,9 @@ bool CTable::_Load_DBase(const char *File_Name)
 					}
 				}
 			}
-			while( dbf.Move_Next() && SG_Callback_Process_Set_Progress(dbf.Get_File_Position(), dbf.Get_File_Length()) );
+			while( dbf.Move_Next() && SG_UI_Process_Set_Progress(dbf.Get_File_Position(), dbf.Get_File_Length()) );
 
-			SG_Callback_Process_Set_Ready();
+			SG_UI_Process_Set_Ready();
 
 			_Range_Invalidate();
 		}
@@ -532,7 +532,7 @@ bool CTable::_Save_DBase(const char *File_Name)
 	SG_Free(dbfFieldDesc);
 
 	//-----------------------------------------------------
-	for(iRecord=0; iRecord<Get_Record_Count() && SG_Callback_Process_Set_Progress(iRecord, Get_Record_Count()); iRecord++)
+	for(iRecord=0; iRecord<Get_Record_Count() && SG_UI_Process_Set_Progress(iRecord, Get_Record_Count()); iRecord++)
 	{
 		pRecord	= Get_Record(iRecord);
 
@@ -555,7 +555,7 @@ bool CTable::_Save_DBase(const char *File_Name)
 		dbf.Flush_Record();
 	}
 
-	SG_Callback_Process_Set_Ready();
+	SG_UI_Process_Set_Ready();
 
 	return( true );
 }

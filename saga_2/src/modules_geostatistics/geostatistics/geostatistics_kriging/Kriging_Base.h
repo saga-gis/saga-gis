@@ -86,7 +86,11 @@ protected:
 	virtual bool			On_Execute		(void);
 
 
+	bool					m_bBlock;
+
 	int						m_zField;
+
+	double					m_Block;
 
 	CSG_Points_3D			m_Points;
 

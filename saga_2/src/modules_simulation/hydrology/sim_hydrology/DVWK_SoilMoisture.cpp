@@ -224,7 +224,7 @@ bool CDVWK_SoilMoisture::On_Execute(void)
 		PWP_mm_Def	= Parameters("STA_PWP_DEF")	->asDouble();
 
 		pWi_mm		= Parameters("DYN_W")		->asGrid();
-		Colors.Set_Ramp(COLOR_GET_RGB(255, 255, 100), COLOR_GET_RGB(0, 0, 100));
+		Colors.Set_Ramp(SG_GET_RGB(255, 255, 100), SG_GET_RGB(0, 0, 100));
 		DataObject_Set_Colors(pWi_mm, Colors);
 
 		//-------------------------------------------------

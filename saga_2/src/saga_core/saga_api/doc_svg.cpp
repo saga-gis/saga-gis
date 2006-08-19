@@ -375,11 +375,11 @@ CSG_String CDoc_SVG::_Get_SVGColor(int iColor)
 
 	CSG_String s;
 
-	if (iColor == COLOR_DEF_NONE)
+	if (iColor == SG_COLOR_NONE)
 	{
 		return ("none");
 	}
-	else if (iColor == COLOR_DEF_RANDOM)
+	else if (iColor == SG_COLOR_RANDOM)
 	{
 		s.Append("rgb(");
 		s.Append(SG_Get_String((int)(255.0 * (double)rand() / (double)RAND_MAX),0));
@@ -394,11 +394,11 @@ CSG_String CDoc_SVG::_Get_SVGColor(int iColor)
 	else
 	{
 		s.Append("rgb(");
-		s.Append(SG_Get_String(COLOR_GET_R(iColor),0));
+		s.Append(SG_Get_String(SG_GET_R(iColor),0));
 		s.Append(",");
-		s.Append(SG_Get_String(COLOR_GET_G(iColor),0));
+		s.Append(SG_Get_String(SG_GET_G(iColor),0));
 		s.Append(",");
-		s.Append(SG_Get_String(COLOR_GET_B(iColor),0));
+		s.Append(SG_Get_String(SG_GET_B(iColor),0));
 		s.Append(")");
 
 		return s;

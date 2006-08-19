@@ -211,22 +211,22 @@ bool CMorphometry::On_Execute(void)
 	//-----------------------------------------------------
 	pSlope->Set_ZFactor	(M_RAD_TO_DEG);
 	pSlope->Set_Unit	("Degree");
-	Colors.Set_Ramp(COLOR_GET_RGB(255, 255, 150), COLOR_GET_RGB(100,   0,   0));
+	Colors.Set_Ramp(SG_GET_RGB(255, 255, 150), SG_GET_RGB(100,   0,   0));
 	DataObject_Set_Colors(pSlope	, Colors);
 
 	pAspect->Set_ZFactor(M_RAD_TO_DEG);
 	pAspect->Set_Unit	("Degree");
 	Colors.Set_Count(3);
-	Colors.Set_Color(0,	COLOR_GET_RGB(255, 255, 190));
-	Colors.Set_Color(1, COLOR_GET_RGB( 64,   0,   0));
-	Colors.Set_Color(2, COLOR_GET_RGB(255, 255, 190));
+	Colors.Set_Color(0,	SG_GET_RGB(255, 255, 190));
+	Colors.Set_Color(1, SG_GET_RGB( 64,   0,   0));
+	Colors.Set_Color(2, SG_GET_RGB(255, 255, 190));
 	Colors.Set_Count(100);
 	DataObject_Set_Colors(pAspect	, Colors);
 
 	Colors.Set_Count(3);
-	Colors.Set_Color(0,	COLOR_GET_RGB(  0,   0, 140));
-	Colors.Set_Color(1, COLOR_GET_RGB(220, 220, 220));
-	Colors.Set_Color(2, COLOR_GET_RGB(140,   0,   0));
+	Colors.Set_Color(0,	SG_GET_RGB(  0,   0, 140));
+	Colors.Set_Color(1, SG_GET_RGB(220, 220, 220));
+	Colors.Set_Color(2, SG_GET_RGB(140,   0,   0));
 	Colors.Set_Count(100);
 	DataObject_Set_Colors(pCurvature, Colors);
 	DataObject_Set_Colors(pCurv_Vert, Colors);

@@ -196,9 +196,9 @@ bool CWator::On_Execute(void)
 	pWator->Set_Name("Wa-Tor");
 
 	Colors.Set_Count(3);
-	Colors.Set_Color(0, COLOR_GET_RGB(  0,   0,   0));
-	Colors.Set_Color(1, COLOR_GET_RGB(  0, 255,   0));
-	Colors.Set_Color(2, COLOR_GET_RGB(255,   0,   0));
+	Colors.Set_Color(0, SG_GET_RGB(  0,   0,   0));
+	Colors.Set_Color(1, SG_GET_RGB(  0, 255,   0));
+	Colors.Set_Color(2, SG_GET_RGB(255,   0,   0));
 	DataObject_Set_Colors(pWator, Colors);
 
 	//-----------------------------------------------------

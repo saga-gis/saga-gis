@@ -78,7 +78,7 @@ bool CSeparateShapes::On_Execute(void){
 
 	pTable	= &pInput->Get_Table();
 
-	if( !SG_Directory_Make(sPath) )
+	if( !SG_Dir_Create(sPath) )
 	{
 		return( false );
 	}

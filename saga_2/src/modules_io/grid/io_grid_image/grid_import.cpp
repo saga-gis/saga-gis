@@ -225,15 +225,15 @@ bool CGrid_Import::On_Execute(void)
 			}
 
 			Parameters("OUT_RED")	->Set_Value(pR);
-			Colors.Set_Palette(COLORS_PALETTE_BLACK_RED);
+			Colors.Set_Palette(SG_COLORS_BLACK_RED);
 			DataObject_Set_Colors(pR, Colors);
 
 			Parameters("OUT_GREEN")	->Set_Value(pG);
-			Colors.Set_Palette(COLORS_PALETTE_BLACK_GREEN);
+			Colors.Set_Palette(SG_COLORS_BLACK_GREEN);
 			DataObject_Set_Colors(pG, Colors);
 
 			Parameters("OUT_BLUE")	->Set_Value(pB);
-			Colors.Set_Palette(COLORS_PALETTE_BLACK_BLUE);
+			Colors.Set_Palette(SG_COLORS_BLACK_BLUE);
 			DataObject_Set_Colors(pB, Colors);
 		}
 
@@ -244,7 +244,7 @@ bool CGrid_Import::On_Execute(void)
 
 			for(wxImageHistogram::iterator i=hst.begin(); i!=hst.end(); ++i)
 			{
-				Colors.Set_Color(i->second.index, COLOR_GET_R(i->first), COLOR_GET_G(i->first), COLOR_GET_B(i->first));
+				Colors.Set_Color(i->second.index, SG_GET_R(i->first), SG_GET_G(i->first), SG_GET_B(i->first));
 			}
 
 			ADD_GRID(pR, fName.GetName(), yy <= 2 ? GRID_TYPE_Bit : GRID_TYPE_Byte);
@@ -253,7 +253,7 @@ bool CGrid_Import::On_Execute(void)
 			{
 				for(x=0; x<pR->Get_NX(); x++)
 				{
-					pR->Set_Value(x, y, hst[COLOR_GET_RGB(img.GetRed(x, yy), img.GetGreen(x, yy), img.GetBlue(x, yy))].index);
+					pR->Set_Value(x, y, hst[SG_GET_RGB(img.GetRed(x, yy), img.GetGreen(x, yy), img.GetBlue(x, yy))].index);
 				}
 			}
 
@@ -272,12 +272,12 @@ bool CGrid_Import::On_Execute(void)
 			{
 				for(x=0; x<pR->Get_NX(); x++)
 				{
-					pR->Set_Value(x, y, COLOR_GET_RGB(img.GetRed(x, yy), img.GetGreen(x, yy), img.GetBlue(x, yy)));
+					pR->Set_Value(x, y, SG_GET_RGB(img.GetRed(x, yy), img.GetGreen(x, yy), img.GetBlue(x, yy)));
 				}
 			}
 
 			Parameters("OUT_GRID")	->Set_Value(pR);
-			Colors.Set_Palette(COLORS_PALETTE_BLACK_WHITE);
+			Colors.Set_Palette(SG_COLORS_BLACK_WHITE);
 			DataObject_Set_Colors(pR, Colors);
 		}
 

@@ -79,19 +79,19 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-TSG_PFNC_Callback	Get_Callback	(void);
+TSG_PFNC_UI_Callback	Get_Callback	(void);
 
-void			Set_Library		(class CModule_Library *pLibrary);
-
-//---------------------------------------------------------
-void			Set_Silent		(bool bOn);
-
-void			Get_Pause		(void);
-bool			Get_YesNo		(const char *caption, const char *message);
+void					Set_Library		(class CModule_Library *pLibrary);
 
 //---------------------------------------------------------
-void			Print_Error		(const char *Error);
-void			Print_Error		(const char *Error, const char *Info);
+void					Set_Silent		(bool bOn);
+
+void					Get_Pause		(void);
+bool					Get_YesNo		(const char *caption, const char *message);
+
+//---------------------------------------------------------
+void					Print_Error		(const char *Error);
+void					Print_Error		(const char *Error, const char *Info);
 
 
 ///////////////////////////////////////////////////////////

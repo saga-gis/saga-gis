@@ -164,8 +164,8 @@ bool CHugget_03::On_Execute(void)
 	pN->Assign(N_Init);
 
 	Colors.Set_Count(100);
-	Colors.Set_Ramp(COLOR_GET_RGB(255, 255, 192), COLOR_GET_RGB(127, 200,   0),  0, 49);
-	Colors.Set_Ramp(COLOR_GET_RGB(127, 200,   0), COLOR_GET_RGB(  0,  63,   0), 50, 99);
+	Colors.Set_Ramp(SG_GET_RGB(255, 255, 192), SG_GET_RGB(127, 200,   0),  0, 49);
+	Colors.Set_Ramp(SG_GET_RGB(127, 200,   0), SG_GET_RGB(  0,  63,   0), 50, 99);
 	DataObject_Set_Colors(pN, Colors);
 
 	N_1.Create(pN, GRID_TYPE_Float);

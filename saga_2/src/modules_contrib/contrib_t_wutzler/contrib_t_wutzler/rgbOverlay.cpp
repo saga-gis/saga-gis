@@ -191,7 +191,7 @@ bool CRGBOverlay::On_Execute(void)
 			gc = (int)( gi * colFac  + gi * colFacStrech);
 			for( bi = 0; bi < COLORBASE; bi++ ){
 				bc = (int)( bi * colFac + bi * colFacStrech);
-				rgbc = (long) COLOR_GET_RGB(rc,gc,bc);
+				rgbc = (long) SG_GET_RGB(rc,gc,bc);
 				colors.Set_Color( COLORBASE*COLORBASE*ri + COLORBASE*gi + bi, rgbc );
 			}
 		}

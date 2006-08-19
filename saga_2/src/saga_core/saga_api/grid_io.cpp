@@ -82,7 +82,7 @@ bool CGrid::_Load(const char *File_Name, TGrid_Type Type, TGrid_Memory_Type Memo
 	m_Type	= Type;
 
 	//-----------------------------------------------------
-	SG_Callback_Message_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Load grid"), File_Name), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Load grid"), File_Name), true);
 
 	if( SG_File_Cmp_Extension(File_Name, "grd") )
 	{
@@ -106,15 +106,15 @@ bool CGrid::_Load(const char *File_Name, TGrid_Type Type, TGrid_Memory_Type Memo
 			Get_History().Add_Entry(LNG("[HST] Loaded from file"), File_Name);
 		}
 
-		SG_Callback_Message_Add(LNG("[MSG] okay"), false);
+		SG_UI_Msg_Add(LNG("[MSG] okay"), false);
 	}
 	else
 	{
 		Destroy();
 
-		SG_Callback_Message_Add(LNG("[MSG] failed"), false);
+		SG_UI_Msg_Add(LNG("[MSG] failed"), false);
 
-		SG_Callback_Message_Add_Error(LNG("[ERR] Grid file could not be opened."));
+		SG_UI_Msg_Add_Error(LNG("[ERR] Grid file could not be opened."));
 	}
 
 	//-----------------------------------------------------
@@ -153,7 +153,7 @@ bool CGrid::Save(const char *File_Name, int Format, int xA, int yA, int xN, int 
 	}
 
 	//-----------------------------------------------------
-	SG_Callback_Message_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Save grid"), File_Name), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Save grid"), File_Name), true);
 
 	switch( Format )
 	{
@@ -176,13 +176,13 @@ bool CGrid::Save(const char *File_Name, int Format, int xA, int yA, int xN, int 
 
 		Get_History().Save(File_Name, HISTORY_EXT_GRID);
 
-		SG_Callback_Message_Add(LNG("[MSG] okay"), false);
+		SG_UI_Msg_Add(LNG("[MSG] okay"), false);
 	}
 	else
 	{
-		SG_Callback_Message_Add(LNG("[MSG] failed"), false);
+		SG_UI_Msg_Add(LNG("[MSG] failed"), false);
 
-		SG_Callback_Message_Add_Error(LNG("[ERR] Grid file could not be saved."));
+		SG_UI_Msg_Add_Error(LNG("[ERR] Grid file could not be saved."));
 	}
 
 	return( bResult );
@@ -238,7 +238,7 @@ bool CGrid::_Load_Binary(FILE *Stream, TGrid_Type File_Type, bool bFlip, bool bS
 
 			if( m_Type == File_Type && m_Memory_Type == GRID_MEMORY_Normal )
 			{
-				for(iy=0; iy<Get_NY() && !feof(Stream) && SG_Callback_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
+				for(iy=0; iy<Get_NY() && !feof(Stream) && SG_UI_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
 				{
 					fread(m_Values[y], sizeof(char), nxBytes, Stream);
 				}
@@ -247,7 +247,7 @@ bool CGrid::_Load_Binary(FILE *Stream, TGrid_Type File_Type, bool bFlip, bool bS
 			{
 				Line	= (char *)SG_Malloc(nxBytes);
 
-				for(iy=0; iy<Get_NY() && !feof(Stream) && SG_Callback_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
+				for(iy=0; iy<Get_NY() && !feof(Stream) && SG_UI_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
 				{
 					fread(Line		, nxBytes	, sizeof(char), Stream);
 
@@ -272,7 +272,7 @@ bool CGrid::_Load_Binary(FILE *Stream, TGrid_Type File_Type, bool bFlip, bool bS
 
 			if( m_Type == File_Type && m_Memory_Type == GRID_MEMORY_Normal && !bSwapBytes )
 			{
-				for(iy=0; iy<Get_NY() && !feof(Stream) && SG_Callback_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
+				for(iy=0; iy<Get_NY() && !feof(Stream) && SG_UI_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
 				{
 					fread(m_Values[y], sizeof(char), nxBytes, Stream);
 				}
@@ -281,7 +281,7 @@ bool CGrid::_Load_Binary(FILE *Stream, TGrid_Type File_Type, bool bFlip, bool bS
 			{
 				Line	= (char *)SG_Malloc(nxBytes);
 
-				for(iy=0; iy<Get_NY() && !feof(Stream) && SG_Callback_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
+				for(iy=0; iy<Get_NY() && !feof(Stream) && SG_UI_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
 				{
 					fread(Line		, nxBytes	, sizeof(char), Stream);
 
@@ -313,7 +313,7 @@ bool CGrid::_Load_Binary(FILE *Stream, TGrid_Type File_Type, bool bFlip, bool bS
 		}
 
 		//-------------------------------------------------
-		SG_Callback_Process_Set_Ready();
+		SG_UI_Process_Set_Ready();
 
 		return( true );
 	}
@@ -352,7 +352,7 @@ bool CGrid::_Save_Binary(FILE *Stream, int xA, int yA, int xN, int yN, TGrid_Typ
 			{
 				axBytes		= xA / 8;
 
-				for(iy=0; iy<yN && SG_Callback_Process_Set_Progress(iy, yN); iy++, y+=dy)
+				for(iy=0; iy<yN && SG_UI_Process_Set_Progress(iy, yN); iy++, y+=dy)
 				{
 					fwrite((char *)m_Values[y] + axBytes, nxBytes, sizeof(char), Stream);
 				}
@@ -361,7 +361,7 @@ bool CGrid::_Save_Binary(FILE *Stream, int xA, int yA, int xN, int yN, TGrid_Typ
 			{
 				Line	= (char *)SG_Malloc(nxBytes);
 
-				for(iy=0; iy<yN && SG_Callback_Process_Set_Progress(iy, yN); iy++, y+=dy)
+				for(iy=0; iy<yN && SG_UI_Process_Set_Progress(iy, yN); iy++, y+=dy)
 				{
 					for(ix=0, x=xA, pValue=Line; ix<xN; pValue++)
 					{
@@ -388,7 +388,7 @@ bool CGrid::_Save_Binary(FILE *Stream, int xA, int yA, int xN, int yN, TGrid_Typ
 			{
 				axBytes	= xA * nValueBytes;
 
-				for(iy=0; iy<yN && SG_Callback_Process_Set_Progress(iy, yN); iy++, y+=dy)
+				for(iy=0; iy<yN && SG_UI_Process_Set_Progress(iy, yN); iy++, y+=dy)
 				{
 					fwrite((char *)m_Values[y] + axBytes, nxBytes, sizeof(char), Stream);
 				}
@@ -397,7 +397,7 @@ bool CGrid::_Save_Binary(FILE *Stream, int xA, int yA, int xN, int yN, TGrid_Typ
 			{
 				Line	= (char *)SG_Malloc(nxBytes);
 
-				for(iy=0; iy<yN && SG_Callback_Process_Set_Progress(iy, yN); iy++, y+=dy)
+				for(iy=0; iy<yN && SG_UI_Process_Set_Progress(iy, yN); iy++, y+=dy)
 				{
 					for(ix=0, x=xA, pValue=Line; ix<xN; ix++, x++, pValue+=nValueBytes)
 					{
@@ -429,7 +429,7 @@ bool CGrid::_Save_Binary(FILE *Stream, int xA, int yA, int xN, int yN, TGrid_Typ
 		}
 
 		//-------------------------------------------------
-		SG_Callback_Process_Set_Ready();
+		SG_UI_Process_Set_Ready();
 
 		return( true );
 	}
@@ -466,7 +466,7 @@ bool CGrid::_Load_ASCII(FILE *Stream, TGrid_Memory_Type Memory_Type, bool bFlip)
 		}
 
 		//-------------------------------------------------
-		for(iy=0; iy<Get_NY() && SG_Callback_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
+		for(iy=0; iy<Get_NY() && SG_UI_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
 		{
 			for(x=0; x<Get_NX(); x++)
 			{
@@ -476,7 +476,7 @@ bool CGrid::_Load_ASCII(FILE *Stream, TGrid_Memory_Type Memory_Type, bool bFlip)
 			}
 		}
 
-		SG_Callback_Process_Set_Ready();
+		SG_UI_Process_Set_Ready();
 
 		return( true );
 	}
@@ -505,7 +505,7 @@ bool CGrid::_Save_ASCII(FILE *Stream, int xA, int yA, int xN, int yN, bool bFlip
 		}
 
 		//-------------------------------------------------
-		for(iy=0; iy<yN && SG_Callback_Process_Set_Progress(iy, yN); iy++, y+=dy)
+		for(iy=0; iy<yN && SG_UI_Process_Set_Progress(iy, yN); iy++, y+=dy)
 		{
 			for(ix=0, x=xA; ix<xN; ix++, x++)
 			{
@@ -515,7 +515,7 @@ bool CGrid::_Save_ASCII(FILE *Stream, int xA, int yA, int xN, int yN, bool bFlip
 			fprintf(Stream, "\n");
 		}
 
-		SG_Callback_Process_Set_Ready();
+		SG_UI_Process_Set_Ready();
 
 		return( true );
 	}
@@ -797,7 +797,7 @@ bool CGrid::_Load_Surfer(const char *File_Name, TGrid_Memory_Type Memory_Type)
 
 				fLine	= (float *)SG_Malloc(Get_NX() * sizeof(float));
 
-				for(y=0; y<Get_NY() && !feof(Stream) && SG_Callback_Process_Set_Progress(y, Get_NY()); y++)
+				for(y=0; y<Get_NY() && !feof(Stream) && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 				{
 					fread(fLine, Get_NX(), sizeof(float), Stream);
 
@@ -832,7 +832,7 @@ bool CGrid::_Load_Surfer(const char *File_Name, TGrid_Memory_Type Memory_Type)
 			{
 				bResult	= true;
 
-				for(y=0; y<Get_NY() && !feof(Stream) && SG_Callback_Process_Set_Progress(y, Get_NY()); y++)
+				for(y=0; y<Get_NY() && !feof(Stream) && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 				{
 					for(x=0; x<Get_NX(); x++)
 					{
@@ -847,7 +847,7 @@ bool CGrid::_Load_Surfer(const char *File_Name, TGrid_Memory_Type Memory_Type)
 		//-------------------------------------------------
 		fclose(Stream);
 
-		SG_Callback_Process_Set_Ready();
+		SG_UI_Process_Set_Ready();
 	}
 
 	return( bResult );

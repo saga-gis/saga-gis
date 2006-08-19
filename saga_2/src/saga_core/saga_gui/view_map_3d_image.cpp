@@ -396,7 +396,7 @@ void CVIEW_Map_3D_Image::Set_Image(void)
 		//-------------------------------------------------
 		else
 		{
-			BkStereo	= (BYTE)((COLOR_GET_R(m_BkColor) + COLOR_GET_G(m_BkColor) + COLOR_GET_B(m_BkColor)) / 3.0);
+			BkStereo	= (BYTE)((SG_GET_R(m_BkColor) + SG_GET_G(m_BkColor) + SG_GET_B(m_BkColor)) / 3.0);
 
 			//---------------------------------------------
 			// 1. Right View...

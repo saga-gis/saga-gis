@@ -133,22 +133,22 @@ bool CVisibility_Point::On_Execute(void)
 	case 0:		// Visibility
 		m_pVisibility->Set_ZFactor(1.0);
 		Colors.Set_Count(2);
-		Colors.Set_Ramp(COLOR_GET_RGB(0, 0, 0), COLOR_GET_RGB(255, 255, 255));
+		Colors.Set_Ramp(SG_GET_RGB(0, 0, 0), SG_GET_RGB(255, 255, 255));
 		break;
 
 	case 1:		// Shade
 		m_pVisibility->Set_ZFactor(M_RAD_TO_DEG);
-		Colors.Set_Ramp(COLOR_GET_RGB(255, 255, 255), COLOR_GET_RGB(0, 0, 0));
+		Colors.Set_Ramp(SG_GET_RGB(255, 255, 255), SG_GET_RGB(0, 0, 0));
 		break;
 
 	case 2:		// Distance
 		m_pVisibility->Set_ZFactor(1.0);
-		Colors.Set_Ramp(COLOR_GET_RGB(255, 255, 191), COLOR_GET_RGB(0, 95, 0));
+		Colors.Set_Ramp(SG_GET_RGB(255, 255, 191), SG_GET_RGB(0, 95, 0));
 		break;
 
 	case 3:		// Size
 		m_pVisibility->Set_ZFactor(M_RAD_TO_DEG);
-		Colors.Set_Ramp(COLOR_GET_RGB(0, 95, 0), COLOR_GET_RGB(255, 255, 191));
+		Colors.Set_Ramp(SG_GET_RGB(0, 95, 0), SG_GET_RGB(255, 255, 191));
 		break;
 	}
 

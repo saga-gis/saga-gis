@@ -641,7 +641,7 @@ bool CDoc_HTML::_Draw_Shape(CDoc_SVG &SVG, CShape *pShape, CSG_Rect GlobalRect, 
 		dOffsetX = (MAP_WIDTH  - dWidth)  / 2.;
 		dOffsetY = (MAP_HEIGHT - dHeight) / 2.;
 
-		SVG.Draw_Rectangle(0,0,MAP_WIDTH,MAP_HEIGHT,COLOR_DEF_NONE,COLOR_DEF_BLACK,1,"%");
+		SVG.Draw_Rectangle(0,0,MAP_WIDTH,MAP_HEIGHT,SG_COLOR_NONE,SG_COLOR_BLACK,1,"%");
 
 		for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{
@@ -673,7 +673,7 @@ bool CDoc_HTML::_Draw_Shape(CDoc_SVG &SVG, CShape *pShape, CSG_Rect GlobalRect, 
 			case SHAPE_TYPE_Polygon:
 				if( ((CShape_Polygon *)pShape)->is_Lake(iPart) )
 				{
-					SVG.Draw_Polygon(Points, COLOR_DEF_WHITE, Line_Color, Line_Width, "");
+					SVG.Draw_Polygon(Points, SG_COLOR_WHITE, Line_Color, Line_Width, "");
 				}
 				else
 				{

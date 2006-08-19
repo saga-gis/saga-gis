@@ -263,7 +263,7 @@ void CWKSP_Shapes_Line::_Draw_Shape(CWKSP_Map_DC &dc_Map, CShape *pShape, bool b
 		if( m_iColor >= 0 )
 		{
 			int		Color	= m_pClassify->Get_Class_Color_byValue(pShape->Get_Record()->asDouble(m_iColor));
-			Pen.SetColour(COLOR_GET_R(Color), COLOR_GET_G(Color), COLOR_GET_B(Color));
+			Pen.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
 		}
 
 		if( m_iSize >= 0 )

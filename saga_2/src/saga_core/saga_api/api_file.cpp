@@ -73,20 +73,26 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool			SG_Directory_isValid(const char *Directory)
+bool			SG_Dir_isValid(const char *Directory)
 {
 	return( Directory != NULL && *Directory != '\0' && wxFileName::DirExists(Directory) );
 }
 
 //---------------------------------------------------------
-bool			SG_Directory_Make(const char *Directory)
+bool			SG_Dir_Create(const char *Directory)
 {
-	if( SG_Directory_isValid(Directory) )
+	if( SG_Dir_isValid(Directory) )
 	{
 		return( true );
 	}
 
 	return( wxFileName::Mkdir(Directory) );
+}
+
+//---------------------------------------------------------
+CSG_String		SG_Dir_Get_Current(void)
+{
+	return( wxGetCwd().c_str() );
 }
 
 
@@ -110,35 +116,15 @@ bool			SG_File_Delete(const char *FileName)
 }
 
 //---------------------------------------------------------
-CSG_String		SG_Get_CWD(void)
+CSG_String		SG_File_Get_TmpName(const char *Prefix, const char *Directory)
 {
-	return( wxGetCwd().c_str() );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CSG_String		SG_Get_Temp_File_Name(const char *Prefix, const char *Directory)
-{
-	if( !SG_Directory_isValid(Directory) )
+	if( !SG_Dir_isValid(Directory) )
 	{
 		return( wxFileName::CreateTempFileName(Prefix).c_str() );
 	}
 
 	return( wxFileName::CreateTempFileName(SG_File_Make_Path(Directory, Prefix).c_str()).c_str() );
 }
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CSG_String		SG_File_Get_Name(const char *full_Path, bool bExtension)
@@ -164,7 +150,7 @@ CSG_String		SG_File_Make_Path(const char *Directory, const char *Name, const cha
 {
 	wxFileName	fn;
 
-	fn.AssignDir(SG_Directory_isValid(Directory) ? Directory : SG_File_Get_Path(Name).c_str());
+	fn.AssignDir(SG_Dir_isValid(Directory) ? Directory : SG_File_Get_Path(Name).c_str());
 
 	if( Extension && *Extension != '\0' )
 	{

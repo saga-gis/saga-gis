@@ -208,7 +208,7 @@ bool CDoc_PDF::Close(void)
 //---------------------------------------------------------
 bool CDoc_PDF::Save(const char *FileName)
 {
-	if( m_pPDF && m_nPages > 0 && SG_Directory_Make(SG_File_Get_Path(FileName)) )
+	if( m_pPDF && m_nPages > 0 && SG_Dir_Create(SG_File_Get_Path(FileName)) )
 	{
 		try
 		{
@@ -222,7 +222,7 @@ bool CDoc_PDF::Save(const char *FileName)
 		return( true );
 	}
 
-	SG_Callback_Message_Add_Error(LNG("[ERR] Could not save PDF file."));
+	SG_UI_Msg_Add_Error(LNG("[ERR] Could not save PDF file."));
 
 	return( false );
 }
@@ -667,14 +667,14 @@ bool CDoc_PDF::Add_Page_Title(const char *Title, TPDF_Title_Level Level, TPDF_Pa
 		_Add_Outline_Item(Title, m_pPage, Level);
 
 		//-------------------------------------------------
-		Draw_Text(Get_Margins().Get_XCenter(), Get_Margins().Get_YCenter(), Title, FontSize, PDF_STYLE_TEXT_ALIGN_H_CENTER, 0.0, COLOR_GET_RGB(0, 0, 0));
+		Draw_Text(Get_Margins().Get_XCenter(), Get_Margins().Get_YCenter(), Title, FontSize, PDF_STYLE_TEXT_ALIGN_H_CENTER, 0.0, SG_GET_RGB(0, 0, 0));
 
 		//-------------------------------------------------
 		if( bLine )
 		{
 			double	y	= Get_Margins().Get_YCenter() - 25.0;
 
-			Draw_Line(Get_Margins().Get_XMin(), y, Get_Margins().Get_XMax(), y, 5, COLOR_GET_RGB(0, 0, 0), PDF_STYLE_LINE_END_ROUND);
+			Draw_Line(Get_Margins().Get_XMin(), y, Get_Margins().Get_XMax(), y, 5, SG_GET_RGB(0, 0, 0), PDF_STYLE_LINE_END_ROUND);
 		}
 
 		if( bDestination )
@@ -735,7 +735,7 @@ bool CDoc_PDF::_Set_Style_FillStroke(int Style, int Fill_Color, int Line_Color, 
 				m_pCanvas->SetLineJoin(PDF_MITER_JOIN);
 			}
 
-			m_pCanvas->SetRGBStroke(COLOR_GET_R(Line_Color), COLOR_GET_G(Line_Color), COLOR_GET_B(Line_Color));
+			m_pCanvas->SetRGBStroke(SG_GET_R(Line_Color), SG_GET_G(Line_Color), SG_GET_B(Line_Color));
 
 			m_pCanvas->SetLineWidth(Line_Width);
 		}
@@ -743,7 +743,7 @@ bool CDoc_PDF::_Set_Style_FillStroke(int Style, int Fill_Color, int Line_Color, 
 		//-------------------------------------------------
 		if( Style & PDF_STYLE_POLYGON_FILL )
 		{
-			m_pCanvas->SetRGBFill(COLOR_GET_R(Fill_Color), COLOR_GET_G(Fill_Color), COLOR_GET_B(Fill_Color));
+			m_pCanvas->SetRGBFill(SG_GET_R(Fill_Color), SG_GET_G(Fill_Color), SG_GET_B(Fill_Color));
 		}
 
 		return( true );
@@ -918,8 +918,8 @@ bool CDoc_PDF::_Draw_Text(double x, double y, const char *Text, int Size, int St
 
 		m_pCanvas->SetTextRenderingMode(PDF_FILL_THEN_STROKE);
 		m_pCanvas->SetLineWidth(0);
-		m_pCanvas->SetRGBStroke(COLOR_GET_R(Color), COLOR_GET_G(Color), COLOR_GET_B(Color));
-		m_pCanvas->SetRGBFill  (COLOR_GET_R(Color), COLOR_GET_G(Color), COLOR_GET_B(Color));
+		m_pCanvas->SetRGBStroke(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
+		m_pCanvas->SetRGBFill  (SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
 
 		Width = m_pCanvas->TextWidth(Text) * cos(Angle);
 		Height = m_pCanvas->TextWidth(Text) * sin(Angle) + Size;
@@ -1277,7 +1277,7 @@ bool CDoc_PDF::_Draw_Table(CSG_Rect r, CTable *pTable, int iRecord, int nRecords
 			{
 				for(iField=0, xPos=r.Get_XMin(); iField<pTable->Get_Field_Count(); iField++, xPos+=dxPos)
 				{
-					Draw_Rectangle(xPos, yPos, xPos + dxPos, yPos - dyPos_Hdr, PDF_STYLE_POLYGON_FILLSTROKE, COLOR_DEF_GREY_LIGHT, COLOR_DEF_BLACK, 0);
+					Draw_Rectangle(xPos, yPos, xPos + dxPos, yPos - dyPos_Hdr, PDF_STYLE_POLYGON_FILLSTROKE, SG_COLOR_GREY_LIGHT, SG_COLOR_BLACK, 0);
 					Draw_Text(xPos + xSpace, yPos - ySpace_Hdr, pTable->Get_Field_Name(iField), dyFont_Hdr, PDF_STYLE_TEXT_ALIGN_H_LEFT|PDF_STYLE_TEXT_ALIGN_V_TOP);
 				}
 
@@ -1290,7 +1290,7 @@ bool CDoc_PDF::_Draw_Table(CSG_Rect r, CTable *pTable, int iRecord, int nRecords
 
 			for(iField=0, xPos=r.Get_XMin(); iField<pTable->Get_Field_Count(); iField++, xPos+=dxPos)
 			{
-				Draw_Rectangle(xPos, yPos, xPos + dxPos, yPos - dyPos, PDF_STYLE_POLYGON_STROKE, COLOR_DEF_WHITE, COLOR_DEF_BLACK, 0);
+				Draw_Rectangle(xPos, yPos, xPos + dxPos, yPos - dyPos, PDF_STYLE_POLYGON_STROKE, SG_COLOR_WHITE, SG_COLOR_BLACK, 0);
 				Draw_Text(xPos + xSpace, yPos - ySpace, pRecord->asString(iField), dyFont, PDF_STYLE_TEXT_ALIGN_H_LEFT|PDF_STYLE_TEXT_ALIGN_V_TOP);
 			}
 		}
@@ -1385,7 +1385,7 @@ bool CDoc_PDF::_Draw_Shape(CSG_Rect r, CShape *pShape, double xMin, double yMin,
 			case SHAPE_TYPE_Polygon:
 				if( ((CShape_Polygon *)pShape)->is_Lake(iPart) )
 				{
-					Draw_Polygon(Points, PDF_STYLE_POLYGON_FILLSTROKE, COLOR_DEF_WHITE, Line_Color, Line_Width);
+					Draw_Polygon(Points, PDF_STYLE_POLYGON_FILLSTROKE, SG_COLOR_WHITE, Line_Color, Line_Width);
 				}
 				else
 				{

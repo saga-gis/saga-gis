@@ -130,14 +130,14 @@ bool CWKSP_Layer_Classify::Initialise(CWKSP_Layer *pLayer, CTable *pLUT, CSG_Col
 		CTable_Record	*pRecord;
 
 		pRecord	= m_pLUT->Add_Record();
-		pRecord->Set_Value(LUT_COLOR		, COLOR_GET_RGB(1, 1, 1));
+		pRecord->Set_Value(LUT_COLOR		, SG_GET_RGB(1, 1, 1));
 		pRecord->Set_Value(LUT_TITLE		, LNG("Class 1"));
 		pRecord->Set_Value(LUT_DESCRIPTION	, LNG("First Class"));
 		pRecord->Set_Value(LUT_MIN			, 0.0);
 		pRecord->Set_Value(LUT_MAX			, 1.0);
 
 		pRecord	= m_pLUT->Add_Record();
-		pRecord->Set_Value(LUT_COLOR		, COLOR_GET_RGB(255, 0, 0));
+		pRecord->Set_Value(LUT_COLOR		, SG_GET_RGB(255, 0, 0));
 		pRecord->Set_Value(LUT_TITLE		, LNG("Class 2"));
 		pRecord->Set_Value(LUT_DESCRIPTION	, LNG("Second Class"));
 		pRecord->Set_Value(LUT_MIN			, 1.0);
