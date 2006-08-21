@@ -118,10 +118,10 @@ class SAGA_API_DLL_EXPORT CSG_History_Entry
 
 public:
 
-	const char *					Get_Date			(void)	{	return( m_Date );		}
-	const char *					Get_Name			(void)	{	return( m_Name );		}
-	const char *					Get_Entry			(void)	{	return( m_Entry );		}
-	class CSG_History *				Get_History			(void)	{	return( m_pHistory );	}
+	const char *				Get_Date		(void)	{	return( m_Date );		}
+	const char *				Get_Name		(void)	{	return( m_Name );		}
+	const char *				Get_Entry		(void)	{	return( m_Entry );		}
+	class CSG_History *			Get_History		(void)	{	return( m_pHistory );	}
 
 
 private:
@@ -130,9 +130,9 @@ private:
 	CSG_History_Entry(const CSG_History_Entry &Entry);
 	virtual ~CSG_History_Entry(void);
 
-	CSG_String						m_Date, m_Name, m_Entry;
+	CSG_String					m_Date, m_Name, m_Entry;
 
-	class CSG_History				*m_pHistory;
+	class CSG_History			*m_pHistory;
 
 };
 
@@ -144,30 +144,30 @@ public:
 	CSG_History(const CSG_History &History);
 	virtual ~CSG_History(void);
 
-	void							Destroy				(void);
-	void							Assign				(const CSG_History &History, bool bAdd = false);
+	void						Destroy			(void);
+	void						Assign			(const CSG_History &History, bool bAdd = false);
 
-	int								Get_Count			(void)			{	return( m_nEntries );	}
-	CSG_History_Entry &				Get_Entry			(int iEntry)	{	return( *m_pEntries[iEntry] );	}
-	void							Add_Entry			(const char *Name, const char *Entry, CSG_History *pHistory = NULL);
+	int							Get_Count		(void)			{	return( m_nEntries );	}
+	CSG_History_Entry &			Get_Entry		(int iEntry)	{	return( *m_pEntries[iEntry] );	}
+	void						Add_Entry		(const char *Name, const char *Entry, CSG_History *pHistory = NULL);
 
-	bool							Load				(const char *File_Name, const char *File_Extension);
-	bool							Save				(const char *File_Name, const char *File_Extension);
+	bool						Load			(const char *File_Name, const char *File_Extension);
+	bool						Save			(const char *File_Name, const char *File_Extension);
 
-	CSG_String						Get_HTML			(void);
+	CSG_String					Get_HTML		(void);
 
 
 private:
 
-	int								m_nEntries;
+	int							m_nEntries;
 
-	CSG_History_Entry				**m_pEntries;
+	CSG_History_Entry			**m_pEntries;
 
 
-	void							_Add_Entry			(CSG_History_Entry *pEntry);
+	void						_Add_Entry		(CSG_History_Entry *pEntry);
 
-	bool							_Load				(FILE *Stream);
-	bool							_Save				(FILE *Stream);
+	bool						_Load			(FILE *Stream);
+	bool						_Save			(FILE *Stream);
 
 };
 

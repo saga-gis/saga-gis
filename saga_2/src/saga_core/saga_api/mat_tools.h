@@ -354,6 +354,57 @@ SAGA_API_DLL_EXPORT bool		SG_Matrix_Solve		(CSG_Matrix &Matrix, CSG_Vector &Vect
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Grid_Radius
+{
+public:
+	CSG_Grid_Radius(int maxRadius = 0);
+	~CSG_Grid_Radius(void);
+
+	bool						Create				(int maxRadius);
+	void						Destroy				(void);
+
+	int							Get_Maximum			(void)			{	return( m_maxRadius );	}
+
+	int							Get_nPoints			(int iRadius)	{	return( iRadius >= 0 && iRadius < m_maxRadius ? m_nPoints[iRadius] : 0 );	}
+
+	double						Get_Point			(int iRadius, int iPoint, int &x, int &y)
+	{
+		if( iRadius >= 0 && iRadius < m_maxRadius && iPoint >= 0 && iPoint < m_nPoints[iRadius] )
+		{
+			x	= m_Points[iRadius][iPoint].x;
+			y	= m_Points[iRadius][iPoint].y;
+
+			return( m_Points[iRadius][iPoint].d );	// Distance...
+		}
+
+		return( -1.0 );
+	}
+
+
+private:
+
+	int							m_maxRadius, *m_nPoints;
+
+	typedef struct
+	{
+		int						x, y;
+
+		double					d;
+	}
+	TSG_Grid_Radius;
+
+	TSG_Grid_Radius				**m_Points;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Spline
 {
 public:
@@ -362,21 +413,28 @@ public:
 
 	void						Destroy				(void);
 
-	void						Add_Value			(double  x, double  y);
-	void						Set_Values			(double *x, double *y, int n);
+	bool						Create				(double *xValues, double *yValues, int nValues, double yA = 1.0e30, double yB = 1.0e30);
+	bool						Create				(double yA = 1.0e30, double yB = 1.0e30);
 
-	void						Initialize			(double y_A = 1.0e30, double y_B = 1.0e30);
+	void						Add					(double x, double y);
+
+	double						Get_xMin			(void)	{	return( m_nValues > 0 ? m_Values[0            ].x : 0.0 );	}
+	double						Get_xMax			(void)	{	return( m_nValues > 0 ? m_Values[m_nValues - 1].x : 0.0 );	}
 
 	bool						Get_Value			(double x, double &y);
+	double						Get_Value			(double x);
 
 
 protected:
 
-	bool						m_bSplined;
+	bool						m_bCreated;
 
-	int							m_nPoints, m_nBuffer;
+	int							m_nValues, m_nBuffer;
 
-	double						*m_xPoints, *m_yPoints, *m_zPoints;
+	TSG_Point_3D				*m_Values;
+
+
+	bool						_Create				(double yA, double yB);
 
 };
 
@@ -505,56 +563,6 @@ protected:
 	bool						_Get_Correlation	(int nValues, int nVariables, double **X, double *Y, int &iMax, double &rMax);
 
 	bool						_Eliminate			(int nValues, double *X, double *Y);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Grid_Radius
-{
-public:
-	CSG_Grid_Radius(int max_Radius = 0);
-	~CSG_Grid_Radius(void);
-
-	bool						Create				(int max_Radius);
-	void						Destroy				(void);
-
-	int							Get_Maximum			(void)			{	return( max_Radius );	}
-
-	int							Get_nPoints			(int iRadius)	{	return( iRadius >= 0 && iRadius < max_Radius ? nPoints[iRadius] : 0 );	}
-
-	double						Get_Point			(int iRadius, int iPoint, int &x, int &y)
-	{
-		if( iRadius >= 0 && iRadius < max_Radius && iPoint >= 0 && iPoint < nPoints[iRadius] )
-		{
-			x	= Points[iRadius][iPoint].x;
-			y	= Points[iRadius][iPoint].y;
-
-			return( Points[iRadius][iPoint].d );	// Distance...
-		}
-
-		return( -1.0 );
-	}
-
-
-private:
-
-	int							max_Radius, *nPoints;
-
-	typedef struct
-	{
-		int						x, y;
-		double					d;
-	}
-	TMAT_Grid_Radius;
-
-	TMAT_Grid_Radius			**Points;
 
 };
 

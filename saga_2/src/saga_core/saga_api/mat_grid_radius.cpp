@@ -71,11 +71,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Grid_Radius::CSG_Grid_Radius(int _max_Radius)
+CSG_Grid_Radius::CSG_Grid_Radius(int maxRadius)
 {
-	max_Radius		= 0;
+	m_maxRadius		= 0;
 
-	Create(_max_Radius);
+	Create(maxRadius);
 }
 
 //---------------------------------------------------------
@@ -92,7 +92,7 @@ CSG_Grid_Radius::~CSG_Grid_Radius(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid_Radius::Create(int _max_Radius)
+bool CSG_Grid_Radius::Create(int maxRadius)
 {
 	int		x, y, nMask, ix, iy, Radius;
 	double	dRadius;
@@ -101,34 +101,34 @@ bool CSG_Grid_Radius::Create(int _max_Radius)
 	Destroy();
 
 	//-----------------------------------------------------
-	if( _max_Radius > 0 )
+	if( maxRadius > 0 )
 	{
-		max_Radius	= _max_Radius;
+		m_maxRadius	= maxRadius;
 
-		nPoints		= (int *)				SG_Calloc(max_Radius, sizeof(int));
-		Points		= (TMAT_Grid_Radius **)	SG_Calloc(max_Radius, sizeof(TMAT_Grid_Radius *));
+		m_nPoints	= (int *)				SG_Calloc(m_maxRadius, sizeof(int));
+		m_Points	= (TSG_Grid_Radius **)	SG_Calloc(m_maxRadius, sizeof(TSG_Grid_Radius *));
 
-		nMask		= 1 + 2 * max_Radius;
+		nMask		= 1 + 2 * m_maxRadius;
 		gMask.Create(GRID_TYPE_Double, nMask, nMask);
 
-		for(iy=-max_Radius, y=0; y<nMask; iy++, y++)
+		for(iy=-m_maxRadius, y=0; y<nMask; iy++, y++)
 		{
-			for(ix=-max_Radius, x=0; x<nMask; ix++, x++)
+			for(ix=-m_maxRadius, x=0; x<nMask; ix++, x++)
 			{
 				gMask.Set_Value(x, y, dRadius = M_GET_LENGTH(ix, iy));
 
-				if( (Radius = (int)dRadius) < max_Radius )
+				if( (Radius = (int)dRadius) < m_maxRadius )
 				{
-					nPoints[Radius]++;
+					m_nPoints[Radius]++;
 				}
 			}
 		}
 
 		//-------------------------------------------------
-		for(Radius=0; Radius<max_Radius; Radius++)
+		for(Radius=0; Radius<m_maxRadius; Radius++)
 		{
-			Points[Radius]	= (TMAT_Grid_Radius *)SG_Calloc(nPoints[Radius], sizeof(TMAT_Grid_Radius));
-			nPoints[Radius]	= 0;
+			m_Points[Radius]	= (TSG_Grid_Radius *)SG_Calloc(m_nPoints[Radius], sizeof(TSG_Grid_Radius));
+			m_nPoints[Radius]	= 0;
 		}
 
 		//-------------------------------------------------
@@ -136,13 +136,13 @@ bool CSG_Grid_Radius::Create(int _max_Radius)
 		{
 			for(x=0; x<nMask; x++)
 			{
-				if( (Radius = gMask.asInt(x, y)) < max_Radius )
+				if( (Radius = gMask.asInt(x, y)) < m_maxRadius )
 				{
-					Points[Radius][nPoints[Radius]].x	= x - max_Radius;
-					Points[Radius][nPoints[Radius]].y	= y - max_Radius;
-					Points[Radius][nPoints[Radius]].d	= gMask.asDouble(x, y);
+					m_Points[Radius][m_nPoints[Radius]].x	= x - m_maxRadius;
+					m_Points[Radius][m_nPoints[Radius]].y	= y - m_maxRadius;
+					m_Points[Radius][m_nPoints[Radius]].d	= gMask.asDouble(x, y);
 
-					nPoints[Radius]++;
+					m_nPoints[Radius]++;
 				}
 			}
 		}
@@ -156,21 +156,28 @@ bool CSG_Grid_Radius::Create(int _max_Radius)
 //---------------------------------------------------------
 void CSG_Grid_Radius::Destroy(void)
 {
-	int		i;
-
-	if( max_Radius > 0 )
+	if( m_maxRadius > 0 )
 	{
-		for(i=0; i<max_Radius; i++)
+		for(int i=0; i<m_maxRadius; i++)
 		{
-			if( Points[i] )
+			if( m_Points[i] )
 			{
-				SG_Free(Points[i]);
+				SG_Free(m_Points[i]);
 			}
 		}
 
-		SG_Free(Points);
-		SG_Free(nPoints);
+		SG_Free(m_Points);
+		SG_Free(m_nPoints);
 
-		max_Radius	= 0;
+		m_maxRadius	= 0;
 	}
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
