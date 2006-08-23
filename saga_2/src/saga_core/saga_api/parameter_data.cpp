@@ -1529,9 +1529,9 @@ bool CParameter_DataObject::On_Serialize(FILE *Stream, bool bSave)
 		{
 			fprintf(Stream, "%s\n", ENTRY_DATAOBJECT_CREATE);
 		}
-		else if( m_pDataObject != DATAOBJECT_NOTSET && m_pDataObject->Get_File_Path() )
+		else if( m_pDataObject != DATAOBJECT_NOTSET && m_pDataObject->Get_File_Name() )
 		{
-			fprintf(Stream, "%s\n", m_pDataObject->Get_File_Path());
+			fprintf(Stream, "%s\n", m_pDataObject->Get_File_Name());
 		}
 		else
 		{
@@ -1958,9 +1958,9 @@ bool CParameter_List::On_Serialize(FILE *Stream, bool bSave)
 	{
 		for(int i=0; i<Get_Count(); i++)
 		{
-			if( asDataObject(i)->Get_File_Path() )
+			if( asDataObject(i)->Get_File_Name() )
 			{
-				fprintf(Stream, "%s\n", asDataObject(i)->Get_File_Path());
+				fprintf(Stream, "%s\n", asDataObject(i)->Get_File_Name());
 			}
 		}
 

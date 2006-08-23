@@ -193,7 +193,7 @@ CTIN * CWKSP_TIN_Manager::Get_byFileName(const char *File_Name)
 
 	for(int i=0; i<Get_Count(); i++)
 	{
-		if( !s.Cmp(Get_TIN(i)->Get_TIN()->Get_File_Path()) )
+		if( !s.Cmp(Get_TIN(i)->Get_TIN()->Get_File_Name()) )
 		{
 			return( Get_TIN(i)->Get_TIN() );
 		}

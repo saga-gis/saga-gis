@@ -214,7 +214,7 @@ bool CShapes::Create(const char *File_Name)
 			}
 		}
 
-		Set_File_Path(File_Name);
+		Set_File_Name(File_Name);
 
 		if( !Get_History().Load(File_Name, HISTORY_EXT_SHAPES) )
 		{
@@ -328,7 +328,7 @@ bool CShapes::Assign(CDataObject *pObject)
 //---------------------------------------------------------
 bool CShapes::Save(const char *File_Name, int Format)
 {
-	bool		bResult;
+	bool	bResult	= false;
 
 	switch( Format )
 	{
@@ -339,7 +339,9 @@ bool CShapes::Save(const char *File_Name, int Format)
 
 	if( bResult )
 	{
-		Set_File_Path(File_Name);
+		Set_Modified(false);
+
+		Set_File_Name(File_Name);
 
 		Get_History().Save(File_Name, HISTORY_EXT_SHAPES);
 	}

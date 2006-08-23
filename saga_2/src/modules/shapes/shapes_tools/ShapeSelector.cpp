@@ -119,7 +119,7 @@ bool CShapeSelector::GPC_Intersection(CShape *pShape_A, CShape *pShape_B, CShape
 
 		if( poly_AB.num_contours > 0 )
 		{
-			pShape_AB->Del_AllParts();
+			pShape_AB->Del_Parts();
 
 			for(iPart=0; iPart<poly_AB.num_contours; iPart++)
 			{

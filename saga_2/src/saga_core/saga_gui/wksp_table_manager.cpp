@@ -193,7 +193,7 @@ CTable * CWKSP_Table_Manager::Get_byFileName(const char *File_Name)
 
 	for(int i=0; i<Get_Count(); i++)
 	{
-		if( !s.Cmp(Get_Table(i)->Get_Table()->Get_File_Path()) )
+		if( !s.Cmp(Get_Table(i)->Get_Table()->Get_File_Name()) )
 		{
 			return( Get_Table(i)->Get_Table() );
 		}

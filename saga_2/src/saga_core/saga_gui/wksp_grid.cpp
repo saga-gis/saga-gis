@@ -131,7 +131,7 @@ wxString CWKSP_Grid::Get_Description(void)
 	));
 
 	s.Append(wxString::Format("<tr><td>%s</td><td>%s</td></tr>",
-		LNG("[CAP] File")					, m_pGrid->Get_File_Path()
+		LNG("[CAP] File")					, m_pGrid->Get_File_Name()
 	));
 
 	s.Append(wxString::Format("<tr><td>%s</td><td>%d (x) * %d (y) = %ld</td></tr>",

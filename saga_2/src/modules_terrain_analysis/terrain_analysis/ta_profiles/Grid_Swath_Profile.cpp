@@ -233,12 +233,12 @@ bool CGrid_Swath_Profile::Set_Profile(void)
 		if( (pLeft	= m_pLine->Get_Shape(1)) == NULL )
 			pLeft	= m_pLine->Add_Shape();
 		else
-			pLeft	->Del_AllParts();
+			pLeft	->Del_Parts();
 
 		if( (pRight	= m_pLine->Get_Shape(2)) == NULL )
 			pRight	= m_pLine->Add_Shape();
 		else
-			pRight	->Del_AllParts();
+			pRight	->Del_Parts();
 
 		B	= pLine->Get_Point(0);
 

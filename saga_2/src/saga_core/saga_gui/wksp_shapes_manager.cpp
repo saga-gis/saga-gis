@@ -238,7 +238,7 @@ CShapes * CWKSP_Shapes_Manager::Get_byFileName(const char *File_Name)
 
 		for(int j=0; j<pType->Get_Count(); j++)
 		{
-			if( !s.Cmp(pType->Get_Shapes(j)->Get_Shapes()->Get_File_Path()) )
+			if( !s.Cmp(pType->Get_Shapes(j)->Get_Shapes()->Get_File_Name()) )
 			{
 				return( pType->Get_Shapes(j)->Get_Shapes() );
 			}

@@ -184,17 +184,17 @@ double CTIN_Point::Get_Gradient(int iNeighbor, int iField)
 }
 
 //---------------------------------------------------------
-int TIN_Compare_Triangle_Center(const void *pp1, const void *pp2)
+int TIN_Compare_Triangle_Center(const void *pz1, const void *pz2)
 {
-	double	*p1	= *((double **)pp1),
-			*p2	= *((double **)pp2);
+	double	z1	= ((TSG_Point_3D *)pz1)->z,
+			z2	= ((TSG_Point_3D *)pz2)->z;
 
-	if( p1[2] < p2[2] )
+	if( z1 < z2 )
 	{
 		return( -1 );
 	}
 
-	if( p1[2] > p2[2] )
+	if( z1 > z2 )
 	{
 		return(  1 );
 	}
@@ -203,43 +203,29 @@ int TIN_Compare_Triangle_Center(const void *pp1, const void *pp2)
 }
 
 //---------------------------------------------------------
-bool CTIN_Point::Get_Polygon(TSG_Point **ppPoints, int &nPoints)
+bool CTIN_Point::Get_Polygon(CSG_Points &Points)
 {
-	int		i;
-	double	**p;
-
 	if( m_nTriangles >= 3 )
 	{
-		//-------------------------------------------------
-		p	= (double **)SG_Malloc(m_nTriangles * sizeof(double *));
+		int				i;
+		TSG_Point		c;
+		CSG_Points_3D	p;
 
 		for(i=0; i<m_nTriangles; i++)
 		{
-			p[i]	= (double *)SG_Malloc(3 * sizeof(double));
-			p[i][0]	= m_Triangles[i]->Get_CircumCircle_Point().x;
-			p[i][1]	= m_Triangles[i]->Get_CircumCircle_Point().y;
-			p[i][2]	= SG_Get_Angle_Of_Direction(p[i][0] - m_Point.x, p[i][1] - m_Point.y);
+			c	= m_Triangles[i]->Get_CircumCircle_Point();
+
+			p.Add(c.x, c.y, SG_Get_Angle_Of_Direction(c.x - m_Point.x, c.y - m_Point.y));
 		}
 
-		qsort(p, m_nTriangles, sizeof(double *), TIN_Compare_Triangle_Center);
+		qsort(&(p[0]), p.Get_Count(), sizeof(TSG_Point_3D), TIN_Compare_Triangle_Center);
 
-		//-------------------------------------------------
-		nPoints		= m_nTriangles;
-		*ppPoints	= (TSG_Point *)SG_Malloc(nPoints * sizeof(TSG_Point));
+		Points.Clear();
 
 		for(i=0; i<m_nTriangles; i++)
 		{
-			(*ppPoints)[i].x	= p[i][0];
-			(*ppPoints)[i].y	= p[i][1];
+			Points.Add(p[i].x, p[i].y);
 		}
-
-		//-------------------------------------------------
-		for(i=0; i<m_nTriangles; i++)
-		{
-			SG_Free(p[i]);
-		}
-
-		SG_Free(p);
 
 		return( true );
 	}
@@ -250,17 +236,11 @@ bool CTIN_Point::Get_Polygon(TSG_Point **ppPoints, int &nPoints)
 //---------------------------------------------------------
 double CTIN_Point::Get_Polygon_Area(void)
 {
-	int			nPoints;
-	double		Area;
-	TSG_Point	*pPoints;
+	CSG_Points	Points;
 
-	if( Get_Polygon(&pPoints, nPoints) )
+	if( Get_Polygon(Points) )
 	{
-		Area	= SG_Get_Polygon_Area(pPoints, nPoints);
-
-		SG_Free(pPoints);
-
-		return( Area );
+		return( SG_Get_Polygon_Area(Points) );
 	}
 
 	return( 0.0 );

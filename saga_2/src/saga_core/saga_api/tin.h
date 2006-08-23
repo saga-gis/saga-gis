@@ -106,7 +106,7 @@ public:
 	int							Get_Triangle_Count		(void)			{	return( m_nTriangles );	}
 	CTIN_Triangle *				Get_Triangle			(int iTriangle)	{	return( iTriangle >= 0 && iTriangle < m_nTriangles ? m_Triangles[iTriangle] : NULL );	}
 
-	bool						Get_Polygon				(TSG_Point **ppPoints, int &nPoints);
+	bool						Get_Polygon				(CSG_Points &Points);
 	double						Get_Polygon_Area		(void);
 
 

@@ -98,7 +98,7 @@ CDataObject::CDataObject(void)
 	m_bModified		= true;
 
 	Set_Name		(NULL);
-	Set_File_Path	(NULL);
+	Set_File_Name	(NULL);
 }
 
 //---------------------------------------------------------
@@ -134,28 +134,28 @@ const char * CDataObject::Get_Name(void) const
 }
 
 //---------------------------------------------------------
-void CDataObject::Set_File_Path(const char *File_Path)
+void CDataObject::Set_File_Name(const char *File_Name)
 {
-	if( File_Path )
+	if( File_Name )
 	{
-		m_File_Path.Printf(File_Path);
+		m_File_Name.Printf(File_Name);
 
-		m_Name	= SG_File_Get_Name(File_Path, true);
+		m_Name	= SG_File_Get_Name(File_Name, true);
 
 		m_bModified	= false;
 	}
 	else
 	{
-		m_File_Path.Clear();
+		m_File_Name.Clear();
 
 		Set_Name(NULL);
 	}
 }
 
-const char * CDataObject::Get_File_Path(bool bNullAsString)	const
+const char * CDataObject::Get_File_Name(bool bNullAsString)	const
 {
-	return(	m_File_Path.Length() > 0
-		?	m_File_Path.c_str()
+	return(	m_File_Name.Length() > 0
+		?	m_File_Name.c_str()
 		:	(bNullAsString ? LNG("[DAT] [not set]") : NULL)
 	);
 }

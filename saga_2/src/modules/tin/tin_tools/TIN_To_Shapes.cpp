@@ -237,8 +237,7 @@ bool CTIN_To_Shapes::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int			nPoints;
-	TSG_Point	*Points;
+	CSG_Points	Points;
 
 	pShapes		= Parameters("POLYGONS")	->asShapes();
 	pShapes->Create(SHAPE_TYPE_Polygon, CSG_String::Format(_TL("%s [T.I.N.]"), pTIN->Get_Name()));
@@ -253,16 +252,14 @@ bool CTIN_To_Shapes::On_Execute(void)
 	{
 		pPoint		= pTIN->Get_Point(i);
 
-		if( pPoint->Get_Polygon(&Points, nPoints) )
+		if( pPoint->Get_Polygon(Points) )
 		{
 			pShape		= pShapes->Add_Shape();
 
-			for(j=0; j<nPoints; j++)
+			for(j=0; j<Points.Get_Count(); j++)
 			{
 				pShape->Add_Point(Points[j]);
 			}
-
-			SG_Free(Points);
 
 			pShape->Get_Record()->Set_Value(0, 1 + i);
 			for(j=0; j<pTIN->Get_Table().Get_Field_Count(); j++)

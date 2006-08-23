@@ -96,7 +96,7 @@ bool CGrid::_Load(const char *File_Name, TGrid_Type Type, TGrid_Memory_Type Memo
 	//-----------------------------------------------------
 	if( bResult )
 	{
-		Set_File_Path(File_Name);
+		Set_File_Name(File_Name);
 
 		m_bCreated	= true;
 		m_bUpdate	= true;
@@ -172,7 +172,7 @@ bool CGrid::Save(const char *File_Name, int Format, int xA, int yA, int xN, int 
 	{
 		Set_Modified(false);
 
-		Set_File_Path(File_Name);
+		Set_File_Name(File_Name);
 
 		Get_History().Save(File_Name, HISTORY_EXT_GRID);
 

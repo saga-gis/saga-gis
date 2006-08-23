@@ -131,7 +131,7 @@ wxString CWKSP_Table::Get_Description(void)
 	));
 
 	s.Append(wxString::Format("<tr><td>%s</td><td>%s</td></tr>",
-		LNG("[CAP] File")					, m_pTable->Get_File_Path()
+		LNG("[CAP] File")					, m_pTable->Get_File_Name()
 	));
 
 	s.Append(wxString::Format("<tr><td>%s</td><td>%d</td></tr>",
@@ -201,7 +201,7 @@ bool CWKSP_Table::On_Command(int Cmd_ID)
 		return( CWKSP_Base_Item::On_Command(Cmd_ID) );
 
 	case ID_CMD_TABLES_SAVE:
-		Save(m_pTable->Get_File_Path());
+		Save(m_pTable->Get_File_Name());
 		break;
 
 	case ID_CMD_TABLES_SAVEAS:
@@ -237,7 +237,7 @@ bool CWKSP_Table::On_Command_UI(wxUpdateUIEvent &event)
 		return( CWKSP_Base_Item::On_Command_UI(event) );
 
 	case ID_CMD_TABLES_SAVE:
-		event.Enable(m_pTable->is_Modified() && m_pTable->Get_File_Path() && strlen(m_pTable->Get_File_Path()) > 0);
+		event.Enable(m_pTable->is_Modified() && m_pTable->Get_File_Name() && strlen(m_pTable->Get_File_Name()) > 0);
 		break;
 
 	case ID_CMD_TABLES_SHOW:

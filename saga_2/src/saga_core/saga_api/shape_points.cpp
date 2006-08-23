@@ -98,7 +98,7 @@ void CShape_Points::Destroy(void)
 {
 	CShape::Destroy();
 
-	Del_AllParts();
+	Del_Parts();
 }
 
 
@@ -113,7 +113,7 @@ bool CShape_Points::On_Assign(CShape *pShape)
 {
 	int		iPart, iPoint;
 
-	Del_AllParts();
+	Del_Parts();
 
 	for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 	{
@@ -177,7 +177,7 @@ int CShape_Points::Del_Part(int del_Part)
 }
 
 //---------------------------------------------------------
-int CShape_Points::Del_AllParts(void)
+int CShape_Points::Del_Parts(void)
 {
 	int		iPart;
 

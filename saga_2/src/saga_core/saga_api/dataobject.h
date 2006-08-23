@@ -191,25 +191,25 @@ public:
 
 	virtual bool				is_Valid		(void)	const							= 0;
 
-	virtual bool				Save			(const char *File_Path, int Format = 0)	= 0;
+	virtual bool				Save			(const char *File_Name, int Format = 0)	= 0;
+
+	const char *				Get_File_Name	(bool bNullAsString = false)	const;
+	int							Get_File_Type	(void)	const;
 
 	virtual bool				Assign			(CDataObject *pObject);
 
 	void						Set_Name		(const char *Name);
 	const char *				Get_Name		(void)	const;
 
-	const char *				Get_File_Path	(bool bNullAsString = false)	const;
-	int							Get_File_Type	(void)	const;
+	virtual void				Set_Modified	(bool bModified = true)	{	m_bModified	= bModified;	}
+	bool						is_Modified		(void)	const			{	return( m_bModified );		}
 
-	virtual void				Set_Modified	(bool bFlag = true)	{	m_bModified	= bFlag;	}
-	bool						is_Modified		(void)	const		{	return( m_bModified );	}
-
-	CSG_History &				Get_History		(void)				{	return( m_History );	}
+	CSG_History &				Get_History		(void)					{	return( m_History );		}
 
 
 protected:
 
-	void						Set_File_Path	(const char *File_Path);
+	void						Set_File_Name	(const char *File_Name);
 	void						Set_File_Type	(int File_Type);
 
 
@@ -219,7 +219,7 @@ private:
 
 	int							m_File_Type;
 
-	CSG_String					m_Name, m_File_Path;
+	CSG_String					m_File_Name, m_Name;
 
 	CSG_History					m_History;
 

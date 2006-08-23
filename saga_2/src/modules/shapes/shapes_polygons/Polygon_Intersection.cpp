@@ -319,7 +319,7 @@ void CPolygon_Intersection::Add_Polygon(CShapes *pShapes, CShape *pShape, int ID
 		{
 			if( !((CShape_Polygon *)pShape)->is_Lake(iPart) )
 			{
-				pShape_Part->Del_AllParts();
+				pShape_Part->Del_Parts();
 				nParts	= 0;
 
 				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
@@ -376,7 +376,7 @@ void CPolygon_Intersection::Add_Polygon(CShapes *pShapes, CShape *pShape, int ID
 		{
 			if( !((CShape_Polygon *)pShape)->is_Lake(iPart) )
 			{
-				pShape_Part->Del_AllParts();
+				pShape_Part->Del_Parts();
 				nParts	= 0;
 
 				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
@@ -434,7 +434,7 @@ bool CPolygon_Intersection::GPC_Polygon_Intersection(CShape *pShape_A, CShape *p
 
 		if( poly_AB.num_contours > 0 )
 		{
-			pShape_AB->Del_AllParts();
+			pShape_AB->Del_Parts();
 
 			for(iPart=0; iPart<poly_AB.num_contours; iPart++)
 			{
@@ -472,7 +472,7 @@ bool CPolygon_Intersection::GPC_Difference(CShape *pShape_A, CShape *pShape_B, C
 	if(	GPC_Create_Polygon(pShape_A, &poly_A)
 	&&	GPC_Create_Polygon(pShape_B, &poly_B) )
 	{
-		pShape_AB->Del_AllParts();
+		pShape_AB->Del_Parts();
 
 		gpc_polygon_clip(GPC_DIFF, &poly_A, &poly_B, &poly_AB);
 

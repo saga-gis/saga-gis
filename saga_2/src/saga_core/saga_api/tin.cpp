@@ -181,6 +181,9 @@ bool CTIN::Create(const char *File_Name)
 		Get_History().Add_Entry(LNG("[HST] Created from file"), File_Name);
 		Get_History().Assign(Shapes.Get_History(), true);
 
+		Set_File_Name(File_Name);
+		Set_Modified(false);
+
 		return( true );
 	}
 
@@ -387,7 +390,38 @@ bool CTIN::Assign(CDataObject *pObject)
 //---------------------------------------------------------
 bool CTIN::Save(const char *File_Name, int Format)
 {
-	return( false );
+	bool	bResult	= false;
+
+	if( Get_Triangle_Count() > 0 )
+	{
+		switch( Format )
+		{
+		case 0:	default:
+			{
+				CShapes	Points;
+
+				Points.Create(SHAPE_TYPE_Point, Get_Name(), &Get_Table());
+
+				for(int i=0; i<Get_Point_Count(); i++)
+				{
+					Points.	Add_Shape(Get_Point(i)->Get_Record())
+						->	Add_Point(Get_Point(i)->Get_Point());
+				}
+
+				bResult	= Points.Save(File_Name);
+			}
+			break;
+		}
+	}
+
+	if( bResult )
+	{
+		Set_Modified(false);
+
+		Set_File_Name(File_Name);
+	}
+
+	return( bResult );
 }
 
 

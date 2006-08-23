@@ -123,7 +123,7 @@ wxString CWKSP_Shapes::Get_Description(void)
 	));
 
 	s.Append(wxString::Format("<tr><td>%s</td><td>%s</td></tr>",
-		LNG("[CAP] File")					, m_pShapes->Get_File_Path()
+		LNG("[CAP] File")					, m_pShapes->Get_File_Name()
 	));
 
 	s.Append(wxString::Format("<tr><td>%s</td><td>%s</td></tr>",

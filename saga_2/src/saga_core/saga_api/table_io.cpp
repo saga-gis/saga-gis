@@ -124,7 +124,7 @@ bool CTable::_Load(const char *File_Name, int Format, char Separator)
 	{
 		Set_Modified(false);
 
-		Set_File_Path(File_Name);
+		Set_File_Name(File_Name);
 
 		if( !Get_History().Load(File_Name, HISTORY_EXT_TABLE) )
 		{
@@ -194,7 +194,7 @@ bool CTable::Save(const char *File_Name, int Format, char Separator)
 
 		Set_File_Type(Format);
 
-		Set_File_Path(File_Name);
+		Set_File_Name(File_Name);
 
 		Get_History().Save(File_Name, HISTORY_EXT_TABLE);
 

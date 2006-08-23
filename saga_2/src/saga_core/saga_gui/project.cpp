@@ -413,12 +413,12 @@ bool CWKSP_Project::_Load_Data(FILE *Stream, const char *ProjectDir)
 //---------------------------------------------------------
 bool CWKSP_Project::_Save_Data(FILE *Stream, const char *ProjectDir, CDataObject *pDataObject, CParameters *pParameters)
 {
-	if( pDataObject && pDataObject->Get_File_Path() != NULL )
+	if( pDataObject && pDataObject->Get_File_Name() != NULL )
 	{
 		fprintf(Stream, "\n");
 		fprintf(Stream, "%s\n", DATA_ENTRY_BEGIN);
 
-		fprintf(Stream, "%s\n", Get_FilePath_Relative(ProjectDir, pDataObject->Get_File_Path()).c_str());
+		fprintf(Stream, "%s\n", Get_FilePath_Relative(ProjectDir, pDataObject->Get_File_Name()).c_str());
 		fprintf(Stream, "%d\n", pDataObject->Get_ObjectType());
 
 		if( pParameters )
@@ -503,9 +503,9 @@ bool CWKSP_Project::_Save_Map(FILE *Stream, const char *ProjectDir, CWKSP_Map *p
 
 		for(int i=pMap->Get_Count()-1; i>=0; i--)
 		{
-			if( pMap->Get_Layer(i)->Get_Layer()->Get_Object()->Get_File_Path() != NULL )
+			if( pMap->Get_Layer(i)->Get_Layer()->Get_Object()->Get_File_Name() != NULL )
 			{
-				fprintf(Stream, "%s\n", Get_FilePath_Relative(ProjectDir, pMap->Get_Layer(i)->Get_Layer()->Get_Object()->Get_File_Path()).c_str());
+				fprintf(Stream, "%s\n", Get_FilePath_Relative(ProjectDir, pMap->Get_Layer(i)->Get_Layer()->Get_Object()->Get_File_Name()).c_str());
 			}
 		}
 
@@ -541,7 +541,7 @@ CWKSP_Base_Item * CWKSP_Project::_Get_byFileName(wxString FileName)
 		{
 			for(i=0; i<pTables->Get_Count(); i++)
 			{
-				if( (s = pTables->Get_Table(i)->Get_Table()->Get_File_Path()) && !FileName.Cmp(s) )
+				if( (s = pTables->Get_Table(i)->Get_Table()->Get_File_Name()) && !FileName.Cmp(s) )
 				{
 					return( pTables->Get_Table(i) );
 				}
@@ -554,7 +554,7 @@ CWKSP_Base_Item * CWKSP_Project::_Get_byFileName(wxString FileName)
 			{
 				for(i=0; i<((CWKSP_Shapes_Type *)pShapes->Get_Item(j))->Get_Count(); i++)
 				{
-					if( (s = ((CWKSP_Shapes_Type *)pShapes->Get_Item(j))->Get_Shapes(i)->Get_Shapes()->Get_File_Path()) && !FileName.Cmp(s) )
+					if( (s = ((CWKSP_Shapes_Type *)pShapes->Get_Item(j))->Get_Shapes(i)->Get_Shapes()->Get_File_Name()) && !FileName.Cmp(s) )
 					{
 						return( ((CWKSP_Shapes_Type *)pShapes->Get_Item(j))->Get_Shapes(i) );
 					}
@@ -566,7 +566,7 @@ CWKSP_Base_Item * CWKSP_Project::_Get_byFileName(wxString FileName)
 		{
 			for(i=0; i<pTINs->Get_Count(); i++)
 			{
-				if( (s = pTINs->Get_TIN(i)->Get_TIN()->Get_File_Path()) && !FileName.Cmp(s) )
+				if( (s = pTINs->Get_TIN(i)->Get_TIN()->Get_File_Name()) && !FileName.Cmp(s) )
 				{
 					return( pTINs->Get_TIN(i) );
 				}
@@ -579,7 +579,7 @@ CWKSP_Base_Item * CWKSP_Project::_Get_byFileName(wxString FileName)
 			{
 				for(i=0; i<pGrids->Get_System(j)->Get_Count(); i++)
 				{
-					if( (s = pGrids->Get_System(j)->Get_Grid(i)->Get_Grid()->Get_File_Path()) && !FileName.Cmp(s) )
+					if( (s = pGrids->Get_System(j)->Get_Grid(i)->Get_Grid()->Get_File_Name()) && !FileName.Cmp(s) )
 					{
 						return( pGrids->Get_System(j)->Get_Grid(i) );
 					}
@@ -701,7 +701,7 @@ bool CWKSP_Project::_Modified_Get(CParameters *pParameters, CWKSP_Base_Item *pIt
 		pParameters->Add_FilePath(
 			pNode,
 			wxString::Format("%d FILE", (int)pObject),
-			LNG("[CAP] File"), "", sFilter, pObject->Get_File_Path(), true
+			LNG("[CAP] File"), "", sFilter, pObject->Get_File_Name(), true
 		);
 
 		return( true );

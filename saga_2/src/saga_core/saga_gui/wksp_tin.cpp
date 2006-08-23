@@ -123,7 +123,7 @@ wxString CWKSP_TIN::Get_Description(void)
 	));
 
 	s.Append(wxString::Format("<tr><td>%s</td><td>%s</td></tr>",
-		LNG("[CAP] File")					, m_pTIN->Get_File_Path()
+		LNG("[CAP] File")					, m_pTIN->Get_File_Name()
 	));
 
 	s.Append(wxString::Format("<tr><td>%s</td><td>%d</td></tr>",

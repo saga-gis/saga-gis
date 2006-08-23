@@ -132,7 +132,7 @@ public:
 	int							Set_Point			(TSG_Point Point,   int iPoint, int iPart = 0);
 
 	virtual int					Del_Part			(int iPart)										= 0;
-	virtual int					Del_AllParts		(void)											= 0;
+	virtual int					Del_Parts			(void)											= 0;
 
 	virtual int					Get_Part_Count		(void)											= 0;
 	virtual int					Get_Point_Count		(int iPart)										= 0;
@@ -146,7 +146,7 @@ public:
 
 	virtual double				Get_Distance		(TSG_Point Point)								= 0;
 	virtual double				Get_Distance		(TSG_Point Point, int iPart)					= 0;
-	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next)			= 0;
+	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next)				= 0;
 	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next, int iPart)	= 0;
 
 
@@ -189,7 +189,7 @@ public:
 	virtual int					Del_Point			(                    int iPoint, int iPart = 0)		{	return( -1 );				}
 
 	virtual int					Del_Part			(int iPart)											{	return( -1 );				}
-	virtual int					Del_AllParts		(void)												{	return( -1 );				}
+	virtual int					Del_Parts			(void)												{	return( -1 );				}
 
 	virtual int					Get_Part_Count		(void)												{	return( 1 );				}
 	virtual int					Get_Point_Count		(int iPart)											{	return( 1 );				}
@@ -241,7 +241,7 @@ public:
 	virtual int					Del_Point			(                    int iPoint, int iPart = 0);
 
 	virtual int					Del_Part			(int iPart);
-	virtual int					Del_AllParts		(void);
+	virtual int					Del_Parts			(void);
 
 	virtual int					Get_Part_Count		(void)
 	{
@@ -488,16 +488,16 @@ protected:
 
 //---------------------------------------------------------
 /** Safe shapes construction */
-SAGA_API_DLL_EXPORT CShapes *	SG_Create_Shapes		(void);
+SAGA_API_DLL_EXPORT CShapes *	SG_Create_Shapes	(void);
 
 /** Safe shapes construction */
-SAGA_API_DLL_EXPORT CShapes *	SG_Create_Shapes		(const CShapes &Shapes);
+SAGA_API_DLL_EXPORT CShapes *	SG_Create_Shapes	(const CShapes &Shapes);
 
 /** Safe shapes construction */
-SAGA_API_DLL_EXPORT CShapes *	SG_Create_Shapes		(const char *FileName);
+SAGA_API_DLL_EXPORT CShapes *	SG_Create_Shapes	(const char *FileName);
 
 /** Safe shapes construction */
-SAGA_API_DLL_EXPORT CShapes *	SG_Create_Shapes		(TShape_Type Type, char *Name = NULL, CTable *pStructure = NULL);
+SAGA_API_DLL_EXPORT CShapes *	SG_Create_Shapes	(TShape_Type Type, char *Name = NULL, CTable *pStructure = NULL);
 
 
 ///////////////////////////////////////////////////////////
@@ -515,18 +515,18 @@ public:
 
 	virtual ~CShapes_Search(void);
 
-	bool					Create				(CShapes *pPoints);
-	void					Destroy				(void);
+	bool						Create				(CShapes *pPoints);
+	void						Destroy				(void);
 
-	bool					is_Valid			(void)	{	return( m_nPoints > 0 );	}
+	bool						is_Valid			(void)	{	return( m_nPoints > 0 );	}
 
-	CShape *				Get_Point_Nearest	(double x, double y);
-	CShape *				Get_Point_Nearest	(double x, double y, int iQuadrant);
+	CShape *					Get_Point_Nearest	(double x, double y);
+	CShape *					Get_Point_Nearest	(double x, double y, int iQuadrant);
 
-	int						Select_Radius		(double x, double y, double Radius, bool bSort = false, int MaxPoints = -1);
-	int						Get_Selected_Count	(void)	{	return( m_nSelected );		}
+	int							Select_Radius		(double x, double y, double Radius, bool bSort = false, int MaxPoints = -1);
+	int							Get_Selected_Count	(void)	{	return( m_nSelected );		}
 
-	CShape *				Get_Selected_Point	(int iSelected)
+	CShape *					Get_Selected_Point	(int iSelected)
 	{
 		if( iSelected >= 0 && iSelected < m_nSelected )
 		{
@@ -542,26 +542,26 @@ public:
 
 protected:
 
-	bool					m_bDestroy;
+	bool						m_bDestroy;
 
-	int						m_nPoints, m_nSelected, m_Selected_Buf;
+	int							m_nPoints, m_nSelected, m_Selected_Buf;
 
-	double					*m_Selected_Dst;
+	double						*m_Selected_Dst;
 
-	TSG_Point				*m_Pos;
+	TSG_Point					*m_Pos;
 
-	CSG_Index				m_Idx, m_Selected_Idx;
+	CSG_Index					m_Idx, m_Selected_Idx;
 
-	CShape					**m_Selected;
+	CShape						**m_Selected;
 
-	CShapes					*m_pPoints;
+	CShapes						*m_pPoints;
 
 
-	void					_On_Construction	(void);
+	void						_On_Construction	(void);
 
-	int						_Get_Index_Next		(double Position);
-	int						_Get_Point_Nearest	(double x, double y, int iQuadrant);
-	void					_Select_Add			(CShape *pPoint, double Distance);
+	int							_Get_Index_Next		(double Position);
+	int							_Get_Point_Nearest	(double x, double y, int iQuadrant);
+	void						_Select_Add			(CShape *pPoint, double Distance);
 
 };
 

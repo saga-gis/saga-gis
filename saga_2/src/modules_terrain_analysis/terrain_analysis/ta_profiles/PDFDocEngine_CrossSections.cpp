@@ -719,9 +719,9 @@ void CPDFDocEngine_CrossSections::CalculateAreas(TSG_Point * pCrossSection,
 		fNegativeArea = 0;
 	}//else
 
-	pCrossSectionShape->Del_AllParts();
-	pRoadShape->Del_AllParts();
-	pResultShape->Del_AllParts();
+	pCrossSectionShape->Del_Parts();
+	pRoadShape->Del_Parts();
+	pResultShape->Del_Parts();
 	
 	for (i = 0; i < iRoadPoints; i++){
 		pRoadShape->Add_Point(pRoadSection[i].x, pRoadSection[i].y + fHeight);
@@ -1019,7 +1019,7 @@ bool CPDFDocEngine_CrossSections::GPC_Intersection(CShape *pShape_A, CShape *pSh
 
 		if( poly_AB.num_contours > 0 )
 		{
-			pShape_AB->Del_AllParts();
+			pShape_AB->Del_Parts();
 
 			for(iPart=0; iPart<poly_AB.num_contours; iPart++)
 			{

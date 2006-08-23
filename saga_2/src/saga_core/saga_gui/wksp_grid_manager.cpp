@@ -242,7 +242,7 @@ CGrid * CWKSP_Grid_Manager::Get_byFileName(const char *File_Name)
 	{
 		for(int j=0; j<Get_System(i)->Get_Count(); j++)
 		{
-			if( !s.Cmp(Get_System(i)->Get_Grid(j)->Get_Grid()->Get_File_Path()) )
+			if( !s.Cmp(Get_System(i)->Get_Grid(j)->Get_Grid()->Get_File_Name()) )
 			{
 				return( Get_System(i)->Get_Grid(j)->Get_Grid() );
 			}

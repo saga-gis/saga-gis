@@ -170,7 +170,7 @@ bool CWKSP_Layer::On_Command(int Cmd_ID)
 	case ID_CMD_SHAPES_SAVE:
 	case ID_CMD_GRIDS_SAVE:
 	case ID_CMD_TIN_SAVE:
-		Save(m_pObject->Get_File_Path());
+		Save(m_pObject->Get_File_Name());
 		break;
 
 	case ID_CMD_SHAPES_SAVEAS:
@@ -201,7 +201,7 @@ bool CWKSP_Layer::On_Command_UI(wxUpdateUIEvent &event)
 	case ID_CMD_TIN_SAVE:
 	case ID_CMD_GRIDS_SAVE:
 	case ID_CMD_SHAPES_SAVE:
-		event.Enable(m_pObject->is_Modified() && m_pObject->Get_File_Path() && strlen(m_pObject->Get_File_Path()) > 0);
+		event.Enable(m_pObject->is_Modified() && m_pObject->Get_File_Name() && strlen(m_pObject->Get_File_Name()) > 0);
 		break;
 	}
 
