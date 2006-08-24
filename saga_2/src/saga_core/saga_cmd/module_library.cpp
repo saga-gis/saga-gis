@@ -74,6 +74,17 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define GET_ID1(p)		(p->Get_Owner()->Get_Identifier() && p->Get_Owner()->Get_Identifier()[0] != '\0' ? wxString::Format("%s_%s", p->Get_Owner()->Get_Identifier(), p->Get_Identifier()) : wxString::Format(p->Get_Identifier()))
+#define GET_ID2(p, s)	wxString::Format("%s_%s", GET_ID1(p).c_str(), s)
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CModule_Library::CModule_Library(void)
 {
 	m_nModules	= 0;
@@ -180,7 +191,6 @@ void CModule_Library::Destroy(void)
 CModule * CModule_Library::Select(const char *ModuleName)
 {
 	int			i;
-	CParameters	*pParameters;
 	wxString	Description;
 
 	//-----------------------------------------------------
@@ -214,18 +224,11 @@ CModule * CModule_Library::Select(const char *ModuleName)
 	{
 		m_pCMD	= new wxCmdLineParser;
 
-		_Set_CMD(m_pCMD, m_pSelected->Get_Parameters());
+		_Set_CMD(m_pSelected->Get_Parameters(), false);
 
 		for(i=0; i<m_pSelected->Get_Extra_Parameters_Count(); i++)
 		{
-			pParameters	= m_pSelected->Get_Extra_Parameters(i);
-
-			if( pParameters->Get_Count() > 0 )
-			{
-				Description.Printf("[%s] %s", LNG("parameters"), pParameters->Get_Description());
-
-				m_pCMD->AddOption(pParameters->Get_Identifier(), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-			}
+			_Set_CMD(m_pSelected->Get_Extra_Parameters(i), true);
 		}
 	}
 
@@ -244,11 +247,16 @@ bool CModule_Library::Execute(int argc, char *argv[])
 {
 	bool	bResult	= false;
 
-	if( _Get_CMD(m_pCMD, m_pSelected->Get_Parameters(), argc, argv) )
+	if( m_pSelected && m_pCMD )
 	{
-		bResult	= m_pSelected->Execute();
+		m_pCMD->SetCmdLine(argc, argv);
 
-		_Destroy_DataObjects(bResult);
+		if( _Get_CMD(m_pSelected->Get_Parameters()) )
+		{
+			bResult	= m_pSelected->Execute();
+
+			_Destroy_DataObjects(bResult);
+		}
 	}
 
 	if( !bResult )
@@ -262,42 +270,7 @@ bool CModule_Library::Execute(int argc, char *argv[])
 //---------------------------------------------------------
 bool CModule_Library::Get_Parameters(CParameters *pParameters)
 {
-	wxString		s;
-	wxCmdLineParser	CMD;
-
-	if( !pParameters )
-	{
-		Print_Error(LNG("extra parameters"), "null");
-	}
-	else if( pParameters->Get_Count() <= 0 )
-	{
-		return( true );
-	}
-	else if( !m_pCMD || !m_pCMD->Found(pParameters->Get_Identifier(), &s) )
-	{
-		for(int i=0; i<pParameters->Get_Count(); i++)
-		{
-			if( !pParameters->Get_Parameter(i)->is_Option() && !pParameters->Get_Parameter(i)->is_Optional() )
-			{
-				Print_Error(LNG("extra parameters needed"), pParameters->Get_Identifier());
-
-				return( false );
-			}
-		}
-
-		return( true );
-	}
-	else
-	{
-		_Set_CMD(&CMD, pParameters);
-
-		if( _Get_CMD(&CMD, pParameters, s) )
-		{
-			return( true );
-		}
-	}
-
-	return( false );
+	return( _Get_CMD(pParameters) );
 }
 
 
@@ -308,15 +281,15 @@ bool CModule_Library::Get_Parameters(CParameters *pParameters)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CModule_Library::_Set_CMD(wxCmdLineParser *pCMD, CParameters *pParameters)
+void CModule_Library::_Set_CMD(CParameters *pParameters, bool bExtra)
 {
 	CParameter	*pParameter;
 	wxString	Description;
 
 	//-----------------------------------------------------
-	if( pCMD && pParameters )
+	if( m_pCMD && pParameters )
 	{
-		pCMD->SetSwitchChars("-");
+		m_pCMD->SetSwitchChars("-");
 
 		for(int i=0; i<pParameters->Get_Count(); i++)
 		{
@@ -325,10 +298,10 @@ void CModule_Library::_Set_CMD(wxCmdLineParser *pCMD, CParameters *pParameters)
 
 			if( pParameter->is_Input() || pParameter->is_Output() )
 			{
-				pCMD->AddOption(
-					pParameter->Get_Identifier(), wxEmptyString, Description,
+				m_pCMD->AddOption(
+					GET_ID1(pParameter), wxEmptyString, Description,
 					wxCMD_LINE_VAL_STRING,
-					wxCMD_LINE_NEEDS_SEPARATOR | (pParameter->is_Optional() ? wxCMD_LINE_PARAM_OPTIONAL : wxCMD_LINE_OPTION_MANDATORY)
+					wxCMD_LINE_NEEDS_SEPARATOR | (pParameter->is_Optional() || bExtra ? wxCMD_LINE_PARAM_OPTIONAL : wxCMD_LINE_OPTION_MANDATORY)
 				);
 			}
 			else if( pParameter->is_Option() && !pParameter->is_Information() )
@@ -339,33 +312,44 @@ void CModule_Library::_Set_CMD(wxCmdLineParser *pCMD, CParameters *pParameters)
 					break;
 
 				case PARAMETER_TYPE_Bool:
-					pCMD->AddSwitch(pParameter->Get_Identifier(), wxEmptyString, Description, wxCMD_LINE_PARAM_OPTIONAL);
+					m_pCMD->AddSwitch(GET_ID1(pParameter), wxEmptyString, Description, wxCMD_LINE_PARAM_OPTIONAL);
 					break;
 
 				case PARAMETER_TYPE_Int:
 				case PARAMETER_TYPE_Choice:
 				case PARAMETER_TYPE_Table_Field:
-					pCMD->AddOption(pParameter->Get_Identifier(), wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
+					m_pCMD->AddOption(GET_ID1(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
 					break;
 
 				case PARAMETER_TYPE_Double:
 				case PARAMETER_TYPE_Degree:
-					pCMD->AddOption(pParameter->Get_Identifier(), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+					m_pCMD->AddOption(GET_ID1(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
 					break;
 
 				case PARAMETER_TYPE_Range:
-					pCMD->AddOption(wxString::Format("%s_MIN", pParameter->Get_Identifier()), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-					pCMD->AddOption(wxString::Format("%s_MAX", pParameter->Get_Identifier()), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+					m_pCMD->AddOption(GET_ID2(pParameter, "MIN"), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+					m_pCMD->AddOption(GET_ID2(pParameter, "MAX"), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
 					break;
 
 				case PARAMETER_TYPE_String:
 				case PARAMETER_TYPE_Text:
 				case PARAMETER_TYPE_FilePath:
-					pCMD->AddOption(pParameter->Get_Identifier(), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+					m_pCMD->AddOption(GET_ID1(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
 					break;
 
 				case PARAMETER_TYPE_FixedTable:
-					pCMD->AddOption(pParameter->Get_Identifier(), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+					m_pCMD->AddOption(GET_ID1(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+					break;
+
+				case PARAMETER_TYPE_Grid_System:
+					if( pParameter->Get_Children_Count() == 0 )
+					{
+						m_pCMD->AddOption(GET_ID2(pParameter, "NX"), wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
+						m_pCMD->AddOption(GET_ID2(pParameter, "NY"), wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
+						m_pCMD->AddOption(GET_ID2(pParameter,  "X"), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+						m_pCMD->AddOption(GET_ID2(pParameter,  "Y"), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+						m_pCMD->AddOption(GET_ID2(pParameter,  "D"), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+					}
 					break;
 				}
 			}
@@ -374,31 +358,7 @@ void CModule_Library::_Set_CMD(wxCmdLineParser *pCMD, CParameters *pParameters)
 }
 
 //---------------------------------------------------------
-bool CModule_Library::_Get_CMD(wxCmdLineParser *pCMD, CParameters *pParameters, wxString cmdLine)
-{
-	if( pCMD && pParameters )
-	{
-		pCMD->SetCmdLine(cmdLine);
-
-		return( _Get_CMD(pCMD, pParameters) );
-	}
-
-	return( false );
-}
-
-bool CModule_Library::_Get_CMD(wxCmdLineParser *pCMD, CParameters *pParameters, int argc, char *argv[])
-{
-	if( pCMD && pParameters )
-	{
-		pCMD->SetCmdLine(argc, argv);
-
-		return( _Get_CMD(pCMD, pParameters) );
-	}
-
-	return( false );
-}
-
-bool CModule_Library::_Get_CMD(wxCmdLineParser *pCMD, CParameters *pParameters)
+bool CModule_Library::_Get_CMD(CParameters *pParameters)
 {
 	int			i;
 	long		l;
@@ -407,7 +367,7 @@ bool CModule_Library::_Get_CMD(wxCmdLineParser *pCMD, CParameters *pParameters)
 	wxString	s;
 
 	//-----------------------------------------------------
-	if( pCMD && pParameters && !pCMD->Parse() && _Create_DataObjects(pCMD, pParameters) )
+	if( m_pCMD && pParameters && !m_pCMD->Parse() && _Create_DataObjects(pParameters) )
 	{
 		for(i=0; i<pParameters->Get_Count(); i++)
 		{
@@ -419,13 +379,13 @@ bool CModule_Library::_Get_CMD(wxCmdLineParser *pCMD, CParameters *pParameters)
 				break;
 
 			case PARAMETER_TYPE_Bool:
-				pParameter->Set_Value(pCMD->Found(pParameter->Get_Identifier()) ? 1 : 0);
+				pParameter->Set_Value(m_pCMD->Found(GET_ID1(pParameter)) ? 1 : 0);
 				break;
 
 			case PARAMETER_TYPE_Int:
 			case PARAMETER_TYPE_Choice:
 			case PARAMETER_TYPE_Table_Field:
-				if( pCMD->Found(pParameter->Get_Identifier(), &l) )
+				if( m_pCMD->Found(GET_ID1(pParameter), &l) )
 				{
 					pParameter->Set_Value((int)l);
 				}
@@ -433,19 +393,19 @@ bool CModule_Library::_Get_CMD(wxCmdLineParser *pCMD, CParameters *pParameters)
 
 			case PARAMETER_TYPE_Double:
 			case PARAMETER_TYPE_Degree:
-				if( pCMD->Found(pParameter->Get_Identifier(), &s) && s.ToDouble(&d) )
+				if( m_pCMD->Found(GET_ID1(pParameter), &s) && s.ToDouble(&d) )
 				{
 					pParameter->Set_Value(d);
 				}
 				break;
 
 			case PARAMETER_TYPE_Range:
-				if( pCMD->Found(wxString::Format("%s_MIN", pParameter->Get_Identifier()), &s) && s.ToDouble(&d) )
+				if( m_pCMD->Found(GET_ID2(pParameter, "MIN"), &s) && s.ToDouble(&d) )
 				{
 					pParameter->asRange()->Set_LoVal(d);
 				}
 
-				if( pCMD->Found(wxString::Format("%s_MAX", pParameter->Get_Identifier()), &s) && s.ToDouble(&d) )
+				if( m_pCMD->Found(GET_ID2(pParameter, "MIN"), &s) && s.ToDouble(&d) )
 				{
 					pParameter->asRange()->Set_HiVal(d);
 				}
@@ -454,17 +414,33 @@ bool CModule_Library::_Get_CMD(wxCmdLineParser *pCMD, CParameters *pParameters)
 			case PARAMETER_TYPE_String:
 			case PARAMETER_TYPE_Text:
 			case PARAMETER_TYPE_FilePath:
-				if( pCMD->Found(pParameter->Get_Identifier(), &s) )
+				if( m_pCMD->Found(GET_ID1(pParameter), &s) )
 				{
 					pParameter->Set_Value(s.c_str());
 				}
 				break;
 
 			case PARAMETER_TYPE_FixedTable:
-				if( pCMD->Found(pParameter->Get_Identifier(), &s) )
+				if( m_pCMD->Found(GET_ID1(pParameter), &s) )
 				{
 					CTable	Table(s.c_str());
 					pParameter->asTable()->Assign_Values(&Table);
+				}
+				break;
+
+			case PARAMETER_TYPE_Grid_System:
+				if( pParameter->Get_Children_Count() == 0 )
+				{
+					int		nx, ny;
+					double	d, x, y;
+
+					if( !m_pCMD->Found(GET_ID2(pParameter, "NX"), &l) )	nx	= 1;	else	nx	= (int)l;
+					if( !m_pCMD->Found(GET_ID2(pParameter, "NY"), &l) )	ny	= nx;	else	ny	= (int)l;
+					if( !m_pCMD->Found(GET_ID2(pParameter,  "X"), &s) || !s.ToDouble(&x) )	x	= 0.0;
+					if( !m_pCMD->Found(GET_ID2(pParameter,  "Y"), &s) || !s.ToDouble(&y) )	y	= 0.0;
+					if( !m_pCMD->Found(GET_ID2(pParameter,  "D"), &s) || !s.ToDouble(&d) )	d	= 1.0;
+
+					pParameter->asGrid_System()->Assign(d, x, y, nx, ny);
 				}
 				break;
 			}
@@ -484,14 +460,14 @@ bool CModule_Library::_Get_CMD(wxCmdLineParser *pCMD, CParameters *pParameters)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CModule_Library::_Create_DataObjects(wxCmdLineParser *pCMD, CParameters *pParameters)
+bool CModule_Library::_Create_DataObjects(CParameters *pParameters)
 {
 	int			j;
 	CDataObject	*pObject;
 	CParameter	*pParameter;
 	wxString	s;
 
-	if( pParameters && pCMD )
+	if( pParameters && m_pCMD )
 	{
 		for(j=0; j<pParameters->Get_Count(); j++)
 		{
@@ -499,7 +475,7 @@ bool CModule_Library::_Create_DataObjects(wxCmdLineParser *pCMD, CParameters *pP
 
 			if(	pParameter->is_DataObject() || pParameter->is_DataObject_List() )
 			{
-				if( pCMD->Found(pParameter->Get_Identifier(), &s) )
+				if( m_pCMD->Found(GET_ID1(pParameter), &s) )
 				{
 					if( pParameter->is_Input() )
 					{
@@ -544,7 +520,7 @@ bool CModule_Library::_Create_DataObjects(wxCmdLineParser *pCMD, CParameters *pP
 						{
 							if( !_Create_DataObject_List(pParameter, s) && !pParameter->is_Optional() )
 							{
-								Print_Error(LNG("empty input list"), pParameter->Get_Identifier());
+								Print_Error(LNG("empty input list"), GET_ID1(pParameter));
 
 								return( false );
 							}
@@ -656,12 +632,12 @@ bool CModule_Library::_Destroy_DataObjects(bool bSave)
 {
 	if( m_pSelected && m_pCMD )
 	{
-		_Destroy_DataObjects(bSave, m_pCMD, m_pSelected->Get_Parameters());
+		_Destroy_DataObjects(bSave, m_pSelected->Get_Parameters());
 
 		for(int i=0; i<m_pSelected->Get_Extra_Parameters_Count(); i++)
 		{
 			// to be done...
-			_Destroy_DataObjects(bSave, m_pCMD, m_pSelected->Get_Extra_Parameters(i));
+			_Destroy_DataObjects(bSave, m_pSelected->Get_Extra_Parameters(i));
 		}
 
 		return( true );
@@ -671,19 +647,19 @@ bool CModule_Library::_Destroy_DataObjects(bool bSave)
 }
 
 //---------------------------------------------------------
-bool CModule_Library::_Destroy_DataObjects(bool bSave, wxCmdLineParser *pCMD, CParameters *pParameters)
+bool CModule_Library::_Destroy_DataObjects(bool bSave, CParameters *pParameters)
 {
 	int			i, j;
 	CParameter	*pParameter;
 	wxString	s;
 
-	if( pParameters && pCMD )
+	if( pParameters && m_pCMD )
 	{
 		for(j=0; j<pParameters->Get_Count(); j++)
 		{
 			pParameter	= pParameters->Get_Parameter(j);
 
-			if( bSave && pParameter->is_Output() && pCMD->Found(pParameter->Get_Identifier(), &s) )
+			if( bSave && pParameter->is_Output() && m_pCMD->Found(GET_ID1(pParameter), &s) )
 			{
 				if( pParameter->is_DataObject() )
 				{

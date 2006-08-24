@@ -117,17 +117,14 @@ private:
 	class wxCmdLineParser		*m_pCMD;
 
 
-	void						_Set_CMD				(class wxCmdLineParser *pCMD, class CParameters *pParameters);
+	void						_Set_CMD				(class CParameters *pParameters, bool bExtra);
+	bool						_Get_CMD				(class CParameters *pParameters);
 
-	bool						_Get_CMD				(class wxCmdLineParser *pCMD, class CParameters *pParameters, wxString cmdLine);
-	bool						_Get_CMD				(class wxCmdLineParser *pCMD, class CParameters *pParameters, int argc, char *argv[]);
-	bool						_Get_CMD				(class wxCmdLineParser *pCMD, class CParameters *pParameters);
-
-	bool						_Create_DataObjects		(class wxCmdLineParser *pCMD, class CParameters *pParameters);
+	bool						_Create_DataObjects		(class CParameters *pParameters);
 	bool						_Create_DataObject_List	(class CParameter *pParameter, wxString sList);
 
 	bool						_Destroy_DataObjects	(bool bSave);
-	bool						_Destroy_DataObjects	(bool bSave, class wxCmdLineParser *pCMD, class CParameters *pParameters);
+	bool						_Destroy_DataObjects	(bool bSave, class CParameters *pParameters);
 
 };
 
