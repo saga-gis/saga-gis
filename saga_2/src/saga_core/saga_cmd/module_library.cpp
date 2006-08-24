@@ -294,7 +294,9 @@ void CModule_Library::_Set_CMD(CParameters *pParameters, bool bExtra)
 		for(int i=0; i<pParameters->Get_Count(); i++)
 		{
 			pParameter	= pParameters->Get_Parameter(i);
-			Description	= pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE|PARAMETER_DESCRIPTION_PROPERTIES, "\n\t").c_str();
+			Description	= pParameter->Get_Description(
+							PARAMETER_DESCRIPTION_NAME|PARAMETER_DESCRIPTION_TYPE|PARAMETER_DESCRIPTION_PROPERTIES, "\n\t"
+						).c_str();
 
 			if( pParameter->is_Input() || pParameter->is_Output() )
 			{
