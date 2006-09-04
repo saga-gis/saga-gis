@@ -123,8 +123,17 @@ CTOPMODEL::CTOPMODEL(void)
 		"Thus with long (daily) time steps contributing area depends on "
 		"initial value together with any volume filling effect of daily "
 		"inputs.  Also baseflow at start of time step is used to update "
-		"SBAR at end of time step.")
-	);
+		"SBAR at end of time step."
+
+		"\n\nReferences\n"
+		"- Beven, K., Kirkby, M.J., Schofield, N., Tagg, A.F. (1984): "
+		"  Testing a physically-based flood forecasting model (TOPMODEL) for threee U.K. catchments, "
+		"  Journal of Hydrology, H.69, S.119-143.\n"
+		"\n"
+		"- Beven, K. (1997): "
+		"  TOPMODEL - a critique, "
+		"  Hydrological Processes, Vol.11, pp.1069-1085.\n"
+	));
 
 
 	//-----------------------------------------------------

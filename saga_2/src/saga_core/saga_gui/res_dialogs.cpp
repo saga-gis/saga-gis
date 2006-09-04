@@ -156,14 +156,14 @@ const char * DLG_Get_FILE_Caption(int ID_DLG)
 	case ID_DLG_TABLES_OPEN:		return( LNG("[CAP] Load Table") );
 	case ID_DLG_TABLES_SAVE:		return( LNG("[CAP] Save Table") );
 
-	case ID_DLG_TIN_OPEN:			return( LNG("[CAP] Load T.I.N.") );
-	case ID_DLG_TIN_SAVE:			return( LNG("[CAP] Save T.I.N.") );
+	case ID_DLG_TIN_OPEN:			return( LNG("[CAP] Load TIN") );
+	case ID_DLG_TIN_SAVE:			return( LNG("[CAP] Save TIN") );
 
 	case ID_DLG_TEXT_OPEN:			return( LNG("[CAP] Load Text") );
 	case ID_DLG_TEXT_SAVE:			return( LNG("[CAP] Save Text") );
 
-	case ID_DLG_PARAMETERS_OPEN:	return( LNG("[CAP] Load Parameters") );
-	case ID_DLG_PARAMETERS_SAVE:	return( LNG("[CAP] Save Parameters") );
+	case ID_DLG_PARAMETERS_OPEN:	return( LNG("[CAP] Load Settings") );
+	case ID_DLG_PARAMETERS_SAVE:	return( LNG("[CAP] Save Settings") );
 
 	case ID_DLG_COLORS_OPEN:		return( LNG("[CAP] Load Colors") );
 	case ID_DLG_COLORS_SAVE:		return( LNG("[CAP] Save Colors") );

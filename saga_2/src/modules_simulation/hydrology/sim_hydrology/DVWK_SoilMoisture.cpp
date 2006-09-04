@@ -73,20 +73,21 @@ CDVWK_SoilMoisture::CDVWK_SoilMoisture(void)
 	CParameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name	(_TL("DVWK - Distributed Soil Moisture Model"));
+	Set_Name	(_TL("Soil Moisture Content"));
 
 	Set_Author	(_TL("Copyrights (c) 2002 by Olaf Conrad"));
 
 	Set_Description(_TL(
-		"The WEELS (Wind Erosion on European Light Soils) distributed soil moisture "
-		"model dynamically calculates the soil moisture based on data about:\n"
+		"The WEELS (Wind Erosion on European Light Soils) soil moisture "
+		"model dynamically calculates the soil moisture based on the rules "
+		"proposed by the DVWK (1996) with input data about:\n"
 		"- soil properties (grids: field capacity and permanent wilting point)\n"
 		"- land use (grid: crop types)\n"
 		"- climate (table: daily values of precipitation, temperature, air humidity)\n\n"
 
 		"References:\n"
 
-		"- Deutscher Verband fuer Wasserwirtschaft und Kulturbau e.V. (1996): "
+		"- DVWK - Deutscher Verband fuer Wasserwirtschaft und Kulturbau e.V. (1996): "
 		"'Ermittlung der Verdunstung von Land- und Wasserflaechen', "
 		"DVWK Merkblaetter 238/1996, Bonn, 135p.\n"
 

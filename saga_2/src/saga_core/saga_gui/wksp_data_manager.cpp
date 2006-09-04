@@ -310,7 +310,7 @@ wxString CWKSP_Data_Manager::Get_Description(void)
 
 		if( Get_TINs() )
 		{
-			s.Append(wxString::Format("%s: %d<br>", LNG("[CAP] T.I.N."), Get_TINs()->Get_Count()));
+			s.Append(wxString::Format("%s: %d<br>", LNG("[CAP] TIN"), Get_TINs()->Get_Count()));
 		}
 
 		if( Get_Grids() )

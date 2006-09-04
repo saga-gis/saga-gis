@@ -889,22 +889,22 @@ bool CWKSP_Shapes::_Chart_Set_Options(void)
 			);
 
 			pChart->Add_Choice(
-				NULL, "SIZE_FIELD"		, LNG("[CAP] Size by Attribute"),
+				NULL, "SIZE_FIELD"		, LNG("[CAP] Attribute (Size)"),
 				"",
 				CSG_String::Format("%s|", LNG("[VAL] [not set]")), 0
 			);
 
 			pChart->Add_Choice(
-				NULL, "SIZE_TYPE"		, LNG("[CAP] Display Size"),
+				NULL, "SIZE_TYPE"		, LNG("[CAP] Size relates to..."),
 				"",
 				wxString::Format("%s|%s|",
-					LNG("[VAL] Fixed Size"),
-					LNG("[VAL] Size to Map Units")
+					LNG("[VAL] Screen"),
+					LNG("[VAL] Map Units")
 				), 0
 			);
 
 			pChart->Add_Value(
-				NULL, "SIZE_DEFAULT"	, LNG("[CAP] Default"),
+				NULL, "SIZE_DEFAULT"	, LNG("[CAP] Default Size"),
 				"",
 				PARAMETER_TYPE_Double, 15, 0, true
 			);

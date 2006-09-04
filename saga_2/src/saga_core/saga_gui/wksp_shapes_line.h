@@ -93,9 +93,9 @@ protected:
 
 	bool						m_bPoints;
 
-	int							m_iSize, m_Size;
+	int							m_iSize, m_Size_Type;
 
-	double						m_dSize, m_Size_Min;
+	double						m_Size, m_dSize, m_Size_Min;
 
 	wxPen						m_Pen;
 

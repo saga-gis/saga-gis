@@ -23,21 +23,27 @@
 
 #include "MLB_Interface.h"
 
-class CCellBalance : public CModule_Grid {
-
-private:
-	CGrid *m_pDEM;
-	CGrid *m_pParameter;
-	CGrid *m_pCellBalance;
-	double getCellBalance(int, int);
-
+class CCellBalance : public CModule_Grid
+{
 public:
 	CCellBalance(void);
 	virtual ~CCellBalance(void);
 
 
 protected:
-	virtual bool		On_Execute(void);
+
+	virtual bool		On_Execute		(void);
+
+
+private:
+
+	CGrid				*m_pDEM, *m_pBalance;
+
+
+	void				Set_D8			(int x, int y, double Weight);
+	void				Set_MFD			(int x, int y, double Weight);
+
+//	double				getCellBalance	(int x, int y);
 
 };
 

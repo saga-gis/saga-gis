@@ -84,7 +84,7 @@ CTIN_Flow_Trace::CTIN_Flow_Trace(void)
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_TIN(
-		NULL	, "DEM"			, "T.I.N.",
+		NULL	, "DEM"			, "TIN",
 		"",
 		PARAMETER_INPUT
 	);

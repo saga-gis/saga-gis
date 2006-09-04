@@ -73,12 +73,12 @@ CTIN_From_Shapes::CTIN_From_Shapes(void)
 	CParameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name(_TL("Shapes to T.I.N."));
+	Set_Name(_TL("Shapes to TIN"));
 
 	Set_Author(_TL("Copyrights (c) 2004 by Olaf Conrad"));
 
 	Set_Description(
-		_TL("Convert a shapes layer to a T.I.N.\n\n")
+		_TL("Convert a shapes layer to a TIN\n\n")
 	);
 
 
@@ -90,7 +90,7 @@ CTIN_From_Shapes::CTIN_From_Shapes(void)
 	);
 
 	pNode	= Parameters.Add_TIN(
-		NULL	, "TIN"			, "T.I.N.",
+		NULL	, "TIN"			, "TIN",
 		"",
 		PARAMETER_OUTPUT
 	);

@@ -120,7 +120,7 @@ void CWKSP_Data_Menu_Files::Add(wxMenu *pMenu)
 	pMenu->AppendSeparator();
 	pMenu->Append(ID_CMD_TABLES_FIRST, LNG("[MNU] Table")  , m_pFMTables	->Create());
 	pMenu->Append(ID_CMD_SHAPES_FIRST, LNG("[MNU] Shapes") , m_pFMShapes	->Create());
-	pMenu->Append(ID_CMD_TIN_FIRST   , LNG("[MNU] T.I.N.") , m_pFMTINs		->Create());
+	pMenu->Append(ID_CMD_TIN_FIRST   , LNG("[MNU] TIN")    , m_pFMTINs		->Create());
 	pMenu->Append(ID_CMD_GRIDS_FIRST , LNG("[MNU] Grid")   , m_pFMGrids		->Create());
 
 	pMenu->AppendSeparator();

@@ -71,12 +71,12 @@
 CTIN_From_Grid::CTIN_From_Grid(void)
 {
 	//-----------------------------------------------------
-	Set_Name(_TL("Grid to T.I.N."));
+	Set_Name(_TL("Grid to TIN"));
 
 	Set_Author(_TL("Copyrights (c) 2004 by Olaf Conrad"));
 
 	Set_Description(
-		_TL("Creates a T.I.N. from grid points. No data values will be ignored.\n\n")
+		_TL("Creates a TIN from grid points. No data values will be ignored.\n\n")
 	);
 
 
@@ -94,7 +94,7 @@ CTIN_From_Grid::CTIN_From_Grid(void)
 	);
 
 	Parameters.Add_TIN(
-		NULL	, "TIN"			, "T.I.N.",
+		NULL	, "TIN"			, "TIN",
 		"",
 		PARAMETER_OUTPUT
 	);

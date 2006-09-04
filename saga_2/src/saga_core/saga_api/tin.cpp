@@ -200,7 +200,7 @@ bool CTIN::Create(CShapes *pShapes)
 	{
 		Destroy();
 
-		SG_UI_Msg_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Create T.I.N. from shapes"), pShapes->Get_Name()), true);
+		SG_UI_Msg_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Create TIN from shapes"), pShapes->Get_Name()), true);
 
 		Set_Name(pShapes->Get_Name());
 

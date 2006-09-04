@@ -102,9 +102,11 @@ CExercise_08::CExercise_08(void)
 	Parameters.Add_Choice(
 		NULL, "METHOD"		, _TL("Method"),
 		_TL("Choose a method"),
-		_TL(
-		"D8|"
-		"MFD|")
+
+		CSG_String::Format("%s|%s|",
+			_TL("D8"),
+			_TL("MFD")
+		)
 	);
 }
 

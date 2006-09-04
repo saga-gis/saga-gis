@@ -117,8 +117,17 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 		""
 	);
 
+	m_Parameters.Add_Choice(
+		m_Parameters("NODE_SIZE")	, "SIZE_TYPE"		, LNG("[CAP] Size relates to..."),
+		"",
+		wxString::Format("%s|%s|",
+			LNG("[VAL] Screen"),
+			LNG("[VAL] Map Units")
+		), 0
+	);
+
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_SIZE")	, "SIZE_DEFAULT"	, LNG("[CAP] Default"),
+		m_Parameters("NODE_SIZE")	, "SIZE_DEFAULT"	, LNG("[CAP] Default Size"),
 		"",
 		PARAMETER_TYPE_Int, 0, 0, true
 	);
@@ -151,16 +160,18 @@ void CWKSP_Shapes_Line::On_Parameters_Changed(void)
 	CWKSP_Shapes::On_Parameters_Changed();
 
 	//-----------------------------------------------------
-	if(	(m_iSize = m_Parameters("SIZE_ATTRIB")->asInt()) >= m_pShapes->Get_Table().Get_Field_Count()
-	||	(m_dSize = m_pShapes->Get_Table().Get_MaxValue(m_iSize) - (m_Size_Min = m_pShapes->Get_Table().Get_MinValue(m_iSize))) <= 0.0 )
+	m_Size_Type		= m_Parameters("SIZE_TYPE")->asInt();
+
+	if(	(m_iSize	= m_Parameters("SIZE_ATTRIB")->asInt()) >= m_pShapes->Get_Table().Get_Field_Count()
+	||	(m_dSize	= m_pShapes->Get_Table().Get_MaxValue(m_iSize) - (m_Size_Min = m_pShapes->Get_Table().Get_MinValue(m_iSize))) <= 0.0 )
 	{
-		m_iSize	= -1;
-		m_Size	= m_Parameters("SIZE_DEFAULT")->asInt();
+		m_iSize		= -1;
+		m_Size		= m_Parameters("SIZE_DEFAULT")->asInt();
 	}
 	else
 	{
-		m_Size	= (int)m_Parameters("SIZE_RANGE")->asRange()->Get_LoVal();
-		m_dSize	=     (m_Parameters("SIZE_RANGE")->asRange()->Get_HiVal() - m_Size) / m_dSize;
+		m_Size		= (int)m_Parameters("SIZE_RANGE")->asRange()->Get_LoVal();
+		m_dSize		=     (m_Parameters("SIZE_RANGE")->asRange()->Get_HiVal() - m_Size) / m_dSize;
 	}
 
 	//-----------------------------------------------------
@@ -194,7 +205,7 @@ int CWKSP_Shapes_Line::On_Parameter_Changed(CParameters *pParameters, CParameter
 //---------------------------------------------------------
 bool CWKSP_Shapes_Line::Get_Style(wxPen &Pen, wxString *pName)
 {
-	Pen		= wxPen(m_Def_Color, m_Size, wxSOLID);
+	Pen		= wxPen(m_Def_Color, (int)m_Size, wxSOLID);
 
 	if( pName )
 	{
@@ -216,8 +227,8 @@ bool CWKSP_Shapes_Line::Get_Style_Size(int &min_Size, int &max_Size, double &min
 {
 	if( m_iSize >= 0 )
 	{
-		min_Size	= m_Size;
-		max_Size	= m_Size + (int)((m_pShapes->Get_Table().Get_MaxValue(m_iSize) - m_Size_Min) * m_dSize);
+		min_Size	= (int)(m_Size);
+		max_Size	= (int)(m_Size + ((m_pShapes->Get_Table().Get_MaxValue(m_iSize) - m_Size_Min) * m_dSize));
 		min_Value	= m_Size_Min;
 		dValue		= m_dSize;
 
@@ -248,9 +259,6 @@ void CWKSP_Shapes_Line::_Draw_Initialize(CWKSP_Map_DC &dc_Map)
 //---------------------------------------------------------
 void CWKSP_Shapes_Line::_Draw_Shape(CWKSP_Map_DC &dc_Map, CShape *pShape, bool bSelection)
 {
-	int			iPart, iPoint;
-	TSG_Point_Int	ptA, ptB;
-
 	//-----------------------------------------------------
 	if( bSelection )
 	{
@@ -266,27 +274,40 @@ void CWKSP_Shapes_Line::_Draw_Shape(CWKSP_Map_DC &dc_Map, CShape *pShape, bool b
 			Pen.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
 		}
 
-		if( m_iSize >= 0 )
+		double	dSize	= m_iSize < 0 ? m_Size
+						: m_Size + (pShape->Get_Record()->asDouble(m_iSize) - m_Size_Min) * m_dSize;
+
+		switch( m_Size_Type )
 		{
-			Pen.SetWidth(m_Size + (int)(m_dSize * (pShape->Get_Record()->asDouble(m_iSize) - m_Size_Min)));
+		default:
+		case 0:	dSize	*= dc_Map.m_Scale;		break;
+		case 1:	dSize	*= dc_Map.m_World2DC;	break;
+		}
+
+		if( dSize >= 0 )
+		{
+			Pen.SetWidth((int)(0.5 + dSize));
 		}
 
 		dc_Map.dc.SetPen(Pen);
 	}
 
 	//-----------------------------------------------------
+	int				iPart, iPoint;
+	TSG_Point_Int	A, B;
+
 	for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 	{
 		if( pShape->Get_Point_Count(iPart) > 1 )
 		{
-			ptA		= dc_Map.World2DC(pShape->Get_Point(0, iPart));
+			A		= dc_Map.World2DC(pShape->Get_Point(0, iPart));
 
 			for(iPoint=1; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 			{
-				ptB		= ptA;
-				ptA		= dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
+				B		= A;
+				A		= dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
 
-				dc_Map.dc.DrawLine(ptA.x, ptA.y, ptB.x, ptB.y);
+				dc_Map.dc.DrawLine(A.x, A.y, B.x, B.y);
 			}
 		}
 	}
@@ -300,8 +321,8 @@ void CWKSP_Shapes_Line::_Draw_Shape(CWKSP_Map_DC &dc_Map, CShape *pShape, bool b
 		{
 			for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 			{
-				ptA		= dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
-				dc_Map.dc.DrawCircle(ptA.x, ptA.y, 2);
+				A		= dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
+				dc_Map.dc.DrawCircle(A.x, A.y, 2);
 			}
 		}
 	}
@@ -322,7 +343,7 @@ void CWKSP_Shapes_Line::_Draw_Label(CWKSP_Map_DC &dc_Map, CShape *pShape)
 	bool			bLabel;
 	int				iPart, iPoint;
 	double			d;
-	TSG_Point_Int		ptA, ptB;
+	TSG_Point_Int	A, B;
 	wxCoord			sx, sy;
 	wxString		s(pShape->Get_Record()->asString(m_iLabel, m_Label_Prec));
 
@@ -333,38 +354,38 @@ void CWKSP_Shapes_Line::_Draw_Label(CWKSP_Map_DC &dc_Map, CShape *pShape)
 	{
 		if( dc_Map.m_World2DC * ((CShape_Line *)pShape)->Get_Length(iPart) > (2 * m_Label_Freq) * sx )
 		{
-			ptA		= dc_Map.World2DC(pShape->Get_Point(0, iPart));
+			A		= dc_Map.World2DC(pShape->Get_Point(0, iPart));
 
 			for(iPoint=1, d=0.0, bLabel=false; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 			{
 				//-----------------------------------------
 				if( !bLabel )
 				{
-					ptB		= ptA;
-					ptA		= dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
+					B		= A;
+					A		= dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
 
-					if( (d += SG_Get_Distance(ptA.x, ptA.y, ptB.x, ptB.y)) > m_Label_Freq * sx )
+					if( (d += SG_Get_Distance(A.x, A.y, B.x, B.y)) > m_Label_Freq * sx )
 					{
 						bLabel	= true;
-						ptB		= ptA;
+						B		= A;
 					}
 				}
 
 				//-----------------------------------------
 				else
 				{
-					ptA		= dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
+					A		= dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
 
-					if( SG_Get_Distance(ptA.x, ptA.y, ptB.x, ptB.y) > sx )
+					if( SG_Get_Distance(A.x, A.y, B.x, B.y) > sx )
 					{
 						bLabel	= false;
 						d		= 0.0;
 
-						dc_Map.dc.DrawRotatedText(s, ptB.x, ptB.y, 
-							M_RAD_TO_DEG * SG_Get_Angle_Of_Direction(ptB.x - ptA.x, ptA.y - ptB.y)
+						dc_Map.dc.DrawRotatedText(s, B.x, B.y, 
+							M_RAD_TO_DEG * SG_Get_Angle_Of_Direction(B.x - A.x, A.y - B.y)
 						);
 
-					//	dc_Map.dc.DrawCircle(ptA.x, ptA.y, 3);	dc_Map.dc.DrawCircle(ptB.x, ptB.y, 3);
+					//	dc_Map.dc.DrawCircle(A.x, A.y, 3);	dc_Map.dc.DrawCircle(B.x, B.y, 3);
 					}
 				}
 			}

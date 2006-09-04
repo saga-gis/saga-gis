@@ -73,18 +73,18 @@ CTIN_To_Shapes::CTIN_To_Shapes(void)
 	CParameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name(_TL("T.I.N. to Shapes"));
+	Set_Name(_TL("TIN to Shapes"));
 
 	Set_Author(_TL("Copyrights (c) 2004 by Olaf Conrad"));
 
 	Set_Description(
-		_TL("Converts a T.I.N. data set to shapes layers.\n\n")
+		_TL("Converts a TIN data set to shapes layers.\n\n")
 	);
 
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_TIN(
-		NULL	, "TIN"			, "T.I.N.",
+		NULL	, "TIN"			, "TIN",
 		"",
 		PARAMETER_INPUT
 	);
@@ -147,7 +147,7 @@ bool CTIN_To_Shapes::On_Execute(void)
 
 	//-----------------------------------------------------
 	pShapes		= Parameters("POINTS")		->asShapes();
-	pShapes->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("%s [T.I.N.]"), pTIN->Get_Name()));
+	pShapes->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("%s [TIN]"), pTIN->Get_Name()));
 
 	pShapes->Get_Table().Add_Field("POINT_ID", TABLE_FIELDTYPE_Int);
 	for(j=0; j<pTIN->Get_Table().Get_Field_Count(); j++)
@@ -171,7 +171,7 @@ bool CTIN_To_Shapes::On_Execute(void)
 
 	//-----------------------------------------------------
 	pShapes		= Parameters("EDGES")	->asShapes();
-	pShapes->Create(SHAPE_TYPE_Line, CSG_String::Format(_TL("%s [T.I.N.]"), pTIN->Get_Name()));
+	pShapes->Create(SHAPE_TYPE_Line, CSG_String::Format(_TL("%s [TIN]"), pTIN->Get_Name()));
 
 	pShapes->Get_Table().Add_Field("ID"			, TABLE_FIELDTYPE_Int);
 	pShapes->Get_Table().Add_Field("POINT_ID_A"	, TABLE_FIELDTYPE_Int);
@@ -192,7 +192,7 @@ bool CTIN_To_Shapes::On_Execute(void)
 
 	//-----------------------------------------------------
 	pShapes		= Parameters("TRIANGLES")	->asShapes();
-	pShapes->Create(SHAPE_TYPE_Polygon, CSG_String::Format(_TL("%s [T.I.N.]"), pTIN->Get_Name()));
+	pShapes->Create(SHAPE_TYPE_Polygon, CSG_String::Format(_TL("%s [TIN]"), pTIN->Get_Name()));
 
 	pShapes->Get_Table().Add_Field("ID"			, TABLE_FIELDTYPE_Int);
 	pShapes->Get_Table().Add_Field("POINT_ID_A"	, TABLE_FIELDTYPE_Int);
@@ -216,7 +216,7 @@ bool CTIN_To_Shapes::On_Execute(void)
 
 	//-----------------------------------------------------
 	pShapes		= Parameters("CENTER")		->asShapes();
-	pShapes->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("%s [T.I.N.]"), pTIN->Get_Name()));
+	pShapes->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("%s [TIN]"), pTIN->Get_Name()));
 
 	pShapes->Get_Table().Add_Field("ID"			, TABLE_FIELDTYPE_Int);
 	pShapes->Get_Table().Add_Field("POINT_ID_A"	, TABLE_FIELDTYPE_Int);
@@ -240,7 +240,7 @@ bool CTIN_To_Shapes::On_Execute(void)
 	CSG_Points	Points;
 
 	pShapes		= Parameters("POLYGONS")	->asShapes();
-	pShapes->Create(SHAPE_TYPE_Polygon, CSG_String::Format(_TL("%s [T.I.N.]"), pTIN->Get_Name()));
+	pShapes->Create(SHAPE_TYPE_Polygon, CSG_String::Format(_TL("%s [TIN]"), pTIN->Get_Name()));
 
 	pShapes->Get_Table().Add_Field("POINT_ID", TABLE_FIELDTYPE_Int);
 	for(j=0; j<pTIN->Get_Table().Get_Field_Count(); j++)

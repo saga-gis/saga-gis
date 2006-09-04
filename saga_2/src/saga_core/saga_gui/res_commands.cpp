@@ -142,10 +142,10 @@ const char * CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_TABLES_DIAGRAM:			return( LNG("[CMD] Show Diagram") );
 	case ID_CMD_TABLES_SCATTERPLOT:		return( LNG("[CMD] Show Scatterplot") );
 
-	case ID_CMD_TIN_OPEN:				return( LNG("[CMD] Load T.I.N.") );
-	case ID_CMD_TIN_SAVE:				return( LNG("[CMD] Save T.I.N.") );
-	case ID_CMD_TIN_SAVEAS:				return( LNG("[CMD] Save T.I.N. As...") );
-	case ID_CMD_TIN_SHOW:				return( LNG("[CMD] Show T.I.N.") );
+	case ID_CMD_TIN_OPEN:				return( LNG("[CMD] Load TIN") );
+	case ID_CMD_TIN_SAVE:				return( LNG("[CMD] Save TIN") );
+	case ID_CMD_TIN_SAVEAS:				return( LNG("[CMD] Save TIN As...") );
+	case ID_CMD_TIN_SHOW:				return( LNG("[CMD] Show TIN") );
 
 	case ID_CMD_MAP_3D_SHOW:
 	case ID_CMD_MAPS_3D_SHOW:			return( LNG("[CMD] Show 3D-View") );

@@ -77,7 +77,7 @@ const char *	SG_Get_DataObject_Name(TDataObject_Type Type)
 	case DATAOBJECT_TYPE_Grid:		return( LNG("[DAT] Grid") );
 	case DATAOBJECT_TYPE_Table:		return( LNG("[DAT] Table") );
 	case DATAOBJECT_TYPE_Shapes:	return( LNG("[DAT] Shapes") );
-	case DATAOBJECT_TYPE_TIN:		return( LNG("[DAT] T.I.N.") );
+	case DATAOBJECT_TYPE_TIN:		return( LNG("[DAT] TIN") );
 
 	default:
 	case DATAOBJECT_TYPE_Undefined:	return( LNG("[DAT] Undefined") );

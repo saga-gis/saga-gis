@@ -255,7 +255,7 @@ void CWKSP_Layer::Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_VISIBILITY")	, "SHOW_ALWAYS"			, LNG("[CAP] Always Show"),
+		m_Parameters("NODE_VISIBILITY")	, "SHOW_ALWAYS"			, LNG("[CAP] Show Always"),
 		"",
 		PARAMETER_TYPE_Bool, true
 	);

@@ -87,7 +87,9 @@ public:
 	CACTIVE_Description(wxWindow *pParent);
 	virtual ~CACTIVE_Description(void);
 
-	virtual void			OnLinkClicked	(const wxHtmlLinkInfo &Link);
+	void						On_Key_Down		(wxKeyEvent &event);
+
+	virtual void				OnLinkClicked	(const wxHtmlLinkInfo &Link);
 
 
 private:

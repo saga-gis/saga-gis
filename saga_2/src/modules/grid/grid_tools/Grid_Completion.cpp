@@ -73,7 +73,7 @@ CGrid_Completion::CGrid_Completion(void)
 	//-----------------------------------------------------
 	// 1. Info...
 
-	Set_Name(_TL("Completion"));
+	Set_Name(_TL("Patching"));
 
 	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
@@ -92,7 +92,7 @@ CGrid_Completion::CGrid_Completion(void)
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "ADDITIONAL"		, _TL("Completion Values"),
+		NULL	, "ADDITIONAL"		, _TL("Patch Grid"),
 		"",
 		PARAMETER_INPUT, false
 	);

@@ -126,12 +126,12 @@ const char * CParameter_Data::Get_Type_Name(void)
 	case PARAMETER_TYPE_Grid:				return( LNG("[PRM] Grid") );
 	case PARAMETER_TYPE_Table:				return( LNG("[PRM] Table") );
 	case PARAMETER_TYPE_Shapes:				return( LNG("[PRM] Shapes") );
-	case PARAMETER_TYPE_TIN:				return( LNG("[PRM] T.I.N.") );
+	case PARAMETER_TYPE_TIN:				return( LNG("[PRM] TIN") );
 
 	case PARAMETER_TYPE_Grid_List:			return( LNG("[PRM] Grid list") );
 	case PARAMETER_TYPE_Table_List:			return( LNG("[PRM] Table list") );
 	case PARAMETER_TYPE_Shapes_List:		return( LNG("[PRM] Shapes list") );
-	case PARAMETER_TYPE_TIN_List:			return( LNG("[PRM] T.I.N. list") );
+	case PARAMETER_TYPE_TIN_List:			return( LNG("[PRM] TIN list") );
 
 	case PARAMETER_TYPE_Parameters:			return( LNG("[PRM] Parameters") );
 	}

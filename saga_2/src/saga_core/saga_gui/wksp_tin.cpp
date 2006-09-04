@@ -115,7 +115,7 @@ wxString CWKSP_TIN::Get_Description(void)
 
 	//-----------------------------------------------------
 	s.Append(wxString::Format("<b>%s</b><table border=\"0\">",
-		LNG("[CAP] T.I.N.")
+		LNG("[CAP] TIN")
 	));
 
 	s.Append(wxString::Format("<tr><td>%s</td><td>%s</td></tr>",
@@ -203,7 +203,7 @@ void CWKSP_TIN::On_Create_Parameters(void)
 	// General...
 
 	m_Parameters.Add_Choice(
-		m_Parameters("NODE_METRIC")		, "COLORS_ATTRIB"			, LNG("[CAP] Color"),
+		m_Parameters("NODE_METRIC")		, "COLORS_ATTRIB"			, LNG("[CAP] Attribute"),
 		"",
 		""
 	);
@@ -218,6 +218,13 @@ void CWKSP_TIN::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_EDGES"			, LNG("[CAP] Show Edges"),
+		"",
+		PARAMETER_TYPE_Bool, true
+	);
+
+	//-----------------------------------------------------
+	m_Parameters.Add_Value(
+		m_Parameters("NODE_DISPLAY")	, "DISPLAY_TRIANGES"		, LNG("[CAP] Show Filled"),
 		"",
 		PARAMETER_TYPE_Bool, true
 	);
@@ -434,13 +441,14 @@ void CWKSP_TIN::_Draw_Edges(CWKSP_Map_DC &dc_Map)
 //---------------------------------------------------------
 void CWKSP_TIN::_Draw_Triangles(CWKSP_Map_DC &dc_Map)
 {
-	int				iTriangle, iPoint;
-	TSG_Point_Int		Point;
-	TPoint			p[3];
-	CTIN_Triangle	*pTriangle;
-
-	if( dc_Map.IMG_Draw_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.0) )
+	if(	m_Parameters("DISPLAY_TRIANGES")->asBool()
+	&&	dc_Map.IMG_Draw_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.0) )
 	{
+		int				iTriangle, iPoint;
+		TSG_Point_Int	Point;
+		TPoint			p[3];
+		CTIN_Triangle	*pTriangle;
+
 		for(iTriangle=0; iTriangle<m_pTIN->Get_Triangle_Count(); iTriangle++)
 		{
 			pTriangle	= m_pTIN->Get_Triangle(iTriangle);

@@ -67,19 +67,19 @@ const char * Get_Info(int i)
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return( _TL("T.I.N. - Tools") );
+		return( _TL("TIN - Tools") );
 
 	case MLB_INFO_Author:
 		return( _TL("Olaf Conrad, Goettingen (c) 2004") );
 
 	case MLB_INFO_Description:
-		return( _TL("Tools for Triangulated Irregular Network (T.I.N.) processing.") );
+		return( _TL("Tools for Triangulated Irregular Network (TIN) processing.") );
 
 	case MLB_INFO_Version:
 		return( "1.0" );
 
 	case MLB_INFO_Menu_Path:
-		return( "T.I.N." );
+		return( "TIN" );
 	}
 }
 

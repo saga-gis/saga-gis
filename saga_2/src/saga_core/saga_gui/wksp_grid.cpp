@@ -384,7 +384,7 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	)->asFont()->SetFamily(wxDECORATIVE);
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_VALUES")		, "VALUES_SIZE"		, LNG("[CAP] Relative Font Size"),
+		m_Parameters("NODE_VALUES")		, "VALUES_SIZE"		, LNG("[CAP] Size"),
 		"",
 		PARAMETER_TYPE_Double, 15, 0, true , 100.0, true
 	);

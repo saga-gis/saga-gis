@@ -81,35 +81,85 @@ CKinWav_D8::CKinWav_D8(void)
 	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
 	Set_Description(_TL(
-		"Overland Flow - Kinematic Wave D8")
+		"Overland Flow - Kinematic Wave D8"
+		"\n\n"
+		"Reference:\n"
+		"Johnson, D.L., Miller, A.C. (1997):"
+		" A spatially distributed hydrological model utilizing raster data structures,"
+		" Computers & Geosciences, Vol.23, No.3, pp.267-272"
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid(
+		NULL	, "DTM"			, _TL("Elevation"),
+		"",
+		PARAMETER_INPUT
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(	NULL, "DTM"			, _TL("Elevation")				, "", PARAMETER_INPUT);
+	Parameters.Add_Grid(
+		NULL	, "RUNOFF"		, _TL("Runoff"),
+		"",
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Table(
+		NULL	, "GAUGES"		, _TL("Outlets"),
+		"",
+		PARAMETER_OUTPUT_OPTIONAL
+	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(	NULL, "RUNOFF"		, _TL("Runoff")					, "", PARAMETER_OUTPUT);
+	Parameters.Add_Value(
+		NULL	, "TIME_END"	, _TL("Simulation Time [h]"),
+		"",
+		PARAMETER_TYPE_Double, 24.0
+	);
 
-	Parameters.Add_Table(	NULL, "GAUGES"		, _TL("Outlets")					, "", PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Value(
+		NULL	, "TIME_STEP"	, _TL("Simulation Time Step [h]"),
+		"",
+		PARAMETER_TYPE_Double, 0.1
+	);
 
-	//-----------------------------------------------------
-	Parameters.Add_Value(	NULL, "TIME_END"	, _TL("Simulation Time [h]")		, "", PARAMETER_TYPE_Double, 24.0);
-	Parameters.Add_Value(	NULL, "TIME_STEP"	, _TL("Simulation Time Step [h]"), "", PARAMETER_TYPE_Double, 0.1);
-
-	Parameters.Add_Value(	NULL, "ROUGHNESS"	, _TL("Manning's Roughness")	, "", PARAMETER_TYPE_Double, 1.0);
+	Parameters.Add_Value(
+		NULL	, "ROUGHNESS"	, _TL("Manning's Roughness"),
+		"",
+		PARAMETER_TYPE_Double, 1.0
+	);
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Node(NULL, "NEWTON", _TL("Newton-Raphson"), "");
-	Parameters.Add_Value(	pNode, "NEWTON_MAXITER"	, _TL("Max. Iterations")		, "", PARAMETER_TYPE_Int		, 100		, 1		, true);
-	Parameters.Add_Value( pNode, "NEWTON_EPSILON"	, _TL("Epsilon")			, "", PARAMETER_TYPE_Double	, 0.0001	, 0.0	, true);
+
+	Parameters.Add_Value(
+		pNode	, "NEWTON_MAXITER"	, _TL("Max. Iterations"),
+		"",
+		PARAMETER_TYPE_Int		, 100		, 1		, true
+	);
+
+	Parameters.Add_Value(
+		pNode	, "NEWTON_EPSILON"	, _TL("Epsilon"),
+		"",
+		PARAMETER_TYPE_Double	, 0.0001	, 0.0	, true
+	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Choice(NULL, "PRECIP", _TL("Precipitation"), _TL("Kind of initializing Precipitation Event"),
-		_TL("Homogenous|"
-		"Above Elevation|"
-		"Left Half|")
+	pNode	= Parameters.Add_Choice(
+		NULL	, "PRECIP"		, _TL("Precipitation"),
+		_TL("Kind of initializing Precipitation Event"),
+
+		CSG_String::Format("%s|%s|%s|",
+			_TL("Homogenous"),
+			_TL("Above Elevation"),
+			_TL("Left Half")
+		)
 	);
-	Parameters.Add_Value(	pNode, "THRESHOLD"	, _TL("Threshold Elevation")		, "", PARAMETER_TYPE_Double, 0.0);
+
+	Parameters.Add_Value(
+		pNode	, "THRESHOLD"	, _TL("Threshold Elevation"),
+		"",
+		PARAMETER_TYPE_Double, 0.0
+	);
 }
 
 //---------------------------------------------------------

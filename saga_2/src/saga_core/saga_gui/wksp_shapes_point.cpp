@@ -186,16 +186,16 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Choice(
-		m_Parameters("NODE_SIZE")	, "SIZE_TYPE"		, LNG("[CAP] Display Size"),
+		m_Parameters("NODE_SIZE")	, "SIZE_TYPE"		, LNG("[CAP] Size relates to..."),
 		"",
 		wxString::Format("%s|%s|",
-			LNG("[VAL] Fixed Size"),
-			LNG("[VAL] Size to Map Units")
+			LNG("[VAL] Screen"),
+			LNG("[VAL] Map Units")
 		), 0
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_SIZE")	, "SIZE_DEFAULT"	, LNG("[CAP] Default"),
+		m_Parameters("NODE_SIZE")	, "SIZE_DEFAULT"	, LNG("[CAP] Default Size"),
 		"",
 		PARAMETER_TYPE_Double, 5, 0, true
 	);
@@ -352,17 +352,14 @@ void CWKSP_Shapes_Point::_Draw_Shape(CWKSP_Map_DC &dc_Map, CShape *pShape, bool 
 	double	dSize;
 
 	//-----------------------------------------------------
-	dSize	= m_iSize < 0 ? m_Size : m_Size + (pShape->Get_Record()->asDouble(m_iSize) - m_Size_Min) * m_dSize;
+	dSize	= m_iSize < 0 ? m_Size
+			: m_Size + (pShape->Get_Record()->asDouble(m_iSize) - m_Size_Min) * m_dSize;
 
 	switch( m_Size_Type )
 	{
-	case 0:	default:
-		dSize	*= dc_Map.m_Scale;
-		break;
-
-	case 1:
-		dSize	*= dc_Map.m_World2DC;
-		break;
+	default:
+	case 0:	dSize	*= dc_Map.m_Scale;		break;
+	case 1:	dSize	*= dc_Map.m_World2DC;	break;
 	}
 
 	//-----------------------------------------------------

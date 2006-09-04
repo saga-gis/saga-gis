@@ -73,12 +73,12 @@ CTIN_From_Grid_Specific_Points::CTIN_From_Grid_Specific_Points(void)
 	CParameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name(_TL("Grid to T.I.N. (Surface Specific Points)"));
+	Set_Name(_TL("Grid to TIN (Surface Specific Points)"));
 
 	Set_Author(_TL("Copyrights (c) 2004 by Olaf Conrad"));
 
 	Set_Description(
-		_TL("Creates a T.I.N. by identifying (surface) specific points of a grid.\n\n")
+		_TL("Creates a TIN by identifying (surface) specific points of a grid.\n\n")
 	);
 
 
@@ -96,7 +96,7 @@ CTIN_From_Grid_Specific_Points::CTIN_From_Grid_Specific_Points(void)
 	);
 
 	Parameters.Add_TIN(
-		NULL	, "TIN"			, "T.I.N.",
+		NULL	, "TIN"			, "TIN",
 		"",
 		PARAMETER_OUTPUT
 	);

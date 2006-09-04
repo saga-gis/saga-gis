@@ -334,7 +334,7 @@ bool CACTIVE::_Add_Page(int PageID)
 			return( true );
 
 		pPage	= m_pParameters		= new CACTIVE_Parameters	(this);
-		Caption	= LNG("[CAP] Parameters");
+		Caption	= LNG("[CAP] Settings");
 		break;
 
 	case IMG_DESCRIPTION:

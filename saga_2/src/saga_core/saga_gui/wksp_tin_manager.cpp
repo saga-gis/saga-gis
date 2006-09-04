@@ -94,7 +94,7 @@ CWKSP_TIN_Manager::~CWKSP_TIN_Manager(void)
 //---------------------------------------------------------
 wxString CWKSP_TIN_Manager::Get_Name(void)
 {
-	return( LNG("[CAP] T.I.N.") );
+	return( LNG("[CAP] TIN") );
 }
 
 //---------------------------------------------------------
@@ -102,7 +102,7 @@ wxString CWKSP_TIN_Manager::Get_Description(void)
 {
 	wxString	s;
 
-	s.Printf("<b>%s</b>:%d<br>", LNG("[CAP] T.I.N."), Get_Count());
+	s.Printf("<b>%s</b>:%d<br>", LNG("[CAP] TIN"), Get_Count());
 
 	return( s );
 }
@@ -112,7 +112,7 @@ wxMenu * CWKSP_TIN_Manager::Get_Menu(void)
 {
 	wxMenu	*pMenu;
 
-	pMenu	= new wxMenu(LNG("[CAP] T.I.N."));
+	pMenu	= new wxMenu(LNG("[CAP] TIN"));
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TIN_OPEN);
 

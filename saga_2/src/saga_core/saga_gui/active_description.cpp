@@ -58,6 +58,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <wx/clipbrd.h>
+
 #include "res_controls.h"
 
 #include "helper.h"
@@ -76,6 +78,7 @@ IMPLEMENT_CLASS(CACTIVE_Description, wxHtmlWindow)
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CACTIVE_Description, wxHtmlWindow)
+	EVT_KEY_DOWN		(CACTIVE_Description::On_Key_Down)
 END_EVENT_TABLE()
 
 
@@ -102,6 +105,30 @@ CACTIVE_Description::~CACTIVE_Description(void)
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CACTIVE_Description::On_Key_Down(wxKeyEvent &event)
+{
+	if( event.ControlDown() )
+	{
+		switch( event.GetKeyCode() )
+		{
+		default:
+			event.Skip();
+			break;
+
+		case 'C':
+		case 'c':
+			if( wxTheClipboard->Open() )
+			{
+				wxTheClipboard->SetData(new wxTextDataObject(SelectionToText()));
+				wxTheClipboard->Close();
+			}
+			break;
+		}
+
+	}
+}
 
 //---------------------------------------------------------
 void CACTIVE_Description::OnLinkClicked(const wxHtmlLinkInfo &Link)

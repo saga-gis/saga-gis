@@ -83,7 +83,7 @@ CTIN_Flow_Parallel::CTIN_Flow_Parallel(void)
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_TIN(
-		NULL	, "DEM"			, "T.I.N.",
+		NULL	, "DEM"			, "TIN",
 		"",
 		PARAMETER_INPUT
 	);

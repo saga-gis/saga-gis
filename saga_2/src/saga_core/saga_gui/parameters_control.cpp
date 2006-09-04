@@ -342,7 +342,7 @@ void CParameters_Control::_Add_Properties(CParameters *pParameters)
 			case PARAMETER_TYPE_TIN_List:
 				CHECK_LIST_OUTPUT(pParameters->Get_Parameter(i));
 			case PARAMETER_TYPE_TIN:
-				CHECK_DATA_NODE(pTINs	, "[PRM] T.I.N.", "_DATAOBJECT_TINS");
+				CHECK_DATA_NODE(pTINs	, "[PRM] TIN", "_DATAOBJECT_TINS");
 				break;
 
 			default:
