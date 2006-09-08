@@ -264,7 +264,8 @@ void		Error_Library	(const char *MLB_Path)
 	{
 		Print_Error(LNG("invalid module libraries path"), MLB_Path);
 	}
-	else if( !Dir.GetFirst(&FileName, "*.dll", wxDIR_FILES|wxDIR_HIDDEN) )
+	else if(	!Dir.GetFirst(&FileName, "*.dll", wxDIR_FILES|wxDIR_HIDDEN)
+			&&	!Dir.GetFirst(&FileName, "*.so" , wxDIR_FILES|wxDIR_HIDDEN) )
 	{
 		Print_Error(LNG("no valid module library found in path"), MLB_Path);
 	}

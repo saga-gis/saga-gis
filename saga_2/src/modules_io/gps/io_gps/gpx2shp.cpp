@@ -40,7 +40,7 @@ CGPX2SHP::CGPX2SHP(){
 							"FILE", 
 							_TL("GPX file"),
 							"",
-							_TL("GPX files (*.gpx)|*.gpx|All Files|*.*|")
+							_TL("GPX files (*.gpx)|*.gpx|All Files|*.*")
 	);
 	
 	Parameters.Add_Value(NULL,
@@ -105,19 +105,36 @@ bool CGPX2SHP::On_Execute(void){
 
 	system(sCmd.c_str());
 
-	if (bAdd){
-		if (bWaypoints){
-			pShapes	= SG_Create_Shapes(SG_File_Make_Path(NULL, sFile, "_wpt.shp"));
+	if( bAdd )
+	{
+		CSG_String	sDir(SG_File_Get_Path(sFile)), sName(SG_File_Get_Name(sFile, false));
+
+		//-------------------------------------------------
+		sFile	= SG_File_Make_Path(sDir, sName + "_wpt", "shp");
+		pShapes	= SG_Create_Shapes(sFile);
+
+		if( pShapes->is_Valid() )
 			DataObject_Add(pShapes, false);
-		}//if
-		if (bTrackpoints){
-			pShapes	= SG_Create_Shapes(SG_File_Make_Path(NULL, sFile, "_trk.shp"));
+		else
+			delete(pShapes);
+
+		//-------------------------------------------------
+		sFile	= SG_File_Make_Path(sDir, sName + "_trk", "shp");
+		pShapes	= SG_Create_Shapes(sFile);
+
+		if( pShapes->is_Valid() )
 			DataObject_Add(pShapes, false);
-		}//if
-		if (bRoutes){
-			pShapes	= SG_Create_Shapes(SG_File_Make_Path(NULL, sFile, "_rte.shp"));
+		else
+			delete(pShapes);
+
+		//-------------------------------------------------
+		sFile	= SG_File_Make_Path(sDir, sName + "_rte", "shp");
+		pShapes	= SG_Create_Shapes(sFile);
+
+		if( pShapes->is_Valid() )
 			DataObject_Add(pShapes, false);
-		}//if					
+		else
+			delete(pShapes);
 	}//if
 	
 	return true;
