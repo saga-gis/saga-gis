@@ -90,7 +90,7 @@ double		SG_Get_Distance(const TSG_Point &A, const TSG_Point &B)
 {
 	double	dx,	dy;
 
-	dx	= B.x - A.y;
+	dx	= B.x - A.x;
 	dy	= B.y - A.y;
 
 	return( sqrt(dx*dx + dy*dy) );

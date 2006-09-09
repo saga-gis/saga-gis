@@ -315,17 +315,17 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Choice(
-		m_Parameters("NODE_LABEL")		, "LABEL_ATTRIB_SIZE_TYPE"	, LNG("[CAP] Display Size"),
+		m_Parameters("NODE_LABEL")		, "LABEL_ATTRIB_SIZE_TYPE"	, LNG("[CAP] Size relates to..."),
 		"",
 		wxString::Format("%s|%s|",
-			LNG("[VAL] Fixed Size"),
-			LNG("[VAL] Size to Map Units")
+			LNG("[VAL] Screen"),
+			LNG("[VAL] Map Units")
 		), 0
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_LABEL")		, "LABEL_ATTRIB_SIZE"		, LNG("[CAP] Size"),
-		LNG("[CAP] Size in map units."),
+		m_Parameters("NODE_LABEL")		, "LABEL_ATTRIB_SIZE"		, LNG("[CAP] Default Size"),
+		LNG(""),
 		PARAMETER_TYPE_Double, 100.0, 0.0, true
 	);
 

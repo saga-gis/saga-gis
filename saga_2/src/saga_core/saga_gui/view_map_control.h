@@ -126,11 +126,11 @@ public:
 
 private:
 
-	int							m_Mode, m_Drag_Mode, m_nDistance;
+	int							m_Mode, m_Drag_Mode;
 
 	double						m_Distance, m_Distance_Move;
 
-	TSG_Point					*m_pDistance;
+	CSG_Points					m_Distance_Pts;
 
 	wxPoint						m_Mouse_Down, m_Mouse_Move;
 

@@ -129,8 +129,6 @@ CVIEW_Map_Control::CVIEW_Map_Control(CVIEW_Map *pParent, CWKSP_Map *pMap)
 	m_pParent	= (CVIEW_Map *)pParent;
 	m_pMap		= pMap;
 
-	m_pDistance	= NULL;
-
 	m_Mode		= -1;
 	Set_Mode(MAP_MODE_ZOOM);
 
@@ -416,15 +414,10 @@ bool CVIEW_Map_Control::_Move(wxPoint ptMove)
 //---------------------------------------------------------
 void CVIEW_Map_Control::_Distance_Reset(void)
 {
-	if( m_pDistance )
-	{
-		SG_Free(m_pDistance);
-	}
+	m_Distance_Pts.Clear();
 
 	m_Distance		= 0.0;
 	m_Distance_Move	= 0.0;
-	m_nDistance		= 0;
-	m_pDistance		= NULL;
 
 	Refresh(false);
 }
@@ -432,12 +425,13 @@ void CVIEW_Map_Control::_Distance_Reset(void)
 //---------------------------------------------------------
 void CVIEW_Map_Control::_Distance_Add(wxPoint Point)
 {
-	m_pDistance	= (TSG_Point *)SG_Realloc(m_pDistance, (m_nDistance + 1) * sizeof(TSG_Point));
-	m_pDistance[m_nDistance++]	= _Get_World(Point);
+	int		n	= m_Distance_Pts.Get_Count();
 
-	if( m_nDistance > 1 )
+	m_Distance_Pts.Add(_Get_World(Point));
+
+	if( n > 0 )
 	{
-		m_Distance	+= SG_Get_Distance(m_pDistance[m_nDistance - 1], m_pDistance[m_nDistance - 2]);
+		m_Distance	+= SG_Get_Distance(m_Distance_Pts[n], m_Distance_Pts[n - 1]);
 	}
 
 	m_Distance_Move	= 0.0;
@@ -449,30 +443,32 @@ void CVIEW_Map_Control::_Distance_Add(wxPoint Point)
 //---------------------------------------------------------
 void CVIEW_Map_Control::_Distance_Draw(wxDC &dc)
 {
-	if( m_Mode == MAP_MODE_DISTANCE && m_nDistance > 0 )
+	int		n	= m_Distance_Pts.Get_Count();
+
+	if( m_Mode == MAP_MODE_DISTANCE && n > 0 )
 	{
 		int		i;
 		wxPoint	A, B;
 
 		dc.SetPen(wxPen(*wxWHITE, 4));
-		for(i=1, A=_Get_Client(m_pDistance[0]); i<m_nDistance; i++)
+		for(i=1, A=_Get_Client(m_Distance_Pts[0]); i<n; i++)
 		{
 			B	= A;
-			A	= _Get_Client(m_pDistance[i]);
+			A	= _Get_Client(m_Distance_Pts[i]);
 			dc.DrawLine(A.x, A.y, B.x, B.y);
 		}
 
 		dc.SetPen(wxPen(*wxBLACK, 2));
-		for(i=1, A=_Get_Client(m_pDistance[0]); i<m_nDistance; i++)
+		for(i=1, A=_Get_Client(m_Distance_Pts[0]); i<n; i++)
 		{
 			B	= A;
-			A	= _Get_Client(m_pDistance[i]);
+			A	= _Get_Client(m_Distance_Pts[i]);
 			dc.DrawLine(A.x, A.y, B.x, B.y);
 		}
 
 		dc.SetPen(wxNullPen);
 		dc.SetLogicalFunction(wxINVERT);
-		A	= _Get_Client(m_pDistance[m_nDistance - 1]);
+		A	= _Get_Client(m_Distance_Pts[n - 1]);
 		dc.DrawLine(A.x, A.y, m_Mouse_Move.x, m_Mouse_Move.y);
 	}
 }
@@ -878,14 +874,15 @@ void CVIEW_Map_Control::On_Mouse_Motion(wxMouseEvent &event)
 
 	//-----------------------------------------------------
 	case MAP_MODE_DISTANCE:
-		if( m_nDistance > 0 )
+		if( m_Distance_Pts.Get_Count() > 0 )
 		{
+			int			n	= m_Distance_Pts.Get_Count();
 			wxClientDC	dc(this);
-			wxPoint		Last(_Get_Client(m_pDistance[m_nDistance - 1]));
+			wxPoint		Last(_Get_Client(m_Distance_Pts[n - 1]));
 			dc.SetLogicalFunction(wxINVERT);
 			dc.DrawLine(Last.x, Last.y, m_Mouse_Move       .x, m_Mouse_Move       .y);
 			dc.DrawLine(Last.x, Last.y, event.GetPosition().x, event.GetPosition().y);
-			m_Distance_Move	= SG_Get_Distance(m_pDistance[m_nDistance - 1], _Get_World(event.GetPosition()));
+			m_Distance_Move	= SG_Get_Distance(m_Distance_Pts[n - 1], _Get_World(event.GetPosition()));
 		}
 		break;
 
