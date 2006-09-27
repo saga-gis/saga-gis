@@ -108,6 +108,19 @@ TShape_Type CShape::Get_Type(void)
 	return( m_pOwner->Get_Type() );
 }
 
+//---------------------------------------------------------
+int CShape::Get_Point_Count(void)
+{
+	int		i, n;
+
+	for(i=0, n=0; i<Get_Part_Count(); i++)
+	{
+		n	+= Get_Point_Count(i);
+	}
+
+	return( n );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

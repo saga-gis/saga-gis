@@ -96,7 +96,24 @@ CXYZ_Export::CXYZ_Export(void)
 	pNode_0	= Parameters.Add_Value(
 		NULL	, "ALL"		, _TL("Save All Attributes"),
 		_TL("Ignores specified attribute ('Save Attribute') and saves all attributes."),
+		PARAMETER_TYPE_Bool	, false
+	);
+
+	pNode_0	= Parameters.Add_Value(
+		NULL	, "HEADER"	, _TL("Save Table Header"),
+		_TL(""),
 		PARAMETER_TYPE_Bool	, true
+	);
+
+	pNode_0	= Parameters.Add_Choice(
+		NULL	, "SEPARATE", _TL("Separate Line/Polygon Points"),
+		_TL(""),
+
+		CSG_String::Format("%s|%s|%s|",
+			_TL("none"),
+			_TL("*"),
+			_TL("number of points")
+		), 0
 	);
 
 	pNode_0	= Parameters.Add_FilePath(
@@ -118,17 +135,20 @@ CXYZ_Export::~CXYZ_Export(void)
 //---------------------------------------------------------
 bool CXYZ_Export::On_Execute(void)
 {
-	bool		bAll;
-	int			iShape, iPart, iPoint, iField;
-	FILE		*aus;
+	bool		bAll, bHeader;
+	int			iShape, iPart, iPoint, iField, Separate;
+	FILE		*Stream;
 	TSG_Point	Point;
 	CShape		*pShape;
 	CShapes		*pShapes;
 
 	//-----------------------------------------------------
-	pShapes		= Parameters("SHAPES")->asShapes();
-	bAll		= Parameters("ALL")->asBool();
-	iField		= Parameters("FIELD")->asInt();
+	pShapes		= Parameters("SHAPES")	->asShapes();
+	bAll		= Parameters("ALL")		->asBool();
+	bHeader		= Parameters("HEADER")	->asBool();
+	iField		= Parameters("FIELD")	->asInt();
+	Separate	= pShapes->Get_Type() == SHAPE_TYPE_Point ? 0
+				: Parameters("SEPARATE")->asInt();
 
 	if( bAll && (iField < 0 || iField >= pShapes->Get_Table().Get_Field_Count()) )
 	{
@@ -136,23 +156,26 @@ bool CXYZ_Export::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( (aus = fopen(Parameters("FILENAME")->asString(), "w")) != NULL )
+	if( (Stream = fopen(Parameters("FILENAME")->asString(), "w")) != NULL )
 	{
-		fprintf(aus, "X\tY");
-
-		if( bAll )
+		if( bHeader )
 		{
-			for(iField=0; iField<pShapes->Get_Table().Get_Field_Count(); iField++)
+			fprintf(Stream, "X\tY");
+
+			if( bAll )
 			{
-				fprintf(aus, "\t%s", pShapes->Get_Table().Get_Field_Name(iField));
+				for(iField=0; iField<pShapes->Get_Table().Get_Field_Count(); iField++)
+				{
+					fprintf(Stream, "\t%s", pShapes->Get_Table().Get_Field_Name(iField));
+				}
 			}
-		}
-		else
-		{
-			fprintf(aus, "\tZ");
-		}
+			else
+			{
+				fprintf(Stream, "\tZ");
+			}
 
-		fprintf(aus, "\n");
+			fprintf(Stream, "\n");
+		}
 
 		//-------------------------------------------------
 		for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
@@ -161,10 +184,21 @@ bool CXYZ_Export::On_Execute(void)
 
 			for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
+				switch( Separate )
+				{
+				case 1:	// *
+					fprintf(Stream, "*\n");
+					break;
+
+				case 2:	// number of points
+					fprintf(Stream, "%d\n", pShape->Get_Point_Count(iPart));
+					break;
+				}
+
 				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
 					Point	= pShape->Get_Point(iPoint, iPart);
-					fprintf(aus, "%f\t%f", Point.x, Point.y);
+					fprintf(Stream, "%f\t%f", Point.x, Point.y);
 
 					if( bAll )
 					{
@@ -173,11 +207,11 @@ bool CXYZ_Export::On_Execute(void)
 							switch( pShapes->Get_Table().Get_Field_Type(iField) )
 							{
 							case TABLE_FIELDTYPE_String:
-								fprintf(aus, "\t\"%s\""	,pShape->Get_Record()->asString(iField));
+								fprintf(Stream, "\t\"%s\""	,pShape->Get_Record()->asString(iField));
 								break;
 
 							default:
-								fprintf(aus, "\t%f"		,pShape->Get_Record()->asDouble(iField));
+								fprintf(Stream, "\t%f"		,pShape->Get_Record()->asDouble(iField));
 								break;
 							}
 						}
@@ -187,22 +221,22 @@ bool CXYZ_Export::On_Execute(void)
 						switch( pShapes->Get_Table().Get_Field_Type(iField) )
 						{
 						case TABLE_FIELDTYPE_String:
-							fprintf(aus, "\t\"%s\""	,pShape->Get_Record()->asString(iField));
+							fprintf(Stream, "\t\"%s\""	,pShape->Get_Record()->asString(iField));
 							break;
 
 						default:
-							fprintf(aus, "\t%f"		,pShape->Get_Record()->asDouble(iField));
+							fprintf(Stream, "\t%f"		,pShape->Get_Record()->asDouble(iField));
 							break;
 						}
 					}
 
-					fprintf(aus, "\n");
+					fprintf(Stream, "\n");
 				}
 			}
 		}
 
 		//-------------------------------------------------
-		fclose(aus);
+		fclose(Stream);
 
 		return( true );
 	}

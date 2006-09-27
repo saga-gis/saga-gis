@@ -217,6 +217,10 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath=".\atlas_bna.cpp"
+				>
+			</File>
+			<File
 				RelativePath="generate.cpp"
 				>
 				<FileConfiguration
@@ -331,6 +335,10 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl"
 			>
+			<File
+				RelativePath=".\atlas_bna.h"
+				>
+			</File>
 			<File
 				RelativePath="Generate.h"
 				>

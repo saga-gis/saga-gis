@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                       Shapes_IO                       //
+//                       io_shapes                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                      Atlas_BNA.h                      //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2006 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -53,108 +53,46 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__Atlas_BNA_H
+#define HEADER_INCLUDED__Atlas_BNA_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-const char * Get_Info(int i)
+//---------------------------------------------------------
+class CAtlas_BNA_Import : public CModule
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Import/Export - Shapes") );
+public:
+	CAtlas_BNA_Import(void);
+	virtual ~CAtlas_BNA_Import(void);
 
-	case MLB_INFO_Author:
-		return( _TL("SAGA User Group Associaton (c) 2002") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for the import and export of vector data.") );
-
-	case MLB_INFO_Version:
-		return( "1.0" );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("File|Shapes") );
-	}
-}
+	virtual const char *	Get_MenuPath	(void)		{	return( _TL("R:Import") );	}
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "gstat.h"
-#include "xyz.h"
-#include "generate.h"
-#include "surfer_bln.h"
-#include "atlas_bna.h"
+	virtual bool			On_Execute		(void);
 
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CModule *		Create_Module(int i)
-{
-	// Don't forget to continuously enumerate the case switches
-	// when adding new modules! Also bear in mind that the
-	// enumeration always has to start with [case 0:] and
-	// that [default:] must return NULL!...
-
-	CModule	*pModule;
-
-	switch( i )
-	{
-	case 0:
-		pModule	= new CGStat_Export;
-		break;
-
-	case 1:
-		pModule	= new CGStat_Import;
-		break;
-
-	case 2:
-		pModule	= new CXYZ_Export;
-		break;
-
-	case 3:
-		pModule	= new CXYZ_Import;
-		break;
-
-	case 4:
-		pModule	= new CGenerate_Export;
-		break;
-
-	case 5:
-		pModule	= new CSurfer_BLN_Export;
-		break;
-
-	case 6:
-		pModule	= new CSurfer_BLN_Import;
-		break;
-
-	case 7:
-		pModule	= new CAtlas_BNA_Export;
-		break;
-
-	case 8:
-		pModule	= new CAtlas_BNA_Import;
-		break;
-
-	default:
-		pModule	= NULL;
-		break;
-	}
-
-	return( pModule );
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -164,8 +102,27 @@ CModule *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CAtlas_BNA_Export : public CModule
+{
+public:
+	CAtlas_BNA_Export(void);
+	virtual ~CAtlas_BNA_Export(void);
 
-	MLB_INTERFACE
+	virtual const char *	Get_MenuPath	(void)		{	return( _TL("R:Export") );	}
 
-//}}AFX_SAGA
+
+protected:
+
+	virtual bool			On_Execute		(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__Atlas_BNA_H

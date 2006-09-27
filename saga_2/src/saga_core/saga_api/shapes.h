@@ -135,6 +135,7 @@ public:
 	virtual int					Del_Parts			(void)											= 0;
 
 	virtual int					Get_Part_Count		(void)											= 0;
+	int							Get_Point_Count		(void);
 	virtual int					Get_Point_Count		(int iPart)										= 0;
 	virtual TSG_Point			Get_Point			(int iPoint, int iPart = 0)						= 0;
 
@@ -497,7 +498,7 @@ SAGA_API_DLL_EXPORT CShapes *	SG_Create_Shapes	(const CShapes &Shapes);
 SAGA_API_DLL_EXPORT CShapes *	SG_Create_Shapes	(const char *FileName);
 
 /** Safe shapes construction */
-SAGA_API_DLL_EXPORT CShapes *	SG_Create_Shapes	(TShape_Type Type, char *Name = NULL, CTable *pStructure = NULL);
+SAGA_API_DLL_EXPORT CShapes *	SG_Create_Shapes	(TShape_Type Type, const char *Name = NULL, CTable *pStructure = NULL);
 
 
 ///////////////////////////////////////////////////////////

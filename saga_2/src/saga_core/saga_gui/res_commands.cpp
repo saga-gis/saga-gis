@@ -172,7 +172,7 @@ const char * CMD_Get_Name(int Cmd_ID)
 
 	case ID_CMD_MAP_MODE_ZOOM:			return( LNG("[CMD] Zoom") );
 	case ID_CMD_MAP_MODE_PAN:			return( LNG("[CMD] Pan") );
-	case ID_CMD_MAP_MODE_SELECT:		return( LNG("[CMD] Select") );
+	case ID_CMD_MAP_MODE_SELECT:		return( LNG("[CMD] Action") );
 	case ID_CMD_MAP_MODE_DISTANCE:		return( LNG("[CMD] Measure Distance") );
 	case ID_CMD_MAP_CLOSE:				return( LNG("[CMD] Close") );
 	case ID_CMD_MAP_TOOLBAR:			return( LNG("[CMD] Show Toolbar") );

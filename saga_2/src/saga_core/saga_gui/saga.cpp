@@ -107,7 +107,7 @@ const char *	SAGA_GUI_Get_Version(void)
 //---------------------------------------------------------
 const char *	SAGA_GUI_Get_Build(void)
 {
-	return( "20050830" );
+	return( "20060825" );
 }
 
 

@@ -110,7 +110,7 @@ CShapes *		SG_Create_Shapes(const char *File_Name)
 }
 
 //---------------------------------------------------------
-CShapes *		SG_Create_Shapes(TShape_Type Type, char *Name, CTable *pStructure)
+CShapes *		SG_Create_Shapes(TShape_Type Type, const char *Name, CTable *pStructure)
 {
 	return( new CShapes(Type, Name, pStructure) );
 }
