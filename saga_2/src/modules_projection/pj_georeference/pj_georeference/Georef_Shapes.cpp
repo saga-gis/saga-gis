@@ -78,6 +78,16 @@ CGeoref_Shapes::CGeoref_Shapes(void)
 		"Georeferencing of shapes layers. Either choose the attribute fields (x/y) "
 		"with the projected coordinates for the reference points (origin) or supply a "
 		"additional points layer with correspondend points in the target projection. "
+		"\n"
+		"This library uses the Minpack routines for solving the nonlinear equations and "
+		"nonlinear least squares problem. You find minpack and more information "
+		"about minpack at:\n"
+		"  <a target=\"_blank\" href=\"http://www.netlib.org/minpack\">"
+		"  http://www.netlib.org/minpack</a>\n"
+		"\n"
+		"or download the C source codes:\n"
+		"  <a target=\"_blank\" href=\"http://www.netlib.org/minpack/cminpack.tar\">"
+		"  http://www.netlib.org/minpack/cminpack.tar</a>\n"
 	));
 
 	//-----------------------------------------------------

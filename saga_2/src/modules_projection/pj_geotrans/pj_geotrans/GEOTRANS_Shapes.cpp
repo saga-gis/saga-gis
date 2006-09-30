@@ -78,9 +78,13 @@ CGEOTRANS_Shapes::CGEOTRANS_Shapes(void)
 	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
 	Set_Description(_TL(
-		"Coordinate Transformation for Shapes. Based on the GeoTRANS-Engine of the National Imagery and Mapping Agency (NIMA).\n"
-		"(c) 2003 by O. Conrad, Goettingen.")
-	);
+		"Coordinate Transformation for Shapes. "
+		"This library makes use of the Geographic Translator (GeoTrans) library. "
+		"\n"
+		"GeoTrans is maintained by the National Geospatial Agency (NGA).\n"
+		"  <a target=\"_blank\" href=\"http://earth-info.nga.mil/GandG/geotrans/\">"
+		"  http://earth-info.nga.mil/GandG/geotrans/</a>\n"
+	));
 
 
 	//-----------------------------------------------------

@@ -75,14 +75,18 @@ CGEOTRANS_Grid::CGEOTRANS_Grid(void)
 	CParameters	*pParameters;
 
 	//-----------------------------------------------------
-	Set_Name	(_TL("GeoTRANS (Grid)"));
+	Set_Name	(_TL("GeoTrans (Grid)"));
 
 	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
 	Set_Description(_TL(
-		"Coordinate Transformation for Grids. Based on the GeoTRANS-Engine of the National Imagery and Mapping Agency (NIMA).\n"
-		"(c) 2003 by O. Conrad, Goettingen.")
-	);
+		"Coordinate Transformation for Grids. "
+		"This library makes use of the Geographic Translator (GeoTrans) library. "
+		"\n"
+		"GeoTrans is maintained by the National Geospatial Agency (NGA).\n"
+		"  <a target=\"_blank\" href=\"http://earth-info.nga.mil/GandG/geotrans/\">"
+		"  http://earth-info.nga.mil/GandG/geotrans/</a>\n"
+	));
 
 
 	//-----------------------------------------------------

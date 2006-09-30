@@ -83,9 +83,12 @@ CUSGS_SRTM_Import::CUSGS_SRTM_Import(void)
 		"Import grid from USGS SRTM (Shuttle Radar Topography Mission) data.\n"
 
 		"You find data and further information at:\n"
-		"  ftp://edcsgs9.cr.usgs.gov/pub/data/srtm/\n"
-		"  http://seamless.usgs.gov/\n"
-		"  http://www.jpl.nasa.gov/srtm/\n"
+		"  <a target=\"_blank\" href=\"ftp://edcsgs9.cr.usgs.gov/pub/data/srtm/\">"
+		"  ftp://edcsgs9.cr.usgs.gov/pub/data/srtm/</a>\n"
+		"  <a target=\"_blank\" href=\"http://seamless.usgs.gov/\">"
+		"  http://seamless.usgs.gov/</a>\n"
+		"  <a target=\"_blank\" href=\"http://www.jpl.nasa.gov/srtm/\">"
+		"  http://www.jpl.nasa.gov/srtm/</a>\n"
 
 		"\nFarr, T.G., M. Kobrick (2000):\n"
 		"  'Shuttle Radar Topography Mission produces a wealth of data',\n"

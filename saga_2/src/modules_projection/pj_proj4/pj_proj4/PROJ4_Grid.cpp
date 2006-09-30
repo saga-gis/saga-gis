@@ -84,8 +84,7 @@ CPROJ4_Grid::CPROJ4_Grid(void)
 		"Based on the PROJ.4 Cartographic Projections library originally written by Gerald Evenden "
 		"and later continued by the United States Department of the Interior, Geological Survey (USGS).\n"
 		"<a target=\"_blank\" href=\"http://remotesensing.org/proj/\">Homepage</a>\n"
-		"\n(c) 2003 by O. Conrad, Goettingen.")
-	);
+	));
 
 
 	//-----------------------------------------------------
