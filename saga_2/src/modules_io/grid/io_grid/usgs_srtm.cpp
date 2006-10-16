@@ -83,8 +83,8 @@ CUSGS_SRTM_Import::CUSGS_SRTM_Import(void)
 		"Import grid from USGS SRTM (Shuttle Radar Topography Mission) data.\n"
 
 		"You find data and further information at:\n"
-		"  <a target=\"_blank\" href=\"ftp://edcsgs9.cr.usgs.gov/pub/data/srtm/\">"
-		"  ftp://edcsgs9.cr.usgs.gov/pub/data/srtm/</a>\n"
+		"  <a target=\"_blank\" href=\"ftp://e0srp01u.ecs.nasa.gov/srtm/\">"
+		"  ftp://e0srp01u.ecs.nasa.gov/srtm/</a>\n"
 		"  <a target=\"_blank\" href=\"http://seamless.usgs.gov/\">"
 		"  http://seamless.usgs.gov/</a>\n"
 		"  <a target=\"_blank\" href=\"http://www.jpl.nasa.gov/srtm/\">"

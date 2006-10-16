@@ -92,8 +92,8 @@ CSRTM30_Import::CSRTM30_Import(void)
 		"http://edcdaac.usgs.gov/gtopo30/gtopo30.html</a>\n\n"
 
 		"SRTM30 data can be downloaded from:\n"
-		"<a target=\"_blank\" href=\"ftp://edcsgs9.cr.usgs.gov/pub/data/srtm/SRTM30\">"
-		"ftp://edcsgs9.cr.usgs.gov/pub/data/srtm/SRTM30</a>\n\n"
+		"<a target=\"_blank\" href=\"ftp://e0srp01u.ecs.nasa.gov/srtm/version2/SRTM30/\">"
+		"ftp://e0srp01u.ecs.nasa.gov/srtm/version2/SRTM30/</a>\n\n"
 
 		"A directory, that contains the uncompressed SRTM30 DEM files, can be located using "
 		"the \"Path\" Parameter of this module.")
