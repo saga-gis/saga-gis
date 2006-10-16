@@ -66,38 +66,41 @@
 //---------------------------------------------------------
 CGrid_IO_GDAL::CGrid_IO_GDAL(void)
 {
-	//-----------------------------------------------------
-	CSG_String	formats;
-	int iDriver;
-
 	GDALAllRegister();
 
+	//-----------------------------------------------------
 	Set_Name	(_TL("Import using GDAL (various raster formats)"));
 
 	Set_Author	(_TL("Copyrights (c) 2004 by Andre Ringeler"));
 
-	Set_Description(_TL(
-		"Import GDAL (Andre Ringeler 2004)\n\n"
+	CSG_String	s(_TL(
+		"Import GDAL. "
 		"This Module imports various raster formats using:\n"
 		"GDAL - Geospatial Data Abstraction Library\n"
 		"by Frank Warmerdam\n"
 		"for more look at:\n"
-		"http://www.remotesensing.org/gdal/index.html")
-	);
-
-	formats.Printf(_TL("Imports the following Rasterformats:\n"));
+		"  <a target=\"_blank\" href=\"http://www.remotesensing.org/gdal/index.html\">"
+		"  http://www.remotesensing.org/gdal/index.html</a>\n"
+		"\n"
+		"Imports the following Rasterformats:\n"
+		"<table border=\"1\"><tr><th>Name</th><th>Description</th></tr>\n"
+	));
 	
-	for( iDriver = 0; iDriver < GDALGetDriverCount(); iDriver++ )
+	for(int i=0; i<GDALGetDriverCount(); i++)
     {
-                GDALDriverH hDriver = GDALGetDriver(iDriver);
-                
-				formats.Append(
-					CSG_String::Format("%s: %s\n",
-                        GDALGetDriverShortName(hDriver),
-                        GDALGetDriverLongName (hDriver)	)
-				);
+		GDALDriverH	hDriver	= GDALGetDriver(i);
+
+		s.Append(CSG_String::Format("<tr><td>%s</td><td>%s</td></tr>\n",
+			GDALGetDriverShortName(hDriver),
+			GDALGetDriverLongName (hDriver)
+		));
     }
 
+	s.Append("</table>");
+
+	Set_Description(s);
+
+	//-----------------------------------------------------
 	Parameters.Add_Grid_List(
 		NULL, "RESULT_LIST"	, _TL("Grid List"),
 		"",
@@ -106,7 +109,7 @@ CGrid_IO_GDAL::CGrid_IO_GDAL(void)
 
 	Parameters.Add_FilePath(
 		NULL, "FILE_DATA"	, _TL("File"),
-		formats
+		""
 	);
 }
 
