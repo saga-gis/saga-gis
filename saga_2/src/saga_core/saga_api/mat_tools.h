@@ -365,25 +365,65 @@ public:
 
 	int							Get_Maximum			(void)			{	return( m_maxRadius );	}
 
-	int							Get_nPoints			(int iRadius)	{	return( iRadius >= 0 && iRadius < m_maxRadius ? m_nPoints[iRadius] : 0 );	}
+	int							Get_nPoints			(void)			{	return( m_nPoints );	}
+	int							Get_nPoints			(int iRadius)	{	return( iRadius >= 0 && iRadius < m_maxRadius ? m_nPoints_R[iRadius] : 0 );	}
 
-	double						Get_Point			(int iRadius, int iPoint, int &x, int &y)
+	double						Get_Point			(int iPoint, int &x, int &y)
 	{
-		if( iRadius >= 0 && iRadius < m_maxRadius && iPoint >= 0 && iPoint < m_nPoints[iRadius] )
+		if( iPoint >= 0 && iPoint < m_nPoints )
 		{
-			x	= m_Points[iRadius][iPoint].x;
-			y	= m_Points[iRadius][iPoint].y;
+			x	= m_Points[iPoint].x;
+			y	= m_Points[iPoint].y;
 
-			return( m_Points[iRadius][iPoint].d );	// Distance...
+			return( m_Points[iPoint].d );				// Distance...
 		}
 
 		return( -1.0 );
 	}
 
+	double						Get_Point			(int iPoint, int xOffset, int yOffset, int &x, int &y)
+	{
+		double	d;
+
+		if( (d = Get_Point(iPoint, x, y)) >= 0.0 )
+		{
+			x	+= xOffset;
+			y	+= yOffset;
+		}
+
+		return( d );
+	}
+
+	double						Get_Point			(int iRadius, int iPoint, int &x, int &y)
+	{
+		if( iRadius >= 0 && iRadius <= m_maxRadius && iPoint >= 0 && iPoint < m_nPoints_R[iRadius] )
+		{
+			x	= m_Points_R[iRadius][iPoint].x;
+			y	= m_Points_R[iRadius][iPoint].y;
+
+			return( m_Points_R[iRadius][iPoint].d );	// Distance...
+		}
+
+		return( -1.0 );
+	}
+
+	double						Get_Point			(int iRadius, int iPoint, int xOffset, int yOffset, int &x, int &y)
+	{
+		double	d;
+
+		if( (d = Get_Point(iRadius, iPoint, x, y)) >= 0.0 )
+		{
+			x	+= xOffset;
+			y	+= yOffset;
+		}
+
+		return( d );
+	}
+
 
 private:
 
-	int							m_maxRadius, *m_nPoints;
+	int							m_maxRadius, m_nPoints, *m_nPoints_R;
 
 	typedef struct
 	{
@@ -393,7 +433,7 @@ private:
 	}
 	TSG_Grid_Radius;
 
-	TSG_Grid_Radius				**m_Points;
+	TSG_Grid_Radius				*m_Points, **m_Points_R;
 
 };
 

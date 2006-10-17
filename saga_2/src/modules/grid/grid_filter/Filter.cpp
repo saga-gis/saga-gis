@@ -137,13 +137,14 @@ CFilter::~CFilter(void)
 bool CFilter::On_Execute(void)
 {
 	int		x, y, Mode, Method, Radius;
-
 	double	Mean;
-
 	CGrid	*pResult;
 
 	//-----------------------------------------------------
 	pInput		= Parameters("INPUT")->asGrid();
+	Mode		= Parameters("SEARCH_MODE")->asInt();
+	Method		= Parameters("METHOD")->asInt();
+	Radius		= Parameters("RADIUS")->asInt();
 
 	if( !Parameters("RESULT")->asGrid() )
 	{
@@ -157,18 +158,12 @@ bool CFilter::On_Execute(void)
 		pResult	= SG_Create_Grid(pInput);
 	}
 
-	Mode		= Parameters("SEARCH_MODE")->asInt();
-	Method		= Parameters("METHOD")->asInt();
-	Radius		= Parameters("RADIUS")->asInt();
+	pResult->Set_NoData_Value(pInput->Get_NoData_Value());
 
 	switch( Mode )
 	{
-	case 0:
-		break;
-
-	case 1:
-		pRadius		= new CSG_Grid_Radius(Radius + 1);
-		break;
+	case 0:	break;
+	case 1:	m_Radius.Create(Radius);	break;
 	}
 
 	//-----------------------------------------------------
@@ -215,107 +210,69 @@ bool CFilter::On_Execute(void)
 		delete(pResult);
 	}
 
-	switch( Mode )
-	{
-	case 0:
-		break;
-
-	case 1:
-		delete(pRadius);
-		break;
-	}
+	m_Radius.Destroy();
 
 	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 double CFilter::Get_Mean_Square(int x, int y, int Radius)
 {
 	int		ax, ay, bx, by, ix, iy, n;
-	double	Result;
+	double	s;
 
-	Result	= 0.0;
-	n		= 0;
+	if( (ax = x - Radius) <  0 )		{	ax	= 0;			}	
+	if( (bx = x + Radius) >= Get_NX() )	{	bx	= Get_NX() - 1;	}
+	if( (ay = y - Radius) <  0 )		{	ay	= 0;			}
+	if( (by = y + Radius) >= Get_NY() )	{	by	= Get_NY() - 1;	}
 
-	//-----------------------------------------------------
-	ax		= x - Radius;
-	bx		= x + Radius;
-
-	if( ax < 0 )
-	{
-		ax	= 0;
-	}
-	else if( bx >= Get_NX() )
-	{
-		bx	= Get_NX() - 1;
-	}
-
-	ay		= y - Radius;
-	by		= y + Radius;
-
-	if( ay < 0 )
-	{
-		ay	= 0;
-	}
-	else if( by >= Get_NY() )
-	{
-		by	= Get_NY() - 1;
-	}
-
-	//-----------------------------------------------------
-	for(iy=ay; iy<=by; iy++)
+	for(n=0, s=0.0, iy=ay; iy<=by; iy++)
 	{
 		for(ix=ax; ix<=bx; ix++)
 		{
 			if( pInput->is_InGrid(ix, iy) )
 			{
-				Result	+= pInput->asDouble(ix, iy);
+				s	+= pInput->asDouble(ix, iy);
 				n++;
 			}
 		}
 	}
 
-	//-----------------------------------------------------
-	if( n > 0 )
-	{
-		Result	/= (double)n;
-	}
-
-	return( Result );
+	return( n > 0 ? s / n : pInput->Get_NoData_Value() );
 }
 
 //---------------------------------------------------------
 double CFilter::Get_Mean_Circle(int x, int y)
 {
-	int		iRadius, iPoint, ix, iy, n;
-	double	Result;
+	int		i, ix, iy, n;
+	double	s;
 
-	Result	= 0.0;
-	n		= 0;
-
-	//-----------------------------------------------------
-	for(iRadius=0; iRadius<pRadius->Get_Maximum(); iRadius++)
+	for(n=0, s=0.0, i=0; i<m_Radius.Get_nPoints(); i++)
 	{
-		for(iPoint=0; iPoint<pRadius->Get_nPoints(iRadius); iPoint++)
+		m_Radius.Get_Point(i, x, y, ix, iy);
+
+		if( pInput->is_InGrid(ix, iy) )
 		{
-			pRadius->Get_Point(iRadius, iPoint, ix, iy);
-
-			ix		+= x;
-			iy		+= y;
-
-			if( pInput->is_InGrid(ix, iy) )
-			{
-				Result	+= pInput->asDouble(ix, iy);
-				n++;
-			}
+			s	+= pInput->asDouble(ix, iy);
+			n++;
 		}
 	}
 
-	//-----------------------------------------------------
-	if( n > 0 )
-	{
-		Result	/= (double)n;
-	}
-
-	return( Result );
+	return( n > 0 ? s / n : pInput->Get_NoData_Value() );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

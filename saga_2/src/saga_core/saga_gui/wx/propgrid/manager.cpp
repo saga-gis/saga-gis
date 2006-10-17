@@ -287,6 +287,7 @@ void wxPropertyGridPage::RefreshProperty( wxPGProperty* p )
     m_manager->RefreshProperty(p);
 }
 
+/*
 bool wxPropertyGridPage::ProcessEvent( wxEvent& event )
 {
     // By default, redirect unhandled events to the manager's parent
@@ -299,12 +300,6 @@ bool wxPropertyGridPage::ProcessEvent( wxEvent& event )
         return true;
     }
     return true;
-}
-
-/*wxPGId wxPropertyGridPage::DoInsert( wxPGProperty* parent, int index, wxPGProperty* property )
-{
-    //return GetStatePtr().Insert(parent,index,property);
-    //return GetStatePtr().Insert(parent,index,property);
 }*/
 
 wxPGId wxPropertyGridPage::Insert( wxPGId id, int index, wxPGProperty* property )
@@ -356,11 +351,12 @@ wxPropertyGridManager::wxPropertyGridManager()
 
 // -----------------------------------------------------------------------
 
-wxPropertyGridManager::wxPropertyGridManager (wxWindow *parent, wxWindowID id,
-                const wxPoint& pos,
-                const wxSize& size,
-                long style,
-                const wxChar* name )
+wxPropertyGridManager::wxPropertyGridManager( wxWindow *parent,
+                                              wxWindowID id,
+                                              const wxPoint& pos,
+                                              const wxSize& size,
+                                              long style,
+                                              const wxChar* name )
     : wxPanel()
 {
     Init1();
@@ -369,14 +365,17 @@ wxPropertyGridManager::wxPropertyGridManager (wxWindow *parent, wxWindowID id,
 
 // -----------------------------------------------------------------------
 
-bool wxPropertyGridManager::Create ( wxWindow *parent, wxWindowID id,
-                const wxPoint& pos,
-                const wxSize& size,
-                long style,
-                const wxChar* name )
+bool wxPropertyGridManager::Create( wxWindow *parent,
+                                    wxWindowID id,
+                                    const wxPoint& pos,
+                                    const wxSize& size,
+                                    long style,
+                                    const wxChar* name )
 {
 
-    bool res = wxPanel::Create ( parent, id, pos, size, (style&0xFFFF0000)|wxWANTS_CHARS, name );
+    bool res = wxPanel::Create( parent, id, pos, size,
+                                (style&0xFFFF0000)|wxWANTS_CHARS,
+                                name );
     Init2(style);
 
     return res;
@@ -390,6 +389,9 @@ bool wxPropertyGridManager::Create ( wxWindow *parent, wxWindowID id,
 void wxPropertyGridManager::Init1()
 {
 
+    //m_pPropGrid = (wxPropertyGrid*) NULL;
+    m_pPropGrid = CreatePropertyGrid();
+
 #if wxUSE_TOOLBAR
     m_pToolbar = (wxToolBar*) NULL;
 #endif
@@ -398,6 +400,9 @@ void wxPropertyGridManager::Init1()
     m_pButCompactor = (wxButton*) NULL;
 
     m_targetState = (wxPropertyGridState*) NULL;
+
+    m_emptyPage = (wxPropertyGridPage*) NULL;
+
     m_targetPage = 0;
 
     m_selPage = -1;
@@ -414,7 +419,6 @@ void wxPropertyGridManager::Init1()
     m_dragStatus = 0;
     m_onSplitter = 0;
     m_iFlags = 0;
-
 }
 
 // -----------------------------------------------------------------------
@@ -447,9 +451,9 @@ void wxPropertyGridManager::Init2( int style )
     //     to actually add properties on it.
     wxPropertyGridPage* pd = new wxPropertyGridPage();
     wxPropertyGridState* state = pd->GetStatePtr();
-    state->m_pPropGrid = &m_propGrid;
+    state->m_pPropGrid = m_pPropGrid;
     m_arrPages.Add( (void*)pd );
-    m_propGrid.m_pState = state;
+    m_pPropGrid->m_pState = state;
     m_targetState = state;
 
     wxWindowID baseId = GetId();
@@ -458,38 +462,41 @@ void wxPropertyGridManager::Init2( int style )
         baseId = wxPG_MAN_ALTERNATE_BASE_ID;
 
     // Create propertygrid.
-    m_propGrid.Create(this,baseId,wxPoint(0,0),csz,
-        (m_windowStyle&wxPG_MAN_PASS_FLAGS_MASK)
-        |wxPG_MAN_PROPGRID_FORCED_FLAGS
-      );
+    m_pPropGrid->Create(this,baseId,wxPoint(0,0),csz,
+                        (m_windowStyle&wxPG_MAN_PASS_FLAGS_MASK)
+                            |wxPG_MAN_PROPGRID_FORCED_FLAGS);
 
-    m_propGrid.SetId(useId);
+    m_pPropGrid->m_eventObject = this;
 
-    m_propGrid.m_iFlags |= wxPG_FL_IN_MANAGER;
+    m_pPropGrid->SetId(useId);
 
-    m_pState = m_propGrid.m_pState;
+    m_pPropGrid->m_iFlags |= wxPG_FL_IN_MANAGER;
 
-    m_propGrid.SetExtraStyle(wxPG_EX_INIT_NOCAT);
+    m_pState = m_pPropGrid->m_pState;
+
+    m_pPropGrid->SetExtraStyle(wxPG_EX_INIT_NOCAT);
 
     m_nextTbInd = baseId+ID_ADVTBITEMSBASE_OFFSET + 2;
 
+
+#ifndef __WXPYTHON__
     // Connect to property grid onselect event.
-    Connect(useId,
+    // NB: Even if wxID_ANY is used, this doesn't connect properly in wxPython
+    //     (see wxPropertyGridManager::ProcessEvent).
+    Connect(m_pPropGrid->GetId()/*wxID_ANY*/,
             wxEVT_PG_SELECTED,
-            (wxObjectEventFunction) (wxEventFunction) (wxPropertyGridEventFunction)
-            &wxPropertyGridManager::OnPropertyGridSelect );
+            wxPropertyGridEventHandler(wxPropertyGridManager::OnPropertyGridSelect) );
+#endif
 
     // Connect to compactor button event.
     Connect(baseId+ID_ADVBUTTON_OFFSET,
             wxEVT_COMMAND_BUTTON_CLICKED,
-            (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction)
-            &wxPropertyGridManager::OnCompactorClick );
+            wxCommandEventHandler(wxPropertyGridManager::OnCompactorClick) );
 
     // Connect to toolbar button events.
     Connect(baseId+ID_ADVTBITEMSBASE_OFFSET,baseId+ID_ADVTBITEMSBASE_OFFSET+50,
             wxEVT_COMMAND_TOOL_CLICKED,
-            (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction)
-            &wxPropertyGridManager::OnToolbarClick );
+            wxCommandEventHandler(wxPropertyGridManager::OnToolbarClick) );
 
     // Optional initial controls.
     m_width = -12345;
@@ -510,6 +517,14 @@ wxPropertyGridManager::~wxPropertyGridManager()
         delete (wxPropertyGridPage*)m_arrPages.Item(i);
     }
 
+    delete m_emptyPage;
+}
+
+// -----------------------------------------------------------------------
+
+wxPropertyGrid* wxPropertyGridManager::CreatePropertyGrid() const
+{
+    return new wxPropertyGrid();
 }
 
 // -----------------------------------------------------------------------
@@ -520,7 +535,7 @@ void wxPropertyGridManager::SetId( wxWindowID winid )
 
     // TODO: Reconnect propgrid event handler(s).
 
-    m_propGrid.SetId(winid);
+    m_pPropGrid->SetId(winid);
 }
 
 // -----------------------------------------------------------------------
@@ -528,8 +543,8 @@ void wxPropertyGridManager::SetId( wxWindowID winid )
 wxSize wxPropertyGridManager::DoGetBestSize() const
 {
     /*
-    //wxSize sz = m_propGrid.DoGetBestSize();
-    wxSize sz(60,m_propGrid.m_lineHeight);
+    //wxSize sz = m_pPropGrid->DoGetBestSize();
+    wxSize sz(60,m_pPropGrid->m_lineHeight);
     wxLogDebug(wxT("m_extraHeight: %i"),m_extraHeight);
     sz.y += m_extraHeight;
     wxLogDebug(wxT("sz.y: %i"),sz.y);
@@ -541,20 +556,20 @@ wxSize wxPropertyGridManager::DoGetBestSize() const
 
 // -----------------------------------------------------------------------
 
-bool wxPropertyGridManager::SetFont ( const wxFont& font )
+bool wxPropertyGridManager::SetFont( const wxFont& font )
 {
     bool res = wxWindow::SetFont(font);
-    m_propGrid.SetFont(font);
+    m_pPropGrid->SetFont(font);
     // TODO: Need to do caption recacalculations for other pages as well.
     return res;
 }
 
 // -----------------------------------------------------------------------
 
-void wxPropertyGridManager::SetExtraStyle ( long exStyle )
+void wxPropertyGridManager::SetExtraStyle( long exStyle )
 {
-    wxWindow::SetExtraStyle ( exStyle );
-    m_propGrid.SetExtraStyle ( exStyle & 0xFFFFF000 );
+    wxWindow::SetExtraStyle( exStyle );
+    m_pPropGrid->SetExtraStyle( exStyle & 0xFFFFF000 );
 #if wxUSE_TOOLBAR
     if ( (exStyle & wxPG_EX_NO_FLAT_TOOLBAR) && m_pToolbar )
         RecreateControls();
@@ -565,7 +580,7 @@ void wxPropertyGridManager::SetExtraStyle ( long exStyle )
 
 void wxPropertyGridManager::Freeze()
 {
-    m_propGrid.Freeze();
+    m_pPropGrid->Freeze();
     wxWindow::Freeze();
 }
 
@@ -574,7 +589,7 @@ void wxPropertyGridManager::Freeze()
 void wxPropertyGridManager::Thaw()
 {
     wxWindow::Thaw();
-    m_propGrid.Thaw();
+    m_pPropGrid->Thaw();
 }
 
 // -----------------------------------------------------------------------
@@ -582,7 +597,7 @@ void wxPropertyGridManager::Thaw()
 void wxPropertyGridManager::SetWindowStyleFlag( long style )
 {
     wxWindow::SetWindowStyleFlag( style );
-    m_propGrid.SetWindowStyleFlag( (m_propGrid.GetWindowStyleFlag()&~(wxPG_MAN_PASS_FLAGS_MASK)) |
+    m_pPropGrid->SetWindowStyleFlag( (m_pPropGrid->GetWindowStyleFlag()&~(wxPG_MAN_PASS_FLAGS_MASK)) |
                                    (style&wxPG_MAN_PASS_FLAGS_MASK) );
 }
 
@@ -591,34 +606,58 @@ void wxPropertyGridManager::SetWindowStyleFlag( long style )
 // Actually shows given page.
 bool wxPropertyGridManager::DoSelectPage( int index )
 {
-    wxASSERT( m_selPage >= 0 );
+    // -1 means no page was selected
+    //wxASSERT( m_selPage >= 0 );
 
-    wxCHECK_MSG( index >= 0 && index < (int)m_arrPages.GetCount(), false,
-        wxT("invalid page index") );
+    wxCHECK_MSG( index >= -1 && index < (int)m_arrPages.GetCount(),
+                 false,
+                 wxT("invalid page index") );
 
     if ( m_selPage == index )
         return true;
 
-    if ( m_propGrid.m_selected )
+    if ( m_pPropGrid->m_selected )
     {
-        if ( !m_propGrid.ClearSelection() )
+        if ( !m_pPropGrid->ClearSelection() )
             return false;
     }
 
-    wxPropertyGridPage* nextPage = (wxPropertyGridPage*)m_arrPages.Item(index);
+    wxPropertyGridPage* prevPage;
+
+    if ( m_selPage >= 0 )
+        prevPage = GetPage(m_selPage);
+    else
+        prevPage = m_emptyPage;
+
+    wxPropertyGridPage* nextPage;
+
+    if ( index >= 0 )
+    {
+        nextPage = (wxPropertyGridPage*)m_arrPages.Item(index);
+    }
+    else
+    {
+        if ( !m_emptyPage )
+            m_emptyPage = new wxPropertyGridPage();
+
+        nextPage = m_emptyPage;
+    }
 
     m_iFlags |= wxPG_FL_DESC_REFRESH_REQUIRED;
 
-    m_propGrid.SwitchState( nextPage->GetStatePtr() );
+    m_pPropGrid->SwitchState( nextPage->GetStatePtr() );
 
-    m_pState = m_propGrid.m_pState;
+    m_pState = m_pPropGrid->m_pState;
 
     m_selPage = index;
 
 #if wxUSE_TOOLBAR
     if ( m_pToolbar )
     {
-        m_pToolbar->ToggleTool( nextPage->m_id, true );
+        if ( index >= 0 )
+            m_pToolbar->ToggleTool( nextPage->m_id, true );
+        else
+            m_pToolbar->ToggleTool( prevPage->m_id, false );
     }
 #endif
 
@@ -631,7 +670,8 @@ bool wxPropertyGridManager::DoSelectPage( int index )
 void wxPropertyGridManager::SelectPage( int index )
 {
     DoSelectPage(index);
-    SetTargetPage(index);
+    if ( index >= 0 )
+        SetTargetPage(index);
 }
 
 // -----------------------------------------------------------------------
@@ -691,12 +731,15 @@ void wxPropertyGridManager::SetTargetPage( int index )
 
 void wxPropertyGridManager::ClearPage( int page )
 {
+    wxASSERT( page >= 0 );
+    wxASSERT( page < (int)m_arrPages.GetCount() );
+
     if ( page >= 0 && page < (int)m_arrPages.GetCount() )
     {
         wxPropertyGridState* state = GetPageState(page);
 
-        if ( state == m_propGrid.GetState() )
-            m_propGrid.Clear();
+        if ( state == m_pPropGrid->GetState() )
+            m_pPropGrid->Clear();
         else
             state->Clear();
     }
@@ -719,7 +762,7 @@ void wxPropertyGridManager::SetPropertyAttributeAll( int attrid, wxVariant value
 
 bool wxPropertyGridManager::Compact( bool compact )
 {
-    bool res = m_propGrid.Compact(compact);
+    bool res = m_pPropGrid->Compact(compact);
     if ( res )
     {
         if ( m_pButCompactor )
@@ -748,10 +791,11 @@ int wxPropertyGridManager::InsertPage( int index, const wxString& label,
         wxT("wxPropertyGridManager currently only supports appending pages (due to wxToolBar limitation)."));
 
     bool needInit = true;
+    bool isPageInserted = m_iFlags & wxPG_MAN_FL_PAGE_INSERTED ? true : false;
 
     if ( !pageObj )
     {
-        if ( m_selPage < 0 )
+        if ( !isPageInserted )
         {
             pageObj = GetPage(0);
             needInit = false;
@@ -764,23 +808,22 @@ int wxPropertyGridManager::InsertPage( int index, const wxString& label,
     }
     else
     {
-        if ( m_selPage < 0 )
+        if ( !isPageInserted )
         {
             // Initial page needs to be deleted and replaced
             delete GetPage(0);
             m_arrPages[0] = pageObj;
-            m_propGrid.m_pState = pageObj->GetStatePtr();
+            m_pPropGrid->m_pState = pageObj->GetStatePtr();
         }
     }
 
     wxPropertyGridState* state = pageObj->GetStatePtr();
 
     pageObj->m_manager = this;
-    //pageObj->m_pState = &pageObj->GetStatePtr();
 
     if ( needInit )
     {
-        state->m_pPropGrid = &m_propGrid;
+        state->m_pPropGrid = m_pPropGrid;
         state->InitNonCatMode();
     }
 
@@ -790,7 +833,7 @@ int wxPropertyGridManager::InsertPage( int index, const wxString& label,
     m_targetState = state;
     m_targetPage = index;
 
-    if ( m_selPage >= 0 )
+    if ( isPageInserted )
         m_arrPages.Add( (void*)pageObj );
 
 #if wxUSE_TOOLBAR
@@ -815,12 +858,11 @@ int wxPropertyGridManager::InsertPage( int index, const wxString& label,
         m_nextTbInd++;
 
         m_pToolbar->Realize();
-
     }
 #endif
 
     // If selected page was above the point of insertion, fix the current page index
-    if ( m_selPage >= 0 )
+    if ( isPageInserted )
     {
         if ( m_selPage >= index )
         {
@@ -834,6 +876,8 @@ int wxPropertyGridManager::InsertPage( int index, const wxString& label,
     }
 
     pageObj->Init();
+
+    m_iFlags |= wxPG_MAN_FL_PAGE_INSERTED;
 
     return index;
 }
@@ -864,6 +908,9 @@ bool wxPropertyGridManager::IsPageModified( size_t index ) const
 
 wxPGId wxPropertyGridManager::GetPageRoot( int index ) const
 {
+    wxASSERT( index >= 0 );
+    wxASSERT( index < (int)m_arrPages.GetCount() );
+
     return ((wxPropertyGridPage*)m_arrPages.Item(index))->GetStatePtr()->m_properties;
 }
 
@@ -875,16 +922,18 @@ bool wxPropertyGridManager::RemovePage( int page )
                  false,
                  wxT("invalid page index") );
 
+    wxPropertyGridPage* pd = (wxPropertyGridPage*)m_arrPages.Item(page);
+
     if ( m_arrPages.GetCount() == 1 )
     {
         // Last page: do not remove page entry
-        m_propGrid.Clear();
+        m_pPropGrid->Clear();
         m_selPage = -1;
     }
     // Change selection if current is page
     else if ( page == m_selPage )
     {
-        if ( !m_propGrid.ClearSelection() )
+        if ( !m_pPropGrid->ClearSelection() )
                 return false;
 
         // Substitute page to select
@@ -915,7 +964,6 @@ bool wxPropertyGridManager::RemovePage( int page )
 
     if ( m_arrPages.GetCount() > 1 )
     {
-        wxPropertyGridPage* pd = (wxPropertyGridPage*)m_arrPages.Item(page);
         m_arrPages.RemoveAt(page);
         delete pd;
     }
@@ -933,6 +981,14 @@ bool wxPropertyGridManager::ProcessEvent( wxEvent& event )
 {
     int evtType = event.GetEventType();
 
+#ifdef __WXPYTHON__
+    // NB: For some reason, under wxPython, Connect in Init doesn't work properly,
+    //     so we'll need to call OnPropertyGridSelect manually. Multiple call's
+    //     don't really matter.
+    if ( evtType == wxEVT_PG_SELECTED )
+        OnPropertyGridSelect((wxPropertyGridEvent&)event);
+#endif
+
     // Property grid events get special attention
     if ( evtType >= wxPG_BASE_EVT_TYPE &&
          evtType < (wxPG_MAX_EVT_TYPE) &&
@@ -940,14 +996,17 @@ bool wxPropertyGridManager::ProcessEvent( wxEvent& event )
     {
         wxPropertyGridPage* page = GetPage(m_selPage);
 
-        // Redirect property grid events to custom pages
+        // Add property grid events to appropriate custom pages
+        // but stop propagating to parent if page says it is
+        // handling everything.
         if ( !page->m_isDefault )
         {
             page->AddPendingEvent(event);
-            return true;
+            if ( page->IsHandlingAllEvents() )
+                event.StopPropagation();
         }
     }
-
+    
     return wxPanel::ProcessEvent(event);
 }
 
@@ -998,7 +1057,7 @@ void wxPropertyGridManager::RefreshHelpBox( int new_splittery, int new_width, in
     //    wxRect(0,new_splittery,new_width,m_splitterHeight));
 
     // Fix help control positions.
-    int cap_hei = m_propGrid.m_fontHeight;
+    int cap_hei = m_pPropGrid->m_fontHeight;
     int cap_y = new_splittery+m_splitterHeight+5;
     int cnt_y = cap_y+cap_hei+3;
     int sub_cap_hei = cap_y+cap_hei-use_hei;
@@ -1040,9 +1099,8 @@ void wxPropertyGridManager::RefreshHelpBox( int new_splittery, int new_width, in
 void wxPropertyGridManager::RecalculatePositions( int width, int height )
 {
 
-    int propgrid_y = 0;
-    int propgrid_bottom_y = height;
-    //int button_top = height;
+    int propgridY = 0;
+    int propgridBottomY = height;
 
     // Toolbar at the top.
 #if wxUSE_TOOLBAR
@@ -1066,7 +1124,7 @@ void wxPropertyGridManager::RecalculatePositions( int width, int height )
     #endif
 
         m_pToolbar->SetSize(0,0,width,tbHeight);
-        propgrid_y = m_pToolbar->GetSize().y;
+        propgridY = m_pToolbar->GetSize().y;
     }
 #endif
 
@@ -1075,7 +1133,7 @@ void wxPropertyGridManager::RecalculatePositions( int width, int height )
     {
         int but_hei = m_pButCompactor->GetSize().y;
         m_pButCompactor->SetSize(0,height-but_hei,width,but_hei);
-        propgrid_bottom_y -= but_hei;
+        propgridBottomY -= but_hei;
         //button_top -= but_hei;
     }
 
@@ -1102,19 +1160,19 @@ void wxPropertyGridManager::RecalculatePositions( int width, int height )
         }
 
         // Check if beyond minimum.
-        int nspy_min = propgrid_y + m_propGrid.m_lineHeight;
+        int nspy_min = propgridY + m_pPropGrid->m_lineHeight;
         if ( new_splittery < nspy_min )
             new_splittery = nspy_min;
 
-        propgrid_bottom_y = new_splittery;
+        propgridBottomY = new_splittery;
 
         RefreshHelpBox( new_splittery, width, height );
     }
 
     if ( m_iFlags & wxPG_FL_INITIALIZED )
     {
-        int pgh = propgrid_bottom_y - propgrid_y;
-        m_propGrid.SetSize ( 0, propgrid_y,
+        int pgh = propgridBottomY - propgridY;
+        m_pPropGrid->SetSize ( 0, propgridY,
             width, pgh );
 
         m_extraHeight = height - pgh;
@@ -1166,7 +1224,7 @@ void wxPropertyGridManager::OnPaint( wxPaintEvent& WXUNUSED(event) )
 
 void wxPropertyGridManager::Refresh(bool eraseBackground, const wxRect* rect )
 {
-    m_propGrid.Refresh(eraseBackground);
+    m_pPropGrid->Refresh(eraseBackground);
     wxWindow::Refresh(eraseBackground,rect);
 }
 
@@ -1189,7 +1247,7 @@ void wxPropertyGridManager::RecreateControls()
     if ( was_shown )
         Show ( false );
 
-    wxWindowID baseId = m_propGrid.GetId();
+    wxWindowID baseId = m_pPropGrid->GetId();
     if ( baseId < 0 )
         baseId = wxPG_MAN_ALTERNATE_BASE_ID;
 
@@ -1228,7 +1286,7 @@ void wxPropertyGridManager::RecreateControls()
             // both items will get toggled).
             int toggle_but_on_ind = ID_ADVTBITEMSBASE_OFFSET+0;
             int toggle_but_off_ind = ID_ADVTBITEMSBASE_OFFSET+1;
-            if ( m_propGrid.m_pState->IsInNonCatMode() )
+            if ( m_pPropGrid->m_pState->IsInNonCatMode() )
             {
                 toggle_but_on_ind++;
                 toggle_but_off_ind--;
@@ -1254,7 +1312,7 @@ void wxPropertyGridManager::RecreateControls()
         if ( !m_pButCompactor )
         {
             m_pButCompactor = new wxButton (this,baseId+ID_ADVBUTTON_OFFSET,
-                !(m_propGrid.m_iFlags & wxPG_FL_HIDE_STATE)?_("<< Compact"):_("Expand >>"));
+                !(m_pPropGrid->m_iFlags & wxPG_FL_HIDE_STATE)?_("<< Compact"):_("Expand >>"));
             m_pButCompactor->SetCursor ( *wxSTANDARD_CURSOR );
         }
     }
@@ -1269,12 +1327,12 @@ void wxPropertyGridManager::RecreateControls()
     if ( m_windowStyle & wxPG_DESCRIPTION )
     {
         // Has help box.
-        m_propGrid.m_iFlags |= (wxPG_FL_NOSTATUSBARHELP);
+        m_pPropGrid->m_iFlags |= (wxPG_FL_NOSTATUSBARHELP);
 
         if ( !m_pTxtHelpCaption )
         {
             m_pTxtHelpCaption = new wxStaticText (this,baseId+ID_ADVHELPCAPTION_OFFSET,wxT(""));
-            m_pTxtHelpCaption->SetFont( m_propGrid.m_captionFont );
+            m_pTxtHelpCaption->SetFont( m_pPropGrid->m_captionFont );
             m_pTxtHelpCaption->SetCursor ( *wxSTANDARD_CURSOR );
         }
         if ( !m_pTxtHelpContent )
@@ -1287,7 +1345,7 @@ void wxPropertyGridManager::RecreateControls()
     else
     {
         // No help box.
-        m_propGrid.m_iFlags &= ~(wxPG_FL_NOSTATUSBARHELP);
+        m_pPropGrid->m_iFlags &= ~(wxPG_FL_NOSTATUSBARHELP);
 
         if ( m_pTxtHelpCaption )
             m_pTxtHelpCaption->Destroy();
@@ -1331,7 +1389,8 @@ wxPGId wxPropertyGridManager::DoGetPropertyByName( wxPGPropNameStr name ) const
 
 // -----------------------------------------------------------------------
 
-wxPGId wxPropertyGridManager::GetPropertyByLabel( const wxString& label, wxPropertyGridState** ppState ) const
+wxPGId wxPropertyGridManager::GetPropertyByLabel( const wxString& label,
+                                                  wxPropertyGridState** ppState ) const
 {
     size_t i;
     for ( i=0; i<m_arrPages.GetCount(); i++ )
@@ -1351,15 +1410,15 @@ wxPGId wxPropertyGridManager::GetPropertyByLabel( const wxString& label, wxPrope
 
 bool wxPropertyGridManager::EnsureVisible( wxPGId id )
 {
-    wxASSERT( wxPGIdIsOk(id) );
+    wxPG_PROP_ID_CALL_PROLOG_RETVAL(false)
 
-    wxPropertyGridState* parentState = wxPGIdToPtr(id)->GetParentState();
+    wxPropertyGridState* parentState = p->GetParentState();
 
     // Select correct page.
-    if ( m_propGrid.m_pState != parentState )
+    if ( m_pPropGrid->m_pState != parentState )
         DoSelectPage( GetPageByState(parentState) );
 
-    return m_propGrid.EnsureVisible(id);
+    return m_pPropGrid->EnsureVisible(id);
 }
 
 // -----------------------------------------------------------------------
@@ -1367,78 +1426,86 @@ bool wxPropertyGridManager::EnsureVisible( wxPGId id )
 // TODO: Transfer name-argument methods to class as inlines.
 
 #define wxPG_IMPLEMENT_PGMAN_METHOD_WRET0(NAME,RETVAL) \
-wxPG_IPAM_DECL RETVAL wxPropertyGridManager::NAME ( wxPGId id ) \
+wxPG_IPAM_DECL RETVAL wxPropertyGridManager::NAME( wxPGId id ) \
 { \
     wxPGProperty* p = wxPGIdToPtr(id); \
-    wxASSERT_MSG(p,wxT("NULL property")); \
+    wxASSERT_MSG(p,wxT("invalid property id")); \
     if ( p ) \
     { \
         wxPropertyGridState* pState = p->GetParentState(); \
-        wxASSERT ( pState != (wxPropertyGridState*) NULL ); \
-        if ( pState == m_propGrid.m_pState ) return m_propGrid.NAME(id); \
+        wxASSERT( pState != (wxPropertyGridState*) NULL ); \
+        if ( pState == m_pPropGrid->m_pState ) return m_pPropGrid->NAME(id); \
         return pState->NAME(p); \
     } \
     return ((RETVAL)0); \
 } \
-wxPG_IPAM_DECL RETVAL wxPropertyGridManager::NAME ( wxPGPropNameStr name ) \
+wxPG_IPAM_DECL RETVAL wxPropertyGridManager::NAME( wxPGPropNameStr name ) \
 { \
-    return NAME(GetPropertyByName(name)); \
+    wxPGId id = GetPropertyByNameI(name); \
+    if ( !wxPGIdIsOk(id) ) return ((RETVAL)0); \
+    return NAME(id); \
 }
 
 #define wxPG_IMPLEMENT_PGMAN_METHOD_WRET1(NAME,RETVAL,AT1) \
-wxPG_IPAM_DECL RETVAL wxPropertyGridManager::NAME ( wxPGId id, AT1 _av1_ ) \
+wxPG_IPAM_DECL RETVAL wxPropertyGridManager::NAME( wxPGId id, AT1 _av1_ ) \
 { \
     wxPGProperty* p = wxPGIdToPtr(id); \
-    wxASSERT_MSG(p,wxT("NULL property")); \
+    wxASSERT_MSG(p,wxT("invalid property id")); \
     if ( p ) \
     { \
         wxPropertyGridState* pState = p->GetParentState(); \
-        wxASSERT ( pState != (wxPropertyGridState*) NULL ); \
-        if ( pState == m_propGrid.m_pState ) return m_propGrid.NAME(id,_av1_); \
+        wxASSERT( pState != (wxPropertyGridState*) NULL ); \
+        if ( pState == m_pPropGrid->m_pState ) return m_pPropGrid->NAME(id,_av1_); \
         return pState->NAME(p,_av1_); \
     } \
     return ((RETVAL)0); \
 } \
-wxPG_IPAM_DECL RETVAL wxPropertyGridManager::NAME ( wxPGPropNameStr name, AT1 _av1_ ) \
+wxPG_IPAM_DECL RETVAL wxPropertyGridManager::NAME( wxPGPropNameStr name, AT1 _av1_ ) \
 { \
-    return NAME(GetPropertyByName(name),_av1_); \
+    wxPGId id = GetPropertyByNameI(name); \
+    if ( !wxPGIdIsOk(id) ) return ((RETVAL)0); \
+    return NAME(id,_av1_); \
 }
 
 #define wxPG_IMPLEMENT_PGMAN_METHOD_WRET2(NAME,RETVAL,AT1,AT2) \
-wxPG_IPAM_DECL RETVAL wxPropertyGridManager::NAME ( wxPGId id, AT1 _av1_, AT2 _av2_ ) \
+wxPG_IPAM_DECL RETVAL wxPropertyGridManager::NAME( wxPGId id, AT1 _av1_, AT2 _av2_ ) \
 { \
     wxPGProperty* p = wxPGIdToPtr(id); \
-    wxASSERT_MSG(p,wxT("NULL property")); \
+    wxASSERT_MSG(p,wxT("invalid property id")); \
     if ( p ) \
     { \
         wxPropertyGridState* pState = p->GetParentState(); \
-        wxASSERT ( pState != (wxPropertyGridState*) NULL ); \
-        if ( pState == m_propGrid.m_pState ) return m_propGrid.NAME(id,_av1_,_av2_); \
+        wxASSERT( pState != (wxPropertyGridState*) NULL ); \
+        if ( pState == m_pPropGrid->m_pState ) return m_pPropGrid->NAME(id,_av1_,_av2_); \
         return pState->NAME(p,_av1_,_av2_); \
     } \
     return ((RETVAL)0); \
 } \
-wxPG_IPAM_DECL RETVAL wxPropertyGridManager::NAME ( wxPGPropNameStr name, AT1 _av1_, AT2 _av2_ ) \
+wxPG_IPAM_DECL RETVAL wxPropertyGridManager::NAME( wxPGPropNameStr name, AT1 _av1_, AT2 _av2_ ) \
 { \
-    return NAME(GetPropertyByName(name),_av1_,_av2_); \
+    wxPGId id = GetPropertyByNameI(name); \
+    if ( !wxPGIdIsOk(id) ) return ((RETVAL)0); \
+    return NAME(id,_av1_,_av2_); \
 }
 
 #define wxPG_IMPLEMENT_PGMAN_METHOD_NORET0(NAME) \
-wxPG_IPAM_DECL void wxPropertyGridManager::NAME ( wxPGId id ) \
+wxPG_IPAM_DECL void wxPropertyGridManager::NAME( wxPGId id ) \
 { \
     wxPGProperty* p = wxPGIdToPtr(id); \
-    wxASSERT_MSG(p,wxT("NULL property")); \
+    wxASSERT_MSG(p,wxT("invalid property id")); \
     if ( p ) \
     { \
         wxPropertyGridState* pState = p->GetParentState(); \
-        wxASSERT ( pState != (wxPropertyGridState*) NULL ); \
-        if ( pState == m_propGrid.m_pState ) m_propGrid.NAME(id); \
+        wxASSERT( pState != (wxPropertyGridState*) NULL ); \
+        if ( pState == m_pPropGrid->m_pState ) m_pPropGrid->NAME(id); \
         else pState->NAME(p); \
     } \
 } \
-wxPG_IPAM_DECL void wxPropertyGridManager::NAME ( wxPGPropNameStr name ) \
+wxPG_IPAM_DECL void wxPropertyGridManager::NAME( wxPGPropNameStr name ) \
 { \
-    NAME(GetPropertyByName(name)); \
+    wxPGId id = GetPropertyByNameI(name); \
+    if ( !wxPGIdIsOk(id) ) return; \
+    NAME(id); \
 }
 
 
@@ -1451,7 +1518,6 @@ wxPG_IMPLEMENT_PGMAN_METHOD_WRET1(EnableProperty,bool,bool)
 wxPG_IMPLEMENT_PGMAN_METHOD_WRET0(Expand,bool)
 wxPG_IMPLEMENT_PGMAN_METHOD_NORET1(LimitPropertyEditing,bool)
 wxPG_IMPLEMENT_PGMAN_METHOD_NORET1(SetPropertyLabel,const wxString&)
-//wxPG_IMPLEMENT_PGMAN_METHOD_NORET1(SetPropertyPriority,int)
 wxPG_IMPLEMENT_PGMAN_METHOD_NORET1(SetPropertyValueLong,long)
 #ifndef __WXPYTHON__
 wxPG_IMPLEMENT_PGMAN_METHOD_NORET1(SetPropertyValue,int)
@@ -1477,9 +1543,11 @@ wxPG_IMPLEMENT_PGMAN_METHOD_NORET0(SetPropertyUnspecified)
 
 void wxPropertyGridManager::ClearModifiedStatus( wxPGId id )
 {
-    wxPropertyGridState* pState = wxPGIdToPtr(id)->GetParentState();
+    wxPG_PROP_ID_CALL_PROLOG()
+
+    wxPropertyGridState* pState = p->GetParentState();
     wxASSERT ( pState != (wxPropertyGridState*) NULL );
-    pState->ClearModifiedStatus(wxPGIdToPtr(id));
+    pState->ClearModifiedStatus(p);
 }
 
 // -----------------------------------------------------------------------
@@ -1496,21 +1564,21 @@ void wxPropertyGridManager::OnToolbarClick( wxCommandEvent &event )
     int id = event.GetId();
     if ( id >= 0 )
     {
-        int baseId = m_propGrid.GetId();
+        int baseId = m_pPropGrid->GetId();
         if ( baseId < 0 )
             baseId = wxPG_MAN_ALTERNATE_BASE_ID;
 
         if ( id == ( baseId + ID_ADVTBITEMSBASE_OFFSET + 0 ) )
         {
             // Categorized mode.
-            if ( m_propGrid.m_windowStyle & wxPG_HIDE_CATEGORIES )
-                m_propGrid.EnableCategories( true );
+            if ( m_pPropGrid->m_windowStyle & wxPG_HIDE_CATEGORIES )
+                m_pPropGrid->EnableCategories( true );
         }
         else if ( id == ( baseId + ID_ADVTBITEMSBASE_OFFSET + 1 ) )
         {
             // Alphabetic mode.
-            if ( !(m_propGrid.m_windowStyle & wxPG_HIDE_CATEGORIES) )
-                m_propGrid.EnableCategories( false );
+            if ( !(m_pPropGrid->m_windowStyle & wxPG_HIDE_CATEGORIES) )
+                m_pPropGrid->EnableCategories( false );
         }
         else
         {
@@ -1538,7 +1606,7 @@ void wxPropertyGridManager::OnToolbarClick( wxCommandEvent &event )
 
                 // Event dispatching must be last.
                 wxPropertyGridEvent evt( wxEVT_PG_PAGE_CHANGED, GetId() );
-                evt.SetPropertyGrid(&m_propGrid);
+                evt.SetPropertyGrid(m_pPropGrid);
                 evt.SetEventObject(this);
                 GetEventHandler()->AddPendingEvent(evt);
 
@@ -1596,12 +1664,12 @@ void wxPropertyGridManager::SetSplitterLeft( bool subProps, bool allPages )
 {
     if ( !allPages )
     {
-        m_propGrid.SetSplitterLeft(subProps);
+        m_pPropGrid->SetSplitterLeft(subProps);
     }
     else
     {
         wxClientDC dc(this);
-        dc.SetFont(m_propGrid.m_font);
+        dc.SetFont(m_pPropGrid->m_font);
 
         int highest = 0;
         unsigned int i;
@@ -1615,9 +1683,9 @@ void wxPropertyGridManager::SetSplitterLeft( bool subProps, bool allPages )
         }
 
         if ( highest > 0 )
-            m_propGrid.SetSplitterPosition( highest );
+            m_pPropGrid->SetSplitterPosition( highest );
 
-        m_propGrid.m_iFlags |= wxPG_FL_DONT_CENTER_SPLITTER;
+        m_pPropGrid->m_iFlags |= wxPG_FL_DONT_CENTER_SPLITTER;
     }
 }
 
@@ -1626,7 +1694,7 @@ void wxPropertyGridManager::SetSplitterLeft( bool subProps, bool allPages )
 void wxPropertyGridManager::OnPropertyGridSelect( wxPropertyGridEvent& event )
 {
     // Check id.
-    wxASSERT_MSG ( GetId() == m_propGrid.GetId(),
+    wxASSERT_MSG( GetId() == m_pPropGrid->GetId(),
         wxT("wxPropertyGridManager id must be set with wxPropertyGridManager::SetId (not wxWindow::SetId).") );
 
     SetDescribedProperty(event.GetPropertyPtr());
@@ -1637,14 +1705,14 @@ void wxPropertyGridManager::OnPropertyGridSelect( wxPropertyGridEvent& event )
 
 void wxPropertyGridManager::OnCompactorClick( wxCommandEvent& WXUNUSED(event) )
 {
-    if ( !(m_propGrid.m_iFlags & wxPG_FL_HIDE_STATE) )
+    if ( !(m_pPropGrid->m_iFlags & wxPG_FL_HIDE_STATE) )
     {
-        m_propGrid.Compact( true );
+        m_pPropGrid->Compact( true );
         m_pButCompactor->SetLabel( _("Expand >>") );
     }
     else
     {
-        m_propGrid.Compact( false );
+        m_pPropGrid->Compact( false );
         m_pButCompactor->SetLabel( _("<< Compact") );
     }
 }
@@ -1689,7 +1757,7 @@ void wxPropertyGridManager::OnMouseMove( wxMouseEvent &event )
         // Calculate drag limits
         int bottom_limit = m_height - m_splitterHeight + 1;
         if ( m_pButCompactor ) bottom_limit -= m_pButCompactor->GetSize().y;
-        int top_limit = m_propGrid.m_lineHeight;
+        int top_limit = m_pPropGrid->m_lineHeight;
 #if wxUSE_TOOLBAR
         if ( m_pToolbar ) top_limit += m_pToolbar->GetSize().y;
 #endif
@@ -1702,7 +1770,7 @@ void wxPropertyGridManager::OnMouseMove( wxMouseEvent &event )
             {
                 m_splitterY = sy;
 
-                m_propGrid.SetSize( m_width, m_splitterY - m_propGrid.GetPosition().y );
+                m_pPropGrid->SetSize( m_width, m_splitterY - m_pPropGrid->GetPosition().y );
                 RefreshHelpBox( m_splitterY, m_width, m_height );
 
                 m_extraHeight -= change;

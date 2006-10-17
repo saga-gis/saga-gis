@@ -81,7 +81,7 @@ protected:
 
 private:
 
-	CSG_Grid_Radius		*pRadius;
+	CSG_Grid_Radius			m_Radius;
 
 	CGrid					*pInput;
 

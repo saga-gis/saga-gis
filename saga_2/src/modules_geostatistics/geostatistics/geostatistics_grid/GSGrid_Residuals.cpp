@@ -138,14 +138,9 @@ bool CGSGrid_Residuals::On_Execute(void)
 	DataObject_Set_Colors(pPercentile	, Colors);
 
 	//-----------------------------------------------------
-	pRadius		= new CSG_Grid_Radius(Parameters("RADIUS")->asInt() + 1);
+	m_Radius.Create(Parameters("RADIUS")->asInt() + 1);
 
-	for(y=0, x=1; y<pRadius->Get_Maximum(); y++)
-	{
-		x	+= pRadius->Get_nPoints(y);
-	}
-
-	Values		= (double *)malloc(x * sizeof(double));
+	Values		= (double *)malloc(m_Radius.Get_nPoints() * sizeof(double));
 
 	//-----------------------------------------------------
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -157,7 +152,7 @@ bool CGSGrid_Residuals::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	delete(pRadius);
+	m_Radius.Destroy();
 
 	free(Values);
 
@@ -167,8 +162,8 @@ bool CGSGrid_Residuals::On_Execute(void)
 //---------------------------------------------------------
 int CGSGrid_Residuals::Get_Value(int x, int y)
 {
-	int				iRadius, iPoint, ix, iy, nPoints, nLower;
-	double			Value, zValue, zMin, zMax, Mean, StdDev;
+	int		iPoint, ix, iy, nPoints, nLower;
+	double	Value, zValue, zMin, zMax, Mean, StdDev;
 
 	//-----------------------------------------------------
 	nPoints	= 0;
@@ -179,36 +174,30 @@ int CGSGrid_Residuals::Get_Value(int x, int y)
 		Mean	= 0.0;
 		zValue	= pInput->asDouble(x, y);
 
-		for(iRadius=0; iRadius<pRadius->Get_Maximum(); iRadius++)
+		for(iPoint=0; iPoint<m_Radius.Get_nPoints(); iPoint++)
 		{
-			for(iPoint=0; iPoint<pRadius->Get_nPoints(iRadius); iPoint++)
+			m_Radius.Get_Point(iPoint, x, y, ix, iy);
+
+			if( pInput->is_InGrid(ix, iy) )
 			{
-				pRadius->Get_Point(iRadius, iPoint, ix, iy);
+				Mean	+= (Values[nPoints++]	= Value	= pInput->asDouble(ix, iy));
 
-				ix	+= x;
-				iy	+= y;
-
-				if( pInput->is_InGrid(ix, iy) )
+				if( nPoints <= 1 )
 				{
-					Mean	+= (Values[nPoints++]	= Value	= pInput->asDouble(ix, iy));
+					zMin	= zMax	= Value;
+				}
+				else if( zMin > Value )
+				{
+					zMin	= Value;
+				}
+				else if( zMax < Value )
+				{
+					zMax	= Value;
+				}
 
-					if( nPoints <= 1 )
-					{
-						zMin	= zMax	= Value;
-					}
-					else if( zMin > Value )
-					{
-						zMin	= Value;
-					}
-					else if( zMax < Value )
-					{
-						zMax	= Value;
-					}
-
-					if( Value < zValue )
-					{
-						nLower++;
-					}
+				if( Value < zValue )
+				{
+					nLower++;
 				}
 			}
 		}

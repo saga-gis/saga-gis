@@ -97,7 +97,7 @@ private:
 
 	double					*Values;
 
-	CSG_Grid_Radius		*pRadius;
+	CSG_Grid_Radius			m_Radius;
 
 	CGrid					*pInput, *pMean, *pDiff, *pStdDev, *pRange, *pDevMean, *pPercentile;
 

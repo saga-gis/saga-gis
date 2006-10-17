@@ -61,6 +61,7 @@ enum
     wxPGCC_ALT_KEYS                   = 0x0200,
 };
 
+#define wxPGCC_PROCESS_ENTER            0
 
 // ----------------------------------------------------------------------------
 // wxPGComboControlBase: a base class for generic control that looks like
@@ -149,6 +150,8 @@ public:
 
     virtual ~wxPGComboControlBase();
 
+    virtual bool Destroy();
+
     // show/hide popup window
     virtual void ShowPopup();
     virtual void HidePopup();
@@ -201,6 +204,12 @@ public:
     virtual void Remove(long from, long to);
     virtual void SetSelection(long from, long to);
     virtual void Undo();
+
+    // Returns the text field rectangle, including any image that is painted with it.
+    inline const wxRect& GetTextRect() const
+    {
+        return m_tcArea;
+    }
 
     //
     // Popup customization methods
@@ -357,8 +366,8 @@ protected:
     //   extraStyle: Extra style parameters
     void CreateTextCtrl( int extraStyle, const wxValidator& validator );
 
-    // Installs standard input handler to combo (and optionally to the textctrl)
-    void InstallInputHandlers( bool alsoTextCtrl = true );
+    // Installs standard input handler to combo
+    void InstallInputHandlers();
 
     // Draws dropbutton. Using wxRenderer or bitmaps, as appropriate.
     void DrawButton( wxDC& dc, const wxRect& rect, bool paintBg = true );
@@ -403,9 +412,9 @@ protected:
     void PositionTextCtrl( int textCtrlXAdjust, int textCtrlYAdjust );
 
     // event handlers
-    void OnSizeEvent( wxSizeEvent& event );
+    void OnSizeEvent(wxSizeEvent& event);
     void OnFocusEvent(wxFocusEvent& event);
-    //void OnButtonClickEvent(wxCommandEvent& event);
+    void OnKeyEvent(wxKeyEvent& event);
     void OnTextCtrlEvent(wxCommandEvent& event);
     void OnSysColourChanged(wxSysColourChangedEvent& event);
 
@@ -432,10 +441,7 @@ protected:
     // popup interface
     wxPGComboPopup*         m_popupInterface;
 
-    // this is for this control itself
-    wxEvtHandler*           m_extraEvtHandler;
-
-    // this is for text
+    // this is input etc. handler the text control
     wxEvtHandler*           m_textEvtHandler;
 
     // this is for the top level window
@@ -445,7 +451,7 @@ protected:
     wxEvtHandler*           m_popupExtraHandler;
 
     // needed for "instant" double-click handling
-    wxLongLong              m_timeLastMouseUp;
+    //wxLongLong              m_timeLastMouseUp;
 
     // used to prevent immediate re-popupping incase closed popup
     // by clicking on the combo control (needed because of inconsistent
@@ -511,7 +517,7 @@ protected:
     unsigned char           m_fakePopupUsage;
 
     // Set to 1 on mouse down, 0 on mouse up. Used to eliminate down-less mouse ups.
-    bool                    m_downReceived;
+    //bool                    m_downReceived;
 
 private:
     void Init();

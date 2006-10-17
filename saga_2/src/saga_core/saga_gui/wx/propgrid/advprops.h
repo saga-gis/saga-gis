@@ -18,6 +18,10 @@
 
 // -----------------------------------------------------------------------
 
+
+//
+// Additional Value Type Handlers
+//
 #ifndef SWIG
 
 WX_PG_DECLARE_VALUE_TYPE_WITH_DECL(wxFont,WXDLLIMPEXP_PG)
@@ -26,17 +30,37 @@ WX_PG_DECLARE_VALUE_TYPE_WITH_DECL(wxColour,WXDLLIMPEXP_PG)
 
 WX_PG_DECLARE_VALUE_TYPE_VOIDP_WITH_DECL(wxArrayInt,WXDLLIMPEXP_PG)
 
+
+#if wxUSE_DATETIME
+#include <wx/datetime.h>
+WX_PG_DECLARE_VALUE_TYPE_BUILTIN_WITH_DECL(wxDateTime,WXDLLIMPEXP_PG)
+#endif
+
 bool WXDLLIMPEXP_PG operator == (const wxFont&, const wxFont&);
 
 bool WXDLLIMPEXP_PG operator == (const wxArrayInt& array1, const wxArrayInt& array2);
 
 #endif
 
+
+//
+// Additional Property Editors
+//
+#if wxUSE_SPINCTRL
+WX_PG_DECLARE_EDITOR_WITH_DECL(SpinCtrl,WXDLLIMPEXP_PG)
+#endif
+
+#if wxUSE_DATEPICKCTRL && defined(wxPG_ALLOW_WXADV)
+WX_PG_DECLARE_EDITOR_WITH_DECL(DatePickerCtrl,WXDLLIMPEXP_PG)
+#endif
+
 // -----------------------------------------------------------------------
+
 
 // Web colour is currently unsupported
 #define wxPG_COLOUR_WEB_BASE        0x10000
 //#define wxPG_TO_WEB_COLOUR(A)   ((wxUint32)(A+wxPG_COLOUR_WEB_BASE))
+
 
 #define wxPG_COLOUR_CUSTOM      0xFFFFFF
 
@@ -72,20 +96,20 @@ public:
     /** Resulting colour. Should be correct regardless of type. */
     wxColour    m_colour;
 
-    wxColourPropertyValue () { }
+    wxColourPropertyValue() { }
 
-    inline wxColourPropertyValue ( const wxColour& colour )
+    inline wxColourPropertyValue( const wxColour& colour )
     {
         m_type = wxPG_COLOUR_CUSTOM;
         m_colour = colour;
     }
 
-    inline wxColourPropertyValue ( wxUint32 type )
+    inline wxColourPropertyValue( wxUint32 type )
     {
         m_type = type;
     }
 
-    inline wxColourPropertyValue ( wxUint32 type, const wxColour& colour )
+    inline wxColourPropertyValue( wxUint32 type, const wxColour& colour )
     {
         m_type = type;
         m_colour = colour;
@@ -131,10 +155,12 @@ extern DECL wxPGPropertyClassInfo NAME##ClassInfo;
 extern wxPGProperty* wxPG_CONSTFUNC(NAME)( const wxString& label, const wxString& name = wxPG_LABEL, const wxColour& value = wxPG_COLOUR_BLACK ); \
 extern wxPGPropertyClassInfo NAME##ClassInfo;
 
-// Declare advanced property types.
+// Declare advanced properties.
 WX_PG_DECLARE_PROPERTY_WITH_DECL(wxFontProperty,const wxFont&,wxPG_NORMAL_FONT,WXDLLIMPEXP_PG)
 WX_PG_DECLARE_PROPERTY_WITH_DECL(wxSystemColourProperty,const wxColourPropertyValue&,wxPG_EMPTY_CPV,WXDLLIMPEXP_PG)
 WX_PG_DECLARE_PROPERTY_WITH_DECL(wxCursorProperty,int,wxCURSOR_NONE,WXDLLIMPEXP_PG)
+WX_PG_DECLARE_PROPERTY_WITH_DECL(wxDateProperty,const wxDateTime&,wxDateTime(),WXDLLIMPEXP_PG)
+
 #if wxUSE_IMAGE || defined(SWIG)
 #include <wx/image.h>
 WX_PG_DECLARE_PROPERTY_WITH_DECL(wxImageFileProperty,const wxString&,wxEmptyString,WXDLLIMPEXP_PG)
@@ -151,10 +177,10 @@ extern WXDLLIMPEXP_PG wxPGProperty* wxMultiChoiceProperty(const wxString& label,
                                                           const wxArrayString& choices = wxArrayString(),
                                                           const wxArrayInt& value = wxPG_EMPTY_ARRAYINT);
 
-
 extern WXDLLIMPEXP_PG wxPGProperty* wxMultiChoiceProperty(const wxString& label,
                                                           const wxString& name,
-                                                          const wxPGChoices& choices);
+                                                          const wxPGChoices& choices,
+                                                          const wxArrayInt& value = wxPG_EMPTY_ARRAYINT);
 
 extern WXDLLIMPEXP_PG wxPGProperty* wxMultiChoiceProperty(const wxString& label,
                                                           const wxString& name,
@@ -168,23 +194,6 @@ extern WXDLLIMPEXP_PG wxPGProperty* wxMultiChoiceProperty(const wxString& label,
                                                           const wxArrayInt& value = wxPG_EMPTY_ARRAYINT);
 
 #endif
-
-/*
-extern WXDLLIMPEXP_PG wxPGProperty* wxMultiChoiceProperty(const wxString& label,
-                                                          const wxString& name = wxPG_LABEL,
-                                                          const wxArrayString& choices = wxArrayString(),
-                                                          const wxArrayInt& value = wxPG_EMPTY_ARRAYINT);
-
-#ifndef SWIG
-extern WXDLLIMPEXP_PG wxPGProperty* wxMultiChoiceProperty(const wxString& label,
-                                                          const wxString& name = wxPG_LABEL,
-                                                          const wxPGChoices& choices = wxPGChoices());
-
-//extern WXDLLIMPEXP_PG wxPGProperty* wxMultiChoiceProperty(const wxString& label,
-//                                                          const wxString& name = wxPG_LABEL,
-//                                                          const wxArrayInt& value = wxArrayInt());
-#endif
-*/
 
 // -----------------------------------------------------------------------
 
@@ -202,11 +211,11 @@ class WXDLLIMPEXP_PG wxFontPropertyClass : public wxPGPropertyWithChildren
     WX_PG_DECLARE_PROPERTY_CLASS()
 public:
 
-    wxFontPropertyClass ( const wxString& label, const wxString& name, const wxFont& );
-    virtual ~wxFontPropertyClass ();
+    wxFontPropertyClass( const wxString& label, const wxString& name, const wxFont& );
+    virtual ~wxFontPropertyClass();
 
     WX_PG_DECLARE_PARENTAL_TYPE_METHODS()
-    virtual wxString GetValueAsString ( int arg_flags = 0 ) const;
+    virtual wxString GetValueAsString( int argFlags = 0 ) const;
 
     WX_PG_DECLARE_EVENT_METHODS()
     WX_PG_DECLARE_PARENTAL_METHODS()
@@ -228,9 +237,9 @@ class WXDLLIMPEXP_PG wxSystemColourPropertyClass : public wxEnumPropertyClass
     WX_PG_DECLARE_PROPERTY_CLASS()
 public:
 
-    wxSystemColourPropertyClass ( const wxString& label, const wxString& name,
+    wxSystemColourPropertyClass( const wxString& label, const wxString& name,
         const wxColourPropertyValue& value );
-    ~wxSystemColourPropertyClass ();
+    ~wxSystemColourPropertyClass();
 
     WX_PG_DECLARE_BASIC_TYPE_METHODS()
     WX_PG_DECLARE_EVENT_METHODS()
@@ -242,7 +251,7 @@ public:
 
     // Default is to use wxSystemSettings::GetColour(index). Override to use
     // custom colour tables etc.
-    virtual long GetColour ( int index );
+    virtual long GetColour( int index );
 
 protected:
 
@@ -269,8 +278,8 @@ class wxCursorPropertyClass : public wxEnumPropertyClass
     WX_PG_DECLARE_DERIVED_PROPERTY_CLASS()
 public:
 
-    wxCursorPropertyClass ( const wxString& label, const wxString& name, int value );
-    virtual ~wxCursorPropertyClass ();
+    wxCursorPropertyClass( const wxString& label, const wxString& name, int value );
+    virtual ~wxCursorPropertyClass();
 
     WX_PG_DECLARE_CUSTOM_PAINT_METHODS()
 };
@@ -307,34 +316,97 @@ class wxMultiChoicePropertyClass : public wxPGProperty
     WX_PG_DECLARE_PROPERTY_CLASS()
 public:
 
-    wxMultiChoicePropertyClass(const wxString& label,
-                               const wxString& name,
-                               const wxArrayString& strings,
-                               const wxArrayInt& value);
-    wxMultiChoicePropertyClass( const wxString& label, const wxString& name = wxPG_LABEL,
-        const wxArrayInt& value = wxArrayInt() );
-    virtual ~wxMultiChoicePropertyClass ();
+    wxMultiChoicePropertyClass( const wxString& label,
+                                const wxString& name,
+                                const wxArrayString& strings,
+                                const wxArrayInt& value );
+    wxMultiChoicePropertyClass( const wxString& label,
+                                const wxString& name = wxPG_LABEL,
+                                const wxArrayInt& value = wxArrayInt() );
+    wxMultiChoicePropertyClass( const wxString& label,
+                                const wxString& name,
+                                const wxPGChoices& choices,
+                                const wxArrayInt& value = wxArrayInt() );
+    virtual ~wxMultiChoicePropertyClass();
 
-    virtual void DoSetValue ( wxPGVariant value );
-    virtual wxPGVariant DoGetValue () const;
-    virtual wxString GetValueAsString ( int flags = 0 ) const;
-    virtual bool SetValueFromString ( const wxString& text, int flags );
+    virtual void DoSetValue( wxPGVariant value );
+    virtual wxPGVariant DoGetValue() const;
+    virtual wxString GetValueAsString( int flags = 0 ) const;
+    virtual bool SetValueFromString( const wxString& text, int flags );
     WX_PG_DECLARE_EVENT_METHODS()
 
-    virtual int GetChoiceInfo ( wxPGChoiceInfo* choiceinfo );
+    virtual int GetChoiceInfo( wxPGChoiceInfo* choiceinfo );
 
 protected:
 
-    void GenerateValueAsString ();
+    void GenerateValueAsString();
+
+    // Returns translation of values into string indices.
+    wxArrayInt GetValueAsIndices() const;
 
     wxPGChoices         m_choices; // Holds strings (any values given are ignored).
-
-    wxArrayInt          m_value_wxArrayInt; // Actual value.
+    wxArrayInt          m_value_wxArrayInt;  // Actual value.
 
     wxString            m_display; // Cache displayed text since generating it is relatively complicated.
 };
 
 #endif // wxUSE_CHOICEDLG
+
+// -----------------------------------------------------------------------
+
+#if wxUSE_DATETIME
+
+class WXDLLIMPEXP_PG wxDatePropertyClass : public wxPGProperty
+{
+    WX_PG_DECLARE_PROPERTY_CLASS()
+public:
+
+    wxDatePropertyClass( const wxString& label, const wxString& name, const wxDateTime& );
+    virtual ~wxDatePropertyClass();
+
+    virtual void DoSetValue( wxPGVariant value );
+    virtual wxPGVariant DoGetValue() const;
+    virtual wxString GetValueAsString( int flags = 0 ) const;
+    virtual bool SetValueFromString( const wxString& text, int flags );
+
+    //WX_PG_DECLARE_EVENT_METHODS()
+    WX_PG_DECLARE_ATTRIBUTE_METHODS()
+
+    inline void SetFormat( const wxString& format )
+    {
+        m_format = format;
+    }
+
+    inline const wxString& GetFormat() const
+    {
+        return m_format;
+    }
+    
+    inline void SetDateValue( const wxDateTime& dt )
+    {
+        m_valueDateTime = dt;
+    }
+
+    inline const wxDateTime& GetDateValue() const
+    {
+        return m_valueDateTime;
+    }
+
+    inline long GetDatePickerStyle() const
+    {
+        return m_dpStyle;
+    }
+
+protected:
+    wxDateTime      m_valueDateTime;
+    wxString        m_format;
+    long            m_dpStyle;  // DatePicker style
+
+    static wxString ms_defaultDateFormat;
+    static wxString DetermineDefaultDateFormat( bool showCentury );
+};
+
+#endif
 
 // -----------------------------------------------------------------------
 

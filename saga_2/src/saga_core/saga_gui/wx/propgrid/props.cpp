@@ -65,15 +65,17 @@
 WX_PG_IMPLEMENT_PROPERTY_CLASS(wxStringProperty,wxBaseProperty,
                                wxString,const wxString&,TextCtrl)
 
-wxStringPropertyClass::wxStringPropertyClass( const wxString& label, const wxString& name,
-    const wxString& value ) : wxPGProperty(label,name)
+wxStringPropertyClass::wxStringPropertyClass( const wxString& label,
+                                              const wxString& name,
+                                              const wxString& value )
+    : wxPGProperty(label,name)
 {
     DoSetValue(value);
 }
 
 wxStringPropertyClass::~wxStringPropertyClass() { }
 
-void wxStringPropertyClass::DoSetValue ( wxPGVariant value )
+void wxStringPropertyClass::DoSetValue( wxPGVariant value )
 {
     m_value = wxPGVariantToString(value);
 }
@@ -83,11 +85,11 @@ wxPGVariant wxStringPropertyClass::DoGetValue() const
     return wxPGVariant(m_value);
 }
 
-wxString wxStringPropertyClass::GetValueAsString( int arg_flags ) const
+wxString wxStringPropertyClass::GetValueAsString( int argFlags ) const
 {
     // If string is password and value is for visual purposes,
     // then return asterisks instead the actual string.
-    if ( (m_flags & wxPG_PROP_PASSWORD) && !(arg_flags & wxPG_FULL_VALUE) )
+    if ( (m_flags & wxPG_PROP_PASSWORD) && !(argFlags & wxPG_FULL_VALUE) )
         return wxString(wxChar('*'), m_value.Length());
 
     return m_value;
@@ -150,7 +152,7 @@ wxString wxIntPropertyClass::GetValueAsString( int ) const
     return wxString::Format(wxT("%li"),m_value);
 }
 
-bool wxIntPropertyClass::SetValueFromString( const wxString& text, int arg_flags )
+bool wxIntPropertyClass::SetValueFromString( const wxString& text, int argFlags )
 {
     wxString s;
     long value;
@@ -164,7 +166,7 @@ bool wxIntPropertyClass::SetValueFromString( const wxString& text, int arg_flags
             return StdValidationProcedure(value);
         }
     }
-    else if ( arg_flags & wxPG_REPORT_ERROR )
+    else if ( argFlags & wxPG_REPORT_ERROR )
     {
         s.Printf ( wxT("! %s: \"%s\" is not a number."), m_label.c_str(), text.c_str() );
         ShowError(s);
@@ -261,7 +263,7 @@ wxString wxUIntPropertyClass::GetValueAsString( int ) const
     return wxString::Format(gs_uintTemplates[index],m_value);
 }
 
-bool wxUIntPropertyClass::SetValueFromString( const wxString& text, int WXUNUSED(arg_flags) )
+bool wxUIntPropertyClass::SetValueFromString( const wxString& text, int WXUNUSED(argFlags) )
 {
     wxString s;
     long value = 0;
@@ -278,7 +280,7 @@ bool wxUIntPropertyClass::SetValueFromString( const wxString& text, int WXUNUSED
         return StdValidationProcedure(value);
     }
     /*}
-    else if ( arg_flags & wxPG_REPORT_ERROR )
+    else if ( argFlags & wxPG_REPORT_ERROR )
     {
         s.Printf ( wxT("! %s: \"%s\" is not a number."), m_label.c_str(), text.c_str() );
         ShowError(s);
@@ -409,43 +411,30 @@ void wxPropertyGrid::DoubleToString(wxString& target,
     }
 }
 
-wxString wxFloatPropertyClass::GetValueAsString ( int arg_flags ) const
+wxString wxFloatPropertyClass::GetValueAsString ( int argFlags ) const
 {
     wxString text;
     wxPropertyGrid::DoubleToString(text,m_value,
                                    m_precision,
-                                   !(arg_flags & wxPG_FULL_VALUE),
+                                   !(argFlags & wxPG_FULL_VALUE),
                                    (wxString*) NULL);
     return text;
 }
 
-bool wxFloatPropertyClass::SetValueFromString ( const wxString& text, int arg_flags )
+bool wxFloatPropertyClass::SetValueFromString ( const wxString& text, int argFlags )
 {
     wxString s;
     double value;
     bool res = text.ToDouble(&value);
     if ( res )
     {
-#if wxPG_USE_VALIDATORS
-        if ( m_validator )
-        {
-            m_validator->AssertDataType(wxT("double"));
-            wxPGVariant tvariant(value);
-            if ( !m_validator->Validate(tvariant,s) )
-            {
-                ShowError(s);
-                return false;
-            }
-        }
-#endif
-
         if ( m_value != value )
         {
             m_value = value;
             return true;
         }
     }
-    else if ( arg_flags & wxPG_REPORT_ERROR )
+    else if ( argFlags & wxPG_REPORT_ERROR )
     {
         s.Printf ( _("\"%s\" is not a floating-point number."), text.c_str() );
         ShowError(s);
@@ -505,9 +494,10 @@ const wxPGEditor* wxBoolPropertyClass::DoGetEditorClass() const
 wxBoolPropertyClass::wxBoolPropertyClass( const wxString& label, const wxString& name, bool value ) :
     wxPGProperty(label,name)
 {
-    int useval = 0;
-    if ( value ) useval = 1;
-    DoSetValue(useval);
+    int useVal;
+    if ( value ) useVal = 1;
+    else useVal = 0;
+    DoSetValue(useVal);
 
     m_flags |= wxPG_PROP_USE_DCC;
 }
@@ -516,9 +506,10 @@ wxBoolPropertyClass::~wxBoolPropertyClass() { }
 
 void wxBoolPropertyClass::DoSetValue( wxPGVariant value )
 {
-    m_value = 0;
     if ( wxPGVariantToLong(value) != 0 )
         m_value = 1;
+    else
+        m_value = 0;
 }
 
 wxPGVariant wxBoolPropertyClass::DoGetValue() const
@@ -526,9 +517,9 @@ wxPGVariant wxBoolPropertyClass::DoGetValue() const
     return wxPGVariant(m_value);
 }
 
-wxString wxBoolPropertyClass::GetValueAsString( int arg_flags ) const
+wxString wxBoolPropertyClass::GetValueAsString( int argFlags ) const
 {
-    if ( !(arg_flags & wxPG_FULL_VALUE) )
+    if ( !(argFlags & wxPG_FULL_VALUE) )
     {
         return wxPGGlobalVars->m_boolChoices[m_value];
     }
@@ -550,7 +541,7 @@ int wxBoolPropertyClass::GetChoiceInfo( wxPGChoiceInfo* choiceinfo )
     return m_value;
 }
 
-bool wxBoolPropertyClass::SetValueFromString( const wxString& text, int /*arg_flags*/ )
+bool wxBoolPropertyClass::SetValueFromString( const wxString& text, int /*argFlags*/ )
 {
     int value = 0;
     if ( text.CmpNoCase(wxPGGlobalVars->m_boolChoices[1]) == 0 || text.CmpNoCase(wxT("true")) == 0 )
@@ -562,7 +553,7 @@ bool wxBoolPropertyClass::SetValueFromString( const wxString& text, int /*arg_fl
         return true;
     }
     /*
-    else if ( arg_flags & wxPG_REPORT_ERROR )
+    else if ( argFlags & wxPG_REPORT_ERROR )
     {
         wxLogError ( wxT("Property %s: \"%s\" is not a boolean value (True and False are valid)."), m_label.c_str(), text.c_str() );
     }
@@ -654,7 +645,7 @@ wxString wxBaseEnumPropertyClass::GetValueAsString( int ) const
     return wxEmptyString;
 }
 
-bool wxBaseEnumPropertyClass::SetValueFromString ( const wxString& text, int WXUNUSED(arg_flags) )
+bool wxBaseEnumPropertyClass::SetValueFromString ( const wxString& text, int WXUNUSED(argFlags) )
 {
     size_t i = 0;
     const wxString* entry_label;
@@ -687,7 +678,7 @@ bool wxBaseEnumPropertyClass::SetValueFromString ( const wxString& text, int WXU
         return true;
     }
     /*}
-    else if ( arg_flags & wxPG_REPORT_ERROR )
+    else if ( argFlags & wxPG_REPORT_ERROR )
     {
         wxString s;
         s.Printf ( wxT("\"%s\" was not among valid choices."), text.c_str() );
@@ -696,9 +687,9 @@ bool wxBaseEnumPropertyClass::SetValueFromString ( const wxString& text, int WXU
     return false;
 }
 
-bool wxBaseEnumPropertyClass::SetValueFromInt ( long value, int arg_flags )
+bool wxBaseEnumPropertyClass::SetValueFromInt ( long value, int argFlags )
 {
-    if ( arg_flags & wxPG_FULL_VALUE )
+    if ( argFlags & wxPG_FULL_VALUE )
     {
         DoSetValue(value);
         return true;
@@ -738,7 +729,7 @@ wxPGProperty* wxEnumProperty( const wxString& label, const wxString& name,
     return new wxEnumPropertyClass (label,name,labels,*((const wxArrayInt*)NULL),value);
 }
 
-wxPGProperty* wxEnumProperty ( const wxString& label, const wxString& name, 
+wxPGProperty* wxEnumProperty ( const wxString& label, const wxString& name,
     wxPGChoices& choices, int value )
 {
     return new wxEnumPropertyClass (label,name,choices,value);
@@ -798,7 +789,7 @@ wxEnumPropertyClass::wxEnumPropertyClass ( const wxString& label, const wxString
     }
 }
 
-wxEnumPropertyClass::wxEnumPropertyClass ( const wxString& label, const wxString& name, 
+wxEnumPropertyClass::wxEnumPropertyClass ( const wxString& label, const wxString& name,
     wxPGChoices& choices, int value )
     : wxBaseEnumPropertyClass(label,name)
 {
@@ -883,7 +874,7 @@ public:
         const long* values, const wxString& value );
     wxEditEnumPropertyClass( const wxString& label, const wxString& name,
         const wxArrayString& labels, const wxArrayInt& values, const wxString& value );
-    wxEditEnumPropertyClass( const wxString& label, const wxString& name, 
+    wxEditEnumPropertyClass( const wxString& label, const wxString& name,
         wxPGChoices& choices, const wxString& value );
 
     // Special constructor for caching choices (used by derived class)
@@ -919,7 +910,7 @@ wxPGProperty* wxEditEnumProperty( const wxString& label, const wxString& name,
     return new wxEditEnumPropertyClass(label,name,labels,*((const wxArrayInt*)NULL),value);
 }
 
-wxPGProperty* wxEditEnumProperty( const wxString& label, const wxString& name, 
+wxPGProperty* wxEditEnumProperty( const wxString& label, const wxString& name,
     wxPGChoices& choices, const wxString& value )
 {
     return new wxEditEnumPropertyClass(label,name,choices,value);
@@ -950,14 +941,14 @@ wxEditEnumPropertyClass::wxEditEnumPropertyClass( const wxString& label, const w
     wxEditEnumPropertyClass::DoSetValue( value );
 }
 
-wxEditEnumPropertyClass::wxEditEnumPropertyClass( const wxString& label, const wxString& name, 
+wxEditEnumPropertyClass::wxEditEnumPropertyClass( const wxString& label, const wxString& name,
     wxPGChoices& choices, const wxString& value )
     : wxEnumPropertyClass(label,name,choices,0)
 {
     wxEditEnumPropertyClass::DoSetValue( value );
 }
 
-wxEditEnumPropertyClass::~wxEditEnumPropertyClass() 
+wxEditEnumPropertyClass::~wxEditEnumPropertyClass()
 {
 }
 
@@ -1030,7 +1021,7 @@ wxPGProperty* wxFlagsProperty( const wxString& label, const wxString& name,
     return new wxFlagsPropertyClass(label,name,labels,*((const wxArrayInt*)NULL),value);
 }
 
-wxPGProperty* wxFlagsProperty( const wxString& label, const wxString& name, 
+wxPGProperty* wxFlagsProperty( const wxString& label, const wxString& name,
     wxPGChoices& constants, int value )
 {
     return new wxFlagsPropertyClass(label,name,constants,value);
@@ -1150,7 +1141,7 @@ wxFlagsPropertyClass::wxFlagsPropertyClass ( const wxString& label, const wxStri
     }
 }
 
-wxFlagsPropertyClass::wxFlagsPropertyClass ( const wxString& label, const wxString& name, 
+wxFlagsPropertyClass::wxFlagsPropertyClass ( const wxString& label, const wxString& name,
     wxPGChoices& choices, long value )
     : wxPGPropertyWithChildren(label,name)
 {
@@ -1163,7 +1154,7 @@ wxFlagsPropertyClass::wxFlagsPropertyClass ( const wxString& label, const wxStri
     DoSetValue( value );
 }
 
-wxFlagsPropertyClass::~wxFlagsPropertyClass () 
+wxFlagsPropertyClass::~wxFlagsPropertyClass ()
 {
     //wxPGUnRefChoices(m_choices);
 }
@@ -1280,7 +1271,7 @@ bool wxFlagsPropertyClass::SetValueFromString ( const wxString& text, int )
                 ShowError(s);
             }
         }
-        
+
     WX_PG_TOKENIZER1_END()
 
     if ( new_flags != m_value )
@@ -1349,7 +1340,7 @@ void wxFlagsPropertyClass::RefreshChildren()
 
 void wxFlagsPropertyClass::ChildChanged ( wxPGProperty* p )
 {
-    wxASSERT ( this == p->GetParent() );
+    wxASSERT( this == p->GetParent() );
 
     const wxArrayInt& values = GetValues();
     long val = p->DoGetValue().GetRawLong(); // bypass type checking
@@ -1384,7 +1375,7 @@ public:
     WX_PG_DECLARE_ATTRIBUTE_METHODS()
     WX_PG_DECLARE_VALIDATOR_METHODS()
 
-    virtual bool OnButtonClick ( wxPropertyGrid* propgrid, wxString& value );
+    virtual bool OnButtonClick ( wxPropertyGrid* propGrid, wxString& value );
 
 protected:
     wxString    m_dlgMessage;
@@ -1409,16 +1400,16 @@ wxValidator* wxDirPropertyClass::DoGetValidator() const
 
 #endif
 
-bool wxDirPropertyClass::OnButtonClick( wxPropertyGrid* propgrid, wxString& value )
+bool wxDirPropertyClass::OnButtonClick( wxPropertyGrid* propGrid, wxString& value )
 {
     wxSize dlg_sz(300,400);
 
-    wxDirDialog dlg( propgrid,
+    wxDirDialog dlg( propGrid,
                      m_dlgMessage.length() ? m_dlgMessage : wxString(_("Choose a directory:")),
                      value,
                      0,
 #if !wxPG_SMALL_SCREEN
-                     propgrid->GetGoodEditorDialogPosition(this,dlg_sz),
+                     propGrid->GetGoodEditorDialogPosition(this,dlg_sz),
                      dlg_sz );
 #else
                      wxDefaultPosition,
@@ -1495,8 +1486,15 @@ wxValidator* wxFilePropertyClass::DoGetValidator() const
 void wxFilePropertyClass::DoSetValue( wxPGVariant value )
 {
     const wxString& str = wxPGVariantToString(value);
-    m_filename = str;
+
     m_fnstr = str;
+    m_filename = str;
+
+    if ( !m_filename.HasName() )
+    {
+        m_fnstr = wxEmptyString;
+        m_filename.Clear();
+    }
 
     // Find index for extension.
     if ( m_indFilter < 0 && m_fnstr.length() )
@@ -1531,7 +1529,7 @@ void wxFilePropertyClass::DoSetValue( wxPGVariant value )
             int count = p-ext_begin-1;
             if ( count > 0 )
             {
-                wxASSERT ( count < 32 );
+                wxASSERT( count < 32 );
                 wxString found_ext = m_wildcard.Mid(ext_begin-m_wildcard.c_str(),count);
 
                 if ( ext.CmpNoCase(found_ext) == 0 )
@@ -1552,9 +1550,9 @@ wxPGVariant wxFilePropertyClass::DoGetValue() const
     return wxPGVariant(m_fnstr);
 }
 
-wxString wxFilePropertyClass::GetValueAsString( int arg_flags ) const
+wxString wxFilePropertyClass::GetValueAsString( int argFlags ) const
 {
-    if ( arg_flags & wxPG_FULL_VALUE )
+    if ( argFlags & wxPG_FULL_VALUE )
     {
         return m_filename.GetFullPath();
     }
@@ -1572,19 +1570,19 @@ wxString wxFilePropertyClass::GetValueAsString( int arg_flags ) const
     return m_filename.GetFullName();
 }
 
-bool wxFilePropertyClass::OnEvent( wxPropertyGrid* propgrid,
+bool wxFilePropertyClass::OnEvent( wxPropertyGrid* propGrid,
                                    wxWindow* primary,
                                    wxEvent& event )
 {
     if ( event.GetEventType() == wxEVT_COMMAND_BUTTON_CLICKED )
     {
         // If text in control is changed, then update it to value.
-        PrepareValueForDialogEditing(propgrid);
+        PrepareValueForDialogEditing(propGrid);
 
         wxString path;
         path = m_filename.GetPath();
 
-        wxFileDialog dlg( propgrid,
+        wxFileDialog dlg( propGrid,
                           m_dlgTitle.length() ? m_dlgTitle : wxString(_("Choose a file")),
                           !m_initialPath.empty() ? m_initialPath : m_filename.GetPath(),
                           wxEmptyString,
@@ -1608,9 +1606,9 @@ bool wxFilePropertyClass::OnEvent( wxPropertyGrid* propgrid,
     return false;
 }
 
-bool wxFilePropertyClass::SetValueFromString( const wxString& text, int arg_flags )
+bool wxFilePropertyClass::SetValueFromString( const wxString& text, int argFlags )
 {
-    if ( (m_flags & wxPG_PROP_SHOW_FULL_FILENAME) || (arg_flags & wxPG_FULL_VALUE) )
+    if ( (m_flags & wxPG_PROP_SHOW_FULL_FILENAME) || (argFlags & wxPG_FULL_VALUE) )
     {
         if ( m_filename != text )
         {
@@ -1691,13 +1689,13 @@ wxString wxLongStringPropertyClass::GetValueAsString( int ) const
     return m_value;
 }
 
-bool wxLongStringPropertyClass::OnEvent( wxPropertyGrid* propgrid, wxWindow* primary,
-    wxEvent& event )
+bool wxLongStringPropertyClass::OnEvent( wxPropertyGrid* propGrid, wxWindow* primary,
+                                         wxEvent& event )
 {
     if ( event.GetEventType() == wxEVT_COMMAND_BUTTON_CLICKED )
     {
         // Update the value
-        PrepareValueForDialogEditing(propgrid);
+        PrepareValueForDialogEditing(propGrid);
 
         wxString val1 = GetValueAsString(0);
         wxString val_orig = val1;
@@ -1709,7 +1707,7 @@ bool wxLongStringPropertyClass::OnEvent( wxPropertyGrid* propgrid, wxWindow* pri
             value = wxString(val1);
 
         // Run editor dialog.
-        if ( OnButtonClick(propgrid,value) )
+        if ( OnButtonClick(propGrid,value) )
         {
             if ( !(m_flags & wxPG_PROP_NO_ESCAPE) )
                 wxPropertyGrid::CreateEscapeSequences(val1,value);
@@ -1727,13 +1725,13 @@ bool wxLongStringPropertyClass::OnEvent( wxPropertyGrid* propgrid, wxWindow* pri
     return false;
 }
 
-bool wxLongStringPropertyClass::OnButtonClick ( wxPropertyGrid* propgrid, wxString& value )
+bool wxLongStringPropertyClass::OnButtonClick( wxPropertyGrid* propGrid, wxString& value )
 {
     // launch editor dialog
-    wxDialog* dlg = new wxDialog (propgrid,-1,m_label,
-        wxDefaultPosition,wxDefaultSize,wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER|wxCLIP_CHILDREN);
+    wxDialog* dlg = new wxDialog(propGrid,-1,m_label,wxDefaultPosition,wxDefaultSize,
+                                 wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER|wxCLIP_CHILDREN);
 
-    dlg->SetFont(propgrid->GetFont()); // To allow entering chars of the same set as the propgrid
+    dlg->SetFont(propGrid->GetFont()); // To allow entering chars of the same set as the propGrid
 
     // Multi-line text editor dialog.
 #if !wxPG_SMALL_SCREEN
@@ -1763,7 +1761,7 @@ bool wxLongStringPropertyClass::OnButtonClick ( wxPropertyGrid* propgrid, wxStri
 #if !wxPG_SMALL_SCREEN
     dlg->SetSize(400,300);
 
-    dlg->Move( propgrid->GetGoodEditorDialogPosition(this,dlg->GetSize()) );
+    dlg->Move( propGrid->GetGoodEditorDialogPosition(this,dlg->GetSize()) );
 #endif
 
     int res = dlg->ShowModal();
@@ -1778,7 +1776,7 @@ bool wxLongStringPropertyClass::OnButtonClick ( wxPropertyGrid* propgrid, wxStri
     return false;
 }
 
-bool wxLongStringPropertyClass::SetValueFromString ( const wxString& text, int )
+bool wxLongStringPropertyClass::SetValueFromString( const wxString& text, int )
 {
     if ( m_value != text )
     {
@@ -1795,7 +1793,6 @@ bool wxLongStringPropertyClass::SetValueFromString ( const wxString& text, int )
 BEGIN_EVENT_TABLE(wxArrayEditorDialog, wxDialog)
     EVT_IDLE(wxArrayEditorDialog::OnIdle)
     EVT_LISTBOX(24, wxArrayEditorDialog::OnListBoxClick)
-    EVT_LISTBOX(24, wxArrayEditorDialog::OnListBoxClick)
     EVT_TEXT_ENTER(21, wxArrayEditorDialog::OnAddClick)
     EVT_BUTTON(22, wxArrayEditorDialog::OnAddClick)
     EVT_BUTTON(23, wxArrayEditorDialog::OnDeleteClick)
@@ -1811,14 +1808,21 @@ IMPLEMENT_ABSTRACT_CLASS(wxArrayEditorDialog, wxDialog)
 
 // -----------------------------------------------------------------------
 
-void wxArrayEditorDialog::OnIdle (wxIdleEvent&)
+void wxArrayEditorDialog::OnIdle(wxIdleEvent& event)
 {
     //
     // Do control focus detection here.
     //
 
-    if ( m_curFocus == 0 && FindFocus() == m_lbStrings )
+    wxWindow* focused = FindFocus();
+
+    // This strange focus thing is a workaround for wxGTK wxListBox focus
+    // reporting bug.
+    if ( m_curFocus == 0 && focused != m_edValue &&
+         focused != m_butAdd && focused != m_butUpdate &&
+         m_lbStrings->GetSelection() >= 0 )
     {
+        //wxLogDebug(wxT("Focused: %s"),focused?focused->GetClassInfo()->GetClassName():wxT("NULL"));
         // ListBox was just focused.
         m_butAdd->Enable(false);
         m_butUpdate->Enable(false);
@@ -1827,8 +1831,9 @@ void wxArrayEditorDialog::OnIdle (wxIdleEvent&)
         m_butDown->Enable(true);
         m_curFocus = 1;
     }
-    else if ( (m_curFocus == 1 && FindFocus() == m_edValue) /*|| m_curFocus == 2*/ )
+    else if ( (m_curFocus == 1 && focused == m_edValue) /*|| m_curFocus == 2*/ )
     {
+        //wxLogDebug(wxT("Focused: %s"),focused?focused->GetClassInfo()->GetClassName():wxT("NULL"));
         // TextCtrl was just focused.
         m_butAdd->Enable(true);
         bool upd_enable = false;
@@ -1840,6 +1845,8 @@ void wxArrayEditorDialog::OnIdle (wxIdleEvent&)
         m_butDown->Enable(false);
         m_curFocus = 0;
     }
+
+    event.Skip();
 }
 
 // -----------------------------------------------------------------------
@@ -1860,13 +1867,13 @@ void wxArrayEditorDialog::Init()
 
 // -----------------------------------------------------------------------
 
-wxArrayEditorDialog::wxArrayEditorDialog(wxWindow *parent,
-                              const wxString& message,
-                              const wxString& caption,
-                              long style,
-                              const wxPoint& pos,
-                              const wxSize& sz )
-                              : wxDialog()
+wxArrayEditorDialog::wxArrayEditorDialog( wxWindow *parent,
+                                          const wxString& message,
+                                          const wxString& caption,
+                                          long style,
+                                          const wxPoint& pos,
+                                          const wxSize& sz )
+    : wxDialog()
 {
     Init();
     Create(parent,message,caption,style,pos,sz);
@@ -1874,17 +1881,17 @@ wxArrayEditorDialog::wxArrayEditorDialog(wxWindow *parent,
 
 // -----------------------------------------------------------------------
 
-bool wxArrayEditorDialog::Create(wxWindow *parent,
-                const wxString& message,
-                const wxString& caption,
-                long style,
-                const wxPoint& pos,
-                const wxSize& sz )
+bool wxArrayEditorDialog::Create( wxWindow *parent,
+                                  const wxString& message,
+                                  const wxString& caption,
+                                  long style,
+                                  const wxPoint& pos,
+                                  const wxSize& sz )
 {
 
     bool res = wxDialog::Create (parent,1,caption,pos,sz,style);
 
-    SetFont(parent->GetFont()); // To allow entering chars of the same set as the propgrid
+    SetFont(parent->GetFont()); // To allow entering chars of the same set as the propGrid
 
 #if !wxPG_SMALL_SCREEN
     const int spacing = 4;
@@ -1910,17 +1917,23 @@ bool wxArrayEditorDialog::Create(wxWindow *parent,
     wxBoxSizer* rowsizer = new wxBoxSizer( wxHORIZONTAL );
     m_edValue = new wxTextCtrl(this,21,wxEmptyString,
         wxDefaultPosition,wxDefaultSize,wxTE_PROCESS_ENTER);
-    rowsizer->Add ( m_edValue,
+    wxValidator* validator = GetTextCtrlValidator();
+    if ( validator )
+    {
+        m_edValue->SetValidator( *validator );
+        delete validator;
+    }
+    rowsizer->Add( m_edValue,
         1, wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL|wxALL, spacing );
 
     // Add button
     m_butAdd = new wxButton(this,22,_("Add"));
-    rowsizer->Add ( m_butAdd,
+    rowsizer->Add( m_butAdd,
         0, wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL|wxTOP|wxBOTTOM|wxRIGHT, spacing );
-    topsizer->Add ( rowsizer, 0, wxEXPAND, spacing );
+    topsizer->Add( rowsizer, 0, wxEXPAND, spacing );
 
     // Separator line
-    topsizer->Add ( new wxStaticLine(this,-1),
+    topsizer->Add( new wxStaticLine(this,-1),
         0, wxEXPAND|wxBOTTOM|wxLEFT|wxRIGHT, spacing );
 
     rowsizer = new wxBoxSizer( wxHORIZONTAL );
@@ -1930,7 +1943,7 @@ bool wxArrayEditorDialog::Create(wxWindow *parent,
     unsigned int i;
     for ( i=0; i<ArrayGetCount(); i++ )
         m_lbStrings->Append( ArrayGet(i) );
-    rowsizer->Add ( m_lbStrings, 1, wxEXPAND|wxRIGHT, spacing );
+    rowsizer->Add( m_lbStrings, 1, wxEXPAND|wxRIGHT, spacing );
 
     // Manipulator buttons
     wxBoxSizer* colsizer = new wxBoxSizer( wxVERTICAL );
@@ -1938,28 +1951,28 @@ bool wxArrayEditorDialog::Create(wxWindow *parent,
     if ( m_custBtText )
     {
         m_butCustom = new wxButton(this,28,::wxGetTranslation(m_custBtText));
-        colsizer->Add ( m_butCustom,
+        colsizer->Add( m_butCustom,
             0, wxALIGN_CENTER|wxTOP/*wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL|wxTOP|wxBOTTOM|wxRIGHT*/,
             spacing );
     }
     m_butUpdate = new wxButton(this,27,_("Update"));
-    colsizer->Add ( m_butUpdate,
+    colsizer->Add( m_butUpdate,
         0, wxALIGN_CENTER|wxTOP, spacing );
     m_butRemove = new wxButton(this,23,_("Remove"));
-    colsizer->Add ( m_butRemove,
+    colsizer->Add( m_butRemove,
         0, wxALIGN_CENTER|wxTOP, spacing );
     m_butUp = new wxButton(this,25,_("Up"));
-    colsizer->Add ( m_butUp,
+    colsizer->Add( m_butUp,
         0, wxALIGN_CENTER|wxTOP, spacing );
     m_butDown = new wxButton(this,26,_("Down"));
-    colsizer->Add ( m_butDown,
+    colsizer->Add( m_butDown,
         0, wxALIGN_CENTER|wxTOP, spacing );
-    rowsizer->Add ( colsizer, 0, 0, spacing );
+    rowsizer->Add( colsizer, 0, 0, spacing );
 
-    topsizer->Add ( rowsizer, 1, wxLEFT|wxRIGHT|wxEXPAND, spacing );
+    topsizer->Add( rowsizer, 1, wxLEFT|wxRIGHT|wxEXPAND, spacing );
 
     // Separator line
-    topsizer->Add ( new wxStaticLine(this,-1),
+    topsizer->Add( new wxStaticLine(this,-1),
         0, wxEXPAND|wxTOP|wxLEFT|wxRIGHT, spacing );
 
     // buttons
@@ -1968,24 +1981,23 @@ bool wxArrayEditorDialog::Create(wxWindow *parent,
     const int but_sz_flags =
         wxALIGN_RIGHT|wxALIGN_CENTRE_VERTICAL|wxBOTTOM|wxLEFT|wxRIGHT;
     */
-    rowsizer->Add ( new wxButton(this,wxID_OK,_("Ok")),
+    rowsizer->Add( new wxButton(this,wxID_OK,_("Ok")),
         0, but_sz_flags, spacing );
-    rowsizer->Add ( new wxButton(this,wxID_CANCEL,_("Cancel")),
+    rowsizer->Add( new wxButton(this,wxID_CANCEL,_("Cancel")),
         0, but_sz_flags, spacing );
-    topsizer->Add ( rowsizer, 0, wxALIGN_RIGHT|wxALIGN_CENTRE_VERTICAL, 0 );
+    topsizer->Add( rowsizer, 0, wxALIGN_RIGHT|wxALIGN_CENTRE_VERTICAL, 0 );
 
     m_edValue->SetFocus();
 
-    SetSizer ( topsizer );
+    SetSizer( topsizer );
     topsizer->SetSizeHints( this );
 
 #if !wxPG_SMALL_SCREEN
     if ( sz.x == wxDefaultSize.x &&
-         sz.y == wxDefaultSize.y
-       )
-        SetSize ( wxSize(275,360) );
+         sz.y == wxDefaultSize.y )
+        SetSize( wxSize(275,360) );
     else
-        SetSize (sz);
+        SetSize(sz);
 #endif
 
     return res;
@@ -2100,7 +2112,7 @@ void wxArrayEditorDialog::OnListBoxClick(wxCommandEvent& )
     int index = m_lbStrings->GetSelection();
     if ( index >= 0 )
     {
-        m_edValue->SetValue ( m_lbStrings->GetString(index) );
+        m_edValue->SetValue( m_lbStrings->GetString(index) );
     }
 }
 
@@ -2115,29 +2127,21 @@ public:
 
     void Init();
 
-    wxArrayStringEditorDialog(wxWindow *parent,
-                              const wxString& message,
-                              const wxString& caption,
-                              wxArrayString& array,
-                              long style = wxAEDIALOG_STYLE,
-                              const wxPoint& pos = wxDefaultPosition,
-                              const wxSize& sz = wxDefaultSize );
+    virtual void SetDialogValue( const wxVariant& value )
+    {
+        m_array = value.GetArrayString();
+    }
 
-    bool Create(wxWindow *parent,
-                const wxString& message,
-                const wxString& caption,
-                wxArrayString& array,
-                long style = wxAEDIALOG_STYLE,
-                const wxPoint& pos = wxDefaultPosition,
-                const wxSize& sz = wxDefaultSize );
+    virtual wxVariant GetDialogValue() const
+    {
+        return m_array;
+    }
 
-    inline void SetCustomButton ( const wxChar* custBtText, wxArrayStringPropertyClass* pcc )
+    inline void SetCustomButton( const wxChar* custBtText, wxArrayStringPropertyClass* pcc )
     {
         m_custBtText = custBtText;
         m_pCallingClass = pcc;
     }
-
-    const wxArrayString& GetArray() const { return m_array; }
 
     void OnCustomEditClick(wxCommandEvent& event);
 
@@ -2212,43 +2216,12 @@ wxArrayStringEditorDialog::wxArrayStringEditorDialog()
 
 void wxArrayStringEditorDialog::Init()
 {
-    wxArrayEditorDialog::Init();
     m_pCallingClass = (wxArrayStringPropertyClass*) NULL;
-}
-
-wxArrayStringEditorDialog::wxArrayStringEditorDialog(wxWindow *parent,
-                              const wxString& message,
-                              const wxString& caption,
-                              wxArrayString& array,
-                              long style,
-                              const wxPoint& pos,
-                              const wxSize& sz )
-                              : wxArrayEditorDialog()
-{
-    Init();
-    Create(parent,message,caption,array,style,pos,sz);
-/*#if defined(__WXGTK__) && !defined(__WXGTK20__)
-    SetFont(*wxNORMAL_FONT);
-#endif*/
-}
-
-bool wxArrayStringEditorDialog::Create(wxWindow *parent,
-                const wxString& message,
-                const wxString& caption,
-                wxArrayString& array,
-                long style,
-                const wxPoint& pos,
-                const wxSize& sz )
-{
-
-    m_array = array;
-
-    return wxArrayEditorDialog::Create (parent,message,caption,style,pos,sz);
 }
 
 void wxArrayStringEditorDialog::OnCustomEditClick(wxCommandEvent& )
 {
-    wxASSERT ( m_pCallingClass );
+    wxASSERT( m_pCallingClass );
     wxString str = m_edValue->GetValue();
     if ( m_pCallingClass->OnCustomStringEdit(m_parent,str) )
     {
@@ -2271,8 +2244,10 @@ WX_PG_IMPLEMENT_PROPERTY_CLASS(wxArrayStringProperty,  // Property name
                                const wxArrayString&,  // Value type, as given in constructor
                                TextCtrlAndButton)  // Initial editor
 
-wxArrayStringPropertyClass::wxArrayStringPropertyClass( const wxString& label, const wxString& name,
-    const wxArrayString& array ) : wxPGProperty(label,name)
+wxArrayStringPropertyClass::wxArrayStringPropertyClass( const wxString& label,
+                                                        const wxString& name,
+                                                        const wxArrayString& array )
+    : wxPGProperty(label,name)
 {
     DoSetValue( array );
 }
@@ -2290,27 +2265,22 @@ wxPGVariant wxArrayStringPropertyClass::DoGetValue() const
     return wxPGVariant(m_value);
 }
 
-wxString wxArrayStringPropertyClass::GetValueAsString( int /*arg_flags*/ ) const
+wxString wxArrayStringPropertyClass::GetValueAsString( int WXUNUSED(argFlags) ) const
 {
-    //if ( !(arg_flags & wxPG_FULL_VALUE) )
-        return m_display;
-
-    /*wxString s_ret;
-    wxPropertyGrid::ArrayStringToString(s_ret,m_value,wxT('"'),wxT('"'),0);
-    return s_ret;*/
+    return m_display;
 }
 
 // Converts wxArrayString to a string separated by delimeters and spaces.
 // preDelim is useful for "str1" "str2" style. Set flags to 1 to do slash
 // conversion.
-void wxPropertyGrid::ArrayStringToString ( wxString& dst, const wxArrayString& src,
-                                           wxChar preDelim, wxChar postDelim,
-                                           int flags )
+void wxPropertyGrid::ArrayStringToString( wxString& dst, const wxArrayString& src,
+                                          wxChar preDelim, wxChar postDelim,
+                                          int flags )
 {
     wxString pdr;
 
     unsigned int i;
-    unsigned int itemcount = src.GetCount();
+    unsigned int itemCount = src.GetCount();
 
     wxChar preas[2];
 
@@ -2326,12 +2296,12 @@ void wxPropertyGrid::ArrayStringToString ( wxString& dst, const wxArrayString& s
         pdr += preDelim;
     }
 
-    if ( itemcount )
+    if ( itemCount )
         dst.append( preas );
 
     wxASSERT( postDelim );
 
-    for ( i = 0; i < itemcount; i++ )
+    for ( i = 0; i < itemCount; i++ )
     {
         wxString str( src.Item(i) );
 
@@ -2347,7 +2317,7 @@ void wxPropertyGrid::ArrayStringToString ( wxString& dst, const wxArrayString& s
 
         dst.append ( str );
 
-        if ( i < (itemcount-1) )
+        if ( i < (itemCount-1) )
         {
             dst.append ( postDelim );
             dst.append ( wxT(" ") );
@@ -2358,9 +2328,12 @@ void wxPropertyGrid::ArrayStringToString ( wxString& dst, const wxArrayString& s
     }
 }
 
+#define ARRSTRPROP_ARRAY_TO_STRING(STRING,ARRAY) \
+    wxPropertyGrid::ArrayStringToString(STRING,ARRAY,wxT('"'),wxT('"'),1);
+
 void wxArrayStringPropertyClass::GenerateValueAsString()
 {
-    wxPropertyGrid::ArrayStringToString(m_display,m_value,wxT('"'),wxT('"'),1);
+    ARRSTRPROP_ARRAY_TO_STRING(m_display, m_value)
 }
 
 // Default implementation doesn't do anything.
@@ -2369,40 +2342,80 @@ bool wxArrayStringPropertyClass::OnCustomStringEdit( wxWindow*, wxString& )
     return false;
 }
 
-bool wxArrayStringPropertyClass::OnButtonClick( wxPropertyGrid* propgrid, wxWindow* primary,
-    const wxChar* cbt )
+wxArrayEditorDialog* wxArrayStringPropertyClass::CreateEditorDialog()
 {
-    // Update the value
-    PrepareValueForDialogEditing(propgrid);
-
-    // Create editor dialog.
-    wxArrayStringEditorDialog dlg;
-
-    if ( cbt )
-        dlg.SetCustomButton(cbt,this);
-
-    dlg.Create(propgrid, wxEmptyString, m_label, m_value);
-
-#if !wxPG_SMALL_SCREEN
-    dlg.Move( propgrid->GetGoodEditorDialogPosition (this,dlg.GetSize()) );
-#endif
-
-    int res = dlg.ShowModal();
-    if ( res == wxID_OK && dlg.IsModified() )
-    {
-        DoSetValue ( dlg.GetArray() );
-        UpdateControl ( primary );
-        return true;
-    }
-    return false;
+    return new wxArrayStringEditorDialog();
 }
 
-bool wxArrayStringPropertyClass::OnEvent( wxPropertyGrid* propgrid,
+bool wxArrayStringPropertyClass::OnButtonClick( wxPropertyGrid* propGrid,
+                                                wxWindow* primaryCtrl,
+                                                const wxChar* cbt )
+{
+    // Update the value
+    PrepareValueForDialogEditing(propGrid);
+
+    if ( !propGrid->EditorValidate() )
+        return false;
+
+    // Create editor dialog.
+    wxArrayEditorDialog* dlg = CreateEditorDialog();
+    wxValidator* validator = GetValidator();
+    wxPGInDialogValidator dialogValidator;
+
+    wxArrayStringEditorDialog* strEdDlg = wxDynamicCast(dlg, wxArrayStringEditorDialog);
+
+    if ( strEdDlg )
+        strEdDlg->SetCustomButton(cbt, this);
+
+    dlg->SetDialogValue( wxVariant(m_value) );
+    dlg->Create(propGrid, wxEmptyString, m_label);
+
+#if !wxPG_SMALL_SCREEN
+    dlg->Move( propGrid->GetGoodEditorDialogPosition(this,dlg->GetSize()) );
+#endif
+
+    bool retVal;
+
+    for (;;)
+    {
+        retVal = false;
+
+        int res = dlg->ShowModal();
+
+        if ( res == wxID_OK && dlg->IsModified() )
+        {
+            wxVariant value = dlg->GetDialogValue();
+            if ( !value.IsNull() )
+            {
+                wxArrayString actualValue = value.GetArrayString();
+                wxString tempStr;
+                ARRSTRPROP_ARRAY_TO_STRING(tempStr, actualValue)
+                if ( dialogValidator.DoValidate( propGrid, validator, tempStr ) )
+                {
+                    DoSetValue( actualValue );
+                    UpdateControl( primaryCtrl );
+                    retVal = true;
+                    break;
+                }
+            }
+            else
+                break;
+        }
+        else
+            break;
+    }
+
+    delete dlg;
+
+    return retVal;
+}
+
+bool wxArrayStringPropertyClass::OnEvent( wxPropertyGrid* propGrid,
                                           wxWindow* primary,
                                           wxEvent& event )
 {
     if ( event.GetEventType() == wxEVT_COMMAND_BUTTON_CLICKED )
-        return OnButtonClick(propgrid,primary,(const wxChar*) NULL);
+        return OnButtonClick(propGrid,primary,(const wxChar*) NULL);
     return false;
 }
 
@@ -2411,7 +2424,7 @@ bool wxArrayStringPropertyClass::SetValueFromString( const wxString& text, int )
     m_value.Empty();
 
     WX_PG_TOKENIZER2_BEGIN(text,wxT('"'))
-        
+
         // Need to replace backslashes with empty characters
         // (opposite what is done in GenerateValueString).
         token.Replace ( wxT("\\"), wxT(""), true );
@@ -2484,19 +2497,19 @@ bool wxCustomPropertyClass::SetValueFromString ( const wxString& text, int /*fla
     return false;
 }
 
-wxString wxCustomPropertyClass::GetValueAsString ( int /*arg_flags*/ ) const
+wxString wxCustomPropertyClass::GetValueAsString ( int /*argFlags*/ ) const
 {
     return m_value;
 }
 
 // Need to do some extra event handling.
 #ifdef wxPG_COMPATIBILITY_1_0_0
-bool wxCustomPropertyClass::OnEvent ( wxPropertyGrid* propgrid, wxWindow* primary, wxEvent& event )
+bool wxCustomPropertyClass::OnEvent ( wxPropertyGrid* propGrid, wxWindow* primary, wxEvent& event )
 {
     if ( event.GetEventType() == wxEVT_COMMAND_BUTTON_CLICKED )
     {
         if ( m_callback )
-            return m_callback(propgrid,this,primary,0);
+            return m_callback(propGrid,this,primary,0);
     }
     return false;
 }

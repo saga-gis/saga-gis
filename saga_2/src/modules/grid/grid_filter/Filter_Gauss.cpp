@@ -193,17 +193,13 @@ bool CFilter_Gauss::On_Execute(void)
 	m_sigma		= Parameters("SIGMA")->asDouble();
 	Radius		= Parameters("RADIUS")->asInt();
 
-	Init_Kernel( Radius );
-
 	switch( Mode )
 	{
-	case 0:
-		break;
-
-	case 1:
-		pRadius		= new CSG_Grid_Radius(Radius + 1);
-		break;
+	case 0:	break;
+	case 1:	m_Radius.Create(1 + Radius);	break;
 	}
+
+	Init_Kernel( Radius );
 
 	//-----------------------------------------------------
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -236,15 +232,7 @@ bool CFilter_Gauss::On_Execute(void)
 		delete(pResult);
 	}
 
-	switch( Mode )
-	{
-	case 0:
-		break;
-
-	case 1:
-		delete(pRadius);
-		break;
-	}
+	m_Radius.Destroy();
 
 	return( true );
 }
@@ -309,28 +297,22 @@ double CFilter_Gauss::Get_Mean_Square(int x, int y, int Radius)
 //---------------------------------------------------------
 double CFilter_Gauss::Get_Mean_Circle(int x, int y)
 {
-	int		iRadius, iPoint, ix, iy, Radius;
+	int		iPoint, ix, iy, Radius;
 	double	Result,Kernel_Sum;
 
-	Radius = pRadius->Get_Maximum()-1;
+	Radius = m_Radius.Get_Maximum()-1;
 	Result	= 0.0;
 	Kernel_Sum		= 0.0;
 
 	//-----------------------------------------------------
-	for(iRadius=0; iRadius<pRadius->Get_Maximum(); iRadius++)
+	for(iPoint=0; iPoint<m_Radius.Get_nPoints(); iPoint++)
 	{
-		for(iPoint=0; iPoint<pRadius->Get_nPoints(iRadius); iPoint++)
+		m_Radius.Get_Point(iPoint, x, y, ix, iy);
+
+		if( pInput->is_InGrid(ix, iy) )
 		{
-			pRadius->Get_Point(iRadius, iPoint, ix, iy);
-
-			ix		+= x;
-			iy		+= y;
-
-			if( pInput->is_InGrid(ix, iy) )
-			{
-				Result	+= pInput->asDouble(ix, iy)* pKernel->asDouble(Radius+ix-x,Radius+ iy-y);
-				Kernel_Sum += pKernel->asDouble(Radius+ix-x,Radius+ iy-y);
-			}
+			Result	+= pInput->asDouble(ix, iy)* pKernel->asDouble(Radius+ix-x,Radius+ iy-y);
+			Kernel_Sum += pKernel->asDouble(Radius+ix-x,Radius+ iy-y);
 		}
 	}
 
