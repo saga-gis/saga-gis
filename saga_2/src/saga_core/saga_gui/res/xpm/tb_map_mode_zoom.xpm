@@ -5,7 +5,7 @@ static char *tb_map_mode_zoom_xpm[] = {
 "o c Black",
 "X c #FFFFFF",
 ". c #848284",
-"  c #C6C3C6",
+"  c None",
 /* pixels */
 "    ....          ",
 "  ..XXXX..        ",

@@ -115,7 +115,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CINFO::CINFO(wxWindow *pParent)
-	: wxNotebook(pParent, ID_WND_INFO, wxDefaultPosition, wxDefaultSize, NOTEBOOK_STYLE)
+	: wxNotebook(pParent, ID_WND_INFO, wxDefaultPosition, wxDefaultSize, NOTEBOOK_STYLE, LNG("[CAP] Messages"))
 {
 	g_pINFO		= this;
 

@@ -10,10 +10,13 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 Grid_Fill.cpp                         //
+//                    Grid_Fill.cpp                      //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                      Andre Ringeler                   //
+//                 Copyright (C) 2005 by                 //
+//                    Andre Ringeler                     //
+//                                                       //
+//                 Copyright (C) 2006 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,9 +40,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     aringel@saga-gis.org                   //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    Andre Ringeler                         //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Goettingen               //
 //                Goldschmidtstr. 5                      //
@@ -73,11 +76,11 @@ CGrid_Fill::CGrid_Fill(void)
 	//-----------------------------------------------------
 	// 1. Info...
 
-	Set_Name(_TL("Change Grid Values - Flood Fill"));
+	Set_Name		(_TL("Change Grid Values - Flood Fill"));
 
-	Set_Author(_TL("Copyrights (c) 2005 by Andre Ringeler"));
+	Set_Author		(_TL("(c) 2005 by A.Ringeler, (c) 2006 by O.Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TL(
 		"Interactively use the flood fill method to replace a grid's cell values. "
 		"If the target is not set, the changes will be stored to the original grid. ")
 	);
@@ -99,25 +102,39 @@ CGrid_Fill::CGrid_Fill(void)
 	);
 
 	Parameters.Add_Value(
-		NULL, "FILL"	, _TL("Fill Value"),
+		NULL	, "FILL"		, _TL("Fill Value"),
 		"",
 		PARAMETER_TYPE_Double, 1
 	); 
 
-	Parameters.Add_Value(
-		NULL, "UPPER"	, _TL("Upper Border"),
+	Parameters.Add_Choice(
+		NULL	, "METHOD"		, _TL("Value to be replaced"),
 		"",
-		PARAMETER_TYPE_Double, 1000
-	); 
-	
-	Parameters.Add_Value(
-		NULL, "LOWER"	, _TL("Lower Border"),
-		"",
-		PARAMETER_TYPE_Double, 0
+
+		CSG_String::Format("%s|%s|%s|",
+			_TL("value at mouse position"),
+			_TL("fixed value"),
+			_TL("tolerance as absolute values")
+		), 0
 	);
 
-	//-----------------------------------------------------
-	
+	Parameters.Add_Value(
+		NULL	, "ZFIXED"		, _TL("Fixed value to be replaced"),
+		"",
+		PARAMETER_TYPE_Double, 0.0
+	); 
+
+	Parameters.Add_Value(
+		NULL	, "DZMAX"		, _TL("Upper Tolerance"),
+		"",
+		PARAMETER_TYPE_Double, 1.0
+	); 
+
+	Parameters.Add_Value(
+		NULL	, "DZMIN"		, _TL("Lower Tolerance"),
+		"",
+		PARAMETER_TYPE_Double, -1.0
+	);
 }
 
 //---------------------------------------------------------
@@ -132,25 +149,8 @@ CGrid_Fill::~CGrid_Fill(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGrid_Fill::Push(int x, int y)
-{
-	Stack[StackPos].x = x;
-	Stack[StackPos].y = y;
-
-	StackPos++;
-}
-
-void CGrid_Fill::Pop(int &x, int &y)
-{
-	StackPos--;
-
-	x = Stack[StackPos].x;
-	y = Stack[StackPos].y;
-}
-
 bool CGrid_Fill::On_Execute(void)
 {
-	
 	if( Parameters("GRID_OUT")->asGrid() == NULL || Parameters("GRID_IN")->asGrid() == Parameters("GRID_OUT")->asGrid() )
 	{
 		m_pGrid	= Parameters("GRID_IN")	->asGrid();
@@ -161,66 +161,142 @@ bool CGrid_Fill::On_Execute(void)
 		m_pGrid->Assign(Parameters("GRID_IN")->asGrid());
 	}
 
-	m_Fill_Value = Parameters("FILL")->asDouble();
+	m_Method			= Parameters("METHOD")	->asInt();
+	m_zFill				= Parameters("FILL")	->asDouble();
+	m_zFixed			= Parameters("ZFIXED")	->asDouble();
+	m_zTolerance_Min	= Parameters("DZMIN")	->asDouble();
+	m_zTolerance_Max	= Parameters("DZMAX")	->asDouble();
 
-	m_Upper_Border = Parameters("UPPER")->asDouble();
-	m_Lower_Border = Parameters("LOWER")->asDouble();
-
-	//-------------------------------------------------
-	StackPos = 0;
-	StackSize = m_pGrid->Get_NX() * m_pGrid->Get_NY() *4;
-	Stack = (INT_Point*) new INT_Point [ StackSize ] ;
-
-	//-------------------------------------------------
-	
-
-	return( true );
-	
-}
-
-bool CGrid_Fill::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
-{
-	CGrid_System	*System;
-	int				x, y, neu_x, neu_y; 
-	int				i;
-	
-	System	=	Get_System(); 
-	
-	switch( Mode )
+	if( m_zTolerance_Min > m_zTolerance_Max )
 	{
-	//-----------------------------------------------------
-	case MODULE_INTERACTIVE_LDOWN:
-	{
-		x = System->Get_xWorld_to_Grid( ptWorld.Get_X() );
-		y = System->Get_yWorld_to_Grid( ptWorld.Get_Y() );
-
-		Push( x,  y);
-
-		while (StackPos && Set_Progress(StackPos, StackSize))
-		{
-			Pop (x , y);
-
-			for (	i=0;	i < 4;	i++)
-			{
-				neu_x = Get_xTo( i*2 , x);
-				neu_y = Get_yTo( i*2 , y);
-
-				if (   m_pGrid->is_InGrid( neu_x , neu_y) 
-					&& (m_pGrid->asDouble( neu_x , neu_y)!= m_Fill_Value)
-					&& (m_pGrid->asDouble( neu_x , neu_y) < m_Upper_Border)
-					&& (m_pGrid->asDouble( neu_x , neu_y) > m_Lower_Border) )
-				{
-					Push (neu_x , neu_y);
-					m_pGrid->Set_Value(neu_x , neu_y , m_Fill_Value );
-				}
-			}
-		}
+		double	z			= m_zTolerance_Min;
+		m_zTolerance_Min	= m_zTolerance_Min;
+		m_zTolerance_Max	= z;
 	}
 
-	DataObject_Update(m_pGrid, m_pGrid->Get_ZMin(), m_pGrid->Get_ZMax());
+	return( true );	
+}
+
+//---------------------------------------------------------
+bool CGrid_Fill::On_Execute_Finish(void)
+{
+	m_Stack.Clear();
+
 	return( true );
-	
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+inline void CGrid_Fill::Push(int x, int y)
+{
+	if( m_iStack >= m_Stack.Get_Count() )
+	{
+		m_Stack.Set_Count(m_Stack.Get_Count() + 1000);
+	}
+
+	m_Stack[m_iStack].x	= x;
+	m_Stack[m_iStack].y	= y;
+
+	m_iStack++;
+}
+
+//---------------------------------------------------------
+inline void CGrid_Fill::Pop(int &x, int &y)
+{
+	m_iStack--;
+
+	x	= m_Stack[m_iStack].x;
+	y	= m_Stack[m_iStack].y;
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Fill::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
+{
+	//-----------------------------------------------------
+	if(  Mode == MODULE_INTERACTIVE_LDOWN )
+	{
+		int		x, y, i, ix, iy, nReplaced;
+		double	z, zMin, zMax;
+
+		x	= Get_System()->Get_xWorld_to_Grid(ptWorld.Get_X());
+		y	= Get_System()->Get_yWorld_to_Grid(ptWorld.Get_Y());
+
+		if( m_pGrid && m_pGrid->is_InGrid(x, y) )
+		{
+			Message_Add(_TL("Starting flood fill..."));
+
+			switch( m_Method )
+			{
+			case 0:	z	= m_pGrid->asDouble(x, y);	break;	// value at mouse position
+			case 1:	z	= m_zFixed;					break;	// fixed value
+			case 2:	z	= 0.0;						break;	// tolerance as absolute values
+			}
+
+			zMin		= z - m_zTolerance_Min;
+			zMax		= z + m_zTolerance_Max;
+
+			m_iStack	= 0;
+			nReplaced	= 1;
+
+			Push(x, y);
+
+			//---------------------------------------------
+			while( m_iStack > 0 && Set_Progress(nReplaced, m_pGrid->Get_NCells()) )
+			{
+				Pop(x, y);
+
+				for(i=0; i<8; i+=2)
+				{
+					ix	= Get_xTo(i, x);
+					iy	= Get_yTo(i, y);
+
+					if(	m_pGrid->is_InGrid(ix, iy) )
+					{
+						z	= m_pGrid->asDouble(ix, iy);
+
+						if( z != m_zFill && z >= zMin && z <= zMax )
+						{
+							Push(ix, iy);
+
+							m_pGrid->Set_Value(ix, iy, m_zFill);
+
+							nReplaced++;
+						}
+					}
+				}
+			}
+
+			//---------------------------------------------
+			Message_Add(_TL("ready"), false);
+			Message_Add(CSG_String::Format("%d %s", nReplaced, _TL("replacements")));
+
+			DataObject_Update(m_pGrid, m_pGrid->Get_ZMin(), m_pGrid->Get_ZMax());
+
+			return( true );
+		}
 	}
 
 	return( false );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

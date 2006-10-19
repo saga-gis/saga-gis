@@ -176,12 +176,12 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	);
 
 	//-----------------------------------------------------
+	pNode	= m_Parameters.Add_Node(NULL, "NODE_GENERAL", LNG("General"), "");
+
 	if( CONFIG_Read("/DATA", "PROJECT_START"			, lValue) == false )
 	{
 		lValue	= 2;
 	}
-
-	pNode	= m_Parameters.Add_Node(NULL, "NODE_GENERAL", LNG("General"), "");
 
 	m_Parameters.Add_Choice(
 		pNode	, "PROJECT_START"			, LNG("Start Project"),
@@ -191,6 +191,17 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 			LNG("last opened"),
 			LNG("automatically save and load")
 		), lValue
+	);
+
+	if( CONFIG_Read("/DATA", "START_LOGO"				, lValue) == false )
+	{
+		lValue	= 1;
+	}
+
+	m_Parameters.Add_Value(
+		pNode	, "START_LOGO"				, LNG("Show Logo at Start Up"),
+		LNG(""),
+		PARAMETER_TYPE_Bool, lValue
 	);
 }
 
@@ -239,7 +250,8 @@ bool CWKSP_Data_Manager::Finalise(void)
 	//-----------------------------------------------------
 	wxFileName	fProject(g_pSAGA->Get_App_Path(), "session", "sprj");
 
-	CONFIG_Write("/DATA", "PROJECT_START"			, (long)m_Parameters("PROJECT_START")->asInt());
+	CONFIG_Write("/DATA", "PROJECT_START"			, (long)m_Parameters("PROJECT_START")	->asInt());
+	CONFIG_Write("/DATA", "START_LOGO"				, (long)m_Parameters("START_LOGO")		->asInt());
 
 	if( Get_Count() == 0 )
 	{

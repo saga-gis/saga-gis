@@ -6,7 +6,7 @@ static char *tb_edit_shape_select_xpm[] = {
 "O c #FFFFFF",
 "o c #848284",
 ". c #000084",
-"  c #C6C3C6",
+"  c None",
 /* pixels */
 "  .   XXXXX       ",
 "  o...OXoXOX      ",

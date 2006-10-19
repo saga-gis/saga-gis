@@ -136,26 +136,27 @@ CSAGA::~CSAGA(void)
 bool CSAGA::OnInit(void)
 {
 	//-----------------------------------------------------
-	wxInitAllImageHandlers();
-
-#ifndef _DEBUG
-	new wxSplashScreen(IMG_Get_Bitmap(ID_IMG_SAGA_SPLASH), wxSPLASH_CENTRE_ON_SCREEN|wxSPLASH_TIMEOUT, 20000, NULL, -1);
-
-	wxYield();
-#endif
-
-	//-----------------------------------------------------
 	g_pSAGA				= this;
 
 	m_Process_bContinue	= true;
 
-	//-----------------------------------------------------
+	wxInitAllImageHandlers();
+
 	_Init_Config();
+
+	//-----------------------------------------------------
+	long	l;
+
+	if( !CONFIG_Read("/DATA", "START_LOGO", l) || l == 1 )
+	{
+		new wxSplashScreen(IMG_Get_Bitmap(ID_IMG_SAGA_SPLASH), wxSPLASH_CENTRE_ON_SCREEN|wxSPLASH_TIMEOUT, 20000, NULL, -1);
+
+		wxYield();
+	}
 
 	//-----------------------------------------------------
 	SG_Get_Translator()->Create(SG_File_Make_Path(wxGetCwd(), "saga", "lng"), false);
 
-	//-----------------------------------------------------
 	SetTopWindow(new CSAGA_Frame());
 
 	//-----------------------------------------------------

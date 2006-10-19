@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 Grid_Fill.h                  //
+//                     Grid_Fill.h                       //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2006 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -37,9 +37,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     aringel@saga-gis.org                   //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    Andre Ringeler                         //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Goettingen               //
 //                Goldschmidtstr. 5                      //
@@ -79,39 +79,36 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef struct
-{
-	int						x, y;
-}
-INT_Point;
-
-
 class CGrid_Fill : public CModule_Grid_Interactive  
 {
 public:
 	CGrid_Fill(void);
 	virtual ~CGrid_Fill(void);
 
-	virtual const char *	Get_MenuPath	(void)	{	return( _TL("R:Values") );	}
+	virtual const char *	Get_MenuPath		(void)	{	return( _TL("R:Values") );	}
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
-	virtual bool			On_Execute_Position		(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
+	virtual bool			On_Execute			(void);
+	virtual bool			On_Execute_Finish	(void);
+	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
 
 
 private:
 
-	INT_Point * Stack;
-	int			StackPos; 
-	int			StackSize;
-	void		Push(int x, int y);
-	void		Pop (int &x, int &y);
-	CGrid			*m_pGrid;
-	double		m_Fill_Value;
-	double		m_Upper_Border;
-	double		m_Lower_Border;
+	int						m_iStack, m_Method;
+
+	double					m_zFill, m_zFixed, m_zTolerance_Min, m_zTolerance_Max;
+
+	CGrid					*m_pGrid;
+
+	CSG_Points_Int			m_Stack;
+
+
+	void					Push				(int  x, int  y);
+	void					Pop					(int &x, int &y);
+
 };
 
 

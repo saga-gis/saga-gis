@@ -4,9 +4,9 @@ static char *tb_table_col_del_xpm[] = {
 "16 16 5 1",
 ". c Black",
 "O c #FFFFFF",
-"  c #C6C6C6",
 "X c #00FFFF",
 "o c #0000FF",
+"  c None",
 /* pixels */
 "     .XXX.      ",
 "  o  .XXX.    o ",

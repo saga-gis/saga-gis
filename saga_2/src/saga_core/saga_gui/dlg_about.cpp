@@ -68,7 +68,6 @@
 #include "res_controls.h"
 
 #include "saga.h"
-#include "saga_frame_layout.h"
 
 #include "dlg_about.h"
 #include "dlg_about_logo.h"
@@ -225,11 +224,9 @@ wxString CDLG_About::_Get_Version(void)
 		"SAGA uses the portable C++ GUI toolkit wxWidgets\n"
 		"http://www.wxwidgets.org\n\n"
 		"%s\n"
-		"%s\n"
 		"%s\n",
 		wxVERSION_STRING,
-		"wxPropertyGrid 1.1.6",
-		SAGA_GUI_Get_Version_FrameLayout()
+		"wxPropertyGrid 1.2.2"
 	));
 
 #ifndef _SAGA_DONOTUSE_HARU

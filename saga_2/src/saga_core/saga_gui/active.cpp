@@ -138,7 +138,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CACTIVE::CACTIVE(wxWindow *pParent)
-	: wxNotebook(pParent, ID_WND_ACTIVE, wxDefaultPosition, wxDefaultSize, NOTEBOOK_STYLE)
+	: wxNotebook(pParent, ID_WND_ACTIVE, wxDefaultPosition, wxDefaultSize, NOTEBOOK_STYLE, LNG("[CAP] Object Properties"))
 {
 	g_pACTIVE		= this;
 
