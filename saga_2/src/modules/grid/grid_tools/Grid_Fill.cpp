@@ -245,7 +245,7 @@ bool CGrid_Fill::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode
 			case 2:	z	= 0.0;						break;	// tolerance as absolute values
 			}
 
-			zMin		= z - m_zTolerance_Min;
+			zMin		= z + m_zTolerance_Min;
 			zMax		= z + m_zTolerance_Max;
 
 			m_iStack	= 0;
