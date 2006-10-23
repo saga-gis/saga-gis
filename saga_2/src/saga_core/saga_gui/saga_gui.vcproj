@@ -973,28 +973,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="saga_frame_layout.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="SVG_Interactive_Map.cpp"
 				>
 				<FileConfiguration
@@ -2280,10 +2258,6 @@
 				>
 			</File>
 			<File
-				RelativePath="saga_frame_layout.h"
-				>
-			</File>
-			<File
 				RelativePath="SVG_Interactive_Map.h"
 				>
 			</File>
@@ -2979,7 +2953,15 @@
 					>
 				</File>
 				<File
+					RelativePath=".\wx\propgrid\advprops.h"
+					>
+				</File>
+				<File
 					RelativePath=".\wx\propgrid\extras.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\wx\propgrid\extras.h"
 					>
 				</File>
 				<File
@@ -2987,11 +2969,23 @@
 					>
 				</File>
 				<File
+					RelativePath=".\wx\propgrid\manager.h"
+					>
+				</File>
+				<File
 					RelativePath=".\wx\propgrid\odcombo.cpp"
 					>
 				</File>
 				<File
+					RelativePath=".\wx\propgrid\odcombo.h"
+					>
+				</File>
+				<File
 					RelativePath=".\wx\propgrid\propgrid.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\wx\propgrid\propgrid.h"
 					>
 				</File>
 				<File
@@ -3000,76 +2994,52 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="dockit"
+				Name="aui"
 				>
 				<File
-					RelativePath=".\wx\dockit\generic\barholder.cpp"
+					RelativePath=".\wx\aui\aui.h"
 					>
 				</File>
 				<File
-					RelativePath=".\wx\dockit\generic\dockhost.cpp"
+					RelativePath=".\wx\aui\auibook.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\wx\dockit\generic\dockpanel.cpp"
+					RelativePath=".\wx\aui\auibook.h"
 					>
 				</File>
 				<File
-					RelativePath=".\wx\dockit\generic\dockwindow.cpp"
+					RelativePath=".\wx\aui\dockart.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\wx\dockit\generic\exsplitter.cpp"
+					RelativePath=".\wx\aui\dockart.h"
 					>
 				</File>
 				<File
-					RelativePath=".\wx\dockit\generic\gdi.cpp"
+					RelativePath=".\wx\aui\floatpane.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\wx\dockit\generic\gripper.cpp"
+					RelativePath=".\wx\aui\floatpane.h"
 					>
 				</File>
 				<File
-					RelativePath=".\wx\dockit\generic\layoutmanager.cpp"
+					RelativePath=".\wx\aui\framemanager.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\wx\dockit\generic\pane.cpp"
+					RelativePath=".\wx\aui\framemanager.h"
 					>
 				</File>
 				<File
-					RelativePath=".\wx\dockit\generic\slidebar.cpp"
+					RelativePath=".\wx\aui\tabmdi.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\wx\dockit\generic\toolbutton.cpp"
+					RelativePath=".\wx\aui\tabmdi.h"
 					>
 				</File>
-				<File
-					RelativePath=".\wx\dockit\generic\util.cpp"
-					>
-				</File>
-				<Filter
-					Name="msw"
-					>
-					<File
-						RelativePath=".\wx\dockit\msw\dockwindow_msw.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\wx\dockit\msw\gdi_msw.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\wx\dockit\msw\pane_msw.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\wx\dockit\msw\toolbutton_msw.cpp"
-						>
-					</File>
-				</Filter>
 			</Filter>
 		</Filter>
 	</Files>

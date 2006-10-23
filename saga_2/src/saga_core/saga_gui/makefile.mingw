@@ -12,9 +12,9 @@ EXE_NAME  = $(BIN_SAGA)/$(PRJ_NAME).exe
 CPP       = g++.exe
 WINDRES   = windres.exe
 
-OBJ       = $(TMP_SAGA)s01.o $(TMP_SAGA)s02.o $(TMP_SAGA)s03.o $(TMP_SAGA)s04.o $(TMP_SAGA)s05.o $(TMP_SAGA)s06.o $(TMP_SAGA)callback.o $(TMP_SAGA)dc_helper.o $(TMP_SAGA)dlg_about.o $(TMP_SAGA)dlg_about_logo.o $(TMP_SAGA)dlg_base.o $(TMP_SAGA)dlg_colors.o $(TMP_SAGA)dlg_colors_control.o $(TMP_SAGA)dlg_list_base.o $(TMP_SAGA)dlg_list_grid.o $(TMP_SAGA)dlg_list_shapes.o $(TMP_SAGA)dlg_list_table.o $(TMP_SAGA)dlg_list_tin.o $(TMP_SAGA)dlg_parameters.o $(TMP_SAGA)dlg_table.o $(TMP_SAGA)dlg_text.o $(TMP_SAGA)helper.o $(TMP_SAGA)info.o $(TMP_SAGA)info_messages.o $(TMP_SAGA)parameters_control.o $(TMP_SAGA)parameters_properties.o $(TMP_SAGA)project.o $(TMP_SAGA)res_commands.o $(TMP_SAGA)res_controls.o $(TMP_SAGA)res_dialogs.o $(TMP_SAGA)res_images.o $(TMP_SAGA)saga.o $(TMP_SAGA)saga_frame.o $(TMP_SAGA)saga_frame_droptarget.o $(TMP_SAGA)saga_frame_layout.o $(TMP_SAGA)svg_interactive_map.o $(TMP_SAGA)view_base.o $(TMP_SAGA)view_histogram.o $(TMP_SAGA)view_layout.o $(TMP_SAGA)view_layout_control.o $(TMP_SAGA)view_layout_info.o $(TMP_SAGA)view_layout_printout.o $(TMP_SAGA)view_map.o $(TMP_SAGA)view_map_3d.o $(TMP_SAGA)view_map_3d_image.o $(TMP_SAGA)view_map_control.o $(TMP_SAGA)view_ruler.o $(TMP_SAGA)view_scatterplot.o $(TMP_SAGA)view_table.o $(TMP_SAGA)view_table_control.o $(TMP_SAGA)view_table_diagram.o $(TMP_SAGA)wksp.o $(TMP_SAGA)wksp_base_control.o $(TMP_SAGA)wksp_base_item.o $(TMP_SAGA)wksp_base_manager.o $(TMP_SAGA)wksp_data_control.o $(TMP_SAGA)wksp_data_manager.o $(TMP_SAGA)wksp_data_menu_file.o $(TMP_SAGA)wksp_data_menu_files.o $(TMP_SAGA)wksp_grid.o $(TMP_SAGA)wksp_grid_manager.o $(TMP_SAGA)wksp_grid_system.o $(TMP_SAGA)wksp_layer.o $(TMP_SAGA)wksp_layer_classify.o $(TMP_SAGA)wksp_layer_legend.o $(TMP_SAGA)wksp_map.o $(TMP_SAGA)wksp_map_control.o $(TMP_SAGA)wksp_map_dc.o $(TMP_SAGA)wksp_map_layer.o $(TMP_SAGA)wksp_map_manager.o $(TMP_SAGA)wksp_module.o $(TMP_SAGA)wksp_module_control.o $(TMP_SAGA)wksp_module_library.o $(TMP_SAGA)wksp_module_manager.o $(TMP_SAGA)wksp_module_menu.o $(TMP_SAGA)wksp_shapes.o $(TMP_SAGA)wksp_shapes_edit.o $(TMP_SAGA)wksp_shapes_line.o $(TMP_SAGA)wksp_shapes_manager.o $(TMP_SAGA)wksp_shapes_point.o $(TMP_SAGA)wksp_shapes_points.o $(TMP_SAGA)wksp_shapes_polygon.o $(TMP_SAGA)wksp_shapes_type.o $(TMP_SAGA)wksp_table.o $(TMP_SAGA)wksp_table_manager.o $(TMP_SAGA)wksp_tin.o $(TMP_SAGA)wksp_tin_manager.o $(RES_NAME) $(TMP_SAGA)pg1.o $(TMP_SAGA)pg2.o $(TMP_SAGA)pg3.o $(TMP_SAGA)pg4.o $(TMP_SAGA)pg5.o $(TMP_SAGA)pg6.o $(TMP_SAGA)d01.o $(TMP_SAGA)d02.o $(TMP_SAGA)d03.o $(TMP_SAGA)d04.o $(TMP_SAGA)d05.o $(TMP_SAGA)d06.o $(TMP_SAGA)d07.o $(TMP_SAGA)d08.o $(TMP_SAGA)d09.o $(TMP_SAGA)d10.o $(TMP_SAGA)d11.o $(TMP_SAGA)d12.o $(TMP_SAGA)d13.o $(TMP_SAGA)d14.o $(TMP_SAGA)d15.o $(TMP_SAGA)d16.o
+OBJ       = $(TMP_SAGA)s01.o $(TMP_SAGA)s02.o $(TMP_SAGA)s03.o $(TMP_SAGA)s04.o $(TMP_SAGA)s05.o $(TMP_SAGA)s06.o $(TMP_SAGA)callback.o $(TMP_SAGA)dc_helper.o $(TMP_SAGA)dlg_about.o $(TMP_SAGA)dlg_about_logo.o $(TMP_SAGA)dlg_base.o $(TMP_SAGA)dlg_colors.o $(TMP_SAGA)dlg_colors_control.o $(TMP_SAGA)dlg_list_base.o $(TMP_SAGA)dlg_list_grid.o $(TMP_SAGA)dlg_list_shapes.o $(TMP_SAGA)dlg_list_table.o $(TMP_SAGA)dlg_list_tin.o $(TMP_SAGA)dlg_parameters.o $(TMP_SAGA)dlg_table.o $(TMP_SAGA)dlg_text.o $(TMP_SAGA)helper.o $(TMP_SAGA)info.o $(TMP_SAGA)info_messages.o $(TMP_SAGA)parameters_control.o $(TMP_SAGA)parameters_properties.o $(TMP_SAGA)project.o $(TMP_SAGA)res_commands.o $(TMP_SAGA)res_controls.o $(TMP_SAGA)res_dialogs.o $(TMP_SAGA)res_images.o $(TMP_SAGA)saga.o $(TMP_SAGA)saga_frame.o $(TMP_SAGA)saga_frame_droptarget.o $(TMP_SAGA)svg_interactive_map.o $(TMP_SAGA)view_base.o $(TMP_SAGA)view_histogram.o $(TMP_SAGA)view_layout.o $(TMP_SAGA)view_layout_control.o $(TMP_SAGA)view_layout_info.o $(TMP_SAGA)view_layout_printout.o $(TMP_SAGA)view_map.o $(TMP_SAGA)view_map_3d.o $(TMP_SAGA)view_map_3d_image.o $(TMP_SAGA)view_map_control.o $(TMP_SAGA)view_ruler.o $(TMP_SAGA)view_scatterplot.o $(TMP_SAGA)view_table.o $(TMP_SAGA)view_table_control.o $(TMP_SAGA)view_table_diagram.o $(TMP_SAGA)wksp.o $(TMP_SAGA)wksp_base_control.o $(TMP_SAGA)wksp_base_item.o $(TMP_SAGA)wksp_base_manager.o $(TMP_SAGA)wksp_data_control.o $(TMP_SAGA)wksp_data_manager.o $(TMP_SAGA)wksp_data_menu_file.o $(TMP_SAGA)wksp_data_menu_files.o $(TMP_SAGA)wksp_grid.o $(TMP_SAGA)wksp_grid_manager.o $(TMP_SAGA)wksp_grid_system.o $(TMP_SAGA)wksp_layer.o $(TMP_SAGA)wksp_layer_classify.o $(TMP_SAGA)wksp_layer_legend.o $(TMP_SAGA)wksp_map.o $(TMP_SAGA)wksp_map_control.o $(TMP_SAGA)wksp_map_dc.o $(TMP_SAGA)wksp_map_layer.o $(TMP_SAGA)wksp_map_manager.o $(TMP_SAGA)wksp_module.o $(TMP_SAGA)wksp_module_control.o $(TMP_SAGA)wksp_module_library.o $(TMP_SAGA)wksp_module_manager.o $(TMP_SAGA)wksp_module_menu.o $(TMP_SAGA)wksp_shapes.o $(TMP_SAGA)wksp_shapes_edit.o $(TMP_SAGA)wksp_shapes_line.o $(TMP_SAGA)wksp_shapes_manager.o $(TMP_SAGA)wksp_shapes_point.o $(TMP_SAGA)wksp_shapes_points.o $(TMP_SAGA)wksp_shapes_polygon.o $(TMP_SAGA)wksp_shapes_type.o $(TMP_SAGA)wksp_table.o $(TMP_SAGA)wksp_table_manager.o $(TMP_SAGA)wksp_tin.o $(TMP_SAGA)wksp_tin_manager.o $(RES_NAME) $(TMP_SAGA)pg1.o $(TMP_SAGA)pg2.o $(TMP_SAGA)pg3.o $(TMP_SAGA)pg4.o $(TMP_SAGA)pg5.o $(TMP_SAGA)pg6.o $(TMP_SAGA)aui01.o $(TMP_SAGA)aui02.o $(TMP_SAGA)aui03.o $(TMP_SAGA)aui04.o $(TMP_SAGA)aui05.o
 
-DEF_SAGA  = -D_SAGA_MSW -D_SAGA_MINGW -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -DSAGA_GUI_FRAME_LAYOUT=0
+DEF_SAGA  = -D_SAGA_MSW -D_SAGA_MINGW -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 DEF_WIN   = -D__WXMSW__ -DNOPCH
 CXXINCS   = -I"$(WXWIN)/include" -I"$(WXWIN)/lib/gcc_lib/msw" -I"." -I"$(INC_GCC)" -I"$(LIB_GCC)" -I"$(INC_GCC)/c++" -I"$(LIB_GCC)/gcc/mingw32/3.4.2/include"  -I"$(INC_GCC)/c++/3.4.2/backward" -I"$(INC_GCC)/c++/3.4.2/mingw32" -I"$(INC_GCC)/c++/3.4.2" -I"$(INC_SAGA)"
 
@@ -140,9 +140,6 @@ $(TMP_SAGA)saga_frame.o: saga_frame.cpp
 
 $(TMP_SAGA)saga_frame_droptarget.o: saga_frame_droptarget.cpp
 	$(CPP) -c saga_frame_droptarget.cpp -o $(TMP_SAGA)saga_frame_droptarget.o $(CXXFLAGS)
-
-$(TMP_SAGA)saga_frame_layout.o: saga_frame_layout.cpp
-	$(CPP) -c saga_frame_layout.cpp -o $(TMP_SAGA)saga_frame_layout.o $(CXXFLAGS)
 
 $(TMP_SAGA)svg_interactive_map.o: svg_interactive_map.cpp
 	$(CPP) -c svg_interactive_map.cpp -o $(TMP_SAGA)svg_interactive_map.o $(CXXFLAGS)
@@ -321,50 +318,17 @@ $(TMP_SAGA)pg5.o: ./wx/propgrid/propgrid.cpp
 $(TMP_SAGA)pg6.o: ./wx/propgrid/props.cpp
 	$(CPP) -c ./wx/propgrid/props.cpp -o $(TMP_SAGA)pg6.o $(CXXFLAGS)
 
-$(TMP_SAGA)d01.o: ./wx/dockit/generic/barholder.cpp
-	$(CPP) -c ./wx/dockit/generic/barholder.cpp -o $(TMP_SAGA)d01.o $(CXXFLAGS)
+$(TMP_SAGA)aui01.o: ./wx/aui/auibook.cpp
+	$(CPP) -c ./wx/aui/auibook.cpp -o $(TMP_SAGA)aui01.o $(CXXFLAGS)
 
-$(TMP_SAGA)d02.o: ./wx/dockit/generic/dockhost.cpp
-	$(CPP) -c ./wx/dockit/generic/dockhost.cpp -o $(TMP_SAGA)d02.o $(CXXFLAGS)
+$(TMP_SAGA)aui02.o: ./wx/aui/dockart.cpp
+	$(CPP) -c ./wx/aui/dockart.cpp -o $(TMP_SAGA)aui02.o $(CXXFLAGS)
 
-$(TMP_SAGA)d03.o: ./wx/dockit/generic/dockpanel.cpp
-	$(CPP) -c ./wx/dockit/generic/dockpanel.cpp -o $(TMP_SAGA)d03.o $(CXXFLAGS)
+$(TMP_SAGA)aui03.o: ./wx/aui/floatpane.cpp
+	$(CPP) -c ./wx/aui/floatpane.cpp -o $(TMP_SAGA)aui03.o $(CXXFLAGS)
 
-$(TMP_SAGA)d04.o: ./wx/dockit/generic/dockwindow.cpp
-	$(CPP) -c ./wx/dockit/generic/dockwindow.cpp -o $(TMP_SAGA)d04.o $(CXXFLAGS)
+$(TMP_SAGA)aui04.o: ./wx/aui/framemanager.cpp
+	$(CPP) -c ./wx/aui/framemanager.cpp -o $(TMP_SAGA)aui04.o $(CXXFLAGS)
 
-$(TMP_SAGA)d05.o: ./wx/dockit/generic/exsplitter.cpp
-	$(CPP) -c ./wx/dockit/generic/exsplitter.cpp -o $(TMP_SAGA)d05.o $(CXXFLAGS)
-
-$(TMP_SAGA)d06.o: ./wx/dockit/generic/gdi.cpp
-	$(CPP) -c ./wx/dockit/generic/gdi.cpp -o $(TMP_SAGA)d06.o $(CXXFLAGS)
-
-$(TMP_SAGA)d07.o: ./wx/dockit/generic/gripper.cpp
-	$(CPP) -c ./wx/dockit/generic/gripper.cpp -o $(TMP_SAGA)d07.o $(CXXFLAGS)
-
-$(TMP_SAGA)d08.o: ./wx/dockit/generic/layoutmanager.cpp
-	$(CPP) -c ./wx/dockit/generic/layoutmanager.cpp -o $(TMP_SAGA)d08.o $(CXXFLAGS)
-
-$(TMP_SAGA)d09.o: ./wx/dockit/generic/pane.cpp
-	$(CPP) -c ./wx/dockit/generic/pane.cpp -o $(TMP_SAGA)d09.o $(CXXFLAGS)
-
-$(TMP_SAGA)d10.o: ./wx/dockit/generic/slidebar.cpp
-	$(CPP) -c ./wx/dockit/generic/slidebar.cpp -o $(TMP_SAGA)d10.o $(CXXFLAGS)
-
-$(TMP_SAGA)d11.o: ./wx/dockit/generic/toolbutton.cpp
-	$(CPP) -c ./wx/dockit/generic/toolbutton.cpp -o $(TMP_SAGA)d11.o $(CXXFLAGS)
-
-$(TMP_SAGA)d12.o: ./wx/dockit/generic/util.cpp
-	$(CPP) -c ./wx/dockit/generic/util.cpp -o $(TMP_SAGA)d12.o $(CXXFLAGS)
-
-$(TMP_SAGA)d13.o: ./wx/dockit/msw/dockwindow_msw.cpp
-	$(CPP) -c ./wx/dockit/msw/dockwindow_msw.cpp -o $(TMP_SAGA)d13.o $(CXXFLAGS)
-
-$(TMP_SAGA)d14.o: ./wx/dockit/msw/gdi_msw.cpp
-	$(CPP) -c ./wx/dockit/msw/gdi_msw.cpp -o $(TMP_SAGA)d14.o $(CXXFLAGS)
-
-$(TMP_SAGA)d15.o: ./wx/dockit/msw/pane_msw.cpp
-	$(CPP) -c ./wx/dockit/msw/pane_msw.cpp -o $(TMP_SAGA)d15.o $(CXXFLAGS)
-
-$(TMP_SAGA)d16.o: ./wx/dockit/msw/toolbutton_msw.cpp
-	$(CPP) -c ./wx/dockit/msw/toolbutton_msw.cpp -o $(TMP_SAGA)d16.o $(CXXFLAGS)
+$(TMP_SAGA)aui05.o: ./wx/aui/tabmdi.cpp
+	$(CPP) -c ./wx/aui/tabmdi.cpp -o $(TMP_SAGA)aui05.o $(CXXFLAGS)

@@ -138,6 +138,8 @@ public:
 	bool						ProgressBar_Set_Position	(int Position);
 	bool						ProgressBar_Set_Position	(double Position, double Range);
 
+	virtual wxStatusBar *		OnCreateStatusBar			(int number, long style, wxWindowID id, const wxString& name);
+
 	void						StatusBar_Set_Text			(const char *Text, int iPane = 0);
 
 	//-----------------------------------------------------
@@ -164,8 +166,12 @@ private:
 
 	class CACTIVE				*m_pActive;
 
-	CSAGA_Frame_Layout			*m_pLayout;
+	class wxFrameManager		*m_pLayout;
 
+
+	void						_Bar_Add					(class wxWindow *pWindow, int Position);
+	void						_Bar_Toggle					(wxWindow *pWindow);
+	void						_Bar_Show					(wxWindow *pWindow, bool bShow);
 
 	class wxToolBarBase *		_Create_ToolBar				(void);
 

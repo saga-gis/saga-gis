@@ -2,7 +2,8 @@ CXX_DEFS  = `wx-config --cxxflags`
 if X86_64
 ARCHDEFS = -fPIC -fpermissive
 endif
-AM_CXXFLAGS = $(CXX_DEFS) $(ARCHDEFS) -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_DONOTUSE_HARU -I.. -I. -I./wx/dockit
+INCS  = -I.. -I. -I/usr/include/cairo -I/opt/gnome/include/gtk-2.0 -I/opt/gnome/lib/gtk-2.0/include -I/opt/gnome/include/glib-2.0 -I/opt/gnome/lib/glib-2.0/include -I/opt/gnome/include/atk-1.0 -I/opt/gnome/include/pango-1.0
+AM_CXXFLAGS = $(CXX_DEFS) $(ARCHDEFS) -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_DONOTUSE_HARU $(INCS)
 #AM_LDFLAGS = -static `wx-config --cxxflags`
 AM_LDFLAGS = `wx-config --cxxflags`
 #LIBS = `wx-config --libs` -lm
@@ -45,7 +46,6 @@ res_images.cpp\
 saga.cpp\
 saga_frame.cpp\
 saga_frame_droptarget.cpp\
-saga_frame_layout.cpp\
 svg_interactive_map.cpp\
 view_base.cpp\
 view_histogram.cpp\
@@ -132,7 +132,6 @@ res_images.h\
 saga.h\
 saga_frame.h\
 saga_frame_droptarget.h\
-saga_frame_layout.h\
 svg_interactive_map.h\
 view_base.h\
 view_histogram.h\
@@ -196,38 +195,17 @@ wx/propgrid/propdev.h\
 wx/propgrid/propgrid.cpp\
 wx/propgrid/propgrid.h\
 wx/propgrid/props.cpp\
-wx/dockit/generic/barholder.cpp\
-wx/dockit/generic/dockhost.cpp\
-wx/dockit/generic/dockpanel.cpp\
-wx/dockit/generic/dockwindow.cpp\
-wx/dockit/generic/exsplitter.cpp\
-wx/dockit/generic/gdi.cpp\
-wx/dockit/generic/gripper.cpp\
-wx/dockit/generic/layoutmanager.cpp\
-wx/dockit/generic/pane.cpp\
-wx/dockit/generic/slidebar.cpp\
-wx/dockit/generic/toolbutton.cpp\
-wx/dockit/generic/util.cpp\
-wx/dockit/gtk/dockwindow_gtk.cpp\
-wx/dockit/gtk/gdi_gtk.cpp\
-wx/dockit/gtk/pane_gtk.cpp\
-wx/barholder.h\
-wx/dockhost.h\
-wx/dockpanel.h\
-wx/dockwindow.h\
-wx/export.h\
-wx/exsplitter.h\
-wx/gdi.h\
-wx/gripper.h\
-wx/layoutmanager.h\
-wx/pane.h\
-wx/slidebar.h\
-wx/toolbutton.h\
-wx/util.h\
-wx/generic/toolbutton.h\
-wx/gtk/dockwindow_gtk.h\
-wx/gtk/gdi_gtk.h\
-wx/gtk/pane_gtk.h
+wx/aui/aui.h\
+wx/aui/auibook.cpp\
+wx/aui/auibook.h\
+wx/aui/dockart.cpp\
+wx/aui/dockart.h\
+wx/aui/floatpane.cpp\
+wx/aui/floatpane.h\
+wx/aui/framemanager.cpp\
+wx/aui/framemanager.h\
+wx/aui/tabmdi.cpp\
+wx/aui/tabmdi.h
 
 saga_gui_LDADD = ../saga_api/libsaga_api.la
 

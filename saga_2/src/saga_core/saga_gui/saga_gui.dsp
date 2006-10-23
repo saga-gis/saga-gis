@@ -236,10 +236,6 @@ SOURCE=.\saga_frame_droptarget.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\saga_frame_layout.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\SVG_Interactive_Map.cpp
 # End Source File
 # Begin Source File
@@ -585,10 +581,6 @@ SOURCE=.\SAGA_Frame.h
 # Begin Source File
 
 SOURCE=.\SAGA_Frame_DropTarget.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\saga_frame_layout.h
 # End Source File
 # Begin Source File
 
@@ -1286,76 +1278,52 @@ SOURCE=.\wx\propgrid\propgrid.cpp
 SOURCE=.\wx\propgrid\props.cpp
 # End Source File
 # End Group
-# Begin Group "dockit"
-
-# PROP Default_Filter ""
-# Begin Group "msw"
+# Begin Group "aui"
 
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=.\wx\dockit\msw\dockwindow_msw.cpp
+SOURCE=.\wx\aui\aui.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\wx\dockit\msw\gdi_msw.cpp
+SOURCE=.\wx\aui\auibook.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\wx\dockit\msw\pane_msw.cpp
+SOURCE=.\wx\aui\auibook.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\wx\dockit\msw\toolbutton_msw.cpp
-# End Source File
-# End Group
-# Begin Source File
-
-SOURCE=.\wx\dockit\generic\barholder.cpp
+SOURCE=.\wx\aui\dockart.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\wx\dockit\generic\dockhost.cpp
+SOURCE=.\wx\aui\dockart.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\wx\dockit\generic\dockpanel.cpp
+SOURCE=.\wx\aui\floatpane.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\wx\dockit\generic\dockwindow.cpp
+SOURCE=.\wx\aui\floatpane.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\wx\dockit\generic\exsplitter.cpp
+SOURCE=.\wx\aui\framemanager.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\wx\dockit\generic\gdi.cpp
+SOURCE=.\wx\aui\framemanager.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\wx\dockit\generic\gripper.cpp
+SOURCE=.\wx\aui\tabmdi.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\wx\dockit\generic\layoutmanager.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\wx\dockit\generic\pane.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\wx\dockit\generic\slidebar.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\wx\dockit\generic\toolbutton.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\wx\dockit\generic\util.cpp
+SOURCE=.\wx\aui\tabmdi.h
 # End Source File
 # End Group
 # End Group

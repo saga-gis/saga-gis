@@ -64,6 +64,8 @@
 #include <wx/icon.h>
 #include <wx/gauge.h>
 #include <wx/choicdlg.h>
+#include <wx/toolbar.h>
+#include <wx/aui/aui.h>
 
 #include <saga_api/saga_api.h>
 
@@ -78,7 +80,6 @@
 
 #include "saga.h"
 #include "saga_frame.h"
-#include "saga_frame_layout.h"
 #include "saga_frame_droptarget.h"
 
 #include "info.h"
@@ -103,6 +104,55 @@
 #include "view_layout.h"
 
 #include "dlg_about.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CSAGA_Frame_StatusBar : public wxStatusBar
+{
+public:
+	CSAGA_Frame_StatusBar(wxWindow *parent, wxWindowID id, long style = wxST_SIZEGRIP, const wxString& name = "statusBar")
+		: wxStatusBar(parent, id, style, name)
+	{
+		m_pProgressBar	= new wxGauge(this, ID_WND_PROGRESSBAR, 100);
+	}
+
+	void		On_Size		(wxSizeEvent     &event)
+	{
+		wxRect	r;
+
+		if( m_pProgressBar && GetFieldRect(STATUSBAR_PROGRESS, r) )
+		{
+			m_pProgressBar->SetSize(r);
+		}
+
+		event.Skip();
+	}
+
+	wxGauge		*m_pProgressBar;
+
+	DECLARE_EVENT_TABLE()
+};
+
+//---------------------------------------------------------
+BEGIN_EVENT_TABLE(CSAGA_Frame_StatusBar, wxStatusBar)
+	EVT_SIZE			(CSAGA_Frame_StatusBar::On_Size)
+END_EVENT_TABLE()
+
+//---------------------------------------------------------
+wxStatusBar * CSAGA_Frame::OnCreateStatusBar(int number, long style, wxWindowID id, const wxString& name)
+{
+	CSAGA_Frame_StatusBar	*sb	= new CSAGA_Frame_StatusBar(this, id, style, name);
+
+	sb->SetFieldsCount(number);
+
+	return( sb );
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -200,14 +250,29 @@ CSAGA_Frame::CSAGA_Frame(void)
 	SetStatusBarPane	(STATUSBAR_DEFAULT);
 	StatusBar_Set_Text	(LNG("[VAL] ready"));
 
-	m_pProgressBar		= new wxGauge(GetStatusBar(), ID_WND_PROGRESSBAR, 100);
+	m_pProgressBar		= ((CSAGA_Frame_StatusBar *)GetStatusBar())->m_pProgressBar;
 
 	//-----------------------------------------------------
-	m_pLayout			= new CSAGA_Frame_Layout(this);
+	m_pLayout			= new wxFrameManager(this);
 
-	m_pLayout->Bar_Add(m_pINFO   = new CINFO  (this), LNG("[CAP] Messages"));
-	m_pLayout->Bar_Add(m_pActive = new CACTIVE(this), LNG("[CAP] Object Properties"));
-	m_pLayout->Bar_Add(m_pWKSP   = new CWKSP  (this), LNG("[CAP] Workspace"));
+	m_pLayout->GetArtProvider()->SetColor	(wxAUI_ART_ACTIVE_CAPTION_COLOUR,
+		wxSystemSettings::GetColour(wxSYS_COLOUR_ACTIVECAPTION)
+	);
+
+	m_pLayout->GetArtProvider()->SetColor	(wxAUI_ART_INACTIVE_CAPTION_COLOUR,
+		wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE)
+	);
+
+	m_pLayout->GetArtProvider()->SetMetric	(wxAUI_ART_GRADIENT_TYPE	, wxAUI_GRADIENT_NONE);
+	m_pLayout->GetArtProvider()->SetMetric	(wxAUI_ART_CAPTION_SIZE		, 14);
+
+	m_pLayout->SetFlags(m_pLayout->GetFlags() ^ wxAUI_MGR_TRANSPARENT_DRAG);
+//	m_pLayout->SetFlags(m_pLayout->GetFlags() ^ wxAUI_MGR_ALLOW_ACTIVE_PANE);
+
+	//-----------------------------------------------------
+	_Bar_Add(m_pINFO   = new CINFO  (this), 0);
+	_Bar_Add(m_pActive = new CACTIVE(this), 1);
+	_Bar_Add(m_pWKSP   = new CWKSP  (this), 2);
 
 	m_pINFO		->Add_Pages();
 	m_pActive	->Add_Pages();
@@ -217,6 +282,7 @@ CSAGA_Frame::CSAGA_Frame(void)
 	SetMenuBar(MB_Create(NULL));
 
 	//-----------------------------------------------------
+	m_pTB_Main			= 						  _Create_ToolBar();
 	m_pTB_Map			= CVIEW_Map				::_Create_ToolBar();
 	m_pTB_Map_3D		= CVIEW_Map_3D			::_Create_ToolBar();
 	m_pTB_Layout		= CVIEW_Layout			::_Create_ToolBar();
@@ -224,14 +290,42 @@ CSAGA_Frame::CSAGA_Frame(void)
 	m_pTB_Diagram		= CVIEW_Table_Diagram	::_Create_ToolBar();
 	m_pTB_Histogram		= CVIEW_Histogram		::_Create_ToolBar();
 	m_pTB_ScatterPlot	= CVIEW_ScatterPlot		::_Create_ToolBar();
-	m_pTB_Main			= 						  _Create_ToolBar();
 
 	//-----------------------------------------------------
-	m_pLayout->Show_Initially();
-	m_pLayout->Bar_Show(m_pTB_Main, true);
+	m_pLayout->GetPane(GetClientWindow()).Show().Center();
+
+	wxString	s;
+
+	if( CONFIG_Read("/FL", "MANAGER", s) )
+	{
+		m_pLayout->LoadPerspective(s);
+	}
+
+	_Bar_Show(m_pTB_Main, true);
+
+	m_pLayout->Update();
+
+	Show(true);
+
+	//-----------------------------------------------------
+	int		x, y, dx, dy;
+	long	l;
+
+	x	= CONFIG_Read("/FL", "X" , l) ? l : -1;
+	y	= CONFIG_Read("/FL", "Y" , l) ? l : -1;
+	dx	= CONFIG_Read("/FL", "DX", l) ? l : 800;
+	dy	= CONFIG_Read("/FL", "DY", l) ? l : 600;
+
+	SetSize(x, y, dx, dy);
+
+	if( !(CONFIG_Read("/FL", "STATE", l) && l == 0) )
+	{
+		Maximize();
+	}
 
 	Update();
 
+	//-----------------------------------------------------
 	if( g_pData->Initialise() )
 	{
 		Refresh(false);
@@ -241,8 +335,33 @@ CSAGA_Frame::CSAGA_Frame(void)
 //---------------------------------------------------------
 CSAGA_Frame::~CSAGA_Frame(void)
 {
+	//-----------------------------------------------------
+	if( IsIconized() )
+	{
+		Iconize(false);
+	}
+
+	if( IsMaximized() )
+	{
+		CONFIG_Write("/FL", "STATE" , (long)1);
+	}
+	else
+	{
+		CONFIG_Write("/FL", "STATE", (long)0);
+		CONFIG_Write("/FL", "X"    , (long)GetPosition().x);
+		CONFIG_Write("/FL", "Y"    , (long)GetPosition().y);
+		CONFIG_Write("/FL", "DX"   , (long)GetSize().x);
+		CONFIG_Write("/FL", "DY"   , (long)GetSize().y);
+	}
+
+	//-----------------------------------------------------
+	CONFIG_Write("/FL", "MANAGER", m_pLayout->SavePerspective().c_str());
+
+	m_pLayout->UnInit();
+
 	delete(m_pLayout);
 
+	//-----------------------------------------------------
 	SG_Set_UI_Callback(NULL);
 
 	g_pSAGA_Frame	= NULL;
@@ -289,13 +408,6 @@ void CSAGA_Frame::On_Close(wxCloseEvent &event)
 //---------------------------------------------------------
 void CSAGA_Frame::On_Size(wxSizeEvent &event)
 {
-	wxRect	r;
-
-	if( m_pProgressBar && GetStatusBar()->GetFieldRect(STATUSBAR_PROGRESS, r) )
-	{
-		m_pProgressBar->SetSize(r);
-	}
-
 	event.Skip();
 }
 
@@ -440,7 +552,7 @@ void CSAGA_Frame::On_Frame_Close_All_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CSAGA_Frame::On_WKSP_Show(wxCommandEvent &WXUNUSED(event))
 {
-	m_pLayout->Bar_Toggle(m_pWKSP);
+	_Bar_Toggle(m_pWKSP);
 }
 
 void CSAGA_Frame::On_WKSP_Show_UI(wxUpdateUIEvent &event)
@@ -451,7 +563,7 @@ void CSAGA_Frame::On_WKSP_Show_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CSAGA_Frame::On_Active_Show(wxCommandEvent &WXUNUSED(event))
 {
-	m_pLayout->Bar_Toggle(m_pActive);
+	_Bar_Toggle(m_pActive);
 }
 
 void CSAGA_Frame::On_Active_Show_UI(wxUpdateUIEvent &event)
@@ -462,7 +574,7 @@ void CSAGA_Frame::On_Active_Show_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CSAGA_Frame::On_INFO_Show(wxCommandEvent &WXUNUSED(event))
 {
-	m_pLayout->Bar_Toggle(m_pINFO);
+	_Bar_Toggle(m_pINFO);
 }
 
 void CSAGA_Frame::On_INFO_Show_UI(wxUpdateUIEvent &event)
@@ -599,31 +711,31 @@ void CSAGA_Frame::On_Child_Activates(CVIEW_Base *pChild, bool bActivates)
 	switch( pChild->Get_View_ID() )
 	{
 	case ID_VIEW_TABLE:
-		m_pLayout->Bar_Show(m_pTB_Table			, bActivates);
+		_Bar_Show(m_pTB_Table		, bActivates);
 		break;
 
 	case ID_VIEW_TABLE_DIAGRAM:
-		m_pLayout->Bar_Show(m_pTB_Diagram		, bActivates);
+		_Bar_Show(m_pTB_Diagram		, bActivates);
 		break;
 
 	case ID_VIEW_MAP:
-		m_pLayout->Bar_Show(m_pTB_Map			, bActivates);
+		_Bar_Show(m_pTB_Map			, bActivates);
 		break;
 
 	case ID_VIEW_MAP_3D:
-		m_pLayout->Bar_Show(m_pTB_Map_3D		, bActivates);
+		_Bar_Show(m_pTB_Map_3D		, bActivates);
 		break;
 
 	case ID_VIEW_HISTOGRAM:
-		m_pLayout->Bar_Show(m_pTB_Histogram		, bActivates);
+		_Bar_Show(m_pTB_Histogram	, bActivates);
 		break;
 
 	case ID_VIEW_SCATTERPLOT:
-		m_pLayout->Bar_Show(m_pTB_ScatterPlot	, bActivates);
+		_Bar_Show(m_pTB_ScatterPlot	, bActivates);
 		break;
 
 	case ID_VIEW_LAYOUT:
-		m_pLayout->Bar_Show(m_pTB_Layout		, bActivates);
+		_Bar_Show(m_pTB_Layout		, bActivates);
 		break;
 	}
 }
@@ -712,29 +824,114 @@ void CSAGA_Frame::MB_Remove(wxMenu *pMenu_File, wxMenu *pMenu_Modules)
 
 ///////////////////////////////////////////////////////////
 //														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CSAGA_Frame::_Bar_Add(wxWindow *pWindow, int Position)
+{
+	m_pLayout->AddPane(pWindow, wxPaneInfo()
+		.Name		(pWindow->GetName())
+		.Caption	(pWindow->GetName())
+		.Layer		(0)
+		.Row		(0)
+		.Position	(0)
+		.MinSize	(100, 100)
+		.BestSize	(200, 100)
+	);
+
+	switch( Position )
+	{
+	default:
+	case 0:	m_pLayout->GetPane(pWindow).Bottom().FloatingSize(400, 200);	break;
+	case 1:	m_pLayout->GetPane(pWindow).Right ().FloatingSize(200, 400);	break;
+	case 2:	m_pLayout->GetPane(pWindow).Left  ().FloatingSize(200, 400);	break;
+	case 3:	m_pLayout->GetPane(pWindow).Top   ().FloatingSize(400, 200);	break;
+	}
+}
+
+//---------------------------------------------------------
+void CSAGA_Frame::_Bar_Toggle(wxWindow *pWindow)
+{
+	if( pWindow->IsShown() )
+	{
+		m_pLayout->GetPane(pWindow).Hide();
+
+		if( m_pLayout->GetPane(pWindow).IsToolbar() )
+			pWindow->Hide();
+	}
+	else
+	{
+		if( m_pLayout->GetPane(pWindow).IsToolbar() )
+			pWindow->Show();
+
+		m_pLayout->GetPane(pWindow).Show();
+	}
+
+	m_pLayout->Update();
+}
+
+//---------------------------------------------------------
+void CSAGA_Frame::_Bar_Show(wxWindow *pWindow, bool bShow)
+{
+	if( pWindow && pWindow->IsShown() != bShow )
+	{
+		_Bar_Toggle(pWindow);
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //						ToolBar							 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define TOOLBAR_SIZE_IMG		16
+
+//---------------------------------------------------------
 wxToolBarBase * CSAGA_Frame::TB_Create(int ID)
 {
-	return( m_pLayout->TB_Create(ID) );
+	wxToolBar	*pToolBar	= new wxToolBar(this, ID, wxDefaultPosition, wxDefaultSize, wxTB_HORIZONTAL|wxTB_FLAT|wxTB_NODIVIDER);
+
+	pToolBar->SetToolBitmapSize(wxSize(TOOLBAR_SIZE_IMG, TOOLBAR_SIZE_IMG));
+
+	return( pToolBar );
 }
 
+//---------------------------------------------------------
 void CSAGA_Frame::TB_Add(wxToolBarBase *pToolBar, const char *Name)
 {
-	m_pLayout->TB_Add(pToolBar, Name);
+	pToolBar->Realize();
+	pToolBar->Hide();
+
+	m_pLayout->AddPane(pToolBar, wxPaneInfo()
+	//	.Name			(pToolBar->GetName())
+		.Name			(Name)
+		.Caption		(Name)
+		.ToolbarPane	()
+		.Top			()
+		.LeftDockable	(false)
+		.RightDockable	(false)
+		.Hide			()
+	);
 }
 
+//---------------------------------------------------------
 void CSAGA_Frame::TB_Add_Item(wxToolBarBase *pToolBar, bool bCheck, int Cmd_ID)
 {
-	m_pLayout->TB_Add_Item(pToolBar, bCheck, Cmd_ID);
+	if( bCheck )
+		((wxToolBar *)pToolBar)->AddTool(Cmd_ID, CMD_Get_Name(Cmd_ID), IMG_Get_Bitmap(CMD_Get_ImageID(Cmd_ID), TOOLBAR_SIZE_IMG), CMD_Get_Help(Cmd_ID), wxITEM_CHECK);
+	else
+		((wxToolBar *)pToolBar)->AddTool(Cmd_ID, CMD_Get_Name(Cmd_ID), IMG_Get_Bitmap(CMD_Get_ImageID(Cmd_ID), TOOLBAR_SIZE_IMG), CMD_Get_Help(Cmd_ID));
 }
 
+//---------------------------------------------------------
 void CSAGA_Frame::TB_Add_Separator(wxToolBarBase *pToolBar)
 {
-	m_pLayout->TB_Add_Separator(pToolBar);
+	((wxToolBar *)pToolBar)->AddSeparator();
 }
 
 //---------------------------------------------------------
@@ -751,8 +948,6 @@ wxToolBarBase * CSAGA_Frame::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_FRAME_HELP);
 
 	TB_Add(pToolBar, LNG("[CAP] Standard"));
-
-	m_pLayout->Bar_Show(pToolBar, true);
 
 	return( pToolBar );
 }
