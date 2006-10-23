@@ -226,6 +226,10 @@ SOURCE=.\module_interactive_base.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\module_library.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\module_library_interface.cpp
 # End Source File
 # Begin Source File
@@ -351,6 +355,10 @@ SOURCE=.\MAT_Tools.h
 # Begin Source File
 
 SOURCE=.\Module.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\module_library.h
 # End Source File
 # Begin Source File
 
