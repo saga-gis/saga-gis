@@ -123,7 +123,7 @@ typedef enum ESG_Table_FieldType
 TSG_Table_Field_Type;
 
 //---------------------------------------------------------
-const char	TABLE_FieldType_Names[][32]	=
+const char	gSG_Table_Field_Type_Names[][32]	=
 {
 	"NONE",
 	"CHARACTER",

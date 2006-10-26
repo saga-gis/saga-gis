@@ -73,55 +73,55 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-static CSG_String	GRID_CACHE_Directory;
+static CSG_String	gSG_Grid_Cache_Directory;
 
 const char *		SG_Grid_Cache_Get_Directory(void)
 {
-	return( GRID_CACHE_Directory );
+	return( gSG_Grid_Cache_Directory );
 }
 
 void				SG_Grid_Cache_Set_Directory(const char *Directory)
 {
 	if( SG_Dir_isValid(Directory) )
 	{
-		GRID_CACHE_Directory.Printf(Directory);
+		gSG_Grid_Cache_Directory.Printf(Directory);
 	}
 }
 
 //---------------------------------------------------------
-static bool			GRID_CACHE_bAutomatic	= false;
+static bool			gSG_Grid_Cache_bAutomatic	= false;
 
 void				SG_Grid_Cache_Set_Automatic(bool bOn)
 {
-	GRID_CACHE_bAutomatic	= bOn;
+	gSG_Grid_Cache_bAutomatic	= bOn;
 }
 
 bool				SG_Grid_Cache_Get_Automatic(void)
 {
-	return( GRID_CACHE_bAutomatic );
+	return( gSG_Grid_Cache_bAutomatic );
 }
 
 //---------------------------------------------------------
-static int			GRID_CACHE_Confirm		= 1;
+static int			gSG_Grid_Cache_Confirm		= 1;
 
 void				SG_Grid_Cache_Set_Confirm(int Confirm)
 {
-	GRID_CACHE_Confirm		= Confirm;
+	gSG_Grid_Cache_Confirm		= Confirm;
 }
 
 int					SG_Grid_Cache_Get_Confirm(void)
 {
-	return( GRID_CACHE_Confirm );
+	return( gSG_Grid_Cache_Confirm );
 }
 
 //---------------------------------------------------------
-static int			GRID_CACHE_Threshold	= 40 * N_MEGABYTE_BYTES;
+static int			gSG_Grid_Cache_Threshold	= 40 * N_MEGABYTE_BYTES;
 
 void				SG_Grid_Cache_Set_Threshold(int nBytes)
 {
 	if( nBytes >= 0 )
 	{
-		GRID_CACHE_Threshold	= nBytes;
+		gSG_Grid_Cache_Threshold	= nBytes;
 	}
 }
 
@@ -132,12 +132,12 @@ void				SG_Grid_Cache_Set_Threshold_MB(double nMegabytes)
 
 int					SG_Grid_Cache_Get_Threshold(void)
 {
-	return( GRID_CACHE_Threshold );
+	return( gSG_Grid_Cache_Threshold );
 }
 
 double				SG_Grid_Cache_Get_Threshold_MB(void)
 {
-	return( (double)GRID_CACHE_Threshold / (double)N_MEGABYTE_BYTES );
+	return( (double)gSG_Grid_Cache_Threshold / (double)N_MEGABYTE_BYTES );
 }
 
 
@@ -154,11 +154,11 @@ bool CSG_Grid::_Memory_Create(TSG_Grid_Memory_Type Memory_Type)
 	{
 		_Memory_Destroy();
 
-		Set_Buffer_Size(GRID_CACHE_Threshold);
+		Set_Buffer_Size(gSG_Grid_Cache_Threshold);
 
-		if(	Memory_Type != GRID_MEMORY_Cache && GRID_CACHE_bAutomatic && Get_NCells() * Get_nValueBytes() > GRID_CACHE_Threshold )
+		if(	Memory_Type != GRID_MEMORY_Cache && gSG_Grid_Cache_bAutomatic && Get_NCells() * Get_nValueBytes() > gSG_Grid_Cache_Threshold )
 		{
-			switch( GRID_CACHE_Confirm )
+			switch( gSG_Grid_Cache_Confirm )
 			{
 			default:
 				Memory_Type	= GRID_MEMORY_Cache;

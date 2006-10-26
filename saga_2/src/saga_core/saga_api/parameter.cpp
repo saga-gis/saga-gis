@@ -376,7 +376,7 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const char *Separator)
 
 			for(i=0; i<asTable()->Get_Field_Count(); i++)
 			{
-				s.Append(CSG_String::Format("- %d. [%s] %s%s", i + 1, TABLE_FieldType_Names[asTable()->Get_Field_Type(i)], asTable()->Get_Field_Name(i), Separator));
+				s.Append(CSG_String::Format("- %d. [%s] %s%s", i + 1, gSG_Table_Field_Type_Names[asTable()->Get_Field_Type(i)], asTable()->Get_Field_Name(i), Separator));
 			}
 			break;
 

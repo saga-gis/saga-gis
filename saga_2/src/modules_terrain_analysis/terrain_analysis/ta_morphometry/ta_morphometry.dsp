@@ -105,6 +105,10 @@ SOURCE=.\Curvature_Classification.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\distance_gradient.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Hypsometry.cpp
 # End Source File
 # Begin Source File
@@ -114,6 +118,10 @@ SOURCE=.\MLB_Interface.cpp
 # Begin Source File
 
 SOURCE=.\Morphometry.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\mrvbf.cpp
 # End Source File
 # Begin Source File
 
@@ -145,6 +153,10 @@ SOURCE=.\Curvature_Classification.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\distance_gradient.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Hypsometry.h
 # End Source File
 # Begin Source File
@@ -154,6 +166,10 @@ SOURCE=.\MLB_Interface.h
 # Begin Source File
 
 SOURCE=.\Morphometry.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\mrvbf.h
 # End Source File
 # Begin Source File
 

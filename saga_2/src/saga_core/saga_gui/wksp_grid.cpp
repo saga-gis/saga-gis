@@ -151,7 +151,7 @@ wxString CWKSP_Grid::Get_Description(void)
 	));
 
 	s.Append(wxString::Format("<tr><td>%s</td><td>%s</td></tr>",
-		LNG("[CAP] Value Type")				, GRID_TYPE_NAMES[m_pGrid->Get_Type()]
+		LNG("[CAP] Value Type")				, gSG_Grid_Type_Names[m_pGrid->Get_Type()]
 	));
 
 	s.Append(wxString::Format("<tr><td>%s</td><td>[%f] - [%f] = [%f]</td></tr>",

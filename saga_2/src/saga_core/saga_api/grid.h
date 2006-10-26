@@ -99,7 +99,7 @@ typedef enum ESG_Grid_Type
 TSG_Grid_Type;
 
 //---------------------------------------------------------
-const char GRID_TYPE_NAMES[GRID_TYPE_Count][32]	=
+const char gSG_Grid_Type_Names[GRID_TYPE_Count][32]	=
 {
 	"ASCII",
 	"BYTE_UNSIGNED",
@@ -115,7 +115,7 @@ const char GRID_TYPE_NAMES[GRID_TYPE_Count][32]	=
 };
 
 //---------------------------------------------------------
-const char GRID_TYPE_SIZES[GRID_TYPE_Count]	= 
+const char gSG_Grid_Type_Sizes[GRID_TYPE_Count]	= 
 {
 	0,
 	sizeof(BYTE),
@@ -185,7 +185,7 @@ typedef enum ESG_Grid_File_Key
 TSG_Grid_File_Key;
 
 //---------------------------------------------------------
-const char	GRID_FILE_KEY_NAMES[GRID_FILE_KEY_Count][32]	=
+const char	gSG_Grid_File_Key_Names[GRID_FILE_KEY_Count][32]	=
 {
 	"NAME",
 	"DESCRIPTION",
@@ -433,7 +433,7 @@ public:		///////////////////////////////////////////////
 
 	TSG_Grid_Type				Get_Type		(void)	const	{	return( m_Type );					}
 
-	int							Get_nValueBytes	(void)	const	{	return( GRID_TYPE_SIZES[m_Type] );	}
+	int							Get_nValueBytes	(void)	const	{	return( gSG_Grid_Type_Sizes[m_Type] );	}
 
 	void						Set_Description	(const char *String);
 	const char *				Get_Description	(void);
@@ -809,7 +809,7 @@ private:	///////////////////////////////////////////////
 
 	void						_LineBuffer_Create		(void);
 	void						_LineBuffer_Destroy		(void);
-	int							_LineBuffer_Get_nBytes	(void)	{	return( GRID_TYPE_SIZES[m_Type] * Get_NX() );	}
+	int							_LineBuffer_Get_nBytes	(void)	{	return( gSG_Grid_Type_Sizes[m_Type] * Get_NX() );	}
 	void						_LineBuffer_Flush		(void);
 	TGrid_Memory_Line *			_LineBuffer_Get_Line	(int y);
 	void						_LineBuffer_Set_Value	(int x, int y, double Value);

@@ -103,28 +103,28 @@ static double f_N		(double a, double x, double y);
 
 #define STD_LIB_NUM 20
 
-static CSG_Formula::TMAT_Formula_Item gSG_Functions[Max_ctable]	=
+static CSG_Formula::TSG_Formula_Item gSG_Functions[Max_ctable]	=
 {
-	{"exp"		,							exp		, 1, 0},	//  1
-	{"ln"		,							log		, 1, 0},	//  2
-	{"sin"		,							sin		, 1, 0},	//  3
-	{"cos"		,							cos		, 1, 0},	//  4
-	{"tan"		,							tan		, 1, 0},	//  5
-	{"asin"		,							asin	, 1, 0},	//  6
-	{"acos"		,							acos	, 1, 0},	//  7
-	{"atan"		,							atan	, 1, 0},	//  8
-	{"atan2"	, (TMAT_Formula_Function_1)	f_atan2	, 2, 0},	//  9
-	{"abs"		,							fabs	, 1, 0},	// 10
-	{"sqrt"		,							sqrt	, 1, 0},	// 11
-	{"gt"		, (TMAT_Formula_Function_1)	f_gt	, 2, 0},	// 12
-	{"lt"		, (TMAT_Formula_Function_1)	f_lt	, 2, 0},	// 13
-	{"eq"		, (TMAT_Formula_Function_1)	f_eq	, 2, 0},	// 14
-	{"pi"		, (TMAT_Formula_Function_1)	f_pi	, 0, 0},	// 15
-	{"int"		, (TMAT_Formula_Function_1)	f_int	, 1, 0},	// 16
-	{"ifelse"	, (TMAT_Formula_Function_1)	f_ifelse, 3, 0},	// 17
-	{"mod"		, (TMAT_Formula_Function_1)	f_fmod	, 2, 0},	// 18
-	{"N"		, (TMAT_Formula_Function_1)	f_N		, 3, 0},	// 19
-	{NULL		,							NULL	, 0, 0}
+	{"exp"		,						exp		, 1, 0},	//  1
+	{"ln"		,						log		, 1, 0},	//  2
+	{"sin"		,						sin		, 1, 0},	//  3
+	{"cos"		,						cos		, 1, 0},	//  4
+	{"tan"		,						tan		, 1, 0},	//  5
+	{"asin"		,						asin	, 1, 0},	//  6
+	{"acos"		,						acos	, 1, 0},	//  7
+	{"atan"		,						atan	, 1, 0},	//  8
+	{"atan2"	, (TSG_PFNC_Formula_1)	f_atan2	, 2, 0},	//  9
+	{"abs"		,						fabs	, 1, 0},	// 10
+	{"sqrt"		,						sqrt	, 1, 0},	// 11
+	{"gt"		, (TSG_PFNC_Formula_1)	f_gt	, 2, 0},	// 12
+	{"lt"		, (TSG_PFNC_Formula_1)	f_lt	, 2, 0},	// 13
+	{"eq"		, (TSG_PFNC_Formula_1)	f_eq	, 2, 0},	// 14
+	{"pi"		, (TSG_PFNC_Formula_1)	f_pi	, 0, 0},	// 15
+	{"int"		, (TSG_PFNC_Formula_1)	f_int	, 1, 0},	// 16
+	{"ifelse"	, (TSG_PFNC_Formula_1)	f_ifelse, 3, 0},	// 17
+	{"mod"		, (TSG_PFNC_Formula_1)	f_fmod	, 2, 0},	// 18
+	{"N"		, (TSG_PFNC_Formula_1)	f_N		, 3, 0},	// 19
+	{NULL		,						NULL	, 0, 0}
 };
 
 CSG_Formula::CSG_Formula()
@@ -317,7 +317,7 @@ int CSG_Formula::Del_Function(char *name)
 /* Original library functions may not be deleted. */
 {
 	int place;
-	TMAT_Formula_Item *scan;
+	TSG_Formula_Item *scan;
 	
 	if ((place = where_table(name)) == -1)
 		return -1; /* there is an error message already */
@@ -346,9 +346,9 @@ int CSG_Formula::Del_Function(char *name)
  * Result: 0 is rendered if there is an error
  * 1 is rendered otherwise
 */
-int CSG_Formula::Add_Function(char *name, TMAT_Formula_Function_1 f, int n_pars, int varying)
+int CSG_Formula::Add_Function(char *name, TSG_PFNC_Formula_1 f, int n_pars, int varying)
 {
-	TMAT_Formula_Item *where;
+	TSG_Formula_Item *where;
 	
 	if (n_pars < 0 || n_pars>3)
 	{
@@ -413,7 +413,7 @@ int CSG_Formula::where_table(char *name)
 /* If the function exists, where_table() returns the index of its name
     in the table. Otherwise, it returns -1. */
 {
-	TMAT_Formula_Item *table_p;
+	TSG_Formula_Item *table_p;
 	
 	for (table_p = gSG_Functions; table_p->f != NULL &&
         strcmp(name, table_p->name); table_p++)
@@ -504,19 +504,19 @@ double CSG_Formula::value(TMAT_Formula func)
 				break;
 			case 'F':switch (gSG_Functions[*function].n_pars)
 					 {
-			case 0:*bufp++ =((TMAT_Formula_Function_0)gSG_Functions[*function++].f)();
+			case 0:*bufp++ =((TSG_PFNC_Formula_0)gSG_Functions[*function++].f)();
 				break;
 			case 1:x = *--bufp;
 				*bufp++ = gSG_Functions[*function++].f(x);
 				break;
 			case 2:y = *--bufp;
 				x = *--bufp;
-				*bufp++ =((TMAT_Formula_Function_2)gSG_Functions[*function++].f)(x, y);
+				*bufp++ =((TSG_PFNC_Formula_2)gSG_Functions[*function++].f)(x, y);
 				break;
 			case 3:z = *--bufp;
 				y = *--bufp;
 				x = *--bufp;
-				*bufp++ =((TMAT_Formula_Function_3)gSG_Functions[*function++].f)(x, y, z);
+				*bufp++ =((TSG_PFNC_Formula_3)gSG_Functions[*function++].f)(x, y, z);
 				break;
 			default:fset_error("I2: too many parameters\n");
 				return 0;

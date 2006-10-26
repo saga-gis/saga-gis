@@ -94,6 +94,15 @@ CSG_Colors::CSG_Colors(void)
 }
 
 //---------------------------------------------------------
+CSG_Colors::CSG_Colors(const CSG_Colors &Colors)
+{
+	m_Colors	= NULL;
+	m_nColors	= 0;
+
+	Assign(Colors);
+}
+
+//---------------------------------------------------------
 CSG_Colors::CSG_Colors(int nColors, int Palette, bool bRevert)
 {
 	m_Colors	= NULL;
@@ -707,19 +716,24 @@ bool CSG_Colors::Revert(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Colors::Assign(CSG_Colors *pSource)
+bool CSG_Colors::Assign(const CSG_Colors &Colors)
 {
-	if( pSource && pSource->m_nColors > 0 )
+	if( Colors.m_nColors > 0 )
 	{
-		m_nColors	= pSource->m_nColors;
+		m_nColors	= Colors.m_nColors;
 		m_Colors	= (long *)SG_Realloc(m_Colors, m_nColors * sizeof(long));
 
-		memcpy(m_Colors, pSource->m_Colors, m_nColors * sizeof(long));
+		memcpy(m_Colors, Colors.m_Colors, m_nColors * sizeof(long));
 
 		return( true );
 	}
 
 	return( false );
+}
+
+bool CSG_Colors::Assign(CSG_Colors *pColors)
+{
+	return( pColors ? Assign(*pColors) : false );
 }
 
 

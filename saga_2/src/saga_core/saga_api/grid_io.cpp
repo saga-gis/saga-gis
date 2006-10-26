@@ -267,7 +267,7 @@ bool CSG_Grid::_Load_Binary(FILE *Stream, TSG_Grid_Type File_Type, bool bFlip, b
 		//-------------------------------------------------
 		else
 		{
-			nValueBytes	= GRID_TYPE_SIZES[File_Type];
+			nValueBytes	= gSG_Grid_Type_Sizes[File_Type];
 			nxBytes		= Get_NX() * nValueBytes;
 
 			if( m_Type == File_Type && m_Memory_Type == GRID_MEMORY_Normal && !bSwapBytes )
@@ -381,7 +381,7 @@ bool CSG_Grid::_Save_Binary(FILE *Stream, int xA, int yA, int xN, int yN, TSG_Gr
 		//-------------------------------------------------
 		else
 		{
-			nValueBytes	= GRID_TYPE_SIZES[File_Type];
+			nValueBytes	= gSG_Grid_Type_Sizes[File_Type];
 			nxBytes		= xN * nValueBytes;
 
 			if( m_Type == File_Type && m_Memory_Type == GRID_MEMORY_Normal && !bSwapBytes )
@@ -594,7 +594,7 @@ bool CSG_Grid::_Load_Native(const char *File_Header, TSG_Grid_Memory_Type Memory
 			case GRID_FILE_KEY_DATAFORMAT:
 				for(iType=0; iType<GRID_TYPE_Count && hdr_Type == GRID_TYPE_Count; iType++)
 				{
-					if( Value.Find(GRID_TYPE_NAMES[iType]) >= 0 )
+					if( Value.Find(gSG_Grid_Type_Names[iType]) >= 0 )
 					{
 						hdr_Type	= (TSG_Grid_Type)iType;
 					}
@@ -676,20 +676,20 @@ bool CSG_Grid::_Save_Native(const char *File_Name, int xA, int yA, int xN, int y
 		//-------------------------------------------------
 		// Header...
 
-		fprintf(Stream, "%s\t= %s\n", GRID_FILE_KEY_NAMES[ GRID_FILE_KEY_NAME			], Get_Name() );
-		fprintf(Stream, "%s\t= %s\n", GRID_FILE_KEY_NAMES[ GRID_FILE_KEY_DESCRIPTION	], Get_Description() );
-		fprintf(Stream, "%s\t= %s\n", GRID_FILE_KEY_NAMES[ GRID_FILE_KEY_UNITNAME		], Get_Unit() );
-		fprintf(Stream, "%s\t= %d\n", GRID_FILE_KEY_NAMES[ GRID_FILE_KEY_DATAFILE_OFFSET], 0 );
-		fprintf(Stream, "%s\t= %s\n", GRID_FILE_KEY_NAMES[ GRID_FILE_KEY_DATAFORMAT		], GRID_TYPE_NAMES[bBinary ? Get_Type() : 0] );
-		fprintf(Stream, "%s\t= %s\n", GRID_FILE_KEY_NAMES[ GRID_FILE_KEY_BYTEORDER_BIG	], GRID_FILE_KEY_FALSE );
-		fprintf(Stream, "%s\t= %f\n", GRID_FILE_KEY_NAMES[ GRID_FILE_KEY_POSITION_XMIN	], Get_XMin() + Get_Cellsize() * xA );
-		fprintf(Stream, "%s\t= %f\n", GRID_FILE_KEY_NAMES[ GRID_FILE_KEY_POSITION_YMIN	], Get_YMin() + Get_Cellsize() * yA );
-		fprintf(Stream, "%s\t= %d\n", GRID_FILE_KEY_NAMES[ GRID_FILE_KEY_CELLCOUNT_X	], xN );
-		fprintf(Stream, "%s\t= %d\n", GRID_FILE_KEY_NAMES[ GRID_FILE_KEY_CELLCOUNT_Y	], yN );
-		fprintf(Stream, "%s\t= %f\n", GRID_FILE_KEY_NAMES[ GRID_FILE_KEY_CELLSIZE		], Get_Cellsize() );
-		fprintf(Stream, "%s\t= %f\n", GRID_FILE_KEY_NAMES[ GRID_FILE_KEY_Z_FACTOR		], m_zFactor );
-		fprintf(Stream, "%s\t= %f\n", GRID_FILE_KEY_NAMES[ GRID_FILE_KEY_NODATA_VALUE	], m_NoData_Value );
-		fprintf(Stream, "%s\t= %s\n", GRID_FILE_KEY_NAMES[ GRID_FILE_KEY_TOPTOBOTTOM	], GRID_FILE_KEY_FALSE );
+		fprintf(Stream, "%s\t= %s\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_NAME			], Get_Name() );
+		fprintf(Stream, "%s\t= %s\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_DESCRIPTION	], Get_Description() );
+		fprintf(Stream, "%s\t= %s\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_UNITNAME		], Get_Unit() );
+		fprintf(Stream, "%s\t= %d\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_DATAFILE_OFFSET], 0 );
+		fprintf(Stream, "%s\t= %s\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_DATAFORMAT		], gSG_Grid_Type_Names[bBinary ? Get_Type() : 0] );
+		fprintf(Stream, "%s\t= %s\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_BYTEORDER_BIG	], GRID_FILE_KEY_FALSE );
+		fprintf(Stream, "%s\t= %f\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_POSITION_XMIN	], Get_XMin() + Get_Cellsize() * xA );
+		fprintf(Stream, "%s\t= %f\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_POSITION_YMIN	], Get_YMin() + Get_Cellsize() * yA );
+		fprintf(Stream, "%s\t= %d\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_CELLCOUNT_X	], xN );
+		fprintf(Stream, "%s\t= %d\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_CELLCOUNT_Y	], yN );
+		fprintf(Stream, "%s\t= %f\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_CELLSIZE		], Get_Cellsize() );
+		fprintf(Stream, "%s\t= %f\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_Z_FACTOR		], m_zFactor );
+		fprintf(Stream, "%s\t= %f\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_NODATA_VALUE	], m_NoData_Value );
+		fprintf(Stream, "%s\t= %s\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_TOPTOBOTTOM	], GRID_FILE_KEY_FALSE );
 
 		fclose(Stream);
 
@@ -737,7 +737,7 @@ int CSG_Grid::_Load_Native_Get_Key(FILE *Stream, CSG_String &Value)
 
 		for(i=0; i<GRID_FILE_KEY_Count; i++)
 		{
-			if( sLine.Find(GRID_FILE_KEY_NAMES[i]) >= 0 )
+			if( sLine.Find(gSG_Grid_File_Key_Names[i]) >= 0 )
 			{
 				return( i );
 			}

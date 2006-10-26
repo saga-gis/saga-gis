@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                        MRVBF.h                        //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2006 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -48,108 +48,61 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//			The Module Link Library Interface			 //
-//														 //
-///////////////////////////////////////////////////////////
+#ifndef HEADER_INCLUDED__MRVBF_H
+#define HEADER_INCLUDED__MRVBF_H
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-const char * Get_Info(int i)
+class CMRVBF : public CSG_Module_Grid
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Terrain Analysis - Morphometry") );
-
-	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad, Goettingen (c) 2001") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for (grid based) digital terrain analysis.") );
-
-	case MLB_INFO_Version:
-		return( "1.0" );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Terrain Analysis|Morphometry") );
-	}
-}
+public:
+	CMRVBF(void);
+	virtual ~CMRVBF(void);
 
 
-//---------------------------------------------------------
-#include "Morphometry.h"
-#include "Convergence.h"
-#include "Convergence_Radius.h"
-#include "SurfaceSpecificPoints.h"
-#include "Curvature_Classification.h"
-#include "Hypsometry.h"
-#include "RealArea.h"
-#include "ProtectionIndex.h"
-#include "mrvbf.h"
-#include "distance_gradient.h"
+protected:
 
-//---------------------------------------------------------
-CSG_Module *		Create_Module(int i)
-{
-	CSG_Module	*pModule;
+	virtual bool				On_Execute				(void);
 
-	switch( i )
-	{
-	case 0:
-		pModule	= new CMorphometry;
-		break;
 
-	case 1:
-		pModule	= new CConvergence;
-		break;
+private:
 
-	case 2:
-		pModule	= new CConvergence_Radius;
-		break;
+	double						m_P_Slope, m_P_Pctl, m_T_Pctl_V, m_T_Pctl_R;
 
-	case 3:
-		pModule	= new CSurfaceSpecificPoints;
-		break;
+	CSG_Grid_Radius				m_Radius;
 
-	case 4:
-		pModule	= new CCurvature_Classification;
-		break;
 
-	case 5:
-		pModule	= new CHypsometry;
-		break;
+	double						Get_Transformation		(double x, double t, double p);
 
-	case 6:
-		pModule	= new CRealArea;
-		break;
+	bool						Get_Percentile			(CSG_Grid *pDEM, int x, int y, double &Percentile);
+	bool						Get_Percentiles			(CSG_Grid *pDEM, CSG_Grid *pPercentile, int Radius);
+	bool						Get_Slopes				(CSG_Grid *pDEM, CSG_Grid *pSlope);
+	bool						Get_Smoothed			(CSG_Grid *pDEM, CSG_Grid *pSmoothed, int Radius, double Smoothing);
+	bool						Get_Values				(CSG_Grid *pDEM, CSG_Grid *pSlope, CSG_Grid *pPercentiles, double Resolution);
 
-	case 7:
-		pModule	= new CProtectionIndex;
-		break;
+	bool						Get_Flatness			(CSG_Grid *pSlope, CSG_Grid *pPctl, CSG_Grid *pF, CSG_Grid *pVB, CSG_Grid *pRT, double T_Slope);
 
-	case 8:
-		pModule	= new CMRVBF;
-		break;
+	bool						Get_MRVBF				(int Level, CSG_Grid *pMRVBF, CSG_Grid *pVF, CSG_Grid *pMRRTF, CSG_Grid *pRF);
 
-	case 9:
-		pModule	= new CDistance_Gradient;
-		break;
+	bool						Get_Classified			(CSG_Grid *pMRF);
 
-	default:
-		pModule	= NULL;
-		break;
-	}
-
-	return( pModule );
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -159,8 +112,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__MRVBF_H

@@ -470,6 +470,7 @@ class SAGA_API_DLL_EXPORT CSG_Colors
 {
 public:
 	CSG_Colors(void);
+	CSG_Colors(const CSG_Colors &Colors);
 	CSG_Colors(int nColors, int Palette = SG_COLORS_DEFAULT, bool bRevert = false);
 	virtual ~CSG_Colors(void);
 
@@ -504,6 +505,7 @@ public:
 	bool							Invert				(void);
 	bool							Revert				(void);
 
+	bool							Assign				(const CSG_Colors &Colors);
 	bool							Assign				(CSG_Colors *pSource);
 
 	bool							Load				(const char *File_Name);

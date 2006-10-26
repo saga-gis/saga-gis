@@ -293,7 +293,7 @@ CSG_Grid * CRaw_Import::Load_Data(FILE *Stream, TSG_Grid_Type data_type, int nx,
 		if( !feof(Stream) )
 		{
 			pGrid			= SG_Create_Grid(data_type, nx, ny, dxy, xmin, ymin);
-			nBytes_Value	= GRID_TYPE_SIZES[data_type];
+			nBytes_Value	= gSG_Grid_Type_Sizes[data_type];
 			nBytes_Line		= nBytes_Value * nx;
 			pLine			= (char *)SG_Malloc(nBytes_Line);
 

@@ -145,19 +145,41 @@ bool CSAGA::OnInit(void)
 	_Init_Config();
 
 	//-----------------------------------------------------
-	long	l;
+	long			iLogo;
+	wxSplashScreen	*pLogo;
 
-	if( !CONFIG_Read("/DATA", "START_LOGO", l) || l == 1 )
+	iLogo	= CONFIG_Read("/DATA", "START_LOGO", iLogo) ? iLogo : 2;
+
+	switch( iLogo )
 	{
-		new wxSplashScreen(IMG_Get_Bitmap(ID_IMG_SAGA_SPLASH), wxSPLASH_CENTRE_ON_SCREEN|wxSPLASH_TIMEOUT, 20000, NULL, -1);
+	default:
+		pLogo	= NULL;
+		break;
 
-		wxYield();
+	case 1:
+	case 3:
+		pLogo	= new wxSplashScreen(IMG_Get_Bitmap(ID_IMG_SAGA_SPLASH), wxSPLASH_CENTRE_ON_SCREEN|wxSPLASH_NO_TIMEOUT, 0, NULL, -1);
+		break;
+
+	case 2:
+		pLogo	= new wxSplashScreen(IMG_Get_Bitmap(ID_IMG_SAGA_SPLASH), wxSPLASH_CENTRE_ON_SCREEN|wxSPLASH_TIMEOUT, 30000, NULL, -1);
+		break;
 	}
+
+	wxYield();
 
 	//-----------------------------------------------------
 	SG_Get_Translator()->Create(SG_File_Make_Path(wxGetCwd(), "saga", "lng"), false);
 
 	SetTopWindow(new CSAGA_Frame());
+
+	//-----------------------------------------------------
+	if( pLogo && iLogo == 1 )
+	{
+		pLogo->Destroy();
+
+		wxYield();
+	}
 
 	//-----------------------------------------------------
 	if( argc > 1 )

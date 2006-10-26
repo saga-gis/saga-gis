@@ -173,7 +173,7 @@ wxString		Get_TableInfo_asHTML(CSG_Table *pTable)
 		for(int i=0; i<pTable->Get_Field_Count(); i++)
 		{
 			s.Append(wxString::Format("<tr><td>%d</td><td>%s</td><td>%s</td></tr>",
-				i + 1, pTable->Get_Field_Name(i), TABLE_FieldType_Names[pTable->Get_Field_Type(i)]
+				i + 1, pTable->Get_Field_Name(i), gSG_Table_Field_Type_Names[pTable->Get_Field_Type(i)]
 			));
 		}
 

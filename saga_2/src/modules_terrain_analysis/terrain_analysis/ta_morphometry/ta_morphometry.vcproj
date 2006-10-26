@@ -283,6 +283,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\distance_gradient.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Hypsometry.cpp"
 				>
 				<FileConfiguration
@@ -347,6 +351,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\mrvbf.cpp"
+				>
 			</File>
 			<File
 				RelativePath="ProtectionIndex.cpp"
@@ -414,6 +422,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\distance_gradient.h"
+				>
+			</File>
+			<File
 				RelativePath="Hypsometry.h"
 				>
 			</File>
@@ -423,6 +435,10 @@
 			</File>
 			<File
 				RelativePath="Morphometry.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mrvbf.h"
 				>
 			</File>
 			<File

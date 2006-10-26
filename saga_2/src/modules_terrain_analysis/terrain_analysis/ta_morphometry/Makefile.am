@@ -13,6 +13,8 @@ Morphometry.cpp\
 ProtectionIndex.cpp\
 RealArea.cpp\
 SurfaceSpecificPoints.cpp\
+mrvbf.cpp\
+distance_gradient.cpp\
 Convergence.h\
 Convergence_Radius.h\
 Curvature_Classification.h\
@@ -21,7 +23,9 @@ MLB_Interface.h\
 Morphometry.h\
 ProtectionIndex.h\
 RealArea.h\
-SurfaceSpecificPoints.h
+SurfaceSpecificPoints.h\
+mrvbf.h\
+distance_gradient.h
 
 libta_morphometry_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 

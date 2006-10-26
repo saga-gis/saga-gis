@@ -619,10 +619,10 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef double (*TMAT_Formula_Function_0)(void);
-typedef double (*TMAT_Formula_Function_1)(double);
-typedef double (*TMAT_Formula_Function_2)(double, double);
-typedef double (*TMAT_Formula_Function_3)(double, double, double);
+typedef double (*TSG_PFNC_Formula_0)(void);
+typedef double (*TSG_PFNC_Formula_1)(double);
+typedef double (*TSG_PFNC_Formula_2)(double, double);
+typedef double (*TSG_PFNC_Formula_3)(double, double, double);
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Formula
@@ -646,7 +646,7 @@ public:
 	CSG_String					Get_Formula(void)	{	return( m_Formula );	}
 
 	int							Del_Function(char *Name);
-	int							Add_Function(char *Name, TMAT_Formula_Function_1 f, int N_of_Pars, int Varying);
+	int							Add_Function(char *Name, TSG_PFNC_Formula_1 f, int N_of_Pars, int Varying);
 
 	const char *				Get_Used_Var(void);
 
@@ -655,11 +655,11 @@ public:
 	typedef struct 
 	{
 		char					*name;
-		TMAT_Formula_Function_1	f;			
+		TSG_PFNC_Formula_1		f;			
 		int						n_pars;		
 		int						varying;	// Does the result of the function vary even when the parameters stay the same? varying = 1 for e.g. random - number generators.
 	}
-	TMAT_Formula_Item;
+	TSG_Formula_Item;
 
 
 private:

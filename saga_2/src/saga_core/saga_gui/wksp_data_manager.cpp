@@ -195,13 +195,19 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 
 	if( CONFIG_Read("/DATA", "START_LOGO"				, lValue) == false )
 	{
-		lValue	= 1;
+		lValue	= 2;
 	}
 
-	m_Parameters.Add_Value(
+	m_Parameters.Add_Choice(
 		pNode	, "START_LOGO"				, LNG("Show Logo at Start Up"),
 		LNG(""),
-		PARAMETER_TYPE_Bool, lValue
+
+		CSG_String::Format("%s|%s|%s|%s|",
+			LNG("do not show"),
+			LNG("only during start up phase"),
+			LNG("20 seconds"),
+			LNG("until user closes it")
+		), lValue
 	);
 }
 
@@ -248,7 +254,7 @@ bool CWKSP_Data_Manager::Finalise(void)
 	CONFIG_Write("/DATA/GRIDS", "CACHE_CONFIRM"		, (long)SG_Grid_Cache_Get_Confirm  ());
 
 	//-----------------------------------------------------
-	wxFileName	fProject(g_pSAGA->Get_App_Path(), "session", "sprj");
+	wxFileName	fProject(g_pSAGA->Get_App_Path(), "saga_gui", "cfg");
 
 	CONFIG_Write("/DATA", "PROJECT_START"			, (long)m_Parameters("PROJECT_START")	->asInt());
 	CONFIG_Write("/DATA", "START_LOGO"				, (long)m_Parameters("START_LOGO")		->asInt());

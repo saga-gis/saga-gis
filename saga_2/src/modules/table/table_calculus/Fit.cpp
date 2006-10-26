@@ -217,10 +217,10 @@ bool CFit::On_Execute(void)
 
 	const char *formel	=	Parameters("FORMEL")->asString();
 
-	Formel.Add_Function("NUG", (TMAT_Formula_Function_1) NUG, 1, 0);
-	Formel.Add_Function("SPH", (TMAT_Formula_Function_1) SPH, 2, 0);
-	Formel.Add_Function("EXP", (TMAT_Formula_Function_1) EXP, 2, 0);
-    Formel.Add_Function("LIN", (TMAT_Formula_Function_1) LIN, 2, 0);
+	Formel.Add_Function("NUG", (TSG_PFNC_Formula_1) NUG, 1, 0);
+	Formel.Add_Function("SPH", (TSG_PFNC_Formula_1) SPH, 2, 0);
+	Formel.Add_Function("EXP", (TSG_PFNC_Formula_1) EXP, 2, 0);
+    Formel.Add_Function("LIN", (TSG_PFNC_Formula_1) LIN, 2, 0);
 	
 	
 	Formel.Set_Formula(formel);

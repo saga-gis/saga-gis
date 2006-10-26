@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                  Distance_Gradient.h                  //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2006 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -48,108 +48,47 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//			The Module Link Library Interface			 //
-//														 //
-///////////////////////////////////////////////////////////
+#ifndef HEADER_INCLUDED__Distance_Gradient_H
+#define HEADER_INCLUDED__Distance_Gradient_H
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-const char * Get_Info(int i)
+class CDistance_Gradient : public CSG_Module_Grid
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Terrain Analysis - Morphometry") );
-
-	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad, Goettingen (c) 2001") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for (grid based) digital terrain analysis.") );
-
-	case MLB_INFO_Version:
-		return( "1.0" );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Terrain Analysis|Morphometry") );
-	}
-}
+public:
+	CDistance_Gradient(void);
+	virtual ~CDistance_Gradient(void);
 
 
-//---------------------------------------------------------
-#include "Morphometry.h"
-#include "Convergence.h"
-#include "Convergence_Radius.h"
-#include "SurfaceSpecificPoints.h"
-#include "Curvature_Classification.h"
-#include "Hypsometry.h"
-#include "RealArea.h"
-#include "ProtectionIndex.h"
-#include "mrvbf.h"
-#include "distance_gradient.h"
+protected:
 
-//---------------------------------------------------------
-CSG_Module *		Create_Module(int i)
-{
-	CSG_Module	*pModule;
+	virtual bool				On_Execute				(void);
 
-	switch( i )
-	{
-	case 0:
-		pModule	= new CMorphometry;
-		break;
 
-	case 1:
-		pModule	= new CConvergence;
-		break;
+private:
 
-	case 2:
-		pModule	= new CConvergence_Radius;
-		break;
+	CSG_Grid					*m_pDEM, m_Dir;
 
-	case 3:
-		pModule	= new CSurfaceSpecificPoints;
-		break;
 
-	case 4:
-		pModule	= new CCurvature_Classification;
-		break;
+	double						Get_hDistance			(int x, int y, double vDistance);
 
-	case 5:
-		pModule	= new CHypsometry;
-		break;
-
-	case 6:
-		pModule	= new CRealArea;
-		break;
-
-	case 7:
-		pModule	= new CProtectionIndex;
-		break;
-
-	case 8:
-		pModule	= new CMRVBF;
-		break;
-
-	case 9:
-		pModule	= new CDistance_Gradient;
-		break;
-
-	default:
-		pModule	= NULL;
-		break;
-	}
-
-	return( pModule );
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -159,8 +98,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__Distance_Gradient_H
