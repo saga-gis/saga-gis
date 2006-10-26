@@ -67,7 +67,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CXYZ_Export : public CModule_Grid
+class CXYZ_Export : public CSG_Module_Grid
 {
 public:
 	CXYZ_Export(void);

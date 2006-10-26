@@ -25,7 +25,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CImage_VI_Distance : public CModule_Grid {
+class CImage_VI_Distance : public CSG_Module_Grid {
 
 public:
 	CImage_VI_Distance(void);

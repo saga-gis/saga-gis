@@ -182,7 +182,7 @@ bool CExercise_14::Initialise(int Threshold)
 	CSG_Colors	Colors;
 
 	//-----------------------------------------------------
-	m_pDir	= new CGrid(m_pDTM, GRID_TYPE_Char);
+	m_pDir	= new CSG_Grid(m_pDTM, GRID_TYPE_Char);
 
 	m_pChnl->Assign();
 
@@ -306,8 +306,8 @@ void CExercise_14::Vectorise(void)
 {
 	int				x, y, Segment_ID;
 	double			Length;
-	CShape			*pSegment;
-	CTable_Record	*pRecord;
+	CSG_Shape			*pSegment;
+	CSG_Table_Record	*pRecord;
 
 	m_pShapes->Create(SHAPE_TYPE_Line, _TL("Channels"));
 
@@ -344,7 +344,7 @@ void CExercise_14::Vectorise(void)
 }
 
 //---------------------------------------------------------
-double CExercise_14::Vectorise(int x, int y, CShape *pSegment)
+double CExercise_14::Vectorise(int x, int y, CSG_Shape *pSegment)
 {
 	int		Dir, ix, iy;
 	double	Length;

@@ -149,7 +149,7 @@ bool CGrid_Profile::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Profile::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CGrid_Profile::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
 {
 	switch( Mode )
 	{
@@ -191,7 +191,7 @@ bool CGrid_Profile::Set_Profile(void)
 {
 	int			i;
 	TSG_Point	A, B;
-	CShape		*pLine;
+	CSG_Shape		*pLine;
 
 	//-----------------------------------------------------
 	m_pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("Profile [%s]"), m_pDEM->Get_Name()));
@@ -282,7 +282,7 @@ bool CGrid_Profile::Add_Point(CSG_Point Point)
 {
 	int			x, y, i;
 	double		z, Distance, Distance_2;
-	CShape		*pPoint, *pLast;
+	CSG_Shape		*pPoint, *pLast;
 
 	if( Get_System()->Get_World_to_Grid(x, y, Point) && m_pDEM->is_InGrid(x, y) )
 	{

@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class geostatistics_kriging_EXPORT CKriging_Base : public CModule
+class geostatistics_kriging_EXPORT CKriging_Base : public CSG_Module
 {
 public:
 	CKriging_Base(void);
@@ -98,11 +98,11 @@ protected:
 
 	CSG_Matrix				m_W;
 
-	CShapes_Search			m_Search;
+	CSG_Shapes_Search			m_Search;
 
-	CGrid					*m_pGrid, *m_pVariance;
+	CSG_Grid					*m_pGrid, *m_pVariance;
 
-	CShapes					*m_pShapes;
+	CSG_Shapes					*m_pShapes;
 
 
 	virtual bool			On_Initialise	(void)	{	return( true );	}
@@ -124,7 +124,7 @@ private:
 
 	bool					_Get_Points		(void);
 	bool					_Get_Grid		(void);
-	CGrid *					_Get_Grid		(TSG_Rect Extent);
+	CSG_Grid *					_Get_Grid		(TSG_Rect Extent);
 
 };
 

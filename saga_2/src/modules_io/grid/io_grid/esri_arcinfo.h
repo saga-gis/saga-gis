@@ -67,7 +67,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CESRI_ArcInfo_Import : public CModule
+class CESRI_ArcInfo_Import : public CSG_Module
 {
 public:
 	CESRI_ArcInfo_Import(void);
@@ -83,12 +83,12 @@ protected:
 
 private:
 
-	CGrid *					Read_Header(FILE *Stream);
+	CSG_Grid *					Read_Header(FILE *Stream);
 
 };
 
 //---------------------------------------------------------
-class CESRI_ArcInfo_Export : public CModule_Grid
+class CESRI_ArcInfo_Export : public CSG_Module_Grid
 {
 public:
 	CESRI_ArcInfo_Export(void);
@@ -104,7 +104,7 @@ protected:
 
 private:
 
-	bool					Write_Header(FILE *Stream, CGrid *pGrid);
+	bool					Write_Header(FILE *Stream, CSG_Grid *pGrid);
 
 };
 

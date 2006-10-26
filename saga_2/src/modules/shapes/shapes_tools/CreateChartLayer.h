@@ -23,7 +23,7 @@
 
 #include "MLB_Interface.h"
 
-class CCreateChartLayer : public CModule {
+class CCreateChartLayer : public CSG_Module {
 public:
 	CCreateChartLayer();
 	virtual ~CCreateChartLayer();
@@ -32,14 +32,14 @@ public:
 private:
 	float m_fMaxValue, m_fMinValue;
 	float m_fMaxSize, m_fMinSize;
-	CParameters *m_pExtraParameters;
+	CSG_Parameters *m_pExtraParameters;
 	bool *m_bIncludeParam;
-	CShapes *m_pOutput;
+	CSG_Shapes *m_pOutput;
 
-	void AddPieChart(CShape*, int);
-	void AddBarChart(CShape*, int);
+	void AddPieChart(CSG_Shape*, int);
+	void AddBarChart(CSG_Shape*, int);
 	bool GetExtraParameters();
-	TSG_Point GetLineMidPoint(CShape_Line*);
+	TSG_Point GetLineMidPoint(CSG_Shape_Line*);
 
 protected:
 	virtual bool On_Execute(void);

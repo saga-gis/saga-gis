@@ -145,8 +145,8 @@ bool CGSGrid_Statistics::On_Execute(void)
 {
 	int						x, y, i, n;
 	double					z, m, v, min, max;
-	CGrid					*pMean, *pMin, *pMax, *pVar, *pStdDev, *pStdDevLo, *pStdDevHi;
-	CParameter_Grid_List	*pGrids;
+	CSG_Grid					*pMean, *pMin, *pMax, *pVar, *pStdDev, *pStdDevLo, *pStdDevHi;
+	CSG_Parameter_Grid_List	*pGrids;
 
 	//-----------------------------------------------------
 	pGrids		= Parameters("GRIDS")	->asGridList();

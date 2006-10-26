@@ -24,7 +24,7 @@
 
 CPoints_From_Table::CPoints_From_Table(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	Set_Name(_TL("Convert a Table to Points"));
 
@@ -63,10 +63,10 @@ bool CPoints_From_Table::On_Execute(void)
 {
 	int				iRecord, iXField, iYField;
 	double			dX, dY;
-	CTable			*pTable;
-	CTable_Record	*pRecord;
-	CShapes			*pShapes;
-	CShape			*pShape;
+	CSG_Table			*pTable;
+	CSG_Table_Record	*pRecord;
+	CSG_Shapes			*pShapes;
+	CSG_Shape			*pShape;
 
 	pTable	= Parameters("TABLE")	->asTable();
 	pShapes	= Parameters("POINTS")	->asShapes();

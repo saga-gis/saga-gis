@@ -71,7 +71,7 @@
 //---------------------------------------------------------
 CPolygon_Intersection::CPolygon_Intersection(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Set_Name(_TL("Polygon Intersection"));
@@ -133,7 +133,7 @@ CPolygon_Intersection::~CPolygon_Intersection(void)
 bool CPolygon_Intersection::On_Execute(void)
 {
 	CSG_String	sName;
-	CShapes		*pShapes_A, *pShapes_B, *pShapes_AB;
+	CSG_Shapes		*pShapes_A, *pShapes_B, *pShapes_AB;
 
 	pShapes_A	= Parameters("SHAPES_A")->asShapes();
 	pShapes_B	= Parameters("SHAPES_B")->asShapes();
@@ -193,11 +193,11 @@ bool CPolygon_Intersection::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPolygon_Intersection::Get_Polygon_Intersection(CShapes *pShapes_A, CShapes *pShapes_B, CShapes *pShapes_AB)
+bool CPolygon_Intersection::Get_Polygon_Intersection(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B, CSG_Shapes *pShapes_AB)
 {
 	int		iShape_A, iShape_B, nResult;
-	CShape	*pShape_A, *pShape_B, *pShape_AB;
-	CShapes	Intersect;
+	CSG_Shape	*pShape_A, *pShape_B, *pShape_AB;
+	CSG_Shapes	Intersect;
 
 	Intersect.Create(SHAPE_TYPE_Polygon);
 	pShape_A	= Intersect.Add_Shape();
@@ -232,11 +232,11 @@ bool CPolygon_Intersection::Get_Polygon_Intersection(CShapes *pShapes_A, CShapes
 }
 
 //---------------------------------------------------------
-bool CPolygon_Intersection::Get_Difference(CShapes *pShapes_A, CShapes *pShapes_B, CShapes *pShapes_AB, int bTargetID)
+bool CPolygon_Intersection::Get_Difference(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B, CSG_Shapes *pShapes_AB, int bTargetID)
 {
 	int		iShape_A, iShape_B, nResult;
-	CShape	*pShape_A, *pShape_B, *pShape_AB;
-	CShapes	Intersect;
+	CSG_Shape	*pShape_A, *pShape_B, *pShape_AB;
+	CSG_Shapes	Intersect;
 
 	Intersect.Create(SHAPE_TYPE_Polygon);
 	pShape_A	= Intersect.Add_Shape();
@@ -304,11 +304,11 @@ bool CPolygon_Intersection::Get_Difference(CShapes *pShapes_A, CShapes *pShapes_
 		pShape_Add->Get_Record()->Set_Value(2, ID_B);\
 	}
 
-void CPolygon_Intersection::Add_Polygon(CShapes *pShapes, CShape *pShape, int ID_A, int ID_B)
+void CPolygon_Intersection::Add_Polygon(CSG_Shapes *pShapes, CSG_Shape *pShape, int ID_A, int ID_B)
 {
 	int		iPart, jPart, iPoint, nParts;
-	CShape	*pShape_Add, *pShape_Part;
-	CShapes	Shapes_Part;
+	CSG_Shape	*pShape_Add, *pShape_Part;
+	CSG_Shapes	Shapes_Part;
 
 	if( bSplitParts && pShape->Get_Part_Count() > 1 )
 	{
@@ -317,7 +317,7 @@ void CPolygon_Intersection::Add_Polygon(CShapes *pShapes, CShape *pShape, int ID
 
 		for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{
-			if( !((CShape_Polygon *)pShape)->is_Lake(iPart) )
+			if( !((CSG_Shape_Polygon *)pShape)->is_Lake(iPart) )
 			{
 				pShape_Part->Del_Parts();
 				nParts	= 0;
@@ -329,8 +329,8 @@ void CPolygon_Intersection::Add_Polygon(CShapes *pShapes, CShape *pShape, int ID
 
 				for(jPart=0; jPart<pShape->Get_Part_Count(); jPart++)
 				{
-					if(	((CShape_Polygon *)pShape)->is_Lake(jPart)
-					&&	((CShape_Polygon *)pShape)->is_Containing(pShape->Get_Point(0, jPart), iPart) )
+					if(	((CSG_Shape_Polygon *)pShape)->is_Lake(jPart)
+					&&	((CSG_Shape_Polygon *)pShape)->is_Containing(pShape->Get_Point(0, jPart), iPart) )
 					{
 						nParts++;
 
@@ -361,11 +361,11 @@ void CPolygon_Intersection::Add_Polygon(CShapes *pShapes, CShape *pShape, int ID
 		pShape_Add->Get_Record()->Set_Value(1, ID);\
 	}
 
-void CPolygon_Intersection::Add_Polygon(CShapes *pShapes, CShape *pShape, int ID)
+void CPolygon_Intersection::Add_Polygon(CSG_Shapes *pShapes, CSG_Shape *pShape, int ID)
 {
 	int		iPart, jPart, iPoint, nParts;
-	CShape	*pShape_Add, *pShape_Part;
-	CShapes	Shapes_Part;
+	CSG_Shape	*pShape_Add, *pShape_Part;
+	CSG_Shapes	Shapes_Part;
 
 	if( bSplitParts && pShape->Get_Part_Count() > 1 )
 	{
@@ -374,7 +374,7 @@ void CPolygon_Intersection::Add_Polygon(CShapes *pShapes, CShape *pShape, int ID
 
 		for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{
-			if( !((CShape_Polygon *)pShape)->is_Lake(iPart) )
+			if( !((CSG_Shape_Polygon *)pShape)->is_Lake(iPart) )
 			{
 				pShape_Part->Del_Parts();
 				nParts	= 0;
@@ -386,8 +386,8 @@ void CPolygon_Intersection::Add_Polygon(CShapes *pShapes, CShape *pShape, int ID
 
 				for(jPart=0; jPart<pShape->Get_Part_Count(); jPart++)
 				{
-					if(	((CShape_Polygon *)pShape)->is_Lake(jPart)
-					&&	((CShape_Polygon *)pShape)->is_Containing(pShape->Get_Point(0, jPart), iPart) )
+					if(	((CSG_Shape_Polygon *)pShape)->is_Lake(jPart)
+					&&	((CSG_Shape_Polygon *)pShape)->is_Containing(pShape->Get_Point(0, jPart), iPart) )
 					{
 						nParts++;
 
@@ -418,7 +418,7 @@ void CPolygon_Intersection::Add_Polygon(CShapes *pShapes, CShape *pShape, int ID
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPolygon_Intersection::GPC_Polygon_Intersection(CShape *pShape_A, CShape *pShape_B, CShape *pShape_AB)
+bool CPolygon_Intersection::GPC_Polygon_Intersection(CSG_Shape *pShape_A, CSG_Shape *pShape_B, CSG_Shape *pShape_AB)
 {
 	bool		bResult;
 	int			iPoint, nPoints, iPart;
@@ -460,7 +460,7 @@ bool CPolygon_Intersection::GPC_Polygon_Intersection(CShape *pShape_A, CShape *p
 }
 
 //---------------------------------------------------------
-bool CPolygon_Intersection::GPC_Difference(CShape *pShape_A, CShape *pShape_B, CShape *pShape_AB)
+bool CPolygon_Intersection::GPC_Difference(CSG_Shape *pShape_A, CSG_Shape *pShape_B, CSG_Shape *pShape_AB)
 {
 	bool		bResult;
 	int			iPoint, nPoints, iPart;
@@ -509,7 +509,7 @@ bool CPolygon_Intersection::GPC_Difference(CShape *pShape_A, CShape *pShape_B, C
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPolygon_Intersection::GPC_Create_Polygon(CShape *pShape, gpc_polygon *pPolygon)
+bool CPolygon_Intersection::GPC_Create_Polygon(CSG_Shape *pShape, gpc_polygon *pPolygon)
 {
 	int				iPoint, iPart;
 	TSG_Point		Point;
@@ -536,7 +536,7 @@ bool CPolygon_Intersection::GPC_Create_Polygon(CShape *pShape, gpc_polygon *pPol
 
 			vList.num_vertices	= pShape->Get_Point_Count(iPart);
 			vList.vertex		= Contour;
-			gpc_add_contour(pPolygon, &vList, ((CShape_Polygon *)pShape)->is_Lake(iPart) ? 1 : 0);
+			gpc_add_contour(pPolygon, &vList, ((CSG_Shape_Polygon *)pShape)->is_Lake(iPart) ? 1 : 0);
 
 			free(Contour);
 		}

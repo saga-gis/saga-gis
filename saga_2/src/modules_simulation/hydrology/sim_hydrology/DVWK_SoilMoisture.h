@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CDVWK_SoilMoisture : public CModule_Grid  
+class CDVWK_SoilMoisture : public CSG_Module_Grid  
 {
 public:
 	CDVWK_SoilMoisture(void);
@@ -95,9 +95,9 @@ private:
 
 	double				FK_mm_Def, PWP_mm_Def;
 
-	CGrid				*pWi_mm, *pFK_mm, *pPWP_mm, *pLandUse;
+	CSG_Grid				*pWi_mm, *pFK_mm, *pPWP_mm, *pLandUse;
 
-	CTable				*pClimate, *pCropCoeff;
+	CSG_Table				*pClimate, *pCropCoeff;
 
 
 	int					Get_Month		(int Day);

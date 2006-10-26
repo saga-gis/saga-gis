@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char *	SG_Get_ShapeType_Name(TShape_Type Type)
+const char *	SG_Get_ShapeType_Name(TSG_Shape_Type Type)
 {
 	switch( Type )
 	{
@@ -92,27 +92,27 @@ const char *	SG_Get_ShapeType_Name(TShape_Type Type)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CShapes *		SG_Create_Shapes(void)
+CSG_Shapes *		SG_Create_Shapes(void)
 {
-	return( new CShapes );
+	return( new CSG_Shapes );
 }
 
 //---------------------------------------------------------
-CShapes *		SG_Create_Shapes(const CShapes &Shapes)
+CSG_Shapes *		SG_Create_Shapes(const CSG_Shapes &Shapes)
 {
-	return( new CShapes(Shapes) );
+	return( new CSG_Shapes(Shapes) );
 }
 
 //---------------------------------------------------------
-CShapes *		SG_Create_Shapes(const char *File_Name)
+CSG_Shapes *		SG_Create_Shapes(const char *File_Name)
 {
-	return( new CShapes(File_Name) );
+	return( new CSG_Shapes(File_Name) );
 }
 
 //---------------------------------------------------------
-CShapes *		SG_Create_Shapes(TShape_Type Type, const char *Name, CTable *pStructure)
+CSG_Shapes *		SG_Create_Shapes(TSG_Shape_Type Type, const char *Name, CSG_Table *pStructure)
 {
-	return( new CShapes(Type, Name, pStructure) );
+	return( new CSG_Shapes(Type, Name, pStructure) );
 }
 
 
@@ -123,15 +123,15 @@ CShapes *		SG_Create_Shapes(TShape_Type Type, const char *Name, CTable *pStructu
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CShapes::CShapes(void)
-	: CDataObject()
+CSG_Shapes::CSG_Shapes(void)
+	: CSG_Data_Object()
 {
 	_On_Construction();
 }
 
 //---------------------------------------------------------
-CShapes::CShapes(const CShapes &Shapes)
-	: CDataObject()
+CSG_Shapes::CSG_Shapes(const CSG_Shapes &Shapes)
+	: CSG_Data_Object()
 {
 	_On_Construction();
 
@@ -139,8 +139,8 @@ CShapes::CShapes(const CShapes &Shapes)
 }
 
 //---------------------------------------------------------
-CShapes::CShapes(const char *File_Name)
-	: CDataObject()
+CSG_Shapes::CSG_Shapes(const char *File_Name)
+	: CSG_Data_Object()
 {
 	_On_Construction();
 
@@ -148,8 +148,8 @@ CShapes::CShapes(const char *File_Name)
 }
 
 //---------------------------------------------------------
-CShapes::CShapes(TShape_Type Type, const char *Name, CTable *pStructure)
-	: CDataObject()
+CSG_Shapes::CSG_Shapes(TSG_Shape_Type Type, const char *Name, CSG_Table *pStructure)
+	: CSG_Data_Object()
 {
 	_On_Construction();
 
@@ -164,7 +164,7 @@ CShapes::CShapes(TShape_Type Type, const char *Name, CTable *pStructure)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CShapes::_On_Construction(void)
+void CSG_Shapes::_On_Construction(void)
 {
 	m_Type				= SHAPE_TYPE_Undefined;
 
@@ -184,13 +184,13 @@ void CShapes::_On_Construction(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CShapes::Create(const CShapes &Shapes)
+bool CSG_Shapes::Create(const CSG_Shapes &Shapes)
 {
-	return( Assign((CDataObject *)&Shapes) );
+	return( Assign((CSG_Data_Object *)&Shapes) );
 }
 
 //---------------------------------------------------------
-bool CShapes::Create(const char *File_Name)
+bool CSG_Shapes::Create(const char *File_Name)
 {
 	int		iShape;
 
@@ -230,7 +230,7 @@ bool CShapes::Create(const char *File_Name)
 }
 
 //---------------------------------------------------------
-bool CShapes::Create(TShape_Type Type, const char *Name, CTable *pStructure)
+bool CSG_Shapes::Create(TSG_Shape_Type Type, const char *Name, CSG_Table *pStructure)
 {
 	Destroy();
 
@@ -252,13 +252,13 @@ bool CShapes::Create(TShape_Type Type, const char *Name, CTable *pStructure)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CShapes::~CShapes(void)
+CSG_Shapes::~CSG_Shapes(void)
 {
 	Destroy();
 }
 
 //---------------------------------------------------------
-bool CShapes::Destroy(void)
+bool CSG_Shapes::Destroy(void)
 {
 	if( m_nShapes > 0 )
 	{
@@ -274,7 +274,7 @@ bool CShapes::Destroy(void)
 
 	m_Table._Destroy();
 
-	CDataObject::Destroy();
+	CSG_Data_Object::Destroy();
 
 	return( true );
 }
@@ -287,16 +287,16 @@ bool CShapes::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CShapes::Assign(CDataObject *pObject)
+bool CSG_Shapes::Assign(CSG_Data_Object *pObject)
 {
 	int		iShape;
-	CShape	*pShape;
-	CShapes	*pShapes;
+	CSG_Shape	*pShape;
+	CSG_Shapes	*pShapes;
 
 	//-----------------------------------------------------
 	if(	pObject && pObject->is_Valid() && pObject->Get_ObjectType() == Get_ObjectType() )
 	{
-		pShapes	= (CShapes *)pObject;
+		pShapes	= (CSG_Shapes *)pObject;
 
 		Create(pShapes->Get_Type(), pShapes->Get_Name(), &pShapes->Get_Table());
 
@@ -326,7 +326,7 @@ bool CShapes::Assign(CDataObject *pObject)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CShapes::Save(const char *File_Name, int Format)
+bool CSG_Shapes::Save(const char *File_Name, int Format)
 {
 	bool	bResult	= false;
 
@@ -357,9 +357,9 @@ bool CShapes::Save(const char *File_Name, int Format)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CShape * CShapes::_Add_Shape(CTable_Record *pRecord)
+CSG_Shape * CSG_Shapes::_Add_Shape(CSG_Table_Record *pRecord)
 {
-	CShape	*pShape	= NULL;
+	CSG_Shape	*pShape	= NULL;
 
 	if( pRecord )
 	{
@@ -369,25 +369,25 @@ CShape * CShapes::_Add_Shape(CTable_Record *pRecord)
 	        break;
 
 		case SHAPE_TYPE_Point:
-			pShape	= new CShape_Point	(this, pRecord);
+			pShape	= new CSG_Shape_Point	(this, pRecord);
 			break;
 
 		case SHAPE_TYPE_Points:
-			pShape	= new CShape_Points	(this, pRecord);
+			pShape	= new CSG_Shape_Points	(this, pRecord);
 			break;
 
 		case SHAPE_TYPE_Line:
-			pShape	= new CShape_Line	(this, pRecord);
+			pShape	= new CSG_Shape_Line	(this, pRecord);
 			break;
 
 		case SHAPE_TYPE_Polygon:
-			pShape	= new CShape_Polygon(this, pRecord);
+			pShape	= new CSG_Shape_Polygon(this, pRecord);
 			break;
 		}
 
 		if( pShape )
 		{
-			m_Shapes				= (CShape **)SG_Realloc(m_Shapes, (m_nShapes + 1) * sizeof(CShape *));
+			m_Shapes				= (CSG_Shape **)SG_Realloc(m_Shapes, (m_nShapes + 1) * sizeof(CSG_Shape *));
 			m_Shapes[m_nShapes++]	= pShape;
 
 			m_bUpdate				= true;
@@ -400,7 +400,7 @@ CShape * CShapes::_Add_Shape(CTable_Record *pRecord)
 }
 
 //---------------------------------------------------------
-CShape * CShapes::Add_Shape(CTable_Record *pValues)
+CSG_Shape * CSG_Shapes::Add_Shape(CSG_Table_Record *pValues)
 {
 	if( m_Type != SHAPE_TYPE_Undefined )
 	{
@@ -411,12 +411,12 @@ CShape * CShapes::Add_Shape(CTable_Record *pValues)
 }
 
 //---------------------------------------------------------
-bool CShapes::Del_Shape(CShape *pShape)
+bool CSG_Shapes::Del_Shape(CSG_Shape *pShape)
 {
 	return( Del_Shape(pShape->Get_Record()->Get_Index()) );
 }
 
-bool CShapes::Del_Shape(int iShape)
+bool CSG_Shapes::Del_Shape(int iShape)
 {
 	int		i;
 
@@ -436,7 +436,7 @@ bool CShapes::Del_Shape(int iShape)
 			m_Shapes[i]	= m_Shapes[i + 1];
 		}
 
-		m_Shapes	= (CShape **)SG_Realloc(m_Shapes, m_nShapes * sizeof(CShape *));
+		m_Shapes	= (CSG_Shape **)SG_Realloc(m_Shapes, m_nShapes * sizeof(CSG_Shape *));
 
 		m_Table._Del_Record(iShape);
 
@@ -458,7 +458,7 @@ bool CShapes::Del_Shape(int iShape)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CShapes::_Extent_Update(void)
+void CSG_Shapes::_Extent_Update(void)
 {
 	int		i;
 
@@ -490,12 +490,12 @@ void CShapes::_Extent_Update(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CShape * CShapes::Get_Shape(TSG_Point Point, double Epsilon)
+CSG_Shape * CSG_Shapes::Get_Shape(TSG_Point Point, double Epsilon)
 {
 	int			iShape;
 	double		d, dNearest;
 	CSG_Rect	r(Point.x - Epsilon, Point.y - Epsilon, Point.x + Epsilon, Point.y + Epsilon);
-	CShape		*pShape, *pNearest;
+	CSG_Shape		*pShape, *pNearest;
 
 	pNearest	= NULL;
 

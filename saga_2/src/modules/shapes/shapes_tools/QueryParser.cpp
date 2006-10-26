@@ -19,13 +19,13 @@
 
 #include "QueryParser.h"
 
-CQueryParser::CQueryParser(CShapes *pShapes, CSG_String sExpression){
+CQueryParser::CQueryParser(CSG_Shapes *pShapes, CSG_String sExpression){
 
 	CSG_Formula Formula;
 	int i,j;
 	int iFields;
-	CTable *pTable;
-	CTable_Record *pRecord;
+	CSG_Table *pTable;
+	CSG_Table_Record *pRecord;
 	double *pFieldValues;
 	double dValue;
 

@@ -23,7 +23,7 @@
 
 #include "MLB_Interface.h"
 
-class CCombineGrids : public CModule_Grid {
+class CCombineGrids : public CSG_Module_Grid {
 
 private:
 

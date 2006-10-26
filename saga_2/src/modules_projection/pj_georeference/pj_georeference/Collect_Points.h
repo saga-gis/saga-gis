@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CCollect_Points : public CModule_Interactive
+class CCollect_Points : public CSG_Module_Interactive
 {
 public:
 	CCollect_Points(void);
@@ -82,12 +82,12 @@ public:
 protected:
 
 	virtual bool			On_Execute			(void);
-	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
+	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
 
 
 private:
 
-	CShapes					*m_pSource, *m_pTarget;
+	CSG_Shapes					*m_pSource, *m_pTarget;
 
 
 };

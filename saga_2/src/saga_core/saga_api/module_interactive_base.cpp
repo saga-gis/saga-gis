@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CModule_Interactive_Base::CModule_Interactive_Base(void)
+CSG_Module_Interactive_Base::CSG_Module_Interactive_Base(void)
 {
 	m_pModule			= NULL;
 
@@ -82,7 +82,7 @@ CModule_Interactive_Base::CModule_Interactive_Base(void)
 }
 
 //---------------------------------------------------------
-CModule_Interactive_Base::~CModule_Interactive_Base(void)
+CSG_Module_Interactive_Base::~CSG_Module_Interactive_Base(void)
 {
 }
 
@@ -94,7 +94,7 @@ CModule_Interactive_Base::~CModule_Interactive_Base(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CModule_Interactive_Base::Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode, int Keys)
+bool CSG_Module_Interactive_Base::Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode, int Keys)
 {
 	bool	bResult	= false;
 
@@ -120,13 +120,13 @@ bool CModule_Interactive_Base::Execute_Position(CSG_Point ptWorld, TModule_Inter
 	return( bResult );
 }
 
-bool CModule_Interactive_Base::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CSG_Module_Interactive_Base::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
 {
 	return( false );
 }
 
 //---------------------------------------------------------
-bool CModule_Interactive_Base::Execute_Keyboard(int Character, int Keys)
+bool CSG_Module_Interactive_Base::Execute_Keyboard(int Character, int Keys)
 {
 	bool	bResult	= false;
 
@@ -149,13 +149,13 @@ bool CModule_Interactive_Base::Execute_Keyboard(int Character, int Keys)
 	return( bResult );
 }
 
-bool CModule_Interactive_Base::On_Execute_Keyboard(int Character)
+bool CSG_Module_Interactive_Base::On_Execute_Keyboard(int Character)
 {
 	return( false );
 }
 
 //---------------------------------------------------------
-bool CModule_Interactive_Base::Execute_Finish(void)
+bool CSG_Module_Interactive_Base::Execute_Finish(void)
 {
 	bool	bResult	= false;
 
@@ -174,7 +174,7 @@ bool CModule_Interactive_Base::Execute_Finish(void)
 	return( bResult );
 }
 
-bool CModule_Interactive_Base::On_Execute_Finish(void)
+bool CSG_Module_Interactive_Base::On_Execute_Finish(void)
 {
 	return( true );
 }
@@ -187,7 +187,7 @@ bool CModule_Interactive_Base::On_Execute_Finish(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CModule_Interactive_Base::Set_Drag_Mode(int Drag_Mode)
+void CSG_Module_Interactive_Base::Set_Drag_Mode(int Drag_Mode)
 {
 	m_Drag_Mode	= Drag_Mode;
 }

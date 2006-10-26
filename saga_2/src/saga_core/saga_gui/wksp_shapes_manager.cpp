@@ -199,7 +199,7 @@ CWKSP_Shapes_Type * CWKSP_Shapes_Manager::_Get_Shapes_Type(int Shape_Type)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Shapes * CWKSP_Shapes_Manager::Get_Shapes(CShapes *pShapes)
+CWKSP_Shapes * CWKSP_Shapes_Manager::Get_Shapes(CSG_Shapes *pShapes)
 {
 	if( pShapes && Get_Shapes_Type(pShapes->Get_Type()) != NULL )
 	{
@@ -210,13 +210,13 @@ CWKSP_Shapes * CWKSP_Shapes_Manager::Get_Shapes(CShapes *pShapes)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Shapes_Manager::Exists(CShapes *pShapes)
+bool CWKSP_Shapes_Manager::Exists(CSG_Shapes *pShapes)
 {
 	return( Get_Shapes(pShapes) != NULL );
 }
 
 //---------------------------------------------------------
-CWKSP_Shapes * CWKSP_Shapes_Manager::Add(CShapes *pShapes)
+CWKSP_Shapes * CWKSP_Shapes_Manager::Add(CSG_Shapes *pShapes)
 {
 	if( pShapes && pShapes->is_Valid() && !Exists(pShapes) )
 	{
@@ -227,7 +227,7 @@ CWKSP_Shapes * CWKSP_Shapes_Manager::Add(CShapes *pShapes)
 }
 
 //---------------------------------------------------------
-CShapes * CWKSP_Shapes_Manager::Get_byFileName(const char *File_Name)
+CSG_Shapes * CWKSP_Shapes_Manager::Get_byFileName(const char *File_Name)
 {
 	CSG_String	s(File_Name);
 	CWKSP_Shapes_Type	*pType;
@@ -256,7 +256,7 @@ CShapes * CWKSP_Shapes_Manager::Get_byFileName(const char *File_Name)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Shapes_Manager::Update(CShapes *pShapes, CParameters *pParameters)
+bool CWKSP_Shapes_Manager::Update(CSG_Shapes *pShapes, CSG_Parameters *pParameters)
 {
 	CWKSP_Shapes	*pItem;
 
@@ -271,7 +271,7 @@ bool CWKSP_Shapes_Manager::Update(CShapes *pShapes, CParameters *pParameters)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Shapes_Manager::Update_Views(CShapes *pShapes)
+bool CWKSP_Shapes_Manager::Update_Views(CSG_Shapes *pShapes)
 {
 	CWKSP_Shapes	*pItem;
 
@@ -286,7 +286,7 @@ bool CWKSP_Shapes_Manager::Update_Views(CShapes *pShapes)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Shapes_Manager::Show(CShapes *pShapes)
+bool CWKSP_Shapes_Manager::Show(CSG_Shapes *pShapes)
 {
 	CWKSP_Shapes	*pItem;
 
@@ -299,7 +299,7 @@ bool CWKSP_Shapes_Manager::Show(CShapes *pShapes)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Shapes_Manager::asImage(CShapes *pShapes, CGrid *pImage)
+bool CWKSP_Shapes_Manager::asImage(CSG_Shapes *pShapes, CSG_Grid *pImage)
 {
 	CWKSP_Shapes	*pItem;
 
@@ -319,7 +319,7 @@ bool CWKSP_Shapes_Manager::asImage(CShapes *pShapes, CGrid *pImage)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Shapes_Manager::Get_Colors(CShapes *pShapes, CSG_Colors *pColors)
+bool CWKSP_Shapes_Manager::Get_Colors(CSG_Shapes *pShapes, CSG_Colors *pColors)
 {
 	CWKSP_Shapes	*pItem;
 
@@ -332,7 +332,7 @@ bool CWKSP_Shapes_Manager::Get_Colors(CShapes *pShapes, CSG_Colors *pColors)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Shapes_Manager::Set_Colors(CShapes *pShapes, CSG_Colors *pColors)
+bool CWKSP_Shapes_Manager::Set_Colors(CSG_Shapes *pShapes, CSG_Colors *pColors)
 {
 	CWKSP_Shapes	*pItem;
 

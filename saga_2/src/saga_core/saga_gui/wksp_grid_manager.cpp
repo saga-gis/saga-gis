@@ -155,7 +155,7 @@ bool CWKSP_Grid_Manager::On_Command(int Cmd_ID)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Grid_System * CWKSP_Grid_Manager::Get_System(CGrid_System *pSystem)
+CWKSP_Grid_System * CWKSP_Grid_Manager::Get_System(CSG_Grid_System *pSystem)
 {
 	if( pSystem != NULL )
 	{
@@ -172,7 +172,7 @@ CWKSP_Grid_System * CWKSP_Grid_Manager::Get_System(CGrid_System *pSystem)
 }
 
 //---------------------------------------------------------
-CWKSP_Grid_System * CWKSP_Grid_Manager::_Get_System(CGrid_System *pSystem)
+CWKSP_Grid_System * CWKSP_Grid_Manager::_Get_System(CSG_Grid_System *pSystem)
 {
 	CWKSP_Grid_System	*pItem;
 
@@ -190,7 +190,7 @@ CWKSP_Grid_System * CWKSP_Grid_Manager::_Get_System(CGrid_System *pSystem)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Grid_Manager::Exists(CGrid_System *pSystem)
+bool CWKSP_Grid_Manager::Exists(CSG_Grid_System *pSystem)
 {
 	return( Get_System(pSystem) != NULL );
 }
@@ -203,7 +203,7 @@ bool CWKSP_Grid_Manager::Exists(CGrid_System *pSystem)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Grid * CWKSP_Grid_Manager::Get_Grid(CGrid *pGrid)
+CWKSP_Grid * CWKSP_Grid_Manager::Get_Grid(CSG_Grid *pGrid)
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
@@ -217,24 +217,24 @@ CWKSP_Grid * CWKSP_Grid_Manager::Get_Grid(CGrid *pGrid)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Grid_Manager::Exists(CGrid *pGrid)
+bool CWKSP_Grid_Manager::Exists(CSG_Grid *pGrid)
 {
 	return( Get_Grid(pGrid) != NULL );
 }
 
 //---------------------------------------------------------
-CWKSP_Grid * CWKSP_Grid_Manager::Add(CGrid *pGrid)
+CWKSP_Grid * CWKSP_Grid_Manager::Add(CSG_Grid *pGrid)
 {
 	if( pGrid && pGrid->is_Valid() && !Exists(pGrid) )
 	{
-		return( _Get_System((CGrid_System *)&pGrid->Get_System())->Add(pGrid) );
+		return( _Get_System((CSG_Grid_System *)&pGrid->Get_System())->Add(pGrid) );
 	}
 
 	return( NULL );
 }
 
 //---------------------------------------------------------
-CGrid * CWKSP_Grid_Manager::Get_byFileName(const char *File_Name)
+CSG_Grid * CWKSP_Grid_Manager::Get_byFileName(const char *File_Name)
 {
 	CSG_String	s(File_Name);
 
@@ -260,7 +260,7 @@ CGrid * CWKSP_Grid_Manager::Get_byFileName(const char *File_Name)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Grid_Manager::Update(CGrid *pGrid, CParameters *pParameters)
+bool CWKSP_Grid_Manager::Update(CSG_Grid *pGrid, CSG_Parameters *pParameters)
 {
 	CWKSP_Grid	*pItem;
 
@@ -275,7 +275,7 @@ bool CWKSP_Grid_Manager::Update(CGrid *pGrid, CParameters *pParameters)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Grid_Manager::Update_Views(CGrid *pGrid)
+bool CWKSP_Grid_Manager::Update_Views(CSG_Grid *pGrid)
 {
 	CWKSP_Grid	*pItem;
 
@@ -290,7 +290,7 @@ bool CWKSP_Grid_Manager::Update_Views(CGrid *pGrid)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Grid_Manager::Show(CGrid *pGrid)
+bool CWKSP_Grid_Manager::Show(CSG_Grid *pGrid)
 {
 	CWKSP_Grid	*pItem;
 
@@ -303,7 +303,7 @@ bool CWKSP_Grid_Manager::Show(CGrid *pGrid)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Grid_Manager::asImage(CGrid *pGrid, CGrid *pImage)
+bool CWKSP_Grid_Manager::asImage(CSG_Grid *pGrid, CSG_Grid *pImage)
 {
 	CWKSP_Grid	*pItem;
 
@@ -323,7 +323,7 @@ bool CWKSP_Grid_Manager::asImage(CGrid *pGrid, CGrid *pImage)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Grid_Manager::Get_Colors(CGrid *pGrid, CSG_Colors *pColors)
+bool CWKSP_Grid_Manager::Get_Colors(CSG_Grid *pGrid, CSG_Colors *pColors)
 {
 	CWKSP_Grid	*pItem;
 
@@ -336,7 +336,7 @@ bool CWKSP_Grid_Manager::Get_Colors(CGrid *pGrid, CSG_Colors *pColors)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Grid_Manager::Set_Colors(CGrid *pGrid, CSG_Colors *pColors)
+bool CWKSP_Grid_Manager::Set_Colors(CSG_Grid *pGrid, CSG_Colors *pColors)
 {
 	CWKSP_Grid	*pItem;
 

@@ -65,7 +65,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CExercise_05 : public CModule_Grid
+class CExercise_05 : public CSG_Module_Grid
 {
 public: ////// public members and functions: //////////////
 
@@ -80,7 +80,7 @@ protected: /// protected members and functions: ///////////
 
 private: ///// private members and functions: /////////////
 
-	CGrid				*m_pDTM, *m_pSlope, *m_pAspect;
+	CSG_Grid				*m_pDTM, *m_pSlope, *m_pAspect;
 
 
 	bool				Method_01(void);

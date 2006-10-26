@@ -23,7 +23,7 @@
 
 #include "MLB_Interface.h"
 
-class CNewLayerFromSelectedShapes : public CModule{
+class CNewLayerFromSelectedShapes : public CSG_Module{
 
 public:
 	CNewLayerFromSelectedShapes(void);

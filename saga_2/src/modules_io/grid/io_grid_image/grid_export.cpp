@@ -123,7 +123,7 @@ bool CGrid_Export::On_Execute(void)
 {
 	int			x, y, c, r, g, b;
 	double		d;
-	CGrid		*pGrid, *pShade, Grid, Shade;
+	CSG_Grid		*pGrid, *pShade, Grid, Shade;
 	FILE		*Stream;
 	wxFileName	fName;
 	wxImage		img;

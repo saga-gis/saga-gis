@@ -24,7 +24,7 @@
 
 CSeparateShapes::CSeparateShapes(void){
 
-	CParameter *pNode;
+	CSG_Parameter *pNode;
 	
 	Parameters.Set_Name(_TL("Separate Shapes"));
 	Parameters.Set_Description(_TL("(c) 2005 by Victor Olaya."));
@@ -69,12 +69,12 @@ bool CSeparateShapes::On_Execute(void){
 	int i,j;
 	int iNaming = Parameters("NAMING")->asInt();
 	int iField = Parameters("FIELD")->asInt();
-	CShapes *pInput = Parameters("INPUT")->asShapes();
-	CShapes *pOutput; 
+	CSG_Shapes *pInput = Parameters("INPUT")->asShapes();
+	CSG_Shapes *pOutput; 
 	CSG_String sPath = Parameters("OUTPUTPATH")->asString();;
 	CSG_String sFilename;
 	CSG_String sName;
-	CTable *pTable;
+	CSG_Table *pTable;
 
 	pTable	= &pInput->Get_Table();
 

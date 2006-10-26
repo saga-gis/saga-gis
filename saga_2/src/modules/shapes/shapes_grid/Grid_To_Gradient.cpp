@@ -138,9 +138,9 @@ bool CGrid_To_Gradient::On_Execute(void)
 	bool	bTangens	= false;
 	int		Style, Step, x, y;
 	double	sMin, sRange, Min, Max, dStep, Slope, Aspect, xPt, yPt;
-	CGrid	*pGrid;
-	CShapes	*pShapes;
-	CShape	*pShape;
+	CSG_Grid	*pGrid;
+	CSG_Shapes	*pShapes;
+	CSG_Shape	*pShape;
 
 	//-----------------------------------------------------
 	pGrid	= Parameters("GRID")		->asGrid();

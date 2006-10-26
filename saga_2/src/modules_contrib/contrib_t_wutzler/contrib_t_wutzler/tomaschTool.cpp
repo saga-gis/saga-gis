@@ -77,7 +77,7 @@ CtomaschTool::CtomaschTool(void)
 
 
 	//-----------------------------------------------------
-	// This module example is based on CModule_Grid, which already
+	// This module example is based on CSG_Module_Grid, which already
 	// comes with a whole set of grid specific methods. It assumes
 	// also that all grid objects ordered through the parameters
 	// object have the same dimensions. Let's now order two grids,
@@ -128,7 +128,7 @@ bool CtomaschTool::On_Execute(void)
 	double	a, z;
 	double  noDataValue, lowerLimit;
 
-	CGrid	*pInput, *pResult;
+	CSG_Grid	*pInput, *pResult;
 
 	//-----------------------------------------------------
 	// Get user inputs from the 'Parameters' object...

@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CErdas_LAN_Import : public CModule
+class CErdas_LAN_Import : public CSG_Module
 {
 public:
 	CErdas_LAN_Import(void);

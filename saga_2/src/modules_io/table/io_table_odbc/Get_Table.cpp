@@ -111,7 +111,7 @@ CGet_Table::CGet_Table(void)
 	);
 
 	//-----------------------------------------------------
-	CParameters	*pTables	= Add_Extra_Parameters("DB_TABLE", _TL("Select a Table"), "");
+	CSG_Parameters	*pTables	= Add_Extra_Parameters("DB_TABLE", _TL("Select a Table"), "");
 
 	pTables->Add_Choice(
 		NULL	, "TABLES"		, _TL("Tables"),
@@ -143,7 +143,7 @@ CGet_Table::~CGet_Table(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CGet_Table::On_Parameter_Changed(CParameters *pParameters, CParameter *pParameter)
+int CGet_Table::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	if( !strcmp(pParameters->Get_Identifier(), Parameters.Get_Identifier()) )
 	{
@@ -219,7 +219,7 @@ bool CGet_Table::_Initialize(void)
 		s.Append(wxString::Format("%s|", DSN).c_str());
 	}
 
-	((CParameter_Choice *)Parameters("DB_SOURCE")->Get_Data())->Set_Items(s.c_str());
+	((CSG_Parameter_Choice *)Parameters("DB_SOURCE")->Get_Data())->Set_Items(s.c_str());
 
 	return( true );
 }
@@ -228,7 +228,7 @@ bool CGet_Table::_Initialize(void)
 wxDb * CGet_Table::_Connect(void)
 {
 	wxString			DSN;
-	CParameter_Choice	*pDSNs	= (CParameter_Choice *)Parameters("DB_SOURCE")->Get_Data();
+	CSG_Parameter_Choice	*pDSNs	= (CSG_Parameter_Choice *)Parameters("DB_SOURCE")->Get_Data();
 
 	//-----------------------------------------------------
 	if( m_DBC_Inf && pDSNs && pDSNs->Get_Count() > 0 )
@@ -250,7 +250,7 @@ wxDbTable * CGet_Table::_Get_Table(wxDb *pDB)
 	int			i;
 	wxString	s;
 	wxDbInf		*pInf;
-	CParameter_Choice	*pTables;
+	CSG_Parameter_Choice	*pTables;
 
 	//-----------------------------------------------------
 	if( pDB && (pInf = pDB->GetCatalog(NULL)) != NULL && pInf->numTables > 0 )
@@ -260,7 +260,7 @@ wxDbTable * CGet_Table::_Get_Table(wxDb *pDB)
 			s.Append(wxString::Format("%s\n", pInf->pTableInf[i].tableName).c_str());
 		}
 
-		pTables	= (CParameter_Choice *)Get_Extra_Parameters("DB_TABLE")->Get_Parameter("TABLES")->Get_Data();
+		pTables	= (CSG_Parameter_Choice *)Get_Extra_Parameters("DB_TABLE")->Get_Parameter("TABLES")->Get_Data();
 		pTables->Set_Items(s.c_str());
 
 		if( Dlg_Extra_Parameters("DB_TABLE") )
@@ -281,12 +281,12 @@ wxDbTable * CGet_Table::_Get_Table(wxDb *pDB)
 }
 
 //---------------------------------------------------------
-bool CGet_Table::_Get_Data(CTable *pTable, wxDbTable *pDBTable)
+bool CGet_Table::_Get_Data(CSG_Table *pTable, wxDbTable *pDBTable)
 {
 	char			**Values;
 	int				iField, nFields;
 	UWORD			numCols;
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 	wxDbColInf		*ColDefs;
 
 	//-----------------------------------------------------

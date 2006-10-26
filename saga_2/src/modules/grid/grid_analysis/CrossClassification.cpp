@@ -61,11 +61,11 @@ CCrossClassification::~CCrossClassification(void){}
 
 bool CCrossClassification::On_Execute(void){
 
-	CGrid* pInput = Parameters("INPUT")->asGrid();
-	CGrid* pInput2 = Parameters("INPUT2")->asGrid();
-	CGrid* pOutput = Parameters("RESULTGRID")->asGrid();
-	CTable* pTable = Parameters("RESULTTABLE")->asTable();
-	CTable_Record* pRecord;
+	CSG_Grid* pInput = Parameters("INPUT")->asGrid();
+	CSG_Grid* pInput2 = Parameters("INPUT2")->asGrid();
+	CSG_Grid* pOutput = Parameters("RESULTGRID")->asGrid();
+	CSG_Table* pTable = Parameters("RESULTTABLE")->asTable();
+	CSG_Table_Record* pRecord;
 	int iNumClasses = Parameters("MAXNUMCLASS")->asInt();
 	int iClass, iClass2;
 	int iNewClass;
@@ -74,7 +74,7 @@ bool CCrossClassification::On_Execute(void){
 	int **pTabulation = new int* [iNumClasses];	
 	int *pTotal, iTotal;
 
-	pTable->Create((CTable*)NULL);
+	pTable->Create((CSG_Table*)NULL);
 	pTable->Set_Name(_TL("Cross-Tabulation"));
 
 	for (i = 0; i < iNumClasses; i++){

@@ -122,7 +122,7 @@ bool CXYZ_Export::On_Execute(void)
 	int						x, y, i;
 	double					xMin, yMin;
 	FILE					*aus;
-	CParameter_Grid_List	*pGrids;
+	CSG_Parameter_Grid_List	*pGrids;
 
 	pGrids		= Parameters("GRIDS")	->asGridList();
 	FileName	= Parameters("FILENAME")->asString();

@@ -66,7 +66,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CGrid_Orientation : public CModule_Grid  
+class CGrid_Orientation : public CSG_Module_Grid  
 {
 public:
 	CGrid_Orientation(void);

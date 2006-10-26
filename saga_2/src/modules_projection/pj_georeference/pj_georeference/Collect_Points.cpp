@@ -100,7 +100,7 @@ CCollect_Points::CCollect_Points(void)
 	);
 
 	//-----------------------------------------------------
-	CParameters	*pParameters	= Add_Extra_Parameters("REFERENCE", _TL("Point Position"), "");
+	CSG_Parameters	*pParameters	= Add_Extra_Parameters("REFERENCE", _TL("Point Position"), "");
 
 	pParameters->Add_Value(
 		NULL, "X"			, _TL("x Position"),
@@ -146,12 +146,12 @@ bool CCollect_Points::On_Execute(void)
 }
 
 //---------------------------------------------------------
-bool CCollect_Points::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CCollect_Points::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
 {
 	if( Mode == MODULE_INTERACTIVE_LDOWN && Dlg_Extra_Parameters("REFERENCE") )
 	{
 		double	xSource, ySource, xTarget, yTarget;
-		CShape	*pShape;
+		CSG_Shape	*pShape;
 
 		xSource	= ptWorld.Get_X();
 		ySource	= ptWorld.Get_Y();

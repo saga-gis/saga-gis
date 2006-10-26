@@ -54,8 +54,8 @@ CSearchInTable::~CSearchInTable(void){}
 bool CSearchInTable::On_Execute(void){
 
 	CSG_String sExpression;
-	CShapes *pShapes;
-	CTable *pTable;
+	CSG_Shapes *pShapes;
+	CSG_Table *pTable;
 	CShapeSearchSelector *pSelector;	
 	bool *pRecordWasSelected;
 	int *pSelectedRecords;

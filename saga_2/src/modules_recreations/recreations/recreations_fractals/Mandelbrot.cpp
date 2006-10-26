@@ -189,7 +189,7 @@ bool CMandelbrot::On_Execute(void)
 						if( a.Get_Y() > b.Get_Y() )	{	d	= a.m_point.y; a.m_point.y	= b.m_point.y; b.m_point.y	= d;	}
 
 //---------------------------------------------------------
-bool CMandelbrot::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CMandelbrot::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
 {
 	double	d;
 

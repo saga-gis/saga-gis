@@ -74,7 +74,7 @@
 //---------------------------------------------------------
 CGeoref_Grid::CGeoref_Grid(void)
 {
-	CParameters	*pParameters;
+	CSG_Parameters	*pParameters;
 
 	//-----------------------------------------------------
 
@@ -111,7 +111,7 @@ CGeoref_Grid::CGeoref_Grid(void)
 	);
 
 
-	CParameter	*pSource	= Parameters.Add_Shapes(
+	CSG_Parameter	*pSource	= Parameters.Add_Shapes(
 		NULL	, "REF_SOURCE"	, _TL("Reference Points (Origin)"),
 		"",
 		PARAMETER_INPUT
@@ -242,7 +242,7 @@ CGeoref_Grid::~CGeoref_Grid(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CGeoref_Grid::On_Parameter_Changed(CParameters *pParameters, CParameter *pParameter)
+int CGeoref_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	double	xMin, xMax, yMin, yMax, size;
 
@@ -323,7 +323,7 @@ int CGeoref_Grid::On_Parameter_Changed(CParameters *pParameters, CParameter *pPa
 bool CGeoref_Grid::On_Execute(void)
 {
 	int		xField, yField;
-	CShapes	*pShapes_A, *pShapes_B;
+	CSG_Shapes	*pShapes_A, *pShapes_B;
 
 	//-----------------------------------------------------
 	pShapes_A	= Parameters("REF_SOURCE")	->asShapes();
@@ -356,9 +356,9 @@ bool CGeoref_Grid::On_Execute(void)
 bool CGeoref_Grid::Get_Conversion(void)
 {
 	int			Interpolation;
-	TGrid_Type	Type;
-	CGrid		*pSource, *pGrid;
-	CShapes		*pShapes;
+	TSG_Grid_Type	Type;
+	CSG_Grid		*pSource, *pGrid;
+	CSG_Shapes		*pShapes;
 
 	//-----------------------------------------------------
 	pSource			= Parameters("SOURCE")->asGrid();
@@ -444,13 +444,13 @@ bool CGeoref_Grid::Get_Conversion(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGrid * CGeoref_Grid::Get_Target_Userdef(CGrid *pSource, TGrid_Type Type)
+CSG_Grid * CGeoref_Grid::Get_Target_Userdef(CSG_Grid *pSource, TSG_Grid_Type Type)
 {
 	int			x, y;
 	double		xMin, yMin, xMax, yMax, size;
 	TSG_Point	Pt_Source;
-	CGrid		*pTarget;
-	CParameters	*pParameters;
+	CSG_Grid		*pTarget;
+	CSG_Parameters	*pParameters;
 
 	pTarget	= NULL;
 
@@ -512,12 +512,12 @@ CGrid * CGeoref_Grid::Get_Target_Userdef(CGrid *pSource, TGrid_Type Type)
 }
 
 //---------------------------------------------------------
-CGrid * CGeoref_Grid::Get_Target_Autofit(CGrid *pSource, double Grid_Size, int AutoExtMode, TGrid_Type Type)
+CSG_Grid * CGeoref_Grid::Get_Target_Autofit(CSG_Grid *pSource, double Grid_Size, int AutoExtMode, TSG_Grid_Type Type)
 {
 	int			x, y;
 	double		xMin, yMin, xMax, yMax;
 	TSG_Point	Pt_Source;
-	CGrid		*pTarget;
+	CSG_Grid		*pTarget;
 
 	pTarget	= NULL;
 
@@ -623,7 +623,7 @@ inline void CGeoref_Grid::Get_MinMax(double &xMin, double &xMax, double &yMin, d
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGeoref_Grid::Set_Grid(CGrid *pSource, CGrid *pTarget, int Interpolation)
+bool CGeoref_Grid::Set_Grid(CSG_Grid *pSource, CSG_Grid *pTarget, int Interpolation)
 {
 	int			x, y;
 	double		z;
@@ -668,11 +668,11 @@ bool CGeoref_Grid::Set_Grid(CGrid *pSource, CGrid *pTarget, int Interpolation)
 }
 
 //---------------------------------------------------------
-bool CGeoref_Grid::Set_Shapes(CGrid *pSource, CShapes *pTarget)
+bool CGeoref_Grid::Set_Shapes(CSG_Grid *pSource, CSG_Shapes *pTarget)
 {
 	int			x, y;
 	TSG_Point	Pt_Source, Pt_Target;
-	CShape		*pShape;
+	CSG_Shape		*pShape;
 
 	if( pSource && pTarget )
 	{

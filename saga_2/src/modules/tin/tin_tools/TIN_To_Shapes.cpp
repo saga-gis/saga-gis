@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CTIN_To_Shapes::CTIN_To_Shapes(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Set_Name(_TL("TIN to Shapes"));
@@ -135,12 +135,12 @@ CTIN_To_Shapes::~CTIN_To_Shapes(void)
 bool CTIN_To_Shapes::On_Execute(void)
 {
 	int				i, j;
-	CTIN_Point		*pPoint;
-	CTIN_Edge		*pEdge;
-	CTIN_Triangle	*pTriangle;
-	CTIN			*pTIN;
-	CShape			*pShape;
-	CShapes			*pShapes;
+	CSG_TIN_Point		*pPoint;
+	CSG_TIN_Edge		*pEdge;
+	CSG_TIN_Triangle	*pTriangle;
+	CSG_TIN			*pTIN;
+	CSG_Shape			*pShape;
+	CSG_Shapes			*pShapes;
 
 	//-----------------------------------------------------
 	pTIN		= Parameters("TIN")			->asTIN();

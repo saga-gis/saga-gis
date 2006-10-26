@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGSPoints_Semi_Variances : public CModule  
+class CGSPoints_Semi_Variances : public CSG_Module  
 {
 public:
 	CGSPoints_Semi_Variances(void);
@@ -87,8 +87,8 @@ protected:
 
 private:
 
-	void				Get_Differences	(CShapes *pShapes, CTable *pTable, int zField, int nSkip, double maxDist);
-	void				Get_Variances	(CTable *pTab_Var, CTable *pTab_Dif, double Dist_Step);
+	void				Get_Differences	(CSG_Shapes *pShapes, CSG_Table *pTable, int zField, int nSkip, double maxDist);
+	void				Get_Variances	(CSG_Table *pTab_Var, CSG_Table *pTab_Dif, double Dist_Step);
 
 };
 

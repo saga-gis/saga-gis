@@ -95,7 +95,7 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CDLG_List_Base::CDLG_List_Base(CParameter_List *pList, wxString Caption)
+CDLG_List_Base::CDLG_List_Base(CSG_Parameter_List *pList, wxString Caption)
 	: CDLG_Base(-1, Caption)
 {
 	m_pList			= pList;
@@ -179,7 +179,7 @@ void CDLG_List_Base::Save_Changes(void)
 
 	for(unsigned int i=0; i<m_pAdd->GetCount(); i++)
 	{
-		m_pList->Add_Item((CDataObject *)m_pAdd->GetClientData(i));
+		m_pList->Add_Item((CSG_Data_Object *)m_pAdd->GetClientData(i));
 	}
 }
 

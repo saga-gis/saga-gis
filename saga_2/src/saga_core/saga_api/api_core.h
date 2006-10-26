@@ -94,7 +94,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SAGA_API_VERSION			"2.0.0b"
+#define SAGA_API_VERSION			"2.0.0"
 
 
 ///////////////////////////////////////////////////////////
@@ -104,8 +104,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifndef SWIG
+
 #include <stdlib.h>
 #include <stdio.h>
+
+#endif	// #ifdef SWIG
 
 
 ///////////////////////////////////////////////////////////
@@ -191,23 +195,23 @@ SAGA_API_DLL_EXPORT void					SG_UI_Process_Set_Text		(const char *Text);
 SAGA_API_DLL_EXPORT void					SG_UI_Dlg_Message			(const char *Message, const char *Caption);
 SAGA_API_DLL_EXPORT bool					SG_UI_Dlg_Continue			(const char *Message, const char *Caption);
 SAGA_API_DLL_EXPORT int						SG_UI_Dlg_Error				(const char *Message, const char *Caption);
-SAGA_API_DLL_EXPORT bool					SG_UI_Dlg_Parameters		(class CParameters *pParameters, const char *Caption);
+SAGA_API_DLL_EXPORT bool					SG_UI_Dlg_Parameters		(class CSG_Parameters *pParameters, const char *Caption);
 
 SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add				(const char *Message, bool bNewLine);
 SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Error			(const char *Message);
 SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Execution		(const char *Message, bool bNewLine);
 
-SAGA_API_DLL_EXPORT class CDataObject *		SG_UI_DataObject_Find		(const char *File_Name         , int Object_Type);
-SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Check		(class CDataObject *pDataObject, int Object_Type);
-SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Add		(class CDataObject *pDataObject, bool bShow);
-SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Update		(class CDataObject *pDataObject, bool bShow, class CParameters *pParameters);
-SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Show		(class CDataObject *pDataObject);
-SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_asImage	(class CDataObject *pDataObject, class CGrid *pGrid);
+SAGA_API_DLL_EXPORT class CSG_Data_Object *	SG_UI_DataObject_Find		(const char *File_Name             , int Object_Type);
+SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Check		(class CSG_Data_Object *pDataObject, int Object_Type);
+SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Add		(class CSG_Data_Object *pDataObject, bool bShow);
+SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Update		(class CSG_Data_Object *pDataObject, bool bShow, class CSG_Parameters *pParameters);
+SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Show		(class CSG_Data_Object *pDataObject);
+SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_asImage	(class CSG_Data_Object *pDataObject, class CSG_Grid *pGrid);
 
-SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Colors_Get	(class CDataObject *pDataObject, class CSG_Colors *pColors);
-SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Colors_Set	(class CDataObject *pDataObject, class CSG_Colors *pColors);
+SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Colors_Get	(class CSG_Data_Object *pDataObject, class CSG_Colors *pColors);
+SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Colors_Set	(class CSG_Data_Object *pDataObject, class CSG_Colors *pColors);
 
-SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Get_All	(class CParameters *pParameters);
+SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Get_All	(class CSG_Parameters *pParameters);
 
 SAGA_API_DLL_EXPORT void *					SG_UI_Get_Window_Main		(void);
 

@@ -23,7 +23,7 @@
 
 #include "MLB_Interface.h"
 
-class COWA : public CModule_Grid {
+class COWA : public CSG_Module_Grid {
 
 public:
 	COWA(void);

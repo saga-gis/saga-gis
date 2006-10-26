@@ -84,7 +84,7 @@ class CDLG_List_Shapes : public CDLG_List_Base
 	DECLARE_CLASS(CDLG_List_Shapes)
 
 public:
-	CDLG_List_Shapes(CParameter_Shapes_List *pList, wxString Caption);
+	CDLG_List_Shapes(CSG_Parameter_Shapes_List *pList, wxString Caption);
 	virtual ~CDLG_List_Shapes(void);
 
 

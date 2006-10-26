@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class grid_spline_EXPORT CGridding_Spline_Base : public CModule
+class grid_spline_EXPORT CGridding_Spline_Base : public CSG_Module
 {
 public:
 	CGridding_Spline_Base(void);
@@ -92,9 +92,9 @@ protected:
 
 	int						m_zField;
 
-	CGrid					*m_pGrid;
+	CSG_Grid					*m_pGrid;
 
-	CShapes					*m_pShapes;
+	CSG_Shapes					*m_pShapes;
 
 
 	bool					Initialise		(void);
@@ -107,7 +107,7 @@ private:
 
 	bool					_Get_Points		(CSG_Points_3D &Points, bool bInGridOnly);
 	bool					_Get_Grid		(void);
-	CGrid *					_Get_Grid		(TSG_Rect Extent);
+	CSG_Grid *					_Get_Grid		(TSG_Rect Extent);
 
 };
 

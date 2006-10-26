@@ -24,7 +24,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CGrid_Buffer : public CModule_Grid {
+class CGrid_Buffer : public CSG_Module_Grid {
 
 private:
 

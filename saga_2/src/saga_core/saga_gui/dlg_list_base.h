@@ -98,7 +98,7 @@ class CDLG_List_Base : public CDLG_Base
 	DECLARE_CLASS(CDLG_List_Base)
 
 public:
-	CDLG_List_Base(class CParameter_List *pList, wxString Caption);
+	CDLG_List_Base(class CSG_Parameter_List *pList, wxString Caption);
 	virtual ~CDLG_List_Base(void);
 
 	void						On_Add			(wxCommandEvent &event);
@@ -117,7 +117,7 @@ protected:
 
 	wxListBox					*m_pAdd, *m_pSelect;
 
-	class CParameter_List		*m_pList;
+	class CSG_Parameter_List		*m_pList;
 
 
 	virtual void				Set_Position	(wxRect r);

@@ -130,7 +130,7 @@ CPit_Router::~CPit_Router(void)
 bool CPit_Router::On_Execute(void)
 {
 	double		Threshold;
-	CGrid		*pDEM, *pRoute;
+	CSG_Grid		*pDEM, *pRoute;
 
 	pDEM		= Parameters("ELEVATION")->asGrid();
 	pRoute		= Parameters("SINKROUTE")->asGrid();
@@ -151,7 +151,7 @@ bool CPit_Router::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CPit_Router::Get_Routes(CGrid *pDEM, CGrid *pRoute, double Threshold)
+int CPit_Router::Get_Routes(CSG_Grid *pDEM, CSG_Grid *pRoute, double Threshold)
 {
 	int			iPit, nPits, n;
 	TPit_Outlet	*pOutlet, *pNext;

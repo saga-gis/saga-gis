@@ -40,10 +40,10 @@ CPolygon_Geometrics::~CPolygon_Geometrics(void)
 
 bool CPolygon_Geometrics::On_Execute(void){
 
-	CTable *pTable;
-	CShapes *pPolygs;
+	CSG_Table *pTable;
+	CSG_Shapes *pPolygs;
 	TSG_Point	Point, Point2;	
-	CShape *pShape;
+	CSG_Shape *pShape;
 	double dArea;
 	double dPerim;
 		

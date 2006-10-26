@@ -254,11 +254,11 @@ bool CESRI_E00_Import::Load(void)
 
 	double		scale		= 1.0;
 
-	TShape_Type	shape_type;
+	TSG_Shape_Type	shape_type;
 
-	CGrid		*pGrid;
+	CSG_Grid		*pGrid;
 
-	CShapes		*pShapes;
+	CSG_Shapes		*pShapes;
 
 	//-----------------------------------------------------
 	pPAT	= NULL;
@@ -488,7 +488,7 @@ bool CESRI_E00_Import::Load(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGrid * CESRI_E00_Import::getraster(int prec, double scale)
+CSG_Grid * CESRI_E00_Import::getraster(int prec, double scale)
 {
 	const char	*line;
 
@@ -496,7 +496,7 @@ CGrid * CESRI_E00_Import::getraster(int prec, double scale)
 	long	rows, cols, depth, p[5];
 	float	f[5];
 	double	xres, yres, xmin, ymin, xmax, ymax, nul_val, d[3];
-	CGrid	*pGrid;
+	CSG_Grid	*pGrid;
 
 	//-----------------------------------------------------
 	if( (line = E00ReadNextLine(hReadPtr)) == NULL )
@@ -622,14 +622,14 @@ CGrid * CESRI_E00_Import::getraster(int prec, double scale)
 #define ARC_RPOL	5
 
 //---------------------------------------------------------
-CShapes * CESRI_E00_Import::getarcs(int prec, double scale, TShape_Type &shape_type)
+CSG_Shapes * CESRI_E00_Import::getarcs(int prec, double scale, TSG_Shape_Type &shape_type)
 {
 	const char	*line;
 
 	int		covnum, cov_id, fnode, tnode, lpol, rpol, nPoints, iPoint;
 	double	x_buf[2], y_buf[2];
-	CShape	*pShape;
-	CShapes	*pShapes;
+	CSG_Shape	*pShape;
+	CSG_Shapes	*pShapes;
 
 	//-----------------------------------------------------
 	pShapes	= SG_Create_Shapes(shape_type);
@@ -724,10 +724,10 @@ CShapes * CESRI_E00_Import::getarcs(int prec, double scale, TShape_Type &shape_t
 }
 
 //---------------------------------------------------------
-CShapes * CESRI_E00_Import::Arcs2Polygons(CShapes *pArcs)
+CSG_Shapes * CESRI_E00_Import::Arcs2Polygons(CSG_Shapes *pArcs)
 {
 	int		iArc, nArcs, id;
-	CShapes	*pPolygons;
+	CSG_Shapes	*pPolygons;
 
 	//-----------------------------------------------------
 	Process_Set_Text("Arcs to polygons");
@@ -769,11 +769,11 @@ CShapes * CESRI_E00_Import::Arcs2Polygons(CShapes *pArcs)
 }
 
 //---------------------------------------------------------
-void CESRI_E00_Import::Arcs2Polygon(CShapes *pArcs, CShapes *pPolygons, int id)
+void CESRI_E00_Import::Arcs2Polygon(CSG_Shapes *pArcs, CSG_Shapes *pPolygons, int id)
 {
 	int		iShape, iPart, iPoint, iNode;
-	CShape	*pArc, *pShape;
-	CShapes	Arcs;
+	CSG_Shape	*pArc, *pShape;
+	CSG_Shapes	Arcs;
 
 	//-----------------------------------------------------
 	Arcs.Create(SHAPE_TYPE_Line);
@@ -871,14 +871,14 @@ void CESRI_E00_Import::Arcs2Polygon(CShapes *pArcs, CShapes *pPolygons, int id)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CShapes * CESRI_E00_Import::getlabels(int prec, double scale)	// shape_type: LINE or AREA
+CSG_Shapes * CESRI_E00_Import::getlabels(int prec, double scale)	// shape_type: LINE or AREA
 {
 	const char	*line;
 
 	int		num, id;	// coverage-# and coverage-ID
 	double	x, y;
-	CShapes	*pShapes;
-	CShape	*pShape;
+	CSG_Shapes	*pShapes;
+	CSG_Shape	*pShape;
 
 	pShapes	= SG_Create_Shapes(SHAPE_TYPE_Point);
 
@@ -929,14 +929,14 @@ CShapes * CESRI_E00_Import::getlabels(int prec, double scale)	// shape_type: LIN
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CShapes * CESRI_E00_Import::getsites(int prec, double scale)
+CSG_Shapes * CESRI_E00_Import::getsites(int prec, double scale)
 {
 	const char	*line;
 
 	int		id;
 	double	x, y;
-	CShape	*pShape;
-	CShapes	*pShapes;
+	CSG_Shape	*pShape;
+	CSG_Shapes	*pShapes;
 
 	pShapes	= SG_Create_Shapes(SHAPE_TYPE_Point);
 	pShapes->Get_Table().Add_Field("ID", TABLE_FIELDTYPE_Int);
@@ -1046,7 +1046,7 @@ int CESRI_E00_Import::info_Get_Tables(void)
 	char				tmp[12], *p;
 	int					i;
 	CSG_String			s;
-	CTable				*pTable;
+	CSG_Table				*pTable;
 	struct info_Table	info;
 
 	//-----------------------------------------------------
@@ -1150,9 +1150,9 @@ int CESRI_E00_Import::info_Get_Tables(void)
 
 		if( pTable )
 		{
-			CTable_Record	*pRecord;
-			CShape			*pShape;
-			CShapes			*pBND, *pTIC;
+			CSG_Table_Record	*pRecord;
+			CSG_Shape			*pShape;
+			CSG_Shapes			*pBND, *pTIC;
 
 			if     ( !s.CmpNoCase("bnd") )	// coverage boundaries
 			{
@@ -1205,12 +1205,12 @@ int CESRI_E00_Import::info_Get_Tables(void)
 }
 
 //---------------------------------------------------------
-CTable * CESRI_E00_Import::info_Get_Table(struct info_Table info)
+CSG_Table * CESRI_E00_Import::info_Get_Table(struct info_Table info)
 {
 	char			*buffer_record, *buffer_item;
 	int				iRecord, iField;
-	CTable			*pTable;
-	CTable_Record	*pRecord;
+	CSG_Table			*pTable;
+	CSG_Table_Record	*pRecord;
 
 	//-----------------------------------------------------
 	Process_Set_Text(info.Name);
@@ -1362,11 +1362,11 @@ void CESRI_E00_Import::info_Get_Record(char *buffer, int buffer_length)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CESRI_E00_Import::Assign_Attributes(CShapes *pShapes)
+bool CESRI_E00_Import::Assign_Attributes(CSG_Shapes *pShapes)
 {
 	int				iShape, iRecord, iField, oField, id;
-	CTable_Record	*pRec;
-	CShape			*pShape;
+	CSG_Table_Record	*pRec;
+	CSG_Shape			*pShape;
 
 	if( pShapes && pShapes->Get_Table().Get_Field_Count() > 0 && pPAT && pPAT->Get_Field_Count() > 2 )
 	{

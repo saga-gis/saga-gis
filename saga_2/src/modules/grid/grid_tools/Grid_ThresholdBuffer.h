@@ -23,14 +23,14 @@
 
 #include "MLB_Interface.h"
 
-class CThresholdBuffer : public CModule_Grid {
+class CThresholdBuffer : public CSG_Module_Grid {
 
 private:
 
-	CGrid* m_pFeatures; 
-	CGrid* m_pBuffer;
-	CGrid* m_pValueGrid;
-	CGrid* m_pThresholdGrid;
+	CSG_Grid* m_pFeatures; 
+	CSG_Grid* m_pBuffer;
+	CSG_Grid* m_pValueGrid;
+	CSG_Grid* m_pThresholdGrid;
 	double m_dThreshold;
 	int m_iThresholdType;
 //	CAPI_3D_iPoints	m_pCentralPoints;

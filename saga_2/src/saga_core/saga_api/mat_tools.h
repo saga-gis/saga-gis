@@ -71,8 +71,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifndef SWIG
+
 #include <math.h>
 
+#endif	// #ifdef SWIG
+
+//---------------------------------------------------------
 #include "geo_tools.h"
 
 
@@ -580,9 +585,9 @@ public:
 
 	void						Destroy				(void);
 
-	bool						Calculate			(const class CTable &Values);
+	bool						Calculate			(const class CSG_Table &Values);
 
-	class CTable *				Get_Result			(void)	{	return( m_pResult );	}
+	class CSG_Table *			Get_Result			(void)	{	return( m_pResult );	}
 
 	int							Get_Ordered			(int iOrder);
 	int							Get_Order			(int iVariable);
@@ -594,12 +599,12 @@ public:
 
 protected:
 
-	class CTable				*m_pResult;
+	class CSG_Table				*m_pResult;
 
 
-	bool						_Get_Regression		(const class CTable &Values);
+	bool						_Get_Regression		(const class CSG_Table &Values);
 
-	bool						_Get_Correlation	(const class CTable &Values);
+	bool						_Get_Correlation	(const class CSG_Table &Values);
 	bool						_Get_Correlation	(int nValues, int nVariables, double **X, double *Y, int &iMax, double &rMax);
 
 	bool						_Eliminate			(int nValues, double *X, double *Y);
@@ -672,13 +677,13 @@ private:
 	CSG_String					m_Formula;
 
 	const char					*i_error; 
-	bool						used_vars['z' - 'a' + 1];
+	bool						used_vars[256];	//['z' - 'a' + 1];
 	char						*errmes;
 	int							i_pctable;	// number of items in a table of constants - used only by the translating functions
 	int							Error_Pos;
 	int							Length;
 	double						*i_ctable;	// current table of constants - used only by the translating functions
-	double						param['z' - 'a' + 1];
+	double						param[256];	//['z' - 'a' + 1];
 	TMAT_Formula				function;
 
 
@@ -759,8 +764,8 @@ private:
 		CFncParams(void);
 		virtual ~CFncParams(void);
 
-		bool					Create		(const char *Variables, int nVariables);
-		bool					Destroy		(void);
+		bool					Create				(const char *Variables, int nVariables);
+		bool					Destroy				(void);
 
 		int						m_Count;
 

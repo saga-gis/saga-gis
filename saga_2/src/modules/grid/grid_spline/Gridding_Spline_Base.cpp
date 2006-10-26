@@ -70,8 +70,8 @@
 //---------------------------------------------------------
 CGridding_Spline_Base::CGridding_Spline_Base(void)
 {
-	CParameter	*pNode;
-	CParameters	*pParameters;
+	CSG_Parameter	*pNode;
+	CSG_Parameters	*pParameters;
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_Output(
@@ -161,8 +161,8 @@ bool CGridding_Spline_Base::_Get_Points(CSG_Points_3D &Points, bool bInGridOnly)
 	int			iShape, iPart, iPoint, zField;
 	double		zValue;
 	TSG_Point	p;
-	CShapes		*pShapes;
-	CShape		*pShape;
+	CSG_Shapes		*pShapes;
+	CSG_Shape		*pShape;
 
 	pShapes	= Parameters("SHAPES")	->asShapes();
 	zField	= Parameters("FIELD")	->asInt();
@@ -201,7 +201,7 @@ bool CGridding_Spline_Base::_Get_Points(CSG_Points_3D &Points, bool bInGridOnly)
 //---------------------------------------------------------
 bool CGridding_Spline_Base::_Get_Grid(void)
 {
-	CShapes	*pShapes;
+	CSG_Shapes	*pShapes;
 	
 	pShapes	= Parameters("SHAPES")->asShapes();
 	m_pGrid	= NULL;
@@ -244,9 +244,9 @@ bool CGridding_Spline_Base::_Get_Grid(void)
 }
 
 //---------------------------------------------------------
-CGrid * CGridding_Spline_Base::_Get_Grid(TSG_Rect Extent)
+CSG_Grid * CGridding_Spline_Base::_Get_Grid(TSG_Rect Extent)
 {
-	CParameters	*P	= Get_Extra_Parameters("USER");
+	CSG_Parameters	*P	= Get_Extra_Parameters("USER");
 
 	if( !P->Get_Parameter("FIT_EXTENT")->asBool() )
 	{

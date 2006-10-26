@@ -65,7 +65,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CExercise_14 : public CModule_Grid
+class CExercise_14 : public CSG_Module_Grid
 {
 public: ////// public members and functions: //////////////
 
@@ -80,9 +80,9 @@ protected: /// protected members and functions: ///////////
 
 private: ///// private members and functions: /////////////
 
-	CGrid				*m_pDTM, *m_pChnl, *m_pDir;
+	CSG_Grid				*m_pDTM, *m_pChnl, *m_pDir;
 
-	CShapes				*m_pShapes;
+	CSG_Shapes				*m_pShapes;
 
 
 	bool				Initialise(int Threshold);
@@ -91,7 +91,7 @@ private: ///// private members and functions: /////////////
 	void				Find_Channels(int x, int y);
 
 	void				Vectorise(void);
-	double				Vectorise(int x, int y, CShape *pSegment);
+	double				Vectorise(int x, int y, CSG_Shape *pSegment);
 
 };
 

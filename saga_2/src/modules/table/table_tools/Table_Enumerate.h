@@ -66,7 +66,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CTable_Enumerate : public CModule
+class CTable_Enumerate : public CSG_Module
 {
 public:
 	CTable_Enumerate(void);

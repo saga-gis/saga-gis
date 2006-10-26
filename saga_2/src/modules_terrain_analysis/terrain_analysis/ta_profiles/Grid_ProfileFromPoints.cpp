@@ -21,7 +21,7 @@
 
 CProfileFromPoints::CProfileFromPoints(void){
 
-	CParameter	*pNode_0, *pNode_1;
+	CSG_Parameter	*pNode_0, *pNode_1;
 
 	Parameters.Set_Name(_TL("Profile from points"));
 	Parameters.Set_Description(_TL("(c) 2004 by Victor Olaya. Creates a profile from coordinates stored in a table"));
@@ -62,10 +62,10 @@ CProfileFromPoints::~CProfileFromPoints(void)
 
 bool CProfileFromPoints::On_Execute(void){
 	
-	CTable* pTable;	
-	CTable* pProfileTable;
-	CTable_Record* pRecord;
-	CGrid* pGrid;	
+	CSG_Table* pTable;	
+	CSG_Table* pProfileTable;
+	CSG_Table_Record* pRecord;
+	CSG_Grid* pGrid;	
 	int iXField, iYField;	
 	int i;
 	int x1,x2,y1,y2;
@@ -79,7 +79,7 @@ bool CProfileFromPoints::On_Execute(void){
 	iXField = Parameters("X")->asInt();
 	iYField = Parameters("Y")->asInt();	
 	
-	pProfileTable->Create((CTable*)NULL);
+	pProfileTable->Create((CSG_Table*)NULL);
 	pProfileTable->Set_Name(_TL("Profile"));
 	pProfileTable->Add_Field(_TL("Distance"), TABLE_FIELDTYPE_Double);
 	pProfileTable->Add_Field("Z", TABLE_FIELDTYPE_Double);

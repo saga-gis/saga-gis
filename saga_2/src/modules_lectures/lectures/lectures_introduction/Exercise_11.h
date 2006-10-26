@@ -65,7 +65,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CExercise_11 : public CModule_Grid
+class CExercise_11 : public CSG_Module_Grid
 {
 public:
 	CExercise_11(void);
@@ -79,9 +79,9 @@ protected:
 
 private:
 
-	CGrid						*m_pN, m_Next, m_dz[8], m_dzSum;
+	CSG_Grid						*m_pN, m_Next, m_dz[8], m_dzSum;
 
-	bool						Initialize(CGrid *pDEM);
+	bool						Initialize(CSG_Grid *pDEM);
 	bool						Finalize(void);
 
 	bool						Next_Step(double N_Rain, double dTime);

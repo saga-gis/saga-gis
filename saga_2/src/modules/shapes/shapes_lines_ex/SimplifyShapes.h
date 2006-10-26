@@ -22,7 +22,7 @@
 
 #include "MLB_Interface.h"
 
-class CSimplifyShapes : public CModule{
+class CSimplifyShapes : public CSG_Module{
 
 public:
 	CSimplifyShapes(void);

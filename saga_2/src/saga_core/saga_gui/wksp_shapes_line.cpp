@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Shapes_Line::CWKSP_Shapes_Line(CShapes *pShapes)
+CWKSP_Shapes_Line::CWKSP_Shapes_Line(CSG_Shapes *pShapes)
 	: CWKSP_Shapes(pShapes)
 {
 	Create_Parameters();
@@ -188,7 +188,7 @@ void CWKSP_Shapes_Line::On_Parameters_Changed(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CWKSP_Shapes_Line::On_Parameter_Changed(CParameters *pParameters, CParameter *pParameter)
+int CWKSP_Shapes_Line::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	CWKSP_Shapes::On_Parameter_Changed(pParameters, pParameter);
 
@@ -257,7 +257,7 @@ void CWKSP_Shapes_Line::_Draw_Initialize(CWKSP_Map_DC &dc_Map)
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Line::_Draw_Shape(CWKSP_Map_DC &dc_Map, CShape *pShape, bool bSelection)
+void CWKSP_Shapes_Line::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, bool bSelection)
 {
 	//-----------------------------------------------------
 	if( bSelection )
@@ -335,7 +335,7 @@ void CWKSP_Shapes_Line::_Draw_Shape(CWKSP_Map_DC &dc_Map, CShape *pShape, bool b
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Line::_Draw_Label(CWKSP_Map_DC &dc_Map, CShape *pShape)
+void CWKSP_Shapes_Line::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 {
 	const int	m_Label_Freq	= 10,
 				m_Label_Prec	= 2;
@@ -352,7 +352,7 @@ void CWKSP_Shapes_Line::_Draw_Label(CWKSP_Map_DC &dc_Map, CShape *pShape)
 	//-----------------------------------------------------
 	for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 	{
-		if( dc_Map.m_World2DC * ((CShape_Line *)pShape)->Get_Length(iPart) > (2 * m_Label_Freq) * sx )
+		if( dc_Map.m_World2DC * ((CSG_Shape_Line *)pShape)->Get_Length(iPart) > (2 * m_Label_Freq) * sx )
 		{
 			A		= dc_Map.World2DC(pShape->Get_Point(0, iPart));
 
@@ -511,7 +511,7 @@ int CWKSP_Shapes_Line::_Edit_Shape_HitTest(CSG_Point pos_Point, double max_Dist,
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Line::_Edit_Snap_Point_ToLine(CSG_Point pos_Point, CSG_Point &snap_Point, double &snap_Dist, CShape *pShape)
+void CWKSP_Shapes_Line::_Edit_Snap_Point_ToLine(CSG_Point pos_Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shape *pShape)
 {
 	int			iPart, iPoint;
 	double		d;

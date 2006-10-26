@@ -79,11 +79,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CDoc_SVG::CDoc_SVG(){}
+CSG_Doc_SVG::CSG_Doc_SVG(){}
 
-CDoc_SVG::~CDoc_SVG(){}
+CSG_Doc_SVG::~CSG_Doc_SVG(){}
 
-void CDoc_SVG::Open(int iWidth, int iHeight)
+void CSG_Doc_SVG::Open(int iWidth, int iHeight)
 {
 
 	m_sSVGCode.Append(SVG_CODE_OPENING_1);
@@ -97,7 +97,7 @@ void CDoc_SVG::Open(int iWidth, int iHeight)
 
 }
 
-bool CDoc_SVG::Save(const char *Filename)
+bool CSG_Doc_SVG::Save(const char *Filename)
 {
 
 	m_sSVGCode.Append(SVG_CODE_CLOSING);
@@ -117,7 +117,7 @@ bool CDoc_SVG::Save(const char *Filename)
 
 }
 
-void CDoc_SVG::_AddAttribute(const char *Attribute, 
+void CSG_Doc_SVG::_AddAttribute(const char *Attribute, 
 							   const char *Value)
 {
 
@@ -128,14 +128,14 @@ void CDoc_SVG::_AddAttribute(const char *Attribute,
 
 }
 
-void CDoc_SVG::_AddAttribute(const char *Attribute, 
+void CSG_Doc_SVG::_AddAttribute(const char *Attribute, 
 							   int iValue)
 {
 
 	_AddAttribute(Attribute, SG_Get_String(iValue, 0));
 }
 
-void CDoc_SVG::_AddAttribute(const char *Attribute, 
+void CSG_Doc_SVG::_AddAttribute(const char *Attribute, 
 							   double dValue)
 {
 
@@ -143,7 +143,7 @@ void CDoc_SVG::_AddAttribute(const char *Attribute,
 
 }
 
-void CDoc_SVG::Draw_Circle(double x, 
+void CSG_Doc_SVG::Draw_Circle(double x, 
 							 double y, 
 							 double Radius, 
 							 int Fill_Color, 
@@ -167,7 +167,7 @@ void CDoc_SVG::Draw_Circle(double x,
 
 }
 
-void CDoc_SVG::Draw_LinkedCircle(double x, 
+void CSG_Doc_SVG::Draw_LinkedCircle(double x, 
 								 double y, 
 								 double Radius, 
 								 const char *Link,
@@ -197,7 +197,7 @@ void CDoc_SVG::Draw_LinkedCircle(double x,
 
 }
 
-void CDoc_SVG::Draw_Line(double xa, 
+void CSG_Doc_SVG::Draw_Line(double xa, 
 						   double ya, 
 						   double xb, 
 						   double yb, 
@@ -220,7 +220,7 @@ void CDoc_SVG::Draw_Line(double xa,
 
 }
 
-void CDoc_SVG::Draw_Line(CSG_Points &Points, 
+void CSG_Doc_SVG::Draw_Line(CSG_Points &Points, 
 						   double Width, 
 						   const char *Unit, 
 						   int Color)
@@ -247,7 +247,7 @@ void CDoc_SVG::Draw_Line(CSG_Points &Points,
 
 }
 
-void CDoc_SVG::Draw_Rectangle(double xa, 
+void CSG_Doc_SVG::Draw_Rectangle(double xa, 
 								double ya, 
 								double xb, 
 								double yb, 
@@ -266,7 +266,7 @@ void CDoc_SVG::Draw_Rectangle(double xa,
 	Draw_Polygon(Points, Fill_Color, Line_Color, Line_Width, Unit) ;
 }
 
-void CDoc_SVG::Draw_Rectangle(const CSG_Rect &r, 
+void CSG_Doc_SVG::Draw_Rectangle(const CSG_Rect &r, 
 								int Fill_Color, 
 								int Line_Color, 
 								double Line_Width, 
@@ -275,7 +275,7 @@ void CDoc_SVG::Draw_Rectangle(const CSG_Rect &r,
 	Draw_Rectangle(r.Get_XMin(), r.Get_YMin(), r.Get_XMax(), r.Get_YMax(), Fill_Color, Line_Color, Line_Width) ;
 }
 
-void CDoc_SVG::Draw_Polygon(CSG_Points &Points, 
+void CSG_Doc_SVG::Draw_Polygon(CSG_Points &Points, 
 							  int Fill_Color, 
 							  int Line_Color, 
 							  double Line_Width, 
@@ -305,7 +305,7 @@ void CDoc_SVG::Draw_Polygon(CSG_Points &Points,
 	}
 }
 
-void CDoc_SVG::Draw_LinkedPolygon(CSG_Points &Points, 
+void CSG_Doc_SVG::Draw_LinkedPolygon(CSG_Points &Points, 
 							  const char* Link,
 							  int Fill_Color, 
 							  int Line_Color, 
@@ -341,14 +341,14 @@ void CDoc_SVG::Draw_LinkedPolygon(CSG_Points &Points,
 	}
 }
 
-void CDoc_SVG::Draw_Text(double x, 
+void CSG_Doc_SVG::Draw_Text(double x, 
 						 double y, 
 						 const char *Text, 
 						 int Color, 
 						 const char* Font, 
 						 double dSize,
 						 const char* Unit,
-						 TSVG_Alignment iAlignment)
+						 TSG_SVG_Alignment iAlignment)
 {
 
 	CSG_String sAlignments[] = {"", "middle", "end"};
@@ -370,7 +370,7 @@ void CDoc_SVG::Draw_Text(double x,
 
 }
 
-CSG_String CDoc_SVG::_Get_SVGColor(int iColor)
+CSG_String CSG_Doc_SVG::_Get_SVGColor(int iColor)
 {
 
 	CSG_String s;

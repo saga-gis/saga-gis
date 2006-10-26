@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Completion : public CModule_Grid
+class CGrid_Completion : public CSG_Module_Grid
 {
 public:
 	CGrid_Completion(void);

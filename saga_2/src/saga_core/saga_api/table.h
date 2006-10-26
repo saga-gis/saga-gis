@@ -81,23 +81,23 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ETable_FileType
+typedef enum ESG_Table_FileType
 {
 	TABLE_FILETYPE_Undefined	= 0,
 	TABLE_FILETYPE_Text,
 	TABLE_FILETYPE_Text_NoHeadLine,
 	TABLE_FILETYPE_DBase
 }
-TTable_FileType;
+TSG_Table_File_Type;
 
 //---------------------------------------------------------
-typedef enum ETable_Index_Order
+typedef enum ESG_Table_Index_Order
 {
 	TABLE_INDEX_None			= 0,
 	TABLE_INDEX_Up,
 	TABLE_INDEX_Down
 }
-TTable_Index_Order;
+TSG_Table_Index_Order;
 
 
 ///////////////////////////////////////////////////////////
@@ -107,7 +107,7 @@ TTable_Index_Order;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ETable_FieldType
+typedef enum ESG_Table_FieldType
 {
 	TABLE_FIELDTYPE_None		= 0,
 	TABLE_FIELDTYPE_Char,
@@ -120,7 +120,7 @@ typedef enum ETable_FieldType
 	TABLE_FIELDTYPE_Color,
 	TABLE_FIELDTYPE_Date
 }
-TTable_FieldType;
+TSG_Table_Field_Type;
 
 //---------------------------------------------------------
 const char	TABLE_FieldType_Names[][32]	=
@@ -144,13 +144,13 @@ const char	TABLE_FieldType_Names[][32]	=
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CTable_Record
+class SAGA_API_DLL_EXPORT CSG_Table_Record
 {
-	friend class CTable;
+	friend class CSG_Table;
 
 public:
 
-	class CTable *				Get_Owner		(void)				{	return( m_pOwner );	}
+	class CSG_Table *			Get_Owner		(void)				{	return( m_pOwner );	}
 	int							Get_Index		(void)	const		{	return( m_Index );	}
 
 	bool						Set_Value		(int        iField, const char *Value);
@@ -186,27 +186,27 @@ public:
 
 	double						operator []		(int        iField)	const	{	return(         asDouble(iField) );	}
 
-	void						Assign			(CTable_Record *pValues);
+	void						Assign			(CSG_Table_Record *pValues);
 
 	bool						is_Selected		(void)				const	{	return( m_bSelected );	}
 
 
 protected:
 
-	CTable_Record(class CTable *pOwner, int Index);
-	virtual ~CTable_Record(void);
+	CSG_Table_Record(class CSG_Table *pOwner, int Index);
+	virtual ~CSG_Table_Record(void);
 
 
 	bool						m_bSelected;
 
 	int							m_Index;
 
-	class CTable_Value			**m_Values;
+	class CSG_Table_Value		**m_Values;
 
-	class CTable				*m_pOwner;
+	class CSG_Table				*m_pOwner;
 
 
-	class CTable_Value *		_Create_Value	(TTable_FieldType Type);
+	class CSG_Table_Value *		_Create_Value	(TSG_Table_Field_Type Type);
 
 	bool						_Add_Field		(int add_Field);
 	bool						_Del_Field		(int del_Field);
@@ -223,67 +223,67 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CTable : public CDataObject
+class SAGA_API_DLL_EXPORT CSG_Table : public CSG_Data_Object
 {
-	friend class CTable_Record;
-	friend class CShapes;
-	friend class CTIN;
+	friend class CSG_Table_Record;
+	friend class CSG_Shapes;
+	friend class CSG_TIN;
 
 public:
 
-	CTable(void);
+	CSG_Table(void);
 
-								CTable				(const CTable &Table);
-	bool						Create				(const CTable &Table);
+								CSG_Table			(const CSG_Table &Table);
+	bool						Create				(const CSG_Table &Table);
 
-								CTable				(const char *File_Name, char Separator = '\t');
+								CSG_Table			(const char *File_Name, char Separator = '\t');
 	bool						Create				(const char *File_Name, char Separator = '\t');
 
-								CTable				(CTable *pStructure);
-	bool						Create				(CTable *pStructure);
+								CSG_Table			(CSG_Table *pStructure);
+	bool						Create				(CSG_Table *pStructure);
 
-	virtual ~CTable(void);
+	virtual ~CSG_Table(void);
 
 	virtual bool				Destroy				(void);
 
-	virtual TDataObject_Type	Get_ObjectType		(void)	const			{	return( DATAOBJECT_TYPE_Table );	}
+	virtual TSG_Data_Object_Type	Get_ObjectType	(void)	const			{	return( DATAOBJECT_TYPE_Table );	}
 
-	virtual bool				Assign				(CDataObject *pSource);
-	bool						Assign_Values		(CTable *pTable);
+	virtual bool				Assign				(CSG_Data_Object *pSource);
+	bool						Assign_Values		(CSG_Table *pTable);
 
 	virtual bool				Save				(const char *File_Name, int Format = 0);
 	virtual bool				Save				(const char *File_Name, int Format, char Separator);
 	bool						Serialize			(FILE *Stream, bool bSave);
 
 	//-----------------------------------------------------
-	CDataObject *				Get_Owner			(void)					{	return( m_pOwner );			}
+	CSG_Data_Object *			Get_Owner			(void)					{	return( m_pOwner );			}
 	bool						is_Private			(void)	const			{	return( m_pOwner != NULL );	}
 
 	virtual bool				is_Valid			(void)	const			{	return( m_nFields > 0 );	}
-	bool						is_Compatible		(CTable *pTable, bool bExactMatch = false)	const;
+	bool						is_Compatible		(CSG_Table *pTable, bool bExactMatch = false)	const;
 
 	//-----------------------------------------------------
-	void						Add_Field			(const char *Name, TTable_FieldType Type, int iField = -1);
+	void						Add_Field			(const char *Name, TSG_Table_Field_Type Type, int iField = -1);
 	bool						Del_Field			(int iField);
 
 	int							Get_Field_Count		(void)			const	{	return( m_nFields );	}
 	const char *				Get_Field_Name		(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Name[iField]->c_str() : NULL );			}
-	TTable_FieldType			Get_Field_Type		(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Type[iField] : TABLE_FIELDTYPE_None );	}
+	TSG_Table_Field_Type		Get_Field_Type		(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Type[iField] : TABLE_FIELDTYPE_None );	}
 
 	double						Get_MinValue		(int iField)	const	{	return( _Range_Update(iField) ? m_Field_Val_Min[iField] : 0.0 );	}
 	double						Get_MaxValue		(int iField)	const	{	return( _Range_Update(iField) ? m_Field_Val_Max[iField] : 0.0 );	}
 
 	//-----------------------------------------------------
-	CTable_Record *				Add_Record			(             CTable_Record *pValues = NULL);
-	CTable_Record *				Ins_Record			(int iRecord, CTable_Record *pValues = NULL);
+	CSG_Table_Record *			Add_Record			(             CSG_Table_Record *pValues = NULL);
+	CSG_Table_Record *			Ins_Record			(int iRecord, CSG_Table_Record *pValues = NULL);
 	bool						Del_Record			(int iRecord);
 	bool						Del_Records			(void);
 
 	int							Get_Record_Count	(void)			const	{	return( m_nRecords );	}
-	CTable_Record *				Get_Record			(int iRecord)	const	{	return( iRecord >= 0 && iRecord < m_nRecords ? m_Records[iRecord] : NULL );	}
-	CTable_Record &				operator []			(int iRecord)	const	{	return( *Get_Record(iRecord) );	}
+	CSG_Table_Record *			Get_Record			(int iRecord)	const	{	return( iRecord >= 0 && iRecord < m_nRecords ? m_Records[iRecord] : NULL );	}
+	CSG_Table_Record &			operator []			(int iRecord)	const	{	return( *Get_Record(iRecord) );	}
 
-	CTable_Record *				Get_Record_byIndex	(int Index)		const
+	CSG_Table_Record *			Get_Record_byIndex	(int Index)		const
 	{
 		if( Index >= 0 && Index < m_nRecords )
 		{
@@ -307,21 +307,21 @@ public:
 
 	//-----------------------------------------------------
 	int							Get_Selection_Count	(void)			const	{	return( m_nSelected );	}
-	CTable_Record *				Get_Selection		(int Index = 0)	const	{	return( Index >= 0 && Index < m_nSelected ? m_Selected[Index] : NULL );	}
+	CSG_Table_Record *			Get_Selection		(int Index = 0)	const	{	return( Index >= 0 && Index < m_nSelected ? m_Selected[Index] : NULL );	}
 
 	bool						Select				(int iRecord					, bool bInvert = false);
-	bool						Select				(CTable_Record *pRecord = NULL	, bool bInvert = false);
+	bool						Select				(CSG_Table_Record *pRecord = NULL	, bool bInvert = false);
 
 	int							Del_Selection		(void);
 
 	//-----------------------------------------------------
-	bool						Set_Index			(int iField, TTable_Index_Order Order);
+	bool						Set_Index			(int iField, TSG_Table_Index_Order Order);
 	bool						Toggle_Index		(int iField);
 
 	bool						is_Indexed			(void)	const		{	return( m_Index_Order != TABLE_INDEX_None );	}
 
 	int							Get_Index_Field		(void)	const		{	return( m_Index_Field );	}
-	TTable_Index_Order			Get_Index_Order		(void)	const		{	return( m_Index_Order );	}
+	TSG_Table_Index_Order		Get_Index_Order		(void)	const		{	return( m_Index_Order );	}
 
 
 protected:
@@ -330,30 +330,30 @@ protected:
 
 	double						*m_Field_Val_Min, *m_Field_Val_Max;
 
-	TTable_FieldType			*m_Field_Type;
+	TSG_Table_Field_Type		*m_Field_Type;
 
-	TTable_Index_Order			m_Index_Order;
+	TSG_Table_Index_Order		m_Index_Order;
 
-	CTable_Record				**m_Records, **m_Selected;
+	CSG_Table_Record			**m_Records, **m_Selected;
 
 	CSG_String					**m_Field_Name;
 
-	CDataObject					*m_pOwner;
+	CSG_Data_Object				*m_pOwner;
 
 
 	void						_On_Construction	(void);
 
-	bool						_Create				(const CTable &Table);
+	bool						_Create				(const CSG_Table &Table);
 	bool						_Create				(const char *File_Name, char Separator);
-	bool						_Create				(CTable *pStructure);
+	bool						_Create				(CSG_Table *pStructure);
 
 	bool						_Destroy			(void);
 	bool						_Destroy_Selection	(void);
 
-	bool						_Assign				(CDataObject *pObject);
+	bool						_Assign				(CSG_Data_Object *pObject);
 
-	CTable_Record *				_Add_Record			(             CTable_Record *pValues = NULL);
-	CTable_Record *				_Ins_Record			(int iRecord, CTable_Record *pValues = NULL);
+	CSG_Table_Record *			_Add_Record			(             CSG_Table_Record *pValues = NULL);
+	CSG_Table_Record *			_Ins_Record			(int iRecord, CSG_Table_Record *pValues = NULL);
 	bool						_Del_Record			(int iRecord);
 	bool						_Del_Records		(void);
 
@@ -382,16 +382,16 @@ protected:
 
 //---------------------------------------------------------
 /** Safe table construction */
-SAGA_API_DLL_EXPORT CTable *	SG_Create_Table	(void);
+SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(void);
 
 /** Safe table construction */
-SAGA_API_DLL_EXPORT CTable *	SG_Create_Table	(const CTable &Table);
+SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(const CSG_Table &Table);
 
 /** Safe table construction */
-SAGA_API_DLL_EXPORT CTable *	SG_Create_Table	(const char *FileName);
+SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(const char *FileName);
 
 /** Safe table construction */
-SAGA_API_DLL_EXPORT CTable *	SG_Create_Table	(CTable *pStructure);
+SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(CSG_Table *pStructure);
 
 
 ///////////////////////////////////////////////////////////

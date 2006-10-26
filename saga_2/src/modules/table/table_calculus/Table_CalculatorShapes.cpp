@@ -46,9 +46,9 @@ bool CTableCalculatorShapes::On_Execute(void){
 	int i,j;
 	double dValue;
 	double *pFieldValues;
-	CShapes* pShapes;
-	CTable *pTable;
-	CTable_Record *pRecord;
+	CSG_Shapes* pShapes;
+	CSG_Table *pTable;
+	CSG_Table_Record *pRecord;
 	const char *pFormula;
 	CSG_Formula Formula;
 

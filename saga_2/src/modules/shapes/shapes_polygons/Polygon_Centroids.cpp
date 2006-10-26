@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CPolygon_Centroids::CPolygon_Centroids(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Set_Name(_TL("Polygon Centroids"));
@@ -121,9 +121,9 @@ bool CPolygon_Centroids::On_Execute(void)
 {
 	bool			bPart;
 	int				iShape, iPart;
-	CShape			*pCentroid;
-	CShape_Polygon	*pPolygon;
-	CShapes			*pPolygons, *pCentroids;
+	CSG_Shape			*pCentroid;
+	CSG_Shape_Polygon	*pPolygon;
+	CSG_Shapes			*pPolygons, *pCentroids;
 
 	pPolygons	= Parameters("POLYGONS")	->asShapes();
 	pCentroids	= Parameters("CENTROIDS")	->asShapes();
@@ -136,7 +136,7 @@ bool CPolygon_Centroids::On_Execute(void)
 		//-------------------------------------------------
 		for(iShape=0; iShape<pPolygons->Get_Count(); iShape++)
 		{
-			pPolygon	= (CShape_Polygon *)pPolygons->Get_Shape(iShape);
+			pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iShape);
 
 			if( bPart )
 			{

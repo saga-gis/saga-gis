@@ -98,7 +98,7 @@ enum
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_hydrology_EXPORT CFlow : public CModule_Grid  
+class ta_hydrology_EXPORT CFlow : public CSG_Module_Grid  
 {
 public:
 	CFlow(void);
@@ -117,7 +117,7 @@ protected:
 
 	double					MFD_Converge;
 
-	CGrid					*pDTM, *pRoute, *pWeight,
+	CSG_Grid					*pDTM, *pRoute, *pWeight,
 							*pCatch,
 							*pCatch_Slope,
 							*pCatch_Height,

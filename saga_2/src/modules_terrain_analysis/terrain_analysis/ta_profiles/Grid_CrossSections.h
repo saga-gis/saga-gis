@@ -19,7 +19,7 @@
 #include "MLB_Interface.h"
 #include "PDFDocEngine_CrossSections.h"
 
-class CGrid_CrossSections : public CModule_Grid
+class CGrid_CrossSections : public CSG_Module_Grid
 {
 public:
 	CGrid_CrossSections(void);
@@ -32,7 +32,7 @@ protected:
 private:
 
 	CPDFDocEngine_CrossSections m_DocEngine;
-	CShapes *m_pSections;
+	CSG_Shapes *m_pSections;
 	float *m_pHeight;
 	TSG_Point *m_pProfile;
 

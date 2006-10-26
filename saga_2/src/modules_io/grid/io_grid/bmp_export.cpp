@@ -119,7 +119,7 @@ bool CBMP_Export::On_Execute(void)
 	char		*Line, *pLine;
 	int			x, y, Value, nBytes_Image, nBytes_Line;
 	FILE		*Stream;
-	CGrid		*pGrid;
+	CSG_Grid		*pGrid;
 	CSG_String	FileName;
 
 	//-----------------------------------------------------

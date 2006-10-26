@@ -168,7 +168,7 @@ bool CFlow_Distance::On_Execute(void)
 {
 	bool	bSeeds;
 	int		x, y, n, Method;
-	CGrid	*pSeed;
+	CSG_Grid	*pSeed;
 	CSG_Colors	Colors;
 
 	//-------------------------------------------------

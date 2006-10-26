@@ -146,7 +146,7 @@ bool CExercise_11::On_Execute(void)
 	bool		bUpdate;
 	int			iStep, nSteps;
 	double		sTime, dTime, N_Init, N_Rain;
-	CGrid		*pDEM;
+	CSG_Grid		*pDEM;
 	CSG_Colors		Colors;
 
 	//-----------------------------------------------------
@@ -195,7 +195,7 @@ bool CExercise_11::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CExercise_11::Initialize(CGrid *pDEM)
+bool CExercise_11::Initialize(CSG_Grid *pDEM)
 {
 	int		x, y, i, ix, iy;
 	double	z, dz, dzSum;

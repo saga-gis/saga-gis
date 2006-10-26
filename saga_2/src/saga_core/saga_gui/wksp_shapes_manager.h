@@ -95,19 +95,19 @@ public:
 	virtual bool				On_Command		(int Cmd_ID);
 
 	class CWKSP_Shapes_Type *	Get_Shapes_Type	(int Shape_Type);
-	class CWKSP_Shapes *		Get_Shapes		(class CShapes *pShapes);
+	class CWKSP_Shapes *		Get_Shapes		(class CSG_Shapes *pShapes);
 
-	bool						Exists			(class CShapes *pShapes);
-	class CWKSP_Shapes *		Add				(class CShapes *pShapes);
-	class CShapes *				Get_byFileName	(const char *File_Name);
+	bool						Exists			(class CSG_Shapes *pShapes);
+	class CWKSP_Shapes *		Add				(class CSG_Shapes *pShapes);
+	class CSG_Shapes *				Get_byFileName	(const char *File_Name);
 
-	bool						Update			(class CShapes *pShapes, class CParameters *pParameters);
-	bool						Update_Views	(class CShapes *pShapes);
-	bool						Show			(class CShapes *pShapes);
-	bool						asImage			(class CShapes *pShapes, class CGrid *pImage);
+	bool						Update			(class CSG_Shapes *pShapes, class CSG_Parameters *pParameters);
+	bool						Update_Views	(class CSG_Shapes *pShapes);
+	bool						Show			(class CSG_Shapes *pShapes);
+	bool						asImage			(class CSG_Shapes *pShapes, class CSG_Grid *pImage);
 
-	bool						Get_Colors		(class CShapes *pShapes, class CSG_Colors *pColors);
-	bool						Set_Colors		(class CShapes *pShapes, class CSG_Colors *pColors);
+	bool						Get_Colors		(class CSG_Shapes *pShapes, class CSG_Colors *pColors);
+	bool						Set_Colors		(class CSG_Shapes *pShapes, class CSG_Colors *pColors);
 
 
 private:

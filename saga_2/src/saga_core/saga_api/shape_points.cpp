@@ -70,8 +70,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CShape_Points::CShape_Points(CShapes *pOwner, CTable_Record *pRecord)
-	: CShape(pOwner, pRecord)
+CSG_Shape_Points::CSG_Shape_Points(CSG_Shapes *pOwner, CSG_Table_Record *pRecord)
+	: CSG_Shape(pOwner, pRecord)
 {
 	m_Points	= NULL;
 	m_nPoints	= NULL;
@@ -81,7 +81,7 @@ CShape_Points::CShape_Points(CShapes *pOwner, CTable_Record *pRecord)
 }
 
 //---------------------------------------------------------
-CShape_Points::~CShape_Points(void)
+CSG_Shape_Points::~CSG_Shape_Points(void)
 {
 	Destroy();
 }
@@ -94,9 +94,9 @@ CShape_Points::~CShape_Points(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CShape_Points::Destroy(void)
+void CSG_Shape_Points::Destroy(void)
 {
-	CShape::Destroy();
+	CSG_Shape::Destroy();
 
 	Del_Parts();
 }
@@ -109,7 +109,7 @@ void CShape_Points::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CShape_Points::On_Assign(CShape *pShape)
+bool CSG_Shape_Points::On_Assign(CSG_Shape *pShape)
 {
 	int		iPart, iPoint;
 
@@ -119,7 +119,7 @@ bool CShape_Points::On_Assign(CShape *pShape)
 	{
 		for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 		{
-			CShape::Add_Point(pShape->Get_Point(iPoint, iPart), iPart);
+			CSG_Shape::Add_Point(pShape->Get_Point(iPoint, iPart), iPart);
 		}
 	}
  
@@ -134,7 +134,7 @@ bool CShape_Points::On_Assign(CShape *pShape)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CShape_Points::_Add_Part(void)
+int CSG_Shape_Points::_Add_Part(void)
 {
 	m_Points			= (TSG_Point **)	SG_Realloc( m_Points, (m_nParts + 1) * sizeof(TSG_Point *));
 	m_Points[m_nParts]	= NULL;
@@ -148,7 +148,7 @@ int CShape_Points::_Add_Part(void)
 }
 
 //---------------------------------------------------------
-int CShape_Points::Del_Part(int del_Part)
+int CSG_Shape_Points::Del_Part(int del_Part)
 {
 	int		iPart;
 
@@ -177,7 +177,7 @@ int CShape_Points::Del_Part(int del_Part)
 }
 
 //---------------------------------------------------------
-int CShape_Points::Del_Parts(void)
+int CSG_Shape_Points::Del_Parts(void)
 {
 	int		iPart;
 
@@ -197,13 +197,13 @@ int CShape_Points::Del_Parts(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CShape_Points::Add_Point(double x, double y, int iPart)
+int CSG_Shape_Points::Add_Point(double x, double y, int iPart)
 {
 	return( Ins_Point(x, y, iPart >= 0 && iPart < m_nParts ? m_nPoints[iPart] : 0, iPart) );
 }
 
 //---------------------------------------------------------
-int CShape_Points::Ins_Point(double x, double y, int iPoint, int iPart)
+int CSG_Shape_Points::Ins_Point(double x, double y, int iPoint, int iPart)
 {
 	int		i;
 
@@ -238,7 +238,7 @@ int CShape_Points::Ins_Point(double x, double y, int iPoint, int iPart)
 }
 
 //---------------------------------------------------------
-int CShape_Points::Set_Point(double x, double y, int iPoint, int iPart)
+int CSG_Shape_Points::Set_Point(double x, double y, int iPoint, int iPart)
 {
 	TSG_Point	*pPoint;
 
@@ -258,7 +258,7 @@ int CShape_Points::Set_Point(double x, double y, int iPoint, int iPart)
 }
 
 //---------------------------------------------------------
-int CShape_Points::Del_Point(int del_Point, int iPart)
+int CSG_Shape_Points::Del_Point(int del_Point, int iPart)
 {
 	int		iPoint;
 
@@ -296,7 +296,7 @@ int CShape_Points::Del_Point(int del_Point, int iPart)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CShape_Points::_Extent_Update(void)
+void CSG_Shape_Points::_Extent_Update(void)
 {
 	int			iPart, iPoint;
 	TSG_Point	*pPoint;
@@ -353,7 +353,7 @@ void CShape_Points::_Extent_Update(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CShape_Points::Get_Distance(TSG_Point Point)
+double CSG_Shape_Points::Get_Distance(TSG_Point Point)
 {
 	TSG_Point	Next;
 
@@ -361,7 +361,7 @@ double CShape_Points::Get_Distance(TSG_Point Point)
 }
 
 //---------------------------------------------------------
-double CShape_Points::Get_Distance(TSG_Point Point, TSG_Point &Next)
+double CSG_Shape_Points::Get_Distance(TSG_Point Point, TSG_Point &Next)
 {
 	int			iPart;
 	double		d, Distance;
@@ -383,7 +383,7 @@ double CShape_Points::Get_Distance(TSG_Point Point, TSG_Point &Next)
 }
 
 //---------------------------------------------------------
-double CShape_Points::Get_Distance(TSG_Point Point, int iPart)
+double CSG_Shape_Points::Get_Distance(TSG_Point Point, int iPart)
 {
 	TSG_Point	Next;
 
@@ -391,7 +391,7 @@ double CShape_Points::Get_Distance(TSG_Point Point, int iPart)
 }
 
 //---------------------------------------------------------
-double CShape_Points::Get_Distance(TSG_Point Point, TSG_Point &Next, int iPart)
+double CSG_Shape_Points::Get_Distance(TSG_Point Point, TSG_Point &Next, int iPart)
 {
 	int			i;
 	double		d, Distance;
@@ -422,7 +422,7 @@ double CShape_Points::Get_Distance(TSG_Point Point, TSG_Point &Next, int iPart)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CShape_Points::On_Intersects(TSG_Rect Extent)
+int CSG_Shape_Points::On_Intersects(TSG_Rect Extent)
 {
 	int			iPart, iPoint;
 	TSG_Point	*p;

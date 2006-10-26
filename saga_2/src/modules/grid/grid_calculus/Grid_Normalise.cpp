@@ -115,7 +115,7 @@ bool CGrid_Normalise::On_Execute(void)
 {
 	int		x, y;
 	double	Minimum, Range;
-	CGrid	*pInput, *pOutput;
+	CSG_Grid	*pInput, *pOutput;
 
 	//-----------------------------------------------------
 	pInput	= Parameters("INPUT")	->asGrid();

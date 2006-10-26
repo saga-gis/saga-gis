@@ -21,7 +21,7 @@
 #include <vector>
 #include "SummaryPDFDocEngine.h"
 
-class CSummarize : public CModule  
+class CSummarize : public CSG_Module  
 {
 public:
 
@@ -35,13 +35,13 @@ protected:
 private:
 
 	int m_iField;
-	CShapes *m_pShapes;
-	CTable *m_pTable;
+	CSG_Shapes *m_pShapes;
+	CSG_Table *m_pTable;
 	bool *m_bIncludeParam;
 	std::vector<CSG_String> m_ClassesID;
 	int *m_pClasses;
 	int *m_pCount;
-	CParameters *m_pExtraParameters;
+	CSG_Parameters *m_pExtraParameters;
 	CSummaryPDFDocEngine m_DocEngine;
 	
 	void Summarize();

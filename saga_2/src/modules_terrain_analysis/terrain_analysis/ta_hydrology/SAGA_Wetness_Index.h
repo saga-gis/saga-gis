@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSAGA_Wetness_Index : public CModule_Grid
+class CSAGA_Wetness_Index : public CSG_Module_Grid
 {
 public:
 	CSAGA_Wetness_Index(void);
@@ -88,10 +88,10 @@ protected:
 
 private:
 
-	bool						Get_Area_Catchment	(CGrid *pDEM, CGrid *pC, CGrid *pGN);
-	bool						Get_Area_Modified	(CGrid *pDEM, CGrid *pC, CGrid *pCS, double t);
-	double						Get_Local_Maximum	(CGrid *pGrid, int x, int y);
-	bool						Get_Wetness_Index	(CGrid *pDEM, CGrid *pCS, CGrid *pSB, double a);
+	bool						Get_Area_Catchment	(CSG_Grid *pDEM, CSG_Grid *pC, CSG_Grid *pGN);
+	bool						Get_Area_Modified	(CSG_Grid *pDEM, CSG_Grid *pC, CSG_Grid *pCS, double t);
+	double						Get_Local_Maximum	(CSG_Grid *pGrid, int x, int y);
+	bool						Get_Wetness_Index	(CSG_Grid *pDEM, CSG_Grid *pCS, CSG_Grid *pSB, double a);
 
 };
 

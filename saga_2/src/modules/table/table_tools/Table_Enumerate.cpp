@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CTable_Enumerate::CTable_Enumerate(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	Set_Name(_TL("Enumerate a Table Attribute"));
 
@@ -111,10 +111,10 @@ CTable_Enumerate::~CTable_Enumerate(void)
 bool CTable_Enumerate::On_Execute(void)
 {
 	int					iField, iField_ID, iID, iRecord, old_Field;
-	TTable_Index_Order	old_Order;
+	TSG_Table_Index_Order	old_Order;
 	CSG_String			Value;
-	CTable				*pTable, *pOutput;
-	CTable_Record		*pRecord;
+	CSG_Table				*pTable, *pOutput;
+	CSG_Table_Record		*pRecord;
 
 	//-----------------------------------------------------
 	pTable	= Parameters("INPUT")	->asTable();

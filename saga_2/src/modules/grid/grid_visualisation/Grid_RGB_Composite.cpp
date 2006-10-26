@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CGrid_RGB_Composite::CGrid_RGB_Composite(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	Set_Name(_TL("RGB Composite"));
 
@@ -257,7 +257,7 @@ bool CGrid_RGB_Composite::On_Execute(void)
 	int		x, y, r, g, b, a;
 	double	rMin, gMin, bMin, aMin, rRange, gRange, bRange, aRange;
 	CSG_Colors	Colors;
-	CGrid	*pR, *pG, *pB, *pA, *pRGB;
+	CSG_Grid	*pR, *pG, *pB, *pA, *pRGB;
 
 	//-----------------------------------------------------
 	pR		= _Get_Grid(Parameters("GRID_R")->asGrid(), Parameters("R_METHOD")->asInt(), Parameters("R_RANGE")->asRange(), Parameters("R_PERCTL")->asRange(), Parameters("R_PERCENT")->asDouble(), rMin, rRange);
@@ -310,7 +310,7 @@ bool CGrid_RGB_Composite::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGrid * CGrid_RGB_Composite::_Get_Grid(CGrid *pGrid, int Method, CParameter_Range *pRange, CParameter_Range *pPerctl, double Percent, double &Min, double &Range)
+CSG_Grid * CGrid_RGB_Composite::_Get_Grid(CSG_Grid *pGrid, int Method, CSG_Parameter_Range *pRange, CSG_Parameter_Range *pPerctl, double Percent, double &Min, double &Range)
 {
 	if( pGrid )
 	{

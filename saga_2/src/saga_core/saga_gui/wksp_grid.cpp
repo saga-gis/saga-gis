@@ -88,7 +88,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Grid::CWKSP_Grid(CGrid *pGrid)
+CWKSP_Grid::CWKSP_Grid(CSG_Grid *pGrid)
 	: CWKSP_Layer(pGrid)
 {
 	m_pGrid		= pGrid;
@@ -351,7 +351,7 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Classification...
 
-	((CParameter_Choice *)m_Parameters("COLORS_TYPE")->Get_Data())->Set_Items(
+	((CSG_Parameter_Choice *)m_Parameters("COLORS_TYPE")->Get_Data())->Set_Items(
 		wxString::Format("%s|%s|%s|%s|%s|",
 			LNG("[VAL] Unique Symbol"),
 			LNG("[VAL] Lookup Table"),
@@ -397,7 +397,7 @@ void CWKSP_Grid::On_Create_Parameters(void)
 
 
 	//-----------------------------------------------------
-	CParameters	Parameters;
+	CSG_Parameters	Parameters;
 
 	Parameters.Add_Range(NULL, "METRIC_ZRANGE"	, "", "", m_pGrid->Get_ZMin(true), m_pGrid->Get_ZMax(true));
 	PROCESS_Set_Okay(true);
@@ -553,7 +553,7 @@ bool CWKSP_Grid::On_Edit_On_Key_Down(int KeyCode)
 bool CWKSP_Grid::On_Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key)
 {
 	int				x, y;
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 	CSG_Rect		rWorld(m_Edit_Mouse_Down, Point);
 
 	m_Sel_xOff	= m_pGrid->Get_System().Get_xWorld_to_Grid(rWorld.Get_XMin());
@@ -619,7 +619,7 @@ bool CWKSP_Grid::On_Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int 
 bool CWKSP_Grid::On_Edit_Set_Attributes(void)
 {
 	int				x, y;
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 
 	if( m_Sel_xN >= 0 )
 	{
@@ -747,7 +747,7 @@ bool CWKSP_Grid::Fit_Color_Range(CSG_Rect rWorld)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Grid::asImage(CGrid *pImage)
+bool CWKSP_Grid::asImage(CSG_Grid *pImage)
 {
 	int			x, y;
 	wxBitmap	BMP;
@@ -779,7 +779,7 @@ void CWKSP_Grid::_Save_Image(void)
 	FILE		*Stream;
 	wxString	file;
 	wxBitmap	BMP;
-	CParameters	Parms;
+	CSG_Parameters	Parms;
 
 	//-----------------------------------------------------
 	Parms.Set_Name(LNG("[CAP] Save Grid as Image..."));

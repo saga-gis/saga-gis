@@ -65,7 +65,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CExercise_12 : public CModule
+class CExercise_12 : public CSG_Module
 {
 public: ////// public members and functions: //////////////
 

@@ -96,11 +96,11 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CDLG_Table::CDLG_Table(CTable *pTable, wxString Caption)
+CDLG_Table::CDLG_Table(CSG_Table *pTable, wxString Caption)
 	: CDLG_Base(-1, Caption)
 {
 	m_pTable_Orig	= pTable;
-	m_pTable		= new CTable(*m_pTable_Orig);
+	m_pTable		= new CSG_Table(*m_pTable_Orig);
 	m_pControl		= new CVIEW_Table_Control(this, m_pTable, TABLE_CTRL_FIXED_COLS);
 
 	Add_Button(ID_BTN_LOAD);

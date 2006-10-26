@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CSurfaceSpecificPoints::CSurfaceSpecificPoints(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	Set_Name(_TL("Surface Specific Points"));
 
@@ -128,7 +128,7 @@ CSurfaceSpecificPoints::~CSurfaceSpecificPoints(void)
 //---------------------------------------------------------
 bool CSurfaceSpecificPoints::On_Execute(void)
 {
-	CGrid	*pGrid, *pResult;
+	CSG_Grid	*pGrid, *pResult;
 
 	pGrid		= Parameters("ELEVATION")	->asGrid();
 	pResult		= Parameters("RESULT")		->asGrid();
@@ -167,13 +167,13 @@ bool CSurfaceSpecificPoints::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSurfaceSpecificPoints::Do_MarkHighestNB(CGrid *pGrid, CGrid *pResult)	// Band & Lammers...
+void CSurfaceSpecificPoints::Do_MarkHighestNB(CSG_Grid *pGrid, CSG_Grid *pResult)	// Band & Lammers...
 {
 	int		i, x, y, ix, iy, xlo, ylo, xhi, yhi;
 
 	double	lo, hi, z;
 
-	CGrid	*clo, *chi;
+	CSG_Grid	*clo, *chi;
 
 	clo		= SG_Create_Grid(pGrid, GRID_TYPE_Char);
 	chi		= SG_Create_Grid(pGrid, GRID_TYPE_Char);
@@ -247,13 +247,13 @@ void CSurfaceSpecificPoints::Do_MarkHighestNB(CGrid *pGrid, CGrid *pResult)	// B
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSurfaceSpecificPoints::Do_OppositeNB(CGrid *pGrid, CGrid *pResult)
+void CSurfaceSpecificPoints::Do_OppositeNB(CSG_Grid *pGrid, CSG_Grid *pResult)
 {
 	int		i, x, y, ix, iy, jx, jy;
 
 	double	z, iz, jz;
 
-	CGrid	*clo, *chi;
+	CSG_Grid	*clo, *chi;
 
 	clo		= SG_Create_Grid(pGrid, GRID_TYPE_Char);
 	chi		= SG_Create_Grid(pGrid, GRID_TYPE_Char);
@@ -322,7 +322,7 @@ void CSurfaceSpecificPoints::Do_OppositeNB(CGrid *pGrid, CGrid *pResult)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSurfaceSpecificPoints::Do_FlowDirection(CGrid *pGrid, CGrid *pResult)
+void CSurfaceSpecificPoints::Do_FlowDirection(CSG_Grid *pGrid, CSG_Grid *pResult)
 {
 	bool	bLower;
 
@@ -383,9 +383,9 @@ void CSurfaceSpecificPoints::Do_FlowDirection(CGrid *pGrid, CGrid *pResult)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSurfaceSpecificPoints::Do_FlowDirection2(CGrid *pGrid, CGrid *pResult)
+void CSurfaceSpecificPoints::Do_FlowDirection2(CSG_Grid *pGrid, CSG_Grid *pResult)
 {
-	CGrid	Grid(*pGrid), Result(*pResult);
+	CSG_Grid	Grid(*pGrid), Result(*pResult);
 
 	Do_FlowDirection(&Grid, &Result);
 
@@ -407,7 +407,7 @@ void CSurfaceSpecificPoints::Do_FlowDirection2(CGrid *pGrid, CGrid *pResult)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSurfaceSpecificPoints::Do_PeuckerDouglas(CGrid *pGrid, CGrid *pResult, double Threshold)
+void CSurfaceSpecificPoints::Do_PeuckerDouglas(CSG_Grid *pGrid, CSG_Grid *pResult, double Threshold)
 {
 	bool	wasPlus;
 

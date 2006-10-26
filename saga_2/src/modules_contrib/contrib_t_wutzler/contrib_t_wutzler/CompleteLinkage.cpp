@@ -97,7 +97,7 @@ CCompleteLinkage::CCompleteLinkage(void)
 	//Parameters.Add_List(NULL, "InputWeights"	, "Input Weights"	, "Weights for each input Grid", PARAMETER_INPUT, PARAMETER_TYPE_Int); does not work
 
 	//Parameters.Add_Grid(	NULL, "Curvature"	, "Curvature"	, "Input Curvate grid."	, PARAMETER_INPUT);
-	CParameter *parentPar;
+	CSG_Parameter *parentPar;
 	Parameters.Add_Grid(	NULL, "InputGrid1"	, "Input Grid1"	, "Input Grid1 (e.g. profile curvatue)"	, PARAMETER_INPUT);
 	parentPar = Parameters.Add_Grid(	NULL, "InputGrid2"	, "Input Grid2"	, "Input Grid2 (e.g. curvatue)"	, PARAMETER_INPUT_OPTIONAL);
 	Parameters.Add_Value( parentPar, "InputWeight2","weighting factor","weighting factor of this grid compared to InputGrid1=1",  PARAMETER_TYPE_Double, 1.0 );
@@ -175,7 +175,7 @@ std::string ToString ( const T& t ){
 bool CCompleteLinkage::On_Execute(void){
 
 	// ----------------------------- declarations ---------------------
-	CGrid *pOrphantsGrid;
+	CSG_Grid *pOrphantsGrid;
 	long minPixelCnt, ndvCnt, nPi;
 	double genFactor;
 
@@ -585,9 +585,9 @@ double CCompleteLinkage::calculateEucledianDistance(int x1, int y1, int x2, int 
 }
 
 // copies on grid to another grid, targetGrid is allocated
-CGrid *CCompleteLinkage::copyGrid(CGrid *fromGrid, TGrid_Type gridType){
+CSG_Grid *CCompleteLinkage::copyGrid(CSG_Grid *fromGrid, TSG_Grid_Type gridType){
 	int x,y;
-	CGrid *targetGrid;
+	CSG_Grid *targetGrid;
 	targetGrid = SG_Create_Grid(gridType, Get_NX(), Get_NY(), Get_Cellsize());
 	for(y=0; y<Get_NY();  y++){
 		for(x=0; x<Get_NX(); x++){
@@ -636,7 +636,7 @@ long CCompleteLinkage::getDestClass(int x, int y){
 }
 
 /*
-void CCompleteLinkage::removeOrphantClasses(long minClassCnt, CGrid *pOrphantsGrid){
+void CCompleteLinkage::removeOrphantClasses(long minClassCnt, CSG_Grid *pOrphantsGrid){
 	// calulate number of pixels per class and minimum distance
 	classPixelSetMapT classPixelMap;	//class -> List of Pixel
 	classPixelSetMapT::iterator it1;
@@ -707,7 +707,7 @@ void CCompleteLinkage::searchSetsMinPixel(pixelSetPtrT pPix, int &minx, int &min
 // the distance of these pixels is put to pOrphantsGrid
 // pClassGrid, pMinDist, pMinDistDir must have been calculated
 void CCompleteLinkage::removeOrphantClasses(
-		const long minClassCnt, CGrid *pOrphantsGrid,
+		const long minClassCnt, CSG_Grid *pOrphantsGrid,
 		long& i, 
 		/* inout */ distMapT& classDistMap,	// mapping class -> ptr(map class -> distance)
 		/* out */ RegionSetT& affectedRegionSet // set of region pixels, thats minimum value has been changed

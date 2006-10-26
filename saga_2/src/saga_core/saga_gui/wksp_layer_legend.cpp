@@ -361,7 +361,7 @@ inline void CWKSP_Layer_Legend::_Draw_Box(wxDC &dc, int y, int dy, wxColour Colo
 }
 
 //---------------------------------------------------------
-void CWKSP_Layer_Legend::_Draw_Box_Image(wxDC &dc, int ay, CGrid *pGrid)
+void CWKSP_Layer_Legend::_Draw_Box_Image(wxDC &dc, int ay, CSG_Grid *pGrid)
 {
 	int		x, y, nx, ny, Color;
 	double	d, dx, dy;

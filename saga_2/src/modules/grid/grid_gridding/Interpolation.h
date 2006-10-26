@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CInterpolation : public CModule
+class CInterpolation : public CSG_Module
 {
 public:
 	CInterpolation(void);
@@ -95,11 +95,11 @@ protected:
 
 	int						m_zField;
 
-	CGrid					*m_pGrid;
+	CSG_Grid					*m_pGrid;
 
-	CShapes					*m_pShapes;
+	CSG_Shapes					*m_pShapes;
 
-	CShapes_Search			m_Search;
+	CSG_Shapes_Search			m_Search;
 
 
 	virtual bool			Interpolate			(void);
@@ -109,14 +109,14 @@ protected:
 
 	virtual bool			Get_Value			(double x, double y, double &z)	{	return( true );	}
 
-	CShapes *				Get_Points			(void);
+	CSG_Shapes *				Get_Points			(void);
 	bool					Set_Search_Engine	(void);
 
 
 private:
 
 	bool					_Get_Grid			(void);
-	CGrid *					_Get_Grid			(TSG_Rect Extent);
+	CSG_Grid *					_Get_Grid			(TSG_Rect Extent);
 
 };
 

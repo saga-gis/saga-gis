@@ -37,8 +37,8 @@ CSudoku::CSudoku(void)
 	);
 
 	int				i, j;
-	CTable			*pBoard;
-	CTable_Record	*pRecord;
+	CSG_Table			*pBoard;
+	CSG_Table_Record	*pRecord;
 
 	pBoard	= Parameters.Add_FixedTable(
 		NULL	, "BOARD"	, _TL("Board"),
@@ -104,7 +104,7 @@ bool CSudoku::On_Execute_Finish(void)
 
 void CSudoku::CreateSudoku()
 {
-	CTable *pTable;
+	CSG_Table *pTable;
 	int i,j;
 	int iValue;
 
@@ -126,7 +126,7 @@ void CSudoku::CreateSudoku()
 }
 
 
-bool CSudoku::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CSudoku::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
 {
 
 	int iXGrid, iYGrid;

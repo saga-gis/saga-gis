@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Plotter : public CModule_Grid
+class CGrid_Plotter : public CSG_Module_Grid
 {
 public:
 	CGrid_Plotter(void);
@@ -88,7 +88,7 @@ protected:
 
 private:
 	
-	CGrid					*pInput, *pResult;
+	CSG_Grid					*pInput, *pResult;
 	
 };
 

@@ -102,7 +102,7 @@ END_EVENT_TABLE()
 CACTIVE_Attributes::CACTIVE_Attributes(wxWindow *pParent)
 	: wxPanel(pParent, ID_WND_INFO_ATTRIBUTES)//, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER)
 {
-	m_pAttributes	= new CTable;
+	m_pAttributes	= new CSG_Table;
 	m_pControl		= new CVIEW_Table_Control(this, m_pAttributes, TABLE_CTRL_FIXED_TABLE);
 	m_pLayer		= NULL;
 

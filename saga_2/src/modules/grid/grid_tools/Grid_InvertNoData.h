@@ -18,7 +18,7 @@
 *******************************************************************************/ 
 #include "MLB_Interface.h"
 
-class CInvertNoData : public CModule_Grid
+class CInvertNoData : public CSG_Module_Grid
 {
 public:
 	CInvertNoData(void);

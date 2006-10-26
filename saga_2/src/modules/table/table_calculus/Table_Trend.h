@@ -72,15 +72,15 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Trend_Base : public CModule
+class CTable_Trend_Base : public CSG_Module
 {
 protected:
 
 	void						Initialise				(void);
 
-	virtual int					On_Parameter_Changed	(CParameters *pParameters, CParameter *pParameter);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	bool						Get_Trend				(CTable *pTable);
+	bool						Get_Trend				(CSG_Table *pTable);
 
 
 private:

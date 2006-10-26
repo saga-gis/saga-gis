@@ -23,11 +23,11 @@
 
 #include "MLB_Interface.h"
 
-class CEdgeContamination : public CModule_Grid {
+class CEdgeContamination : public CSG_Module_Grid {
 
 private:
-	CGrid *m_pDEM;
-	CGrid *m_pEdgeContamination;
+	CSG_Grid *m_pDEM;
+	CSG_Grid *m_pEdgeContamination;
 
 	int getEdgeContamination(int, int);
 

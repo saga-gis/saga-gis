@@ -140,7 +140,7 @@ bool CGrid_Calculator::On_Execute(void)
 	pResult->Set_Name(Parameters("FORMUL")->asString());
 	
 	nGrids		= Parameters("INPUT")->asInt();
-	Grids		=(CGrid **)Parameters("INPUT")->asPointer();
+	Grids		=(CSG_Grid **)Parameters("INPUT")->asPointer();
 	
 	for (i = 0, bContinue = true; i < nGrids - 1 && bContinue; i++)
 	{
@@ -150,7 +150,7 @@ bool CGrid_Calculator::On_Execute(void)
 		}
 	}
 	
-	CGrid MissingMap(Grids[0], GRID_TYPE_Byte);
+	CSG_Grid MissingMap(Grids[0], GRID_TYPE_Byte);
 	
 	for (y = 0; y < Get_NY() && Set_Progress(y); y++)
 		for (x = 0; x < Get_NX(); x++)

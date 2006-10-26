@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGet_Table : public CModule
+class CGet_Table : public CSG_Module
 {
 public:
 	CGet_Table(void);
@@ -92,7 +92,7 @@ protected:
 
 	virtual bool				On_Execute				(void);
 
-	virtual int					On_Parameter_Changed	(CParameters *pParameters, CParameter *pParameter);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
 private:
@@ -105,7 +105,7 @@ private:
 	bool						_Initialize				(void);
 	class wxDb *				_Connect				(void);
 	class wxDbTable *			_Get_Table				(class wxDb *pDB);
-	bool						_Get_Data				(CTable *pTable, class wxDbTable *pDBTable);
+	bool						_Get_Data				(CSG_Table *pTable, class wxDbTable *pDBTable);
 
 };
 

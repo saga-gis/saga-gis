@@ -22,11 +22,11 @@
 
 #include "MLB_Interface.h"
 
-class CIsochronesConst : public CModule_Grid_Interactive {
+class CIsochronesConst : public CSG_Module_Grid_Interactive {
 
 private:
-	CGrid *m_pDEM;
-	CGrid *m_pTime;	
+	CSG_Grid *m_pDEM;
+	CSG_Grid *m_pTime;	
 	void writeTimeOut(int,int,int,int);
 
 public:
@@ -36,7 +36,7 @@ public:
 protected:
 	virtual bool On_Execute(void);
 	virtual bool On_Execute_Finish(void);
-	virtual bool On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
+	virtual bool On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
 
 };
 

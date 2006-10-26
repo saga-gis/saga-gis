@@ -115,7 +115,7 @@ CExercise_09::~CExercise_09(void)
 bool CExercise_09::On_Execute(void)
 {
 	int		x, y;
-	CGrid	*pDTM;
+	CSG_Grid	*pDTM;
 	CSG_Colors	Colors;
 
 	//-----------------------------------------------------
@@ -137,7 +137,7 @@ bool CExercise_09::On_Execute(void)
 	//-----------------------------------------------------
 	// Save flow directions to temporary grid...
 
-	m_pDir		= new CGrid(pDTM, GRID_TYPE_Char);	// this object has to be deleted later...
+	m_pDir		= new CSG_Grid(pDTM, GRID_TYPE_Char);	// this object has to be deleted later...
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{

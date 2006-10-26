@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CShapes_Assign_Table : public CModule  
+class CShapes_Assign_Table : public CSG_Module  
 {
 public:
 	CShapes_Assign_Table(void);

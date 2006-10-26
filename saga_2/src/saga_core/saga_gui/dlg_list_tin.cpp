@@ -88,7 +88,7 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CDLG_List_TIN::CDLG_List_TIN(CParameter_TIN_List *pList, wxString Caption)
+CDLG_List_TIN::CDLG_List_TIN(CSG_Parameter_TIN_List *pList, wxString Caption)
 	: CDLG_List_Base(pList, Caption)
 {
 	_Set_Objects();
@@ -112,7 +112,7 @@ void CDLG_List_TIN::_Set_Objects(void)
 	bool				bList;
 	int					i, j;
 	CWKSP_TIN_Manager	*pTINs;
-	CTIN				*pTIN;
+	CSG_TIN				*pTIN;
 
 	//-----------------------------------------------------
 	if( (pTINs = g_pData->Get_TINs()) != NULL )

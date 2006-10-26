@@ -23,7 +23,7 @@
 
 #include "MLB_Interface.h"
 
-class CSeparateShapes : public CModule{
+class CSeparateShapes : public CSG_Module{
 
 public:
 	CSeparateShapes();

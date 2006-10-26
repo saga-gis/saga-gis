@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CFilter_Multi_Dir_Lee : public CModule_Grid
+class CFilter_Multi_Dir_Lee : public CSG_Module_Grid
 {
 public:
 	CFilter_Multi_Dir_Lee(void);

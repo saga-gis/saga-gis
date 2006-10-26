@@ -92,7 +92,7 @@ CWKSP_Module	*g_pModule	= NULL;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Module::CWKSP_Module(CModule *pModule, const char *Menu_Path_default)
+CWKSP_Module::CWKSP_Module(CSG_Module *pModule, const char *Menu_Path_default)
 {
 	m_pModule		= pModule;
 
@@ -153,7 +153,7 @@ CWKSP_Module::~CWKSP_Module(void)
 
 		if( m_pModule->is_Interactive() )
 		{
-			((CModule_Interactive *)m_pModule)->Execute_Finish();
+			((CSG_Module_Interactive *)m_pModule)->Execute_Finish();
 		}
 	}
 }
@@ -188,7 +188,7 @@ wxString CWKSP_Module::Get_Description(void)
 {
 	bool		bFirst, bOptionals	= false;
 	int			i;
-	CParameter	*pParameter;
+	CSG_Parameter	*pParameter;
 	wxString	s, sTmp;
 
 	//-----------------------------------------------------
@@ -308,7 +308,7 @@ void CWKSP_Module::Make_Report(FILE *Stream)
 {
 	bool		bFirst, bOptionals	= false;
 	int			i;
-	CParameter	*pParameter;
+	CSG_Parameter	*pParameter;
 
 	fprintf(Stream, "___________________________\n");
 	fprintf(Stream, "Modul: %s\n", m_pModule->Get_Name());
@@ -421,7 +421,7 @@ wxMenu * CWKSP_Module::Get_Menu(void)
 }
 
 //---------------------------------------------------------
-CParameters * CWKSP_Module::Get_Parameters(void)
+CSG_Parameters * CWKSP_Module::Get_Parameters(void)
 {
 	return( m_pModule->Get_Parameters() );
 }
@@ -510,7 +510,7 @@ bool CWKSP_Module::Execute(bool bDialog)
 			}
 			else if( m_pModule->is_Interactive() )
 			{
-				bResult		= ((CModule_Interactive *)m_pModule)->Execute_Finish();
+				bResult		= ((CSG_Module_Interactive *)m_pModule)->Execute_Finish();
 				g_pModule	= NULL;
 
 				PROCESS_Set_Okay(true);
@@ -577,13 +577,13 @@ bool CWKSP_Module::Execute(bool bDialog)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Module::Execute(CSG_Point ptWorld, TModule_Interactive_Mode Mode, int Keys)
+bool CWKSP_Module::Execute(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode, int Keys)
 {
 	bool	bResult	= false;
 
 	if( g_pModule == this && m_pModule->is_Interactive() && !m_pModule->is_Executing() )
 	{
-		bResult	= ((CModule_Interactive *)m_pModule)->Execute_Position(ptWorld, Mode, Keys);
+		bResult	= ((CSG_Module_Interactive *)m_pModule)->Execute_Position(ptWorld, Mode, Keys);
 
 		PROCESS_Set_Okay();
 	}

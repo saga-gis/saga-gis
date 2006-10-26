@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Cut : public CModule_Interactive
+class CGrid_Cut : public CSG_Module_Interactive
 {
 public:
 	CGrid_Cut(void);
@@ -90,10 +90,10 @@ public:
 
 protected:
 
-	virtual int				On_Parameter_Changed	(CParameters *pParameters, CParameter *pParameter);
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool			On_Execute				(void);
-	virtual bool			On_Execute_Position		(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
+	virtual bool			On_Execute_Position		(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
 
 
 private:
@@ -102,7 +102,7 @@ private:
 
 	CSG_Point				m_ptDown;
 
-	CGrid					*m_pInput;
+	CSG_Grid					*m_pInput;
 
 
 	TSG_Point				Fit_to_Grid				(TSG_Point pt);

@@ -66,14 +66,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_IO_GDAL : public CModule
+class CGrid_IO_GDAL : public CSG_Module
 {
 public:
 	CGrid_IO_GDAL(void);
 	virtual ~CGrid_IO_GDAL(void);
 
     void						Gdal_To_World (double GeoTransform[6], int x, int y, double &GeoX, double &GeoY );
-	void						World_To_Saga (CGrid *grid , double GeoX, double GeoY, int &x, int &y );
+	void						World_To_Saga (CSG_Grid *grid , double GeoX, double GeoY, int &x, int &y );
 
 protected:
 

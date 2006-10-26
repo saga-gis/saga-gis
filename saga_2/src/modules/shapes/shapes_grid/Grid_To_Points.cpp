@@ -118,10 +118,10 @@ bool CGrid_To_Points::On_Execute(void)
 	bool					bZFactor;
 	int						x, y, iGrid, iPoint;
 	double					xPos, yPos;
-	CGrid					*pGrid;
-	CParameter_Grid_List	*pGrids;
-	CShape					*pPoint;
-	CShapes					*pPoints, *pPolygons;
+	CSG_Grid					*pGrid;
+	CSG_Parameter_Grid_List	*pGrids;
+	CSG_Shape					*pPoint;
+	CSG_Shapes					*pPoints, *pPolygons;
 
 	//-----------------------------------------------------
 	pGrids		= Parameters("GRIDS")	->asGridList();
@@ -175,13 +175,13 @@ bool CGrid_To_Points::On_Execute(void)
 }
 
 //---------------------------------------------------------
-inline bool CGrid_To_Points::is_Contained(double x, double y, CShapes *pPolygons)
+inline bool CGrid_To_Points::is_Contained(double x, double y, CSG_Shapes *pPolygons)
 {
 	if( pPolygons && pPolygons->Get_Type() == SHAPE_TYPE_Polygon )
 	{
 		for(int iPolygon=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
 		{
-			CShape_Polygon *pPolygon	= (CShape_Polygon *)pPolygons->Get_Shape(iPolygon);
+			CSG_Shape_Polygon *pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
 
 			if( pPolygon->is_Containing(x, y) )
 			{

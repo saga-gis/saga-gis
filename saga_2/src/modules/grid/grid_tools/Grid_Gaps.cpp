@@ -173,8 +173,8 @@ void CGrid_Gaps::Tension_Main(void)
 	do	{	iStep++;	}	while( pow(2.0, iStep + 1) < n );
 	iStart		= (int)pow(2.0, iStep);
 
-	pTension_Keep		= new CGrid(pResult, GRID_TYPE_Byte);
-	pTension_Temp		= new CGrid(pResult);
+	pTension_Keep		= new CSG_Grid(pResult, GRID_TYPE_Byte);
+	pTension_Temp		= new CSG_Grid(pResult);
 
 	pResult->Assign_NoData();
 

@@ -75,7 +75,7 @@
 //---------------------------------------------------------
 CSurfer_Import::CSurfer_Import(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	// 1. Info...
@@ -133,7 +133,7 @@ bool CSurfer_Import::On_Execute(void)
 	float	*fLine;
 	double	*dLine, dValue, DX, DY, xMin, yMin;
 	FILE	*Stream;
-	CGrid	*pGrid;
+	CSG_Grid	*pGrid;
 
 	//-----------------------------------------------------
 	pGrid	= NULL;
@@ -352,7 +352,7 @@ bool CSurfer_Export::On_Execute(void)
 	float	*fLine;
 	double	dValue;
 	FILE	*Stream;
-	CGrid	*pGrid;
+	CSG_Grid	*pGrid;
 
 	//-----------------------------------------------------
 	pGrid	= Parameters("GRID")->asGrid();

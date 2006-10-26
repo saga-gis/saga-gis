@@ -70,12 +70,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CShape_Polygon::CShape_Polygon(CShapes *pOwner, CTable_Record *pRecord)
-	: CShape_Points(pOwner, pRecord)
+CSG_Shape_Polygon::CSG_Shape_Polygon(CSG_Shapes *pOwner, CSG_Table_Record *pRecord)
+	: CSG_Shape_Points(pOwner, pRecord)
 {}
 
 //---------------------------------------------------------
-CShape_Polygon::~CShape_Polygon(void)
+CSG_Shape_Polygon::~CSG_Shape_Polygon(void)
 {}
 
 
@@ -86,7 +86,7 @@ CShape_Polygon::~CShape_Polygon(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CShape_Polygon::On_Intersects(TSG_Rect Region)
+int CSG_Shape_Polygon::On_Intersects(TSG_Rect Region)
 {
 	int			iPart, iPoint;
 	TSG_Point	pa, pb, top_left, top_right, bottom_left, bottom_right, Point;
@@ -143,12 +143,12 @@ int CShape_Polygon::On_Intersects(TSG_Rect Region)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CShape_Polygon::is_Containing(const TSG_Point &Point)
+bool CSG_Shape_Polygon::is_Containing(const TSG_Point &Point)
 {
 	return( is_Containing(Point.x, Point.y) );
 }
 
-bool CShape_Polygon::is_Containing(double x, double y)
+bool CSG_Shape_Polygon::is_Containing(double x, double y)
 {
 	int			iPart, iPoint, nCrossings;
 	TSG_Point	A, B, C, *pA, *pB;
@@ -185,12 +185,12 @@ bool CShape_Polygon::is_Containing(double x, double y)
 }
 
 //---------------------------------------------------------
-bool CShape_Polygon::is_Containing(const TSG_Point &Point, int iPart)
+bool CSG_Shape_Polygon::is_Containing(const TSG_Point &Point, int iPart)
 {
 	return( is_Containing(Point.x, Point.y, iPart) );
 }
 
-bool CShape_Polygon::is_Containing(double x, double y, int iPart)
+bool CSG_Shape_Polygon::is_Containing(double x, double y, int iPart)
 {
 	int			iPoint, nCrossings;
 	TSG_Point	A, B, C, *pA, *pB;
@@ -228,13 +228,13 @@ bool CShape_Polygon::is_Containing(double x, double y, int iPart)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CShape_Polygon::is_Clockwise(int iPart)
+bool CSG_Shape_Polygon::is_Clockwise(int iPart)
 {
 	return( _Get_Area(iPart) < 0.0 );
 }
 
 //---------------------------------------------------------
-bool CShape_Polygon::is_Lake(int iPart)
+bool CSG_Shape_Polygon::is_Lake(int iPart)
 {
 	int		jPart;
 
@@ -263,7 +263,7 @@ bool CShape_Polygon::is_Lake(int iPart)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CShape_Polygon::Get_Perimeter(void)
+double CSG_Shape_Polygon::Get_Perimeter(void)
 {
 	int		iPart;
 	double	Length;
@@ -277,7 +277,7 @@ double CShape_Polygon::Get_Perimeter(void)
 }
 
 //---------------------------------------------------------
-double CShape_Polygon::Get_Perimeter(int iPart)
+double CSG_Shape_Polygon::Get_Perimeter(int iPart)
 {
 	int			iPoint;
 	double		Length;
@@ -307,7 +307,7 @@ double CShape_Polygon::Get_Perimeter(int iPart)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CShape_Polygon::Get_Area(void)
+double CSG_Shape_Polygon::Get_Area(void)
 {
 	int		iPart;
 	double	Area;
@@ -321,13 +321,13 @@ double CShape_Polygon::Get_Area(void)
 }
 
 //---------------------------------------------------------
-double CShape_Polygon::Get_Area(int iPart)
+double CSG_Shape_Polygon::Get_Area(int iPart)
 {
 	return( fabs(_Get_Area(iPart)) );
 }
 
 //---------------------------------------------------------
-double CShape_Polygon::_Get_Area(int iPart)
+double CSG_Shape_Polygon::_Get_Area(int iPart)
 {
 	int			iPoint;
 	double		Area;
@@ -359,7 +359,7 @@ double CShape_Polygon::_Get_Area(int iPart)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-TSG_Point CShape_Polygon::Get_Centroid(void)
+TSG_Point CSG_Shape_Polygon::Get_Centroid(void)
 {
 	int			iPart, iPoint;
 	double		d, a;
@@ -394,7 +394,7 @@ TSG_Point CShape_Polygon::Get_Centroid(void)
 }
 
 //---------------------------------------------------------
-TSG_Point CShape_Polygon::Get_Centroid(int iPart)
+TSG_Point CSG_Shape_Polygon::Get_Centroid(int iPart)
 {
 	int			iPoint;
 	double		d, a;
@@ -435,7 +435,7 @@ TSG_Point CShape_Polygon::Get_Centroid(int iPart)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CShape_Polygon::Get_Distance(TSG_Point Point, TSG_Point &Next, int iPart)
+double CSG_Shape_Polygon::Get_Distance(TSG_Point Point, TSG_Point &Next, int iPart)
 {
 	int			i;
 	double		d, Distance;

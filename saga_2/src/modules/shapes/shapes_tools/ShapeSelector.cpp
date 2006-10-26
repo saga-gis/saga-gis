@@ -20,16 +20,16 @@
 #include "Intersection_GPC.h"
 
 
-CShapeSelector::CShapeSelector(CShapes *pShapes,
-							   CShapes *pShapes2,
+CShapeSelector::CShapeSelector(CSG_Shapes *pShapes,
+							   CSG_Shapes *pShapes2,
 							   int iCondition){
 
 	int i,j;
 	float fArea, fArea2;
-	CShape *pShape, *pShape2, *pIntersect;
+	CSG_Shape *pShape, *pShape2, *pIntersect;
 	bool bSelect;
 	TSG_Point Point;
-	CShapes	Intersect;
+	CSG_Shapes	Intersect;
 
 	Intersect.Create(SHAPE_TYPE_Polygon);
 	pIntersect = Intersect.Add_Shape();
@@ -48,29 +48,29 @@ CShapeSelector::CShapeSelector(CShapes *pShapes,
 					}//if
 				case 1: //are completely within
 					GPC_Intersection(pShape, pShape2, pIntersect);
-					fArea = ((CShape_Polygon*)pShape)->Get_Area();
-					fArea2 = ((CShape_Polygon*)pIntersect)->Get_Area();
+					fArea = ((CSG_Shape_Polygon*)pShape)->Get_Area();
+					fArea2 = ((CSG_Shape_Polygon*)pIntersect)->Get_Area();
 					if (fArea == fArea2){
 						bSelect = true;
 					}//if
 					break;
 				case 2: //Completely contain
 					GPC_Intersection(pShape, pShape2, pIntersect);
-					fArea = ((CShape_Polygon*)pShape2)->Get_Area();
-					fArea2 = ((CShape_Polygon*)pIntersect)->Get_Area();
+					fArea = ((CSG_Shape_Polygon*)pShape2)->Get_Area();
+					fArea2 = ((CSG_Shape_Polygon*)pIntersect)->Get_Area();
 					if (fArea == fArea2){
 						bSelect = true;
 					}//if
 					break;
 				case 3: //have their center in
-					Point = ((CShape_Polygon*)pShape)->Get_Centroid();
-					if (((CShape_Polygon*)pShape2)->is_Containing(Point)){
+					Point = ((CSG_Shape_Polygon*)pShape)->Get_Centroid();
+					if (((CSG_Shape_Polygon*)pShape2)->is_Containing(Point)){
 						bSelect = true;
 					}//if
 					break;
 				case 4: //contain center of
-					Point = ((CShape_Polygon*)pShape2)->Get_Centroid();
-					if (((CShape_Polygon*)pShape)->is_Containing(Point)){
+					Point = ((CSG_Shape_Polygon*)pShape2)->Get_Centroid();
+					if (((CSG_Shape_Polygon*)pShape)->is_Containing(Point)){
 						bSelect = true;
 					}//if
 					break;
@@ -103,7 +103,7 @@ int CShapeSelector::GetSelectedRecordsCount(){
 
 }//method
 
-bool CShapeSelector::GPC_Intersection(CShape *pShape_A, CShape *pShape_B, CShape *pShape_AB)
+bool CShapeSelector::GPC_Intersection(CSG_Shape *pShape_A, CSG_Shape *pShape_B, CSG_Shape *pShape_AB)
 {
 	bool		bResult;
 	int			iPoint, nPoints, iPart;
@@ -144,7 +144,7 @@ bool CShapeSelector::GPC_Intersection(CShape *pShape_A, CShape *pShape_B, CShape
 	return( bResult );
 }
 
-bool CShapeSelector::GPC_Create_Polygon(CShape *pShape, gpc_polygon *pPolygon)
+bool CShapeSelector::GPC_Create_Polygon(CSG_Shape *pShape, gpc_polygon *pPolygon)
 {
 	int				iPoint, iPart;
 	TSG_Point		Point;
@@ -171,7 +171,7 @@ bool CShapeSelector::GPC_Create_Polygon(CShape *pShape, gpc_polygon *pPolygon)
 
 			vList.num_vertices	= pShape->Get_Point_Count(iPart);
 			vList.vertex		= Contour;
-			gpc_add_contour(pPolygon, &vList, ((CShape_Polygon *)pShape)->is_Lake(iPart) ? 1 : 0);
+			gpc_add_contour(pPolygon, &vList, ((CSG_Shape_Polygon *)pShape)->is_Lake(iPart) ? 1 : 0);
 
 			free(Contour);
 		}

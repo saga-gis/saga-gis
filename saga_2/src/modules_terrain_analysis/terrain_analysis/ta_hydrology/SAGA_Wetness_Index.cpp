@@ -146,7 +146,7 @@ CSAGA_Wetness_Index::~CSAGA_Wetness_Index(void)
 bool CSAGA_Wetness_Index::On_Execute(void)
 {
 	double	a, t;
-	CGrid	*pDEM, *pC, *pGN, *pCS, *pSB;
+	CSG_Grid	*pDEM, *pC, *pGN, *pCS, *pSB;
 
 	//-----------------------------------------------------
 	pDEM	= Parameters("DEM")	->asGrid();
@@ -182,7 +182,7 @@ bool CSAGA_Wetness_Index::On_Execute(void)
 // (dz / dx) fuer die Gewichtung der Abfluszanteile benutzt!
 
 //---------------------------------------------------------
-bool CSAGA_Wetness_Index::Get_Area_Catchment(CGrid *pDEM, CGrid *pC, CGrid *pS)
+bool CSAGA_Wetness_Index::Get_Area_Catchment(CSG_Grid *pDEM, CSG_Grid *pC, CSG_Grid *pS)
 {
 	const double	MFD_Converge	= 1.1;
 
@@ -255,14 +255,14 @@ bool CSAGA_Wetness_Index::Get_Area_Catchment(CGrid *pDEM, CGrid *pC, CGrid *pS)
 }
 
 /*/---------------------------------------------------------
-bool CSAGA_Wetness_Index::Get_Area_Catchment(CGrid *pDEM, CGrid *pC, CGrid *pGN)
+bool CSAGA_Wetness_Index::Get_Area_Catchment(CSG_Grid *pDEM, CSG_Grid *pC, CSG_Grid *pGN)
 {
 	int		n, x, y, i, ix, iy;
 	double	z, d, dz[8], dzSum, c, w, sw, sn, Slope, Azimuth,
 			Weight	= 0.5,
 			a		= Get_Cellsize() * Get_Cellsize(),
 			MFD_Converge	= 1.1;
-	CGrid	W, SW, SN;
+	CSG_Grid	W, SW, SN;
 
 	//-----------------------------------------------------
 	Process_Set_Text("Catchment area/slope calculation...");
@@ -355,12 +355,12 @@ bool CSAGA_Wetness_Index::Get_Area_Catchment(CGrid *pDEM, CGrid *pC, CGrid *pGN)
 // in guter Weise annaehert
 
 //---------------------------------------------------------
-bool CSAGA_Wetness_Index::Get_Area_Modified(CGrid *pDEM, CGrid *pC, CGrid *pCS, double t)
+bool CSAGA_Wetness_Index::Get_Area_Modified(CSG_Grid *pDEM, CSG_Grid *pC, CSG_Grid *pCS, double t)
 {
 	bool	bRecalculate;
 	int		x, y, i, ix, iy, n;
 	double	z, d;
-	CGrid	C, C_Last, T;
+	CSG_Grid	C, C_Last, T;
 
 	//-----------------------------------------------------
 	Process_Set_Text("Modify: pre-processing...");
@@ -485,7 +485,7 @@ bool CSAGA_Wetness_Index::Get_Area_Modified(CGrid *pDEM, CGrid *pC, CGrid *pCS, 
 }
 
 //---------------------------------------------------------
-double CSAGA_Wetness_Index::Get_Local_Maximum(CGrid *pGrid, int x, int y)
+double CSAGA_Wetness_Index::Get_Local_Maximum(CSG_Grid *pGrid, int x, int y)
 {
 	int		i, ix, iy;
 	double	z	= pGrid->asDouble(x, y);
@@ -518,7 +518,7 @@ double CSAGA_Wetness_Index::Get_Local_Maximum(CGrid *pGrid, int x, int y)
 // das nicht durch 0 dividiert wird
 
 //---------------------------------------------------------
-bool CSAGA_Wetness_Index::Get_Wetness_Index(CGrid *pDEM, CGrid *pCS, CGrid *pSB, double a)
+bool CSAGA_Wetness_Index::Get_Wetness_Index(CSG_Grid *pDEM, CSG_Grid *pCS, CSG_Grid *pSB, double a)
 {
 	int		x, y;
 	double	Slope, Azimuth;

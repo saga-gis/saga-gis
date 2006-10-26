@@ -143,7 +143,7 @@ public:
 };
 
 //---------------------------------------------------------
-class CGSGrid_Zonal_Statistics : public CModule_Grid
+class CGSGrid_Zonal_Statistics : public CSG_Module_Grid
 {
 public:
 	CGSGrid_Zonal_Statistics(void);

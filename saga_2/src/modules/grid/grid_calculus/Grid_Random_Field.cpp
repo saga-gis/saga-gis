@@ -72,7 +72,7 @@
 //---------------------------------------------------------
 CGrid_Random_Field::CGrid_Random_Field(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Set_Name(_TL("Random Field"));
@@ -178,7 +178,7 @@ bool CGrid_Random_Field::On_Execute(void)
 {
 	int		x, y, method;
 	double	min, max, mean, stddev;
-	CGrid	*pGrid;
+	CSG_Grid	*pGrid;
 
 	//-----------------------------------------------------
 	pGrid	= SG_Create_Grid(

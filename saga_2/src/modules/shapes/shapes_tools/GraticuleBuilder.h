@@ -23,7 +23,7 @@
 
 #include "MLB_Interface.h"
 
-class CGraticuleBuilder : public CModule {
+class CGraticuleBuilder : public CSG_Module {
 
 public:
 	CGraticuleBuilder(void);

@@ -535,7 +535,7 @@ void CVIEW_Map_3D::On_Source_Changed(void)
 //---------------------------------------------------------
 void CVIEW_Map_3D::_Parms_Create(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	m_Parameters.Create(NULL, LNG("[CAP] 3D-View"), LNG(""));
 
@@ -700,7 +700,7 @@ bool CVIEW_Map_3D::_Parms_Update(bool bGet, CVIEW_Map_3D_Image *pImage)
 		_Parms_StatusBar();
 
 		//-------------------------------------------------
-		CGrid	*pDEM			= m_Parameters("ELEVATION")		->asGrid();
+		CSG_Grid	*pDEM			= m_Parameters("ELEVATION")		->asGrid();
 
 		if( !g_pData->Exists(pDEM, DATAOBJECT_TYPE_Grid) )
 		{
@@ -867,7 +867,7 @@ void CVIEW_Map_3D::_Parms_Changed(void)
 //---------------------------------------------------------
 void CVIEW_Map_3D::_Play_Pos_Add(void)
 {
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 
 	if( m_Play_Mode == PLAY_MODE_NONE )
 	{
@@ -1000,7 +1000,7 @@ bool CVIEW_Map_3D::_Play(void)
 
 	wxString		file;
 
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 
 	//-----------------------------------------------------
 	if( m_Play.Get_Record_Count() > 1 && m_Play_Mode != PLAY_MODE_NONE )

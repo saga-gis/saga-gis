@@ -67,7 +67,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CSRTM30_Import : public CModule
+class CSRTM30_Import : public CSG_Module
 {
 public:
 	CSRTM30_Import(void);
@@ -83,7 +83,7 @@ protected:
 
 private:
 
-	bool					Tile_Load(const char *sTile, TSG_Rect &rTile, CGrid *pOut, TSG_Rect &rOut);
+	bool					Tile_Load(const char *sTile, TSG_Rect &rTile, CSG_Grid *pOut, TSG_Rect &rOut);
 	FILE *					Tile_Open(const char *sTile);
 
 };

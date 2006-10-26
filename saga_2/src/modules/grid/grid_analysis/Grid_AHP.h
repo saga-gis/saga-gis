@@ -23,7 +23,7 @@
 
 #include "MLB_Interface.h"
 
-class CAHP : public CModule_Grid {
+class CAHP : public CSG_Module_Grid {
 
 public:
 	CAHP(void);

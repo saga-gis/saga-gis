@@ -81,7 +81,7 @@
 //---------------------------------------------------------
 CTA_Standard::CTA_Standard(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Set_Name(_TL("Standard Terrain Analysis"));
@@ -355,7 +355,7 @@ bool CTA_Standard::On_Execute(void)
 	Process_Set_Text(_TL("Channel Network"));
 
 	double	d	= Parameters("CAREA")->asGrid()->Get_Percentile(Parameters("CHNL_INIT")->asDouble());
-	CGrid	Grid(Parameters("ELEVATION")->asGrid(), GRID_TYPE_Byte);
+	CSG_Grid	Grid(Parameters("ELEVATION")->asGrid(), GRID_TYPE_Byte);
 
 	CChannelNetwork	ChannelNetwork;
 

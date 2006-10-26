@@ -97,7 +97,7 @@ bool CCellBalance::On_Execute(void)
 {
 	int		x, y, Method;
 	double	Weight;
-	CGrid	*pWeights;
+	CSG_Grid	*pWeights;
 
 	m_pDEM		= Parameters("DEM")		->asGrid(); 
 	pWeights	= Parameters("WEIGHTS")	->asGrid(); 

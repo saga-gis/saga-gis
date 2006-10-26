@@ -70,13 +70,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CModule_Interactive::CModule_Interactive(void)
+CSG_Module_Interactive::CSG_Module_Interactive(void)
 {
 	m_pModule	= this;
 }
 
 //---------------------------------------------------------
-CModule_Interactive::~CModule_Interactive(void)
+CSG_Module_Interactive::~CSG_Module_Interactive(void)
 {
 }
 

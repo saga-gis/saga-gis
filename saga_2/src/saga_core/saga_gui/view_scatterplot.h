@@ -81,8 +81,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void		Add_ScatterPlot(CGrid *pGrid);
-void		Add_ScatterPlot(CTable *pTable);
+void		Add_ScatterPlot(CSG_Grid *pGrid);
+void		Add_ScatterPlot(CSG_Table *pTable);
 
 
 ///////////////////////////////////////////////////////////
@@ -95,9 +95,9 @@ void		Add_ScatterPlot(CTable *pTable);
 class CVIEW_ScatterPlot : public CVIEW_Base
 {
 public:
-	CVIEW_ScatterPlot(CGrid *pGrid_A, CGrid *pGrid_B);
-	CVIEW_ScatterPlot(CGrid *pGrid, CShapes *pShapes, int Field);
-	CVIEW_ScatterPlot(CTable *pTable, int Field_A, int Field_B);
+	CVIEW_ScatterPlot(CSG_Grid *pGrid_A, CSG_Grid *pGrid_B);
+	CVIEW_ScatterPlot(CSG_Grid *pGrid, CSG_Shapes *pShapes, int Field);
+	CVIEW_ScatterPlot(CSG_Table *pTable, int Field_A, int Field_B);
 	virtual ~CVIEW_ScatterPlot(void);
 
 	static class wxToolBarBase *	_Create_ToolBar				(void);
@@ -118,15 +118,15 @@ private:
 
 	int								m_Method, m_xField, m_yField;
 
-	CGrid							*m_pGrid_X, *m_pGrid_Y;
+	CSG_Grid							*m_pGrid_X, *m_pGrid_Y;
 
-	CShapes							*m_pShapes;
+	CSG_Shapes							*m_pShapes;
 
-	CTable							*m_pTable;
+	CSG_Table							*m_pTable;
 
 	CSG_Regression					m_Regression;
 
-	CParameters						m_Parameters;
+	CSG_Parameters						m_Parameters;
 
 	wxString						m_sTitle, m_sX, m_sY;
 
@@ -135,13 +135,13 @@ private:
 
 	bool							_Initialize					(void);
 
-	bool							_Initialize_Grids			(CGrid *pGrid_X, CGrid *pGrid_Y);
-	bool							_Initialize_Grid_Equal		(CGrid *pGrid_X, CGrid *pGrid_Y);
-	bool							_Initialize_Grid_Unequal	(CGrid *pGrid_X, CGrid *pGrid_Y);
+	bool							_Initialize_Grids			(CSG_Grid *pGrid_X, CSG_Grid *pGrid_Y);
+	bool							_Initialize_Grid_Equal		(CSG_Grid *pGrid_X, CSG_Grid *pGrid_Y);
+	bool							_Initialize_Grid_Unequal	(CSG_Grid *pGrid_X, CSG_Grid *pGrid_Y);
 
-	bool							_Initialize_Shapes			(CGrid *pGrid_X, CShapes *pShapes_Y, int Field);
+	bool							_Initialize_Shapes			(CSG_Grid *pGrid_X, CSG_Shapes *pShapes_Y, int Field);
 
-	bool							_Initialize_Table			(CTable *pTable, int Field_X, int Field_Y);
+	bool							_Initialize_Table			(CSG_Table *pTable, int Field_X, int Field_Y);
 
 	wxRect							_Draw_Get_rDiagram			(wxRect r);
 	void							_Draw_Image					(wxDC &dc, wxRect r, double dx, double dy);

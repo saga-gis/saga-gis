@@ -70,13 +70,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CShapes_Search::CShapes_Search(void)
+CSG_Shapes_Search::CSG_Shapes_Search(void)
 {
 	_On_Construction();
 }
 
 //---------------------------------------------------------
-CShapes_Search::CShapes_Search(CShapes *pPoints)
+CSG_Shapes_Search::CSG_Shapes_Search(CSG_Shapes *pPoints)
 {
 	_On_Construction();
 
@@ -84,7 +84,7 @@ CShapes_Search::CShapes_Search(CShapes *pPoints)
 }
 
 //---------------------------------------------------------
-void CShapes_Search::_On_Construction(void)
+void CSG_Shapes_Search::_On_Construction(void)
 {
 	m_pPoints		= NULL;
 	m_nPoints		= 0;
@@ -106,13 +106,13 @@ void CShapes_Search::_On_Construction(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CShapes_Search::~CShapes_Search(void)
+CSG_Shapes_Search::~CSG_Shapes_Search(void)
 {
 	Destroy();
 }
 
 //---------------------------------------------------------
-void CShapes_Search::Destroy(void)
+void CSG_Shapes_Search::Destroy(void)
 {
 	if( m_nPoints > 0 )
 	{
@@ -155,10 +155,10 @@ void CShapes_Search::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CShapes_Search::Create(CShapes *pShapes)
+bool CSG_Shapes_Search::Create(CSG_Shapes *pShapes)
 {
 	int		iShape, iPart, iPoint;
-	CShape	*pShape, *pPoint;
+	CSG_Shape	*pShape, *pPoint;
 	double	*Value;
 
 	Destroy();
@@ -231,7 +231,7 @@ bool CShapes_Search::Create(CShapes *pShapes)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CShapes_Search::_Get_Index_Next(double Position)
+int CSG_Shapes_Search::_Get_Index_Next(double Position)
 {
 	int		i, iLo, iHi;
 
@@ -269,7 +269,7 @@ int CShapes_Search::_Get_Index_Next(double Position)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CShape * CShapes_Search::Get_Point_Nearest(double x, double y)
+CSG_Shape * CSG_Shapes_Search::Get_Point_Nearest(double x, double y)
 {
 	int			ax, ix, iPoint_Min;
 	double		dx, dy, Dist, Dist_Min;
@@ -333,7 +333,7 @@ CShape * CShapes_Search::Get_Point_Nearest(double x, double y)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CShape * CShapes_Search::Get_Point_Nearest(double x, double y, int Quadrant)
+CSG_Shape * CSG_Shapes_Search::Get_Point_Nearest(double x, double y, int Quadrant)
 {
 	int		iPoint;
 
@@ -343,7 +343,7 @@ CShape * CShapes_Search::Get_Point_Nearest(double x, double y, int Quadrant)
 }
 
 //---------------------------------------------------------
-int CShapes_Search::_Get_Point_Nearest(double x, double y, int Quadrant)
+int CSG_Shapes_Search::_Get_Point_Nearest(double x, double y, int Quadrant)
 {
 	int		ax, ix, iPoint_Min;
 	double	dx, dy, Dist, Dist_Min;
@@ -484,13 +484,13 @@ int CShapes_Search::_Get_Point_Nearest(double x, double y, int Quadrant)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CShapes_Search::_Select_Add(CShape *pPoint, double Distance)
+void CSG_Shapes_Search::_Select_Add(CSG_Shape *pPoint, double Distance)
 {
 	if( m_nSelected >= m_Selected_Buf )
 	{
 		m_Selected_Buf	+= 8;
 
-		m_Selected		= (CShape **)SG_Realloc(m_Selected    , m_Selected_Buf * sizeof(CShape *));
+		m_Selected		= (CSG_Shape **)SG_Realloc(m_Selected    , m_Selected_Buf * sizeof(CSG_Shape *));
 		m_Selected_Dst	= (double  *)SG_Realloc(m_Selected_Dst, m_Selected_Buf * sizeof(double  ));
 	}
 
@@ -500,7 +500,7 @@ void CShapes_Search::_Select_Add(CShape *pPoint, double Distance)
 }
 
 //---------------------------------------------------------
-int CShapes_Search::Select_Radius(double x, double y, double Radius, bool bSort, int MaxPoints)
+int CSG_Shapes_Search::Select_Radius(double x, double y, double Radius, bool bSort, int MaxPoints)
 {
 	int			ix, xLeft, xRight;
 	double		d, dx, Radius_2;

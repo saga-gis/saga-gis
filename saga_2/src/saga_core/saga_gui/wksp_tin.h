@@ -82,7 +82,7 @@
 class CWKSP_TIN : public CWKSP_Layer
 {
 public:
-	CWKSP_TIN(CTIN *pTIN);
+	CWKSP_TIN(CSG_TIN *pTIN);
 	virtual ~CWKSP_TIN(void);
 
 	virtual TWKSP_Item			Get_Type				(void)	{	return( WKSP_ITEM_TIN );	}
@@ -95,13 +95,13 @@ public:
 	virtual bool				On_Command				(int Cmd_ID);
 	virtual bool				On_Command_UI			(wxUpdateUIEvent &event);
 
-	CTIN *						Get_TIN					(void)	{	return( m_pTIN );	}
+	CSG_TIN *						Get_TIN					(void)	{	return( m_pTIN );	}
 	class CWKSP_Table *			Get_Table				(void)	{	return( m_pTable );	}
 
 	virtual wxString			Get_Value				(CSG_Point ptWorld, double Epsilon);
 	virtual double				Get_Value_Range			(void);
 
-	bool						asImage					(CGrid *pImage);
+	bool						asImage					(CSG_Grid *pImage);
 
 
 protected:
@@ -121,7 +121,7 @@ protected:
 
 	wxColour					m_Color_Pen, m_Color_Brush;
 
-	CTIN						*m_pTIN;
+	CSG_TIN						*m_pTIN;
 
 	class CWKSP_Table			*m_pTable;
 
@@ -129,7 +129,7 @@ protected:
 	virtual void				On_Create_Parameters	(void);
 	virtual void				On_DataObject_Changed	(void);
 	virtual void				On_Parameters_Changed	(void);
-	virtual int					On_Parameter_Changed	(CParameters *pParameters, CParameter *pParameter);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool				On_Edit_On_Mouse_Up		(CSG_Point Point, double ClientToWorld, int Key);
 	virtual bool				On_Edit_Set_Attributes	(void);

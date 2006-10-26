@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Classify_Supervised : public CModule_Grid
+class CGrid_Classify_Supervised : public CSG_Module_Grid
 {
 public:
 	CGrid_Classify_Supervised(void);
@@ -95,11 +95,11 @@ protected:
 
 private:
 
-	bool						Get_Class_Information	(CParameter_Grid_List *pGrids, CShapes *pPolygons, int iField, CTable *pClasses, CTable *pLUT);
-	CTable_Record *				Get_Class				(CTable *pClasses, const char *Identifier);
+	bool						Get_Class_Information	(CSG_Parameter_Grid_List *pGrids, CSG_Shapes *pPolygons, int iField, CSG_Table *pClasses, CSG_Table *pLUT);
+	CSG_Table_Record *				Get_Class				(CSG_Table *pClasses, const char *Identifier);
 
-	bool						Do_Minimum_Distance		(CParameter_Grid_List *pGrids, CTable *pClasses, CGrid *pResult);
-	bool						Do_Maximum_Likelihood	(CParameter_Grid_List *pGrids, CTable *pClasses, CGrid *pResult);
+	bool						Do_Minimum_Distance		(CSG_Parameter_Grid_List *pGrids, CSG_Table *pClasses, CSG_Grid *pResult);
+	bool						Do_Maximum_Likelihood	(CSG_Parameter_Grid_List *pGrids, CSG_Table *pClasses, CSG_Grid *pResult);
 
 };
 

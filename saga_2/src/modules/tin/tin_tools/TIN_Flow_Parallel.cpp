@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CTIN_Flow_Parallel::CTIN_Flow_Parallel(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Set_Name	(_TL("Flow Accumulation (Parallel)"));
@@ -122,7 +122,7 @@ CTIN_Flow_Parallel::~CTIN_Flow_Parallel(void)
 bool CTIN_Flow_Parallel::On_Execute(void)
 {
 	int			iPoint;
-	CTIN		*pDEM;
+	CSG_TIN		*pDEM;
 
 	//-----------------------------------------------------
 	pDEM		= Parameters("DEM")		->asTIN();
@@ -168,7 +168,7 @@ bool CTIN_Flow_Parallel::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CTIN_Flow_Parallel::Let_it_flow_single(CTIN_Point *pPoint)
+void CTIN_Flow_Parallel::Let_it_flow_single(CSG_TIN_Point *pPoint)
 {
 	int		i, iMin;
 	double	dz, dzMin, Area;
@@ -205,7 +205,7 @@ void CTIN_Flow_Parallel::Let_it_flow_single(CTIN_Point *pPoint)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CTIN_Flow_Parallel::Let_it_flow_multiple(CTIN_Point *pPoint)
+void CTIN_Flow_Parallel::Let_it_flow_multiple(CSG_TIN_Point *pPoint)
 {
 	int		i;
 	double	d, dzSum, *dz, Area;

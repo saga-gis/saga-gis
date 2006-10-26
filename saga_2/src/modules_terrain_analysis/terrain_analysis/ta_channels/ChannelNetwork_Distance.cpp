@@ -152,7 +152,7 @@ bool CChannelNetwork_Distance::On_Execute(void)
 {
 	int		x, y, n, Method;
 
-	CGrid	*pChannels;
+	CSG_Grid	*pChannels;
 
 	//-----------------------------------------------------
 	pDTM		= Parameters("ELEVATION")->asGrid();

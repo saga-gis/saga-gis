@@ -71,7 +71,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Grid_System::CWKSP_Grid_System(const CGrid_System &System)
+CWKSP_Grid_System::CWKSP_Grid_System(const CSG_Grid_System &System)
 {
 	m_System	= System;
 }
@@ -151,7 +151,7 @@ wxMenu * CWKSP_Grid_System::Get_Menu(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Grid * CWKSP_Grid_System::Get_Grid(CGrid *pGrid)
+CWKSP_Grid * CWKSP_Grid_System::Get_Grid(CSG_Grid *pGrid)
 {
 	if( pGrid )
 	{
@@ -168,13 +168,13 @@ CWKSP_Grid * CWKSP_Grid_System::Get_Grid(CGrid *pGrid)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Grid_System::Exists(CGrid *pGrid)
+bool CWKSP_Grid_System::Exists(CSG_Grid *pGrid)
 {
 	return( Get_Grid(pGrid) != NULL );
 }
 
 //---------------------------------------------------------
-CWKSP_Grid * CWKSP_Grid_System::Add(CGrid *pGrid)
+CWKSP_Grid * CWKSP_Grid_System::Add(CSG_Grid *pGrid)
 {
 	CWKSP_Grid	*pItem;
 

@@ -21,8 +21,8 @@
 
 CCombineGrids::CCombineGrids(void){
 
-	CTable *pLookup;
-	CTable_Record *pRecord;
+	CSG_Table *pLookup;
+	CSG_Table_Record *pRecord;
 
 	Parameters.Set_Name(_TL("Combine Grids"));
 	Parameters.Set_Description(_TL(
@@ -75,11 +75,11 @@ bool CCombineGrids::On_Execute(void){
 	int iTableValue1, iTableValue2;
 	int iResultValue;
 	
-	CGrid *pGrid1 = Parameters("GRID1")->asGrid(); 
-	CGrid *pGrid2 = Parameters("GRID2")->asGrid(); 
-	CGrid *pResult = Parameters("RESULT")->asGrid(); ;
-	CTable			*pLookup;
-	CTable_Record	*pRecord;
+	CSG_Grid *pGrid1 = Parameters("GRID1")->asGrid(); 
+	CSG_Grid *pGrid2 = Parameters("GRID2")->asGrid(); 
+	CSG_Grid *pResult = Parameters("RESULT")->asGrid(); ;
+	CSG_Table			*pLookup;
+	CSG_Table_Record	*pRecord;
 
 	pLookup	= Parameters("LOOKUP")->asTable();
 

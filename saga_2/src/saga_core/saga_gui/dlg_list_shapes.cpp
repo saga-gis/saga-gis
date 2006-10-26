@@ -89,7 +89,7 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CDLG_List_Shapes::CDLG_List_Shapes(CParameter_Shapes_List *pList, wxString Caption)
+CDLG_List_Shapes::CDLG_List_Shapes(CSG_Parameter_Shapes_List *pList, wxString Caption)
 	: CDLG_List_Base(pList, Caption)
 {
 	m_Shape_Type	= pList->Get_Shape_Type();
@@ -143,7 +143,7 @@ void CDLG_List_Shapes::_Set_Shapes(CWKSP_Shapes_Type *pType)
 {
 	bool	bList;
 	int		i, j;
-	CShapes	*pShapes;
+	CSG_Shapes	*pShapes;
 
 	if( pType )
 	{

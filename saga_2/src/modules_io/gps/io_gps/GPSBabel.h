@@ -23,7 +23,7 @@
 
 #include "MLB_Interface.h"
 
-class CGPSBabel : public CModule {
+class CGPSBabel : public CSG_Module {
 
 public:
 	CGPSBabel(void);

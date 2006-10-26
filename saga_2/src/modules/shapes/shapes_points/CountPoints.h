@@ -23,7 +23,7 @@
 
 #include "MLB_Interface.h"
 
-class CCountPoints : public CModule {
+class CCountPoints : public CSG_Module {
 
 public:
 	CCountPoints(void);

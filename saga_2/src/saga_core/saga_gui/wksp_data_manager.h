@@ -100,7 +100,7 @@ public:
 	virtual bool					On_Command			(int Cmd_ID);
 	virtual bool					On_Command_UI		(wxUpdateUIEvent &event);
 
-	virtual class CParameters *		Get_Parameters		(void)		{	return( &m_Parameters );	}
+	virtual class CSG_Parameters *		Get_Parameters		(void)		{	return( &m_Parameters );	}
 	virtual void					Parameters_Changed	(void);
 
 	CWKSP_Base_Manager *			Get_Manager			(int i)		{	return( (CWKSP_Base_Manager *)Get_Item(i) );	}
@@ -111,39 +111,39 @@ public:
 	class CWKSP_TIN_Manager *		Get_TINs			(void)		{	return( m_pTINs   );	}
 	class CWKSP_Grid_Manager *		Get_Grids			(void)		{	return( m_pGrids  );	}
 
-	bool							Get_DataObject_List	(CParameters *pParameters);
+	bool							Get_DataObject_List	(CSG_Parameters *pParameters);
 
 	class CWKSP_Data_Menu_Files *	Get_FileMenus		(void)		{	return( m_pMenu_Files );	}
 
-	bool							Check_Parameters	(class CParameters *pParameters);
-	bool							Check_Parameter		(class CParameter  *pParameter);
+	bool							Check_Parameters	(class CSG_Parameters *pParameters);
+	bool							Check_Parameter		(class CSG_Parameter  *pParameter);
 
 	bool							Open_CMD			(int Cmd_ID);
 	bool							Open				(const char *FileName);
 	bool							Open				(int DataType);
 	CWKSP_Base_Item *				Open				(int DataType, const char *FileName);
 
-	bool							Exists				(class CGrid_System *pSystem);
-	bool							Exists				(class CDataObject *pObject, int DataType = -1);
+	bool							Exists				(class CSG_Grid_System *pSystem);
+	bool							Exists				(class CSG_Data_Object *pObject, int DataType = -1);
 
-	class CDataObject *				Get_byFileName		(const char *File_Name, int DataType = -1);
+	class CSG_Data_Object *				Get_byFileName		(const char *File_Name, int DataType = -1);
 
 	bool							Save_Modified		(class CWKSP_Base_Item *pItem);
 	bool							Close				(bool bSilent);
 
-	CWKSP_Base_Item *				Add					(class CDataObject *pObject);
-	bool							Update				(class CDataObject *pObject, class CParameters *pParameters);
-	bool							Update_Views		(class CDataObject *pObject);
-	bool							Show				(class CDataObject *pObject);
-	bool							asImage				(class CDataObject *pObject, class CGrid *pImage);
+	CWKSP_Base_Item *				Add					(class CSG_Data_Object *pObject);
+	bool							Update				(class CSG_Data_Object *pObject, class CSG_Parameters *pParameters);
+	bool							Update_Views		(class CSG_Data_Object *pObject);
+	bool							Show				(class CSG_Data_Object *pObject);
+	bool							asImage				(class CSG_Data_Object *pObject, class CSG_Grid *pImage);
 
-	bool							Get_Colors			(class CDataObject *pObject, class CSG_Colors *pColors);
-	bool							Set_Colors			(class CDataObject *pObject, class CSG_Colors *pColors);
+	bool							Get_Colors			(class CSG_Data_Object *pObject, class CSG_Colors *pColors);
+	bool							Set_Colors			(class CSG_Data_Object *pObject, class CSG_Colors *pColors);
 
 
 private:
 
-	CParameters						m_Parameters;
+	CSG_Parameters						m_Parameters;
 
 	class CWKSP_Project				*m_pProject;
 

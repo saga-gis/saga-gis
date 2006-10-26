@@ -129,10 +129,10 @@ bool CGrid_Values_AddTo_Points::On_Execute(void)
 	bool					bZFactor;
 	int						iShape, iGrid, iField, nFields, Interpol;
 	TSG_Point				Point;
-	CGrid					*pGrid;
-	CParameter_Grid_List	*pGrids;
-	CShape					*pShape;
-	CShapes					*pShapes;
+	CSG_Grid					*pGrid;
+	CSG_Parameter_Grid_List	*pGrids;
+	CSG_Shape					*pShape;
+	CSG_Shapes					*pShapes;
 
 	//-----------------------------------------------------
 	pGrids		= Parameters("GRIDS" )	->asGridList();

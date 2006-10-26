@@ -98,8 +98,8 @@ public:
 
 	bool						Update_DataObjects	(void);
 
-	bool						Set_Parameters		(class CParameters *pParameters);
-	class CParameters *			Get_Parameters		(void)	{	return( m_pParameters );	}
+	bool						Set_Parameters		(class CSG_Parameters *pParameters);
+	class CSG_Parameters *			Get_Parameters		(void)	{	return( m_pParameters );	}
 
 	bool						is_Modified			(void)	{	return( m_bModified );	}
 
@@ -114,19 +114,19 @@ private:
 
 	bool						m_bModified;
 
-	class CParameters			*m_pParameters, *m_pOriginal;
+	class CSG_Parameters			*m_pParameters, *m_pOriginal;
 
 	class wxPropertyGrid		*m_pPG;
 
 
-	void						_Add_Properties		(class CParameters *pParameters);
+	void						_Add_Properties		(class CSG_Parameters *pParameters);
 	class wxPGProperty *		_Add_Property		(class wxPGProperty *pProperty, class wxPGProperty *pParent);
-	void						_Add_Property		(class CParameter *pParameter, class wxPGProperty *pParent);
-	class wxPGProperty *		_Get_Property		(class CParameter *pParameter, class wxPGProperty *pParent);
+	void						_Add_Property		(class CSG_Parameter *pParameter, class wxPGProperty *pParent);
+	class wxPGProperty *		_Get_Property		(class CSG_Parameter *pParameter, class wxPGProperty *pParent);
 
 	void						_Set_Parameter		(const char *Identifier);
 	void						_Update_Parameters	(void);
-	void						_Update_Parameter	(class CParameter *pParameter);
+	void						_Update_Parameter	(class CSG_Parameter *pParameter);
 
 
 //---------------------------------------------------------

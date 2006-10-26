@@ -95,19 +95,19 @@ private:
 
 	int						m_nPoints, m_nPoints_Buf, m_Level;
 
-	CTIN_Point				**m_Points;
+	CSG_TIN_Point				**m_Points;
 
 
 	bool					_Initialise		(void);
 	bool					_Finalise		(void);
 
-	void					_Set_Triangle	(CTIN_Triangle *pTriangle);
-	void					_Set_Grid		(CTIN_Triangle *pTriangle);
+	void					_Set_Triangle	(CSG_TIN_Triangle *pTriangle);
+	void					_Set_Grid		(CSG_TIN_Triangle *pTriangle);
 
-	void					_Add_Points		(CTIN_Point *Point, int Level);
-	bool					_Add_Point		(CTIN_Point *Point);
+	void					_Add_Points		(CSG_TIN_Point *Point, int Level);
+	bool					_Add_Point		(CSG_TIN_Point *Point);
 
-	bool					_Get_TIN		(CTIN &TIN);
+	bool					_Get_TIN		(CSG_TIN &TIN);
 
 };
 

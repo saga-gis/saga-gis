@@ -103,7 +103,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Segmentation : public CModule_Grid
+class CGrid_Segmentation : public CSG_Module_Grid
 {
 public:
 	CGrid_Segmentation(void);
@@ -119,7 +119,7 @@ private:
 
 	int					nSegments;
 
-	CGrid				*pGrid, *pSegments;
+	CSG_Grid				*pGrid, *pSegments;
 
 	CSegment			**Segments;
 

@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGSGrid_Variance_Radius : public CModule_Grid
+class CGSGrid_Variance_Radius : public CSG_Module_Grid
 {
 public:
 	CGSGrid_Variance_Radius(void);
@@ -101,7 +101,7 @@ private:
 
 	double					stopVariance;
 
-	CGrid					*pGrid, *pResult,
+	CSG_Grid					*pGrid, *pResult,
 							*pInput, *pInputQ;
 
 

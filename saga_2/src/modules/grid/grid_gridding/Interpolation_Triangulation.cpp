@@ -95,8 +95,8 @@ bool CInterpolation_Triangulation::Interpolate(void)
 {
 	int				iTriangle, iPoint;
 	TPoint			p[3];
-	CTIN_Triangle	*pTriangle;
-	CTIN			TIN;
+	CSG_TIN_Triangle	*pTriangle;
+	CSG_TIN			TIN;
 
 	if( TIN.Create(m_pShapes) )
 	{

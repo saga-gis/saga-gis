@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CExercise_07::CExercise_07(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	// Give some information about your module...
@@ -156,7 +156,7 @@ bool CExercise_07::On_Execute(void)
 {
 	bool	bCell;
 	int		x, y, Step, xCell, yCell;
-	CGrid	*pLength;
+	CSG_Grid	*pLength;
 	CSG_Colors	Colors;
 
 	//-----------------------------------------------------
@@ -199,7 +199,7 @@ bool CExercise_07::On_Execute(void)
 		break;
 
 	case 1:				// Needs more memory, but is quicker...
-		m_pDir	= new CGrid(m_pDTM, GRID_TYPE_Char);
+		m_pDir	= new CSG_Grid(m_pDTM, GRID_TYPE_Char);
 
 		for(y=0; y<Get_NY() && Set_Progress(y); y+=Step)
 		{

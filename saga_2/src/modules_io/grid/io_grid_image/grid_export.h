@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Export : public CModule_Grid
+class CGrid_Export : public CSG_Module_Grid
 {
 public:
 	CGrid_Export(void);

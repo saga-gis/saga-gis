@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Colors_Fit : public CModule_Grid  
+class CGrid_Colors_Fit : public CSG_Module_Grid  
 {
 public:
 	CGrid_Colors_Fit(void);

@@ -23,7 +23,7 @@
 
 #include "MLB_Interface.h"
 
-class CPolygonStatisticsFromPoints : public CModule {
+class CPolygonStatisticsFromPoints : public CSG_Module {
 
 public:
 	CPolygonStatisticsFromPoints(void);
@@ -38,10 +38,10 @@ private:
 	bool *m_bIncludeParam;
 	int *m_pClasses;
 	int *m_pCount;
-	CShapes *m_pPolygons, *m_pPoints;
-	CParameters *m_pExtraParameters;
+	CSG_Shapes *m_pPolygons, *m_pPoints;
+	CSG_Parameters *m_pExtraParameters;
 
-	void AddPointDataToPolygon(CShape*, CShape*);
+	void AddPointDataToPolygon(CSG_Shape*, CSG_Shape*);
 	void CalculateStatistics();
 
 };

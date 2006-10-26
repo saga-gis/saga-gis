@@ -26,7 +26,7 @@
 
 CThresholdBuffer::CThresholdBuffer(void){
 
-	CParameter * pNode;
+	CSG_Parameter * pNode;
 	Parameters.Set_Name(_TL("Threshold Buffer"));
 	Parameters.Set_Description(_TL(
 		"(c) 2004 by Victor Olaya. Threshold Buffer Creation"));

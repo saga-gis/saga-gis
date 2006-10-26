@@ -52,8 +52,8 @@ CSortRaster::~CSortRaster(void)
 
 bool CSortRaster::On_Execute(void){
 	
-	CGrid* pGrid = Parameters("GRID")->asGrid(); 
-	CGrid* pSortedGrid = Parameters("OUTPUT")->asGrid();
+	CSG_Grid* pGrid = Parameters("GRID")->asGrid(); 
+	CSG_Grid* pSortedGrid = Parameters("OUTPUT")->asGrid();
 	bool bDown = Parameters("DOWN")->asBool();
 	bool bCopy = false;
 	long i;

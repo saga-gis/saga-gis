@@ -73,7 +73,7 @@
 
 //---------------------------------------------------------
 
-class CFit : public CModule
+class CFit : public CSG_Module
 {
 public:
 	CFit(void);
@@ -83,7 +83,7 @@ public:
 protected:
 
 	virtual bool			On_Execute(void);
-	virtual int				On_Parameter_Changed(CParameters *pParameters, CParameter *pParameter);
+	virtual int				On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool			On_Initialize_Parameters(void)	{	return( true );	}
 	virtual void			On_Finalize_Parameters(void)	{					}

@@ -48,7 +48,7 @@
 #define SLOPE_RATIO (1. / 3.)
 #define LONG_SEGMENT 5000.
 
-class CPDFDocEngine_CrossSections : public CDoc_PDF   
+class CPDFDocEngine_CrossSections : public CSG_Doc_PDF   
 {
 
 public:
@@ -73,8 +73,8 @@ private:
 	void AdjustSections(TSG_Point *,TSG_Point *,std::vector<TSG_Point >&,std::vector<TSG_Point >&,float,int&,int&);
 	void Intersect_Lines(float,float,float,float,float,float,float,float,float&,float&);
 	void CalculateAreas(TSG_Point*,TSG_Point*,float,int,int,float&,float&);
-	bool GPC_Intersection(CShape *pShape_A, CShape *pShape_B, CShape *pShape_AB);
-	bool GPC_Create_Polygon(CShape *pShape, gpc_polygon *pPolygon);
+	bool GPC_Intersection(CSG_Shape *pShape_A, CSG_Shape *pShape_B, CSG_Shape *pShape_AB);
+	bool GPC_Create_Polygon(CSG_Shape *pShape, gpc_polygon *pPolygon);
 
 };
 

@@ -84,19 +84,19 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter_Data::CParameter_Data(CParameter *pOwner, long Constraint)
+CSG_Parameter_Data::CSG_Parameter_Data(CSG_Parameter *pOwner, long Constraint)
 {
 	m_pOwner		= pOwner;
 	m_Constraint	= Constraint;
 }
 
 //---------------------------------------------------------
-CParameter_Data::~CParameter_Data(void)
+CSG_Parameter_Data::~CSG_Parameter_Data(void)
 {
 }
 
 //---------------------------------------------------------
-const char * CParameter_Data::Get_Type_Name(void)
+const char * CSG_Parameter_Data::Get_Type_Name(void)
 {
 	switch( Get_Type() )
 	{
@@ -138,44 +138,44 @@ const char * CParameter_Data::Get_Type_Name(void)
 }
 
 //---------------------------------------------------------
-bool CParameter_Data::Set_Value(int Value)
+bool CSG_Parameter_Data::Set_Value(int Value)
 {
 	return( false );
 }
 
-bool CParameter_Data::Set_Value(double Value)
+bool CSG_Parameter_Data::Set_Value(double Value)
 {
 	return( false );
 }
 
-bool CParameter_Data::Set_Value(void *Value)
+bool CSG_Parameter_Data::Set_Value(void *Value)
 {
 	return( false );
 }
 
 //---------------------------------------------------------
-int CParameter_Data::asInt(void)
+int CSG_Parameter_Data::asInt(void)
 {
 	return( 0 );
 }
 
-double CParameter_Data::asDouble(void)
+double CSG_Parameter_Data::asDouble(void)
 {
 	return( 0.0 );
 }
 
-void * CParameter_Data::asPointer(void)
+void * CSG_Parameter_Data::asPointer(void)
 {
 	return( NULL );
 }
 
-const char * CParameter_Data::asString(void)
+const char * CSG_Parameter_Data::asString(void)
 {
 	return( NULL );
 }
 
 //---------------------------------------------------------
-bool CParameter_Data::Assign(CParameter_Data *pSource)
+bool CSG_Parameter_Data::Assign(CSG_Parameter_Data *pSource)
 {
 	if( pSource && Get_Type() == pSource->Get_Type() )
 	{
@@ -187,16 +187,16 @@ bool CParameter_Data::Assign(CParameter_Data *pSource)
 	return( false );
 }
 
-void CParameter_Data::On_Assign(CParameter_Data *pSource)
+void CSG_Parameter_Data::On_Assign(CSG_Parameter_Data *pSource)
 {}
 
 //---------------------------------------------------------
-bool CParameter_Data::Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_Data::Serialize(FILE *Stream, bool bSave)
 {
 	return( Stream ? On_Serialize(Stream, bSave) : false );
 }
 
-bool CParameter_Data::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_Data::On_Serialize(FILE *Stream, bool bSave)
 {
 	return( true );
 }
@@ -209,11 +209,11 @@ bool CParameter_Data::On_Serialize(FILE *Stream, bool bSave)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter_Node::CParameter_Node(CParameter *pOwner, long Constraint)
-	: CParameter_Data(pOwner, Constraint)
+CSG_Parameter_Node::CSG_Parameter_Node(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Data(pOwner, Constraint)
 {}
 
-CParameter_Node::~CParameter_Node(void)
+CSG_Parameter_Node::~CSG_Parameter_Node(void)
 {}
 
 
@@ -224,17 +224,17 @@ CParameter_Node::~CParameter_Node(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter_Bool::CParameter_Bool(CParameter *pOwner, long Constraint)
-	: CParameter_Data(pOwner, Constraint)
+CSG_Parameter_Bool::CSG_Parameter_Bool(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Data(pOwner, Constraint)
 {
 	m_Value		= false;
 }
 
-CParameter_Bool::~CParameter_Bool(void)
+CSG_Parameter_Bool::~CSG_Parameter_Bool(void)
 {}
 
 //---------------------------------------------------------
-bool CParameter_Bool::Set_Value(int Value)
+bool CSG_Parameter_Bool::Set_Value(int Value)
 {
 	bool	bValue = Value != 0 ? true : false;
 
@@ -248,25 +248,25 @@ bool CParameter_Bool::Set_Value(int Value)
 	return( false );
 }
 
-bool CParameter_Bool::Set_Value(double Value)
+bool CSG_Parameter_Bool::Set_Value(double Value)
 {
 	return( Set_Value((int)Value) );
 }
 
 //---------------------------------------------------------
-const char * CParameter_Bool::asString(void)
+const char * CSG_Parameter_Bool::asString(void)
 {
 	return( m_Value ? LNG("[VAL] yes") : LNG("[VAL] no") );
 }
 
 //---------------------------------------------------------
-void CParameter_Bool::On_Assign(CParameter_Data *pSource)
+void CSG_Parameter_Bool::On_Assign(CSG_Parameter_Data *pSource)
 {
-	m_Value		= ((CParameter_Bool *)pSource)->m_Value;
+	m_Value		= ((CSG_Parameter_Bool *)pSource)->m_Value;
 }
 
 //---------------------------------------------------------
-bool CParameter_Bool::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_Bool::On_Serialize(FILE *Stream, bool bSave)
 {
     int		i;
     
@@ -292,8 +292,8 @@ bool CParameter_Bool::On_Serialize(FILE *Stream, bool bSave)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter_Value::CParameter_Value(CParameter *pOwner, long Constraint)
-	: CParameter_Data(pOwner, Constraint)
+CSG_Parameter_Value::CSG_Parameter_Value(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Data(pOwner, Constraint)
 {
 	m_Minimum	= 0.0;
 	m_bMinimum	= false;
@@ -302,11 +302,11 @@ CParameter_Value::CParameter_Value(CParameter *pOwner, long Constraint)
 	m_bMaximum	= false;
 }
 
-CParameter_Value::~CParameter_Value(void)
+CSG_Parameter_Value::~CSG_Parameter_Value(void)
 {}
 
 //---------------------------------------------------------
-bool CParameter_Value::Set_Range(double Minimum, double Maximum)
+bool CSG_Parameter_Value::Set_Range(double Minimum, double Maximum)
 {
 	if( 1 )
 	{
@@ -335,7 +335,7 @@ bool CParameter_Value::Set_Range(double Minimum, double Maximum)
 }
 
 //---------------------------------------------------------
-void CParameter_Value::Set_Minimum(double Minimum, bool bOn)
+void CSG_Parameter_Value::Set_Minimum(double Minimum, bool bOn)
 {
 	if( bOn == false || (m_bMaximum && Minimum >= m_Maximum) )
 	{
@@ -349,7 +349,7 @@ void CParameter_Value::Set_Minimum(double Minimum, bool bOn)
 	}
 }
 
-void CParameter_Value::Set_Maximum(double Maximum, bool bOn)
+void CSG_Parameter_Value::Set_Maximum(double Maximum, bool bOn)
 {
 	if( bOn == false || (m_bMaximum && Maximum <= m_Minimum) )
 	{
@@ -364,13 +364,13 @@ void CParameter_Value::Set_Maximum(double Maximum, bool bOn)
 }
 
 //---------------------------------------------------------
-void CParameter_Value::On_Assign(CParameter_Data *pSource)
+void CSG_Parameter_Value::On_Assign(CSG_Parameter_Data *pSource)
 {
-	m_Minimum	= ((CParameter_Value *)pSource)->m_Minimum;
-	m_bMinimum	= ((CParameter_Value *)pSource)->m_bMinimum;
+	m_Minimum	= ((CSG_Parameter_Value *)pSource)->m_Minimum;
+	m_bMinimum	= ((CSG_Parameter_Value *)pSource)->m_bMinimum;
 
-	m_Maximum	= ((CParameter_Value *)pSource)->m_Maximum;
-	m_bMaximum	= ((CParameter_Value *)pSource)->m_bMaximum;
+	m_Maximum	= ((CSG_Parameter_Value *)pSource)->m_Maximum;
+	m_bMaximum	= ((CSG_Parameter_Value *)pSource)->m_bMaximum;
 }
 
 
@@ -381,17 +381,17 @@ void CParameter_Value::On_Assign(CParameter_Data *pSource)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter_Int::CParameter_Int(CParameter *pOwner, long Constraint)
-	: CParameter_Value(pOwner, Constraint)
+CSG_Parameter_Int::CSG_Parameter_Int(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Value(pOwner, Constraint)
 {
 	m_Value		= 0;
 }
 
-CParameter_Int::~CParameter_Int(void)
+CSG_Parameter_Int::~CSG_Parameter_Int(void)
 {}
 
 //---------------------------------------------------------
-bool CParameter_Int::Set_Value(int Value)
+bool CSG_Parameter_Int::Set_Value(int Value)
 {
 	if( m_bMinimum && Value < m_Minimum )
 	{
@@ -413,12 +413,12 @@ bool CParameter_Int::Set_Value(int Value)
 	return( false );
 }
 
-bool CParameter_Int::Set_Value(double Value)
+bool CSG_Parameter_Int::Set_Value(double Value)
 {
 	return( Set_Value((int)Value) );
 }
 
-bool CParameter_Int::Set_Value(void *Value)
+bool CSG_Parameter_Int::Set_Value(void *Value)
 {
 	int		val;
 
@@ -436,7 +436,7 @@ bool CParameter_Int::Set_Value(void *Value)
 }
 
 //---------------------------------------------------------
-const char * CParameter_Int::asString(void)
+const char * CSG_Parameter_Int::asString(void)
 {
 	m_String.Printf("%d", m_Value);
 
@@ -444,15 +444,15 @@ const char * CParameter_Int::asString(void)
 }
 
 //---------------------------------------------------------
-void CParameter_Int::On_Assign(CParameter_Data *pSource)
+void CSG_Parameter_Int::On_Assign(CSG_Parameter_Data *pSource)
 {
-	CParameter_Value::On_Assign(pSource);
+	CSG_Parameter_Value::On_Assign(pSource);
 
-	Set_Value(((CParameter_Value *)pSource)->asInt());
+	Set_Value(((CSG_Parameter_Value *)pSource)->asInt());
 }
 
 //---------------------------------------------------------
-bool CParameter_Int::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_Int::On_Serialize(FILE *Stream, bool bSave)
 {
 	if( bSave )
 	{
@@ -475,22 +475,22 @@ bool CParameter_Int::On_Serialize(FILE *Stream, bool bSave)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter_Double::CParameter_Double(CParameter *pOwner, long Constraint)
-	: CParameter_Value(pOwner, Constraint)
+CSG_Parameter_Double::CSG_Parameter_Double(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Value(pOwner, Constraint)
 {
 	m_Value		= 0.0;
 }
 
-CParameter_Double::~CParameter_Double(void)
+CSG_Parameter_Double::~CSG_Parameter_Double(void)
 {}
 
 //---------------------------------------------------------
-bool CParameter_Double::Set_Value(int Value)
+bool CSG_Parameter_Double::Set_Value(int Value)
 {
 	return( Set_Value((double)Value) );
 }
 
-bool CParameter_Double::Set_Value(double Value)
+bool CSG_Parameter_Double::Set_Value(double Value)
 {
 	if( m_bMinimum && Value < m_Minimum )
 	{
@@ -512,7 +512,7 @@ bool CParameter_Double::Set_Value(double Value)
 	return( false );
 }
 
-bool CParameter_Double::Set_Value(void *Value)
+bool CSG_Parameter_Double::Set_Value(void *Value)
 {
 	double	val;
 
@@ -530,7 +530,7 @@ bool CParameter_Double::Set_Value(void *Value)
 }
 
 //---------------------------------------------------------
-const char * CParameter_Double::asString(void)
+const char * CSG_Parameter_Double::asString(void)
 {
 	m_String.Printf("%lf", m_Value);
 
@@ -538,15 +538,15 @@ const char * CParameter_Double::asString(void)
 }
 
 //---------------------------------------------------------
-void CParameter_Double::On_Assign(CParameter_Data *pSource)
+void CSG_Parameter_Double::On_Assign(CSG_Parameter_Data *pSource)
 {
-	CParameter_Value::On_Assign(pSource);
+	CSG_Parameter_Value::On_Assign(pSource);
 
-	Set_Value(((CParameter_Value *)pSource)->asDouble());
+	Set_Value(((CSG_Parameter_Value *)pSource)->asDouble());
 }
 
 //---------------------------------------------------------
-bool CParameter_Double::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_Double::On_Serialize(FILE *Stream, bool bSave)
 {
 	if( bSave )
 	{
@@ -569,21 +569,21 @@ bool CParameter_Double::On_Serialize(FILE *Stream, bool bSave)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter_Degree::CParameter_Degree(CParameter *pOwner, long Constraint)
-	: CParameter_Double(pOwner, Constraint)
+CSG_Parameter_Degree::CSG_Parameter_Degree(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Double(pOwner, Constraint)
 {}
 
-CParameter_Degree::~CParameter_Degree(void)
+CSG_Parameter_Degree::~CSG_Parameter_Degree(void)
 {}
 
 //---------------------------------------------------------
-bool CParameter_Degree::Set_Value(void *Value)
+bool CSG_Parameter_Degree::Set_Value(void *Value)
 {
-	return( CParameter_Double::Set_Value(SG_Degree_To_Double((const char *)Value)) );
+	return( CSG_Parameter_Double::Set_Value(SG_Degree_To_Double((const char *)Value)) );
 }
 
 //---------------------------------------------------------
-const char * CParameter_Degree::asString(void)
+const char * CSG_Parameter_Degree::asString(void)
 {
 	m_String	= SG_Double_To_Degree(asDouble());
 
@@ -598,10 +598,10 @@ const char * CParameter_Degree::asString(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter_Range::CParameter_Range(CParameter *pOwner, long Constraint)
-	: CParameter_Data(pOwner, Constraint)
+CSG_Parameter_Range::CSG_Parameter_Range(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Data(pOwner, Constraint)
 {
-	pRange	= new CParameters;
+	pRange	= new CSG_Parameters;
 
 	if( (m_Constraint & PARAMETER_INFORMATION) != 0 )
 	{
@@ -615,13 +615,13 @@ CParameter_Range::CParameter_Range(CParameter *pOwner, long Constraint)
 	}
 }
 
-CParameter_Range::~CParameter_Range(void)
+CSG_Parameter_Range::~CSG_Parameter_Range(void)
 {
 	delete(pRange);
 }
 
 //---------------------------------------------------------
-const char * CParameter_Range::asString(void)
+const char * CSG_Parameter_Range::asString(void)
 {
 	m_String.Printf("[%lf] - [%lf]",
 		Get_LoParm()->asDouble(),
@@ -632,7 +632,7 @@ const char * CParameter_Range::asString(void)
 }
 
 //---------------------------------------------------------
-bool CParameter_Range::Set_Range(double loVal, double hiVal)
+bool CSG_Parameter_Range::Set_Range(double loVal, double hiVal)
 {
 	bool	bResult;
 
@@ -651,36 +651,36 @@ bool CParameter_Range::Set_Range(double loVal, double hiVal)
 }
 
 //---------------------------------------------------------
-bool CParameter_Range::Set_LoVal(double newValue)
+bool CSG_Parameter_Range::Set_LoVal(double newValue)
 {
 	return( pLo->Set_Value(newValue) );
 }
 
-double CParameter_Range::Get_LoVal(void)
+double CSG_Parameter_Range::Get_LoVal(void)
 {
 	return( pLo->asDouble() );
 }
 
 //---------------------------------------------------------
-bool CParameter_Range::Set_HiVal(double newValue)
+bool CSG_Parameter_Range::Set_HiVal(double newValue)
 {
 	return( pHi->Set_Value(newValue) );
 }
 
-double CParameter_Range::Get_HiVal(void)
+double CSG_Parameter_Range::Get_HiVal(void)
 {
 	return( pHi->asDouble() );
 }
 
 //---------------------------------------------------------
-void CParameter_Range::On_Assign(CParameter_Data *pSource)
+void CSG_Parameter_Range::On_Assign(CSG_Parameter_Data *pSource)
 {
-	pLo->Assign(((CParameter_Range *)pSource)->pLo);
-	pHi->Assign(((CParameter_Range *)pSource)->pHi);
+	pLo->Assign(((CSG_Parameter_Range *)pSource)->pLo);
+	pHi->Assign(((CSG_Parameter_Range *)pSource)->pHi);
 }
 
 //---------------------------------------------------------
-bool CParameter_Range::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_Range::On_Serialize(FILE *Stream, bool bSave)
 {
 	double	loVal, hiVal;
 
@@ -706,20 +706,20 @@ bool CParameter_Range::On_Serialize(FILE *Stream, bool bSave)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter_Choice::CParameter_Choice(CParameter *pOwner, long Constraint)
-	: CParameter_Int(pOwner, Constraint)
+CSG_Parameter_Choice::CSG_Parameter_Choice(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Int(pOwner, Constraint)
 {
 	Items		= NULL;
 	nItems		= 0;
 }
 
-CParameter_Choice::~CParameter_Choice(void)
+CSG_Parameter_Choice::~CSG_Parameter_Choice(void)
 {
 	Del_Items();
 }
 
 //---------------------------------------------------------
-const char * CParameter_Choice::asString(void)
+const char * CSG_Parameter_Choice::asString(void)
 {
 	if( m_Value >= 0 && m_Value < nItems )
 	{
@@ -730,7 +730,7 @@ const char * CParameter_Choice::asString(void)
 }
 
 //---------------------------------------------------------
-void CParameter_Choice::Del_Items(void)
+void CSG_Parameter_Choice::Del_Items(void)
 {
 	int		i;
 
@@ -751,7 +751,7 @@ void CParameter_Choice::Del_Items(void)
 }
 
 //---------------------------------------------------------
-void CParameter_Choice::Set_Items(const char *String)
+void CSG_Parameter_Choice::Set_Items(const char *String)
 {
 	const char	*s;
 	int			n;
@@ -788,7 +788,7 @@ void CParameter_Choice::Set_Items(const char *String)
 }
 
 //---------------------------------------------------------
-const char * CParameter_Choice::Get_Item(int Index)
+const char * CSG_Parameter_Choice::Get_Item(int Index)
 {
 	if( Index >= 0 && Index < nItems )
 	{
@@ -799,24 +799,24 @@ const char * CParameter_Choice::Get_Item(int Index)
 }
 
 //---------------------------------------------------------
-void CParameter_Choice::On_Assign(CParameter_Data *pSource)
+void CSG_Parameter_Choice::On_Assign(CSG_Parameter_Data *pSource)
 {
 	int		i;
 
 	Del_Items();
 
-	if( ((CParameter_Choice *)pSource)->nItems > 0 )
+	if( ((CSG_Parameter_Choice *)pSource)->nItems > 0 )
 	{
-		nItems		= ((CParameter_Choice *)pSource)->nItems;
+		nItems		= ((CSG_Parameter_Choice *)pSource)->nItems;
 		Items		= (CSG_String **)SG_Malloc(nItems * sizeof(CSG_String *));
 
 		for(i=0; i<nItems; i++)
 		{
-			Items[i]	= new CSG_String(((CParameter_Choice *)pSource)->Items[i]->c_str());
+			Items[i]	= new CSG_String(((CSG_Parameter_Choice *)pSource)->Items[i]->c_str());
 		}
 	}
 
-	CParameter_Int::On_Assign(pSource);
+	CSG_Parameter_Int::On_Assign(pSource);
 }
 
 
@@ -827,29 +827,34 @@ void CParameter_Choice::On_Assign(CParameter_Data *pSource)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter_String::CParameter_String(CParameter *pOwner, long Constraint)
-	: CParameter_Data(pOwner, Constraint)
+CSG_Parameter_String::CSG_Parameter_String(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Data(pOwner, Constraint)
 {
 	bPassword	= false;
 }
 
-CParameter_String::~CParameter_String(void)
+CSG_Parameter_String::~CSG_Parameter_String(void)
 {}
 
 //---------------------------------------------------------
-bool CParameter_String::is_Valid(void)
+bool CSG_Parameter_String::is_Valid(void)
 {
 	return( m_String.Length() > 0 );
 }
 
 //---------------------------------------------------------
-void CParameter_String::Set_Password(bool bOn)
+bool CSG_Parameter_String::is_Password(void)
+{
+	return( bPassword );
+}
+
+void CSG_Parameter_String::Set_Password(bool bOn)
 {
 	bPassword	= bOn;
 }
 
 //---------------------------------------------------------
-bool CParameter_String::Set_Value(void *Value)
+bool CSG_Parameter_String::Set_Value(void *Value)
 {
 	if( Value )
 	{
@@ -871,19 +876,19 @@ bool CParameter_String::Set_Value(void *Value)
 }
 
 //---------------------------------------------------------
-const char * CParameter_String::asString(void)
+const char * CSG_Parameter_String::asString(void)
 {
 	return( m_String );
 }
 
 //---------------------------------------------------------
-void CParameter_String::On_Assign(CParameter_Data *pSource)
+void CSG_Parameter_String::On_Assign(CSG_Parameter_Data *pSource)
 {
-	m_String.Printf(((CParameter_String *)pSource)->m_String.c_str());
+	m_String.Printf(((CSG_Parameter_String *)pSource)->m_String.c_str());
 }
 
 //---------------------------------------------------------
-bool CParameter_String::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_String::On_Serialize(FILE *Stream, bool bSave)
 {
 	if( bSave )
 	{
@@ -912,15 +917,15 @@ bool CParameter_String::On_Serialize(FILE *Stream, bool bSave)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter_Text::CParameter_Text(CParameter *pOwner, long Constraint)
-	: CParameter_String(pOwner, Constraint)
+CSG_Parameter_Text::CSG_Parameter_Text(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_String(pOwner, Constraint)
 {}
 
-CParameter_Text::~CParameter_Text(void)
+CSG_Parameter_Text::~CSG_Parameter_Text(void)
 {}
 
 //---------------------------------------------------------
-bool CParameter_Text::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_Text::On_Serialize(FILE *Stream, bool bSave)
 {
 	if( bSave )
 	{
@@ -959,8 +964,8 @@ bool CParameter_Text::On_Serialize(FILE *Stream, bool bSave)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter_FilePath::CParameter_FilePath(CParameter *pOwner, long Constraint)
-	: CParameter_String(pOwner, Constraint)
+CSG_Parameter_File_Name::CSG_Parameter_File_Name(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_String(pOwner, Constraint)
 {
 	m_Filter		= LNG("[FIL] All Files|*.*");
 
@@ -969,12 +974,12 @@ CParameter_FilePath::CParameter_FilePath(CParameter *pOwner, long Constraint)
 	m_bDirectory	= false;
 }
 
-CParameter_FilePath::~CParameter_FilePath(void)
+CSG_Parameter_File_Name::~CSG_Parameter_File_Name(void)
 {
 }
 
 //---------------------------------------------------------
-void CParameter_FilePath::Set_Filter(const char *Filter)
+void CSG_Parameter_File_Name::Set_Filter(const char *Filter)
 {
 	if( Filter )
 	{
@@ -986,29 +991,29 @@ void CParameter_FilePath::Set_Filter(const char *Filter)
 	}
 }
 
-const char *  CParameter_FilePath::Get_Filter(void)
+const char *  CSG_Parameter_File_Name::Get_Filter(void)
 {
 	return( m_Filter.c_str() );
 }
 
 //---------------------------------------------------------
-void CParameter_FilePath::Set_Flag_Save(bool bFlag)
+void CSG_Parameter_File_Name::Set_Flag_Save(bool bFlag)
 {
 	m_bSave			= bFlag;
 }
 
-void CParameter_FilePath::Set_Flag_Multiple(bool bFlag)
+void CSG_Parameter_File_Name::Set_Flag_Multiple(bool bFlag)
 {
 	m_bMultiple		= bFlag;
 }
 
-void CParameter_FilePath::Set_Flag_Directory(bool bFlag)
+void CSG_Parameter_File_Name::Set_Flag_Directory(bool bFlag)
 {
 	m_bDirectory	= bFlag;
 }
 
 //---------------------------------------------------------
-bool CParameter_FilePath::Get_FilePaths(CSG_Strings &FilePaths)
+bool CSG_Parameter_File_Name::Get_FilePaths(CSG_Strings &FilePaths)
 {
 	FilePaths.Clear();
 
@@ -1036,15 +1041,15 @@ bool CParameter_FilePath::Get_FilePaths(CSG_Strings &FilePaths)
 }
 
 //---------------------------------------------------------
-void CParameter_FilePath::On_Assign(CParameter_Data *pSource)
+void CSG_Parameter_File_Name::On_Assign(CSG_Parameter_Data *pSource)
 {
-	CParameter_String::On_Assign(pSource);
+	CSG_Parameter_String::On_Assign(pSource);
 
-	Set_Filter(((CParameter_FilePath *)pSource)->m_Filter.c_str());
+	Set_Filter(((CSG_Parameter_File_Name *)pSource)->m_Filter.c_str());
 
-	m_bSave			= ((CParameter_FilePath *)pSource)->m_bSave;
-	m_bMultiple		= ((CParameter_FilePath *)pSource)->m_bMultiple;
-	m_bDirectory	= ((CParameter_FilePath *)pSource)->m_bDirectory;
+	m_bSave			= ((CSG_Parameter_File_Name *)pSource)->m_bSave;
+	m_bMultiple		= ((CSG_Parameter_File_Name *)pSource)->m_bMultiple;
+	m_bDirectory	= ((CSG_Parameter_File_Name *)pSource)->m_bDirectory;
 }
 
 
@@ -1058,20 +1063,20 @@ void CParameter_FilePath::On_Assign(CParameter_Data *pSource)
 #include <wx/font.h>
 
 //---------------------------------------------------------
-CParameter_Font::CParameter_Font(CParameter *pOwner, long Constraint)
-	: CParameter_Data(pOwner, Constraint)
+CSG_Parameter_Font::CSG_Parameter_Font(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Data(pOwner, Constraint)
 {
 	m_pFont		= new wxFont(10, wxSWISS, wxNORMAL, wxNORMAL);
 	m_Color		= 0;
 }
 
-CParameter_Font::~CParameter_Font(void)
+CSG_Parameter_Font::~CSG_Parameter_Font(void)
 {
 	delete(m_pFont);
 }
 
 //---------------------------------------------------------
-bool CParameter_Font::Set_Value(int Value)
+bool CSG_Parameter_Font::Set_Value(int Value)
 {
 	if( m_Color != Value )
 	{
@@ -1083,7 +1088,7 @@ bool CParameter_Font::Set_Value(int Value)
 	return( false );
 }
 
-bool CParameter_Font::Set_Value(void *Value)
+bool CSG_Parameter_Font::Set_Value(void *Value)
 {
 	if( Value )
 	{
@@ -1096,7 +1101,7 @@ bool CParameter_Font::Set_Value(void *Value)
 }
 
 //---------------------------------------------------------
-const char * CParameter_Font::asString(void)
+const char * CSG_Parameter_Font::asString(void)
 {
 	m_String.Printf("%s, %dpt", m_pFont->GetFaceName().c_str(), m_pFont->GetPointSize());
 
@@ -1104,14 +1109,14 @@ const char * CParameter_Font::asString(void)
 }
 
 //---------------------------------------------------------
-void CParameter_Font::On_Assign(CParameter_Data *pSource)
+void CSG_Parameter_Font::On_Assign(CSG_Parameter_Data *pSource)
 {
 	Set_Value(pSource->asPointer());
 	Set_Value(pSource->asInt());
 }
 
 //---------------------------------------------------------
-bool CParameter_Font::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_Font::On_Serialize(FILE *Stream, bool bSave)
 {
 	if( bSave )
 	{
@@ -1141,11 +1146,11 @@ bool CParameter_Font::On_Serialize(FILE *Stream, bool bSave)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter_Color::CParameter_Color(CParameter *pOwner, long Constraint)
-	: CParameter_Int(pOwner, Constraint)
+CSG_Parameter_Color::CSG_Parameter_Color(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Int(pOwner, Constraint)
 {}
 
-CParameter_Color::~CParameter_Color(void)
+CSG_Parameter_Color::~CSG_Parameter_Color(void)
 {}
 
 
@@ -1156,15 +1161,15 @@ CParameter_Color::~CParameter_Color(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter_Colors::CParameter_Colors(CParameter *pOwner, long Constraint)
-	: CParameter_Data(pOwner, Constraint)
+CSG_Parameter_Colors::CSG_Parameter_Colors(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Data(pOwner, Constraint)
 {}
 
-CParameter_Colors::~CParameter_Colors(void)
+CSG_Parameter_Colors::~CSG_Parameter_Colors(void)
 {}
 
 //---------------------------------------------------------
-const char * CParameter_Colors::asString(void)
+const char * CSG_Parameter_Colors::asString(void)
 {
 	m_String.Printf("%d %s", m_Colors.Get_Count(), LNG("colors"));
 
@@ -1172,13 +1177,13 @@ const char * CParameter_Colors::asString(void)
 }
 
 //---------------------------------------------------------
-void CParameter_Colors::On_Assign(CParameter_Data *pSource)
+void CSG_Parameter_Colors::On_Assign(CSG_Parameter_Data *pSource)
 {
-	m_Colors.Assign(&((CParameter_Colors *)pSource)->m_Colors);
+	m_Colors.Assign(&((CSG_Parameter_Colors *)pSource)->m_Colors);
 }
 
 //---------------------------------------------------------
-bool CParameter_Colors::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_Colors::On_Serialize(FILE *Stream, bool bSave)
 {
 	return( m_Colors.Serialize(Stream, bSave, false) );
 }
@@ -1191,15 +1196,15 @@ bool CParameter_Colors::On_Serialize(FILE *Stream, bool bSave)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter_FixedTable::CParameter_FixedTable(CParameter *pOwner, long Constraint)
-	: CParameter_Data(pOwner, Constraint)
+CSG_Parameter_Fixed_Table::CSG_Parameter_Fixed_Table(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Data(pOwner, Constraint)
 {}
 
-CParameter_FixedTable::~CParameter_FixedTable(void)
+CSG_Parameter_Fixed_Table::~CSG_Parameter_Fixed_Table(void)
 {}
 
 //---------------------------------------------------------
-const char * CParameter_FixedTable::asString(void)
+const char * CSG_Parameter_Fixed_Table::asString(void)
 {
 	m_String.Printf(m_Table.Get_Name());
 
@@ -1207,13 +1212,13 @@ const char * CParameter_FixedTable::asString(void)
 }
 
 //---------------------------------------------------------
-void CParameter_FixedTable::On_Assign(CParameter_Data *pSource)
+void CSG_Parameter_Fixed_Table::On_Assign(CSG_Parameter_Data *pSource)
 {
-	m_Table.Assign(&((CParameter_FixedTable *)pSource)->m_Table);
+	m_Table.Assign(&((CSG_Parameter_Fixed_Table *)pSource)->m_Table);
 }
 
 //---------------------------------------------------------
-bool CParameter_FixedTable::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_Fixed_Table::On_Serialize(FILE *Stream, bool bSave)
 {
 	if( bSave )
 	{
@@ -1221,7 +1226,7 @@ bool CParameter_FixedTable::On_Serialize(FILE *Stream, bool bSave)
 	}
 	else
 	{
-		CTable	t;
+		CSG_Table	t;
 
 		if( t.Serialize(Stream, bSave) )
 		{
@@ -1242,21 +1247,21 @@ bool CParameter_FixedTable::On_Serialize(FILE *Stream, bool bSave)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter_Grid_System::CParameter_Grid_System(CParameter *pOwner, long Constraint)
-	: CParameter_Data(pOwner, Constraint)
+CSG_Parameter_Grid_System::CSG_Parameter_Grid_System(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Data(pOwner, Constraint)
 {}
 
-CParameter_Grid_System::~CParameter_Grid_System(void)
+CSG_Parameter_Grid_System::~CSG_Parameter_Grid_System(void)
 {}
 
 //---------------------------------------------------------
-bool CParameter_Grid_System::Set_Value(void *Value)
+bool CSG_Parameter_Grid_System::Set_Value(void *Value)
 {
 	int						i, j;
-	CGrid					*pGrid;
-	CGrid_System			Invalid;
-	CParameters				*pParameters;
-	CParameter_Grid_List	*pGrids;
+	CSG_Grid					*pGrid;
+	CSG_Grid_System			Invalid;
+	CSG_Parameters				*pParameters;
+	CSG_Parameter_Grid_List	*pGrids;
 
 	//-----------------------------------------------------
 	if( Value == NULL )
@@ -1265,9 +1270,9 @@ bool CParameter_Grid_System::Set_Value(void *Value)
 	}
 
 	//-----------------------------------------------------
-	if( !m_System.is_Equal(*((CGrid_System *)Value)) )
+	if( !m_System.is_Equal(*((CSG_Grid_System *)Value)) )
 	{
-		m_System.Assign(*((CGrid_System *)Value));
+		m_System.Assign(*((CSG_Grid_System *)Value));
 
 		//-------------------------------------------------
 		pParameters	= m_pOwner->Get_Owner();
@@ -1291,7 +1296,7 @@ bool CParameter_Grid_System::Set_Value(void *Value)
 					break;
 
 				case PARAMETER_TYPE_Grid_List:
-					pGrids	= (CParameter_Grid_List *)pParameters->Get_Parameter(i)->Get_Data();
+					pGrids	= (CSG_Parameter_Grid_List *)pParameters->Get_Parameter(i)->Get_Data();
 
 					for(j=pGrids->Get_Count()-1; j>=0; j--)
 					{
@@ -1313,19 +1318,19 @@ bool CParameter_Grid_System::Set_Value(void *Value)
 }
 
 //---------------------------------------------------------
-const char * CParameter_Grid_System::asString(void)
+const char * CSG_Parameter_Grid_System::asString(void)
 {
 	return( m_System.Get_Name() );
 }
 
 //---------------------------------------------------------
-void CParameter_Grid_System::On_Assign(CParameter_Data *pSource)
+void CSG_Parameter_Grid_System::On_Assign(CSG_Parameter_Data *pSource)
 {
-	m_System	= ((CParameter_Grid_System *)pSource)->m_System;
+	m_System	= ((CSG_Parameter_Grid_System *)pSource)->m_System;
 }
 
 //---------------------------------------------------------
-bool CParameter_Grid_System::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_Grid_System::On_Serialize(FILE *Stream, bool bSave)
 {
 	double		Cellsize;
 	TSG_Rect	Extent;
@@ -1358,19 +1363,19 @@ bool CParameter_Grid_System::On_Serialize(FILE *Stream, bool bSave)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter_Table_Field::CParameter_Table_Field(CParameter *pOwner, long Constraint)
-	: CParameter_Int(pOwner, Constraint)
+CSG_Parameter_Table_Field::CSG_Parameter_Table_Field(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Int(pOwner, Constraint)
 {
 }
 
-CParameter_Table_Field::~CParameter_Table_Field(void)
+CSG_Parameter_Table_Field::~CSG_Parameter_Table_Field(void)
 {
 }
 
 //---------------------------------------------------------
-const char * CParameter_Table_Field::asString(void)
+const char * CSG_Parameter_Table_Field::asString(void)
 {
-	CTable	*pTable;
+	CSG_Table	*pTable;
 
 	if( (pTable = Get_Table()) != NULL )
 	{
@@ -1386,10 +1391,10 @@ const char * CParameter_Table_Field::asString(void)
 }
 
 //---------------------------------------------------------
-bool CParameter_Table_Field::Set_Value(int Value)
+bool CSG_Parameter_Table_Field::Set_Value(int Value)
 {
 	bool		bChanged;
-	CTable		*pTable;
+	CSG_Table		*pTable;
 
 	bChanged	= false;
 
@@ -1426,10 +1431,10 @@ bool CParameter_Table_Field::Set_Value(int Value)
 }
 
 //---------------------------------------------------------
-CTable * CParameter_Table_Field::Get_Table(void)
+CSG_Table * CSG_Parameter_Table_Field::Get_Table(void)
 {
-	CTable		*pTable;
-	CParameter	*pParent;
+	CSG_Table		*pTable;
+	CSG_Parameter	*pParent;
 
 	pTable		= NULL;
 
@@ -1465,27 +1470,27 @@ CTable * CParameter_Table_Field::Get_Table(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter_DataObject::CParameter_DataObject(CParameter *pOwner, long Constraint)
-	: CParameter_Data(pOwner, Constraint)
+CSG_Parameter_Data_Object::CSG_Parameter_Data_Object(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Data(pOwner, Constraint)
 {
 	m_pDataObject	= NULL;
 }
 
-CParameter_DataObject::~CParameter_DataObject(void)
+CSG_Parameter_Data_Object::~CSG_Parameter_Data_Object(void)
 {}
 
 //---------------------------------------------------------
-bool CParameter_DataObject::is_Valid(void)
+bool CSG_Parameter_Data_Object::is_Valid(void)
 {
 	return(	m_pOwner->is_Optional() || (m_pDataObject && m_pDataObject->is_Valid()) );
 }
 
 //---------------------------------------------------------
-bool CParameter_DataObject::Set_Value(void *Value)
+bool CSG_Parameter_Data_Object::Set_Value(void *Value)
 {
 	if( m_pDataObject != Value )
 	{
-		m_pDataObject	= (CDataObject *)Value;
+		m_pDataObject	= (CSG_Data_Object *)Value;
 
 		return( true );
 	}
@@ -1494,7 +1499,7 @@ bool CParameter_DataObject::Set_Value(void *Value)
 }
 
 //---------------------------------------------------------
-const char * CParameter_DataObject::asString(void)
+const char * CSG_Parameter_Data_Object::asString(void)
 {
 	if( m_pDataObject == DATAOBJECT_NOTSET )
 	{
@@ -1515,13 +1520,13 @@ const char * CParameter_DataObject::asString(void)
 }
 
 //---------------------------------------------------------
-void CParameter_DataObject::On_Assign(CParameter_Data *pSource)
+void CSG_Parameter_Data_Object::On_Assign(CSG_Parameter_Data *pSource)
 {
-	m_pDataObject	= ((CParameter_DataObject *)pSource)->m_pDataObject;
+	m_pDataObject	= ((CSG_Parameter_Data_Object *)pSource)->m_pDataObject;
 }
 
 //---------------------------------------------------------
-bool CParameter_DataObject::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_Data_Object::On_Serialize(FILE *Stream, bool bSave)
 {
 	if( bSave )
 	{
@@ -1566,19 +1571,19 @@ bool CParameter_DataObject::On_Serialize(FILE *Stream, bool bSave)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter_DataObject_Output::CParameter_DataObject_Output(CParameter *pOwner, long Constraint)
-	: CParameter_DataObject(pOwner, Constraint)
+CSG_Parameter_Data_Object_Output::CSG_Parameter_Data_Object_Output(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Data_Object(pOwner, Constraint)
 {
 	m_Type	= DATAOBJECT_TYPE_Undefined;
 }
 
-CParameter_DataObject_Output::~CParameter_DataObject_Output(void)
+CSG_Parameter_Data_Object_Output::~CSG_Parameter_Data_Object_Output(void)
 {}
 
 //---------------------------------------------------------
-bool CParameter_DataObject_Output::Set_Value(void *Value)
+bool CSG_Parameter_Data_Object_Output::Set_Value(void *Value)
 {
-	CDataObject	*pDataObject	= (CDataObject *)Value;
+	CSG_Data_Object	*pDataObject	= (CSG_Data_Object *)Value;
 
 	if( m_pDataObject != pDataObject && (!pDataObject || (pDataObject && pDataObject->Get_ObjectType() == m_Type)) )
 	{
@@ -1593,7 +1598,7 @@ bool CParameter_DataObject_Output::Set_Value(void *Value)
 }
 
 //---------------------------------------------------------
-bool CParameter_DataObject_Output::Set_DataObject_Type(TDataObject_Type Type)
+bool CSG_Parameter_Data_Object_Output::Set_DataObject_Type(TSG_Data_Object_Type Type)
 {
 	if( m_Type == DATAOBJECT_TYPE_Undefined )	// m_Type should not be changed after set once!!!...
 	{
@@ -1622,19 +1627,19 @@ bool CParameter_DataObject_Output::Set_DataObject_Type(TDataObject_Type Type)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter_Grid::CParameter_Grid(CParameter *pOwner, long Constraint)
-	: CParameter_DataObject(pOwner, Constraint)
+CSG_Parameter_Grid::CSG_Parameter_Grid(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Data_Object(pOwner, Constraint)
 {
 	m_Type	= GRID_TYPE_Undefined;
 }
 
-CParameter_Grid::~CParameter_Grid(void)
+CSG_Parameter_Grid::~CSG_Parameter_Grid(void)
 {}
 
 //---------------------------------------------------------
-bool CParameter_Grid::Set_Value(void *Value)
+bool CSG_Parameter_Grid::Set_Value(void *Value)
 {
-	CGrid_System	*pSystem;
+	CSG_Grid_System	*pSystem;
 
 	if( Value == DATAOBJECT_CREATE && !m_pOwner->is_Optional() )
 	{
@@ -1646,16 +1651,16 @@ bool CParameter_Grid::Set_Value(void *Value)
 		pSystem	= Get_System();
 
 		if(	Value == DATAOBJECT_NOTSET || Value == DATAOBJECT_CREATE
-		||	pSystem == NULL || pSystem->is_Equal(((CGrid *)Value)->Get_System()) )
+		||	pSystem == NULL || pSystem->is_Equal(((CSG_Grid *)Value)->Get_System()) )
 		{
-			m_pDataObject	= (CDataObject *)Value;
+			m_pDataObject	= (CSG_Data_Object *)Value;
 
 			return( true );
 		}
 		else if( !m_pOwner->Get_Owner()->is_Managed() && pSystem != NULL )
 		{
-			pSystem->Assign(((CGrid *)Value)->Get_System());
-			m_pDataObject	= (CDataObject *)Value;
+			pSystem->Assign(((CSG_Grid *)Value)->Get_System());
+			m_pDataObject	= (CSG_Data_Object *)Value;
 
 			return( true );
 		}
@@ -1665,7 +1670,7 @@ bool CParameter_Grid::Set_Value(void *Value)
 }
 
 //---------------------------------------------------------
-CGrid_System * CParameter_Grid::Get_System(void)
+CSG_Grid_System * CSG_Parameter_Grid::Get_System(void)
 {
 	if( m_pOwner->Get_Parent() && m_pOwner->Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System )
 	{
@@ -1676,17 +1681,17 @@ CGrid_System * CParameter_Grid::Get_System(void)
 }
 
 //---------------------------------------------------------
-void CParameter_Grid::Set_Preferred_Type(TGrid_Type Type)
+void CSG_Parameter_Grid::Set_Preferred_Type(TSG_Grid_Type Type)
 {
 	m_Type	= Type;
 }
 
 //---------------------------------------------------------
-void CParameter_Grid::On_Assign(CParameter_Data *pSource)
+void CSG_Parameter_Grid::On_Assign(CSG_Parameter_Data *pSource)
 {
-	CParameter_DataObject::On_Assign(pSource);
+	CSG_Parameter_Data_Object::On_Assign(pSource);
 
-	m_Type	= ((CParameter_Grid *)pSource)->m_Type;
+	m_Type	= ((CSG_Parameter_Grid *)pSource)->m_Type;
 }
 
 
@@ -1697,22 +1702,22 @@ void CParameter_Grid::On_Assign(CParameter_Data *pSource)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter_Table::CParameter_Table(CParameter *pOwner, long Constraint)
-	: CParameter_DataObject(pOwner, Constraint)
+CSG_Parameter_Table::CSG_Parameter_Table(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Data_Object(pOwner, Constraint)
 {}
 
-CParameter_Table::~CParameter_Table(void)
+CSG_Parameter_Table::~CSG_Parameter_Table(void)
 {}
 
 //---------------------------------------------------------
-bool CParameter_Table::Set_Value(void *Value)
+bool CSG_Parameter_Table::Set_Value(void *Value)
 {
 	int			i;
-	CParameters	*pParameters;
+	CSG_Parameters	*pParameters;
 
 	if( m_pDataObject != Value )
 	{
-		m_pDataObject	= (CDataObject *)Value;
+		m_pDataObject	= (CSG_Data_Object *)Value;
 
 		pParameters		= m_pOwner->Get_Owner();
 
@@ -1739,30 +1744,30 @@ bool CParameter_Table::Set_Value(void *Value)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter_Shapes::CParameter_Shapes(CParameter *pOwner, long Constraint)
-	: CParameter_DataObject(pOwner, Constraint)
+CSG_Parameter_Shapes::CSG_Parameter_Shapes(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Data_Object(pOwner, Constraint)
 {
 	m_Type	= SHAPE_TYPE_Undefined;
 }
 
-CParameter_Shapes::~CParameter_Shapes(void)
+CSG_Parameter_Shapes::~CSG_Parameter_Shapes(void)
 {}
 
 //---------------------------------------------------------
-bool CParameter_Shapes::Set_Value(void *Value)
+bool CSG_Parameter_Shapes::Set_Value(void *Value)
 {
 	int			i;
-	CParameters	*pParameters;
+	CSG_Parameters	*pParameters;
 
 	if(	Value != DATAOBJECT_NOTSET && Value != DATAOBJECT_CREATE
-	&&	m_Type != SHAPE_TYPE_Undefined && m_Type != ((CShapes *)Value)->Get_Type() )
+	&&	m_Type != SHAPE_TYPE_Undefined && m_Type != ((CSG_Shapes *)Value)->Get_Type() )
 	{
 		return( false );
 	}
 
 	if( m_pDataObject != Value )
 	{
-		m_pDataObject	= (CDataObject *)Value;
+		m_pDataObject	= (CSG_Data_Object *)Value;
 
 		pParameters		= m_pOwner->Get_Owner();
 
@@ -1782,17 +1787,17 @@ bool CParameter_Shapes::Set_Value(void *Value)
 }
 
 //---------------------------------------------------------
-void CParameter_Shapes::Set_Shape_Type(TShape_Type Type)
+void CSG_Parameter_Shapes::Set_Shape_Type(TSG_Shape_Type Type)
 {
 	m_Type	= Type;
 }
 
 //---------------------------------------------------------
-void CParameter_Shapes::On_Assign(CParameter_Data *pSource)
+void CSG_Parameter_Shapes::On_Assign(CSG_Parameter_Data *pSource)
 {
-	CParameter_DataObject::On_Assign(pSource);
+	CSG_Parameter_Data_Object::On_Assign(pSource);
 
-	m_Type	= ((CParameter_Shapes *)pSource)->m_Type;
+	m_Type	= ((CSG_Parameter_Shapes *)pSource)->m_Type;
 }
 
 
@@ -1803,22 +1808,22 @@ void CParameter_Shapes::On_Assign(CParameter_Data *pSource)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter_TIN::CParameter_TIN(CParameter *pOwner, long Constraint)
-	: CParameter_DataObject(pOwner, Constraint)
+CSG_Parameter_TIN::CSG_Parameter_TIN(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Data_Object(pOwner, Constraint)
 {}
 
-CParameter_TIN::~CParameter_TIN(void)
+CSG_Parameter_TIN::~CSG_Parameter_TIN(void)
 {}
 
 //---------------------------------------------------------
-bool CParameter_TIN::Set_Value(void *Value)
+bool CSG_Parameter_TIN::Set_Value(void *Value)
 {
 	int			i;
-	CParameters	*pParameters;
+	CSG_Parameters	*pParameters;
 
 	if( m_pDataObject != Value )
 	{
-		m_pDataObject	= (CDataObject *)Value;
+		m_pDataObject	= (CSG_Data_Object *)Value;
 
 		pParameters		= m_pOwner->Get_Owner();
 
@@ -1845,20 +1850,20 @@ bool CParameter_TIN::Set_Value(void *Value)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter_List::CParameter_List(CParameter *pOwner, long Constraint)
-	: CParameter_Data(pOwner, Constraint)
+CSG_Parameter_List::CSG_Parameter_List(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Data(pOwner, Constraint)
 {
 	m_Objects	= NULL;
 	m_nObjects	= 0;
 }
 
-CParameter_List::~CParameter_List(void)
+CSG_Parameter_List::~CSG_Parameter_List(void)
 {
 	Del_Items();
 }
 
 //---------------------------------------------------------
-const char * CParameter_List::asString(void)
+const char * CSG_Parameter_List::asString(void)
 {
 	if( Get_Count() > 0 )
 	{
@@ -1885,17 +1890,17 @@ const char * CParameter_List::asString(void)
 }
 
 //---------------------------------------------------------
-void CParameter_List::Add_Item(CDataObject *pObject)
+void CSG_Parameter_List::Add_Item(CSG_Data_Object *pObject)
 {
 	if( pObject )
 	{
-		m_Objects	= (CDataObject **)SG_Realloc(m_Objects, (m_nObjects + 1) * sizeof(CDataObject *));
+		m_Objects	= (CSG_Data_Object **)SG_Realloc(m_Objects, (m_nObjects + 1) * sizeof(CSG_Data_Object *));
 		m_Objects[m_nObjects++]	= pObject;
 	}
 }
 
 //---------------------------------------------------------
-int CParameter_List::Del_Item(int iObject)
+int CSG_Parameter_List::Del_Item(int iObject)
 {
 	int		i;
 
@@ -1908,13 +1913,13 @@ int CParameter_List::Del_Item(int iObject)
 			m_Objects[i]	= m_Objects[i + 1];
 		}
 
-		m_Objects	= (CDataObject **)SG_Realloc(m_Objects, m_nObjects * sizeof(CDataObject *));
+		m_Objects	= (CSG_Data_Object **)SG_Realloc(m_Objects, m_nObjects * sizeof(CSG_Data_Object *));
 	}
 
 	return( m_nObjects );
 }
 
-int CParameter_List::Del_Item(CDataObject *pObject)
+int CSG_Parameter_List::Del_Item(CSG_Data_Object *pObject)
 {
 	int		i;
 
@@ -1930,7 +1935,7 @@ int CParameter_List::Del_Item(CDataObject *pObject)
 }
 
 //---------------------------------------------------------
-void CParameter_List::Del_Items(void)
+void CSG_Parameter_List::Del_Items(void)
 {
 	if( m_nObjects > 0 )
 	{
@@ -1941,18 +1946,18 @@ void CParameter_List::Del_Items(void)
 }
 
 //---------------------------------------------------------
-void CParameter_List::On_Assign(CParameter_Data *pSource)
+void CSG_Parameter_List::On_Assign(CSG_Parameter_Data *pSource)
 {
 	Del_Items();
 
-	for(int i=0; i<((CParameter_List *)pSource)->Get_Count(); i++)
+	for(int i=0; i<((CSG_Parameter_List *)pSource)->Get_Count(); i++)
 	{
-		Add_Item(((CParameter_List *)pSource)->asDataObject(i));
+		Add_Item(((CSG_Parameter_List *)pSource)->asDataObject(i));
 	}
 }
 
 //---------------------------------------------------------
-bool CParameter_List::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_List::On_Serialize(FILE *Stream, bool bSave)
 {
 	if( bSave )
 	{
@@ -1969,7 +1974,7 @@ bool CParameter_List::On_Serialize(FILE *Stream, bool bSave)
 	else
 	{
 		CSG_String	sLine;
-		CDataObject	*pObject;
+		CSG_Data_Object	*pObject;
 
 		while( SG_Read_Line(Stream, sLine) && sLine.Cmp(ENTRY_DATAOBJECTLIST_END) )
 		{
@@ -1992,16 +1997,16 @@ bool CParameter_List::On_Serialize(FILE *Stream, bool bSave)
 
 
 //---------------------------------------------------------
-CParameter_Grid_List::CParameter_Grid_List(CParameter *pOwner, long Constraint)
-	: CParameter_List(pOwner, Constraint)
+CSG_Parameter_Grid_List::CSG_Parameter_Grid_List(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_List(pOwner, Constraint)
 {
 }
 
-CParameter_Grid_List::~CParameter_Grid_List(void)
+CSG_Parameter_Grid_List::~CSG_Parameter_Grid_List(void)
 {}
 
 //---------------------------------------------------------
-CGrid_System * CParameter_Grid_List::Get_System(void)
+CSG_Grid_System * CSG_Parameter_Grid_List::Get_System(void)
 {
 	if( m_pOwner->Get_Parent() && m_pOwner->Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System )
 	{
@@ -2020,11 +2025,11 @@ CGrid_System * CParameter_Grid_List::Get_System(void)
 
 
 //---------------------------------------------------------
-CParameter_Table_List::CParameter_Table_List(CParameter *pOwner, long Constraint)
-	: CParameter_List(pOwner, Constraint)
+CSG_Parameter_Table_List::CSG_Parameter_Table_List(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_List(pOwner, Constraint)
 {}
 
-CParameter_Table_List::~CParameter_Table_List(void)
+CSG_Parameter_Table_List::~CSG_Parameter_Table_List(void)
 {}
 
 
@@ -2036,27 +2041,27 @@ CParameter_Table_List::~CParameter_Table_List(void)
 
 
 //---------------------------------------------------------
-CParameter_Shapes_List::CParameter_Shapes_List(CParameter *pOwner, long Constraint)
-	: CParameter_List(pOwner, Constraint)
+CSG_Parameter_Shapes_List::CSG_Parameter_Shapes_List(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_List(pOwner, Constraint)
 {
 	m_Type	= SHAPE_TYPE_Undefined;
 }
 
-CParameter_Shapes_List::~CParameter_Shapes_List(void)
+CSG_Parameter_Shapes_List::~CSG_Parameter_Shapes_List(void)
 {}
 
 //---------------------------------------------------------
-void CParameter_Shapes_List::Set_Shape_Type(TShape_Type Type)
+void CSG_Parameter_Shapes_List::Set_Shape_Type(TSG_Shape_Type Type)
 {
 	m_Type	= Type;
 }
 
 //---------------------------------------------------------
-void CParameter_Shapes_List::On_Assign(CParameter_Data *pSource)
+void CSG_Parameter_Shapes_List::On_Assign(CSG_Parameter_Data *pSource)
 {
-	CParameter_List::On_Assign(pSource);
+	CSG_Parameter_List::On_Assign(pSource);
 
-	m_Type	= ((CParameter_Shapes_List *)pSource)->m_Type;
+	m_Type	= ((CSG_Parameter_Shapes_List *)pSource)->m_Type;
 }
 
 
@@ -2068,11 +2073,11 @@ void CParameter_Shapes_List::On_Assign(CParameter_Data *pSource)
 
 
 //---------------------------------------------------------
-CParameter_TIN_List::CParameter_TIN_List(CParameter *pOwner, long Constraint)
-	: CParameter_List(pOwner, Constraint)
+CSG_Parameter_TIN_List::CSG_Parameter_TIN_List(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_List(pOwner, Constraint)
 {}
 
-CParameter_TIN_List::~CParameter_TIN_List(void)
+CSG_Parameter_TIN_List::~CSG_Parameter_TIN_List(void)
 {}
 
 
@@ -2083,19 +2088,19 @@ CParameter_TIN_List::~CParameter_TIN_List(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter_Parameters::CParameter_Parameters(CParameter *pOwner, long Constraint)
-	: CParameter_Data(pOwner, Constraint)
+CSG_Parameter_Parameters::CSG_Parameter_Parameters(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Data(pOwner, Constraint)
 {
-	m_pParameters	= new CParameters(pOwner->Get_Owner()->Get_Owner(), pOwner->Get_Name(), pOwner->Get_Description());
+	m_pParameters	= new CSG_Parameters(pOwner->Get_Owner()->Get_Owner(), pOwner->Get_Name(), pOwner->Get_Description());
 }
 
-CParameter_Parameters::~CParameter_Parameters(void)
+CSG_Parameter_Parameters::~CSG_Parameter_Parameters(void)
 {
 	delete(m_pParameters);
 }
 
 //---------------------------------------------------------
-const char * CParameter_Parameters::asString(void)
+const char * CSG_Parameter_Parameters::asString(void)
 {
 	m_String.Printf("%d %s", m_pParameters->Get_Count(), LNG("parameters"));
 
@@ -2103,13 +2108,13 @@ const char * CParameter_Parameters::asString(void)
 }
 
 //---------------------------------------------------------
-void CParameter_Parameters::On_Assign(CParameter_Data *pSource)
+void CSG_Parameter_Parameters::On_Assign(CSG_Parameter_Data *pSource)
 {
-	m_pParameters->Assign(((CParameter_Parameters *)pSource)->m_pParameters);
+	m_pParameters->Assign(((CSG_Parameter_Parameters *)pSource)->m_pParameters);
 }
 
 //---------------------------------------------------------
-bool CParameter_Parameters::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_Parameters::On_Serialize(FILE *Stream, bool bSave)
 {
 	return( m_pParameters->Serialize(Stream, bSave) );
 }

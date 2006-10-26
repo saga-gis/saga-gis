@@ -81,14 +81,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum EModule_Type
+typedef enum ESG_Module_Type
 {
 	MODULE_TYPE_Base			= 0,
 	MODULE_TYPE_Interactive,
 	MODULE_TYPE_Grid,
 	MODULE_TYPE_Grid_Interactive
 }
-TModule_Type;
+TSG_Module_Type;
 
 
 ///////////////////////////////////////////////////////////
@@ -98,33 +98,33 @@ TModule_Type;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum EModule_Error
+typedef enum ESG_Module_Error
 {
 	MODULE_ERROR_Unknown		= 0,
 	MODULE_ERROR_Calculation
 }
-TModule_Error;
+TSG_Module_Error;
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//						CModule							 //
+//						CSG_Module						 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CModule
+class SAGA_API_DLL_EXPORT CSG_Module
 {
-	friend class CModule_Interactive_Base;
+	friend class CSG_Module_Interactive_Base;
 
 public:
 
-	CModule(void);
-	virtual ~CModule(void);
+	CSG_Module(void);
+	virtual ~CSG_Module(void);
 
 	virtual void				Destroy						(void);
 
-	virtual TModule_Type		Get_Type					(void)	{	return( MODULE_TYPE_Base );	}
+	virtual TSG_Module_Type		Get_Type					(void)	{	return( MODULE_TYPE_Base );	}
 
 	const char *				Get_Name					(void);
 	const char *				Get_Description				(void);
@@ -133,8 +133,8 @@ public:
 
 	virtual const char *		Get_MenuPath				(void)	{	return( NULL );	}
 
-	CParameters *				Get_Parameters				(void)	{	return( &Parameters );	}
-	CParameters *				Get_Extra_Parameters		(int i)	{	return( i >= 0 && i < m_npParameters ? m_pParameters[i] : NULL );	}
+	CSG_Parameters *			Get_Parameters				(void)	{	return( &Parameters );	}
+	CSG_Parameters *			Get_Extra_Parameters		(int i)	{	return( i >= 0 && i < m_npParameters ? m_pParameters[i] : NULL );	}
 	int							Get_Extra_Parameters_Count	(void)	{	return( m_npParameters );	}
 
 	virtual bool				is_Interactive				(void)	{	return( false );	}
@@ -150,7 +150,7 @@ public:
 
 protected:
 
-	CParameters					Parameters;
+	CSG_Parameters				Parameters;
 
 	CSG_History					History_Supplement;
 
@@ -163,14 +163,14 @@ protected:
 	//-----------------------------------------------------
 	virtual bool				On_Execute					(void)		= 0;
 
-	virtual int					On_Parameter_Changed		(CParameters *pParameters, CParameter *pParameter);
+	virtual int					On_Parameter_Changed		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
 	//-----------------------------------------------------
-	bool						Dlg_Parameters				(CParameters *pParameters, const char *Caption);
+	bool						Dlg_Parameters				(CSG_Parameters *pParameters, const char *Caption);
 
-	CParameters *				Add_Extra_Parameters		(const char *Identifier, const char *Name, const char *Description);
-	CParameters *				Get_Extra_Parameters		(const char *Identifier);
+	CSG_Parameters *			Add_Extra_Parameters		(const char *Identifier, const char *Name, const char *Description);
+	CSG_Parameters *			Get_Extra_Parameters		(const char *Identifier);
 	int							Dlg_Extra_Parameters		(const char *Identifier);
 
 
@@ -184,19 +184,19 @@ protected:
 	void						Message_Add					(const char *Text, bool bNewLine = true);
 	void						Message_Dlg					(const char *Text, const char *Caption = NULL);
 
-	bool						Error_Set					(TModule_Error Error_ID = MODULE_ERROR_Unknown);
+	bool						Error_Set					(TSG_Module_Error Error_ID = MODULE_ERROR_Unknown);
 	bool						Error_Set					(const char *Error_Text);
 
 
 	//-----------------------------------------------------
-	bool						DataObject_Add				(CDataObject *pDataObject, bool bUpdate = false);
-	bool						DataObject_Update			(CDataObject *pDataObject, bool bShow = false);
-	bool						DataObject_Update			(CDataObject *pDataObject, double Parm_1, double Parm_2, bool bShow = false);
+	bool						DataObject_Add				(CSG_Data_Object *pDataObject, bool bUpdate = false);
+	bool						DataObject_Update			(CSG_Data_Object *pDataObject, bool bShow = false);
+	bool						DataObject_Update			(CSG_Data_Object *pDataObject, double Parm_1, double Parm_2, bool bShow = false);
 
 	void						DataObject_Update_All		(void);
 
-	bool						DataObject_Get_Colors		(CDataObject *pDataObject, CSG_Colors &Colors);
-	bool						DataObject_Set_Colors		(CDataObject *pDataObject, CSG_Colors &Colors);
+	bool						DataObject_Get_Colors		(CSG_Data_Object *pDataObject, CSG_Colors &Colors);
+	bool						DataObject_Set_Colors		(CSG_Data_Object *pDataObject, CSG_Colors &Colors);
 
 
 private:
@@ -205,34 +205,34 @@ private:
 
 	int							m_npParameters;
 
-	CParameters					**m_pParameters;
+	CSG_Parameters				**m_pParameters;
 
 	CSG_String					m_Author;
 
 
 	void						_Set_Output_History			(void);
 
-	static int					_On_Parameter_Changed		(CParameter *pParameter);
+	static int					_On_Parameter_Changed		(CSG_Parameter *pParameter);
 
 };
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//					CModule_Grid						 //
+//					CSG_Module_Grid						 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CModule_Grid : public CModule
+class SAGA_API_DLL_EXPORT CSG_Module_Grid : public CSG_Module
 {
 public:
-	CModule_Grid(void);
-	virtual ~CModule_Grid(void);
+	CSG_Module_Grid(void);
+	virtual ~CSG_Module_Grid(void);
 
-	virtual TModule_Type		Get_Type				(void)			{	return( MODULE_TYPE_Grid );	}
+	virtual TSG_Module_Type		Get_Type				(void)			{	return( MODULE_TYPE_Grid );	}
 
-	CGrid_System *				Get_System				(void)			{	return( Parameters.Get_Grid_System() );	}
+	CSG_Grid_System *			Get_System				(void)			{	return( Parameters.Get_Grid_System() );	}
 
 
 protected:
@@ -275,19 +275,19 @@ protected:
 
 private:
 
-	CGrid						*m_pLock;
+	CSG_Grid						*m_pLock;
 
 };
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//				CModule_Interactive_Base				 //
+//				CSG_Module_Interactive_Base				 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum EModule_Interactive_Mode
+typedef enum ESG_Module_Interactive_Mode
 {
 	MODULE_INTERACTIVE_UNDEFINED		= 0,
 	MODULE_INTERACTIVE_LDOWN,
@@ -304,17 +304,17 @@ typedef enum EModule_Interactive_Mode
 	MODULE_INTERACTIVE_MOVE_MDOWN,
 	MODULE_INTERACTIVE_MOVE_RDOWN
 }
-TModule_Interactive_Mode;
+TSG_Module_Interactive_Mode;
 
 //---------------------------------------------------------
-typedef enum EModule_Interactive_DragMode
+typedef enum ESG_Module_Interactive_DragMode
 {
 	MODULE_INTERACTIVE_DRAG_NONE		= 0,
 	MODULE_INTERACTIVE_DRAG_LINE,
 	MODULE_INTERACTIVE_DRAG_BOX,
 	MODULE_INTERACTIVE_DRAG_CIRCLE
 }
-TModule_Interactive_DragMode;
+TSG_Module_Interactive_DragMode;
 
 //---------------------------------------------------------
 #define MODULE_INTERACTIVE_KEY_LEFT		0x01
@@ -325,16 +325,16 @@ TModule_Interactive_DragMode;
 #define MODULE_INTERACTIVE_KEY_CTRL		0x20
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CModule_Interactive_Base
+class SAGA_API_DLL_EXPORT CSG_Module_Interactive_Base
 {
-	friend class CModule_Interactive;
-	friend class CModule_Grid_Interactive;
+	friend class CSG_Module_Interactive;
+	friend class CSG_Module_Grid_Interactive;
 
 public:
-	CModule_Interactive_Base(void);
-	virtual ~CModule_Interactive_Base(void);
+	CSG_Module_Interactive_Base(void);
+	virtual ~CSG_Module_Interactive_Base(void);
 
-	bool						Execute_Position		(CSG_Point ptWorld, TModule_Interactive_Mode Mode, int Keys);
+	bool						Execute_Position		(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode, int Keys);
 	bool						Execute_Keyboard		(int Character, int Keys);
 	bool						Execute_Finish			(void);
 
@@ -343,7 +343,7 @@ public:
 
 protected:
 
-	virtual bool				On_Execute_Position		(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
+	virtual bool				On_Execute_Position		(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
 	virtual bool				On_Execute_Keyboard		(int Character);
 	virtual bool				On_Execute_Finish		(void);
 
@@ -368,25 +368,25 @@ private:
 
 	CSG_Point					m_Point, m_Point_Last;
 
-	CModule						*m_pModule;
+	CSG_Module					*m_pModule;
 
 };
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//					CModule_Interactive					 //
+//				CSG_Module_Interactive					 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CModule_Interactive : public CModule_Interactive_Base, public CModule
+class SAGA_API_DLL_EXPORT CSG_Module_Interactive : public CSG_Module_Interactive_Base, public CSG_Module
 {
 public:
-	CModule_Interactive(void);
-	virtual ~CModule_Interactive(void);
+	CSG_Module_Interactive(void);
+	virtual ~CSG_Module_Interactive(void);
 
-	virtual TModule_Type		Get_Type				(void)	{	return( MODULE_TYPE_Interactive );	}
+	virtual TSG_Module_Type		Get_Type				(void)	{	return( MODULE_TYPE_Interactive );	}
 
 	virtual bool				is_Interactive			(void)	{	return( true );	}
 
@@ -395,18 +395,18 @@ public:
 
 ///////////////////////////////////////////////////////////
 //														 //
-//				CModule_Grid_Interactive				 //
+//				CSG_Module_Grid_Interactive				 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CModule_Grid_Interactive : public CModule_Interactive_Base, public CModule_Grid
+class SAGA_API_DLL_EXPORT CSG_Module_Grid_Interactive : public CSG_Module_Interactive_Base, public CSG_Module_Grid
 {
 public:
-	CModule_Grid_Interactive(void);
-	virtual ~CModule_Grid_Interactive(void);
+	CSG_Module_Grid_Interactive(void);
+	virtual ~CSG_Module_Grid_Interactive(void);
 
-	virtual TModule_Type		Get_Type				(void)	{	return( MODULE_TYPE_Grid_Interactive );	}
+	virtual TSG_Module_Type		Get_Type				(void)	{	return( MODULE_TYPE_Grid_Interactive );	}
 
 	virtual bool				is_Interactive			(void)	{	return( true );	}
 
@@ -428,7 +428,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum EMLB_Info
+typedef enum ESG_MLB_Info
 {
 	MLB_INFO_Name	= 0,
 	MLB_INFO_Description,
@@ -438,21 +438,21 @@ typedef enum EMLB_Info
 	MLB_INFO_User,
 	MLB_INFO_Count
 }
-TMLB_Info;
+TSG_MLB_Info;
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CModule_Library_Interface
+class SAGA_API_DLL_EXPORT CSG_Module_Library_Interface
 {
 public:
-	CModule_Library_Interface(void);
-	virtual ~CModule_Library_Interface(void);
+	CSG_Module_Library_Interface(void);
+	virtual ~CSG_Module_Library_Interface(void);
 
 	void						Set_Info				(int ID, const char *Info);
 	const char *				Get_Info				(int ID);
 
 	int							Get_Count				(void);
-	bool						Add_Module				(CModule *pModule);
-	CModule *					Get_Module				(int iModule);
+	bool						Add_Module				(CSG_Module *pModule);
+	CSG_Module *				Get_Module				(int iModule);
 
 	void						Set_File_Name			(const char *File_Name);
 	const char *				Get_File_Name			(void);
@@ -466,7 +466,7 @@ private:
 
 	int							m_nModules;
 
-	CModule						**m_Modules;
+	CSG_Module					**m_Modules;
 
 	CSG_String					m_File_Name;
 
@@ -475,17 +475,17 @@ private:
 };
 
 //---------------------------------------------------------
-#define SYMBOL_MLB_Initialize		"MLB_Initialize"
-typedef bool						(* TSG_PFNC_MLB_Initialize)		(const char *);
+#define SYMBOL_MLB_Initialize			"MLB_Initialize"
+typedef bool							(* TSG_PFNC_MLB_Initialize)		(const char *);
 
 //---------------------------------------------------------
-#define SYMBOL_MLB_Get_Interface	"MLB_Get_Interface"
-typedef CModule_Library_Interface *	(* TSG_PFNC_MLB_Get_Interface)	(void);
+#define SYMBOL_MLB_Get_Interface		"MLB_Get_Interface"
+typedef CSG_Module_Library_Interface *	(* TSG_PFNC_MLB_Get_Interface)	(void);
 
 //---------------------------------------------------------
-#define MLB_INTERFACE	CModule_Library_Interface		MLB_Interface;\
+#define MLB_INTERFACE	CSG_Module_Library_Interface		MLB_Interface;\
 \
-extern "C" _SAGA_DLL_EXPORT bool						MLB_Initialize		(const char *File_Name)\
+extern "C" _SAGA_DLL_EXPORT bool							MLB_Initialize		(const char *File_Name)\
 {\
 	MLB_Interface.Set_File_Name(File_Name);\
 \
@@ -501,19 +501,24 @@ extern "C" _SAGA_DLL_EXPORT bool						MLB_Initialize		(const char *File_Name)\
 	return( MLB_Interface.Get_Count() > 0 );\
 }\
 \
-extern "C" _SAGA_DLL_EXPORT CModule_Library_Interface *	MLB_Get_Interface   (void)\
+extern "C" _SAGA_DLL_EXPORT CSG_Module_Library_Interface *	MLB_Get_Interface   (void)\
 {\
 	return( &MLB_Interface );\
 }\
 \
-extern "C" _SAGA_DLL_EXPORT const char *				Get_API_Version		(void)\
+extern "C" _SAGA_DLL_EXPORT const char *					Get_API_Version		(void)\
 {\
 	return( SAGA_API_VERSION );\
 }\
 
 //---------------------------------------------------------
-extern CModule_Library_Interface	MLB_Interface;
+#ifndef SWIG
 
+extern CSG_Module_Library_Interface	MLB_Interface;
+
+#endif	// #ifdef SWIG
+
+//---------------------------------------------------------
 #define _TL			MLB_Interface.Get_Translation
 
 

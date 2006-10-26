@@ -178,7 +178,7 @@ CWKSP_Base_Control * CWKSP_Base_Item::Get_Control(void)
 ///////////////////////////////////////////////////////////
 
 /*/---------------------------------------------------------
-void print_parameter(FILE *Stream, CParameter *p, int Level)
+void print_parameter(FILE *Stream, CSG_Parameter *p, int Level)
 {
 	if( Level > 0 || !p->Get_Parent() )
 	{
@@ -199,7 +199,7 @@ void print_parameter(FILE *Stream, CParameter *p, int Level)
 bool CWKSP_Base_Item::On_Command(int Cmd_ID)
 {
 	FILE		*Stream;
-	CParameters	*P;
+	CSG_Parameters	*P;
 	wxString	File_Path;
 
 	if( (P = Get_Parameters()) != NULL && Cmd_ID == WXK_F9 && DLG_Save(File_Path, "Write Parameters", "Text Files (*.txt)|*.txt|All Files|*.*") && (Stream = fopen(File_Path, "w")) != NULL )

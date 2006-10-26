@@ -103,7 +103,7 @@ private:
 
 	double					Src_Height, Src_Slope, DEMON_minDQV;
 
-	CGrid					*pLinear, *pDir, *pDif;
+	CSG_Grid					*pLinear, *pDir, *pDif;
 
 
 	void					Add_Flow		(int x, int y, double qFlow);

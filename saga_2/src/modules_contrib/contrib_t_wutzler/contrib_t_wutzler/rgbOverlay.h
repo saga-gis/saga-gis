@@ -66,7 +66,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CRGBOverlay : public CModule_Grid
+class CRGBOverlay : public CSG_Module_Grid
 {
 public:
 	CRGBOverlay(void);

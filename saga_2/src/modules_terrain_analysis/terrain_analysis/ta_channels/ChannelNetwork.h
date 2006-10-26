@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_channels_EXPORT CChannelNetwork : public CModule_Grid
+class ta_channels_EXPORT CChannelNetwork : public CSG_Module_Grid
 {
 public:
 	CChannelNetwork(void);
@@ -95,13 +95,13 @@ private:
 
 	int						*Direction, Direction_Buffer, minLength, maxDivCells;
 
-	CGrid					*pDTM, *pStart, *pTrace, *pConvergence, *pChannels, *pChannelRoute;
+	CSG_Grid					*pDTM, *pStart, *pTrace, *pConvergence, *pChannels, *pChannelRoute;
 
-	CShapes					*pShapes;
+	CSG_Shapes					*pShapes;
 
 
 	void					Set_Route_Standard	(int x, int y);
-	void					Set_Route_Weighted	(int x, int y, CGrid *pWeight, double Weight_Threshold);
+	void					Set_Route_Weighted	(int x, int y, CSG_Grid *pWeight, double Weight_Threshold);
 
 	void					Set_Channel_Route	(int x, int y);
 	void					Set_Channel_Order	(int x, int y);

@@ -24,10 +24,10 @@
 
 #define GLOBAL_BASIN -1
 
-void getNextCell(CGrid*,int,int,int &,int &);
-void getNextCell(CGrid*,CGrid*,int,int,int&,int&);
-double FlowDistance(CGrid*,CGrid*,int,int,int,int,int);
-TSG_Point ** RiverProfile(int, int, CGrid*, CGrid*, CGrid*, int &);
-TSG_Point  * RiverCoords (int, int, CGrid*, CGrid*, int &);
-float DrainageDensity(CShapes*, CShapes*, CGrid*, CGrid*);
-void ClosingPoint(CGrid*, CGrid*, int &, int &);
+void getNextCell(CSG_Grid*,int,int,int &,int &);
+void getNextCell(CSG_Grid*,CSG_Grid*,int,int,int&,int&);
+double FlowDistance(CSG_Grid*,CSG_Grid*,int,int,int,int,int);
+TSG_Point ** RiverProfile(int, int, CSG_Grid*, CSG_Grid*, CSG_Grid*, int &);
+TSG_Point  * RiverCoords (int, int, CSG_Grid*, CSG_Grid*, int &);
+float DrainageDensity(CSG_Shapes*, CSG_Shapes*, CSG_Grid*, CSG_Grid*);
+void ClosingPoint(CSG_Grid*, CSG_Grid*, int &, int &);

@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Cluster_Analysis : public CModule_Grid
+class CGrid_Cluster_Analysis : public CSG_Module_Grid
 {
 public:
 	CGrid_Cluster_Analysis(void);
@@ -92,10 +92,10 @@ private:
 
 	double					**Centroids, *Variances;
 
-	CGrid					**Grids, *pCluster;
+	CSG_Grid					**Grids, *pCluster;
 
 
-	void					Write_Result	(CTable *pTable, long nElements, int nCluster, double SP);
+	void					Write_Result	(CSG_Table *pTable, long nElements, int nCluster, double SP);
 
 	double					MinimumDistance	(long &nElements, int nCluster);
 	double					HillClimbing	(long &nElements, int nCluster);

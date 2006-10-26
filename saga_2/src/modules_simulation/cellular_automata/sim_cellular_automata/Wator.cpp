@@ -75,7 +75,7 @@
 //---------------------------------------------------------
 CWator::CWator(void)
 {
-	CParameter	*pNode_0, *pNode_1;
+	CSG_Parameter	*pNode_0, *pNode_1;
 
 	//-----------------------------------------------------
 	Set_Name("Wa-Tor");
@@ -178,8 +178,8 @@ bool CWator::On_Execute(void)
 	int				x, y, i;
 	double			perc, Fish_perc, Shark_perc;
 	CSG_Colors			Colors;
-	CTable			*pTable;
-	CTable_Record	*pRecord;
+	CSG_Table			*pTable;
+	CSG_Table_Record	*pRecord;
 
 	//-----------------------------------------------------
 	if( (pWator = Parameters("RESULT")->asGrid()) == NULL )

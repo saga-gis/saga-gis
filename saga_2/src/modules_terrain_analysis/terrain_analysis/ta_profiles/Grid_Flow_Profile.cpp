@@ -146,7 +146,7 @@ bool CGrid_Flow_Profile::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Flow_Profile::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CGrid_Flow_Profile::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
 {
 	switch( Mode )
 	{
@@ -232,7 +232,7 @@ bool CGrid_Flow_Profile::Add_Point(int x, int y)
 	int			i;
 	double		z, Distance, Distance_2;
 	TSG_Point	Point;
-	CShape		*pPoint, *pLast;
+	CSG_Shape		*pPoint, *pLast;
 
 	if( m_pDEM->is_InGrid(x, y) )
 	{

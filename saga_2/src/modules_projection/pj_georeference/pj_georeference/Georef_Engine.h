@@ -85,8 +85,8 @@ public:
 	CGeoref_Engine(void);
 	virtual ~CGeoref_Engine(void);
 
-	bool			Set_Engine			(CShapes *pSource, CShapes *pTarget);
-	bool			Set_Engine			(CShapes *pSource, int xField, int yField);
+	bool			Set_Engine			(CSG_Shapes *pSource, CSG_Shapes *pTarget);
+	bool			Set_Engine			(CSG_Shapes *pSource, int xField, int yField);
 
 	bool			Get_Converted		(TSG_Point &Point   , bool bInverse = false);
 	bool			Get_Converted		(double &x, double &y, bool bInverse = false);

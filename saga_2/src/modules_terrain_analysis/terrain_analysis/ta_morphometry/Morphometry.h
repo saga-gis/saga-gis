@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_morphometry_EXPORT CMorphometry : public CModule_Grid
+class ta_morphometry_EXPORT CMorphometry : public CSG_Module_Grid
 {
 public:
 	CMorphometry(void);
@@ -95,7 +95,7 @@ private:
 
 	double					_DX_2, _4DX_2, _6DX, _2DX;
 
-	CGrid					*pDTM, *pSlope, *pAspect, *pCurvature, *pCurv_Horz, *pCurv_Vert, *pCurv_Tang;
+	CSG_Grid					*pDTM, *pSlope, *pAspect, *pCurvature, *pCurv_Horz, *pCurv_Vert, *pCurv_Tang;
 
 	//-----------------------------------------------------
 	void					Set_Parameters			(int x, int y, double Slope, double Aspect, double Curv = 0.0, double vCurv = 0.0, double hCurv = 0.0, double tCurv = 0.0);

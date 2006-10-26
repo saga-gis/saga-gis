@@ -68,7 +68,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CGrid_Statistics_AddTo_Polygon : public CModule_Grid  
+class CGrid_Statistics_AddTo_Polygon : public CSG_Module_Grid  
 {
 public:
 	CGrid_Statistics_AddTo_Polygon(void);
@@ -82,7 +82,7 @@ protected:
 
 private:
 
-	bool				Get_ShapeIDs(CShapes *pShapes, CGrid *pShapeIDs);
+	bool				Get_ShapeIDs(CSG_Shapes *pShapes, CSG_Grid *pShapeIDs);
 
 };
 

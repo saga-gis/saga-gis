@@ -72,27 +72,27 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTable * SG_Create_Table(void)
+CSG_Table * SG_Create_Table(void)
 {
-	return( new CTable );
+	return( new CSG_Table );
 }
 
 //---------------------------------------------------------
-CTable * SG_Create_Table(const CTable &Table)
+CSG_Table * SG_Create_Table(const CSG_Table &Table)
 {
-	return( new CTable(Table) );
+	return( new CSG_Table(Table) );
 }
 
 //---------------------------------------------------------
-CTable * SG_Create_Table(const char *FileName)
+CSG_Table * SG_Create_Table(const char *FileName)
 {
-	return( new CTable(FileName) );
+	return( new CSG_Table(FileName) );
 }
 
 //---------------------------------------------------------
-CTable * SG_Create_Table(CTable *pStructure)
+CSG_Table * SG_Create_Table(CSG_Table *pStructure)
 {
-	return( new CTable(pStructure) );
+	return( new CSG_Table(pStructure) );
 }
 
 
@@ -103,15 +103,15 @@ CTable * SG_Create_Table(CTable *pStructure)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTable::CTable(void)
-	: CDataObject()
+CSG_Table::CSG_Table(void)
+	: CSG_Data_Object()
 {
 	_On_Construction();
 }
 
 //---------------------------------------------------------
-CTable::CTable(const CTable &Table)
-	: CDataObject()
+CSG_Table::CSG_Table(const CSG_Table &Table)
+	: CSG_Data_Object()
 {
 	_On_Construction();
 
@@ -119,8 +119,8 @@ CTable::CTable(const CTable &Table)
 }
 
 //---------------------------------------------------------
-CTable::CTable(const char *File_Name, char Separator)
-	: CDataObject()
+CSG_Table::CSG_Table(const char *File_Name, char Separator)
+	: CSG_Data_Object()
 {
 	_On_Construction();
 
@@ -128,8 +128,8 @@ CTable::CTable(const char *File_Name, char Separator)
 }
 
 //---------------------------------------------------------
-CTable::CTable(CTable *pStructure)
-	: CDataObject()
+CSG_Table::CSG_Table(CSG_Table *pStructure)
+	: CSG_Data_Object()
 {
 	_On_Construction();
 
@@ -144,7 +144,7 @@ CTable::CTable(CTable *pStructure)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CTable::_On_Construction(void)
+void CSG_Table::_On_Construction(void)
 {
 	m_nFields		= 0;
 	m_Field_Name	= NULL;
@@ -173,34 +173,34 @@ void CTable::_On_Construction(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTable::Create(const CTable &Table)
+bool CSG_Table::Create(const CSG_Table &Table)
 {
 	return( is_Private() ? false : _Create(Table) );
 }
 
-bool CTable::_Create(const CTable &Table)
+bool CSG_Table::_Create(const CSG_Table &Table)
 {
-	return( Assign((CDataObject *)&Table) );
+	return( Assign((CSG_Data_Object *)&Table) );
 }
 
 //---------------------------------------------------------
-bool CTable::Create(const char *File_Name, char Separator)
+bool CSG_Table::Create(const char *File_Name, char Separator)
 {
 	return( is_Private() ? false : _Create(File_Name, Separator) );
 }
 
-bool CTable::_Create(const char *File_Name, char Separator)
+bool CSG_Table::_Create(const char *File_Name, char Separator)
 {
 	return( _Load(File_Name, TABLE_FILETYPE_Undefined, Separator) );
 }
 
 //---------------------------------------------------------
-bool CTable::Create(CTable *pStructure)
+bool CSG_Table::Create(CSG_Table *pStructure)
 {
 	return( is_Private() ? false : _Create(pStructure) );
 }
 
-bool CTable::_Create(CTable *pStructure)
+bool CSG_Table::_Create(CSG_Table *pStructure)
 {
 	_Destroy();
 
@@ -225,18 +225,18 @@ bool CTable::_Create(CTable *pStructure)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTable::~CTable(void)
+CSG_Table::~CSG_Table(void)
 {
 	_Destroy();
 }
 
 //---------------------------------------------------------
-bool CTable::Destroy(void)
+bool CSG_Table::Destroy(void)
 {
 	return( is_Private() ? false : _Destroy() );
 }
 
-bool CTable::_Destroy(void)
+bool CSG_Table::_Destroy(void)
 {
 	_Destroy_Selection();
 
@@ -262,7 +262,7 @@ bool CTable::_Destroy(void)
 		m_Field_Val_Max	= NULL;
 	}
 
-	CDataObject::Destroy();
+	CSG_Data_Object::Destroy();
 
 	return( true );
 }
@@ -275,21 +275,21 @@ bool CTable::_Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTable::Assign(CDataObject *pObject)
+bool CSG_Table::Assign(CSG_Data_Object *pObject)
 {
 	return( is_Private() ? false : _Assign(pObject) );
 }
 
-bool CTable::_Assign(CDataObject *pObject)
+bool CSG_Table::_Assign(CSG_Data_Object *pObject)
 {
 	int		i;
-	CTable	*pTable;
+	CSG_Table	*pTable;
 
 	if( pObject && pObject->is_Valid() && pObject->Get_ObjectType() == Get_ObjectType() )
 	{
 		_Destroy();
 
-		pTable	= (CTable *)pObject;
+		pTable	= (CSG_Table *)pObject;
 
 		for(i=0; i<pTable->m_nFields; i++)
 		{
@@ -310,7 +310,7 @@ bool CTable::_Assign(CDataObject *pObject)
 }
 
 //---------------------------------------------------------
-bool CTable::Assign_Values(CTable *pTable)
+bool CSG_Table::Assign_Values(CSG_Table *pTable)
 {
 	int		i;
 
@@ -354,7 +354,7 @@ bool CTable::Assign_Values(CTable *pTable)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTable::is_Compatible(CTable *pTable, bool bExactMatch) const
+bool CSG_Table::is_Compatible(CSG_Table *pTable, bool bExactMatch) const
 {
 	if( Get_Field_Count() == pTable->Get_Field_Count() )
 	{
@@ -399,7 +399,7 @@ bool CTable::is_Compatible(CTable *pTable, bool bExactMatch) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CTable::Add_Field(const char *Name, TTable_FieldType Type, int add_Field)
+void CSG_Table::Add_Field(const char *Name, TSG_Table_Field_Type Type, int add_Field)
 {
 	int		iField, iRecord;
 
@@ -413,7 +413,7 @@ void CTable::Add_Field(const char *Name, TTable_FieldType Type, int add_Field)
 	m_nFields++;
 
 	m_Field_Name	= (CSG_String      **)SG_Realloc(m_Field_Name		, m_nFields * sizeof(CSG_String *));
-	m_Field_Type	= (TTable_FieldType *)SG_Realloc(m_Field_Type		, m_nFields * sizeof(TTable_FieldType));
+	m_Field_Type	= (TSG_Table_Field_Type *)SG_Realloc(m_Field_Type		, m_nFields * sizeof(TSG_Table_Field_Type));
 	m_Field_Val_Min	= (double           *)SG_Realloc(m_Field_Val_Min	, m_nFields * sizeof(double));
 	m_Field_Val_Max	= (double           *)SG_Realloc(m_Field_Val_Max	, m_nFields * sizeof(double));
 
@@ -442,7 +442,7 @@ void CTable::Add_Field(const char *Name, TTable_FieldType Type, int add_Field)
 }
 
 //---------------------------------------------------------
-bool CTable::Del_Field(int del_Field)
+bool CSG_Table::Del_Field(int del_Field)
 {
 	int		iRecord, iField;
 
@@ -464,7 +464,7 @@ bool CTable::Del_Field(int del_Field)
 
 		//-------------------------------------------------
 		m_Field_Name	= (CSG_String     **)SG_Realloc(m_Field_Name		, m_nFields * sizeof(CSG_String *));
-		m_Field_Type	= (TTable_FieldType *)SG_Realloc(m_Field_Type		, m_nFields * sizeof(TTable_FieldType));
+		m_Field_Type	= (TSG_Table_Field_Type *)SG_Realloc(m_Field_Type		, m_nFields * sizeof(TSG_Table_Field_Type));
 		m_Field_Val_Min	= (double           *)SG_Realloc(m_Field_Val_Min	, m_nFields * sizeof(double));
 		m_Field_Val_Max	= (double           *)SG_Realloc(m_Field_Val_Max	, m_nFields * sizeof(double));
 
@@ -490,14 +490,14 @@ bool CTable::Del_Field(int del_Field)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTable_Record * CTable::Add_Record(CTable_Record *pValues)
+CSG_Table_Record * CSG_Table::Add_Record(CSG_Table_Record *pValues)
 {
 	return( is_Private() ? NULL : _Add_Record(pValues) );
 }
 
-CTable_Record * CTable::_Add_Record(CTable_Record *pValues)
+CSG_Table_Record * CSG_Table::_Add_Record(CSG_Table_Record *pValues)
 {
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 
 	//-----------------------------------------------------
 	if( is_Indexed() )
@@ -507,8 +507,8 @@ CTable_Record * CTable::_Add_Record(CTable_Record *pValues)
 	}
 
 	//-----------------------------------------------------
-	m_Records				= (CTable_Record **)SG_Realloc(m_Records, (m_nRecords + 1) * sizeof(CTable_Record *));
-	m_Records[m_nRecords]	= pRecord	= new CTable_Record(this, m_nRecords);
+	m_Records				= (CSG_Table_Record **)SG_Realloc(m_Records, (m_nRecords + 1) * sizeof(CSG_Table_Record *));
+	m_Records[m_nRecords]	= pRecord	= new CSG_Table_Record(this, m_nRecords);
 	m_nRecords++;
 
 	//-----------------------------------------------------
@@ -524,15 +524,15 @@ CTable_Record * CTable::_Add_Record(CTable_Record *pValues)
 }
 
 //---------------------------------------------------------
-CTable_Record * CTable::Ins_Record(int iRecord, CTable_Record *pValues)
+CSG_Table_Record * CSG_Table::Ins_Record(int iRecord, CSG_Table_Record *pValues)
 {
 	return( is_Private() ? NULL : _Ins_Record(iRecord, pValues) );
 }
 
-CTable_Record * CTable::_Ins_Record(int iRecord, CTable_Record *pValues)
+CSG_Table_Record * CSG_Table::_Ins_Record(int iRecord, CSG_Table_Record *pValues)
 {
 	int				i;
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 
 	//-----------------------------------------------------
 	if( iRecord >= m_nRecords )
@@ -558,7 +558,7 @@ CTable_Record * CTable::_Ins_Record(int iRecord, CTable_Record *pValues)
 	}
 
 	//-----------------------------------------------------
-	m_Records				= (CTable_Record **)SG_Realloc(m_Records, (m_nRecords + 1) * sizeof(CTable_Record *));
+	m_Records				= (CSG_Table_Record **)SG_Realloc(m_Records, (m_nRecords + 1) * sizeof(CSG_Table_Record *));
 
 	for(i=m_nRecords; i>iRecord; i--)
 	{
@@ -566,7 +566,7 @@ CTable_Record * CTable::_Ins_Record(int iRecord, CTable_Record *pValues)
 		m_Records[i]->m_Index	= i;
 	}
 
-	m_Records[iRecord]		= pRecord	= new CTable_Record(this, iRecord);
+	m_Records[iRecord]		= pRecord	= new CSG_Table_Record(this, iRecord);
 	m_nRecords++;
 
 	//-----------------------------------------------------
@@ -582,12 +582,12 @@ CTable_Record * CTable::_Ins_Record(int iRecord, CTable_Record *pValues)
 }
 
 //---------------------------------------------------------
-bool CTable::Del_Record(int iRecord)
+bool CSG_Table::Del_Record(int iRecord)
 {
 	return( is_Private() ? false : _Del_Record(iRecord) );
 }
 
-bool CTable::_Del_Record(int iRecord)
+bool CSG_Table::_Del_Record(int iRecord)
 {
 	int		i, j;
 
@@ -603,7 +603,7 @@ bool CTable::_Del_Record(int iRecord)
 			m_Records[i]->m_Index	= i;
 		}
 
-		m_Records	= (CTable_Record **)SG_Realloc(m_Records, m_nRecords * sizeof(CTable_Record *));
+		m_Records	= (CSG_Table_Record **)SG_Realloc(m_Records, m_nRecords * sizeof(CSG_Table_Record *));
 
 		if( is_Indexed() )
 		{
@@ -639,12 +639,12 @@ bool CTable::_Del_Record(int iRecord)
 }
 
 //---------------------------------------------------------
-bool CTable::Del_Records(void)
+bool CSG_Table::Del_Records(void)
 {
 	return( is_Private() ? false : _Del_Records() );
 }
 
-bool CTable::_Del_Records(void)
+bool CSG_Table::_Del_Records(void)
 {
 	if( m_nRecords > 0 )
 	{
@@ -673,9 +673,9 @@ bool CTable::_Del_Records(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTable::Set_Value(int iRecord, int iField, const char  *Value)
+bool CSG_Table::Set_Value(int iRecord, int iField, const char  *Value)
 {
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 
 	if( iField >= 0 && iField < m_nFields && (pRecord = Get_Record(iRecord)) != NULL )
 	{
@@ -686,9 +686,9 @@ bool CTable::Set_Value(int iRecord, int iField, const char  *Value)
 }
 
 //---------------------------------------------------------
-bool CTable::Set_Value(int iRecord, int iField, double       Value)
+bool CSG_Table::Set_Value(int iRecord, int iField, double       Value)
 {
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 
 	if( iField >= 0 && iField < m_nFields && (pRecord = Get_Record(iRecord)) != NULL )
 	{
@@ -699,9 +699,9 @@ bool CTable::Set_Value(int iRecord, int iField, double       Value)
 }
 
 //---------------------------------------------------------
-bool CTable::Get_Value(int iRecord, int iField, CSG_String &Value) const
+bool CSG_Table::Get_Value(int iRecord, int iField, CSG_String &Value) const
 {
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 
 	if( iField >= 0 && iField < m_nFields && (pRecord = Get_Record(iRecord)) != NULL )
 	{
@@ -714,9 +714,9 @@ bool CTable::Get_Value(int iRecord, int iField, CSG_String &Value) const
 }
 
 //---------------------------------------------------------
-bool CTable::Get_Value(int iRecord, int iField, double      &Value) const
+bool CSG_Table::Get_Value(int iRecord, int iField, double      &Value) const
 {
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 
 	if( iField >= 0 && iField < m_nFields && (pRecord = Get_Record(iRecord)) != NULL )
 	{
@@ -736,7 +736,7 @@ bool CTable::Get_Value(int iRecord, int iField, double      &Value) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTable::_Range_Invalidate(void) const
+bool CSG_Table::_Range_Invalidate(void) const
 {
 	int		iField;
 
@@ -749,7 +749,7 @@ bool CTable::_Range_Invalidate(void) const
 }
 
 //---------------------------------------------------------
-bool CTable::_Range_Invalidate(int iField) const
+bool CSG_Table::_Range_Invalidate(int iField) const
 {
 	if( iField >= 0 && iField < m_nFields )
 	{
@@ -763,11 +763,11 @@ bool CTable::_Range_Invalidate(int iField) const
 }
 
 //---------------------------------------------------------
-bool CTable::_Range_Update(int iField) const
+bool CSG_Table::_Range_Update(int iField) const
 {
 	int				iRecord;
 	double			Value;
-	CTable_Record	**ppRecord;
+	CSG_Table_Record	**ppRecord;
 
 	if( iField >= 0 && iField < m_nFields && m_nRecords > 0 )
 	{
@@ -805,7 +805,7 @@ bool CTable::_Range_Update(int iField) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTable::Set_Index(int iField, TTable_Index_Order Order)
+bool CSG_Table::Set_Index(int iField, TSG_Table_Index_Order Order)
 {
 	if( iField >= 0 && iField < m_nFields )
 	{
@@ -828,7 +828,7 @@ bool CTable::Set_Index(int iField, TTable_Index_Order Order)
 }
 
 //---------------------------------------------------------
-bool CTable::Toggle_Index(int iField)
+bool CSG_Table::Toggle_Index(int iField)
 {
 	if( iField >= 0 && iField < m_nFields )
 	{
@@ -855,7 +855,7 @@ bool CTable::Toggle_Index(int iField)
 //---------------------------------------------------------
 #define SORT_SWAP(a,b)	{itemp=(a);(a)=(b);(b)=itemp;}
 
-void CTable::_Index_Create(int iField)
+void CSG_Table::_Index_Create(int iField)
 {
 	const int	M	= 7;
 
@@ -973,7 +973,7 @@ void CTable::_Index_Create(int iField)
 #undef SORT_SWAP
 
 //---------------------------------------------------------
-void CTable::_Index_Destroy(void)
+void CSG_Table::_Index_Destroy(void)
 {
 	m_Index_Field	= -1;
 	m_Index_Order	= TABLE_INDEX_None;
@@ -987,7 +987,7 @@ void CTable::_Index_Destroy(void)
 }
 
 //---------------------------------------------------------
-inline int CTable::_Index_Compare(int a, int b)
+inline int CSG_Table::_Index_Compare(int a, int b)
 {
 	switch( m_Field_Type[m_Index_Field] )
 	{

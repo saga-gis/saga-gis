@@ -25,17 +25,17 @@
 
 #include "MLB_Interface.h"
 
-class CWatersheds_ext : public CModule_Grid {
+class CWatersheds_ext : public CSG_Module_Grid {
 
 private:
-	CGrid *m_pDEM;
-	CGrid* m_pCNGrid;
-	CGrid* m_pSoilLossGrid;
-	CGrid* m_pChannelsGrid;
-	CGrid *m_pBasinGrid;
-	CGrid *m_pDistanceGrid;
-	CShapes* m_pBasins;
-	CShapes* m_pHeaders;
+	CSG_Grid *m_pDEM;
+	CSG_Grid* m_pCNGrid;
+	CSG_Grid* m_pSoilLossGrid;
+	CSG_Grid* m_pChannelsGrid;
+	CSG_Grid *m_pBasinGrid;
+	CSG_Grid *m_pDistanceGrid;
+	CSG_Shapes* m_pBasins;
+	CSG_Shapes* m_pHeaders;
 	CSG_Points	m_Headers;
 	int m_fCells;
 	int m_iNumBasins;

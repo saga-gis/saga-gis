@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CGrid_Value_Type::CGrid_Value_Type(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Set_Name(_TL("Convert Data Storage Type"));
@@ -128,8 +128,8 @@ CGrid_Value_Type::~CGrid_Value_Type(void)
 bool CGrid_Value_Type::On_Execute(void)
 {
 	bool		bCopy;
-	TGrid_Type	Type;
-	CGrid		*pInput, *pOutput;
+	TSG_Grid_Type	Type;
+	CSG_Grid		*pInput, *pOutput;
 
 	//-----------------------------------------------------
 	pOutput	= Parameters("OUTPUT")->asGrid();
@@ -138,7 +138,7 @@ bool CGrid_Value_Type::On_Execute(void)
 	{
 		bCopy	= true;
 
-		pInput	= new CGrid(Parameters("INPUT")->asGrid());
+		pInput	= new CSG_Grid(Parameters("INPUT")->asGrid());
 		pInput->Assign(Parameters("INPUT")->asGrid());
 
 		if( pOutput == NULL )

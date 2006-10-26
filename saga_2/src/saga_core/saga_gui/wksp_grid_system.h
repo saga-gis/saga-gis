@@ -84,7 +84,7 @@
 class CWKSP_Grid_System : public CWKSP_Base_Manager
 {
 public:
-	CWKSP_Grid_System(const CGrid_System &System);
+	CWKSP_Grid_System(const CSG_Grid_System &System);
 	virtual ~CWKSP_Grid_System(void);
 
 	virtual TWKSP_Item			Get_Type		(void)		{	return( WKSP_ITEM_Grid_System );	}
@@ -94,18 +94,18 @@ public:
 
 	virtual wxMenu *			Get_Menu		(void);
 
-	CGrid_System *				Get_System		(void)		{	return( &m_System );	}
+	CSG_Grid_System *				Get_System		(void)		{	return( &m_System );	}
 
 	class CWKSP_Grid *			Get_Grid		(int i)		{	return( (class CWKSP_Grid *)Get_Item(i) );	}
-	class CWKSP_Grid *			Get_Grid		(class CGrid *pGrid);
+	class CWKSP_Grid *			Get_Grid		(class CSG_Grid *pGrid);
 
-	bool						Exists			(class CGrid *pGrid);
-	class CWKSP_Grid *			Add				(class CGrid *pGrid);
+	bool						Exists			(class CSG_Grid *pGrid);
+	class CWKSP_Grid *			Add				(class CSG_Grid *pGrid);
 
 
 private:
 
-	CGrid_System				m_System;
+	CSG_Grid_System				m_System;
 
 };
 

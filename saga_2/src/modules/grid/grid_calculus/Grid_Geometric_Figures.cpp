@@ -128,7 +128,7 @@ bool CGrid_Geometric_Figures::On_Execute(void)
 {
 	int		NXY;
 	double	DXY;
-	CGrid	*pGrid;
+	CSG_Grid	*pGrid;
 
 	//-----------------------------------------------------
 	NXY		= Parameters("CELL_COUNT")	->asInt();
@@ -166,7 +166,7 @@ bool CGrid_Geometric_Figures::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGrid_Geometric_Figures::Create_Cone(CGrid *pGrid, bool bUp)
+void CGrid_Geometric_Figures::Create_Cone(CSG_Grid *pGrid, bool bUp)
 {
 	int		x, y;
 	double	nx_2, ny_2, dx, dy, d;
@@ -199,7 +199,7 @@ void CGrid_Geometric_Figures::Create_Cone(CGrid *pGrid, bool bUp)
 }
 
 //---------------------------------------------------------
-void CGrid_Geometric_Figures::Create_Plane(CGrid *pGrid, double Direction)
+void CGrid_Geometric_Figures::Create_Plane(CSG_Grid *pGrid, double Direction)
 {
 	int		x, y;
 	double	xPos, yPos, z, dSin, dCos, Max;

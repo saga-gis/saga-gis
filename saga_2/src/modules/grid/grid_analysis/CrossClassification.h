@@ -23,7 +23,7 @@
 
 #include "MLB_Interface.h"
 
-class CCrossClassification : public CModule_Grid {
+class CCrossClassification : public CSG_Module_Grid {
 
 public:
 	CCrossClassification(void);

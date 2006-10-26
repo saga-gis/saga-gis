@@ -19,7 +19,7 @@
 
 #include "MLB_Interface.h"
 
-class CTableCalculatorShapes : public CModule  
+class CTableCalculatorShapes : public CSG_Module  
 {
 public:
 	CTableCalculatorShapes(void);

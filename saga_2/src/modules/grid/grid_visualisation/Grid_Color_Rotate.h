@@ -66,7 +66,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CGrid_Color_Rotate : public CModule_Grid  
+class CGrid_Color_Rotate : public CSG_Module_Grid  
 {
 public:
 	CGrid_Color_Rotate(void);

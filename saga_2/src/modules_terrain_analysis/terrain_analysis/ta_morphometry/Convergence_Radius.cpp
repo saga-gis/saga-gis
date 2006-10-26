@@ -141,7 +141,7 @@ CConvergence_Radius::~CConvergence_Radius(void)
 bool CConvergence_Radius::On_Execute(void)
 {
 	CSG_Colors	Colors;
-	CGrid	*pDTM, *pConvergence_Radius;
+	CSG_Grid	*pDTM, *pConvergence_Radius;
 
 	pDTM				= Parameters("ELEVATION")	->asGrid();
 	pConvergence_Radius	= Parameters("RESULT")		->asGrid();
@@ -179,7 +179,7 @@ bool CConvergence_Radius::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CConvergence_Radius::Initialize(CGrid *pDTM, int Radius)
+bool CConvergence_Radius::Initialize(CSG_Grid *pDTM, int Radius)
 {
 	int		x, y, ix, iy;
 	double	Slope, Aspect, d;
@@ -267,7 +267,7 @@ void CConvergence_Radius::Finalize(void)
 #define PI2PERC	(100.0 / M_PI_090)
 
 //---------------------------------------------------------
-void CConvergence_Radius::Get_Convergence_Radius(CGrid *pDTM, CGrid *pConvergence_Radius, bool bSlope, bool bCenterDiff, int Method)
+void CConvergence_Radius::Get_Convergence_Radius(CSG_Grid *pDTM, CSG_Grid *pConvergence_Radius, bool bSlope, bool bCenterDiff, int Method)
 {
 	int		x, y, ix, iy, jx, jy, iDst;
 	double	Slope, Aspect, d, dSum, dCnt, z, dSlope, Dir;

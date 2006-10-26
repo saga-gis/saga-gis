@@ -23,7 +23,7 @@
 
 #include "MLB_Interface.h"
 
-class CWaterRetentionCapacity : public CModule_Grid {
+class CWaterRetentionCapacity : public CSG_Module_Grid {
 
 public:
 	CWaterRetentionCapacity(void);
@@ -31,11 +31,11 @@ public:
 
 private:
 	
-	CGrid *m_pSlope;
-	CGrid *m_pRetention;
-	CShapes *m_pOutput;
+	CSG_Grid *m_pSlope;
+	CSG_Grid *m_pRetention;
+	CSG_Shapes *m_pOutput;
 	
-	void CalculateWaterRetention(float**,int, float, CTable_Record*);
+	void CalculateWaterRetention(float**,int, float, CSG_Table_Record*);
 	void CorrectWithSlope();
 	float CalculateCCC(float*);
 	float CalculateCIL(float*);

@@ -107,7 +107,7 @@ protected: ////////////////////////////////////////////////
 	void						_Draw_Title			(wxDC &dc, int Style, wxString Text);
 	void						_Draw_Label			(wxDC &dc, int y, wxString Text, int yAlign);
 	void						_Draw_Box			(wxDC &dc, int y, int dy, wxColour Color);
-	void						_Draw_Box_Image		(wxDC &dc, int y, class CGrid *pGrid);
+	void						_Draw_Box_Image		(wxDC &dc, int y, class CSG_Grid *pGrid);
 
 	void						_Draw_Point			(wxDC &dc, class CWKSP_Shapes_Point   *pLayer);
 	void						_Draw_Point_Sizes	(wxDC &dc, class CWKSP_Shapes_Point   *pLayer, int min_Size, int max_Size, double min_Value, double d_Value);

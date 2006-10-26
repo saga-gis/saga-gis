@@ -124,7 +124,7 @@ CGrid_Orientation::~CGrid_Orientation(void)
 //---------------------------------------------------------
 bool CGrid_Orientation::On_Execute(void)
 {
-	CGrid		*pInput, *pResult;
+	CSG_Grid		*pInput, *pResult;
 
 	pInput		= Parameters("INPUT")->asGrid();
 	pResult		= Parameters("RESULT")->asGrid();

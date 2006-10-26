@@ -51,12 +51,12 @@ bool CDistanceMatrix::On_Execute(void){
 	int i,j,k;	
 	double dDist;
 	CSG_Points	Points;
-	CShapes *pShapes = Parameters("POINTS")->asShapes();
-	CTable *pTable = Parameters("TABLE")->asTable();
-	CShape *pShape;
-	CTable_Record *pRecord;
+	CSG_Shapes *pShapes = Parameters("POINTS")->asShapes();
+	CSG_Table *pTable = Parameters("TABLE")->asTable();
+	CSG_Shape *pShape;
+	CSG_Table_Record *pRecord;
 
-	pTable->Create((CTable*)NULL);
+	pTable->Create((CSG_Table*)NULL);
 	pTable->Set_Name(_TL("Distance Matrix"));
 
 	for(i = 0; i < pShapes->Get_Count(); i++){			

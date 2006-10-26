@@ -70,14 +70,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CShape::CShape(CShapes *pOwner, CTable_Record *pRecord)
+CSG_Shape::CSG_Shape(CSG_Shapes *pOwner, CSG_Table_Record *pRecord)
 {
 	m_pOwner	= pOwner;
 	m_pRecord	= pRecord;
 }
 
 //---------------------------------------------------------
-CShape::~CShape(void)
+CSG_Shape::~CSG_Shape(void)
 {
 	Destroy();
 }
@@ -90,7 +90,7 @@ CShape::~CShape(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CShape::Destroy(void)
+void CSG_Shape::Destroy(void)
 {
 	m_pRecord	= NULL;
 }
@@ -103,13 +103,13 @@ void CShape::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-TShape_Type CShape::Get_Type(void)
+TSG_Shape_Type CSG_Shape::Get_Type(void)
 {
 	return( m_pOwner->Get_Type() );
 }
 
 //---------------------------------------------------------
-int CShape::Get_Point_Count(void)
+int CSG_Shape::Get_Point_Count(void)
 {
 	int		i, n;
 
@@ -129,19 +129,19 @@ int CShape::Get_Point_Count(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CShape::Add_Point(TSG_Point Point, int iPart)
+int CSG_Shape::Add_Point(TSG_Point Point, int iPart)
 {
 	return( Add_Point(Point.x, Point.y, iPart) );
 }
 
 //---------------------------------------------------------
-int CShape::Ins_Point(TSG_Point Point, int iPoint, int iPart)
+int CSG_Shape::Ins_Point(TSG_Point Point, int iPoint, int iPart)
 {
 	return( Ins_Point(Point.x, Point.y, iPoint, iPart) );
 }
 
 //---------------------------------------------------------
-int CShape::Set_Point(TSG_Point Point, int iPoint, int iPart)
+int CSG_Shape::Set_Point(TSG_Point Point, int iPoint, int iPart)
 {
 	return( Set_Point(Point.x, Point.y, iPoint, iPart) );
 }
@@ -154,7 +154,7 @@ int CShape::Set_Point(TSG_Point Point, int iPoint, int iPart)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline void CShape::_Extent_Invalidate(void)
+inline void CSG_Shape::_Extent_Invalidate(void)
 {
 	m_pOwner->_Extent_Invalidate();
 }
@@ -167,7 +167,7 @@ inline void CShape::_Extent_Invalidate(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CShape::Intersects(TSG_Rect _Region)
+int CSG_Shape::Intersects(TSG_Rect _Region)
 {
 	int			Result;
 	CSG_Rect	r(_Region);
@@ -199,7 +199,7 @@ int CShape::Intersects(TSG_Rect _Region)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CShape::Assign(CShape *pShape, bool bAssign_Attributes)
+bool CSG_Shape::Assign(CSG_Shape *pShape, bool bAssign_Attributes)
 {
 	if( pShape && On_Assign(pShape) )
 	{

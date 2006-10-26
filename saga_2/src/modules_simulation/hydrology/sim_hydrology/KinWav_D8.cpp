@@ -74,7 +74,7 @@
 //---------------------------------------------------------
 CKinWav_D8::CKinWav_D8(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	Set_Name	(_TL("Overland Flow - Kinematic Wave D8"));
 
@@ -202,7 +202,7 @@ bool CKinWav_D8::Initialize(void)
 	{
 		if( (int)pGauges == 1 )
 		{
-			Parameters("GAUGES")->Set_Value((pGauges = new CTable));
+			Parameters("GAUGES")->Set_Value((pGauges = new CSG_Table));
 		}
 
 		pGauges->Destroy();
@@ -214,8 +214,8 @@ bool CKinWav_D8::Initialize(void)
 	//-----------------------------------------------------
 	// 3. Calculate Alphas...
 
-	pAlpha		= new CGrid(pDTM, GRID_TYPE_Float);
-	pFlow_Dir	= new CGrid(pDTM, GRID_TYPE_Char);
+	pAlpha		= new CSG_Grid(pDTM, GRID_TYPE_Float);
+	pFlow_Dir	= new CSG_Grid(pDTM, GRID_TYPE_Char);
 
 	for(y=0; y<pDTM->Get_NY(); y++)
 	{
@@ -287,7 +287,7 @@ bool CKinWav_D8::Initialize(void)
 	Colors.Set_Ramp(SG_GET_RGB(255, 255, 200), SG_GET_RGB(0, 65, 128));
 	DataObject_Set_Colors(pFlow, Colors);
 
-	pFlow_Last	= new CGrid(pDTM, GRID_TYPE_Float);
+	pFlow_Last	= new CSG_Grid(pDTM, GRID_TYPE_Float);
 
 	//-----------------------------------------------------
 	switch( Parameters("PRECIP")->asInt() )
@@ -353,7 +353,7 @@ bool CKinWav_D8::On_Execute(void)
 	int				x, y, n;
 	double			Time, Time_End;
 	CSG_String		s;
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 
 	//-----------------------------------------------------
 	if( Initialize() )

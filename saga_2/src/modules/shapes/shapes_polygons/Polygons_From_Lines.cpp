@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CPolygons_From_Lines::CPolygons_From_Lines(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Set_Name(_TL("Convert Lines to Polygons"));
@@ -110,8 +110,8 @@ CPolygons_From_Lines::~CPolygons_From_Lines(void)
 bool CPolygons_From_Lines::On_Execute(void)
 {
 	int				iShape, iPart, iPoint;
-	CShape			*pLine , *pPolygon;
-	CShapes			*pLines, *pPolygons;
+	CSG_Shape			*pLine , *pPolygon;
+	CSG_Shapes			*pLines, *pPolygons;
 
 	pPolygons	= Parameters("POLYGONS")	->asShapes();
 	pLines		= Parameters("LINES")		->asShapes();

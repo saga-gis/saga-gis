@@ -90,7 +90,7 @@ protected:
 
 	int						m_Interpolation;
 
-	CParameter_Grid_List	*m_pGrids;
+	CSG_Parameter_Grid_List	*m_pGrids;
 
 
 	virtual bool			On_Initialise	(void);

@@ -24,7 +24,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CPolygon_Geometrics : public CModule {
+class CPolygon_Geometrics : public CSG_Module {
 
 public:
 	CPolygon_Geometrics(void);

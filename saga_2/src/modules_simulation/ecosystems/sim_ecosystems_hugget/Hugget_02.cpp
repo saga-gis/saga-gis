@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CHugget_02::CHugget_02(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	Set_Name	(_TL("02: Carbon Cycle Simulation for Terrestrial Biomes"));
 
@@ -230,8 +230,8 @@ bool CHugget_02::On_Execute(void)
 					K_Root_Humu, K_Litt_Humu, K_Humu_Coal, K_Coal_Envi,
 					d_Leav_Litt, d_Bran_Litt, d_Stem_Litt,
 					d_Root_Humu, d_Litt_Humu, d_Humu_Coal, d_Coal_Envi;
-	CTable_Record	*pRecord;
-	CTable			*pTable;
+	CSG_Table_Record	*pRecord;
+	CSG_Table			*pTable;
 
 	//-----------------------------------------------------
 	sTime	= Parameters("TIME_SPAN")		->asDouble();

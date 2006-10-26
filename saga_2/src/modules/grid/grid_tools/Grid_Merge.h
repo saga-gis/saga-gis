@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Merge : public CModule
+class CGrid_Merge : public CSG_Module
 {
 public:
 	CGrid_Merge(void);

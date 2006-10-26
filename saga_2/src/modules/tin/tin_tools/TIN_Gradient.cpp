@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CTIN_Gradient::CTIN_Gradient(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Set_Name(_TL("Gradient"));
@@ -125,10 +125,10 @@ bool CTIN_Gradient::On_Execute(void)
 	bool			bDegree;
 	int				iTriangle, zField;
 	double			a, b;
-	CTIN_Triangle	*pTriangle;
-	CTIN			*pTIN;
-	CShape			*pShape;
-	CShapes			*pShapes;
+	CSG_TIN_Triangle	*pTriangle;
+	CSG_TIN			*pTIN;
+	CSG_Shape			*pShape;
+	CSG_Shapes			*pShapes;
 
 	//-----------------------------------------------------
 	pTIN		= Parameters("TIN")			->asTIN();

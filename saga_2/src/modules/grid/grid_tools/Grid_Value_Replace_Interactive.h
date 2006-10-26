@@ -25,10 +25,10 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CGrid_Value_Replace_Interactive : public CModule_Grid_Interactive {
+class CGrid_Value_Replace_Interactive : public CSG_Module_Grid_Interactive {
 
 private:
-	CGrid *m_pGrid;
+	CSG_Grid *m_pGrid;
 	double m_dNewValue;
 
 public:
@@ -41,7 +41,7 @@ public:
 protected:
 	virtual bool On_Execute(void);
 	virtual bool On_Execute_Finish(void);
-	virtual bool On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
+	virtual bool On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
 
 };
 

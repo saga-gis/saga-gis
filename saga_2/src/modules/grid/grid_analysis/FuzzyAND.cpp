@@ -109,8 +109,8 @@ bool CFuzzyAND::On_Execute(void)
 {
 	int				iGrid, nGrids, x, y;//id Grid, cellsnumber , ,
 	double			zMin, ValTemp; // variabile per costrire il grid, variabile temp di confronto
-	CGrid			*pAND;
-	CParameter_Grid_List	*pParm_Grids;
+	CSG_Grid			*pAND;
+	CSG_Parameter_Grid_List	*pParm_Grids;
 
 	//-----------------------------------------------------
 	// Get user inputs from the 'Parameters' object...

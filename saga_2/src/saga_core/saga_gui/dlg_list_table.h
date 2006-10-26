@@ -84,7 +84,7 @@ class CDLG_List_Table : public CDLG_List_Base
 	DECLARE_CLASS(CDLG_List_Table)
 
 public:
-	CDLG_List_Table(CParameter_Table_List *pList, wxString Caption);
+	CDLG_List_Table(CSG_Parameter_Table_List *pList, wxString Caption);
 	virtual ~CDLG_List_Table(void);
 
 

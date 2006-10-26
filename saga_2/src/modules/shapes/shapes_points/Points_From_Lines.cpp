@@ -67,8 +67,8 @@ bool CPoints_From_Lines::On_Execute(void)
 	int			iLine, iPart, iPoint, jPoint, nPoints;
 	double		dx, dy, dDist;
 	TSG_Point	Pt_A, Pt_B;	
-	CShapes		*pLines, *pPoints;
-	CShape		*pLine, *pPoint;
+	CSG_Shapes		*pLines, *pPoints;
+	CSG_Shape		*pLine, *pPoint;
 
 	//-----------------------------------------------------
 	pLines	= Parameters("LINES")	->asShapes();

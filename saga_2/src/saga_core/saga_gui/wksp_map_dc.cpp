@@ -282,7 +282,7 @@ void CWKSP_Map_DC::IMG_Set_Rect(int x_a, int y_a, int x_b, int y_b, int Color)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Map_DC::Draw_Polygon(CShape_Polygon *pPolygon)
+void CWKSP_Map_DC::Draw_Polygon(CSG_Shape_Polygon *pPolygon)
 {
 //	TEST_Draw_Polygon(pPolygon);	return;	// testing alternative polygon drawing
 
@@ -356,13 +356,13 @@ void CWKSP_Map_DC::Draw_Polygon(CShape_Polygon *pPolygon)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Map_DC::TEST_Draw_Polygon(CShape_Polygon *pPolygon)
+void CWKSP_Map_DC::TEST_Draw_Polygon(CSG_Shape_Polygon *pPolygon)
 {
 	IMG_Draw_Begin(0.5);
 
 	int			iPart, iPoint, ix, iy, jx, jy, idy, jdy;
 	TSG_Point	p;
-	CGrid		Mask(GRID_TYPE_Byte, m_rDC.GetWidth(), m_rDC.GetHeight());
+	CSG_Grid		Mask(GRID_TYPE_Byte, m_rDC.GetWidth(), m_rDC.GetHeight());
 
 	for(iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
 	{
@@ -418,7 +418,7 @@ void CWKSP_Map_DC::TEST_Draw_Polygon(CShape_Polygon *pPolygon)
 }
 
 //---------------------------------------------------------
-void CWKSP_Map_DC::TEST_Draw_Polygon_Line(CGrid &Mask, int ax, int ay, int bx, int by, bool bDirChanged)
+void CWKSP_Map_DC::TEST_Draw_Polygon_Line(CSG_Grid &Mask, int ax, int ay, int bx, int by, bool bDirChanged)
 {
 	int		x, y, dy, nx, ny;
 	double	fx, dx;

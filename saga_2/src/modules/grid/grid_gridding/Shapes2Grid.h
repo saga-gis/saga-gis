@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CShapes2Grid : public CModule  
+class CShapes2Grid : public CSG_Module  
 {
 public:
 	CShapes2Grid(void);
@@ -86,17 +86,17 @@ protected:
 
 private:
 
-	CGrid					*pGrid;
+	CSG_Grid					*pGrid;
 
-	CShapes					*pShapes;
+	CSG_Shapes					*pShapes;
 
 
-	TGrid_Type				Get_Grid_Type(int iType);
-	CGrid *					Get_Target_Grid(CParameters *pParameters, CShapes *pShapes);
+	TSG_Grid_Type				Get_Grid_Type(int iType);
+	CSG_Grid *					Get_Target_Grid(CSG_Parameters *pParameters, CSG_Shapes *pShapes);
 
-	void					Gridding_Point	(CShape *pShape, double Value);
-	void					Gridding_Line	(CShape *pShape, double Value);
-	void					Gridding_Polygon(CShape *pShape, double Value);
+	void					Gridding_Point	(CSG_Shape *pShape, double Value);
+	void					Gridding_Line	(CSG_Shape *pShape, double Value);
+	void					Gridding_Polygon(CSG_Shape *pShape, double Value);
 
 };
 

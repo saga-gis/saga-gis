@@ -93,11 +93,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Value
+class CSG_Table_Value
 {
 public:
-	CTable_Value(void)	{}
-	virtual ~CTable_Value(void)	{}
+	CSG_Table_Value(void)	{}
+	virtual ~CSG_Table_Value(void)	{}
 
 	virtual bool				Set_Value		(const char *Value)	= 0;
 	virtual bool				Set_Value		(double      Value)	= 0;
@@ -119,11 +119,11 @@ public:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Value_String : public CTable_Value
+class CSG_Table_Value_String : public CSG_Table_Value
 {
 public:
-	CTable_Value_String(void) {}
-	virtual ~CTable_Value_String(void) {}
+	CSG_Table_Value_String(void) {}
+	virtual ~CSG_Table_Value_String(void) {}
 
 	//-----------------------------------------------------
 	virtual bool				Set_Value		(const char *Value)
@@ -172,11 +172,11 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Value_Date : public CTable_Value
+class CSG_Table_Value_Date : public CSG_Table_Value
 {
 public:
-	CTable_Value_Date(void) {	Set_Value("0");	}
-	virtual ~CTable_Value_Date(void) {}
+	CSG_Table_Value_Date(void) {	Set_Value("0");	}
+	virtual ~CSG_Table_Value_Date(void) {}
 
 	//-----------------------------------------------------
 	virtual bool				Set_Value		(const char *Value)
@@ -224,11 +224,11 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Value_Int : public CTable_Value
+class CSG_Table_Value_Int : public CSG_Table_Value
 {
 public:
-	CTable_Value_Int(void)	{	m_Value	= 0;	}
-	virtual ~CTable_Value_Int(void) {}
+	CSG_Table_Value_Int(void)	{	m_Value	= 0;	}
+	virtual ~CSG_Table_Value_Int(void) {}
 
 	//-----------------------------------------------------
 	virtual bool				Set_Value		(const char *Value)
@@ -285,11 +285,11 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Value_Double : public CTable_Value
+class CSG_Table_Value_Double : public CSG_Table_Value
 {
 public:
-	CTable_Value_Double(void) {	m_Value	= 0.0;	}
-	virtual ~CTable_Value_Double(void) {}
+	CSG_Table_Value_Double(void) {	m_Value	= 0.0;	}
+	virtual ~CSG_Table_Value_Double(void) {}
 
 	//-----------------------------------------------------
 	virtual bool				Set_Value		(const char *Value)

@@ -22,7 +22,7 @@
 
 #include "MLB_Interface.h"
 
-class CPoints_From_Table : public CModule {
+class CPoints_From_Table : public CSG_Module {
 
 public:
 	CPoints_From_Table(void);

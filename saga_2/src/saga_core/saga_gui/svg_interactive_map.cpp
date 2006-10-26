@@ -99,7 +99,7 @@ CSVG_Interactive_Map::~CSVG_Interactive_Map(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSVG_Interactive_Map::Create_From_Map(CWKSP_Map *pMap, CShapes *pIndexLayer, const char *Filename)
+void CSVG_Interactive_Map::Create_From_Map(CWKSP_Map *pMap, CSG_Shapes *pIndexLayer, const char *Filename)
 {
 	//-----------------------------------------------------
 	m_Directory	= SG_File_Get_Path(Filename);
@@ -364,14 +364,14 @@ const char * CSVG_Interactive_Map::_Get_Opening_Code_2(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSVG_Interactive_Map::_Add_ReferenceMap(CShapes *pIndexLayer, CSG_Rect r)
+void CSVG_Interactive_Map::_Add_ReferenceMap(CSG_Shapes *pIndexLayer, CSG_Rect r)
 {
 	int i;
 	CSG_String sViewBox;
 	double Line_Width, Point_Width;
 	double Width, Height;
 	double OffsetX, OffsetY;
-	CShape *pShape;
+	CSG_Shape *pShape;
 
 	if (r.Get_XRange() / r.Get_YRange()  > MAP_WINDOW_WIDTH / MAP_WINDOW_HEIGHT)
 	{
@@ -435,10 +435,10 @@ void CSVG_Interactive_Map::_Add_Grid(CWKSP_Grid *pLayer)
 		BMP.SaveFile(Filename, wxBITMAP_TYPE_JPEG);
 		m_sSVGCode.Append("<image ");
 		_AddAttribute("id",pLayer->Get_Object()->Get_Name());
-		_AddAttribute("x",((CGrid*)pLayer->Get_Object())->Get_XMin());
-		_AddAttribute("y",-((CGrid*)pLayer->Get_Object())->Get_YMax());
-		_AddAttribute("width",((CGrid*)pLayer->Get_Object())->Get_XRange());
-		_AddAttribute("height",((CGrid*)pLayer->Get_Object())->Get_YRange());
+		_AddAttribute("x",((CSG_Grid*)pLayer->Get_Object())->Get_XMin());
+		_AddAttribute("y",-((CSG_Grid*)pLayer->Get_Object())->Get_YMax());
+		_AddAttribute("width",((CSG_Grid*)pLayer->Get_Object())->Get_XRange());
+		_AddAttribute("height",((CSG_Grid*)pLayer->Get_Object())->Get_YRange());
 		_AddAttribute("xlink:href", SG_File_Get_Name(Filename, true));
 		m_sSVGCode.Append("/>");
 	}
@@ -452,7 +452,7 @@ void CSVG_Interactive_Map::_Add_Shapes(CWKSP_Shapes *pLayer)
 	int Line_Color, Fill_Color; 
 	double Line_Width, Point_Width;
 	double dSize;
-	CShape *pShape;
+	CSG_Shape *pShape;
 	CSG_String sLabel;
 
 	m_sSVGCode.Append("<g id=\"");
@@ -463,7 +463,7 @@ void CSVG_Interactive_Map::_Add_Shapes(CWKSP_Shapes *pLayer)
 
 	m_sSVGCode.Append("<g transform=\"scale(1,-1)\">\n");
 
-	for (i = 0; i < ((CShapes*)pLayer->Get_Object())->Get_Count(); i++)
+	for (i = 0; i < ((CSG_Shapes*)pLayer->Get_Object())->Get_Count(); i++)
 	{
 		pShape = pLayer->Get_Shapes()->Get_Shape(i);
 		Line_Color = Fill_Color = pLayer->Get_Classifier()->Get_Class_Color_byValue(pShape->Get_Record()->asDouble(iColorField));
@@ -475,7 +475,7 @@ void CSVG_Interactive_Map::_Add_Shapes(CWKSP_Shapes *pLayer)
 	if (pLayer->Get_Label_Field() >= 0)
 	{
 		m_sSVGCode.Append("<g transform=\"scale(0.01,-0.01)\"\n>");
-		for (i = 0; i < ((CShapes*)pLayer->Get_Object())->Get_Count(); i++)
+		for (i = 0; i < ((CSG_Shapes*)pLayer->Get_Object())->Get_Count(); i++)
 		{
 			pShape = pLayer->Get_Shapes()->Get_Shape(i);
 			Line_Width = Point_Width = m_dWidth / MAP_WINDOW_WIDTH;
@@ -500,7 +500,7 @@ void CSVG_Interactive_Map::_Add_Shapes(CWKSP_Shapes *pLayer)
 }
 
 //---------------------------------------------------------
-void CSVG_Interactive_Map::_Add_Label(const char* Label, CShape *pShape, double dSize, const char* Unit)
+void CSVG_Interactive_Map::_Add_Label(const char* Label, CSG_Shape *pShape, double dSize, const char* Unit)
 {
 
 	int iPoint, iPart;
@@ -525,9 +525,9 @@ void CSVG_Interactive_Map::_Add_Label(const char* Label, CShape *pShape, double 
 		
 		for (iPart = 0; iPart < pShape->Get_Part_Count(); iPart++)
 		{
-			if(! ((CShape_Polygon *)pShape)->is_Lake(iPart) )
+			if(! ((CSG_Shape_Polygon *)pShape)->is_Lake(iPart) )
 			{
-				Point = ((CShape_Polygon *)pShape)->Get_Centroid(iPart);
+				Point = ((CSG_Shape_Polygon *)pShape)->Get_Centroid(iPart);
 				Draw_Text(100 * Point.x, -100 * Point.y, Label, 0, "Verdana", 100 * dSize, Unit);
 			}
 		}
@@ -537,7 +537,7 @@ void CSVG_Interactive_Map::_Add_Label(const char* Label, CShape *pShape, double 
 }
 
 //---------------------------------------------------------
-bool CSVG_Interactive_Map::_Add_Shape(CShape *pShape, int Fill_Color, int Line_Color, double Line_Width, double Point_Width)
+bool CSVG_Interactive_Map::_Add_Shape(CSG_Shape *pShape, int Fill_Color, int Line_Color, double Line_Width, double Point_Width)
 {
 	if( pShape && pShape->is_Valid() )
 	{
@@ -570,7 +570,7 @@ bool CSVG_Interactive_Map::_Add_Shape(CShape *pShape, int Fill_Color, int Line_C
 				break;
 
 			case SHAPE_TYPE_Polygon:
-				if( ((CShape_Polygon *)pShape)->is_Lake(iPart) )
+				if( ((CSG_Shape_Polygon *)pShape)->is_Lake(iPart) )
 				{
 					Draw_Polygon(Points, -1, 0, 0.01, "%");
 				}

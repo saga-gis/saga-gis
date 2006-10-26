@@ -84,7 +84,7 @@ class CDLG_Table : public CDLG_Base
 	DECLARE_CLASS(CDLG_Table)
 
 public:
-	CDLG_Table(class CTable *pTable, wxString Caption);
+	CDLG_Table(class CSG_Table *pTable, wxString Caption);
 	virtual ~CDLG_Table(void);
 
 	void						On_Load			(wxCommandEvent &event);
@@ -98,7 +98,7 @@ public:
 
 protected:
 
-	class CTable				*m_pTable, *m_pTable_Orig;
+	class CSG_Table				*m_pTable, *m_pTable_Orig;
 
 	class CVIEW_Table_Control	*m_pControl;
 

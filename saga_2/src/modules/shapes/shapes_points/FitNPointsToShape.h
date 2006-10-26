@@ -23,7 +23,7 @@
 
 #include "MLB_Interface.h"
 
-class CFitNPointsToShape : public CModule {
+class CFitNPointsToShape : public CSG_Module {
 
 public:
 	CFitNPointsToShape(void);

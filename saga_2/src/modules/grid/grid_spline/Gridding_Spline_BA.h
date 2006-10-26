@@ -96,9 +96,9 @@ private:
 	CSG_Points_3D			m_Points;
 
 
-	void					BA_Set_Grid		(CGrid &Phi, bool bAdd = false);
-	double					BA_Get_Value	(double x, double y, CGrid &Phi);
-	bool					BA_Get_Phi		(CGrid &Phi);
+	void					BA_Set_Grid		(CSG_Grid &Phi, bool bAdd = false);
+	double					BA_Get_Value	(double x, double y, CSG_Grid &Phi);
+	bool					BA_Get_Phi		(CSG_Grid &Phi);
 	double					BA_Get_B		(int i, double d);
 
 };

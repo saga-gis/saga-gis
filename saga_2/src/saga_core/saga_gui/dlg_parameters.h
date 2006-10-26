@@ -84,7 +84,7 @@ class CDLG_Parameters : public CDLG_Base
 	DECLARE_CLASS(CDLG_Parameters)
 
 public:
-	CDLG_Parameters(class CParameters *pParameters);
+	CDLG_Parameters(class CSG_Parameters *pParameters);
 	virtual ~CDLG_Parameters(void);
 
 	void						On_Ok			(wxCommandEvent &event);
@@ -94,7 +94,7 @@ public:
 
 protected:
 
-	class CParameters			*m_pParameters;
+	class CSG_Parameters			*m_pParameters;
 
 	class CParameters_Control	*m_pControl;
 

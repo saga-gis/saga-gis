@@ -167,7 +167,7 @@ bool CKriging_Ordinary_Global::Get_Weights(void)
 	//-----------------------------------------------------
 	for(int iShape=0; iShape<m_pShapes->Get_Count(); iShape++)
 	{
-		CShape	*pShape	= m_pShapes->Get_Shape(iShape);
+		CSG_Shape	*pShape	= m_pShapes->Get_Shape(iShape);
 
 		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{

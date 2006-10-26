@@ -176,8 +176,8 @@ bool CMine_Sweeper::On_Execute(void)
 {
 	MakeBoard(Parameters("LEVEL")->asInt());
 
-	GameBoard	= (CGrid *) new CGrid(GRID_TYPE_Int,Mine_NX,Mine_NY);
-	FlagBoard	= (CGrid *) new CGrid(GRID_TYPE_Int,Mine_NX,Mine_NY);
+	GameBoard	= (CSG_Grid *) new CSG_Grid(GRID_TYPE_Int,Mine_NX,Mine_NY);
+	FlagBoard	= (CSG_Grid *) new CSG_Grid(GRID_TYPE_Int,Mine_NX,Mine_NY);
 
 	First_Click	= true;
 	Time		= NULL;	
@@ -258,7 +258,7 @@ bool CMine_Sweeper::Get_Grid_Pos(int &x, int &y)
 }
 
 
-bool CMine_Sweeper::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CMine_Sweeper::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
 {
 	int ok = true;
 	

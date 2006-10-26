@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CLife : public CModule
+class CLife : public CSG_Module
 {
 public:
 	CLife(void);
@@ -95,7 +95,7 @@ private:
 
 	int						nColors;
 
-	CGrid					*pLife, *pCount;
+	CSG_Grid					*pLife, *pCount;
 
 
 	bool					Next_Cycle(void);

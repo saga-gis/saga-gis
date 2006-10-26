@@ -95,19 +95,19 @@ public:
 	virtual bool				On_Command		(int Cmd_ID);
 
 	class CWKSP_TIN *			Get_TIN			(int i)		{	return( (class CWKSP_TIN *)Get_Item(i) );	}
-	class CWKSP_TIN *			Get_TIN			(class CTIN *pTIN);
+	class CWKSP_TIN *			Get_TIN			(class CSG_TIN *pTIN);
 
-	bool						Exists			(class CTIN *pTIN);
-	class CWKSP_TIN *			Add				(class CTIN *pTIN);
-	class CTIN *				Get_byFileName	(const char *File_Name);
+	bool						Exists			(class CSG_TIN *pTIN);
+	class CWKSP_TIN *			Add				(class CSG_TIN *pTIN);
+	class CSG_TIN *				Get_byFileName	(const char *File_Name);
 
-	bool						Update			(class CTIN *pTIN, class CParameters *pParameters);
-	bool						Update_Views	(class CTIN *pTIN);
-	bool						Show			(class CTIN *pTIN);
-	bool						asImage			(class CTIN *pTIN, class CGrid *pImage);
+	bool						Update			(class CSG_TIN *pTIN, class CSG_Parameters *pParameters);
+	bool						Update_Views	(class CSG_TIN *pTIN);
+	bool						Show			(class CSG_TIN *pTIN);
+	bool						asImage			(class CSG_TIN *pTIN, class CSG_Grid *pImage);
 
-	bool						Get_Colors		(class CTIN *pTIN, class CSG_Colors *pColors);
-	bool						Set_Colors		(class CTIN *pTIN, class CSG_Colors *pColors);
+	bool						Get_Colors		(class CSG_TIN *pTIN, class CSG_Colors *pColors);
+	bool						Set_Colors		(class CSG_TIN *pTIN, class CSG_Colors *pColors);
 
 
 private:

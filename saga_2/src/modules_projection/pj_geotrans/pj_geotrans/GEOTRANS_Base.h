@@ -74,7 +74,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class pj_geotrans_EXPORT CGEOTRANS_Base : public CModule  
+class pj_geotrans_EXPORT CGEOTRANS_Base : public CSG_Module  
 {
 public:
 	CGEOTRANS_Base(void);
@@ -108,12 +108,12 @@ private:
 
 	CSG_String			fn_Ellipsoid, fn_Datum3, fn_Datum7, fn_Geoid;
 
-	CParameters			*pProjection;
+	CSG_Parameters			*pProjection;
 
 
-	CParameters *		Get_Parameters				(bool bSource, Coordinate_Type Type, bool bShow_Dialog);
+	CSG_Parameters *		Get_Parameters				(bool bSource, Coordinate_Type Type, bool bShow_Dialog);
 
-	bool				Set_Projection_Parameters	(Input_Output dir, Coordinate_Type Type, CParameters *pParms);
+	bool				Set_Projection_Parameters	(Input_Output dir, Coordinate_Type Type, CSG_Parameters *pParms);
 
 	bool				Convert_Set					(double  x, double  y, double  z);
 	bool				Convert_Set					(double  x, double  y);

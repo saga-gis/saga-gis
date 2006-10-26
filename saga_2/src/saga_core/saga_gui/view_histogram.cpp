@@ -455,12 +455,12 @@ void CVIEW_Histogram::On_Cumulative_UI(wxUpdateUIEvent &event)
 void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
 {
 	int				i, n;
-	CTable			*pTable;
-	CTable_Record	*pRecord;
+	CSG_Table			*pTable;
+	CSG_Table_Record	*pRecord;
 
 	if( (n = m_pLayer->Get_Classifier()->Get_Class_Count()) > 0 )
 	{
-		pTable	= new CTable;
+		pTable	= new CSG_Table;
 
 		pTable->Set_Name(wxString::Format("%s: %s", LNG("[CAP] Histogram"), m_pLayer->Get_Name().c_str()));
 

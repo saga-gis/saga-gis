@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTable_Record::CTable_Record(CTable *pOwner, int Index)
+CSG_Table_Record::CSG_Table_Record(CSG_Table *pOwner, int Index)
 {
 	m_pOwner	= pOwner;
 	m_Index		= Index;
@@ -81,7 +81,7 @@ CTable_Record::CTable_Record(CTable *pOwner, int Index)
 
 	if( m_pOwner && m_pOwner->Get_Field_Count() > 0 )
 	{
-		m_Values	= (CTable_Value **)SG_Malloc(m_pOwner->Get_Field_Count() * sizeof(CTable_Value *));
+		m_Values	= (CSG_Table_Value **)SG_Malloc(m_pOwner->Get_Field_Count() * sizeof(CSG_Table_Value *));
 
 		for(int iField=0; iField<m_pOwner->Get_Field_Count(); iField++)
 		{
@@ -95,7 +95,7 @@ CTable_Record::CTable_Record(CTable *pOwner, int Index)
 }
 
 //---------------------------------------------------------
-CTable_Record::~CTable_Record(void)
+CSG_Table_Record::~CSG_Table_Record(void)
 {
 	if( m_pOwner->Get_Field_Count() > 0 )
 	{
@@ -116,23 +116,23 @@ CTable_Record::~CTable_Record(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTable_Value * CTable_Record::_Create_Value(TTable_FieldType Type)
+CSG_Table_Value * CSG_Table_Record::_Create_Value(TSG_Table_Field_Type Type)
 {
 	switch( Type )
 	{
 	default:
-	case TABLE_FIELDTYPE_String:	return( new CTable_Value_String() );
+	case TABLE_FIELDTYPE_String:	return( new CSG_Table_Value_String() );
 
-	case TABLE_FIELDTYPE_Date:		return( new CTable_Value_Date() );
+	case TABLE_FIELDTYPE_Date:		return( new CSG_Table_Value_Date() );
 
 	case TABLE_FIELDTYPE_Color:
 	case TABLE_FIELDTYPE_Char:
 	case TABLE_FIELDTYPE_Short:
 	case TABLE_FIELDTYPE_Int:
-	case TABLE_FIELDTYPE_Long:		return( new CTable_Value_Int() );
+	case TABLE_FIELDTYPE_Long:		return( new CSG_Table_Value_Int() );
 
 	case TABLE_FIELDTYPE_Float:
-	case TABLE_FIELDTYPE_Double:	return( new CTable_Value_Double() );
+	case TABLE_FIELDTYPE_Double:	return( new CSG_Table_Value_Double() );
 	}
 }
 
@@ -144,7 +144,7 @@ CTable_Value * CTable_Record::_Create_Value(TTable_FieldType Type)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTable_Record::_Add_Field(int add_Field)
+bool CSG_Table_Record::_Add_Field(int add_Field)
 {
 	if( add_Field < 0 )
 	{
@@ -155,7 +155,7 @@ bool CTable_Record::_Add_Field(int add_Field)
 		add_Field	= m_pOwner->Get_Field_Count() - 1;
 	}
 
-	m_Values	= (CTable_Value **)SG_Realloc(m_Values, m_pOwner->Get_Field_Count() * sizeof(CTable_Value *));
+	m_Values	= (CSG_Table_Value **)SG_Realloc(m_Values, m_pOwner->Get_Field_Count() * sizeof(CSG_Table_Value *));
 
 	for(int iField=m_pOwner->Get_Field_Count()-1; iField>add_Field; iField--)
 	{
@@ -168,7 +168,7 @@ bool CTable_Record::_Add_Field(int add_Field)
 }
 
 //---------------------------------------------------------
-bool CTable_Record::_Del_Field(int del_Field)
+bool CSG_Table_Record::_Del_Field(int del_Field)
 {
 	delete(m_Values[del_Field]);
 
@@ -177,13 +177,13 @@ bool CTable_Record::_Del_Field(int del_Field)
 		m_Values[iField]	= m_Values[iField + 1];
 	}
 
-	m_Values	= (CTable_Value **)SG_Realloc(m_Values, m_pOwner->Get_Field_Count() * sizeof(CTable_Value *));
+	m_Values	= (CSG_Table_Value **)SG_Realloc(m_Values, m_pOwner->Get_Field_Count() * sizeof(CSG_Table_Value *));
 
 	return( true );
 }
 
 //---------------------------------------------------------
-int CTable_Record::_Get_Field(const char *Field) const
+int CSG_Table_Record::_Get_Field(const char *Field) const
 {
 	if( Field && strlen(Field) > 0 )
 	{
@@ -207,7 +207,7 @@ int CTable_Record::_Get_Field(const char *Field) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTable_Record::Set_Value(int iField, const char *Value)
+bool CSG_Table_Record::Set_Value(int iField, const char *Value)
 {
 	if( iField >= 0 && iField < m_pOwner->Get_Field_Count() )
 	{
@@ -223,13 +223,13 @@ bool CTable_Record::Set_Value(int iField, const char *Value)
 	return( false );
 }
 
-bool CTable_Record::Set_Value(const char *Field, const char *Value)
+bool CSG_Table_Record::Set_Value(const char *Field, const char *Value)
 {
 	return( Set_Value(_Get_Field(Field), Value) );
 }
 
 //---------------------------------------------------------
-bool CTable_Record::Set_Value(int iField, double Value)
+bool CSG_Table_Record::Set_Value(int iField, double Value)
 {
 	if( iField >= 0 && iField < m_pOwner->Get_Field_Count() )
 	{
@@ -245,13 +245,13 @@ bool CTable_Record::Set_Value(int iField, double Value)
 	return( false );
 }
 
-bool CTable_Record::Set_Value(const char *Field, double Value)
+bool CSG_Table_Record::Set_Value(const char *Field, double Value)
 {
 	return( Set_Value(_Get_Field(Field), Value) );
 }
 
 //---------------------------------------------------------
-bool CTable_Record::Add_Value(int iField, double Value)
+bool CSG_Table_Record::Add_Value(int iField, double Value)
 {
 	if( iField >= 0 && iField < m_pOwner->Get_Field_Count() )
 	{
@@ -261,13 +261,13 @@ bool CTable_Record::Add_Value(int iField, double Value)
 	return( false );
 }
 
-bool CTable_Record::Add_Value(const char *Field, double Value)
+bool CSG_Table_Record::Add_Value(const char *Field, double Value)
 {
 	return( Add_Value(_Get_Field(Field), Value) );
 }
 
 //---------------------------------------------------------
-bool CTable_Record::Mul_Value(int iField, double Value)
+bool CSG_Table_Record::Mul_Value(int iField, double Value)
 {
 	if( iField >= 0 && iField < m_pOwner->Get_Field_Count() )
 	{
@@ -277,7 +277,7 @@ bool CTable_Record::Mul_Value(int iField, double Value)
 	return( false );
 }
 
-bool CTable_Record::Mul_Value(const char *Field, double Value)
+bool CSG_Table_Record::Mul_Value(const char *Field, double Value)
 {
 	return( Mul_Value(_Get_Field(Field), Value) );
 }
@@ -290,7 +290,7 @@ bool CTable_Record::Mul_Value(const char *Field, double Value)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTable_Record::Set_NoData(int iField)
+bool CSG_Table_Record::Set_NoData(int iField)
 {
 	if( iField >= 0 && iField < m_pOwner->Get_Field_Count() )
 	{
@@ -306,18 +306,18 @@ bool CTable_Record::Set_NoData(int iField)
 	return( false );
 }
 
-bool CTable_Record::Set_NoData(const char *Field)
+bool CSG_Table_Record::Set_NoData(const char *Field)
 {
 	return( Set_NoData(_Get_Field(Field)) );
 }
 
 //---------------------------------------------------------
-bool CTable_Record::is_NoData(int iField) const
+bool CSG_Table_Record::is_NoData(int iField) const
 {
 	return( iField >= 0 && iField < m_pOwner->Get_Field_Count() ? m_Values[iField]->is_NoData() : true );
 }
 
-bool CTable_Record::is_NoData(const char *Field) const
+bool CSG_Table_Record::is_NoData(const char *Field) const
 {
 	return( is_NoData(_Get_Field(Field)) );
 }
@@ -330,34 +330,34 @@ bool CTable_Record::is_NoData(const char *Field) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char * CTable_Record::asString(int iField, int Decimals) const
+const char * CSG_Table_Record::asString(int iField, int Decimals) const
 {
 	return( iField >= 0 && iField < m_pOwner->Get_Field_Count() ? m_Values[iField]->asString(Decimals) : NULL );
 }
 
-const char * CTable_Record::asString(const char *Field, int Decimals) const
+const char * CSG_Table_Record::asString(const char *Field, int Decimals) const
 {
 	return( asString(_Get_Field(Field), Decimals) );
 }
 
 //---------------------------------------------------------
-int CTable_Record::asInt(int iField) const
+int CSG_Table_Record::asInt(int iField) const
 {
 	return( iField >= 0 && iField < m_pOwner->Get_Field_Count() ? m_Values[iField]->asInt() : 0 );
 }
 
-int CTable_Record::asInt(const char *Field) const
+int CSG_Table_Record::asInt(const char *Field) const
 {
 	return( asInt(_Get_Field(Field)) );
 }
 
 //---------------------------------------------------------
-double CTable_Record::asDouble(int iField) const
+double CSG_Table_Record::asDouble(int iField) const
 {
 	return( iField >= 0 && iField < m_pOwner->Get_Field_Count() ? m_Values[iField]->asDouble() : 0.0 );
 }
 
-double CTable_Record::asDouble(const char *Field) const
+double CSG_Table_Record::asDouble(const char *Field) const
 {
 	return( asDouble(_Get_Field(Field)) );
 }
@@ -370,7 +370,7 @@ double CTable_Record::asDouble(const char *Field) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CTable_Record::Assign(CTable_Record *pSource)
+void CSG_Table_Record::Assign(CSG_Table_Record *pSource)
 {
 	for(int iField=0; iField<m_pOwner->Get_Field_Count(); iField++)
 	{

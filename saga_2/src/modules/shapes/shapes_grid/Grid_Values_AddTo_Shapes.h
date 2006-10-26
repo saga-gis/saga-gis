@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Values_AddTo_Shapes : public CModule  
+class CGrid_Values_AddTo_Shapes : public CSG_Module  
 {
 public:
 	CGrid_Values_AddTo_Shapes(void);
@@ -89,14 +89,14 @@ private:
 
 	int							Interpol;
 
-	CShapes						*pResult;
+	CSG_Shapes						*pResult;
 
-	CParameter_Grid_List		*pGrids;
+	CSG_Parameter_Grid_List		*pGrids;
 
 
-	void						Get_Data_Point		(CShape *pShape );
-	void						Get_Data_Line		(CShape *pShape );
-	void						Get_Data_Polygon	(CShape *pShape );
+	void						Get_Data_Point		(CSG_Shape *pShape );
+	void						Get_Data_Line		(CSG_Shape *pShape );
+	void						Get_Data_Polygon	(CSG_Shape *pShape );
 
 };
 

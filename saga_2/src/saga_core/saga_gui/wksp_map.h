@@ -108,7 +108,7 @@ public:
 	virtual bool				On_Command				(int Cmd_ID);
 	virtual bool				On_Command_UI			(wxUpdateUIEvent &event);
 
-	virtual CParameters *		Get_Parameters			(void)		{	return( &m_Parameters );	}
+	virtual CSG_Parameters *		Get_Parameters			(void)		{	return( &m_Parameters );	}
 	virtual void				Parameters_Changed		(void);
 
 	const CSG_Rect &			Get_Extent				(void)		{	return( m_Extent );	}
@@ -148,7 +148,7 @@ public:
 	void						SaveAs_PDF_Indexed		(void);
 	void						SaveAs_Interactive_SVG	(void);
 
-	void						Draw_PDF				(class CDoc_PDF *pPDF, const char *FilePath_Maps, int Image_ID, const char *Icon_File, const char *sTitle, CSG_Rect rWorld, bool bRoundScale, int iField, CShapes *m_pDivisions);
+	void						Draw_PDF				(class CSG_Doc_PDF *pPDF, const char *FilePath_Maps, int Image_ID, const char *Icon_File, const char *sTitle, CSG_Rect rWorld, bool bRoundScale, int iField, CSG_Shapes *m_pDivisions);
 
 	void						Draw_Map				(wxDC &dc, double Zoom, const wxRect &rClient, bool bEdit, int Background = SG_COLOR_WHITE);
 	void						Draw_Map				(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wxRect &rClient, bool bEdit, int Background = SG_COLOR_WHITE);
@@ -168,7 +168,7 @@ private:
 
 	CSG_Rect					m_Extent, m_Extent_Last;
 
-	CParameters					m_Parameters;
+	CSG_Parameters					m_Parameters;
 
 	class CVIEW_Map				*m_pView;
 
@@ -180,8 +180,8 @@ private:
 
 
 	void						_Create_Parameters		(void);
-	static int					_On_Parameter_Changed	(CParameter *pParameter);
-	int							On_Parameter_Changed	(CParameters *pParameters, CParameter *pParameter);
+	static int					_On_Parameter_Changed	(CSG_Parameter *pParameter);
+	int							On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 };
 

@@ -440,7 +440,7 @@ bool CACTIVE::_Del_Page(int PageID)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CACTIVE::Parameters_Update(class CParameters *pParameters, bool bSave)
+bool CACTIVE::Parameters_Update(class CSG_Parameters *pParameters, bool bSave)
 {
 	return( m_pParameters && m_pParameters->Update_Parameters(pParameters, bSave) );
 }

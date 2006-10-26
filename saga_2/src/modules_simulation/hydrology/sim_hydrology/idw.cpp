@@ -29,7 +29,7 @@ CIDW::~CIDW()
 
 }
 
-void CIDW::setParameters(CGrid* pGrid, CShapes *pPoints, int iField){
+void CIDW::setParameters(CSG_Grid* pGrid, CSG_Shapes *pPoints, int iField){
 
 	m_pGrid = pGrid;
 	m_pPoints = pPoints;
@@ -55,7 +55,7 @@ bool CIDW::Get_Grid_Value(int x, int y)
 	int			iPoint, nPoints;
 	double		zSum, dSum, d, dx, xPos, yPos;
 	TSG_Point	Point;
-	CShape		*pPoint;
+	CSG_Shape		*pPoint;
 
 	nPoints = m_pPoints->Get_Count();
 

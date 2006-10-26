@@ -71,7 +71,7 @@
 CGEOTRANS_Base::CGEOTRANS_Base(void)
 {
 //	CSG_String	Path(SG_File_Get_Path(MLB_Interface.Get_File_Name()));
-	CParameter	*pNode_0, *pNode_Source, *pNode_Target;
+	CSG_Parameter	*pNode_0, *pNode_Source, *pNode_Target;
 
 	bInitialized	= false;
 
@@ -201,8 +201,8 @@ bool CGEOTRANS_Base::Initialize(void)
 
 			if( sList.Length() > 0 )
 			{
-				((CParameter_Choice *)pProjection->Get_Parameter("SOURCE_PROJECTION")->Get_Data())->Set_Items(sList);
-				((CParameter_Choice *)pProjection->Get_Parameter("TARGET_PROJECTION")->Get_Data())->Set_Items(sList);
+				((CSG_Parameter_Choice *)pProjection->Get_Parameter("SOURCE_PROJECTION")->Get_Data())->Set_Items(sList);
+				((CSG_Parameter_Choice *)pProjection->Get_Parameter("TARGET_PROJECTION")->Get_Data())->Set_Items(sList);
 			}
 		}
 		else
@@ -224,8 +224,8 @@ bool CGEOTRANS_Base::Initialize(void)
 
 			if( sList.Length() > 0 )
 			{
-				((CParameter_Choice *)pProjection->Get_Parameter("SOURCE_DATUM")->Get_Data())->Set_Items(sList);
-				((CParameter_Choice *)pProjection->Get_Parameter("TARGET_DATUM")->Get_Data())->Set_Items(sList);
+				((CSG_Parameter_Choice *)pProjection->Get_Parameter("SOURCE_DATUM")->Get_Data())->Set_Items(sList);
+				((CSG_Parameter_Choice *)pProjection->Get_Parameter("TARGET_DATUM")->Get_Data())->Set_Items(sList);
 			}
 		}
 		else
@@ -240,10 +240,10 @@ bool CGEOTRANS_Base::Initialize(void)
 }
 
 //---------------------------------------------------------
-CParameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Type, bool bShow_Dialog)
+CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Type, bool bShow_Dialog)
 {
 	CSG_String	sName, sIdentifier;
-	CParameters	*pParameters;
+	CSG_Parameters	*pParameters;
 
 	//-----------------------------------------------------
 	pParameters	= NULL;
@@ -742,7 +742,7 @@ bool CGEOTRANS_Base::On_Execute(void)
 bool CGEOTRANS_Base::Set_Transformation(bool bShow_Dialog)
 {
 	int			Type_Index, Datum_Index;
-	CParameters	*pParms;
+	CSG_Parameters	*pParms;
 
 	//-----------------------------------------------------
 	// 1. Input...
@@ -823,7 +823,7 @@ bool CGEOTRANS_Base::Set_Transformation_Inverse(void)
 {
 	long			Datum_Input, Datum_Output;
 	Coordinate_Type	Type;
-	CParameters		*pParms_Input, *pParms_Output;
+	CSG_Parameters		*pParms_Input, *pParms_Output;
 
 //	if( Set_Transformation(false) )
 	{
@@ -858,7 +858,7 @@ bool CGEOTRANS_Base::Set_Transformation_Inverse(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGEOTRANS_Base::Set_Projection_Parameters(Input_Output dir, Coordinate_Type Type, CParameters *pParms)
+bool CGEOTRANS_Base::Set_Projection_Parameters(Input_Output dir, Coordinate_Type Type, CSG_Parameters *pParms)
 {
 	if( pParms )
 	{

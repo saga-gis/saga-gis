@@ -22,5 +22,5 @@
 
 #include <saga_api/saga_api.h>
 
-double CalculateBasinGrid(CGrid*, CGrid*, int, int);
-void CalculateFlowAccGrid(CGrid*, CGrid*);
+double CalculateBasinGrid(CSG_Grid*, CSG_Grid*, int, int);
+void CalculateFlowAccGrid(CSG_Grid*, CSG_Grid*);

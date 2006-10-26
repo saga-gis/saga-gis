@@ -122,7 +122,7 @@ public: ///////////////////////////////////////////////////
 	CWKSP_Layer_Classify(void);
 	virtual ~CWKSP_Layer_Classify(void);
 
-	bool						Initialise				(class CWKSP_Layer *pLayer, CTable *pLUT, CSG_Colors *pColors);
+	bool						Initialise				(class CWKSP_Layer *pLayer, CSG_Table *pLUT, CSG_Colors *pColors);
 
 	void						Set_Mode				(int Mode);
 	int							Get_Mode				(void)		{	return( m_Mode );		}
@@ -359,7 +359,7 @@ protected: ////////////////////////////////////////////////
 
 	CSG_Colors						*m_pColors;
 
-	CTable						*m_pLUT;
+	CSG_Table						*m_pLUT;
 
 	class CWKSP_Layer			*m_pLayer;
 
@@ -385,8 +385,8 @@ protected: ////////////////////////////////////////////////
 
 
 	//-----------------------------------------------------
-	bool						_Histogram_Update		(CGrid *pGrid);
-	bool						_Histogram_Update		(CShapes *pShapes);
+	bool						_Histogram_Update		(CSG_Grid *pGrid);
+	bool						_Histogram_Update		(CSG_Shapes *pShapes);
 
 };
 

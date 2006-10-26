@@ -123,7 +123,7 @@ public:
 	void						Set_Font				(wxFont &Font);
 
 	//-----------------------------------------------------
-	void						Draw_Polygon			(CShape_Polygon *pPolygon);
+	void						Draw_Polygon			(CSG_Shape_Polygon *pPolygon);
 
 	//-----------------------------------------------------
 	bool						IMG_Draw_Begin			(double Transparency);
@@ -209,8 +209,8 @@ private:
 	wxBitmap					dc_BMP;
 
 
-	void						TEST_Draw_Polygon		(CShape_Polygon *pPolygon);
-	void						TEST_Draw_Polygon_Line	(CGrid &Mask, int ax, int ay, int bx, int by, bool bDirChanged);
+	void						TEST_Draw_Polygon		(CSG_Shape_Polygon *pPolygon);
+	void						TEST_Draw_Polygon_Line	(CSG_Grid &Mask, int ax, int ay, int bx, int by, bool bDirChanged);
 
 };
 

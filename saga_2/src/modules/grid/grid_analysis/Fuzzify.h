@@ -23,7 +23,7 @@
 
 #include "MLB_Interface.h"
 
-class CFuzzify : public CModule_Grid {
+class CFuzzify : public CSG_Module_Grid {
 
 public:
 	CFuzzify(void);

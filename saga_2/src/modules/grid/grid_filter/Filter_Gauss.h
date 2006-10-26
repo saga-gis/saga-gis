@@ -66,7 +66,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CFilter_Gauss : public CModule_Grid
+class CFilter_Gauss : public CSG_Module_Grid
 {
 public:
 	CFilter_Gauss(void);
@@ -82,9 +82,9 @@ private:
 
 	CSG_Grid_Radius		m_Radius;
 
-	CGrid				*pInput;
+	CSG_Grid				*pInput;
 
-	CGrid				*pKernel;
+	CSG_Grid				*pKernel;
 
 	double				m_sigma;
 

@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_lighting_EXPORT CSolarRadiation : public CModule_Grid
+class ta_lighting_EXPORT CSolarRadiation : public CSG_Module_Grid
 {
 public:
 	CSolarRadiation(void);
@@ -97,7 +97,7 @@ private:
 
 	double				m_SolarConstant, m_Transmittance, m_Pressure, m_Water, m_Dust;
 
-	CGrid				*m_pDTM, *m_pSum, *m_pRadiation, *m_pDuration;
+	CSG_Grid				*m_pDTM, *m_pSum, *m_pRadiation, *m_pDuration;
 
 
 	void				Execute_DailySum		(double Latitude_RAD, double Hour_Step, double Hour_Start, double Hour_Stop, int Day);

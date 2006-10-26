@@ -94,7 +94,7 @@ CGrid_Cut::CGrid_Cut(void)
 	);
 
 	//-----------------------------------------------------
-	CParameters	*pParameters	= Add_Extra_Parameters("CUT", _TL("Cut"), "");
+	CSG_Parameters	*pParameters	= Add_Extra_Parameters("CUT", _TL("Cut"), "");
 
 	pParameters->Add_Value(
 		NULL, "XMIN"		, _TL("Left")		, "", PARAMETER_TYPE_Double
@@ -133,7 +133,7 @@ CGrid_Cut::~CGrid_Cut(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CGrid_Cut::On_Parameter_Changed(CParameters *pParameters, CParameter *pParameter)
+int CGrid_Cut::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	int		nx, ny;
 	double	xMin, xMax, yMin, yMax, d;
@@ -219,12 +219,12 @@ bool CGrid_Cut::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Cut::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CGrid_Cut::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
 {
 	CSG_Rect		r;
-	CGrid_System	System;
-	CGrid			*pCut;
-	CParameters		*pParameters;
+	CSG_Grid_System	System;
+	CSG_Grid			*pCut;
+	CSG_Parameters		*pParameters;
 
 	switch( Mode )
 	{

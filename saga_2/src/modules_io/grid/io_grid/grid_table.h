@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Table_Import : public CModule
+class CGrid_Table_Import : public CSG_Module
 {
 public:
 	CGrid_Table_Import(void);

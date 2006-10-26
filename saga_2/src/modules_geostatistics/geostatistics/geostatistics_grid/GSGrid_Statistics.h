@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGSGrid_Statistics : public CModule_Grid  
+class CGSGrid_Statistics : public CSG_Module_Grid  
 {
 public:
 	CGSGrid_Statistics(void);

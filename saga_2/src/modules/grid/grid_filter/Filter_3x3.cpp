@@ -92,8 +92,8 @@ CFilter_3x3::CFilter_3x3(void)
 	);
 
 	//-----------------------------------------------------
-	CTable			Filter, *pFilter;
-	CTable_Record	*pRecord;
+	CSG_Table			Filter, *pFilter;
+	CSG_Table_Record	*pRecord;
 
 	Filter.Add_Field("1", TABLE_FIELDTYPE_Double);
 	Filter.Add_Field("2", TABLE_FIELDTYPE_Double);
@@ -134,9 +134,9 @@ bool CFilter_3x3::On_Execute(void)
 {
 	int				x, y, ix, iy, dx, dy, fx, fy, fdx, fdy;
 	double			Sum, nSum, **f;
-	CGrid			*pInput, *pResult;
-	CTable			*pFilter;
-	CTable_Record	*pRecord;
+	CSG_Grid			*pInput, *pResult;
+	CSG_Table			*pFilter;
+	CSG_Table_Record	*pRecord;
 
 	//-----------------------------------------------------
 	pInput	= Parameters("INPUT")->asGrid();

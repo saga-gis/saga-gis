@@ -27,7 +27,7 @@
 
 CJoinTables::CJoinTables(void){
 
-	CParameter	*pNode_0, *pNode_1;
+	CSG_Parameter	*pNode_0, *pNode_1;
 
 	Parameters.Set_Name(_TL("Join Table"));
 
@@ -72,10 +72,10 @@ bool CJoinTables::On_Execute(void){
 	bool			bCopy;
 	int				iShape, iPart, iPoint, iRecord, id_Shapes, id_Table, iFieldOut;
 	double			Value;
-	CTable			*pTable, *pShapesTable, *pShapesOutTable;
-	CTable_Record	*pRecord;
-	CShapes			*pShapes, *pShapes_Out;
-	CShape			*pShape, *pShape_Out;
+	CSG_Table			*pTable, *pShapesTable, *pShapesOutTable;
+	CSG_Table_Record	*pRecord;
+	CSG_Shapes			*pShapes, *pShapes_Out;
+	CSG_Shape			*pShape, *pShape_Out;
 
 	pShapes		= Parameters("SHAPES")		->asShapes();
 	id_Shapes	= Parameters("SHAPES_ID")	->asInt();

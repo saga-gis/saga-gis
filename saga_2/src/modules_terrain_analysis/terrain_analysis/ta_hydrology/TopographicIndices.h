@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_hydrology_EXPORT CTopographicIndices : public CModule_Grid
+class ta_hydrology_EXPORT CTopographicIndices : public CSG_Module_Grid
 {
 public:
 	CTopographicIndices(void);

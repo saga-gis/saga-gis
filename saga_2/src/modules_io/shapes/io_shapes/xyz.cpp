@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CXYZ_Export::CXYZ_Export(void)
 {
-	CParameter	*pNode_0, *pNode_1;
+	CSG_Parameter	*pNode_0, *pNode_1;
 
 	//-----------------------------------------------------
 	Set_Name(_TL("Export Shapes to XYZ"));
@@ -139,8 +139,8 @@ bool CXYZ_Export::On_Execute(void)
 	int			iShape, iPart, iPoint, iField, Separate;
 	FILE		*Stream;
 	TSG_Point	Point;
-	CShape		*pShape;
-	CShapes		*pShapes;
+	CSG_Shape		*pShape;
+	CSG_Shapes		*pShapes;
 
 	//-----------------------------------------------------
 	pShapes		= Parameters("SHAPES")	->asShapes();
@@ -254,7 +254,7 @@ bool CXYZ_Export::On_Execute(void)
 //---------------------------------------------------------
 CXYZ_Import::CXYZ_Import(void)
 {
-	CParameter	*pNode_0, *pNode_1;
+	CSG_Parameter	*pNode_0, *pNode_1;
 
 	//-----------------------------------------------------
 	Set_Name(_TL("Import Shapes from XYZ"));
@@ -310,10 +310,10 @@ CXYZ_Import::~CXYZ_Import(void)
 bool CXYZ_Import::On_Execute(void)
 {
 	int				xField, yField, iRecord;
-	CTable			Table;
-	CTable_Record	*pRecord;
-	CShapes			*pShapes;
-	CShape			*pShape;
+	CSG_Table			Table;
+	CSG_Table_Record	*pRecord;
+	CSG_Shapes			*pShapes;
+	CSG_Shape			*pShape;
 
 	//-----------------------------------------------------
 	pShapes	= Parameters("SHAPES")	->asShapes();

@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGSGrid_Regression_Multiple : public CModule_Grid
+class CGSGrid_Regression_Multiple : public CSG_Module_Grid
 {
 public:
 	CGSGrid_Regression_Multiple(void);
@@ -93,10 +93,10 @@ private:
 	CSG_Regression_Multiple		m_Regression;
 
 
-	bool						Get_Regression		(CParameter_Grid_List *pGrids, CShapes *pShapes, int iAttribute);
-	bool						Set_Regression		(CParameter_Grid_List *pGrids, CGrid *pRegression);
-	bool						Set_Residuals		(CShapes *pShapes, int iAttribute, CShapes *pResiduals, CGrid *pRegression);
-	void						Set_Message			(CParameter_Grid_List *pGrids);
+	bool						Get_Regression		(CSG_Parameter_Grid_List *pGrids, CSG_Shapes *pShapes, int iAttribute);
+	bool						Set_Regression		(CSG_Parameter_Grid_List *pGrids, CSG_Grid *pRegression);
+	bool						Set_Residuals		(CSG_Shapes *pShapes, int iAttribute, CSG_Shapes *pResiduals, CSG_Grid *pRegression);
+	void						Set_Message			(CSG_Parameter_Grid_List *pGrids);
 
 };
 

@@ -99,7 +99,7 @@ bool CInterpolation_NearestNeighbour::On_Initialize(void)
 //---------------------------------------------------------
 bool CInterpolation_NearestNeighbour::Get_Value(double x, double y, double &z)
 {
-	CShape	*pPoint;
+	CSG_Shape	*pPoint;
 
 	if( (pPoint = m_Search.Get_Point_Nearest(x, y)) != NULL )
 	{

@@ -96,16 +96,16 @@ private:
 	bool					_Save				(const char *FileName, bool bSaveModified, bool bUpdateMenu);
 
 	bool					_Load_Data			(FILE *Stream, const char *ProjectDir);
-	bool					_Save_Data			(FILE *Stream, const char *ProjectDir, class CDataObject *pDataObject, class CParameters *pParameters);
+	bool					_Save_Data			(FILE *Stream, const char *ProjectDir, class CSG_Data_Object *pDataObject, class CSG_Parameters *pParameters);
 
 	bool					_Load_Map			(FILE *Stream, const char *ProjectDir);
 	bool					_Save_Map			(FILE *Stream, const char *ProjectDir, class CWKSP_Map *pMap);
 
 	class CWKSP_Base_Item *	_Get_byFileName		(wxString FileName);
 
-	bool					_Modified_Get		(class CParameters *pParameters, class CWKSP_Base_Item *pItem);
-	bool					_Modified_Get		(class CParameters *pParameters, class CWKSP_Base_Item *pItem, class CDataObject *pObject);
-	bool					_Modified_Save		(class CParameters *pParameters);
+	bool					_Modified_Get		(class CSG_Parameters *pParameters, class CWKSP_Base_Item *pItem);
+	bool					_Modified_Get		(class CSG_Parameters *pParameters, class CWKSP_Base_Item *pItem, class CSG_Data_Object *pObject);
+	bool					_Modified_Save		(class CSG_Parameters *pParameters);
 
 };
 

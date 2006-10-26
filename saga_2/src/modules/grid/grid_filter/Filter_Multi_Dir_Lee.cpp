@@ -285,10 +285,10 @@ bool CFilter_Multi_Dir_Lee::On_Execute(void)
 	
 	double	Std_Dev_Sum[16], b, result;
 	
-	CGrid	*pInput				=	 Parameters("INPUT")->asGrid();
-	CGrid	*pResult			=	 Parameters("RESULT")->asGrid();
-	CGrid	*pDirections		=	 Parameters("DIR")->asGrid();
-	CGrid	*pVariance			=	 Parameters("VAR")->asGrid();
+	CSG_Grid	*pInput				=	 Parameters("INPUT")->asGrid();
+	CSG_Grid	*pResult			=	 Parameters("RESULT")->asGrid();
+	CSG_Grid	*pDirections		=	 Parameters("DIR")->asGrid();
+	CSG_Grid	*pVariance			=	 Parameters("VAR")->asGrid();
 	
 			Noise				=	 Parameters("NOISE")->asDouble();
 	

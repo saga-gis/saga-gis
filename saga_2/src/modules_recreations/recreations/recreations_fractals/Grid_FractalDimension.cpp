@@ -97,8 +97,8 @@ CGrid_FractalDimension::~CGrid_FractalDimension(void)
 bool CGrid_FractalDimension::On_Execute(void)
 {
 	int				i;
-	CTable			*pTable;
-	CTable_Record	*pRecord;
+	CSG_Table			*pTable;
+	CSG_Table_Record	*pRecord;
 
 	//-----------------------------------------------------
 	pGrid		= Parameters("INPUT")	->asGrid();

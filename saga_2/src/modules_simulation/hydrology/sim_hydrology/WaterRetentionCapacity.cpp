@@ -67,9 +67,9 @@ bool CWaterRetentionCapacity::On_Execute(void){
 	int iX, iY;
 	float fC;
 	double dSlope,dAspect;	
-	CShape* pShape;
-	CShapes* pShapes = Parameters("SHAPES")->asShapes();
-	CGrid* pDEM = Parameters("DEM")->asGrid();
+	CSG_Shape* pShape;
+	CSG_Shapes* pShapes = Parameters("SHAPES")->asShapes();
+	CSG_Grid* pDEM = Parameters("DEM")->asGrid();
 	
 	m_pRetention = Parameters("RETENTION")->asGrid();
 	m_pSlope = SG_Create_Grid(pDEM);
@@ -132,7 +132,7 @@ bool CWaterRetentionCapacity::On_Execute(void){
 void CWaterRetentionCapacity::CalculateWaterRetention(float **pData, 
 													   int iNumHorizons, 
 													   float fC,
-													   CTable_Record *pRecord){
+													   CSG_Table_Record *pRecord){
 
 	int i;
 	int iField;

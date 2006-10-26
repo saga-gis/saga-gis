@@ -97,7 +97,7 @@ public:
 	class CWKSP_Base_Item *			Get_Item				(void)	{	return( m_pItem );			}
 	class CWKSP_Layer *				Get_Layer				(void)	{	return( m_pLayer );			}
 
-	bool							Parameters_Update		(class CParameters *pParameters, bool bSave);
+	bool							Parameters_Update		(class CSG_Parameters *pParameters, bool bSave);
 	bool							Parameters_Update_Data	(void);
 
 

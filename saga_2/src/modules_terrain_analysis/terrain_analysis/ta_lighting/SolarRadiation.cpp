@@ -71,7 +71,7 @@
 //---------------------------------------------------------
 CSolarRadiation::CSolarRadiation(void)
 {
-	CParameter	*pNode_0, *pNode_1, *pNode_2;
+	CSG_Parameter	*pNode_0, *pNode_1, *pNode_2;
 
 	//-----------------------------------------------------
 	Set_Name(_TL("Incoming Solar Radiation"));
@@ -396,7 +396,7 @@ void CSolarRadiation::Execute_DailySum(double Latitude_RAD, double Hour_Step, do
 void CSolarRadiation::Execute_SumOfDays(double Latitude_RAD, double Hour_Step, double Hour_Start, double Hour_Stop, int Day_Step, int Day_Start, int Day_Stop)
 {
 	int		Day, nDays;
-	CGrid	*pSumOfDays, *pDur_Total;
+	CSG_Grid	*pSumOfDays, *pDur_Total;
 
 	//-----------------------------------------------------
 	nDays	= Day_Stop - Day_Start;

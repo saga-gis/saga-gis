@@ -67,7 +67,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Polygon_Clip : public CModule_Grid
+class CGrid_Polygon_Clip : public CSG_Module_Grid
 {
 public:
 	// constructor
@@ -83,12 +83,12 @@ private:
 
 	// estimates the Extent of the new grid
 	bool				Get_Extent		(int &xMin, int &xCount,
-										 int &yMin, int &yCount, CGrid *pMask);
+										 int &yMin, int &yCount, CSG_Grid *pMask);
 
 	// This function has been copied from Module: 'Grid_Statistics_AddTo_Polygon'
 	// Function: Get_ShapeIDs
 	// copyright by Olaf Conrad
-	bool				Get_Mask		(CShapes *pShapes, CGrid *pMask);
+	bool				Get_Mask		(CSG_Shapes *pShapes, CSG_Grid *pMask);
 
 };
 

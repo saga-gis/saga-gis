@@ -103,9 +103,9 @@ bool CGrid_To_Points_Random::On_Execute(void)
 {
 	int		x, y, n;
 	double	frequency;
-	CGrid	*pGrid;
-	CShape	*pShape;
-	CShapes	*pShapes;
+	CSG_Grid	*pGrid;
+	CSG_Shape	*pShape;
+	CSG_Shapes	*pShapes;
 
 	pGrid		= Parameters("GRID")->asGrid();
 	frequency	= 1.0 / Parameters("FREQ")->asDouble();

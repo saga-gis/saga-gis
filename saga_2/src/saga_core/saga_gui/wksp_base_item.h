@@ -137,7 +137,7 @@ public:
 	virtual bool				On_Command			(int Cmd_ID);
 	virtual bool				On_Command_UI		(wxUpdateUIEvent &event);
 
-	virtual class CParameters *	Get_Parameters		(void)	{	return( NULL );			}
+	virtual class CSG_Parameters *	Get_Parameters		(void)	{	return( NULL );			}
 	virtual void				Parameters_Changed	(void);
 
 	class CWKSP_Base_Control *	Get_Control			(void);

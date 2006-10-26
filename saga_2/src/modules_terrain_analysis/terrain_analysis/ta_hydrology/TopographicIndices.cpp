@@ -139,7 +139,7 @@ bool CTopographicIndices::On_Execute(void)
 	int		x, y;
 	double	Area, Slope, tan_Slope, Kf, Mean_Kf, Mean_TWI;
 	CSG_Colors	Colors;
-	CGrid	*pArea, *pSlope, *pKf, *pTWI, *pSPI, *pLSF;
+	CSG_Grid	*pArea, *pSlope, *pKf, *pTWI, *pSPI, *pLSF;
 
 	//-----------------------------------------------------
 	pSlope	= Parameters("SLOPE")		->asGrid();

@@ -25,7 +25,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CCost_RectToPolar : public CModule_Grid {
+class CCost_RectToPolar : public CSG_Module_Grid {
 
 public:
 

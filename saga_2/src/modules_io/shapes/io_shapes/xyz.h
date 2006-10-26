@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CXYZ_Export : public CModule  
+class CXYZ_Export : public CSG_Module  
 {
 public:
 	CXYZ_Export(void);
@@ -91,7 +91,7 @@ protected:
 };
 
 //---------------------------------------------------------
-class CXYZ_Import : public CModule  
+class CXYZ_Import : public CSG_Module  
 {
 public:
 	CXYZ_Import(void);

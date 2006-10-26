@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CHugget_03 : public CModule_Grid
+class CHugget_03 : public CSG_Module_Grid
 {
 public:
 	CHugget_03(void);
@@ -93,9 +93,9 @@ protected:
 
 private:
 
-	bool				Init_Slopes	(CGrid *pDEM, CGrid S[8]);
+	bool				Init_Slopes	(CSG_Grid *pDEM, CSG_Grid S[8]);
 
-	bool				Step		(CGrid S[8], CGrid *pN, CGrid *pN_1, double N_Rain, double dTime);
+	bool				Step		(CSG_Grid S[8], CSG_Grid *pN, CSG_Grid *pN_1, double N_Rain, double dTime);
 
 };
 

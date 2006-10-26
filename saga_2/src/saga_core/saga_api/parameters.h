@@ -108,7 +108,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum EParameter_Type
+typedef enum ESG_Parameter_Type
 {
 	PARAMETER_TYPE_Node		= 0,
 
@@ -150,7 +150,7 @@ typedef enum EParameter_Type
 
 	PARAMETER_TYPE_Undefined
 }
-TParameter_Type;
+TSG_Parameter_Type;
 
 
 ///////////////////////////////////////////////////////////
@@ -160,8 +160,8 @@ TParameter_Type;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CParameters;
-class CParameter;
+class CSG_Parameters;
+class CSG_Parameter;
 
 
 ///////////////////////////////////////////////////////////
@@ -171,30 +171,30 @@ class CParameter;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef int		(* TSG_PFNC_Parameter_Changed)	(CParameter *pSender);
+typedef int		(* TSG_PFNC_Parameter_Changed)	(CSG_Parameter *pSender);
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//					CParameter_Data						 //
+//					CSG_Parameter_Data					 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_Data
 {
 public:
-	CParameter_Data(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_Data(void);
+	CSG_Parameter_Data(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Data(void);
 
-	virtual TParameter_Type		Get_Type				(void)			= 0;
+	virtual TSG_Parameter_Type	Get_Type				(void)			= 0;
 	virtual const char *		Get_Type_Name			(void);
 
 	long						Get_Constraint			(void)	{	return( m_Constraint );	}
 
 	virtual bool				is_Valid				(void)	{	return( true );			}
 
-	bool						Assign					(CParameter_Data *pSource);
+	bool						Assign					(CSG_Parameter_Data *pSource);
 	bool						Serialize				(FILE *Stream, bool bSave);
 
 	virtual bool				Set_Value				(int Value);
@@ -214,33 +214,33 @@ protected:
 
 	CSG_String					m_String;
 
-	CParameter					*m_pOwner;
+	CSG_Parameter				*m_pOwner;
 
 
-	virtual void				On_Assign				(CParameter_Data *pSource);
+	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
 	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_Node : public CParameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_Node : public CSG_Parameter_Data
 {
 public:
-	CParameter_Node(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_Node(void);
+	CSG_Parameter_Node(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Node(void);
 
-	virtual TParameter_Type		Get_Type				(void)	{	return( PARAMETER_TYPE_Node );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Node );	}
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_Bool : public CParameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_Bool : public CSG_Parameter_Data
 {
 public:
-	CParameter_Bool(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_Bool(void);
+	CSG_Parameter_Bool(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Bool(void);
 
-	virtual TParameter_Type		Get_Type				(void)	{	return( PARAMETER_TYPE_Bool );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Bool );	}
 
 	virtual bool				Set_Value				(int Value);
 	virtual bool				Set_Value				(double Value);
@@ -255,17 +255,17 @@ protected:
 	bool						m_Value;
 
 
-	virtual void				On_Assign				(CParameter_Data *pSource);
+	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
 	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_Value : public CParameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_Value : public CSG_Parameter_Data
 {
 public:
-	CParameter_Value(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_Value(void);
+	CSG_Parameter_Value(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Value(void);
 
 	bool						Set_Range				(double Minimum, double Maximum);
 
@@ -285,18 +285,18 @@ protected:
 	double						m_Minimum, m_Maximum;
 
 
-	virtual void				On_Assign				(CParameter_Data *pSource);
+	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_Int : public CParameter_Value
+class SAGA_API_DLL_EXPORT CSG_Parameter_Int : public CSG_Parameter_Value
 {
 public:
-	CParameter_Int(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_Int(void);
+	CSG_Parameter_Int(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Int(void);
 
-	virtual TParameter_Type		Get_Type				(void)	{	return( PARAMETER_TYPE_Int );		}
+	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Int );		}
 
 	virtual bool				Set_Value				(void *Value);
 	virtual bool				Set_Value				(int Value);
@@ -311,19 +311,19 @@ protected:
 
 	int							m_Value;
 
-	virtual void				On_Assign				(CParameter_Data *pSource);
+	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
 	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_Double : public CParameter_Value
+class SAGA_API_DLL_EXPORT CSG_Parameter_Double : public CSG_Parameter_Value
 {
 public:
-	CParameter_Double(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_Double(void);
+	CSG_Parameter_Double(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Double(void);
 
-	virtual TParameter_Type		Get_Type				(void)	{	return( PARAMETER_TYPE_Double );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Double );	}
 
 	virtual bool				Set_Value				(int Value);
 	virtual bool				Set_Value				(double Value);
@@ -338,19 +338,19 @@ protected:
 
 	double						m_Value;
 
-	virtual void				On_Assign				(CParameter_Data *pSource);
+	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
 	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_Degree : public CParameter_Double
+class SAGA_API_DLL_EXPORT CSG_Parameter_Degree : public CSG_Parameter_Double
 {
 public:
-	CParameter_Degree(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_Degree(void);
+	CSG_Parameter_Degree(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Degree(void);
 
-	virtual TParameter_Type		Get_Type				(void)	{	return( PARAMETER_TYPE_Degree );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Degree );	}
 
 	virtual bool				Set_Value				(void *Value);
 
@@ -359,13 +359,13 @@ public:
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_Range : public CParameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_Range : public CSG_Parameter_Data
 {
 public:
-	CParameter_Range(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_Range(void);
+	CSG_Parameter_Range(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Range(void);
 
-	virtual TParameter_Type		Get_Type				(void)	{	return( PARAMETER_TYPE_Range );		}
+	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Range );		}
 
 	virtual const char *		asString				(void);
 
@@ -377,30 +377,30 @@ public:
 	bool						Set_HiVal				(double newValue);
 	double						Get_HiVal				(void);
 
-	CParameter *				Get_LoParm				(void)	{	return( pLo );	}
-	CParameter *				Get_HiParm				(void)	{	return( pHi );	}
+	CSG_Parameter *				Get_LoParm				(void)	{	return( pLo );	}
+	CSG_Parameter *				Get_HiParm				(void)	{	return( pHi );	}
 
 
 protected:
 
-	CParameter					*pLo, *pHi;
+	CSG_Parameter				*pLo, *pHi;
 
-	CParameters					*pRange;
+	CSG_Parameters				*pRange;
 
 
-	virtual void				On_Assign				(CParameter_Data *pSource);
+	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
 	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_Choice : public CParameter_Int
+class SAGA_API_DLL_EXPORT CSG_Parameter_Choice : public CSG_Parameter_Int
 {
 public:
-	CParameter_Choice(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_Choice(void);
+	CSG_Parameter_Choice(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Choice(void);
 
-	virtual TParameter_Type		Get_Type				(void)	{	return( PARAMETER_TYPE_Choice );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Choice );	}
 
 	virtual const char *		asString				(void);
 
@@ -420,35 +420,35 @@ protected:
 
 	void						Del_Items				(void);
 
-	virtual void				On_Assign				(CParameter_Data *pSource);
+	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_Table_Field : public CParameter_Int
+class SAGA_API_DLL_EXPORT CSG_Parameter_Table_Field : public CSG_Parameter_Int
 {
 public:
-	CParameter_Table_Field(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_Table_Field(void);
+	CSG_Parameter_Table_Field(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Table_Field(void);
 
-	virtual TParameter_Type		Get_Type				(void)	{	return( PARAMETER_TYPE_Table_Field );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Table_Field );	}
 
 	virtual const char *		asString				(void);
 
 	virtual bool				Set_Value				(int Value);
 
-	CTable *					Get_Table				(void);
+	CSG_Table *					Get_Table				(void);
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_String : public CParameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_String : public CSG_Parameter_Data
 {
 public:
-	CParameter_String(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_String(void);
+	CSG_Parameter_String(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_String(void);
 
-	virtual TParameter_Type		Get_Type				(void)	{	return( PARAMETER_TYPE_String );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_String );	}
 
 	virtual const char *		asString				(void);
 
@@ -465,19 +465,19 @@ protected:
 	bool						bPassword;
 
 
-	virtual void				On_Assign				(CParameter_Data *pSource);
+	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
 	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_Text : public CParameter_String
+class SAGA_API_DLL_EXPORT CSG_Parameter_Text : public CSG_Parameter_String
 {
 public:
-	CParameter_Text(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_Text(void);
+	CSG_Parameter_Text(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Text(void);
 
-	virtual TParameter_Type		Get_Type				(void)	{	return( PARAMETER_TYPE_Text );		}
+	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Text );		}
 
 
 protected:
@@ -487,13 +487,13 @@ protected:
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_FilePath : public CParameter_String
+class SAGA_API_DLL_EXPORT CSG_Parameter_File_Name : public CSG_Parameter_String
 {
 public:
-	CParameter_FilePath(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_FilePath(void);
+	CSG_Parameter_File_Name(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_File_Name(void);
 
-	virtual TParameter_Type		Get_Type				(void)	{	return( PARAMETER_TYPE_FilePath );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_FilePath );	}
 
 	void						Set_Filter				(const char *Filter);
 	const char *				Get_Filter				(void);
@@ -517,18 +517,18 @@ protected:
 	CSG_String					m_Filter;
 
 
-	virtual void				On_Assign				(CParameter_Data *pSource);
+	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_Font : public CParameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_Font : public CSG_Parameter_Data
 {
 public:
-	CParameter_Font(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_Font(void);
+	CSG_Parameter_Font(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Font(void);
 
-	virtual TParameter_Type		Get_Type				(void)	{	return( PARAMETER_TYPE_Font );		}
+	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Font );		}
 
 	virtual bool				Set_Value				(int Value);
 	virtual bool				Set_Value				(void *Value);
@@ -546,30 +546,30 @@ protected:
 	class wxFont				*m_pFont;
 
 
-	virtual void				On_Assign				(CParameter_Data *pSource);
+	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
 	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_Color : public CParameter_Int
+class SAGA_API_DLL_EXPORT CSG_Parameter_Color : public CSG_Parameter_Int
 {
 public:
-	CParameter_Color(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_Color(void);
+	CSG_Parameter_Color(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Color(void);
 
-	virtual TParameter_Type		Get_Type				(void)	{	return( PARAMETER_TYPE_Color );		}
+	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Color );		}
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_Colors : public CParameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_Colors : public CSG_Parameter_Data
 {
 public:
-	CParameter_Colors(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_Colors(void);
+	CSG_Parameter_Colors(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Colors(void);
 
-	virtual TParameter_Type		Get_Type				(void)	{	return( PARAMETER_TYPE_Colors );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Colors );	}
 
 	virtual int					asInt					(void)	{	return( m_Colors.Get_Count() );	}
 	virtual void *				asPointer				(void)	{	return( &m_Colors );	}
@@ -581,19 +581,19 @@ protected:
 	CSG_Colors					m_Colors;
 
 
-	virtual void				On_Assign				(CParameter_Data *pSource);
+	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
 	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_FixedTable : public CParameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_Fixed_Table : public CSG_Parameter_Data
 {
 public:
-	CParameter_FixedTable(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_FixedTable(void);
+	CSG_Parameter_Fixed_Table(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Fixed_Table(void);
 
-	virtual TParameter_Type		Get_Type				(void)	{	return( PARAMETER_TYPE_FixedTable );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_FixedTable );	}
 
 	virtual void *				asPointer				(void)	{	return( &m_Table );	}
 
@@ -602,21 +602,21 @@ public:
 
 protected:
 
-	CTable						m_Table;
+	CSG_Table					m_Table;
 
-	virtual void				On_Assign				(CParameter_Data *pSource);
+	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
 	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_Grid_System : public CParameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_Grid_System : public CSG_Parameter_Data
 {
 public:
-	CParameter_Grid_System(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_Grid_System(void);
+	CSG_Parameter_Grid_System(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Grid_System(void);
 
-	virtual TParameter_Type		Get_Type				(void)	{	return( PARAMETER_TYPE_Grid_System );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Grid_System );	}
 
 	virtual bool				Set_Value				(void *Value);
 
@@ -627,20 +627,20 @@ public:
 
 protected:
 
-	CGrid_System				m_System;
+	CSG_Grid_System				m_System;
 
 
-	virtual void				On_Assign				(CParameter_Data *pSource);
+	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
 	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_DataObject : public CParameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_Data_Object : public CSG_Parameter_Data
 {
 public:
-	CParameter_DataObject(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_DataObject(void);
+	CSG_Parameter_Data_Object(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Data_Object(void);
 
 	virtual bool				is_Valid				(void);
 
@@ -654,134 +654,134 @@ public:
 
 protected:
 
-	CDataObject					*m_pDataObject;
+	CSG_Data_Object				*m_pDataObject;
 
 
-	virtual void				On_Assign				(CParameter_Data *pSource);
+	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
 	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_DataObject_Output : public CParameter_DataObject
+class SAGA_API_DLL_EXPORT CSG_Parameter_Data_Object_Output : public CSG_Parameter_Data_Object
 {
 public:
-	CParameter_DataObject_Output(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_DataObject_Output(void);
+	CSG_Parameter_Data_Object_Output(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Data_Object_Output(void);
 
-	virtual TParameter_Type		Get_Type				(void)		{	return( PARAMETER_TYPE_DataObject_Output );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_DataObject_Output );	}
 
 	virtual bool				Set_Value				(void *Value);
 
-	bool						Set_DataObject_Type		(TDataObject_Type Type);
-	TDataObject_Type			Get_DataObject_Type		(void)		{	return( m_Type );	}
+	bool						Set_DataObject_Type		(TSG_Data_Object_Type Type);
+	TSG_Data_Object_Type		Get_DataObject_Type		(void)		{	return( m_Type );	}
 
 
 protected:
 
-	TDataObject_Type			m_Type;
+	TSG_Data_Object_Type		m_Type;
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_Grid : public CParameter_DataObject
+class SAGA_API_DLL_EXPORT CSG_Parameter_Grid : public CSG_Parameter_Data_Object
 {
 public:
-	CParameter_Grid(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_Grid(void);
+	CSG_Parameter_Grid(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Grid(void);
 
-	virtual TParameter_Type		Get_Type				(void)		{	return( PARAMETER_TYPE_Grid );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_Grid );	}
 
 	virtual bool				Set_Value				(void *Value);
 
-	void						Set_Preferred_Type		(TGrid_Type Type);
-	TGrid_Type					Get_Preferred_Type		(void)		{	return( m_Type );	}
+	void						Set_Preferred_Type		(TSG_Grid_Type Type);
+	TSG_Grid_Type				Get_Preferred_Type		(void)		{	return( m_Type );	}
 
-	CGrid_System *				Get_System				(void);
+	CSG_Grid_System *			Get_System				(void);
 
 
 protected:
 
-	TGrid_Type					m_Type;
+	TSG_Grid_Type				m_Type;
 
 
-	virtual void				On_Assign				(CParameter_Data *pSource);
+	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_Table : public CParameter_DataObject
+class SAGA_API_DLL_EXPORT CSG_Parameter_Table : public CSG_Parameter_Data_Object
 {
 public:
-	CParameter_Table(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_Table(void);
+	CSG_Parameter_Table(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Table(void);
 
-	virtual TParameter_Type		Get_Type				(void)		{	return( PARAMETER_TYPE_Table );		}
+	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_Table );		}
 
 	virtual bool				Set_Value				(void *Value);
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_Shapes : public CParameter_DataObject
+class SAGA_API_DLL_EXPORT CSG_Parameter_Shapes : public CSG_Parameter_Data_Object
 {
 public:
-	CParameter_Shapes(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_Shapes(void);
+	CSG_Parameter_Shapes(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Shapes(void);
 
-	virtual TParameter_Type		Get_Type				(void)		{	return( PARAMETER_TYPE_Shapes );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_Shapes );	}
 
 	virtual bool				Set_Value				(void *Value);
 
-	void						Set_Shape_Type			(TShape_Type Type);
-	TShape_Type					Get_Shape_Type			(void)		{	return( m_Type );	}
+	void						Set_Shape_Type			(TSG_Shape_Type Type);
+	TSG_Shape_Type				Get_Shape_Type			(void)		{	return( m_Type );	}
 
 
 protected:
 
-	TShape_Type					m_Type;
+	TSG_Shape_Type				m_Type;
 
 
-	virtual void				On_Assign				(CParameter_Data *pSource);
+	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_TIN : public CParameter_DataObject
+class SAGA_API_DLL_EXPORT CSG_Parameter_TIN : public CSG_Parameter_Data_Object
 {
 public:
-	CParameter_TIN(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_TIN(void);
+	CSG_Parameter_TIN(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_TIN(void);
 
-	virtual TParameter_Type		Get_Type				(void)		{	return( PARAMETER_TYPE_TIN );		}
+	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_TIN );		}
 
 	virtual bool				Set_Value				(void *Value);
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_List : public CParameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_List : public CSG_Parameter_Data
 {
 public:
-	CParameter_List(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_List(void);
+	CSG_Parameter_List(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_List(void);
 
 	virtual const char *		asString				(void);
 	virtual int					asInt					(void)			{	return( m_nObjects );	}
 	virtual void *				asPointer				(void)			{	return( m_Objects );	}
 
-	void						Add_Item				(CDataObject *pItem);
+	void						Add_Item				(CSG_Data_Object *pItem);
 	int							Del_Item				(int Index);
-	int							Del_Item				(CDataObject *pItem);
+	int							Del_Item				(CSG_Data_Object *pItem);
 	void						Del_Items				(void);
 
 	int							Get_Count				(void)			{	return( m_nObjects );	}
-	CDataObject *				asDataObject			(int iObject)	{	return( iObject >= 0 && iObject < m_nObjects ? m_Objects[iObject] : NULL );	}
+	CSG_Data_Object *			asDataObject			(int iObject)	{	return( iObject >= 0 && iObject < m_nObjects ? m_Objects[iObject] : NULL );	}
 
 
 protected:
 
-	virtual void				On_Assign				(CParameter_Data *pSource);
+	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
 	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
 
 
@@ -789,83 +789,83 @@ private:
 
 	int							m_nObjects;
 
-	CDataObject					**m_Objects;
+	CSG_Data_Object				**m_Objects;
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_Grid_List : public CParameter_List
+class SAGA_API_DLL_EXPORT CSG_Parameter_Grid_List : public CSG_Parameter_List
 {
 public:
-	CParameter_Grid_List(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_Grid_List(void);
+	CSG_Parameter_Grid_List(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Grid_List(void);
 
-	virtual TParameter_Type		Get_Type				(void)		{	return( PARAMETER_TYPE_Grid_List );		}
+	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_Grid_List );		}
 
-	CGrid_System *				Get_System				(void);
+	CSG_Grid_System *			Get_System				(void);
 
-	CGrid *						asGrid					(int Index)	{	return( (CGrid *)asDataObject(Index) );	}
+	CSG_Grid *					asGrid					(int Index)	{	return( (CSG_Grid *)asDataObject(Index) );	}
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_Table_List : public CParameter_List
+class SAGA_API_DLL_EXPORT CSG_Parameter_Table_List : public CSG_Parameter_List
 {
 public:
-	CParameter_Table_List(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_Table_List(void);
+	CSG_Parameter_Table_List(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Table_List(void);
 
-	virtual TParameter_Type		Get_Type				(void)		{	return( PARAMETER_TYPE_Table_List );		}
+	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_Table_List );		}
 
-	CTable *					asTable					(int Index)	{	return( (CTable *)asDataObject(Index) );	}
+	CSG_Table *					asTable					(int Index)	{	return( (CSG_Table *)asDataObject(Index) );	}
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_Shapes_List : public CParameter_List
+class SAGA_API_DLL_EXPORT CSG_Parameter_Shapes_List : public CSG_Parameter_List
 {
 public:
-	CParameter_Shapes_List(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_Shapes_List(void);
+	CSG_Parameter_Shapes_List(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Shapes_List(void);
 
-	virtual TParameter_Type		Get_Type				(void)		{	return( PARAMETER_TYPE_Shapes_List );		}
+	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_Shapes_List );		}
 
-	void						Set_Shape_Type			(TShape_Type Type);
-	TShape_Type					Get_Shape_Type			(void)		{	return( m_Type );}
+	void						Set_Shape_Type			(TSG_Shape_Type Type);
+	TSG_Shape_Type				Get_Shape_Type			(void)		{	return( m_Type );}
 
-	CShapes *					asShapes				(int Index)	{	return( (CShapes *)asDataObject(Index) );	}
+	CSG_Shapes *				asShapes				(int Index)	{	return( (CSG_Shapes *)asDataObject(Index) );	}
 
 
 protected:
 
-	TShape_Type					m_Type;
+	TSG_Shape_Type				m_Type;
 
 
-	virtual void				On_Assign				(CParameter_Data *pSource);
-
-};
-
-//---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_TIN_List : public CParameter_List
-{
-public:
-	CParameter_TIN_List(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_TIN_List(void);
-
-	virtual TParameter_Type		Get_Type				(void)		{	return( PARAMETER_TYPE_TIN_List );		}
-
-	CTIN *						asTIN					(int Index)	{	return( (CTIN *)asDataObject(Index) );	}
+	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter_Parameters : public CParameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_TIN_List : public CSG_Parameter_List
 {
 public:
-	CParameter_Parameters(CParameter *pOwner, long Constraint);
-	virtual ~CParameter_Parameters(void);
+	CSG_Parameter_TIN_List(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_TIN_List(void);
 
-	virtual TParameter_Type		Get_Type				(void)		{	return( PARAMETER_TYPE_Parameters );	}
+	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_TIN_List );		}
+
+	CSG_TIN *					asTIN					(int Index)	{	return( (CSG_TIN *)asDataObject(Index) );	}
+
+};
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Parameter_Parameters : public CSG_Parameter_Data
+{
+public:
+	CSG_Parameter_Parameters(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Parameters(void);
+
+	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_Parameters );	}
 
 	virtual const char *		asString				(void);
 	virtual void *				asPointer				(void)		{	return( m_pParameters );	}
@@ -873,36 +873,36 @@ public:
 
 protected:
 
-	virtual void				On_Assign				(CParameter_Data *pSource);
+	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
 	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
 
 
 private:
 
-	CParameters					*m_pParameters;
+	CSG_Parameters				*m_pParameters;
 
 };
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//					CParameter							 //
+//					CSG_Parameter						 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameter
+class SAGA_API_DLL_EXPORT CSG_Parameter
 {
-	friend class CParameters;
+	friend class CSG_Parameters;
 
 public:
 
 	//-----------------------------------------------------
-	CParameters *				Get_Owner				(void)	{	return( m_pOwner );					}
-	CParameter *				Get_Parent				(void)	{	return( m_pParent );				}
-	TParameter_Type				Get_Type				(void)	{	return( m_pData->Get_Type() );		}
+	CSG_Parameters *			Get_Owner				(void)	{	return( m_pOwner );					}
+	CSG_Parameter *				Get_Parent				(void)	{	return( m_pParent );				}
+	TSG_Parameter_Type			Get_Type				(void)	{	return( m_pData->Get_Type() );		}
 	const char *				Get_Type_Name			(void)	{	return( m_pData->Get_Type_Name() );	}
-	CParameter_Data *			Get_Data				(void)	{	return( m_pData );					}
+	CSG_Parameter_Data *		Get_Data				(void)	{	return( m_pData );					}
 
 	const char *				Get_Identifier			(void);
 	const char *				Get_Name				(void);
@@ -921,7 +921,7 @@ public:
 	bool						is_Serializable			(void);
 
 	int							Get_Children_Count		(void)			{	return( m_nChildren );		}
-	CParameter *				Get_Child				(int iChild)	{	return( iChild >= 0 && iChild < m_nChildren ? m_Children[iChild] : NULL );	}
+	CSG_Parameter *				Get_Child				(int iChild)	{	return( iChild >= 0 && iChild < m_nChildren ? m_Children[iChild] : NULL );	}
 
 	//-----------------------------------------------------
 	bool						Set_Value				(int         Value);
@@ -939,73 +939,73 @@ public:
 	const char *				asString				(void)	{	return( (const char   *)m_pData->asString	() );	}
 	class wxFont *				asFont					(void)	{	return( (wxFont       *)m_pData->asPointer	() );	}
 	CSG_Colors *				asColors				(void)	{	return( (CSG_Colors      *)m_pData->asPointer	() );	}
-	CGrid_System *				asGrid_System			(void)	{	return( (CGrid_System *)m_pData->asPointer	() );	}
+	CSG_Grid_System *			asGrid_System			(void)	{	return( (CSG_Grid_System *)m_pData->asPointer	() );	}
 
-	CDataObject *				asDataObject			(void)	{	return( (CDataObject  *)m_pData->asPointer	() );	}
-	CGrid *						asGrid					(void)	{	return( (CGrid        *)m_pData->asPointer	() );	}
-	CTable *					asTable					(void)	{	return( (CTable       *)m_pData->asPointer	() );	}
-	CShapes *					asShapes				(void)	{	return( (CShapes      *)m_pData->asPointer	() );	}
-	CTIN *						asTIN					(void)	{	return( (CTIN         *)m_pData->asPointer	() );	}
+	CSG_Data_Object *			asDataObject			(void)	{	return( (CSG_Data_Object  *)m_pData->asPointer	() );	}
+	CSG_Grid *					asGrid					(void)	{	return( (CSG_Grid        *)m_pData->asPointer	() );	}
+	CSG_Table *					asTable					(void)	{	return( (CSG_Table       *)m_pData->asPointer	() );	}
+	CSG_Shapes *				asShapes				(void)	{	return( (CSG_Shapes      *)m_pData->asPointer	() );	}
+	CSG_TIN *					asTIN					(void)	{	return( (CSG_TIN         *)m_pData->asPointer	() );	}
 
-	CParameter_Value *			asValue					(void)	{	return( (CParameter_Value       *)m_pData );		}
-	CParameter_Choice *			asChoice				(void)	{	return( (CParameter_Choice      *)m_pData );		}
-	CParameter_Range *			asRange					(void)	{	return( (CParameter_Range       *)m_pData );		}
-	CParameter_FilePath *		asFilePath				(void)	{	return( (CParameter_FilePath    *)m_pData );		}
+	CSG_Parameter_Value *		asValue					(void)	{	return( (CSG_Parameter_Value       *)m_pData );		}
+	CSG_Parameter_Choice *		asChoice				(void)	{	return( (CSG_Parameter_Choice      *)m_pData );		}
+	CSG_Parameter_Range *		asRange					(void)	{	return( (CSG_Parameter_Range       *)m_pData );		}
+	CSG_Parameter_File_Name *	asFilePath				(void)	{	return( (CSG_Parameter_File_Name    *)m_pData );		}
 
-	CParameter_List *			asList					(void)	{	return( (CParameter_List        *)m_pData );		}
-	CParameter_Grid_List *		asGridList				(void)	{	return( (CParameter_Grid_List   *)m_pData );		}
-	CParameter_Table_List *		asTableList				(void)	{	return( (CParameter_Table_List  *)m_pData );		}
-	CParameter_Shapes_List *	asShapesList			(void)	{	return( (CParameter_Shapes_List *)m_pData );		}
-	CParameter_TIN_List *		asTINList				(void)	{	return( (CParameter_TIN_List    *)m_pData );		}
+	CSG_Parameter_List *		asList					(void)	{	return( (CSG_Parameter_List        *)m_pData );		}
+	CSG_Parameter_Grid_List *	asGridList				(void)	{	return( (CSG_Parameter_Grid_List   *)m_pData );		}
+	CSG_Parameter_Table_List *	asTableList				(void)	{	return( (CSG_Parameter_Table_List  *)m_pData );		}
+	CSG_Parameter_Shapes_List *	asShapesList			(void)	{	return( (CSG_Parameter_Shapes_List *)m_pData );		}
+	CSG_Parameter_TIN_List *	asTINList				(void)	{	return( (CSG_Parameter_TIN_List    *)m_pData );		}
 
-	CParameters *				asParameters			(void)	{	return( (CParameters *)m_pData->asPointer	() );	}
+	CSG_Parameters *			asParameters			(void)	{	return( (CSG_Parameters *)m_pData->asPointer	() );	}
 
 	//-----------------------------------------------------
-	bool						Assign					(CParameter *pSource);
+	bool						Assign					(CSG_Parameter *pSource);
 	bool						Serialize				(FILE *Stream, bool bSave);
 
 
 private:
 
-	CParameter(CParameters *pOwner, CParameter *pParent, const char *Identifier, const char *Name, const char *Description, TParameter_Type Type, int Constraint);
+	CSG_Parameter(CSG_Parameters *pOwner, CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, TSG_Parameter_Type Type, int Constraint);
 
-	virtual ~CParameter(void);
+	virtual ~CSG_Parameter(void);
 
-	void						_Add_Child				(CParameter *pChild);
+	void						_Add_Child				(CSG_Parameter *pChild);
 
 
 	int							m_nChildren;
 
-	CParameter					**m_Children;
+	CSG_Parameter				**m_Children;
 
 	CSG_String					m_Identifier, m_Name, m_Description;
 
-	CParameter_Data				*m_pData;
+	CSG_Parameter_Data			*m_pData;
 
-	CParameter					*m_pParent;
+	CSG_Parameter				*m_pParent;
 
-	CParameters					*m_pOwner;
+	CSG_Parameters				*m_pOwner;
 
 };
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//					CParameters							 //
+//					CSG_Parameters						 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CParameters
+class SAGA_API_DLL_EXPORT CSG_Parameters
 {
-	friend class CParameter;
-	friend class CModule;
+	friend class CSG_Parameter;
+	friend class CSG_Module;
 
 public:
-	CParameters(void);
-	virtual ~CParameters(void);
+	CSG_Parameters(void);
+	virtual ~CSG_Parameters(void);
 
-								CParameters				(void *pOwner, const char *Name, const char *Description, const char *Identifier = NULL, bool bGrid_System = false);
+								CSG_Parameters			(void *pOwner, const char *Name, const char *Description, const char *Identifier = NULL, bool bGrid_System = false);
 	void						Create					(void *pOwner, const char *Name, const char *Description, const char *Identifier = NULL, bool bGrid_System = false);
 
 	void						Destroy					(void);
@@ -1030,61 +1030,61 @@ public:
 	void						Set_Callback			(bool bActive = true);
 
 	//-----------------------------------------------------
-	CParameter *				Get_Parameter			(const char *Identifier);
-	CParameter *				operator()				(const char *Identifier)	{	return( Get_Parameter(Identifier) );	}
+	CSG_Parameter *				Get_Parameter			(const char *Identifier);
+	CSG_Parameter *				operator()				(const char *Identifier)	{	return( Get_Parameter(Identifier) );	}
 
-	CParameter *				Get_Parameter			(int iParameter);
-	CParameter *				operator()				(int iParameter)			{	return( Get_Parameter(iParameter) );	}
-
-	//-----------------------------------------------------
-	CParameter *				Add_Node				(CParameter *pParent, const char *Identifier, const char *Name, const char *Description);
-
-	CParameter *				Add_Value				(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, TParameter_Type Type, double Value = 0.0, double Minimum = 0.0, bool bMinimum = false, double Maximum = 0.0, bool bMaximum = false);
-	CParameter *				Add_Info_Value			(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, TParameter_Type Type, double Value = 0.0);
-
-	CParameter *				Add_Range				(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, double Range_Min = 0.0, double Range_Max = 0.0, double Minimum = 0.0, bool bMinimum = false, double Maximum = 0.0, bool bMaximum = false);
-	CParameter *				Add_Info_Range			(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, double Range_Min = 0.0, double Range_Max = 0.0);
-
-	CParameter *				Add_Choice				(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, const char *Items, int Default = 0);
-
-	CParameter *				Add_String				(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, const char *String, bool bLongText = false, bool bPassword = false);
-	CParameter *				Add_Info_String			(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, const char *String, bool bLongText = false);
-
-	CParameter *				Add_FilePath			(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, const char *Filter = NULL, const char *Default = NULL, bool bSave = false, bool bDirectory = false, bool bMultiple = false);
-
-	CParameter *				Add_Font				(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, class wxFont *pInit = NULL);
-	CParameter *				Add_Colors				(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, CSG_Colors      *pInit = NULL);
-	CParameter *				Add_FixedTable			(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, CTable   *pTemplate = NULL);
-
-	CParameter *				Add_Grid_System			(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, CGrid_System *pInit = NULL);
-	CParameter *				Add_Grid				(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, int Constraint, bool bSystem_Dependent = true, TGrid_Type Preferred_Type = GRID_TYPE_Undefined);
-	CParameter *				Add_Grid_Output			(CParameter *pParent, const char *Identifier, const char *Name, const char *Description);
-	CParameter *				Add_Grid_List			(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, int Constraint, bool bSystem_Dependent = true);
-
-	CParameter *				Add_Table_Field			(CParameter *pParent, const char *Identifier, const char *Name, const char *Description);
-	CParameter *				Add_Table				(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, int Constraint);
-	CParameter *				Add_Table_Output		(CParameter *pParent, const char *Identifier, const char *Name, const char *Description);
-	CParameter *				Add_Table_List			(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, int Constraint);
-
-	CParameter *				Add_Shapes				(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, int Constraint, TShape_Type Shape_Type = SHAPE_TYPE_Undefined);
-	CParameter *				Add_Shapes_Output		(CParameter *pParent, const char *Identifier, const char *Name, const char *Description);
-	CParameter *				Add_Shapes_List			(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, int Constraint, TShape_Type = SHAPE_TYPE_Undefined);
-
-	CParameter *				Add_TIN					(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, int Constraint);
-	CParameter *				Add_TIN_Output			(CParameter *pParent, const char *Identifier, const char *Name, const char *Description);
-	CParameter *				Add_TIN_List			(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, int Constraint);
-
-	CParameter *				Add_Parameters			(CParameter *pParent, const char *Identifier, const char *Name, const char *Description);
+	CSG_Parameter *				Get_Parameter			(int iParameter);
+	CSG_Parameter *				operator()				(int iParameter)			{	return( Get_Parameter(iParameter) );	}
 
 	//-----------------------------------------------------
-	bool						Set_Parameter			(const char *Identifier, CParameter *pSource);
+	CSG_Parameter *				Add_Node				(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description);
+
+	CSG_Parameter *				Add_Value				(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, TSG_Parameter_Type Type, double Value = 0.0, double Minimum = 0.0, bool bMinimum = false, double Maximum = 0.0, bool bMaximum = false);
+	CSG_Parameter *				Add_Info_Value			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, TSG_Parameter_Type Type, double Value = 0.0);
+
+	CSG_Parameter *				Add_Range				(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, double Range_Min = 0.0, double Range_Max = 0.0, double Minimum = 0.0, bool bMinimum = false, double Maximum = 0.0, bool bMaximum = false);
+	CSG_Parameter *				Add_Info_Range			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, double Range_Min = 0.0, double Range_Max = 0.0);
+
+	CSG_Parameter *				Add_Choice				(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, const char *Items, int Default = 0);
+
+	CSG_Parameter *				Add_String				(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, const char *String, bool bLongText = false, bool bPassword = false);
+	CSG_Parameter *				Add_Info_String			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, const char *String, bool bLongText = false);
+
+	CSG_Parameter *				Add_FilePath			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, const char *Filter = NULL, const char *Default = NULL, bool bSave = false, bool bDirectory = false, bool bMultiple = false);
+
+	CSG_Parameter *				Add_Font				(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, class wxFont *pInit = NULL);
+	CSG_Parameter *				Add_Colors				(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, CSG_Colors      *pInit = NULL);
+	CSG_Parameter *				Add_FixedTable			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, CSG_Table   *pTemplate = NULL);
+
+	CSG_Parameter *				Add_Grid_System			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, CSG_Grid_System *pInit = NULL);
+	CSG_Parameter *				Add_Grid				(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, int Constraint, bool bSystem_Dependent = true, TSG_Grid_Type Preferred_Type = GRID_TYPE_Undefined);
+	CSG_Parameter *				Add_Grid_Output			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description);
+	CSG_Parameter *				Add_Grid_List			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, int Constraint, bool bSystem_Dependent = true);
+
+	CSG_Parameter *				Add_Table_Field			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description);
+	CSG_Parameter *				Add_Table				(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, int Constraint);
+	CSG_Parameter *				Add_Table_Output		(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description);
+	CSG_Parameter *				Add_Table_List			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, int Constraint);
+
+	CSG_Parameter *				Add_Shapes				(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, int Constraint, TSG_Shape_Type Shape_Type = SHAPE_TYPE_Undefined);
+	CSG_Parameter *				Add_Shapes_Output		(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description);
+	CSG_Parameter *				Add_Shapes_List			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, int Constraint, TSG_Shape_Type = SHAPE_TYPE_Undefined);
+
+	CSG_Parameter *				Add_TIN					(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, int Constraint);
+	CSG_Parameter *				Add_TIN_Output			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description);
+	CSG_Parameter *				Add_TIN_List			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, int Constraint);
+
+	CSG_Parameter *				Add_Parameters			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description);
+
+	//-----------------------------------------------------
+	bool						Set_Parameter			(const char *Identifier, CSG_Parameter *pSource);
 	bool						Set_Parameter			(const char *Identifier, int Type, int         Value);
 	bool						Set_Parameter			(const char *Identifier, int Type, double      Value);
 	bool						Set_Parameter			(const char *Identifier, int Type, void       *Value);
 	bool						Set_Parameter			(const char *Identifier, int Type, const char *Value);
 
-	int							Assign					(CParameters *pSource);
-	int							Assign_Values			(CParameters *pSource);
+	int							Assign					(CSG_Parameters *pSource);
+	int							Assign_Values			(CSG_Parameters *pSource);
 
 	bool						Serialize				(const char *File_Name	, bool bSave);
 	bool						Serialize				(FILE *Stream			, bool bSave);
@@ -1098,7 +1098,7 @@ public:
 
 	bool						Set_History				(CSG_History &History, bool bOptions = true, bool bDataObjects = true);
 
-	CGrid_System *				Get_Grid_System			(void)	{	return( m_pGrid_System ? m_pGrid_System->asGrid_System() : NULL );	}
+	CSG_Grid_System *			Get_Grid_System			(void)	{	return( m_pGrid_System ? m_pGrid_System->asGrid_System() : NULL );	}
 
 	bool						is_Managed				(void)	{	return( m_bManaged );	}
 
@@ -1113,21 +1113,21 @@ private:
 
 	int							m_nParameters;
 
-	CParameter					**m_Parameters, *m_pGrid_System;
+	CSG_Parameter				**m_Parameters, *m_pGrid_System;
 
 	TSG_PFNC_Parameter_Changed	m_Callback;
 
 
 	void						_On_Construction		(void);
 
-	bool						_On_Parameter_Changed	(CParameter *pSender);
+	bool						_On_Parameter_Changed	(CSG_Parameter *pSender);
 
-	CParameter *				_Add_Value				(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, bool bInformation, TParameter_Type Type, double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum);
-	CParameter *				_Add_Range				(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, bool bInformation, double Range_Min, double Range_Max, double Minimum, bool bMinimum, double Maximum, bool bMaximum);
-	CParameter *				_Add_String				(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, bool bInformation, const char *String, bool bLongText, bool bPassword);
+	CSG_Parameter *				_Add_Value				(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, bool bInformation, TSG_Parameter_Type Type, double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum);
+	CSG_Parameter *				_Add_Range				(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, bool bInformation, double Range_Min, double Range_Max, double Minimum, bool bMinimum, double Maximum, bool bMaximum);
+	CSG_Parameter *				_Add_String				(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, bool bInformation, const char *String, bool bLongText, bool bPassword);
 
-	CParameter *				_Add					(CParameter *pParent, const char *Identifier, const char *Name, const char *Description, TParameter_Type Type, int Constraint);
-	CParameter *				_Add					(CParameter *pSource);
+	CSG_Parameter *				_Add					(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, TSG_Parameter_Type Type, int Constraint);
+	CSG_Parameter *				_Add					(CSG_Parameter *pSource);
 
 	bool						DataObjects_Create		(void);
 	bool						DataObjects_Synchronize	(void);

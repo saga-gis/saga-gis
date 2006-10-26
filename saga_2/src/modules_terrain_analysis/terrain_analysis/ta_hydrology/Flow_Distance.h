@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_hydrology_EXPORT CFlow_Distance : public CModule_Grid  
+class ta_hydrology_EXPORT CFlow_Distance : public CSG_Module_Grid  
 {
 public:
 	CFlow_Distance(void);
@@ -97,7 +97,7 @@ private:
 
 	double					m_Converge;
 
-	CGrid					*m_pDTM, *m_pLength, *m_pWeight;
+	CSG_Grid					*m_pDTM, *m_pLength, *m_pWeight;
 
 
 	void					Set_Length_D8	(int x, int y);

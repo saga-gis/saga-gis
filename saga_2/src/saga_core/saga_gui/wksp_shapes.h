@@ -82,7 +82,7 @@
 class CWKSP_Shapes : public CWKSP_Layer
 {
 public:
-	CWKSP_Shapes(CShapes *pShapes);
+	CWKSP_Shapes(CSG_Shapes *pShapes);
 	virtual ~CWKSP_Shapes(void);
 
 	virtual TWKSP_Item			Get_Type				(void)	{	return( WKSP_ITEM_Shapes );	}
@@ -95,13 +95,13 @@ public:
 	virtual bool				On_Command				(int Cmd_ID);
 	virtual bool				On_Command_UI			(wxUpdateUIEvent &event);
 
-	CShapes *					Get_Shapes				(void)	{	return( m_pShapes );	}
+	CSG_Shapes *					Get_Shapes				(void)	{	return( m_pShapes );	}
 	class CWKSP_Table *			Get_Table				(void)	{	return( m_pTable );		}
 
 	virtual wxString			Get_Value				(CSG_Point ptWorld, double Epsilon);
 	virtual double				Get_Value_Range			(void);
 
-	bool						asImage					(CGrid *pImage);
+	bool						asImage					(CSG_Grid *pImage);
 
 	int							Get_Color_Field			(void)	{	return( m_iColor );		}
 	int							Get_Label_Field			(void)	{	return( m_iLabel );		}
@@ -116,11 +116,11 @@ protected:
 
 	CSG_Points_Int				m_Chart;
 
-	CParameters					m_Chart_Options;
+	CSG_Parameters					m_Chart_Options;
 
-	CShape						*m_Edit_pShape;
+	CSG_Shape						*m_Edit_pShape;
 
-	CShapes						*m_pShapes, m_Edit_Shapes;
+	CSG_Shapes						*m_pShapes, m_Edit_Shapes;
 
 	class CWKSP_Table			*m_pTable;
 
@@ -129,26 +129,26 @@ protected:
 	virtual void				On_DataObject_Changed	(void);
 	virtual void				On_Parameters_Changed	(void);
 
-	virtual int					On_Parameter_Changed	(CParameters *pParameters, CParameter *pParameter);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual void				On_Draw					(CWKSP_Map_DC &dc_Map, bool bEdit);
 
-	CParameter *				_AttributeList_Add		(CParameter *pNode, const char *Identifier, const char *Name, const char *Description);
-	void						_AttributeList_Set		(CParameter *pFields, bool bAddNoField);
+	CSG_Parameter *				_AttributeList_Add		(CSG_Parameter *pNode, const char *Identifier, const char *Name, const char *Description);
+	void						_AttributeList_Set		(CSG_Parameter *pFields, bool bAddNoField);
 
-	CParameter *				_BrushList_Add			(CParameter *pNode, const char *Identifier, const char *Name, const char *Description);
+	CSG_Parameter *				_BrushList_Add			(CSG_Parameter *pNode, const char *Identifier, const char *Name, const char *Description);
 	int							_BrushList_Get_Style	(int Index);
 
-	CParameter *				_PenList_Add			(CParameter *pNode, const char *Identifier, const char *Name, const char *Description);
+	CSG_Parameter *				_PenList_Add			(CSG_Parameter *pNode, const char *Identifier, const char *Name, const char *Description);
 	int							_PenList_Get_Style		(int Index);
 
 	virtual void				_Draw_Initialize		(CWKSP_Map_DC &dc_Map)									= 0;
-	virtual void				_Draw_Shape				(CWKSP_Map_DC &dc_Map, CShape *pShape, bool bSelection)	= 0;
-	virtual void				_Draw_Label				(CWKSP_Map_DC &dc_Map, CShape *pShape)					= 0;
+	virtual void				_Draw_Shape				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, bool bSelection)	= 0;
+	virtual void				_Draw_Label				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)					= 0;
 
-	void						_Draw_Chart				(CWKSP_Map_DC &dc_Map, CShape *pShape);
-	void						_Draw_Chart_Pie			(CWKSP_Map_DC &dc_Map, CTable_Record *pRecord, bool bOutline, int x, int y, int size);
-	void						_Draw_Chart_Bar			(CWKSP_Map_DC &dc_Map, CTable_Record *pRecord, bool bOutline, int x, int y, int sx, int sy);
+	void						_Draw_Chart				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape);
+	void						_Draw_Chart_Pie			(CWKSP_Map_DC &dc_Map, CSG_Table_Record *pRecord, bool bOutline, int x, int y, int size);
+	void						_Draw_Chart_Bar			(CWKSP_Map_DC &dc_Map, CSG_Table_Record *pRecord, bool bOutline, int x, int y, int sx, int sy);
 
 	bool						_Chart_is_Valid			(void)	{	return( m_Chart.Get_Count() > 0 );	}
 	bool						_Chart_Set_Options		(void);
@@ -189,9 +189,9 @@ protected:
 	virtual int					_Edit_Shape_HitTest		(CSG_Point Point, double max_Dist, int &iPart, int &iPoint);
 
 	void						_Edit_Snap_Point		(CSG_Point &Point, double ClientToWorld);
-	void						_Edit_Snap_Point		(CSG_Point Point, CSG_Point &snap_Point, double &snap_Dist, CShapes *pShapes, bool bLine);
-	void						_Edit_Snap_Point		(CSG_Point Point, CSG_Point &snap_Point, double &snap_Dist, CShape *pShape);
-	virtual void				_Edit_Snap_Point_ToLine (CSG_Point Point, CSG_Point &snap_Point, double &snap_Dist, CShape *pShape);
+	void						_Edit_Snap_Point		(CSG_Point Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shapes *pShapes, bool bLine);
+	void						_Edit_Snap_Point		(CSG_Point Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shape *pShape);
+	virtual void				_Edit_Snap_Point_ToLine (CSG_Point Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shape *pShape);
 
 };
 

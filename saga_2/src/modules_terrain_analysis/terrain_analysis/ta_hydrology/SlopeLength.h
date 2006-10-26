@@ -22,7 +22,7 @@
 
 #include "MLB_Interface.h"
 
-class CSlopeLength : public CModule_Grid {
+class CSlopeLength : public CSG_Module_Grid {
 
 public:
 	CSlopeLength(void);
@@ -34,9 +34,9 @@ protected:
 
 private:
 
-	CGrid* m_pDEM;
-	CGrid* m_pSlopeLengthGrid;
-	CGrid* m_pSlopeGrid;
+	CSG_Grid* m_pDEM;
+	CSG_Grid* m_pSlopeLengthGrid;
+	CSG_Grid* m_pSlopeGrid;
 
 	void Set_Length(int, int);	
 

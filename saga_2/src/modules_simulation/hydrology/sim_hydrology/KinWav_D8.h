@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CKinWav_D8 : public CModule_Grid  
+class CKinWav_D8 : public CSG_Module_Grid  
 {
 public:
 	CKinWav_D8(void);
@@ -105,11 +105,11 @@ private:
 
 	TPoint				*pos_Gauges;
 
-	CGrid				*pDTM, *pWater,
+	CSG_Grid				*pDTM, *pWater,
 						*pAlpha, *pFlow_Dir,
 						*pFlow, *pFlow_Last;
 
-	CTable				*pGauges;
+	CSG_Table				*pGauges;
 
 
 	bool				Initialize(void);

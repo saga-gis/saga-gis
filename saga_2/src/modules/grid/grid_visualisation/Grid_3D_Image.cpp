@@ -243,7 +243,7 @@ bool CGrid_3D_Image::On_Execute(void)
 	//-----------------------------------------------------
 	_Set_Grid();
 
-	CParameter_Shapes_List	*pShapes	= Parameters("SHAPES")->asShapesList();
+	CSG_Parameter_Shapes_List	*pShapes	= Parameters("SHAPES")->asShapesList();
 
 	for(int i=0; i<pShapes->Get_Count(); i++)
 	{
@@ -308,14 +308,14 @@ void CGrid_3D_Image::_Set_Grid(void)
 }
 
 //---------------------------------------------------------
-void CGrid_3D_Image::_Set_Shapes(CShapes *pInput)
+void CGrid_3D_Image::_Set_Shapes(CSG_Shapes *pInput)
 {
 	int			iShape, iPart, iPoint;
 	double		x, y, z, dx, dy;
 	T3DPoint	p;
 	TSG_Point	Point;
-	CShape		*pShape;
-	CShapes		*pOutput;
+	CSG_Shape		*pShape;
+	CSG_Shapes		*pOutput;
 
 	if( pInput && pInput->is_Valid() )
 	{

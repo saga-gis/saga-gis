@@ -96,7 +96,7 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CDLG_Parameters::CDLG_Parameters(CParameters *pParameters)
+CDLG_Parameters::CDLG_Parameters(CSG_Parameters *pParameters)
 	: CDLG_Base(-1, pParameters ? pParameters->Get_Name() : LNG("[CAP] Parameters"))
 {
 	m_pControl		= new CParameters_Control(this);

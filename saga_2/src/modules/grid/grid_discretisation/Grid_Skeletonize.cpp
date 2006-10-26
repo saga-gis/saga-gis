@@ -150,7 +150,7 @@ bool CGrid_Skeletonize::On_Execute(void)
 	int		n, Initiation;
 	double	Threshold;
 	CSG_Colors	Colors;
-	CGrid	*pInput;
+	CSG_Grid	*pInput;
 
 	//-----------------------------------------------------
 	pInput		= Parameters("INPUT")			->asGrid();
@@ -241,7 +241,7 @@ bool CGrid_Skeletonize::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CGrid_Skeletonize::Get_Neighbours(int x, int y, CGrid *pGrid, bool Neighbours[8])
+int CGrid_Skeletonize::Get_Neighbours(int x, int y, CSG_Grid *pGrid, bool Neighbours[8])
 {
 	int		i, ix, iy, nNeighbours;
 
@@ -275,7 +275,7 @@ int CGrid_Skeletonize::Get_Neighbours(int x, int y, CGrid *pGrid, bool Neighbour
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CGrid_Skeletonize::Vectorize(CShapes *pShapes)
+int CGrid_Skeletonize::Vectorize(CSG_Shapes *pShapes)
 {
 	bool	z[8], bPrev;
 
@@ -283,7 +283,7 @@ int CGrid_Skeletonize::Vectorize(CShapes *pShapes)
 
 	double	xMin, yMin, dx, dy;
 
-	CShape	*pShape;
+	CSG_Shape	*pShape;
 
 	//-----------------------------------------------------
 	pShapes->Create(SHAPE_TYPE_Line, "Skeleton");
@@ -370,7 +370,7 @@ int CGrid_Skeletonize::Vectorize(CShapes *pShapes)
 }
 
 //---------------------------------------------------------
-bool CGrid_Skeletonize::Vectorize_Trace(int x, int y, CShape *pShape)
+bool CGrid_Skeletonize::Vectorize_Trace(int x, int y, CSG_Shape *pShape)
 {
 	bool	bContinue;
 
@@ -464,7 +464,7 @@ void CGrid_Skeletonize::Standard_Execute(void)
 {
 	int		i, nChanges;
 
-	CGrid	*pPrev, *pNext, *pTemp;
+	CSG_Grid	*pPrev, *pNext, *pTemp;
 
 	//-----------------------------------------------------
 	pPrev		= pResult;
@@ -502,7 +502,7 @@ void CGrid_Skeletonize::Standard_Execute(void)
 }
 
 //---------------------------------------------------------
-int CGrid_Skeletonize::Standard_Step(int iDir, CGrid *pPrev, CGrid *pNext)
+int CGrid_Skeletonize::Standard_Step(int iDir, CSG_Grid *pPrev, CSG_Grid *pNext)
 {
 	bool	z[8], bRemove;
 
@@ -608,7 +608,7 @@ void CGrid_Skeletonize::Hilditch_Execute(void)
 {
 	int		nChanges;
 
-	CGrid	*pPrev, *pNext, *pTemp, *pNC_Gaps;
+	CSG_Grid	*pPrev, *pNext, *pTemp, *pNC_Gaps;
 
 	//-----------------------------------------------------
 	pPrev		= pResult;
@@ -644,7 +644,7 @@ void CGrid_Skeletonize::Hilditch_Execute(void)
 }
 
 //---------------------------------------------------------
-int CGrid_Skeletonize::Hilditch_Step(CGrid *pPrev, CGrid *pNext, CGrid *pNC_Gaps)
+int CGrid_Skeletonize::Hilditch_Step(CSG_Grid *pPrev, CSG_Grid *pNext, CSG_Grid *pNC_Gaps)
 {
 	bool	z[8], bPrev, bRemove;
 
@@ -716,7 +716,7 @@ int CGrid_Skeletonize::Hilditch_Step(CGrid *pPrev, CGrid *pNext, CGrid *pNC_Gaps
 }
 
 //---------------------------------------------------------
-inline bool CGrid_Skeletonize::Hilditch_Check(CGrid *pNC_Gaps, int x, int y, int i0, bool z[8])
+inline bool CGrid_Skeletonize::Hilditch_Check(CSG_Grid *pNC_Gaps, int x, int y, int i0, bool z[8])
 {
 	int		ix, iy, i2, i4, i6;
 
@@ -764,7 +764,7 @@ void CGrid_Skeletonize::SK_Execute(void)
 
 	double	z, iz;
 
-	CGrid	*pInput;
+	CSG_Grid	*pInput;
 
 	//-----------------------------------------------------
 	Convergence	= Parameters("CONVERGENCE")->asInt();

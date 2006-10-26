@@ -92,7 +92,7 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CDLG_List_Grid::CDLG_List_Grid(CParameter_Grid_List *pList, wxString Caption)
+CDLG_List_Grid::CDLG_List_Grid(CSG_Parameter_Grid_List *pList, wxString Caption)
 	: CDLG_List_Base(pList, Caption)
 {
 	CWKSP_Grid_Manager	*pManager;
@@ -188,7 +188,7 @@ void CDLG_List_Grid::_Set_Objects(void)
 	}
 
 	//-----------------------------------------------------
-	if( ((CParameter_Grid_List *)m_pList)->Get_System() )
+	if( ((CSG_Parameter_Grid_List *)m_pList)->Get_System() )
 	{
 		_Set_Grids(m_pSystem);
 	}
@@ -228,7 +228,7 @@ void CDLG_List_Grid::_Set_Grids(CWKSP_Grid_System *pSystem)
 {
 	bool	bList;
 	int		i, j;
-	CGrid	*pGrid;
+	CSG_Grid	*pGrid;
 
 	if( pSystem )
 	{

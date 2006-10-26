@@ -67,7 +67,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CFilter : public CModule_Grid
+class CFilter : public CSG_Module_Grid
 {
 public:
 	CFilter(void);
@@ -83,7 +83,7 @@ private:
 
 	CSG_Grid_Radius			m_Radius;
 
-	CGrid					*pInput;
+	CSG_Grid					*pInput;
 
 
 	double					Get_Mean_Square	(int x, int y, int Radius);

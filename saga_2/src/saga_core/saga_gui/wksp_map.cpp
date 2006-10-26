@@ -251,7 +251,7 @@ bool CWKSP_Map::On_Command_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CWKSP_Map::_Create_Parameters(void)
 {
-	CParameter	*pNode_0, *pNode_1;
+	CSG_Parameter	*pNode_0, *pNode_1;
 
 	//-----------------------------------------------------
 	m_Parameters.Create(this, "", "");
@@ -339,7 +339,7 @@ int CWKSP_Map::Get_Print_Legend(void)
 }
 
 //---------------------------------------------------------
-int CWKSP_Map::_On_Parameter_Changed(CParameter *pParameter)
+int CWKSP_Map::_On_Parameter_Changed(CSG_Parameter *pParameter)
 {
 	if( pParameter && pParameter->Get_Owner() && pParameter->Get_Owner()->Get_Owner() )
 	{
@@ -352,7 +352,7 @@ int CWKSP_Map::_On_Parameter_Changed(CParameter *pParameter)
 }
 
 //---------------------------------------------------------
-int CWKSP_Map::On_Parameter_Changed(CParameters *pParameters, CParameter *pParameter)
+int CWKSP_Map::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	return( 1 );
 }
@@ -474,7 +474,7 @@ void CWKSP_Map::Set_Extent(TSG_Rect Extent)
 //---------------------------------------------------------
 void CWKSP_Map::Set_Extent(void)
 {
-	CParameters	p;
+	CSG_Parameters	p;
 
 	p.Create(NULL, LNG("[CAP] Map Extent"), LNG(""));
 	p.Add_Range(NULL, "X", LNG("West-East")		, LNG(""), m_Extent.Get_XMin(), m_Extent.Get_XMax());
@@ -765,8 +765,8 @@ void CWKSP_Map::SaveAs_Image(void)
 	wxString	file;
 	wxBitmap	BMP;
 	wxMemoryDC	dc;
-	CParameters	Parms;
-	CParameter	*pNode;
+	CSG_Parameters	Parms;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Parms.Set_Name(LNG("[CAP] Save Map as Image..."));
@@ -853,7 +853,7 @@ void CWKSP_Map::SaveAs_Image(void)
 //---------------------------------------------------------
 void CWKSP_Map::SaveAs_PDF_Indexed(void)
 {
-	static CParameters	Parameters(NULL, LNG("[CAP] Save to PDF"), LNG(""), NULL, false);
+	static CSG_Parameters	Parameters(NULL, LNG("[CAP] Save to PDF"), LNG(""), NULL, false);
 
 	//-----------------------------------------------------
 	if( Parameters.Get_Count() == 0 )
@@ -922,9 +922,9 @@ void CWKSP_Map::SaveAs_PDF_Indexed(void)
 		int				iField;
 		CSG_String		Name, FileName, FileName_Icon, FilePath_Maps;
 		CSG_Rect		rOverview, rMap;
-		CShapes			*pShapes;
-	//	CGrid			*pGrid;
-		CDoc_PDF	PDF;
+		CSG_Shapes			*pShapes;
+	//	CSG_Grid			*pGrid;
+		CSG_Doc_PDF	PDF;
 
 		MSG_General_Add(wxString::Format("%s...", LNG("[MSG] Save to PDF")), true, true);
 
@@ -991,7 +991,7 @@ void CWKSP_Map::SaveAs_PDF_Indexed(void)
 }
 
 //---------------------------------------------------------
-void CWKSP_Map::Draw_PDF(CDoc_PDF *pPDF, const char *FilePath_Maps, int Image_ID, const char *FileName_Icon, const char *Title, CSG_Rect rWorld, bool bRoundScale, int iField, CShapes *pShapes)
+void CWKSP_Map::Draw_PDF(CSG_Doc_PDF *pPDF, const char *FilePath_Maps, int Image_ID, const char *FileName_Icon, const char *Title, CSG_Rect rWorld, bool bRoundScale, int iField, CSG_Shapes *pShapes)
 {
 	int			FrameSize_1	= 20, FrameSize_2	= 10;
 	double		d, e, Scale, Ratio;
@@ -1088,24 +1088,24 @@ void CWKSP_Map::Draw_PDF(CDoc_PDF *pPDF, const char *FilePath_Maps, int Image_ID
 				break;
 
 			case SHAPE_TYPE_Line:
-				d	= ((CShape_Line    *)pShapes->Get_Shape(Image_ID))->Get_Length();
+				d	= ((CSG_Shape_Line    *)pShapes->Get_Shape(Image_ID))->Get_Length();
 				e	= d > 1000.0 ? 1000.0 : 1.0;
 				s	= d > 1000.0 ? "km"   : "m";
 				Description.Append(wxString::Format("%s: %f%s\n", LNG("Length")		, d / e, s.c_str()));
 				break;
 
 			case SHAPE_TYPE_Polygon:
-				d	= ((CShape_Polygon *)pShapes->Get_Shape(Image_ID))->Get_Area();
+				d	= ((CSG_Shape_Polygon *)pShapes->Get_Shape(Image_ID))->Get_Area();
 				e	= d > 1000000.0 ? 1000000.0 : (d > 10000.0 ? 10000.0 : 1.0);
 				s	= d > 1000000.0 ? "km²"     : (d > 10000.0 ? "ha"    : "m²");
 				Description.Append(wxString::Format("%s: %f%s\n", LNG("Area")		, d / e, s.c_str()));
 
-				d	= ((CShape_Polygon *)pShapes->Get_Shape(Image_ID))->Get_Perimeter();
+				d	= ((CSG_Shape_Polygon *)pShapes->Get_Shape(Image_ID))->Get_Perimeter();
 				e	= d > 1000.0 ? 1000.0 : 1.0;
 				s	= d > 1000.0 ? "km"   : "m";
 				Description.Append(wxString::Format("%s: %f%s\n", LNG("Perimeter")	, d / e, s.c_str()));
 
-				Description.Append(wxString::Format("%s: %d\n"  , LNG("Parts")		, ((CShape_Polygon *)pShapes->Get_Shape(Image_ID))->Get_Part_Count()));
+				Description.Append(wxString::Format("%s: %d\n"  , LNG("Parts")		, ((CSG_Shape_Polygon *)pShapes->Get_Shape(Image_ID))->Get_Part_Count()));
 				break;
 			}
 
@@ -1124,7 +1124,7 @@ void CWKSP_Map::Draw_PDF(CDoc_PDF *pPDF, const char *FilePath_Maps, int Image_ID
 //---------------------------------------------------------
 void CWKSP_Map::SaveAs_Interactive_SVG(void)
 {
-	static CParameters	Parameters(NULL, LNG("[CAP] Save as Interactive SVG"), LNG(""), NULL, false);
+	static CSG_Parameters	Parameters(NULL, LNG("[CAP] Save as Interactive SVG"), LNG(""), NULL, false);
 
 	//-----------------------------------------------------
 	if( Parameters.Get_Count() == 0 )
@@ -1148,7 +1148,7 @@ void CWKSP_Map::SaveAs_Interactive_SVG(void)
 	if( DLG_Parameters(&Parameters) )
 	{
 		CSG_String				FileName;
-		CShapes					*pIndexLayer;
+		CSG_Shapes					*pIndexLayer;
 		CSVG_Interactive_Map	SVG;
 
 		MSG_General_Add(wxString::Format("%s...", LNG("[MSG] Save as Interactive SVG")), true, true);

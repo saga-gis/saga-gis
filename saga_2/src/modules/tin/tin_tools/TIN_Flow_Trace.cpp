@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CTIN_Flow_Trace::CTIN_Flow_Trace(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Set_Name(_TL("Flow Accumulation (Trace)"));
@@ -116,8 +116,8 @@ CTIN_Flow_Trace::~CTIN_Flow_Trace(void)
 bool CTIN_Flow_Trace::On_Execute(void)
 {
 	int			iPoint;
-	CTIN_Point	*pPoint;
-	CTIN		*pDEM;
+	CSG_TIN_Point	*pPoint;
+	CSG_TIN		*pDEM;
 
 	//-----------------------------------------------------
 	pDEM		= Parameters("DEM")		->asTIN();
@@ -180,7 +180,7 @@ bool CTIN_Flow_Trace::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CTIN_Flow_Trace::Get_Lowest_Neighbor(CTIN_Point *pPoint)
+int CTIN_Flow_Trace::Get_Lowest_Neighbor(CSG_TIN_Point *pPoint)
 {
 	int		i, iMin;
 	double	dz, dzMin;
@@ -205,9 +205,9 @@ int CTIN_Flow_Trace::Get_Lowest_Neighbor(CTIN_Point *pPoint)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CTIN_Flow_Trace::Trace(CTIN_Point *pPoint, double Area)
+void CTIN_Flow_Trace::Trace(CSG_TIN_Point *pPoint, double Area)
 {
-	CTIN_Point	*pNeighbor;
+	CSG_TIN_Point	*pNeighbor;
 
 	if( (pNeighbor = pPoint->Get_Neighbor(pPoint->Get_Record()->asInt(m_iDir))) != NULL )
 	{

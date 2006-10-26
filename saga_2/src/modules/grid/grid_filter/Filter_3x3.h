@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CFilter_3x3 : public CModule_Grid  
+class CFilter_3x3 : public CSG_Module_Grid  
 {
 public:
 	CFilter_3x3(void);

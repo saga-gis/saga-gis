@@ -78,13 +78,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSVG_Interactive_Map : public CDoc_SVG
+class CSVG_Interactive_Map : public CSG_Doc_SVG
 {
 public:
 	CSVG_Interactive_Map(void);
 	virtual ~CSVG_Interactive_Map(void);
 
-	void				Create_From_Map				(CWKSP_Map *pMap, CShapes *pIndexLayer, const char *Filename);
+	void				Create_From_Map				(CWKSP_Map *pMap, CSG_Shapes *pIndexLayer, const char *Filename);
 
 
 private:
@@ -101,10 +101,10 @@ private:
 
 	void				_Add_CheckBoxes				(CWKSP_Map *pMap);
 	void				_Add_Shapes					(CWKSP_Shapes *pLayer);
-	bool				_Add_Shape					(CShape *pShape, int Fill_Color, int Line_Color, double Line_Width, double Point_Width);
+	bool				_Add_Shape					(CSG_Shape *pShape, int Fill_Color, int Line_Color, double Line_Width, double Point_Width);
 	void				_Add_Grid					(CWKSP_Grid *pLayer);
-	void				_Add_ReferenceMap			(CShapes *pIndexLayer, CSG_Rect r);
-	void				_Add_Label					(const char* Label, CShape *pShape, double dSize, const char* Unit);
+	void				_Add_ReferenceMap			(CSG_Shapes *pIndexLayer, CSG_Rect r);
+	void				_Add_Label					(const char* Label, CSG_Shape *pShape, double dSize, const char* Unit);
 
 	const char *		_Get_Code_1					(void);
 	const char *		_Get_Code_2					(void);

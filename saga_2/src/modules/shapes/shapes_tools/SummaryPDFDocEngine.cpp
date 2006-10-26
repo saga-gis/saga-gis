@@ -29,8 +29,8 @@ CSummaryPDFDocEngine::CSummaryPDFDocEngine(){
 
 CSummaryPDFDocEngine::~CSummaryPDFDocEngine(){}
 
-void CSummaryPDFDocEngine::AddClassSummaryPage(CShapes *pShapes, 
-											   CTable *pTable,
+void CSummaryPDFDocEngine::AddClassSummaryPage(CSG_Shapes *pShapes, 
+											   CSG_Table *pTable,
 											   int iClass,
 											   CSG_String sTitle){
 
@@ -38,8 +38,8 @@ void CSummaryPDFDocEngine::AddClassSummaryPage(CShapes *pShapes,
 	double fPaperHeight;
 	double fRealWidth, fRealHeight;
 	double fX, fY;
-	CTable *pClassTable;
-	CTable_Record *pRecord;
+	CSG_Table *pClassTable;
+	CSG_Table_Record *pRecord;
 	CSG_Rect CanvasExtent, TableExtent;
 	TSG_Rect Extent;
 	
@@ -96,7 +96,7 @@ void CSummaryPDFDocEngine::AddClassSummaryPage(CShapes *pShapes,
 	
 }//method
 
-void CSummaryPDFDocEngine::AddSummaryStatisticsPage(CTable* pTable){
+void CSummaryPDFDocEngine::AddSummaryStatisticsPage(CSG_Table* pTable){
 
 	int i,j;
 	double fX, fY;

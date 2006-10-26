@@ -99,7 +99,7 @@ CWKSP_Layer *	Get_Active_Layer(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Layer::CWKSP_Layer(CDataObject *pObject)
+CWKSP_Layer::CWKSP_Layer(CSG_Data_Object *pObject)
 {
 	m_pObject		= pObject;
 	m_pClassify		= new CWKSP_Layer_Classify;
@@ -309,7 +309,7 @@ void CWKSP_Layer::Create_Parameters(void)
 		""
 	);
 
-	CTable	LUT;
+	CSG_Table	LUT;
 	LUT.Add_Field(LNG("COLOR")		, TABLE_FIELDTYPE_Color);
 	LUT.Add_Field(LNG("NAME")			, TABLE_FIELDTYPE_String);
 	LUT.Add_Field(LNG("DESCRIPTION")	, TABLE_FIELDTYPE_String);
@@ -430,7 +430,7 @@ bool CWKSP_Layer::Save(const char *File_Path)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Layer::DataObject_Changed(CParameters *pParameters)
+void CWKSP_Layer::DataObject_Changed(CSG_Parameters *pParameters)
 {
 	if( pParameters )
 	{
@@ -479,8 +479,8 @@ void CWKSP_Layer::Parameters_Changed(void)
 	m_pClassify->Set_Metric(
 		m_Parameters("METRIC_SCALE_MODE")	->asInt(),
 		m_Parameters("METRIC_SCALE_LOG")	->asDouble(),
-		m_Parameters("METRIC_ZRANGE")->asRange()->Get_LoVal() / (Get_Type() == WKSP_ITEM_Grid ? ((CGrid *)m_pObject)->Get_ZFactor() : 1.0),
-		m_Parameters("METRIC_ZRANGE")->asRange()->Get_HiVal() / (Get_Type() == WKSP_ITEM_Grid ? ((CGrid *)m_pObject)->Get_ZFactor() : 1.0)
+		m_Parameters("METRIC_ZRANGE")->asRange()->Get_LoVal() / (Get_Type() == WKSP_ITEM_Grid ? ((CSG_Grid *)m_pObject)->Get_ZFactor() : 1.0),
+		m_Parameters("METRIC_ZRANGE")->asRange()->Get_HiVal() / (Get_Type() == WKSP_ITEM_Grid ? ((CSG_Grid *)m_pObject)->Get_ZFactor() : 1.0)
 	);
 
 	//-----------------------------------------------------
@@ -502,7 +502,7 @@ void CWKSP_Layer::Parameters_Changed(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CWKSP_Layer::_On_Parameter_Changed(CParameter *pParameter)
+int CWKSP_Layer::_On_Parameter_Changed(CSG_Parameter *pParameter)
 {
 	if( pParameter && pParameter->Get_Owner() && pParameter->Get_Owner()->Get_Owner() )
 	{
@@ -515,7 +515,7 @@ int CWKSP_Layer::_On_Parameter_Changed(CParameter *pParameter)
 }
 
 //---------------------------------------------------------
-int CWKSP_Layer::On_Parameter_Changed(CParameters *pParameters, CParameter *pParameter)
+int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	return( 1 );
 }
@@ -535,13 +535,13 @@ CSG_Rect CWKSP_Layer::Get_Extent(void)
 		switch( m_pObject->Get_ObjectType() )
 		{
 		case DATAOBJECT_TYPE_Grid:
-			return( ((CGrid   *)m_pObject)->Get_Extent() );
+			return( ((CSG_Grid   *)m_pObject)->Get_Extent() );
 
 		case DATAOBJECT_TYPE_Shapes:
-			return( ((CShapes *)m_pObject)->Get_Extent() );
+			return( ((CSG_Shapes *)m_pObject)->Get_Extent() );
 
 		case DATAOBJECT_TYPE_TIN:
-			return( ((CTIN    *)m_pObject)->Get_Extent() );
+			return( ((CSG_TIN    *)m_pObject)->Get_Extent() );
 
 		default:
 			break;
@@ -578,7 +578,7 @@ bool CWKSP_Layer::Get_Colors(CSG_Colors *pColors)
 //---------------------------------------------------------
 bool CWKSP_Layer::Set_Color_Range(double zMin, double zMax)
 {
-	CParameters	Parameters;
+	CSG_Parameters	Parameters;
 
 	Parameters.Add_Range(NULL, "METRIC_ZRANGE"	, "", "", zMin, zMax);
 	DataObject_Changed(&Parameters);
@@ -603,7 +603,7 @@ bool CWKSP_Layer::do_Legend(void)
 bool CWKSP_Layer::do_Show(CSG_Rect const &rMap)
 {
 	double				d;
-	CParameter_Range	*pRange;
+	CSG_Parameter_Range	*pRange;
 
 	if( !m_Parameters("SHOW_ALWAYS")->asBool() )
 	{

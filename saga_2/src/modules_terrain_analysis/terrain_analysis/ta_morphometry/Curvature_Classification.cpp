@@ -115,7 +115,7 @@ bool CCurvature_Classification::On_Execute(void)
 {
 	int		x, y, Class;
 	double	Threshold, dPlan, dProf;
-	CGrid	*pPlan, *pProf, *pClass;
+	CSG_Grid	*pPlan, *pProf, *pClass;
 
 	Threshold	= Parameters("THRESHOLD")->asDouble();
 

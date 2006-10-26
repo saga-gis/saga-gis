@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Geometric_Figures : public CModule
+class CGrid_Geometric_Figures : public CSG_Module
 {
 public:
 	CGrid_Geometric_Figures(void);
@@ -88,8 +88,8 @@ protected:
 
 private:
 
-	void					Create_Cone		(CGrid *pGrid, bool bUp);
-	void					Create_Plane	(CGrid *pPlane, double Direction);
+	void					Create_Cone		(CSG_Grid *pGrid, bool bUp);
+	void					Create_Plane	(CSG_Grid *pPlane, double Direction);
 
 };
 

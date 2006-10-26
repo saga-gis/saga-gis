@@ -135,7 +135,7 @@ bool CUSGS_SRTM_Import::On_Execute(void)
 	double		xMin, yMin, D;
 	FILE		*Stream;
 	CSG_String	fName;
-	CGrid		*pGrid;
+	CSG_Grid		*pGrid;
 
 	//-----------------------------------------------------
 	pGrid	= NULL;

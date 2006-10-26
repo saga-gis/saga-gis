@@ -79,12 +79,12 @@ bool CGrid_CVA::On_Execute(void){
 	double a1,a2,b1,b2;
 	double dDist, dAngle;
 	
-	CGrid* pA1 = Parameters("A1")->asGrid(); 
-	CGrid* pA2 = Parameters("A2")->asGrid(); 
-	CGrid* pB1 = Parameters("B1")->asGrid(); 
-	CGrid* pB2 = Parameters("B2")->asGrid(); 
-	CGrid* pDist = Parameters("DIST")->asGrid(); 
-	CGrid* pAngle = Parameters("ANGLE")->asGrid();
+	CSG_Grid* pA1 = Parameters("A1")->asGrid(); 
+	CSG_Grid* pA2 = Parameters("A2")->asGrid(); 
+	CSG_Grid* pB1 = Parameters("B1")->asGrid(); 
+	CSG_Grid* pB2 = Parameters("B2")->asGrid(); 
+	CSG_Grid* pDist = Parameters("DIST")->asGrid(); 
+	CSG_Grid* pAngle = Parameters("ANGLE")->asGrid();
 	pDist->Assign(0.0);
 	pAngle->Assign(0.0);
 

@@ -23,7 +23,7 @@
 CTransformShapes::CTransformShapes(void){
 
 	
-	CParameter *pNode_0, *pNode_1;
+	CSG_Parameter *pNode_0, *pNode_1;
 	Parameters.Set_Name(_TL("Transform Shapes"));
 	Parameters.Set_Description(_TL(
 		"(c) 2004 by Victor Olaya. Use this module to move, rotate and/or scale shapes."));
@@ -129,9 +129,9 @@ bool CTransformShapes::On_Execute(void){
 	m_dAnchorX = Parameters("ANCHORX")->asDouble();
 	m_dAnchorY = Parameters("ANCHORY")->asDouble();
 	TSG_Point	Point;	
-	CShape *pShape, *pShape2;
-	CShapes *pIn = Parameters("IN")->asShapes();
-	CShapes *pOut= Parameters("OUT")->asShapes();
+	CSG_Shape *pShape, *pShape2;
+	CSG_Shapes *pIn = Parameters("IN")->asShapes();
+	CSG_Shapes *pOut= Parameters("OUT")->asShapes();
 	double dX=0, dY=0, dX2=0, dY2=0;
 	int i;
 

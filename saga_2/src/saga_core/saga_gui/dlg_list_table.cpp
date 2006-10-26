@@ -88,7 +88,7 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CDLG_List_Table::CDLG_List_Table(CParameter_Table_List *pList, wxString Caption)
+CDLG_List_Table::CDLG_List_Table(CSG_Parameter_Table_List *pList, wxString Caption)
 	: CDLG_List_Base(pList, Caption)
 {
 	_Set_Objects();
@@ -112,7 +112,7 @@ void CDLG_List_Table::_Set_Objects(void)
 	bool				bList;
 	int					i, j;
 	CWKSP_Table_Manager	*pTables;
-	CTable				*pTable;
+	CSG_Table				*pTable;
 
 	//-----------------------------------------------------
 	if( (pTables = g_pData->Get_Tables()) != NULL )

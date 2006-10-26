@@ -45,8 +45,8 @@ bool CInvertNoData::On_Execute(void){
 	
 	int x,y;
 	
-	CGrid* pInput = Parameters("INPUT")->asGrid(); 
-	CGrid* pOutput = Parameters("OUTPUT")->asGrid(); 
+	CSG_Grid* pInput = Parameters("INPUT")->asGrid(); 
+	CSG_Grid* pOutput = Parameters("OUTPUT")->asGrid(); 
 	pOutput->Set_NoData_Value_Range(-9999,0);
 				
 	for(y=0; y<Get_NY() && Set_Progress(y); y++){		

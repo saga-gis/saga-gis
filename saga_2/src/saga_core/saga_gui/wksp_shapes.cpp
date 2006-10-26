@@ -76,7 +76,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Shapes::CWKSP_Shapes(CShapes *pShapes)
+CWKSP_Shapes::CWKSP_Shapes(CSG_Shapes *pShapes)
 	: CWKSP_Layer(pShapes)
 {
 	m_pShapes		= pShapes;
@@ -410,7 +410,7 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CWKSP_Shapes::On_Parameter_Changed(CParameters *pParameters, CParameter *pParameter)
+int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	//-----------------------------------------------------
 	if(	!strcmp(pParameter->Get_Identifier(), "COLORS_TYPE")
@@ -440,12 +440,12 @@ void CWKSP_Shapes::_LUT_Create(void)
 {
 	int					iField, iRecord, old_Field, iID;
 	double				dValue;
-	TTable_Index_Order	old_Order;
+	TSG_Table_Index_Order	old_Order;
 	CSG_Colors				Colors;
 	CSG_String			sFields, sValue;
-	CTable_Record		*pRecord, *pRecord_LUT;
-	CTable				*pTable, *pLUT;
-	CParameters			Parameters;
+	CSG_Table_Record		*pRecord, *pRecord_LUT;
+	CSG_Table				*pTable, *pLUT;
+	CSG_Parameters			Parameters;
 
 	pTable	= Get_Table()->Get_Table();
 
@@ -539,7 +539,7 @@ void CWKSP_Shapes::_LUT_Create(void)
 //---------------------------------------------------------
 wxString CWKSP_Shapes::Get_Value(CSG_Point ptWorld, double Epsilon)
 {
-	CShape		*pShape;
+	CSG_Shape		*pShape;
 
 	if( (pShape = m_pShapes->Get_Shape(ptWorld, Epsilon)) != NULL )
 	{
@@ -580,7 +580,7 @@ double CWKSP_Shapes::Get_Value_Range(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Shapes::asImage(CGrid *pImage)
+bool CWKSP_Shapes::asImage(CSG_Grid *pImage)
 {
 	return( false );
 }
@@ -595,7 +595,7 @@ bool CWKSP_Shapes::asImage(CGrid *pImage)
 void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 {
 	int		iShape;
-	CShape	*pShape;
+	CSG_Shape	*pShape;
 
 	//-----------------------------------------------------
 	if( Get_Extent().Intersects(dc_Map.m_rWorld) != INTERSECTION_None )
@@ -726,9 +726,9 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter * CWKSP_Shapes::_AttributeList_Add(CParameter *pNode, const char *Identifier, const char *Name, const char *Description)
+CSG_Parameter * CWKSP_Shapes::_AttributeList_Add(CSG_Parameter *pNode, const char *Identifier, const char *Name, const char *Description)
 {
-	CParameter *pParameter;
+	CSG_Parameter *pParameter;
 
 	pParameter	= m_Parameters.Add_Choice(
 		pNode, Identifier, Name, Description,
@@ -739,7 +739,7 @@ CParameter * CWKSP_Shapes::_AttributeList_Add(CParameter *pNode, const char *Ide
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes::_AttributeList_Set(CParameter *pFields, bool bAddNoField)
+void CWKSP_Shapes::_AttributeList_Set(CSG_Parameter *pFields, bool bAddNoField)
 {
 	int			i;
 	wxString	s;
@@ -773,9 +773,9 @@ void CWKSP_Shapes::_AttributeList_Set(CParameter *pFields, bool bAddNoField)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter * CWKSP_Shapes::_BrushList_Add(CParameter *pNode, const char *Identifier, const char *Name, const char *Description)
+CSG_Parameter * CWKSP_Shapes::_BrushList_Add(CSG_Parameter *pNode, const char *Identifier, const char *Name, const char *Description)
 {
-	CParameter *pParameter;
+	CSG_Parameter *pParameter;
 
 	pParameter	= m_Parameters.Add_Choice(
 		pNode, Identifier, Name, Description,
@@ -812,9 +812,9 @@ int CWKSP_Shapes::_BrushList_Get_Style(int Index)
 }
 
 //---------------------------------------------------------
-CParameter * CWKSP_Shapes::_PenList_Add(CParameter *pNode, const char *Identifier, const char *Name, const char *Description)
+CSG_Parameter * CWKSP_Shapes::_PenList_Add(CSG_Parameter *pNode, const char *Identifier, const char *Name, const char *Description)
 {
-	CParameter *pParameter;
+	CSG_Parameter *pParameter;
 
 	pParameter	= m_Parameters.Add_Choice(
 		pNode, Identifier, Name, Description,
@@ -854,7 +854,7 @@ int CWKSP_Shapes::_PenList_Get_Style(int Index)
 //---------------------------------------------------------
 bool CWKSP_Shapes::_Chart_Set_Options(void)
 {
-	CParameters	*pChart	= m_Parameters("DISPLAY_CHART")->asParameters();
+	CSG_Parameters	*pChart	= m_Parameters("DISPLAY_CHART")->asParameters();
 
 	pChart->Destroy();
 	m_Chart.Clear();
@@ -864,8 +864,8 @@ bool CWKSP_Shapes::_Chart_Set_Options(void)
 		int			i, n;
 		CSG_Colors		Colors;
 		CSG_String	sFields;
-		CParameter	*pFields, *pColors;
-		CTable		*pTable	= &m_pShapes->Get_Table();
+		CSG_Parameter	*pFields, *pColors;
+		CSG_Table		*pTable	= &m_pShapes->Get_Table();
 
 		for(i=0, n=0; i<pTable->Get_Field_Count(); i++)
 		{
@@ -955,8 +955,8 @@ bool CWKSP_Shapes::_Chart_Set_Options(void)
 //---------------------------------------------------------
 bool CWKSP_Shapes::_Chart_Get_Options(void)
 {
-	CParameters	*pChart	= m_Parameters("DISPLAY_CHART")->asParameters();
-	CParameter	*p;
+	CSG_Parameters	*pChart	= m_Parameters("DISPLAY_CHART")->asParameters();
+	CSG_Parameter	*p;
 
 	m_Chart.Clear();
 	m_Chart_sField=-1;
@@ -989,7 +989,7 @@ bool CWKSP_Shapes::_Chart_Get_Options(void)
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes::_Draw_Chart(CWKSP_Map_DC &dc_Map, CShape *pShape)
+void CWKSP_Shapes::_Draw_Chart(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 {
 	if( _Chart_is_Valid() )
 	{
@@ -1010,7 +1010,7 @@ void CWKSP_Shapes::_Draw_Chart(CWKSP_Map_DC &dc_Map, CShape *pShape)
 		switch( pShape->Get_Type() )
 		{
 		default:					p	= dc_Map.World2DC(pShape->Get_Extent().Get_Center());			break;
-		case SHAPE_TYPE_Polygon:	p	= dc_Map.World2DC(((CShape_Polygon *)pShape)->Get_Centroid());	break;
+		case SHAPE_TYPE_Polygon:	p	= dc_Map.World2DC(((CSG_Shape_Polygon *)pShape)->Get_Centroid());	break;
 		}
 
 		dc_Map.dc.SetPen(*wxBLACK_PEN);
@@ -1026,7 +1026,7 @@ void CWKSP_Shapes::_Draw_Chart(CWKSP_Map_DC &dc_Map, CShape *pShape)
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes::_Draw_Chart_Pie(CWKSP_Map_DC &dc_Map, CTable_Record *pRecord, bool bOutline, int x, int y, int size)
+void CWKSP_Shapes::_Draw_Chart_Pie(CWKSP_Map_DC &dc_Map, CSG_Table_Record *pRecord, bool bOutline, int x, int y, int size)
 {
 	int		i, ix, iy, jx, jy;
 	double	d, sum;
@@ -1059,7 +1059,7 @@ void CWKSP_Shapes::_Draw_Chart_Pie(CWKSP_Map_DC &dc_Map, CTable_Record *pRecord,
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes::_Draw_Chart_Bar(CWKSP_Map_DC &dc_Map, CTable_Record *pRecord, bool bOutline, int x, int y, int sx, int sy)
+void CWKSP_Shapes::_Draw_Chart_Bar(CWKSP_Map_DC &dc_Map, CSG_Table_Record *pRecord, bool bOutline, int x, int y, int sx, int sy)
 {
 	int		i;
 	double	d, dx, dy, max, ix;

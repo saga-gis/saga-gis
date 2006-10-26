@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CAtlas_BNA_Import : public CModule
+class CAtlas_BNA_Import : public CSG_Module
 {
 public:
 	CAtlas_BNA_Import(void);
@@ -102,7 +102,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CAtlas_BNA_Export : public CModule
+class CAtlas_BNA_Export : public CSG_Module
 {
 public:
 	CAtlas_BNA_Export(void);

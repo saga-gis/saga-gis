@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Values_AddTo_Points : public CModule  
+class CGrid_Values_AddTo_Points : public CSG_Module  
 {
 public:
 	CGrid_Values_AddTo_Points(void);

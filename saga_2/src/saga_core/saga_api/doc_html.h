@@ -96,11 +96,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CDoc_HTML
+class SAGA_API_DLL_EXPORT CSG_Doc_HTML
 {
 public:
-	CDoc_HTML(void);
-	virtual ~CDoc_HTML(void);
+	CSG_Doc_HTML(void);
+	virtual ~CSG_Doc_HTML(void);
 
 	void						Open						(const char *Title);
 	bool						Save						(const char *FileName);
@@ -114,7 +114,7 @@ public:
 															int iRows,
 															int iCols,
 															const char *Description);
-	void						AddTable					(CTable *pTable);
+	void						AddTable					(CSG_Table *pTable);
 	void						AddParagraph				(const char *Text);
 	void						AddLineBreak				();
 	void						AddHeader					(const char *Text, int iOrder);
@@ -138,7 +138,7 @@ public:
 	void						AddUnorderedList			(const char **Text,
 															int iElement);
 
-	bool						Draw_Shapes					(CShapes *pShapes,
+	bool						Draw_Shapes					(CSG_Shapes *pShapes,
 															const char *Filename,
 															int Fill_Color, 
 															int Line_Color, 
@@ -148,8 +148,8 @@ private:
 
 	CSG_String					m_sHTMLCode;
 
-	bool						_Draw_Shape					(CDoc_SVG &SVG,
-															CShape *pShape,
+	bool						_Draw_Shape					(CSG_Doc_SVG &SVG,
+															CSG_Shape *pShape,
 															CSG_Rect GlobalRect,
 															int Fill_Color, 
 															int Line_Color, 

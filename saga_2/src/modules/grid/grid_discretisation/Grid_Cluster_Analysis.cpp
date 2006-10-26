@@ -164,7 +164,7 @@ bool CGrid_Cluster_Analysis::On_Execute(void)
 	int						i, j, nCluster;
 	long					nElements;
 	double					SP;
-	CParameter_Grid_List	*pGrids;
+	CSG_Parameter_Grid_List	*pGrids;
 
 	//-----------------------------------------------------
 	pGrids		= Parameters("INPUT")	->asGridList();
@@ -176,7 +176,7 @@ bool CGrid_Cluster_Analysis::On_Execute(void)
 	//-----------------------------------------------------
 	if( nGrids > 0 )
 	{
-		Grids		= (CGrid **)SG_Malloc(nGrids * sizeof(CGrid *));
+		Grids		= (CSG_Grid **)SG_Malloc(nGrids * sizeof(CSG_Grid *));
 
 		if( Parameters("NORMALISE")->asBool() )
 		{
@@ -274,11 +274,11 @@ bool CGrid_Cluster_Analysis::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGrid_Cluster_Analysis::Write_Result(CTable *pTable, long nElements, int nCluster, double SP)
+void CGrid_Cluster_Analysis::Write_Result(CSG_Table *pTable, long nElements, int nCluster, double SP)
 {
 	int				i, j;
 	CSG_String		s;
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 
 	pTable->Destroy();
 	pTable->Set_Name(_TL("Cluster Analysis"));

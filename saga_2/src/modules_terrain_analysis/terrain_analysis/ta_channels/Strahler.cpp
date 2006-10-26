@@ -50,7 +50,7 @@ CStrahler::~CStrahler(void)
 
 /*
 void getNextCell(
-		CGrid *g,
+		CSG_Grid *g,
 		int iX,
         int iY,
 		int &iNextX,

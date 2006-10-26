@@ -65,7 +65,7 @@
 //														 //
 ///////////////////////////////////////////////////////////
 
-class CSudoku : public CModule_Grid_Interactive
+class CSudoku : public CSG_Module_Grid_Interactive
 {
 public:
 	CSudoku(void);
@@ -76,7 +76,7 @@ protected:
 
 	virtual bool			On_Execute			(void);
 	virtual bool			On_Execute_Finish	(void);
-	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
+	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
 
 
 private:
@@ -85,7 +85,7 @@ private:
 
 	int						**m_pSudoku;
 
-	CGrid					*m_pBoard;
+	CSG_Grid					*m_pBoard;
 
 
 	bool					Get_Grid_Pos		(int &x, int &y);

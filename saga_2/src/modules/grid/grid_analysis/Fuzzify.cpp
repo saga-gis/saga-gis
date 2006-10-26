@@ -86,8 +86,8 @@ CFuzzify::~CFuzzify(void){}
 bool CFuzzify::On_Execute(void){
 
 	int x,y;
-	CGrid* pInput = Parameters("INPUT")->asGrid();
-	CGrid* pOutput = Parameters("OUTPUT")->asGrid();
+	CSG_Grid* pInput = Parameters("INPUT")->asGrid();
+	CSG_Grid* pOutput = Parameters("OUTPUT")->asGrid();
 	double dPtA = Parameters("POINTA")->asDouble();
 	double dPtB = Parameters("POINTB")->asDouble();
 	double dPtC = Parameters("POINTC")->asDouble();

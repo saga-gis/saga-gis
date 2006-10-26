@@ -74,14 +74,20 @@
 
 //---------------------------------------------------------
 #if defined(_SAGA_MSW)
+
 	#define ENV_LIB_PATH	"PATH"
 	#define ENV_LIB_SEPA	';'
+
 #elif defined(_SAGA_LINUX)
+
 	#define ENV_LIB_PATH	"LD_LIBRARY_PATH"
 	#define ENV_LIB_SEPA	':'
+
 #else
+
 	#define ENV_LIB_PATH	"PATH"
 	#define ENV_LIB_SEPA	';'
+
 #endif
 
 
@@ -154,9 +160,9 @@ bool CSG_Module_Library::Create(const char *File_Name)
 
 	//-----------------------------------------------------
 	if(	m_pLibrary->Load(m_File_Name.c_str())
-	&&	!(MLB_Get_Interface	= (TSG_PFNC_MLB_Get_Interface)	m_pLibrary->GetSymbol(SYMBOL_MLB_Get_Interface))
-	&&	!(MLB_Initialize	= (TSG_PFNC_MLB_Initialize)		m_pLibrary->GetSymbol(SYMBOL_MLB_Initialize)   )
-	&&	MLB_Initialize(m_File_Name) )
+	&&	(MLB_Get_Interface	= (TSG_PFNC_MLB_Get_Interface)	m_pLibrary->GetSymbol(SYMBOL_MLB_Get_Interface)) != NULL
+	&&	(MLB_Initialize		= (TSG_PFNC_MLB_Initialize)		m_pLibrary->GetSymbol(SYMBOL_MLB_Initialize)   ) != NULL
+	&&	 MLB_Initialize(m_File_Name) )
 	{
 		m_pInterface	= MLB_Get_Interface();
 	}
@@ -203,6 +209,17 @@ bool CSG_Module_Library::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+const char * CSG_Module_Library::Get_Info(int Type)
+{
+	if( m_pInterface != NULL )
+	{
+		return( m_pInterface->Get_Info(Type) );
+	}
+
+	return( "" );
+}
+
+//---------------------------------------------------------
 CSG_String CSG_Module_Library::Get_Name(void)
 {
 	return( Get_Info(MLB_INFO_Name) );
@@ -211,27 +228,72 @@ CSG_String CSG_Module_Library::Get_Name(void)
 //---------------------------------------------------------
 CSG_String CSG_Module_Library::Get_Description(void)
 {
+	return( Get_Info(MLB_INFO_Description) );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_Module_Library::Get_Author(void)
+{
+	return( Get_Info(MLB_INFO_Author) );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_Module_Library::Get_Version(void)
+{
+	return( Get_Info(MLB_INFO_Version) );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_Module_Library::Get_Menu(void)
+{
+	return( Get_Info(MLB_INFO_Menu_Path) );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_Module_Library::Get_Summary(bool bHTML)
+{
 	CSG_String	s;
 
-	s.Printf(
-		"%s: <b>%s</b><br>%s: <i>%s</i><br>%s: <i>%s</i><br>%s: <i>%s</i><hr>%s",
-		LNG("[CAP] Module Library")	, Get_Info(MLB_INFO_Name),
-		LNG("[CAP] Author")			, Get_Info(MLB_INFO_Author),
-		LNG("[CAP] Version")		, Get_Info(MLB_INFO_Version),
-		LNG("[CAP] File")			, Get_File_Name().c_str(),
-		Get_Info(MLB_INFO_Description)
-	);
-
-	s.Append(wxString::Format("<hr><b>%s:<ul>", LNG("[CAP] Modules")));
-
-	for(int i=0; i<Get_Count(); i++)
+	if( bHTML )
 	{
-		s.Append(CSG_String::Format("<li>%s</li>", Get_Module(i)->Get_Name()));
+		s.Printf(
+			"%s: <b>%s</b><br>%s: <i>%s</i><br>%s: <i>%s</i><br>%s: <i>%s</i><hr>%s",
+			LNG("[CAP] Module Library")	, Get_Info(MLB_INFO_Name),
+			LNG("[CAP] Author")			, Get_Info(MLB_INFO_Author),
+			LNG("[CAP] Version")		, Get_Info(MLB_INFO_Version),
+			LNG("[CAP] File")			, Get_File_Name().c_str(),
+			Get_Info(MLB_INFO_Description)
+		);
+
+		s.Append(CSG_String::Format("<hr><b>%s:<ul>", LNG("[CAP] Modules")));
+
+		for(int i=0; i<Get_Count(); i++)
+		{
+			s.Append(CSG_String::Format("<li>%s</li>", Get_Module(i)->Get_Name()));
+		}
+
+		s.Append("</ul>");
+
+		s.Replace("\n", "<br>");
 	}
+	else
+	{
+		s.Printf(
+			"%s: %s\n%s: %s\n%s: %s\n%s: %s\n\n%s",
+			LNG("[CAP] Module Library")	, Get_Info(MLB_INFO_Name),
+			LNG("[CAP] Author")			, Get_Info(MLB_INFO_Author),
+			LNG("[CAP] Version")		, Get_Info(MLB_INFO_Version),
+			LNG("[CAP] File")			, Get_File_Name().c_str(),
+			Get_Info(MLB_INFO_Description)
+		);
 
-	s.Append("</ul>");
+		s.Append(CSG_String::Format("\n\n%s:\n", LNG("[CAP] Modules")));
 
-	s.Replace("\n", "<br>");
+		for(int i=0; i<Get_Count(); i++)
+		{
+			s.Append(CSG_String::Format("- %s\n", Get_Module(i)->Get_Name()));
+		}
+	}
 
 	return( s );
 }
@@ -244,20 +306,95 @@ CSG_String CSG_Module_Library::Get_Description(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Module_Library::is_Valid(void)
+CSG_Module_Grid * CSG_Module_Library::Get_Module_Grid(int i)
 {
-	return( Get_Count() > 0 );
+	CSG_Module	*pModule	= Get_Module(i);
+
+	return( pModule && pModule->Get_Type() == MODULE_TYPE_Grid
+		? (CSG_Module_Grid *)pModule : NULL
+	);
 }
 
 //---------------------------------------------------------
-const char * CSG_Module_Library::Get_Info(int Type)
+CSG_Module_Interactive * CSG_Module_Library::Get_Module_I(int i)
 {
-	if( m_pInterface != NULL )
+	CSG_Module	*pModule	= Get_Module(i);
+
+	return( pModule && pModule->Get_Type() == MODULE_TYPE_Interactive
+		? (CSG_Module_Interactive *)pModule : NULL
+	);
+}
+
+//---------------------------------------------------------
+CSG_Module_Grid_Interactive * CSG_Module_Library::Get_Module_Grid_I(int i)
+{
+	CSG_Module	*pModule	= Get_Module(i);
+
+	return( pModule && pModule->Get_Type() == MODULE_TYPE_Grid_Interactive
+		? (CSG_Module_Grid_Interactive *)pModule : NULL
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_String CSG_Module_Library::Get_Menu(int i)
+{
+	CSG_String	sMenu;
+
+	if( Get_Module(i) != NULL )
 	{
-		return( m_pInterface->Get_Info(Type) );
+		bool		bAbsolute	= false;
+		const char	*sModule	= Get_Module(i)->Get_MenuPath();
+
+		if( sModule != NULL && strlen(sModule) > 1 && sModule[1] == ':' )
+		{
+			bAbsolute	= sModule[0] == 'A' || sModule[0] == 'a';
+			sModule		+= 2;
+		}
+
+		if( bAbsolute )	// menu path is relative to top menu...
+		{
+			if( sModule != NULL && strlen(sModule) > 0 )
+			{
+				sMenu.Printf("%s", sModule);
+			}
+		}
+		else			// menu path is relative to library menu...
+		{
+			const char	*sLibrary	= Get_Info(MLB_INFO_Menu_Path);
+
+			if( sModule != NULL && strlen(sModule) > 0 )
+			{
+				if( sLibrary != NULL && strlen(sLibrary) > 0 )
+				{
+					sMenu.Printf("%s|%s", sLibrary, sModule);
+				}
+				else
+				{
+					sMenu.Printf("%s", sModule);
+				}
+			}
+			else if( sLibrary != NULL && strlen(sLibrary) > 0 )
+			{
+				sMenu.Printf("%s", sLibrary);
+			}
+		}
+
+		if( sMenu.Length() > 0 )
+		{
+			sMenu.Append("|");
+		}
+
+		sMenu.Append(Get_Info(MLB_INFO_Name));
 	}
 
-	return( "" );
+	return( sMenu );
 }
 
 

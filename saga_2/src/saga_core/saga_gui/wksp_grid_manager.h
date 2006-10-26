@@ -95,26 +95,26 @@ public:
 	virtual bool					On_Command			(int Cmd_ID);
 
 	class CWKSP_Grid_System *		Get_System			(int i)		{	return( (class CWKSP_Grid_System *)Get_Item(i) );	}
-	class CWKSP_Grid_System *		Get_System			(class CGrid_System *pSystem);
-	bool							Exists				(class CGrid_System *pSystem);
+	class CWKSP_Grid_System *		Get_System			(class CSG_Grid_System *pSystem);
+	bool							Exists				(class CSG_Grid_System *pSystem);
 
-	class CWKSP_Grid *				Get_Grid			(class CGrid *pGrid);
-	bool							Exists				(class CGrid *pGrid);
-	class CWKSP_Grid *				Add					(class CGrid *pGrid);
-	class CGrid *					Get_byFileName		(const char *File_Name);
+	class CWKSP_Grid *				Get_Grid			(class CSG_Grid *pGrid);
+	bool							Exists				(class CSG_Grid *pGrid);
+	class CWKSP_Grid *				Add					(class CSG_Grid *pGrid);
+	class CSG_Grid *					Get_byFileName		(const char *File_Name);
 
-	bool							Update				(class CGrid *pGrid, class CParameters *pParameters);
-	bool							Update_Views		(class CGrid *pGrid);
-	bool							Show				(class CGrid *pGrid);
-	bool							asImage				(class CGrid *pGrid, class CGrid *pImage);
+	bool							Update				(class CSG_Grid *pGrid, class CSG_Parameters *pParameters);
+	bool							Update_Views		(class CSG_Grid *pGrid);
+	bool							Show				(class CSG_Grid *pGrid);
+	bool							asImage				(class CSG_Grid *pGrid, class CSG_Grid *pImage);
 
-	bool							Get_Colors			(class CGrid *pGrid, class CSG_Colors *pColors);
-	bool							Set_Colors			(class CGrid *pGrid, class CSG_Colors *pColors);
+	bool							Get_Colors			(class CSG_Grid *pGrid, class CSG_Colors *pColors);
+	bool							Set_Colors			(class CSG_Grid *pGrid, class CSG_Colors *pColors);
 
 
 private:
 
-	class CWKSP_Grid_System *		_Get_System			(class CGrid_System *pSystem);
+	class CWKSP_Grid_System *		_Get_System			(class CSG_Grid_System *pSystem);
 
 };
 

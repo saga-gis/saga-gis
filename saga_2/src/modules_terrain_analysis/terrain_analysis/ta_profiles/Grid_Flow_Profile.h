@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Flow_Profile : public CModule_Grid_Interactive
+class CGrid_Flow_Profile : public CSG_Module_Grid_Interactive
 {
 public:
 	CGrid_Flow_Profile(void);
@@ -82,16 +82,16 @@ public:
 protected:
 
 	virtual bool				On_Execute			(void);
-	virtual bool				On_Execute_Position	(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
+	virtual bool				On_Execute_Position	(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
 
 
 private:
 
-	CShapes						*m_pPoints, *m_pLine;
+	CSG_Shapes						*m_pPoints, *m_pLine;
 
-	CGrid						*m_pDEM;
+	CSG_Grid						*m_pDEM;
 
-	CParameter_Grid_List		*m_pValues;
+	CSG_Parameter_Grid_List		*m_pValues;
 
 
 	bool						Set_Profile			(TSG_Point ptWorld);

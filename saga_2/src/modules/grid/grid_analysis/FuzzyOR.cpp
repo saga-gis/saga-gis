@@ -109,13 +109,13 @@ bool CFuzzyOR::On_Execute(void)
 {
 	int				iGrid, nGrids, x, y;//id Grid, cellsnumber , ,
 	double			zMax, ValTemp; // variabile per costrire il grid, variabile temp di confronto
-	CGrid			*pOR;
-	CParameter_Grid_List	*pParm_Grids;
+	CSG_Grid			*pOR;
+	CSG_Parameter_Grid_List	*pParm_Grids;
 
 	//-----------------------------------------------------
 	// Get user inputs from the 'Parameters' object...
 
-	pParm_Grids	= (CParameter_Grid_List *)Parameters("GRIDS")->Get_Data();
+	pParm_Grids	= (CSG_Parameter_Grid_List *)Parameters("GRIDS")->Get_Data();
 	pOR			= Parameters("OR")->asGrid();
 	nGrids		= pParm_Grids->Get_Count();
 

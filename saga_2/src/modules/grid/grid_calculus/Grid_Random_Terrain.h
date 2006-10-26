@@ -22,7 +22,7 @@
 
 #include "MLB_Interface.h"
 
-class CGrid_Random_Terrain : public CModule
+class CGrid_Random_Terrain : public CSG_Module
 {
 public:
 	CGrid_Random_Terrain(void);
@@ -33,15 +33,15 @@ public:
 
 protected:
 
-	CGrid *pGrid;
+	CSG_Grid *pGrid;
 
 	bool On_Execute(void);
-	void addBump (CGrid*, int);
+	void addBump (CSG_Grid*, int);
 
 
 private:
 
-	CGrid* Get_Target_Grid(CParameters *pParameters);
+	CSG_Grid* Get_Target_Grid(CSG_Parameters *pParameters);
 
 };
 

@@ -80,7 +80,7 @@
 //---------------------------------------------------------
 CGSGrid_Regression_Multiple::CGSGrid_Regression_Multiple(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Set_Name		(_TL("Multiple Regression Analysis (Grids/Points)"));
@@ -163,10 +163,10 @@ CGSGrid_Regression_Multiple::~CGSGrid_Regression_Multiple(void)
 bool CGSGrid_Regression_Multiple::On_Execute(void)
 {
 	int						iAttribute;
-	CTable					*pTable;
-	CShapes					*pShapes, *pResiduals;
-	CGrid					*pRegression;
-	CParameter_Grid_List	*pGrids;
+	CSG_Table					*pTable;
+	CSG_Shapes					*pShapes, *pResiduals;
+	CSG_Grid					*pRegression;
+	CSG_Parameter_Grid_List	*pGrids;
 
 	//-----------------------------------------------------
 	pGrids			= Parameters("GRIDS")		->asGridList();
@@ -213,14 +213,14 @@ bool CGSGrid_Regression_Multiple::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGSGrid_Regression_Multiple::Get_Regression(CParameter_Grid_List *pGrids, CShapes *pShapes, int iAttribute)
+bool CGSGrid_Regression_Multiple::Get_Regression(CSG_Parameter_Grid_List *pGrids, CSG_Shapes *pShapes, int iAttribute)
 {
 	int				iShape, iPart, iPoint, iGrid;
 	double			zShape, zGrid;
 	TSG_Point		Point;
-	CTable			Table;
-	CTable_Record	*pRecord;
-	CShape			*pShape;
+	CSG_Table			Table;
+	CSG_Table_Record	*pRecord;
+	CSG_Shape			*pShape;
 
 	//-----------------------------------------------------
 	Table.Destroy();
@@ -266,7 +266,7 @@ bool CGSGrid_Regression_Multiple::Get_Regression(CParameter_Grid_List *pGrids, C
 }
 
 //---------------------------------------------------------
-bool CGSGrid_Regression_Multiple::Set_Regression(CParameter_Grid_List *pGrids, CGrid *pRegression)
+bool CGSGrid_Regression_Multiple::Set_Regression(CSG_Parameter_Grid_List *pGrids, CSG_Grid *pRegression)
 {
 	bool	bOk;
 	int		x, y, i;
@@ -303,12 +303,12 @@ bool CGSGrid_Regression_Multiple::Set_Regression(CParameter_Grid_List *pGrids, C
 }
 
 //---------------------------------------------------------
-bool CGSGrid_Regression_Multiple::Set_Residuals(CShapes *pShapes, int iAttribute, CShapes *pResiduals, CGrid *pRegression)
+bool CGSGrid_Regression_Multiple::Set_Residuals(CSG_Shapes *pShapes, int iAttribute, CSG_Shapes *pResiduals, CSG_Grid *pRegression)
 {
 	int			iPoint, iPart, iShape;
 	double		zShape, zGrid;
 	TSG_Point	Point;
-	CShape		*pShape, *pResidual;
+	CSG_Shape		*pShape, *pResidual;
 
 	//-----------------------------------------------------
 	if( pResiduals )
@@ -348,7 +348,7 @@ bool CGSGrid_Regression_Multiple::Set_Residuals(CShapes *pShapes, int iAttribute
 }
 
 //---------------------------------------------------------
-void CGSGrid_Regression_Multiple::Set_Message(CParameter_Grid_List *pGrids)
+void CGSGrid_Regression_Multiple::Set_Message(CSG_Parameter_Grid_List *pGrids)
 {
 	int		i, j;
 

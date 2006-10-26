@@ -82,7 +82,7 @@
 class CWKSP_Table : public CWKSP_Base_Item
 {
 public:
-	CWKSP_Table(class CTable *pTable, CWKSP_Base_Item *pOwner);
+	CWKSP_Table(class CSG_Table *pTable, CWKSP_Base_Item *pOwner);
 	virtual ~CWKSP_Table(void);
 
 	virtual TWKSP_Item			Get_Type			(void)			{	return( WKSP_ITEM_Table );	}
@@ -97,12 +97,12 @@ public:
 
 	CWKSP_Base_Item *			Get_Owner			(void)			{	return( m_pOwner );	}
 
-	class CTable *				Get_Table			(void)			{	return( m_pTable );	}
+	class CSG_Table *				Get_Table			(void)			{	return( m_pTable );	}
 
 	bool						Save				(void);
 	bool						Save				(const char *File_Path);
 
-	bool						DataObject_Changed	(CParameters *pParameters);
+	bool						DataObject_Changed	(CSG_Parameters *pParameters);
 
 	class CVIEW_Table *			Get_View			(void)			{	return( m_pView );	}
 	void						Set_View			(bool bShow);
@@ -118,7 +118,7 @@ public:
 
 private:
 
-	class CTable				*m_pTable;
+	class CSG_Table				*m_pTable;
 
 	CWKSP_Base_Item				*m_pOwner;
 

@@ -87,7 +87,7 @@ bool CGPX2SHP::On_Execute(void){
 	bool bTrackpoints = Parameters("TRACKPOINTS")->asBool();
 	bool bRoutes = Parameters("ROUTES")->asBool();
 	bool bAdd = Parameters("ADD")->asBool();
-	CShapes *pShapes;
+	CSG_Shapes *pShapes;
 
 	sCmd = sBasePath + "\\gpx2shp ";
 

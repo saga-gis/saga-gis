@@ -222,7 +222,7 @@ bool CForecasting::AssignParameters(){
 
 
 	//-----------------------------------------------------
-	// calculate slope and aspect using CGrid class'
+	// calculate slope and aspect using CSG_Grid class'
 	// built-in function (after Zevenbergen & Thorne)...
 
 	m_pSlopeGrid	= SG_Create_Grid(m_pDEM, GRID_TYPE_Double);

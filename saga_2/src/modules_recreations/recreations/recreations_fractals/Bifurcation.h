@@ -74,7 +74,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CBifurcation : public CModule  
+class CBifurcation : public CSG_Module  
 {
 public:
 	CBifurcation(void);

@@ -120,15 +120,15 @@ class wxPoint		DLG_Get_Def_Position	(void);
 class wxSize		DLG_Get_Def_Size		(void);
 
 //---------------------------------------------------------
-bool				DLG_Parameters			(class CParameters *pParameters);
+bool				DLG_Parameters			(class CSG_Parameters *pParameters);
 
 bool				DLG_Text				(const char *Caption, class wxString &Text);
-bool				DLG_Table				(const char *Caption, class CTable *pTable);
+bool				DLG_Table				(const char *Caption, class CSG_Table *pTable);
 
-bool				DLG_List_Grid			(const char *Caption, class CParameter_Grid_List   *pList);
-bool				DLG_List_Table			(const char *Caption, class CParameter_Table_List  *pList);
-bool				DLG_List_Shapes			(const char *Caption, class CParameter_Shapes_List *pList);
-bool				DLG_List_TIN			(const char *Caption, class CParameter_TIN_List    *pList);
+bool				DLG_List_Grid			(const char *Caption, class CSG_Parameter_Grid_List   *pList);
+bool				DLG_List_Table			(const char *Caption, class CSG_Parameter_Table_List  *pList);
+bool				DLG_List_Shapes			(const char *Caption, class CSG_Parameter_Shapes_List *pList);
+bool				DLG_List_TIN			(const char *Caption, class CSG_Parameter_TIN_List    *pList);
 
 bool				DLG_Colors				(class CSG_Colors *pColors);
 bool				DLG_Colors				(int &Palette);

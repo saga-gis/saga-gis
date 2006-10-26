@@ -186,11 +186,11 @@ bool CGrid_Value_Request::On_Execute(void)
 }
 
 //---------------------------------------------------------
-bool CGrid_Value_Request::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CGrid_Value_Request::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
 {
 	int				iGrid;
 	double			Value;
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 
 	if( Mode == MODULE_INTERACTIVE_LDOWN && m_pGrids->Get_Count() > 0 )
 	{

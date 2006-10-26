@@ -150,7 +150,7 @@ bool CLeastCostPathProfile::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CLeastCostPathProfile::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CLeastCostPathProfile::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
 {
 	switch( Mode )
 	{
@@ -226,7 +226,7 @@ void CLeastCostPathProfile::Set_Profile(int iX, int iY)
 }
 
 
-void CLeastCostPathProfile::getNextCell(CGrid *g,
+void CLeastCostPathProfile::getNextCell(CSG_Grid *g,
 										int iX,
 										int iY,
 										int &iNextX,
@@ -267,7 +267,7 @@ bool CLeastCostPathProfile::Add_Point(int x, int y)
 	int			i;
 	double		Distance;
 	TSG_Point	Point;
-	CShape		*pPoint, *pLast;
+	CSG_Shape		*pPoint, *pLast;
 
 	if( m_pDEM->is_InGrid(x, y) )
 	{

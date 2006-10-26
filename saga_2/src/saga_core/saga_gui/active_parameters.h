@@ -98,7 +98,7 @@ public:
 	void						On_Save				(wxCommandEvent  &event);
 
 	bool						Set_Parameters		(class CWKSP_Base_Item *pItem);
-	bool						Update_Parameters	(class CParameters *pParameters, bool bSave);
+	bool						Update_Parameters	(class CSG_Parameters *pParameters, bool bSave);
 	bool						Update_DataObjects	(void);
 	bool						Restore_Parameters	(void);
 

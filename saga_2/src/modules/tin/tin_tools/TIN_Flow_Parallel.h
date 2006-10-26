@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTIN_Flow_Parallel : public CModule
+class CTIN_Flow_Parallel : public CSG_Module
 {
 public:
 	CTIN_Flow_Parallel(void);
@@ -90,11 +90,11 @@ private:
 
 	int							m_iHeight, m_iArea, m_iFlow, m_iSpecific;
 
-	CTIN						*m_pFlow;
+	CSG_TIN						*m_pFlow;
 
 
-	void						Let_it_flow_single		(CTIN_Point *pPoint);
-	void						Let_it_flow_multiple	(CTIN_Point *pPoint);
+	void						Let_it_flow_single		(CSG_TIN_Point *pPoint);
+	void						Let_it_flow_multiple	(CSG_TIN_Point *pPoint);
 
 };
 

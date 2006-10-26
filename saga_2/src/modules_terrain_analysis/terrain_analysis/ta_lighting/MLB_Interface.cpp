@@ -89,9 +89,9 @@ const char * Get_Info(int i)
 #include "SADO_SolarRadiation.h"
 
 //---------------------------------------------------------
-CModule * Create_Module(int i)
+CSG_Module * Create_Module(int i)
 {
-	CModule	*pModule;
+	CSG_Module	*pModule;
 
 	switch( i )
 	{

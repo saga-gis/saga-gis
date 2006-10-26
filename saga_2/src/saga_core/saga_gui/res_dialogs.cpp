@@ -291,7 +291,7 @@ wxSize		DLG_Get_Def_Size(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		DLG_Parameters(CParameters *pParameters)
+bool		DLG_Parameters(CSG_Parameters *pParameters)
 {
 	if( pParameters && pParameters->Get_Count() > 0 )
 	{
@@ -312,7 +312,7 @@ bool		DLG_Text(const char *Caption, wxString &Text)
 }
 
 //---------------------------------------------------------
-bool		DLG_Table(const char *Caption, CTable *pTable)
+bool		DLG_Table(const char *Caption, CSG_Table *pTable)
 {
 	CDLG_Table		dlg(pTable, Caption);
 
@@ -320,7 +320,7 @@ bool		DLG_Table(const char *Caption, CTable *pTable)
 }
 
 //---------------------------------------------------------
-bool		DLG_List_Grid(const char *Caption, CParameter_Grid_List *pList)
+bool		DLG_List_Grid(const char *Caption, CSG_Parameter_Grid_List *pList)
 {
 	CDLG_List_Grid		dlg(pList, Caption);
 
@@ -328,7 +328,7 @@ bool		DLG_List_Grid(const char *Caption, CParameter_Grid_List *pList)
 }
 
 //---------------------------------------------------------
-bool		DLG_List_Table(const char *Caption, CParameter_Table_List *pList)
+bool		DLG_List_Table(const char *Caption, CSG_Parameter_Table_List *pList)
 {
 	CDLG_List_Table		dlg(pList, Caption);
 
@@ -336,7 +336,7 @@ bool		DLG_List_Table(const char *Caption, CParameter_Table_List *pList)
 }
 
 //---------------------------------------------------------
-bool		DLG_List_Shapes(const char *Caption, CParameter_Shapes_List *pList)
+bool		DLG_List_Shapes(const char *Caption, CSG_Parameter_Shapes_List *pList)
 {
 	CDLG_List_Shapes	dlg(pList, Caption);
 
@@ -344,7 +344,7 @@ bool		DLG_List_Shapes(const char *Caption, CParameter_Shapes_List *pList)
 }
 
 //---------------------------------------------------------
-bool		DLG_List_TIN(const char *Caption, CParameter_TIN_List *pList)
+bool		DLG_List_TIN(const char *Caption, CSG_Parameter_TIN_List *pList)
 {
 	CDLG_List_TIN		dlg(pList, Caption);
 

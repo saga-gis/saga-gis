@@ -127,9 +127,9 @@ bool CErdas_LAN_Import::On_Execute(void)
 	float					area, dx, dy, xPos, yPos;
 	double					Cellsize, xMin, yMin, Value;
 	FILE					*Stream;
-	TGrid_Type				gType;
+	TSG_Grid_Type				gType;
 	CSG_Colors					Colors;
-	CParameter_Grid_List	*Grids;
+	CSG_Parameter_Grid_List	*Grids;
 	CSG_String				FileName;
 
 	//-----------------------------------------------------

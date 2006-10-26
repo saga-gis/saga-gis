@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPolygon_Intersection : public CModule  
+class CPolygon_Intersection : public CSG_Module  
 {
 public:
 	CPolygon_Intersection(void);
@@ -97,16 +97,16 @@ private:
 	bool					bSplitParts;
 
 
-	bool					Get_Polygon_Intersection	(CShapes *pShapes_A, CShapes *pShapes_B, CShapes *pShapes_AB);
-	bool					Get_Difference				(CShapes *pShapes_A, CShapes *pShapes_B, CShapes *pShapes_AB, int bTargetID);
+	bool					Get_Polygon_Intersection	(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B, CSG_Shapes *pShapes_AB);
+	bool					Get_Difference				(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B, CSG_Shapes *pShapes_AB, int bTargetID);
 
-	bool					GPC_Polygon_Intersection	(CShape *pShape_A, CShape *pShape_B, CShape *pShape_AB);
-	bool					GPC_Difference				(CShape *pShape_A, CShape *pShape_B, CShape *pShape_AB);
+	bool					GPC_Polygon_Intersection	(CSG_Shape *pShape_A, CSG_Shape *pShape_B, CSG_Shape *pShape_AB);
+	bool					GPC_Difference				(CSG_Shape *pShape_A, CSG_Shape *pShape_B, CSG_Shape *pShape_AB);
 
-	bool					GPC_Create_Polygon			(CShape *pShape, gpc_polygon *pPolygon);
+	bool					GPC_Create_Polygon			(CSG_Shape *pShape, gpc_polygon *pPolygon);
 
-	void					Add_Polygon					(CShapes *pShapes, CShape *pShape, int ID_A, int ID_B);
-	void					Add_Polygon					(CShapes *pShapes, CShape *pShape, int ID);
+	void					Add_Polygon					(CSG_Shapes *pShapes, CSG_Shape *pShape, int ID_A, int ID_B);
+	void					Add_Polygon					(CSG_Shapes *pShapes, CSG_Shape *pShape, int ID);
 
 };
 

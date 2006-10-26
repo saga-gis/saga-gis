@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_preprocessor_EXPORT CPit_Eliminator : public CModule_Grid
+class ta_preprocessor_EXPORT CPit_Eliminator : public CSG_Module_Grid
 {
 public:
 	CPit_Eliminator(void);
@@ -93,7 +93,7 @@ protected:
 
 private:
 
-	CGrid					*pDTM, *pRoute, *goRoute;
+	CSG_Grid					*pDTM, *pRoute, *goRoute;
 
 
 	void					Create_goRoute	(void);

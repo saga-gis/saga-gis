@@ -85,20 +85,20 @@ protected:
 };
 
 
-class CMine_Sweeper : public CModule_Interactive
+class CMine_Sweeper : public CSG_Module_Interactive
 {
 public:
 	CMine_Sweeper(void);
 	virtual ~CMine_Sweeper(void);
 
 
-	CGrid	*pInput;
+	CSG_Grid	*pInput;
 
 protected:
 
 	virtual bool			On_Execute(void);
 	virtual bool			On_Execute_Finish	(void);
-	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
+	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
 
 	bool					Get_Grid_Pos(int &x, int &y);
 
@@ -122,7 +122,7 @@ protected:
 
 	int OpenFields, MarkedMines;
 
-	CGrid *GameBoard, *FlagBoard;
+	CSG_Grid *GameBoard, *FlagBoard;
 
 	bool First_Click;
 

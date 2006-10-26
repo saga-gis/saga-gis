@@ -119,8 +119,8 @@ bool CPROJ4_Shapes::On_Execute_Conversion(void)
 	char		sMessage[256];
 	int			iShape, iPart, iPoint, nDropped;
 	TSG_Point	Point;
-	CShape		*pShape_Source, *pShape_Target;
-	CShapes		*pSource, *pTarget;
+	CSG_Shape		*pShape_Source, *pShape_Target;
+	CSG_Shapes		*pSource, *pTarget;
 
 	//-----------------------------------------------------
 	if( 1 )

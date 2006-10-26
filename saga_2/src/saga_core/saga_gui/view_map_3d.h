@@ -115,9 +115,9 @@ private:
 
 	double							m_xDown, m_yDown;
 
-	CParameters						m_Parameters;
+	CSG_Parameters						m_Parameters;
 
-	CTable							m_Play;
+	CSG_Table							m_Play;
 
 	wxPoint							m_Mouse_Down;
 

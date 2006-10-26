@@ -70,27 +70,27 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTIN * SG_Create_TIN(void)
+CSG_TIN * SG_Create_TIN(void)
 {
-	return( new CTIN );
+	return( new CSG_TIN );
 }
 
 //---------------------------------------------------------
-CTIN * SG_Create_TIN(const CTIN &TIN)
+CSG_TIN * SG_Create_TIN(const CSG_TIN &TIN)
 {
-	return( new CTIN(TIN) );
+	return( new CSG_TIN(TIN) );
 }
 
 //---------------------------------------------------------
-CTIN * SG_Create_TIN(const char *File_Name)
+CSG_TIN * SG_Create_TIN(const char *File_Name)
 {
-	return( new CTIN(File_Name) );
+	return( new CSG_TIN(File_Name) );
 }
 
 //---------------------------------------------------------
-CTIN * SG_Create_TIN(CShapes *pShapes)
+CSG_TIN * SG_Create_TIN(CSG_Shapes *pShapes)
 {
-	return( new CTIN(pShapes) );
+	return( new CSG_TIN(pShapes) );
 }
 
 
@@ -101,15 +101,15 @@ CTIN * SG_Create_TIN(CShapes *pShapes)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTIN::CTIN(void)
-	: CDataObject()
+CSG_TIN::CSG_TIN(void)
+	: CSG_Data_Object()
 {
 	_On_Construction();
 }
 
 //---------------------------------------------------------
-CTIN::CTIN(const CTIN &TIN)
-	: CDataObject()
+CSG_TIN::CSG_TIN(const CSG_TIN &TIN)
+	: CSG_Data_Object()
 {
 	_On_Construction();
 
@@ -117,8 +117,8 @@ CTIN::CTIN(const CTIN &TIN)
 }
 
 //---------------------------------------------------------
-CTIN::CTIN(const char *File_Name)
-	: CDataObject()
+CSG_TIN::CSG_TIN(const char *File_Name)
+	: CSG_Data_Object()
 {
 	_On_Construction();
 
@@ -126,8 +126,8 @@ CTIN::CTIN(const char *File_Name)
 }
 
 //---------------------------------------------------------
-CTIN::CTIN(CShapes *pShapes)
-	: CDataObject()
+CSG_TIN::CSG_TIN(CSG_Shapes *pShapes)
+	: CSG_Data_Object()
 {
 	_On_Construction();
 
@@ -142,7 +142,7 @@ CTIN::CTIN(CShapes *pShapes)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CTIN::_On_Construction(void)
+void CSG_TIN::_On_Construction(void)
 {
 	m_Points			= NULL;
 	m_nPoints			= 0;
@@ -166,15 +166,15 @@ void CTIN::_On_Construction(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTIN::Create(const CTIN &TIN)
+bool CSG_TIN::Create(const CSG_TIN &TIN)
 {
-	return( Assign((CDataObject *)&TIN) );
+	return( Assign((CSG_Data_Object *)&TIN) );
 }
 
 //---------------------------------------------------------
-bool CTIN::Create(const char *File_Name)
+bool CSG_TIN::Create(const char *File_Name)
 {
-	CShapes	Shapes(File_Name);
+	CSG_Shapes	Shapes(File_Name);
 
 	if( Create(&Shapes) )
 	{
@@ -191,10 +191,10 @@ bool CTIN::Create(const char *File_Name)
 }
 
 //---------------------------------------------------------
-bool CTIN::Create(CShapes *pShapes)
+bool CSG_TIN::Create(CSG_Shapes *pShapes)
 {
 	int		iShape, iPart, iPoint;
-	CShape	*pShape;
+	CSG_Shape	*pShape;
 
 	if( pShapes )
 	{
@@ -246,13 +246,13 @@ bool CTIN::Create(CShapes *pShapes)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTIN::~CTIN(void)
+CSG_TIN::~CSG_TIN(void)
 {
 	Destroy();
 }
 
 //---------------------------------------------------------
-bool CTIN::Destroy(void)
+bool CSG_TIN::Destroy(void)
 {
 	_Destroy_Triangles();
 	_Destroy_Edges();
@@ -260,7 +260,7 @@ bool CTIN::Destroy(void)
 
 	m_Table._Destroy();
 
-	CDataObject::Destroy();
+	CSG_Data_Object::Destroy();
 
 	return( true );
 }
@@ -273,7 +273,7 @@ bool CTIN::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTIN::_Destroy_Points(void)
+bool CSG_TIN::_Destroy_Points(void)
 {
 	if( m_nPoints > 0 )
 	{
@@ -291,7 +291,7 @@ bool CTIN::_Destroy_Points(void)
 }
 
 //---------------------------------------------------------
-bool CTIN::_Destroy_Edges(void)
+bool CSG_TIN::_Destroy_Edges(void)
 {
 	if( m_nEdges > 0 )
 	{
@@ -309,7 +309,7 @@ bool CTIN::_Destroy_Edges(void)
 }
 
 //---------------------------------------------------------
-bool CTIN::_Destroy_Triangles(void)
+bool CSG_TIN::_Destroy_Triangles(void)
 {
 	if( m_nTriangles > 0 )
 	{
@@ -334,16 +334,16 @@ bool CTIN::_Destroy_Triangles(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTIN::Assign(CDataObject *pObject)
+bool CSG_TIN::Assign(CSG_Data_Object *pObject)
 {
 	int				i;
-	CTIN_Point		*pPoint;
-	CTIN_Triangle	*pTriangle;
-	CTIN			*pTIN;
+	CSG_TIN_Point		*pPoint;
+	CSG_TIN_Triangle	*pTriangle;
+	CSG_TIN			*pTIN;
 
 	if(	pObject && pObject->is_Valid() && pObject->Get_ObjectType() == Get_ObjectType() )
 	{
-		pTIN	= (CTIN *)pObject;
+		pTIN	= (CSG_TIN *)pObject;
 
 		Destroy();
 
@@ -388,7 +388,7 @@ bool CTIN::Assign(CDataObject *pObject)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTIN::Save(const char *File_Name, int Format)
+bool CSG_TIN::Save(const char *File_Name, int Format)
 {
 	bool	bResult	= false;
 
@@ -398,7 +398,7 @@ bool CTIN::Save(const char *File_Name, int Format)
 		{
 		case 0:	default:
 			{
-				CShapes	Points;
+				CSG_Shapes	Points;
 
 				Points.Create(SHAPE_TYPE_Point, Get_Name(), &Get_Table());
 
@@ -432,13 +432,13 @@ bool CTIN::Save(const char *File_Name, int Format)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTIN::Update(void)
+bool CSG_TIN::Update(void)
 {
 	return( _Triangulate() );
 }
 
 //---------------------------------------------------------
-CTIN_Point * CTIN::Add_Point(TSG_Point Point, CTable_Record *pRecord, bool bUpdateNow)
+CSG_TIN_Point * CSG_TIN::Add_Point(TSG_Point Point, CSG_Table_Record *pRecord, bool bUpdateNow)
 {
 /*	for(int i=0; i<m_nPoints; i++)
 	{
@@ -450,8 +450,8 @@ CTIN_Point * CTIN::Add_Point(TSG_Point Point, CTable_Record *pRecord, bool bUpda
 */
 
 	//-----------------------------------------------------
-	m_Points			= (CTIN_Point **)SG_Realloc(m_Points, (m_nPoints + 1) * sizeof(CTIN_Point *));
-	m_Points[m_nPoints]	= new CTIN_Point(m_nPoints, Point, m_Table._Add_Record(pRecord));
+	m_Points			= (CSG_TIN_Point **)SG_Realloc(m_Points, (m_nPoints + 1) * sizeof(CSG_TIN_Point *));
+	m_Points[m_nPoints]	= new CSG_TIN_Point(m_nPoints, Point, m_Table._Add_Record(pRecord));
 	m_nPoints++;
 
 	m_bUpdate			= true;
@@ -465,7 +465,7 @@ CTIN_Point * CTIN::Add_Point(TSG_Point Point, CTable_Record *pRecord, bool bUpda
 }
 
 //---------------------------------------------------------
-bool CTIN::Del_Point(int iPoint, bool bUpdateNow)
+bool CSG_TIN::Del_Point(int iPoint, bool bUpdateNow)
 {
 	int		i;
 
@@ -480,7 +480,7 @@ bool CTIN::Del_Point(int iPoint, bool bUpdateNow)
 			m_Points[i]	= m_Points[i + 1];
 		}
 
-		m_Points	= (CTIN_Point **)SG_Realloc(m_Points, m_nPoints * sizeof(CTIN_Point *));
+		m_Points	= (CSG_TIN_Point **)SG_Realloc(m_Points, m_nPoints * sizeof(CSG_TIN_Point *));
 
 		m_Table._Del_Record(iPoint);
 
@@ -505,21 +505,21 @@ bool CTIN::Del_Point(int iPoint, bool bUpdateNow)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline bool CTIN::_Add_Edge(CTIN_Point *a, CTIN_Point *b)
+inline bool CSG_TIN::_Add_Edge(CSG_TIN_Point *a, CSG_TIN_Point *b)
 {
-	m_Edges		= (CTIN_Edge **)SG_Realloc(m_Edges, (m_nEdges + 1) * sizeof(CTIN_Edge *));
-	m_Edges[m_nEdges++]	= new CTIN_Edge(a, b);
+	m_Edges		= (CSG_TIN_Edge **)SG_Realloc(m_Edges, (m_nEdges + 1) * sizeof(CSG_TIN_Edge *));
+	m_Edges[m_nEdges++]	= new CSG_TIN_Edge(a, b);
 
 	return( true );
 }
 
 //---------------------------------------------------------
-bool CTIN::_Add_Triangle(CTIN_Point *a, CTIN_Point *b, CTIN_Point *c)
+bool CSG_TIN::_Add_Triangle(CSG_TIN_Point *a, CSG_TIN_Point *b, CSG_TIN_Point *c)
 {
-	CTIN_Triangle	*pTriangle;
+	CSG_TIN_Triangle	*pTriangle;
 
-	m_Triangles	= (CTIN_Triangle **)SG_Realloc(m_Triangles, (m_nTriangles + 1) * sizeof(CTIN_Triangle *));
-	m_Triangles[m_nTriangles++]	= pTriangle = new CTIN_Triangle(a, b, c);
+	m_Triangles	= (CSG_TIN_Triangle **)SG_Realloc(m_Triangles, (m_nTriangles + 1) * sizeof(CSG_TIN_Triangle *));
+	m_Triangles[m_nTriangles++]	= pTriangle = new CSG_TIN_Triangle(a, b, c);
 
 	if( a->_Add_Neighbor(b) )
 	{
@@ -554,7 +554,7 @@ bool CTIN::_Add_Triangle(CTIN_Point *a, CTIN_Point *b, CTIN_Point *c)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CTIN::_Extent_Update(void)
+void CSG_TIN::_Extent_Update(void)
 {
 	if( m_bUpdate )
 	{

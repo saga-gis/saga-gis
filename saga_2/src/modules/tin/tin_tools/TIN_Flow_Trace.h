@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTIN_Flow_Trace : public CModule
+class CTIN_Flow_Trace : public CSG_Module
 {
 public:
 	CTIN_Flow_Trace(void);
@@ -90,12 +90,12 @@ private:
 
 	int							m_iHeight, m_iDir, m_iArea, m_iFlow, m_iSpecific;
 
-	CTIN						*m_pFlow;
+	CSG_TIN						*m_pFlow;
 
 
-	int							Get_Lowest_Neighbor(CTIN_Point *pPoint);
+	int							Get_Lowest_Neighbor(CSG_TIN_Point *pPoint);
 
-	void						Trace(CTIN_Point *pPoint, double Area);
+	void						Trace(CSG_TIN_Point *pPoint, double Area);
 
 };
 

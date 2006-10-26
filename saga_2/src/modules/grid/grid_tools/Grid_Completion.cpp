@@ -132,8 +132,8 @@ bool CGrid_Completion::On_Execute(void)
 {
 	int					x, y;
 	double				xPos, yPos, Value;
-	TGrid_Interpolation	Interpolation;
-	CGrid				*pGrid, *pAdditional;
+	TSG_Grid_Interpolation	Interpolation;
+	CSG_Grid				*pGrid, *pAdditional;
 
 	pAdditional		= Parameters("ADDITIONAL")	->asGrid();
 	pGrid			= Parameters("COMPLETED")	->asGrid();
@@ -147,7 +147,7 @@ bool CGrid_Completion::On_Execute(void)
 			pGrid->Assign(Parameters("ORIGINAL")->asGrid());
 		}
 
-		Interpolation	= (TGrid_Interpolation)Parameters("INTERPOLATION")->asInt();
+		Interpolation	= (TSG_Grid_Interpolation)Parameters("INTERPOLATION")->asInt();
 
 		Process_Set_Text(_TL("Data completion..."));
 

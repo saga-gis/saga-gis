@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSurfer_BLN_Import : public CModule
+class CSurfer_BLN_Import : public CSG_Module
 {
 public:
 	CSurfer_BLN_Import(void);
@@ -102,7 +102,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSurfer_BLN_Export : public CModule
+class CSurfer_BLN_Export : public CSG_Module
 {
 public:
 	CSurfer_BLN_Export(void);

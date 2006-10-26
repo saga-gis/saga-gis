@@ -208,7 +208,7 @@ bool CWKSP_Shapes::On_Edit_On_Mouse_Down(CSG_Point Point, double ClientToWorld, 
 bool CWKSP_Shapes::On_Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key)
 {
 	CSG_Rect		rWorld(m_Edit_Mouse_Down, Point);
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 	wxFileName		FileName;
 
 
@@ -370,7 +370,7 @@ bool CWKSP_Shapes::On_Edit_On_Mouse_Move(wxWindow *pMap, CSG_Rect rWorld, wxPoin
 //---------------------------------------------------------
 bool CWKSP_Shapes::_Edit_Set_Attributes(void)
 {
-	CTable_Record	*pAttribute, *pRecord;
+	CSG_Table_Record	*pAttribute, *pRecord;
 
 	m_Edit_Attributes.Del_Records();
 
@@ -392,7 +392,7 @@ bool CWKSP_Shapes::_Edit_Set_Attributes(void)
 //---------------------------------------------------------
 bool CWKSP_Shapes::On_Edit_Set_Attributes(void)
 {
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 
 	if( (pRecord = m_pShapes->Get_Table().Get_Selection()) != NULL )
 	{
@@ -684,7 +684,7 @@ void CWKSP_Shapes::_Edit_Snap_Point(CSG_Point &Point, double ClientToWorld)
 {
 	if( m_Edit_pShape )
 	{
-		CParameter_Shapes_List	*pList	= m_Parameters("EDIT_SNAP_LIST")->asShapesList();
+		CSG_Parameter_Shapes_List	*pList	= m_Parameters("EDIT_SNAP_LIST")->asShapesList();
 
 		if( pList->Get_Count() > 0 )
 		{
@@ -721,9 +721,9 @@ void CWKSP_Shapes::_Edit_Snap_Point(CSG_Point &Point, double ClientToWorld)
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes::_Edit_Snap_Point(CSG_Point Point, CSG_Point &snap_Point, double &snap_Dist, CShapes *pShapes, bool bLine)
+void CWKSP_Shapes::_Edit_Snap_Point(CSG_Point Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shapes *pShapes, bool bLine)
 {
-	CShape	*pSelected	= pShapes->Get_Selection();
+	CSG_Shape	*pSelected	= pShapes->Get_Selection();
 
 	if( pShapes->Select(CSG_Rect(Point.Get_X() - snap_Dist, Point.Get_Y() - snap_Dist, Point.Get_X() + snap_Dist, Point.Get_Y() + snap_Dist)) )
 	{
@@ -747,7 +747,7 @@ void CWKSP_Shapes::_Edit_Snap_Point(CSG_Point Point, CSG_Point &snap_Point, doub
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes::_Edit_Snap_Point(CSG_Point pos_Point, CSG_Point &snap_Point, double &snap_Dist, CShape *pShape)
+void CWKSP_Shapes::_Edit_Snap_Point(CSG_Point pos_Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shape *pShape)
 {
 	int			iPart, iPoint;
 	double		d, dx, dy;
@@ -772,7 +772,7 @@ void CWKSP_Shapes::_Edit_Snap_Point(CSG_Point pos_Point, CSG_Point &snap_Point, 
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes::_Edit_Snap_Point_ToLine(CSG_Point pos_Point, CSG_Point &snap_Point, double &snap_Dist, CShape *pShape)
+void CWKSP_Shapes::_Edit_Snap_Point_ToLine(CSG_Point pos_Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shape *pShape)
 {
 }
 

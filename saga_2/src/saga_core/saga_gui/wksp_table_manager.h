@@ -95,15 +95,15 @@ public:
 	virtual bool				On_Command		(int Cmd_ID);
 
 	class CWKSP_Table *			Get_Table		(int i)		{	return( (class CWKSP_Table *)Get_Item(i) );	}
-	class CWKSP_Table *			Get_Table		(class CTable *pTable);
+	class CWKSP_Table *			Get_Table		(class CSG_Table *pTable);
 
-	bool						Exists			(class CTable *pTable);
-	class CWKSP_Table *			Add				(class CTable *pTable);
-	class CTable *				Get_byFileName	(const char *File_Name);
+	bool						Exists			(class CSG_Table *pTable);
+	class CWKSP_Table *			Add				(class CSG_Table *pTable);
+	class CSG_Table *				Get_byFileName	(const char *File_Name);
 
-	bool						Update			(class CTable *pTable, class CParameters *pParameters);
-	bool						Update_Views	(class CTable *pTable);
-	bool						Show			(class CTable *pTable);
+	bool						Update			(class CSG_Table *pTable, class CSG_Parameters *pParameters);
+	bool						Update_Views	(class CSG_Table *pTable);
+	bool						Show			(class CSG_Table *pTable);
 
 
 private:

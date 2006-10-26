@@ -89,26 +89,26 @@ public:
 	void						Destroy					(void);
 
 	int							Get_Count				(void)		{	return( m_nModules );	}
-	class CModule *				Get_Module				(int i)		{	return( i >= 0 && i < m_nModules ? m_Modules[i] : NULL );	}
+	class CSG_Module *				Get_Module				(int i)		{	return( i >= 0 && i < m_nModules ? m_Modules[i] : NULL );	}
 
 	bool						is_Valid				(void)		{	return( m_nModules > 0 );	}
 
 	wxString					Get_FileName			(void)		{	return( m_FileName );	}
 
-	class CModule *				Select					(const char *ModuleName);
-	class CModule *				Get_Selected			(void)		{	return( m_pSelected );	}
+	class CSG_Module *				Select					(const char *ModuleName);
+	class CSG_Module *				Get_Selected			(void)		{	return( m_pSelected );	}
 
 	bool						Execute					(int argc, char *argv[]);
 
-	bool						Get_Parameters			(class CParameters *pParameters);
-	bool						Add_DataObject			(class CDataObject *pObject);
+	bool						Get_Parameters			(class CSG_Parameters *pParameters);
+	bool						Add_DataObject			(class CSG_Data_Object *pObject);
 
 
 private:
 
 	int							m_nModules;
 
-	class CModule				**m_Modules, *m_pSelected;
+	class CSG_Module				**m_Modules, *m_pSelected;
 
 	wxString					m_FileName;
 
@@ -117,14 +117,14 @@ private:
 	class wxCmdLineParser		*m_pCMD;
 
 
-	void						_Set_CMD				(class CParameters *pParameters, bool bExtra);
-	bool						_Get_CMD				(class CParameters *pParameters);
+	void						_Set_CMD				(class CSG_Parameters *pParameters, bool bExtra);
+	bool						_Get_CMD				(class CSG_Parameters *pParameters);
 
-	bool						_Create_DataObjects		(class CParameters *pParameters);
-	bool						_Create_DataObject_List	(class CParameter *pParameter, wxString sList);
+	bool						_Create_DataObjects		(class CSG_Parameters *pParameters);
+	bool						_Create_DataObject_List	(class CSG_Parameter *pParameter, wxString sList);
 
 	bool						_Destroy_DataObjects	(bool bSave);
-	bool						_Destroy_DataObjects	(bool bSave, class CParameters *pParameters);
+	bool						_Destroy_DataObjects	(bool bSave, class CSG_Parameters *pParameters);
 
 };
 

@@ -103,7 +103,7 @@ CWKSP_Module_Library::CWKSP_Module_Library(const char *FileName)
 
 	wxString	sPath;
 	wxFileName	fName(FileName);
-	CModule		*pModule;
+	CSG_Module		*pModule;
 
 	m_pInterface	= NULL;
 

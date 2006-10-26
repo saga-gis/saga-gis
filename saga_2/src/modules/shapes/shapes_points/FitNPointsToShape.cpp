@@ -60,8 +60,8 @@ CFitNPointsToShape::~CFitNPointsToShape(void)
 
 bool CFitNPointsToShape::On_Execute(void){
 
-	CShapes *pShapes, *pPoints;
-	CShape *pShape, *pShape2;		
+	CSG_Shapes *pShapes, *pPoints;
+	CSG_Shape *pShape, *pShape2;		
 	bool bCopy;
 	int iPoints;
 	int iPointsIn = 0;
@@ -94,12 +94,12 @@ bool CFitNPointsToShape::On_Execute(void){
 		iRep = 0;
 
 		pShape = pShapes->Get_Selection(i);	
-		dArea = ((CShape_Polygon*)pShape)->Get_Area();
+		dArea = ((CSG_Shape_Polygon*)pShape)->Get_Area();
 		dDist = sqrt(dArea / (double) iPoints);
 		dDistInf = sqrt(dArea / (double) (iPoints + 2));
 		dDistSup = sqrt(dArea / (double) (iPoints - min(2, iPoints-1)));
 		
-		Extent = ((CShape_Polygon*)pShape)->Get_Extent();
+		Extent = ((CSG_Shape_Polygon*)pShape)->Get_Extent();
 
 		bFirstTime = true;
 		do{
@@ -112,7 +112,7 @@ bool CFitNPointsToShape::On_Execute(void){
 			iRep++;	
 			for (x=Extent.xMin; x<Extent.xMax; x=x+dDist){
 				for (y=Extent.yMin; y<Extent.yMax; y=y+dDist){ 
-					if (((CShape_Polygon*)pShape)->is_Containing(x,y)){
+					if (((CSG_Shape_Polygon*)pShape)->is_Containing(x,y)){
 						pShape2 = pPoints->Add_Shape();
 						pShape2->Add_Point(x,y);
 						pShape2->Get_Record()->Set_Value(0, x);

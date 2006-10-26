@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPolygon_Centroids : public CModule  
+class CPolygon_Centroids : public CSG_Module  
 {
 public:
 	CPolygon_Centroids(void);

@@ -47,10 +47,10 @@ CRealArea::~CRealArea(void)
 
 bool CRealArea::On_Execute(void){
 	
-	CGrid* pDEM = Parameters("DEM")->asGrid(); 
-	CGrid* pArea = Parameters("AREA")->asGrid();
-	CGrid* pSlope = new CGrid(pDEM);
-	CGrid* pAspect = new CGrid(pDEM);
+	CSG_Grid* pDEM = Parameters("DEM")->asGrid(); 
+	CSG_Grid* pArea = Parameters("AREA")->asGrid();
+	CSG_Grid* pSlope = new CSG_Grid(pDEM);
+	CSG_Grid* pAspect = new CSG_Grid(pDEM);
 	double fArea;
 	double fCellArea = pDEM->Get_Cellsize() * pDEM->Get_Cellsize();
 

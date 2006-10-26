@@ -25,11 +25,11 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CStrahler : public CModule_Grid {
+class CStrahler : public CSG_Module_Grid {
 
 private:
-	CGrid *m_pDEM;
-	CGrid *m_pStrahler;
+	CSG_Grid *m_pDEM;
+	CSG_Grid *m_pStrahler;
 	int getStrahlerOrder(int, int);
 
 public:

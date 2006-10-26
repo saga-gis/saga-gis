@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CGenerate_Export::CGenerate_Export(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	Set_Name(_TL("Export Shapes to Generate"));
 
@@ -112,8 +112,8 @@ bool CGenerate_Export::On_Execute(void)
 	int				iShape, iPart, iPoint, iField;
 	FILE			*aus;
 	TSG_Point		Point;
-	CShape			*pShape;
-	CShapes			*pLayer;
+	CSG_Shape			*pShape;
+	CSG_Shapes			*pLayer;
 
 	if(	(pLayer = Parameters("SHAPES")->asShapes()) != NULL )
 	{

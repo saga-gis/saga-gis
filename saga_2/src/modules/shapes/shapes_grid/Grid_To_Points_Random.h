@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_To_Points_Random : public CModule_Grid  
+class CGrid_To_Points_Random : public CSG_Module_Grid  
 {
 public:
 	CGrid_To_Points_Random(void);

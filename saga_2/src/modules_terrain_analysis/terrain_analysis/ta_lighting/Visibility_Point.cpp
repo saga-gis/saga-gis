@@ -158,7 +158,7 @@ bool CVisibility_Point::On_Execute(void)
 }
 
 //---------------------------------------------------------
-bool CVisibility_Point::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CVisibility_Point::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
 {
 	int		x, y, x_Pos, y_Pos;
 

@@ -125,7 +125,7 @@ CWatersheds::~CWatersheds(void)
 bool CWatersheds::On_Execute(void)
 {
 	int		x, y, n, nCells, nCells_Min, nBasins;
-	CGrid	*pDTM, *pSeed, *pRoute;
+	CSG_Grid	*pDTM, *pSeed, *pRoute;
 
 	//-----------------------------------------------------
 	pDTM		= Parameters("ELEVATION")	->asGrid();

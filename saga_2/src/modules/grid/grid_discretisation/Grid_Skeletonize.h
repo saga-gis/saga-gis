@@ -68,7 +68,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CGrid_Skeletonize : public CModule_Grid
+class CGrid_Skeletonize : public CSG_Module_Grid
 {
 public:
 	CGrid_Skeletonize(void);
@@ -82,21 +82,21 @@ protected:
 
 private:
 
-	CGrid				*pResult;
+	CSG_Grid				*pResult;
 
 
-	int					Get_Neighbours(int x, int y, CGrid *pGrid, bool Neighbours[8]);
+	int					Get_Neighbours(int x, int y, CSG_Grid *pGrid, bool Neighbours[8]);
 
-	int					Vectorize(CShapes *pShapes);
-	bool				Vectorize_Trace(int x, int y, CShape *pShape);
+	int					Vectorize(CSG_Shapes *pShapes);
+	bool				Vectorize_Trace(int x, int y, CSG_Shape *pShape);
 
 	void				Standard_Execute(void);
-	int					Standard_Step(int iDir, CGrid *pPrev, CGrid *pNext);
+	int					Standard_Step(int iDir, CSG_Grid *pPrev, CSG_Grid *pNext);
 	bool				Standard_Check(int iDir, bool z[8]);
 
 	void				Hilditch_Execute(void);
-	int					Hilditch_Step(CGrid *pPrev, CGrid *pNext, CGrid *pNC_Gaps);
-	bool				Hilditch_Check(CGrid *pNC_Gaps, int x, int y, int i0, bool z[8]);
+	int					Hilditch_Step(CSG_Grid *pPrev, CSG_Grid *pNext, CSG_Grid *pNC_Gaps);
+	bool				Hilditch_Check(CSG_Grid *pNC_Gaps, int x, int y, int i0, bool z[8]);
 
 	void				SK_Execute(void);
 	int					SK_Connectivity(int NB[8]);

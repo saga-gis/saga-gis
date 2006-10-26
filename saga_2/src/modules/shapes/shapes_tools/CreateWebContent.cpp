@@ -21,7 +21,7 @@
 
 CCreateWebContent::CCreateWebContent(void)
 {
-	CParameter *pNode;
+	CSG_Parameter *pNode;
 	
 	//-----------------------------------------------------
 	Parameters.Set_Name(_TL("Create Web Content"));
@@ -71,7 +71,7 @@ bool CCreateWebContent::On_Execute(void)
 	return true ;
 }
 
-bool CCreateWebContent::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CCreateWebContent::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
 {
 	int i;
 	int iIndex, iShape;
@@ -110,7 +110,7 @@ bool CCreateWebContent::On_Execute_Position(CSG_Point ptWorld, TModule_Interacti
 
 		CSG_String	sFileName;
 		CSG_Strings	files;
-		CParameters	dlg_files;
+		CSG_Parameters	dlg_files;
 		dlg_files.Add_FilePath(NULL, "FILES", _TL("Files"), "", _TL("Images|*.bmp;*.jpg;*.png;*.tif|HTML Files|*.htm|All Files|*.*"), NULL, false, false, true);
 
 		if( Dlg_Parameters(&dlg_files, _TL("Add Link to Files")) && dlg_files("FILES")->asFilePath()->Get_FilePaths(files) )
@@ -148,7 +148,7 @@ bool CCreateWebContent::On_Execute_Finish(void){
 
 	int i,j;
 	CSG_String sFileName;
-	CDoc_HTML HTMLDoc;
+	CSG_Doc_HTML HTMLDoc;
 
 	for (i = 0; i < m_pShapes->Get_Count(); i++){
 		Set_Progress(i, m_pShapes->Get_Count());

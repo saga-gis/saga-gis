@@ -127,7 +127,7 @@ CGrid_Values_AddTo_Shapes::~CGrid_Values_AddTo_Shapes(void)
 bool CGrid_Values_AddTo_Shapes::On_Execute(void)
 {
 	int			iGrid, iShape;
-	CShapes		*pShapes;
+	CSG_Shapes		*pShapes;
 
 	//-----------------------------------------------------
 	pGrids		= Parameters("GRIDS")->asGridList();
@@ -186,13 +186,13 @@ bool CGrid_Values_AddTo_Shapes::On_Execute(void)
 }
 
 //---------------------------------------------------------
-void CGrid_Values_AddTo_Shapes::Get_Data_Point(CShape *pShape)
+void CGrid_Values_AddTo_Shapes::Get_Data_Point(CSG_Shape *pShape)
 {
 	int			iPart, iPoint, nValues, iGrid, Interpolation = 1;
 	double		Value_Sum;
 	TSG_Point	Point;
-	CGrid		*pGrid;
-	CShape		*pShape_Result;
+	CSG_Grid		*pGrid;
+	CSG_Shape		*pShape_Result;
 
 	pShape_Result	= pResult->Add_Shape();
 
@@ -234,11 +234,11 @@ void CGrid_Values_AddTo_Shapes::Get_Data_Point(CShape *pShape)
 }
 
 //---------------------------------------------------------
-void CGrid_Values_AddTo_Shapes::Get_Data_Line(CShape *pShape)
+void CGrid_Values_AddTo_Shapes::Get_Data_Line(CSG_Shape *pShape)
 {
 }
 
 //---------------------------------------------------------
-void CGrid_Values_AddTo_Shapes::Get_Data_Polygon(CShape *pShape)
+void CGrid_Values_AddTo_Shapes::Get_Data_Polygon(CSG_Shape *pShape)
 {
 }

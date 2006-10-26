@@ -24,30 +24,30 @@
 #include "MLB_Interface.h"
 #include "fireLib.h"
 
-class CSimulate : public CModule_Grid {
+class CSimulate : public CSG_Module_Grid {
 
 private:
 
-	CGrid *m_pDEM;    
-    CGrid *m_pIgnGrid;           /* ptr to ignition time map (minutes) */
-    CGrid *m_pWindSpdGrid;       /* ptr to wind speed map (m/s) */
-    CGrid *m_pWindDirGrid;       /* ptr to wind direction map (deg from north) */
-    CGrid *m_pM1Grid;            /* ptr to 1-hr dead fuel moisture map */
-    CGrid *m_pM10Grid;           /* ptr to 10-hr dead fuel moisture map */
-    CGrid *m_pM100Grid;          /* ptr to 100-hr dead fuel moisture map */
-    CGrid *m_pMHerbGrid;         /* ptr to live herbaceous fuel moisture map */
-    CGrid *m_pMWoodGrid;         /* ptr to live stem fuel moisture map */
-	CGrid *m_pFuelGrid;          /* ptr to fuel model map */
-	CGrid *m_pValueGrid;
+	CSG_Grid *m_pDEM;    
+    CSG_Grid *m_pIgnGrid;           /* ptr to ignition time map (minutes) */
+    CSG_Grid *m_pWindSpdGrid;       /* ptr to wind speed map (m/s) */
+    CSG_Grid *m_pWindDirGrid;       /* ptr to wind direction map (deg from north) */
+    CSG_Grid *m_pM1Grid;            /* ptr to 1-hr dead fuel moisture map */
+    CSG_Grid *m_pM10Grid;           /* ptr to 10-hr dead fuel moisture map */
+    CSG_Grid *m_pM100Grid;          /* ptr to 100-hr dead fuel moisture map */
+    CSG_Grid *m_pMHerbGrid;         /* ptr to live herbaceous fuel moisture map */
+    CSG_Grid *m_pMWoodGrid;         /* ptr to live stem fuel moisture map */
+	CSG_Grid *m_pFuelGrid;          /* ptr to fuel model map */
+	CSG_Grid *m_pValueGrid;
 
-	CGrid *m_pFlameGrid;         /* ptr to flame length map (m) */
-	CGrid *m_pIntensityGrid;     
+	CSG_Grid *m_pFlameGrid;         /* ptr to flame length map (m) */
+	CSG_Grid *m_pIntensityGrid;     
 
-    CGrid *m_pSlopeGrid;         /* ptr to slope map (rise/reach) */
-    CGrid *m_pAspectGrid;        /* ptr to aspect map (degrees from north) */
+    CSG_Grid *m_pSlopeGrid;         /* ptr to slope map (rise/reach) */
+    CSG_Grid *m_pAspectGrid;        /* ptr to aspect map (degrees from north) */
 
-	CGrid *m_pTimeGrid;
-	//CGrid *m_pVolatileTimeGrid;
+	CSG_Grid *m_pTimeGrid;
+	//CSG_Grid *m_pVolatileTimeGrid;
 	
 	FuelCatalogPtr m_Catalog;    /* fuel catalog handle */
 

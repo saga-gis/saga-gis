@@ -109,7 +109,7 @@ bool CPROJ4_Base::Initialize(void)
 //	struct PJ_DATUMS	*pDatums;
 	struct PJ_UNITS		*pUnits;
 	CSG_String			sList, sName, sDesc;
-	CParameter			*pNode_0, *pNode_1, *pNode_2, *pNode_3;
+	CSG_Parameter			*pNode_0, *pNode_1, *pNode_2, *pNode_3;
 
 	//-----------------------------------------------------
 	if( !bInitialized )
@@ -320,7 +320,7 @@ bool CPROJ4_Base::Initialize(void)
 //---------------------------------------------------------
 bool CPROJ4_Base::Initialize_ExtraParms(struct PJ_LIST *pProjection, const char *sName)
 {
-	CParameters	*pParms;
+	CSG_Parameters	*pParms;
 
 	pParms	= Add_Extra_Parameters(pProjection->id, sName, *pProjection->descr);
 
@@ -685,8 +685,8 @@ bool CPROJ4_Base::Get_ExtraParms(int &pargc, char ***p_pargv, char *id)
 	char		**pargv;
 	int			i;
 	CSG_String	s, sFormat;
-	CParameters	*pParms;
-	CParameter	*pParm;
+	CSG_Parameters	*pParms;
+	CSG_Parameter	*pParm;
 
 	if( (pParms = Get_Extra_Parameters(id)) != NULL && pParms->Get_Count() > 0 )
 	{

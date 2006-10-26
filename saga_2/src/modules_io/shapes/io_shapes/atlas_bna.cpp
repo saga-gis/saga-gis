@@ -104,8 +104,8 @@ bool CAtlas_BNA_Import::On_Execute(void)
 	double			x, y;
 	FILE			*Stream;
 	CSG_String		FileName, sLine, sName1, sName2;
-	CShape			*pShape;
-	CShapes			*pPoints, *pLines, *pPolygons;
+	CSG_Shape			*pShape;
+	CSG_Shapes			*pPoints, *pLines, *pPolygons;
 
 	//-----------------------------------------------------
 	FileName	= Parameters("FILE")	->asString();
@@ -237,7 +237,7 @@ CAtlas_BNA_Export::CAtlas_BNA_Export(void)
 	//-----------------------------------------------------
 	// 2. Parameters...
 
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES"	, _TL("Shapes"),
@@ -274,8 +274,8 @@ bool CAtlas_BNA_Export::On_Execute(void)
 	FILE		*Stream;
 	TSG_Point	p;
 	CSG_Points	Pts;
-	CShape		*pShape;
-	CShapes		*pShapes;
+	CSG_Shape		*pShape;
+	CSG_Shapes		*pShapes;
 
 	//-----------------------------------------------------
 	pShapes	= Parameters("SHAPES")	->asShapes();

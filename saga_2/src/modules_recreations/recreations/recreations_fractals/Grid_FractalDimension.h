@@ -58,7 +58,7 @@
 
 #include "MLB_Interface.h"
 
-class CGrid_FractalDimension : public CModule_Grid
+class CGrid_FractalDimension : public CSG_Module_Grid
 {
 public:
 	CGrid_FractalDimension(void);
@@ -76,7 +76,7 @@ private:
 
 	double					*dimAreas;
 
-	CGrid					*pGrid;
+	CSG_Grid					*pGrid;
 
 
 	void					Get_Surface(int Step);

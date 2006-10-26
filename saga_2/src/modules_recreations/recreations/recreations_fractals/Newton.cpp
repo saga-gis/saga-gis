@@ -250,7 +250,7 @@ bool CNewton::doNewton()
 
 
 
-bool CNewton::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CNewton::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
 {
 	//-----------------------------------------------------
 	if(	Mode != MODULE_INTERACTIVE_LDOWN && Mode != MODULE_INTERACTIVE_RDOWN )

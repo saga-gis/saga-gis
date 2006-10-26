@@ -23,15 +23,15 @@
 
 #include "MLB_Interface.h"
 
-class CFlowDepth : public CModule_Grid_Interactive {
+class CFlowDepth : public CSG_Module_Grid_Interactive {
 
 private:
-	CGrid *m_pDEM;
-	CGrid *m_pFlowDepth;
-	CGrid *m_pCatchArea;	
-	CGrid *m_pSlope;
-	CGrid *m_pAspect;
-	CGrid *m_pBasinGrid;
+	CSG_Grid *m_pDEM;
+	CSG_Grid *m_pFlowDepth;
+	CSG_Grid *m_pCatchArea;	
+	CSG_Grid *m_pSlope;
+	CSG_Grid *m_pAspect;
+	CSG_Grid *m_pBasinGrid;
 	double m_fMaxFlowAcc;
 	double m_dThreshold;
 	double m_dFlow;
@@ -47,7 +47,7 @@ public:
 protected:
 	virtual bool On_Execute(void);
 	virtual bool On_Execute_Finish();
-	virtual bool On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
+	virtual bool On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
 
 	
 

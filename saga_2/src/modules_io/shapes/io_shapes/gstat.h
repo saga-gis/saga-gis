@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGStat_Export : public CModule  
+class CGStat_Export : public CSG_Module  
 {
 public:
 	CGStat_Export(void);
@@ -98,7 +98,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGStat_Import : public CModule  
+class CGStat_Import : public CSG_Module  
 {
 public:
 	CGStat_Import(void);

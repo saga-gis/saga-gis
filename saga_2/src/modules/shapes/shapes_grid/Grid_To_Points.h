@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_To_Points : public CModule_Grid
+class CGrid_To_Points : public CSG_Module_Grid
 {
 public:
 	CGrid_To_Points(void);
@@ -93,7 +93,7 @@ protected:
 
 private:
 
-	bool				is_Contained	(double x, double y, CShapes *pPolygons);
+	bool				is_Contained	(double x, double y, CSG_Shapes *pPolygons);
 
 };
 

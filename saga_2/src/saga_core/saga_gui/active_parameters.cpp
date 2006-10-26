@@ -291,7 +291,7 @@ bool CACTIVE_Parameters::Set_Parameters(CWKSP_Base_Item *pItem)
 }
 
 //---------------------------------------------------------
-bool CACTIVE_Parameters::Update_Parameters(CParameters *pParameters, bool bSave)
+bool CACTIVE_Parameters::Update_Parameters(CSG_Parameters *pParameters, bool bSave)
 {
 	if( pParameters && m_pItem && m_pItem->Get_Parameters() == pParameters )
 	{

@@ -70,14 +70,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CModule_Library_Interface::CModule_Library_Interface(void)
+CSG_Module_Library_Interface::CSG_Module_Library_Interface(void)
 {
 	m_nModules	= 0;
 	m_Modules	= NULL;
 }
 
 //---------------------------------------------------------
-CModule_Library_Interface::~CModule_Library_Interface(void)
+CSG_Module_Library_Interface::~CSG_Module_Library_Interface(void)
 {
 	if( m_Modules && m_nModules > 0 )
 	{
@@ -98,13 +98,13 @@ CModule_Library_Interface::~CModule_Library_Interface(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CModule_Library_Interface::Set_Info(int ID, const char *Info)
+void CSG_Module_Library_Interface::Set_Info(int ID, const char *Info)
 {
 	m_Info[ID]	= Get_Translation(Info);
 }
 
 //---------------------------------------------------------
-const char * CModule_Library_Interface::Get_Info(int ID)
+const char * CSG_Module_Library_Interface::Get_Info(int ID)
 {
 	return( m_Info[ID] );
 }
@@ -117,20 +117,20 @@ const char * CModule_Library_Interface::Get_Info(int ID)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CModule_Library_Interface::Get_Count(void)
+int CSG_Module_Library_Interface::Get_Count(void)
 {
 	return( m_nModules );
 }
 
 //---------------------------------------------------------
-bool CModule_Library_Interface::Add_Module(CModule *pModule)
+bool CSG_Module_Library_Interface::Add_Module(CSG_Module *pModule)
 {
 	if( pModule )
 	{
 		pModule->Set_Managed(true);
 		pModule->Set_Translation(m_Translator);
 
-		m_Modules				= (CModule **)SG_Realloc(m_Modules, (m_nModules + 1) * sizeof(CModule *));
+		m_Modules				= (CSG_Module **)SG_Realloc(m_Modules, (m_nModules + 1) * sizeof(CSG_Module *));
 		m_Modules[m_nModules++]	= pModule;
 
 		return( true );
@@ -140,7 +140,7 @@ bool CModule_Library_Interface::Add_Module(CModule *pModule)
 }
 
 //---------------------------------------------------------
-CModule * CModule_Library_Interface::Get_Module(int iModule)
+CSG_Module * CSG_Module_Library_Interface::Get_Module(int iModule)
 {
 	if( iModule >= 0 && iModule < m_nModules )
 	{
@@ -158,7 +158,7 @@ CModule * CModule_Library_Interface::Get_Module(int iModule)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CModule_Library_Interface::Set_File_Name(const char *File_Name)
+void CSG_Module_Library_Interface::Set_File_Name(const char *File_Name)
 {
 	m_File_Name	= File_Name;
 
@@ -166,7 +166,7 @@ void CModule_Library_Interface::Set_File_Name(const char *File_Name)
 }
 
 //---------------------------------------------------------
-const char * CModule_Library_Interface::Get_File_Name(void)
+const char * CSG_Module_Library_Interface::Get_File_Name(void)
 {
 	return( m_File_Name );
 }
@@ -179,7 +179,7 @@ const char * CModule_Library_Interface::Get_File_Name(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char * CModule_Library_Interface::Get_Translation(const char *Text)
+const char * CSG_Module_Library_Interface::Get_Translation(const char *Text)
 {
 	return( m_Translator.Get_Translation(Text) );
 }

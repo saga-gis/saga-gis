@@ -71,7 +71,7 @@
 //---------------------------------------------------------
 CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Set_Name(_TL("Reclassify Grid Values"));
@@ -223,8 +223,8 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 	);
 
 	//-----------------------------------------------------
-	CTable			*pLookup;
-	CTable_Record	*pRecord;
+	CSG_Table			*pLookup;
+	CSG_Table_Record	*pRecord;
 
 	pLookup	= Parameters("RETAB")->asTable();
 
@@ -437,8 +437,8 @@ bool CGrid_Value_Reclassify::ReclassTable(void)
 	int				n, x, y, opera, recCount, count[127];
 	double			min[127], max[127], code[127], value, others, noData, noDataValue;
 
-	CTable			*pReTab;
-	CTable_Record	*pRecord = NULL;
+	CSG_Table			*pReTab;
+	CSG_Table_Record	*pRecord = NULL;
 
 
 	pReTab		= Parameters("RETAB")->asTable();

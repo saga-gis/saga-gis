@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTIN_Gradient : public CModule
+class CTIN_Gradient : public CSG_Module
 {
 public:
 	CTIN_Gradient(void);

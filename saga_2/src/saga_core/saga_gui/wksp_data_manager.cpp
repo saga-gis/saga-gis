@@ -140,7 +140,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	}
 
 	//-----------------------------------------------------
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	m_Parameters.Create(this, "", "");
 
@@ -469,7 +469,7 @@ void CWKSP_Data_Manager::Parameters_Changed(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Data_Manager::Check_Parameters(CParameters *pParameters)
+bool CWKSP_Data_Manager::Check_Parameters(CSG_Parameters *pParameters)
 {
 	if( pParameters )
 	{
@@ -485,7 +485,7 @@ bool CWKSP_Data_Manager::Check_Parameters(CParameters *pParameters)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Data_Manager::Check_Parameter(CParameter *pParameter)
+bool CWKSP_Data_Manager::Check_Parameter(CSG_Parameter *pParameter)
 {
 	bool	bResult	= true;
 	int		i, DataObject_Type;
@@ -626,7 +626,7 @@ bool CWKSP_Data_Manager::Open(int DataType)
 //---------------------------------------------------------
 CWKSP_Base_Item * CWKSP_Data_Manager::Open(int DataType, const char *FileName)
 {
-	CDataObject		*pObject;
+	CSG_Data_Object		*pObject;
 	CWKSP_Base_Item	*pItem;
 
 	switch( DataType )
@@ -636,19 +636,19 @@ CWKSP_Base_Item * CWKSP_Data_Manager::Open(int DataType, const char *FileName)
 		break;
 
 	case DATAOBJECT_TYPE_Table:
-		pObject	= new CTable (FileName);
+		pObject	= new CSG_Table (FileName);
 		break;
 
 	case DATAOBJECT_TYPE_Shapes:
-		pObject	= new CShapes(FileName);
+		pObject	= new CSG_Shapes(FileName);
 		break;
 
 	case DATAOBJECT_TYPE_TIN:
-		pObject	= new CTIN   (FileName);
+		pObject	= new CSG_TIN   (FileName);
 		break;
 
 	case DATAOBJECT_TYPE_Grid:
-		pObject	= new CGrid  (FileName);
+		pObject	= new CSG_Grid  (FileName);
 		break;
 	}
 
@@ -679,27 +679,27 @@ CWKSP_Base_Item * CWKSP_Data_Manager::Open(int DataType, const char *FileName)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Data_Manager::Exists(CGrid_System *pSystem)
+bool CWKSP_Data_Manager::Exists(CSG_Grid_System *pSystem)
 {
 	return( m_pGrids && m_pGrids->Exists(pSystem) );
 }
 
 //---------------------------------------------------------
-bool CWKSP_Data_Manager::Exists(CDataObject *pObject, int Type)
+bool CWKSP_Data_Manager::Exists(CSG_Data_Object *pObject, int Type)
 {
 	switch( Type )
 	{
 	case DATAOBJECT_TYPE_Grid:
-		return( m_pGrids  && m_pGrids ->Exists((CGrid   *)pObject) );
+		return( m_pGrids  && m_pGrids ->Exists((CSG_Grid   *)pObject) );
 
 	case DATAOBJECT_TYPE_Table:
-		return( m_pTables && m_pTables->Exists((CTable  *)pObject) );
+		return( m_pTables && m_pTables->Exists((CSG_Table  *)pObject) );
 
 	case DATAOBJECT_TYPE_Shapes:
-		return( m_pShapes && m_pShapes->Exists((CShapes *)pObject) );
+		return( m_pShapes && m_pShapes->Exists((CSG_Shapes *)pObject) );
 
 	case DATAOBJECT_TYPE_TIN:
-		return( m_pTINs   && m_pTINs  ->Exists((CTIN    *)pObject) );
+		return( m_pTINs   && m_pTINs  ->Exists((CSG_TIN    *)pObject) );
 	}
 
 	return(	Exists(pObject, DATAOBJECT_TYPE_Table)
@@ -710,7 +710,7 @@ bool CWKSP_Data_Manager::Exists(CDataObject *pObject, int Type)
 }
 
 //---------------------------------------------------------
-CDataObject * CWKSP_Data_Manager::Get_byFileName(const char *File_Name, int Type)
+CSG_Data_Object * CWKSP_Data_Manager::Get_byFileName(const char *File_Name, int Type)
 {
 	switch( Type )
 	{
@@ -727,7 +727,7 @@ CDataObject * CWKSP_Data_Manager::Get_byFileName(const char *File_Name, int Type
 		return( !m_pTINs   ? NULL : m_pTINs  ->Get_byFileName(File_Name) );
 	}
 
-	CDataObject	*pObject;
+	CSG_Data_Object	*pObject;
 
 	if( (pObject = Get_byFileName(File_Name, DATAOBJECT_TYPE_Table))  != NULL )	return( pObject );
 	if( (pObject = Get_byFileName(File_Name, DATAOBJECT_TYPE_Shapes)) != NULL )	return( pObject );
@@ -777,23 +777,23 @@ bool CWKSP_Data_Manager::Close(bool bSilent)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Base_Item * CWKSP_Data_Manager::Add(CDataObject *pObject)
+CWKSP_Base_Item * CWKSP_Data_Manager::Add(CSG_Data_Object *pObject)
 {
 	if( pObject && _Get_Manager(pObject->Get_ObjectType()) )
 	{
 		switch( pObject->Get_ObjectType() )
 		{
 		case DATAOBJECT_TYPE_Grid:
-			return( (CWKSP_Base_Item *)m_pGrids ->Add((CGrid   *)pObject) );
+			return( (CWKSP_Base_Item *)m_pGrids ->Add((CSG_Grid   *)pObject) );
 
 		case DATAOBJECT_TYPE_Table:
-			return( (CWKSP_Base_Item *)m_pTables->Add((CTable  *)pObject) );
+			return( (CWKSP_Base_Item *)m_pTables->Add((CSG_Table  *)pObject) );
 
 		case DATAOBJECT_TYPE_Shapes:
-			return( (CWKSP_Base_Item *)m_pShapes->Add((CShapes *)pObject) );
+			return( (CWKSP_Base_Item *)m_pShapes->Add((CSG_Shapes *)pObject) );
 
 		case DATAOBJECT_TYPE_TIN:
-			return( (CWKSP_Base_Item *)m_pTINs  ->Add((CTIN    *)pObject) );
+			return( (CWKSP_Base_Item *)m_pTINs  ->Add((CSG_TIN    *)pObject) );
 			
 		default:
 			return( NULL );
@@ -874,23 +874,23 @@ bool CWKSP_Data_Manager::_Get_Manager(int DataType)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Data_Manager::Update(CDataObject *pObject, CParameters *pParameters)
+bool CWKSP_Data_Manager::Update(CSG_Data_Object *pObject, CSG_Parameters *pParameters)
 {
 	if( pObject )
 	{
 		switch( pObject->Get_ObjectType() )
 		{
 		case DATAOBJECT_TYPE_Grid:
-			return( m_pGrids  && m_pGrids ->Update((CGrid   *)pObject, pParameters) );
+			return( m_pGrids  && m_pGrids ->Update((CSG_Grid   *)pObject, pParameters) );
 
 		case DATAOBJECT_TYPE_Table:
-			return( m_pTables && m_pTables->Update((CTable  *)pObject, pParameters) );
+			return( m_pTables && m_pTables->Update((CSG_Table  *)pObject, pParameters) );
 
 		case DATAOBJECT_TYPE_Shapes:
-			return( m_pShapes && m_pShapes->Update((CShapes *)pObject, pParameters) );
+			return( m_pShapes && m_pShapes->Update((CSG_Shapes *)pObject, pParameters) );
 
 		case DATAOBJECT_TYPE_TIN:
-			return( m_pTINs   && m_pTINs  ->Update((CTIN    *)pObject, pParameters) );
+			return( m_pTINs   && m_pTINs  ->Update((CSG_TIN    *)pObject, pParameters) );
 
 		default:
 			break;
@@ -901,23 +901,23 @@ bool CWKSP_Data_Manager::Update(CDataObject *pObject, CParameters *pParameters)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Data_Manager::Update_Views(CDataObject *pObject)
+bool CWKSP_Data_Manager::Update_Views(CSG_Data_Object *pObject)
 {
 	if( pObject )
 	{
 		switch( pObject->Get_ObjectType() )
 		{
 		case DATAOBJECT_TYPE_Grid:
-			return( m_pGrids  && m_pGrids ->Update_Views((CGrid   *)pObject) );
+			return( m_pGrids  && m_pGrids ->Update_Views((CSG_Grid   *)pObject) );
 
 		case DATAOBJECT_TYPE_Table:
-			return( m_pTables && m_pTables->Update_Views((CTable  *)pObject) );
+			return( m_pTables && m_pTables->Update_Views((CSG_Table  *)pObject) );
 
 		case DATAOBJECT_TYPE_Shapes:
-			return( m_pShapes && m_pShapes->Update_Views((CShapes *)pObject) );
+			return( m_pShapes && m_pShapes->Update_Views((CSG_Shapes *)pObject) );
 
 		case DATAOBJECT_TYPE_TIN:
-			return( m_pTINs   && m_pTINs  ->Update_Views((CTIN    *)pObject) );
+			return( m_pTINs   && m_pTINs  ->Update_Views((CSG_TIN    *)pObject) );
 
 		default:
 			break;
@@ -935,23 +935,23 @@ bool CWKSP_Data_Manager::Update_Views(CDataObject *pObject)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Data_Manager::Show(CDataObject *pObject)
+bool CWKSP_Data_Manager::Show(CSG_Data_Object *pObject)
 {
 	if( pObject )
 	{
 		switch( pObject->Get_ObjectType() )
 		{
 		case DATAOBJECT_TYPE_Grid:
-			return( m_pGrids  && m_pGrids ->Show((CGrid   *)pObject) );
+			return( m_pGrids  && m_pGrids ->Show((CSG_Grid   *)pObject) );
 
 		case DATAOBJECT_TYPE_Table:
-			return( m_pTables && m_pTables->Show((CTable  *)pObject) );
+			return( m_pTables && m_pTables->Show((CSG_Table  *)pObject) );
 
 		case DATAOBJECT_TYPE_Shapes:
-			return( m_pShapes && m_pShapes->Show((CShapes *)pObject) );
+			return( m_pShapes && m_pShapes->Show((CSG_Shapes *)pObject) );
 
 		case DATAOBJECT_TYPE_TIN:
-			return( m_pTINs   && m_pTINs  ->Show((CTIN    *)pObject) );
+			return( m_pTINs   && m_pTINs  ->Show((CSG_TIN    *)pObject) );
 
 		default:
 			break;
@@ -962,20 +962,20 @@ bool CWKSP_Data_Manager::Show(CDataObject *pObject)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Data_Manager::asImage(CDataObject *pObject, CGrid *pImage)
+bool CWKSP_Data_Manager::asImage(CSG_Data_Object *pObject, CSG_Grid *pImage)
 {
 	if( pObject )
 	{
 		switch( pObject->Get_ObjectType() )
 		{
 		case DATAOBJECT_TYPE_Grid:
-			return( m_pGrids  && m_pGrids ->asImage((CGrid   *)pObject, pImage) );
+			return( m_pGrids  && m_pGrids ->asImage((CSG_Grid   *)pObject, pImage) );
 
 		case DATAOBJECT_TYPE_Shapes:
-			return( m_pShapes && m_pShapes->asImage((CShapes *)pObject, pImage) );
+			return( m_pShapes && m_pShapes->asImage((CSG_Shapes *)pObject, pImage) );
 
 		case DATAOBJECT_TYPE_TIN:
-			return( m_pTINs   && m_pTINs  ->asImage((CTIN    *)pObject, pImage) );
+			return( m_pTINs   && m_pTINs  ->asImage((CSG_TIN    *)pObject, pImage) );
 
 		default:
 			break;
@@ -986,20 +986,20 @@ bool CWKSP_Data_Manager::asImage(CDataObject *pObject, CGrid *pImage)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Data_Manager::Get_Colors(CDataObject *pObject, CSG_Colors *pColors)
+bool CWKSP_Data_Manager::Get_Colors(CSG_Data_Object *pObject, CSG_Colors *pColors)
 {
 	if( pObject && pColors )
 	{
 		switch( pObject->Get_ObjectType() )
 		{
 		case DATAOBJECT_TYPE_Grid:
-			return( m_pGrids ->Get_Colors((CGrid   *)pObject, pColors) );
+			return( m_pGrids ->Get_Colors((CSG_Grid   *)pObject, pColors) );
 
 		case DATAOBJECT_TYPE_Shapes:
-			return( m_pShapes->Get_Colors((CShapes *)pObject, pColors) );
+			return( m_pShapes->Get_Colors((CSG_Shapes *)pObject, pColors) );
 
 		case DATAOBJECT_TYPE_TIN:
-			return( m_pTINs  ->Get_Colors((CTIN    *)pObject, pColors) );
+			return( m_pTINs  ->Get_Colors((CSG_TIN    *)pObject, pColors) );
 
 		default:
 			break;
@@ -1010,20 +1010,20 @@ bool CWKSP_Data_Manager::Get_Colors(CDataObject *pObject, CSG_Colors *pColors)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Data_Manager::Set_Colors(CDataObject *pObject, CSG_Colors *pColors)
+bool CWKSP_Data_Manager::Set_Colors(CSG_Data_Object *pObject, CSG_Colors *pColors)
 {
 	if( pObject && pColors )
 	{
 		switch( pObject->Get_ObjectType() )
 		{
 		case DATAOBJECT_TYPE_Grid:
-			return( m_pGrids ->Set_Colors((CGrid   *)pObject, pColors) );
+			return( m_pGrids ->Set_Colors((CSG_Grid   *)pObject, pColors) );
 
 		case DATAOBJECT_TYPE_Shapes:
-			return( m_pShapes->Set_Colors((CShapes *)pObject, pColors) );
+			return( m_pShapes->Set_Colors((CSG_Shapes *)pObject, pColors) );
 
 		case DATAOBJECT_TYPE_TIN:
-			return( m_pTINs  ->Set_Colors((CTIN    *)pObject, pColors) );
+			return( m_pTINs  ->Set_Colors((CSG_TIN    *)pObject, pColors) );
 
 		default:
 			break;
@@ -1048,7 +1048,7 @@ bool CWKSP_Data_Manager::Set_Colors(CDataObject *pObject, CSG_Colors *pColors)
 #include "wksp_table.h"
 
 //---------------------------------------------------------
-bool CWKSP_Data_Manager::Get_DataObject_List(CParameters *pParameters)
+bool CWKSP_Data_Manager::Get_DataObject_List(CSG_Parameters *pParameters)
 {
 	if( pParameters )
 	{

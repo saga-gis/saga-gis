@@ -330,7 +330,7 @@ bool CIsochronesVar::On_Execute_Finish()
 	return( true );
 }
 
-bool CIsochronesVar::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CIsochronesVar::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
 {
 	int iX, iY;
 

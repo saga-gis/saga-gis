@@ -70,8 +70,8 @@
 //---------------------------------------------------------
 CKriging_Base::CKriging_Base(void)
 {
-	CParameter	*pNode;
-	CParameters	*pParameters;
+	CSG_Parameter	*pNode;
+	CSG_Parameters	*pParameters;
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_Output(
@@ -394,8 +394,8 @@ double CKriging_Base::Get_Weight(double dx, double dy)
 bool CKriging_Base::_Get_Points(void)
 {
 	int		iShape, iPart, iPoint;
-	CShape	*pShape , *pPoint;
-	CShapes	*pPoints;
+	CSG_Shape	*pShape , *pPoint;
+	CSG_Shapes	*pPoints;
 
 	m_pShapes	= Parameters("SHAPES")	->asShapes();
 	m_zField	= Parameters("FIELD")	->asInt();
@@ -427,7 +427,7 @@ bool CKriging_Base::_Get_Points(void)
 //---------------------------------------------------------
 bool CKriging_Base::_Get_Grid(void)
 {
-	CShapes	*pShapes	= Parameters("SHAPES")->asShapes();
+	CSG_Shapes	*pShapes	= Parameters("SHAPES")->asShapes();
 
 	m_pGrid		= NULL;
 	m_pVariance	= NULL;
@@ -486,9 +486,9 @@ bool CKriging_Base::_Get_Grid(void)
 }
 
 //---------------------------------------------------------
-CGrid * CKriging_Base::_Get_Grid(TSG_Rect Extent)
+CSG_Grid * CKriging_Base::_Get_Grid(TSG_Rect Extent)
 {
-	CParameters	*P	= Get_Extra_Parameters("USER");
+	CSG_Parameters	*P	= Get_Extra_Parameters("USER");
 
 	if( !P->Get_Parameter("FIT_EXTENT")->asBool() )
 	{

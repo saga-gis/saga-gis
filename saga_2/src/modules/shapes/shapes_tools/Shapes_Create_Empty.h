@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CShapes_Create_Empty : public CModule  
+class CShapes_Create_Empty : public CSG_Module  
 {
 public:
 	CShapes_Create_Empty(void);

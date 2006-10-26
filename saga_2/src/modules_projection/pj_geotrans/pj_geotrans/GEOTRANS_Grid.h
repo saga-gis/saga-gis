@@ -85,17 +85,17 @@ protected:
 
 	virtual bool			On_Execute_Conversion	(void);
 
-	virtual int				On_Parameter_Changed	(CParameters *pParameters, CParameter *pParameter);
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
 private:
 
 	void					Get_MinMax				(double &xMin, double &xMax, double &yMin, double &yMax, TSG_Point Point);
-	CGrid *					Get_Target_Userdef		(CGrid *pSource, bool bNearest);
-	CGrid *					Get_Target_Autofit		(CGrid *pSource, double Grid_Size, int AutoExtMode, bool bNearest);
+	CSG_Grid *					Get_Target_Userdef		(CSG_Grid *pSource, bool bNearest);
+	CSG_Grid *					Get_Target_Autofit		(CSG_Grid *pSource, double Grid_Size, int AutoExtMode, bool bNearest);
 
-	bool					Set_Grid				(CGrid *pSource, CGrid   *pTarget, int Interpol);
-	bool					Set_Shapes				(CGrid *pSource, CShapes *pTarget);
+	bool					Set_Grid				(CSG_Grid *pSource, CSG_Grid   *pTarget, int Interpol);
+	bool					Set_Shapes				(CSG_Grid *pSource, CSG_Shapes *pTarget);
 
 };
 

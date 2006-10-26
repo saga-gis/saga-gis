@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Volume : public CModule_Grid  
+class CGrid_Volume : public CSG_Module_Grid  
 {
 public:
 	CGrid_Volume(void);

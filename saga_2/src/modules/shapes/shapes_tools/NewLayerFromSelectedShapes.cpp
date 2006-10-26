@@ -47,9 +47,9 @@ CNewLayerFromSelectedShapes::~CNewLayerFromSelectedShapes(void)
 bool CNewLayerFromSelectedShapes::On_Execute(void){
 
 	int i;
-	CShapes *pInput = Parameters("INPUT")->asShapes();
-	CShapes *pOutput; //= Parameters("OUTPUT")->asShapes();
-	CTable *pTable;
+	CSG_Shapes *pInput = Parameters("INPUT")->asShapes();
+	CSG_Shapes *pOutput; //= Parameters("OUTPUT")->asShapes();
+	CSG_Table *pTable;
 	CSG_String sName;
 
 	pTable	= &pInput->Get_Table();

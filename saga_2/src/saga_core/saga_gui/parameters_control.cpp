@@ -114,7 +114,7 @@ CParameters_Control::CParameters_Control(wxWindow *pParent, bool bDialog)
 				wxPGMAN_DEFAULT_STYLE
 			);
 
-	m_pParameters	= new CParameters();
+	m_pParameters	= new CSG_Parameters();
 	m_pOriginal		= NULL;
 
 	Set_Parameters(NULL);
@@ -241,7 +241,7 @@ bool CParameters_Control::Save(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CParameters_Control::Set_Parameters(CParameters *pParameters)
+bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 {
 //	m_pPG->Freeze();
 	m_pPG->Clear();
@@ -289,7 +289,7 @@ bool CParameters_Control::Set_Parameters(CParameters *pParameters)
 	pRoot	= pNode;
 
 //---------------------------------------------------------
-void CParameters_Control::_Add_Properties(CParameters *pParameters)
+void CParameters_Control::_Add_Properties(CSG_Parameters *pParameters)
 {
 	wxPGProperty	*pGrids, *pShapes, *pTables, *pTINs, *pOptions, *pData, *pRoot;
 
@@ -382,7 +382,7 @@ wxPGProperty * CParameters_Control::_Add_Property(wxPGProperty *pProperty, wxPGP
 }
 
 //---------------------------------------------------------
-void CParameters_Control::_Add_Property(CParameter *pParameter, wxPGProperty *pParent)
+void CParameters_Control::_Add_Property(CSG_Parameter *pParameter, wxPGProperty *pParent)
 {
 	int				i;
 	wxPGProperty	*pProperty;
@@ -443,7 +443,7 @@ void CParameters_Control::_Add_Property(CParameter *pParameter, wxPGProperty *pP
 }
 
 //---------------------------------------------------------
-wxPGProperty * CParameters_Control::_Get_Property(CParameter *pParameter, wxPGProperty *pParent)
+wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxPGProperty *pParent)
 {
 	wxPGProperty	*pProperty	= NULL;
 
@@ -561,7 +561,7 @@ wxPGProperty * CParameters_Control::_Get_Property(CParameter *pParameter, wxPGPr
 //---------------------------------------------------------
 void CParameters_Control::_Set_Parameter(const char *Identifier)
 {
-	CParameter	*pParameter;
+	CSG_Parameter	*pParameter;
 
 	if( (pParameter = m_pParameters->Get_Parameter(Identifier)) != NULL )
 	{
@@ -619,7 +619,7 @@ void CParameters_Control::_Update_Parameters(void)
 }
 
 //---------------------------------------------------------
-void CParameters_Control::_Update_Parameter(CParameter *pParameter)
+void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
 {
 	wxPGId	Id	= m_pPG->GetPropertyByName(pParameter->Get_Identifier());
 
@@ -665,7 +665,7 @@ void CParameters_Control::_Update_Parameter(CParameter *pParameter)
 //---------------------------------------------------------
 bool CParameters_Control::Update_DataObjects(void)
 {
-	CParameter	*pParameter;
+	CSG_Parameter	*pParameter;
 	wxPGId		Id;
 
 	if( m_pParameters )

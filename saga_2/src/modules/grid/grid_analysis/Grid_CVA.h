@@ -25,7 +25,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CGrid_CVA : public CModule_Grid {
+class CGrid_CVA : public CSG_Module_Grid {
 
 public:
 	CGrid_CVA(void);

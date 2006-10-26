@@ -154,7 +154,7 @@ bool CWKSP_TIN_Manager::On_Command(int Cmd_ID)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_TIN * CWKSP_TIN_Manager::Get_TIN(CTIN *pTIN)
+CWKSP_TIN * CWKSP_TIN_Manager::Get_TIN(CSG_TIN *pTIN)
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
@@ -168,13 +168,13 @@ CWKSP_TIN * CWKSP_TIN_Manager::Get_TIN(CTIN *pTIN)
 }
 
 //---------------------------------------------------------
-bool CWKSP_TIN_Manager::Exists(CTIN *pTIN)
+bool CWKSP_TIN_Manager::Exists(CSG_TIN *pTIN)
 {
 	return( Get_TIN(pTIN) != NULL );
 }
 
 //---------------------------------------------------------
-CWKSP_TIN * CWKSP_TIN_Manager::Add(CTIN *pTIN)
+CWKSP_TIN * CWKSP_TIN_Manager::Add(CSG_TIN *pTIN)
 {
 	CWKSP_TIN	*pItem;
 
@@ -187,7 +187,7 @@ CWKSP_TIN * CWKSP_TIN_Manager::Add(CTIN *pTIN)
 }
 
 //---------------------------------------------------------
-CTIN * CWKSP_TIN_Manager::Get_byFileName(const char *File_Name)
+CSG_TIN * CWKSP_TIN_Manager::Get_byFileName(const char *File_Name)
 {
 	CSG_String	s(File_Name);
 
@@ -210,7 +210,7 @@ CTIN * CWKSP_TIN_Manager::Get_byFileName(const char *File_Name)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_TIN_Manager::Update(CTIN *pTIN, CParameters *pParameters)
+bool CWKSP_TIN_Manager::Update(CSG_TIN *pTIN, CSG_Parameters *pParameters)
 {
 	CWKSP_TIN	*pItem;
 
@@ -225,7 +225,7 @@ bool CWKSP_TIN_Manager::Update(CTIN *pTIN, CParameters *pParameters)
 }
 
 //---------------------------------------------------------
-bool CWKSP_TIN_Manager::Update_Views(CTIN *pTIN)
+bool CWKSP_TIN_Manager::Update_Views(CSG_TIN *pTIN)
 {
 	CWKSP_TIN	*pItem;
 
@@ -240,7 +240,7 @@ bool CWKSP_TIN_Manager::Update_Views(CTIN *pTIN)
 }
 
 //---------------------------------------------------------
-bool CWKSP_TIN_Manager::Show(CTIN *pTIN)
+bool CWKSP_TIN_Manager::Show(CSG_TIN *pTIN)
 {
 	CWKSP_TIN	*pItem;
 
@@ -253,7 +253,7 @@ bool CWKSP_TIN_Manager::Show(CTIN *pTIN)
 }
 
 //---------------------------------------------------------
-bool CWKSP_TIN_Manager::asImage(CTIN *pTIN, CGrid *pImage)
+bool CWKSP_TIN_Manager::asImage(CSG_TIN *pTIN, CSG_Grid *pImage)
 {
 	CWKSP_TIN	*pItem;
 
@@ -273,7 +273,7 @@ bool CWKSP_TIN_Manager::asImage(CTIN *pTIN, CGrid *pImage)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_TIN_Manager::Get_Colors(CTIN *pTIN, CSG_Colors *pColors)
+bool CWKSP_TIN_Manager::Get_Colors(CSG_TIN *pTIN, CSG_Colors *pColors)
 {
 	CWKSP_TIN	*pItem;
 
@@ -286,7 +286,7 @@ bool CWKSP_TIN_Manager::Get_Colors(CTIN *pTIN, CSG_Colors *pColors)
 }
 
 //---------------------------------------------------------
-bool CWKSP_TIN_Manager::Set_Colors(CTIN *pTIN, CSG_Colors *pColors)
+bool CWKSP_TIN_Manager::Set_Colors(CSG_TIN *pTIN, CSG_Colors *pColors)
 {
 	CWKSP_TIN	*pItem;
 

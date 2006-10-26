@@ -112,8 +112,8 @@ bool CModule_Library::Create(const char *FileName, const char *FilePath)
 	TSG_PFNC_MLB_Initialize		MLB_Initialize;
 	TSG_PFNC_MLB_Get_Interface	MLB_Get_Interface;
 
-	CModule_Library_Interface	*pInterface;
-	CModule						*pModule;
+	CSG_Module_Library_Interface	*pInterface;
+	CSG_Module						*pModule;
 
 	//-----------------------------------------------------
 	Destroy();
@@ -141,7 +141,7 @@ bool CModule_Library::Create(const char *FileName, const char *FilePath)
 		{
 			while( (pModule = pInterface->Get_Module(m_nModules)) != NULL )
 			{
-				m_Modules	= (CModule **)SG_Realloc(m_Modules, (m_nModules + 1) * sizeof(CModule *));
+				m_Modules	= (CSG_Module **)SG_Realloc(m_Modules, (m_nModules + 1) * sizeof(CSG_Module *));
 				m_Modules[m_nModules++]	= pModule;
 			}
 
@@ -188,7 +188,7 @@ void CModule_Library::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CModule * CModule_Library::Select(const char *ModuleName)
+CSG_Module * CModule_Library::Select(const char *ModuleName)
 {
 	int			i;
 	wxString	Description;
@@ -268,7 +268,7 @@ bool CModule_Library::Execute(int argc, char *argv[])
 }
 
 //---------------------------------------------------------
-bool CModule_Library::Get_Parameters(CParameters *pParameters)
+bool CModule_Library::Get_Parameters(CSG_Parameters *pParameters)
 {
 	return( _Get_CMD(pParameters) );
 }
@@ -281,9 +281,9 @@ bool CModule_Library::Get_Parameters(CParameters *pParameters)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CModule_Library::_Set_CMD(CParameters *pParameters, bool bExtra)
+void CModule_Library::_Set_CMD(CSG_Parameters *pParameters, bool bExtra)
 {
-	CParameter	*pParameter;
+	CSG_Parameter	*pParameter;
 	wxString	Description;
 
 	//-----------------------------------------------------
@@ -360,12 +360,12 @@ void CModule_Library::_Set_CMD(CParameters *pParameters, bool bExtra)
 }
 
 //---------------------------------------------------------
-bool CModule_Library::_Get_CMD(CParameters *pParameters)
+bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters)
 {
 	int			i;
 	long		l;
 	double		d;
-	CParameter	*pParameter;
+	CSG_Parameter	*pParameter;
 	wxString	s;
 
 	//-----------------------------------------------------
@@ -425,7 +425,7 @@ bool CModule_Library::_Get_CMD(CParameters *pParameters)
 			case PARAMETER_TYPE_FixedTable:
 				if( m_pCMD->Found(GET_ID1(pParameter), &s) )
 				{
-					CTable	Table(s.c_str());
+					CSG_Table	Table(s.c_str());
 					pParameter->asTable()->Assign_Values(&Table);
 				}
 				break;
@@ -462,11 +462,11 @@ bool CModule_Library::_Get_CMD(CParameters *pParameters)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CModule_Library::_Create_DataObjects(CParameters *pParameters)
+bool CModule_Library::_Create_DataObjects(CSG_Parameters *pParameters)
 {
 	int			j;
-	CDataObject	*pObject;
-	CParameter	*pParameter;
+	CSG_Data_Object	*pObject;
+	CSG_Parameter	*pParameter;
 	wxString	s;
 
 	if( pParameters && m_pCMD )
@@ -490,24 +490,24 @@ bool CModule_Library::_Create_DataObjects(CParameters *pParameters)
 								break;
 
 							case PARAMETER_TYPE_Grid:
-								pObject	= new CGrid  (s.c_str());
+								pObject	= new CSG_Grid  (s.c_str());
 								if( pObject && pObject->is_Valid() )
 								{
-									pParameter->Get_Parent()->asGrid_System()->Assign(((CGrid *)pObject)->Get_System());
+									pParameter->Get_Parent()->asGrid_System()->Assign(((CSG_Grid *)pObject)->Get_System());
 									pParameter->Set_Value(pObject);
 								}
 								break;
 
 							case PARAMETER_TYPE_TIN:
-								pParameter->Set_Value(pObject = new CTIN   (s.c_str()));
+								pParameter->Set_Value(pObject = new CSG_TIN   (s.c_str()));
 								break;
 
 							case PARAMETER_TYPE_Shapes:
-								pParameter->Set_Value(pObject = new CShapes(s.c_str()));
+								pParameter->Set_Value(pObject = new CSG_Shapes(s.c_str()));
 								break;
 
 							case PARAMETER_TYPE_Table:
-								pParameter->Set_Value(pObject = new CTable (s.c_str()));
+								pParameter->Set_Value(pObject = new CSG_Table (s.c_str()));
 								break;
 							}
 
@@ -537,19 +537,19 @@ bool CModule_Library::_Create_DataObjects(CParameters *pParameters)
 							break;
 
 						case PARAMETER_TYPE_Grid:
-							pParameter->Set_Value(pObject = new CGrid  (*pParameter->Get_Parent()->asGrid_System(), GRID_TYPE_Float));
+							pParameter->Set_Value(pObject = new CSG_Grid  (*pParameter->Get_Parent()->asGrid_System(), GRID_TYPE_Float));
 							break;
 
 						case PARAMETER_TYPE_TIN:
-							pParameter->Set_Value(pObject = new CTIN   ());
+							pParameter->Set_Value(pObject = new CSG_TIN   ());
 							break;
 
 						case PARAMETER_TYPE_Shapes:
-							pParameter->Set_Value(pObject = new CShapes());
+							pParameter->Set_Value(pObject = new CSG_Shapes());
 							break;
 
 						case PARAMETER_TYPE_Table:
-							pParameter->Set_Value(pObject = new CTable ());
+							pParameter->Set_Value(pObject = new CSG_Table ());
 							break;
 						}
 					}
@@ -568,9 +568,9 @@ bool CModule_Library::_Create_DataObjects(CParameters *pParameters)
 }
 
 //---------------------------------------------------------
-bool CModule_Library::_Create_DataObject_List(CParameter *pParameter, wxString sList)
+bool CModule_Library::_Create_DataObject_List(CSG_Parameter *pParameter, wxString sList)
 {
-	CDataObject		*pObject;
+	CSG_Data_Object		*pObject;
 	wxString		s;
 
 	if( pParameter && pParameter->is_DataObject_List() )
@@ -583,17 +583,17 @@ bool CModule_Library::_Create_DataObject_List(CParameter *pParameter, wxString s
 			switch( pParameter->Get_Type() )
 			{
 			default:							pObject	= NULL;						break;
-			case PARAMETER_TYPE_Grid_List:		pObject	= new CGrid  (s.c_str());	break;
-			case PARAMETER_TYPE_TIN_List:		pObject	= new CTIN   (s.c_str());	break;
-			case PARAMETER_TYPE_Shapes_List:	pObject	= new CShapes(s.c_str());	break;
-			case PARAMETER_TYPE_Table_List:		pObject	= new CTable (s.c_str());	break;
+			case PARAMETER_TYPE_Grid_List:		pObject	= new CSG_Grid  (s.c_str());	break;
+			case PARAMETER_TYPE_TIN_List:		pObject	= new CSG_TIN   (s.c_str());	break;
+			case PARAMETER_TYPE_Shapes_List:	pObject	= new CSG_Shapes(s.c_str());	break;
+			case PARAMETER_TYPE_Table_List:		pObject	= new CSG_Table (s.c_str());	break;
 			}
 
 			if( pObject && pObject->is_Valid() )
 			{
 				if( pParameter->Get_Type() == PARAMETER_TYPE_Grid_List && pParameter->Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System )
 				{
-					pParameter->Get_Parent()->asGrid_System()->Assign(((CGrid *)pObject)->Get_System());
+					pParameter->Get_Parent()->asGrid_System()->Assign(((CSG_Grid *)pObject)->Get_System());
 				}
 
 				pParameter->asList()->Add_Item(pObject);
@@ -614,7 +614,7 @@ bool CModule_Library::_Create_DataObject_List(CParameter *pParameter, wxString s
 }
 
 //---------------------------------------------------------
-bool CModule_Library::Add_DataObject(CDataObject *pObject)
+bool CModule_Library::Add_DataObject(CSG_Data_Object *pObject)
 {
 	// leaves unsaved data and a memory leak, if <pObject> is not kept in parameters list either !!!
 	// to be done...
@@ -649,10 +649,10 @@ bool CModule_Library::_Destroy_DataObjects(bool bSave)
 }
 
 //---------------------------------------------------------
-bool CModule_Library::_Destroy_DataObjects(bool bSave, CParameters *pParameters)
+bool CModule_Library::_Destroy_DataObjects(bool bSave, CSG_Parameters *pParameters)
 {
 	int			i, j;
-	CParameter	*pParameter;
+	CSG_Parameter	*pParameter;
 	wxString	s;
 
 	if( pParameters && m_pCMD )

@@ -106,7 +106,7 @@ CFit::CFit(void)
 	
 	Set_Description("CFit\n" "(created by SAGA Wizard).");
 	
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 	
 	pNode	= Parameters.Add_Table(NULL	, "SOURCE"		, _TL("Source")			, "", PARAMETER_INPUT);
 	
@@ -149,7 +149,7 @@ CFit::CFit(void)
 	Parameters.Add_Value(NULL, "LAMDA", _TL("Max Lamda"), "", PARAMETER_TYPE_Double, 10000, 1, true);
 }
 
-int CFit::On_Parameter_Changed(CParameters *pParameters, CParameter *pParameter)
+int CFit::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	bool retval = false;
 	
@@ -213,7 +213,7 @@ bool CFit::On_Execute(void)
 	vector < double> x, y, StartValue, Result;
 	char msg[1024];	
 	
-	CParameters StartParameters;
+	CSG_Parameters StartParameters;
 
 	const char *formel	=	Parameters("FORMEL")->asString();
 
@@ -276,7 +276,7 @@ bool CFit::On_Execute(void)
 		StartValue.push_back(StartParameters(c)->asDouble());
 	}
 	
-	CTable	*pTable	= Parameters("SOURCE")->asTable();
+	CSG_Table	*pTable	= Parameters("SOURCE")->asTable();
 	int Record_Count = pTable->Get_Record_Count();
 	
 	int	yField		= Parameters("YFIELD")->asInt();
@@ -287,7 +287,7 @@ bool CFit::On_Execute(void)
 	
 	for (i = 0; i < Record_Count; i++)
 	{
-		CTable_Record *	Record = pTable->Get_Record(i);
+		CSG_Table_Record *	Record = pTable->Get_Record(i);
 		if (Use_X)
 		{
 			x.push_back(Record->asDouble(xField));
@@ -378,7 +378,7 @@ bool CFit::On_Execute(void)
 	
 	for (i = 0; i < Record_Count; i++)
 	{
-		CTable_Record *	Record = pTable->Get_Record(i);
+		CSG_Table_Record *	Record = pTable->Get_Record(i);
 		
 		Record->Set_Value(Field_Count - 1, Formel.Val(x[i]));
 	}

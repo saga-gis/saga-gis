@@ -119,8 +119,8 @@ CShapes_Create_Empty::CShapes_Create_Empty(void)
 
 
 	//-----------------------------------------------------
-	CTable_Record	*pRecord;
-	CTable			*pFields	= Parameters("FIELDS")->asTable();
+	CSG_Table_Record	*pRecord;
+	CSG_Table			*pFields	= Parameters("FIELDS")->asTable();
 
 	pFields->Set_Name(_TL("Attributes"));
 
@@ -150,8 +150,8 @@ CShapes_Create_Empty::~CShapes_Create_Empty(void)
 //---------------------------------------------------------
 bool CShapes_Create_Empty::On_Execute(void)
 {
-	CShapes	*pShapes;
-	CTable	*pFields;
+	CSG_Shapes	*pShapes;
+	CSG_Table	*pFields;
 
 	pShapes	= Parameters("SHAPES")	->asShapes();
 	pFields	= Parameters("FIELDS")	->asTable();
@@ -167,7 +167,7 @@ bool CShapes_Create_Empty::On_Execute(void)
 
 	for(int i=0; i<pFields->Get_Record_Count(); i++)
 	{
-		CTable_Record	*pRecord	= pFields->Get_Record(i);
+		CSG_Table_Record	*pRecord	= pFields->Get_Record(i);
 
 		switch( pRecord->asInt(1) )
 		{

@@ -104,14 +104,14 @@ private:
 
 	bool					_Set_MBA			(double dCell);
 	bool					_Set_MBA_Refinement	(double dCell);
-	bool					_Set_MBA_Refinement	(CGrid *Psi, CGrid *Phi);
+	bool					_Set_MBA_Refinement	(CSG_Grid *Psi, CSG_Grid *Phi);
 
-	bool					_Get_Phi			(CGrid &Phi, double dCell, int nCells);
-	bool					_Get_Difference		(CGrid &Phi);
+	bool					_Get_Phi			(CSG_Grid &Phi, double dCell, int nCells);
+	bool					_Get_Difference		(CSG_Grid &Phi);
 
-	void					BA_Set_Grid			(CGrid &Phi, bool bAdd = false);
-	double					BA_Get_Value		(double x, double y, CGrid &Phi);
-	bool					BA_Get_Phi			(CGrid &Phi);
+	void					BA_Set_Grid			(CSG_Grid &Phi, bool bAdd = false);
+	double					BA_Get_Value		(double x, double y, CSG_Grid &Phi);
+	bool					BA_Get_Phi			(CSG_Grid &Phi);
 	double					BA_Get_B			(int i, double d);
 
 };

@@ -71,7 +71,7 @@
 //---------------------------------------------------------
 CShapes_Report::CShapes_Report(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Set_Name	(_TL("Create PDF Report for Shapes Layer"));
@@ -180,9 +180,9 @@ CShapes_Report::~CShapes_Report(void)
 bool CShapes_Report::On_Execute(void)
 {
 	int				Page_Orientation;
-	TPDF_Page_Size	Page_Size;
+	TSG_PDF_Page_Size	Page_Size;
 	CSG_String		FileName(Parameters("FILENAME")	->asString());
-	CDoc_PDF	PDF;
+	CSG_Doc_PDF	PDF;
 
 	//-----------------------------------------------------
 	m_pShapes		= Parameters("SHAPES")		->asShapes();
@@ -296,7 +296,7 @@ bool CShapes_Report::Add_Shapes(void)
 }
 
 //---------------------------------------------------------
-bool CShapes_Report::Add_Shape(CShape *pShape, const char *Title)
+bool CShapes_Report::Add_Shape(CSG_Shape *pShape, const char *Title)
 {
 	if( m_pPDF && m_pPDF->Is_Ready_To_Draw() && pShape && pShape->is_Valid() && m_pPDF->Add_Page() )
 	{
@@ -316,8 +316,8 @@ bool CShapes_Report::Add_Shape(CShape *pShape, const char *Title)
 		//-------------------------------------------------
 		if( pShape->Get_Record()->Get_Owner()->Get_Field_Count() > 0 )
 		{
-			CTable_Record	*pRecord;
-			CTable			Table;
+			CSG_Table_Record	*pRecord;
+			CSG_Table			Table;
 
 			Table.Set_Name(_TL("Attributes"));
 

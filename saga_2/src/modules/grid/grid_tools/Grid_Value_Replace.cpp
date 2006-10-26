@@ -110,8 +110,8 @@ CGrid_Value_Replace::CGrid_Value_Replace(void)
 	);
 
 	//-----------------------------------------------------
-	CTable			*pLookup;
-	CTable_Record	*pRecord;
+	CSG_Table			*pLookup;
+	CSG_Table_Record	*pRecord;
 
 	pLookup	= Parameters.Add_FixedTable(
 		NULL	, "LOOKUP"		, _TL("Lookup Table"),
@@ -143,9 +143,9 @@ bool CGrid_Value_Replace::On_Execute(void)
 	bool			bReplace;
 	int				x, y, iRecord, Method;
 	double			Value;
-	CGrid			*pGrid;
-	CTable			*pLookup;
-	CTable_Record	*pRecord;
+	CSG_Grid			*pGrid;
+	CSG_Table			*pLookup;
+	CSG_Table_Record	*pRecord;
 
 	//-----------------------------------------------------
 	pLookup	= Parameters("LOOKUP")->asTable();

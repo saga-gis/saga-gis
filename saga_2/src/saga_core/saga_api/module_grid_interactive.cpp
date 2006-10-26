@@ -70,13 +70,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CModule_Grid_Interactive::CModule_Grid_Interactive(void)
+CSG_Module_Grid_Interactive::CSG_Module_Grid_Interactive(void)
 {
 	m_pModule	= this;
 }
 
 //---------------------------------------------------------
-CModule_Grid_Interactive::~CModule_Grid_Interactive(void)
+CSG_Module_Grid_Interactive::~CSG_Module_Grid_Interactive(void)
 {
 }
 
@@ -88,7 +88,7 @@ CModule_Grid_Interactive::~CModule_Grid_Interactive(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CModule_Grid_Interactive::Get_Grid_Pos(int &x, int &y)
+bool CSG_Module_Grid_Interactive::Get_Grid_Pos(int &x, int &y)
 {
 	bool	bResult;
 
@@ -135,7 +135,7 @@ bool CModule_Grid_Interactive::Get_Grid_Pos(int &x, int &y)
 }
 
 //---------------------------------------------------------
-int CModule_Grid_Interactive::Get_xGrid(void)
+int CSG_Module_Grid_Interactive::Get_xGrid(void)
 {
 	int		x;
 
@@ -159,7 +159,7 @@ int CModule_Grid_Interactive::Get_xGrid(void)
 }
 
 //---------------------------------------------------------
-int CModule_Grid_Interactive::Get_yGrid(void)
+int CSG_Module_Grid_Interactive::Get_yGrid(void)
 {
 	int		y;
 

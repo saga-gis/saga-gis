@@ -28,7 +28,7 @@
 class CShapeSelector  
 {
 public:
-	CShapeSelector(CShapes*,CShapes*,int);
+	CShapeSelector(CSG_Shapes*,CSG_Shapes*,int);
 	virtual ~CShapeSelector();
 	int& GetSelectedRecords();
 	int GetSelectedRecordsCount();
@@ -36,8 +36,8 @@ public:
 private:
 
 	std::vector <int> m_pSelectedRecords;
-	bool GPC_Intersection(CShape *pShape_A, CShape *pShape_B, CShape *pShape_AB);
-	bool GPC_Create_Polygon(CShape *pShape, gpc_polygon *pPolygon);
+	bool GPC_Intersection(CSG_Shape *pShape_A, CSG_Shape *pShape_B, CSG_Shape *pShape_AB);
+	bool GPC_Create_Polygon(CSG_Shape *pShape, gpc_polygon *pPolygon);
 
 };
 

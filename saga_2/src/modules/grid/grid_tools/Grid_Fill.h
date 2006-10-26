@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Fill : public CModule_Grid_Interactive  
+class CGrid_Fill : public CSG_Module_Grid_Interactive  
 {
 public:
 	CGrid_Fill(void);
@@ -92,7 +92,7 @@ protected:
 
 	virtual bool			On_Execute			(void);
 	virtual bool			On_Execute_Finish	(void);
-	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
+	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
 
 
 private:
@@ -101,7 +101,7 @@ private:
 
 	double					m_zFill, m_zFixed, m_zTolerance_Min, m_zTolerance_Max;
 
-	CGrid					*m_pGrid;
+	CSG_Grid					*m_pGrid;
 
 	CSG_Points_Int			m_Stack;
 

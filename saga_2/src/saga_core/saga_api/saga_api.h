@@ -60,6 +60,37 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifdef SWIG
+
+%module saga_api
+%{
+#include "api_core.h"
+#include "dataobject.h"
+#include "doc_html.h"
+#include "doc_pdf.h"
+#include "doc_svg.h"
+#include "geo_tools.h"
+#include "grid.h"
+#include "mat_tools.h"
+#include "module.h"
+#include "module_library.h"
+#include "parameters.h"
+#include "saga_api.h"
+#include "shapes.h"
+#include "table.h"
+#include "tin.h"
+%}
+
+#endif	// #ifdef SWIG
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__SAGA_API__saga_api_H
 #define HEADER_INCLUDED__SAGA_API__saga_api_H
 
@@ -71,7 +102,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "module.h"
+#include "module_library.h"
 
 #include "doc_pdf.h"
 #include "doc_html.h"

@@ -22,7 +22,7 @@
 
 CGridsFromTableAndGrid::CGridsFromTableAndGrid(){
 
-	CParameter	*pNode_0, *pNode_1;
+	CSG_Parameter	*pNode_0, *pNode_1;
 
 	Parameters.Set_Name(_TL("Grids from classified grid and table"));
 
@@ -53,16 +53,16 @@ bool CGridsFromTableAndGrid::On_Execute(void){
 
 	int i,j;
 	int x,y;
-	CGrid* pClassifiedGrid = Parameters("CLASSES")->asGrid();
-	CTable* pTable = Parameters("TABLE")->asTable();
+	CSG_Grid* pClassifiedGrid = Parameters("CLASSES")->asGrid();
+	CSG_Table* pTable = Parameters("TABLE")->asTable();
 	int iField = Parameters("TABLE_ID")->asInt();
-	CTable_Record* pRecord;
+	CSG_Table_Record* pRecord;
 	int iMax;
 	int iValue;
 	float **pValues;
 	int *pValidFields;
 	int iValidFields = 0;
-	CGrid **pGrid;
+	CSG_Grid **pGrid;
 
 	if (pTable->Get_Record_Count()){
 		pRecord = pTable->Get_Record(0);
@@ -103,9 +103,9 @@ bool CGridsFromTableAndGrid::On_Execute(void){
 			}//for			
 		}//for
 
-		pGrid = new CGrid*[iValidFields];
+		pGrid = new CSG_Grid*[iValidFields];
 		for (i = 0; i < iValidFields; i++){
-			pGrid[i] = new CGrid(pClassifiedGrid);
+			pGrid[i] = new CSG_Grid(pClassifiedGrid);
 		}//if
 
 		for(y=0; y<Get_NY() && Set_Progress(y); y++){		

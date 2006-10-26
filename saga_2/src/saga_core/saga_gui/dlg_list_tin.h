@@ -84,7 +84,7 @@ class CDLG_List_TIN : public CDLG_List_Base
 	DECLARE_CLASS(CDLG_List_TIN)
 
 public:
-	CDLG_List_TIN(CParameter_TIN_List *pList, wxString Caption);
+	CDLG_List_TIN(CSG_Parameter_TIN_List *pList, wxString Caption);
 	virtual ~CDLG_List_TIN(void);
 
 

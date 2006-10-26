@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_morphometry_EXPORT CSurfaceSpecificPoints : public CModule_Grid  
+class ta_morphometry_EXPORT CSurfaceSpecificPoints : public CSG_Module_Grid  
 {
 public:
 	CSurfaceSpecificPoints(void);
@@ -95,11 +95,11 @@ protected:
 
 private:
 
-	void					Do_MarkHighestNB	(CGrid *pGrid, CGrid *pResult);
-	void					Do_OppositeNB		(CGrid *pGrid, CGrid *pResult);
-	void					Do_FlowDirection	(CGrid *pGrid, CGrid *pResult);
-	void					Do_FlowDirection2	(CGrid *pGrid, CGrid *pResult);
-	void					Do_PeuckerDouglas	(CGrid *pGrid, CGrid *pResult, double Threshold);
+	void					Do_MarkHighestNB	(CSG_Grid *pGrid, CSG_Grid *pResult);
+	void					Do_OppositeNB		(CSG_Grid *pGrid, CSG_Grid *pResult);
+	void					Do_FlowDirection	(CSG_Grid *pGrid, CSG_Grid *pResult);
+	void					Do_FlowDirection2	(CSG_Grid *pGrid, CSG_Grid *pResult);
+	void					Do_PeuckerDouglas	(CSG_Grid *pGrid, CSG_Grid *pResult, double Threshold);
 };
 
 

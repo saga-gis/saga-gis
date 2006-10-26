@@ -160,7 +160,7 @@ bool CGrid_Import::On_Execute(void)
 	int					x, y, yy, Method;
 	double				d, Cellsize, xMin, yMin;
 	CSG_Colors				Colors;
-	CGrid				*pR, *pG, *pB;
+	CSG_Grid				*pR, *pG, *pB;
 	FILE				*Stream;
 	wxFileName			fName;
 	wxImage				img;

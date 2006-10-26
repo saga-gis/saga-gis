@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_3D_Image : public CModule_Grid  
+class CGrid_3D_Image : public CSG_Module_Grid  
 {
 public:
 	CGrid_3D_Image(void);
@@ -110,11 +110,11 @@ private:
 
 	double							m_ZMean, m_ZExagg, m_ZExagg_Min, m_ZRotate, m_XRotate, m_XScale, m_YScale, m_PanoramaBreak;
 
-	CGrid							*m_pDEM, *m_pImage, *m_pRGB, *m_pRGB_Z;
+	CSG_Grid							*m_pDEM, *m_pImage, *m_pRGB, *m_pRGB_Z;
 
 
 	void							_Set_Grid			(void);
-	void							_Set_Shapes			(CShapes *pInput);
+	void							_Set_Shapes			(CSG_Shapes *pInput);
 
 	void							_Get_Line			(int y, T3DPoint *p);
 	void							_Get_Line			(T3DPoint *a, T3DPoint *b, T3DPoint *c);

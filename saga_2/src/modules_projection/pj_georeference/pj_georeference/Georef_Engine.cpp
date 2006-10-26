@@ -124,12 +124,12 @@ bool CGeoref_Engine::Get_Converted(double &x, double &y, bool bInverse)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGeoref_Engine::Set_Engine(CShapes *pSource, CShapes *pTarget)
+bool CGeoref_Engine::Set_Engine(CSG_Shapes *pSource, CSG_Shapes *pTarget)
 {
 	int				iShape, iPart, iPoint;
 	TSG_Point		Point;
 	CSG_Points	Pts_Source, Pts_Target;
-	CShape			*pShape;
+	CSG_Shape			*pShape;
 
 	if( pSource && pTarget )
 	{
@@ -168,12 +168,12 @@ bool CGeoref_Engine::Set_Engine(CShapes *pSource, CShapes *pTarget)
 }
 
 //---------------------------------------------------------
-bool CGeoref_Engine::Set_Engine(CShapes *pSource, int xField, int yField)
+bool CGeoref_Engine::Set_Engine(CSG_Shapes *pSource, int xField, int yField)
 {
 	int				iShape;
 	TSG_Point		Point;
 	CSG_Points	Pts_Source, Pts_Target;
-	CShape			*pShape;
+	CSG_Shape			*pShape;
 
 	if( pSource && pSource->Get_Type() == SHAPE_TYPE_Point
 	&&	xField >= 0 && xField < pSource->Get_Table().Get_Field_Count()

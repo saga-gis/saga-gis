@@ -254,7 +254,7 @@ void CGrid_To_Contour::Contour_Find(int x, int y, double z, bool doRow, int ID)
 			xMin		= pGrid->Get_XMin(),
 			yMin		= pGrid->Get_YMin();
 
-	CShape	*pShape	= pLayer->Add_Shape();
+	CSG_Shape	*pShape	= pLayer->Add_Shape();
 
 	pShape->Get_Record()->Set_Value(0, ID);
 	pShape->Get_Record()->Set_Value(1, z);

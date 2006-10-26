@@ -84,35 +84,42 @@
 class SAGA_API_DLL_EXPORT CSG_Module_Library
 {
 public:
-									CSG_Module_Library	(void);
-	bool							Create				(void);
+	CSG_Module_Library(void);
+	virtual ~CSG_Module_Library(void);
 
 									CSG_Module_Library	(const char *File_Name);
 	bool							Create				(const char *File_Name);
 
 	bool							Destroy				(void);
 
-	virtual ~CSG_Module_Library(void);
-
-	CSG_String						Get_Name			(void);
-	CSG_String						Get_Description		(void);
-	CSG_String						Get_Menu			(void);
-
-	int								Get_Count			(void)		{	return( m_pInterface ? m_pInterface->Get_Count() : 0 );	}
-	CModule *						Get_Module			(int i)		{	return( i >= 0 && i < Get_Count() ? m_pInterface->Get_Module(i) : NULL );	}
-
-	bool							is_Valid			(void);
+	bool							is_Valid			(void)		{	return( Get_Count() > 0 );	}
 
 	const CSG_String &				Get_File_Name		(void)		{	return( m_File_Name );	}
 
 	const char *					Get_Info			(int Type);
+
+	CSG_String						Get_Name			(void);
+	CSG_String						Get_Description		(void);
+	CSG_String						Get_Author			(void);
+	CSG_String						Get_Version			(void);
+	CSG_String						Get_Menu			(void);
+	CSG_String						Get_Summary			(bool bHTML = false);
+
+	int								Get_Count			(void)		{	return( m_pInterface ? m_pInterface->Get_Count() : 0 );	}
+
+	CSG_Module *					Get_Module			(int i)		{	return( i >= 0 && i < Get_Count() ? m_pInterface->Get_Module(i) : NULL );	}
+	CSG_Module_Grid *				Get_Module_Grid		(int i);
+	CSG_Module_Interactive *		Get_Module_I		(int i);
+	CSG_Module_Grid_Interactive *	Get_Module_Grid_I	(int i);
+
+	CSG_String						Get_Menu			(int i);
 
 
 private:
 
 	CSG_String						m_File_Name;
 
-	CModule_Library_Interface		*m_pInterface;
+	CSG_Module_Library_Interface	*m_pInterface;
 
 	class wxDynamicLibrary			*m_pLibrary;
 

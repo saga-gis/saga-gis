@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_morphometry_EXPORT CCurvature_Classification : public CModule_Grid
+class ta_morphometry_EXPORT CCurvature_Classification : public CSG_Module_Grid
 {
 public:
 	CCurvature_Classification(void);

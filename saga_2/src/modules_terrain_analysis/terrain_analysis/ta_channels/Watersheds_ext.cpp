@@ -252,9 +252,9 @@ void CWatersheds_ext::CalculateBasin() {
 
 void CWatersheds_ext::CreateShapesLayer(){ //first shape (0) is the whole basin. 
 
-	CTable *pTable;
-	CTable_Record *pRecord, *pRecord2;
-	CShape *pSubbasin;
+	CSG_Table *pTable;
+	CSG_Table_Record *pRecord, *pRecord2;
+	CSG_Shape *pSubbasin;
 	TSG_Point	Point;	
 	float fArea=0, fPerim=0;
 	float fSide1, fSide2;
@@ -404,9 +404,9 @@ out2:
 	for (i = 0; i < m_pBasins->Get_Count(); i++) {								            
         pSubbasin = m_pBasins->Get_Shape(i);
 
-		fArea = ((CShape_Polygon*)pSubbasin)->Get_Area();
-		fPerim = ((CShape_Polygon*)pSubbasin)->Get_Perimeter();
-		Point = ((CShape_Polygon*)pSubbasin)->Get_Centroid();
+		fArea = ((CSG_Shape_Polygon*)pSubbasin)->Get_Area();
+		fPerim = ((CSG_Shape_Polygon*)pSubbasin)->Get_Perimeter();
+		Point = ((CSG_Shape_Polygon*)pSubbasin)->Get_Centroid();
 		pSubbasin->Get_Record()->Set_Value(15, Point.x);
 		pSubbasin->Get_Record()->Set_Value(16, Point.y);
 

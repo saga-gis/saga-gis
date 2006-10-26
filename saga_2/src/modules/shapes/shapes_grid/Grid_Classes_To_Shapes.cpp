@@ -345,7 +345,7 @@ void CGrid_Classes_To_Shapes::Discrete_Area(int x, int y, int ID)
 	double		xMin	= pGrid->Get_XMin(),
 				yMin	= pGrid->Get_YMin();
 
-	CShape		*pShape	= pLayer->Add_Shape();
+	CSG_Shape		*pShape	= pLayer->Add_Shape();
 
 	//-----------------------------------------------------
 	pShape->Get_Record()->Set_Value(0, ID);

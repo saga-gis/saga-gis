@@ -66,7 +66,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CGrid_RGB_Composite : public CModule_Grid  
+class CGrid_RGB_Composite : public CSG_Module_Grid  
 {
 public:
 	CGrid_RGB_Composite(void);
@@ -80,7 +80,7 @@ protected:
 
 private:
 
-	CGrid *				_Get_Grid	(CGrid *pGrid, int Method, CParameter_Range *pRange, CParameter_Range *pPerctl, double Percent, double &Min, double &Range);
+	CSG_Grid *				_Get_Grid	(CSG_Grid *pGrid, int Method, CSG_Parameter_Range *pRange, CSG_Parameter_Range *pPerctl, double Percent, double &Min, double &Range);
 
 };
 

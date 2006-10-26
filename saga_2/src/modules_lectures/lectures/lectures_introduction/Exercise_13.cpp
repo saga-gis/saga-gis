@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CExercise_13::CExercise_13(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	// Give some information about your module...
@@ -192,7 +192,7 @@ bool CExercise_13::On_Execute(void)
 	int			Method;
 	double		trn_x, trn_y, scl_x, scl_y, shr_x, shr_y, rot,
 				m_trn[3][3], m_scl[3][3], m_shr[3][3], m_rot[3][3], m[3][3];
-	CShapes		*pShapes_A, *pShapes_B;
+	CSG_Shapes		*pShapes_A, *pShapes_B;
 
 
 	//-----------------------------------------------------
@@ -308,12 +308,12 @@ bool CExercise_13::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CExercise_13::Transformation(CShapes *pShapes_A, CShapes *pShapes_B, double m[3][3])
+void CExercise_13::Transformation(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B, double m[3][3])
 {
 	int			iShape, iPart, iPoint;
 	double		x;
 	TSG_Point	p;
-	CShape		*pShape_A, *pShape_B;
+	CSG_Shape		*pShape_A, *pShape_B;
 
 
 	//-----------------------------------------------------

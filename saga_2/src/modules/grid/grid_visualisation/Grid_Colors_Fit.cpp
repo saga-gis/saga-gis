@@ -125,7 +125,7 @@ bool CGrid_Colors_Fit::On_Execute(void)
 	long	aC, bC;
 	double	aZ, bZ, dColor, zMin, zRange;
 	CSG_Colors	Colors_Old, Colors_New;
-	CGrid	*pGrid;
+	CSG_Grid	*pGrid;
 
 	pGrid	= Parameters("GRID")->asGrid();
 

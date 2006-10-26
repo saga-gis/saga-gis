@@ -74,7 +74,7 @@
 #include "shapes.h"
 
 //---------------------------------------------------------
-class CTIN_Triangle;
+class CSG_TIN_Triangle;
 
 
 ///////////////////////////////////////////////////////////
@@ -84,9 +84,9 @@ class CTIN_Triangle;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CTIN_Point
+class SAGA_API_DLL_EXPORT CSG_TIN_Point
 {
-	friend class CTIN;
+	friend class CSG_TIN;
 
 public:
 
@@ -97,14 +97,14 @@ public:
 	double						Get_X					(void)			{	return( m_Point.x );	}
 	double						Get_Y					(void)			{	return( m_Point.y );	}
 
-	CTable_Record *				Get_Record				(void)			{	return( m_pRecord );	}
+	CSG_Table_Record *			Get_Record				(void)			{	return( m_pRecord );	}
 
 	int							Get_Neighbor_Count		(void)			{	return( m_nNeighbors );	}
-	CTIN_Point *				Get_Neighbor			(int iNeighbor)	{	return( iNeighbor >= 0 && iNeighbor < m_nNeighbors ? m_Neighbors[iNeighbor] : NULL );	}
+	CSG_TIN_Point *				Get_Neighbor			(int iNeighbor)	{	return( iNeighbor >= 0 && iNeighbor < m_nNeighbors ? m_Neighbors[iNeighbor] : NULL );	}
 	double						Get_Gradient			(int iNeighbor, int iField);
 
 	int							Get_Triangle_Count		(void)			{	return( m_nTriangles );	}
-	CTIN_Triangle *				Get_Triangle			(int iTriangle)	{	return( iTriangle >= 0 && iTriangle < m_nTriangles ? m_Triangles[iTriangle] : NULL );	}
+	CSG_TIN_Triangle *			Get_Triangle			(int iTriangle)	{	return( iTriangle >= 0 && iTriangle < m_nTriangles ? m_Triangles[iTriangle] : NULL );	}
 
 	bool						Get_Polygon				(CSG_Points &Points);
 	double						Get_Polygon_Area		(void);
@@ -112,24 +112,24 @@ public:
 
 private:
 
-	CTIN_Point(void);
-	CTIN_Point(int ID, TSG_Point Point, CTable_Record *pRecord);
-	virtual ~CTIN_Point(void);
+	CSG_TIN_Point(void);
+	CSG_TIN_Point(int ID, TSG_Point Point, CSG_Table_Record *pRecord);
+	virtual ~CSG_TIN_Point(void);
 
 
 	int							m_ID, m_nNeighbors, m_nTriangles;
 
 	TSG_Point					m_Point;
 
-	CTable_Record				*m_pRecord;
+	CSG_Table_Record			*m_pRecord;
 
-	CTIN_Point					**m_Neighbors;
+	CSG_TIN_Point				**m_Neighbors;
 
-	CTIN_Triangle				**m_Triangles;
+	CSG_TIN_Triangle			**m_Triangles;
 
 
-	bool						_Add_Neighbor			(CTIN_Point *pNeighbor);
-	bool						_Add_Triangle			(CTIN_Triangle *pTriangle);
+	bool						_Add_Neighbor			(CSG_TIN_Point *pNeighbor);
+	bool						_Add_Triangle			(CSG_TIN_Triangle *pTriangle);
 
 	bool						_Del_Relations			(void);
 
@@ -143,22 +143,22 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CTIN_Edge
+class SAGA_API_DLL_EXPORT CSG_TIN_Edge
 {
-	friend class CTIN;
+	friend class CSG_TIN;
 
 public:
 
-	CTIN_Point *				Get_Point				(int iPoint)	{	return( m_Points[iPoint % 2] );	}
+	CSG_TIN_Point *				Get_Point				(int iPoint)	{	return( m_Points[iPoint % 2] );	}
 
 
 private:
 
-	CTIN_Edge(CTIN_Point *a, CTIN_Point *b);
-	virtual ~CTIN_Edge(void);
+	CSG_TIN_Edge(CSG_TIN_Point *a, CSG_TIN_Point *b);
+	virtual ~CSG_TIN_Edge(void);
 
 
-	CTIN_Point					*m_Points[2];
+	CSG_TIN_Point				*m_Points[2];
 
 };
 
@@ -170,13 +170,13 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CTIN_Triangle
+class SAGA_API_DLL_EXPORT CSG_TIN_Triangle
 {
-	friend class CTIN;
+	friend class CSG_TIN;
 
 public:
 
-	CTIN_Point *				Get_Point				(int iPoint)	{	return( m_Points[iPoint % 3] );	}
+	CSG_TIN_Point *				Get_Point				(int iPoint)	{	return( m_Points[iPoint % 3] );	}
 
 	const CSG_Rect &			Get_Extent				(void)			{	return( m_Extent );	}
 
@@ -194,8 +194,8 @@ public:
 
 private:
 
-	CTIN_Triangle(CTIN_Point *a, CTIN_Point *b, CTIN_Point *c);
-	virtual ~CTIN_Triangle(void);
+	CSG_TIN_Triangle(CSG_TIN_Point *a, CSG_TIN_Point *b, CSG_TIN_Point *c);
+	virtual ~CSG_TIN_Triangle(void);
 
 
 	double						m_Area, m_Radius;
@@ -204,7 +204,7 @@ private:
 
 	CSG_Rect					m_Extent;
 
-	CTIN_Point					*m_Points[3];
+	CSG_TIN_Point				*m_Points[3];
 
 };
 
@@ -216,48 +216,48 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CTIN : public CDataObject
+class SAGA_API_DLL_EXPORT CSG_TIN : public CSG_Data_Object
 {
 public:
 
-	CTIN(void);
+	CSG_TIN(void);
 
-								CTIN					(const CTIN &TIN);
-	bool						Create					(const CTIN &TIN);
+								CSG_TIN					(const CSG_TIN &TIN);
+	bool						Create					(const CSG_TIN &TIN);
 
-								CTIN					(CShapes *pShapes);
-	bool						Create					(CShapes *pShapes);
+								CSG_TIN					(CSG_Shapes *pShapes);
+	bool						Create					(CSG_Shapes *pShapes);
 
-								CTIN					(const char *File_Name);
+								CSG_TIN					(const char *File_Name);
 	bool						Create					(const char *File_Name);
 
-	virtual ~CTIN(void);
+	virtual ~CSG_TIN(void);
 
 	virtual bool				Destroy					(void);
 
-	virtual TDataObject_Type	Get_ObjectType			(void)		const	{	return( DATAOBJECT_TYPE_TIN );	}
+	virtual TSG_Data_Object_Type	Get_ObjectType		(void)		const	{	return( DATAOBJECT_TYPE_TIN );	}
 
-	virtual bool				Assign					(CDataObject *pObject);
+	virtual bool				Assign					(CSG_Data_Object *pObject);
 
 	virtual bool				Save					(const char *File_Name, int Format = 0);
 
 	virtual bool				is_Valid				(void)		const	{	return( m_nPoints >= 3 );	}
 
-	CTable &					Get_Table				(void)				{	return( m_Table );		}
+	CSG_Table &					Get_Table				(void)				{	return( m_Table );		}
 
 	bool						Update					(void);
 
-	CTIN_Point *				Add_Point				(TSG_Point Point, CTable_Record *pRecord, bool bUpdateNow);
+	CSG_TIN_Point *				Add_Point				(TSG_Point Point, CSG_Table_Record *pRecord, bool bUpdateNow);
 	bool						Del_Point				(int iPoint, bool bUpdateNow);
 
 	int							Get_Point_Count			(void)		const	{	return( m_nPoints );	}
-	CTIN_Point *				Get_Point				(int Index)	const	{	return( Index >= 0 && Index < m_nPoints    ? m_Points[Index]    : NULL );	}
+	CSG_TIN_Point *				Get_Point				(int Index)	const	{	return( Index >= 0 && Index < m_nPoints    ? m_Points[Index]    : NULL );	}
 
 	int							Get_Edge_Count			(void)		const	{	return( m_nEdges );		}
-	CTIN_Edge *					Get_Edge				(int Index)	const	{	return( Index >= 0 && Index < m_nEdges     ? m_Edges[Index]     : NULL );	}
+	CSG_TIN_Edge *				Get_Edge				(int Index)	const	{	return( Index >= 0 && Index < m_nEdges     ? m_Edges[Index]     : NULL );	}
 
 	int							Get_Triangle_Count		(void)		const	{	return( m_nTriangles );	}
-	CTIN_Triangle *				Get_Triangle			(int Index)	const	{	return( Index >= 0 && Index < m_nTriangles ? m_Triangles[Index] : NULL );	}
+	CSG_TIN_Triangle *			Get_Triangle			(int Index)	const	{	return( Index >= 0 && Index < m_nTriangles ? m_Triangles[Index] : NULL );	}
 
 	CSG_Rect					Get_Extent				(void)				{	_Extent_Update();	return( m_Extent );	}
 
@@ -283,15 +283,15 @@ protected:
 
 	int							m_nPoints, m_nEdges, m_nTriangles;
 
-	CTIN_Point					**m_Points;
+	CSG_TIN_Point				**m_Points;
 
-	CTIN_Edge					**m_Edges;
+	CSG_TIN_Edge				**m_Edges;
 
-	CTIN_Triangle				**m_Triangles;
+	CSG_TIN_Triangle			**m_Triangles;
 
 	CSG_Rect					m_Extent;
 
-	CTable						m_Table;
+	CSG_Table					m_Table;
 
 
 	void						_On_Construction		(void);
@@ -302,11 +302,11 @@ protected:
 
 	void						_Extent_Update			(void);
 
-	bool						_Add_Edge				(CTIN_Point *a, CTIN_Point *b);
-	bool						_Add_Triangle			(CTIN_Point *a, CTIN_Point *b, CTIN_Point *c);
+	bool						_Add_Edge				(CSG_TIN_Point *a, CSG_TIN_Point *b);
+	bool						_Add_Triangle			(CSG_TIN_Point *a, CSG_TIN_Point *b, CSG_TIN_Point *c);
 
 	bool						_Triangulate			(void);
-	bool						_Triangulate			(CTIN_Point **Points, int nPoints, TTIN_Triangle *Triangles, int &nTriangles);
+	bool						_Triangulate			(CSG_TIN_Point **Points, int nPoints, TTIN_Triangle *Triangles, int &nTriangles);
 	int							_CircumCircle			(double xp, double yp, double x1, double y1, double x2, double y2, double x3, double y3, double *xc, double *yc, double *r);
 
 };
@@ -320,16 +320,16 @@ protected:
 
 //---------------------------------------------------------
 /** Safe TIN construction */
-SAGA_API_DLL_EXPORT CTIN *		SG_Create_TIN			(void);
+SAGA_API_DLL_EXPORT CSG_TIN *	SG_Create_TIN			(void);
 
 /** Safe TIN construction */
-SAGA_API_DLL_EXPORT CTIN *		SG_Create_TIN			(const CTIN &TIN);
+SAGA_API_DLL_EXPORT CSG_TIN *	SG_Create_TIN			(const CSG_TIN &TIN);
 
 /** Safe TIN construction */
-SAGA_API_DLL_EXPORT CTIN *		SG_Create_TIN			(CShapes *pShapes);
+SAGA_API_DLL_EXPORT CSG_TIN *	SG_Create_TIN			(CSG_Shapes *pShapes);
 
 /** Safe TIN construction */
-SAGA_API_DLL_EXPORT CTIN *		SG_Create_TIN			(const char *File_Name);
+SAGA_API_DLL_EXPORT CSG_TIN *	SG_Create_TIN			(const char *File_Name);
 
 
 ///////////////////////////////////////////////////////////

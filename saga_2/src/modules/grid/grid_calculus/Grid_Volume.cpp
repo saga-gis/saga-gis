@@ -118,7 +118,7 @@ bool CGrid_Volume::On_Execute(void)
 {
 	int			x, y, Method;
 	double		Level, Volume, z;
-	CGrid		*pGrid;
+	CSG_Grid		*pGrid;
 	CSG_String	s;
 
 	//-----------------------------------------------------

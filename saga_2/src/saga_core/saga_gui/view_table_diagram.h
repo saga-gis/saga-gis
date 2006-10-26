@@ -108,9 +108,9 @@ private:
 
 	CSG_Colors							m_Colors;
 
-	CTable							*m_pTable, m_Structure;
+	CSG_Table							*m_pTable, m_Structure;
 
-	CParameters						m_Parameters;
+	CSG_Parameters						m_Parameters;
 
 	class CWKSP_Table				*m_pOwner;
 

@@ -18,7 +18,7 @@
 *******************************************************************************/ 
 #include "MLB_Interface.h"
 
-class CFilterClumps : public CModule_Grid
+class CFilterClumps : public CSG_Module_Grid
 {
 public:
 	CFilterClumps(void);
@@ -36,9 +36,9 @@ private:
 	CSG_Points_Int	m_CentralPoints;
 	CSG_Points_Int	m_AdjPoints;
 
-	CGrid *m_pInputGrid;
-	CGrid *m_pOutputGrid;
-	CGrid *m_pMaskGrid;
-	CGrid *m_pMaskGridB;
+	CSG_Grid *m_pInputGrid;
+	CSG_Grid *m_pOutputGrid;
+	CSG_Grid *m_pMaskGrid;
+	CSG_Grid *m_pMaskGridB;
 
 };

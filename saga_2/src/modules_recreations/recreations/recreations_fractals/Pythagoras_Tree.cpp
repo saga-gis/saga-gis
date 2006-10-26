@@ -71,7 +71,7 @@
 //---------------------------------------------------------
 CPythagoras_Tree::CPythagoras_Tree(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	// 1. Info...
@@ -254,7 +254,7 @@ void CPythagoras_Tree::Set_Quadrat(TSG_Point pt_A0, TSG_Point pt_B0)
 //---------------------------------------------------------
 void CPythagoras_Tree::Add_Shape(TSG_Point pt_A, TSG_Point pt_B, TSG_Point pt_C, TSG_Point pt_D)
 {
-	CShape	*pShape;
+	CSG_Shape	*pShape;
 
 	pShape	= pShapes->Add_Shape();
 	pShape->Get_Record()->Set_Value(0, Iteration);
@@ -274,7 +274,7 @@ void CPythagoras_Tree::Add_Shape(TSG_Point pt_A, TSG_Point pt_B, TSG_Point pt_C,
 //---------------------------------------------------------
 void CPythagoras_Tree::Add_Shape(TSG_Point pt_A, TSG_Point pt_B, TSG_Point pt_C)
 {
-	CShape	*pShape;
+	CSG_Shape	*pShape;
 
 	pShape	= pShapes->Add_Shape();
 	pShape->Get_Record()->Set_Value(0, Iteration);

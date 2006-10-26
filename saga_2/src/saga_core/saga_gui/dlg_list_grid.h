@@ -86,7 +86,7 @@ class CDLG_List_Grid : public CDLG_List_Base
 	DECLARE_CLASS(CDLG_List_Grid)
 
 public:
-	CDLG_List_Grid(CParameter_Grid_List *pList, wxString Caption);
+	CDLG_List_Grid(CSG_Parameter_Grid_List *pList, wxString Caption);
 	virtual ~CDLG_List_Grid(void);
 
 	void						On_Select_System	(wxCommandEvent &event);

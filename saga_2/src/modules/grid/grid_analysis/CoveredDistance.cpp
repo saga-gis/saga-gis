@@ -48,9 +48,9 @@ bool CCoveredDistance::On_Execute(void){
 	double dDif;
 	double dValue;
 
-	CGrid** pGrids = (CGrid **) Parameters("INPUT")->asPointer();
+	CSG_Grid** pGrids = (CSG_Grid **) Parameters("INPUT")->asPointer();
 
-	CGrid *pResult = Parameters("RESULT")->asGrid();
+	CSG_Grid *pResult = Parameters("RESULT")->asGrid();
 	int iGrids = Parameters("GRIDS")->asInt();
 
 	pResult->Assign(0.0);

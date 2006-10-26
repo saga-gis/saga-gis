@@ -95,10 +95,10 @@ public:
 	virtual bool				On_Command		(int Cmd_ID);
 
 	class CWKSP_Shapes *		Get_Shapes		(int i)		{	return( (class CWKSP_Shapes *)Get_Item(i) );	}
-	class CWKSP_Shapes *		Get_Shapes		(class CShapes *pShapes);
+	class CWKSP_Shapes *		Get_Shapes		(class CSG_Shapes *pShapes);
 
-	bool						Exists			(class CShapes *pShapes);
-	class CWKSP_Shapes *		Add				(class CShapes *pShapes);
+	bool						Exists			(class CSG_Shapes *pShapes);
+	class CWKSP_Shapes *		Add				(class CSG_Shapes *pShapes);
 
 	int							Get_Shapes_Type	(void)		{	return( m_Shapes_Type );	}
 

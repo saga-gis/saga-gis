@@ -19,7 +19,7 @@
 #include  "BasinGrid.h"
 #include "Helper.h"
 
-double AccFlow(CGrid *pGrid, CGrid *pDEM, int iX, int iY){
+double AccFlow(CSG_Grid *pGrid, CSG_Grid *pDEM, int iX, int iY){
 	
     int iNextX, iNextY;
 	double dAccFlow = pGrid->Get_Cellsize()*pGrid->Get_Cellsize();
@@ -46,8 +46,8 @@ double AccFlow(CGrid *pGrid, CGrid *pDEM, int iX, int iY){
 
 }// function
 
-double CalculateBasinGrid(CGrid *pBasinGrid, 
-						CGrid *pDEM, 			
+double CalculateBasinGrid(CSG_Grid *pBasinGrid, 
+						CSG_Grid *pDEM, 			
 						int iOutletX, 
 						int iOutletY){
 
@@ -58,8 +58,8 @@ double CalculateBasinGrid(CGrid *pBasinGrid,
 
 }//function
 
-void CalculateFlowAccGrid(CGrid *pFlowAccGrid, 
-						CGrid *pDEM){
+void CalculateFlowAccGrid(CSG_Grid *pFlowAccGrid, 
+						CSG_Grid *pDEM){
 
 	int x,y;
 	

@@ -27,7 +27,7 @@
 
 CCreateChartLayer::CCreateChartLayer(void){
 
-	CParameter *pNode;
+	CSG_Parameter *pNode;
 	
 	Parameters.Set_Name(_TL("Create Chart Layer (bars/sectors)"));
 	Parameters.Set_Description(_TL(
@@ -84,7 +84,7 @@ CCreateChartLayer::~CCreateChartLayer(void)
 bool CCreateChartLayer::On_Execute(void){
 
 	
-	CShapes *pInput;
+	CSG_Shapes *pInput;
 	int i=0;
 	int iType;	
 	int iSizeField;
@@ -143,9 +143,9 @@ bool CCreateChartLayer::On_Execute(void){
 bool CCreateChartLayer::GetExtraParameters(){
 
 	int i;
-	CTable *pShapesTable;
-	CShapes *pInput;
-	CParameter *pParam;
+	CSG_Table *pShapesTable;
+	CSG_Shapes *pInput;
+	CSG_Parameter *pParam;
 	CSG_String sName;
 	bool bIsValidSelection = false;
 
@@ -187,7 +187,7 @@ bool CCreateChartLayer::GetExtraParameters(){
 
 }//method
 
-void CCreateChartLayer::AddPieChart(CShape* pShape, int iType){
+void CCreateChartLayer::AddPieChart(CSG_Shape* pShape, int iType){
 
 	int i,j;
 	int iSteps;
@@ -198,8 +198,8 @@ void CCreateChartLayer::AddPieChart(CShape* pShape, int iType){
 	float fSize;	
 	float fSectorSize;
 	double dX, dY;
-	CShape *pSector;
-	CTable_Record *pRecord;
+	CSG_Shape *pSector;
+	CSG_Table_Record *pRecord;
 	TSG_Point Point;
 		
 	iSizeField = Parameters("SIZE")->asInt();
@@ -216,10 +216,10 @@ void CCreateChartLayer::AddPieChart(CShape* pShape, int iType){
 
 	switch (iType){
 	case SHAPE_TYPE_Polygon:
-		Point = ((CShape_Polygon*) pShape)->Get_Centroid();	
+		Point = ((CSG_Shape_Polygon*) pShape)->Get_Centroid();	
 		break;
 	case SHAPE_TYPE_Line:
-		Point = GetLineMidPoint((CShape_Line*)pShape);
+		Point = GetLineMidPoint((CSG_Shape_Line*)pShape);
 		break;
 	case SHAPE_TYPE_Point:
 		Point = pShape->Get_Point(0);
@@ -253,7 +253,7 @@ void CCreateChartLayer::AddPieChart(CShape* pShape, int iType){
 
 }//method
 
-void CCreateChartLayer::AddBarChart(CShape* pShape, int iType){
+void CCreateChartLayer::AddBarChart(CSG_Shape* pShape, int iType){
 
 	int i;
 	int iSizeField;
@@ -264,8 +264,8 @@ void CCreateChartLayer::AddBarChart(CShape* pShape, int iType){
 	float fSize;	
 	float fBarHeight, fBarWidth;
 	double dX, dY;
-	CShape *pSector;
-	CTable_Record *pRecord;
+	CSG_Shape *pSector;
+	CSG_Table_Record *pRecord;
 	TSG_Point Point;
 		
 	iSizeField = Parameters("SIZE")->asInt();
@@ -301,10 +301,10 @@ void CCreateChartLayer::AddBarChart(CShape* pShape, int iType){
 
 	switch (iType){
 	case SHAPE_TYPE_Polygon:
-		Point = ((CShape_Polygon*) pShape)->Get_Centroid();	
+		Point = ((CSG_Shape_Polygon*) pShape)->Get_Centroid();	
 		break;
 	case SHAPE_TYPE_Line:
-		Point = GetLineMidPoint((CShape_Line*)pShape);
+		Point = GetLineMidPoint((CSG_Shape_Line*)pShape);
 		break;
 	case SHAPE_TYPE_Point:
 		Point = pShape->Get_Point(0);
@@ -338,7 +338,7 @@ void CCreateChartLayer::AddBarChart(CShape* pShape, int iType){
 
 }//method
 
-TSG_Point CCreateChartLayer::GetLineMidPoint(CShape_Line *pLine){
+TSG_Point CCreateChartLayer::GetLineMidPoint(CSG_Shape_Line *pLine){
 
 	int i;
 	float fDist, fAccDist = 0;

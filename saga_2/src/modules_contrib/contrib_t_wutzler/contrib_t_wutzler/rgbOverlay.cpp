@@ -82,7 +82,7 @@ CRGBOverlay::CRGBOverlay(void)
 
 	//-----------------------------------------------------
 
-	CParameter *parentPar;
+	CSG_Parameter *parentPar;
 	parentPar = Parameters.Add_Grid(	NULL, "RED"	, "Red"	, ""	, PARAMETER_INPUT);
 	Parameters.Add_Value( parentPar, "InputWeightRed","weighting factor","weighting factor (0-100%)",  PARAMETER_TYPE_Double, 100 );
 	parentPar = Parameters.Add_Grid(	NULL, "GREEN"	, "Green"	, ""	, PARAMETER_INPUT);
@@ -119,7 +119,7 @@ bool CRGBOverlay::On_Execute(void)
 	double  rmin, gmin, bmin, rrange, grange, brange;
 	double	rw, gw, bw;
 
-	CGrid	*pRGrid, *pGGrid, *pBGrid, *pRGBGrid;
+	CSG_Grid	*pRGrid, *pGGrid, *pBGrid, *pRGBGrid;
 
 	//-----------------------------------------------------
 	// Get user inputs from the 'Parameters' object...

@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_lighting_EXPORT CHillShade : public CModule_Grid
+class ta_lighting_EXPORT CHillShade : public CSG_Module_Grid
 {
 public:
 	CHillShade(void);
@@ -98,7 +98,7 @@ private:
 	double				Exaggeration,
 						RT_Tan, RT_Cot, RT_Dz;
 
-	CGrid				*pDTM, *pHillShade;
+	CSG_Grid				*pDTM, *pHillShade;
 
 
 	void				Get_Shading			(double Azimuth, double Declination, bool bDelimit, bool bCombine);

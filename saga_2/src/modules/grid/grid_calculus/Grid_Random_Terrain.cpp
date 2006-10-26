@@ -21,7 +21,7 @@
 
 CGrid_Random_Terrain::CGrid_Random_Terrain(void)
 {	 
-	CParameters	*pParameters;
+	CSG_Parameters	*pParameters;
 	
 	Set_Name(_TL("Random Terrain Generation"));
 	Set_Author(_TL("Copyrights (c) 2004 by Victor Olaya"));
@@ -104,7 +104,7 @@ CGrid_Random_Terrain::~CGrid_Random_Terrain(void)
 {}
 
 
-CGrid * CGrid_Random_Terrain::Get_Target_Grid(CParameters *pParameters )
+CSG_Grid * CGrid_Random_Terrain::Get_Target_Grid(CSG_Parameters *pParameters )
 {
 
 	double iCellSize;
@@ -171,7 +171,7 @@ bool CGrid_Random_Terrain::On_Execute(void)
 }//method
 
 
-void CGrid_Random_Terrain::addBump(CGrid* pGrid, int iRadius){
+void CGrid_Random_Terrain::addBump(CSG_Grid* pGrid, int iRadius){
 
 	double dOffset;
 	int x,y,x2,y2;

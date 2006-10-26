@@ -23,11 +23,11 @@
 
 #include "MLB_Interface.h"
 
-class CSinuosity : public CModule_Grid_Interactive {
+class CSinuosity : public CSG_Module_Grid_Interactive {
 
 private:
-	CGrid *m_pDEM;
-	CGrid *m_pSinuosity;
+	CSG_Grid *m_pDEM;
+	CSG_Grid *m_pSinuosity;
 	void writeDistOut(int,int,int,int);
 	void ZeroToNoData(void);
 	void calculateSinuosity(void);
@@ -41,7 +41,7 @@ public:
 protected:
 	virtual bool On_Execute(void);
 	virtual bool On_Execute_Finish();
-	virtual bool On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
+	virtual bool On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
 
 };
 

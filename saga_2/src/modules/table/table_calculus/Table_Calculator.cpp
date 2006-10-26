@@ -20,7 +20,7 @@
 
 CTableCalculator::CTableCalculator(void){
 
-	CParameter	*pNode_0;
+	CSG_Parameter	*pNode_0;
 
 	Parameters.Set_Name(_TL("Table calculator"));
 
@@ -47,8 +47,8 @@ bool CTableCalculator::On_Execute(void){
 	int i,j;	
 	double dValue;
 	double *pFieldValues;
-	CTable *pTable;
-	CTable_Record *pRecord;
+	CSG_Table *pTable;
+	CSG_Table_Record *pRecord;
 	const char *pFormula;
 	CSG_Formula Formula;
 

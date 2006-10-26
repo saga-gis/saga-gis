@@ -118,7 +118,7 @@ using std::set;
 	const byte MAX_SINGLE_PIXEL_ARR = 2;
 
 
-class CCompleteLinkage : public CModule_Grid
+class CCompleteLinkage : public CSG_Module_Grid
 {
 public:
 	CCompleteLinkage(void);
@@ -127,7 +127,7 @@ public:
 
 protected:
 	double calcClassesDist(long class1, long class2);
-	CGrid * copyGrid(CGrid *fromGrid, TGrid_Type gridType);
+	CSG_Grid * copyGrid(CSG_Grid *fromGrid, TSG_Grid_Type gridType);
 
 	virtual bool		On_Execute(void);
 
@@ -135,7 +135,7 @@ protected:
 
 private:
 	long incrementRegionsNdvCnt(int x,int y);
-	//void removeSinglePixelOrphants( CGrid *pClassGrid, CGrid *pOrphantsGrid );
+	//void removeSinglePixelOrphants( CSG_Grid *pClassGrid, CSG_Grid *pOrphantsGrid );
 	void checkOutput(long i);
 	void searchSetsMinPixel( pixelSetPtrT pPix, int& minx, int& miny );
 	pixelSetPtrT aggregatePixel(
@@ -189,7 +189,7 @@ private:
 	long initClassesGrid();
 	void renameClasses();
 	void removeOrphantClasses(
-		const long minClassCnt, CGrid *pOrphantsGrid,
+		const long minClassCnt, CSG_Grid *pOrphantsGrid,
 		long& i, 
 		/* inout */ distMapT& classDistMap,	// mapping class -> ptr(map class -> distance)
 		/* out */ RegionSetT& affectedRegionSet // set of region pixels, thats minimum value has been changed
@@ -206,20 +206,20 @@ private:
 	double getClassesDist( long class1, long class2, distMapT& cache, long remClass1, long remClass2 );
 
 	// input / output grids and parameters
-	CGrid    *pInputGrid[MAX_INPUT_GRIDS];
+	CSG_Grid    *pInputGrid[MAX_INPUT_GRIDS];
 	double  inputWeight[MAX_INPUT_GRIDS];	
-	CGrid    *pOutputGridAdd[MAX_OUTPUT_GRIDS];
+	CSG_Grid    *pOutputGridAdd[MAX_OUTPUT_GRIDS];
 	long	outputStep[MAX_OUTPUT_GRIDS];	
 
 	int regionExtent;
-	CGrid *pClassGrid;
+	CSG_Grid *pClassGrid;
 	
 	// temporary grids accessible by all functions
-	CGrid	*pMinDist;		// grid of Distances to min distance neighbouring pixel
-	CGrid	*pMinDistDir;	// grid of direction to min diestance neighbouring cell
-	CGrid	*pRegionMinDistGrid;	// grid of minimum distances for a region
-	CGrid	*pRegionMinPixelGrid;	// grid of (original extent)pixels, having minimum distances for a region
-	CGrid	*pRegionNdvCntGrid;		// grid of counts of no data values for each region
+	CSG_Grid	*pMinDist;		// grid of Distances to min distance neighbouring pixel
+	CSG_Grid	*pMinDistDir;	// grid of direction to min diestance neighbouring cell
+	CSG_Grid	*pRegionMinDistGrid;	// grid of minimum distances for a region
+	CSG_Grid	*pRegionMinPixelGrid;	// grid of (original extent)pixels, having minimum distances for a region
+	CSG_Grid	*pRegionNdvCntGrid;		// grid of counts of no data values for each region
 
 	classPixelSetMapT classPixelMap; // mapping of class -> Ptr to set of pixels
 	pixelSetT singlePixelSetArr[ MAX_SINGLE_PIXEL_ARR ]; // temporary storage for vectors consisting of single pixels

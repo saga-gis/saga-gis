@@ -112,7 +112,7 @@ public:
 									m_Range, m_Exaggeration, m_Central, m_Stereo,
 									m_Figure_Weight;
 
-	CGrid							*m_pDEM;
+	CSG_Grid							*m_pDEM;
 
 
 	void							Set_Source				(int Resolution = -1);

@@ -64,7 +64,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CGrid_Aggregate : public CModule_Grid  
+class CGrid_Aggregate : public CSG_Module_Grid  
 {
 public:
 	CGrid_Aggregate(void);

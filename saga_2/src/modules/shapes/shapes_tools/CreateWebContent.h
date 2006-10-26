@@ -23,7 +23,7 @@
 #include "MLB_Interface.h"
 #include <vector>
 
-class CCreateWebContent : public CModule_Interactive
+class CCreateWebContent : public CSG_Module_Interactive
 {
 public:
 
@@ -33,14 +33,14 @@ public:
 protected:
 
 	virtual bool				On_Execute(void);
-	virtual bool				On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
+	virtual bool				On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
 	virtual bool				On_Execute_Finish(void);
 
 private:
 
 	bool						m_bDown;
 	CSG_Point					m_ptDown;
-	CShapes						*m_pShapes;
+	CSG_Shapes						*m_pShapes;
 	int							m_iField, m_iNameField;
 	CSG_String					m_sOutputPath;
 

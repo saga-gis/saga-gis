@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTIN_From_Grid : public CModule_Grid
+class CTIN_From_Grid : public CSG_Module_Grid
 {
 public:
 	CTIN_From_Grid(void);

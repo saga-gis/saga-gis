@@ -130,7 +130,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum EPDF_Font_Type
+typedef enum ESG_PDF_Font_Type
 {
 	PDF_FONT_DEFAULT	= 0,
 	PDF_FONT_Helvetica,
@@ -148,26 +148,26 @@ typedef enum EPDF_Font_Type
 	PDF_FONT_Symbol,
 	PDF_FONT_ZapfDingbats
 }
-TPDF_Font_Type;
+TSG_PDF_Font_Type;
 
 //---------------------------------------------------------
-typedef enum EPDF_Page_Size
+typedef enum ESG_PDF_Page_Size
 {
 	PDF_PAGE_SIZE_A4		= 1,
 	PDF_PAGE_SIZE_A3,
 	PDF_PAGE_SIZE_PREVIOUS
 }
-TPDF_Page_Size;
+TSG_PDF_Page_Size;
 
 //---------------------------------------------------------
-typedef enum EPDF_Title_Level
+typedef enum ESG_PDF_Title_Level
 {
 	PDF_TITLE	= 0,
 	PDF_TITLE_01,
 	PDF_TITLE_02,
 	PDF_TITLE_NONE
 }
-TPDF_Title_Level;
+TSG_PDF_Title_Level;
 
 
 ///////////////////////////////////////////////////////////
@@ -177,14 +177,14 @@ TPDF_Title_Level;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CDoc_PDF
+class SAGA_API_DLL_EXPORT CSG_Doc_PDF
 {
 public:
-	CDoc_PDF(void);
-	CDoc_PDF(TPDF_Page_Size Size, int Orientation = PDF_PAGE_ORIENTATION_PORTRAIT, const char *Title = NULL);
-	virtual ~CDoc_PDF(void);
+	CSG_Doc_PDF(void);
+	CSG_Doc_PDF(TSG_PDF_Page_Size Size, int Orientation = PDF_PAGE_ORIENTATION_PORTRAIT, const char *Title = NULL);
+	virtual ~CSG_Doc_PDF(void);
 
-	bool						Open						(TPDF_Page_Size Size = PDF_PAGE_SIZE_A4, int Orientation = PDF_PAGE_ORIENTATION_PORTRAIT, const char *Title = NULL);
+	bool						Open						(TSG_PDF_Page_Size Size = PDF_PAGE_SIZE_A4, int Orientation = PDF_PAGE_ORIENTATION_PORTRAIT, const char *Title = NULL);
 	bool						Open						(const char *Title);
 	bool						Close						(void);
 
@@ -196,13 +196,13 @@ public:
 	static double				Get_Page_To_Meter			(void);
 
 	bool						Add_Page					(void);
-	bool						Add_Page					(TPDF_Page_Size Size, int Orientation = PDF_PAGE_ORIENTATION_PORTRAIT);
+	bool						Add_Page					(TSG_PDF_Page_Size Size, int Orientation = PDF_PAGE_ORIENTATION_PORTRAIT);
 	bool						Add_Page					(double Width, double Height);
 
-	bool						Add_Page_Title				(const char *Title, TPDF_Title_Level Level = PDF_TITLE, TPDF_Page_Size Size = PDF_PAGE_SIZE_PREVIOUS, int Orientation = PDF_PAGE_ORIENTATION_PREVIOUS);
+	bool						Add_Page_Title				(const char *Title, TSG_PDF_Title_Level Level = PDF_TITLE, TSG_PDF_Page_Size Size = PDF_PAGE_SIZE_PREVIOUS, int Orientation = PDF_PAGE_ORIENTATION_PREVIOUS);
 	bool						Add_Outline_Item			(const char *Title);
 
-	bool						Set_Size_Page				(TPDF_Page_Size Size, int Orientation = PDF_PAGE_ORIENTATION_PORTRAIT);
+	bool						Set_Size_Page				(TSG_PDF_Page_Size Size, int Orientation = PDF_PAGE_ORIENTATION_PORTRAIT);
 	bool						Set_Size_Page				(double Width, double Height);
 	const CSG_Rect &			Get_Size_Page				(void)	{	return( m_Size_Paper );		}
 	const CSG_Rect &			Get_Margins					(void)	{	return( m_Size_Margins );	}
@@ -219,21 +219,21 @@ public:
 	bool						Draw_Rectangle				(double xa, double ya, double xb, double yb	, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = SG_COLOR_WHITE, int Line_Color = SG_COLOR_BLACK, int Line_Width = 0);
 	bool						Draw_Rectangle				(const CSG_Rect &r							, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = SG_COLOR_WHITE, int Line_Color = SG_COLOR_BLACK, int Line_Width = 0);
 	bool						Draw_Polygon				(CSG_Points &Points							, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = SG_COLOR_GREEN, int Line_Color = SG_COLOR_BLACK, int Line_Width = 0);
-	bool						Draw_Text					(double x, double y, const char   *Text, int Size, int Style = PDF_STYLE_TEXT_ALIGN_H_LEFT|PDF_STYLE_TEXT_ALIGN_V_TOP, double Angle = 0.0, int Color = SG_COLOR_BLACK, TPDF_Font_Type Font = PDF_FONT_DEFAULT);
-	bool						Draw_Text					(double x, double y, CSG_Strings  &Text, int Size, int Style = PDF_STYLE_TEXT_ALIGN_H_LEFT|PDF_STYLE_TEXT_ALIGN_V_TOP, double Angle = 0.0, int Color = SG_COLOR_BLACK, TPDF_Font_Type Font = PDF_FONT_DEFAULT);
+	bool						Draw_Text					(double x, double y, const char   *Text, int Size, int Style = PDF_STYLE_TEXT_ALIGN_H_LEFT|PDF_STYLE_TEXT_ALIGN_V_TOP, double Angle = 0.0, int Color = SG_COLOR_BLACK, TSG_PDF_Font_Type Font = PDF_FONT_DEFAULT);
+	bool						Draw_Text					(double x, double y, CSG_Strings  &Text, int Size, int Style = PDF_STYLE_TEXT_ALIGN_H_LEFT|PDF_STYLE_TEXT_ALIGN_V_TOP, double Angle = 0.0, int Color = SG_COLOR_BLACK, TSG_PDF_Font_Type Font = PDF_FONT_DEFAULT);
 	bool						Draw_Image					(double x, double y, double dx, double dy	, const char *FileName);
 	bool						Draw_Image					(const CSG_Rect &r							, const char *FileName);
 
 	bool						Draw_Graticule				(const CSG_Rect &r, const CSG_Rect &rWorld, int Size = 10);
 	void						Draw_Curve					(CSG_Points &Data, const CSG_Rect &r, int iGraphType);
 
-	bool						Draw_Table					(const CSG_Rect &r, CTable *pTable					, double CellHeight = 0.0, double HeaderHeightRel = 1.5);
-	bool						Draw_Table					(const CSG_Rect &r, CTable *pTable, int nColumns	, double CellHeight = 0.0, double HeaderHeightRel = 1.5);
+	bool						Draw_Table					(const CSG_Rect &r, CSG_Table *pTable					, double CellHeight = 0.0, double HeaderHeightRel = 1.5);
+	bool						Draw_Table					(const CSG_Rect &r, CSG_Table *pTable, int nColumns	, double CellHeight = 0.0, double HeaderHeightRel = 1.5);
 
-	bool						Draw_Shape					(const CSG_Rect &r, CShape  *pShape , int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = SG_COLOR_GREEN, int Line_Color = SG_COLOR_BLACK, int Line_Width = 0, CSG_Rect *prWorld = NULL);
-	bool						Draw_Shapes					(const CSG_Rect &r, CShapes *pShapes, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = SG_COLOR_GREEN, int Line_Color = SG_COLOR_BLACK, int Line_Width = 0, CSG_Rect *prWorld = NULL);
+	bool						Draw_Shape					(const CSG_Rect &r, CSG_Shape  *pShape , int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = SG_COLOR_GREEN, int Line_Color = SG_COLOR_BLACK, int Line_Width = 0, CSG_Rect *prWorld = NULL);
+	bool						Draw_Shapes					(const CSG_Rect &r, CSG_Shapes *pShapes, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = SG_COLOR_GREEN, int Line_Color = SG_COLOR_BLACK, int Line_Width = 0, CSG_Rect *prWorld = NULL);
 
-	bool						Draw_Grid					(const CSG_Rect &r, CGrid *pGrid, const CSG_Colors &Colors, double zMin = 0.0, double zMax = 0.0, int Style = 0, CSG_Rect *prWorld = NULL);
+	bool						Draw_Grid					(const CSG_Rect &r, CSG_Grid *pGrid, const CSG_Colors &Colors, double zMin = 0.0, double zMax = 0.0, int Style = 0, CSG_Rect *prWorld = NULL);
 
 
 protected:
@@ -241,14 +241,14 @@ protected:
 	bool						_Fit_Rectangle				(double &x, double &y, double &dx, double &dy, double XToY_Ratio, bool bShrink);
 	bool						_Fit_Rectangle				(CSG_Rect &r, double XToY_Ratio, bool bShrink);
 
-	bool						_Add_Outline_Item			(const char *Title, class PdfPage *pPage, TPDF_Title_Level Level = PDF_TITLE);
+	bool						_Add_Outline_Item			(const char *Title, class PdfPage *pPage, TSG_PDF_Title_Level Level = PDF_TITLE);
 
 	bool						_Draw_Ruler					(const CSG_Rect &r, double zMin, double zMax, bool bHorizontal, bool bAscendent, bool bTickAtTop);
-	bool						_Draw_Text					(double x, double y, const char *Text, int Size, int Style, double Angle, int Color, TPDF_Font_Type Font);
-	bool						_Draw_Table					(CSG_Rect r, CTable *pTable, int iRecord, int nRecords, double CellHeight, double HeaderHeightRel);
-	bool						_Draw_Shape					(CSG_Rect r, CShape *pShape, double xMin, double yMin, double World2PDF, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = SG_COLOR_GREEN, int Line_Color = SG_COLOR_BLACK, int Line_Width = 0, int Point_Width = 5);
+	bool						_Draw_Text					(double x, double y, const char *Text, int Size, int Style, double Angle, int Color, TSG_PDF_Font_Type Font);
+	bool						_Draw_Table					(CSG_Rect r, CSG_Table *pTable, int iRecord, int nRecords, double CellHeight, double HeaderHeightRel);
+	bool						_Draw_Shape					(CSG_Rect r, CSG_Shape *pShape, double xMin, double yMin, double World2PDF, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = SG_COLOR_GREEN, int Line_Color = SG_COLOR_BLACK, int Line_Width = 0, int Point_Width = 5);
 
-	TPDF_Title_Level			_Get_Lowest_Level_Outline_Item	(void);
+	TSG_PDF_Title_Level			_Get_Lowest_Level_Outline_Item	(void);
 
 
 private:
@@ -276,7 +276,7 @@ private:
 	class PdfOutlineItem		*m_pLastLevel0OutlineItem, *m_pLastLevel1OutlineItem, *m_pLastLevel2OutlineItem;
 
 
-	const char *				_Get_Font_Name				(TPDF_Font_Type Font);
+	const char *				_Get_Font_Name				(TSG_PDF_Font_Type Font);
 
 	void						_Layout_Set_Boxes			(void);
 	void						_Layout_Set_Box				(int iBox);

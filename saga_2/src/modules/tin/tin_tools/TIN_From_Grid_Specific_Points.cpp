@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CTIN_From_Grid_Specific_Points::CTIN_From_Grid_Specific_Points(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Set_Name(_TL("Grid to TIN (Surface Specific Points)"));
@@ -149,11 +149,11 @@ bool CTIN_From_Grid_Specific_Points::On_Execute(void)
 {
 	bool					bResult;
 	int						x, y, i;
-	CTIN					*pTIN;
-	CGrid					*pGrid, Grid;
-	CParameter_Grid_List	*pValues;
-	CShape					*pPoint;
-	CShapes					Points;
+	CSG_TIN					*pTIN;
+	CSG_Grid					*pGrid, Grid;
+	CSG_Parameter_Grid_List	*pValues;
+	CSG_Shape					*pPoint;
+	CSG_Shapes					Points;
 
 	//-----------------------------------------------------
 	pGrid	= Parameters("GRID")->asGrid();
@@ -247,11 +247,11 @@ bool CTIN_From_Grid_Specific_Points::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTIN_From_Grid_Specific_Points::Get_MarkHighestNB(CGrid *pResult, CGrid *pGrid)	// Band & Lammers...
+bool CTIN_From_Grid_Specific_Points::Get_MarkHighestNB(CSG_Grid *pResult, CSG_Grid *pGrid)	// Band & Lammers...
 {
 	int		i, x, y, ix, iy, xlo, ylo, xhi, yhi;
 	double	lo, hi, z;
-	CGrid	*clo, *chi;
+	CSG_Grid	*clo, *chi;
 
 	clo		= SG_Create_Grid(pGrid, GRID_TYPE_Char);
 	chi		= SG_Create_Grid(pGrid, GRID_TYPE_Char);
@@ -327,11 +327,11 @@ bool CTIN_From_Grid_Specific_Points::Get_MarkHighestNB(CGrid *pResult, CGrid *pG
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTIN_From_Grid_Specific_Points::Get_OppositeNB(CGrid *pResult, CGrid *pGrid, int Threshold)
+bool CTIN_From_Grid_Specific_Points::Get_OppositeNB(CSG_Grid *pResult, CSG_Grid *pGrid, int Threshold)
 {
 	int		i, x, y, ix, iy, jx, jy;
 	double	z, iz, jz;
-	CGrid	*clo, *chi;
+	CSG_Grid	*clo, *chi;
 
 	clo		= SG_Create_Grid(pGrid, GRID_TYPE_Char);
 	chi		= SG_Create_Grid(pGrid, GRID_TYPE_Char);
@@ -404,7 +404,7 @@ bool CTIN_From_Grid_Specific_Points::Get_OppositeNB(CGrid *pResult, CGrid *pGrid
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTIN_From_Grid_Specific_Points::Get_FlowDirection(CGrid *pResult, CGrid *pGrid, int Min, int Max)
+bool CTIN_From_Grid_Specific_Points::Get_FlowDirection(CSG_Grid *pResult, CSG_Grid *pGrid, int Min, int Max)
 {
 	bool	bLower;
 	int		x, y, i, ix, iy, xLow, yLow;
@@ -486,9 +486,9 @@ bool CTIN_From_Grid_Specific_Points::Get_FlowDirection(CGrid *pResult, CGrid *pG
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTIN_From_Grid_Specific_Points::Get_FlowDirection2(CGrid *pResult, CGrid *pGrid, int Threshold)
+bool CTIN_From_Grid_Specific_Points::Get_FlowDirection2(CSG_Grid *pResult, CSG_Grid *pGrid, int Threshold)
 {
-	CGrid	Grid(*pGrid), Result(*pResult);
+	CSG_Grid	Grid(*pGrid), Result(*pResult);
 
 	Get_FlowDirection(pResult, &Grid, -1, Threshold);
 	Grid.Invert();
@@ -513,7 +513,7 @@ bool CTIN_From_Grid_Specific_Points::Get_FlowDirection2(CGrid *pResult, CGrid *p
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTIN_From_Grid_Specific_Points::Get_Peucker(CGrid *pResult, CGrid *pGrid, double Threshold)
+bool CTIN_From_Grid_Specific_Points::Get_Peucker(CSG_Grid *pResult, CSG_Grid *pGrid, double Threshold)
 {
 	bool	wasPlus;
 	int		x, y, i, ix, iy, nSgn;

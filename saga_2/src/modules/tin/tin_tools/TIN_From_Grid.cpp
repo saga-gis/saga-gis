@@ -115,11 +115,11 @@ CTIN_From_Grid::~CTIN_From_Grid(void)
 bool CTIN_From_Grid::On_Execute(void)
 {
 	int						x, y, i;
-	CTIN					*pTIN;
-	CGrid					*pGrid;
-	CParameter_Grid_List	*pValues;
-	CShape					*pPoint;
-	CShapes					Points;
+	CSG_TIN					*pTIN;
+	CSG_Grid					*pGrid;
+	CSG_Parameter_Grid_List	*pValues;
+	CSG_Shape					*pPoint;
+	CSG_Shapes					Points;
 
 	//-----------------------------------------------------
 	pGrid	= Parameters("GRID")	->asGrid();

@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CTOPMODEL::CTOPMODEL(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	// Place information about your module here...
@@ -266,9 +266,9 @@ bool CTOPMODEL::On_Execute(void)
 	int				iClass, nClasses, iTime, nTimeSteps, n, k;
 	double			Precipitation, Evaporation, Infiltration, Infiltration_Excess;
 	CSG_Colors			Colors;
-	CGrid			*pAtanB, *pMoist, gClass;
-	CTable_Record	*pRecord;
-	CTable			*pTable;
+	CSG_Grid			*pAtanB, *pMoist, gClass;
+	CSG_Table_Record	*pRecord;
+	CSG_Table			*pTable;
 
 
 	//-----------------------------------------------------
@@ -508,7 +508,7 @@ void CTOPMODEL::Run(double Evaporation, double Precipitation, double Infiltratio
 //---------------------------------------------------------
 bool CTOPMODEL::Get_Climate(int iTimeStep, double &Precipitation, double &Evaporation)
 {
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 
 	if( pClimate && pClimate->Get_Field_Count() >= 2 && (pRecord = pClimate->Get_Record(iTimeStep)) != NULL )
 	{

@@ -74,7 +74,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPythagoras_Tree : public CModule
+class CPythagoras_Tree : public CSG_Module
 {
 public:
 	CPythagoras_Tree(void);
@@ -92,7 +92,7 @@ private:
 
 	double					Min_Size, Size, sin_Angle, cos_Angle, var_Min, var_Range, var_Angle;
 
-	CShapes					*pShapes;
+	CSG_Shapes					*pShapes;
 
 
 	void					Set_Quadrat	(TSG_Point pt_A, TSG_Point pt_B);

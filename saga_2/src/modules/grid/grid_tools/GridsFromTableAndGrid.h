@@ -19,7 +19,7 @@
 
 #include "MLB_Interface.h"
 
-class CGridsFromTableAndGrid : public CModule_Grid 
+class CGridsFromTableAndGrid : public CSG_Module_Grid 
 {
 public:
 	CGridsFromTableAndGrid(void);

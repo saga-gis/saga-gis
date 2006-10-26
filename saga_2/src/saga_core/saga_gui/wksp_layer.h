@@ -84,21 +84,21 @@
 class CWKSP_Layer : public CWKSP_Base_Item
 {
 public:
-	CWKSP_Layer(CDataObject *pObject);
+	CWKSP_Layer(CSG_Data_Object *pObject);
 	virtual ~CWKSP_Layer(void);
 
 	virtual bool					On_Command				(int Cmd_ID);
 	virtual bool					On_Command_UI			(wxUpdateUIEvent &event);
 
-	virtual CParameters *			Get_Parameters			(void)	{	return( &m_Parameters );	}
+	virtual CSG_Parameters *			Get_Parameters			(void)	{	return( &m_Parameters );	}
 
 	virtual void					Parameters_Changed		(void);
 
 	void							DataObject_Changed		(void);
-	void							DataObject_Changed		(CParameters *pParameters);
+	void							DataObject_Changed		(CSG_Parameters *pParameters);
 	void							DataObject_Changed		(CSG_Colors *pColors);
 
-	CDataObject *					Get_Object				(void)	{	return( m_pObject );	}
+	CSG_Data_Object *					Get_Object				(void)	{	return( m_pObject );	}
 	CSG_Rect						Get_Extent				(void);
 
 	CSG_Colors *						Get_Colors				(void);
@@ -130,7 +130,7 @@ public:
 
 	wxMenu *						Edit_Get_Menu			(void);
 	TSG_Rect						Edit_Get_Extent			(void);
-	CTable *						Edit_Get_Attributes		(void)	{	return( &m_Edit_Attributes );	}
+	CSG_Table *						Edit_Get_Attributes		(void)	{	return( &m_Edit_Attributes );	}
 	bool							Edit_Set_Attributes		(void);
 	bool							Edit_On_Key_Down		(int KeyCode);
 	bool							Edit_On_Mouse_Down		(CSG_Point Point, double WorldToClient, int Key);
@@ -140,15 +140,15 @@ public:
 
 protected:
 
-	CDataObject						*m_pObject;
+	CSG_Data_Object						*m_pObject;
 
-	CParameter_Range				*m_pZRange;
+	CSG_Parameter_Range				*m_pZRange;
 
-	CParameters						m_Parameters;
+	CSG_Parameters						m_Parameters;
 
 	CSG_Point						m_Edit_Mouse_Down;
 
-	CTable							m_Edit_Attributes;
+	CSG_Table							m_Edit_Attributes;
 
 	class CWKSP_Layer_Classify		*m_pClassify;
 
@@ -163,7 +163,7 @@ protected:
 	virtual void					On_DataObject_Changed	(void)	= 0;
 	virtual void					On_Parameters_Changed	(void)	= 0;
 
-	virtual int						On_Parameter_Changed	(CParameters *pParameters, CParameter *pParameter);
+	virtual int						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual void					On_Update_Views			(void)			{}
 
@@ -180,7 +180,7 @@ protected:
 
 private:
 
-	static int						_On_Parameter_Changed	(CParameter *pParameter);
+	static int						_On_Parameter_Changed	(CSG_Parameter *pParameter);
 
 };
 

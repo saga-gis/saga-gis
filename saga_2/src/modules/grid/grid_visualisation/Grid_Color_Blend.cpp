@@ -113,8 +113,8 @@ bool CGrid_Color_Blend::On_Execute(void)
 {
 	int						iGrid, x, y, iStep, nSteps;
 	double					d, dStep, Value_A, Value_B;
-	CGrid					*pGrid, *pGrid_A, *pGrid_B;
-	CParameter_Grid_List	*pGrids;
+	CSG_Grid					*pGrid, *pGrid_A, *pGrid_B;
+	CSG_Parameter_Grid_List	*pGrids;
 
 	pGrid	= Parameters("GRID")	->asGrid();
 	pGrids	= Parameters("GRIDS")	->asGridList();

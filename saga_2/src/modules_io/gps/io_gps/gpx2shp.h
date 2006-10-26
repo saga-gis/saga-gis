@@ -23,7 +23,7 @@
 
 #include "MLB_Interface.h"
 
-class CGPX2SHP : public CModule {
+class CGPX2SHP : public CSG_Module {
 
 public:
 	CGPX2SHP(void);

@@ -67,7 +67,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CUSGS_SRTM_Import : public CModule
+class CUSGS_SRTM_Import : public CSG_Module
 {
 public:
 	CUSGS_SRTM_Import(void);

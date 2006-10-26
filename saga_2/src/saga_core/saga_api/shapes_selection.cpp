@@ -70,10 +70,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CShape * CShapes::Get_Selection(int Index)
+CSG_Shape * CSG_Shapes::Get_Selection(int Index)
 {
 	int				i;
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 
 	if( (pRecord = m_Table.Get_Selection(Index)) != NULL )
 	{
@@ -97,19 +97,19 @@ CShape * CShapes::Get_Selection(int Index)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CShapes::Select(int iShape, bool bInvert)
+bool CSG_Shapes::Select(int iShape, bool bInvert)
 {
 	return( m_Table.Select(iShape, bInvert) );
 }
 
 //---------------------------------------------------------
-bool CShapes::Select(CShape *pShape, bool bInvert)
+bool CSG_Shapes::Select(CSG_Shape *pShape, bool bInvert)
 {
 	return( m_Table.Select(pShape ? pShape->Get_Record() : NULL, bInvert) );
 }
 
 //---------------------------------------------------------
-bool CShapes::Select(TSG_Rect Extent, bool bInvert)
+bool CSG_Shapes::Select(TSG_Rect Extent, bool bInvert)
 {
 	if( !bInvert )
 	{
@@ -135,7 +135,7 @@ bool CShapes::Select(TSG_Rect Extent, bool bInvert)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const CSG_Rect & CShapes::Get_Selection_Extent(void)
+const CSG_Rect & CSG_Shapes::Get_Selection_Extent(void)
 {
 	if( Get_Selection_Count() > 0 )
 	{
@@ -162,7 +162,7 @@ const CSG_Rect & CShapes::Get_Selection_Extent(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CShapes::Del_Selection(void)
+int CSG_Shapes::Del_Selection(void)
 {
 	int		i, n	= 0;
 

@@ -125,7 +125,7 @@ bool CESRI_ArcInfo_Import::On_Execute(void)
 	float		Value, *Line;
 	FILE		*Stream;
 	CSG_String	fName;
-	CGrid		*pGrid;
+	CSG_Grid		*pGrid;
 
 	//-----------------------------------------------------
 	bResult	= false;
@@ -208,14 +208,14 @@ bool CESRI_ArcInfo_Import::On_Execute(void)
 }
 
 //---------------------------------------------------------
-CGrid * CESRI_ArcInfo_Import::Read_Header(FILE *Stream)
+CSG_Grid * CESRI_ArcInfo_Import::Read_Header(FILE *Stream)
 {
 	bool		bCorner_X, bCorner_Y;
 	char		buffer[32];
 	int			NX, NY;
 	double		CellSize, xMin, yMin, NoData;
 	CSG_String	s;
-	CGrid		*pGrid;
+	CSG_Grid		*pGrid;
 
 	//-----------------------------------------------------
 	if( Stream )
@@ -389,7 +389,7 @@ bool CESRI_ArcInfo_Export::On_Execute(void)
 	int			x, y, iy, Precision;
 	float		*Line;
 	FILE		*Stream;
-	CGrid		*pGrid;
+	CSG_Grid		*pGrid;
 	CSG_String	fName;
 
 	//-----------------------------------------------------
@@ -480,7 +480,7 @@ bool CESRI_ArcInfo_Export::On_Execute(void)
 }
 
 //---------------------------------------------------------
-bool CESRI_ArcInfo_Export::Write_Header(FILE *Stream, CGrid *pGrid)
+bool CESRI_ArcInfo_Export::Write_Header(FILE *Stream, CSG_Grid *pGrid)
 {
 	if( Stream && pGrid && pGrid->is_Valid() )
 	{

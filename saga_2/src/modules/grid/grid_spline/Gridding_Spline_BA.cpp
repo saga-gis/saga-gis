@@ -113,7 +113,7 @@ bool CGridding_Spline_BA::On_Execute(void)
 	bool	bResult	= false;
 	int		nx, ny;
 	double	d;
-	CGrid	Phi;
+	CSG_Grid	Phi;
 
 	if( Initialise(m_Points, true) )
 	{
@@ -141,7 +141,7 @@ bool CGridding_Spline_BA::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGridding_Spline_BA::BA_Set_Grid(CGrid &Phi, bool bAdd)
+void CGridding_Spline_BA::BA_Set_Grid(CSG_Grid &Phi, bool bAdd)
 {
 	int		ix, iy;
 	double	x, y, d	= m_pGrid->Get_Cellsize() / Phi.Get_Cellsize();
@@ -163,7 +163,7 @@ void CGridding_Spline_BA::BA_Set_Grid(CGrid &Phi, bool bAdd)
 }
 
 //---------------------------------------------------------
-inline double CGridding_Spline_BA::BA_Get_Value(double x, double y, CGrid &Phi)
+inline double CGridding_Spline_BA::BA_Get_Value(double x, double y, CSG_Grid &Phi)
 {
 	int		_x, _y, ix, iy;
 	double	z	= 0.0, bx[4], by;
@@ -194,11 +194,11 @@ inline double CGridding_Spline_BA::BA_Get_Value(double x, double y, CGrid &Phi)
 }
 
 //---------------------------------------------------------
-bool CGridding_Spline_BA::BA_Get_Phi(CGrid &Phi)
+bool CGridding_Spline_BA::BA_Get_Phi(CSG_Grid &Phi)
 {
 	int		iPoint, _x, _y, ix, iy;
 	double	x, y, z, dx, dy, wxy, wy, SW2, W[4][4];
-	CGrid	Delta;
+	CSG_Grid	Delta;
 
 	//-----------------------------------------------------
 	Phi		.Assign(0.0);

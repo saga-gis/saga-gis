@@ -69,7 +69,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CFuzzyOR : public CModule_Grid  
+class CFuzzyOR : public CSG_Module_Grid  
 {
 public:
 	CFuzzyOR(void);

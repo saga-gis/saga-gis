@@ -132,7 +132,7 @@ bool CExercise_01::On_Execute(void)
 {
 	int		x, y, Method;
 	double	Factor, Value_Input, Value_Output;
-	CGrid	*pInput, *pOutput;
+	CSG_Grid	*pInput, *pOutput;
 
 	//-----------------------------------------------------
 	// Get parameter settings...

@@ -72,8 +72,8 @@ CGrid_Buffer::~CGrid_Buffer(void)
 
 bool CGrid_Buffer::On_Execute(void){
 	
-	CGrid* pFeatures = Parameters("FEATURES")->asGrid(); 
-	CGrid* pGrid_Buffer = Parameters("BUFFER")->asGrid();
+	CSG_Grid* pFeatures = Parameters("FEATURES")->asGrid(); 
+	CSG_Grid* pGrid_Buffer = Parameters("BUFFER")->asGrid();
 	int iBufferType = Parameters("BUFFERTYPE")->asInt();
 	double dBufDist = Parameters("DIST")->asDouble() / pFeatures->Get_Cellsize();
 	int iBufFixedDist = (int) (dBufDist + 2.0);

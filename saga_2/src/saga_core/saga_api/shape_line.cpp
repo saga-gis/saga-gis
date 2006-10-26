@@ -70,12 +70,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CShape_Line::CShape_Line(CShapes *pOwner, CTable_Record *pRecord)
-	: CShape_Points(pOwner, pRecord)
+CSG_Shape_Line::CSG_Shape_Line(CSG_Shapes *pOwner, CSG_Table_Record *pRecord)
+	: CSG_Shape_Points(pOwner, pRecord)
 {}
 
 //---------------------------------------------------------
-CShape_Line::~CShape_Line(void)
+CSG_Shape_Line::~CSG_Shape_Line(void)
 {}
 
 
@@ -86,7 +86,7 @@ CShape_Line::~CShape_Line(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CShape_Line::On_Intersects(TSG_Rect Extent)
+int CSG_Shape_Line::On_Intersects(TSG_Rect Extent)
 {
 	int			iPart, iPoint;
 	TSG_Point	*pA, *pB, Crossing;
@@ -119,7 +119,7 @@ int CShape_Line::On_Intersects(TSG_Rect Extent)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CShape_Line::Get_Length(void)
+double CSG_Shape_Line::Get_Length(void)
 {
 	int		iPart;
 	double	Length;
@@ -133,7 +133,7 @@ double CShape_Line::Get_Length(void)
 }
 
 //---------------------------------------------------------
-double CShape_Line::Get_Length(int iPart)
+double CSG_Shape_Line::Get_Length(int iPart)
 {
 	int			iPoint;
 	double		Length;
@@ -163,7 +163,7 @@ double CShape_Line::Get_Length(int iPart)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CShape_Line::Get_Distance(TSG_Point Point, TSG_Point &Next, int iPart)
+double CSG_Shape_Line::Get_Distance(TSG_Point Point, TSG_Point &Next, int iPart)
 {
 	int			i;
 	double		d, Distance;

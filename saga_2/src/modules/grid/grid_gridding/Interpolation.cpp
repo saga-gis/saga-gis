@@ -70,8 +70,8 @@
 //---------------------------------------------------------
 CInterpolation::CInterpolation(void)
 {
-	CParameter	*pNode;
-	CParameters	*pParameters;
+	CSG_Parameter	*pNode;
+	CSG_Parameters	*pParameters;
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_Output(
@@ -220,11 +220,11 @@ bool CInterpolation::Interpolate(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CShapes * CInterpolation::Get_Points(void)
+CSG_Shapes * CInterpolation::Get_Points(void)
 {
 	int		iShape, iPart, iPoint;
-	CShape	*pShape , *pPoint;
-	CShapes	*pPoints;
+	CSG_Shape	*pShape , *pPoint;
+	CSG_Shapes	*pPoints;
 
 	m_pShapes	= Parameters("SHAPES")	->asShapes();
 
@@ -268,7 +268,7 @@ bool CInterpolation::Set_Search_Engine(void)
 //---------------------------------------------------------
 bool CInterpolation::_Get_Grid(void)
 {
-	CShapes	*pShapes;
+	CSG_Shapes	*pShapes;
 	
 	pShapes	= Parameters("SHAPES")->asShapes();
 	m_pGrid	= NULL;
@@ -310,9 +310,9 @@ bool CInterpolation::_Get_Grid(void)
 }
 
 //---------------------------------------------------------
-CGrid * CInterpolation::_Get_Grid(TSG_Rect Extent)
+CSG_Grid * CInterpolation::_Get_Grid(TSG_Rect Extent)
 {
-	CParameters	*P	= Get_Extra_Parameters("USER");
+	CSG_Parameters	*P	= Get_Extra_Parameters("USER");
 
 	if( !P->Get_Parameter("FIT_EXTENT")->asBool() )
 	{

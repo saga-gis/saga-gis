@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Classes_To_Shapes : public CModule_Grid  
+class CGrid_Classes_To_Shapes : public CSG_Module_Grid  
 {
 public:
 	CGrid_Classes_To_Shapes(void);
@@ -90,9 +90,9 @@ private:
 
 	int					**Lock;
 
-	CGrid				*pGrid;
+	CSG_Grid				*pGrid;
 
-	CShapes				*pLayer;
+	CSG_Shapes				*pLayer;
 
 
 	void				Discrete_Create	(void);

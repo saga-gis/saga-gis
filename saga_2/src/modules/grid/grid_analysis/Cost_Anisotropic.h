@@ -21,7 +21,7 @@
 
 #include "MLB_Interface.h"
 
-class CCost_Anisotropic : public CModule_Grid
+class CCost_Anisotropic : public CSG_Module_Grid
 {
 public:
 
@@ -44,10 +44,10 @@ private:
 	CSG_Points_Int			m_CentralPoints;
 	CSG_Points_Int			m_AdjPoints;
 
-	CGrid					*m_pCostGrid;
-	CGrid					*m_pDirectionGrid;
-	CGrid					*m_pPointsGrid;	
-	CGrid					*m_pAccCostGrid;
+	CSG_Grid					*m_pCostGrid;
+	CSG_Grid					*m_pDirectionGrid;
+	CSG_Grid					*m_pPointsGrid;	
+	CSG_Grid					*m_pAccCostGrid;
 
 	void					CalculateCost				(void);
 	double					CalculateCostInDirection	(int,int,int,int);

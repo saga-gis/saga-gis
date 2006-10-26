@@ -66,7 +66,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CSurfer_Import : public CModule
+class CSurfer_Import : public CSG_Module
 {
 public:
 	CSurfer_Import(void);
@@ -85,7 +85,7 @@ private:
 };
 
 //---------------------------------------------------------
-class CSurfer_Export : public CModule_Grid
+class CSurfer_Export : public CSG_Module_Grid
 {
 public:
 	CSurfer_Export(void);

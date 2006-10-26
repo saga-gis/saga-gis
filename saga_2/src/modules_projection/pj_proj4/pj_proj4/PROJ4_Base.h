@@ -74,7 +74,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class pj_proj4_EXPORT CPROJ4_Base : public CModule  
+class pj_proj4_EXPORT CPROJ4_Base : public CSG_Module  
 {
 public:
 	CPROJ4_Base(void);

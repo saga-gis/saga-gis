@@ -86,14 +86,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void		Add_ScatterPlot(CGrid *pGrid)
+void		Add_ScatterPlot(CSG_Grid *pGrid)
 {
-	CParameter	*pNode;
-	CGrid		*pGrid_Y;
-	CShapes		*pShapes;
+	CSG_Parameter	*pNode;
+	CSG_Grid		*pGrid_Y;
+	CSG_Shapes		*pShapes;
 
 	//-----------------------------------------------------
-	CParameters	Parameters(NULL, wxString::Format("%s: %s", LNG("[CAP] Scatterplot"), pGrid->Get_Name()), LNG(""), NULL, true);
+	CSG_Parameters	Parameters(NULL, wxString::Format("%s: %s", LNG("[CAP] Scatterplot"), pGrid->Get_Name()), LNG(""), NULL, true);
 
 	Parameters.Add_Grid(
 		NULL	, "GRID"	, LNG("[CAP] Grid")		, LNG(""),
@@ -124,12 +124,12 @@ void		Add_ScatterPlot(CGrid *pGrid)
 }
 
 //---------------------------------------------------------
-void		Add_ScatterPlot(CTable *pTable)
+void		Add_ScatterPlot(CSG_Table *pTable)
 {
 	int			i;
 	wxString	sChoices;
 
-	CParameters	Parameters(NULL, wxString::Format("%s: %s", LNG("[CAP] Scatterplot"), pTable->Get_Name()), LNG(""));
+	CSG_Parameters	Parameters(NULL, wxString::Format("%s: %s", LNG("[CAP] Scatterplot"), pTable->Get_Name()), LNG(""));
 
 	for(i=0; i<pTable->Get_Field_Count(); i++)
 	{
@@ -177,7 +177,7 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CVIEW_ScatterPlot::CVIEW_ScatterPlot(CGrid *pGrid_X, CGrid *pGrid_Y)
+CVIEW_ScatterPlot::CVIEW_ScatterPlot(CSG_Grid *pGrid_X, CSG_Grid *pGrid_Y)
 	: CVIEW_Base(ID_VIEW_SCATTERPLOT, LNG("[CAP] Scatterplot"), ID_IMG_WND_SCATTERPLOT, CVIEW_ScatterPlot::_Create_Menu(), LNG("[CAP] Scatterplot"))
 {
 	_On_Construction();
@@ -190,7 +190,7 @@ CVIEW_ScatterPlot::CVIEW_ScatterPlot(CGrid *pGrid_X, CGrid *pGrid_Y)
 }
 
 //---------------------------------------------------------
-CVIEW_ScatterPlot::CVIEW_ScatterPlot(CGrid *pGrid_X, CShapes *pShapes_Y, int Field)
+CVIEW_ScatterPlot::CVIEW_ScatterPlot(CSG_Grid *pGrid_X, CSG_Shapes *pShapes_Y, int Field)
 	: CVIEW_Base(ID_VIEW_SCATTERPLOT, LNG("[CAP] Scatterplot"), ID_IMG_WND_SCATTERPLOT, CVIEW_ScatterPlot::_Create_Menu(), LNG("[CAP] Scatterplot"))
 {
 	_On_Construction();
@@ -204,7 +204,7 @@ CVIEW_ScatterPlot::CVIEW_ScatterPlot(CGrid *pGrid_X, CShapes *pShapes_Y, int Fie
 }
 
 //---------------------------------------------------------
-CVIEW_ScatterPlot::CVIEW_ScatterPlot(CTable *pTable, int Field_X, int Field_Y)
+CVIEW_ScatterPlot::CVIEW_ScatterPlot(CSG_Table *pTable, int Field_X, int Field_Y)
 	: CVIEW_Base(ID_VIEW_SCATTERPLOT, LNG("[CAP] Scatterplot"), ID_IMG_WND_SCATTERPLOT, CVIEW_ScatterPlot::_Create_Menu(), LNG("[CAP] Scatterplot"))
 {
 	_On_Construction();
@@ -542,7 +542,7 @@ void CVIEW_ScatterPlot::_Draw_Regression(wxDC &dc, wxRect r, double dx, double d
 void CVIEW_ScatterPlot::_Draw_Image(wxDC &dc, wxRect r, double dx, double dy)
 {
 	int		x, y, i, ax, ay, bx, by, Resolution;
-	CGrid	Count;
+	CSG_Grid	Count;
 	CSG_Colors	*pColors	= m_Parameters("COLORS")->asColors();
 	wxPen	Pen;
 
@@ -693,7 +693,7 @@ bool CVIEW_ScatterPlot::_Initialize(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CVIEW_ScatterPlot::_Initialize_Grids(CGrid *pGrid_X, CGrid *pGrid_Y)
+bool CVIEW_ScatterPlot::_Initialize_Grids(CSG_Grid *pGrid_X, CSG_Grid *pGrid_Y)
 {
 	if( pGrid_X && pGrid_Y )
 	{
@@ -714,7 +714,7 @@ bool CVIEW_ScatterPlot::_Initialize_Grids(CGrid *pGrid_X, CGrid *pGrid_Y)
 }
 
 //---------------------------------------------------------
-bool CVIEW_ScatterPlot::_Initialize_Grid_Equal(CGrid *pGrid_X, CGrid *pGrid_Y)
+bool CVIEW_ScatterPlot::_Initialize_Grid_Equal(CSG_Grid *pGrid_X, CSG_Grid *pGrid_Y)
 {
 	int		x, y;
 	double	dz_A	= pGrid_X->Get_ZFactor(),
@@ -738,7 +738,7 @@ bool CVIEW_ScatterPlot::_Initialize_Grid_Equal(CGrid *pGrid_X, CGrid *pGrid_Y)
 }
 
 //---------------------------------------------------------
-bool CVIEW_ScatterPlot::_Initialize_Grid_Unequal(CGrid *pGrid_X, CGrid *pGrid_Y)
+bool CVIEW_ScatterPlot::_Initialize_Grid_Unequal(CSG_Grid *pGrid_X, CSG_Grid *pGrid_Y)
 {
 	int		x, y, Interpolation	= GRID_INTERPOLATION_BSpline;
 	double	z, dz_A	= pGrid_X->Get_ZFactor();
@@ -766,13 +766,13 @@ bool CVIEW_ScatterPlot::_Initialize_Grid_Unequal(CGrid *pGrid_X, CGrid *pGrid_Y)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CVIEW_ScatterPlot::_Initialize_Shapes(CGrid *pGrid_X, CShapes *pShapes_Y, int Field)
+bool CVIEW_ScatterPlot::_Initialize_Shapes(CSG_Grid *pGrid_X, CSG_Shapes *pShapes_Y, int Field)
 {
 	if( pGrid_X && pShapes_Y && Field >= 0 && Field < pShapes_Y->Get_Table().Get_Field_Count() )
 	{
 		int		iShape, iPart, iPoint;
 		double	z;
-		CShape	*pShape;
+		CSG_Shape	*pShape;
 
 		m_Regression.Destroy();
 
@@ -811,14 +811,14 @@ bool CVIEW_ScatterPlot::_Initialize_Shapes(CGrid *pGrid_X, CShapes *pShapes_Y, i
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CVIEW_ScatterPlot::_Initialize_Table(CTable *pTable, int Field_X, int Field_Y)
+bool CVIEW_ScatterPlot::_Initialize_Table(CSG_Table *pTable, int Field_X, int Field_Y)
 {
 	if( pTable
 	&&	Field_X >= 0 && Field_X < pTable->Get_Field_Count()
 	&&	Field_Y >= 0 && Field_Y < pTable->Get_Field_Count() )
 	{
 		int				iRecord;
-		CTable_Record	*pRecord;
+		CSG_Table_Record	*pRecord;
 
 		m_Regression.Destroy();
 

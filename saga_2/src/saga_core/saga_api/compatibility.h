@@ -172,13 +172,13 @@ TGEO_iRect;
 // ::Get_Callback()							: dropped
 // ::SYS_Set_StringCopy						: dropped, use CSG_String instead
 // ::SYS_Add_StringCopy						: dropped, use CSG_String instead
-// CShapes::Get_Table()						: returns now reference instead of pointer
-// CTable::Update_Statistics()				: dropped
+// CSG_Shapes::Get_Table()						: returns now reference instead of pointer
+// CSG_Table::Update_Statistics()				: dropped
 // CColors::Set_Ramp()						: incompatible
-// CModule_Grid::Get_Gradient()				: dropped, use CGrid::Get_Gradient() instead
-// CModule_Interactive::Execute_Finish()	: function has no arguments anymore
-// CModule_Interactive::On_Set_Position()	: function has no 'callback' argument anymore
-// CModule::Execute()						: function has no arguments anymore
+// CSG_Module_Grid::Get_Gradient()				: dropped, use CSG_Grid::Get_Gradient() instead
+// CSG_Module_Interactive::Execute_Finish()	: function has no arguments anymore
+// CSG_Module_Interactive::On_Set_Position()	: function has no 'callback' argument anymore
+// CSG_Module::Execute()						: function has no arguments anymore
 
 
 ///////////////////////////////////////////////////////////
@@ -259,9 +259,92 @@ TGEO_iRect;
 #define GEO_Get_Triangle_CircumCircle	SG_Get_Triangle_CircumCircle
 #define GEO_Get_Polygon_Area			SG_Get_Polygon_Area
 
-#define CPDF_Document					CDoc_PDF
-#define CHTML_Document					CDoc_HTML
-#define CSVG_Graph						CDoc_SVG
+#define CPDF_Document					CSG_Doc_PDF
+#define CHTML_Document					CSG_Doc_HTML
+#define CSVG_Graph						CSG_Doc_SVG
+
+//---------------------------------------------------------
+#define CDataObject					CSG_Data_Object
+#define CGrid							CSG_Grid
+#define CGrid_System					CSG_Grid_System
+#define CModule						CSG_Module
+#define CModule_Grid_Interactive		CSG_Module_Grid_Interactive
+#define CModule_Interactive			CSG_Module_Interactive
+#define CModule_Interactive_Base		CSG_Module_Interactive_Base
+#define CModule_Library_Interface		CSG_Module_Library_Interface
+#define CShape							CSG_Shape
+#define CShape_Line					CSG_Shape_Line
+#define CShape_Point					CSG_Shape_Point
+#define CShape_Points					CSG_Shape_Points
+#define CShape_Polygon					CSG_Shape_Polygon
+#define CShapes						CSG_Shapes
+#define CShape_Search					CSG_Shape_Search
+#define CTable							CSG_Table
+#define CTable_DBase					CSG_Table_DBase
+#define CTable_Record					CSG_Table_Record
+#define CTable_Value					CSG_Table_Value
+#define CTable_Value_Date				CSG_Table_Value_Date
+#define CTable_Value_Double			CSG_Table_Value_Double
+#define CTable_Value_Int				CSG_Table_Value_Int
+#define CTable_Value_String			CSG_Table_Value_String
+#define CTIN							CSG_TIN
+#define CTIN_Edge						CSG_TIN_Edge
+#define CTIN_Point						CSG_TIN_Point
+#define CTIN_Triangle					CSG_TIN_Triangle
+#define CParameters					CSG_Parameters
+#define CParameter						CSG_Parameter
+#define CParameter_Bool				CSG_Parameter_Bool
+#define CParameter_Choice				CSG_Parameter_Choice
+#define CParameter_Color				CSG_Parameter_Color
+#define CParameter_Colors				CSG_Parameter_Colors
+#define CParameter_Data				CSG_Parameter_Data
+#define CParameter_DataObject			CSG_Parameter_Data_Object
+#define CParameter_DataObject_Output	CSG_Parameter_Data_Object_Output
+#define CParameter_Degree				CSG_Parameter_Degree
+#define CParameter_Double				CSG_Parameter_Double
+#define CParameter_FilePath			CSG_Parameter_File_Name
+#define CParameter_FixedTable			CSG_Parameter_Fixed_Table
+#define CParameter_Font				CSG_Parameter_Font
+#define CParameter_Grid				CSG_Parameter_Grid
+#define CParameter_Grid_List			CSG_Parameter_Grid_List
+#define CParameter_Grid_System			CSG_Parameter_Grid_System
+#define CParameter_Int					CSG_Parameter_Int
+#define CParameter_List				CSG_Parameter_List
+#define CParameter_Node				CSG_Parameter_Node
+#define CParameter_Parameters			CSG_Parameter_Parameters
+#define CParameter_Range				CSG_Parameter_Range
+#define CParameter_Shapes				CSG_Parameter_Shapes
+#define CParameter_Shapes_List			CSG_Parameter_Shapes_List
+#define CParameter_String				CSG_Parameter_String
+#define CParameter_Table				CSG_Parameter_Table
+#define CParameter_Table_Field			CSG_Parameter_Table_Field
+#define CParameter_Table_List			CSG_Parameter_Table_List
+#define CParameter_Text				CSG_Parameter_Text
+#define CParameter_TIN					CSG_Parameter_TIN
+#define CParameter_TIN_List			CSG_Parameter_TIN_List
+#define CParameter_Value				CSG_Parameter_Value
+
+#define TDataObject_Type				TSG_Data_Object_Type
+#define TGrid_Type						TSG_Grid_Type
+#define TGrid_Memory_Type				TSG_Grid_Memory_Type
+#define TGrid_File_Format				TSG_Grid_File_Format
+#define TGrid_File_Key					TSG_Grid_File_Key
+#define TGrid_Interpolation			TSG_Grid_Interpolation
+#define TGrid_Operation				TSG_Grid_Operation
+#define TShape_Type					TSG_Shape_Type
+#define TSVG_Alignment					TSG_SVG_Alignment
+#define TTable_FieldType				TSG_Table_Field_Type
+#define TTable_FileType				TSG_Table_File_Type
+#define TTable_Index_Order				TSG_Table_Index_Order
+#define TPDF_Font_Type					TSG_PDF_Font_Type
+#define TPDF_Page_Size					TSG_PDF_Page_Size
+#define TPDF_Title_Level				TSG_PDF_Title_Level
+#define TParameter_Type				TSG_Parameter_Type
+#define TModule_Type					TSG_Module_Type
+#define TModule_Interactive_Mode		TSG_Module_Interactive_Mode
+#define TModule_Interactive_DragMode	TSG_Module_Interactive_DragMode
+#define TModule_Error					TSG_Module_Error
+#define TMLB_Info						TSG_MLB_Info
 
 
 ///////////////////////////////////////////////////////////

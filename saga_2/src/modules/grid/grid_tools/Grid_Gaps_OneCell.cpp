@@ -109,7 +109,7 @@ bool CGrid_Gaps_OneCell::On_Execute(void)
 	bool	bCloseGap;
 	int		x, y, i, ix, iy;
 	double	Sum;
-	CGrid	*pInput, *pResult;
+	CSG_Grid	*pInput, *pResult;
 
 	pInput	= Parameters("INPUT")->asGrid();
 	pResult	= Parameters("RESULT")->asGrid();

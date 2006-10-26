@@ -28,7 +28,7 @@ class CQueryParser
 {
 public:
 
-	CQueryParser(CShapes*, CSG_String);
+	CQueryParser(CSG_Shapes*, CSG_String);
 	virtual ~CQueryParser();
 	int& GetSelectedRecords();
 	int GetSelectedRecordsCount();

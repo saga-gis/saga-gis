@@ -70,8 +70,8 @@
 //---------------------------------------------------------
 CSRTM30_Import::CSRTM30_Import(void)
 {
-	CParameter	*pNode_0;
-	CParameters	*pParameters;
+	CSG_Parameter	*pNode_0;
+	CSG_Parameters	*pParameters;
 
 	//-----------------------------------------------------
 	Set_Name(_TL("Import SRTM30 DEM"));
@@ -179,7 +179,7 @@ bool CSRTM30_Import::On_Execute(void)
 	double		xMin, xMax, yMin, yMax;
 	TSG_Rect	rOut, rTile;
 	CSG_String	sTile;
-	CGrid		*pOut;
+	CSG_Grid		*pOut;
 
 	//-----------------------------------------------------
 	xMin		= Parameters("XMIN")->asInt();
@@ -232,7 +232,7 @@ bool CSRTM30_Import::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSRTM30_Import::Tile_Load(const char *sTile, TSG_Rect &rTile, CGrid *pOut, TSG_Rect &rOut)
+bool CSRTM30_Import::Tile_Load(const char *sTile, TSG_Rect &rTile, CSG_Grid *pOut, TSG_Rect &rOut)
 {
 	short		Value;
 	int			x, y, xOut, yOut;
@@ -276,7 +276,7 @@ FILE * CSRTM30_Import::Tile_Open(const char *sTile)
 {
 	const char	*sPath;
 	FILE		*Stream;
-	CParameters	*pParameters;
+	CSG_Parameters	*pParameters;
 
 	if( (Stream = fopen(sTile, "rb")) == NULL )
 	{

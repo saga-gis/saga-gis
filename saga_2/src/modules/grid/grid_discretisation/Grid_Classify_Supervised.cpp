@@ -89,7 +89,7 @@ enum
 //---------------------------------------------------------
 CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Set_Name(_TL("Supervised Classification"));
@@ -167,11 +167,11 @@ bool CGrid_Classify_Supervised::On_Execute(void)
 {
 	bool					bResult	= false;
 	int						iField;
-	CTable					*pClasses, *pLUT;
-	CShapes					*pPolygons;
-	CGrid					*pGrid, *pResult;
-	CParameter_Grid_List	*pGrids;
-	CParameters				P;
+	CSG_Table					*pClasses, *pLUT;
+	CSG_Shapes					*pPolygons;
+	CSG_Grid					*pGrid, *pResult;
+	CSG_Parameter_Grid_List	*pGrids;
+	CSG_Parameters				P;
 
 	//-----------------------------------------------------
 	iField		= Parameters("FIELD")		->asInt();
@@ -233,13 +233,13 @@ bool CGrid_Classify_Supervised::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Classify_Supervised::Get_Class_Information(CParameter_Grid_List *pGrids, CShapes *pPolygons, int iField, CTable *pClasses, CTable *pLUT)
+bool CGrid_Classify_Supervised::Get_Class_Information(CSG_Parameter_Grid_List *pGrids, CSG_Shapes *pPolygons, int iField, CSG_Table *pClasses, CSG_Table *pLUT)
 {
 	int				x, y, iGrid, iClass, iPolygon;
 	double			d, n;
 	TSG_Point		p;
-	CTable_Record	*pClass;
-	CShape_Polygon	*pPolygon;
+	CSG_Table_Record	*pClass;
+	CSG_Shape_Polygon	*pPolygon;
 
 	//-----------------------------------------------------
 	if( pPolygons->Get_Type() == SHAPE_TYPE_Polygon )
@@ -264,7 +264,7 @@ bool CGrid_Classify_Supervised::Get_Class_Information(CParameter_Grid_List *pGri
 			{
 				for(iPolygon=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
 				{
-					pPolygon	= (CShape_Polygon *)pPolygons->Get_Shape(iPolygon);
+					pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
 
 					if( pPolygon->is_Containing(p) && (pClass = Get_Class(pClasses, pPolygon->Get_Record()->asString(iField))) != NULL )
 					{
@@ -340,10 +340,10 @@ bool CGrid_Classify_Supervised::Get_Class_Information(CParameter_Grid_List *pGri
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTable_Record * CGrid_Classify_Supervised::Get_Class(CTable *pClasses, const char *Identifier)
+CSG_Table_Record * CGrid_Classify_Supervised::Get_Class(CSG_Table *pClasses, const char *Identifier)
 {
 	int				i;
-	CTable_Record	*pClass;
+	CSG_Table_Record	*pClass;
 
 	if( pClasses && Identifier )
 	{
@@ -383,7 +383,7 @@ CTable_Record * CGrid_Classify_Supervised::Get_Class(CTable *pClasses, const cha
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Classify_Supervised::Do_Minimum_Distance(CParameter_Grid_List *pGrids, CTable *pClasses, CGrid *pResult)
+bool CGrid_Classify_Supervised::Do_Minimum_Distance(CSG_Parameter_Grid_List *pGrids, CSG_Table *pClasses, CSG_Grid *pResult)
 {
 	int		x, y, iClass, iGrid, iMin;
 	double	dMin, d, e, **m;
@@ -448,7 +448,7 @@ bool CGrid_Classify_Supervised::Do_Minimum_Distance(CParameter_Grid_List *pGrids
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Classify_Supervised::Do_Maximum_Likelihood(CParameter_Grid_List *pGrids, CTable *pClasses, CGrid *pResult)
+bool CGrid_Classify_Supervised::Do_Maximum_Likelihood(CSG_Parameter_Grid_List *pGrids, CSG_Table *pClasses, CSG_Grid *pResult)
 {
 	int		x, y, iClass, iGrid, iMax;
 	double	dMax, d, e, **m, **s, **k;

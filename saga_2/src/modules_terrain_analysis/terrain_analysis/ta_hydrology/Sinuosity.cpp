@@ -126,7 +126,7 @@ bool CSinuosity::On_Execute_Finish(){
 	return( true );
 }
 
-bool CSinuosity::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode){	
+bool CSinuosity::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode){	
 	
 	int iX, iY;
 

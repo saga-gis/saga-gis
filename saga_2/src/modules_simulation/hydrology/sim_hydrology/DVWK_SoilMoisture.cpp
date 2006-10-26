@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CDVWK_SoilMoisture::CDVWK_SoilMoisture(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Set_Name	(_TL("Soil Moisture Content"));
@@ -175,7 +175,7 @@ CDVWK_SoilMoisture::CDVWK_SoilMoisture(void)
 	pCropCoeff->Add_Field(_TL("November")	, TABLE_FIELDTYPE_Double);
 	pCropCoeff->Add_Field(_TL("December")	, TABLE_FIELDTYPE_Double);
 
-	CTable_Record	*pRec;
+	CSG_Table_Record	*pRec;
 
 #define ADD_RECORD(ID, NAME, m01, m02, m03, m04, m05, m06, m07, m08, m09, m10, m11, m12)	pRec = pCropCoeff->Add_Record();\
 	pRec->Set_Value( 0, ID);  pRec->Set_Value( 1, NAME);\
@@ -212,7 +212,7 @@ CDVWK_SoilMoisture::~CDVWK_SoilMoisture(void)
 bool CDVWK_SoilMoisture::On_Execute(void)
 {
 	int		Day, x, y, i, LandUseID;
-	CGrid	*pGrid;
+	CSG_Grid	*pGrid;
 	CSG_Colors	Colors;
 
 	//-----------------------------------------------------
@@ -340,7 +340,7 @@ double CDVWK_SoilMoisture::Get_ETP_Haude(int Day)
 	double	T14, U14, es, e, ETP_Haude;
 
 	//-----------------------------------------------------
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 
 	if( (pRecord = pClimate->Get_Record(Day)) == NULL )
 	{
@@ -412,7 +412,7 @@ double CDVWK_SoilMoisture::Get_Pi(int Day)
 	double	P, Pi;
 
 	//-----------------------------------------------------
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 
 	if( (pRecord = pClimate->Get_Record(Day)) == NULL )
 	{

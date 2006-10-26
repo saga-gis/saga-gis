@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTIN_Point::CTIN_Point(void)
+CSG_TIN_Point::CSG_TIN_Point(void)
 {
 	m_ID			= -1;
 	m_Point.x		= m_Point.y	= 0.0;
@@ -82,7 +82,7 @@ CTIN_Point::CTIN_Point(void)
 }
 
 //---------------------------------------------------------
-CTIN_Point::CTIN_Point(int ID, TSG_Point Point, CTable_Record *pRecord)
+CSG_TIN_Point::CSG_TIN_Point(int ID, TSG_Point Point, CSG_Table_Record *pRecord)
 {
 	m_ID			= ID;
 	m_Point			= Point;
@@ -94,13 +94,13 @@ CTIN_Point::CTIN_Point(int ID, TSG_Point Point, CTable_Record *pRecord)
 }
 
 //---------------------------------------------------------
-CTIN_Point::~CTIN_Point(void)
+CSG_TIN_Point::~CSG_TIN_Point(void)
 {
 	_Del_Relations();
 }
 
 //---------------------------------------------------------
-bool CTIN_Point::_Add_Triangle(CTIN_Triangle *pTriangle)
+bool CSG_TIN_Point::_Add_Triangle(CSG_TIN_Triangle *pTriangle)
 {
 	for(int i=0; i<m_nTriangles; i++)
 	{
@@ -110,7 +110,7 @@ bool CTIN_Point::_Add_Triangle(CTIN_Triangle *pTriangle)
 		}
 	}
 
-	m_Triangles	= (CTIN_Triangle **)SG_Realloc(m_Triangles, (m_nTriangles + 1) * sizeof(CTIN_Triangle *));
+	m_Triangles	= (CSG_TIN_Triangle **)SG_Realloc(m_Triangles, (m_nTriangles + 1) * sizeof(CSG_TIN_Triangle *));
 	m_Triangles[m_nTriangles++]	= pTriangle;
 
 //	_Add_Neighbor(pTriangle->Get_Point(0));
@@ -121,7 +121,7 @@ bool CTIN_Point::_Add_Triangle(CTIN_Triangle *pTriangle)
 }
 
 //---------------------------------------------------------
-bool CTIN_Point::_Add_Neighbor(CTIN_Point *pNeighbor)
+bool CSG_TIN_Point::_Add_Neighbor(CSG_TIN_Point *pNeighbor)
 {
 	if( pNeighbor == this )
 	{
@@ -136,14 +136,14 @@ bool CTIN_Point::_Add_Neighbor(CTIN_Point *pNeighbor)
 		}
 	}
 
-	m_Neighbors	= (CTIN_Point **)SG_Realloc(m_Neighbors, (m_nNeighbors + 1) * sizeof(CTIN_Point *));
+	m_Neighbors	= (CSG_TIN_Point **)SG_Realloc(m_Neighbors, (m_nNeighbors + 1) * sizeof(CSG_TIN_Point *));
 	m_Neighbors[m_nNeighbors++]	= pNeighbor;
 
 	return( true );
 }
 
 //---------------------------------------------------------
-bool CTIN_Point::_Del_Relations(void)
+bool CSG_TIN_Point::_Del_Relations(void)
 {
 	if( m_nTriangles > 0 )
 	{
@@ -163,10 +163,10 @@ bool CTIN_Point::_Del_Relations(void)
 }
 
 //---------------------------------------------------------
-double CTIN_Point::Get_Gradient(int iNeighbor, int iField)
+double CSG_TIN_Point::Get_Gradient(int iNeighbor, int iField)
 {
 	double		dx, dy, dz;
-	CTIN_Point	*pNeighbor;
+	CSG_TIN_Point	*pNeighbor;
 
 	if( (pNeighbor = Get_Neighbor(iNeighbor)) != NULL )
 	{
@@ -184,7 +184,7 @@ double CTIN_Point::Get_Gradient(int iNeighbor, int iField)
 }
 
 //---------------------------------------------------------
-int TIN_Compare_Triangle_Center(const void *pz1, const void *pz2)
+int SG_TIN_Compare_Triangle_Center(const void *pz1, const void *pz2)
 {
 	double	z1	= ((TSG_Point_3D *)pz1)->z,
 			z2	= ((TSG_Point_3D *)pz2)->z;
@@ -203,7 +203,7 @@ int TIN_Compare_Triangle_Center(const void *pz1, const void *pz2)
 }
 
 //---------------------------------------------------------
-bool CTIN_Point::Get_Polygon(CSG_Points &Points)
+bool CSG_TIN_Point::Get_Polygon(CSG_Points &Points)
 {
 	if( m_nTriangles >= 3 )
 	{
@@ -218,7 +218,7 @@ bool CTIN_Point::Get_Polygon(CSG_Points &Points)
 			p.Add(c.x, c.y, SG_Get_Angle_Of_Direction(c.x - m_Point.x, c.y - m_Point.y));
 		}
 
-		qsort(&(p[0]), p.Get_Count(), sizeof(TSG_Point_3D), TIN_Compare_Triangle_Center);
+		qsort(&(p[0]), p.Get_Count(), sizeof(TSG_Point_3D), SG_TIN_Compare_Triangle_Center);
 
 		Points.Clear();
 
@@ -234,7 +234,7 @@ bool CTIN_Point::Get_Polygon(CSG_Points &Points)
 }
 
 //---------------------------------------------------------
-double CTIN_Point::Get_Polygon_Area(void)
+double CSG_TIN_Point::Get_Polygon_Area(void)
 {
 	CSG_Points	Points;
 
@@ -254,14 +254,14 @@ double CTIN_Point::Get_Polygon_Area(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTIN_Edge::CTIN_Edge(CTIN_Point *a, CTIN_Point *b)
+CSG_TIN_Edge::CSG_TIN_Edge(CSG_TIN_Point *a, CSG_TIN_Point *b)
 {
 	m_Points[0]		= a;
 	m_Points[1]		= b;
 }
 
 //---------------------------------------------------------
-CTIN_Edge::~CTIN_Edge(void)
+CSG_TIN_Edge::~CSG_TIN_Edge(void)
 {
 }
 
@@ -273,7 +273,7 @@ CTIN_Edge::~CTIN_Edge(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTIN_Triangle::CTIN_Triangle(CTIN_Point *a, CTIN_Point *b, CTIN_Point *c)
+CSG_TIN_Triangle::CSG_TIN_Triangle(CSG_TIN_Point *a, CSG_TIN_Point *b, CSG_TIN_Point *c)
 {
 	m_Points[0]		= a;
 	m_Points[1]		= b;
@@ -323,12 +323,12 @@ CTIN_Triangle::CTIN_Triangle(CTIN_Point *a, CTIN_Point *b, CTIN_Point *c)
 }
 
 //---------------------------------------------------------
-CTIN_Triangle::~CTIN_Triangle(void)
+CSG_TIN_Triangle::~CSG_TIN_Triangle(void)
 {}
 
 
 //---------------------------------------------------------
-bool CTIN_Triangle::is_Containing(const TSG_Point &Point)
+bool CSG_TIN_Triangle::is_Containing(const TSG_Point &Point)
 {
 	return( is_Containing(Point.x, Point.y) );
 }
@@ -337,7 +337,7 @@ bool CTIN_Triangle::is_Containing(const TSG_Point &Point)
 #define IS_ONLINE(A, B)	(A.y == B.y && ((A.x <= x && x <= B.x) || (B.x <= x && x <= A.x)))
 
 //---------------------------------------------------------
-bool CTIN_Triangle::is_Containing(double x, double y)
+bool CSG_TIN_Triangle::is_Containing(double x, double y)
 {
 	if( m_Extent.Contains(x, y) )
 	{
@@ -384,7 +384,7 @@ bool CTIN_Triangle::is_Containing(double x, double y)
 }
 
 //---------------------------------------------------------
-bool CTIN_Triangle::Get_Gradient(int zField, double &Decline, double &Azimuth)
+bool CSG_TIN_Triangle::Get_Gradient(int zField, double &Decline, double &Azimuth)
 {
 	int		i;
 	double	x[3], y[3], z[3], A, B, C;

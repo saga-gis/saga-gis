@@ -88,7 +88,7 @@ public:
 	CSG_String				Get_Description		(void);
 	CSG_String				Get_Methods			(void);
 
-	bool					Initialise			(int Method, CGrid *pDTM, CGrid *pRoute, CGrid *pFlow, double MFD_Converge);
+	bool					Initialise			(int Method, CSG_Grid *pDTM, CSG_Grid *pRoute, CSG_Grid *pFlow, double MFD_Converge);
 	bool					Finalise			(void);
 
 	bool					Add_Target			(int x, int y);
@@ -104,7 +104,7 @@ private:
 
 	double					m_MFD_Converge;
 
-	CGrid					*m_pDTM, *m_pRoute, *m_pFlow;
+	CSG_Grid					*m_pDTM, *m_pRoute, *m_pFlow;
 
 
 	void					Set_Value			(int x, int y);
@@ -122,7 +122,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CFlow_AreaUpslope_Interactive : public CModule_Grid_Interactive
+class CFlow_AreaUpslope_Interactive : public CSG_Module_Grid_Interactive
 {
 public:
 	CFlow_AreaUpslope_Interactive(void);
@@ -135,7 +135,7 @@ protected:
 
 	virtual bool			On_Execute			(void);
 	virtual bool			On_Execute_Finish	(void);
-	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
+	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
 
 
 private:
@@ -145,7 +145,7 @@ private:
 };
 
 //---------------------------------------------------------
-class CFlow_AreaUpslope_Area : public CModule_Grid
+class CFlow_AreaUpslope_Area : public CSG_Module_Grid
 {
 public:
 	CFlow_AreaUpslope_Area(void);

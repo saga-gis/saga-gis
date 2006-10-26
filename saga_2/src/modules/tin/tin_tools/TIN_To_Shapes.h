@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTIN_To_Shapes : public CModule
+class CTIN_To_Shapes : public CSG_Module
 {
 public:
 	CTIN_To_Shapes(void);

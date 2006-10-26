@@ -232,7 +232,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 
 		if( g_pLibrary )
 		{
-			Result	= g_pLibrary->Add_DataObject((CDataObject *)Param_1) ? 1 : 0;
+			Result	= g_pLibrary->Add_DataObject((CSG_Data_Object *)Param_1) ? 1 : 0;
 		}
 
 		break;
@@ -275,7 +275,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 
 		if( g_pLibrary )
 		{
-			Result	= g_pLibrary->Get_Parameters((CParameters *)Param_1) ? 1 : 0;
+			Result	= g_pLibrary->Get_Parameters((CSG_Parameters *)Param_1) ? 1 : 0;
 		}
 
 		break;

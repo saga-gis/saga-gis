@@ -42,14 +42,14 @@
 #define GRATICULE_SEPARATION 20
 #define SUMMARY_TABLE_CELL_HEIGHT 13.0
 
-class CSummaryPDFDocEngine : public CDoc_PDF 
+class CSummaryPDFDocEngine : public CSG_Doc_PDF 
 {
 public:
 
 	CSummaryPDFDocEngine();
 	virtual ~CSummaryPDFDocEngine();
-	void AddClassSummaryPage(CShapes*, CTable*, int, CSG_String);
-	void AddSummaryStatisticsPage(CTable* pTable);
+	void AddClassSummaryPage(CSG_Shapes*, CSG_Table*, int, CSG_String);
+	void AddSummaryStatisticsPage(CSG_Table* pTable);
 
 private:
 

@@ -87,7 +87,7 @@
 class CParameters_PG_Choice : public wxEnumPropertyClass
 {
 public:
-	CParameters_PG_Choice(class CParameter *pParameter);
+	CParameters_PG_Choice(class CSG_Parameter *pParameter);
 	virtual ~CParameters_PG_Choice(void);
 
 	bool						Update				(void);
@@ -99,7 +99,7 @@ public:
 
 protected:
 
-	class CParameter			*m_pParameter;
+	class CSG_Parameter			*m_pParameter;
 
 
 	void						_Create				(void);
@@ -134,7 +134,7 @@ protected:
 class CParameters_PG_GridSystem : public wxCustomPropertyClass
 {
 public:
-	CParameters_PG_GridSystem(class CParameter *pParameter);
+	CParameters_PG_GridSystem(class CSG_Parameter *pParameter);
 	virtual ~CParameters_PG_GridSystem(void);
 
 	bool						Update				(void);
@@ -147,7 +147,7 @@ protected:
 
 	int							m_index;
 
-	class CParameter			*m_pParameter;
+	class CSG_Parameter			*m_pParameter;
 
 
 	void						_Create				(void);
@@ -167,7 +167,7 @@ class CParameters_PG_DoublesValue
 {
 public:
 	CParameters_PG_DoublesValue(void);
-	CParameters_PG_DoublesValue(class CParameter *pParameter);
+	CParameters_PG_DoublesValue(class CSG_Parameter *pParameter);
 	~CParameters_PG_DoublesValue(void);
 
 	bool						operator ==			(const CParameters_PG_DoublesValue &r) const	{	return( false );	}
@@ -186,10 +186,10 @@ public:
 
 protected:
 
-	class CParameter			*m_pParameter;
+	class CSG_Parameter			*m_pParameter;
 
 
-	bool						_Create				(class CParameter *pParameter);
+	bool						_Create				(class CSG_Parameter *pParameter);
 	void						_Destroy			(void);
 
 };
@@ -212,7 +212,7 @@ class CParameters_PG_DialogedValue
 {
 public:
 	CParameters_PG_DialogedValue(void)							{	m_pParameter	= NULL;			}
-	CParameters_PG_DialogedValue(class CParameter *pParameter)	{	m_pParameter	= pParameter;	}
+	CParameters_PG_DialogedValue(class CSG_Parameter *pParameter)	{	m_pParameter	= pParameter;	}
 	virtual ~CParameters_PG_DialogedValue(void)					{}
 
 	bool						operator ==		(const CParameters_PG_DialogedValue &r) const	{	return( false );	}
@@ -222,7 +222,7 @@ public:
 	bool						Do_Dialog		(void);
 
 
-	class CParameter			*m_pParameter;
+	class CSG_Parameter			*m_pParameter;
 
 };
 

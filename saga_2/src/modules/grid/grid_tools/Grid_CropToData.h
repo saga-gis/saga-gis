@@ -18,7 +18,7 @@
 *******************************************************************************/ 
 #include "MLB_Interface.h"
 
-class CCropToData : public CModule_Grid
+class CCropToData : public CSG_Module_Grid
 {
 public:
 	CCropToData(void);

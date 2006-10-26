@@ -82,13 +82,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESVG_Alignment
+typedef enum ESG_SVG_Alignment
 {
 	SVG_ALIGNMENT_Left	= 0,
 	SVG_ALIGNMENT_Center,
 	SVG_ALIGNMENT_Right
 }
-TSVG_Alignment;
+TSG_SVG_Alignment;
 
 
 ///////////////////////////////////////////////////////////
@@ -98,11 +98,11 @@ TSVG_Alignment;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CDoc_SVG
+class SAGA_API_DLL_EXPORT CSG_Doc_SVG
 {
 public:
-	CDoc_SVG(void);
-	virtual ~CDoc_SVG(void);
+	CSG_Doc_SVG(void);
+	virtual ~CSG_Doc_SVG(void);
 
 	void						Open						(int iWidth, int iHeight);
 	bool						Save						(const char *FileName);
@@ -116,7 +116,7 @@ public:
 	void						Draw_Circle					(double x, double y, double Radius			, int Fill_Color = SG_COLOR_RED  , int Line_Color = SG_COLOR_BLACK, double Line_Width = 1., const char *Unit = "");
 	void						Draw_LinkedCircle			(double x, double y, double Radius, const char *Link, int Fill_Color = SG_COLOR_RED  , int Line_Color = SG_COLOR_BLACK, double Line_Width = 1., const char *Unit = "");
 
-	void						Draw_Text					(double x, double y,  const char *Text, int iColor, const char* Font, double dSize, const char *Unit = "", TSVG_Alignment Alignment = SVG_ALIGNMENT_Center);
+	void						Draw_Text					(double x, double y,  const char *Text, int iColor, const char* Font, double dSize, const char *Unit = "", TSG_SVG_Alignment Alignment = SVG_ALIGNMENT_Center);
 
 protected:
 

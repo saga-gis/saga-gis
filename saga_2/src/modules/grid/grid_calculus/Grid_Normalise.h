@@ -67,7 +67,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CGrid_Normalise : public CModule_Grid  
+class CGrid_Normalise : public CSG_Module_Grid  
 {
 public:
 	CGrid_Normalise(void);

@@ -67,7 +67,7 @@
 #include "./e00compr/e00compr.h"
 
 //---------------------------------------------------------
-class CESRI_E00_Import : public CModule
+class CESRI_E00_Import : public CSG_Module
 {
 public:
 	CESRI_E00_Import(void);
@@ -85,7 +85,7 @@ private:
 
 	CSG_String				e00_Name;
 
-	CTable					*pPAT, *pAAT;
+	CSG_Table					*pPAT, *pAAT;
 
 
 	bool					Open(const char *FileName);
@@ -93,21 +93,21 @@ private:
 
 	bool					E00GotoLine(int iLine);
 
-	CGrid *					getraster	(int prec, double scale);
-	CShapes *				getarcs		(int prec, double scale, TShape_Type &shape_type);
-	CShapes *				getlabels	(int prec, double scale);
-	CShapes *				getsites	(int prec, double scale);
+	CSG_Grid *					getraster	(int prec, double scale);
+	CSG_Shapes *				getarcs		(int prec, double scale, TSG_Shape_Type &shape_type);
+	CSG_Shapes *				getlabels	(int prec, double scale);
+	CSG_Shapes *				getsites	(int prec, double scale);
 	double					getproj		(void);
 
 	int						info_Get_Tables	(void);
-	CTable *				info_Get_Table	(struct info_Table info);
+	CSG_Table *				info_Get_Table	(struct info_Table info);
 	void					info_Skip_Table	(struct info_Table info);
 	void					info_Get_Record	(char *buffer, int buffer_length);
 
-	bool					Assign_Attributes(CShapes *pShapes);
+	bool					Assign_Attributes(CSG_Shapes *pShapes);
 
-	CShapes *				Arcs2Polygons(CShapes *pArcs);
-	void					Arcs2Polygon (CShapes *pArcs, CShapes *pPolygons, int id);
+	CSG_Shapes *				Arcs2Polygons(CSG_Shapes *pArcs);
+	void					Arcs2Polygon (CSG_Shapes *pArcs, CSG_Shapes *pPolygons, int id);
 
 	void					skip	(char *end);
 	void					skip_dat(void);

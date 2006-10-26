@@ -211,7 +211,7 @@ bool CExercise_06::Method_02(int Radius)
 {
 	int		x, y, ix, iy, xMask, yMask, nMask, n;
 	double	s, Distance;
-	CGrid	gMask;
+	CSG_Grid	gMask;
 
 	//-----------------------------------------------------
 	nMask	= 1 + 2 * Radius;
@@ -268,7 +268,7 @@ bool CExercise_06::Method_03(int Radius)
 {
 	int		x, y, ix, iy, xMask, yMask, nMask;
 	double	s, n, Distance, Weight;
-	CGrid	gMask;
+	CSG_Grid	gMask;
 
 	//-----------------------------------------------------
 	nMask	= 1 + 2 * Radius;

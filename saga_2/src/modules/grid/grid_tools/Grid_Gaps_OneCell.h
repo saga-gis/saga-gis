@@ -68,7 +68,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CGrid_Gaps_OneCell : public CModule_Grid  
+class CGrid_Gaps_OneCell : public CSG_Module_Grid  
 {
 public:
 	CGrid_Gaps_OneCell(void);

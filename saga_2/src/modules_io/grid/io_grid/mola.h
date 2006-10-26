@@ -67,7 +67,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CMOLA_Import : public CModule
+class CMOLA_Import : public CSG_Module
 {
 public:
 	CMOLA_Import(void);

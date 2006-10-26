@@ -74,7 +74,7 @@
 //---------------------------------------------------------
 CShapes_Assign_Table::CShapes_Assign_Table(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Set_Name		(_TL("Assign a Table to Shapes"));
@@ -155,10 +155,10 @@ bool CShapes_Assign_Table::On_Execute(void)
 	bool			bAddAll;
 	int				iShape, iPart, iPoint, iField, jField, off_Field, iRecord, Method, id_Shapes, id_Table;
 	CSG_String		sID;
-	CTable			*pTable_A;
-	CTable_Record	*pRecord_A;
-	CShapes			*pShapes_A, *pShapes_B;
-	CShape			*pShape_A, *pShape_B;
+	CSG_Table			*pTable_A;
+	CSG_Table_Record	*pRecord_A;
+	CSG_Shapes			*pShapes_A, *pShapes_B;
+	CSG_Shape			*pShape_A, *pShape_B;
 
 	//-----------------------------------------------------
 	pShapes_A	= Parameters("SHAPES")		->asShapes();

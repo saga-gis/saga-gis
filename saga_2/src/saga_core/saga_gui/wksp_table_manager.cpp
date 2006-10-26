@@ -154,7 +154,7 @@ bool CWKSP_Table_Manager::On_Command(int Cmd_ID)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Table * CWKSP_Table_Manager::Get_Table(CTable *pTable)
+CWKSP_Table * CWKSP_Table_Manager::Get_Table(CSG_Table *pTable)
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
@@ -168,13 +168,13 @@ CWKSP_Table * CWKSP_Table_Manager::Get_Table(CTable *pTable)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Table_Manager::Exists(CTable *pTable)
+bool CWKSP_Table_Manager::Exists(CSG_Table *pTable)
 {
 	return( Get_Table(pTable) != NULL );
 }
 
 //---------------------------------------------------------
-CWKSP_Table * CWKSP_Table_Manager::Add(CTable *pTable)
+CWKSP_Table * CWKSP_Table_Manager::Add(CSG_Table *pTable)
 {
 	CWKSP_Table	*pItem;
 
@@ -187,7 +187,7 @@ CWKSP_Table * CWKSP_Table_Manager::Add(CTable *pTable)
 }
 
 //---------------------------------------------------------
-CTable * CWKSP_Table_Manager::Get_byFileName(const char *File_Name)
+CSG_Table * CWKSP_Table_Manager::Get_byFileName(const char *File_Name)
 {
 	CSG_String	s(File_Name);
 
@@ -210,7 +210,7 @@ CTable * CWKSP_Table_Manager::Get_byFileName(const char *File_Name)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Table_Manager::Update(CTable *pTable, CParameters *pParameters)
+bool CWKSP_Table_Manager::Update(CSG_Table *pTable, CSG_Parameters *pParameters)
 {
 	CWKSP_Table	*pItem;
 
@@ -223,7 +223,7 @@ bool CWKSP_Table_Manager::Update(CTable *pTable, CParameters *pParameters)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Table_Manager::Update_Views(CTable *pTable)
+bool CWKSP_Table_Manager::Update_Views(CSG_Table *pTable)
 {
 	CWKSP_Table	*pItem;
 
@@ -238,7 +238,7 @@ bool CWKSP_Table_Manager::Update_Views(CTable *pTable)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Table_Manager::Show(CTable *pTable)
+bool CWKSP_Table_Manager::Show(CSG_Table *pTable)
 {
 	CWKSP_Table	*pItem;
 

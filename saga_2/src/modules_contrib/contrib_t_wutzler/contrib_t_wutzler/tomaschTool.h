@@ -66,7 +66,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CtomaschTool : public CModule_Grid
+class CtomaschTool : public CSG_Module_Grid
 {
 public:
 	CtomaschTool(void);

@@ -81,7 +81,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum EDataObject_Type
+typedef enum ESG_Data_Object_Type
 {
 	DATAOBJECT_TYPE_Grid,
 	DATAOBJECT_TYPE_Table,
@@ -89,7 +89,7 @@ typedef enum EDataObject_Type
 	DATAOBJECT_TYPE_TIN,
 	DATAOBJECT_TYPE_Undefined
 }
-TDataObject_Type;
+TSG_Data_Object_Type;
 
 //---------------------------------------------------------
 #define HISTORY_EXT_GRID		"hgrd"
@@ -102,7 +102,7 @@ TDataObject_Type;
 #define DATAOBJECT_CREATE		((void *)1)
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT const char *	SG_Get_DataObject_Name	(TDataObject_Type Type);
+SAGA_API_DLL_EXPORT const char *	SG_Get_DataObject_Name	(TSG_Data_Object_Type Type);
 
 
 ///////////////////////////////////////////////////////////
@@ -179,49 +179,49 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CDataObject
+class SAGA_API_DLL_EXPORT CSG_Data_Object
 {
 public:
-	CDataObject(void);
-	virtual ~CDataObject(void);
+	CSG_Data_Object(void);
+	virtual ~CSG_Data_Object(void);
 
-	virtual bool				Destroy			(void);
+	virtual bool					Destroy			(void);
 
-	virtual TDataObject_Type	Get_ObjectType	(void)	const							= 0;
+	virtual TSG_Data_Object_Type	Get_ObjectType	(void)	const							= 0;
 
-	virtual bool				is_Valid		(void)	const							= 0;
+	virtual bool					is_Valid		(void)	const							= 0;
 
-	virtual bool				Save			(const char *File_Name, int Format = 0)	= 0;
+	virtual bool					Save			(const char *File_Name, int Format = 0)	= 0;
 
-	const char *				Get_File_Name	(bool bNullAsString = false)	const;
-	int							Get_File_Type	(void)	const;
+	const char *					Get_File_Name	(bool bNullAsString = false)	const;
+	int								Get_File_Type	(void)	const;
 
-	virtual bool				Assign			(CDataObject *pObject);
+	virtual bool					Assign			(CSG_Data_Object *pObject);
 
-	void						Set_Name		(const char *Name);
-	const char *				Get_Name		(void)	const;
+	void							Set_Name		(const char *Name);
+	const char *					Get_Name		(void)	const;
 
-	virtual void				Set_Modified	(bool bModified = true)	{	m_bModified	= bModified;	}
-	bool						is_Modified		(void)	const			{	return( m_bModified );		}
+	virtual void					Set_Modified	(bool bModified = true)	{	m_bModified	= bModified;	}
+	bool							is_Modified		(void)	const			{	return( m_bModified );		}
 
-	CSG_History &				Get_History		(void)					{	return( m_History );		}
+	CSG_History &					Get_History		(void)					{	return( m_History );		}
 
 
 protected:
 
-	void						Set_File_Name	(const char *File_Name);
-	void						Set_File_Type	(int File_Type);
+	void							Set_File_Name	(const char *File_Name);
+	void							Set_File_Type	(int File_Type);
 
 
 private:
 
-	bool						m_bModified;
+	bool							m_bModified;
 
-	int							m_File_Type;
+	int								m_File_Type;
 
-	CSG_String					m_File_Name, m_Name;
+	CSG_String						m_File_Name, m_Name;
 
-	CSG_History					m_History;
+	CSG_History						m_History;
 
 };
 

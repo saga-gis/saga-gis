@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CSADO_SolarRadiation::CSADO_SolarRadiation(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Set_Name		(_TL("Insolation"));
@@ -457,7 +457,7 @@ bool CSADO_SolarRadiation::Initialise(void)
 	{
 		Process_Set_Text(_TL("initialising planetary bending..."));
 
-		CGrid	*pLat	= Parameters("GRD_LAT")->asGrid(),
+		CSG_Grid	*pLat	= Parameters("GRD_LAT")->asGrid(),
 				*pLon	= Parameters("GRD_LON")->asGrid();
 
 		m_Lat		.Create(*Get_System(), GRID_TYPE_Float);

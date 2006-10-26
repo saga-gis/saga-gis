@@ -98,7 +98,7 @@ CWKSP_Shapes_Type::~CWKSP_Shapes_Type(void)
 //---------------------------------------------------------
 wxString CWKSP_Shapes_Type::Get_Name(void)
 {
-	return( SG_Get_ShapeType_Name((TShape_Type)m_Shapes_Type) );
+	return( SG_Get_ShapeType_Name((TSG_Shape_Type)m_Shapes_Type) );
 }
 
 //---------------------------------------------------------
@@ -153,7 +153,7 @@ bool CWKSP_Shapes_Type::On_Command(int Cmd_ID)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Shapes * CWKSP_Shapes_Type::Get_Shapes(CShapes *pShapes)
+CWKSP_Shapes * CWKSP_Shapes_Type::Get_Shapes(CSG_Shapes *pShapes)
 {
 	if( pShapes && pShapes->Get_Type() == m_Shapes_Type )
 	{
@@ -170,13 +170,13 @@ CWKSP_Shapes * CWKSP_Shapes_Type::Get_Shapes(CShapes *pShapes)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Shapes_Type::Exists(CShapes *pShapes)
+bool CWKSP_Shapes_Type::Exists(CSG_Shapes *pShapes)
 {
 	return( Get_Shapes(pShapes) != NULL );
 }
 
 //---------------------------------------------------------
-CWKSP_Shapes * CWKSP_Shapes_Type::Add(CShapes *pShapes)
+CWKSP_Shapes * CWKSP_Shapes_Type::Add(CSG_Shapes *pShapes)
 {
 	CWKSP_Shapes	*pItem;
 

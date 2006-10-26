@@ -105,7 +105,7 @@ protected:
 
 	class wxButton				*m_Btn_Restore, *m_Btn_Apply;
 
-	class CTable				*m_pAttributes;
+	class CSG_Table				*m_pAttributes;
 
 	class CVIEW_Table_Control	*m_pControl;
 

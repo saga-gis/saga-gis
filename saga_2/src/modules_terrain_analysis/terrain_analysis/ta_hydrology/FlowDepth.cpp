@@ -118,7 +118,7 @@ bool CFlowDepth::On_Execute_Finish(){
 
 }//method
 
-bool CFlowDepth::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode){	
+bool CFlowDepth::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode){	
 
 	int iX, iY;	
 	int iNextX, iNextY;

@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CFlow_AreaDownslope : public CModule_Grid_Interactive
+class CFlow_AreaDownslope : public CSG_Module_Grid_Interactive
 {
 public:
 	CFlow_AreaDownslope(void);
@@ -92,7 +92,7 @@ protected:
 
 	virtual bool			On_Execute			(void);
 	virtual bool			On_Execute_Finish	(void);
-	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
+	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
 
 
 private:

@@ -55,7 +55,7 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			Interface for the CTable_DBase class.		 //
+//		Interface for the CSG_Table_DBase class.		 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -99,7 +99,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_DBase  
+class CSG_Table_DBase  
 {
 public:
 	//-----------------------------------------------------
@@ -118,8 +118,8 @@ public:
 
 
 public:
-	CTable_DBase(void);
-	virtual ~CTable_DBase(void);
+	CSG_Table_DBase(void);
+	virtual ~CSG_Table_DBase(void);
 
 	//-----------------------------------------------------
 	bool						Open				(const char *FileName);

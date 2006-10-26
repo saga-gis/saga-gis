@@ -65,7 +65,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CExercise_13 : public CModule
+class CExercise_13 : public CSG_Module
 {
 public: ////// public members and functions: //////////////
 
@@ -80,7 +80,7 @@ protected: /// protected members and functions: ///////////
 
 private: ///// private members and functions: /////////////
 
-	void				Transformation(CShapes *pShapes_A, CShapes *pShapes_B, double m[3][3]);
+	void				Transformation(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B, double m[3][3]);
 
 	void				Multiply_Matrices(double A[3][3], double B[3][3]);
 

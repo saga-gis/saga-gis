@@ -123,9 +123,9 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 	int				x, y, iShape, nShapes, *Num,
 					field_CELLS, field_MEAN, field_VARI;
 	double			*Sum, *Dif, d;
-	CTable_Record	*pRecord;
-	CGrid			*pGrid, ShapeIDs;
-	CShapes			*pShapes;
+	CSG_Table_Record	*pRecord;
+	CSG_Grid			*pGrid, ShapeIDs;
+	CSG_Shapes			*pShapes;
 
 	//-----------------------------------------------------
 	pShapes	= Parameters("POLY")->asShapes();
@@ -208,14 +208,14 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 }
 
 //---------------------------------------------------------
-bool CGrid_Statistics_AddTo_Polygon::Get_ShapeIDs(CShapes *pShapes, CGrid *pShapeIDs)
+bool CGrid_Statistics_AddTo_Polygon::Get_ShapeIDs(CSG_Shapes *pShapes, CSG_Grid *pShapeIDs)
 {
 	bool		bFill, *bCrossing;
 	int			x, y, ix, xStart, xStop, iShape, iPart, iPoint;
 	double		yPos;
 	TSG_Point	pLeft, pRight, pa, pb, p;
 	TSG_Rect	Extent;
-	CShape		*pShape;
+	CSG_Shape		*pShape;
 
 	//-----------------------------------------------------
 	bCrossing	= (bool *)SG_Malloc(pShapeIDs->Get_NX() * sizeof(bool));

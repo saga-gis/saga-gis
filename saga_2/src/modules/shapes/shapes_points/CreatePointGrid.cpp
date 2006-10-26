@@ -60,19 +60,19 @@ CCreatePointGrid::~CCreatePointGrid(void)
 
 bool CCreatePointGrid::On_Execute(void){
 
-	CShape *pShape;
+	CSG_Shape *pShape;
 	
-	double dXMin	= ((CParameter_Range *) Parameters("X_EXTENT")->Get_Data())->Get_LoVal();
-	double dYMin	= ((CParameter_Range *) Parameters("Y_EXTENT")->Get_Data())->Get_LoVal();
-	double dXMax	= ((CParameter_Range *) Parameters("X_EXTENT")->Get_Data())->Get_HiVal();
-	double dYMax	= ((CParameter_Range *) Parameters("Y_EXTENT")->Get_Data())->Get_HiVal();
+	double dXMin	= ((CSG_Parameter_Range *) Parameters("X_EXTENT")->Get_Data())->Get_LoVal();
+	double dYMin	= ((CSG_Parameter_Range *) Parameters("Y_EXTENT")->Get_Data())->Get_LoVal();
+	double dXMax	= ((CSG_Parameter_Range *) Parameters("X_EXTENT")->Get_Data())->Get_HiVal();
+	double dYMax	= ((CSG_Parameter_Range *) Parameters("Y_EXTENT")->Get_Data())->Get_HiVal();
 
 	double dDistance = Parameters("DIST")->asDouble();
 	if (dDistance<=0){
 		return false;
 	}//if
 
-	CShapes *pShapes = Parameters("POINTS")->asShapes();
+	CSG_Shapes *pShapes = Parameters("POINTS")->asShapes();
 	pShapes->Create(SHAPE_TYPE_Point, _TL("Point Grid"));
 
 	pShapes->Get_Table().Add_Field("X", TABLE_FIELDTYPE_Double);

@@ -279,7 +279,7 @@ void CFlow_RecursiveUp::On_Initialize(void)
 void CFlow_RecursiveUp::Calculate(void)
 {
 	int		x, y;
-	CGrid	*pTargets	= Parameters("TARGETS")->asGrid();
+	CSG_Grid	*pTargets	= Parameters("TARGETS")->asGrid();
 
 	On_Create();
 

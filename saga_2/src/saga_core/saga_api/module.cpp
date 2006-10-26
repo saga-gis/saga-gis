@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CModule::CModule(void)
+CSG_Module::CSG_Module(void)
 {
 	m_bError_Ignore	= false;
 	m_bExecutes		= false;
@@ -86,7 +86,7 @@ CModule::CModule(void)
 }
 
 //---------------------------------------------------------
-CModule::~CModule(void)
+CSG_Module::~CSG_Module(void)
 {
 	if( m_pParameters )
 	{
@@ -109,7 +109,7 @@ CModule::~CModule(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CModule::Destroy(void)
+void CSG_Module::Destroy(void)
 {
 	m_bError_Ignore	= false;
 
@@ -129,29 +129,29 @@ void CModule::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CModule::Set_Name(const char *String)
+void CSG_Module::Set_Name(const char *String)
 {
 	Parameters.Set_Name(String);
 }
 
-const char * CModule::Get_Name(void)
+const char * CSG_Module::Get_Name(void)
 {
 	return( Parameters.Get_Name() );
 }
 
 //---------------------------------------------------------
-void CModule::Set_Description(const char *String)
+void CSG_Module::Set_Description(const char *String)
 {
 	Parameters.Set_Description(String);
 }
 
-const char * CModule::Get_Description(void)
+const char * CSG_Module::Get_Description(void)
 {
 	return( Parameters.Get_Description() );
 }
 
 //---------------------------------------------------------
-void CModule::Set_Author(const char *String)
+void CSG_Module::Set_Author(const char *String)
 {
 	if( String )
 	{
@@ -163,13 +163,13 @@ void CModule::Set_Author(const char *String)
 	}
 }
 
-const char * CModule::Get_Author(void)
+const char * CSG_Module::Get_Author(void)
 {
 	return( m_Author.c_str() );
 }
 
 //---------------------------------------------------------
-void CModule::Set_Translation(CSG_Translator &Translator)
+void CSG_Module::Set_Translation(CSG_Translator &Translator)
 {
 	Parameters.Set_Translation(Translator);
 
@@ -187,7 +187,7 @@ void CModule::Set_Translation(CSG_Translator &Translator)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CModule::Execute(void)
+bool CSG_Module::Execute(void)
 {
 	bool	bResult	= false;
 
@@ -251,7 +251,7 @@ _except(1)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CModule::Set_Managed(bool bOn)
+void CSG_Module::Set_Managed(bool bOn)
 {
 	m_bManaged	= Parameters.m_bManaged	= bOn;
 
@@ -262,7 +262,7 @@ void CModule::Set_Managed(bool bOn)
 }
 
 //---------------------------------------------------------
-void CModule::Set_Show_Progress(bool bOn)
+void CSG_Module::Set_Show_Progress(bool bOn)
 {
 	m_bShow_Progress	= bOn;
 }
@@ -275,17 +275,17 @@ void CModule::Set_Show_Progress(bool bOn)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CModule::Dlg_Parameters(CParameters *pParameters, const char *Caption)
+bool CSG_Module::Dlg_Parameters(CSG_Parameters *pParameters, const char *Caption)
 {
 	return( SG_UI_Dlg_Parameters(pParameters, Caption) );
 }
 
 //---------------------------------------------------------
-int CModule::_On_Parameter_Changed(CParameter *pParameter)
+int CSG_Module::_On_Parameter_Changed(CSG_Parameter *pParameter)
 {
 	if( pParameter && pParameter->Get_Owner() && pParameter->Get_Owner()->Get_Owner() )
 	{
-		return( ((CModule *)pParameter->Get_Owner()->Get_Owner())->
+		return( ((CSG_Module *)pParameter->Get_Owner()->Get_Owner())->
 			On_Parameter_Changed(pParameter->Get_Owner(), pParameter)
 		);
 	}
@@ -294,7 +294,7 @@ int CModule::_On_Parameter_Changed(CParameter *pParameter)
 }
 
 //---------------------------------------------------------
-int CModule::On_Parameter_Changed(CParameters *pParameters, CParameter *pParameter)
+int CSG_Module::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	return( true );
 }
@@ -307,12 +307,12 @@ int CModule::On_Parameter_Changed(CParameters *pParameters, CParameter *pParamet
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameters * CModule::Add_Extra_Parameters(const char *Identifier, const char *Name, const char *Description)
+CSG_Parameters * CSG_Module::Add_Extra_Parameters(const char *Identifier, const char *Name, const char *Description)
 {
-	CParameters	*pParameters;
+	CSG_Parameters	*pParameters;
 
-	m_pParameters	= (CParameters **)SG_Realloc(m_pParameters, (m_npParameters + 1) * sizeof(CParameters *));
-	pParameters		= m_pParameters[m_npParameters++]	= new CParameters();
+	m_pParameters	= (CSG_Parameters **)SG_Realloc(m_pParameters, (m_npParameters + 1) * sizeof(CSG_Parameters *));
+	pParameters		= m_pParameters[m_npParameters++]	= new CSG_Parameters();
 
 	pParameters->Create(this, Name, Description, Identifier);
 	pParameters->Set_Callback_On_Parameter_Changed(&_On_Parameter_Changed);
@@ -321,7 +321,7 @@ CParameters * CModule::Add_Extra_Parameters(const char *Identifier, const char *
 }
 
 //---------------------------------------------------------
-CParameters * CModule::Get_Extra_Parameters(const char *Identifier)
+CSG_Parameters * CSG_Module::Get_Extra_Parameters(const char *Identifier)
 {
 	int			i;
 	CSG_String	sIdentifier(Identifier);
@@ -338,7 +338,7 @@ CParameters * CModule::Get_Extra_Parameters(const char *Identifier)
 }
 
 //---------------------------------------------------------
-int CModule::Dlg_Extra_Parameters(const char *Identifier)
+int CSG_Module::Dlg_Extra_Parameters(const char *Identifier)
 {
 	if( !m_bManaged || Dlg_Parameters(Get_Extra_Parameters(Identifier), Get_Name()) )
 	{
@@ -358,25 +358,25 @@ int CModule::Dlg_Extra_Parameters(const char *Identifier)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CModule::Process_Get_Okay(bool bBlink)
+bool CSG_Module::Process_Get_Okay(bool bBlink)
 {
 	return( SG_UI_Process_Get_Okay(bBlink) );
 }
 
 //---------------------------------------------------------
-void CModule::Process_Set_Text(const char *Text)
+void CSG_Module::Process_Set_Text(const char *Text)
 {
 	SG_UI_Process_Set_Text(Text);
 }
 
 //---------------------------------------------------------
-bool CModule::Set_Progress(int Position)
+bool CSG_Module::Set_Progress(int Position)
 {
 	return( Set_Progress(Position, 100.0) );
 }
 
 //---------------------------------------------------------
-bool CModule::Set_Progress(double Position, double Range)
+bool CSG_Module::Set_Progress(double Position, double Range)
 {
 	return( m_bShow_Progress ? SG_UI_Process_Set_Progress(Position, Range) : Process_Get_Okay(false) );
 }
@@ -389,7 +389,7 @@ bool CModule::Set_Progress(double Position, double Range)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CModule::Message_Dlg(const char *Text, const char *Caption)
+void CSG_Module::Message_Dlg(const char *Text, const char *Caption)
 {
 	if( Caption && Caption[0] != '\0' )
 	{
@@ -402,13 +402,13 @@ void CModule::Message_Dlg(const char *Text, const char *Caption)
 }
 
 //---------------------------------------------------------
-void CModule::Message_Add(const char *Text, bool bNewLine)
+void CSG_Module::Message_Add(const char *Text, bool bNewLine)
 {
 	SG_UI_Msg_Add_Execution(Text, bNewLine);
 }
 
 //---------------------------------------------------------
-bool CModule::Error_Set(TModule_Error Error_ID)
+bool CSG_Module::Error_Set(TSG_Module_Error Error_ID)
 {
 	switch( Error_ID )
 	{
@@ -421,7 +421,7 @@ bool CModule::Error_Set(TModule_Error Error_ID)
 }
 
 //---------------------------------------------------------
-bool CModule::Error_Set(const char *Error_Text)
+bool CSG_Module::Error_Set(const char *Error_Text)
 {
 	SG_UI_Msg_Add_Error(Error_Text);
 
@@ -450,20 +450,20 @@ bool CModule::Error_Set(const char *Error_Text)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CModule::DataObject_Add(CDataObject *pDataObject, bool bUpdate)
+bool CSG_Module::DataObject_Add(CSG_Data_Object *pDataObject, bool bUpdate)
 {
 	return( m_bManaged ? SG_UI_DataObject_Add(pDataObject, bUpdate) : false );
 }
 
 //---------------------------------------------------------
-bool CModule::DataObject_Update(CDataObject *pDataObject, bool bShow)
+bool CSG_Module::DataObject_Update(CSG_Data_Object *pDataObject, bool bShow)
 {
 	return( SG_UI_DataObject_Update(pDataObject, bShow, NULL) );
 }
 
-bool CModule::DataObject_Update(CDataObject *pDataObject, double Parm_1, double Parm_2, bool bShow)
+bool CSG_Module::DataObject_Update(CSG_Data_Object *pDataObject, double Parm_1, double Parm_2, bool bShow)
 {
-	CParameters	Parameters;
+	CSG_Parameters	Parameters;
 
 	if( pDataObject )
 	{
@@ -474,8 +474,8 @@ bool CModule::DataObject_Update(CDataObject *pDataObject, double Parm_1, double 
 
 		case DATAOBJECT_TYPE_Grid:
 			Parameters.Add_Range(NULL, "METRIC_ZRANGE"	, "", "",
-				Parm_1 * ((CGrid *)pDataObject)->Get_ZFactor(),
-				Parm_2 * ((CGrid *)pDataObject)->Get_ZFactor()
+				Parm_1 * ((CSG_Grid *)pDataObject)->Get_ZFactor(),
+				Parm_2 * ((CSG_Grid *)pDataObject)->Get_ZFactor()
 			);
 			break;
 		}
@@ -487,7 +487,7 @@ bool CModule::DataObject_Update(CDataObject *pDataObject, double Parm_1, double 
 }
 
 //---------------------------------------------------------
-void CModule::DataObject_Update_All(void)
+void CSG_Module::DataObject_Update_All(void)
 {
 	for(int i=0; i<Parameters.Get_Count(); i++)
 	{
@@ -509,12 +509,12 @@ void CModule::DataObject_Update_All(void)
 }
 
 //---------------------------------------------------------
-bool CModule::DataObject_Get_Colors(CDataObject *pDataObject, CSG_Colors &Colors)
+bool CSG_Module::DataObject_Get_Colors(CSG_Data_Object *pDataObject, CSG_Colors &Colors)
 {
 	return( SG_UI_DataObject_Colors_Get(pDataObject, &Colors) );
 }
 
-bool CModule::DataObject_Set_Colors(CDataObject *pDataObject, CSG_Colors &Colors)
+bool CSG_Module::DataObject_Set_Colors(CSG_Data_Object *pDataObject, CSG_Colors &Colors)
 {
 	return( SG_UI_DataObject_Colors_Set(pDataObject, &Colors) );
 }
@@ -527,7 +527,7 @@ bool CModule::DataObject_Set_Colors(CDataObject *pDataObject, CSG_Colors &Colors
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CModule::_Set_Output_History(void)
+void CSG_Module::_Set_Output_History(void)
 {
 	CSG_History	History;
 
@@ -541,7 +541,7 @@ void CModule::_Set_Output_History(void)
 	//-----------------------------------------------------
 	for(int i=0; i<Parameters.Get_Count(); i++)	// set output history...
 	{
-		CParameter	*p	= Parameters(i);
+		CSG_Parameter	*p	= Parameters(i);
 
 		if( p->is_Output() && p->is_DataObject() && p->asDataObject() )
 		{

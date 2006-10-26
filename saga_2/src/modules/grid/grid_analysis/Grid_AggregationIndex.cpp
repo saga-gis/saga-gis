@@ -63,9 +63,9 @@ bool CAggregationIndex::On_Execute(void){
 	int iMaxEii;
 	int iRemainder;
 	int iNumClasses = Parameters("MAXNUMCLASS")->asInt();
-	CGrid* pInput = Parameters("INPUT")->asGrid();
-	CTable* pTable = Parameters("RESULT")->asTable();
-	CTable_Record* pRecord;
+	CSG_Grid* pInput = Parameters("INPUT")->asGrid();
+	CSG_Table* pTable = Parameters("RESULT")->asTable();
+	CSG_Table_Record* pRecord;
 
 	float** pData = new float*[iNumClasses];
 	for (i = 0; i < iNumClasses; i++){
@@ -74,7 +74,7 @@ bool CAggregationIndex::On_Execute(void){
 		pData[i][1] = 0;
 	}//for
 
-	pTable->Create((CTable*)NULL);
+	pTable->Create((CSG_Table*)NULL);
 	pTable->Set_Name(_TL("Aggregation Index"));
 	pTable->Add_Field(_TL("Class"), TABLE_FIELDTYPE_Int);
 	pTable->Add_Field(_TL("Area"), TABLE_FIELDTYPE_Double);

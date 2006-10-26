@@ -145,7 +145,7 @@ void CFilter_LoG::Init_Kernel(int Radius)
 	min = 999999;
 	max = 0;
 	
-	pKernel = (CGrid *) new CGrid( GRID_TYPE_Double , 1+2*Radius, 1+2*Radius);
+	pKernel = (CSG_Grid *) new CSG_Grid( GRID_TYPE_Double , 1+2*Radius, 1+2*Radius);
 
 	for(y=-Radius; y<=Radius ; y++)
 	{
@@ -173,7 +173,7 @@ bool CFilter_LoG::On_Execute(void)
 
 	double	Mean;
 
-	CGrid	*pResult;
+	CSG_Grid	*pResult;
 
 	//-----------------------------------------------------
 	pInput		= Parameters("INPUT")->asGrid();

@@ -216,7 +216,7 @@ bool CWKSP_Map_Layer::On_Command_UI(wxUpdateUIEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameters * CWKSP_Map_Layer::Get_Parameters(void)
+CSG_Parameters * CWKSP_Map_Layer::Get_Parameters(void)
 {
 	return( m_pLayer->Get_Parameters() );
 }

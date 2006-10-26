@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Value_Replace : public CModule_Grid  
+class CGrid_Value_Replace : public CSG_Module_Grid  
 {
 public:
 	CGrid_Value_Replace(void);

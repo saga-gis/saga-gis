@@ -119,7 +119,7 @@ CGrid_Merge::CGrid_Merge(void)
 
 
 	//-----------------------------------------------------
-	CParameters	*pParameters;
+	CSG_Parameters	*pParameters;
 
 	pParameters	= Add_Extra_Parameters(
 		"MERGE_INFO"	, _TL("Mesh Size Specification"),
@@ -169,10 +169,10 @@ bool CGrid_Merge::On_Execute(void)
 {
 	int						iGrid, nGrids, nx, ny, x, y, Interpol;
 	double					d, Cellsize, xPos, yPos;
-	TGrid_Type				Type;
+	TSG_Grid_Type				Type;
 	CSG_Rect				Extent;
-	CGrid					*pGrid, *pMerge;
-	CParameter_Grid_List	*pParm_Grids;
+	CSG_Grid					*pGrid, *pMerge;
+	CSG_Parameter_Grid_List	*pParm_Grids;
 
 	pParm_Grids	= Parameters("GRID_LIST")	->asGridList();
 	Interpol	= Parameters("INTERPOL")	->asInt();

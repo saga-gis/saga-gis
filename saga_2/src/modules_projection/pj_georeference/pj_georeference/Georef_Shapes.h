@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGeoref_Shapes : public CModule 
+class CGeoref_Shapes : public CSG_Module 
 {
 public:
 	CGeoref_Shapes(void);

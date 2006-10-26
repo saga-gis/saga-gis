@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Shapes_Polygon::CWKSP_Shapes_Polygon(CShapes *pShapes)
+CWKSP_Shapes_Polygon::CWKSP_Shapes_Polygon(CSG_Shapes *pShapes)
 	: CWKSP_Shapes(pShapes)
 {
 	Create_Parameters();
@@ -162,7 +162,7 @@ void CWKSP_Shapes_Polygon::On_Parameters_Changed(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CWKSP_Shapes_Polygon::On_Parameter_Changed(CParameters *pParameters, CParameter *pParameter)
+int CWKSP_Shapes_Polygon::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	CWKSP_Shapes::On_Parameter_Changed(pParameters, pParameter);
 
@@ -213,7 +213,7 @@ void CWKSP_Shapes_Polygon::_Draw_Initialize(CWKSP_Map_DC &dc_Map)
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Polygon::_Draw_Shape(CWKSP_Map_DC &dc_Map, CShape *pShape, bool bSelection)
+void CWKSP_Shapes_Polygon::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, bool bSelection)
 {
 	//-----------------------------------------------------
 	if( bSelection )
@@ -221,7 +221,7 @@ void CWKSP_Shapes_Polygon::_Draw_Shape(CWKSP_Map_DC &dc_Map, CShape *pShape, boo
 		dc_Map.dc.SetBrush(wxBrush(wxColour(255, 255, 0), wxSOLID));
 		dc_Map.dc.SetPen(wxPen(wxColour(255, 0, 0), pShape == m_pShapes->Get_Selection(0) ? 2 : 1, wxSOLID));
 
-		dc_Map.Draw_Polygon((CShape_Polygon *)pShape);
+		dc_Map.Draw_Polygon((CSG_Shape_Polygon *)pShape);
 
 		dc_Map.dc.SetBrush(m_Brush);
 		dc_Map.dc.SetPen(m_Pen);
@@ -239,25 +239,25 @@ void CWKSP_Shapes_Polygon::_Draw_Shape(CWKSP_Map_DC &dc_Map, CShape *pShape, boo
 			dc_Map.dc.SetPen(m_Pen);
 		}
 
-		dc_Map.Draw_Polygon((CShape_Polygon *)pShape);
+		dc_Map.Draw_Polygon((CSG_Shape_Polygon *)pShape);
 	}
 
 	if( m_bPoints )
 	{
-		_Draw_Polygon_Points(dc_Map, (CShape_Polygon *)pShape);
+		_Draw_Polygon_Points(dc_Map, (CSG_Shape_Polygon *)pShape);
 	}
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Polygon::_Draw_Label(CWKSP_Map_DC &dc_Map, CShape *pShape)
+void CWKSP_Shapes_Polygon::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 {
 	int			iPart;
 	TSG_Point	p;
 
 	if( 0 )
 	{
-//		p	= dc_Map.World2DC(((CShape_Polygon *)pShape)->Get_Centroid());
-		p	= ((CShape_Polygon *)pShape)->Get_Centroid();
+//		p	= dc_Map.World2DC(((CSG_Shape_Polygon *)pShape)->Get_Centroid());
+		p	= ((CSG_Shape_Polygon *)pShape)->Get_Centroid();
 		p.x	= dc_Map.xWorld2DC(p.x);
 		p.y	= dc_Map.yWorld2DC(p.y);
 
@@ -267,9 +267,9 @@ void CWKSP_Shapes_Polygon::_Draw_Label(CWKSP_Map_DC &dc_Map, CShape *pShape)
 	{
 		for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{
-			if( !((CShape_Polygon *)pShape)->is_Lake(iPart) )
+			if( !((CSG_Shape_Polygon *)pShape)->is_Lake(iPart) )
 			{
-				p	= ((CShape_Polygon *)pShape)->Get_Centroid(iPart);
+				p	= ((CSG_Shape_Polygon *)pShape)->Get_Centroid(iPart);
 				p.x	= dc_Map.xWorld2DC(p.x);
 				p.y	= dc_Map.yWorld2DC(p.y);
 
@@ -406,7 +406,7 @@ int CWKSP_Shapes_Polygon::_Edit_Shape_HitTest(CSG_Point pos_Point, double max_Di
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Polygon::_Edit_Snap_Point_ToLine(CSG_Point pos_Point, CSG_Point &snap_Point, double &snap_Dist, CShape *pShape)
+void CWKSP_Shapes_Polygon::_Edit_Snap_Point_ToLine(CSG_Point pos_Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shape *pShape)
 {
 	int			iPart, iPoint;
 	double		d;
@@ -439,7 +439,7 @@ void CWKSP_Shapes_Polygon::_Edit_Snap_Point_ToLine(CSG_Point pos_Point, CSG_Poin
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Polygon::_Draw_Polygon_Points(CWKSP_Map_DC &dc_Map, CShape_Polygon *pPolygon)
+void CWKSP_Shapes_Polygon::_Draw_Polygon_Points(CWKSP_Map_DC &dc_Map, CSG_Shape_Polygon *pPolygon)
 {
 	int			iPart, iPoint;
 	TSG_Point	Point;

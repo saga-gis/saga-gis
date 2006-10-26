@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTable::_Load(const char *File_Name, int Format, char Separator)
+bool CSG_Table::_Load(const char *File_Name, int Format, char Separator)
 {
 	bool		bResult;
 	CSG_String	fName;
@@ -142,13 +142,13 @@ bool CTable::_Load(const char *File_Name, int Format, char Separator)
 }
 
 //---------------------------------------------------------
-bool CTable::Save(const char *File_Name, int Format)
+bool CSG_Table::Save(const char *File_Name, int Format)
 {
 	return( Save(File_Name, Format, '\t') );
 }
 
 //---------------------------------------------------------
-bool CTable::Save(const char *File_Name, int Format, char Separator)
+bool CSG_Table::Save(const char *File_Name, int Format, char Separator)
 {
 	bool	bResult;
 
@@ -216,14 +216,14 @@ bool CTable::Save(const char *File_Name, int Format, char Separator)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTable::_Load_Text(const char *File_Name, bool bHeadline, char Separator)
+bool CSG_Table::_Load_Text(const char *File_Name, bool bHeadline, char Separator)
 {
 	bool			bContinue, bNumeric, bFloat;
 	int				i, iField, iRecord, fLength;
 	double			Value;
 	FILE			*Stream;
-	CTable_Record	*pRecord;
-	CTable			newTable;
+	CSG_Table_Record	*pRecord;
+	CSG_Table			newTable;
 	CSG_String		sLine, sField;
 
 	//-----------------------------------------------------
@@ -352,7 +352,7 @@ bool CTable::_Load_Text(const char *File_Name, bool bHeadline, char Separator)
 }
 
 //---------------------------------------------------------
-bool CTable::_Save_Text(const char *File_Name, bool bHeadline, char Separator)
+bool CSG_Table::_Save_Text(const char *File_Name, bool bHeadline, char Separator)
 {
 	int		iField, iRecord;
 	FILE	*Stream;
@@ -394,11 +394,11 @@ bool CTable::_Save_Text(const char *File_Name, bool bHeadline, char Separator)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTable::_Load_DBase(const char *File_Name)
+bool CSG_Table::_Load_DBase(const char *File_Name)
 {
 	int				iField;
-	CTable_DBase	dbf;
-	CTable_Record	*pRecord;
+	CSG_Table_DBase	dbf;
+	CSG_Table_Record	*pRecord;
 
 	//-----------------------------------------------------
 	if( dbf.Open(File_Name) )
@@ -477,15 +477,15 @@ bool CTable::_Load_DBase(const char *File_Name)
 }
 
 //---------------------------------------------------------
-bool CTable::_Save_DBase(const char *File_Name)
+bool CSG_Table::_Save_DBase(const char *File_Name)
 {
 	int							iField, iRecord;
-	CTable_Record				*pRecord;
-	CTable_DBase				dbf;
-	CTable_DBase::TFieldDesc	*dbfFieldDesc;
+	CSG_Table_Record				*pRecord;
+	CSG_Table_DBase				dbf;
+	CSG_Table_DBase::TFieldDesc	*dbfFieldDesc;
 
 	//-----------------------------------------------------
-	dbfFieldDesc	= (CTable_DBase::TFieldDesc *)SG_Calloc(Get_Field_Count(), sizeof(CTable_DBase::TFieldDesc));
+	dbfFieldDesc	= (CSG_Table_DBase::TFieldDesc *)SG_Calloc(Get_Field_Count(), sizeof(CSG_Table_DBase::TFieldDesc));
 
 	for(iField=0; iField<Get_Field_Count(); iField++)
 	{
@@ -568,11 +568,11 @@ bool CTable::_Save_DBase(const char *File_Name)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTable::Serialize(FILE *Stream, bool bSave)
+bool CSG_Table::Serialize(FILE *Stream, bool bSave)
 {
 	char			Separator	= '\t';
 	int				iField, nFields, iRecord, nRecords, FieldType;
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 	CSG_String		s, sLine;
 
 	//-----------------------------------------------------
@@ -605,7 +605,7 @@ bool CTable::Serialize(FILE *Stream, bool bSave)
 		{
 			if( SG_Read_Line(Stream, sLine) && sscanf(sLine, "%d", &FieldType) == 1 )
 			{
-				Add_Field(sLine.AfterFirst('\"').BeforeFirst('\"'), (TTable_FieldType)FieldType);
+				Add_Field(sLine.AfterFirst('\"').BeforeFirst('\"'), (TSG_Table_Field_Type)FieldType);
 			}
 		}
 

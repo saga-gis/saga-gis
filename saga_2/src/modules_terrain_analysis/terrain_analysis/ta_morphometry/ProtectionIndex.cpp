@@ -58,7 +58,7 @@ bool CProtectionIndex::On_Execute(void){
 	
 	int x,y;
 	double dProtectionIndex;
-	CGrid* pProtectionIndex = Parameters("PROTECTION")->asGrid();
+	CSG_Grid* pProtectionIndex = Parameters("PROTECTION")->asGrid();
 	
 	m_dRadius = Parameters("RADIUS")->asDouble();
 	m_pDEM = Parameters("DEM")->asGrid(); 

@@ -97,7 +97,7 @@ private:
 
 	double					m_Radius;
 
-	CShapes_Search			m_Search;
+	CSG_Shapes_Search			m_Search;
 
 
 	bool					Set_Value				(int x, int y, const TSG_Point &p);

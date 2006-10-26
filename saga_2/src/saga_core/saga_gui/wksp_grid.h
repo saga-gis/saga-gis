@@ -85,7 +85,7 @@ class CWKSP_Grid : public CWKSP_Layer
 	friend class CSVG_Interactive_Map;
 
 public:
-	CWKSP_Grid(CGrid *pGrid);
+	CWKSP_Grid(CSG_Grid *pGrid);
 	virtual ~CWKSP_Grid(void);
 
 	virtual TWKSP_Item			Get_Type				(void)	{	return( WKSP_ITEM_Grid );	}
@@ -101,11 +101,11 @@ public:
 	virtual wxString			Get_Value				(CSG_Point ptWorld, double Epsilon);
 	virtual double				Get_Value_Range			(void);
 
-	CGrid *						Get_Grid				(void)	{	return( m_pGrid );	}
+	CSG_Grid *						Get_Grid				(void)	{	return( m_pGrid );	}
 
 	bool						Fit_Color_Range			(CSG_Rect rWorld);
 
-	bool						asImage					(CGrid *pImage);
+	bool						asImage					(CSG_Grid *pImage);
 
 
 protected:
@@ -129,7 +129,7 @@ private:
 
 	int							m_Interpolation, m_Sel_xOff, m_Sel_xN, m_Sel_yOff, m_Sel_yN;
 
-	CGrid						*m_pGrid;
+	CSG_Grid						*m_pGrid;
 
 
 	bool						_Edit_Del_Selection		(void);

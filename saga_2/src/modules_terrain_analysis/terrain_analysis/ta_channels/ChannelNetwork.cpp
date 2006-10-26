@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CChannelNetwork::CChannelNetwork(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Set_Name(_TL("Channel Network"));
@@ -198,7 +198,7 @@ bool CChannelNetwork::On_Execute(void)
 	int		x, y, ID, Trace_Method, Init_Method;
 	long	n;
 	double	Init_Threshold;
-	CGrid	*Trace_pRoute, *Trace_pWeight, *Init_pGrid;
+	CSG_Grid	*Trace_pRoute, *Trace_pWeight, *Init_pGrid;
 
 
 	//-----------------------------------------------------
@@ -416,7 +416,7 @@ void CChannelNetwork::Set_Route_Standard(int x, int y)
 }
 
 //---------------------------------------------------------
-void CChannelNetwork::Set_Route_Weighted(int x, int y, CGrid *pWeight, double Weight_Threshold)
+void CChannelNetwork::Set_Route_Weighted(int x, int y, CSG_Grid *pWeight, double Weight_Threshold)
 {
 	bool	bMin;
 
@@ -715,7 +715,7 @@ void CChannelNetwork::Set_Vector(int x, int y, int ID)
 
 	double	xMin, yMin, Length;
 
-	CShape	*pShape;
+	CSG_Shape	*pShape;
 
 	//-----------------------------------------------------
 	if( (Order = pChannels->asInt(x,y)) > 0 )

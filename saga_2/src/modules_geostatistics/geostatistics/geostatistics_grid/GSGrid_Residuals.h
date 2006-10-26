@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGSGrid_Residuals : public CModule_Grid
+class CGSGrid_Residuals : public CSG_Module_Grid
 {
 public:
 	CGSGrid_Residuals(void);
@@ -99,7 +99,7 @@ private:
 
 	CSG_Grid_Radius			m_Radius;
 
-	CGrid					*pInput, *pMean, *pDiff, *pStdDev, *pRange, *pDevMean, *pPercentile;
+	CSG_Grid					*pInput, *pMean, *pDiff, *pStdDev, *pRange, *pDevMean, *pPercentile;
 
 
 	int						Get_Value		(int x, int y);

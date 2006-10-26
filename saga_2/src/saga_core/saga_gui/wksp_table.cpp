@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Table::CWKSP_Table(CTable *pTable, CWKSP_Base_Item *pOwner)
+CWKSP_Table::CWKSP_Table(CSG_Table *pTable, CWKSP_Base_Item *pOwner)
 {
 	m_pTable	= pTable;
 	m_pOwner	= pOwner;
@@ -300,7 +300,7 @@ bool CWKSP_Table::Save(const char *File_Path)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Table::DataObject_Changed(CParameters *pParameters)
+bool CWKSP_Table::DataObject_Changed(CSG_Parameters *pParameters)
 {
 	Update_Views();
 

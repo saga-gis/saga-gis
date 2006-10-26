@@ -98,14 +98,14 @@ bool CImage_VI_Slope::On_Execute(void){
 	
 	double dRed, dNIR;
 	
-	CGrid* pNIR = Parameters("NIR")->asGrid(); 
-	CGrid* pRed = Parameters("RED")->asGrid(); 
-	CGrid* pNDVI = Parameters("NDVI")->asGrid(); 
-	CGrid* pRatio = Parameters("RATIO")->asGrid(); 
-	CGrid* pTVI = Parameters("TVI")->asGrid(); 
-	CGrid* pTTVI = Parameters("TTVI")->asGrid();
-	CGrid* pCTVI = Parameters("CTVI")->asGrid();
-	CGrid* pNRatio = Parameters("NRATIO")->asGrid();
+	CSG_Grid* pNIR = Parameters("NIR")->asGrid(); 
+	CSG_Grid* pRed = Parameters("RED")->asGrid(); 
+	CSG_Grid* pNDVI = Parameters("NDVI")->asGrid(); 
+	CSG_Grid* pRatio = Parameters("RATIO")->asGrid(); 
+	CSG_Grid* pTVI = Parameters("TVI")->asGrid(); 
+	CSG_Grid* pTTVI = Parameters("TTVI")->asGrid();
+	CSG_Grid* pCTVI = Parameters("CTVI")->asGrid();
+	CSG_Grid* pNRatio = Parameters("NRATIO")->asGrid();
 
 	
     for(int y=0; y<Get_NY() && Set_Progress(y); y++){		
@@ -152,7 +152,7 @@ double CImage_VI_Slope::getRatio(double dRed, double dNIR){
 
 }//method
 
-double CImage_VI_Slope::getTVI(double dRed, double dNIR, CGrid *g){
+double CImage_VI_Slope::getTVI(double dRed, double dNIR, CSG_Grid *g){
 
 	double dNDVI=getNDVI(dRed,dNIR);
 

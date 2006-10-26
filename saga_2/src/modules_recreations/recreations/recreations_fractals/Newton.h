@@ -66,7 +66,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CNewton : public CModule_Grid_Interactive
+class CNewton : public CSG_Module_Grid_Interactive
 {
 public:
 	CNewton(void);
@@ -77,7 +77,7 @@ public:
 protected:
 
 	virtual bool			On_Execute(void);
-	virtual bool			On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
+	virtual bool			On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
 
 
 private:
@@ -86,7 +86,7 @@ private:
 	double dx, dy;
 
 
-	CGrid	 *pResult, *pShade;
+	CSG_Grid	 *pResult, *pShade;
 
 };
 

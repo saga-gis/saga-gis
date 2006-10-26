@@ -106,12 +106,12 @@ CGrid_Pattern::~CGrid_Pattern(void)
 bool CGrid_Pattern::On_Execute(void){
 	
 	m_pInput = Parameters("INPUT")->asGrid(); 	
-	CGrid *pRelative = Parameters("RELATIVE")->asGrid();
-	CGrid *pDominance = Parameters("DOMINANCE")->asGrid();
-	CGrid *pDiversity = Parameters("DIVERSITY")->asGrid();
-	CGrid *pFragmentation = Parameters("FRAGMENTATION")->asGrid();
-	CGrid *pNDC = Parameters("NDC")->asGrid();
-	CGrid *pCVN = Parameters("CVN")->asGrid();
+	CSG_Grid *pRelative = Parameters("RELATIVE")->asGrid();
+	CSG_Grid *pDominance = Parameters("DOMINANCE")->asGrid();
+	CSG_Grid *pDiversity = Parameters("DIVERSITY")->asGrid();
+	CSG_Grid *pFragmentation = Parameters("FRAGMENTATION")->asGrid();
+	CSG_Grid *pNDC = Parameters("NDC")->asGrid();
+	CSG_Grid *pCVN = Parameters("CVN")->asGrid();
 	m_iWinSize = Parameters("WINSIZE")->asInt()*2+3;
 	m_iNumClasses = Parameters("MAXNUMCLASS")->asInt();
 	

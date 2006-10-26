@@ -411,7 +411,7 @@ bool CWKSP_Project::_Load_Data(FILE *Stream, const char *ProjectDir)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Project::_Save_Data(FILE *Stream, const char *ProjectDir, CDataObject *pDataObject, CParameters *pParameters)
+bool CWKSP_Project::_Save_Data(FILE *Stream, const char *ProjectDir, CSG_Data_Object *pDataObject, CSG_Parameters *pParameters)
 {
 	if( pDataObject && pDataObject->Get_File_Name() != NULL )
 	{
@@ -601,7 +601,7 @@ CWKSP_Base_Item * CWKSP_Project::_Get_byFileName(wxString FileName)
 //---------------------------------------------------------
 bool CWKSP_Project::Save_Modified(CWKSP_Base_Item *pItem)
 {
-	CParameters	Parameters;
+	CSG_Parameters	Parameters;
 
 	Parameters.Set_Name(LNG("[CAP] Save Modified Data Objects"));
 
@@ -621,7 +621,7 @@ bool CWKSP_Project::Save_Modified(CWKSP_Base_Item *pItem)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Project::_Modified_Get(CParameters *pParameters, CWKSP_Base_Item *pItem)
+bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *pItem)
 {
 	int		i;
 
@@ -663,9 +663,9 @@ bool CWKSP_Project::_Modified_Get(CParameters *pParameters, CWKSP_Base_Item *pIt
 }
 
 //---------------------------------------------------------
-bool CWKSP_Project::_Modified_Get(CParameters *pParameters, CWKSP_Base_Item *pItem, CDataObject *pObject)
+bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *pItem, CSG_Data_Object *pObject)
 {
-	CParameter	*pNode, *pParent;
+	CSG_Parameter	*pNode, *pParent;
 	wxString	sFilter;
 
 	if( pObject->is_Modified() )
@@ -711,10 +711,10 @@ bool CWKSP_Project::_Modified_Get(CParameters *pParameters, CWKSP_Base_Item *pIt
 }
 
 //---------------------------------------------------------
-bool CWKSP_Project::_Modified_Save(CParameters *pParameters)
+bool CWKSP_Project::_Modified_Save(CSG_Parameters *pParameters)
 {
-	CDataObject	*pObject;
-	CParameter	*pParameter, *pPath	= NULL;
+	CSG_Data_Object	*pObject;
+	CSG_Parameter	*pParameter, *pPath	= NULL;
 
 	for(int i=0; i<pParameters->Get_Count(); i++)
 	{

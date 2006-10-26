@@ -111,7 +111,7 @@ public:
 
 private:
 
-	class CModule_Library_Interface	*m_pInterface;
+	class CSG_Module_Library_Interface	*m_pInterface;
 
 	wxString						m_File_Name;
 

@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CExercise_10 : public CModule_Grid
+class CExercise_10 : public CSG_Module_Grid
 {
 public:
 	CExercise_10(void);
@@ -88,7 +88,7 @@ private:
 
 	int						m_nColors;
 
-	CGrid					*m_pLife, *m_pTemp;
+	CSG_Grid					*m_pLife, *m_pTemp;
 
 
 	bool					Next_Step(void);

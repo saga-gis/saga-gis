@@ -103,7 +103,7 @@ CGeoref_Shapes::CGeoref_Shapes(void)
 		PARAMETER_OUTPUT
 	);
 
-	CParameter	*pSource	= Parameters.Add_Shapes(
+	CSG_Parameter	*pSource	= Parameters.Add_Shapes(
 		NULL	, "REF_SOURCE"	, _TL("Reference Points (Origin)"),
 		"",
 		PARAMETER_INPUT
@@ -142,8 +142,8 @@ bool CGeoref_Shapes::On_Execute(void)
 {
 	int				iShape, iPart, iPoint, xField, yField;
 	TSG_Point		Point;
-	CShapes			*pShapes_A, *pShapes_B;
-	CShape			*pShape_A, *pShape_B;
+	CSG_Shapes			*pShapes_A, *pShapes_B;
+	CSG_Shape			*pShape_A, *pShape_B;
 	CGeoref_Engine	Engine;
 
 	//-----------------------------------------------------

@@ -71,8 +71,8 @@
 //---------------------------------------------------------
 CShapes2Grid::CShapes2Grid(void)
 {
-	CParameter	*pNode_0, *pNode_1;
-	CParameters	*pParameters;
+	CSG_Parameter	*pNode_0, *pNode_1;
+	CSG_Parameters	*pParameters;
 
 	//-----------------------------------------------------
 	Set_Name(_TL("Shapes to Grid"));
@@ -192,7 +192,7 @@ CShapes2Grid::~CShapes2Grid(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-TGrid_Type CShapes2Grid::Get_Grid_Type(int iType)
+TSG_Grid_Type CShapes2Grid::Get_Grid_Type(int iType)
 {
 	switch( iType )
 	{
@@ -214,7 +214,7 @@ TGrid_Type CShapes2Grid::Get_Grid_Type(int iType)
 }
 
 //---------------------------------------------------------
-CGrid * CShapes2Grid::Get_Target_Grid(CParameters *pParameters, CShapes *pShapes)
+CSG_Grid * CShapes2Grid::Get_Target_Grid(CSG_Parameters *pParameters, CSG_Shapes *pShapes)
 {
 	int			nx, ny;
 	double		Cell_Size, xMin, yMin, xMax, yMax;
@@ -253,7 +253,7 @@ CGrid * CShapes2Grid::Get_Target_Grid(CParameters *pParameters, CShapes *pShapes
 bool CShapes2Grid::On_Execute(void)
 {
 	int		i, iField;
-	CShape	*pShape;
+	CSG_Shape	*pShape;
 
 	//-----------------------------------------------------
 	pShapes	= Parameters("INPUT")->asShapes();
@@ -365,7 +365,7 @@ bool CShapes2Grid::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CShapes2Grid::Gridding_Point(CShape *pShape, double Value)
+void CShapes2Grid::Gridding_Point(CSG_Shape *pShape, double Value)
 {
 	int			iPart, iPoint, x, y;
 	TSG_Point	p;
@@ -388,7 +388,7 @@ void CShapes2Grid::Gridding_Point(CShape *pShape, double Value)
 }
 
 //---------------------------------------------------------
-void CShapes2Grid::Gridding_Line(CShape *pShape, double Value)
+void CShapes2Grid::Gridding_Line(CSG_Shape *pShape, double Value)
 {
 	int			iPart, iPoint, x, y, sig;
 	double		xa, ya, dx, dy, ix, iy;
@@ -459,7 +459,7 @@ void CShapes2Grid::Gridding_Line(CShape *pShape, double Value)
 }
 
 //---------------------------------------------------------
-void CShapes2Grid::Gridding_Polygon(CShape *pShape, double Value)
+void CShapes2Grid::Gridding_Polygon(CSG_Shape *pShape, double Value)
 {
 	bool		bFill, *bCrossing;
 

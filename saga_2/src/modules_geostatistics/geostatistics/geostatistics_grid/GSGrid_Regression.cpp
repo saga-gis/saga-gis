@@ -80,7 +80,7 @@
 //---------------------------------------------------------
 CGSGrid_Regression::CGSGrid_Regression(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Set_Name		(_TL("Regression Analysis (Grid/Points)"));
@@ -167,8 +167,8 @@ bool CGSGrid_Regression::On_Execute(void)
 {
 	int						iAttribute;
 	TSG_Regression_Type	Type;
-	CShapes					*pShapes, *pResiduals;
-	CGrid					*pGrid, *pRegression;
+	CSG_Shapes					*pShapes, *pResiduals;
+	CSG_Grid					*pGrid, *pRegression;
 
 	//-----------------------------------------------------
 	pGrid			= Parameters("GRID")		->asGrid();
@@ -219,12 +219,12 @@ bool CGSGrid_Regression::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGSGrid_Regression::Get_Regression(CGrid *pGrid, CShapes *pShapes, CShapes *pResiduals, int iAttribute, TSG_Regression_Type Type)
+bool CGSGrid_Regression::Get_Regression(CSG_Grid *pGrid, CSG_Shapes *pShapes, CSG_Shapes *pResiduals, int iAttribute, TSG_Regression_Type Type)
 {
 	int			iShape, iPart, iPoint;
 	double		zShape, zGrid;
 	TSG_Point	Point;
-	CShape		*pShape, *pResidual;
+	CSG_Shape		*pShape, *pResidual;
 
 	//-----------------------------------------------------
 	if( pResiduals )
@@ -272,7 +272,7 @@ bool CGSGrid_Regression::Get_Regression(CGrid *pGrid, CShapes *pShapes, CShapes 
 }
 
 //---------------------------------------------------------
-bool CGSGrid_Regression::Set_Regression(CGrid *pGrid, CGrid *pRegression)
+bool CGSGrid_Regression::Set_Regression(CSG_Grid *pGrid, CSG_Grid *pRegression)
 {
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
@@ -289,11 +289,11 @@ bool CGSGrid_Regression::Set_Regression(CGrid *pGrid, CGrid *pRegression)
 }
 
 //---------------------------------------------------------
-bool CGSGrid_Regression::Set_Residuals(CShapes *pResiduals)
+bool CGSGrid_Regression::Set_Residuals(CSG_Shapes *pResiduals)
 {
 	int		iPoint;
 	double	m, b, v, y;
-	CShape	*pPoint;
+	CSG_Shape	*pPoint;
 
 	if( pResiduals )
 	{

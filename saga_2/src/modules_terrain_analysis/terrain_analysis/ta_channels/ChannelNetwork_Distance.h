@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_channels_EXPORT CChannelNetwork_Distance : public CModule_Grid  
+class ta_channels_EXPORT CChannelNetwork_Distance : public CSG_Module_Grid  
 {
 public:
 	CChannelNetwork_Distance(void);
@@ -93,7 +93,7 @@ protected:
 
 private:
 
-	CGrid					*pDTM, *pFlow, *pMFDSum, *pDistance, *pDistVert, *pDistHorz;
+	CSG_Grid					*pDTM, *pFlow, *pMFDSum, *pDistance, *pDistVert, *pDistHorz;
 
 
 	void					Initialize_D8	(void);

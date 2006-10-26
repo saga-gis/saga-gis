@@ -82,7 +82,7 @@
 class CWKSP_Shapes_Polygon : public CWKSP_Shapes
 {
 public:
-	CWKSP_Shapes_Polygon(CShapes *pShapes);
+	CWKSP_Shapes_Polygon(CSG_Shapes *pShapes);
 	virtual ~CWKSP_Shapes_Polygon(void);
 
 	bool						Get_Style				(wxPen &Pen, wxBrush &Brush, bool &bOutline, wxString *pName = NULL);
@@ -101,18 +101,18 @@ protected:
 	virtual void				On_DataObject_Changed	(void);
 	virtual void				On_Parameters_Changed	(void);
 
-	virtual int					On_Parameter_Changed	(CParameters *pParameters, CParameter *pParameter);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual void				_Draw_Initialize		(CWKSP_Map_DC &dc_Map);
-	virtual void				_Draw_Shape				(CWKSP_Map_DC &dc_Map, CShape *pShape, bool bSelection);
-	virtual void				_Draw_Label				(CWKSP_Map_DC &dc_Map, CShape *pShape);
+	virtual void				_Draw_Shape				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, bool bSelection);
+	virtual void				_Draw_Label				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape);
 
-	void						_Draw_Polygon_Points	(CWKSP_Map_DC &dc_Map, CShape_Polygon *pPolygon);
+	void						_Draw_Polygon_Points	(CWKSP_Map_DC &dc_Map, CSG_Shape_Polygon *pPolygon);
 
 	virtual void				_Edit_Shape_Draw_Move	(wxDC &dc, CSG_Rect rWorld, double ClientToWorld, wxPoint Point);
 	virtual void				_Edit_Shape_Draw		(CWKSP_Map_DC &dc_Map);
 	virtual int					_Edit_Shape_HitTest		(CSG_Point Point, double max_Dist, int &iPart, int &iPoint);
-	virtual void				_Edit_Snap_Point_ToLine (CSG_Point Point, CSG_Point &snap_Point, double &snap_Dist, CShape *pShape);
+	virtual void				_Edit_Snap_Point_ToLine (CSG_Point Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shape *pShape);
 
 };
 

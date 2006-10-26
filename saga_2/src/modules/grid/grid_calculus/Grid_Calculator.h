@@ -65,7 +65,7 @@
 #include "MLB_Interface.h"
 
 
-class CGrid_Calculator : public CModule_Grid
+class CGrid_Calculator : public CSG_Module_Grid
 {
 public:
 	CGrid_Calculator(void);
@@ -81,7 +81,7 @@ private:
 
 	int						nGrids;
 
-	CGrid					**Grids, *pResult;
+	CSG_Grid					**Grids, *pResult;
 
 	
 };

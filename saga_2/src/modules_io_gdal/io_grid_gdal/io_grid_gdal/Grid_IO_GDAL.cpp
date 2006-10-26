@@ -187,7 +187,7 @@ bool CGrid_IO_GDAL::On_Execute(void)
 				Gdal_To_World(adfGeoTransform, 0 , pDataset->GetRasterYSize(), GeoX,  GeoY );
 			}
 			
-			CGrid *pGrid = SG_Create_Grid(
+			CSG_Grid *pGrid = SG_Create_Grid(
 				GRID_TYPE_Float,  
 				pDataset->GetRasterXSize(),
 				pDataset->GetRasterYSize(),
@@ -198,7 +198,7 @@ bool CGrid_IO_GDAL::On_Execute(void)
 			);
 			
 		
-			CParameter_Grid_List *List = Parameters("RESULT_LIST")->asGridList();
+			CSG_Parameter_Grid_List *List = Parameters("RESULT_LIST")->asGridList();
 
 			List->Add_Item(pGrid);
 
@@ -249,7 +249,7 @@ void CGrid_IO_GDAL::Gdal_To_World (double GeoTransform[6], int x, int y, double 
 	GeoY = GeoTransform[3] + GeoTransform[4] * x + GeoTransform[5] * y;
 }
 
-void CGrid_IO_GDAL::World_To_Saga (CGrid *grid , double GeoX, double GeoY, int &x, int &y )
+void CGrid_IO_GDAL::World_To_Saga (CSG_Grid *grid , double GeoX, double GeoY, int &x, int &y )
 {
 	x	=(int)	((GeoX - grid->Get_XMin())/grid->Get_Cellsize() );
 	y	=(int)	((GeoY - grid->Get_YMin())/grid->Get_Cellsize() );

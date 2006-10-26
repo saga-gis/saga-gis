@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char *	SG_Get_DataObject_Name(TDataObject_Type Type)
+const char *	SG_Get_DataObject_Name(TSG_Data_Object_Type Type)
 {
 	switch( Type )
 	{
@@ -92,7 +92,7 @@ const char *	SG_Get_DataObject_Name(TDataObject_Type Type)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CDataObject::CDataObject(void)
+CSG_Data_Object::CSG_Data_Object(void)
 {
 	m_File_Type		= 0;
 	m_bModified		= true;
@@ -102,13 +102,13 @@ CDataObject::CDataObject(void)
 }
 
 //---------------------------------------------------------
-CDataObject::~CDataObject(void)
+CSG_Data_Object::~CSG_Data_Object(void)
 {
 	Destroy();
 }
 
 //---------------------------------------------------------
-bool CDataObject::Destroy(void)
+bool CSG_Data_Object::Destroy(void)
 {
 	m_History.Destroy();
 
@@ -123,18 +123,18 @@ bool CDataObject::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CDataObject::Set_Name(const char *Name)
+void CSG_Data_Object::Set_Name(const char *Name)
 {
 	m_Name.Printf(Name ? Name : LNG("[DAT] new"));
 }
 
-const char * CDataObject::Get_Name(void) const
+const char * CSG_Data_Object::Get_Name(void) const
 {
 	return( m_Name.c_str() );
 }
 
 //---------------------------------------------------------
-void CDataObject::Set_File_Name(const char *File_Name)
+void CSG_Data_Object::Set_File_Name(const char *File_Name)
 {
 	if( File_Name )
 	{
@@ -152,7 +152,7 @@ void CDataObject::Set_File_Name(const char *File_Name)
 	}
 }
 
-const char * CDataObject::Get_File_Name(bool bNullAsString)	const
+const char * CSG_Data_Object::Get_File_Name(bool bNullAsString)	const
 {
 	return(	m_File_Name.Length() > 0
 		?	m_File_Name.c_str()
@@ -161,12 +161,12 @@ const char * CDataObject::Get_File_Name(bool bNullAsString)	const
 }
 
 //---------------------------------------------------------
-void CDataObject::Set_File_Type(int File_Type)
+void CSG_Data_Object::Set_File_Type(int File_Type)
 {
 	m_File_Type	= File_Type;
 }
 
-int CDataObject::Get_File_Type(void) const
+int CSG_Data_Object::Get_File_Type(void) const
 {
 	return( m_File_Type );
 }
@@ -179,7 +179,7 @@ int CDataObject::Get_File_Type(void) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CDataObject::Assign(CDataObject *pObject)
+bool CSG_Data_Object::Assign(CSG_Data_Object *pObject)
 {
 	return( false );
 }

@@ -81,7 +81,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGeoref_Grid : public CModule 
+class CGeoref_Grid : public CSG_Module 
 {
 public:
 	CGeoref_Grid(void);
@@ -90,7 +90,7 @@ public:
 
 protected:
 
-	virtual int				On_Parameter_Changed		(CParameters *pParameters, CParameter *pParameter);
+	virtual int				On_Parameter_Changed		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool			On_Execute					(void);
 
@@ -102,11 +102,11 @@ private:
 	bool					Get_Conversion				(void);
 
 	void					Get_MinMax					(double &xMin, double &xMax, double &yMin, double &yMax, TSG_Point Point);
-	CGrid *					Get_Target_Userdef			(CGrid *pSource, TGrid_Type Type);
-	CGrid *					Get_Target_Autofit			(CGrid *pSource, double Grid_Size, int AutoExtMode, TGrid_Type Type);
+	CSG_Grid *					Get_Target_Userdef			(CSG_Grid *pSource, TSG_Grid_Type Type);
+	CSG_Grid *					Get_Target_Autofit			(CSG_Grid *pSource, double Grid_Size, int AutoExtMode, TSG_Grid_Type Type);
 
-	bool					Set_Grid					(CGrid *pSource, CGrid   *pTarget, int Interpolation);
-	bool					Set_Shapes					(CGrid *pSource, CShapes *pTarget);
+	bool					Set_Grid					(CSG_Grid *pSource, CSG_Grid   *pTarget, int Interpolation);
+	bool					Set_Shapes					(CSG_Grid *pSource, CSG_Shapes *pTarget);
 
 };
 

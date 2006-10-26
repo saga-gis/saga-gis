@@ -28,13 +28,13 @@ public:
 	
 	CIDW();
 	virtual ~CIDW();
-	void setParameters(CGrid*,CShapes*,int);
+	void setParameters(CSG_Grid*,CSG_Shapes*,int);
 	void Interpolate();
 
 private:
 
-	CGrid* m_pGrid;
-	CShapes *m_pPoints;
+	CSG_Grid* m_pGrid;
+	CSG_Shapes *m_pPoints;
 	int m_iField;
 
 	bool Get_Grid_Value(int,int);

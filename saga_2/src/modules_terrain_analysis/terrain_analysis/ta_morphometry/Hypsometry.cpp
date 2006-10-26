@@ -166,8 +166,8 @@ bool CHypsometry::On_Execute(void)
 	bool	bDown;
 	int		nClasses;
 	double	zMin, zMax;
-	CGrid	*pDEM;
-	CTable	*pTable;
+	CSG_Grid	*pDEM;
+	CSG_Table	*pTable;
 
 	pDEM		= Parameters("ELEVATION")	->asGrid();
 	pTable		= Parameters("TABLE")		->asTable();
@@ -200,13 +200,13 @@ bool CHypsometry::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CHypsometry::Calculate_A(CGrid *pDEM, CTable *pTable, bool bDown, int nClasses)
+bool CHypsometry::Calculate_A(CSG_Grid *pDEM, CSG_Table *pTable, bool bDown, int nClasses)
 {
 	int		i;
 	long	n, *Cells_Count;
 	double	z, dz, A, a, Min, Max, za, zb;
 
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 
 	//-----------------------------------------------------
 	// 1. Min, Max, Area...
@@ -289,7 +289,7 @@ bool CHypsometry::Calculate_A(CGrid *pDEM, CTable *pTable, bool bDown, int nClas
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CHypsometry::Calculate_B(CGrid *pDEM, CTable *pTable, bool bDown, int nClasses, double zMin, double zMax)
+bool CHypsometry::Calculate_B(CSG_Grid *pDEM, CSG_Table *pTable, bool bDown, int nClasses, double zMin, double zMax)
 {
 	int		x, y, i, n, nStep, nMin, nMax, nRange;
 	double	z, zRange;
@@ -330,7 +330,7 @@ bool CHypsometry::Calculate_B(CGrid *pDEM, CTable *pTable, bool bDown, int nClas
 	//-----------------------------------------------------
 	if( (nRange = nMax - nMin) > 0 && (zRange = zMax - zMin) > 0 )
 	{
-		CTable_Record	*pRecord;
+		CSG_Table_Record	*pRecord;
 
 		pTable->Destroy();
 

@@ -19,7 +19,7 @@
 
 #include "MLB_Interface.h"
 
-class CQueryBuilder : public CModule  
+class CQueryBuilder : public CSG_Module  
 {
 public:
 

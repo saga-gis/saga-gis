@@ -25,7 +25,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CImage_VI_Slope : public CModule_Grid {
+class CImage_VI_Slope : public CSG_Module_Grid {
 
 public:
 	CImage_VI_Slope(void);
@@ -39,7 +39,7 @@ protected:
 
 private:
 	double getNDVI(double,double);
-	double getTVI(double,double, CGrid*);
+	double getTVI(double,double, CSG_Grid*);
 	double getCTVI(double,double);
 	double getTTVI(double,double);
 	double getRatio(double,double);

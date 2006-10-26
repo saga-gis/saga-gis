@@ -138,7 +138,7 @@ bool CFilter::On_Execute(void)
 {
 	int		x, y, Mode, Method, Radius;
 	double	Mean;
-	CGrid	*pResult;
+	CSG_Grid	*pResult;
 
 	//-----------------------------------------------------
 	pInput		= Parameters("INPUT")->asGrid();

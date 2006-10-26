@@ -80,8 +80,8 @@ CGraticuleBuilder::~CGraticuleBuilder(void)
 
 bool CGraticuleBuilder::On_Execute(void){
 	
-	CShape *pShape;
-	CShapes *pLimit;
+	CSG_Shape *pShape;
+	CSG_Shapes *pLimit;
 	double x,y;
 	double dXMin;
 	double dYMin;
@@ -91,10 +91,10 @@ bool CGraticuleBuilder::On_Execute(void){
 	pLimit = Parameters("LIMIT_SHAPES")->asShapes();
 	
 	if (pLimit == NULL){
-		dXMin	= ((CParameter_Range *) Parameters("X_EXTENT")->Get_Data())->Get_LoVal();
-		dYMin	= ((CParameter_Range *) Parameters("Y_EXTENT")->Get_Data())->Get_LoVal();
-		dXMax	= ((CParameter_Range *) Parameters("X_EXTENT")->Get_Data())->Get_HiVal();
-		dYMax	= ((CParameter_Range *) Parameters("Y_EXTENT")->Get_Data())->Get_HiVal();
+		dXMin	= ((CSG_Parameter_Range *) Parameters("X_EXTENT")->Get_Data())->Get_LoVal();
+		dYMin	= ((CSG_Parameter_Range *) Parameters("Y_EXTENT")->Get_Data())->Get_LoVal();
+		dXMax	= ((CSG_Parameter_Range *) Parameters("X_EXTENT")->Get_Data())->Get_HiVal();
+		dYMax	= ((CSG_Parameter_Range *) Parameters("Y_EXTENT")->Get_Data())->Get_HiVal();
 	}//if
 	else{
 		dXMin = pLimit->Get_Extent().Get_XMin();
@@ -113,7 +113,7 @@ bool CGraticuleBuilder::On_Execute(void){
 		return false;
 	}//if
 
-	CShapes *pGraticule = Parameters("LINES")->asShapes();
+	CSG_Shapes *pGraticule = Parameters("LINES")->asShapes();
 	
 	if (iType == 0){
 		pGraticule->Create(SHAPE_TYPE_Line, _TL("Graticule"));

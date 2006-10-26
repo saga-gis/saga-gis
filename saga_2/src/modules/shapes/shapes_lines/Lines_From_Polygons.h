@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CLines_From_Polygons : public CModule  
+class CLines_From_Polygons : public CSG_Module  
 {
 public:
 	CLines_From_Polygons(void);

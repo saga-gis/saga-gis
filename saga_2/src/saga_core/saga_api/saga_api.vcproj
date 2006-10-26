@@ -870,6 +870,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\module_library.cpp"
+				>
+			</File>
+			<File
 				RelativePath="module_library_interface.cpp"
 				>
 				<FileConfiguration
@@ -1392,6 +1396,10 @@
 			</File>
 			<File
 				RelativePath="Module.h"
+				>
+			</File>
+			<File
+				RelativePath=".\module_library.h"
 				>
 			</File>
 			<File

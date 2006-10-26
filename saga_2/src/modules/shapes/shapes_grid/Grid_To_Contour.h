@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_To_Contour : public CModule_Grid  
+class CGrid_To_Contour : public CSG_Module_Grid  
 {
 public:
 	CGrid_To_Contour(void);
@@ -89,9 +89,9 @@ private:
 
 	char				**col, **row;
 
-	CGrid				*pGrid;
+	CSG_Grid				*pGrid;
 
-	CShapes				*pLayer;
+	CSG_Shapes				*pLayer;
 
 
 	void				Contour_Create		(double zStart, double zStop, double zDist);

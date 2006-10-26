@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_channels_EXPORT CD8_Flow_Analysis : public CModule_Grid
+class ta_channels_EXPORT CD8_Flow_Analysis : public CSG_Module_Grid
 {
 public:
 	CD8_Flow_Analysis(void);
@@ -95,16 +95,16 @@ private:
 
 	int							m_MinCon;
 
-	CGrid						*m_pDEM, *m_pDir, *m_pCon;
+	CSG_Grid						*m_pDEM, *m_pDir, *m_pCon;
 
-	CShapes						*m_pNet;
+	CSG_Shapes						*m_pNet;
 
 
 	bool						Set_Direction		(void);
 	bool						Set_Connectivity	(void);
 
 	bool						Set_Network			(void);
-	bool						Set_Network			(int x, int y, CShape *pLine);
+	bool						Set_Network			(int x, int y, CSG_Shape *pLine);
 
 };
 

@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CConvergence_Radius : public CModule_Grid
+class CConvergence_Radius : public CSG_Module_Grid
 {
 public:
 	CConvergence_Radius(void);
@@ -97,13 +97,13 @@ private:
 
 	double				*m_iSum;
 
-	CGrid				m_Slope, m_Aspect, m_Dir, m_Dst;
+	CSG_Grid				m_Slope, m_Aspect, m_Dir, m_Dst;
 
 
-	bool				Initialize				(CGrid *pDTM, int Radius);
+	bool				Initialize				(CSG_Grid *pDTM, int Radius);
 	void				Finalize				(void);
 
-	void				Get_Convergence_Radius	(CGrid *pDTM, CGrid *pConvergence_Radius, bool bSlope, bool bCenterDiff, int Method);
+	void				Get_Convergence_Radius	(CSG_Grid *pDTM, CSG_Grid *pConvergence_Radius, bool bSlope, bool bCenterDiff, int Method);
 
 };
 

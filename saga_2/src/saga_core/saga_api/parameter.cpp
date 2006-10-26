@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameter::CParameter(CParameters *pOwner, CParameter *pParent, const char *Identifier, const char *Name, const char *Description, TParameter_Type Type, int Constraint)
+CSG_Parameter::CSG_Parameter(CSG_Parameters *pOwner, CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, TSG_Parameter_Type Type, int Constraint)
 {
 	m_pOwner		= pOwner;
 	m_pParent		= pParent;
@@ -93,38 +93,38 @@ CParameter::CParameter(CParameters *pOwner, CParameter *pParent, const char *Ide
 	{
 	default:								m_pData	= NULL;													break;
 
-	case PARAMETER_TYPE_Node:				m_pData	= new CParameter_Node				(this, Constraint);	break;
+	case PARAMETER_TYPE_Node:				m_pData	= new CSG_Parameter_Node				(this, Constraint);	break;
 
-	case PARAMETER_TYPE_Bool:				m_pData	= new CParameter_Bool				(this, Constraint);	break;
-	case PARAMETER_TYPE_Int:				m_pData	= new CParameter_Int				(this, Constraint);	break;
-	case PARAMETER_TYPE_Double:				m_pData	= new CParameter_Double				(this, Constraint);	break;
-	case PARAMETER_TYPE_Degree:				m_pData	= new CParameter_Degree				(this, Constraint);	break;
-	case PARAMETER_TYPE_Range:				m_pData	= new CParameter_Range				(this, Constraint);	break;
-	case PARAMETER_TYPE_Choice:				m_pData	= new CParameter_Choice				(this, Constraint);	break;
+	case PARAMETER_TYPE_Bool:				m_pData	= new CSG_Parameter_Bool				(this, Constraint);	break;
+	case PARAMETER_TYPE_Int:				m_pData	= new CSG_Parameter_Int				(this, Constraint);	break;
+	case PARAMETER_TYPE_Double:				m_pData	= new CSG_Parameter_Double				(this, Constraint);	break;
+	case PARAMETER_TYPE_Degree:				m_pData	= new CSG_Parameter_Degree				(this, Constraint);	break;
+	case PARAMETER_TYPE_Range:				m_pData	= new CSG_Parameter_Range				(this, Constraint);	break;
+	case PARAMETER_TYPE_Choice:				m_pData	= new CSG_Parameter_Choice				(this, Constraint);	break;
 
-	case PARAMETER_TYPE_String:				m_pData	= new CParameter_String				(this, Constraint);	break;
-	case PARAMETER_TYPE_Text:				m_pData	= new CParameter_Text				(this, Constraint);	break;
-	case PARAMETER_TYPE_FilePath:			m_pData	= new CParameter_FilePath			(this, Constraint);	break;
+	case PARAMETER_TYPE_String:				m_pData	= new CSG_Parameter_String				(this, Constraint);	break;
+	case PARAMETER_TYPE_Text:				m_pData	= new CSG_Parameter_Text				(this, Constraint);	break;
+	case PARAMETER_TYPE_FilePath:			m_pData	= new CSG_Parameter_File_Name			(this, Constraint);	break;
 
-	case PARAMETER_TYPE_Font:				m_pData	= new CParameter_Font				(this, Constraint);	break;
-	case PARAMETER_TYPE_Color:				m_pData	= new CParameter_Color				(this, Constraint);	break;
-	case PARAMETER_TYPE_Colors:				m_pData	= new CParameter_Colors				(this, Constraint);	break;
-	case PARAMETER_TYPE_FixedTable:			m_pData	= new CParameter_FixedTable			(this, Constraint);	break;
-	case PARAMETER_TYPE_Grid_System:		m_pData	= new CParameter_Grid_System		(this, Constraint);	break;
-	case PARAMETER_TYPE_Table_Field:		m_pData	= new CParameter_Table_Field		(this, Constraint);	break;
+	case PARAMETER_TYPE_Font:				m_pData	= new CSG_Parameter_Font				(this, Constraint);	break;
+	case PARAMETER_TYPE_Color:				m_pData	= new CSG_Parameter_Color				(this, Constraint);	break;
+	case PARAMETER_TYPE_Colors:				m_pData	= new CSG_Parameter_Colors				(this, Constraint);	break;
+	case PARAMETER_TYPE_FixedTable:			m_pData	= new CSG_Parameter_Fixed_Table			(this, Constraint);	break;
+	case PARAMETER_TYPE_Grid_System:		m_pData	= new CSG_Parameter_Grid_System		(this, Constraint);	break;
+	case PARAMETER_TYPE_Table_Field:		m_pData	= new CSG_Parameter_Table_Field		(this, Constraint);	break;
 
-	case PARAMETER_TYPE_DataObject_Output:	m_pData	= new CParameter_DataObject_Output	(this, Constraint);	break;
-	case PARAMETER_TYPE_Grid:				m_pData	= new CParameter_Grid				(this, Constraint);	break;
-	case PARAMETER_TYPE_Table:				m_pData	= new CParameter_Table				(this, Constraint);	break;
-	case PARAMETER_TYPE_Shapes:				m_pData	= new CParameter_Shapes				(this, Constraint);	break;
-	case PARAMETER_TYPE_TIN:				m_pData	= new CParameter_TIN				(this, Constraint);	break;
+	case PARAMETER_TYPE_DataObject_Output:	m_pData	= new CSG_Parameter_Data_Object_Output	(this, Constraint);	break;
+	case PARAMETER_TYPE_Grid:				m_pData	= new CSG_Parameter_Grid				(this, Constraint);	break;
+	case PARAMETER_TYPE_Table:				m_pData	= new CSG_Parameter_Table				(this, Constraint);	break;
+	case PARAMETER_TYPE_Shapes:				m_pData	= new CSG_Parameter_Shapes				(this, Constraint);	break;
+	case PARAMETER_TYPE_TIN:				m_pData	= new CSG_Parameter_TIN				(this, Constraint);	break;
 
-	case PARAMETER_TYPE_Grid_List:			m_pData	= new CParameter_Grid_List			(this, Constraint);	break;
-	case PARAMETER_TYPE_Table_List:			m_pData	= new CParameter_Table_List			(this, Constraint);	break;
-	case PARAMETER_TYPE_Shapes_List:		m_pData	= new CParameter_Shapes_List		(this, Constraint);	break;
-	case PARAMETER_TYPE_TIN_List:			m_pData	= new CParameter_TIN_List			(this, Constraint);	break;
+	case PARAMETER_TYPE_Grid_List:			m_pData	= new CSG_Parameter_Grid_List			(this, Constraint);	break;
+	case PARAMETER_TYPE_Table_List:			m_pData	= new CSG_Parameter_Table_List			(this, Constraint);	break;
+	case PARAMETER_TYPE_Shapes_List:		m_pData	= new CSG_Parameter_Shapes_List		(this, Constraint);	break;
+	case PARAMETER_TYPE_TIN_List:			m_pData	= new CSG_Parameter_TIN_List			(this, Constraint);	break;
 
-	case PARAMETER_TYPE_Parameters:			m_pData	= new CParameter_Parameters			(this, Constraint);	break;
+	case PARAMETER_TYPE_Parameters:			m_pData	= new CSG_Parameter_Parameters			(this, Constraint);	break;
 	}
 
 	//-----------------------------------------------------
@@ -142,7 +142,7 @@ CParameter::CParameter(CParameters *pOwner, CParameter *pParent, const char *Ide
 }
 
 //---------------------------------------------------------
-CParameter::~CParameter(void)
+CSG_Parameter::~CSG_Parameter(void)
 {
 	if( m_Children )
 	{
@@ -163,9 +163,9 @@ CParameter::~CParameter(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CParameter::_Add_Child(CParameter *pChild)
+void CSG_Parameter::_Add_Child(CSG_Parameter *pChild)
 {
-	m_Children	= (CParameter **)SG_Realloc(m_Children, (m_nChildren + 1) * sizeof(CParameter *));
+	m_Children	= (CSG_Parameter **)SG_Realloc(m_Children, (m_nChildren + 1) * sizeof(CSG_Parameter *));
 	m_Children[m_nChildren++]	= pChild;
 }
 
@@ -177,7 +177,7 @@ void CParameter::_Add_Child(CParameter *pChild)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CParameter::is_Option(void)
+bool CSG_Parameter::is_Option(void)
 {
 	if( !is_Information() )
 	{
@@ -217,7 +217,7 @@ bool CParameter::is_Option(void)
 }
 
 //---------------------------------------------------------
-bool CParameter::is_DataObject(void)
+bool CSG_Parameter::is_DataObject(void)
 {
 	switch( Get_Type() )
 	{
@@ -235,7 +235,7 @@ bool CParameter::is_DataObject(void)
 }
 
 //---------------------------------------------------------
-bool CParameter::is_DataObject_List(void)
+bool CSG_Parameter::is_DataObject_List(void)
 {
 	switch( Get_Type() )
 	{
@@ -252,13 +252,13 @@ bool CParameter::is_DataObject_List(void)
 }
 
 //---------------------------------------------------------
-bool CParameter::is_Parameters(void)
+bool CSG_Parameter::is_Parameters(void)
 {
 	return( Get_Type() == PARAMETER_TYPE_Parameters );
 }
 
 //---------------------------------------------------------
-bool CParameter::is_Serializable(void)
+bool CSG_Parameter::is_Serializable(void)
 {
 	switch( Get_Type() )
 	{
@@ -280,19 +280,19 @@ bool CParameter::is_Serializable(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char * CParameter::Get_Identifier(void)
+const char * CSG_Parameter::Get_Identifier(void)
 {
 	return( m_Identifier );
 }
 
 //---------------------------------------------------------
-const char * CParameter::Get_Name(void)
+const char * CSG_Parameter::Get_Name(void)
 {
 	return( m_Name );
 }
 
 //---------------------------------------------------------
-const char * CParameter::Get_Description(void)
+const char * CSG_Parameter::Get_Description(void)
 {
 	return( m_Description );
 }
@@ -301,7 +301,7 @@ const char * CParameter::Get_Description(void)
 #define SEPARATE	if( bSeparate )	s.Append(Separator);	bSeparate	= true;
 
 //---------------------------------------------------------
-CSG_String CParameter::Get_Description(int Flags, const char *Separator)
+CSG_String CSG_Parameter::Get_Description(int Flags, const char *Separator)
 {
 	bool		bSeparate	= false;
 	int			i;
@@ -413,7 +413,7 @@ CSG_String CParameter::Get_Description(int Flags, const char *Separator)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CParameter::Set_Value(int Value)
+bool CSG_Parameter::Set_Value(int Value)
 {
 	if( m_pData->Set_Value(Value) )
 	{
@@ -429,7 +429,7 @@ bool CParameter::Set_Value(int Value)
 }
 
 //---------------------------------------------------------
-bool CParameter::Set_Value(double Value)
+bool CSG_Parameter::Set_Value(double Value)
 {
 	if( m_pData->Set_Value(Value) )
 	{
@@ -445,7 +445,7 @@ bool CParameter::Set_Value(double Value)
 }
 
 //---------------------------------------------------------
-bool CParameter::Set_Value(void *Value)
+bool CSG_Parameter::Set_Value(void *Value)
 {
 	if( m_pData->Set_Value(Value) )
 	{
@@ -461,7 +461,7 @@ bool CParameter::Set_Value(void *Value)
 }
 
 //---------------------------------------------------------
-bool CParameter::Set_Value(const char *Value)
+bool CSG_Parameter::Set_Value(const char *Value)
 {
 	return( Set_Value((void *)Value) );
 }
@@ -474,13 +474,13 @@ bool CParameter::Set_Value(const char *Value)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CParameter::Assign(CParameter *pSource)
+bool CSG_Parameter::Assign(CSG_Parameter *pSource)
 {
 	return( m_pData->Assign(pSource->m_pData) );
 }
 
 //---------------------------------------------------------
-bool CParameter::Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter::Serialize(FILE *Stream, bool bSave)
 {
 	CSG_String	sLine;
 

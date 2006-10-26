@@ -70,12 +70,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CShape_Point::CShape_Point(CShapes *pOwner, CTable_Record *pRecord)
-	: CShape(pOwner, pRecord)
+CSG_Shape_Point::CSG_Shape_Point(CSG_Shapes *pOwner, CSG_Table_Record *pRecord)
+	: CSG_Shape(pOwner, pRecord)
 {}
 
 //---------------------------------------------------------
-CShape_Point::~CShape_Point(void)
+CSG_Shape_Point::~CSG_Shape_Point(void)
 {}
 
 
@@ -86,11 +86,11 @@ CShape_Point::~CShape_Point(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CShape_Point::On_Assign(CShape *pShape)
+bool CSG_Shape_Point::On_Assign(CSG_Shape *pShape)
 {
 	if( pShape->Get_Point_Count(0) > 0 )
 	{
-		CShape::Add_Point(pShape->Get_Point(0));
+		CSG_Shape::Add_Point(pShape->Get_Point(0));
 
 		return( true );
 	}
@@ -106,7 +106,7 @@ bool CShape_Point::On_Assign(CShape *pShape)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CShape_Point::Add_Point(double x, double y, int iPart)
+int CSG_Shape_Point::Add_Point(double x, double y, int iPart)
 {
 	m_Point.x	= x;
 	m_Point.y	= y;
@@ -124,13 +124,13 @@ int CShape_Point::Add_Point(double x, double y, int iPart)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Rect CShape_Point::Get_Extent(void)
+CSG_Rect CSG_Shape_Point::Get_Extent(void)
 {
 	return( CSG_Rect(m_Point.x, m_Point.y, m_Point.x, m_Point.y) );
 }
 
 //---------------------------------------------------------
-int CShape_Point::On_Intersects(TSG_Rect Extent)
+int CSG_Shape_Point::On_Intersects(TSG_Rect Extent)
 {
 	return(	Extent.xMin <= m_Point.x && m_Point.x <= Extent.xMax
 		&&	Extent.yMin <= m_Point.y && m_Point.y <= Extent.yMax

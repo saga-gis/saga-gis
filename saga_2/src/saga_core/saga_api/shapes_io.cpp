@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CShapes::_Load_ESRI(const char *File_Name)
+bool CSG_Shapes::_Load_ESRI(const char *File_Name)
 {
 	char		buf_Header[100];
 
@@ -86,7 +86,7 @@ bool CShapes::_Load_ESRI(const char *File_Name)
 
 	TSG_Rect	dRect;
 
-	CShape		*pShape;
+	CSG_Shape		*pShape;
 
 	CSG_String	fName;
 
@@ -286,7 +286,7 @@ bool CShapes::_Load_ESRI(const char *File_Name)
 								FileLength_idx	+= 4;\
 
 //---------------------------------------------------------
-bool CShapes::_Save_ESRI(const char *File_Name)
+bool CSG_Shapes::_Save_ESRI(const char *File_Name)
 {
 	char		buf_Header[100];
 
@@ -300,7 +300,7 @@ bool CShapes::_Save_ESRI(const char *File_Name)
 
 	TSG_Rect	dRect;
 
-	CShape		*pShape;
+	CSG_Shape		*pShape;
 
 	CSG_String	fName;
 

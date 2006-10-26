@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_lighting_EXPORT CSADO_SolarRadiation : public CModule_Grid
+class ta_lighting_EXPORT CSADO_SolarRadiation : public CSG_Module_Grid
 {
 public:
 	CSADO_SolarRadiation(void);
@@ -95,7 +95,7 @@ private:
 
 	double					m_Solar_Const, m_Atmosphere, m_VP, m_Latitude, m_Hour, m_dHour;
 
-	CGrid					*m_pDEM, *m_pVP, *m_pSumDirect, *m_pSumDiffus, *m_pSumTotal,
+	CSG_Grid					*m_pDEM, *m_pVP, *m_pSumDirect, *m_pSumDiffus, *m_pSumTotal,
 							m_TmpDirect, m_TmpDiffus, m_TmpTotal,
 							m_Slope, m_Aspect, m_Shade, m_Lat, m_Lon, m_Decline, m_Azimuth;
 

@@ -82,11 +82,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CDoc_HTML::CDoc_HTML(){}
+CSG_Doc_HTML::CSG_Doc_HTML(){}
 
-CDoc_HTML::~CDoc_HTML(){}
+CSG_Doc_HTML::~CSG_Doc_HTML(){}
 
-void CDoc_HTML::Open(const char *Title)
+void CSG_Doc_HTML::Open(const char *Title)
 {
 
 	m_sHTMLCode.Clear();
@@ -97,7 +97,7 @@ void CDoc_HTML::Open(const char *Title)
 
 }
 
-bool CDoc_HTML::Save(const char *Filename)
+bool CSG_Doc_HTML::Save(const char *Filename)
 {
 
 	m_sHTMLCode.Append(HTML_CODE_CLOSING);
@@ -117,7 +117,7 @@ bool CDoc_HTML::Save(const char *Filename)
 
 }
 
-void CDoc_HTML::AddParagraph(const char *Text)
+void CSG_Doc_HTML::AddParagraph(const char *Text)
 {
 
 	m_sHTMLCode.Append("<p align=\"left\">");
@@ -126,13 +126,13 @@ void CDoc_HTML::AddParagraph(const char *Text)
 
 }
 
-void CDoc_HTML::AddLineBreak()
+void CSG_Doc_HTML::AddLineBreak()
 {
 
 	m_sHTMLCode.Append("</br>");	
 
 }
-void CDoc_HTML::AddHeader(const char *Text,
+void CSG_Doc_HTML::AddHeader(const char *Text,
 							int iOrder)
 {
 
@@ -146,7 +146,7 @@ void CDoc_HTML::AddHeader(const char *Text,
 
 }
 
-void CDoc_HTML::AddHyperlink(const char *Text,
+void CSG_Doc_HTML::AddHyperlink(const char *Text,
 								const char *URL)
 {
 
@@ -158,7 +158,7 @@ void CDoc_HTML::AddHyperlink(const char *Text,
 
 }
 
-CSG_String CDoc_HTML::GetHyperlinkCode(const char *Text,
+CSG_String CSG_Doc_HTML::GetHyperlinkCode(const char *Text,
 									const char *URL)
 {
 	CSG_String s;
@@ -172,7 +172,7 @@ CSG_String CDoc_HTML::GetHyperlinkCode(const char *Text,
 	return s;
 
 }
-void CDoc_HTML::AddImage(const char *Filename)
+void CSG_Doc_HTML::AddImage(const char *Filename)
 {
 
 	m_sHTMLCode.Append("<img src=\"");
@@ -181,7 +181,7 @@ void CDoc_HTML::AddImage(const char *Filename)
 
 }
 
-void CDoc_HTML::AddThumbnail(const char *Filename,
+void CSG_Doc_HTML::AddThumbnail(const char *Filename,
 								int iWidth,
 								bool bIsPercent)
 {
@@ -201,7 +201,7 @@ void CDoc_HTML::AddThumbnail(const char *Filename,
 
 }
 
-void CDoc_HTML::AddThumbnails(const char **Filename,
+void CSG_Doc_HTML::AddThumbnails(const char **Filename,
 								int iImages,
 								int iThumbnailsPerRow)
 {
@@ -234,35 +234,35 @@ void CDoc_HTML::AddThumbnails(const char **Filename,
 
 }
 
-void CDoc_HTML::StartUnorderedList()
+void CSG_Doc_HTML::StartUnorderedList()
 {
 
 	m_sHTMLCode.Append("<ul>\n");
 
 }
 
-void CDoc_HTML::StartOrderedList()
+void CSG_Doc_HTML::StartOrderedList()
 {
 
 	m_sHTMLCode.Append("<ol>\n");
 
 }
 
-void CDoc_HTML::CloseUnorderedList()
+void CSG_Doc_HTML::CloseUnorderedList()
 {
 
 	m_sHTMLCode.Append("</ul>\n");
 
 }
 
-void CDoc_HTML::CloseOrderedList()
+void CSG_Doc_HTML::CloseOrderedList()
 {
 
 	m_sHTMLCode.Append("</ol>\n");
 
 }
 
-void CDoc_HTML::AddListElement(const char *Text)
+void CSG_Doc_HTML::AddListElement(const char *Text)
 {
 
 	m_sHTMLCode.Append("<li>");
@@ -271,7 +271,7 @@ void CDoc_HTML::AddListElement(const char *Text)
 
 }
 
-void CDoc_HTML::AddOrderedList(const char **Text, int iElements)
+void CSG_Doc_HTML::AddOrderedList(const char **Text, int iElements)
 {
 
 	StartOrderedList();
@@ -283,7 +283,7 @@ void CDoc_HTML::AddOrderedList(const char **Text, int iElements)
 
 }
 
-void CDoc_HTML::AddUnorderedList(const char **Text, int iElements)
+void CSG_Doc_HTML::AddUnorderedList(const char **Text, int iElements)
 {
 
 	StartUnorderedList();
@@ -295,7 +295,7 @@ void CDoc_HTML::AddUnorderedList(const char **Text, int iElements)
 
 }
 
-void CDoc_HTML::AddCurve(const char *Filename,
+void CSG_Doc_HTML::AddCurve(const char *Filename,
 								CSG_Points &Data,
 								const char *Description,
 								int iGraphType,
@@ -315,7 +315,7 @@ void CDoc_HTML::AddCurve(const char *Filename,
 	CSG_String sValue;
 	CSG_String sTableFilename;
 	CSG_Points Points;
-	CDoc_SVG SVG;
+	CSG_Doc_SVG SVG;
 
 	m_sHTMLCode.Append("<object type=\"image/svg+xml\" width=\"");
 	m_sHTMLCode.Append(SG_Get_String(GRAPH_WIDTH + OFFSET_X, 0));
@@ -485,7 +485,7 @@ void CDoc_HTML::AddCurve(const char *Filename,
 
 	if (bIncludeTableData)
 	{
-		CDoc_HTML HTMLDoc;
+		CSG_Doc_HTML HTMLDoc;
 		HTMLDoc.Open(LNG("Data Table"));
 
 		sTableFilename = Filename;
@@ -505,7 +505,7 @@ void CDoc_HTML::AddCurve(const char *Filename,
 
 }//method
 
-void CDoc_HTML::_AddBicolumTable(CSG_Points *pData)
+void CSG_Doc_HTML::_AddBicolumTable(CSG_Points *pData)
 {
 
 	int i;
@@ -534,7 +534,7 @@ void CDoc_HTML::_AddBicolumTable(CSG_Points *pData)
 
 }
 
-void CDoc_HTML::AddTable(const char ***Table,
+void CSG_Doc_HTML::AddTable(const char ***Table,
 								int iRows,
 								int iCols,
 								const char *Description)
@@ -575,7 +575,7 @@ void CDoc_HTML::AddTable(const char ***Table,
 
 }
 
-void CDoc_HTML::AddTable(CTable *pTable)
+void CSG_Doc_HTML::AddTable(CSG_Table *pTable)
 {
 
 	int i,j;
@@ -617,7 +617,7 @@ void CDoc_HTML::AddTable(CTable *pTable)
 
 }
 
-bool CDoc_HTML::_Draw_Shape(CDoc_SVG &SVG, CShape *pShape, CSG_Rect GlobalRect, int Fill_Color, int Line_Color, int Line_Width, int Point_Width)
+bool CSG_Doc_HTML::_Draw_Shape(CSG_Doc_SVG &SVG, CSG_Shape *pShape, CSG_Rect GlobalRect, int Fill_Color, int Line_Color, int Line_Width, int Point_Width)
 {
 	if( pShape && pShape->is_Valid() )
 	{
@@ -671,7 +671,7 @@ bool CDoc_HTML::_Draw_Shape(CDoc_SVG &SVG, CShape *pShape, CSG_Rect GlobalRect, 
 				break;
 
 			case SHAPE_TYPE_Polygon:
-				if( ((CShape_Polygon *)pShape)->is_Lake(iPart) )
+				if( ((CSG_Shape_Polygon *)pShape)->is_Lake(iPart) )
 				{
 					SVG.Draw_Polygon(Points, SG_COLOR_WHITE, Line_Color, Line_Width, "");
 				}
@@ -689,10 +689,10 @@ bool CDoc_HTML::_Draw_Shape(CDoc_SVG &SVG, CShape *pShape, CSG_Rect GlobalRect, 
 	return( false );
 }
 
-bool CDoc_HTML::Draw_Shapes(CShapes *pShapes, const char *Filename, int Fill_Color, int Line_Color, int Line_Width)
+bool CSG_Doc_HTML::Draw_Shapes(CSG_Shapes *pShapes, const char *Filename, int Fill_Color, int Line_Color, int Line_Width)
 {
 
-	CDoc_SVG	SVG;
+	CSG_Doc_SVG	SVG;
 	CSG_Rect	r;
 
 	if( pShapes && pShapes->is_Valid())

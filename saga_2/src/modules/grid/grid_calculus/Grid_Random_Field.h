@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Random_Field : public CModule
+class CGrid_Random_Field : public CSG_Module
 {
 public:
 	CGrid_Random_Field(void);

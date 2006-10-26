@@ -24,7 +24,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CShapes_Merge : public CModule {
+class CShapes_Merge : public CSG_Module {
 
 public:
 	CShapes_Merge(void);

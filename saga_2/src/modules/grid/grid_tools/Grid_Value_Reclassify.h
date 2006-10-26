@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Value_Reclassify : public CModule_Grid
+class CGrid_Value_Reclassify : public CSG_Module_Grid
 {
 public:
 	CGrid_Value_Reclassify(void);
@@ -98,7 +98,7 @@ private:
 
 	int						single;
 
-	CGrid					*pInput, *pResult;
+	CSG_Grid					*pInput, *pResult;
 
 
 	bool					ReclassTable	(void);

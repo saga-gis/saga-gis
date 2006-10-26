@@ -23,7 +23,7 @@
 
 #include "MLB_Interface.h"
 
-class CDistanceMatrix : public CModule {
+class CDistanceMatrix : public CSG_Module {
 
 public:
 	CDistanceMatrix(void);

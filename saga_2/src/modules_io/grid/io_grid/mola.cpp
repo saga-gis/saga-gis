@@ -125,8 +125,8 @@ bool CMOLA_Import::On_Execute(void)
 	short		*sLine;
 	double		D, xMin, yMin;
 	FILE		*Stream;
-	TGrid_Type	Type;
-	CGrid		*pGrid;
+	TSG_Grid_Type	Type;
+	CSG_Grid		*pGrid;
 	CSG_String	fName, sName;
 
 	//-----------------------------------------------------

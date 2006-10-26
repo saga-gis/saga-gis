@@ -18,7 +18,7 @@
 *******************************************************************************/ 
 #include "MLB_Interface.h"
 
-class CProtectionIndex : public CModule_Grid
+class CProtectionIndex : public CSG_Module_Grid
 {
 public:
 	CProtectionIndex(void);
@@ -32,7 +32,7 @@ private:
 
 	double getProtectionIndex(int x, int y);
 
-	CGrid *m_pDEM;
+	CSG_Grid *m_pDEM;
 	double m_dRadius;
 
 };

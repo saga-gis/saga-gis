@@ -203,7 +203,7 @@ CFlow_AreaDownslope::~CFlow_AreaDownslope(void)
 //---------------------------------------------------------
 bool CFlow_AreaDownslope::On_Execute(void)
 {
-	CParameters	*pParameters;
+	CSG_Parameters	*pParameters;
 
 	if( On_Execute_Finish() )
 	{
@@ -278,7 +278,7 @@ bool CFlow_AreaDownslope::On_Execute_Finish(void)
 }
 
 //---------------------------------------------------------
-bool CFlow_AreaDownslope::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CFlow_AreaDownslope::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
 {
 	if( pFlow && Mode == MODULE_INTERACTIVE_LDOWN )
 	{

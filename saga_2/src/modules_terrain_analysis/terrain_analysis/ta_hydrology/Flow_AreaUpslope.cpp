@@ -140,7 +140,7 @@ CSG_String CFlow_AreaUpslope::Get_Methods(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CFlow_AreaUpslope::Initialise(int Method, CGrid *pDTM, CGrid *pRoute, CGrid *pFlow, double MFD_Converge)
+bool CFlow_AreaUpslope::Initialise(int Method, CSG_Grid *pDTM, CSG_Grid *pRoute, CSG_Grid *pFlow, double MFD_Converge)
 {
 	Finalise();
 
@@ -446,7 +446,7 @@ bool CFlow_AreaUpslope_Interactive::On_Execute_Finish(void)
 }
 
 //---------------------------------------------------------
-bool CFlow_AreaUpslope_Interactive::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CFlow_AreaUpslope_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
 {
 	if(	Mode == MODULE_INTERACTIVE_LDOWN && m_Calculator.Get_Area(Get_xGrid(), Get_yGrid()) )
 	{
@@ -533,7 +533,7 @@ bool CFlow_AreaUpslope_Area::On_Execute(void)
 		if( m_Calculator.Clr_Target() )
 		{
 			int		x, y;
-			CGrid	*pTarget	= Parameters("TARGET")->asGrid();
+			CSG_Grid	*pTarget	= Parameters("TARGET")->asGrid();
 
 			for(y=0; y<Get_NY() && Set_Progress(y); y++)
 			{

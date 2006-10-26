@@ -24,7 +24,7 @@ CSG_String sParam[] = {"[Sum]", "[Mean]", "[Variance]", "[Minimum]", "[Maximum]"
 
 CSummarize::CSummarize(void){
 
-	CParameter *pNode;
+	CSG_Parameter *pNode;
 	CSG_String sName;
 
 	Parameters.Set_Name(_TL("Summary"));
@@ -81,8 +81,8 @@ CSummarize::~CSummarize(void)
 bool CSummarize::On_Execute(void){
 
 	int i,j;
-	CTable *pShapesTable;
-	CParameter **pExtraParameter;
+	CSG_Table *pShapesTable;
+	CSG_Parameter **pExtraParameter;
 	CSG_String sName, sFilePath;
 
 	m_iField = Parameters("FIELD")->asInt();
@@ -91,7 +91,7 @@ bool CSummarize::On_Execute(void){
 
 	pShapesTable = &m_pShapes->Get_Table();
 	m_bIncludeParam = new bool [pShapesTable->Get_Field_Count() * 5];
-	pExtraParameter = new CParameter* [pShapesTable->Get_Field_Count() * 5];
+	pExtraParameter = new CSG_Parameter* [pShapesTable->Get_Field_Count() * 5];
 
 	for (i = 0; i < pShapesTable->Get_Field_Count(); i++){
 		for (j = 0; j < 5; j++){
@@ -158,15 +158,15 @@ bool CSummarize::On_Execute(void){
 
 void CSummarize::CreatePDFDocs(){
 
-	CShapes *pShapes;
-	CShape *pShape;
-	CTable *pShapesTable;
+	CSG_Shapes *pShapes;
+	CSG_Shape *pShape;
+	CSG_Table *pShapesTable;
 	int i,j;
 	
 	m_DocEngine.Add_Page_Title (_TL("Summary"), PDF_TITLE_01, PDF_PAGE_SIZE_A3, PDF_PAGE_ORIENTATION_LANDSCAPE);
 
 	pShapesTable = &m_pShapes->Get_Table();
-	pShapes = new CShapes();
+	pShapes = new CSG_Shapes();
 	for (i = 0; i < m_ClassesID.size(); i++){
 		Set_Progress(i,m_ClassesID.size());
 		pShapes->Create(m_pShapes->Get_Type());
@@ -193,8 +193,8 @@ void CSummarize::Summarize(){
 
 	int i,j;
 
-	CTable *pShapesTable;
-	CTable_Record *pRecord;
+	CSG_Table *pShapesTable;
+	CSG_Table_Record *pRecord;
 	CSG_String sName;
 	float *pSum;
 	float *pMin;
@@ -226,7 +226,7 @@ void CSummarize::Summarize(){
 		}//if
 	}//for
 
-	m_pTable->Create((CTable*)NULL);
+	m_pTable->Create((CSG_Table*)NULL);
 	m_pTable->Set_Name(_TL("Summary Table"));
 	m_pTable->Add_Field(_TL("Class"), TABLE_FIELDTYPE_String);
 	m_pTable->Add_Field(_TL("Count"), TABLE_FIELDTYPE_Int);

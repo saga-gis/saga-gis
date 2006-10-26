@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_channels_EXPORT CChannelNetwork_Altitude : public CModule_Grid  
+class ta_channels_EXPORT CChannelNetwork_Altitude : public CSG_Module_Grid  
 {
 public:
 	CChannelNetwork_Altitude(void);
@@ -93,7 +93,7 @@ protected:
 
 private:
 
-	CGrid					*pDTM, *pChannels, *pResult, *pT_Chnl, *pT_Temp;
+	CSG_Grid					*pDTM, *pChannels, *pResult, *pT_Chnl, *pT_Temp;
 
 
 	void					Initialize_Surface	(int nCells);

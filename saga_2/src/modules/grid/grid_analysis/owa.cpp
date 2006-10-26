@@ -42,8 +42,8 @@ COWA::COWA(void){
 						"",
 						PARAMETER_OUTPUT);
 
-	CTable_Record *pRecord;
-	CTable *pWeights = Parameters("WEIGHTS")->asTable();
+	CSG_Table_Record *pRecord;
+	CSG_Table *pWeights = Parameters("WEIGHTS")->asTable();
 
 	pWeights->Set_Name(_TL("Weights"));
 
@@ -66,16 +66,16 @@ bool COWA::On_Execute(void){
 	double *pOrderedValues;
 	double dValue;
 	double dSum = 0;
-	CGrid *pOutputGrid;
-// OC:	CGrid **pGrids;
-	CTable_Record *pRecord;
-	CTable *pTable;
-	CParameter_Grid_List* pGridsList;
+	CSG_Grid *pOutputGrid;
+// OC:	CSG_Grid **pGrids;
+	CSG_Table_Record *pRecord;
+	CSG_Table *pTable;
+	CSG_Parameter_Grid_List* pGridsList;
 
 	pTable = Parameters("TABLE")->asTable();
 	pOutputGrid = Parameters("OUTPUT")->asGrid();
 
-	if( (pGridsList = (CParameter_Grid_List *)Parameters("GRIDS")->Get_Data()) != 
+	if( (pGridsList = (CSG_Parameter_Grid_List *)Parameters("GRIDS")->Get_Data()) != 
 			NULL && pGridsList->Get_Count() > 0 ){
 
 		if (pTable->Get_Record_Count() < pGridsList->Get_Count()){

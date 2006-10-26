@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGSGrid_Variance : public CModule_Grid
+class CGSGrid_Variance : public CSG_Module_Grid
 {
 public:
 	CGSGrid_Variance(void);
@@ -101,7 +101,7 @@ private:
 	double					Exponent,	// Exponent fuer "inverse distance" Gewichte (calc_Steigung).
 							*V, *m, *g;
 
-	CGrid					*pInput, *pOutput, *pRadius;
+	CSG_Grid					*pInput, *pOutput, *pRadius;
 
 
 	void					Initialize			(void);

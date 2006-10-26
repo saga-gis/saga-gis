@@ -177,7 +177,7 @@ bool CGridding_Spline_TPS_Local::Set_Value(int x, int y, const TSG_Point &p)
 {
 	int			iPoint, nPoints;
 	TSG_Point	Point;
-	CShape		*pPoint;
+	CSG_Shape		*pPoint;
 
 	if( (nPoints = m_Search.Select_Radius(p.x, p.y, m_Radius, true, m_nPoints_Max)) >= 3 )
 	{

@@ -86,7 +86,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTable_DBase::CTable_DBase(void)
+CSG_Table_DBase::CSG_Table_DBase(void)
 {
 	bOpen			= false;
 
@@ -101,7 +101,7 @@ CTable_DBase::CTable_DBase(void)
 }
 
 //---------------------------------------------------------
-CTable_DBase::~CTable_DBase(void)
+CSG_Table_DBase::~CSG_Table_DBase(void)
 {
 	Close();
 }
@@ -115,7 +115,7 @@ CTable_DBase::~CTable_DBase(void)
 
 //---------------------------------------------------------
 // Creates a new DBase-File using FieldDescription...
-bool CTable_DBase::Open(const char *FileName, int anFields, TFieldDesc *aFieldDesc)
+bool CSG_Table_DBase::Open(const char *FileName, int anFields, TFieldDesc *aFieldDesc)
 {
 	Close();
 
@@ -139,7 +139,7 @@ bool CTable_DBase::Open(const char *FileName, int anFields, TFieldDesc *aFieldDe
 
 //---------------------------------------------------------
 // Opens an existing DBase-File...
-bool CTable_DBase::Open(const char *FileName)
+bool CSG_Table_DBase::Open(const char *FileName)
 {
 	Close();
 
@@ -161,7 +161,7 @@ bool CTable_DBase::Open(const char *FileName)
 
 //---------------------------------------------------------
 // Closes DBase-File if one was opened...
-void CTable_DBase::Close(void)
+void CSG_Table_DBase::Close(void)
 {
 	//-----------------------------------------------------
 	if( bOpen )
@@ -228,7 +228,7 @@ void CTable_DBase::Close(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CTable_DBase::Header_Write(void)
+void CSG_Table_DBase::Header_Write(void)
 {
 	char		buf[16];
 	int			iField;
@@ -320,7 +320,7 @@ void CTable_DBase::Header_Write(void)
 }
 
 //---------------------------------------------------------
-bool CTable_DBase::Header_Read(void)
+bool CSG_Table_DBase::Header_Read(void)
 {
 	bool	Result	= false;
 	char	buf[16];
@@ -405,7 +405,7 @@ bool CTable_DBase::Header_Read(void)
 }
 
 //---------------------------------------------------------
-void CTable_DBase::Init_Record(void)
+void CSG_Table_DBase::Init_Record(void)
 {
 	int		iField, iPos;
 
@@ -427,7 +427,7 @@ void CTable_DBase::Init_Record(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CTable_DBase::Get_File_Position(void)
+int CSG_Table_DBase::Get_File_Position(void)
 {
 	return( hFile ? ftell(hFile) : 0 );
 }
@@ -440,7 +440,7 @@ int CTable_DBase::Get_File_Position(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTable_DBase::Move_First(void)
+bool CSG_Table_DBase::Move_First(void)
 {
 	bool	Result	= false;
 
@@ -462,7 +462,7 @@ bool CTable_DBase::Move_First(void)
 }
 
 //---------------------------------------------------------
-bool CTable_DBase::Move_Next(void)
+bool CSG_Table_DBase::Move_Next(void)
 {
 	bool	Result	= false;
 
@@ -491,7 +491,7 @@ bool CTable_DBase::Move_Next(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CTable_DBase::Add_Record(void)
+void CSG_Table_DBase::Add_Record(void)
 {
 	if( bOpen )
 	{
@@ -510,7 +510,7 @@ void CTable_DBase::Add_Record(void)
 }
 
 //---------------------------------------------------------
-void CTable_DBase::Flush_Record(void)
+void CSG_Table_DBase::Flush_Record(void)
 {
 	if( bOpen && !bReadOnly && bRecModified )
 	{
@@ -528,7 +528,7 @@ void CTable_DBase::Flush_Record(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CTable_DBase::asInt(int iField)
+int CSG_Table_DBase::asInt(int iField)
 {
 	char	*s;
 	int		Result	= 0;
@@ -548,7 +548,7 @@ int CTable_DBase::asInt(int iField)
 }
 
 //---------------------------------------------------------
-double CTable_DBase::asDouble(int iField)
+double CSG_Table_DBase::asDouble(int iField)
 {
 	char	*s;
 	double	Result	= 0;
@@ -568,7 +568,7 @@ double CTable_DBase::asDouble(int iField)
 }
 
 //---------------------------------------------------------
-char * CTable_DBase::asString(int iField)
+char * CSG_Table_DBase::asString(int iField)
 {
 	int		i;
 
@@ -599,7 +599,7 @@ char * CTable_DBase::asString(int iField)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTable_DBase::Set_Value(int iField, double Value)
+bool CSG_Table_DBase::Set_Value(int iField, double Value)
 {
 	static char	s[256]	= "";
 
@@ -636,7 +636,7 @@ bool CTable_DBase::Set_Value(int iField, double Value)
 }
 
 //---------------------------------------------------------
-bool CTable_DBase::Set_Value(int iField, const char *Value)
+bool CSG_Table_DBase::Set_Value(int iField, const char *Value)
 {
 	int		n;
 

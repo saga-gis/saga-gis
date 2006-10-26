@@ -130,8 +130,8 @@ CGrid_Polygon_Clip::~CGrid_Polygon_Clip(void)
 bool CGrid_Polygon_Clip::On_Execute(void)
 {
 	int		x, y, ix, iy, ax, ay, nx, ny;
-	CGrid	*pGrid_in, *pGrid_out, Mask;
-	CShapes	*pShapes;
+	CSG_Grid	*pGrid_in, *pGrid_out, Mask;
+	CSG_Shapes	*pShapes;
 	
 	//-----------------------------------------------------
 	pGrid_in	= Parameters("GRID")->asGrid();
@@ -192,7 +192,7 @@ bool CGrid_Polygon_Clip::On_Execute(void)
 //---------------------------------------------------------
 // This function modifies the incoming integer variables!!!
 //---------------------------------------------------------
-bool CGrid_Polygon_Clip::Get_Extent(int &xMin, int &xMax, int &yMin, int &yMax, CGrid *pMask)
+bool CGrid_Polygon_Clip::Get_Extent(int &xMin, int &xMax, int &yMin, int &yMax, CSG_Grid *pMask)
 {
 	int		x, y;
 
@@ -241,14 +241,14 @@ bool CGrid_Polygon_Clip::Get_Extent(int &xMin, int &xMax, int &yMin, int &yMax, 
 // Function: Get_ShapeIDs(...)
 // copyright by Olaf Conrad
 //---------------------------------------------------------
-bool CGrid_Polygon_Clip::Get_Mask(CShapes *pShapes, CGrid *pMask)
+bool CGrid_Polygon_Clip::Get_Mask(CSG_Shapes *pShapes, CSG_Grid *pMask)
 {
 	bool		bFill, *bCrossing;
 	int			x, y, ix, xStart, xStop, iShape, iPart, iPoint;
 	double		yPos;
 	TSG_Point	pLeft, pRight, pa, pb, p;
 	TSG_Rect	Extent;
-	CShape		*pShape;
+	CSG_Shape		*pShape;
 
 	//-----------------------------------------------------
 	pMask->Assign(MASK_OFF);

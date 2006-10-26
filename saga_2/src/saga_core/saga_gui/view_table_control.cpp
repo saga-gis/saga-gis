@@ -134,7 +134,7 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CVIEW_Table_Control::CVIEW_Table_Control(wxWindow *pParent, CTable *pTable, int Constraint)
+CVIEW_Table_Control::CVIEW_Table_Control(wxWindow *pParent, CSG_Table *pTable, int Constraint)
 	: wxGrid(pParent, -1, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS|wxSUNKEN_BORDER)
 {
 	m_pTable		= pTable;
@@ -270,7 +270,7 @@ bool CVIEW_Table_Control::_Set_Records(void)
 }
 
 //---------------------------------------------------------
-bool CVIEW_Table_Control::_Set_Record(int iRecord, CTable_Record *pRecord)
+bool CVIEW_Table_Control::_Set_Record(int iRecord, CSG_Table_Record *pRecord)
 {
 	if( pRecord && iRecord >= 0 && iRecord < GetNumberRows() )
 	{
@@ -380,7 +380,7 @@ bool CVIEW_Table_Control::Del_Records(void)
 bool CVIEW_Table_Control::Load(const char *File_Name)
 {
 	bool	bResult	= false;
-	CTable	Table;
+	CSG_Table	Table;
 
 	if(	Table.Create(File_Name)
 	&&	Table.Get_Record_Count() > 0
@@ -421,7 +421,7 @@ bool CVIEW_Table_Control::Save(const char *File_Name, int Format)
 void CVIEW_Table_Control::On_Change(wxGridEvent &event)
 {
 	int				iRecord, iField;
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 
 	iRecord	= event.GetRow();
 
@@ -450,7 +450,7 @@ void CVIEW_Table_Control::On_Field_Add(wxCommandEvent &event)
 {
 	int			i;
 	CSG_String	sFields;
-	CParameters	P;
+	CSG_Parameters	P;
 
 	//-----------------------------------------------------
 	for(i=0; i<m_pTable->Get_Field_Count(); i++)
@@ -501,7 +501,7 @@ void CVIEW_Table_Control::On_Field_Add(wxCommandEvent &event)
 	if( DLG_Parameters(&P) )
 	{
 		int					Position;
-		TTable_FieldType	Type;
+		TSG_Table_Field_Type	Type;
 
 		switch( P("TYPE")->asInt() )
 		{
@@ -533,7 +533,7 @@ void CVIEW_Table_Control::On_Field_Add_UI(wxUpdateUIEvent &event)
 void CVIEW_Table_Control::On_Field_Del(wxCommandEvent &event)
 {
 	int			i;
-	CParameters	P;
+	CSG_Parameters	P;
 
 	//-----------------------------------------------------
 	P.Set_Name(LNG("Delete Fields"));
@@ -571,7 +571,7 @@ void CVIEW_Table_Control::On_Field_Del_UI(wxUpdateUIEvent &event)
 void CVIEW_Table_Control::On_Field_Sort(wxCommandEvent &event)
 {
 	CSG_String	sFields;
-	CParameters	P;
+	CSG_Parameters	P;
 
 	//-----------------------------------------------------
 	for(int i=0; i<m_pTable->Get_Field_Count(); i++)
@@ -692,7 +692,7 @@ void CVIEW_Table_Control::On_LClick(wxGridEvent &event)
 {
 	int				iRecord, iField;
 	long			lValue;
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 
 	iRecord	= event.GetRow();
 
@@ -826,7 +826,7 @@ void CVIEW_Table_Control::On_Select(wxGridRangeSelectEvent &event)
 //---------------------------------------------------------
 inline void CVIEW_Table_Control::_Select(int iRow, bool bSelect)
 {
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 
 	if( (pRecord = m_pTable->Get_Record_byIndex(iRow)) != NULL && bSelect != pRecord->is_Selected() )
 	{
@@ -843,11 +843,11 @@ inline void CVIEW_Table_Control::_Select(int iRow, bool bSelect)
 void CVIEW_Table_Control::Update_Selection(void)
 {
 	int				i, j, n;
-	CTable_Record	*pRecord, **Selection;
+	CSG_Table_Record	*pRecord, **Selection;
 
 	if( (n = m_pTable->Get_Selection_Count()) > 0 )
 	{
-		Selection	= (CTable_Record **)SG_Malloc(n * sizeof(CTable_Record *));
+		Selection	= (CSG_Table_Record **)SG_Malloc(n * sizeof(CSG_Table_Record *));
 
 		for(i=0; i<n; i++)
 		{

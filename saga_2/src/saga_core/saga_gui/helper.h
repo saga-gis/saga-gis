@@ -92,7 +92,7 @@ wxString			Get_FilePath_Relative			(const char *Directory, const char *FileName)
 wxString			Get_FilePath_Absolute			(const char *Directory, const char *FileName);
 
 //---------------------------------------------------------
-wxString			Get_TableInfo_asHTML			(class CTable *pTable);
+wxString			Get_TableInfo_asHTML			(class CSG_Table *pTable);
 
 //---------------------------------------------------------
 wxColour			Get_Color_asWX					(int Color);

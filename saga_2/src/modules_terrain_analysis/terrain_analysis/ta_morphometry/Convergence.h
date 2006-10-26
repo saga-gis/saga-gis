@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_morphometry_EXPORT CConvergence : public CModule_Grid
+class ta_morphometry_EXPORT CConvergence : public CSG_Module_Grid
 {
 public:
 	CConvergence(void);
@@ -93,7 +93,7 @@ protected:
 
 private:
 
-	CGrid					*pDTM, *pConvergence;
+	CSG_Grid					*pDTM, *pConvergence;
 
 
 	void					Do_Aspect		(void);

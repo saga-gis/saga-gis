@@ -92,14 +92,14 @@ const char * Get_Info(int i)
 //---------------------------------------------------------
 // 4. Allow your modules to be created here...
 
-CModule *		Create_Module(int i)
+CSG_Module *		Create_Module(int i)
 {
 	// Don't forget to continuously enumerate the case switches
 	// when adding new modules! Also bear in mind that the
 	// enumeration always has to start with [case 0:] and
 	// that [default:] must return NULL!...
 
-	CModule	*pModule;
+	CSG_Module	*pModule;
 
 	switch( i )
 	{

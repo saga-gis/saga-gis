@@ -61,8 +61,8 @@ bool CLayerOfMaximumValue::On_Execute(void)
 	double			dExtremeValue, dValTemp;
 	int				iExtremeGrid;
 	int				iCriteria;
-	CGrid			*pResult, *pGrid;
-	CParameter_Grid_List	*pParm_Grids;
+	CSG_Grid			*pResult, *pGrid;
+	CSG_Parameter_Grid_List	*pParm_Grids;
 	bool bMeetsCriteria;
 
 	pParm_Grids	= Parameters("GRIDS")	->asGridList();

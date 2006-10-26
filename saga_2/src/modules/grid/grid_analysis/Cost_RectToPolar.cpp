@@ -67,10 +67,10 @@ bool CCost_RectToPolar::On_Execute(void){
 	double dMagnitude, dAngle;
 	double PI = 3.141592;
 	
-	CGrid* pAngle = Parameters("ANGLE")->asGrid(); 
-	CGrid* pMagnitude = Parameters("MAGNITUD")->asGrid(); 
-	CGrid* pX = Parameters("X")->asGrid(); 
-	CGrid* pY = Parameters("Y")->asGrid(); 
+	CSG_Grid* pAngle = Parameters("ANGLE")->asGrid(); 
+	CSG_Grid* pMagnitude = Parameters("MAGNITUD")->asGrid(); 
+	CSG_Grid* pX = Parameters("X")->asGrid(); 
+	CSG_Grid* pY = Parameters("Y")->asGrid(); 
 
 	pX->Assign(0.0);
 	pY->Assign(0.0);

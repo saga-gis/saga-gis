@@ -95,12 +95,12 @@ bool CImage_VI_Distance::On_Execute(void){
 	
 	double dRed, dNIR;
 	
-	CGrid* pNIR = Parameters("NIR")->asGrid(); 
-	CGrid* pRed = Parameters("RED")->asGrid(); 
-	CGrid* pPVI = Parameters("PVI")->asGrid(); 
-	CGrid* pPVI1 = Parameters("PVI1")->asGrid(); 
-	CGrid* pPVI2 = Parameters("PVI2")->asGrid(); 
-	CGrid* pPVI3 = Parameters("PVI3")->asGrid();
+	CSG_Grid* pNIR = Parameters("NIR")->asGrid(); 
+	CSG_Grid* pRed = Parameters("RED")->asGrid(); 
+	CSG_Grid* pPVI = Parameters("PVI")->asGrid(); 
+	CSG_Grid* pPVI1 = Parameters("PVI1")->asGrid(); 
+	CSG_Grid* pPVI2 = Parameters("PVI2")->asGrid(); 
+	CSG_Grid* pPVI3 = Parameters("PVI3")->asGrid();
 	double dSlope = Parameters("SLOPE")->asDouble();
 	double dInter = Parameters("INTERCEPT")->asDouble();
 		

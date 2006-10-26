@@ -23,7 +23,7 @@
 
 #include "MLB_Interface.h"
 
-class CAggregationIndex : public CModule_Grid {
+class CAggregationIndex : public CSG_Module_Grid {
 
 public:
 	CAggregationIndex(void);

@@ -85,10 +85,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int TIN_Compare(const void *pp1, const void *pp2)
+int SG_TIN_Compare(const void *pp1, const void *pp2)
 {
-	CTIN_Point	*p1	= *((CTIN_Point **)pp1),
-				*p2	= *((CTIN_Point **)pp2);
+	CSG_TIN_Point	*p1	= *((CSG_TIN_Point **)pp1),
+				*p2	= *((CSG_TIN_Point **)pp2);
 
 	if( p1->Get_X() < p2->Get_X() )
 	{
@@ -121,11 +121,11 @@ int TIN_Compare(const void *pp1, const void *pp2)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTIN::_Triangulate(void)
+bool CSG_TIN::_Triangulate(void)
 {
 	bool			bResult;
 	int				i, j, n, nTriangles;
-	CTIN_Point		**Points;
+	CSG_TIN_Point		**Points;
 	TTIN_Triangle	*Triangles;
 
 	//-----------------------------------------------------
@@ -133,7 +133,7 @@ bool CTIN::_Triangulate(void)
 	_Destroy_Triangles();
 
 	//-----------------------------------------------------
-	Points		= (CTIN_Point **)SG_Malloc(m_nPoints * sizeof(CTIN_Point *));
+	Points		= (CSG_TIN_Point **)SG_Malloc(m_nPoints * sizeof(CSG_TIN_Point *));
 
 	for(i=0; i<m_nPoints; i++)
 	{
@@ -141,7 +141,7 @@ bool CTIN::_Triangulate(void)
 		Points[i]->_Del_Relations();
 	}
 
-	qsort(Points, m_nPoints, sizeof(CTIN_Point *), TIN_Compare);
+	qsort(Points, m_nPoints, sizeof(CSG_TIN_Point *), SG_TIN_Compare);
 
 	//-----------------------------------------------------
 	for(i=0, j=0, n=m_nPoints; j<n; i++)
@@ -157,11 +157,11 @@ bool CTIN::_Triangulate(void)
 	}
 
 	//-----------------------------------------------------
-	Points		= (CTIN_Point **)SG_Realloc(Points, (m_nPoints + 3) * sizeof(CTIN_Point *));
+	Points		= (CSG_TIN_Point **)SG_Realloc(Points, (m_nPoints + 3) * sizeof(CSG_TIN_Point *));
 
 	for(i=m_nPoints; i<m_nPoints+3; i++)
 	{
-		Points[i]	= new CTIN_Point;
+		Points[i]	= new CSG_TIN_Point;
 	}
 
 	//-----------------------------------------------------
@@ -198,7 +198,7 @@ bool CTIN::_Triangulate(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTIN::_Triangulate(CTIN_Point **Points, int nPoints, TTIN_Triangle *Triangles, int &nTriangles)
+bool CSG_TIN::_Triangulate(CSG_TIN_Point **Points, int nPoints, TTIN_Triangle *Triangles, int &nTriangles)
 {
 	int			i, j, k, inside, trimax,
 				nedge		= 0,
@@ -425,7 +425,7 @@ bool CTIN::_Triangulate(CTIN_Point **Points, int nPoints, TTIN_Triangle *Triangl
 //#define IS_IDENTICAL(a, b)	(fabs(a - b) < 0.0001)
 
 //---------------------------------------------------------
-int CTIN::_CircumCircle(double xp, double yp, double x1, double y1, double x2, double y2, double x3, double y3, double *xc, double *yc, double *r)
+int CSG_TIN::_CircumCircle(double xp, double yp, double x1, double y1, double x2, double y2, double x3, double y3, double *xc, double *yc, double *r)
 {
 	double	m1, m2, mx1, mx2, my1, my2,
 			dx, dy, rsqr, drsqr;

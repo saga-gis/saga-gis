@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid::_Load(const char *File_Name, TGrid_Type Type, TGrid_Memory_Type Memory_Type)
+bool CSG_Grid::_Load(const char *File_Name, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
 {
 	bool	bResult;
 
@@ -122,12 +122,12 @@ bool CGrid::_Load(const char *File_Name, TGrid_Type Type, TGrid_Memory_Type Memo
 }
 
 //---------------------------------------------------------
-bool CGrid::Save(const char *File_Name, int Format)
+bool CSG_Grid::Save(const char *File_Name, int Format)
 {
 	return( Save(File_Name, Format, 0, 0, Get_NX(), Get_NY()) );
 }
 
-bool CGrid::Save(const char *File_Name, int Format, int xA, int yA, int xN, int yN)
+bool CSG_Grid::Save(const char *File_Name, int Format, int xA, int yA, int xN, int yN)
 {
 	bool	bResult;
 
@@ -196,7 +196,7 @@ bool CGrid::Save(const char *File_Name, int Format, int xA, int yA, int xN, int 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGrid::_Swap_Bytes(char *Bytes, int nBytes)
+void CSG_Grid::_Swap_Bytes(char *Bytes, int nBytes)
 {
 	char	Byte, *p;
 
@@ -211,7 +211,7 @@ void CGrid::_Swap_Bytes(char *Bytes, int nBytes)
 }
 
 //---------------------------------------------------------
-bool CGrid::_Load_Binary(FILE *Stream, TGrid_Type File_Type, bool bFlip, bool bSwapBytes)
+bool CSG_Grid::_Load_Binary(FILE *Stream, TSG_Grid_Type File_Type, bool bFlip, bool bSwapBytes)
 {
 	char	*Line, *pValue;
 	int		x, y, i, iy, dy, nxBytes, nValueBytes;
@@ -322,7 +322,7 @@ bool CGrid::_Load_Binary(FILE *Stream, TGrid_Type File_Type, bool bFlip, bool bS
 }
 
 //---------------------------------------------------------
-bool CGrid::_Save_Binary(FILE *Stream, int xA, int yA, int xN, int yN, TGrid_Type File_Type, bool bFlip, bool bSwapBytes)
+bool CSG_Grid::_Save_Binary(FILE *Stream, int xA, int yA, int xN, int yN, TSG_Grid_Type File_Type, bool bFlip, bool bSwapBytes)
 {
 	char	*Line, *pValue;
 	int		x, y, i, ix, iy, dy, axBytes, nxBytes, nValueBytes;
@@ -445,7 +445,7 @@ bool CGrid::_Save_Binary(FILE *Stream, int xA, int yA, int xN, int yN, TGrid_Typ
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid::_Load_ASCII(FILE *Stream, TGrid_Memory_Type Memory_Type, bool bFlip)
+bool CSG_Grid::_Load_ASCII(FILE *Stream, TSG_Grid_Memory_Type Memory_Type, bool bFlip)
 {
 	int		x, y, iy, dy;
 	double	Value;
@@ -485,7 +485,7 @@ bool CGrid::_Load_ASCII(FILE *Stream, TGrid_Memory_Type Memory_Type, bool bFlip)
 }
 
 //---------------------------------------------------------
-bool CGrid::_Save_ASCII(FILE *Stream, int xA, int yA, int xN, int yN, bool bFlip)
+bool CSG_Grid::_Save_ASCII(FILE *Stream, int xA, int yA, int xN, int yN, bool bFlip)
 {
 	int		x, y, ix, iy, dy;
 
@@ -531,14 +531,14 @@ bool CGrid::_Save_ASCII(FILE *Stream, int xA, int yA, int xN, int yN, bool bFlip
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid::_Load_Native(const char *File_Header, TGrid_Memory_Type Memory_Type)
+bool CSG_Grid::_Load_Native(const char *File_Header, TSG_Grid_Memory_Type Memory_Type)
 {
 	bool			bResult, hdr_bFlip, hdr_bSwapBytes;
 	int				iType, hdr_Offset, NX, NY;
 	double			Cellsize, xMin, yMin;
 	FILE			*Stream;
-	TGrid_Type		hdr_Type;
-	CGrid_System	System;
+	TSG_Grid_Type		hdr_Type;
+	CSG_Grid_System	System;
 	CSG_String		File_Data, Value;
 
 	//-----------------------------------------------------
@@ -596,7 +596,7 @@ bool CGrid::_Load_Native(const char *File_Header, TGrid_Memory_Type Memory_Type)
 				{
 					if( Value.Find(GRID_TYPE_NAMES[iType]) >= 0 )
 					{
-						hdr_Type	= (TGrid_Type)iType;
+						hdr_Type	= (TSG_Grid_Type)iType;
 					}
 				}
 				break;
@@ -666,7 +666,7 @@ bool CGrid::_Load_Native(const char *File_Header, TGrid_Memory_Type Memory_Type)
 }
 
 //---------------------------------------------------------
-bool CGrid::_Save_Native(const char *File_Name, int xA, int yA, int xN, int yN, bool bBinary)
+bool CSG_Grid::_Save_Native(const char *File_Name, int xA, int yA, int xN, int yN, bool bBinary)
 {
 	bool	bResult		= false;
 	FILE	*Stream;
@@ -723,7 +723,7 @@ bool CGrid::_Save_Native(const char *File_Name, int xA, int yA, int xN, int yN, 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CGrid::_Load_Native_Get_Key(FILE *Stream, CSG_String &Value)
+int CSG_Grid::_Load_Native_Get_Key(FILE *Stream, CSG_String &Value)
 {
 	int			i;
 	CSG_String	sLine;
@@ -755,7 +755,7 @@ int CGrid::_Load_Native_Get_Key(FILE *Stream, CSG_String &Value)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid::_Load_Surfer(const char *File_Name, TGrid_Memory_Type Memory_Type)
+bool CSG_Grid::_Load_Surfer(const char *File_Name, TSG_Grid_Memory_Type Memory_Type)
 {
 	bool	bResult		= false;
 	char	Identifier[4];

@@ -95,15 +95,15 @@ CSimplifyShapes::~CSimplifyShapes(void)
 bool CSimplifyShapes::On_Execute(void){
 
 	bool bCopy;
-	CShapes *pIn = Parameters("IN")->asShapes();
-	CShapes *pOut= Parameters("OUT")->asShapes();
+	CSG_Shapes *pIn = Parameters("IN")->asShapes();
+	CSG_Shapes *pOut= Parameters("OUT")->asShapes();
 	double dError = Parameters("ERROR")->asDouble();
 	double dPercentage = Parameters("PERCENTAGE")->asDouble();
 	double dTolerance = Parameters("TOLERANCE")->asDouble();
 	int iNumPoints = Parameters("NUMPOINTS")->asInt();
 	int iMethod = Parameters("METHOD")->asInt();
 	TSG_Point	Pt;	
-	CShape *pShape, *pShape2;
+	CSG_Shape *pShape, *pShape2;
 	int i;
 
 	if(pIn == pOut){

@@ -225,9 +225,9 @@ bool CSimulateVariableWind::AssignParameters(){
 	m_pFuelGrid = Parameters("FUEL")->asGrid();
 
 	m_iWindDirGrids	= Parameters("WINDDIR")->asInt();
-	m_pWindDirGrids	=(CGrid **)Parameters("WINDDIR")->asPointer();
+	m_pWindDirGrids	=(CSG_Grid **)Parameters("WINDDIR")->asPointer();
 	m_iWindSpdGrids	= Parameters("WINDSPD")->asInt();
-	m_pWindSpdGrids	=(CGrid **)Parameters("WINDSPD")->asPointer();
+	m_pWindSpdGrids	=(CSG_Grid **)Parameters("WINDSPD")->asPointer();
 	m_pM1Grid = Parameters("M1H")->asGrid();
 	m_pM10Grid = Parameters("M10H")->asGrid();
 	m_pM100Grid = Parameters("M100H")->asGrid();
@@ -251,7 +251,7 @@ bool CSimulateVariableWind::AssignParameters(){
     Fire_FlameLengthTable(m_Catalog, 500, 0.1);
 
 	if (!m_iWindDirGrids){
-		m_pWindDirGrids = new CGrid*[1];
+		m_pWindDirGrids = new CSG_Grid*[1];
 		m_pWindDirGrids[0] = SG_Create_Grid(m_pDEM);
 		m_pWindDirGrids[0]->Assign(Parameters("DEFAULTWINDDIR")->asDouble());
 		m_bDeleteWindDirGrid = true;
@@ -261,7 +261,7 @@ bool CSimulateVariableWind::AssignParameters(){
 	}//else
 	
 	if (!m_iWindSpdGrids){
-		m_pWindSpdGrids = new CGrid*[1];
+		m_pWindSpdGrids = new CSG_Grid*[1];
 		m_pWindSpdGrids[0] = SG_Create_Grid(m_pDEM);
 		m_pWindSpdGrids[0]->Assign(Parameters("DEFAULTWINDSPD")->asDouble());
 		m_bDeleteWindSpdGrid = true;

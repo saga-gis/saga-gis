@@ -204,7 +204,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DLG_PARAMETERS:
 
-		Result	= DLG_Parameters((CParameters *)Param_1) ? 1 : 0;
+		Result	= DLG_Parameters((CSG_Parameters *)Param_1) ? 1 : 0;
 
 		break;
 
@@ -226,7 +226,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_CHECK:
 
-		Result	= g_pData->Exists((CDataObject *)Param_1, Param_2) ? 1 : 0;
+		Result	= g_pData->Exists((CSG_Data_Object *)Param_1, Param_2) ? 1 : 0;
 
 		break;
 
@@ -234,11 +234,11 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_ADD:
 
-		Result	= g_pData->Add((CDataObject *)Param_1) ? 1 : 0;
+		Result	= g_pData->Add((CSG_Data_Object *)Param_1) ? 1 : 0;
 
 		if( Result && Param_2 )
 		{
-			g_pData->Show((CDataObject *)Param_1);
+			g_pData->Show((CSG_Data_Object *)Param_1);
 		}
 
 		break;
@@ -247,7 +247,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_UPDATE:
 
-		Result	= g_pData->Update((CDataObject *)Param_1, (CParameters *)Param_2) ? 1 : 0;
+		Result	= g_pData->Update((CSG_Data_Object *)Param_1, (CSG_Parameters *)Param_2) ? 1 : 0;
 
 		break;
 
@@ -255,7 +255,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_SHOW:
 
-		Result	= g_pData->Show((CDataObject *)Param_1) ? 1 : 0;
+		Result	= g_pData->Show((CSG_Data_Object *)Param_1) ? 1 : 0;
 
 		break;
 
@@ -263,7 +263,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_ASIMAGE:
 
-		Result	= g_pData->asImage((CDataObject *)Param_1, (CGrid *)Param_2) ? 1 : 0;
+		Result	= g_pData->asImage((CSG_Data_Object *)Param_1, (CSG_Grid *)Param_2) ? 1 : 0;
 
 		break;
 
@@ -271,7 +271,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_COLORS_GET:
 
-		Result	= g_pData->Get_Colors((CDataObject *)Param_1, (CSG_Colors *)Param_2) ? 1 : 0;
+		Result	= g_pData->Get_Colors((CSG_Data_Object *)Param_1, (CSG_Colors *)Param_2) ? 1 : 0;
 
 		break;
 
@@ -279,7 +279,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_COLORS_SET:
 
-		Result	= g_pData->Set_Colors((CDataObject *)Param_1, (CSG_Colors *)Param_2) ? 1 : 0;
+		Result	= g_pData->Set_Colors((CSG_Data_Object *)Param_1, (CSG_Colors *)Param_2) ? 1 : 0;
 
 		break;
 
@@ -287,7 +287,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_GET_ALL:
 
-		Result	= g_pData->Get_DataObject_List((CParameters *)Param_1) ? 1 : 0;
+		Result	= g_pData->Get_DataObject_List((CSG_Parameters *)Param_1) ? 1 : 0;
 
 		break;
 

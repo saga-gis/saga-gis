@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_To_Gradient : public CModule_Grid  
+class CGrid_To_Gradient : public CSG_Module_Grid  
 {
 public:
 	CGrid_To_Gradient(void);

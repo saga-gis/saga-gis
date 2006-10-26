@@ -84,7 +84,7 @@
 class CWKSP_Module : public CWKSP_Base_Item
 {
 public:
-	CWKSP_Module(class CModule *pModule, const char *Menu_Path_default);
+	CWKSP_Module(class CSG_Module *pModule, const char *Menu_Path_default);
 	virtual ~CWKSP_Module(void);
 
 	virtual TWKSP_Item			Get_Type		(void)			{	return( WKSP_ITEM_Module );	}
@@ -96,9 +96,9 @@ public:
 
 	virtual bool				On_Command		(int Cmd_ID);
 
-	virtual class CParameters *	Get_Parameters	(void);
+	virtual class CSG_Parameters *	Get_Parameters	(void);
 
-	class CModule *				Get_Module		(void)			{	return( m_pModule );	}
+	class CSG_Module *				Get_Module		(void)			{	return( m_pModule );	}
 
 	void						Set_Menu_ID		(int Menu_ID);
 	int							Get_Menu_ID		(void)			{	return( m_Menu_ID );	}
@@ -110,7 +110,7 @@ public:
 	bool						is_Executing	(void);
 
 	bool						Execute			(bool bDialog);
-	bool						Execute			(CSG_Point ptWorld, TModule_Interactive_Mode Mode, int Keys);
+	bool						Execute			(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode, int Keys);
 
 	void						Make_Report		(FILE *Stream);
 
@@ -122,7 +122,7 @@ private:
 	wxString					m_File_Name;
 	int							m_Menu_ID;
 
-	class CModule				*m_pModule;
+	class CSG_Module				*m_pModule;
 
 
 };

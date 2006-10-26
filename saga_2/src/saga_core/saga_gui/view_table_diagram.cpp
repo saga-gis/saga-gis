@@ -299,7 +299,7 @@ void CVIEW_Table_Diagram::_Initialize(void)
 {
 	int			iField;
 	CSG_String	sFields_All, sFields_Num;
-	CParameter	*pNode, *pFields, *pColors;
+	CSG_Parameter	*pNode, *pFields, *pColors;
 
 	//-----------------------------------------------------
 	_Destroy_Fields();

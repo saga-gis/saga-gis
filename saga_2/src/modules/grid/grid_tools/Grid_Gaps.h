@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class grid_tools_EXPORT CGrid_Gaps : public CModule_Grid
+class grid_tools_EXPORT CGrid_Gaps : public CSG_Module_Grid
 {
 public:
 	CGrid_Gaps(void);
@@ -88,7 +88,7 @@ protected:
 
 private:
 
-	CGrid					*pInput, *pResult, *pTension_Keep, *pTension_Temp;
+	CSG_Grid					*pInput, *pResult, *pTension_Keep, *pTension_Temp;
 
 
 	void					Tension_Main	(void);

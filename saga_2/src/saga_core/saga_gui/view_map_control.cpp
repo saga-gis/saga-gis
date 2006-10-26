@@ -594,7 +594,7 @@ void CVIEW_Map_Control::On_Mouse_LDown(wxMouseEvent &event)
 	case MAP_MODE_SELECT:
 		if( g_pModule && g_pModule->is_Interactive() )
 		{
-			m_Drag_Mode		= ((CModule_Interactive *)g_pModule)->Get_Drag_Mode();
+			m_Drag_Mode		= ((CSG_Module_Interactive *)g_pModule)->Get_Drag_Mode();
 			bCaptureMouse	= !g_pModule->Execute(_Get_World(event.GetPosition()), MODULE_INTERACTIVE_LDOWN, GET_KEYS(event));
 		}
 		else if( m_pMap->Find_Layer(Get_Active_Layer()) )

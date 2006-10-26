@@ -79,13 +79,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_preprocessor_EXPORT CPit_Router : public CModule_Grid
+class ta_preprocessor_EXPORT CPit_Router : public CSG_Module_Grid
 {
 public:
 	CPit_Router(void);
 	virtual ~CPit_Router(void);
 
-	int							Get_Routes		(CGrid *pDEM, CGrid *pRoutes, double Threshold = -1.0);
+	int							Get_Routes		(CSG_Grid *pDEM, CSG_Grid *pRoutes, double Threshold = -1.0);
 
 
 protected:
@@ -122,9 +122,9 @@ private:
 
 	double						m_Threshold;
 
-	CGrid_System				m_System;
+	CSG_Grid_System				m_System;
 
-	CGrid						*m_pDEM, *m_pRoute, *m_pFlats, *m_pPits;
+	CSG_Grid						*m_pDEM, *m_pRoute, *m_pFlats, *m_pPits;
 
 	TGEO_iRect					*m_Flat;
 

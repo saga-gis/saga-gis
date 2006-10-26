@@ -60,14 +60,14 @@ bool CPolygonStatisticsFromPoints::On_Execute(void){
 	int i,j;
 	m_pPoints = Parameters("POINTS")->asShapes();
 	m_pPolygons = Parameters("POLYGONS")->asShapes();
-	CTable *pShapesTable, *pTable;
-	CParameter **pExtraParameter;
+	CSG_Table *pShapesTable, *pTable;
+	CSG_Parameter **pExtraParameter;
 	CSG_String sName;
 	
 	pTable = &m_pPoints->Get_Table();
 	pShapesTable = &m_pPolygons->Get_Table();
 	m_bIncludeParam = new bool [pTable->Get_Field_Count() * 5];
-	pExtraParameter = new CParameter* [pTable->Get_Field_Count() * 5];
+	pExtraParameter = new CSG_Parameter* [pTable->Get_Field_Count() * 5];
 
 	for (i = 0; i < pTable->Get_Field_Count(); i++){
 		for (j = 0; j < 5; j++){
@@ -115,9 +115,9 @@ void CPolygonStatisticsFromPoints::CalculateStatistics(){
 
 	int i,j;
 	int iPoly;
-	CShape *pPoly, *pShape;
-	CTable *pPointsTable, *pPolygonsTable;
-	CTable_Record *pRecord;
+	CSG_Shape *pPoly, *pShape;
+	CSG_Table *pPointsTable, *pPolygonsTable;
+	CSG_Table_Record *pRecord;
 	CSG_String sName;
 	float *pSum;
 	float *pMin;
@@ -148,7 +148,7 @@ void CPolygonStatisticsFromPoints::CalculateStatistics(){
 		pPoly = m_pPolygons->Get_Shape(iPoly);
 		for(i = 0; i < m_pPoints->Get_Count(); i++){			
 			pShape = m_pPoints->Get_Shape(i);					
-			if (((CShape_Polygon*)pPoly)->is_Containing(pShape->Get_Point(0, 0))){
+			if (((CSG_Shape_Polygon*)pPoly)->is_Containing(pShape->Get_Point(0, 0))){
 				m_pClasses[i] = iPoly;
 			}//if
 		}//for

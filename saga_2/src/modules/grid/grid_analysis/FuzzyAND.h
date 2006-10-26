@@ -69,7 +69,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CFuzzyAND : public CModule_Grid  
+class CFuzzyAND : public CSG_Module_Grid  
 {
 public:
 	CFuzzyAND(void);

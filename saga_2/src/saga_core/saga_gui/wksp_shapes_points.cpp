@@ -78,7 +78,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Shapes_Points::CWKSP_Shapes_Points(CShapes *pShapes)
+CWKSP_Shapes_Points::CWKSP_Shapes_Points(CSG_Shapes *pShapes)
 	: CWKSP_Shapes_Point(pShapes)
 {
 	Create_Parameters();
@@ -129,7 +129,7 @@ void CWKSP_Shapes_Points::On_Parameters_Changed(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CWKSP_Shapes_Points::On_Parameter_Changed(CParameters *pParameters, CParameter *pParameter)
+int CWKSP_Shapes_Points::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	CWKSP_Shapes_Point::On_Parameter_Changed(pParameters, pParameter);
 
@@ -150,7 +150,7 @@ void CWKSP_Shapes_Points::_Draw_Initialize(CWKSP_Map_DC &dc_Map)
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Points::_Draw_Shape(CWKSP_Map_DC &dc_Map, CShape *pShape, bool bSelection)
+void CWKSP_Shapes_Points::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, bool bSelection)
 {
 	int			iPart, iPoint;
 	TSG_Point_Int	p;
@@ -170,7 +170,7 @@ void CWKSP_Shapes_Points::_Draw_Shape(CWKSP_Map_DC &dc_Map, CShape *pShape, bool
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Points::_Draw_Label(CWKSP_Map_DC &dc_Map, CShape *pShape)
+void CWKSP_Shapes_Points::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 {
 	TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Extent().Get_Center()));
 

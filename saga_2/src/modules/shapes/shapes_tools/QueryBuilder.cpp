@@ -53,8 +53,8 @@ CQueryBuilder::~CQueryBuilder(void){}
 
 bool CQueryBuilder::On_Execute(void){
 
-	CShapes* pShapes;
-	CTable *pTable;
+	CSG_Shapes* pShapes;
+	CSG_Table *pTable;
 	CSG_String sExpression;
 	CQueryParser *pParser;	
 	bool *pRecordWasSelected;

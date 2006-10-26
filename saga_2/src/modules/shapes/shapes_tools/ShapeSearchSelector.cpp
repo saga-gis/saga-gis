@@ -19,11 +19,11 @@
 
 #include "ShapeSearchSelector.h"
 
-CShapeSearchSelector::CShapeSearchSelector(CShapes *pShapes,
+CShapeSearchSelector::CShapeSearchSelector(CSG_Shapes *pShapes,
 										   CSG_String sExpression){
 
 	int i,j;
-	CTable_Record *pRecord;
+	CSG_Table_Record *pRecord;
 	CSG_String sValue;
 	int iFields;
 

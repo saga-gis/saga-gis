@@ -172,11 +172,11 @@ bool CGrid_Table_Import::On_Execute(void)
 	bool			bDown;
 	int				x, y, nx, ny;
 	double			dxy, xmin, ymin, zFactor, zNoData;
-	TGrid_Type		data_type;
+	TSG_Grid_Type		data_type;
 	CSG_String		FileName, Unit;
-	CGrid			*pGrid;
-	CTable			Table;
-	CTable_Record	*pRecord;
+	CSG_Grid			*pGrid;
+	CSG_Table			Table;
+	CSG_Table_Record	*pRecord;
 
 	//-----------------------------------------------------
 	FileName	= Parameters("FILE_DATA")		->asString();

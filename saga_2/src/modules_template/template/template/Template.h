@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class template_EXPORT CTemplate : public CModule
+class template_EXPORT CTemplate : public CSG_Module
 {
 public:
 	CTemplate(void);

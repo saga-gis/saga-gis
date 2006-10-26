@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CRaw_Import : public CModule
+class CRaw_Import : public CSG_Module
 {
 public:
 	CRaw_Import(void);
@@ -95,7 +95,7 @@ protected:
 
 private:
 
-	CGrid *					Load_Data		(FILE *Stream, TGrid_Type data_type, int nx, int ny, double dxy, double xmin, double ymin, int data_head, int line_head, int line_tail, bool bDown, bool bBig);
+	CSG_Grid *					Load_Data		(FILE *Stream, TSG_Grid_Type data_type, int nx, int ny, double dxy, double xmin, double ymin, int data_head, int line_head, int line_tail, bool bDown, bool bBig);
 
 };
 

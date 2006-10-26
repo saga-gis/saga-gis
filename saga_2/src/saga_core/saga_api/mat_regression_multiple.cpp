@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-enum ERegression_Fields
+enum ESG_Regression_Fields
 {
 	MRFIELD_NR	= 0,
 	MRFIELD_NAME,
@@ -92,7 +92,7 @@ enum ERegression_Fields
 //---------------------------------------------------------
 CSG_Regression_Multiple::CSG_Regression_Multiple(void)
 {
-	m_pResult	= new CTable;
+	m_pResult	= new CSG_Table;
 
 	m_pResult->Add_Field("Field"				, TABLE_FIELDTYPE_Int);
 	m_pResult->Add_Field("Variable"				, TABLE_FIELDTYPE_String);
@@ -128,10 +128,10 @@ void CSG_Regression_Multiple::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Regression_Multiple::Calculate(const CTable &Values)
+bool CSG_Regression_Multiple::Calculate(const CSG_Table &Values)
 {
 	int				i, nVariables, nValues;
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 
 	//-----------------------------------------------------
 	Destroy();
@@ -164,7 +164,7 @@ bool CSG_Regression_Multiple::Calculate(const CTable &Values)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Regression_Multiple::_Get_Regression(const CTable &Values)
+bool CSG_Regression_Multiple::_Get_Regression(const CSG_Table &Values)
 {
 	int			i, j, k, nVariables, nValues;
 	double		sum;
@@ -244,7 +244,7 @@ bool CSG_Regression_Multiple::_Get_Regression(const CTable &Values)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Regression_Multiple::_Get_Correlation(const class CTable &Values)
+bool CSG_Regression_Multiple::_Get_Correlation(const class CSG_Table &Values)
 {
 	int			i, j, nVariables, nValues;
 	double		r2, r2_sum;

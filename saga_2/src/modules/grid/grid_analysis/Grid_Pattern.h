@@ -25,14 +25,14 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CGrid_Pattern : public CModule_Grid {
+class CGrid_Pattern : public CSG_Module_Grid {
 
 public:
 	CGrid_Pattern(void);
 	virtual ~CGrid_Pattern(void);
 
 private:
-	CGrid* m_pInput;
+	CSG_Grid* m_pInput;
 	int m_iWinSize;
 	int m_iNumClasses;
 	

@@ -72,13 +72,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGrid::Assign_NoData(void)
+void CSG_Grid::Assign_NoData(void)
 {
 	Assign(Get_NoData_Value());
 }
 
 //---------------------------------------------------------
-bool CGrid::Assign(double Value)
+bool CSG_Grid::Assign(double Value)
 {
 	int		n, m;
 
@@ -122,17 +122,17 @@ bool CGrid::Assign(double Value)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid::Assign(CDataObject *pObject)
+bool CSG_Grid::Assign(CSG_Data_Object *pObject)
 {
 	if( pObject && pObject->is_Valid() && pObject->Get_ObjectType() == Get_ObjectType() )
 	{
-		return( Assign((CGrid *)pObject, GRID_INTERPOLATION_Undefined) );
+		return( Assign((CSG_Grid *)pObject, GRID_INTERPOLATION_Undefined) );
 	}
 
 	return( false );
 }
 
-bool CGrid::Assign(CGrid *pGrid, TGrid_Interpolation Interpolation)
+bool CSG_Grid::Assign(CSG_Grid *pGrid, TSG_Grid_Interpolation Interpolation)
 {
 	bool	bResult	= false;
 
@@ -186,7 +186,7 @@ bool CGrid::Assign(CGrid *pGrid, TGrid_Interpolation Interpolation)
 }
 
 //---------------------------------------------------------
-bool CGrid::_Assign_Interpolated(CGrid *pGrid, TGrid_Interpolation Interpolation)
+bool CSG_Grid::_Assign_Interpolated(CSG_Grid *pGrid, TSG_Grid_Interpolation Interpolation)
 {
 	int		x, y;
 	double	xPosition, yPosition;
@@ -208,7 +208,7 @@ bool CGrid::_Assign_Interpolated(CGrid *pGrid, TGrid_Interpolation Interpolation
 }
 
 //---------------------------------------------------------
-bool CGrid::_Assign_MeanValue(CGrid *pGrid)
+bool CSG_Grid::_Assign_MeanValue(CSG_Grid *pGrid)
 {
 	int		o_x, o_y, o_ax, o_ay,
 			ix, iy, ix_A, iy_A, ix_B, iy_B,
@@ -300,55 +300,55 @@ bool CGrid::_Assign_MeanValue(CGrid *pGrid)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGrid::operator = (CGrid &Grid)
+void CSG_Grid::operator = (CSG_Grid &Grid)
 {
 	Assign(&Grid);
 }
 
 //---------------------------------------------------------
-void CGrid::operator +=	(CGrid &Grid)
+void CSG_Grid::operator +=	(CSG_Grid &Grid)
 {
 	_Operation_Arithmetic(&Grid, GRID_OPERATION_Addition);
 }
 
 //---------------------------------------------------------
-void CGrid::operator -=	(CGrid &Grid)
+void CSG_Grid::operator -=	(CSG_Grid &Grid)
 {
 	_Operation_Arithmetic(&Grid, GRID_OPERATION_Subtraction);
 }
 
 //---------------------------------------------------------
-void CGrid::operator *=	(CGrid &Grid)
+void CSG_Grid::operator *=	(CSG_Grid &Grid)
 {
 	_Operation_Arithmetic(&Grid, GRID_OPERATION_Multiplication);
 }
 
 //---------------------------------------------------------
-void CGrid::operator /=	(CGrid &Grid)
+void CSG_Grid::operator /=	(CSG_Grid &Grid)
 {
 	_Operation_Arithmetic(&Grid, GRID_OPERATION_Division);
 }
 
 //---------------------------------------------------------
-void CGrid::operator +=	(double Value)
+void CSG_Grid::operator +=	(double Value)
 {
 	_Operation_Arithmetic(Value, GRID_OPERATION_Addition);
 }
 
 //---------------------------------------------------------
-void CGrid::operator -=	(double Value)
+void CSG_Grid::operator -=	(double Value)
 {
 	_Operation_Arithmetic(Value, GRID_OPERATION_Subtraction);
 }
 
 //---------------------------------------------------------
-void CGrid::operator *=	(double Value)
+void CSG_Grid::operator *=	(double Value)
 {
 	_Operation_Arithmetic(Value, GRID_OPERATION_Multiplication);
 }
 
 //---------------------------------------------------------
-void CGrid::operator /=	(double Value)
+void CSG_Grid::operator /=	(double Value)
 {
 	_Operation_Arithmetic(Value, GRID_OPERATION_Division);
 }
@@ -361,11 +361,11 @@ void CGrid::operator /=	(double Value)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGrid::_Operation_Arithmetic(CGrid *pGrid, TGrid_Operation Operation)
+void CSG_Grid::_Operation_Arithmetic(CSG_Grid *pGrid, TSG_Grid_Operation Operation)
 {
 	int					x, y;
 	double				xPosition, yPosition, Value;
-	TGrid_Interpolation	Interpolation;
+	TSG_Grid_Interpolation	Interpolation;
 
 	if( is_Intersecting(pGrid->Get_Extent()) )
 	{
@@ -439,7 +439,7 @@ void CGrid::_Operation_Arithmetic(CGrid *pGrid, TGrid_Operation Operation)
 }
 
 //---------------------------------------------------------
-void CGrid::_Operation_Arithmetic(double Value, TGrid_Operation Operation)
+void CSG_Grid::_Operation_Arithmetic(double Value, TSG_Grid_Operation Operation)
 {
 	int		x, y;
 
@@ -503,7 +503,7 @@ void CGrid::_Operation_Arithmetic(double Value, TGrid_Operation Operation)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGrid::Invert(void)
+void CSG_Grid::Invert(void)
 {
 	int		x, y;
 	double	zMin, zMax;
@@ -531,7 +531,7 @@ void CGrid::Invert(void)
 }
 
 //---------------------------------------------------------
-void CGrid::Flip(void)
+void CSG_Grid::Flip(void)
 {
 	int		x, yA, yB;
 	double	*Line, d;
@@ -569,7 +569,7 @@ void CGrid::Flip(void)
 }
 
 //---------------------------------------------------------
-void CGrid::Mirror(void)
+void CSG_Grid::Mirror(void)
 {
 	int		xA, xB, y;
 	double	d;
@@ -600,7 +600,7 @@ void CGrid::Mirror(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGrid::Normalise(void)
+void CSG_Grid::Normalise(void)
 {
 	int		x, y;
 	double	d;
@@ -632,7 +632,7 @@ void CGrid::Normalise(void)
 }
 
 //---------------------------------------------------------
-void CGrid::DeNormalise(double ArithMean, double Variance)
+void CSG_Grid::DeNormalise(double ArithMean, double Variance)
 {
 	int		x, y;
 
@@ -665,7 +665,7 @@ void CGrid::DeNormalise(double ArithMean, double Variance)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CGrid::Get_Gradient_NeighborDir(int x, int y, bool bMustBeLower)
+int CSG_Grid::Get_Gradient_NeighborDir(int x, int y, bool bMustBeLower)
 {
 	int		i, ix, iy, Direction;
 	double	z, dz, dzMax;
@@ -706,7 +706,7 @@ int CGrid::Get_Gradient_NeighborDir(int x, int y, bool bMustBeLower)
 }
 
 //---------------------------------------------------------
-bool CGrid::Get_Gradient(int x, int y, double &Decline, double &Azimuth)
+bool CSG_Grid::Get_Gradient(int x, int y, double &Decline, double &Azimuth)
 {
 	int		i, ix, iy, iDir;
 	double	z, zm[4], G, H;

@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CWator : public CModule
+class CWator : public CSG_Module
 {
 public:
 	CWator(void);
@@ -95,7 +95,7 @@ private:
 
 	int						Fish_Birth, Shark_Birth, Shark_Starve, nFishes, nSharks;
 
-	CGrid					*pWator, *pNext, *pAge, *pStarve;
+	CSG_Grid					*pWator, *pNext, *pAge, *pStarve;
 
 
 	bool					Next_Cycle(void);

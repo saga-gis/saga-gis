@@ -23,7 +23,7 @@
 
 #include "MLB_Interface.h"
 
-class CSelectByTheme : public CModule  
+class CSelectByTheme : public CSG_Module  
 {
 public:
 

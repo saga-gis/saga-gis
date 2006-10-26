@@ -152,7 +152,7 @@ void CVIEW_Map_3D_Image::Save(void)
 {
 	int			type;
 	wxString	file;
-	CParameters	Parameters;
+	CSG_Parameters	Parameters;
 
 	//-----------------------------------------------------
 	Parameters.Create(NULL, LNG("Save 3D Image Options"), LNG(""));

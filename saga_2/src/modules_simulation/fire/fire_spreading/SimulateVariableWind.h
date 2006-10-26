@@ -24,32 +24,32 @@
 #include "MLB_Interface.h"
 #include "firelib.h"
 
-class CSimulateVariableWind : public CModule_Grid {
+class CSimulateVariableWind : public CSG_Module_Grid {
 
 private:
 
-	CGrid *m_pDEM;    
-    CGrid *m_pIgnGrid;           /* ptr to ignition time map (minutes) */
-    CGrid **m_pWindSpdGrids;     /* ptr to wind speed map (km/h) */
-    CGrid **m_pWindDirGrids;     /* ptr to wind direction map (deg from north) */
-    CGrid *m_pM1Grid;            /* ptr to 1-hr dead fuel moisture map (in %)*/
-    CGrid *m_pM10Grid;           /* ptr to 10-hr dead fuel moisture map */
-    CGrid *m_pM100Grid;          /* ptr to 100-hr dead fuel moisture map */
-    CGrid *m_pMHerbGrid;         /* ptr to live herbaceous fuel moisture map */
-    CGrid *m_pMWoodGrid;         /* ptr to live stem fuel moisture map */
-	CGrid *m_pFuelGrid;          /* ptr to fuel model map */
-	CGrid *m_pValueGrid;
+	CSG_Grid *m_pDEM;    
+    CSG_Grid *m_pIgnGrid;           /* ptr to ignition time map (minutes) */
+    CSG_Grid **m_pWindSpdGrids;     /* ptr to wind speed map (km/h) */
+    CSG_Grid **m_pWindDirGrids;     /* ptr to wind direction map (deg from north) */
+    CSG_Grid *m_pM1Grid;            /* ptr to 1-hr dead fuel moisture map (in %)*/
+    CSG_Grid *m_pM10Grid;           /* ptr to 10-hr dead fuel moisture map */
+    CSG_Grid *m_pM100Grid;          /* ptr to 100-hr dead fuel moisture map */
+    CSG_Grid *m_pMHerbGrid;         /* ptr to live herbaceous fuel moisture map */
+    CSG_Grid *m_pMWoodGrid;         /* ptr to live stem fuel moisture map */
+	CSG_Grid *m_pFuelGrid;          /* ptr to fuel model map */
+	CSG_Grid *m_pValueGrid;
 
-	CGrid *m_pFlameGrid;         /* ptr to flame length map (m) */
-	CGrid *m_pIntensityGrid;     
-	CGrid *m_pReactionIntensityGrid;
-	CGrid *m_pEffectiveWindGrid;
-	CGrid *m_pHeatPerUnitAreaGrid;
+	CSG_Grid *m_pFlameGrid;         /* ptr to flame length map (m) */
+	CSG_Grid *m_pIntensityGrid;     
+	CSG_Grid *m_pReactionIntensityGrid;
+	CSG_Grid *m_pEffectiveWindGrid;
+	CSG_Grid *m_pHeatPerUnitAreaGrid;
 
-    CGrid *m_pSlopeGrid;         /* ptr to slope map (rise/reach) */
-    CGrid *m_pAspectGrid;        /* ptr to aspect map (degrees from north) */
+    CSG_Grid *m_pSlopeGrid;         /* ptr to slope map (rise/reach) */
+    CSG_Grid *m_pAspectGrid;        /* ptr to aspect map (degrees from north) */
 
-	CGrid *m_pTimeGrid;
+	CSG_Grid *m_pTimeGrid;
 
 	int m_iWindDirGrids;
 	int m_iWindSpdGrids;

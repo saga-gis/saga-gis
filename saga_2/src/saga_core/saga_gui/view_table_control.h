@@ -96,7 +96,7 @@ class CVIEW_Table_Control : public wxGrid
 	DECLARE_CLASS(CVIEW_Table_Control)
 
 public:
-	CVIEW_Table_Control(wxWindow *pParent, class CTable *pTable, int Constraint);
+	CVIEW_Table_Control(wxWindow *pParent, class CSG_Table *pTable, int Constraint);
 	virtual ~CVIEW_Table_Control(void);
 
 	void						On_Field_Add		(wxCommandEvent  &event);
@@ -142,13 +142,13 @@ private:
 
 	int							m_Constraint;
 
-	class CTable				*m_pTable;
+	class CSG_Table				*m_pTable;
 
 
 	bool						_Set_Table			(void);
 
 	bool						_Set_Records		(void);
-	bool						_Set_Record			(int iRecord, class CTable_Record *pRecord);
+	bool						_Set_Record			(int iRecord, class CSG_Table_Record *pRecord);
 
 	void						_Select				(int iRow, bool bSelect);
 

@@ -66,7 +66,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CTable_Rotate : public CModule
+class CTable_Rotate : public CSG_Module
 {
 public:
 	CTable_Rotate(void);

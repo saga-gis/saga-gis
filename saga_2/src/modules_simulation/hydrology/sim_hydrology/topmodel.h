@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTOPMODEL : public CModule_Grid
+class CTOPMODEL : public CSG_Module_Grid
 {
 public:
 	CTOPMODEL(void);
@@ -95,7 +95,7 @@ private:
 
 	double				dTime, inf_cumf, inf_bPonding;
 
-	CTable				*pClimate;
+	CSG_Table				*pClimate;
 
 	CTOPMODEL_Values	Vals;
 

@@ -45,9 +45,9 @@ bool CAddCoordinates::On_Execute(void){
 	int i;
 	int iXField, iYField;
 //	double dDist;
-	CShape *pShape;
-	CShapes *pShapes = Parameters("POINTS")->asShapes();
-	CTable *pTable = &pShapes->Get_Table();
+	CSG_Shape *pShape;
+	CSG_Shapes *pShapes = Parameters("POINTS")->asShapes();
+	CSG_Table *pTable = &pShapes->Get_Table();
 
 	pTable->Add_Field("X", TABLE_FIELDTYPE_Double);
 	iXField = pTable->Get_Field_Count() - 1;

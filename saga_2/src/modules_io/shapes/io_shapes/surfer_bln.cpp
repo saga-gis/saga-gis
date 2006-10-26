@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CSurfer_BLN_Import::CSurfer_BLN_Import(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	// 1. Info...
@@ -126,12 +126,12 @@ bool CSurfer_BLN_Import::On_Execute(void)
 	int				ID, Flag, iPoint, nPoints;
 	double			x, y;
 	FILE			*Stream;
-	TShape_Type		Type;
+	TSG_Shape_Type		Type;
 	CSG_String		FileName, sLine, sName, sDesc, sTemp;
-	CTable_Record	*pRecord;
-	CTable			*pTable;
-	CShape			*pShape;
-	CShapes			*pShapes;
+	CSG_Table_Record	*pRecord;
+	CSG_Table			*pTable;
+	CSG_Shape			*pShape;
+	CSG_Shapes			*pShapes;
 
 	//-----------------------------------------------------
 	pShapes		= Parameters("SHAPES")	->asShapes();
@@ -278,7 +278,7 @@ CSurfer_BLN_Export::CSurfer_BLN_Export(void)
 	//-----------------------------------------------------
 	// 2. Parameters...
 
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES"	, _TL("Shapes"),
@@ -338,8 +338,8 @@ bool CSurfer_BLN_Export::On_Execute(void)
 	double		z;
 	FILE		*Stream;
 	TSG_Point	p;
-	CShape		*pShape;
-	CShapes		*pShapes;
+	CSG_Shape		*pShape;
+	CSG_Shapes		*pShapes;
 
 	//-----------------------------------------------------
 	pShapes	= Parameters("SHAPES")	->asShapes();

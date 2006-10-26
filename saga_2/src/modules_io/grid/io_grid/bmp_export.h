@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CBMP_Export : public CModule_Grid
+class CBMP_Export : public CSG_Module_Grid
 {
 public:
 	CBMP_Export(void);

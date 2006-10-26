@@ -150,8 +150,8 @@ bool CGrid_Cross_Profiles::On_Execute(void)
 	int			iLine, iPart, iPoint, nSamples;
 	double		Distance, Length, dLine, dist, dx, dy;
 	TSG_Point	iPt, jPt, dPt, aPt, bPt;
-	CShapes		*pLines, *pProfiles;
-	CShape		*pLine, *pProfile;
+	CSG_Shapes		*pLines, *pProfiles;
+	CSG_Shape		*pLine, *pProfile;
 
 	//-----------------------------------------------------
 	m_pDEM		= Parameters("DEM")			->asGrid();
@@ -247,7 +247,7 @@ bool CGrid_Cross_Profiles::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Cross_Profiles::Get_Profile(CShape *pProfile, TSG_Point A, TSG_Point B, int nSamples)
+bool CGrid_Cross_Profiles::Get_Profile(CSG_Shape *pProfile, TSG_Point A, TSG_Point B, int nSamples)
 {
 	if( 1 )
 	{
@@ -292,15 +292,15 @@ bool CGrid_Cross_Profiles::Get_Profile(CShape *pProfile, TSG_Point A, TSG_Point 
 #define NBOXES	4
 
 //---------------------------------------------------------
-void CGrid_Cross_Profiles::Make_Report(const char *FileName, CGrid *pDEM, CShapes *pLines, CShapes *pProfiles, double Distance)
+void CGrid_Cross_Profiles::Make_Report(const char *FileName, CSG_Grid *pDEM, CSG_Shapes *pLines, CSG_Shapes *pProfiles, double Distance)
 {
 	if( FileName )
 	{
 		int				iProfile, iPoint, nSamples, iBox;
 		CSG_Rect		r;
-		CShape			*pProfile, *pLine;
-		CShapes			Profile;
-		CDoc_PDF	pdf;
+		CSG_Shape			*pProfile, *pLine;
+		CSG_Shapes			Profile;
+		CSG_Doc_PDF	pdf;
 
 		pdf.Open(PDF_PAGE_SIZE_A4, PDF_PAGE_ORIENTATION_PORTRAIT, _TL("Cross Profiles"));
 		pdf.Layout_Add_Box(5,  5, 95, 20);

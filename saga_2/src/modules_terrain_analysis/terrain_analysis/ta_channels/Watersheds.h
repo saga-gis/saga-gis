@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_channels_EXPORT CWatersheds : public CModule_Grid
+class ta_channels_EXPORT CWatersheds : public CSG_Module_Grid
 {
 public:
 	CWatersheds(void);
@@ -95,7 +95,7 @@ private:
 
 	int						m_nBasins;
 
-	CGrid					*m_pBasins, m_Direction;
+	CSG_Grid					*m_pBasins, m_Direction;
 
 
 	int						Get_Basin	(int x, int y);

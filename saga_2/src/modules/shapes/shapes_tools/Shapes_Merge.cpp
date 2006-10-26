@@ -54,12 +54,12 @@ CShapes_Merge::~CShapes_Merge(void)
 
 bool CShapes_Merge::On_Execute(void){
 
-	CTable *pTable;
-	CShapes *pShapes, *pOutput;
+	CSG_Table *pTable;
+	CSG_Shapes *pShapes, *pOutput;
 	TSG_Point	Point;
-	CShape *pShape, *pShape2;
-	CParameter_Shapes_List	*pShapesList;
-	CShapes* pMainShapes;
+	CSG_Shape *pShape, *pShape2;
+	CSG_Parameter_Shapes_List	*pShapesList;
+	CSG_Shapes* pMainShapes;
 	int i,j,k;
 	int iLayer, iField;
 	int iFieldMain, iFieldAdditional;
@@ -68,7 +68,7 @@ bool CShapes_Merge::On_Execute(void){
 	
 	pOutput = Parameters("OUT")->asShapes();
 	pMainShapes = Parameters("MAIN")->asShapes();
-	TShape_Type MainType = pMainShapes->Get_Type();
+	TSG_Shape_Type MainType = pMainShapes->Get_Type();
 
 	pOutput->Create(MainType, _TL("Shapes_Merge"));
 

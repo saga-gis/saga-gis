@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPolygons_From_Lines : public CModule  
+class CPolygons_From_Lines : public CSG_Module  
 {
 public:
 	CPolygons_From_Lines(void);

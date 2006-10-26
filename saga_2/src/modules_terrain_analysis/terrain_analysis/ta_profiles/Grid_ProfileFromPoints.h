@@ -23,7 +23,7 @@
 
 #include "MLB_Interface.h"
 
-class CProfileFromPoints : public CModule_Grid {
+class CProfileFromPoints : public CSG_Module_Grid {
 
 public:
 	CProfileFromPoints(void);

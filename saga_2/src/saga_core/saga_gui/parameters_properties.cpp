@@ -101,7 +101,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameters_PG_Choice::CParameters_PG_Choice(CParameter *pParameter)
+CParameters_PG_Choice::CParameters_PG_Choice(CSG_Parameter *pParameter)
 	: wxEnumPropertyClass(GET_DATAOBJECT_LABEL(pParameter), pParameter->Get_Identifier(), NULL)
 {
 	m_pParameter	= pParameter;
@@ -190,8 +190,8 @@ int CParameters_PG_Choice::_Set_Choice(void)
 //---------------------------------------------------------
 int CParameters_PG_Choice::_Set_Table_Field(void)
 {
-	CParameter	*pParent;
-	CTable		*pTable;
+	CSG_Parameter	*pParent;
+	CSG_Table		*pTable;
 
 	if(	(pParent = m_pParameter->Get_Parent()) != NULL)
 	{
@@ -249,7 +249,7 @@ int CParameters_PG_Choice::_Set_Shapes(void)
 
 	if( (pManager = g_pData->Get_Shapes()) != NULL )
 	{
-		Shape_Type	= ((CParameter_Shapes *)m_pParameter->Get_Data())->Get_Shape_Type();
+		Shape_Type	= ((CSG_Parameter_Shapes *)m_pParameter->Get_Data())->Get_Shape_Type();
 
 		for(i=0; i<pManager->Get_Count(); i++)
 		{
@@ -306,7 +306,7 @@ int CParameters_PG_Choice::_Set_Grid_System(void)
 
 		for(i=0; i<(int)m_choices.GetCount()-1; i++)
 		{
-			if( m_pParameter->asGrid_System()->is_Equal(*((CGrid_System *)m_choices.GetValue(i))) )
+			if( m_pParameter->asGrid_System()->is_Equal(*((CSG_Grid_System *)m_choices.GetValue(i))) )
 			{
 				return( i );
 			}
@@ -324,7 +324,7 @@ int CParameters_PG_Choice::_Set_Grid_System(void)
 int CParameters_PG_Choice::_Set_Grid(void)
 {
 	int					i;
-	CParameter			*pParent;
+	CSG_Parameter			*pParent;
 	CWKSP_Grid_Manager	*pManager;
 	CWKSP_Grid_System	*pSystem;
 
@@ -423,7 +423,7 @@ bool CParameters_PG_Choice::OnEvent(wxPropertyGrid *pPG, wxWindow *pPGCtrl, wxEv
 void CParameters_PG_Choice::_Update_Grids(wxPropertyGrid *pPG)
 {
 	int			i;
-	CParameter	*pChild;
+	CSG_Parameter	*pChild;
 	wxPGId		Id;
 
 	if( m_pParameter && m_pParameter->Get_Type() == PARAMETER_TYPE_Grid_System )
@@ -456,7 +456,7 @@ void CParameters_PG_Choice::_Update_Grids(wxPropertyGrid *pPG)
 void CParameters_PG_Choice::_Update_TableFields(wxPropertyGrid *pPG)
 {
 	int			i;
-	CParameter	*pChild;
+	CSG_Parameter	*pChild;
 	wxPGId		Id;
 
 	if( m_pParameter )
@@ -487,10 +487,10 @@ void CParameters_PG_Choice::_Update_TableFields(wxPropertyGrid *pPG)
 
 //---------------------------------------------------------
 #define GRIDSYSTEM_GET_COUNT		(int)(m_choices.IsOk() ? m_choices.GetCount() : 0)
-#define GRIDSYSTEM_GET_SYSTEM(i)	(i >= 0 && i < GRIDSYSTEM_GET_COUNT ? (CGrid_System *)m_choices.GetValue(i) : NULL)
+#define GRIDSYSTEM_GET_SYSTEM(i)	(i >= 0 && i < GRIDSYSTEM_GET_COUNT ? (CSG_Grid_System *)m_choices.GetValue(i) : NULL)
 
 //---------------------------------------------------------
-CParameters_PG_GridSystem::CParameters_PG_GridSystem(CParameter *pParameter)
+CParameters_PG_GridSystem::CParameters_PG_GridSystem(CSG_Parameter *pParameter)
 	: wxCustomPropertyClass(pParameter->Get_Name(), pParameter->Get_Identifier())
 {
 	m_pParameter	= pParameter;
@@ -643,7 +643,7 @@ CParameters_PG_DoublesValue::CParameters_PG_DoublesValue(void)
 }
 
 //---------------------------------------------------------
-CParameters_PG_DoublesValue::CParameters_PG_DoublesValue(class CParameter *pParameter)
+CParameters_PG_DoublesValue::CParameters_PG_DoublesValue(class CSG_Parameter *pParameter)
 {
 	m_nValues		= 0;
 	m_Values		= NULL;
@@ -660,7 +660,7 @@ CParameters_PG_DoublesValue::~CParameters_PG_DoublesValue(void)
 }
 
 //---------------------------------------------------------
-bool CParameters_PG_DoublesValue::_Create(CParameter *pParameter)
+bool CParameters_PG_DoublesValue::_Create(CSG_Parameter *pParameter)
 {
 	if( pParameter )
 	{
@@ -969,19 +969,19 @@ bool CParameters_PG_DialogedValue::Do_Dialog(void)
 			break;
 
 		case PARAMETER_TYPE_Grid_List:
-			bModified	= DLG_List_Grid		(m_pParameter->Get_Name(), (CParameter_Grid_List   *)m_pParameter->Get_Data());
+			bModified	= DLG_List_Grid		(m_pParameter->Get_Name(), (CSG_Parameter_Grid_List   *)m_pParameter->Get_Data());
 			break;
 
 		case PARAMETER_TYPE_Table_List:
-			bModified	= DLG_List_Table	(m_pParameter->Get_Name(), (CParameter_Table_List  *)m_pParameter->Get_Data());
+			bModified	= DLG_List_Table	(m_pParameter->Get_Name(), (CSG_Parameter_Table_List  *)m_pParameter->Get_Data());
 			break;
 
 		case PARAMETER_TYPE_Shapes_List:
-			bModified	= DLG_List_Shapes	(m_pParameter->Get_Name(), (CParameter_Shapes_List *)m_pParameter->Get_Data());
+			bModified	= DLG_List_Shapes	(m_pParameter->Get_Name(), (CSG_Parameter_Shapes_List *)m_pParameter->Get_Data());
 			break;
 
 		case PARAMETER_TYPE_TIN_List:
-			bModified	= DLG_List_TIN		(m_pParameter->Get_Name(), (CParameter_TIN_List    *)m_pParameter->Get_Data());
+			bModified	= DLG_List_TIN		(m_pParameter->Get_Name(), (CSG_Parameter_TIN_List    *)m_pParameter->Get_Data());
 			break;
 
 		case PARAMETER_TYPE_Colors:

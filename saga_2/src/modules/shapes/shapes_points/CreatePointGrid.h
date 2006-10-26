@@ -23,7 +23,7 @@
 
 #include "MLB_Interface.h"
 
-class CCreatePointGrid : public CModule {
+class CCreatePointGrid : public CSG_Module {
 
 public:
 	CCreatePointGrid(void);

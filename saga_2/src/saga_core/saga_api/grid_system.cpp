@@ -70,13 +70,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGrid_System::CGrid_System(void)
+CSG_Grid_System::CSG_Grid_System(void)
 {
 	m_Cellsize	= -1.0;
 }
 
 //---------------------------------------------------------
-CGrid_System::CGrid_System(const CGrid_System &System)
+CSG_Grid_System::CSG_Grid_System(const CSG_Grid_System &System)
 {
 	m_Cellsize	= -1.0;
 
@@ -84,7 +84,7 @@ CGrid_System::CGrid_System(const CGrid_System &System)
 }
 
 //---------------------------------------------------------
-CGrid_System::CGrid_System(double Cellsize, const CSG_Rect &Extent)
+CSG_Grid_System::CSG_Grid_System(double Cellsize, const CSG_Rect &Extent)
 {
 	m_Cellsize	= -1.0;
 
@@ -92,7 +92,7 @@ CGrid_System::CGrid_System(double Cellsize, const CSG_Rect &Extent)
 }
 
 //---------------------------------------------------------
-CGrid_System::CGrid_System(double Cellsize, double xMin, double yMin, double xMax, double yMax)
+CSG_Grid_System::CSG_Grid_System(double Cellsize, double xMin, double yMin, double xMax, double yMax)
 {
 	m_Cellsize	= -1.0;
 
@@ -100,7 +100,7 @@ CGrid_System::CGrid_System(double Cellsize, double xMin, double yMin, double xMa
 }
 
 //---------------------------------------------------------
-CGrid_System::CGrid_System(double Cellsize, double xMin, double yMin, int NX, int NY)
+CSG_Grid_System::CSG_Grid_System(double Cellsize, double xMin, double yMin, int NX, int NY)
 {
 	m_Cellsize	= -1.0;
 
@@ -108,7 +108,7 @@ CGrid_System::CGrid_System(double Cellsize, double xMin, double yMin, int NX, in
 }
 
 //---------------------------------------------------------
-CGrid_System::~CGrid_System(void)
+CSG_Grid_System::~CSG_Grid_System(void)
 {
 }
 
@@ -120,13 +120,13 @@ CGrid_System::~CGrid_System(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_System::is_Valid(void) const
+bool CSG_Grid_System::is_Valid(void) const
 {
 	return( m_Cellsize > 0.0 );
 }
 
 //---------------------------------------------------------
-const char * CGrid_System::Get_Name(bool bShort)
+const char * CSG_Grid_System::Get_Name(bool bShort)
 {
 	if( is_Valid() )
 	{
@@ -169,13 +169,13 @@ const char * CGrid_System::Get_Name(bool bShort)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_System::operator == (const CGrid_System &System) const
+bool CSG_Grid_System::operator == (const CSG_Grid_System &System) const
 {
 	return( is_Equal(System) );
 }
 
 //---------------------------------------------------------
-void CGrid_System::operator = (const CGrid_System &System)
+void CSG_Grid_System::operator = (const CSG_Grid_System &System)
 {
 	Assign(System);
 }
@@ -188,19 +188,19 @@ void CGrid_System::operator = (const CGrid_System &System)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_System::Assign(const CGrid_System &System)
+bool CSG_Grid_System::Assign(const CSG_Grid_System &System)
 {
 	return( Assign(System.m_Cellsize, System.m_Extent) );
 }
 
 //---------------------------------------------------------
-bool CGrid_System::Assign(double Cellsize, const CSG_Rect &Extent)
+bool CSG_Grid_System::Assign(double Cellsize, const CSG_Rect &Extent)
 {
 	return( Assign(Cellsize, Extent.m_rect.xMin, Extent.m_rect.yMin, Extent.m_rect.xMax, Extent.m_rect.yMax) );
 }
 
 //---------------------------------------------------------
-bool CGrid_System::Assign(double Cellsize, double xMin, double yMin, double xMax, double yMax)
+bool CSG_Grid_System::Assign(double Cellsize, double xMin, double yMin, double xMax, double yMax)
 {
 	if( Cellsize > 0.0 && xMin < xMax && yMin < yMax )
 	{
@@ -213,7 +213,7 @@ bool CGrid_System::Assign(double Cellsize, double xMin, double yMin, double xMax
 }
 
 //---------------------------------------------------------
-bool CGrid_System::Assign(double Cellsize, double xMin, double yMin, int NX, int NY)
+bool CSG_Grid_System::Assign(double Cellsize, double xMin, double yMin, int NX, int NY)
 {
 	if( Cellsize > 0.0 && NX > 0 && NY > 0 )
 	{
@@ -244,13 +244,13 @@ bool CGrid_System::Assign(double Cellsize, double xMin, double yMin, int NX, int
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_System::is_Equal(const CGrid_System &System) const
+bool CSG_Grid_System::is_Equal(const CSG_Grid_System &System) const
 {
 	return( is_Equal(System.m_Cellsize, System.m_Extent.m_rect) );
 }
 
 //---------------------------------------------------------
-bool CGrid_System::is_Equal(double Cellsize, const TSG_Rect &Extent) const
+bool CSG_Grid_System::is_Equal(double Cellsize, const TSG_Rect &Extent) const
 {
 	return( m_Cellsize == Cellsize && m_Extent == Extent );
 }

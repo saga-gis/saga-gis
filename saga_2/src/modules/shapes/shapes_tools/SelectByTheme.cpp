@@ -69,8 +69,8 @@ CSelectByTheme::~CSelectByTheme(void){}
 
 bool CSelectByTheme::On_Execute(void){
 
-	CShapes *pShapes, *pShapes2;
-	CTable *pTable;
+	CSG_Shapes *pShapes, *pShapes2;
+	CSG_Table *pTable;
 	CShapeSelector *pSelector;	
 	bool *pRecordWasSelected;
 	int *pSelectedRecords;

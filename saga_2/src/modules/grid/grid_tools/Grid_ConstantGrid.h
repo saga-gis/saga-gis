@@ -23,7 +23,7 @@
 
 #include "MLB_Interface.h"
 
-class CConstantGrid : public CModule_Grid {
+class CConstantGrid : public CSG_Module_Grid {
 
 private:
 

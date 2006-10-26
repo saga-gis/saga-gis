@@ -22,7 +22,7 @@
 
 CGrid_CrossSections::CGrid_CrossSections(void){
 
-	CParameter *pNode;
+	CSG_Parameter *pNode;
 
 	Parameters.Set_Name(_TL("Cross Sections"));
 	Parameters.Set_Description(_TL("(c) 2004 Victor Olaya. Cross Sections"));
@@ -117,9 +117,9 @@ CGrid_CrossSections::~CGrid_CrossSections(void){}
 
 bool CGrid_CrossSections::On_Execute(void){
 
-	CShapes *pLines;
-	CShape *pShape, *pSection;
-	CGrid *pDEM;
+	CSG_Shapes *pLines;
+	CSG_Shape *pShape, *pSection;
+	CSG_Grid *pDEM;
 	TSG_Point	Point, Point2;
 	float fInterval;
 	float fStepX, fStepY;
@@ -252,10 +252,10 @@ void CGrid_CrossSections::AddLongitudinalProfiles(){
 	float fDist;
 	float fThreshold = (float)Parameters("THRESHOLD")->asDouble();
 	bool bValid;
-	CShape *pShape;
-	CTable *pTable;
+	CSG_Shape *pShape;
+	CSG_Table *pTable;
 	TSG_Point	Point, Point2;
-	CShapes* pLines = Parameters("LINES")->asShapes();
+	CSG_Shapes* pLines = Parameters("LINES")->asShapes();
 
 	pTable = &m_pSections->Get_Table();
 	iSections = pTable->Get_Record_Count();
@@ -341,7 +341,7 @@ void CGrid_CrossSections::AddCrossSections(){
 	int iRoadPoints;
 	int iNumPoints = Parameters("NUMPOINTS")->asInt();
 	float fInterval = (float) Parameters("INTERVAL")->asDouble();
-	CTable *pTable;
+	CSG_Table *pTable;
 	TSG_Point *pRoadSection;
 	TSG_Point **pCrossSections;
 	double dWidth = Parameters("WIDTH")->asDouble();

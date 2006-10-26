@@ -102,6 +102,17 @@ bool		SG_UI_Process_Get_Okay(bool bBlink)
 	{
 		return( gSG_UI_Callback(CALLBACK_PROCESS_GET_OKAY, bBlink ? 1 : 0, 0) != 0 );
 	}
+	else
+	{
+		if( bBlink )
+		{
+			static int	iBuisy		= 0;
+			const char	Buisy[4]	= {	'|', '/', '-', '\\'	};
+
+			printf("\r%c   ", Buisy[iBuisy++]);
+			iBuisy	%= 4;
+		}
+	}
 
 	return( true );
 }
@@ -123,6 +134,10 @@ bool		SG_UI_Process_Set_Progress(double Position, double Range)
 	if( gSG_UI_Callback )
 	{
 		return( gSG_UI_Callback(CALLBACK_PROCESS_SET_PROGRESS, (long)&Position, (long)&Range) != 0 );
+	}
+	else
+	{
+		printf("\r%3d%%", Range != 0.0 ? 1 + (int)(100.0 * Position / Range) : 100);
 	}
 
 	return( true );
@@ -146,6 +161,10 @@ void		SG_UI_Process_Set_Text(const char *Text)
 	{
 		gSG_UI_Callback(CALLBACK_PROCESS_SET_TEXT, (long)Text, 0);
 	}
+	else
+	{
+		printf("\n%s", Text);
+	}
 }
 
 
@@ -161,6 +180,10 @@ void		SG_UI_Dlg_Message(const char *Message, const char *Caption)
 	if( gSG_UI_Callback )
 	{
 		gSG_UI_Callback(CALLBACK_DLG_MESSAGE, (long)Message, (long)Caption);
+	}
+	else
+	{
+		printf("\n%s: %s", Caption, Message);
 	}
 }
 
@@ -194,7 +217,7 @@ int			SG_UI_Dlg_Error(const char *Message, const char *Caption)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		SG_UI_Dlg_Parameters(CParameters *pParameters, const char *Caption)
+bool		SG_UI_Dlg_Parameters(CSG_Parameters *pParameters, const char *Caption)
 {
 	if( gSG_UI_Callback && pParameters )
 	{
@@ -218,6 +241,15 @@ void		SG_UI_Msg_Add(const char *Message, bool bNewLine)
 	{
 		gSG_UI_Callback(CALLBACK_MESSAGE_ADD, (long)Message, (long)bNewLine);
 	}
+	else
+	{
+		if( bNewLine )
+		{
+			printf("\n");
+		}
+
+		printf("%s", Message);
+	}
 }
 
 //---------------------------------------------------------
@@ -226,6 +258,10 @@ void		SG_UI_Msg_Add_Error(const char *Message)
 	if( gSG_UI_Callback )
 	{
 		gSG_UI_Callback(CALLBACK_MESSAGE_ADD_ERROR, (long)Message, 0);
+	}
+	else
+	{
+		printf("\n%s: %s", LNG("Error"), Message);
 	}
 }
 
@@ -236,6 +272,15 @@ void		SG_UI_Msg_Add_Execution(const char *Message, bool bNewLine)
 	{
 		gSG_UI_Callback(CALLBACK_MESSAGE_ADD_EXECUTION, (long)Message, (long)bNewLine);
 	}
+	else
+	{
+		if( bNewLine )
+		{
+			printf("\n");
+		}
+
+		printf("%s", Message);
+	}
 }
 
 
@@ -246,18 +291,18 @@ void		SG_UI_Msg_Add_Execution(const char *Message, bool bNewLine)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CDataObject *	SG_UI_DataObject_Find(const char *File_Name, int Object_Type)
+class CSG_Data_Object *	SG_UI_DataObject_Find(const char *File_Name, int Object_Type)
 {
 	if( gSG_UI_Callback && File_Name )
 	{
-		return( (class CDataObject *)gSG_UI_Callback(CALLBACK_DATAOBJECT_FIND_BY_FILE, (long)File_Name, Object_Type) );
+		return( (class CSG_Data_Object *)gSG_UI_Callback(CALLBACK_DATAOBJECT_FIND_BY_FILE, (long)File_Name, Object_Type) );
 	}
 
 	return( NULL );
 }
 
 //---------------------------------------------------------
-bool		SG_UI_DataObject_Check(CDataObject *pDataObject, int Object_Type)
+bool		SG_UI_DataObject_Check(CSG_Data_Object *pDataObject, int Object_Type)
 {
 	if( gSG_UI_Callback && pDataObject )
 	{
@@ -268,7 +313,7 @@ bool		SG_UI_DataObject_Check(CDataObject *pDataObject, int Object_Type)
 }
 
 //---------------------------------------------------------
-bool		SG_UI_DataObject_Add(CDataObject *pDataObject, bool bShow)
+bool		SG_UI_DataObject_Add(CSG_Data_Object *pDataObject, bool bShow)
 {
 	if( gSG_UI_Callback && pDataObject )
 	{
@@ -279,17 +324,17 @@ bool		SG_UI_DataObject_Add(CDataObject *pDataObject, bool bShow)
 }
 
 //---------------------------------------------------------
-bool		SG_UI_DataObject_Update(CDataObject *pDataObject, bool bShow, CParameters *pParameters)
+bool		SG_UI_DataObject_Update(CSG_Data_Object *pDataObject, bool bShow, CSG_Parameters *pParameters)
 {
-	CParameters	Parameters;
+	CSG_Parameters	Parameters;
 
 	if( gSG_UI_Callback && pDataObject )
 	{
 		if( pDataObject->Get_ObjectType() == DATAOBJECT_TYPE_Grid && pParameters == NULL )
 		{
 			Parameters.Add_Range(NULL, "METRIC_ZRANGE", "", "",
-				((CGrid *)pDataObject)->Get_ZMin(true),
-				((CGrid *)pDataObject)->Get_ZMax(true)
+				((CSG_Grid *)pDataObject)->Get_ZMin(true),
+				((CSG_Grid *)pDataObject)->Get_ZMax(true)
 			);
 
 			pParameters	= &Parameters;
@@ -310,7 +355,7 @@ bool		SG_UI_DataObject_Update(CDataObject *pDataObject, bool bShow, CParameters 
 }
 
 //---------------------------------------------------------
-bool		SG_UI_DataObject_Show(CDataObject *pDataObject)
+bool		SG_UI_DataObject_Show(CSG_Data_Object *pDataObject)
 {
 	if( gSG_UI_Callback && pDataObject )
 	{
@@ -321,7 +366,7 @@ bool		SG_UI_DataObject_Show(CDataObject *pDataObject)
 }
 
 //---------------------------------------------------------
-bool		SG_UI_DataObject_asImage(CDataObject *pDataObject, CGrid *pGrid)
+bool		SG_UI_DataObject_asImage(CSG_Data_Object *pDataObject, CSG_Grid *pGrid)
 {
 	if( gSG_UI_Callback && pDataObject )
 	{
@@ -332,7 +377,7 @@ bool		SG_UI_DataObject_asImage(CDataObject *pDataObject, CGrid *pGrid)
 }
 
 //---------------------------------------------------------
-bool		SG_UI_DataObject_Colors_Get(CDataObject *pDataObject, CSG_Colors *pColors)
+bool		SG_UI_DataObject_Colors_Get(CSG_Data_Object *pDataObject, CSG_Colors *pColors)
 {
 	if( gSG_UI_Callback && pDataObject && pColors )
 	{
@@ -343,7 +388,7 @@ bool		SG_UI_DataObject_Colors_Get(CDataObject *pDataObject, CSG_Colors *pColors)
 }
 
 //---------------------------------------------------------
-bool		SG_UI_DataObject_Colors_Set(CDataObject *pDataObject, CSG_Colors *pColors)
+bool		SG_UI_DataObject_Colors_Set(CSG_Data_Object *pDataObject, CSG_Colors *pColors)
 {
 	if( gSG_UI_Callback && pDataObject && pColors )
 	{
@@ -354,7 +399,7 @@ bool		SG_UI_DataObject_Colors_Set(CDataObject *pDataObject, CSG_Colors *pColors)
 }
 
 //---------------------------------------------------------
-bool		SG_UI_DataObject_Get_All(class CParameters *pParameters)
+bool		SG_UI_DataObject_Get_All(class CSG_Parameters *pParameters)
 {
 	if( gSG_UI_Callback && pParameters )
 	{

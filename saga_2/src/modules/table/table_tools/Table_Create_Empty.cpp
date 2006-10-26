@@ -115,11 +115,11 @@ CTable_Create_Empty::~CTable_Create_Empty(void)
 bool CTable_Create_Empty::On_Execute(void)
 {
 	int					iField, nFields, iType;
-	TTable_FieldType	Type;
+	TSG_Table_Field_Type	Type;
 	CSG_String			Name, Types, s;
-	CTable				*pTable;
-	CParameters			P;
-	CParameter			*pNode;
+	CSG_Table				*pTable;
+	CSG_Parameters			P;
+	CSG_Parameter			*pNode;
 
 	//-----------------------------------------------------
 	nFields	= Parameters("FIELDS")	->asInt();

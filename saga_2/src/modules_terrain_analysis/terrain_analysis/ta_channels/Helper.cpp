@@ -20,7 +20,7 @@
 #include "Helper.h"
 
 // getNextCell() >> changed by O.Conrad, 28 July 2005...
-void getNextCell(CGrid *g, int iX, int iY, int &iNextX, int &iNextY)
+void getNextCell(CSG_Grid *g, int iX, int iY, int &iNextX, int &iNextY)
 {
 	int		Dir	= g->Get_Gradient_NeighborDir(iX, iY, false);
 
@@ -37,7 +37,7 @@ void getNextCell(CGrid *g, int iX, int iY, int &iNextX, int &iNextY)
 }
 
 /*void getNextCell(
-		CGrid *g,
+		CSG_Grid *g,
 		int iX,
         int iY,
 		int &iNextX,
@@ -80,8 +80,8 @@ void getNextCell(CGrid *g, int iX, int iY, int &iNextX, int &iNextY)
 }// method*/
 
 void getNextCell(
-		CGrid *g,
-		CGrid *g2,
+		CSG_Grid *g,
+		CSG_Grid *g2,
 		int iX,
         int iY,
 		int &iNextX,
@@ -124,8 +124,8 @@ void getNextCell(
 
 }// method
 
-double FlowDistance(CGrid *pDEM,
-					CGrid *pBasinGrid,
+double FlowDistance(CSG_Grid *pDEM,
+					CSG_Grid *pBasinGrid,
 					int iBasin,
 				    int iX,
 				    int iY,
@@ -172,9 +172,9 @@ double FlowDistance(CGrid *pDEM,
 
 TSG_Point ** RiverProfile(int iX, 
 				  int iY, 
-				  CGrid* pDEM, 
-				  CGrid* pBasinGrid,
-				  CGrid* pExtGrid,
+				  CSG_Grid* pDEM, 
+				  CSG_Grid* pBasinGrid,
+				  CSG_Grid* pExtGrid,
 				  int &iProfileLength){
 
     int i;
@@ -226,8 +226,8 @@ TSG_Point ** RiverProfile(int iX,
 
 Pt* RiverCoords(int iX,  //the resulting coords are grid coords, 
 				  int iY, 
-				  CGrid* pDEM, 
-				  CGrid* pBasinGrid, 				   
+				  CSG_Grid* pDEM, 
+				  CSG_Grid* pBasinGrid, 				   
 				  int &iProfileLength){
 
     float fLength = 0;        	
@@ -262,17 +262,17 @@ Pt* RiverCoords(int iX,  //the resulting coords are grid coords,
 
 }//method
 
-float DrainageDensity(CShapes *pHeaders,
-					  CShapes *pBasins,
-					  CGrid *pBasinGrid,
-					  CGrid *pDEM){
+float DrainageDensity(CSG_Shapes *pHeaders,
+					  CSG_Shapes *pBasins,
+					  CSG_Grid *pBasinGrid,
+					  CSG_Grid *pDEM){
 
-	CGrid * pChannelsGrid;	
+	CSG_Grid * pChannelsGrid;	
 	float fLength = 0;        
 	int iX, iY;
 	int iNextX, iNextY;
 
-	pChannelsGrid = new CGrid(pDEM, GRID_TYPE_Byte);
+	pChannelsGrid = new CSG_Grid(pDEM, GRID_TYPE_Byte);
 	pChannelsGrid->Assign(0);
 		
 	for (int i = 0; i < pHeaders->Get_Count(); i++) {
@@ -312,8 +312,8 @@ float DrainageDensity(CShapes *pHeaders,
 
 }//method
 
-void ClosingPoint(CGrid* pDEM, 
-				  CGrid* pBasinGrid, 
+void ClosingPoint(CSG_Grid* pDEM, 
+				  CSG_Grid* pBasinGrid, 
 				  int &iClosingX,
 				  int &iClosingY){
 

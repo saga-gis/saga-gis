@@ -67,7 +67,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CGrid_Value_Type : public CModule_Grid  
+class CGrid_Value_Type : public CSG_Module_Grid  
 {
 public:
 	CGrid_Value_Type(void);

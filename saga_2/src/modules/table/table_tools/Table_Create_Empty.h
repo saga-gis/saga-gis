@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Create_Empty : public CModule
+class CTable_Create_Empty : public CSG_Module
 {
 public:
 	CTable_Create_Empty(void);

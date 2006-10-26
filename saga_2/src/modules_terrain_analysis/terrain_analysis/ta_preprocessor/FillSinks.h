@@ -68,7 +68,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_preprocessor_EXPORT CFillSinks : public CModule_Grid
+class ta_preprocessor_EXPORT CFillSinks : public CSG_Module_Grid
 {
 public:
 	CFillSinks(void);
@@ -86,7 +86,7 @@ private:
 
 	double				epsilon[8];
 
-	CGrid				*pDEM, *pResult, *pW, *pBorder;
+	CSG_Grid				*pDEM, *pResult, *pW, *pBorder;
 
 
 	bool				Next_Cell		(int i);

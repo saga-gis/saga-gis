@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CHugget_01 : public CModule
+class CHugget_01 : public CSG_Module
 {
 public:
 	CHugget_01(void);

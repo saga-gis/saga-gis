@@ -177,7 +177,7 @@ bool CGridding_Spline_MBA::_Set_MBA(double dCell)
 {
 	bool	bContinue;
 	int		nCells;
-	CGrid	Phi;
+	CSG_Grid	Phi;
 
 	for(bContinue=true, nCells=1; bContinue; nCells*=2, dCell/=2.0)
 	{
@@ -206,7 +206,7 @@ bool CGridding_Spline_MBA::_Set_MBA_Refinement(double dCell)
 {
 	bool	bContinue;
 	int		nCells;
-	CGrid	A, B, *Phi, *Psi, *pTmp;
+	CSG_Grid	A, B, *Phi, *Psi, *pTmp;
 
 	for(bContinue=true, Psi=&A, Phi=&B, nCells=1; bContinue; nCells*=2, dCell/=2.0)
 	{
@@ -234,7 +234,7 @@ bool CGridding_Spline_MBA::_Set_MBA_Refinement(double dCell)
 #define SET_PSI(x, y, z)	if( (x) >= 0 && (x) < Psi_B->Get_NX() && (y) >= 0 && (y) < Psi_B->Get_NY() )	Psi_B->Add_Value(x, y, z);
 
 //---------------------------------------------------------
-bool CGridding_Spline_MBA::_Set_MBA_Refinement(CGrid *Psi_A, CGrid *Psi_B)
+bool CGridding_Spline_MBA::_Set_MBA_Refinement(CSG_Grid *Psi_A, CSG_Grid *Psi_B)
 {
 	if(	Psi_A && Psi_B
 	&&	2 * (Psi_A->Get_NX() - 4) == (Psi_B->Get_NX() - 4)
@@ -295,7 +295,7 @@ bool CGridding_Spline_MBA::_Set_MBA_Refinement(CGrid *Psi_A, CGrid *Psi_B)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGridding_Spline_MBA::_Get_Phi(CGrid &Phi, double dCell, int nCells)
+bool CGridding_Spline_MBA::_Get_Phi(CSG_Grid &Phi, double dCell, int nCells)
 {
 	Phi.Create	(GRID_TYPE_Float, nCells + 4, nCells + 4, dCell, m_pGrid->Get_XMin(), m_pGrid->Get_YMin());
 	BA_Get_Phi	(Phi);
@@ -304,7 +304,7 @@ bool CGridding_Spline_MBA::_Get_Phi(CGrid &Phi, double dCell, int nCells)
 }
 
 //---------------------------------------------------------
-bool CGridding_Spline_MBA::_Get_Difference(CGrid &Phi)
+bool CGridding_Spline_MBA::_Get_Difference(CSG_Grid &Phi)
 {
 	int			i, nErrors;
 	double		x, y, z, zMax, zMean;
@@ -357,7 +357,7 @@ bool CGridding_Spline_MBA::_Get_Difference(CGrid &Phi)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGridding_Spline_MBA::BA_Set_Grid(CGrid &Phi, bool bAdd)
+void CGridding_Spline_MBA::BA_Set_Grid(CSG_Grid &Phi, bool bAdd)
 {
 	int		ix, iy;
 	double	x, y, d	= m_pGrid->Get_Cellsize() / Phi.Get_Cellsize();
@@ -379,7 +379,7 @@ void CGridding_Spline_MBA::BA_Set_Grid(CGrid &Phi, bool bAdd)
 }
 
 //---------------------------------------------------------
-double CGridding_Spline_MBA::BA_Get_Value(double x, double y, CGrid &Phi)
+double CGridding_Spline_MBA::BA_Get_Value(double x, double y, CSG_Grid &Phi)
 {
 	int		_x, _y, ix, iy;
 	double	z	= 0.0, bx[4], by;
@@ -410,11 +410,11 @@ double CGridding_Spline_MBA::BA_Get_Value(double x, double y, CGrid &Phi)
 }
 
 //---------------------------------------------------------
-bool CGridding_Spline_MBA::BA_Get_Phi(CGrid &Phi)
+bool CGridding_Spline_MBA::BA_Get_Phi(CSG_Grid &Phi)
 {
 	int		iPoint, _x, _y, ix, iy;
 	double	x, y, z, dx, dy, wxy, wy, SW2, W[4][4];
-	CGrid	Delta;
+	CSG_Grid	Delta;
 
 	//-----------------------------------------------------
 	Phi		.Assign(0.0);

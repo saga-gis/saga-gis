@@ -45,9 +45,9 @@ CCropToData::~CCropToData(void)
 
 bool CCropToData::On_Execute(void){
 	
-	//CGrid* pGrid = Parameters("GRID")->asGrid(); 
-	CGrid* pCroppedGrid; 	
-	CGrid** pGrids;
+	//CSG_Grid* pGrid = Parameters("GRID")->asGrid(); 
+	CSG_Grid* pCroppedGrid; 	
+	CSG_Grid** pGrids;
 	int iGrids;
 	int iMinX = 1000000;
 	int iMaxX = 0;
@@ -65,7 +65,7 @@ bool CCropToData::On_Execute(void){
 	}//if
 	
 	iGrids		= Parameters("INPUT")->asInt();
-	pGrids		=(CGrid **)Parameters("INPUT")->asPointer();
+	pGrids		=(CSG_Grid **)Parameters("INPUT")->asPointer();
 	
 	for (i = 0 ; i < iGrids ; i++){
 		if (pGrids[i]->is_Compatible(pGrids[0]->Get_System())){					
@@ -97,7 +97,7 @@ bool CCropToData::On_Execute(void){
 	if (iNX != pGrids[0]->Get_NX() || iNY != pGrids[0]->Get_NY()){
 		for (i = 0 ; i < iGrids ; i++){
 			if (pGrids[i]->is_Compatible(pGrids[0]->Get_System())){	
-				pCroppedGrid = new CGrid(pGrids[i]->Get_Type(), iNX, iNY, pGrids[i]->Get_Cellsize(), dMinX, dMinY);	
+				pCroppedGrid = new CSG_Grid(pGrids[i]->Get_Type(), iNX, iNY, pGrids[i]->Get_Cellsize(), dMinX, dMinY);	
 				pCroppedGrid->Assign(pGrids[i], GRID_INTERPOLATION_BSpline);
 				DataObject_Add(pCroppedGrid);
 			}//if

@@ -102,8 +102,8 @@ bool CBifurcation::On_Execute(void)
 {
 	int					i;
 	double				p, r, dr, max, min, seed, nValues, nPreIterations;
-	CTable_Record		*pRecord;
-	CTable				*pTable;
+	CSG_Table_Record		*pRecord;
+	CSG_Table				*pTable;
 
 	nPreIterations	= Parameters("ITERATIONS")->asInt();
 	nValues			= Parameters("NVALUES")->asInt();

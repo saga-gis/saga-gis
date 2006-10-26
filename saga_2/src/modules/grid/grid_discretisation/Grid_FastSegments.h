@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_FastSegments : public CModule_Grid
+class CGrid_FastSegments : public CSG_Module_Grid
 {
 public:
 	CGrid_FastSegments(void);
@@ -99,7 +99,7 @@ private:
 
 	double				*m_Values;
 
-	CGrid				*m_pGrid, *m_pSegments, *m_pObjects;
+	CSG_Grid				*m_pGrid, *m_pSegments, *m_pObjects;
 
 
 	void				Set_Cell		(int x, int y);

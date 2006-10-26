@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CLines_From_Polygons::CLines_From_Polygons(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Set_Name(_TL("Convert Polygons to Lines"));
@@ -110,8 +110,8 @@ CLines_From_Polygons::~CLines_From_Polygons(void)
 bool CLines_From_Polygons::On_Execute(void)
 {
 	int				iShape, iPart, iPoint;
-	CShape			*pLine , *pPolygon;
-	CShapes			*pLines, *pPolygons;
+	CSG_Shape			*pLine , *pPolygon;
+	CSG_Shapes			*pLines, *pPolygons;
 
 	pPolygons	= Parameters("POLYGONS")	->asShapes();
 	pLines		= Parameters("LINES")		->asShapes();

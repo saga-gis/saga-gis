@@ -221,7 +221,7 @@ bool CD8_Flow_Analysis::Set_Connectivity(void)
 bool CD8_Flow_Analysis::Set_Network(void)
 {
 	int		x, y, i, n;
-	CShape	*pLine;
+	CSG_Shape	*pLine;
 
 	for(y=0, n=0; y<Get_NY() && Set_Progress(y); y++)
 	{
@@ -241,7 +241,7 @@ bool CD8_Flow_Analysis::Set_Network(void)
 }
 
 //---------------------------------------------------------
-bool CD8_Flow_Analysis::Set_Network(int x, int y, CShape *pLine)
+bool CD8_Flow_Analysis::Set_Network(int x, int y, CSG_Shape *pLine)
 {
 	int		i, ix, iy;
 

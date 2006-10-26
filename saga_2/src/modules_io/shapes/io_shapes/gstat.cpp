@@ -72,7 +72,7 @@
 //---------------------------------------------------------
 CGStat_Export::CGStat_Export(void)
 {
-	CParameter	*pNode_0;
+	CSG_Parameter	*pNode_0;
 
 	//-----------------------------------------------------
 	Set_Name(_TL("Export GStat Shapes"));
@@ -111,8 +111,8 @@ bool CGStat_Export::On_Execute(void)
 	int			iShape, iPart, iPoint, iField;
 	FILE		*Stream;
 	TSG_Point	Point;
-	CShape		*pShape;
-	CShapes		*pShapes;
+	CSG_Shape		*pShape;
+	CSG_Shapes		*pShapes;
 
 	//-----------------------------------------------------
 	pShapes		= Parameters("SHAPES")->asShapes();
@@ -237,7 +237,7 @@ bool CGStat_Export::On_Execute(void)
 //---------------------------------------------------------
 CGStat_Import::CGStat_Import(void)
 {
-	CParameter	*pNode_0;
+	CSG_Parameter	*pNode_0;
 
 	//-----------------------------------------------------
 	Set_Name(_TL("Import GStat Shapes"));
@@ -279,8 +279,8 @@ bool CGStat_Import::On_Execute(void)
 	double		x, y, Value;
 	FILE		*Stream;
 	CSG_String	s;
-	CShape		*pShape;
-	CShapes		*pShapes;
+	CSG_Shape		*pShape;
+	CSG_Shapes		*pShapes;
 
 	//-----------------------------------------------------
 	pShapes		= Parameters("SHAPES")->asShapes();

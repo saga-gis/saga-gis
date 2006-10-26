@@ -72,8 +72,8 @@
 //---------------------------------------------------------
 CGrid_Resample::CGrid_Resample(void)
 {
-	CParameter	*pNode;
-	CParameters	*pParameters;
+	CSG_Parameter	*pNode;
+	CSG_Parameters	*pParameters;
 
 	//-----------------------------------------------------
 	Set_Name(_TL("Resampling"));
@@ -183,11 +183,11 @@ CGrid_Resample::~CGrid_Resample(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CGrid_Resample::On_Parameter_Changed(CParameters *pParameters, CParameter *pParameter)
+int CGrid_Resample::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	int		nx, ny;
 	double	cellsize;
-	CGrid	*pGrid;
+	CSG_Grid	*pGrid;
 
 	if( !strcmp(pParameters->Get_Identifier(), "DIMENSIONS") )
 	{
@@ -237,10 +237,10 @@ bool CGrid_Resample::On_Execute(void)
 {
 	bool				bResult;
 	double				Cellsize;
-	TGrid_Interpolation	Interpolation;
-	CGrid				*pInput, *pOutput;
-	CGrid_System		System;
-	CParameters			*pParameters;
+	TSG_Grid_Interpolation	Interpolation;
+	CSG_Grid				*pInput, *pOutput;
+	CSG_Grid_System		System;
+	CSG_Parameters			*pParameters;
 
 	//-----------------------------------------------------
 	bResult	= false;

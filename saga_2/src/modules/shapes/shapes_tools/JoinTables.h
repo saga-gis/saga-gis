@@ -68,7 +68,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CJoinTables : public CModule  
+class CJoinTables : public CSG_Module  
 {
 public:
 	CJoinTables(void);

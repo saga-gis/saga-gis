@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTA_Standard : public CModule_Grid
+class CTA_Standard : public CSG_Module_Grid
 {
 public:
 	CTA_Standard(void);

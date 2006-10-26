@@ -22,7 +22,7 @@
 #include "MLB_Interface.h"
 #include "PointsEx.h"
 
-class CCost_Isotropic : public CModule_Grid
+class CCost_Isotropic : public CSG_Module_Grid
 {
 public:
 
@@ -44,10 +44,10 @@ private:
 	CPointsEx				m_CentralPoints;
 	CPointsEx				m_AdjPoints;
 
-	CGrid					*m_pCostGrid;
-	CGrid					*m_pPointsGrid;	
-	CGrid					*m_pAccCostGrid;
-	CGrid					*m_pClosestPtGrid;
+	CSG_Grid					*m_pCostGrid;
+	CSG_Grid					*m_pPointsGrid;	
+	CSG_Grid					*m_pAccCostGrid;
+	CSG_Grid					*m_pClosestPtGrid;
 
 
 	void					CalculateCost	(void);

@@ -23,7 +23,7 @@
 
 #include "MLB_Interface.h"
 
-class CSearchInTable : public CModule{
+class CSearchInTable : public CSG_Module{
 
 public:
 	CSearchInTable(void);

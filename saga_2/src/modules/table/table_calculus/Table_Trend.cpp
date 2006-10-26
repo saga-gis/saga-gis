@@ -80,7 +80,7 @@ void CTable_Trend_Base::Initialise(void)
 	));
 
 	//-----------------------------------------------------
-	CParameter	*pNode	= Parameters("TABLE");
+	CSG_Parameter	*pNode	= Parameters("TABLE");
 
 	Parameters.Add_Table_Field(
 		pNode	, "FIELD_X"		, _TL("X Values"),
@@ -122,7 +122,7 @@ void CTable_Trend_Base::Initialise(void)
 }
 
 //---------------------------------------------------------
-int CTable_Trend_Base::On_Parameter_Changed(CParameters *pParameters, CParameter *pParameter)
+int CTable_Trend_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	if( !strcmp(pParameter->Get_Identifier(), "FORMULAS") )
 	{
@@ -158,11 +158,11 @@ int CTable_Trend_Base::On_Parameter_Changed(CParameters *pParameters, CParameter
 }
 
 //---------------------------------------------------------
-bool CTable_Trend_Base::Get_Trend(CTable *pTable)
+bool CTable_Trend_Base::Get_Trend(CSG_Table *pTable)
 {
 	int				i, j, xField, yField;
 	CSG_String		Name;
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 
 	//-----------------------------------------------------
 	if( m_Trend.Set_Formula(Parameters("FORMULA")->asString()) )

@@ -22,7 +22,7 @@
 
 #include "MLB_Interface.h"
 
-class CTransformShapes : public CModule{
+class CTransformShapes : public CSG_Module{
 
 public:
 	CTransformShapes(void);

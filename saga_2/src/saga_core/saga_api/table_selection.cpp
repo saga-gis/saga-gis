@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTable::_Destroy_Selection(void)
+bool CSG_Table::_Destroy_Selection(void)
 {
 	if( m_nSelected > 0 )
 	{
@@ -95,10 +95,10 @@ bool CTable::_Destroy_Selection(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTable::Select(int iRecord, bool bInvert)
+bool CSG_Table::Select(int iRecord, bool bInvert)
 {
 	int				i;
-	CTable_Record	*pRecord;
+	CSG_Table_Record	*pRecord;
 
 	if( !bInvert )
 	{
@@ -110,7 +110,7 @@ bool CTable::Select(int iRecord, bool bInvert)
 		if( pRecord->m_bSelected == false )
 		{
 			m_nSelected++;
-			m_Selected	= (CTable_Record **)SG_Realloc(m_Selected, m_nSelected * sizeof(CTable_Record *));
+			m_Selected	= (CSG_Table_Record **)SG_Realloc(m_Selected, m_nSelected * sizeof(CSG_Table_Record *));
 			m_Selected[m_nSelected - 1]	= pRecord;
 			pRecord->m_bSelected		= true;
 		}
@@ -129,7 +129,7 @@ bool CTable::Select(int iRecord, bool bInvert)
 				}
 			}
 
-			m_Selected	= (CTable_Record **)SG_Realloc(m_Selected, m_nSelected * sizeof(CTable_Record *));
+			m_Selected	= (CSG_Table_Record **)SG_Realloc(m_Selected, m_nSelected * sizeof(CSG_Table_Record *));
 			pRecord->m_bSelected		= false;
 		}
 
@@ -140,7 +140,7 @@ bool CTable::Select(int iRecord, bool bInvert)
 }
 
 //---------------------------------------------------------
-bool CTable::Select(CTable_Record *pRecord, bool bInvert)
+bool CSG_Table::Select(CSG_Table_Record *pRecord, bool bInvert)
 {
 	return( Select(pRecord ? pRecord->Get_Index() : -1, bInvert) );
 }
@@ -153,7 +153,7 @@ bool CTable::Select(CTable_Record *pRecord, bool bInvert)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CTable::Del_Selection(void)
+int CSG_Table::Del_Selection(void)
 {
 	int		i, n	= 0;
 

@@ -157,8 +157,8 @@ bool CHugget_01::On_Execute(void)
 {
 	int				iStep, nSteps;
 	double			sTime, dTime, C, C_Input, C_Loss;
-	CTable_Record	*pRecord;
-	CTable			*pTable;
+	CSG_Table_Record	*pRecord;
+	CSG_Table			*pTable;
 
 	//-----------------------------------------------------
 	sTime	= Parameters("TIME_SPAN")	->asDouble();

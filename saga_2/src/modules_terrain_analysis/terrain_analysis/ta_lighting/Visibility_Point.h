@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CVisibility_Point : public CModule_Grid_Interactive
+class CVisibility_Point : public CSG_Module_Grid_Interactive
 {
 public:
 	CVisibility_Point(void);
@@ -89,7 +89,7 @@ public:
 protected:
 
 	virtual bool			On_Execute			(void);
-	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
+	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
 
 
 private:
@@ -98,7 +98,7 @@ private:
 
 	double					m_Height;
 
-	CGrid					*m_pDTM, *m_pVisibility;
+	CSG_Grid					*m_pDTM, *m_pVisibility;
 
 
 	bool					Trace_Point			(int x, int y, double dx, double dy, double dz);

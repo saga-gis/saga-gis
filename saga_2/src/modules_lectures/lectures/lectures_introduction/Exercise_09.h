@@ -65,7 +65,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CExercise_09 : public CModule_Grid
+class CExercise_09 : public CSG_Module_Grid
 {
 public: ////// public members and functions: //////////////
 
@@ -80,7 +80,7 @@ protected: /// protected members and functions: ///////////
 
 private: ///// private members and functions: /////////////
 
-	CGrid				*m_pArea, *m_pDir;
+	CSG_Grid				*m_pArea, *m_pDir;
 
 
 	double				Get_Area(int x, int y);

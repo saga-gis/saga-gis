@@ -23,16 +23,16 @@
 
 #include "MLB_Interface.h"
 
-class CIsochronesVar : public CModule_Grid_Interactive {
+class CIsochronesVar : public CSG_Module_Grid_Interactive {
 
 private:
-	CGrid *m_pDEM;
-	CGrid *m_pTime;
-	CGrid *m_pSpeed;
-	CGrid *m_pManning;
-	CGrid *m_pCN;
-	CGrid *m_pCatchArea;
-	CGrid *m_pSlope;
+	CSG_Grid *m_pDEM;
+	CSG_Grid *m_pTime;
+	CSG_Grid *m_pSpeed;
+	CSG_Grid *m_pManning;
+	CSG_Grid *m_pCN;
+	CSG_Grid *m_pCatchArea;
+	CSG_Grid *m_pSlope;
 	double m_dManning;
 	double m_dCN;
 	double m_dRainfall;
@@ -53,7 +53,7 @@ public:
 protected:
 	virtual bool On_Execute(void);
 	virtual bool On_Execute_Finish();
-	virtual bool On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
+	virtual bool On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
 
 
 };

@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGenerate_Export : public CModule  
+class CGenerate_Export : public CSG_Module  
 {
 public:
 	CGenerate_Export(void);

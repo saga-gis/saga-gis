@@ -72,7 +72,7 @@
 //---------------------------------------------------------
 CPROJ4_Grid::CPROJ4_Grid(void)
 {
-	CParameters	*pParameters;
+	CSG_Parameters	*pParameters;
 
 	//-----------------------------------------------------
 	Set_Name	(_TL("Proj4 (Grid)"));
@@ -234,8 +234,8 @@ CPROJ4_Grid::~CPROJ4_Grid(void)
 bool CPROJ4_Grid::On_Execute_Conversion(void)
 {
 	int		Interpol;
-	CGrid	*pSource, *pGrid;
-	CShapes	*pShapes;
+	CSG_Grid	*pSource, *pGrid;
+	CSG_Shapes	*pShapes;
 
 	//-----------------------------------------------------
 	pSource		= Parameters("SOURCE")->asGrid();
@@ -320,7 +320,7 @@ bool CPROJ4_Grid::On_Execute_Conversion(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CPROJ4_Grid::On_Parameter_Changed(CParameters *pParameters, CParameter *pParameter)
+int CPROJ4_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	double	xMin, xMax, yMin, yMax, size;
 
@@ -431,13 +431,13 @@ inline void CPROJ4_Grid::Get_MinMax(double &xMin, double &xMax, double &yMin, do
 }
 
 //---------------------------------------------------------
-CGrid * CPROJ4_Grid::Get_Target_Userdef(CGrid *pSource, bool bNearest)
+CSG_Grid * CPROJ4_Grid::Get_Target_Userdef(CSG_Grid *pSource, bool bNearest)
 {
 	int			x, y;
 	double		xMin, yMin, xMax, yMax, size;
 	TSG_Point	Pt_Source;
-	CGrid		*pTarget;
-	CParameters	*pParameters;
+	CSG_Grid		*pTarget;
+	CSG_Parameters	*pParameters;
 
 	pTarget	= NULL;
 
@@ -499,12 +499,12 @@ CGrid * CPROJ4_Grid::Get_Target_Userdef(CGrid *pSource, bool bNearest)
 }
 
 //---------------------------------------------------------
-CGrid * CPROJ4_Grid::Get_Target_Autofit(CGrid *pSource, double Grid_Size, int AutoExtMode, bool bNearest)
+CSG_Grid * CPROJ4_Grid::Get_Target_Autofit(CSG_Grid *pSource, double Grid_Size, int AutoExtMode, bool bNearest)
 {
 	int			x, y;
 	double		xMin, yMin, xMax, yMax;
 	TSG_Point	Pt_Source;
-	CGrid		*pTarget;
+	CSG_Grid		*pTarget;
 
 	pTarget	= NULL;
 
@@ -577,12 +577,12 @@ CGrid * CPROJ4_Grid::Get_Target_Autofit(CGrid *pSource, double Grid_Size, int Au
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPROJ4_Grid::Set_Grid(CGrid *pSource, CGrid *pTarget, int Interpol)
+bool CPROJ4_Grid::Set_Grid(CSG_Grid *pSource, CSG_Grid *pTarget, int Interpol)
 {
 	int			x, y;
 	double		z;
 	TSG_Point	Pt_Source, Pt_Target;
-	CGrid		*pX, *pY;
+	CSG_Grid		*pX, *pY;
 
 	if( pSource && pTarget && Set_Transformation_Inverse() )
 	{
@@ -640,11 +640,11 @@ bool CPROJ4_Grid::Set_Grid(CGrid *pSource, CGrid *pTarget, int Interpol)
 }
 
 //---------------------------------------------------------
-bool CPROJ4_Grid::Set_Shapes(CGrid *pSource, CShapes *pTarget)
+bool CPROJ4_Grid::Set_Shapes(CSG_Grid *pSource, CSG_Shapes *pTarget)
 {
 	int			x, y;
 	TSG_Point	Pt_Source, Pt_Target;
-	CShape		*pShape;
+	CSG_Shape		*pShape;
 
 	if( pSource && pTarget )
 	{

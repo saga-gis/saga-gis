@@ -211,9 +211,9 @@ bool CRaw_Import::On_Execute(void)
 	int			nx, ny, data_head, line_head, line_tail;
 	double		dxy, xmin, ymin, zFactor, zNoData;
 	FILE		*Stream;
-	TGrid_Type	data_type;
+	TSG_Grid_Type	data_type;
 	CSG_String	FileName, Unit;
-	CGrid		*pGrid;
+	CSG_Grid		*pGrid;
 
 	//-----------------------------------------------------
 	pGrid		= NULL;
@@ -274,12 +274,12 @@ bool CRaw_Import::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGrid * CRaw_Import::Load_Data(FILE *Stream, TGrid_Type data_type, int nx, int ny, double dxy, double xmin, double ymin, int data_head, int line_head, int line_tail, bool bDown, bool bBig)
+CSG_Grid * CRaw_Import::Load_Data(FILE *Stream, TSG_Grid_Type data_type, int nx, int ny, double dxy, double xmin, double ymin, int data_head, int line_head, int line_tail, bool bDown, bool bBig)
 {
 	char	*pLine, *pValue;
 	int		x, y, nBytes_Value, nBytes_Line;
 
-	CGrid	*pGrid	= NULL;
+	CSG_Grid	*pGrid	= NULL;
 
 	//-----------------------------------------------------
 	if( Stream && data_type != GRID_TYPE_Undefined )

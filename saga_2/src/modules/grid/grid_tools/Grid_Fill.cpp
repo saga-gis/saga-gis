@@ -223,7 +223,7 @@ inline void CGrid_Fill::Pop(int &x, int &y)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Fill::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CGrid_Fill::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
 {
 	//-----------------------------------------------------
 	if(  Mode == MODULE_INTERACTIVE_LDOWN )

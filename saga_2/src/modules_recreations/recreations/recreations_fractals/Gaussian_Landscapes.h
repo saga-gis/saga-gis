@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGaussian_Landscapes : public CModule
+class CGaussian_Landscapes : public CSG_Module
 {
 public:
 	CGaussian_Landscapes(void);
@@ -90,7 +90,7 @@ private:
 
 	double						m_M;
 
-	CGrid						*m_pGrid;
+	CSG_Grid						*m_pGrid;
 
 
 	void						Set_Value	(int x, int y, double Value);

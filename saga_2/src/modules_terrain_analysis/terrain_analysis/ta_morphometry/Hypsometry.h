@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_morphometry_EXPORT CHypsometry : public CModule_Grid  
+class ta_morphometry_EXPORT CHypsometry : public CSG_Module_Grid  
 {
 public:
 	CHypsometry(void);
@@ -93,8 +93,8 @@ protected:
 
 private:
 
-	bool				Calculate_A		(CGrid *pDGM, CTable *pTable, bool bDown, int nClasses);
-	bool				Calculate_B		(CGrid *pDEM, CTable *pTable, bool bDown, int nClasses, double zMin, double zMax);
+	bool				Calculate_A		(CSG_Grid *pDGM, CSG_Table *pTable, bool bDown, int nClasses);
+	bool				Calculate_B		(CSG_Grid *pDEM, CSG_Table *pTable, bool bDown, int nClasses, double zMin, double zMax);
 
 };
 

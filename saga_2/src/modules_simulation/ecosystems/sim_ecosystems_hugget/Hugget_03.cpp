@@ -144,7 +144,7 @@ bool CHugget_03::On_Execute(void)
 	bool		bUpdate;
 	int			iStep, nSteps;
 	double		sTime, dTime, N_Init, N_Rain;
-	CGrid		*pDEM, *pN, N_1, S[8];
+	CSG_Grid		*pDEM, *pN, N_1, S[8];
 	CSG_Colors	Colors;
 	CSG_String	s;
 
@@ -196,7 +196,7 @@ bool CHugget_03::On_Execute(void)
 }
 
 //---------------------------------------------------------
-bool CHugget_03::Init_Slopes(CGrid *pDEM, CGrid S[8])
+bool CHugget_03::Init_Slopes(CSG_Grid *pDEM, CSG_Grid S[8])
 {
 	int		x, y, i, ix, iy;
 	double	z;
@@ -246,7 +246,7 @@ bool CHugget_03::Init_Slopes(CGrid *pDEM, CGrid S[8])
 }
 
 //---------------------------------------------------------
-bool CHugget_03::Step(CGrid S[8], CGrid *pN, CGrid *pN_1, double N_Rain, double dTime)
+bool CHugget_03::Step(CSG_Grid S[8], CSG_Grid *pN, CSG_Grid *pN_1, double N_Rain, double dTime)
 {
 	int		x, y, i;
 	double	s, dN;

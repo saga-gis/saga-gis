@@ -23,7 +23,7 @@
 
 #include "MLB_Interface.h"
 
-class CLayerOfMaximumValue : public CModule_Grid  
+class CLayerOfMaximumValue : public CSG_Module_Grid  
 {
 public:
 	CLayerOfMaximumValue(void);

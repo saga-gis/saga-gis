@@ -681,16 +681,16 @@ void CPDFDocEngine_CrossSections::CalculateAreas(TSG_Point * pCrossSection,
 									float &fNegativeArea){
 
 	int i;
-	CShapes *pRoadShapes, *pCrossSectionShapes, *pResultShapes;
-	CShape *pRoadShape, *pCrossSectionShape, *pResultShape;
+	CSG_Shapes *pRoadShapes, *pCrossSectionShapes, *pResultShapes;
+	CSG_Shape *pRoadShape, *pCrossSectionShape, *pResultShape;
 
-	pResultShapes = new CShapes;
+	pResultShapes = new CSG_Shapes;
 	pResultShapes->Create(SHAPE_TYPE_Polygon);
 	pResultShape = pResultShapes->Add_Shape();
-	pRoadShapes = new CShapes;
+	pRoadShapes = new CSG_Shapes;
 	pRoadShapes->Create(SHAPE_TYPE_Polygon);
 	pRoadShape = pRoadShapes->Add_Shape();
-	pCrossSectionShapes = new CShapes;
+	pCrossSectionShapes = new CSG_Shapes;
 	pCrossSectionShapes->Create(SHAPE_TYPE_Polygon);
 	pCrossSectionShape = pCrossSectionShapes->Add_Shape();
 	
@@ -713,7 +713,7 @@ void CPDFDocEngine_CrossSections::CalculateAreas(TSG_Point * pCrossSection,
 						pCrossSection[0].y - LONG_SEGMENT);		
 
 	if (GPC_Intersection(pCrossSectionShape, pRoadShape, pResultShape)){
-		fNegativeArea = ((CShape_Polygon*)pResultShape)->Get_Area();
+		fNegativeArea = ((CSG_Shape_Polygon*)pResultShape)->Get_Area();
 	}//if
 	else{
 		fNegativeArea = 0;
@@ -742,7 +742,7 @@ void CPDFDocEngine_CrossSections::CalculateAreas(TSG_Point * pCrossSection,
 						pCrossSection[0].y + LONG_SEGMENT);		
 	
 	if (GPC_Intersection(pCrossSectionShape, pRoadShape, pResultShape)){
-		fPositiveArea = ((CShape_Polygon*)pResultShape)->Get_Area();
+		fPositiveArea = ((CSG_Shape_Polygon*)pResultShape)->Get_Area();
 	}//if
 	else{
 		fPositiveArea = 0;
@@ -1003,7 +1003,7 @@ void CPDFDocEngine_CrossSections::AddGuitarValue(float fXValue,
 
 }//method
 
-bool CPDFDocEngine_CrossSections::GPC_Intersection(CShape *pShape_A, CShape *pShape_B, CShape *pShape_AB){
+bool CPDFDocEngine_CrossSections::GPC_Intersection(CSG_Shape *pShape_A, CSG_Shape *pShape_B, CSG_Shape *pShape_AB){
 	
 	bool		bResult;
 	int			iPoint, nPoints, iPart;
@@ -1044,7 +1044,7 @@ bool CPDFDocEngine_CrossSections::GPC_Intersection(CShape *pShape_A, CShape *pSh
 	return( bResult );
 }
 
-bool CPDFDocEngine_CrossSections::GPC_Create_Polygon(CShape *pShape, gpc_polygon *pPolygon)
+bool CPDFDocEngine_CrossSections::GPC_Create_Polygon(CSG_Shape *pShape, gpc_polygon *pPolygon)
 {
 	int				iPoint, iPart;
 	TSG_Point		Point;
@@ -1071,7 +1071,7 @@ bool CPDFDocEngine_CrossSections::GPC_Create_Polygon(CShape *pShape, gpc_polygon
 
 			vList.num_vertices	= pShape->Get_Point_Count(iPart);
 			vList.vertex		= Contour;
-			gpc_add_contour(pPolygon, &vList, ((CShape_Polygon *)pShape)->is_Lake(iPart) ? 1 : 0);
+			gpc_add_contour(pPolygon, &vList, ((CSG_Shape_Polygon *)pShape)->is_Lake(iPart) ? 1 : 0);
 
 			free(Contour);
 		}

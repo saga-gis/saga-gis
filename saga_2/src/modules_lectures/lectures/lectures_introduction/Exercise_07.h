@@ -65,7 +65,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CExercise_07 : public CModule_Grid
+class CExercise_07 : public CSG_Module_Grid
 {
 public: ////// public members and functions: //////////////
 
@@ -84,7 +84,7 @@ private: ///// private members and functions: /////////////
 
 	double				m_Area_of_Cell;
 
-	CGrid				*m_pDTM, *m_pArea, *m_pDir;
+	CSG_Grid				*m_pDTM, *m_pArea, *m_pDir;
 
 
 	int					Get_FlowDirection(int x, int y);

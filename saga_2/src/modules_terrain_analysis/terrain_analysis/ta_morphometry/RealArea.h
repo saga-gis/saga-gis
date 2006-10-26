@@ -18,7 +18,7 @@
 *******************************************************************************/ 
 #include "MLB_Interface.h"
 
-class CRealArea : public CModule_Grid
+class CRealArea : public CSG_Module_Grid
 {
 public:
 	CRealArea(void);

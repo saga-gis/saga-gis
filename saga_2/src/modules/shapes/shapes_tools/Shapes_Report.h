@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CShapes_Report : public CModule
+class CShapes_Report : public CSG_Module
 {
 public:
 	CShapes_Report(void);
@@ -94,13 +94,13 @@ private:
 
 	CSG_Rect				m_rTitle, m_rShape, m_rTable;
 
-	CShapes					*m_pShapes;
+	CSG_Shapes					*m_pShapes;
 
-	class CDoc_PDF		*m_pPDF;
+	class CSG_Doc_PDF		*m_pPDF;
 
 
 	bool					Add_Shapes			(void);
-	bool					Add_Shape			(CShape *pShape, const char *Title);
+	bool					Add_Shape			(CSG_Shape *pShape, const char *Title);
 
 };
 

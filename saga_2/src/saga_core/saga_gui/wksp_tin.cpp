@@ -77,7 +77,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_TIN::CWKSP_TIN(CTIN *pTIN)
+CWKSP_TIN::CWKSP_TIN(CSG_TIN *pTIN)
 	: CWKSP_Layer(pTIN)
 {
 	m_pTIN		= pTIN;
@@ -279,7 +279,7 @@ void CWKSP_TIN::On_Parameters_Changed(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CWKSP_TIN::On_Parameter_Changed(CParameters *pParameters, CParameter *pParameter)
+int CWKSP_TIN::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	int		zField;
 
@@ -333,7 +333,7 @@ double CWKSP_TIN::Get_Value_Range(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_TIN::asImage(CGrid *pImage)
+bool CWKSP_TIN::asImage(CSG_Grid *pImage)
 {
 	return( false );
 }
@@ -424,7 +424,7 @@ void CWKSP_TIN::_Draw_Points(CWKSP_Map_DC &dc_Map)
 void CWKSP_TIN::_Draw_Edges(CWKSP_Map_DC &dc_Map)
 {
 	int			i;
-	CTIN_Edge	*pEdge;
+	CSG_TIN_Edge	*pEdge;
 	TSG_Point_Int	Point[2];
 
 	for(i=0; i<m_pTIN->Get_Edge_Count(); i++)
@@ -444,10 +444,10 @@ void CWKSP_TIN::_Draw_Triangles(CWKSP_Map_DC &dc_Map)
 	if(	m_Parameters("DISPLAY_TRIANGES")->asBool()
 	&&	dc_Map.IMG_Draw_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.0) )
 	{
-		int				iTriangle, iPoint;
-		TSG_Point_Int	Point;
-		TPoint			p[3];
-		CTIN_Triangle	*pTriangle;
+		int					iTriangle, iPoint;
+		TSG_Point_Int		Point;
+		TPoint				p[3];
+		CSG_TIN_Triangle	*pTriangle;
 
 		for(iTriangle=0; iTriangle<m_pTIN->Get_Triangle_Count(); iTriangle++)
 		{

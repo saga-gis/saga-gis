@@ -23,7 +23,7 @@
 
 #include "MLB_Interface.h"
 
-class CCellBalance : public CModule_Grid
+class CCellBalance : public CSG_Module_Grid
 {
 public:
 	CCellBalance(void);
@@ -37,7 +37,7 @@ protected:
 
 private:
 
-	CGrid				*m_pDEM, *m_pBalance;
+	CSG_Grid				*m_pDEM, *m_pBalance;
 
 
 	void				Set_D8			(int x, int y, double Weight);

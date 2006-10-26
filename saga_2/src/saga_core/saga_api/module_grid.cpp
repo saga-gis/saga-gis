@@ -70,8 +70,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CModule_Grid::CModule_Grid(void)
-	: CModule()
+CSG_Module_Grid::CSG_Module_Grid(void)
+	: CSG_Module()
 {
 	m_pLock		= NULL;
 
@@ -79,7 +79,7 @@ CModule_Grid::CModule_Grid(void)
 }
 
 //---------------------------------------------------------
-CModule_Grid::~CModule_Grid(void)
+CSG_Module_Grid::~CSG_Module_Grid(void)
 {
 	Lock_Destroy();
 }
@@ -92,23 +92,23 @@ CModule_Grid::~CModule_Grid(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CModule_Grid::Set_Progress(int iRow)
+bool CSG_Module_Grid::Set_Progress(int iRow)
 {
-	return( CModule::Set_Progress(iRow, Get_System()->Get_NY() - 1) );
+	return( CSG_Module::Set_Progress(iRow, Get_System()->Get_NY() - 1) );
 }
 
 //---------------------------------------------------------
-bool CModule_Grid::Set_Progress(double Position, double Range)
+bool CSG_Module_Grid::Set_Progress(double Position, double Range)
 {
-	return( CModule::Set_Progress(Position, Range) );
+	return( CSG_Module::Set_Progress(Position, Range) );
 }
 
 //---------------------------------------------------------
-bool CModule_Grid::Set_Progress_NCells(int iCell)
+bool CSG_Module_Grid::Set_Progress_NCells(int iCell)
 {
 	if( Get_System()->is_Valid() && !(iCell % (Get_System()->Get_NCells() / 100)) )
 	{
-		return( CModule::Set_Progress(iCell, Get_System()->Get_NCells()) );
+		return( CSG_Module::Set_Progress(iCell, Get_System()->Get_NCells()) );
 	}
 
 	return( is_Progress() );
@@ -122,13 +122,13 @@ bool CModule_Grid::Set_Progress_NCells(int iCell)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CModule_Grid::Lock_Create(void)
+void CSG_Module_Grid::Lock_Create(void)
 {
 	if( Get_System()->is_Valid() )
 	{
 		if( Get_System()->is_Valid() && m_pLock == NULL )
 		{
-			m_pLock	= new CGrid(
+			m_pLock	= new CSG_Grid(
 				GRID_TYPE_Char,
 				Get_System()->Get_NX(),
 				Get_System()->Get_NY(),
@@ -145,7 +145,7 @@ void CModule_Grid::Lock_Create(void)
 }
 
 //---------------------------------------------------------
-void CModule_Grid::Lock_Destroy(void)
+void CSG_Module_Grid::Lock_Destroy(void)
 {
 	if( m_pLock )
 	{

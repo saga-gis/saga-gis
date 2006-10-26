@@ -125,8 +125,8 @@ bool CFillSinks::On_Execute(void)
 
 	minslope	= tan(Parameters("MINSLOPE")->asDouble() * M_DEG_TO_RAD);
 
-	pW			= new CGrid(GRID_TYPE_Double, pDEM->Get_NX(), pDEM->Get_NY(), pDEM->Get_Cellsize(), pDEM->Get_XMin(), pDEM->Get_YMin());
-	pBorder		= new CGrid(GRID_TYPE_Int   , pDEM->Get_NX(), pDEM->Get_NY(), pDEM->Get_Cellsize(), pDEM->Get_XMin(), pDEM->Get_YMin());
+	pW			= new CSG_Grid(GRID_TYPE_Double, pDEM->Get_NX(), pDEM->Get_NY(), pDEM->Get_Cellsize(), pDEM->Get_XMin(), pDEM->Get_YMin());
+	pBorder		= new CSG_Grid(GRID_TYPE_Int   , pDEM->Get_NX(), pDEM->Get_NY(), pDEM->Get_Cellsize(), pDEM->Get_XMin(), pDEM->Get_YMin());
 
 	pW->Assign_NoData();
 	pBorder->Assign_NoData();

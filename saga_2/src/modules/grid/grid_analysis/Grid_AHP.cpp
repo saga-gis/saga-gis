@@ -56,17 +56,17 @@ bool CAHP::On_Execute(void){
 	float fValue;
 	float **pMatrix;
 	float fSum;
-	CGrid *pOutputGrid;
-	CGrid **pGrids;
-	CTable_Record *pRecord;
-	CTable *pTable;
-	CParameter_Grid_List* pGridsList;
+	CSG_Grid *pOutputGrid;
+	CSG_Grid **pGrids;
+	CSG_Table_Record *pRecord;
+	CSG_Table *pTable;
+	CSG_Parameter_Grid_List* pGridsList;
 	CSG_String sMessage;
 
 	pTable = Parameters("TABLE")->asTable();
 	pOutputGrid = Parameters("OUTPUT")->asGrid();
 
-	if( (pGridsList = (CParameter_Grid_List *)Parameters("GRIDS")->Get_Data()) != 
+	if( (pGridsList = (CSG_Parameter_Grid_List *)Parameters("GRIDS")->Get_Data()) != 
 			NULL && pGridsList->Get_Count() > 0 ){
 		if (pTable->Get_Field_Count() != pGridsList->Get_Count() ||
 				pTable->Get_Record_Count() < pGridsList->Get_Count()){
@@ -103,7 +103,7 @@ bool CAHP::On_Execute(void){
 			Message_Add(sMessage.c_str());
 		}//for
 
-		pGrids = new CGrid* [pGridsList->Get_Count()];
+		pGrids = new CSG_Grid* [pGridsList->Get_Count()];
 		for (i = 0; i<pGridsList->Get_Count(); i++){
 			pGrids[i] = pGridsList->asGrid(i); 
 		}//for

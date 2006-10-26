@@ -158,7 +158,7 @@ bool CGrid_Swath_Profile::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Swath_Profile::On_Execute_Position(CSG_Point ptWorld, TModule_Interactive_Mode Mode)
+bool CGrid_Swath_Profile::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
 {
 	switch( Mode )
 	{
@@ -201,7 +201,7 @@ bool CGrid_Swath_Profile::Set_Profile(void)
 	int			i;
 	double		d;
 	CSG_Point	A, B, P, Left, Right;
-	CShape		*pLine, *pLeft, *pRight;
+	CSG_Shape		*pLine, *pLeft, *pRight;
 
 	//-----------------------------------------------------
 	m_pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("Profile [%s]"), m_pDEM->Get_Name()));
@@ -348,7 +348,7 @@ bool CGrid_Swath_Profile::Add_Point(CSG_Point Point, CSG_Point Left, CSG_Point R
 {
 	int		i, j;
 	double	Distance;
-	CShape	*pPoint, *pLast;
+	CSG_Shape	*pPoint, *pLast;
 
 	if( m_pDEM->is_InGrid_byPos(Point) )
 	{
@@ -393,7 +393,7 @@ bool CGrid_Swath_Profile::Add_Point(CSG_Point Point, CSG_Point Left, CSG_Point R
 }
 
 //---------------------------------------------------------
-bool CGrid_Swath_Profile::Add_Swath(CTable_Record *pRecord, int iEntry, CGrid *pGrid, CSG_Point Left, CSG_Point Right, CSG_Point Step)
+bool CGrid_Swath_Profile::Add_Swath(CSG_Table_Record *pRecord, int iEntry, CSG_Grid *pGrid, CSG_Point Left, CSG_Point Right, CSG_Point Step)
 {
 	int		n;
 	double	z, Sum, Sum2, Min, Max, iRun, dRun, nRun;

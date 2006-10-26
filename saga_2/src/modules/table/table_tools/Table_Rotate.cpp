@@ -105,9 +105,9 @@ bool CTable_Rotate::On_Execute(void)
 {
 	bool				bCopy;
 	int					x, y;
-	TTable_FieldType	FieldType;
-	CTable				*pInput, *pOutput;
-	CTable_Record		*pRec_In, *pRec_Out;
+	TSG_Table_Field_Type	FieldType;
+	CSG_Table				*pInput, *pOutput;
+	CSG_Table_Record		*pRec_In, *pRec_Out;
 
 	//-----------------------------------------------------
 	pInput	= Parameters("INPUT")	->asTable();

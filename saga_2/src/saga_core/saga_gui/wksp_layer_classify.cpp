@@ -105,7 +105,7 @@ CWKSP_Layer_Classify::~CWKSP_Layer_Classify(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Layer_Classify::Initialise(CWKSP_Layer *pLayer, CTable *pLUT, CSG_Colors *pColors)
+bool CWKSP_Layer_Classify::Initialise(CWKSP_Layer *pLayer, CSG_Table *pLUT, CSG_Colors *pColors)
 {
 	m_pLayer	= pLayer;
 	m_pLUT		= pLUT;
@@ -127,7 +127,7 @@ bool CWKSP_Layer_Classify::Initialise(CWKSP_Layer *pLayer, CTable *pLUT, CSG_Col
 	//-----------------------------------------------------
 	if( m_pLUT && m_pLUT->Get_Record_Count() == 0 )
 	{
-		CTable_Record	*pRecord;
+		CSG_Table_Record	*pRecord;
 
 		pRecord	= m_pLUT->Add_Record();
 		pRecord->Set_Value(LUT_COLOR		, SG_GET_RGB(1, 1, 1));
@@ -266,7 +266,7 @@ void CWKSP_Layer_Classify::Set_Metric(int Mode, double LogFactor, double zMin, d
 inline int CWKSP_Layer_Classify::_LUT_Cmp_Class(double Value, int iClass)
 {
 	double			d;
-	CTable_Record	*pClass	= m_pLUT->Get_Record_byIndex(iClass);
+	CSG_Table_Record	*pClass	= m_pLUT->Get_Record_byIndex(iClass);
 
 	if( (d = pClass->asDouble(LUT_MIN)) <= Value && Value <= pClass->asDouble(LUT_MAX) )
 	{
@@ -338,8 +338,8 @@ void CWKSP_Layer_Classify::Metric2EqualElements(void)
 {
 	int				x, y, iClass, nClasses;
 	double			dClass, zA, zB;
-	CTable_Record	*pRecord;
-	CGrid			*pGrid;
+	CSG_Table_Record	*pRecord;
+	CSG_Grid			*pGrid;
 
 	if( m_pLayer->Get_Type() == WKSP_ITEM_Grid && (nClasses = m_pColors->Get_Count()) > 1 )
 	{
@@ -442,7 +442,7 @@ bool CWKSP_Layer_Classify::Histogram_Update(void)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Layer_Classify::_Histogram_Update(CGrid *pGrid)
+bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Grid *pGrid)
 {
 	int		x, y, i;
 
@@ -461,7 +461,7 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CGrid *pGrid)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Layer_Classify::_Histogram_Update(CShapes *pShapes)
+bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Shapes *pShapes)
 {
 	return( true );
 }

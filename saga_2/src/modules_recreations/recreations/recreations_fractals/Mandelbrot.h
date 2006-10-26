@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CMandelbrot : public CModule_Grid_Interactive
+class CMandelbrot : public CSG_Module_Grid_Interactive
 {
 public:
 	CMandelbrot(void);
@@ -89,7 +89,7 @@ public:
 protected:
 
 	virtual bool			On_Execute			(void);
-	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TModule_Interactive_Mode Mode);
+	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
 
 
 private:
@@ -102,7 +102,7 @@ private:
 
 	CSG_Rect				m_Extent;
 
-	CGrid					*m_pGrid;
+	CSG_Grid					*m_pGrid;
 
 
 	void					Calculate			(void);

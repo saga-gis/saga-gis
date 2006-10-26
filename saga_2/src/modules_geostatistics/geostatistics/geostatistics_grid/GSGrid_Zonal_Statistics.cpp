@@ -147,14 +147,14 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 	double					statID;
 	const char				*Gridname;
 
-	CGrid					*pZones, *pGrid;
-	CParameter_Grid_List	*pCatList;
-	CParameter_Grid_List	*pStatList;
+	CSG_Grid					*pZones, *pGrid;
+	CSG_Parameter_Grid_List	*pCatList;
+	CSG_Parameter_Grid_List	*pStatList;
 
 	CList_Conti				*newZone, *startList, *runList, *newSub, *parent, *runSub, *subList;
 	CList_Stat				*runStats;
-	CTable					*pOutTab;
-	CTable_Record			*pRecord;
+	CSG_Table					*pOutTab;
+	CSG_Table_Record			*pRecord;
 
 
 	pZones		= Parameters("ZONES")		->asGrid();

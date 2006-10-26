@@ -78,7 +78,7 @@
 //---------------------------------------------------------
 CGSPoints_Semi_Variances::CGSPoints_Semi_Variances(void)
 {
-	CParameter	*pNode;
+	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Set_Name	(_TL("Semivariogram"));
@@ -141,8 +141,8 @@ CGSPoints_Semi_Variances::~CGSPoints_Semi_Variances(void)
 //---------------------------------------------------------
 bool CGSPoints_Semi_Variances::On_Execute(void)
 {
-	CShapes		*pShapes;
-	CTable		*pTable, Table_Differences;
+	CSG_Shapes		*pShapes;
+	CSG_Table		*pTable, Table_Differences;
 
 	//-----------------------------------------------------
 	pShapes		= Parameters("POINTS")->asShapes();
@@ -182,12 +182,12 @@ bool CGSPoints_Semi_Variances::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGSPoints_Semi_Variances::Get_Differences(CShapes *pShapes, CTable *pTable, int zField, int nSkip, double maxDist)
+void CGSPoints_Semi_Variances::Get_Differences(CSG_Shapes *pShapes, CSG_Table *pTable, int zField, int nSkip, double maxDist)
 {
 	int				iShape, iPart, iPoint, jShape, jPart, jPoint, nShapes;
 	double			d, dx, dy, iz, z;
-	CShape			*pShape_i, *pShape_j;
-	CTable_Record	*pRecord;
+	CSG_Shape			*pShape_i, *pShape_j;
+	CSG_Table_Record	*pRecord;
 	TSG_Point		Pt_i, Pt_j;
 
 	//-----------------------------------------------------
@@ -247,11 +247,11 @@ void CGSPoints_Semi_Variances::Get_Differences(CShapes *pShapes, CTable *pTable,
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGSPoints_Semi_Variances::Get_Variances(CTable *pTab_Var, CTable *pTab_Dif, double Dist_Step)
+void CGSPoints_Semi_Variances::Get_Variances(CSG_Table *pTab_Var, CSG_Table *pTab_Dif, double Dist_Step)
 {
 	int				iDif, nVar;
 	double			iDist, dz, zVar, Dist;
-	CTable_Record	*pRec_Dif, *pRec_Var;
+	CSG_Table_Record	*pRec_Dif, *pRec_Var;
 
 	//-----------------------------------------------------
 	if( Process_Get_Okay(false) )
