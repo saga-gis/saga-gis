@@ -2,11 +2,11 @@
 static char *tb_table_row_del_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "16 16 5 1",
-"  c Black",
+". c Black",
 "X c #FFFFFF",
 "O c #00FFFF",
 "o c #0000FF",
-". c None",
+"  c None",
 /* pixels */
 ".......         ",
 "XXXXXX.         ",

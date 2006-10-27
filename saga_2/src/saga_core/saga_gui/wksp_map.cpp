@@ -259,6 +259,18 @@ void CWKSP_Map::_Create_Parameters(void)
 
 	//-----------------------------------------------------
 	pNode_0	= m_Parameters.Add_Node(
+		NULL	, "NODE_GENERAL"	, LNG("[CAP] General"),
+		""
+	);
+
+	m_Parameters.Add_Value(
+		pNode_0	, "GOTO_NEWLAYER"	, LNG("[CAP] Zoom to added layer"),
+		"",
+		PARAMETER_TYPE_Bool, g_pMaps->Get_Parameters()->Get_Parameter("GOTO_NEWLAYER")->asBool()
+	);
+
+	//-----------------------------------------------------
+	pNode_0	= m_Parameters.Add_Node(
 		NULL	, "NODE_FRAME"		, LNG("[CAP] Frame"),
 		""
 	);
@@ -415,7 +427,10 @@ CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 			m_Extent	= pLayer->Get_Extent();
 		}
 
-		Set_Extent(pLayer->Get_Extent());
+		if( Get_Count() == 0 || m_Parameters("GOTO_NEWLAYER")->asBool() )
+		{
+			Set_Extent(pLayer->Get_Extent());
+		}
 
 		Add_Item(pItem = new CWKSP_Map_Layer(pLayer));
 

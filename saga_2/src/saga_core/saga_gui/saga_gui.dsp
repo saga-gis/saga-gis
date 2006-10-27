@@ -815,6 +815,10 @@ SOURCE=.\RES\XPM\CRS_INFO.xpm
 # End Source File
 # Begin Source File
 
+SOURCE=.\res\xpm\crs_magnifier.xpm
+# End Source File
+# Begin Source File
+
 SOURCE=.\RES\XPM\CRS_SELECT.xpm
 # End Source File
 # Begin Source File
@@ -1103,11 +1107,23 @@ SOURCE=.\RES\XPM\TB_SHOW.xpm
 # End Source File
 # Begin Source File
 
+SOURCE=.\res\xpm\tb_table_col_add.xpm
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\xpm\tb_table_col_del.xpm
+# End Source File
+# Begin Source File
+
 SOURCE=.\RES\XPM\TB_TABLE_ROW_ADD.xpm
 # End Source File
 # Begin Source File
 
 SOURCE=.\RES\XPM\TB_TABLE_ROW_DEL.xpm
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\xpm\tb_table_row_del_all.xpm
 # End Source File
 # Begin Source File
 

@@ -69,6 +69,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <saga_api/saga_api.h>
+
 #include "wksp_base_manager.h"
 
 
@@ -92,6 +94,7 @@ public:
 
 	virtual wxMenu *			Get_Menu		(void);
 
+	virtual CSG_Parameters *	Get_Parameters	(void)		{	return( &m_Parameters );	}
 	virtual bool				On_Command		(int Cmd_ID);
 
 	class CWKSP_Map *			Get_Map			(int i)		{	return( (class CWKSP_Map *)Get_Item(i) );	}
@@ -107,6 +110,8 @@ public:
 
 
 private:
+
+	CSG_Parameters				m_Parameters;
 
 };
 

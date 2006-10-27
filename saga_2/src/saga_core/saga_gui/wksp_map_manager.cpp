@@ -63,6 +63,8 @@
 #include "res_commands.h"
 #include "res_dialogs.h"
 
+#include "helper.h"
+
 #include "wksp_data_manager.h"
 #include "wksp_layer.h"
 
@@ -92,11 +94,32 @@ CWKSP_Map_Manager	*g_pMaps	= NULL;
 CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 {
 	g_pMaps		= this;
+
+	//-----------------------------------------------------
+	bool			bValue;
+	CSG_Parameter	*pNode_0;
+
+	m_Parameters.Create(this, "", "");
+
+	pNode_0	= m_Parameters.Add_Node(
+		NULL	, "NODE_GENERAL"	, LNG("[CAP] General"),
+		""
+	);
+
+	bValue	= CONFIG_Read("/MAPS", "GOTO_NEWLAYER"	, bValue) ? bValue : true;
+
+	m_Parameters.Add_Value(
+		pNode_0	, "GOTO_NEWLAYER"	, LNG("[CAP] Zoom to added layer"),
+		"",
+		PARAMETER_TYPE_Bool, bValue
+	);
 }
 
 //---------------------------------------------------------
 CWKSP_Map_Manager::~CWKSP_Map_Manager(void)
 {
+	CONFIG_Write("/MAPS", "GOTO_NEWLAYER", m_Parameters("GOTO_NEWLAYER")->asBool());
+
 	g_pMaps		= NULL;
 }
 
