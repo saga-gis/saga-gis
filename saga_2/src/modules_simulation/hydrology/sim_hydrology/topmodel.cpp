@@ -265,7 +265,6 @@ bool CTOPMODEL::On_Execute(void)
 	bool			bInfiltration;
 	int				iClass, nClasses, iTime, nTimeSteps, n, k;
 	double			Precipitation, Evaporation, Infiltration, Infiltration_Excess;
-	CSG_Colors			Colors;
 	CSG_Grid			*pAtanB, *pMoist, gClass;
 	CSG_Table_Record	*pRecord;
 	CSG_Table			*pTable;
@@ -285,8 +284,7 @@ bool CTOPMODEL::On_Execute(void)
 	if( (pMoist = Parameters("MOIST")->asGrid()) != NULL )
 	{
 		pMoist->Set_Name(_TL("Soil Moisture Deficit"));
-		Colors.Set_Palette(SG_COLORS_RED_GREY_BLUE, true);
-		DataObject_Set_Colors(pMoist, Colors);
+		DataObject_Set_Colors(pMoist, 100, SG_COLORS_RED_GREY_BLUE, true);
 	}
 
 

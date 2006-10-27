@@ -116,10 +116,6 @@ CGSGrid_Residuals::~CGSGrid_Residuals(void)
 //---------------------------------------------------------
 bool CGSGrid_Residuals::On_Execute(void)
 {
-	int		x, y;
-	CSG_Colors	Colors;
-
-	//-----------------------------------------------------
 	pInput		= Parameters("INPUT")		->asGrid();
 
 	pMean		= Parameters("MEAN")		->asGrid();
@@ -129,13 +125,11 @@ bool CGSGrid_Residuals::On_Execute(void)
 	pDevMean	= Parameters("DEVMEAN")		->asGrid();
 	pPercentile	= Parameters("PERCENTILE")	->asGrid();
 
-	Colors.Set_Palette(SG_COLORS_RED_GREY_BLUE, true);
-
-	DataObject_Set_Colors(pDiff			, Colors);
-	DataObject_Set_Colors(pStdDev		, Colors);
-	DataObject_Set_Colors(pRange		, Colors);
-	DataObject_Set_Colors(pDevMean		, Colors);
-	DataObject_Set_Colors(pPercentile	, Colors);
+	DataObject_Set_Colors(pDiff			, 100, SG_COLORS_RED_GREY_BLUE, true);
+	DataObject_Set_Colors(pStdDev		, 100, SG_COLORS_RED_GREY_BLUE, true);
+	DataObject_Set_Colors(pRange		, 100, SG_COLORS_RED_GREY_BLUE, true);
+	DataObject_Set_Colors(pDevMean		, 100, SG_COLORS_RED_GREY_BLUE, true);
+	DataObject_Set_Colors(pPercentile	, 100, SG_COLORS_RED_GREY_BLUE, true);
 
 	//-----------------------------------------------------
 	m_Radius.Create(Parameters("RADIUS")->asInt() + 1);
@@ -143,9 +137,9 @@ bool CGSGrid_Residuals::On_Execute(void)
 	Values		= (double *)malloc(m_Radius.Get_nPoints() * sizeof(double));
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
 			Get_Value(x, y);
 		}

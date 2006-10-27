@@ -148,7 +148,6 @@ CHillShade::~CHillShade(void)
 bool CHillShade::On_Execute(void)
 {
 	double	Azimuth, Declination;
-	CSG_Colors	Colors;
 
 	//-----------------------------------------------------
 	pDTM			= Parameters("ELEVATION")	->asGrid();
@@ -182,9 +181,7 @@ bool CHillShade::On_Execute(void)
 	//-----------------------------------------------------
 	pHillShade->Set_ZFactor(M_RAD_TO_DEG);
 
-	Colors.Set_Count(100);
-	Colors.Set_Ramp(SG_GET_RGB(255, 255, 255), SG_GET_RGB(0, 0, 0));
-	DataObject_Set_Colors(pHillShade, Colors);
+	DataObject_Set_Colors(pHillShade, 100, SG_COLORS_BLACK_WHITE, true);
 
 	return( true );
 }

@@ -254,9 +254,8 @@ CGrid_RGB_Composite::~CGrid_RGB_Composite(void)
 //---------------------------------------------------------
 bool CGrid_RGB_Composite::On_Execute(void)
 {
-	int		x, y, r, g, b, a;
-	double	rMin, gMin, bMin, aMin, rRange, gRange, bRange, aRange;
-	CSG_Colors	Colors;
+	int			x, y, r, g, b, a;
+	double		rMin, gMin, bMin, aMin, rRange, gRange, bRange, aRange;
 	CSG_Grid	*pR, *pG, *pB, *pA, *pRGB;
 
 	//-----------------------------------------------------
@@ -268,8 +267,7 @@ bool CGrid_RGB_Composite::On_Execute(void)
 	//-----------------------------------------------------
 	pRGB	= Parameters("GRID_RGB")->asGrid();
 	pRGB->Create(pRGB->Get_System(), GRID_TYPE_Int);
-	Colors.Set_Palette(SG_COLORS_BLACK_WHITE);
-	DataObject_Set_Colors(pRGB, Colors);
+	DataObject_Set_Colors(pRGB, 100, SG_COLORS_BLACK_WHITE);
 
 	//-----------------------------------------------------
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)

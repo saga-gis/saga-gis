@@ -716,6 +716,13 @@ bool CSG_Colors::Revert(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_Colors & CSG_Colors::operator = (const CSG_Colors &Colors)
+{
+	Assign(Colors);
+
+	return( *this );
+}
+
 bool CSG_Colors::Assign(const CSG_Colors &Colors)
 {
 	if( Colors.m_nColors > 0 )

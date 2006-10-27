@@ -178,7 +178,6 @@ bool CKinWav_D8::Initialize(void)
 {
 	int			x, y, i, ix, iy, iMax;
 	double		z, dz, dzMax, Roughness, t;
-	CSG_Colors	Colors;
 	CSG_String	s;
 
 
@@ -284,8 +283,7 @@ bool CKinWav_D8::Initialize(void)
 	pFlow		= Parameters("RUNOFF")->asGrid();
 	pFlow->Assign();
 
-	Colors.Set_Ramp(SG_GET_RGB(255, 255, 200), SG_GET_RGB(0, 65, 128));
-	DataObject_Set_Colors(pFlow, Colors);
+	DataObject_Set_Colors(pFlow, 100, SG_COLORS_YELLOW_BLUE);
 
 	pFlow_Last	= new CSG_Grid(pDTM, GRID_TYPE_Float);
 

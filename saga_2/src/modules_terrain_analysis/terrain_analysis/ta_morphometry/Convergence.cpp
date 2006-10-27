@@ -116,29 +116,17 @@ CConvergence::~CConvergence(void)
 //---------------------------------------------------------
 bool CConvergence::On_Execute(void)
 {
-	CSG_Colors	Colors;
-
 	pDTM			= Parameters("ELEVATION")	->asGrid();
 	pConvergence	= Parameters("RESULT")		->asGrid();
 
 	pConvergence->Assign_NoData();
 
-	Colors.Set_Count(3);
-	Colors.Set_Color(0,	SG_GET_RGB(  0,   0, 127));
-	Colors.Set_Color(1, SG_GET_RGB(255, 255, 255));
-	Colors.Set_Color(2, SG_GET_RGB(127,   0,   0));
-	Colors.Set_Count(100);
-	DataObject_Set_Colors(pConvergence, Colors);
+	DataObject_Set_Colors(pConvergence, 100, SG_COLORS_RED_GREY_BLUE, true);
 
 	switch( Parameters("METHOD")->asInt() )
 	{
-	case 0:
-		Do_Aspect();
-		break;
-
-	case 1:
-		Do_Gradient();
-		break;
+	case 0:	Do_Aspect();	break;
+	case 1:	Do_Gradient();	break;
 	}
 
 	return( true );

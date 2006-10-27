@@ -166,10 +166,9 @@ CFlow_Distance::~CFlow_Distance(void)
 //---------------------------------------------------------
 bool CFlow_Distance::On_Execute(void)
 {
-	bool	bSeeds;
-	int		x, y, n, Method;
+	bool		bSeeds;
+	int			x, y, n, Method;
 	CSG_Grid	*pSeed;
-	CSG_Colors	Colors;
 
 	//-------------------------------------------------
 	m_pDTM		= Parameters("ELEVATION")	->asGrid();
@@ -215,8 +214,7 @@ bool CFlow_Distance::On_Execute(void)
 	//-------------------------------------------------
 	delete(m_pWeight);
 
-	Colors.Set_Palette(SG_COLORS_WHITE_BLUE);
-	DataObject_Set_Colors(m_pLength, Colors);
+	DataObject_Set_Colors(m_pLength, 100, SG_COLORS_WHITE_BLUE);
 
 	return( true );
 }

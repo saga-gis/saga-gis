@@ -249,7 +249,7 @@ void CSG_Grid::_LineBuffer_Create(void)
 {
 	_LineBuffer_Destroy();
 
-	LineBuffer			= (TGrid_Memory_Line *)SG_Malloc(LineBuffer_Count * sizeof(TGrid_Memory_Line));
+	LineBuffer			= (TSG_Grid_Line *)SG_Malloc(LineBuffer_Count * sizeof(TSG_Grid_Line));
 
 	for(int i=0; i<LineBuffer_Count; i++)
 	{
@@ -302,7 +302,7 @@ bool CSG_Grid::Set_Buffer_Size(int Size)
 			{
 				if( Size > LineBuffer_Count )
 				{
-					LineBuffer			= (TGrid_Memory_Line *)SG_Realloc(LineBuffer, Size * sizeof(TGrid_Memory_Line));
+					LineBuffer			= (TSG_Grid_Line *)SG_Realloc(LineBuffer, Size * sizeof(TSG_Grid_Line));
 
 					for(i=LineBuffer_Count; i<Size; i++)
 					{
@@ -321,7 +321,7 @@ bool CSG_Grid::Set_Buffer_Size(int Size)
 						}
 					}
 
-					LineBuffer			= (TGrid_Memory_Line *)SG_Realloc(LineBuffer, Size * sizeof(TGrid_Memory_Line));
+					LineBuffer			= (TSG_Grid_Line *)SG_Realloc(LineBuffer, Size * sizeof(TSG_Grid_Line));
 				}
 			}
 
@@ -359,10 +359,10 @@ void CSG_Grid::_LineBuffer_Flush(void)
 }
 
 //---------------------------------------------------------
-CSG_Grid::TGrid_Memory_Line * CSG_Grid::_LineBuffer_Get_Line(int y)
+CSG_Grid::TSG_Grid_Line * CSG_Grid::_LineBuffer_Get_Line(int y) const
 {
-	int					i, iLine;
-	TGrid_Memory_Line	tmp_Line;
+	int				i, iLine;
+	TSG_Grid_Line	tmp_Line;
 
 	if( LineBuffer && y >= 0 && y < Get_NY() )
 	{
@@ -405,7 +405,7 @@ CSG_Grid::TGrid_Memory_Line * CSG_Grid::_LineBuffer_Get_Line(int y)
 			for(i=iLine; i>0; i--)
 			{
 				LineBuffer[i]	= LineBuffer[i - 1];
-			}	// memmove(LineBuffer + 1, LineBuffer, (iLine - 1) * sizeof(TGrid_Memory_Line));
+			}	// memmove(LineBuffer + 1, LineBuffer, (iLine - 1) * sizeof(TSG_Grid_Line));
 
 			LineBuffer[0]	= tmp_Line;
 		}
@@ -420,7 +420,7 @@ CSG_Grid::TGrid_Memory_Line * CSG_Grid::_LineBuffer_Get_Line(int y)
 //---------------------------------------------------------
 void CSG_Grid::_LineBuffer_Set_Value(int x, int y, double Value)
 {
-	TGrid_Memory_Line	*pLine;
+	TSG_Grid_Line	*pLine;
 
 	if( (pLine = _LineBuffer_Get_Line(y)) != NULL )
 	{
@@ -471,9 +471,9 @@ void CSG_Grid::_LineBuffer_Set_Value(int x, int y, double Value)
 }
 
 //---------------------------------------------------------
-double CSG_Grid::_LineBuffer_Get_Value(int x, int y)
+double CSG_Grid::_LineBuffer_Get_Value(int x, int y) const
 {
-	TGrid_Memory_Line	*pLine;
+	TSG_Grid_Line	*pLine;
 
 	if( (pLine = _LineBuffer_Get_Line(y)) != NULL )
 	{
@@ -618,7 +618,7 @@ bool CSG_Grid::_Cache_Create(const char *FilePath, TSG_Grid_Type File_Type, long
 //---------------------------------------------------------
 bool CSG_Grid::_Cache_Create(void)
 {
-	TGrid_Memory_Line	Line;
+	TSG_Grid_Line	Line;
 
 	if( m_System.is_Valid() && m_Type > 0 && m_Type < GRID_TYPE_Count && m_Memory_Type == GRID_MEMORY_Normal )
 	{
@@ -667,8 +667,8 @@ bool CSG_Grid::_Cache_Create(void)
 //---------------------------------------------------------
 bool CSG_Grid::_Cache_Destroy(bool bMemory_Restore)
 {
-	int					y;
-	TGrid_Memory_Line	*pLine;
+	int				y;
+	TSG_Grid_Line	*pLine;
 
 	if( is_Valid() && m_Memory_Type == GRID_MEMORY_Cache )
 	{
@@ -720,7 +720,7 @@ bool CSG_Grid::_Cache_Destroy(bool bMemory_Restore)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Grid::_Cache_LineBuffer_Save(TGrid_Memory_Line *pLine)
+void CSG_Grid::_Cache_LineBuffer_Save(TSG_Grid_Line *pLine) const
 {
 	int		x, y, Line_Pos, Line_Size;
 	char	*pValue;
@@ -761,7 +761,7 @@ void CSG_Grid::_Cache_LineBuffer_Save(TGrid_Memory_Line *pLine)
 }
 
 //---------------------------------------------------------
-void CSG_Grid::_Cache_LineBuffer_Load(TGrid_Memory_Line *pLine, int y)
+void CSG_Grid::_Cache_LineBuffer_Load(TSG_Grid_Line *pLine, int y) const
 {
 	int		x, Line_Pos, Line_Size;
 	char	*pValue;
@@ -844,7 +844,7 @@ double CSG_Grid::Get_Compression_Ratio(void)
 //---------------------------------------------------------
 bool CSG_Grid::_Compr_Create(void)
 {
-	TGrid_Memory_Line	Line;
+	TSG_Grid_Line	Line;
 
 	if( m_System.is_Valid() && m_Type > 0 && m_Type < GRID_TYPE_Count && m_Memory_Type == GRID_MEMORY_Normal )
 	{
@@ -889,7 +889,7 @@ bool CSG_Grid::_Compr_Create(void)
 //---------------------------------------------------------
 bool CSG_Grid::_Compr_Destroy(bool bMemory_Restore)
 {
-	TGrid_Memory_Line	Line;
+	TSG_Grid_Line	Line;
 
 	if( is_Valid() && m_Memory_Type == GRID_MEMORY_Compression )
 	{
@@ -936,7 +936,7 @@ bool CSG_Grid::_Compr_Destroy(bool bMemory_Restore)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Grid::_Compr_LineBuffer_Save(TGrid_Memory_Line *pLine)
+void CSG_Grid::_Compr_LineBuffer_Save(TSG_Grid_Line *pLine) const
 {
 	char	*pResult, *pNoCompress, *pCompress, *pNext;
 	int		x, ix, Threshold, nCompress, nNoCompress, nBytesTotal, Line_Pos;
@@ -1044,7 +1044,7 @@ void CSG_Grid::_Compr_LineBuffer_Save(TGrid_Memory_Line *pLine)
 }
 
 //---------------------------------------------------------
-void CSG_Grid::_Compr_LineBuffer_Load(TGrid_Memory_Line *pLine, int y)
+void CSG_Grid::_Compr_LineBuffer_Load(TSG_Grid_Line *pLine, int y) const
 {
 	bool	bCompressed;
 	char	*pData, *pValue;

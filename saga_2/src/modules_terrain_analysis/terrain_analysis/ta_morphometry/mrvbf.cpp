@@ -193,15 +193,11 @@ bool CMRVBF::On_Execute(void)
 	//-----------------------------------------------------
 	if( 1 )
 	{
-		CSG_Colors	Colors;
+	//	DataObject_Set_Colors(pMRVBF, 100, SG_COLORS_WHITE_BLUE		, false);
+		DataObject_Set_Colors(pMRVBF, 100, SG_COLORS_RED_GREY_BLUE	, false);
 
-	//	Colors.Set_Palette(SG_COLORS_WHITE_BLUE		, false);
-		Colors.Set_Palette(SG_COLORS_RED_GREY_BLUE	, false);
-		DataObject_Set_Colors(pMRVBF, Colors);
-
-	//	Colors.Set_Palette(SG_COLORS_RED_GREY_BLUE	, true);
-		Colors.Set_Palette(SG_COLORS_WHITE_RED		, false);
-		DataObject_Set_Colors(pMRRTF, Colors);
+	//	DataObject_Set_Colors(pMRRTF, 100, SG_COLORS_RED_GREY_BLUE	, true);
+		DataObject_Set_Colors(pMRRTF, 100, SG_COLORS_WHITE_RED		, false);
 
 		CSG_Grid	CF, VF, RF, DEM, Slopes, Percentiles;
 

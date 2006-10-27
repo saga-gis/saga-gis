@@ -159,8 +159,8 @@ bool CGrid_Import::On_Execute(void)
 {
 	int					x, y, yy, Method;
 	double				d, Cellsize, xMin, yMin;
-	CSG_Colors				Colors;
-	CSG_Grid				*pR, *pG, *pB;
+	CSG_Colors			Colors;
+	CSG_Grid			*pR, *pG, *pB;
 	FILE				*Stream;
 	wxFileName			fName;
 	wxImage				img;
@@ -225,16 +225,13 @@ bool CGrid_Import::On_Execute(void)
 			}
 
 			Parameters("OUT_RED")	->Set_Value(pR);
-			Colors.Set_Palette(SG_COLORS_BLACK_RED);
-			DataObject_Set_Colors(pR, Colors);
+			DataObject_Set_Colors(pR, 100, SG_COLORS_BLACK_RED);
 
 			Parameters("OUT_GREEN")	->Set_Value(pG);
-			Colors.Set_Palette(SG_COLORS_BLACK_GREEN);
-			DataObject_Set_Colors(pG, Colors);
+			DataObject_Set_Colors(pG, 100, SG_COLORS_BLACK_GREEN);
 
 			Parameters("OUT_BLUE")	->Set_Value(pB);
-			Colors.Set_Palette(SG_COLORS_BLACK_BLUE);
-			DataObject_Set_Colors(pB, Colors);
+			DataObject_Set_Colors(pB, 100, SG_COLORS_BLACK_BLUE);
 		}
 
 		//-------------------------------------------------
@@ -277,8 +274,7 @@ bool CGrid_Import::On_Execute(void)
 			}
 
 			Parameters("OUT_GRID")	->Set_Value(pR);
-			Colors.Set_Palette(SG_COLORS_BLACK_WHITE);
-			DataObject_Set_Colors(pR, Colors);
+			DataObject_Set_Colors(pR, 100, SG_COLORS_BLACK_WHITE);
 		}
 
 		return( true );

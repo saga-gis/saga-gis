@@ -147,9 +147,8 @@ CGrid_Skeletonize::~CGrid_Skeletonize(void)
 //---------------------------------------------------------
 bool CGrid_Skeletonize::On_Execute(void)
 {
-	int		n, Initiation;
-	double	Threshold;
-	CSG_Colors	Colors;
+	int			n, Initiation;
+	double		Threshold;
 	CSG_Grid	*pInput;
 
 	//-----------------------------------------------------
@@ -159,8 +158,7 @@ bool CGrid_Skeletonize::On_Execute(void)
 	Initiation	= Parameters("INIT_METHOD")		->asInt();
 	Threshold	= Parameters("INIT_THRESHOLD")	->asDouble();
 
-	Colors.Set_Palette(SG_COLORS_BLACK_WHITE, true);
-	DataObject_Set_Colors(pResult, Colors);
+	DataObject_Set_Colors(pResult, 3, SG_COLORS_BLACK_WHITE, true);
 	pResult->Assign(0.0);
 
 	//-----------------------------------------------------

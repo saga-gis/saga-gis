@@ -211,9 +211,8 @@ CDVWK_SoilMoisture::~CDVWK_SoilMoisture(void)
 //---------------------------------------------------------
 bool CDVWK_SoilMoisture::On_Execute(void)
 {
-	int		Day, x, y, i, LandUseID;
+	int			Day, x, y, i, LandUseID;
 	CSG_Grid	*pGrid;
-	CSG_Colors	Colors;
 
 	//-----------------------------------------------------
 	if( pClimate->Get_Record_Count() > 0 )
@@ -225,8 +224,7 @@ bool CDVWK_SoilMoisture::On_Execute(void)
 		PWP_mm_Def	= Parameters("STA_PWP_DEF")	->asDouble();
 
 		pWi_mm		= Parameters("DYN_W")		->asGrid();
-		Colors.Set_Ramp(SG_GET_RGB(255, 255, 100), SG_GET_RGB(0, 0, 100));
-		DataObject_Set_Colors(pWi_mm, Colors);
+		DataObject_Set_Colors(pWi_mm, 100, SG_COLORS_YELLOW_BLUE);
 
 		//-------------------------------------------------
 		pLandUse	= SG_Create_Grid(pWi_mm, pCropCoeff->Get_Record_Count() < 127 ? GRID_TYPE_Char : GRID_TYPE_Int);

@@ -303,8 +303,7 @@ void CGrid_3D_Image::_Set_Grid(void)
 	//-----------------------------------------------------
 	DataObject_Add(m_pRGB_Z);
 	DataObject_Add(m_pRGB);
-	CSG_Colors	Colors(100, SG_COLORS_BLACK_WHITE);
-	DataObject_Set_Colors(m_pRGB, Colors);
+	DataObject_Set_Colors(m_pRGB, 100, SG_COLORS_BLACK_WHITE);
 }
 
 //---------------------------------------------------------

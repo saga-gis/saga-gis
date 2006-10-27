@@ -130,7 +130,6 @@ CLife::~CLife(void)
 bool CLife::On_Execute(void)
 {
 	int		x, y, i;
-	CSG_Colors	Colors;
 
 	//-----------------------------------------------------
 	pLife	= SG_Create_Grid(GRID_TYPE_Byte, Parameters("NX")->asInt(), Parameters("NY")->asInt());
@@ -138,8 +137,7 @@ bool CLife::On_Execute(void)
 	Parameters("GRID")->Set_Value(pLife);
 
 	nColors	= Parameters("FADECOLOR")->asInt();
-	Colors.Set_Palette(SG_COLORS_YELLOW_BLUE, false, nColors);
-	DataObject_Set_Colors(pLife, Colors);
+	DataObject_Set_Colors(pLife, nColors, SG_COLORS_YELLOW_BLUE);
 
 	pCount	= SG_Create_Grid(pLife);
 

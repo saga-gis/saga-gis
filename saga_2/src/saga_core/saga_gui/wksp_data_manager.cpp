@@ -195,7 +195,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 
 	if( CONFIG_Read("/DATA", "START_LOGO"				, lValue) == false )
 	{
-		lValue	= 2;
+		lValue	= 1;
 	}
 
 	m_Parameters.Add_Choice(

@@ -194,7 +194,7 @@ CMorphometry::~CMorphometry(void)
 //---------------------------------------------------------
 bool CMorphometry::On_Execute(void)
 {
-	int		x, y, Method;
+	int			x, y, Method;
 	CSG_Colors	Colors;
 
 	//-----------------------------------------------------
@@ -211,8 +211,7 @@ bool CMorphometry::On_Execute(void)
 	//-----------------------------------------------------
 	pSlope->Set_ZFactor	(M_RAD_TO_DEG);
 	pSlope->Set_Unit	("Degree");
-	Colors.Set_Ramp(SG_GET_RGB(255, 255, 150), SG_GET_RGB(100,   0,   0));
-	DataObject_Set_Colors(pSlope	, Colors);
+	DataObject_Set_Colors(pSlope	, 100, SG_COLORS_YELLOW_RED);
 
 	pAspect->Set_ZFactor(M_RAD_TO_DEG);
 	pAspect->Set_Unit	("Degree");
@@ -223,14 +222,9 @@ bool CMorphometry::On_Execute(void)
 	Colors.Set_Count(100);
 	DataObject_Set_Colors(pAspect	, Colors);
 
-	Colors.Set_Count(3);
-	Colors.Set_Color(0,	SG_GET_RGB(  0,   0, 140));
-	Colors.Set_Color(1, SG_GET_RGB(220, 220, 220));
-	Colors.Set_Color(2, SG_GET_RGB(140,   0,   0));
-	Colors.Set_Count(100);
-	DataObject_Set_Colors(pCurvature, Colors);
-	DataObject_Set_Colors(pCurv_Vert, Colors);
-	DataObject_Set_Colors(pCurv_Horz, Colors);
+	DataObject_Set_Colors(pCurvature, 100, SG_COLORS_RED_GREY_BLUE, true);
+	DataObject_Set_Colors(pCurv_Vert, 100, SG_COLORS_RED_GREY_BLUE, true);
+	DataObject_Set_Colors(pCurv_Horz, 100, SG_COLORS_RED_GREY_BLUE, true);
 
 	//-----------------------------------------------------
 	_DX_2		= Get_Cellsize() * Get_Cellsize();

@@ -144,8 +144,7 @@ bool CHugget_03::On_Execute(void)
 	bool		bUpdate;
 	int			iStep, nSteps;
 	double		sTime, dTime, N_Init, N_Rain;
-	CSG_Grid		*pDEM, *pN, N_1, S[8];
-	CSG_Colors	Colors;
+	CSG_Grid	*pDEM, *pN, N_1, S[8];
 	CSG_String	s;
 
 	//-----------------------------------------------------
@@ -163,10 +162,7 @@ bool CHugget_03::On_Execute(void)
 	pN		= Parameters("NSTORE")		->asGrid();
 	pN->Assign(N_Init);
 
-	Colors.Set_Count(100);
-	Colors.Set_Ramp(SG_GET_RGB(255, 255, 192), SG_GET_RGB(127, 200,   0),  0, 49);
-	Colors.Set_Ramp(SG_GET_RGB(127, 200,   0), SG_GET_RGB(  0,  63,   0), 50, 99);
-	DataObject_Set_Colors(pN, Colors);
+	DataObject_Set_Colors(pN, 100, SG_COLORS_YELLOW_GREEN);
 
 	N_1.Create(pN, GRID_TYPE_Float);
 

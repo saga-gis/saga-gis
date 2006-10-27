@@ -154,10 +154,9 @@ CExercise_07::~CExercise_07(void)
 //---------------------------------------------------------
 bool CExercise_07::On_Execute(void)
 {
-	bool	bCell;
-	int		x, y, Step, xCell, yCell;
+	bool		bCell;
+	int			x, y, Step, xCell, yCell;
 	CSG_Grid	*pLength;
-	CSG_Colors	Colors;
 
 	//-----------------------------------------------------
 	// Get parameter settings...
@@ -180,8 +179,7 @@ bool CExercise_07::On_Execute(void)
 
 	m_pArea			->Assign(0.0);
 	m_pArea			->Set_Unit("m²");
-	Colors.Set_Ramp(SG_GET_RGB(255, 255, 255), SG_GET_RGB(0, 0, 127));
-	DataObject_Set_Colors(m_pArea, Colors);
+	DataObject_Set_Colors(m_pArea, 100, SG_COLORS_WHITE_BLUE);
 
 	pLength			->Assign(0.0);
 	pLength			->Set_Unit("m");

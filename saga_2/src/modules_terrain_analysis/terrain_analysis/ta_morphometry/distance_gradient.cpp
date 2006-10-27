@@ -113,7 +113,7 @@ CDistance_Gradient::CDistance_Gradient(void)
 
 		CSG_String::Format("%s|%s|%s|",
 			_TL("distance"),
-			_TL("gradient (ratio)"),
+			_TL("gradient (tangens)"),
 			_TL("gradient (degree)")
 		), 2
 	);
@@ -135,7 +135,6 @@ bool CDistance_Gradient::On_Execute(void)
 {
 	int			x, y, Output;
 	double		vDistance, hDistance, s, a;
-	CSG_Colors	Colors;
 	CSG_Grid	*pGradient, *pDifference;
 
 	//-----------------------------------------------------
@@ -151,25 +150,19 @@ bool CDistance_Gradient::On_Execute(void)
 		switch( Output )
 		{
 		case 0:	// distance
-			Colors.Set_Palette(SG_COLORS_WHITE_BLUE		, false);
-			DataObject_Set_Colors(pGradient, Colors);
-		//	DataObject_Set_Colors(pGradient, CSG_Colors(100, SG_COLORS_WHITE_BLUE, false));
+			DataObject_Set_Colors(pGradient, 100, SG_COLORS_WHITE_BLUE	, false);
 			pGradient->Set_Unit("m");
 			pGradient->Set_ZFactor(1.0);
 			break;
 
 		case 1:	// gradient (ratio)
-			Colors.Set_Palette(SG_COLORS_WHITE_BLUE		, true);
-			DataObject_Set_Colors(pGradient, Colors);
-		//	DataObject_Set_Colors(pGradient, CSG_Colors(100, SG_COLORS_WHITE_BLUE, true));
+			DataObject_Set_Colors(pGradient, 100, SG_COLORS_WHITE_BLUE	, true);
 			pGradient->Set_Unit("");
 			pGradient->Set_ZFactor(1.0);
 			break;
 
 		case 2:	// gradient (degree)
-			Colors.Set_Palette(SG_COLORS_YELLOW_RED		, false);
-			DataObject_Set_Colors(pGradient, Colors);
-		//	DataObject_Set_Colors(pGradient, CSG_Colors(100, SG_COLORS_YELLOW_RED, false));
+			DataObject_Set_Colors(pGradient, 100, SG_COLORS_YELLOW_RED	, false);
 			pGradient->Set_Unit("°");
 			pGradient->Set_ZFactor(M_RAD_TO_DEG);
 			break;
@@ -177,9 +170,7 @@ bool CDistance_Gradient::On_Execute(void)
 
 		if( pDifference )
 		{
-			Colors.Set_Palette(SG_COLORS_RED_GREY_BLUE	, false);
-			DataObject_Set_Colors(pDifference, Colors);
-		//	DataObject_Set_Colors(pDifference, CSG_Colors(100, SG_COLORS_RED_GREY_BLUE, false));
+			DataObject_Set_Colors(pDifference, 100, SG_COLORS_RED_GREY_BLUE	, false);
 			pDifference->Set_Unit("°");
 			pDifference->Set_ZFactor(M_RAD_TO_DEG);
 		}
@@ -208,7 +199,7 @@ bool CDistance_Gradient::On_Execute(void)
 						pGradient->Set_Value(x, y, hDistance);
 						break;
 
-					case 1:	// gradient (ratio)
+					case 1:	// gradient (tangens)
 						pGradient->Set_Value(x, y, vDistance / hDistance);
 						break;
 

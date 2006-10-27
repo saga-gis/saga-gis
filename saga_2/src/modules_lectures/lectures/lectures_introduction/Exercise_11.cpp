@@ -146,8 +146,7 @@ bool CExercise_11::On_Execute(void)
 	bool		bUpdate;
 	int			iStep, nSteps;
 	double		sTime, dTime, N_Init, N_Rain;
-	CSG_Grid		*pDEM;
-	CSG_Colors		Colors;
+	CSG_Grid	*pDEM;
 
 	//-----------------------------------------------------
 	sTime	= Parameters("TIME_SPAN")	->asDouble();
@@ -163,8 +162,7 @@ bool CExercise_11::On_Execute(void)
 
 	m_pN	= Parameters("NSTORE")		->asGrid();
 	m_pN->Assign(N_Init);
-	Colors.Set_Ramp(SG_GET_RGB(255, 255, 192), SG_GET_RGB(0, 63, 0));
-	DataObject_Set_Colors(m_pN, Colors);
+	DataObject_Set_Colors(m_pN, 100, SG_COLORS_YELLOW_GREEN);
 
 	Initialize(pDEM);
 

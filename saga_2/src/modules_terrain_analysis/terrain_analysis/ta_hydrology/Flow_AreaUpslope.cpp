@@ -429,9 +429,7 @@ bool CFlow_AreaUpslope_Interactive::On_Execute(void)
 		Parameters("AREA")		->asGrid(),
 		Parameters("CONVERGE")	->asDouble()	) )
 	{
-		CSG_Colors	Colors;
-		Colors.Set_Palette(SG_COLORS_WHITE_BLUE);
-		DataObject_Set_Colors(Parameters("AREA")->asGrid(), Colors);
+		DataObject_Set_Colors(Parameters("AREA")->asGrid(), 100, SG_COLORS_WHITE_BLUE);
 
 		return( true );
 	}
@@ -550,9 +548,7 @@ bool CFlow_AreaUpslope_Area::On_Execute(void)
 			{
 				m_Calculator.Get_Area();
 
-				CSG_Colors	Colors;
-				Colors.Set_Palette(SG_COLORS_WHITE_BLUE);
-				DataObject_Set_Colors(Parameters("AREA")->asGrid(), Colors);
+				DataObject_Set_Colors(Parameters("AREA")->asGrid(), 100, SG_COLORS_WHITE_BLUE);
 			}
 		}
 	}

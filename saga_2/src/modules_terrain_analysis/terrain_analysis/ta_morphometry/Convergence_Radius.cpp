@@ -140,7 +140,6 @@ CConvergence_Radius::~CConvergence_Radius(void)
 //---------------------------------------------------------
 bool CConvergence_Radius::On_Execute(void)
 {
-	CSG_Colors	Colors;
 	CSG_Grid	*pDTM, *pConvergence_Radius;
 
 	pDTM				= Parameters("ELEVATION")	->asGrid();
@@ -148,10 +147,7 @@ bool CConvergence_Radius::On_Execute(void)
 
 	if( Initialize(pDTM, Parameters("RADIUS")->asInt()) )
 	{
-		Colors.Set_Count(100);
-		Colors.Set_Ramp(SG_GET_RGB(  0,   0, 127), SG_GET_RGB(255, 255, 255),  0, 49);
-		Colors.Set_Ramp(SG_GET_RGB(255, 255, 255), SG_GET_RGB(127,   0,   0), 50, 99);
-		DataObject_Set_Colors(pConvergence_Radius, Colors);
+		DataObject_Set_Colors(pConvergence_Radius, 100, SG_COLORS_RED_GREY_BLUE, true);
 
 		pConvergence_Radius->Assign_NoData();
 

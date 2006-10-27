@@ -300,57 +300,158 @@ bool CSG_Grid::_Assign_MeanValue(CSG_Grid *pGrid)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Grid::operator = (CSG_Grid &Grid)
+CSG_Grid & CSG_Grid::operator = (const CSG_Grid &Grid)
 {
-	Assign(&Grid);
+	Assign((CSG_Grid *)&Grid, GRID_INTERPOLATION_Undefined);
+
+	return( *this );
+}
+
+CSG_Grid & CSG_Grid::operator =	(double Value)
+{
+	Assign(Value);
+
+	return( *this );
 }
 
 //---------------------------------------------------------
-void CSG_Grid::operator +=	(CSG_Grid &Grid)
+CSG_Grid CSG_Grid::operator +		(const CSG_Grid &Grid) const
 {
-	_Operation_Arithmetic(&Grid, GRID_OPERATION_Addition);
+	CSG_Grid	g(*this);
+
+	return( g._Operation_Arithmetic(Grid, GRID_OPERATION_Addition) );
+}
+
+CSG_Grid CSG_Grid::operator +		(double Value) const
+{
+	CSG_Grid	g(*this);
+
+	return( g._Operation_Arithmetic(Value, GRID_OPERATION_Addition) );
+}
+
+CSG_Grid & CSG_Grid::operator +=	(const CSG_Grid &Grid)
+{
+	return( _Operation_Arithmetic(Grid, GRID_OPERATION_Addition) );
+}
+
+CSG_Grid & CSG_Grid::operator +=	(double Value)
+{
+	return( _Operation_Arithmetic(Value, GRID_OPERATION_Addition) );
+}
+
+CSG_Grid & CSG_Grid::Add			(const CSG_Grid &Grid)
+{
+	return( _Operation_Arithmetic(Grid, GRID_OPERATION_Addition) );
+}
+
+CSG_Grid & CSG_Grid::Add			(double Value)
+{
+	return( _Operation_Arithmetic(Value, GRID_OPERATION_Addition) );
 }
 
 //---------------------------------------------------------
-void CSG_Grid::operator -=	(CSG_Grid &Grid)
+CSG_Grid CSG_Grid::operator -		(const CSG_Grid &Grid) const
 {
-	_Operation_Arithmetic(&Grid, GRID_OPERATION_Subtraction);
+	CSG_Grid	g(*this);
+
+	return( g._Operation_Arithmetic(Grid, GRID_OPERATION_Subtraction) );
+}
+
+CSG_Grid CSG_Grid::operator -		(double Value) const
+{
+	CSG_Grid	g(*this);
+
+	return( g._Operation_Arithmetic(Value, GRID_OPERATION_Subtraction) );
+}
+
+CSG_Grid & CSG_Grid::operator -=	(const CSG_Grid &Grid)
+{
+	return( _Operation_Arithmetic(Grid, GRID_OPERATION_Subtraction) );
+}
+
+CSG_Grid & CSG_Grid::operator -=	(double Value)
+{
+	return( _Operation_Arithmetic(Value, GRID_OPERATION_Subtraction) );
+}
+
+CSG_Grid & CSG_Grid::Subtract		(const CSG_Grid &Grid)
+{
+	return( _Operation_Arithmetic(Grid, GRID_OPERATION_Subtraction) );
+}
+
+CSG_Grid & CSG_Grid::Subtract		(double Value)
+{
+	return( _Operation_Arithmetic(Value, GRID_OPERATION_Subtraction) );
 }
 
 //---------------------------------------------------------
-void CSG_Grid::operator *=	(CSG_Grid &Grid)
+CSG_Grid CSG_Grid::operator *		(const CSG_Grid &Grid) const
 {
-	_Operation_Arithmetic(&Grid, GRID_OPERATION_Multiplication);
+	CSG_Grid	g(*this);
+
+	return( g._Operation_Arithmetic(Grid, GRID_OPERATION_Multiplication) );
+}
+
+CSG_Grid CSG_Grid::operator *		(double Value) const
+{
+	CSG_Grid	g(*this);
+
+	return( g._Operation_Arithmetic(Value, GRID_OPERATION_Multiplication) );
+}
+
+CSG_Grid & CSG_Grid::operator *=	(const CSG_Grid &Grid)
+{
+	return( _Operation_Arithmetic(Grid, GRID_OPERATION_Multiplication) );
+}
+
+CSG_Grid & CSG_Grid::operator *=	(double Value)
+{
+	return( _Operation_Arithmetic(Value, GRID_OPERATION_Multiplication) );
+}
+
+CSG_Grid & CSG_Grid::Multiply		(const CSG_Grid &Grid)
+{
+	return( _Operation_Arithmetic(Grid, GRID_OPERATION_Multiplication) );
+}
+
+CSG_Grid & CSG_Grid::Multiply		(double Value)
+{
+	return( _Operation_Arithmetic(Value, GRID_OPERATION_Multiplication) );
 }
 
 //---------------------------------------------------------
-void CSG_Grid::operator /=	(CSG_Grid &Grid)
+CSG_Grid CSG_Grid::operator /		(const CSG_Grid &Grid) const
 {
-	_Operation_Arithmetic(&Grid, GRID_OPERATION_Division);
+	CSG_Grid	g(*this);
+
+	return( g._Operation_Arithmetic(Grid, GRID_OPERATION_Division) );
 }
 
-//---------------------------------------------------------
-void CSG_Grid::operator +=	(double Value)
+CSG_Grid CSG_Grid::operator /		(double Value) const
 {
-	_Operation_Arithmetic(Value, GRID_OPERATION_Addition);
+	CSG_Grid	g(*this);
+
+	return( g._Operation_Arithmetic(Value, GRID_OPERATION_Division) );
 }
 
-//---------------------------------------------------------
-void CSG_Grid::operator -=	(double Value)
+CSG_Grid & CSG_Grid::operator /=	(const CSG_Grid &Grid)
 {
-	_Operation_Arithmetic(Value, GRID_OPERATION_Subtraction);
+	return( _Operation_Arithmetic(Grid, GRID_OPERATION_Division) );
 }
 
-//---------------------------------------------------------
-void CSG_Grid::operator *=	(double Value)
+CSG_Grid & CSG_Grid::operator /=	(double Value)
 {
-	_Operation_Arithmetic(Value, GRID_OPERATION_Multiplication);
+	return( _Operation_Arithmetic(Value, GRID_OPERATION_Division) );
 }
 
-//---------------------------------------------------------
-void CSG_Grid::operator /=	(double Value)
+CSG_Grid & CSG_Grid::Divide			(const CSG_Grid &Grid)
 {
-	_Operation_Arithmetic(Value, GRID_OPERATION_Division);
+	return( _Operation_Arithmetic(Grid, GRID_OPERATION_Division) );
+}
+
+CSG_Grid & CSG_Grid::Divide			(double Value)
+{
+	return( _Operation_Arithmetic(Value, GRID_OPERATION_Division) );
 }
 
 
@@ -361,26 +462,24 @@ void CSG_Grid::operator /=	(double Value)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Grid::_Operation_Arithmetic(CSG_Grid *pGrid, TSG_Grid_Operation Operation)
+CSG_Grid & CSG_Grid::_Operation_Arithmetic(const CSG_Grid &Grid, TSG_Grid_Operation Operation)
 {
-	int					x, y;
-	double				xPosition, yPosition, Value;
-	TSG_Grid_Interpolation	Interpolation;
-
-	if( is_Intersecting(pGrid->Get_Extent()) )
+	if( is_Intersecting(Grid.Get_Extent()) )
 	{
-		Interpolation	=	Get_Cellsize() == pGrid->Get_Cellsize() && fmod(Get_XMin() - pGrid->Get_XMin(), Get_Cellsize()) == 0.0
-						&&	Get_Cellsize() == pGrid->Get_Cellsize() && fmod(Get_YMin() - pGrid->Get_YMin(), Get_Cellsize()) == 0.0
+		int						x, y;
+		double					xWorld, yWorld, Value;
+		TSG_Grid_Interpolation	Interpolation;
+
+		Interpolation	=	Get_Cellsize() == Grid.Get_Cellsize() && fmod(Get_XMin() - Grid.Get_XMin(), Get_Cellsize()) == 0.0
+						&&	Get_Cellsize() == Grid.Get_Cellsize() && fmod(Get_YMin() - Grid.Get_YMin(), Get_Cellsize()) == 0.0
 						?	GRID_INTERPOLATION_NearestNeighbour
 						:	GRID_INTERPOLATION_BSpline;
 
-		for(y=0, yPosition=Get_YMin(); y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++, yPosition+=Get_Cellsize())
+		for(y=0, yWorld=Get_YMin(); y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++, yWorld+=Get_Cellsize())
 		{
-			for(x=0, xPosition=Get_XMin(); x<Get_NX(); x++, xPosition+=Get_Cellsize())
+			for(x=0, xWorld=Get_XMin(); x<Get_NX(); x++, xWorld+=Get_Cellsize())
 			{
-				Value	= pGrid->Get_Value(xPosition, yPosition, Interpolation, true);
-
-				if( pGrid->is_NoData_Value(Value) )
+				if( !Grid.Get_Value(xWorld, yWorld, Value, Interpolation, true) )
 				{
 					Set_NoData(x, y);
 				}
@@ -418,30 +517,35 @@ void CSG_Grid::_Operation_Arithmetic(CSG_Grid *pGrid, TSG_Grid_Operation Operati
 		switch( Operation )
 		{
 		case GRID_OPERATION_Addition:
-			Get_History().Add_Entry(LNG("[HST] Grid addition")		, pGrid->Get_Name());
+			Get_History().Add_Entry(LNG("[HST] Grid addition")		, Grid.Get_Name());
 			break;
 
 		case GRID_OPERATION_Subtraction:
-			Get_History().Add_Entry(LNG("[HST] Grid subtraction")	, pGrid->Get_Name());
+			Get_History().Add_Entry(LNG("[HST] Grid subtraction")	, Grid.Get_Name());
 			break;
 
 		case GRID_OPERATION_Multiplication:
-			Get_History().Add_Entry(LNG("[HST] Grid multiplication"), pGrid->Get_Name());
+			Get_History().Add_Entry(LNG("[HST] Grid multiplication"), Grid.Get_Name());
 			break;
 
 		case GRID_OPERATION_Division:
-			Get_History().Add_Entry(LNG("[HST] Grid division")		, pGrid->Get_Name());
+			Get_History().Add_Entry(LNG("[HST] Grid division")		, Grid.Get_Name());
 			break;
 		}
 
-		Get_History().Assign(pGrid->Get_History(), true);
+		Get_History().Assign(Grid.m_History, true);
 	}
+
+	return( *this );
 }
 
 //---------------------------------------------------------
-void CSG_Grid::_Operation_Arithmetic(double Value, TSG_Grid_Operation Operation)
+CSG_Grid & CSG_Grid::_Operation_Arithmetic(double Value, TSG_Grid_Operation Operation)
 {
-	int		x, y;
+	if( Operation == GRID_OPERATION_Division && Value == 0.0 )
+	{
+		return( *this );
+	}
 
 	//-----------------------------------------------------
 	switch( Operation )
@@ -460,19 +564,14 @@ void CSG_Grid::_Operation_Arithmetic(double Value, TSG_Grid_Operation Operation)
 		break;
 
 	case GRID_OPERATION_Division:
-		if( Value == 0.0 )
-			return;
 		Get_History().Add_Entry(LNG("[HST] Value division")			, CSG_String::Format("%f", Value));
 		break;
-
-	default:
-		return;
 	}
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
 			if( !is_NoData(x, y) )
 			{
@@ -493,6 +592,8 @@ void CSG_Grid::_Operation_Arithmetic(double Value, TSG_Grid_Operation Operation)
 	}
 
 	SG_UI_Process_Set_Ready();
+
+	return( *this );
 }
 
 
@@ -665,7 +766,7 @@ void CSG_Grid::DeNormalise(double ArithMean, double Variance)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSG_Grid::Get_Gradient_NeighborDir(int x, int y, bool bMustBeLower)
+int CSG_Grid::Get_Gradient_NeighborDir(int x, int y, bool bMustBeLower)	const
 {
 	int		i, ix, iy, Direction;
 	double	z, dz, dzMax;
@@ -706,7 +807,7 @@ int CSG_Grid::Get_Gradient_NeighborDir(int x, int y, bool bMustBeLower)
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::Get_Gradient(int x, int y, double &Decline, double &Azimuth)
+bool CSG_Grid::Get_Gradient(int x, int y, double &Decline, double &Azimuth) const
 {
 	int		i, ix, iy, iDir;
 	double	z, zm[4], G, H;

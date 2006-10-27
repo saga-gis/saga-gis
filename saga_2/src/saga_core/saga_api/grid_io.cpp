@@ -196,7 +196,7 @@ bool CSG_Grid::Save(const char *File_Name, int Format, int xA, int yA, int xN, i
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Grid::_Swap_Bytes(char *Bytes, int nBytes)
+void CSG_Grid::_Swap_Bytes(char *Bytes, int nBytes) const
 {
 	char	Byte, *p;
 

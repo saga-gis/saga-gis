@@ -127,8 +127,7 @@ bool CErdas_LAN_Import::On_Execute(void)
 	float					area, dx, dy, xPos, yPos;
 	double					Cellsize, xMin, yMin, Value;
 	FILE					*Stream;
-	TSG_Grid_Type				gType;
-	CSG_Colors					Colors;
+	TSG_Grid_Type			gType;
 	CSG_Parameter_Grid_List	*Grids;
 	CSG_String				FileName;
 
@@ -251,12 +250,10 @@ bool CErdas_LAN_Import::On_Execute(void)
 			//---------------------------------------------
 			SG_Free(Line);
 
-			Colors.Set_Palette(SG_COLORS_BLACK_WHITE);
-
 			for(i=0; i<nBands; i++)
 			{
 				DataObject_Add			(Grids->asGrid(i));
-				DataObject_Set_Colors	(Grids->asGrid(i), Colors);
+				DataObject_Set_Colors	(Grids->asGrid(i), 100, SG_COLORS_BLACK_WHITE);
 			}
 		}
 

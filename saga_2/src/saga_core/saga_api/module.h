@@ -137,6 +137,11 @@ public:
 	CSG_Parameters *			Get_Extra_Parameters		(int i)	{	return( i >= 0 && i < m_npParameters ? m_pParameters[i] : NULL );	}
 	int							Get_Extra_Parameters_Count	(void)	{	return( m_npParameters );	}
 
+	int							Garbage_Get_Count			(void)	{	return( m_nGarbage );		}
+	CSG_Data_Object *			Garbage_Get_Item			(int i)	{	return( i >= 0 && i < m_nGarbage ? m_Garbage[i] : NULL );	}
+	CSG_Data_Object *			Garbage_Del_Item			(int i, bool bFromListOnly = true);
+	void						Garbage_Clear				(void);
+
 	virtual bool				is_Interactive				(void)	{	return( false );	}
 	bool						is_Progress					(void)	{	return( SG_UI_Process_Get_Okay(false) );	}
 	bool						is_Executing				(void)	{	return( m_bExecutes );	}
@@ -196,19 +201,24 @@ protected:
 	void						DataObject_Update_All		(void);
 
 	bool						DataObject_Get_Colors		(CSG_Data_Object *pDataObject, CSG_Colors &Colors);
-	bool						DataObject_Set_Colors		(CSG_Data_Object *pDataObject, CSG_Colors &Colors);
+	bool						DataObject_Set_Colors		(CSG_Data_Object *pDataObject, const CSG_Colors &Colors);
+	bool						DataObject_Set_Colors		(CSG_Data_Object *pDataObject, int nColors, int Palette = SG_COLORS_DEFAULT, bool bRevert = false);
 
 
 private:
 
 	bool						m_bExecutes, m_bError_Ignore, m_bManaged, m_bShow_Progress;
 
-	int							m_npParameters;
+	int							m_npParameters, m_nGarbage;
+
+	CSG_Data_Object				**m_Garbage;
 
 	CSG_Parameters				**m_pParameters;
 
 	CSG_String					m_Author;
 
+
+	bool						_Garbage_Add_Item			(CSG_Data_Object *pDataObject);
 
 	void						_Set_Output_History			(void);
 

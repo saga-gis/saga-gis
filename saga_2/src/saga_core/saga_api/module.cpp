@@ -75,6 +75,9 @@ CSG_Module::CSG_Module(void)
 	m_bError_Ignore	= false;
 	m_bExecutes		= false;
 
+	m_Garbage		= NULL;
+	m_nGarbage		= 0;
+
 	m_pParameters	= NULL;
 	m_npParameters	= 0;
 
@@ -114,6 +117,8 @@ void CSG_Module::Destroy(void)
 	m_bError_Ignore	= false;
 
 	History_Supplement.Destroy();
+
+	Garbage_Clear();
 
 	if( m_bManaged )
 	{
@@ -445,6 +450,82 @@ bool CSG_Module::Error_Set(const char *Error_Text)
 
 ///////////////////////////////////////////////////////////
 //														 //
+//				DataObjects / Garbage					 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Module::_Garbage_Add_Item(CSG_Data_Object *pDataObject)
+{
+	if( pDataObject )
+	{
+		for(int i=0; i<m_nGarbage; i++)
+		{
+			if( pDataObject == m_Garbage[i] )
+			{
+				return( true );
+			}
+		}
+
+		m_Garbage	= (CSG_Data_Object **)SG_Realloc(m_Garbage, (m_nGarbage + 1) * sizeof(CSG_Data_Object *));
+		m_Garbage[m_nGarbage++]	= pDataObject;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+CSG_Data_Object * CSG_Module::Garbage_Del_Item(int i, bool bFromListOnly)
+{
+	CSG_Data_Object	*pDataObject	= NULL;
+
+	if( i >= 0 && i < m_nGarbage )
+	{
+		if( bFromListOnly || !m_Garbage[i] )
+		{
+			pDataObject	= m_Garbage[i];
+		}
+		else if( m_Garbage[i] )
+		{
+			delete(m_Garbage[i]);
+		}
+
+		for(m_nGarbage--; i<m_nGarbage; i++)
+		{
+			m_Garbage[i]	= m_Garbage[i + 1];
+		}
+
+		m_Garbage	= (CSG_Data_Object **)SG_Realloc(m_Garbage, m_nGarbage * sizeof(CSG_Data_Object *));
+	}
+
+	return( pDataObject );
+}
+
+//---------------------------------------------------------
+void CSG_Module::Garbage_Clear(void)
+{
+	if( m_nGarbage > 0 )
+	{
+		for(int i=0; i<m_nGarbage; i++)
+		{
+			if( m_Garbage[i] )
+			{
+				delete(m_Garbage[i]);
+			}
+		}
+
+		SG_Free(m_Garbage);
+	}
+
+	m_nGarbage	= 0;
+	m_Garbage	= NULL;
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //				DataObjects / GUI Interaction			 //
 //														 //
 ///////////////////////////////////////////////////////////
@@ -452,7 +533,9 @@ bool CSG_Module::Error_Set(const char *Error_Text)
 //---------------------------------------------------------
 bool CSG_Module::DataObject_Add(CSG_Data_Object *pDataObject, bool bUpdate)
 {
-	return( m_bManaged ? SG_UI_DataObject_Add(pDataObject, bUpdate) : false );
+	return( m_bManaged && SG_UI_DataObject_Add(pDataObject, bUpdate)
+		? true : _Garbage_Add_Item(pDataObject)
+	);
 }
 
 //---------------------------------------------------------
@@ -514,9 +597,18 @@ bool CSG_Module::DataObject_Get_Colors(CSG_Data_Object *pDataObject, CSG_Colors 
 	return( SG_UI_DataObject_Colors_Get(pDataObject, &Colors) );
 }
 
-bool CSG_Module::DataObject_Set_Colors(CSG_Data_Object *pDataObject, CSG_Colors &Colors)
+bool CSG_Module::DataObject_Set_Colors(CSG_Data_Object *pDataObject, const CSG_Colors &Colors)
 {
-	return( SG_UI_DataObject_Colors_Set(pDataObject, &Colors) );
+	CSG_Colors	c(Colors);
+
+	return( SG_UI_DataObject_Colors_Set(pDataObject, &c) );
+}
+
+bool CSG_Module::DataObject_Set_Colors(CSG_Data_Object *pDataObject, int nColors, int Palette, bool bRevert)
+{
+	CSG_Colors	c(nColors, Palette, bRevert);
+
+	return( SG_UI_DataObject_Colors_Set(pDataObject, &c) );
 }
 
 

@@ -344,7 +344,7 @@ void CSG_Grid::Set_Description(const char *String)
 	m_Description.Printf(String ? String : "");
 }
 
-const char * CSG_Grid::Get_Description(void)
+const char * CSG_Grid::Get_Description(void) const
 {
 	return( m_Description.c_str() );
 }
@@ -355,7 +355,7 @@ void CSG_Grid::Set_Unit(const char *String)
 	m_Unit.Printf(String ? String : "");
 }
 
-const char * CSG_Grid::Get_Unit(void)
+const char * CSG_Grid::Get_Unit(void) const
 {
 	return( m_Unit.c_str() );
 }
@@ -367,7 +367,7 @@ void CSG_Grid::Set_ZFactor(double Value)
 }
 
 //---------------------------------------------------------
-double CSG_Grid::Get_ZFactor(void)
+double CSG_Grid::Get_ZFactor(void) const
 {
 	return( m_zFactor );
 }
@@ -470,27 +470,27 @@ bool CSG_Grid::is_Compatible(int NX, int NY, double Cellsize, double xMin, doubl
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CSG_Grid::Get_Value(TSG_Point Position, int Interpolation, bool bZFactor, bool bByteWise)
+double CSG_Grid::Get_Value(TSG_Point Position, int Interpolation, bool bZFactor, bool bByteWise) const
 {
 	double	Value;
 
 	return( Get_Value(Position.x, Position.y, Value, Interpolation, bZFactor, bByteWise) ? Value : m_NoData_Value );
 }
 
-double CSG_Grid::Get_Value(double xPosition, double yPosition, int Interpolation, bool bZFactor, bool bByteWise)
+double CSG_Grid::Get_Value(double xPosition, double yPosition, int Interpolation, bool bZFactor, bool bByteWise) const
 {
 	double	Value;
 
 	return( Get_Value(xPosition, yPosition, Value, Interpolation, bZFactor, bByteWise) ? Value : m_NoData_Value );
 }
 
-bool CSG_Grid::Get_Value(TSG_Point Position, double &Value, int Interpolation, bool bZFactor, bool bByteWise)
+bool CSG_Grid::Get_Value(TSG_Point Position, double &Value, int Interpolation, bool bZFactor, bool bByteWise) const
 {
 	return( Get_Value(Position.x, Position.y, Value, Interpolation, bZFactor, bByteWise) );
 }
 
 //---------------------------------------------------------
-inline bool CSG_Grid::Get_Value(double xPosition, double yPosition, double &Value, int Interpolation, bool bZFactor, bool bByteWise)
+inline bool CSG_Grid::Get_Value(double xPosition, double yPosition, double &Value, int Interpolation, bool bZFactor, bool bByteWise) const
 {
 	int		x, y;
 	double	dx, dy;
@@ -544,7 +544,7 @@ inline bool CSG_Grid::Get_Value(double xPosition, double yPosition, double &Valu
 }
 
 //---------------------------------------------------------
-inline double CSG_Grid::_Get_ValAtPos_NearestNeighbour(int x, int y, double dx, double dy)
+inline double CSG_Grid::_Get_ValAtPos_NearestNeighbour(int x, int y, double dx, double dy) const
 {
 	x	+= (int)(0.5 + dx);
 	y	+= (int)(0.5 + dy);
@@ -567,7 +567,7 @@ inline double CSG_Grid::_Get_ValAtPos_NearestNeighbour(int x, int y, double dx, 
 											z[2] += d * SG_GET_BYTE_2(v);\
 											z[3] += d * SG_GET_BYTE_3(v); }
 
-inline double CSG_Grid::_Get_ValAtPos_BiLinear(int x, int y, double dx, double dy, bool bByteWise)
+inline double CSG_Grid::_Get_ValAtPos_BiLinear(int x, int y, double dx, double dy, bool bByteWise) const
 {
 	if( !bByteWise )
 	{
@@ -619,7 +619,7 @@ inline double CSG_Grid::_Get_ValAtPos_BiLinear(int x, int y, double dx, double d
 													z[2] += d * SG_GET_BYTE_2(v);\
 													z[3] += d * SG_GET_BYTE_3(v); }
 
-inline double CSG_Grid::_Get_ValAtPos_InverseDistance(int x, int y, double dx, double dy, bool bByteWise)
+inline double CSG_Grid::_Get_ValAtPos_InverseDistance(int x, int y, double dx, double dy, bool bByteWise) const
 {
 	if( dx > 0.0 || dy > 0.0 )
 	{
@@ -669,7 +669,7 @@ inline double CSG_Grid::_Get_ValAtPos_InverseDistance(int x, int y, double dx, d
 }
 
 //---------------------------------------------------------
-inline double CSG_Grid::_Get_ValAtPos_BiCubicSpline(double dx, double dy, double z_xy[4][4])
+inline double CSG_Grid::_Get_ValAtPos_BiCubicSpline(double dx, double dy, double z_xy[4][4]) const
 {
 	double	a0, a2, a3, b1, b2, b3, c[4];
 
@@ -697,7 +697,7 @@ inline double CSG_Grid::_Get_ValAtPos_BiCubicSpline(double dx, double dy, double
 	return( c[1] + b1 * dy + b2 * dy*dy + b3 * dy*dy*dy );
 }
 
-inline double CSG_Grid::_Get_ValAtPos_BiCubicSpline(int x, int y, double dx, double dy, bool bByteWise)
+inline double CSG_Grid::_Get_ValAtPos_BiCubicSpline(int x, int y, double dx, double dy, bool bByteWise) const
 {
 	if( !bByteWise )
 	{
@@ -727,7 +727,7 @@ inline double CSG_Grid::_Get_ValAtPos_BiCubicSpline(int x, int y, double dx, dou
 }
 
 //---------------------------------------------------------
-inline double CSG_Grid::_Get_ValAtPos_BSpline(double dx, double dy, double z_xy[4][4])
+inline double CSG_Grid::_Get_ValAtPos_BSpline(double dx, double dy, double z_xy[4][4]) const
 {
 	int		i, ix, iy;
 	double	z, px, py, Rx[4], Ry[4];
@@ -769,7 +769,7 @@ inline double CSG_Grid::_Get_ValAtPos_BSpline(double dx, double dy, double z_xy[
 	return( z );
 }
 
-inline double CSG_Grid::_Get_ValAtPos_BSpline(int x, int y, double dx, double dy, bool bByteWise)
+inline double CSG_Grid::_Get_ValAtPos_BSpline(int x, int y, double dx, double dy, bool bByteWise) const
 {
 	if( !bByteWise )
 	{
@@ -799,7 +799,7 @@ inline double CSG_Grid::_Get_ValAtPos_BSpline(int x, int y, double dx, double dy
 }
 
 //---------------------------------------------------------
-inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4][4])
+inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4][4]) const
 {
 	int		ix, iy, px, py;
 
@@ -819,7 +819,7 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 	return( true );
 }
 
-inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4][4][4])
+inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4][4][4]) const
 {
 	for(int iy=0, py=y-1; iy<4; iy++, py++)
 	{

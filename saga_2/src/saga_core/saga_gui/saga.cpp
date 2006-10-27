@@ -59,6 +59,7 @@
 
 //---------------------------------------------------------
 #include <wx/config.h>
+#include <wx/fileconf.h>
 #include <wx/image.h>
 #include <wx/splash.h>
 
@@ -136,19 +137,22 @@ CSAGA::~CSAGA(void)
 bool CSAGA::OnInit(void)
 {
 	//-----------------------------------------------------
+	SetVendorName		("SAGA-GIS.org");
+	SetAppName			("SAGA");
+
 	g_pSAGA				= this;
 
 	m_Process_bContinue	= true;
 
-	wxInitAllImageHandlers();
-
 	_Init_Config();
+
+	wxInitAllImageHandlers();
 
 	//-----------------------------------------------------
 	long			iLogo;
 	wxSplashScreen	*pLogo;
 
-	iLogo	= CONFIG_Read("/DATA", "START_LOGO", iLogo) ? iLogo : 2;
+	iLogo	= CONFIG_Read("/DATA", "START_LOGO", iLogo) ? iLogo : 1;
 
 	switch( iLogo )
 	{
@@ -169,7 +173,7 @@ bool CSAGA::OnInit(void)
 	wxYield();
 
 	//-----------------------------------------------------
-	SG_Get_Translator()->Create(SG_File_Make_Path(wxGetCwd(), "saga", "lng"), false);
+	SG_Get_Translator()->Create(SG_File_Make_Path(Get_App_Path(), "saga", "lng"), false);
 
 	SetTopWindow(new CSAGA_Frame());
 
@@ -212,28 +216,24 @@ int CSAGA::OnExit(void)
 //---------------------------------------------------------
 void CSAGA::_Init_Config(void)
 {
-	long			l;
-	wxString		s;
 	wxConfigBase	*pConfig;
 
-	//-----------------------------------------------------
-	SetVendorName("SAGA-GIS.org");
+#if defined(_SAGA_MSW)
+	wxString	sConfig(SG_File_Make_Path(Get_App_Path(), "saga_gui", "ini"));
+	pConfig = new wxFileConfig(wxEmptyString, wxEmptyString, sConfig, sConfig, wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_GLOBAL_FILE|wxCONFIG_USE_RELATIVE_PATH);
+#else
+	pConfig	= new wxConfig;
+#endif
 
-	#if   defined(__VISUALC__) && defined(_DEBUG)
-		SetAppName(CSG_String::Format("SAGA VC%d [Debug]", __VISUALC__).c_str());
-	#elif defined(__VISUALC__)
-		SetAppName(CSG_String::Format("SAGA VC%d"        , __VISUALC__).c_str());
-	#elif defined(__MINGW32__)
-		SetAppName("SAGA MinGW");
-	#else
-		SetAppName("SAGA");
-	#endif
-
-	pConfig	= wxConfigBase::Get();
+	wxConfigBase::Set(pConfig);
 
 	//-----------------------------------------------------
+	wxString	s;
+
 	if( !CONFIG_Read("Version", "Build", s) || s.Cmp(SAGA_GUI_Get_Build()) )
 	{
+		long	l;
+
 		pConfig->SetPath("/");
 
 		while( pConfig->GetFirstGroup(s, l) )

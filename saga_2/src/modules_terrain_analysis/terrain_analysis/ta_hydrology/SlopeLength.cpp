@@ -46,7 +46,6 @@ bool CSlopeLength::On_Execute(void){
 	int x,y;
 	int n;
 	double	slope, aspect;
-	CSG_Colors Colors;
 
 	m_pSlopeLengthGrid = Parameters("LENGTH")->asGrid();
 	m_pDEM = Parameters("DEM")->asGrid();
@@ -73,8 +72,7 @@ bool CSlopeLength::On_Execute(void){
 
 	delete m_pSlopeGrid;
 
-	Colors.Set_Palette(SG_COLORS_WHITE_BLUE);
-	DataObject_Set_Colors(m_pSlopeLengthGrid, Colors);
+	DataObject_Set_Colors(m_pSlopeLengthGrid, 100, SG_COLORS_WHITE_BLUE);
 
 	return true ;
 

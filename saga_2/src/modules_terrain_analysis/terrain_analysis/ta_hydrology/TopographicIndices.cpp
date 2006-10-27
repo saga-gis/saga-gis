@@ -135,10 +135,9 @@ CTopographicIndices::~CTopographicIndices(void)
 //---------------------------------------------------------
 bool CTopographicIndices::On_Execute(void)
 {
-	bool	bTopmodel	= false;
-	int		x, y;
-	double	Area, Slope, tan_Slope, Kf, Mean_Kf, Mean_TWI;
-	CSG_Colors	Colors;
+	bool		bTopmodel	= false;
+	int			x, y;
+	double		Area, Slope, tan_Slope, Kf, Mean_Kf, Mean_TWI;
 	CSG_Grid	*pArea, *pSlope, *pKf, *pTWI, *pSPI, *pLSF;
 
 	//-----------------------------------------------------
@@ -154,20 +153,17 @@ bool CTopographicIndices::On_Execute(void)
 
 	if( pTWI )
 	{
-		Colors.Set_Palette(SG_COLORS_RED_GREY_BLUE, false);
-		DataObject_Set_Colors(pTWI, Colors);
+		DataObject_Set_Colors(pTWI, 100, SG_COLORS_RED_GREY_BLUE);
 	}
 
 	if( pSPI )
 	{
-		Colors.Set_Palette(SG_COLORS_RED_GREY_GREEN, true);
-		DataObject_Set_Colors(pSPI, Colors);
+		DataObject_Set_Colors(pSPI, 100, SG_COLORS_RED_GREY_GREEN, true);
 	}
 
 	if( pLSF )
 	{
-		Colors.Set_Palette(SG_COLORS_RED_GREY_GREEN, true);
-		DataObject_Set_Colors(pLSF, Colors);
+		DataObject_Set_Colors(pLSF, 100, SG_COLORS_RED_GREY_GREEN, true);
 	}
 
 	//-----------------------------------------------------

@@ -206,11 +206,18 @@ public:
 
 	CSG_History &					Get_History		(void)					{	return( m_History );		}
 
+	class CSG_Table *				asTable			(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Table  ? (class CSG_Table  *)this : NULL );	}
+	class CSG_Shapes *				asShapes		(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Shapes ? (class CSG_Shapes *)this : NULL );	}
+	class CSG_TIN *					asTIN			(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_TIN    ? (class CSG_TIN    *)this : NULL );	}
+	class CSG_Grid *				asGrid			(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Grid   ? (class CSG_Grid   *)this : NULL );	}
+
 
 protected:
 
 	void							Set_File_Name	(const char *File_Name);
 	void							Set_File_Type	(int File_Type);
+
+	CSG_History						m_History;
 
 
 private:
@@ -220,8 +227,6 @@ private:
 	int								m_File_Type;
 
 	CSG_String						m_File_Name, m_Name;
-
-	CSG_History						m_History;
 
 };
 

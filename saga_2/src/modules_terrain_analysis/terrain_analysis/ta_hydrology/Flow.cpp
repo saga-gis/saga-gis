@@ -158,7 +158,6 @@ bool CFlow::On_Execute(void)
 	bool	bResult	= false;
 	long	n;
 	double	d;
-	CSG_Colors	Colors;
 
 	//-------------------------------------------------
 	pDTM			= Parameters("ELEVATION")	->asGrid();
@@ -166,12 +165,7 @@ bool CFlow::On_Execute(void)
 	pWeight			= Parameters("WEIGHT")		->asGrid();
 
 	pCatch			= Parameters("CAREA")		->asGrid();
-	Colors.Set_Count(3);
-	Colors.Set_Color(0, SG_GET_RGB(255, 255, 255));
-	Colors.Set_Color(1, SG_GET_RGB(127, 149, 190));
-	Colors.Set_Color(2, SG_GET_RGB(  0,   0,  63));
-	Colors.Set_Count(100);
-	DataObject_Set_Colors(pCatch, Colors);
+	DataObject_Set_Colors(pCatch, 100, SG_COLORS_WHITE_BLUE);
 
 	pCatch_Height	= NULL;
 	pCatch_Slope	= NULL;

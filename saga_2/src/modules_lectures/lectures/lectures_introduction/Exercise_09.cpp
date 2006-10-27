@@ -114,9 +114,8 @@ CExercise_09::~CExercise_09(void)
 //---------------------------------------------------------
 bool CExercise_09::On_Execute(void)
 {
-	int		x, y;
+	int			x, y;
 	CSG_Grid	*pDTM;
-	CSG_Colors	Colors;
 
 	//-----------------------------------------------------
 	// Get parameter settings...
@@ -130,8 +129,7 @@ bool CExercise_09::On_Execute(void)
 
 	m_pArea		->Assign(0.0);
 	m_pArea		->Set_Unit("m²");
-	Colors.Set_Ramp(SG_GET_RGB(255, 255, 255), SG_GET_RGB(0, 0, 127));
-	DataObject_Set_Colors(m_pArea, Colors);
+	DataObject_Set_Colors(m_pArea, 100, SG_COLORS_WHITE_BLUE);
 
 
 	//-----------------------------------------------------

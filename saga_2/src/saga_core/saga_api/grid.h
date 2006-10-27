@@ -436,10 +436,10 @@ public:		///////////////////////////////////////////////
 	int							Get_nValueBytes	(void)	const	{	return( gSG_Grid_Type_Sizes[m_Type] );	}
 
 	void						Set_Description	(const char *String);
-	const char *				Get_Description	(void);
+	const char *				Get_Description	(void)	const;
 
 	void						Set_Unit		(const char *String);
-	const char *				Get_Unit		(void);
+	const char *				Get_Unit		(void)	const;
 
 	const CSG_Grid_System &		Get_System		(void)	const	{	return( m_System );					}
 
@@ -465,17 +465,17 @@ public:		///////////////////////////////////////////////
 	double						Get_ZRange		(bool bZFactor = false);
 
 	void						Set_ZFactor		(double Value);
-	double						Get_ZFactor		(void);
+	double						Get_ZFactor		(void)	const;
 
 	double						Get_ArithMean	(bool bZFactor = false);
 	double						Get_Variance	(bool bZFactor = false);
 
-	void						Set_NoData_Value			(double Value);
-	void						Set_NoData_Value_Range		(double loValue, double hiValue);
-	double						Get_NoData_Value			(void)	{	return( m_NoData_Value );			}
-	double						Get_NoData_hiValue			(void)	{	return( m_NoData_hiValue );			}
+	void						Set_NoData_Value		(double Value);
+	void						Set_NoData_Value_Range	(double loValue, double hiValue);
+	double						Get_NoData_Value		(void)	const	{	return( m_NoData_Value );			}
+	double						Get_NoData_hiValue		(void)	const	{	return( m_NoData_hiValue );			}
 
-	bool						Update_Statistics			(bool bEnforce = false);
+	bool						Update_Statistics		(bool bEnforce = false);
 
 	virtual bool				Save	(const char *File_Name, int Format = GRID_FILE_FORMAT_Binary);
 	virtual bool				Save	(const char *File_Name, int Format, int xA, int yA, int xN, int yN);
@@ -494,9 +494,9 @@ public:		///////////////////////////////////////////////
 	bool						is_Compatible	(const CSG_Grid_System &System) const;
 	bool						is_Compatible	(int NX, int NY, double Cellsize, double xMin, double yMin) const;
 
-	bool						is_InGrid(int x, int y, bool bCheckNoData = true)	{	return( m_System.is_InGrid(x, y) && (!bCheckNoData || (bCheckNoData && !is_NoData(x, y))) );	}
-	bool						is_InGrid_byPos	(double xPos, double yPos)			{	return( xPos >= Get_XMin() && xPos <= Get_XMax() && yPos >= Get_YMin() && yPos <= Get_YMax() );	}
-	bool						is_InGrid_byPos	(TSG_Point Position)				{	return( is_InGrid_byPos(Position.x, Position.y) );	}
+	bool						is_InGrid(int x, int y, bool bCheckNoData = true)	const	{	return( m_System.is_InGrid(x, y) && (!bCheckNoData || (bCheckNoData && !is_NoData(x, y))) );	}
+	bool						is_InGrid_byPos	(double xPos, double yPos)			const	{	return( xPos >= Get_XMin() && xPos <= Get_XMax() && yPos >= Get_YMin() && yPos <= Get_YMax() );	}
+	bool						is_InGrid_byPos	(TSG_Point Position)				const	{	return( is_InGrid_byPos(Position.x, Position.y) );	}
 
 
 	//-----------------------------------------------------
@@ -529,8 +529,8 @@ public:		///////////////////////////////////////////////
 	void						Normalise					(void);
 	void						DeNormalise					(double ArithMean, double Variance);
 
-	int							Get_Gradient_NeighborDir	(int x, int y, bool bMustBeLower = true);
-	bool						Get_Gradient				(int x, int y, double &Decline, double &Azimuth);
+	int							Get_Gradient_NeighborDir	(int x, int y, bool bMustBeLower = true)			const;
+	bool						Get_Gradient				(int x, int y, double &Decline, double &Azimuth)	const;
 
 
 	//-----------------------------------------------------
@@ -588,13 +588,13 @@ public:		///////////////////////////////////////////////
 	//-----------------------------------------------------
 	// No Data Value...
 
-	virtual bool				is_NoData_Value	(double Value)
+	virtual bool				is_NoData_Value	(double Value)	const
 	{
 		return( m_NoData_Value < m_NoData_hiValue ? m_NoData_Value <= Value && Value <= m_NoData_hiValue : Value == m_NoData_Value );
 	}
 
-	virtual bool				is_NoData		(int x, int y)	{	return( is_NoData_Value(asDouble(x, y)) );	}
-	virtual bool				is_NoData		(long n)		{	return( is_NoData_Value(asDouble(   n)) );	}
+	virtual bool				is_NoData		(int x, int y)	const	{	return( is_NoData_Value(asDouble(x, y)) );	}
+	virtual bool				is_NoData		(long n)		const	{	return( is_NoData_Value(asDouble(   n)) );	}
 
 	virtual void				Set_NoData		(int x, int y)	{	Set_Value(x, y, m_NoData_Value );	}
 	virtual void				Set_NoData		(long n)		{	Set_Value(   n, m_NoData_Value );	}
@@ -603,67 +603,68 @@ public:		///////////////////////////////////////////////
 	//-----------------------------------------------------
 	// Operators...
 
-	virtual void				operator  =		(CSG_Grid &Grid);
-	virtual void				operator +=		(CSG_Grid &Grid);
-	virtual void				operator -=		(CSG_Grid &Grid);
-	virtual void				operator *=		(CSG_Grid &Grid);
-	virtual void				operator /=		(CSG_Grid &Grid);
+	virtual CSG_Grid &			operator  =		(const CSG_Grid &Grid);
+	virtual CSG_Grid &			operator  =		(double Value);
 
-	virtual void				operator +=		(double Value);
-	virtual void				operator -=		(double Value);
-	virtual void				operator *=		(double Value);
-	virtual void				operator /=		(double Value);
+	virtual CSG_Grid			operator +		(const CSG_Grid &Grid)	const;
+	virtual CSG_Grid			operator +		(double Value)			const;
+	virtual CSG_Grid &			operator +=		(const CSG_Grid &Grid);
+	virtual CSG_Grid &			operator +=		(double Value);
+	virtual CSG_Grid &			Add				(const CSG_Grid &Grid);
+	virtual CSG_Grid &			Add				(double Value);
 
-	virtual CSG_Grid &			operator ()		(int x, int y)
-	{
-		x_Reference	= x;
-		y_Reference	= y;
+	virtual CSG_Grid			operator -		(const CSG_Grid &Grid)	const;
+	virtual CSG_Grid			operator -		(double Value)			const;
+	virtual CSG_Grid &			operator -=		(const CSG_Grid &Grid);
+	virtual CSG_Grid &			operator -=		(double Value);
+	virtual CSG_Grid &			Subtract		(const CSG_Grid &Grid);
+	virtual CSG_Grid &			Subtract		(double Value);
 
-		return( *this ); 
-	}
+	virtual CSG_Grid			operator *		(const CSG_Grid &Grid)	const;
+	virtual CSG_Grid			operator *		(double Value)			const;
+	virtual CSG_Grid &			operator *=		(const CSG_Grid &Grid);
+	virtual CSG_Grid &			operator *=		(double Value);
+	virtual CSG_Grid &			Multiply		(const CSG_Grid &Grid);
+	virtual CSG_Grid &			Multiply		(double Value);
 
-	virtual void				operator =		(double const &Value)
-	{
-		if( is_InGrid(x_Reference, y_Reference) )
-		{
-			Set_Value(x_Reference, y_Reference, Value);
-		}
-	}
+	virtual CSG_Grid			operator /		(const CSG_Grid &Grid)	const;
+	virtual CSG_Grid			operator /		(double Value)			const;
+	virtual CSG_Grid &			operator /=		(const CSG_Grid &Grid);
+	virtual CSG_Grid &			operator /=		(double Value);
+	virtual CSG_Grid &			Divide			(const CSG_Grid &Grid);
+	virtual CSG_Grid &			Divide			(double Value);
 
-	virtual						operator double	(void)
-	{
-		return( is_InGrid(x_Reference, y_Reference) ? asDouble(x_Reference, y_Reference, false) : m_NoData_Value );
-	}
+	virtual double				operator ()		(int x, int y) const	{	return( asDouble(x, y) );	}
 
 
 	//-----------------------------------------------------
 	// Get Value...
 
-	double						Get_Value(double xPos, double yPos,                int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false, bool bByteWise = false);
-	double						Get_Value(TSG_Point Position      ,                int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false, bool bByteWise = false);
-	bool						Get_Value(double xPos, double yPos, double &Value, int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false, bool bByteWise = false);
-	bool						Get_Value(TSG_Point Position      , double &Value, int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false, bool bByteWise = false);
+	double						Get_Value(double xPos, double yPos,                int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false, bool bByteWise = false) const;
+	double						Get_Value(TSG_Point Position      ,                int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false, bool bByteWise = false) const;
+	bool						Get_Value(double xPos, double yPos, double &Value, int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false, bool bByteWise = false) const;
+	bool						Get_Value(TSG_Point Position      , double &Value, int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false, bool bByteWise = false) const;
 
-	virtual BYTE				asByte	(int x, int y, bool bZFactor = false)	{	return( (BYTE )asDouble(x, y, bZFactor) );	}
-	virtual BYTE				asByte	(      long n, bool bZFactor = false)	{	return( (BYTE )asDouble(   n, bZFactor) );	}
-	virtual char				asChar	(int x, int y, bool bZFactor = false)	{	return( (char )asDouble(x, y, bZFactor) );	}
-	virtual char				asChar	(      long n, bool bZFactor = false)	{	return( (char )asDouble(   n, bZFactor) );	}
-	virtual short				asShort	(int x, int y, bool bZFactor = false)	{	return( (short)asDouble(x, y, bZFactor) );	}
-	virtual short				asShort	(      long n, bool bZFactor = false)	{	return( (short)asDouble(   n, bZFactor) );	}
-	virtual int					asInt	(int x, int y, bool bZFactor = false)	{	return( (int  )asDouble(x, y, bZFactor) );	}
-	virtual int					asInt	(      long n, bool bZFactor = false)	{	return( (int  )asDouble(   n, bZFactor) );	}
-	virtual long				asLong	(int x, int y, bool bZFactor = false)	{	return( (long )asDouble(x, y, bZFactor) );	}
-	virtual long				asLong	(      long n, bool bZFactor = false)	{	return( (long )asDouble(   n, bZFactor) );	}
-	virtual float				asFloat	(int x, int y, bool bZFactor = false)	{	return( (float)asDouble(x, y, bZFactor) );	}
-	virtual float				asFloat	(      long n, bool bZFactor = false)	{	return( (float)asDouble(   n, bZFactor) );	}
+	virtual BYTE				asByte	(int x, int y, bool bZFactor = false) const	{	return( (BYTE )asDouble(x, y, bZFactor) );	}
+	virtual BYTE				asByte	(      long n, bool bZFactor = false) const	{	return( (BYTE )asDouble(   n, bZFactor) );	}
+	virtual char				asChar	(int x, int y, bool bZFactor = false) const	{	return( (char )asDouble(x, y, bZFactor) );	}
+	virtual char				asChar	(      long n, bool bZFactor = false) const	{	return( (char )asDouble(   n, bZFactor) );	}
+	virtual short				asShort	(int x, int y, bool bZFactor = false) const	{	return( (short)asDouble(x, y, bZFactor) );	}
+	virtual short				asShort	(      long n, bool bZFactor = false) const	{	return( (short)asDouble(   n, bZFactor) );	}
+	virtual int					asInt	(int x, int y, bool bZFactor = false) const	{	return( (int  )asDouble(x, y, bZFactor) );	}
+	virtual int					asInt	(      long n, bool bZFactor = false) const	{	return( (int  )asDouble(   n, bZFactor) );	}
+	virtual long				asLong	(int x, int y, bool bZFactor = false) const	{	return( (long )asDouble(x, y, bZFactor) );	}
+	virtual long				asLong	(      long n, bool bZFactor = false) const	{	return( (long )asDouble(   n, bZFactor) );	}
+	virtual float				asFloat	(int x, int y, bool bZFactor = false) const	{	return( (float)asDouble(x, y, bZFactor) );	}
+	virtual float				asFloat	(      long n, bool bZFactor = false) const	{	return( (float)asDouble(   n, bZFactor) );	}
 
 	//-----------------------------------------------------
-	virtual double				asDouble(      long n, bool bZFactor = false)
+	virtual double				asDouble(      long n, bool bZFactor = false) const
 	{
 		return( asDouble(n % Get_NX(), n / Get_NX(), bZFactor) );
 	}
 
-	virtual double				asDouble(int x, int y, bool bZFactor = false)
+	virtual double				asDouble(int x, int y, bool bZFactor = false) const
 	{
 		double	Result;
 
@@ -755,7 +756,6 @@ private:	///////////////////////////////////////////////
 	unsigned short				**m_Sort_2b;	// Index sorted by data values (NX && NY < 2^8)...
 
 	int							**m_Sort_4b,	// Index sorted by data values (NX || NY >= 2^8)...
-								x_Reference, y_Reference,
 								LineBuffer_Count;
 
 	long						Cache_Offset;
@@ -785,9 +785,9 @@ private:	///////////////////////////////////////////////
 		int		y;
 		char	*Data;
 	}
-	TGrid_Memory_Line;
+	TSG_Grid_Line;
 
-	TGrid_Memory_Line			*LineBuffer;
+	TSG_Grid_Line				*LineBuffer;
 
 
 	//-----------------------------------------------------
@@ -809,11 +809,11 @@ private:	///////////////////////////////////////////////
 
 	void						_LineBuffer_Create		(void);
 	void						_LineBuffer_Destroy		(void);
-	int							_LineBuffer_Get_nBytes	(void)	{	return( gSG_Grid_Type_Sizes[m_Type] * Get_NX() );	}
+	int							_LineBuffer_Get_nBytes	(void) const	{	return( gSG_Grid_Type_Sizes[m_Type] * Get_NX() );	}
 	void						_LineBuffer_Flush		(void);
-	TGrid_Memory_Line *			_LineBuffer_Get_Line	(int y);
+	TSG_Grid_Line *				_LineBuffer_Get_Line	(int y)							const;
 	void						_LineBuffer_Set_Value	(int x, int y, double Value);
-	double						_LineBuffer_Get_Value	(int x, int y);
+	double						_LineBuffer_Get_Value	(int x, int y)					const;
 
 	bool						_Array_Create			(void);
 	void						_Array_Destroy			(void);
@@ -821,19 +821,19 @@ private:	///////////////////////////////////////////////
 	bool						_Cache_Create			(const char *FilePath, TSG_Grid_Type File_Type, long Offset, bool bSwap, bool bFlip);
 	bool						_Cache_Create			(void);
 	bool						_Cache_Destroy			(bool bMemory_Restore);
-	void						_Cache_LineBuffer_Save	(TGrid_Memory_Line *pLine);
-	void						_Cache_LineBuffer_Load	(TGrid_Memory_Line *pLine, int y);
+	void						_Cache_LineBuffer_Save	(TSG_Grid_Line *pLine)			const;
+	void						_Cache_LineBuffer_Load	(TSG_Grid_Line *pLine, int y)	const;
 
 	bool						_Compr_Create			(void);
 	bool						_Compr_Destroy			(bool bMemory_Restore);
-	void						_Compr_LineBuffer_Save	(TGrid_Memory_Line *pLine);
-	void						_Compr_LineBuffer_Load	(TGrid_Memory_Line *pLine, int y);
+	void						_Compr_LineBuffer_Save	(TSG_Grid_Line *pLine)			const;
+	void						_Compr_LineBuffer_Load	(TSG_Grid_Line *pLine, int y)	const;
 
 
 	//-----------------------------------------------------
 	// File access...
 
-	void						_Swap_Bytes				(char *Bytes, int nBytes);
+	void						_Swap_Bytes				(char *Bytes, int nBytes)			const;
 
 	bool						_Load					(const char *File_Name, TSG_Grid_Type m_Type, TSG_Grid_Memory_Type aMemory_Type);
 
@@ -849,22 +849,22 @@ private:	///////////////////////////////////////////////
 	bool						_Load_Surfer			(const char *File_Name, TSG_Grid_Memory_Type aMemory_Type);
 
 	//-----------------------------------------------------
-	void						_Operation_Arithmetic	(CSG_Grid *pGrid, TSG_Grid_Operation Operation);
-	void						_Operation_Arithmetic	(double Value, TSG_Grid_Operation Operation);
+	CSG_Grid &					_Operation_Arithmetic	(const CSG_Grid &Grid, TSG_Grid_Operation Operation);
+	CSG_Grid &					_Operation_Arithmetic	(double Value        , TSG_Grid_Operation Operation);
 
 
 	//-----------------------------------------------------
 	// Interpolation subroutines...
 
-	double						_Get_ValAtPos_NearestNeighbour	(int x, int y, double dx, double dy);
-	double						_Get_ValAtPos_BiLinear			(int x, int y, double dx, double dy, bool bByteWise);
-	double						_Get_ValAtPos_InverseDistance	(int x, int y, double dx, double dy, bool bByteWise);
-	double						_Get_ValAtPos_BiCubicSpline		(int x, int y, double dx, double dy, bool bByteWise);
-	double						_Get_ValAtPos_BiCubicSpline		(double dx, double dy, double z_xy[4][4]);
-	double						_Get_ValAtPos_BSpline			(int x, int y, double dx, double dy, bool bByteWise);
-	double						_Get_ValAtPos_BSpline			(double dx, double dy, double z_xy[4][4]);
-	bool						_Get_ValAtPos_Fill4x4Submatrix	(int x, int y, double z_xy[4][4]);
-	bool						_Get_ValAtPos_Fill4x4Submatrix	(int x, int y, double z_xy[4][4][4]);
+	double						_Get_ValAtPos_NearestNeighbour	(int x, int y, double dx, double dy)				 const;
+	double						_Get_ValAtPos_BiLinear			(int x, int y, double dx, double dy, bool bByteWise) const;
+	double						_Get_ValAtPos_InverseDistance	(int x, int y, double dx, double dy, bool bByteWise) const;
+	double						_Get_ValAtPos_BiCubicSpline		(int x, int y, double dx, double dy, bool bByteWise) const;
+	double						_Get_ValAtPos_BiCubicSpline		(double dx, double dy, double z_xy[4][4])			 const;
+	double						_Get_ValAtPos_BSpline			(int x, int y, double dx, double dy, bool bByteWise) const;
+	double						_Get_ValAtPos_BSpline			(double dx, double dy, double z_xy[4][4])			 const;
+	bool						_Get_ValAtPos_Fill4x4Submatrix	(int x, int y, double z_xy[4][4])	 const;
+	bool						_Get_ValAtPos_Fill4x4Submatrix	(int x, int y, double z_xy[4][4][4]) const;
 
 	bool						_Assign_Interpolated	(CSG_Grid *pSource, TSG_Grid_Interpolation Interpolation);
 	bool						_Assign_MeanValue		(CSG_Grid *pSource);
