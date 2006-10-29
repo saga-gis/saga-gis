@@ -36,6 +36,7 @@ module_grid.cpp\
 module_grid_interactive.cpp\
 module_interactive.cpp\
 module_interactive_base.cpp\
+module_library.cpp\
 module_library_interface.cpp\
 parameter.cpp\
 parameter_data.cpp\
@@ -67,6 +68,7 @@ geo_tools.h\
 grid.h\
 mat_tools.h\
 module.h\
+module_library.h\
 parameters.h\
 saga_api.h\
 shapes.h\

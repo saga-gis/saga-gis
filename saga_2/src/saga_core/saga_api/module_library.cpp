@@ -62,6 +62,7 @@
 //---------------------------------------------------------
 #include <wx/dynlib.h>
 #include <wx/filename.h>
+#include <wx/utils.h>
 
 #include "module_library.h"
 
