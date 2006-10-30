@@ -224,7 +224,7 @@ bool		SG_UI_Dlg_Parameters(CSG_Parameters *pParameters, const char *Caption)
 		return( gSG_UI_Callback(CALLBACK_DLG_PARAMETERS, (long)pParameters, (long)Caption) != 0 );
 	}
 
-	return( false );
+	return( true );
 }
 
 
@@ -243,12 +243,12 @@ void		SG_UI_Msg_Add(const char *Message, bool bNewLine)
 	}
 	else
 	{
+		printf("%s", Message);
+
 		if( bNewLine )
 		{
-			printf("\n");
+			printf("\n\n");
 		}
-
-		printf("%s", Message);
 	}
 }
 
@@ -274,12 +274,12 @@ void		SG_UI_Msg_Add_Execution(const char *Message, bool bNewLine)
 	}
 	else
 	{
+		printf("%s", Message);
+
 		if( bNewLine )
 		{
-			printf("\n");
+			printf("\n\n");
 		}
-
-		printf("%s", Message);
 	}
 }
 
