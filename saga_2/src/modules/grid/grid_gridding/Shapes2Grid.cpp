@@ -113,7 +113,7 @@ CShapes2Grid::CShapes2Grid(void)
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Extra_Parameters("USER", _TL("User defined grid"), "");
+	pParameters	= Add_Parameters("USER", _TL("User defined grid"), "");
 
 	pNode_0	= pParameters->Add_Value(
 		NULL	, "CELL_SIZE"	, _TL("Grid Size"),
@@ -150,7 +150,7 @@ CShapes2Grid::CShapes2Grid(void)
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Extra_Parameters("GRIDPRJ", _TL("Choose Project"), "");
+	pParameters	= Add_Parameters("GRIDPRJ", _TL("Choose Project"), "");
 
 	pNode_0	= pParameters->Add_Grid(
 		NULL	, "GRID"		, _TL("Grid"),
@@ -171,7 +171,7 @@ CShapes2Grid::CShapes2Grid(void)
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Extra_Parameters("GRID"	, _TL("Choose Grid")			, "");
+	pParameters	= Add_Parameters("GRID"	, _TL("Choose Grid")			, "");
 
 	pNode_0	= pParameters->Add_Grid(
 		NULL	, "GRID"		, _TL("Grid"),
@@ -265,26 +265,26 @@ bool CShapes2Grid::On_Execute(void)
 		switch( Parameters("TARGET_TYPE")->asInt() )
 		{
 		case 0:	// User defined...
-			if( Dlg_Extra_Parameters("USER") )
+			if( Dlg_Parameters("USER") )
 			{
-				pGrid	= Get_Target_Grid(Get_Extra_Parameters("USER"), pShapes);
+				pGrid	= Get_Target_Grid(Get_Parameters("USER"), pShapes);
 			}
 			break;
 
 		case 1:	// Grid Project...
-			if( Dlg_Extra_Parameters("GRIDPRJ") )
+			if( Dlg_Parameters("GRIDPRJ") )
 			{
 				pGrid	= SG_Create_Grid(
-					Get_Extra_Parameters("GRIDPRJ")->Get_Parameter("GRID")->asGrid(),
-					Get_Grid_Type(Get_Extra_Parameters("GRIDPRJ")->Get_Parameter("GRID_TYPE")->asInt())
+					Get_Parameters("GRIDPRJ")->Get_Parameter("GRID")->asGrid(),
+					Get_Grid_Type(Get_Parameters("GRIDPRJ")->Get_Parameter("GRID_TYPE")->asInt())
 				);
 			}
 			break;
 
 		case 2:	// Grid...
-			if( Dlg_Extra_Parameters("GRID") )
+			if( Dlg_Parameters("GRID") )
 			{
-				pGrid	= Get_Extra_Parameters("GRID")->Get_Parameter("GRID")->asGrid();
+				pGrid	= Get_Parameters("GRID")->Get_Parameter("GRID")->asGrid();
 			}
 			break;
 		}

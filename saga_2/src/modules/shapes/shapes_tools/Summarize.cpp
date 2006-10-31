@@ -68,7 +68,7 @@ CSummarize::CSummarize(void){
 							true,
 							true);
 
-	m_pExtraParameters	= Add_Extra_Parameters("EXTRA",
+	m_pExtraParameters	= Add_Parameters("EXTRA",
 										_TL("Field for Summary"),
 										"");
 
@@ -112,11 +112,11 @@ bool CSummarize::On_Execute(void){
 		}//for
 	}//for
 
-	if(Dlg_Extra_Parameters("EXTRA")){
+	if(Dlg_Parameters("EXTRA")){
 		for (i = 0; i < pShapesTable->Get_Field_Count() * 5; i++){
 			sName = SG_Get_String(i,0);
 			if (m_bIncludeParam[i]){
-				m_bIncludeParam[i] = Get_Extra_Parameters("EXTRA")->Get_Parameter(sName.c_str())->asBool();
+				m_bIncludeParam[i] = Get_Parameters("EXTRA")->Get_Parameter(sName.c_str())->asBool();
 			}//if			
 		}//for
 

@@ -280,12 +280,6 @@ void CSG_Module::Set_Show_Progress(bool bOn)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Module::Dlg_Parameters(CSG_Parameters *pParameters, const char *Caption)
-{
-	return( SG_UI_Dlg_Parameters(pParameters, Caption) );
-}
-
-//---------------------------------------------------------
 int CSG_Module::_On_Parameter_Changed(CSG_Parameter *pParameter)
 {
 	if( pParameter && pParameter->Get_Owner() && pParameter->Get_Owner()->Get_Owner() )
@@ -312,7 +306,7 @@ int CSG_Module::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Parameters * CSG_Module::Add_Extra_Parameters(const char *Identifier, const char *Name, const char *Description)
+CSG_Parameters * CSG_Module::Add_Parameters(const char *Identifier, const char *Name, const char *Description)
 {
 	CSG_Parameters	*pParameters;
 
@@ -326,12 +320,11 @@ CSG_Parameters * CSG_Module::Add_Extra_Parameters(const char *Identifier, const 
 }
 
 //---------------------------------------------------------
-CSG_Parameters * CSG_Module::Get_Extra_Parameters(const char *Identifier)
+CSG_Parameters * CSG_Module::Get_Parameters(const char *Identifier)
 {
-	int			i;
 	CSG_String	sIdentifier(Identifier);
 
-	for(i=0; i<m_npParameters; i++)
+	for(int i=0; i<m_npParameters; i++)
 	{
 		if( !sIdentifier.Cmp(m_pParameters[i]->Get_Identifier()) )
 		{
@@ -343,16 +336,22 @@ CSG_Parameters * CSG_Module::Get_Extra_Parameters(const char *Identifier)
 }
 
 //---------------------------------------------------------
-int CSG_Module::Dlg_Extra_Parameters(const char *Identifier)
+bool CSG_Module::Dlg_Parameters(const char *Identifier)
 {
-	if( !m_bManaged || Dlg_Parameters(Get_Extra_Parameters(Identifier), Get_Name()) )
+	if( !m_bManaged || Dlg_Parameters(Get_Parameters(Identifier), Get_Name()) )
 	{
-		Get_Extra_Parameters(Identifier)->Set_History(History_Supplement);
+		Get_Parameters(Identifier)->Set_History(History_Supplement);
 
-		return( 1 );
+		return( true );
 	}
 
-	return( 0 );
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Module::Dlg_Parameters(CSG_Parameters *pParameters, const char *Caption)
+{
+	return( SG_UI_Dlg_Parameters(pParameters, Caption) );
 }
 
 

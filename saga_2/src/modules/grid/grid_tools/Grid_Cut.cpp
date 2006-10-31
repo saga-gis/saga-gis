@@ -94,7 +94,7 @@ CGrid_Cut::CGrid_Cut(void)
 	);
 
 	//-----------------------------------------------------
-	CSG_Parameters	*pParameters	= Add_Extra_Parameters("CUT", _TL("Cut"), "");
+	CSG_Parameters	*pParameters	= Add_Parameters("CUT", _TL("Cut"), "");
 
 	pParameters->Add_Value(
 		NULL, "XMIN"		, _TL("Left")		, "", PARAMETER_TYPE_Double
@@ -247,7 +247,7 @@ bool CGrid_Cut::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mo
 
 			r.Assign(m_ptDown.Get_X(), m_ptDown.Get_Y(), ptWorld.Get_X(), ptWorld.Get_Y());
 
-			pParameters	= Get_Extra_Parameters("CUT");
+			pParameters	= Get_Parameters("CUT");
 
 			pParameters->Get_Parameter("XMIN")	->Set_Value(r.Get_XMin());
 			pParameters->Get_Parameter("XMAX")	->Set_Value(r.Get_XMax());
@@ -256,7 +256,7 @@ bool CGrid_Cut::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mo
 			pParameters->Get_Parameter("NX")	->Set_Value(1 + (int)(r.Get_XRange() / m_pInput->Get_Cellsize()));
 			pParameters->Get_Parameter("NY")	->Set_Value(1 + (int)(r.Get_YRange() / m_pInput->Get_Cellsize()));
 
-			if( Dlg_Extra_Parameters("CUT") )
+			if( Dlg_Parameters("CUT") )
 			{
 				r.Assign(
 					pParameters->Get_Parameter("XMIN")->asDouble(),

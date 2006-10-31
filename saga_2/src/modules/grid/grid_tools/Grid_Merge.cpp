@@ -121,7 +121,7 @@ CGrid_Merge::CGrid_Merge(void)
 	//-----------------------------------------------------
 	CSG_Parameters	*pParameters;
 
-	pParameters	= Add_Extra_Parameters(
+	pParameters	= Add_Parameters(
 		"MERGE_INFO"	, _TL("Mesh Size Specification"),
 		_TL("The grid selection contains grids with different mesh sizes."
 		"Please specify the mesh size that you desire for the merged grid."
@@ -194,15 +194,15 @@ bool CGrid_Merge::On_Execute(void)
 
 				if( Cellsize != pGrid->Get_Cellsize() )
 				{
-					Get_Extra_Parameters("MERGE_INFO")->Get_Parameter("MESH_SIZE_X")->Set_Value(Cellsize);
-					Get_Extra_Parameters("MERGE_INFO")->Get_Parameter("MESH_SIZE_Y")->Set_Value(Cellsize);
+					Get_Parameters("MERGE_INFO")->Get_Parameter("MESH_SIZE_X")->Set_Value(Cellsize);
+					Get_Parameters("MERGE_INFO")->Get_Parameter("MESH_SIZE_Y")->Set_Value(Cellsize);
 
-					if( !Dlg_Extra_Parameters("MERGE_INFO") )
+					if( !Dlg_Parameters("MERGE_INFO") )
 					{
 						return( false );
 					}
 
-					Cellsize	= Get_Extra_Parameters("MERGE_INFO")->Get_Parameter("MESH_SIZE_X")->asDouble();
+					Cellsize	= Get_Parameters("MERGE_INFO")->Get_Parameter("MESH_SIZE_X")->asDouble();
 
 					break;
 				}

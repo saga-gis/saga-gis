@@ -108,10 +108,10 @@ private:
 
 	CSG_String			fn_Ellipsoid, fn_Datum3, fn_Datum7, fn_Geoid;
 
-	CSG_Parameters			*pProjection;
+	CSG_Parameters		*pProjection;
 
 
-	CSG_Parameters *		Get_Parameters				(bool bSource, Coordinate_Type Type, bool bShow_Dialog);
+	CSG_Parameters *	Get_Projection_Parameters	(bool bSource, Coordinate_Type Type, bool bShow_Dialog);
 
 	bool				Set_Projection_Parameters	(Input_Output dir, Coordinate_Type Type, CSG_Parameters *pParms);
 

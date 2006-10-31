@@ -134,8 +134,9 @@ public:
 	virtual const char *		Get_MenuPath				(void)	{	return( NULL );	}
 
 	CSG_Parameters *			Get_Parameters				(void)	{	return( &Parameters );	}
-	CSG_Parameters *			Get_Extra_Parameters		(int i)	{	return( i >= 0 && i < m_npParameters ? m_pParameters[i] : NULL );	}
-	int							Get_Extra_Parameters_Count	(void)	{	return( m_npParameters );	}
+	CSG_Parameters *			Get_Parameters				(const char *Identifier);
+	CSG_Parameters *			Get_Parameters				(int i)	{	return( i >= 0 && i < m_npParameters ? m_pParameters[i] : NULL );	}
+	int							Get_Parameters_Count		(void)	{	return( m_npParameters );	}
 
 	int							Garbage_Get_Count			(void)	{	return( m_nGarbage );		}
 	CSG_Data_Object *			Garbage_Get_Item			(int i)	{	return( i >= 0 && i < m_nGarbage ? m_Garbage[i] : NULL );	}
@@ -172,11 +173,9 @@ protected:
 
 
 	//-----------------------------------------------------
+	CSG_Parameters *			Add_Parameters				(const char *Identifier, const char *Name, const char *Description);
+	bool						Dlg_Parameters				(const char *Identifier);
 	bool						Dlg_Parameters				(CSG_Parameters *pParameters, const char *Caption);
-
-	CSG_Parameters *			Add_Extra_Parameters		(const char *Identifier, const char *Name, const char *Description);
-	CSG_Parameters *			Get_Extra_Parameters		(const char *Identifier);
-	int							Dlg_Extra_Parameters		(const char *Identifier);
 
 
 	//-----------------------------------------------------

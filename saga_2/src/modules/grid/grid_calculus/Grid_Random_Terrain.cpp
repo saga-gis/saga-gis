@@ -58,7 +58,7 @@ CGrid_Random_Terrain::CGrid_Random_Terrain(void)
 		PARAMETER_OUTPUT_OPTIONAL, 
 		false);
 	
-	pParameters	= Add_Extra_Parameters("USER", _TL("User defined grid"), "");
+	pParameters	= Add_Parameters("USER", _TL("User defined grid"), "");
 
 	pParameters->Add_Value(
 		NULL, 
@@ -90,7 +90,7 @@ CGrid_Random_Terrain::CGrid_Random_Terrain(void)
 		0.0, 
 		true);
 
-	pParameters	= Add_Extra_Parameters("GRID", _TL("Choose Grid"), "");
+	pParameters	= Add_Parameters("GRID", _TL("Choose Grid"), "");
 
 	pParameters->Add_Grid(NULL, 
 		"GRID", 
@@ -127,23 +127,23 @@ bool CGrid_Random_Terrain::On_Execute(void)
 	switch( Parameters("TARGET_TYPE")->asInt() )
 	{
 	case 0:	// User defined...
-		if( Dlg_Extra_Parameters("USER") )
+		if( Dlg_Parameters("USER") )
 		{
-			pGrid	= Get_Target_Grid(Get_Extra_Parameters("USER"));
+			pGrid	= Get_Target_Grid(Get_Parameters("USER"));
 		}
 		break;
 
 	case 1:	// Grid Project...
-		if( Dlg_Extra_Parameters("GRID") )
+		if( Dlg_Parameters("GRID") )
 		{
-			pGrid	= SG_Create_Grid(Get_Extra_Parameters("GRID")->Get_Parameter("GRID")->asGrid());
+			pGrid	= SG_Create_Grid(Get_Parameters("GRID")->Get_Parameter("GRID")->asGrid());
 		}
 		break;
 
 	case 2:	// Grid...
-		if( Dlg_Extra_Parameters("GRID") )
+		if( Dlg_Parameters("GRID") )
 		{
-			pGrid	= Get_Extra_Parameters("GRID")->Get_Parameter("GRID")->asGrid();
+			pGrid	= Get_Parameters("GRID")->Get_Parameter("GRID")->asGrid();
 		}
 		break;
 	}//switch

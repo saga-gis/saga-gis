@@ -110,7 +110,7 @@ CGrid_Resample::CGrid_Resample(void)
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Extra_Parameters("DIMENSIONS"	, _TL("Target Grid Dimensions")	, "");
+	pParameters	= Add_Parameters("DIMENSIONS"	, _TL("Target Grid Dimensions")	, "");
 
 	pParameters->Add_Value(
 		NULL	, "CELLSIZE"	, _TL("Cell Size"),
@@ -131,7 +131,7 @@ CGrid_Resample::CGrid_Resample(void)
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Extra_Parameters("TARGET"		, _TL("Target Grid")				, "");
+	pParameters	= Add_Parameters("TARGET"		, _TL("Target Grid")				, "");
 
 	pNode	= pParameters->Add_Grid(
 		NULL	, "TARGET"		, _TL("Target Grid"),
@@ -140,7 +140,7 @@ CGrid_Resample::CGrid_Resample(void)
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Extra_Parameters("SCALE_UP"	, _TL("Up-Scaling")				, "");
+	pParameters	= Add_Parameters("SCALE_UP"	, _TL("Up-Scaling")				, "");
 
 	pNode	= pParameters->Add_Choice(
 		NULL	, "METHOD"		, _TL("Interpolation Method"),
@@ -156,7 +156,7 @@ CGrid_Resample::CGrid_Resample(void)
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Extra_Parameters("SCALE_DOWN"	, _TL("Down-Scaling")			, "");
+	pParameters	= Add_Parameters("SCALE_DOWN"	, _TL("Down-Scaling")			, "");
 
 	pNode	= pParameters->Add_Choice(
 		NULL	, "METHOD"		, _TL("Interpolation Method"),
@@ -252,11 +252,11 @@ bool CGrid_Resample::On_Execute(void)
 	switch( Parameters("METHOD")->asInt() )
 	{
 	case 0:	// Target Dimensions...
-		Get_Extra_Parameters("DIMENSIONS")->Get_Parameter("CELLSIZE")->Set_Value(pInput->Get_Cellsize());
-		Get_Extra_Parameters("DIMENSIONS")->Get_Parameter("CELLS_NX")->Set_Value(pInput->Get_NX());
-		Get_Extra_Parameters("DIMENSIONS")->Get_Parameter("CELLS_NY")->Set_Value(pInput->Get_NY());
+		Get_Parameters("DIMENSIONS")->Get_Parameter("CELLSIZE")->Set_Value(pInput->Get_Cellsize());
+		Get_Parameters("DIMENSIONS")->Get_Parameter("CELLS_NX")->Set_Value(pInput->Get_NX());
+		Get_Parameters("DIMENSIONS")->Get_Parameter("CELLS_NY")->Set_Value(pInput->Get_NY());
 
-		if(	Dlg_Extra_Parameters("DIMENSIONS") && (Cellsize = Get_Extra_Parameters("DIMENSIONS")->Get_Parameter("CELLSIZE")->asDouble()) > 0.0 )
+		if(	Dlg_Parameters("DIMENSIONS") && (Cellsize = Get_Parameters("DIMENSIONS")->Get_Parameter("CELLSIZE")->asDouble()) > 0.0 )
 		{
 			System.Assign(Cellsize, pInput->Get_XMin(), pInput->Get_YMin(),
 				1 + (int)(pInput->Get_XRange() / Cellsize),
@@ -266,18 +266,18 @@ bool CGrid_Resample::On_Execute(void)
 		break;
 
 	case 1:	// Target Project...
-		if( Dlg_Extra_Parameters("TARGET") )
+		if( Dlg_Parameters("TARGET") )
 		{
-			System.Assign(Get_Extra_Parameters("TARGET")->Get_Parameter("TARGET")->asGrid()->Get_System());
+			System.Assign(Get_Parameters("TARGET")->Get_Parameter("TARGET")->asGrid()->Get_System());
 		}
 		break;
 
 	case 2:	// Target Grid...
-		if( Dlg_Extra_Parameters("TARGET") )
+		if( Dlg_Parameters("TARGET") )
 		{
-			System.Assign(Get_Extra_Parameters("TARGET")->Get_Parameter("TARGET")->asGrid()->Get_System());
+			System.Assign(Get_Parameters("TARGET")->Get_Parameter("TARGET")->asGrid()->Get_System());
 
-			pOutput	= Get_Extra_Parameters("TARGET")->Get_Parameter("TARGET")->asGrid();
+			pOutput	= Get_Parameters("TARGET")->Get_Parameter("TARGET")->asGrid();
 		}
 		break;
 	}
@@ -292,9 +292,9 @@ bool CGrid_Resample::On_Execute(void)
 
 		if( pInput->Get_Cellsize() < System.Get_Cellsize() )
 		{
-			if( Dlg_Extra_Parameters("SCALE_UP") )
+			if( Dlg_Parameters("SCALE_UP") )
 			{
-				switch( Get_Extra_Parameters("SCALE_UP")->Get_Parameter("METHOD")->asInt() )
+				switch( Get_Parameters("SCALE_UP")->Get_Parameter("METHOD")->asInt() )
 				{
 				case 0:	Interpolation	= GRID_INTERPOLATION_NearestNeighbour;	break;
 				case 1:	Interpolation	= GRID_INTERPOLATION_Bilinear;			break;
@@ -304,7 +304,7 @@ bool CGrid_Resample::On_Execute(void)
 				case 5:	Interpolation	= GRID_INTERPOLATION_Undefined;			break;
 				}
 
-				pParameters	= Get_Extra_Parameters("SCALE_UP");
+				pParameters	= Get_Parameters("SCALE_UP");
 			}
 		}
 
@@ -313,9 +313,9 @@ bool CGrid_Resample::On_Execute(void)
 
 		else
 		{
-			if( Dlg_Extra_Parameters("SCALE_DOWN") )
+			if( Dlg_Parameters("SCALE_DOWN") )
 			{
-				switch( Get_Extra_Parameters("SCALE_DOWN")->Get_Parameter("METHOD")->asInt() )
+				switch( Get_Parameters("SCALE_DOWN")->Get_Parameter("METHOD")->asInt() )
 				{
 				case 0:	Interpolation	= GRID_INTERPOLATION_NearestNeighbour;	break;
 				case 1:	Interpolation	= GRID_INTERPOLATION_Bilinear;			break;
@@ -324,7 +324,7 @@ bool CGrid_Resample::On_Execute(void)
 				case 4:	Interpolation	= GRID_INTERPOLATION_BSpline;			break;
 				}
 
-				pParameters	= Get_Extra_Parameters("SCALE_DOWN");
+				pParameters	= Get_Parameters("SCALE_DOWN");
 			}
 		}
 

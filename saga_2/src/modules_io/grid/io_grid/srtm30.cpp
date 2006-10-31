@@ -136,7 +136,7 @@ CSRTM30_Import::CSRTM30_Import(void)
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Extra_Parameters("TILE", "", "");
+	pParameters	= Add_Parameters("TILE", "", "");
 
 	pNode_0	= pParameters->Add_Info_String(
 		NULL	, "INFO"		, _TL("File does not exist:"),
@@ -280,7 +280,7 @@ FILE * CSRTM30_Import::Tile_Open(const char *sTile)
 
 	if( (Stream = fopen(sTile, "rb")) == NULL )
 	{
-		pParameters	= Get_Extra_Parameters("TILE");
+		pParameters	= Get_Parameters("TILE");
 		pParameters->Get_Parameter("INFO")->Set_Value(sTile);
 
 		if( Dlg_Parameters(pParameters, _TL("Locate STRM30 Data File")) && (sPath = pParameters->Get_Parameter("PATH")->asString()) != NULL )

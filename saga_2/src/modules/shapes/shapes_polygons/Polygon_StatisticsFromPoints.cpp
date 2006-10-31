@@ -45,7 +45,7 @@ CPolygonStatisticsFromPoints::CPolygonStatisticsFromPoints(){
 						"", 
 						PARAMETER_INPUT);
 
-	m_pExtraParameters	= Add_Extra_Parameters("EXTRA",
+	m_pExtraParameters	= Add_Parameters("EXTRA",
 												_TL("Fields to add"),
 												"");
 
@@ -82,11 +82,11 @@ bool CPolygonStatisticsFromPoints::On_Execute(void){
 			}//if
 		}//for
 	}//for
-	if(Dlg_Extra_Parameters("EXTRA")){
+	if(Dlg_Parameters("EXTRA")){
 		for (i = 0; i < pTable->Get_Field_Count() * 5; i++){
 			sName = SG_Get_String(i);
 			try{
-				m_bIncludeParam[i] = Get_Extra_Parameters("EXTRA")->Get_Parameter(sName.c_str())->asBool();
+				m_bIncludeParam[i] = Get_Parameters("EXTRA")->Get_Parameter(sName.c_str())->asBool();
 			}//try
 			catch(...){
 				m_bIncludeParam[i] = false;

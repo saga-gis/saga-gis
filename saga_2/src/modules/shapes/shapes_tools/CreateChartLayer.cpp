@@ -70,7 +70,7 @@ CCreateChartLayer::CCreateChartLayer(void){
 						"Bars|"),									
 						0);
 
-	m_pExtraParameters	= Add_Extra_Parameters("EXTRA",
+	m_pExtraParameters	= Add_Parameters("EXTRA",
 										_TL("Fields for diagram"),
 										"");
 
@@ -164,10 +164,10 @@ bool CCreateChartLayer::GetExtraParameters(){
 											false);
 		}//if
 	}//for
-	if(Dlg_Extra_Parameters("EXTRA")){
+	if(Dlg_Parameters("EXTRA")){
 		for (i = 0; i < pShapesTable->Get_Field_Count(); i++){
 			sName = SG_Get_String(i,0);
-			if (pParam = Get_Extra_Parameters("EXTRA")->Get_Parameter(sName.c_str())){
+			if (pParam = Get_Parameters("EXTRA")->Get_Parameter(sName.c_str())){
 				m_bIncludeParam[i] = pParam->asBool();
 				bIsValidSelection = true;
 			}//try

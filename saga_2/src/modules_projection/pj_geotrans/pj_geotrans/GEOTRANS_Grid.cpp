@@ -155,7 +155,7 @@ CGEOTRANS_Grid::CGEOTRANS_Grid(void)
 
 
 	//-----------------------------------------------------
-	pParameters	= Add_Extra_Parameters("GET_AUTOFIT"	, _TL("Automatic fit")	, "");
+	pParameters	= Add_Parameters("GET_AUTOFIT"	, _TL("Automatic fit")	, "");
 
 	pParameters->Add_Value(
 		NULL, "GRIDSIZE"	, _TL("Grid Size")	, "", PARAMETER_TYPE_Double, 10000.0, 0.0, true
@@ -170,7 +170,7 @@ CGEOTRANS_Grid::CGEOTRANS_Grid(void)
 
 
 	//-----------------------------------------------------
-	pParameters	= Add_Extra_Parameters("GET_USER"		, _TL("User defined")		, "");
+	pParameters	= Add_Parameters("GET_USER"		, _TL("User defined")		, "");
 
 	pParameters->Add_Value(
 		NULL, "XMIN"		, _TL("Left")		, "", PARAMETER_TYPE_Double
@@ -198,7 +198,7 @@ CGEOTRANS_Grid::CGEOTRANS_Grid(void)
 
 
 	//-----------------------------------------------------
-	pParameters	= Add_Extra_Parameters("GET_SYSTEM"		, _TL("Choose Grid")			, "");
+	pParameters	= Add_Parameters("GET_SYSTEM"		, _TL("Choose Grid")			, "");
 
 	pParameters->Add_Grid_System(
 		NULL, "SYSTEM"		, _TL("System")		, ""
@@ -206,7 +206,7 @@ CGEOTRANS_Grid::CGEOTRANS_Grid(void)
 
 
 	//-----------------------------------------------------
-	pParameters	= Add_Extra_Parameters("GET_GRID"		, _TL("Choose Grid")			, "");
+	pParameters	= Add_Parameters("GET_GRID"		, _TL("Choose Grid")			, "");
 
 	pParameters->Add_Grid(
 		NULL, "GRID"		, _TL("Grid")		, "", PARAMETER_INPUT	, false
@@ -214,7 +214,7 @@ CGEOTRANS_Grid::CGEOTRANS_Grid(void)
 
 
 	//-----------------------------------------------------
-	pParameters	= Add_Extra_Parameters("GET_SHAPES"		, _TL("Choose Shapes")		, "");
+	pParameters	= Add_Parameters("GET_SHAPES"		, _TL("Choose Shapes")		, "");
 
 	pParameters->Add_Shapes(
 		NULL, "SHAPES"		, _TL("Shapes")		, "", PARAMETER_OUTPUT	, SHAPE_TYPE_Point
@@ -255,37 +255,37 @@ bool CGEOTRANS_Grid::On_Execute_Conversion(void)
 		break;
 
 	case 1:	// create new with chosen grid size and fitted extent...
-		if( Dlg_Extra_Parameters("GET_AUTOFIT") )
+		if( Dlg_Parameters("GET_AUTOFIT") )
 		{
 			pGrid	= Get_Target_Autofit(
 						pSource,
-						Get_Extra_Parameters("GET_AUTOFIT")->Get_Parameter("GRIDSIZE")		->asDouble(),
-						Get_Extra_Parameters("GET_AUTOFIT")->Get_Parameter("AUTOEXTMODE")	->asInt(),
+						Get_Parameters("GET_AUTOFIT")->Get_Parameter("GRIDSIZE")		->asDouble(),
+						Get_Parameters("GET_AUTOFIT")->Get_Parameter("AUTOEXTMODE")	->asInt(),
 						Interpol == 0
 					);
 		}
 		break;
 
 	case 2:	// select grid system...
-		if( Dlg_Extra_Parameters("GET_SYSTEM") )
+		if( Dlg_Parameters("GET_SYSTEM") )
 		{
 			pGrid	= SG_Create_Grid(
-						*Get_Extra_Parameters("GET_SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System()
+						*Get_Parameters("GET_SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System()
 					);
 		}
 		break;
 
 	case 3:	// select grid...
-		if( Dlg_Extra_Parameters("GET_GRID") )
+		if( Dlg_Parameters("GET_GRID") )
 		{
-			pGrid	= Get_Extra_Parameters("GET_GRID")->Get_Parameter("GRID")->asGrid();
+			pGrid	= Get_Parameters("GET_GRID")->Get_Parameter("GRID")->asGrid();
 		}
 		break;
 
 	case 4:	// shapes...
-		if( Dlg_Extra_Parameters("GET_SHAPES") )
+		if( Dlg_Parameters("GET_SHAPES") )
 		{
-			pShapes	= Get_Extra_Parameters("GET_SHAPES")->Get_Parameter("SHAPES")->asShapes();
+			pShapes	= Get_Parameters("GET_SHAPES")->Get_Parameter("SHAPES")->asShapes();
 		}
 		break;
 
@@ -470,7 +470,7 @@ CSG_Grid * CGEOTRANS_Grid::Get_Target_Userdef(CSG_Grid *pSource, bool bNearest)
 		//-------------------------------------------------
 		if( xMin < xMax && yMin < yMax )
 		{
-			pParameters	= Get_Extra_Parameters("GET_USER");
+			pParameters	= Get_Parameters("GET_USER");
 
 			pParameters->Get_Parameter("XMIN")->Set_Value(xMin);
 			pParameters->Get_Parameter("XMAX")->Set_Value(xMax);
@@ -481,7 +481,7 @@ CSG_Grid * CGEOTRANS_Grid::Get_Target_Userdef(CSG_Grid *pSource, bool bNearest)
 			pParameters->Get_Parameter("NX")->Set_Value(1 + (int)((xMax - xMin) / size));
 			pParameters->Get_Parameter("NY")->Set_Value(1 + (int)((yMax - yMin) / size));
 
-			if( Dlg_Extra_Parameters("GET_USER") )
+			if( Dlg_Parameters("GET_USER") )
 			{
 				size	= pParameters->Get_Parameter("SIZE")->asDouble();
 

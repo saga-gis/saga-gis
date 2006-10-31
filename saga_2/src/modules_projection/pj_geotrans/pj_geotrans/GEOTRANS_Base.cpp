@@ -107,7 +107,7 @@ CGEOTRANS_Base::CGEOTRANS_Base(void)
 
 
 	//-----------------------------------------------------
-	pProjection		= Add_Extra_Parameters("PROJECTION", _TL("Projection Parameters"), "");
+	pProjection		= Add_Parameters("PROJECTION", _TL("Projection Parameters"), "");
 
 	pNode_Source	= pProjection->Add_Node(
 		NULL		, "SOURCE_NODE"			, _TL("Source Parameters"),
@@ -240,9 +240,9 @@ bool CGEOTRANS_Base::Initialize(void)
 }
 
 //---------------------------------------------------------
-CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Type, bool bShow_Dialog)
+CSG_Parameters * CGEOTRANS_Base::Get_Projection_Parameters(bool bSource, Coordinate_Type Type, bool bShow_Dialog)
 {
-	CSG_String	sName, sIdentifier;
+	CSG_String		sName, sIdentifier;
 	CSG_Parameters	*pParameters;
 
 	//-----------------------------------------------------
@@ -257,8 +257,8 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case Albers_Equal_Area_Conic:
 		sIdentifier.Append("ALBERS");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{
 			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Albers Equal Area Conic"));
 			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
@@ -274,12 +274,12 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case Azimuthal_Equidistant:
 		sIdentifier.Append("AZIMUTHAL");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{
 			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Azimuthal Equidistant"));
 			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude")		, "", PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude")	, "", PARAMETER_TYPE_Degree, 0.0);
 			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, "", PARAMETER_TYPE_Double, 0.0);
 			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, "", PARAMETER_TYPE_Double, 0.0);
 		}
@@ -289,12 +289,12 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case Bonne:
 		sIdentifier.Append("BONNE");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{
 			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection"	)		, "", _TL("Bonne"));
 			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude")		, "", PARAMETER_TYPE_Degree, 45.0);
+			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude")	, "", PARAMETER_TYPE_Degree, 45.0);
 			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, "", PARAMETER_TYPE_Double, 0.0);
 			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, "", PARAMETER_TYPE_Double, 0.0);
 		}
@@ -304,8 +304,8 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case Cassini:
 		sIdentifier.Append("CASSINI");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{
 			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Cassini"));
 			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
@@ -319,8 +319,8 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case Cylindrical_Equal_Area:
 		sIdentifier.Append("CYLINDRICAL");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{
 			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Cylindrical Equal Area"));
 			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
@@ -335,8 +335,8 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case Eckert6:
 		sIdentifier.Append("ECKERT");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{
 			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")		, "", _TL("Eckert IV/VI"));
 			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
@@ -349,8 +349,8 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case Equidistant_Cylindrical:
 		sIdentifier.Append("EQUIDSTCYL");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{
 			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Equidistant Cylindrical"));
 			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
@@ -364,8 +364,8 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case Geocentric:					// Layout:0*0*3
 		sIdentifier.Append("GEOCENTRIC");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{}
 		break;
 
@@ -373,8 +373,8 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case Geodetic:	// case height type
 		sIdentifier.Append("GEODETIC");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{
 			pParameters->Add_Info_String(
 				NULL, "TYPE"	, _TL("Projection"),
@@ -401,8 +401,8 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case Gnomonic:
 		sIdentifier.Append("GNOMONIC");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{
 			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Gnomonic"));
 			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
@@ -416,8 +416,8 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case Lambert_Conformal_Conic:
 		sIdentifier.Append("LAMBERT");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{
 			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Lambert Conformal Conic"));
 			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
@@ -433,12 +433,12 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case Local_Cartesian:
 		sIdentifier.Append("LOCALCARTES");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{
 			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Local Cartesian"));
 			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude")		, "", PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude")	, "", PARAMETER_TYPE_Degree, 0.0);
 			pParameters->Add_Value		(NULL, "HEIGHT"			, _TL("Origin Height")		, "", PARAMETER_TYPE_Double, 0.0);
 			pParameters->Add_Value		(NULL, "ORIENT"			, _TL("Orientation"	)		, "", PARAMETER_TYPE_Degree, 0.0);
 		}
@@ -448,8 +448,8 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case Mercator:
 		sIdentifier.Append("MERCATOR");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{
 			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Mercator"));
 			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
@@ -464,8 +464,8 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case Miller_Cylindrical:
 		sIdentifier.Append("MILLER");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{
 			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection"	)		, "", _TL("Miller Cylindrical"));
 			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
@@ -478,8 +478,8 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case Mollweide:
 		sIdentifier.Append("MOLLWEIDE");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{
 			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Mollweide"));
 			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
@@ -492,8 +492,8 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case Neys:
 		sIdentifier.Append("NEYS");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{
 			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Neys (Modified Lambert Conformal Conic)"));
 			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
@@ -508,8 +508,8 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case NZMG:							// Layout:0*0*2
 		sIdentifier.Append("NZMG");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{}
 		break;
 
@@ -517,11 +517,11 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case Oblique_Mercator:
 		sIdentifier.Append("OBLIQUE_MERCATOR");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{
 			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Oblique Mercator"));
-			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude")		, "", PARAMETER_TYPE_Degree, 45.0);
+			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude")	, "", PARAMETER_TYPE_Degree, 45.0);
 			pParameters->Add_Value		(NULL, "SCALE"			, _TL("Scale Factor")		, "", PARAMETER_TYPE_Double, 1.0);
 			pParameters->Add_Value		(NULL, "LONGITUDE_1"	, _TL("Longitude 1"	)		, "", PARAMETER_TYPE_Degree, -5.0);
 			pParameters->Add_Value		(NULL, "LATITUDE_1"		, _TL("Latitude 1"	)		, "", PARAMETER_TYPE_Degree, 40.0);
@@ -536,8 +536,8 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case Orthographic:
 		sIdentifier.Append("ORTHOGRAPH");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{
 			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection"	)		, "", _TL("Orthographic"));
 			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
@@ -551,8 +551,8 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case Polar_Stereo:
 		sIdentifier.Append("POLARSTEREO");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{
 			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Polar Stereographic"));
 			pParameters->Add_Value		(NULL, "LONGITUDE"		, _TL("Lon. Down")			, "", PARAMETER_TYPE_Degree, 0.0);
@@ -566,8 +566,8 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case Polyconic:
 		sIdentifier.Append("POLYCONIC");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{
 			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Polyconic"));
 			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
@@ -581,8 +581,8 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case Sinusoidal:
 		sIdentifier.Append("SINUSOIDAL");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{
 			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Sinusoidal"));
 			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
@@ -595,12 +595,12 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case Stereographic:
 		sIdentifier.Append("STEREOGRAPH");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{
 			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Stereographic"));
 			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude")		, "", PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude")	, "", PARAMETER_TYPE_Degree, 0.0);
 			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, "", PARAMETER_TYPE_Double, 0.0);
 			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, "", PARAMETER_TYPE_Double, 0.0);
 		}
@@ -610,8 +610,8 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case Transverse_Cylindrical_Equal_Area:
 		sIdentifier.Append("TRNSVCYLIND");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{
 			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Transverse Cylindrical Equal Area"));
 			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
@@ -626,8 +626,8 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case Transverse_Mercator:
 		sIdentifier.Append("TRNSVMERCAT");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{
 			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection"	)		, "", _TL("Transverse Mercator"));
 			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
@@ -642,8 +642,8 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case UPS:		//					case Layout:0*0*2		case Hemisphere
 		sIdentifier.Append("UPS");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{
 			pParameters->Add_Choice		(NULL, "HEMISPHERE"		, _TL("Hemisphere")			, "", _TL("North|South|"), 0);
 		}
@@ -653,13 +653,13 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case UTM:	// case Hemisphere		case Zone
 		sIdentifier.Append("UTM");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{
 			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Universal Transvers Mercator (UTM)"));
 			pParameters->Add_Value		(NULL, "TOGCHECK"		, _TL("Override")			, "", PARAMETER_TYPE_Bool, true);
-			pParameters->Add_Choice		(NULL, "HEMISPHERE"		, _TL("Hemisphere")		, "",_TL( "North|South|"), 0);
-			pParameters->Add_Value		(NULL, "ZONE"			, _TL("Zone")			, "", PARAMETER_TYPE_Int, 1, 1, true , 60, true);
+			pParameters->Add_Choice		(NULL, "HEMISPHERE"		, _TL("Hemisphere")			, "",_TL( "North|South|"), 0);
+			pParameters->Add_Value		(NULL, "ZONE"			, _TL("Zone")				, "", PARAMETER_TYPE_Int, 1, 1, true , 60, true);
 		}
 		break;
 
@@ -667,8 +667,8 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 	case Van_der_Grinten:				//Layout: 1*2*2
 		sIdentifier.Append("VANGRINTEN");
 
-		if( (pParameters = Get_Extra_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Extra_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
 		{
 			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection"	)		, "", _TL("Van der Grinten"));
 			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
@@ -685,7 +685,7 @@ CSG_Parameters * CGEOTRANS_Base::Get_Parameters(bool bSource, Coordinate_Type Ty
 		{
 			return( pParameters );
 		}
-		else if( Dlg_Extra_Parameters(sIdentifier) )
+		else if( Dlg_Parameters(sIdentifier) )
 		{
 			return( pParameters );
 		}
@@ -718,7 +718,7 @@ bool CGEOTRANS_Base::On_Execute(void)
 		return( false );
 	}
 
-	if( !Dlg_Extra_Parameters("PROJECTION") )
+	if( !Dlg_Parameters("PROJECTION") )
 	{
 		return( false );
 	}
@@ -768,7 +768,7 @@ bool CGEOTRANS_Base::Set_Transformation(bool bShow_Dialog)
 		return( false );
 	}
 
-	if(	(pParms = Get_Parameters(true, Type_Input, bShow_Dialog))	== NULL )
+	if(	(pParms = Get_Projection_Parameters(true, Type_Input, bShow_Dialog))	== NULL )
 	{
 		return( false );
 	}
@@ -804,7 +804,7 @@ bool CGEOTRANS_Base::Set_Transformation(bool bShow_Dialog)
 		return( false );
 	}
 
-	if(	(pParms = Get_Parameters(false, Type_Output, bShow_Dialog))	== NULL )
+	if(	(pParms = Get_Projection_Parameters(false, Type_Output, bShow_Dialog))	== NULL )
 	{
 		return( false );
 	}
@@ -827,8 +827,8 @@ bool CGEOTRANS_Base::Set_Transformation_Inverse(void)
 
 //	if( Set_Transformation(false) )
 	{
-		pParms_Input	= Get_Parameters(true , Type_Input , false);
-		pParms_Output	= Get_Parameters(false, Type_Output, false);
+		pParms_Input	= Get_Projection_Parameters(true , Type_Input , false);
+		pParms_Output	= Get_Projection_Parameters(false, Type_Output, false);
 
 		Get_Datum(Interactive,  Input, &Datum_Input);
 		Get_Datum(Interactive, Output, &Datum_Output);

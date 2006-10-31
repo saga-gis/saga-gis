@@ -191,7 +191,7 @@ CKriging_Base::CKriging_Base(void)
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Extra_Parameters("USER"	, _TL("User defined grid")	, "");
+	pParameters	= Add_Parameters("USER"	, _TL("User defined grid")	, "");
 
 	pParameters->Add_Value(
 		NULL	, "CELL_SIZE"	, _TL("Grid Size"),
@@ -216,7 +216,7 @@ CKriging_Base::CKriging_Base(void)
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Extra_Parameters("SYSTEM"	, _TL("Choose Grid System")	, "");
+	pParameters	= Add_Parameters("SYSTEM"	, _TL("Choose Grid System")	, "");
 
 	pParameters->Add_Grid_System(
 		NULL	, "SYSTEM"		, _TL("Grid System"),
@@ -224,7 +224,7 @@ CKriging_Base::CKriging_Base(void)
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Extra_Parameters("GRID"	, _TL("Choose Grid")		, "");
+	pParameters	= Add_Parameters("GRID"	, _TL("Choose Grid")		, "");
 
 	pNode	= pParameters->Add_Grid_System(
 		NULL	, "SYSTEM"		, _TL("Grid System"),
@@ -436,24 +436,24 @@ bool CKriging_Base::_Get_Grid(void)
 	switch( Parameters("TARGET")->asInt() )
 	{
 	case 0:	// user defined...
-		if( Dlg_Extra_Parameters("USER") )
+		if( Dlg_Parameters("USER") )
 		{
 			m_pGrid		= _Get_Grid(pShapes->Get_Extent());
 		}
 		break;
 
 	case 1:	// grid system...
-		if( Dlg_Extra_Parameters("SYSTEM") )
+		if( Dlg_Parameters("SYSTEM") )
 		{
-			m_pGrid		= SG_Create_Grid(*Get_Extra_Parameters("SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System(), GRID_TYPE_Float);
+			m_pGrid		= SG_Create_Grid(*Get_Parameters("SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System(), GRID_TYPE_Float);
 		}
 		break;
 
 	case 2:	// grid...
-		if( Dlg_Extra_Parameters("GRID") )
+		if( Dlg_Parameters("GRID") )
 		{
-			m_pGrid		= Get_Extra_Parameters("GRID")->Get_Parameter("GRID")		->asGrid();
-			m_pVariance	= Get_Extra_Parameters("GRID")->Get_Parameter("VARIANCE")	->asGrid();
+			m_pGrid		= Get_Parameters("GRID")->Get_Parameter("GRID")		->asGrid();
+			m_pVariance	= Get_Parameters("GRID")->Get_Parameter("VARIANCE")	->asGrid();
 		}
 		break;
 	}
@@ -477,7 +477,7 @@ bool CKriging_Base::_Get_Grid(void)
 
 		if( Parameters("TARGET")->asInt() == 2 )
 		{
-			Get_Extra_Parameters("GRID")->Get_Parameter("VARIANCE")->Set_Value(m_pVariance);
+			Get_Parameters("GRID")->Get_Parameter("VARIANCE")->Set_Value(m_pVariance);
 		}
 	}
 
@@ -488,7 +488,7 @@ bool CKriging_Base::_Get_Grid(void)
 //---------------------------------------------------------
 CSG_Grid * CKriging_Base::_Get_Grid(TSG_Rect Extent)
 {
-	CSG_Parameters	*P	= Get_Extra_Parameters("USER");
+	CSG_Parameters	*P	= Get_Parameters("USER");
 
 	if( !P->Get_Parameter("FIT_EXTENT")->asBool() )
 	{

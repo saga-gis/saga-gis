@@ -226,9 +226,9 @@ CSG_Module * CModule_Library::Select(const char *ModuleName)
 
 		_Set_CMD(m_pSelected->Get_Parameters(), false);
 
-		for(i=0; i<m_pSelected->Get_Extra_Parameters_Count(); i++)
+		for(i=0; i<m_pSelected->Get_Parameters_Count(); i++)
 		{
-			_Set_CMD(m_pSelected->Get_Extra_Parameters(i), true);
+			_Set_CMD(m_pSelected->Get_Parameters(i), true);
 		}
 	}
 
@@ -636,10 +636,10 @@ bool CModule_Library::_Destroy_DataObjects(bool bSave)
 	{
 		_Destroy_DataObjects(bSave, m_pSelected->Get_Parameters());
 
-		for(int i=0; i<m_pSelected->Get_Extra_Parameters_Count(); i++)
+		for(int i=0; i<m_pSelected->Get_Parameters_Count(); i++)
 		{
 			// to be done...
-			_Destroy_DataObjects(bSave, m_pSelected->Get_Extra_Parameters(i));
+			_Destroy_DataObjects(bSave, m_pSelected->Get_Parameters(i));
 		}
 
 		return( true );

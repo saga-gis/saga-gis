@@ -111,7 +111,7 @@ CGet_Table::CGet_Table(void)
 	);
 
 	//-----------------------------------------------------
-	CSG_Parameters	*pTables	= Add_Extra_Parameters("DB_TABLE", _TL("Select a Table"), "");
+	CSG_Parameters	*pTables	= Add_Parameters("DB_TABLE", _TL("Select a Table"), "");
 
 	pTables->Add_Choice(
 		NULL	, "TABLES"		, _TL("Tables"),
@@ -260,10 +260,10 @@ wxDbTable * CGet_Table::_Get_Table(wxDb *pDB)
 			s.Append(wxString::Format("%s\n", pInf->pTableInf[i].tableName).c_str());
 		}
 
-		pTables	= (CSG_Parameter_Choice *)Get_Extra_Parameters("DB_TABLE")->Get_Parameter("TABLES")->Get_Data();
+		pTables	= (CSG_Parameter_Choice *)Get_Parameters("DB_TABLE")->Get_Parameter("TABLES")->Get_Data();
 		pTables->Set_Items(s.c_str());
 
-		if( Dlg_Extra_Parameters("DB_TABLE") )
+		if( Dlg_Parameters("DB_TABLE") )
 		{
 			return(
 				new wxDbTable(

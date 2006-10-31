@@ -181,6 +181,9 @@ bool CSG_Module_Library::Create(const char *File_Name)
 	//-----------------------------------------------------
 	if( Get_Count() > 0 )
 	{
+		for(int i=0; i<Get_Count(); i++)
+			Get_Module(i)->Set_Managed(false);
+
 		return( true );
 	}
 

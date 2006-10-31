@@ -322,7 +322,7 @@ bool CPROJ4_Base::Initialize_ExtraParms(struct PJ_LIST *pProjection, const char 
 {
 	CSG_Parameters	*pParms;
 
-	pParms	= Add_Extra_Parameters(pProjection->id, sName, *pProjection->descr);
+	pParms	= Add_Parameters(pProjection->id, sName, *pProjection->descr);
 
 
 	//-----------------------------------------------------
@@ -688,9 +688,9 @@ bool CPROJ4_Base::Get_ExtraParms(int &pargc, char ***p_pargv, char *id)
 	CSG_Parameters	*pParms;
 	CSG_Parameter	*pParm;
 
-	if( (pParms = Get_Extra_Parameters(id)) != NULL && pParms->Get_Count() > 0 )
+	if( (pParms = Get_Parameters(id)) != NULL && pParms->Get_Count() > 0 )
 	{
-		if( Dlg_Extra_Parameters(id) )
+		if( Dlg_Parameters(id) )
 		{
 			pargv	= *p_pargv;
 
