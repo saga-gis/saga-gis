@@ -431,7 +431,9 @@ public:
 	CSG_Rect					Get_Extent				(void)				{	_Extent_Update();	return( m_Extent );	}
 
 	//-----------------------------------------------------
-	CSG_Shape *					Add_Shape				(CSG_Table_Record *pValues = NULL);
+	CSG_Shape *					Add_Shape				(void);
+	CSG_Shape *					Add_Shape				(CSG_Table_Record *pValues);
+	CSG_Shape *					Add_Shape				(CSG_Shape *pShape, bool bCopyAttributes = false);
 	bool						Del_Shape				(int iShape);
 	bool						Del_Shape				(CSG_Shape *pShape);
 

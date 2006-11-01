@@ -163,7 +163,7 @@ bool CKriging_Universal::Get_Value(double x, double y, double &z, double &v)
 
 		for(i=0, j=n+1; i<nGrids; i++, j++)
 		{
-			if( !m_pGrids->asGrid(i)->Get_Value(x, y, m_G[j], m_Interpolation, true) )
+			if( !m_pGrids->asGrid(i)->Get_Value(x, y, m_G[j], m_Interpolation) )
 			{
 				return( false );
 			}

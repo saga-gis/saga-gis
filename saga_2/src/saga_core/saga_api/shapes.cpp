@@ -381,7 +381,7 @@ CSG_Shape * CSG_Shapes::_Add_Shape(CSG_Table_Record *pRecord)
 			break;
 
 		case SHAPE_TYPE_Polygon:
-			pShape	= new CSG_Shape_Polygon(this, pRecord);
+			pShape	= new CSG_Shape_Polygon	(this, pRecord);
 			break;
 		}
 
@@ -400,11 +400,42 @@ CSG_Shape * CSG_Shapes::_Add_Shape(CSG_Table_Record *pRecord)
 }
 
 //---------------------------------------------------------
+CSG_Shape * CSG_Shapes::Add_Shape(void)
+{
+	if( m_Type != SHAPE_TYPE_Undefined )
+	{
+		return( _Add_Shape(m_Table._Add_Record(NULL)) );
+	}
+
+	return( NULL );
+}
+
 CSG_Shape * CSG_Shapes::Add_Shape(CSG_Table_Record *pValues)
 {
 	if( m_Type != SHAPE_TYPE_Undefined )
 	{
 		return( _Add_Shape(m_Table._Add_Record(pValues)) );
+	}
+
+	return( NULL );
+}
+
+CSG_Shape * CSG_Shapes::Add_Shape(CSG_Shape *pShape, bool bCopyAttributes)
+{
+	if( pShape && pShape->Get_Type() == m_Type )
+	{
+		CSG_Shape	*_pShape;
+
+		if( (_pShape = _Add_Shape(m_Table._Add_Record(bCopyAttributes ? pShape->Get_Record() : NULL))) != NULL )
+		{
+			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			{
+				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				{
+					_pShape->Add_Point(pShape->Get_Point(iPoint, iPart), iPart);
+				}
+			}
+		}
 	}
 
 	return( NULL );

@@ -374,7 +374,7 @@ double CKriging_Base::Get_Weight(double d)
 		}
 	}
 
-	return( m_Nugget );
+	return( m_Nugget > 0.0 ? m_Nugget : 0.00001 );
 }
 
 //---------------------------------------------------------
