@@ -69,6 +69,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <saga_api/saga_api.h>
+
 #include "wksp_base_manager.h"
 
 
@@ -85,46 +87,57 @@ public:
 	CWKSP_Table(class CSG_Table *pTable, CWKSP_Base_Item *pOwner);
 	virtual ~CWKSP_Table(void);
 
-	virtual TWKSP_Item			Get_Type			(void)			{	return( WKSP_ITEM_Table );	}
+	virtual TWKSP_Item				Get_Type				(void)			{	return( WKSP_ITEM_Table );	}
 
-	virtual wxString			Get_Name			(void);
-	virtual wxString			Get_Description		(void);
+	virtual CSG_Parameters *		Get_Parameters			(void)			{	return( &m_Parameters );	}
 
-	virtual wxMenu *			Get_Menu			(void);
+	virtual void					Parameters_Changed		(void);
 
-	virtual bool				On_Command			(int Cmd_ID);
-	virtual bool				On_Command_UI		(wxUpdateUIEvent &event);
+	virtual wxString				Get_Name				(void);
+	virtual wxString				Get_Description			(void);
 
-	CWKSP_Base_Item *			Get_Owner			(void)			{	return( m_pOwner );	}
+	virtual wxMenu *				Get_Menu				(void);
 
-	class CSG_Table *				Get_Table			(void)			{	return( m_pTable );	}
+	virtual bool					On_Command				(int Cmd_ID);
+	virtual bool					On_Command_UI			(wxUpdateUIEvent &event);
 
-	bool						Save				(void);
-	bool						Save				(const char *File_Path);
+	CWKSP_Base_Item *				Get_Owner				(void)			{	return( m_pOwner );	}
 
-	bool						DataObject_Changed	(CSG_Parameters *pParameters);
+	CSG_Table *						Get_Table				(void)			{	return( m_pTable );	}
 
-	class CVIEW_Table *			Get_View			(void)			{	return( m_pView );	}
-	void						Set_View			(bool bShow);
-	void						Toggle_View			(void);
+	bool							Save					(void);
+	bool							Save					(const char *File_Path);
 
-	class CVIEW_Table_Diagram *	Get_Diagram			(void)			{	return( m_pDiagram );	}
-	void						Set_Diagram			(bool bShow);
-	void						Toggle_Diagram		(void);
+	bool							DataObject_Changed		(CSG_Parameters *pParameters);
 
-	void						Update_Views		(void);
-	void						View_Closes			(class wxMDIChildFrame *pView);
+	class CVIEW_Table *				Get_View				(void)			{	return( m_pView );	}
+	void							Set_View				(bool bShow);
+	void							Toggle_View				(void);
+
+	class CVIEW_Table_Diagram *		Get_Diagram				(void)			{	return( m_pDiagram );	}
+	void							Set_Diagram				(bool bShow);
+	void							Toggle_Diagram			(void);
+
+	void							Update_Views			(void);
+	void							View_Closes				(class wxMDIChildFrame *pView);
 
 
 private:
 
-	class CSG_Table				*m_pTable;
+	CSG_Parameters					m_Parameters;
 
-	CWKSP_Base_Item				*m_pOwner;
+	CSG_Table						*m_pTable;
 
-	class CVIEW_Table			*m_pView;
+	CWKSP_Base_Item					*m_pOwner;
 
-	class CVIEW_Table_Diagram	*m_pDiagram;
+	class CVIEW_Table				*m_pView;
+
+	class CVIEW_Table_Diagram		*m_pDiagram;
+
+
+	static int						_On_Parameter_Changed	(CSG_Parameter *pParameter);
+
+	int								On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 };
 

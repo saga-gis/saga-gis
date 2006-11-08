@@ -326,7 +326,7 @@ CSAGA_Frame::CSAGA_Frame(void)
 	Update();
 
 	//-----------------------------------------------------
-	if( g_pData->Initialise() )
+	if( g_pSAGA->argc <= 1 && g_pData->Initialise() )
 	{
 		Refresh(false);
 	}

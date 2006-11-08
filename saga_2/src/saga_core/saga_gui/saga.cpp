@@ -178,20 +178,20 @@ bool CSAGA::OnInit(void)
 	SetTopWindow(new CSAGA_Frame());
 
 	//-----------------------------------------------------
-	if( pLogo && iLogo == 1 )
-	{
-		pLogo->Destroy();
-
-		wxYield();
-	}
-
-	//-----------------------------------------------------
 	if( argc > 1 )
 	{
 		for(int i=1; i<argc; i++)
 		{
 			g_pWKSP->Open(argv[i]);
 		}
+	}
+
+	//-----------------------------------------------------
+	if( pLogo && iLogo == 1 )
+	{
+		pLogo->Destroy();
+
+		wxYield();
 	}
 
 	//-----------------------------------------------------

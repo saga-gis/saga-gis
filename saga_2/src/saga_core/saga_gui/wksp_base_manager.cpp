@@ -128,7 +128,7 @@ bool CWKSP_Base_Manager::Add_Item(CWKSP_Base_Item *pItem)
 		case WKSP_ITEM_Grid_Manager:
 		case WKSP_ITEM_Grid_System:
 			g_pData_Ctrl->Add_Item(this, pItem);
-			g_pACTIVE->Parameters_Update_Data();
+			g_pACTIVE->Update_DataObjects();
 			break;
 
 		case WKSP_ITEM_Map_Manager:

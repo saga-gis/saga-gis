@@ -877,12 +877,45 @@ wxString CParameters_PG_DialogedValue::asString(void) const
 {
 	wxString	s;
 
-	if( m_pParameter )
+	if( m_pParameter && Check() )
 	{
 		s	= m_pParameter->asString();
 	}
 
 	return( s );
+}
+
+//---------------------------------------------------------
+bool CParameters_PG_DialogedValue::Check(void) const
+{
+	if( m_pParameter )
+	{
+		switch( m_pParameter->Get_Type() )
+		{
+		default:
+			break;
+
+		case PARAMETER_TYPE_Table_List:
+		case PARAMETER_TYPE_Shapes_List:
+		case PARAMETER_TYPE_TIN_List:
+		case PARAMETER_TYPE_Grid_List:
+			CSG_Parameter_List	*pList	= (CSG_Parameter_Grid_List *)m_pParameter->Get_Data();
+
+			for(int i=pList->Get_Count()-1; i>=0; i--)
+			{
+				if( !g_pData->Exists(pList->asDataObject(i)) )
+				{
+					pList->Del_Item(i);
+				}
+			}
+
+			break;
+		}
+
+		return( true );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------

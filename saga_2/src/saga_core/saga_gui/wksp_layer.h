@@ -90,7 +90,7 @@ public:
 	virtual bool					On_Command				(int Cmd_ID);
 	virtual bool					On_Command_UI			(wxUpdateUIEvent &event);
 
-	virtual CSG_Parameters *			Get_Parameters			(void)	{	return( &m_Parameters );	}
+	virtual CSG_Parameters *		Get_Parameters			(void)	{	return( &m_Parameters );	}
 
 	virtual void					Parameters_Changed		(void);
 
@@ -98,10 +98,10 @@ public:
 	void							DataObject_Changed		(CSG_Parameters *pParameters);
 	void							DataObject_Changed		(CSG_Colors *pColors);
 
-	CSG_Data_Object *					Get_Object				(void)	{	return( m_pObject );	}
+	CSG_Data_Object *				Get_Object				(void)	{	return( m_pObject );	}
 	CSG_Rect						Get_Extent				(void);
 
-	CSG_Colors *						Get_Colors				(void);
+	CSG_Colors *					Get_Colors				(void);
 	bool							Get_Colors				(CSG_Colors *pColors);
 	bool							Set_Color_Range			(double zMin, double zMax);
 
@@ -140,15 +140,15 @@ public:
 
 protected:
 
-	CSG_Data_Object						*m_pObject;
+	CSG_Data_Object					*m_pObject;
 
 	CSG_Parameter_Range				*m_pZRange;
 
-	CSG_Parameters						m_Parameters;
+	CSG_Parameters					m_Parameters;
 
 	CSG_Point						m_Edit_Mouse_Down;
 
-	CSG_Table							m_Edit_Attributes;
+	CSG_Table						m_Edit_Attributes;
 
 	class CWKSP_Layer_Classify		*m_pClassify;
 

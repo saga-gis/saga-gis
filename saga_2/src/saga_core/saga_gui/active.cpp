@@ -197,18 +197,7 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 	pHTML		= NULL;
 
 	//-----------------------------------------------------
-	if( (m_pItem = pItem) == NULL )
-	{
-		if( m_pDescription )
-		{
-			m_pDescription->SetPage(LNG("[TXT] No description available"));
-		}
-
-		STATUSBAR_Set_Text("", STATUSBAR_ACTIVE);
-	}
-
-	//-----------------------------------------------------
-	else
+	if( (m_pItem = pItem) != NULL )
 	{
 		switch( m_pItem->Get_Type() )
 		{
@@ -230,34 +219,9 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 			pLegend		= m_pLayer	= (CWKSP_Layer      *)m_pItem;
 			break;
 		}
-
-		if( m_pItem->Get_Type() == WKSP_ITEM_Module )
-		{
-			wxFileName	FileName;
-
-			FileName.Assign		(((CWKSP_Module *)m_pItem)->Get_File_Name());
-			FileName.AppendDir	(FileName.GetName());
-			FileName.SetName	(wxString::Format("%s_%02d", FileName.GetName().c_str(), m_pItem->Get_Index()));
-
-			FileName.SetExt		("html");
-
-			if( !FileName.FileExists() || !m_pDescription->LoadPage(FileName.GetFullPath()) )
-			{
-				FileName.SetExt		("htm");
-
-				if( !FileName.FileExists() || !m_pDescription->LoadPage(FileName.GetFullPath()) )
-				{
-					m_pDescription->SetPage(m_pItem->Get_Description());
-				}
-			}
-		}
-		else
-		{
-			m_pDescription->SetPage(m_pItem->Get_Description());
-		}
-
-		STATUSBAR_Set_Text(m_pItem->Get_Name(), STATUSBAR_ACTIVE);
 	}
+
+	_Set_Description();
 
 	//-----------------------------------------------------
 	if( m_pParameters )
@@ -440,13 +404,84 @@ bool CACTIVE::_Del_Page(int PageID)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CACTIVE::Parameters_Update(class CSG_Parameters *pParameters, bool bSave)
+bool CACTIVE::_Set_Description(void)
 {
-	return( m_pParameters && m_pParameters->Update_Parameters(pParameters, bSave) );
+	if( m_pDescription )
+	{
+		if( m_pItem != NULL )
+		{
+			if( m_pItem->Get_Type() == WKSP_ITEM_Module )
+			{
+				wxFileName	FileName;
+
+				FileName.Assign		(((CWKSP_Module *)m_pItem)->Get_File_Name());
+				FileName.AppendDir	(FileName.GetName());
+				FileName.SetName	(wxString::Format("%s_%02d", FileName.GetName().c_str(), m_pItem->Get_Index()));
+
+				FileName.SetExt		("html");
+
+				if( !FileName.FileExists() || !m_pDescription->LoadPage(FileName.GetFullPath()) )
+				{
+					FileName.SetExt		("htm");
+
+					if( !FileName.FileExists() || !m_pDescription->LoadPage(FileName.GetFullPath()) )
+					{
+						m_pDescription->SetPage(m_pItem->Get_Description());
+					}
+				}
+			}
+			else
+			{
+				m_pDescription->SetPage(m_pItem->Get_Description());
+			}
+
+			STATUSBAR_Set_Text(m_pItem->Get_Name(), STATUSBAR_ACTIVE);
+		}
+		else
+		{
+			m_pDescription->SetPage(LNG("[TXT] No description available"));
+
+			STATUSBAR_Set_Text("", STATUSBAR_ACTIVE);
+		}
+
+		return( true );
+	}
+
+	STATUSBAR_Set_Text("", STATUSBAR_ACTIVE);
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CACTIVE::Update(CWKSP_Base_Item *pItem, bool bSave)
+{
+	if( m_pItem && m_pItem == pItem )
+	{
+		if( m_pParameters )
+		{
+			m_pParameters->Update_Parameters(pItem->Get_Parameters(), bSave);
+		}
+
+		if( !bSave )
+		{
+			_Set_Description();
+		}
+
+		return( true );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
-bool CACTIVE::Parameters_Update_Data(void)
+bool CACTIVE::Update_DataObjects(void)
 {
 	return( m_pParameters && m_pParameters->Update_DataObjects() );
 }

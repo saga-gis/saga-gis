@@ -158,6 +158,8 @@ int					DLG_Message_Show_Error	(int ID_DLG);
 int					DLG_Message_Show_Error	(const char *Message, const char *Caption);
 bool				DLG_Message_Confirm		(int ID_DLG);
 bool				DLG_Message_Confirm		(const char *Message, const char *Caption);
+int					DLG_Message_YesNoCancel	(int ID_DLG);
+int					DLG_Message_YesNoCancel	(const char *Message, const char *Caption);
 
 //---------------------------------------------------------
 int					DLG_Maps_Add			(void);

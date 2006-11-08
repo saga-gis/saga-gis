@@ -328,12 +328,13 @@ bool CSG_Shapes::Assign(CSG_Data_Object *pObject)
 //---------------------------------------------------------
 bool CSG_Shapes::Save(const char *File_Name, int Format)
 {
-	bool	bResult	= false;
+	bool		bResult	= false;
+	CSG_String	sFile_Name	= SG_File_Make_Path(NULL, File_Name, "shp");
 
 	switch( Format )
 	{
 	case 0: default:
-		bResult	= _Save_ESRI(File_Name);
+		bResult	= _Save_ESRI(sFile_Name);
 		break;
 	}
 
@@ -341,7 +342,7 @@ bool CSG_Shapes::Save(const char *File_Name, int Format)
 	{
 		Set_Modified(false);
 
-		Set_File_Name(File_Name);
+		Set_File_Name(sFile_Name);
 
 		Get_History().Save(File_Name, HISTORY_EXT_SHAPES);
 	}

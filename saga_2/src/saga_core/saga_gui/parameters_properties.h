@@ -211,14 +211,15 @@ WX_PG_DECLARE_PROPERTY(CParameters_PG_Doubles, const CParameters_PG_DoublesValue
 class CParameters_PG_DialogedValue
 {
 public:
-	CParameters_PG_DialogedValue(void)							{	m_pParameter	= NULL;			}
+	CParameters_PG_DialogedValue(void)								{	m_pParameter	= NULL;			}
 	CParameters_PG_DialogedValue(class CSG_Parameter *pParameter)	{	m_pParameter	= pParameter;	}
-	virtual ~CParameters_PG_DialogedValue(void)					{}
+	virtual ~CParameters_PG_DialogedValue(void)						{}
 
 	bool						operator ==		(const CParameters_PG_DialogedValue &r) const	{	return( false );	}
 
 	bool						fromString		(wxString String);
 	wxString					asString		(void) const;
+	bool						Check			(void) const;
 	bool						Do_Dialog		(void);
 
 

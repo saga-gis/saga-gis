@@ -710,7 +710,7 @@ int			DLG_Message_Show_Error(const char *Message, const char *Caption)
 	{
 		case wxID_OK: default:
 			return( 1 );
-			
+
 		case wxID_CANCEL:
 			return( 0 );
 	}
@@ -732,6 +732,29 @@ bool		DLG_Message_Confirm(const char *Message, const char *Caption)
 bool		DLG_Message_Confirm(int ID_DLG)
 {
 	return( DLG_Message_Confirm(DLG_Get_Text(ID_DLG), DLG_Get_Caption(ID_DLG)) );
+}
+
+//---------------------------------------------------------
+int			DLG_Message_YesNoCancel(const char *Message, const char *Caption)
+{
+	wxMessageDialog	dlg(MDI_Get_Frame(), Message, Caption, wxYES|wxNO|wxCANCEL|wxICON_QUESTION);
+
+	switch( dlg.ShowModal() )
+	{
+		case wxID_YES: default:
+			return( 0 );
+
+		case wxID_NO:
+			return( 1 );
+
+		case wxID_CANCEL:
+			return( 2 );
+	}
+}
+
+int			DLG_Message_YesNoCancel(int ID_DLG)
+{
+	return( DLG_Message_YesNoCancel(DLG_Get_Text(ID_DLG), DLG_Get_Caption(ID_DLG)) );
 }
 
 

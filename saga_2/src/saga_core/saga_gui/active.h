@@ -97,8 +97,8 @@ public:
 	class CWKSP_Base_Item *			Get_Item				(void)	{	return( m_pItem );			}
 	class CWKSP_Layer *				Get_Layer				(void)	{	return( m_pLayer );			}
 
-	bool							Parameters_Update		(class CSG_Parameters *pParameters, bool bSave);
-	bool							Parameters_Update_Data	(void);
+	bool							Update					(class CWKSP_Base_Item *pItem, bool bSave);
+	bool							Update_DataObjects		(void);
 
 
 private:
@@ -120,6 +120,8 @@ private:
 
 	bool							_Add_Page				(int PageID);
 	bool							_Del_Page				(int PageID);
+
+	bool							_Set_Description		(void);
 
 
 //---------------------------------------------------------

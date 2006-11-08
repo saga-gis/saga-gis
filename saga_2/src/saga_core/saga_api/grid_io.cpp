@@ -129,7 +129,8 @@ bool CSG_Grid::Save(const char *File_Name, int Format)
 
 bool CSG_Grid::Save(const char *File_Name, int Format, int xA, int yA, int xN, int yN)
 {
-	bool	bResult;
+	bool		bResult;
+	CSG_String	sFile_Name	= SG_File_Make_Path(NULL, File_Name, "sgrd");
 
 	//-----------------------------------------------------
 	if( xA	< 0 || xA >= Get_NX() - 1 )
@@ -159,11 +160,11 @@ bool CSG_Grid::Save(const char *File_Name, int Format, int xA, int yA, int xN, i
 	{
 	default:
 	case GRID_FILE_FORMAT_Binary:	// 1 - Binary
-		bResult	= _Save_Native(File_Name, xA, yA, xN, yN, true);
+		bResult	= _Save_Native(sFile_Name, xA, yA, xN, yN, true);
 		break;
 
 	case GRID_FILE_FORMAT_ASCII:	// 2 - ASCII
-		bResult	= _Save_Native(File_Name, xA, yA, xN, yN, false);
+		bResult	= _Save_Native(sFile_Name, xA, yA, xN, yN, false);
 		break;
 	}
 
@@ -172,7 +173,7 @@ bool CSG_Grid::Save(const char *File_Name, int Format, int xA, int yA, int xN, i
 	{
 		Set_Modified(false);
 
-		Set_File_Name(File_Name);
+		Set_File_Name(sFile_Name);
 
 		Get_History().Save(File_Name, HISTORY_EXT_GRID);
 
@@ -668,10 +669,10 @@ bool CSG_Grid::_Load_Native(const char *File_Header, TSG_Grid_Memory_Type Memory
 //---------------------------------------------------------
 bool CSG_Grid::_Save_Native(const char *File_Name, int xA, int yA, int xN, int yN, bool bBinary)
 {
-	bool	bResult		= false;
-	FILE	*Stream;
+	bool		bResult		= false;
+	FILE		*Stream;
 
-	if(	(Stream = fopen(SG_File_Make_Path(NULL, File_Name, "sgrd"), "w")) != NULL )
+	if(	(Stream = fopen(File_Name, "w")) != NULL )
 	{
 		//-------------------------------------------------
 		// Header...

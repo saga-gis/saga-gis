@@ -225,6 +225,8 @@ void CVIEW_Map::On_Paint(wxPaintEvent &event)
 		dc.DrawLine(rClient.GetLeft (), rMap   .GetTop   (), rClient.GetRight(), rMap   .GetTop   ());
 		dc.DrawLine(rClient.GetLeft (), rMap   .GetBottom(), rClient.GetRight(), rMap   .GetBottom());
 	}
+
+	event.Skip();
 }
 
 //---------------------------------------------------------
@@ -247,6 +249,8 @@ void CVIEW_Map::_Set_Positions(void)
 
 		m_pRuler_Y1	->SetSize(wxRect(0               , r.GetTop()       , m_Ruler_Size - 1, r.GetHeight()));
 		m_pRuler_Y2	->SetSize(wxRect(2 + r.GetRight(), r.GetTop()       , m_Ruler_Size - 1, r.GetHeight()));
+
+		Refresh();
 	}
 
 	m_pControl	->SetSize(r);

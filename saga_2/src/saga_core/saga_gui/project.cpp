@@ -205,35 +205,47 @@ bool CWKSP_Project::_Load(const char *FileName, bool bAdd, bool bUpdateMenu)
 	MSG_General_Add(wxString::Format("%s: %s", LNG("[MSG] Load project"), FileName), true, true);
 
 	//-----------------------------------------------------
-	if( (Stream = fopen(FileName, "rb")) != NULL )
+	if( wxFileExists(FileName) )
 	{
-		ProjectDir	= SG_File_Get_Path(FileName);
-
-		while( SG_Read_Line(Stream, sLine) && sLine.Cmp(DATA_ENTRIES_BEGIN) );
-
-		if( !sLine.Cmp(DATA_ENTRIES_BEGIN) )
+		if( !bAdd && g_pData->Get_Count() > 0 )
 		{
-			if( !bAdd )
+			switch( DLG_Message_YesNoCancel(LNG("[TXT] Close all data sets"), LNG("[CAP] Load Project")) )
 			{
-				g_pData->Close(false);
+			case 0:
+				if( !g_pData->Close(true) )
+					return( false );
+				break;
+
+			case 2:	return( false );
 			}
-
-			g_pData->Get_FileMenus()->Set_Update(false);
-			while( _Load_Data(Stream, ProjectDir) );
-			g_pData->Get_FileMenus()->Set_Update(true);
-
-			bSuccess	= true;
 		}
 
 		//-------------------------------------------------
-		while( SG_Read_Line(Stream, sLine) && sLine.Cmp(MAP_ENTRIES_BEGIN) );
-
-		if( !sLine.Cmp(MAP_ENTRIES_BEGIN) )
+		if( (Stream = fopen(FileName, "rb")) != NULL )
 		{
-			while( _Load_Map(Stream, ProjectDir) );
-		}
+			ProjectDir	= SG_File_Get_Path(FileName);
 
-		fclose(Stream);
+			while( SG_Read_Line(Stream, sLine) && sLine.Cmp(DATA_ENTRIES_BEGIN) );
+
+			if( !sLine.Cmp(DATA_ENTRIES_BEGIN) )
+			{
+				g_pData->Get_FileMenus()->Set_Update(false);
+				while( _Load_Data(Stream, ProjectDir) );
+				g_pData->Get_FileMenus()->Set_Update(true);
+
+				bSuccess	= true;
+			}
+
+			//-------------------------------------------------
+			while( SG_Read_Line(Stream, sLine) && sLine.Cmp(MAP_ENTRIES_BEGIN) );
+
+			if( !sLine.Cmp(MAP_ENTRIES_BEGIN) )
+			{
+				while( _Load_Map(Stream, ProjectDir) );
+			}
+
+			fclose(Stream);
+		}
 	}
 
 	//-----------------------------------------------------
@@ -263,7 +275,7 @@ bool CWKSP_Project::_Load(const char *FileName, bool bAdd, bool bUpdateMenu)
 bool CWKSP_Project::_Save(const char *FileName, bool bSaveModified, bool bUpdateMenu)
 {
 	int						i, j;
-	CSG_String				ProjectDir;
+	CSG_String				ProjectDir, oldFileName(m_File_Name);
 	FILE					*Stream;
 	CWKSP_Table_Manager		*pTables;
 	CWKSP_Shapes_Manager	*pShapes;
@@ -271,8 +283,12 @@ bool CWKSP_Project::_Save(const char *FileName, bool bSaveModified, bool bUpdate
 	CWKSP_Grid_Manager		*pGrids;
 
 	//-----------------------------------------------------
+	m_File_Name	= FileName;
+
 	if( bSaveModified && !Save_Modified(g_pData) )
 	{
+		m_File_Name	= oldFileName;
+
 		return( false );
 	}
 
@@ -391,7 +407,8 @@ bool CWKSP_Project::_Load_Data(FILE *Stream, const char *ProjectDir)
 	{
 		if(	SG_Read_Line(Stream, sPath) && SG_Read_Line(Stream, sLine) && sLine.asInt(Type) )
 		{
-			if( wxFileExists(sPath.c_str()) || wxFileExists((sPath = Get_FilePath_Absolute(ProjectDir, sPath)).c_str()) )
+//			if( wxFileExists(sPath.c_str()) || wxFileExists((sPath = Get_FilePath_Absolute(ProjectDir, sPath)).c_str()) )
+			if( wxFileExists((sPath = Get_FilePath_Absolute(ProjectDir, sPath)).c_str()) )
 			{
 				if(	(pItem = g_pData->Open(Type, sPath)) != NULL )
 				{
@@ -604,10 +621,11 @@ bool CWKSP_Project::Save_Modified(CWKSP_Base_Item *pItem)
 	CSG_Parameters	Parameters;
 
 	Parameters.Set_Name(LNG("[CAP] Save Modified Data Objects"));
+	Parameters.Add_Value(NULL, "SAVE_ALL", LNG("Save all"), LNG(""), PARAMETER_TYPE_Bool, false);
 
 	_Modified_Get(&Parameters, pItem);
 
-	if( Parameters.Get_Count() > 0 )
+	if( Parameters.Get_Count() > 1 )
 	{
 		if( !DLG_Parameters(&Parameters) )
 		{
@@ -666,7 +684,7 @@ bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *
 bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *pItem, CSG_Data_Object *pObject)
 {
 	CSG_Parameter	*pNode, *pParent;
-	wxString	sFilter;
+	wxString		sFilter, sPath;
 
 	if( pObject->is_Modified() )
 	{
@@ -698,10 +716,14 @@ bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *
 			LNG("[CAP] Save"), "", PARAMETER_TYPE_Bool, false
 		);
 
+		sPath	= pObject->Get_File_Name();
+		if( sPath.Length() == 0 )
+			sPath	= SG_File_Make_Path(SG_File_Get_Path(Get_File_Name()), pObject->Get_Name(), NULL);
+
 		pParameters->Add_FilePath(
 			pNode,
 			wxString::Format("%d FILE", (int)pObject),
-			LNG("[CAP] File"), "", sFilter, pObject->Get_File_Name(), true
+			LNG("[CAP] File"), "", sFilter, sPath, true
 		);
 
 		return( true );
@@ -713,24 +735,30 @@ bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *
 //---------------------------------------------------------
 bool CWKSP_Project::_Modified_Save(CSG_Parameters *pParameters)
 {
+	bool			bSaveAll	= pParameters->Get_Parameter("SAVE_ALL")->asBool();
 	CSG_Data_Object	*pObject;
 	CSG_Parameter	*pParameter, *pPath	= NULL;
 
-	for(int i=0; i<pParameters->Get_Count(); i++)
+	for(int i=0, j=0; i<pParameters->Get_Count(); i++)
 	{
 		pParameter	= pParameters->Get_Parameter(i);
 
-		if(	pParameter->Get_Type() == PARAMETER_TYPE_Bool
-		&&	pParameter->asBool()
-
-		&&	sscanf(pParameter->Get_Identifier(), "%d", (int *)(&pObject)) == 1
-		&&	g_pData->Exists(pObject)
-
-		&&	(pPath = pParameters->Get_Parameter(wxString::Format("%d FILE", (int)pObject))) != NULL
-		&&	pPath->asString() != NULL
-		&&	strlen(pPath->asString()) > 0 )
+		if(	pParameter->Get_Type() == PARAMETER_TYPE_Bool && (bSaveAll || pParameter->asBool())
+		&&	sscanf(pParameter->Get_Identifier(), "%d", (int *)(&pObject)) == 1 && g_pData->Exists(pObject)	)
 		{
-			pObject->Save(pPath->asString());
+			CSG_String	fPath;
+
+			if(	(pPath = pParameters->Get_Parameter(wxString::Format("%d FILE", (int)pObject))) != NULL
+			&&	pPath->asString() != NULL && strlen(pPath->asString()) > 0 )
+			{
+				fPath	= pPath->asString();
+			}
+			else
+			{
+				fPath	= SG_File_Make_Path(SG_File_Get_Path(Get_File_Name()), CSG_String::Format("%02d_%s", ++j, pObject->Get_Name()), NULL);
+			}
+
+			pObject->Save(fPath);
 		}
 	}
 

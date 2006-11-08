@@ -460,7 +460,7 @@ void CWKSP_Layer::DataObject_Changed(void)
 	//-----------------------------------------------------
 	On_DataObject_Changed();
 
-	g_pACTIVE->Parameters_Update(&m_Parameters, false);
+	g_pACTIVE->Update(this, false);
 
 	Parameters_Changed();
 }
@@ -506,9 +506,14 @@ int CWKSP_Layer::_On_Parameter_Changed(CSG_Parameter *pParameter)
 {
 	if( pParameter && pParameter->Get_Owner() && pParameter->Get_Owner()->Get_Owner() )
 	{
-		return( ((CWKSP_Layer *)pParameter->Get_Owner()->Get_Owner())->
-			On_Parameter_Changed(pParameter->Get_Owner(), pParameter)
-		);
+	//	return( ((CWKSP_Layer *)pParameter->Get_Owner()->Get_Owner())->
+	//		On_Parameter_Changed(pParameter->Get_Owner(), pParameter)
+	//	);
+
+		((CWKSP_Layer *)pParameter->Get_Owner()->Get_Owner())->
+			On_Parameter_Changed(pParameter->Get_Owner(), pParameter);
+
+		g_pACTIVE->Get_Parameters()->Update_Parameters(pParameter->Get_Owner(), false);
 	}
 
 	return( 0 );

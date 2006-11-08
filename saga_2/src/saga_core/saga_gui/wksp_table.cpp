@@ -58,12 +58,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <saga_api/saga_api.h>
-
 #include "res_commands.h"
 #include "res_dialogs.h"
 
 #include "helper.h"
+
+#include "wksp_base_control.h"
 
 #include "wksp_table.h"
 
@@ -85,6 +85,16 @@ CWKSP_Table::CWKSP_Table(CSG_Table *pTable, CWKSP_Base_Item *pOwner)
 	m_pOwner	= pOwner;
 	m_pView		= NULL;
 	m_pDiagram	= NULL;
+
+	//-----------------------------------------------------
+	m_Parameters.Create(this, "", "");
+	m_Parameters.Set_Callback_On_Parameter_Changed(&_On_Parameter_Changed);
+
+	m_Parameters.Add_String(
+		m_Parameters("NODE_GENERAL")	, "NAME"			, LNG("[CAP] Name"),
+		"",
+		m_pTable->Get_Name()
+	);
 }
 
 //---------------------------------------------------------
@@ -250,6 +260,45 @@ bool CWKSP_Table::On_Command_UI(wxUpdateUIEvent &event)
 	}
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Table::Parameters_Changed(void)
+{
+	m_pTable->Set_Name(m_Parameters("NAME")->asString());
+
+	if( GetId().IsOk() )
+	{
+		Get_Control()->SetItemText(GetId(), Get_Name());
+	}
+
+	Update_Views();
+}
+
+//---------------------------------------------------------
+int CWKSP_Table::_On_Parameter_Changed(CSG_Parameter *pParameter)
+{
+	if( pParameter && pParameter->Get_Owner() && pParameter->Get_Owner()->Get_Owner() )
+	{
+		return( ((CWKSP_Table *)pParameter->Get_Owner()->Get_Owner())->
+			On_Parameter_Changed(pParameter->Get_Owner(), pParameter)
+		);
+	}
+
+	return( 0 );
+}
+
+//---------------------------------------------------------
+int CWKSP_Table::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( 1 );
 }
 
 

@@ -243,6 +243,12 @@ bool CParameters_Control::Save(void)
 //---------------------------------------------------------
 bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 {
+	if( m_pParameters == pParameters )
+	{
+		_Update_Parameters();
+		return( true );
+	}
+
 //	m_pPG->Freeze();
 	m_pPG->Clear();
 
@@ -621,10 +627,12 @@ void CParameters_Control::_Update_Parameters(void)
 //---------------------------------------------------------
 void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
 {
-	wxPGId	Id	= m_pPG->GetPropertyByName(pParameter->Get_Identifier());
+	wxPGId		Id	= m_pPG->GetPropertyByName(pParameter->Get_Identifier());
 
 	if( Id.IsOk()  )
 	{
+		CSG_String	s;
+
 		switch( pParameter->Get_Type() )
 		{
 		default:
@@ -658,6 +666,18 @@ void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
 				m_pPG->SetPropertyValue(Id, pParameter->asDouble());
 			}
 			break;
+
+		case PARAMETER_TYPE_Range:
+			s.Printf("%f; %f", pParameter->asRange()->Get_LoVal(), pParameter->asRange()->Get_HiVal());
+			m_pPG->SetPropertyValue(Id, s.c_str());
+			break;
+
+		case PARAMETER_TYPE_Degree:
+			double	d[3];
+			Decimal_To_Degree(pParameter->asDouble(), d[0], d[1], d[2]);
+			s.Printf("%f; %f; %f", d[0], d[1], d[2]);
+			m_pPG->SetPropertyValue(Id, s.c_str());
+			break;
 		}
 	}
 }
@@ -666,7 +686,7 @@ void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
 bool CParameters_Control::Update_DataObjects(void)
 {
 	CSG_Parameter	*pParameter;
-	wxPGId		Id;
+	wxPGId			Id;
 
 	if( m_pParameters )
 	{
