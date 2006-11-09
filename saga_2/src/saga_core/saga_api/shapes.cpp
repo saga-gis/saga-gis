@@ -436,6 +436,8 @@ CSG_Shape * CSG_Shapes::Add_Shape(CSG_Shape *pShape, bool bCopyAttributes)
 					_pShape->Add_Point(pShape->Get_Point(iPoint, iPart), iPart);
 				}
 			}
+
+			return( _pShape );
 		}
 	}
 
