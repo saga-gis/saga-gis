@@ -180,7 +180,7 @@ CPROJ4_Grid::CPROJ4_Grid(void)
 		NULL, "YMIN"		, _TL("Bottom")		, "", PARAMETER_TYPE_Double
 	);
 	pParameters->Add_Value(
-		NULL, "YMAX"		, _TL("Top")			, "", PARAMETER_TYPE_Double
+		NULL, "YMAX"		, _TL("Top")		, "", PARAMETER_TYPE_Double
 	);
 
 	pParameters->Add_Value(
@@ -188,7 +188,7 @@ CPROJ4_Grid::CPROJ4_Grid(void)
 	);
 
 	pParameters->Add_Info_Value(
-		NULL, "NX"			, _TL("Columns")		, "", PARAMETER_TYPE_Int
+		NULL, "NX"			, _TL("Columns")	, "", PARAMETER_TYPE_Int
 	);
 	pParameters->Add_Info_Value(
 		NULL, "NY"			, _TL("Rows")		, "", PARAMETER_TYPE_Int
@@ -196,7 +196,7 @@ CPROJ4_Grid::CPROJ4_Grid(void)
 
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_SYSTEM"		, _TL("Choose Grid")			, "");
+	pParameters	= Add_Parameters("GET_SYSTEM"	, _TL("Choose Grid Project"), "");
 
 	pParameters->Add_Grid_System(
 		NULL, "SYSTEM"		, _TL("System")		, ""
@@ -204,7 +204,7 @@ CPROJ4_Grid::CPROJ4_Grid(void)
 
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_GRID"		, _TL("Choose Grid")			, "");
+	pParameters	= Add_Parameters("GET_GRID"		, _TL("Choose Grid")		, "");
 
 	pParameters->Add_Grid(
 		NULL, "GRID"		, _TL("Grid")		, "", PARAMETER_INPUT	, false
@@ -212,7 +212,7 @@ CPROJ4_Grid::CPROJ4_Grid(void)
 
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_SHAPES"		, _TL("Choose Shapes")		, "");
+	pParameters	= Add_Parameters("GET_SHAPES"	, _TL("Choose Shapes")		, "");
 
 	pParameters->Add_Shapes(
 		NULL, "SHAPES"		,_TL("Shapes")		, "", PARAMETER_OUTPUT	, SHAPE_TYPE_Point

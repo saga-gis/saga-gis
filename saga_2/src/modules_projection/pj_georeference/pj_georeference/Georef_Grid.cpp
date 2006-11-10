@@ -215,7 +215,14 @@ CGeoref_Grid::CGeoref_Grid(void)
 
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_GRID"		, _TL("Choose Grid")			, "");
+	pParameters	= Add_Parameters("GET_SYSTEM"	, _TL("Choose Grid Project"), "");
+
+	pParameters->Add_Grid_System(
+		NULL, "SYSTEM"		, _TL("System")		, ""
+	);
+
+	//-----------------------------------------------------
+	pParameters	= Add_Parameters("GET_GRID"		, _TL("Choose Grid")		, "");
 
 	pParameters->Add_Grid(
 		NULL, "GRID"		, _TL("Grid")		, "", PARAMETER_INPUT	, false
@@ -223,7 +230,7 @@ CGeoref_Grid::CGeoref_Grid(void)
 
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_SHAPES"		, _TL("Choose Shapes")		, "");
+	pParameters	= Add_Parameters("GET_SHAPES"	, _TL("Choose Shapes")		, "");
 
 	pParameters->Add_Shapes(
 		NULL, "SHAPES"		, _TL("Shapes")		, "", PARAMETER_OUTPUT	, SHAPE_TYPE_Point
@@ -389,10 +396,10 @@ bool CGeoref_Grid::Get_Conversion(void)
 		break;
 
 	case 2:	// select grid project...
-		if( Dlg_Parameters("GET_GRID") )
+		if( Dlg_Parameters("GET_SYSTEM") )
 		{
 			pGrid	= SG_Create_Grid(
-						Get_Parameters("GET_GRID")->Get_Parameter("GRID")->asGrid()
+						*Get_Parameters("GET_SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System()
 					);
 		}
 		break;

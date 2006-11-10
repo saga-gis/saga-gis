@@ -90,6 +90,14 @@ CGrid_Random_Terrain::CGrid_Random_Terrain(void)
 		0.0, 
 		true);
 
+	//-----------------------------------------------------
+	pParameters	= Add_Parameters("GET_SYSTEM"	, _TL("Choose Grid Project"), "");
+
+	pParameters->Add_Grid_System(
+		NULL, "SYSTEM"		, _TL("System")		, ""
+	);
+
+
 	pParameters	= Add_Parameters("GRID", _TL("Choose Grid"), "");
 
 	pParameters->Add_Grid(NULL, 
@@ -134,9 +142,11 @@ bool CGrid_Random_Terrain::On_Execute(void)
 		break;
 
 	case 1:	// Grid Project...
-		if( Dlg_Parameters("GRID") )
+		if( Dlg_Parameters("GET_SYSTEM") )
 		{
-			pGrid	= SG_Create_Grid(Get_Parameters("GRID")->Get_Parameter("GRID")->asGrid());
+			pGrid	= SG_Create_Grid(
+						*Get_Parameters("GET_SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System()
+					);
 		}
 		break;
 

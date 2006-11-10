@@ -198,7 +198,7 @@ CGEOTRANS_Grid::CGEOTRANS_Grid(void)
 
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_SYSTEM"		, _TL("Choose Grid")			, "");
+	pParameters	= Add_Parameters("GET_SYSTEM"	, _TL("Choose Grid Project")	, "");
 
 	pParameters->Add_Grid_System(
 		NULL, "SYSTEM"		, _TL("System")		, ""

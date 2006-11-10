@@ -150,12 +150,10 @@ CShapes2Grid::CShapes2Grid(void)
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GRIDPRJ", _TL("Choose Project"), "");
+	pParameters	= Add_Parameters("GET_SYSTEM"	, _TL("Choose Grid Project"), "");
 
-	pNode_0	= pParameters->Add_Grid(
-		NULL	, "GRID"		, _TL("Grid"),
-		"",
-		PARAMETER_INPUT	, false
+	pNode_0	= pParameters->Add_Grid_System(
+		NULL, "SYSTEM"		, _TL("System")		, ""
 	);
 
 	pNode_0	= pParameters->Add_Choice(
@@ -171,7 +169,7 @@ CShapes2Grid::CShapes2Grid(void)
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GRID"	, _TL("Choose Grid")			, "");
+	pParameters	= Add_Parameters("GRID"			, _TL("Choose Grid")		, "");
 
 	pNode_0	= pParameters->Add_Grid(
 		NULL	, "GRID"		, _TL("Grid"),
@@ -272,12 +270,12 @@ bool CShapes2Grid::On_Execute(void)
 			break;
 
 		case 1:	// Grid Project...
-			if( Dlg_Parameters("GRIDPRJ") )
+			if( Dlg_Parameters("GET_SYSTEM") )
 			{
 				pGrid	= SG_Create_Grid(
-					Get_Parameters("GRIDPRJ")->Get_Parameter("GRID")->asGrid(),
-					Get_Grid_Type(Get_Parameters("GRIDPRJ")->Get_Parameter("GRID_TYPE")->asInt())
-				);
+							*Get_Parameters("GET_SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System(),
+							Get_Grid_Type(Get_Parameters("GET_SYSTEM")->Get_Parameter("GRID_TYPE")->asInt())
+						);
 			}
 			break;
 
@@ -388,6 +386,72 @@ void CShapes2Grid::Gridding_Point(CSG_Shape *pShape, double Value)
 }
 
 //---------------------------------------------------------
+#define SET_VALUE(P)	if( pGrid->is_InGrid(P.x, P.y, false) )\
+						{	pGrid->Set_Value(P.x, P.y, pGrid->is_NoData(P.x, P.y) ? Value : (Value + pGrid->asDouble(P.x, P.y)) / 2.0);	}
+
+//---------------------------------------------------------
+void CShapes2Grid::Gridding_Line(CSG_Shape *pShape, double Value)
+{
+	int				iPart, iPoint;
+	TSG_Point_Int	A, B;
+	TSG_Point		a, b, p, c00, c01, c10, c11;
+
+	for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+	{
+		b	= pShape->Get_Point(0, iPart);
+		b.x	= (b.x - pGrid->Get_XMin()) / pGrid->Get_Cellsize();
+		b.y	= (b.y - pGrid->Get_YMin()) / pGrid->Get_Cellsize();
+		B.x	= (int)(0.5 + b.x);
+		B.y	= (int)(0.5 + b.y);
+		SET_VALUE(B);
+
+		for(iPoint=1; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+		{
+			A	= B;
+			a	= b;
+
+			b	= pShape->Get_Point(iPoint, iPart);
+			b.x	= (b.x - pGrid->Get_XMin()) / pGrid->Get_Cellsize();
+			b.y	= (b.y - pGrid->Get_YMin()) / pGrid->Get_Cellsize();
+			B.x	= (int)(0.5 + b.x);
+			B.y	= (int)(0.5 + b.y);
+			SET_VALUE(B);
+
+			while( A.x != B.x && A.y != B.y )
+			{
+				c00.x	= c01.x	= A.x - 0.5;
+				c00.y	= c10.y	= A.y - 0.5;
+				c10.x	= c11.x	= A.x + 0.5;
+				c01.y	= c11.y	= A.y + 0.5;
+
+				if(      SG_Get_Crossing(p, a, b, c00, c01, true) )
+				{
+					A.x--;
+				}
+				else if( SG_Get_Crossing(p, a, b, c10, c11, true) )
+				{
+					A.x++;
+				}
+				else if( SG_Get_Crossing(p, a, b, c00, c10, true) )
+				{
+					A.y--;
+				}
+				else if( SG_Get_Crossing(p, a, b, c01, c11, true) )
+				{
+					A.y++;
+				}
+				else
+				{
+					break;
+				}
+
+				SET_VALUE(A);
+			}
+		}
+	}
+}
+
+/*/---------------------------------------------------------
 void CShapes2Grid::Gridding_Line(CSG_Shape *pShape, double Value)
 {
 	int			iPart, iPoint, x, y, sig;
@@ -456,7 +520,7 @@ void CShapes2Grid::Gridding_Line(CSG_Shape *pShape, double Value)
 			}
 		}
 	}
-}
+}/**/
 
 //---------------------------------------------------------
 void CShapes2Grid::Gridding_Polygon(CSG_Shape *pShape, double Value)
