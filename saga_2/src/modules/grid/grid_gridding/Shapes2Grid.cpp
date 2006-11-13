@@ -305,19 +305,22 @@ bool CShapes2Grid::On_Execute(void)
 				{
 					pShape	= pShapes->Get_Shape(i);
 
-					switch( pShapes->Get_Type() )
+					if( pShape->Intersects(pGrid->Get_Extent().m_rect) )
 					{
-					case SHAPE_TYPE_Point:
-						Gridding_Point	(pShape, pShape->Get_Record()->asDouble(iField));
-						break;
+						switch( pShapes->Get_Type() )
+						{
+						case SHAPE_TYPE_Point:
+							Gridding_Point	(pShape, pShape->Get_Record()->asDouble(iField));
+							break;
 
-					case SHAPE_TYPE_Line:
-						Gridding_Line	(pShape, pShape->Get_Record()->asDouble(iField));
-						break;
+						case SHAPE_TYPE_Line:
+							Gridding_Line	(pShape, pShape->Get_Record()->asDouble(iField));
+							break;
 
-					case SHAPE_TYPE_Polygon:
-						Gridding_Polygon(pShape, pShape->Get_Record()->asDouble(iField));
-						break;
+						case SHAPE_TYPE_Polygon:
+							Gridding_Polygon(pShape, pShape->Get_Record()->asDouble(iField));
+							break;
+						}
 					}
 				}
 			}
@@ -365,14 +368,12 @@ bool CShapes2Grid::On_Execute(void)
 //---------------------------------------------------------
 void CShapes2Grid::Gridding_Point(CSG_Shape *pShape, double Value)
 {
-	int			iPart, iPoint, x, y;
-	TSG_Point	p;
-
-	for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+	for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 	{
-		for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+		for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 		{
-			p	= pShape->Get_Point(iPoint, iPart);
+			int			x, y;
+			TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
 
 			x	= (int)((p.x - pGrid->Get_XMin()) / pGrid->Get_Cellsize());
 			y	= (int)((p.y - pGrid->Get_YMin()) / pGrid->Get_Cellsize());
@@ -385,68 +386,175 @@ void CShapes2Grid::Gridding_Point(CSG_Shape *pShape, double Value)
 	}
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #define SET_VALUE(P)	if( pGrid->is_InGrid(P.x, P.y, false) )\
 						{	pGrid->Set_Value(P.x, P.y, pGrid->is_NoData(P.x, P.y) ? Value : (Value + pGrid->asDouble(P.x, P.y)) / 2.0);	}
 
+/*/---------------------------------------------------------
+#define set_pixel(X, Y)	if( pGrid->is_InGrid(X, Y, false) )\
+						{	pGrid->Set_Value(X, Y, pGrid->is_NoData(X, Y) ? Value : (Value + pGrid->asDouble(X, Y)) / 2.0);	}
+
+void line_to(int x0, int y0, int x1, int y1, double Value, CSG_Grid *pGrid)
+{
+	double	dy	= y1 - y0;
+	double	dx	= x1 - x0;
+	double	t	= 0.5;                      // offset for rounding
+	double	m;
+
+	set_pixel(x0, y0);
+
+	if( fabs(dx) > fabs(dy) )
+	{          // slope < 1
+		m	= dy / dx;      // compute slope
+		t	+= y0;
+		dx	= (dx < 0) ? -1 : 1;
+		m	*= dx;
+
+		while (x0 != x1)
+		{
+			x0	+= dx;                           // step to next x value
+			t	+= m;                             // add slope to y value
+			set_pixel(x0, (int) t);
+		}
+	}
+	else
+	{                                    // slope >= 1
+		m	= (float) dx / (float) dy;      // compute slope
+		t	+= x0;
+		dy	= (dy < 0) ? -1 : 1;
+		m	*= dy;
+
+		while( y0 != y1 )
+		{
+			y0	+= dy;                           // step to next y value
+			t	+= m;                             // add slope to x value
+			set_pixel(t, y0);
+		}
+	}
+}/**/
+
+//---------------------------------------------------------
+#define M_RINT(x)	((int)(0.5 + (x)))
+#define M_ZINT(x)	((x) > 0.0 ? (x) - (int)(x) : 1.0 + ((x) - (int)(x)))
+
+//---------------------------------------------------------
+void line_to(TSG_Point a, TSG_Point b, double Value, CSG_Grid *pGrid)
+{
+	int				ix, iy;
+	double			e, d, dx, dy;
+	TSG_Point_Int	A, B;
+
+	A.x	= M_RINT(a.x);
+	A.y	= M_RINT(a.y);
+	B.x	= M_RINT(b.x);
+	B.y	= M_RINT(b.y);
+
+	e	= 0.0;
+//	SET_VALUE(A);
+
+	if( A.x != B.x || A.y != B.y )
+	{
+		dx	= b.x - a.x;
+		dy	= b.y - a.y;
+
+		if( fabs(dx) > fabs(dy) )
+		{
+			ix	= dx > 0.0 ? 1 : -1;
+			iy	= dy > 0.0 ? 1 : -1;
+			d	= fabs(dy / dx);
+			dx	= ix < 0 ? M_ZINT(a.x + 0.5) : 1.0 - M_ZINT(a.x + 0.5);
+			e	= iy > 0 ? M_ZINT(a.y + 0.5) : 1.0 - M_ZINT(a.y + 0.5);
+			e	+= d * dx;
+			SET_VALUE(A);
+
+			while( e > 1.0 )
+			{
+				e	-= 1.0;
+				A.y	+= iy;
+				SET_VALUE(A);
+			}
+
+			while( A.x != B.x )
+			{
+				A.x	+= ix;
+				e	+= d;
+				SET_VALUE(A);
+
+				if( A.x != B.x )
+				{
+					while( e > 1.0 )
+					{
+						e	-= 1.0;
+						A.y	+= iy;
+						SET_VALUE(A);
+					}
+				}
+			}
+		}
+		else if( fabs(dy) > fabs(dx) )
+		{
+			ix	= dx > 0.0 ? 1 : -1;
+			iy	= dy > 0.0 ? 1 : -1;
+			d	= fabs(dx / dy);
+			dy	= iy < 0 ? M_ZINT(a.y + 0.5) : 1.0 - M_ZINT(a.y + 0.5);
+			e	= ix > 0 ? M_ZINT(a.x + 0.5) : 1.0 - M_ZINT(a.x + 0.5);
+			e	+= d * dy;
+			SET_VALUE(A);
+
+			while( e > 1.0 )
+			{
+				e	-= 1.0;
+				A.x	+= ix;
+				SET_VALUE(A);
+			}
+
+			while( A.y != B.y )
+			{
+				A.y	+= iy;
+				e	+= d;
+				SET_VALUE(A);
+
+				if( A.y != B.y )
+				{
+					while( e > 1.0 )
+					{
+						e	-= 1.0;
+						A.x	+= ix;
+						SET_VALUE(A);
+					}
+				}
+			}
+		}
+	}
+}
+
 //---------------------------------------------------------
 void CShapes2Grid::Gridding_Line(CSG_Shape *pShape, double Value)
 {
-	int				iPart, iPoint;
-	TSG_Point_Int	A, B;
-	TSG_Point		a, b, p, c00, c01, c10, c11;
+	int			iPart, iPoint;
+	TSG_Point	a, b;
 
 	for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 	{
 		b	= pShape->Get_Point(0, iPart);
 		b.x	= (b.x - pGrid->Get_XMin()) / pGrid->Get_Cellsize();
 		b.y	= (b.y - pGrid->Get_YMin()) / pGrid->Get_Cellsize();
-		B.x	= (int)(0.5 + b.x);
-		B.y	= (int)(0.5 + b.y);
-		SET_VALUE(B);
 
 		for(iPoint=1; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 		{
-			A	= B;
 			a	= b;
-
 			b	= pShape->Get_Point(iPoint, iPart);
 			b.x	= (b.x - pGrid->Get_XMin()) / pGrid->Get_Cellsize();
 			b.y	= (b.y - pGrid->Get_YMin()) / pGrid->Get_Cellsize();
-			B.x	= (int)(0.5 + b.x);
-			B.y	= (int)(0.5 + b.y);
-			SET_VALUE(B);
 
-			while( A.x != B.x && A.y != B.y )
-			{
-				c00.x	= c01.x	= A.x - 0.5;
-				c00.y	= c10.y	= A.y - 0.5;
-				c10.x	= c11.x	= A.x + 0.5;
-				c01.y	= c11.y	= A.y + 0.5;
-
-				if(      SG_Get_Crossing(p, a, b, c00, c01, true) )
-				{
-					A.x--;
-				}
-				else if( SG_Get_Crossing(p, a, b, c10, c11, true) )
-				{
-					A.x++;
-				}
-				else if( SG_Get_Crossing(p, a, b, c00, c10, true) )
-				{
-					A.y--;
-				}
-				else if( SG_Get_Crossing(p, a, b, c01, c11, true) )
-				{
-					A.y++;
-				}
-				else
-				{
-					break;
-				}
-
-				SET_VALUE(A);
-			}
+			line_to(a, b, Value, pGrid);
 		}
 	}
 }
@@ -521,6 +629,13 @@ void CShapes2Grid::Gridding_Line(CSG_Shape *pShape, double Value)
 		}
 	}
 }/**/
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CShapes2Grid::Gridding_Polygon(CSG_Shape *pShape, double Value)
