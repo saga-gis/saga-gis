@@ -61,6 +61,13 @@
 #ifndef HEADER_INCLUDED__Shapes2Grid_H
 #define HEADER_INCLUDED__Shapes2Grid_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
@@ -81,23 +88,41 @@ public:
 
 protected:
 
-	virtual bool			On_Execute(void);
+	virtual bool			On_Execute			(void);
 
 
 private:
 
-	CSG_Grid					*pGrid;
+	int						m_Lock_ID, m_Method_Lines;
 
-	CSG_Shapes					*pShapes;
+	double					m_Value;
+
+	CSG_Grid				*m_pGrid, *m_pLock;
+
+	CSG_Shapes				*m_pShapes;
 
 
-	TSG_Grid_Type				Get_Grid_Type(int iType);
-	CSG_Grid *					Get_Target_Grid(CSG_Parameters *pParameters, CSG_Shapes *pShapes);
+	TSG_Grid_Type			Get_Grid_Type		(int iType);
+	CSG_Grid *				Get_Target_Grid		(CSG_Parameters *pParameters, CSG_Shapes *pShapes);
 
-	void					Gridding_Point	(CSG_Shape *pShape, double Value);
-	void					Gridding_Line	(CSG_Shape *pShape, double Value);
-	void					Gridding_Polygon(CSG_Shape *pShape, double Value);
+	void					Set_Value			(int x, int y);
+
+	void					Set_Points			(CSG_Shape *pShape);
+
+	void					Set_Line			(CSG_Shape *pShape);
+	void					Set_Line_A			(TSG_Point a, TSG_Point b);
+	void					Set_Line_B			(TSG_Point a, TSG_Point b);
+
+	void					Set_Polygon			(CSG_Shape *pShape);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Shapes2Grid_H
