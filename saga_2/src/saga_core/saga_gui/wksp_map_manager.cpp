@@ -95,30 +95,55 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 {
 	g_pMaps		= this;
 
+	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
 	bool			bValue;
-	CSG_Parameter	*pNode_0;
+	long			lValue;
+	CSG_Parameter	*pNode_0, *pNode_1;
 
 	m_Parameters.Create(this, "", "");
 
+	//-----------------------------------------------------
 	pNode_0	= m_Parameters.Add_Node(
-		NULL	, "NODE_GENERAL"	, LNG("[CAP] General"),
+		NULL	, "NODE_DEFAULTS"	, LNG("[CAP] Defaults"),
 		""
 	);
-
-	bValue	= CONFIG_Read("/MAPS", "GOTO_NEWLAYER"	, bValue) ? bValue : true;
 
 	m_Parameters.Add_Value(
 		pNode_0	, "GOTO_NEWLAYER"	, LNG("[CAP] Zoom to added layer"),
 		"",
-		PARAMETER_TYPE_Bool, bValue
+		PARAMETER_TYPE_Bool,
+		CONFIG_Read("/MAPS", "GOTO_NEWLAYER", bValue) ? bValue : true
+	);
+
+	//-----------------------------------------------------
+	pNode_1	= m_Parameters.Add_Node(
+		pNode_0	, "NODE_FRAME"		, LNG("[CAP] Frame"),
+		""
+	);
+
+	m_Parameters.Add_Value(
+		pNode_1	, "FRAME_SHOW"		, LNG("[CAP] Show"),
+		"",
+		PARAMETER_TYPE_Bool,
+		CONFIG_Read("/MAPS", "FRAME_SHOW", bValue) ? bValue : true
+	);
+
+	m_Parameters.Add_Value(
+		pNode_1	, "FRAME_WIDTH"		, LNG("[CAP] Width"),
+		"",
+		PARAMETER_TYPE_Int,
+		CONFIG_Read("/MAPS", "FRAME_WIDTH", lValue) ? lValue : 17,
+		5, true
 	);
 }
 
 //---------------------------------------------------------
 CWKSP_Map_Manager::~CWKSP_Map_Manager(void)
 {
-	CONFIG_Write("/MAPS", "GOTO_NEWLAYER", m_Parameters("GOTO_NEWLAYER")->asBool());
+	CONFIG_Write("/MAPS", "GOTO_NEWLAYER"	,		m_Parameters("GOTO_NEWLAYER")	->asBool());
+	CONFIG_Write("/MAPS", "FRAME_SHOW"		,		m_Parameters("FRAME_SHOW")		->asBool());
+	CONFIG_Write("/MAPS", "FRAME_WIDTH"		, (long)m_Parameters("FRAME_WIDTH")		->asInt());
 
 	g_pMaps		= NULL;
 }

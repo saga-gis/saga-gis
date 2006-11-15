@@ -278,13 +278,13 @@ void CWKSP_Map::_Create_Parameters(void)
 	m_Parameters.Add_Value(
 		pNode_0	, "FRAME_SHOW"		, LNG("[CAP] Show"),
 		"",
-		PARAMETER_TYPE_Bool, true
+		PARAMETER_TYPE_Bool, g_pMaps->Get_Parameters()->Get_Parameter("FRAME_SHOW")->asBool()
 	);
 
 	m_Parameters.Add_Value(
 		pNode_0	, "FRAME_WIDTH"		, LNG("[CAP] Width"),
 		"",
-		PARAMETER_TYPE_Int, 17, 5, true
+		PARAMETER_TYPE_Int, g_pMaps->Get_Parameters()->Get_Parameter("FRAME_WIDTH")->asInt(), 5, true
 	);
 
 	//-----------------------------------------------------

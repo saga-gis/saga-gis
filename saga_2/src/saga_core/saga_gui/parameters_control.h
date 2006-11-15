@@ -99,7 +99,7 @@ public:
 	bool						Update_DataObjects	(void);
 
 	bool						Set_Parameters		(class CSG_Parameters *pParameters);
-	class CSG_Parameters *			Get_Parameters		(void)	{	return( m_pParameters );	}
+	class CSG_Parameters *		Get_Parameters		(void)	{	return( m_pParameters );	}
 
 	bool						is_Modified			(void)	{	return( m_bModified );	}
 
@@ -114,9 +114,11 @@ private:
 
 	bool						m_bModified;
 
-	class CSG_Parameters			*m_pParameters, *m_pOriginal;
+	class CSG_Parameters		*m_pParameters, *m_pOriginal;
 
 	class wxPropertyGrid		*m_pPG;
+
+	class wxPropertyGridManager	*m_pPGM;
 
 
 	void						_Add_Properties		(class CSG_Parameters *pParameters);
