@@ -80,15 +80,17 @@
 //---------------------------------------------------------
 CGrid_Profile::CGrid_Profile(void)
 {
-	Set_Name(_TL("Profile"));
+	Set_Name		(_TL("Profile"));
 
-	Set_Author(_TL("Copyrights (c) 2004 by Olaf Conrad"));
+	Set_Author		(_TL("Copyrights (c) 2004 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TL(
 		"Create interactively profiles from a grid based DEM\n"
 		"Use left mouse button clicks into a map window to add profile points."
-		"A right mouse button click will finish the profile.")
-	);
+		"A right mouse button click will finish the profile."
+	));
+
+	Set_Drag_Mode	(MODULE_INTERACTIVE_DRAG_LINE);
 
 	Parameters.Add_Grid(
 		NULL, "DEM"			, _TL("DEM"),
@@ -191,7 +193,7 @@ bool CGrid_Profile::Set_Profile(void)
 {
 	int			i;
 	TSG_Point	A, B;
-	CSG_Shape		*pLine;
+	CSG_Shape	*pLine;
 
 	//-----------------------------------------------------
 	m_pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("Profile [%s]"), m_pDEM->Get_Name()));
@@ -282,7 +284,7 @@ bool CGrid_Profile::Add_Point(CSG_Point Point)
 {
 	int			x, y, i;
 	double		z, Distance, Distance_2;
-	CSG_Shape		*pPoint, *pLast;
+	CSG_Shape	*pPoint, *pLast;
 
 	if( Get_System()->Get_World_to_Grid(x, y, Point) && m_pDEM->is_InGrid(x, y) )
 	{

@@ -424,22 +424,21 @@ double CSG_Shape_Points::Get_Distance(TSG_Point Point, TSG_Point &Next, int iPar
 //---------------------------------------------------------
 int CSG_Shape_Points::On_Intersects(TSG_Rect Extent)
 {
-	int			iPart, iPoint;
-	TSG_Point	*p;
-
-	for(iPart=0; iPart<m_nParts; iPart++)
+	for(int iPart=0; iPart<m_nParts; iPart++)
 	{
-		for(iPoint=0, p=m_Points[iPart]; iPoint<m_nPoints[iPart]; iPoint++, p++)
+		TSG_Point	*p	= m_Points[iPart];
+
+		for(int iPoint=0; iPoint<m_nPoints[iPart]; iPoint++, p++)
 		{
 			if(	Extent.xMin <= p->x && p->x <= Extent.xMax
 			&&	Extent.yMin <= p->y && p->y <= Extent.yMax	)
 			{
-				return( 1 );
+				return( INTERSECTION_Overlaps );
 			}
 		}
 	}
 
-	return( 0 );
+	return( INTERSECTION_None );
 }
 
 

@@ -88,27 +88,26 @@ CSG_Shape_Line::~CSG_Shape_Line(void)
 //---------------------------------------------------------
 int CSG_Shape_Line::On_Intersects(TSG_Rect Extent)
 {
-	int			iPart, iPoint;
-	TSG_Point	*pA, *pB, Crossing;
-
-	for(iPart=0; iPart<m_nParts; iPart++)
+	for(int iPart=0; iPart<m_nParts; iPart++)
 	{
 		if( m_nPoints[iPart] > 1 )
 		{
+			TSG_Point	*pA, *pB, Crossing;
+
 			pB	= m_Points[iPart];
 			pA	= pB + 1;
 
-			for(iPoint=1; iPoint<m_nPoints[iPart]; iPoint++, pB=pA++)
+			for(int iPoint=1; iPoint<m_nPoints[iPart]; iPoint++, pB=pA++)
 			{
 				if( SG_Get_Crossing_InRegion(Crossing, *pA, *pB, Extent) )
 				{
-					return( 1 );
+					return( INTERSECTION_Overlaps );
 				}
 			}
 		}
 	}
 
-	return( 0 );
+	return( INTERSECTION_None );
 }
 
 

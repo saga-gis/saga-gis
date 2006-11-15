@@ -88,51 +88,48 @@ CSG_Shape_Polygon::~CSG_Shape_Polygon(void)
 //---------------------------------------------------------
 int CSG_Shape_Polygon::On_Intersects(TSG_Rect Region)
 {
-	int			iPart, iPoint;
-	TSG_Point	pa, pb, top_left, top_right, bottom_left, bottom_right, Point;
-
+	TSG_Point	*pa, *pb, r00, r10, r01, r11, c;
 
 	//-----------------------------------------------------
 	// 1. Line Intersection...
 
-	bottom_left.x	= top_left.x		= Region.xMin;
-	bottom_right.x	= top_right.x		= Region.xMax;
+	r00.x	= r01.x	= Region.xMin;
+	r11.x	= r10.x	= Region.xMax;
+	r00.y	= r10.y	= Region.yMin;
+	r11.y	= r01.y	= Region.yMax;
 
-	bottom_left.y	= bottom_right.y	= Region.yMin;
-	top_left.y		= top_right.y		= Region.yMax;
-
-	for(iPart=0; iPart<m_nParts; iPart++)
+	for(int iPart=0; iPart<m_nParts; iPart++)
 	{
-		pb	= m_Points[iPart][m_nPoints[iPart] - 1];
+		pb	= m_Points[iPart] + m_nPoints[iPart] - 1;
 
-		for(iPoint=0; iPoint<m_nPoints[iPart]; iPoint++)
+		for(int iPoint=0; iPoint<m_nPoints[iPart]; iPoint++)
 		{
 			pa	= pb;
-			pb	= m_Points[iPart][iPoint];
+			pb	= m_Points[iPart] + iPoint;
 
-			if(	SG_Get_Crossing(Point, pa, pb, bottom_left , bottom_right, true)
-			||	SG_Get_Crossing(Point, pa, pb, bottom_left , top_left    , true)
-			||	SG_Get_Crossing(Point, pa, pb, bottom_right, top_right   , true)
-			||	SG_Get_Crossing(Point, pa, pb, top_left    , top_right   , true)	)
+			if(	SG_Get_Crossing(c, *pa, *pb, r00, r10, true)
+			||	SG_Get_Crossing(c, *pa, *pb, r00, r01, true)
+			||	SG_Get_Crossing(c, *pa, *pb, r11, r10, true)
+			||	SG_Get_Crossing(c, *pa, *pb, r11, r01, true)	)
 			{
-				return( 1 );
+				return( INTERSECTION_Overlaps );
 			}
 		}
 	}
 
 
 	//-----------------------------------------------------
-	// 2. Is region completly within extent...
+	// 2. Is region completly within polygon...
 
-	if(	is_Containing(Region.xMin, Region.yMax)
-	||	is_Containing(Region.xMin, Region.yMin)
-	||	is_Containing(Region.xMax, Region.yMax)
-	||	is_Containing(Region.xMax, Region.yMin)	)
+	if(	is_Containing(r00)
+	||	is_Containing(r01)
+	||	is_Containing(r11)
+	||	is_Containing(r10)	)
 	{
-		return( 1 );
+		return( INTERSECTION_Contains );
 	}
 
-	return( 0 );
+	return( INTERSECTION_None );
 }
 
 

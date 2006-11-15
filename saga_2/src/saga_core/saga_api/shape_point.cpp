@@ -132,10 +132,13 @@ CSG_Rect CSG_Shape_Point::Get_Extent(void)
 //---------------------------------------------------------
 int CSG_Shape_Point::On_Intersects(TSG_Rect Extent)
 {
-	return(	Extent.xMin <= m_Point.x && m_Point.x <= Extent.xMax
-		&&	Extent.yMin <= m_Point.y && m_Point.y <= Extent.yMax
-		?	1 : 0
-	);
+	if(	Extent.xMin <= m_Point.x && m_Point.x <= Extent.xMax
+	&&	Extent.yMin <= m_Point.y && m_Point.y <= Extent.yMax )
+	{
+		return( INTERSECTION_Overlaps );
+	}
+
+	return( INTERSECTION_None );
 }
 
 

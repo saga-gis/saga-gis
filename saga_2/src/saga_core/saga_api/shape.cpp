@@ -169,26 +169,20 @@ inline void CSG_Shape::_Extent_Invalidate(void)
 //---------------------------------------------------------
 int CSG_Shape::Intersects(TSG_Rect _Region)
 {
-	int			Result;
-	CSG_Rect	r(_Region);
-
-	switch( r.Intersects(Get_Extent()) )
+	switch( Get_Extent().Intersects(_Region) )
 	{
 	case INTERSECTION_None:
-		Result	= 0;
-		break;
+		return( INTERSECTION_None );
 
 	case INTERSECTION_Identical:
-	case INTERSECTION_Contains:
-		Result	= 1;
-		break;
+	case INTERSECTION_Contained:
+		return( INTERSECTION_Contained );
 
 	default:
-		Result	= On_Intersects(_Region);
-		break;
+	case INTERSECTION_Contains:
+	case INTERSECTION_Overlaps:
+		return( On_Intersects(_Region) );
 	}
-
-	return( Result );
 }
 
 
