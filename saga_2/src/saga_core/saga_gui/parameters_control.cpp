@@ -100,21 +100,23 @@ CParameters_Control::CParameters_Control(wxWindow *pParent, bool bDialog)
 	: wxPanel(pParent, -1, wxDefaultPosition, wxDefaultSize, wxNO_BORDER|wxCLIP_CHILDREN)
 {
 	m_pPGM	= new wxPropertyGridManager(this, bDialog ? ID_WND_PARM_PG_DIALOG : ID_WND_PARM_PG_ACTIVE, wxDefaultPosition, wxDefaultSize,
-		wxPG_BOLD_MODIFIED|
-		wxPG_SPLITTER_AUTO_CENTER|
-		//wxPG_AUTO_SORT|
-		//wxPG_HIDE_MARGIN|
-		//wxPG_STATIC_SPLITTER|
-		//wxPG_HIDE_CATEGORIES|
-		//wxPG_LIMITED_EDITING|
-		wxTAB_TRAVERSAL|
-		//wxPG_TOOLBAR|
-		wxPG_DESCRIPTION|
-		//wxPG_COMPACTOR|
-		wxPGMAN_DEFAULT_STYLE
+		 wxPG_BOLD_MODIFIED
+		|wxPG_SPLITTER_AUTO_CENTER
+	//	|wxPG_AUTO_SORT
+	//	|wxPG_HIDE_MARGIN
+	//	|wxPG_STATIC_SPLITTER
+	//	|wxPG_HIDE_CATEGORIES
+	//	|wxPG_LIMITED_EDITING
+		|wxTAB_TRAVERSAL
+	//	|wxPG_TOOLBAR
+		|wxPG_DESCRIPTION
+	//	|wxPG_COMPACTOR
 	);
 
 	m_pPG			= m_pPGM->GetGrid();
+
+//	m_pPGM->SetExtraStyle(wxPG_EX_HELP_AS_TOOLTIPS);
+	m_pPGM->SetDescBoxHeight(bDialog ? 100 : 50);
 
 	m_pParameters	= new CSG_Parameters();
 	m_pOriginal		= NULL;
@@ -516,12 +518,16 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 		pProperty	= _Add_Property(CParameters_PG_Colors(
 			pParameter->Get_Name(), pParameter->Get_Identifier(), CParameters_PG_DialogedValue(pParameter)
 		), pParent);
+
+		m_pPG->LimitPropertyEditing(pProperty->GetId());
 		break;
 
 	case PARAMETER_TYPE_Grid_System:
 		pProperty	= _Add_Property(new CParameters_PG_GridSystem(
 			pParameter
 		), pParent);
+
+		m_pPG->LimitPropertyEditing(pProperty->GetId());
 		break;
 
 	case PARAMETER_TYPE_Choice:
@@ -535,8 +541,18 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 		), pParent);
 		break;
 
-	case PARAMETER_TYPE_Text:	// pProperty	= _Add_Property(wxLongStringProperty(pParameter->Get_Name(), pParameter->Get_Identifier(), pParameter->asString()), pParent);	break;
 	case PARAMETER_TYPE_FilePath:
+		pProperty	= _Add_Property(CParameters_PG_Dialoged(
+			pParameter->Get_Name(), pParameter->Get_Identifier(), CParameters_PG_DialogedValue(pParameter)
+		), pParent);
+		break;
+
+	case PARAMETER_TYPE_Text:
+	//	pProperty	= _Add_Property(wxLongStringProperty(
+	//		pParameter->Get_Name(), pParameter->Get_Identifier(), pParameter->asString()
+	//	), pParent);
+	//	break;
+
 	case PARAMETER_TYPE_Font:
 	case PARAMETER_TYPE_FixedTable:
 	case PARAMETER_TYPE_Grid_List:
@@ -547,13 +563,25 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 		pProperty	= _Add_Property(CParameters_PG_Dialoged(
 			pParameter->Get_Name(), pParameter->Get_Identifier(), CParameters_PG_DialogedValue(pParameter)
 		), pParent);
+
+		m_pPG->LimitPropertyEditing(pProperty->GetId());
 		break;
 	}
 
 	//-----------------------------------------------------
 	if( pProperty )
 	{
-		m_pPG->SetPropertyHelpString(pProperty->GetId(), pParameter->Get_Description(PARAMETER_DESCRIPTION_TEXT|PARAMETER_DESCRIPTION_PROPERTIES|PARAMETER_DESCRIPTION_OPTIONAL|PARAMETER_DESCRIPTION_TYPE).c_str());
+		CSG_String	s, sDesc;
+
+		sDesc	= pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE);
+
+		s		= pParameter->Get_Description(PARAMETER_DESCRIPTION_TEXT);
+		if( s.Length() > 0 )	{	sDesc.Append("\n___\n");	sDesc.Append(s);	}
+
+		s		= pParameter->Get_Description(PARAMETER_DESCRIPTION_PROPERTIES);
+		if( s.Length() > 0 )	{	sDesc.Append("\n___\n");	sDesc.Append(s);	}
+
+		m_pPG->SetPropertyHelpString(pProperty->GetId(), sDesc.c_str());
 	}
 
 	return( pProperty );

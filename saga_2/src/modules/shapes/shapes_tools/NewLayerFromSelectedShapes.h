@@ -28,8 +28,8 @@ class CNewLayerFromSelectedShapes : public CSG_Module{
 public:
 	CNewLayerFromSelectedShapes(void);
 	virtual ~CNewLayerFromSelectedShapes(void);
-	virtual bool is_ProjectDependent(void) {return( false );}
 
+	virtual const char *		Get_MenuPath			(void)	{	return( _TL("R:Construction") );	}
 
 
 protected:

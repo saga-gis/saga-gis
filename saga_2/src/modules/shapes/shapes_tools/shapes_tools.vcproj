@@ -503,6 +503,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\shapes_cut.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\shapes_cut_interactive.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Shapes_Merge.cpp"
 				>
 				<FileConfiguration
@@ -545,6 +553,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\shapes_split.cpp"
+				>
 			</File>
 			<File
 				RelativePath="ShapeSearchSelector.cpp"
@@ -714,11 +726,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\shapes_cut.h"
+				>
+			</File>
+			<File
+				RelativePath=".\shapes_cut_interactive.h"
+				>
+			</File>
+			<File
 				RelativePath="Shapes_Merge.h"
 				>
 			</File>
 			<File
 				RelativePath="Shapes_Report.h"
+				>
+			</File>
+			<File
+				RelativePath=".\shapes_split.h"
 				>
 			</File>
 			<File

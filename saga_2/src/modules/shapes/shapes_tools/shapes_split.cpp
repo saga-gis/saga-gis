@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                     Shapes_Tools                      //
+//                     shapes_tools                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   Shapes_Split.cpp                    //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2006 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -48,98 +48,133 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-//---------------------------------------------------------
-
-
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
-#include "MLB_Interface.h"
-
-
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-
-const char * Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Shapes - Tools") );
-
-	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad, Victor Olaya (c) 2002-2006") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for the manipulation of vector data.") );
-
-	case MLB_INFO_Version:
-		return( "1.0" );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Shapes|Tools") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "Shapes_Create_Empty.h"
-#include "Shapes_Assign_Table.h"
-#include "Shapes_Merge.h"
-#include "Shapes_Report.h"
-#include "CreateWebContent.h"
-
-#include "QueryBuilder.h"
-#include "SearchInTable.h"
-#include "SelectByTheme.h"
-#include "SeparateShapes.h"
-#include "TransformShapes.h"
-#include "CreateChartLayer.h"
-#include "NewLayerFromSelectedShapes.h"
-#include "GraticuleBuilder.h"
-
-#include "Summarize.h"
-
-#include "shapes_cut.h"
-#include "shapes_cut_interactive.h"
 #include "shapes_split.h"
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-CSG_Module *		Create_Module(int i)
+//---------------------------------------------------------
+CShapes_Split::CShapes_Split(void)
 {
-	switch( i )
+	Set_Name		(_TL("Split Shapes Layer"));
+
+	Set_Author		(_TL("(c) 2006 by O. Conrad"));
+
+	Set_Description	(_TL(
+		""
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Shapes(
+		NULL	, "SHAPES"		, _TL("Shapes"),
+		"",
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Shapes_List(
+		NULL	, "CUTS"		, _TL("Tiles"),
+		"",
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	Parameters.Add_Shapes(
+		NULL	, "EXTENT"		, _TL("Extent"),
+		"",
+		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
+	);
+
+	Parameters.Add_Value(
+		NULL	, "NX"			, _TL("Number of horizontal tiles"),
+		"",
+		PARAMETER_TYPE_Int, 2, 1, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "NY"			, _TL("Number of vertical tiles"),
+		"",
+		PARAMETER_TYPE_Int, 2, 1, true
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "METHOD"		, _TL("Method"),
+		"",
+		Cut_Methods_Str(), 0
+	);
+}
+
+//---------------------------------------------------------
+CShapes_Split::~CShapes_Split(void)
+{}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CShapes_Split::On_Execute(void)
+{
+	int			x, y, nx, ny, Method;
+	CSG_Shapes	*pShapes, *pCut, *pExtent;
+
+	//-----------------------------------------------------
+	pShapes	= Parameters("SHAPES")	->asShapes();
+	pExtent	= Parameters("EXTENT")	->asShapes();
+	nx		= Parameters("NX")		->asInt();
+	ny		= Parameters("NY")		->asInt();
+	Method	= Parameters("METHOD")	->asInt();
+
+	Parameters("CUTS")->asShapesList()->Del_Items();
+
+	//-----------------------------------------------------
+	if( pShapes->is_Valid() )
 	{
-	case  0:	return( new CShapes_Create_Empty );
-	case  1:	return( new CShapes_Assign_Table );
-	case  2:	return( new CShapes_Merge );
-	case  3:	return( new CNewLayerFromSelectedShapes );
-	case  4:	return( new CQueryBuilder );
-	case  5:	return( new CSearchInTable );
-	case  6:	return( new CSelectByTheme );
-	case  7:	return( new CSeparateShapes );
-	case  8:	return( new CTransformShapes );
-	case  9:	return( new CCreateChartLayer );
-	case 10:	return( new CGraticuleBuilder );
-	case 11:	return( new CShapes_Report );
-	case 12:	return( new CSummarize );
-	case 13:	return( new CCreateWebContent );
-	case 14:	return( new CShapes_Cut );
-	case 15:	return( new CShapes_Cut_Interactive );
-	case 16:	return( new CShapes_Split );
+		double		dx, dy;
+		TSG_Rect	r;
+
+		dx	= pShapes->Get_Extent().Get_XRange() / nx;
+		dy	= pShapes->Get_Extent().Get_YRange() / ny;
+
+		for(y=0; y<ny && Process_Get_Okay(false); y++)
+		{
+			r.yMin	= pShapes->Get_Extent().Get_YMin() + y * dy;
+			r.yMax	= r.yMin + dy;
+
+			for(x=0; x<nx && Process_Get_Okay(false); x++)
+			{
+				r.xMin	= pShapes->Get_Extent().Get_XMin() + x * dx;
+				r.xMax	= r.xMin + dx;
+
+				Cut_Set_Extent(r, pExtent, y == 0 && x == 0);
+
+				Process_Set_Text(CSG_String::Format("%d/%d", y * nx + (x + 1), nx * ny));
+
+				if( (pCut = Cut_Shapes(r, Method, pShapes)) != NULL )
+				{
+					pCut->Set_Name(CSG_String::Format("%s [%d][%d]", pShapes->Get_Name(), 1 + x, 1 + y));
+
+					Parameters("CUTS")->asShapesList()->Add_Item(pCut);
+				}
+			}
+		}
+
+		return( true );
 	}
 
-	return( NULL );
+	return( false );
 }
 
 
@@ -150,8 +185,3 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA

@@ -29,7 +29,9 @@ class CShapes_Merge : public CSG_Module {
 public:
 	CShapes_Merge(void);
 	virtual ~CShapes_Merge(void);
-	virtual bool is_ProjectDependent(void) {return( false );}
+
+	virtual const char *		Get_MenuPath			(void)	{	return( _TL("R:Construction") );	}
+
 
 protected:
 	virtual bool On_Execute(void);

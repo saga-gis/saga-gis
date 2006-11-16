@@ -318,14 +318,32 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const char *Separator)
 	if( (Flags & PARAMETER_DESCRIPTION_TYPE) != 0 )
 	{
 		SEPARATE;
-		s.Append(CSG_String::Format("[%s]", Get_Type_Name()));
+		s.Append(CSG_String::Format("%s", Get_Type_Name()));
+
+		if( is_DataObject() || is_DataObject_List() )
+		{
+			if( is_Input() )
+			{
+				if( is_Optional() )
+					s.Append(CSG_String::Format(" (%s)", LNG("optional input")));
+				else
+					s.Append(CSG_String::Format(" (%s)", LNG("input")));
+			}
+			else if( is_Output() )
+			{
+				if( is_Optional() )
+					s.Append(CSG_String::Format(" (%s)", LNG("optional output")));
+				else
+					s.Append(CSG_String::Format(" (%s)", LNG("output")));
+			}
+		}
 	}
 
 	//-----------------------------------------------------
 	if( (Flags & PARAMETER_DESCRIPTION_OPTIONAL) != 0 && is_Optional() )
 	{
 		SEPARATE;
-		s.Append(CSG_String::Format("[%s]", LNG("optional")));
+		s.Append(CSG_String::Format("%s", LNG("optional")));
 	}
 
 	//-----------------------------------------------------
@@ -339,34 +357,36 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const char *Separator)
 		case PARAMETER_TYPE_Choice:
 			SEPARATE;
 
-			s.Append(CSG_String::Format("%s:%s", LNG("Choices"), Separator));
+			s.Append(CSG_String::Format("%s:", LNG("Available Choices")));
 
 			for(i=0; i<asChoice()->Get_Count(); i++)
 			{
-				s.Append(CSG_String::Format("[%d] %s%s", i, asChoice()->Get_Item(i), Separator));
+				s.Append(CSG_String::Format("%s[%d] %s", Separator, i, asChoice()->Get_Item(i)));
 			}
 			break;
 
 		case PARAMETER_TYPE_Int:
 		case PARAMETER_TYPE_Double:
 		case PARAMETER_TYPE_Degree:
-			SEPARATE;
-
+//		case PARAMETER_TYPE_Range:
 			if( asValue()->has_Minimum() && asValue()->has_Maximum() )
 			{
+				SEPARATE;
+				s.Append(CSG_String::Format("%s: ", LNG("Limits")));
 				s.Append(CSG_String::Format("%f < x < %f", asValue()->Get_Minimum(), asValue()->Get_Maximum()));
 			}
 			else if( asValue()->has_Minimum() )
 			{
+				SEPARATE;
+				s.Append(CSG_String::Format("%s: ", LNG("Limit")));
 				s.Append(CSG_String::Format("%f < x", asValue()->Get_Minimum()));
 			}
 			else if( asValue()->has_Maximum() )
 			{
+				SEPARATE;
+				s.Append(CSG_String::Format("%s: ", LNG("Limit")));
 				s.Append(CSG_String::Format("%s < %f", asValue()->Get_Maximum()));
 			}
-			break;
-
-		case PARAMETER_TYPE_Range:
 			break;
 
 		case PARAMETER_TYPE_FixedTable:
@@ -397,7 +417,6 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const char *Separator)
 	if( (Flags & PARAMETER_DESCRIPTION_TEXT) != 0 && m_Description.Length() > 0 )
 	{
 		SEPARATE;
-		s.Append(Separator);
 		s.Append(m_Description.c_str());
 	}
 

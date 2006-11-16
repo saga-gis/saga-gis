@@ -145,11 +145,23 @@ SOURCE=.\Shapes_Create_Empty.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\shapes_cut.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\shapes_cut_interactive.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Shapes_Merge.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\Shapes_Report.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\shapes_split.cpp
 # End Source File
 # Begin Source File
 
@@ -229,11 +241,23 @@ SOURCE=.\Shapes_Create_Empty.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\shapes_cut.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\shapes_cut_interactive.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Shapes_Merge.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\Shapes_Report.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\shapes_split.h
 # End Source File
 # Begin Source File
 
@@ -269,6 +293,18 @@ SOURCE=..\..\..\saga_core\saga_api\dataobject.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\saga_core\saga_api\doc_html.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\saga_core\saga_api\doc_pdf.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\saga_core\saga_api\doc_svg.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\saga_core\saga_api\geo_tools.h
 # End Source File
 # Begin Source File
@@ -282,6 +318,10 @@ SOURCE=..\..\..\saga_core\saga_api\mat_tools.h
 # Begin Source File
 
 SOURCE=..\..\..\saga_core\saga_api\module.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\saga_core\saga_api\module_library.h
 # End Source File
 # Begin Source File
 

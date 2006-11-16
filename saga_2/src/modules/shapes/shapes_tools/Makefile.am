@@ -24,6 +24,9 @@ ShapeSelector.cpp\
 Summarize.cpp\
 SummaryPDFDocEngine.cpp\
 TransformShapes.cpp\
+shapes_cut.cpp\
+shapes_cut_interactive.cpp\
+shapes_split.cpp\
 CreateChartLayer.h\
 CreateWebContent.h\
 GraticuleBuilder.h\
@@ -43,7 +46,10 @@ ShapeSearchSelector.h\
 ShapeSelector.h\
 Summarize.h\
 SummaryPDFDocEngine.h\
-TransformShapes.h
+TransformShapes.h\
+shapes_cut.h\
+shapes_cut_interactive.h\
+shapes_split.h
 
 libshapes_tools_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 
