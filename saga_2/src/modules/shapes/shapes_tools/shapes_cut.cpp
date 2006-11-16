@@ -229,7 +229,7 @@ CShapes_Cut::CShapes_Cut(void)
 		NULL	, "TARGET"		, _TL("Extent"),
 		"",
 
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|",
 			_TL("user defined"),
 			_TL("grid project")
 		), 0
