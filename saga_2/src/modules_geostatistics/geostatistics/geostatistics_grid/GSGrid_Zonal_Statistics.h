@@ -88,6 +88,7 @@ public:
 		min		= max	= 0.0;
 		sum		= dev	= 0.0;
 		next	= NULL;
+		dummy	= true;
 	};
 
 	~CList_Stat(void)
@@ -99,6 +100,7 @@ public:
 
 
 	double				min, max, sum, dev;
+	bool				dummy;
 
 	CList_Stat			*next;
 
@@ -110,13 +112,14 @@ class CList_Conti
 public:
 	CList_Conti(void)
 	{
-		cat			= 0;
+		cat			= NULL;
 		count		= 0;
 		next		= NULL;
 		previous	= NULL;
 		parent		= NULL;
 		sub			= NULL;
 		stats		= NULL;
+		dummy		= true;
 	};
 
 	~CList_Conti(void)
@@ -135,6 +138,7 @@ public:
 
 
 	int					cat, count;
+	bool				dummy;
 
 	CList_Conti			*next, *previous, *parent, *sub;
 

@@ -74,11 +74,11 @@ CGSGrid_Zonal_Statistics::CGSGrid_Zonal_Statistics(void)
 	//-----------------------------------------------------
 	// Place information about your module here...
 
-	Set_Name(_TL("Zonal Grid Statistics"));
+	Set_Name		(_TL("{STATZONAL_NAME} Zonal Grid Statistics"));
 
-	Set_Author(_TL("Copyrights (c) 2005 by Volker Wichmann"));
+	Set_Author		(_TL("Copyrights (c) 2005 by Volker Wichmann"));
 
-	Set_Description(_TL(
+	Set_Description	(_TL("{STATZONAL_DESC} "
 		"The module can be used to create a contingency table of unique condition units (UCUs). These "
 		"units are delineated from a zonal grid (e.g. sub catchments) and optional categorial grids (e.g. "
 		"landcover, soil, ...). It is possible to calculate simple statistics (min, max, mean, standard "
@@ -100,8 +100,8 @@ CGSGrid_Zonal_Statistics::CGSGrid_Zonal_Statistics(void)
 		"<tr><td>ID Zone</td><td>ID 1stCat</td><td>ID 2ndCat</td><td>Count UCU</td><td>MIN 1stCont</td><td>MAX 1stCont</td><td>MEAN 1stCont</td><td>STDDEV 1stCont</td><td>SUM 1stCont</td></tr>"
 		"<tr><td>0      </td><td>2        </td><td>6        </td><td>6        </td><td>708.5      </td><td>862.0      </td><td>734.5       </td><td>62.5          </td><td>4406.8     </td></tr>"
 		"<tr><td>0      </td><td>3        </td><td>4        </td><td>106      </td><td>829.1      </td><td>910.1      </td><td>848.8       </td><td>28.5          </td><td>89969.0    </td></tr>"
-		"</table>")
-	);
+		"</table>"
+	));
 
 
 	Parameters.Add_Grid(
@@ -147,14 +147,14 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 	double					statID;
 	const char				*Gridname;
 
-	CSG_Grid					*pZones, *pGrid;
+	CSG_Grid				*pZones, *pGrid;
 	CSG_Parameter_Grid_List	*pCatList;
 	CSG_Parameter_Grid_List	*pStatList;
 
 	CList_Conti				*newZone, *startList, *runList, *newSub, *parent, *runSub, *subList;
 	CList_Stat				*runStats;
-	CSG_Table					*pOutTab;
-	CSG_Table_Record			*pRecord;
+	CSG_Table				*pOutTab;
+	CSG_Table_Record		*pRecord;
 
 
 	pZones		= Parameters("ZONES")		->asGrid();
@@ -176,145 +176,152 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{	
-			if( !pZones->is_NoData(x, y) )
-			{
-				runList		= startList;
-				zoneID		= pZones->asInt(x, y);								// get zone ID
+			runList		= startList;
+			zoneID		= pZones->asInt(x, y);								// get zone ID
 
-				while( runList->next != NULL && runList->cat < zoneID )		// search for last entry in list or insert point
+			while( runList->next != NULL && runList->cat < zoneID )		// search for last entry in list or insert point
+			{
+				runList = runList->next;
+			}
+
+			if( runList->dummy == true )
+			{
+				runList->cat = zoneID;										// first list entry, write and
+				runList->dummy = false;										// setup
+			}
+			else if( runList->cat == zoneID )
+				runList = runList;											// zoneID found				
+			else if( runList->next == NULL )								// append zoneID
+			{
+				newZone = new CList_Conti();
+				newZone->previous	= runList;
+				runList->next		= newZone;
+
+				newZone->cat	= zoneID;									//		... and write info
+				runList			= newZone;
+			}
+			else															// insert new entry
+			{
+				newZone = new CList_Conti();
+
+				newZone->next		= runList;
+				if( runList->previous != NULL )
+				{
+					newZone->previous = runList->previous;
+					runList->previous->next = newZone;
+				}
+				runList->previous	= newZone;
+					
+				if( runList == startList )
+					startList = newZone;									// if new entry is first element, update startList pointer
+
+				newZone->cat	= zoneID;									//		... and write info
+				runList			= newZone;
+			}
+
+
+			for(iGrid=0; iGrid<nCatGrids; iGrid++)								// collect categories
+			{
+				parent  = runList;
+				if( runList->sub == NULL )										// no sub class found
+				{
+					newSub = new CList_Conti();
+					runList->sub = newSub;
+				}
+
+				runList = runList->sub;
+
+				pGrid	= pCatList->asGrid(iGrid);
+				if( !pGrid->is_NoData(x, y) )
+					catID	= pGrid->asInt(x, y);
+				else
+					catID	= (int)pGrid->Get_NoData_Value();
+
+
+				while( runList->next != NULL && runList->cat < catID )		// search for last entry in list or insert point
 				{
 					runList = runList->next;
 				}
 
-				if( runList->cat == zoneID )
-					runList = runList;											// zoneID found				
-				else if( runList->cat == 0 ) 
-					runList->cat = zoneID;										// first list entry, just write
-				else if( runList->next == NULL )								// append zoneID
+				if( runList->dummy == true )
 				{
-					newZone = new CList_Conti();
-					newZone->previous	= runList;
-					runList->next		= newZone;
+					runList->cat = catID;										// first list entry, write and
+					runList->dummy = false;										// setup
+					runList->parent = parent;
+				}
+				else if( runList->cat == catID )
+					runList = runList;											// zoneID found, all infos already written
+				else if( runList->next == NULL && runList->cat < catID)								// append zoneID
+				{
+					newSub = new CList_Conti();
+					newSub->cat		= catID;									//		... and write info
+					newSub->previous	= runList;
+					newSub->parent		= parent;
+					runList->next		= newSub;
 
-					newZone->cat	= zoneID;									//		... and write info
-					runList			= newZone;
+					runList			= newSub;
 				}
 				else															// insert new entry
 				{
-					newZone = new CList_Conti();
-
-					newZone->next		= runList;
+					newSub = new CList_Conti();
+					newSub->cat		= catID;									//		... and write info
+					newSub->next		= runList;
+					newSub->parent		= parent;
 					if( runList->previous != NULL )
 					{
-						newZone->previous = runList->previous;
-						runList->previous->next = newZone;
+						newSub->previous = runList->previous;
+						runList->previous->next = newSub;
 					}
-					runList->previous	= newZone;
-					
-					if( runList == startList )
-						startList = newZone;									// if new entry is first element, update startList pointer
-
-					newZone->cat	= zoneID;									//		... and write info
-					runList			= newZone;
-				}
-
-
-				for(iGrid=0; iGrid<nCatGrids; iGrid++)								// collect categories
-				{
-					parent  = runList;
-					if( runList->sub == NULL )										// no sub class found
-					{
-						newSub = new CList_Conti();
-						runList->sub = newSub;
-					}
-
-					runList = runList->sub;
-
-					pGrid	= pCatList->asGrid(iGrid);
-					if( !pGrid->is_NoData(x, y) )
-						catID	= pGrid->asInt(x, y);
 					else
-						catID	= (int)pGrid->Get_NoData_Value();
-
-
-					while( runList->next != NULL && runList->cat < catID )		// search for last entry in list or insert point
-					{
-						runList = runList->next;
-					}
-
-					if( runList->cat == catID )
-						runList = runList;											// zoneID found, all infos already written
-					else if( runList->cat == 0 ) 
-					{
-						runList->cat = catID;										// first list entry, just write
-						runList->parent = parent;
-					}
-					else if( runList->next == NULL && runList->cat < catID)								// append zoneID
-					{
-						newSub = new CList_Conti();
-						newSub->cat		= catID;									//		... and write info
-						newSub->previous	= runList;
-						newSub->parent		= parent;
-						runList->next		= newSub;
-
-						runList			= newSub;
-					}
-					else															// insert new entry
-					{
-						newSub = new CList_Conti();
-						newSub->cat		= catID;									//		... and write info
-						newSub->next		= runList;
-						newSub->parent		= parent;
-						if( runList->previous != NULL )
-						{
-							newSub->previous = runList->previous;
-							runList->previous->next = newSub;
-						}
-						else
-							parent->sub		= newSub;
+						parent->sub		= newSub;
 							
-						runList->previous	= newSub;
+					runList->previous	= newSub;
 
-						runList			= newSub;
-					}
+					runList			= newSub;
 				}
+			}
 
 
-				for(iGrid=0; iGrid<nStatGrids; iGrid++)									// collect statistics for StatGrids
+			for(iGrid=0; iGrid<nStatGrids; iGrid++)									// collect statistics for StatGrids
+			{
+				if( iGrid == 0 )
 				{
-					if( iGrid == 0 )
-					{
-						if( runList->stats == NULL )
-							runList->stats = new CList_Stat();
+					if( runList->stats == NULL )
+						runList->stats = new CList_Stat();
 						
-						runStats	= runList->stats;
-					}
-					else
-					{
-						if( runStats->next == NULL )
-							runStats->next = new CList_Stat();
-
-						runStats = runStats->next;
-					}
-					if( !pStatList->asGrid(iGrid)->is_NoData(x, y) )
-					{
-						statID		= pStatList->asGrid(iGrid)->asDouble(x, y);
-						runStats->sum += statID;
-						if( runStats->min == 0.0 || statID < runStats->min )
-							runStats->min = statID;
-						if( statID > runStats->max )
-							runStats->max = statID;
-						runStats->dev += pow(statID, 2);
-					}
-					else
-						NDcountStat += 1;
+					runStats	= runList->stats;
 				}
+				else
+				{
+					if( runStats->next == NULL )
+						runStats->next = new CList_Stat();
+
+					runStats = runStats->next;
+				}
+				if( !pStatList->asGrid(iGrid)->is_NoData(x, y) )
+				{
+					statID		= pStatList->asGrid(iGrid)->asDouble(x, y);
+						
+					if( runStats->dummy == true )
+					{
+						runStats->min = statID;
+						runStats->max = statID;
+						runStats->dummy = false;
+					}
+					if( runStats->min > statID )	
+						runStats->min = statID;
+					if( runStats->max < statID )
+						runStats->max = statID;
+
+					runStats->sum += statID;
+					runStats->dev += pow(statID, 2);
+				}
+				else
+					NDcountStat += 1;
+			}
 				
 
-				runList->count += 1;												// sum up unique condition area
-			}
-			else
-				NDcount += 1;														// sum up NoData values of zone grid
+			runList->count += 1;												// sum up unique condition area
 		}
 	}
 
@@ -326,16 +333,16 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 		Gridname = pCatList->asGrid(iGrid)->Get_Name();
 		pOutTab->Add_Field(Gridname, TABLE_FIELDTYPE_Int);
 	}
-	pOutTab->Add_Field(_TL("Count"), TABLE_FIELDTYPE_Int);
+	pOutTab->Add_Field("Count", TABLE_FIELDTYPE_Int);
 	for(iGrid=0; iGrid<nStatGrids; iGrid++)
 	{
 		Gridname = pStatList->asGrid(iGrid)->Get_Name();
 
-		pOutTab->Add_Field(CSG_String::Format(_TL("%s_MIN")   , Gridname), TABLE_FIELDTYPE_Double);
-		pOutTab->Add_Field(CSG_String::Format(_TL("%s_MAX")   , Gridname), TABLE_FIELDTYPE_Double);
-		pOutTab->Add_Field(CSG_String::Format(_TL("%s_MEAN")  , Gridname), TABLE_FIELDTYPE_Double);
-		pOutTab->Add_Field(CSG_String::Format(_TL("%s_STDDEV"), Gridname), TABLE_FIELDTYPE_Double);
-		pOutTab->Add_Field(CSG_String::Format(_TL("%s_SUM")   , Gridname), TABLE_FIELDTYPE_Double);
+		pOutTab->Add_Field(CSG_String::Format("%s_MIN"   , Gridname), TABLE_FIELDTYPE_Double);
+		pOutTab->Add_Field(CSG_String::Format("%s_MAX"   , Gridname), TABLE_FIELDTYPE_Double);
+		pOutTab->Add_Field(CSG_String::Format("%s_MEAN"  , Gridname), TABLE_FIELDTYPE_Double);
+		pOutTab->Add_Field(CSG_String::Format("%s_STDDEV", Gridname), TABLE_FIELDTYPE_Double);
+		pOutTab->Add_Field(CSG_String::Format("%s_SUM"   , Gridname), TABLE_FIELDTYPE_Double);
 	}
 
 
@@ -412,13 +419,10 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 
 	}
 
-	pRecord	= pOutTab->Add_Record();												// write NoData record
-	pRecord->Set_Value(0, pZones->Get_NoData_Value());
-	pRecord->Set_Value((nCatGrids+1), NDcount);
 
 	if( NDcountStat > 0 )
 	{
-		Message_Add(CSG_String::Format(_TL("\n\n\nWARNING: Encountered %d no-data value(s) in statistic grid(s)!\n\n\n"), NDcountStat));
+		Message_Add(CSG_String::Format("\n\n\nWARNING: Encountered %d no-data value(s) in statistic grid(s)!\n\n\n", NDcountStat));
 	}
 
 	return (true);
