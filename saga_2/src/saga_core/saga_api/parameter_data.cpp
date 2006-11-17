@@ -1198,7 +1198,9 @@ bool CSG_Parameter_Colors::On_Serialize(FILE *Stream, bool bSave)
 //---------------------------------------------------------
 CSG_Parameter_Fixed_Table::CSG_Parameter_Fixed_Table(CSG_Parameter *pOwner, long Constraint)
 	: CSG_Parameter_Data(pOwner, Constraint)
-{}
+{
+	m_Table.Set_Name(LNG("Table"));
+}
 
 CSG_Parameter_Fixed_Table::~CSG_Parameter_Fixed_Table(void)
 {}
@@ -1206,7 +1208,7 @@ CSG_Parameter_Fixed_Table::~CSG_Parameter_Fixed_Table(void)
 //---------------------------------------------------------
 const char * CSG_Parameter_Fixed_Table::asString(void)
 {
-	m_String.Printf(m_Table.Get_Name());
+	m_String.Printf("%s (%s: %d, %s: %d)", m_Table.Get_Name(), LNG("columns"), m_Table.Get_Field_Count(), LNG("rows"), m_Table.Get_Record_Count());
 
 	return( m_String );
 }

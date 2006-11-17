@@ -98,12 +98,12 @@ private:
 
 	int						single;
 
-	CSG_Grid					*pInput, *pResult;
+	CSG_Grid				*pInput, *pResult;
 
 
-	bool					ReclassTable	(void);
-	void					ReclassSingle	(void);
-	void					ReclassRange	(void);
+	bool					ReclassSingle	(void);
+	bool					ReclassRange	(void);
+	bool					ReclassTable	(bool bUser);
 
 };
 

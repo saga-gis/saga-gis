@@ -1299,15 +1299,7 @@ SOURCE=.\wx\propgrid\props.cpp
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=.\wx\aui\aui.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\wx\aui\auibook.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\wx\aui\auibook.h
 # End Source File
 # Begin Source File
 
@@ -1315,15 +1307,7 @@ SOURCE=.\wx\aui\dockart.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\wx\aui\dockart.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\wx\aui\floatpane.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\wx\aui\floatpane.h
 # End Source File
 # Begin Source File
 
@@ -1331,15 +1315,7 @@ SOURCE=.\wx\aui\framemanager.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\wx\aui\framemanager.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\wx\aui\tabmdi.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\wx\aui\tabmdi.h
 # End Source File
 # End Group
 # End Group

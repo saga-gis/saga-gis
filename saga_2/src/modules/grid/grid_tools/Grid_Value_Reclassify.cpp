@@ -105,7 +105,7 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
 		_TL("Select the desired method: 1. a single value or a range defined by a single value is reclassified, 2. a range of values is reclassified, 3. the lookup table is used to reclassify the grid."),
-		_TL("single|range|table|"), 0
+		_TL("single|range|simple table|user supplied table|"), 0
 	);
 
 
@@ -172,8 +172,8 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Node(
-		NULL	, "TABLE"		, _TL("Method table"),
-		_TL("Parameter settings for method table.")
+		NULL	, "TABLE"		, _TL("Method simple table"),
+		_TL("Parameter settings for method simple table.")
 	);
 
 	Parameters.Add_FixedTable(
@@ -191,6 +191,32 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 		"min < value < max|"), 0
 	);
 
+	//-----------------------------------------------------
+	pNode	= Parameters.Add_Node(
+		NULL	, "TABLE_2"		, _TL("Method user supplied table"),
+		_TL("Parameter settings for method user supplied table.")
+	);
+
+	pNode	= Parameters.Add_Table(
+		pNode	, "RETAB_2"		, _TL("Lookup Table"),
+		_TL("Lookup table used in method \"user supplied table\""),
+		PARAMETER_INPUT_OPTIONAL
+	);
+
+	Parameters.Add_Table_Field(
+		pNode	, "F_MIN"		, _TL("minimum value"),
+		_TL("")
+	);
+
+	Parameters.Add_Table_Field(
+		pNode	, "F_MAX"		, _TL("maximum value"),
+		_TL("")
+	);
+
+	Parameters.Add_Table_Field(
+		pNode	, "F_CODE"		, _TL("new value"),
+		_TL("")
+	);
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Node(
@@ -228,9 +254,9 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 
 	pLookup	= Parameters("RETAB")->asTable();
 
-	pLookup->Add_Field(_TL("MIN")	, TABLE_FIELDTYPE_Double);
-	pLookup->Add_Field(_TL("MAX")	, TABLE_FIELDTYPE_Double);
-	pLookup->Add_Field(_TL("CODE")	, TABLE_FIELDTYPE_Double);
+	pLookup->Add_Field(_TL("minimum")	, TABLE_FIELDTYPE_Double);
+	pLookup->Add_Field(_TL("maximum")	, TABLE_FIELDTYPE_Double);
+	pLookup->Add_Field(_TL("new")		, TABLE_FIELDTYPE_Double);
 
 	pRecord	= pLookup->Add_Record();	pRecord->Set_Value(0,  0.0);	pRecord->Set_Value(1, 10.0);	pRecord->Set_Value(2, 1.0);
 	pRecord	= pLookup->Add_Record();	pRecord->Set_Value(0, 10.0);	pRecord->Set_Value(1, 20.0);	pRecord->Set_Value(2, 2.0);
@@ -257,15 +283,16 @@ bool CGrid_Value_Reclassify::On_Execute(void)
 	method		= Parameters("METHOD")->asInt();
 
 	//-----------------------------------------------------
-	if( method == 0 )
-		ReclassSingle();
-	else if( method == 1 )
-		ReclassRange();
-	else
-		ReclassTable();
+	switch( method )
+	{
+	case 0:	return( ReclassSingle() );
+	case 1:	return( ReclassRange() );
+	case 2:	return( ReclassTable(false) );
+	case 3:	return( ReclassTable(true) );
+	}
 
 	//-----------------------------------------------------
-	return( true );
+	return( false );
 }
 
 
@@ -276,7 +303,7 @@ bool CGrid_Value_Reclassify::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGrid_Value_Reclassify::ReclassRange(void)
+bool CGrid_Value_Reclassify::ReclassRange(void)
 {
 	bool	otherOpt, noDataOpt, floating;
 	int		x, y, opera;
@@ -333,10 +360,12 @@ void CGrid_Value_Reclassify::ReclassRange(void)
 			}
 		}
 	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
-void CGrid_Value_Reclassify::ReclassSingle(void)
+bool CGrid_Value_Reclassify::ReclassSingle(void)
 {
 	bool	otherOpt, noDataOpt, floating;
 	int		x, y, opera;
@@ -428,20 +457,38 @@ void CGrid_Value_Reclassify::ReclassSingle(void)
 			}
 		}
 	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
-bool CGrid_Value_Reclassify::ReclassTable(void)
+#define MAX_CAT	128
+
+//---------------------------------------------------------
+bool CGrid_Value_Reclassify::ReclassTable(bool bUser)
 {
 	bool			set, otherOpt, noDataOpt;
-	int				n, x, y, opera, recCount, count[127];
-	double			min[127], max[127], code[127], value, others, noData, noDataValue;
+	int				n, x, y, opera, recCount, count[MAX_CAT], field_Min, field_Max, field_Code;
+	double			min[MAX_CAT], max[MAX_CAT], code[MAX_CAT], value, others, noData, noDataValue;
 
 	CSG_Table			*pReTab;
 	CSG_Table_Record	*pRecord = NULL;
 
+	if( bUser )
+	{
+		pReTab		= Parameters("RETAB_2")	->asTable();
+		field_Min	= Parameters("F_MIN")	->asInt();
+		field_Max	= Parameters("F_MAX")	->asInt();
+		field_Code	= Parameters("F_CODE")	->asInt();
+	}
+	else
+	{
+		pReTab		= Parameters("RETAB")	->asTable();
+		field_Min	= 0;
+		field_Max	= 1;
+		field_Code	= 2;
+	}
 
-	pReTab		= Parameters("RETAB")->asTable();
 	others		= Parameters("OTHERS")->asDouble();
 	noData		= Parameters("NODATA")->asDouble();
 	otherOpt	= Parameters("OTHEROPT")->asBool();
@@ -453,28 +500,30 @@ bool CGrid_Value_Reclassify::ReclassTable(void)
 
 	if( pReTab == NULL )
 	{
-		Message_Add("----------------------------------------------------------------\n");
-		Message_Add("You must specify a reclass table with a minimium (field 1), a maximum (field 2) and a code value (field 3)!\n");
-		Message_Add("----------------------------------------------------------------\n");
+		Error_Set("You must specify a reclass table with a minimium (field 1), a maximum (field 2) and a code value (field 3)!\n");
 		return( false );
 	}
 
 	recCount = pReTab->Get_Record_Count();
-	if( recCount > 128 )
+	if( recCount > MAX_CAT )
 	{
-		Message_Add("----------------------------------------------------------------\n");
-		Message_Add("At the moment the reclass table is limited to 128 categories!\n");
-		Message_Add("----------------------------------------------------------------\n");
+		Error_Set("At the moment the reclass table is limited to 128 categories!\n");
+		return( false );
+	}
+
+	if( recCount == 0 )
+	{
+		Error_Set("You must specify a reclass table with a minimium of one record!\n");
 		return( false );
 	}
 
 	for(n=0; n<recCount ; n++)								// initialize reclass arrays
 	{
-		pRecord = pReTab->Get_Record(n);
-		min[n] = pRecord->asDouble(0);
-		max[n] = pRecord->asDouble(1);
-		code[n] = pRecord->asDouble(2);
-		count[n] = 0;
+		pRecord		= pReTab->Get_Record(n);
+		min[n]		= pRecord->asDouble(field_Min);
+		max[n]		= pRecord->asDouble(field_Max);
+		code[n]		= pRecord->asDouble(field_Code);
+		count[n]	= 0;
 	}
 
 
