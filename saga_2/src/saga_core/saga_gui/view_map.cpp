@@ -289,6 +289,8 @@ void CVIEW_Map::Ruler_Set_Width(int Width)
 			m_pRuler_X2->Show(true);
 			m_pRuler_Y1->Show(true);
 			m_pRuler_Y2->Show(true);
+
+			m_pControl->SetWindowStyleFlag(wxFULL_REPAINT_ON_RESIZE);
 		}
 		else
 		{
@@ -296,6 +298,8 @@ void CVIEW_Map::Ruler_Set_Width(int Width)
 			m_pRuler_X2->Show(false);
 			m_pRuler_Y1->Show(false);
 			m_pRuler_Y2->Show(false);
+
+			m_pControl->SetWindowStyleFlag(wxSUNKEN_BORDER|wxFULL_REPAINT_ON_RESIZE);
 		}
 
 		_Set_Positions();

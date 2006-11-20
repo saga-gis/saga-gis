@@ -300,12 +300,14 @@ void		Draw_Text(wxDC &dc, int Align, int x, int y, double Angle, const wxString 
 //---------------------------------------------------------
 void		Draw_Scale(wxDC &dc, wxRect r, double zMin, double zMax, bool bHorizontal, bool bAscendent, bool bTickAtTop)
 {
-	int			xOff, yOff, Width, Height, Height_Tick, Decimals, zDC, yDC;
+	int			xOff, yOff, Width, Height, Height_Tick, Decimals, zDC, yDC, Style, x, y, n;
 	double		z, dz, zToDC;
 	wxString	s;
 	wxFont		Font, oldFont;
 
 	//-----------------------------------------------------
+	Style	= bTickAtTop ? 1 : 2;
+
 	Width	= bHorizontal ? r.GetWidth() : r.GetHeight();
 	Height	= bHorizontal ? r.GetHeight() : r.GetWidth();
 
@@ -315,10 +317,11 @@ void		Draw_Scale(wxDC &dc, wxRect r, double zMin, double zMax, bool bHorizontal,
 		yOff		= r.GetTop();
 
 		oldFont		= dc.GetFont();
-		Font.Create((int)(0.45 * (double)Height), wxSWISS, wxNORMAL, wxNORMAL);
+		yDC			= (int)((Style == 0 ? 0.60 : 0.45) * (double)Height);
+		Font.Create(yDC, wxSWISS, wxNORMAL, wxNORMAL);
 		dc.SetFont(Font);
 
-		Height_Tick	= (int)(0.3 * (double)Height);
+		Height_Tick	= (int)((Style == 0 ? 1.00 : 0.30) * (double)Height);
 
 		//-------------------------------------------------
 		zToDC		= (double)Width / (zMax - zMin);
@@ -335,7 +338,7 @@ void		Draw_Scale(wxDC &dc, wxRect r, double zMin, double zMax, bool bHorizontal,
 
 		//-------------------------------------------------
 		z			= dz * floor(zMin / dz);
-		if( z < zMin )	z	+= dz;
+		if( Style != 0 && z < zMin )	z	+= dz;
 
 		for(; z<=zMax; z+=dz)
 		{
@@ -345,28 +348,50 @@ void		Draw_Scale(wxDC &dc, wxRect r, double zMin, double zMax, bool bHorizontal,
 
 			if( bHorizontal )
 			{
-				if( bTickAtTop )
+				x	= xOff + zDC;
+				y	= yOff;
+				n	= yOff + Height;
+
+				switch( Style )
 				{
-					dc.DrawLine(xOff + zDC   , yOff         , xOff + zDC, yOff + Height_Tick);
-					Draw_Text(dc, TEXTALIGN_TOPCENTER       , xOff + zDC, yOff + Height_Tick, s);
-				}
-				else
-				{
-					dc.DrawLine(xOff + zDC   , yOff + Height, xOff + zDC, yOff + Height - Height_Tick);
-					Draw_Text(dc, TEXTALIGN_BOTTOMCENTER    , xOff + zDC, yOff + Height - Height_Tick, s);
+				case 0:	// ...
+					dc.DrawLine(x, y, x, y + Height_Tick);
+					Draw_Text(dc, TEXTALIGN_CENTERLEFT  , x + 2, y + Height / 2, s);
+					break;
+
+				case 1:	// tick at top...
+					dc.DrawLine(x, y, x, y + Height_Tick);
+					Draw_Text(dc, TEXTALIGN_TOPCENTER   , x, y + Height_Tick, s);
+					break;
+
+				case 2: // tick at bottom...
+					dc.DrawLine(x, n, x, n - Height_Tick);
+					Draw_Text(dc, TEXTALIGN_BOTTOMCENTER, x, n - Height_Tick, s);
+					break;
 				}
 			}
 			else
 			{
-				if( bTickAtTop )
+				x	= xOff;
+				y	= yOff + zDC;
+				n	= xOff + Height;
+
+				switch( Style )
 				{
-					dc.DrawLine(xOff         , yOff + zDC   , xOff + Height_Tick, yOff + zDC);
-					Draw_Text(dc, TEXTALIGN_TOPCENTER       , xOff + Height_Tick, yOff + zDC, 90.0, s);
-				}
-				else
-				{
-					dc.DrawLine(xOff + Height, yOff + zDC   , xOff + Height - Height_Tick, yOff + zDC);
-					Draw_Text(dc, TEXTALIGN_BOTTOMCENTER    , xOff + Height - Height_Tick, yOff + zDC, 90.0, s);
+				case 0: // ...
+					dc.DrawLine(x, y, x + Height_Tick, y);
+					Draw_Text(dc, TEXTALIGN_CENTERLEFT  , x + Height / 2, y - 2, 90.0, s);
+					break;
+
+				case 1:	// tick at top...
+					dc.DrawLine(x, y, x + Height_Tick, y);
+					Draw_Text(dc, TEXTALIGN_TOPCENTER   , x + Height_Tick, y, 90.0, s);
+					break;
+
+				case 2: // tick at bottom...
+					dc.DrawLine(n, y, n - Height_Tick, y);
+					Draw_Text(dc, TEXTALIGN_BOTTOMCENTER, n - Height_Tick, y, 90.0, s);
+					break;
 				}
 			}
 		}
