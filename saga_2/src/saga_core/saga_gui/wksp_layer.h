@@ -111,7 +111,7 @@ public:
 	virtual bool					Show					(class CWKSP_Map *pMap = NULL);
 
 	virtual wxString				Get_Value				(CSG_Point ptWorld, double Epsilon)	= 0;
-	virtual double					Get_Value_Range			(void)									= 0;
+	virtual double					Get_Value_Range			(void)								= 0;
 
 	void							Draw					(CWKSP_Map_DC &dc_Map, bool bEdit);
 
@@ -123,6 +123,8 @@ public:
 
 	void							Update_Views			(bool bMapsOnly);
 	void							View_Closes				(class wxMDIChildFrame *pView);
+
+	const wxBitmap &				Get_Thumbnail			(int dx, int dy);
 
 	class CVIEW_Histogram *			Histogram_Get			(void)	{	return( m_pHistogram );	}
 	void							Histogram_Show			(bool bShow);
@@ -156,6 +158,8 @@ protected:
 
 	class CVIEW_Histogram			*m_pHistogram;
 
+	wxBitmap						m_Thumbnail;
+
 
 	void							Create_Parameters		(void);
 
@@ -181,6 +185,8 @@ protected:
 private:
 
 	static int						_On_Parameter_Changed	(CSG_Parameter *pParameter);
+
+	bool							_Set_Thumbnail			(void);
 
 };
 

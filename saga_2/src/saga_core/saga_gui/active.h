@@ -91,6 +91,7 @@ public:
 	class CACTIVE_Description *		Get_Description			(void)	{	return( m_pDescription );	}
 	class CACTIVE_Attributes *		Get_Attributes			(void)	{	return( m_pAttributes );	}
 	class CACTIVE_Legend *			Get_Legend				(void)	{	return( m_pLegend );		}
+	class CACTIVE_Layers *			Get_Layers				(void)	{	return( m_pLayers );		}
 	class CACTIVE_HTMLExtraInfo *	Get_HTMLExtraInfo		(void)	{	return( m_pHTMLExtraInfo );	}
 
 	bool							Set_Active				(class CWKSP_Base_Item *pItem);
@@ -110,6 +111,8 @@ private:
 	class CACTIVE_Attributes		*m_pAttributes;
 
 	class CACTIVE_Legend			*m_pLegend;
+
+	class CACTIVE_Layers			*m_pLayers;
 
 	class CACTIVE_HTMLExtraInfo		*m_pHTMLExtraInfo;
 

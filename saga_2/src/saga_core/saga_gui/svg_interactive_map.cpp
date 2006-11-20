@@ -429,7 +429,7 @@ void CSVG_Interactive_Map::_Add_Grid(CWKSP_Grid *pLayer)
 	wxString Filename;
 	wxBitmap BMP;
 	
-	if( pLayer->Get_Image_Grid(&BMP) )
+	if( pLayer->Get_Image_Grid(BMP) )
 	{
 		Filename = SG_File_Make_Path(m_Directory.c_str(), pLayer->Get_Object()->Get_Name(),"jpg");
 		BMP.SaveFile(Filename, wxBITMAP_TYPE_JPEG);

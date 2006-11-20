@@ -492,6 +492,8 @@ void CWKSP_Layer::Parameters_Changed(void)
 	}
 
 	Update_Views(false);
+
+	_Set_Thumbnail();
 }
 
 
@@ -523,6 +525,52 @@ int CWKSP_Layer::_On_Parameter_Changed(CSG_Parameter *pParameter)
 int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	return( 1 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+const wxBitmap & CWKSP_Layer::Get_Thumbnail(int dx, int dy)
+{
+	if( dx > 0 && m_Thumbnail.GetWidth()  != dx
+	&&	dy > 0 && m_Thumbnail.GetHeight() != dy )
+	{
+		m_Thumbnail.Create(dx, dy);
+
+		_Set_Thumbnail();
+	}
+
+	return( m_Thumbnail );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Layer::_Set_Thumbnail(void)
+{
+	if( m_pObject && m_Thumbnail.GetWidth() > 0 && m_Thumbnail.GetHeight() > 0 )
+	{
+		wxMemoryDC		dc;
+		wxRect			r(0, 0, m_Thumbnail.GetWidth(), m_Thumbnail.GetHeight());
+		CWKSP_Map_DC	dc_Map(Get_Extent(), r, 1.0, SG_GET_RGB(255, 255, 255));
+
+		Draw(dc_Map, false);
+
+		dc.SelectObject(m_Thumbnail);
+		dc.SetBackground(*wxWHITE_BRUSH);
+		dc.Clear();
+
+		dc_Map.Draw(dc);
+
+		dc.SelectObject(wxNullBitmap);
+
+		return( true );
+	}
+
+	return( false );
 }
 
 

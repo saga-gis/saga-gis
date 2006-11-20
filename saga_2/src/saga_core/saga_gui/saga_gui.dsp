@@ -116,6 +116,10 @@ SOURCE=.\ACTIVE_HTMLExtraInfo.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\active_layers.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\active_legend.cpp
 # End Source File
 # Begin Source File
@@ -461,6 +465,10 @@ SOURCE=.\ACTIVE_Description.h
 # Begin Source File
 
 SOURCE=.\ACTIVE_HTMLExtraInfo.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\active_layers.h
 # End Source File
 # Begin Source File
 

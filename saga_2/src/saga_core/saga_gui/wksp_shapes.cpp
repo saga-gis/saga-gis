@@ -286,6 +286,7 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// HTML Extra info
 
+#ifdef USE_HTMLINFO
 	m_Parameters.Add_Node(
 		NULL							, "NODE_EXTRAINFO"			, LNG("[CAP] Html Extra Info"),
 		""
@@ -295,6 +296,7 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 		m_Parameters("NODE_EXTRAINFO")	, "EXTRAINFO_ATTRIB"		, LNG("[CAP] Attribute"),
 		""
 	);
+#endif
 
 	//-----------------------------------------------------
 	// Label...
@@ -363,7 +365,9 @@ void CWKSP_Shapes::On_DataObject_Changed(void)
 {
 	_AttributeList_Set(m_Parameters("COLORS_ATTRIB")	, false);
 	_AttributeList_Set(m_Parameters("LABEL_ATTRIB")		, true);
+#ifdef USE_HTMLINFO
 	_AttributeList_Set(m_Parameters("EXTRAINFO_ATTRIB") , true);
+#endif
 
 	_Chart_Set_Options();
 
@@ -393,10 +397,12 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 	}
 
 	//-----------------------------------------------------
+#ifdef USE_HTMLINFO
 	if( (m_iExtraInfo = m_Parameters("EXTRAINFO_ATTRIB")->asInt()) >= m_pShapes->Get_Table().Get_Field_Count() )
 	{
 		m_iExtraInfo	= -1;
 	}
+#endif
 
 	//-----------------------------------------------------
 	_Chart_Get_Options();
@@ -741,12 +747,11 @@ CSG_Parameter * CWKSP_Shapes::_AttributeList_Add(CSG_Parameter *pNode, const cha
 //---------------------------------------------------------
 void CWKSP_Shapes::_AttributeList_Set(CSG_Parameter *pFields, bool bAddNoField)
 {
-	int			i;
-	wxString	s;
-
-	if( pFields->Get_Type() == PARAMETER_TYPE_Choice )
+	if( pFields && pFields->Get_Type() == PARAMETER_TYPE_Choice )
 	{
-		for(i=0; i<m_pShapes->Get_Table().Get_Field_Count(); i++)
+		wxString	s;
+
+		for(int i=0; i<m_pShapes->Get_Table().Get_Field_Count(); i++)
 		{
 			s.Append(wxString::Format("%s|", m_pShapes->Get_Table().Get_Field_Name(i)));
 		}

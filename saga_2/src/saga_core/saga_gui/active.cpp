@@ -74,6 +74,7 @@
 #include "active_description.h"
 #include "active_attributes.h"
 #include "active_legend.h"
+#include "active_layers.h"
 #include "active_HTMLExtraInfo.h"
 
 #include "wksp_module.h"
@@ -104,6 +105,7 @@ enum
 	IMG_PARAMETERS	= 0,
 	IMG_DESCRIPTION,
 	IMG_LEGEND,
+	IMG_LAYERS,
 	IMG_ATTRIBUTES,
 	IMG_HTMLEXTRAINFO
 };
@@ -158,6 +160,7 @@ CACTIVE::CACTIVE(wxWindow *pParent)
 	m_pParameters		= NULL;
 	m_pDescription		= NULL;
 	m_pLegend			= NULL;
+	m_pLayers			= NULL;
 	m_pAttributes		= NULL;
 	m_pHTMLExtraInfo	= NULL;
 }
@@ -169,6 +172,7 @@ void CACTIVE::Add_Pages(void)
 	_Add_Page(IMG_DESCRIPTION);
 #ifdef ACTIVE_SHOW_ALL_PAGES
 	_Add_Page(IMG_LEGEND);
+	_Add_Page(IMG_LAYERS);
 	_Add_Page(IMG_ATTRIBUTES);
 	_Add_Page(IMG_HTMLEXTRAINFO);
 #endif
@@ -190,10 +194,11 @@ CACTIVE::~CACTIVE(void)
 //---------------------------------------------------------
 bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 {
-	CWKSP_Base_Item	*pLegend, *pHTML;
+	CWKSP_Base_Item	*pLegend, *pLayers, *pHTML;
 
 	m_pLayer	= NULL;
 	pLegend		= NULL;
+	pLayers		= NULL;
 	pHTML		= NULL;
 
 	//-----------------------------------------------------
@@ -205,7 +210,7 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 			break;
 
 		case WKSP_ITEM_Map:
-			pLegend		= m_pItem;
+			pLegend		= pLayers	= m_pItem;
 			break;
 
 		case WKSP_ITEM_Map_Layer:
@@ -213,10 +218,22 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 			break;
 
 		case WKSP_ITEM_Shapes:
+#ifdef USE_HTMLINFO
 			pHTML					= (CWKSP_Layer      *)m_pItem;
+#endif
 		case WKSP_ITEM_TIN:
 		case WKSP_ITEM_Grid:
 			pLegend		= m_pLayer	= (CWKSP_Layer      *)m_pItem;
+			break;
+
+		case WKSP_ITEM_Data_Manager:
+		case WKSP_ITEM_Grid_Manager:
+		case WKSP_ITEM_Grid_System:
+		case WKSP_ITEM_Shapes_Manager:
+		case WKSP_ITEM_Shapes_Type:
+		case WKSP_ITEM_TIN_Manager:
+		case WKSP_ITEM_Map_Manager:
+			pLayers		= m_pItem;
 			break;
 		}
 	}
@@ -245,6 +262,15 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 #endif
 	}
 
+	if( pLayers  == NULL && m_pLayers			!= NULL )
+	{
+		m_pLayers->Set_Item(NULL);
+
+#ifndef ACTIVE_SHOW_ALL_PAGES
+		_Del_Page(IMG_LAYERS);
+#endif
+	}
+
 	if( pHTML    == NULL && m_pHTMLExtraInfo	!= NULL )
 	{
 #ifndef ACTIVE_SHOW_ALL_PAGES
@@ -265,6 +291,13 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 		_Add_Page(IMG_LEGEND);
 
 		m_pLegend->Set_Item(pLegend);
+	}
+
+	if( pLayers )
+	{
+		_Add_Page(IMG_LAYERS);
+
+		m_pLayers->Set_Item(pLayers);
 	}
 
 	if( pHTML )
@@ -325,6 +358,14 @@ bool CACTIVE::_Add_Page(int PageID)
 		Caption	= LNG("[CAP] Legend");
 		break;
 
+	case IMG_LAYERS:
+		if( m_pLayers != NULL )
+			return( true );
+
+		pPage	= m_pLayers			= new CACTIVE_Layers	    (this);
+		Caption	= LNG("[CAP] Layers");
+		break;
+
 	case IMG_HTMLEXTRAINFO:
 		if( m_pHTMLExtraInfo != NULL )
 			return( true );
@@ -371,6 +412,11 @@ bool CACTIVE::_Del_Page(int PageID)
 	case IMG_LEGEND:
 		pPage				= m_pLegend;
 		m_pLegend			= NULL;
+		break;
+
+	case IMG_LAYERS:
+		pPage				= m_pLayers;
+		m_pLayers			= NULL;
 		break;
 
 	case IMG_HTMLEXTRAINFO:

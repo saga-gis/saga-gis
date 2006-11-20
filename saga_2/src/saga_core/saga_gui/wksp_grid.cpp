@@ -752,7 +752,7 @@ bool CWKSP_Grid::asImage(CSG_Grid *pImage)
 	int			x, y;
 	wxBitmap	BMP;
 
-	if( pImage && Get_Image_Grid(&BMP) )
+	if( pImage && Get_Image_Grid(BMP) )
 	{
 		wxImage	IMG(BMP.ConvertToImage());
 
@@ -805,12 +805,12 @@ void CWKSP_Grid::_Save_Image(void)
 	//-----------------------------------------------------
 	if( DLG_Image_Save(file, type) && DLG_Parameters(&Parms) )
 	{
-		if( Get_Image_Grid(&BMP) )
+		if( Get_Image_Grid(BMP) )
 		{
 			BMP.SaveFile(file, (wxBitmapType)type);
 		}
 
-		if( Parms("LG")->asBool() && Get_Image_Legend(&BMP, Parms("LZ")->asDouble()) )
+		if( Parms("LG")->asBool() && Get_Image_Legend(BMP, Parms("LZ")->asDouble()) )
 		{
 			wxFileName	fn(file);
 			fn.SetName(wxString::Format("%s_legend", fn.GetName().c_str()));
@@ -840,21 +840,24 @@ void CWKSP_Grid::_Save_Image(void)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Grid::Get_Image_Grid(wxBitmap *pBMP)
+bool CWKSP_Grid::Get_Image_Grid(wxBitmap &BMP, bool bFitSize)
 {
-	if( pBMP )
+	if( bFitSize || (BMP.GetWidth() > 0 && BMP.GetHeight() > 0) )
 	{
 		Set_Buisy_Cursor(true);
 
+		if( bFitSize )
+		{
+			BMP.Create(m_pGrid->Get_NX(), m_pGrid->Get_NY());
+		}
+
 		wxMemoryDC		dc;
-		wxRect			r(0, 0, m_pGrid->Get_NX(), m_pGrid->Get_NY());
+		wxRect			r(0, 0, BMP.GetWidth(), BMP.GetHeight());
 		CWKSP_Map_DC	dc_Map(Get_Extent(), r, 1.0, SG_GET_RGB(255, 255, 255));
 
 		On_Draw(dc_Map, false);
 
-		pBMP->Create(r.GetWidth(), r.GetHeight());
-
-		dc.SelectObject(*pBMP);
+		dc.SelectObject(BMP);
 		dc.SetBackground(*wxWHITE_BRUSH);
 		dc.Clear();
 
@@ -871,16 +874,16 @@ bool CWKSP_Grid::Get_Image_Grid(wxBitmap *pBMP)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Grid::Get_Image_Legend(wxBitmap *pBMP, double Zoom)
+bool CWKSP_Grid::Get_Image_Legend(wxBitmap &BMP, double Zoom)
 {
-	if( pBMP )
+	if( Zoom > 0.0 )
 	{
 		wxMemoryDC	dc;
 		wxSize		s(Get_Legend()->Get_Size(1.0, Zoom));
 
-		pBMP->Create(s.GetWidth(), s.GetHeight());
+		BMP.Create(s.GetWidth(), s.GetHeight());
 
-		dc.SelectObject(*pBMP);
+		dc.SelectObject(BMP);
 		dc.SetBackground(*wxWHITE_BRUSH);
 		dc.Clear();
 
