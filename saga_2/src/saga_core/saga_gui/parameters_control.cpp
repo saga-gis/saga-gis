@@ -99,6 +99,21 @@ END_EVENT_TABLE()
 CParameters_Control::CParameters_Control(wxWindow *pParent, bool bDialog)
 	: wxPanel(pParent, -1, wxDefaultPosition, wxDefaultSize, wxNO_BORDER|wxCLIP_CHILDREN)
 {
+#ifdef _SAGA_LINUX
+	m_pPG	= new wxPropertyGrid(this, bDialog ? ID_WND_PARM_PG_DIALOG : ID_WND_PARM_PG_ACTIVE, wxDefaultPosition, wxDefaultSize,
+		 wxPG_BOLD_MODIFIED
+		|wxPG_SPLITTER_AUTO_CENTER
+	//	|wxPG_AUTO_SORT
+	//	|wxPG_HIDE_MARGIN
+	//	|wxPG_STATIC_SPLITTER
+	//	|wxPG_HIDE_CATEGORIES
+	//	|wxPG_LIMITED_EDITING
+		|wxTAB_TRAVERSAL
+	//	|wxPG_TOOLBAR
+		|wxPG_DESCRIPTION
+	//	|wxPG_COMPACTOR
+	);
+#else
 	m_pPGM	= new wxPropertyGridManager(this, bDialog ? ID_WND_PARM_PG_DIALOG : ID_WND_PARM_PG_ACTIVE, wxDefaultPosition, wxDefaultSize,
 		 wxPG_BOLD_MODIFIED
 		|wxPG_SPLITTER_AUTO_CENTER
@@ -117,6 +132,7 @@ CParameters_Control::CParameters_Control(wxWindow *pParent, bool bDialog)
 
 //	m_pPGM->SetExtraStyle(wxPG_EX_HELP_AS_TOOLTIPS);
 	m_pPGM->SetDescBoxHeight(bDialog ? 100 : 50);
+#endif
 
 	m_pParameters	= new CSG_Parameters();
 	m_pOriginal		= NULL;
@@ -140,7 +156,11 @@ CParameters_Control::~CParameters_Control(void)
 //---------------------------------------------------------
 void CParameters_Control::On_Size(wxSizeEvent &event)
 {
+#ifdef _SAGA_LINUX
+	m_pPG ->SetSize(wxRect(0, 0, GetSize().x, GetSize().y));
+#else
 	m_pPGM->SetSize(wxRect(0, 0, GetSize().x, GetSize().y));
+#endif
 
 	m_pPG->CenterSplitter(true);
 }
