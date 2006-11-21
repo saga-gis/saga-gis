@@ -313,6 +313,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\active_layers.cpp"
+				>
+			</File>
+			<File
 				RelativePath="active_legend.cpp"
 				>
 				<FileConfiguration
@@ -2135,6 +2139,10 @@
 			</File>
 			<File
 				RelativePath="ACTIVE_HTMLExtraInfo.h"
+				>
+			</File>
+			<File
+				RelativePath=".\active_layers.h"
 				>
 			</File>
 			<File

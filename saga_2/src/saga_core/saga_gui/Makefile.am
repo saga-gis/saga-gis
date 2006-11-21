@@ -16,6 +16,7 @@ active.cpp\
 active_attributes.cpp\
 active_description.cpp\
 active_HTMLExtraInfo.cpp\
+active_layers.cpp\
 active_legend.cpp\
 active_parameters.cpp\
 callback.cpp\
@@ -103,6 +104,7 @@ active_attributes.h\
 active_description.h\
 active_HTMLExtraInfo.h\
 active_legend.h\
+active_layers.h\
 active_parameters.h\
 callback.h\
 dc_helper.h\
