@@ -79,6 +79,27 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class CACTIVE_Layers_Item : public wxPanel
+{
+	DECLARE_CLASS(CACTIVE_Layers_Item)
+
+public:
+	CACTIVE_Layers_Item(wxWindow *pParent, int ax, int ay, int dx, int dy, class CWKSP_Layer *pLayer);
+	virtual ~CACTIVE_Layers_Item(void)	{}
+
+	void						On_Paint		(wxPaintEvent &event);
+
+
+private:
+
+	class CWKSP_Layer			*m_pLayer;
+
+
+//---------------------------------------------------------
+DECLARE_EVENT_TABLE()
+};
+
+//---------------------------------------------------------
 class CACTIVE_Layers : public wxScrolledWindow
 {
 	DECLARE_CLASS(CACTIVE_Layers)
@@ -87,7 +108,8 @@ public:
 	CACTIVE_Layers(wxWindow *pParent);
 	virtual ~CACTIVE_Layers(void);
 
-	void						On_Key_Down		(wxKeyEvent &event);
+	void						On_Mouse_Motion	(wxMouseEvent &event);
+	void						On_Key_Down		(wxKeyEvent   &event);
 
 	virtual void				OnDraw			(wxDC &dc);
 
@@ -96,15 +118,21 @@ public:
 
 private:
 
-	int							m_xScroll, m_yScroll;
+	int							m_xScroll, m_yScroll, m_nItems;
 
 	double						m_Zoom;
+
+	CACTIVE_Layers_Item			**m_Items;
 
 	class CWKSP_Base_Item		*m_pItem;
 
 
-	bool						_Draw_Items		(wxDC &dc, wxSize &Size, class CWKSP_Base_Item *pItem);
-	bool						_Draw_Item		(wxDC &dc, wxSize &Size, class CWKSP_Layer *pLayer);
+	void						_Layers_Clear	(void);
+	CACTIVE_Layers_Item *		_Layers_Add		(int ax, int ay, int dx, int dy, CWKSP_Layer *pLayer);
+	CWKSP_Layer *				_Layers_Get		(wxPoint p);
+
+	bool						_Add_Items		(wxSize &Size, class CWKSP_Base_Item *pItem);
+	bool						_Add_Item		(wxSize &Size, class CWKSP_Layer *pLayer);
 
 
 //---------------------------------------------------------

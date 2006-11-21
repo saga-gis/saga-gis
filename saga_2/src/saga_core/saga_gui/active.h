@@ -100,6 +100,7 @@ public:
 
 	bool							Update					(class CWKSP_Base_Item *pItem, bool bSave);
 	bool							Update_DataObjects		(void);
+	bool							Update_Layers			(void);
 
 
 private:

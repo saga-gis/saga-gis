@@ -494,6 +494,8 @@ void CWKSP_Layer::Parameters_Changed(void)
 	Update_Views(false);
 
 	_Set_Thumbnail();
+
+	g_pACTIVE->Update_Layers();
 }
 
 

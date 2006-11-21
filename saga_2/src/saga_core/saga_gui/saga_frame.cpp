@@ -829,6 +829,16 @@ void CSAGA_Frame::MB_Remove(wxMenu *pMenu_File, wxMenu *pMenu_Modules)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CSAGA_Frame::Set_Pane_Caption(wxWindow *pWindow, wxString Caption)
+{
+	if( m_pLayout && pWindow )
+	{
+		m_pLayout->GetPane(pWindow).Caption(Caption);
+		m_pLayout->Update();
+	}
+}
+
+//---------------------------------------------------------
 void CSAGA_Frame::_Bar_Add(wxWindow *pWindow, int Position)
 {
 	m_pLayout->AddPane(pWindow, wxPaneInfo()

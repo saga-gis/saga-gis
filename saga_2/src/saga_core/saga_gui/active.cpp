@@ -69,6 +69,8 @@
 
 #include "helper.h"
 
+#include "saga_frame.h"
+
 #include "active.h"
 #include "active_parameters.h"
 #include "active_description.h"
@@ -154,6 +156,7 @@ CACTIVE::CACTIVE(wxWindow *pParent)
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_DESCRIPTION);
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_ATTRIBUTES);
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_LEGEND);
+	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_LAYERS);
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_HTMLEXTRAINFO);
 
 	//-----------------------------------------------------
@@ -236,6 +239,12 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 			pLayers		= m_pItem;
 			break;
 		}
+
+		g_pSAGA_Frame->Set_Pane_Caption(this, m_pItem->Get_Name());
+	}
+	else
+	{
+		g_pSAGA_Frame->Set_Pane_Caption(this, LNG("[CAP] Object Properties"));
 	}
 
 	_Set_Description();
@@ -530,6 +539,17 @@ bool CACTIVE::Update(CWKSP_Base_Item *pItem, bool bSave)
 bool CACTIVE::Update_DataObjects(void)
 {
 	return( m_pParameters && m_pParameters->Update_DataObjects() );
+}
+
+//---------------------------------------------------------
+bool CACTIVE::Update_Layers(void)
+{
+	if( m_pLayers )
+	{
+		m_pLayers->Refresh();
+	}
+
+	return( true );
 }
 
 

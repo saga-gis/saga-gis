@@ -145,6 +145,8 @@ public:
 	//-----------------------------------------------------
 	void						On_Child_Activates			(class CVIEW_Base *pChild, bool bActivates);
 
+	void						Set_Pane_Caption			(wxWindow *pWindow, wxString Caption);
+
 	wxMenuBar *					MB_Create					(class CVIEW_Base *pChild);
 	void						MB_Remove					(wxMenu *pMenu_File, wxMenu *pMenu_Modules);
 
