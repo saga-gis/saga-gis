@@ -11,7 +11,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   ACTIVE_Layers.h                     //
+//                  WKSP_Data_Layers.h                   //
 //                                                       //
 //          Copyright (C) 2006 by Olaf Conrad            //
 //                                                       //
@@ -58,8 +58,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef _HEADER_INCLUDED__SAGA_GUI__ACTIVE_Layers_H
-#define _HEADER_INCLUDED__SAGA_GUI__ACTIVE_Layers_H
+#ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Data_Layers_H
+#define _HEADER_INCLUDED__SAGA_GUI__WKSP_Data_Layers_H
 
 
 ///////////////////////////////////////////////////////////
@@ -71,6 +71,8 @@
 //---------------------------------------------------------
 #include <wx/scrolwin.h>
 
+#include <saga_api/saga_api.h>
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -79,66 +81,84 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CACTIVE_Layers_Item : public wxPanel
+class CWKSP_Data_Layers_Item : public wxPanel
 {
-	DECLARE_CLASS(CACTIVE_Layers_Item)
+	DECLARE_CLASS(CWKSP_Data_Layers_Item)
 
 public:
-	CACTIVE_Layers_Item(wxWindow *pParent, int ax, int ay, int dx, int dy, class CWKSP_Layer *pLayer);
-	virtual ~CACTIVE_Layers_Item(void)	{}
+	CWKSP_Data_Layers_Item(wxWindow *pParent, class CWKSP_Layer *pLayer);
+	CWKSP_Data_Layers_Item(wxWindow *pParent, const char *Title);
+	virtual ~CWKSP_Data_Layers_Item(void)	{}
 
-	void						On_Paint		(wxPaintEvent &event);
+	void						On_Paint			(wxPaintEvent &event);
+
+	void						On_Mouse_LDown		(wxMouseEvent &event);
+	void						On_Mouse_LDClick	(wxMouseEvent &event);
+	void						On_Mouse_RDown		(wxMouseEvent &event);
+
+	bool						is_Title			(void)	{	return( m_pLayer == NULL );	}
 
 
 private:
+
+	wxString					m_Title;
 
 	class CWKSP_Layer			*m_pLayer;
 
+	CSG_Data_Object				*m_pObject;
+
+
+	bool						_Set_Layer_Active	(void);
+
 
 //---------------------------------------------------------
 DECLARE_EVENT_TABLE()
 };
 
 //---------------------------------------------------------
-class CACTIVE_Layers : public wxScrolledWindow
+class CWKSP_Data_Layers : public wxScrolledWindow
 {
-	DECLARE_CLASS(CACTIVE_Layers)
+	DECLARE_CLASS(CWKSP_Data_Layers)
 
 public:
-	CACTIVE_Layers(wxWindow *pParent);
-	virtual ~CACTIVE_Layers(void);
+	CWKSP_Data_Layers(wxWindow *pParent);
+	virtual ~CWKSP_Data_Layers(void);
 
-	void						On_Mouse_Motion	(wxMouseEvent &event);
-	void						On_Key_Down		(wxKeyEvent   &event);
+	void						On_Mouse_RDown		(wxMouseEvent &event);
 
-	virtual void				OnDraw			(wxDC &dc);
+	void						On_Size				(wxSizeEvent &event);
 
-	void						Set_Item		(class CWKSP_Base_Item *pItem);
+	void						Update				(void);
+
+	void						Set_Item_Size		(int Size);
+	int							Get_Item_Size		(void)		{	return( m_Size );	}
 
 
 private:
 
-	int							m_xScroll, m_yScroll, m_nItems;
+	bool						m_bCategorised;
 
-	double						m_Zoom;
+	int							m_xScroll, m_yScroll, m_nItems, m_Size;
 
-	CACTIVE_Layers_Item			**m_Items;
+	CWKSP_Data_Layers_Item		**m_Items;
 
-	class CWKSP_Base_Item		*m_pItem;
+	CSG_Parameters				m_Parameters;
 
 
-	void						_Layers_Clear	(void);
-	CACTIVE_Layers_Item *		_Layers_Add		(int ax, int ay, int dx, int dy, CWKSP_Layer *pLayer);
-	CWKSP_Layer *				_Layers_Get		(wxPoint p);
+	void						_Set_Positions		(void);
 
-	bool						_Add_Items		(wxSize &Size, class CWKSP_Base_Item *pItem);
-	bool						_Add_Item		(wxSize &Size, class CWKSP_Layer *pLayer);
-
+	bool						_Add_Items			(class CWKSP_Base_Item *pItem);
+	bool						_Add_Item			(class CWKSP_Layer *pLayer);
+	bool						_Add_Item			(const char *Title);
+	bool						_Del_Items			(void);
 
 //---------------------------------------------------------
 DECLARE_EVENT_TABLE()
 };
 
+//---------------------------------------------------------
+extern CWKSP_Data_Layers		*g_pLayers;
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -147,4 +167,4 @@ DECLARE_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__ACTIVE_Layers_H
+#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Data_Layers_H

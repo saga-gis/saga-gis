@@ -16,7 +16,6 @@ active.cpp\
 active_attributes.cpp\
 active_description.cpp\
 active_HTMLExtraInfo.cpp\
-active_layers.cpp\
 active_legend.cpp\
 active_parameters.cpp\
 callback.cpp\
@@ -68,6 +67,7 @@ wksp_base_control.cpp\
 wksp_base_item.cpp\
 wksp_base_manager.cpp\
 wksp_data_control.cpp\
+wksp_data_layers.cpp\
 wksp_data_manager.cpp\
 wksp_data_menu_file.cpp\
 wksp_data_menu_files.cpp\
@@ -104,7 +104,6 @@ active_attributes.h\
 active_description.h\
 active_HTMLExtraInfo.h\
 active_legend.h\
-active_layers.h\
 active_parameters.h\
 callback.h\
 dc_helper.h\
@@ -155,6 +154,7 @@ wksp_base_control.h\
 wksp_base_item.h\
 wksp_base_manager.h\
 wksp_data_control.h\
+wksp_data_layers.h\
 wksp_data_manager.h\
 wksp_data_menu_file.h\
 wksp_data_menu_files.h\

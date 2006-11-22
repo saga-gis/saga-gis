@@ -80,6 +80,8 @@
 #include "wksp_data_control.h"
 #include "wksp_data_manager.h"
 
+#include "wksp_data_layers.h"
+
 #include "wksp_map_control.h"
 #include "wksp_map_manager.h"
 
@@ -95,6 +97,7 @@ enum
 {
 	IMG_MODULES	= 0,
 	IMG_DATA,
+	IMG_LAYERS,
 	IMG_MAPS
 };
 
@@ -130,7 +133,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CWKSP::CWKSP(wxWindow *pParent)
-	: wxNotebook(pParent, ID_WND_WKSP, wxDefaultPosition, wxDefaultSize, NOTEBOOK_STYLE, LNG("[CAP] Workspace"))
+	: wxNotebook(pParent, ID_WND_WKSP, wxDefaultPosition, wxDefaultSize, NOTEBOOK_STYLE|wxNB_MULTILINE, LNG("[CAP] Workspace"))
 {
 	g_pWKSP		= this;
 
@@ -139,11 +142,13 @@ CWKSP::CWKSP(wxWindow *pParent)
 
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_MODULES);
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_DATA);
+	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_LAYERS);
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_MAPS);
 
 	//-----------------------------------------------------
 	m_pModules	= new CWKSP_Module_Control(this);
 	m_pData		= new CWKSP_Data_Control  (this);
+	m_pLayers	= new CWKSP_Data_Layers   (this);
 	m_pMaps		= new CWKSP_Map_Control   (this);
 }
 
@@ -152,6 +157,7 @@ void CWKSP::Add_Pages(void)
 {
 	AddPage(m_pModules, LNG("[CAP] Modules"), false, IMG_MODULES);
 	AddPage(m_pData   , LNG("[CAP] Data")   , false, IMG_DATA);
+	AddPage(m_pLayers , LNG("[CAP] Layers") , false, IMG_LAYERS);
 	AddPage(m_pMaps   , LNG("[CAP] Maps")   , false, IMG_MAPS);
 }
 

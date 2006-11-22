@@ -72,6 +72,8 @@
 #include "wksp_map.h"
 #include "wksp_map_layer.h"
 
+#include "wksp_data_layers.h"
+
 #include "wksp_layer.h"
 #include "wksp_layer_classify.h"
 #include "wksp_layer_legend.h"
@@ -495,7 +497,7 @@ void CWKSP_Layer::Parameters_Changed(void)
 
 	_Set_Thumbnail();
 
-	g_pACTIVE->Update_Layers();
+	g_pLayers->Refresh(false);
 }
 
 

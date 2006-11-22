@@ -80,6 +80,7 @@
 #include "wksp_module_menu.h"
 
 #include "wksp_data_manager.h"
+#include "wksp_data_layers.h"
 #include "wksp_table.h"
 
 #include "wksp_map.h"
@@ -292,6 +293,8 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 
 			Thaw();
 
+			g_pLayers->Update();
+
 			return( true );
 		}
 	}
@@ -327,6 +330,11 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 			Thaw();
 
 			Refresh();
+
+			if( m_pManager->Get_Type() == WKSP_ITEM_Data_Manager )
+			{
+				g_pLayers->Update();
+			}
 
 			return( true );
 		}

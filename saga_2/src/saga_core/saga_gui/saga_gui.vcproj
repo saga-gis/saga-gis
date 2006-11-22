@@ -313,10 +313,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\active_layers.cpp"
-				>
-			</File>
-			<File
 				RelativePath="active_legend.cpp"
 				>
 				<FileConfiguration
@@ -1439,6 +1435,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\wksp_data_layers.cpp"
+				>
+			</File>
+			<File
 				RelativePath="wksp_data_manager.cpp"
 				>
 				<FileConfiguration
@@ -2142,10 +2142,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\active_layers.h"
-				>
-			</File>
-			<File
 				RelativePath="active_legend.h"
 				>
 			</File>
@@ -2347,6 +2343,10 @@
 			</File>
 			<File
 				RelativePath="WKSP_Data_Control.h"
+				>
+			</File>
+			<File
+				RelativePath=".\wksp_data_layers.h"
 				>
 			</File>
 			<File

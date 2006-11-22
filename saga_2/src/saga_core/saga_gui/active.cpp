@@ -69,17 +69,16 @@
 
 #include "helper.h"
 
-#include "saga_frame.h"
-
 #include "active.h"
 #include "active_parameters.h"
 #include "active_description.h"
 #include "active_attributes.h"
 #include "active_legend.h"
-#include "active_layers.h"
 #include "active_HTMLExtraInfo.h"
 
 #include "wksp_module.h"
+
+#include "wksp_data_layers.h"
 
 #include "wksp_layer.h"
 #include "wksp_map_layer.h"
@@ -107,7 +106,6 @@ enum
 	IMG_PARAMETERS	= 0,
 	IMG_DESCRIPTION,
 	IMG_LEGEND,
-	IMG_LAYERS,
 	IMG_ATTRIBUTES,
 	IMG_HTMLEXTRAINFO
 };
@@ -156,14 +154,12 @@ CACTIVE::CACTIVE(wxWindow *pParent)
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_DESCRIPTION);
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_ATTRIBUTES);
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_LEGEND);
-	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_LAYERS);
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_HTMLEXTRAINFO);
 
 	//-----------------------------------------------------
 	m_pParameters		= NULL;
 	m_pDescription		= NULL;
 	m_pLegend			= NULL;
-	m_pLayers			= NULL;
 	m_pAttributes		= NULL;
 	m_pHTMLExtraInfo	= NULL;
 }
@@ -175,7 +171,6 @@ void CACTIVE::Add_Pages(void)
 	_Add_Page(IMG_DESCRIPTION);
 #ifdef ACTIVE_SHOW_ALL_PAGES
 	_Add_Page(IMG_LEGEND);
-	_Add_Page(IMG_LAYERS);
 	_Add_Page(IMG_ATTRIBUTES);
 	_Add_Page(IMG_HTMLEXTRAINFO);
 #endif
@@ -197,11 +192,16 @@ CACTIVE::~CACTIVE(void)
 //---------------------------------------------------------
 bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 {
-	CWKSP_Base_Item	*pLegend, *pLayers, *pHTML;
+	if( pItem == m_pItem )
+	{
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	CWKSP_Base_Item	*pLegend, *pHTML;
 
 	m_pLayer	= NULL;
 	pLegend		= NULL;
-	pLayers		= NULL;
 	pHTML		= NULL;
 
 	//-----------------------------------------------------
@@ -213,7 +213,7 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 			break;
 
 		case WKSP_ITEM_Map:
-			pLegend		= pLayers	= m_pItem;
+			pLegend		= m_pItem;
 			break;
 
 		case WKSP_ITEM_Map_Layer:
@@ -228,23 +228,7 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 		case WKSP_ITEM_Grid:
 			pLegend		= m_pLayer	= (CWKSP_Layer      *)m_pItem;
 			break;
-
-		case WKSP_ITEM_Data_Manager:
-		case WKSP_ITEM_Grid_Manager:
-		case WKSP_ITEM_Grid_System:
-		case WKSP_ITEM_Shapes_Manager:
-		case WKSP_ITEM_Shapes_Type:
-		case WKSP_ITEM_TIN_Manager:
-		case WKSP_ITEM_Map_Manager:
-			pLayers		= m_pItem;
-			break;
 		}
-
-		g_pSAGA_Frame->Set_Pane_Caption(this, m_pItem->Get_Name());
-	}
-	else
-	{
-		g_pSAGA_Frame->Set_Pane_Caption(this, LNG("[CAP] Object Properties"));
 	}
 
 	_Set_Description();
@@ -271,15 +255,6 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 #endif
 	}
 
-	if( pLayers  == NULL && m_pLayers			!= NULL )
-	{
-		m_pLayers->Set_Item(NULL);
-
-#ifndef ACTIVE_SHOW_ALL_PAGES
-		_Del_Page(IMG_LAYERS);
-#endif
-	}
-
 	if( pHTML    == NULL && m_pHTMLExtraInfo	!= NULL )
 	{
 #ifndef ACTIVE_SHOW_ALL_PAGES
@@ -302,18 +277,17 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 		m_pLegend->Set_Item(pLegend);
 	}
 
-	if( pLayers )
-	{
-		_Add_Page(IMG_LAYERS);
-
-		m_pLayers->Set_Item(pLayers);
-	}
-
 	if( pHTML )
 	{
 		_Add_Page(IMG_HTMLEXTRAINFO);
 
 		m_pHTMLExtraInfo->SetPage("");
+	}
+
+	//-----------------------------------------------------
+	if( g_pLayers )
+	{
+		g_pLayers->Refresh(false);
 	}
 
 	return( true );
@@ -367,14 +341,6 @@ bool CACTIVE::_Add_Page(int PageID)
 		Caption	= LNG("[CAP] Legend");
 		break;
 
-	case IMG_LAYERS:
-		if( m_pLayers != NULL )
-			return( true );
-
-		pPage	= m_pLayers			= new CACTIVE_Layers	    (this);
-		Caption	= LNG("[CAP] Layers");
-		break;
-
 	case IMG_HTMLEXTRAINFO:
 		if( m_pHTMLExtraInfo != NULL )
 			return( true );
@@ -421,11 +387,6 @@ bool CACTIVE::_Del_Page(int PageID)
 	case IMG_LEGEND:
 		pPage				= m_pLegend;
 		m_pLegend			= NULL;
-		break;
-
-	case IMG_LAYERS:
-		pPage				= m_pLayers;
-		m_pLayers			= NULL;
 		break;
 
 	case IMG_HTMLEXTRAINFO:
@@ -538,15 +499,9 @@ bool CACTIVE::Update(CWKSP_Base_Item *pItem, bool bSave)
 //---------------------------------------------------------
 bool CACTIVE::Update_DataObjects(void)
 {
-	return( m_pParameters && m_pParameters->Update_DataObjects() );
-}
-
-//---------------------------------------------------------
-bool CACTIVE::Update_Layers(void)
-{
-	if( m_pLayers )
+	if( m_pParameters )
 	{
-		m_pLayers->Refresh();
+		m_pParameters->Update_DataObjects();
 	}
 
 	return( true );

@@ -69,6 +69,7 @@
 
 #include "wksp_data_control.h"
 #include "wksp_data_manager.h"
+#include "wksp_data_layers.h"
 
 #include "wksp_table_manager.h"
 #include "wksp_table.h"
@@ -264,6 +265,11 @@ void CWKSP_Data_Control::Add_Item(CWKSP_Base_Manager *pManager, CWKSP_Base_Item 
 		if( pTable )
 		{
 			AppendItem(pItem->GetId(), pTable->Get_Name(), IMG_TABLE, IMG_TABLE, (wxTreeItemData *)pTable);
+		}
+
+		if( g_pLayers )
+		{
+			g_pLayers->Update();
 		}
 	}
 }

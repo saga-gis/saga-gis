@@ -695,6 +695,11 @@ void CSAGA_Frame::StatusBar_Set_Text(const char *Text, int iPane)
 		iPane	= STATUSBAR_DEFAULT;
 	}
 
+	if( iPane == STATUSBAR_ACTIVE )
+	{
+		Set_Pane_Caption(m_pActive, Text && strlen(Text) > 0 ? Text : LNG("[CAP] Object Properties"));
+	}
+
 	SetStatusText(Text, iPane);
 }
 

@@ -1850,12 +1850,17 @@ bool wxPGComboControlBase::HandleButtonMouseEvent( wxMouseEvent& event,
             Refresh();
         }
     }
-//    else if ( type == wxEVT_LEFT_DOWN )	// OC: first click on combobox drops down the list !!!!
+//    else if ( type == wxEVT_LEFT_DOWN )	// OC: first click on combobox drops down the list immediately !!!!
     else if ( type == wxEVT_LEFT_DOWN || (type == wxEVT_ENTER_WINDOW && event.LeftIsDown()) )
     {
         // Only accept event if it wasn't right after popup dismiss
         //if ( ::wxGetLocalTimeMillis() > m_timeCanClick )
         {
+			if( type == wxEVT_ENTER_WINDOW && m_popup )	// OC: click again hides the list !!!!
+			{
+				HidePopup();
+			}
+			else
             // Need to test this, because it might be outside.
             if ( flags & wxPGCC_MF_ON_BUTTON )
             {

@@ -97,6 +97,7 @@ public:
 
 	class CWKSP_Module_Control *	Get_Modules				(void)	{	return( m_pModules );	}
 	class CWKSP_Data_Control *		Get_Data				(void)	{	return( m_pData );		}
+	class CWKSP_Data_Layers *		Get_Layers				(void)	{	return( m_pLayers );	}
 	class CWKSP_Map_Control *		Get_Maps				(void)	{	return( m_pMaps );		}
 
 	bool							Open					(void);
@@ -108,6 +109,8 @@ private:
 	class CWKSP_Module_Control		*m_pModules;
 
 	class CWKSP_Data_Control		*m_pData;
+
+	class CWKSP_Data_Layers			*m_pLayers;
 
 	class CWKSP_Map_Control			*m_pMaps;
 

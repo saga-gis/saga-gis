@@ -181,7 +181,7 @@ bool CWKSP_Base_Manager::Del_Item(int iItem)
 		case WKSP_ITEM_Grid_System:
 			if( g_pACTIVE )
 			{
-				g_pACTIVE->Get_Parameters()->Update_DataObjects();
+				g_pACTIVE->Update_DataObjects();
 			}
 			break;
 		}
