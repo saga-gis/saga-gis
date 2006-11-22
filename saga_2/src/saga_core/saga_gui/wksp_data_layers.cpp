@@ -339,6 +339,8 @@ void CWKSP_Data_Layers::On_Size(wxSizeEvent &event)
 //---------------------------------------------------------
 void CWKSP_Data_Layers::Update(void)
 {
+	Freeze();
+
 	_Del_Items();
 	_Add_Items(g_pData);
 
@@ -346,7 +348,7 @@ void CWKSP_Data_Layers::Update(void)
 
 	_Set_Positions();
 
-	Refresh();
+	Thaw();
 }
 
 
