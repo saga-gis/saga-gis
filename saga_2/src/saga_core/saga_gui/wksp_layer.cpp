@@ -68,6 +68,8 @@
 
 #include "wksp_base_control.h"
 
+#include "wksp_data_manager.h"
+
 #include "wksp_map_manager.h"
 #include "wksp_map.h"
 #include "wksp_map_layer.h"
@@ -130,7 +132,7 @@ CWKSP_Layer::~CWKSP_Layer(void)
 	}
 
 	//-----------------------------------------------------
-	if( m_pObject )
+	if( g_pData->Exists(m_pObject) )
 	{
 		if( m_pObject->is_Valid() == true )
 		{

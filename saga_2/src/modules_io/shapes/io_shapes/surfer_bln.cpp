@@ -122,12 +122,12 @@ CSurfer_BLN_Import::~CSurfer_BLN_Import(void)
 //---------------------------------------------------------
 bool CSurfer_BLN_Import::On_Execute(void)
 {
-	bool			bOk;
-	int				ID, Flag, iPoint, nPoints;
-	double			x, y;
-	FILE			*Stream;
+	bool				bOk;
+	int					ID, Flag, iPoint, nPoints;
+	double				x, y;
+	FILE				*Stream;
 	TSG_Shape_Type		Type;
-	CSG_String		FileName, sLine, sName, sDesc, sTemp;
+	CSG_String			FileName, sLine, sName, sDesc, sTemp;
 	CSG_Table_Record	*pRecord;
 	CSG_Table			*pTable;
 	CSG_Shape			*pShape;
@@ -151,7 +151,17 @@ bool CSurfer_BLN_Import::On_Execute(void)
 		bOk		= true;
 		ID		= 0;
 
-		pShapes->Create(Type, SG_File_Get_Name(FileName, true));
+		if(	pShapes->Get_Type() != SHAPE_TYPE_Undefined
+		&&	pShapes->Get_Type() != Type )
+		{
+			pShapes	= SG_Create_Shapes(Type, SG_File_Get_Name(FileName, true));
+			Parameters("SHAPES")->Set_Value(pShapes);
+			DataObject_Add(pShapes);
+		}
+		else
+		{
+			pShapes->Create(Type, SG_File_Get_Name(FileName, true));
+		}
 
 		if( Type == SHAPE_TYPE_Point )
 		{
@@ -338,8 +348,8 @@ bool CSurfer_BLN_Export::On_Execute(void)
 	double		z;
 	FILE		*Stream;
 	TSG_Point	p;
-	CSG_Shape		*pShape;
-	CSG_Shapes		*pShapes;
+	CSG_Shape	*pShape;
+	CSG_Shapes	*pShapes;
 
 	//-----------------------------------------------------
 	pShapes	= Parameters("SHAPES")	->asShapes();
