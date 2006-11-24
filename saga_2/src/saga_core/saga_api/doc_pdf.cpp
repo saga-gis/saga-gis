@@ -71,15 +71,18 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <wx/filename.h>
-
 #if defined(_SAGA_MSW)
 	#define XMD_H
+	#if !defined(_SAGA_MINGW)
+		#define HAVE_BOOLEAN
+		#define boolean	bool
+	#endif
 #endif
-#if defined(_SAGA_MSW) && !defined(_SAGA_MINGW)
-	#define HAVE_BOOLEAN
-#endif
+
 #include <libharu.h>
+
+//---------------------------------------------------------
+#include <wx/filename.h>
 
 #include "doc_pdf.h"
 

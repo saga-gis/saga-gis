@@ -24,7 +24,7 @@ CXX_FLGS  =
 CXXFLAGS  = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEF_SAGA)
 
 LDFLAGS   = -shared `wx-config --cxxflags`
-LIBS      = $(WX_LIB)/libwx_gtk2_core-2.6.a $(WX_LIB)/libwx_base-2.6.a -lpng -ljpeg -lharu
+LIBS      = $(WX_LIB)/libwx_gtk2_core-2.8.a $(WX_LIB)/libwx_base-2.8.a -lpng -ljpeg -lharu
 
 .PHONY: all all-before all-after clean clean-custom
 

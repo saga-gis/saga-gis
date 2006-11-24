@@ -163,7 +163,7 @@ void CWKSP_Data_Layers_Item::On_Paint(wxPaintEvent &event)
 
 			if( g_pACTIVE->Get_Item() == m_pLayer )
 			{
-				dc.SetPen(wxPen(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNSHADOW)));
+				dc.SetPen(wxPen(((CWKSP_Data_Layers *)GetParent())->Get_Active_Color()));
 				Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);	r.Deflate(1);
 				Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);	r.Deflate(1);
 				Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);
@@ -274,6 +274,7 @@ CWKSP_Data_Layers::CWKSP_Data_Layers(wxWindow *pParent)
 
 	m_Size			= CONFIG_Read("/LAYERS", "SIZE"		, lValue) ? (int)lValue : 75;
 	m_bCategorised	= CONFIG_Read("/LAYERS", "CATEGORY"	, bValue) ?      bValue : true;
+	m_Active_Color	= CONFIG_Read("/LAYERS", "SELCOLOR"	, lValue) ?      lValue : Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW));
 
 	//-----------------------------------------------------
 	m_Parameters.Create(this, LNG("Options for Layers Workspace"), LNG(""));
@@ -289,6 +290,12 @@ CWKSP_Data_Layers::CWKSP_Data_Layers(wxWindow *pParent)
 		LNG(""),
 		PARAMETER_TYPE_Bool, m_bCategorised
 	);
+
+	m_Parameters.Add_Value(
+		NULL, "SELCOLOR"	, LNG("Active Layer Color"),
+		LNG(""),
+		PARAMETER_TYPE_Color, m_Active_Color
+	);
 }
 
 //---------------------------------------------------------
@@ -296,6 +303,7 @@ CWKSP_Data_Layers::~CWKSP_Data_Layers(void)
 {
 	CONFIG_Write("/LAYERS", "SIZE"		, (long)m_Parameters("SIZE")	->asInt());
 	CONFIG_Write("/LAYERS", "CATEGORY"	,       m_Parameters("CATEGORY")->asBool());
+	CONFIG_Write("/LAYERS", "SELCOLOR"	,       m_Parameters("SELCOLOR")->asBool());
 
 	_Del_Items();
 
@@ -316,8 +324,9 @@ void CWKSP_Data_Layers::On_Mouse_RDown(wxMouseEvent &event)
 	{
 		m_Size			= m_Parameters("SIZE")		->asInt();
 		m_bCategorised	= m_Parameters("CATEGORY")	->asBool();
+		m_Active_Color	= m_Parameters("SELCOLOR")	->asColor();
 
-		Update();
+		Update_Layers();
 	}
 
 	event.Skip();
@@ -337,7 +346,7 @@ void CWKSP_Data_Layers::On_Size(wxSizeEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Data_Layers::Update(void)
+void CWKSP_Data_Layers::Update_Layers(void)
 {
 	Freeze();
 

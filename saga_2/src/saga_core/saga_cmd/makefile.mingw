@@ -21,7 +21,7 @@ CXXFLAGS  = $(CXXINCS) $(DEF_WIN) $(DEF_SAGA) -O3 -Wno-ctor-dtor-privacy
 
 LDFLAGS   =
 #LDFLAGS   = -mthreads -mwindows
-LIBS_WX   = -L"$(WXWIN)/lib/gcc_lib" -lwxbase26 -lwxtiff -lwxjpeg -lwxpng -lwxzlib -lwxregex -lwxexpat
+LIBS_WX   = -L"$(WXWIN)/lib/gcc_lib" -lwxbase28 -lwxtiff -lwxjpeg -lwxpng -lwxzlib -lwxregex -lwxexpat
 LIBS      = $(LIBS_WX) -L"$(LIB_GCC)" -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lwinspool -lwinmm -lshell32 -lcomctl32 -lole32 -loleaut32 -luuid -lrpcrt4 -ladvapi32 -lwsock32 -loleacc -lodbc32  $(BIN_SAGA)/libsaga_api.a
 
 

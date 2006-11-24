@@ -73,7 +73,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib rpcrt4.lib wsock32.lib wxzlibd.lib wxjpegd.lib wxpngd.lib wxtiffd.lib wxbase26d.lib wxmsw26d_core.lib odbc32.lib odbccp32.lib saga_api.lib"
+				AdditionalDependencies="comctl32.lib rpcrt4.lib wsock32.lib wxzlibd.lib wxjpegd.lib wxpngd.lib wxtiffd.lib wxbase28d.lib wxmsw28d_core.lib odbc32.lib odbccp32.lib saga_api.lib"
 				OutputFile=".\..\..\..\..\bin\saga_vc8_dbg\modules/io_grid_image.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -171,7 +171,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib rpcrt4.lib wsock32.lib wxzlib.lib wxjpeg.lib wxpng.lib wxtiff.lib wxbase26.lib wxmsw26_core.lib odbc32.lib odbccp32.lib saga_api.lib"
+				AdditionalDependencies="comctl32.lib rpcrt4.lib wsock32.lib wxzlib.lib wxjpeg.lib wxpng.lib wxtiff.lib wxbase28.lib wxmsw28_core.lib odbc32.lib odbccp32.lib saga_api.lib"
 				OutputFile=".\..\..\..\..\bin\saga_vc8\modules/io_grid_image.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

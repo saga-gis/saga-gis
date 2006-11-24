@@ -53,10 +53,10 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 wxmsw26_core.lib wxbase26.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib oleacc.lib odbc32.lib /nologo /subsystem:windows /machine:I386 /libpath:".\..\..\lib\vc_lib"
-# ADD LINK32 wxbase26_xml.lib wxmsw26_html.lib wxmsw26_adv.lib wxmsw26_core.lib wxbase26.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib oleacc.lib odbc32.lib /nologo /subsystem:windows /machine:I386 /libpath:"$(WXWIN)/lib/vc_lib" /libpath:"$(WXWIN)/wxDockIt/lib/vc_lib"
+# ADD LINK32 wxbase28_xml.lib wxmsw28_html.lib wxmsw28_aui.lib wxmsw28_adv.lib wxmsw28_core.lib wxbase28.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib oleacc.lib odbc32.lib /nologo /subsystem:windows /machine:I386 /libpath:"$(WXWIN)/lib/vc_lib" /libpath:"$(WXWIN)/wxDockIt/lib/vc_lib"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy res\saga_eng.txt ..\..\..\bin\saga_vc\saga.eng	copy res\saga_ger.txt ..\..\..\bin\saga_vc\saga.ger
+PostBuild_Cmds=copy res\saga_eng.txt ..\..\..\bin\saga_vc\saga.eng	copy res\saga_ger.txt ..\..\..\bin\saga_vc\saga.ger	copy res\saga_tip.txt ..\..\..\bin\saga_vc\saga_gui.tip
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "saga_gui - Win32 Debug"
@@ -83,10 +83,10 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 wxmsw26d_core.lib wxbase26d.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib oleacc.lib odbc32.lib /nologo /subsystem:windows /debug /machine:I386 /libpath:".\..\..\lib\vc_lib"
-# ADD LINK32 wxbase26d_xml.lib wxmsw26d_html.lib wxmsw26d_adv.lib wxmsw26d_core.lib wxbase26d.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib oleacc.lib odbc32.lib /nologo /subsystem:windows /debug /machine:I386 /libpath:"$(WXWIN)/lib/vc_lib" /libpath:"$(WXWIN)/wxDockIt/lib/vc_lib"
+# ADD LINK32 wxbase28d_xml.lib wxmsw28d_html.lib wxmsw28d_aui.lib wxmsw28d_adv.lib wxmsw28d_core.lib wxbase28d.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib oleacc.lib odbc32.lib /nologo /subsystem:windows /debug /machine:I386 /libpath:"$(WXWIN)/lib/vc_lib" /libpath:"$(WXWIN)/wxDockIt/lib/vc_lib"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy res\saga_eng.txt ..\..\..\bin\saga_vc_dbg\saga.eng	copy res\saga_ger.txt ..\..\..\bin\saga_vc_dbg\saga.ger
+PostBuild_Cmds=copy res\saga_eng.txt ..\..\..\bin\saga_vc_dbg\saga.eng	copy res\saga_ger.txt ..\..\..\bin\saga_vc_dbg\saga.ger	copy res\saga_tip.txt ..\..\..\bin\saga_vc_dbg\saga_gui.tip
 # End Special Build Tool
 
 !ENDIF 
@@ -1300,30 +1300,6 @@ SOURCE=.\wx\propgrid\propgrid.cpp
 # Begin Source File
 
 SOURCE=.\wx\propgrid\props.cpp
-# End Source File
-# End Group
-# Begin Group "aui"
-
-# PROP Default_Filter ""
-# Begin Source File
-
-SOURCE=.\wx\aui\auibook.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\wx\aui\dockart.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\wx\aui\floatpane.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\wx\aui\framemanager.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\wx\aui\tabmdi.cpp
 # End Source File
 # End Group
 # End Group

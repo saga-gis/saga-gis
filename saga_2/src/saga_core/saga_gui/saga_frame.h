@@ -97,6 +97,7 @@ public:
 	void						On_Quit						(wxCommandEvent  &event);
 	void						On_Help						(wxCommandEvent  &event);
 	void						On_About					(wxCommandEvent  &event);
+	void						On_Tips						(wxCommandEvent  &event);
 
 	void						On_Frame_Cascade			(wxCommandEvent  &event);
 	void						On_Frame_Cascade_UI			(wxUpdateUIEvent &event);
@@ -130,6 +131,9 @@ public:
 
 	void						On_Command_Child			(wxCommandEvent  &event);
 	void						On_Command_Child_UI			(wxUpdateUIEvent &event);
+
+	//-----------------------------------------------------
+	void						Show_Tips					(bool bShow);
 
 	//-----------------------------------------------------
 	bool						Process_Get_Okay			(bool bBlink);
@@ -168,7 +172,7 @@ private:
 
 	class CACTIVE				*m_pActive;
 
-	class wxFrameManager		*m_pLayout;
+	class wxAuiManager			*m_pLayout;
 
 
 	void						_Bar_Add					(class wxWindow *pWindow, int Position);

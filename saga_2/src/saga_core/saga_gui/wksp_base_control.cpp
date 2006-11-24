@@ -293,7 +293,7 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 
 			Thaw();
 
-			g_pLayers->Update();
+			g_pLayers->Update_Layers();
 
 			return( true );
 		}
@@ -333,7 +333,7 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 
 			if( m_pManager->Get_Type() == WKSP_ITEM_Data_Manager )
 			{
-				g_pLayers->Update();
+				g_pLayers->Update_Layers();
 			}
 
 			return( true );
@@ -393,11 +393,18 @@ void CWKSP_Base_Control::On_Item_RClick(wxTreeEvent &event)
 	CWKSP_Base_Item	*pItem;
 	wxMenu			*pContext	= NULL;
 
-	if(	(pItem = (CWKSP_Base_Item *)GetItemData(event.GetItem())) != NULL && (pContext = pItem->Get_Menu()) != NULL )
+	if(	event.GetItem().IsOk() && (pItem = (CWKSP_Base_Item *)GetItemData(event.GetItem())) != NULL && (pContext = pItem->Get_Menu()) != NULL )
 	{
+		if( g_pACTIVE )
+		{
+			g_pACTIVE->Set_Active((CWKSP_Base_Item *)GetItemData(event.GetItem()));
+		}
+
 		PopupMenu(pContext, event.GetPoint());
 		delete(pContext);
 	}
+
+	event.Skip();
 }
 
 //---------------------------------------------------------
@@ -407,6 +414,8 @@ void CWKSP_Base_Control::On_Item_SelChanged(wxTreeEvent &event)
 	{
 		g_pACTIVE->Set_Active((CWKSP_Base_Item *)GetItemData(event.GetItem()));
 	}
+
+	event.Skip();
 }
 
 //---------------------------------------------------------

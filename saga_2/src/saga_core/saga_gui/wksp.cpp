@@ -185,7 +185,7 @@ void CWKSP::On_Page_Changed(wxNotebookEvent &event)
 {
 	event.Skip();
 
-	if( event.GetSelection() >= 0 && g_pACTIVE )
+	if( event.GetSelection() >= 0 && g_pACTIVE && GetPage(event.GetSelection()) != m_pLayers )
 	{
 		g_pACTIVE->Set_Active(((CWKSP_Base_Control *)GetPage(event.GetSelection()))->Get_Item_Selected());
 	}

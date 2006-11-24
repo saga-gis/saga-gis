@@ -60,11 +60,13 @@
 //---------------------------------------------------------
 #include <wx/wx.h>
 #include <wx/frame.h>
+#include <wx/filename.h>
 #include <wx/statusbr.h>
 #include <wx/icon.h>
 #include <wx/gauge.h>
 #include <wx/choicdlg.h>
 #include <wx/toolbar.h>
+#include <wx/tipdlg.h>
 #include <wx/aui/aui.h>
 
 #include <saga_api/saga_api.h>
@@ -179,6 +181,7 @@ BEGIN_EVENT_TABLE(CSAGA_Frame, wxMDIParentFrame)
 	EVT_MENU			(ID_CMD_FRAME_QUIT			, CSAGA_Frame::On_Quit)
 	EVT_MENU			(ID_CMD_FRAME_HELP			, CSAGA_Frame::On_Help)
 	EVT_MENU			(ID_CMD_FRAME_ABOUT			, CSAGA_Frame::On_About)
+	EVT_MENU			(ID_CMD_FRAME_TIPS			, CSAGA_Frame::On_Tips)
 
 	EVT_MENU			(ID_CMD_FRAME_CASCADE		, CSAGA_Frame::On_Frame_Cascade)
 	EVT_UPDATE_UI		(ID_CMD_FRAME_CASCADE		, CSAGA_Frame::On_Frame_Cascade_UI)
@@ -253,7 +256,7 @@ CSAGA_Frame::CSAGA_Frame(void)
 	m_pProgressBar		= ((CSAGA_Frame_StatusBar *)GetStatusBar())->m_pProgressBar;
 
 	//-----------------------------------------------------
-	m_pLayout			= new wxFrameManager(this);
+	m_pLayout			= new wxAuiManager(this);
 
 	m_pLayout->GetArtProvider()->SetColor	(wxAUI_ART_ACTIVE_CAPTION_COLOUR,
 		wxSystemSettings::GetColour(wxSYS_COLOUR_ACTIVECAPTION)
@@ -298,6 +301,26 @@ CSAGA_Frame::CSAGA_Frame(void)
 
 	if( CONFIG_Read("/FL", "MANAGER", s) )
 	{
+		m_pLayout->LoadPerspective(s);
+	}
+	else
+	{
+		s	= "layout1|"
+			  "name=mdiclient;caption=;state=256;dir=5;layer=0;row=0;pos=0;prop=100000;bestw=0;besth=0;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|"
+			  "name=Messages;caption=Messages;state=16779260;dir=3;layer=0;row=0;pos=0;prop=100000;bestw=200;besth=100;minw=100;minh=100;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=400;floath=200|"
+			  "name=Object Properties;caption=Object Properties;state=16779260;dir=2;layer=1;row=0;pos=0;prop=100000;bestw=200;besth=100;minw=100;minh=100;maxw=-1;maxh=-1;floatx=917;floaty=69;floatw=200;floath=400|"
+			  "name=Workspace;caption=Workspace;state=16779260;dir=4;layer=0;row=0;pos=0;prop=100000;bestw=200;besth=100;minw=100;minh=100;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=200;floath=400|"
+			  "name=Standard;caption=Standard;state=16788208;dir=1;layer=10;row=0;pos=0;prop=100000;bestw=131;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|"
+			  "name=Map;caption=Map;state=16788210;dir=1;layer=10;row=0;pos=142;prop=100000;bestw=269;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|"
+			  "name=3D-View;caption=3D-View;state=16788210;dir=1;layer=10;row=0;pos=0;prop=100000;bestw=423;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|"
+			  "name=Map-Layout;caption=Map-Layout;state=16788210;dir=1;layer=10;row=0;pos=0;prop=100000;bestw=69;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|"
+			  "name=Table;caption=Table;state=16788210;dir=1;layer=10;row=0;pos=0;prop=100000;bestw=146;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|"
+			  "name=Diagram;caption=Diagram;state=16788210;dir=1;layer=10;row=0;pos=0;prop=100000;bestw=23;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|"
+			  "name=Histogram;caption=Histogram;state=16788210;dir=1;layer=10;row=0;pos=0;prop=100000;bestw=46;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|"
+			  "name=Scatterplot;caption=Scatterplot;state=16788210;dir=1;layer=10;row=0;pos=0;prop=100000;bes"
+			  "tw=46;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|"
+			  "dock_size(5,0,0)=10|dock_size(3,0,0)=116|dock_size(4,0,0)=195|dock_size(1,10,0)=10|dock_size(2,1,0)=245|";
+
 		m_pLayout->LoadPerspective(s);
 	}
 
@@ -439,6 +462,12 @@ void CSAGA_Frame::On_About(wxCommandEvent &WXUNUSED(event))
 	CDLG_About	dlg;
 
 	dlg.ShowModal();
+}
+
+//---------------------------------------------------------
+void CSAGA_Frame::On_Tips(wxCommandEvent &WXUNUSED(event))
+{
+	Show_Tips(true);
 }
 
 
@@ -640,6 +669,38 @@ void CSAGA_Frame::On_Command_Child_UI(wxUpdateUIEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CSAGA_Frame::Show_Tips(bool bShow)
+{
+	bool			bTip;
+	long			iTip;
+	wxFileName		fTip(g_pSAGA->Get_App_Path(), "saga_gui", "tip");
+	wxTipProvider	*pTip;
+
+	bTip	= CONFIG_Read("/TIPS", "ATSTART", bTip) ? bTip : true;
+
+	if( bShow || (bTip && fTip.FileExists()) )
+	{
+		iTip	= CONFIG_Read("/TIPS", "CURRENT", iTip) ? iTip : 0;
+		pTip	= wxCreateFileTipProvider(fTip.GetFullPath(), iTip);
+
+		bTip	= wxShowTip(this, pTip, bTip);
+		iTip	= pTip->GetCurrentTip();
+
+		CONFIG_Write("/TIPS", "ATSTART", bTip);
+		CONFIG_Write("/TIPS", "CURRENT", iTip);
+
+		delete(pTip);
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSAGA_Frame::Process_Get_Okay(bool bBlink)
 {
 	static bool	s_bBlink	= false;
@@ -810,6 +871,7 @@ wxMenuBar * CSAGA_Frame::MB_Create(CVIEW_Base *pChild)
 	pMenu		= new wxMenu;
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_FRAME_HELP);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_FRAME_TIPS);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_FRAME_ABOUT);
 
 	pMenuBar->Append(pMenu, LNG("[MNU] ?"));
@@ -846,7 +908,7 @@ void CSAGA_Frame::Set_Pane_Caption(wxWindow *pWindow, wxString Caption)
 //---------------------------------------------------------
 void CSAGA_Frame::_Bar_Add(wxWindow *pWindow, int Position)
 {
-	m_pLayout->AddPane(pWindow, wxPaneInfo()
+	m_pLayout->AddPane(pWindow, wxAuiPaneInfo()
 		.Name		(pWindow->GetName())
 		.Caption	(pWindow->GetName())
 		.Layer		(0)
@@ -922,7 +984,7 @@ void CSAGA_Frame::TB_Add(wxToolBarBase *pToolBar, const char *Name)
 	pToolBar->Realize();
 	pToolBar->Hide();
 
-	m_pLayout->AddPane(pToolBar, wxPaneInfo()
+	m_pLayout->AddPane(pToolBar, wxAuiPaneInfo()
 	//	.Name			(pToolBar->GetName())
 		.Name			(Name)
 		.Caption		(Name)

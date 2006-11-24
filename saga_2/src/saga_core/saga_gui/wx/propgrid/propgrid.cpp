@@ -797,6 +797,7 @@ size_t wxPGProperty::GetChildCount() const
     return ((wxPGPropertyWithChildren*)this)->GetCount();
 }
 
+#include <wx/frame.h>
 
 void wxPGProperty::ShowError( const wxString& msg )
 {
@@ -1082,7 +1083,8 @@ void wxPGProperty::SetValueImage( wxBitmap& bmp )
 
     delete m_dataExt->m_valueBitmap;
 
-    if ( &bmp && bmp != wxNullBitmap )
+//    if ( &bmp && wxNullBitmap != bmp )
+    if ( &bmp && bmp.Ok() )
     {
         // Resize the image
         wxSize maxSz = GetGrid()->GetImageSize();

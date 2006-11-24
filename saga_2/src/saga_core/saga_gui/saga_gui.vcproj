@@ -77,7 +77,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxbase26d_xml.lib wxmsw26d_html.lib wxmsw26d_adv.lib wxmsw26d_core.lib wxbase26d.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib"
+				AdditionalDependencies="wxbase28d_xml.lib wxmsw28d_html.lib wxmsw28d_adv.lib wxmsw28d_aui.lib wxmsw28d_core.lib wxbase28d.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib"
 				OutputFile=".\./../../../bin/saga_vc8_dbg/saga_gui.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -179,7 +179,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxbase26_xml.lib wxmsw26_html.lib wxmsw26_adv.lib wxmsw26_core.lib wxbase26.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib"
+				AdditionalDependencies="wxbase28_xml.lib wxmsw28_html.lib wxmsw28_aui.lib wxmsw28_adv.lib wxmsw28_core.lib wxbase28.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib"
 				OutputFile=".\./../../../bin/saga_vc8/saga_gui.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -2998,54 +2998,6 @@
 				</File>
 				<File
 					RelativePath=".\wx\propgrid\props.cpp"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="aui"
-				>
-				<File
-					RelativePath=".\wx\aui\aui.h"
-					>
-				</File>
-				<File
-					RelativePath=".\wx\aui\auibook.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\wx\aui\auibook.h"
-					>
-				</File>
-				<File
-					RelativePath=".\wx\aui\dockart.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\wx\aui\dockart.h"
-					>
-				</File>
-				<File
-					RelativePath=".\wx\aui\floatpane.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\wx\aui\floatpane.h"
-					>
-				</File>
-				<File
-					RelativePath=".\wx\aui\framemanager.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\wx\aui\framemanager.h"
-					>
-				</File>
-				<File
-					RelativePath=".\wx\aui\tabmdi.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\wx\aui\tabmdi.h"
 					>
 				</File>
 			</Filter>

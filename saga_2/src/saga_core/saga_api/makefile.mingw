@@ -21,7 +21,7 @@ DEF_WIN   = -D__WXMSW__ -DNOPCH
 CXXINCS   = -I"$(WXWIN)/include" -I"$(WXWIN)/lib/gcc_lib/msw" -I"$(HARU)" -I"$(LIB_GCC)/gcc/mingw32/3.4.2/include" -I"$(INC_GCC)" -I"$(INC_GCC)/c++/3.4.2/backward" -I"$(INC_GCC)/c++/3.4.2/mingw32" -I"$(INC_GCC)/c++/3.4.2"
 CXXFLAGS  = $(CXXINCS) $(DEF_SAGA) $(DEF_WIN) -mthreads -O3 -Wno-ctor-dtor-privacy
 
-LIBS_WX   = -L"$(WXWIN)/lib/gcc_lib" -lwxmsw26_core -lwxbase26 -L"$(HARU)" -lharu
+LIBS_WX   = -L"$(WXWIN)/lib/gcc_lib" -lwxmsw28_core -lwxbase28 -L"$(HARU)" -lharu
 LIBS      = $(LIBS_WX) -L"$(LIB_GCC)" -lwxtiff -lwxjpeg -lwxpng -lwxzlib -lwxregex -lwxexpat -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lwinspool -lwinmm -lshell32 -lcomctl32 -lole32 -loleaut32 -luuid -lrpcrt4 -ladvapi32 -lwsock32 -lodbc32
 LDFLAGS   = --export-all --driver-name c++ -mthreads -mwindows
 

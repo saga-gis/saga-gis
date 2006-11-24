@@ -96,7 +96,7 @@ public:
 	void						On_Mouse_LDClick	(wxMouseEvent &event);
 	void						On_Mouse_RDown		(wxMouseEvent &event);
 
-	bool						is_Title			(void)	{	return( m_pLayer == NULL );	}
+	bool						is_Title			(void)				{	return( m_pLayer == NULL );	}
 
 
 private:
@@ -128,10 +128,12 @@ public:
 
 	void						On_Size				(wxSizeEvent &event);
 
-	void						Update				(void);
+	void						Update_Layers		(void);
 
 	void						Set_Item_Size		(int Size);
 	int							Get_Item_Size		(void)		{	return( m_Size );	}
+
+	long						Get_Active_Color	(void)		{	return( m_Active_Color );	}
 
 
 private:
@@ -139,6 +141,8 @@ private:
 	bool						m_bCategorised;
 
 	int							m_xScroll, m_yScroll, m_nItems, m_Size;
+
+	long						m_Active_Color;
 
 	CWKSP_Data_Layers_Item		**m_Items;
 
@@ -151,6 +155,7 @@ private:
 	bool						_Add_Item			(class CWKSP_Layer *pLayer);
 	bool						_Add_Item			(const char *Title);
 	bool						_Del_Items			(void);
+
 
 //---------------------------------------------------------
 DECLARE_EVENT_TABLE()

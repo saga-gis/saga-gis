@@ -108,7 +108,7 @@ const char *	SAGA_GUI_Get_Version(void)
 //---------------------------------------------------------
 const char *	SAGA_GUI_Get_Build(void)
 {
-	return( "20060825" );
+	return( "20070101" );
 }
 
 
@@ -195,6 +195,8 @@ bool CSAGA::OnInit(void)
 	}
 
 	//-----------------------------------------------------
+	g_pSAGA_Frame->Show_Tips(false);
+
 	return( true );
 }
 
@@ -218,7 +220,7 @@ void CSAGA::_Init_Config(void)
 {
 	wxConfigBase	*pConfig;
 
-#if defined(_SAGA_MSW)
+#if defined(_SAGA_MSW) && (!defined(__VISUALC__) || __VISUALC__ <= 1200)
 	wxString	sConfig(SG_File_Make_Path(Get_App_Path(), "saga_gui", "ini"));
 	pConfig = new wxFileConfig(wxEmptyString, wxEmptyString, sConfig, sConfig, wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_GLOBAL_FILE|wxCONFIG_USE_RELATIVE_PATH);
 #else

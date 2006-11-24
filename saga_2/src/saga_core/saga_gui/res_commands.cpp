@@ -83,7 +83,8 @@ const char * CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_FRAME_QUIT:				return( LNG("[CMD] Exit") );
 
 	case ID_CMD_FRAME_HELP:				return( LNG("[CMD] Help") );
-	case ID_CMD_FRAME_ABOUT:			return( LNG("[CMD] About") );
+	case ID_CMD_FRAME_ABOUT:			return( LNG("[CMD] About SAGA") );
+	case ID_CMD_FRAME_TIPS:				return( LNG("[CMD] Tip of the Day...") );
 
 	case ID_CMD_FRAME_CASCADE:			return( LNG("[CMD] Cascade") );
 	case ID_CMD_FRAME_TILE_HORZ:		return( LNG("[CMD] Tile Horizontally") );

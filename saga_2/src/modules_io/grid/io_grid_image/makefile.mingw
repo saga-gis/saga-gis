@@ -20,7 +20,7 @@ DEP_LFLG =
 
 DEP_INCS = -I"$(WXWIN)/lib/gcc_lib/msw" -I"$(WXWIN)/include"
 DEP_DEFS = -D__WXMSW__ -DNOPCH
-DEP_LIBS = -L"$(WXWIN)/lib" -lwxmsw26_core -lwxbase26 -lwxtiff -lwxjpeg -lwxpng -lwxzlib -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lwinmm -lshell32 -lcomctl32 -lole32 -loleaut32 -luuid -lrpcrt4
+DEP_LIBS = -L"$(WXWIN)/lib" -lwxmsw28_core -lwxbase28 -lwxtiff -lwxjpeg -lwxpng -lwxzlib -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lwinmm -lshell32 -lcomctl32 -lole32 -loleaut32 -luuid -lrpcrt4
 
 
 OBJ      = $(MLB_TEMP)/grid_export.o $(MLB_TEMP)/grid_import.o $(MLB_TEMP)/MLB_Interface.o

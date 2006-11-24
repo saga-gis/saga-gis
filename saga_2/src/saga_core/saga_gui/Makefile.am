@@ -196,18 +196,7 @@ wx/propgrid/odcombo.h\
 wx/propgrid/propdev.h\
 wx/propgrid/propgrid.cpp\
 wx/propgrid/propgrid.h\
-wx/propgrid/props.cpp\
-wx/aui/aui.h\
-wx/aui/auibook.cpp\
-wx/aui/auibook.h\
-wx/aui/dockart.cpp\
-wx/aui/dockart.h\
-wx/aui/floatpane.cpp\
-wx/aui/floatpane.h\
-wx/aui/framemanager.cpp\
-wx/aui/framemanager.h\
-wx/aui/tabmdi.cpp\
-wx/aui/tabmdi.h
+wx/propgrid/props.cpp
 
 saga_gui_LDADD = ../saga_api/libsaga_api.la
 

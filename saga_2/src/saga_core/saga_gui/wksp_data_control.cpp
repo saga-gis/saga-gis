@@ -269,7 +269,7 @@ void CWKSP_Data_Control::Add_Item(CWKSP_Base_Manager *pManager, CWKSP_Base_Item 
 
 		if( g_pLayers )
 		{
-			g_pLayers->Update();
+			g_pLayers->Update_Layers();
 		}
 	}
 }
