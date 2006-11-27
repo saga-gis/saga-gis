@@ -59,6 +59,7 @@
 
 //---------------------------------------------------------
 #include <wx/clipbrd.h>
+#include <wx/dataobj.h>
 
 #include "res_controls.h"
 
