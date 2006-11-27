@@ -114,6 +114,8 @@ CWKSP_Map::CWKSP_Map(void)
 	m_pView_3D		= NULL;
 	m_pLayout		= NULL;
 	m_pLayout_Info	= new CVIEW_Layout_Info(this);
+
+	m_bSynchronise	= false;
 }
 
 //---------------------------------------------------------
@@ -198,7 +200,7 @@ bool CWKSP_Map::On_Command(int Cmd_ID)
 		break;
 	
 	case ID_CMD_MAPS_SYNCHRONIZE:
-		Synchronize_Extents();
+		Set_Synchronising(!m_bSynchronise);
 		break;
 
 	case ID_CMD_MAPS_SHOW:
@@ -483,6 +485,11 @@ void CWKSP_Map::Set_Extent(TSG_Rect Extent)
 		m_Extent		= Extent;
 
 		View_Refresh(true);
+
+		if( m_bSynchronise )
+		{
+			_Synchronise_Extents();
+		}
 	}
 }
 
@@ -547,7 +554,7 @@ void CWKSP_Map::Set_Extent_Selection(void)
 }
 
 //---------------------------------------------------------
-void CWKSP_Map::Synchronize_Extents(void)
+void CWKSP_Map::_Synchronise_Extents(void)
 {
 	for(int i=0; i<Get_Manager()->Get_Count(); i++)
 	{
@@ -555,6 +562,17 @@ void CWKSP_Map::Synchronize_Extents(void)
 		{
 			((CWKSP_Map_Manager *)Get_Manager())->Get_Map(i)->Set_Extent(m_Extent);
 		}
+	}
+}
+
+//---------------------------------------------------------
+void CWKSP_Map::Set_Synchronising(bool bOn)
+{
+	m_bSynchronise	= bOn;
+
+	if( m_bSynchronise )
+	{
+		_Synchronise_Extents();
 	}
 }
 

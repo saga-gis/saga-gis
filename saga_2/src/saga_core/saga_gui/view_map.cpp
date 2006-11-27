@@ -168,7 +168,7 @@ wxMenu * CVIEW_Map::_Create_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_ACTIVE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_SELECTION);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_EXTENT);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_SYNCHRONIZE);
+	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_SYNCHRONIZE);
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_MODE_SELECT);
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_MODE_ZOOM);
@@ -188,7 +188,7 @@ wxToolBarBase * CVIEW_Map::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP_ZOOM_ACTIVE);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP_ZOOM_SELECTION);
 //	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP_ZOOM_EXTENT);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP_SYNCHRONIZE);
+	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAP_SYNCHRONIZE);
 	CMD_ToolBar_Add_Separator(pToolBar);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAP_MODE_SELECT);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAP_MODE_ZOOM);
@@ -354,6 +354,7 @@ void CVIEW_Map::On_Command_UI(wxUpdateUIEvent &event)
 
 	case ID_CMD_MAP_SYNCHRONIZE:
 		event.Enable(m_pMap->Get_Manager()->Get_Count() > 1);
+		event.Check(m_pMap->is_Synchronising());
 		break;
 
 	case ID_CMD_MAP_MODE_ZOOM:
@@ -451,7 +452,7 @@ void CVIEW_Map::On_Map_Zoom_Extent(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVIEW_Map::On_Map_Zoom_Synchronize(wxCommandEvent &event)
 {
-	m_pMap->Synchronize_Extents();
+	m_pMap->Set_Synchronising(!m_pMap->is_Synchronising());
 }
 
 //---------------------------------------------------------

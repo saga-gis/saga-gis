@@ -303,7 +303,7 @@ CWKSP_Data_Layers::~CWKSP_Data_Layers(void)
 {
 	CONFIG_Write("/LAYERS", "SIZE"		, (long)m_Parameters("SIZE")	->asInt());
 	CONFIG_Write("/LAYERS", "CATEGORY"	,       m_Parameters("CATEGORY")->asBool());
-	CONFIG_Write("/LAYERS", "SELCOLOR"	,       m_Parameters("SELCOLOR")->asBool());
+	CONFIG_Write("/LAYERS", "SELCOLOR"	,       m_Parameters("SELCOLOR")->asColor());
 
 	_Del_Items();
 

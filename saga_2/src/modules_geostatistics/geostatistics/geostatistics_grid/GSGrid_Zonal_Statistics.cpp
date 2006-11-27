@@ -170,6 +170,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 
 	
 	newZone		= new CList_Conti();								// create first list entry (dummy)
+	//newZone->dummy = true;
 	startList	= newZone;
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -198,6 +199,8 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 				runList->next		= newZone;
 
 				newZone->cat	= zoneID;									//		... and write info
+//				
+				newZone->dummy	= false;
 				runList			= newZone;
 			}
 			else															// insert new entry
@@ -216,6 +219,8 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 					startList = newZone;									// if new entry is first element, update startList pointer
 
 				newZone->cat	= zoneID;									//		... and write info
+//
+				newZone->dummy	= false;
 				runList			= newZone;
 			}
 
@@ -257,6 +262,8 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 					newSub->cat		= catID;									//		... and write info
 					newSub->previous	= runList;
 					newSub->parent		= parent;
+//
+					newSub->dummy		= false;
 					runList->next		= newSub;
 
 					runList			= newSub;
@@ -267,6 +274,8 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 					newSub->cat		= catID;									//		... and write info
 					newSub->next		= runList;
 					newSub->parent		= parent;
+//
+					newSub->dummy		= false;
 					if( runList->previous != NULL )
 					{
 						newSub->previous = runList->previous;

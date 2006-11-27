@@ -118,7 +118,9 @@ public:
 	void						Set_Extent_Full			(void);
 	void						Set_Extent_Active		(void);
 	void						Set_Extent_Selection	(void);
-	void						Synchronize_Extents		(void);
+
+	void						Set_Synchronising		(bool bOn);
+	bool						is_Synchronising		(void)	{	return( m_bSynchronise );	}
 
 	class CWKSP_Map_Layer *		Add_Layer				(class CWKSP_Layer *pLayer);
 	int							Get_Layer				(class CWKSP_Layer *pLayer);
@@ -166,9 +168,11 @@ public:
 
 private:
 
+	bool						m_bSynchronise;
+
 	CSG_Rect					m_Extent, m_Extent_Last;
 
-	CSG_Parameters					m_Parameters;
+	CSG_Parameters				m_Parameters;
 
 	class CVIEW_Map				*m_pView;
 
@@ -182,6 +186,8 @@ private:
 	void						_Create_Parameters		(void);
 	static int					_On_Parameter_Changed	(CSG_Parameter *pParameter);
 	int							On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	void						_Synchronise_Extents	(void);
 
 };
 
