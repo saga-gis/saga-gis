@@ -381,6 +381,7 @@ SAGA_API_DLL_EXPORT bool			SG_Dir_isValid			(const char *Directory);
 SAGA_API_DLL_EXPORT bool			SG_Dir_Create			(const char *Directory);
 SAGA_API_DLL_EXPORT CSG_String		SG_Dir_Get_Current		(void);
 
+SAGA_API_DLL_EXPORT bool			SG_File_Exists			(const char *FileName);
 SAGA_API_DLL_EXPORT bool			SG_File_Delete			(const char *FileName);
 SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_TmpName		(const char *Prefix, const char *Directory);
 SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Name		(const char *full_Path, bool bExtension);

@@ -17,15 +17,15 @@ usgs_srtm.cpp\
 xyz.cpp\
 bmp_export.h\
 erdas_lan.h\
-ESRI_ArcInfo.h\
+esri_arcinfo.h\
 grid_table.h\
 MLB_Interface.h\
-MOLA.h\
-Raw.h\
-SRTM30.h\
-Surfer.h\
-USGS_SRTM.h\
-XYZ.h
+mola.h\
+raw.h\
+srtm30.h\
+surfer.h\
+usgs_srtm.h\
+xyz.h
 
 libio_grid_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 

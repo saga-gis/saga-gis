@@ -11,11 +11,11 @@ MLB_Interface.cpp\
 surfer_bln.cpp\
 xyz.cpp\
 atlas_bna.h\
-Generate.h\
-GSTAT.H\
+generate.h\
+gstat.h\
 MLB_Interface.h\
 surfer_bln.h\
-XYZ.H
+xyz.h
 
 libio_shapes_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(ADD_MLBS)
 

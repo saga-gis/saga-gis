@@ -140,9 +140,9 @@ CWKSP_Module_Control::~CWKSP_Module_Control(void)
 {
 //	Get_Manager()->Finalise();
 
-	_Del_Item(m_pManager, true);
-
 	g_pModule_Ctrl	= NULL;
+
+	_Del_Item(m_pManager, true);
 }
 
 

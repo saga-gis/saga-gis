@@ -103,16 +103,15 @@ CSG_String		SG_Dir_Get_Current(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool			SG_File_Exists(const char *FileName)
+{
+	return( FileName && *FileName != '\0' && wxFileExists(FileName) );
+}
+
+//---------------------------------------------------------
 bool			SG_File_Delete(const char *FileName)
 {
-	if( FileName )
-	{
-		wxRemoveFile(FileName);
-
-		return( true );
-	}
-
-	return( false );
+	return( FileName && *FileName != '\0' && wxRemoveFile(FileName) );
 }
 
 //---------------------------------------------------------

@@ -76,6 +76,7 @@
 #include "wksp_base_control.h"
 #include "wksp_base_manager.h"
 
+#include "wksp_module_control.h"
 #include "wksp_module_manager.h"
 #include "wksp_module_menu.h"
 
@@ -286,14 +287,17 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 			AppendItem		(m_pManager->GetId(), LNG("[CAP] [no items]"), 0, 0, NULL);
 			Expand			(m_pManager->GetId());
 
-			if( m_pManager->Get_Type() == WKSP_ITEM_Module_Manager )
+			if( g_pModule_Ctrl && m_pManager->Get_Type() == WKSP_ITEM_Module_Manager )
 			{
 				g_pModules->Get_Modules_Menu()->Update();
 			}
 
 			Thaw();
 
-			g_pLayers->Update_Layers();
+			if( g_pLayers )
+			{
+				g_pLayers->Update_Layers();
+			}
 
 			return( true );
 		}

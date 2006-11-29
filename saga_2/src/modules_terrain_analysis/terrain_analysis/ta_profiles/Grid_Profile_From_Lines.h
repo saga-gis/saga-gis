@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//               Grid_Profile_From_Lines.h               //
 //                                                       //
-//                 Copyright (C) 2004 by                 //
+//                 Copyright (C) 2006 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -53,63 +53,53 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifndef HEADER_INCLUDED__Grid_Profile_From_Lines_H
+#define HEADER_INCLUDED__Grid_Profile_From_Lines_H
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-const char * Get_Info(int i)
+class CGrid_Profile_From_Lines : public CSG_Module_Grid
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Terrain Analysis - Profiles") );
-
-	case MLB_INFO_Author:
-		return( _TL("O. Conrad and V. Olaya, (c) 2004-06") );
-
-	case MLB_INFO_Description:
-		return( _TL("Simple, flow path and swath profiles.") );
-
-	case MLB_INFO_Version:
-		return( "1.0" );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Terrain Analysis|Profiles" ));
-	}
-}
+public:
+	CGrid_Profile_From_Lines(void);
+	virtual ~CGrid_Profile_From_Lines(void);
 
 
-//---------------------------------------------------------
-#include "Grid_Profile.h"
-#include "Grid_Flow_Profile.h"
-#include "Grid_Swath_Profile.h"
-#include "Grid_CrossSections.h"
-#include "Grid_Cross_Profiles.h"
-#include "Grid_Profile_From_Lines.h"
-#include "Grid_ProfileFromPoints.h"
+protected:
+
+	virtual bool				On_Execute(void);
 
 
-//---------------------------------------------------------
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case 0:	return( new CGrid_Profile );
-	case 1:	return( new CGrid_Flow_Profile );
-	case 2:	return( new CGrid_Swath_Profile );
-	case 3:	return( new CGrid_CrossSections );
-	case 4:	return( new CGrid_Cross_Profiles );
-	case 5:	return( new CGrid_Profile_From_Lines );
-	case 6:	return( new CProfileFromPoints );
-	}
+private:
 
-	return( NULL );
-}
+	CSG_Shapes					*m_pProfile, *m_pLines;
+
+	CSG_Grid					*m_pDEM;
+
+	CSG_Parameter_Grid_List		*m_pValues;
+
+
+	bool						Init_Profile	(CSG_Shapes *pPoints, const char *Name);
+
+	bool						Set_Profile		(int Line_ID, CSG_Shape *pLine);
+	bool						Set_Profile		(int Line_ID, bool bStart, const TSG_Point &A, const TSG_Point &B);
+	bool						Add_Point		(int Line_ID, bool bStart, const TSG_Point &Point);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -119,8 +109,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__Grid_Profile_From_Lines_H

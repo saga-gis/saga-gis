@@ -82,8 +82,6 @@
 #include <libharu.h>
 
 //---------------------------------------------------------
-#include <wx/filename.h>
-
 #include "doc_pdf.h"
 
 
@@ -1032,7 +1030,7 @@ bool CSG_Doc_PDF::Draw_Image(double x, double y, double dx, double dy, const cha
 	PdfImage	*pImage		= NULL;
 
 	//-----------------------------------------------------
-	if( m_pCanvas && FileName && *FileName != '\0' && wxFileExists(FileName) && dx > 0.0 && dy > 0.0 )
+	if( m_pCanvas && SG_File_Exists(FileName) && dx > 0.0 && dy > 0.0 )
 	{
 		if( SG_File_Cmp_Extension(FileName, "png") )
 		{

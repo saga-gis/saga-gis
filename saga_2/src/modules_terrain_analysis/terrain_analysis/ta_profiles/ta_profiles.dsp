@@ -110,6 +110,10 @@ SOURCE=.\Grid_Profile.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Grid_Profile_From_Lines.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Grid_ProfileFromPoints.cpp
 # End Source File
 # Begin Source File
@@ -147,6 +151,10 @@ SOURCE=.\Grid_Flow_Profile.h
 # Begin Source File
 
 SOURCE=.\Grid_Profile.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Grid_Profile_From_Lines.h
 # End Source File
 # Begin Source File
 

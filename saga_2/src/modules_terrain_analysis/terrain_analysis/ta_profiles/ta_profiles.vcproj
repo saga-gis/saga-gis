@@ -287,6 +287,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Grid_Profile_From_Lines.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Grid_ProfileFromPoints.cpp"
 				>
 				<FileConfiguration
@@ -415,6 +419,10 @@
 			</File>
 			<File
 				RelativePath="Grid_Profile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Grid_Profile_From_Lines.h"
 				>
 			</File>
 			<File
