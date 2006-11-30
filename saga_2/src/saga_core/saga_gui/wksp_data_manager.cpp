@@ -761,11 +761,14 @@ bool CWKSP_Data_Manager::Close(bool bSilent)
 {
 	if( Get_Count() == 0 )
 	{
+		Finalise();
+
 		return( true );
 	}
 	else if( (bSilent || DLG_Message_Confirm(LNG("[TXT] Close all data sets"), LNG("[CAP] Close"))) && Save_Modified(this) )
 	{
 		Finalise();
+
 		g_pACTIVE->Get_Parameters()->Restore_Parameters();
 		g_pMaps->Close(true);
 

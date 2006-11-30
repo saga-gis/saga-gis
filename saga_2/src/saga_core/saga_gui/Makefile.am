@@ -2,13 +2,11 @@ CXX_DEFS  = `wx-config --cxxflags`
 if X86_64
 ARCHDEFS = -fPIC -fpermissive
 endif
-INCS  = -I.. -I. -I/usr/include/cairo -I/opt/gnome/include/gtk-2.0 -I/opt/gnome/lib/gtk-2.0/include -I/opt/gnome/include/glib-2.0 -I/opt/gnome/lib/glib-2.0/include -I/opt/gnome/include/atk-1.0 -I/opt/gnome/include/pango-1.0
+INCS  = -I.. -I.
 AM_CXXFLAGS = $(CXX_DEFS) $(ARCHDEFS) -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_DONOTUSE_HARU $(INCS)
 #AM_LDFLAGS = -static `wx-config --cxxflags`
 AM_LDFLAGS = `wx-config --cxxflags`
-#LIBS = `wx-config --libs` -lm
-#LIBS = `wx-config --libs` -lm -L/opt/gnome/lib -lpangox-1.0 -lsaga_api
-LIBS = `wx-config --libs` -lm -L/opt/gnome/lib -lpangox-1.0
+LIBS = `wx-config --libs` -lm
 bin_PROGRAMS = saga_gui
 
 saga_gui_SOURCES =\
