@@ -31,7 +31,7 @@ public:
 
 private:
 
-	void COWA::Sort(double *arr, int size);
+	void Sort(double *arr, int size);
 
 protected:
 	virtual bool On_Execute(void);

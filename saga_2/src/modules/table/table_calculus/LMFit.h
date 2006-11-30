@@ -63,14 +63,14 @@ class TLMFit{
 public:
 
 
-   TLMFit::TLMFit  (vector<double> Xdata,
-                              vector<double> Ydata,
-                              vector<double> Param,
-                             
-                              void (*CfuncP)(double x, vector<double> ca,
-                              double &y, vector<double> &dyda, int na));
+   TLMFit  (vector<double> Xdata,
+            vector<double> Ydata,
+            vector<double> Param,
+                            
+   void (*CfuncP)(double x, vector<double> ca,
+                  double &y, vector<double> &dyda, int na));
 
-   TLMFit::~TLMFit (){};
+   ~TLMFit (){};
 
   void Fit();
 
