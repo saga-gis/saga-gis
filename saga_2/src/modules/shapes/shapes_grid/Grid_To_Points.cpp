@@ -91,7 +91,7 @@ CGrid_To_Points::CGrid_To_Points(void)
 	Parameters.Add_Shapes(
 		NULL	, "POLYGONS"	, _TL("Polygons"),
 		"",
-		PARAMETER_INPUT			, SHAPE_TYPE_Polygon
+		PARAMETER_INPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Shapes(
@@ -118,10 +118,10 @@ bool CGrid_To_Points::On_Execute(void)
 	bool					bZFactor;
 	int						x, y, iGrid, iPoint;
 	double					xPos, yPos;
-	CSG_Grid					*pGrid;
+	CSG_Grid				*pGrid;
 	CSG_Parameter_Grid_List	*pGrids;
-	CSG_Shape					*pPoint;
-	CSG_Shapes					*pPoints, *pPolygons;
+	CSG_Shape				*pPoint;
+	CSG_Shapes				*pPoints, *pPolygons;
 
 	//-----------------------------------------------------
 	pGrids		= Parameters("GRIDS")	->asGridList();

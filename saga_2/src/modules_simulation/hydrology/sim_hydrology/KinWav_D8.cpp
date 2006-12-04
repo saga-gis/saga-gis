@@ -199,11 +199,6 @@ bool CKinWav_D8::Initialize(void)
 
 	if( (pGauges = Parameters("GAUGES")->asTable()) != NULL )
 	{
-		if( (int)pGauges == 1 )
-		{
-			Parameters("GAUGES")->Set_Value((pGauges = new CSG_Table));
-		}
-
 		pGauges->Destroy();
 		pGauges->Set_Name(_TL("Outlet Hydrographs"));
 		pGauges->Add_Field("TIME", TABLE_FIELDTYPE_Double);
