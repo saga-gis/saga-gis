@@ -84,7 +84,7 @@ CSG_Table * SG_Create_Table(const CSG_Table &Table)
 }
 
 //---------------------------------------------------------
-CSG_Table * SG_Create_Table(const char *FileName)
+CSG_Table * SG_Create_Table(const SG_Char *FileName)
 {
 	return( new CSG_Table(FileName) );
 }
@@ -119,7 +119,7 @@ CSG_Table::CSG_Table(const CSG_Table &Table)
 }
 
 //---------------------------------------------------------
-CSG_Table::CSG_Table(const char *File_Name, char Separator)
+CSG_Table::CSG_Table(const SG_Char *File_Name, SG_Char Separator)
 	: CSG_Data_Object()
 {
 	_On_Construction();
@@ -184,12 +184,12 @@ bool CSG_Table::_Create(const CSG_Table &Table)
 }
 
 //---------------------------------------------------------
-bool CSG_Table::Create(const char *File_Name, char Separator)
+bool CSG_Table::Create(const SG_Char *File_Name, SG_Char Separator)
 {
 	return( is_Private() ? false : _Create(File_Name, Separator) );
 }
 
-bool CSG_Table::_Create(const char *File_Name, char Separator)
+bool CSG_Table::_Create(const SG_Char *File_Name, SG_Char Separator)
 {
 	return( _Load(File_Name, TABLE_FILETYPE_Undefined, Separator) );
 }
@@ -399,7 +399,7 @@ bool CSG_Table::is_Compatible(CSG_Table *pTable, bool bExactMatch) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Table::Add_Field(const char *Name, TSG_Table_Field_Type Type, int add_Field)
+void CSG_Table::Add_Field(const SG_Char *Name, TSG_Table_Field_Type Type, int add_Field)
 {
 	int		iField, iRecord;
 
@@ -440,6 +440,12 @@ void CSG_Table::Add_Field(const char *Name, TSG_Table_Field_Type Type, int add_F
 
 	Set_Modified();
 }
+
+//---------------------------------------------------------
+#ifdef _UNICODE
+void CSG_Table::Add_Field(const char *Name, TSG_Table_Field_Type Type, int iField)
+{	Add_Field(CSG_String(Name), Type, iField);	}
+#endif
 
 //---------------------------------------------------------
 bool CSG_Table::Del_Field(int del_Field)
@@ -673,7 +679,7 @@ bool CSG_Table::_Del_Records(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Table::Set_Value(int iRecord, int iField, const char  *Value)
+bool CSG_Table::Set_Value(int iRecord, int iField, const SG_Char  *Value)
 {
 	CSG_Table_Record	*pRecord;
 
@@ -992,7 +998,7 @@ inline int CSG_Table::_Index_Compare(int a, int b)
 	switch( m_Field_Type[m_Index_Field] )
 	{
 	case TABLE_FIELDTYPE_String:
-		return( strcmp(
+		return( SG_STR_CMP(
 			m_Records[a]->asString(m_Index_Field),
 			m_Records[b]->asString(m_Index_Field))
 		);

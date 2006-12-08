@@ -78,7 +78,7 @@ public:
 	CGSGrid_Regression_Multiple(void);
 	virtual ~CGSGrid_Regression_Multiple(void);
 
-	virtual const char *		Get_MenuPath		(void)	{	return( _TL("R:Regression Analysis") );	}
+	virtual const SG_Char *		Get_MenuPath		(void)	{	return( _TL("R:Regression Analysis") );	}
 
 
 protected:

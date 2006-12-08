@@ -85,36 +85,38 @@ CGrid_RGB_Composite::CGrid_RGB_Composite(void)
 
 	pNode	= Parameters.Add_Grid(
 		pNode	, "GRID_R"		, _TL("Red"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Choice(
 		pNode	, "R_METHOD"	,	_TL("Value Preparation"),
-		"",
-		_TL(
-		"0 - 255|"
-		"Rescale to 0 - 255|"
-		"User defined rescale|"
-		"Percentiles|"
-		"Percentage of standard deviation|"), 1
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+			_TL("0 - 255"),
+			_TL("Rescale to 0 - 255"),
+			_TL("User defined rescale"),
+			_TL("Percentiles"),
+			_TL("Percentage of standard deviation")
+		), 1
 	);
 
 	Parameters.Add_Range(
 		pNode	, "R_RANGE"		, _TL("Rescale Range"),
-		"",
+		_TL(""),
 		0, 255
 	);
 
 	Parameters.Add_Range(
 		pNode	, "R_PERCTL"	, _TL("Percentiles"),
-		"",
+		_TL(""),
 		1.0, 99.0, 0.0, true, 100.0, true
 	);
 
 	Parameters.Add_Value(
 		pNode	, "R_PERCENT"	, _TL("Percentage of standard deviation"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 150.0, 0.0, true
 	);
 
@@ -123,36 +125,38 @@ CGrid_RGB_Composite::CGrid_RGB_Composite(void)
 
 	pNode	= Parameters.Add_Grid(
 		pNode	, "GRID_G"		, _TL("Green"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Choice(
 		pNode	, "G_METHOD"	, _TL("Value Preparation"),
-		"",
-		_TL(
-		"0 - 255|"
-		"Rescale to 0 - 255|"
-		"User defined rescale|"
-		"Percentiles|"
-		"Percentage of standard deviation|"), 1
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+			_TL("0 - 255"),
+			_TL("Rescale to 0 - 255"),
+			_TL("User defined rescale"),
+			_TL("Percentiles"),
+			_TL("Percentage of standard deviation")
+		), 1
 	);
 
 	Parameters.Add_Range(
 		pNode	, "G_RANGE"		, _TL("Rescale Range"),
-		"",
+		_TL(""),
 		0, 255
 	);
 
 	Parameters.Add_Range(
 		pNode	, "G_PERCTL"	, _TL("Percentiles"),
-		"",
+		_TL(""),
 		1.0, 99.0, 0.0, true, 100.0, true
 	);
 
 	Parameters.Add_Value(
 		pNode	, "G_PERCENT"	, _TL("Percentage of standard deviation"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 150.0, 0.0, true
 	);
 
@@ -161,36 +165,38 @@ CGrid_RGB_Composite::CGrid_RGB_Composite(void)
 
 	pNode	= Parameters.Add_Grid(
 		pNode	, "GRID_B"		, _TL("Blue"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Choice(
 		pNode	, "B_METHOD"	, _TL("Value Preparation"),
-		"",
-		_TL(
-		"0 - 255|"
-		"Rescale to 0 - 255|"
-		"User defined rescale|"
-		"Percentiles|"
-		"Percentage of standard deviation|"), 1
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+			_TL("0 - 255"),
+			_TL("Rescale to 0 - 255"),
+			_TL("User defined rescale"),
+			_TL("Percentiles"),
+			_TL("Percentage of standard deviation")
+		), 1
 	);
 
 	Parameters.Add_Range(
 		pNode	, "B_RANGE"		, _TL("Rescale Range"),
-		"",
+		_TL(""),
 		0, 255
 	);
 
 	Parameters.Add_Range(
 		pNode	, "B_PERCTL"	, _TL("Percentiles"),
-		"",
+		_TL(""),
 		1.0, 99.0, 0.0, true, 100.0, true
 	);
 
 	Parameters.Add_Value(
 		pNode	, "B_PERCENT"	, _TL("Percentage of standard deviation"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 150.0, 0.0, true
 	);
 
@@ -199,43 +205,45 @@ CGrid_RGB_Composite::CGrid_RGB_Composite(void)
 
 	pNode	= Parameters.Add_Grid(
 		pNode	, "GRID_A"		, _TL("Transparency"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Choice(
 		pNode	, "A_METHOD"	, _TL("Value Preparation"),
-		"",
-		_TL(
-		"0 - 255|"
-		"Rescale to 0 - 255|"
-		"User defined rescale|"
-		"Percentiles|"
-		"Percentage of standard deviation|"), 1
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+			_TL("0 - 255"),
+			_TL("Rescale to 0 - 255"),
+			_TL("User defined rescale"),
+			_TL("Percentiles"),
+			_TL("Percentage of standard deviation")
+		), 1
 	);
 
 	Parameters.Add_Range(
 		pNode	, "A_RANGE"		, _TL("Rescale Range"),
-		"",
+		_TL(""),
 		0, 255
 	);
 
 	Parameters.Add_Range(
 		pNode	, "A_PERCTL"	, _TL("Percentiles"),
-		"",
+		_TL(""),
 		1.0, 99.0, 0.0, true, 100.0, true
 	);
 
 	Parameters.Add_Value(
 		pNode	, "A_PERCENT"	, _TL("Percentage of standard deviation"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 150.0, 0.0, true
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL	, "GRID_RGB"	, _TL("Composite"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT, true, GRID_TYPE_Int
 	);
 }

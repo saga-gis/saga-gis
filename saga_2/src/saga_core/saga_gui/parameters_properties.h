@@ -104,9 +104,9 @@ protected:
 
 	void						_Create				(void);
 	void						_Destroy			(void);
-	void						_Append				(const char *Label, long  Value);
-	void						_Append				(const char *Label, void *Value);
-	void						_Append				(const char *Label);
+	void						_Append				(const wxChar *Label, long  Value);
+	void						_Append				(const wxChar *Label, void *Value);
+	void						_Append				(const wxChar *Label);
 
 	int							_Set_Choice			(void);
 	int							_Set_Table			(void);

@@ -74,7 +74,7 @@ CGeoref_Shapes::CGeoref_Shapes(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Georeferencing - Shapes"));
 	Set_Author		(_TL("Copyrights (c) 2006 by Olaf Conrad"));
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"Georeferencing of shapes layers. Either choose the attribute fields (x/y) "
 		"with the projected coordinates for the reference points (origin) or supply a "
 		"additional points layer with correspondend points in the target projection. "
@@ -93,36 +93,36 @@ CGeoref_Shapes::CGeoref_Shapes(void)
 	//-----------------------------------------------------
 	Parameters.Add_Shapes(
 		NULL	, "INPUT"		, _TL("Input"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
 		NULL	, "OUTPUT"		, _TL("Output"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	CSG_Parameter	*pSource	= Parameters.Add_Shapes(
 		NULL	, "REF_SOURCE"	, _TL("Reference Points (Origin)"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
 		NULL	, "REF_TARGET"	, _TL("Reference Points (Projection)"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Table_Field(
 		pSource	, "XFIELD"		, _TL("x Position"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Table_Field(
 		pSource	, "YFIELD"		, _TL("y Position"),
-		""
+		_TL("")
 	);
 }
 

@@ -23,51 +23,51 @@
 CGraticuleBuilder::CGraticuleBuilder(void){
 
 	Parameters.Set_Name(_TL("Create graticule"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2004 by Victor Olaya. "));
 
 	Parameters.Add_Shapes(NULL, 
 						"LINES", 
 						_TL("Graticule"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT);
 
 	Parameters.Add_Shapes(NULL, 
 						"LIMIT_SHAPES", 
 						_TL("Boundaries"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT_OPTIONAL);
 
 				
 	Parameters.Add_Range(NULL, 
 							"X_EXTENT", 
 							_TL("Width"),
-							"");
+							_TL(""));
 
 	Parameters.Add_Range(NULL, 
 							"Y_EXTENT", 
 							_TL("Height"),
-							"");
+							_TL(""));
 
 	Parameters.Add_Value(NULL, 
 						"DISTX", 
 						_TL("Distance X"), 
-						"", 
+						_TL(""), 
 						PARAMETER_TYPE_Double, 
 						100);
 
 	Parameters.Add_Value(NULL, 
 						"DISTY", 
 						_TL("Distance Y"), 
-						"", 
+						_TL(""), 
 						PARAMETER_TYPE_Double, 
 						100);
 
 	Parameters.Add_Choice(NULL, 
 						"TYPE", 
 						_TL("Graticule type"), 
-						"", 
-						_TL("Lines|"
+						_TL(""), 
+						_TW("Lines|"
 						"Rectangles|"),									
 						0);
 

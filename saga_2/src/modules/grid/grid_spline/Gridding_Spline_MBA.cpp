@@ -75,7 +75,7 @@ CGridding_Spline_MBA::CGridding_Spline_MBA(void)
 
 	Set_Author		(_TL("Copyrights (c) 2006 by Olaf Conrad"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"Multilevel B-spline algorithm for spatial interpolation of scattered data "
 		"as proposed by Lee, Wolberg and Shin (1997). "
 		"The algorithm makes use of a coarse-to-fine hierarchy of control lattices to "
@@ -97,9 +97,9 @@ CGridding_Spline_MBA::CGridding_Spline_MBA(void)
 	//-----------------------------------------------------
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
-		"",
+		_TL(""),
 
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("without B-spline refinement"),
 			_TL("with B-spline refinement")
 		), 1
@@ -107,7 +107,7 @@ CGridding_Spline_MBA::CGridding_Spline_MBA(void)
 
 	Parameters.Add_Value(
 		NULL	, "EPSILON"		, _TL("Threshold Error"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.0001, 0.0, true
 	);
 
@@ -119,7 +119,7 @@ CGridding_Spline_MBA::CGridding_Spline_MBA(void)
 
 	Parameters.Add_Value(
 		NULL	, "UPDATE"		, _TL("Update View"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Bool		, false
 	);
 }
@@ -341,7 +341,7 @@ bool CGridding_Spline_MBA::_Get_Difference(CSG_Grid &Phi)
 	//-----------------------------------------------------
 	i	= 1 + (int)(0.5 + log(Phi.Get_NX() - 4.0) / log(2.0));
 
-	s.Printf("level:%d, err:%d, max:%f, mean:%f", i, nErrors, zMax, zMean);
+	s.Printf(_TL("level:%d, err:%d, max:%f, mean:%f"), i, nErrors, zMax, zMean);
 
 	Process_Set_Text(s);
 	Message_Add     (s);

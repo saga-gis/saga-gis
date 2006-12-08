@@ -75,7 +75,7 @@ CPit_Eliminator::CPit_Eliminator(void)
 
 	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description("");
+	Set_Description(_TL(""));
 
 	Parameters.Add_Grid(
 		NULL, "DEM"			, _TL("DEM"),
@@ -85,7 +85,7 @@ CPit_Eliminator::CPit_Eliminator(void)
 
 	Parameters.Add_Grid(
 		NULL, "SINKROUTE"	, _TL("Sink Route"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
@@ -97,8 +97,8 @@ CPit_Eliminator::CPit_Eliminator(void)
 
 	Parameters.Add_Choice(
 		NULL, "METHOD"		, _TL("Method"),
-		"",
-		CSG_String::Format("%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Deepen Drainage Routes"),
 			_TL("Fill Sinks")
 		), 1

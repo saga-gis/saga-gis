@@ -102,44 +102,44 @@ public:
 	CSG_Doc_HTML(void);
 	virtual ~CSG_Doc_HTML(void);
 
-	void						Open						(const char *Title);
-	bool						Save						(const char *FileName);
+	void						Open						(const SG_Char *Title);
+	bool						Save						(const SG_Char *FileName);
 
-	void						AddCurve					(const char *Filename,
+	void						AddCurve					(const SG_Char *Filename,
 															CSG_Points &Points,
-															const char *Description,
+															const SG_Char *Description,
 															int iGraphType,
 															bool bIncludeTableData);
-	void						AddTable					(const char ***Table,
+	void						AddTable					(const SG_Char ***Table,
 															int iRows,
 															int iCols,
-															const char *Description);
+															const SG_Char *Description);
 	void						AddTable					(CSG_Table *pTable);
-	void						AddParagraph				(const char *Text);
+	void						AddParagraph				(const SG_Char *Text);
 	void						AddLineBreak				();
-	void						AddHeader					(const char *Text, int iOrder);
-	void						AddHyperlink				(const char *Text, const char *URL);
-	CSG_String					GetHyperlinkCode			(const char *Text, const char *URL);
+	void						AddHeader					(const SG_Char *Text, int iOrder);
+	void						AddHyperlink				(const SG_Char *Text, const SG_Char *URL);
+	CSG_String					GetHyperlinkCode			(const SG_Char *Text, const SG_Char *URL);
 
-	void						AddImage					(const char *Filename);
-	void						AddThumbnail				(const char *Filename,
+	void						AddImage					(const SG_Char *Filename);
+	void						AddThumbnail				(const SG_Char *Filename,
 															int iWidth,
 															bool bIsPercent);
-	void						AddThumbnails				(const char **Text,
+	void						AddThumbnails				(const SG_Char **Text,
 															int iImages,
 															int iThumbnailsPerRow);
 	void						StartUnorderedList			(void);
 	void						StartOrderedList			(void);
 	void						CloseUnorderedList			(void);
 	void						CloseOrderedList			(void);
-	void						AddListElement				(const char *Text);
-	void						AddOrderedList				(const char **Text,
+	void						AddListElement				(const SG_Char *Text);
+	void						AddOrderedList				(const SG_Char **Text,
 															int iElement);
-	void						AddUnorderedList			(const char **Text,
+	void						AddUnorderedList			(const SG_Char **Text,
 															int iElement);
 
 	bool						Draw_Shapes					(CSG_Shapes *pShapes,
-															const char *Filename,
+															const SG_Char *Filename,
 															int Fill_Color, 
 															int Line_Color, 
 															int Line_Width);

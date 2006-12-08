@@ -80,18 +80,18 @@ CTable_Enumerate::CTable_Enumerate(void)
 
 	pNode	= Parameters.Add_Table(
 		NULL	, "INPUT"	, _TL("Input"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table_Field(
 		pNode	, "FIELD"	, _TL("Attribute"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Table(
 		NULL	, "OUTPUT"	, _TL("Output"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 }

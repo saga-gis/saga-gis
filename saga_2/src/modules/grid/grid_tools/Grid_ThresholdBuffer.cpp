@@ -28,31 +28,31 @@ CThresholdBuffer::CThresholdBuffer(void){
 
 	CSG_Parameter * pNode;
 	Parameters.Set_Name(_TL("Threshold Buffer"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2004 by Victor Olaya. Threshold Buffer Creation"));
 
 	Parameters.Add_Grid(NULL,
 						"FEATURES",
 						_TL("Features Grid"),
-						"",
+						_TL(""),
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL,
 						"VALUE",
 						_TL("Value Grid"),
-						"",
+						_TL(""),
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL,
 						"THRESHOLDGRID",
 						_TL("Threshold Grid"),
-						"",
+						_TL(""),
 						PARAMETER_INPUT_OPTIONAL);
 
 	Parameters.Add_Grid(NULL,
 						"BUFFER",
 						_TL("Buffer Grid"),
-						"",
+						_TL(""),
 						PARAMETER_OUTPUT,
 						true,
 						GRID_TYPE_Int);
@@ -67,8 +67,8 @@ CThresholdBuffer::CThresholdBuffer(void){
 	Parameters.Add_Choice(NULL,
 						"THRESHOLDTYPE",
 						_TL("Threshold Type"),
-						"",
-						CSG_String::Format("%s|%s|",
+						_TL(""),
+						CSG_String::Format(SG_T("%s|%s|"),
 							_TL("Absolute"),
 							_TL("Relative from cell value")
 						));

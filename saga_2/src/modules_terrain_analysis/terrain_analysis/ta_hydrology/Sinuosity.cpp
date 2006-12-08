@@ -23,7 +23,7 @@
 CSinuosity::CSinuosity(void){
 
 	Parameters.Set_Name(_TL("Flow Sinuosity"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2004 by Victor Olaya. Flow sinuosity calculation\r\n"
 		"References:\r\n 1. Olaya, V. Hidrologia computacional y modelos digitales del terreno. Alqua. 536 pp. 2004"));
 
@@ -31,13 +31,13 @@ CSinuosity::CSinuosity(void){
 	Parameters.Add_Grid(NULL, 
 						"DEM", 
 						_TL("Elevation Grid"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 	
 	Parameters.Add_Grid(NULL, 
 						"SINUOS", 
 						_TL("Sinuosity"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
 						GRID_TYPE_Double);

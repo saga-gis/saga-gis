@@ -22,17 +22,17 @@ CTableCalculatorShapes::CTableCalculatorShapes(void){
 
 	Parameters.Set_Name(_TL("Table calculator for shapes"));
 
-	Parameters.Set_Description(_TL("Calculation of new values in attributes tables."));
+	Parameters.Set_Description(_TW("Calculation of new values in attributes tables."));
 
 	Parameters.Add_Shapes(NULL,
 						"SHAPES",
 						_TL("Shapes"),
-						"",
+						_TL(""),
 						PARAMETER_INPUT);
 
-	Parameters.Add_String(NULL, "FORMULA", _TL("Formula"), "", "a+b");
+	Parameters.Add_String(NULL, "FORMULA", _TL("Formula"), _TL(""), SG_T("a+b"));
 
-	Parameters.Add_String(NULL, "NAME", _TL("Field Name"), "", "a+b");
+	Parameters.Add_String(NULL, "NAME", _TL("Field Name"), _TL(""), SG_T("a+b"));
 
 
 }//constructor
@@ -49,7 +49,7 @@ bool CTableCalculatorShapes::On_Execute(void){
 	CSG_Shapes* pShapes;
 	CSG_Table *pTable;
 	CSG_Table_Record *pRecord;
-	const char *pFormula;
+	const SG_Char *pFormula;
 	CSG_Formula Formula;
 
 	pShapes = Parameters("SHAPES")->asShapes();
@@ -63,14 +63,14 @@ bool CTableCalculatorShapes::On_Execute(void){
 	Formula.Set_Formula(pFormula);
 
 	int Pos;
-	const char * Msg;
+	const SG_Char * Msg;
 	if (Formula.Get_Error(&Pos, &Msg)){
-		char msg[1024];
-		sprintf(msg, _TL("Syntax error at position #%d: \n%s\n"), Pos, pFormula);
+		CSG_String msg;
+		msg.Printf(_TL("Syntax error at position #%d: \n%s\n"), Pos, pFormula);
 
 		Message_Add(msg);
 
-		sprintf(msg, "\n%s\n", Msg);
+		msg.Printf(SG_T("\n%s\n"), Msg);
 
 		Message_Add(msg);
 

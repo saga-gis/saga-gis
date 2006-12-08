@@ -87,7 +87,7 @@ class CWKSP_Data_Layers_Item : public wxPanel
 
 public:
 	CWKSP_Data_Layers_Item(wxWindow *pParent, class CWKSP_Layer *pLayer);
-	CWKSP_Data_Layers_Item(wxWindow *pParent, const char *Title);
+	CWKSP_Data_Layers_Item(wxWindow *pParent, const wxChar *Title);
 	virtual ~CWKSP_Data_Layers_Item(void)	{}
 
 	void						On_Paint			(wxPaintEvent &event);
@@ -153,7 +153,7 @@ private:
 
 	bool						_Add_Items			(class CWKSP_Base_Item *pItem);
 	bool						_Add_Item			(class CWKSP_Layer *pLayer);
-	bool						_Add_Item			(const char *Title);
+	bool						_Add_Item			(const wxChar *Title);
 	bool						_Del_Items			(void);
 
 

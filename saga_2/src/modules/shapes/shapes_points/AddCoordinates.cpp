@@ -25,13 +25,13 @@ CAddCoordinates::CAddCoordinates(void){
 
 	
 	Parameters.Set_Name(_TL("Add Coordinates to points"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2004 by Victor Olaya."));
 
 	Parameters.Add_Shapes(NULL, 
 						"POINTS", 
 						_TL("Points"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 	
 }//constructor

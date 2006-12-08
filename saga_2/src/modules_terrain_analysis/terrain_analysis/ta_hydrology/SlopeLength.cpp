@@ -23,16 +23,16 @@ CSlopeLength::CSlopeLength(void){
 
 	Parameters.Set_Name(_TL("Slope Length"));
 
-	Parameters.Set_Description("");
+	Parameters.Set_Description(_TL(""));
 
 	Parameters.Add_Grid(
 		NULL, "DEM", _TL("Elevation"),
-		"", PARAMETER_INPUT
+		_TL(""), PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL, "LENGTH", _TL("Slope Length"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 

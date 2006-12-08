@@ -101,7 +101,7 @@ bool CSG_Grid::Assign(double Value)
 
 		//-------------------------------------------------
 		Get_History().Destroy();
-		Get_History().Add_Entry(LNG("[HST] Value assigned to grid"), CSG_String::Format("%f", Value));
+		Get_History().Add_Entry(LNG("[HST] Value assigned to grid"), CSG_String::Format(SG_T("%f"), Value));
 
 		//-------------------------------------------------
 		m_bUpdate	= false;
@@ -200,7 +200,7 @@ bool CSG_Grid::_Assign_Interpolated(CSG_Grid *pGrid, TSG_Grid_Interpolation Inte
 	}
 
 	Get_History().Assign(pGrid->Get_History());
-	Get_History().Add_Entry(LNG("[DAT] Resampling"), CSG_String::Format("%f -> %f", pGrid->Get_Cellsize(), Get_Cellsize()));
+	Get_History().Add_Entry(LNG("[DAT] Resampling"), CSG_String::Format(SG_T("%f -> %f"), pGrid->Get_Cellsize(), Get_Cellsize()));
 
 	SG_UI_Process_Set_Ready();
 
@@ -282,7 +282,7 @@ bool CSG_Grid::_Assign_MeanValue(CSG_Grid *pGrid)
 		}
 
 		Get_History().Assign(pGrid->Get_History());
-		Get_History().Add_Entry(LNG("[DAT] Resampling"), CSG_String::Format("%f -> %f", pGrid->Get_Cellsize(), Get_Cellsize()));
+		Get_History().Add_Entry(LNG("[DAT] Resampling"), CSG_String::Format(SG_T("%f -> %f"), pGrid->Get_Cellsize(), Get_Cellsize()));
 
 		SG_UI_Process_Set_Ready();
 
@@ -551,20 +551,20 @@ CSG_Grid & CSG_Grid::_Operation_Arithmetic(double Value, TSG_Grid_Operation Oper
 	switch( Operation )
 	{
 	case GRID_OPERATION_Addition:
-		Get_History().Add_Entry(LNG("[HST] Value addition")			, CSG_String::Format("%f", Value));
+		Get_History().Add_Entry(LNG("[HST] Value addition")			, CSG_String::Format(SG_T("%f"), Value));
 		break;
 
 	case GRID_OPERATION_Subtraction:
-		Get_History().Add_Entry(LNG("[HST] Value subtraction")		, CSG_String::Format("%f", Value));
+		Get_History().Add_Entry(LNG("[HST] Value subtraction")		, CSG_String::Format(SG_T("%f"), Value));
 		Value	= -Value;
 		break;
 
 	case GRID_OPERATION_Multiplication:
-		Get_History().Add_Entry(LNG("[HST] Value multiplication")	, CSG_String::Format("%f", Value));
+		Get_History().Add_Entry(LNG("[HST] Value multiplication")	, CSG_String::Format(SG_T("%f"), Value));
 		break;
 
 	case GRID_OPERATION_Division:
-		Get_History().Add_Entry(LNG("[HST] Value division")			, CSG_String::Format("%f", Value));
+		Get_History().Add_Entry(LNG("[HST] Value division")			, CSG_String::Format(SG_T("%f"), Value));
 		break;
 	}
 
@@ -727,7 +727,7 @@ void CSG_Grid::Normalise(void)
 
 			SG_UI_Process_Set_Ready();
 
-			Get_History().Add_Entry(LNG("[HST] Grid normalisation"), CSG_String::Format("%f / %f", m_ArithMean, m_Variance));
+			Get_History().Add_Entry(LNG("[HST] Grid normalisation"), CSG_String::Format(SG_T("%f / %f"), m_ArithMean, m_Variance));
 		}
 	}
 }
@@ -754,7 +754,7 @@ void CSG_Grid::DeNormalise(double ArithMean, double Variance)
 
 		SG_UI_Process_Set_Ready();
 
-		Get_History().Add_Entry(LNG("[HST] Grid denormalisation"), CSG_String::Format("%f / %f", ArithMean, Variance));
+		Get_History().Add_Entry(LNG("[HST] Grid denormalisation"), CSG_String::Format(SG_T("%f / %f"), ArithMean, Variance));
 	}
 }
 

@@ -188,14 +188,14 @@ public:
 	virtual ~CSG_Parameter_Data(void);
 
 	virtual TSG_Parameter_Type	Get_Type				(void)			= 0;
-	virtual const char *		Get_Type_Name			(void);
+	virtual const SG_Char *		Get_Type_Name			(void);
 
 	long						Get_Constraint			(void)	{	return( m_Constraint );	}
 
 	virtual bool				is_Valid				(void)	{	return( true );			}
 
 	bool						Assign					(CSG_Parameter_Data *pSource);
-	bool						Serialize				(FILE *Stream, bool bSave);
+	bool						Serialize				(CSG_File &Stream, bool bSave);
 
 	virtual bool				Set_Value				(int Value);
 	virtual bool				Set_Value				(double Value);
@@ -205,7 +205,7 @@ public:
 	virtual double				asDouble				(void);
 	virtual void *				asPointer				(void);
 
-	virtual const char *		asString				(void);
+	virtual const SG_Char *		asString				(void);
 
 
 protected:
@@ -218,7 +218,7 @@ protected:
 
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
 
 };
 
@@ -247,7 +247,7 @@ public:
 
 	virtual int					asInt					(void)	{	return( m_Value );	}
 
-	virtual const char *		asString				(void);
+	virtual const SG_Char *		asString				(void);
 
 
 protected:
@@ -256,7 +256,7 @@ protected:
 
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
 
 };
 
@@ -304,7 +304,7 @@ public:
 
 	virtual int					asInt					(void)	{	return( m_Value );		}
 	virtual double				asDouble				(void)	{	return( m_Value );		}
-	virtual const char *		asString				(void);
+	virtual const SG_Char *		asString				(void);
 
 
 protected:
@@ -312,7 +312,7 @@ protected:
 	int							m_Value;
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
 
 };
 
@@ -331,7 +331,7 @@ public:
 
 	virtual int					asInt					(void)	{	return( (int)m_Value );	}
 	virtual double				asDouble				(void)	{	return( m_Value );		}
-	virtual const char *		asString				(void);
+	virtual const SG_Char *		asString				(void);
 
 
 protected:
@@ -339,7 +339,7 @@ protected:
 	double						m_Value;
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
 
 };
 
@@ -354,7 +354,7 @@ public:
 
 	virtual bool				Set_Value				(void *Value);
 
-	virtual const char *		asString				(void);
+	virtual const SG_Char *		asString				(void);
 
 };
 
@@ -367,7 +367,7 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Range );		}
 
-	virtual const char *		asString				(void);
+	virtual const SG_Char *		asString				(void);
 
 	bool						Set_Range				(double loVal, double hiVal);
 
@@ -389,7 +389,7 @@ protected:
 
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
 
 };
 
@@ -402,11 +402,11 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Choice );	}
 
-	virtual const char *		asString				(void);
+	virtual const SG_Char *		asString				(void);
 
-	void						Set_Items				(const char *String);
+	void						Set_Items				(const SG_Char *String);
 
-	const char *				Get_Item				(int Index);
+	const SG_Char *				Get_Item				(int Index);
 
 	int							Get_Count				(void)	{	return( nItems );	}
 
@@ -433,7 +433,7 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Table_Field );	}
 
-	virtual const char *		asString				(void);
+	virtual const SG_Char *		asString				(void);
 
 	virtual bool				Set_Value				(int Value);
 
@@ -450,7 +450,7 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_String );	}
 
-	virtual const char *		asString				(void);
+	virtual const SG_Char *		asString				(void);
 
 	virtual bool				is_Valid				(void);
 
@@ -466,7 +466,7 @@ protected:
 
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
 
 };
 
@@ -482,7 +482,7 @@ public:
 
 protected:
 
-	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
 
 };
 
@@ -495,8 +495,8 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_FilePath );	}
 
-	void						Set_Filter				(const char *Filter);
-	const char *				Get_Filter				(void);
+	void						Set_Filter				(const SG_Char *Filter);
+	const SG_Char *				Get_Filter				(void);
 
 	void						Set_Flag_Save			(bool bFlag);
 	bool						is_Save					(void)	{	return( m_bSave );		}
@@ -536,7 +536,7 @@ public:
 	virtual int					asInt					(void)	{	return( m_Color );	}
 	virtual void *				asPointer				(void)	{	return( m_pFont );	}
 
-	virtual const char *		asString				(void);
+	virtual const SG_Char *		asString				(void);
 
 
 protected:
@@ -547,7 +547,7 @@ protected:
 
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
 
 };
 
@@ -573,7 +573,7 @@ public:
 
 	virtual int					asInt					(void)	{	return( m_Colors.Get_Count() );	}
 	virtual void *				asPointer				(void)	{	return( &m_Colors );	}
-	virtual const char *		asString				(void);
+	virtual const SG_Char *		asString				(void);
 
 
 protected:
@@ -582,7 +582,7 @@ protected:
 
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
 
 };
 
@@ -597,7 +597,7 @@ public:
 
 	virtual void *				asPointer				(void)	{	return( &m_Table );	}
 
-	virtual const char *		asString				(void);
+	virtual const SG_Char *		asString				(void);
 
 
 protected:
@@ -605,7 +605,7 @@ protected:
 	CSG_Table					m_Table;
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
 
 };
 
@@ -622,7 +622,7 @@ public:
 
 	virtual void *				asPointer				(void)	{	return( &m_System );}
 
-	virtual const char *		asString				(void);
+	virtual const SG_Char *		asString				(void);
 
 
 protected:
@@ -631,7 +631,7 @@ protected:
 
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
 
 };
 
@@ -649,7 +649,7 @@ public:
 
 	virtual void *				asPointer				(void)		{	return( m_pDataObject );	}
 
-	virtual const char *		asString				(void);
+	virtual const SG_Char *		asString				(void);
 
 
 protected:
@@ -658,7 +658,7 @@ protected:
 
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
 
 };
 
@@ -766,7 +766,7 @@ public:
 	CSG_Parameter_List(CSG_Parameter *pOwner, long Constraint);
 	virtual ~CSG_Parameter_List(void);
 
-	virtual const char *		asString				(void);
+	virtual const SG_Char *		asString				(void);
 	virtual int					asInt					(void)			{	return( m_nObjects );	}
 	virtual void *				asPointer				(void)			{	return( m_Objects );	}
 
@@ -782,7 +782,7 @@ public:
 protected:
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
 
 
 private:
@@ -867,14 +867,14 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_Parameters );	}
 
-	virtual const char *		asString				(void);
+	virtual const SG_Char *		asString				(void);
 	virtual void *				asPointer				(void)		{	return( m_pParameters );	}
 
 
 protected:
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(FILE *Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
 
 
 private:
@@ -901,13 +901,13 @@ public:
 	CSG_Parameters *			Get_Owner				(void)	{	return( m_pOwner );					}
 	CSG_Parameter *				Get_Parent				(void)	{	return( m_pParent );				}
 	TSG_Parameter_Type			Get_Type				(void)	{	return( m_pData->Get_Type() );		}
-	const char *				Get_Type_Name			(void)	{	return( m_pData->Get_Type_Name() );	}
+	const SG_Char *				Get_Type_Name			(void)	{	return( m_pData->Get_Type_Name() );	}
 	CSG_Parameter_Data *		Get_Data				(void)	{	return( m_pData );					}
 
-	const char *				Get_Identifier			(void);
-	const char *				Get_Name				(void);
-	const char *				Get_Description			(void);
-	CSG_String					Get_Description			(int Flags, const char *Separator = "\n");
+	const SG_Char *				Get_Identifier			(void);
+	const SG_Char *				Get_Name				(void);
+	const SG_Char *				Get_Description			(void);
+	CSG_String					Get_Description			(int Flags, const SG_Char *Separator = SG_T("\n"));
 
 	bool						is_Valid				(void)	{	return( m_pData->is_Valid() );		}
 	bool						is_Input				(void)	{	return( !!(m_pData->Get_Constraint() & PARAMETER_INPUT)	      );	}
@@ -927,7 +927,7 @@ public:
 	bool						Set_Value				(int         Value);
 	bool						Set_Value				(double      Value);
 	bool						Set_Value				(void       *Value);
-	bool						Set_Value				(const char *Value);
+	bool						Set_Value				(const SG_Char *Value);
 
 	bool						asBool					(void)	{	return( (bool          )!!m_pData->asInt	() );	}
 	int							asInt					(void)	{	return( (int           )m_pData->asInt		() );	}
@@ -936,7 +936,7 @@ public:
 
 	void *						asPointer				(void)	{	return( (void         *)m_pData->asPointer	() );	}
 
-	const char *				asString				(void)	{	return( (const char   *)m_pData->asString	() );	}
+	const SG_Char *				asString				(void)	{	return( (const SG_Char   *)m_pData->asString	() );	}
 	class wxFont *				asFont					(void)	{	return( (wxFont       *)m_pData->asPointer	() );	}
 	CSG_Colors *				asColors				(void)	{	return( (CSG_Colors      *)m_pData->asPointer	() );	}
 	CSG_Grid_System *			asGrid_System			(void)	{	return( (CSG_Grid_System *)m_pData->asPointer	() );	}
@@ -962,12 +962,12 @@ public:
 
 	//-----------------------------------------------------
 	bool						Assign					(CSG_Parameter *pSource);
-	bool						Serialize				(FILE *Stream, bool bSave);
+	bool						Serialize				(CSG_File &Stream, bool bSave);
 
 
 private:
 
-	CSG_Parameter(CSG_Parameters *pOwner, CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, TSG_Parameter_Type Type, int Constraint);
+	CSG_Parameter(CSG_Parameters *pOwner, CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, TSG_Parameter_Type Type, int Constraint);
 
 	virtual ~CSG_Parameter(void);
 
@@ -1005,8 +1005,8 @@ public:
 	CSG_Parameters(void);
 	virtual ~CSG_Parameters(void);
 
-								CSG_Parameters			(void *pOwner, const char *Name, const char *Description, const char *Identifier = NULL, bool bGrid_System = false);
-	void						Create					(void *pOwner, const char *Name, const char *Description, const char *Identifier = NULL, bool bGrid_System = false);
+								CSG_Parameters			(void *pOwner, const SG_Char *Name, const SG_Char *Description, const SG_Char *Identifier = NULL, bool bGrid_System = false);
+	void						Create					(void *pOwner, const SG_Char *Name, const SG_Char *Description, const SG_Char *Identifier = NULL, bool bGrid_System = false);
 
 	void						Destroy					(void);
 
@@ -1014,14 +1014,14 @@ public:
 	void *						Get_Owner				(void)	{	return( m_pOwner );			}
 	int							Get_Count				(void)	{	return( m_nParameters );	}
 
-	void						Set_Identifier			(const char *String);
-	const char *				Get_Identifier			(void);
+	void						Set_Identifier			(const SG_Char *String);
+	const SG_Char *				Get_Identifier			(void);
 
-	void						Set_Name				(const char *String);
-	const char *				Get_Name				(void);
+	void						Set_Name				(const SG_Char *String);
+	const SG_Char *				Get_Name				(void);
 
-	void						Set_Description			(const char *String);
-	const char *				Get_Description			(void);
+	void						Set_Description			(const SG_Char *String);
+	const SG_Char *				Get_Description			(void);
 
 	void						Set_Translation			(CSG_Translator &Translator);
 
@@ -1030,64 +1030,64 @@ public:
 	void						Set_Callback			(bool bActive = true);
 
 	//-----------------------------------------------------
-	CSG_Parameter *				Get_Parameter			(const char *Identifier);
-	CSG_Parameter *				operator()				(const char *Identifier)	{	return( Get_Parameter(Identifier) );	}
-
 	CSG_Parameter *				Get_Parameter			(int iParameter);
 	CSG_Parameter *				operator()				(int iParameter)			{	return( Get_Parameter(iParameter) );	}
 
-	//-----------------------------------------------------
-	CSG_Parameter *				Add_Node				(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description);
-
-	CSG_Parameter *				Add_Value				(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, TSG_Parameter_Type Type, double Value = 0.0, double Minimum = 0.0, bool bMinimum = false, double Maximum = 0.0, bool bMaximum = false);
-	CSG_Parameter *				Add_Info_Value			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, TSG_Parameter_Type Type, double Value = 0.0);
-
-	CSG_Parameter *				Add_Range				(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, double Range_Min = 0.0, double Range_Max = 0.0, double Minimum = 0.0, bool bMinimum = false, double Maximum = 0.0, bool bMaximum = false);
-	CSG_Parameter *				Add_Info_Range			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, double Range_Min = 0.0, double Range_Max = 0.0);
-
-	CSG_Parameter *				Add_Choice				(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, const char *Items, int Default = 0);
-
-	CSG_Parameter *				Add_String				(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, const char *String, bool bLongText = false, bool bPassword = false);
-	CSG_Parameter *				Add_Info_String			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, const char *String, bool bLongText = false);
-
-	CSG_Parameter *				Add_FilePath			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, const char *Filter = NULL, const char *Default = NULL, bool bSave = false, bool bDirectory = false, bool bMultiple = false);
-
-	CSG_Parameter *				Add_Font				(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, class wxFont *pInit = NULL);
-	CSG_Parameter *				Add_Colors				(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, CSG_Colors      *pInit = NULL);
-	CSG_Parameter *				Add_FixedTable			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, CSG_Table   *pTemplate = NULL);
-
-	CSG_Parameter *				Add_Grid_System			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, CSG_Grid_System *pInit = NULL);
-	CSG_Parameter *				Add_Grid				(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, int Constraint, bool bSystem_Dependent = true, TSG_Grid_Type Preferred_Type = GRID_TYPE_Undefined);
-	CSG_Parameter *				Add_Grid_Output			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description);
-	CSG_Parameter *				Add_Grid_List			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, int Constraint, bool bSystem_Dependent = true);
-
-	CSG_Parameter *				Add_Table_Field			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description);
-	CSG_Parameter *				Add_Table				(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, int Constraint);
-	CSG_Parameter *				Add_Table_Output		(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description);
-	CSG_Parameter *				Add_Table_List			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, int Constraint);
-
-	CSG_Parameter *				Add_Shapes				(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, int Constraint, TSG_Shape_Type Shape_Type = SHAPE_TYPE_Undefined);
-	CSG_Parameter *				Add_Shapes_Output		(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description);
-	CSG_Parameter *				Add_Shapes_List			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, int Constraint, TSG_Shape_Type = SHAPE_TYPE_Undefined);
-
-	CSG_Parameter *				Add_TIN					(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, int Constraint);
-	CSG_Parameter *				Add_TIN_Output			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description);
-	CSG_Parameter *				Add_TIN_List			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, int Constraint);
-
-	CSG_Parameter *				Add_Parameters			(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description);
+	CSG_Parameter *				Get_Parameter			(const SG_Char *Identifier);
+	CSG_Parameter *				operator()				(const SG_Char *Identifier)	{	return( Get_Parameter(Identifier) );	}
 
 	//-----------------------------------------------------
-	bool						Set_Parameter			(const char *Identifier, CSG_Parameter *pSource);
-	bool						Set_Parameter			(const char *Identifier, int Type, int         Value);
-	bool						Set_Parameter			(const char *Identifier, int Type, double      Value);
-	bool						Set_Parameter			(const char *Identifier, int Type, void       *Value);
-	bool						Set_Parameter			(const char *Identifier, int Type, const char *Value);
+	CSG_Parameter *				Add_Node				(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description);
+
+	CSG_Parameter *				Add_Value				(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, TSG_Parameter_Type Type, double Value = 0.0, double Minimum = 0.0, bool bMinimum = false, double Maximum = 0.0, bool bMaximum = false);
+	CSG_Parameter *				Add_Info_Value			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, TSG_Parameter_Type Type, double Value = 0.0);
+
+	CSG_Parameter *				Add_Range				(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, double Range_Min = 0.0, double Range_Max = 0.0, double Minimum = 0.0, bool bMinimum = false, double Maximum = 0.0, bool bMaximum = false);
+	CSG_Parameter *				Add_Info_Range			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, double Range_Min = 0.0, double Range_Max = 0.0);
+
+	CSG_Parameter *				Add_Choice				(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, const SG_Char *Items, int Default = 0);
+
+	CSG_Parameter *				Add_String				(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, const SG_Char *String, bool bLongText = false, bool bPassword = false);
+	CSG_Parameter *				Add_Info_String			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, const SG_Char *String, bool bLongText = false);
+
+	CSG_Parameter *				Add_FilePath			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, const SG_Char *Filter = NULL, const SG_Char *Default = NULL, bool bSave = false, bool bDirectory = false, bool bMultiple = false);
+
+	CSG_Parameter *				Add_Font				(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, class wxFont *pInit = NULL);
+	CSG_Parameter *				Add_Colors				(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, CSG_Colors      *pInit = NULL);
+	CSG_Parameter *				Add_FixedTable			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, CSG_Table   *pTemplate = NULL);
+
+	CSG_Parameter *				Add_Grid_System			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, CSG_Grid_System *pInit = NULL);
+	CSG_Parameter *				Add_Grid				(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint, bool bSystem_Dependent = true, TSG_Grid_Type Preferred_Type = GRID_TYPE_Undefined);
+	CSG_Parameter *				Add_Grid_Output			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description);
+	CSG_Parameter *				Add_Grid_List			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint, bool bSystem_Dependent = true);
+
+	CSG_Parameter *				Add_Table_Field			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description);
+	CSG_Parameter *				Add_Table				(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint);
+	CSG_Parameter *				Add_Table_Output		(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description);
+	CSG_Parameter *				Add_Table_List			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint);
+
+	CSG_Parameter *				Add_Shapes				(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint, TSG_Shape_Type Shape_Type = SHAPE_TYPE_Undefined);
+	CSG_Parameter *				Add_Shapes_Output		(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description);
+	CSG_Parameter *				Add_Shapes_List			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint, TSG_Shape_Type = SHAPE_TYPE_Undefined);
+
+	CSG_Parameter *				Add_TIN					(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint);
+	CSG_Parameter *				Add_TIN_Output			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description);
+	CSG_Parameter *				Add_TIN_List			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint);
+
+	CSG_Parameter *				Add_Parameters			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description);
+
+	//-----------------------------------------------------
+	bool						Set_Parameter			(const SG_Char *Identifier, CSG_Parameter *pSource);
+	bool						Set_Parameter			(const SG_Char *Identifier, int Type, int           Value);
+	bool						Set_Parameter			(const SG_Char *Identifier, int Type, double        Value);
+	bool						Set_Parameter			(const SG_Char *Identifier, int Type, void          *Value);
+	bool						Set_Parameter			(const SG_Char *Identifier, int Type, const SG_Char *Value);
 
 	int							Assign					(CSG_Parameters *pSource);
 	int							Assign_Values			(CSG_Parameters *pSource);
 
-	bool						Serialize				(const char *File_Name	, bool bSave);
-	bool						Serialize				(FILE *Stream			, bool bSave);
+	bool						Serialize				(const SG_Char *File_Name	, bool bSave);
+	bool						Serialize				(CSG_File &Stream			, bool bSave);
 
 	//-----------------------------------------------------
 	bool						DataObjects_Check		(bool bSilent = false);
@@ -1101,6 +1101,39 @@ public:
 	CSG_Grid_System *			Get_Grid_System			(void)	{	return( m_pGrid_System ? m_pGrid_System->asGrid_System() : NULL );	}
 
 	bool						is_Managed				(void)	{	return( m_bManaged );	}
+
+
+#ifdef _UNICODE
+	CSG_Parameter *				Get_Parameter			(const char *Identifier);
+	CSG_Parameter *				operator()				(const char *Identifier)	{	return( Get_Parameter(Identifier) );	}
+	CSG_Parameter *				Add_Node				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description);
+	CSG_Parameter *				Add_Value				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, TSG_Parameter_Type Type, double Value = 0.0, double Minimum = 0.0, bool bMinimum = false, double Maximum = 0.0, bool bMaximum = false);
+	CSG_Parameter *				Add_Info_Value			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, TSG_Parameter_Type Type, double Value = 0.0);
+	CSG_Parameter *				Add_Range				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, double Range_Min = 0.0, double Range_Max = 0.0, double Minimum = 0.0, bool bMinimum = false, double Maximum = 0.0, bool bMaximum = false);
+	CSG_Parameter *				Add_Info_Range			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, double Range_Min = 0.0, double Range_Max = 0.0);
+	CSG_Parameter *				Add_Choice				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, const SG_Char *Items, int Default = 0);
+	CSG_Parameter *				Add_String				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, const SG_Char *String, bool bLongText = false, bool bPassword = false);
+	CSG_Parameter *				Add_Info_String			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, const SG_Char *String, bool bLongText = false);
+	CSG_Parameter *				Add_FilePath			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, const SG_Char *Filter = NULL, const SG_Char *Default = NULL, bool bSave = false, bool bDirectory = false, bool bMultiple = false);
+	CSG_Parameter *				Add_Font				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, class wxFont *pInit = NULL);
+	CSG_Parameter *				Add_Colors				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, CSG_Colors      *pInit = NULL);
+	CSG_Parameter *				Add_FixedTable			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, CSG_Table   *pTemplate = NULL);
+	CSG_Parameter *				Add_Grid_System			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, CSG_Grid_System *pInit = NULL);
+	CSG_Parameter *				Add_Grid				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint, bool bSystem_Dependent = true, TSG_Grid_Type Preferred_Type = GRID_TYPE_Undefined);
+	CSG_Parameter *				Add_Grid_Output			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description);
+	CSG_Parameter *				Add_Grid_List			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint, bool bSystem_Dependent = true);
+	CSG_Parameter *				Add_Table_Field			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description);
+	CSG_Parameter *				Add_Table				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint);
+	CSG_Parameter *				Add_Table_Output		(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description);
+	CSG_Parameter *				Add_Table_List			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint);
+	CSG_Parameter *				Add_Shapes				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint, TSG_Shape_Type Shape_Type = SHAPE_TYPE_Undefined);
+	CSG_Parameter *				Add_Shapes_Output		(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description);
+	CSG_Parameter *				Add_Shapes_List			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint, TSG_Shape_Type Shape_Type = SHAPE_TYPE_Undefined);
+	CSG_Parameter *				Add_TIN					(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint);
+	CSG_Parameter *				Add_TIN_Output			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description);
+	CSG_Parameter *				Add_TIN_List			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint);
+	CSG_Parameter *				Add_Parameters			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description);
+#endif
 
 
 private:
@@ -1122,11 +1155,11 @@ private:
 
 	bool						_On_Parameter_Changed	(CSG_Parameter *pSender);
 
-	CSG_Parameter *				_Add_Value				(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, bool bInformation, TSG_Parameter_Type Type, double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum);
-	CSG_Parameter *				_Add_Range				(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, bool bInformation, double Range_Min, double Range_Max, double Minimum, bool bMinimum, double Maximum, bool bMaximum);
-	CSG_Parameter *				_Add_String				(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, bool bInformation, const char *String, bool bLongText, bool bPassword);
+	CSG_Parameter *				_Add_Value				(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, bool bInformation, TSG_Parameter_Type Type, double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum);
+	CSG_Parameter *				_Add_Range				(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, bool bInformation, double Range_Min, double Range_Max, double Minimum, bool bMinimum, double Maximum, bool bMaximum);
+	CSG_Parameter *				_Add_String				(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, bool bInformation, const SG_Char *String, bool bLongText, bool bPassword);
 
-	CSG_Parameter *				_Add					(CSG_Parameter *pParent, const char *Identifier, const char *Name, const char *Description, TSG_Parameter_Type Type, int Constraint);
+	CSG_Parameter *				_Add					(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, TSG_Parameter_Type Type, int Constraint);
 	CSG_Parameter *				_Add					(CSG_Parameter *pSource);
 
 	bool						DataObjects_Create		(void);

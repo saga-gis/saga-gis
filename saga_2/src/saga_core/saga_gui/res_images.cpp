@@ -329,7 +329,7 @@ wxImage		IMG_Get_Image(int ID_IMG)
 	wxBitmap	BMP(IMG_Get_XPM(ID_IMG));
 	wxImage		Image(BMP.ConvertToImage());
 
-//	wxImage	Image((const char **)IMG_Get_XPM(ID_IMG));
+//	wxImage	Image((const wxChar **)IMG_Get_XPM(ID_IMG));
 
 //	Image.SetMaskColour(192, 192, 192);
 

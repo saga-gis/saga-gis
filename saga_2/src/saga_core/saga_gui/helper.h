@@ -74,6 +74,9 @@
 #include <wx/colour.h>
 #include <wx/settings.h>
 
+//---------------------------------------------------------
+#include <saga_api/saga_api.h>
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -89,8 +92,8 @@ double				Degree_To_Decimal				(double Deg, double Min, double Sec);
 void				Decimal_To_Degree				(double Value, double &Deg, double &Min, double &Sec);
 
 //---------------------------------------------------------
-wxString			Get_FilePath_Relative			(const char *Directory, const char *FileName);
-wxString			Get_FilePath_Absolute			(const char *Directory, const char *FileName);
+wxString			Get_FilePath_Relative			(const wxChar *Directory, const wxChar *FileName);
+wxString			Get_FilePath_Absolute			(const wxChar *Directory, const wxChar *FileName);
 
 //---------------------------------------------------------
 wxString			Get_TableInfo_asHTML			(class CSG_Table *pTable);
@@ -116,27 +119,27 @@ void				Do_Beep							(int Style = 0);
 
 //---------------------------------------------------------
 void				MSG_General_Add_Line			(void);
-void				MSG_General_Add					(const char *Message, bool bNewLine = true, bool bTime = false);
+void				MSG_General_Add					(const wxChar *Message, bool bNewLine = true, bool bTime = false);
 
 void				MSG_Error_Add_Line				(void);
-void				MSG_Error_Add					(const char *Message, bool bNewLine = true, bool bTime = true);
+void				MSG_Error_Add					(const wxChar *Message, bool bNewLine = true, bool bTime = true);
 
 void				MSG_Execution_Add_Line			(void);
-void				MSG_Execution_Add				(const char *Message, bool bNewLine = true, bool bTime = false);
+void				MSG_Execution_Add				(const wxChar *Message, bool bNewLine = true, bool bTime = false);
 
 //---------------------------------------------------------
-bool				CONFIG_Read						(const char *Group, const char *Entry, class wxString &Value);
-bool				CONFIG_Read						(const char *Group, const char *Entry, long           &Value);
-bool				CONFIG_Read						(const char *Group, const char *Entry, double         &Value);
-bool				CONFIG_Read						(const char *Group, const char *Entry, bool           &Value);
+bool				CONFIG_Read						(const wxChar *Group, const wxChar *Entry, class wxString &Value);
+bool				CONFIG_Read						(const wxChar *Group, const wxChar *Entry, long           &Value);
+bool				CONFIG_Read						(const wxChar *Group, const wxChar *Entry, double         &Value);
+bool				CONFIG_Read						(const wxChar *Group, const wxChar *Entry, bool           &Value);
 
-bool				CONFIG_Write					(const char *Group, const char *Entry, const char     *Value);
-bool				CONFIG_Write					(const char *Group, const char *Entry, long            Value);
-bool				CONFIG_Write					(const char *Group, const char *Entry, double          Value);
-bool				CONFIG_Write					(const char *Group, const char *Entry, bool            Value);
+bool				CONFIG_Write					(const wxChar *Group, const wxChar *Entry, const wxChar     *Value);
+bool				CONFIG_Write					(const wxChar *Group, const wxChar *Entry, long            Value);
+bool				CONFIG_Write					(const wxChar *Group, const wxChar *Entry, double          Value);
+bool				CONFIG_Write					(const wxChar *Group, const wxChar *Entry, bool            Value);
 
-bool				CONFIG_Delete					(const char *Group);
-bool				CONFIG_Delete					(const char *Group, const char *Entry);
+bool				CONFIG_Delete					(const wxChar *Group);
+bool				CONFIG_Delete					(const wxChar *Group, const wxChar *Entry);
 
 //---------------------------------------------------------
 bool				PROCESS_is_Executing			(void);
@@ -150,7 +153,7 @@ bool				PROGRESSBAR_Set_Position		(int Position);
 bool				PROGRESSBAR_Set_Position		(double Position, double Range);
 
 //---------------------------------------------------------
-bool				Open_WebBrowser					(const char *HRef);
+bool				Open_WebBrowser					(const wxChar *HRef);
 
 //---------------------------------------------------------
 enum
@@ -165,7 +168,7 @@ enum
 };
 
 //---------------------------------------------------------
-void				STATUSBAR_Set_Text				(const char *Text, int iPane = 0);
+void				STATUSBAR_Set_Text				(const wxChar *Text, int iPane = 0);
 
 
 ///////////////////////////////////////////////////////////

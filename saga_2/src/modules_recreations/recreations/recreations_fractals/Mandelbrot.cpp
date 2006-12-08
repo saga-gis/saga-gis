@@ -77,7 +77,7 @@ CMandelbrot::CMandelbrot(void)
 
 	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Calculates Mandelbrot and Julia sets.\n\n"
 		"References:\n"
 		"- Mandelbrot, B.B. (1983): 'The Fractal Geometry of Nature', New York, 490p.\n")
@@ -89,53 +89,55 @@ CMandelbrot::CMandelbrot(void)
 
 	Parameters.Add_Grid_Output(
 		NULL	, "GRID"	, _TL("Grid"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Value(
 		NULL	, "NX"		, _TL("Width (Cells)"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 100, 1, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "NY"		, _TL("Height (Cells)"),
-		"", PARAMETER_TYPE_Int, 100, 1, true
+		_TL(""), PARAMETER_TYPE_Int, 100, 1, true
 	);
 
 	Parameters.Add_Range(
 		NULL	, "XRANGE"	, _TL("X-Range"),
-		"", -2.0, 1.0
+		_TL(""), -2.0, 1.0
 	);
 
 	Parameters.Add_Range(
 		NULL	, "YRANGE"	, _TL("Y-Range"),
-		"",
+		_TL(""),
 		-1.5, 1.5
 	);
 
 	Parameters.Add_Value(
 		NULL	, "JULIA_X"	, _TL("Julia - X"),
-		"", PARAMETER_TYPE_Double, -0.7
+		_TL(""), PARAMETER_TYPE_Double, -0.7
 	);
 
 	Parameters.Add_Value(
 		NULL	, "JULIA_Y"	, _TL("Julia - Y"),
-		"", PARAMETER_TYPE_Double,  0.3
+		_TL(""), PARAMETER_TYPE_Double,  0.3
 	);
 
 	Parameters.Add_Value(
 		NULL	, "MAXITER"	, _TL("Maximum Iterations"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 300, 1, true
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"	, _TL("Fractal Type"),
-		"",
+		_TL(""),
 
-		"Mandelbrot|"
-		"Julia|"
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("Mandelbrot"),
+			_TL("Julia")
+		), 0
 	);
 }
 

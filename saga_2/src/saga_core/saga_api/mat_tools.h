@@ -548,7 +548,7 @@ public:
 	double						Get_R				(void)			{	return( m_R );		}
 	double						Get_R2				(void)			{	return( m_R*m_R );	}
 
-	const char *				asString			(void);
+	const SG_Char *				asString			(void);
 
 	TSG_Regression_Type			Get_Type			(void)			{	return( m_Type );	}
 
@@ -633,28 +633,28 @@ public:
 	static CSG_String			Get_Help_Operators	(void);
 	static CSG_String			Get_Help_Usage		(void);
 
-	bool						Get_Error			(int *Pos = NULL, const char **Msg = NULL);
+	bool						Get_Error			(int *Pos = NULL, const SG_Char **Msg = NULL);
 
 	double						Val(double *Vals, int n);
 	double						Val(void);
-	double						Val(char *Args, ...);
+	double						Val(SG_Char *Args, ...);
 	double						Val(double x);
 
-	void						Set_Variable(char Variable, double Value);
+	void						Set_Variable(SG_Char Variable, double Value);
 
-	bool						Set_Formula(const char *Formula);
+	bool						Set_Formula(const SG_Char *Formula);
 	CSG_String					Get_Formula(void)	{	return( m_Formula );	}
 
-	int							Del_Function(char *Name);
-	int							Add_Function(char *Name, TSG_PFNC_Formula_1 f, int N_of_Pars, int Varying);
+	int							Del_Function(SG_Char *Name);
+	int							Add_Function(SG_Char *Name, TSG_PFNC_Formula_1 f, int N_of_Pars, int Varying);
 
-	const char *				Get_Used_Var(void);
+	const SG_Char *				Get_Used_Var(void);
 
 
 	//-----------------------------------------------------
 	typedef struct 
 	{
-		char					*name;
+		SG_Char					*name;
 		TSG_PFNC_Formula_1		f;			
 		int						n_pars;		
 		int						varying;	// Does the result of the function vary even when the parameters stay the same? varying = 1 for e.g. random - number generators.
@@ -667,7 +667,7 @@ private:
 	//-----------------------------------------------------
 	typedef struct 
 	{
-		BYTE					*code;
+		SG_Char					*code;
 		double					*ctable;
 	}
 	TMAT_Formula;
@@ -676,9 +676,9 @@ private:
 	//-----------------------------------------------------
 	CSG_String					m_Formula;
 
-	const char					*i_error; 
+	const SG_Char				*i_error; 
 	bool						used_vars[256];	//['z' - 'a' + 1];
-	char						*errmes;
+	const SG_Char				*errmes;
 	int							i_pctable;	// number of items in a table of constants - used only by the translating functions
 	int							Error_Pos;
 	int							Length;
@@ -687,24 +687,24 @@ private:
 	TMAT_Formula				function;
 
 
-	TMAT_Formula				translate(const char *source, const char *args, int *length, int *error);
+	TMAT_Formula				translate(const SG_Char *source, const SG_Char *args, int *length, int *error);
 	int							fnot_empty(TMAT_Formula);
 	double						grid_value(TMAT_Formula func);
 	void						destrf(TMAT_Formula);
 	void						make_empty(TMAT_Formula);
-	const char *				fget_error(void);
-	int							read_table(int i, char *name, int *n_pars, int *varying);
-	int							where_table(char *name);
-	void						fset_error(char *s);
+	const SG_Char *				fget_error(void);
+	int							read_table(int i, SG_Char *name, int *n_pars, int *varying);
+	int							where_table(SG_Char *name);
+	void						fset_error(const SG_Char *s);
 	double						value(TMAT_Formula func);
-	int							max_size(const char *source);
-	char *						my_strtok(char *s);
-	BYTE *						i_trans(BYTE *function, char *begin, char *end);
-	BYTE *						comp_time(BYTE *function, BYTE *fend, int npars);
+	int							max_size(const SG_Char *source);
+	SG_Char *					my_strtok(SG_Char *s);
+	SG_Char *					i_trans(SG_Char *function, SG_Char *begin, SG_Char *end);
+	SG_Char *					comp_time(SG_Char *function, SG_Char *fend, int npars);
 
-	int							isoper(char c);
-	int							is_code_oper(BYTE c);
-	int							isin_real(char c);
+	int							isoper(SG_Char c);
+	int							is_code_oper(SG_Char c);
+	int							isin_real(SG_Char c);
 
 };
 
@@ -722,7 +722,7 @@ public:
 	CSG_Trend(void);
 	virtual ~CSG_Trend(void);
 
-	bool						Set_Formula			(const char *Formula = NULL);
+	bool						Set_Formula			(const SG_Char *Formula = NULL);
 	CSG_String					Get_Formula			(void);
 
 	int							Get_Parameter_Count	(void) const	{	return( m_Params.m_Count );		}
@@ -741,8 +741,8 @@ public:
 	bool						Set_Max_Lambda		(double Lambda);
 	double						Get_Max_Lambda		(void)			{	return( m_Lambda_Max);	}
 
-	bool						Get_Trend			(double *xData, double *yData, int nData, const char *Formula = NULL);
-	bool						Get_Trend			(const CSG_Points &Data, const char *Formula = NULL);
+	bool						Get_Trend			(double *xData, double *yData, int nData, const SG_Char *Formula = NULL);
+	bool						Get_Trend			(const CSG_Points &Data, const SG_Char *Formula = NULL);
 	bool						Get_Trend			(void);
 
 	bool						is_Okay				(void)			{	return( m_bOkay );		}
@@ -764,12 +764,12 @@ private:
 		CFncParams(void);
 		virtual ~CFncParams(void);
 
-		bool					Create				(const char *Variables, int nVariables);
+		bool					Create				(const SG_Char *Variables, int nVariables);
 		bool					Destroy				(void);
 
 		int						m_Count;
 
-		char					*m_Variables;
+		SG_Char					*m_Variables;
 
 		double					*m_A, *m_Atry, *m_dA, *m_dA2, *m_Beta, **m_Alpha, **m_Covar;
 

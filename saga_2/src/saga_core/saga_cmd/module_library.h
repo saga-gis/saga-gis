@@ -85,18 +85,18 @@ public:
 	CModule_Library(void);
 	virtual ~CModule_Library(void);
 
-	bool						Create					(const char *FileName, const char *FilePath);
+	bool						Create					(const SG_Char *FileName, const SG_Char *FilePath);
 	void						Destroy					(void);
 
 	int							Get_Count				(void)		{	return( m_nModules );	}
-	class CSG_Module *				Get_Module				(int i)		{	return( i >= 0 && i < m_nModules ? m_Modules[i] : NULL );	}
+	class CSG_Module *			Get_Module				(int i)		{	return( i >= 0 && i < m_nModules ? m_Modules[i] : NULL );	}
 
 	bool						is_Valid				(void)		{	return( m_nModules > 0 );	}
 
 	wxString					Get_FileName			(void)		{	return( m_FileName );	}
 
-	class CSG_Module *				Select					(const char *ModuleName);
-	class CSG_Module *				Get_Selected			(void)		{	return( m_pSelected );	}
+	class CSG_Module *			Select					(const SG_Char *ModuleName);
+	class CSG_Module *			Get_Selected			(void)		{	return( m_pSelected );	}
 
 	bool						Execute					(int argc, char *argv[]);
 
@@ -108,7 +108,7 @@ private:
 
 	int							m_nModules;
 
-	class CSG_Module				**m_Modules, *m_pSelected;
+	class CSG_Module			**m_Modules, *m_pSelected;
 
 	wxString					m_FileName;
 

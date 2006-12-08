@@ -41,40 +41,40 @@ CCellBalance::CCellBalance(void)
 
 	Set_Author		(_TL("(c) 2004 by V.Olaya, (c) 2006 by O.Conrad"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"(c) 2004 by Victor Olaya. Cell Balance Calculation\r\n"
 		"References:\r\n 1. Olaya, V. Hidrologia computacional y modelos digitales del terreno. Alqua. 536 pp. 2004"
 	));
 
 	Parameters.Add_Grid(
 		NULL, "DEM"		, _TL("Elevation"),
-		"", 
+		_TL(""), 
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL, "WEIGHTS"	, _TL("Parameter"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Value(
 		NULL, "WEIGHT"	, _TL("Default Weight"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 1.0
 	);
 
 	Parameters.Add_Grid(
 		NULL, "BALANCE"	, _TL("Cell Balance"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
 		NULL, "METHOD"	, _TL("Method"),
-		"",
+		_TL(""),
 
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Deterministic 8"),
 			_TL("Multiple Flow Direction")
 		)

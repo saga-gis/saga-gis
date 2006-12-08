@@ -23,12 +23,12 @@ CGrid_Value_Replace_Interactive::CGrid_Value_Replace_Interactive(void){
 
 	Set_Name(_TL("Change Cell Values"));
 	Set_Author(_TL("Copyrights (c) 2004 by Victor Olaya"));
-	Set_Description(_TL("(c) 2004 by Victor Olaya."));
+	Set_Description	(_TW("(c) 2004 by Victor Olaya."));
 
 	Parameters.Add_Grid(NULL, 
 						"GRID", 
 						_TL("Grid"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Value(NULL, 

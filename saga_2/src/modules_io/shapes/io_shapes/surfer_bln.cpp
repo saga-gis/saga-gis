@@ -79,7 +79,7 @@ CSurfer_BLN_Import::CSurfer_BLN_Import(void)
 
 	Set_Author(_TL("Copyrights (c) 2006 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Import polygons/polylines from Golden Software's Surfer Blanking File format.\n")
 	);
 
@@ -89,29 +89,31 @@ CSurfer_BLN_Import::CSurfer_BLN_Import(void)
 
 	Parameters.Add_Shapes(
 		NULL	, "SHAPES"	, _TL("Shapes"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Table(
 		NULL	, "TABLE"	, _TL("Look up table (Points)"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_FilePath(
 		NULL	, "FILE"	, _TL("File"),
-		"",
+		_TL(""),
 		_TL("Surfer Blanking Files (*.bln)|*.bln|All Files|*.*")
 	);
 
 	pNode	= Parameters.Add_Choice(
 		NULL	, "TYPE"	, _TL("Shape Type"),
-		"",
-		_TL(
-		"points|"
-		"lines|"
-		"polygons|"),	1
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("points"),
+			_TL("lines"),
+			_TL("polygons")
+		), 1
 	);
 }
 
@@ -146,7 +148,7 @@ bool CSurfer_BLN_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( (Stream = fopen(FileName, "r")) != NULL )
+	if( (Stream = fopen(FileName.b_str(), "r")) != NULL )
 	{
 		bOk		= true;
 		ID		= 0;
@@ -195,7 +197,7 @@ bool CSurfer_BLN_Import::On_Execute(void)
 		//-------------------------------------------------
 		while( bOk && SG_Read_Line(Stream, sLine) && sLine.BeforeFirst(',').asInt(nPoints) && nPoints > 0 && Process_Get_Okay(true) )
 		{
-			Process_Set_Text(CSG_String::Format("%d. %s", ++ID, _TL("shape in process")));
+			Process_Set_Text(CSG_String::Format(SG_T("%d. %s"), ++ID, _TL("shape in process")));
 
 			sTemp	= sLine.AfterFirst (',');	sLine	= sTemp;
 			Flag	= sLine.BeforeFirst(',').asInt();
@@ -280,7 +282,7 @@ CSurfer_BLN_Export::CSurfer_BLN_Export(void)
 
 	Set_Author(_TL("Copyrights (c) 2006 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Export shapes to Golden Software's Surfer Blanking File format.\n")
 	);
 
@@ -292,46 +294,46 @@ CSurfer_BLN_Export::CSurfer_BLN_Export(void)
 
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES"	, _TL("Shapes"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table_Field(
 		pNode	, "NAME"	, _TL("Name"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Table_Field(
 		pNode	, "DESC"	, _TL("Description"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Table_Field(
 		pNode	, "ZVAL"	, _TL("z values"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Value(
 		NULL	, "BNAME"	, _TL("Export names"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Bool	, false
 	);
 
 	Parameters.Add_Value(
 		NULL	, "BDESC"	, _TL("Export descriptions"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Bool	, false
 	);
 
 	Parameters.Add_Value(
 		NULL	, "BZVAL"	, _TL("Export z values"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Bool	, false
 	);
 
 	Parameters.Add_FilePath(
 		NULL	, "FILE"	, _TL("File"),
-		"",
+		_TL(""),
 		_TL(
 		"Surfer Blanking Files (*.bln)|*.bln|All Files|*.*"), NULL, true
 	);
@@ -350,18 +352,20 @@ bool CSurfer_BLN_Export::On_Execute(void)
 	TSG_Point	p;
 	CSG_Shape	*pShape;
 	CSG_Shapes	*pShapes;
+	CSG_String	fName;
 
 	//-----------------------------------------------------
 	pShapes	= Parameters("SHAPES")	->asShapes();
+	fName	= Parameters("FILE")	->asString();
 
-	iName	= Parameters("BNAME")->asBool() ? Parameters("NAME")->asInt() : -1;
-	iDesc	= Parameters("BDESC")->asBool() ? Parameters("DESC")->asInt() : -1;
-	iZVal	= Parameters("BZVAL")->asBool() ? Parameters("ZVAL")->asInt() : -1;
+	iName	= Parameters("BNAME")	->asBool() ? Parameters("NAME")->asInt() : -1;
+	iDesc	= Parameters("BDESC")	->asBool() ? Parameters("DESC")->asInt() : -1;
+	iZVal	= Parameters("BZVAL")	->asBool() ? Parameters("ZVAL")->asInt() : -1;
 
 	Flag	= 1;
 
 	//-----------------------------------------------------
-	if( (Stream = fopen(Parameters("FILE")->asString(), "w")) != NULL )
+	if( (Stream = fopen(fName.b_str(), "w")) != NULL )
 	{
 		for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{

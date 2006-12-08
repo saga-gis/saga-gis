@@ -77,28 +77,28 @@ CPolygon_Centroids::CPolygon_Centroids(void)
 
 	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Creates a points layer containing the centroids of the input polygon layer.")
 	);
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "POLYGONS"	, _TL("Polygons"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "CENTROIDS"	, _TL("Centroids"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Value(
 		NULL	, "METHOD"		, _TL("Centroids for each part"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Bool, false
 	);
 

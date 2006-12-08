@@ -92,7 +92,7 @@ CSG_Grid * SG_Create_Grid(const CSG_Grid &Grid)
 }
 
 //---------------------------------------------------------
-CSG_Grid * SG_Create_Grid(const char *File_Name, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
+CSG_Grid * SG_Create_Grid(const SG_Char *File_Name, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
 {
 	return( new CSG_Grid(File_Name, Type, Memory_Type) );
 }
@@ -151,7 +151,7 @@ CSG_Grid::CSG_Grid(const CSG_Grid &Grid)
   * Create a grid from file.
 */
 //---------------------------------------------------------
-CSG_Grid::CSG_Grid(const char *File_Name, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
+CSG_Grid::CSG_Grid(const SG_Char *File_Name, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
 	: CSG_Data_Object()
 {
 	_On_Construction();
@@ -265,7 +265,7 @@ bool CSG_Grid::Create(const CSG_Grid_System &System, TSG_Grid_Type Type, TSG_Gri
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::Create(const char *File_Name, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
+bool CSG_Grid::Create(const SG_Char *File_Name, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
 {
 	return( _Load(File_Name, Type, Memory_Type) );
 }
@@ -339,23 +339,23 @@ void CSG_Grid::_Set_Properties(TSG_Grid_Type Type, int NX, int NY, double Cellsi
 }
 
 //---------------------------------------------------------
-void CSG_Grid::Set_Description(const char *String)
+void CSG_Grid::Set_Description(const SG_Char *String)
 {
-	m_Description.Printf(String ? String : "");
+	m_Description.Printf(String ? String : SG_T(""));
 }
 
-const char * CSG_Grid::Get_Description(void) const
+const SG_Char * CSG_Grid::Get_Description(void) const
 {
 	return( m_Description.c_str() );
 }
 
 //---------------------------------------------------------
-void CSG_Grid::Set_Unit(const char *String)
+void CSG_Grid::Set_Unit(const SG_Char *String)
 {
-	m_Unit.Printf(String ? String : "");
+	m_Unit.Printf(String ? String : SG_T(""));
 }
 
-const char * CSG_Grid::Get_Unit(void) const
+const SG_Char * CSG_Grid::Get_Unit(void) const
 {
 	return( m_Unit.c_str() );
 }
@@ -423,7 +423,7 @@ bool CSG_Grid::is_Valid(void) const
 			return( m_Values != NULL );
 
 		case GRID_MEMORY_Cache:
-			return( Cache_Stream != NULL );
+			return( Cache_Stream.is_Open() );
 		}
 	}
 
@@ -972,7 +972,7 @@ bool CSG_Grid::_Sort_Execute(void)
 	long	i, j, *Index;
 
 	//-----------------------------------------------------
-	SG_UI_Process_Set_Text(CSG_String::Format("%s: %s", LNG("Create index"), Get_Name()));
+	SG_UI_Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), LNG("Create index"), Get_Name()));
 
 	Index	= (long *)SG_Calloc(Get_NCells(), sizeof(long));
 

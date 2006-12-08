@@ -77,7 +77,7 @@ CMOLA_Import::CMOLA_Import(void)
 
 	Set_Author		(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"Import Mars Orbit Laser Altimeter (MOLA) grids of the Mars Global Surveyor (MGS) Mission "
 		"(Topographic maps, Mission Experiment Gridded Data Records - MEGDRs). "
 		"Find more information and obtain free data from "
@@ -91,24 +91,24 @@ CMOLA_Import::CMOLA_Import(void)
 
 	Parameters.Add_Grid_Output(
 		NULL	, "GRID"	, _TL("Grid"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_FilePath(
 		NULL	, "FILE"	, _TL("File"),
-		"",
+		_TL(""),
 		_TL("MOLA Grids (*.img)|*.img|All Files|*.*")
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "TYPE"	, _TL("Grid Type"),
-		"",
+		_TL(""),
 		_TL("2 byte integer|4 byte floating point|"), 1
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "ORIENT"	, _TL("Orientation"),
-		"",
+		_TL(""),
 		_TL("normal|down under|"), 1
 	);
 }
@@ -120,14 +120,14 @@ CMOLA_Import::~CMOLA_Import(void)
 //---------------------------------------------------------
 bool CMOLA_Import::On_Execute(void)
 {
-	bool		bDown;
-	int			xa, xb, y, yy, NX, NY;
-	short		*sLine;
-	double		D, xMin, yMin;
-	FILE		*Stream;
+	bool			bDown;
+	int				xa, xb, y, yy, NX, NY;
+	short			*sLine;
+	double			D, xMin, yMin;
+	CSG_File		Stream;
 	TSG_Grid_Type	Type;
 	CSG_Grid		*pGrid;
-	CSG_String	fName, sName;
+	CSG_String		fName, sName;
 
 	//-----------------------------------------------------
 	pGrid	= NULL;
@@ -173,19 +173,19 @@ bool CMOLA_Import::On_Execute(void)
 		return( false );
 
 	case 'A':
-		sName.Printf("MOLA: Areoid v%c"		, fName[11]);
+		sName.Printf(SG_T("MOLA: Areoid v%c")		, fName[11]);
 		break;
 
 	case 'C':
-		sName.Printf("MOLA: Counts v%c"		, fName[11]);
+		sName.Printf(SG_T("MOLA: Counts v%c")		, fName[11]);
 		break;
 
 	case 'R':
-		sName.Printf("MOLA: Radius v%c"		, fName[11]);
+		sName.Printf(SG_T("MOLA: Radius v%c")		, fName[11]);
 		break;
 
 	case 'T':
-		sName.Printf("MOLA: Topography v%c"	, fName[11]);
+		sName.Printf(SG_T("MOLA: Topography v%c")	, fName[11]);
 		break;
 	}
 
@@ -231,9 +231,9 @@ bool CMOLA_Import::On_Execute(void)
 		D		= 1.0 /  64.0;
 		NX		=  64 * 180;
 		NY		=  64 *  90;
-		yMin	= (fName[6] == 'S' ? -1.0 :  1.0) * atoi(fName.c_str() + 4);
+		yMin	= (fName[6] == 'S' ? -1.0 :  1.0) * fName.Right(3).asInt();
 		yMin	= yMin - NY * D;
-		xMin	= atoi(fName.c_str() + 7);
+		xMin	= fName.Right(6).asInt();
 		if( xMin >= 180.0 )
 		{
 			xMin	-= 360.0;
@@ -244,9 +244,9 @@ bool CMOLA_Import::On_Execute(void)
 		D		= 1.0 / 128.0;
 		NX		= 128 *  90;
 		NY		= 128 *  44;
-		yMin	= (fName[6] == 'S' ? -1.0 :  1.0) * atoi(fName.c_str() + 4);
+		yMin	= (fName[6] == 'S' ? -1.0 :  1.0) * fName.Right(3).asInt();
 		yMin	= yMin - NY * D;
-		xMin	= atoi(fName.c_str() + 7);
+		xMin	= fName.Right(6).asInt();
 		if( xMin >= 180.0 )
 		{
 			xMin	-= 360.0;
@@ -255,7 +255,7 @@ bool CMOLA_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( (Stream = fopen(Parameters("FILE")->asString(), "rb")) != NULL )
+	if( Stream.Open(Parameters("FILE")->asString(), SG_FILE_R, true) )
 	{
 		if( (pGrid = SG_Create_Grid(Type, NX, NY, D, xMin + D / 2.0, yMin + D / 2.0)) != NULL )
 		{
@@ -265,11 +265,11 @@ bool CMOLA_Import::On_Execute(void)
 			//---------------------------------------------
 			sLine	= (short *)SG_Malloc(NX * sizeof(short));
 
-			for(y=0; y<NY && !feof(Stream) && Set_Progress(y, NY); y++)
+			for(y=0; y<NY && !Stream.is_EOF() && Set_Progress(y, NY); y++)
 			{
 				yy	= bDown ? NY - 1 - y : y;
 
-				fread(sLine, NX, sizeof(short), Stream);
+				Stream.Read(sLine, NX, sizeof(short));
 
 				if( fName[10] == 'G' || fName[10] == 'H' )
 				{
@@ -301,8 +301,6 @@ bool CMOLA_Import::On_Execute(void)
 			DataObject_Add		(pGrid);
 			DataObject_Update	(pGrid, -8200.0, 21200.0);
 		}
-
-		fclose(Stream);
 	}
 
 	return( pGrid != NULL );

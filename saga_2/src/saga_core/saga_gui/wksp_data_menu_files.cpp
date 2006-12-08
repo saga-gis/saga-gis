@@ -169,7 +169,7 @@ bool CWKSP_Data_Menu_Files::Recent_Open(int Cmd_ID)
 }
 
 //---------------------------------------------------------
-void CWKSP_Data_Menu_Files::Recent_Add(int DataType, const char *FileName)
+void CWKSP_Data_Menu_Files::Recent_Add(int DataType, const wxChar *FileName)
 {
 	if( m_bUpdate && _Get_Menu(DataType) )
 	{
@@ -180,7 +180,7 @@ void CWKSP_Data_Menu_Files::Recent_Add(int DataType, const char *FileName)
 }
 
 //---------------------------------------------------------
-void CWKSP_Data_Menu_Files::Recent_Del(int DataType, const char *FileName)
+void CWKSP_Data_Menu_Files::Recent_Del(int DataType, const wxChar *FileName)
 {
 	if( m_bUpdate && _Get_Menu(DataType) )
 	{

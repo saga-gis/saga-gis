@@ -75,14 +75,14 @@
 //---------------------------------------------------------
 static CSG_String	gSG_Grid_Cache_Directory;
 
-const char *		SG_Grid_Cache_Get_Directory(void)
+const SG_Char *		SG_Grid_Cache_Get_Directory(void)
 {
 	return( gSG_Grid_Cache_Directory );
 }
 
-void				SG_Grid_Cache_Set_Directory(const char *Directory)
+void				SG_Grid_Cache_Set_Directory(const SG_Char *Directory)
 {
-	if( SG_Dir_isValid(Directory) )
+	if( SG_Dir_Exists(Directory) )
 	{
 		gSG_Grid_Cache_Directory.Printf(Directory);
 	}
@@ -168,7 +168,7 @@ bool CSG_Grid::_Memory_Create(TSG_Grid_Memory_Type Memory_Type)
 				{
 					CSG_String	s;
 
-					s.Printf("%s\n%s\n%s: %.2fMB",
+					s.Printf(SG_T("%s\n%s\n%s: %.2fMB"),
 						LNG("Shall I activate file caching for new grid."),
 						m_System.Get_Name(),
 						LNG("Total memory size"),
@@ -184,11 +184,11 @@ bool CSG_Grid::_Memory_Create(TSG_Grid_Memory_Type Memory_Type)
 
 			case 2:
 				{
-					CSG_Parameters	p(NULL, LNG("Activate Grid File Cache?"), "");
+					CSG_Parameters	p(NULL, LNG("Activate Grid File Cache?"), SG_T(""));
 
 					p.Add_Value(
-						NULL	, "BUFFERSIZE"	, LNG("Buffer Size [MB]"),
-						"",
+						NULL	, SG_T("BUFFERSIZE")	, LNG("Buffer Size [MB]"),
+						SG_T(""),
 						PARAMETER_TYPE_Double, SG_Grid_Cache_Get_Threshold_MB(), 0.0, true
 					);
 
@@ -196,7 +196,7 @@ bool CSG_Grid::_Memory_Create(TSG_Grid_Memory_Type Memory_Type)
 					{
 						Memory_Type	= GRID_MEMORY_Cache;
 
-						Set_Buffer_Size((int)(p("BUFFERSIZE")->asDouble() * N_MEGABYTE_BYTES));
+						Set_Buffer_Size((int)(p(SG_T("BUFFERSIZE"))->asDouble() * N_MEGABYTE_BYTES));
 					}
 				}
 				break;
@@ -587,13 +587,13 @@ bool CSG_Grid::is_Cached(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid::_Cache_Create(const char *FilePath, TSG_Grid_Type File_Type, long Offset, bool bSwap, bool bFlip)
+bool CSG_Grid::_Cache_Create(const SG_Char *FilePath, TSG_Grid_Type File_Type, long Offset, bool bSwap, bool bFlip)
 {
 	if( m_System.is_Valid() && m_Type > 0 && m_Type < GRID_TYPE_Count && m_Memory_Type == GRID_MEMORY_Normal )
 	{
 		Cache_Path.Printf(FilePath);
 
-		if( m_Type == File_Type && (Cache_Stream = fopen(Cache_Path, "rb+")) != NULL )
+		if( m_Type == File_Type && Cache_Stream.Open(Cache_Path, SG_FILE_RWA, true) )
 		{
 			m_Memory_bLock	= true;
 
@@ -622,9 +622,9 @@ bool CSG_Grid::_Cache_Create(void)
 
 	if( m_System.is_Valid() && m_Type > 0 && m_Type < GRID_TYPE_Count && m_Memory_Type == GRID_MEMORY_Normal )
 	{
-		Cache_Path	= SG_File_Get_TmpName("sg_grd", SG_Grid_Cache_Get_Directory());
+		Cache_Path	= SG_File_Get_TmpName(SG_T("sg_grd"), SG_Grid_Cache_Get_Directory());
 
-		if( (Cache_Stream = fopen(Cache_Path, "wb+")) != NULL )
+		if( Cache_Stream.Open(Cache_Path, SG_FILE_RW, true) )
 		{
 			m_Memory_bLock	= true;
 
@@ -698,8 +698,7 @@ bool CSG_Grid::_Cache_Destroy(bool bMemory_Restore)
 		m_Memory_Type	= GRID_MEMORY_Normal;
 
 		//-------------------------------------------------
-		fclose(Cache_Stream);
-		Cache_Stream	= NULL;
+		Cache_Stream.Close();
 
 		if( Cache_bTemp )
 		{
@@ -745,9 +744,9 @@ void CSG_Grid::_Cache_LineBuffer_Save(TSG_Grid_Line *pLine) const
 				}
 			}
 
-			fseek(Cache_Stream, Line_Pos, SEEK_SET);
-			fwrite(pLine->Data, sizeof(char), Line_Size, Cache_Stream);
-			fflush(Cache_Stream);
+			Cache_Stream.Seek(Line_Pos);
+			Cache_Stream.Write(pLine->Data, sizeof(char), Line_Size);
+			Cache_Stream.Flush();
 
 			if( Cache_bSwap && m_Type != GRID_TYPE_Bit )
 			{
@@ -779,8 +778,8 @@ void CSG_Grid::_Cache_LineBuffer_Load(TSG_Grid_Line *pLine, int y) const
 			Line_Pos	= Cache_Offset + y * Line_Size;
 
 			//-------------------------------------------------
-			fseek(Cache_Stream, Line_Pos, SEEK_SET);
-			fread(pLine->Data, sizeof(char), Line_Size, Cache_Stream);
+			Cache_Stream.Seek(Line_Pos);
+			Cache_Stream.Read(pLine->Data, sizeof(char), Line_Size);
 
 			if( Cache_bSwap && m_Type != GRID_TYPE_Bit )
 			{

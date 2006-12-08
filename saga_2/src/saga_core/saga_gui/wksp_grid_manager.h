@@ -101,7 +101,7 @@ public:
 	class CWKSP_Grid *				Get_Grid			(class CSG_Grid *pGrid);
 	bool							Exists				(class CSG_Grid *pGrid);
 	class CWKSP_Grid *				Add					(class CSG_Grid *pGrid);
-	class CSG_Grid *					Get_byFileName		(const char *File_Name);
+	class CSG_Grid *					Get_byFileName		(const wxChar *File_Name);
 
 	bool							Update				(class CSG_Grid *pGrid, class CSG_Parameters *pParameters);
 	bool							Update_Views		(class CSG_Grid *pGrid);

@@ -86,18 +86,19 @@ CGStat_Export::CGStat_Export(void)
 	//-----------------------------------------------------
 	pNode_0	= Parameters.Add_Shapes(
 		NULL	, "SHAPES"	, _TL("Shapes"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	pNode_0	= Parameters.Add_FilePath(
 		NULL	, "FILENAME", _TL("File"),
-		"",
-		_TL(
-		"GStat Files (*.gstat)"	"|*.gstat|"
-		"Text Files (*.txt)"	"|*.txt|"
-		"All Files"				"|*.*"),
-		NULL, true
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s"),
+			_TL("GStat Files (*.gstat)")	, SG_T("*.gstat"),
+			_TL("Text Files (*.txt)")		, SG_T("*.txt"),
+			_TL("All Files")				, SG_T("*.*")
+		), NULL, true
 	);
 }
 
@@ -111,14 +112,16 @@ bool CGStat_Export::On_Execute(void)
 	int			iShape, iPart, iPoint, iField;
 	FILE		*Stream;
 	TSG_Point	Point;
-	CSG_Shape		*pShape;
-	CSG_Shapes		*pShapes;
+	CSG_Shape	*pShape;
+	CSG_Shapes	*pShapes;
+	CSG_String	fName;
 
 	//-----------------------------------------------------
-	pShapes		= Parameters("SHAPES")->asShapes();
+	pShapes		= Parameters("SHAPES")		->asShapes();
+	fName		= Parameters("FILENAME")	->asString();
 
 	//-----------------------------------------------------
-	if( (Stream = fopen(Parameters("FILENAME")->asString(), "w")) != NULL )
+	if( (Stream = fopen(fName.b_str(), "w")) != NULL )
 	{
 		switch( pShapes->Get_Type() )
 		{
@@ -251,19 +254,19 @@ CGStat_Import::CGStat_Import(void)
 	//-----------------------------------------------------
 	pNode_0	= Parameters.Add_Shapes(
 		NULL	, "SHAPES"	, _TL("Shapes"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	pNode_0	= Parameters.Add_FilePath(
 		NULL	, "FILENAME", _TL("File"),
-		"",
-		_TL(
-		"GStat Files (*.gstat)"	"|*.gstat|"
-		"Text Files (*.txt)"	"|*.txt|"
-		"All Files"				"|*.*"),
+		_TL(""),
 
-		NULL, false
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s"),
+			_TL("GStat Files (*.gstat)")	, SG_T("*.gstat"),
+			_TL("Text Files (*.txt)")		, SG_T("*.txt"),
+			_TL("All Files")				, SG_T("*.*")
+		), NULL, false
 	);
 }
 
@@ -278,15 +281,16 @@ bool CGStat_Import::On_Execute(void)
 	int			i, nFields, fLength;
 	double		x, y, Value;
 	FILE		*Stream;
-	CSG_String	s;
-	CSG_Shape		*pShape;
-	CSG_Shapes		*pShapes;
+	CSG_String	s, fName;
+	CSG_Shape	*pShape;
+	CSG_Shapes	*pShapes;
 
 	//-----------------------------------------------------
-	pShapes		= Parameters("SHAPES")->asShapes();
+	pShapes	= Parameters("SHAPES")		->asShapes();
+	fName	= Parameters("FILENAME")	->asString();
 
 	//-----------------------------------------------------
-	if( (Stream = fopen(Parameters("FILENAME")->asString(), "rb")) != NULL )
+	if( (Stream = fopen(fName.b_str(), "rb")) != NULL )
 	{
 		fseek(Stream, 0, SEEK_END);
 		fLength	= ftell(Stream);
@@ -296,7 +300,7 @@ bool CGStat_Import::On_Execute(void)
 		{
 			//---------------------------------------------
 			// Point...
-			if( s.Cmp("EXP") )
+			if( s.CmpNoCase(SG_T("EXP")) )
 			{
 				pShapes->Create(SHAPE_TYPE_Point, Parameters("FILENAME")->asString());
 
@@ -312,7 +316,7 @@ bool CGStat_Import::On_Execute(void)
 				{
 					if( SG_Read_Line(Stream, s) )
 					{
-						if( !s.Cmp("[ignore]") || s[0] == '%' )
+						if( !s.CmpNoCase(SG_T("[ignore]")) || s[0] == '%' )
 						{
 							pShapes->Get_Table().Add_Field(s, TABLE_FIELDTYPE_String);
 						}
@@ -343,10 +347,10 @@ bool CGStat_Import::On_Execute(void)
 
 							for(i=2; i<nFields && !feof(Stream); i++)
 							{
-								if( pShapes->Get_Table().Get_Field_Name(i) == "[ignore]" )
+								if( SG_STR_CMP(pShapes->Get_Table().Get_Field_Name(i), SG_T("[ignore]")) )
 								{
 									Stream_Find_NextWhiteChar(Stream);
-									pShape->Get_Record()->Set_Value(i, "NA");
+									pShape->Get_Record()->Set_Value(i, SG_T("NA"));
 								}
 								else if( pShapes->Get_Table().Get_Field_Name(i)[0] == '%' )
 								{

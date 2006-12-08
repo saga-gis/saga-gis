@@ -71,8 +71,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define MAP_WINDOW_WIDTH 550.
-#define MAP_WINDOW_HEIGHT 700.
+#define MAP_WINDOW_WIDTH	550.
+#define MAP_WINDOW_HEIGHT	700.
 
 
 ///////////////////////////////////////////////////////////
@@ -99,7 +99,7 @@ CSVG_Interactive_Map::~CSVG_Interactive_Map(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSVG_Interactive_Map::Create_From_Map(CWKSP_Map *pMap, CSG_Shapes *pIndexLayer, const char *Filename)
+void CSVG_Interactive_Map::Create_From_Map(CWKSP_Map *pMap, CSG_Shapes *pIndexLayer, const wxChar *Filename)
 {
 	//-----------------------------------------------------
 	m_Directory	= SG_File_Get_Path(Filename);
@@ -107,7 +107,7 @@ void CSVG_Interactive_Map::Create_From_Map(CWKSP_Map *pMap, CSG_Shapes *pIndexLa
 	_Add_Opening(pMap->Get_Extent());
 
 	//-----------------------------------------------------
-	m_sSVGCode.Append("<g id=\"mainMapGroup\" transform=\"translate(0,0)\">\n");
+	m_sSVGCode.Append(wxT("<g id=\"mainMapGroup\" transform=\"translate(0,0)\">\n"));
 
 	for(int i=pMap->Get_Count()-1; i>-1; i--)
 	{
@@ -119,7 +119,7 @@ void CSVG_Interactive_Map::Create_From_Map(CWKSP_Map *pMap, CSG_Shapes *pIndexLa
 		}
 	}
 
-	m_sSVGCode.Append("</g>\n</svg>\n");
+	m_sSVGCode.Append(wxT("</g>\n</svg>\n"));
 
 	//-----------------------------------------------------
 	_Add_CheckBoxes(pMap);
@@ -131,25 +131,23 @@ void CSVG_Interactive_Map::Create_From_Map(CWKSP_Map *pMap, CSG_Shapes *pIndexLa
 	Save(Filename);
 
 	//-----------------------------------------------------
-	_Write_Code(SG_File_Make_Path(m_Directory, "checkbox"			, "js"), _Get_Code_CheckBox	());
-	_Write_Code(SG_File_Make_Path(m_Directory, "mapApp"			, "js"), _Get_Code_MapApp	());
-	_Write_Code(SG_File_Make_Path(m_Directory, "timer"				, "js"), _Get_Code_Timer	());
-	_Write_Code(SG_File_Make_Path(m_Directory, "slider"			, "js"), _Get_Code_Slider	());
-	_Write_Code(SG_File_Make_Path(m_Directory, "helper_functions"	, "js"), _Get_Code_Helper	());
-	_Write_Code(SG_File_Make_Path(m_Directory, "button"			, "js"), _Get_Code_Buttons	());
-	_Write_Code(SG_File_Make_Path(m_Directory, "navigation"		, "js"), CSG_String::Format("%s%s", _Get_Code_Navigation_1(), _Get_Code_Navigation_2()));
+	_Write_Code(SG_File_Make_Path(m_Directory, wxT("checkbox")			, wxT("js")), _Get_Code_CheckBox());
+	_Write_Code(SG_File_Make_Path(m_Directory, wxT("mapApp")			, wxT("js")), _Get_Code_MapApp	());
+	_Write_Code(SG_File_Make_Path(m_Directory, wxT("timer")				, wxT("js")), _Get_Code_Timer	());
+	_Write_Code(SG_File_Make_Path(m_Directory, wxT("slider")			, wxT("js")), _Get_Code_Slider	());
+	_Write_Code(SG_File_Make_Path(m_Directory, wxT("helper_functions")	, wxT("js")), _Get_Code_Helper	());
+	_Write_Code(SG_File_Make_Path(m_Directory, wxT("button")			, wxT("js")), _Get_Code_Buttons	());
+	_Write_Code(SG_File_Make_Path(m_Directory, wxT("navigation")		, wxT("js")), CSG_String::Format(wxT("%s%s"), _Get_Code_Navigation_1(), _Get_Code_Navigation_2()));
 }
 
 //---------------------------------------------------------
-void CSVG_Interactive_Map::_Write_Code(const char *FileName, const char *Code)
+void CSVG_Interactive_Map::_Write_Code(const wxChar *FileName, const wxChar *Code)
 {
-	FILE	*Stream;
+	CSG_File	Stream;
 
-	if( (Stream = fopen(FileName, "w")) != NULL )
+	if( Stream.Open(FileName, SG_FILE_W, false) )
 	{
-		fwrite(Code, sizeof(char), strlen(Code), Stream);
-
-		fclose(Stream);
+		Stream.Write((void *)Code, SG_STR_LEN(Code));
 	}
 }
 
@@ -169,7 +167,7 @@ void CSVG_Interactive_Map::_Add_Opening(CSG_Rect r)
 
 	m_sSVGCode.Append(_Get_Opening_Code_1());
 	m_sSVGCode.Append(SG_Get_String(r.Get_XRange(),2));
-	m_sSVGCode.Append(",");
+	m_sSVGCode.Append(wxT("),"));
 	m_sSVGCode.Append(SG_Get_String(r.Get_XRange() / 400.,2));
 	m_sSVGCode.Append(_Get_Opening_Code_2());
 
@@ -188,23 +186,23 @@ void CSVG_Interactive_Map::_Add_Opening(CSG_Rect r)
 	OffsetY = (Height - r.Get_YRange()) / 2.;
 
 	sViewBox.Append(SG_Get_String(r.Get_XMin() - OffsetX,2));
-	sViewBox.Append(" ");
+	sViewBox.Append(wxT(" "));
 	sViewBox.Append(SG_Get_String(-r.Get_YMax() - OffsetY,2));
-	sViewBox.Append(" ");
+	sViewBox.Append(wxT(" "));
 	sViewBox.Append(SG_Get_String(Width,2));
-	sViewBox.Append(" ");
+	sViewBox.Append(wxT(" "));
 	sViewBox.Append(SG_Get_String(Height,2));
 
-	_AddAttribute("viewBox", sViewBox);	
-	m_sSVGCode.Append(">\n");
+	_AddAttribute(wxT("viewBox"), sViewBox);	
+	m_sSVGCode.Append(wxT(">\n"));
 
 	m_dWidth = Width;
 }
 
 //---------------------------------------------------------
-const char * CSVG_Interactive_Map::_Get_Opening_Code_1(void)
+const wxChar * CSVG_Interactive_Map::_Get_Opening_Code_1(void)
 {
-	return(
+	return( SG_STR_MBTOSG(
 		"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
 		"<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\" [\n"
 		"<!ATTLIST svg\n"
@@ -240,33 +238,33 @@ const char * CSVG_Interactive_Map::_Get_Opening_Code_1(void)
 		"			//initialize digiLayers (layers that allow digitizing)\n"
 		"			var digiLayers = new Array();\n"
 		"			//initialize myMainMap object\n"
-		"			myMainMap = new map(\"mainMap\","
-	);
+		"			myMainMap = new map(\"mainMap\"),"
+	));
 }
 
 //---------------------------------------------------------
-const char * CSVG_Interactive_Map::_Get_Opening_Code_2(void)
+const wxChar * CSVG_Interactive_Map::_Get_Opening_Code_2(void)
 {
-	return(
-		",0.6,0,0,\"\",1,true,\"coordX\",\"coordY\",dynamicLayers,digiLayers,\"\");\n"
+	return( SG_STR_MBTOSG(
+		"),0.6,0,0,\"\"),1,true,\"coordX\"),\"coordY\"),dynamicLayers,digiLayers,\"\"));\n"
 		"			//initialize refMapDragger object\n"
-		"			myMapApp.refMapDragger = new dragObj(\"dragRectForRefMap\",\"referenceMap\",\"myDragCross\",0.1,true,\"coordX\",\"coordY\",myMainMap);\n"
+		"			myMapApp.refMapDragger = new dragObj(\"dragRectForRefMap\"),\"referenceMap\"),\"myDragCross\"),0.1,true,\"coordX\"),\"coordY\"),myMainMap);\n"
 		"			//create zoom slider	\n"
-		"			myMapApp.zoomSlider = new slider(715,75,myMainMap.minWidth,715,165,myMainMap.maxWidth,myMainMap.maxWidth,\"mapZoomSlider\",\"dimgray\",2,10,\"sliderSymbol\",myMapApp.refMapDragger,true);\n"
+		"			myMapApp.zoomSlider = new slider(715,75,myMainMap.minWidth,715,165,myMainMap.maxWidth,myMainMap.maxWidth,\"mapZoomSlider\"),\"dimgray\"),2,10,\"sliderSymbol\"),myMapApp.refMapDragger,true);\n"
 		"			//now initialize buttons\n"
 		"			myMapApp.buttons = new Array();\n"
 		"			//groupId,functionToCall,buttonType,buttonText,buttonSymbolId,x,y,width,height,fontSize,fontFamily,textFill,buttonFill,shadeLightFill,shadeDarkFill,shadowOffset\n"
-		"			myMapApp.buttons[\"zoomIn\"] = new button(\"zoomIn\",zoomImageButtons,\"rect\",undefined,\"magnifyerZoomIn\",705,47,20,20,10,\"\",\"\",\"white\",\"rgb(235,235,235)\",\"dimgray\",1);\n"
-		"			myMapApp.buttons[\"zoomOut\"] = new button(\"zoomOut\",zoomImageButtons,\"rect\",undefined,\"magnifyerZoomOut\",705,173,20,20,10,\"\",\"\",\"white\",\"rgb(235,235,235)\",\"dimgray\",1);\n"
-		"			myMapApp.buttons[\"infoButton\"] = new switchbutton(\"infoButton\",zoomImageSwitchButtons,\"rect\",undefined,\"infoBut\",746,74,20,20,10,\"\",\"\",\"white\",\"rgb(235,235,235)\",\"dimgray\",1);\n"
+		"			myMapApp.buttons[\"zoomIn\"] = new button(\"zoomIn\"),zoomImageButtons,\"rect\"),undefined,\"magnifyerZoomIn\"),705,47,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
+		"			myMapApp.buttons[\"zoomOut\"] = new button(\"zoomOut\"),zoomImageButtons,\"rect\"),undefined,\"magnifyerZoomOut\"),705,173,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
+		"			myMapApp.buttons[\"infoButton\"] = new switchbutton(\"infoButton\"),zoomImageSwitchButtons,\"rect\"),undefined,\"infoBut\"),746,74,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
 		"			myMapApp.buttons[\"infoButton\"].setSwitchValue(true,false);\n"
-		"			statusChange(\"Mode: Infomode\");\n"
-		"			myMapApp.buttons[\"zoomFull\"] = new button(\"zoomFull\",zoomImageButtons,\"rect\",undefined,\"magnifyerFull\",771,74,20,20,10,\"\",\"\",\"white\",\"rgb(235,235,235)\",\"dimgray\",1);\n"
-		"			myMapApp.buttons[\"zoomManual\"] = new switchbutton(\"zoomManual\",zoomImageSwitchButtons,\"rect\",undefined,\"magnifyerManual\",796,74,20,20,10,\"\",\"\",\"white\",\"rgb(235,235,235)\",\"dimgray\",1);\n"
-		"			myMapApp.buttons[\"panManual\"] = new switchbutton(\"panManual\",zoomImageSwitchButtons,\"rect\",undefined,\"symbPan\",821,74,20,20,10,\"\",\"\",\"white\",\"rgb(235,235,235)\",\"dimgray\",1);\n"
-		"			myMapApp.buttons[\"recenterMap\"] = new switchbutton(\"recenterMap\",zoomImageSwitchButtons,\"rect\",undefined,\"symbRecenter\",846,74,20,20,10,\"\",\"\",\"white\",\"rgb(235,235,235)\",\"dimgray\",1);\n"
-		"			myMapApp.buttons[\"backwardExtent\"] = new button(\"backwardExtent\",zoomImageButtons,\"rect\",undefined,\"symbArrowLeft\",871,74,20,20,10,\"\",\"\",\"white\",\"rgb(235,235,235)\",\"dimgray\",1);\n"
-		"			myMapApp.buttons[\"forwardExtent\"] = new button(\"forwardExtent\",zoomImageButtons,\"rect\",undefined,\"symbArrowRight\",896,74,20,20,10,\"\",\"\",\"white\",\"rgb(235,235,235)\",\"dimgray\",1);\n"
+		"			statusChange(\"Mode: Infomode\"));\n"
+		"			myMapApp.buttons[\"zoomFull\"] = new button(\"zoomFull\"),zoomImageButtons,\"rect\"),undefined,\"magnifyerFull\"),771,74,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
+		"			myMapApp.buttons[\"zoomManual\"] = new switchbutton(\"zoomManual\"),zoomImageSwitchButtons,\"rect\"),undefined,\"magnifyerManual\"),796,74,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
+		"			myMapApp.buttons[\"panManual\"] = new switchbutton(\"panManual\"),zoomImageSwitchButtons,\"rect\"),undefined,\"symbPan\"),821,74,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
+		"			myMapApp.buttons[\"recenterMap\"] = new switchbutton(\"recenterMap\"),zoomImageSwitchButtons,\"rect\"),undefined,\"symbRecenter\"),846,74,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
+		"			myMapApp.buttons[\"backwardExtent\"] = new button(\"backwardExtent\"),zoomImageButtons,\"rect\"),undefined,\"symbArrowLeft\"),871,74,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
+		"			myMapApp.buttons[\"forwardExtent\"] = new button(\"forwardExtent\"),zoomImageButtons,\"rect\"),undefined,\"symbArrowRight\"),896,74,20,20,10,\"\"),\"\"),\"white\"),\"rgb(235,235,235)\"),\"dimgray\"),1);\n"
 		"			//see if we need to disable buttons\n"
 		"			myMainMap.checkButtons();\n"
 		"			//load function specific to the current map project\n"
@@ -274,8 +272,8 @@ const char * CSVG_Interactive_Map::_Get_Opening_Code_2(void)
 		"		}\n"
 		"		function loadProjectSpecific() {\n"
 		"			//adopt width and height of map extent\n"
-		"			document.getElementById(\"myScaleTextW\").firstChild.nodeValue = formatNumberString(myMainMap.curWidth.toFixed(myMainMap.nrDecimals)) + myMainMap.units;\n"
-		"			document.getElementById(\"myScaleTextH\").firstChild.nodeValue = formatNumberString(myMainMap.curHeight.toFixed(myMainMap.nrDecimals)) + myMainMap.units;\n"
+		"			document.getElementById(\"myScaleTextW\")).firstChild.nodeValue = formatNumberString(myMainMap.curWidth.toFixed(myMainMap.nrDecimals)) + myMainMap.units;\n"
+		"			document.getElementById(\"myScaleTextH\")).firstChild.nodeValue = formatNumberString(myMainMap.curHeight.toFixed(myMainMap.nrDecimals)) + myMainMap.units;\n"
 		"		}\n"
 		"]]></script>\n"
 		"	<defs>\n"
@@ -353,7 +351,7 @@ const char * CSVG_Interactive_Map::_Get_Opening_Code_2(void)
 		"	<rect x=\"-500\" y=\"-500\" width=\"3000\" height=\"3000\" stroke=\"none\" fill=\"aliceblue\" />\n"
 		"	<!-- Main Map Frame -->\n"
 		"	<svg id=\"mainMap\" x=\"0\" y=\"15\" width=\"550\" height=\"700\"	cursor=\"crosshair\" "
-	);
+	));
 }
 
 
@@ -388,20 +386,20 @@ void CSVG_Interactive_Map::_Add_ReferenceMap(CSG_Shapes *pIndexLayer, CSG_Rect r
 	OffsetY = (Height - r.Get_YRange()) / 2.;
 
 	sViewBox.Append(SG_Get_String(r.Get_XMin() - OffsetX,2));
-	sViewBox.Append(" ");
+	sViewBox.Append(wxT(" "));
 	sViewBox.Append(SG_Get_String(- r.Get_YMax() - OffsetY,2));
-	sViewBox.Append(" ");
+	sViewBox.Append(wxT(" "));
 	sViewBox.Append(SG_Get_String(Width,2));
-	sViewBox.Append(" ");
+	sViewBox.Append(wxT(" "));
 	sViewBox.Append(SG_Get_String(Height,2));
 
-	_AddAttribute("viewBox", sViewBox);	
+	_AddAttribute(wxT("viewBox"), sViewBox);	
 
 	m_sSVGCode.Append(_Get_Code_3());
 	
 	if (pIndexLayer)
 	{
-		m_sSVGCode.Append("<g id=\"index\">\n");
+		m_sSVGCode.Append(wxT("<g id=\"index\">\n"));
 		for (i = 0; i < pIndexLayer->Get_Count(); i++)
 		{
 			pShape = pIndexLayer->Get_Shape(i);
@@ -409,15 +407,15 @@ void CSVG_Interactive_Map::_Add_ReferenceMap(CSG_Shapes *pIndexLayer, CSG_Rect r
 			Point_Width *= 5;
 			_Add_Shape(pShape, 0, 0, Line_Width, Point_Width);
 		}
-		m_sSVGCode.Append("</g>\n");
+		m_sSVGCode.Append(wxT("</g>\n"));
 	}
 
 	m_sSVGCode.Append(_Get_Code_4());
 		
-	_AddAttribute("x", r.Get_XMin() - OffsetX);
-	_AddAttribute("y", - r.Get_YMax() - OffsetY);
-	_AddAttribute("width", Width);
-	_AddAttribute("height", Height);
+	_AddAttribute(wxT("x"), r.Get_XMin() - OffsetX);
+	_AddAttribute(wxT("y"), - r.Get_YMax() - OffsetY);
+	_AddAttribute(wxT("width"), Width);
+	_AddAttribute(wxT("height"), Height);
 
 	m_sSVGCode.Append(_Get_Code_5());
 
@@ -431,16 +429,19 @@ void CSVG_Interactive_Map::_Add_Grid(CWKSP_Grid *pLayer)
 	
 	if( pLayer->Get_Image_Grid(BMP) )
 	{
-		Filename = SG_File_Make_Path(m_Directory.c_str(), pLayer->Get_Object()->Get_Name(),"jpg");
+		Filename	= SG_File_Make_Path(m_Directory.c_str(), pLayer->Get_Object()->Get_Name(), wxT("jpg"));
 		BMP.SaveFile(Filename, wxBITMAP_TYPE_JPEG);
-		m_sSVGCode.Append("<image ");
-		_AddAttribute("id",pLayer->Get_Object()->Get_Name());
-		_AddAttribute("x",((CSG_Grid*)pLayer->Get_Object())->Get_XMin());
-		_AddAttribute("y",-((CSG_Grid*)pLayer->Get_Object())->Get_YMax());
-		_AddAttribute("width",((CSG_Grid*)pLayer->Get_Object())->Get_XRange());
-		_AddAttribute("height",((CSG_Grid*)pLayer->Get_Object())->Get_YRange());
-		_AddAttribute("xlink:href", SG_File_Get_Name(Filename, true));
-		m_sSVGCode.Append("/>");
+
+		m_sSVGCode.Append(wxT("<image "));
+
+		_AddAttribute(wxT("id")			, pLayer->Get_Object()->Get_Name());
+		_AddAttribute(wxT("x")			, ((CSG_Grid *)pLayer->Get_Object())->Get_XMin());
+		_AddAttribute(wxT("y")			,-((CSG_Grid *)pLayer->Get_Object())->Get_YMax());
+		_AddAttribute(wxT("width")		, ((CSG_Grid *)pLayer->Get_Object())->Get_XRange());
+		_AddAttribute(wxT("height")		, ((CSG_Grid *)pLayer->Get_Object())->Get_YRange());
+		_AddAttribute(wxT("xlink:href")	, SG_File_Get_Name(Filename, true));
+
+		m_sSVGCode.Append(wxT("/>"));
 	}
 }
 
@@ -455,13 +456,13 @@ void CSVG_Interactive_Map::_Add_Shapes(CWKSP_Shapes *pLayer)
 	CSG_Shape *pShape;
 	CSG_String sLabel;
 
-	m_sSVGCode.Append("<g id=\"");
+	m_sSVGCode.Append(wxT("<g id=\""));
 	m_sSVGCode.Append(pLayer->Get_Object()->Get_Name());		
-	m_sSVGCode.Append("\" >\n");
+	m_sSVGCode.Append(wxT("\" >\n"));
 	
 	iColorField = pLayer->Get_Color_Field();
 
-	m_sSVGCode.Append("<g transform=\"scale(1,-1)\">\n");
+	m_sSVGCode.Append(wxT("<g transform=\"scale(1,-1)\">\n"));
 
 	for (i = 0; i < ((CSG_Shapes*)pLayer->Get_Object())->Get_Count(); i++)
 	{
@@ -474,33 +475,33 @@ void CSVG_Interactive_Map::_Add_Shapes(CWKSP_Shapes *pLayer)
 	
 	if (pLayer->Get_Label_Field() >= 0)
 	{
-		m_sSVGCode.Append("<g transform=\"scale(0.01,-0.01)\"\n>");
+		m_sSVGCode.Append(wxT("<g transform=\"scale(0.01,-0.01)\"\n>"));
 		for (i = 0; i < ((CSG_Shapes*)pLayer->Get_Object())->Get_Count(); i++)
 		{
 			pShape = pLayer->Get_Shapes()->Get_Shape(i);
 			Line_Width = Point_Width = m_dWidth / MAP_WINDOW_WIDTH;
 			sLabel = (pShape)->Get_Record()->asString(pLayer->Get_Label_Field());
-			switch( pLayer->Get_Parameters()->Get_Parameter("LABEL_ATTRIB_SIZE_TYPE")->asInt() )
+			switch( pLayer->Get_Parameters()->Get_Parameter(wxT("LABEL_ATTRIB_SIZE_TYPE"))->asInt() )
 			{
 				case 0:	default:
-					dSize = Line_Width * pLayer->Get_Parameters()->Get_Parameter("LABEL_ATTRIB_FONT")->asFont()->GetPointSize();
-					_Add_Label(sLabel, pShape, dSize, "%");
+					dSize = Line_Width * pLayer->Get_Parameters()->Get_Parameter(wxT("LABEL_ATTRIB_FONT"))->asFont()->GetPointSize();
+					_Add_Label(sLabel, pShape, dSize, wxT("%"));
 					break;
 				case 1:
-					dSize =  pLayer->Get_Parameters()->Get_Parameter("LABEL_ATTRIB_SIZE")->asDouble();
-					_Add_Label(sLabel, pShape, dSize, "");
+					dSize =  pLayer->Get_Parameters()->Get_Parameter(wxT("LABEL_ATTRIB_SIZE"))->asDouble();
+					_Add_Label(sLabel, pShape, dSize, wxT(""));
 					break;
 			}
 		}
 
-		m_sSVGCode.Append("</g>\n");
+		m_sSVGCode.Append(wxT("</g>\n"));
 	}
 
-	m_sSVGCode.Append("</g>\n</g>\n");
+	m_sSVGCode.Append(wxT("</g>\n</g>\n"));
 }
 
 //---------------------------------------------------------
-void CSVG_Interactive_Map::_Add_Label(const char* Label, CSG_Shape *pShape, double dSize, const char* Unit)
+void CSVG_Interactive_Map::_Add_Label(const wxChar* Label, CSG_Shape *pShape, double dSize, const wxChar* Unit)
 {
 
 	int iPoint, iPart;
@@ -513,7 +514,7 @@ void CSVG_Interactive_Map::_Add_Label(const char* Label, CSG_Shape *pShape, doub
 		for(iPoint=0; iPoint < pShape->Get_Point_Count(0); iPoint++)
 		{
 			Point = pShape->Get_Point(iPoint);
-			Draw_Text(100 * Point.x, -100 * Point.y, Label, 0, "Verdana", 100 * dSize, Unit);
+			Draw_Text(100 * Point.x, -100 * Point.y, Label, 0, wxT("Verdana"), 100 * dSize, Unit);
 		}
 		break;
 
@@ -528,7 +529,7 @@ void CSVG_Interactive_Map::_Add_Label(const char* Label, CSG_Shape *pShape, doub
 			if(! ((CSG_Shape_Polygon *)pShape)->is_Lake(iPart) )
 			{
 				Point = ((CSG_Shape_Polygon *)pShape)->Get_Centroid(iPart);
-				Draw_Text(100 * Point.x, -100 * Point.y, Label, 0, "Verdana", 100 * dSize, Unit);
+				Draw_Text(100 * Point.x, -100 * Point.y, Label, 0, wxT("Verdana"), 100 * dSize, Unit);
 			}
 		}
 		break;
@@ -561,22 +562,22 @@ bool CSVG_Interactive_Map::_Add_Shape(CSG_Shape *pShape, int Fill_Color, int Lin
 			case SHAPE_TYPE_Points:
 				for(iPoint=0; iPoint<Points.Get_Count(); iPoint++)
 				{
-					Draw_Circle(Points[iPoint].x, Points[iPoint].y, Point_Width, Fill_Color, 0, Line_Width, "");
+					Draw_Circle(Points[iPoint].x, Points[iPoint].y, Point_Width, Fill_Color, 0, Line_Width, wxT(""));
 				}
 				break;
 
 			case SHAPE_TYPE_Line:
-				Draw_Line(Points, Line_Width, "", Line_Color);
+				Draw_Line(Points, Line_Width, wxT(""), Line_Color);
 				break;
 
 			case SHAPE_TYPE_Polygon:
 				if( ((CSG_Shape_Polygon *)pShape)->is_Lake(iPart) )
 				{
-					Draw_Polygon(Points, -1, 0, 0.01, "%");
+					Draw_Polygon(Points, -1, 0, 0.01, wxT("%"));
 				}
 				else
 				{
-					Draw_Polygon(Points, Fill_Color, 0, 0.01, "%");
+					Draw_Polygon(Points, Fill_Color, 0, 0.01, wxT("%"));
 				}
 				break;
 			}
@@ -599,7 +600,7 @@ void CSVG_Interactive_Map::_Add_CheckBoxes(CWKSP_Map *pMap)
 	
 	m_sSVGCode.Append(_Get_Code_1());	// 2* <g> open
 	m_sSVGCode.Append(LNG("Layers"));
-	m_sSVGCode.Append("</text>\n");
+	m_sSVGCode.Append(wxT("</text>\n"));
 
 	for (i = 0; i < pMap->Get_Count(); i++)
 	{
@@ -615,38 +616,38 @@ void CSVG_Interactive_Map::_Add_CheckBoxes(CWKSP_Map *pMap)
 			x = 0;
 		}
 	
-		m_sSVGCode.Append("<g ");
-		s = "translate(";
+		m_sSVGCode.Append(wxT("<g "));
+		s = wxT("translate(");
 		s.Append(SG_Get_String(x,0));
-		s.Append(" ");
+		s.Append(wxT(" "));
 		s.Append(SG_Get_String(y,0));
-		s.Append(")");
-		_AddAttribute("transform", s);
-		m_sSVGCode.Append(">\n");
+		s.Append(wxT("))"));
+		_AddAttribute(wxT("transform"), s);
+		m_sSVGCode.Append(wxT(">\n"));
 
-		m_sSVGCode.Append("<use ");
-		s = "checkBox";
+		m_sSVGCode.Append(wxT("<use "));
+		s = wxT("checkBox");
 		s.Append(pMap->Get_Layer(i)->Get_Layer()->Get_Object()->Get_Name());
-		_AddAttribute("id", s);
-		_AddAttribute("xlink:href", "#checkBoxRect");
-		s = "checkBoxScript(evt,'";
+		_AddAttribute(wxT("id"), s);
+		_AddAttribute(wxT("xlink:href"), wxT("#checkBoxRect"));
+		s = wxT("checkBoxScript(evt,'");
 		s.Append(pMap->Get_Layer(i)->Get_Layer()->Get_Object()->Get_Name());
-		s.Append("');");
-		_AddAttribute("onclick", s);
-		m_sSVGCode.Append("/>\n");
+		s.Append(wxT("');"));
+		_AddAttribute(wxT("onclick"), s);
+		m_sSVGCode.Append(wxT("/>\n"));
 
-		m_sSVGCode.Append("<use ");
-		s = "checkCross";
+		m_sSVGCode.Append(wxT("<use "));
+		s = wxT("checkCross");
 		s.Append(pMap->Get_Layer(i)->Get_Layer()->Get_Object()->Get_Name());
-		_AddAttribute("id", s);
-		_AddAttribute("xlink:href", "#checkBoxCross");		
-		_AddAttribute("visibility", "visible");
-		m_sSVGCode.Append("/>\n");
+		_AddAttribute(wxT("id"), s);
+		_AddAttribute(wxT("xlink:href"), wxT("#checkBoxCross"));		
+		_AddAttribute(wxT("visibility"), wxT("visible"));
+		m_sSVGCode.Append(wxT("/>\n"));
 
-		m_sSVGCode.Append("</g>\n");
+		m_sSVGCode.Append(wxT("</g>\n"));
 	}
 
-	m_sSVGCode.Append("<g font-family=\"sans-serif\" fill=\"dimgray\" font-size=\"15px\" pointer-events=\"none\">\n");
+	m_sSVGCode.Append(wxT("<g font-family=\"sans-serif\" fill=\"dimgray\" font-size=\"15px\" pointer-events=\"none\">\n"));
 	
 	iRow = 1;
 		
@@ -664,16 +665,16 @@ void CSVG_Interactive_Map::_Add_CheckBoxes(CWKSP_Map *pMap)
 			x = 12;
 		}
 
-		m_sSVGCode.Append("<text ");	
-		_AddAttribute("x", x);
-		_AddAttribute("y", y);
-		m_sSVGCode.Append(">");
+		m_sSVGCode.Append(wxT("<text "));	
+		_AddAttribute(wxT("x"), x);
+		_AddAttribute(wxT("y"), y);
+		m_sSVGCode.Append(wxT(">"));
 		m_sSVGCode.Append(pMap->Get_Layer(i)->Get_Layer()->Get_Object()->Get_Name());
-		m_sSVGCode.Append("</text>\n");	
+		m_sSVGCode.Append(wxT("</text>\n"));	
 
 	}
 
-	m_sSVGCode.Append("</g>\n");
+	m_sSVGCode.Append(wxT("</g>\n"));
 
 	m_sSVGCode.Append(_Get_Code_2());
 }
@@ -686,9 +687,9 @@ void CSVG_Interactive_Map::_Add_CheckBoxes(CWKSP_Map *pMap)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char * CSVG_Interactive_Map::_Get_Code_1(void)
+const wxChar * CSVG_Interactive_Map::_Get_Code_1(void)
 {
-	return(
+	return( SG_STR_MBTOSG(
 		"<g>\n"
 		"		<g font-family=\"sans-serif\" fill=\"dimgray\" font-size=\"15px\" pointer-events=\"none\">"
 		"			<text id=\"coordX\" x=\"745\" y=\"145\">X:</text>\n"
@@ -708,13 +709,13 @@ const char * CSVG_Interactive_Map::_Get_Code_1(void)
 		"		</g>\n"
 		"		<g transform=\"translate(590 225)\">\n"
 		"			<text font-family=\"sans-serif\" fill=\"dimgray\" font-size=\"18px\" font-weight=\"bold\" x=\"-10\" y=\"0\" pointer-events=\"none\">"
-	);
+	));
 }
 
 //---------------------------------------------------------
-const char * CSVG_Interactive_Map::_Get_Code_2(void)
+const wxChar * CSVG_Interactive_Map::_Get_Code_2(void)
 {
-	return(
+	return( SG_STR_MBTOSG(
 		"</g>\n"
 		"   <g text-rendering=\"optimizeLegibility\" font-family=\"sans-serif\" fill=\"dimgray\" font-size=\"12px\">\n"
 		"		<!-- text with this id is required to show help texts -->\n"
@@ -722,41 +723,41 @@ const char * CSVG_Interactive_Map::_Get_Code_2(void)
 		"   </g>\n"
 		"</g>\n"
 		"<svg id=\"referenceMap\" x=\"580\" y=\"45\" "
-	);
+	));
 }
 
 //---------------------------------------------------------
-const char * CSVG_Interactive_Map::_Get_Code_3(void)
+const wxChar * CSVG_Interactive_Map::_Get_Code_3(void)
 {
-	return(
+	return( SG_STR_MBTOSG(
 		"width=\"118.52\" height=\"150\" onmousedown=\"myMapApp.refMapDragger.handleEvent(evt)\" onmousemove=\"myMapApp.refMapDragger.handleEvent(evt)\" onmouseup=\"myMapApp.refMapDragger.handleEvent(evt)\" onmouseout=\"myMapApp.refMapDragger.handleEvent(evt)\" cursor=\"crosshair\">\n"
 		"		<g transform=\"scale(1,-1)\"\n>"
-	);
+	));
 }
 
 //---------------------------------------------------------
-const char * CSVG_Interactive_Map::_Get_Code_4(void)
+const wxChar * CSVG_Interactive_Map::_Get_Code_4(void)
 {
-	return(
+	return( SG_STR_MBTOSG(
 		"		</g>\n"
 		"		<rect id=\"dragRectForRefMap\" fill=\"lightskyblue\" fill-opacity=\"0.4\" "
-	);
+	));
 }
 
 //---------------------------------------------------------
-const char * CSVG_Interactive_Map::_Get_Code_5(void)
+const wxChar * CSVG_Interactive_Map::_Get_Code_5(void)
 {
-	return(
+	return( SG_STR_MBTOSG(
 		" pointer-events=\"none\" />\n	"
 		"		<use id=\"myDragCross\" x=\"0\" y=\"0\" xlink:href=\"#myDragCrossSymbol\" visibility=\"hidden\" />\n"
 		"	</svg>\n"
-	);
+	));
 }
 
 //---------------------------------------------------------
-const char * CSVG_Interactive_Map::_Get_Code_Closing_1(void)
+const wxChar * CSVG_Interactive_Map::_Get_Code_Closing_1(void)
 {
-	return(
+	return( SG_STR_MBTOSG(
 		"	<g>\n"
 		"		<!-- empty group where zoomSlider is later appended -->\n"
 		"		<g id=\"mapZoomSlider\"/>\n"
@@ -779,7 +780,7 @@ const char * CSVG_Interactive_Map::_Get_Code_Closing_1(void)
 		"		<!-- button for forwarding map extent (extent history) -->\n"
 		"		<g id=\"forwardExtent\" cursor=\"pointer\" />\n"
 		"	</g>\n"
-	);
+	));
 }
 
 
@@ -790,45 +791,45 @@ const char * CSVG_Interactive_Map::_Get_Code_Closing_1(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char * CSVG_Interactive_Map::_Get_Code_CheckBox(void)
+const wxChar * CSVG_Interactive_Map::_Get_Code_CheckBox(void)
 {
-	return(
+	return( SG_STR_MBTOSG(
 		"function checkBoxScript(evt,myLayer) { //checkBox for toggling layers an contextMenue\n"
 		"	var myLayerObj = document.getElementById(myLayer);\n"
 		"	var myCheckCrossObj = document.getElementById(\"checkCross\"+myLayer);\n"
-		"	var myCheckCrossVisibility = myCheckCrossObj.getAttributeNS(null,\"visibility\");\n"
+		"	var myCheckCrossVisibility = myCheckCrossObj.getAttributeNS(null,\"visibility\"));\n"
 		"	if (evt.type == \"click\" && evt.detail == 1) {\n"
-		"	if (myCheckCrossVisibility == \"visible\") {\n"
-		"		myLayerObj.setAttributeNS(null,\"visibility\",\"hidden\");\n"
-		"		myCheckCrossObj.setAttributeNS(null,\"visibility\",\"hidden\");\n"
+		"	if (myCheckCrossVisibility == \"visible\")) {\n"
+		"		myLayerObj.setAttributeNS(null,\"visibility\"),\"hidden\"));\n"
+		"		myCheckCrossObj.setAttributeNS(null,\"visibility\"),\"hidden\"));\n"
 		"		//you can do if/else or switch statements to set different actions on activating a checkbox here\n"
 		"		//myLayer holds the currentLayer name\n"
 		"	}\n"
 		"	else {\n"
-		"		myLayerObj.setAttributeNS(null,\"visibility\",\"visible\");\n"
-		"		myCheckCrossObj.setAttributeNS(null,\"visibility\",\"visible\");\n"
+		"		myLayerObj.setAttributeNS(null,\"visibility\"),\"visible\"));\n"
+		"		myCheckCrossObj.setAttributeNS(null,\"visibility\"),\"visible\"));\n"
 		"	}\n"
 		"	}\n"
 		"}\n"
 		"\n"
-	);
+	));
 }
 
 //---------------------------------------------------------
-const char * CSVG_Interactive_Map::_Get_Code_MapApp(void)
+const wxChar * CSVG_Interactive_Map::_Get_Code_MapApp(void)
 {
-	return(
+	return( SG_STR_MBTOSG(
 		"//holds data on window size\n"
 		"function mapApp() {\n"
 		"	if (!document.documentElement.getScreenCTM) {\n"
 		"	this.resetFactors();\n"
 		"	//add resize event to document element\n"
-		"	document.documentElement.addEventListener(\"SVGResize\",this,false);\n"
+		"	document.documentElement.addEventListener(\"SVGResize\"),this,false);\n"
 		"	}\n"
 		"}\n"
 		"\n"
 		"mapApp.prototype.handleEvent = function(evt) {\n"
-		"	if (evt.type == \"SVGResize\") {\n"
+		"	if (evt.type == \"SVGResize\")) {\n"
 		"	this.resetFactors();\n"
 		"	}\n"
 		"}\n"
@@ -837,7 +838,7 @@ const char * CSVG_Interactive_Map::_Get_Code_MapApp(void)
 		"	if (!document.documentElement.getScreenCTM) {\n"
 		"	//case for viewers that don't support .getScreenCTM, such as ASV3\n"
 		"	//calculate ratio and offset values of app window\n"
-		"	var viewBoxArray = document.documentElement.getAttributeNS(null,\"viewBox\").split(\" \");\n"
+		"	var viewBoxArray = document.documentElement.getAttributeNS(null,\"viewBox\")).split(\" \"));\n"
 		"	var myRatio = viewBoxArray[2]/viewBoxArray[3];\n"
 		"	if ((window.innerWidth/window.innerHeight) > myRatio) { //case window is more wide than myRatio\n"
 		"		this.scaleFactor = viewBoxArray[3] / window.innerHeight;\n"
@@ -880,13 +881,13 @@ const char * CSVG_Interactive_Map::_Get_Code_MapApp(void)
 		"	return svgPoint;\n"
 		"}\n"
 		"\n"
-	);
+	));
 }
 
 //---------------------------------------------------------
-const char * CSVG_Interactive_Map::_Get_Code_Timer(void)
+const wxChar * CSVG_Interactive_Map::_Get_Code_Timer(void)
 {
-	return(
+	return( SG_STR_MBTOSG(
 		"// source/credits: \"Algorithm\": http://www.codingforums.com/showthread.php?s=&threadid=10531\n"
 		"// The constructor should be called with\n"
 		"// the parent object (optional, defaults to window).\n"
@@ -911,7 +912,7 @@ const char * CSVG_Interactive_Map::_Get_Code_Timer(void)
 		"Timer.prototype.setTimeout = function(func, msec){\n"
 		"	var i = Timer.getNew();\n"
 		"	Timer.buildCall(this.obj, i, arguments);\n"
-		"	Timer.set[i].timer = window.setTimeout(\"Timer.callOnce(\"+i+\");\",msec);\n"
+		"	Timer.set[i].timer = window.setTimeout(\"Timer.callOnce(\"+i+\"));\"),msec);\n"
 		"	return i;\n"
 		"}\n"
 		"\n"
@@ -933,21 +934,21 @@ const char * CSVG_Interactive_Map::_Get_Code_Timer(void)
 		"\n"
 		"Timer.set = new Array();\n"
 		"Timer.buildCall = function(obj, i, args){\n"
-		"	var t = \"\";\n"
+		"	var t = \"\");\n"
 		"	Timer.set[i] = new Array();\n"
 		"	if(obj != window){\n"
 		"	Timer.set[i].obj = obj;\n"
-		"	t = \"Timer.set[\"+i+\"].obj.\";\n"
+		"	t = \"Timer.set[\"+i+\"].obj.\");\n"
 		"	}\n"
-		"	t += args[0]+\"(\";\n"
+		"	t += args[0]+\"(\");\n"
 		"	if(args.length > 2){\n"
 		"	Timer.set[i][0] = args[2];\n"
-		"	t += \"Timer.set[\"+i+\"][0]\";\n"
+		"	t += \"Timer.set[\"+i+\"][0]\");\n"
 		"	for(var j=1; (j+2)<args.length; j++){\n"
 		"		Timer.set[i][j] = args[j+2];\n"
-		"		t += \", Timer.set[\"+i+\"][\"+j+\"]\";\n"
+		"		t += \"), Timer.set[\"+i+\"][\"+j+\"]\");\n"
 		"	}}\n"
-		"	t += \");\";\n"
+		"	t += \"));\");\n"
 		"	Timer.set[i].call = t;\n"
 		"	return t;\n"
 		"}\n"
@@ -962,13 +963,13 @@ const char * CSVG_Interactive_Map::_Get_Code_Timer(void)
 		"	return i;\n"
 		"}\n"
 		"\n"
-	);
+	));
 }
 
 //---------------------------------------------------------
-const char * CSVG_Interactive_Map::_Get_Code_Slider(void)
+const wxChar * CSVG_Interactive_Map::_Get_Code_Slider(void)
 {
-	return(
+	return( SG_STR_MBTOSG(
 		"//slider properties\n"
 		"function slider(x1,y1,value1,x2,y2,value2,startVal,sliderGroupId,sliderColor,visSliderWidth,invisSliderWidth,sliderSymb,functionToCall,mouseMoveBool) {\n"
 		"	this.x1 = x1;\n"
@@ -996,46 +997,46 @@ const char * CSVG_Interactive_Map::_Get_Code_Slider(void)
 		"\n"
 		"//create slider\n"
 		"slider.prototype.createSlider = function() {\n"
-		"	this.sliderLine = document.createElementNS(svgNS,\"line\");\n"
-		"	this.sliderLine.setAttributeNS(null,\"x1\",this.x1);\n"
-		"	this.sliderLine.setAttributeNS(null,\"y1\",this.y1);\n"
-		"	this.sliderLine.setAttributeNS(null,\"x2\",this.x2);\n"
-		"	this.sliderLine.setAttributeNS(null,\"y2\",this.y2);\n"
-		"	this.sliderLine.setAttributeNS(null,\"stroke\",this.sliderColor);\n"
-		"	this.sliderLine.setAttributeNS(null,\"stroke-width\",this.invisSliderWidth);\n"
-		"	this.sliderLine.setAttributeNS(null,\"opacity\",\"0\");\n"
-		"	this.sliderLine.setAttributeNS(null,\"stroke-linecap\",\"square\");\n"
-		"	this.sliderLine.setAttributeNS(null,\"id\",this.sliderGroupId+\"_invisibleSliderLine\");\n"
-		"	this.sliderLine.addEventListener(\"mousedown\",this,false);\n"
+		"	this.sliderLine = document.createElementNS(svgNS,\"line\"));\n"
+		"	this.sliderLine.setAttributeNS(null,\"x1\"),this.x1);\n"
+		"	this.sliderLine.setAttributeNS(null,\"y1\"),this.y1);\n"
+		"	this.sliderLine.setAttributeNS(null,\"x2\"),this.x2);\n"
+		"	this.sliderLine.setAttributeNS(null,\"y2\"),this.y2);\n"
+		"	this.sliderLine.setAttributeNS(null,\"stroke\"),this.sliderColor);\n"
+		"	this.sliderLine.setAttributeNS(null,\"stroke-width\"),this.invisSliderWidth);\n"
+		"	this.sliderLine.setAttributeNS(null,\"opacity\"),\"0\"));\n"
+		"	this.sliderLine.setAttributeNS(null,\"stroke-linecap\"),\"square\"));\n"
+		"	this.sliderLine.setAttributeNS(null,\"id\"),this.sliderGroupId+\"_invisibleSliderLine\"));\n"
+		"	this.sliderLine.addEventListener(\"mousedown\"),this,false);\n"
 		"	this.sliderGroup.appendChild(this.sliderLine);\n"
-		"	var mySliderLine = document.createElementNS(svgNS,\"line\");\n"
-		"	mySliderLine.setAttributeNS(null,\"x1\",this.x1);\n"
-		"	mySliderLine.setAttributeNS(null,\"y1\",this.y1);\n"
-		"	mySliderLine.setAttributeNS(null,\"x2\",this.x2);\n"
-		"	mySliderLine.setAttributeNS(null,\"y2\",this.y2);\n"
-		"	mySliderLine.setAttributeNS(null,\"stroke\",this.sliderColor);\n"
-		"	mySliderLine.setAttributeNS(null,\"stroke-width\",this.visSliderWidth);\n"
-		"	mySliderLine.setAttributeNS(null,\"id\",this.sliderGroupId+\"_visibleSliderLine\");\n"
-		"	mySliderLine.setAttributeNS(null,\"pointer-events\",\"none\");\n"
+		"	var mySliderLine = document.createElementNS(svgNS,\"line\"));\n"
+		"	mySliderLine.setAttributeNS(null,\"x1\"),this.x1);\n"
+		"	mySliderLine.setAttributeNS(null,\"y1\"),this.y1);\n"
+		"	mySliderLine.setAttributeNS(null,\"x2\"),this.x2);\n"
+		"	mySliderLine.setAttributeNS(null,\"y2\"),this.y2);\n"
+		"	mySliderLine.setAttributeNS(null,\"stroke\"),this.sliderColor);\n"
+		"	mySliderLine.setAttributeNS(null,\"stroke-width\"),this.visSliderWidth);\n"
+		"	mySliderLine.setAttributeNS(null,\"id\"),this.sliderGroupId+\"_visibleSliderLine\"));\n"
+		"	mySliderLine.setAttributeNS(null,\"pointer-events\"),\"none\"));\n"
 		"	this.sliderGroup.appendChild(mySliderLine);\n"
-		"	mySliderSymb = document.createElementNS(svgNS,\"use\");\n"
-		"	mySliderSymb.setAttributeNS(xlinkNS,\"xlink:href\",\"#\"+this.sliderSymb);\n"
+		"	mySliderSymb = document.createElementNS(svgNS,\"use\"));\n"
+		"	mySliderSymb.setAttributeNS(xlinkNS,\"xlink:href\"),\"#\"+this.sliderSymb);\n"
 		"	var myStartDistance = this.length - ((this.value2 - this.startVal) / (this.value2 - this.value1)) * this.length;\n"
 		"	var myPosX = this.x1 + toRectX(this.direction,myStartDistance);\n"
 		"	var myPosY = this.y1 + toRectY(this.direction,myStartDistance);\n"
-		"	var myTransformString = \"translate(\"+myPosX+\",\"+myPosY+\") rotate(\" + Math.round(this.direction / Math.PI * 180) + \")\";\n"
-		"	mySliderSymb.setAttributeNS(null,\"transform\",myTransformString);\n"
-		"	mySliderSymb.setAttributeNS(null,\"id\",this.sliderGroupId+\"_sliderSymbol\");\n"
+		"	var myTransformString = \"translate(\"+myPosX+\"),\"+myPosY+\")) rotate(\" + Math.round(this.direction / Math.PI * 180) + \"))\");\n"
+		"	mySliderSymb.setAttributeNS(null,\"transform\"),myTransformString);\n"
+		"	mySliderSymb.setAttributeNS(null,\"id\"),this.sliderGroupId+\"_sliderSymbol\"));\n"
 		"	this.sliderGroup.appendChild(mySliderSymb);\n"
 		"}\n"
 		"\n"
 		"//remove all slider elements\n"
 		"slider.prototype.removeSlider = function() {\n"
-		"	var mySliderSymb = document.getElementById(this.sliderGroup+\"_sliderSymbol\");\n"
+		"	var mySliderSymb = document.getElementById(this.sliderGroup+\"_sliderSymbol\"));\n"
 		"	this.sliderGroup.removeChild(mySliderSymb);\n"
-		"	var mySliderLine = document.getElementById(this.sliderGroup+\"_visibleSliderLine\");\n"
+		"	var mySliderLine = document.getElementById(this.sliderGroup+\"_visibleSliderLine\"));\n"
 		"	this.sliderGroup.removeChild(mySliderLine);\n"
-		"	var mySliderLine = document.getElementById(this.sliderGroup+\"_invisibleSliderLine\");\n"
+		"	var mySliderLine = document.getElementById(this.sliderGroup+\"_invisibleSliderLine\"));\n"
 		"	this.sliderGroup.removeChild(mySliderLine);\n"
 		"}\n"
 		"\n"
@@ -1062,8 +1063,8 @@ const char * CSVG_Interactive_Map::_Get_Code_Slider(void)
 		"	if (leftOfTest(coordPoint.x,coordPoint.y,this.x1,this.y1,px1,py1) == 0 && leftOfTest(coordPoint.x,coordPoint.y,this.x2,this.y2,px2,py2) == 1) {\n"
 		"		if (evt.type == \"mousedown\" && evt.detail == 1) {\n"
 		"		this.slideStatus = 1;\n"
-		"		document.documentElement.addEventListener(\"mousemove\",this,false);\n"
-		"		document.documentElement.addEventListener(\"mouseup\",this,false);\n"
+		"		document.documentElement.addEventListener(\"mousemove\"),this,false);\n"
+		"		document.documentElement.addEventListener(\"mouseup\"),this,false);\n"
 		"		}\n"
 		"		myNewPos = intersect2lines(this.x1,this.y1,this.x2,this.y2,coordPoint.x,coordPoint.y,coordPoint.x + ay * -1,coordPoint.y + ax);\n"
 		"		var myPercentage = toPolarDist(myNewPos['x'] - this.x1,myNewPos['y'] - this.y1) / this.length;\n"
@@ -1084,15 +1085,15 @@ const char * CSVG_Interactive_Map::_Get_Code_Slider(void)
 		"		myNewPos['y'] = this.y1;\n"
 		"		}\n"
 		"	}\n"
-		"	var myTransformString = \"translate(\"+myNewPos['x']+\",\"+myNewPos['y']+\") rotate(\" + Math.round(this.direction / Math.PI * 180) + \")\";\n"
-		"	document.getElementById(this.sliderGroupId+\"_sliderSymbol\").setAttributeNS(null,\"transform\",myTransformString);\n"
+		"	var myTransformString = \"translate(\"+myNewPos['x']+\"),\"+myNewPos['y']+\")) rotate(\" + Math.round(this.direction / Math.PI * 180) + \"))\");\n"
+		"	document.getElementById(this.sliderGroupId+\"_sliderSymbol\")).setAttributeNS(null,\"transform\"),myTransformString);\n"
 		"	this.getValue();\n"
 		"	}\n"
 		"	if (evt.type == \"mouseup\" && evt.detail == 1) {\n"
 		"	if (this.slideStatus == 1) {\n"
 		"		this.slideStatus = 2;\n"
-		"		document.documentElement.removeEventListener(\"mousemove\",this,false);\n"
-		"		document.documentElement.removeEventListener(\"mouseup\",this,false);\n"
+		"		document.documentElement.removeEventListener(\"mousemove\"),this,false);\n"
+		"		document.documentElement.removeEventListener(\"mouseup\"),this,false);\n"
 		"		this.getValue();\n"
 		"	}\n"
 		"	this.slideStatus = 0;\n"
@@ -1103,25 +1104,25 @@ const char * CSVG_Interactive_Map::_Get_Code_Slider(void)
 		"//you can use switch/if to detect which slider was used (use this.sliderGroup) for that\n"
 		"slider.prototype.getValue = function() {\n"
 		"	if (this.slideStatus == 1 && this.mouseMoveBool == true) {\n"
-		"	if (typeof(this.functionToCall) == \"function\") {\n"
-		"		this.functionToCall(\"change\",this.sliderGroupId,this.value);\n"
+		"	if (typeof(this.functionToCall) == \"function\")) {\n"
+		"		this.functionToCall(\"change\"),this.sliderGroupId,this.value);\n"
 		"	}\n"
-		"	if (typeof(this.functionToCall) == \"object\") {\n"
-		"		this.functionToCall.getSliderVal(\"change\",this.sliderGroupId,this.value);\n"
+		"	if (typeof(this.functionToCall) == \"object\")) {\n"
+		"		this.functionToCall.getSliderVal(\"change\"),this.sliderGroupId,this.value);\n"
 		"	}\n"
-		"	if (typeof(this.functionToCall) == \"string\") {\n"
-		"		eval(this.functionToCall+\"('change','\"+this.sliderGroupId+\"',\"+this.value+\")\");\n"
+		"	if (typeof(this.functionToCall) == \"string\")) {\n"
+		"		eval(this.functionToCall+\"('change','\"+this.sliderGroupId+\"',\"+this.value+\"))\"));\n"
 		"	}\n"
 		"	}\n"
 		"	if (this.slideStatus == 2) {\n"
-		"	if (typeof(this.functionToCall) == \"function\") {\n"
-		"		this.functionToCall(\"release\",this.sliderGroupId,this.value);\n"
+		"	if (typeof(this.functionToCall) == \"function\")) {\n"
+		"		this.functionToCall(\"release\"),this.sliderGroupId,this.value);\n"
 		"	}\n"
-		"	if (typeof(this.functionToCall) == \"object\") {\n"
-		"		this.functionToCall.getSliderVal(\"release\",this.sliderGroupId,this.value);\n"
+		"	if (typeof(this.functionToCall) == \"object\")) {\n"
+		"		this.functionToCall.getSliderVal(\"release\"),this.sliderGroupId,this.value);\n"
 		"	}\n"
-		"	if (typeof(this.functionToCall) == \"string\") {\n"
-		"		eval(this.functionToCall+\"('release','\"+this.sliderGroupId+\"',\"+this.value+\")\");\n"
+		"	if (typeof(this.functionToCall) == \"string\")) {\n"
+		"		eval(this.functionToCall+\"('release','\"+this.sliderGroupId+\"',\"+this.value+\"))\"));\n"
 		"	}\n"
 		"	}\n"
 		"}	\n"
@@ -1132,17 +1133,17 @@ const char * CSVG_Interactive_Map::_Get_Code_Slider(void)
 		"	this.value = myPercAlLine;\n"
 		"	var myPosX = this.x1 + toRectX(this.direction,this.length * myPercAlLine);\n"
 		"	var myPosY = this.y1 + toRectY(this.direction,this.length * myPercAlLine);\n"
-		"	var myTransformString = \"translate(\"+myPosX+\",\"+myPosY+\") rotate(\" + Math.round(this.direction / Math.PI * 180) + \")\";\n"
-		"	document.getElementById(this.sliderGroupId+\"_sliderSymbol\").setAttributeNS(null,\"transform\",myTransformString);\n"
+		"	var myTransformString = \"translate(\"+myPosX+\"),\"+myPosY+\")) rotate(\" + Math.round(this.direction / Math.PI * 180) + \"))\");\n"
+		"	document.getElementById(this.sliderGroupId+\"_sliderSymbol\")).setAttributeNS(null,\"transform\"),myTransformString);\n"
 		"}\n"
 		"\n"
-	);
+	));
 }
 
 //---------------------------------------------------------
-const char * CSVG_Interactive_Map::_Get_Code_Helper(void)
+const wxChar * CSVG_Interactive_Map::_Get_Code_Helper(void)
 {
-	return(
+	return( SG_STR_MBTOSG(
 		"/*\n"
 		"ECMAScript helper functions\n"
 		"Copyright (C) <2004>	<Andreas Neumann>\n"
@@ -1184,11 +1185,11 @@ const char * CSVG_Interactive_Map::_Get_Code_Helper(void)
 		"*/\n"
 		"\n"
 		"//global variables necessary to create elements in these namespaces, do not delete them!!!!\n"
-		"var svgNS = \"http://www.w3.org/2000/svg\";\n"
-		"var xlinkNS = \"http://www.w3.org/1999/xlink\";\n"
-		"var cartoNS = \"http://www.carto.net/attrib\";\n"
-		"var attribNS = \"http://www.carto.net/attrib\";\n"
-		"var batikNS = \"http://xml.apache.org/batik/ext\";\n"
+		"var svgNS = \"http://www.w3.org/2000/svg\");\n"
+		"var xlinkNS = \"http://www.w3.org/1999/xlink\");\n"
+		"var cartoNS = \"http://www.carto.net/attrib\");\n"
+		"var attribNS = \"http://www.carto.net/attrib\");\n"
+		"var batikNS = \"http://xml.apache.org/batik/ext\");\n"
 		"\n"
 		"/* ----------------------- helper functions to calculate stuff ---------------- */\n"
 		"/* ---------------------------------------------------------------------------- */\n"
@@ -1324,7 +1325,7 @@ const char * CSVG_Interactive_Map::_Get_Code_Helper(void)
 		"	var result = new Array();\n"
 		"	var denominator = (line2y2 - line2y1)*(line1x2 - line1x1) - (line2x2 - line2x1)*(line1y2 - line1y1);\n"
 		"	if (denominator == 0) {\n"
-		"	alert(\"lines are parallel\");\n"
+		"	alert(\"lines are parallel\"));\n"
 		"	}\n"
 		"	else {\n"
 		"	ua = ((line2x2 - line2x1)*(line1y1 - line2y1) - (line2y2 - line2y1)*(line1x1 - line2x1)) / denominator;\n"
@@ -1339,8 +1340,8 @@ const char * CSVG_Interactive_Map::_Get_Code_Helper(void)
 		"/* ----------------------------------------------------------------------- */\n"
 		"//my own sort function, uses only first part of string (population value)\n"
 		"function mySort(a,b) {\n"
-		"	var myResulta = a.split(\"+\");\n"
-		"	var myResultb = b.split(\"+\");\n"
+		"	var myResulta = a.split(\"+\"));\n"
+		"	var myResultb = b.split(\"+\"));\n"
 		"	if (parseFloat(myResulta[0]) < parseFloat(myResultb[0])) {\n"
 		"	return 1;\n"
 		"	}\n"
@@ -1355,20 +1356,20 @@ const char * CSVG_Interactive_Map::_Get_Code_Helper(void)
 		"//this function add's \"'\" to a number every third digit\n"
 		"function formatNumberString(myString) {\n"
 		"	//check if of type string, if number, convert it to string\n"
-		"	if (typeof(myString) == \"number\") {\n"
+		"	if (typeof(myString) == \"number\")) {\n"
 		"	myTempString = myString.toString();\n"
 		"	}\n"
 		"	else {\n"
 		"	myTempString = myString;\n"
 		"	}\n"
-		"	var myNewString=\"\";\n"
+		"	var myNewString=\"\");\n"
 		"	//if it contains a comma, it will be split\n"
-		"	var splitResults = myTempString.split(\".\");\n"
+		"	var splitResults = myTempString.split(\".\"));\n"
 		"	var myCounter= splitResults[0].length;\n"
 		"	if (myCounter > 3) {\n"
 		"	while(myCounter > 0) {\n"
 		"		if (myCounter > 3) {\n"
-		"		myNewString = \",\" + splitResults[0].substr(myCounter - 3,3) + myNewString;\n"
+		"		myNewString = \"),\" + splitResults[0].substr(myCounter - 3,3) + myNewString;\n"
 		"		}\n"
 		"		else {\n"
 		"		myNewString = splitResults[0].substr(0,myCounter) + myNewString;\n"
@@ -1388,16 +1389,16 @@ const char * CSVG_Interactive_Map::_Get_Code_Helper(void)
 		"\n"
 		"//function for status Bar\n"
 		"function statusChange(statusText) {\n"
-		"	document.getElementById(\"statusText\").firstChild.nodeValue = \"Statusbar: \" + statusText;\n"
+		"	document.getElementById(\"statusText\")).firstChild.nodeValue = \"Statusbar: \" + statusText;\n"
 		"}\n"
 		"\n"
 		"//scale an object\n"
 		"function scaleObject(evt,factor) {\n"
 		"//reference to the currently selected object\n"
 		"	var element = evt.currentTarget;\n"
-		"	var myX = element.getAttributeNS(null,\"x\");\n"
-		"	var myY = element.getAttributeNS(null,\"y\");\n"
-		"	var newtransform = \"scale(\" + factor + \") translate(\" + (myX * 1 / factor - myX) + \" \" + (myY * 1 / factor - myY) +\")\";\n"
+		"	var myX = element.getAttributeNS(null,\"x\"));\n"
+		"	var myY = element.getAttributeNS(null,\"y\"));\n"
+		"	var newtransform = \"scale(\" + factor + \")) translate(\" + (myX * 1 / factor - myX) + \" \" + (myY * 1 / factor - myY) +\"))\");\n"
 		"	element.setAttributeNS(null,'transform', newtransform);\n"
 		"}\n"
 		"\n"
@@ -1531,7 +1532,7 @@ const char * CSVG_Interactive_Map::_Get_Code_Helper(void)
 		"function assArrayPopulate(arrayKeys,arrayValues) {\n"
 		"	var returnArray = new Array();\n"
 		"	if (arrayKeys.length != arrayValues.length) {\n"
-		"	alert(\"error: arrays do not have same length!\");\n"
+		"	alert(\"error: arrays do not have same length!\"));\n"
 		"	}\n"
 		"	else {\n"
 		"	for (i=0;i<arrayKeys.length;i++) {\n"
@@ -1544,7 +1545,7 @@ const char * CSVG_Interactive_Map::_Get_Code_Helper(void)
 		"//replace special (non-ASCII) characters with their charCode\n"
 		"function replaceSpecialChars(myString) {\n"
 		"	for (i=161;i<256;i++) {\n"
-		"		re = new RegExp(\"&#\"+i+\";\",\"g\");\n"
+		"		re = new RegExp(\"&#\"+i+\");\"),\"g\"));\n"
 		"		myString = myString.replace(re,String.fromCharCode(i));\n"
 		"	}\n"
 		"	return myString;\n"
@@ -1569,14 +1570,14 @@ const char * CSVG_Interactive_Map::_Get_Code_Helper(void)
 		"	//or call XMLHttpRequest() if available\n"
 		"	else if (window.XMLHttpRequest) {\n"
 		"	this.xmlRequest = new XMLHttpRequest();\n"
-		"	this.xmlRequest.overrideMimeType(\"text/xml\");\n"
-		"	this.xmlRequest.open(\"GET\",this.url,true);\n"
+		"	this.xmlRequest.overrideMimeType(\"text/xml\"));\n"
+		"	this.xmlRequest.open(\"GET\"),this.url,true);\n"
 		"	this.xmlRequest.onreadystatechange = this;\n"
 		"	this.xmlRequest.send(null);\n"
 		"	}\n"
 		"	//write an error message if neither method is available\n"
 		"	else {\n"
-		"	alert(\"your browser/svg viewer neither supports window.getURL nor window.XMLHttpRequest!\");\n"
+		"	alert(\"your browser/svg viewer neither supports window.getURL nor window.XMLHttpRequest!\"));\n"
 		"	}	\n"
 		"}\n"
 		"\n"
@@ -1589,7 +1590,7 @@ const char * CSVG_Interactive_Map::_Get_Code_Helper(void)
 		"	this.callBackFunction(node.firstChild);\n"
 		"	}\n"
 		"	else {\n"
-		"	alert(\"something went wrong with dynamic loading of geometry!\");\n"
+		"	alert(\"something went wrong with dynamic loading of geometry!\"));\n"
 		"	}\n"
 		"}\n"
 		"\n"
@@ -1600,13 +1601,13 @@ const char * CSVG_Interactive_Map::_Get_Code_Helper(void)
 		"	}	\n"
 		"}\n"
 		"\n"
-	);
+	));
 }
 
 //---------------------------------------------------------
-const char * CSVG_Interactive_Map::_Get_Code_Buttons(void)
+const wxChar * CSVG_Interactive_Map::_Get_Code_Buttons(void)
 {
-	return(
+	return( SG_STR_MBTOSG(
 		"function button(groupId,functionToCall,buttonType,buttonText,buttonSymbolId,x,y,width,height,fontSize,fontFamily,textFill,buttonFill,shadeLightFill,shadeDarkFill,shadowOffset) {\n"
 		"	if (arguments.length > 0) {\n"
 		"	this.init(groupId,functionToCall,buttonType,buttonText,buttonSymbolId,x,y,width,height,fontSize,fontFamily,textFill,buttonFill,shadeLightFill,shadeDarkFill,shadowOffset);\n"
@@ -1646,114 +1647,114 @@ const char * CSVG_Interactive_Map::_Get_Code_Buttons(void)
 		"//create button\n"
 		"button.prototype.createButton = function() {\n"
 		"	//create upper left button line or ellipse\n"
-		"	if (this.buttonType == \"rect\") {\n"
-		"	this.upperLeftShadow = document.createElementNS(svgNS,\"rect\");\n"
-		"	this.upperLeftShadow.setAttributeNS(null,\"x\",this.x - this.shadowOffset);\n"
-		"	this.upperLeftShadow.setAttributeNS(null,\"y\",this.y - this.shadowOffset);\n"
-		"	this.upperLeftShadow.setAttributeNS(null,\"width\",this.width);\n"
-		"	this.upperLeftShadow.setAttributeNS(null,\"height\",this.height);\n"
-		"	this.upperLeftShadow.setAttributeNS(null,\"points\",this.x+\",\"+(this.y+this.height)+\" \"+this.x+\",\"+this.y+\" \"+(this.x+this.width)+\",\"+this.y);\n"
+		"	if (this.buttonType == \"rect\")) {\n"
+		"	this.upperLeftShadow = document.createElementNS(svgNS,\"rect\"));\n"
+		"	this.upperLeftShadow.setAttributeNS(null,\"x\"),this.x - this.shadowOffset);\n"
+		"	this.upperLeftShadow.setAttributeNS(null,\"y\"),this.y - this.shadowOffset);\n"
+		"	this.upperLeftShadow.setAttributeNS(null,\"width\"),this.width);\n"
+		"	this.upperLeftShadow.setAttributeNS(null,\"height\"),this.height);\n"
+		"	this.upperLeftShadow.setAttributeNS(null,\"points\"),this.x+\"),\"+(this.y+this.height)+\" \"+this.x+\"),\"+this.y+\" \"+(this.x+this.width)+\"),\"+this.y);\n"
 		"	}\n"
-		"	else if (this.buttonType == \"ellipse\") {\n"
-		"	this.upperLeftShadow = document.createElementNS(svgNS,\"ellipse\");\n"
-		"	this.upperLeftShadow.setAttributeNS(null,\"cx\",this.x + this.width * 0.5 - this.shadowOffset);\n"
-		"	this.upperLeftShadow.setAttributeNS(null,\"cy\",this.y + this.height * 0.5 - this.shadowOffset);\n"
-		"	this.upperLeftShadow.setAttributeNS(null,\"rx\",this.width * 0.5);\n"
-		"	this.upperLeftShadow.setAttributeNS(null,\"ry\",this.height * 0.5);\n"
+		"	else if (this.buttonType == \"ellipse\")) {\n"
+		"	this.upperLeftShadow = document.createElementNS(svgNS,\"ellipse\"));\n"
+		"	this.upperLeftShadow.setAttributeNS(null,\"cx\"),this.x + this.width * 0.5 - this.shadowOffset);\n"
+		"	this.upperLeftShadow.setAttributeNS(null,\"cy\"),this.y + this.height * 0.5 - this.shadowOffset);\n"
+		"	this.upperLeftShadow.setAttributeNS(null,\"rx\"),this.width * 0.5);\n"
+		"	this.upperLeftShadow.setAttributeNS(null,\"ry\"),this.height * 0.5);\n"
 		"	}\n"
 		"	else {\n"
-		"	alert(\"buttonType '\"+this.buttonType+\"' not supported. You need to specify 'rect' or 'ellipse'\");\n"
+		"	alert(\"buttonType '\"+this.buttonType+\"' not supported. You need to specify 'rect' or 'ellipse'\"));\n"
 		"	}\n"
-		"	this.upperLeftShadow.setAttributeNS(null,\"fill\",this.shadeLightFill);\n"
+		"	this.upperLeftShadow.setAttributeNS(null,\"fill\"),this.shadeLightFill);\n"
 		"	this.buttonGroup.appendChild(this.upperLeftShadow);\n"
 		"\n"
 		"	//create lower right button line or ellipse\n"
-		"	if (this.buttonType == \"rect\") {\n"
-		"	this.lowerRightShadow = document.createElementNS(svgNS,\"rect\");\n"
-		"	this.lowerRightShadow.setAttributeNS(null,\"x\",this.x + this.shadowOffset);\n"
-		"	this.lowerRightShadow.setAttributeNS(null,\"y\",this.y + this.shadowOffset);\n"
-		"	this.lowerRightShadow.setAttributeNS(null,\"width\",this.width);\n"
-		"	this.lowerRightShadow.setAttributeNS(null,\"height\",this.height);\n"
-		"	this.lowerRightShadow.setAttributeNS(null,\"points\",this.x+\",\"+(this.y+this.height)+\" \"+this.x+\",\"+this.y+\" \"+(this.x+this.width)+\",\"+this.y);\n"
+		"	if (this.buttonType == \"rect\")) {\n"
+		"	this.lowerRightShadow = document.createElementNS(svgNS,\"rect\"));\n"
+		"	this.lowerRightShadow.setAttributeNS(null,\"x\"),this.x + this.shadowOffset);\n"
+		"	this.lowerRightShadow.setAttributeNS(null,\"y\"),this.y + this.shadowOffset);\n"
+		"	this.lowerRightShadow.setAttributeNS(null,\"width\"),this.width);\n"
+		"	this.lowerRightShadow.setAttributeNS(null,\"height\"),this.height);\n"
+		"	this.lowerRightShadow.setAttributeNS(null,\"points\"),this.x+\"),\"+(this.y+this.height)+\" \"+this.x+\"),\"+this.y+\" \"+(this.x+this.width)+\"),\"+this.y);\n"
 		"	}\n"
-		"	else if (this.buttonType == \"ellipse\") {\n"
-		"	this.lowerRightShadow = document.createElementNS(svgNS,\"ellipse\");\n"
-		"	this.lowerRightShadow.setAttributeNS(null,\"cx\",this.x + this.width * 0.5 + this.shadowOffset);\n"
-		"	this.lowerRightShadow.setAttributeNS(null,\"cy\",this.y + this.height * 0.5 + this.shadowOffset);\n"
-		"	this.lowerRightShadow.setAttributeNS(null,\"rx\",this.width * 0.5);\n"
-		"	this.lowerRightShadow.setAttributeNS(null,\"ry\",this.height * 0.5);\n"
+		"	else if (this.buttonType == \"ellipse\")) {\n"
+		"	this.lowerRightShadow = document.createElementNS(svgNS,\"ellipse\"));\n"
+		"	this.lowerRightShadow.setAttributeNS(null,\"cx\"),this.x + this.width * 0.5 + this.shadowOffset);\n"
+		"	this.lowerRightShadow.setAttributeNS(null,\"cy\"),this.y + this.height * 0.5 + this.shadowOffset);\n"
+		"	this.lowerRightShadow.setAttributeNS(null,\"rx\"),this.width * 0.5);\n"
+		"	this.lowerRightShadow.setAttributeNS(null,\"ry\"),this.height * 0.5);\n"
 		"	}\n"
-		"	this.lowerRightShadow.setAttributeNS(null,\"fill\",this.shadeDarkFill);\n"
+		"	this.lowerRightShadow.setAttributeNS(null,\"fill\"),this.shadeDarkFill);\n"
 		"	this.buttonGroup.appendChild(this.lowerRightShadow);\n"
 		"\n"
 		"	//create buttonRect\n"
-		"	if (this.buttonType == \"rect\") {\n"
-		"	this.buttonRect = document.createElementNS(svgNS,\"rect\");\n"
-		"	this.buttonRect.setAttributeNS(null,\"x\",this.x);\n"
-		"	this.buttonRect.setAttributeNS(null,\"y\",this.y);\n"
-		"	this.buttonRect.setAttributeNS(null,\"width\",this.width);\n"
-		"	this.buttonRect.setAttributeNS(null,\"height\",this.height);\n"
+		"	if (this.buttonType == \"rect\")) {\n"
+		"	this.buttonRect = document.createElementNS(svgNS,\"rect\"));\n"
+		"	this.buttonRect.setAttributeNS(null,\"x\"),this.x);\n"
+		"	this.buttonRect.setAttributeNS(null,\"y\"),this.y);\n"
+		"	this.buttonRect.setAttributeNS(null,\"width\"),this.width);\n"
+		"	this.buttonRect.setAttributeNS(null,\"height\"),this.height);\n"
 		"	}\n"
-		"	else if (this.buttonType == \"ellipse\") {\n"
-		"	this.buttonRect = document.createElementNS(svgNS,\"ellipse\");\n"
-		"	this.buttonRect.setAttributeNS(null,\"cx\",this.x + this.width * 0.5);\n"
-		"	this.buttonRect.setAttributeNS(null,\"cy\",this.y + this.height * 0.5);\n"
-		"	this.buttonRect.setAttributeNS(null,\"rx\",this.width * 0.5);\n"
-		"	this.buttonRect.setAttributeNS(null,\"ry\",this.height * 0.5);\n"
+		"	else if (this.buttonType == \"ellipse\")) {\n"
+		"	this.buttonRect = document.createElementNS(svgNS,\"ellipse\"));\n"
+		"	this.buttonRect.setAttributeNS(null,\"cx\"),this.x + this.width * 0.5);\n"
+		"	this.buttonRect.setAttributeNS(null,\"cy\"),this.y + this.height * 0.5);\n"
+		"	this.buttonRect.setAttributeNS(null,\"rx\"),this.width * 0.5);\n"
+		"	this.buttonRect.setAttributeNS(null,\"ry\"),this.height * 0.5);\n"
 		"	}\n"
-		"	this.buttonRect.setAttributeNS(null,\"fill\",this.buttonFill);\n"
-		"	this.buttonRect.setAttributeNS(null,\"cursor\",\"pointer\");\n"
-		"	this.buttonRect.addEventListener(\"mousedown\",this,false);\n"
-		"	this.buttonRect.addEventListener(\"mouseup\",this,false);\n"
-		"	this.buttonRect.addEventListener(\"click\",this,false);\n"
+		"	this.buttonRect.setAttributeNS(null,\"fill\"),this.buttonFill);\n"
+		"	this.buttonRect.setAttributeNS(null,\"cursor\"),\"pointer\"));\n"
+		"	this.buttonRect.addEventListener(\"mousedown\"),this,false);\n"
+		"	this.buttonRect.addEventListener(\"mouseup\"),this,false);\n"
+		"	this.buttonRect.addEventListener(\"click\"),this,false);\n"
 		"	this.buttonGroup.appendChild(this.buttonRect);\n"
 		"	\n"
 		"	if (this.buttonText != undefined) {\n"
 		"	//create text element and add clipping path attribute\n"
-		"	this.buttonTextElement = document.createElementNS(svgNS,\"text\");\n"
-		"	this.buttonTextElement.setAttributeNS(null,\"x\",(this.x + this.width / 2));\n"
-		"	this.buttonTextElement.setAttributeNS(null,\"y\",(this.y + this.height - ((this.height - this.fontSize) / 1.75)));\n"
-		"	this.buttonTextElement.setAttributeNS(null,\"fill\",this.textFill);\n"
-		"	this.buttonTextElement.setAttributeNS(null,\"font-family\",this.fontFamily);\n"
-		"	this.buttonTextElement.setAttributeNS(null,\"font-size\",this.fontSize+\"px\");\n"
-		"	this.buttonTextElement.setAttributeNS(null,\"pointer-events\",\"none\");\n"
-		"	this.buttonTextElement.setAttributeNS(null,\"text-anchor\",\"middle\");\n"
-		"	this.buttonTextElement.setAttributeNS(\"http://www.w3.org/XML/1998/namespace\",\"space\",\"preserve\");\n"
+		"	this.buttonTextElement = document.createElementNS(svgNS,\"text\"));\n"
+		"	this.buttonTextElement.setAttributeNS(null,\"x\"),(this.x + this.width / 2));\n"
+		"	this.buttonTextElement.setAttributeNS(null,\"y\"),(this.y + this.height - ((this.height - this.fontSize) / 1.75)));\n"
+		"	this.buttonTextElement.setAttributeNS(null,\"fill\"),this.textFill);\n"
+		"	this.buttonTextElement.setAttributeNS(null,\"font-family\"),this.fontFamily);\n"
+		"	this.buttonTextElement.setAttributeNS(null,\"font-size\"),this.fontSize+\"px\"));\n"
+		"	this.buttonTextElement.setAttributeNS(null,\"pointer-events\"),\"none\"));\n"
+		"	this.buttonTextElement.setAttributeNS(null,\"text-anchor\"),\"middle\"));\n"
+		"	this.buttonTextElement.setAttributeNS(\"http://www.w3.org/XML/1998/namespace\"),\"space\"),\"preserve\"));\n"
 		"	var textboxTextContent = document.createTextNode(this.buttonText);\n"
 		"	this.buttonTextElement.appendChild(textboxTextContent);\n"
 		"	this.buttonGroup.appendChild(this.buttonTextElement);\n"
 		"	}\n"
 		"	\n"
 		"	if (this.buttonSymbolId != undefined) {\n"
-		"	this.buttonSymbolInstance = document.createElementNS(svgNS,\"use\");\n"
-		"	this.buttonSymbolInstance.setAttributeNS(null,\"x\",(this.x + this.width / 2));\n"
-		"	this.buttonSymbolInstance.setAttributeNS(null,\"y\",(this.y + this.height / 2));\n"
-		"	this.buttonSymbolInstance.setAttributeNS(xlinkNS,\"href\",\"#\"+this.buttonSymbolId);\n"
-		"	this.buttonSymbolInstance.setAttributeNS(null,\"pointer-events\",\"none\");\n"
+		"	this.buttonSymbolInstance = document.createElementNS(svgNS,\"use\"));\n"
+		"	this.buttonSymbolInstance.setAttributeNS(null,\"x\"),(this.x + this.width / 2));\n"
+		"	this.buttonSymbolInstance.setAttributeNS(null,\"y\"),(this.y + this.height / 2));\n"
+		"	this.buttonSymbolInstance.setAttributeNS(xlinkNS,\"href\"),\"#\"+this.buttonSymbolId);\n"
+		"	this.buttonSymbolInstance.setAttributeNS(null,\"pointer-events\"),\"none\"));\n"
 		"	this.buttonGroup.appendChild(this.buttonSymbolInstance);\n"
 		"	}\n"
 		"	\n"
 		"	//create rectangle to deactivate the button\n"
-		"	if (this.buttonType == \"rect\") {\n"
-		"	this.deActivateRect = document.createElementNS(svgNS,\"rect\");\n"
-		"	this.deActivateRect.setAttributeNS(null,\"x\",this.x - this.shadowOffset);\n"
-		"	this.deActivateRect.setAttributeNS(null,\"y\",this.y - this.shadowOffset);\n"
-		"	this.deActivateRect.setAttributeNS(null,\"width\",this.width + this.shadowOffset * 2);\n"
-		"	this.deActivateRect.setAttributeNS(null,\"height\",this.height + this.shadowOffset * 2);\n"
+		"	if (this.buttonType == \"rect\")) {\n"
+		"	this.deActivateRect = document.createElementNS(svgNS,\"rect\"));\n"
+		"	this.deActivateRect.setAttributeNS(null,\"x\"),this.x - this.shadowOffset);\n"
+		"	this.deActivateRect.setAttributeNS(null,\"y\"),this.y - this.shadowOffset);\n"
+		"	this.deActivateRect.setAttributeNS(null,\"width\"),this.width + this.shadowOffset * 2);\n"
+		"	this.deActivateRect.setAttributeNS(null,\"height\"),this.height + this.shadowOffset * 2);\n"
 		"	}\n"
-		"	else if (this.buttonType == \"ellipse\") {\n"
-		"	this.deActivateRect = document.createElementNS(svgNS,\"ellipse\");\n"
-		"	this.deActivateRect.setAttributeNS(null,\"cx\",this.x + this.width * 0.5);\n"
-		"	this.deActivateRect.setAttributeNS(null,\"cy\",this.y + this.height * 0.5);\n"
-		"	this.deActivateRect.setAttributeNS(null,\"rx\",this.width * 0.5 + this.shadowOffset);\n"
-		"	this.deActivateRect.setAttributeNS(null,\"ry\",this.height * 0.5 + this.shadowOffset);\n"
+		"	else if (this.buttonType == \"ellipse\")) {\n"
+		"	this.deActivateRect = document.createElementNS(svgNS,\"ellipse\"));\n"
+		"	this.deActivateRect.setAttributeNS(null,\"cx\"),this.x + this.width * 0.5);\n"
+		"	this.deActivateRect.setAttributeNS(null,\"cy\"),this.y + this.height * 0.5);\n"
+		"	this.deActivateRect.setAttributeNS(null,\"rx\"),this.width * 0.5 + this.shadowOffset);\n"
+		"	this.deActivateRect.setAttributeNS(null,\"ry\"),this.height * 0.5 + this.shadowOffset);\n"
 		"	}\n"
 		"	\n"
-		"	this.deActivateRect.setAttributeNS(null,\"fill\",\"white\");\n"
-		"	this.deActivateRect.setAttributeNS(null,\"fill-opacity\",\"0.5\");\n"
-		"	this.deActivateRect.setAttributeNS(null,\"stroke\",\"none\");\n"
-		"	this.deActivateRect.setAttributeNS(null,\"display\",\"none\");\n"
-		"	this.deActivateRect.setAttributeNS(null,\"cursor\",\"default\");\n"
+		"	this.deActivateRect.setAttributeNS(null,\"fill\"),\"white\"));\n"
+		"	this.deActivateRect.setAttributeNS(null,\"fill-opacity\"),\"0.5\"));\n"
+		"	this.deActivateRect.setAttributeNS(null,\"stroke\"),\"none\"));\n"
+		"	this.deActivateRect.setAttributeNS(null,\"display\"),\"none\"));\n"
+		"	this.deActivateRect.setAttributeNS(null,\"cursor\"),\"default\"));\n"
 		"	this.buttonGroup.appendChild(this.deActivateRect);\n"
 		"}\n"
 		"\n"
@@ -1773,35 +1774,35 @@ const char * CSVG_Interactive_Map::_Get_Code_Buttons(void)
 		"\n"
 		"//click on and write in textbox\n"
 		"button.prototype.handleEvent = function(evt) {\n"
-		"	if (evt.type == \"mousedown\") {\n"
-		"	this.togglePressed(\"pressed\");\n"
-		"	document.documentElement.addEventListener(\"mouseup\",this,false);	\n"
+		"	if (evt.type == \"mousedown\")) {\n"
+		"	this.togglePressed(\"pressed\"));\n"
+		"	document.documentElement.addEventListener(\"mouseup\"),this,false);	\n"
 		"	}\n"
-		"	if (evt.type == \"mouseup\") {\n"
-		"	this.togglePressed(\"released\");\n"
-		"	document.documentElement.removeEventListener(\"mouseup\",this,false);	\n"
+		"	if (evt.type == \"mouseup\")) {\n"
+		"	this.togglePressed(\"released\"));\n"
+		"	document.documentElement.removeEventListener(\"mouseup\"),this,false);	\n"
 		"	}\n"
-		"	if (evt.type == \"click\") {\n"
+		"	if (evt.type == \"click\")) {\n"
 		"	//for some strange reasons I could not forward the evt object here ;-(, the code below using a literal is a workaround\n"
 		"	//attention: only some of the evt properties are forwarded here, you can add more, if you need them\n"
 		"	var timerEvt = {x:evt.clientX,y:evt.clientY,type:evt.type,detail:evt.detail,timeStamp:evt.timeStamp}\n"
-		"	this.timer.setTimeout(\"fireFunction\",this.timerMs,timerEvt)\n"
+		"	this.timer.setTimeout(\"fireFunction\"),this.timerMs,timerEvt)\n"
 		"	}\n"
 		"}\n"
 		"\n"
 		"button.prototype.togglePressed = function(type) {\n"
-		"	if (type == \"pressed\") {\n"
-		"	this.upperLeftShadow.setAttributeNS(null,\"fill\",this.shadeDarkFill);	\n"
-		"	this.lowerRightShadow.setAttributeNS(null,\"fill\",this.shadeLightFill);\n"
+		"	if (type == \"pressed\")) {\n"
+		"	this.upperLeftShadow.setAttributeNS(null,\"fill\"),this.shadeDarkFill);	\n"
+		"	this.lowerRightShadow.setAttributeNS(null,\"fill\"),this.shadeLightFill);\n"
 		"	}\n"
-		"	if (type == \"released\") {\n"
-		"	this.upperLeftShadow.setAttributeNS(null,\"fill\",this.shadeLightFill);	\n"
-		"	this.lowerRightShadow.setAttributeNS(null,\"fill\",this.shadeDarkFill);	\n"
+		"	if (type == \"released\")) {\n"
+		"	this.upperLeftShadow.setAttributeNS(null,\"fill\"),this.shadeLightFill);	\n"
+		"	this.lowerRightShadow.setAttributeNS(null,\"fill\"),this.shadeDarkFill);	\n"
 		"	}\n"
 		"}\n"
 		"\n"
 		"button.prototype.fireFunction = function(evt) {\n"
-		"	if (typeof(this.functionToCall) == \"function\") {\n"
+		"	if (typeof(this.functionToCall) == \"function\")) {\n"
 		"	if (this.buttonTextElement) {\n"
 		"		this.functionToCall(this.groupId,evt,this.buttonText);\n"
 		"	}\n"
@@ -1809,7 +1810,7 @@ const char * CSVG_Interactive_Map::_Get_Code_Buttons(void)
 		"		this.functionToCall(this.groupId,evt);\n"
 		"	}\n"
 		"	}\n"
-		"	if (typeof(this.functionToCall) == \"object\") {\n"
+		"	if (typeof(this.functionToCall) == \"object\")) {\n"
 		"	if (this.buttonTextElement) {\n"
 		"		this.functionToCall.buttonPressed(this.groupId,evt,this.buttonText);\n"
 		"	}\n"
@@ -1832,12 +1833,12 @@ const char * CSVG_Interactive_Map::_Get_Code_Buttons(void)
 		"}\n"
 		"\n"
 		"button.prototype.activate = function(value) {\n"
-		"	this.deActivateRect.setAttributeNS(null,\"display\",\"none\");\n"
+		"	this.deActivateRect.setAttributeNS(null,\"display\"),\"none\"));\n"
 		"	this.activated = true;\n"
 		"}\n"
 		"\n"
 		"button.prototype.deactivate = function(value) {\n"
-		"	this.deActivateRect.setAttributeNS(null,\"display\",\"inherit\");\n"
+		"	this.deActivateRect.setAttributeNS(null,\"display\"),\"inherit\"));\n"
 		"	this.activated = false;\n"
 		"}\n"
 		"\n"
@@ -1863,16 +1864,16 @@ const char * CSVG_Interactive_Map::_Get_Code_Buttons(void)
 		"	//for some strange reasons I could not forward the evt object here ;-(, the code below using a literal is a workaround\n"
 		"	//attention: only some of the evt properties are forwarded here, you can add more, if you need them\n"
 		"	var timerEvt = {x:evt.clientX,y:evt.clientY,type:evt.type,detail:evt.detail,timeStamp:evt.timeStamp}\n"
-		"	if (evt.type == \"click\") {\n"
+		"	if (evt.type == \"click\")) {\n"
 		"	if (this.on) {\n"
 		"		this.on = false;\n"
-		"		this.togglePressed(\"released\");\n"
-		"		this.timer.setTimeout(\"fireFunction\",this.timerMs,timerEvt);\n"
+		"		this.togglePressed(\"released\"));\n"
+		"		this.timer.setTimeout(\"fireFunction\"),this.timerMs,timerEvt);\n"
 		"	}\n"
 		"	else {\n"
 		"		this.on = true;\n"
-		"		this.togglePressed(\"pressed\");		\n"
-		"		this.timer.setTimeout(\"fireFunction\",this.timerMs,timerEvt);\n"
+		"		this.togglePressed(\"pressed\"));		\n"
+		"		this.timer.setTimeout(\"fireFunction\"),this.timerMs,timerEvt);\n"
 		"	}\n"
 		"	}\n"
 		"}\n"
@@ -1884,24 +1885,24 @@ const char * CSVG_Interactive_Map::_Get_Code_Buttons(void)
 		"switchbutton.prototype.setSwitchValue = function(onOrOff,firefunction) {\n"
 		"	this.on = onOrOff;\n"
 		"	//artificial timer event - don't use the values!\n"
-		"	var timerEvt = {x:0,y:0,type:\"click\",detail:1,timeStamp:0}\n"
+		"	var timerEvt = {x:0,y:0,type:\"click\"),detail:1,timeStamp:0}\n"
 		"	if (this.on) {\n"
-		"	this.togglePressed(\"pressed\");\n"
+		"	this.togglePressed(\"pressed\"));\n"
 		"	if (firefunction) {\n"
-		"		this.timer.setTimeout(\"fireFunction\",this.timerMs,timerEvt);\n"
+		"		this.timer.setTimeout(\"fireFunction\"),this.timerMs,timerEvt);\n"
 		"	}\n"
 		"	}\n"
 		"	else {\n"
-		"	this.togglePressed(\"released\");		\n"
+		"	this.togglePressed(\"released\"));		\n"
 		"	if (firefunction) {\n"
-		"		this.timer.setTimeout(\"fireFunction\",this.timerMs,timerEvt)\n"
+		"		this.timer.setTimeout(\"fireFunction\"),this.timerMs,timerEvt)\n"
 		"	}\n"
 		"	}\n"
 		"}\n"
 		"\n"
 		"//overwriting fireFunction code\n"
 		"switchbutton.prototype.fireFunction = function(evt) {\n"
-		"	if (typeof(this.functionToCall) == \"function\") {\n"
+		"	if (typeof(this.functionToCall) == \"function\")) {\n"
 		"	if (this.buttonTextElement) {\n"
 		"		this.functionToCall(this.groupId,evt,this.on,this.buttonText);\n"
 		"	}\n"
@@ -1909,7 +1910,7 @@ const char * CSVG_Interactive_Map::_Get_Code_Buttons(void)
 		"		this.functionToCall(this.groupId,evt,this.on);\n"
 		"	}\n"
 		"	}\n"
-		"	if (typeof(this.functionToCall) == \"object\") {\n"
+		"	if (typeof(this.functionToCall) == \"object\")) {\n"
 		"	if (this.buttonTextElement) {\n"
 		"		this.functionToCall.buttonPressed(this.groupId,evt,this.on,this.buttonText);\n"
 		"	}\n"
@@ -1922,13 +1923,13 @@ const char * CSVG_Interactive_Map::_Get_Code_Buttons(void)
 		"	}\n"
 		"}\n"
 		"\n"
-	);
+	));
 }
 
 //---------------------------------------------------------
-const char * CSVG_Interactive_Map::_Get_Code_Navigation_1(void)
+const wxChar * CSVG_Interactive_Map::_Get_Code_Navigation_1(void)
 {
-	return(
+	return( SG_STR_MBTOSG(
 		"/*\n"
 		"Scripts for SVG only webmapping application navigation tools\n"
 		"Copyright (C) <2005>  <Andreas Neumann>\n"
@@ -1983,7 +1984,7 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_1(void)
 		"function map(mapName,maxWidth,minWidth,zoomFact,nrDecimals,epsg,units,unitsFactor,showCoords,coordXId,coordYId,dynamicLayers,digiLayers,activeDigiLayer) {\n"
 		"	this.mapName = mapName; //id of svg element containing the map geometry\n"
 		"	this.mapSVG = document.getElementById(this.mapName); //reference to nested SVG element holding the map-graphics\n"
-		"	this.mainMapGroup = document.getElementById(this.mapName+\"Group\"); //group within mainmap - to be transformed when panning manually\n"
+		"	this.mainMapGroup = document.getElementById(this.mapName+\"Group\")); //group within mainmap - to be transformed when panning manually\n"
 		"	this.dynamicLayers = dynamicLayers; //an associative array holding ids of values that are loaded from the web server dynamically (.getUrl())\n"
 		"	this.nrLayerToLoad = 0; //statusVariable to indicate how many layers are still to load\n"
 		"	this.maxWidth = maxWidth; //max map width\n"
@@ -1991,21 +1992,21 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_1(void)
 		"	this.zoomFact = zoomFact; //ratio to zoom in or out in relation to previous viewBox\n"
 		"	this.digiLayers = digiLayers; //references to digiLayers (for digitizing tools)\n"
 		"	this.activeDigiLayer = activeDigiLayer; //active Digi Layer, key is final group id where geometry should be copied to after digitizing\n"
-		"	this.pixXOffset = parseFloat(this.mapSVG.getAttributeNS(null,\"x\")); //offset from left margin of outer viewBox\n"
-		"	this.pixYOffset = parseFloat(this.mapSVG.getAttributeNS(null,\"y\")); //offset from top margin of outer viewBox\n"
-		"	var viewBoxArray = this.mapSVG.getAttributeNS(null,\"viewBox\").split(\" \");\n"
+		"	this.pixXOffset = parseFloat(this.mapSVG.getAttributeNS(null,\"x\"))); //offset from left margin of outer viewBox\n"
+		"	this.pixYOffset = parseFloat(this.mapSVG.getAttributeNS(null,\"y\"))); //offset from top margin of outer viewBox\n"
+		"	var viewBoxArray = this.mapSVG.getAttributeNS(null,\"viewBox\")).split(\" \"));\n"
 		"	this.curxOrig = parseFloat(viewBoxArray[0]); //holds the current xOrig\n"
 		"	this.curyOrig = parseFloat(viewBoxArray[1]); //holds the current yOrig\n"
 		"	this.curWidth = parseFloat(viewBoxArray[2]); //holds the current map width\n"
 		"	this.curHeight = parseFloat(viewBoxArray[3]); //holds the current map height\n"
-		"	this.pixWidth = parseFloat(this.mapSVG.getAttributeNS(null,\"width\")); //holds width of the map in pixel coordinates\n"
-		"	this.pixHeight = parseFloat(this.mapSVG.getAttributeNS(null,\"height\")); //holds height of the map in pixel coordinates\n"
+		"	this.pixWidth = parseFloat(this.mapSVG.getAttributeNS(null,\"width\"))); //holds width of the map in pixel coordinates\n"
+		"	this.pixHeight = parseFloat(this.mapSVG.getAttributeNS(null,\"height\"))); //holds height of the map in pixel coordinates\n"
 		"	this.pixSize = this.curWidth / this.pixWidth; //size of a screen pixel in map units\n"
 		"	this.zoomVal = this.maxWidth / this.curWidth * 100; //zoomVal in relation to initial zoom\n"
 		"	this.nrDecimals = nrDecimals; //nr of decimal places to be displayed for show coordinates or accuracy when working with digitizing\n"
 		"	this.epsg = epsg; //epsg projection code - can be used for building URL strings for loading data from a WMS or spatial database, if you don't need it just input any number\n"
-		"	this.navStatus = \"info\"; //to indicate status in navigation, default is \"info\", no navigation mode active\n"
-		"	this.units = units; //holds a string with map units, e.g. \"m\", alternatively String.fromCharCode(176) for degrees\n"
+		"	this.navStatus = \"info\"); //to indicate status in navigation, default is \"info\"), no navigation mode active\n"
+		"	this.units = units; //holds a string with map units, e.g. \"m\"), alternatively String.fromCharCode(176) for degrees\n"
 		"	this.unitsFactor = unitsFactor; //a factor for unit conversion. Can be used f.e. to output feet coordinates when data is meter, If you don't need a conversion, just use a factor of 1\n"
 		"	this.showCoords = showCoords;\n"
 		"	//initialize array of timestamp/layertoLoad values\n"
@@ -2014,18 +2015,18 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_1(void)
 		"	//initialize coordinate display if showCoords == true\n"
 		"	if (this.showCoords == true) {\n"
 		"		//add event listener for coordinate display\n"
-		"		this.mapSVG.addEventListener(\"mousemove\",this,false);\n"
-		"		if (typeof(coordXId) == \"string\") {\n"
+		"		this.mapSVG.addEventListener(\"mousemove\"),this,false);\n"
+		"		if (typeof(coordXId) == \"string\")) {\n"
 		"			this.coordXText = document.getElementById(coordXId).firstChild;\n"
 		"		}\n"
 		"		else {\n"
-		"			alert(\"Error: coordXId needs to be an id of type string\");\n"
+		"			alert(\"Error: coordXId needs to be an id of type string\"));\n"
 		"		}\n"
-		"		if (typeof(coordYId) == \"string\") {\n"
+		"		if (typeof(coordYId) == \"string\")) {\n"
 		"			this.coordYText = document.getElementById(coordYId).firstChild;\n"
 		"		}\n"
 		"		else {\n"
-		"			alert(\"Error: coordYId needs to be an id of type string\");\n"
+		"			alert(\"Error: coordYId needs to be an id of type string\"));\n"
 		"		}\n"
 		"	}\n"
 		"	//a new array containing map extents\n"
@@ -2034,20 +2035,20 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_1(void)
 		"	this.curMapExtentIndex = 0;\n"
 		"	//create background-element to receive events for showing coordinates\n"
 		"	//this rect is also used for manual zooming and panning\n"
-		"	this.backgroundRect = document.createElementNS(svgNS,\"rect\");\n"
-		"	this.backgroundRect.setAttributeNS(null,\"x\",this.curxOrig);\n"
-		"	this.backgroundRect.setAttributeNS(null,\"y\",this.curyOrig);\n"
-		"	this.backgroundRect.setAttributeNS(null,\"width\",this.curWidth);\n"
-		"	this.backgroundRect.setAttributeNS(null,\"height\",this.curHeight);\n"
-		"	this.backgroundRect.setAttributeNS(null,\"fill\",\"none\");\n"
-		"	this.backgroundRect.setAttributeNS(null,\"stroke\",\"none\");\n"
-		"	this.backgroundRect.setAttributeNS(null,\"pointer-events\",\"fill\");\n"
-		"	this.backgroundRect.setAttributeNS(null,\"id\",\"mapBackgroundRect\");\n"
-		"	this.backgroundRect.addEventListener(\"mousedown\",this,false);\n"
-		"	this.backgroundRect.addEventListener(\"mousemove\",this,false);\n"
-		"	this.backgroundRect.addEventListener(\"mouseup\",this,false);\n"
-		"	this.backgroundRect.addEventListener(\"mouseout\",this,false);\n"
-		"	this.backgroundRect.addEventListener(\"click\",this,false);\n"
+		"	this.backgroundRect = document.createElementNS(svgNS,\"rect\"));\n"
+		"	this.backgroundRect.setAttributeNS(null,\"x\"),this.curxOrig);\n"
+		"	this.backgroundRect.setAttributeNS(null,\"y\"),this.curyOrig);\n"
+		"	this.backgroundRect.setAttributeNS(null,\"width\"),this.curWidth);\n"
+		"	this.backgroundRect.setAttributeNS(null,\"height\"),this.curHeight);\n"
+		"	this.backgroundRect.setAttributeNS(null,\"fill\"),\"none\"));\n"
+		"	this.backgroundRect.setAttributeNS(null,\"stroke\"),\"none\"));\n"
+		"	this.backgroundRect.setAttributeNS(null,\"pointer-events\"),\"fill\"));\n"
+		"	this.backgroundRect.setAttributeNS(null,\"id\"),\"mapBackgroundRect\"));\n"
+		"	this.backgroundRect.addEventListener(\"mousedown\"),this,false);\n"
+		"	this.backgroundRect.addEventListener(\"mousemove\"),this,false);\n"
+		"	this.backgroundRect.addEventListener(\"mouseup\"),this,false);\n"
+		"	this.backgroundRect.addEventListener(\"mouseout\"),this,false);\n"
+		"	this.backgroundRect.addEventListener(\"click\"),this,false);\n"
 		"	this.mainMapGroup.insertBefore(this.backgroundRect,this.mainMapGroup.firstChild);\n"
 		"	//determine if viewer is capable of getScreenCTM\n"
 		"	if (document.documentElement.getScreenCTM) {\n"
@@ -2061,14 +2062,14 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_1(void)
 		"//resets viewBox of main map after zooming and panning\n"
 		"map.prototype.newViewBox = function(refRectId,history) {\n"
 		"	var myRefRect = document.getElementById(refRectId);\n"
-		"	this.curxOrig = parseFloat(myRefRect.getAttributeNS(null,\"x\"));\n"
-		"	this.curyOrig = parseFloat(myRefRect.getAttributeNS(null,\"y\"));\n"
-		"	this.curWidth = parseFloat(myRefRect.getAttributeNS(null,\"width\"));\n"
-		"	this.curHeight = parseFloat(myRefRect.getAttributeNS(null,\"height\"));\n"
+		"	this.curxOrig = parseFloat(myRefRect.getAttributeNS(null,\"x\")));\n"
+		"	this.curyOrig = parseFloat(myRefRect.getAttributeNS(null,\"y\")));\n"
+		"	this.curWidth = parseFloat(myRefRect.getAttributeNS(null,\"width\")));\n"
+		"	this.curHeight = parseFloat(myRefRect.getAttributeNS(null,\"height\")));\n"
 		"	var myViewBoxString = this.curxOrig + \" \" + this.curyOrig + \" \" + this.curWidth + \" \" + this.curHeight;\n"
 		"	this.pixSize = this.curWidth / this.pixWidth;\n"
 		"	this.zoomVal = this.maxWidth / this.curWidth * 100;\n"
-		"	this.mapSVG.setAttributeNS(null,\"viewBox\",myViewBoxString);\n"
+		"	this.mapSVG.setAttributeNS(null,\"viewBox\"),myViewBoxString);\n"
 		"	myMapApp.zoomSlider.setValue(this.curWidth);\n"
 		"	loadProjectSpecific();\n"
 		"	if (history) {\n"
@@ -2229,7 +2230,7 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_1(void)
 		"\n"
 		"//handles events associated with navigation\n"
 		"map.prototype.handleEvent = function(evt) {\n"
-		"	var callerId = evt.currentTarget.getAttributeNS(null,\"id\");\n"
+		"	var callerId = evt.currentTarget.getAttributeNS(null,\"id\"));\n"
 		"	if (callerId.match(/\\bzoomBgRectManual/)) {\n"
 		"		this.zoomManDragRect(evt);\n"
 		"	}\n"
@@ -2239,8 +2240,8 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_1(void)
 		"	if (callerId.match(/\\bbgPanManual/)) {\n"
 		"		this.panManualFinally(evt);\n"
 		"	}\n"
-		"	if (callerId == \"mainMap\" && evt.type == \"mousemove\") {\n"
-		"		if (this.navStatus != \"panmanualActive\") {\n"
+		"	if (callerId == \"mainMap\" && evt.type == \"mousemove\")) {\n"
+		"		if (this.navStatus != \"panmanualActive\")) {\n"
 		"		    this.showCoordinates(evt);\n"
 		"		}\n"
 		"	}\n"
@@ -2269,21 +2270,21 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_1(void)
 		"\n"
 		"//checks for and removes temporary rectangle objects\n"
 		"map.prototype.stopNavModes = function() {\n"
-		"	if (this.navStatus != \"info\") {\n"
-		"                    	if (this.navStatus == \"zoomManual\") {\n"
+		"	if (this.navStatus != \"info\")) {\n"
+		"                    	if (this.navStatus == \"zoomManual\")) {\n"
 		"                    	    myMapApp.buttons[\"zoomManual\"].setSwitchValue(false,false);\n"
 		"                    	}\n"
-		"                     	if (this.navStatus == \"panmanual\" || this.navStatus == \"panmanualActive\") {\n"
+		"                     	if (this.navStatus == \"panmanual\" || this.navStatus == \"panmanualActive\")) {\n"
 		"                    	    myMapApp.buttons[\"panManual\"].setSwitchValue(false,false);\n"
 		"                    	}\n"
-		"                    	if (this.navStatus == \"recenter\") {\n"
+		"                    	if (this.navStatus == \"recenter\")) {\n"
 		"                    	    myMapApp.buttons[\"recenterMap\"].setSwitchValue(false,false);\n"
 		"                    	}\n"
-		"                              this.backgroundRect.setAttributeNS(null,\"id\",\"mapBackgroundRect\");\n"
+		"                              this.backgroundRect.setAttributeNS(null,\"id\"),\"mapBackgroundRect\"));\n"
 		"		myMapApp.buttons[\"infoButton\"].setSwitchValue(true,false);\n"
-		"		this.navStatus = \"info\";\n"
-		"	               this.mapSVG.setAttributeNS(null,\"cursor\",\"crosshair\");\n"
-		"		statusChange(\"Mode: Infomode\");\n"
+		"		this.navStatus = \"info\");\n"
+		"	               this.mapSVG.setAttributeNS(null,\"cursor\"),\"crosshair\"));\n"
+		"		statusChange(\"Mode: Infomode\"));\n"
 		"	               this.mainMapGroup.insertBefore(this.backgroundRect,this.mainMapGroup.firstChild);\n"
 		"	}\n"
 		"}\n"
@@ -2291,11 +2292,11 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_1(void)
 		"//starts manual zooming mode\n"
 		"map.prototype.zoomManual = function(evt) {\n"
 		"	if (Math.round(myMainMap.curWidth) > myMainMap.minWidth && evt.detail == 1) {\n"
-		"		this.navStatus = \"zoomManual\";\n"
-		"                              this.backgroundRect.setAttributeNS(null,\"id\",\"zoomBgRectManual\");	\n"
+		"		this.navStatus = \"zoomManual\");\n"
+		"                              this.backgroundRect.setAttributeNS(null,\"id\"),\"zoomBgRectManual\"));	\n"
 		"	               this.mainMapGroup.appendChild(this.backgroundRect);\n"
-		"	               this.mapSVG.setAttributeNS(null,\"cursor\",\"se-resize\");\n"
-		"		statusChange(\"Click and drag rectangle for new map extent.\");\n"
+		"	               this.mapSVG.setAttributeNS(null,\"cursor\"),\"se-resize\"));\n"
+		"		statusChange(\"Click and drag rectangle for new map extent.\"));\n"
 		"	}\n"
 		"}\n"
 		"\n"
@@ -2305,21 +2306,21 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_1(void)
 		"	var myX = mapCoords.x;\n"
 		"	var myY = mapCoords.y;\n"
 		"	var myYXFact = this.curHeight / this.curWidth;\n"
-		"	if (evt.type == \"mousedown\") {\n"
+		"	if (evt.type == \"mousedown\")) {\n"
 		"		this.manZoomActive = 1;\n"
-		"		this.zoomRect = document.createElementNS(svgNS,\"rect\");\n"
+		"		this.zoomRect = document.createElementNS(svgNS,\"rect\"));\n"
 		"		var myLineWidth = this.curWidth * 0.003;\n"
-		"		this.zoomRect.setAttributeNS(null,\"id\",\"zoomRect\");\n"
-		"		this.zoomRect.setAttributeNS(null,\"fill\",\"white\");\n"
-		"		this.zoomRect.setAttributeNS(null,\"fill-opacity\",\"0.5\");\n"
-		"		this.zoomRect.setAttributeNS(null,\"stroke\",\"dimgray\");\n"
-		"		this.zoomRect.setAttributeNS(null,\"stroke-width\",myLineWidth);\n"
-		"		this.zoomRect.setAttributeNS(null,\"stroke-dasharray\",(myLineWidth*3)+\",\"+myLineWidth);\n"
-		"		this.zoomRect.setAttributeNS(null,\"pointer-events\",\"none\");\n"
-		"		this.zoomRect.setAttributeNS(null,\"x\",myX);\n"
-		"		this.zoomRect.setAttributeNS(null,\"y\",myY);\n"
-		"		this.zoomRect.setAttributeNS(null,\"width\",this.minWidth);\n"
-		"		this.zoomRect.setAttributeNS(null,\"height\",this.minWidth * myYXFact);\n"
+		"		this.zoomRect.setAttributeNS(null,\"id\"),\"zoomRect\"));\n"
+		"		this.zoomRect.setAttributeNS(null,\"fill\"),\"white\"));\n"
+		"		this.zoomRect.setAttributeNS(null,\"fill-opacity\"),\"0.5\"));\n"
+		"		this.zoomRect.setAttributeNS(null,\"stroke\"),\"dimgray\"));\n"
+		"		this.zoomRect.setAttributeNS(null,\"stroke-width\"),myLineWidth);\n"
+		"		this.zoomRect.setAttributeNS(null,\"stroke-dasharray\"),(myLineWidth*3)+\"),\"+myLineWidth);\n"
+		"		this.zoomRect.setAttributeNS(null,\"pointer-events\"),\"none\"));\n"
+		"		this.zoomRect.setAttributeNS(null,\"x\"),myX);\n"
+		"		this.zoomRect.setAttributeNS(null,\"y\"),myY);\n"
+		"		this.zoomRect.setAttributeNS(null,\"width\"),this.minWidth);\n"
+		"		this.zoomRect.setAttributeNS(null,\"height\"),this.minWidth * myYXFact);\n"
 		"		this.mainMapGroup.appendChild(this.zoomRect);\n"
 		"		this.zoomRectOrigX = myX;\n"
 		"		this.zoomRectOrigY = myY;\n"
@@ -2328,56 +2329,56 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_1(void)
 		"		var myZoomWidth = myX - this.zoomRectOrigX;\n"
 		"		if (myZoomWidth < 0) {\n"
 		"			if (Math.abs(myZoomWidth) < this.minWidth) {\n"
-		"				this.zoomRect.setAttributeNS(null,\"x\",this.zoomRectOrigX - this.minWidth);\n"
-		"				this.zoomRect.setAttributeNS(null,\"y\",this.zoomRectOrigY - this.minWidth * myYXFact);\n"
-		"				this.zoomRect.setAttributeNS(null,\"width\",this.minWidth);\n"
-		"				this.zoomRect.setAttributeNS(null,\"height\",this.minWidth * myYXFact);\n"
+		"				this.zoomRect.setAttributeNS(null,\"x\"),this.zoomRectOrigX - this.minWidth);\n"
+		"				this.zoomRect.setAttributeNS(null,\"y\"),this.zoomRectOrigY - this.minWidth * myYXFact);\n"
+		"				this.zoomRect.setAttributeNS(null,\"width\"),this.minWidth);\n"
+		"				this.zoomRect.setAttributeNS(null,\"height\"),this.minWidth * myYXFact);\n"
 		"			}\n"
 		"			else {\n"
-		"				this.zoomRect.setAttributeNS(null,\"x\",myX);\n"
-		"				this.zoomRect.setAttributeNS(null,\"y\",this.zoomRectOrigY - Math.abs(myZoomWidth) * myYXFact);\n"
-		"				this.zoomRect.setAttributeNS(null,\"width\",Math.abs(myZoomWidth));\n"
-		"				this.zoomRect.setAttributeNS(null,\"height\",Math.abs(myZoomWidth) * myYXFact);			\n"
+		"				this.zoomRect.setAttributeNS(null,\"x\"),myX);\n"
+		"				this.zoomRect.setAttributeNS(null,\"y\"),this.zoomRectOrigY - Math.abs(myZoomWidth) * myYXFact);\n"
+		"				this.zoomRect.setAttributeNS(null,\"width\"),Math.abs(myZoomWidth));\n"
+		"				this.zoomRect.setAttributeNS(null,\"height\"),Math.abs(myZoomWidth) * myYXFact);			\n"
 		"			}\n"
 		"		}\n"
 		"		else {\n"
-		"			this.zoomRect.setAttributeNS(null,\"x\",this.zoomRectOrigX);\n"
-		"			this.zoomRect.setAttributeNS(null,\"y\",this.zoomRectOrigY);\n"
+		"			this.zoomRect.setAttributeNS(null,\"x\"),this.zoomRectOrigX);\n"
+		"			this.zoomRect.setAttributeNS(null,\"y\"),this.zoomRectOrigY);\n"
 		"			if (myZoomWidth < this.minWidth) {\n"
-		"				this.zoomRect.setAttributeNS(null,\"width\",this.minWidth);\n"
-		"				this.zoomRect.setAttributeNS(null,\"height\",this.minWidth * myYXFact);		\n"
+		"				this.zoomRect.setAttributeNS(null,\"width\"),this.minWidth);\n"
+		"				this.zoomRect.setAttributeNS(null,\"height\"),this.minWidth * myYXFact);		\n"
 		"			}\n"
 		"			else {\n"
-		"				this.zoomRect.setAttributeNS(null,\"width\",myZoomWidth);\n"
-		"				this.zoomRect.setAttributeNS(null,\"height\",myZoomWidth * myYXFact);\n"
+		"				this.zoomRect.setAttributeNS(null,\"width\"),myZoomWidth);\n"
+		"				this.zoomRect.setAttributeNS(null,\"height\"),myZoomWidth * myYXFact);\n"
 		"			}\n"
 		"		}\n"
 		"	}\n"
-		"	if ((evt.type == \"mouseup\" || evt.type == \"mouseout\") && this.manZoomActive == 1) {\n"
+		"	if ((evt.type == \"mouseup\" || evt.type == \"mouseout\")) && this.manZoomActive == 1) {\n"
 		"		this.manZoomActive = 0;\n"
-		"		if (parseFloat(this.zoomRect.getAttributeNS(null,\"width\")) > this.curWidth * 0.02) {\n"
-		"			myMapApp.refMapDragger.newView(parseFloat(this.zoomRect.getAttributeNS(null,\"x\")),parseFloat(this.zoomRect.getAttributeNS(null,\"y\")),parseFloat(this.zoomRect.getAttributeNS(null,\"width\")),parseFloat(this.zoomRect.getAttributeNS(null,\"height\")));\n"
+		"		if (parseFloat(this.zoomRect.getAttributeNS(null,\"width\"))) > this.curWidth * 0.02) {\n"
+		"			myMapApp.refMapDragger.newView(parseFloat(this.zoomRect.getAttributeNS(null,\"x\"))),parseFloat(this.zoomRect.getAttributeNS(null,\"y\"))),parseFloat(this.zoomRect.getAttributeNS(null,\"width\"))),parseFloat(this.zoomRect.getAttributeNS(null,\"height\"))));\n"
 		"			this.newViewBox(myMapApp.refMapDragger.dragId,true);\n"
 		"		}\n"
 		"		this.mainMapGroup.removeChild(this.zoomRect);\n"
-		"		statusChange(\"Mode: Manual Zooming\");\n"
+		"		statusChange(\"Mode: Manual Zooming\"));\n"
 		"	}\n"
 		"}\n"
 		"\n"
 		"//initializes recentering mode\n"
 		"map.prototype.recenter = function(evt) {\n"
 		"	if (evt.detail == 1) {\n"
-		"		this.navStatus = \"recenter\";\n"
-		"                              this.backgroundRect.setAttributeNS(null,\"id\",\"zoomBgRectRecenter\");	\n"
+		"		this.navStatus = \"recenter\");\n"
+		"                              this.backgroundRect.setAttributeNS(null,\"id\"),\"zoomBgRectRecenter\"));	\n"
 		"	               this.mainMapGroup.appendChild(this.backgroundRect);\n"
-		"	               this.mapSVG.setAttributeNS(null,\"cursor\",\"pointer\");\n"
-		"		statusChange(\"Click in map to define new map center.\");\n"
+		"	               this.mapSVG.setAttributeNS(null,\"cursor\"),\"pointer\"));\n"
+		"		statusChange(\"Click in map to define new map center.\"));\n"
 		"	}\n"
 		"}\n"
 		"\n"
 		"//finishes recentering after mouse-click\n"
 		"map.prototype.recenterFinally = function(evt) {\n"
-		"	if (evt.type == \"click\") {\n"
+		"	if (evt.type == \"click\")) {\n"
 		"		var mapCoords = this.calcCoord(evt);\n"
 		"		var myX = mapCoords.x;\n"
 		"		var myY = mapCoords.y;\n"
@@ -2399,33 +2400,33 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_1(void)
 		"		}\n"
 		"		myMapApp.refMapDragger.newView(myNewX,myNewY,this.curWidth,this.curHeight);\n"
 		"		this.newViewBox(myMapApp.refMapDragger.dragId,true);\n"
-		"		statusChange(\"Mode: Recentering Map\");\n"
+		"		statusChange(\"Mode: Recentering Map\"));\n"
 		"	}\n"
 		"}\n"
 		"\n"
 		"//initializes manual panning\n"
 		"map.prototype.panManual = function(evt) {\n"
 		"	if (evt.detail == 1) {\n"
-		"		this.navStatus = \"panmanual\";\n"
-		"                              this.backgroundRect.setAttributeNS(null,\"id\",\"bgPanManual\");	\n"
+		"		this.navStatus = \"panmanual\");\n"
+		"                              this.backgroundRect.setAttributeNS(null,\"id\"),\"bgPanManual\"));	\n"
 		"	               this.mainMapGroup.appendChild(this.backgroundRect);\n"
-		"	               this.mapSVG.setAttributeNS(null,\"cursor\",\"move\");\n"
-		"		statusChange(\"Mouse down and move to pan the map\");\n"
+		"	               this.mapSVG.setAttributeNS(null,\"cursor\"),\"move\"));\n"
+		"		statusChange(\"Mouse down and move to pan the map\"));\n"
 		"	}\n"
 		"}\n"
 		"\n"
 		"//manages and finishes manual panning\n"
 		"map.prototype.panManualFinally = function(evt) {\n"
-		"	if (evt.type == \"mousedown\") {\n"
-		"		this.navStatus = \"panmanualActive\";\n"
+		"	if (evt.type == \"mousedown\")) {\n"
+		"		this.navStatus = \"panmanualActive\");\n"
 		"		this.panCoords = this.calcCoord(evt);\n"
 		"		this.panCoorX = this.panCoords.x;\n"
 		"		this.panCoorY = this.panCoords.y;\n"
 		"		this.diffX = 0;\n"
 		"		this.diffY = 0;\n"
-		"		this.mainMapGroup.setAttributeNS(batikNS,\"static\",\"true\");\n"
+		"		this.mainMapGroup.setAttributeNS(batikNS,\"static\"),\"true\"));\n"
 		"	}\n"
-		"	if (evt.type == \"mousemove\" && this.navStatus == \"panmanualActive\") {\n"
+		"	if (evt.type == \"mousemove\" && this.navStatus == \"panmanualActive\")) {\n"
 		"		var mapCoords = this.calcCoord(evt);\n"
 		"		if (this.getScreenCTM) {\n"
 		"			this.diffX = this.panCoorX - mapCoords.x + this.diffX;\n"
@@ -2458,16 +2459,16 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_1(void)
 		"			this.diffY = this.diffY + (myNewYTemp - myNewY);\n"
 		"			myNewY = myNewYTemp;\n"
 		"		}	\n"
-		"		var transformString = \"translate(\"+(this.diffX * -1) +\",\"+(this.diffY * -1)+\")\";\n"
-		"		this.mainMapGroup.setAttributeNS(null,\"transform\",transformString);\n"
+		"		var transformString = \"translate(\"+(this.diffX * -1) +\"),\"+(this.diffY * -1)+\"))\");\n"
+		"		this.mainMapGroup.setAttributeNS(null,\"transform\"),transformString);\n"
 		"		myMapApp.refMapDragger.newView(myNewX,myNewY,this.curWidth,this.curHeight);\n"
 		"	}\n"
-		"	if ((evt.type == \"mouseup\" || evt.type == \"mouseout\") && this.navStatus == \"panmanualActive\") {\n"
-		"		this.navStatus = \"panmanual\";\n"
-		"		this.mainMapGroup.setAttributeNS(batikNS,\"static\",\"false\");\n"
-		"		this.mainMapGroup.setAttributeNS(null,\"transform\",\"translate(0,0)\");\n"
+		"	if ((evt.type == \"mouseup\" || evt.type == \"mouseout\")) && this.navStatus == \"panmanualActive\")) {\n"
+		"		this.navStatus = \"panmanual\");\n"
+		"		this.mainMapGroup.setAttributeNS(batikNS,\"static\"),\"false\"));\n"
+		"		this.mainMapGroup.setAttributeNS(null,\"transform\"),\"translate(0,0)\"));\n"
 		"		this.newViewBox(myMapApp.refMapDragger.dragId,true);			\n"
-		"		statusChange(\"Mode: Manual Panning\");	\n"
+		"		statusChange(\"Mode: Manual Panning\"));	\n"
 		"	}\n"
 		"}\n"
 		"\n"
@@ -2478,7 +2479,7 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_1(void)
 		"			//remove eventlisteners\n"
 		"			if (this.showCoords == true) {\n"
 		"				//add event listener for coordinate display\n"
-		"				this.mapSVG.removeEventListener(\"mousemove\",this,false);\n"
+		"				this.mapSVG.removeEventListener(\"mousemove\"),this,false);\n"
 		"			}\n"
 		"\n"
 		"}\n"
@@ -2490,30 +2491,30 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_1(void)
 		"	this.myRefMap = document.getElementById(referenceMap);\n"
 		"	this.myDragSymbol = document.getElementById(myDragSymbol);	\n"
 		"	this.dragSymbThreshold = dragSymbThreshold;\n"
-		"	var viewBox = this.myRefMap.getAttributeNS(null,\"viewBox\").split(\" \");\n"
+		"	var viewBox = this.myRefMap.getAttributeNS(null,\"viewBox\")).split(\" \"));\n"
 		"	this.constrXmin = parseFloat(viewBox[0]);\n"
 		"	this.constrYmin = parseFloat(viewBox[1]);\n"
 		"	this.constrXmax = this.constrXmin + parseFloat(viewBox[2]);\n"
 		"	this.constrYmax = this.constrYmin + parseFloat(viewBox[3]);\n"
-		"	this.refMapX = parseFloat(this.myRefMap.getAttributeNS(null,\"x\"));\n"
-		"	this.refMapY = parseFloat(this.myRefMap.getAttributeNS(null,\"y\"));\n"
-		"	this.refMapWidth = parseFloat(this.myRefMap.getAttributeNS(null,\"width\"));\n"
+		"	this.refMapX = parseFloat(this.myRefMap.getAttributeNS(null,\"x\")));\n"
+		"	this.refMapY = parseFloat(this.myRefMap.getAttributeNS(null,\"y\")));\n"
+		"	this.refMapWidth = parseFloat(this.myRefMap.getAttributeNS(null,\"width\")));\n"
 		"	this.pixSize = (this.constrXmax - this.constrXmin) / this.refMapWidth;\n"
 		"	this.mainMapObj = mainMapObj;\n"
 		"	//initialize coordinate display if showCoords == true\n"
 		"	this.showCoords = showCoords;\n"
 		"	if (this.showCoords == true) {\n"
-		"		if (typeof(coordXId) == \"string\") {\n"
+		"		if (typeof(coordXId) == \"string\")) {\n"
 		"			this.coordXText = document.getElementById(coordXId).firstChild;\n"
 		"		}\n"
 		"		else {\n"
-		"			alert(\"Error: coordXId needs to be an id of type string\");\n"
+		"			alert(\"Error: coordXId needs to be an id of type string\"));\n"
 		"		}\n"
-		"		if (typeof(coordYId) == \"string\") {\n"
+		"		if (typeof(coordYId) == \"string\")) {\n"
 		"			this.coordYText = document.getElementById(coordYId).firstChild;\n"
 		"		}\n"
 		"		else {\n"
-		"			alert(\"Error: coordYId needs to be an id of type string\");\n"
+		"			alert(\"Error: coordYId needs to be an id of type string\"));\n"
 		"		}\n"
 		"	}\n"
 		"	//determine if viewer is capable of getScreenCTM\n"
@@ -2537,7 +2538,7 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_1(void)
 		"}\n"
 		"\n"
 		"dragObj.prototype.handleEvent = function(evt) {\n"
-		"	if (evt.type == \"mousemove\") {\n"
+		"	if (evt.type == \"mousemove\")) {\n"
 		"		var mapCoords = this.calcCoord(evt);\n"
 		"		this.coordXText.nodeValue = \"X: \" + formatNumberString(mapCoords.x.toFixed(this.mainMapObj.nrDecimals)) + this.mainMapObj.units;\n"
 		"		this.coordYText.nodeValue = \"Y: \" + formatNumberString((mapCoords.y * -1).toFixed(this.mainMapObj.nrDecimals)) + this.mainMapObj.units;\n"
@@ -2546,34 +2547,34 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_1(void)
 		"}\n"
 		"\n"
 		"dragObj.prototype.newView = function(x,y,width,height) {\n"
-		"	this.myDragger.setAttributeNS(null,\"x\",x);\n"
-		"	this.myDragger.setAttributeNS(null,\"y\",y);\n"
-		"	this.myDragger.setAttributeNS(null,\"width\",width);\n"
-		"	this.myDragger.setAttributeNS(null,\"height\",height);\n"
-		"	this.myDragSymbol.setAttributeNS(null,\"x\",(x + width/2));\n"
-		"	this.myDragSymbol.setAttributeNS(null,\"y\",(y + height/2));\n"
+		"	this.myDragger.setAttributeNS(null,\"x\"),x);\n"
+		"	this.myDragger.setAttributeNS(null,\"y\"),y);\n"
+		"	this.myDragger.setAttributeNS(null,\"width\"),width);\n"
+		"	this.myDragger.setAttributeNS(null,\"height\"),height);\n"
+		"	this.myDragSymbol.setAttributeNS(null,\"x\"),(x + width/2));\n"
+		"	this.myDragSymbol.setAttributeNS(null,\"y\"),(y + height/2));\n"
 		"	if (width < this.dragSymbThreshold) {\n"
-		"		this.myDragSymbol.setAttributeNS(null,\"visibility\",\"visible\");\n"
+		"		this.myDragSymbol.setAttributeNS(null,\"visibility\"),\"visible\"));\n"
 		"	}\n"
 		"	else {\n"
-		"		this.myDragSymbol.setAttributeNS(null,\"visibility\",\"hidden\");	\n"
+		"		this.myDragSymbol.setAttributeNS(null,\"visibility\"),\"hidden\"));	\n"
 		"	}\n"
 		"}\n"
 		"\n"
-	);
+	));
 }
 
 //---------------------------------------------------------
-const char * CSVG_Interactive_Map::_Get_Code_Navigation_2(void)
+const wxChar * CSVG_Interactive_Map::_Get_Code_Navigation_2(void)
 {
-	return(
+	return( SG_STR_MBTOSG(
 		"//this method was previously called \"resizeDragger\" - now renamed to .getSliderVal\n"
 		"//this method receives values from the zoom slider\n"
 		"dragObj.prototype.getSliderVal = function(status,sliderGroupName,width) {\n"
-		"	var myX = parseFloat(this.myDragger.getAttributeNS(null,\"x\"));\n"
-		"	var myY = parseFloat(this.myDragger.getAttributeNS(null,\"y\"));\n"
-		"	var myWidth = parseFloat(this.myDragger.getAttributeNS(null,\"width\"));\n"
-		"	var myHeight = parseFloat(this.myDragger.getAttributeNS(null,\"height\"));\n"
+		"	var myX = parseFloat(this.myDragger.getAttributeNS(null,\"x\")));\n"
+		"	var myY = parseFloat(this.myDragger.getAttributeNS(null,\"y\")));\n"
+		"	var myWidth = parseFloat(this.myDragger.getAttributeNS(null,\"width\")));\n"
+		"	var myHeight = parseFloat(this.myDragger.getAttributeNS(null,\"height\")));\n"
 		"	var myCenterX = myX + myWidth / 2;\n"
 		"	var myCenterY = myY + myHeight / 2;\n"
 		"	var myRatio = myHeight / myWidth;\n"
@@ -2592,25 +2593,25 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_2(void)
 		"		toMoveY = this.constrYmax - width * myRatio;\n"
 		"	}\n"
 		"	this.newView(toMoveX,toMoveY,width,width * myRatio);\n"
-		"	if (status == \"release\") {\n"
+		"	if (status == \"release\")) {\n"
 		"	           myMainMap.stopNavModes();\n"
 		"		this.mainMapObj.newViewBox(this.dragId,true);\n"
 		"	}\n"
 		"}\n"
 		"\n"
 		"dragObj.prototype.drag = function(evt) {\n"
-		"	if (evt.type == \"mousedown\") {\n"
-		"		this.myRefMap.setAttributeNS(null,\"cursor\",\"move\");\n"
+		"	if (evt.type == \"mousedown\")) {\n"
+		"		this.myRefMap.setAttributeNS(null,\"cursor\"),\"move\"));\n"
 		"		this.status = true;\n"
 		"	}\n"
-		"	if ((evt.type == \"mousemove\" || evt.type == \"mousedown\") && this.status == true) {\n"
+		"	if ((evt.type == \"mousemove\" || evt.type == \"mousedown\")) && this.status == true) {\n"
 		"		var coords = this.calcCoord(evt);\n"
 		"		var newEvtX = coords.x;\n"
 		"		var newEvtY = coords.y;\n"
-		"		var myX = parseFloat(this.myDragger.getAttributeNS(null,\"x\"));\n"
-		"		var myY = parseFloat(this.myDragger.getAttributeNS(null,\"y\"));\n"
-		"		var myWidth = parseFloat(this.myDragger.getAttributeNS(null,\"width\"));\n"
-		"		var myHeight = parseFloat(this.myDragger.getAttributeNS(null,\"height\"));\n"
+		"		var myX = parseFloat(this.myDragger.getAttributeNS(null,\"x\")));\n"
+		"		var myY = parseFloat(this.myDragger.getAttributeNS(null,\"y\")));\n"
+		"		var myWidth = parseFloat(this.myDragger.getAttributeNS(null,\"width\")));\n"
+		"		var myHeight = parseFloat(this.myDragger.getAttributeNS(null,\"height\")));\n"
 		"		var toMoveX = newEvtX - myWidth / 2;\n"
 		"		var toMoveY = newEvtY - myHeight / 2;\n"
 		"		if (toMoveX < this.constrXmin) {\n"
@@ -2627,20 +2628,20 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_2(void)
 		"		}\n"
 		"		this.newView(toMoveX,toMoveY,myWidth,myHeight);\n"
 		"	}\n"
-		"	if ((evt.type == \"mouseup\" || evt.type == \"mouseout\") && this.status == true) {\n"
+		"	if ((evt.type == \"mouseup\" || evt.type == \"mouseout\")) && this.status == true) {\n"
 		"		this.status = false;\n"
 		"		if (evt.detail == 1) { //second click is ignored\n"
-		"		               this.myRefMap.setAttributeNS(null,\"cursor\",\"crosshair\");\n"
+		"		               this.myRefMap.setAttributeNS(null,\"cursor\"),\"crosshair\"));\n"
 		"			this.mainMapObj.newViewBox('dragRectForRefMap',true);\n"
 		"		}\n"
 		"	}\n"
 		"}\n"
 		"\n"
 		"dragObj.prototype.zoom = function(inOrOut) {\n"
-		"	var myOldX = this.myDragger.getAttributeNS(null,\"x\");\n"
-		"	var myOldY = this.myDragger.getAttributeNS(null,\"y\");\n"
-		"	var myOldWidth = this.myDragger.getAttributeNS(null,\"width\");\n"
-		"	var myOldHeight = this.myDragger.getAttributeNS(null,\"height\");\n"
+		"	var myOldX = this.myDragger.getAttributeNS(null,\"x\"));\n"
+		"	var myOldY = this.myDragger.getAttributeNS(null,\"y\"));\n"
+		"	var myOldWidth = this.myDragger.getAttributeNS(null,\"width\"));\n"
+		"	var myOldHeight = this.myDragger.getAttributeNS(null,\"height\"));\n"
 		"	switch (inOrOut) {\n"
 		"		case \"in\":\n"
 		"			var myNewX = parseFloat(myOldX) + myOldWidth / 2 - (myOldWidth * this.mainMapObj.zoomFact * 0.5);\n"
@@ -2693,10 +2694,10 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_2(void)
 		"\n"
 		"dragObj.prototype.pan = function (myX,myY,howmuch) {\n"
 		"	//get values from draggable rectangle\n"
-		"	var xulcorner = parseFloat(this.myDragger.getAttributeNS(null,\"x\"));\n"
-		"	var yulcorner = parseFloat(this.myDragger.getAttributeNS(null,\"y\"));\n"
-		"	var width = parseFloat(this.myDragger.getAttributeNS(null,\"width\"));\n"
-		"	var height = parseFloat(this.myDragger.getAttributeNS(null,\"height\"));\n"
+		"	var xulcorner = parseFloat(this.myDragger.getAttributeNS(null,\"x\")));\n"
+		"	var yulcorner = parseFloat(this.myDragger.getAttributeNS(null,\"y\")));\n"
+		"	var width = parseFloat(this.myDragger.getAttributeNS(null,\"width\")));\n"
+		"	var height = parseFloat(this.myDragger.getAttributeNS(null,\"height\")));\n"
 		"\n"
 		"	//set values of draggable rectangle\n"
 		"	var rectXulcorner = xulcorner + howmuch * width * myX;\n"
@@ -2721,7 +2722,7 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_2(void)
 		"		this.mainMapObj.newViewBox(this.dragId,true);\n"
 		"	}\n"
 		"\n"
-		"	statusChange(\"map ready ...\");\n"
+		"	statusChange(\"map ready ...\"));\n"
 		"}\n"
 		"\n"
 		"//remove all temporarily used elements and event listeners\n"
@@ -2729,34 +2730,34 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_2(void)
 		"	//remove eventlisteners\n"
 		"	if (this.showCoords == true) {\n"
 		"		//add event listener for coordinate display\n"
-		"		this.myRefMap.removeEventListener(\"mousemove\",this,false);\n"
+		"		this.myRefMap.removeEventListener(\"mousemove\"),this,false);\n"
 		"	}\n"
 		"}\n"
 		"\n"
 		"function zoomIt(evt,inOrOut) {\n"
 		"	if (evt.detail == 1) { //only react on first click, double click: second click is ignored\n"
-		"		if (inOrOut == \"in\") {\n"
+		"		if (inOrOut == \"in\")) {\n"
 		"			if (Math.round(myMainMap.curWidth) > myMainMap.minWidth) {\n"
-		"				myMapApp.refMapDragger.zoom(\"in\");\n"
+		"				myMapApp.refMapDragger.zoom(\"in\"));\n"
 		"			}\n"
 		"			else {\n"
-		"				statusChange(\"Maximum zoom factor reached. Cannot zoom in any more.\");\n"
+		"				statusChange(\"Maximum zoom factor reached. Cannot zoom in any more.\"));\n"
 		"			}\n"
 		"		}\n"
-		"		if (inOrOut == \"out\") {\n"
+		"		if (inOrOut == \"out\")) {\n"
 		"			if (Math.round(myMainMap.curWidth) < myMainMap.maxWidth) {\n"
-		"				myMapApp.refMapDragger.zoom(\"out\");\n"
+		"				myMapApp.refMapDragger.zoom(\"out\"));\n"
 		"			}\n"
 		"			else {\n"
-		"				statusChange(\"Minimum zoom factor reached. Cannot zoom out any more.\");\n"
+		"				statusChange(\"Minimum zoom factor reached. Cannot zoom out any more.\"));\n"
 		"			}\n"
 		"		}\n"
-		"		if (inOrOut == \"full\") {\n"
+		"		if (inOrOut == \"full\")) {\n"
 		"			if (Math.round(myMainMap.curWidth) < myMainMap.maxWidth) {\n"
-		"				myMapApp.refMapDragger.zoom(\"full\");\n"
+		"				myMapApp.refMapDragger.zoom(\"full\"));\n"
 		"			}\n"
 		"			else {\n"
-		"				statusChange(\"Full view already reached.\");\n"
+		"				statusChange(\"Full view already reached.\"));\n"
 		"			}\n"
 		"		}\n"
 		"	}\n"
@@ -2765,19 +2766,19 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_2(void)
 		"//this function starts various zoom actions or map extent history functions\n"
 		"function zoomImageButtons(id,evt) {\n"
 		"	myMainMap.stopNavModes();\n"
-		"	if (id == \"zoomIn\") {\n"
+		"	if (id == \"zoomIn\")) {\n"
 		"		zoomIt(evt,'in');\n"
 		"	}\n"
-		"	if (id == \"zoomOut\") {\n"
+		"	if (id == \"zoomOut\")) {\n"
 		"		zoomIt(evt,'out');\n"
 		"	}\n"
-		"	if (id == \"zoomFull\") {\n"
+		"	if (id == \"zoomFull\")) {\n"
 		"		zoomIt(evt,'full');\n"
 		"	}\n"
-		"	if (id == \"backwardExtent\") {\n"
+		"	if (id == \"backwardExtent\")) {\n"
 		"		myMainMap.backwardExtent();\n"
 		"	}\n"
-		"	if (id == \"forwardExtent\") {\n"
+		"	if (id == \"forwardExtent\")) {\n"
 		"		myMainMap.forwardExtent();\n"
 		"	}\n"
 		"}\n"
@@ -2786,17 +2787,17 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_2(void)
 		"function zoomImageSwitchButtons(id,evt,onOrOff) {\n"
 		"	myMainMap.stopNavModes();\n"
 		"	if (onOrOff) {\n"
-		"                      if (id == \"infoButton\") {\n"
+		"                      if (id == \"infoButton\")) {\n"
 		"                      \n"
 		"                      }\n"
 		"                      else {\n"
-		"		    if (id == \"zoomManual\") {\n"
+		"		    if (id == \"zoomManual\")) {\n"
 		"			    myMainMap.zoomManual(evt);\n"
 		"		    }\n"
-		"		    if (id == \"panManual\") {\n"
+		"		    if (id == \"panManual\")) {\n"
 		"			    myMainMap.panManual(evt);\n"
 		"		    }\n"
-		"		    if (id == \"recenterMap\") {\n"
+		"		    if (id == \"recenterMap\")) {\n"
 		"			    myMainMap.recenter(evt);\n"
 		"		    }\n"
 		"		    if (myMapApp.buttons[\"infoButton\"].getSwitchValue()) {\n"
@@ -2805,7 +2806,7 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_2(void)
 		"		}\n"
 		"	}\n"
 		"	else {\n"
-		"	    if (id == \"infoButton\") {\n"
+		"	    if (id == \"infoButton\")) {\n"
 		"	        myMapApp.buttons[\"infoButton\"].setSwitchValue(true,false);\n"
 		"	    }\n"
 		"	}\n"
@@ -2816,15 +2817,15 @@ const char * CSVG_Interactive_Map::_Get_Code_Navigation_2(void)
 		"	with(myMainMap) {\n"
 		"		alert(\n"
 		"         \"Xmin=\"+curxOrig.toFixed(nrDecimals)+units+\n"
-		"         \"; Xmax=\"+(curxOrig + curWidth).toFixed(nrDecimals)+units+\n"
+		"         \"); Xmax=\"+(curxOrig + curWidth).toFixed(nrDecimals)+units+\n"
 		"         \"\\nYmin=\"+((curyOrig + curHeight) * -1).toFixed(nrDecimals) +units+\n"
-		"         \"; Ymax=\"+(curyOrig*-1).toFixed(nrDecimals)+units+\n"
+		"         \"); Ymax=\"+(curyOrig*-1).toFixed(nrDecimals)+units+\n"
 		"         \"\\nWidth=\"+curWidth.toFixed(nrDecimals)+units+\n"
-		"         \"; Height=\"+curHeight.toFixed(nrDecimals)+units);\n"
+		"         \"); Height=\"+curHeight.toFixed(nrDecimals)+units);\n"
 		"	}\n"
 		"}\n"
 		"\n"
-	);
+	));
 }
 
 

@@ -71,9 +71,8 @@ CDistance_Gradient::CDistance_Gradient(void)
 
 	Set_Author		(_TL("Copyrights (c) 2006 by Olaf Conrad"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"Calculation of a new topographic index to quantify downslope controls on local drainage. "
-		""
 		"\n\n"
 		"References:\n"
 		"- Hjerdt, K.N., McDonnell, J.J., Seibert, J. Rodhe, A. (2004): "
@@ -85,13 +84,13 @@ CDistance_Gradient::CDistance_Gradient(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL	, "DEM"			, _TL("Elevation"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "GRADIENT"	, _TL("Gradient"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
@@ -103,15 +102,15 @@ CDistance_Gradient::CDistance_Gradient(void)
 
 	Parameters.Add_Value(
 		NULL	, "DISTANCE"	, _TL("Vertical Distance"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 10.0, 0.0, true
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "OUTPUT"		, _TL("Output"),
-		"",
+		_TL(""),
 
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("distance"),
 			_TL("gradient (tangens)"),
 			_TL("gradient (degree)")
@@ -151,19 +150,19 @@ bool CDistance_Gradient::On_Execute(void)
 		{
 		case 0:	// distance
 			DataObject_Set_Colors(pGradient, 100, SG_COLORS_WHITE_BLUE	, false);
-			pGradient->Set_Unit("m");
+			pGradient->Set_Unit(_TL("m"));
 			pGradient->Set_ZFactor(1.0);
 			break;
 
 		case 1:	// gradient (ratio)
 			DataObject_Set_Colors(pGradient, 100, SG_COLORS_WHITE_BLUE	, true);
-			pGradient->Set_Unit("");
+			pGradient->Set_Unit(_TL(""));
 			pGradient->Set_ZFactor(1.0);
 			break;
 
 		case 2:	// gradient (degree)
 			DataObject_Set_Colors(pGradient, 100, SG_COLORS_YELLOW_RED	, false);
-			pGradient->Set_Unit("°");
+			pGradient->Set_Unit(_TL("°"));
 			pGradient->Set_ZFactor(M_RAD_TO_DEG);
 			break;
 		}
@@ -171,7 +170,7 @@ bool CDistance_Gradient::On_Execute(void)
 		if( pDifference )
 		{
 			DataObject_Set_Colors(pDifference, 100, SG_COLORS_RED_GREY_BLUE	, false);
-			pDifference->Set_Unit("°");
+			pDifference->Set_Unit(_TL("°"));
 			pDifference->Set_ZFactor(M_RAD_TO_DEG);
 		}
 

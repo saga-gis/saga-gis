@@ -77,7 +77,7 @@ CSADO_SolarRadiation::CSADO_SolarRadiation(void)
 
 	Set_Author		(_TL("Copyrights (c) 2006 by Olaf Conrad"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"Calculation of incoming solar radiation (insolation). "
 		"Based on the SADO (System for the Analysis of Discrete Surfaces) routines "
 		"developed by Boehner & Trachinow. "
@@ -156,14 +156,14 @@ CSADO_SolarRadiation::CSADO_SolarRadiation(void)
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Node(
 		NULL	, "NODE_TIME"		, _TL("Time"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Choice(
 		pNode	, "PERIOD"			, _TL("Time Period"),
 		_TL(""),
 
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
 			_TL("moment"),
 			_TL("day"),
 			_TL("range of days"),
@@ -204,7 +204,7 @@ CSADO_SolarRadiation::CSADO_SolarRadiation(void)
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Node(
 		NULL	, "NODE_LOCATION"	, _TL("Location"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Value(
@@ -229,7 +229,7 @@ CSADO_SolarRadiation::CSADO_SolarRadiation(void)
 		pNode	, "LAT_OFFSET"		, _TL("Latitude relates to grid's..."),
 		_TL(""),
 
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
 			_TL("bottom"),
 			_TL("center"),
 			_TL("top"),
@@ -241,7 +241,7 @@ CSADO_SolarRadiation::CSADO_SolarRadiation(void)
 		pNode	, "LON_OFFSET"		, _TL("Local time relates to grid's..."),
 		_TL(""),
 
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
 			_TL("left"),
 			_TL("center"),
 			_TL("right"),
@@ -264,7 +264,7 @@ CSADO_SolarRadiation::CSADO_SolarRadiation(void)
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Node(
 		NULL	, "NODE_UPDATEVIEW"	, _TL("Update View"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Value(
@@ -589,7 +589,7 @@ bool CSADO_SolarRadiation::Get_Insolation(void)
 			{
 				for(double Hour=m_Hour; Hour<24.0 && Process_Get_Okay(false); Hour+=m_dHour)
 				{
-					Process_Set_Text(CSG_String::Format("%s: %d(%d-%d), %s: %f", _TL("Day"), Day, m_Day_A, m_Day_B, _TL("Hour"), Hour));
+					Process_Set_Text(CSG_String::Format(SG_T("%s: %d(%d-%d), %s: %f"), _TL("Day"), Day, m_Day_A, m_Day_B, _TL("Hour"), Hour));
 
 					if( m_bUpdateDirect )	m_pSumDirect->Assign(0.0);
 					if( m_bUpdateDiffus )	m_pSumDiffus->Assign(0.0);

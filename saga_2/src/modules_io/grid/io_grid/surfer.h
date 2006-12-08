@@ -72,7 +72,7 @@ public:
 	CSurfer_Import(void);
 	virtual ~CSurfer_Import(void);
 
-	virtual const char *	Get_MenuPath(void)				{	return( _TL("R:Import") );	}
+	virtual const SG_Char *	Get_MenuPath(void)				{	return( _TL("R:Import") );	}
 
 
 protected:
@@ -91,7 +91,7 @@ public:
 	CSurfer_Export(void);
 	virtual ~CSurfer_Export(void);
 
-	virtual const char *	Get_MenuPath(void)				{	return( _TL("R:Export") );	}
+	virtual const SG_Char *	Get_MenuPath(void)				{	return( _TL("R:Export") );	}
 
 
 protected:

@@ -78,7 +78,7 @@ public:
 	CKriging_Base(void);
 	virtual ~CKriging_Base(void);
 
-	virtual const char *	Get_MenuPath	(void)	{	return( _TL("R:Kriging") );	}
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Kriging") );	}
 
 
 protected:
@@ -98,11 +98,11 @@ protected:
 
 	CSG_Matrix				m_W;
 
-	CSG_Shapes_Search			m_Search;
+	CSG_Shapes_Search		m_Search;
 
-	CSG_Grid					*m_pGrid, *m_pVariance;
+	CSG_Grid				*m_pGrid, *m_pVariance;
 
-	CSG_Shapes					*m_pShapes;
+	CSG_Shapes				*m_pShapes;
 
 
 	virtual bool			On_Initialise	(void)	{	return( true );	}
@@ -124,7 +124,7 @@ private:
 
 	bool					_Get_Points		(void);
 	bool					_Get_Grid		(void);
-	CSG_Grid *					_Get_Grid		(TSG_Rect Extent);
+	CSG_Grid *				_Get_Grid		(TSG_Rect Extent);
 
 };
 

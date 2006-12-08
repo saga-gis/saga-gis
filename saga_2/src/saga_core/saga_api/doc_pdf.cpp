@@ -118,7 +118,7 @@ CSG_Doc_PDF::CSG_Doc_PDF(void)
 }
 
 //---------------------------------------------------------
-CSG_Doc_PDF::CSG_Doc_PDF(TSG_PDF_Page_Size Size, int Orientation, const char *Title)
+CSG_Doc_PDF::CSG_Doc_PDF(TSG_PDF_Page_Size Size, int Orientation, const SG_Char *Title)
 {
 	m_pPDF	= NULL;
 
@@ -141,13 +141,13 @@ CSG_Doc_PDF::~CSG_Doc_PDF(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Doc_PDF::Open(const char *Title)
+bool CSG_Doc_PDF::Open(const SG_Char *Title)
 {
 	return( Open(PDF_PAGE_SIZE_A4, PDF_PAGE_ORIENTATION_PORTRAIT, Title) );
 }
 
 //---------------------------------------------------------
-bool CSG_Doc_PDF::Open(TSG_PDF_Page_Size Size, int Orientation, const char *Title)
+bool CSG_Doc_PDF::Open(TSG_PDF_Page_Size Size, int Orientation, const SG_Char *Title)
 {
 	if( Close() )
 	{
@@ -164,7 +164,7 @@ bool CSG_Doc_PDF::Open(TSG_PDF_Page_Size Size, int Orientation, const char *Titl
 		m_pPDF	->AddType1Font(pFontDef, "WinAnsiEncoding", new PdfWinAnsiEncoding());
 		m_Font_Default	= pFontDef->FontName();
 
-		if( Title && *Title != '\0' )
+		if( Title && *Title )
 		{
 			Add_Page_Title(Title);
 		}
@@ -207,13 +207,13 @@ bool CSG_Doc_PDF::Close(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Doc_PDF::Save(const char *FileName)
+bool CSG_Doc_PDF::Save(const SG_Char *FileName)
 {
 	if( m_pPDF && m_nPages > 0 && SG_Dir_Create(SG_File_Get_Path(FileName)) )
 	{
 		try
 		{
-			m_pPDF->WriteToFile(FileName);
+			m_pPDF->WriteToFile(SG_STR_SGTOMB(FileName));
 		}
 		catch(...)
 		{
@@ -282,7 +282,7 @@ const char * CSG_Doc_PDF::_Get_Font_Name(TSG_PDF_Font_Type Font)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Doc_PDF::Layout_Add_Box(double xMin_Percent, double yMin_Percent, double xMax_Percent, double yMax_Percent, const char *ID)
+bool CSG_Doc_PDF::Layout_Add_Box(double xMin_Percent, double yMin_Percent, double xMax_Percent, double yMax_Percent, const SG_Char *ID)
 {
 	if( m_Boxes_Percent.Add(xMin_Percent, yMin_Percent, xMax_Percent, yMax_Percent) )
 	{
@@ -298,13 +298,13 @@ bool CSG_Doc_PDF::Layout_Add_Box(double xMin_Percent, double yMin_Percent, doubl
 }
 
 //---------------------------------------------------------
-bool CSG_Doc_PDF::Layout_Add_Box(const CSG_Rect &Box_Percent, const char *ID)
+bool CSG_Doc_PDF::Layout_Add_Box(const CSG_Rect &Box_Percent, const SG_Char *ID)
 {
 	return( Layout_Add_Box(Box_Percent.Get_XMin(), Box_Percent.Get_YMin(), Box_Percent.Get_XMax(), Box_Percent.Get_YMax(), ID) );
 }
 
 //---------------------------------------------------------
-const CSG_Rect & CSG_Doc_PDF::Layout_Get_Box(const char *ID)
+const CSG_Rect & CSG_Doc_PDF::Layout_Get_Box(const SG_Char *ID)
 {
 	for(int i=0; i<m_Boxes_ID.Get_Count(); i++)
 	{
@@ -426,7 +426,7 @@ bool CSG_Doc_PDF::_Fit_Rectangle(CSG_Rect &r, double XToY_Ratio, bool bShrink)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Doc_PDF::_Add_Outline_Item(const char *Title, PdfPage *pPage, TSG_PDF_Title_Level Level)
+bool CSG_Doc_PDF::_Add_Outline_Item(const SG_Char *Title, PdfPage *pPage, TSG_PDF_Title_Level Level)
 {
 	if( m_pPDF && pPage )
 	{
@@ -463,7 +463,7 @@ bool CSG_Doc_PDF::_Add_Outline_Item(const char *Title, PdfPage *pPage, TSG_PDF_T
 
 		if( pOutlineItem )
 		{
-			pOutlineItem	->SetTitle(Title);
+			pOutlineItem	->SetTitle(SG_STR_SGTOMB(Title));
 
 			if( pPage )
 			{
@@ -482,7 +482,7 @@ bool CSG_Doc_PDF::_Add_Outline_Item(const char *Title, PdfPage *pPage, TSG_PDF_T
 }
 
 //---------------------------------------------------------
-bool CSG_Doc_PDF::Add_Outline_Item(const char *Title)
+bool CSG_Doc_PDF::Add_Outline_Item(const SG_Char *Title)
 {
 	return( _Add_Outline_Item(Title, m_pPage, _Get_Lowest_Level_Outline_Item()) );
 }
@@ -622,7 +622,7 @@ bool CSG_Doc_PDF::Set_Size_Page(double Width, double Height)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Doc_PDF::Add_Page_Title(const char *Title, TSG_PDF_Title_Level Level, TSG_PDF_Page_Size Size, int Orientation)
+bool CSG_Doc_PDF::Add_Page_Title(const SG_Char *Title, TSG_PDF_Title_Level Level, TSG_PDF_Page_Size Size, int Orientation)
 {
 	bool	bLine, bDestination, bPage;
 	int		FontSize;
@@ -880,7 +880,7 @@ bool CSG_Doc_PDF::Draw_Text(double x, double y, CSG_Strings &Text, int Size, int
 }
 
 //---------------------------------------------------------
-bool CSG_Doc_PDF::Draw_Text(double x, double y, const char *Text, int Size, int Style, double Angle, int Color, TSG_PDF_Font_Type Font)
+bool CSG_Doc_PDF::Draw_Text(double x, double y, const SG_Char *Text, int Size, int Style, double Angle, int Color, TSG_PDF_Font_Type Font)
 {
 	int				n;
 	CSG_String		String(Text);
@@ -906,7 +906,7 @@ bool CSG_Doc_PDF::Draw_Text(double x, double y, const char *Text, int Size, int 
 }
 
 //---------------------------------------------------------
-bool CSG_Doc_PDF::_Draw_Text(double x, double y, const char *Text, int Size, int Style, double Angle, int Color, TSG_PDF_Font_Type Font)
+bool CSG_Doc_PDF::_Draw_Text(double x, double y, const SG_Char *Text, int Size, int Style, double Angle, int Color, TSG_PDF_Font_Type Font)
 {
 
 	float Width, Height;
@@ -922,24 +922,24 @@ bool CSG_Doc_PDF::_Draw_Text(double x, double y, const char *Text, int Size, int
 		m_pCanvas->SetRGBStroke(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
 		m_pCanvas->SetRGBFill  (SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
 
-		Width = m_pCanvas->TextWidth(Text) * cos(Angle);
-		Height = m_pCanvas->TextWidth(Text) * sin(Angle) + Size;
+		Width	= m_pCanvas->TextWidth(SG_STR_SGTOMB(Text)) * cos(Angle);
+		Height	= m_pCanvas->TextWidth(SG_STR_SGTOMB(Text)) * sin(Angle) + Size;
 
 		//-------------------------------------------------
 		if( Style & PDF_STYLE_TEXT_ALIGN_H_CENTER )
 		{
-			ax	= x - m_pCanvas->TextWidth(Text) / 2.0;
+			ax	= x - m_pCanvas->TextWidth(SG_STR_SGTOMB(Text)) / 2.0;
 		}
 		else if( Style & PDF_STYLE_TEXT_ALIGN_H_RIGHT )
 		{
-			ax	= x - m_pCanvas->TextWidth(Text);
+			ax	= x - m_pCanvas->TextWidth(SG_STR_SGTOMB(Text));
 		}
 		else
 		{
 			ax	= x;
 		}
 
-		bx	= ax + m_pCanvas->TextWidth(Text);
+		bx	= ax + m_pCanvas->TextWidth(SG_STR_SGTOMB(Text));
 
 		if( Style & PDF_STYLE_TEXT_ALIGN_V_CENTER )
 		{
@@ -986,7 +986,7 @@ bool CSG_Doc_PDF::_Draw_Text(double x, double y, const char *Text, int Size, int
 			m_pCanvas->MoveTextPos(ax, ay);
 		}
 
-		m_pCanvas->ShowText(Text);
+		m_pCanvas->ShowText(SG_STR_SGTOMB(Text));
 		m_pCanvas->EndText();
 
 		//-------------------------------------------------
@@ -1024,7 +1024,7 @@ bool CSG_Doc_PDF::_Draw_Text(double x, double y, const char *Text, int Size, int
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Doc_PDF::Draw_Image(double x, double y, double dx, double dy, const char *FileName)
+bool CSG_Doc_PDF::Draw_Image(double x, double y, double dx, double dy, const SG_Char *FileName)
 {
 	bool		bKeepRatio	= true;
 	PdfImage	*pImage		= NULL;
@@ -1032,13 +1032,13 @@ bool CSG_Doc_PDF::Draw_Image(double x, double y, double dx, double dy, const cha
 	//-----------------------------------------------------
 	if( m_pCanvas && SG_File_Exists(FileName) && dx > 0.0 && dy > 0.0 )
 	{
-		if( SG_File_Cmp_Extension(FileName, "png") )
+		if( SG_File_Cmp_Extension(FileName, SG_T("png")) )
 		{
 			PdfPngImage		*pPNG;
 
 			pPNG	= new PdfPngImage(m_pPDF);
-		//	pPNG	->LoadFromFile(FileName);
-	try	{	pPNG	->LoadFromFile(FileName);	}	catch(...)	{}
+		//	pPNG	->LoadFromFile(SG_STR_SGTOMB(FileName));
+	try	{	pPNG	->LoadFromFile(SG_STR_SGTOMB(FileName));	}	catch(...)	{}
 
 			if( !pPNG->IsValidObject() )
 			{
@@ -1049,13 +1049,13 @@ bool CSG_Doc_PDF::Draw_Image(double x, double y, double dx, double dy, const cha
 				pImage	= pPNG;
 			}
 		}
-		else if( SG_File_Cmp_Extension(FileName, "jpg") )
+		else if( SG_File_Cmp_Extension(FileName, SG_T("jpg")) )
 		{
 			PdfJpegImage	*pJPG;
 
 			pJPG	= new PdfJpegImage(m_pPDF);
-		//	pJPG	->LoadFromFile(FileName);
-	try	{	pJPG	->LoadFromFile(FileName);	}	catch(...)	{}
+		//	pJPG	->LoadFromFile(SG_STR_SGTOMB(FileName));
+	try	{	pJPG	->LoadFromFile(SG_STR_SGTOMB(FileName));	}	catch(...)	{}
 
 			if( !pJPG->IsValidObject() )
 			{
@@ -1091,7 +1091,7 @@ bool CSG_Doc_PDF::Draw_Image(double x, double y, double dx, double dy, const cha
 }
 
 //---------------------------------------------------------
-bool CSG_Doc_PDF::Draw_Image(const CSG_Rect &r, const char *FileName)
+bool CSG_Doc_PDF::Draw_Image(const CSG_Rect &r, const SG_Char *FileName)
 {
 	return( Draw_Image(r.Get_XMin(), r.Get_YMin(), r.Get_XRange(), r.Get_YRange(), FileName) );
 }
@@ -1163,8 +1163,8 @@ bool CSG_Doc_PDF::_Draw_Ruler(const CSG_Rect &r, double zMin, double zMax, bool 
 		dz			= pow(10.0, floor(log10(zMax - zMin)) - 1.0);
 		Decimals	= dz >= 1.0 ? 0 : (int)fabs(log10(dz));
 
-		s.Printf("%.*f", Decimals, zMax);
-		zDC			= m_pCanvas->TextWidth(s.c_str());
+		s.Printf(SG_T("%.*f"), Decimals, zMax);
+		zDC			= m_pCanvas->TextWidth(SG_STR_SGTOMB(s));
 		while( zToDC * dz < zDC + RULER_TEXT_SPACE )
 		{
 			dz	*= 2;
@@ -1176,7 +1176,7 @@ bool CSG_Doc_PDF::_Draw_Ruler(const CSG_Rect &r, double zMin, double zMax, bool 
 
 		for(; z<=zMax; z+=dz)
 		{
-			s.Printf("%.*f", Decimals, z);
+			s.Printf(SG_T("%.*f"), Decimals, z);
 
 			zDC	= bAscendent ? zToDC * (z - zMin) : Width - zToDC * (z - zMin);
 
@@ -1692,31 +1692,31 @@ void CSG_Doc_PDF::Draw_Curve(CSG_Points &Data, const CSG_Rect &r, int iGraphType
 #include "doc_pdf.h"
 
 CSG_Doc_PDF::CSG_Doc_PDF(void)														{	m_pPDF	= NULL;	}
-CSG_Doc_PDF::CSG_Doc_PDF(TSG_PDF_Page_Size Size, int Orientation, const char *Title)	{	m_pPDF	= NULL;	}
+CSG_Doc_PDF::CSG_Doc_PDF(TSG_PDF_Page_Size Size, int Orientation, const SG_Char *Title)	{	m_pPDF	= NULL;	}
 CSG_Doc_PDF::~CSG_Doc_PDF(void)														{}
 void CSG_Doc_PDF::Layout_Set_Box_Space(double Space, bool bPercent)					{}
 void CSG_Doc_PDF::_Layout_Set_Boxes(void)												{}
 void CSG_Doc_PDF::_Layout_Set_Box(int iBox)											{}
 double CSG_Doc_PDF::Get_Page_To_Meter(void)											{	return( 1.0 );	}
-const char * CSG_Doc_PDF::_Get_Font_Name(TSG_PDF_Font_Type Font)							{	return( "-" );	}
-const CSG_Rect & CSG_Doc_PDF::Layout_Get_Box(const char *ID)							{	return( m_Size_Margins );	}
+const SG_Char * CSG_Doc_PDF::_Get_Font_Name(TSG_PDF_Font_Type Font)							{	return( "-" );	}
+const CSG_Rect & CSG_Doc_PDF::Layout_Get_Box(const SG_Char *ID)							{	return( m_Size_Margins );	}
 TSG_PDF_Title_Level CSG_Doc_PDF::_Get_Lowest_Level_Outline_Item(void)					{	return( PDF_TITLE_NONE );	}
-bool CSG_Doc_PDF::Open(const char *Title)												{	return( false );	}
-bool CSG_Doc_PDF::Open(TSG_PDF_Page_Size Size, int Orientation, const char *Title)		{	return( false );	}
+bool CSG_Doc_PDF::Open(const SG_Char *Title)												{	return( false );	}
+bool CSG_Doc_PDF::Open(TSG_PDF_Page_Size Size, int Orientation, const SG_Char *Title)		{	return( false );	}
 bool CSG_Doc_PDF::Close(void)															{	return( false );	}
-bool CSG_Doc_PDF::Save(const char *FileName)											{	return( false );	}
-bool CSG_Doc_PDF::Layout_Add_Box(double xMin_Percent, double yMin_Percent, double xMax_Percent, double yMax_Percent, const char *ID)	{	return( false );	}
-bool CSG_Doc_PDF::Layout_Add_Box(const CSG_Rect &Box_Percent, const char *ID)														{	return( false );	}
+bool CSG_Doc_PDF::Save(const SG_Char *FileName)											{	return( false );	}
+bool CSG_Doc_PDF::Layout_Add_Box(double xMin_Percent, double yMin_Percent, double xMax_Percent, double yMax_Percent, const SG_Char *ID)	{	return( false );	}
+bool CSG_Doc_PDF::Layout_Add_Box(const CSG_Rect &Box_Percent, const SG_Char *ID)														{	return( false );	}
 bool CSG_Doc_PDF::_Fit_Rectangle(double &x, double &y, double &dx, double &dy, double XToY_Ratio, bool bShrink)						{	return( false );	}
 bool CSG_Doc_PDF::_Fit_Rectangle(CSG_Rect &r, double XToY_Ratio, bool bShrink)														{	return( false );	}
-bool CSG_Doc_PDF::_Add_Outline_Item(const char *Title, PdfPage *pPage, TSG_PDF_Title_Level Level)										{	return( false );	}
-bool CSG_Doc_PDF::Add_Outline_Item(const char *Title)																					{	return( false );	}
+bool CSG_Doc_PDF::_Add_Outline_Item(const SG_Char *Title, PdfPage *pPage, TSG_PDF_Title_Level Level)										{	return( false );	}
+bool CSG_Doc_PDF::Add_Outline_Item(const SG_Char *Title)																					{	return( false );	}
 bool CSG_Doc_PDF::Add_Page(void)																																						{	return( false );	}
 bool CSG_Doc_PDF::Add_Page(TSG_PDF_Page_Size Size, int Orientation)																														{	return( false );	}
 bool CSG_Doc_PDF::Add_Page(double Width, double Height)																																{	return( false );	}
 bool CSG_Doc_PDF::Set_Size_Page(TSG_PDF_Page_Size Size, int Orientation)																													{	return( false );	}
 bool CSG_Doc_PDF::Set_Size_Page(double Width, double Height)																															{	return( false );	}
-bool CSG_Doc_PDF::Add_Page_Title(const char *Title, TSG_PDF_Title_Level Level, TSG_PDF_Page_Size Size, int Orientation)																		{	return( false );	}
+bool CSG_Doc_PDF::Add_Page_Title(const SG_Char *Title, TSG_PDF_Title_Level Level, TSG_PDF_Page_Size Size, int Orientation)																		{	return( false );	}
 bool CSG_Doc_PDF::_Set_Style_FillStroke(int Style, int Fill_Color, int Line_Color, int Line_Width)																					{	return( false );	}
 bool CSG_Doc_PDF::Draw_Point(double x, double y, double Width, int Style, int Fill_Color, int Line_Color, int Line_Width)																{	return( false );	}
 bool CSG_Doc_PDF::Draw_Line(double xa, double ya, double xb, double yb, int Width, int Color, int Style)																				{	return( false );	}
@@ -1725,10 +1725,10 @@ bool CSG_Doc_PDF::Draw_Rectangle(double xa, double ya, double xb, double yb, int
 bool CSG_Doc_PDF::Draw_Rectangle(const CSG_Rect &r, int Style, int Fill_Color, int Line_Color, int Line_Width)																		{	return( false );	}
 bool CSG_Doc_PDF::Draw_Polygon(CSG_Points &Points, int Style, int Fill_Color, int Line_Color, int Line_Width)																		{	return( false );	}
 bool CSG_Doc_PDF::Draw_Text(double x, double y, CSG_Strings &Text, int Size, int Style, double Angle, int Color, TSG_PDF_Font_Type Font)												{	return( false );	}
-bool CSG_Doc_PDF::Draw_Text(double x, double y, const char *Text, int Size, int Style, double Angle, int Color, TSG_PDF_Font_Type Font)													{	return( false );	}
-bool CSG_Doc_PDF::_Draw_Text(double x, double y, const char *Text, int Size, int Style, double Angle, int Color, TSG_PDF_Font_Type Font)													{	return( false );	}
-bool CSG_Doc_PDF::Draw_Image(double x, double y, double dx, double dy, const char *FileName)																							{	return( false );	}
-bool CSG_Doc_PDF::Draw_Image(const CSG_Rect &r, const char *FileName)																												{	return( false );	}
+bool CSG_Doc_PDF::Draw_Text(double x, double y, const SG_Char *Text, int Size, int Style, double Angle, int Color, TSG_PDF_Font_Type Font)													{	return( false );	}
+bool CSG_Doc_PDF::_Draw_Text(double x, double y, const SG_Char *Text, int Size, int Style, double Angle, int Color, TSG_PDF_Font_Type Font)													{	return( false );	}
+bool CSG_Doc_PDF::Draw_Image(double x, double y, double dx, double dy, const SG_Char *FileName)																							{	return( false );	}
+bool CSG_Doc_PDF::Draw_Image(const CSG_Rect &r, const SG_Char *FileName)																												{	return( false );	}
 bool CSG_Doc_PDF::Draw_Graticule(const CSG_Rect &r, const CSG_Rect &rWorld, int Size)																								{	return( false );	}
 bool CSG_Doc_PDF::_Draw_Ruler(const CSG_Rect &r, double zMin, double zMax, bool bHorizontal, bool bAscendent, bool bTickAtTop)														{	return( false );	}
 bool CSG_Doc_PDF::_Draw_Table(CSG_Rect r, CSG_Table *pTable, int iRecord, int nRecords, double CellHeight, double HeaderHeightRel)														{	return( false );	}
@@ -1741,6 +1741,27 @@ bool CSG_Doc_PDF::Draw_Grid(const CSG_Rect &r, CSG_Grid *pGrid, const CSG_Colors
 void CSG_Doc_PDF::Draw_Curve(CSG_Points &Data, const CSG_Rect &r, int iGraphType)	{}
 
 #endif	// #else // #ifndef _SAGA_DONOTUSE_HARU
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifdef _UNICODE
+
+bool CSG_Doc_PDF::Layout_Add_Box(double xMin_Percent, double yMin_Percent, double xMax_Percent, double yMax_Percent, const char *ID)
+{	return( Layout_Add_Box(xMin_Percent, yMin_Percent, xMax_Percent, yMax_Percent, SG_STR_MBTOSG(ID)) );	}
+
+bool CSG_Doc_PDF::Layout_Add_Box(const CSG_Rect &Box_Percent, const char *ID)
+{	return( Layout_Add_Box(Box_Percent, SG_STR_MBTOSG(ID)) );	}
+
+const CSG_Rect & CSG_Doc_PDF::Layout_Get_Box(const char *ID)
+{	return( Layout_Get_Box(SG_STR_MBTOSG(ID)) );	}
+
+#endif
 
 
 ///////////////////////////////////////////////////////////

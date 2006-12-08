@@ -66,7 +66,7 @@
 //---------------------------------------------------------
 // 2. Place general module library informations here...
 
-const char *	Get_Info(int i)
+const SG_Char *	Get_Info(int i)
 {
 	switch( i )
 	{
@@ -74,17 +74,17 @@ const char *	Get_Info(int i)
 		return( _TL("Simulation - Modelling the Human Impact on Nature") );
 
 	case MLB_INFO_Author:
-		return( "Olaf Conrad (c) 2003" );
+		return( SG_T("Olaf Conrad (c) 2003") );
 
 	case MLB_INFO_Description:
-		return(_TL(
+		return( _TW(
 			"Numerical models for ecological processes. "
 			"Examples have been taken from:\n"
-			"Hugget, R.J. (1993): 'Modelling the Human Impact on Nature', Oxford University Press.")
-		);
+			"Hugget, R.J. (1993): 'Modelling the Human Impact on Nature', Oxford University Press."
+		));
 
 	case MLB_INFO_Version:
-		return( "1.0" );
+		return( SG_T("1.0") );
 
 	case MLB_INFO_Menu_Path:
 		return( _TL("Simulation|Ecology|Modelling the Human Impact on Nature") );

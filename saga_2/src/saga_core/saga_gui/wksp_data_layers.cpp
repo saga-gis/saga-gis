@@ -133,7 +133,7 @@ CWKSP_Data_Layers_Item::CWKSP_Data_Layers_Item(wxWindow *pParent, class CWKSP_La
 }
 
 //---------------------------------------------------------
-CWKSP_Data_Layers_Item::CWKSP_Data_Layers_Item(wxWindow *pParent, const char *Title)
+CWKSP_Data_Layers_Item::CWKSP_Data_Layers_Item(wxWindow *pParent, const wxChar *Title)
 	: wxPanel(pParent, -1, wxDefaultPosition, wxDefaultSize, 0)
 {
 	m_pLayer	= NULL;
@@ -272,9 +272,9 @@ CWKSP_Data_Layers::CWKSP_Data_Layers(wxWindow *pParent)
 	bool	bValue;
 	long	lValue;
 
-	m_Size			= CONFIG_Read("/LAYERS", "SIZE"		, lValue) ? (int)lValue : 75;
-	m_bCategorised	= CONFIG_Read("/LAYERS", "CATEGORY"	, bValue) ?      bValue : true;
-	m_Active_Color	= CONFIG_Read("/LAYERS", "SELCOLOR"	, lValue) ?      lValue : Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW));
+	m_Size			= CONFIG_Read(wxT("/LAYERS"), wxT("SIZE")		, lValue) ? (int)lValue : 75;
+	m_bCategorised	= CONFIG_Read(wxT("/LAYERS"), wxT("CATEGORY")	, bValue) ?      bValue : true;
+	m_Active_Color	= CONFIG_Read(wxT("/LAYERS"), wxT("SELCOLOR")	, lValue) ?      lValue : Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW));
 
 	//-----------------------------------------------------
 	m_Parameters.Create(this, LNG("Options for Layers Workspace"), LNG(""));
@@ -301,9 +301,9 @@ CWKSP_Data_Layers::CWKSP_Data_Layers(wxWindow *pParent)
 //---------------------------------------------------------
 CWKSP_Data_Layers::~CWKSP_Data_Layers(void)
 {
-	CONFIG_Write("/LAYERS", "SIZE"		, (long)m_Parameters("SIZE")	->asInt());
-	CONFIG_Write("/LAYERS", "CATEGORY"	,       m_Parameters("CATEGORY")->asBool());
-	CONFIG_Write("/LAYERS", "SELCOLOR"	,       m_Parameters("SELCOLOR")->asColor());
+	CONFIG_Write(wxT("/LAYERS"), wxT("SIZE")	, (long)m_Parameters("SIZE")	->asInt());
+	CONFIG_Write(wxT("/LAYERS"), wxT("CATEGORY"),       m_Parameters("CATEGORY")->asBool());
+	CONFIG_Write(wxT("/LAYERS"), wxT("SELCOLOR"),       m_Parameters("SELCOLOR")->asColor());
 
 	_Del_Items();
 
@@ -494,7 +494,7 @@ bool CWKSP_Data_Layers::_Add_Item(CWKSP_Layer *pLayer)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Data_Layers::_Add_Item(const char *Title)
+bool CWKSP_Data_Layers::_Add_Item(const wxChar *Title)
 {
 	if( Title )
 	{

@@ -26,7 +26,7 @@ CLayerOfMaximumValue::CLayerOfMaximumValue(void)
 {
 	Parameters.Set_Name(_TL("Layer of extreme value"));
 
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"It creates a new grid containing the ID of the grid with the maximum (minimum) value.\r\n"
 		"Copyright 2005 Victor Olaya: e-mail: volaya@ya.com")		
 	);
@@ -34,20 +34,20 @@ CLayerOfMaximumValue::CLayerOfMaximumValue(void)
 	Parameters.Add_Grid_List(NULL, 
 							"GRIDS", 
 							_TL("Grids"),
-							"",
+							_TL(""),
 							PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"RESULT", 
 						_TL("Result"),
-						"",
+						_TL(""),
 						PARAMETER_OUTPUT);
 
 	Parameters.Add_Choice(NULL, 
 						"CRITERIA", 
 						_TL("Method"), 
-						"", 
-						CSG_String::Format("%s|%s|",_TL("Maximum"), _TL("Minimum")),						
+						_TL(""), 
+						CSG_String::Format(SG_T("%s|%s|"),_TL("Maximum"), _TL("Minimum")),						
 						0);
 }
 

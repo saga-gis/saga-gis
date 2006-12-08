@@ -287,7 +287,7 @@ void CVIEW_Histogram::_Draw_Frame(wxDC &dc, wxRect r)
 			iPixel	= r.GetBottom()	- (int)(dPixel * iStep);
 			dc.DrawLine(r.GetLeft(), iPixel, r.GetLeft() - 5, iPixel);
 			Draw_Text(dc, TEXTALIGN_CENTERRIGHT, r.GetLeft() - 7, iPixel,
-				wxString::Format("%d", (int)(iStep * dz))
+				wxString::Format(wxT("%d"), (int)(iStep * dz))
 			);
 		}
 
@@ -323,7 +323,7 @@ void CVIEW_Histogram::_Draw_Frame(wxDC &dc, wxRect r)
 				iPixel	= r.GetLeft() + (int)(dPixel * iStep);
 				dc.DrawLine(iPixel, r.GetBottom(), iPixel, r.GetBottom() + 5);
 				Draw_Text(dc, TEXTALIGN_CENTERRIGHT, iPixel, r.GetBottom() + 7, 45.0,
-					wxString::Format("%.*f", Precision, zFactor * m_pLayer->Get_Classifier()->Get_RelativeToMetric(iStep * dz))
+					wxString::Format(wxT("%.*f"), Precision, zFactor * m_pLayer->Get_Classifier()->Get_RelativeToMetric(iStep * dz))
 				);
 			}
 		}
@@ -462,7 +462,7 @@ void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
 	{
 		pTable	= new CSG_Table;
 
-		pTable->Set_Name(wxString::Format("%s: %s", LNG("[CAP] Histogram"), m_pLayer->Get_Name().c_str()));
+		pTable->Set_Name(wxString::Format(wxT("%s: %s"), LNG("[CAP] Histogram"), m_pLayer->Get_Name().c_str()));
 
 		pTable->Add_Field(LNG("CLASS")	, TABLE_FIELDTYPE_Int);
 		pTable->Add_Field(LNG("COUNT")	, TABLE_FIELDTYPE_Int);

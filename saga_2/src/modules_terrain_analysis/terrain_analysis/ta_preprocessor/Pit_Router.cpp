@@ -87,30 +87,30 @@ CPit_Router::CPit_Router(void)
 	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
 	Set_Description(
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "ELEVATION"	, _TL("Elevation"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "SINKROUTE"	, _TL("Sink Route"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Value(
 		NULL	, "THRESHOLD"	, _TL("Threshold"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Bool
 	);
 
 	Parameters.Add_Value(
 		NULL	, "THRSHEIGHT"	, _TL("Threshold Height"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 100
 	);
 }
@@ -179,7 +179,7 @@ int CPit_Router::Get_Routes(CSG_Grid *pDEM, CSG_Grid *pRoute, double Threshold)
 		//-------------------------------------------------
 		// 1. Pits/Flats finden...
 
-		SG_UI_Process_Set_Text("Find Pits");
+		SG_UI_Process_Set_Text(_TL("Find Pits"));
 
 		nPits	= Find_Pits();
 
@@ -239,7 +239,7 @@ int CPit_Router::Get_Routes(CSG_Grid *pDEM, CSG_Grid *pRoute, double Threshold)
 	}
 
 	//-----------------------------------------------------
-	Process_Set_Text("Finalize");
+	Process_Set_Text(_TL("Finalize"));
 
 	Finalize();
 
@@ -253,7 +253,7 @@ int CPit_Router::Get_Routes(CSG_Grid *pDEM, CSG_Grid *pRoute, double Threshold)
 		}
 		else
 		{
-			Message_Add("No sinks have been detected.");
+			Message_Add(_TL("No sinks have been detected."));
 		}
 	}
 
@@ -664,7 +664,7 @@ int CPit_Router::Find_Route(TPit_Outlet *pOutlet)
 				}
 				else
 				{
-					SG_UI_Msg_Add_Error("Routing Error");
+					SG_UI_Msg_Add_Error(_TL("Routing Error"));
 				}
 			}
 

@@ -22,7 +22,7 @@ CGPX2SHP::CGPX2SHP(){
 				   
 	Parameters.Set_Name(_TL("GPX to shapefile"));
 
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"Converts a GPX file into a Shapefile (.shp)"
 		"(c) 2005 by Victor Olaya\r\nemail: volaya@ya.com")
 	);
@@ -31,15 +31,15 @@ CGPX2SHP::CGPX2SHP(){
 							"BASEPATH",
 							_TL("Gpx2shp path"),
 							_TL("Gpx2shp path"),
-							"",
-							"",
+							_TL(""),
+							_TL(""),
 							false,
 							true);
 
 	Parameters.Add_FilePath(NULL, 
 							"FILE", 
 							_TL("GPX file"),
-							"",
+							_TL(""),
 							_TL("GPX files (*.gpx)|*.gpx|All Files|*.*")
 	);
 	
@@ -89,28 +89,28 @@ bool CGPX2SHP::On_Execute(void){
 	bool bAdd = Parameters("ADD")->asBool();
 	CSG_Shapes *pShapes;
 
-	sCmd = sBasePath + "\\gpx2shp ";
+	sCmd = sBasePath + SG_T("\\gpx2shp ");
 
 	if (bWaypoints){
-		sCmd += "-w ";
+		sCmd += SG_T("-w ");
 	}//if
 	if (bTrackpoints){
-		sCmd += "-t ";
+		sCmd += SG_T("-t ");
 	}//if
 	if (bRoutes){
-		sCmd += "-r ";
+		sCmd += SG_T("-r ");
 	}//if
 	
 	sCmd += sFile;
 
-	system(sCmd.c_str());
+	system(sCmd.b_str());
 
 	if( bAdd )
 	{
 		CSG_String	sDir(SG_File_Get_Path(sFile)), sName(SG_File_Get_Name(sFile, false));
 
 		//-------------------------------------------------
-		sFile	= SG_File_Make_Path(sDir, sName + "_wpt", "shp");
+		sFile	= SG_File_Make_Path(sDir, sName + SG_T("_wpt"), SG_T("shp"));
 		pShapes	= SG_Create_Shapes(sFile);
 
 		if( pShapes->is_Valid() )
@@ -119,7 +119,7 @@ bool CGPX2SHP::On_Execute(void){
 			delete(pShapes);
 
 		//-------------------------------------------------
-		sFile	= SG_File_Make_Path(sDir, sName + "_trk", "shp");
+		sFile	= SG_File_Make_Path(sDir, sName + SG_T("_trk"), SG_T("shp"));
 		pShapes	= SG_Create_Shapes(sFile);
 
 		if( pShapes->is_Valid() )
@@ -128,7 +128,7 @@ bool CGPX2SHP::On_Execute(void){
 			delete(pShapes);
 
 		//-------------------------------------------------
-		sFile	= SG_File_Make_Path(sDir, sName + "_rte", "shp");
+		sFile	= SG_File_Make_Path(sDir, sName + SG_T("_rte"), SG_T("shp"));
 		pShapes	= SG_Create_Shapes(sFile);
 
 		if( pShapes->is_Valid() )

@@ -25,25 +25,25 @@ CTransformShapes::CTransformShapes(void){
 	
 	CSG_Parameter *pNode_0, *pNode_1;
 	Parameters.Set_Name(_TL("Transform Shapes"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2004 by Victor Olaya. Use this module to move, rotate and/or scale shapes."));
 
 	Parameters.Add_Shapes(NULL, 
 						"OUT", 
 						_TL("Output"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT);
 
 	Parameters.Add_Shapes(NULL, 
 						"IN", 
 						_TL("Shapes"),
-						"",
+						_TL(""),
 						PARAMETER_INPUT);
 
 	pNode_0	= Parameters.Add_Node(NULL, 
 								"MOVE",
 								_TL("Move"),
-								"");
+								_TL(""));
 
 	pNode_1 = Parameters.Add_Value(pNode_0, 
 								"DX", 
@@ -63,7 +63,7 @@ CTransformShapes::CTransformShapes(void){
 	pNode_0	= Parameters.Add_Node(NULL, 
 								"ROTATE",
 								_TL("Rotate"),
-								"");
+								_TL(""));
 	
 	pNode_1 = Parameters.Add_Value(pNode_0, 
 								"ANGLE", 
@@ -75,7 +75,7 @@ CTransformShapes::CTransformShapes(void){
 	pNode_0	= Parameters.Add_Node(NULL, 
 								"SCALE",
 								_TL("Scale"),
-								"");
+								_TL(""));
 
 	pNode_1 = Parameters.Add_Value(pNode_0, 
 								"SCALEX", 
@@ -94,19 +94,19 @@ CTransformShapes::CTransformShapes(void){
 	pNode_0	= Parameters.Add_Node(NULL, 
 								"ANCHOR",
 								_TL("Anchor Point"),
-								"");
+								_TL(""));
 
 	pNode_1 = Parameters.Add_Value(pNode_0, 
 								"ANCHORX", 
-								"X", 
-								"X", 
+								_TL("X"), 
+								_TL("X"), 
 								PARAMETER_TYPE_Double, 
 								0);
 
 	pNode_1 = Parameters.Add_Value(pNode_0, 
 								"ANCHORY", 
-								"Y", 
-								"Y", 
+								_TL("Y"), 
+								_TL("Y"), 
 								PARAMETER_TYPE_Double, 
 								0);
 	

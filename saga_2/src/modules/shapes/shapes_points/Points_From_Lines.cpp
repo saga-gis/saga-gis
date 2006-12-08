@@ -27,7 +27,7 @@ CPoints_From_Lines::CPoints_From_Lines(void){
 
 	Set_Author		(_TL("Copyrights (c) 2004 by Victor Olaya"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"Converts a line theme to a points theme. "
 		"Optionally inserts additional points in user-defined distances. "
 	));

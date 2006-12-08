@@ -22,24 +22,24 @@
 COWA::COWA(void){
 
 	Parameters.Set_Name(_TL("Ordered Weighted Averaging (OWA)"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2006 by Victor Olaya. Ordered Weighted Averaging (OWA)"));
 
 	Parameters.Add_Grid_List(NULL,
 						"GRIDS", 
 						_TL("Input Grids"),
-						"Input Grids",
+						_TL("Input Grids"),
 						PARAMETER_INPUT);
 
 	Parameters.Add_FixedTable(NULL, 
 							"WEIGHTS", 
 							_TL("Weights"),
-							"")->asTable();
+							_TL(""))->asTable();
 
 	Parameters.Add_Grid(NULL,
 						"OUTPUT",
 						_TL("Output Grid"),
-						"",
+						_TL(""),
 						PARAMETER_OUTPUT);
 
 	CSG_Table_Record *pRecord;

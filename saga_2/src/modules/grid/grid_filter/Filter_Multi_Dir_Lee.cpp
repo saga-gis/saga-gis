@@ -206,7 +206,7 @@ CFilter_Multi_Dir_Lee::CFilter_Multi_Dir_Lee(void)
 
 	Set_Author(_TL("Copyrights (c) 2003 by Andre Ringeler"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"This Multi Direction Lee Filter is a enhanced Lee Filter\n"
 		"It looks into 16 directions for the direction with the minium variance\n"
 		"and applied a Lee Filter on this direction.\n\n"
@@ -222,13 +222,13 @@ CFilter_Multi_Dir_Lee::CFilter_Multi_Dir_Lee(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL, "INPUT"	, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL, "RESULT"	, _TL("Filtered Grid"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
@@ -240,13 +240,13 @@ CFilter_Multi_Dir_Lee::CFilter_Multi_Dir_Lee(void)
 
 	Parameters.Add_Grid(
 		NULL, "VAR"		, _TL("Minimum Variance"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Value(
 		NULL, "NOISE"	, _TL("Noise Variance"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 1
 	); 
 

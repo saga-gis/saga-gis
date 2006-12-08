@@ -159,7 +159,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_Map_3D::CVIEW_Map_3D(CWKSP_Map *pMap)
-	: CVIEW_Base(ID_VIEW_MAP_3D, wxString::Format("%s [%s]", LNG("[CAP] 3D-View"), pMap->Get_Name().c_str()), ID_IMG_WND_MAP3D, CVIEW_Map_3D::_Create_Menu(), LNG("[CAP] 3D-View"))
+	: CVIEW_Base(ID_VIEW_MAP_3D, wxString::Format(wxT("%s [%s]"), LNG("[CAP] 3D-View"), pMap->Get_Name().c_str()), ID_IMG_WND_MAP3D, CVIEW_Map_3D::_Create_Menu(), LNG("[CAP] 3D-View"))
 {
 	CreateStatusBar(MAP3D_STATUSBAR_COUNT);
 
@@ -542,125 +542,130 @@ void CVIEW_Map_3D::_Parms_Create(void)
 	//-----------------------------------------------------
 	m_Parameters.Add_Grid(
 		NULL	, "ELEVATION"		, LNG("[CAP] Elevation"),
-		"",
+		LNG(""),
 		PARAMETER_INPUT
 	);
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "ROTATION", LNG("[CAP] Rotation"), "");
+	pNode	= m_Parameters.Add_Node(NULL, "ROTATION", LNG("[CAP] Rotation"), LNG(""));
 
 	m_Parameters.Add_Value(
-		pNode	, "ROTATION_X"		, "X",
-		"",
+		pNode	, "ROTATION_X"		, LNG("X"),
+		LNG(""),
 		PARAMETER_TYPE_Double, -45.0, -360.0, true, 360.0, true
 	);
 
 	m_Parameters.Add_Value(
-		pNode	, "ROTATION_Y"		, "Y",
-		"",
+		pNode	, "ROTATION_Y"		, LNG("Y"),
+		LNG(""),
 		PARAMETER_TYPE_Double,   0.0, -360.0, true, 360.0, true
 	);
 
 	m_Parameters.Add_Value(
-		pNode	, "ROTATION_Z"		, "Z",
-		"",
+		pNode	, "ROTATION_Z"		, LNG("Z"),
+		LNG(""),
 		PARAMETER_TYPE_Double,  45.0, -360.0, true, 360.0, true
 	);
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "SHIFT", LNG("[CAP] Shift"), "");
+	pNode	= m_Parameters.Add_Node(NULL, "SHIFT", LNG("[CAP] Shift"), LNG(""));
 
 	m_Parameters.Add_Value(
-		pNode	, "SHIFT_X"			, "X",
-		"",
+		pNode	, "SHIFT_X"			, LNG("X"),
+		LNG(""),
 		PARAMETER_TYPE_Double, 0.0
 	);
 
 	m_Parameters.Add_Value(
-		pNode	, "SHIFT_Y"			, "Y",
-		"",
+		pNode	, "SHIFT_Y"			, LNG("Y"),
+		LNG(""),
 		PARAMETER_TYPE_Double, 0.0
 	);
 
 	m_Parameters.Add_Value(
-		pNode	, "SHIFT_Z"			, "Z",
-		"",
+		pNode	, "SHIFT_Z"			, LNG("Z"),
+		LNG(""),
 		PARAMETER_TYPE_Double, 200.0
 	);
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Value(
 		NULL	, "EXAGGERATION"	, LNG("[CAP] Exaggeration"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Double, 1.0
 	);
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "NODE_PROJECTION", LNG("[CAP] Projection"), "");
+	pNode	= m_Parameters.Add_Node(NULL, "NODE_PROJECTION", LNG("[CAP] Projection"), LNG(""));
 
 	m_Parameters.Add_Choice(
 		pNode	, "CENTRAL"			, LNG("[CAP] Projection"),
-		"",
+		LNG(""),
 
-		"Parellel|"
-		"Central|", 1
+		CSG_String::Format(wxT("%s|%s|"),
+			LNG("parellel"),
+			LNG("central")
+		), 1
 	);
 
 	m_Parameters.Add_Value(
 		pNode	, "CENTRAL_DIST"	, LNG("[CAP] Perspectivic Distance"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Double, 200, 1, true
 	);
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "NODE_FIGURE", LNG("[CAP] Figure"), "");
+	pNode	= m_Parameters.Add_Node(NULL, "NODE_FIGURE", LNG("[CAP] Figure"), LNG(""));
 
 	m_Parameters.Add_Choice(
 		pNode	, "FIGURE"			, LNG("[CAP] Figure"),
-		"",
-		LNG("Plain|"
-		"Cylinder|"
-		"Ball|"
-		"Panorama|"), 0
+		LNG(""),
+
+		CSG_String::Format(wxT("%s|%s|%s|%s|"),
+			LNG("plain"),
+			LNG("cylinder"),
+			LNG("ball"),
+			LNG("panorama")
+		), 0
 	);
 
 	m_Parameters.Add_Value(
 		pNode	, "FIGURE_WEIGHT"	, LNG("[CAP] Weight"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Double, 1.0
 	);
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "NODE_STEREO", LNG("[CAP] Anaglyph"), "");
+	pNode	= m_Parameters.Add_Node(NULL, "NODE_STEREO", LNG("[CAP] Anaglyph"), LNG(""));
 
 	m_Parameters.Add_Value(
 		pNode	, "STEREO"			, LNG("[CAP] Anaglyph"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Bool, 0.0
 	);
 
 	m_Parameters.Add_Value(
 		pNode	, "STEREO_DIST"		, LNG("[CAP] Eye Distance [Degree]"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Double, 2.0, 0, true, 180, true
 	);
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Value(
 		NULL	, "INTERPOLATED"	, LNG("[CAP] Interpolated"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Bool, true
 	);
 
 	m_Parameters.Add_Value(
 		NULL	, "BKGRD_COLOR"		, LNG("[CAP] Background Color"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Color, SG_GET_RGB(0, 0, 0)
 	);
 
 	m_Parameters.Add_Value(
-		NULL	, "SRC_RESOLUTION"	, "Resolution",
-		"",
+		NULL	, "SRC_RESOLUTION"	, LNG("Resolution"),
+		LNG(""),
 		PARAMETER_TYPE_Int, 200, 10, true
 	);
 }
@@ -751,16 +756,16 @@ bool CVIEW_Map_3D::_Parms_Update(bool bGet, CVIEW_Map_3D_Image *pImage)
 //---------------------------------------------------------
 void CVIEW_Map_3D::_Parms_StatusBar(void)
 {
-	SetStatusText(wxString::Format("X %+.1f°", m_pImage->m_xRotate * M_RAD_TO_DEG)	, MAP3D_STATUSBAR_ROTATE_X);
-	SetStatusText(wxString::Format("Y %+.1f°", m_pImage->m_yRotate * M_RAD_TO_DEG)	, MAP3D_STATUSBAR_ROTATE_Y);
-	SetStatusText(wxString::Format("Z %+.1f°", m_pImage->m_zRotate * M_RAD_TO_DEG)	, MAP3D_STATUSBAR_ROTATE_Z);
+	SetStatusText(wxString::Format(wxT("X %+.1f°"), m_pImage->m_xRotate * M_RAD_TO_DEG)	, MAP3D_STATUSBAR_ROTATE_X);
+	SetStatusText(wxString::Format(wxT("Y %+.1f°"), m_pImage->m_yRotate * M_RAD_TO_DEG)	, MAP3D_STATUSBAR_ROTATE_Y);
+	SetStatusText(wxString::Format(wxT("Z %+.1f°"), m_pImage->m_zRotate * M_RAD_TO_DEG)	, MAP3D_STATUSBAR_ROTATE_Z);
 
-	SetStatusText(wxString::Format("X %+.1f" , m_pImage->m_xShift)					, MAP3D_STATUSBAR_SHIFT_X);
-	SetStatusText(wxString::Format("Y %+.1f" , m_pImage->m_yShift)					, MAP3D_STATUSBAR_SHIFT_Y);
-	SetStatusText(wxString::Format("Z %+.1f" , m_pImage->m_zShift)					, MAP3D_STATUSBAR_SHIFT_Z);
+	SetStatusText(wxString::Format(wxT("X %+.1f" ), m_pImage->m_xShift)					, MAP3D_STATUSBAR_SHIFT_X);
+	SetStatusText(wxString::Format(wxT("Y %+.1f" ), m_pImage->m_yShift)					, MAP3D_STATUSBAR_SHIFT_Y);
+	SetStatusText(wxString::Format(wxT("Z %+.1f" ), m_pImage->m_zShift)					, MAP3D_STATUSBAR_SHIFT_Z);
 
-	SetStatusText(wxString::Format("E %.1f"  , m_pImage->m_Exaggeration)			, MAP3D_STATUSBAR_EXAGGERATION);
-	SetStatusText(wxString::Format("C %.1f"  , m_pImage->m_bCentral ? m_pImage->m_Central : 0.0)	, MAP3D_STATUSBAR_CENTRAL);
+	SetStatusText(wxString::Format(wxT("E %.1f"  ), m_pImage->m_Exaggeration)			, MAP3D_STATUSBAR_EXAGGERATION);
+	SetStatusText(wxString::Format(wxT("C %.1f"  ), m_pImage->m_bCentral ? m_pImage->m_Central : 0.0)	, MAP3D_STATUSBAR_CENTRAL);
 }
 
 //---------------------------------------------------------
@@ -1042,7 +1047,7 @@ bool CVIEW_Map_3D::_Play(void)
 
 				if( m_Play_Mode == PLAY_MODE_RUN_SAVE )
 				{
-					m_pImage->Save(wxString::Format("%s_%03d", file.c_str(), iFrame++), type);
+					m_pImage->Save(wxString::Format(wxT("%s_%03d"), file.c_str(), iFrame++), type);
 				}
 
 				PROCESS_Wait();

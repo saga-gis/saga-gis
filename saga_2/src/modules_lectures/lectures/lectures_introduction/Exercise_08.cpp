@@ -77,7 +77,7 @@ CExercise_08::CExercise_08(void)
 
 	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Extended Neighbourhoods - Catchment areas.\n"
 		"(c) 2003 by Olaf Conrad, Goettingen\n"
 		"email: oconrad@gwdg.de")
@@ -103,7 +103,7 @@ CExercise_08::CExercise_08(void)
 		NULL, "METHOD"		, _TL("Method"),
 		_TL("Choose a method"),
 
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("D8"),
 			_TL("MFD")
 		)
@@ -138,7 +138,7 @@ bool CExercise_08::On_Execute(void)
 
 
 	m_pArea		->Assign(0.0);
-	m_pArea		->Set_Unit("m²");
+	m_pArea		->Set_Unit(SG_T("m²"));
 	DataObject_Set_Colors(m_pArea, 100, SG_COLORS_WHITE_BLUE);
 
 

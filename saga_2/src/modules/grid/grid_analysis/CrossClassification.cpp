@@ -21,31 +21,31 @@
 CCrossClassification::CCrossClassification(void){
 
 	Parameters.Set_Name(_TL("Cross-Classification and Tabulation"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2004 by Victor Olaya. Cross-Classification and Tabulation"));
 
 	Parameters.Add_Grid(NULL,
 						"INPUT",
 						_TL("Input Grid 1"),
-						"",
+						_TL(""),
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL,
 						"INPUT2",
 						_TL("Input Grid 2"),
-						"",
+						_TL(""),
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL,
 						"RESULTGRID",
 						_TL("Cross-Classification Grid"),
-						"",
+						_TL(""),
 						PARAMETER_OUTPUT);
 
 	Parameters.Add_Table(NULL,
 						"RESULTTABLE",
 						_TL("Cross-Tabulation Table"),
-						"",
+						_TL(""),
 						PARAMETER_OUTPUT);
 
 	Parameters.Add_Value(NULL,

@@ -76,22 +76,22 @@ CGenerate_Export::CGenerate_Export(void)
 
 	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL("Export generate shapes format."));
+	Set_Description	(_TW("Export generate shapes format."));
 
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES"	, _TL("Shapes"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table_Field(
 		pNode	, "FIELD"	, _TL("Attribute"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_FilePath(
 		NULL	, "FILENAME", _TL("File"),
-		""
+		_TL("")
 	);
 }
 
@@ -109,15 +109,18 @@ CGenerate_Export::~CGenerate_Export(void)
 //---------------------------------------------------------
 bool CGenerate_Export::On_Execute(void)
 {
-	int				iShape, iPart, iPoint, iField;
-	FILE			*aus;
-	TSG_Point		Point;
-	CSG_Shape			*pShape;
-	CSG_Shapes			*pLayer;
+	int			iShape, iPart, iPoint, iField;
+	FILE		*aus;
+	TSG_Point	Point;
+	CSG_Shape	*pShape;
+	CSG_Shapes	*pLayer;
+	CSG_String	fName;
+
+	fName	= Parameters("FILENAME")->asString();
 
 	if(	(pLayer = Parameters("SHAPES")->asShapes()) != NULL )
 	{
-		if( (aus = fopen(Parameters("FILENAME")->asString(), "w")) != NULL )
+		if( (aus = fopen(fName.b_str(), "w")) != NULL )
 		{
 			if( pLayer->Get_Table().Get_Field_Count() > 0 )
 			{

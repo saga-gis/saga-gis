@@ -224,7 +224,7 @@ wxMenu * CWKSP_Module_Menu::_Get_SubMenu(wxMenu *pMenu, wxString Menu_Path)
 			if( i < 0 )
 			{
 				pSubMenu	= new wxMenu();
-				pMenu->Insert(iItem, new wxMenuItem(pMenu, ID_CMD_MODULES_FIRST, sSubMenu, "", 1, pSubMenu));
+				pMenu->Insert(iItem, new wxMenuItem(pMenu, ID_CMD_MODULES_FIRST, sSubMenu, LNG(""), 1, pSubMenu));
 			}
 			else if( i == 0 )
 			{
@@ -235,7 +235,7 @@ wxMenu * CWKSP_Module_Menu::_Get_SubMenu(wxMenu *pMenu, wxString Menu_Path)
 				else
 				{
 					pSubMenu	= new wxMenu();
-					pMenu->Insert(iItem, new wxMenuItem(pMenu, ID_CMD_MODULES_FIRST, sSubMenu, "", 1, pSubMenu));
+					pMenu->Insert(iItem, new wxMenuItem(pMenu, ID_CMD_MODULES_FIRST, sSubMenu, LNG(""), 1, pSubMenu));
 				}
 			}
 		}

@@ -24,19 +24,19 @@ CImage_VI_Distance::CImage_VI_Distance(void){
 
 	Set_Name(_TL("Vegetation Index[distance based]"));
 	Set_Author(_TL("Copyrights (c) 2004 by Victor Olaya"));
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"(c) 2004 by Victor Olaya. Distance-based Vegetation Indexes"));
 
 	Parameters.Add_Grid(NULL, 
 						"NIR", 
 						_TL("Near Infrared Band"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"RED", 
 						_TL("Red Band"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Value(NULL, 
@@ -56,32 +56,32 @@ CImage_VI_Distance::CImage_VI_Distance(void){
 		
 	Parameters.Add_Grid(NULL, 
 						"PVI (Richardson and Wiegand)", 
-						"PVI", 
-						"", 
+						_TL("PVI"), 
+						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
 						GRID_TYPE_Double);
 	
 	Parameters.Add_Grid(NULL, 
 						"PVI1", 
-						"PVI (Perry & Lautenschlager)", 
-						"", 
+						_TL("PVI (Perry & Lautenschlager)"), 
+						_TL(""), 
 						PARAMETER_OUTPUT_OPTIONAL, 
 						true, 
 						GRID_TYPE_Double);
 	
 	Parameters.Add_Grid(NULL, 
 						"PVI2", 
-						"PVI (Walther & Shabaani)", 
-						"", 
+						_TL("PVI (Walther & Shabaani)"), 
+						_TL(""), 
 						PARAMETER_OUTPUT_OPTIONAL, 
 						true, 
 						GRID_TYPE_Double);
 	
 	Parameters.Add_Grid(NULL, 
 						"PVI3", 
-						"PVI (Qi, et al) ", 
-						"", 
+						_TL("PVI (Qi, et al) "), 
+						_TL(""), 
 						PARAMETER_OUTPUT_OPTIONAL, 
 						true, 
 						GRID_TYPE_Double);

@@ -23,19 +23,19 @@ CNewLayerFromSelectedShapes::CNewLayerFromSelectedShapes(void){
 
 	
 	Parameters.Set_Name(_TL("New layer from selected shapes"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2004 by Victor Olaya. New layer from selected shapes"));
 
 	Parameters.Add_Shapes(NULL, 
 						"INPUT", 
 						_TL("Input"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	/*Parameters.Add_Shapes(NULL, 
 						"OUTPUT", 
 						"Output", 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT);*/
 	
 }//constructor

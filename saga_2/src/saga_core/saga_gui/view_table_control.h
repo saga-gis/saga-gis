@@ -125,8 +125,8 @@ public:
 	void						On_LDClick_Label	(wxGridEvent &event);
 	void						On_Select			(wxGridRangeSelectEvent &event);
 
-	bool						Load				(const char *File_Name);
-	bool						Save				(const char *File_Name, int Format = 0);
+	bool						Load				(const wxChar *File_Name);
+	bool						Save				(const wxChar *File_Name, int Format = 0);
 
 	bool						Add_Record			(void);
 	bool						Ins_Record			(void);

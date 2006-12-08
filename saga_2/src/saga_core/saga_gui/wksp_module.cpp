@@ -92,7 +92,7 @@ CWKSP_Module	*g_pModule	= NULL;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Module::CWKSP_Module(CSG_Module *pModule, const char *Menu_Path_default)
+CWKSP_Module::CWKSP_Module(CSG_Module *pModule, const wxChar *Menu_Path_default)
 {
 	m_pModule		= pModule;
 
@@ -100,19 +100,19 @@ CWKSP_Module::CWKSP_Module(CSG_Module *pModule, const char *Menu_Path_default)
 
 	//-----------------------------------------------------
 	bool		bLibrary, bModule;
-	const char	*sModule	= m_pModule->Get_MenuPath();
+	const wxChar	*sModule	= m_pModule->Get_MenuPath();
 
 	m_Menu_Path.Empty();
 
-	if( sModule != NULL && strlen(sModule) > 1 && sModule[1] == ':' )
+	if( sModule && *sModule && *(sModule + 1) == wxT(':') )
 	{
-		if( sModule[0] == 'A' || sModule[0] == 'a' )
+		if( *sModule == wxT('A') || *sModule == wxT('a') )
 		{
 			sModule	+= 2;
 
-			if( strlen(sModule) > 0 )
+			if( *sModule )
 			{
-				m_Menu_Path.Printf("%s", sModule);
+				m_Menu_Path.Printf(wxT("%s"), sModule);
 			}
 		}
 		else
@@ -123,20 +123,20 @@ CWKSP_Module::CWKSP_Module(CSG_Module *pModule, const char *Menu_Path_default)
 
 	if( m_Menu_Path.Length() == 0 )	// Menu path is relative to default menu path...
 	{
-		bLibrary	= Menu_Path_default	!= NULL && strlen(Menu_Path_default) > 0;
-		bModule		= sModule			!= NULL && strlen(sModule) > 0;
+		bLibrary	= Menu_Path_default	&& *Menu_Path_default;
+		bModule		= sModule			&& *sModule;
 
 		if( bLibrary && bModule )
 		{
-			m_Menu_Path.Printf("%s|%s", Menu_Path_default, sModule);
+			m_Menu_Path.Printf(wxT("%s|%s"), Menu_Path_default, sModule);
 		}
 		else if( bLibrary )
 		{
-			m_Menu_Path.Printf("%s", Menu_Path_default);
+			m_Menu_Path.Printf(wxT("%s"), Menu_Path_default);
 		}
 		else if( bModule )
 		{
-			m_Menu_Path.Printf("%s", sModule);
+			m_Menu_Path.Printf(wxT("%s"), sModule);
 		}
 	}
 }
@@ -169,8 +169,8 @@ CWKSP_Module::~CWKSP_Module(void)
 wxString CWKSP_Module::Get_Name(void)
 {
 	return( m_pModule->is_Interactive()
-		? wxString::Format("%s [%s]", m_pModule->Get_Name(), LNG("interactive"))
-		: wxString::Format("%s"     , m_pModule->Get_Name())
+		? wxString::Format(wxT("%s [%s]"), m_pModule->Get_Name(), LNG("interactive"))
+		: wxString::Format(wxT("%s")     , m_pModule->Get_Name())
 	);
 }
 
@@ -192,34 +192,34 @@ wxString CWKSP_Module::Get_Description(void)
 	wxString	s, sTmp;
 
 	//-----------------------------------------------------
-	s.Append(wxString::Format("%s: <b>%s</b>", LNG("Module"), m_pModule->Get_Name()));
+	s.Append(wxString::Format(wxT("%s: <b>%s</b>")	, LNG("Module"), m_pModule->Get_Name()));
 
 	if( m_pModule->is_Interactive() )
 	{
-		s.Append(wxString::Format("<br>- %s -", LNG("interactive execution")));
+		s.Append(wxString::Format(wxT("<br>- %s -")	, LNG("interactive execution")));
 	}
 
-	if( m_pModule->Get_Author() && strlen(m_pModule->Get_Author()) > 0 )
+	if( m_pModule->Get_Author() && *(m_pModule->Get_Author()) )
 	{
-		s.Append(wxString::Format("<br>%s", m_pModule->Get_Author()));
+		s.Append(wxString::Format(wxT("<br>%s")		, m_pModule->Get_Author()));
 	}
 
 	if( m_Menu_Path.Length() > 0 )
 	{
 		sTmp	= m_Menu_Path;
-		sTmp.Replace("|", " <b>></b> ");
-		s.Append(wxString::Format("<br>%s: <i>%s</i>", LNG("Menu"), sTmp.c_str()));
+		sTmp.Replace(wxT("|"), wxT(" <b>></b> "));
+		s.Append(wxString::Format(wxT("<br>%s: <i>%s</i>"), LNG("Menu"), sTmp.c_str()));
 	}
 
-	if( m_pModule->Get_Description() && strlen(m_pModule->Get_Description()) > 0 )
+	if( m_pModule->Get_Description() && *(m_pModule->Get_Description()) )
 	{
-		s.Append(wxString::Format("<hr><b>%s</b><br>%s", LNG("Description"), m_pModule->Get_Description()));
+		s.Append(wxString::Format(wxT("<hr><b>%s</b><br>%s"), LNG("Description"), m_pModule->Get_Description()));
 	}
 
 
 	//-----------------------------------------------------
-	s.Append(wxString::Format("<hr><b>%s</b><br>", LNG("Parameters")));
-	s.Append(wxString::Format("<table border=\"1\" width=\"100%%\"><tr><th>%s</th><th>%s</th><th>%s</th></tr>",
+	s.Append(wxString::Format(wxT("<hr><b>%s</b><br>"), LNG("Parameters")));
+	s.Append(wxString::Format(wxT("<table border=\"1\" width=\"100%%\"><tr><th>%s</th><th>%s</th><th>%s</th></tr>"),
 		LNG("Name"), LNG("Type"), LNG("Description")
 	));
 
@@ -232,12 +232,12 @@ wxString CWKSP_Module::Get_Description(void)
 			if( bFirst )
 			{
 				bFirst	= false;
-				s.Append(wxString::Format("<tr><th colspan=\"3\">%s</th></tr>", LNG("Input")));
+				s.Append(wxString::Format(wxT("<tr><th colspan=\"3\">%s</th></tr>"), LNG("Input")));
 			}
 
-			s.Append(wxString::Format("<tr><td>%s%s</td><td>%s</td><td>%s</td></tr>",
+			s.Append(wxString::Format(wxT("<tr><td>%s%s</td><td>%s</td><td>%s</td></tr>"),
 				pParameter->Get_Name(),
-				pParameter->is_Optional() ? " (*)" : " ",
+				pParameter->is_Optional() ? wxT(" (*)") : wxT(" "),
 				pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE|PARAMETER_DESCRIPTION_PROPERTIES).c_str(),
 				pParameter->Get_Description()
 			));
@@ -253,12 +253,12 @@ wxString CWKSP_Module::Get_Description(void)
 			if( bFirst )
 			{
 				bFirst	= false;
-				s.Append(wxString::Format("<tr><th colspan=\"3\">%s</th></tr>", LNG("Output")));
+				s.Append(wxString::Format(wxT("<tr><th colspan=\"3\">%s</th></tr>"), LNG("Output")));
 			}
 
-			s.Append(wxString::Format("<tr><td>%s%s</td><td>%s</td><td>%s</td></tr>",
+			s.Append(wxString::Format(wxT("<tr><td>%s%s</td><td>%s</td><td>%s</td></tr>"),
 				pParameter->Get_Name(),
-				pParameter->is_Optional() ? " (*)" : "",
+				pParameter->is_Optional() ? wxT(" (*)") : wxT(""),
 				pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE|PARAMETER_DESCRIPTION_PROPERTIES).c_str(),
 				pParameter->Get_Description()
 			));
@@ -274,10 +274,10 @@ wxString CWKSP_Module::Get_Description(void)
 			if( bFirst )
 			{
 				bFirst	= false;
-				s.Append(wxString::Format("<tr><th colspan=\"3\">%s</th></tr>", LNG("Options")));
+				s.Append(wxString::Format(wxT("<tr><th colspan=\"3\">%s</th></tr>"), LNG("Options")));
 			}
 
-			s.Append(wxString::Format("<tr><td>%s</td><td>%s</td><td>%s</td></tr>",
+			s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td><td>%s</td></tr>"),
 				pParameter->Get_Name(),
 				pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE|PARAMETER_DESCRIPTION_PROPERTIES).c_str(),
 				pParameter->Get_Description()
@@ -289,123 +289,16 @@ wxString CWKSP_Module::Get_Description(void)
 		}
 	}
 
-	s.Append("</table>");
+	s.Append(wxT("</table>"));
 
 	if( bOptionals )
 	{
-		s.Append(wxString::Format("(*) <i>%s</i>", LNG("optional")));
+		s.Append(wxString::Format(wxT("(*) <i>%s</i>"), LNG("optional")));
 	}
 
-	s.Replace("\n", "<br>");
+	s.Replace(wxT("\n"), wxT("<br>"));
 
 	return( s );
-}
-
-//---------------------------------------------------------
-#include "wksp_module_library.h"
-
-void CWKSP_Module::Make_Report(FILE *Stream)
-{
-	bool		bFirst, bOptionals	= false;
-	int			i;
-	CSG_Parameter	*pParameter;
-
-	fprintf(Stream, "___________________________\n");
-	fprintf(Stream, "Modul: %s\n", m_pModule->Get_Name());
-	fprintf(Stream, "Bibliothek: %s\n"	, ((CWKSP_Module_Library *)Get_Manager())->Get_File_Name().c_str());
-	fprintf(Stream, "Kategorie: %s\n"	, ((CWKSP_Module_Library *)Get_Manager())->Get_Name().c_str());
-
-	if( m_pModule->Get_Author() && strlen(m_pModule->Get_Author()) > 0 )
-	{
-		fprintf(Stream, "%s\n", m_pModule->Get_Author());
-	}
-
-	if( m_pModule->is_Interactive() )
-	{
-		fprintf(Stream, "- Interaktive Modulausfuehrung -\n");
-	}
-
-	fprintf(Stream, "\n");
-	fprintf(Stream, "* Parameter\n");
-
-	fprintf(Stream, "Name\tEigenschaften\tBeschreibung\n");
-
-	for(i=0, bFirst=true; i<m_pModule->Get_Parameters()->Get_Count(); i++)
-	{
-		pParameter	= m_pModule->Get_Parameters()->Get_Parameter(i);
-
-		if( pParameter->is_Input() )
-		{
-			if( bFirst )
-			{
-				bFirst	= false;
-				fprintf(Stream, "[Eingabe]\n");
-			}
-
-			fprintf(Stream, "%s%s\t%s\t%s\n",
-				pParameter->Get_Name(),
-				pParameter->is_Optional() ? " (*)" : "",
-				pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE|PARAMETER_DESCRIPTION_PROPERTIES, "|").c_str(),
-				pParameter->Get_Description()
-			);
-		}
-	}
-
-	for(i=0, bFirst=true; i<m_pModule->Get_Parameters()->Get_Count(); i++)
-	{
-		pParameter	= m_pModule->Get_Parameters()->Get_Parameter(i);
-
-		if( pParameter->is_Output() )
-		{
-			if( bFirst )
-			{
-				bFirst	= false;
-				fprintf(Stream, "[Ausgabe]\n");
-			}
-
-			fprintf(Stream, "%s%s\t%s\t%s\n",
-				pParameter->Get_Name(),
-				pParameter->is_Optional() ? " (*)" : "",
-				pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE|PARAMETER_DESCRIPTION_PROPERTIES, "|").c_str(),
-				pParameter->Get_Description()
-			);
-		}
-	}
-
-	for(i=0, bFirst=true; i<m_pModule->Get_Parameters()->Get_Count(); i++)
-	{
-		pParameter	= m_pModule->Get_Parameters()->Get_Parameter(i);
-
-		if( pParameter->is_Option() )
-		{
-			if( bFirst )
-			{
-				bFirst	= false;
-				fprintf(Stream, "[Optionen]\n");
-			}
-
-			fprintf(Stream, "%s\t%s\t%s\n",
-				pParameter->Get_Name(),
-				pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE|PARAMETER_DESCRIPTION_PROPERTIES, "|").c_str(),
-				pParameter->Get_Description()
-			);
-		}
-		else if( pParameter->is_Optional() )
-		{
-			bOptionals	= true;
-		}
-	}
-
-	if( bOptionals )
-	{
-		fprintf(Stream, "(*) optional\n");
-	}
-
-	fprintf(Stream, "\n");
-	fprintf(Stream, "* Beschreibung\n");
-	fprintf(Stream, "%s\n", m_pModule->Get_Description());
-
-	fprintf(Stream, "\n");
 }
 
 //---------------------------------------------------------
@@ -540,7 +433,7 @@ bool CWKSP_Module::Execute(bool bDialog)
 
 			MSG_General_Add_Line();
 			MSG_Execution_Add_Line();
-			MSG_ADD(wxString::Format("%s: %s", LNG("[MSG] Executing module"), m_pModule->Get_Name()));
+			MSG_ADD(wxString::Format(wxT("%s: %s"), LNG("[MSG] Executing module"), m_pModule->Get_Name()));
 
 			STATUSBAR_Set_Text(m_pModule->Get_Name());
 

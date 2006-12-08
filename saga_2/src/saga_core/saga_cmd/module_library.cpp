@@ -74,8 +74,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_ID1(p)		(p->Get_Owner()->Get_Identifier() && p->Get_Owner()->Get_Identifier()[0] != '\0' ? wxString::Format("%s_%s", p->Get_Owner()->Get_Identifier(), p->Get_Identifier()) : wxString::Format(p->Get_Identifier()))
-#define GET_ID2(p, s)	wxString::Format("%s_%s", GET_ID1(p).c_str(), s)
+#define GET_ID1(p)		(p->Get_Owner()->Get_Identifier() && *(p->Get_Owner()->Get_Identifier()) \
+						? wxString::Format(wxT("%s_%s"), p->Get_Owner()->Get_Identifier(), p->Get_Identifier()) \
+						: wxString::Format(p->Get_Identifier()))
+
+#define GET_ID2(p, s)	wxString::Format(wxT("%s_%s"), GET_ID1(p).c_str(), s)
 
 
 ///////////////////////////////////////////////////////////
@@ -107,7 +110,7 @@ CModule_Library::~CModule_Library(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CModule_Library::Create(const char *FileName, const char *FilePath)
+bool CModule_Library::Create(const SG_Char *FileName, const SG_Char *FilePath)
 {
 	TSG_PFNC_MLB_Initialize		MLB_Initialize;
 	TSG_PFNC_MLB_Get_Interface	MLB_Get_Interface;
@@ -188,7 +191,7 @@ void CModule_Library::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Module * CModule_Library::Select(const char *ModuleName)
+CSG_Module * CModule_Library::Select(const SG_Char *ModuleName)
 {
 	int			i;
 	wxString	Description;
@@ -202,7 +205,7 @@ CSG_Module * CModule_Library::Select(const char *ModuleName)
 
 	for(i=0, m_pSelected=NULL; i<m_nModules && !m_pSelected; i++)
 	{
-		if( !strcmp(ModuleName, Get_Module(i)->Get_Name()) )
+		if( !SG_STR_CMP(ModuleName, Get_Module(i)->Get_Name()) )
 		{
 			m_pSelected	= Get_Module(i);
 		}
@@ -289,13 +292,13 @@ void CModule_Library::_Set_CMD(CSG_Parameters *pParameters, bool bExtra)
 	//-----------------------------------------------------
 	if( m_pCMD && pParameters )
 	{
-		m_pCMD->SetSwitchChars("-");
+		m_pCMD->SetSwitchChars(SG_T("-"));
 
 		for(int i=0; i<pParameters->Get_Count(); i++)
 		{
 			pParameter	= pParameters->Get_Parameter(i);
 			Description	= pParameter->Get_Description(
-							PARAMETER_DESCRIPTION_NAME|PARAMETER_DESCRIPTION_TYPE|PARAMETER_DESCRIPTION_PROPERTIES, "\n\t"
+							PARAMETER_DESCRIPTION_NAME|PARAMETER_DESCRIPTION_TYPE|PARAMETER_DESCRIPTION_PROPERTIES, SG_T("\n\t")
 						).c_str();
 
 			if( pParameter->is_Input() || pParameter->is_Output() )
@@ -674,7 +677,7 @@ bool CModule_Library::_Destroy_DataObjects(bool bSave, CSG_Parameters *pParamete
 				{
 					for(i=0; i<pParameter->asList()->Get_Count(); i++)
 					{
-						pParameter->asList()->asDataObject(i)->Save(wxString::Format("%02d_%s", i, s.c_str()));
+						pParameter->asList()->asDataObject(i)->Save(CSG_String::Format(SG_T("%02d_%s"), i, s.c_str()));
 					}
 				}
 			}

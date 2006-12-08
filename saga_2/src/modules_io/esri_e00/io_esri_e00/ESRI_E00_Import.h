@@ -85,18 +85,18 @@ private:
 
 	CSG_String				e00_Name;
 
-	CSG_Table					*pPAT, *pAAT;
+	CSG_Table				*pPAT, *pAAT;
 
 
-	bool					Open(const char *FileName);
+	bool					Open(const SG_Char *FileName);
 	bool					Load(void);
 
 	bool					E00GotoLine(int iLine);
 
-	CSG_Grid *					getraster	(int prec, double scale);
-	CSG_Shapes *				getarcs		(int prec, double scale, TSG_Shape_Type &shape_type);
-	CSG_Shapes *				getlabels	(int prec, double scale);
-	CSG_Shapes *				getsites	(int prec, double scale);
+	CSG_Grid *				getraster	(int prec, double scale);
+	CSG_Shapes *			getarcs		(int prec, double scale, TSG_Shape_Type &shape_type);
+	CSG_Shapes *			getlabels	(int prec, double scale);
+	CSG_Shapes *			getsites	(int prec, double scale);
 	double					getproj		(void);
 
 	int						info_Get_Tables	(void);
@@ -106,7 +106,7 @@ private:
 
 	bool					Assign_Attributes(CSG_Shapes *pShapes);
 
-	CSG_Shapes *				Arcs2Polygons(CSG_Shapes *pArcs);
+	CSG_Shapes *			Arcs2Polygons(CSG_Shapes *pArcs);
 	void					Arcs2Polygon (CSG_Shapes *pArcs, CSG_Shapes *pPolygons, int id);
 
 	void					skip	(char *end);

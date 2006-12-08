@@ -74,7 +74,7 @@ CTopographicIndices::CTopographicIndices(void)
 
 	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Calculation of slope and catchment area based topographic indices (wetness, LS-factor, stream power).\n\n"
 		"References:\n"
 		"Moore, I.D., Grayson, R.B., Ladson, A.R. (1991): "
@@ -85,19 +85,19 @@ CTopographicIndices::CTopographicIndices(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL, "SLOPE"		, _TL("Slope"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL, "AREA"		, _TL("Catchment Area"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL, "TRANSMISS"	, _TL("Transmissivity"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
@@ -110,13 +110,13 @@ CTopographicIndices::CTopographicIndices(void)
 
 	Parameters.Add_Grid(
 		NULL, "STREAMPOW"	, _TL("Stream Power Index"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
 		NULL, "LSFACTOR"	, _TL("LS-Factor"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 }

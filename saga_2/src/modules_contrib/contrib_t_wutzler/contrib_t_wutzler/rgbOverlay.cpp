@@ -70,27 +70,27 @@ CRGBOverlay::CRGBOverlay(void)
 	//-----------------------------------------------------
 	// Place information about your module here...
 
-	Set_Name	("RGBOverlay");
+	Set_Name		(_TL("RGBOverlay"));
 
-	Set_Author	("Copyrights (c) 2004 by Thomas Wutzler");
+	Set_Author		(_TL("Copyrights (c) 2004 by Thomas Wutzler"));
 
-	Set_Description(
+	Set_Description	(_TW(
 		"RGBOverlay\n"
 		"calculates an Red-Green-Blue Image of given input grids.\n"
-	);
+	));
 
 
 	//-----------------------------------------------------
 
 	CSG_Parameter *parentPar;
-	parentPar = Parameters.Add_Grid(	NULL, "RED"	, "Red"	, ""	, PARAMETER_INPUT);
-	Parameters.Add_Value( parentPar, "InputWeightRed","weighting factor","weighting factor (0-100%)",  PARAMETER_TYPE_Double, 100 );
-	parentPar = Parameters.Add_Grid(	NULL, "GREEN"	, "Green"	, ""	, PARAMETER_INPUT);
-	Parameters.Add_Value( parentPar, "InputWeightGreen","weighting factor","weighting factor (0-100%)",  PARAMETER_TYPE_Double, 100 );
-	parentPar = Parameters.Add_Grid(	NULL, "BLUE"	, "Blue"	, ""	, PARAMETER_INPUT);
-	Parameters.Add_Value( parentPar, "InputWeightBlue","weighting factor","weighting factor (0-100%)",  PARAMETER_TYPE_Double, 100 );
+	parentPar = Parameters.Add_Grid(	NULL, SG_T("RED")	, SG_T("Red")	, SG_T("")	, PARAMETER_INPUT);
+	Parameters.Add_Value( parentPar, SG_T("InputWeightRed"), SG_T("weighting factor"), SG_T("weighting factor (0-100%)"),  PARAMETER_TYPE_Double, 100 );
+	parentPar = Parameters.Add_Grid(	NULL, SG_T("GREEN")	, SG_T("Green")	, SG_T("")	, PARAMETER_INPUT);
+	Parameters.Add_Value( parentPar, SG_T("InputWeightGreen"), SG_T("weighting factor"), SG_T("weighting factor (0-100%)"),  PARAMETER_TYPE_Double, 100 );
+	parentPar = Parameters.Add_Grid(	NULL, SG_T("BLUE")	, SG_T("Blue")	, SG_T("")	, PARAMETER_INPUT);
+	Parameters.Add_Value( parentPar, SG_T("InputWeightBlue"), SG_T("weighting factor"), SG_T("weighting factor (0-100%)"),  PARAMETER_TYPE_Double, 100 );
 	
-	Parameters.Add_Grid(	NULL, "OUTPUT"	, "RGB-Output"	, "Grid, that combines three grids"	, PARAMETER_OUTPUT);
+	Parameters.Add_Grid(	NULL, SG_T("OUTPUT")	, SG_T("RGB-Output")	, SG_T("Grid, that combines three grids")	, PARAMETER_OUTPUT);
 }
 
 //---------------------------------------------------------
@@ -134,15 +134,15 @@ bool CRGBOverlay::On_Execute(void)
 	bw	= Parameters("InputWeightBlue")->asDouble()/100.0;
 
 	if( rw > 1 || rw < 0 ){
-		Error_Set("Weight for Red Grid out of range (0..100) - Cannot execute module");
+		Error_Set(_TL("Weight for Red Grid out of range (0..100) - Cannot execute module"));
 		return (false);
 	}
 	if( rw > 1 || rw < 0 ){
-		Error_Set("Weight for Red Grid out of range (0..100) - Cannot execute module");
+		Error_Set(_TL("Weight for Red Grid out of range (0..100) - Cannot execute module"));
 		return (false);
 	}
 	if( rw > 1 || rw < 0 ){
-		Error_Set("Weight for Red Grid out of range (0..100) - Cannot execute module");
+		Error_Set(_TL("Weight for Red Grid out of range (0..100) - Cannot execute module"));
 		return (false);
 	}
 

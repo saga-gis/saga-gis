@@ -93,7 +93,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define CONFIG_GROUP_FILE_DLG	"/FileDialogs"
+#define CONFIG_GROUP_FILE_DLG	wxT("/FileDialogs")
 
 
 ///////////////////////////////////////////////////////////
@@ -103,7 +103,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char * DLG_Get_Text(int ID_DLG)
+const wxChar * DLG_Get_Text(int ID_DLG)
 {
 	switch( ID_DLG )
 	{
@@ -116,7 +116,7 @@ const char * DLG_Get_Text(int ID_DLG)
 }
 
 //---------------------------------------------------------
-const char * DLG_Get_Caption(int ID_DLG)
+const wxChar * DLG_Get_Caption(int ID_DLG)
 {
 	switch( ID_DLG )
 	{
@@ -136,7 +136,7 @@ const char * DLG_Get_Caption(int ID_DLG)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char * DLG_Get_FILE_Caption(int ID_DLG)
+const wxChar * DLG_Get_FILE_Caption(int ID_DLG)
 {
 	switch( ID_DLG )
 	{
@@ -173,85 +173,151 @@ const char * DLG_Get_FILE_Caption(int ID_DLG)
 }
 
 //---------------------------------------------------------
-const char * DLG_Get_FILE_Filter(int ID_DLG)
+const wxString DLG_Get_FILE_Filter(int ID_DLG)
 {
 	switch( ID_DLG )
 	{
-	case ID_DLG_WKSP_OPEN:			return( LNG("[FIL] "
-		"All Recognised Files"					"|*.sprj;*.mlb;*.dll;*.so;*sgrd;*.dgm;*.grd;*.shp;*.txt;*.dbf|"
-		"SAGA Project (*.sprj)"					"|*.sprj|"
-		"SAGA Module Libraries (*.dll, *.so)"	"|*.mlb;*.dll;*.so|"
-		"Grids (*.sgrd, *.dgm)"					"|*.sgrd;*.dgm;*.grd|"
-		"ESRI Shape Files (*.shp)"				"|*.shp|"
-		"Tables (*.txt, *.dbf)"					"|*.txt;*.dbf|"
-		"All Files"								"|*.*"
-	) );
+	case ID_DLG_WKSP_OPEN:
+		return( wxString::Format(
+			wxT("%s|*.sprj;*.mlb;*.dll;*.so;*sgrd;*.dgm;*.grd;*.shp;*.txt;*.dbf|")
+			wxT("%s|*.sprj|")
+			wxT("%s|*.mlb;*.dll;*.so|")
+			wxT("%s|*.sgrd;*.dgm;*.grd|")
+			wxT("%s|*.shp|")
+			wxT("%s|*.txt;*.dbf|")
+			wxT("%s|*.*"),
+			LNG("All Recognised Files"),
+			LNG("SAGA Project (*.sprj)"),
+			LNG("SAGA Module Libraries (*.dll, *.so)"),
+			LNG("Grids (*.sgrd, *.dgm)"),
+			LNG("ESRI Shape Files (*.shp)"),
+			LNG("Tables (*.txt, *.dbf)"),
+			LNG("All Files")
+		));
 
-	case ID_DLG_MODULES_OPEN:		return( LNG("[FIL] SAGA Module Libraries (*.dll, *.so)"	"|*.mlb;*.dll;*.so"		"|All Files|*.*") );
+	case ID_DLG_MODULES_OPEN:
+		return( wxString::Format(wxT("%s|%s|%s|*.*"),
+			LNG("SAGA Module Libraries (*.dll, *.so)"),
+			wxT("*.mlb;*.dll;*.so"),
+			LNG("All Files")
+		));
 
 	case ID_DLG_PROJECT_OPEN:
-	case ID_DLG_PROJECT_SAVE:		return( LNG("[FIL] SAGA Projects (*.sprj)"				"|*.sprj"				"|All Files|*.*") );
+	case ID_DLG_PROJECT_SAVE:
+		return( wxString::Format(wxT("%s|%s|%s|*.*"),
+			LNG("SAGA Projects (*.sprj)"),
+			wxT("*.sprj"),
+			LNG("All Files")
+		));
 
-	case ID_DLG_GRIDS_OPEN:			return( LNG("[FIL] Grids (*.sgrd, *.dgm)"				"|*.sgrd;*.dgm;*.grd"	"|All Files|*.*") );
-	case ID_DLG_GRIDS_SAVE:			return( LNG("[FIL] Grids (*.sgrd)"						"|*.sgrd"				"|All Files|*.*") );
+	case ID_DLG_GRIDS_OPEN:
+		return( wxString::Format(wxT("%s|%s|%s|*.*"),
+			LNG("Grids (*.sgrd, *.dgm)"),
+			wxT("*.sgrd;*.dgm;*.grd"),
+			LNG("All Files")
+		));
+
+	case ID_DLG_GRIDS_SAVE:
+		return( wxString::Format(wxT("%s|%s|%s|*.*"),
+			LNG("Grids (*.sgrd)"),
+			wxT("*.sgrd"),
+			LNG("All Files")
+		));
 
 	case ID_DLG_SHAPES_OPEN:
-	case ID_DLG_SHAPES_SAVE:		return( LNG("[FIL] ESRI Shape Files (*.shp)"			"|*.shp"				"|All Files|*.*") );
+	case ID_DLG_SHAPES_SAVE:
+		return( wxString::Format(wxT("%s|%s|%s|*.*"),
+			LNG("ESRI Shape Files (*.shp)"),
+			wxT("*.shp"),
+			LNG("All Files")
+		));
 
-	case ID_DLG_TABLES_OPEN:		return( LNG("[FIL] Tables (*.txt, *.dbf)"				"|*.txt;*.dbf"			"|All Files|*.*") );
-	case ID_DLG_TABLES_SAVE:		return( LNG("[FIL] Text (*.txt)|*.txt|DBase (*.dbf)"	"|*.dbf"				"|All Files|*.*") );
+	case ID_DLG_TABLES_OPEN:
+		return( wxString::Format(wxT("%s|%s|%s|*.*"),
+			LNG("Tables (*.txt, *.dbf)"),
+			wxT("*.txt;*.dbf"),
+			LNG("All Files")
+		));
+	case ID_DLG_TABLES_SAVE:
+		return( wxString::Format(wxT("%s|%s|%s|%s|%s|*.*"),
+			LNG("Text (*.txt)"),
+			wxT("*.txt"),
+			LNG("DBase (*.dbf)"),
+			wxT("*.dbf"),
+			LNG("All Files")
+		));
 
 	case ID_DLG_TIN_OPEN:
-	case ID_DLG_TIN_SAVE:			return( LNG("[FIL] ESRI Shape Files (*.shp)"			"|*.shp"				"|All Files|*.*") );
+	case ID_DLG_TIN_SAVE:
+		return( wxString::Format(wxT("%s|%s|%s|*.*"),
+			LNG("ESRI Shape Files (*.shp)"),
+			wxT("*.shp"),
+			LNG("All Files")
+		));
 
 	case ID_DLG_TEXT_OPEN:
-	case ID_DLG_TEXT_SAVE:			return( LNG("[FIL] Text Files (*.txt)"					"|*.txt"				"|All Files|*.*") );
+	case ID_DLG_TEXT_SAVE:
+		return( wxString::Format(wxT("%s|%s|%s|*.*"),
+			LNG("Text Files (*.txt)"),
+			wxT("*.txt"),
+			LNG("All Files")
+		));
 
 	case ID_DLG_PARAMETERS_OPEN:
-	case ID_DLG_PARAMETERS_SAVE:	return( LNG("[FIL] SAGA Parameter Files (*.sprm)"		"|*.sprm"				"|All Files|*.*") );
+	case ID_DLG_PARAMETERS_SAVE:
+		return( wxString::Format(wxT("%s|%s|%s|*.*"),
+			LNG("SAGA Parameter Files (*.sprm)"),
+			wxT("*.sprm"),
+			LNG("All Files")
+		));
 
 	case ID_DLG_COLORS_OPEN:
-	case ID_DLG_COLORS_SAVE:		return( LNG("[FIL] SAGA Colors (*.pal)"					"|*.pal"				"|All Files|*.*") );
+	case ID_DLG_COLORS_SAVE:
+		return( wxString::Format(wxT("%s|%s|%s|*.*"),
+			LNG("SAGA Colors (*.pal)"),
+			wxT("*.pal"),
+			LNG("All Files")
+		));
 	}
 
-	return( LNG("[FIL] All Files|*.*") );
+	return( wxString::Format(wxT("%s|*.*"), LNG("All Files")) );
 }
 
 //---------------------------------------------------------
-const char * DLG_Get_FILE_Config(int ID_DLG)
+const wxChar * DLG_Get_FILE_Config(int ID_DLG)
 {
 	switch( ID_DLG )
 	{
-	case ID_DLG_WKSP_OPEN:			return( "ALL_LOAD" );
+	case ID_DLG_WKSP_OPEN:			return( wxT("ALL_LOAD") );
 
-	case ID_DLG_MODULES_OPEN:		return( "MLB_LOAD" );
+	case ID_DLG_MODULES_OPEN:		return( wxT("MLB_LOAD") );
 
-	case ID_DLG_PROJECT_OPEN:		return( "PRJ_LOAD" );
-	case ID_DLG_PROJECT_SAVE:		return( "PRJ_SAVE" );
+	case ID_DLG_PROJECT_OPEN:		return( wxT("PRJ_LOAD") );
+	case ID_DLG_PROJECT_SAVE:		return( wxT("PRJ_SAVE") );
 
-	case ID_DLG_GRIDS_OPEN:			return( "GRD_LOAD" );
-	case ID_DLG_GRIDS_SAVE:			return( "GRD_SAVE" );
+	case ID_DLG_GRIDS_OPEN:			return( wxT("GRD_LOAD") );
+	case ID_DLG_GRIDS_SAVE:			return( wxT("GRD_SAVE") );
 
-	case ID_DLG_SHAPES_OPEN:		return( "SHP_LOAD" );
-	case ID_DLG_SHAPES_SAVE:		return( "SHP_SAVE" );
+	case ID_DLG_SHAPES_OPEN:		return( wxT("SHP_LOAD") );
+	case ID_DLG_SHAPES_SAVE:		return( wxT("SHP_SAVE") );
 
-	case ID_DLG_TABLES_OPEN:		return( "TAB_LOAD" );
-	case ID_DLG_TABLES_SAVE:		return( "TAB_SAVE" );
+	case ID_DLG_TABLES_OPEN:		return( wxT("TAB_LOAD") );
+	case ID_DLG_TABLES_SAVE:		return( wxT("TAB_SAVE") );
 
-	case ID_DLG_TIN_OPEN:			return( "TIN_LOAD" );
-	case ID_DLG_TIN_SAVE:			return( "TIN_SAVE" );
+	case ID_DLG_TIN_OPEN:			return( wxT("TIN_LOAD") );
+	case ID_DLG_TIN_SAVE:			return( wxT("TIN_SAVE") );
 
-	case ID_DLG_TEXT_OPEN:			return( "TXT_LOAD" );
-	case ID_DLG_TEXT_SAVE:			return( "TXT_SAVE" );
+	case ID_DLG_TEXT_OPEN:			return( wxT("TXT_LOAD") );
+	case ID_DLG_TEXT_SAVE:			return( wxT("TXT_SAVE") );
 
-	case ID_DLG_PARAMETERS_OPEN:	return( "PRM_LOAD" );
-	case ID_DLG_PARAMETERS_SAVE:	return( "PRM_SAVE" );
+	case ID_DLG_PARAMETERS_OPEN:	return( wxT("PRM_LOAD") );
+	case ID_DLG_PARAMETERS_SAVE:	return( wxT("PRM_SAVE") );
 
-	case ID_DLG_COLORS_OPEN:		return( "COL_LOAD" );
-	case ID_DLG_COLORS_SAVE:		return( "COL_SAVE" );
+	case ID_DLG_COLORS_OPEN:		return( wxT("COL_LOAD") );
+	case ID_DLG_COLORS_SAVE:		return( wxT("COL_SAVE") );
 	}
 
-	return( "FILE" );
+	return( wxT("FILE") );
 }
 
 
@@ -304,7 +370,7 @@ bool		DLG_Parameters(CSG_Parameters *pParameters)
 }
 
 //---------------------------------------------------------
-bool		DLG_Text(const char *Caption, wxString &Text)
+bool		DLG_Text(const wxChar *Caption, wxString &Text)
 {
 	CDLG_Text		dlg(&Text, Caption);
 
@@ -312,7 +378,7 @@ bool		DLG_Text(const char *Caption, wxString &Text)
 }
 
 //---------------------------------------------------------
-bool		DLG_Table(const char *Caption, CSG_Table *pTable)
+bool		DLG_Table(const wxChar *Caption, CSG_Table *pTable)
 {
 	CDLG_Table		dlg(pTable, Caption);
 
@@ -320,7 +386,7 @@ bool		DLG_Table(const char *Caption, CSG_Table *pTable)
 }
 
 //---------------------------------------------------------
-bool		DLG_List_Grid(const char *Caption, CSG_Parameter_Grid_List *pList)
+bool		DLG_List_Grid(const wxChar *Caption, CSG_Parameter_Grid_List *pList)
 {
 	CDLG_List_Grid		dlg(pList, Caption);
 
@@ -328,7 +394,7 @@ bool		DLG_List_Grid(const char *Caption, CSG_Parameter_Grid_List *pList)
 }
 
 //---------------------------------------------------------
-bool		DLG_List_Table(const char *Caption, CSG_Parameter_Table_List *pList)
+bool		DLG_List_Table(const wxChar *Caption, CSG_Parameter_Table_List *pList)
 {
 	CDLG_List_Table		dlg(pList, Caption);
 
@@ -336,7 +402,7 @@ bool		DLG_List_Table(const char *Caption, CSG_Parameter_Table_List *pList)
 }
 
 //---------------------------------------------------------
-bool		DLG_List_Shapes(const char *Caption, CSG_Parameter_Shapes_List *pList)
+bool		DLG_List_Shapes(const wxChar *Caption, CSG_Parameter_Shapes_List *pList)
 {
 	CDLG_List_Shapes	dlg(pList, Caption);
 
@@ -344,7 +410,7 @@ bool		DLG_List_Shapes(const char *Caption, CSG_Parameter_Shapes_List *pList)
 }
 
 //---------------------------------------------------------
-bool		DLG_List_TIN(const char *Caption, CSG_Parameter_TIN_List *pList)
+bool		DLG_List_TIN(const wxChar *Caption, CSG_Parameter_TIN_List *pList)
 {
 	CDLG_List_TIN		dlg(pList, Caption);
 
@@ -397,7 +463,7 @@ bool		DLG_Colors(int &Palette)
 
 	wxSingleChoiceDialog	dlg(
 		MDI_Get_Frame(),
-		"",
+		wxT(""),
 		LNG("[CAP] Preset Selection"),		
 		SG_COLORS_COUNT, Palettes
 	);
@@ -460,9 +526,9 @@ bool		DLG_Font(wxFont *pFont, long &_Colour)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		DLG_Get_Number(double &Number, const char *Caption, const char *Text)
+bool		DLG_Get_Number(double &Number, const wxChar *Caption, const wxChar *Text)
 {
-	wxTextEntryDialog	dlg(MDI_Get_Frame(), Text, Caption, wxString::Format("%f", Number));
+	wxTextEntryDialog	dlg(MDI_Get_Frame(), Text, Caption, wxString::Format(wxT("%f"), Number));
 
 	return( dlg.ShowModal() == wxID_OK && dlg.GetValue().ToDouble(&Number) );
 }
@@ -473,10 +539,10 @@ bool		DLG_Get_Number(double &Number)
 }
 
 //---------------------------------------------------------
-bool		DLG_Get_Number(int &Number, const char *Caption, const char *Text)
+bool		DLG_Get_Number(int &Number, const wxChar *Caption, const wxChar *Text)
 {
 	long				lValue;
-	wxTextEntryDialog	dlg(MDI_Get_Frame(), Text, Caption, wxString::Format("%d", Number));
+	wxTextEntryDialog	dlg(MDI_Get_Frame(), Text, Caption, wxString::Format(wxT("%d"), Number));
 
 	if( dlg.ShowModal() == wxID_OK && dlg.GetValue().ToLong(&lValue) )
 	{
@@ -501,7 +567,7 @@ bool		DLG_Get_Number(int &Number)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		DLG_Directory(wxString &Directory, const char *Caption, const char *def_Dir)
+bool		DLG_Directory(wxString &Directory, const wxChar *Caption, const wxChar *def_Dir)
 {
 	wxDirDialog	dlg(MDI_Get_Frame(), Caption, def_Dir);
 
@@ -515,13 +581,13 @@ bool		DLG_Directory(wxString &Directory, const char *Caption, const char *def_Di
 	return( false );
 }
 
-bool		DLG_Directory(wxString &Directory, const char *Caption)
+bool		DLG_Directory(wxString &Directory, const wxChar *Caption)
 {
 	return( DLG_Directory(Directory, Caption, SG_File_Get_Path(Directory)) );
 }
 
 //---------------------------------------------------------
-bool		DLG_Save(wxString &File_Path, const char *Caption, const char *def_Dir, const char *def_File, const char *Filter)
+bool		DLG_Save(wxString &File_Path, const wxChar *Caption, const wxChar *def_Dir, const wxChar *def_File, const wxChar *Filter)
 {
 	wxFileDialog	dlg(MDI_Get_Frame(), Caption, def_Dir, def_File, Filter, wxSAVE|wxOVERWRITE_PROMPT);
 
@@ -541,7 +607,7 @@ bool		DLG_Save(wxString &File_Path, int ID_DLG)
 
 	CONFIG_Read(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(ID_DLG), def_Dir);
 
-	if( DLG_Save(File_Path, DLG_Get_FILE_Caption(ID_DLG), def_Dir, "", DLG_Get_FILE_Filter(ID_DLG)) )
+	if( DLG_Save(File_Path, DLG_Get_FILE_Caption(ID_DLG), def_Dir, wxT(""), DLG_Get_FILE_Filter(ID_DLG)) )
 	{
 		CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(ID_DLG), SG_File_Get_Path(File_Path));
 
@@ -551,13 +617,13 @@ bool		DLG_Save(wxString &File_Path, int ID_DLG)
 	return( false );
 }
 
-bool		DLG_Save(wxString &File_Path, const char *Caption, const char *Filter)
+bool		DLG_Save(wxString &File_Path, const wxChar *Caption, const wxChar *Filter)
 {
 	return( DLG_Save(File_Path, Caption, SG_File_Get_Path(File_Path), SG_File_Get_Name(File_Path, true), Filter) );
 }
 
 //---------------------------------------------------------
-bool		DLG_Open(wxString &File_Path, const char *Caption, const char *def_Dir, const char *def_File, const char *Filter)
+bool		DLG_Open(wxString &File_Path, const wxChar *Caption, const wxChar *def_Dir, const wxChar *def_File, const wxChar *Filter)
 {
 	wxFileDialog	dlg(MDI_Get_Frame(), Caption, def_Dir, def_File, Filter, wxOPEN|wxFILE_MUST_EXIST);
 
@@ -577,7 +643,7 @@ bool		DLG_Open(wxString &File_Path, int ID_DLG)
 
 	CONFIG_Read(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(ID_DLG), def_Dir);
 
-	if( DLG_Open(File_Path, DLG_Get_FILE_Caption(ID_DLG), def_Dir, "", DLG_Get_FILE_Filter(ID_DLG)) )
+	if( DLG_Open(File_Path, DLG_Get_FILE_Caption(ID_DLG), def_Dir, wxT(""), DLG_Get_FILE_Filter(ID_DLG)) )
 	{
 		CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(ID_DLG), SG_File_Get_Path(File_Path));
 
@@ -587,15 +653,15 @@ bool		DLG_Open(wxString &File_Path, int ID_DLG)
 	return( false );
 }
 
-bool		DLG_Open(wxString &File_Path, const char *Caption, const char *Filter)
+bool		DLG_Open(wxString &File_Path, const wxChar *Caption, const wxChar *Filter)
 {
 	return( DLG_Open(File_Path, Caption, SG_File_Get_Path(File_Path), SG_File_Get_Name(File_Path, true), Filter) );
 }
 
 //---------------------------------------------------------
-bool		DLG_Open(wxArrayString &File_Paths, const char *Caption, const char *def_Dir, const char *Filter)
+bool		DLG_Open(wxArrayString &File_Paths, const wxChar *Caption, const wxChar *def_Dir, const wxChar *Filter)
 {
-	wxFileDialog	dlg(MDI_Get_Frame(), Caption, def_Dir, "", Filter, wxOPEN|wxFILE_MUST_EXIST|wxMULTIPLE);
+	wxFileDialog	dlg(MDI_Get_Frame(), Caption, def_Dir, wxT(""), Filter, wxOPEN|wxFILE_MUST_EXIST|wxMULTIPLE);
 
 	if( dlg.ShowModal() == wxID_OK )
 	{
@@ -623,9 +689,9 @@ bool		DLG_Open(wxArrayString &File_Paths, int ID_DLG)
 	return( false );
 }
 
-bool		DLG_Open(wxArrayString &File_Paths, const char *Caption, const char *Filter)
+bool		DLG_Open(wxArrayString &File_Paths, const wxChar *Caption, const wxChar *Filter)
 {
-	return( DLG_Open(File_Paths, Caption, "", Filter) );
+	return( DLG_Open(File_Paths, Caption, wxT(""), Filter) );
 }
 
 
@@ -636,19 +702,25 @@ bool		DLG_Open(wxArrayString &File_Paths, const char *Caption, const char *Filte
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		DLG_Image_Save(wxString &File_Path, int &Type, const char *def_Dir, const char *def_File)
+bool		DLG_Image_Save(wxString &File_Path, int &Type, const wxChar *def_Dir, const wxChar *def_File)
 {
 	static	int	Filter_Index	= 3;
 
 	wxFileDialog	dlg(
-		MDI_Get_Frame(), LNG("[CAP] Save As Image"), def_Dir, def_File,
-			"Windows or OS/2 Bitmap (*.bmp)"				"|*.bmp|"
-			"JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)"	"|*.jpg;*.jif;*.jpeg|"
-			"Tagged Image File Format (*.tif, *.tiff)"		"|*.tif;*.tiff|"
-			"Portable Network Graphics (*.png)"				"|*.png|"
-			"CompuServe Graphics Interchange (*.gif)"		"|*.gif|"
-			"Zsoft Paintbrush (*.pcx)"						"|*.pcx",
-		wxSAVE|wxOVERWRITE_PROMPT
+		MDI_Get_Frame(), LNG("[CAP] Save As Image"), def_Dir, def_File, wxString::Format(
+			wxT("%s|*.bmp|")
+			wxT("%s|*.jpg;*.jif;*.jpeg|")
+			wxT("%s|*.tif;*.tiff|")
+			wxT("%s|*.png|")
+			wxT("%s|*.gif|")
+			wxT("%s|*.pcx"),
+			LNG("Windows or OS/2 Bitmap (*.bmp)"),
+			LNG("JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)"),
+			LNG("Tagged Image File Format (*.tif, *.tiff)"),
+			LNG("Portable Network Graphics (*.png)"),
+			LNG("CompuServe Graphics Interchange (*.gif)"),
+			LNG("Zsoft Paintbrush (*.pcx)")
+		), wxSAVE|wxOVERWRITE_PROMPT
 	);
 
 	dlg.SetFilterIndex(Filter_Index);
@@ -684,7 +756,7 @@ bool		DLG_Image_Save(wxString &File_Path, int &Type, const char *def_Dir, const 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void		DLG_Message_Show(const char *Message, const char *Caption)
+void		DLG_Message_Show(const wxChar *Message, const wxChar *Caption)
 {
 	wxMessageDialog	dlg(MDI_Get_Frame(), Message, Caption, wxOK);
 
@@ -696,13 +768,13 @@ void		DLG_Message_Show(int ID_DLG)
 	DLG_Message_Show(DLG_Get_Text(ID_DLG), DLG_Get_Caption(ID_DLG));
 }
 
-void		DLG_Message_Show(const char *Message)
+void		DLG_Message_Show(const wxChar *Message)
 {
 	DLG_Message_Show(Message, DLG_Get_Caption(-1));
 }
 
 //---------------------------------------------------------
-int			DLG_Message_Show_Error(const char *Message, const char *Caption)
+int			DLG_Message_Show_Error(const wxChar *Message, const wxChar *Caption)
 {
 	wxMessageDialog	dlg(MDI_Get_Frame(), Message, Caption, wxOK|wxCANCEL|wxICON_ERROR);
 
@@ -722,7 +794,7 @@ int			DLG_Message_Show_Error(int ID_DLG)
 }
 
 //---------------------------------------------------------
-bool		DLG_Message_Confirm(const char *Message, const char *Caption)
+bool		DLG_Message_Confirm(const wxChar *Message, const wxChar *Caption)
 {
 	wxMessageDialog	dlg(MDI_Get_Frame(), Message, Caption, wxYES_NO|wxICON_QUESTION);
 
@@ -735,7 +807,7 @@ bool		DLG_Message_Confirm(int ID_DLG)
 }
 
 //---------------------------------------------------------
-int			DLG_Message_YesNoCancel(const char *Message, const char *Caption)
+int			DLG_Message_YesNoCancel(const wxChar *Message, const wxChar *Caption)
 {
 	wxMessageDialog	dlg(MDI_Get_Frame(), Message, Caption, wxYES|wxNO|wxCANCEL|wxICON_QUESTION);
 

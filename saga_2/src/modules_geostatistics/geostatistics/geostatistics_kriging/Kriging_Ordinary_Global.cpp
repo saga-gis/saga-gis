@@ -75,7 +75,7 @@ CKriging_Ordinary_Global::CKriging_Ordinary_Global(void)
 
 	Set_Author		(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"Ordinary Kriging for grid interpolation from irregular sample points. "
 		"This implementation does not use a maximum search radius. The weighting "
 		"matrix is generated once globally for all points."

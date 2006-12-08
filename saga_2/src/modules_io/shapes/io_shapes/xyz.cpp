@@ -84,13 +84,13 @@ CXYZ_Export::CXYZ_Export(void)
 	//-----------------------------------------------------
 	pNode_0	= Parameters.Add_Shapes(
 		NULL	, "SHAPES"	, _TL("Shapes"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	pNode_1	= Parameters.Add_Table_Field(
 		pNode_0	, "FIELD"	, _TL("Attribute"),
-		""
+		_TL("")
 	);
 
 	pNode_0	= Parameters.Add_Value(
@@ -109,7 +109,7 @@ CXYZ_Export::CXYZ_Export(void)
 		NULL	, "SEPARATE", _TL("Separate Line/Polygon Points"),
 		_TL(""),
 
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("none"),
 			_TL("*"),
 			_TL("number of points")
@@ -118,13 +118,12 @@ CXYZ_Export::CXYZ_Export(void)
 
 	pNode_0	= Parameters.Add_FilePath(
 		NULL	, "FILENAME", _TL("File"),
-		"",
-		_TL(
-		"XYZ Files (*.xyz)"		"|*.xyz|"
-		"Text Files (*.txt)"	"|*.txt|"
-		"All Files"				"|*.*"),
-
-		NULL, true
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s"),
+			_TL("XYZ Files (*.xyz)")	, SG_T("*.xyz"),
+			_TL("Text Files (*.txt)")	, SG_T("*.txt"),
+			_TL("All Files")			, SG_T("*.*")
+		), NULL, true
 	);
 }
 
@@ -139,11 +138,13 @@ bool CXYZ_Export::On_Execute(void)
 	int			iShape, iPart, iPoint, iField, Separate;
 	FILE		*Stream;
 	TSG_Point	Point;
-	CSG_Shape		*pShape;
-	CSG_Shapes		*pShapes;
+	CSG_Shape	*pShape;
+	CSG_Shapes	*pShapes;
+	CSG_String	fName;
 
 	//-----------------------------------------------------
 	pShapes		= Parameters("SHAPES")	->asShapes();
+	fName		= Parameters("FILENAME")->asString();
 	bAll		= Parameters("ALL")		->asBool();
 	bHeader		= Parameters("HEADER")	->asBool();
 	iField		= Parameters("FIELD")	->asInt();
@@ -156,7 +157,7 @@ bool CXYZ_Export::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( (Stream = fopen(Parameters("FILENAME")->asString(), "w")) != NULL )
+	if( (Stream = fopen(fName.b_str(), "w")) != NULL )
 	{
 		if( bHeader )
 		{
@@ -268,37 +269,37 @@ CXYZ_Import::CXYZ_Import(void)
 	//-----------------------------------------------------
 	pNode_0	= Parameters.Add_Shapes(
 		NULL	, "SHAPES"		, _TL("Points"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
 //	pNode_0	= Parameters.Add_Value(
 //		NULL	, "HEADLINE"	, "File contains headline",
-//		"",
+//		_TL(""),
 //		PARAMETER_TYPE_Bool		, true
 //	);
 
 	pNode_1	= Parameters.Add_Value(
 		pNode_0	, "X_FIELD"		, _TL("X Column"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int		, 1, 1, true
 	);
 
 	pNode_1	= Parameters.Add_Value(
 		pNode_0	, "Y_FIELD"		, _TL("Y Column"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int		, 2, 1, true
 	);
 
 	pNode_0	= Parameters.Add_FilePath(
 		NULL	, "FILENAME"	, _TL("File"),
-		"",
-		_TL(
-		"XYZ Files (*.xyz)"		"|*.xyz|"
-		"Text Files (*.txt)"	"|*.txt|"
-		"All Files"				"|*.*"),
+		_TL(""),
 
-		NULL, false
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s"),
+			_TL("XYZ Files (*.xyz)")	, SG_T("*.xyz"),
+			_TL("Text Files (*.txt)")	, SG_T("*.txt"),
+			_TL("All Files")			, SG_T("*.*")
+		), NULL, false
 	);
 }
 
@@ -309,7 +310,7 @@ CXYZ_Import::~CXYZ_Import(void)
 //---------------------------------------------------------
 bool CXYZ_Import::On_Execute(void)
 {
-	int				xField, yField, iRecord;
+	int					xField, yField, iRecord;
 	CSG_Table			Table;
 	CSG_Table_Record	*pRecord;
 	CSG_Shapes			*pShapes;
@@ -327,11 +328,11 @@ bool CXYZ_Import::On_Execute(void)
 	}
 	else if( Table.Get_Record_Count() <= 0 )
 	{
-		Message_Add("Table does not contain any data.");
+		Message_Add(_TL("Table does not contain any data."));
 	}
 	else if( xField == yField || xField < 0 || xField >= Table.Get_Field_Count() || yField < 0 || yField >= Table.Get_Field_Count() )
 	{
-		Message_Add("Invalid X/Y fields.");
+		Message_Add(_TL("Invalid X/Y fields."));
 	}
 
 	//-----------------------------------------------------

@@ -75,25 +75,25 @@ CGrid_3D_Image::CGrid_3D_Image(void)
 	Set_Author(_TL("Copyrights (c) 2005 by Olaf Conrad"));
 
 	Set_Description(
-		""
+		_TL("")
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL	, "DEM"				, _TL("Elevation"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "IMAGE"			, _TL("Overlay Image"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes_List(
 		NULL	, "SHAPES"			, _TL("Shapes to project"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
@@ -101,45 +101,47 @@ CGrid_3D_Image::CGrid_3D_Image(void)
 	//-----------------------------------------------------
 	Parameters.Add_Value(
 		NULL	, "ZEXAGG"			, _TL("Exaggeration"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 1.0
 	);
 
 	Parameters.Add_Value(
 		NULL	, "ZEXAGG_MIN"		, _TL("Minimum Exaggeration [%]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 10.0, 0.0, true, 100.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "Z_ROTATE"		, _TL("Image Rotation [Degree]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 0.0
 	);
 
 	Parameters.Add_Value(
 		NULL	, "X_ROTATE"		, _TL("Local Rotation [Degree]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 1.0
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "X_ROTATE_LEVEL"	, _TL("Local Rotation Base Level"),
-		"",
+		_TL(""),
 
-		"Zero|"
-		"Mean Elevation|", 1
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("Zero"),
+			_TL("Mean Elevation")
+		), 1
 	);
 
 	Parameters.Add_Value(
 		NULL	, "PANBREAK"		, _TL("Panorama Break [%]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 70.0, 0.0, true, 100.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "BKCOLOR"			, _TL("Background Color"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Color, SG_COLOR_BLACK
 	);
 
@@ -147,36 +149,38 @@ CGrid_3D_Image::CGrid_3D_Image(void)
 	//-----------------------------------------------------
 	Parameters.Add_Choice(
 		NULL	, "PROJECTION"		, _TL("Projection"),
-		"",
-		_TL(
-		"Panorama|"
-		"Circular|"), 0
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("Panorama"),
+			_TL("Circular")
+		), 0
 	);
 
 
 	//-----------------------------------------------------
 	Parameters.Add_Value(
 		NULL	, "NX"				, _TL("3D Image Width"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 100, 1, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "NY"				, _TL("3D Image Height"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 100, 1, true
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "RGB"				, _TL("3D Image"),
-		"",
+		_TL(""),
 //		PARAMETER_OUTPUT_OPTIONAL, false, GRID_TYPE_Int
 		PARAMETER_OUTPUT_OPTIONAL, true, GRID_TYPE_Int
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "RGB_Z"			, _TL("Projected Height"),
-		"",
+		_TL(""),
 //		PARAMETER_OUTPUT_OPTIONAL, false, GRID_TYPE_Float
 		PARAMETER_OUTPUT_OPTIONAL, true, GRID_TYPE_Float
 	);

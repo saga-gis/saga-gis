@@ -84,19 +84,19 @@ CTIN_Flow_Trace::CTIN_Flow_Trace(void)
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_TIN(
-		NULL	, "DEM"			, "TIN",
-		"",
+		NULL	, "DEM"			, _TL("TIN"),
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table_Field(
 		pNode	, "ZFIELD"		, _TL("Z Values"),
-		""
+		_TL("")
 	);
 
 	pNode	= Parameters.Add_TIN(
 		NULL	, "FLOW"		, _TL("Flow Accumulation"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 }

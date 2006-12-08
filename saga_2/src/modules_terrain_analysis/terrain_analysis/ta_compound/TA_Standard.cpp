@@ -95,143 +95,143 @@ CTA_Standard::CTA_Standard(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL	, "ELEVATION"	, _TL("Elevation"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "SHADE"		, _TL("Analytical Hillshading"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	pNode	= Parameters.Add_Node(
 		NULL	, "SHADE_NODE"	, _TL("Analytical Hillshading"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Value(
 		pNode	, "SHADE_AZIM"	, _TL("Azimuth []"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 315
 	);
 
 	Parameters.Add_Value(
 		pNode	, "SHADE_DECL"	, _TL("Declination []"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 45
 	);
 
 	Parameters.Add_Value(
 		pNode	, "SHADE_EXAG"	, _TL("Exaggeration"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 4
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "SLOPE"		, _TL("Slope"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "ASPECT"		, _TL("Aspect"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "CURV"		, _TL("Curvature"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "HCURV"		, _TL("Plan Curvature"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "VCURV"		, _TL("Profile Curvature"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "CONVERGENCE"	, _TL("Convergence Index"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "CURVCLASS"	, _TL("Curvature Classification"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "CAREA"		, _TL("Catchment Area"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "WETNESS"		, _TL("Wetness Index"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "STREAMPOW"	, _TL("Stream Power"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "LSFACTOR"	, _TL("LS-Factor"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "CHNL_GRID"	, _TL("Channel Network"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Shapes(
 		NULL	, "CHNL_SHAPES"	, _TL("Channel Network"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT		, SHAPE_TYPE_Line
 	);
 
 	pNode	= Parameters.Add_Node(
 		NULL	, "CHNL_NODE"	, _TL("Channel Network"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Value(
 		pNode	, "CHNL_INIT"	, _TL("Network Density [%]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 5.0, 0.0, true, 100.0, true
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "CHNL_ALTI"	, _TL("Altitude above Channel Network"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "CHNL_BASE"	, _TL("Channel Network Base Level"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "BASINS"		, _TL("Watershed Subbasins"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 }
@@ -255,7 +255,7 @@ bool CTA_Standard::On_Execute(void)
 
 	CPit_Eliminator	Pit_Eliminator;
 
-	if(	!Pit_Eliminator.Get_Parameters()->Set_Parameter("DEM"		, Parameters("ELEVATION"))
+	if(	!Pit_Eliminator.Get_Parameters()->Set_Parameter(SG_T("DEM")		, Parameters("ELEVATION"))
 
 	||	!Pit_Eliminator.Execute() )
 	{
@@ -267,11 +267,11 @@ bool CTA_Standard::On_Execute(void)
 
 	CHillShade	HillShade;
 
-	if(	!HillShade.Get_Parameters()->Set_Parameter("ELEVATION"		, Parameters("ELEVATION"))
-	||	!HillShade.Get_Parameters()->Set_Parameter("SHADE"			, Parameters("SHADE"))
-	||	!HillShade.Get_Parameters()->Set_Parameter("AZIMUTH"		, Parameters("SHADE_AZIM"))
-	||	!HillShade.Get_Parameters()->Set_Parameter("DECLINATION"	, Parameters("SHADE_DECL"))
-	||	!HillShade.Get_Parameters()->Set_Parameter("EXAGGERATION"	, Parameters("SHADE_EXAG"))
+	if(	!HillShade.Get_Parameters()->Set_Parameter(SG_T("ELEVATION")	, Parameters("ELEVATION"))
+	||	!HillShade.Get_Parameters()->Set_Parameter(SG_T("SHADE")		, Parameters("SHADE"))
+	||	!HillShade.Get_Parameters()->Set_Parameter(SG_T("AZIMUTH")		, Parameters("SHADE_AZIM"))
+	||	!HillShade.Get_Parameters()->Set_Parameter(SG_T("DECLINATION")	, Parameters("SHADE_DECL"))
+	||	!HillShade.Get_Parameters()->Set_Parameter(SG_T("EXAGGERATION")	, Parameters("SHADE_EXAG"))
 
 	||	!HillShade.Execute() )
 	{
@@ -283,12 +283,12 @@ bool CTA_Standard::On_Execute(void)
 
 	CMorphometry	Morphometry;
 
-	if(	!Morphometry.Get_Parameters()->Set_Parameter("ELEVATION"	, Parameters("ELEVATION"))
-	||	!Morphometry.Get_Parameters()->Set_Parameter("SLOPE"		, Parameters("SLOPE"))
-	||	!Morphometry.Get_Parameters()->Set_Parameter("ASPECT"		, Parameters("ASPECT"))
-	||	!Morphometry.Get_Parameters()->Set_Parameter("CURV"			, Parameters("CURV"))
-	||	!Morphometry.Get_Parameters()->Set_Parameter("HCURV"		, Parameters("HCURV"))
-	||	!Morphometry.Get_Parameters()->Set_Parameter("VCURV"		, Parameters("VCURV"))
+	if(	!Morphometry.Get_Parameters()->Set_Parameter(SG_T("ELEVATION")	, Parameters("ELEVATION"))
+	||	!Morphometry.Get_Parameters()->Set_Parameter(SG_T("SLOPE")		, Parameters("SLOPE"))
+	||	!Morphometry.Get_Parameters()->Set_Parameter(SG_T("ASPECT")		, Parameters("ASPECT"))
+	||	!Morphometry.Get_Parameters()->Set_Parameter(SG_T("CURV")		, Parameters("CURV"))
+	||	!Morphometry.Get_Parameters()->Set_Parameter(SG_T("HCURV")		, Parameters("HCURV"))
+	||	!Morphometry.Get_Parameters()->Set_Parameter(SG_T("VCURV")		, Parameters("VCURV"))
 
 	||	!Morphometry.Execute() )
 	{
@@ -300,8 +300,8 @@ bool CTA_Standard::On_Execute(void)
 
 	CConvergence	Convergence;
 
-	if(	!Convergence.Get_Parameters()->Set_Parameter("ELEVATION"	, Parameters("ELEVATION"))
-	||	!Convergence.Get_Parameters()->Set_Parameter("RESULT"		, Parameters("CONVERGENCE"))
+	if(	!Convergence.Get_Parameters()->Set_Parameter(SG_T("ELEVATION")	, Parameters("ELEVATION"))
+	||	!Convergence.Get_Parameters()->Set_Parameter(SG_T("RESULT")		, Parameters("CONVERGENCE"))
 
 	||	!Convergence.Execute() )
 	{
@@ -313,9 +313,9 @@ bool CTA_Standard::On_Execute(void)
 
 	CCurvature_Classification	Curvature_Classification;
 
-	if(	!Curvature_Classification.Get_Parameters()->Set_Parameter("CPLAN"	, Parameters("HCURV"))
-	||	!Curvature_Classification.Get_Parameters()->Set_Parameter("CPROF"	, Parameters("VCURV"))
-	||	!Curvature_Classification.Get_Parameters()->Set_Parameter("CLASS"	, Parameters("CURVCLASS"))
+	if(	!Curvature_Classification.Get_Parameters()->Set_Parameter(SG_T("CPLAN")	, Parameters("HCURV"))
+	||	!Curvature_Classification.Get_Parameters()->Set_Parameter(SG_T("CPROF")	, Parameters("VCURV"))
+	||	!Curvature_Classification.Get_Parameters()->Set_Parameter(SG_T("CLASS")	, Parameters("CURVCLASS"))
 
 	||	!Curvature_Classification.Execute() )
 	{
@@ -327,8 +327,8 @@ bool CTA_Standard::On_Execute(void)
 
 	CFlow_Parallel	Flow_Parallel;
 
-	if(	!Flow_Parallel.Get_Parameters()->Set_Parameter("ELEVATION"	, Parameters("ELEVATION"))
-	||	!Flow_Parallel.Get_Parameters()->Set_Parameter("CAREA"		, Parameters("CAREA"))
+	if(	!Flow_Parallel.Get_Parameters()->Set_Parameter(SG_T("ELEVATION")	, Parameters("ELEVATION"))
+	||	!Flow_Parallel.Get_Parameters()->Set_Parameter(SG_T("CAREA")		, Parameters("CAREA"))
 
 	||	!Flow_Parallel.Execute() )
 	{
@@ -340,11 +340,11 @@ bool CTA_Standard::On_Execute(void)
 
 	CTopographicIndices	TopographicIndices;
 
-	if(	!TopographicIndices.Get_Parameters()->Set_Parameter("SLOPE"		, Parameters("SLOPE"))
-	||	!TopographicIndices.Get_Parameters()->Set_Parameter("AREA"		, Parameters("CAREA"))
-	||	!TopographicIndices.Get_Parameters()->Set_Parameter("WETNESS"	, Parameters("WETNESS"))
-	||	!TopographicIndices.Get_Parameters()->Set_Parameter("STREAMPOW"	, Parameters("STREAMPOW"))
-	||	!TopographicIndices.Get_Parameters()->Set_Parameter("LSFACTOR"	, Parameters("LSFACTOR"))
+	if(	!TopographicIndices.Get_Parameters()->Set_Parameter(SG_T("SLOPE")		, Parameters("SLOPE"))
+	||	!TopographicIndices.Get_Parameters()->Set_Parameter(SG_T("AREA")		, Parameters("CAREA"))
+	||	!TopographicIndices.Get_Parameters()->Set_Parameter(SG_T("WETNESS")		, Parameters("WETNESS"))
+	||	!TopographicIndices.Get_Parameters()->Set_Parameter(SG_T("STREAMPOW")	, Parameters("STREAMPOW"))
+	||	!TopographicIndices.Get_Parameters()->Set_Parameter(SG_T("LSFACTOR")	, Parameters("LSFACTOR"))
 
 	||	!TopographicIndices.Execute() )
 	{
@@ -359,12 +359,12 @@ bool CTA_Standard::On_Execute(void)
 
 	CChannelNetwork	ChannelNetwork;
 
-	if(	!ChannelNetwork.Get_Parameters()->Set_Parameter("ELEVATION"	, Parameters("ELEVATION"))
-	||	!ChannelNetwork.Get_Parameters()->Set_Parameter("CHNLNTWRK"	, Parameters("CHNL_GRID"))
-	||	!ChannelNetwork.Get_Parameters()->Set_Parameter("CHNLROUTE"	, PARAMETER_TYPE_Grid, &Grid)
-	||	!ChannelNetwork.Get_Parameters()->Set_Parameter("SHAPES"	, Parameters("CHNL_SHAPES"))
-	||	!ChannelNetwork.Get_Parameters()->Set_Parameter("INIT_GRID"	, Parameters("CAREA"))
-	||	!ChannelNetwork.Get_Parameters()->Set_Parameter("INIT_VALUE", PARAMETER_TYPE_Double, d)
+	if(	!ChannelNetwork.Get_Parameters()->Set_Parameter(SG_T("ELEVATION")	, Parameters("ELEVATION"))
+	||	!ChannelNetwork.Get_Parameters()->Set_Parameter(SG_T("CHNLNTWRK")	, Parameters("CHNL_GRID"))
+	||	!ChannelNetwork.Get_Parameters()->Set_Parameter(SG_T("CHNLROUTE")	, PARAMETER_TYPE_Grid, &Grid)
+	||	!ChannelNetwork.Get_Parameters()->Set_Parameter(SG_T("SHAPES")		, Parameters("CHNL_SHAPES"))
+	||	!ChannelNetwork.Get_Parameters()->Set_Parameter(SG_T("INIT_GRID")	, Parameters("CAREA"))
+	||	!ChannelNetwork.Get_Parameters()->Set_Parameter(SG_T("INIT_VALUE")	, PARAMETER_TYPE_Double, d)
 
 	||	!ChannelNetwork.Execute() )
 	{
@@ -376,9 +376,9 @@ bool CTA_Standard::On_Execute(void)
 
 	CWatersheds	Watersheds;
 
-	if(	!Watersheds.Get_Parameters()->Set_Parameter("ELEVATION"	, Parameters("ELEVATION"))
-	||	!Watersheds.Get_Parameters()->Set_Parameter("CHANNELS"	, Parameters("CHNL_GRID"))
-	||	!Watersheds.Get_Parameters()->Set_Parameter("BASINS"	, Parameters("BASINS"))
+	if(	!Watersheds.Get_Parameters()->Set_Parameter(SG_T("ELEVATION")	, Parameters("ELEVATION"))
+	||	!Watersheds.Get_Parameters()->Set_Parameter(SG_T("CHANNELS")	, Parameters("CHNL_GRID"))
+	||	!Watersheds.Get_Parameters()->Set_Parameter(SG_T("BASINS")		, Parameters("BASINS"))
 
 	||	!Watersheds.Execute() )
 	{
@@ -390,10 +390,10 @@ bool CTA_Standard::On_Execute(void)
 
 	CChannelNetwork_Altitude	ChannelNetwork_Altitude;
 
-	if(	!ChannelNetwork_Altitude.Get_Parameters()->Set_Parameter("ELEVATION"	, Parameters("ELEVATION"))
-	||	!ChannelNetwork_Altitude.Get_Parameters()->Set_Parameter("CHANNELS"		, Parameters("CHNL_GRID"))
-	||	!ChannelNetwork_Altitude.Get_Parameters()->Set_Parameter("ALTITUDE"		, Parameters("CHNL_ALTI"))
-	||	!ChannelNetwork_Altitude.Get_Parameters()->Set_Parameter("BASELEVEL"	, Parameters("CHNL_BASE"))
+	if(	!ChannelNetwork_Altitude.Get_Parameters()->Set_Parameter(SG_T("ELEVATION")	, Parameters("ELEVATION"))
+	||	!ChannelNetwork_Altitude.Get_Parameters()->Set_Parameter(SG_T("CHANNELS")	, Parameters("CHNL_GRID"))
+	||	!ChannelNetwork_Altitude.Get_Parameters()->Set_Parameter(SG_T("ALTITUDE")	, Parameters("CHNL_ALTI"))
+	||	!ChannelNetwork_Altitude.Get_Parameters()->Set_Parameter(SG_T("BASELEVEL")	, Parameters("CHNL_BASE"))
 
 	||	!ChannelNetwork_Altitude.Execute() )
 	{

@@ -88,7 +88,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 {
 	static int	iBuisy		= 0;
 
-	const char	Buisy[4]	= {	'|', '/', '-', '\\'	};
+	const SG_Char	Buisy[4]	= {	'|', '/', '-', '\\'	};
 
 	int		Result;
 	double	d1, d2;
@@ -116,7 +116,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 
 		if( Param_1 != 0 )
 		{
-			printf("\r%c   ", Buisy[iBuisy++]);
+			SG_PRINTF(SG_T("\r%c   "), Buisy[iBuisy++]);
 			iBuisy	%= 4;
 		}
 
@@ -135,7 +135,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 		d1	= *((double *)Param_1);
 		d2	= *((double *)Param_2);
 
-		printf("\r%3d%%", d2 != 0.0 ? 1 + (int)(100.0 * d1 / d2) : 100);
+		SG_PRINTF(SG_T("\r%3d%%"), d2 != 0.0 ? 1 + (int)(100.0 * d1 / d2) : 100);
 
 		break;
 
@@ -148,7 +148,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_SET_TEXT:
 
-		printf("\n%s\n", (char *)Param_1);
+		SG_PRINTF(SG_T("\n%s\n"), (SG_Char *)Param_1);
 
 		break;
 
@@ -162,7 +162,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_MESSAGE_ADD:
 
-		printf("\n%s\n", (char *)Param_1);
+		SG_PRINTF(SG_T("\n%s\n"), (SG_Char *)Param_1);
 
 		break;
 
@@ -170,7 +170,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_MESSAGE_ADD_ERROR:
 
-		printf("\n%s: %s\n", LNG("error"), (char *)Param_1);
+		SG_PRINTF(SG_T("\n%s: %s\n"), LNG("error"), (SG_Char *)Param_1);
 
 		break;
 
@@ -178,7 +178,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_MESSAGE_ADD_EXECUTION:
 
-		printf("\n%s\n", (char *)Param_1);
+		SG_PRINTF(SG_T("\n%s\n"), (SG_Char *)Param_1);
 
 		break;
 
@@ -192,7 +192,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DLG_MESSAGE:
 
-		printf("\n%s: %s\n", (const char *)Param_2, (const char *)Param_1);
+		SG_PRINTF(SG_T("\n%s: %s\n"), (const SG_Char *)Param_2, (const SG_Char *)Param_1);
 
 		break;
 
@@ -200,7 +200,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DLG_CONTINUE:
 
-		Result	= Get_YesNo((const char *)Param_2, (const char *)Param_1);
+		Result	= Get_YesNo((const SG_Char *)Param_2, (const SG_Char *)Param_1);
 
 		break;
 
@@ -208,7 +208,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DLG_ERROR:
 
-		Result	= Get_YesNo((const char *)Param_2, (const char *)Param_1);
+		Result	= Get_YesNo((const SG_Char *)Param_2, (const SG_Char *)Param_1);
 
 		break;
 
@@ -326,28 +326,28 @@ void			Get_Pause		(void)
 {
 	if( !g_bSilent )
 	{
-		printf("\n%s...", LNG("press any key"));
+		SG_PRINTF(SG_T("\n%s..."), LNG("press any key"));
 
 		_getch();
 	}
 }
 
 //---------------------------------------------------------
-bool			Get_YesNo		(const char *caption, const char *message)
+bool			Get_YesNo		(const SG_Char *caption, const SG_Char *message)
 {
 	wxBell();
 
-	printf("\n%s: %s\n", caption, message);
+	SG_PRINTF(SG_T("\n%s: %s\n"), caption, message);
 
 	if( !g_bSilent )
 	{
-		wxString	sKey, sYes(LNG("Y")), sNo(LNG("N"));
+		CSG_String	sKey, sYes(LNG("Y")), sNo(LNG("N"));
 
-		printf("%s? (%s/%s)", LNG("continue"), sYes.c_str(), sNo.c_str());
+		SG_PRINTF(SG_T("%s? (%s/%s)"), LNG("continue"), sYes.c_str(), sNo.c_str());
 
 		do
 		{
-			sKey.Printf("%c", _getch());
+			sKey.Printf(SG_T("%c"), _getch());
 		}
 		while( sYes.CmpNoCase(sKey) && sNo.CmpNoCase(sKey) );
 
@@ -364,12 +364,12 @@ void			Get_Pause		(void)
 {
 	if( !g_bSilent )
 	{
-		printf("\n%s...", LNG("press any key"));
+		SG_PRINTF(SG_T("\n%s..."), LNG("press any key"));
 	}
 }
 
 //---------------------------------------------------------
-bool			Get_YesNo		(const char *caption, const char *message)
+bool			Get_YesNo		(const SG_Char *caption, const SG_Char *message)
 {
 	return( true );
 }
@@ -384,15 +384,15 @@ bool			Get_YesNo		(const char *caption, const char *message)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void			Print_Error		(const char *Error)
+void			Print_Error		(const SG_Char *Error)
 {
-	printf("\n%s: %s\n", LNG("error"), Error);
+	SG_PRINTF(SG_T("\n%s: %s\n"), LNG("error"), Error);
 }
 
 //---------------------------------------------------------
-void			Print_Error		(const char *Error, const char *Info)
+void			Print_Error		(const SG_Char *Error, const SG_Char *Info)
 {
-	Print_Error(wxString::Format("%s [%s]", Error, Info));
+	Print_Error(CSG_String::Format(SG_T("%s [%s]"), Error, Info));
 }
 
 

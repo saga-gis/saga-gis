@@ -75,11 +75,11 @@ CTOPMODEL::CTOPMODEL(void)
 	//-----------------------------------------------------
 	// Place information about your module here...
 
-	Set_Name	("TOPMODEL");
+	Set_Name		(_TL("TOPMODEL"));
 
-	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Simple Subcatchment Version of TOPMODEL\n\n"
 
 		"Based on the 'TOPMODEL demonstration program v95.02' by Keith Beven "
@@ -140,110 +140,110 @@ CTOPMODEL::CTOPMODEL(void)
 
 	Parameters.Add_Grid(
 		NULL	, "ATANB"		, _TL("A / tan(ß)"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	pNode	= Parameters.Add_Grid(
 		NULL	, "MOIST"		, _TL("Soil Moisture Deficit"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Table(
 		NULL	, "CLIMATE"		, _TL("Climate Data (P, EP)"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table(
 		NULL	, "TABLE"		, _TL("Simulation Output"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Value(
 		NULL	, "DTIME"		, _TL("Time Step [h]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 1.0
 	);
 
 	Parameters.Add_Value(
 		NULL	, "NCLASSES"	, _TL("Number of Classes"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int		, 30	, 1	, true
 	);
 
 	pNode	= NULL;
 	Parameters.Add_Value(
 		pNode, "P_QS0"			, _TL("Initial subsurface flow per unit area [m/h]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 3.28e-05
 	);
 
 	Parameters.Add_Value(
 		pNode, "P_LNTE"			, _TL("Areal average of ln(T0) = ln(Te) [ln(m^2/h)]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 5.0
 	);
 
 	Parameters.Add_Value(
 		pNode, "P_MODEL"		, _TL("Model parameter [m]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.032
 	);
 
 	Parameters.Add_Value(
 		pNode, "P_SR0"			, _TL("Initial root zone storage deficit [m]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.002
 	);
 
 	Parameters.Add_Value(
 		pNode, "P_SRZMAX"		, _TL("Maximum root zone storage deficit [m]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.05
 	);
 
 	Parameters.Add_Value(
 		pNode, "P_SUZ_TD"		, _TL("Unsaturated zone time delay per unit storage deficit [h]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 50.0
 	);
 
 	Parameters.Add_Value(
 		pNode, "P_VCH"			, _TL("Main channel routing velocity [m/h]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 3600.0
 	);
 
 	Parameters.Add_Value(
 		pNode, "P_VR"			, _TL("Internal subcatchment routing velocity [m/h]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 3600.0
 	);
 
 	Parameters.Add_Value(
 		pNode, "P_K0"			, _TL("Surface hydraulic conductivity [m/h]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 1.0
 	);
 
 	Parameters.Add_Value(
 		pNode, "P_PSI"			, _TL("Wetting front suction [m]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.02
 	);
 
 	Parameters.Add_Value(
 		pNode, "P_DTHETA"		, _TL("Water content change across the wetting front"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.1
 	);
 
 	Parameters.Add_Value(
 		pNode, "BINF"			, _TL("Green-Ampt Infiltration"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Bool		, true
 	);
 }

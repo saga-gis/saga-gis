@@ -82,45 +82,51 @@ CGet_Table::CGet_Table(void)
 
 	Parameters.Add_Table(
 		NULL	, "TABLE"		, _TL("Table"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "DB_SOURCE"	, _TL("ODBC Source"),
-		"",
-		"NONE|"
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|"),
+			_TL("NONE")
+		)
 	);
 
 	Parameters.Add_String(
 		NULL	, "USERNAME"	, _TL("User Name"),
-		"",
-		""
+		_TL(""),
+		_TL("")
 	);
 
 	Parameters.Add_String(
 		NULL	, "PASSWORD"	, _TL("Password"),
-		"",
-		""
+		_TL(""),
+		_TL("")
 	);
 
 	Parameters.Add_FilePath(
 		NULL	, "DIRPATH"		, _TL("Directory Path"),
-		"",
+		_TL(""),
 		NULL, NULL, false, true
 	);
 
 	//-----------------------------------------------------
-	CSG_Parameters	*pTables	= Add_Parameters("DB_TABLE", _TL("Select a Table"), "");
+	CSG_Parameters	*pTables	= Add_Parameters("DB_TABLE", _TL("Select a Table"), _TL(""));
 
 	pTables->Add_Choice(
 		NULL	, "TABLES"		, _TL("Tables"),
-		"",
-		"NONE|"
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|"),
+			_TL("NONE")
+		)
 	);
 
 	//-----------------------------------------------------
-	m_DSN	= (char *)SG_Malloc((1 + SQL_MAX_DSN_LENGTH) * sizeof(char));
+	m_DSN	= (SG_Char *)SG_Malloc((1 + SQL_MAX_DSN_LENGTH) * sizeof(SG_Char));
 
 	_Initialize();
 }
@@ -145,9 +151,9 @@ CGet_Table::~CGet_Table(void)
 //---------------------------------------------------------
 int CGet_Table::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !strcmp(pParameters->Get_Identifier(), Parameters.Get_Identifier()) )
+	if( !SG_STR_CMP(pParameters->Get_Identifier(), Parameters.Get_Identifier()) )
 	{
-		if( !strcmp(pParameter->Get_Identifier(), "DB_SOURCE") )
+		if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("DB_SOURCE")) )
 		{
 		}
 	}
@@ -198,7 +204,7 @@ bool CGet_Table::On_Execute(void)
 //---------------------------------------------------------
 bool CGet_Table::_Initialize(void)
 {
-	char		DSN[1 + SQL_MAX_DSN_LENGTH], DSDesc[255];
+	wxChar		DSN[1 + SQL_MAX_DSN_LENGTH], DSDesc[255];
 	wxString	s;
 
 	//-----------------------------------------------------
@@ -216,7 +222,7 @@ bool CGet_Table::_Initialize(void)
 	//-----------------------------------------------------
 	while( wxDbGetDataSource(m_DBC_Inf->GetHenv(), DSN, 1 + SQL_MAX_DSN_LENGTH, DSDesc, 255) )
 	{
-		s.Append(wxString::Format("%s|", DSN).c_str());
+		s.Append(wxString::Format(SG_T("%s|"), DSN).c_str());
 	}
 
 	((CSG_Parameter_Choice *)Parameters("DB_SOURCE")->Get_Data())->Set_Items(s.c_str());
@@ -257,7 +263,7 @@ wxDbTable * CGet_Table::_Get_Table(wxDb *pDB)
 	{
 		for(i=0; i<pInf->numTables; i++)
 		{
-			s.Append(wxString::Format("%s\n", pInf->pTableInf[i].tableName).c_str());
+			s.Append(wxString::Format(SG_T("%s\n"), pInf->pTableInf[i].tableName).c_str());
 		}
 
 		pTables	= (CSG_Parameter_Choice *)Get_Parameters("DB_TABLE")->Get_Parameter("TABLES")->Get_Data();
@@ -270,8 +276,8 @@ wxDbTable * CGet_Table::_Get_Table(wxDb *pDB)
 					pDB,
 					pTables->Get_Item(pTables->asInt()),
 					pInf->pTableInf[pTables->asInt()].numCols,
-					"", !wxDB_QUERY_ONLY,
-					""
+					_TL(""), !wxDB_QUERY_ONLY,
+					_TL("")
 				)
 			);
 		}
@@ -283,17 +289,17 @@ wxDbTable * CGet_Table::_Get_Table(wxDb *pDB)
 //---------------------------------------------------------
 bool CGet_Table::_Get_Data(CSG_Table *pTable, wxDbTable *pDBTable)
 {
-	char			**Values;
-	int				iField, nFields;
-	UWORD			numCols;
+	SG_Char				**Values;
+	int					iField, nFields;
+	UWORD				numCols;
 	CSG_Table_Record	*pRecord;
-	wxDbColInf		*ColDefs;
+	wxDbColInf			*ColDefs;
 
 	//-----------------------------------------------------
 	if( (nFields = pDBTable->GetNumberOfColumns()) > 0 )
 	{
-		Values		= (char **)SG_Malloc(nFields * sizeof(char *));
-		Values[0]	= (char  *)SG_Malloc(nFields * 256 * sizeof(char));
+		Values		= (SG_Char **)SG_Malloc(nFields * sizeof(SG_Char *));
+		Values[0]	= (SG_Char  *)SG_Malloc(nFields * 256 * sizeof(SG_Char));
 		pTable->Destroy();
 
 		ColDefs		= pDBTable->GetDb()->GetColumns(pDBTable->GetTableName(), &numCols);
@@ -317,16 +323,16 @@ bool CGet_Table::_Get_Data(CSG_Table *pTable, wxDbTable *pDBTable)
 				break;
 			}
 
-			Values[iField]	= Values[0] + iField * 256 * sizeof(char);
+			Values[iField]	= Values[0] + iField * 256 * sizeof(SG_Char);
 			pDBTable->SetColDefs(iField, ColDefs[iField].colName, DB_DATA_TYPE_VARCHAR, Values[iField], SQL_C_CHAR, 255, TRUE, TRUE);
 		}
 
 		//-----------------------------------------------------
 		pDBTable->Open();
 
-		pDBTable->SetWhereClause("");
-		pDBTable->SetOrderByClause("");
-		pDBTable->SetFromClause("");
+		pDBTable->SetWhereClause	(_TL(""));
+		pDBTable->SetOrderByClause	(_TL(""));
+		pDBTable->SetFromClause		(_TL(""));
 
 		if( pDBTable->Query() )
 		{

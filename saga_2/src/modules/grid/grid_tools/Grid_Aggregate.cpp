@@ -77,25 +77,25 @@ CGrid_Aggregate::CGrid_Aggregate(void)
 
 	Set_Author(_TL("Copyrights (c) 2005 by Victor Olaya"));
 
-	Set_Description(_TL("Aggregate")
+	Set_Description	(_TW("Aggregate")
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL	, "INPUT"		, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Value(
 		NULL	, "SIZE"	, _TL("Aggregation Size"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int		, 2, 2, true
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
-		"",	_TL("Sum|Min|Max|"), 0
+		_TL(""),	_TL("Sum|Min|Max|"), 0
 	);
 
 }

@@ -107,9 +107,9 @@ bool		SG_UI_Process_Get_Okay(bool bBlink)
 		if( bBlink )
 		{
 			static int	iBuisy		= 0;
-			const char	Buisy[4]	= {	'|', '/', '-', '\\'	};
+			const SG_Char	Buisy[4]	= {	'|', '/', '-', '\\'	};
 
-			printf("\r%c   ", Buisy[iBuisy++]);
+			SG_PRINTF(SG_T("\r%c   "), Buisy[iBuisy++]);
 			iBuisy	%= 4;
 		}
 	}
@@ -137,7 +137,7 @@ bool		SG_UI_Process_Set_Progress(double Position, double Range)
 	}
 	else
 	{
-		printf("\r%3d%%", Range != 0.0 ? 1 + (int)(100.0 * Position / Range) : 100);
+		SG_PRINTF(SG_T("\r%3d%%"), Range != 0.0 ? 1 + (int)(100.0 * Position / Range) : 100);
 	}
 
 	return( true );
@@ -155,7 +155,7 @@ bool		SG_UI_Process_Set_Ready(void)
 }
 
 //---------------------------------------------------------
-void		SG_UI_Process_Set_Text(const char *Text)
+void		SG_UI_Process_Set_Text(const SG_Char *Text)
 {
 	if( gSG_UI_Callback )
 	{
@@ -163,7 +163,7 @@ void		SG_UI_Process_Set_Text(const char *Text)
 	}
 	else
 	{
-		printf("\n%s", Text);
+		SG_PRINTF(SG_T("\n%s"), Text);
 	}
 }
 
@@ -175,7 +175,7 @@ void		SG_UI_Process_Set_Text(const char *Text)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void		SG_UI_Dlg_Message(const char *Message, const char *Caption)
+void		SG_UI_Dlg_Message(const SG_Char *Message, const SG_Char *Caption)
 {
 	if( gSG_UI_Callback )
 	{
@@ -183,12 +183,12 @@ void		SG_UI_Dlg_Message(const char *Message, const char *Caption)
 	}
 	else
 	{
-		printf("\n%s: %s", Caption, Message);
+		SG_PRINTF(SG_T("\n%s: %s"), Caption, Message);
 	}
 }
 
 //---------------------------------------------------------
-bool		SG_UI_Dlg_Continue(const char *Message, const char *Caption)
+bool		SG_UI_Dlg_Continue(const SG_Char *Message, const SG_Char *Caption)
 {
 	if( gSG_UI_Callback )
 	{
@@ -199,7 +199,7 @@ bool		SG_UI_Dlg_Continue(const char *Message, const char *Caption)
 }
 
 //---------------------------------------------------------
-int			SG_UI_Dlg_Error(const char *Message, const char *Caption)
+int			SG_UI_Dlg_Error(const SG_Char *Message, const SG_Char *Caption)
 {
 	if( gSG_UI_Callback )
 	{
@@ -217,7 +217,7 @@ int			SG_UI_Dlg_Error(const char *Message, const char *Caption)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		SG_UI_Dlg_Parameters(CSG_Parameters *pParameters, const char *Caption)
+bool		SG_UI_Dlg_Parameters(CSG_Parameters *pParameters, const SG_Char *Caption)
 {
 	if( gSG_UI_Callback && pParameters )
 	{
@@ -235,7 +235,7 @@ bool		SG_UI_Dlg_Parameters(CSG_Parameters *pParameters, const char *Caption)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void		SG_UI_Msg_Add(const char *Message, bool bNewLine)
+void		SG_UI_Msg_Add(const SG_Char *Message, bool bNewLine)
 {
 	if( gSG_UI_Callback )
 	{
@@ -243,17 +243,17 @@ void		SG_UI_Msg_Add(const char *Message, bool bNewLine)
 	}
 	else
 	{
-		printf("%s", Message);
+		SG_PRINTF(SG_T("%s"), Message);
 
 		if( bNewLine )
 		{
-			printf("\n\n");
+			SG_PRINTF(SG_T("\n\n"));
 		}
 	}
 }
 
 //---------------------------------------------------------
-void		SG_UI_Msg_Add_Error(const char *Message)
+void		SG_UI_Msg_Add_Error(const SG_Char *Message)
 {
 	if( gSG_UI_Callback )
 	{
@@ -261,12 +261,12 @@ void		SG_UI_Msg_Add_Error(const char *Message)
 	}
 	else
 	{
-		printf("\n%s: %s", LNG("Error"), Message);
+		SG_PRINTF(SG_T("\n%s: %s"), LNG("Error"), Message);
 	}
 }
 
 //---------------------------------------------------------
-void		SG_UI_Msg_Add_Execution(const char *Message, bool bNewLine)
+void		SG_UI_Msg_Add_Execution(const SG_Char *Message, bool bNewLine)
 {
 	if( gSG_UI_Callback )
 	{
@@ -274,11 +274,11 @@ void		SG_UI_Msg_Add_Execution(const char *Message, bool bNewLine)
 	}
 	else
 	{
-		printf("%s", Message);
+		SG_PRINTF(SG_T("%s"), Message);
 
 		if( bNewLine )
 		{
-			printf("\n\n");
+			SG_PRINTF(SG_T("\n\n"));
 		}
 	}
 }
@@ -291,7 +291,7 @@ void		SG_UI_Msg_Add_Execution(const char *Message, bool bNewLine)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSG_Data_Object *	SG_UI_DataObject_Find(const char *File_Name, int Object_Type)
+class CSG_Data_Object *	SG_UI_DataObject_Find(const SG_Char *File_Name, int Object_Type)
 {
 	if( gSG_UI_Callback && File_Name )
 	{
@@ -332,7 +332,7 @@ bool		SG_UI_DataObject_Update(CSG_Data_Object *pDataObject, bool bShow, CSG_Para
 	{
 		if( pDataObject->Get_ObjectType() == DATAOBJECT_TYPE_Grid && pParameters == NULL )
 		{
-			Parameters.Add_Range(NULL, "METRIC_ZRANGE", "", "",
+			Parameters.Add_Range(NULL, SG_T("METRIC_ZRANGE"), SG_T(""), SG_T(""),
 				((CSG_Grid *)pDataObject)->Get_ZMin(true),
 				((CSG_Grid *)pDataObject)->Get_ZMax(true)
 			);

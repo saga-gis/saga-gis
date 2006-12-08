@@ -79,7 +79,7 @@ CPROJ4_Grid::CPROJ4_Grid(void)
 
 	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Coordinate Transformation for Grids.\n"
 		"Based on the PROJ.4 Cartographic Projections library originally written by Gerald Evenden "
 		"and later continued by the United States Department of the Interior, Geological Survey (USGS).\n"
@@ -90,22 +90,22 @@ CPROJ4_Grid::CPROJ4_Grid(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid_Output(
 		NULL	, "OUT_GRID"	, _TL("Grid"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Grid_Output(
 		NULL	, "OUT_X"		, _TL("X Coordinates"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Grid_Output(
 		NULL	, "OUT_Y"		, _TL("Y Coordinates"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Shapes_Output(
 		NULL	, "OUT_SHAPES"	, _TL("Shapes"),
-		""
+		_TL("")
 	);
 
 
@@ -113,23 +113,23 @@ CPROJ4_Grid::CPROJ4_Grid(void)
 	Parameters.Add_Grid(
 		Parameters("SOURCE_NODE"),
 		"SOURCE"		, _TL("Source"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Value(
 		Parameters("TARGET_NODE"),
 		"CREATE_XY"		, _TL("Create X/Y Grids"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Bool, false
 	);
 
 	Parameters.Add_Choice(
 		Parameters("TARGET_NODE"),
 		"TARGET_TYPE"	, _TL("Target"),
-		"",
+		_TL(""),
 
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("user defined"),
 			_TL("automatic fit"),
 			_TL("grid system"),
@@ -140,9 +140,9 @@ CPROJ4_Grid::CPROJ4_Grid(void)
 
 	Parameters.Add_Choice(
 		Parameters("TARGET_NODE")	, "INTERPOLATION"	, _TL("Grid Interpolation"),
-		"",
+		_TL(""),
 
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("Nearest Neigbhor"),
 			_TL("Bilinear Interpolation"),
 			_TL("Inverse Distance Interpolation"),
@@ -153,69 +153,71 @@ CPROJ4_Grid::CPROJ4_Grid(void)
 
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_AUTOFIT"	, _TL("Automatic fit")	, "");
+	pParameters	= Add_Parameters("GET_AUTOFIT"	, _TL("Automatic fit")	, _TL(""));
 
 	pParameters->Add_Value(
-		NULL, "GRIDSIZE"	, _TL("Grid Size")	, "", PARAMETER_TYPE_Double, 10000.0, 0.0, true
+		NULL, "GRIDSIZE"	, _TL("Grid Size")	, _TL(""), PARAMETER_TYPE_Double, 10000.0, 0.0, true
 	);
 
 	pParameters->Add_Choice(
-		NULL, "AUTOEXTMODE"	, _TL("Fit Size")	, "",
-		_TL(
-		"Extent only (fast)|"
-		"Check each point|"), 0
+		NULL, "AUTOEXTMODE"	, _TL("Fit Size")	, _TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("Extent only (fast)"),
+			_TL("Check each point|")
+		), 0
 	);
 
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_USER"		, _TL("User defined")		, "");
+	pParameters	= Add_Parameters("GET_USER"		, _TL("User defined")		, _TL(""));
 
 	pParameters->Add_Value(
-		NULL, "XMIN"		, _TL("Left")		, "", PARAMETER_TYPE_Double
+		NULL, "XMIN"		, _TL("Left")		, _TL(""), PARAMETER_TYPE_Double
 	);
 	pParameters->Add_Value(
-		NULL, "XMAX"		, _TL("Right")		, "", PARAMETER_TYPE_Double
+		NULL, "XMAX"		, _TL("Right")		, _TL(""), PARAMETER_TYPE_Double
 	);
 	pParameters->Add_Value(
-		NULL, "YMIN"		, _TL("Bottom")		, "", PARAMETER_TYPE_Double
+		NULL, "YMIN"		, _TL("Bottom")		, _TL(""), PARAMETER_TYPE_Double
 	);
 	pParameters->Add_Value(
-		NULL, "YMAX"		, _TL("Top")		, "", PARAMETER_TYPE_Double
+		NULL, "YMAX"		, _TL("Top")		, _TL(""), PARAMETER_TYPE_Double
 	);
 
 	pParameters->Add_Value(
-		NULL, "SIZE"		, _TL("Grid Size")	, "", PARAMETER_TYPE_Double, 10000.0, 0.0, true
+		NULL, "SIZE"		, _TL("Grid Size")	, _TL(""), PARAMETER_TYPE_Double, 10000.0, 0.0, true
 	);
 
 	pParameters->Add_Info_Value(
-		NULL, "NX"			, _TL("Columns")	, "", PARAMETER_TYPE_Int
+		NULL, "NX"			, _TL("Columns")	, _TL(""), PARAMETER_TYPE_Int
 	);
 	pParameters->Add_Info_Value(
-		NULL, "NY"			, _TL("Rows")		, "", PARAMETER_TYPE_Int
+		NULL, "NY"			, _TL("Rows")		, _TL(""), PARAMETER_TYPE_Int
 	);
 
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_SYSTEM"	, _TL("Choose Grid Project"), "");
+	pParameters	= Add_Parameters("GET_SYSTEM"	, _TL("Choose Grid Project"), _TL(""));
 
 	pParameters->Add_Grid_System(
-		NULL, "SYSTEM"		, _TL("System")		, ""
+		NULL, "SYSTEM"		, _TL("System")		, _TL("")
 	);
 
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_GRID"		, _TL("Choose Grid")		, "");
+	pParameters	= Add_Parameters("GET_GRID"		, _TL("Choose Grid")		, _TL(""));
 
 	pParameters->Add_Grid(
-		NULL, "GRID"		, _TL("Grid")		, "", PARAMETER_INPUT	, false
+		NULL, "GRID"		, _TL("Grid")		, _TL(""), PARAMETER_INPUT	, false
 	);
 
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_SHAPES"	, _TL("Choose Shapes")		, "");
+	pParameters	= Add_Parameters("GET_SHAPES"	, _TL("Choose Shapes")		, _TL(""));
 
 	pParameters->Add_Shapes(
-		NULL, "SHAPES"		,_TL("Shapes")		, "", PARAMETER_OUTPUT	, SHAPE_TYPE_Point
+		NULL, "SHAPES"		,_TL("Shapes")		, _TL(""), PARAMETER_OUTPUT	, SHAPE_TYPE_Point
 	);
 }
 
@@ -324,7 +326,7 @@ int CPROJ4_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 {
 	double	xMin, xMax, yMin, yMax, size;
 
-	if( !strcmp(pParameters->Get_Identifier(), "GET_USER") )
+	if( !SG_STR_CMP(pParameters->Get_Identifier(), SG_T("GET_USER")) )
 	{
 		xMin	= pParameters->Get_Parameter("XMIN")->asDouble();
 		xMax	= pParameters->Get_Parameter("XMAX")->asDouble();
@@ -332,14 +334,14 @@ int CPROJ4_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		yMax	= pParameters->Get_Parameter("YMAX")->asDouble();
 		size	= pParameters->Get_Parameter("SIZE")->asDouble();
 
-		if( !strcmp(pParameter->Get_Identifier(), "SIZE") )
+		if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SIZE")) )
 		{
 			pParameters->Get_Parameter("XMAX")->Set_Value((xMax = xMin + ((int)((xMax - xMin) / size)) * size));
 			pParameters->Get_Parameter("YMAX")->Set_Value((yMax = yMin + ((int)((yMax - yMin) / size)) * size));
 		}
 		else 
 		{
-			if( !strcmp(pParameter->Get_Identifier(), "XMIN") )
+			if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("XMIN")) )
 			{
 				if( xMin >= xMax )
 				{
@@ -349,7 +351,7 @@ int CPROJ4_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 
 				pParameters->Get_Parameter("XMAX")->Set_Value(xMin + ((int)((xMax - xMin) / size)) * size);
 			}
-			else if( !strcmp(pParameter->Get_Identifier(), "XMAX") )
+			else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("XMAX")) )
 			{
 				if( xMin >= xMax )
 				{
@@ -359,7 +361,7 @@ int CPROJ4_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 
 				pParameters->Get_Parameter("XMIN")->Set_Value(xMax - ((int)((xMax - xMin) / size)) * size);
 			}
-			else if( !strcmp(pParameter->Get_Identifier(), "YMIN") )
+			else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("YMIN")) )
 			{
 				if( yMin >= yMax )
 				{
@@ -369,7 +371,7 @@ int CPROJ4_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 
 				pParameters->Get_Parameter("YMAX")->Set_Value(yMin + ((int)((yMax - yMin) / size)) * size);
 			}
-			else if( !strcmp(pParameter->Get_Identifier(), "YMAX") )
+			else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("YMAX")) )
 			{
 				if( yMin >= yMax )
 				{

@@ -103,32 +103,32 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 
 	_BrushList_Add(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_BRUSH"			, LNG("[CAP] Fill Style"),
-		""
+		LNG("")
 	);
 
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_OUTLINE"			, LNG("[CAP] Outline"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Bool, true
 	);
 
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_OUTLINE_COLOR"	, LNG("[CAP] Outline Color"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Color, SG_GET_RGB(0, 0, 0)
 	);
 
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_OUTLINE_SIZE"	, LNG("[CAP] Outline Size"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Int, 0, 0, true
 	);
 
 	m_Parameters.Add_Choice(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_SYMBOL_TYPE"		, LNG("[CAP] Symbol Type"),
-		"",
+		LNG(""),
 
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format(wxT("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
 			LNG("circle"),
 			LNG("square"),
 			LNG("rhombus"),
@@ -148,17 +148,17 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 
 	m_Parameters.Add_FilePath(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_SYMBOL_IMAGE"	, LNG("[CAP] Symbol Image"),
-		"",
+		LNG(""),
 		CSG_String::Format(
-			"%s|*.bmp;*.ico;*.gif;*.jpg;*.jif;*.jpeg;*.pcx;*.png;*.pnm;*.tif;*.tiff;*.xpm|"
-			"%s (*.bmp)|*.bmp|"
-			"%s (*.jpg)|*.jpg|"
-			"%s (*.png)|*.png|"
-			"%s (*.pcx)|*.pcx|"
-			"%s (*.xpm)|*.xpm|"
-			"%s (*.tif)|*.tif;*.tiff|"
-			"%s (*.gif)|*.gif|"
-			"%s|*.*",
+			wxT("%s|*.bmp;*.ico;*.gif;*.jpg;*.jif;*.jpeg;*.pcx;*.png;*.pnm;*.tif;*.tiff;*.xpm|")
+			wxT("%s (*.bmp)|*.bmp|")
+			wxT("%s (*.jpg)|*.jpg|")
+			wxT("%s (*.png)|*.png|")
+			wxT("%s (*.pcx)|*.pcx|")
+			wxT("%s (*.xpm)|*.xpm|")
+			wxT("%s (*.tif)|*.tif;*.tiff|")
+			wxT("%s (*.gif)|*.gif|")
+			wxT("%s|*.*"),
 			LNG("Image Files"),
 			LNG("Windows or OS/2 Bitmap"),
 			LNG("JPEG - JFIF Compliant"),
@@ -177,18 +177,18 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 
 	m_Parameters.Add_Node(
 		NULL						, "NODE_SIZE"		, LNG("[CAP] Display: Size"),
-		""
+		LNG("")
 	);
 
 	_AttributeList_Add(
 		m_Parameters("NODE_SIZE")	, "SIZE_ATTRIB"		, LNG("[CAP] Attribute"),
-		""
+		LNG("")
 	);
 
 	m_Parameters.Add_Choice(
 		m_Parameters("NODE_SIZE")	, "SIZE_TYPE"		, LNG("[CAP] Size relates to..."),
-		"",
-		wxString::Format("%s|%s|",
+		LNG(""),
+		wxString::Format(wxT("%s|%s|"),
 			LNG("[VAL] Screen"),
 			LNG("[VAL] Map Units")
 		), 0
@@ -196,13 +196,13 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_SIZE")	, "SIZE_DEFAULT"	, LNG("[CAP] Default Size"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Double, 5, 0, true
 	);
 
 	m_Parameters.Add_Range(
 		m_Parameters("NODE_SIZE")	, "SIZE_RANGE"		, LNG("[CAP] Size Range"),
-		"",
+		LNG(""),
 		2, 10, 0, true
 	);
 }
@@ -268,7 +268,7 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 	CWKSP_Shapes::On_Parameter_Changed(pParameters, pParameter);
 
 	//-----------------------------------------------------
-	if(	!strcmp(pParameter->Get_Identifier(), "COLORS_FONT") )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), wxT("COLORS_FONT")) )
 	{
 		int		zField	= pParameters->Get_Parameter("COLORS_ATTRIB")->asInt();
 

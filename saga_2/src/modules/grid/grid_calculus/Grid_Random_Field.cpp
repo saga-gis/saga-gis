@@ -86,78 +86,78 @@ CGrid_Random_Field::CGrid_Random_Field(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid_Output(
 		NULL	, "OUTPUT"		, _TL("Random Field"),
-		""
+		_TL("")
 	);
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Node(
 		NULL	, "NODE_GRID"	, _TL("Grid Properties"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Value(
 		pNode	, "NX"			, _TL("Width (Cells)"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 100, 1, true
 	);
 
 	Parameters.Add_Value(
 		pNode	, "NY"			, _TL("Height (Cells)"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 100, 1, true
 	);
 
 	Parameters.Add_Value(
 		pNode	, "CELLSIZE"	, _TL("Cellsize"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 1.0, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		pNode	, "XMIN"		, _TL("West"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 0.0
 	);
 
 	Parameters.Add_Value(
 		pNode	, "YMIN"		, _TL("South"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 0.0
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
-		"",
-		CSG_String::Format("%s|%s|",_TL("Uniform"), _TL("Gaussian")), 
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),_TL("Uniform"), _TL("Gaussian")), 
 		1
 	);
 
 	pNode	= Parameters.Add_Node(
 		NULL	, "NODE_UNIFORM", _TL("Uniform"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Range(
 		pNode	, "RANGE"		, _TL("Range"),
-		"",
+		_TL(""),
 		0.0, 1.0
 	);
 
 	pNode	= Parameters.Add_Node(
 		NULL	, "NODE_GAUSS"	, _TL("Gaussian"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Value(
 		pNode	, "MEAN"		, _TL("Arithmetic Mean"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 0.0
 	);
 
 	Parameters.Add_Value(
 		pNode	, "STDDEV"		, _TL("Standard Deviation"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 1.0
 	);
 }
@@ -190,7 +190,7 @@ bool CGrid_Random_Field::On_Execute(void)
 		Parameters("YMIN")		->asDouble()
 	);
 
-	pGrid->Set_Name("Random Field");
+	pGrid->Set_Name(_TL("Random Field"));
 	Parameters("OUTPUT")->Set_Value(pGrid);
 
 	//-----------------------------------------------------

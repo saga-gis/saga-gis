@@ -77,7 +77,7 @@ CExercise_06::CExercise_06(void)
 
 	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Extended neigbourhoods for grids.\n"
 		"(c) 2003 by Olaf Conrad, Goettingen\n"
 		"email: oconrad@gwdg.de")
@@ -101,17 +101,19 @@ CExercise_06::CExercise_06(void)
 
 	Parameters.Add_Value(
 		NULL, "RADIUS"		, _TL("Radius"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 1, 1, true
 	);
 
 	Parameters.Add_Choice(
 		NULL, "METHOD"		, _TL("Method"),
 		_TL("Choose a method"),
-		_TL(
-		"Quadratic|"
-		"Circle|"
-		"Distance Weighted (inverse distance)|")
+
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("Quadratic"),
+			_TL("Circle"),
+			_TL("Distance Weighted (inverse distance)")
+		)
 	);
 }
 

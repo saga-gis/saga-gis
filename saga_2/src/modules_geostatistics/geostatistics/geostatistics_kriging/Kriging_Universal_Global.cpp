@@ -75,7 +75,7 @@ CKriging_Universal_Global::CKriging_Universal_Global(void)
 
 	Set_Author		(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"Universal Kriging for grid interpolation from irregular sample points.\n"
 		"This implementation does not use a maximum search radius. The weighting "
 		"matrix is generated globally for all points."
@@ -84,14 +84,14 @@ CKriging_Universal_Global::CKriging_Universal_Global(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List(
 		NULL	, "GRIDS"		, _TL("Grids"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Choice(
 		NULL	,"INTERPOL"		, _TL("Grid Interpolation"),
-		"",
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("Nearest Neighbor"),
 			_TL("Bilinear Interpolation"),
 			_TL("Inverse Distance Interpolation"),

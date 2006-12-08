@@ -85,13 +85,13 @@ CTIN_From_Shapes::CTIN_From_Shapes(void)
 	//-----------------------------------------------------
 	Parameters.Add_Shapes(
 		NULL	, "SHAPES"		, _TL("Shapes"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	pNode	= Parameters.Add_TIN(
-		NULL	, "TIN"			, "TIN",
-		"",
+		NULL	, "TIN"			, _TL("TIN"),
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 }

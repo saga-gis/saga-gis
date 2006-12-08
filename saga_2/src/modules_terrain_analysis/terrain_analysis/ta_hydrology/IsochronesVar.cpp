@@ -27,7 +27,7 @@
 CIsochronesVar::CIsochronesVar(void){
 
 	Parameters.Set_Name(_TL("Isochrones Variable Speed"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2004 by Victor Olaya. Cálculo del tiempo de salida con velocidad variable.\r\n"
 		"References:\r\n"
 		"1. Al-Smadi, Mohammad: Incorporating spatial and temporal variation of "
@@ -41,65 +41,65 @@ CIsochronesVar::CIsochronesVar(void){
 	Parameters.Add_Grid(NULL,
 						"DEM",
 						_TL("Elevation"),
-						"",
+						_TL(""),
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL,
 						"SLOPE",
 						_TL("Slope"),
-						"",
+						_TL(""),
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL,
 						"FLOWACC",
 						_TL("Catchment Area"),
-						"",
+						_TL(""),
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL,
 						"CN",
 						_TL("Curve Number"),
-						"",
+						_TL(""),
 						PARAMETER_INPUT_OPTIONAL);
 
 	Parameters.Add_Grid(NULL,
 						"MANNING",
 						_TL("Manning's N"),
-						"",
+						_TL(""),
 						PARAMETER_INPUT_OPTIONAL);
 
 	Parameters.Add_Value(NULL,
 						"AVGMANNING",
 						_TL("Avg. Manning's N"),
-						"",
+						_TL(""),
 						PARAMETER_TYPE_Double,
 						0.15);
 
 	Parameters.Add_Value(NULL,
 						"AVGCN",
 						_TL("Avg. Curve Number"),
-						"",
+						_TL(""),
 						PARAMETER_TYPE_Double,
 						75);
 
 	Parameters.Add_Value(NULL,
 						"THRSMIXED",
 						_TL("Mixed Flow Threshold (ha)"),
-						"",
+						_TL(""),
 						PARAMETER_TYPE_Double,
 						18);
 
 	Parameters.Add_Value(NULL,
 						"THRSCHANNEL",
 						_TL("Channel Definition Threshold (ha)"),
-						"",
+						_TL(""),
 						PARAMETER_TYPE_Double,
 						360);
 
 	Parameters.Add_Value(NULL,
 						"AVGRAINFALL",
 						_TL("Avg. Rainfall Intensity (mm/h)"),
-						"",
+						_TL(""),
 						PARAMETER_TYPE_Double,
 						1);
 
@@ -107,21 +107,21 @@ CIsochronesVar::CIsochronesVar(void){
 	Parameters.Add_Value(NULL,
 						"CHANSLOPE",
 						_TL("Channel side slope(m/m)"),
-						"",
+						_TL(""),
 						PARAMETER_TYPE_Double,
 						0.5);
 
 	Parameters.Add_Value(NULL,
 						"MINSPEED",
 						_TL("Min. Flow Speed (m/s)"),
-						"",
+						_TL(""),
 						PARAMETER_TYPE_Double,
 						0.05);
 
 	Parameters.Add_Grid(NULL,
 						"TIME",
 						_TL("Time Out(h)"),
-						"",
+						_TL(""),
 						PARAMETER_OUTPUT,
 						true,
 						GRID_TYPE_Double);
@@ -129,7 +129,7 @@ CIsochronesVar::CIsochronesVar(void){
 	Parameters.Add_Grid(NULL,
 						"SPEED",
 						_TL("Speed (m/s)"),
-						"",
+						_TL(""),
 						PARAMETER_OUTPUT,
 						true,
 						GRID_TYPE_Double);

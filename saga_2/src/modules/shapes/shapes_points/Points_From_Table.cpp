@@ -30,29 +30,29 @@ CPoints_From_Table::CPoints_From_Table(void)
 
 	Set_Author(_TL("Copyrights (c) 2004 by Victor Olaya"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"(c) 2004 by Victor Olaya. Create Point Theme From Table"));
 
 	Parameters.Add_Shapes(
 		NULL	, "POINTS"	, _TL("Points"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
 	pNode	= Parameters.Add_Table(
 		NULL	, "TABLE"	, _TL("Table"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table_Field(
 		pNode	, "X"		, _TL("X"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Table_Field(
 		pNode	, "Y"		, _TL("Y"),
-		""
+		_TL("")
 	);
 }//constructor
 

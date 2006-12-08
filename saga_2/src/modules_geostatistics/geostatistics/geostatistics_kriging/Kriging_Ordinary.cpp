@@ -75,20 +75,20 @@ CKriging_Ordinary::CKriging_Ordinary(void)
 
 	Set_Author		(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"Ordinary Kriging for grid interpolation from irregular sample points."
 	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Value(
 		NULL	, "MAXRADIUS"	, _TL("Maximum Search Radius (map units)"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 1000.0, 0, true
 	);
 
 	Parameters.Add_Range(
 		NULL	, "NPOINTS"		, _TL("Min./Max. Number of m_Points"),
-		"", 4, 20, 1, true
+		_TL(""), 4, 20, 1, true
 	);
 }
 

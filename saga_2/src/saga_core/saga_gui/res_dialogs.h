@@ -69,6 +69,16 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <wx/string.h>
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 enum ID_DIALOGS
 {
 	ID_DLG_CLOSE,
@@ -107,12 +117,12 @@ enum ID_DIALOGS
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char *		DLG_Get_Text			(int ID_DLG);
-const char *		DLG_Get_Caption			(int ID_DLG);
+const wxChar *		DLG_Get_Text			(int ID_DLG);
+const wxChar *		DLG_Get_Caption			(int ID_DLG);
 
-const char *		DLG_Get_FILE_Caption	(int ID_DLG);
-const char *		DLG_Get_FILE_Filter		(int ID_DLG);
-const char *		DLG_Get_FILE_Config		(int ID_DLG);
+const wxChar *		DLG_Get_FILE_Caption	(int ID_DLG);
+const wxString		DLG_Get_FILE_Filter		(int ID_DLG);
+const wxChar *		DLG_Get_FILE_Config		(int ID_DLG);
 
 //---------------------------------------------------------
 class wxRect		DLG_Get_Def_Rect		(void);
@@ -122,13 +132,13 @@ class wxSize		DLG_Get_Def_Size		(void);
 //---------------------------------------------------------
 bool				DLG_Parameters			(class CSG_Parameters *pParameters);
 
-bool				DLG_Text				(const char *Caption, class wxString &Text);
-bool				DLG_Table				(const char *Caption, class CSG_Table *pTable);
+bool				DLG_Text				(const wxChar *Caption, class wxString &Text);
+bool				DLG_Table				(const wxChar *Caption, class CSG_Table *pTable);
 
-bool				DLG_List_Grid			(const char *Caption, class CSG_Parameter_Grid_List   *pList);
-bool				DLG_List_Table			(const char *Caption, class CSG_Parameter_Table_List  *pList);
-bool				DLG_List_Shapes			(const char *Caption, class CSG_Parameter_Shapes_List *pList);
-bool				DLG_List_TIN			(const char *Caption, class CSG_Parameter_TIN_List    *pList);
+bool				DLG_List_Grid			(const wxChar *Caption, class CSG_Parameter_Grid_List   *pList);
+bool				DLG_List_Table			(const wxChar *Caption, class CSG_Parameter_Table_List  *pList);
+bool				DLG_List_Shapes			(const wxChar *Caption, class CSG_Parameter_Shapes_List *pList);
+bool				DLG_List_TIN			(const wxChar *Caption, class CSG_Parameter_TIN_List    *pList);
 
 bool				DLG_Colors				(class CSG_Colors *pColors);
 bool				DLG_Colors				(int &Palette);
@@ -136,30 +146,30 @@ bool				DLG_Color				(long &Colour);
 
 bool				DLG_Font				(class wxFont *pFont, long &Colour);
 
-bool				DLG_Get_Number			(double &Number, const char *Caption, const char *Text);
+bool				DLG_Get_Number			(double &Number, const wxChar *Caption, const wxChar *Text);
 bool				DLG_Get_Number			(double &Number);
-bool				DLG_Get_Number			(int    &Number, const char *Caption, const char *Text);
+bool				DLG_Get_Number			(int    &Number, const wxChar *Caption, const wxChar *Text);
 bool				DLG_Get_Number			(int    &Number);
 
-bool				DLG_Directory			(class wxString &Directory, const char *Caption);
+bool				DLG_Directory			(class wxString &Directory, const wxChar *Caption);
 bool				DLG_Save				(class wxString &File_Path, int ID_DLG);
-bool				DLG_Save				(class wxString &File_Path, const char *Caption, const char *Filter);
+bool				DLG_Save				(class wxString &File_Path, const wxChar *Caption, const wxChar *Filter);
 bool				DLG_Open				(class wxString &File_Path, int ID_DLG);
-bool				DLG_Open				(class wxString &File_Path, const char *Caption, const char *Filter);
+bool				DLG_Open				(class wxString &File_Path, const wxChar *Caption, const wxChar *Filter);
 bool				DLG_Open				(class wxArrayString &File_Paths, int ID_DLG);
-bool				DLG_Open				(class wxArrayString &File_Paths, const char *Caption, const char *Filter);
+bool				DLG_Open				(class wxArrayString &File_Paths, const wxChar *Caption, const wxChar *Filter);
 
-bool				DLG_Image_Save			(class wxString &File_Path, int &Type, const char *def_Dir = "", const char *def_File = "");
+bool				DLG_Image_Save			(class wxString &File_Path, int &Type, const wxChar *def_Dir = wxT(""), const wxChar *def_File = wxT(""));
 
 void				DLG_Message_Show		(int ID_DLG);
-void				DLG_Message_Show		(const char *Message);
-void				DLG_Message_Show		(const char *Message, const char *Caption);
+void				DLG_Message_Show		(const wxChar *Message);
+void				DLG_Message_Show		(const wxChar *Message, const wxChar *Caption);
 int					DLG_Message_Show_Error	(int ID_DLG);
-int					DLG_Message_Show_Error	(const char *Message, const char *Caption);
+int					DLG_Message_Show_Error	(const wxChar *Message, const wxChar *Caption);
 bool				DLG_Message_Confirm		(int ID_DLG);
-bool				DLG_Message_Confirm		(const char *Message, const char *Caption);
+bool				DLG_Message_Confirm		(const wxChar *Message, const wxChar *Caption);
 int					DLG_Message_YesNoCancel	(int ID_DLG);
-int					DLG_Message_YesNoCancel	(const char *Message, const char *Caption);
+int					DLG_Message_YesNoCancel	(const wxChar *Message, const wxChar *Caption);
 
 //---------------------------------------------------------
 int					DLG_Maps_Add			(void);

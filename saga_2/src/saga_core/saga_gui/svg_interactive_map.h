@@ -84,7 +84,7 @@ public:
 	CSVG_Interactive_Map(void);
 	virtual ~CSVG_Interactive_Map(void);
 
-	void				Create_From_Map				(CWKSP_Map *pMap, CSG_Shapes *pIndexLayer, const char *Filename);
+	void				Create_From_Map				(CWKSP_Map *pMap, CSG_Shapes *pIndexLayer, const wxChar *Filename);
 
 
 private:
@@ -93,34 +93,34 @@ private:
 	double				m_dWidth;
 
 
-	void				_Write_Code					(const char *FileName, const char *Code);
+	void				_Write_Code					(const wxChar *FileName, const wxChar *Code);
 
 	void				_Add_Opening				(CSG_Rect r);
-	const char *		_Get_Opening_Code_1			(void);
-	const char *		_Get_Opening_Code_2			(void);
+	const wxChar *		_Get_Opening_Code_1			(void);
+	const wxChar *		_Get_Opening_Code_2			(void);
 
 	void				_Add_CheckBoxes				(CWKSP_Map *pMap);
 	void				_Add_Shapes					(CWKSP_Shapes *pLayer);
 	bool				_Add_Shape					(CSG_Shape *pShape, int Fill_Color, int Line_Color, double Line_Width, double Point_Width);
 	void				_Add_Grid					(CWKSP_Grid *pLayer);
 	void				_Add_ReferenceMap			(CSG_Shapes *pIndexLayer, CSG_Rect r);
-	void				_Add_Label					(const char* Label, CSG_Shape *pShape, double dSize, const char* Unit);
+	void				_Add_Label					(const wxChar* Label, CSG_Shape *pShape, double dSize, const wxChar* Unit);
 
-	const char *		_Get_Code_1					(void);
-	const char *		_Get_Code_2					(void);
-	const char *		_Get_Code_3					(void);
-	const char *		_Get_Code_4					(void);
-	const char *		_Get_Code_5					(void);
-	const char *		_Get_Code_Closing_1			(void);
+	const wxChar *		_Get_Code_1					(void);
+	const wxChar *		_Get_Code_2					(void);
+	const wxChar *		_Get_Code_3					(void);
+	const wxChar *		_Get_Code_4					(void);
+	const wxChar *		_Get_Code_5					(void);
+	const wxChar *		_Get_Code_Closing_1			(void);
 
-	const char *		_Get_Code_CheckBox			(void);
-	const char *		_Get_Code_MapApp			(void);
-	const char *		_Get_Code_Timer				(void);
-	const char *		_Get_Code_Slider			(void);
-	const char *		_Get_Code_Helper			(void);
-	const char *		_Get_Code_Buttons			(void);
-	const char *		_Get_Code_Navigation_1		(void);
-	const char *		_Get_Code_Navigation_2		(void);
+	const wxChar *		_Get_Code_CheckBox			(void);
+	const wxChar *		_Get_Code_MapApp			(void);
+	const wxChar *		_Get_Code_Timer				(void);
+	const wxChar *		_Get_Code_Slider			(void);
+	const wxChar *		_Get_Code_Helper			(void);
+	const wxChar *		_Get_Code_Buttons			(void);
+	const wxChar *		_Get_Code_Navigation_1		(void);
+	const wxChar *		_Get_Code_Navigation_2		(void);
 
 };
 

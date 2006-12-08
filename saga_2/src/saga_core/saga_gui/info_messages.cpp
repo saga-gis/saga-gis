@@ -87,7 +87,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CINFO_Messages::CINFO_Messages(wxWindow *pParent)
-	: wxTextCtrl(pParent, ID_WND_INFO_MESSAGES, "", wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxSUNKEN_BORDER)
+	: wxTextCtrl(pParent, ID_WND_INFO_MESSAGES, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxSUNKEN_BORDER)
 {
 	m_MaxLength	= 0x10000;
 
@@ -138,12 +138,12 @@ void CINFO_Messages::Add_Time(bool bNewLine)
 
 	if( bNewLine )
 	{
-		_Add_Text("\n");
+		_Add_Text(wxT("\n"));
 	}
 
 	Time.SetToCurrent();
 
-	_Add_Text(wxString::Format("[%s/%s]",
+	_Add_Text(wxString::Format(wxT("[%s/%s]"),
 		Time.FormatISODate().c_str(),
 		Time.FormatISOTime().c_str())
 	);
@@ -152,7 +152,7 @@ void CINFO_Messages::Add_Time(bool bNewLine)
 //---------------------------------------------------------
 void CINFO_Messages::Add_Line(void)
 {
-	_Add_Text("\n_______________________");
+	_Add_Text(wxT("\n_______________________"));
 }
 
 //---------------------------------------------------------
@@ -160,14 +160,14 @@ void CINFO_Messages::Add_String(wxString sMessage, bool bNewLine, bool bTime)
 {
 	if( bNewLine )
 	{
-		_Add_Text("\n");
+		_Add_Text(wxT("\n"));
 	}
 
 	if( bTime )
 	{
 		Add_Time(false);
 
-		_Add_Text(" ");
+		_Add_Text(wxT(" "));
 	}
 
 	_Add_Text(sMessage);

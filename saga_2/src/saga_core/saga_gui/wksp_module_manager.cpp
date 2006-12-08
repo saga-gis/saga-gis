@@ -100,11 +100,11 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 	m_pMenu		= new CWKSP_Module_Menu;
 
 	//-----------------------------------------------------
-	m_Parameters.Create(this, "", "");
+	m_Parameters.Create(this, LNG(""), LNG(""));
 
 	m_Parameters.Add_Value(
 		NULL	, "BEEP"	, LNG("[CAP] Beep when finished"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Bool	, true
 	);
 }
@@ -166,7 +166,7 @@ wxString CWKSP_Module_Manager::Get_Description(void)
 {
 	wxString	s;
 
-	s.Printf("<b>%s: %d</b><br><br>%s %d<br>",
+	s.Printf(wxT("<b>%s: %d</b><br><br>%s %d<br>"),
 		LNG("[CAP] Module Libraries")	, Get_Count(),
 		LNG("[CAP] Modules")			, Get_Items_Count()
 	);
@@ -215,7 +215,6 @@ bool CWKSP_Module_Manager::On_Command(int Cmd_ID)
 		break;
 
 	case WXK_F3:
-		_Make_Report();
 		break;
 	}
 
@@ -293,8 +292,8 @@ bool CWKSP_Module_Manager::Do_Beep(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define CFG_LIBS	"/LIBS"
-#define CFG_LIBF	"LIB_%03d"
+#define CFG_LIBS	wxT("/LIBS")
+#define CFG_LIBF	wxT("LIB_%03d")
 
 //---------------------------------------------------------
 void CWKSP_Module_Manager::_Config_Read(void)
@@ -328,7 +327,7 @@ void CWKSP_Module_Manager::_Config_Write(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CWKSP_Module_Manager::_Open_Directory(const char *sDirectory)
+int CWKSP_Module_Manager::_Open_Directory(const wxChar *sDirectory)
 {
 	int			nOpened	= 0;
 	wxDir		Dir;
@@ -339,7 +338,7 @@ int CWKSP_Module_Manager::_Open_Directory(const char *sDirectory)
 		if( Dir.GetFirst(&FileName, wxEmptyString, wxDIR_FILES) )
 		{
 			do
-			{	if( FileName.Find("saga_api") < 0 )
+			{	if( FileName.Find(wxT("saga_api")) < 0 )
 				if( Open(SG_File_Make_Path(Dir.GetName(), FileName, NULL)) )
 				{
 					nOpened++;
@@ -387,23 +386,23 @@ void CWKSP_Module_Manager::Open(void)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Module_Manager::Open(const char *File_Name)
+bool CWKSP_Module_Manager::Open(const wxChar *File_Name)
 {
 	CWKSP_Module_Library	*pLibrary;
 
 	//-----------------------------------------------------
-	if( SG_File_Cmp_Extension(File_Name, "mlb")
-	||	SG_File_Cmp_Extension(File_Name, "dll")
-	||	SG_File_Cmp_Extension(File_Name, "so") )
+	if( SG_File_Cmp_Extension(File_Name, wxT("mlb"))
+	||	SG_File_Cmp_Extension(File_Name, wxT("dll"))
+	||	SG_File_Cmp_Extension(File_Name, wxT("so")) )
 	{
-		MSG_General_Add(wxString::Format("%s: %s...", LNG("[MSG] Load library"), File_Name), true, true);
+		MSG_General_Add(wxString::Format(wxT("%s: %s..."), LNG("[MSG] Load library"), File_Name), true, true);
 
 		//-------------------------------------------------
 		for(int i=0; i<Get_Count(); i++)
 		{
-			if( strcmp(File_Name, Get_Library(i)->Get_File_Name()) == 0 )
+			if( SG_STR_CMP(File_Name, Get_Library(i)->Get_File_Name()) == 0 )
 			{
-				MSG_Error_Add(wxString::Format("%s\n%s", File_Name, LNG("[ERR] Library has already been loaded")), true);
+				MSG_Error_Add(wxString::Format(wxT("%s\n%s"), File_Name, LNG("[ERR] Library has already been loaded")), true);
 				MSG_General_Add(LNG("[MSG] is already loaded"), false);
 
 				return( false );
@@ -475,84 +474,41 @@ CWKSP_Module * CWKSP_Module_Manager::Get_Module_byID(int CMD_ID)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Module_Manager::_Make_Report(void)
-{
-	int			i, j;
-	FILE		*Stream;
-	wxString	File_Path;
-
-	if(	DLG_Save(File_Path, "Create Modules Report", "Text Files (*.txt)|*.txt|All Files|*.*")
-	&&	(Stream = fopen(File_Path, "w")) != NULL )
-	{
-		fprintf(Stream, "\n\n=======Module Libraries============\n");
-		fprintf(Stream, "Name/Bibliothek\tBeschreibung\tModule\n");
-
-		for(i=0; i<Get_Count(); i++)
-		{
-			fprintf(Stream, "%s (%s)\t%s\t", Get_Library(i)->Get_Name().c_str(), SG_File_Get_Name(Get_Library(i)->Get_File_Name(), true).c_str(), Get_Library(i)->Get_Info(MLB_INFO_Description));
-
-			for(j=0; j<Get_Library(i)->Get_Count(); j++)
-			{
-				if( j > 0 )
-					fprintf(Stream, ", ");
-				fprintf(Stream, "%s", Get_Library(i)->Get_Module(j)->Get_Name().c_str());
-			}
-
-			fprintf(Stream, "\n");
-		}
-
-		fprintf(Stream, "\n\n=======Modules============\n");
-
-		for(i=0; i<Get_Count(); i++)
-		{
-			fprintf(Stream, "\n\n###########################\nBibliothek: %s\nDateiname: %s\n\n", Get_Library(i)->Get_Name().c_str(), Get_Library(i)->Get_File_Name().c_str());
-
-			for(j=0; j<Get_Library(i)->Get_Count(); j++)
-			{
-				Get_Library(i)->Get_Module(j)->Make_Report(Stream);
-			}
-		}
-
-		fclose(Stream);
-	}
-}
-
-//---------------------------------------------------------
 void CWKSP_Module_Manager::_Make_HTML_Docs(void)
 {
 	int			i, j;
-	FILE		*Stream, *Stream_Lib;
+	CSG_File	Stream, Stream_Lib;
 	wxString	LibName;
 	wxFileName	FileName;
 
-	MSG_General_Add(wxString::Format("%s...", LNG("Creating module documentation files")), true, true);
+	MSG_General_Add(wxString::Format(wxT("%s..."), LNG("Creating module documentation files")), true, true);
 
 	for(i=0; i<Get_Count(); i++)
 	{
 		FileName.Assign		(Get_Library(i)->Get_File_Name());
 		LibName				= FileName.GetName();
 		FileName.AppendDir	(LibName);
-		FileName.SetExt		("html");
+		FileName.SetExt		(wxT("html"));
 
-		if( (wxDirExists(FileName.GetPath()) || wxMkdir(FileName.GetPath())) && (Stream_Lib = fopen(FileName.GetFullPath(), "w")) != NULL )
+		if( (wxDirExists(FileName.GetPath()) || wxMkdir(FileName.GetPath())) && Stream_Lib.Open(FileName.GetFullPath().c_str(), SG_FILE_W, false) )
 		{
-			fprintf(Stream_Lib, "%s<hr>", Get_Library(i)->Get_Description().c_str());
+			Stream_Lib.Printf(wxT("%s<hr>"), Get_Library(i)->Get_Description().c_str());
 
 			for(j=0; j<Get_Library(i)->Get_Count(); j++)
 			{
-				FileName.SetName(wxString::Format("%s_%02d", LibName.c_str(), Get_Library(i)->Get_Module(j)->Get_Index()));
+				FileName.SetName(wxString::Format(wxT("%s_%02d"), LibName.c_str(), Get_Library(i)->Get_Module(j)->Get_Index()));
 
-				fprintf(Stream_Lib, "<a href=\"%s\">%s</a><br>", FileName.GetFullName().c_str(), Get_Library(i)->Get_Module(j)->Get_Name().c_str());
+				Stream_Lib.Printf(wxT("<a href=\"%s\">%s</a><br>"), FileName.GetFullName().c_str(), Get_Library(i)->Get_Module(j)->Get_Name().c_str());
 
-				if( (Stream = fopen(FileName.GetFullPath(), "w")) != NULL )
+				if( Stream.Open(FileName.GetFullPath().c_str(), SG_FILE_W, false) )
 				{
-					fprintf(Stream, "%s", Get_Library(i)->Get_Module(j)->Get_Description().c_str());
+					Stream.Printf(wxT("%s"), Get_Library(i)->Get_Module(j)->Get_Description().c_str());
 
-					fclose(Stream);
+					Stream.Close();
 				}
 			}
 
-			fclose(Stream_Lib);
+			Stream_Lib.Close();
 		}
 	}
 

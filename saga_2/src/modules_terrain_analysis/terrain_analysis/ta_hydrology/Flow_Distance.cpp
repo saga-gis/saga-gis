@@ -75,7 +75,7 @@ CFlow_Distance::CFlow_Distance(void)
 
 	Set_Author(_TL("Copyrights (c) 2005 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"This module calculates the average flow path length starting from the seeds, "
 		"that are given by the optional \'Seeds\' grid and optionally from cells without upslope contributing areas "
 		"(i.e. summits, ridges). Seeds will be all grid cells, that "
@@ -106,13 +106,13 @@ CFlow_Distance::CFlow_Distance(void)
 
 	Parameters.Add_Grid(
 		NULL	, "ELEVATION"	, _TL("Elevation"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "SEED"		, _TL("Seeds"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
@@ -122,7 +122,7 @@ CFlow_Distance::CFlow_Distance(void)
 
 	Parameters.Add_Grid(
 		NULL	, "LENGTH"		, _TL("Flow Path Length"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
@@ -138,8 +138,8 @@ CFlow_Distance::CFlow_Distance(void)
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Flow Routing Algorithm"),
-		"",
-		CSG_String::Format("%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Deterministic 8 (D8)"),
 			_TL("Multiple Flow Direction (FD8)")
 		), 1

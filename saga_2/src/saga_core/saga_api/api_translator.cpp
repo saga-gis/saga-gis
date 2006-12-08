@@ -88,7 +88,7 @@ CSG_Translator *	SG_Get_Translator(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char *	LNG(const char *Text)
+const SG_Char *	SG_Translate(const SG_Char *Text)
 {
 	return( gSG_Translator.Get_Translation(Text) );
 }
@@ -108,7 +108,7 @@ CSG_Translator::CSG_Translator(void)
 }
 
 //---------------------------------------------------------
-CSG_Translator::CSG_Translator(const char *File_Name, bool bSetExtension)
+CSG_Translator::CSG_Translator(const SG_Char *File_Name, bool bSetExtension)
 {
 	m_nTranslations	= 0;
 	m_Translations	= NULL;
@@ -144,28 +144,30 @@ void CSG_Translator::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Translator::Create(const char *File_Name, bool bSetExtension)
+bool CSG_Translator::Create(const SG_Char *File_Name, bool bSetExtension)
 {
 	int			a, b;
-	FILE		*Stream;
+	CSG_File	Stream;
 	CSG_String	Line, Text, Translation, LNG_File;
 
 	Destroy();
 
 	if( bSetExtension )
 	{
-		LNG_File	= SG_File_Make_Path(NULL, File_Name, "lng");
+		LNG_File	= SG_File_Make_Path(NULL, File_Name, SG_T("lng"));
 	}
 	else
 	{
 		LNG_File	= File_Name;
 	}
 
-	if( File_Name && (Stream = fopen(LNG_File, "r")) != NULL )
+	if( Stream.Open(LNG_File, SG_FILE_R, false) )
 	{
-		while( SG_Read_Line(Stream, Line) )
+		while( Stream.Read_Line(Line) )
 		{
-			if( Line.Find("ENTRY") >= 0 && (a = Line.Find('(')) >= 0 && (b = Line.Find(')', true)) >= 0 )
+			if( Line.Find(SG_T("ENTRY")) >= 0
+			&&	(a = Line.Find(SG_T('('), false)) >= 0
+			&&	(b = Line.Find(SG_T(')'), true )) >= 0 )
 			{
 				if( Text.Length() > 0 && Translation.Length() > 0 )
 				{
@@ -176,20 +178,19 @@ bool CSG_Translator::Create(const char *File_Name, bool bSetExtension)
 				Translation.Clear();
 			}
 
-			if( (a = Line.Find('\"')) >= 0 && (b = Line.Find('\"', true)) >= 0 && b - a > 0 )
+			if(	(a = Line.Find(SG_T('\"'), false)) >= 0
+			&&	(b = Line.Find(SG_T('\"'), true )) >= 0 && b - a > 0 )
 			{
 				Translation	= Line.Mid(a + 1, (b - a) - 1);
 			}
 		}
-
-		fclose(Stream);
 	}
 
 	return( m_nTranslations > 0 );
 }
 
 //---------------------------------------------------------
-void CSG_Translator::_Add_Translation(const char *Text, const char *Translation)
+void CSG_Translator::_Add_Translation(const SG_Char *Text, const SG_Char *Translation)
 {
 	int		i, Insert;
 
@@ -217,7 +218,7 @@ void CSG_Translator::_Add_Translation(const char *Text, const char *Translation)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSG_Translator::_Get_Index(const char *Text)
+int CSG_Translator::_Get_Index(const SG_Char *Text)
 {
 	int		a, b, i, c;
 
@@ -276,19 +277,19 @@ int CSG_Translator::_Get_Index(const char *Text)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char * CSG_Translator::Get_Text(int Index)
+const SG_Char * CSG_Translator::Get_Text(int Index)
 {
-	return( Index >= 0 && Index < m_nTranslations ? m_Translations[Index]->m_Text : "" );
+	return( Index >= 0 && Index < m_nTranslations ? m_Translations[Index]->m_Text : SG_T("") );
 }
 
 //---------------------------------------------------------
-const char * CSG_Translator::Get_Translation(int Index)
+const SG_Char * CSG_Translator::Get_Translation(int Index)
 {
-	return( Index >= 0 && Index < m_nTranslations ? m_Translations[Index]->m_Translation : "" );
+	return( Index >= 0 && Index < m_nTranslations ? m_Translations[Index]->m_Translation : SG_T("") );
 }
 
 //---------------------------------------------------------
-const char * CSG_Translator::Get_Translation(const char *Text)
+const SG_Char * CSG_Translator::Get_Translation(const SG_Char *Text)
 {
 	if( Text )
 	{

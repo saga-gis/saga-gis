@@ -75,7 +75,7 @@ CSG_Module_Grid::CSG_Module_Grid(void)
 {
 	m_pLock		= NULL;
 
-	Parameters.Create(this, "", "", "", true);
+	Parameters.Create(this, SG_T(""), SG_T(""), SG_T(""), true);
 }
 
 //---------------------------------------------------------

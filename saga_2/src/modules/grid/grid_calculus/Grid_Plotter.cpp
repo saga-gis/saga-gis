@@ -56,7 +56,7 @@ CGrid_Plotter::CGrid_Plotter(void)
 {
 	Set_Name(_TL("Function"));
 	Set_Author(_TL("Copyrights (c) 2003 by Andre Ringeler"));
-	Set_Description(_TL(
+	Set_Description(_TW(
 		"Generate a grid based on a functional expression.\n"
 		"The function interpreter uses an expression parser "
 		"that offers the folowing operators:\n\n"
@@ -84,13 +84,13 @@ CGrid_Plotter::CGrid_Plotter(void)
 		"Example: sin(x*x+y*y)/(x*x+y*y)\n")
 	);
 
-	Parameters.Add_Grid(	NULL, "RESULT"	, _TL("Function"), "", PARAMETER_OUTPUT);
+	Parameters.Add_Grid(	NULL, "RESULT"	, _TL("Function"), _TL(""), PARAMETER_OUTPUT);
 
-	Parameters.Add_Value(	NULL, "XMIN"	, "xmin"	, "", PARAMETER_TYPE_Double,-5);
-	Parameters.Add_Value(	NULL, "XMAX"	, "xmax"	, "", PARAMETER_TYPE_Double,5);
-	Parameters.Add_Value(	NULL, "YMIN"	, "ymin"	, "", PARAMETER_TYPE_Double,-5);
-	Parameters.Add_Value(	NULL, "YMAX"	, "ymax"	, "", PARAMETER_TYPE_Double,5);
-	Parameters.Add_String(	NULL, "FORMUL"	, _TL("Formula")	, "", "sin(x*x + y*y)");
+	Parameters.Add_Value(	NULL, "XMIN"	, _TL("xmin")	, _TL(""), PARAMETER_TYPE_Double,-5);
+	Parameters.Add_Value(	NULL, "XMAX"	, _TL("xmax")	, _TL(""), PARAMETER_TYPE_Double,5);
+	Parameters.Add_Value(	NULL, "YMIN"	, _TL("ymin")	, _TL(""), PARAMETER_TYPE_Double,-5);
+	Parameters.Add_Value(	NULL, "YMAX"	, _TL("ymax")	, _TL(""), PARAMETER_TYPE_Double,5);
+	Parameters.Add_String(	NULL, "FORMUL"	, _TL("Formula")	, _TL(""), _TL("sin(x*x + y*y)"));
 }
 
 //---------------------------------------------------------
@@ -107,14 +107,14 @@ bool CGrid_Plotter::On_Execute(void)
 	double xmax	= Parameters("XMAX")->asDouble();
 	double ymax	= Parameters("YMAX")->asDouble();
 
-	const char *formel  = Parameters("FORMUL")->asString();
+	const SG_Char *formel  = Parameters("FORMUL")->asString();
 
 	CSG_Formula Formel;
 
 	Formel.Set_Formula(formel);
 
 	int Pos;
-	const char * Msg;
+	const SG_Char * Msg;
 	if (Formel.Get_Error(&Pos,&Msg))
 	{
 		CSG_String	msg;
@@ -122,7 +122,7 @@ bool CGrid_Plotter::On_Execute(void)
 		
 		Message_Add(msg);
 		
-		msg.Printf("\n%s\n", Msg);
+		msg.Printf(SG_T("\n%s\n"), Msg);
 		
 		Message_Add(msg);
 
@@ -132,7 +132,7 @@ bool CGrid_Plotter::On_Execute(void)
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	for(int x=0; x<Get_NX(); x++)
 	{
-		pResult->Set_Value(x,y,Formel.Val("xy",(xmax-xmin)*((double)x/Get_NX())+xmin,(ymax-ymin)*((double)y/Get_NY())+ymin)); 
+		pResult->Set_Value(x,y,Formel.Val(SG_T("xy"),(xmax-xmin)*((double)x/Get_NX())+xmin,(ymax-ymin)*((double)y/Get_NY())+ymin)); 
 	}
 	return( true );
 }

@@ -73,8 +73,8 @@ CShapes_Cut_Interactive::CShapes_Cut_Interactive(void)
 
 	Set_Author		(_TL("(c) 2006 by O. Conrad"));
 
-	Set_Description	(_TL(
-		""
+	Set_Description	(_TW(
+		_TL("")
 	));
 
 	Set_Drag_Mode	(MODULE_INTERACTIVE_DRAG_BOX);
@@ -82,53 +82,53 @@ CShapes_Cut_Interactive::CShapes_Cut_Interactive(void)
 	//-----------------------------------------------------
 	Parameters.Add_Shapes(
 		NULL	, "SHAPES"		, _TL("Shapes"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
 		NULL	, "CUT"			, _TL("Cut"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Shapes(
 		NULL	, "EXTENT"		, _TL("Extent"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
-		"",
+		_TL(""),
 		Cut_Methods_Str(), 0
 	);
 
 	//-----------------------------------------------------
-	CSG_Parameters	*pParameters	= Add_Parameters("CUT", _TL("Extent"), "");
+	CSG_Parameters	*pParameters	= Add_Parameters("CUT", _TL("Extent"), _TL(""));
 
 	pParameters->Add_Value(
-		NULL, "AX"	, _TL("Left")				, "", PARAMETER_TYPE_Double
+		NULL, "AX"	, _TL("Left")				, _TL(""), PARAMETER_TYPE_Double
 	);
 
 	pParameters->Add_Value(
-		NULL, "BX"	, _TL("Right")				, "", PARAMETER_TYPE_Double
+		NULL, "BX"	, _TL("Right")				, _TL(""), PARAMETER_TYPE_Double
 	);
 
 	pParameters->Add_Value(
-		NULL, "AY"	, _TL("Bottom")				, "", PARAMETER_TYPE_Double
+		NULL, "AY"	, _TL("Bottom")				, _TL(""), PARAMETER_TYPE_Double
 	);
 
 	pParameters->Add_Value(
-		NULL, "BY"	, _TL("Top")				, "", PARAMETER_TYPE_Double
+		NULL, "BY"	, _TL("Top")				, _TL(""), PARAMETER_TYPE_Double
 	);
 
 	pParameters->Add_Value(
-		NULL, "DX"	, _TL("Horizontal Range")	, "", PARAMETER_TYPE_Double, 1.0, 0.0, true
+		NULL, "DX"	, _TL("Horizontal Range")	, _TL(""), PARAMETER_TYPE_Double, 1.0, 0.0, true
 	);
 
 	pParameters->Add_Value(
-		NULL, "DY"	, _TL("Vertical Range")		, "", PARAMETER_TYPE_Double, 1.0, 0.0, true
+		NULL, "DY"	, _TL("Vertical Range")		, _TL(""), PARAMETER_TYPE_Double, 1.0, 0.0, true
 	);
 }
 
@@ -215,7 +215,7 @@ bool CShapes_Cut_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Module_
 //---------------------------------------------------------
 int CShapes_Cut_Interactive::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !strcmp(pParameters->Get_Identifier(), "CUT") )
+	if( !SG_STR_CMP(pParameters->Get_Identifier(), SG_T("CUT")) )
 	{
 		double	ax, ay, bx, by, dx, dy, d;
 
@@ -229,22 +229,22 @@ int CShapes_Cut_Interactive::On_Parameter_Changed(CSG_Parameters *pParameters, C
 		if( ax > bx )	{	d	= ax;	ax	= bx;	bx	= d;	}
 		if( ay > by )	{	d	= ay;	ay	= by;	by	= d;	}
 
-		if     ( !strcmp(pParameter->Get_Identifier(), "DX") )
+		if     ( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("DX")) )
 		{
 			bx	= ax + dx;
 		}
-		else if( !strcmp(pParameter->Get_Identifier(), "AX")
-			||	 !strcmp(pParameter->Get_Identifier(), "BX") )
+		else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("AX"))
+			||	 !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("BX")) )
 		{
 			dx	= bx - ax;
 		}
 
-		else if( !strcmp(pParameter->Get_Identifier(), "DY") )
+		else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("DY")) )
 		{
 			by	= ay + dy;
 		}
-		else if( !strcmp(pParameter->Get_Identifier(), "AY")
-			||	 !strcmp(pParameter->Get_Identifier(), "BY") )
+		else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("AY"))
+			||	 !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("BY")) )
 		{
 			dy	= by - ay;
 		}

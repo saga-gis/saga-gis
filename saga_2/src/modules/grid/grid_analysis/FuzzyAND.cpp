@@ -70,25 +70,25 @@
 //---------------------------------------------------------
 CFuzzyAND::CFuzzyAND(void)
 {
-	Set_Name	(_TL("Fuzzy intersection grid"));
+	Set_Name		(_TL("Fuzzy intersection grid"));
 
-	Set_Author	("Copyrights (c) 2004 by Antonio Boggia and Gianluca Massei");
+	Set_Author		(_TL("Copyrights (c) 2004 by Antonio Boggia and Gianluca Massei"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Calculates the intersection (min operator) for each grid cell of the selected grids.\n "
 		"e-mail Gianluca Massei: g_massa@libero.it \n"
-		"e-mail Antonio Boggia: boggia@unipg.it \n")
-	);
+		"e-mail Antonio Boggia: boggia@unipg.it \n"
+	));
 
 	Parameters.Add_Grid_List(
 		NULL, "GRIDS"	, _TL("Grids"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL, "AND"		, _TL("Intersection"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 }

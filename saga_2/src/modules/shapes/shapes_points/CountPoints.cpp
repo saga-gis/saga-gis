@@ -22,19 +22,19 @@ CCountPoints::CCountPoints(void){
 
 	
 	Parameters.Set_Name(_TL("Count Points in Polygons"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2004 by Victor Olaya. Count Points in Polygons."));
 
 	Parameters.Add_Shapes(NULL, 
 						"POINTS", 
 						_TL("Points"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Shapes(NULL, 
 						"POLYGONS", 
 						_TL("Polygons"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 	
 }//constructor

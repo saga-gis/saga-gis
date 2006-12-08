@@ -71,23 +71,24 @@
 CFilter_3x3::CFilter_3x3(void)
 {
 	//-----------------------------------------------------
-	Set_Name	(_TL("User Defined Filter (3x3)"));
+	Set_Name		(_TL("User Defined Filter (3x3)"));
 
-	Set_Author	(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description(_TL("User defined 3x3 sub-window filter. The filter is entered as a table with 3 rows and 3 columns.")
-	);
+	Set_Description	(_TW(
+		"User defined 3x3 sub-window filter. The filter is entered as a table with 3 rows and 3 columns."
+	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL, "INPUT"	, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL, "RESULT"	, _TL("Filtered Grid"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
@@ -99,7 +100,7 @@ CFilter_3x3::CFilter_3x3(void)
 	Filter.Add_Field("2", TABLE_FIELDTYPE_Double);
 	Filter.Add_Field("3", TABLE_FIELDTYPE_Double);
 
-	Parameters.Add_FixedTable(NULL, "FILTER"	, _TL("Filter Matrix")	, "", &Filter);
+	Parameters.Add_FixedTable(NULL, "FILTER"	, _TL("Filter Matrix")	, _TL(""), &Filter);
 	pFilter	= Parameters("FILTER")->asTable();
 
 	pRecord	= pFilter->Add_Record();

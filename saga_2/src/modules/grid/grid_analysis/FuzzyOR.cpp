@@ -70,11 +70,11 @@
 //---------------------------------------------------------
 CFuzzyOR::CFuzzyOR(void)
 {
-	Set_Name	(_TL("Fuzzy union grid"));
+	Set_Name		(_TL("Fuzzy union grid"));
 
-	Set_Author	("Copyrights (c) 2004 by Antonio Boggia and Gianluca Massei");
+	Set_Author		(_TL("Copyrights (c) 2004 by Antonio Boggia and Gianluca Massei"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Calculates the union (max operator) for each grid cell of the selected grids.\n "
 		"e-mail Gianluca Massei: g_massa@libero.it \n"
 		"e-mail Antonio Boggia: boggia@unipg.it \n")
@@ -82,13 +82,13 @@ CFuzzyOR::CFuzzyOR(void)
 
 	Parameters.Add_Grid_List(
 		NULL, "GRIDS"	, _TL("Grids"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL, "OR"		, _TL("Union"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 }

@@ -91,7 +91,7 @@ private:
 
 	bool						Get_Profile			(CSG_Shape *pProfile, TSG_Point A, TSG_Point B, int nSamples);
 
-	void						Make_Report			(const char *FileName, CSG_Grid *pDEM, CSG_Shapes *pLines, CSG_Shapes *pProfiles, double Distance);
+	void						Make_Report			(const SG_Char *FileName, CSG_Grid *pDEM, CSG_Shapes *pLines, CSG_Shapes *pProfiles, double Distance);
 
 };
 

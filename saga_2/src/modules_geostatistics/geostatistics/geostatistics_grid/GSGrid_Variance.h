@@ -85,7 +85,7 @@ public:
 	CGSGrid_Variance(void);
 	virtual ~CGSGrid_Variance(void);
 
-	virtual const char *	Get_MenuPath		(void)	{	return( _TL("R:Neighborhoods") );	}
+	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Neighborhoods") );	}
 
 
 protected:
@@ -101,7 +101,7 @@ private:
 	double					Exponent,	// Exponent fuer "inverse distance" Gewichte (calc_Steigung).
 							*V, *m, *g;
 
-	CSG_Grid					*pInput, *pOutput, *pRadius;
+	CSG_Grid				*pInput, *pOutput, *pRadius;
 
 
 	void					Initialize			(void);

@@ -78,7 +78,7 @@ public:
 	CPROJ4_Grid(void);
 	virtual ~CPROJ4_Grid(void);
 
-	virtual const char *	Get_MenuPath			(void)	{	return( "R:Grid" );	}
+	virtual const SG_Char *	Get_MenuPath			(void)	{	return( _TL("R:Grid") );	}
 
 
 protected:
@@ -91,8 +91,8 @@ protected:
 private:
 
 	void					Get_MinMax				(double &xMin, double &xMax, double &yMin, double &yMax, TSG_Point Point);
-	CSG_Grid *					Get_Target_Userdef		(CSG_Grid *pSource, bool bNearest);
-	CSG_Grid *					Get_Target_Autofit		(CSG_Grid *pSource, double Grid_Size, int AutoExtMode, bool bNearest);
+	CSG_Grid *				Get_Target_Userdef		(CSG_Grid *pSource, bool bNearest);
+	CSG_Grid *				Get_Target_Autofit		(CSG_Grid *pSource, double Grid_Size, int AutoExtMode, bool bNearest);
 
 	bool					Set_Grid				(CSG_Grid *pSource, CSG_Grid   *pTarget, int Interpol);
 	bool					Set_Shapes				(CSG_Grid *pSource, CSG_Shapes *pTarget);

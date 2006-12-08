@@ -67,13 +67,13 @@ CtomaschTool::CtomaschTool(void)
 	//-----------------------------------------------------
 	// Place information about your module here...
 
-	Set_Name	("tomaschTool");
+	Set_Name		(_TL("tomaschTool"));
 
-	Set_Author	("Copyrights (c) 2004 by Thomas Wutzler");
+	Set_Author		(_TL("Copyrights (c) 2004 by Thomas Wutzler"));
 
-	Set_Description(
+	Set_Description	(_TW(
 		"tomaschTool\n"
-	);
+	));
 
 
 	//-----------------------------------------------------
@@ -83,8 +83,8 @@ CtomaschTool::CtomaschTool(void)
 	// object have the same dimensions. Let's now order two grids,
 	// one for input and one for output...
 
-	Parameters.Add_Grid(	NULL, "INPUT"	, "Input"	, "Input for module calculations."	, PARAMETER_INPUT);
-	Parameters.Add_Grid(	NULL, "RESULT"	, "Output"	, "Output of module calculations."	, PARAMETER_OUTPUT);
+	Parameters.Add_Grid(	NULL, "INPUT"	, _TL("Input")	, _TL("Input for module calculations.")	, PARAMETER_INPUT);
+	Parameters.Add_Grid(	NULL, "RESULT"	, _TL("Output")	, _TL("Output of module calculations.")	, PARAMETER_OUTPUT);
 
 
 	//-----------------------------------------------------
@@ -93,8 +93,8 @@ CtomaschTool::CtomaschTool(void)
 	//Parameters.Add_Value(	NULL, "BOOLEAN"	, "Boolean"	, "A value of type boolean."		, PARAMETER_TYPE_Bool	, true);
 	//Parameters.Add_Value(	NULL, "INTEGER"	, "Integer"	, "A value of type integer."		, PARAMETER_TYPE_Int	, 200);
 	//Parameters.Add_Value(	NULL, "DOUBLE"	, "Double"	, "A floating point value."			, PARAMETER_TYPE_Double	, 3.145);
-	Parameters.Add_Value(	NULL, "NoDataValue"	, "NoDataValue"	, "Value for 'no data'"			, PARAMETER_TYPE_Double	, -9999);
-	Parameters.Add_Value(	NULL, "LowerLimit"	, "LowerLimit"	, "Lower Limit of real data"	, PARAMETER_TYPE_Double	, 0);
+	Parameters.Add_Value(	NULL, "NoDataValue"	, _TL("NoDataValue"), _TL("Value for 'no data'")		, PARAMETER_TYPE_Double	, -9999);
+	Parameters.Add_Value(	NULL, "LowerLimit"	, _TL("LowerLimit")	, _TL("Lower Limit of real data")	, PARAMETER_TYPE_Double	, 0);
 
 	/*
 	Parameters.Add_Select(	NULL, "METHOD"	, "Method"	, "Choose a method from this select option.",

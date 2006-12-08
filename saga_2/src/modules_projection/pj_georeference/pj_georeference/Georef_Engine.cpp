@@ -312,22 +312,22 @@ bool CGeoref_Engine::_Set_Engine(CSG_Points *pPts_Source, CSG_Points *pPts_Targe
 	//-----------------------------------------------------
 	ecode	= lmdif0(fcn_linear        , nData, m_nParms, m_x    , msk, fvec, sqrt(2.220446049250313e-16), &info, &nfev);
 
-	m_Message.Append(CSG_String::Format("\n%d %s\n", nfev, _TL("function evaluations")));
-	m_Message.Append(CSG_String::Format("x\n"));
-	m_Message.Append(CSG_String::Format("%lf %lf %lf %lf %lf %lf\n", m_x[0], m_x[1], m_x[2], m_x[3], m_x[4], m_x[5]));
-	m_Message.Append(CSG_String::Format("%s\n", _TL("fvec")));
-	m_Message.Append(CSG_String::Format("%lg %lg %lg %lg %lg %lg\n", fvec[0], fvec[1], fvec[2], fvec[3], fvec[4], fvec[5]));
-	m_Message.Append(CSG_String::Format("%s = %.15e\n", _TL("function norm"), enorm(nData, fvec)));
+	m_Message.Append(CSG_String::Format(SG_T("\n%d %s\n"), nfev, _TL("function evaluations")));
+	m_Message.Append(CSG_String::Format(SG_T("x\n")));
+	m_Message.Append(CSG_String::Format(SG_T("%lf %lf %lf %lf %lf %lf\n"), m_x[0], m_x[1], m_x[2], m_x[3], m_x[4], m_x[5]));
+	m_Message.Append(CSG_String::Format(SG_T("%s\n"), _TL("fvec")));
+	m_Message.Append(CSG_String::Format(SG_T("%lg %lg %lg %lg %lg %lg\n"), fvec[0], fvec[1], fvec[2], fvec[3], fvec[4], fvec[5]));
+	m_Message.Append(CSG_String::Format(SG_T("%s = %.15e\n"), _TL("function norm"), enorm(nData, fvec)));
 
 	//-----------------------------------------------------
 	ecode	= lmdif0(fcn_linear_inverse, nData, m_nParms, m_x_inv, msk, fvec, sqrt(2.220446049250313e-16), &info, &nfev);
 
-	m_Message.Append(CSG_String::Format("\n%d inverse function evaluations\n", nfev));
-	m_Message.Append(CSG_String::Format("x\n"));
-	m_Message.Append(CSG_String::Format("%lf %lf %lf %lf %lf %lf\n", m_x_inv[0], m_x_inv[1], m_x_inv[2], m_x_inv[3], m_x_inv[4], m_x_inv[5]));
-	m_Message.Append(CSG_String::Format("%s\n", _TL("fvec")));
-	m_Message.Append(CSG_String::Format("%lg %lg %lg %lg %lg %lg\n", fvec[0], fvec[1], fvec[2], fvec[3], fvec[4], fvec[5]));
-	m_Message.Append(CSG_String::Format("%s = %.15e\n", _TL("function norm"), enorm(nData, fvec)));
+	m_Message.Append(CSG_String::Format(SG_T("\n%d inverse function evaluations\n"), nfev));
+	m_Message.Append(CSG_String::Format(SG_T("x\n")));
+	m_Message.Append(CSG_String::Format(SG_T("%lf %lf %lf %lf %lf %lf\n"), m_x_inv[0], m_x_inv[1], m_x_inv[2], m_x_inv[3], m_x_inv[4], m_x_inv[5]));
+	m_Message.Append(CSG_String::Format(SG_T("%s\n"), _TL("fvec")));
+	m_Message.Append(CSG_String::Format(SG_T("%lg %lg %lg %lg %lg %lg\n"), fvec[0], fvec[1], fvec[2], fvec[3], fvec[4], fvec[5]));
+	m_Message.Append(CSG_String::Format(SG_T("%s = %.15e\n"), _TL("function norm"), enorm(nData, fvec)));
 
 	//-----------------------------------------------------
 	SG_Free(fvec);

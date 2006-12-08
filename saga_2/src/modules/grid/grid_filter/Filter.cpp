@@ -77,8 +77,9 @@ CFilter::CFilter(void)
 
 	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL("Filter for Grids")
-	);
+	Set_Description	(_TW(
+		"Filter for Grids"
+	));
 
 
 	//-----------------------------------------------------
@@ -86,20 +87,20 @@ CFilter::CFilter(void)
 
 	Parameters.Add_Grid(
 		NULL, "INPUT"		, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL, "RESULT"		, _TL("Filtered Grid"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Choice(
 		NULL, "SEARCH_MODE"	, _TL("Search Mode"),
-		"",
-		CSG_String::Format("%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Square"),
 			_TL("Circle")
 		), 1
@@ -107,8 +108,8 @@ CFilter::CFilter(void)
 
 	Parameters.Add_Choice(
 		NULL, "METHOD"		, _TL("Filter"),
-		"",
-		CSG_String::Format("%s|%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("Smooth"),
 			_TL("Sharpen"),
 			_TL("Edge")
@@ -117,7 +118,7 @@ CFilter::CFilter(void)
 
 	Parameters.Add_Value(
 		NULL, "RADIUS"		, _TL("Radius"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 1, 1, true
 	);
 }

@@ -73,7 +73,7 @@ bool Cut_Shapes(CSG_Rect Extent, int Method, CSG_Shapes *pShapes, CSG_Shapes *pC
 	{
 		pCut->Create(
 			pShapes->Get_Type(),
-			CSG_String::Format("%s [%s]", pShapes->Get_Name(), _TL("Cut")),
+			CSG_String::Format(SG_T("%s [%s]"), pShapes->Get_Name(), _TL("Cut")),
 			&pShapes->Get_Table()
 		);
 
@@ -145,7 +145,7 @@ CSG_Shapes * Cut_Shapes(CSG_Rect Extent, int Method, CSG_Shapes *pShapes)
 //---------------------------------------------------------
 CSG_String Cut_Methods_Str(void)
 {
-	return( CSG_String::Format("%s|%s|%s|",
+	return( CSG_String::Format(SG_T("%s|%s|%s|"),
 		_TL("completely contained"),
 		_TL("intersects"),
 		_TL("center"))
@@ -167,7 +167,7 @@ bool Cut_Set_Extent(CSG_Rect Extent, CSG_Shapes *pExtent, bool bClear)
 		{
 			CSG_Shape	*pShape	= pExtent->Add_Shape();
 
-			pShape->Get_Record()->Set_Value("ID", pExtent->Get_Count());
+			pShape->Get_Record()->Set_Value(SG_T("ID"), pExtent->Get_Count());
 
 			pShape->Add_Point(Extent.Get_XMin(), Extent.Get_YMin());
 			pShape->Add_Point(Extent.Get_XMin(), Extent.Get_YMax());
@@ -196,40 +196,40 @@ CShapes_Cut::CShapes_Cut(void)
 
 	Set_Author		(_TL("(c) 2006 by O. Conrad"));
 
-	Set_Description	(_TL(
-		""
+	Set_Description	(_TW(
+		_TL("")
 	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes(
 		NULL	, "SHAPES"		, _TL("Shapes"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
 		NULL	, "CUT"			, _TL("Cut"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Shapes(
 		NULL	, "EXTENT"		, _TL("Extent"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
-		"",
+		_TL(""),
 		Cut_Methods_Str(), 0
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "TARGET"		, _TL("Extent"),
-		"",
+		_TL(""),
 
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("user defined"),
 			_TL("grid project")
 		), 0
@@ -238,36 +238,36 @@ CShapes_Cut::CShapes_Cut(void)
 	//-----------------------------------------------------
 	CSG_Parameters	*pParameters;
 
-	pParameters	= Add_Parameters("CUT", _TL("Extent"), "");
+	pParameters	= Add_Parameters("CUT", _TL("Extent"), _TL(""));
 
 	pParameters->Add_Value(
-		NULL, "AX"	, _TL("Left")				, "", PARAMETER_TYPE_Double
+		NULL, "AX"	, _TL("Left")				, _TL(""), PARAMETER_TYPE_Double
 	);
 
 	pParameters->Add_Value(
-		NULL, "BX"	, _TL("Right")				, "", PARAMETER_TYPE_Double
+		NULL, "BX"	, _TL("Right")				, _TL(""), PARAMETER_TYPE_Double
 	);
 
 	pParameters->Add_Value(
-		NULL, "AY"	, _TL("Bottom")				, "", PARAMETER_TYPE_Double
+		NULL, "AY"	, _TL("Bottom")				, _TL(""), PARAMETER_TYPE_Double
 	);
 
 	pParameters->Add_Value(
-		NULL, "BY"	, _TL("Top")				, "", PARAMETER_TYPE_Double
+		NULL, "BY"	, _TL("Top")				, _TL(""), PARAMETER_TYPE_Double
 	);
 
 	pParameters->Add_Value(
-		NULL, "DX"	, _TL("Horizontal Range")	, "", PARAMETER_TYPE_Double, 1.0, 0.0, true
+		NULL, "DX"	, _TL("Horizontal Range")	, _TL(""), PARAMETER_TYPE_Double, 1.0, 0.0, true
 	);
 
 	pParameters->Add_Value(
-		NULL, "DY"	, _TL("Vertical Range")		, "", PARAMETER_TYPE_Double, 1.0, 0.0, true
+		NULL, "DY"	, _TL("Vertical Range")		, _TL(""), PARAMETER_TYPE_Double, 1.0, 0.0, true
 	);
 
-	pParameters	= Add_Parameters("GRID", _TL("Extent"), "");
+	pParameters	= Add_Parameters("GRID", _TL("Extent"), _TL(""));
 
 	pParameters->Add_Grid_System(
-		NULL, "GRID", _TL("Grid Project")		, ""
+		NULL, "GRID", _TL("Grid Project")		, _TL("")
 	);
 }
 
@@ -358,7 +358,7 @@ bool CShapes_Cut::Get_Extent(CSG_Rect &r)
 //---------------------------------------------------------
 int CShapes_Cut::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !strcmp(pParameters->Get_Identifier(), "CUT") )
+	if( !SG_STR_CMP(pParameters->Get_Identifier(), SG_T("CUT")) )
 	{
 		double	ax, ay, bx, by, dx, dy, d;
 
@@ -372,22 +372,22 @@ int CShapes_Cut::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		if( ax > bx )	{	d	= ax;	ax	= bx;	bx	= d;	}
 		if( ay > by )	{	d	= ay;	ay	= by;	by	= d;	}
 
-		if     ( !strcmp(pParameter->Get_Identifier(), "DX") )
+		if     ( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("DX")) )
 		{
 			bx	= ax + dx;
 		}
-		else if( !strcmp(pParameter->Get_Identifier(), "AX")
-			||	 !strcmp(pParameter->Get_Identifier(), "BX") )
+		else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("AX"))
+			||	 !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("BX")) )
 		{
 			dx	= bx - ax;
 		}
 
-		else if( !strcmp(pParameter->Get_Identifier(), "DY") )
+		else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("DY")) )
 		{
 			by	= ay + dy;
 		}
-		else if( !strcmp(pParameter->Get_Identifier(), "AY")
-			||	 !strcmp(pParameter->Get_Identifier(), "BY") )
+		else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("AY"))
+			||	 !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("BY")) )
 		{
 			dy	= by - ay;
 		}

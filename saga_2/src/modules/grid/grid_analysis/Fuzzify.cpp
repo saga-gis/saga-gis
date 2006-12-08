@@ -24,13 +24,13 @@
 CFuzzify::CFuzzify(void){
 
 	Parameters.Set_Name(_TL("Fuzzify"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2004 by Victor Olaya. Prepares a grid for fuzzy logic analysis"));
 
 	Parameters.Add_Grid(NULL,
 						"INPUT",
 						_TL("Input Grid"),
-						"",
+						_TL(""),
 						PARAMETER_INPUT);
 
 	Parameters.Add_Value(NULL,
@@ -64,8 +64,8 @@ CFuzzify::CFuzzify(void){
 	Parameters.Add_Choice(NULL, 
 						"TYPE", 
 						_TL("Membership function type"), 
-						"", 
-						CSG_String::Format("%s|%s|%s|",
+						_TL(""), 
+						CSG_String::Format(SG_T("%s|%s|%s|"),
 							_TL("Linear"),
 							_TL("Sigmoidal"),
 							_TL("j-shaped")
@@ -75,7 +75,7 @@ CFuzzify::CFuzzify(void){
 	Parameters.Add_Grid(NULL,
 						"OUTPUT",
 						_TL("Output Grid"),
-						"",
+						_TL(""),
 						PARAMETER_OUTPUT);
 
 }//constructor

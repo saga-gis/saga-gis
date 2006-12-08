@@ -75,7 +75,7 @@ CShapes_Create_Empty::CShapes_Create_Empty(void)
 
 	Set_Author(_TL("Copyrights (c) 2005 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Creates a new empty shapes layer of given type "
 		"(i.e. point, multipoint, line or polygon)."
 		"Available field types for the attributes table are:\n"
@@ -92,29 +92,31 @@ CShapes_Create_Empty::CShapes_Create_Empty(void)
 	//-----------------------------------------------------
 	Parameters.Add_Shapes(
 		NULL	, "SHAPES"		, _TL("Shapes"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_FixedTable(
 		NULL	, "FIELDS"		, _TL("Attributes"),
-		""
+		_TL("")
 	)->asTable();
 
 	Parameters.Add_String(
 		NULL	, "NAME"		, _TL("Name"),
-		"",
+		_TL(""),
 		_TL("New shapes layer")
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "TYPE"		, _TL("Shape Type"),
-		"",
-		_TL(
-		"Point|"
-		"Multipoint|"
-		"Lines|"
-		"Polygon|")
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("Point"),
+			_TL("Multipoint"),
+			_TL("Lines"),
+			_TL("Polygon")
+		)
 	);
 
 
@@ -128,7 +130,7 @@ CShapes_Create_Empty::CShapes_Create_Empty(void)
 	pFields->Add_Field(_TL("Type")	, TABLE_FIELDTYPE_Int);
 
 	pRecord	= pFields->Add_Record();
-	pRecord->Set_Value(0, "ID");
+	pRecord->Set_Value(0, SG_T("ID"));
 	pRecord->Set_Value(1, 2);
 
 	pRecord	= pFields->Add_Record();

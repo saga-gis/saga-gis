@@ -76,7 +76,7 @@ CFlow_AreaDownslope::CFlow_AreaDownslope(void)
 
 	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"This interactive module allows you to specify source cells (with a left mouse click), "
 		"for which the downslope area shall be identified. "
 		"For the 'Deterministic Infinity' and 'Multiple Flow Direction' algorithms, "
@@ -132,13 +132,13 @@ CFlow_AreaDownslope::CFlow_AreaDownslope(void)
 
 	Parameters.Add_Grid(
 		NULL	, "ELEVATION"	, _TL("Elevation"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "SINKROUTE"	, _TL("Sink Routes"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
@@ -148,7 +148,7 @@ CFlow_AreaDownslope::CFlow_AreaDownslope(void)
 
 	Parameters.Add_Grid(
 		NULL	, "AREA"		, _TL("Downslope Area"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
@@ -158,8 +158,8 @@ CFlow_AreaDownslope::CFlow_AreaDownslope(void)
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
-		"",
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|"),
 			_TL("Deterministic 8"),
 			_TL("Rho 8"),
 			_TL("Braunschweiger Reliefmodell"),

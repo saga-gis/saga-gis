@@ -181,7 +181,7 @@ void CParameters_Control::On_PG_Changed(wxPropertyGridEvent &event)
 //---------------------------------------------------------
 bool CParameters_Control::Save_Changes(bool bSilent)
 {
-	if( m_pOriginal && m_bModified && (bSilent || DLG_Message_Confirm(LNG("[DLG] Save changes?"), wxString::Format("%s: %s", LNG("[CAP] Parameters"), m_pParameters->Get_Name()))) )
+	if( m_pOriginal && m_bModified && (bSilent || DLG_Message_Confirm(LNG("[DLG] Save changes?"), wxString::Format(wxT("%s: %s"), LNG("[CAP] Parameters"), m_pParameters->Get_Name()))) )
 	{
 		m_pOriginal->Assign_Values(m_pParameters);
 
@@ -212,10 +212,10 @@ bool CParameters_Control::Restore(void)
 bool CParameters_Control::Load(void)
 {
 	bool		bResult	= false;
-	FILE		*Stream;
+	CSG_File	Stream;
 	wxString	File_Path;
 
-	if( DLG_Open(File_Path, ID_DLG_PARAMETERS_OPEN) && (Stream = fopen(File_Path, "rb")) != NULL )
+	if( DLG_Open(File_Path, ID_DLG_PARAMETERS_OPEN) && Stream.Open(File_Path.c_str(), SG_FILE_R, true) )
 	{
 		if( m_pParameters->Serialize(Stream, false) )
 		{
@@ -230,8 +230,6 @@ bool CParameters_Control::Load(void)
 			m_bModified	= true;
 			bResult		= true;
 		}
-
-		fclose(Stream);
 	}
 
 	return( bResult );
@@ -241,17 +239,15 @@ bool CParameters_Control::Load(void)
 bool CParameters_Control::Save(void)
 {
 	bool		bResult	= false;
-	FILE		*Stream;
+	CSG_File	Stream;
 	wxString	File_Path;
 
-	if( DLG_Save(File_Path, ID_DLG_PARAMETERS_SAVE) && (Stream = fopen(File_Path, "wb")) != NULL )
+	if( DLG_Save(File_Path, ID_DLG_PARAMETERS_SAVE) && Stream.Open(File_Path.c_str(), SG_FILE_W, true) )
 	{
 		if( m_pParameters->Serialize(Stream, true) )
 		{
 			bResult		= true;
 		}
-
-		fclose(Stream);
 	}
 
 	return( bResult );
@@ -311,9 +307,9 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 #define CHECK_DATA_NODE(pNode, Name, ID)	if( !pNode )\
 	{\
-		pNode	= wxPropertyCategory(LNG(Name), ID);\
+		pNode	= wxPropertyCategory(Name, ID);\
 		if( !pData )\
-			m_pPG->Append(pData = wxPropertyCategory(LNG("[PRM] Data Objects"), "_DATAOBJECT_DATAOBJECTS"));\
+			m_pPG->Append(pData = wxPropertyCategory(LNG("[PRM] Data Objects"), wxT("_DATAOBJECT_DATAOBJECTS")));\
 		_Add_Property(pNode, pData);\
 	}\
 	pRoot	= pNode;
@@ -343,7 +339,7 @@ void CParameters_Control::_Add_Properties(CSG_Parameters *pParameters)
 			case PARAMETER_TYPE_Grid_System:
 				if(1|| pParameters->Get_Parameter(i)->Get_Children_Count() > 0 )
 				{
-					CHECK_DATA_NODE(pGrids	, "[PRM] Grids" , "_DATAOBJECT_GRIDS");
+					CHECK_DATA_NODE(pGrids	, LNG("[PRM] Grids") , wxT("_DATAOBJECT_GRIDS"));
 				}
 				else
 				{
@@ -354,31 +350,31 @@ void CParameters_Control::_Add_Properties(CSG_Parameters *pParameters)
 			case PARAMETER_TYPE_Grid_List:
 				CHECK_LIST_OUTPUT(pParameters->Get_Parameter(i));
 			case PARAMETER_TYPE_Grid:
-				CHECK_DATA_NODE(pGrids	, "[PRM] Grids" , "_DATAOBJECT_GRIDS");
+				CHECK_DATA_NODE(pGrids	, LNG("[PRM] Grids") , wxT("_DATAOBJECT_GRIDS"));
 				break;
 
 			case PARAMETER_TYPE_Table_List:
 				CHECK_LIST_OUTPUT(pParameters->Get_Parameter(i));
 			case PARAMETER_TYPE_Table:
-				CHECK_DATA_NODE(pTables	, "[PRM] Tables", "_DATAOBJECT_TABLES");
+				CHECK_DATA_NODE(pTables	, LNG("[PRM] Tables"), wxT("_DATAOBJECT_TABLES"));
 				break;
 
 			case PARAMETER_TYPE_Shapes_List:
 				CHECK_LIST_OUTPUT(pParameters->Get_Parameter(i));
 			case PARAMETER_TYPE_Shapes:
-				CHECK_DATA_NODE(pShapes	, "[PRM] Shapes", "_DATAOBJECT_SHAPES");
+				CHECK_DATA_NODE(pShapes	, LNG("[PRM] Shapes"), wxT("_DATAOBJECT_SHAPES"));
 				break;
 
 			case PARAMETER_TYPE_TIN_List:
 				CHECK_LIST_OUTPUT(pParameters->Get_Parameter(i));
 			case PARAMETER_TYPE_TIN:
-				CHECK_DATA_NODE(pTINs	, "[PRM] TIN", "_DATAOBJECT_TINS");
+				CHECK_DATA_NODE(pTINs	, LNG("[PRM] TIN"), wxT("_DATAOBJECT_TINS"));
 				break;
 
 			default:
 				if( !pOptions )
 				{
-					pOptions	= wxPropertyCategory(LNG("[PRM] Options"), "_DATAOBJECT_OPTIONS");
+					pOptions	= wxPropertyCategory(LNG("[PRM] Options"), wxT("_DATAOBJECT_OPTIONS"));
 					m_pPG->Append(pOptions);
 				}
 
@@ -429,10 +425,10 @@ void CParameters_Control::_Add_Property(CSG_Parameter *pParameter, wxPGProperty 
 		case PARAMETER_TYPE_Grid:
 		case PARAMETER_TYPE_Grid_List:
 			_Get_Property(pParameter, pParent);
-			pProperty	= wxPropertyCategory(wxString::Format("%s [%s]", pParameter->Get_Name(), LNG("[CAP] Options")), wxString::Format("%s_PARENT", pParameter->Get_Identifier()));
+			pProperty	= wxPropertyCategory(wxString::Format(wxT("%s [%s]"), pParameter->Get_Name(), LNG("[CAP] Options")), wxString::Format(wxT("%s_PARENT"), pParameter->Get_Identifier()));
 			if( pParameter->Get_Parent() && pParameter->Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System )
 			{
-				wxPGId	Id	= m_pPG->GetPropertyByName("_DATAOBJECT_GRIDS");
+				wxPGId	Id	= m_pPG->GetPropertyByName(wxT("_DATAOBJECT_GRIDS"));
 				_Add_Property(pProperty, Id.GetPropertyPtr());
 			}
 			else
@@ -443,7 +439,7 @@ void CParameters_Control::_Add_Property(CSG_Parameter *pParameter, wxPGProperty 
 
 		default:
 			_Get_Property(pParameter, pParent);
-			pProperty	= wxPropertyCategory(wxString::Format("%s [%s]", pParameter->Get_Name(), LNG("[CAP] Options")), wxString::Format("%s_PARENT", pParameter->Get_Identifier()));
+			pProperty	= wxPropertyCategory(wxString::Format(wxT("%s [%s]"), pParameter->Get_Name(), LNG("[CAP] Options")), wxString::Format(wxT("%s_PARENT"), pParameter->Get_Identifier()));
 			_Add_Property(pProperty, pParent);
 			break;
 		}
@@ -596,10 +592,10 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 		sDesc	= pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE);
 
 		s		= pParameter->Get_Description(PARAMETER_DESCRIPTION_TEXT);
-		if( s.Length() > 0 )	{	sDesc.Append("\n___\n");	sDesc.Append(s);	}
+		if( s.Length() > 0 )	{	sDesc.Append(wxT("\n___\n"));	sDesc.Append(s);	}
 
 		s		= pParameter->Get_Description(PARAMETER_DESCRIPTION_PROPERTIES);
-		if( s.Length() > 0 )	{	sDesc.Append("\n___\n");	sDesc.Append(s);	}
+		if( s.Length() > 0 )	{	sDesc.Append(wxT("\n___\n"));	sDesc.Append(s);	}
 
 		m_pPG->SetPropertyHelpString(pProperty->GetId(), sDesc.c_str());
 	}
@@ -615,7 +611,7 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CParameters_Control::_Set_Parameter(const char *Identifier)
+void CParameters_Control::_Set_Parameter(const wxChar *Identifier)
 {
 	CSG_Parameter	*pParameter;
 
@@ -718,14 +714,14 @@ void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
 			break;
 
 		case PARAMETER_TYPE_Range:
-			s.Printf("%f; %f", pParameter->asRange()->Get_LoVal(), pParameter->asRange()->Get_HiVal());
+			s.Printf(wxT("%f; %f"), pParameter->asRange()->Get_LoVal(), pParameter->asRange()->Get_HiVal());
 			m_pPG->SetPropertyValue(Id, s.c_str());
 			break;
 
 		case PARAMETER_TYPE_Degree:
 			double	d[3];
 			Decimal_To_Degree(pParameter->asDouble(), d[0], d[1], d[2]);
-			s.Printf("%f; %f; %f", d[0], d[1], d[2]);
+			s.Printf(wxT("%f; %f; %f"), d[0], d[1], d[2]);
 			m_pPG->SetPropertyValue(Id, s.c_str());
 			break;
 		}

@@ -138,13 +138,13 @@ CWKSP_Map::~CWKSP_Map(void)
 //---------------------------------------------------------
 wxString CWKSP_Map::Get_Name(void)
 {
-	return( wxString::Format("%02d. %s", 1 + Get_Index(), LNG("[CAP] Map")) );
+	return( wxString::Format(wxT("%02d. %s"), 1 + Get_Index(), LNG("[CAP] Map")) );
 }
 
 //---------------------------------------------------------
 wxString CWKSP_Map::Get_Description(void)
 {
-	return( wxString::Format("%02d. %s", 1 + Get_Index(), LNG("[CAP] Map")) );
+	return( wxString::Format(wxT("%02d. %s"), 1 + Get_Index(), LNG("[CAP] Map")) );
 }
 
 //---------------------------------------------------------
@@ -256,49 +256,49 @@ void CWKSP_Map::_Create_Parameters(void)
 	CSG_Parameter	*pNode_0, *pNode_1;
 
 	//-----------------------------------------------------
-	m_Parameters.Create(this, "", "");
+	m_Parameters.Create(this, LNG(""), LNG(""));
 	m_Parameters.Set_Callback_On_Parameter_Changed(&_On_Parameter_Changed);
 
 	//-----------------------------------------------------
 	pNode_0	= m_Parameters.Add_Node(
 		NULL	, "NODE_GENERAL"	, LNG("[CAP] General"),
-		""
+		LNG("")
 	);
 
 	m_Parameters.Add_Value(
 		pNode_0	, "GOTO_NEWLAYER"	, LNG("[CAP] Zoom to added layer"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Bool, g_pMaps->Get_Parameters()->Get_Parameter("GOTO_NEWLAYER")->asBool()
 	);
 
 	//-----------------------------------------------------
 	pNode_0	= m_Parameters.Add_Node(
 		NULL	, "NODE_FRAME"		, LNG("[CAP] Frame"),
-		""
+		LNG("")
 	);
 
 	m_Parameters.Add_Value(
 		pNode_0	, "FRAME_SHOW"		, LNG("[CAP] Show"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Bool, g_pMaps->Get_Parameters()->Get_Parameter("FRAME_SHOW")->asBool()
 	);
 
 	m_Parameters.Add_Value(
 		pNode_0	, "FRAME_WIDTH"		, LNG("[CAP] Width"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Int, g_pMaps->Get_Parameters()->Get_Parameter("FRAME_WIDTH")->asInt(), 5, true
 	);
 
 	//-----------------------------------------------------
 	pNode_0	= m_Parameters.Add_Node(
 		NULL	, "NODE_PRINT"		, LNG("[CAP] Print Layout"),
-		""
+		LNG("")
 	);
 
 	m_Parameters.Add_Choice(
 		pNode_0	, "PRINT_LEGEND"	, LNG("[CAP] Show Legend"),
-		"",
-		wxString::Format("%s|%s|",
+		LNG(""),
+		wxString::Format(wxT("%s|%s|"),
 			LNG("no"),
 			LNG("yes")
 		), 1
@@ -306,24 +306,24 @@ void CWKSP_Map::_Create_Parameters(void)
 
 	m_Parameters.Add_Value(
 		pNode_0	, "PRINT_RESOLUTION"	, LNG("[CAP] Display Resolution"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Int, 2, 1, true
 	);
 
 	pNode_1	= m_Parameters.Add_Node(
 		pNode_0	, "NODE_PRINT_FRAME"	, LNG("[CAP] Frame"),
-		""
+		LNG("")
 	);
 
 	m_Parameters.Add_Value(
 		pNode_1	, "PRINT_FRAME_SHOW"	, LNG("[CAP] Show"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Bool, true
 	);
 
 	m_Parameters.Add_Value(
 		pNode_1	, "PRINT_FRAME_WIDTH"	, LNG("[CAP] Width"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Int, 7, 5, true
 	);
 }
@@ -792,49 +792,49 @@ bool CWKSP_Map::Get_Image(wxImage &Image, CSG_Rect &rWorld)
 //---------------------------------------------------------
 void CWKSP_Map::SaveAs_Image(void)
 {
-	int			nx, ny, Frame, type;
-	wxSize		s;
-	wxRect		r;
-	wxString	file;
-	wxBitmap	BMP;
-	wxMemoryDC	dc;
+	int				nx, ny, Frame, type;
+	wxSize			s;
+	wxRect			r;
+	wxString		file;
+	wxBitmap		BMP;
+	wxMemoryDC		dc;
 	CSG_Parameters	Parms;
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
 	Parms.Set_Name(LNG("[CAP] Save Map as Image..."));
 
-	pNode	= Parms.Add_Node(NULL, "NODE_MAP", LNG("Map"), "");
+	pNode	= Parms.Add_Node(NULL, "NODE_MAP", LNG("Map"), LNG(""));
 
 	Parms.Add_Value(
 		pNode	, "NX"	, LNG("[PRM] Map Width [Pixels]"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Int, 800	, 1, true
 	);
 
 	Parms.Add_Value(
 		pNode	, "NY"	, LNG("[PRM] Map Height [Pixels]"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Int, 600	, 1, true
 	);
 
 	Parms.Add_Value(
 		pNode	, "FR"	, LNG("[PRM] Frame Width [Pixels]"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Int, 20	, 0, true
 	);
 
-	pNode	= Parms.Add_Node(NULL, "NODE_LEGEND", LNG("[PRM] Legend"), "");
+	pNode	= Parms.Add_Node(NULL, "NODE_LEGEND", LNG("[PRM] Legend"), LNG(""));
 
 	Parms.Add_Value(
 		pNode	, "LG"	, LNG("[PRM] Save"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Bool, 1
 	);
 
 	Parms.Add_Value(
 		pNode	, "LZ"	, LNG("[PRM] Zoom"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Double, 1.0, 0, true
 	);
 
@@ -864,7 +864,7 @@ void CWKSP_Map::SaveAs_Image(void)
 		{
 			wxFileName	fn(file);
 			file	= fn.GetName();
-			file.Append("_legend");
+			file.Append(wxT("_legend"));
 			fn.SetName(file);
 			file	= fn.GetFullPath();
 
@@ -894,7 +894,7 @@ void CWKSP_Map::SaveAs_PDF_Indexed(void)
 		Parameters.Add_FilePath(
 			NULL	, "FILENAME"	, LNG("[FLD] PDF Document"),
 			LNG(""),
-			wxString::Format("%s%s",
+			wxString::Format(wxT("%s%s"),
 			LNG("PDF Documents (*.pdf)|*.pdf|"),
 			LNG("All Files|*.*")), NULL, true, false
 		);
@@ -902,16 +902,19 @@ void CWKSP_Map::SaveAs_PDF_Indexed(void)
 		Parameters.Add_Choice(
 			NULL	, "PAPER_SIZE"	, LNG("[FLD] Paper Format"),
 			LNG(""),
-			LNG("A4 Portrait|"
-			"A4 Landscape|"
-			"A3 Portrait|"
-			"A3 Landscape|")
+
+			CSG_String::Format(wxT("%s|%s|%s|%s|"),
+				LNG("A4 Portrait"),
+				LNG("A4 Landscape"),
+				LNG("A3 Portrait"),
+				LNG("A3 Landscape")
+			)
 		);
 
 		Parameters.Add_String(
 			NULL	, "NAME"		, LNG("[FLD] Title"),
 			LNG(""),
-			""
+			LNG("")
 		);
 
 		Parameters.Add_Shapes(
@@ -934,11 +937,13 @@ void CWKSP_Map::SaveAs_PDF_Indexed(void)
 		Parameters.Add_FilePath(
 			NULL	, "FILEICON"	, LNG("[FLD] Icon"),
 			LNG(""),
-			"All Recognised Files|*.png;*.jpg|"
-			"PNG Files|*.png|"
-			"JPG Files|*.jpg|"
-			"All Files|*.*",
-			NULL, false, false
+
+			CSG_String::Format(wxT("%s|*.png;*.jpg|%s|*.png|%s|*.jpg|%s|*.*"),
+				LNG("All Recognised Files"),
+				LNG("PNG Files"),
+				LNG("JPG Files"),
+				LNG("All Files")
+			), NULL, false, false
 		);
 
 		Parameters.Add_Value(
@@ -959,7 +964,7 @@ void CWKSP_Map::SaveAs_PDF_Indexed(void)
 	//	CSG_Grid			*pGrid;
 		CSG_Doc_PDF	PDF;
 
-		MSG_General_Add(wxString::Format("%s...", LNG("[MSG] Save to PDF")), true, true);
+		MSG_General_Add(wxString::Format(wxT("%s..."), LNG("[MSG] Save to PDF")), true, true);
 
 		bResult			= false;
 		Name			= Parameters("NAME")		->asString();	if( Name.Length() < 1 )	Name	=  LNG("Maps");
@@ -1024,7 +1029,7 @@ void CWKSP_Map::SaveAs_PDF_Indexed(void)
 }
 
 //---------------------------------------------------------
-void CWKSP_Map::Draw_PDF(CSG_Doc_PDF *pPDF, const char *FilePath_Maps, int Image_ID, const char *FileName_Icon, const char *Title, CSG_Rect rWorld, bool bRoundScale, int iField, CSG_Shapes *pShapes)
+void CWKSP_Map::Draw_PDF(CSG_Doc_PDF *pPDF, const wxChar *FilePath_Maps, int Image_ID, const wxChar *FileName_Icon, const wxChar *Title, CSG_Rect rWorld, bool bRoundScale, int iField, CSG_Shapes *pShapes)
 {
 	int			FrameSize_1	= 20, FrameSize_2	= 10;
 	double		d, e, Scale, Ratio;
@@ -1064,7 +1069,7 @@ void CWKSP_Map::Draw_PDF(CSG_Doc_PDF *pPDF, const char *FilePath_Maps, int Image
 		Draw_Map(dc, rWorld, 1.0, rBMP, false);
 		dc.SelectObject(wxNullBitmap);
 		SG_Dir_Create(FilePath_Maps);
-		FileName	= SG_File_Make_Path(FilePath_Maps, wxString::Format("image_%03d", Image_ID + 1), "png");
+		FileName	= SG_File_Make_Path(FilePath_Maps, wxString::Format(wxT("image_%03d"), Image_ID + 1), wxT("png"));
 		BMP.SaveFile(FileName.c_str(), wxBITMAP_TYPE_PNG);
 
 		pPDF->Draw_Image	(rBox, FileName);
@@ -1111,7 +1116,7 @@ void CWKSP_Map::Draw_PDF(CSG_Doc_PDF *pPDF, const char *FilePath_Maps, int Image
 		//-------------------------------------------------
 		rBox	= pPDF->Layout_Get_Box("DESCRIPTION");
 
-		Description.Append(wxString::Format("%d. %s\n", Image_ID + 2, LNG("Map")));
+		Description.Append(wxString::Format(wxT("%d. %s\n"), Image_ID + 2, LNG("Map")));
 
 		if( pShapes && Image_ID >= 0 && Image_ID < pShapes->Get_Count() )
 		{
@@ -1122,33 +1127,33 @@ void CWKSP_Map::Draw_PDF(CSG_Doc_PDF *pPDF, const char *FilePath_Maps, int Image
 
 			case SHAPE_TYPE_Line:
 				d	= ((CSG_Shape_Line    *)pShapes->Get_Shape(Image_ID))->Get_Length();
-				e	= d > 1000.0 ? 1000.0 : 1.0;
-				s	= d > 1000.0 ? "km"   : "m";
-				Description.Append(wxString::Format("%s: %f%s\n", LNG("Length")		, d / e, s.c_str()));
+				e	= d > 1000.0 ? 1000.0    : 1.0;
+				s	= d > 1000.0 ? wxT("km") : wxT("m");
+				Description.Append(wxString::Format(wxT("%s: %f%s\n"), LNG("Length")	, d / e, s.c_str()));
 				break;
 
 			case SHAPE_TYPE_Polygon:
 				d	= ((CSG_Shape_Polygon *)pShapes->Get_Shape(Image_ID))->Get_Area();
-				e	= d > 1000000.0 ? 1000000.0 : (d > 10000.0 ? 10000.0 : 1.0);
-				s	= d > 1000000.0 ? "km²"     : (d > 10000.0 ? "ha"    : "m²");
-				Description.Append(wxString::Format("%s: %f%s\n", LNG("Area")		, d / e, s.c_str()));
+				e	= d > 1000000.0 ? 1000000.0  : (d > 10000.0 ? 10000.0   : 1.0);
+				s	= d > 1000000.0 ? wxT("km²") : (d > 10000.0 ? wxT("ha") : wxT("m²"));
+				Description.Append(wxString::Format(wxT("%s: %f%s\n"), LNG("Area")		, d / e, s.c_str()));
 
 				d	= ((CSG_Shape_Polygon *)pShapes->Get_Shape(Image_ID))->Get_Perimeter();
-				e	= d > 1000.0 ? 1000.0 : 1.0;
-				s	= d > 1000.0 ? "km"   : "m";
-				Description.Append(wxString::Format("%s: %f%s\n", LNG("Perimeter")	, d / e, s.c_str()));
+				e	= d > 1000.0 ? 1000.0    : 1.0;
+				s	= d > 1000.0 ? wxT("km") : wxT("m");
+				Description.Append(wxString::Format(wxT("%s: %f%s\n"), LNG("Perimeter")	, d / e, s.c_str()));
 
-				Description.Append(wxString::Format("%s: %d\n"  , LNG("Parts")		, ((CSG_Shape_Polygon *)pShapes->Get_Shape(Image_ID))->Get_Part_Count()));
+				Description.Append(wxString::Format(wxT("%s: %d\n")  , LNG("Parts")		, ((CSG_Shape_Polygon *)pShapes->Get_Shape(Image_ID))->Get_Part_Count()));
 				break;
 			}
 
 			if( iField >= 0 && iField < pShapes->Get_Table().Get_Field_Count() )
 			{
-				Description.Append(wxString::Format("%s: %s\n", pShapes->Get_Table().Get_Field_Name(iField), pShapes->Get_Shape(Image_ID)->Get_Record()->asString(iField)));
+				Description.Append(wxString::Format(wxT("%s: %s\n"), pShapes->Get_Table().Get_Field_Name(iField), pShapes->Get_Shape(Image_ID)->Get_Record()->asString(iField)));
 			}
 		}
 
-		Description.Append(wxString::Format("%s 1:%s", LNG("Scale"), SG_Get_String(Scale, 2).c_str()));
+		Description.Append(wxString::Format(wxT("%s 1:%s"), LNG("Scale"), SG_Get_String(Scale, 2).c_str()));
 
 		pPDF->Draw_Text(rBox.Get_XMin(), rBox.Get_YMax(), Description, 12, PDF_STYLE_TEXT_ALIGN_H_LEFT|PDF_STYLE_TEXT_ALIGN_V_TOP);
 	}
@@ -1165,7 +1170,7 @@ void CWKSP_Map::SaveAs_Interactive_SVG(void)
 		Parameters.Add_FilePath(
 			NULL	, "FILENAME"	, LNG("[FLD] SVG File"),
 			LNG(""),
-			wxString::Format("%s%s",
+			wxString::Format(wxT("%s%s"),
 			LNG("Standard Vector Graphics (SVG)(*.svg)|*.svg|"),
 			LNG("All Files|*.*")), NULL, true, false
 		);
@@ -1184,7 +1189,7 @@ void CWKSP_Map::SaveAs_Interactive_SVG(void)
 		CSG_Shapes					*pIndexLayer;
 		CSVG_Interactive_Map	SVG;
 
-		MSG_General_Add(wxString::Format("%s...", LNG("[MSG] Save as Interactive SVG")), true, true);
+		MSG_General_Add(wxString::Format(wxT("%s..."), LNG("[MSG] Save as Interactive SVG")), true, true);
 
 		pIndexLayer		= Parameters("SHAPES")		->asShapes();
 		FileName		= Parameters("FILENAME")	->asString();

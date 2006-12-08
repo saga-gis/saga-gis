@@ -49,20 +49,20 @@ CSimulateVariableWind::CSimulateVariableWind(void){
 	Parameters.Add_Grid(NULL, 
 						"DEM", 
 						"MDE", 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 	
 	Parameters.Add_Grid(NULL, 
 						"FUEL", 
 						"Modelo de combustible", 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid_List(NULL, 
 							"WINDSPD", 
 							"Velocidad del viento",
 							"Velocidad del viento (km/h)"
-							"", 
+							_TL(""), 
 							PARAMETER_INPUT);
 	
 	Parameters.Add_Grid_List(NULL, 
@@ -74,37 +74,37 @@ CSimulateVariableWind::CSimulateVariableWind(void){
 	Parameters.Add_Grid(NULL, 
 						"M1H", 
 						"Humedad del combustible muerto en 1-hora", 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"M10H", 
 						"Humedad del combustible muerto en 10-horas", 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"M100H", 
 						"Humedad del combustible muerto en 100-horas", 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"MHERB", 
 						"Humedad del combustible herbáceo vivo", 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"MWOOD", 
 						"Humedad del combustible leñoso vivo", 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 	
 	Parameters.Add_Grid(NULL, 
 						"TIME", 
 						"Tiempo", 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT);
 
 	Parameters.Add_Grid(NULL, 
@@ -122,7 +122,7 @@ CSimulateVariableWind::CSimulateVariableWind(void){
 	Parameters.Add_Value(NULL, 
 						"IGNTIME", 
 						"Tiempo de inicio (min)", 
-						"", 
+						_TL(""), 
 						PARAMETER_TYPE_Double, 
 						0, 
 						0, 
@@ -131,7 +131,7 @@ CSimulateVariableWind::CSimulateVariableWind(void){
 	Parameters.Add_Value(NULL, 
 						"INTERVAL", 
 						"Intervalo de tiempo entre capas (min)", 
-						"", 
+						_TL(""), 
 						PARAMETER_TYPE_Double, 
 						30, 
 						1, 
@@ -140,7 +140,7 @@ CSimulateVariableWind::CSimulateVariableWind(void){
 	Parameters.Add_Value(NULL, 
 						"SIMULATIONTIME", 
 						"Tiempo de simulacion (min)", 
-						"", 
+						_TL(""), 
 						PARAMETER_TYPE_Double, 
 						180, 
 						1, 
@@ -178,8 +178,8 @@ CSimulateVariableWind::CSimulateVariableWind(void){
 							"REPORTFILE",
 							"Informe",
 							"Informe",
-							"",
-							"",
+							_TL(""),
+							_TL(""),
 							true);
 }//constructor
 

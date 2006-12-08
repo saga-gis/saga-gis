@@ -24,26 +24,26 @@ CImage_VI_Slope::CImage_VI_Slope(void){
 
 	Set_Name(_TL("Vegetation Index[slope based]"));
 	Set_Author(_TL("Copyrights (c) 2004 by Victor Olaya"));
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"(c) 2004 by Victor Olaya. Slope-based Vegetation Indexes"));
 
 	Parameters.Add_Grid(NULL, 
 						"NIR", 
 						_TL("Near Infrared Band"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"RED", 
 						_TL("Red Band"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 		
 	Parameters.Add_Grid(NULL, 
 						"NDVI", 
 						_TL("Normalized Difference Vegetation Index"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
 						GRID_TYPE_Double);
@@ -51,7 +51,7 @@ CImage_VI_Slope::CImage_VI_Slope(void){
 	Parameters.Add_Grid(NULL, 
 						"RATIO", 
 						_TL("Ratio Vegetation Index"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT_OPTIONAL, 
 						true, 
 						GRID_TYPE_Double);
@@ -59,7 +59,7 @@ CImage_VI_Slope::CImage_VI_Slope(void){
 	Parameters.Add_Grid(NULL, 
 						"TVI", 
 						_TL("Transformed Vegetation Index"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT_OPTIONAL, 
 						true, 
 						GRID_TYPE_Double);
@@ -67,7 +67,7 @@ CImage_VI_Slope::CImage_VI_Slope(void){
 	Parameters.Add_Grid(NULL, 
 						"CTVI", 
 						_TL("Corrected Transformed Vegetation Index"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT_OPTIONAL, 
 						true, 
 						GRID_TYPE_Double);
@@ -75,7 +75,7 @@ CImage_VI_Slope::CImage_VI_Slope(void){
 	Parameters.Add_Grid(NULL, 
 						"TTVI", 
 						_TL("Thiam's Transformed Vegetation Index"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT_OPTIONAL, 
 						true, 
 						GRID_TYPE_Double);
@@ -83,7 +83,7 @@ CImage_VI_Slope::CImage_VI_Slope(void){
 	Parameters.Add_Grid(NULL, 
 						"NRATIO", 
 						_TL("Normalized Ratio Vegetation Index"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT_OPTIONAL, 
 						true, 
 						GRID_TYPE_Double);

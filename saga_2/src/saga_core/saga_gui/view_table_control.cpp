@@ -377,7 +377,7 @@ bool CVIEW_Table_Control::Del_Records(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CVIEW_Table_Control::Load(const char *File_Name)
+bool CVIEW_Table_Control::Load(const wxChar *File_Name)
 {
 	bool	bResult	= false;
 	CSG_Table	Table;
@@ -399,7 +399,7 @@ bool CVIEW_Table_Control::Load(const char *File_Name)
 }
 
 //---------------------------------------------------------
-bool CVIEW_Table_Control::Save(const char *File_Name, int Format)
+bool CVIEW_Table_Control::Save(const wxChar *File_Name, int Format)
 {
 	bool	bResult;
 
@@ -448,14 +448,14 @@ void CVIEW_Table_Control::On_Change(wxGridEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_Field_Add(wxCommandEvent &event)
 {
-	int			i;
-	CSG_String	sFields;
+	int				i;
+	CSG_String		sFields;
 	CSG_Parameters	P;
 
 	//-----------------------------------------------------
 	for(i=0; i<m_pTable->Get_Field_Count(); i++)
 	{
-		sFields.Append(m_pTable->Get_Field_Name(i));	sFields.Append('|');
+		sFields.Append(m_pTable->Get_Field_Name(i));	sFields.Append(wxT('|'));
 	}
 
 	//-----------------------------------------------------
@@ -463,14 +463,14 @@ void CVIEW_Table_Control::On_Field_Add(wxCommandEvent &event)
 
 	P.Add_String(
 		NULL	, "NAME"	, LNG("Name"),
-		"",
-		"Field"
+		LNG(""),
+		LNG("Field")
 	);
 
 	P.Add_Choice(
 		NULL	, "TYPE"	, LNG("Field Type"),
-		"",
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|",
+		LNG(""),
+		CSG_String::Format(wxT("%s|%s|%s|%s|%s|%s|%s|%s|"),
 			LNG("character string"),
 			LNG("1 byte integer"),
 			LNG("2 byte integer"),
@@ -484,14 +484,14 @@ void CVIEW_Table_Control::On_Field_Add(wxCommandEvent &event)
 
 	P.Add_Choice(
 		NULL	, "FIELD"	, LNG("Insert Position"),
-		"",
+		LNG(""),
 		sFields, m_pTable->Get_Field_Count() - 1
 	);
 
 	P.Add_Choice(
 		NULL	, "INSERT"	, LNG("Insert Method"),
-		"",
-		CSG_String::Format("%s|%s|",
+		LNG(""),
+		CSG_String::Format(wxT("%s|%s|"),
 			LNG("before"),
 			LNG("after")
 		), 1
@@ -541,8 +541,8 @@ void CVIEW_Table_Control::On_Field_Del(wxCommandEvent &event)
 	for(i=0; i<m_pTable->Get_Field_Count(); i++)
 	{
 		P.Add_Value(
-			NULL	, CSG_String::Format("_%d_", i), m_pTable->Get_Field_Name(i),
-			"",
+			NULL	, CSG_String::Format(wxT("_%d_"), i), m_pTable->Get_Field_Name(i),
+			LNG(""),
 			PARAMETER_TYPE_Bool, false
 		);
 	}
@@ -552,7 +552,7 @@ void CVIEW_Table_Control::On_Field_Del(wxCommandEvent &event)
 	{
 		for(i=m_pTable->Get_Field_Count()-1; i>=0; i--)
 		{
-			if( P(CSG_String::Format("_%d_", i))->asBool() )
+			if( P(CSG_String::Format(wxT("_%d_"), i))->asBool() )
 			{
 				m_pTable->Del_Field(i);
 			}
@@ -584,14 +584,14 @@ void CVIEW_Table_Control::On_Field_Sort(wxCommandEvent &event)
 
 	P.Add_Choice(
 		NULL	, "FIELD"	, LNG("Sort by"),
-		"",
+		LNG(""),
 		sFields
 	);
 
 	P.Add_Choice(
 		NULL	, "METHOD"	, LNG("Direction"),
-		"",
-		CSG_String::Format("%s|%s|%s|",
+		LNG(""),
+		CSG_String::Format(wxT("%s|%s|%s|"),
 			LNG("unsorted"),
 			LNG("ascending"),
 			LNG("descending")
@@ -779,7 +779,7 @@ void CVIEW_Table_Control::On_RClick_Label(wxGridEvent &event)
 		SelectRow		(event.GetRow(), false);
 		SetGridCursor	(event.GetRow(), GetGridCursorCol());
 
-		pMenu	= new wxMenu(wxString::Format("%s %d", LNG("Row"), 1 + event.GetRow()), 0);
+		pMenu	= new wxMenu(wxString::Format(wxT("%s %d"), LNG("Row"), 1 + event.GetRow()), 0);
 
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_RECORD_ADD);
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_RECORD_INS);

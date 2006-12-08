@@ -77,7 +77,7 @@ CGrid_Orientation::CGrid_Orientation(void)
 
 	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Copy, mirror (horizontally or vertically) and invert grid values. "
 		"If the target is not set, the changes will be stored to the original grid. ")
 	);
@@ -88,20 +88,20 @@ CGrid_Orientation::CGrid_Orientation(void)
 
 	Parameters.Add_Grid(
 		NULL, "INPUT"	, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL, "RESULT"	, _TL("Changed Grid"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Choice(
 		NULL, "METHOD"	, _TL("Method"),
-		"",
-		CSG_String::Format("%s|%s|%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
 			_TL("Copy"),
 			_TL("Flip"),
 			_TL("Mirror"),

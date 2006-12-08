@@ -26,23 +26,23 @@ CGridsFromTableAndGrid::CGridsFromTableAndGrid(){
 
 	Parameters.Set_Name(_TL("Grids from classified grid and table"));
 
-	Parameters.Set_Description(_TL("Creates several grids using a classified grid and a table with data values for each class."));
+	Parameters.Set_Description(_TW("Creates several grids using a classified grid and a table with data values for each class."));
 
 	pNode_0	= Parameters.Add_Table(	NULL, 
 									"TABLE", 
 									_TL("Table"),
-									"",	
+									_TL(""),	
 									PARAMETER_INPUT);
 
 	pNode_1	= Parameters.Add_Table_Field(pNode_0, 
 									"TABLE_ID", 
 									_TL("Field"),
-									"");
+									_TL(""));
 	
 	Parameters.Add_Grid(NULL, 
 						"CLASSES",
 						_TL("Classified Grid"), 						
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 	
 }//constructor

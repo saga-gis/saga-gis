@@ -78,7 +78,7 @@ public:
 	CGrid_Gaps(void);
 	virtual ~CGrid_Gaps(void);
 
-	virtual const char *	Get_MenuPath	(void)	{	return( _TL("R:Construction") );	}
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Construction") );	}
 
 
 protected:

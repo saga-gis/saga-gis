@@ -112,7 +112,7 @@ public:
 	bool							Do_Beep				(void);
 
 	void							Open				(void);
-	bool							Open				(const char *File_Name);
+	bool							Open				(const wxChar *File_Name);
 
 	bool							Exists				(class CWKSP_Module *pModule);
 
@@ -129,9 +129,8 @@ private:
 	void							_Config_Read		(void);
 	void							_Config_Write		(void);
 
-	int								_Open_Directory		(const char *sDirectory);
+	int								_Open_Directory		(const wxChar *sDirectory);
 
-	void							_Make_Report		(void);
 	void							_Make_HTML_Docs		(void);
 
 };

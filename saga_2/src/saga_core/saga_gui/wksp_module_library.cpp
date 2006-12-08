@@ -78,14 +78,14 @@
 
 //---------------------------------------------------------
 #if defined(_SAGA_MSW)
-	#define ENV_LIB_PATH	"PATH"
-	#define ENV_LIB_SEPA	';'
+	#define ENV_LIB_PATH	wxT("PATH")
+	#define ENV_LIB_SEPA	wxT(';')
 #elif defined(_SAGA_LINUX)
-	#define ENV_LIB_PATH	"LD_LIBRARY_PATH"
-	#define ENV_LIB_SEPA	':'
+	#define ENV_LIB_PATH	wxT("LD_LIBRARY_PATH")
+	#define ENV_LIB_SEPA	wxT(':')
 #else
-	#define ENV_LIB_PATH	"PATH"
-	#define ENV_LIB_SEPA	';'
+	#define ENV_LIB_PATH	wxT("PATH")
+	#define ENV_LIB_SEPA	wxT(';')
 #endif
 
 
@@ -96,14 +96,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Module_Library::CWKSP_Module_Library(const char *FileName)
+CWKSP_Module_Library::CWKSP_Module_Library(const wxChar *FileName)
 {
 	TSG_PFNC_MLB_Initialize		MLB_Initialize;
 	TSG_PFNC_MLB_Get_Interface	MLB_Get_Interface;
 
 	wxString	sPath;
 	wxFileName	fName(FileName);
-	CSG_Module		*pModule;
+	CSG_Module	*pModule;
 
 	m_pInterface	= NULL;
 
@@ -113,7 +113,7 @@ CWKSP_Module_Library::CWKSP_Module_Library(const char *FileName)
 	//-----------------------------------------------------
 	if( wxGetEnv(ENV_LIB_PATH, &sPath) && sPath.Length() > 0 )
 	{
-		wxSetEnv(ENV_LIB_PATH, wxString::Format("%s%c%s", sPath.c_str(), ENV_LIB_SEPA, SG_File_Get_Path(FileName).c_str()));
+		wxSetEnv(ENV_LIB_PATH, wxString::Format(wxT("%s%c%s"), sPath.c_str(), ENV_LIB_SEPA, SG_File_Get_Path(FileName).c_str()));
 	}
 	else
 	{
@@ -123,7 +123,7 @@ CWKSP_Module_Library::CWKSP_Module_Library(const char *FileName)
 	//-----------------------------------------------------
 	if( !m_Library.Load(m_File_Name) )
 	{
-		MSG_Error_Add(wxString::Format("%s:\n%s", FileName, LNG("[ERR] Library could not be loaded")), true);
+		MSG_Error_Add(wxString::Format(wxT("%s:\n%s"), FileName, LNG("[ERR] Library could not be loaded")), true);
 	}
 	else
 	{
@@ -131,7 +131,7 @@ CWKSP_Module_Library::CWKSP_Module_Library(const char *FileName)
 		||	(MLB_Initialize		= (TSG_PFNC_MLB_Initialize)		m_Library.GetSymbol(SYMBOL_MLB_Initialize)   ) == NULL
 		||	!(m_pInterface = MLB_Get_Interface()) || !MLB_Initialize(m_File_Name) )
 		{
-			MSG_Error_Add(wxString::Format("%s:\n%s", FileName, LNG("[ERR] Invalid library")), true);
+			MSG_Error_Add(wxString::Format(wxT("%s:\n%s"), FileName, LNG("[ERR] Invalid library")), true);
 		}
 		else
 		{
@@ -142,7 +142,7 @@ CWKSP_Module_Library::CWKSP_Module_Library(const char *FileName)
 
 			if( Get_Count() == 0 )
 			{
-				MSG_Error_Add(wxString::Format("%s:\n%s", FileName, LNG("[ERR] Library does not contain any modules")), true);
+				MSG_Error_Add(wxString::Format(wxT("%s:\n%s"), FileName, LNG("[ERR] Library does not contain any modules")), true);
 			}
 		}
 	}
@@ -167,7 +167,7 @@ CWKSP_Module_Library::~CWKSP_Module_Library(void)
 	{
 		if( is_Valid() )
 		{
-			MSG_General_Add(wxString::Format("%s: %s...", LNG("[MSG] Close Library"), m_File_Name.c_str()), true, true);
+			MSG_General_Add(wxString::Format(wxT("%s: %s..."), LNG("[MSG] Close Library"), m_File_Name.c_str()), true, true);
 
 			while( (pItem = Get_Module(0)) != NULL )
 			{
@@ -205,8 +205,7 @@ wxString CWKSP_Module_Library::Get_Description(void)
 	int			iModule;
 	wxString	s, sLine;
 
-	s.Printf(
-		"%s: <b>%s</b><br>%s: <i>%s</i><br>%s: <i>%s</i><br>%s: <i>%s</i><hr>%s",
+	s.Printf(wxT("%s: <b>%s</b><br>%s: <i>%s</i><br>%s: <i>%s</i><br>%s: <i>%s</i><hr>%s"),
 		LNG("[CAP] Module Library")	, Get_Info(MLB_INFO_Name),
 		LNG("[CAP] Author")			, Get_Info(MLB_INFO_Author),
 		LNG("[CAP] Version")		, Get_Info(MLB_INFO_Version),
@@ -214,18 +213,18 @@ wxString CWKSP_Module_Library::Get_Description(void)
 		Get_Info(MLB_INFO_Description)
 	);
 
-	s.Append(wxString::Format("<hr><b>%s:<ul>", LNG("[CAP] Modules")));
+	s.Append(wxString::Format(wxT("<hr><b>%s:<ul>"), LNG("[CAP] Modules")));
 
 	for(iModule=0; iModule<Get_Count(); iModule++)
 	{
-		sLine.Printf("<li>%s</li>", Get_Module(iModule)->Get_Module()->Get_Name());
+		sLine.Printf(wxT("<li>%s</li>"), Get_Module(iModule)->Get_Module()->Get_Name());
 
 		s.Append(sLine);
 	}
 
-	s.Append("</ul>");
+	s.Append(wxT("</ul>"));
 
-	s.Replace("\n", "<br>");
+	s.Replace(wxT("\n"), wxT("<br>"));
 
 	return( s );
 }
@@ -335,14 +334,14 @@ wxString & CWKSP_Module_Library::Get_File_Name(void)
 }
 
 //---------------------------------------------------------
-const char * CWKSP_Module_Library::Get_Info(int Type)
+const wxChar * CWKSP_Module_Library::Get_Info(int Type)
 {
 	if( m_pInterface != NULL )
 	{
 		return( m_pInterface->Get_Info(Type) );
 	}
 
-	return( "" );
+	return( wxT("") );
 }
 
 

@@ -102,7 +102,7 @@ wxString CWKSP_TIN_Manager::Get_Description(void)
 {
 	wxString	s;
 
-	s.Printf("<b>%s</b>:%d<br>", LNG("[CAP] TIN"), Get_Count());
+	s.Printf(wxT("<b>%s</b>:%d<br>"), LNG("[CAP] TIN"), Get_Count());
 
 	return( s );
 }
@@ -187,7 +187,7 @@ CWKSP_TIN * CWKSP_TIN_Manager::Add(CSG_TIN *pTIN)
 }
 
 //---------------------------------------------------------
-CSG_TIN * CWKSP_TIN_Manager::Get_byFileName(const char *File_Name)
+CSG_TIN * CWKSP_TIN_Manager::Get_byFileName(const wxChar *File_Name)
 {
 	CSG_String	s(File_Name);
 

@@ -100,20 +100,20 @@ CMine_Sweeper::CMine_Sweeper(void)
 
 	Set_Author	(_TL("Copyrights (c) 2003 by Andre Ringeler"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"A Mine Sweeper Clone\n"
 		"(created by Andre Ringeler).")
 	);
 
 	Parameters.Add_Grid_Output(
 		NULL	, "GRID"	, _TL("Grid"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Choice(
 		NULL	,"LEVEL"	,_TL("Level"),
-		"Game Level",
-		_TL(	
+		_TL("Game Level"),
+		_TW(	
 		"Beginer|"
 		"Advanced|"
 		"Profi|")	,1
@@ -303,7 +303,7 @@ bool CMine_Sweeper::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactiv
 			
 			time= Time->Time();
 			
-			Message_Add(CSG_String::Format(":-) Time:%ds Mines:%d\n",time,N_Mines-MarkedMines));
+			Message_Add(CSG_String::Format(SG_T(":-) Time:%ds Mines:%d\n"),time,N_Mines-MarkedMines));
 			
 			if (OpenFields == Mine_NX*Mine_NY-N_Mines  )
 			{

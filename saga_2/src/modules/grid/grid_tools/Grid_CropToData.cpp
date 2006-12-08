@@ -22,19 +22,19 @@
 CCropToData::CCropToData(void){
 
 	Parameters.Set_Name(_TL("Crop to Data"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2004 by Victor Olaya. Crop grids to valid data cells"));
 
 	Parameters.Add_Grid_List(NULL, 
 						"INPUT", 
 						_TL("Input Grids"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	/*Parameters.Add_Grid(NULL, 
 						"GRID",
 						"Grid", 						
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);*/
 	
 }//constructor

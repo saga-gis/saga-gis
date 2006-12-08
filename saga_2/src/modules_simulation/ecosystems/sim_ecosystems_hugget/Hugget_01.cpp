@@ -74,7 +74,7 @@ CHugget_01::CHugget_01(void)
 
 	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"A simple litter system model using the euler method. "
 		"Carbon storage C is calculated in dependency of litter fall rate (Cinput) "
 		"and rate constant for litter loss (Closs) as:\n"
@@ -100,37 +100,37 @@ CHugget_01::CHugget_01(void)
 	//-----------------------------------------------------
 	Parameters.Add_Table(
 		NULL	, "TABLE"		, _TL("Results"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Value(
 		NULL	, "TIME_SPAN"	, _TL("Time Span"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 100.0, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "TIME_STEP"	, _TL("Time Interval [a]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.1, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "C_INIT"		, _TL("Initial Litter Storage [g/m²]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.0, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "C_INPUT"		, _TL("Litterfall Rate [g/m²/a]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 240.0, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "C_OUTPUT"	, _TL("Rate Constant for Litter Loss [1/a]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.4, 0.0, true
 	);
 }

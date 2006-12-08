@@ -26,25 +26,25 @@ CCreateWebContent::CCreateWebContent(void)
 	//-----------------------------------------------------
 	Parameters.Set_Name(_TL("Create Web Content"));
 
-	Parameters.Set_Description("");
+	Parameters.Set_Description(_TL(""));
 
 	pNode = Parameters.Add_Shapes(NULL, 
 						"SHAPES", 
 						_TL("Shapes"),
-						"",
+						_TL(""),
 						PARAMETER_INPUT);
 
 	Parameters.Add_Table_Field(pNode,
 								"NAME",
 								_TL("Name Field"),
-								"");
+								_TL(""));
 	
 	Parameters.Add_FilePath(NULL,
 							"OUTPUTPATH",
 							_TL("Path for HTML Files"),
-							"",
-							"",
-							"",
+							_TL(""),
+							_TL(""),
+							_TL(""),
 							true,
 							true);
 
@@ -111,7 +111,7 @@ bool CCreateWebContent::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Intera
 		CSG_String	sFileName;
 		CSG_Strings	files;
 		CSG_Parameters	dlg_files;
-		dlg_files.Add_FilePath(NULL, "FILES", _TL("Files"), "", _TL("Images|*.bmp;*.jpg;*.png;*.tif|HTML Files|*.htm|All Files|*.*"), NULL, false, false, true);
+		dlg_files.Add_FilePath(NULL, "FILES", _TL("Files"), _TL(""), _TL("Images|*.bmp;*.jpg;*.png;*.tif|HTML Files|*.htm|All Files|*.*"), NULL, false, false, true);
 
 		if( Dlg_Parameters(&dlg_files, _TL("Add Link to Files")) && dlg_files("FILES")->asFilePath()->Get_FilePaths(files) )
 		{
@@ -121,18 +121,18 @@ bool CCreateWebContent::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Intera
 				{
 					sFileName = "file://";
 					sFileName.Append((CSG_String)files[i]);
-					if (SG_File_Cmp_Extension (files[i],"htm")){						
+					if (SG_File_Cmp_Extension (files[i],SG_T("htm"))){						
 						m_LinksDescription[iIndex].push_back(SG_File_Get_Name(files[i], true));
 						m_Links[iIndex].push_back(sFileName);
 					}//if
-					else if (SG_File_Cmp_Extension (files[i],"bmp") 
-							|| SG_File_Cmp_Extension (files[i],"jpg") 
-							|| SG_File_Cmp_Extension (files[i],"png") 				
-							|| SG_File_Cmp_Extension (files[i],"tif")){
+					else if (  SG_File_Cmp_Extension (files[i],SG_T("bmp")) 
+							|| SG_File_Cmp_Extension (files[i],SG_T("jpg")) 
+							|| SG_File_Cmp_Extension (files[i],SG_T("png")) 				
+							|| SG_File_Cmp_Extension (files[i],SG_T("tif"))){
 						m_Pictures[iIndex].push_back(sFileName);
 					}//else
 				}				
-				sFileName = SG_File_Make_Path(m_sOutputPath.c_str(), m_pShapes->Get_Shape(iIndex)->Get_Record()->asString(m_iNameField), "htm");
+				sFileName = SG_File_Make_Path(m_sOutputPath.c_str(), m_pShapes->Get_Shape(iIndex)->Get_Record()->asString(m_iNameField), SG_T("htm"));
 				m_pShapes->Get_Shape(iIndex)->Get_Record()->Set_Value(m_iField, sFileName);
 			}
 		}
@@ -152,11 +152,11 @@ bool CCreateWebContent::On_Execute_Finish(void){
 
 	for (i = 0; i < m_pShapes->Get_Count(); i++){
 		Set_Progress(i, m_pShapes->Get_Count());
-		const char **Pictures;
+		const SG_Char **Pictures;
 
 		if (m_Pictures[i].size() || m_Links[i].size()){
 			HTMLDoc.Open(m_pShapes->Get_Shape(i)->Get_Record()->asString(m_iNameField));
-			Pictures = new const char *[m_Pictures[i].size()];
+			Pictures = new const SG_Char *[m_Pictures[i].size()];
 			for (j = 0; j < m_Pictures[i].size(); j++){
 				Pictures[j] = m_Pictures[i].at(j).c_str();
 			}//for*/
@@ -168,7 +168,7 @@ bool CCreateWebContent::On_Execute_Finish(void){
 				HTMLDoc.AddLineBreak();
 			}//for
 
-			sFileName = SG_File_Make_Path(m_sOutputPath.c_str(), m_pShapes->Get_Shape(i)->Get_Record()->asString(m_iNameField), "htm");
+			sFileName = SG_File_Make_Path(m_sOutputPath.c_str(), m_pShapes->Get_Shape(i)->Get_Record()->asString(m_iNameField), SG_T("htm"));
 			HTMLDoc.Save(sFileName);
 		}//if
 

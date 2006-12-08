@@ -78,7 +78,7 @@ public:
 	CGEOTRANS_Grid(void);
 	virtual ~CGEOTRANS_Grid(void);
 
-	virtual const char *	Get_MenuPath			(void)	{	return( "R:Grid" );	}
+	virtual const SG_Char *	Get_MenuPath			(void)	{	return( _TL("R:Grid") );	}
 
 
 protected:

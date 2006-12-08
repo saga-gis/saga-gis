@@ -102,7 +102,7 @@ wxString CWKSP_Table_Manager::Get_Description(void)
 {
 	wxString	s;
 
-	s.Printf("<b>%s</b>: %d<br>", LNG("[CAP] Tables"), Get_Count());
+	s.Printf(wxT("<b>%s</b>: %d<br>"), LNG("[CAP] Tables"), Get_Count());
 
 	return( s );
 }
@@ -187,7 +187,7 @@ CWKSP_Table * CWKSP_Table_Manager::Add(CSG_Table *pTable)
 }
 
 //---------------------------------------------------------
-CSG_Table * CWKSP_Table_Manager::Get_byFileName(const char *File_Name)
+CSG_Table * CWKSP_Table_Manager::Get_byFileName(const wxChar *File_Name)
 {
 	CSG_String	s(File_Name);
 

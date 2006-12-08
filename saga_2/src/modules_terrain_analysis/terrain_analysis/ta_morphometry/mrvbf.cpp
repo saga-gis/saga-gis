@@ -71,7 +71,7 @@ CMRVBF::CMRVBF(void)
 
 	Set_Author		(_TL("Copyrights (c) 2006 by Olaf Conrad"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"Calculation of the 'multiresolution index of valley bottom flatness' (MRVBF) and "
 		"the complementary 'multiresolution index of the ridge top flatness' (MRRTF). "
 		"\n\n"
@@ -84,61 +84,61 @@ CMRVBF::CMRVBF(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL	, "DEM"			, _TL("Elevation"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "MRVBF"		, _TL("MRVBF"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "MRRTF"		, _TL("MRRTF"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Value(
 		NULL	, "T_SLOPE"		, _TL("Initial Threshold for Slope"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 16.0, 0.0, true, 100.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "T_PCTL_V"	, _TL("Threshold for Elevation Percentile (Lowness)"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.40, 0.0, true, 1.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "T_PCTL_R"	, _TL("Threshold for Elevation Percentile (Upness)"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.35, 0.0, true, 1.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "P_SLOPE"		, _TL("Shape Parameter for Slope"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 4.0
 	);
 
 	Parameters.Add_Value(
 		NULL	, "P_PCTL"		, _TL("Shape Parameter for Elevation Percentile"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 3.0
 	);
 
 	Parameters.Add_Value(
 		NULL	, "UPDATE"		, _TL("Update Views"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Bool		, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "CLASSIFY"	, _TL("Classify"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Bool		, false
 	);
 
@@ -212,8 +212,8 @@ bool CMRVBF::On_Execute(void)
 		Level		= 1;
 		Resolution	= Get_Cellsize();
 
-		Process_Set_Text(CSG_String::Format("%d. %s", Level, _TL("step")));
-		Message_Add(CSG_String::Format("%s: %d, %s: %.2f, %s %.2f", _TL("step"), Level, _TL("resolution"), Resolution, _TL("threshold slope"), T_Slope));
+		Process_Set_Text(CSG_String::Format(SG_T("%d. %s"), Level, _TL("step")));
+		Message_Add(CSG_String::Format(SG_T("%s: %d, %s: %.2f, %s %.2f"), _TL("step"), Level, _TL("resolution"), Resolution, _TL("threshold slope"), T_Slope));
 
 		Get_Slopes		(&DEM, &Slopes);
 		Get_Percentiles	(&DEM, &Percentiles, 3);
@@ -224,8 +224,8 @@ bool CMRVBF::On_Execute(void)
 		T_Slope		/= 2.0;
 		Level++;
 
-		Process_Set_Text(CSG_String::Format("%d. %s", Level, _TL("step")));
-		Message_Add(CSG_String::Format("%s: %d, %s: %.2f, %s %.2f", _TL("step"), Level, _TL("resolution"), Resolution, _TL("threshold slope"), T_Slope));
+		Process_Set_Text(CSG_String::Format(SG_T("%d. %s"), Level, _TL("step")));
+		Message_Add(CSG_String::Format(SG_T("%s: %d, %s: %.2f, %s %.2f"), _TL("step"), Level, _TL("resolution"), Resolution, _TL("threshold slope"), T_Slope));
 
 		Get_Percentiles	(&DEM, &Percentiles, 6);
 		Get_Flatness	(&Slopes, &Percentiles, &CF, &VF, &RF, T_Slope);
@@ -239,8 +239,8 @@ bool CMRVBF::On_Execute(void)
 			T_Slope		/= 2.0;
 			Level++;
 
-			Process_Set_Text(CSG_String::Format("%d. %s", Level, _TL("step")));
-			Message_Add(CSG_String::Format("%s: %d, %s: %.2f, %s %.2f", _TL("step"), Level, _TL("resolution"), Resolution, _TL("threshold slope"), T_Slope));
+			Process_Set_Text(CSG_String::Format(SG_T("%d. %s"), Level, _TL("step")));
+			Message_Add(CSG_String::Format(SG_T("%s: %d, %s: %.2f, %s %.2f"), _TL("step"), Level, _TL("resolution"), Resolution, _TL("threshold slope"), T_Slope));
 
 			Get_Values		(&DEM, &Slopes, &Percentiles, Resolution);
 			Get_Flatness	(&Slopes, &Percentiles, &CF, &VF, &RF, T_Slope);

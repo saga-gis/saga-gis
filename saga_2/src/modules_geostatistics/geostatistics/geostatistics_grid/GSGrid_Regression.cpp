@@ -87,7 +87,7 @@ CGSGrid_Regression::CGSGrid_Regression(void)
 
 	Set_Author		(_TL("Copyrights (c) 2004 by Olaf Conrad"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"Regression analysis of point attributes with grid values. "
 		"The regression function is used to create a new grid with (extrapolated) values. \n"
 		"\n"
@@ -100,37 +100,38 @@ CGSGrid_Regression::CGSGrid_Regression(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL	, "GRID"		, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES"		, _TL("Shapes"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table_Field(
 		pNode	, "ATTRIBUTE"	, _TL("Attribute"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "REGRESSION"	, _TL("Regression"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Shapes(
 		NULL	, "RESIDUAL"	, _TL("Residuals"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Choice(
 		NULL	,"INTERPOL"		, _TL("Grid Interpolation"),
-		"",
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("Nearest Neighbor"),
 			_TL("Bilinear Interpolation"),
 			_TL("Inverse Distance Interpolation"),
@@ -141,13 +142,16 @@ CGSGrid_Regression::CGSGrid_Regression(void)
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Regression Function"),
-		"",
-		"Y = a + b * X (linear)|"
-		"Y = a + b / X|"
-		"Y = a / (b - X)|"
-		"Y = a * X^b (power)|"
-		"Y = a e^(b * X) (exponential)|"
-		"Y = a + b * ln(X) (logarithmic)|", 0
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|"),
+			_TL("Y = a + b * X (linear)"),
+			_TL("Y = a + b / X"),
+			_TL("Y = a / (b - X)"),
+			_TL("Y = a * X^b (power)"),
+			_TL("Y = a e^(b * X) (exponential)"),
+			_TL("Y = a + b * ln(X) (logarithmic)")
+		), 0
 	);
 }
 
@@ -165,10 +169,10 @@ CGSGrid_Regression::~CGSGrid_Regression(void)
 //---------------------------------------------------------
 bool CGSGrid_Regression::On_Execute(void)
 {
-	int						iAttribute;
+	int					iAttribute;
 	TSG_Regression_Type	Type;
-	CSG_Shapes					*pShapes, *pResiduals;
-	CSG_Grid					*pGrid, *pRegression;
+	CSG_Shapes			*pShapes, *pResiduals;
+	CSG_Grid			*pGrid, *pRegression;
 
 	//-----------------------------------------------------
 	pGrid			= Parameters("GRID")		->asGrid();
@@ -192,7 +196,7 @@ bool CGSGrid_Regression::On_Execute(void)
 	//-----------------------------------------------------
 	if( Get_Regression(pGrid, pShapes, pResiduals, iAttribute, Type) )
 	{
-		pRegression->Set_Name(CSG_String::Format("%s (%s)", pShapes->Get_Name(), Get_Name()));
+		pRegression->Set_Name(CSG_String::Format(SG_T("%s (%s)"), pShapes->Get_Name(), Get_Name()));
 
 		Set_Regression(pGrid, pRegression);
 
@@ -224,7 +228,7 @@ bool CGSGrid_Regression::Get_Regression(CSG_Grid *pGrid, CSG_Shapes *pShapes, CS
 	int			iShape, iPart, iPoint;
 	double		zShape, zGrid;
 	TSG_Point	Point;
-	CSG_Shape		*pShape, *pResidual;
+	CSG_Shape	*pShape, *pResidual;
 
 	//-----------------------------------------------------
 	if( pResiduals )

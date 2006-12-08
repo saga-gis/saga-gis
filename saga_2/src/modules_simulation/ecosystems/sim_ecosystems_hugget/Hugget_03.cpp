@@ -74,7 +74,7 @@ CHugget_03::CHugget_03(void)
 
 	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Spatially Distributed Simulation of Soil Nitrogen Dynamics. "
 
 		"\nReference:"
@@ -84,45 +84,45 @@ CHugget_03::CHugget_03(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL	, "DEM"			, _TL("Elevation"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "NSTORE"		, _TL("Soil Nitrogen"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Value(
 		NULL	, "TIME_SPAN"	, _TL("Time Span [a]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 100.0, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "TIME_STEP"	, _TL("Time Interval [a]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.1, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "UPDATE"		, _TL("Update View"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Bool		, true
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Value(
 		NULL	, "NINIT"		, _TL("Initial Nitrogen Content [kg/ha]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 5000.0, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "NRAIN"		, _TL("Nitrogen in Rainfall [kg/ha/a]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 16.0, 0.0, true
 	);
 }
@@ -171,7 +171,7 @@ bool CHugget_03::On_Execute(void)
 	//-----------------------------------------------------
 	for(iStep=0; iStep<=nSteps && Set_Progress(iStep, nSteps); iStep++)
 	{
-		s.Printf("Time [a]: %f (%f)", dTime * iStep, sTime);
+		s.Printf(SG_T("%s: %f (%f)"), _TL("Time [a]"), dTime * iStep, sTime);
 		Process_Set_Text(s);
 
 		if( bUpdate )

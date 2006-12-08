@@ -81,7 +81,7 @@ CSG_Module::CSG_Module(void)
 	m_pParameters	= NULL;
 	m_npParameters	= 0;
 
-	Parameters.Create(this, "", "");
+	Parameters.Create(this, SG_T(""), SG_T(""));
 	Parameters.Set_Callback_On_Parameter_Changed(&_On_Parameter_Changed);
 
 	Set_Managed			(false);
@@ -134,29 +134,29 @@ void CSG_Module::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Module::Set_Name(const char *String)
+void CSG_Module::Set_Name(const SG_Char *String)
 {
 	Parameters.Set_Name(String);
 }
 
-const char * CSG_Module::Get_Name(void)
+const SG_Char * CSG_Module::Get_Name(void)
 {
 	return( Parameters.Get_Name() );
 }
 
 //---------------------------------------------------------
-void CSG_Module::Set_Description(const char *String)
+void CSG_Module::Set_Description(const SG_Char *String)
 {
 	Parameters.Set_Description(String);
 }
 
-const char * CSG_Module::Get_Description(void)
+const SG_Char * CSG_Module::Get_Description(void)
 {
 	return( Parameters.Get_Description() );
 }
 
 //---------------------------------------------------------
-void CSG_Module::Set_Author(const char *String)
+void CSG_Module::Set_Author(const SG_Char *String)
 {
 	if( String )
 	{
@@ -168,7 +168,7 @@ void CSG_Module::Set_Author(const char *String)
 	}
 }
 
-const char * CSG_Module::Get_Author(void)
+const SG_Char * CSG_Module::Get_Author(void)
 {
 	return( m_Author.c_str() );
 }
@@ -306,7 +306,7 @@ int CSG_Module::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Parameters * CSG_Module::Add_Parameters(const char *Identifier, const char *Name, const char *Description)
+CSG_Parameters * CSG_Module::Add_Parameters(const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description)
 {
 	CSG_Parameters	*pParameters;
 
@@ -320,7 +320,7 @@ CSG_Parameters * CSG_Module::Add_Parameters(const char *Identifier, const char *
 }
 
 //---------------------------------------------------------
-CSG_Parameters * CSG_Module::Get_Parameters(const char *Identifier)
+CSG_Parameters * CSG_Module::Get_Parameters(const SG_Char *Identifier)
 {
 	CSG_String	sIdentifier(Identifier);
 
@@ -336,7 +336,7 @@ CSG_Parameters * CSG_Module::Get_Parameters(const char *Identifier)
 }
 
 //---------------------------------------------------------
-bool CSG_Module::Dlg_Parameters(const char *Identifier)
+bool CSG_Module::Dlg_Parameters(const SG_Char *Identifier)
 {
 	if( !m_bManaged || Dlg_Parameters(Get_Parameters(Identifier), Get_Name()) )
 	{
@@ -349,10 +349,24 @@ bool CSG_Module::Dlg_Parameters(const char *Identifier)
 }
 
 //---------------------------------------------------------
-bool CSG_Module::Dlg_Parameters(CSG_Parameters *pParameters, const char *Caption)
+bool CSG_Module::Dlg_Parameters(CSG_Parameters *pParameters, const SG_Char *Caption)
 {
 	return( SG_UI_Dlg_Parameters(pParameters, Caption) );
 }
+
+//---------------------------------------------------------
+#ifdef _UNICODE
+
+CSG_Parameters *	CSG_Module::Add_Parameters(const char *Identifier, const SG_Char *Name, const SG_Char *Description)
+{	return( Add_Parameters(CSG_String(Identifier), Name, Description) );	}
+
+CSG_Parameters *	CSG_Module::Get_Parameters(const char *Identifier)
+{	return( Get_Parameters(CSG_String(Identifier)) );	}
+
+bool				CSG_Module::Dlg_Parameters(const char *Identifier)
+{	return( Dlg_Parameters(CSG_String(Identifier)) );	}
+
+#endif
 
 
 ///////////////////////////////////////////////////////////
@@ -368,7 +382,7 @@ bool CSG_Module::Process_Get_Okay(bool bBlink)
 }
 
 //---------------------------------------------------------
-void CSG_Module::Process_Set_Text(const char *Text)
+void CSG_Module::Process_Set_Text(const SG_Char *Text)
 {
 	SG_UI_Process_Set_Text(Text);
 }
@@ -393,7 +407,7 @@ bool CSG_Module::Set_Progress(double Position, double Range)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Module::Message_Dlg(const char *Text, const char *Caption)
+void CSG_Module::Message_Dlg(const SG_Char *Text, const SG_Char *Caption)
 {
 	if( Caption && Caption[0] != '\0' )
 	{
@@ -406,7 +420,7 @@ void CSG_Module::Message_Dlg(const char *Text, const char *Caption)
 }
 
 //---------------------------------------------------------
-void CSG_Module::Message_Add(const char *Text, bool bNewLine)
+void CSG_Module::Message_Add(const SG_Char *Text, bool bNewLine)
 {
 	SG_UI_Msg_Add_Execution(Text, bNewLine);
 }
@@ -425,7 +439,7 @@ bool CSG_Module::Error_Set(TSG_Module_Error Error_ID)
 }
 
 //---------------------------------------------------------
-bool CSG_Module::Error_Set(const char *Error_Text)
+bool CSG_Module::Error_Set(const SG_Char *Error_Text)
 {
 	SG_UI_Msg_Add_Error(Error_Text);
 
@@ -555,7 +569,7 @@ bool CSG_Module::DataObject_Update(CSG_Data_Object *pDataObject, double Parm_1, 
 			break;
 
 		case DATAOBJECT_TYPE_Grid:
-			Parameters.Add_Range(NULL, "METRIC_ZRANGE"	, "", "",
+			Parameters.Add_Range(NULL, SG_T("METRIC_ZRANGE"), SG_T(""), SG_T(""),
 				Parm_1 * ((CSG_Grid *)pDataObject)->Get_ZFactor(),
 				Parm_2 * ((CSG_Grid *)pDataObject)->Get_ZFactor()
 			);

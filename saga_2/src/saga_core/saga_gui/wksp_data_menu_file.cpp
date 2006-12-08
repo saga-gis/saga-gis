@@ -110,37 +110,37 @@ void CWKSP_Data_Menu_File::_Create(void)
 	default:
 		m_Recent_First	= 0;
 		m_Recent_Count	= 0;
-		m_Recent_Group	= "";
+		m_Recent_Group	= wxT("");
 		break;
 
 	case DATAOBJECT_TYPE_Undefined:
 		m_Recent_First	= ID_CMD_DATA_PROJECT_RECENT_FIRST;
 		m_Recent_Count	= ID_CMD_DATA_PROJECT_RECENT_LAST   - m_Recent_First + 1;
-		m_Recent_Group	= "Projects";
+		m_Recent_Group	= wxT("Projects");
 		break;
 
 	case DATAOBJECT_TYPE_Table:
 		m_Recent_First	= ID_CMD_TABLES_RECENT_FIRST;
 		m_Recent_Count	= ID_CMD_TABLES_RECENT_LAST - m_Recent_First + 1;
-		m_Recent_Group	= "Tables";
+		m_Recent_Group	= wxT("Tables");
 		break;
 
 	case DATAOBJECT_TYPE_Shapes:
 		m_Recent_First	= ID_CMD_SHAPES_RECENT_FIRST;
 		m_Recent_Count	= ID_CMD_SHAPES_RECENT_LAST - m_Recent_First + 1;
-		m_Recent_Group	= "Shapes";
+		m_Recent_Group	= wxT("Shapes");
 		break;
 
 	case DATAOBJECT_TYPE_TIN:
 		m_Recent_First	= ID_CMD_TIN_RECENT_FIRST;
 		m_Recent_Count	= ID_CMD_TIN_RECENT_LAST    - m_Recent_First + 1;
-		m_Recent_Group	= "TIN";
+		m_Recent_Group	= wxT("TIN");
 		break;
 
 	case DATAOBJECT_TYPE_Grid:
 		m_Recent_First	= ID_CMD_GRIDS_RECENT_FIRST;
 		m_Recent_Count	= ID_CMD_GRIDS_RECENT_LAST  - m_Recent_First + 1;
-		m_Recent_Group	= "Grids";
+		m_Recent_Group	= wxT("Grids");
 		break;
 	}
 
@@ -150,7 +150,7 @@ void CWKSP_Data_Menu_File::_Create(void)
 
 		for(int i=0; i<m_Recent_Count; i++)
 		{
-			CONFIG_Read(wxString::Format("RECENT_FILES/%s", m_Recent_Group.c_str()), wxString::Format("FILE_%02d", i + 1), m_Recent[i]);
+			CONFIG_Read(wxString::Format(wxT("RECENT_FILES/%s"), m_Recent_Group.c_str()), wxString::Format(wxT("FILE_%02d"), i + 1), m_Recent[i]);
 		}
 	}
 }
@@ -162,7 +162,7 @@ void CWKSP_Data_Menu_File::_Destroy(void)
 	{
 		for(int i=0; i<m_Recent_Count; i++)
 		{
-			CONFIG_Write(wxString::Format("RECENT_FILES/%s", m_Recent_Group.c_str()), wxString::Format("FILE_%02d", i + 1), m_Recent[i]);
+			CONFIG_Write(wxString::Format(wxT("RECENT_FILES/%s"), m_Recent_Group.c_str()), wxString::Format(wxT("FILE_%02d"), i + 1), m_Recent[i]);
 		}
 
 		delete[](m_Recent);
@@ -262,7 +262,7 @@ void CWKSP_Data_Menu_File::Update(wxMenu *pMenu)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Data_Menu_File::Add(const char *FileName)
+void CWKSP_Data_Menu_File::Add(const wxChar *FileName)
 {
 	int		i, j;
 
@@ -298,7 +298,7 @@ void CWKSP_Data_Menu_File::Add(const char *FileName)
 }
 
 //---------------------------------------------------------
-void CWKSP_Data_Menu_File::Del(const char *FileName)
+void CWKSP_Data_Menu_File::Del(const wxChar *FileName)
 {
 	int		i, j;
 

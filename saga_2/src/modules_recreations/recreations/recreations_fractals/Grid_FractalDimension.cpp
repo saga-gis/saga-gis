@@ -74,12 +74,12 @@ CGrid_FractalDimension::CGrid_FractalDimension(void)
 
 	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Calculates surface areas for increasing mesh sizes.")
 	);
 
-	Parameters.Add_Grid(	NULL, "INPUT"	, _TL("Input")		, "", PARAMETER_INPUT);
-	Parameters.Add_Table(	NULL, "RESULT"	, _TL("Result")		, "", PARAMETER_OUTPUT);
+	Parameters.Add_Grid(	NULL, "INPUT"	, _TL("Input")		, _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Table(	NULL, "RESULT"	, _TL("Result")		, _TL(""), PARAMETER_OUTPUT);
 }
 
 //---------------------------------------------------------

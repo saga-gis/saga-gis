@@ -71,26 +71,26 @@
 CBMP_Export::CBMP_Export(void)
 {
 	//-----------------------------------------------------
-	Set_Name	(_TL("Export True Color Bitmap"));
+	Set_Name		(_TL("Export True Color Bitmap"));
 
-	Set_Author	("Copyrights (c) 2005 by Olaf Conrad");
+	Set_Author		(_TL("Copyrights (c) 2005 by Olaf Conrad"));
 
-	Set_Description(
+	Set_Description	(_TW(
 		"Export red-green-blue coded image grids to MS-Windows true color bitmaps. "
 		"This module writes the data directly to the file and is hence particularly "
 		"suitable for very large data sets. "
-	);
+	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL	, "IMAGE"	, _TL("Image Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_FilePath(
 		NULL	, "FILE"	, _TL("File"),
-		"",
+		_TL(""),
 		_TL("MS Windows Bitmap (*.bmp)|*.bmp|All Files|*.*"),
 		NULL, true, false
 	);
@@ -119,7 +119,7 @@ bool CBMP_Export::On_Execute(void)
 	char		*Line, *pLine;
 	int			x, y, Value, nBytes_Image, nBytes_Line;
 	FILE		*Stream;
-	CSG_Grid		*pGrid;
+	CSG_Grid	*pGrid;
 	CSG_String	FileName;
 
 	//-----------------------------------------------------
@@ -127,7 +127,7 @@ bool CBMP_Export::On_Execute(void)
 	FileName	= Parameters("FILE")	->asString();
 
 	//-----------------------------------------------------
-	if( (Stream = fopen(FileName, "wb")) != NULL )
+	if( (Stream = fopen(FileName.b_str(), "wb")) != NULL )
 	{
 		nBytes_Line		= 3 * sizeof(BYTE) * Get_NX();
 
@@ -180,9 +180,9 @@ bool CBMP_Export::On_Execute(void)
 		//-------------------------------------------------
 		fclose(Stream);
 
-		FileName	= SG_File_Make_Path(SG_File_Get_Path(FileName), SG_File_Get_Name(FileName, false), "bpw");
+		FileName	= SG_File_Make_Path(SG_File_Get_Path(FileName), SG_File_Get_Name(FileName, false), SG_T("bpw"));
 
-		if( (Stream = fopen(FileName, "w")) != NULL )
+		if( (Stream = fopen(FileName.b_str(), "w")) != NULL )
 		{
 			fprintf(Stream, "%f\n%f\n%f\n%f\n%f\n%f\n",
 				 pGrid->Get_Cellsize(),

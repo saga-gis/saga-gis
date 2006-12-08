@@ -113,7 +113,7 @@ CWKSP_Grid::~CWKSP_Grid(void)
 //---------------------------------------------------------
 wxString CWKSP_Grid::Get_Name(void)
 {
-	return( wxString::Format("%02d. %s", 1 + Get_ID(), m_pGrid->Get_Name()) );
+	return( wxString::Format(wxT("%02d. %s"), 1 + Get_ID(), m_pGrid->Get_Name()) );
 }
 
 //---------------------------------------------------------
@@ -122,74 +122,74 @@ wxString CWKSP_Grid::Get_Description(void)
 	wxString	s;
 
 	//-----------------------------------------------------
-	s.Append(wxString::Format("<b>%s</b><table border=\"0\">",
+	s.Append(wxString::Format(wxT("<b>%s</b><table border=\"0\">"),
 		LNG("[CAP] Grid")
 	));
 
-	s.Append(wxString::Format("<tr><td>%s</td><td>%s</td></tr>",
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
 		LNG("[CAP] Name")					, m_pGrid->Get_Name()
 	));
 
-	s.Append(wxString::Format("<tr><td>%s</td><td>%s</td></tr>",
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
 		LNG("[CAP] File")					, m_pGrid->Get_File_Name()
 	));
 
-	s.Append(wxString::Format("<tr><td>%s</td><td>%d (x) * %d (y) = %ld</td></tr>",
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%d (x) * %d (y) = %ld</td></tr>"),
 		LNG("[CAP] Number of cells")		, m_pGrid->Get_NX(), m_pGrid->Get_NY(), m_pGrid->Get_NCells()
 	));
 
-	s.Append(wxString::Format("<tr><td>%s</td><td>%f</td></tr>",
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%f</td></tr>"),
 		LNG("[CAP] Cell size")				, m_pGrid->Get_Cellsize()
 	));
 
-	s.Append(wxString::Format("<tr><td>%s</td><td>[%f] - [%f] = [%f]</td></tr>",
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>[%f] - [%f] = [%f]</td></tr>"),
 		LNG("[CAP] East/West")				, m_pGrid->Get_XMin(), m_pGrid->Get_XMax(), m_pGrid->Get_XRange()
 	));
 
-	s.Append(wxString::Format("<tr><td>%s</td><td>[%f] - [%f] = [%f]</td></tr>",
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>[%f] - [%f] = [%f]</td></tr>"),
 		LNG("[CAP] South/North")			, m_pGrid->Get_YMin(), m_pGrid->Get_YMax(), m_pGrid->Get_YRange()
 	));
 
-	s.Append(wxString::Format("<tr><td>%s</td><td>%s</td></tr>",
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
 		LNG("[CAP] Value Type")				, gSG_Grid_Type_Names[m_pGrid->Get_Type()]
 	));
 
-	s.Append(wxString::Format("<tr><td>%s</td><td>[%f] - [%f] = [%f]</td></tr>",
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>[%f] - [%f] = [%f]</td></tr>"),
 		LNG("[CAP] Value Range")			, m_pGrid->Get_ZMin(), m_pGrid->Get_ZMax(), m_pGrid->Get_ZRange()
 	));
 
-	s.Append(wxString::Format("<tr><td>%s</td><td>%f</td></tr>",
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%f</td></tr>"),
 		LNG("[CAP] Arithmetic Mean")		, m_pGrid->Get_ArithMean(true)
 	));
 
-	s.Append(wxString::Format("<tr><td>%s</td><td>%f</td></tr>",
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%f</td></tr>"),
 		LNG("[CAP] Standard Deviation")		, sqrt(m_pGrid->Get_Variance(true))
 	));
 
-	s.Append(wxString::Format("<tr><td>%s</td><td>%fMB</td></tr>",
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%fMB</td></tr>"),
 		LNG("[CAP] Memory Size")			, (double)(m_pGrid->Get_NCells() * m_pGrid->Get_nValueBytes()) / N_MEGABYTE_BYTES
 	));
 
 	if( m_pGrid->is_Compressed() )
 	{
-		s.Append(wxString::Format("<tr><td>%s</td><td>%f%%</td></tr>",
+		s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%f%%</td></tr>"),
 			LNG("[CAP] Memory Compression")	, 100.0 * m_pGrid->Get_Compression_Ratio()
 		));
 	}
 
 	if( m_pGrid->is_Cached() )
 	{
-		s.Append(wxString::Format("<tr><td>%s</td><td>%s = %fmb</td></tr>",
+		s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s = %fmb</td></tr>"),
 			LNG("[CAP] File cache activated")	, LNG("buffer size"), m_pGrid->Get_Buffer_Size() / (double)N_MEGABYTE_BYTES
 		));
 	}
 
-	s.Append("</table>");
+	s.Append(wxT("</table>"));
 
 	//-----------------------------------------------------
-	s.Append(wxString::Format("<hr><b>%s</b><font size=\"-1\">", LNG("[CAP] Data History")));
+	s.Append(wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), LNG("[CAP] Data History")));
 	s.Append(m_pGrid->Get_History().Get_HTML());
-	s.Append(wxString::Format("</font"));
+	s.Append(wxString::Format(wxT("</font")));
 
 	return( s );
 }
@@ -285,19 +285,19 @@ void CWKSP_Grid::On_Create_Parameters(void)
 
 	m_Parameters.Add_String(
 		m_Parameters("NODE_GENERAL")	, "GENERAL_Z_UNIT"			, LNG("[CAP] Unit"),
-		"",
+		LNG(""),
 		m_pGrid->Get_Unit()
 	);
 
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_GENERAL")	, "GENERAL_Z_FACTOR"		, LNG("[CAP] Z-Factor"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Double
 	);
 
 	m_Parameters.Add_Range(
 		m_Parameters("NODE_GENERAL")	, "GENERAL_Z_NODATA"		, LNG("[CAP] No Data"),
-		""
+		LNG("")
 	);
 
 
@@ -306,13 +306,13 @@ void CWKSP_Grid::On_Create_Parameters(void)
 
 	m_Parameters.Add_Node(
 		NULL							, "NODE_MEMORY"				, LNG("[CAP] Memory"),
-		""
+		LNG("")
 	);
 
 	m_Parameters.Add_Choice(
 		m_Parameters("NODE_MEMORY")		, "MEMORY_MODE"				, LNG("[CAP] Memory Handling"),
-		"",
-		wxString::Format("%s|%s|%s|",
+		LNG(""),
+		wxString::Format(wxT("%s|%s|%s|"),
 			LNG("[VAL] Normal"),
 			LNG("[VAL] RTL Compression"),
 			LNG("[VAL] File Cache")
@@ -321,7 +321,7 @@ void CWKSP_Grid::On_Create_Parameters(void)
 
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_MEMORY")		, "MEMORY_BUFFER_SIZE"		, LNG("[CAP] Buffer Size MB"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Double
 	);
 
@@ -331,14 +331,14 @@ void CWKSP_Grid::On_Create_Parameters(void)
 
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_TRANSPARENCY"	, LNG("[CAP] Transparency [%]"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Double, 0.0, 0.0, true, 100.0, true
 	);
 
 	m_Parameters.Add_Choice(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_INTERPOLATION"	, LNG("[CAP] Interpolation"),
-		"",
-		wxString::Format("%s|%s|%s|%s|%s|",
+		LNG(""),
+		wxString::Format(wxT("%s|%s|%s|%s|%s|"),
 			LNG("[VAL] None"),
 			LNG("[VAL] Bilinear"),
 			LNG("[VAL] Inverse Distance"),
@@ -352,7 +352,7 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	// Classification...
 
 	((CSG_Parameter_Choice *)m_Parameters("COLORS_TYPE")->Get_Data())->Set_Items(
-		wxString::Format("%s|%s|%s|%s|%s|",
+		wxString::Format(wxT("%s|%s|%s|%s|%s|"),
 			LNG("[VAL] Unique Symbol"),
 			LNG("[VAL] Lookup Table"),
 			LNG("[VAL] Graduated Color"),
@@ -369,29 +369,29 @@ void CWKSP_Grid::On_Create_Parameters(void)
 
 	m_Parameters.Add_Node(
 		NULL							, "NODE_VALUES"		, LNG("[CAP] Display: Cell Values"),
-		""
+		LNG("")
 	);
 
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_VALUES")		, "VALUES_SHOW"		, LNG("[CAP] Show"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Bool, true
 	);
 
 	m_Parameters.Add_Font(
 		m_Parameters("NODE_VALUES")		, "VALUES_FONT"		, LNG("[CAP] Font"),
-		""
+		LNG("")
 	)->asFont()->SetFamily(wxDECORATIVE);
 
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_VALUES")		, "VALUES_SIZE"		, LNG("[CAP] Size"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Double, 15, 0, true , 100.0, true
 	);
 
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_VALUES")		, "VALUES_DECIMALS"	, LNG("[CAP] Decimals"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Int, 2
 	);
 
@@ -399,7 +399,7 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	CSG_Parameters	Parameters;
 
-	Parameters.Add_Range(NULL, "METRIC_ZRANGE"	, "", "", m_pGrid->Get_ZMin(true), m_pGrid->Get_ZMax(true));
+	Parameters.Add_Range(NULL, "METRIC_ZRANGE"	, LNG(""), LNG(""), m_pGrid->Get_ZMin(true), m_pGrid->Get_ZMax(true));
 	PROCESS_Set_Okay(true);
 
 	DataObject_Changed(&Parameters);
@@ -501,18 +501,18 @@ wxString CWKSP_Grid::Get_Value(CSG_Point ptWorld, double Epsilon)
 			case GRID_TYPE_DWord:
 			case GRID_TYPE_Int:
 			case GRID_TYPE_Long:
-				s.Printf("%d%s", (int)Value, m_pGrid->Get_Unit());
+				s.Printf(wxT("%d%s"), (int)Value, m_pGrid->Get_Unit());
 				break;
 
 			case GRID_TYPE_Float:
 			case GRID_TYPE_Double:
-				s.Printf("%f%s", Value, m_pGrid->Get_Unit());
+				s.Printf(wxT("%f%s"), Value, m_pGrid->Get_Unit());
 				break;
 			}
 			break;
 
 		case CLASSIFY_RGB:
-			s.Printf("R%03d G%03d B%03d", SG_GET_R((int)Value), SG_GET_G((int)Value), SG_GET_B((int)Value));
+			s.Printf(wxT("R%03d G%03d B%03d"), SG_GET_R((int)Value), SG_GET_G((int)Value), SG_GET_B((int)Value));
 			break;
 		}
 	}
@@ -594,7 +594,7 @@ bool CWKSP_Grid::On_Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int 
 
 		for(x=0; x<m_Sel_xN; x++)
 		{
-			m_Edit_Attributes.Add_Field(wxString::Format("%d", x + 1), TABLE_FIELDTYPE_Double);
+			m_Edit_Attributes.Add_Field(wxString::Format(wxT("%d"), x + 1), TABLE_FIELDTYPE_Double);
 		}
 
 		for(y=0; y<m_Sel_yN; y++)
@@ -775,10 +775,10 @@ bool CWKSP_Grid::asImage(CSG_Grid *pImage)
 //---------------------------------------------------------
 void CWKSP_Grid::_Save_Image(void)
 {
-	int			type;
-	FILE		*Stream;
-	wxString	file;
-	wxBitmap	BMP;
+	int				type;
+	wxString		file;
+	wxBitmap		BMP;
+	CSG_File		Stream;
 	CSG_Parameters	Parms;
 
 	//-----------------------------------------------------
@@ -786,19 +786,19 @@ void CWKSP_Grid::_Save_Image(void)
 
 	Parms.Add_Value(
 		NULL	, "WORLD"	, LNG("Save Georeference"),
-		"",
+		wxT(""),
 		PARAMETER_TYPE_Bool, 1
 	);
 
 	Parms.Add_Value(
 		NULL	, "LG"	, LNG("Legend: Save"),
-		"",
+		wxT(""),
 		PARAMETER_TYPE_Bool, 1
 	);
 
 	Parms.Add_Value(
 		NULL	, "LZ"	, LNG("Legend: Zoom"),
-		"",
+		wxT(""),
 		PARAMETER_TYPE_Double, 1.0, 0, true
 	);
 
@@ -813,7 +813,7 @@ void CWKSP_Grid::_Save_Image(void)
 		if( Parms("LG")->asBool() && Get_Image_Legend(BMP, Parms("LZ")->asDouble()) )
 		{
 			wxFileName	fn(file);
-			fn.SetName(wxString::Format("%s_legend", fn.GetName().c_str()));
+			fn.SetName(wxString::Format(wxT("%s_legend"), fn.GetName().c_str()));
 
 			BMP.SaveFile(fn.GetFullPath(), (wxBitmapType)type);
 		}
@@ -821,19 +821,17 @@ void CWKSP_Grid::_Save_Image(void)
 		if( Parms("WORLD")->asBool() )
 		{
 			wxFileName	fn(file);
-			fn.SetExt("world");
+			fn.SetExt(wxT("world"));
 
-			if( (Stream = fopen(wxString::Format("%s.world", file.c_str()), "w")) != NULL )
+			if( Stream.Open(fn.GetFullPath().c_str(), SG_FILE_W, false) )
 			{
-				fprintf(Stream, "%f\n%f\n%f\n%f\n%f\n%f\n",
+				Stream.Printf(wxT("%f\n%f\n%f\n%f\n%f\n%f\n"),
 					 m_pGrid->Get_Cellsize(),
 					 0.0, 0.0,
 					-m_pGrid->Get_Cellsize(),
 					 m_pGrid->Get_XMin(),
 					 m_pGrid->Get_YMax()
 				);
-
-				fclose(Stream);
 			}
 		}
 	}
@@ -1056,11 +1054,11 @@ void CWKSP_Grid::_Draw_Values(CWKSP_Map_DC &dc_Map)
 					switch( m_pClassify->Get_Mode() )
 					{
 					case CLASSIFY_RGB:
-						s.Printf("R%03d G%03d B%03d", SG_GET_R((int)Value), SG_GET_G((int)Value), SG_GET_B((int)Value));
+						s.Printf(wxT("R%03d G%03d B%03d"), SG_GET_R((int)Value), SG_GET_G((int)Value), SG_GET_B((int)Value));
 						break;
 
 					default:
-						s.Printf("%.*f", Decimals, zFactor * Value);
+						s.Printf(wxT("%.*f"), Decimals, zFactor * Value);
 						break;
 					}
 

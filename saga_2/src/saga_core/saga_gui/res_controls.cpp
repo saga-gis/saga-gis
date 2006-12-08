@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char * CTRL_Get_Name(int ID_CTRL)
+const wxChar * CTRL_Get_Name(int ID_CTRL)
 {
 	switch( ID_CTRL )
 	{

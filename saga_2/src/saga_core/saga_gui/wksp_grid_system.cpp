@@ -99,33 +99,33 @@ wxString CWKSP_Grid_System::Get_Description(void)
 {
 	wxString	s;
 
-	s.Printf("<b>%s</b><table border=\"0\">", LNG("[CAP] Grid System"));
+	s.Printf(wxT("<b>%s</b><table border=\"0\">"), LNG("[CAP] Grid System"));
 
-	s.Append(wxString::Format("<tr><td>%s</td><td>%s</td></tr>",
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
 		LNG("[CAP] Name")					, m_System.Get_Name()
 	));
 
-	s.Append(wxString::Format("<tr><td>%s</td><td>%d</td></tr>",
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%d</td></tr>"),
 		LNG("[CAP] Number Of Grids")		, Get_Count()
 	));
 
-	s.Append(wxString::Format("<tr><td>%s</td><td>%d (x) * %d (y) = %ld</td></tr>",
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%d (x) * %d (y) = %ld</td></tr>"),
 		LNG("[CAP] Number Of Cells")		, m_System.Get_NX(), m_System.Get_NY(), m_System.Get_NCells()
 	));
 
-	s.Append(wxString::Format("<tr><td>%s</td><td>%f</td></tr>",
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%f</td></tr>"),
 		LNG("[CAP] Cell Size")				, m_System.Get_Cellsize()
 	));
 
-	s.Append(wxString::Format("<tr><td>%s</td><td>[%f] - [%f] = [%f]</td></tr>",
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>[%f] - [%f] = [%f]</td></tr>"),
 		LNG("[CAP] East/West")				, m_System.Get_XMin(), m_System.Get_XMax(), m_System.Get_XRange()
 	));
 
-	s.Append(wxString::Format("<tr><td>%s</td><td>[%f] - [%f] = [%f]</td></tr>",
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>[%f] - [%f] = [%f]</td></tr>"),
 		LNG("[CAP] South/North")			, m_System.Get_YMin(), m_System.Get_YMax(), m_System.Get_YRange()
 	));
 
-	s.Append("</table>");
+	s.Append(wxT("</table>"));
 
 	//-----------------------------------------------------
 	return( s );

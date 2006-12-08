@@ -26,20 +26,20 @@
 CFlowDepth::CFlowDepth(void){
 
 	Parameters.Set_Name(_TL("Flow Depth"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2004 by Victor Olaya. Flow Depth Calculation \r\n"
 		"References:\r\n 1. Olaya, V. Hidrologia computacional y modelos digitales del terreno. Alqua. 536 pp. 2004"));
 
 	Parameters.Add_Grid(NULL, 
 						"DEM", 
 						_TL("Elevation Grid"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"FLOWDEPTH", 
 						_TL("Flow Depth Grid (m)"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
 						GRID_TYPE_Float);

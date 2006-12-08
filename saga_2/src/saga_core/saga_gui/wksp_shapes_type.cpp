@@ -106,7 +106,7 @@ wxString CWKSP_Shapes_Type::Get_Description(void)
 {
 	wxString	s;
 
-	s.Printf("<b>%s:</b>%d<br>", Get_Name().c_str(), Get_Count());
+	s.Printf(wxT("<b>%s:</b>%d<br>"), Get_Name().c_str(), Get_Count());
 
 	return( s );
 }

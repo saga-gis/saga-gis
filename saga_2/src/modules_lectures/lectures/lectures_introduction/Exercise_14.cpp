@@ -90,7 +90,7 @@ CExercise_14::CExercise_14(void)
 
 	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Vectorising channel lines.\n"
 		"(c) 2003 by Olaf Conrad, Goettingen\n"
 		"email: oconrad@gwdg.de")
@@ -102,25 +102,25 @@ CExercise_14::CExercise_14(void)
 
 	Parameters.Add_Grid(
 		NULL	, "ELEVATION"	, _TL("Elevation grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "CHANNELS"	, _TL("Channels (Raster)"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Shapes(
 		NULL	, "SHAPES"		, _TL("Channels (Vector)"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Value(
 		NULL	, "THRESHOLD"	, _TL("Threshold"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int	, 4, 0, true, 8, true
 	);
 }

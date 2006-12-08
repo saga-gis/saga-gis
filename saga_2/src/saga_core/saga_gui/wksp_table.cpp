@@ -87,12 +87,12 @@ CWKSP_Table::CWKSP_Table(CSG_Table *pTable, CWKSP_Base_Item *pOwner)
 	m_pDiagram	= NULL;
 
 	//-----------------------------------------------------
-	m_Parameters.Create(this, "", "");
+	m_Parameters.Create(this, LNG(""), LNG(""));
 	m_Parameters.Set_Callback_On_Parameter_Changed(&_On_Parameter_Changed);
 
 	m_Parameters.Add_String(
 		m_Parameters("NODE_GENERAL")	, "NAME"			, LNG("[CAP] Name"),
-		"",
+		LNG(""),
 		m_pTable->Get_Name()
 	);
 }
@@ -105,7 +105,7 @@ CWKSP_Table::~CWKSP_Table(void)
 
 	if( m_pOwner->Get_Type() == WKSP_ITEM_Table_Manager )
 	{
-		MSG_General_Add(wxString::Format("%s: %s...", LNG("[MSG] Close table"), m_pTable->Get_Name()), true, true);
+		MSG_General_Add(wxString::Format(wxT("%s: %s..."), LNG("[MSG] Close table"), m_pTable->Get_Name()), true, true);
 
 		delete(m_pTable);
 
@@ -132,36 +132,36 @@ wxString CWKSP_Table::Get_Description(void)
 	wxString	s;
 
 	//-----------------------------------------------------
-	s.Append(wxString::Format("<b>%s</b><table border=\"0\">",
+	s.Append(wxString::Format(wxT("<b>%s</b><table border=\"0\">"),
 		LNG("[CAP] Shapes")
 	));
 
-	s.Append(wxString::Format("<tr><td>%s</td><td>%s</td></tr>",
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
 		LNG("[CAP] Name")					, m_pTable->Get_Name()
 	));
 
-	s.Append(wxString::Format("<tr><td>%s</td><td>%s</td></tr>",
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
 		LNG("[CAP] File")					, m_pTable->Get_File_Name()
 	));
 
-	s.Append(wxString::Format("<tr><td>%s</td><td>%d</td></tr>",
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%d</td></tr>"),
 		LNG("[CAP] Fields")					, m_pTable->Get_Field_Count()
 	));
 
-	s.Append(wxString::Format("<tr><td>%s</td><td>%d</td></tr>",
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%d</td></tr>"),
 		LNG("[CAP] Records")				, m_pTable->Get_Record_Count()
 	));
 
-	s.Append("</table>");
+	s.Append(wxT("</table>"));
 
 	//-----------------------------------------------------
-	s.Append(wxString::Format("<hr><b>%s</b>", LNG("[CAP] Table Description")));
+	s.Append(wxString::Format(wxT("<hr><b>%s</b>"), LNG("[CAP] Table Description")));
 	s.Append(Get_TableInfo_asHTML(m_pTable));
 
 	//-----------------------------------------------------
-	s.Append(wxString::Format("<hr><b>%s</b><font size=\"-1\">", LNG("[CAP] Data History")));
+	s.Append(wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), LNG("[CAP] Data History")));
 	s.Append(m_pTable->Get_History().Get_HTML());
-	s.Append(wxString::Format("</font"));
+	s.Append(wxString::Format(wxT("</font")));
 
 	//-----------------------------------------------------
 	return( s );
@@ -247,7 +247,7 @@ bool CWKSP_Table::On_Command_UI(wxUpdateUIEvent &event)
 		return( CWKSP_Base_Item::On_Command_UI(event) );
 
 	case ID_CMD_TABLES_SAVE:
-		event.Enable(m_pTable->is_Modified() && m_pTable->Get_File_Name() && strlen(m_pTable->Get_File_Name()) > 0);
+		event.Enable(m_pTable->is_Modified() && m_pTable->Get_File_Name() && *(m_pTable->Get_File_Name()));
 		break;
 
 	case ID_CMD_TABLES_SHOW:
@@ -325,11 +325,11 @@ bool CWKSP_Table::Save(void)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Table::Save(const char *File_Path)
+bool CWKSP_Table::Save(const wxChar *File_Path)
 {
 	bool	bResult;
 
-	if( File_Path && strlen(File_Path) > 0 )
+	if( File_Path && *File_Path )
 	{
 		bResult	= m_pTable->Save(File_Path);
 

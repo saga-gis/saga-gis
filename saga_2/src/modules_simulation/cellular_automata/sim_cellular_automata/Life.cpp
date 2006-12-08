@@ -78,7 +78,7 @@ CLife::CLife(void)
 
 	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Conway's Life - a cellular automat.\n\n"
 
 		"Reference:\n"
@@ -93,24 +93,24 @@ CLife::CLife(void)
 
 	Parameters.Add_Grid_Output(
 		NULL	, "GRID"	, _TL("Grid"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Value(
 		NULL	, "NX"		, _TL("Width (Cells)"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 100, 1, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "NY"		, _TL("Height (Cells)"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 100, 1, true
 	);
 
 	Parameters.Add_Value(
 		NULL, "FADECOLOR"	, _TL("Fade Color Count"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 63, 1, true, 255, true
 	);
 }

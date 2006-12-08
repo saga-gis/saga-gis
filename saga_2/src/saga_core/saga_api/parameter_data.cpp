@@ -72,9 +72,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define ENTRY_TEXT_END				"[TEXT_ENTRY_END]"
-#define ENTRY_DATAOBJECT_CREATE		"[ENTRY_DATAOBJECT_CREATE]"
-#define ENTRY_DATAOBJECTLIST_END	"[ENTRY_DATAOBJECTLIST_END]"
+#define ENTRY_TEXT_END				SG_T("[TEXT_ENTRY_END]")
+#define ENTRY_DATAOBJECT_CREATE		SG_T("[ENTRY_DATAOBJECT_CREATE]")
+#define ENTRY_DATAOBJECTLIST_END	SG_T("[ENTRY_DATAOBJECTLIST_END]")
 
 
 ///////////////////////////////////////////////////////////
@@ -96,7 +96,7 @@ CSG_Parameter_Data::~CSG_Parameter_Data(void)
 }
 
 //---------------------------------------------------------
-const char * CSG_Parameter_Data::Get_Type_Name(void)
+const SG_Char * CSG_Parameter_Data::Get_Type_Name(void)
 {
 	switch( Get_Type() )
 	{
@@ -169,7 +169,7 @@ void * CSG_Parameter_Data::asPointer(void)
 	return( NULL );
 }
 
-const char * CSG_Parameter_Data::asString(void)
+const SG_Char * CSG_Parameter_Data::asString(void)
 {
 	return( NULL );
 }
@@ -191,12 +191,12 @@ void CSG_Parameter_Data::On_Assign(CSG_Parameter_Data *pSource)
 {}
 
 //---------------------------------------------------------
-bool CSG_Parameter_Data::Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_Data::Serialize(CSG_File &Stream, bool bSave)
 {
-	return( Stream ? On_Serialize(Stream, bSave) : false );
+	return( On_Serialize(Stream, bSave) );
 }
 
-bool CSG_Parameter_Data::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_Data::On_Serialize(CSG_File &Stream, bool bSave)
 {
 	return( true );
 }
@@ -254,7 +254,7 @@ bool CSG_Parameter_Bool::Set_Value(double Value)
 }
 
 //---------------------------------------------------------
-const char * CSG_Parameter_Bool::asString(void)
+const SG_Char * CSG_Parameter_Bool::asString(void)
 {
 	return( m_Value ? LNG("[VAL] yes") : LNG("[VAL] no") );
 }
@@ -266,18 +266,18 @@ void CSG_Parameter_Bool::On_Assign(CSG_Parameter_Data *pSource)
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter_Bool::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_Bool::On_Serialize(CSG_File &Stream, bool bSave)
 {
     int		i;
     
 	if( bSave )
 	{
 	    i		= m_Value;
-		fprintf(Stream, "%d\n",  i);
+		Stream.Printf(SG_T("%d\n"),  i);
 	}
 	else
 	{
-		fscanf (Stream, "%d", &i);
+		SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%d"), &i);
 		m_Value	= i != 0;
 	}
 
@@ -424,7 +424,7 @@ bool CSG_Parameter_Int::Set_Value(void *Value)
 
 	if( Value )
 	{
-		m_String.Printf((char *)Value);
+		m_String.Printf((SG_Char *)Value);
 
 		if( m_String.asInt(val) )
 		{
@@ -436,9 +436,9 @@ bool CSG_Parameter_Int::Set_Value(void *Value)
 }
 
 //---------------------------------------------------------
-const char * CSG_Parameter_Int::asString(void)
+const SG_Char * CSG_Parameter_Int::asString(void)
 {
-	m_String.Printf("%d", m_Value);
+	m_String.Printf(SG_T("%d"), m_Value);
 
 	return( m_String );
 }
@@ -452,15 +452,15 @@ void CSG_Parameter_Int::On_Assign(CSG_Parameter_Data *pSource)
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter_Int::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_Int::On_Serialize(CSG_File &Stream, bool bSave)
 {
 	if( bSave )
 	{
-		fprintf(Stream, "%d\n", m_Value);
+		Stream.Printf(SG_T("%d\n"), m_Value);
 	}
 	else
 	{
-		fscanf (Stream, "%d", &m_Value);
+		SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%d"), &m_Value);
 		Set_Value(m_Value);
 	}
 
@@ -518,7 +518,7 @@ bool CSG_Parameter_Double::Set_Value(void *Value)
 
 	if( Value )
 	{
-		m_String.Printf((char *)Value);
+		m_String.Printf((SG_Char *)Value);
 
 		if( m_String.asDouble(val) )
 		{
@@ -530,9 +530,9 @@ bool CSG_Parameter_Double::Set_Value(void *Value)
 }
 
 //---------------------------------------------------------
-const char * CSG_Parameter_Double::asString(void)
+const SG_Char * CSG_Parameter_Double::asString(void)
 {
-	m_String.Printf("%lf", m_Value);
+	m_String.Printf(SG_T("%lf"), m_Value);
 
 	return( m_String );
 }
@@ -546,15 +546,15 @@ void CSG_Parameter_Double::On_Assign(CSG_Parameter_Data *pSource)
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter_Double::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_Double::On_Serialize(CSG_File &Stream, bool bSave)
 {
 	if( bSave )
 	{
-		fprintf(Stream, "%lf\n", m_Value);
+		Stream.Printf(SG_T("%lf\n"), m_Value);
 	}
 	else
 	{
-		fscanf (Stream, "%lf", &m_Value);
+		SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%lf"), &m_Value);
 		Set_Value(m_Value);
 	}
 
@@ -579,11 +579,11 @@ CSG_Parameter_Degree::~CSG_Parameter_Degree(void)
 //---------------------------------------------------------
 bool CSG_Parameter_Degree::Set_Value(void *Value)
 {
-	return( CSG_Parameter_Double::Set_Value(SG_Degree_To_Double((const char *)Value)) );
+	return( CSG_Parameter_Double::Set_Value(SG_Degree_To_Double((const SG_Char *)Value)) );
 }
 
 //---------------------------------------------------------
-const char * CSG_Parameter_Degree::asString(void)
+const SG_Char * CSG_Parameter_Degree::asString(void)
 {
 	m_String	= SG_Double_To_Degree(asDouble());
 
@@ -605,13 +605,13 @@ CSG_Parameter_Range::CSG_Parameter_Range(CSG_Parameter *pOwner, long Constraint)
 
 	if( (m_Constraint & PARAMETER_INFORMATION) != 0 )
 	{
-		pLo		= pRange->Add_Info_Value(m_pOwner, "MIN", "Minimum", m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
-		pHi		= pRange->Add_Info_Value(m_pOwner, "MAX", "Maximum", m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
+		pLo		= pRange->Add_Info_Value(m_pOwner, SG_T("MIN"), SG_T("Minimum"), m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
+		pHi		= pRange->Add_Info_Value(m_pOwner, SG_T("MAX"), SG_T("Maximum"), m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
 	}
 	else
 	{
-		pLo		= pRange->Add_Value		(m_pOwner, "MIN", "Minimum", m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
-		pHi		= pRange->Add_Value		(m_pOwner, "MAX", "Maximum", m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
+		pLo		= pRange->Add_Value		(m_pOwner, SG_T("MIN"), SG_T("Minimum"), m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
+		pHi		= pRange->Add_Value		(m_pOwner, SG_T("MAX"), SG_T("Maximum"), m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
 	}
 }
 
@@ -621,9 +621,9 @@ CSG_Parameter_Range::~CSG_Parameter_Range(void)
 }
 
 //---------------------------------------------------------
-const char * CSG_Parameter_Range::asString(void)
+const SG_Char * CSG_Parameter_Range::asString(void)
 {
-	m_String.Printf("[%lf] - [%lf]",
+	m_String.Printf(SG_T("[%lf] - [%lf]"),
 		Get_LoParm()->asDouble(),
 		Get_HiParm()->asDouble()
 	);
@@ -680,19 +680,19 @@ void CSG_Parameter_Range::On_Assign(CSG_Parameter_Data *pSource)
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter_Range::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_Range::On_Serialize(CSG_File &Stream, bool bSave)
 {
 	double	loVal, hiVal;
 
 	if( bSave )
 	{
-		fprintf(Stream, "%lf %lf\n", Get_LoVal(), Get_HiVal());
+		Stream.Printf(SG_T("%lf %lf\n"), Get_LoVal(), Get_HiVal());
 
 		return( true );
 	}
 	else
 	{
-		fscanf (Stream, "%lf %lf", &loVal, &hiVal);
+		SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%lf %lf"), &loVal, &hiVal);
 
 		return( Set_Range(loVal, hiVal) );
 	}
@@ -719,7 +719,7 @@ CSG_Parameter_Choice::~CSG_Parameter_Choice(void)
 }
 
 //---------------------------------------------------------
-const char * CSG_Parameter_Choice::asString(void)
+const SG_Char * CSG_Parameter_Choice::asString(void)
 {
 	if( m_Value >= 0 && m_Value < nItems )
 	{
@@ -751,9 +751,9 @@ void CSG_Parameter_Choice::Del_Items(void)
 }
 
 //---------------------------------------------------------
-void CSG_Parameter_Choice::Set_Items(const char *String)
+void CSG_Parameter_Choice::Set_Items(const SG_Char *String)
 {
-	const char	*s;
+	const SG_Char	*s;
 	int			n;
 	CSG_String	sItem;
 
@@ -762,7 +762,7 @@ void CSG_Parameter_Choice::Set_Items(const char *String)
 	//-----------------------------------------------------
 	s	= String;
 
-	while( s && strlen(s) > 0 )
+	while( s && *s > 0 )
 	{
 		sItem	= s;
 		sItem	= sItem.BeforeFirst('|');
@@ -788,7 +788,7 @@ void CSG_Parameter_Choice::Set_Items(const char *String)
 }
 
 //---------------------------------------------------------
-const char * CSG_Parameter_Choice::Get_Item(int Index)
+const SG_Char * CSG_Parameter_Choice::Get_Item(int Index)
 {
 	if( Index >= 0 && Index < nItems )
 	{
@@ -858,9 +858,9 @@ bool CSG_Parameter_String::Set_Value(void *Value)
 {
 	if( Value )
 	{
-		if( m_String.Cmp((char *)Value) )
+		if( m_String.Cmp((SG_Char *)Value) )
 		{
-			m_String.Printf((char *)Value);
+			m_String.Printf((SG_Char *)Value);
 
 			return( true );
 		}
@@ -876,7 +876,7 @@ bool CSG_Parameter_String::Set_Value(void *Value)
 }
 
 //---------------------------------------------------------
-const char * CSG_Parameter_String::asString(void)
+const SG_Char * CSG_Parameter_String::asString(void)
 {
 	return( m_String );
 }
@@ -888,22 +888,22 @@ void CSG_Parameter_String::On_Assign(CSG_Parameter_Data *pSource)
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter_String::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_String::On_Serialize(CSG_File &Stream, bool bSave)
 {
 	if( bSave )
 	{
 		if( is_Valid() )
 		{
-			fprintf(Stream, "%s\n", m_String.c_str());
+			Stream.Printf(SG_T("%s\n"), m_String.c_str());
 		}
 		else
 		{
-			fprintf(Stream, "\n");
+			Stream.Printf(SG_T("\n"));
 		}
 	}
 	else
 	{
-		return( SG_Read_Line(Stream, m_String) );
+		return( Stream.Read_Line(m_String) );
 	}
 
 	return( true );
@@ -925,16 +925,16 @@ CSG_Parameter_Text::~CSG_Parameter_Text(void)
 {}
 
 //---------------------------------------------------------
-bool CSG_Parameter_Text::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_Text::On_Serialize(CSG_File &Stream, bool bSave)
 {
 	if( bSave )
 	{
 		if( is_Valid() )
 		{
-			fprintf(Stream, "%s\n", m_String.c_str());
+			Stream.Printf(SG_T("%s\n"), m_String.c_str());
 		}
 
-		fprintf(Stream, "%s\n", ENTRY_TEXT_END);
+		Stream.Printf(SG_T("%s\n"), ENTRY_TEXT_END);
 	}
 	else
 	{
@@ -942,11 +942,11 @@ bool CSG_Parameter_Text::On_Serialize(FILE *Stream, bool bSave)
 
 		m_String.Clear();
 
-		while( SG_Read_Line(Stream, sLine) && sLine.Cmp(ENTRY_TEXT_END) )
+		while( Stream.Read_Line(sLine) && sLine.Cmp(ENTRY_TEXT_END) )
 		{
 			if( m_String.Length() > 0 )
 			{
-				m_String.Append("\n");
+				m_String.Append(SG_T("\n"));
 			}
 
 			m_String.Append(sLine);
@@ -979,7 +979,7 @@ CSG_Parameter_File_Name::~CSG_Parameter_File_Name(void)
 }
 
 //---------------------------------------------------------
-void CSG_Parameter_File_Name::Set_Filter(const char *Filter)
+void CSG_Parameter_File_Name::Set_Filter(const SG_Char *Filter)
 {
 	if( Filter )
 	{
@@ -991,7 +991,7 @@ void CSG_Parameter_File_Name::Set_Filter(const char *Filter)
 	}
 }
 
-const char *  CSG_Parameter_File_Name::Get_Filter(void)
+const SG_Char *  CSG_Parameter_File_Name::Get_Filter(void)
 {
 	return( m_Filter.c_str() );
 }
@@ -1101,9 +1101,9 @@ bool CSG_Parameter_Font::Set_Value(void *Value)
 }
 
 //---------------------------------------------------------
-const char * CSG_Parameter_Font::asString(void)
+const SG_Char * CSG_Parameter_Font::asString(void)
 {
-	m_String.Printf("%s, %dpt", m_pFont->GetFaceName().c_str(), m_pFont->GetPointSize());
+	m_String.Printf(SG_T("%s, %dpt"), m_pFont->GetFaceName().c_str(), m_pFont->GetPointSize());
 
 	return( m_String );
 }
@@ -1116,23 +1116,23 @@ void CSG_Parameter_Font::On_Assign(CSG_Parameter_Data *pSource)
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter_Font::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_Font::On_Serialize(CSG_File &Stream, bool bSave)
 {
 	if( bSave )
 	{
 //		GetNativeFontInfoDesc
 //		fwrite(&logFont	, 1, sizeof(API_LOGFONT), Stream);
 
-		fwrite(&m_Color	, 1, sizeof(m_Color)		, Stream);
+		Stream.Write(&m_Color	, sizeof(m_Color));
 
-		fprintf(Stream, "\n");
+		Stream.Printf(SG_T("\n"));
 	}
 	else
 	{
 //		SetNativeFontInfo
 //		fread(&logFont	, 1, sizeof(API_LOGFONT), Stream);
 
-		fread(&m_Color	, 1, sizeof(m_Color)		, Stream);
+		Stream.Read(&m_Color	, sizeof(m_Color));
 	}
 
 	return( true );
@@ -1169,9 +1169,9 @@ CSG_Parameter_Colors::~CSG_Parameter_Colors(void)
 {}
 
 //---------------------------------------------------------
-const char * CSG_Parameter_Colors::asString(void)
+const SG_Char * CSG_Parameter_Colors::asString(void)
 {
-	m_String.Printf("%d %s", m_Colors.Get_Count(), LNG("colors"));
+	m_String.Printf(SG_T("%d %s"), m_Colors.Get_Count(), LNG("colors"));
 
 	return( m_String );
 }
@@ -1183,7 +1183,7 @@ void CSG_Parameter_Colors::On_Assign(CSG_Parameter_Data *pSource)
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter_Colors::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_Colors::On_Serialize(CSG_File &Stream, bool bSave)
 {
 	return( m_Colors.Serialize(Stream, bSave, false) );
 }
@@ -1206,9 +1206,9 @@ CSG_Parameter_Fixed_Table::~CSG_Parameter_Fixed_Table(void)
 {}
 
 //---------------------------------------------------------
-const char * CSG_Parameter_Fixed_Table::asString(void)
+const SG_Char * CSG_Parameter_Fixed_Table::asString(void)
 {
-	m_String.Printf("%s (%s: %d, %s: %d)", m_Table.Get_Name(), LNG("columns"), m_Table.Get_Field_Count(), LNG("rows"), m_Table.Get_Record_Count());
+	m_String.Printf(SG_T("%s (%s: %d, %s: %d)"), m_Table.Get_Name(), LNG("columns"), m_Table.Get_Field_Count(), LNG("rows"), m_Table.Get_Record_Count());
 
 	return( m_String );
 }
@@ -1220,7 +1220,7 @@ void CSG_Parameter_Fixed_Table::On_Assign(CSG_Parameter_Data *pSource)
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter_Fixed_Table::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_Fixed_Table::On_Serialize(CSG_File &Stream, bool bSave)
 {
 	if( bSave )
 	{
@@ -1320,7 +1320,7 @@ bool CSG_Parameter_Grid_System::Set_Value(void *Value)
 }
 
 //---------------------------------------------------------
-const char * CSG_Parameter_Grid_System::asString(void)
+const SG_Char * CSG_Parameter_Grid_System::asString(void)
 {
 	return( m_System.Get_Name() );
 }
@@ -1332,7 +1332,7 @@ void CSG_Parameter_Grid_System::On_Assign(CSG_Parameter_Data *pSource)
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter_Grid_System::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_Grid_System::On_Serialize(CSG_File &Stream, bool bSave)
 {
 	double		Cellsize;
 	TSG_Rect	Extent;
@@ -1342,14 +1342,14 @@ bool CSG_Parameter_Grid_System::On_Serialize(FILE *Stream, bool bSave)
 		Cellsize	= m_System.Get_Cellsize();
 		Extent		= m_System.Get_Extent().m_rect;
 
-		fwrite(&Cellsize, 1, sizeof(Cellsize), Stream);
-		fwrite(&Extent  , 1, sizeof(Extent)  , Stream);
-		fprintf(Stream, "\n");
+		Stream.Write(&Cellsize, sizeof(Cellsize));
+		Stream.Write(&Extent  , sizeof(Extent));
+		Stream.Printf(SG_T("\n"));
 	}
 	else
 	{
-		fread (&Cellsize, 1, sizeof(Cellsize), Stream);
-		fread (&Extent  , 1, sizeof(Extent)  , Stream);
+		Stream.Read(&Cellsize, sizeof(Cellsize));
+		Stream.Read(&Extent  , sizeof(Extent));
 
 		m_System.Assign(Cellsize, CSG_Rect(Extent));
 	}
@@ -1375,7 +1375,7 @@ CSG_Parameter_Table_Field::~CSG_Parameter_Table_Field(void)
 }
 
 //---------------------------------------------------------
-const char * CSG_Parameter_Table_Field::asString(void)
+const SG_Char * CSG_Parameter_Table_Field::asString(void)
 {
 	CSG_Table	*pTable;
 
@@ -1501,7 +1501,7 @@ bool CSG_Parameter_Data_Object::Set_Value(void *Value)
 }
 
 //---------------------------------------------------------
-const char * CSG_Parameter_Data_Object::asString(void)
+const SG_Char * CSG_Parameter_Data_Object::asString(void)
 {
 	if( m_pDataObject == DATAOBJECT_NOTSET )
 	{
@@ -1528,28 +1528,28 @@ void CSG_Parameter_Data_Object::On_Assign(CSG_Parameter_Data *pSource)
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter_Data_Object::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_Data_Object::On_Serialize(CSG_File &Stream, bool bSave)
 {
 	if( bSave )
 	{
 		if(	m_pDataObject == DATAOBJECT_CREATE )
 		{
-			fprintf(Stream, "%s\n", ENTRY_DATAOBJECT_CREATE);
+			Stream.Printf(SG_T("%s\n"), ENTRY_DATAOBJECT_CREATE);
 		}
 		else if( m_pDataObject != DATAOBJECT_NOTSET && m_pDataObject->Get_File_Name() )
 		{
-			fprintf(Stream, "%s\n", m_pDataObject->Get_File_Name());
+			Stream.Printf(SG_T("%s\n"), m_pDataObject->Get_File_Name());
 		}
 		else
 		{
-			fprintf(Stream, "\n");
+			Stream.Printf(SG_T("\n"));
 		}
 	}
 	else
 	{
 		CSG_String	sLine;
 
-		if( SG_Read_Line(Stream, sLine) )
+		if( Stream.Read_Line(sLine) )
 		{
 			if( !sLine.Cmp(ENTRY_DATAOBJECT_CREATE) )
 			{
@@ -1865,23 +1865,23 @@ CSG_Parameter_List::~CSG_Parameter_List(void)
 }
 
 //---------------------------------------------------------
-const char * CSG_Parameter_List::asString(void)
+const SG_Char * CSG_Parameter_List::asString(void)
 {
 	if( Get_Count() > 0 )
 	{
-		m_String.Printf("%d %s (", Get_Count(), Get_Count() == 1 ? LNG("[VAL] object") : LNG("[VAL] objects"));
+		m_String.Printf(SG_T("%d %s ("), Get_Count(), Get_Count() == 1 ? LNG("[VAL] object") : LNG("[VAL] objects"));
 
 		for(int i=0; i<Get_Count(); i++)
 		{
 			if( i > 0 )
 			{
-				m_String.Append(", ");
+				m_String.Append(SG_T(", "));
 			}
 
 			m_String.Append(asDataObject(i)->Get_Name());
 		}
 
-		m_String.Append(")");
+		m_String.Append(SG_T("))"));
 	}
 	else
 	{
@@ -1959,7 +1959,7 @@ void CSG_Parameter_List::On_Assign(CSG_Parameter_Data *pSource)
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter_List::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_List::On_Serialize(CSG_File &Stream, bool bSave)
 {
 	if( bSave )
 	{
@@ -1967,18 +1967,18 @@ bool CSG_Parameter_List::On_Serialize(FILE *Stream, bool bSave)
 		{
 			if( asDataObject(i)->Get_File_Name() )
 			{
-				fprintf(Stream, "%s\n", asDataObject(i)->Get_File_Name());
+				Stream.Printf(SG_T("%s\n"), asDataObject(i)->Get_File_Name());
 			}
 		}
 
-		fprintf(Stream, "%s\n", ENTRY_DATAOBJECTLIST_END);
+		Stream.Printf(SG_T("%s\n"), ENTRY_DATAOBJECTLIST_END);
 	}
 	else
 	{
 		CSG_String	sLine;
 		CSG_Data_Object	*pObject;
 
-		while( SG_Read_Line(Stream, sLine) && sLine.Cmp(ENTRY_DATAOBJECTLIST_END) )
+		while( Stream.Read_Line(sLine) && sLine.Cmp(ENTRY_DATAOBJECTLIST_END) )
 		{
 			if( (pObject = SG_UI_DataObject_Find(sLine, -1)) != NULL )
 			{
@@ -2102,9 +2102,9 @@ CSG_Parameter_Parameters::~CSG_Parameter_Parameters(void)
 }
 
 //---------------------------------------------------------
-const char * CSG_Parameter_Parameters::asString(void)
+const SG_Char * CSG_Parameter_Parameters::asString(void)
 {
-	m_String.Printf("%d %s", m_pParameters->Get_Count(), LNG("parameters"));
+	m_String.Printf(SG_T("%d %s"), m_pParameters->Get_Count(), LNG("parameters"));
 
 	return( m_String );
 }
@@ -2116,7 +2116,7 @@ void CSG_Parameter_Parameters::On_Assign(CSG_Parameter_Data *pSource)
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter_Parameters::On_Serialize(FILE *Stream, bool bSave)
+bool CSG_Parameter_Parameters::On_Serialize(CSG_File &Stream, bool bSave)
 {
 	return( m_pParameters->Serialize(Stream, bSave) );
 }

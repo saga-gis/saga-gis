@@ -71,33 +71,41 @@
 CGrid_To_Points::CGrid_To_Points(void)
 {
 	//-----------------------------------------------------
-	Set_Name(_TL("Grid Values to Points"));
+	Set_Name		(_TL("Grid Values to Points"));
 
-	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description(_TL(
-		"Saves grid values as point shapes. Optionally only points "
-		"can be saved, which are contained by polygons of a choosen layer.")
-	);
+	Set_Description	(_TW(
+		"This module saves grid values to a point shape. Optionally only points "
+		"can be saved, which are contained by polygons of the specified shapes layer. "
+		"In addition, it is possible to exclude all cells that are coded NoData in the "
+		"first grid of the grid list."
+	));
 
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List(
 		NULL	, "GRIDS"		, _TL("Grids"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
 		NULL	, "POLYGONS"	, _TL("Polygons"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Shapes(
 		NULL	, "POINTS"		, _TL("Points"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Value(
+		NULL	, "NODATA"		, _TL("Exclude NoData Cells"),
+		_TL(""),
+		PARAMETER_TYPE_Bool		, 0.0
 	);
 }
 
@@ -115,7 +123,7 @@ CGrid_To_Points::~CGrid_To_Points(void)
 //---------------------------------------------------------
 bool CGrid_To_Points::On_Execute(void)
 {
-	bool					bZFactor;
+	bool					bZFactor, bNoNoData;
 	int						x, y, iGrid, iPoint;
 	double					xPos, yPos;
 	CSG_Grid				*pGrid;
@@ -127,6 +135,7 @@ bool CGrid_To_Points::On_Execute(void)
 	pGrids		= Parameters("GRIDS")	->asGridList();
 	pPolygons	= Parameters("POLYGONS")->asShapes();
 	pPoints		= Parameters("POINTS")	->asShapes();
+	bNoNoData	= Parameters("NODATA")	->asBool();
 
 	bZFactor	= true;
 
@@ -149,7 +158,8 @@ bool CGrid_To_Points::On_Execute(void)
 		{
 			for(x=0, xPos=Get_XMin(); x<Get_NX(); x++, xPos+=Get_Cellsize())
 			{
-				if( !pPolygons || is_Contained(xPos, yPos, pPolygons) )
+				if( (!bNoNoData || (bNoNoData && !pGrids->asGrid(0)->is_NoData(x, y)))
+				&&	(!pPolygons || is_Contained(xPos, yPos, pPolygons)) )
 				{
 					pPoint	= pPoints->Add_Shape();
 					pPoint->Add_Point(xPos, yPos);

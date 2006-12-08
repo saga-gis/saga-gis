@@ -75,7 +75,7 @@ CGridding_Spline_TPS_TIN::CGridding_Spline_TPS_TIN(void)
 
 	Set_Author		(_TL("Copyrights (c) 2006 by Olaf Conrad"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"Creates a 'Thin Plate Spline' function for each triangle of a TIN "
 		"and uses it for subsequent gridding. The TIN is internally created "
 		"from the scattered data points input. The 'Neighbourhood' option "
@@ -104,9 +104,9 @@ CGridding_Spline_TPS_TIN::CGridding_Spline_TPS_TIN(void)
 	//-----------------------------------------------------
 	Parameters.Add_Choice(
 		NULL	, "LEVEL"		, _TL("Neighbourhood"),
-		"",
+		_TL(""),
 
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("immediate"),
 			_TL("level 1"),
 			_TL("level 2")
@@ -115,7 +115,7 @@ CGridding_Spline_TPS_TIN::CGridding_Spline_TPS_TIN(void)
 
 	Parameters.Add_Value(
 		NULL	, "FRAME"		, _TL("Add Frame"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Bool		, true
 	);
 }

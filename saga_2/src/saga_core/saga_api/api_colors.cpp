@@ -74,8 +74,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define COLORS_SERIAL_VERSION_BINARY	"SAGA_COLORPALETTE_VERSION_0.100_BINARY"
-#define COLORS_SERIAL_VERSION__ASCII	"SAGA_COLORPALETTE_VERSION_0.100__ASCII"
+#define COLORS_SERIAL_VERSION_BINARY	SG_T("SAGA_COLORPALETTE_VERSION_0.100_BINARY")
+#define COLORS_SERIAL_VERSION__ASCII	SG_T("SAGA_COLORPALETTE_VERSION_0.100__ASCII")
 
 
 ///////////////////////////////////////////////////////////
@@ -751,26 +751,24 @@ bool CSG_Colors::Assign(CSG_Colors *pColors)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Colors::Load(const char *File_Name)
+bool CSG_Colors::Load(const SG_Char *File_Name)
 {
-	char	Version[sizeof(COLORS_SERIAL_VERSION_BINARY)];
-	FILE	*Stream;
+	CSG_String	Version;
+	CSG_File	Stream;
 
-	if( File_Name && (Stream = fopen(File_Name, "rb")) != NULL )
+	if( Stream.Open(File_Name, SG_FILE_R, true) )
 	{
-		fread(&Version, 1, sizeof(COLORS_SERIAL_VERSION_BINARY), Stream);
+		Stream.Read(Version, sizeof(COLORS_SERIAL_VERSION_BINARY));
 
-		if( !strcmp(Version, COLORS_SERIAL_VERSION_BINARY) )
+		if( !Version.Cmp(COLORS_SERIAL_VERSION_BINARY) )
 		{
 			Serialize(Stream, false, true);
 		}
-		else if( !strcmp(Version, COLORS_SERIAL_VERSION__ASCII) )
+		else if( !Version.Cmp(COLORS_SERIAL_VERSION__ASCII) )
 		{
 			Serialize(Stream, false, false);
 		}
 
-		fclose(Stream);
-
 		return( true );
 	}
 
@@ -778,25 +776,23 @@ bool CSG_Colors::Load(const char *File_Name)
 }
 
 //---------------------------------------------------------
-bool CSG_Colors::Save(const char *File_Name, bool bBinary)
+bool CSG_Colors::Save(const SG_Char *File_Name, bool bBinary)
 {
-	FILE	*Stream;
+	CSG_File	Stream;
 
-	if( File_Name && (Stream = fopen(File_Name, "wb")) != NULL )
+	if( Stream.Open(File_Name, SG_FILE_W, true) )
 	{
 		if( bBinary )
 		{
-			fwrite(COLORS_SERIAL_VERSION_BINARY, 1, sizeof(COLORS_SERIAL_VERSION_BINARY), Stream);
+			Stream.Write((void *)COLORS_SERIAL_VERSION_BINARY, sizeof(COLORS_SERIAL_VERSION_BINARY));
 		}
 		else
 		{
-			fprintf(Stream, "%s\n", COLORS_SERIAL_VERSION__ASCII);
+			Stream.Printf(SG_T("%s\n"), COLORS_SERIAL_VERSION__ASCII);
 		}
 
 		Serialize(Stream, true, bBinary);
 
-		fclose(Stream);
-
 		return( true );
 	}
 
@@ -811,11 +807,11 @@ bool CSG_Colors::Save(const char *File_Name, bool bBinary)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Colors::Serialize(FILE *Stream, bool bSave, bool bBinary)
+bool CSG_Colors::Serialize(CSG_File &Stream, bool bSave, bool bBinary)
 {
 	int		i, r, g, b;
 
-	if( Stream )
+	if( Stream.is_Open() )
 	{
 		if( bBinary )
 		{
@@ -823,19 +819,19 @@ bool CSG_Colors::Serialize(FILE *Stream, bool bSave, bool bBinary)
 			{
 				if( m_nColors > 0 )
 				{
-					fwrite(&m_nColors, 1, sizeof(m_nColors), Stream);
-					fwrite(m_Colors, m_nColors, sizeof(long), Stream);
+					Stream.Write(&m_nColors, sizeof(m_nColors));
+					Stream.Write(m_Colors, sizeof(long), m_nColors);
 				}
 			}
 			else
 			{
-				fread(&i, 1, sizeof(m_nColors), Stream);
+				Stream.Read(&i, sizeof(m_nColors));
 
 				if( i > 0 )
 				{
 					Set_Count(i);
 
-					fread(m_Colors, m_nColors, sizeof(long), Stream);
+					Stream.Read(m_Colors, sizeof(long), m_nColors);
 				}
 			}
 
@@ -847,17 +843,17 @@ bool CSG_Colors::Serialize(FILE *Stream, bool bSave, bool bBinary)
 			{
 				if( m_nColors > 0 )
 				{
-					fprintf(Stream, "%d\n", m_nColors);
+					Stream.Printf(SG_T("%d\n"), m_nColors);
 
 					for(i=0; i<m_nColors; i++)
 					{
-						fprintf(Stream, "%03d %03d %03d\n", (int)Get_Red(i), (int)Get_Green(i), (int)Get_Blue(i));
+						Stream.Printf(SG_T("%03d %03d %03d\n"), (int)Get_Red(i), (int)Get_Green(i), (int)Get_Blue(i));
 					}
 				}
 			}
 			else
 			{
-				fscanf(Stream, "%d", &i);
+				SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%d"), &i);
 
 				if( i > 0 )
 				{
@@ -865,7 +861,7 @@ bool CSG_Colors::Serialize(FILE *Stream, bool bSave, bool bBinary)
 
 					for(i=0; i<m_nColors; i++)
 					{
-						fscanf(Stream, "%d %d %d", &r, &g, &b);
+						SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%d %d %d"), &r, &g, &b);
 
 						m_Colors[i]	= SG_GET_RGB(r, g, b);
 					}

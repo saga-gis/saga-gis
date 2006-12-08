@@ -126,7 +126,7 @@ private:
 	void						_Add_Property		(class CSG_Parameter *pParameter, class wxPGProperty *pParent);
 	class wxPGProperty *		_Get_Property		(class CSG_Parameter *pParameter, class wxPGProperty *pParent);
 
-	void						_Set_Parameter		(const char *Identifier);
+	void						_Set_Parameter		(const wxChar *Identifier);
 	void						_Update_Parameters	(void);
 	void						_Update_Parameter	(class CSG_Parameter *pParameter);
 

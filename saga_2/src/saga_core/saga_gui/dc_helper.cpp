@@ -329,7 +329,7 @@ void		Draw_Scale(wxDC &dc, wxRect r, double zMin, double zMax, bool bHorizontal,
 		dz			= pow(10.0, floor(log10(zMax - zMin)) - 1.0);
 		Decimals	= dz >= 1.0 ? 0 : (int)fabs(log10(dz));
 
-		s.Printf("%.*f", Decimals, zMax);
+		s.Printf(wxT("%.*f"), Decimals, zMax);
 		dc.GetTextExtent(s, &zDC, &yDC);
 		while( zToDC * dz < zDC + TEXTSPACE )
 		{
@@ -342,7 +342,7 @@ void		Draw_Scale(wxDC &dc, wxRect r, double zMin, double zMax, bool bHorizontal,
 
 		for(; z<=zMax; z+=dz)
 		{
-			s.Printf("%.*f", Decimals, z);
+			s.Printf(wxT("%.*f"), Decimals, z);
 
 			zDC	= bAscendent ? (int)(zToDC * (z - zMin)) : Width - 1 - (int)(zToDC * (z - zMin));
 

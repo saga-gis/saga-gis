@@ -77,7 +77,7 @@ CPROJ4_Shapes::CPROJ4_Shapes(void)
 
 	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Coordinate Transformation for Shapes.\n"
 		"Based on the PROJ.4 Cartographic Projections library originally written by Gerald Evenden "
 		"and later continued by the United States Department of the Interior, Geological Survey (USGS).\n"
@@ -90,13 +90,13 @@ CPROJ4_Shapes::CPROJ4_Shapes(void)
 
 	Parameters.Add_Shapes(
 		Parameters("SOURCE_NODE"), "SOURCE", _TL("Source"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
 		Parameters("TARGET_NODE"), "TARGET", _TL("Target"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 }
@@ -116,11 +116,10 @@ CPROJ4_Shapes::~CPROJ4_Shapes(void)
 bool CPROJ4_Shapes::On_Execute_Conversion(void)
 {
 	bool		bCopy, bDropped;
-	char		sMessage[256];
 	int			iShape, iPart, iPoint, nDropped;
 	TSG_Point	Point;
-	CSG_Shape		*pShape_Source, *pShape_Target;
-	CSG_Shapes		*pSource, *pTarget;
+	CSG_Shape	*pShape_Source, *pShape_Target;
+	CSG_Shapes	*pSource, *pTarget;
 
 	//-----------------------------------------------------
 	if( 1 )
@@ -174,8 +173,7 @@ bool CPROJ4_Shapes::On_Execute_Conversion(void)
 		//-------------------------------------------------
 		if( nDropped > 0 )
 		{
-			sprintf(sMessage, _TL("%d have been dropped"), nDropped);
-			Message_Add(sMessage);
+			Message_Add(CSG_String::Format(SG_T("%d %s"), nDropped, _TL("shapes have been dropped")));
 		}
 
 		if( bCopy )

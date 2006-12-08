@@ -87,7 +87,7 @@ CGSGrid_Regression_Multiple::CGSGrid_Regression_Multiple(void)
 
 	Set_Author		(_TL("Copyrights (c) 2004 by Olaf Conrad"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"Linear regression analysis of point attributes with multiple grids. "
 		"Details of the regression/correlation analysis will be saved to a table. "
 		"The regression function is used to create a new grid with (extrapolated) values. "
@@ -102,43 +102,43 @@ CGSGrid_Regression_Multiple::CGSGrid_Regression_Multiple(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List(
 		NULL	, "GRIDS"		, _TL("Grids"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES"		, _TL("Shapes"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table_Field(
 		pNode	, "ATTRIBUTE"	, _TL("Attribute"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Table(
 		NULL	, "TABLE"		, _TL("Details"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Shapes(
 		NULL	, "RESIDUAL"	, _TL("Residuals"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "REGRESSION"	, _TL("Regression"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
 		NULL	,"INTERPOL"		, _TL("Grid Interpolation"),
-		"",
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("Nearest Neighbor"),
 			_TL("Bilinear Interpolation"),
 			_TL("Inverse Distance Interpolation"),
@@ -180,7 +180,7 @@ bool CGSGrid_Regression_Multiple::On_Execute(void)
 	//-----------------------------------------------------
 	if( Get_Regression(pGrids, pShapes, iAttribute) )
 	{
-		pRegression->Set_Name(CSG_String::Format("%s (%s)", pShapes->Get_Name(), Get_Name()));
+		pRegression->Set_Name(CSG_String::Format(SG_T("%s (%s)"), pShapes->Get_Name(), Get_Name()));
 
 		Set_Regression(pGrids, pRegression);
 
@@ -313,7 +313,7 @@ bool CGSGrid_Regression_Multiple::Set_Residuals(CSG_Shapes *pShapes, int iAttrib
 	//-----------------------------------------------------
 	if( pResiduals )
 	{
-		pResiduals->Create(SHAPE_TYPE_Point, CSG_String::Format("%s [%s]", pShapes->Get_Name(), _TL("Residuals")));
+		pResiduals->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), pShapes->Get_Name(), _TL("Residuals")));
 		pResiduals->Get_Table().Add_Field(pShapes->Get_Table().Get_Field_Name(iAttribute), TABLE_FIELDTYPE_Double);
 		pResiduals->Get_Table().Add_Field("TREND"	, TABLE_FIELDTYPE_Double);
 		pResiduals->Get_Table().Add_Field("RESIDUAL", TABLE_FIELDTYPE_Double);
@@ -352,30 +352,30 @@ void CGSGrid_Regression_Multiple::Set_Message(CSG_Parameter_Grid_List *pGrids)
 {
 	int		i, j;
 
-	Message_Add("\n", false);
-	Message_Add(CSG_String::Format("\n%s:", _TL("Regression")), false);
-	Message_Add(CSG_String::Format("\n Y = %f", m_Regression.Get_RConst()), false);
+	Message_Add(SG_T("\n"), false);
+	Message_Add(CSG_String::Format(SG_T("\n%s:"), _TL("Regression")), false);
+	Message_Add(CSG_String::Format(SG_T("\n Y = %f"), m_Regression.Get_RConst()), false);
 
 	for(i=0; i<pGrids->Get_Count(); i++)
 	{
 		if( (j = m_Regression.Get_Ordered(i)) >= 0 && j < pGrids->Get_Count() )
 		{
-			Message_Add(CSG_String::Format(" %+f*[%s]", m_Regression.Get_RCoeff(j), pGrids->asGrid(j)->Get_Name()), false);
+			Message_Add(CSG_String::Format(SG_T(" %+f*[%s]"), m_Regression.Get_RCoeff(j), pGrids->asGrid(j)->Get_Name()), false);
 		}
 	}
 
-	Message_Add("\n", false);
-	Message_Add(CSG_String::Format("\n%s:", _TL("Correlation")), false);
+	Message_Add(SG_T("\n"), false);
+	Message_Add(CSG_String::Format(SG_T("\n%s:"), _TL("Correlation")), false);
 
 	for(i=0; i<pGrids->Get_Count(); i++)
 	{
 		if( (j = m_Regression.Get_Ordered(i)) >= 0 && j < pGrids->Get_Count() )
 		{
-			Message_Add(CSG_String::Format("\n%d: R² = %f%% [%f%%] -> %s", i + 1, 100.0 * m_Regression.Get_R2(j), 100.0 * m_Regression.Get_R2_Change(j), pGrids->asGrid(j)->Get_Name()), false);
+			Message_Add(CSG_String::Format(SG_T("\n%d: R² = %f%% [%f%%] -> %s"), i + 1, 100.0 * m_Regression.Get_R2(j), 100.0 * m_Regression.Get_R2_Change(j), pGrids->asGrid(j)->Get_Name()), false);
 		}
 	}
 
-	Message_Add("\n", false);
+	Message_Add(SG_T("\n"), false);
 }
 
 

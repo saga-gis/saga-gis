@@ -77,7 +77,7 @@ CGrid_Value_Replace::CGrid_Value_Replace(void)
 
 	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Changes values of a grid according to the rules of a user defined lookup table. "
 		"Values or value ranges that are not listed in the lookup table remain unchanged. "
 		"If the target is not set, the changes will be stored to the original grid. ")
@@ -89,20 +89,20 @@ CGrid_Value_Replace::CGrid_Value_Replace(void)
 
 	Parameters.Add_Grid(
 		NULL	, "GRID_IN"		, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "GRID_OUT"	, _TL("Changed Grid"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Replace Condition"),
-		"",
-		CSG_String::Format("%s|%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("Grid value equals low value"),
 			_TL("Low value < grid value < high value"),
 			_TL("Low value <= grid value < high value")
@@ -115,7 +115,7 @@ CGrid_Value_Replace::CGrid_Value_Replace(void)
 
 	pLookup	= Parameters.Add_FixedTable(
 		NULL	, "LOOKUP"		, _TL("Lookup Table"),
-		""
+		_TL("")
 	)->asTable();
 
 	pLookup->Add_Field(_TL("Low Value")		, TABLE_FIELDTYPE_Double);

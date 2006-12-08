@@ -70,61 +70,61 @@
 //---------------------------------------------------------
 CGSGrid_Statistics::CGSGrid_Statistics(void)
 {
-	Set_Name(_TL("Statistics for Grids"));
+	Set_Name		(_TL("Statistics for Grids"));
 
-	Set_Author("Copyrights (c) 2005 by Olaf Conrad");
+	Set_Author		(_TL("Copyrights (c) 2005 by Olaf Conrad"));
 
-	Set_Description(_TL("Calculates statistical properties (arithmetic mean, minimum, maximum, "
+	Set_Description	(_TW("Calculates statistical properties (arithmetic mean, minimum, maximum, "
 		"variance, standard deviation) for each cell position for the values of "
-		"the selected grids.")
-	);
+		"the selected grids."
+	));
 
 
 	Parameters.Add_Grid_List(
 		NULL, "GRIDS"	, _TL("Grids"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL, "MEAN"	, _TL("Arithmetic Mean"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
 		NULL, "MIN"		, _TL("Minimum"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
 		NULL, "MAX"		, _TL("Maximum"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
 		NULL, "VAR"		, _TL("Variance"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
 		NULL, "STDDEV"	, _TL("Standard Deviation"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
 		NULL, "STDDEVLO", _TL("Mean less Standard Deviation"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
 		NULL, "STDDEVHI", _TL("Mean plus Standard Deviation"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 }

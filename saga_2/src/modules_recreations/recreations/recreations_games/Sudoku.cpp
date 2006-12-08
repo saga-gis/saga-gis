@@ -29,11 +29,11 @@ CSudoku::CSudoku(void)
 
 	Set_Author	(_TL("Copyrights (c) 2006 by Victor Olaya"));
 
-	Set_Description("");
+	Set_Description(_TL(""));
 
 	Parameters.Add_Grid_Output(
 		NULL	, "GRID"	, _TL("Grid"),
-		""
+		_TL("")
 	);
 
 	int				i, j;
@@ -42,11 +42,11 @@ CSudoku::CSudoku(void)
 
 	pBoard	= Parameters.Add_FixedTable(
 		NULL	, "BOARD"	, _TL("Board"),
-		""
+		_TL("")
 	)->asTable();
 
 	for (i = 0; i < 9; i++){
-		pBoard->Add_Field("", TABLE_FIELDTYPE_Int);
+		pBoard->Add_Field(_TL(""), TABLE_FIELDTYPE_Int);
 	}
 
 	for (i = 0; i < 9; i++){
@@ -73,7 +73,7 @@ bool CSudoku::On_Execute(void)
 	}
 
 	m_pBoard = SG_Create_Grid(GRID_TYPE_Int, BOARD_SIZE, BOARD_SIZE, 1);
-	m_pBoard->Set_Name("Sudoku");
+	m_pBoard->Set_Name(_TL("Sudoku"));
 	Parameters("GRID")->Set_Value(m_pBoard);
 
 	Colors.Set_Count(6);

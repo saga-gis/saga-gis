@@ -26,55 +26,55 @@
 CWatersheds_ext::CWatersheds_ext(void){
 
 	Parameters.Set_Name(_TL("Watershed Basins (extended)"));
-	Parameters.Set_Description(_TL("(c) 2004 by Victor Olaya. Subbasin" ));
+	Parameters.Set_Description(_TW("(c) 2004 by Victor Olaya. Subbasin" ));
 
 	Parameters.Add_Grid(NULL, 
 						"DEM", 
 						_TL("DEM"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"CHANNELS", 
 						_TL("Drainage Network"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"SOILLOSS", 
 						_TL("Soil Losses"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT_OPTIONAL);
 
 	Parameters.Add_Grid(NULL, 
 						"CN", 
 						_TL("Curve Number"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT_OPTIONAL);
 
 	Parameters.Add_Grid(NULL, 
 						"BASINGRID", 
 						_TL("Subbasins"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT);
 
 	Parameters.Add_Shapes(NULL, 
 						"BASINS", 
 						_TL("Subbasins"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT);
 
 	Parameters.Add_Shapes(NULL, 
 						"HEADERS", 
 						_TL("River Headers"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT);
 	
 	Parameters.Add_Choice(NULL, 
 						"FRAGMENTATION", 
 						_TL("Basin subdivision"), 
-						"", 
-						CSG_String::Format("%s|%s|",
+						_TL(""), 
+						CSG_String::Format(SG_T("%s|%s|"),
 							_TL("Only closing points on main stream"),
 							_TL("All")
 						),0
@@ -97,7 +97,7 @@ bool CWatersheds_ext::On_Execute(void){
 
 	m_pBasinGrid->Assign((double)0);
 	m_pBasinGrid->Set_Name(_TL("Subbasins"));
-	m_pBasinGrid->Set_Description(_TL("Subbasins"));
+	m_pBasinGrid->Set_Description(_TW("Subbasins"));
 
 	CalculateBasin();
 	CreateShapesLayer();
@@ -292,7 +292,7 @@ void CWatersheds_ext::CreateShapesLayer(){ //first shape (0) is the whole basin.
 		m_pHeaders->Get_Shape(i)->Get_Record()->Set_Value(0,i);
 	}//for
 
-	Process_Set_Text("Vectorizing subbasins...");
+	Process_Set_Text(_TL("Vectorizing subbasins..."));
 
 	m_pBasins->Create(SHAPE_TYPE_Polygon, _TL("Subbasins"));
 	pTable = &m_pBasins->Get_Table();
@@ -419,8 +419,8 @@ out2:
 			pSubbasin->Get_Record()->Set_Value(12, SG_Get_String(fSide2).c_str());
 		}//if
 		else{
-			pSubbasin->Get_Record()->Set_Value(11, "---");
-			pSubbasin->Get_Record()->Set_Value(12, "---");
+			pSubbasin->Get_Record()->Set_Value(11, SG_T("---"));
+			pSubbasin->Get_Record()->Set_Value(12, SG_T("---"));
 		}//else
 		pSubbasin->Get_Record()->Set_Value(13, OrographicIndex(fPerim, fArea/10000));
 		pSubbasin->Get_Record()->Set_Value(14, MassivityIndex(fPerim, fArea/10000));
@@ -457,12 +457,12 @@ out2:
 	pRecord->Set_Value(2, iY * m_pDEM->Get_Cellsize() + m_pDEM->Get_YMin());
 
 	for (i = 1; i<pTable->Get_Record_Count(); i++){
-		pTable->Get_Record(i)->Set_Value(8," --- ");
+		pTable->Get_Record(i)->Set_Value(8,SG_T(" --- "));
 		iCode = pTable->Get_Record(i)->asInt(0);
 		for (j = 0; j<pTable->Get_Record_Count(); j++){
 			iDownstreamBasin = pTable->Get_Record(j)->asInt(9);
 			if (iDownstreamBasin == iCode){
-				sSubbasins = CSG_String(pTable->Get_Record(i)->asString(8)) + " " 
+				sSubbasins = CSG_String(pTable->Get_Record(i)->asString(8)) + SG_T(" ")
 					+ SG_Get_String(pTable->Get_Record(j)->asInt(0));
 				pTable->Get_Record(i)->Set_Value(8, sSubbasins.c_str());
 			}//if

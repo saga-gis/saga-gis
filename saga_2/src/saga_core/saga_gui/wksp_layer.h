@@ -106,7 +106,7 @@ public:
 	bool							Set_Color_Range			(double zMin, double zMax);
 
 	bool							Save					(void);
-	bool							Save					(const char *File_Path);
+	bool							Save					(const wxChar *File_Path);
 
 	virtual bool					Show					(class CWKSP_Map *pMap = NULL);
 

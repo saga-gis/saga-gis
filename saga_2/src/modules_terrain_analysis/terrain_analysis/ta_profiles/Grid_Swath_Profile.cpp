@@ -84,7 +84,7 @@ CGrid_Swath_Profile::CGrid_Swath_Profile(void)
 
 	Set_Author(_TL("Copyrights (c) 2005 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Create interactively swath profiles from a grid based DEM\n"
 		"Use left mouse button clicks into a map window to add profile points."
 		"A right mouse button click will finish the profile.\n"
@@ -94,7 +94,7 @@ CGrid_Swath_Profile::CGrid_Swath_Profile(void)
 
 	Parameters.Add_Grid(
 		NULL, "DEM"			, _TL("DEM"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
@@ -106,13 +106,13 @@ CGrid_Swath_Profile::CGrid_Swath_Profile(void)
 
 	Parameters.Add_Shapes(
 		NULL, "POINTS"		, _TL("Profile Points"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Shapes(
 		NULL, "LINE"		, _TL("Swath Profile"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
 
@@ -169,7 +169,7 @@ bool CGrid_Swath_Profile::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Inte
 		if( !m_bAdd )
 		{
 			m_bAdd	= true;
-			m_pLine->Create(SHAPE_TYPE_Line, CSG_String::Format("Profile [%s]", m_pDEM->Get_Name()));
+			m_pLine->Create(SHAPE_TYPE_Line, CSG_String::Format(SG_T("Profile [%s]"), m_pDEM->Get_Name()));
 			m_pLine->Get_Table().Add_Field("ID"	, TABLE_FIELDTYPE_Int);
 			m_pLine->Add_Shape()->Get_Record()->Set_Value(0, 1);
 		}

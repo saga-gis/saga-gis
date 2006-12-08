@@ -126,13 +126,13 @@ bool CSG_Grid_System::is_Valid(void) const
 }
 
 //---------------------------------------------------------
-const char * CSG_Grid_System::Get_Name(bool bShort)
+const SG_Char * CSG_Grid_System::Get_Name(bool bShort)
 {
 	if( is_Valid() )
 	{
 		if( bShort )
 		{
-			m_Name.Printf("%.*f; %dx %dy; %.*fW %.*fS",
+			m_Name.Printf(SG_T("%.*f; %dx %dy; %.*fW %.*fS"),
 				SG_Get_Significant_Decimals(Get_Cellsize()),
 				Get_Cellsize(),
 				Get_NX(),
@@ -143,7 +143,7 @@ const char * CSG_Grid_System::Get_Name(bool bShort)
 		}
 		else
 		{
-			m_Name.Printf("%s: %f, %s: %dx/%dy, %s: %fW/%fS",
+			m_Name.Printf(SG_T("%s: %f, %s: %dx/%dy, %s: %fW/%fS"),
 				LNG("[DAT] Cell size"),
 				Get_Cellsize(),
 				LNG("[DAT] Number of cells"),

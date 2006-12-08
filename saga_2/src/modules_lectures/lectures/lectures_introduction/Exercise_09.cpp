@@ -77,7 +77,7 @@ CExercise_09::CExercise_09(void)
 
 	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Extended Neighbourhoods - Use recursive function calls for catchment area calculations.\n"
 		"(c) 2003 by Olaf Conrad, Goettingen\n"
 		"email: oconrad@gwdg.de")
@@ -128,7 +128,7 @@ bool CExercise_09::On_Execute(void)
 	// Initialisations...
 
 	m_pArea		->Assign(0.0);
-	m_pArea		->Set_Unit("m²");
+	m_pArea		->Set_Unit(SG_T("m²"));
 	DataObject_Set_Colors(m_pArea, 100, SG_COLORS_WHITE_BLUE);
 
 

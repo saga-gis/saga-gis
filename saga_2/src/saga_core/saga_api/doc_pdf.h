@@ -181,14 +181,14 @@ class SAGA_API_DLL_EXPORT CSG_Doc_PDF
 {
 public:
 	CSG_Doc_PDF(void);
-	CSG_Doc_PDF(TSG_PDF_Page_Size Size, int Orientation = PDF_PAGE_ORIENTATION_PORTRAIT, const char *Title = NULL);
+	CSG_Doc_PDF(TSG_PDF_Page_Size Size, int Orientation = PDF_PAGE_ORIENTATION_PORTRAIT, const SG_Char *Title = NULL);
 	virtual ~CSG_Doc_PDF(void);
 
-	bool						Open						(TSG_PDF_Page_Size Size = PDF_PAGE_SIZE_A4, int Orientation = PDF_PAGE_ORIENTATION_PORTRAIT, const char *Title = NULL);
-	bool						Open						(const char *Title);
+	bool						Open						(TSG_PDF_Page_Size Size = PDF_PAGE_SIZE_A4, int Orientation = PDF_PAGE_ORIENTATION_PORTRAIT, const SG_Char *Title = NULL);
+	bool						Open						(const SG_Char *Title);
 	bool						Close						(void);
 
-	bool						Save						(const char *FileName);
+	bool						Save						(const SG_Char *FileName);
 
 	bool						Is_Open						(void)	{	return( m_pPDF    != NULL );	}
 	bool						Is_Ready_To_Draw			(void)	{	return( m_pCanvas != NULL );	}
@@ -199,19 +199,24 @@ public:
 	bool						Add_Page					(TSG_PDF_Page_Size Size, int Orientation = PDF_PAGE_ORIENTATION_PORTRAIT);
 	bool						Add_Page					(double Width, double Height);
 
-	bool						Add_Page_Title				(const char *Title, TSG_PDF_Title_Level Level = PDF_TITLE, TSG_PDF_Page_Size Size = PDF_PAGE_SIZE_PREVIOUS, int Orientation = PDF_PAGE_ORIENTATION_PREVIOUS);
-	bool						Add_Outline_Item			(const char *Title);
+	bool						Add_Page_Title				(const SG_Char *Title, TSG_PDF_Title_Level Level = PDF_TITLE, TSG_PDF_Page_Size Size = PDF_PAGE_SIZE_PREVIOUS, int Orientation = PDF_PAGE_ORIENTATION_PREVIOUS);
+	bool						Add_Outline_Item			(const SG_Char *Title);
 
 	bool						Set_Size_Page				(TSG_PDF_Page_Size Size, int Orientation = PDF_PAGE_ORIENTATION_PORTRAIT);
 	bool						Set_Size_Page				(double Width, double Height);
 	const CSG_Rect &			Get_Size_Page				(void)	{	return( m_Size_Paper );		}
 	const CSG_Rect &			Get_Margins					(void)	{	return( m_Size_Margins );	}
 
-	bool						Layout_Add_Box				(double xMin_Percent, double yMin_Percent, double xMax_Percent, double yMax_Percent, const char *ID = NULL);
-	bool						Layout_Add_Box				(const CSG_Rect &Box_Percent, const char *ID = NULL);
-	const CSG_Rect &			Layout_Get_Box				(int iBox)	{	return( iBox >= 0 && iBox < m_Boxes.Get_Count() ? m_Boxes[iBox] : m_Size_Margins );	}
-	const CSG_Rect &			Layout_Get_Box				(const char *ID);
 	void						Layout_Set_Box_Space		(double Space, bool bPercent);
+	bool						Layout_Add_Box				(double xMin_Percent, double yMin_Percent, double xMax_Percent, double yMax_Percent, const SG_Char *ID = NULL);
+	bool						Layout_Add_Box				(const CSG_Rect &Box_Percent, const SG_Char *ID = NULL);
+	const CSG_Rect &			Layout_Get_Box				(int iBox)	{	return( iBox >= 0 && iBox < m_Boxes.Get_Count() ? m_Boxes[iBox] : m_Size_Margins );	}
+	const CSG_Rect &			Layout_Get_Box				(const SG_Char *ID);
+#ifdef _UNICODE
+	bool						Layout_Add_Box				(double xMin_Percent, double yMin_Percent, double xMax_Percent, double yMax_Percent, const char *ID);
+	bool						Layout_Add_Box				(const CSG_Rect &Box_Percent, const char *ID);
+	const CSG_Rect &			Layout_Get_Box				(const char *ID);
+#endif
 
 	bool						Draw_Point					(double x, double y, double Width, int Style = PDF_STYLE_POINT_SQUARE|PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = SG_COLOR_WHITE, int Line_Color = SG_COLOR_BLACK, int Line_Width = 0);
 	bool						Draw_Line					(double xa, double ya, double xb, double yb	, int Width = 0, int Color = SG_COLOR_BLACK, int Style = 0);
@@ -219,10 +224,10 @@ public:
 	bool						Draw_Rectangle				(double xa, double ya, double xb, double yb	, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = SG_COLOR_WHITE, int Line_Color = SG_COLOR_BLACK, int Line_Width = 0);
 	bool						Draw_Rectangle				(const CSG_Rect &r							, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = SG_COLOR_WHITE, int Line_Color = SG_COLOR_BLACK, int Line_Width = 0);
 	bool						Draw_Polygon				(CSG_Points &Points							, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = SG_COLOR_GREEN, int Line_Color = SG_COLOR_BLACK, int Line_Width = 0);
-	bool						Draw_Text					(double x, double y, const char   *Text, int Size, int Style = PDF_STYLE_TEXT_ALIGN_H_LEFT|PDF_STYLE_TEXT_ALIGN_V_TOP, double Angle = 0.0, int Color = SG_COLOR_BLACK, TSG_PDF_Font_Type Font = PDF_FONT_DEFAULT);
+	bool						Draw_Text					(double x, double y, const SG_Char   *Text, int Size, int Style = PDF_STYLE_TEXT_ALIGN_H_LEFT|PDF_STYLE_TEXT_ALIGN_V_TOP, double Angle = 0.0, int Color = SG_COLOR_BLACK, TSG_PDF_Font_Type Font = PDF_FONT_DEFAULT);
 	bool						Draw_Text					(double x, double y, CSG_Strings  &Text, int Size, int Style = PDF_STYLE_TEXT_ALIGN_H_LEFT|PDF_STYLE_TEXT_ALIGN_V_TOP, double Angle = 0.0, int Color = SG_COLOR_BLACK, TSG_PDF_Font_Type Font = PDF_FONT_DEFAULT);
-	bool						Draw_Image					(double x, double y, double dx, double dy	, const char *FileName);
-	bool						Draw_Image					(const CSG_Rect &r							, const char *FileName);
+	bool						Draw_Image					(double x, double y, double dx, double dy	, const SG_Char *FileName);
+	bool						Draw_Image					(const CSG_Rect &r							, const SG_Char *FileName);
 
 	bool						Draw_Graticule				(const CSG_Rect &r, const CSG_Rect &rWorld, int Size = 10);
 	void						Draw_Curve					(CSG_Points &Data, const CSG_Rect &r, int iGraphType);
@@ -241,10 +246,10 @@ protected:
 	bool						_Fit_Rectangle				(double &x, double &y, double &dx, double &dy, double XToY_Ratio, bool bShrink);
 	bool						_Fit_Rectangle				(CSG_Rect &r, double XToY_Ratio, bool bShrink);
 
-	bool						_Add_Outline_Item			(const char *Title, class PdfPage *pPage, TSG_PDF_Title_Level Level = PDF_TITLE);
+	bool						_Add_Outline_Item			(const SG_Char *Title, class PdfPage *pPage, TSG_PDF_Title_Level Level = PDF_TITLE);
 
 	bool						_Draw_Ruler					(const CSG_Rect &r, double zMin, double zMax, bool bHorizontal, bool bAscendent, bool bTickAtTop);
-	bool						_Draw_Text					(double x, double y, const char *Text, int Size, int Style, double Angle, int Color, TSG_PDF_Font_Type Font);
+	bool						_Draw_Text					(double x, double y, const SG_Char *Text, int Size, int Style, double Angle, int Color, TSG_PDF_Font_Type Font);
 	bool						_Draw_Table					(CSG_Rect r, CSG_Table *pTable, int iRecord, int nRecords, double CellHeight, double HeaderHeightRel);
 	bool						_Draw_Shape					(CSG_Rect r, CSG_Shape *pShape, double xMin, double yMin, double World2PDF, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = SG_COLOR_GREEN, int Line_Color = SG_COLOR_BLACK, int Line_Width = 0, int Point_Width = 5);
 
@@ -263,7 +268,7 @@ private:
 
 	CSG_Rects					m_Boxes_Percent, m_Boxes;
 
-	CSG_String					m_Font_Default;
+	const char *				m_Font_Default;
 
 	CSG_Strings					m_Boxes_ID;
 

@@ -78,8 +78,8 @@ public:
 	class wxMenu *				Create		(void);
 	void						Update		(class wxMenu *pMenu);
 
-	void						Add			(const char *FileName);
-	void						Del			(const char *FileName);
+	void						Add			(const wxChar *FileName);
+	void						Del			(const wxChar *FileName);
 
 	bool						Open		(int Cmd_ID);
 

@@ -99,7 +99,7 @@ public:
 
 	bool						Exists			(class CSG_TIN *pTIN);
 	class CWKSP_TIN *			Add				(class CSG_TIN *pTIN);
-	class CSG_TIN *				Get_byFileName	(const char *File_Name);
+	class CSG_TIN *				Get_byFileName	(const wxChar *File_Name);
 
 	bool						Update			(class CSG_TIN *pTIN, class CSG_Parameters *pParameters);
 	bool						Update_Views	(class CSG_TIN *pTIN);

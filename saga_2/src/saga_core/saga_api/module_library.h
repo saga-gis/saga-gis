@@ -87,8 +87,8 @@ public:
 	CSG_Module_Library(void);
 	virtual ~CSG_Module_Library(void);
 
-									CSG_Module_Library	(const char *File_Name);
-	bool							Create				(const char *File_Name);
+									CSG_Module_Library	(const SG_Char *File_Name);
+	bool							Create				(const SG_Char *File_Name);
 
 	bool							Destroy				(void);
 
@@ -96,7 +96,7 @@ public:
 
 	const CSG_String &				Get_File_Name		(void)		{	return( m_File_Name );	}
 
-	const char *					Get_Info			(int Type);
+	const SG_Char *					Get_Info			(int Type);
 
 	CSG_String						Get_Name			(void);
 	CSG_String						Get_Description		(void);

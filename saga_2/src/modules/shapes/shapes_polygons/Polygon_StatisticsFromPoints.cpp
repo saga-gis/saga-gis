@@ -28,7 +28,7 @@ CPolygonStatisticsFromPoints::CPolygonStatisticsFromPoints(){
 				   
 	Parameters.Set_Name(_TL("Polygon statistics from points"));
 
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"Calculates statistics using a polygon and a points layer."
 		"(c) 2005 by Victor Olaya\r\nemail: volaya@ya.com")
 	);
@@ -36,18 +36,18 @@ CPolygonStatisticsFromPoints::CPolygonStatisticsFromPoints(){
 	Parameters.Add_Shapes(NULL, 
 						"POLYGONS", 
 						_TL("Polygons"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);	
 	
 	Parameters.Add_Shapes(NULL, 
 						"POINTS", 
 						_TL("Points"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	m_pExtraParameters	= Add_Parameters("EXTRA",
 												_TL("Fields to add"),
-												"");
+												_TL(""));
 
 }//constructor
 
@@ -72,13 +72,19 @@ bool CPolygonStatisticsFromPoints::On_Execute(void){
 	for (i = 0; i < pTable->Get_Field_Count(); i++){
 		for (j = 0; j < 5; j++){
 			if (pTable->Get_Field_Type(i) > 1 && pTable->Get_Field_Type(i) < 7){ //is numeric field
-				sName.Printf("%s%s", pTable->Get_Field_Name(i), _TL(sParamName[j]));
-				pExtraParameter[i * 5 + j] = m_pExtraParameters->Add_Value(NULL,
-																			SG_Get_String(i * 5 + j,0).c_str(), 
-																			sName.c_str(),
-																			"",
-																			PARAMETER_TYPE_Bool, 
-																			false);
+				sName.Printf(SG_T("%s%s"),
+					pTable->Get_Field_Name(i),
+					SG_STR_MBTOSG(sParamName[j])
+				);
+
+				pExtraParameter[i * 5 + j] = m_pExtraParameters->Add_Value(
+					NULL,
+					SG_Get_String(i * 5 + j,0).c_str(), 
+					sName.c_str(),
+					_TL(""),
+					PARAMETER_TYPE_Bool, 
+					false
+				);
 			}//if
 		}//for
 	}//for
@@ -173,7 +179,7 @@ void CPolygonStatisticsFromPoints::CalculateStatistics(){
 		if (m_bIncludeParam[i]){
 			iField = (int) (i / 5);
 			iParam = i % 5;
-			sName.Printf("%s%s", pPointsTable->Get_Field_Name(iField), _TL(sParamName[iParam]));
+			sName.Printf(SG_T("%s%s"), pPointsTable->Get_Field_Name(iField), SG_STR_MBTOSG(sParamName[iParam]));
 			pPolygonsTable->Add_Field(sName.c_str(), TABLE_FIELDTYPE_Double); 
 			if (iField != iLastField){					
 				for (j = 0; j < pPolygonsTable->Get_Record_Count(); j++){

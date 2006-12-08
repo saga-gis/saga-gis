@@ -102,30 +102,30 @@ void CWKSP_Shapes_Polygon::On_Create_Parameters(void)
 
 	_BrushList_Add(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_BRUSH"			, LNG("[CAP] Fill Style"),
-		""
+		LNG("")
 	);
 
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_OUTLINE"			, LNG("[CAP] Outline"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Bool, true
 	);
 
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_OUTLINE_COLOR"	, LNG("[CAP] Outline Color"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Color, SG_GET_RGB(0, 127, 0)
 	);
 
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_OUTLINE_SIZE"	, LNG("[CAP] Outline Size"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Int, 0, 0, true
 	);
 
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_POINTS"			, LNG("[CAP] Show Points"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Bool, false
 	);
 }

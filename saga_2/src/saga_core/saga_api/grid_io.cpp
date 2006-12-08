@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid::_Load(const char *File_Name, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
+bool CSG_Grid::_Load(const SG_Char *File_Name, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
 {
 	bool	bResult;
 
@@ -82,9 +82,9 @@ bool CSG_Grid::_Load(const char *File_Name, TSG_Grid_Type Type, TSG_Grid_Memory_
 	m_Type	= Type;
 
 	//-----------------------------------------------------
-	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Load grid"), File_Name), true);
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Load grid"), File_Name), true);
 
-	if( SG_File_Cmp_Extension(File_Name, "grd") )
+	if( SG_File_Cmp_Extension(File_Name, SG_T("grd")) )
 	{
 		bResult	= _Load_Surfer(File_Name, Memory_Type);
 	}
@@ -122,15 +122,15 @@ bool CSG_Grid::_Load(const char *File_Name, TSG_Grid_Type Type, TSG_Grid_Memory_
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::Save(const char *File_Name, int Format)
+bool CSG_Grid::Save(const SG_Char *File_Name, int Format)
 {
 	return( Save(File_Name, Format, 0, 0, Get_NX(), Get_NY()) );
 }
 
-bool CSG_Grid::Save(const char *File_Name, int Format, int xA, int yA, int xN, int yN)
+bool CSG_Grid::Save(const SG_Char *File_Name, int Format, int xA, int yA, int xN, int yN)
 {
 	bool		bResult;
-	CSG_String	sFile_Name	= SG_File_Make_Path(NULL, File_Name, "sgrd");
+	CSG_String	sFile_Name	= SG_File_Make_Path(NULL, File_Name, SG_T("sgrd"));
 
 	//-----------------------------------------------------
 	if( xA	< 0 || xA >= Get_NX() - 1 )
@@ -154,7 +154,7 @@ bool CSG_Grid::Save(const char *File_Name, int Format, int xA, int yA, int xN, i
 	}
 
 	//-----------------------------------------------------
-	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Save grid"), File_Name), true);
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Save grid"), File_Name), true);
 
 	switch( Format )
 	{
@@ -212,12 +212,12 @@ void CSG_Grid::_Swap_Bytes(char *Bytes, int nBytes) const
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::_Load_Binary(FILE *Stream, TSG_Grid_Type File_Type, bool bFlip, bool bSwapBytes)
+bool CSG_Grid::_Load_Binary(CSG_File &Stream, TSG_Grid_Type File_Type, bool bFlip, bool bSwapBytes)
 {
 	char	*Line, *pValue;
 	int		x, y, i, iy, dy, nxBytes, nValueBytes;
 
-	if( Stream && is_Valid() )
+	if( Stream.is_Open() && is_Valid() )
 	{
 		Set_File_Type(GRID_FILE_FORMAT_Binary);
 
@@ -239,18 +239,18 @@ bool CSG_Grid::_Load_Binary(FILE *Stream, TSG_Grid_Type File_Type, bool bFlip, b
 
 			if( m_Type == File_Type && m_Memory_Type == GRID_MEMORY_Normal )
 			{
-				for(iy=0; iy<Get_NY() && !feof(Stream) && SG_UI_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
+				for(iy=0; iy<Get_NY() && !Stream.is_EOF() && SG_UI_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
 				{
-					fread(m_Values[y], sizeof(char), nxBytes, Stream);
+					Stream.Read(m_Values[y], sizeof(char), nxBytes);
 				}
 			}
 			else
 			{
 				Line	= (char *)SG_Malloc(nxBytes);
 
-				for(iy=0; iy<Get_NY() && !feof(Stream) && SG_UI_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
+				for(iy=0; iy<Get_NY() && !Stream.is_EOF() && SG_UI_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
 				{
-					fread(Line		, nxBytes	, sizeof(char), Stream);
+					Stream.Read(Line, sizeof(char), nxBytes);
 
 					for(x=0, pValue=Line; x<Get_NX(); pValue++)
 					{
@@ -273,18 +273,18 @@ bool CSG_Grid::_Load_Binary(FILE *Stream, TSG_Grid_Type File_Type, bool bFlip, b
 
 			if( m_Type == File_Type && m_Memory_Type == GRID_MEMORY_Normal && !bSwapBytes )
 			{
-				for(iy=0; iy<Get_NY() && !feof(Stream) && SG_UI_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
+				for(iy=0; iy<Get_NY() && !Stream.is_EOF() && SG_UI_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
 				{
-					fread(m_Values[y], sizeof(char), nxBytes, Stream);
+					Stream.Read(m_Values[y], sizeof(char), nxBytes);
 				}
 			}
 			else
 			{
 				Line	= (char *)SG_Malloc(nxBytes);
 
-				for(iy=0; iy<Get_NY() && !feof(Stream) && SG_UI_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
+				for(iy=0; iy<Get_NY() && !Stream.is_EOF() && SG_UI_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
 				{
-					fread(Line		, nxBytes	, sizeof(char), Stream);
+					Stream.Read(Line, sizeof(char), nxBytes);
 
 					for(x=0, pValue=Line; x<Get_NX(); x++, pValue+=nValueBytes)
 					{
@@ -323,13 +323,13 @@ bool CSG_Grid::_Load_Binary(FILE *Stream, TSG_Grid_Type File_Type, bool bFlip, b
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::_Save_Binary(FILE *Stream, int xA, int yA, int xN, int yN, TSG_Grid_Type File_Type, bool bFlip, bool bSwapBytes)
+bool CSG_Grid::_Save_Binary(CSG_File &Stream, int xA, int yA, int xN, int yN, TSG_Grid_Type File_Type, bool bFlip, bool bSwapBytes)
 {
 	char	*Line, *pValue;
 	int		x, y, i, ix, iy, dy, axBytes, nxBytes, nValueBytes;
 
 	//-----------------------------------------------------
-	if( Stream && m_System.is_Valid() && m_Type > 0 && m_Type < GRID_TYPE_Count )
+	if( Stream.is_Open() && m_System.is_Valid() && m_Type > 0 && m_Type < GRID_TYPE_Count )
 	{
 		Set_File_Type(GRID_FILE_FORMAT_Binary);
 
@@ -355,7 +355,7 @@ bool CSG_Grid::_Save_Binary(FILE *Stream, int xA, int yA, int xN, int yN, TSG_Gr
 
 				for(iy=0; iy<yN && SG_UI_Process_Set_Progress(iy, yN); iy++, y+=dy)
 				{
-					fwrite((char *)m_Values[y] + axBytes, nxBytes, sizeof(char), Stream);
+					Stream.Write((char *)m_Values[y] + axBytes, sizeof(char), nxBytes);
 				}
 			}
 			else
@@ -372,7 +372,7 @@ bool CSG_Grid::_Save_Binary(FILE *Stream, int xA, int yA, int xN, int yN, TSG_Gr
 						}
 					}
 
-					fwrite(Line		, nxBytes	, sizeof(char), Stream);
+					Stream.Write(Line, sizeof(char), nxBytes);
 				}
 
 				SG_Free(Line);
@@ -391,7 +391,7 @@ bool CSG_Grid::_Save_Binary(FILE *Stream, int xA, int yA, int xN, int yN, TSG_Gr
 
 				for(iy=0; iy<yN && SG_UI_Process_Set_Progress(iy, yN); iy++, y+=dy)
 				{
-					fwrite((char *)m_Values[y] + axBytes, nxBytes, sizeof(char), Stream);
+					Stream.Write((char *)m_Values[y] + axBytes, sizeof(char), nxBytes);
 				}
 			}
 			else
@@ -422,7 +422,7 @@ bool CSG_Grid::_Save_Binary(FILE *Stream, int xA, int yA, int xN, int yN, TSG_Gr
 						}
 					}
 
-					fwrite(Line		, nxBytes	, sizeof(char), Stream);
+					Stream.Write(Line, sizeof(char), nxBytes);
 				}
 
 				SG_Free(Line);
@@ -446,12 +446,12 @@ bool CSG_Grid::_Save_Binary(FILE *Stream, int xA, int yA, int xN, int yN, TSG_Gr
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid::_Load_ASCII(FILE *Stream, TSG_Grid_Memory_Type Memory_Type, bool bFlip)
+bool CSG_Grid::_Load_ASCII(CSG_File &Stream, TSG_Grid_Memory_Type Memory_Type, bool bFlip)
 {
 	int		x, y, iy, dy;
 	double	Value;
 
-	if( Stream && m_System.is_Valid() && m_Type > 0 && m_Type < GRID_TYPE_Count && _Memory_Create(Memory_Type) )
+	if( Stream.is_Open() && m_System.is_Valid() && m_Type > 0 && m_Type < GRID_TYPE_Count && _Memory_Create(Memory_Type) )
 	{
 		Set_File_Type(GRID_FILE_FORMAT_ASCII);
 
@@ -471,7 +471,7 @@ bool CSG_Grid::_Load_ASCII(FILE *Stream, TSG_Grid_Memory_Type Memory_Type, bool 
 		{
 			for(x=0; x<Get_NX(); x++)
 			{
-				fscanf(Stream, "%lf", &Value);
+				SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%lf"), &Value);
 
 				Set_Value(x, y, Value);
 			}
@@ -486,11 +486,11 @@ bool CSG_Grid::_Load_ASCII(FILE *Stream, TSG_Grid_Memory_Type Memory_Type, bool 
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::_Save_ASCII(FILE *Stream, int xA, int yA, int xN, int yN, bool bFlip)
+bool CSG_Grid::_Save_ASCII(CSG_File &Stream, int xA, int yA, int xN, int yN, bool bFlip)
 {
 	int		x, y, ix, iy, dy;
 
-	if( Stream && is_Valid() )
+	if( Stream.is_Open() && is_Valid() )
 	{
 		Set_File_Type(GRID_FILE_FORMAT_ASCII);
 
@@ -510,10 +510,10 @@ bool CSG_Grid::_Save_ASCII(FILE *Stream, int xA, int yA, int xN, int yN, bool bF
 		{
 			for(ix=0, x=xA; ix<xN; ix++, x++)
 			{
-				fprintf(Stream, "%lf ", asDouble(x, y));
+				Stream.Printf(SG_T("%lf "), asDouble(x, y));
 			}
 
-			fprintf(Stream, "\n");
+			Stream.Printf(SG_T("\n"));
 		}
 
 		SG_UI_Process_Set_Ready();
@@ -532,20 +532,20 @@ bool CSG_Grid::_Save_ASCII(FILE *Stream, int xA, int yA, int xN, int yN, bool bF
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid::_Load_Native(const char *File_Header, TSG_Grid_Memory_Type Memory_Type)
+bool CSG_Grid::_Load_Native(const SG_Char *File_Header, TSG_Grid_Memory_Type Memory_Type)
 {
 	bool			bResult, hdr_bFlip, hdr_bSwapBytes;
 	int				iType, hdr_Offset, NX, NY;
 	double			Cellsize, xMin, yMin;
-	FILE			*Stream;
-	TSG_Grid_Type		hdr_Type;
+	CSG_File		Stream;
+	TSG_Grid_Type	hdr_Type;
 	CSG_Grid_System	System;
 	CSG_String		File_Data, Value;
 
 	//-----------------------------------------------------
 	bResult	= false;
 
-	if( File_Header && (Stream = fopen(File_Header, "r")) != NULL )
+	if( Stream.Open(File_Header, SG_FILE_R, false) )
 	{
 		//-------------------------------------------------
 		// Load Header...
@@ -603,9 +603,7 @@ bool CSG_Grid::_Load_Native(const char *File_Header, TSG_Grid_Memory_Type Memory
 				break;
 			}
 		}
-		while( !feof(Stream) );
-
-		fclose(Stream);
+		while( !Stream.is_EOF() );
 
 
 		//-------------------------------------------------
@@ -623,13 +621,12 @@ bool CSG_Grid::_Load_Native(const char *File_Header, TSG_Grid_Memory_Type Memory
 					m_Type	= GRID_TYPE_Float;
 				}
 
-				if(	(File_Data.Length() > 0 && (Stream = fopen(File_Data			, "r")) != NULL)
-				||	(Stream = fopen(SG_File_Make_Path(NULL, File_Header,  "dat")	, "r")) != NULL
-				||	(Stream = fopen(SG_File_Make_Path(NULL, File_Header, "sdat")	, "r")) != NULL )
+				if(	Stream.Open(File_Data											, SG_FILE_R, false)
+				||	Stream.Open(SG_File_Make_Path(NULL, File_Header, SG_T( "dat"))	, SG_FILE_R, false)
+				||	Stream.Open(SG_File_Make_Path(NULL, File_Header, SG_T("sdat"))	, SG_FILE_R, false) )
 				{
-					fseek(Stream, hdr_Offset, SEEK_SET);
+					Stream.Seek(hdr_Offset);
 					bResult	= _Load_ASCII(Stream, Memory_Type);
-					fclose(Stream);
 				}
 			}
 
@@ -650,13 +647,12 @@ bool CSG_Grid::_Load_Native(const char *File_Header, TSG_Grid_Memory_Type Memory
 
 				if( _Memory_Create(Memory_Type) )
 				{
-					if(	(File_Data.Length() > 0 && (Stream = fopen(File_Data			, "rb")) != NULL)
-					||	(Stream = fopen(SG_File_Make_Path(NULL, File_Header,  "dat")	, "rb")) != NULL
-					||	(Stream = fopen(SG_File_Make_Path(NULL, File_Header, "sdat")	, "rb")) != NULL )
+					if(	Stream.Open(File_Data											, SG_FILE_R, true)
+					||	Stream.Open(SG_File_Make_Path(NULL, File_Header, SG_T( "dat"))	, SG_FILE_R, true)
+					||	Stream.Open(SG_File_Make_Path(NULL, File_Header, SG_T("sdat"))	, SG_FILE_R, true) )
 					{
-						fseek(Stream, hdr_Offset, SEEK_SET);
+						Stream.Seek(hdr_Offset);
 						bResult	= _Load_Binary(Stream, hdr_Type, hdr_bFlip, hdr_bSwapBytes);
-						fclose(Stream);
 					}
 				}
 			}
@@ -667,38 +663,36 @@ bool CSG_Grid::_Load_Native(const char *File_Header, TSG_Grid_Memory_Type Memory
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::_Save_Native(const char *File_Name, int xA, int yA, int xN, int yN, bool bBinary)
+bool CSG_Grid::_Save_Native(const SG_Char *File_Name, int xA, int yA, int xN, int yN, bool bBinary)
 {
 	bool		bResult		= false;
-	FILE		*Stream;
+	CSG_File	Stream;
 
-	if(	(Stream = fopen(File_Name, "w")) != NULL )
+	if(	Stream.Open(File_Name, SG_FILE_W, false) )
 	{
 		//-------------------------------------------------
 		// Header...
 
-		fprintf(Stream, "%s\t= %s\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_NAME			], Get_Name() );
-		fprintf(Stream, "%s\t= %s\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_DESCRIPTION	], Get_Description() );
-		fprintf(Stream, "%s\t= %s\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_UNITNAME		], Get_Unit() );
-		fprintf(Stream, "%s\t= %d\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_DATAFILE_OFFSET], 0 );
-		fprintf(Stream, "%s\t= %s\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_DATAFORMAT		], gSG_Grid_Type_Names[bBinary ? Get_Type() : 0] );
-		fprintf(Stream, "%s\t= %s\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_BYTEORDER_BIG	], GRID_FILE_KEY_FALSE );
-		fprintf(Stream, "%s\t= %f\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_POSITION_XMIN	], Get_XMin() + Get_Cellsize() * xA );
-		fprintf(Stream, "%s\t= %f\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_POSITION_YMIN	], Get_YMin() + Get_Cellsize() * yA );
-		fprintf(Stream, "%s\t= %d\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_CELLCOUNT_X	], xN );
-		fprintf(Stream, "%s\t= %d\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_CELLCOUNT_Y	], yN );
-		fprintf(Stream, "%s\t= %f\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_CELLSIZE		], Get_Cellsize() );
-		fprintf(Stream, "%s\t= %f\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_Z_FACTOR		], m_zFactor );
-		fprintf(Stream, "%s\t= %f\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_NODATA_VALUE	], m_NoData_Value );
-		fprintf(Stream, "%s\t= %s\n", gSG_Grid_File_Key_Names[ GRID_FILE_KEY_TOPTOBOTTOM	], GRID_FILE_KEY_FALSE );
-
-		fclose(Stream);
+		Stream.Printf(SG_T("%s\t= %s\n"), gSG_Grid_File_Key_Names[ GRID_FILE_KEY_NAME			], Get_Name() );
+		Stream.Printf(SG_T("%s\t= %s\n"), gSG_Grid_File_Key_Names[ GRID_FILE_KEY_DESCRIPTION	], Get_Description() );
+		Stream.Printf(SG_T("%s\t= %s\n"), gSG_Grid_File_Key_Names[ GRID_FILE_KEY_UNITNAME		], Get_Unit() );
+		Stream.Printf(SG_T("%s\t= %d\n"), gSG_Grid_File_Key_Names[ GRID_FILE_KEY_DATAFILE_OFFSET], 0 );
+		Stream.Printf(SG_T("%s\t= %s\n"), gSG_Grid_File_Key_Names[ GRID_FILE_KEY_DATAFORMAT		], gSG_Grid_Type_Names[bBinary ? Get_Type() : 0] );
+		Stream.Printf(SG_T("%s\t= %s\n"), gSG_Grid_File_Key_Names[ GRID_FILE_KEY_BYTEORDER_BIG	], GRID_FILE_KEY_FALSE );
+		Stream.Printf(SG_T("%s\t= %f\n"), gSG_Grid_File_Key_Names[ GRID_FILE_KEY_POSITION_XMIN	], Get_XMin() + Get_Cellsize() * xA );
+		Stream.Printf(SG_T("%s\t= %f\n"), gSG_Grid_File_Key_Names[ GRID_FILE_KEY_POSITION_YMIN	], Get_YMin() + Get_Cellsize() * yA );
+		Stream.Printf(SG_T("%s\t= %d\n"), gSG_Grid_File_Key_Names[ GRID_FILE_KEY_CELLCOUNT_X	], xN );
+		Stream.Printf(SG_T("%s\t= %d\n"), gSG_Grid_File_Key_Names[ GRID_FILE_KEY_CELLCOUNT_Y	], yN );
+		Stream.Printf(SG_T("%s\t= %f\n"), gSG_Grid_File_Key_Names[ GRID_FILE_KEY_CELLSIZE		], Get_Cellsize() );
+		Stream.Printf(SG_T("%s\t= %f\n"), gSG_Grid_File_Key_Names[ GRID_FILE_KEY_Z_FACTOR		], m_zFactor );
+		Stream.Printf(SG_T("%s\t= %f\n"), gSG_Grid_File_Key_Names[ GRID_FILE_KEY_NODATA_VALUE	], m_NoData_Value );
+		Stream.Printf(SG_T("%s\t= %s\n"), gSG_Grid_File_Key_Names[ GRID_FILE_KEY_TOPTOBOTTOM	], GRID_FILE_KEY_FALSE );
 
 
 		//-------------------------------------------------
 		// Data...
 
-		if( (Stream = fopen(SG_File_Make_Path(NULL, File_Name, "sdat"), "wb")) != NULL )
+		if( Stream.Open(SG_File_Make_Path(NULL, File_Name, SG_T("sdat")), SG_FILE_W, true) )
 		{
 			if( bBinary )
 			{
@@ -708,8 +702,6 @@ bool CSG_Grid::_Save_Native(const char *File_Name, int xA, int yA, int xN, int y
 			{
 				bResult		= _Save_ASCII	(Stream, xA, yA, xN, yN);
 			}
-
-			fclose(Stream);
 		}
 	}
 
@@ -724,12 +716,12 @@ bool CSG_Grid::_Save_Native(const char *File_Name, int xA, int yA, int xN, int y
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSG_Grid::_Load_Native_Get_Key(FILE *Stream, CSG_String &Value)
+int CSG_Grid::_Load_Native_Get_Key(CSG_File &Stream, CSG_String &Value)
 {
 	int			i;
 	CSG_String	sLine;
 
-	if( SG_Read_Line(Stream, sLine) && (i = sLine.Find('=')) > 0 )
+	if( Stream.Read_Line(sLine) && (i = sLine.Find('=')) > 0 )
 	{
 		Value.Printf(sLine.AfterFirst('='));
 		Value.Remove_WhiteChars();
@@ -756,51 +748,51 @@ int CSG_Grid::_Load_Native_Get_Key(FILE *Stream, CSG_String &Value)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid::_Load_Surfer(const char *File_Name, TSG_Grid_Memory_Type Memory_Type)
+bool CSG_Grid::_Load_Surfer(const SG_Char *File_Name, TSG_Grid_Memory_Type Memory_Type)
 {
-	bool	bResult		= false;
-	char	Identifier[4];
-	short	sValue;
-	int		x, y, NX, NY;
-	float	*fLine;
-	double	dValue, xMin, yMin, Cellsize;
-	FILE	*Stream;
+	bool		bResult		= false;
+	char		Identifier[4];
+	short		sValue;
+	int			x, y, NX, NY;
+	float		*fLine;
+	double		dValue, xMin, yMin, Cellsize;
+	CSG_File	Stream;
 
-	if( (Stream = fopen(File_Name, "rb")) != NULL )
+	if( Stream.Open(File_Name, SG_FILE_R, true) )
 	{
-		fread(Identifier, 4, sizeof(char), Stream);
+		Stream.Read(Identifier, sizeof(char), 4);
 
 		//-------------------------------------------------
 		// Binary...
 
 		if( !strncmp(Identifier, "DSBB", 4) )
 		{
-			fread(&sValue	, 1, sizeof(short)	, Stream);
+			Stream.Read(&sValue	, sizeof(short));
 			NX			= sValue;
-			fread(&sValue	, 1, sizeof(short)	, Stream);
+			Stream.Read(&sValue	, sizeof(short));
 			NY			= sValue;
 
-			fread(&xMin		, 1, sizeof(double)	, Stream);
-			fread(&dValue	, 1, sizeof(double)	, Stream);	// XMax
+			Stream.Read(&xMin	, sizeof(double));
+			Stream.Read(&dValue	, sizeof(double));	// XMax
 			Cellsize	= (dValue - xMin) / (NX - 1.0);
 
-			fread(&yMin		, 1, sizeof(double)	, Stream);
-			fread(&dValue	, 1, sizeof(double)	, Stream);	// YMax...
+			Stream.Read(&yMin	, sizeof(double));
+			Stream.Read(&dValue	, sizeof(double));	// YMax...
 			//DY		= (dValue - yMin) / (NY - 1.0);		// we could check, if cellsizes (x/y) equal...
 
-			fread(&dValue	, 1, sizeof(double)	, Stream);	// ZMin...
-			fread(&dValue	, 1, sizeof(double)	, Stream);	// ZMax...
+			Stream.Read(&dValue	, sizeof(double));	// ZMin...
+			Stream.Read(&dValue	, sizeof(double));	// ZMax...
 
 			//---------------------------------------------
-			if( !feof(Stream) && Create(GRID_TYPE_Float, NX, NY, Cellsize, xMin, yMin, Memory_Type) )
+			if( !Stream.is_EOF() && Create(GRID_TYPE_Float, NX, NY, Cellsize, xMin, yMin, Memory_Type) )
 			{
 				bResult	= true;
 
 				fLine	= (float *)SG_Malloc(Get_NX() * sizeof(float));
 
-				for(y=0; y<Get_NY() && !feof(Stream) && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+				for(y=0; y<Get_NY() && !Stream.is_EOF() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 				{
-					fread(fLine, Get_NX(), sizeof(float), Stream);
+					Stream.Read(fLine, sizeof(float), Get_NX());
 
 					for(x=0; x<Get_NX(); x++)
 					{
@@ -818,26 +810,26 @@ bool CSG_Grid::_Load_Surfer(const char *File_Name, TSG_Grid_Memory_Type Memory_T
 
 		else if( !strncmp(Identifier, "DSAA", 4) )
 		{
-			fscanf(Stream, "%d %d"	, &NX	, &NY);
+			SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%d %d")	, &NX	, &NY);
 
-			fscanf(Stream, "%lf %lf", &xMin	, &dValue);
+			SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%lf %lf"), &xMin	, &dValue);
 			Cellsize	= (dValue - xMin) / (NX - 1.0);
 
-			fscanf(Stream, "%lf %lf", &yMin	, &dValue);
+			SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%lf %lf"), &yMin	, &dValue);
 			//DY		= (dValue - yMin) / (NY - 1.0);
 
-			fscanf(Stream, "%lf %lf", &dValue, &dValue);
+			SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%lf %lf"), &dValue, &dValue);
 
 			//---------------------------------------------
-			if( !feof(Stream) && Create(GRID_TYPE_Float, NX, NY, Cellsize, xMin, yMin, Memory_Type) )
+			if( !Stream.is_EOF() && Create(GRID_TYPE_Float, NX, NY, Cellsize, xMin, yMin, Memory_Type) )
 			{
 				bResult	= true;
 
-				for(y=0; y<Get_NY() && !feof(Stream) && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+				for(y=0; y<Get_NY() && !Stream.is_EOF() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 				{
 					for(x=0; x<Get_NX(); x++)
 					{
-						fscanf(Stream, "%lf", &dValue);
+						SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%lf"), &dValue);
 
 						Set_Value(x, y, dValue);
 					}
@@ -846,8 +838,6 @@ bool CSG_Grid::_Load_Surfer(const char *File_Name, TSG_Grid_Memory_Type Memory_T
 		}
 
 		//-------------------------------------------------
-		fclose(Stream);
-
 		SG_UI_Process_Set_Ready();
 	}
 

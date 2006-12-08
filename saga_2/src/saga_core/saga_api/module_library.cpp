@@ -76,18 +76,18 @@
 //---------------------------------------------------------
 #if defined(_SAGA_MSW)
 
-	#define ENV_LIB_PATH	"PATH"
-	#define ENV_LIB_SEPA	';'
+	#define ENV_LIB_PATH	SG_T("PATH")
+	#define ENV_LIB_SEPA	SG_T(';')
 
 #elif defined(_SAGA_LINUX)
 
-	#define ENV_LIB_PATH	"LD_LIBRARY_PATH"
-	#define ENV_LIB_SEPA	':'
+	#define ENV_LIB_PATH	SG_T("LD_LIBRARY_PATH")
+	#define ENV_LIB_SEPA	SG_T(':')
 
 #else
 
-	#define ENV_LIB_PATH	"PATH"
-	#define ENV_LIB_SEPA	';'
+	#define ENV_LIB_PATH	SG_T("PATH")
+	#define ENV_LIB_SEPA	SG_T(';')
 
 #endif
 
@@ -105,7 +105,7 @@ CSG_Module_Library::CSG_Module_Library(void)
 }
 
 //---------------------------------------------------------
-CSG_Module_Library::CSG_Module_Library(const char *File_Name)
+CSG_Module_Library::CSG_Module_Library(const SG_Char *File_Name)
 {
 	_On_Construction();
 
@@ -136,7 +136,7 @@ void CSG_Module_Library::_On_Construction(void)
 }
 
 //---------------------------------------------------------
-bool CSG_Module_Library::Create(const char *File_Name)
+bool CSG_Module_Library::Create(const SG_Char *File_Name)
 {
 	Destroy();
 
@@ -152,7 +152,7 @@ bool CSG_Module_Library::Create(const char *File_Name)
 	//-----------------------------------------------------
 	if( wxGetEnv(ENV_LIB_PATH, &sPath) && sPath.Length() > 0 )
 	{
-		wxSetEnv(ENV_LIB_PATH, CSG_String::Format("%s%c%s", sPath.c_str(), ENV_LIB_SEPA, SG_File_Get_Path(m_File_Name).c_str()));
+		wxSetEnv(ENV_LIB_PATH, CSG_String::Format(SG_T("%s%c%s"), sPath.c_str(), ENV_LIB_SEPA, SG_File_Get_Path(m_File_Name).c_str()));
 	}
 	else
 	{
@@ -213,14 +213,14 @@ bool CSG_Module_Library::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char * CSG_Module_Library::Get_Info(int Type)
+const SG_Char * CSG_Module_Library::Get_Info(int Type)
 {
 	if( m_pInterface != NULL )
 	{
 		return( m_pInterface->Get_Info(Type) );
 	}
 
-	return( "" );
+	return( SG_T("") );
 }
 
 //---------------------------------------------------------
@@ -261,7 +261,7 @@ CSG_String CSG_Module_Library::Get_Summary(bool bHTML)
 	if( bHTML )
 	{
 		s.Printf(
-			"%s: <b>%s</b><br>%s: <i>%s</i><br>%s: <i>%s</i><br>%s: <i>%s</i><hr>%s",
+			SG_T("%s: <b>%s</b><br>%s: <i>%s</i><br>%s: <i>%s</i><br>%s: <i>%s</i><hr>%s"),
 			LNG("[CAP] Module Library")	, Get_Info(MLB_INFO_Name),
 			LNG("[CAP] Author")			, Get_Info(MLB_INFO_Author),
 			LNG("[CAP] Version")		, Get_Info(MLB_INFO_Version),
@@ -269,21 +269,21 @@ CSG_String CSG_Module_Library::Get_Summary(bool bHTML)
 			Get_Info(MLB_INFO_Description)
 		);
 
-		s.Append(CSG_String::Format("<hr><b>%s:<ul>", LNG("[CAP] Modules")));
+		s.Append(CSG_String::Format(SG_T("<hr><b>%s:<ul>"), LNG("[CAP] Modules")));
 
 		for(int i=0; i<Get_Count(); i++)
 		{
-			s.Append(CSG_String::Format("<li>%s</li>", Get_Module(i)->Get_Name()));
+			s.Append(CSG_String::Format(SG_T("<li>%s</li>"), Get_Module(i)->Get_Name()));
 		}
 
-		s.Append("</ul>");
+		s.Append(SG_T("</ul>"));
 
-		s.Replace("\n", "<br>");
+		s.Replace(SG_T("\n"), SG_T("<br>"));
 	}
 	else
 	{
 		s.Printf(
-			"%s: %s\n%s: %s\n%s: %s\n%s: %s\n\n%s",
+			SG_T("%s: %s\n%s: %s\n%s: %s\n%s: %s\n\n%s"),
 			LNG("[CAP] Module Library")	, Get_Info(MLB_INFO_Name),
 			LNG("[CAP] Author")			, Get_Info(MLB_INFO_Author),
 			LNG("[CAP] Version")		, Get_Info(MLB_INFO_Version),
@@ -291,11 +291,11 @@ CSG_String CSG_Module_Library::Get_Summary(bool bHTML)
 			Get_Info(MLB_INFO_Description)
 		);
 
-		s.Append(CSG_String::Format("\n\n%s:\n", LNG("[CAP] Modules")));
+		s.Append(CSG_String::Format(SG_T("\n\n%s:\n"), LNG("[CAP] Modules")));
 
 		for(int i=0; i<Get_Count(); i++)
 		{
-			s.Append(CSG_String::Format("- %s\n", Get_Module(i)->Get_Name()));
+			s.Append(CSG_String::Format(SG_T("- %s\n"), Get_Module(i)->Get_Name()));
 		}
 	}
 
@@ -354,45 +354,45 @@ CSG_String CSG_Module_Library::Get_Menu(int i)
 	if( Get_Module(i) != NULL )
 	{
 		bool		bAbsolute	= false;
-		const char	*sModule	= Get_Module(i)->Get_MenuPath();
+		const SG_Char	*sModule	= Get_Module(i)->Get_MenuPath();
 
-		if( sModule != NULL && strlen(sModule) > 1 && sModule[1] == ':' )
+		if( sModule && *sModule && *(sModule + 1) == ':' )
 		{
-			bAbsolute	= sModule[0] == 'A' || sModule[0] == 'a';
+			bAbsolute	= sModule[0] == SG_T('A') || sModule[0] == SG_T('a');
 			sModule		+= 2;
 		}
 
 		if( bAbsolute )	// menu path is relative to top menu...
 		{
-			if( sModule != NULL && strlen(sModule) > 0 )
+			if( sModule && *sModule )
 			{
-				sMenu.Printf("%s", sModule);
+				sMenu.Printf(SG_T("%s"), sModule);
 			}
 		}
 		else			// menu path is relative to library menu...
 		{
-			const char	*sLibrary	= Get_Info(MLB_INFO_Menu_Path);
+			const SG_Char	*sLibrary	= Get_Info(MLB_INFO_Menu_Path);
 
-			if( sModule != NULL && strlen(sModule) > 0 )
+			if( sModule && *sModule )
 			{
-				if( sLibrary != NULL && strlen(sLibrary) > 0 )
+				if( sLibrary && *sLibrary )
 				{
-					sMenu.Printf("%s|%s", sLibrary, sModule);
+					sMenu.Printf(SG_T("%s|%s"), sLibrary, sModule);
 				}
 				else
 				{
-					sMenu.Printf("%s", sModule);
+					sMenu.Printf(SG_T("%s"), sModule);
 				}
 			}
-			else if( sLibrary != NULL && strlen(sLibrary) > 0 )
+			else if( sLibrary && *sLibrary )
 			{
-				sMenu.Printf("%s", sLibrary);
+				sMenu.Printf(SG_T("%s"), sLibrary);
 			}
 		}
 
 		if( sMenu.Length() > 0 )
 		{
-			sMenu.Append("|");
+			sMenu.Append(SG_T("|"));
 		}
 
 		sMenu.Append(Get_Info(MLB_INFO_Name));

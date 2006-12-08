@@ -30,19 +30,19 @@
 CForecasting::CForecasting(void){
 
 	Parameters.Set_Name(_TL("Fire Risk Analysis"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2004 Victor Olaya. Fire Risk Analysis"));
 
 	Parameters.Add_Grid(NULL, 
 						"DEM", 
 						_TL("DEM"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"FUEL", 
 						_TL("Fuel Model"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
@@ -60,61 +60,61 @@ CForecasting::CForecasting(void){
 	Parameters.Add_Grid(NULL, 
 						"M1H", 
 						_TL("Dead Fuel Moisture 1H"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"M10H", 
 						_TL("Dead Fuel Moisture 10H"),
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"M100H", 
 						_TL("Dead Fuel Moisture 100H"),
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"MHERB", 
 						_TL("Herbaceous Fuel Moisture"),
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"MWOOD", 
 						_TL("Wood Fuel Moisture"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"VALUE", 
 						_TL("Value"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT_OPTIONAL);
 	
 	Parameters.Add_Grid(NULL, 
 						"BASEPROB", 
 						_TL("Base Probability"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT_OPTIONAL);	
 	
 	Parameters.Add_Grid(NULL, 
 						"DANGER", 
 						_TL("Danger"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT);
 	
 	Parameters.Add_Grid(NULL, 
 						"COMPPROB", 
 						_TL("Compound Probability"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"PRIORITY", 
 						_TL("Priority Index"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT);
 
 	Parameters.Add_Value(NULL,
@@ -292,12 +292,12 @@ void CForecasting::CalculateGrids(){
 	m_AdjPoints		.Clear();
 
 	m_pDangerGrid->Set_NoData_Value(0.0);
-	m_pDangerGrid->Set_Unit("m2/h");
+	m_pDangerGrid->Set_Unit(_TL("m2/h"));
 	
 	Process_Set_Text(_TL("Closing Gaps..."));
 
 	CGrid_Gaps pGaps;
-	if(	!pGaps.Get_Parameters()->Set_Parameter("INPUT", PARAMETER_TYPE_Grid, m_pDangerGrid)
+	if(	!pGaps.Get_Parameters()->Set_Parameter(SG_T("INPUT"), PARAMETER_TYPE_Grid, m_pDangerGrid)
 	||	!pGaps.Execute() ){
 		return;
 	}//if
@@ -314,10 +314,11 @@ void CForecasting::CalculateGrids(){
 	float dRatio = (float)(dTotalBurntArea / (m_pDEM->Get_Cellsize() * m_pDEM->Get_Cellsize()));
 	if (dRatio < MIN_RATIO_BURNT_AREA){
 		iRecommendedNumFires =(int)((float) m_iNumEvents / dRatio * (float) MIN_RATIO_BURNT_AREA);
-		sMessage.Printf(_TL("** Warning : Number of events might not be representative.\n"
-					"Minimum number recommended: "));
+		sMessage.Printf(
+			_TL("** Warning : Number of events might not be representative.\nMinimum number recommended: ")
+		);
 		sMessage	+= SG_Get_String(iRecommendedNumFires, 0);
-		sMessage	+= "\n";
+		sMessage	+= SG_T("\n");
 		Message_Add(sMessage.c_str());
 	}//if
 

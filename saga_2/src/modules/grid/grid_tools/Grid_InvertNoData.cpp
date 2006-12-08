@@ -22,18 +22,18 @@
 CInvertNoData::CInvertNoData(void){
 
 	Parameters.Set_Name(_TL("Invert Data/No-Data"));
-	Parameters.Set_Description(_TL("(c) 2005 Victor Olaya."));
+	Parameters.Set_Description(_TW("(c) 2005 Victor Olaya."));
 
 	Parameters.Add_Grid(NULL, 
 						"INPUT",
 						_TL("Grid"), 						
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 	
 	Parameters.Add_Grid(NULL, 
 						"OUTPUT",
 						_TL("Result"), 						
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT);
 }//constructor
 

@@ -82,18 +82,20 @@ CGrid_Polygon_Clip::CGrid_Polygon_Clip(void)
 {
 	//-----------------------------------------------------
 	// 1. Info...
-	Set_Name("Clip Grid with Polygon");
+	Set_Name		(_TL("Clip Grid with Polygon"));
 
-	Set_Author("copyrights (c) 2006 Stefan Liersch");
+	Set_Author		(_TL("copyrights (c) 2006 Stefan Liersch"));
 
-	Set_Description("Clip Grid with Polygon");
+	Set_Description	(_TW(
+		"Clip Grid with Polygon"
+	));
 
 	//-----------------------------------------------------
 	// Parameters list...
 
 	Parameters.Add_Grid_Output(
 		NULL, "GRIDout"	, _TL("Output"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Grid(
@@ -104,7 +106,7 @@ CGrid_Polygon_Clip::CGrid_Polygon_Clip(void)
 
 	Parameters.Add_Shapes(
 		NULL, "POLY"	, _TL("Polygons"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 

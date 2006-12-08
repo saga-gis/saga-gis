@@ -76,25 +76,25 @@ CGridding_Spline_Base::CGridding_Spline_Base(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid_Output(
 		NULL	, "GRID"		, _TL("Grid"),
-		""
+		_TL("")
 	);
 
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES"		, _TL("Points"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table_Field(
 		pNode	, "FIELD"		, _TL("Attribute"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "TARGET"		, _TL("Target Grid"),
-		"",
+		_TL(""),
 
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("user defined"),
 			_TL("grid system"),
 			_TL("grid")
@@ -102,11 +102,11 @@ CGridding_Spline_Base::CGridding_Spline_Base(void)
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("USER", _TL("User defined grid")	, "");
+	pParameters	= Add_Parameters("USER", _TL("User defined grid")	, _TL(""));
 
 	pParameters->Add_Value(
 		NULL	, "CELL_SIZE"	, _TL("Grid Size"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 100.0, 0.0, true
 	);
 
@@ -118,28 +118,28 @@ CGridding_Spline_Base::CGridding_Spline_Base(void)
 
 	pParameters->Add_Range(
 		pNode	, "X_EXTENT"	, _TL("X-Extent"),
-		""
+		_TL("")
 	);
 
 	pParameters->Add_Range(
 		pNode	, "Y_EXTENT"	, _TL("Y-Extent"),
-		""
+		_TL("")
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("SYSTEM"	, _TL("Choose Grid System")	, "");
+	pParameters	= Add_Parameters("SYSTEM"	, _TL("Choose Grid System")	, _TL(""));
 
 	pParameters->Add_Grid_System(
 		NULL	, "SYSTEM"		, _TL("Grid System"),
-		""
+		_TL("")
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GRID"	, _TL("Choose Grid")		, "");
+	pParameters	= Add_Parameters("GRID"	, _TL("Choose Grid")		, _TL(""));
 
 	pParameters->Add_Grid(
 		NULL	, "GRID"		, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT	, false
 	);
 }
@@ -234,7 +234,7 @@ bool CGridding_Spline_Base::_Get_Grid(void)
 	//-------------------------------------------------
 	if( m_pGrid )
 	{
-		m_pGrid->Set_Name(CSG_String::Format("%s (%s)", pShapes->Get_Name(), Get_Name()));
+		m_pGrid->Set_Name(CSG_String::Format(SG_T("%s (%s)"), pShapes->Get_Name(), Get_Name()));
 		m_pGrid->Assign_NoData();
 		Parameters("GRID")->Set_Value(m_pGrid);
 	}

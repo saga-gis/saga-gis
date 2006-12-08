@@ -126,17 +126,20 @@ public:
 
 	virtual TSG_Module_Type		Get_Type					(void)	{	return( MODULE_TYPE_Base );	}
 
-	const char *				Get_Name					(void);
-	const char *				Get_Description				(void);
-	const char *				Get_Author					(void);
-	const char *				Get_Icon					(void)	{	return( NULL );	}
+	const SG_Char *				Get_Name					(void);
+	const SG_Char *				Get_Description				(void);
+	const SG_Char *				Get_Author					(void);
+	const SG_Char *				Get_Icon					(void)	{	return( NULL );	}
 
-	virtual const char *		Get_MenuPath				(void)	{	return( NULL );	}
+	virtual const SG_Char *		Get_MenuPath				(void)	{	return( NULL );	}
 
-	CSG_Parameters *			Get_Parameters				(void)	{	return( &Parameters );	}
-	CSG_Parameters *			Get_Parameters				(const char *Identifier);
-	CSG_Parameters *			Get_Parameters				(int i)	{	return( i >= 0 && i < m_npParameters ? m_pParameters[i] : NULL );	}
 	int							Get_Parameters_Count		(void)	{	return( m_npParameters );	}
+	CSG_Parameters *			Get_Parameters				(void)	{	return( &Parameters );	}
+	CSG_Parameters *			Get_Parameters				(int i)	{	return( i >= 0 && i < m_npParameters ? m_pParameters[i] : NULL );	}
+	CSG_Parameters *			Get_Parameters				(const SG_Char *Identifier);
+#ifdef _UNICODE
+	CSG_Parameters *			Get_Parameters				(const char    *Identifier);
+#endif
 
 	int							Garbage_Get_Count			(void)	{	return( m_nGarbage );		}
 	CSG_Data_Object *			Garbage_Get_Item			(int i)	{	return( i >= 0 && i < m_nGarbage ? m_Garbage[i] : NULL );	}
@@ -162,9 +165,9 @@ protected:
 
 
 	//-----------------------------------------------------
-	void						Set_Name					(const char *String);
-	void						Set_Description				(const char *String);
-	void						Set_Author					(const char *String);
+	void						Set_Name					(const SG_Char *String);
+	void						Set_Description				(const SG_Char *String);
+	void						Set_Author					(const SG_Char *String);
 
 	//-----------------------------------------------------
 	virtual bool				On_Execute					(void)		= 0;
@@ -173,23 +176,27 @@ protected:
 
 
 	//-----------------------------------------------------
-	CSG_Parameters *			Add_Parameters				(const char *Identifier, const char *Name, const char *Description);
-	bool						Dlg_Parameters				(const char *Identifier);
-	bool						Dlg_Parameters				(CSG_Parameters *pParameters, const char *Caption);
+	CSG_Parameters *			Add_Parameters				(const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description);
+	bool						Dlg_Parameters				(const SG_Char *Identifier);
+	bool						Dlg_Parameters				(CSG_Parameters *pParameters, const SG_Char *Caption);
+#ifdef _UNICODE
+	CSG_Parameters *			Add_Parameters				(const char    *Identifier, const SG_Char *Name, const SG_Char *Description);
+	bool						Dlg_Parameters				(const char    *Identifier);
+#endif
 
 
 	//-----------------------------------------------------
 	virtual bool				Process_Get_Okay			(bool bBlink);
-	virtual void				Process_Set_Text			(const char *Text);
+	virtual void				Process_Set_Text			(const SG_Char *Text);
 
 	virtual bool				Set_Progress				(int Position);
 	virtual bool				Set_Progress				(double Position, double Range);
 
-	void						Message_Add					(const char *Text, bool bNewLine = true);
-	void						Message_Dlg					(const char *Text, const char *Caption = NULL);
+	void						Message_Add					(const SG_Char *Text, bool bNewLine = true);
+	void						Message_Dlg					(const SG_Char *Text, const SG_Char *Caption = NULL);
 
 	bool						Error_Set					(TSG_Module_Error Error_ID = MODULE_ERROR_Unknown);
-	bool						Error_Set					(const char *Error_Text);
+	bool						Error_Set					(const SG_Char *Error_Text);
 
 
 	//-----------------------------------------------------
@@ -456,22 +463,22 @@ public:
 	CSG_Module_Library_Interface(void);
 	virtual ~CSG_Module_Library_Interface(void);
 
-	void						Set_Info				(int ID, const char *Info);
-	const char *				Get_Info				(int ID);
+	void						Set_Info				(int ID, const SG_Char *Info);
+	const SG_Char *				Get_Info				(int ID);
 
 	int							Get_Count				(void);
 	bool						Add_Module				(CSG_Module *pModule);
 	CSG_Module *				Get_Module				(int iModule);
 
-	void						Set_File_Name			(const char *File_Name);
-	const char *				Get_File_Name			(void);
+	void						Set_File_Name			(const SG_Char *File_Name);
+	const SG_Char *				Get_File_Name			(void);
 
-	const char *				Get_Translation			(const char *Text);
+	const SG_Char *				Get_Translation			(const SG_Char *Text);
 
 
 private:
 
-	const char					*m_Info[MLB_INFO_Count];
+	const SG_Char				*m_Info[MLB_INFO_Count];
 
 	int							m_nModules;
 
@@ -484,17 +491,17 @@ private:
 };
 
 //---------------------------------------------------------
-#define SYMBOL_MLB_Initialize			"MLB_Initialize"
-typedef bool							(* TSG_PFNC_MLB_Initialize)		(const char *);
+#define SYMBOL_MLB_Initialize			SG_T("MLB_Initialize")
+typedef bool							(* TSG_PFNC_MLB_Initialize)		(const SG_Char *);
 
 //---------------------------------------------------------
-#define SYMBOL_MLB_Get_Interface		"MLB_Get_Interface"
+#define SYMBOL_MLB_Get_Interface		SG_T("MLB_Get_Interface")
 typedef CSG_Module_Library_Interface *	(* TSG_PFNC_MLB_Get_Interface)	(void);
 
 //---------------------------------------------------------
 #define MLB_INTERFACE	CSG_Module_Library_Interface		MLB_Interface;\
 \
-extern "C" _SAGA_DLL_EXPORT bool							MLB_Initialize		(const char *File_Name)\
+extern "C" _SAGA_DLL_EXPORT bool							MLB_Initialize		(const SG_Char *File_Name)\
 {\
 	MLB_Interface.Set_File_Name(File_Name);\
 \
@@ -515,7 +522,7 @@ extern "C" _SAGA_DLL_EXPORT CSG_Module_Library_Interface *	MLB_Get_Interface   (
 	return( &MLB_Interface );\
 }\
 \
-extern "C" _SAGA_DLL_EXPORT const char *					Get_API_Version		(void)\
+extern "C" _SAGA_DLL_EXPORT const SG_Char *					Get_API_Version		(void)\
 {\
 	return( SAGA_API_VERSION );\
 }\
@@ -528,7 +535,13 @@ extern CSG_Module_Library_Interface	MLB_Interface;
 #endif	// #ifdef SWIG
 
 //---------------------------------------------------------
-#define _TL			MLB_Interface.Get_Translation
+#ifndef _UNICODE
+	#define _TL			MLB_Interface.Get_Translation
+	#define _TW			MLB_Interface.Get_Translation
+#else
+	#define _TL(s)		MLB_Interface.Get_Translation(SG_T(s))
+	#define _TW(s)		CSG_String(MLB_Interface.Get_Translation(CSG_String(s))).c_str()
+#endif
 
 
 ///////////////////////////////////////////////////////////

@@ -22,25 +22,25 @@
 CSortRaster::CSortRaster(void){
 
 	Parameters.Set_Name(_TL("Sort Grid"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2004 by Victor Olaya. Sort Grid"));
 
 	Parameters.Add_Grid(NULL, 
 						"GRID",
 						_TL("Input Grid"), 						
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 	
 	Parameters.Add_Grid(NULL, 
 						"OUTPUT",
 						_TL("Sorted Grid"), 						
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT);
 
 	Parameters.Add_Value(NULL,
 						"DOWN",
 						_TL("Down sort"),
-						"",
+						_TL(""),
 						PARAMETER_TYPE_Bool,
 						false);
 						

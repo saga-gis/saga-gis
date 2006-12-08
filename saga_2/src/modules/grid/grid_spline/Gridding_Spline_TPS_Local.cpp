@@ -75,7 +75,7 @@ CGridding_Spline_TPS_Local::CGridding_Spline_TPS_Local(void)
 
 	Set_Author		(_TL("Copyrights (c) 2006 by Olaf Conrad"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"Creates a 'Thin Plate Spline' function for each grid point "
 		"based on all of the scattered data points that are within a "
 		"given distance. The number of points can be limited to a "
@@ -99,15 +99,15 @@ CGridding_Spline_TPS_Local::CGridding_Spline_TPS_Local(void)
 	//-----------------------------------------------------
 	Parameters.Add_Value(
 		NULL	, "RADIUS"		, _TL("Search Radius"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 100.0
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "SELECT"		, _TL("Points Selection"),
-		"",
+		_TL(""),
 
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("all points in search radius"),
 			_TL("maximum number of points")
 		), 1
@@ -115,7 +115,7 @@ CGridding_Spline_TPS_Local::CGridding_Spline_TPS_Local(void)
 
 	Parameters.Add_Value(
 		NULL	, "MAXPOINTS"	, _TL("Maximum Number of Points"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int		, 10.0, 1, true
 	);
 

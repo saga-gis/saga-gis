@@ -23,19 +23,19 @@
 CRealArea::CRealArea(void){
 
 	Parameters.Set_Name(_TL("Real Area Calculation"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2004 by Victor Olaya. Calculates real (not proyected) cell area"));
 
 	Parameters.Add_Grid(NULL, 
 						"DEM",
 						_TL("Elevation"), 						
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"AREA", 
 						_TL("Real Area Grid"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
 						GRID_TYPE_Float);
@@ -56,9 +56,9 @@ bool CRealArea::On_Execute(void){
 
 	CMorphometry	Morphometry;
 
-	if(	!Morphometry.Get_Parameters()->Set_Parameter("ELEVATION", PARAMETER_TYPE_Grid, pDEM)
-	||	!Morphometry.Get_Parameters()->Set_Parameter("SLOPE", PARAMETER_TYPE_Grid, pSlope)
-	||	!Morphometry.Get_Parameters()->Set_Parameter("ASPECT", PARAMETER_TYPE_Grid, pAspect)
+	if(	!Morphometry.Get_Parameters()->Set_Parameter(SG_T("ELEVATION")	, PARAMETER_TYPE_Grid, pDEM)
+	||	!Morphometry.Get_Parameters()->Set_Parameter(SG_T("SLOPE")		, PARAMETER_TYPE_Grid, pSlope)
+	||	!Morphometry.Get_Parameters()->Set_Parameter(SG_T("ASPECT")		, PARAMETER_TYPE_Grid, pAspect)
 	||	!Morphometry.Execute() )
 	{
 		return( false );

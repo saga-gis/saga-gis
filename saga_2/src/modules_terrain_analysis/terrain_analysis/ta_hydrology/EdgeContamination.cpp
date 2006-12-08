@@ -25,19 +25,19 @@
 CEdgeContamination::CEdgeContamination(void){
 
 	Parameters.Set_Name(_TL("Edge Contamination"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2004 by Victor Olaya. "));
 
 	Parameters.Add_Grid(NULL, 
 						"DEM", 
 						_TL("Elevation"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"CONTAMINATION", 
 						_TL("Edge Contamination"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT);
 }//constructor
 

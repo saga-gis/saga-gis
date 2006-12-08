@@ -74,7 +74,7 @@ CFlow::CFlow(void)
 	bPoint			= false;
 
 	//-----------------------------------------------------
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"(c) 2001 by Olaf Conrad, Goettingen.\nemail: oconrad@gwdg.de")
 	);
 
@@ -84,19 +84,19 @@ CFlow::CFlow(void)
 
 	Parameters.Add_Grid(
 		NULL	, "ELEVATION"	, _TL("Elevation"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "SINKROUTE"	, _TL("Sink Routes"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "WEIGHT"		, _TL("Weight"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
@@ -106,19 +106,19 @@ CFlow::CFlow(void)
 
 	Parameters.Add_Grid(
 		NULL	, "CAREA"		, _TL("Catchment Area"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "CHEIGHT"		, _TL("Catchment Height"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "CSLOPE"		, _TL("Catchment Slope"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
@@ -128,7 +128,7 @@ CFlow::CFlow(void)
 
 	Parameters.Add_Value(
 		NULL	, "STEP"		, _TL("Step"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 1, 1, true
 	);
 }

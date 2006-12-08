@@ -79,7 +79,7 @@ CExercise_13::CExercise_13(void)
 
 	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Copy a shapes layer and move it to a new position.\n"
 		"(c) 2003 by Olaf Conrad, Goettingen\n"
 		"email: oconrad@gwdg.de")
@@ -107,64 +107,66 @@ CExercise_13::CExercise_13(void)
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"	, _TL("Method"),
-		"",
-		_TL(
-		"Translation|"
-		"Scaling|"
-		"Shearing|"
-		"Rotation|"
-		"Combination A|"
-		"Combination B|")
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|"),
+			_TL("Translation"),
+			_TL("Scaling"),
+			_TL("Shearing"),
+			_TL("Rotation"),
+			_TL("Combination A"),
+			_TL("Combination B")
+		)
 	);
 
 	//-----------------------------------------------------
 	// Transformation parameters...
 
-	pNode	= Parameters.Add_Node(NULL, "NODE_TRANS", _TL("Translation"), "");
+	pNode	= Parameters.Add_Node(NULL, "NODE_TRANS", _TL("Translation"), _TL(""));
 	Parameters.Add_Value(
-		pNode	, "TRANS_X"	, "X",
-		"",
+		pNode	, "TRANS_X"	, SG_T("X"),
+		_TL(""),
 		PARAMETER_TYPE_Double,
 		10.0
 	);
 	Parameters.Add_Value(
-		pNode	, "TRANS_Y"	, "Y",
-		"",
-		PARAMETER_TYPE_Double,
-		10.0
-	);
-
-	pNode	= Parameters.Add_Node(NULL, "NODE_SCALE", _TL("Scale factors")	, "");
-	Parameters.Add_Value(
-		pNode	, "SCALE_X"	, "X",
-		"",
-		PARAMETER_TYPE_Double,
-		10.0
-	);
-	Parameters.Add_Value(
-		pNode	, "SCALE_Y"	, "Y",
-		"",
+		pNode	, "TRANS_Y"	, SG_T("Y"),
+		_TL(""),
 		PARAMETER_TYPE_Double,
 		10.0
 	);
 
-	pNode	= Parameters.Add_Node(NULL, "NODE_SHEAR", _TL("Shear factors")	, "");
+	pNode	= Parameters.Add_Node(NULL, "NODE_SCALE", _TL("Scale factors")	, _TL(""));
 	Parameters.Add_Value(
-		pNode	, "SHEAR_X"	, "X",
-		"",
+		pNode	, "SCALE_X"	, SG_T("X"),
+		_TL(""),
+		PARAMETER_TYPE_Double,
+		10.0
+	);
+	Parameters.Add_Value(
+		pNode	, "SCALE_Y"	, SG_T("Y"),
+		_TL(""),
+		PARAMETER_TYPE_Double,
+		10.0
+	);
+
+	pNode	= Parameters.Add_Node(NULL, "NODE_SHEAR", _TL("Shear factors")	, _TL(""));
+	Parameters.Add_Value(
+		pNode	, "SHEAR_X"	, SG_T("X"),
+		_TL(""),
 		PARAMETER_TYPE_Double,
 		0.5
 	);
 	Parameters.Add_Value(
-		pNode	, "SHEAR_Y"	, "Y",
-		"",
+		pNode	, "SHEAR_Y"	, SG_T("Y"),
+		_TL(""),
 		PARAMETER_TYPE_Double,
 		0.5
 	);
 
 	Parameters.Add_Value(
 		NULL	, "ROTAT"	, _TL("Rotation angle [Degree]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double,
 		45.0
 	);

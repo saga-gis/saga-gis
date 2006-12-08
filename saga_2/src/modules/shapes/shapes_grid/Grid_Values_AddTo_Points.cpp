@@ -75,7 +75,7 @@ CGrid_Values_AddTo_Points::CGrid_Values_AddTo_Points(void)
 
 	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Retrieves information from the selected grids at the positions of the points of "
 		"the selected points layer and adds it to the resulting layer.")
 	);
@@ -84,31 +84,33 @@ CGrid_Values_AddTo_Points::CGrid_Values_AddTo_Points(void)
 	//-----------------------------------------------------
 	Parameters.Add_Shapes(
 		NULL	, "SHAPES"		, _TL("Points"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT			, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Grid_List(
 		NULL	, "GRIDS"		, _TL("Grids"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT			, false
 	);
 
 	Parameters.Add_Shapes(
 		NULL	, "RESULT"		, _TL("Result"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT		, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "INTERPOL"	, _TL("Interpolation"),
-		"",
-		_TL(
-		"Nearest Neighbor|"
-		"Bilinear Interpolation|"
-		"Inverse Distance Interpolation|"
-		"Bicubic Spline Interpolation|"
-		"B-Spline Interpolation|")	, 4
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+			_TL("Nearest Neighbor"),
+			_TL("Bilinear Interpolation"),
+			_TL("Inverse Distance Interpolation"),
+			_TL("Bicubic Spline Interpolation"),
+			_TL("B-Spline Interpolation")
+		), 4
 	);
 }
 

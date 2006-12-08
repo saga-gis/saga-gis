@@ -24,25 +24,25 @@ CCost_RectToPolar::CCost_RectToPolar(void){
 
 	Set_Name(_TL("Rect To Polar"));
 	Set_Author(_TL("Copyrights (c) 2004 by Victor Olaya"));
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"(c) 2004 by Victor Olaya. Rect to Polar conversion for paired Vector data."));
 
 	Parameters.Add_Grid(NULL, 
 						"X", 
 						_TL("X Component"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"Y", 
 						_TL("Y Component"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 	
 	Parameters.Add_Grid(NULL, 
 						"ANGLE", 
 						_TL("Angle. In radians"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
 						GRID_TYPE_Double);
@@ -50,7 +50,7 @@ CCost_RectToPolar::CCost_RectToPolar(void){
 	Parameters.Add_Grid(NULL, 
 						"MAGNITUDE", 
 						_TL("Magnitude"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
 						GRID_TYPE_Double);

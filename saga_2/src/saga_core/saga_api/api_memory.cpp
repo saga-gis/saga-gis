@@ -163,12 +163,12 @@ void		SG_Free(void *memblock)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void			SG_Swap_Bytes(void *Value, int nValueBytes)
+void			SG_Swap_Bytes(void *Buffer, int nBytes)
 {
 	char	Byte, *pA, *pB;
 
-	pA	= (char *)Value;
-	pB	= pA + nValueBytes - 1;
+	pA	= (char *)Buffer;
+	pB	= pA + nBytes - 1;
 
 	while( pA < pB )
 	{
@@ -176,6 +176,59 @@ void			SG_Swap_Bytes(void *Value, int nValueBytes)
 		*(pA++)	= *pB;
 		*(pB--)	= Byte;
 	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int				SG_Mem_Get_Int(const char *Buffer, bool bSwapBytes)
+{
+	int		Value	= *(int *)Buffer;
+
+	if( bSwapBytes )
+	{
+		SG_Swap_Bytes(&Value, sizeof(Value));
+	}
+
+	return( Value );
+}
+
+void			SG_Mem_Set_Int(char *Buffer, int Value, bool bSwapBytes)
+{
+	if( bSwapBytes )
+	{
+		SG_Swap_Bytes(&Value, sizeof(Value));
+	}
+
+	*((int *)Buffer)	= Value;
+}
+
+//---------------------------------------------------------
+double			SG_Mem_Get_Double(const char *Buffer, bool bSwapBytes)
+{
+	double	Value	= *(double *)Buffer;
+
+	if( bSwapBytes )
+	{
+		SG_Swap_Bytes(&Value, sizeof(Value));
+	}
+
+	return( Value );
+}
+
+void			SG_Mem_Set_Double(char *Buffer, double Value, bool bSwapBytes)
+{
+	if( bSwapBytes )
+	{
+		SG_Swap_Bytes(&Value, sizeof(Value));
+	}
+
+	*(double *)Buffer	= Value;
 }
 
 

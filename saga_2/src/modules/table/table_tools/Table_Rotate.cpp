@@ -78,13 +78,13 @@ CTable_Rotate::CTable_Rotate(void)
 
 	Parameters.Add_Table(
 		NULL	, "INPUT"	, _TL("Input"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table(
 		NULL	, "OUTPUT"	, _TL("Output"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 }

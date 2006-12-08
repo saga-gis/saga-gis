@@ -99,7 +99,7 @@ CSG_Trend::CFncParams::~CFncParams(void)
 }
 
 //---------------------------------------------------------
-bool CSG_Trend::CFncParams::Create(const char *Variables, int nVariables)
+bool CSG_Trend::CFncParams::Create(const SG_Char *Variables, int nVariables)
 {
 	int		i;
 
@@ -109,7 +109,7 @@ bool CSG_Trend::CFncParams::Create(const char *Variables, int nVariables)
 
 		m_Count		= nVariables;
 
-		m_Variables	= (char    *)SG_Calloc(m_Count, sizeof(char));
+		m_Variables	= (SG_Char *)SG_Calloc(m_Count, sizeof(SG_Char));
 		m_A			= (double  *)SG_Calloc(m_Count, sizeof(double));
 		m_Atry		= (double  *)SG_Calloc(m_Count, sizeof(double));
 		m_Beta		= (double  *)SG_Calloc(m_Count, sizeof(double));
@@ -189,7 +189,7 @@ CSG_Trend::~CSG_Trend(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Trend::Set_Formula(const char *Formula)
+bool CSG_Trend::Set_Formula(const SG_Char *Formula)
 {
 	m_bOkay	= false;
 
@@ -309,7 +309,7 @@ bool CSG_Trend::Set_Max_Lambda(double Lambda)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Trend::Get_Trend(double *xData, double *yData, int nData, const char *Formula)
+bool CSG_Trend::Get_Trend(double *xData, double *yData, int nData, const SG_Char *Formula)
 {
 	Set_Data(xData, yData, false);
 
@@ -322,7 +322,7 @@ bool CSG_Trend::Get_Trend(double *xData, double *yData, int nData, const char *F
 }
 
 //---------------------------------------------------------
-bool CSG_Trend::Get_Trend(const CSG_Points &Data, const char *Formula)
+bool CSG_Trend::Get_Trend(const CSG_Points &Data, const SG_Char *Formula)
 {
 	Set_Data(Data, false);
 
@@ -406,7 +406,7 @@ bool CSG_Trend::Get_Trend(void)
 CSG_String CSG_Trend::Get_Error(void)
 {
 	int			Position;
-	const char	*Message;
+	const SG_Char	*Message;
 	CSG_String	s;
 
 	if( m_bOkay )
@@ -414,11 +414,11 @@ CSG_String CSG_Trend::Get_Error(void)
 	}
 	else if( m_Formula.Get_Error(&Position, &Message) )
 	{
-		s.Printf("%s [%s] %s: %d. \"%s\"", LNG("Error in formula"), m_Formula.Get_Formula().c_str(), LNG("Position"), Position + 1, Message);
+		s.Printf(SG_T("%s [%s] %s: %d. \"%s\""), LNG("Error in formula"), m_Formula.Get_Formula().c_str(), LNG("Position"), Position + 1, Message);
 	}
 	else
 	{
-		s.Printf("%s", LNG("Error in Trend Calculation"));
+		s.Printf(SG_T("%s"), LNG("Error in Trend Calculation"));
 	}
 
 	return( s );
@@ -429,13 +429,13 @@ CSG_String CSG_Trend::Get_Formula(void)
 {
 	CSG_String	s;
 
-	s.Printf(CSG_String::Format("%s\n", m_Formula.Get_Formula().c_str()));
+	s.Printf(CSG_String::Format(SG_T("%s\n"), m_Formula.Get_Formula().c_str()));
 
 	if( m_bOkay )
 	{
 		for(int i=0; i<m_Params.m_Count; i++)
 		{
-			s.Append(CSG_String::Format("%c = %g\n", m_Params.m_Variables[i], m_Params.m_A[i]));
+			s.Append(CSG_String::Format(SG_T("%c = %g\n"), m_Params.m_Variables[i], m_Params.m_A[i]));
 		}
 	}
 

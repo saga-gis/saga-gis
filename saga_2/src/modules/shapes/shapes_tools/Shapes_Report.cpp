@@ -74,41 +74,43 @@ CShapes_Report::CShapes_Report(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name	(_TL("Create PDF Report for Shapes Layer"));
+	Set_Name		(_TL("Create PDF Report for Shapes Layer"));
 
-	Set_Author	("Olaf Conrad, Victor Olaya");
+	Set_Author		(_TL("Olaf Conrad, Victor Olaya"));
 
-	Set_Description(
-		_TL("")
-	);
+	Set_Description	(_TW(
+		""
+	));
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES"		, _TL("Shapes"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table_Field(
 		pNode	, "SUBTITLE"	, _TL("Subtitle"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_FilePath(
 		NULL	, "FILENAME"	, _TL("PDF File"),
-		"",
+		_TL(""),
 		_TL("PDF Files (*.pdf)|*.pdf|All Files|*.*"),
-		"", true, false
+		_TL(""), true, false
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "PAPER_SIZE"	, _TL("Paper Format"),
 		_TL(""),
 
-		_TL("A4 Portrait|"
-			"A4 Landscape|"
-			"A3 Portrait|"
-			"A3 Landscape|"	)
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("A4 Portrait"),
+			_TL("A4 Landscape"),
+			_TL("A3 Portrait"),
+			_TL("A3 Landscape")
+		)
 	);
 
 	Parameters.Add_Value(
@@ -130,8 +132,10 @@ CShapes_Report::CShapes_Report(void)
 		pNode	, "LAYOUT_MODE"	, _TL("Layout"),
 		_TL(""),
 
-		_TL("horizontal|"
-			"vertical|"	), 1
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("horizontal"),
+			_TL("vertical")
+		), 1
 	);
 
 	Parameters.Add_Value(
@@ -153,8 +157,10 @@ CShapes_Report::CShapes_Report(void)
 		pNode	, "CELL_MODE"	, _TL("Cell Sizes"),
 		_TL(""),
 
-		_TL("fit to page|"
-			"fixed cell height|"	)
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("fit to page"),
+			_TL("fixed cell height")
+		)
 	);
 
 	Parameters.Add_Value(
@@ -208,7 +214,7 @@ bool CShapes_Report::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( FileName.Length() > 0 && PDF.Open(Page_Size, Page_Orientation, CSG_String::Format("%s: %s", _TL("Summary"), m_pShapes->Get_Name())) )
+	if( FileName.Length() > 0 && PDF.Open(Page_Size, Page_Orientation, CSG_String::Format(SG_T("%s: %s"), _TL("Summary"), m_pShapes->Get_Name())) )
 	{
 		double	d	= Parameters("LAYOUT_BREAK")->asDouble();
 
@@ -268,10 +274,10 @@ bool CShapes_Report::Add_Shapes(void)
 		m_pPDF->Draw_Graticule(r, rWorld, 10);
 
 		//-------------------------------------------------
-		sLeft	.Add(CSG_String::Format("%s:"	, _TL("Name")));
-		sRight	.Add(CSG_String::Format("%s"	, m_pShapes->Get_Name()));
-		sLeft	.Add(CSG_String::Format("%s:"	, _TL("Count")));
-		sRight	.Add(CSG_String::Format("%d"	, m_pShapes->Get_Count()));
+		sLeft	.Add(CSG_String::Format(SG_T("%s:")	, _TL("Name")));
+		sRight	.Add(CSG_String::Format(SG_T("%s")	, m_pShapes->Get_Name()));
+		sLeft	.Add(CSG_String::Format(SG_T("%s:")	, _TL("Count")));
+		sRight	.Add(CSG_String::Format(SG_T("%d")	, m_pShapes->Get_Count()));
 
 		m_pPDF->Draw_Text(m_rTable.Get_XMin()   , m_rTable.Get_YMax(), sLeft , 8, PDF_STYLE_TEXT_ALIGN_H_LEFT|PDF_STYLE_TEXT_ALIGN_V_TOP);
 		m_pPDF->Draw_Text(m_rTable.Get_XCenter(), m_rTable.Get_YMax(), sRight, 8, PDF_STYLE_TEXT_ALIGN_H_LEFT|PDF_STYLE_TEXT_ALIGN_V_TOP);
@@ -283,7 +289,7 @@ bool CShapes_Report::Add_Shapes(void)
 		{
 			if( bAddAll || m_pShapes->Get_Table().Get_Record(iShape)->is_Selected() )
 			{
-				Title.Printf("%s: %s", m_pShapes->Get_Table().Get_Field_Name(m_iSubtitle), m_pShapes->Get_Shape(iShape)->Get_Record()->asString(m_iSubtitle));
+				Title.Printf(SG_T("%s: %s"), m_pShapes->Get_Table().Get_Field_Name(m_iSubtitle), m_pShapes->Get_Shape(iShape)->Get_Record()->asString(m_iSubtitle));
 
 				Add_Shape(m_pShapes->Get_Shape(iShape), Title);
 			}
@@ -296,7 +302,7 @@ bool CShapes_Report::Add_Shapes(void)
 }
 
 //---------------------------------------------------------
-bool CShapes_Report::Add_Shape(CSG_Shape *pShape, const char *Title)
+bool CShapes_Report::Add_Shape(CSG_Shape *pShape, const SG_Char *Title)
 {
 	if( m_pPDF && m_pPDF->Is_Ready_To_Draw() && pShape && pShape->is_Valid() && m_pPDF->Add_Page() )
 	{

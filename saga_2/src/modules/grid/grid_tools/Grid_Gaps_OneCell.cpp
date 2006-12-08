@@ -74,20 +74,20 @@ CGrid_Gaps_OneCell::CGrid_Gaps_OneCell(void)
 
 	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Closes one cell gaps using the mean value of the surrounding cell values. "
 		"If the target is not set, the changes will be stored to the original grid. ")
 	);
 
 	Parameters.Add_Grid(
 		NULL, "INPUT"	, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL, "RESULT"	, _TL("Changed Grid"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 }

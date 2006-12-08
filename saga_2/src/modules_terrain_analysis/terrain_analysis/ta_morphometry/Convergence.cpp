@@ -74,7 +74,7 @@ CConvergence::CConvergence(void)
 
 	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Reference:\n"
 		"Koethe, R. / Lehmeier, F. (1996):\n'SARA – System zur Automatischen Relief-Analyse',\n"
 		"Benutzerhandbuch, 2. Auflage [Geogr. Inst. Univ. Goettingen, unveroeffentl.]\n")
@@ -82,20 +82,20 @@ CConvergence::CConvergence(void)
 
 	Parameters.Add_Grid(
 		NULL	, "ELEVATION"	, _TL("Elevation"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "RESULT"		, _TL("Convergence Index"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
-		"",
-		CSG_String::Format("%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Aspect"),
 			_TL("Gradient")
 		),0

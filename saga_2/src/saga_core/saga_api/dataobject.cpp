@@ -70,14 +70,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char *	SG_Get_DataObject_Name(TSG_Data_Object_Type Type)
+const SG_Char *	SG_Get_DataObject_Name(TSG_Data_Object_Type Type)
 {
 	switch( Type )
 	{
-	case DATAOBJECT_TYPE_Grid:		return( LNG("[DAT] Grid") );
-	case DATAOBJECT_TYPE_Table:		return( LNG("[DAT] Table") );
+	case DATAOBJECT_TYPE_Grid:		return( LNG("[DAT] Grid"  ) );
+	case DATAOBJECT_TYPE_Table:		return( LNG("[DAT] Table" ) );
 	case DATAOBJECT_TYPE_Shapes:	return( LNG("[DAT] Shapes") );
-	case DATAOBJECT_TYPE_TIN:		return( LNG("[DAT] TIN") );
+	case DATAOBJECT_TYPE_TIN:		return( LNG("[DAT] TIN"   ) );
 
 	default:
 	case DATAOBJECT_TYPE_Undefined:	return( LNG("[DAT] Undefined") );
@@ -123,18 +123,18 @@ bool CSG_Data_Object::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Data_Object::Set_Name(const char *Name)
+void CSG_Data_Object::Set_Name(const SG_Char *Name)
 {
 	m_Name.Printf(Name ? Name : LNG("[DAT] new"));
 }
 
-const char * CSG_Data_Object::Get_Name(void) const
+const SG_Char * CSG_Data_Object::Get_Name(void) const
 {
 	return( m_Name.c_str() );
 }
 
 //---------------------------------------------------------
-void CSG_Data_Object::Set_File_Name(const char *File_Name)
+void CSG_Data_Object::Set_File_Name(const SG_Char *File_Name)
 {
 	if( File_Name )
 	{
@@ -152,7 +152,7 @@ void CSG_Data_Object::Set_File_Name(const char *File_Name)
 	}
 }
 
-const char * CSG_Data_Object::Get_File_Name(bool bNullAsString)	const
+const SG_Char * CSG_Data_Object::Get_File_Name(bool bNullAsString)	const
 {
 	return(	m_File_Name.Length() > 0
 		?	m_File_Name.c_str()

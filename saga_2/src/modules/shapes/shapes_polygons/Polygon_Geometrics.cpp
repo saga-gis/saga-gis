@@ -23,13 +23,13 @@ CPolygon_Geometrics::CPolygon_Geometrics(void){
 
 	Set_Name(_TL("Geometrical Properties of Polygons"));
 	Set_Author(_TL("Copyrights (c) 2004 by Victor Olaya"));
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"(c) 2004 by Victor Olaya. Geometrical Properties of Polygons"));
 
 	Parameters.Add_Shapes(NULL, 
 						"POLYG", 
 						_TL("Polygons"),
-						"",
+						_TL(""),
 						PARAMETER_INPUT, SHAPE_TYPE_Polygon);
 
 }//constructor

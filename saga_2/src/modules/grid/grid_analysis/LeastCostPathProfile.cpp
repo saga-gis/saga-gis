@@ -80,7 +80,7 @@
 CLeastCostPathProfile::CLeastCostPathProfile(void)
 {
 	Parameters.Set_Name(_TL("Least Cost Path"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"Creates a least cost past profile using an accumulated cost surface."
 		"\n(c) 2004 Victor Olaya, Goettingen.\nemail: oconrad@gwdg.de\n")
 	);
@@ -96,7 +96,7 @@ CLeastCostPathProfile::CLeastCostPathProfile(void)
 		NULL, 
 		"VALUES", 
 		_TL("Values"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
@@ -104,7 +104,7 @@ CLeastCostPathProfile::CLeastCostPathProfile(void)
 		NULL, 
 		"POINTS", 
 		_TL("Profile (points)"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT, 
 		SHAPE_TYPE_Point
 	);
@@ -113,7 +113,7 @@ CLeastCostPathProfile::CLeastCostPathProfile(void)
 		NULL, 
 		"LINE", 
 		_TL("Profile (lines)"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
 }
@@ -192,7 +192,7 @@ bool CLeastCostPathProfile::Set_Profile(TSG_Point ptWorld)
 
 		//-----------------------------------------------------
 		m_pLine->Create(SHAPE_TYPE_Line, CSG_String::Format(_TL("Profile [%s]"), m_pDEM->Get_Name()));
-		m_pLine->Get_Table().Add_Field("ID"	, TABLE_FIELDTYPE_Int);
+		m_pLine->Get_Table().Add_Field("ID", TABLE_FIELDTYPE_Int);
 		m_pLine->Add_Shape()->Get_Record()->Set_Value(0, 1);
 
 		//-----------------------------------------------------

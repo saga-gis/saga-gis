@@ -76,7 +76,7 @@ CHugget_02::CHugget_02(void)
 
 	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Simulation of the Carbon Cycle in Terrestrial Biomes. "
 
 		"\nReference:"
@@ -86,111 +86,111 @@ CHugget_02::CHugget_02(void)
 	//-----------------------------------------------------
 	Parameters.Add_Table(
 		NULL	, "TABLE"		, _TL("Results"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Value(
 		NULL	, "TIME_SPAN"	, _TL("Time Span"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 100.0, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "TIME_STEP"	, _TL("Time Interval [a]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.1, 0.0, true
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Value(
 		NULL	, "PRIMPROD"	, _TL("Net Primary Production [Gt Carbon / a]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 27.8, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "CHUMIFY"		, _TL("Humification Factor"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.4, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "CCARBON"		, _TL("Carbonization Factor"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.05, 0.0, true
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Node(NULL, "NODE_1", _TL("Partition Coefficients"), "");
+	pNode	= Parameters.Add_Node(NULL, "NODE_1", _TL("Partition Coefficients"), _TL(""));
 
 	Parameters.Add_Value(
 		pNode	, "P_LEAV"		, _TL("Leaves"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.3, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		pNode	, "P_BRAN"		, _TL("Branches"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.2, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		pNode	, "P_STEM"		, _TL("Stems"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.3, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		pNode	, "P_ROOT"		, _TL("Roots"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.2, 0.0, true
 	);
 
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Node(NULL, "NODE_2", _TL("Transfer Coefficients"), "");
+	pNode	= Parameters.Add_Node(NULL, "NODE_2", _TL("Transfer Coefficients"), _TL(""));
 
 	Parameters.Add_Value(
 		pNode	, "K_LEAV_LITT"		, _TL("Leaves to Litter"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 1.0, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		pNode	, "K_BRAN_LITT"		, _TL("Branches to Litter"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.1, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		pNode	, "K_STEM_LITT"		, _TL("Stems to Litter"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.033, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		pNode	, "K_ROOT_HUMU"		, _TL("Roots to Humus"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.1, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		pNode	, "K_LITT_HUMU"		, _TL("Litter to Humus"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 1.0, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		pNode	, "K_HUMU_COAL"		, _TL("Humus to Charcoal"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.1, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		pNode	, "K_COAL_ENVI"		, _TL("Charcoal to Environment"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.002, 0.0, true
 	);
 

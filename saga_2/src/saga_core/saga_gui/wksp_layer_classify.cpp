@@ -180,7 +180,7 @@ wxString CWKSP_Layer_Classify::Get_Class_Name(int iClass)
 	case CLASSIFY_LUT:
 		if( iClass >= 0 && iClass < m_pLUT->Get_Record_Count() )
 		{
-			s.Printf("%s", m_pLUT->Get_Record(iClass)->asString(LUT_TITLE));
+			s.Printf(wxT("%s"), m_pLUT->Get_Record(iClass)->asString(LUT_TITLE));
 		}
 		break;
 
@@ -190,22 +190,22 @@ wxString CWKSP_Layer_Classify::Get_Class_Name(int iClass)
 		{
 			if( iClass == 0 )
 			{
-				s.Printf("%f < %f", Get_RelativeToMetric(1.0 * iClass / Get_Class_Count()), Get_RelativeToMetric(1.0 * (1.0 + iClass) / Get_Class_Count()));
+				s.Printf(wxT("%f < %f"), Get_RelativeToMetric(1.0 * iClass / Get_Class_Count()), Get_RelativeToMetric(1.0 * (1.0 + iClass) / Get_Class_Count()));
 			}
 			else if( iClass < Get_Class_Count() )
 			{
-				s.Printf("< %f", Get_RelativeToMetric(1.0 * (1.0 + iClass) / Get_Class_Count()));
+				s.Printf(wxT("< %f"), Get_RelativeToMetric(1.0 * (1.0 + iClass) / Get_Class_Count()));
 			}
 		}
 		else
 		{
 			if( iClass == 0 )
 			{
-				s.Printf("<= %f", m_zMin);
+				s.Printf(wxT("<= %f"), m_zMin);
 			}
 			else
 			{
-				s.Printf("> %f", m_zMin);
+				s.Printf(wxT("> %f"), m_zMin);
 			}
 		}
 		break;
@@ -359,8 +359,8 @@ void CWKSP_Layer_Classify::Metric2EqualElements(void)
 
 			pRecord	= m_pLUT->Add_Record();
 			pRecord->Set_Value(LUT_COLOR		, m_pColors->Get_Color(iClass));
-			pRecord->Set_Value(LUT_TITLE		, wxString::Format(">=%f", zB));
-			pRecord->Set_Value(LUT_DESCRIPTION	, wxString::Format("%f <-> %f", zB, zA));
+			pRecord->Set_Value(LUT_TITLE		, wxString::Format(wxT(">=%f"), zB));
+			pRecord->Set_Value(LUT_DESCRIPTION	, wxString::Format(wxT("%f <-> %f"), zB, zA));
 			pRecord->Set_Value(LUT_MIN			, zB);
 			pRecord->Set_Value(LUT_MAX			, zA);
 		}
@@ -370,8 +370,8 @@ void CWKSP_Layer_Classify::Metric2EqualElements(void)
 		zA		= pGrid->asDouble(x, y);
 		pRecord	= m_pLUT->Add_Record();
 		pRecord->Set_Value(LUT_COLOR		, m_pColors->Get_Color(iClass));
-		pRecord->Set_Value(LUT_TITLE		, wxString::Format(">=%f", zB));
-		pRecord->Set_Value(LUT_DESCRIPTION	, wxString::Format("%f <-> %f", zB, zA));
+		pRecord->Set_Value(LUT_TITLE		, wxString::Format(wxT(">=%f"), zB));
+		pRecord->Set_Value(LUT_DESCRIPTION	, wxString::Format(wxT("%f <-> %f"), zB, zA));
 		pRecord->Set_Value(LUT_MIN			, zB);
 		pRecord->Set_Value(LUT_MAX			, zA);
 

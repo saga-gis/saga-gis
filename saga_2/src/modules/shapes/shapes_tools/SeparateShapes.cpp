@@ -27,33 +27,33 @@ CSeparateShapes::CSeparateShapes(void){
 	CSG_Parameter *pNode;
 	
 	Parameters.Set_Name(_TL("Separate Shapes"));
-	Parameters.Set_Description(_TL("(c) 2005 by Victor Olaya."));
+	Parameters.Set_Description(_TW("(c) 2005 by Victor Olaya."));
 
 	pNode = Parameters.Add_Shapes(NULL, 
 						"INPUT", 
 						_TL("Shapes"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Table_Field(pNode,
 								"FIELD",
 								_TL("Field"),
-								"");
+								_TL(""));
 	
 	Parameters.Add_FilePath(NULL,
 							"OUTPUTPATH",
 							_TL("shp files folder"),
 							_TL("shp files folder"),
-							"",
-							"",
+							_TL(""),
+							_TL(""),
 							true,
 							true);
 
 	Parameters.Add_Choice(NULL, 
 						"NAMING",
 						_TL("File Naming"),
-						"",
-						_TL("By number|" 
+						_TL(""),
+						_TW("By number|" 
 						"Use field content|"), 
 						0);
 
@@ -85,16 +85,16 @@ bool CSeparateShapes::On_Execute(void){
  
 	for (i = 0; i < pInput->Get_Count(); i++){		
 		if (iNaming == NAMING_NUMERIC){
-			sName.Printf("%s_%s", pInput->Get_Name(), SG_Get_String(i).c_str());
+			sName.Printf(SG_T("%s_%s"), pInput->Get_Name(), SG_Get_String(i).c_str());
 		}//if
 		else{
-			sName.Printf("%s", pTable->Get_Record(i)->asString(iField));
+			sName.Printf(SG_T("%s"), pTable->Get_Record(i)->asString(iField));
 		}//else
 
 		pOutput = SG_Create_Shapes(pInput->Get_Type());
 		pOutput->Set_Name(sName.c_str());
 
-		sFilename	= SG_File_Make_Path(sPath, sName, ".shp");
+		sFilename	= SG_File_Make_Path(sPath, sName, SG_T("shp"));
 		
 		for (j=0; j<pTable->Get_Field_Count(); j++){
 			pOutput->Get_Table().Add_Field(pTable->Get_Field_Name(j), pTable->Get_Field_Type(j));	

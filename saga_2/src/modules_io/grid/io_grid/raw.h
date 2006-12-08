@@ -85,7 +85,7 @@ public:
 	CRaw_Import(void);
 	virtual ~CRaw_Import(void);
 
-	virtual const char *	Get_MenuPath	(void)		{	return( _TL("R:Import") );	}
+	virtual const SG_Char *	Get_MenuPath	(void)		{	return( _TL("R:Import") );	}
 
 
 protected:

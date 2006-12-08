@@ -77,7 +77,7 @@ CGEOTRANS_Shapes::CGEOTRANS_Shapes(void)
 
 	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Coordinate Transformation for Shapes. "
 		"This library makes use of the Geographic Translator (GeoTrans) library. "
 		"\n"
@@ -92,13 +92,13 @@ CGEOTRANS_Shapes::CGEOTRANS_Shapes(void)
 
 	Parameters.Add_Shapes(
 		Parameters("SOURCE_NODE"), "SOURCE", _TL("Source"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
 		Parameters("TARGET_NODE"), "TARGET", _TL("Target"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 }

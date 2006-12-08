@@ -84,7 +84,7 @@
 class CWKSP_Module_Library : public CWKSP_Base_Manager
 {
 public:
-	CWKSP_Module_Library(const char *File_Name);
+	CWKSP_Module_Library(const wxChar *File_Name);
 	virtual ~CWKSP_Module_Library(void);
 
 	virtual TWKSP_Item				Get_Type		(void)		{	return( WKSP_ITEM_Module_Library );	}
@@ -104,7 +104,7 @@ public:
 
 	wxString &						Get_File_Name	(void);
 
-	const char *					Get_Info		(int Type);
+	const wxChar *					Get_Info		(int Type);
 
 	bool							Exists			(class CWKSP_Module *pModule);
 

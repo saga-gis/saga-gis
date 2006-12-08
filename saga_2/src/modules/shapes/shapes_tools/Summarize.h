@@ -28,7 +28,7 @@ public:
 	CSummarize(void);
 	virtual ~CSummarize(void);
 
-	virtual const char *	Get_MenuPath		(void)	{	return( _TL("A:Shapes|Reports") );	}
+	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("A:Shapes|Reports") );	}
 
 protected:
 

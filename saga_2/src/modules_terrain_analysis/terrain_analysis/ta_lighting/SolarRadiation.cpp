@@ -78,7 +78,7 @@ CSolarRadiation::CSolarRadiation(void)
 
 	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Calculation of the potential incoming solar radiation.\n\n"
 		"Reference:\n"
 		"- Wilson, J.P., Gallant, J.C., (Eds.), 2000:\n"
@@ -90,7 +90,7 @@ CSolarRadiation::CSolarRadiation(void)
 	//-----------------------------------------------------
 	pNode_0	= Parameters.Add_Grid(
 		NULL	, "ELEVATION"	, _TL("Elevation"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
@@ -98,13 +98,13 @@ CSolarRadiation::CSolarRadiation(void)
 	//-----------------------------------------------------
 	pNode_0	= Parameters.Add_Grid(
 		NULL	, "INSOLAT"		, _TL("Solar Radiation"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	pNode_0	= Parameters.Add_Grid(
 		NULL	, "DURATION"	, _TL("Duration of Insolation"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
@@ -116,31 +116,35 @@ CSolarRadiation::CSolarRadiation(void)
 
 	pNode_1	= Parameters.Add_Choice(
 		pNode_0	, "UNIT"		, _TL("Unit"),
-		"",
+		_TL(""),
 
-		"kWh/m²|"
-		"J/m²|"					, 0
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("kWh/m²"),
+			_TL("J/m²")
+		), 0
 	);
 
 
 	//-----------------------------------------------------
 	pNode_0	= Parameters.Add_Node(
 		NULL	, "NODE_SOLAR"	, _TL("Solar Radiation"),
-		""
+		_TL("")
 	);
 
 	pNode_1	= Parameters.Add_Value(
 		pNode_0	, "SOLCONST"	, _TL("Solar Constant [W/m²]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 1367
 	);
 
 	pNode_1	= Parameters.Add_Choice(
 		pNode_0	, "METHOD"		, _TL("Atmospheric Effects"),
 		_TL("Account for atmospheric effects using either a lumped atmospheric transmittance approach or by calculating the components (water and dust)."),
-		_TL(
-		"Lumped atmospheric transmittance|"
-		"Calculating the components|"), 0
+
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("Lumped atmospheric transmittance"),
+			_TL("Calculating the components")
+		), 0
 	);
 
 	pNode_1	= Parameters.Add_Value(
@@ -153,7 +157,7 @@ CSolarRadiation::CSolarRadiation(void)
 
 	pNode_1	= Parameters.Add_Value(
 		pNode_0	, "PRESSURE"	, _TL("Atmospheric Pressure [mb]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 1013,
 		0.0		, true
 	);
@@ -174,7 +178,7 @@ CSolarRadiation::CSolarRadiation(void)
 
 	pNode_1	= Parameters.Add_Value(
 		pNode_0	, "LATITUDE"	, _TL("Latitude [Degree]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 53.5,
 		-90.0	, true,
 		90.0	, true
@@ -186,7 +190,7 @@ CSolarRadiation::CSolarRadiation(void)
 
 	pNode_0	= Parameters.Add_Node(
 		NULL	, "NODE_HOUR"	, _TL("Daily Time Resolution"),
-		""
+		_TL("")
 	);
 
 	pNode_1	= Parameters.Add_Range(
@@ -211,45 +215,49 @@ CSolarRadiation::CSolarRadiation(void)
 
 	pNode_0	= Parameters.Add_Choice(
 		NULL	, "TIMESPAN"	, _TL("Simulation Time"),
-		"",
-		_TL(
-		"Single Day|"
-		"Range of Days|"
-		"One Year|"), 0
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("Single Day"),
+			_TL("Range of Days"),
+			_TL("One Year")
+		), 0
 	);
 
 	//-----------------------------------------------------
 	pNode_1	= Parameters.Add_Node(
 		pNode_0	, "NODE_SINGLE_DAY"		, _TL("Single Day"),
-		""
+		_TL("")
 	);
 
 	pNode_2	= Parameters.Add_Choice(
 		pNode_1	, "SINGLE_DAY_DAY"		, _TL("Day"),
-		"",
+		_TL(""),
 
-		"  1|  2|  3|  4|  5|  6|  7|  8|  9| 10|"
-		" 11| 12| 13| 14| 15| 16| 17| 18| 19| 20|"
-		" 21| 22| 23| 24| 25| 26| 27| 28| 29| 30|"
-		" 31|", 20
+		SG_T("  1|  2|  3|  4|  5|  6|  7|  8|  9| 10|")
+		SG_T(" 11| 12| 13| 14| 15| 16| 17| 18| 19| 20|")
+		SG_T(" 21| 22| 23| 24| 25| 26| 27| 28| 29| 30|")
+		SG_T(" 31|"), 20
 	);
 
 	pNode_2	= Parameters.Add_Choice(
 		pNode_1	, "SINGLE_DAY_MONTH"	, _TL("Month"),
-		"",
-		_TL(
-		"January|"
-		"February|"
-		"March|"
-		"April|"
-		"May|"
-		"June|"
-		"July|"
-		"August|"
-		"September|"
-		"October|"
-		"November|"
-		"December|"), 2
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
+			_TL("January"),
+			_TL("February"),
+			_TL("March"),
+			_TL("April"),
+			_TL("May"),
+			_TL("June"),
+			_TL("July"),
+			_TL("August"),
+			_TL("September"),
+			_TL("October"),
+			_TL("November"),
+			_TL("December")
+		), 2
 	);
 
 
@@ -258,12 +266,12 @@ CSolarRadiation::CSolarRadiation(void)
 
 	pNode_1	= Parameters.Add_Node(
 		pNode_0	, "NODE_DAY_RANGE"		, _TL("Range of Days"),
-		""
+		_TL("")
 	);
 
 	pNode_2	= Parameters.Add_Range(
 		pNode_1	, "DAY_RANGE"			, _TL("Time Span [day of year]"),
-		"",
+		_TL(""),
 		   1	, 31,
 		-365	, true,
 		 366	, true
@@ -271,7 +279,7 @@ CSolarRadiation::CSolarRadiation(void)
 
 	pNode_2	= Parameters.Add_Value(
 		pNode_1	, "DAY_STEP"			, _TL("Time Step [number of days]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 5,
 		1		, true,
 		100		, true
@@ -360,17 +368,17 @@ bool CSolarRadiation::On_Execute(void)
 	DataObject_Set_Colors(m_pRadiation, Colors);
 	DataObject_Set_Colors(m_pDuration , Colors);
 
-	m_pDuration->Set_Unit("h");
+	m_pDuration->Set_Unit(_TL("h"));
 
 	if( Parameters("UNIT")->asInt() == 1 )	// Joule...
 	{
 		*m_pRadiation	*= 10.0 / 36.0;	// 1 J = 1 Ws = 1/(60*60) Wh = 1/3600 Wh >> 1 J = 1000/3600 kWh = 10/36 kWh
 
-		m_pRadiation->Set_Unit("J/m²");
+		m_pRadiation->Set_Unit(_TL("J/m²"));
 	}
 	else
 	{
-		m_pRadiation->Set_Unit("kWh/m²");
+		m_pRadiation->Set_Unit(_TL("kWh/m²"));
 	}
 
 	//-----------------------------------------------------
@@ -476,10 +484,10 @@ void CSolarRadiation::Get_DailySum(double Latitude_RAD, double Hour_Step, double
 	m_pSum		->Assign(0.0);
 	m_pDuration	->Assign(0.0);
 
-	HillShade.Get_Parameters()->Set_Parameter("ELEVATION"	, PARAMETER_TYPE_Grid	, m_pDTM);
-	HillShade.Get_Parameters()->Set_Parameter("SHADE"		, PARAMETER_TYPE_Grid	, m_pRadiation);
-	HillShade.Get_Parameters()->Set_Parameter("METHOD"		, PARAMETER_TYPE_Choice	, 3);
-	HillShade.Get_Parameters()->Set_Parameter("EXAGGERATION", PARAMETER_TYPE_Double	, 1.0);
+	HillShade.Get_Parameters()->Set_Parameter(SG_T("ELEVATION")		, PARAMETER_TYPE_Grid	, m_pDTM);
+	HillShade.Get_Parameters()->Set_Parameter(SG_T("SHADE")			, PARAMETER_TYPE_Grid	, m_pRadiation);
+	HillShade.Get_Parameters()->Set_Parameter(SG_T("METHOD")		, PARAMETER_TYPE_Choice	, 3);
+	HillShade.Get_Parameters()->Set_Parameter(SG_T("EXAGGERATION")	, PARAMETER_TYPE_Double	, 1.0);
 	HillShade.Set_Show_Progress(false);
 
 	//-----------------------------------------------------
@@ -501,8 +509,8 @@ void CSolarRadiation::Get_DailySum(double Latitude_RAD, double Hour_Step, double
 		{
 			bNight	= false;
 
-			HillShade.Get_Parameters()->Set_Parameter("AZIMUTH"		, PARAMETER_TYPE_Double, (double)M_RAD_TO_DEG * Sol_Azimuth);
-			HillShade.Get_Parameters()->Set_Parameter("DECLINATION"	, PARAMETER_TYPE_Double, (double)M_RAD_TO_DEG * Sol_Height);
+			HillShade.Get_Parameters()->Set_Parameter(SG_T("AZIMUTH")		, PARAMETER_TYPE_Double, (double)M_RAD_TO_DEG * Sol_Azimuth);
+			HillShade.Get_Parameters()->Set_Parameter(SG_T("DECLINATION")	, PARAMETER_TYPE_Double, (double)M_RAD_TO_DEG * Sol_Height);
 			HillShade.Execute();
 
 			for(int n=0; n<Get_NCells(); n++)

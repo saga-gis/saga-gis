@@ -92,17 +92,17 @@ typedef enum ESG_Data_Object_Type
 TSG_Data_Object_Type;
 
 //---------------------------------------------------------
-#define HISTORY_EXT_GRID		"hgrd"
-#define HISTORY_EXT_TABLE		"htab"
-#define HISTORY_EXT_SHAPES		"hshp"
-#define HISTORY_EXT_TIN			"htin"
+#define HISTORY_EXT_GRID		SG_T("hgrd")
+#define HISTORY_EXT_TABLE		SG_T("htab")
+#define HISTORY_EXT_SHAPES		SG_T("hshp")
+#define HISTORY_EXT_TIN			SG_T("htin")
 
 //---------------------------------------------------------
 #define DATAOBJECT_NOTSET		((void *)NULL)
 #define DATAOBJECT_CREATE		((void *)1)
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT const char *	SG_Get_DataObject_Name	(TSG_Data_Object_Type Type);
+SAGA_API_DLL_EXPORT const SG_Char *	SG_Get_DataObject_Name	(TSG_Data_Object_Type Type);
 
 
 ///////////////////////////////////////////////////////////
@@ -118,15 +118,15 @@ class SAGA_API_DLL_EXPORT CSG_History_Entry
 
 public:
 
-	const char *				Get_Date		(void)	{	return( m_Date );		}
-	const char *				Get_Name		(void)	{	return( m_Name );		}
-	const char *				Get_Entry		(void)	{	return( m_Entry );		}
+	const SG_Char *				Get_Date		(void)	{	return( m_Date );		}
+	const SG_Char *				Get_Name		(void)	{	return( m_Name );		}
+	const SG_Char *				Get_Entry		(void)	{	return( m_Entry );		}
 	class CSG_History *			Get_History		(void)	{	return( m_pHistory );	}
 
 
 private:
 
-	CSG_History_Entry(const char *Date, const char *Name, const char *Entry, class CSG_History *pHistory);
+	CSG_History_Entry(const SG_Char *Date, const SG_Char *Name, const SG_Char *Entry, class CSG_History *pHistory);
 	CSG_History_Entry(const CSG_History_Entry &Entry);
 	virtual ~CSG_History_Entry(void);
 
@@ -149,10 +149,10 @@ public:
 
 	int							Get_Count		(void)			{	return( m_nEntries );	}
 	CSG_History_Entry &			Get_Entry		(int iEntry)	{	return( *m_pEntries[iEntry] );	}
-	void						Add_Entry		(const char *Name, const char *Entry, CSG_History *pHistory = NULL);
+	void						Add_Entry		(const SG_Char *Name, const SG_Char *Entry, CSG_History *pHistory = NULL);
 
-	bool						Load			(const char *File_Name, const char *File_Extension);
-	bool						Save			(const char *File_Name, const char *File_Extension);
+	bool						Load			(const SG_Char *File_Name, const SG_Char *File_Extension);
+	bool						Save			(const SG_Char *File_Name, const SG_Char *File_Extension);
 
 	CSG_String					Get_HTML		(void);
 
@@ -166,8 +166,8 @@ private:
 
 	void						_Add_Entry		(CSG_History_Entry *pEntry);
 
-	bool						_Load			(FILE *Stream);
-	bool						_Save			(FILE *Stream);
+	bool						_Load			(CSG_File &Stream);
+	bool						_Save			(CSG_File &Stream);
 
 };
 
@@ -191,15 +191,15 @@ public:
 
 	virtual bool					is_Valid		(void)	const							= 0;
 
-	virtual bool					Save			(const char *File_Name, int Format = 0)	= 0;
+	virtual bool					Save			(const SG_Char *File_Name, int Format = 0)	= 0;
 
-	const char *					Get_File_Name	(bool bNullAsString = false)	const;
+	const SG_Char *					Get_File_Name	(bool bNullAsString = false)	const;
 	int								Get_File_Type	(void)	const;
 
 	virtual bool					Assign			(CSG_Data_Object *pObject);
 
-	void							Set_Name		(const char *Name);
-	const char *					Get_Name		(void)	const;
+	void							Set_Name		(const SG_Char *Name);
+	const SG_Char *					Get_Name		(void)	const;
 
 	virtual void					Set_Modified	(bool bModified = true)	{	m_bModified	= bModified;	}
 	bool							is_Modified		(void)	const			{	return( m_bModified );		}
@@ -214,7 +214,7 @@ public:
 
 protected:
 
-	void							Set_File_Name	(const char *File_Name);
+	void							Set_File_Name	(const SG_Char *File_Name);
 	void							Set_File_Type	(int File_Type);
 
 	CSG_History						m_History;

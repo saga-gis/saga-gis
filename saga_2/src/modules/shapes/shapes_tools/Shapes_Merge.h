@@ -30,7 +30,7 @@ public:
 	CShapes_Merge(void);
 	virtual ~CShapes_Merge(void);
 
-	virtual const char *		Get_MenuPath			(void)	{	return( _TL("R:Construction") );	}
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Construction") );	}
 
 
 protected:

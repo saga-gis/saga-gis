@@ -73,7 +73,7 @@ CGrid_IO_GDAL::CGrid_IO_GDAL(void)
 
 	Set_Author	(_TL("Copyrights (c) 2004 by Andre Ringeler"));
 
-	CSG_String	s(_TL(
+	CSG_String	s(_TW(
 		"Import GDAL. "
 		"This Module imports various raster formats using:\n"
 		"GDAL - Geospatial Data Abstraction Library\n"
@@ -90,26 +90,26 @@ CGrid_IO_GDAL::CGrid_IO_GDAL(void)
     {
 		GDALDriverH	hDriver	= GDALGetDriver(i);
 
-		s.Append(CSG_String::Format("<tr><td>%s</td><td>%s</td></tr>\n",
+		s.Append(CSG_String::Format(SG_T("<tr><td>%s</td><td>%s</td></tr>\n"),
 			GDALGetDriverShortName(hDriver),
 			GDALGetDriverLongName (hDriver)
 		));
     }
 
-	s.Append("</table>");
+	s.Append(SG_T("</table>"));
 
 	Set_Description(s);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List(
 		NULL, "RESULT_LIST"	, _TL("Grid List"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT, false
 	);
 
 	Parameters.Add_FilePath(
 		NULL, "FILE_DATA"	, _TL("File"),
-		""
+		_TL("")
 	);
 }
 
@@ -140,20 +140,20 @@ bool CGrid_IO_GDAL::On_Execute(void)
 	GDALDataset  *pDataset;
 	CSG_String	msg;
    
-	pDataset = (GDALDataset *) GDALOpen( Parameters("FILE_DATA")->asString(), GA_ReadOnly );
+	pDataset = (GDALDataset *) GDALOpen(CSG_String(Parameters("FILE_DATA")->asString()).b_str(), GA_ReadOnly );
   
 	if( pDataset != NULL )
     {
     
 		double        adfGeoTransform[6];
 
-		msg.Printf("Driver: %s/%s\n",
+		msg.Printf(SG_T("Driver: %s/%s\n"),
 				pDataset->GetDriver()->GetDescription(), 
 				pDataset->GetDriver()->GetMetadataItem( GDAL_DMD_LONGNAME ) );
 
 		Message_Add(msg);
 
-		msg.Printf("Size is %dx%dx%d\n", 
+		msg.Printf(SG_T("Size is %dx%dx%d\n"), 
 				pDataset->GetRasterXSize(), pDataset->GetRasterYSize(),
 				pDataset->GetRasterCount() );
 		
@@ -161,14 +161,14 @@ bool CGrid_IO_GDAL::On_Execute(void)
 
 		if( pDataset->GetProjectionRef()  != NULL )
 		{
-			Message_Add(CSG_String::Format("Projection is `%s'\n", pDataset->GetProjectionRef()));
+			Message_Add(CSG_String::Format(SG_T("Projection is `%s'\n"), pDataset->GetProjectionRef()));
 		}
 
 		if( pDataset->GetGeoTransform( adfGeoTransform ) == CE_None )
 		{
-			Message_Add(CSG_String::Format("Origin = (%.6f,%.6f)\n", adfGeoTransform[0], adfGeoTransform[3]));
+			Message_Add(CSG_String::Format(SG_T("Origin = (%.6f,%.6f)\n"), adfGeoTransform[0], adfGeoTransform[3]));
 
-			Message_Add(CSG_String::Format("Pixel Size = (%.6f,%.6f)\n", adfGeoTransform[1], adfGeoTransform[5]));
+			Message_Add(CSG_String::Format(SG_T("Pixel Size = (%.6f,%.6f)\n"), adfGeoTransform[1], adfGeoTransform[5]));
 		}
 		
 
@@ -206,7 +206,7 @@ bool CGrid_IO_GDAL::On_Execute(void)
 
 			pBand = pDataset->GetRasterBand( i+1 );
 
-			pGrid->Set_Unit (pBand->GetUnitType());
+			pGrid->Set_Unit (CSG_String(pBand->GetUnitType()));
 
 			pGrid->Set_NoData_Value(pBand->GetNoDataValue());
 

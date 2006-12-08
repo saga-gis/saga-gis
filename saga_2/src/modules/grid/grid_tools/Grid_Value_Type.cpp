@@ -77,7 +77,7 @@ CGrid_Value_Type::CGrid_Value_Type(void)
 
 	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Changes the storage data type of a grid "
 		"(e.g. from 4 byte floating point to 2 byte signed integer). "
 		"If the target is not set, the original grid's storage type will be changed. ")
@@ -86,20 +86,20 @@ CGrid_Value_Type::CGrid_Value_Type(void)
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Grid(
 		NULL	, "INPUT"	, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	pNode	= Parameters.Add_Grid(
 		NULL	, "OUTPUT"	, _TL("Converted Grid"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	pNode	= Parameters.Add_Choice(
 		NULL	, "TYPE"	, _TL("Data storage type"),
-		"",
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
 			_TL("1 bit"),
 			_TL("1 byte unsigned"),
 			_TL("1 byte signed"),

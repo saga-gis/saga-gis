@@ -23,19 +23,19 @@
 CWaterRetentionCapacity::CWaterRetentionCapacity(void){
 
 	Parameters.Set_Name(_TL("Water Retention Capacity"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2004 Victor Olaya. Water Retention Capacity (Gandullo, 1994)"));
 
 	Parameters.Add_Shapes(NULL,
 						"SHAPES",
 						_TL("Plot Holes"),
-						"",
+						_TL(""),
 						PARAMETER_INPUT);
 
 	Parameters.Add_Shapes(NULL,
 						"OUTPUT",
 						_TL("Final Parameters"),
-						"",
+						_TL(""),
 						PARAMETER_OUTPUT);
 	
 	Parameters.Add_Grid(NULL,
@@ -47,7 +47,7 @@ CWaterRetentionCapacity::CWaterRetentionCapacity(void){
 	Parameters.Add_Grid(NULL,
 						"RETENTION",
 						_TL("Water Retention Capacity"),
-						"",
+						_TL(""),
 						PARAMETER_OUTPUT);
 
 }//constructor

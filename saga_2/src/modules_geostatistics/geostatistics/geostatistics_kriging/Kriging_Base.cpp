@@ -76,36 +76,36 @@ CKriging_Base::CKriging_Base(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid_Output(
 		NULL	, "GRID"		, _TL("Grid"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Grid_Output(
 		NULL	, "VARIANCE"	, _TL("Variance"),
-		""
+		_TL("")
 	);
 
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES"		, _TL("Points"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table_Field(
 		pNode	, "FIELD"		, _TL("Attribute"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Value(
 		NULL	, "BVARIANCE"	, _TL("Create Variance Grid"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Bool		, true
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "TARGET"		, _TL("Target Grid"),
-		"",
+		_TL(""),
 
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("user defined"),
 			_TL("grid system"),
 			_TL("grid")
@@ -114,8 +114,8 @@ CKriging_Base::CKriging_Base(void)
 
 	Parameters.Add_Choice(
 		NULL	, "MODEL"		, _TL("Variogram Model"),
-		"",
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|"),
 			_TL("Spherical Model"),
 			_TL("Exponential Model"),
 			_TL("Gaussian Model"),
@@ -127,43 +127,43 @@ CKriging_Base::CKriging_Base(void)
 
 	Parameters.Add_Value(
 		NULL	, "BLOCK"		, _TL("Block Kriging"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Bool		, false
 	);
 
 	Parameters.Add_Value(
 		NULL	, "DBLOCK"		, _TL("Block Size"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 100.0, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "BLOG"		, _TL("Logarithmic Transformation"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Bool
 	);
 
 	Parameters.Add_Value(
 		NULL	, "NUGGET"		, _TL("Nugget"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 0.0, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "SILL"		, _TL("Sill"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 10.0, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "RANGE"		, _TL("Range"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 100.0, 0.0, true
 	);
 
 	pNode	= Parameters.Add_Node(
 		NULL	, "PARMS"		, _TL("Additional Parameters"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Value(
@@ -191,11 +191,11 @@ CKriging_Base::CKriging_Base(void)
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("USER"	, _TL("User defined grid")	, "");
+	pParameters	= Add_Parameters(SG_T("USER")	, _TL("User defined grid")	, _TL(""));
 
 	pParameters->Add_Value(
 		NULL	, "CELL_SIZE"	, _TL("Grid Size"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 100.0, 0.0, true
 	);
 
@@ -207,39 +207,39 @@ CKriging_Base::CKriging_Base(void)
 
 	pParameters->Add_Range(
 		pNode	, "X_EXTENT"	, _TL("X-Extent"),
-		""
+		_TL("")
 	);
 
 	pParameters->Add_Range(
 		pNode	, "Y_EXTENT"	, _TL("Y-Extent"),
-		""
+		_TL("")
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("SYSTEM"	, _TL("Choose Grid System")	, "");
+	pParameters	= Add_Parameters(SG_T("SYSTEM")	, _TL("Choose Grid System")	, _TL(""));
 
 	pParameters->Add_Grid_System(
 		NULL	, "SYSTEM"		, _TL("Grid System"),
-		""
+		_TL("")
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GRID"	, _TL("Choose Grid")		, "");
+	pParameters	= Add_Parameters(SG_T("GRID")	, _TL("Choose Grid")		, _TL(""));
 
 	pNode	= pParameters->Add_Grid_System(
 		NULL	, "SYSTEM"		, _TL("Grid System"),
-		""
+		_TL("")
 	);
 
 	pParameters->Add_Grid(
 		pNode	, "GRID"		, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT	, false
 	);
 
 	pParameters->Add_Grid(
 		pNode	, "VARIANCE"	, _TL("Variance"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT_OPTIONAL, false
 	);
 }
@@ -402,7 +402,7 @@ bool CKriging_Base::_Get_Points(void)
 
 	if( m_pShapes->Get_Type() != SHAPE_TYPE_Point )
 	{
-		pPoints	= SG_Create_Shapes(SHAPE_TYPE_Point, "", &m_pShapes->Get_Table());
+		pPoints	= SG_Create_Shapes(SHAPE_TYPE_Point, SG_T(""), &m_pShapes->Get_Table());
 
 		for(iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
 		{
@@ -466,12 +466,12 @@ bool CKriging_Base::_Get_Grid(void)
 			m_pVariance	= SG_Create_Grid(m_pGrid, GRID_TYPE_Float);
 		}
 
-		m_pGrid->Set_Name(CSG_String::Format("%s (%s)", pShapes->Get_Name(), Get_Name()));
+		m_pGrid->Set_Name(CSG_String::Format(SG_T("%s (%s)"), pShapes->Get_Name(), Get_Name()));
 		Parameters("GRID")->Set_Value(m_pGrid);
 
 		if( m_pVariance )
 		{
-			m_pVariance->Set_Name(CSG_String::Format("%s (%s - %s)", pShapes->Get_Name(), Get_Name(), _TL("Variance")));
+			m_pVariance->Set_Name(CSG_String::Format(SG_T("%s (%s - %s)"), pShapes->Get_Name(), Get_Name(), _TL("Variance")));
 			Parameters("VARIANCE")->Set_Value(m_pVariance);
 		}
 

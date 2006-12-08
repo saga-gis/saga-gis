@@ -73,7 +73,7 @@ public:
 	CSRTM30_Import(void);
 	virtual ~CSRTM30_Import(void);
 
-	virtual const char *	Get_MenuPath(void)				{	return( _TL("R:Import") );	}
+	virtual const SG_Char *	Get_MenuPath(void)				{	return( _TL("R:Import") );	}
 
 
 protected:
@@ -83,8 +83,8 @@ protected:
 
 private:
 
-	bool					Tile_Load(const char *sTile, TSG_Rect &rTile, CSG_Grid *pOut, TSG_Rect &rOut);
-	FILE *					Tile_Open(const char *sTile);
+	bool					Tile_Load(const SG_Char *sTile, TSG_Rect &rTile, CSG_Grid *pOut, TSG_Rect &rOut);
+	FILE *					Tile_Open(const SG_Char *sTile);
 
 };
 

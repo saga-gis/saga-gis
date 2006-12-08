@@ -100,15 +100,15 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char *	SAGA_GUI_Get_Version(void)
+const wxChar *	SAGA_GUI_Get_Version(void)
 {
-	return( "SAGA Graphical User Interface - Version: " SAGA_GUI_VERSION );
+	return( wxT("SAGA Graphical User Interface - Version: ") SAGA_GUI_VERSION );
 }
 
 //---------------------------------------------------------
-const char *	SAGA_GUI_Get_Build(void)
+const wxChar *	SAGA_GUI_Get_Build(void)
 {
-	return( "20070101" );
+	return( wxT("20070101") );
 }
 
 
@@ -137,8 +137,8 @@ CSAGA::~CSAGA(void)
 bool CSAGA::OnInit(void)
 {
 	//-----------------------------------------------------
-	SetVendorName		("SAGA-GIS.org");
-	SetAppName			("SAGA");
+	SetVendorName		(wxT("SAGA-GIS.org"));
+	SetAppName			(wxT("SAGA"));
 
 	g_pSAGA				= this;
 
@@ -152,7 +152,7 @@ bool CSAGA::OnInit(void)
 	long			iLogo;
 	wxSplashScreen	*pLogo;
 
-	iLogo	= CONFIG_Read("/DATA", "START_LOGO", iLogo) ? iLogo : 1;
+	iLogo	= CONFIG_Read(wxT("/DATA"), wxT("START_LOGO"), iLogo) ? iLogo : 1;
 
 	switch( iLogo )
 	{
@@ -173,7 +173,7 @@ bool CSAGA::OnInit(void)
 	wxYield();
 
 	//-----------------------------------------------------
-	SG_Get_Translator()->Create(SG_File_Make_Path(Get_App_Path(), "saga", "lng"), false);
+	SG_Get_Translator()->Create(SG_File_Make_Path(Get_App_Path(), wxT("saga"), wxT("lng")), false);
 
 	SetTopWindow(new CSAGA_Frame());
 
@@ -221,7 +221,7 @@ void CSAGA::_Init_Config(void)
 	wxConfigBase	*pConfig;
 
 #if defined(_SAGA_MSW) && (!defined(__VISUALC__) || __VISUALC__ <= 1200)
-	wxString	sConfig(SG_File_Make_Path(Get_App_Path(), "saga_gui", "ini"));
+	wxString	sConfig(SG_File_Make_Path(Get_App_Path(), wxT("saga_gui"), wxT("ini")));
 	pConfig = new wxFileConfig(wxEmptyString, wxEmptyString, sConfig, sConfig, wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_GLOBAL_FILE|wxCONFIG_USE_RELATIVE_PATH);
 #else
 	pConfig	= new wxConfig;
@@ -232,11 +232,11 @@ void CSAGA::_Init_Config(void)
 	//-----------------------------------------------------
 	wxString	s;
 
-	if( !CONFIG_Read("Version", "Build", s) || s.Cmp(SAGA_GUI_Get_Build()) )
+	if( !CONFIG_Read(wxT("Version"), wxT("Build"), s) || s.Cmp(SAGA_GUI_Get_Build()) )
 	{
 		long	l;
 
-		pConfig->SetPath("/");
+		pConfig->SetPath(wxT("/"));
 
 		while( pConfig->GetFirstGroup(s, l) )
 		{
@@ -245,7 +245,7 @@ void CSAGA::_Init_Config(void)
 
 		pConfig->Flush();
 
-		CONFIG_Write("Version", "Build", SAGA_GUI_Get_Build());
+		CONFIG_Write(wxT("Version"), wxT("Build"), SAGA_GUI_Get_Build());
 	}
 }
 

@@ -74,29 +74,29 @@ CWatersheds::CWatersheds(void)
 
 	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description("");
+	Set_Description(_TL(""));
 
 	Parameters.Add_Grid(
 		NULL, "ELEVATION"	, _TL("Elevation"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL, "CHANNELS"	, _TL("Channel Network"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL, "SINKROUTE"	, _TL("Sink Route"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
 		NULL, "BASINS"		, _TL("Watershed Basins"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 

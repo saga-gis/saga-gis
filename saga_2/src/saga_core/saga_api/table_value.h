@@ -81,7 +81,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define NODATA_STRING	"__NO_DATA__"
+#define NODATA_STRING	SG_T("__NO_DATA__")
 #define NODATA_INT		-2147483647
 #define NODATA_DOUBLE	2.2204460492503131e-016
 
@@ -99,13 +99,13 @@ public:
 	CSG_Table_Value(void)	{}
 	virtual ~CSG_Table_Value(void)	{}
 
-	virtual bool				Set_Value		(const char *Value)	= 0;
+	virtual bool				Set_Value		(const SG_Char *Value)	= 0;
 	virtual bool				Set_Value		(double      Value)	= 0;
 
 	virtual bool				Set_NoData		(void)				= 0;
 	virtual bool				is_NoData		(void)				= 0;
 
-	virtual const char *		asString		(int Decimals)		= 0;
+	virtual const SG_Char *		asString		(int Decimals)		= 0;
 	virtual int					asInt			(void)				= 0;
 	virtual double				asDouble		(void)				= 0;
 
@@ -126,7 +126,7 @@ public:
 	virtual ~CSG_Table_Value_String(void) {}
 
 	//-----------------------------------------------------
-	virtual bool				Set_Value		(const char *Value)
+	virtual bool				Set_Value		(const SG_Char *Value)
 	{
 		if( Value && m_Value.Cmp(Value) )
 		{
@@ -143,7 +143,7 @@ public:
 	{
 		CSG_String	s;
 
-		s.Printf("%f", Value);
+		s.Printf(SG_T("%f"), Value);
 
 		return( Set_Value(s.c_str()) );
 	}
@@ -153,7 +153,7 @@ public:
 	virtual bool				is_NoData		(void)			{	return( m_Value.Cmp(NODATA_STRING) == 0 );	}
 
 	//-----------------------------------------------------
-	virtual const char *		asString		(int Decimals)	{	return( m_Value );	}
+	virtual const SG_Char *		asString		(int Decimals)	{	return( m_Value );	}
 	virtual int					asInt			(void)			{	return( m_Value.asInt() );	}
 	virtual double				asDouble		(void)			{	return( m_Value.asDouble() );	}
 
@@ -175,11 +175,11 @@ private:
 class CSG_Table_Value_Date : public CSG_Table_Value
 {
 public:
-	CSG_Table_Value_Date(void) {	Set_Value("0");	}
+	CSG_Table_Value_Date(void) {	Set_Value(SG_T("0"));	}
 	virtual ~CSG_Table_Value_Date(void) {}
 
 	//-----------------------------------------------------
-	virtual bool				Set_Value		(const char *Value)
+	virtual bool				Set_Value		(const SG_Char *Value)
 	{
 		return( Set_Value(SG_Date_To_Double(Value)) );
 	}
@@ -203,7 +203,7 @@ public:
 	virtual bool				is_NoData		(void)			{	return( m_Value == NODATA_INT );	}
 
 	//-----------------------------------------------------
-	virtual const char *		asString		(int Decimals)	{	return( m_Date );	}
+	virtual const SG_Char *		asString		(int Decimals)	{	return( m_Date );	}
 	virtual int					asInt			(void)			{	return( m_Value );	}
 	virtual double				asDouble		(void)			{	return( m_Value );	}
 
@@ -231,7 +231,7 @@ public:
 	virtual ~CSG_Table_Value_Int(void) {}
 
 	//-----------------------------------------------------
-	virtual bool				Set_Value		(const char *Value)
+	virtual bool				Set_Value		(const SG_Char *Value)
 	{
 		double		d;
 		CSG_String	s(Value);
@@ -257,11 +257,11 @@ public:
 	virtual bool				is_NoData		(void)			{	return( m_Value == NODATA_INT );	}
 
 	//-----------------------------------------------------
-	virtual const char *		asString		(int Decimals)
+	virtual const SG_Char *		asString		(int Decimals)
 	{
 		static CSG_String	s;
 
-		s.Printf("%d", m_Value);
+		s.Printf(SG_T("%d"), m_Value);
 
 		return( s.c_str() );
 	}
@@ -292,7 +292,7 @@ public:
 	virtual ~CSG_Table_Value_Double(void) {}
 
 	//-----------------------------------------------------
-	virtual bool				Set_Value		(const char *Value)
+	virtual bool				Set_Value		(const SG_Char *Value)
 	{
 		double		d;
 		CSG_String	s(Value);
@@ -318,17 +318,17 @@ public:
 	virtual bool				is_NoData		(void)			{	return( m_Value == NODATA_DOUBLE );	}
 
 	//-----------------------------------------------------
-	virtual const char *		asString		(int Decimals)
+	virtual const SG_Char *		asString		(int Decimals)
 	{
 		static CSG_String	s;
 
 		if( Decimals > 0 )
 		{
-			s.Printf("%.*f", Decimals, m_Value);
+			s.Printf(SG_T("%.*f"), Decimals, m_Value);
 		}
 		else
 		{
-			s.Printf("%f", m_Value);
+			s.Printf(SG_T("%f"), m_Value);
 		}
 
 		return( s.c_str() );

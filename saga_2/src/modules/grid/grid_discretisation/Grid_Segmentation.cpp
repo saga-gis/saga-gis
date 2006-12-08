@@ -130,12 +130,13 @@ CGrid_Segmentation::CGrid_Segmentation(void)
 	//-----------------------------------------------------
 	// 1. Info...
 
-	Set_Name(_TL("Grid Segmentation"));
+	Set_Name		(_TL("Grid Segmentation"));
 
-	Set_Author(_TL("Copyrights (c) 2002 by Olaf Conrad"));
+	Set_Author		(_TL("Copyrights (c) 2002 by Olaf Conrad"));
 
-	Set_Description(_TL("Segmentation with the local maximum method.\n")
-	);
+	Set_Description	(_TW(
+		"Segmentation with the local maximum method.\n"
+	));
 
 
 	//-----------------------------------------------------
@@ -143,13 +144,13 @@ CGrid_Segmentation::CGrid_Segmentation(void)
 
 	Parameters.Add_Grid(
 		NULL	, "INPUT"		, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "RESULT"		, _TL("Segments"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
@@ -161,8 +162,10 @@ CGrid_Segmentation::CGrid_Segmentation(void)
 		NULL	, "METHOD"		, _TL("Method"),
 		_TL("Choose if you want to segmentate either on minima or on maxima."),
 
-		"Minima|"
-		"Maxima|", 0
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("Minima"),
+			_TL("Maxima")
+		), 0
 	);
 
 	Parameters.Add_Value(
@@ -174,7 +177,7 @@ CGrid_Segmentation::CGrid_Segmentation(void)
 	Parameters.Add_Choice(
 		Parameters("RESULT"), "OUTPUT_TYPE", _TL("Output"),
 		_TL("The values of the resultant grid can be either the seed value (e.g. the local maximum) or the enumerated segment id."),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Seed Value"),
 			_TL("Segment ID")
 		), 1

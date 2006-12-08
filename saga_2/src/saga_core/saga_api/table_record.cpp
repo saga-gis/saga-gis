@@ -183,13 +183,13 @@ bool CSG_Table_Record::_Del_Field(int del_Field)
 }
 
 //---------------------------------------------------------
-int CSG_Table_Record::_Get_Field(const char *Field) const
+int CSG_Table_Record::_Get_Field(const SG_Char *Field) const
 {
-	if( Field && strlen(Field) > 0 )
+	if( Field && *Field )
 	{
 		for(int iField=0; iField<m_pOwner->Get_Field_Count(); iField++)
 		{
-			if( !strcmp(Field, m_pOwner->Get_Field_Name(iField)) )
+			if( !SG_STR_CMP(Field, m_pOwner->Get_Field_Name(iField)) )
 			{
 				return( iField );
 			}
@@ -207,7 +207,7 @@ int CSG_Table_Record::_Get_Field(const char *Field) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Table_Record::Set_Value(int iField, const char *Value)
+bool CSG_Table_Record::Set_Value(int iField, const SG_Char *Value)
 {
 	if( iField >= 0 && iField < m_pOwner->Get_Field_Count() )
 	{
@@ -223,7 +223,7 @@ bool CSG_Table_Record::Set_Value(int iField, const char *Value)
 	return( false );
 }
 
-bool CSG_Table_Record::Set_Value(const char *Field, const char *Value)
+bool CSG_Table_Record::Set_Value(const SG_Char *Field, const SG_Char *Value)
 {
 	return( Set_Value(_Get_Field(Field), Value) );
 }
@@ -245,7 +245,7 @@ bool CSG_Table_Record::Set_Value(int iField, double Value)
 	return( false );
 }
 
-bool CSG_Table_Record::Set_Value(const char *Field, double Value)
+bool CSG_Table_Record::Set_Value(const SG_Char *Field, double Value)
 {
 	return( Set_Value(_Get_Field(Field), Value) );
 }
@@ -261,7 +261,7 @@ bool CSG_Table_Record::Add_Value(int iField, double Value)
 	return( false );
 }
 
-bool CSG_Table_Record::Add_Value(const char *Field, double Value)
+bool CSG_Table_Record::Add_Value(const SG_Char *Field, double Value)
 {
 	return( Add_Value(_Get_Field(Field), Value) );
 }
@@ -277,7 +277,7 @@ bool CSG_Table_Record::Mul_Value(int iField, double Value)
 	return( false );
 }
 
-bool CSG_Table_Record::Mul_Value(const char *Field, double Value)
+bool CSG_Table_Record::Mul_Value(const SG_Char *Field, double Value)
 {
 	return( Mul_Value(_Get_Field(Field), Value) );
 }
@@ -306,7 +306,7 @@ bool CSG_Table_Record::Set_NoData(int iField)
 	return( false );
 }
 
-bool CSG_Table_Record::Set_NoData(const char *Field)
+bool CSG_Table_Record::Set_NoData(const SG_Char *Field)
 {
 	return( Set_NoData(_Get_Field(Field)) );
 }
@@ -317,7 +317,7 @@ bool CSG_Table_Record::is_NoData(int iField) const
 	return( iField >= 0 && iField < m_pOwner->Get_Field_Count() ? m_Values[iField]->is_NoData() : true );
 }
 
-bool CSG_Table_Record::is_NoData(const char *Field) const
+bool CSG_Table_Record::is_NoData(const SG_Char *Field) const
 {
 	return( is_NoData(_Get_Field(Field)) );
 }
@@ -330,12 +330,12 @@ bool CSG_Table_Record::is_NoData(const char *Field) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char * CSG_Table_Record::asString(int iField, int Decimals) const
+const SG_Char * CSG_Table_Record::asString(int iField, int Decimals) const
 {
 	return( iField >= 0 && iField < m_pOwner->Get_Field_Count() ? m_Values[iField]->asString(Decimals) : NULL );
 }
 
-const char * CSG_Table_Record::asString(const char *Field, int Decimals) const
+const SG_Char * CSG_Table_Record::asString(const SG_Char *Field, int Decimals) const
 {
 	return( asString(_Get_Field(Field), Decimals) );
 }
@@ -346,7 +346,7 @@ int CSG_Table_Record::asInt(int iField) const
 	return( iField >= 0 && iField < m_pOwner->Get_Field_Count() ? m_Values[iField]->asInt() : 0 );
 }
 
-int CSG_Table_Record::asInt(const char *Field) const
+int CSG_Table_Record::asInt(const SG_Char *Field) const
 {
 	return( asInt(_Get_Field(Field)) );
 }
@@ -357,7 +357,7 @@ double CSG_Table_Record::asDouble(int iField) const
 	return( iField >= 0 && iField < m_pOwner->Get_Field_Count() ? m_Values[iField]->asDouble() : 0.0 );
 }
 
-double CSG_Table_Record::asDouble(const char *Field) const
+double CSG_Table_Record::asDouble(const SG_Char *Field) const
 {
 	return( asDouble(_Get_Field(Field)) );
 }

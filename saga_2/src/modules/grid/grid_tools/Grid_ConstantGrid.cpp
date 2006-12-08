@@ -21,19 +21,19 @@
 CConstantGrid::CConstantGrid(void){
 
 	Parameters.Set_Name(_TL("Create Constant Grid"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2004 by Victor Olaya. Constant Grid Creation"));
 
 	Parameters.Add_Grid(NULL, 
 						"GRID",
 						_TL("Base Grid"), 						
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 	
 	Parameters.Add_Value(NULL, 
 						"VALUE", 
 						_TL("Value"), 
-						"", 
+						_TL(""), 
 						PARAMETER_TYPE_Double, 
 						1);
 						

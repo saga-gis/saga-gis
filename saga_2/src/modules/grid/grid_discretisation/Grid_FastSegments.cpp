@@ -73,11 +73,11 @@ CGrid_FastSegments::CGrid_FastSegments(void)
 	//-----------------------------------------------------
 	// 1. Info...
 
-	Set_Name(_TL("Grid Segmentation (b)"));
+	Set_Name		(_TL("Grid Segmentation (b)"));
 
-	Set_Author(_TL("Copyrights (c) 2006 by Olaf Conrad"));
+	Set_Author		(_TL("Copyrights (c) 2006 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Segmentation with the local minimum/maximum method."
 	));
 
@@ -87,19 +87,19 @@ CGrid_FastSegments::CGrid_FastSegments(void)
 
 	Parameters.Add_Grid(
 		NULL	, "INPUT"		, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "SEGMENTS"	, _TL("Segments"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "OBJECTS"		, _TL("Features"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
@@ -111,7 +111,7 @@ CGrid_FastSegments::CGrid_FastSegments(void)
 		NULL	, "METHOD"		, _TL("Method"),
 		_TL("Choose if you want to segmentate either on minima or on maxima."),
 
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Minima"),
 			_TL("Maxima")
 		), 0
@@ -121,7 +121,7 @@ CGrid_FastSegments::CGrid_FastSegments(void)
 		NULL	, "VALUES"		, _TL("Output"),
 		_TL("The values of the resultant grid can be either the seed value (e.g. the local maximum) or the enumerated segment id."),
 
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Segment ID"),
 			_TL("Seed Value")
 		), 1

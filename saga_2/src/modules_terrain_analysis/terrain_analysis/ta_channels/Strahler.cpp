@@ -22,21 +22,21 @@
 
 CStrahler::CStrahler(void){
 
-	Set_Name("Strahler Order");
-	Set_Author(_TL("Copyrights (c) 2004 by Victor Olaya"));
-	Set_Description(_TL(
+	Set_Name		(_TL("Strahler Order"));
+	Set_Author		(_TL("Copyrights (c) 2004 by Victor Olaya"));
+	Set_Description	(_TW(
 		"(c) 2004 by Victor Olaya. Strahler Order Calculation"));
 
 	Parameters.Add_Grid(NULL, 
 						"DEM", 
 						_TL("Elevation Grid"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"STRAHLER", 
 						_TL("Strahler Order"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
 						GRID_TYPE_Int);

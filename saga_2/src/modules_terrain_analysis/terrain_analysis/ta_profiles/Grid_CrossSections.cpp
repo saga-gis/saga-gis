@@ -25,7 +25,7 @@ CGrid_CrossSections::CGrid_CrossSections(void){
 	CSG_Parameter *pNode;
 
 	Parameters.Set_Name(_TL("Cross Sections"));
-	Parameters.Set_Description(_TL("(c) 2004 Victor Olaya. Cross Sections"));
+	Parameters.Set_Description(_TW("(c) 2004 Victor Olaya. Cross Sections"));
 
 	Parameters.Add_Grid(NULL,
 						"DEM",
@@ -36,14 +36,14 @@ CGrid_CrossSections::CGrid_CrossSections(void){
 	Parameters.Add_Shapes(NULL,
 						"LINES",
 						_TL("Path"),
-						"",
+						_TL(""),
 						PARAMETER_INPUT, 
 						SHAPE_TYPE_Line);
 
 	Parameters.Add_Shapes(NULL,
 						"SECTIONS",
 						_TL("Cross Sections"),
-						"",
+						_TL(""),
 						PARAMETER_OUTPUT);
 
 	Parameters.Add_Value(NULL,
@@ -64,7 +64,7 @@ CGrid_CrossSections::CGrid_CrossSections(void){
 
 	Parameters.Add_Value(NULL,
 						"STEP",
-						"n",
+						_TL("n"),
 						_TL("Draw a section each n points"),
 						PARAMETER_TYPE_Int,
 						2);
@@ -72,35 +72,35 @@ CGrid_CrossSections::CGrid_CrossSections(void){
 	pNode = Parameters.Add_Node(NULL,
 						"PDFNODE",
 						_TL("PDF Documents"),
-						"");
+						_TL(""));
 
 	Parameters.Add_Value(pNode,
 						"PDF",
 						_TL("Create PDF Documents"),
-						"",
+						_TL(""),
 						PARAMETER_TYPE_Bool,
 						true);	
 
 	Parameters.Add_FilePath(pNode,
 							"OUTPUTPATH",
 							_TL("Folder for PDF Files"),
-							"",
-							"",
-							"",
+							_TL(""),
+							_TL(""),
+							_TL(""),
 							true,
 							true);
 
 	Parameters.Add_Value(pNode,
 						"WIDTH",
 						_TL("Road Width"),
-						"",
+						_TL(""),
 						PARAMETER_TYPE_Double,
 						5.);
 
 	Parameters.Add_Value(pNode,
 						"SLOPE",
 						_TL("Side Slope"),
-						"",
+						_TL(""),
 						PARAMETER_TYPE_Double,
 						.5);
 
@@ -151,7 +151,7 @@ bool CGrid_CrossSections::On_Execute(void){
 
 	m_pSections->Create(SHAPE_TYPE_Line, _TL("Cross Sections"));
 	for (i = iNumPoints; i > 0; i--){
-		m_pSections->Get_Table().Add_Field(CSG_String::Format("-%s", SG_Get_String(fInterval * i, 2).c_str()),
+		m_pSections->Get_Table().Add_Field(CSG_String::Format(SG_T("-%s"), SG_Get_String(fInterval * i, 2).c_str()),
 										TABLE_FIELDTYPE_Double);
 	}//for
 	m_pSections->Get_Table().Add_Field("0", TABLE_FIELDTYPE_Double);
@@ -215,7 +215,7 @@ void CGrid_CrossSections::CreatePDFDocs(){
 			
 	if (Parameters("OUTPUTPATH")->asString()){
 		m_DocEngine.Open(_TL("SECTIONS"));
-		sFilePath = SG_File_Make_Path(Parameters("OUTPUTPATH")->asString(), _TL("Sections"), "pdf");
+		sFilePath = SG_File_Make_Path(Parameters("OUTPUTPATH")->asString(), _TL("Sections"), _TL("pdf"));
 	}//if
 	else{
 		Message_Add(_TL("\n** Error : Invalid parameters **\n"));

@@ -74,7 +74,7 @@ CGrid_Geometric_Figures::CGrid_Geometric_Figures(void)
 
 	Set_Author	(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description(_TW(
 		"Construct grids from geometric figures (planes, cones).\n"
 		"(c) 2001 by Olaf Conrad, Goettingen\nemail: oconrad@gwdg.de")
 	);
@@ -82,32 +82,32 @@ CGrid_Geometric_Figures::CGrid_Geometric_Figures(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List(
 		NULL, "RESULT"		, _TL("Result"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, false
 	);
 
 	Parameters.Add_Value(
 		NULL, "CELL_COUNT"	, _TL("Cell Count"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 100, 2.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL, "CELL_SIZE"	, _TL("Cell Size"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 1.0, 0.0, true
 	);
 
 	Parameters.Add_Choice(
 		NULL, "FIGURE"		, _TL("Figure"),
-		"",
-		CSG_String::Format("%s|%s|%s|", _TL("Cone (up)"), _TL("Cone (down)"), _TL("Plane")), 
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|"), _TL("Cone (up)"), _TL("Cone (down)"), _TL("Plane")), 
 		0
 	);
 
 	Parameters.Add_Value(
 		NULL, "PLANE"		, _TL("Direction of Plane [Degree]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 22.5
 	);
 }

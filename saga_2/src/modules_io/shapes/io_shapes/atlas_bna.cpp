@@ -77,7 +77,7 @@ CAtlas_BNA_Import::CAtlas_BNA_Import(void)
 
 	Set_Author		(_TL("Copyrights (c) 2006 by Olaf Conrad"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"\n"
 	));
 
@@ -87,7 +87,7 @@ CAtlas_BNA_Import::CAtlas_BNA_Import(void)
 
 	Parameters.Add_FilePath(
 		NULL	, "FILE"	, _TL("File"),
-		"",
+		_TL(""),
 		_TL("Atlas Boundary Files (*.bna)|*.bna|All Files|*.*")
 	);
 }
@@ -99,19 +99,19 @@ CAtlas_BNA_Import::~CAtlas_BNA_Import(void)
 //---------------------------------------------------------
 bool CAtlas_BNA_Import::On_Execute(void)
 {
-	bool			bOk;
-	int				iPoint, nPoints;
-	double			x, y;
-	FILE			*Stream;
-	CSG_String		FileName, sLine, sName1, sName2;
-	CSG_Shape			*pShape;
-	CSG_Shapes			*pPoints, *pLines, *pPolygons;
+	bool		bOk;
+	int			iPoint, nPoints;
+	double		x, y;
+	FILE		*Stream;
+	CSG_String	FileName, sLine, sName1, sName2;
+	CSG_Shape	*pShape;
+	CSG_Shapes	*pPoints, *pLines, *pPolygons;
 
 	//-----------------------------------------------------
 	FileName	= Parameters("FILE")	->asString();
 
 	//-----------------------------------------------------
-	if( (Stream = fopen(FileName, "r")) != NULL )
+	if( (Stream = fopen(FileName.b_str(), "r")) != NULL )
 	{
 		pPoints		= SG_Create_Shapes(SHAPE_TYPE_Point  , SG_File_Get_Name(FileName, true));
 		pPoints		->Get_Table().Add_Field("NAME1"	, TABLE_FIELDTYPE_String);
@@ -163,7 +163,7 @@ bool CAtlas_BNA_Import::On_Execute(void)
 				{
 					if( (bOk = SG_Read_Line(Stream, sLine)) == true )
 					{
-						sscanf(sLine, "%lf %lf", &x, &y);
+						SG_SSCANF(sLine, SG_T("%lf %lf"), &x, &y);
 						pShape->Add_Point(x, y);
 					}
 				}
@@ -229,7 +229,7 @@ CAtlas_BNA_Export::CAtlas_BNA_Export(void)
 
 	Set_Author		(_TL("Copyrights (c) 2006 by Olaf Conrad"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"\n"
 	));
 
@@ -241,23 +241,23 @@ CAtlas_BNA_Export::CAtlas_BNA_Export(void)
 
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES"	, _TL("Shapes"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table_Field(
 		pNode	, "PNAME"	, _TL("Primary Name"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Table_Field(
 		pNode	, "SNAME"	, _TL("Secondary Name"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_FilePath(
 		NULL	, "FILE"	, _TL("File"),
-		"",
+		_TL(""),
 		_TL(
 		"Atlas Boundary Files (*.bna)|*.bna|All Files|*.*"), NULL, true
 	);
@@ -274,17 +274,19 @@ bool CAtlas_BNA_Export::On_Execute(void)
 	FILE		*Stream;
 	TSG_Point	p;
 	CSG_Points	Pts;
-	CSG_Shape		*pShape;
-	CSG_Shapes		*pShapes;
+	CSG_Shape	*pShape;
+	CSG_Shapes	*pShapes;
+	CSG_String	fName;
 
 	//-----------------------------------------------------
 	pShapes	= Parameters("SHAPES")	->asShapes();
+	fName	= Parameters("FILE")	->asString();
 
-	iName1	= Parameters("PNAME")->asInt();
-	iName2	= Parameters("SNAME")->asInt();
+	iName1	= Parameters("PNAME")	->asInt();
+	iName2	= Parameters("SNAME")	->asInt();
 
 	//-----------------------------------------------------
-	if( (Stream = fopen(Parameters("FILE")->asString(), "w")) != NULL )
+	if( (Stream = fopen(fName.b_str(), "w")) != NULL )
 	{
 		for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{

@@ -119,22 +119,22 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	long		lValue;
 	wxString	sValue;
 
-	if( CONFIG_Read("/DATA/GRIDS", "CACHE_TMP_DIR"		, sValue) )
+	if( CONFIG_Read(wxT("/DATA/GRIDS"), wxT("CACHE_TMP_DIR")	, sValue) )
 	{
 		SG_Grid_Cache_Set_Directory(sValue);
 	}
 
-	if( CONFIG_Read("/DATA/GRIDS", "CACHE_AUTO"			, bValue) )
+	if( CONFIG_Read(wxT("/DATA/GRIDS"), wxT("CACHE_AUTO")		, bValue) )
 	{
 		SG_Grid_Cache_Set_Automatic(bValue);
 	}
 
-	if( CONFIG_Read("/DATA/GRIDS", "CACHE_THRESHOLD"	, lValue) )
+	if( CONFIG_Read(wxT("/DATA/GRIDS"), wxT("CACHE_THRESHOLD")	, lValue) )
 	{
 		SG_Grid_Cache_Set_Threshold(lValue);
 	}
 
-	if( CONFIG_Read("/DATA/GRIDS", "CACHE_CONFIRM"		, lValue) )
+	if( CONFIG_Read(wxT("/DATA/GRIDS"), wxT("CACHE_CONFIRM")	, lValue) )
 	{
 		SG_Grid_Cache_Set_Confirm  (lValue);
 	}
@@ -142,9 +142,9 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	//-----------------------------------------------------
 	CSG_Parameter	*pNode;
 
-	m_Parameters.Create(this, "", "");
+	m_Parameters.Create(this, LNG(""), LNG(""));
 
-	pNode	= m_Parameters.Add_Node(NULL, "NODE_GRID_MEM", LNG("Grid File Caching"), "");
+	pNode	= m_Parameters.Add_Node(NULL, "NODE_GRID_MEM", LNG("Grid File Caching"), LNG(""));
 
 	m_Parameters.Add_FilePath(
 		pNode	, "GRID_MEM_CACHE_TMPDIR"	, LNG("Temporary files"),
@@ -167,7 +167,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_Choice(
 		pNode	, "GRID_MEM_CACHE_CONFIRM"	, LNG("Confirm file caching"),
 		LNG(""),
-		wxString::Format("%s|%s|%s|",
+		wxString::Format(wxT("%s|%s|%s|"),
 			LNG("do not confirm"),
 			LNG("confirm"),
 			LNG("confirm with options")
@@ -176,9 +176,9 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	);
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "NODE_GENERAL", LNG("General"), "");
+	pNode	= m_Parameters.Add_Node(NULL, "NODE_GENERAL", LNG("General"), LNG(""));
 
-	if( CONFIG_Read("/DATA", "PROJECT_START"			, lValue) == false )
+	if( CONFIG_Read(wxT("/DATA"), wxT("PROJECT_START")			, lValue) == false )
 	{
 		lValue	= 2;
 	}
@@ -186,14 +186,14 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_Choice(
 		pNode	, "PROJECT_START"			, LNG("Start Project"),
 		LNG(""),
-		wxString::Format("%s|%s|%s|",
+		wxString::Format(wxT("%s|%s|%s|"),
 			LNG("empty"),
 			LNG("last opened"),
 			LNG("automatically save and load")
 		), lValue
 	);
 
-	if( CONFIG_Read("/DATA", "START_LOGO"				, lValue) == false )
+	if( CONFIG_Read(wxT("/DATA"), wxT("START_LOGO")				, lValue) == false )
 	{
 		lValue	= 1;
 	}
@@ -202,7 +202,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 		pNode	, "START_LOGO"				, LNG("Show Logo at Start Up"),
 		LNG(""),
 
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format(wxT("%s|%s|%s|%s|"),
 			LNG("do not show"),
 			LNG("only during start up phase"),
 			LNG("20 seconds"),
@@ -238,7 +238,7 @@ bool CWKSP_Data_Manager::Initialise(void)
 	}
 	else
 	{
-		return( CONFIG_Read("/DATA", "PROJECT_FILE", FileName) && wxFileExists(FileName) && m_pProject->Load(FileName, false, false) );
+		return( CONFIG_Read(wxT("/DATA"), wxT("PROJECT_FILE"), FileName) && wxFileExists(FileName) && m_pProject->Load(FileName, false, false) );
 	}
 
 	return( false );
@@ -248,37 +248,37 @@ bool CWKSP_Data_Manager::Initialise(void)
 bool CWKSP_Data_Manager::Finalise(void)
 {
 	//-----------------------------------------------------
-	CONFIG_Write("/DATA/GRIDS", "CACHE_TMP_DIR"		,		SG_Grid_Cache_Get_Directory());
-	CONFIG_Write("/DATA/GRIDS", "CACHE_AUTO"		,		SG_Grid_Cache_Get_Automatic());
-	CONFIG_Write("/DATA/GRIDS", "CACHE_THRESHOLD"	, (long)SG_Grid_Cache_Get_Threshold());
-	CONFIG_Write("/DATA/GRIDS", "CACHE_CONFIRM"		, (long)SG_Grid_Cache_Get_Confirm  ());
+	CONFIG_Write(wxT("/DATA/GRIDS")	, wxT("CACHE_TMP_DIR")	,		SG_Grid_Cache_Get_Directory());
+	CONFIG_Write(wxT("/DATA/GRIDS")	, wxT("CACHE_AUTO")		,		SG_Grid_Cache_Get_Automatic());
+	CONFIG_Write(wxT("/DATA/GRIDS")	, wxT("CACHE_THRESHOLD"), (long)SG_Grid_Cache_Get_Threshold());
+	CONFIG_Write(wxT("/DATA/GRIDS")	, wxT("CACHE_CONFIRM")	, (long)SG_Grid_Cache_Get_Confirm  ());
 
 	//-----------------------------------------------------
-	wxFileName	fProject(g_pSAGA->Get_App_Path(), "saga_gui", "cfg");
+	wxFileName	fProject(g_pSAGA->Get_App_Path(), wxT("saga_gui"), wxT("cfg"));
 
-	CONFIG_Write("/DATA", "PROJECT_START"			, (long)m_Parameters("PROJECT_START")	->asInt());
-	CONFIG_Write("/DATA", "START_LOGO"				, (long)m_Parameters("START_LOGO")		->asInt());
+	CONFIG_Write(wxT("/DATA")		, wxT("PROJECT_START")	, (long)m_Parameters("PROJECT_START")	->asInt());
+	CONFIG_Write(wxT("/DATA")		, wxT("START_LOGO")		, (long)m_Parameters("START_LOGO")		->asInt());
 
 	if( Get_Count() == 0 )
 	{
 		wxRemoveFile(fProject.GetFullPath());
-		CONFIG_Write("/DATA", "PROJECT_FILE", "");
+		CONFIG_Write(wxT("/DATA"), wxT("PROJECT_FILE"), LNG(""));
 	}
 	else switch( m_Parameters("PROJECT_START")->asInt() )
 	{
 	case 0:	// empty
 		wxRemoveFile(fProject.GetFullPath());
-		CONFIG_Write("/DATA", "PROJECT_FILE", "");
+		CONFIG_Write(wxT("/DATA"), wxT("PROJECT_FILE"), LNG(""));
 		break;
 
 	case 1:	// last opened
 		wxRemoveFile(fProject.GetFullPath());
-		CONFIG_Write("/DATA", "PROJECT_FILE", m_pProject->Get_File_Name());
+		CONFIG_Write(wxT("/DATA"), wxT("PROJECT_FILE"), m_pProject->Get_File_Name());
 		break;
 
 	case 2:	// automatically save and load		
 		m_pProject->Save(fProject.GetFullPath(), false);
-		CONFIG_Write("/DATA", "PROJECT_FILE", m_pProject->Get_File_Name());
+		CONFIG_Write(wxT("/DATA"), wxT("PROJECT_FILE"), m_pProject->Get_File_Name());
 		break;
 	}
 
@@ -303,7 +303,7 @@ wxString CWKSP_Data_Manager::Get_Description(void)
 {
 	wxString	s;
 
-	s.Printf("<b>%s</b><br>", LNG("[CAP] Data"));
+	s.Printf(wxT("<b>%s</b><br>"), LNG("[CAP] Data"));
 
 	if( Get_Count() <= 0 )
 	{
@@ -313,28 +313,28 @@ wxString CWKSP_Data_Manager::Get_Description(void)
 	{
 		if( m_pProject->Has_File_Name() )
 		{
-			s.Append(wxString::Format("%s: %s<br>", LNG("[CAP] Project File"), m_pProject->Get_File_Name()));
+			s.Append(wxString::Format(wxT("%s: %s<br>"), LNG("[CAP] Project File"), m_pProject->Get_File_Name()));
 		}
 
 		if( Get_Tables() )
 		{
-			s.Append(wxString::Format("%s: %d<br>", LNG("[CAP] Tables"), Get_Tables()->Get_Count()));
+			s.Append(wxString::Format(wxT("%s: %d<br>"), LNG("[CAP] Tables"), Get_Tables()->Get_Count()));
 		}
 
 		if( Get_Shapes() )
 		{
-			s.Append(wxString::Format("%s: %d<br>", LNG("[CAP] Shapes"), Get_Shapes()->Get_Items_Count()));
+			s.Append(wxString::Format(wxT("%s: %d<br>"), LNG("[CAP] Shapes"), Get_Shapes()->Get_Items_Count()));
 		}
 
 		if( Get_TINs() )
 		{
-			s.Append(wxString::Format("%s: %d<br>", LNG("[CAP] TIN"), Get_TINs()->Get_Count()));
+			s.Append(wxString::Format(wxT("%s: %d<br>"), LNG("[CAP] TIN"), Get_TINs()->Get_Count()));
 		}
 
 		if( Get_Grids() )
 		{
-			s.Append(wxString::Format("%s: %d<br>", LNG("[CAP] Grid Systems"), Get_Grids()->Get_Count()));
-			s.Append(wxString::Format("%s: %d<br>", LNG("[CAP] Grids"), Get_Grids()->Get_Items_Count()));
+			s.Append(wxString::Format(wxT("%s: %d<br>"), LNG("[CAP] Grid Systems"), Get_Grids()->Get_Count()));
+			s.Append(wxString::Format(wxT("%s: %d<br>"), LNG("[CAP] Grids"), Get_Grids()->Get_Items_Count()));
 		}
 	}
 
@@ -571,27 +571,27 @@ bool CWKSP_Data_Manager::Open_CMD(int Cmd_ID)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Data_Manager::Open(const char *File_Name)
+bool CWKSP_Data_Manager::Open(const wxChar *File_Name)
 {
-	if( SG_File_Cmp_Extension(File_Name, "txt")
-	||	SG_File_Cmp_Extension(File_Name, "dbf") )
+	if( SG_File_Cmp_Extension(File_Name, wxT("txt"))
+	||	SG_File_Cmp_Extension(File_Name, wxT("dbf")) )
 	{
 		return( Open(DATAOBJECT_TYPE_Table , File_Name) != NULL );
 	}
 
-	if( SG_File_Cmp_Extension(File_Name, "shp") )
+	if( SG_File_Cmp_Extension(File_Name, wxT("shp")) )
 	{
 		return( Open(DATAOBJECT_TYPE_Shapes, File_Name) != NULL );
 	}
 
-	if(	SG_File_Cmp_Extension(File_Name, "sgrd")
-	||	SG_File_Cmp_Extension(File_Name, "dgm")
-	||	SG_File_Cmp_Extension(File_Name, "grd") )
+	if(	SG_File_Cmp_Extension(File_Name, wxT("sgrd"))
+	||	SG_File_Cmp_Extension(File_Name, wxT("dgm"))
+	||	SG_File_Cmp_Extension(File_Name, wxT("grd")) )
 	{
 		return( Open(DATAOBJECT_TYPE_Grid  , File_Name) != NULL );
 	}
 
-	if( SG_File_Cmp_Extension(File_Name, "sprj") )
+	if( SG_File_Cmp_Extension(File_Name, wxT("sprj")) )
 	{
 		return( m_pProject->Load(File_Name, false, true) );
 	}
@@ -630,7 +630,7 @@ bool CWKSP_Data_Manager::Open(int DataType)
 }
 
 //---------------------------------------------------------
-CWKSP_Base_Item * CWKSP_Data_Manager::Open(int DataType, const char *FileName)
+CWKSP_Base_Item * CWKSP_Data_Manager::Open(int DataType, const wxChar *FileName)
 {
 	CSG_Data_Object		*pObject;
 	CWKSP_Base_Item	*pItem;
@@ -716,7 +716,7 @@ bool CWKSP_Data_Manager::Exists(CSG_Data_Object *pObject, int Type)
 }
 
 //---------------------------------------------------------
-CSG_Data_Object * CWKSP_Data_Manager::Get_byFileName(const char *File_Name, int Type)
+CSG_Data_Object * CWKSP_Data_Manager::Get_byFileName(const wxChar *File_Name, int Type)
 {
 	switch( Type )
 	{
@@ -1071,8 +1071,8 @@ bool CWKSP_Data_Manager::Get_DataObject_List(CSG_Parameters *pParameters)
 		{
 			for(j=0; j<Get_Grids()->Get_System(i)->Get_Count(); j++)
 			{
-				s.Printf("GRID_%03_%03", i, j);
-				pParameters->Add_Grid(NULL, s, s, "", PARAMETER_INPUT)
+				s.Printf(wxT("GRID_%03_%03"), i, j);
+				pParameters->Add_Grid(NULL, s, s, LNG(""), PARAMETER_INPUT)
 					->Set_Value(Get_Grids()->Get_System(i)->Get_Grid(j)->Get_Grid());
 			}
 		}
@@ -1081,8 +1081,8 @@ bool CWKSP_Data_Manager::Get_DataObject_List(CSG_Parameters *pParameters)
 		{
 			for(i=0; i<pShapes->Get_Count(); i++)
 			{
-				s.Printf("POINT_%03", i);
-				pParameters->Add_Shapes(NULL, s, s, "", PARAMETER_INPUT)
+				s.Printf(wxT("POINT_%03"), i);
+				pParameters->Add_Shapes(NULL, s, s, LNG(""), PARAMETER_INPUT)
 					->Set_Value(pShapes->Get_Shapes(i)->Get_Shapes());
 			}
 		}
@@ -1091,8 +1091,8 @@ bool CWKSP_Data_Manager::Get_DataObject_List(CSG_Parameters *pParameters)
 		{
 			for(i=0; i<pShapes->Get_Count(); i++)
 			{
-				s.Printf("POINTS_%03", i);
-				pParameters->Add_Shapes(NULL, s, s, "", PARAMETER_INPUT)
+				s.Printf(wxT("POINTS_%03"), i);
+				pParameters->Add_Shapes(NULL, s, s, LNG(""), PARAMETER_INPUT)
 					->Set_Value(pShapes->Get_Shapes(i)->Get_Shapes());
 			}
 		}
@@ -1101,8 +1101,8 @@ bool CWKSP_Data_Manager::Get_DataObject_List(CSG_Parameters *pParameters)
 		{
 			for(i=0; i<pShapes->Get_Count(); i++)
 			{
-				s.Printf("LINE_%03", i);
-				pParameters->Add_Shapes(NULL, s, s, "", PARAMETER_INPUT)
+				s.Printf(wxT("LINE_%03"), i);
+				pParameters->Add_Shapes(NULL, s, s, LNG(""), PARAMETER_INPUT)
 					->Set_Value(pShapes->Get_Shapes(i)->Get_Shapes());
 			}
 		}
@@ -1111,16 +1111,16 @@ bool CWKSP_Data_Manager::Get_DataObject_List(CSG_Parameters *pParameters)
 		{
 			for(i=0; i<pShapes->Get_Count(); i++)
 			{
-				s.Printf("POLYGON_%03", i);
-				pParameters->Add_Shapes(NULL, s, s, "", PARAMETER_INPUT)
+				s.Printf(wxT("POLYGON_%03"), i);
+				pParameters->Add_Shapes(NULL, s, s, LNG(""), PARAMETER_INPUT)
 					->Set_Value(pShapes->Get_Shapes(i)->Get_Shapes());
 			}
 		}
 
 		for(i=0; i<Get_Tables()->Get_Count(); i++)
 		{
-			s.Printf("TABLE_%03", i);
-			pParameters->Add_Table(NULL, s, s, "", PARAMETER_INPUT)
+			s.Printf(wxT("TABLE_%03"), i);
+			pParameters->Add_Table(NULL, s, s, LNG(""), PARAMETER_INPUT)
 				->Set_Value(Get_Tables()->Get_Table(i)->Get_Table());
 		}
 

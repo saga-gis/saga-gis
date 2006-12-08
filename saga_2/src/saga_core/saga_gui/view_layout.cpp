@@ -117,7 +117,7 @@ CVIEW_Layout::CVIEW_Layout(CVIEW_Layout_Info *pInfo)
 
 	m_pControl	= new CVIEW_Layout_Control(this);
 
-	SetTitle(wxString::Format("%s - %s", pInfo->Get_Map()->Get_Name().c_str(), LNG("[CAP] Map-Layout")));
+	SetTitle(wxString::Format(wxT("%s - %s"), pInfo->Get_Map()->Get_Name().c_str(), LNG("[CAP] Map-Layout")));
 }
 
 //---------------------------------------------------------

@@ -24,37 +24,37 @@ CGrid_CVA::CGrid_CVA(void){
 
 	Set_Name(_TL("Change Vector Analysis"));
 	Set_Author(_TL("Copyrights (c) 2004 by Victor Olaya"));
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"(c) 2004 by Victor Olaya. Change Vector Analysis"));
 
 	Parameters.Add_Grid(NULL, 
 						"A1", 
 						_TL("Grid A. Init"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"A2", 
 						_TL("Grid A. Final"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"B1", 
 						_TL("Grid B. Init"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"B2", 
 						_TL("Grid B. Final"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 	
 	Parameters.Add_Grid(NULL, 
 						"DIST", 
 						_TL("Distance"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
 						GRID_TYPE_Double);
@@ -62,7 +62,7 @@ CGrid_CVA::CGrid_CVA(void){
 	Parameters.Add_Grid(NULL, 
 						"ANGLE", 
 						_TL("Angle"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
 						GRID_TYPE_Double);

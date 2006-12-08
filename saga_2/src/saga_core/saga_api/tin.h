@@ -228,8 +228,8 @@ public:
 								CSG_TIN					(CSG_Shapes *pShapes);
 	bool						Create					(CSG_Shapes *pShapes);
 
-								CSG_TIN					(const char *File_Name);
-	bool						Create					(const char *File_Name);
+								CSG_TIN					(const SG_Char *File_Name);
+	bool						Create					(const SG_Char *File_Name);
 
 	virtual ~CSG_TIN(void);
 
@@ -239,7 +239,7 @@ public:
 
 	virtual bool				Assign					(CSG_Data_Object *pObject);
 
-	virtual bool				Save					(const char *File_Name, int Format = 0);
+	virtual bool				Save					(const SG_Char *File_Name, int Format = 0);
 
 	virtual bool				is_Valid				(void)		const	{	return( m_nPoints >= 3 );	}
 
@@ -329,7 +329,7 @@ SAGA_API_DLL_EXPORT CSG_TIN *	SG_Create_TIN			(const CSG_TIN &TIN);
 SAGA_API_DLL_EXPORT CSG_TIN *	SG_Create_TIN			(CSG_Shapes *pShapes);
 
 /** Safe TIN construction */
-SAGA_API_DLL_EXPORT CSG_TIN *	SG_Create_TIN			(const char *File_Name);
+SAGA_API_DLL_EXPORT CSG_TIN *	SG_Create_TIN			(const SG_Char *File_Name);
 
 
 ///////////////////////////////////////////////////////////

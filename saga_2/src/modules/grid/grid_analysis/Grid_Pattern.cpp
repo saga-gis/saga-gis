@@ -24,19 +24,19 @@ CGrid_Pattern::CGrid_Pattern(void){
 
 	Set_Name(_TL("Pattern Analysis"));
 	Set_Author(_TL("Copyrights (c) 2004 by Victor Olaya"));
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"(c) 2004 by Victor Olaya. Pattern Analysis"));
 
 	Parameters.Add_Grid(NULL, 
 						"INPUT", 
 						_TL("Input Grid"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 	
 	Parameters.Add_Grid(NULL, 
 						"RELATIVE", 
 						_TL("Relative Richness"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
 						GRID_TYPE_Double);
@@ -44,7 +44,7 @@ CGrid_Pattern::CGrid_Pattern(void){
 	Parameters.Add_Grid(NULL, 
 						"DIVERSITY", 
 						_TL("Diversity"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
 						GRID_TYPE_Double);
@@ -52,7 +52,7 @@ CGrid_Pattern::CGrid_Pattern(void){
 	Parameters.Add_Grid(NULL, 
 						"DOMINANCE", 
 						_TL("Dominance"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
 						GRID_TYPE_Double);
@@ -60,7 +60,7 @@ CGrid_Pattern::CGrid_Pattern(void){
 	Parameters.Add_Grid(NULL, 
 						"FRAGMENTATION", 
 						_TL("Fragmentation"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
 						GRID_TYPE_Double);
@@ -68,7 +68,7 @@ CGrid_Pattern::CGrid_Pattern(void){
 	Parameters.Add_Grid(NULL, 
 						"NDC", 
 						_TL("Number of Different Classes"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
 						GRID_TYPE_Int);
@@ -76,7 +76,7 @@ CGrid_Pattern::CGrid_Pattern(void){
 	Parameters.Add_Grid(NULL, 
 						"CVN", 
 						_TL("Center Versus Neighbours"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
 						GRID_TYPE_Int);
@@ -84,11 +84,14 @@ CGrid_Pattern::CGrid_Pattern(void){
 	Parameters.Add_Choice(NULL, 
 						"WINSIZE", 
 						_TL("Size of Analysis Window"), 
-						"", 
-						"3 X 3|"
-						"5 X 5|"
-						"7 X 7|",
-						0);
+						_TL(""),
+
+						CSG_String::Format(SG_T("%s|%s|%s|"),
+							_TL("3 X 3"),
+							_TL("5 X 5"),
+							_TL("7 X 7")
+						), 0
+					);
 
 	Parameters.Add_Value(NULL, 
 						"MAXNUMCLASS", 

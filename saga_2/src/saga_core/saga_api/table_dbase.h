@@ -122,8 +122,8 @@ public:
 	virtual ~CSG_Table_DBase(void);
 
 	//-----------------------------------------------------
-	bool						Open				(const char *FileName);
-	bool						Open				(const char *FileName, int nFields, TFieldDesc *FieldDesc);
+	bool						Open				(const SG_Char *FileName);
+	bool						Open				(const SG_Char *FileName, int nFields, TFieldDesc *FieldDesc);
 
 	void						Close				(void);
 

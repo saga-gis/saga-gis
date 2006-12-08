@@ -78,7 +78,7 @@ CSRTM30_Import::CSRTM30_Import(void)
 
 	Set_Author(_TL("Copyrights (c) 2004 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Extracts elevation grids from SRTM30 data.\n\n"
 
 		"<i>\"SRTM30 is a near-global digital elevation model (DEM) comprising a "
@@ -102,51 +102,51 @@ CSRTM30_Import::CSRTM30_Import(void)
 	//-----------------------------------------------------
 	pNode_0	= Parameters.Add_Grid_Output(
 		NULL	, "GRID"		, _TL("Grid"),
-		""
+		_TL("")
 	);
 
 	pNode_0	= Parameters.Add_FilePath(
 		NULL	, "PATH"		, _TL("Path"),
-		"",
+		_TL(""),
 		NULL, NULL, false, true
 	);
 
 	//-----------------------------------------------------
 	pNode_0	= Parameters.Add_Value(
 		NULL	, "XMIN"		, _TL("West []"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 60.0
 	);
 
 	pNode_0	= Parameters.Add_Value(
 		NULL	, "XMAX"		, _TL("East []"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 120.0
 	);
 
 	pNode_0	= Parameters.Add_Value(
 		NULL	, "YMIN"		, _TL("South []"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 20.0
 	);
 	pNode_0	= Parameters.Add_Value(
 		NULL	, "YMAX"		, _TL("North []"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 50.0
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("TILE", "", "");
+	pParameters	= Add_Parameters("TILE", _TL(""), _TL(""));
 
 	pNode_0	= pParameters->Add_Info_String(
 		NULL	, "INFO"		, _TL("File does not exist:"),
-		"",
-		""
+		_TL(""),
+		_TL("")
 	);
 
 	pNode_0	= pParameters->Add_FilePath(
 		NULL	, "PATH"		, _TL("Select file"),
-		"",
+		_TL(""),
 		_TL("SRTM30 DEM Tiles (*.dem)|*.dem|All Files|*.*")
 	);
 }
@@ -203,17 +203,17 @@ bool CSRTM30_Import::On_Execute(void)
 
 	pOut->Set_NoData_Value(-9999);
 	pOut->Assign_NoData();
-	pOut->Set_Name("SRTM30");
+	pOut->Set_Name(SG_T("SRTM30"));
 
 	//-----------------------------------------------------
 	for(yTile=0, rTile.yMin=0, rTile.yMax=Y_WIDTH; yTile<3; yTile++, rTile.yMin+=Y_WIDTH, rTile.yMax+=Y_WIDTH)
 	{
 		for(xTile=0, rTile.xMin=0, rTile.xMax=X_WIDTH; xTile<9; xTile++, rTile.xMin+=X_WIDTH, rTile.xMax+=X_WIDTH)
 		{
-			sTile.Printf("Tile: %s%s", x_sTile[xTile], y_sTile[yTile]);
+			sTile.Printf(SG_T("Tile: %s%s"), x_sTile[xTile], y_sTile[yTile]);
 			Process_Set_Text(sTile);
 
-			sTile.Printf("%s%s%s.dem", Parameters("PATH")->asString(), x_sTile[xTile], y_sTile[yTile]);
+			sTile.Printf(SG_T("%s%s%s.dem"), Parameters("PATH")->asString(), x_sTile[xTile], y_sTile[yTile]);
 			Tile_Load(sTile, rTile, pOut, rOut);
 		}
 	}
@@ -232,7 +232,7 @@ bool CSRTM30_Import::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSRTM30_Import::Tile_Load(const char *sTile, TSG_Rect &rTile, CSG_Grid *pOut, TSG_Rect &rOut)
+bool CSRTM30_Import::Tile_Load(const SG_Char *sTile, TSG_Rect &rTile, CSG_Grid *pOut, TSG_Rect &rOut)
 {
 	short		Value;
 	int			x, y, xOut, yOut;
@@ -272,20 +272,24 @@ bool CSRTM30_Import::Tile_Load(const char *sTile, TSG_Rect &rTile, CSG_Grid *pOu
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-FILE * CSRTM30_Import::Tile_Open(const char *sTile)
+FILE * CSRTM30_Import::Tile_Open(const SG_Char *sTile)
 {
-	const char	*sPath;
-	FILE		*Stream;
+	const SG_Char	*sPath;
+	FILE			*Stream;
+	CSG_String		fName;
 	CSG_Parameters	*pParameters;
 
-	if( (Stream = fopen(sTile, "rb")) == NULL )
+	fName	= sTile;
+
+	if( (Stream = fopen(fName.b_str(), "rb")) == NULL )
 	{
 		pParameters	= Get_Parameters("TILE");
 		pParameters->Get_Parameter("INFO")->Set_Value(sTile);
 
 		if( Dlg_Parameters(pParameters, _TL("Locate STRM30 Data File")) && (sPath = pParameters->Get_Parameter("PATH")->asString()) != NULL )
 		{
-			Stream	= fopen(sPath, "rb");
+			fName	= sPath;
+			Stream	= fopen(fName.b_str(), "rb");
 		}
 	}
 

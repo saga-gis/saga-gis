@@ -75,7 +75,7 @@ CGrid_Classes_To_Shapes::CGrid_Classes_To_Shapes(void)
 
 	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad, (c) 2005 by Hartmut Linke"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Vectorising grid classes.")
 	);
 
@@ -83,22 +83,24 @@ CGrid_Classes_To_Shapes::CGrid_Classes_To_Shapes(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL, "INPUT"		, _TL("Input Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
 		NULL, "CONTOUR"		, _TL("Shapes"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
 		NULL, "OUTPUT_TYPE"	, _TL("Output as..."),
-		"",
-		_TL(
-		"Lines|"
-		"Polygons|"), 1
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("Lines"),
+			_TL("Polygons")
+		), 1
 	);
 }
 
@@ -116,8 +118,8 @@ CGrid_Classes_To_Shapes::~CGrid_Classes_To_Shapes(void)
 //---------------------------------------------------------
 bool CGrid_Classes_To_Shapes::On_Execute(void)
 {
-	pGrid	= Parameters("INPUT")->asGrid();
-	pLayer	= Parameters("CONTOUR")->asShapes();
+	pGrid	= Parameters("INPUT")	->asGrid();
+	pLayer	= Parameters("CONTOUR")	->asShapes();
 
 	switch( Parameters("OUTPUT_TYPE")->asInt() )
 	{

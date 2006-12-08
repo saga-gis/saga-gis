@@ -31,7 +31,7 @@ public:
 	CImage_VI_Slope(void);
 	virtual ~CImage_VI_Slope(void);
 
-	virtual const char *	Get_MenuPath	(void)	{	return( _TL("R:Image Analysis") );	}
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Image Analysis") );	}
 
 
 protected:

@@ -177,7 +177,7 @@ CSG_String CSG_Vector::asString(void)
 
 	for(int i=0; i<m_n; i++)
 	{
-		s.Append(CSG_String::Format("%f\n", m_z[i]));
+		s.Append(CSG_String::Format(SG_T("%f\n"), m_z[i]));
 	}
 
 	return( s );
@@ -686,10 +686,10 @@ CSG_String CSG_Matrix::asString(void)
 	{
 		for(int x=0; x<m_nx; x++)
 		{
-			s.Append(CSG_String::Format("%f\t", m_z[y][x]));
+			s.Append(CSG_String::Format(SG_T("%f\t"), m_z[y][x]));
 		}
 
-		s.Append("\n");
+		s.Append(SG_T("\n"));
 	}
 
 	return( s );

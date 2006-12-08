@@ -119,14 +119,14 @@ public:
 	bool							Check_Parameter		(class CSG_Parameter  *pParameter);
 
 	bool							Open_CMD			(int Cmd_ID);
-	bool							Open				(const char *FileName);
+	bool							Open				(const wxChar *FileName);
 	bool							Open				(int DataType);
-	CWKSP_Base_Item *				Open				(int DataType, const char *FileName);
+	CWKSP_Base_Item *				Open				(int DataType, const wxChar *FileName);
 
 	bool							Exists				(class CSG_Grid_System *pSystem);
 	bool							Exists				(class CSG_Data_Object *pObject, int DataType = -1);
 
-	class CSG_Data_Object *				Get_byFileName		(const char *File_Name, int DataType = -1);
+	class CSG_Data_Object *				Get_byFileName		(const wxChar *File_Name, int DataType = -1);
 
 	bool							Save_Modified		(class CWKSP_Base_Item *pItem);
 	bool							Close				(bool bSilent);

@@ -29,19 +29,19 @@
 CSimulate::CSimulate(void){
 	
 	Parameters.Set_Name(_TL("Simulation"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2004 by Victor Olaya. Simulation."));
 
 	Parameters.Add_Grid(NULL, 
 						"DEM", 
 						_TL("DEM"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 	
 	Parameters.Add_Grid(NULL, 
 						"FUEL", 
 						_TL("Fuel Model"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
@@ -59,43 +59,43 @@ CSimulate::CSimulate(void){
 	Parameters.Add_Grid(NULL, 
 						"M1H", 
 						_TL("Dead Fuel Moisture 1H"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"M10H", 
 						_TL("Dead Fuel Moisture 10H"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"M100H", 
 						_TL("Dead Fuel Moisture 100H"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"MHERB", 
 						_TL("Herbaceous Fuel Moisture"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"MWOOD", 
 						_TL("Wood Fuel Moisture"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"IGNITION", 
 						_TL("Ignition Points"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 	
 	Parameters.Add_Grid(NULL, 
 						"TIME", 
 						_TL("Time"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT);
 
 	Parameters.Add_Grid(NULL, 
@@ -230,7 +230,7 @@ void CSimulate::CalculateFire(){
 	
 	int x,y;
 
-	Process_Set_Text("Simulating...");
+	Process_Set_Text(_TL("Simulating..."));
 	m_CentralPoints	.Clear();
 	m_AdjPoints		.Clear();
 

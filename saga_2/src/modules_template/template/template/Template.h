@@ -76,7 +76,7 @@ public:
 	CTemplate(void);
 	virtual ~CTemplate(void);
 
-	virtual const char *	Get_MenuPath	(void)	{	return( "R:Sub Menu" );	}
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( "R:Sub Menu" );	}
 
 
 protected:

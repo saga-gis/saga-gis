@@ -75,7 +75,7 @@ CGrid_To_Gradient::CGrid_To_Gradient(void)
 
 	Set_Author(_TL("Copyrights (c) 2006 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Create lines indicating the gradient. ")
 	);
 
@@ -83,38 +83,38 @@ CGrid_To_Gradient::CGrid_To_Gradient(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL, "GRID"		, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
 		NULL, "SHAPES"		, _TL("Gradient"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Value(
 		NULL, "STEP"		, _TL("Skip"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int	, 1.0, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL, "SIZE_MIN"	, _TL("Minimum Size"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 1.0, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL, "SIZE_MAX"	, _TL("Maximum Size"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 10.0
 	);
 
 	Parameters.Add_Choice(
 		NULL, "STYLE"		, _TL("Style"),
-		"",
-		CSG_String::Format("%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|"),
 			_TL("Line"),
 			_TL("Arrow")
 		), 0
@@ -151,7 +151,7 @@ bool CGrid_To_Gradient::On_Execute(void)
 	sRange	= Parameters("SIZE_MAX")	->asDouble() - sMin;
 	dStep	= Step * Get_Cellsize();
 
-	pShapes->Create(SHAPE_TYPE_Line, CSG_String::Format("%s [%s]", pGrid->Get_Name(), _TL("Gradient")));
+	pShapes->Create(SHAPE_TYPE_Line, CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("Gradient")));
 	pShapes->Get_Table().Add_Field("X"	, TABLE_FIELDTYPE_Double);
 	pShapes->Get_Table().Add_Field("Y"	, TABLE_FIELDTYPE_Double);
 	pShapes->Get_Table().Add_Field("S"	, TABLE_FIELDTYPE_Double);

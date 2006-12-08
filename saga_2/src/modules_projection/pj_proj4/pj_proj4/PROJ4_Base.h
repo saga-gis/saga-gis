@@ -102,7 +102,7 @@ private:
 	PJ					*m_Projection;
 
 
-	bool				Initialize_ExtraParms		(struct PJ_LIST *pProjection, const char *sName);
+	bool				Initialize_ExtraParms		(struct PJ_LIST *pProjection, const SG_Char *sName);
 
 	bool				Get_ExtraParms				(int &pargc, char ***p_pargv, char *id);
 

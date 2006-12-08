@@ -258,7 +258,7 @@ wxPoint CVIEW_Layout_Info::Get_Margin_BottomRight(void)
 //---------------------------------------------------------
 wxString CVIEW_Layout_Info::Get_Name(void)
 {
-	return( "SAGA: Print Map" );
+	return( LNG("SAGA: Print Map") );
 }
 
 //---------------------------------------------------------
@@ -390,7 +390,7 @@ bool CVIEW_Layout_Info::Draw(wxDC &dc)
 
 			//---------------------------------------------
 			Scale	= 100.0 * zMap * m_pMap->Get_World(rMap).Get_XRange() / (double)rMap.GetWidth();
-			dc.DrawText(wxString::Format("%s 1:%s", LNG("[CAP] Map Scale"), Get_SignificantDecimals_String(Scale).c_str()), rMap.GetLeft(), rMap.GetBottom() + fMap);
+			dc.DrawText(wxString::Format(wxT("%s 1:%s"), LNG("[CAP] Map Scale"), Get_SignificantDecimals_String(Scale).c_str()), rMap.GetLeft(), rMap.GetBottom() + fMap);
 		}
 	}
 

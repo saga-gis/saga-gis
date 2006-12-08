@@ -28,29 +28,29 @@ CSummarize::CSummarize(void){
 	CSG_String sName;
 
 	Parameters.Set_Name(_TL("Summary"));
-	Parameters.Set_Description(_TL("(c) 2004 by Victor Olaya. summary."));
+	Parameters.Set_Description(_TW("(c) 2004 by Victor Olaya. summary."));
 
 	pNode = Parameters.Add_Shapes(NULL,
 								"SHAPES",
 								_TL("Shapes"),
-								"",
+								_TL(""),
 								PARAMETER_INPUT);
 
 	Parameters.Add_Table_Field(pNode,
 								"FIELD",
 								_TL("Field"),
-								"");
+								_TL(""));
 
 	Parameters.Add_Table(NULL,
 						"TABLE",
 						_TL("Summary Table"),
-						"",
+						_TL(""),
 						PARAMETER_OUTPUT);
 
 	pNode = Parameters.Add_Node(NULL,
 						"PDFNODE",
 						_TL("PDF Docs"),
-						"");
+						_TL(""));
 
 	Parameters.Add_Value(pNode,
 						"PDF",
@@ -63,14 +63,14 @@ CSummarize::CSummarize(void){
 							"OUTPUTPATH",
 							_TL("Folder"),
 							_TL("Folder"),
-							"",
-							"",
+							_TL(""),
+							_TL(""),
 							true,
 							true);
 
 	m_pExtraParameters	= Add_Parameters("EXTRA",
 										_TL("Field for Summary"),
-										"");
+										_TL(""));
 
 }//constructor
 
@@ -97,11 +97,11 @@ bool CSummarize::On_Execute(void){
 		for (j = 0; j < 5; j++){
 			if (pShapesTable->Get_Field_Type(i) > 1 && pShapesTable->Get_Field_Type(i) < 7){ //is numeric field
 				sName = pShapesTable->Get_Field_Name(i);
-				sName.Append(_TL(sParam[j]));
+				sName.Append(sParam[j]);
 				pExtraParameter[i * 5 + j] = m_pExtraParameters->Add_Value(NULL,
 																			SG_Get_String(i * 5 + j,0).c_str(),
 																			sName.c_str(),
-																			"",
+																			_TL(""),
 																			PARAMETER_TYPE_Bool,
 																			false);
 				m_bIncludeParam[i * 5 + j] = true;
@@ -128,7 +128,7 @@ bool CSummarize::On_Execute(void){
 				sName.Append(m_pShapes->Get_Name());
 				m_DocEngine.Open(PDF_PAGE_SIZE_A3, PDF_PAGE_ORIENTATION_LANDSCAPE, sName);
 				CreatePDFDocs();
-				sFilePath = SG_File_Make_Path(Parameters("OUTPUTPATH")->asString(), sName, "pdf");
+				sFilePath = SG_File_Make_Path(Parameters("OUTPUTPATH")->asString(), sName, SG_T("pdf"));
 				if (m_DocEngine.Save(sFilePath)){
 					if (!m_DocEngine.Close()){
 						Message_Add(_TL("\n\n ** Error : Could not close PDF engine ** \n\n"));
@@ -257,7 +257,7 @@ void CSummarize::Summarize(){
 			iField = (int) (i / 5);
 			iParam = i % 5;
 			sName = pShapesTable->Get_Field_Name(iField);
-			sName.Append(_TL(sParam[iParam]));
+			sName.Append(sParam[iParam]);
 			m_pTable->Add_Field(sName.c_str(), TABLE_FIELDTYPE_Double);
 			if (iField != iLastField){
 				for (j = 0; j < m_ClassesID.size(); j++){

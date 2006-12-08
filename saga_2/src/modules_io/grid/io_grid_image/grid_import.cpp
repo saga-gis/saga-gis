@@ -74,57 +74,60 @@
 CGrid_Import::CGrid_Import(void)
 {
 	//-----------------------------------------------------
-	Set_Name	(_TL("Import Image (bmp, jpg, png, tif, gif, pnm, xpm)"));
+	Set_Name		(_TL("Import Image (bmp, jpg, png, tif, gif, pnm, xpm)"));
 
-	Set_Author	(_TL("Copyrights (c) 2005 by Olaf Conrad"));
+	Set_Author		(_TL("Copyrights (c) 2005 by Olaf Conrad"));
 
-	Set_Description(
-		_TL("Loads an image.")
-	);
+	Set_Description	(_TW(
+		"Loads an image."
+	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_Output(
 		NULL	, "OUT_GRID"	, _TL("Image"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Grid_Output(
 		NULL	, "OUT_RED"		, _TL("Image (Red Channel)"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Grid_Output(
 		NULL	, "OUT_GREEN"	, _TL("Image (Green Channel)"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Grid_Output(
 		NULL	, "OUT_BLUE"	, _TL("Image (Blue Channel)"),
-		""
+		_TL("")
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_FilePath(
 		NULL	, "FILE"		, _TL("Image File"),
-		"",
-		_TL(
-		"All Recognized File Types"						"|*.bmp;*.ico;*.gif;*.jpg;*.jif;*.jpeg;*.pcx;*.png;*.pnm;*.tif;*.tiff;*.xpm|"
-		"CompuServe Graphics Interchange (*.gif)"		"|*.gif|"
-		"JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)"	"|*.jpg;*.jif;*.jpeg|"
-		"Portable Network Graphics (*.png)"				"|*.png|"
-		"Tagged Image File Format (*.tif, *.tiff)"		"|*.tif;*.tiff|"
-		"Windows or OS/2 Bitmap (*.bmp)"				"|*.bmp|"
-		"Zsoft Paintbrush (*.pcx)"						"|*.pcx|"
-		"All Files"										"|*.*")
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s"),
+			_TL("All Recognized File Types")					, SG_T("*.bmp;*.ico;*.gif;*.jpg;*.jif;*.jpeg;*.pcx;*.png;*.pnm;*.tif;*.tiff;*.xpm"),
+			_TL("CompuServe Graphics Interchange (*.gif)")		, SG_T("*.gif"),
+			_TL("JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)")	, SG_T("*.jpg;*.jif;*.jpeg"),
+			_TL("Portable Network Graphics (*.png)")			, SG_T("*.png"),
+			_TL("Tagged Image File Format (*.tif, *.tiff)")		, SG_T("*.tif;*.tiff"),
+			_TL("Windows or OS/2 Bitmap (*.bmp)")				, SG_T("*.bmp"),
+			_TL("Zsoft Paintbrush (*.pcx)")						, SG_T("*.pcx"),
+			_TL("All Files")									, SG_T("*.*")
+		)
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Options"),
-		"",
+		_TL(""),
 
-		_TL("Standard|"
-		"Split Channels|"
-		"Enforce True Color|")
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("Standard"),
+			_TL("Split Channels|"),
+			_TL("Enforce True Color")
+		)
 	);
 
 	//-----------------------------------------------------
@@ -172,29 +175,29 @@ bool CGrid_Import::On_Execute(void)
 
 	if( img.LoadFile(fName.GetFullPath()) )
 	{
-		if(      !fName.GetExt().CmpNoCase("bmp") )
+		if(      !fName.GetExt().CmpNoCase(SG_T("bmp")) )
 		{
-			fName.SetExt("bpw");
+			fName.SetExt(SG_T("bpw"));
 		}
-		else if( !fName.GetExt().CmpNoCase("jpg") )
+		else if( !fName.GetExt().CmpNoCase(SG_T("jpg")) )
 		{
-			fName.SetExt("jgw");
+			fName.SetExt(SG_T("jgw"));
 		}
-		else if( !fName.GetExt().CmpNoCase("png") )
+		else if( !fName.GetExt().CmpNoCase(SG_T("png")) )
 		{
-			fName.SetExt("pgw");
+			fName.SetExt(SG_T("pgw"));
 		}
-		else if( !fName.GetExt().CmpNoCase("tif") )
+		else if( !fName.GetExt().CmpNoCase(SG_T("tif")) )
 		{
-			fName.SetExt("tfw");
+			fName.SetExt(SG_T("tfw"));
 		}
 		else
 		{
-			fName.SetExt("world");
+			fName.SetExt(SG_T("world"));
 		}
 
 		//-------------------------------------------------
-		if( (Stream = fopen(fName.GetFullPath(), "r")) != NULL )
+		if( (Stream = fopen(fName.GetFullPath().mb_str(), "r")) != NULL )
 		{
 			fscanf(Stream, "%lf %lf %lf %lf %lf %lf ", &Cellsize, &d, &d, &d, &xMin, &yMin);
 			yMin		= yMin - (img.GetHeight() - 1) * Cellsize;
@@ -210,9 +213,9 @@ bool CGrid_Import::On_Execute(void)
 		//-------------------------------------------------
 		if( Method == 1 )
 		{
-			ADD_GRID(pR, wxString::Format("%s [R]", fName.GetName().c_str()), GRID_TYPE_Byte);
-			ADD_GRID(pG, wxString::Format("%s [G]", fName.GetName().c_str()), GRID_TYPE_Byte);
-			ADD_GRID(pB, wxString::Format("%s [B]", fName.GetName().c_str()), GRID_TYPE_Byte);
+			ADD_GRID(pR, CSG_String::Format(SG_T("%s [R]"), fName.GetName().c_str()), GRID_TYPE_Byte);
+			ADD_GRID(pG, CSG_String::Format(SG_T("%s [G]"), fName.GetName().c_str()), GRID_TYPE_Byte);
+			ADD_GRID(pB, CSG_String::Format(SG_T("%s [B]"), fName.GetName().c_str()), GRID_TYPE_Byte);
 
 			for(y=0, yy=pR->Get_NY()-1; y<pR->Get_NY() && Set_Progress(y, pR->Get_NY()); y++, yy--)
 			{

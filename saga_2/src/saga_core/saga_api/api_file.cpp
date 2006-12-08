@@ -73,15 +73,301 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool			SG_Dir_isValid(const char *Directory)
+CSG_File::CSG_File(void)
 {
-	return( Directory != NULL && *Directory != '\0' && wxFileName::DirExists(Directory) );
+	m_pStream	= NULL;
 }
 
 //---------------------------------------------------------
-bool			SG_Dir_Create(const char *Directory)
+CSG_File::CSG_File(const CSG_String &FileName, int Mode, bool bBinary)
 {
-	if( SG_Dir_isValid(Directory) )
+	m_pStream	= NULL;
+}
+
+//---------------------------------------------------------
+CSG_File::~CSG_File(void)
+{
+	Close();
+}
+
+//---------------------------------------------------------
+bool CSG_File::Attach(FILE *Stream)
+{
+	Close();
+
+	m_pStream	= Stream;
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_File::Detach(void)
+{
+	m_pStream	= NULL;
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_File::Open(const CSG_String &File_Name, int Mode, bool bBinary)
+{
+	Close();
+
+	const SG_Char *sMode;
+
+	switch( Mode )
+	{
+	case SG_FILE_R:		sMode	= bBinary ? SG_T("rb" ) : SG_T("r" );	break;
+	case SG_FILE_W:		sMode	= bBinary ? SG_T("wb" ) : SG_T("w" );	break;
+	case SG_FILE_RW:	sMode	= bBinary ? SG_T("wb+") : SG_T("w+");	break;
+	case SG_FILE_WA:	sMode	= bBinary ? SG_T("ab" ) : SG_T("a" );	break;
+	case SG_FILE_RWA:	sMode	= bBinary ? SG_T("rb+") : SG_T("r+");	break;
+	}
+
+	return( File_Name.Length() > 0 && (m_pStream = SG_FILE_OPEN(File_Name, sMode)) != NULL );
+}
+
+//---------------------------------------------------------
+bool CSG_File::Close(void)
+{
+	if( m_pStream )
+	{
+		fclose(m_pStream);
+
+		m_pStream	= NULL;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+int CSG_File::Length(void)	const
+{
+	if( m_pStream )
+	{
+		long	pos, len;
+
+		pos	= ftell(m_pStream);
+		fseek(m_pStream, 0, SEEK_END);
+		len	= ftell(m_pStream);
+		fseek(m_pStream, pos, SEEK_SET);
+
+		return( len );
+	}
+
+	return( -1 );
+}
+
+//---------------------------------------------------------
+bool CSG_File::is_EOF(void)	const
+{
+	return( m_pStream == NULL || feof(m_pStream) != 0 );
+}
+
+//---------------------------------------------------------
+bool CSG_File::Seek(int Offset, int Origin) const
+{
+	switch( Origin )
+	{
+	default:
+	case SG_FILE_START:		Origin	= SEEK_SET;	break;
+	case SG_FILE_CURRENT:	Origin	= SEEK_CUR;	break;
+	case SG_FILE_END:		Origin	= SEEK_END;	break;
+	}
+
+	return( m_pStream ? !fseek(m_pStream, Offset, Origin) : false );
+}
+
+//---------------------------------------------------------
+bool CSG_File::Seek_Start(void) const
+{
+	return( m_pStream && fseek(m_pStream, 0, SEEK_SET) == 0 );
+}
+
+//---------------------------------------------------------
+bool CSG_File::Seek_End(void) const
+{
+	return( m_pStream && fseek(m_pStream, 0, SEEK_END) == 0 );
+}
+
+//---------------------------------------------------------
+int CSG_File::Tell(void) const
+{
+	return( m_pStream ? ftell(m_pStream) : -1 );
+}
+
+//---------------------------------------------------------
+bool CSG_File::Flush(void) const
+{
+	return( m_pStream ? !fflush(m_pStream) : false );
+}
+
+//---------------------------------------------------------
+int CSG_File::Printf(const SG_Char *Format, ...)
+{
+	int		result	= 0;
+
+	if( m_pStream )
+	{
+		va_list	argptr;
+
+		va_start(argptr, Format);
+
+#ifndef _UNICODE
+		result	= vfprintf (m_pStream, Format, argptr);
+#else
+		result	= vfwprintf(m_pStream, Format, argptr);
+#endif
+
+		va_end(argptr);
+	}
+
+	return( result );
+}
+
+//---------------------------------------------------------
+int CSG_File::Scanf(const SG_Char *Format, ...) const
+{
+	int		result	= 0;
+
+	if( m_pStream )
+	{
+		va_list argptr;
+
+		va_start(argptr, Format);
+
+//		TODO...
+//		result	= _input(m_pStream, Format, argptr);
+
+		va_end(argptr);
+	}
+
+	return( result );
+}
+
+//---------------------------------------------------------
+size_t CSG_File::Read(void *Buffer, size_t Size, size_t Count) const
+{
+	return( m_pStream ? fread(Buffer, Size, Count, m_pStream) : 0 );
+}
+
+size_t CSG_File::Read(CSG_String &Buffer, size_t Size) const
+{
+	if( m_pStream )
+	{
+		SG_Char	*b	= (SG_Char *)SG_Calloc(Size, sizeof(SG_Char));
+		int		i	= fread(b, sizeof(SG_Char), Size, m_pStream);
+		Buffer		= b;
+		SG_Free(b);
+
+		return( i );
+	}
+
+	return( 0 );
+}
+
+//---------------------------------------------------------
+size_t CSG_File::Write(void *Buffer, size_t Size, size_t Count) const
+{
+	return( m_pStream ? fwrite(Buffer, Size, Count, m_pStream) : 0 );
+}
+
+size_t CSG_File::Write(CSG_String &Buffer) const
+{
+	return( Write((void *)Buffer.c_str(), sizeof(SG_Char), Buffer.Length()) );
+}
+
+//---------------------------------------------------------
+bool CSG_File::Read_Line(CSG_String &sLine)
+{
+	SG_Char	c;
+
+	if( m_pStream && !feof(m_pStream) )
+	{
+		sLine.Clear();
+
+		while( !feof(m_pStream) && (c = SG_FILE_GETC(m_pStream)) != 0x0A && c != 0x0D )
+		{
+			sLine.Append(c);
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+int CSG_File::Read_Int(bool bByteOrderBig)
+{
+	int		Value	= 0;
+
+	if( Read(&Value, sizeof(Value)) == sizeof(Value) )
+	{
+		if( bByteOrderBig )
+		{
+			SG_Swap_Bytes(&Value, sizeof(Value));
+		}
+	}
+
+	return( Value );
+}
+
+bool CSG_File::Write_Int(int Value, bool bByteOrderBig)
+{
+	if( bByteOrderBig )
+	{
+		SG_Swap_Bytes(&Value, sizeof(Value));
+	}
+
+	return( Write(&Value, sizeof(Value)) == sizeof(Value) );
+}
+
+//---------------------------------------------------------
+double CSG_File::Read_Double(bool bByteOrderBig)
+{
+	double	Value	= 0;
+
+	if( Read(&Value, sizeof(Value)) == sizeof(Value) )
+	{
+		if( bByteOrderBig )
+		{
+			SG_Swap_Bytes(&Value, sizeof(Value));
+		}
+	}
+
+	return( Value );
+}
+
+bool CSG_File::Write_Double(double Value, bool bByteOrderBig)
+{
+	if( bByteOrderBig )
+	{
+		SG_Swap_Bytes(&Value, sizeof(Value));
+	}
+
+	return( Write(&Value, sizeof(Value)) == sizeof(Value) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool			SG_Dir_Exists(const SG_Char *Directory)
+{
+	return( Directory && *Directory && wxFileName::DirExists(Directory) );
+}
+
+//---------------------------------------------------------
+bool			SG_Dir_Create(const SG_Char *Directory)
+{
+	if( SG_Dir_Exists(Directory) )
 	{
 		return( true );
 	}
@@ -103,21 +389,21 @@ CSG_String		SG_Dir_Get_Current(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool			SG_File_Exists(const char *FileName)
+bool			SG_File_Exists(const SG_Char *FileName)
 {
-	return( FileName && *FileName != '\0' && wxFileExists(FileName) );
+	return( FileName && *FileName && wxFileExists(FileName) );
 }
 
 //---------------------------------------------------------
-bool			SG_File_Delete(const char *FileName)
+bool			SG_File_Delete(const SG_Char *FileName)
 {
-	return( FileName && *FileName != '\0' && wxRemoveFile(FileName) );
+	return( FileName && *FileName && wxRemoveFile(FileName) );
 }
 
 //---------------------------------------------------------
-CSG_String		SG_File_Get_TmpName(const char *Prefix, const char *Directory)
+CSG_String		SG_File_Get_TmpName(const SG_Char *Prefix, const SG_Char *Directory)
 {
-	if( !SG_Dir_isValid(Directory) )
+	if( !SG_Dir_Exists(Directory) )
 	{
 		return( wxFileName::CreateTempFileName(Prefix).c_str() );
 	}
@@ -126,7 +412,7 @@ CSG_String		SG_File_Get_TmpName(const char *Prefix, const char *Directory)
 }
 
 //---------------------------------------------------------
-CSG_String		SG_File_Get_Name(const char *full_Path, bool bExtension)
+CSG_String		SG_File_Get_Name(const SG_Char *full_Path, bool bExtension)
 {
 	wxFileName	fn(full_Path);
 	CSG_String	s;
@@ -137,7 +423,7 @@ CSG_String		SG_File_Get_Name(const char *full_Path, bool bExtension)
 }
 
 //---------------------------------------------------------
-CSG_String		SG_File_Get_Path(const char *full_Path)
+CSG_String		SG_File_Get_Path(const SG_Char *full_Path)
 {
 	wxFileName	fn(full_Path);
 
@@ -145,13 +431,13 @@ CSG_String		SG_File_Get_Path(const char *full_Path)
 }
 
 //---------------------------------------------------------
-CSG_String		SG_File_Make_Path(const char *Directory, const char *Name, const char *Extension)
+CSG_String		SG_File_Make_Path(const SG_Char *Directory, const SG_Char *Name, const SG_Char *Extension)
 {
 	wxFileName	fn;
 
-	fn.AssignDir(SG_Dir_isValid(Directory) ? Directory : SG_File_Get_Path(Name).c_str());
+	fn.AssignDir(SG_Dir_Exists(Directory) ? Directory : SG_File_Get_Path(Name).c_str());
 
-	if( Extension && *Extension != '\0' )
+	if( Extension && *Extension )
 	{
 		fn.SetName		(SG_File_Get_Name(Name, false).c_str());
 		fn.SetExt		(Extension);
@@ -165,7 +451,7 @@ CSG_String		SG_File_Make_Path(const char *Directory, const char *Name, const cha
 }
 
 //---------------------------------------------------------
-bool			SG_File_Cmp_Extension(const char *File_Name, const char *Extension)
+bool			SG_File_Cmp_Extension(const SG_Char *File_Name, const SG_Char *Extension)
 {
 	wxFileName	fn(File_Name);
 
@@ -197,109 +483,6 @@ bool			SG_Read_Line(FILE *Stream, CSG_String &Line)
 	}
 
 	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-int				SG_Read_Int(FILE *Stream, bool bBig)
-{
-	int		Value;
-
-	fread(&Value, 1, sizeof(Value), Stream);
-
-	if( bBig )
-	{
-		SG_Swap_Bytes(&Value, sizeof(Value));
-	}
-
-	return( Value );
-}
-
-void			SG_Write_Int(FILE *Stream, int Value, bool bBig)
-{
-	if( bBig )
-	{
-		SG_Swap_Bytes(&Value, sizeof(Value));
-	}
-
-	fwrite(&Value, 1, sizeof(Value), Stream);
-}
-
-//---------------------------------------------------------
-double			SG_Read_Double(FILE *Stream, bool bBig)
-{
-	double	Value;
-
-	fread(&Value, 1, sizeof(Value), Stream);
-
-	if( bBig )
-	{
-		SG_Swap_Bytes(&Value, sizeof(Value));
-	}
-
-	return( Value );
-}
-
-void			SG_Write_Double(FILE *Stream, double Value, bool bBig)
-{
-	if( bBig )
-	{
-		SG_Swap_Bytes(&Value, sizeof(Value));
-	}
-
-	fwrite(&Value, 1, sizeof(Value), Stream);
-}
-
-//---------------------------------------------------------
-int				SG_Read_Int(char *Buffer, bool bBig)
-{
-	int		Value	= *(int *)Buffer;
-
-	if( bBig )
-	{
-		SG_Swap_Bytes(&Value, sizeof(Value));
-	}
-
-	return( Value );
-}
-
-void			SG_Write_Int(char *Buffer, int Value, bool bBig)
-{
-	if( bBig )
-	{
-		SG_Swap_Bytes(&Value, sizeof(Value));
-	}
-
-	*((int *)Buffer)	= Value;
-}
-
-//---------------------------------------------------------
-double			SG_Read_Double(char *Buffer, bool bBig)
-{
-	double	Value	= *(double *)Buffer;
-
-	if( bBig )
-	{
-		SG_Swap_Bytes(&Value, sizeof(Value));
-	}
-
-	return( Value );
-}
-
-void			SG_Write_Double(char *Buffer, double Value, bool bBig)
-{
-	if( bBig )
-	{
-		SG_Swap_Bytes(&Value, sizeof(Value));
-	}
-
-	*(double *)Buffer	= Value;
 }
 
 

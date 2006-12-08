@@ -83,27 +83,30 @@ CTIN_Flow_Parallel::CTIN_Flow_Parallel(void)
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_TIN(
-		NULL	, "DEM"			, "TIN",
-		"",
+		NULL	, "DEM"			, _TL("TIN"),
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table_Field(
 		pNode	, "ZFIELD"		, _TL("Z Values"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_TIN(
 		NULL	, "FLOW"		, _TL("Flow Accumulation"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
-		"",_TL(
-		"Single Flow Direction|"
-		"Multiple Flow Direction|")
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("Single Flow Direction"),
+			_TL("Multiple Flow Direction")
+		)
 	);
 }
 

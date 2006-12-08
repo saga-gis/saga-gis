@@ -65,14 +65,14 @@
 #define OFFSET_Y		50
 
 //---------------------------------------------------------
-#define HTML_CODE_OPENING_1	"<html>\n<head><title>"
+#define HTML_CODE_OPENING_1	SG_T("<html>\n<head><title>")
 
-#define HTML_CODE_OPENING_2	"</title>\n"\
-	"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\n"\
-	"</head>\n"\
-	"<body bgcolor=\"#FFFFFF\" text=\"#000000\">\n"
+#define HTML_CODE_OPENING_2	SG_T("</title>\n")\
+	SG_T("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\n")\
+	SG_T("</head>\n")\
+	SG_T("<body bgcolor=\"#FFFFFF\" text=\"#000000\">\n")
 
-#define HTML_CODE_CLOSING	"</body>\n</html>"
+#define HTML_CODE_CLOSING	SG_T("</body>\n</html>")
 
 
 ///////////////////////////////////////////////////////////
@@ -86,7 +86,7 @@ CSG_Doc_HTML::CSG_Doc_HTML(){}
 
 CSG_Doc_HTML::~CSG_Doc_HTML(){}
 
-void CSG_Doc_HTML::Open(const char *Title)
+void CSG_Doc_HTML::Open(const SG_Char *Title)
 {
 
 	m_sHTMLCode.Clear();
@@ -97,19 +97,16 @@ void CSG_Doc_HTML::Open(const char *Title)
 
 }
 
-bool CSG_Doc_HTML::Save(const char *Filename)
+bool CSG_Doc_HTML::Save(const SG_Char *Filename)
 {
 
 	m_sHTMLCode.Append(HTML_CODE_CLOSING);
 
-	FILE	*Stream;
+	CSG_File	Stream(Filename, SG_FILE_W, false);
 
-	Stream	= fopen(Filename, "w");
-
-	if( Stream )
+	if( Stream.is_Open() )
 	{
-		fprintf(Stream, "%s", m_sHTMLCode.c_str());
-		fclose(Stream);
+		Stream.Printf(SG_T("%s"), m_sHTMLCode.c_str());
 		return true;
 	}
 
@@ -117,91 +114,91 @@ bool CSG_Doc_HTML::Save(const char *Filename)
 
 }
 
-void CSG_Doc_HTML::AddParagraph(const char *Text)
+void CSG_Doc_HTML::AddParagraph(const SG_Char *Text)
 {
 
-	m_sHTMLCode.Append("<p align=\"left\">");
+	m_sHTMLCode.Append(SG_T("<p align=\"left\">"));
 	m_sHTMLCode.Append(Text);
-	m_sHTMLCode.Append("</p>\n");
+	m_sHTMLCode.Append(SG_T("</p>\n"));
 
 }
 
 void CSG_Doc_HTML::AddLineBreak()
 {
 
-	m_sHTMLCode.Append("</br>");	
+	m_sHTMLCode.Append(SG_T("</br>"));	
 
 }
-void CSG_Doc_HTML::AddHeader(const char *Text,
+void CSG_Doc_HTML::AddHeader(const SG_Char *Text,
 							int iOrder)
 {
 
-	m_sHTMLCode.Append("<h");
+	m_sHTMLCode.Append(SG_T("<h"));
 	m_sHTMLCode.Append(SG_Get_String(iOrder,0));
-	m_sHTMLCode.Append(" align=\"left\">");
+	m_sHTMLCode.Append(SG_T(" align=\"left\">"));
 	m_sHTMLCode.Append(Text);
-	m_sHTMLCode.Append("</h");
+	m_sHTMLCode.Append(SG_T("</h"));
 	m_sHTMLCode.Append(SG_Get_String(iOrder,0));
-	m_sHTMLCode.Append(">\n");
+	m_sHTMLCode.Append(SG_T(">\n"));
 
 }
 
-void CSG_Doc_HTML::AddHyperlink(const char *Text,
-								const char *URL)
+void CSG_Doc_HTML::AddHyperlink(const SG_Char *Text,
+								const SG_Char *URL)
 {
 
-	m_sHTMLCode.Append("<a href=\"");
+	m_sHTMLCode.Append(SG_T("<a href=\""));
 	m_sHTMLCode.Append(URL);
-	m_sHTMLCode.Append("\">\n");
+	m_sHTMLCode.Append(SG_T("\">\n"));
 	m_sHTMLCode.Append(Text);
-	m_sHTMLCode.Append("\n</a>");
+	m_sHTMLCode.Append(SG_T("\n</a>"));
 
 }
 
-CSG_String CSG_Doc_HTML::GetHyperlinkCode(const char *Text,
-									const char *URL)
+CSG_String CSG_Doc_HTML::GetHyperlinkCode(const SG_Char *Text,
+									const SG_Char *URL)
 {
 	CSG_String s;
 
-	s.Append("<a href=\"");
+	s.Append(SG_T("<a href=\""));
 	s.Append(URL);
-	s.Append("\">\n");
+	s.Append(SG_T("\">\n"));
 	s.Append(Text);
-	s.Append("\n</a>");
+	s.Append(SG_T("\n</a>"));
 
 	return s;
 
 }
-void CSG_Doc_HTML::AddImage(const char *Filename)
+void CSG_Doc_HTML::AddImage(const SG_Char *Filename)
 {
 
-	m_sHTMLCode.Append("<img src=\"");
+	m_sHTMLCode.Append(SG_T("<img src=\""));
 	m_sHTMLCode.Append(Filename);
-	m_sHTMLCode.Append("\">\n");
+	m_sHTMLCode.Append(SG_T("\">\n"));
 
 }
 
-void CSG_Doc_HTML::AddThumbnail(const char *Filename,
+void CSG_Doc_HTML::AddThumbnail(const SG_Char *Filename,
 								int iWidth,
 								bool bIsPercent)
 {
 
-	m_sHTMLCode.Append("<a href=\"");
+	m_sHTMLCode.Append(SG_T("<a href=\""));
 	m_sHTMLCode.Append(Filename);
-	m_sHTMLCode.Append("\">\n");
-    m_sHTMLCode.Append("<img src=\"");
+	m_sHTMLCode.Append(SG_T("\">\n"));
+    m_sHTMLCode.Append(SG_T("<img src=\""));
     m_sHTMLCode.Append(Filename);
-    m_sHTMLCode.Append("\" width=");
+    m_sHTMLCode.Append(SG_T("\" width="));
     m_sHTMLCode.Append(SG_Get_String(iWidth,0));
     if (bIsPercent)
     {
-		m_sHTMLCode.Append("%");
+		m_sHTMLCode.Append(SG_T("%"));
 	}
-    m_sHTMLCode.Append("></a><br><br>\n");
+    m_sHTMLCode.Append(SG_T("></a><br><br>\n"));
 
 }
 
-void CSG_Doc_HTML::AddThumbnails(const char **Filename,
+void CSG_Doc_HTML::AddThumbnails(const SG_Char **Filename,
 								int iImages,
 								int iThumbnailsPerRow)
 {
@@ -211,67 +208,67 @@ void CSG_Doc_HTML::AddThumbnails(const char **Filename,
 	int iRows	= (int)ceil((double)iImages / (double)iThumbnailsPerRow);
 	int iWidth	= (int)(100.0 / (double)iThumbnailsPerRow);
 
-    m_sHTMLCode.Append("<table width=\"99%\" style=\"background-color:transparent;\" border=0 cellspacing=0 cellpadding=2 >\n");
+    m_sHTMLCode.Append(SG_T("<table width=\"99%\" style=\"background-color:transparent;\" border=0 cellspacing=0 cellpadding=2 >\n"));
 	for (i=0; i<iRows; i++)
 	{
-		m_sHTMLCode.Append("<tr>\n");
+		m_sHTMLCode.Append(SG_T("<tr>\n"));
 
 		for (j=0; j<iThumbnailsPerRow; j++){
-			m_sHTMLCode.Append("<td width=\"");
+			m_sHTMLCode.Append(SG_T("<td width=\""));
 			m_sHTMLCode.Append(SG_Get_String(iWidth));
-			m_sHTMLCode.Append("%\" align=\"center\">");
+			m_sHTMLCode.Append(SG_T("%\" align=\"center\">"));
 			AddThumbnail(Filename[iImage], 100, true);
 			iImage++;
 			if (iImage >= iImages){
 				break;
 			}
-			m_sHTMLCode.Append("</td>");
+			m_sHTMLCode.Append(SG_T("</td>"));
 		}
-		m_sHTMLCode.Append("\n</tr>\n");
+		m_sHTMLCode.Append(SG_T("\n</tr>\n"));
 	}
 
-	m_sHTMLCode.Append("\n</table>\n");
+	m_sHTMLCode.Append(SG_T("\n</table>\n"));
 
 }
 
 void CSG_Doc_HTML::StartUnorderedList()
 {
 
-	m_sHTMLCode.Append("<ul>\n");
+	m_sHTMLCode.Append(SG_T("<ul>\n"));
 
 }
 
 void CSG_Doc_HTML::StartOrderedList()
 {
 
-	m_sHTMLCode.Append("<ol>\n");
+	m_sHTMLCode.Append(SG_T("<ol>\n"));
 
 }
 
 void CSG_Doc_HTML::CloseUnorderedList()
 {
 
-	m_sHTMLCode.Append("</ul>\n");
+	m_sHTMLCode.Append(SG_T("</ul>\n"));
 
 }
 
 void CSG_Doc_HTML::CloseOrderedList()
 {
 
-	m_sHTMLCode.Append("</ol>\n");
+	m_sHTMLCode.Append(SG_T("</ol>\n"));
 
 }
 
-void CSG_Doc_HTML::AddListElement(const char *Text)
+void CSG_Doc_HTML::AddListElement(const SG_Char *Text)
 {
 
-	m_sHTMLCode.Append("<li>");
+	m_sHTMLCode.Append(SG_T("<li>"));
 	m_sHTMLCode.Append(Text);
-	m_sHTMLCode.Append("</li>\n");
+	m_sHTMLCode.Append(SG_T("</li>\n"));
 
 }
 
-void CSG_Doc_HTML::AddOrderedList(const char **Text, int iElements)
+void CSG_Doc_HTML::AddOrderedList(const SG_Char **Text, int iElements)
 {
 
 	StartOrderedList();
@@ -283,7 +280,7 @@ void CSG_Doc_HTML::AddOrderedList(const char **Text, int iElements)
 
 }
 
-void CSG_Doc_HTML::AddUnorderedList(const char **Text, int iElements)
+void CSG_Doc_HTML::AddUnorderedList(const SG_Char **Text, int iElements)
 {
 
 	StartUnorderedList();
@@ -295,9 +292,9 @@ void CSG_Doc_HTML::AddUnorderedList(const char **Text, int iElements)
 
 }
 
-void CSG_Doc_HTML::AddCurve(const char *Filename,
+void CSG_Doc_HTML::AddCurve(const SG_Char *Filename,
 								CSG_Points &Data,
-								const char *Description,
+								const SG_Char *Description,
 								int iGraphType,
 								bool bIncludeTableData)
 {
@@ -317,17 +314,17 @@ void CSG_Doc_HTML::AddCurve(const char *Filename,
 	CSG_Points Points;
 	CSG_Doc_SVG SVG;
 
-	m_sHTMLCode.Append("<object type=\"image/svg+xml\" width=\"");
+	m_sHTMLCode.Append(SG_T("<object type=\"image/svg+xml\" width=\""));
 	m_sHTMLCode.Append(SG_Get_String(GRAPH_WIDTH + OFFSET_X, 0));
-	m_sHTMLCode.Append("\" height=\"");
+	m_sHTMLCode.Append(SG_T("\" height=\""));
 	m_sHTMLCode.Append(SG_Get_String(GRAPH_HEIGHT + OFFSET_Y, 0));
-	m_sHTMLCode.Append("\" data=\"file://");
+	m_sHTMLCode.Append(SG_T("\" data=\"file://"));
 	m_sHTMLCode.Append(Filename);
-	m_sHTMLCode.Append("\"></object><br>\n");
+	m_sHTMLCode.Append(SG_T("\"></object><br>\n"));
 
-	m_sHTMLCode.Append("<p align=\"center\"><i>");
+	m_sHTMLCode.Append(SG_T("<p align=\"center\"><i>"));
 	m_sHTMLCode.Append(Description);
-	m_sHTMLCode.Append("</i></p>\n");
+	m_sHTMLCode.Append(SG_T("</i></p>\n"));
 
 	fMin = fMax = Data[0].y;
 
@@ -407,7 +404,7 @@ void CSG_Doc_HTML::AddCurve(const char *Filename,
         if (fY >= 0 && fY <= GRAPH_HEIGHT)
 		{
 			SVG.Draw_Line(OFFSET_X - 10, fY, GRAPH_WIDTH + OFFSET_X, fY);
-			SVG.Draw_Text(OFFSET_X - 10, fY, SG_Get_String(fMinLine + fStep * i, 1), 0, "Verdana", 8, "", SVG_ALIGNMENT_Right);
+			SVG.Draw_Text(OFFSET_X - 10, fY, SG_Get_String(fMinLine + fStep * i, 1), 0, SG_T("Verdana"), 8, SG_T(""), SVG_ALIGNMENT_Right);
         }
     }
 
@@ -432,7 +429,7 @@ void CSG_Doc_HTML::AddCurve(const char *Filename,
 			fY = GRAPH_HEIGHT - fY;
 			Points.Add(fX, fY);
 	    }
-		SVG.Draw_Line(Points, 4, "", 0x660000);
+		SVG.Draw_Line(Points, 4, SG_T(""), 0x660000);
 	}
 
 	if (fMaxX != fMinX)
@@ -472,7 +469,7 @@ void CSG_Doc_HTML::AddCurve(const char *Filename,
 				{
 					sValue = SG_Get_String(fStep * i + fMinLine, 2, true);
 				}
-				SVG.Draw_Text(fX, GRAPH_HEIGHT + 10, sValue, 0, "Verdana", 8, "", SVG_ALIGNMENT_Center);
+				SVG.Draw_Text(fX, GRAPH_HEIGHT + 10, sValue, 0, SG_T("Verdana"), 8, SG_T(""), SVG_ALIGNMENT_Center);
 				SVG.Draw_Line(fX, GRAPH_HEIGHT, fX, GRAPH_HEIGHT - 5);
 			}
 		}
@@ -489,13 +486,13 @@ void CSG_Doc_HTML::AddCurve(const char *Filename,
 		HTMLDoc.Open(LNG("Data Table"));
 
 		sTableFilename = Filename;
-		sTableFilename.Append(".htm");
+		sTableFilename.Append(SG_T(".htm"));
 
-		m_sHTMLCode.Append("<a href=\"file://");
+		m_sHTMLCode.Append(SG_T("<a href=\"file://"));
 		m_sHTMLCode.Append(sTableFilename);
-		m_sHTMLCode.Append("\">");
+		m_sHTMLCode.Append(SG_T("\">"));
 		m_sHTMLCode.Append(LNG("Data Table"));
-		m_sHTMLCode.Append("</a><br><br>\n");
+		m_sHTMLCode.Append(SG_T("</a><br><br>\n"));
 
 		HTMLDoc._AddBicolumTable(&Data);
 		HTMLDoc.Save(sTableFilename);
@@ -510,68 +507,70 @@ void CSG_Doc_HTML::_AddBicolumTable(CSG_Points *pData)
 
 	int i;
 
-    m_sHTMLCode.Append("<table width=\"99%\" style=\"background-color:transparent;\" border=0 cellspacing=0 cellpadding=2 >\n");
-	m_sHTMLCode.Append("<tr bgcolor=\"#CCCCCC\">\n"
-						"<td width=\"50%\" align=\"center\">X</td><td width=\"50%\" align=\"center\">Y</td>\n"
-						"</tr>\n");
+    m_sHTMLCode.Append(SG_T("<table width=\"99%\" style=\"background-color:transparent;\" border=0 cellspacing=0 cellpadding=2 >\n"));
+	m_sHTMLCode.Append(
+		SG_T("<tr bgcolor=\"#CCCCCC\">\n")
+		SG_T("<td width=\"50%\" align=\"center\">X</td><td width=\"50%\" align=\"center\">Y</td>\n")
+		SG_T("</tr>\n")
+	);
 
 	for (i=0; i<pData->Get_Count(); i++)
 	{
-		m_sHTMLCode.Append("<tr>\n");
-		m_sHTMLCode.Append("<td width=\"50%\" align=\"center\">");
+		m_sHTMLCode.Append(SG_T("<tr>\n"));
+		m_sHTMLCode.Append(SG_T("<td width=\"50%\" align=\"center\">"));
 		m_sHTMLCode.Append(SG_Get_String(pData->Get_X(i),2));
-		m_sHTMLCode.Append("</td>");
-		m_sHTMLCode.Append("<td width=\"50%\" align=\"center\">");
+		m_sHTMLCode.Append(SG_T("</td>"));
+		m_sHTMLCode.Append(SG_T("<td width=\"50%\" align=\"center\">"));
 		m_sHTMLCode.Append(SG_Get_String(pData->Get_Y(i),2));
-		m_sHTMLCode.Append("</td>");
-		m_sHTMLCode.Append("\n</tr>\n");
+		m_sHTMLCode.Append(SG_T("</td>"));
+		m_sHTMLCode.Append(SG_T("\n</tr>\n"));
 	}
 
-	m_sHTMLCode.Append("\n</table>\n");
-	m_sHTMLCode.Append("<p align=\"center\"><i>");
+	m_sHTMLCode.Append(SG_T("\n</table>\n"));
+	m_sHTMLCode.Append(SG_T("<p align=\"center\"><i>"));
 	m_sHTMLCode.Append(LNG("Data Table"));
-	m_sHTMLCode.Append("</i></p>\n");
+	m_sHTMLCode.Append(SG_T("</i></p>\n"));
 
 }
 
-void CSG_Doc_HTML::AddTable(const char ***Table,
+void CSG_Doc_HTML::AddTable(const SG_Char ***Table,
 								int iRows,
 								int iCols,
-								const char *Description)
+								const SG_Char *Description)
 {
 
 	int i,j;
 	int iWidth = (int) (100/iCols);
 
-    m_sHTMLCode.Append("<table width=\"99%\" style=\"background-color:transparent;\" border=0 cellspacing=0 cellpadding=2 >\n");
+    m_sHTMLCode.Append(SG_T("<table width=\"99%\" style=\"background-color:transparent;\" border=0 cellspacing=0 cellpadding=2 >\n"));
 	for (i=0; i<iRows; i++)
 	{
 		if (i==0)
 		{
-			m_sHTMLCode.Append("<tr bgcolor=\"#CCCCCC\">\n");
+			m_sHTMLCode.Append(SG_T("<tr bgcolor=\"#CCCCCC\">\n"));
 		}
 		else
 		{
-			m_sHTMLCode.Append("<tr>\n");
+			m_sHTMLCode.Append(SG_T("<tr>\n"));
 		}
 		for (j=0; j<iCols; j++){
-			m_sHTMLCode.Append("<td width=\"");
+			m_sHTMLCode.Append(SG_T("<td width=\""));
 			m_sHTMLCode.Append(SG_Get_String(iWidth,0));
-			m_sHTMLCode.Append("%\" align=\"center\">");
+			m_sHTMLCode.Append(SG_T("%\" align=\"center\">"));
 			try
 			{
 				m_sHTMLCode.Append(Table[i][j]);
 			}
 			catch(...){}
-			m_sHTMLCode.Append("</td>");
+			m_sHTMLCode.Append(SG_T("</td>"));
 		}
-		m_sHTMLCode.Append("\n</tr>\n");
+		m_sHTMLCode.Append(SG_T("\n</tr>\n"));
 	}
 
-	m_sHTMLCode.Append("\n</table>\n");
-	m_sHTMLCode.Append("<p align=\"center\"><i>");
+	m_sHTMLCode.Append(SG_T("\n</table>\n"));
+	m_sHTMLCode.Append(SG_T("<p align=\"center\"><i>"));
 	m_sHTMLCode.Append(Description);
-	m_sHTMLCode.Append("</i></p>\n");
+	m_sHTMLCode.Append(SG_T("</i></p>\n"));
 
 }
 
@@ -581,39 +580,39 @@ void CSG_Doc_HTML::AddTable(CSG_Table *pTable)
 	int i,j;
 	int iWidth = (int) (100/pTable->Get_Field_Count());
 
-    m_sHTMLCode.Append("<table width=\"99%\" style=\"background-color:transparent;\" border=0 cellspacing=0 cellpadding=2 >\n");
+    m_sHTMLCode.Append(SG_T("<table width=\"99%\" style=\"background-color:transparent;\" border=0 cellspacing=0 cellpadding=2 >\n"));
 
-	m_sHTMLCode.Append("<tr bgcolor=\"#CCCCCC\">\n");
+	m_sHTMLCode.Append(SG_T("<tr bgcolor=\"#CCCCCC\">\n"));
 	for (i=0; i<pTable->Get_Field_Count(); i++){
-		m_sHTMLCode.Append("<td width=\"");
+		m_sHTMLCode.Append(SG_T("<td width=\""));
 		m_sHTMLCode.Append(SG_Get_String(iWidth,0));
-		m_sHTMLCode.Append("%\" align=\"center\">");
+		m_sHTMLCode.Append(SG_T("%\" align=\"center\">"));
 		m_sHTMLCode.Append(pTable->Get_Field_Name(i));
-		m_sHTMLCode.Append("</td>");
+		m_sHTMLCode.Append(SG_T("</td>"));
 	}
-	m_sHTMLCode.Append("\n</tr>\n");
+	m_sHTMLCode.Append(SG_T("\n</tr>\n"));
 
 	for (i=0; i<pTable->Get_Record_Count(); i++)
 	{
-		m_sHTMLCode.Append("<tr>\n");
+		m_sHTMLCode.Append(SG_T("<tr>\n"));
 		for (j=0; j<pTable->Get_Field_Count(); j++){
-			m_sHTMLCode.Append("<td width=\"");
+			m_sHTMLCode.Append(SG_T("<td width=\""));
 			m_sHTMLCode.Append(SG_Get_String(iWidth,0));
-			m_sHTMLCode.Append("%\" align=\"center\">");
+			m_sHTMLCode.Append(SG_T("%\" align=\"center\">"));
 			try
 			{
 				m_sHTMLCode.Append(pTable->Get_Record(i)->asString(j));
 			}
 			catch(...){}
-			m_sHTMLCode.Append("</td>");
+			m_sHTMLCode.Append(SG_T("</td>"));
 		}
-		m_sHTMLCode.Append("\n</tr>\n");
+		m_sHTMLCode.Append(SG_T("\n</tr>\n"));
 	}
 
-	m_sHTMLCode.Append("\n</table>\n");
-	m_sHTMLCode.Append("<p align=\"center\"><i>");
+	m_sHTMLCode.Append(SG_T("\n</table>\n"));
+	m_sHTMLCode.Append(SG_T("<p align=\"center\"><i>"));
 	m_sHTMLCode.Append(pTable->Get_Name());
-	m_sHTMLCode.Append("</i></p>\n");
+	m_sHTMLCode.Append(SG_T("</i></p>\n"));
 
 }
 
@@ -641,7 +640,7 @@ bool CSG_Doc_HTML::_Draw_Shape(CSG_Doc_SVG &SVG, CSG_Shape *pShape, CSG_Rect Glo
 		dOffsetX = (MAP_WIDTH  - dWidth)  / 2.;
 		dOffsetY = (MAP_HEIGHT - dHeight) / 2.;
 
-		SVG.Draw_Rectangle(0,0,MAP_WIDTH,MAP_HEIGHT,SG_COLOR_NONE,SG_COLOR_BLACK,1,"%");
+		SVG.Draw_Rectangle(0,0,MAP_WIDTH,MAP_HEIGHT,SG_COLOR_NONE,SG_COLOR_BLACK,1,SG_T("%"));
 
 		for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{
@@ -662,22 +661,22 @@ bool CSG_Doc_HTML::_Draw_Shape(CSG_Doc_SVG &SVG, CSG_Shape *pShape, CSG_Rect Glo
 			case SHAPE_TYPE_Points:
 				for(iPoint=0; iPoint<Points.Get_Count(); iPoint++)
 				{
-					SVG.Draw_Circle(Points[iPoint].x, Points[iPoint].y, Point_Width, Fill_Color, Line_Color, Line_Width, "%");
+					SVG.Draw_Circle(Points[iPoint].x, Points[iPoint].y, Point_Width, Fill_Color, Line_Color, Line_Width, SG_T("%"));
 				}
 				break;
 
 			case SHAPE_TYPE_Line:
-				SVG.Draw_Line(Points, Line_Width, "", Line_Color);
+				SVG.Draw_Line(Points, Line_Width, SG_T(""), Line_Color);
 				break;
 
 			case SHAPE_TYPE_Polygon:
 				if( ((CSG_Shape_Polygon *)pShape)->is_Lake(iPart) )
 				{
-					SVG.Draw_Polygon(Points, SG_COLOR_WHITE, Line_Color, Line_Width, "");
+					SVG.Draw_Polygon(Points, SG_COLOR_WHITE, Line_Color, Line_Width, SG_T(""));
 				}
 				else
 				{
-					SVG.Draw_Polygon(Points, Fill_Color, Line_Color, Line_Width, "");
+					SVG.Draw_Polygon(Points, Fill_Color, Line_Color, Line_Width, SG_T(""));
 				}
 				break;
 			}
@@ -689,7 +688,7 @@ bool CSG_Doc_HTML::_Draw_Shape(CSG_Doc_SVG &SVG, CSG_Shape *pShape, CSG_Rect Glo
 	return( false );
 }
 
-bool CSG_Doc_HTML::Draw_Shapes(CSG_Shapes *pShapes, const char *Filename, int Fill_Color, int Line_Color, int Line_Width)
+bool CSG_Doc_HTML::Draw_Shapes(CSG_Shapes *pShapes, const SG_Char *Filename, int Fill_Color, int Line_Color, int Line_Width)
 {
 
 	CSG_Doc_SVG	SVG;
@@ -707,13 +706,13 @@ bool CSG_Doc_HTML::Draw_Shapes(CSG_Shapes *pShapes, const char *Filename, int Fi
 
 		SVG.Save(Filename);
 
-		m_sHTMLCode.Append("<center>\n<object type=\"image/svg+xml\" width=\"");
+		m_sHTMLCode.Append(SG_T("<center>\n<object type=\"image/svg+xml\" width=\""));
 		m_sHTMLCode.Append(SG_Get_String(MAP_WIDTH, 0));
-		m_sHTMLCode.Append("\" height=\"");
+		m_sHTMLCode.Append(SG_T("\" height=\""));
 		m_sHTMLCode.Append(SG_Get_String(MAP_HEIGHT, 0));
-		m_sHTMLCode.Append("\" data=\"file://");
+		m_sHTMLCode.Append(SG_T("\" data=\"file://"));
 		m_sHTMLCode.Append(Filename);
-		m_sHTMLCode.Append("\"></object></center><br>\n");
+		m_sHTMLCode.Append(SG_T("\"></object></center><br>\n"));
 
 		return( true );
 

@@ -73,29 +73,29 @@
 CErdas_LAN_Import::CErdas_LAN_Import(void)
 {
 	//-----------------------------------------------------
-	Set_Name	("Import Erdas LAN/GIS");
+	Set_Name		(_TL("Import Erdas LAN/GIS"));
 
-	Set_Author	("Copyrights (c) 2005 by Olaf Conrad");
+	Set_Author		(_TL("Copyrights (c) 2005 by Olaf Conrad"));
 
-	Set_Description(
+	Set_Description	(_TW(
 		"Import Erdas LAN/GIS files. \n"
 		"The format analysis is based on the GRASS module i.in.erdas. "
 		"Go to the " 
 		"<a target=\"_blank\" href=\"http://grass.itc.it/\">GRASS GIS Hompage</a> "
 		"for more information.\n"
-	);
+	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"	, "Grids",
-		"",
+		NULL	, "GRIDS"	, _TL("Grids"),
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_FilePath(
-		NULL	, "FILE"	, "File",
-		"",
-		"Erdas LAN/GIS files (*.lan, *.gis)|*.lan;*.gis|All Files|*.*",
+		NULL	, "FILE"	, _TL("File"),
+		_TL(""),
+		_TL("Erdas LAN/GIS files (*.lan, *.gis)|*.lan;*.gis|All Files|*.*"),
 		NULL, false, false
 	);
 }
@@ -138,7 +138,7 @@ bool CErdas_LAN_Import::On_Execute(void)
 	Grids->Del_Items();
 
 	//-----------------------------------------------------
-	if( (Stream = fopen(FileName, "rb")) != NULL )
+	if( (Stream = fopen(FileName.b_str(), "rb")) != NULL )
 	{
 		fread( head		,  6, sizeof(char)	, Stream);					// "HEAD74"
 		fread(&vType	,  1, sizeof(short)	, Stream);	SWAP(vType);	// 0 = 8 bit, 1 = 4 bit, 2 = 16 bit
@@ -200,7 +200,7 @@ bool CErdas_LAN_Import::On_Execute(void)
 			for(i=0; i<nBands; i++)
 			{
 				Grids->Add_Item(SG_Create_Grid(gType, nx, ny, Cellsize, xMin, yMin));
-				Grids->asGrid(i)->Set_Name(CSG_String::Format("%s [%d]", SG_File_Get_Name(FileName, false).c_str(), i + 1));
+				Grids->asGrid(i)->Set_Name(CSG_String::Format(SG_T("%s [%d]"), SG_File_Get_Name(FileName, false).c_str(), i + 1));
 			}
 
 			//---------------------------------------------

@@ -80,72 +80,72 @@ CGrid_Resample::CGrid_Resample(void)
 
 	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Resampling of grids.")
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL	, "INPUT"		, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid_Output(
 		NULL	, "GRID"		, _TL("Resampled Grid"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Target Grid"),
-		"",
+		_TL(""),
 
 		_TL("Specify dimensions|Create new grid in existing project|Overwrite existing grid|")
 	);
 
 	Parameters.Add_Value(
 		NULL	, "KEEP_TYPE"	, _TL("Preserve Data Type"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Bool		, false
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("DIMENSIONS"	, _TL("Target Grid Dimensions")	, "");
+	pParameters	= Add_Parameters("DIMENSIONS"	, _TL("Target Grid Dimensions")	, _TL(""));
 
 	pParameters->Add_Value(
 		NULL	, "CELLSIZE"	, _TL("Cell Size"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 1.0, 0.0, true
 	);
 
 	pParameters->Add_Value(
 		NULL	, "CELLS_NX"	, _TL("Cell Count: Columns"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int		, 2, 2, true
 	);
 
 	pParameters->Add_Value(
 		NULL	, "CELLS_NY"	, _TL("Cell Count: Rows"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int		, 2, 2, true
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("TARGET"		, _TL("Target Grid")				, "");
+	pParameters	= Add_Parameters("TARGET"		, _TL("Target Grid")				, _TL(""));
 
 	pNode	= pParameters->Add_Grid(
 		NULL	, "TARGET"		, _TL("Target Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT			, false
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("SCALE_UP"	, _TL("Up-Scaling")				, "");
+	pParameters	= Add_Parameters("SCALE_UP"	, _TL("Up-Scaling")				, _TL(""));
 
 	pNode	= pParameters->Add_Choice(
 		NULL	, "METHOD"		, _TL("Interpolation Method"),
-		"",
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("Nearest Neighbor"),
 			_TL("Bilinear Interpolation"),
 			_TL("Inverse Distance Interpolation"),
@@ -156,12 +156,12 @@ CGrid_Resample::CGrid_Resample(void)
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("SCALE_DOWN"	, _TL("Down-Scaling")			, "");
+	pParameters	= Add_Parameters("SCALE_DOWN"	, _TL("Down-Scaling")			, _TL(""));
 
 	pNode	= pParameters->Add_Choice(
 		NULL	, "METHOD"		, _TL("Interpolation Method"),
-		"",
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("Nearest Neighbor"),
 			_TL("Bilinear Interpolation"),
 			_TL("Inverse Distance Interpolation"),
@@ -189,7 +189,7 @@ int CGrid_Resample::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parame
 	double	cellsize;
 	CSG_Grid	*pGrid;
 
-	if( !strcmp(pParameters->Get_Identifier(), "DIMENSIONS") )
+	if( !SG_STR_CMP(pParameters->Get_Identifier(), SG_T("DIMENSIONS")) )
 	{
 		pGrid		=  Parameters               ("INPUT")   ->asGrid();
 		cellsize	= pParameters->Get_Parameter("CELLSIZE")->asDouble();
@@ -198,17 +198,17 @@ int CGrid_Resample::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parame
 
 		if( pGrid && cellsize > 0.0 )
 		{
-			if(      !strcmp(pParameter->Get_Identifier(), "CELLSIZE") )
+			if(      !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CELLSIZE")) )
 			{
 				nx			= 1 + (int)(pGrid->Get_XRange() / cellsize);
 				ny			= 1 + (int)(pGrid->Get_YRange() / cellsize);
 			}
-			else if( !strcmp(pParameter->Get_Identifier(), "CELLS_NX") )
+			else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CELLS_NX")) )
 			{
 				cellsize	= pGrid->Get_XRange() / (nx - 1);
 				ny			= 1 + (int)(pGrid->Get_YRange() / cellsize);
 			}
-			else if( !strcmp(pParameter->Get_Identifier(), "CELLS_NY") )
+			else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CELLS_NY")) )
 			{
 				cellsize	= pGrid->Get_YRange() / (ny - 1);
 				nx			= 1 + (int)(pGrid->Get_XRange() / cellsize);

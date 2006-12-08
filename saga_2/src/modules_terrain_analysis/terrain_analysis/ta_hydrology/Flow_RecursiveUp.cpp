@@ -76,7 +76,7 @@ CFlow_RecursiveUp::CFlow_RecursiveUp(void)
 
 	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Recursive upward processing of cells for calculation of flow accumulation and related parameters. "
 		"This set of algorithms processes recursively all upwards connected cells until each cell of the DEM has been processed.\n\n"
 
@@ -113,7 +113,7 @@ CFlow_RecursiveUp::CFlow_RecursiveUp(void)
 
 	Parameters.Add_Grid(
 		NULL	, "TARGETS"		, _TL("Target Areas"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
@@ -123,7 +123,7 @@ CFlow_RecursiveUp::CFlow_RecursiveUp(void)
 
 	Parameters.Add_Grid(
 		NULL	, "FLOWLEN"		, _TL("Flow Path Length"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
@@ -133,8 +133,8 @@ CFlow_RecursiveUp::CFlow_RecursiveUp(void)
 
 	Parameters.Add_Choice(
 		NULL	, "Method"		, _TL("Method"),
-		"",
-		CSG_String::Format("%s|%s|%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
 			_TL("Deterministic 8"),
 			_TL("Rho 8"),
 			_TL("Deterministic Infinity"),

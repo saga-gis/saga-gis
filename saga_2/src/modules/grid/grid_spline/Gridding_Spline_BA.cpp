@@ -75,7 +75,7 @@ CGridding_Spline_BA::CGridding_Spline_BA(void)
 
 	Set_Author		(_TL("Copyrights (c) 2006 by Olaf Conrad"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"Calculates B-spline functions for choosen level of detail. "
 		"This module serves as basis for the 'Multilevel B-Spline Interpolation' "
 		"and is not suited as it is for spatial data interpolation from "
@@ -91,7 +91,7 @@ CGridding_Spline_BA::CGridding_Spline_BA(void)
 	//-----------------------------------------------------
 	Parameters.Add_Value(
 		NULL	, "LEVEL"		, _TL("Resolution"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 1, 0.001, true
 	);
 }

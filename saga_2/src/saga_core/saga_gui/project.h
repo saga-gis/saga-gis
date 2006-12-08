@@ -75,15 +75,15 @@ public:
 	CWKSP_Project(void);
 	virtual ~CWKSP_Project(void);
 
-	const char *			Get_File_Name		(void)	{	return( m_File_Name );	}
+	const wxChar *			Get_File_Name		(void)	{	return( m_File_Name );	}
 	bool					Has_File_Name		(void);
 
 	bool					Load				(bool bAdd);
-	bool					Load				(const char *FileName, bool bAdd, bool bUpdateMenu);
+	bool					Load				(const wxChar *FileName, bool bAdd, bool bUpdateMenu);
 
 	bool					Save				(void);
 	bool					Save				(bool bSaveAsOnError);
-	bool					Save				(const char *FileName, bool bSaveModified);
+	bool					Save				(const wxChar *FileName, bool bSaveModified);
 
 	bool					Save_Modified		(class CWKSP_Base_Item *pItem);
 
@@ -92,14 +92,14 @@ private:
 
 	wxString				m_File_Name;
 
-	bool					_Load				(const char *FileName, bool bAdd, bool bUpdateMenu);
-	bool					_Save				(const char *FileName, bool bSaveModified, bool bUpdateMenu);
+	bool					_Load				(const wxChar *FileName, bool bAdd, bool bUpdateMenu);
+	bool					_Save				(const wxChar *FileName, bool bSaveModified, bool bUpdateMenu);
 
-	bool					_Load_Data			(FILE *Stream, const char *ProjectDir);
-	bool					_Save_Data			(FILE *Stream, const char *ProjectDir, class CSG_Data_Object *pDataObject, class CSG_Parameters *pParameters);
+	bool					_Load_Data			(CSG_File &Stream, const wxChar *ProjectDir);
+	bool					_Save_Data			(CSG_File &Stream, const wxChar *ProjectDir, class CSG_Data_Object *pDataObject, class CSG_Parameters *pParameters);
 
-	bool					_Load_Map			(FILE *Stream, const char *ProjectDir);
-	bool					_Save_Map			(FILE *Stream, const char *ProjectDir, class CWKSP_Map *pMap);
+	bool					_Load_Map			(CSG_File &Stream, const wxChar *ProjectDir);
+	bool					_Save_Map			(CSG_File &Stream, const wxChar *ProjectDir, class CWKSP_Map *pMap);
 
 	class CWKSP_Base_Item *	_Get_byFileName		(wxString FileName);
 

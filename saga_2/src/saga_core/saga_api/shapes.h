@@ -91,7 +91,7 @@ typedef enum ESG_Shape_Type
 TSG_Shape_Type;
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT const char *	SG_Get_ShapeType_Name	(TSG_Shape_Type Type);
+SAGA_API_DLL_EXPORT const SG_Char *	SG_Get_ShapeType_Name	(TSG_Shape_Type Type);
 
 
 ///////////////////////////////////////////////////////////
@@ -406,11 +406,11 @@ public:
 								CSG_Shapes	(const CSG_Shapes &Shapes);
 	bool						Create		(const CSG_Shapes &Shapes);
 
-								CSG_Shapes	(const char *File_Name);
-	bool						Create		(const char *File_Name);
+								CSG_Shapes	(const SG_Char *File_Name);
+	bool						Create		(const SG_Char *File_Name);
 
-								CSG_Shapes	(TSG_Shape_Type Type, const char *Name = NULL, CSG_Table *pStructure = NULL);
-	bool						Create		(TSG_Shape_Type Type, const char *Name = NULL, CSG_Table *pStructure = NULL);
+								CSG_Shapes	(TSG_Shape_Type Type, const SG_Char *Name = NULL, CSG_Table *pStructure = NULL);
+	bool						Create		(TSG_Shape_Type Type, const SG_Char *Name = NULL, CSG_Table *pStructure = NULL);
 
 	virtual ~CSG_Shapes(void);
 
@@ -420,7 +420,7 @@ public:
 
 	virtual bool				Assign					(CSG_Data_Object *pObject);
 
-	virtual bool				Save					(const char *File_Name, int Format = 0);
+	virtual bool				Save					(const SG_Char *File_Name, int Format = 0);
 
 	virtual bool				is_Valid				(void)	const		{	return( m_Type != SHAPE_TYPE_Undefined && m_nShapes >= 0 );				}
 
@@ -477,8 +477,8 @@ protected:
 
 	CSG_Shape *					_Add_Shape				(CSG_Table_Record *pRecord);
 
-	bool						_Load_ESRI				(const char *File_Name);
-	bool						_Save_ESRI				(const char *File_Name);
+	bool						_Load_ESRI				(const SG_Char *File_Name);
+	bool						_Save_ESRI				(const SG_Char *File_Name);
 
 };
 
@@ -497,10 +497,10 @@ SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(void);
 SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(const CSG_Shapes &Shapes);
 
 /** Safe shapes construction */
-SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(const char *FileName);
+SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(const SG_Char *FileName);
 
 /** Safe shapes construction */
-SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(TSG_Shape_Type Type, const char *Name = NULL, CSG_Table *pStructure = NULL);
+SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(TSG_Shape_Type Type, const SG_Char *Name = NULL, CSG_Table *pStructure = NULL);
 
 
 ///////////////////////////////////////////////////////////

@@ -26,13 +26,14 @@ CCost_Anisotropic::CCost_Anisotropic(void)
 
 	Set_Name(_TL("Accumulated Cost (Anisotropic)"));
 	Set_Author(_TL("Copyrights (c) 2004 by Victor Olaya"));
-	Set_Description(_TL(
-		"(c) 2004 by Victor Olaya. Calculate Accumulated Cost (Anisotropic)"));
+	Set_Description	(_TW(
+		"(c) 2004 by Victor Olaya. Calculate Accumulated Cost (Anisotropic)"
+	));
 
 	Parameters.Add_Grid(NULL, 
 						"COST", 
 						_TL("Cost Grid"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
@@ -44,13 +45,13 @@ CCost_Anisotropic::CCost_Anisotropic(void)
 	Parameters.Add_Grid(NULL, 
 						"POINTS",
 						_TL("Destination Points"), 
-						"",
+						_TL(""),
 						PARAMETER_INPUT);
 	
 	Parameters.Add_Grid(NULL, 
 						"ACCCOST", 
 						_TL("Accumulated Cost"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
 						GRID_TYPE_Double);
@@ -65,7 +66,7 @@ CCost_Anisotropic::CCost_Anisotropic(void)
 	Parameters.Add_Value(NULL,
 						"THRESHOLD",
 						_TL("Threshold for different route"),
-						"",
+						_TL(""),
 						PARAMETER_TYPE_Double,
 						0.);
 

@@ -75,7 +75,7 @@ CGrid_To_Contour::CGrid_To_Contour(void)
 
 	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Create contour lines (isolines) from grid values. ")
 	);
 
@@ -83,31 +83,31 @@ CGrid_To_Contour::CGrid_To_Contour(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL, "INPUT"	, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
 		NULL, "CONTOUR"	, _TL("Contour Lines"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Value(
 		NULL, "ZMIN"	, _TL("Minimum Contour Value"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 0.0
 	);
 
 	Parameters.Add_Value(
 		NULL, "ZMAX"	, _TL("Maximum Contour Value"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 10000.0
 	);
 
 	Parameters.Add_Value(
 		NULL, "ZSTEP"	, _TL("Equidistance"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 10.0, 0, true
 	);
 }

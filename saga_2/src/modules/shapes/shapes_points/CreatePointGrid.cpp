@@ -23,25 +23,25 @@
 CCreatePointGrid::CCreatePointGrid(void){
 
 	Parameters.Set_Name(_TL("Create Point Grid"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2004 by Victor Olaya. Creates a regular grid of points."));
 
 	Parameters.Add_Shapes(NULL, 
 						"POINTS", 
 						_TL("Point Grid"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT);
 
 				
 	Parameters.Add_Range(NULL, 
 							"X_EXTENT", 
 							_TL("X-Extent"),
-							"");
+							_TL(""));
 
 	Parameters.Add_Range(NULL, 
 							"Y_EXTENT", 
 							_TL("Y-Extent"),
-							"");
+							_TL(""));
 
 	Parameters.Add_Value(NULL, 
 						"DIST",

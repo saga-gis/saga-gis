@@ -31,7 +31,7 @@ public:
 	CCost_PolarToRect(void);
 	virtual ~CCost_PolarToRect(void);
 
-	virtual const char *	Get_MenuPath	(void)	{	return( _TL("R:Cost Analysis") );	}
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Cost Analysis") );	}
 
 
 protected:

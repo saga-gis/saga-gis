@@ -77,7 +77,7 @@ CGrid_Merge::CGrid_Merge(void)
 
 	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL("Merge Grids.\n")
+	Set_Description	(_TW("Merge Grids.\n")
 	);
 
 
@@ -86,25 +86,25 @@ CGrid_Merge::CGrid_Merge(void)
 
 	Parameters.Add_Grid_List(
 		NULL	, "GRID_LIST"	, _TL("Grids to merge"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "MERGED"		, _TL("Merged Grid"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid_Output(
 		NULL	, "GRID"		, _TL("Merged Grid (unknown grid system)"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "TYPE"		, _TL("Preferred data storage type"),
-		"",
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
 			_TL("1 bit"),
 			_TL("1 byte unsigned"),
 			_TL("1 byte signed"),
@@ -123,27 +123,27 @@ CGrid_Merge::CGrid_Merge(void)
 
 	pParameters	= Add_Parameters(
 		"MERGE_INFO"	, _TL("Mesh Size Specification"),
-		_TL("The grid selection contains grids with different mesh sizes."
+		_TW("The grid selection contains grids with different mesh sizes."
 		"Please specify the mesh size that you desire for the merged grid."
 		"All grids with other mesh sizes will then be resampled according to your specification.")
 	);
 
 	pParameters->Add_Value(
 		NULL	, "MESH_SIZE_X"	, _TL("Mesh Width"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 1
 	);
 
 	pParameters->Add_Value(
 		NULL	, "MESH_SIZE_Y"	, _TL("Mesh Height"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 1
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "INTERPOL"	, _TL("Interpolation"),
-		"",
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("Nearest Neighbor"),
 			_TL("Bilinear Interpolation"),
 			_TL("Inverse Distance Interpolation"),

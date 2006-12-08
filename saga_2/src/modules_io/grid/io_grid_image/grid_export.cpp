@@ -77,33 +77,32 @@ CGrid_Export::CGrid_Export(void)
 
 	Set_Author	(_TL("Copyrights (c) 2005 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Saves a grid as image using display properties as used by the graphical user interface.\n")
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "GRID"		, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "SHADE"		, _TL("Shade"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_FilePath(
 		NULL	, "FILE"		, _TL("Image File"),
-		"",
-		_TL(
-		"Windows or OS/2 Bitmap (*.bmp)"				"|*.bmp|"
-		"JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)"	"|*.jpg;*.jif;*.jpeg|"
-		"Zsoft Paintbrush (*.pcx)"						"|*.pcx|"
-		"Portable Network Graphics (*.png)"				"|*.png|"
-		"Tagged Image File Format (*.tif, *.tiff)"		"|*.tif;*.tiff"),
-
-		NULL, true
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s"),
+			_TL("Windows or OS/2 Bitmap (*.bmp)")				, SG_T("*.bmp"),
+			_TL("JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)")	, SG_T("*.jpg;*.jif;*.jpeg"),
+			_TL("Zsoft Paintbrush (*.pcx)")						, SG_T("*.pcx"),
+			_TL("Portable Network Graphics (*.png)")			, SG_T("*.png"),
+			_TL("Tagged Image File Format (*.tif, *.tiff)")		, SG_T("*.tif;*.tiff")
+		), NULL, true
 	);
 }
 
@@ -123,7 +122,7 @@ bool CGrid_Export::On_Execute(void)
 {
 	int			x, y, c, r, g, b;
 	double		d;
-	CSG_Grid		*pGrid, *pShade, Grid, Shade;
+	CSG_Grid	*pGrid, *pShade, Grid, Shade;
 	FILE		*Stream;
 	wxFileName	fName;
 	wxImage		img;
@@ -171,28 +170,28 @@ bool CGrid_Export::On_Execute(void)
 		//-------------------------------------------------
 		if( img.SaveFile(fName.GetFullPath()) )
 		{
-			if(      !fName.GetExt().CmpNoCase("bmp") )
+			if(      !fName.GetExt().CmpNoCase(SG_T("bmp")) )
 			{
-				fName.SetExt("bpw");
+				fName.SetExt(SG_T("bpw"));
 			}
-			else if( !fName.GetExt().CmpNoCase("jpg") )
+			else if( !fName.GetExt().CmpNoCase(SG_T("jpg")) )
 			{
-				fName.SetExt("jgw");
+				fName.SetExt(SG_T("jgw"));
 			}
-			else if( !fName.GetExt().CmpNoCase("png") )
+			else if( !fName.GetExt().CmpNoCase(SG_T("png")) )
 			{
-				fName.SetExt("pgw");
+				fName.SetExt(SG_T("pgw"));
 			}
-			else if( !fName.GetExt().CmpNoCase("tif") )
+			else if( !fName.GetExt().CmpNoCase(SG_T("tif")) )
 			{
-				fName.SetExt("tfw");
+				fName.SetExt(SG_T("tfw"));
 			}
 			else
 			{
-				fName.SetExt("world");
+				fName.SetExt(SG_T("world"));
 			}
 
-			if( (Stream = fopen(fName.GetFullPath(), "w")) != NULL )
+			if( (Stream = fopen(fName.GetFullPath().mb_str(), "w")) != NULL )
 			{
 				fprintf(Stream, "%f\n%f\n%f\n%f\n%f\n%f\n",
 					 pGrid->Get_Cellsize(),

@@ -75,7 +75,7 @@ CGridding_Spline_TPS_Global::CGridding_Spline_TPS_Global(void)
 
 	Set_Author		(_TL("Copyrights (c) 2006 by Olaf Conrad"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"Creates a 'Thin Plate Spline' function using all points of selected input. "
 		"Suitable for the gridding of a small number of points. "
 		"\n\n"
@@ -97,7 +97,7 @@ CGridding_Spline_TPS_Global::CGridding_Spline_TPS_Global(void)
 	//-----------------------------------------------------
 	Parameters.Add_Value(
 		NULL	, "REGUL"		, _TL("Regularisation"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.0
 	);
 }

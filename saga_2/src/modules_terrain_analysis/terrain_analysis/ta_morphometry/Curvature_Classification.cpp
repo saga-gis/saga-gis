@@ -74,7 +74,7 @@ CCurvature_Classification::CCurvature_Classification(void)
 
 	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Surface curvature based terrain classification.\n"
 		"Reference:\n"
 		"Dikau, R. (1988):\n'Entwurf einer geomorphographisch-analytischen Systematik von Reliefeinheiten',\n"
@@ -90,12 +90,12 @@ CCurvature_Classification::CCurvature_Classification(void)
 		"8 - X  / X\n")
 	);
 
-	Parameters.Add_Grid(	NULL, "CPLAN"		, _TL("Plan Curvature")			, "", PARAMETER_INPUT);
-	Parameters.Add_Grid(	NULL, "CPROF"		, _TL("Profile Curvature")		, "", PARAMETER_INPUT);
+	Parameters.Add_Grid(	NULL, "CPLAN"		, _TL("Plan Curvature")			, _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid(	NULL, "CPROF"		, _TL("Profile Curvature")		, _TL(""), PARAMETER_INPUT);
 
-	Parameters.Add_Value(	NULL, "THRESHOLD"	, _TL("Threshold for plane")		, "", PARAMETER_TYPE_Double, 0.001, 0.0, true);
+	Parameters.Add_Value(	NULL, "THRESHOLD"	, _TL("Threshold for plane")		, _TL(""), PARAMETER_TYPE_Double, 0.001, 0.0, true);
 
-	Parameters.Add_Grid(	NULL, "CLASS"		, _TL("Curvature Classification"), "", PARAMETER_OUTPUT);
+	Parameters.Add_Grid(	NULL, "CLASS"		, _TL("Curvature Classification"), _TL(""), PARAMETER_OUTPUT);
 
 }
 

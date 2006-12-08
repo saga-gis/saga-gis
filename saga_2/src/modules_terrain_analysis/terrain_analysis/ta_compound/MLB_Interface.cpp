@@ -62,7 +62,7 @@
 
 
 //---------------------------------------------------------
-const char * Get_Info(int i)
+const SG_Char * Get_Info(int i)
 {
 	switch( i )
 	{
@@ -70,10 +70,10 @@ const char * Get_Info(int i)
 		return( _TL("Terrain Analysis - Compound Analyses" ));
 
 	case MLB_INFO_Author:
-		return( "Olaf Conrad, Goettingen (c) 2005" );
+		return( SG_T("Olaf Conrad, Goettingen (c) 2005") );
 
 	case MLB_INFO_Description:
-		return(_TL(
+		return(_TW(
 			"Terrain Analysis: Compound Analyses.\n"
 			"This library depends on the following SAGA module libraries:\n"
 			"- ta_channels\n"
@@ -85,7 +85,7 @@ const char * Get_Info(int i)
 		);
 
 	case MLB_INFO_Version:
-		return( "1.0" );
+		return( SG_T("1.0") );
 
 	case MLB_INFO_Menu_Path:
 		return( _TL("Terrain Analysis") );

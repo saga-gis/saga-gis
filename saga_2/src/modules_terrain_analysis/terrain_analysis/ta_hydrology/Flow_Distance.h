@@ -85,7 +85,7 @@ public:
 	CFlow_Distance(void);
 	virtual ~CFlow_Distance(void);
 
-//	virtual const char *	Get_MenuPath	(void)	{	return( "R:Catchment Area" );	}
+//	virtual const SG_Char *	Get_MenuPath	(void)	{	return( "R:Catchment Area" );	}
 
 
 protected:

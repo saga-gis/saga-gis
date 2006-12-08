@@ -85,7 +85,7 @@ public:
 	CGSGrid_Variance_Radius(void);
 	virtual ~CGSGrid_Variance_Radius(void);
 
-	virtual const char *	Get_MenuPath	(void)	{	return( _TL("R:Neighborhoods") );	}
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Neighborhoods") );	}
 
 
 protected:
@@ -101,8 +101,7 @@ private:
 
 	double					stopVariance;
 
-	CSG_Grid					*pGrid, *pResult,
-							*pInput, *pInputQ;
+	CSG_Grid				*pGrid, *pResult, *pInput, *pInputQ;
 
 
 	void					Initialize		(void);

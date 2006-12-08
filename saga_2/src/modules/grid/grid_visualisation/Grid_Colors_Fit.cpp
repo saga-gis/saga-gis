@@ -75,26 +75,26 @@ CGrid_Colors_Fit::CGrid_Colors_Fit(void)
 	Set_Author(_TL("Copyrights (c) 2005 by Olaf Conrad"));
 
 	Set_Description(
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "GRID"	, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Value(
 		NULL	, "COUNT"	, _TL("Number of Colors"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int	, 100, 2, true
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "SCALE"	, _TL("Scale"),
-		"",
+		_TL(""),
 
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Grid range"),
 			_TL("User defined range")
 		), 0
@@ -102,7 +102,7 @@ CGrid_Colors_Fit::CGrid_Colors_Fit(void)
 
 	Parameters.Add_Range(
 		NULL	, "RANGE"	, _TL("User defined range"),
-		"",
+		_TL(""),
 		0.0, 1.0
 	);
 }

@@ -84,38 +84,38 @@ CTIN_To_Shapes::CTIN_To_Shapes(void)
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_TIN(
-		NULL	, "TIN"			, "TIN",
-		"",
+		NULL	, "TIN"			, _TL("TIN"),
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
 		NULL	, "POINTS"		, _TL("Points"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Shapes(
 		NULL	, "CENTER"		, _TL("Center of Triangles"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Shapes(
 		NULL	, "EDGES"		, _TL("Edges"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
 
 	Parameters.Add_Shapes(
 		NULL	, "TRIANGLES"	, _TL("Triangles"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Shapes(
 		NULL	, "POLYGONS"	, _TL("Polygons"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 }

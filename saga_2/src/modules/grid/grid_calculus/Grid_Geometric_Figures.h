@@ -78,7 +78,7 @@ public:
 	CGrid_Geometric_Figures(void);
 	virtual ~CGrid_Geometric_Figures(void);
 
-	virtual const char *	Get_MenuPath	(void)	{	return( _TL("R:Grid Generation") );	}
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Grid Generation") );	}
 
 
 protected:

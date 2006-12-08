@@ -281,7 +281,7 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 	{
 		_Add_Page(IMG_HTMLEXTRAINFO);
 
-		m_pHTMLExtraInfo->SetPage("");
+		m_pHTMLExtraInfo->SetPage(wxT(""));
 	}
 
 	//-----------------------------------------------------
@@ -432,13 +432,13 @@ bool CACTIVE::_Set_Description(void)
 
 				FileName.Assign		(((CWKSP_Module *)m_pItem)->Get_File_Name());
 				FileName.AppendDir	(FileName.GetName());
-				FileName.SetName	(wxString::Format("%s_%02d", FileName.GetName().c_str(), m_pItem->Get_Index()));
+				FileName.SetName	(wxString::Format(wxT("%s_%02d"), FileName.GetName().c_str(), m_pItem->Get_Index()));
 
-				FileName.SetExt		("html");
+				FileName.SetExt		(wxT("html"));
 
 				if( !FileName.FileExists() || !m_pDescription->LoadPage(FileName.GetFullPath()) )
 				{
-					FileName.SetExt		("htm");
+					FileName.SetExt		(wxT("htm"));
 
 					if( !FileName.FileExists() || !m_pDescription->LoadPage(FileName.GetFullPath()) )
 					{
@@ -457,13 +457,13 @@ bool CACTIVE::_Set_Description(void)
 		{
 			m_pDescription->SetPage(LNG("[TXT] No description available"));
 
-			STATUSBAR_Set_Text("", STATUSBAR_ACTIVE);
+			STATUSBAR_Set_Text(wxT(""), STATUSBAR_ACTIVE);
 		}
 
 		return( true );
 	}
 
-	STATUSBAR_Set_Text("", STATUSBAR_ACTIVE);
+	STATUSBAR_Set_Text(wxT(""), STATUSBAR_ACTIVE);
 
 	return( false );
 }

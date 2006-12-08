@@ -27,25 +27,25 @@ CSelectByTheme::CSelectByTheme(void){
 
 	Parameters.Set_Name(_TL("Select by theme"));
 
-	Parameters.Set_Description(_TL("(c) 2004 by Victor Olaya. Select by Theme"));
+	Parameters.Set_Description(_TW("(c) 2004 by Victor Olaya. Select by Theme"));
 
 	Parameters.Add_Shapes(NULL,
 						"SHAPES",
 						_TL("Shapes"),
-						"",
+						_TL(""),
 						PARAMETER_INPUT);
 
 	Parameters.Add_Shapes(NULL,
 						"SHAPES2",
 						_TL("Shapes 2"),
-						"",
+						_TL(""),
 						PARAMETER_INPUT);
 
 	Parameters.Add_Choice(NULL, 
 						"CONDITION", 
 						_TL("Condition"), 
 						_TL("Select features in Shapes 1 that fulfil this condition"), 
-						_TL(
+						_TW(
 						"Intersect|"
 						"Are completely within|"
 						"Completely contain|"
@@ -56,8 +56,8 @@ CSelectByTheme::CSelectByTheme(void){
 	Parameters.Add_Choice(NULL, 
 						"METHOD", 
 						_TL("Method"), 
-						"", 
-						_TL(
+						_TL(""), 
+						_TW(
 						"New selection|"
 						"Add to current selection|"
 						"Select from current selection|"),

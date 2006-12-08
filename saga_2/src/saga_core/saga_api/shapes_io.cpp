@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Shapes::_Load_ESRI(const char *File_Name)
+bool CSG_Shapes::_Load_ESRI(const SG_Char *File_Name)
 {
 	char		buf_Header[100];
 
@@ -80,23 +80,23 @@ bool CSG_Shapes::_Load_ESRI(const char *File_Name)
 				iShape, iPart, nParts, iPoint, nPoints,
 				buf_nParts, *buf_nPoints;
 
-	FILE		*Stream;
-
 	TSG_Point	dPoint;
 
 	TSG_Rect	dRect;
 
-	CSG_Shape		*pShape;
-
 	CSG_String	fName;
+
+	CSG_File	Stream;
+
+	CSG_Shape	*pShape;
 
 
 	//-----------------------------------------------------
 	// Load Attributes...
 
-	fName	= SG_File_Make_Path(NULL, File_Name, "dbf");
+	fName	= SG_File_Make_Path(NULL, File_Name, SG_T("dbf"));
 
-	if( !m_Table._Create(fName, '\t') || m_Table.Get_Record_Count() == 0 )
+	if( !m_Table._Create(fName, SG_T('\t')) || m_Table.Get_Record_Count() == 0 )
 	{
 		return( false );
 	}
@@ -104,11 +104,11 @@ bool CSG_Shapes::_Load_ESRI(const char *File_Name)
 	//-----------------------------------------------------
 	// Open Shapes File...
 
-	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Load shapes"), File_Name), true);
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Load shapes"), File_Name), true);
 
-	fName	= SG_File_Make_Path(NULL, File_Name, "shp");
+	fName	= SG_File_Make_Path(NULL, File_Name, SG_T("shp"));
 
-	if( (Stream = fopen(fName, "rb")) == NULL )
+	if( !Stream.Open(fName, SG_FILE_R, true) )
 	{
 		SG_UI_Msg_Add(LNG("[MSG] failed"), false);
 
@@ -120,17 +120,17 @@ bool CSG_Shapes::_Load_ESRI(const char *File_Name)
 	//-----------------------------------------------------
 	// Load File-Header (100-Bytes)...
 
-	fread(buf_Header, 100, sizeof(char), Stream);
+	Stream.Read(buf_Header, sizeof(char), 100);
 
-	FileCode	= SG_Read_Int		(buf_Header +  0, true );	// Byte 0		-> File Code 9994 Integer Big...
+	FileCode	= SG_Mem_Get_Int	(buf_Header +  0, true );	// Byte 0		-> File Code 9994 Integer Big...
 	// ...														// Byte 4-20	-> Unused 0 Integer Big...
-	FileLength	= SG_Read_Int		(buf_Header + 24, true );	// Byte 24		-> File Length File Length Integer Big...
-	Version		= SG_Read_Int		(buf_Header + 28, false);	// Byte 28		-> Version 1000 Integer Little...
-	Type_File	= SG_Read_Int		(buf_Header + 32, false);	// Byte 32		-> Shape m_Type Shape m_Type Integer Little...
-	dRect.xMin	= SG_Read_Double	(buf_Header + 36, false);	// Byte 36		-> Bounding Box Xmin Double Little...
-	dRect.yMin	= SG_Read_Double	(buf_Header + 44, false);	// Byte 44		-> Bounding Box Ymin Double Little...
-	dRect.xMax	= SG_Read_Double	(buf_Header + 52, false);	// Byte 52		-> Bounding Box Xmax Double Little...
-	dRect.yMax	= SG_Read_Double	(buf_Header + 60, false);	// Byte 60		-> Bounding Box Ymax Double Little...
+	FileLength	= SG_Mem_Get_Int	(buf_Header + 24, true );	// Byte 24		-> File Length File Length Integer Big...
+	Version		= SG_Mem_Get_Int	(buf_Header + 28, false);	// Byte 28		-> Version 1000 Integer Little...
+	Type_File	= SG_Mem_Get_Int	(buf_Header + 32, false);	// Byte 32		-> Shape m_Type Shape m_Type Integer Little...
+	dRect.xMin	= SG_Mem_Get_Double	(buf_Header + 36, false);	// Byte 36		-> Bounding Box Xmin Double Little...
+	dRect.yMin	= SG_Mem_Get_Double	(buf_Header + 44, false);	// Byte 44		-> Bounding Box Ymin Double Little...
+	dRect.xMax	= SG_Mem_Get_Double	(buf_Header + 52, false);	// Byte 52		-> Bounding Box Xmax Double Little...
+	dRect.yMax	= SG_Mem_Get_Double	(buf_Header + 60, false);	// Byte 60		-> Bounding Box Ymax Double Little...
 	// ...														// Byte 68*		-> Bounding Box Zmin Double Little...
 	// ...														// Byte 76*		-> Bounding Box Zmax Double Little...
 	// ...														// Byte 84*		-> Bounding Box Mmin Double Little...
@@ -161,13 +161,11 @@ bool CSG_Shapes::_Load_ESRI(const char *File_Name)
 		break;
 	}
 
-	if( feof(Stream) || FileCode != 9994 || Version != 1000 || m_Type == SHAPE_TYPE_Undefined )
+	if( Stream.is_EOF() || FileCode != 9994 || Version != 1000 || m_Type == SHAPE_TYPE_Undefined )
 	{
 		SG_UI_Msg_Add(LNG("[MSG] failed"), false);
 
 		SG_UI_Msg_Add_Error(LNG("[ERR] Shape file header is invalid."));
-
-		fclose(Stream);
 
 		return( false );
 	}
@@ -180,12 +178,12 @@ bool CSG_Shapes::_Load_ESRI(const char *File_Name)
 
 	for(iShape=0; iShape<m_Table.Get_Record_Count() && SG_UI_Process_Set_Progress(iShape, m_Table.Get_Record_Count()); iShape++)
 	{
-		RecordNumber	= SG_Read_Int(Stream, true);
-		ContentLength	= SG_Read_Int(Stream, true);
+		RecordNumber	= Stream.Read_Int(true);
+		ContentLength	= Stream.Read_Int(true);
 
-		fread(&Type_Shape, 1, sizeof(int), Stream);
+		Stream.Read(&Type_Shape, sizeof(int));
 
-		if( Type_Shape != Type_File || feof(Stream) )
+		if( Type_Shape != Type_File || Stream.is_EOF() )
 		{
 			SG_UI_Msg_Add(LNG("[MSG] failed"), false);
 
@@ -201,27 +199,27 @@ bool CSG_Shapes::_Load_ESRI(const char *File_Name)
 			{
 			//---------------------------------------------
 			case 1:			// Point...
-				fread(&dPoint	, 1, sizeof(TSG_Point), Stream);
+				Stream.Read(&dPoint	, sizeof(TSG_Point));
 				pShape->Add_Point(dPoint.x, dPoint.y);
 				break;
 
 			//---------------------------------------------
 			case 8:			// Multipoint...
-				fread(&dRect	, 1, sizeof(TSG_Rect)	, Stream);
-				fread(&nPoints	, 1, sizeof(int)		, Stream);
+				Stream.Read(&dRect	, sizeof(TSG_Rect));
+				Stream.Read(&nPoints, sizeof(int));
 
 				for(iPoint=0; iPoint<nPoints; iPoint++)
 				{
-					fread(&dPoint, 1, sizeof(TSG_Point), Stream);
+					Stream.Read(&dPoint, sizeof(TSG_Point));
 					pShape->Add_Point(dPoint.x, dPoint.y);
 				}
 				break;
 
 			//---------------------------------------------
 			case 3: case 5:	// Line, Polygon...
-				fread(&dRect	, 1, sizeof(TSG_Rect)	, Stream);
-				fread(&nParts	, 1, sizeof(int)		, Stream);
-				fread(&nPoints	, 1, sizeof(int)		, Stream);
+				Stream.Read(&dRect	, sizeof(TSG_Rect));
+				Stream.Read(&nParts	, sizeof(int));
+				Stream.Read(&nPoints, sizeof(int));
 
 				//-----------------------------------------
 				if( buf_nParts <= nParts )
@@ -232,7 +230,7 @@ bool CSG_Shapes::_Load_ESRI(const char *File_Name)
 
 				for(iPart=0; iPart<nParts; iPart++)
 				{
-					fread(buf_nPoints + iPart, 1, sizeof(int), Stream);
+					Stream.Read(buf_nPoints + iPart, sizeof(int));
 				}
 
 				buf_nPoints[nParts]	= nPoints;
@@ -245,7 +243,7 @@ bool CSG_Shapes::_Load_ESRI(const char *File_Name)
 						iPart++;
 					}
 
-					fread(&dPoint, 1, sizeof(TSG_Point), Stream);
+					Stream.Read(&dPoint, sizeof(TSG_Point));
 					pShape->Add_Point(dPoint.x, dPoint.y, iPart);
 				}
 				break;
@@ -265,8 +263,6 @@ bool CSG_Shapes::_Load_ESRI(const char *File_Name)
 		SG_Free(buf_nPoints);
 	}
 
-	fclose(Stream);
-
 	return( Get_Count() > 0 );
 }
 
@@ -278,15 +274,15 @@ bool CSG_Shapes::_Load_ESRI(const char *File_Name)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define Save_ESRI_RecordHeader	SG_Write_Int(Stream	, RecordNumber++, true);\
-								SG_Write_Int(Stream	, ContentLength	, true);\
-								SG_Write_Int(Stream_Idx, FileLength	, true);\
-								SG_Write_Int(Stream_Idx, ContentLength	, true);\
+#define Save_ESRI_RecordHeader	Stream    .Write_Int(RecordNumber++, true);\
+								Stream    .Write_Int(ContentLength , true);\
+								Stream_Idx.Write_Int(FileLength	   , true);\
+								Stream_Idx.Write_Int(ContentLength , true);\
 								FileLength		+= 4 + ContentLength;\
 								FileLength_idx	+= 4;\
 
 //---------------------------------------------------------
-bool CSG_Shapes::_Save_ESRI(const char *File_Name)
+bool CSG_Shapes::_Save_ESRI(const SG_Char *File_Name)
 {
 	char		buf_Header[100];
 
@@ -294,15 +290,15 @@ bool CSG_Shapes::_Save_ESRI(const char *File_Name)
 				RecordNumber, ContentLength,
 				iShape, iPoint, iPart, nPoints;
 
-	FILE		*Stream, *Stream_Idx;
-
 	TSG_Point	dPoint;
 
 	TSG_Rect	dRect;
 
-	CSG_Shape		*pShape;
-
 	CSG_String	fName;
+
+	CSG_File	Stream, Stream_Idx;
+
+	CSG_Shape	*pShape;
 
 
 	//-----------------------------------------------------
@@ -334,11 +330,11 @@ bool CSG_Shapes::_Save_ESRI(const char *File_Name)
 	//-----------------------------------------------------
 	// File Access...
 
-	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", LNG("[MSG] Save shapes"), File_Name), true);
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Save shapes"), File_Name), true);
 
-	fName	= SG_File_Make_Path(NULL, File_Name, "shx");
+	fName	= SG_File_Make_Path(NULL, File_Name, SG_T("shx"));
 
-	if( (Stream_Idx = fopen(fName, "wb")) == NULL )
+	if( !Stream_Idx.Open(fName, SG_FILE_W, true) )
 	{
 		SG_UI_Msg_Add(LNG("[MSG] failed"), false);
 
@@ -347,12 +343,10 @@ bool CSG_Shapes::_Save_ESRI(const char *File_Name)
 		return( false );
 	}
 
-	fName	= SG_File_Make_Path(NULL, File_Name, "shp");
+	fName	= SG_File_Make_Path(NULL, File_Name, SG_T("shp"));
 
-	if( (Stream     = fopen(fName, "wb")) == NULL )
+	if( !Stream.Open(fName, SG_FILE_W, true) )
 	{
-		fclose(Stream_Idx);
-
 		SG_UI_Msg_Add(LNG("[MSG] failed"), false);
 
 		SG_UI_Msg_Add_Error(LNG("[ERR] Shape file could not be opened."));
@@ -360,7 +354,7 @@ bool CSG_Shapes::_Save_ESRI(const char *File_Name)
 		return( false );
 	}
 
-	SG_UI_Process_Set_Text(CSG_String::Format("%s: %s", LNG("[DAT] Save shapes"), fName.c_str()));
+	SG_UI_Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), LNG("[DAT] Save shapes"), fName.c_str()));
 
 	//-----------------------------------------------------
 	// Save Header...
@@ -369,26 +363,26 @@ bool CSG_Shapes::_Save_ESRI(const char *File_Name)
 
 	dRect	= m_Extent.m_rect;
 
-	SG_Write_Int	(buf_Header	+  0, 9994		, true );	// Byte 0	-> File Code 9994 Integer Big...
-	SG_Write_Int	(buf_Header +  4, 0			, true );	// Byte 4	-> unused Integer Big...
-	SG_Write_Int	(buf_Header +  8, 0			, true );	// Byte 8	-> unused Integer Big...
-	SG_Write_Int	(buf_Header + 12, 0			, true );	// Byte 12	-> unused Integer Big...
-	SG_Write_Int	(buf_Header + 16, 0			, true );	// Byte 16	-> unused Integer Big...
-	SG_Write_Int	(buf_Header + 20, 0			, true );	// Byte 20	-> unused Integer Big...
-	SG_Write_Int	(buf_Header + 24, 0			, true );	// Byte 24	-> File Length File Length Integer Big...
-	SG_Write_Int	(buf_Header + 28, 1000		, false);	// Byte 28	-> Version 1000 Integer Little...
-	SG_Write_Int	(buf_Header + 32, Type_File	, false);	// Byte 32	-> Shape m_Type Shape m_Type Integer Little...
-	SG_Write_Double(buf_Header + 36, dRect.xMin, false);	// Byte 36	-> Bounding Box Xmin Double Little...
-	SG_Write_Double(buf_Header + 44, dRect.yMin, false);	// Byte 44	-> Bounding Box Ymin Double Little...
-	SG_Write_Double(buf_Header + 52, dRect.xMax, false);	// Byte 52	-> Bounding Box Xmax Double Little...
-	SG_Write_Double(buf_Header + 60, dRect.yMax, false);	// Byte 60	-> Bounding Box Ymax Double Little...
-	SG_Write_Double(buf_Header + 68, 0			, false);	// Byte 68	-> Bounding Box Zmin Double Little...
-	SG_Write_Double(buf_Header + 76, 0			, false);	// Byte 76	-> Bounding Box Zmax Double Little...
-	SG_Write_Double(buf_Header + 84, 0			, false);	// Byte 84	-> Bounding Box Mmin Double Little...
-	SG_Write_Double(buf_Header + 92, 0			, false);	// Byte 92	-> Bounding Box Mmax Double Little...
+	SG_Mem_Set_Int		(buf_Header	+  0, 9994		, true );	// Byte 0	-> File Code 9994 Integer Big...
+	SG_Mem_Set_Int		(buf_Header +  4, 0			, true );	// Byte 4	-> unused Integer Big...
+	SG_Mem_Set_Int		(buf_Header +  8, 0			, true );	// Byte 8	-> unused Integer Big...
+	SG_Mem_Set_Int		(buf_Header + 12, 0			, true );	// Byte 12	-> unused Integer Big...
+	SG_Mem_Set_Int		(buf_Header + 16, 0			, true );	// Byte 16	-> unused Integer Big...
+	SG_Mem_Set_Int		(buf_Header + 20, 0			, true );	// Byte 20	-> unused Integer Big...
+	SG_Mem_Set_Int		(buf_Header + 24, 0			, true );	// Byte 24	-> File Length File Length Integer Big...
+	SG_Mem_Set_Int		(buf_Header + 28, 1000		, false);	// Byte 28	-> Version 1000 Integer Little...
+	SG_Mem_Set_Int		(buf_Header + 32, Type_File	, false);	// Byte 32	-> Shape m_Type Shape m_Type Integer Little...
+	SG_Mem_Set_Double	(buf_Header + 36, dRect.xMin, false);	// Byte 36	-> Bounding Box Xmin Double Little...
+	SG_Mem_Set_Double	(buf_Header + 44, dRect.yMin, false);	// Byte 44	-> Bounding Box Ymin Double Little...
+	SG_Mem_Set_Double	(buf_Header + 52, dRect.xMax, false);	// Byte 52	-> Bounding Box Xmax Double Little...
+	SG_Mem_Set_Double	(buf_Header + 60, dRect.yMax, false);	// Byte 60	-> Bounding Box Ymax Double Little...
+	SG_Mem_Set_Double	(buf_Header + 68, 0			, false);	// Byte 68	-> Bounding Box Zmin Double Little...
+	SG_Mem_Set_Double	(buf_Header + 76, 0			, false);	// Byte 76	-> Bounding Box Zmax Double Little...
+	SG_Mem_Set_Double	(buf_Header + 84, 0			, false);	// Byte 84	-> Bounding Box Mmin Double Little...
+	SG_Mem_Set_Double	(buf_Header + 92, 0			, false);	// Byte 92	-> Bounding Box Mmax Double Little...
 
-	fwrite(buf_Header, 100, sizeof(char), Stream);
-	fwrite(buf_Header, 100, sizeof(char), Stream_Idx);
+	Stream		.Write(buf_Header, sizeof(char), 100);
+	Stream_Idx	.Write(buf_Header, sizeof(char), 100);
 
 	FileLength		= 50;	// FileLength measured in 16-bit words...
 	FileLength_idx	= 50;	// FileLength measured in 16-bit words...
@@ -413,12 +407,12 @@ bool CSG_Shapes::_Save_ESRI(const char *File_Name)
 
 			//---------------------------------------------
 			// Shape-Header...
-			fwrite(&Type_File						, 1, sizeof(Type_File)	, Stream);
+			Stream.Write(&Type_File	, sizeof(Type_File));
 
 			//---------------------------------------------
 			// Shape-Points...
 			dPoint			= pShape->Get_Point(0);
-			fwrite(&dPoint		, 1, sizeof(TSG_Point), Stream);
+			Stream.Write(&dPoint	, sizeof(TSG_Point));
 			break;
 
 		//-------------------------------------------------
@@ -439,9 +433,9 @@ bool CSG_Shapes::_Save_ESRI(const char *File_Name)
 			// Shape-Header...
 			dRect			= pShape->Get_Extent();
 
-			fwrite(&Type_File	, 1, sizeof(Type_File)	, Stream);
-			fwrite(&dRect		, 1, sizeof(TSG_Rect)	, Stream);
-			fwrite(&nPoints		, 1, sizeof(int)		, Stream);
+			Stream.Write(&Type_File	, sizeof(Type_File));
+			Stream.Write(&dRect		, sizeof(TSG_Rect));
+			Stream.Write(&nPoints	, sizeof(int));
 
 			//-----------------------------------------
 			// Shape-Points...
@@ -450,7 +444,7 @@ bool CSG_Shapes::_Save_ESRI(const char *File_Name)
 				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
 					dPoint		= pShape->Get_Point(iPoint, iPart);
-					fwrite(&dPoint, 1, sizeof(TSG_Point), Stream);
+					Stream.Write(&dPoint, sizeof(TSG_Point));
 				}
 			}
 			break;
@@ -474,14 +468,14 @@ bool CSG_Shapes::_Save_ESRI(const char *File_Name)
 			dRect			= pShape->Get_Extent();
 			iPart			= pShape->Get_Part_Count();
 
-			fwrite(&Type_File	, 1, sizeof(Type_File)	, Stream);
-			fwrite(&dRect		, 1, sizeof(TSG_Rect)	, Stream);
-			fwrite(&iPart		, 1, sizeof(int)		, Stream);
-			fwrite(&nPoints		, 1, sizeof(int)		, Stream);
+			Stream.Write(&Type_File	, sizeof(Type_File));
+			Stream.Write(&dRect		, sizeof(TSG_Rect));
+			Stream.Write(&iPart		, sizeof(int));
+			Stream.Write(&nPoints	, sizeof(int));
 
 			for(iPart=0, iPoint=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
-				fwrite(&iPoint	, 1, sizeof(int)		, Stream);
+				Stream.Write(&iPoint, sizeof(int));
 				iPoint	+= pShape->Get_Point_Count(iPart);
 			}
 
@@ -492,7 +486,7 @@ bool CSG_Shapes::_Save_ESRI(const char *File_Name)
 				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
 					dPoint		= pShape->Get_Point(iPoint, iPart);
-					fwrite(&dPoint, 1, sizeof(TSG_Point), Stream);
+					Stream.Write(&dPoint, sizeof(TSG_Point));
 				}
 			}
 			break;
@@ -502,14 +496,11 @@ bool CSG_Shapes::_Save_ESRI(const char *File_Name)
 	//-----------------------------------------------------
 	// File Sizes...
 
-	fseek(Stream	, 24, SEEK_SET);
-	fseek(Stream_Idx, 24, SEEK_SET);
+	Stream		.Seek(24);
+	Stream_Idx	.Seek(24);
 
-	SG_Write_Int(Stream	, FileLength	, true);
-	SG_Write_Int(Stream_Idx, FileLength_idx, true);
-
-	fclose(Stream);
-	fclose(Stream_Idx);
+	Stream		.Write_Int(FileLength    , true);
+	Stream_Idx	.Write_Int(FileLength_idx, true);
 
 	SG_UI_Msg_Add(LNG("[MSG] okay"), false);
 
@@ -518,7 +509,7 @@ bool CSG_Shapes::_Save_ESRI(const char *File_Name)
 	//-----------------------------------------------------
 	// Attributes...
 
-	fName	= SG_File_Make_Path(NULL, File_Name, "dbf");
+	fName	= SG_File_Make_Path(NULL, File_Name, SG_T("dbf"));
 
 	return( m_Table.Save(fName, TABLE_FILETYPE_DBase) );
 }

@@ -78,68 +78,68 @@ CGEOTRANS_Base::CGEOTRANS_Base(void)
 	//-----------------------------------------------------
 	Parameters.Add_FilePath(
 		NULL, "DATA_ELLIPSOID"	, _TL("Ellipsoids"),
-		"",
+		_TL(""),
 		NULL //, SG_File_Make_Path(Path, "Projection_GeoTRANS_Ellipsoid.dat")
 	);
 
 	Parameters.Add_FilePath(
 		NULL, "DATA_DATUM_7"	, _TL("Datums (7 Parameters)"),
-		"",
+		_TL(""),
 		NULL //, SG_File_Make_Path(Path, "Projection_GeoTRANS_Datum_7.dat")
 	);
 
 	Parameters.Add_FilePath(
 		NULL, "DATA_DATUM_3"	, _TL("Datums (3 Parameters)"),
-		"",
+		_TL(""),
 		NULL //, SG_File_Make_Path(Path, "Projection_GeoTRANS_Datum_3.dat")
 	);
 
 	Parameters.Add_FilePath(
 		NULL, "DATA_GEOID"		, _TL("Geoid"),
-		"",
+		_TL(""),
 		NULL //, SG_File_Make_Path(Path, "Projection_GeoTRANS_Geoid_EGM96.dat")
 	);
 
 
 	//-----------------------------------------------------
-	Parameters.Add_Node(NULL, "SOURCE_NODE", _TL("Source Parameters"), "");
-	Parameters.Add_Node(NULL, "TARGET_NODE", _TL("Target Parameters"), "");
+	Parameters.Add_Node(NULL, "SOURCE_NODE", _TL("Source Parameters"), _TL(""));
+	Parameters.Add_Node(NULL, "TARGET_NODE", _TL("Target Parameters"), _TL(""));
 
 
 	//-----------------------------------------------------
-	pProjection		= Add_Parameters("PROJECTION", _TL("Projection Parameters"), "");
+	pProjection		= Add_Parameters("PROJECTION", _TL("Projection Parameters"), _TL(""));
 
 	pNode_Source	= pProjection->Add_Node(
 		NULL		, "SOURCE_NODE"			, _TL("Source Parameters"),
-		""
+		_TL("")
 	);
 
 	pNode_Target	= pProjection->Add_Node(
 		NULL		, "TARGET_NODE"			, _TL("Target Parameters"),
-		""
+		_TL("")
 	);
 
 	pNode_0			= pProjection->Add_Choice(
 		pNode_Source, "SOURCE_DATUM"		, _TL("Source Datum"),
-		"",
+		_TL(""),
 		_TL("[not set]|")
 	);
 
 	pNode_0			= pProjection->Add_Choice(
 		pNode_Target, "TARGET_DATUM"		, _TL("Target Datum"),
-		"",
+		_TL(""),
 		_TL("[not set]|")
 	);
 
 	pNode_0			= pProjection->Add_Choice(
 		pNode_Source, "SOURCE_PROJECTION"	, _TL("Source Projection"),
-		"",
+		_TL(""),
 		_TL("[not set]|")
 	);
 
 	pNode_0			= pProjection->Add_Choice(
 		pNode_Target, "TARGET_PROJECTION"	, _TL("Target Projection"),
-		"",
+		_TL(""),
 		_TL("[not set]|")
 	);
 }
@@ -181,7 +181,7 @@ bool CGEOTRANS_Base::Initialize(void)
 	fn_Datum3		= Parameters("DATA_DATUM_3")	->asString();
 	fn_Geoid		= Parameters("DATA_GEOID")		->asString();
 
-	if( Initialize_Engine_File(fn_Ellipsoid, fn_Datum7, fn_Datum3, fn_Geoid) != ENGINE_NO_ERROR )
+	if( Initialize_Engine_File(fn_Ellipsoid.b_str(), fn_Datum7.b_str(), fn_Datum3.b_str(), fn_Geoid.b_str()) != ENGINE_NO_ERROR )
 	{
 		Error_Set(_TL("GeoTRANS engine initializing error!\n\nPlease check your data path settings!"));
 	}
@@ -196,7 +196,7 @@ bool CGEOTRANS_Base::Initialize(void)
 			for(i=0; i<count; i++)
 			{
 				error_code	= Get_Coordinate_System_Name(i + 1, system_name);
-				sList.Append(CSG_String::Format("%s|", system_name));
+				sList.Append(CSG_String::Format(SG_T("%s|"), system_name));
 			}
 
 			if( sList.Length() > 0 )
@@ -219,7 +219,7 @@ bool CGEOTRANS_Base::Initialize(void)
 			{
 				error_code	= Get_Datum_Code(i + 1, datum_code);
 				error_code	= Get_Datum_Name(i + 1, datum_name);
-				sList.Append(CSG_String::Format("%-8s: %s|", datum_code, datum_name));
+				sList.Append(CSG_String::Format(SG_T("%-8s: %s|"), datum_code, datum_name));
 			}
 
 			if( sList.Length() > 0 )
@@ -249,146 +249,148 @@ CSG_Parameters * CGEOTRANS_Base::Get_Projection_Parameters(bool bSource, Coordin
 	pParameters	= NULL;
 
 	sName		.Printf(bSource ? _TL("Source Parameters") : _TL("Target Parameters"));
-	sIdentifier	.Printf(bSource ? "SOURCE_" : "TARGET_");
+	sIdentifier	.Printf(bSource ? SG_T("SOURCE_") : SG_T("TARGET_"));
 
 	switch( Type )
 	{
 	//-----------------------------------------------------
 	case Albers_Equal_Area_Conic:
-		sIdentifier.Append("ALBERS");
+		sIdentifier.Append(SG_T("ALBERS"));
 
-		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))					== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
-			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Albers Equal Area Conic"));
-			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude"	)	, "", PARAMETER_TYPE_Degree, 45.0);
-			pParameters->Add_Value		(NULL, "PARALLEL_1"		, _TL("1st Std. Parallel")	, "", PARAMETER_TYPE_Degree, 40.0);
-			pParameters->Add_Value		(NULL, "PARALLEL_2"		, _TL("2nd Std. Parallel")	, "", PARAMETER_TYPE_Degree, 50.0);
-			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, "", PARAMETER_TYPE_Double, 0.0);
-			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, "", PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, _TL(""), _TL("Albers Equal Area Conic"));
+			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude"	)	, _TL(""), PARAMETER_TYPE_Degree, 45.0);
+			pParameters->Add_Value		(NULL, "PARALLEL_1"		, _TL("1st Std. Parallel")	, _TL(""), PARAMETER_TYPE_Degree, 40.0);
+			pParameters->Add_Value		(NULL, "PARALLEL_2"		, _TL("2nd Std. Parallel")	, _TL(""), PARAMETER_TYPE_Degree, 50.0);
+			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
 		}
 		break;
 
 	//-----------------------------------------------------
 	case Azimuthal_Equidistant:
-		sIdentifier.Append("AZIMUTHAL");
+		sIdentifier.Append(SG_T("AZIMUTHAL"));
 
-		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))					== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
-			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Azimuthal Equidistant"));
-			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, "", PARAMETER_TYPE_Double, 0.0);
-			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, "", PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, _TL(""), _TL("Azimuthal Equidistant"));
+			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
 		}
 		break;
 
 	//-----------------------------------------------------
 	case Bonne:
-		sIdentifier.Append("BONNE");
+		sIdentifier.Append(SG_T("BONNE"));
 
-		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))					== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
-			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection"	)		, "", _TL("Bonne"));
-			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude")	, "", PARAMETER_TYPE_Degree, 45.0);
-			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, "", PARAMETER_TYPE_Double, 0.0);
-			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, "", PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection"	)		, _TL(""), _TL("Bonne"));
+			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude")	, _TL(""), PARAMETER_TYPE_Degree, 45.0);
+			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
 		}
 		break;
 
 	//-----------------------------------------------------
 	case Cassini:
-		sIdentifier.Append("CASSINI");
+		sIdentifier.Append(SG_T("CASSINI"));
 
-		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))					== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
-			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Cassini"));
-			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude"	)	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, "", PARAMETER_TYPE_Double, 0.0);
-			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, "", PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, _TL(""), _TL("Cassini"));
+			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude"	)	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
 		}
 		break;
 
 	//-----------------------------------------------------
 	case Cylindrical_Equal_Area:
-		sIdentifier.Append("CYLINDRICAL");
+		sIdentifier.Append(SG_T("CYLINDRICAL"));
 
-		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))					== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
-			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Cylindrical Equal Area"));
-			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude"	)	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, "", PARAMETER_TYPE_Double, 0.0);
-			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, "", PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, _TL(""), _TL("Cylindrical Equal Area"));
+			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude"	)	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
 		}
 		break;
 
 	//-----------------------------------------------------
 	case Eckert4:
 	case Eckert6:
-		sIdentifier.Append("ECKERT");
+		sIdentifier.Append(SG_T("ECKERT"));
 
-		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		if( (pParameters = Get_Parameters(sIdentifier))					== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
-			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")		, "", _TL("Eckert IV/VI"));
-			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, "", PARAMETER_TYPE_Double, 0.0);
-			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, "", PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, _TL(""), _TL("Eckert IV/VI"));
+			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
 		}
 		break;
 
 	//-----------------------------------------------------
 	case Equidistant_Cylindrical:
-		sIdentifier.Append("EQUIDSTCYL");
+		sIdentifier.Append(SG_T("EQUIDSTCYL"));
 
 		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
-			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Equidistant Cylindrical"));
-			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "PARALLEL"		, _TL("Standard Parallel")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, "", PARAMETER_TYPE_Double, 0.0);
-			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, "", PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, _TL(""), _TL("Equidistant Cylindrical"));
+			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "PARALLEL"		, _TL("Standard Parallel")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
 		}
 		break;
 
 	//-----------------------------------------------------
 	case Geocentric:					// Layout:0*0*3
-		sIdentifier.Append("GEOCENTRIC");
+		sIdentifier.Append(SG_T("GEOCENTRIC"));
 
 		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{}
 		break;
 
 	//-----------------------------------------------------
 	case Geodetic:	// case height type
-		sIdentifier.Append("GEODETIC");
+		sIdentifier.Append(SG_T("GEODETIC"));
 
 		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
 			pParameters->Add_Info_String(
 				NULL, "TYPE"	, _TL("Projection"),
-				"",
+				_TL(""),
 				_TL("Geodetic")
 			);
 
 			pParameters->Add_Choice(
 				NULL, "HEIGHT"	, _TL("Height"),
-				"",
-				_TL(
-				"No Height|"
-				"Ellipsoid Height [m]|"
-				"MSL Height [m]|"), 0
+				_TL(""),
+
+				CSG_String::Format(SG_T("%s|%s|%s|"),
+					_TL("No Height"),
+					_TL("Ellipsoid Height [m]"),
+					_TL("MSL Height [m]")
+				), 0
 			);
 		}
 		break;
@@ -399,281 +401,281 @@ CSG_Parameters * CGEOTRANS_Base::Get_Projection_Parameters(bool bSource, Coordin
 
 	//-----------------------------------------------------
 	case Gnomonic:
-		sIdentifier.Append("GNOMONIC");
+		sIdentifier.Append(SG_T("GNOMONIC"));
 
 		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
-			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Gnomonic"));
-			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude"	)	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, "", PARAMETER_TYPE_Double, 0.0);
-			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, "", PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, _TL(""), _TL("Gnomonic"));
+			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude"	)	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
 		}
 		break;
 
 	//-----------------------------------------------------
 	case Lambert_Conformal_Conic:
-		sIdentifier.Append("LAMBERT");
+		sIdentifier.Append(SG_T("LAMBERT"));
 
 		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
-			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Lambert Conformal Conic"));
-			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude"	)	, "", PARAMETER_TYPE_Degree, 45.0);
-			pParameters->Add_Value		(NULL, "PARALLEL_1"		, _TL("1st Std. Parallel")	, "", PARAMETER_TYPE_Degree, 40.0);
-			pParameters->Add_Value		(NULL, "PARALLEL_2"		, _TL("2nd Std. Parallel")	, "", PARAMETER_TYPE_Degree, 50.0);
-			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, "", PARAMETER_TYPE_Double, 0.0);
-			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, "", PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, _TL(""), _TL("Lambert Conformal Conic"));
+			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude"	)	, _TL(""), PARAMETER_TYPE_Degree, 45.0);
+			pParameters->Add_Value		(NULL, "PARALLEL_1"		, _TL("1st Std. Parallel")	, _TL(""), PARAMETER_TYPE_Degree, 40.0);
+			pParameters->Add_Value		(NULL, "PARALLEL_2"		, _TL("2nd Std. Parallel")	, _TL(""), PARAMETER_TYPE_Degree, 50.0);
+			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
 		}
 		break;
 
 	//-----------------------------------------------------
 	case Local_Cartesian:
-		sIdentifier.Append("LOCALCARTES");
+		sIdentifier.Append(SG_T("LOCALCARTES"));
 
 		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
-			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Local Cartesian"));
-			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "HEIGHT"			, _TL("Origin Height")		, "", PARAMETER_TYPE_Double, 0.0);
-			pParameters->Add_Value		(NULL, "ORIENT"			, _TL("Orientation"	)		, "", PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, _TL(""), _TL("Local Cartesian"));
+			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "HEIGHT"			, _TL("Origin Height")		, _TL(""), PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Value		(NULL, "ORIENT"			, _TL("Orientation"	)		, _TL(""), PARAMETER_TYPE_Degree, 0.0);
 		}
 		break;
 
 	//-----------------------------------------------------
 	case Mercator:
-		sIdentifier.Append("MERCATOR");
+		sIdentifier.Append(SG_T("MERCATOR"));
 
 		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
-			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Mercator"));
-			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude"	)	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "SCALE"			, _TL("Scale Factor")		, "", PARAMETER_TYPE_Double, 1.0);
-			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, "", PARAMETER_TYPE_Double, 0.0);
-			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, "", PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, _TL(""), _TL("Mercator"));
+			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude"	)	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "SCALE"			, _TL("Scale Factor")		, _TL(""), PARAMETER_TYPE_Double, 1.0);
+			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
 		}
 		break;
 
 	//-----------------------------------------------------
 	case Miller_Cylindrical:
-		sIdentifier.Append("MILLER");
+		sIdentifier.Append(SG_T("MILLER"));
 
 		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
-			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection"	)		, "", _TL("Miller Cylindrical"));
-			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, "", PARAMETER_TYPE_Double, 0.0);
-			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, "", PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection"	)		, _TL(""), _TL("Miller Cylindrical"));
+			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
 		}
 		break;
 
 	//-----------------------------------------------------
 	case Mollweide:
-		sIdentifier.Append("MOLLWEIDE");
+		sIdentifier.Append(SG_T("MOLLWEIDE"));
 
 		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
-			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Mollweide"));
-			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, "", PARAMETER_TYPE_Double, 0.0);
-			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, "", PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, _TL(""), _TL("Mollweide"));
+			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
 		}
 		break;
 
 	//-----------------------------------------------------
 	case Neys:
-		sIdentifier.Append("NEYS");
+		sIdentifier.Append(SG_T("NEYS"));
 
 		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
-			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Neys (Modified Lambert Conformal Conic)"));
-			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude"	)	, "", PARAMETER_TYPE_Degree, 80.0);
-			pParameters->Add_Choice		(NULL, "PARALLEL_1"		, _TL("1st Std. Parallel")	, "", " 71 | 74 |", 0);
-			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, "", PARAMETER_TYPE_Double, 0.0);
-			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, "", PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, _TL(""), _TL("Neys (Modified Lambert Conformal Conic)"));
+			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude"	)	, _TL(""), PARAMETER_TYPE_Degree, 80.0);
+			pParameters->Add_Choice		(NULL, "PARALLEL_1"		, _TL("1st Std. Parallel")	, _TL(""), SG_T(" 71 | 74 |"), 0);
+			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
 		}
 		break;
 
 	//-----------------------------------------------------
 	case NZMG:							// Layout:0*0*2
-		sIdentifier.Append("NZMG");
+		sIdentifier.Append(SG_T("NZMG"));
 
 		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{}
 		break;
 
 	//-----------------------------------------------------
 	case Oblique_Mercator:
-		sIdentifier.Append("OBLIQUE_MERCATOR");
+		sIdentifier.Append(SG_T("OBLIQUE_MERCATOR"));
 
 		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
-			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Oblique Mercator"));
-			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude")	, "", PARAMETER_TYPE_Degree, 45.0);
-			pParameters->Add_Value		(NULL, "SCALE"			, _TL("Scale Factor")		, "", PARAMETER_TYPE_Double, 1.0);
-			pParameters->Add_Value		(NULL, "LONGITUDE_1"	, _TL("Longitude 1"	)		, "", PARAMETER_TYPE_Degree, -5.0);
-			pParameters->Add_Value		(NULL, "LATITUDE_1"		, _TL("Latitude 1"	)		, "", PARAMETER_TYPE_Degree, 40.0);
-			pParameters->Add_Value		(NULL, "LONGITUDE_2"	, _TL("Longitude 2"	)		, "", PARAMETER_TYPE_Degree, 5.0);
-			pParameters->Add_Value		(NULL, "LATITUDE_2"		, _TL("Latitude 2"	)		, "", PARAMETER_TYPE_Degree, 50.0);
-			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, "", PARAMETER_TYPE_Double, 0.0);
-			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, "", PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, _TL(""), _TL("Oblique Mercator"));
+			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude")	, _TL(""), PARAMETER_TYPE_Degree, 45.0);
+			pParameters->Add_Value		(NULL, "SCALE"			, _TL("Scale Factor")		, _TL(""), PARAMETER_TYPE_Double, 1.0);
+			pParameters->Add_Value		(NULL, "LONGITUDE_1"	, _TL("Longitude 1"	)		, _TL(""), PARAMETER_TYPE_Degree, -5.0);
+			pParameters->Add_Value		(NULL, "LATITUDE_1"		, _TL("Latitude 1"	)		, _TL(""), PARAMETER_TYPE_Degree, 40.0);
+			pParameters->Add_Value		(NULL, "LONGITUDE_2"	, _TL("Longitude 2"	)		, _TL(""), PARAMETER_TYPE_Degree, 5.0);
+			pParameters->Add_Value		(NULL, "LATITUDE_2"		, _TL("Latitude 2"	)		, _TL(""), PARAMETER_TYPE_Degree, 50.0);
+			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
 		}
 		break;
 
 	//-----------------------------------------------------
 	case Orthographic:
-		sIdentifier.Append("ORTHOGRAPH");
+		sIdentifier.Append(SG_T("ORTHOGRAPH"));
 
 		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
-			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection"	)		, "", _TL("Orthographic"));
-			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude"	)	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, "", PARAMETER_TYPE_Double, 0.0);
-			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, "", PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection"	)		, _TL(""), _TL("Orthographic"));
+			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude"	)	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
 		}
 		break;
 
 	//-----------------------------------------------------
 	case Polar_Stereo:
-		sIdentifier.Append("POLARSTEREO");
+		sIdentifier.Append(SG_T("POLARSTEREO"));
 
 		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
-			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Polar Stereographic"));
-			pParameters->Add_Value		(NULL, "LONGITUDE"		, _TL("Lon. Down")			, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Lat. of True Scale")	, "", PARAMETER_TYPE_Degree, 90.0);
-			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, "", PARAMETER_TYPE_Double, 0.0);
-			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, "", PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, _TL(""), _TL("Polar Stereographic"));
+			pParameters->Add_Value		(NULL, "LONGITUDE"		, _TL("Lon. Down")			, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Lat. of True Scale")	, _TL(""), PARAMETER_TYPE_Degree, 90.0);
+			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
 		}
 		break;
 
 	//-----------------------------------------------------
 	case Polyconic:
-		sIdentifier.Append("POLYCONIC");
+		sIdentifier.Append(SG_T("POLYCONIC"));
 
 		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
-			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Polyconic"));
-			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude"	)	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, "", PARAMETER_TYPE_Double, 0.0);
-			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, "", PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, _TL(""), _TL("Polyconic"));
+			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude"	)	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
 		}
 		break;
 
 	//-----------------------------------------------------
 	case Sinusoidal:
-		sIdentifier.Append("SINUSOIDAL");
+		sIdentifier.Append(SG_T("SINUSOIDAL"));
 
 		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
-			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Sinusoidal"));
-			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, "", PARAMETER_TYPE_Double, 0.0);
-			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, "", PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, _TL(""), _TL("Sinusoidal"));
+			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
 		}
 		break;
 
 	//-----------------------------------------------------
 	case Stereographic:
-		sIdentifier.Append("STEREOGRAPH");
+		sIdentifier.Append(SG_T("STEREOGRAPH"));
 
 		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
-			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Stereographic"));
-			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, "", PARAMETER_TYPE_Double, 0.0);
-			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, "", PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, _TL(""), _TL("Stereographic"));
+			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
 		}
 		break;
 
 	//-----------------------------------------------------
 	case Transverse_Cylindrical_Equal_Area:
-		sIdentifier.Append("TRNSVCYLIND");
+		sIdentifier.Append(SG_T("TRNSVCYLIND"));
 
 		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
-			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Transverse Cylindrical Equal Area"));
-			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude"	)	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "SCALE"			, _TL("Scale Factor")		, "", PARAMETER_TYPE_Double, 1.0);
-			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, "", PARAMETER_TYPE_Double, 0.0);
-			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, "", PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, _TL(""), _TL("Transverse Cylindrical Equal Area"));
+			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude"	)	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "SCALE"			, _TL("Scale Factor")		, _TL(""), PARAMETER_TYPE_Double, 1.0);
+			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
 		}
 		break;
 
 	//-----------------------------------------------------
 	case Transverse_Mercator:
-		sIdentifier.Append("TRNSVMERCAT");
+		sIdentifier.Append(SG_T("TRNSVMERCAT"));
 
 		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
-			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection"	)		, "", _TL("Transverse Mercator"));
-			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude"	)	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "SCALE"			, _TL("Scale Factor")		, "", PARAMETER_TYPE_Double, 1.0);
-			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, "", PARAMETER_TYPE_Double, 0.0);
-			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, "", PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection"	)		, _TL(""), _TL("Transverse Mercator"));
+			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude"	)	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "SCALE"			, _TL("Scale Factor")		, _TL(""), PARAMETER_TYPE_Double, 1.0);
+			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
 		}
 		break;
 
 	//-----------------------------------------------------
 	case UPS:		//					case Layout:0*0*2		case Hemisphere
-		sIdentifier.Append("UPS");
+		sIdentifier.Append(SG_T("UPS"));
 
 		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
-			pParameters->Add_Choice		(NULL, "HEMISPHERE"		, _TL("Hemisphere")			, "", _TL("North|South|"), 0);
+			pParameters->Add_Choice		(NULL, "HEMISPHERE"		, _TL("Hemisphere")			, _TL(""), _TL("North|South|"), 0);
 		}
 		break;
 
 	//-----------------------------------------------------
 	case UTM:	// case Hemisphere		case Zone
-		sIdentifier.Append("UTM");
+		sIdentifier.Append(SG_T("UTM"));
 
 		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
-			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, "", _TL("Universal Transvers Mercator (UTM)"));
-			pParameters->Add_Value		(NULL, "TOGCHECK"		, _TL("Override")			, "", PARAMETER_TYPE_Bool, true);
-			pParameters->Add_Choice		(NULL, "HEMISPHERE"		, _TL("Hemisphere")			, "",_TL( "North|South|"), 0);
-			pParameters->Add_Value		(NULL, "ZONE"			, _TL("Zone")				, "", PARAMETER_TYPE_Int, 1, 1, true , 60, true);
+			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, _TL(""), _TL("Universal Transvers Mercator (UTM)"));
+			pParameters->Add_Value		(NULL, "TOGCHECK"		, _TL("Override")			, _TL(""), PARAMETER_TYPE_Bool, true);
+			pParameters->Add_Choice		(NULL, "HEMISPHERE"		, _TL("Hemisphere")			, _TL(""),_TL( "North|South|"), 0);
+			pParameters->Add_Value		(NULL, "ZONE"			, _TL("Zone")				, _TL(""), PARAMETER_TYPE_Int, 1, 1, true , 60, true);
 		}
 		break;
 
 	//-----------------------------------------------------
 	case Van_der_Grinten:				//Layout: 1*2*2
-		sIdentifier.Append("VANGRINTEN");
+		sIdentifier.Append(SG_T("VANGRINTEN"));
 
 		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
-		&&	(pParameters = Add_Parameters(sIdentifier, sName, ""))	!= NULL )
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
-			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection"	)		, "", _TL("Van der Grinten"));
-			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, "", PARAMETER_TYPE_Degree, 0.0);
-			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, "", PARAMETER_TYPE_Double, 0.0);
-			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, "", PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection"	)		, _TL(""), _TL("Van der Grinten"));
+			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
 		}
 		break;
 	}
@@ -709,10 +711,10 @@ bool CGEOTRANS_Base::On_Execute(void)
 	{
 		Message_Add(_TL("The GeoTRANS engine could not be initialized !!\n\n"));
 		Message_Add(_TL("Make sure that the files\n"));
-		Message_Add("Projection_GeoTRANS_Ellipsoid.dat,\n");
-		Message_Add("Projection_GeoTRANS_Datum_3.dat,\n");
-		Message_Add("Projection_GeoTRANS_Geoid_EGM96.dat,\n");
-		Message_Add("Projection_GeoTRANS_Datum_7.dat,\n\n");
+		Message_Add(_TL("Projection_GeoTRANS_Ellipsoid.dat,\n"));
+		Message_Add(_TL("Projection_GeoTRANS_Datum_3.dat,\n"));
+		Message_Add(_TL("Projection_GeoTRANS_Geoid_EGM96.dat,\n"));
+		Message_Add(_TL("Projection_GeoTRANS_Datum_7.dat,\n\n"));
 		Message_Add(_TL("are in the specified directory.\n"));
 
 		return( false );
@@ -752,19 +754,19 @@ bool CGEOTRANS_Base::Set_Transformation(bool bShow_Dialog)
 
 	if(	Get_Coordinate_System_Type(Type_Index, &Type_Input)		!= 0 )
 	{
-		Message_Dlg("Source Coordinate System Type Error");
+		Message_Dlg(_TL("Source Coordinate System Type Error"));
 		return( false );
 	}
 
 	if(	Set_Datum(Interactive, Input, Datum_Index)				!= 0 )
 	{
-		Message_Dlg("Source Datum Error");
+		Message_Dlg(_TL("Source Datum Error"));
 		return( false );
 	}
 
 	if(	Set_Coordinate_System(Interactive, Input, Type_Input)	!= 0 )
 	{
-		Message_Dlg("Source Coordinate System Error");
+		Message_Dlg(_TL("Source Coordinate System Error"));
 		return( false );
 	}
 
@@ -775,7 +777,7 @@ bool CGEOTRANS_Base::Set_Transformation(bool bShow_Dialog)
 
 	if(	Set_Projection_Parameters(Input, Type_Input, pParms)	== false )
 	{
-		Message_Dlg("Source Projection Error");
+		Message_Dlg(_TL("Source Projection Error"));
 		return( false );
 	}
 
@@ -788,19 +790,19 @@ bool CGEOTRANS_Base::Set_Transformation(bool bShow_Dialog)
 
 	if(	Get_Coordinate_System_Type(Type_Index, &Type_Output)	!= 0 )
 	{
-		Message_Dlg("Target Coordinate System Type Error");
+		Message_Dlg(_TL("Target Coordinate System Type Error"));
 		return( false );
 	}
 
 	if(	Set_Datum(Interactive, Output, Datum_Index)				!= 0 )
 	{
-		Message_Dlg("Target Datum Error");
+		Message_Dlg(_TL("Target Datum Error"));
 		return( false );
 	}
 
 	if(	Set_Coordinate_System(Interactive, Output, Type_Output)	!= 0 )
 	{
-		Message_Dlg("Target Coordinate System Error");
+		Message_Dlg(_TL("Target Coordinate System Error"));
 		return( false );
 	}
 
@@ -811,7 +813,7 @@ bool CGEOTRANS_Base::Set_Transformation(bool bShow_Dialog)
 
 	if(	Set_Projection_Parameters(Output, Type_Output, pParms)	== false )
 	{
-		Message_Dlg("Target Projection Error");
+		Message_Dlg(_TL("Target Projection Error"));
 		return( false );
 	}
 

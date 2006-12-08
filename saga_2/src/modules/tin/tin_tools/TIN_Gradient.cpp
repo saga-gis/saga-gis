@@ -84,27 +84,30 @@ CTIN_Gradient::CTIN_Gradient(void)
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_TIN(
-		NULL	, "TIN"			, "TIN",
-		"",
+		NULL	, "TIN"			, _TL("TIN"),
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table_Field(
 		pNode	, "ZFIELD"		, _TL("Z Values"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Shapes(
 		NULL	, "GRADIENT"	, _TL("TIN_Gradient"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "DEGREE"		, _TL("Output Unit"),
-		"",
-		_TL("Radians|"
-		"Degree|"), 1
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("Radians"),
+			_TL("Degree")
+		), 1
 	);
 }
 

@@ -84,14 +84,14 @@ CGrid_Flow_Profile::CGrid_Flow_Profile(void)
 
 	Set_Author(_TL("Copyrights (c) 2004 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Create interactively flow path profiles from a grid based DEM\n"
 		"Use a left mouse button click to create a flow profile starting from the clicked point.")
 	);
 
 	Parameters.Add_Grid(
 		NULL, "DEM"		, _TL("DEM"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
@@ -103,13 +103,13 @@ CGrid_Flow_Profile::CGrid_Flow_Profile(void)
 
 	Parameters.Add_Shapes(
 		NULL, "POINTS"	, _TL("Profile Points"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Shapes(
 		NULL, "LINE"	, _TL("Profile Line"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
 }

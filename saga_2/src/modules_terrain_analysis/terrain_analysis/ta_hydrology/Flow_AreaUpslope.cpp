@@ -92,7 +92,7 @@ CFlow_AreaUpslope::~CFlow_AreaUpslope(void)
 CSG_String CFlow_AreaUpslope::Get_Description(void)
 {
 	return(
-		_TL(
+		_TW(
 			"This module allows you to specify target cells, "
 			"for which the upslope contributing area shall be identified. "
 			"The result will give "
@@ -125,7 +125,7 @@ CSG_String CFlow_AreaUpslope::Get_Description(void)
 //---------------------------------------------------------
 CSG_String CFlow_AreaUpslope::Get_Methods(void)
 {
-	return( CSG_String::Format("%s|%s|%s|",
+	return( CSG_String::Format(SG_T("%s|%s|%s|"),
 		_TL("Deterministic 8"),
 		_TL("Deterministic Infinity"),
 		_TL("Multiple Flow Direction")
@@ -379,32 +379,32 @@ CFlow_AreaUpslope_Interactive::CFlow_AreaUpslope_Interactive(void)
 	Set_Name		(_TL("Upslope Area"));
 	Set_Author		(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description	(CSG_String::Format("%s_______\n%s", m_Calculator.Get_Description().c_str(),
+	Set_Description	(CSG_String::Format(SG_T("%s_______\n%s"), m_Calculator.Get_Description().c_str(),
 		_TL("Interactive version (left mouse clicks will trigger the calculation for the selected cell).")
 	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL	, "ELEVATION"	, _TL("Elevation"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "SINKROUTE"	, _TL("Sink Routes"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "AREA"		, _TL("Upslope Area"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
-		"",
+		_TL(""),
 		m_Calculator.Get_Methods(), 2
 	);
 
@@ -469,38 +469,38 @@ CFlow_AreaUpslope_Area::CFlow_AreaUpslope_Area(void)
 	Set_Name		(_TL("Upslope Area"));
 	Set_Author		(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description	(CSG_String::Format("%s_______\n%s", m_Calculator.Get_Description().c_str(),
+	Set_Description	(CSG_String::Format(SG_T("%s_______\n%s"), m_Calculator.Get_Description().c_str(),
 		_TL("This version uses all valid cells (not \'no data\' values) of given target grid to determine the contributing area.")
 	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL	, "TARGET"		, _TL("Target Area"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "ELEVATION"	, _TL("Elevation"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "SINKROUTE"	, _TL("Sink Routes"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "AREA"		, _TL("Upslope Area"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
-		"",
+		_TL(""),
 		m_Calculator.Get_Methods(), 2
 	);
 

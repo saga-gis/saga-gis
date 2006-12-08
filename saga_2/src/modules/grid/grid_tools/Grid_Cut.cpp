@@ -77,47 +77,47 @@ CGrid_Cut::CGrid_Cut(void)
 
 	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Create a new grid from interactively selected cut of an input grid.\n")
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_Output(
 		NULL	, "CUT"		, _TL("Cut"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "GRID"	, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	//-----------------------------------------------------
-	CSG_Parameters	*pParameters	= Add_Parameters("CUT", _TL("Cut"), "");
+	CSG_Parameters	*pParameters	= Add_Parameters("CUT", _TL("Cut"), _TL(""));
 
 	pParameters->Add_Value(
-		NULL, "XMIN"		, _TL("Left")		, "", PARAMETER_TYPE_Double
+		NULL, "XMIN"		, _TL("Left")		, _TL(""), PARAMETER_TYPE_Double
 	);
 
 	pParameters->Add_Value(
-		NULL, "XMAX"		, _TL("Right")		, "", PARAMETER_TYPE_Double
+		NULL, "XMAX"		, _TL("Right")		, _TL(""), PARAMETER_TYPE_Double
 	);
 
 	pParameters->Add_Value(
-		NULL, "YMIN"		, _TL("Bottom")		, "", PARAMETER_TYPE_Double
+		NULL, "YMIN"		, _TL("Bottom")		, _TL(""), PARAMETER_TYPE_Double
 	);
 
 	pParameters->Add_Value(
-		NULL, "YMAX"		, _TL("Top")		, "", PARAMETER_TYPE_Double
+		NULL, "YMAX"		, _TL("Top")		, _TL(""), PARAMETER_TYPE_Double
 	);
 
 	pParameters->Add_Value(
-		NULL, "NX"			, _TL("Columns")		, "", PARAMETER_TYPE_Int, 1, 1, true
+		NULL, "NX"			, _TL("Columns")	, _TL(""), PARAMETER_TYPE_Int, 1, 1, true
 	);
 
 	pParameters->Add_Value(
-		NULL, "NY"			, _TL("Rows")		, "", PARAMETER_TYPE_Int, 1, 1, true
+		NULL, "NY"			, _TL("Rows")		, _TL(""), PARAMETER_TYPE_Int, 1, 1, true
 	);
 }
 
@@ -138,7 +138,7 @@ int CGrid_Cut::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	int		nx, ny;
 	double	xMin, xMax, yMin, yMax, d;
 
-	if( m_pInput && !strcmp(pParameters->Get_Identifier(), "CUT") )
+	if( m_pInput && !SG_STR_CMP(pParameters->Get_Identifier(), SG_T("CUT")) )
 	{
 		xMin	= pParameters->Get_Parameter("XMIN")->asDouble();
 		xMax	= pParameters->Get_Parameter("XMAX")->asDouble();
@@ -152,31 +152,31 @@ int CGrid_Cut::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 
 		d		= m_pInput->Get_Cellsize();
 
-		if     ( !strcmp(pParameter->Get_Identifier(), "NX") )
+		if     ( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("NX")) )
 		{
 			xMax	= xMin + nx * d;
 		}
-		else if( !strcmp(pParameter->Get_Identifier(), "XMIN") )
+		else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("XMIN")) )
 		{
 			nx		= 1    + (int)((xMax - xMin) / d);
 			xMin	= xMax - nx * d;
 		}
-		else if( !strcmp(pParameter->Get_Identifier(), "XMAX") )
+		else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("XMAX")) )
 		{
 			nx		= 1    + (int)((xMax - xMin) / d);
 			xMax	= xMin + nx * d;
 		}
 
-		else if( !strcmp(pParameter->Get_Identifier(), "NY") )
+		else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("NY")) )
 		{
 			yMax	= yMin + ny * d;
 		}
-		else if( !strcmp(pParameter->Get_Identifier(), "YMIN") )
+		else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("YMIN")) )
 		{
 			ny		= 1    + (int)((yMax - yMin) / d);
 			yMin	= yMax - ny * d;
 		}
-		else if( !strcmp(pParameter->Get_Identifier(), "YMAX") )
+		else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("YMAX")) )
 		{
 			ny		= 1    + (int)((yMax - yMin) / d);
 			yMax	= yMin + ny * d;

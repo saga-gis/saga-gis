@@ -76,7 +76,7 @@ CConvergence_Radius::CConvergence_Radius(void)
 
 	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Reference:\n"
 		"Koethe, R. / Lehmeier, F. (1996):\n'SARA – System zur Automatischen Relief-Analyse',\n"
 		"User Manual, 2. Edition [Dept. of Geography, University of Goettingen, unpublished]\n"
@@ -84,26 +84,26 @@ CConvergence_Radius::CConvergence_Radius(void)
 
 	Parameters.Add_Grid(
 		NULL	, "ELEVATION"	, _TL("Elevation"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "RESULT"		, _TL("Convergence_Radius Index"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Value(
 		NULL	, "RADIUS"		, _TL("Radius"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int		, 10, 1, true
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
-		"",
-		CSG_String::Format("%s|%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("Standard"),
 			_TL("Distance Weighted (Linear)"),
 			_TL("Distance Weighted (Inverse)")
@@ -112,14 +112,14 @@ CConvergence_Radius::CConvergence_Radius(void)
 
 	Parameters.Add_Value(
 		NULL	, "SLOPE"		, _TL("Gradient"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Bool		, 0.0
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "DIFF"		, _TL("Difference"),
-		"",
-		CSG_String::Format("%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("direction to the center cell"),
 			_TL("center cell's aspect direcion")
 		), 0

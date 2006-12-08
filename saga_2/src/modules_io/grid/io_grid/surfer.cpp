@@ -84,7 +84,7 @@ CSurfer_Import::CSurfer_Import(void)
 
 	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Import grid from Golden Software's Surfer grid format.\n")
 	);
 
@@ -94,20 +94,20 @@ CSurfer_Import::CSurfer_Import(void)
 
 	Parameters.Add_Grid_Output(
 		NULL	, "GRID"	, _TL("Grid"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_FilePath(
 		NULL	, "FILE"	, _TL("File"),
-		"",
+		_TL(""),
 		_TL("Surfer Grid (*.grd)|*.grd|All Files|*.*")
 	);
 
 	pNode	= Parameters.Add_Choice(
 		NULL	, "NODATA"	, _TL("No Data Value"),
-		"",
+		_TL(""),
 
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Surfer's No Data Value"),
 			_TL("User Defined")
 		), 0
@@ -115,7 +115,7 @@ CSurfer_Import::CSurfer_Import(void)
 
 	Parameters.Add_Value(
 		pNode	, "NODATA_VAL"	, _TL("User Defined No Data Value"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, -99999.0
 	);
 }
@@ -127,19 +127,21 @@ CSurfer_Import::~CSurfer_Import(void)
 //---------------------------------------------------------
 bool CSurfer_Import::On_Execute(void)
 {
-	int		x, y, NX, NY;
-	short	sValue;
-	long	lValue;
-	float	*fLine;
-	double	*dLine, dValue, DX, DY, xMin, yMin;
-	FILE	*Stream;
+	int			x, y, NX, NY;
+	short		sValue;
+	long		lValue;
+	float		*fLine;
+	double		*dLine, dValue, DX, DY, xMin, yMin;
+	FILE		*Stream;
+	CSG_String	fName;
 	CSG_Grid	*pGrid;
 
 	//-----------------------------------------------------
 	pGrid	= NULL;
+	fName	= Parameters("FILE")->asString();
 
 	//-----------------------------------------------------
-	if( Parameters("FILE")->asString() && (Stream = fopen(Parameters("FILE")->asString(), "rb")) != NULL )
+	if( Parameters("FILE")->asString() && (Stream = fopen(fName.b_str(), "rb")) != NULL )
 	{
 		fread(&lValue, 1, sizeof(long), Stream);
 
@@ -301,7 +303,7 @@ CSurfer_Export::CSurfer_Export(void)
 
 	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Export grid to Golden Software's Surfer grid format.\n")
 	);
 
@@ -311,28 +313,30 @@ CSurfer_Export::CSurfer_Export(void)
 
 	Parameters.Add_Grid(
 		NULL	, "GRID"	, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_FilePath(
 		NULL	, "FILE"	, _TL("File"),
-		"",
+		_TL(""),
 		_TL(
 		"Surfer Grid (*.grd)|*.grd|All Files|*.*"), NULL, true
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "FORMAT"	, _TL("Format"),
-		"",
-		_TL(
-		"Binary|"
-		"ASCII|"), 0
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("binary"),
+			_TL("ASCII")
+		), 0
 	);
 
 	Parameters.Add_Value(
 		NULL	, "NODATA"	, _TL("Use Surfer's No-Data Value"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Bool	, false
 	);
 }
@@ -346,24 +350,26 @@ bool CSurfer_Export::On_Execute(void)
 {
 	const char	ID_BINARY[]	= "DSBB";
 
-	bool	bNoData;
-	short	sValue;
-	int		x, y;
-	float	*fLine;
-	double	dValue;
-	FILE	*Stream;
+	bool		bNoData;
+	short		sValue;
+	int			x, y;
+	float		*fLine;
+	double		dValue;
+	FILE		*Stream;
+	CSG_String	fName;
 	CSG_Grid	*pGrid;
 
 	//-----------------------------------------------------
-	pGrid	= Parameters("GRID")->asGrid();
-	bNoData	= Parameters("NODATA")->asBool();
+	pGrid	= Parameters("GRID")	->asGrid();
+	fName	= Parameters("FILE")	->asString();
+	bNoData	= Parameters("NODATA")	->asBool();
 
 	switch( Parameters("FORMAT")->asInt() )
 	{
 	//-----------------------------------------------------
 	case 0:	// Surfer 6 - Binary...
 
-		if( (Stream = fopen(Parameters("FILE")->asString(), "wb")) != NULL )
+		if( (Stream = fopen(fName.b_str(), "wb")) != NULL )
 		{
 			fwrite(ID_BINARY, 4, sizeof(char  ), Stream);
 
@@ -411,7 +417,7 @@ bool CSurfer_Export::On_Execute(void)
 	//-----------------------------------------------------
 	case 1:	// Surfer - ASCII...
 
-		if( (Stream = fopen(Parameters("FILE")->asString(), "w")) != NULL )
+		if( (Stream = fopen(fName.b_str(), "w")) != NULL )
 		{
 			fprintf(Stream, "DSAA\n" );
 			fprintf(Stream, "%d %d\n", pGrid->Get_NX()	, pGrid->Get_NY()	);

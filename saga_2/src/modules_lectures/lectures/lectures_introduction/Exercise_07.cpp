@@ -79,7 +79,7 @@ CExercise_07::CExercise_07(void)
 
 	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Extended Neighbourhoods - Catchment areas.\n"
 		"(c) 2003 by Olaf Conrad, Goettingen\n"
 		"email: oconrad@gwdg.de")
@@ -116,9 +116,11 @@ CExercise_07::CExercise_07(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
 		_TL("Choose a method"),
-		_TL(
-		"Needs less memory, but is slow|"
-		"Needs more memory, but is quicker|")
+
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("Needs less memory, but is slow"),
+			_TL("Needs more memory, but is quicker")
+		)
 	);
 
 	pNode	= Parameters.Add_Value(
@@ -129,13 +131,13 @@ CExercise_07::CExercise_07(void)
 
 	Parameters.Add_Value(
 		pNode	, "XCELL"	, _TL("X Position"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int
 	);
 
 	Parameters.Add_Value(
 		pNode	, "YCELL"	, _TL("Y Position"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int
 	);
 }
@@ -178,11 +180,11 @@ bool CExercise_07::On_Execute(void)
 	// General initialisations...
 
 	m_pArea			->Assign(0.0);
-	m_pArea			->Set_Unit("m²");
+	m_pArea			->Set_Unit(SG_T("m²"));
 	DataObject_Set_Colors(m_pArea, 100, SG_COLORS_WHITE_BLUE);
 
 	pLength			->Assign(0.0);
-	pLength			->Set_Unit("m");
+	pLength			->Set_Unit(SG_T("m"));
 
 	m_Area_of_Cell	= Get_Cellsize() * Get_Cellsize();
 

@@ -97,7 +97,7 @@
 //---------------------------------------------------------
 #define METRIC_POS_V(Value)	(  y    + METRIC_HEIGHT - (int)((double)METRIC_HEIGHT * m_pClassify->Get_MetricToRelative((Value) / zFactor)))
 #define METRIC_POS_H(Value)	(m_xBox +                 (int)((double)METRIC_HEIGHT * m_pClassify->Get_MetricToRelative((Value) / zFactor)))
-#define METRIC_GET_STRING(z, dz)		wxString::Format("%.*f", dz >= 1.0 ? 0 : 1 + (int)fabs(log10(dz)), z)
+#define METRIC_GET_STRING(z, dz)		wxString::Format(wxT("%.*f"), dz >= 1.0 ? 0 : 1 + (int)fabs(log10(dz)), z)
 
 
 ///////////////////////////////////////////////////////////
@@ -492,7 +492,7 @@ void CWKSP_Layer_Legend::_Draw_Point_Sizes(wxDC &dc, CWKSP_Shapes_Point *pLayer,
 
 		pLayer->Draw_Symbol(dc, m_xBox + m_dxBox / 2, y + dy / 2, dy / 2);
 
-		_Draw_Label	(dc, y, wxString::Format("%f", min_Value + (iSize - min_Size) / d_Value), TEXTALIGN_TOP);
+		_Draw_Label	(dc, y, wxString::Format(wxT("%f"), min_Value + (iSize - min_Size) / d_Value), TEXTALIGN_TOP);
 	}
 }
 
@@ -540,7 +540,7 @@ void CWKSP_Layer_Legend::_Draw_Line(wxDC &dc, CWKSP_Shapes_Line *pLayer)
 			y	= m_Position.y;
 
 			_Draw_Box	(dc, y, BOX_HEIGHT, Pen.GetColour());
-			_Draw_Label	(dc, y, wxString::Format("%f", min_Value + (iSize - min_Size) / dValue), TEXTALIGN_TOP);
+			_Draw_Label	(dc, y, wxString::Format(wxT("%f"), min_Value + (iSize - min_Size) / dValue), TEXTALIGN_TOP);
 		}
 	}
 }
@@ -610,9 +610,9 @@ void CWKSP_Layer_Legend::_Draw_Grid(wxDC &dc, CWKSP_Grid *pLayer)
 
 	case CLASSIFY_METRIC:
 	case CLASSIFY_SHADE:
-		if( pLayer->Get_Grid()->Get_Unit() != NULL && strlen(pLayer->Get_Grid()->Get_Unit()) > 0 )
+		if( pLayer->Get_Grid()->Get_Unit() && *(pLayer->Get_Grid()->Get_Unit()) )
 		{
-			_Draw_Title(dc, FONT_SUBTITLE, wxString::Format("[%s]", pLayer->Get_Grid()->Get_Unit()));
+			_Draw_Title(dc, FONT_SUBTITLE, wxString::Format(wxT("[%s]"), pLayer->Get_Grid()->Get_Unit()));
 		}
 
 		_Draw_Continuum(dc, m_Position.y, pLayer->Get_Grid()->Get_ZFactor());
@@ -688,7 +688,7 @@ void CWKSP_Layer_Legend::_Draw_Continuum(wxDC &dc, int y, double zFactor)
 		double	yToDC, dz;
 
 		_Set_Font(dc, FONT_LABEL);
-		dc.GetTextExtent(wxString::Format("01234567"), &i, &dyFont);
+		dc.GetTextExtent(wxString::Format(wxT("01234567")), &i, &dyFont);
 
 		zMin	*= zFactor;
 		zMax	*= zFactor;

@@ -25,13 +25,13 @@ CShapes_Merge::CShapes_Merge(void){
 
 	Set_Name(_TL("Merge Shapes Layers"));
 	Set_Author(_TL("Copyrights (c) 2004 by Victor Olaya"));
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"(c) 2004 by Victor Olaya. Merge Shapes Layers"));
 
 	Parameters.Add_Shapes(NULL, 
 						"OUT", 
 						_TL("Merged Layer"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT);
 
 	Parameters.Add_Shapes(NULL, 
@@ -88,7 +88,7 @@ bool CShapes_Merge::On_Execute(void){
 				pShape2->Add_Point(Point.x,Point.y,j);
 				for	(iField = 0; iField<pTable->Get_Field_Count(); iField++){
 					if (pTable->Get_Field_Type(iField) == TABLE_FIELDTYPE_String){
-						const char *cValue = pShape->Get_Record()->asString(iField);
+						const SG_Char *cValue = pShape->Get_Record()->asString(iField);
 						pShape2->Get_Record()->Set_Value(iField, cValue);
 					}//if
 					else{
@@ -128,7 +128,7 @@ bool CShapes_Merge::On_Execute(void){
 							iFieldMain = FieldsMain.at(j);
 							iFieldAdditional = FieldsAdditional.at(j);
 							if (pTable->Get_Field_Type(iFieldMain) == TABLE_FIELDTYPE_String){
-								const char* cValue = pShape->Get_Record()->asString(iFieldAdditional);
+								const SG_Char* cValue = pShape->Get_Record()->asString(iFieldAdditional);
 								pShape2->Get_Record()->Set_Value(iFieldMain, cValue);
 							}//if
 							else{

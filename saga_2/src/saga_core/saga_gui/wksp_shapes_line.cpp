@@ -99,7 +99,7 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_DISPLAY"), "DISPLAY_POINTS"	, LNG("[CAP] Show Points"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Bool, false
 	);
 
@@ -109,18 +109,18 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 
 	m_Parameters.Add_Node(
 		NULL						, "NODE_SIZE"		, LNG("[CAP] Display: Size"),
-		""
+		LNG("")
 	);
 
 	_AttributeList_Add(
 		m_Parameters("NODE_SIZE")	, "SIZE_ATTRIB"		, LNG("[CAP] Attribute"),
-		""
+		LNG("")
 	);
 
 	m_Parameters.Add_Choice(
 		m_Parameters("NODE_SIZE")	, "SIZE_TYPE"		, LNG("[CAP] Size relates to..."),
-		"",
-		wxString::Format("%s|%s|",
+		LNG(""),
+		wxString::Format(wxT("%s|%s|"),
 			LNG("[VAL] Screen"),
 			LNG("[VAL] Map Units")
 		), 0
@@ -128,13 +128,13 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_SIZE")	, "SIZE_DEFAULT"	, LNG("[CAP] Default Size"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Int, 0, 0, true
 	);
 
 	m_Parameters.Add_Range(
 		m_Parameters("NODE_SIZE")	, "SIZE_RANGE"		, LNG("[CAP] Size Range"),
-		"",
+		LNG(""),
 		0, 10, 0, true
 	);
 }

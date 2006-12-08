@@ -34,19 +34,19 @@ CGrid_Buffer::CGrid_Buffer(void){
 
 	Set_Name(_TL("Grid Buffer"));
 	Set_Author(_TL("Copyrights (c) 2004 by Victor Olaya"));
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"(c) 2004 by Victor Olaya. Grid Buffer Creation"));
 
 	Parameters.Add_Grid(NULL, 
 						"FEATURES",
 						_TL("Features Grid"), 						
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"BUFFER", 
 						_TL("Buffer Grid"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
 						GRID_TYPE_Double);
@@ -61,7 +61,7 @@ CGrid_Buffer::CGrid_Buffer(void){
 	Parameters.Add_Choice(NULL, 
 						"BUFFERTYPE", 
 						_TL("Buffer Distance"),
-						"",
+						_TL(""),
 						_TL("Fixed|Cell value|"),
 						0);
 }//constructor

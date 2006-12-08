@@ -85,7 +85,7 @@ public:
 	CGet_Table(void);
 	virtual ~CGet_Table(void);
 
-	virtual const char *		Get_MenuPath			(void)	{	return( _TL("R:Import") );	}
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Import") );	}
 
 
 protected:
@@ -97,7 +97,7 @@ protected:
 
 private:
 
-	char						*m_DSN;
+	SG_Char						*m_DSN;
 
 	class wxDbConnectInf		*m_DBC_Inf;
 

@@ -75,7 +75,7 @@ CChannelNetwork_Distance::CChannelNetwork_Distance(void)
 
 	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"This module calculates overland flow distances to a channel network "
 		"based on gridded digital elevation data and channel network information.\n"
 		"The flow algorithm may be either Deterministic 8 (O'Callaghan & Mark 1984) or Multiple Flow Direction (Freeman 1991)\n"
@@ -90,13 +90,13 @@ CChannelNetwork_Distance::CChannelNetwork_Distance(void)
 
 	Parameters.Add_Grid(
 		NULL	, "ELEVATION"	, _TL("Elevation"),
-		"A grid that contains elevation data.",
+		_TL("A grid that contains elevation data."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "CHANNELS"	, _TL("Channel Network"),
-		_TL("A grid providing information about the channel network. It is assumed that no-data cells are not part "
+		_TW("A grid providing information about the channel network. It is assumed that no-data cells are not part "
 		"of the channel network. Vice versa all others cells are recognised as channel network members."),
 		PARAMETER_INPUT
 	);
@@ -107,20 +107,20 @@ CChannelNetwork_Distance::CChannelNetwork_Distance(void)
 
 	Parameters.Add_Grid(
 		NULL	, "DISTANCE"	, _TL("Overland Flow Distance"),
-		"The overland flow distance in map units. "
-		"It is assumed that the (vertical) elevation data use the same units as the (horizontal) grid coordinates.",
+		_TW("The overland flow distance in map units. "
+		"It is assumed that the (vertical) elevation data use the same units as the (horizontal) grid coordinates."),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "DISTVERT"	, _TL("Vertical Overland Flow Distance"),
-		"This is the vertical component of the overland flow",
+		_TL("This is the vertical component of the overland flow"),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "DISTHORZ"	, _TL("Horizontal Overland Flow Distance"),
-		"This is the horizontal component of the overland flow",
+		_TL("This is the horizontal component of the overland flow"),
 		PARAMETER_OUTPUT
 	);
 
@@ -131,8 +131,11 @@ CChannelNetwork_Distance::CChannelNetwork_Distance(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Flow Algorithm"),
 		_TL("Choose a flow routing algorithm that shall be used for the overland flow distance calculation:\n- D8\n- MFD"),
-		_TL("D8|"
-		"MFD|")	, 1
+
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("D8"),
+			_TL("MFD")
+		), 1
 	);
 }
 

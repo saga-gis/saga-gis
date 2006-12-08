@@ -77,20 +77,20 @@ CPolygons_From_Lines::CPolygons_From_Lines(void)
 
 	Set_Author(_TL("Copyrights (c) 2005 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Converts line shapes to polygon shapes. Line arcs are closed to polygons simply by connecting the last point with the first.")
 	);
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "POLYGONS"	, _TL("Polygons"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "LINES"		, _TL("Lines"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Line
 	);
 }

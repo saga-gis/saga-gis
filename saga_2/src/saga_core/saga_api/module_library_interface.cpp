@@ -98,13 +98,13 @@ CSG_Module_Library_Interface::~CSG_Module_Library_Interface(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Module_Library_Interface::Set_Info(int ID, const char *Info)
+void CSG_Module_Library_Interface::Set_Info(int ID, const SG_Char *Info)
 {
 	m_Info[ID]	= Get_Translation(Info);
 }
 
 //---------------------------------------------------------
-const char * CSG_Module_Library_Interface::Get_Info(int ID)
+const SG_Char * CSG_Module_Library_Interface::Get_Info(int ID)
 {
 	return( m_Info[ID] );
 }
@@ -158,7 +158,7 @@ CSG_Module * CSG_Module_Library_Interface::Get_Module(int iModule)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Module_Library_Interface::Set_File_Name(const char *File_Name)
+void CSG_Module_Library_Interface::Set_File_Name(const SG_Char *File_Name)
 {
 	m_File_Name	= File_Name;
 
@@ -166,7 +166,7 @@ void CSG_Module_Library_Interface::Set_File_Name(const char *File_Name)
 }
 
 //---------------------------------------------------------
-const char * CSG_Module_Library_Interface::Get_File_Name(void)
+const SG_Char * CSG_Module_Library_Interface::Get_File_Name(void)
 {
 	return( m_File_Name );
 }
@@ -179,7 +179,7 @@ const char * CSG_Module_Library_Interface::Get_File_Name(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char * CSG_Module_Library_Interface::Get_Translation(const char *Text)
+const SG_Char * CSG_Module_Library_Interface::Get_Translation(const SG_Char *Text)
 {
 	return( m_Translator.Get_Translation(Text) );
 }

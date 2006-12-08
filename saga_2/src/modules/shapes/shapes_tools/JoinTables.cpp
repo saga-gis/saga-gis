@@ -31,34 +31,34 @@ CJoinTables::CJoinTables(void){
 
 	Parameters.Set_Name(_TL("Join Table"));
 
-	Parameters.Set_Description(_TL("Join table to shapes attributes table."));
+	Parameters.Set_Description(_TW("Join table to shapes attributes table."));
 
 	pNode_0	= Parameters.Add_Shapes(NULL,
 									"SHAPES",
 									_TL("Shapes"),
-									"",
+									_TL(""),
 									PARAMETER_INPUT);
 
 	pNode_1	= Parameters.Add_Table_Field(pNode_0	,
 									"SHAPES_ID",
 									_TL("Field"),
-									"");
+									_TL(""));
 
 	pNode_0	= Parameters.Add_Table(	NULL,
 									"TABLE",
 									_TL("Table"),
-									"",
+									_TL(""),
 									PARAMETER_INPUT);
 
 	pNode_1	= Parameters.Add_Table_Field(pNode_0,
 									"TABLE_ID",
 									_TL("Field"),
-									"");
+									_TL(""));
 
 	pNode_0	= Parameters.Add_Shapes(NULL,
 									"SHAPES_OUT",
 									_TL("Resulting shapes"),
-									"",
+									_TL(""),
 									PARAMETER_OUTPUT);
 
 }//constructor
@@ -90,7 +90,7 @@ bool CJoinTables::On_Execute(void){
 		pShapes_Out	= bCopy ? SG_Create_Shapes() : Parameters("SHAPES_OUT")->asShapes();
 
 		pShapes_Out->Create(pShapes->Get_Type());
-		pShapes_Out->Set_Name(CSG_String::Format("%s / %s", pShapes->Get_Name(), pTable->Get_Name()));
+		pShapes_Out->Set_Name(CSG_String::Format(SG_T("%s / %s"), pShapes->Get_Name(), pTable->Get_Name()));
 		pShapes_Out->Get_Table().Create(pTable);
 
 		pShapesTable = &pShapes->Get_Table();

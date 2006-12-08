@@ -66,27 +66,27 @@
 //---------------------------------------------------------
 // 2. Place general module library informations here...
 
-const char *	Get_Info(int i)
+const SG_Char *	Get_Info(int i)
 {
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return( "Grid - Spline Interpolation" );
+		return( _TL("Grid - Spline Interpolation") );
 
 	case MLB_INFO_Author:
-		return( "(c) 2006 by Olaf Conrad" );
+		return( _TL("(c) 2006 by Olaf Conrad") );
 
 	case MLB_INFO_Description:
-		return(
+		return( _TW(
 			"Several spline interpolation/approximation methods for the gridding of scattered data. "
 			"In most cases the 'Multilevel B-spline Interpolation' will be the optimal choice. "
-		);
+		));
 
 	case MLB_INFO_Version:
-		return( "1.0" );
+		return( SG_T("1.0") );
 
 	case MLB_INFO_Menu_Path:
-		return( "Grid|Gridding" );
+		return( _TL("Grid|Gridding") );
 	}
 }
 

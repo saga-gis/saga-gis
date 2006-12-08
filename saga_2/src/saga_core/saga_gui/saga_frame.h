@@ -144,7 +144,7 @@ public:
 
 	virtual wxStatusBar *		OnCreateStatusBar			(int number, long style, wxWindowID id, const wxString& name);
 
-	void						StatusBar_Set_Text			(const char *Text, int iPane = 0);
+	void						StatusBar_Set_Text			(const wxChar *Text, int iPane = 0);
 
 	//-----------------------------------------------------
 	void						On_Child_Activates			(class CVIEW_Base *pChild, bool bActivates);
@@ -155,7 +155,7 @@ public:
 	void						MB_Remove					(wxMenu *pMenu_File, wxMenu *pMenu_Modules);
 
 	class wxToolBarBase *		TB_Create					(int ID);
-	void						TB_Add						(class wxToolBarBase *pToolBar, const char *Name);
+	void						TB_Add						(class wxToolBarBase *pToolBar, const wxChar *Name);
 	void						TB_Add_Item					(class wxToolBarBase *pToolBar, bool bCheck, int Cmd_ID);
 	void						TB_Add_Separator			(class wxToolBarBase *pToolBar);
 

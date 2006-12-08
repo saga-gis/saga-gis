@@ -25,19 +25,19 @@ CDistanceMatrix::CDistanceMatrix(void){
 
 	
 	Parameters.Set_Name(_TL("Distance Matrix"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2004 by Victor Olaya. Computes distance between pairs of points in a layer."));
 
 	Parameters.Add_Shapes(NULL, 
 						"POINTS", 
 						_TL("Points"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Table(NULL, 
 						"TABLE", 
 						_TL("Distance Matrix Table"),
-						"",
+						_TL(""),
 						PARAMETER_OUTPUT);
 	
 }//constructor

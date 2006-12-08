@@ -73,7 +73,7 @@ public:
 	CGrid_Normalise(void);
 	virtual ~CGrid_Normalise(void);
 
-//	virtual const char *	Get_MenuPath(void)		{	return( NULL );	}
+//	virtual const SG_Char *	Get_MenuPath(void)		{	return( NULL );	}
 
 
 protected:

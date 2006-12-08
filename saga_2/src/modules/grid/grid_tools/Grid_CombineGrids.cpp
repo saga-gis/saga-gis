@@ -25,31 +25,31 @@ CCombineGrids::CCombineGrids(void){
 	CSG_Table_Record *pRecord;
 
 	Parameters.Set_Name(_TL("Combine Grids"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2005 by Victor Olaya."));
 
 	Parameters.Add_Grid(NULL, 
 						"GRID1",
 						_TL("Grid 1"), 						
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 	
 	Parameters.Add_Grid(NULL, 
 						"GRID2",
 						_TL("Grid 2"), 						
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"RESULT",
 						_TL("Result"), 						
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT);
 
 	pLookup	= Parameters.Add_FixedTable(NULL, 
 										"LOOKUP", 
 										_TL("LookUp Table"),
-										"")->asTable();
+										_TL(""))->asTable();
 
 	pLookup->Add_Field(_TL("Value in Grid 1"), TABLE_FIELDTYPE_Double);
 	pLookup->Add_Field(_TL("Value in Grid 2"), TABLE_FIELDTYPE_Double);

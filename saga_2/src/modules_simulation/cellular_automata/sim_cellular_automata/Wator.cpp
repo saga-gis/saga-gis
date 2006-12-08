@@ -78,20 +78,20 @@ CWator::CWator(void)
 	CSG_Parameter	*pNode_0, *pNode_1;
 
 	//-----------------------------------------------------
-	Set_Name("Wa-Tor");
+	Set_Name		(_TL("Wa-Tor"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Wa-Tor - an ecological simulation of predator-prey populations - "
 		"is based upon A. K. Dewdney's 'Computer Recreations' article "
-		"in the December 1984 issue of Scientific American.")
-	);
+		"in the December 1984 issue of Scientific American."
+	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_Output(
 		NULL	, "GRID"			, _TL("Grid"),
-		""
+		_TL("")
 	);
 
 	pNode_0	= Parameters.Add_Node(
@@ -101,61 +101,61 @@ CWator::CWator(void)
 
 	Parameters.Add_Value(
 		pNode_0	, "NX"				, _TL("Width (Cells)"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 100, 1, true
 	);
 
 	Parameters.Add_Value(
 		pNode_0	, "NY"				, _TL("Height (Cells)"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 100, 1, true
 	);
 
 	pNode_0	= Parameters.Add_Grid(
 		NULL	, "RESULT"			, _TL("Wa-Tor"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL	, true, GRID_TYPE_Byte
 	);
 
 	pNode_1	= Parameters.Add_Value(
 		pNode_0	, "REFRESH"			, _TL("Refresh"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Bool			, true
 	);
 
 	pNode_1	= Parameters.Add_Value(
 		pNode_0	, "INIT_FISH"		, _TL("Initial Number of Fishes [%]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double		, 30.0, 0.0, true, 100.0, true
 	);
 
 	pNode_1	= Parameters.Add_Value(
 		pNode_0	, "INIT_SHARK"		, _TL("Initial Number of Sharks [%]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double		, 7.5, 0.0, true, 100.0, true
 	);
 
 	pNode_0	= Parameters.Add_Table(
 		NULL	, "TABLE"			, _TL("Cycles"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	pNode_0	= Parameters.Add_Value(
 		NULL	, "FISH_BIRTH"		, _TL("Birth Rate of Fishes"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int			,  3.0, 0.0, true
 	);
 
 	pNode_0	= Parameters.Add_Value(
 		NULL	, "SHARK_BIRTH"		, _TL("Birth Rate of Sharks"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int			, 12.0, 0.0, true
 	);
 
 	pNode_0	= Parameters.Add_Value(
 		NULL	, "SHARK_STARVE"	, _TL("Max. Starvation Time for Sharks"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int			,  4.0, 0.0, true
 	);
 }
@@ -193,7 +193,7 @@ bool CWator::On_Execute(void)
 		bRefresh	= Parameters("REFRESH")->asBool();
 	}
 
-	pWator->Set_Name("Wa-Tor");
+	pWator->Set_Name(_TL("Wa-Tor"));
 
 	Colors.Set_Count(3);
 	Colors.Set_Color(0, SG_GET_RGB(  0,   0,   0));
@@ -208,7 +208,7 @@ bool CWator::On_Execute(void)
 
 	pTable			= Parameters("TABLE")		->asTable();
 	pTable->Destroy();
-	pTable->Set_Name("Wa-Tor");
+	pTable->Set_Name(_TL("Wa-Tor"));
 	pTable->Add_Field("Cycle"	, TABLE_FIELDTYPE_Int);
 	pTable->Add_Field("Fishes"	, TABLE_FIELDTYPE_Int);
 	pTable->Add_Field("Sharks"	, TABLE_FIELDTYPE_Int);

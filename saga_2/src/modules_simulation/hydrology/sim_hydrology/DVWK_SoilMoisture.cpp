@@ -77,7 +77,7 @@ CDVWK_SoilMoisture::CDVWK_SoilMoisture(void)
 
 	Set_Author	(_TL("Copyrights (c) 2002 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"The WEELS (Wind Erosion on European Light Soils) soil moisture "
 		"model dynamically calculates the soil moisture based on the rules "
 		"proposed by the DVWK (1996) with input data about:\n"
@@ -99,51 +99,51 @@ CDVWK_SoilMoisture::CDVWK_SoilMoisture(void)
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Grid(
 		NULL	, "STA_FC"		, _TL("Field Capacity [mm]"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Value(
 		pNode	, "STA_FC_DEF"	, _TL("Default"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 20.0	, 0.0, true
 	);
 
 	pNode	= Parameters.Add_Grid(
 		NULL	, "STA_PWP"		, _TL("Permanent Wilting Point [mm]"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Value(
 		pNode	, "STA_PWP_DEF"	, _TL("Default"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 2.0	, 0.0, true
 	);
 
 	pNode	= Parameters.Add_Grid(
 		NULL	, "LANDUSE"		, _TL("Land Use"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Value(
 		pNode	, "LANDUSE_DEF"	, _TL("Default"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int		, -1.0
 	);
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Grid(
 		NULL	, "DYN_W"		, _TL("Soil Moisture"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_FixedTable(
 		NULL	, "DYN_CLIMATE"	, _TL("Climate Data"),
-		""
+		_TL("")
 	);
 
 	pClimate	= pNode->asTable();
@@ -155,7 +155,7 @@ CDVWK_SoilMoisture::CDVWK_SoilMoisture(void)
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_FixedTable(
 		NULL	, "STA_KC"		, _TL("Crop Coefficients"),
-		""
+		_TL("")
 	);
 
 	pCropCoeff	= pNode->asTable();

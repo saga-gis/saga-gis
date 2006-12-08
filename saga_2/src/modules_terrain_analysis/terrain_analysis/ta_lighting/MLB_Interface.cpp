@@ -61,7 +61,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-const char * Get_Info(int i)
+const SG_Char * Get_Info(int i)
 {
 	switch( i )
 	{
@@ -75,7 +75,7 @@ const char * Get_Info(int i)
 		return( _TL("Lighting and visibility calculations for digital terrain models." ));
 
 	case MLB_INFO_Version:
-		return( "1.0" );
+		return( SG_T("1.0") );
 
 	case MLB_INFO_Menu_Path:
 		return( _TL("Terrain Analysis|Lighting" ));

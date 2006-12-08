@@ -77,7 +77,7 @@ CChannelNetwork::CChannelNetwork(void)
 
 	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"This module derives a channel network based on gridded digital elevation data.\n"
 		"Use the initiation options to determine under which conditions channels shall start.\n"
 		"\n")
@@ -95,7 +95,7 @@ CChannelNetwork::CChannelNetwork(void)
 
 	Parameters.Add_Grid(
 		NULL	, "SINKROUTE"	, _TL("Flow Direction"),
-		_TL(
+		_TW(
 		"An optional grid that provides information about flow directions. \n"
 		"Values between 1 to 8 force the flow of a cell to be given to one its adjacent neighbor cells "
 		"(1->NE, 2->E, 3->SE, 4->S, 5->SW, 6->W, 7->NW, 8->N). "
@@ -110,14 +110,14 @@ CChannelNetwork::CChannelNetwork(void)
 
 	Parameters.Add_Grid(
 		NULL	, "CHNLNTWRK"	, _TL("Channel Network"),
-		_TL("If a cell is part of a channel its value equals the channel order. "
+		_TW("If a cell is part of a channel its value equals the channel order. "
 		"Otherwise the cell is marked as no-data."),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "CHNLROUTE"	, _TL("Channel Direction"),
-		_TL("If a cell is part of a channel then its value shows the flow direction of the channel "
+		_TW("If a cell is part of a channel then its value shows the flow direction of the channel "
 		"(1->NE, 2->E, 3->SE, 4->S, 5->SW, 6->W, 7->NW, 8->N). "
 		"Otherwise the cell is marked as no-data."),
 		PARAMETER_OUTPUT
@@ -135,7 +135,7 @@ CChannelNetwork::CChannelNetwork(void)
 
 	pNode	= Parameters.Add_Grid(
 		NULL	, "INIT_GRID"	, _TL("Initiation Grid"),
-		_TL("Dependent on the chosen 'Initiation Type' and 'Initiation Threshold' "
+		_TW("Dependent on the chosen 'Initiation Type' and 'Initiation Threshold' "
 		"the values of this grid control where a channel is initiated."),
 		PARAMETER_INPUT
 	);
@@ -143,9 +143,12 @@ CChannelNetwork::CChannelNetwork(void)
 	Parameters.Add_Choice(
 		pNode	, "INIT_METHOD"	, _TL("Initiation Type"),
 		_TL("Options:\n - Less than\n - Equals\n - Greater than\nControls under which condition a channel is initiated."),
-		_TL("Less than|"
-		"Equals|"
-		"Greater than|")		, 2
+
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("Less than"),
+			_TL("Equals"),
+			_TL("Greater than")
+		), 2
 	);
 
 	Parameters.Add_Value(
@@ -253,7 +256,7 @@ bool CChannelNetwork::On_Execute(void)
 	//-----------------------------------------------------
 	// 2. Initiation...
 
-	Process_Set_Text("Channel Network: Pass 2");
+	Process_Set_Text(_TL("Channel Network: Pass 2"));
 
 	pStart				= SG_Create_Grid(pDTM, GRID_TYPE_Char);
 	Init_pGrid			= Parameters("INIT_GRID")	->asGrid();

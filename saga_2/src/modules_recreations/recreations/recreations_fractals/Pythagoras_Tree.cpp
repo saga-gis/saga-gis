@@ -80,7 +80,7 @@ CPythagoras_Tree::CPythagoras_Tree(void)
 
 	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description(_TL("Pythagoras' Tree."));
+	Set_Description	(_TW("Pythagoras' Tree."));
 
 
 	//-----------------------------------------------------
@@ -88,41 +88,47 @@ CPythagoras_Tree::CPythagoras_Tree(void)
 
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "RESULT"		, _TL("Pythagoras' Tree"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
 		pNode	, "TYPE"		, _TL("Shape Type"),
-		"", _TL(
-		"Lines|"
-		"Polygons|")			, 1
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("Lines"),
+			_TL("Polygons")
+		), 1
 	);
 
 	Parameters.Add_Value(
 		NULL	, "ANGLE"		, _TL("Angle [Degree]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 55.0, 0.0, true, 90.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "MINSIZE"		, _TL("Minimum Size [%]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 2.0, 0.001, true, 100.0, true
 	);
 
 	pNode	= Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
-		"", _TL(
-		"Fixed angle|"
-		"Constant variation range|"
-		"Low variation for low sizes|"
-		"High variation for low sizes|")
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("Fixed angle"),
+			_TL("Constant variation range"),
+			_TL("Low variation for low sizes"),
+			_TL("High variation for low sizes")
+		), 0
 	);
 
 	Parameters.Add_Range(
 		pNode	, "VARRANGE"	, _TL("Constant Variation Range [Degree]"),
-		"",
+		_TL(""),
 		0.0, 90.0, 0.0, true, 90.0, true
 	);
 }

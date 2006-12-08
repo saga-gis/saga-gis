@@ -75,38 +75,38 @@ CD8_Flow_Analysis::CD8_Flow_Analysis(void)
 
 	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Deterministic 8 based flow network analysis\n")
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL	, "DEM"			, _TL("DEM"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "DIRECTION"	, _TL("Flow Direction"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "CONNECTION"	, _TL("Flow Connectivity"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Shapes(
 		NULL	, "NETWORK"		, _TL("Flow Network"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Value(
 		NULL	, "MINCON"		, _TL("Minimum Connectivity"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 0, 0, true, 8, true
 	);
 }

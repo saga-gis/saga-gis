@@ -78,7 +78,7 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 
 	Set_Author(_TL("Copyrights (c) 2005 by Volker Wichmann"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"The module can be used to reclassify the values of a grid. It provides three different options: (a) "
 		"reclassification of single values, (b) reclassification of a range of values and (c) reclassification "
 		"of value ranges specified in a lookup table. In addition to theses methods, two special cases "
@@ -123,7 +123,7 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 
 	Parameters.Add_Value(
 		pNode	, "NEW"			, _TL("new value"),
-		"New value.",
+		_TL("New value."),
 		PARAMETER_TYPE_Double, 1
 	);
 
@@ -131,11 +131,13 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 		pNode	, "SOPERATOR"	, _TL("operator"),
 		_TL("Select the desired operator (<;.;=; >;.); it is possible to define a range above or below the old value."),
 
-		"=|"
-		"<|"
-		"<=|"
-		">=|"
-		">|", 0
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+			_TL("="),
+			_TL("<"),
+			_TL("<="),
+			_TL(">="),
+			_TL(">")
+		), 0
 	);
 
 	//-----------------------------------------------------
@@ -166,8 +168,10 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 		pNode	, "ROPERATOR"	, _TL("operator"),
 		_TL("Select operator: eg. min < value < max."),
 
-		"<=|"
-		"<|", 0
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("<="),
+			_TL("<")
+		), 0
 	);
 
 	//-----------------------------------------------------
@@ -184,11 +188,13 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 	Parameters.Add_Choice(
 		pNode	, "TOPERATOR"	, _TL("operator"),
 		_TL("Select the desired operator (min < value < max; min . value < max; min .value . max; min < value . max)."),
-		_TL(
-		"min <= value < max|"
-		"min <= value <= max|"
-		"min < value <= max|"
-		"min < value < max|"), 0
+
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("min <= value < max"),
+			_TL("min <= value <= max"),
+			_TL("min < value <= max"),
+			_TL("min < value < max")
+		), 0
 	);
 
 	//-----------------------------------------------------
@@ -500,20 +506,20 @@ bool CGrid_Value_Reclassify::ReclassTable(bool bUser)
 
 	if( pReTab == NULL )
 	{
-		Error_Set("You must specify a reclass table with a minimium (field 1), a maximum (field 2) and a code value (field 3)!\n");
+		Error_Set(_TL("You must specify a reclass table with a minimium (field 1), a maximum (field 2) and a code value (field 3)!\n"));
 		return( false );
 	}
 
 	recCount = pReTab->Get_Record_Count();
 	if( recCount > MAX_CAT )
 	{
-		Error_Set("At the moment the reclass table is limited to 128 categories!\n");
+		Error_Set(_TL("At the moment the reclass table is limited to 128 categories!\n"));
 		return( false );
 	}
 
 	if( recCount == 0 )
 	{
-		Error_Set("You must specify a reclass table with a minimium of one record!\n");
+		Error_Set(_TL("You must specify a reclass table with a minimium of one record!\n"));
 		return( false );
 	}
 

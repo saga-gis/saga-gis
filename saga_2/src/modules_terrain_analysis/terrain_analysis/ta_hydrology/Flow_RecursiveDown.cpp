@@ -83,7 +83,7 @@ CFlow_RecursiveDown::CFlow_RecursiveDown(void)
 
 	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Flow tracing algorithms for calculations of flow accumulation and related parameters. "
 		"These algorithms trace the flow of each cell in a DEM separately until it finally leaves the DEM or ends in a sink.\n\n"
 
@@ -111,8 +111,8 @@ CFlow_RecursiveDown::CFlow_RecursiveDown(void)
 
 	Parameters.Add_Choice(
 		NULL	, "Method"		, _TL("Method"),
-		"",
-		CSG_String::Format("%s|%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("Rho 8"),
 			_TL("Kinematic Routing Algorithm"),
 			_TL("DEMON")
@@ -131,7 +131,7 @@ CFlow_RecursiveDown::CFlow_RecursiveDown(void)
 
 	Parameters.Add_Value(
 		NULL	, "CORRECT"		, _TL("Flow Correction"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Bool
 	);
 }

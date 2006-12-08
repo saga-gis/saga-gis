@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char *	SG_Get_ShapeType_Name(TSG_Shape_Type Type)
+const SG_Char *	SG_Get_ShapeType_Name(TSG_Shape_Type Type)
 {
 	switch( Type )
 	{
@@ -104,13 +104,13 @@ CSG_Shapes *		SG_Create_Shapes(const CSG_Shapes &Shapes)
 }
 
 //---------------------------------------------------------
-CSG_Shapes *		SG_Create_Shapes(const char *File_Name)
+CSG_Shapes *		SG_Create_Shapes(const SG_Char *File_Name)
 {
 	return( new CSG_Shapes(File_Name) );
 }
 
 //---------------------------------------------------------
-CSG_Shapes *		SG_Create_Shapes(TSG_Shape_Type Type, const char *Name, CSG_Table *pStructure)
+CSG_Shapes *		SG_Create_Shapes(TSG_Shape_Type Type, const SG_Char *Name, CSG_Table *pStructure)
 {
 	return( new CSG_Shapes(Type, Name, pStructure) );
 }
@@ -139,7 +139,7 @@ CSG_Shapes::CSG_Shapes(const CSG_Shapes &Shapes)
 }
 
 //---------------------------------------------------------
-CSG_Shapes::CSG_Shapes(const char *File_Name)
+CSG_Shapes::CSG_Shapes(const SG_Char *File_Name)
 	: CSG_Data_Object()
 {
 	_On_Construction();
@@ -148,7 +148,7 @@ CSG_Shapes::CSG_Shapes(const char *File_Name)
 }
 
 //---------------------------------------------------------
-CSG_Shapes::CSG_Shapes(TSG_Shape_Type Type, const char *Name, CSG_Table *pStructure)
+CSG_Shapes::CSG_Shapes(TSG_Shape_Type Type, const SG_Char *Name, CSG_Table *pStructure)
 	: CSG_Data_Object()
 {
 	_On_Construction();
@@ -190,7 +190,7 @@ bool CSG_Shapes::Create(const CSG_Shapes &Shapes)
 }
 
 //---------------------------------------------------------
-bool CSG_Shapes::Create(const char *File_Name)
+bool CSG_Shapes::Create(const SG_Char *File_Name)
 {
 	int		iShape;
 
@@ -230,7 +230,7 @@ bool CSG_Shapes::Create(const char *File_Name)
 }
 
 //---------------------------------------------------------
-bool CSG_Shapes::Create(TSG_Shape_Type Type, const char *Name, CSG_Table *pStructure)
+bool CSG_Shapes::Create(TSG_Shape_Type Type, const SG_Char *Name, CSG_Table *pStructure)
 {
 	Destroy();
 
@@ -326,10 +326,10 @@ bool CSG_Shapes::Assign(CSG_Data_Object *pObject)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Shapes::Save(const char *File_Name, int Format)
+bool CSG_Shapes::Save(const SG_Char *File_Name, int Format)
 {
-	bool		bResult	= false;
-	CSG_String	sFile_Name	= SG_File_Make_Path(NULL, File_Name, "shp");
+	bool		bResult		= false;
+	CSG_String	sFile_Name	= SG_File_Make_Path(NULL, File_Name, SG_T("shp"));
 
 	switch( Format )
 	{

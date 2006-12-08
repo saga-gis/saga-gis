@@ -30,24 +30,24 @@ CCreateChartLayer::CCreateChartLayer(void){
 	CSG_Parameter *pNode;
 	
 	Parameters.Set_Name(_TL("Create Chart Layer (bars/sectors)"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2004 by Victor Olaya. "));
 		
 	pNode = Parameters.Add_Shapes(NULL, 
 						"INPUT", 
 						_TL("Shapes"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Table_Field(pNode,
 								"SIZE",
 								_TL("Size field"),
-								"");
+								_TL(""));
 
 	Parameters.Add_Value(NULL, 
 						"MAXSIZE", 
 						_TL("Maximum size"), 
-						"",
+						_TL(""),
 						PARAMETER_TYPE_Double, 
 						100,
 						0,
@@ -56,7 +56,7 @@ CCreateChartLayer::CCreateChartLayer(void){
 	Parameters.Add_Value(NULL, 
 						"MINSIZE", 
 						_TL("Minimum size"), 
-						"",
+						_TL(""),
 						PARAMETER_TYPE_Double, 
 						10,
 						0,
@@ -64,15 +64,15 @@ CCreateChartLayer::CCreateChartLayer(void){
 	
 	Parameters.Add_Choice(NULL, 
 						"TYPE", 
-						"Type", 
-						"", 
-						_TL("Sectors|"
+						_TL("Type"), 
+						_TL(""), 
+						_TW("Sectors|"
 						"Bars|"),									
 						0);
 
 	m_pExtraParameters	= Add_Parameters("EXTRA",
 										_TL("Fields for diagram"),
-										"");
+										_TL(""));
 
 }//constructor
 
@@ -105,10 +105,10 @@ bool CCreateChartLayer::On_Execute(void){
 		m_fMinValue = pInput->Get_Table().Get_MinValue(iSizeField);
 
 		if (iType == TYPE_PIE){		
-			m_pOutput = SG_Create_Shapes(SHAPE_TYPE_Polygon, (char*)_TL("Chart (sectors):"));				
+			m_pOutput = SG_Create_Shapes(SHAPE_TYPE_Polygon, _TL("Chart (sectors):"));				
 		}//if
 		else{
-			m_pOutput = SG_Create_Shapes(SHAPE_TYPE_Polygon, (char*)_TL("Chart (bars):"));
+			m_pOutput = SG_Create_Shapes(SHAPE_TYPE_Polygon, _TL("Chart (bars):"));
 		}//else
 
 		m_pOutput->Get_Table().Add_Field(_TL("Field (ID)"), TABLE_FIELDTYPE_Int);
@@ -159,7 +159,7 @@ bool CCreateChartLayer::GetExtraParameters(){
 			m_pExtraParameters->Add_Value(NULL,
 											SG_Get_String(i,0).c_str(),
 											pShapesTable->Get_Field_Name(i),
-											"",
+											_TL(""),
 											PARAMETER_TYPE_Bool,
 											false);
 		}//if

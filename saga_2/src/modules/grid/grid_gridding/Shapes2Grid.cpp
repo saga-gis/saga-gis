@@ -90,7 +90,7 @@ CShapes2Grid::CShapes2Grid(void)
 
 	Set_Author		(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"Gridding of a shapes layer."
 	));
 
@@ -98,25 +98,25 @@ CShapes2Grid::CShapes2Grid(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid_Output(
 		NULL	, "GRID"		, _TL("Grid"),
-		""
+		_TL("")
 	);
 
 	pNode_0	= Parameters.Add_Shapes(
 		NULL	, "INPUT"		, _TL("Shapes"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	pNode_1	= Parameters.Add_Table_Field(
 		pNode_0	, "FIELD"		, _TL("Attribute"),
-		""
+		_TL("")
 	);
 
 	pNode_0	= Parameters.Add_Choice(
 		NULL	, "TARGET_TYPE"	, _TL("Target Dimensions"),
-		"",
+		_TL(""),
 
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("User defined"),
 			_TL("Grid Project"),
 			_TL("Grid")
@@ -125,20 +125,20 @@ CShapes2Grid::CShapes2Grid(void)
 
 	pNode_0	= Parameters.Add_Choice(
 		NULL	, "LINE_TYPE"	, _TL("Method for Lines"),
-		"",
+		_TL(""),
 
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("thin"),
 			_TL("thick")
 		), 1
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("USER", _TL("User defined grid"), "");
+	pParameters	= Add_Parameters("USER", _TL("User defined grid"), _TL(""));
 
 	pNode_0	= pParameters->Add_Value(
 		NULL	, "CELL_SIZE"	, _TL("Grid Size"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 100.0, 0.0, true
 	);
 
@@ -150,18 +150,18 @@ CShapes2Grid::CShapes2Grid(void)
 
 	pNode_1	= pParameters->Add_Range(
 		pNode_0	, "X_EXTENT"	, _TL("X-Extent"),
-		""
+		_TL("")
 	);
 
 	pNode_1	= pParameters->Add_Range(
 		pNode_0	, "Y_EXTENT"	, _TL("Y-Extent"),
-		""
+		_TL("")
 	);
 
 	pNode_0	= pParameters->Add_Choice(
 		NULL	, "GRID_TYPE"	, _TL("Target Grid Type"),
-		"",
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("Integer (1 byte)"),
 			_TL("Integer (2 byte)"),
 			_TL("Integer (4 byte)"),
@@ -171,16 +171,16 @@ CShapes2Grid::CShapes2Grid(void)
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_SYSTEM"	, _TL("Choose Grid Project"), "");
+	pParameters	= Add_Parameters("GET_SYSTEM"	, _TL("Choose Grid Project"), _TL(""));
 
 	pNode_0	= pParameters->Add_Grid_System(
-		NULL, "SYSTEM"		, _TL("System")		, ""
+		NULL, "SYSTEM"		, _TL("System")		, _TL("")
 	);
 
 	pNode_0	= pParameters->Add_Choice(
 		NULL	, "GRID_TYPE"	, _TL("Target Grid Type"),
-		"",
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("Integer (1 byte)"),
 			_TL("Integer (2 byte)"),
 			_TL("Integer (4 byte)"),
@@ -190,11 +190,11 @@ CShapes2Grid::CShapes2Grid(void)
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GRID"			, _TL("Choose Grid")		, "");
+	pParameters	= Add_Parameters("GRID"			, _TL("Choose Grid")		, _TL(""));
 
 	pNode_0	= pParameters->Add_Grid(
 		NULL	, "GRID"		, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT	, false
 	);
 }
@@ -317,7 +317,7 @@ bool CShapes2Grid::On_Execute(void)
 			if( iField >= 0 && iField < m_pShapes->Get_Table().Get_Field_Count()
 			&&	m_pShapes->Get_Table().Get_Field_Type(iField) != TABLE_FIELDTYPE_String )
 			{
-				m_pGrid->Set_Name(CSG_String::Format("%s [%s]", m_pShapes->Get_Name(), m_pShapes->Get_Table().Get_Field_Name(iField)));
+				m_pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pShapes->Get_Name(), m_pShapes->Get_Table().Get_Field_Name(iField)));
 			}
 			else
 			{

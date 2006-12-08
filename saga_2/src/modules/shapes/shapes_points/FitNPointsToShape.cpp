@@ -28,19 +28,19 @@
 CFitNPointsToShape::CFitNPointsToShape(void){
 
 	Parameters.Set_Name(_TL("Fit N Points to shape"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2004 by Victor Olaya. Fit N Points to shape"));
 
 	Parameters.Add_Shapes(NULL, 
 						"POINTS", 
 						_TL("Points"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT);
 
 	Parameters.Add_Shapes(NULL, 
 						"SHAPES", 
 						_TL("Shapes"),
-						"",
+						_TL(""),
 						PARAMETER_INPUT);
 
 	Parameters.Add_Value(NULL, 

@@ -85,7 +85,7 @@ public:
 	CFlow_AreaDownslope(void);
 	virtual ~CFlow_AreaDownslope(void);
 
-	virtual const char *	Get_MenuPath	(void)	{	return( _TL("R:Catchment Area" ));	}
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Catchment Area" ));	}
 
 
 protected:

@@ -85,50 +85,52 @@ CTIN_From_Grid_Specific_Points::CTIN_From_Grid_Specific_Points(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL	, "GRID"		, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid_List(
 		NULL	, "VALUES"		, _TL("Values"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_TIN(
-		NULL	, "TIN"			, "TIN",
-		"",
+		NULL	, "TIN"			, _TL("TIN"),
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
 		_TL("The method used to identify surface specific points."),
-		_TL(
-		"Mark Highest Neighbour|"
-		"Opposite Neighbours|"
-		"Flow Direction|"
-		"Flow Direction (up and down)|"
-		"Peucker & Douglas|")	, 1
+
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+			_TL("Mark Highest Neighbour"),
+			_TL("Opposite Neighbours"),
+			_TL("Flow Direction"),
+			_TL("Flow Direction (up and down)"),
+			_TL("Peucker & Douglas")
+		), 1
 	);
 
-	pNode	= Parameters.Add_Node(NULL, "THRESHOLDS", _TL("Thresholds"), "");
+	pNode	= Parameters.Add_Node(NULL, "THRESHOLDS", _TL("Thresholds"), _TL(""));
 
 	Parameters.Add_Value(
 		pNode	, "HIGH"		, _TL("Mark Highest Neighbour"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int		, 4, 1, true, 4, true
 	);
 
 	Parameters.Add_Range(
 		pNode	, "FLOW"		, _TL("Flow Direction"),
-		"",
+		_TL(""),
 		0, 3, 0, true, 8, true
 	);
 
 	Parameters.Add_Value(
 		pNode	, "PEUCKER"		, _TL("Peucker & Douglas"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 2
 	);
 }

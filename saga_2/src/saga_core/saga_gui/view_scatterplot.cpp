@@ -93,7 +93,7 @@ void		Add_ScatterPlot(CSG_Grid *pGrid)
 	CSG_Shapes		*pShapes;
 
 	//-----------------------------------------------------
-	CSG_Parameters	Parameters(NULL, wxString::Format("%s: %s", LNG("[CAP] Scatterplot"), pGrid->Get_Name()), LNG(""), NULL, true);
+	CSG_Parameters	Parameters(NULL, wxString::Format(wxT("%s: %s"), LNG("[CAP] Scatterplot"), pGrid->Get_Name()), LNG(""), NULL, true);
 
 	Parameters.Add_Grid(
 		NULL	, "GRID"	, LNG("[CAP] Grid")		, LNG(""),
@@ -101,12 +101,12 @@ void		Add_ScatterPlot(CSG_Grid *pGrid)
 	);
 
 	pNode	= Parameters.Add_Shapes(
-		NULL	, "SHAPES"	, LNG("[CAP] Shapes")		, LNG(""),
+		NULL	, "SHAPES"	, LNG("[CAP] Shapes")	, LNG(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Table_Field(
-		pNode	, "FIELD"	, LNG("[CAP] Attribute")	, LNG("")
+		pNode	, "FIELD"	, LNG("[CAP] Attribute"), LNG("")
 	);
 
 	//-----------------------------------------------------
@@ -129,19 +129,19 @@ void		Add_ScatterPlot(CSG_Table *pTable)
 	int			i;
 	wxString	sChoices;
 
-	CSG_Parameters	Parameters(NULL, wxString::Format("%s: %s", LNG("[CAP] Scatterplot"), pTable->Get_Name()), LNG(""));
+	CSG_Parameters	Parameters(NULL, wxString::Format(wxT("%s: %s"), LNG("[CAP] Scatterplot"), pTable->Get_Name()), LNG(""));
 
 	for(i=0; i<pTable->Get_Field_Count(); i++)
 	{
-		sChoices.Append(wxString::Format("%s|", pTable->Get_Field_Name(i)));
+		sChoices.Append(wxString::Format(wxT("%s|"), pTable->Get_Field_Name(i)));
 	}
 
 	Parameters.Add_Choice(
-		NULL, "FIELD_A", "X", "", sChoices
+		NULL, "FIELD_A", wxT("X"), wxT(""), sChoices
 	);
 
 	Parameters.Add_Choice(
-		NULL, "FIELD_B", "Y", "", sChoices
+		NULL, "FIELD_B", wxT("Y"), wxT(""), sChoices
 	);
 
 	if( DLG_Parameters(&Parameters) )
@@ -303,36 +303,36 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 
 	m_Parameters.Add_Choice(
 		NULL, "TYPE"		, LNG("[CAP] Regression Formula"),
-		"",
-		"Y = a + b * X|"
-		"Y = a + b / X|"
-		"Y = a / (b - X)|"
-		"Y = a * X^b|"
-		"Y = a e^(b * X)|"
-		"Y = a + b * ln(X)|"
+		LNG(""),
+		wxT("Y = a + b * X|")
+		wxT("Y = a + b / X|")
+		wxT("Y = a / (b - X)|")
+		wxT("Y = a * X^b|")
+		wxT("Y = a e^(b * X)|")
+		wxT("Y = a + b * ln(X)|")
 	);
 
 	m_Parameters.Add_String(
 		NULL, "INFO"		, LNG("[CAP] Regression Details"),
-		"",
-		"", true
+		LNG(""),
+		LNG(""), true
 	);
 
 	m_Parameters.Add_Font(
 		NULL, "FONT"		, LNG("[CAP] Font"),
-		""
+		LNG("")
 	);
 
 	m_Parameters.Add_Value(
 		NULL, "REGRESSION"	, LNG("[CAP] Show Regression Curve"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Bool, true
 	);
 
 	m_Parameters.Add_Choice(
 		NULL, "METHOD"		, LNG("[CAP] Display Type"),
-		"",
-		wxString::Format("%s|%s|",
+		LNG(""),
+		wxString::Format(wxT("%s|%s|"),
 			LNG("[CAP] Circles"),
 			LNG("[CAP] Points")
 		)
@@ -340,13 +340,13 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 
 	m_Parameters.Add_Value(
 		NULL, "RESOLUTION"	, LNG("[CAP] Display Resolution"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Int, 1, 1, true
 	);
 
 	m_Parameters.Add_Colors(
 		NULL, "COLORS"		, LNG("[CAP] Colors"),
-		""
+		LNG("")
 	);
 }
 
@@ -518,12 +518,12 @@ void CVIEW_ScatterPlot::_Draw_Regression(wxDC &dc, wxRect r, double dx, double d
 	//-----------------------------------------------------
 	switch( m_Regression.Get_Type() )
 	{
-	case REGRESSION_Linear:	s	= "Y = %f%+f*X";		break;
-	case REGRESSION_Rez_X:	s	= "Y = %f%+f/X";		break;
-	case REGRESSION_Rez_Y:	s	= "Y = %f/(%f-X)";		break;
-	case REGRESSION_Pow:	s	= "Y = %f*X^%f";		break;
-	case REGRESSION_Exp:	s	= "Y = %f e^(%f*X)";	break;
-	case REGRESSION_Log:	s	= "Y = %f%+f*ln(X)";	break;
+	case REGRESSION_Linear:	s	= wxT("Y = %f%+f*X");		break;
+	case REGRESSION_Rez_X:	s	= wxT("Y = %f%+f/X");		break;
+	case REGRESSION_Rez_Y:	s	= wxT("Y = %f/(%f-X)");		break;
+	case REGRESSION_Pow:	s	= wxT("Y = %f*X^%f");		break;
+	case REGRESSION_Exp:	s	= wxT("Y = %f e^(%f*X)");	break;
+	case REGRESSION_Log:	s	= wxT("Y = %f%+f*ln(X)");	break;
 	}
 
 	Draw_Text(dc, TEXTALIGN_TOPLEFT, r.GetLeft(), r.GetTop(),
@@ -531,7 +531,7 @@ void CVIEW_ScatterPlot::_Draw_Regression(wxDC &dc, wxRect r, double dx, double d
 	);
 
 	Draw_Text(dc, TEXTALIGN_BOTTOMRIGHT, r.GetRight(), r.GetBottom(),
-		wxString::Format("R²: %f%%", 100.0 * m_Regression.Get_R2())	// Coefficient of Determination...
+		wxString::Format(wxT("R²: %f%%"), 100.0 * m_Regression.Get_R2())	// Coefficient of Determination...
 	);
 
 	dc.SetPen(oldPen);
@@ -646,7 +646,7 @@ void CVIEW_ScatterPlot::_Draw_Frame(wxDC &dc, wxRect r)
 		iPixel	= r.GetBottom()	- (int)(dPixel * iStep);
 		dc.DrawLine(r.GetLeft(), iPixel, r.GetLeft() - 5, iPixel);
 		Draw_Text(dc, TEXTALIGN_CENTERRIGHT, r.GetLeft() - 7, iPixel,
-			wxString::Format("%.*f", Precision, m_Regression.Get_yMin() + iStep * dz)
+			wxString::Format(wxT("%.*f"), Precision, m_Regression.Get_yMin() + iStep * dz)
 		);
 	}
 
@@ -660,7 +660,7 @@ void CVIEW_ScatterPlot::_Draw_Frame(wxDC &dc, wxRect r)
 		iPixel	= r.GetLeft() + (int)(dPixel * iStep);
 		dc.DrawLine(iPixel, r.GetBottom(), iPixel, r.GetBottom() + 5);
 		Draw_Text(dc, TEXTALIGN_CENTERRIGHT, iPixel, r.GetBottom() + 7, 45.0,
-			wxString::Format("%.*f", Precision, m_Regression.Get_xMin() + iStep * dz)
+			wxString::Format(wxT("%.*f"), Precision, m_Regression.Get_xMin() + iStep * dz)
 		);
 	}
 }
@@ -699,10 +699,10 @@ bool CVIEW_ScatterPlot::_Initialize_Grids(CSG_Grid *pGrid_X, CSG_Grid *pGrid_Y)
 	{
 		m_Regression.Destroy();
 
-		m_sTitle.Printf("%s: [%s/%s]", LNG("[CAP] Scatterplot"), pGrid_X->Get_Name(), pGrid_Y->Get_Name());
+		m_sTitle.Printf(wxT("%s: [%s/%s]"), LNG("[CAP] Scatterplot"), pGrid_X->Get_Name(), pGrid_Y->Get_Name());
 
-		m_sX.Printf("%s", pGrid_X->Get_Name());
-		m_sY.Printf("%s", pGrid_Y->Get_Name());
+		m_sX.Printf(wxT("%s"), pGrid_X->Get_Name());
+		m_sY.Printf(wxT("%s"), pGrid_Y->Get_Name());
 
 		return( pGrid_X->Get_System() == pGrid_Y->Get_System()
 			? _Initialize_Grid_Equal  (pGrid_X, pGrid_Y)
@@ -776,10 +776,10 @@ bool CVIEW_ScatterPlot::_Initialize_Shapes(CSG_Grid *pGrid_X, CSG_Shapes *pShape
 
 		m_Regression.Destroy();
 
-		m_sTitle.Printf("%s: [%s/%s]", LNG("[CAP] Scatterplot"), pGrid_X->Get_Name(), pShapes_Y->Get_Name());
+		m_sTitle.Printf(wxT("%s: [%s/%s]"), LNG("[CAP] Scatterplot"), pGrid_X->Get_Name(), pShapes_Y->Get_Name());
 
-		m_sX.Printf("%s", pGrid_X->Get_Name());
-		m_sY.Printf("%s", pShapes_Y->Get_Table().Get_Field_Name(Field));
+		m_sX.Printf(wxT("%s"), pGrid_X->Get_Name());
+		m_sY.Printf(wxT("%s"), pShapes_Y->Get_Table().Get_Field_Name(Field));
 
 		for(iShape=0; iShape<pShapes_Y->Get_Count() && PROGRESSBAR_Set_Position(iShape, pShapes_Y->Get_Count()); iShape++)
 		{
@@ -822,10 +822,10 @@ bool CVIEW_ScatterPlot::_Initialize_Table(CSG_Table *pTable, int Field_X, int Fi
 
 		m_Regression.Destroy();
 
-		m_sTitle.Printf("%s: [%s]", LNG("[CAP] Scatterplot"), pTable->Get_Name());
+		m_sTitle.Printf(wxT("%s: [%s]"), LNG("[CAP] Scatterplot"), pTable->Get_Name());
 
-		m_sX.Printf("%s", pTable->Get_Field_Name(Field_X));
-		m_sY.Printf("%s", pTable->Get_Field_Name(Field_Y));
+		m_sX.Printf(wxT("%s"), pTable->Get_Field_Name(Field_X));
+		m_sY.Printf(wxT("%s"), pTable->Get_Field_Name(Field_Y));
 
 		for(iRecord=0; iRecord<pTable->Get_Record_Count() && PROGRESSBAR_Set_Position(iRecord, pTable->Get_Record_Count()); iRecord++)
 		{

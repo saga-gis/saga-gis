@@ -74,15 +74,15 @@ CBifurcation::CBifurcation(void)
 
 	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL("Feigenbaum's Bifurcation"));
+	Set_Description	(_TW("Feigenbaum's Bifurcation"));
 
-	Parameters.Add_Table(	NULL, "TABLE"		, _TL("Output")			, "", PARAMETER_OUTPUT);
+	Parameters.Add_Table(	NULL, "TABLE"		, _TL("Output")				, _TL(""), PARAMETER_OUTPUT);
 
-	Parameters.Add_Value(	NULL, "ITERATIONS"	, _TL("Value Count")		, "", PARAMETER_TYPE_Int, 100);
+	Parameters.Add_Value(	NULL, "ITERATIONS"	, _TL("Value Count")		, _TL(""), PARAMETER_TYPE_Int, 100);
 	Parameters.Add_Value(	NULL, "NVALUES"		, _TL("Value Count")		, _TL("Number of the last x Iteration to be plotted."), PARAMETER_TYPE_Int, 8);
-	Parameters.Add_Value(	NULL, "SEED"		, _TL("Seed Value")		, "", PARAMETER_TYPE_Double	, 0.66, 0, true, 1.0, true);
-	Parameters.Add_Range(	NULL, "RANGE"		, _TL("Range")			, "", 1.0, 4.0, 0.0, true, 4.0, true);
-	Parameters.Add_Value(	NULL, "STEP"		, _TL("Number of Steps")	, "", PARAMETER_TYPE_Int		, 1000, 2, true);
+	Parameters.Add_Value(	NULL, "SEED"		, _TL("Seed Value")			, _TL(""), PARAMETER_TYPE_Double	, 0.66, 0, true, 1.0, true);
+	Parameters.Add_Range(	NULL, "RANGE"		, _TL("Range")				, _TL(""), 1.0, 4.0, 0.0, true, 4.0, true);
+	Parameters.Add_Value(	NULL, "STEP"		, _TL("Number of Steps")	, _TL(""), PARAMETER_TYPE_Int		, 1000, 2, true);
 
 }
 
@@ -120,7 +120,7 @@ bool CBifurcation::On_Execute(void)
 
 	for(i=0; i<nValues; i++)
 	{
-		pTable->Add_Field(CSG_String::Format("VALUE_%d", i + 1), TABLE_FIELDTYPE_Double);
+		pTable->Add_Field(CSG_String::Format(SG_T("VALUE_%d"), i + 1), TABLE_FIELDTYPE_Double);
 	}
 
 	for(r=min; r<=max; r+=dr)

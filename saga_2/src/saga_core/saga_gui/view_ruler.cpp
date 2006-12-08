@@ -186,13 +186,13 @@ void CVIEW_Ruler::_Draw_Corners(wxDC &dc, int Width, int Height)
 
 	if( m_bHorizontal )
 	{
-		Draw_Text(dc, TEXTALIGN_BOTTOMLEFT ,         TEXTSPACE, Height, wxString::Format("%f", m_Min));
-		Draw_Text(dc, TEXTALIGN_BOTTOMRIGHT, Width - TEXTSPACE, Height, wxString::Format("%f", m_Max));
+		Draw_Text(dc, TEXTALIGN_BOTTOMLEFT ,         TEXTSPACE, Height, wxString::Format(wxT("%f"), m_Min));
+		Draw_Text(dc, TEXTALIGN_BOTTOMRIGHT, Width - TEXTSPACE, Height, wxString::Format(wxT("%f"), m_Max));
 	}
 	else
 	{
-		Draw_Text(dc, TEXTALIGN_TOPLEFT , 0, Width - TEXTSPACE, 90.0, wxString::Format("%f", m_Min));
-		Draw_Text(dc, TEXTALIGN_TOPRIGHT, 0,         TEXTSPACE, 90.0, wxString::Format("%f", m_Max));
+		Draw_Text(dc, TEXTALIGN_TOPLEFT , 0, Width - TEXTSPACE, 90.0, wxString::Format(wxT("%f"), m_Min));
+		Draw_Text(dc, TEXTALIGN_TOPRIGHT, 0,         TEXTSPACE, 90.0, wxString::Format(wxT("%f"), m_Max));
 	}
 }
 

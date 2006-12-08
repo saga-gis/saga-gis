@@ -78,7 +78,7 @@ CCollect_Points::CCollect_Points(void)
 
 	Set_Author		(_TL("(c) 2004 Ringeler, (c) 2006 O.Conrad"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"Digitize reference points for georeferencing grids, images and shapes. "
 		"Click with the mouse on known locations in the map window "
 		"and add the reference coordinates. "
@@ -89,18 +89,18 @@ CCollect_Points::CCollect_Points(void)
 
 	Parameters.Add_Shapes(
 		NULL, "REF_SOURCE"	, _TL("Reference Points (Origin)"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Shapes(
 		NULL, "REF_TARGET"	, _TL("Reference Points (Projection)"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	//-----------------------------------------------------
-	CSG_Parameters	*pParameters	= Add_Parameters("REFERENCE", _TL("Point Position"), "");
+	CSG_Parameters	*pParameters	= Add_Parameters("REFERENCE", _TL("Point Position"), _TL(""));
 
 	pParameters->Add_Value(
 		NULL, "X"			, _TL("x Position"),

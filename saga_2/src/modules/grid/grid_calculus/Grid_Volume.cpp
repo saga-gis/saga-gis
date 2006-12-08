@@ -80,14 +80,14 @@ CGrid_Volume::CGrid_Volume(void)
 
 	Parameters.Add_Grid(
 		NULL	, "GRID"	, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"	, _TL("Method"),
-		"",
-		CSG_String::Format("%s|%s|%s|%s|", 
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"), 
 			_TL("Count Only Above Base Level"), 
 			_TL("Count Only Below Base Level"),
 			_TL("Subtract Volumes Below Base Level"),
@@ -97,7 +97,7 @@ CGrid_Volume::CGrid_Volume(void)
 
 	Parameters.Add_Value(
 		NULL	, "LEVEL"	, _TL("Base Level"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 0.0
 	);
 }

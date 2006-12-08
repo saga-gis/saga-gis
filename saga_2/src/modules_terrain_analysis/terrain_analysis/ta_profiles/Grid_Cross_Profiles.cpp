@@ -86,49 +86,49 @@ CGrid_Cross_Profiles::CGrid_Cross_Profiles(void)
 
 	Set_Author(_TL("Copyrights (c) 2006 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Create cross profiles from a grid based DEM for given lines.\n"
 	));
 
 	Parameters.Add_Grid(
 		NULL, "DEM"			, _TL("DEM"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
 		NULL, "LINES"		, _TL("Lines"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT		, SHAPE_TYPE_Line
 	);
 
 	Parameters.Add_Shapes(
 		NULL, "PROFILES"	, _TL("Cross Profiles"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT	, SHAPE_TYPE_Line
 	);
 
 	Parameters.Add_Value(
 		NULL, "DIST_LINE"	, _TL("Profile Distance"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 10.0, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL, "DIST_PROFILE", _TL("Profile Length"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 10.0, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL, "NUM_PROFILE"	, _TL("Profile Samples"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int	, 10.0, 3.0, true
 	);
 
 	Parameters.Add_FilePath(
 		NULL, "DOCUMENT"	, _TL("Report"),
-		"",
+		_TL(""),
 		_TL("Portable Document Format (*.pdf)|*.pdf|All Files|*.*"), NULL, true
 	);
 }
@@ -169,7 +169,7 @@ bool CGrid_Cross_Profiles::On_Execute(void)
 
 	for(iPoint=0; iPoint<nSamples; iPoint++)
 	{
-		pProfiles->Get_Table().Add_Field(CSG_String::Format("X%03d", iPoint), TABLE_FIELDTYPE_Double);
+		pProfiles->Get_Table().Add_Field(CSG_String::Format(SG_T("X%03d"), iPoint), TABLE_FIELDTYPE_Double);
 	}
 
 	//-----------------------------------------------------
@@ -292,7 +292,7 @@ bool CGrid_Cross_Profiles::Get_Profile(CSG_Shape *pProfile, TSG_Point A, TSG_Poi
 #define NBOXES	4
 
 //---------------------------------------------------------
-void CGrid_Cross_Profiles::Make_Report(const char *FileName, CSG_Grid *pDEM, CSG_Shapes *pLines, CSG_Shapes *pProfiles, double Distance)
+void CGrid_Cross_Profiles::Make_Report(const SG_Char *FileName, CSG_Grid *pDEM, CSG_Shapes *pLines, CSG_Shapes *pProfiles, double Distance)
 {
 	if( FileName )
 	{

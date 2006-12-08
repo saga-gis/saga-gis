@@ -77,12 +77,12 @@ CFilter_Gauss::CFilter_Gauss(void)
 
 	Set_Author(_TL("Copyrights (c) 2003 by Andre Ringeler"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"The Gauss Filter is a smoothing operator that is used to `blur' or 'soften' Grid Data\n"
 		"and remove detail and noise.\n"
 		"The degree of smoothing is determined by the standard deviation.\n"
-		"For higher standard deviations you need a greater Radius\n")
-	);
+		"For higher standard deviations you need a greater Radius\n"
+	));
 
 
 	//-----------------------------------------------------
@@ -90,26 +90,26 @@ CFilter_Gauss::CFilter_Gauss(void)
 
 	Parameters.Add_Grid(
 		NULL, "INPUT"		, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL, "RESULT"		, _TL("Filtered Grid"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Value(
 		NULL, "SIGMA"		, _TL("Standard Deviation"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 1, 0.0001, true
 	);
 
 	Parameters.Add_Choice(
 		NULL, "SEARCH_MODE"	, _TL("Search Mode"),
-		"",
-		CSG_String::Format("%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Square"),
 			_TL("Circle")
 		), 1
@@ -117,7 +117,7 @@ CFilter_Gauss::CFilter_Gauss(void)
 
 	Parameters.Add_Value(
 		NULL, "RADIUS"		, _TL("Search Radius"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 2, 1, true
 	);
 }

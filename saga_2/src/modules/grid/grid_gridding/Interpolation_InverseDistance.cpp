@@ -74,25 +74,25 @@ CInterpolation_InverseDistance::CInterpolation_InverseDistance(void)
 
 	Set_Author		(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"Inverse distance to a power method for grid interpolation from irregular distributed points."
 	));
 
 	Parameters.Add_Value(
 		NULL	, "POWER"		, _TL("Inverse Distance: Power"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 1.0
 	);
 
 	Parameters.Add_Value(
 		NULL	, "RADIUS"		, _TL("Search Radius"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 100.0
 	);
 
 	Parameters.Add_Value(
 		NULL	, "NPOINTS"		, _TL("Maximum Points"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int		, 10.0
 	);
 }

@@ -80,7 +80,7 @@ CKinWav_D8::CKinWav_D8(void)
 
 	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Overland Flow - Kinematic Wave D8"
 		"\n\n"
 		"Reference:\n"
@@ -92,54 +92,54 @@ CKinWav_D8::CKinWav_D8(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL	, "DTM"			, _TL("Elevation"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL	, "RUNOFF"		, _TL("Runoff"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Table(
 		NULL	, "GAUGES"		, _TL("Outlets"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Value(
 		NULL	, "TIME_END"	, _TL("Simulation Time [h]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 24.0
 	);
 
 	Parameters.Add_Value(
 		NULL	, "TIME_STEP"	, _TL("Simulation Time Step [h]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 0.1
 	);
 
 	Parameters.Add_Value(
 		NULL	, "ROUGHNESS"	, _TL("Manning's Roughness"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 1.0
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Node(NULL, "NEWTON", _TL("Newton-Raphson"), "");
+	pNode	= Parameters.Add_Node(NULL, "NEWTON", _TL("Newton-Raphson"), _TL(""));
 
 	Parameters.Add_Value(
 		pNode	, "NEWTON_MAXITER"	, _TL("Max. Iterations"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int		, 100		, 1		, true
 	);
 
 	Parameters.Add_Value(
 		pNode	, "NEWTON_EPSILON"	, _TL("Epsilon"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 0.0001	, 0.0	, true
 	);
 
@@ -148,7 +148,7 @@ CKinWav_D8::CKinWav_D8(void)
 		NULL	, "PRECIP"		, _TL("Precipitation"),
 		_TL("Kind of initializing Precipitation Event"),
 
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("Homogenous"),
 			_TL("Above Elevation"),
 			_TL("Left Half")
@@ -157,7 +157,7 @@ CKinWav_D8::CKinWav_D8(void)
 
 	Parameters.Add_Value(
 		pNode	, "THRESHOLD"	, _TL("Threshold Elevation"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 0.0
 	);
 }
@@ -257,7 +257,7 @@ bool CKinWav_D8::Initialize(void)
 					if( pGauges )
 					{
 						i				= pGauges->Get_Field_Count() - 1;
-						s.Printf("GAUGE_%02d", i + 1);
+						s.Printf(SG_T("GAUGE_%02d"), i + 1);
 						pGauges->Add_Field(s, TABLE_FIELDTYPE_Double);
 
 						pos_Gauges		= (TPoint *)SG_Realloc(pos_Gauges, (i + 1) * sizeof(TPoint));

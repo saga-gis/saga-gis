@@ -71,44 +71,44 @@ CShapes_Split::CShapes_Split(void)
 
 	Set_Author		(_TL("(c) 2006 by O. Conrad"));
 
-	Set_Description	(_TL(
-		""
+	Set_Description	(_TW(
+		_TL("")
 	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes(
 		NULL	, "SHAPES"		, _TL("Shapes"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes_List(
 		NULL	, "CUTS"		, _TL("Tiles"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Shapes(
 		NULL	, "EXTENT"		, _TL("Extent"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Value(
 		NULL	, "NX"			, _TL("Number of horizontal tiles"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 2, 1, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "NY"			, _TL("Number of vertical tiles"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 2, 1, true
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
-		"",
+		_TL(""),
 		Cut_Methods_Str(), 0
 	);
 }
@@ -160,11 +160,11 @@ bool CShapes_Split::On_Execute(void)
 
 				Cut_Set_Extent(r, pExtent, y == 0 && x == 0);
 
-				Process_Set_Text(CSG_String::Format("%d/%d", y * nx + (x + 1), nx * ny));
+				Process_Set_Text(CSG_String::Format(SG_T("%d/%d"), y * nx + (x + 1), nx * ny));
 
 				if( (pCut = Cut_Shapes(r, Method, pShapes)) != NULL )
 				{
-					pCut->Set_Name(CSG_String::Format("%s [%d][%d]", pShapes->Get_Name(), 1 + x, 1 + y));
+					pCut->Set_Name(CSG_String::Format(SG_T("%s [%d][%d]"), pShapes->Get_Name(), 1 + x, 1 + y));
 
 					Parameters("CUTS")->asShapesList()->Add_Item(pCut);
 				}

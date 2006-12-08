@@ -103,11 +103,11 @@ wxString CWKSP_Shapes_Manager::Get_Description(void)
 {
 	wxString	s;
 
-	s.Printf("<b>%s</b><br>", LNG("[CAP] Shapes"));
+	s.Printf(wxT("<b>%s</b><br>"), LNG("[CAP] Shapes"));
 
 	for(int i=0; i<Get_Count(); i++)
 	{
-		s.Append(wxString::Format("%s: %d<br>", Get_Item(i)->Get_Name().c_str(), ((CWKSP_Base_Manager *)Get_Item(i))->Get_Count()));
+		s.Append(wxString::Format(wxT("%s: %d<br>"), Get_Item(i)->Get_Name().c_str(), ((CWKSP_Base_Manager *)Get_Item(i))->Get_Count()));
 	}
 
 	return( s );
@@ -227,7 +227,7 @@ CWKSP_Shapes * CWKSP_Shapes_Manager::Add(CSG_Shapes *pShapes)
 }
 
 //---------------------------------------------------------
-CSG_Shapes * CWKSP_Shapes_Manager::Get_byFileName(const char *File_Name)
+CSG_Shapes * CWKSP_Shapes_Manager::Get_byFileName(const wxChar *File_Name)
 {
 	CSG_String	s(File_Name);
 	CWKSP_Shapes_Type	*pType;

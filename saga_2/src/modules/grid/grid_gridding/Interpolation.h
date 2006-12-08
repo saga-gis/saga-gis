@@ -85,7 +85,7 @@ public:
 	CInterpolation(void);
 	virtual ~CInterpolation(void);
 
-	virtual const char *	Get_MenuPath		(void)	{	return( _TL("R:Interpolation from Points") );	}
+	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Interpolation from Points") );	}
 
 
 protected:

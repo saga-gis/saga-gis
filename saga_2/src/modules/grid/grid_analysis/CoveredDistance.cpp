@@ -21,18 +21,20 @@
 CCoveredDistance::CCoveredDistance(void){
 
 
-	Parameters.Set_Name(_TL("Covered Distance"));
+	Set_Name		(_TL("Covered Distance"));
 
-	Parameters.Set_Description("");
+	Set_Description	(_TW(
+		""
+	));
 
 	Parameters.Add_Grid_List(
 		NULL, "INPUT"	, _TL("Grids")	,
-		"", PARAMETER_INPUT
+		_TL(""), PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL, "RESULT"	, _TL("Result"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 	

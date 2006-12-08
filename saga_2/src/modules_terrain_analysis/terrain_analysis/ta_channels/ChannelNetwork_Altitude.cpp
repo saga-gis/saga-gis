@@ -75,7 +75,7 @@ CChannelNetwork_Altitude::CChannelNetwork_Altitude(void)
 
 	Set_Author(_TL("Copyrights (c) 2002 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"This module calculates the vertical distance to a channel network base level. "
 		"The algorithm consists of two major steps:\n"
 		" 1. Interpolation of a channel network base level elevation grid\n"
@@ -94,7 +94,7 @@ CChannelNetwork_Altitude::CChannelNetwork_Altitude(void)
 
 	Parameters.Add_Grid(
 		NULL, "CHANNELS"	, _TL("Channel Network"),
-		_TL("A grid providing information about the channel network. It is assumed that no-data cells are not part "
+		_TW("A grid providing information about the channel network. It is assumed that no-data cells are not part "
 		"of the channel network. Vice versa all others cells are recognised as channel network members."),
 		PARAMETER_INPUT
 	);
@@ -121,7 +121,7 @@ CChannelNetwork_Altitude::CChannelNetwork_Altitude(void)
 
 	Parameters.Add_Value(
 		NULL, "THRESHOLD"	, _TL("Tension Threshold [m]"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 0.1
 	);
 }
@@ -164,7 +164,7 @@ bool CChannelNetwork_Altitude::On_Execute(void)
 
 	for(nCells=nCells_Start, iStep=1; nCells>0; nCells/=2, iStep++)
 	{
-		Process_Set_Text(CSG_String::Format("%d [%d]", iStep, nSteps + 1));
+		Process_Set_Text(CSG_String::Format(SG_T("%d [%d]"), iStep, nSteps + 1));
 
 		Initialize_Surface(nCells);
 

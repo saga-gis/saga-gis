@@ -73,12 +73,11 @@ CGrid_Cluster_Analysis::CGrid_Cluster_Analysis(void)
 	//-----------------------------------------------------
 	// 1. Info...
 
-	Set_Name(_TL("Cluster Analysis for Grids"));
+	Set_Name		(_TL("Cluster Analysis for Grids"));
 
-	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description(_TL(
-		
+	Set_Description	(_TW(		
 		"Cluster Analysis for grids.\n\nReferences:\n\n"
 
 		"Iterative Minimum Distance:\n"
@@ -89,8 +88,8 @@ CGrid_Cluster_Analysis::CGrid_Cluster_Analysis(void)
 		"Hill-Climbing:"
 		"- Rubin, J. (1967):\n"
 		"  'Optimal Classification into Groups: An Approach for Solving the Taxonomy Problem',\n"
-		"  J. Theoretical Biology, 15:103-144\n\n")
-	);
+		"  J. Theoretical Biology, 15:103-144\n\n"
+	));
 
 
 	//-----------------------------------------------------
@@ -98,19 +97,19 @@ CGrid_Cluster_Analysis::CGrid_Cluster_Analysis(void)
 
 	Parameters.Add_Grid_List(
 		NULL	, "INPUT"		, _TL("Grids"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "RESULT"		, _TL("Clusters"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT, true, GRID_TYPE_Int
 	);
 
 	Parameters.Add_Table(
 		NULL	, "STATISTICS"	, _TL("Statistics"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
@@ -120,8 +119,8 @@ CGrid_Cluster_Analysis::CGrid_Cluster_Analysis(void)
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
-		"",
-		CSG_String::Format("%s|%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("Iterative Minimum Distance (Forgy 1965)"),
 			_TL("Hill-Climbing (Rubin 1967)"),
 			_TL("Combined Minimum Distance / Hillclimbing") 
@@ -287,18 +286,18 @@ void CGrid_Cluster_Analysis::Write_Result(CSG_Table *pTable, long nElements, int
 	pTable->Add_Field(_TL("Elements")	, TABLE_FIELDTYPE_Int);
 	pTable->Add_Field(_TL("Variance")	, TABLE_FIELDTYPE_Double);
 
-	s.Printf(
-		"\nNumber of Elements:\t%ld"
-		"\nNumber of Variables:\t%d"
-		"\nNumber of Clusters:\t\t%d"
-		"\nValue of Target Function:\t%f"
-		"\nCluster\tElements\tVariance",
-		nElements, nGrids, nCluster, SP
+	s.Printf(SG_T("\n%s:\t%ld \n%s:\t%d \n%s:\t%d \n%s:\t%f"),
+		_TL("Number of Elements")			, nElements,
+		_TL("\nNumber of Variables")		, nGrids,
+		_TL("\nNumber of Clusters")			, nCluster,
+		_TL("\nValue of Target Function")	, SP
 	);
+
+	s.Append(CSG_String::Format(SG_T("%s\t%s\t%s"), _TL("Cluster"), _TL("Elements"), _TL("Variance")));
 
 	for(j=0; j<nGrids; j++)
 	{
-		s.Append(CSG_String::Format("\t%02d_%s", j + 1, Grids[j]->Get_Name()));
+		s.Append(CSG_String::Format(SG_T("\t%02d_%s"), j + 1, Grids[j]->Get_Name()));
 		pTable->Add_Field(Grids[j]->Get_Name(), TABLE_FIELDTYPE_Double);
 	}
 
@@ -306,7 +305,7 @@ void CGrid_Cluster_Analysis::Write_Result(CSG_Table *pTable, long nElements, int
 
 	for(i=0; i<nCluster; i++)
 	{
-		s.Printf("%d\t%d\t%f", i, nMembers[i], Variances[i]);
+		s.Printf(SG_T("%d\t%d\t%f"), i, nMembers[i], Variances[i]);
 
 		pRecord	= pTable->Add_Record();
 		pRecord->Set_Value(0, i);
@@ -315,7 +314,7 @@ void CGrid_Cluster_Analysis::Write_Result(CSG_Table *pTable, long nElements, int
 
 		for(j=0; j<nGrids; j++)
 		{
-			s.Append(CSG_String::Format("\t%f", Centroids[i][j]));
+			s.Append(CSG_String::Format(SG_T("\t%f"), Centroids[i][j]));
 
 			pRecord->Set_Value(j + 3, Centroids[i][j]);
 		}
@@ -476,8 +475,9 @@ double CGrid_Cluster_Analysis::MinimumDistance(long &nElements, int nCluster)
 			bContinue	= false;
 		}
 
-		Process_Set_Text(CSG_String::Format(
-			"Pass %d - Variance changed: %f", nPasses, SP_Last < 0.0 ? SP : SP_Last - SP
+		Process_Set_Text(CSG_String::Format(SG_T("%s: %d >> %s %f"),
+			_TL("pass")		, nPasses,
+			_TL("change")	, SP_Last < 0.0 ? SP : SP_Last - SP
 		));
 
 		SP_Last		= SP;
@@ -693,8 +693,9 @@ double CGrid_Cluster_Analysis::HillClimbing(long &nElements, int nCluster)
 			}
 		}
 
-		Process_Set_Text(CSG_String::Format(
-			"Pass %d - Variance changed: %f", nPasses, SP_Last < 0.0 ? SP : SP_Last - SP
+		Process_Set_Text(CSG_String::Format(SG_T("%s: %d >> %s %f"),
+			_TL("pass")		, nPasses,
+			_TL("change")	, SP_Last < 0.0 ? SP : SP_Last - SP
 		));
 
 		SP_Last		= SP;

@@ -104,19 +104,19 @@ CFit::CFit(void)
 {
 	Set_Name(_TL("Function Fit"));
 	
-	Set_Description("CFit\n" "(created by SAGA Wizard).");
+	Set_Description(_TL("CFit\n(created by SAGA Wizard)."));
 	
 	CSG_Parameter	*pNode;
 	
-	pNode	= Parameters.Add_Table(NULL	, "SOURCE"		, _TL("Source")			, "", PARAMETER_INPUT);
+	pNode	= Parameters.Add_Table(NULL	, "SOURCE"		, _TL("Source")			, _TL(""), PARAMETER_INPUT);
 	
-	Parameters.Add_Table_Field(pNode	, "YFIELD"		, _TL("y - Values")				, "");
+	Parameters.Add_Table_Field(pNode	, "YFIELD"		, _TL("y - Values")				, _TL(""));
 	
-	Parameters.Add_Choice(pNode, "USE_X", _TL("Use x -Values"), "", _TL("No|Yes|"));
-	Parameters.Add_Table_Field(pNode	, "XFIELD"		, _TL("x - Values")				, "");
+	Parameters.Add_Choice(pNode, "USE_X", _TL("Use x -Values"), _TL(""), _TL("No|Yes|"));
+	Parameters.Add_Table_Field(pNode	, "XFIELD"		, _TL("x - Values")				, _TL(""));
 	
 	Parameters.Add_String(NULL,	"FORMEL", _TL("Formula"), 
-		_TL(
+		_TW(
 		"The following operators are available for the formula definition:\n"
 		"+ Addition\n"
 		"- Subtraction\n"
@@ -142,11 +142,11 @@ CFit::CFit(void)
 		"alphabetical order with the grid list order ('a'= first var, 'b' = second grid, ...)\n"
 		"Example: m*x+a \n"),
 				
-		"m*x+c");
+		SG_T("m*x+c"));
 	
-	Parameters.Add_Value(NULL, "ITER", _TL("Iterationen"), "", PARAMETER_TYPE_Int, 1000, 1, true);
+	Parameters.Add_Value(NULL, "ITER", _TL("Iterationen"), _TL(""), PARAMETER_TYPE_Int, 1000, 1, true);
 	
-	Parameters.Add_Value(NULL, "LAMDA", _TL("Max Lamda"), "", PARAMETER_TYPE_Double, 10000, 1, true);
+	Parameters.Add_Value(NULL, "LAMDA", _TL("Max Lamda"), _TL(""), PARAMETER_TYPE_Double, 10000, 1, true);
 }
 
 int CFit::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
@@ -154,23 +154,23 @@ int CFit::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pPara
 	bool retval = false;
 	
 
-	if (!strcmp(pParameter->Get_Identifier(), "FORMEL") )
+	if (!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FORMEL")) )
 	{
-		const char * formel=pParameters->Get_Parameter("FORMEL")->asString();
+		const SG_Char * formel=pParameters->Get_Parameter("FORMEL")->asString();
 		Formel.Set_Formula(formel);
 	
 		int Pos;
-		const char * Msg;
+		const SG_Char * Msg;
 		if (Formel.Get_Error(&Pos, &Msg))
 		
 		{
-			char Str[1024];
+			CSG_String	s;
 			
-			sprintf(Str, _TL("Error at character #%d of the function: \n%s\n%s\n"), Pos, formel);
+			s.Printf(_TL("Error at character #%d of the function: \n%s\n%s\n"), Pos, formel);
 
-			Error_Set(Str);			
+			Error_Set(s);			
 		
-			Message_Dlg(Str,Str);
+			Message_Dlg(s,s);
 
 			return false;
 		}
@@ -211,43 +211,43 @@ bool CFit::On_Execute(void)
 {
 	int i, j,  NrVars;
 	vector < double> x, y, StartValue, Result;
-	char msg[1024];	
+	CSG_String	msg;	
 	
 	CSG_Parameters StartParameters;
 
-	const char *formel	=	Parameters("FORMEL")->asString();
+	const SG_Char *formel	=	Parameters("FORMEL")->asString();
 
-	Formel.Add_Function("NUG", (TSG_PFNC_Formula_1) NUG, 1, 0);
-	Formel.Add_Function("SPH", (TSG_PFNC_Formula_1) SPH, 2, 0);
-	Formel.Add_Function("EXP", (TSG_PFNC_Formula_1) EXP, 2, 0);
-    Formel.Add_Function("LIN", (TSG_PFNC_Formula_1) LIN, 2, 0);
+	Formel.Add_Function(SG_T("NUG"), (TSG_PFNC_Formula_1) NUG, 1, 0);
+	Formel.Add_Function(SG_T("SPH"), (TSG_PFNC_Formula_1) SPH, 2, 0);
+	Formel.Add_Function(SG_T("EXP"), (TSG_PFNC_Formula_1) EXP, 2, 0);
+    Formel.Add_Function(SG_T("LIN"), (TSG_PFNC_Formula_1) LIN, 2, 0);
 	
 	
 	Formel.Set_Formula(formel);
 	
 	
 	int Pos;
-	const char * ErrorMsg;
+	const SG_Char * ErrorMsg;
 	if (Formel.Get_Error(&Pos, &ErrorMsg))
 	{
-		sprintf(msg, _TL("Error at character #%d of the function: \n%s\n"), Pos, formel);
+		msg.Printf(_TL("Error at character #%d of the function: \n%s\n"), Pos, formel);
 		
 		Message_Add(msg);
 		
-		sprintf(msg, "\n%s\n", ErrorMsg);
+		msg.Printf(SG_T("\n%s\n"), ErrorMsg);
 		
 		Message_Add(msg);
 		
 		return false;
 	}
 	
-	const char *uservars = NULL;
+	const SG_Char *uservars = NULL;
 	
 	uservars = Formel.Get_Used_Var();
 	
 
 	NrVars	=	0;
-	for (i = 0; i < strlen(uservars); i++)
+	for (i = 0; i < SG_STR_LEN(uservars); i++)
 	{
 		if (uservars[i] >='a' && uservars[i] <= 'z')
 		{
@@ -258,12 +258,11 @@ bool CFit::On_Execute(void)
 	
 	vars[NrVars] =(char) 0;
 	
-	StartParameters.Add_Info_String(NULL, "", _TL("Formula"), _TL("Formula"), formel);
+	StartParameters.Add_Info_String(NULL, _TL(""), _TL("Formula"), _TL("Formula"), formel);
 	
 	for (i = 0; i < strlen(vars); i++)
 	{
-		char c[3];
-		sprintf(c, "%c", vars[i]);
+		CSG_String	c(vars[i]);
 		StartParameters.Add_Value(NULL, c, c, _TL("Start Value"), PARAMETER_TYPE_Double, 1.0);
 	}
 	
@@ -323,7 +322,7 @@ bool CFit::On_Execute(void)
 	{
 		if (E.Type == 1 || E.Type == 2)
 		{
-			sprintf(msg, _TL("Matrix signular\n"));
+			msg.Printf(_TL("Matrix signular\n"));
 			
 			Message_Add(msg);
 			
@@ -338,38 +337,38 @@ bool CFit::On_Execute(void)
 		Formel.Set_Variable(vars[i], (double) Result[i]);
 	}
 	
-	sprintf(msg, _TL("Model Parameters:"));
+	msg.Printf(_TL("Model Parameters:"));
 	Message_Add(msg);
 	for (i = 0; i < NrVars; i++)
 	{
-		sprintf(msg, "%c = %f\n", vars[i], Result[i]);
+		msg.Printf(SG_T("%c = %f\n"), vars[i], Result[i]);
 		Message_Add(msg);
 	}
 	
-	sprintf(msg, _TL("\nRMS  of Residuals (stdfit):\t%f\n"), sqrt(Fit->Chisq()/x.size()));
+	msg.Printf(_TL("\nRMS  of Residuals (stdfit):\t%f\n"), sqrt(Fit->Chisq()/x.size()));
 	Message_Add(msg);
 	
-	sprintf(msg, _TL("Correlation Matrix of the Fit Parameters:\n"));
+	msg.Printf(_TL("Correlation Matrix of the Fit Parameters:\n"));
 	Message_Add(msg);
 	
 	vector< vector < double> > covar = Fit->Covar();
 	
-	sprintf(msg, "");
+	msg.Printf(_TL(""));
 	for (j = 0; j < NrVars; j++)
-		sprintf(msg, "%s\t%c", msg, vars[j]);
+		msg.Printf(SG_T("%s\t%c"), msg, vars[j]);
 	
-	sprintf(msg, "%s\n", msg);
+	msg.Printf(SG_T("%s\n"), msg);
 	
 	Message_Add(msg);
 	
 	for (i = 0; i < NrVars; i++)
 	{
-		sprintf(msg, "%c", vars[i]);
+		msg.Printf(SG_T("%c"), vars[i]);
 		for (j = 0; j <= i; j++)
 		{	
-			sprintf(msg, "%s\t%f", msg, covar[i][j]/covar[i][i]);
+			msg.Printf(SG_T("%s\t%f"), msg, covar[i][j]/covar[i][i]);
 		}
-		sprintf(msg, "%s\n", msg);
+		msg.Printf(SG_T("%s\n"), msg);
 		
 		Message_Add(msg);
 	}

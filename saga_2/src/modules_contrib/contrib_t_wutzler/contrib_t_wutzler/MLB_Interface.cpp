@@ -62,24 +62,24 @@
 //---------------------------------------------------------
 // 2. Place general module library informations here...
 
-const char * Get_Info(int i)
+const SG_Char * Get_Info(int i)
 {
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return( "Contributions - T. Wutzler" );
+		return( _TL("Contributions - T. Wutzler") );
 
 	case MLB_INFO_Author:
-		return( "Thomas Wutzler (c) 2004" );
+		return( _TL("Thomas Wutzler (c) 2004") );
 
 	case MLB_INFO_Description:
-		return( "Contributions from Thomas Wutzler." );
+		return( _TL("Contributions from Thomas Wutzler.") );
 
 	case MLB_INFO_Version:
-		return( "1.0" );
+		return( SG_T("1.0") );
 
 	case MLB_INFO_Menu_Path:
-		return( "Contributions|T. Wutzler" );
+		return( _TL("Contributions|T. Wutzler") );
 	}
 }
 

@@ -74,7 +74,7 @@ CMorphometry::CMorphometry(void)
 
 	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Calculates local morphometric terrain attributes (i.e. slope, aspect and curvatures).\n\n"
 		"References:\n\n"
 
@@ -123,7 +123,7 @@ CMorphometry::CMorphometry(void)
 
 	Parameters.Add_Grid(
 		NULL	, "ELEVATION"	, _TL("Elevation"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
@@ -133,31 +133,31 @@ CMorphometry::CMorphometry(void)
 
 	Parameters.Add_Grid(
 		NULL	, "SLOPE"		, _TL("Slope"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "ASPECT"		, _TL("Aspect"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "CURV"		, _TL("Curvature"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "HCURV"		, _TL("Plan Curvature"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "VCURV"		, _TL("Profile Curvature"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
@@ -167,8 +167,8 @@ CMorphometry::CMorphometry(void)
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
-		"",
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|"),
 			_TL("Maximum Slope (Travis et al. 1975)"),
 			_TL("Maximum Triangle Slope (Tarboton 1997)"),
 			_TL("Least Squares Fit Plane (Costa-Cabral & Burgess 1996)"),
@@ -210,11 +210,11 @@ bool CMorphometry::On_Execute(void)
 
 	//-----------------------------------------------------
 	pSlope->Set_ZFactor	(M_RAD_TO_DEG);
-	pSlope->Set_Unit	("Degree");
+	pSlope->Set_Unit	(_TL("Degree"));
 	DataObject_Set_Colors(pSlope	, 100, SG_COLORS_YELLOW_RED);
 
 	pAspect->Set_ZFactor(M_RAD_TO_DEG);
-	pAspect->Set_Unit	("Degree");
+	pAspect->Set_Unit	(_TL("Degree"));
 	Colors.Set_Count(3);
 	Colors.Set_Color(0,	SG_GET_RGB(255, 255, 190));
 	Colors.Set_Color(1, SG_GET_RGB( 64,   0,   0));

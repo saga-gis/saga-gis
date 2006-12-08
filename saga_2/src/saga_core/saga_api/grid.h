@@ -99,23 +99,23 @@ typedef enum ESG_Grid_Type
 TSG_Grid_Type;
 
 //---------------------------------------------------------
-const char gSG_Grid_Type_Names[GRID_TYPE_Count][32]	=
+const SG_Char gSG_Grid_Type_Names[GRID_TYPE_Count][32]	=
 {
-	"ASCII",
-	"BYTE_UNSIGNED",
-	"BYTE",
-	"SHORTINT_UNSIGNED",
-	"SHORTINT",
-	"INTEGER_UNSIGNED",
-	"INTEGER",
-	"LONGINT",
-	"FLOAT",
-	"DOUBLE",
-	"BIT"
+	SG_T("ASCII"),
+	SG_T("BYTE_UNSIGNED"),
+	SG_T("BYTE"),
+	SG_T("SHORTINT_UNSIGNED"),
+	SG_T("SHORTINT"),
+	SG_T("INTEGER_UNSIGNED"),
+	SG_T("INTEGER"),
+	SG_T("LONGINT"),
+	SG_T("FLOAT"),
+	SG_T("DOUBLE"),
+	SG_T("BIT")
 };
 
 //---------------------------------------------------------
-const char gSG_Grid_Type_Sizes[GRID_TYPE_Count]	= 
+const SG_Char gSG_Grid_Type_Sizes[GRID_TYPE_Count]	= 
 {
 	0,
 	sizeof(BYTE),
@@ -185,28 +185,28 @@ typedef enum ESG_Grid_File_Key
 TSG_Grid_File_Key;
 
 //---------------------------------------------------------
-const char	gSG_Grid_File_Key_Names[GRID_FILE_KEY_Count][32]	=
+const SG_Char	gSG_Grid_File_Key_Names[GRID_FILE_KEY_Count][32]	=
 {
-	"NAME",
-	"DESCRIPTION",
-	"UNIT",
-	"DATAFILE_NAME",
-	"DATAFILE_OFFSET",
-	"DATAFORMAT",
-	"BYTEORDER_BIG",
-	"POSITION_XMIN",
-	"POSITION_YMIN",
-	"CELLCOUNT_X",
-	"CELLCOUNT_Y",
-	"CELLSIZE",
-	"Z_FACTOR",
-	"NODATA_VALUE",
-	"TOPTOBOTTOM"
+	SG_T("NAME"),
+	SG_T("DESCRIPTION"),
+	SG_T("UNIT"),
+	SG_T("DATAFILE_NAME"),
+	SG_T("DATAFILE_OFFSET"),
+	SG_T("DATAFORMAT"),
+	SG_T("BYTEORDER_BIG"),
+	SG_T("POSITION_XMIN"),
+	SG_T("POSITION_YMIN"),
+	SG_T("CELLCOUNT_X"),
+	SG_T("CELLCOUNT_Y"),
+	SG_T("CELLSIZE"),
+	SG_T("Z_FACTOR"),
+	SG_T("NODATA_VALUE"),
+	SG_T("TOPTOBOTTOM")
 };
 
 //---------------------------------------------------------
-#define GRID_FILE_KEY_TRUE		"TRUE"
-#define GRID_FILE_KEY_FALSE		"FALSE"
+#define GRID_FILE_KEY_TRUE		SG_T("TRUE")
+#define GRID_FILE_KEY_FALSE		SG_T("FALSE")
 
 
 ///////////////////////////////////////////////////////////
@@ -260,7 +260,7 @@ public:
 	//-----------------------------------------------------
 	bool						is_Valid			(void)	const;
 
-	const char *				Get_Name			(bool bShort = true);
+	const SG_Char *				Get_Name			(bool bShort = true);
 
 	double						Get_Cellsize		(void)	const	{	return( m_Cellsize );				}
 	double						Get_Cellarea		(void)	const	{	return( m_Cellarea );				}
@@ -403,8 +403,8 @@ public:		///////////////////////////////////////////////
 								CSG_Grid	(const CSG_Grid &Grid);
 	bool						Create		(const CSG_Grid &Grid);
 
-								CSG_Grid	(const char *File_Name, TSG_Grid_Type Type = GRID_TYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
-	bool						Create		(const char *File_Name, TSG_Grid_Type Type = GRID_TYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
+								CSG_Grid	(const SG_Char *File_Name, TSG_Grid_Type Type = GRID_TYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
+	bool						Create		(const SG_Char *File_Name, TSG_Grid_Type Type = GRID_TYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
 
 								CSG_Grid	(CSG_Grid *pGrid, TSG_Grid_Type Type = GRID_TYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
 	bool						Create		(CSG_Grid *pGrid, TSG_Grid_Type Type = GRID_TYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
@@ -435,11 +435,11 @@ public:		///////////////////////////////////////////////
 
 	int							Get_nValueBytes	(void)	const	{	return( gSG_Grid_Type_Sizes[m_Type] );	}
 
-	void						Set_Description	(const char *String);
-	const char *				Get_Description	(void)	const;
+	void						Set_Description	(const SG_Char *String);
+	const SG_Char *				Get_Description	(void)	const;
 
-	void						Set_Unit		(const char *String);
-	const char *				Get_Unit		(void)	const;
+	void						Set_Unit		(const SG_Char *String);
+	const SG_Char *				Get_Unit		(void)	const;
 
 	const CSG_Grid_System &		Get_System		(void)	const	{	return( m_System );					}
 
@@ -477,8 +477,8 @@ public:		///////////////////////////////////////////////
 
 	bool						Update_Statistics		(bool bEnforce = false);
 
-	virtual bool				Save	(const char *File_Name, int Format = GRID_FILE_FORMAT_Binary);
-	virtual bool				Save	(const char *File_Name, int Format, int xA, int yA, int xN, int yN);
+	virtual bool				Save	(const SG_Char *File_Name, int Format = GRID_FILE_FORMAT_Binary);
+	virtual bool				Save	(const SG_Char *File_Name, int Format, int xA, int yA, int xN, int yN);
 
 
 	//-----------------------------------------------------
@@ -764,7 +764,7 @@ private:	///////////////////////////////////////////////
 								m_ArithMean, m_Variance,
 								m_NoData_Value, m_NoData_hiValue;
 
-	FILE						*Cache_Stream;
+	CSG_File					Cache_Stream;
 
 	TSG_Grid_Type				m_Type;
 
@@ -818,7 +818,7 @@ private:	///////////////////////////////////////////////
 	bool						_Array_Create			(void);
 	void						_Array_Destroy			(void);
 
-	bool						_Cache_Create			(const char *FilePath, TSG_Grid_Type File_Type, long Offset, bool bSwap, bool bFlip);
+	bool						_Cache_Create			(const SG_Char *FilePath, TSG_Grid_Type File_Type, long Offset, bool bSwap, bool bFlip);
 	bool						_Cache_Create			(void);
 	bool						_Cache_Destroy			(bool bMemory_Restore);
 	void						_Cache_LineBuffer_Save	(TSG_Grid_Line *pLine)			const;
@@ -835,18 +835,18 @@ private:	///////////////////////////////////////////////
 
 	void						_Swap_Bytes				(char *Bytes, int nBytes)			const;
 
-	bool						_Load					(const char *File_Name, TSG_Grid_Type m_Type, TSG_Grid_Memory_Type aMemory_Type);
+	bool						_Load					(const SG_Char *File_Name, TSG_Grid_Type m_Type, TSG_Grid_Memory_Type aMemory_Type);
 
-	bool						_Load_Binary			(FILE *Stream, TSG_Grid_Type File_Type, bool bFlip, bool bSwapBytes);
-	bool						_Save_Binary			(FILE *Stream, int xA, int yA, int xN, int yN, TSG_Grid_Type File_Type, bool bFlip, bool bSwapBytes);
-	bool						_Load_ASCII				(FILE *Stream, TSG_Grid_Memory_Type aMemory_Type, bool bFlip = false);
-	bool						_Save_ASCII				(FILE *Stream, int xA, int yA, int xN, int yN, bool bFlip = false);
-	bool						_Load_Native			(const char *File_Header, TSG_Grid_Memory_Type aMemory_Type);
-	bool						_Save_Native			(const char *File_Header, int xA, int yA, int xN, int yN, bool bBinary = true);
+	bool						_Load_Binary			(CSG_File &Stream, TSG_Grid_Type File_Type, bool bFlip, bool bSwapBytes);
+	bool						_Save_Binary			(CSG_File &Stream, int xA, int yA, int xN, int yN, TSG_Grid_Type File_Type, bool bFlip, bool bSwapBytes);
+	bool						_Load_ASCII				(CSG_File &Stream, TSG_Grid_Memory_Type aMemory_Type, bool bFlip = false);
+	bool						_Save_ASCII				(CSG_File &Stream, int xA, int yA, int xN, int yN, bool bFlip = false);
+	bool						_Load_Native			(const SG_Char *File_Header, TSG_Grid_Memory_Type aMemory_Type);
+	bool						_Save_Native			(const SG_Char *File_Header, int xA, int yA, int xN, int yN, bool bBinary = true);
 
-	int							_Load_Native_Get_Key	(FILE *Stream, CSG_String &Line);
+	int							_Load_Native_Get_Key	(CSG_File &Stream, CSG_String &Line);
 
-	bool						_Load_Surfer			(const char *File_Name, TSG_Grid_Memory_Type aMemory_Type);
+	bool						_Load_Surfer			(const SG_Char *File_Name, TSG_Grid_Memory_Type aMemory_Type);
 
 	//-----------------------------------------------------
 	CSG_Grid &					_Operation_Arithmetic	(const CSG_Grid &Grid, TSG_Grid_Operation Operation);
@@ -886,7 +886,7 @@ SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(void);
 SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(const CSG_Grid &Grid);
 
 /** Safe grid construction */
-SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(const char *FileName, TSG_Grid_Type Type = GRID_TYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
+SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(const SG_Char *FileName, TSG_Grid_Type Type = GRID_TYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
 
 /** Safe grid construction */
 SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(CSG_Grid *pGrid, TSG_Grid_Type Type = GRID_TYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
@@ -899,10 +899,10 @@ SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(TSG_Grid_Type Type, int NX, int
 
 //---------------------------------------------------------
 /** Get default directory for grid caching */
-SAGA_API_DLL_EXPORT const char *	SG_Grid_Cache_Get_Directory		(void);
+SAGA_API_DLL_EXPORT const SG_Char *	SG_Grid_Cache_Get_Directory		(void);
 
 /** Set default directory for grid caching */
-SAGA_API_DLL_EXPORT void			SG_Grid_Cache_Set_Directory		(const char *Directory);
+SAGA_API_DLL_EXPORT void			SG_Grid_Cache_Set_Directory		(const SG_Char *Directory);
 
 SAGA_API_DLL_EXPORT void			SG_Grid_Cache_Set_Automatic		(bool bOn);
 SAGA_API_DLL_EXPORT bool			SG_Grid_Cache_Get_Automatic		(void);

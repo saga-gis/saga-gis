@@ -78,7 +78,7 @@ public:
 	CPROJ4_Shapes(void);
 	virtual ~CPROJ4_Shapes(void);
 
-	virtual const char *	Get_MenuPath			(void)	{	return( "R:Shapes" );	}
+	virtual const SG_Char *	Get_MenuPath			(void)	{	return( _TL("R:Shapes") );	}
 
 
 protected:

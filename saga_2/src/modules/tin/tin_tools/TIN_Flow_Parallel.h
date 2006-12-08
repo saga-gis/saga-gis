@@ -78,7 +78,7 @@ public:
 	CTIN_Flow_Parallel(void);
 	virtual ~CTIN_Flow_Parallel(void);
 
-	virtual const char *		Get_MenuPath	(void)	{	return( _TL("R:Terrain Analysis") );	}
+	virtual const SG_Char *		Get_MenuPath	(void)	{	return( _TL("R:Terrain Analysis") );	}
 
 
 protected:

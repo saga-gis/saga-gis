@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="saga_cmd"
-	ProjectGUID="{BFC0F503-D669-4689-B89F-EB8841399D46}"
+	ProjectGUID="{2C30DA1F-994C-4358-91C1-217C38BB375F}"
 	>
 	<Platforms>
 		<Platform
@@ -13,6 +13,101 @@
 	<ToolFiles>
 	</ToolFiles>
 	<Configurations>
+		<Configuration
+			Name="Unicode Debug|Win32"
+			OutputDirectory=".\./../../../bin/saga_vc8_u_dbg"
+			IntermediateDirectory=".\./../../../bin/tmp/saga_vc8_u_dbg/saga_cmd"
+			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName=".\./../../../bin/saga_vc8_u_dbg/saga_cmd.tlb"
+				HeaderFileName=""
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHsc "
+				Optimization="0"
+				AdditionalIncludeDirectories="./..,$(WXWIN)/include,$(WXWIN)/lib/vc_lib/mswud"
+				PreprocessorDefinitions="_CONSOLE;wxUSE_GUI=0;WIN32;_DEBUG;__WXMSW__;__WXDEBUG__;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				RuntimeTypeInfo="true"
+				PrecompiledHeaderFile=".\./../../../bin/tmp/saga_vc8_u_dbg/saga_cmd/saga_cmd.pch"
+				AssemblerListingLocation=".\./../../../bin/tmp/saga_vc8_u_dbg/saga_cmd/"
+				ObjectFile=".\./../../../bin/tmp/saga_vc8_u_dbg/saga_cmd/"
+				ProgramDataBaseFileName="./../../../bin/tmp/saga_vc8_dbg/saga_cmd/saga_cmd.pdb"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				DebugInformationFormat="4"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG,__WXMSW__,__WXDEBUG__,_CONSOLE,wxUSE_GUI=0"
+				Culture="1033"
+				AdditionalIncludeDirectories=".\..\..\include;.\..\..\lib\vc_lib\mswd;."
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="wxbase28ud.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib"
+				OutputFile=".\./../../../bin/saga_vc8_u_dbg/saga_cmd.exe"
+				LinkIncremental="2"
+				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="$(WXWIN)/lib/vc_lib"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile=".\./../../../bin/saga_vc8_u_dbg/saga_cmd.pdb"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+				SuppressStartupBanner="true"
+				OutputFile=".\./../../../bin/saga_vc8_u_dbg/saga_cmd.bsc"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory=".\./../../../bin/saga_vc8"
@@ -44,8 +139,8 @@
 				AdditionalOptions="/EHsc "
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="$(SAGA)/src/saga_core,$(WXWIN)/include,$(WXWIN)/lib/vc_lib/msw"
-				PreprocessorDefinitions="WIN32;__WXMSW__;_CONSOLE;wxUSE_GUI=0;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_CRT_SECURE_NO_DEPRECATE"
+				AdditionalIncludeDirectories="./..,$(WXWIN)/include,$(WXWIN)/lib/vc_lib/msw"
+				PreprocessorDefinitions="WIN32;__WXMSW__;_CONSOLE;wxUSE_GUI=0;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -71,7 +166,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxbase28.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib"
+				AdditionalDependencies="wxbase28.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib"
 				OutputFile=".\./../../../bin/saga_vc8/saga_cmd.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -136,8 +231,8 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/EHsc "
 				Optimization="0"
-				AdditionalIncludeDirectories="$(SAGA)/src/saga_core,$(WXWIN)/include,$(WXWIN)/lib/vc_lib/mswd"
-				PreprocessorDefinitions="WIN32;_DEBUG;__WXMSW__;__WXDEBUG__;_CONSOLE;wxUSE_GUI=0;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_CRT_SECURE_NO_DEPRECATE"
+				AdditionalIncludeDirectories="./..,$(WXWIN)/include,$(WXWIN)/lib/vc_lib/mswd"
+				PreprocessorDefinitions="WIN32;_DEBUG;__WXMSW__;__WXDEBUG__;_CONSOLE;wxUSE_GUI=0;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -164,7 +259,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxbase28d.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib"
+				AdditionalDependencies="wxbase28d.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib"
 				OutputFile=".\./../../../bin/saga_vc8_dbg/saga_cmd.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -200,6 +295,100 @@
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
+		<Configuration
+			Name="Unicode Release|Win32"
+			OutputDirectory=".\./../../../bin/saga_vc8_u"
+			IntermediateDirectory=".\./../../../bin/tmp/saga_vc8_u/saga_cmd"
+			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName=".\./../../../bin/saga_vc8_u/saga_cmd.tlb"
+				HeaderFileName=""
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHsc "
+				Optimization="2"
+				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="./..,$(WXWIN)/include,$(WXWIN)/lib/vc_lib/mswu"
+				PreprocessorDefinitions="_CONSOLE;wxUSE_GUI=0;WIN32;__WXMSW__;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW"
+				StringPooling="true"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
+				RuntimeTypeInfo="true"
+				PrecompiledHeaderFile=".\./../../../bin/tmp/saga_vc8_u/saga_cmd/saga_cmd.pch"
+				AssemblerListingLocation=".\./../../../bin/tmp/saga_vc8_u/saga_cmd/"
+				ObjectFile=".\./../../../bin/tmp/saga_vc8_u/saga_cmd/"
+				ProgramDataBaseFileName="./../../../bin/tmp/saga_vc8/saga_cmd/saga_cmd.pdb"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="__WXMSW__,_CONSOLE,wxUSE_GUI=0"
+				Culture="1033"
+				AdditionalIncludeDirectories=".\..\..\include;.\..\..\lib\vc_lib\msw;."
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="wxbase28u.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib"
+				OutputFile=".\./../../../bin/saga_vc8_u/saga_cmd.exe"
+				LinkIncremental="1"
+				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="$(WXWIN)/lib/vc_lib"
+				ProgramDatabaseFile=".\./../../../bin/saga_vc8_u/saga_cmd.pdb"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+				SuppressStartupBanner="true"
+				OutputFile=".\./../../../bin/saga_vc8_u/saga_cmd.bsc"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -211,6 +400,15 @@
 				RelativePath="callback.cpp"
 				>
 				<FileConfiguration
+					Name="Unicode Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					>
 					<Tool
@@ -221,6 +419,15 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Unicode Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -233,6 +440,15 @@
 				RelativePath="module_library.cpp"
 				>
 				<FileConfiguration
+					Name="Unicode Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					>
 					<Tool
@@ -243,6 +459,15 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Unicode Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -255,6 +480,15 @@
 				RelativePath="saga_cmd.cpp"
 				>
 				<FileConfiguration
+					Name="Unicode Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					>
 					<Tool
@@ -265,6 +499,15 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Unicode Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"

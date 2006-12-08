@@ -79,7 +79,7 @@ CUSGS_SRTM_Import::CUSGS_SRTM_Import(void)
 
 	Set_Author(_TL("Copyrights (c) 2004 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Import grid from USGS SRTM (Shuttle Radar Topography Mission) data.\n"
 
 		"You find data and further information at:\n"
@@ -105,21 +105,23 @@ CUSGS_SRTM_Import::CUSGS_SRTM_Import(void)
 
 	Parameters.Add_Grid_Output(
 		NULL	, "GRID"	, _TL("Grid"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_FilePath(
 		NULL	, "FILE"		, _TL("File"),
-		"",
+		_TL(""),
 		_TL("USGS SRTM Grids (*.hgt)|*.hgt|All Files|*.*")
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "RESOLUTION"	, _TL("Resolution"),
-		"",
-		_TL(
-		"1 arc-second|"
-		"3 arc-second|"),	1
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("1 arc-second"),
+			_TL("3 arc-second")
+		), 1
 	);
 }
 
@@ -135,7 +137,7 @@ bool CUSGS_SRTM_Import::On_Execute(void)
 	double		xMin, yMin, D;
 	FILE		*Stream;
 	CSG_String	fName;
-	CSG_Grid		*pGrid;
+	CSG_Grid	*pGrid;
 
 	//-----------------------------------------------------
 	pGrid	= NULL;
@@ -144,8 +146,8 @@ bool CUSGS_SRTM_Import::On_Execute(void)
 	fName	= SG_File_Get_Name(Parameters("FILE")->asString(), false);
 	fName.Make_Upper();
 
-	yMin	= (fName[0] == 'N' ?  1.0 : -1.0) * atoi(fName.c_str() + 1);
-	xMin	= (fName[3] == 'W' ? -1.0 :  1.0) * atoi(fName.c_str() + 4);
+	yMin	= (fName[0] == 'N' ?  1.0 : -1.0) * fName.Right(0).asInt();
+	xMin	= (fName[3] == 'W' ? -1.0 :  1.0) * fName.Right(3).asInt();
 
 	//-----------------------------------------------------
 	switch( Parameters("RESOLUTION")->asInt() )
@@ -165,7 +167,9 @@ bool CUSGS_SRTM_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( (Stream = fopen(Parameters("FILE")->asString(), "rb")) != NULL )
+	fName	= Parameters("FILE")->asString();
+
+	if( (Stream = fopen(fName.b_str(), "rb")) != NULL )
 	{
 		if( (pGrid = SG_Create_Grid(GRID_TYPE_Float, N, N, D, xMin, yMin)) != NULL )
 		{

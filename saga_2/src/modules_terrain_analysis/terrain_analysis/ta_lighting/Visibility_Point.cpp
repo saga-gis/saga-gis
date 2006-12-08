@@ -75,18 +75,18 @@ CVisibility_Point::CVisibility_Point(void)
 	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
 	Set_Description(
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "ELEVATION"	, _TL("Elevation"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "VISIBILITY"	, _TL("Visibility"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
@@ -98,12 +98,14 @@ CVisibility_Point::CVisibility_Point(void)
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Unit"),
-		"",
-		_TL(
-		"Visibility|"
-		"Shade|"
-		"Distance|"
-		"Size|"), 1
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("Visibility"),
+			_TL("Shade"),
+			_TL("Distance"),
+			_TL("Size")
+		), 1
 	);
 }
 

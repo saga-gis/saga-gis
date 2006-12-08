@@ -73,13 +73,13 @@ CGrid_Completion::CGrid_Completion(void)
 	//-----------------------------------------------------
 	// 1. Info...
 
-	Set_Name(_TL("Patching"));
+	Set_Name		(_TL("Patching"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
-		"Fill gaps of a grid with data from another grid. ")
-	);
+	Set_Description	(_TW(
+		"Fill gaps of a grid with data from another grid. "
+	));
 
 
 	//-----------------------------------------------------
@@ -87,26 +87,26 @@ CGrid_Completion::CGrid_Completion(void)
 
 	Parameters.Add_Grid(
 		NULL	, "ORIGINAL"		, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "ADDITIONAL"		, _TL("Patch Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT, false
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "COMPLETED"		, _TL("Completed Grid"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "INTERPOLATION"	, _TL("Interpolation Method"),
-		"",
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("Nearest Neighbor"),
 			_TL("Bilinear Interpolation"),
 			_TL("Inverse Distance Interpolation"),

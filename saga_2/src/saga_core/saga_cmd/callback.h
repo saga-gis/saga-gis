@@ -87,11 +87,11 @@ void					Set_Library		(class CModule_Library *pLibrary);
 void					Set_Silent		(bool bOn);
 
 void					Get_Pause		(void);
-bool					Get_YesNo		(const char *caption, const char *message);
+bool					Get_YesNo		(const SG_Char *caption, const SG_Char *message);
 
 //---------------------------------------------------------
-void					Print_Error		(const char *Error);
-void					Print_Error		(const char *Error, const char *Info);
+void					Print_Error		(const SG_Char *Error);
+void					Print_Error		(const SG_Char *Error, const SG_Char *Info);
 
 
 ///////////////////////////////////////////////////////////

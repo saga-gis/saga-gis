@@ -73,7 +73,7 @@ public:
 	CUSGS_SRTM_Import(void);
 	virtual ~CUSGS_SRTM_Import(void);
 
-	virtual const char *	Get_MenuPath(void)				{	return( _TL("R:Import") );	}
+	virtual const SG_Char *	Get_MenuPath(void)				{	return( _TL("R:Import") );	}
 
 
 protected:

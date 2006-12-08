@@ -78,7 +78,7 @@ CExercise_10::CExercise_10(void)
 
 	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Conway's game of life. A cellular automate.\n"
 		"(c) 2003 by Olaf Conrad, Goettingen\n"
 		"email: oconrad@gwdg.de")
@@ -90,19 +90,19 @@ CExercise_10::CExercise_10(void)
 
 	Parameters.Add_Grid(
 		NULL, "RESULT"		, _TL("Life"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT, true, GRID_TYPE_Byte
 	);
 
 	Parameters.Add_Value(
 		NULL, "REFRESH"		, _TL("Refresh"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Bool, true
 	);
 
 	Parameters.Add_Value(
 		NULL, "COLORS"		, _TL("Fade Color Count"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 64, 3, true, 255, true
 	);
 }
@@ -163,11 +163,11 @@ bool CExercise_10::On_Execute(void)
 
 	for(i=1, bAlive=true; bAlive && Process_Get_Okay(true); i++)
 	{
-		Process_Set_Text(CSG_String::Format("%d %s", i, _TL("Life Cycle")));
+		Process_Set_Text(CSG_String::Format(SG_T("%d %s"), i, _TL("Life Cycle")));
 
 		if( (bAlive = Next_Step()) == false )
 		{
-			Message_Add(CSG_String::Format("%s %d %s\n", _TL("Dead after"), i, _TL("Life Cycles")));
+			Message_Add(CSG_String::Format(SG_T("%s %d %s\n"), _TL("Dead after"), i, _TL("Life Cycles")));
 		}
 	}
 

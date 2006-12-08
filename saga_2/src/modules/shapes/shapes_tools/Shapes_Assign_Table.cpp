@@ -79,9 +79,9 @@ CShapes_Assign_Table::CShapes_Assign_Table(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Assign a Table to Shapes"));
 
-	Set_Author		("Copyrights (c) 2003 by Olaf Conrad");
+	Set_Author		(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"Assigns a table to a shapes layer."
 	));
 
@@ -89,29 +89,29 @@ CShapes_Assign_Table::CShapes_Assign_Table(void)
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES"		, _TL("Shapes"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table_Field(
 		pNode	, "SHAPES_ID"	, _TL("Identifier"),
-		""
+		_TL("")
 	);
 
 	pNode	= Parameters.Add_Table(
 		NULL	, "TABLE"		, _TL("Table"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table_Field(
 		pNode	, "TABLE_ID"	, _TL("Identifier"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Shapes(
 		NULL	, "SHAPES_OUT"	, _TL("Resulting Shapes"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
@@ -119,9 +119,9 @@ CShapes_Assign_Table::CShapes_Assign_Table(void)
 	//-----------------------------------------------------
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Attributes"),
-		"",
+		_TL(""),
 
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("append"),
 			_TL("replace")
 		)
@@ -129,9 +129,9 @@ CShapes_Assign_Table::CShapes_Assign_Table(void)
 
 	Parameters.Add_Choice(
 		NULL	, "ADDALL"		, _TL("Copy Rule"),
-		"",
+		_TL(""),
 
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("all shapes"),
 			_TL("only shapes with table entry")
 		)
@@ -182,7 +182,7 @@ bool CShapes_Assign_Table::On_Execute(void)
 
 		if( Method == METHOD_ADD )
 		{
-			pShapes_B->Create(pShapes_A->Get_Type(), CSG_String::Format("%s / %s", pShapes_A->Get_Name(), pTable_A->Get_Name()), &pShapes_A->Get_Table());
+			pShapes_B->Create(pShapes_A->Get_Type(), CSG_String::Format(SG_T("%s / %s"), pShapes_A->Get_Name(), pTable_A->Get_Name()), &pShapes_A->Get_Table());
 			off_Field	= pShapes_A->Get_Table().Get_Field_Count();
 
 			for(iField=0; iField<pTable_A->Get_Field_Count(); iField++)
@@ -193,7 +193,7 @@ bool CShapes_Assign_Table::On_Execute(void)
 		}
 		else	//  METHOD_REPLACE
 		{
-			pShapes_B->Create(pShapes_A->Get_Type(), CSG_String::Format("%s / %s", pShapes_A->Get_Name(), pTable_A->Get_Name()), pTable_A);
+			pShapes_B->Create(pShapes_A->Get_Type(), CSG_String::Format(SG_T("%s / %s"), pShapes_A->Get_Name(), pTable_A->Get_Name()), pTable_A);
 			off_Field	= 0;
 		}
 

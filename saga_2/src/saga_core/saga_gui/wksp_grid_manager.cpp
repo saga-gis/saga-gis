@@ -103,7 +103,7 @@ wxString CWKSP_Grid_Manager::Get_Description(void)
 {
 	wxString	s;
 
-	s.Printf("<b>%s</b><br>%d %s", LNG("[CAP] Grids"), Get_Count(), Get_Count() == 1 ? LNG("[TXT] grid system") : LNG("[TXT] grid systems"));
+	s.Printf(wxT("<b>%s</b><br>%d %s"), LNG("[CAP] Grids"), Get_Count(), Get_Count() == 1 ? LNG("[TXT] grid system") : LNG("[TXT] grid systems"));
 
 	return( s );
 }
@@ -234,7 +234,7 @@ CWKSP_Grid * CWKSP_Grid_Manager::Add(CSG_Grid *pGrid)
 }
 
 //---------------------------------------------------------
-CSG_Grid * CWKSP_Grid_Manager::Get_byFileName(const char *File_Name)
+CSG_Grid * CWKSP_Grid_Manager::Get_byFileName(const wxChar *File_Name)
 {
 	CSG_String	s(File_Name);
 

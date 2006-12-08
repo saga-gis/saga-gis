@@ -75,7 +75,7 @@ CTable_Create_Empty::CTable_Create_Empty(void)
 
 	Set_Author		(_TL("Copyrights (c) 2005 by Olaf Conrad"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"Creates a new empty table."
 	));
 
@@ -83,19 +83,19 @@ CTable_Create_Empty::CTable_Create_Empty(void)
 	//-----------------------------------------------------
 	Parameters.Add_Table(
 		NULL	, "TABLE"	, _TL("Table"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_String(
 		NULL	, "NAME"	, _TL("Name"),
-		"",
+		_TL(""),
 		_TL("New table")
 	);
 
 	Parameters.Add_Value(
 		NULL	, "FIELDS"	, _TL("Number of Fields"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 1, 1, true
 	);
 }
@@ -114,9 +114,9 @@ CTable_Create_Empty::~CTable_Create_Empty(void)
 //---------------------------------------------------------
 bool CTable_Create_Empty::On_Execute(void)
 {
-	int					iField, nFields, iType;
+	int						iField, nFields, iType;
 	TSG_Table_Field_Type	Type;
-	CSG_String			Name, Types, s;
+	CSG_String				Name, Types, s;
 	CSG_Table				*pTable;
 	CSG_Parameters			P;
 	CSG_Parameter			*pNode;
@@ -126,27 +126,27 @@ bool CTable_Create_Empty::On_Execute(void)
 	Name	= Parameters("NAME")	->asString();
 	pTable	= Parameters("TABLE")	->asTable();
 
-	Types.Printf("%s|%s|%s|%s|%s|%s|%s|",
-		LNG("character string"),
-		LNG("1 byte integer"),
-		LNG("2 byte integer"),
-		LNG("4 byte integer"),
-		LNG("4 byte floating point"),
-		LNG("8 byte floating point"),
-		LNG("color (rgb)")
+	Types.Printf(SG_T("%s|%s|%s|%s|%s|%s|%s|"),
+		_TL("character string"),
+		_TL("1 byte integer"),
+		_TL("2 byte integer"),
+		_TL("4 byte integer"),
+		_TL("4 byte floating point"),
+		_TL("8 byte floating point"),
+		_TL("color (rgb)")
 	);
 
 	P.Set_Name(_TL("Field Properties"));
 
 	for(iField=1; iField<=nFields; iField++)
 	{
-		s.Printf("NODE_%03d", iField);
-		pNode	= P.Add_Node(NULL, s, CSG_String::Format("%d. %s", iField, _TL("Field")), "");
+		s.Printf(SG_T("NODE_%03d") , iField);
+		pNode	= P.Add_Node(NULL, s, CSG_String::Format(SG_T("%d. %s"), iField, _TL("Field")), _TL(""));
 
-		s.Printf("FIELD_%03d", iField);
+		s.Printf(SG_T("FIELD_%03d"), iField);
 		P.Add_String(pNode, s, _TL("Name"), _TL(""), s);
 
-		s.Printf("TYPE_%03d" , iField);
+		s.Printf(SG_T("TYPE_%03d") , iField);
 		P.Add_Choice(pNode, s, _TL("Type"), _TL(""), Types);
 	}
 
@@ -157,8 +157,8 @@ bool CTable_Create_Empty::On_Execute(void)
 
 		for(iField=0; iField<nFields; iField++)
 		{
-			Name	= P(CSG_String::Format("FIELD_%03d", iField + 1).c_str())->asString();
-			iType	= P(CSG_String::Format("TYPE_%03d" , iField + 1).c_str())->asInt();
+			Name	= P(CSG_String::Format(SG_T("FIELD_%03d"), iField + 1).c_str())->asString();
+			iType	= P(CSG_String::Format(SG_T("TYPE_%03d" ), iField + 1).c_str())->asInt();
 
 			switch( iType )
 			{

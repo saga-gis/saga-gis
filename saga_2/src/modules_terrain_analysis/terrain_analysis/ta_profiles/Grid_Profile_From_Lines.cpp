@@ -74,13 +74,13 @@ CGrid_Profile_From_Lines::CGrid_Profile_From_Lines(void)
 
 	Set_Author		(_TL("Copyrights (c) 2006 by Olaf Conrad"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"Create profiles from a grid based DEM for each line of a lines layer. "
 	));
 
 	Parameters.Add_Grid(
 		NULL, "DEM"			, _TL("DEM"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
@@ -92,25 +92,25 @@ CGrid_Profile_From_Lines::CGrid_Profile_From_Lines(void)
 
 	Parameters.Add_Shapes(
 		NULL, "LINES"		, _TL("Lines"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Line
 	);
 
 	Parameters.Add_Shapes(
 		NULL, "PROFILE"		, _TL("Profiles"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Shapes_List(
 		NULL, "PROFILES"	, _TL("Profiles"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Value(
 		NULL, "SPLIT"		, _TL("Each Line as new Profile"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Bool, false
 	);
 }
@@ -145,7 +145,7 @@ bool CGrid_Profile_From_Lines::On_Execute(void)
 			Parameters("PROFILE")->Set_Value(m_pProfile = SG_Create_Shapes(SHAPE_TYPE_Point));
 		}
 
-		Name.Printf("%s [%s]", _TL("Profile"), m_pDEM->Get_Name());
+		Name.Printf(SG_T("%s [%s]"), _TL("Profile"), m_pDEM->Get_Name());
 		Init_Profile(m_pProfile, Name);
 
 		for(iLine=0; iLine<m_pLines->Get_Count() && Set_Progress(iLine, m_pLines->Get_Count()); iLine++)
@@ -163,7 +163,7 @@ bool CGrid_Profile_From_Lines::On_Execute(void)
 
 		for(iLine=0; iLine<m_pLines->Get_Count() && Set_Progress(iLine, m_pLines->Get_Count()); iLine++)
 		{
-			Name.Printf("%s [%d, %s]", _TL("Profile"), iLine, m_pDEM->Get_Name());
+			Name.Printf(SG_T("%s [%d, %s]"), _TL("Profile"), iLine, m_pDEM->Get_Name());
 			Init_Profile(m_pProfile = SG_Create_Shapes(), Name);
 
 			Set_Profile(iLine, m_pLines->Get_Shape(iLine));
@@ -199,7 +199,7 @@ enum
 };
 
 //---------------------------------------------------------
-bool CGrid_Profile_From_Lines::Init_Profile(CSG_Shapes *pPoints, const char *Name)
+bool CGrid_Profile_From_Lines::Init_Profile(CSG_Shapes *pPoints, const SG_Char *Name)
 {
 	if( pPoints )
 	{

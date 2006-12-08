@@ -74,7 +74,7 @@ CGrid_Normalise::CGrid_Normalise(void)
 
 	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description(_TW(
 		"Normalise the values of a grid. "
 		"The arithmetic mean and the standard deviation is calculated based on "
 		"all grid cell values to create a grid with normalised values. ")
@@ -82,20 +82,20 @@ CGrid_Normalise::CGrid_Normalise(void)
 
 	Parameters.Add_Grid(
 		NULL	, "INPUT"	,_TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "OUTPUT"	, _TL("Normalised Grid"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"	, _TL("Method"),
-		"",
-		CSG_String::Format("%s|%s|", _TL("Standard Deviation"), _TL("(0.0 < x < 1.0)"))
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"), _TL("Standard Deviation"), _TL("(0.0 < x < 1.0)"))
 	);
 }
 
@@ -126,7 +126,7 @@ bool CGrid_Normalise::On_Execute(void)
 		pOutput->Assign(pInput);
 	}
 
-	pOutput->Set_Name(CSG_String::Format("%s (%s)", pInput->Get_Name(), _TL("Grid_Normalised")));
+	pOutput->Set_Name(CSG_String::Format(SG_T("%s (%s)"), pInput->Get_Name(), _TL("Grid_Normalised")));
 
 	//-----------------------------------------------------
 	switch( Parameters("METHOD")->asInt() )

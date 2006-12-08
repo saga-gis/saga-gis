@@ -82,7 +82,7 @@ CGeoref_Grid::CGeoref_Grid(void)
 
 	Set_Author		(_TL("(c) 2004 Ringeler, (c) 2006 O.Conrad"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"Georeferencing of grids. Either choose the attribute fields (x/y) "
 		"with the projected coordinates for the reference points (origin) or supply a "
 		"additional points layer with correspondend points in the target projection. "
@@ -102,51 +102,51 @@ CGeoref_Grid::CGeoref_Grid(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid_Output(
 		NULL	, "GRID"	, _TL("Grid"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Shapes_Output(
 		NULL	, "SHAPES"	, _TL("Shapes"),
-		""
+		_TL("")
 	);
 
 
 	CSG_Parameter	*pSource	= Parameters.Add_Shapes(
 		NULL	, "REF_SOURCE"	, _TL("Reference Points (Origin)"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
 		NULL	, "REF_TARGET"	, _TL("Reference Points (Projection)"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Table_Field(
 		pSource	, "XFIELD"		, _TL("x Position"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Table_Field(
 		pSource	, "YFIELD"		, _TL("y Position"),
-		""
+		_TL("")
 	);
 
 
 	Parameters.Add_Grid(
 		Parameters("SOURCE_NODE"),
 		"SOURCE"		, _TL("Source"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Choice(
 		Parameters("TARGET_NODE"),
 		"TARGET_TYPE"	, _TL("Target"),
-		"",
+		_TL(""),
 
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("User defined"),
 			_TL("Automatic fit"),
 			_TL("Grid Project"),
@@ -157,9 +157,9 @@ CGeoref_Grid::CGeoref_Grid(void)
 
 	Parameters.Add_Choice(
 		Parameters("TARGET_NODE")	, "INTERPOLATION"	, _TL("Grid Interpolation"),
-		"",
+		_TL(""),
 
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("Nearest Neigbhor"),
 			_TL("Bilinear Interpolation"),
 			_TL("Inverse Distance Interpolation"),
@@ -170,16 +170,16 @@ CGeoref_Grid::CGeoref_Grid(void)
 
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_AUTOFIT"	, _TL("Automatic fit")	, "");
+	pParameters	= Add_Parameters("GET_AUTOFIT"	, _TL("Automatic fit")	, _TL(""));
 
 	pParameters->Add_Value(
-		NULL, "GRIDSIZE"	, _TL("Grid Size")	, "", PARAMETER_TYPE_Double, 10000.0, 0.0, true
+		NULL, "GRIDSIZE"	, _TL("Grid Size")	, _TL(""), PARAMETER_TYPE_Double, 10000.0, 0.0, true
 	);
 
 	pParameters->Add_Choice(
-		NULL, "AUTOEXTMODE"	, _TL("Fit Size")	, "",
+		NULL, "AUTOEXTMODE"	, _TL("Fit Size")	, _TL(""),
 
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Extent only (fast)"),
 			_TL("Check each point")
 		), 0
@@ -187,53 +187,53 @@ CGeoref_Grid::CGeoref_Grid(void)
 
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_USER"		, _TL("User defined")		, "");
+	pParameters	= Add_Parameters("GET_USER"		, _TL("User defined")		, _TL(""));
 
 	pParameters->Add_Value(
-		NULL, "XMIN"		, _TL("Left")		, "", PARAMETER_TYPE_Double
+		NULL, "XMIN"		, _TL("Left")		, _TL(""), PARAMETER_TYPE_Double
 	);
 	pParameters->Add_Value(
-		NULL, "XMAX"		, _TL("Right")		, "", PARAMETER_TYPE_Double
+		NULL, "XMAX"		, _TL("Right")		, _TL(""), PARAMETER_TYPE_Double
 	);
 	pParameters->Add_Value(
-		NULL, "YMIN"		, _TL("Bottom")		, "", PARAMETER_TYPE_Double
+		NULL, "YMIN"		, _TL("Bottom")		, _TL(""), PARAMETER_TYPE_Double
 	);
 	pParameters->Add_Value(
-		NULL, "YMAX"		, _TL("Top")		, "", PARAMETER_TYPE_Double
+		NULL, "YMAX"		, _TL("Top")		, _TL(""), PARAMETER_TYPE_Double
 	);
 
 	pParameters->Add_Value(
-		NULL, "SIZE"		, _TL("Grid Size")	, "", PARAMETER_TYPE_Double, 10000.0, 0.0, true
+		NULL, "SIZE"		, _TL("Grid Size")	, _TL(""), PARAMETER_TYPE_Double, 10000.0, 0.0, true
 	);
 
 	pParameters->Add_Info_Value(
-		NULL, "NX"			, _TL("Columns")	, "", PARAMETER_TYPE_Int
+		NULL, "NX"			, _TL("Columns")	, _TL(""), PARAMETER_TYPE_Int
 	);
 	pParameters->Add_Info_Value(
-		NULL, "NY"			, _TL("Rows")		, "", PARAMETER_TYPE_Int
+		NULL, "NY"			, _TL("Rows")		, _TL(""), PARAMETER_TYPE_Int
 	);
 
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_SYSTEM"	, _TL("Choose Grid Project"), "");
+	pParameters	= Add_Parameters("GET_SYSTEM"	, _TL("Choose Grid Project"), _TL(""));
 
 	pParameters->Add_Grid_System(
-		NULL, "SYSTEM"		, _TL("System")		, ""
+		NULL, "SYSTEM"		, _TL("System")		, _TL("")
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_GRID"		, _TL("Choose Grid")		, "");
+	pParameters	= Add_Parameters("GET_GRID"		, _TL("Choose Grid")		, _TL(""));
 
 	pParameters->Add_Grid(
-		NULL, "GRID"		, _TL("Grid")		, "", PARAMETER_INPUT	, false
+		NULL, "GRID"		, _TL("Grid")		, _TL(""), PARAMETER_INPUT	, false
 	);
 
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_SHAPES"	, _TL("Choose Shapes")		, "");
+	pParameters	= Add_Parameters("GET_SHAPES"	, _TL("Choose Shapes")		, _TL(""));
 
 	pParameters->Add_Shapes(
-		NULL, "SHAPES"		, _TL("Shapes")		, "", PARAMETER_OUTPUT	, SHAPE_TYPE_Point
+		NULL, "SHAPES"		, _TL("Shapes")		, _TL(""), PARAMETER_OUTPUT	, SHAPE_TYPE_Point
 	);
 }
 
@@ -253,7 +253,7 @@ int CGeoref_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 {
 	double	xMin, xMax, yMin, yMax, size;
 
-	if( !strcmp(pParameters->Get_Identifier(), "GET_USER") )
+	if( !SG_STR_CMP(pParameters->Get_Identifier(), SG_T("GET_USER")) )
 	{
 		xMin	= pParameters->Get_Parameter("XMIN")->asDouble();
 		xMax	= pParameters->Get_Parameter("XMAX")->asDouble();
@@ -261,14 +261,14 @@ int CGeoref_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 		yMax	= pParameters->Get_Parameter("YMAX")->asDouble();
 		size	= pParameters->Get_Parameter("SIZE")->asDouble();
 
-		if( !strcmp(pParameter->Get_Identifier(), "SIZE") )
+		if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SIZE")) )
 		{
 			pParameters->Get_Parameter("XMAX")->Set_Value((xMax = xMin + ((int)((xMax - xMin) / size)) * size));
 			pParameters->Get_Parameter("YMAX")->Set_Value((yMax = yMin + ((int)((yMax - yMin) / size)) * size));
 		}
 		else 
 		{
-			if( !strcmp(pParameter->Get_Identifier(), "XMIN") )
+			if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("XMIN")) )
 			{
 				if( xMin >= xMax )
 				{
@@ -278,7 +278,7 @@ int CGeoref_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 
 				pParameters->Get_Parameter("XMAX")->Set_Value(xMin + ((int)((xMax - xMin) / size)) * size);
 			}
-			else if( !strcmp(pParameter->Get_Identifier(), "XMAX") )
+			else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("XMAX")) )
 			{
 				if( xMin >= xMax )
 				{
@@ -288,7 +288,7 @@ int CGeoref_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 
 				pParameters->Get_Parameter("XMIN")->Set_Value(xMax - ((int)((xMax - xMin) / size)) * size);
 			}
-			else if( !strcmp(pParameter->Get_Identifier(), "YMIN") )
+			else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("YMIN")) )
 			{
 				if( yMin >= yMax )
 				{
@@ -298,7 +298,7 @@ int CGeoref_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 
 				pParameters->Get_Parameter("YMAX")->Set_Value(yMin + ((int)((yMax - yMin) / size)) * size);
 			}
-			else if( !strcmp(pParameter->Get_Identifier(), "YMAX") )
+			else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("YMAX")) )
 			{
 				if( yMin >= yMax )
 				{

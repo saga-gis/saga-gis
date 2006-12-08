@@ -85,7 +85,7 @@ CGrid_Value_Request::CGrid_Value_Request(void)
 
 	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Grid Value Request.\n")
 	);
 
@@ -95,20 +95,20 @@ CGrid_Value_Request::CGrid_Value_Request(void)
 
 	m_pGrids	= Parameters.Add_Grid_List(
 		NULL	, "GRID_LIST"		, _TL("Grids to request"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	)->asGridList();
 
 	Parameters.Add_Table(
 		NULL	, "VALUES"			, _TL("Values"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"			, _TL("Method"),
-		"",
-		CSG_String::Format("%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Single value"),
 			_TL("Collect values")
 		), 4
@@ -116,8 +116,8 @@ CGrid_Value_Request::CGrid_Value_Request(void)
 
 	Parameters.Add_Choice(
 		NULL	, "INTERPOLATION"	, _TL("Interpolation"),
-		"",
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("Nearest Neighbor"),
 			_TL("Bilinear Interpolation"),
 			_TL("Inverse Distance Interpolation"),

@@ -90,7 +90,7 @@ public:
 	CShapes_Cut(void);
 	virtual ~CShapes_Cut(void);
 
-	virtual const char *		Get_MenuPath			(void)	{	return( _TL("R:Construction") );	}
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Construction") );	}
 
 
 protected:

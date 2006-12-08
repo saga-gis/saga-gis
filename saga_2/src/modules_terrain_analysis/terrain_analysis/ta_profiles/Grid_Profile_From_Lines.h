@@ -93,7 +93,7 @@ private:
 	CSG_Parameter_Grid_List		*m_pValues;
 
 
-	bool						Init_Profile	(CSG_Shapes *pPoints, const char *Name);
+	bool						Init_Profile	(CSG_Shapes *pPoints, const SG_Char *Name);
 
 	bool						Set_Profile		(int Line_ID, CSG_Shape *pLine);
 	bool						Set_Profile		(int Line_ID, bool bStart, const TSG_Point &A, const TSG_Point &B);

@@ -130,7 +130,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_SET_TEXT:
 
-		STATUSBAR_Set_Text((char *)Param_1);
+		STATUSBAR_Set_Text((wxChar *)Param_1);
 
 		break;
 
@@ -144,7 +144,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_MESSAGE_ADD:
 
-		MSG_General_Add		((char *)Param_1, Param_2 != 0, Param_2 != 0);
+		MSG_General_Add		((wxChar *)Param_1, Param_2 != 0, Param_2 != 0);
 
 		break;
 
@@ -152,7 +152,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_MESSAGE_ADD_ERROR:
 
-		MSG_Error_Add		((char *)Param_1, true);
+		MSG_Error_Add		((wxChar *)Param_1, true);
 
 		break;
 
@@ -160,7 +160,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_MESSAGE_ADD_EXECUTION:
 
-		MSG_Execution_Add	((char *)Param_1, Param_2 != 0, Param_2 != 0);
+		MSG_Execution_Add	((wxChar *)Param_1, Param_2 != 0, Param_2 != 0);
 
 		break;
 
@@ -174,7 +174,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DLG_MESSAGE:
 
-		DLG_Message_Show((char *)Param_1, (char *)Param_2);
+		DLG_Message_Show((wxChar *)Param_1, (wxChar *)Param_2);
 
 		break;
 
@@ -182,7 +182,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DLG_CONTINUE:
 
-		Result	= DLG_Message_Confirm((char *)Param_1, (char *)Param_2);
+		Result	= DLG_Message_Confirm((wxChar *)Param_1, (wxChar *)Param_2);
 
 		break;
 
@@ -190,7 +190,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DLG_ERROR:
 
-		Result	= DLG_Message_Show_Error((char *)Param_1, (char *)Param_2);
+		Result	= DLG_Message_Show_Error((wxChar *)Param_1, (wxChar *)Param_2);
 
 		break;
 
@@ -218,7 +218,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_FIND_BY_FILE:
 
-		Result	= (int)g_pData->Get_byFileName((const char *)Param_1, Param_2);
+		Result	= (int)g_pData->Get_byFileName((const wxChar *)Param_1, Param_2);
 
 		break;
 

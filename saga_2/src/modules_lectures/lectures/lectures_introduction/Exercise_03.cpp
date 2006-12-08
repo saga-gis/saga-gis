@@ -77,7 +77,7 @@ CExercise_03::CExercise_03(void)
 
 	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Simple neighbourhood analysis for grid cells.\n"
 		"(c) 2003 by Olaf Conrad, Goettingen\n"
 		"email: oconrad@gwdg.de")
@@ -102,11 +102,13 @@ CExercise_03::CExercise_03(void)
 	Parameters.Add_Choice(
 		NULL, "METHOD"	, _TL("Method"),
 		_TL("Choose a method"),
-		_TL(
-		"Difference to left neighbour|"
-		"Difference to left neighbour (using a while loop)|"
-		"Slope gradient to left neighbour [%%]|"
-		"Slope gradient to left neighbour [Degree]|")
+
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("Difference to left neighbour"),
+			_TL("Difference to left neighbour (using a while loop)"),
+			_TL("Slope gradient to left neighbour [%%]"),
+			_TL("Slope gradient to left neighbour [Degree]")
+		)
 	);
 }
 

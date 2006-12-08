@@ -75,7 +75,7 @@ public:
 	CFuzzyAND(void);
 	virtual ~CFuzzyAND(void);
 
-	virtual const char *	Get_MenuPath	(void)	{	return( _TL("R:Fuzzy Logic") );	}
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Fuzzy Logic") );	}
 
 protected:
 

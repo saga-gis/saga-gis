@@ -72,11 +72,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define HISTORY_VERSION		"HISTORY_VERSION_1.02"
-#define HISTORY_BEGIN		"HISTORY_BEGIN"
-#define HISTORY_END			"HISTORY_END"
-#define HISTORY_ENTRY_BEGIN	"ENTRY_BEGIN"
-#define HISTORY_ENTRY_END	"ENTRY_END"
+#define HISTORY_VERSION		SG_T("HISTORY_VERSION_1.02")
+#define HISTORY_BEGIN		SG_T("HISTORY_BEGIN")
+#define HISTORY_END			SG_T("HISTORY_END")
+#define HISTORY_ENTRY_BEGIN	SG_T("ENTRY_BEGIN")
+#define HISTORY_ENTRY_END	SG_T("ENTRY_END")
 
 
 ///////////////////////////////////////////////////////////
@@ -86,10 +86,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_History_Entry::CSG_History_Entry(const char *Date, const char *Name, const char *Entry, CSG_History *pHistory)
+CSG_History_Entry::CSG_History_Entry(const SG_Char *Date, const SG_Char *Name, const SG_Char *Entry, CSG_History *pHistory)
 {
 	m_Date		= Date ? Date : SG_Get_CurrentTimeStr().c_str();
-	m_Name		= Name ? Name : "Entry";
+	m_Name		= Name ? Name : SG_T("Entry");
 	m_Entry		= Entry;
 	m_pHistory	= pHistory && pHistory->Get_Count() > 0
 				? new CSG_History(*pHistory)
@@ -177,9 +177,9 @@ void CSG_History::Assign(const CSG_History &History, bool bAdd)
 }
 
 //---------------------------------------------------------
-void CSG_History::Add_Entry(const char *Name, const char *Entry, CSG_History *pHistory)
+void CSG_History::Add_Entry(const SG_Char *Name, const SG_Char *Entry, CSG_History *pHistory)
 {
-	if( Entry && strlen(Entry) > 0 )
+	if( Entry && *Entry )
 	{
 		_Add_Entry(new CSG_History_Entry(NULL, Name, Entry, pHistory));
 	}
@@ -200,67 +200,63 @@ void CSG_History::_Add_Entry(CSG_History_Entry *pEntry)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_History::Load(const char *File_Name, const char *File_Extension)
+bool CSG_History::Load(const SG_Char *File_Name, const SG_Char *File_Extension)
 {
 	bool		bResult	= false;
-	FILE		*Stream;
+	CSG_File	Stream;
 	CSG_String	sLine, fName(SG_File_Make_Path(NULL, File_Name, File_Extension));
 
 	Destroy();
 
-	if( (Stream = fopen(fName, "r")) != NULL )
+	if( Stream.Open(fName, SG_FILE_R, false) )
 	{
-		if(	SG_Read_Line(Stream, sLine) && !sLine.Cmp(HISTORY_VERSION)
-		&&	SG_Read_Line(Stream, sLine) && !sLine.Cmp(HISTORY_BEGIN) )
+		if(	Stream.Read_Line(sLine) && !sLine.Cmp(HISTORY_VERSION)
+		&&	Stream.Read_Line(sLine) && !sLine.Cmp(HISTORY_BEGIN) )
 		{
 			bResult	= _Load(Stream);
 		}
-
-		fclose(Stream);
 	}
 
 	return( bResult );
 }
 
 //---------------------------------------------------------
-bool CSG_History::Save(const char *File_Name, const char *File_Extension)
+bool CSG_History::Save(const SG_Char *File_Name, const SG_Char *File_Extension)
 {
 	bool		bResult	= false;
-	FILE		*Stream;
+	CSG_File	Stream;
 	CSG_String	fName(SG_File_Make_Path(NULL, File_Name, File_Extension));
 
-	if( m_nEntries > 0 && (Stream = fopen(fName, "w")) != NULL )
+	if( m_nEntries > 0 && Stream.Open(fName, SG_FILE_W) )
 	{
-		fprintf(Stream, "%s\n", HISTORY_VERSION);
+		Stream.Printf(SG_T("%s\n"), HISTORY_VERSION);
 
 		bResult	= _Save(Stream);
-
-		fclose(Stream);
 	}
 
 	return( bResult );
 }
 
 //---------------------------------------------------------
-bool CSG_History::_Load(FILE *Stream)
+bool CSG_History::_Load(CSG_File &Stream)
 {
 	Destroy();
 
-	if( Stream )
+	if( Stream.is_Open() )
 	{
 		CSG_String	sLine, Name, Entry, Date;
 		CSG_History	History;
 
-		while( SG_Read_Line(Stream, sLine) && sLine.Cmp(HISTORY_END) )
+		while( Stream.Read_Line(sLine) && sLine.Cmp(HISTORY_END) )
 		{
 			if(	!sLine.Cmp(HISTORY_ENTRY_BEGIN) )
 			{
-				SG_Read_Line(Stream, Date);
-				SG_Read_Line(Stream, Name);
+				Stream.Read_Line(Date);
+				Stream.Read_Line(Name);
 
 				Entry.Clear();
 
-				while( SG_Read_Line(Stream, sLine) && sLine.Cmp(HISTORY_ENTRY_END) && sLine.Cmp(HISTORY_BEGIN) )
+				while( Stream.Read_Line(sLine) && sLine.Cmp(HISTORY_ENTRY_END) && sLine.Cmp(HISTORY_BEGIN) )
 				{
 					Entry.Append(sLine);
 				}
@@ -279,28 +275,28 @@ bool CSG_History::_Load(FILE *Stream)
 }
 
 //---------------------------------------------------------
-bool CSG_History::_Save(FILE *Stream)
+bool CSG_History::_Save(CSG_File &Stream)
 {
-	if( Stream )
+	if( Stream.is_Open() )
 	{
-		fprintf(Stream, "%s\n", HISTORY_BEGIN);
+		Stream.Printf(SG_T("%s\n"), HISTORY_BEGIN);
 
 		for(int i=0; i<m_nEntries; i++)
 		{
-			fprintf(Stream, "%s\n", HISTORY_ENTRY_BEGIN);
-			fprintf(Stream, "%s\n", m_pEntries[i]->m_Date .c_str());
-			fprintf(Stream, "%s\n", m_pEntries[i]->m_Name .c_str());
-			fprintf(Stream, "%s\n", m_pEntries[i]->m_Entry.c_str());
+			Stream.Printf(SG_T("%s\n"), HISTORY_ENTRY_BEGIN);
+			Stream.Printf(SG_T("%s\n"), m_pEntries[i]->m_Date .c_str());
+			Stream.Printf(SG_T("%s\n"), m_pEntries[i]->m_Name .c_str());
+			Stream.Printf(SG_T("%s\n"), m_pEntries[i]->m_Entry.c_str());
 
 			if( m_pEntries[i]->m_pHistory )
 			{
 				m_pEntries[i]->m_pHistory->_Save(Stream);
 			}
 
-			fprintf(Stream, "%s\n", HISTORY_ENTRY_END);
+			Stream.Printf(SG_T("%s\n"), HISTORY_ENTRY_END);
 		}
 
-		fprintf(Stream, "%s\n", HISTORY_END);
+		Stream.Printf(SG_T("%s\n"), HISTORY_END);
 
 		return( true );
 	}
@@ -322,11 +318,11 @@ CSG_String CSG_History::Get_HTML(void)
 
 	if( m_nEntries > 0 )
 	{
-		s.Append("<ul>");
+		s.Append(SG_T("<ul>"));
 
 		for(int i=0; i<m_nEntries; i++)
 		{
-			s.Append(CSG_String::Format("<li>[%s] <b>%s:</b> %s</li>\n",
+			s.Append(CSG_String::Format(SG_T("<li>[%s] <b>%s:</b> %s</li>\n"),
 				m_pEntries[i]->Get_Date(),
 				m_pEntries[i]->Get_Name(),
 				m_pEntries[i]->Get_Entry()
@@ -338,7 +334,7 @@ CSG_String CSG_History::Get_HTML(void)
 			}
 		}
 
-		s.Append("</ul>");
+		s.Append(SG_T("</ul>"));
 	}
 
 	return( s );

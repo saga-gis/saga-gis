@@ -102,31 +102,31 @@ CDLG_About::CDLG_About(void)
 
 	m_pControl	= new wxNotebook(this, -1, wxDefaultPosition, wxDefaultSize, NOTEBOOK_STYLE);
 	
-	m_pControl->AddPage(new CDLG_About_Logo(m_pControl), "Logo", false, -1);
+	m_pControl->AddPage(new CDLG_About_Logo(m_pControl), LNG("Logo"), false, -1);
 
 	//-----------------------------------------------------
 	m_pVersion	=
-	pText		= new wxTextCtrl(m_pControl, -1, "", wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE|wxTE_RICH|wxTE_AUTO_URL);
+	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE|wxTE_RICH|wxTE_AUTO_URL);
 	pText->AppendText(_Get_Version());
-	m_pControl->AddPage(pText, "Version", false, -1);
+	m_pControl->AddPage(pText, LNG("Version"), false, -1);
 	pText->ShowPosition(0);
 
 	//-----------------------------------------------------
-	pText		= new wxTextCtrl(m_pControl, -1, "", wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE);
+	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE);
 	pText->AppendText(_Get_GPL());
-	m_pControl->AddPage(pText, "GPL", false, -1);
+	m_pControl->AddPage(pText, LNG("GPL"), false, -1);
 	pText->ShowPosition(0);
 
 	//-----------------------------------------------------
-	pText		= new wxTextCtrl(m_pControl, -1, "", wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE);
+	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE);
 	pText->AppendText(_Get_LGPL());
-	m_pControl->AddPage(pText, "LGPL", false, -1);
+	m_pControl->AddPage(pText, LNG("LGPL"), false, -1);
 	pText->ShowPosition(0);
 
 	//-----------------------------------------------------
-	pText		= new wxTextCtrl(m_pControl, -1, "", wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE);
+	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE);
 	pText->AppendText(_Get_Acknowledgements());
-	m_pControl->AddPage(pText, "Acknowledgements", false, -1);
+	m_pControl->AddPage(pText, LNG("Acknowledgements"), false, -1);
 	pText->ShowPosition(0);
 
 	//-----------------------------------------------------
@@ -179,115 +179,119 @@ wxString CDLG_About::_Get_Version(void)
 {
 	wxString	s;
 
-	s.Append(
-		"\n"
-		"SAGA\n"
-		"System for Automated Geoscientific Analyses\n"
-		"http://www.saga-gis.org\n"
-	);
+	s.Printf(wxT("\nSAGA\n"));
+
+	s.Append(SG_Translate(
+		wxT("System for Automated Geoscientific Analyses\n")
+	));
 
 	s.Append(
-		"_______________________\n\n"
+		wxT("http://www.saga-gis.org\n")
 	);
+
+#ifdef _UNICODE
+	s.Append(wxT("_______________________\n\n"));
+
+	s.Append(
+		wxT("UNICODE\n")
+	);
+#endif
+
+	s.Append(wxT("_______________________\n\n"));
 
 	s.Append(wxString::Format(
-		"SAGA GUI\n%s\n"
-		"build: %s\n"
-		"\n"
-		"Copyrights (c) 2005, 2006 by Olaf Conrad\n"
-		"\n"
-		"GNU General Public License (GPL)\n",
+		wxT("SAGA GUI\n%s\n")
+		wxT("build: %s\n")
+		wxT("\n")
+		wxT("Copyrights (c) 2005, 2006 by Olaf Conrad\n")
+		wxT("\n")
+		wxT("GNU General Public License (GPL)\n"),
 		SAGA_GUI_Get_Version(),
 		SAGA_GUI_Get_Build()
 	));
 
-	s.Append(
-		"_______________________\n\n"
-	);
+	s.Append(wxT("_______________________\n\n"));
 
 	s.Append(wxString::Format(
-		"SAGA API\n%s\n"
-		"\n"
-		"Copyrights (c) 2002-2006 by Olaf Conrad\n"
-		"Portions (c) 2002 by Andre Ringeler\n"	// " (mat_formula.cpp)\n"
-		"Portions (c) 2005, 2006 by Victor Olaya\n"
-		"\n"
-		"GNU Lesser General Public License (LGPL)\n",
+		wxT("SAGA API\n%s\n")
+		wxT("\n")
+		wxT("Copyrights (c) 2002-2006 by Olaf Conrad\n")
+		wxT("Portions (c) 2002 by Andre Ringeler\n")	// " (mat_formula.cpp)\n")
+		wxT("Portions (c) 2005, 2006 by Victor Olaya\n")
+		wxT("\n")
+		wxT("GNU Lesser General Public License (LGPL)\n"),
 		SAGA_API_Get_Version()
 	));
 
-	s.Append(
-		"_______________________\n\n"
-	);
+	s.Append(wxT("_______________________\n\n"));
 
 	s.Append(wxString::Format(
-		"SAGA uses the portable C++ GUI toolkit wxWidgets\n"
-		"http://www.wxwidgets.org\n\n"
-		"%s\n"
-		"%s\n",
+		wxT("SAGA uses the portable C++ GUI toolkit wxWidgets\n")
+		wxT("http://www.wxwidgets.org\n\n")
+		wxT("%s\n")
+		wxT("%s\n"),
 		wxVERSION_STRING,
-		"wxPropertyGrid 1.2.2"
+		wxT("wxPropertyGrid 1.2.2")
 	));
 
 #ifndef _SAGA_DONOTUSE_HARU
+	s.Append(wxT("_______________________\n\n"));
+
 	s.Append(
-		"_______________________\n\n"
-		"SAGA uses the HARU Free PDF Library\n"
-		"http://sourceforge.net/projects/libharu\n"
-		"Version 1.2.0 Beta5\n"
+		wxT("SAGA uses the HARU Free PDF Library\n")
+		wxT("http://sourceforge.net/projects/libharu\n")
+		wxT("Version 1.2.0 Beta5\n")
 	);
 #endif
 
-	s.Append(
-		"_______________________\n\n"
-	);
+	s.Append(wxT("_______________________\n\n"));
 
 	s.Append(
-		"Compiled with\n"
+		wxT("Compiled with\n")
 		#  if	defined(__BORLANDC__)
-			"Borland C++"
+			wxT("Borland C++")
 		#elif	defined(__DJGPP__)
-			"DJGPP"
+			wxT("DJGPP")
 		#elif	defined(__DIGITALMARS__)
-			"Digital Mars"
+			wxT("Digital Mars")
 		#elif	defined(__MINGW32__)
-			"MinGW"
+			wxT("MinGW")
 		#elif	defined(__GNUWIN32__)
-			"Gnu-Win32 compiler"
+			wxT("Gnu-Win32 compiler")
 		#elif	defined(__GNUG__)
-			"Gnu C++"
+			wxT("Gnu C++")
 		#elif	defined(__MWERKS__)
-			"CodeWarrior MetroWerks compiler"
+			wxT("CodeWarrior MetroWerks compiler")
 		#elif	defined(__SUNCC__)
-			"Sun CC"
+			wxT("Sun CC")
 		#elif	defined(__SYMANTECC__)
-			"Symantec C++"
+			wxT("Symantec C++")
 		#elif	defined(__VISAGECPP__)
-			"IBM Visual Age (OS/2)"
+			wxT("IBM Visual Age (OS/2)")
 		#elif	defined(__VISUALC__)	// The value of this macro corresponds to the compiler version: 1020 for 4.2 (the first supported version), 1100 for 5.0, 1200 for 6.0 and so on
 			#if   __VISUALC__ == 1020
-				"Microsoft Visual C++ 4.2"
+				wxT("Microsoft Visual C++ 4.2")
 			#elif __VISUALC__ >= 1100 && __VISUALC__ < 1200
-				"Microsoft Visual C++ 5"
+				wxT("Microsoft Visual C++ 5")
 			#elif __VISUALC__ >= 1200 && __VISUALC__ < 1300
-				"Microsoft Visual C++ 6"
+				wxT("Microsoft Visual C++ 6")
 			#elif __VISUALC__ >= 1300 && __VISUALC__ < 1400
-				"Microsoft Visual C++ 7"
+				wxT("Microsoft Visual C++ 7")
 			#elif __VISUALC__ >= 1400 && __VISUALC__ < 1500
-				"Microsoft Visual C++ 8"
+				wxT("Microsoft Visual C++ 8")
 			#else
-				"Microsoft Visual C++"
+				wxT("Microsoft Visual C++")
 			#endif
 		#elif	defined(__XLC__)
-			"AIX compiler"
+			wxT("AIX compiler")
 		#elif	defined(__WATCOMC__)
-			"Watcom C++"
+			wxT("Watcom C++")
 		#elif	defined(_WIN32_WCE)
-			"Windows CE version"
+			wxT("Windows CE version")
 		#else
-			"unknown compiler"
+			wxT("unknown compiler")
 		#endif
-		"\n"
+		wxT("\n")
 	);
 
 	return( s );
@@ -296,7 +300,7 @@ wxString CDLG_About::_Get_Version(void)
 //---------------------------------------------------------
 wxString CDLG_About::_Get_Acknowledgements(void)
 {
-	return(
+	return( SG_STR_MBTOSG(
 		"\n"
 		"Acknowledgements\n"
 		"_______________________\n"
@@ -316,7 +320,7 @@ wxString CDLG_About::_Get_Acknowledgements(void)
 		"(have a look at the module libraries to find out more...)"
 		"\n\n"
 		"O. Conrad, May 2005, Goettingen\n"
-	);
+	));
 }
 
 
@@ -329,7 +333,7 @@ wxString CDLG_About::_Get_Acknowledgements(void)
 //---------------------------------------------------------
 wxString CDLG_About::_Get_GPL(void)
 {
-	return(
+	return( SG_STR_MBTOSG(
 		"\n"
 		"GNU GENERAL PUBLIC LICENSE\n"
 		"Version 2, June 1991\n"
@@ -671,13 +675,13 @@ wxString CDLG_About::_Get_GPL(void)
 		"consider it more useful to permit linking proprietary applications with the\n"
 		"library.  If this is what you want to do, use the GNU Library General\n"
 		"Public License instead of this License.\n"
-	);
+	));
 }
 
 //---------------------------------------------------------
 wxString CDLG_About::_Get_LGPL(void)
 {
-	return(
+	return( SG_STR_MBTOSG(
 		"\n"
 		"GNU LESSER GENERAL PUBLIC LICENSE\n"
 		"Version 2.1, February 1999\n"
@@ -1181,7 +1185,7 @@ wxString CDLG_About::_Get_LGPL(void)
 		"Ty Coon, President of Vice\n"
 		"\n"
 		"That\'s all there is to it!\n"
-	);
+	));
 }
 
 

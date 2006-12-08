@@ -77,7 +77,7 @@ CExercise_05::CExercise_05(void)
 
 	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Simple neighbourhood analysis for grid cells.\n"
 		"- Zevenbergen, L.W. / Thorne, C.R. (1987):\n"
 		"    'Quantitative analysis of land surface topography',\n"
@@ -111,10 +111,12 @@ CExercise_05::CExercise_05(void)
 	Parameters.Add_Choice(
 		NULL, "METHOD"		, _TL("Method"),
 		_TL("Choose a method"),
-		_TL(
-		"Steepest gradient (first version)|"
-		"Steepest gradient (second version)|"
-		"Zevenbergen & Thorne|")
+
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("Steepest gradient (first version)"),
+			_TL("Steepest gradient (second version)"),
+			_TL("Zevenbergen & Thorne")
+		)
 	);
 }
 
@@ -147,10 +149,10 @@ bool CExercise_05::On_Execute(void)
 
 
 	m_pSlope	->Set_ZFactor(180.0 / M_PI);
-	m_pSlope	->Set_Unit("Degree");
+	m_pSlope	->Set_Unit(SG_T("Degree"));
 
 	m_pAspect	->Set_ZFactor(180.0 / M_PI);
-	m_pAspect	->Set_Unit("Degree");
+	m_pAspect	->Set_Unit(SG_T("Degree"));
 
 
 	//-----------------------------------------------------

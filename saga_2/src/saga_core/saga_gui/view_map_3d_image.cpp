@@ -161,13 +161,13 @@ void CVIEW_Map_3D_Image::Save(void)
 
 	Parameters.Add_Value(
 		Parameters("NODE_RES")	, "WIDTH"	, LNG("Width"),
-		"",
+		wxT(""),
 		PARAMETER_TYPE_Int		, m_img_nx, 1, true
 	);
 
 	Parameters.Add_Value(
 		Parameters("NODE_RES")	, "HEIGHT"	, LNG("Height"),
-		"",
+		wxT(""),
 		PARAMETER_TYPE_Int		, m_img_ny, 1, true
 	);
 
@@ -196,7 +196,7 @@ void CVIEW_Map_3D_Image::Save(void)
 }
 
 //---------------------------------------------------------
-void CVIEW_Map_3D_Image::Save(const char *file, int type)
+void CVIEW_Map_3D_Image::Save(const wxChar *file, int type)
 {
 	if( m_img.Ok() && file != NULL )
 	{

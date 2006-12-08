@@ -61,7 +61,7 @@ CGrid_Calculator::CGrid_Calculator(void)
 
 	Set_Author(_TL("Copyrights (c) 2003 by Andre Ringeler"));
 
-	Set_Description(_TL(
+	Set_Description(_TW(
 		"The Grid Calculator calculates a new grid based on existing grids and a mathematical formula.\n\n"
 		"The following operators are available for the formula definition:\n"
 		"+ Addition\n"
@@ -94,19 +94,19 @@ CGrid_Calculator::CGrid_Calculator(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List(
 		NULL, "INPUT"	, _TL("Grids"),
-		"", PARAMETER_INPUT
+		_TL(""), PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL, "RESULT"	, _TL("Result"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 	
 	Parameters.Add_String(
 		NULL, "FORMUL"	, _TL("Formula"),
-		"",
-		"(a-b)/(a+b)"
+		_TL(""),
+		SG_T("(a - b) / (a + b)")
 	);
 }
 
@@ -174,23 +174,21 @@ bool CGrid_Calculator::On_Execute(void)
 			
 			vars[c - 'a'] = c;
 		
-		const char *formel  = Parameters("FORMUL")->asString();
-		
 		CSG_Formula Formel;
 		
-		Formel.Set_Formula(formel);
+		Formel.Set_Formula(Parameters("FORMUL")->asString());
 		
 		int Pos;
-		const char * Msg;
+		const SG_Char * Msg;
 		if (Formel.Get_Error(&Pos, &Msg))
 		{
 			CSG_String	msg;
 
-			msg.Printf(_TL("Error at character #%d of the function: \n%s\n"), Pos, formel);
+			msg.Printf(_TL("Error at character #%d of the function: \n%s\n"), Pos, Parameters("FORMUL")->asString());
 			
 			Message_Add(msg);
 			
-			msg.Printf("\n%s\n", Msg);
+			msg.Printf(SG_T("\n%s\n"), Msg);
 			
 			Message_Add(msg);
 			

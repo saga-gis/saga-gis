@@ -71,11 +71,11 @@
 CSAGA_Wetness_Index::CSAGA_Wetness_Index(void)
 {
 	//-----------------------------------------------------
-	Set_Name	("SAGA Wetness Index");
+	Set_Name		(_TL("SAGA Wetness Index"));
 
-	Set_Author	("Copyrights (c) 2005 by Juergen Boehner, Olaf Conrad");
+	Set_Author		(_TL("Copyrights (c) 2005 by Juergen Boehner, Olaf Conrad"));
 
-	Set_Description(
+	Set_Description	(_TW(
 		"The 'SAGA Wetness Index' is, as the name says, similar to the "
 		"'Topographic Wetness Index' (TWI), but it is based on a modified "
 		"catchment area calculation ('Modified Catchment Area'), which does "
@@ -90,43 +90,43 @@ CSAGA_Wetness_Index::CSAGA_Wetness_Index(void)
 		"Soil Regionalisation by Means of Terrain Analysis and Process Parameterisation. "
 		"In: Micheli, E., Nachtergaele, F., Montanarella, L. [Ed.]: Soil Classification 2001. "
 		"European Soil Bureau, Research Report No. 7, EUR 20398 EN, Luxembourg. pp.213-222."
-	);
+	));
 
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "DEM"			, "Elevation",
-		"",
+		NULL	, "DEM"			, _TL("Elevation"),
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "C"			, "Catchment area",
-		"",
+		NULL	, "C"			, _TL("Catchment area"),
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "GN"			, "Catchment slope",
-		"",
+		NULL	, "GN"			, _TL("Catchment slope"),
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "CS"			, "Modified catchment area",
-		"",
+		NULL	, "CS"			, _TL("Modified catchment area"),
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "SB"			, "Wetness index",
-		"",
+		NULL	, "SB"			, _TL("Wetness index"),
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Value(
-		NULL	, "T"			, "t",
-		"",
+		NULL	, "T"			, _TL("t"),
+		_TL(""),
 		PARAMETER_TYPE_Double	, 10.0, 0.0, true
 	);
 }
@@ -190,7 +190,7 @@ bool CSAGA_Wetness_Index::Get_Area_Catchment(CSG_Grid *pDEM, CSG_Grid *pC, CSG_G
 	double	z, d, dz[8], dzSum, c, s;
 
 	//-----------------------------------------------------
-	Process_Set_Text("Catchment area calculation...");
+	Process_Set_Text(_TL("Catchment area calculation..."));
 
 	pC->Assign(1.0);
 	pS->Assign(0.0);
@@ -363,7 +363,7 @@ bool CSAGA_Wetness_Index::Get_Area_Modified(CSG_Grid *pDEM, CSG_Grid *pC, CSG_Gr
 	CSG_Grid	C, C_Last, T;
 
 	//-----------------------------------------------------
-	Process_Set_Text("Modify: pre-processing...");
+	Process_Set_Text(_TL("Modify: pre-processing..."));
 
 	T.Create(pC);
 
@@ -427,11 +427,11 @@ bool CSAGA_Wetness_Index::Get_Area_Modified(CSG_Grid *pDEM, CSG_Grid *pC, CSG_Gr
 			}
 		}
 
-		Process_Set_Text(CSG_String::Format("Modify: %d. iteration [%d > 0]", i, n));
+		Process_Set_Text(CSG_String::Format(SG_T("Modify: %d. iteration [%d > 0]"), i, n));
 	}
 
 	//-----------------------------------------------------
-	Process_Set_Text("Modify: post-processing...");
+	Process_Set_Text(_TL("Modify: post-processing..."));
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
@@ -523,7 +523,7 @@ bool CSAGA_Wetness_Index::Get_Wetness_Index(CSG_Grid *pDEM, CSG_Grid *pCS, CSG_G
 	int		x, y;
 	double	Slope, Azimuth;
 
-	Process_Set_Text("Wetness index calculation...");
+	Process_Set_Text(_TL("Wetness index calculation..."));
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{

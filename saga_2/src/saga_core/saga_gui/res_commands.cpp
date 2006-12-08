@@ -76,7 +76,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char * CMD_Get_Name(int Cmd_ID)
+const wxChar * CMD_Get_Name(int Cmd_ID)
 {
 	switch( Cmd_ID )
 	{
@@ -244,7 +244,7 @@ const char * CMD_Get_Name(int Cmd_ID)
 }
 
 //---------------------------------------------------------
-const char * CMD_Get_Help(int Cmd_ID)
+const wxChar * CMD_Get_Help(int Cmd_ID)
 {
 	switch( Cmd_ID )
 	{
@@ -378,7 +378,7 @@ wxToolBarBase * CMD_ToolBar_Create(int ID)
 }
 
 //---------------------------------------------------------
-void CMD_ToolBar_Add(wxToolBarBase *pToolBar, const char *Name)
+void CMD_ToolBar_Add(wxToolBarBase *pToolBar, const wxChar *Name)
 {
 	if( g_pSAGA_Frame )
 	{

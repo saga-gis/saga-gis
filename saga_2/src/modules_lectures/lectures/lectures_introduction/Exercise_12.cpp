@@ -77,7 +77,7 @@ CExercise_12::CExercise_12(void)
 
 	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Copy a shapes layer and move it to a new position.\n"
 		"(c) 2003 by Olaf Conrad, Goettingen\n"
 		"email: oconrad@gwdg.de")
@@ -101,14 +101,14 @@ CExercise_12::CExercise_12(void)
 
 	Parameters.Add_Value(
 		NULL	, "DX"		, _TL("Translation: X"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double,
 		10.0
 	);
 
 	Parameters.Add_Value(
 		NULL	, "DY"		, _TL("Translation: Y"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double,
 		10.0
 	);
@@ -144,7 +144,7 @@ bool CExercise_12::On_Execute(void)
 	dx			= Parameters("DX")		->asDouble();
 	dy			= Parameters("DY")		->asDouble();
 
-	pShapes_B->Create(pShapes_A->Get_Type(), "Translation", &pShapes_A->Get_Table());
+	pShapes_B->Create(pShapes_A->Get_Type(), _TL("Translation"), &pShapes_A->Get_Table());
 
 
 	//-----------------------------------------------------

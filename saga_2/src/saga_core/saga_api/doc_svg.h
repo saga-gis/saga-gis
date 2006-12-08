@@ -105,25 +105,25 @@ public:
 	virtual ~CSG_Doc_SVG(void);
 
 	void						Open						(int iWidth, int iHeight);
-	bool						Save						(const char *FileName);
+	bool						Save						(const SG_Char *FileName);
 
-	void						Draw_Line					(double xa, double ya, double xb, double yb	, double Width = 1., const char *Unit = "", int Color = SG_COLOR_BLACK);
-	void						Draw_Line					(CSG_Points &Points							, double Width = 1., const char *Unit = "", int Color = SG_COLOR_BLACK);
-	void						Draw_Rectangle				(double xa, double ya, double xb, double yb	, int Fill_Color = SG_COLOR_WHITE, int Line_Color = SG_COLOR_BLACK, double Line_Width = 1., const char *Unit = "");
-	void						Draw_Rectangle				(const CSG_Rect &r							, int Fill_Color = SG_COLOR_WHITE, int Line_Color = SG_COLOR_BLACK, double Line_Width = 1., const char *Unit = "");
-	void						Draw_Polygon				(CSG_Points &Points							, int Fill_Color = SG_COLOR_GREEN, int Line_Color = SG_COLOR_BLACK, double Line_Width = 1., const char *Unit = "");
-	void						Draw_LinkedPolygon			(CSG_Points &Points, const char *Link		, int Fill_Color = SG_COLOR_GREEN, int Line_Color = SG_COLOR_BLACK, double Line_Width = 1., const char *Unit = "");
-	void						Draw_Circle					(double x, double y, double Radius			, int Fill_Color = SG_COLOR_RED  , int Line_Color = SG_COLOR_BLACK, double Line_Width = 1., const char *Unit = "");
-	void						Draw_LinkedCircle			(double x, double y, double Radius, const char *Link, int Fill_Color = SG_COLOR_RED  , int Line_Color = SG_COLOR_BLACK, double Line_Width = 1., const char *Unit = "");
+	void						Draw_Line					(double xa, double ya, double xb, double yb	, double Width = 1., const SG_Char *Unit = SG_T(""), int Color = SG_COLOR_BLACK);
+	void						Draw_Line					(CSG_Points &Points							, double Width = 1., const SG_Char *Unit = SG_T(""), int Color = SG_COLOR_BLACK);
+	void						Draw_Rectangle				(double xa, double ya, double xb, double yb	, int Fill_Color = SG_COLOR_WHITE, int Line_Color = SG_COLOR_BLACK, double Line_Width = 1., const SG_Char *Unit = SG_T(""));
+	void						Draw_Rectangle				(const CSG_Rect &r							, int Fill_Color = SG_COLOR_WHITE, int Line_Color = SG_COLOR_BLACK, double Line_Width = 1., const SG_Char *Unit = SG_T(""));
+	void						Draw_Polygon				(CSG_Points &Points							, int Fill_Color = SG_COLOR_GREEN, int Line_Color = SG_COLOR_BLACK, double Line_Width = 1., const SG_Char *Unit = SG_T(""));
+	void						Draw_LinkedPolygon			(CSG_Points &Points, const SG_Char *Link		, int Fill_Color = SG_COLOR_GREEN, int Line_Color = SG_COLOR_BLACK, double Line_Width = 1., const SG_Char *Unit = SG_T(""));
+	void						Draw_Circle					(double x, double y, double Radius			, int Fill_Color = SG_COLOR_RED  , int Line_Color = SG_COLOR_BLACK, double Line_Width = 1., const SG_Char *Unit = SG_T(""));
+	void						Draw_LinkedCircle			(double x, double y, double Radius, const SG_Char *Link, int Fill_Color = SG_COLOR_RED  , int Line_Color = SG_COLOR_BLACK, double Line_Width = 1., const SG_Char *Unit = SG_T(""));
 
-	void						Draw_Text					(double x, double y,  const char *Text, int iColor, const char* Font, double dSize, const char *Unit = "", TSG_SVG_Alignment Alignment = SVG_ALIGNMENT_Center);
+	void						Draw_Text					(double x, double y,  const SG_Char *Text, int iColor, const SG_Char* Font, double dSize, const SG_Char *Unit = SG_T(""), TSG_SVG_Alignment Alignment = SVG_ALIGNMENT_Center);
 
 protected:
 
 	CSG_String					m_sSVGCode;
-	void						_AddAttribute				(const char *Attribute, const char *Value);
-	void						_AddAttribute				(const char *Attribute, int Value);
-	void						_AddAttribute				(const char *Attribute, double Value);
+	void						_AddAttribute				(const SG_Char *Attribute, const SG_Char *Value);
+	void						_AddAttribute				(const SG_Char *Attribute, int Value);
+	void						_AddAttribute				(const SG_Char *Attribute, double Value);
 	CSG_String					_Get_SVGColor				(int iColor);
 
 private:

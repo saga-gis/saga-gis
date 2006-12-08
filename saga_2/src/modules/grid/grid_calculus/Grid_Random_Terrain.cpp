@@ -25,7 +25,7 @@ CGrid_Random_Terrain::CGrid_Random_Terrain(void)
 	
 	Set_Name(_TL("Random Terrain Generation"));
 	Set_Author(_TL("Copyrights (c) 2004 by Victor Olaya"));
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"(c) 2004 by Victor Olaya. Terrain Generation"));
 
 	Parameters.Add_Value(NULL, 
@@ -46,25 +46,25 @@ CGrid_Random_Terrain::CGrid_Random_Terrain(void)
 		NULL, 
 		"TARGET_TYPE", 
 		_TL("Target Dimensions"),
-		"",
-		CSG_String::Format("%s|%s|%s|",_TL("User defined"), _TL("Grid Project"), _TL("Grid")), 
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|"),_TL("User defined"), _TL("Grid Project"), _TL("Grid")), 
 		0);
 
 	Parameters.Add_Grid_List(
 		NULL, 
 		"TARGET_GRID", 
 		_TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, 
 		false);
 	
-	pParameters	= Add_Parameters("USER", _TL("User defined grid"), "");
+	pParameters	= Add_Parameters("USER", _TL("User defined grid"), _TL(""));
 
 	pParameters->Add_Value(
 		NULL, 
 		"CELL_SIZE",
 		_TL("Grid Size"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 
 		100.0, 
 		0.0, 
@@ -74,7 +74,7 @@ CGrid_Random_Terrain::CGrid_Random_Terrain(void)
 		NULL, 
 		"COLS",
 		_TL("Cols"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 
 		100, 
 		0.0, 
@@ -84,26 +84,26 @@ CGrid_Random_Terrain::CGrid_Random_Terrain(void)
 		NULL, 
 		"ROWS", 
 		_TL("Rows"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 
 		100, 
 		0.0, 
 		true);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_SYSTEM"	, _TL("Choose Grid Project"), "");
+	pParameters	= Add_Parameters("GET_SYSTEM"	, _TL("Choose Grid Project"), _TL(""));
 
 	pParameters->Add_Grid_System(
-		NULL, "SYSTEM"		, _TL("System")		, ""
+		NULL, "SYSTEM"		, _TL("System")		, _TL("")
 	);
 
 
-	pParameters	= Add_Parameters("GRID", _TL("Choose Grid"), "");
+	pParameters	= Add_Parameters("GRID", _TL("Choose Grid"), _TL(""));
 
 	pParameters->Add_Grid(NULL, 
 		"GRID", 
 		_TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT	, false
 	);
 }
@@ -163,7 +163,7 @@ bool CGrid_Random_Terrain::On_Execute(void)
 	{
 		Parameters("TARGET_GRID")->asGridList()->Add_Item(pGrid);
 
-		pGrid->Set_Name("DEM");
+		pGrid->Set_Name(_TL("DEM"));
 		pGrid->Assign(0.0);
 
 		int iIterations = Parameters("ITERATIONS")->asInt();

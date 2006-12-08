@@ -78,43 +78,47 @@
 //---------------------------------------------------------
 CGrid_Skeletonize::CGrid_Skeletonize(void)
 {
-	Set_Name(_TL("Grid Skeletonization"));
+	Set_Name		(_TL("Grid Skeletonization"));
 
-	Set_Author(_TL("Copyrights (c) 2002 by Olaf Conrad"));
+	Set_Author		(_TL("Copyrights (c) 2002 by Olaf Conrad"));
 
-	Set_Description(_TL("Simple skeletonisation methods for grids.\n")
-	);
+	Set_Description	(_TW(
+		"Simple skeletonisation methods for grids.\n"
+	));
 
 	Parameters.Add_Grid(
 		NULL, "INPUT"			, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL, "RESULT"			, _TL("Skeleton"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT, true, GRID_TYPE_Char
 	);
 
 	Parameters.Add_Shapes(
 		NULL, "VECTOR"			, _TL("Skeleton"),
-		"", PARAMETER_OUTPUT_OPTIONAL
+		_TL(""), PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Choice(
 		NULL, "METHOD"			, _TL("Method"),
-		"",
+		_TL(""),
 
-		"Standard|"
-		"Hilditch's Algorithm|"
-		"Channel Skeleton|", 0
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("Standard"),
+			_TL("Hilditch's Algorithm"),
+			_TL("Channel Skeleton")
+		), 0
 	);
 
 	Parameters.Add_Choice(
 		NULL, "INIT_METHOD"		, _TL("Initialisation"),
-		"",
-		CSG_String::Format("%s|%s|",
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Less than"),
 			_TL("Greater than") 
 		),1
@@ -122,13 +126,13 @@ CGrid_Skeletonize::CGrid_Skeletonize(void)
 
 	Parameters.Add_Value(
 		NULL, "INIT_THRESHOLD"	, _TL("Threshold (Init.)"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double
 	);
 
 	Parameters.Add_Value(
 		NULL, "CONVERGENCE"		, _TL("Convergence"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 3
 	);
 }
@@ -284,7 +288,7 @@ int CGrid_Skeletonize::Vectorize(CSG_Shapes *pShapes)
 	CSG_Shape	*pShape;
 
 	//-----------------------------------------------------
-	pShapes->Create(SHAPE_TYPE_Line, "Skeleton");
+	pShapes->Create(SHAPE_TYPE_Line, _TL("Skeleton"));
 	pShapes->Get_Table().Add_Field("ID", TABLE_FIELDTYPE_Int);
 
 	Lock_Create();
@@ -362,7 +366,7 @@ int CGrid_Skeletonize::Vectorize(CSG_Shapes *pShapes)
 	//-----------------------------------------------------
 	Lock_Destroy();
 
-	Message_Dlg(CSG_String::Format("%d %s\n", nSegments, _TL("segments identified")), Get_Name());
+	Message_Dlg(CSG_String::Format(SG_T("%d %s\n"), nSegments, _TL("segments identified")), Get_Name());
 
 	return( nSegments );
 }

@@ -21,20 +21,21 @@
 
 CFilterClumps::CFilterClumps(void){
 
-	Parameters.Set_Name(_TL("Filter Clumps"));
-	Parameters.Set_Description(_TL(
-		"(c) 2004 by Victor Olaya. Filter Clumps"));
+	Set_Name		(_TL("Filter Clumps"));
+	Set_Description	(_TW(
+		"(c) 2004 by Victor Olaya. Filter Clumps"
+	));
 
 	Parameters.Add_Grid(NULL, 
 						"GRID",
 						_TL("Input Grid"), 						
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"OUTPUT", 
 						_TL("Filtered Grid"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT);
 	
 	Parameters.Add_Value(NULL,

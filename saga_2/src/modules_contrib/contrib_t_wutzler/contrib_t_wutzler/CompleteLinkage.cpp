@@ -83,56 +83,56 @@ CCompleteLinkage::CCompleteLinkage(void)
 	//-----------------------------------------------------
 	// Place information about your module here...
 
-	Set_Name	("CompleteLinkage");
+	Set_Name		(_TL("CompleteLinkage"));
 
-	Set_Author	("Copyrights (c) 2004 by Thomas Wutzler");
+	Set_Author		(_TL("Copyrights (c) 2004 by Thomas Wutzler"));
 
-	Set_Description(
+	Set_Description	(_TW(
 		"CompleteLinkage\n"
-	);
+	));
 
 
 	//-----------------------------------------------------
-	//Parameters.Add_List(NULL, "InputGrids"	, "Input Grids"	, "Grids to input", PARAMETER_INPUT, PARAMETER_TYPE_Grid);
-	//Parameters.Add_List(NULL, "InputWeights"	, "Input Weights"	, "Weights for each input Grid", PARAMETER_INPUT, PARAMETER_TYPE_Int); does not work
+	//Parameters.Add_List(NULL, SG_T("InputGrids")	, SG_T("Input Grids")	, SG_T("Grids to input"), PARAMETER_INPUT, PARAMETER_TYPE_Grid);
+	//Parameters.Add_List(NULL, SG_T("InputWeights")	, SG_T("Input Weights")	, SG_T("Weights for each input Grid"), PARAMETER_INPUT, PARAMETER_TYPE_Int); does not work
 
-	//Parameters.Add_Grid(	NULL, "Curvature"	, "Curvature"	, "Input Curvate grid."	, PARAMETER_INPUT);
+	//Parameters.Add_Grid(	NULL, SG_T("Curvature")	, SG_T("Curvature")	, SG_T("Input Curvate grid.")	, PARAMETER_INPUT);
 	CSG_Parameter *parentPar;
-	Parameters.Add_Grid(	NULL, "InputGrid1"	, "Input Grid1"	, "Input Grid1 (e.g. profile curvatue)"	, PARAMETER_INPUT);
-	parentPar = Parameters.Add_Grid(	NULL, "InputGrid2"	, "Input Grid2"	, "Input Grid2 (e.g. curvatue)"	, PARAMETER_INPUT_OPTIONAL);
-	Parameters.Add_Value( parentPar, "InputWeight2","weighting factor","weighting factor of this grid compared to InputGrid1=1",  PARAMETER_TYPE_Double, 1.0 );
-	parentPar = Parameters.Add_Grid(	NULL, "InputGrid3"	, "Input Grid3"	, "Input Grid3 (e.g. slope)"	, PARAMETER_INPUT_OPTIONAL);
-	Parameters.Add_Value( parentPar, "InputWeight3","weighting factor","weighting factor of this grid compared to InputGrid1=1",  PARAMETER_TYPE_Double, 1.0 );
-	parentPar = Parameters.Add_Grid(	NULL, "InputGrid4"	, "Input Grid4"	, "Input Grid4"	, PARAMETER_INPUT_OPTIONAL);
-	Parameters.Add_Value( parentPar, "InputWeight4","weighting factor","weighting factor of this grid compared to InputGrid1=1",  PARAMETER_TYPE_Double, 1.0 );
-	parentPar = Parameters.Add_Grid(	NULL, "InputGrid5"	, "Input Grid5"	, "Input Grid5"	, PARAMETER_INPUT_OPTIONAL);
-	Parameters.Add_Value( parentPar, "InputWeight5","weighting factor","weighting factor of this grid compared to InputGrid1=1",  PARAMETER_TYPE_Double, 1.0 );
-	Parameters.Add_Grid(	NULL, "ClassesGrid"	, "Classes"		, "Output grid of aggregated classes"	, PARAMETER_OUTPUT);
-	Parameters.Add_Grid(	NULL, "OrphantsGrid", "Orphants"	, "Output grid of removed orphants"	, PARAMETER_OUTPUT_OPTIONAL);
-	Parameters.Add_Grid(	NULL, "MinDistGrid", "MinDist"	, "Output grid of minimum distances to neighbor pixels class in parameter space"	, PARAMETER_OUTPUT_OPTIONAL);
-	Parameters.Add_Grid(	NULL, "MinDistDirGrid", "MinDistDir"	, "Output grid of direction of minimum distances to neighbor pixels class in parameter space"	, PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid(	NULL, SG_T("InputGrid1")	, SG_T("Input Grid1")	, SG_T("Input Grid1 (e.g. profile curvatue)")	, PARAMETER_INPUT);
+	parentPar = Parameters.Add_Grid(	NULL, SG_T("InputGrid2")	, SG_T("Input Grid2")	, SG_T("Input Grid2 (e.g. curvatue)")	, PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Value( parentPar, SG_T("InputWeight2"), SG_T("weighting factor"), SG_T("weighting factor of this grid compared to InputGrid1=1"),  PARAMETER_TYPE_Double, 1.0 );
+	parentPar = Parameters.Add_Grid(	NULL, SG_T("InputGrid3")	, SG_T("Input Grid3")	, SG_T("Input Grid3 (e.g. slope)")	, PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Value( parentPar, SG_T("InputWeight3"), SG_T("weighting factor"), SG_T("weighting factor of this grid compared to InputGrid1=1"),  PARAMETER_TYPE_Double, 1.0 );
+	parentPar = Parameters.Add_Grid(	NULL, SG_T("InputGrid4")	, SG_T("Input Grid4")	, SG_T("Input Grid4")	, PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Value( parentPar, SG_T("InputWeight4"), SG_T("weighting factor"), SG_T("weighting factor of this grid compared to InputGrid1=1"),  PARAMETER_TYPE_Double, 1.0 );
+	parentPar = Parameters.Add_Grid(	NULL, SG_T("InputGrid5")	, SG_T("Input Grid5")	, SG_T("Input Grid5")	, PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Value( parentPar, SG_T("InputWeight5"), SG_T("weighting factor"), SG_T("weighting factor of this grid compared to InputGrid1=1"),  PARAMETER_TYPE_Double, 1.0 );
+	Parameters.Add_Grid(	NULL, SG_T("ClassesGrid")	, SG_T("Classes")		, SG_T("Output grid of aggregated classes")	, PARAMETER_OUTPUT);
+	Parameters.Add_Grid(	NULL, SG_T("OrphantsGrid"), SG_T("Orphants")	, SG_T("Output grid of removed orphants")	, PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid(	NULL, SG_T("MinDistGrid"), SG_T("MinDist")	, SG_T("Output grid of minimum distances to neighbor pixels class in parameter space")	, PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid(	NULL, SG_T("MinDistDirGrid"), SG_T("MinDistDir")	, SG_T("Output grid of direction of minimum distances to neighbor pixels class in parameter space")	, PARAMETER_OUTPUT_OPTIONAL);
 
-	//Parameters.Add_Value(	NULL, "BOOLEAN"	, "Boolean"	, "A value of type boolean."		, PARAMETER_TYPE_Bool	, true);
-	//Parameters.Add_Value(	NULL, "INTEGER"	, "Integer"	, "A value of type integer."		, PARAMETER_TYPE_Int	, 200);
-	//Parameters.Add_Value(	NULL, "DOUBLE"	, "Double"	, "A floating point value."			, PARAMETER_TYPE_Double	, 3.145);
-	//Parameters.Add_Value(	NULL, "NoDataValue"	, "NoDataValue"	, "Value for 'no data'"			, PARAMETER_TYPE_Double	, -9999);
-	Parameters.Add_Value(	NULL, "MaxOrphantsSize"	, "MaxOrphantsSize"	, "class of size up to this will be joined to next neighbouring class"	, PARAMETER_TYPE_Int, 5);
-	Parameters.Add_Value(	NULL, "GenFactor"	, "GenFactor"	, "Factor of Generalisation (range 0-1)"	, PARAMETER_TYPE_Double	, 0.99);
-	Parameters.Add_Value(	NULL, "RegionExtent", "RegionExtent", "Extend of one dimension of algorithms subgrid"	, PARAMETER_TYPE_Int	, 30);
+	//Parameters.Add_Value(	NULL, SG_T("BOOLEAN")	, SG_T("Boolean")	, SG_T("A value of type boolean.")		, PARAMETER_TYPE_Bool	, true);
+	//Parameters.Add_Value(	NULL, SG_T("INTEGER")	, SG_T("Integer")	, SG_T("A value of type integer.")		, PARAMETER_TYPE_Int	, 200);
+	//Parameters.Add_Value(	NULL, SG_T("DOUBLE")	, SG_T("Double")	, SG_T("A floating point value.")			, PARAMETER_TYPE_Double	, 3.145);
+	//Parameters.Add_Value(	NULL, SG_T("NoDataValue")	, SG_T("NoDataValue")	, SG_T("Value for 'no data'")			, PARAMETER_TYPE_Double	, -9999);
+	Parameters.Add_Value(	NULL, SG_T("MaxOrphantsSize")	, SG_T("MaxOrphantsSize")	, SG_T("class of size up to this will be joined to next neighbouring class")	, PARAMETER_TYPE_Int, 5);
+	Parameters.Add_Value(	NULL, SG_T("GenFactor")	, SG_T("GenFactor")	, SG_T("Factor of Generalisation (range 0-1)")	, PARAMETER_TYPE_Double	, 0.99);
+	Parameters.Add_Value(	NULL, SG_T("RegionExtent"), SG_T("RegionExtent"), SG_T("Extend of one dimension of algorithms subgrid")	, PARAMETER_TYPE_Int	, 30);
 
-	parentPar = Parameters.Add_Grid(	NULL, "ClassesGrid1"	, "Classes add1"	, "additional output of classes at specified generalisation"	, PARAMETER_OUTPUT_OPTIONAL);
-	Parameters.Add_Value(	parentPar, "GenFactor1"	, "GenFactor add1"	, "Factor of Generalisation (range 0-genFactor)"	, PARAMETER_TYPE_Double	, 0.75);
-	parentPar = Parameters.Add_Grid(	NULL, "ClassesGrid2"	, "Classes add2"	, "additional output of classes at specified generalisation"	, PARAMETER_OUTPUT_OPTIONAL);
-	Parameters.Add_Value(	parentPar, "GenFactor2"	, "GenFactor add2"	, "Factor of Generalisation (range 0-genFactor)"	, PARAMETER_TYPE_Double	, 0.9);
-	parentPar = Parameters.Add_Grid(	NULL, "ClassesGrid3"	, "Classes add3"	, "additional output of classes at specified generalisation"	, PARAMETER_OUTPUT_OPTIONAL);
-	Parameters.Add_Value(	parentPar, "GenFactor3"	, "GenFactor add3"	, "Factor of Generalisation (range 0-genFactor)"	, PARAMETER_TYPE_Double	, 0.95);
-	parentPar = Parameters.Add_Grid(	NULL, "ClassesGrid4"	, "Classes add4"	, "additional output of classes at specified generalisation"	, PARAMETER_OUTPUT_OPTIONAL);
-	Parameters.Add_Value(	parentPar, "GenFactor4"	, "GenFactor add4"	, "Factor of Generalisation (range 0-genFactor)"	, PARAMETER_TYPE_Double	, 0.975);
-	parentPar = Parameters.Add_Grid(	NULL, "ClassesGrid5"	, "Classes add5"	, "additional output of classes at specified generalisation"	, PARAMETER_OUTPUT_OPTIONAL);
-	Parameters.Add_Value(	parentPar, "GenFactor5"	, "GenFactor add5"	, "Factor of Generalisation (range 0-genFactor)"	, PARAMETER_TYPE_Double	, 0.987);
+	parentPar = Parameters.Add_Grid(	NULL, SG_T("ClassesGrid1")	, SG_T("Classes add1")	, SG_T("additional output of classes at specified generalisation")	, PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Value(	parentPar, SG_T("GenFactor1")	, SG_T("GenFactor add1")	, SG_T("Factor of Generalisation (range 0-genFactor)")	, PARAMETER_TYPE_Double	, 0.75);
+	parentPar = Parameters.Add_Grid(	NULL, SG_T("ClassesGrid2")	, SG_T("Classes add2")	, SG_T("additional output of classes at specified generalisation")	, PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Value(	parentPar, SG_T("GenFactor2")	, SG_T("GenFactor add2")	, SG_T("Factor of Generalisation (range 0-genFactor)")	, PARAMETER_TYPE_Double	, 0.9);
+	parentPar = Parameters.Add_Grid(	NULL, SG_T("ClassesGrid3")	, SG_T("Classes add3")	, SG_T("additional output of classes at specified generalisation")	, PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Value(	parentPar, SG_T("GenFactor3")	, SG_T("GenFactor add3")	, SG_T("Factor of Generalisation (range 0-genFactor)")	, PARAMETER_TYPE_Double	, 0.95);
+	parentPar = Parameters.Add_Grid(	NULL, SG_T("ClassesGrid4")	, SG_T("Classes add4")	, SG_T("additional output of classes at specified generalisation")	, PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Value(	parentPar, SG_T("GenFactor4")	, SG_T("GenFactor add4")	, SG_T("Factor of Generalisation (range 0-genFactor)")	, PARAMETER_TYPE_Double	, 0.975);
+	parentPar = Parameters.Add_Grid(	NULL, SG_T("ClassesGrid5")	, SG_T("Classes add5")	, SG_T("additional output of classes at specified generalisation")	, PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Value(	parentPar, SG_T("GenFactor5")	, SG_T("GenFactor add5")	, SG_T("Factor of Generalisation (range 0-genFactor)")	, PARAMETER_TYPE_Double	, 0.987);
 
 	/*
-	Parameters.Add_Choice(	NULL, "METHOD"	, "Method"	, "Choose a method from this select option.",
+	Parameters.Add_Choice(	NULL, SG_T("METHOD")	, SG_T("Method")	, SG_T("Choose a method from this select option.",
 		"First Method|"
 		"Second Method|",
 		0
@@ -220,22 +220,22 @@ bool CCompleteLinkage::On_Execute(void){
 
 	if( pMinDist == NULL ){
 		pMinDist = SG_Create_Grid(GRID_TYPE_Double, Get_NX(), Get_NY(), Get_Cellsize());
-		pMinDist->Set_Name("MinDist");
+		pMinDist->Set_Name(_TL("MinDist"));
 	}
 	if( pMinDistDir == NULL ){
 		pMinDistDir = SG_Create_Grid( GRID_TYPE_Double, Get_NX(), Get_NY(), Get_Cellsize());
-		pMinDistDir->Set_Name("MinDistDir");
+		pMinDistDir->Set_Name(_TL("MinDistDir"));
 	}
  
 	//-------------  Region Grids ---------------	
 	{int rnx = ceil( Get_NX() / (double) regionExtent ); // without (double) its an integer division
 	int rny = ceil( Get_NY() / (double) regionExtent );
 	pRegionMinDistGrid = SG_Create_Grid(GRID_TYPE_Double, rnx, rny, Get_Cellsize()*regionExtent);
-	pRegionMinDistGrid->Set_Name("MinDist Region");
+	pRegionMinDistGrid->Set_Name(_TL("MinDist Region"));
 	pRegionMinPixelGrid = SG_Create_Grid(GRID_TYPE_Long, rnx, rny, Get_Cellsize()*regionExtent);
-	pRegionMinPixelGrid->Set_Name("Regions MinPixel");
+	pRegionMinPixelGrid->Set_Name(_TL("Regions MinPixel"));
 	pRegionNdvCntGrid = SG_Create_Grid(GRID_TYPE_Long, rnx, rny, Get_Cellsize()*regionExtent);
-	pRegionNdvCntGrid->Set_Name("Regions Count of No-DataValue-Pixels");
+	pRegionNdvCntGrid->Set_Name(_TL("Regions Count of No-DataValue-Pixels"));
 	}
 
 	try{
@@ -243,7 +243,7 @@ bool CCompleteLinkage::On_Execute(void){
 
 		// ---------------- initalize 
 		// and calculate pixels and grids minimal distance
-		Message_Add("calculating initial distances\n");
+		Message_Add(_TL("calculating initial distances\n"));
 		prof.start("init");
 		ndvCnt = initClassesGrid();
 		prof.stop("init");
@@ -270,7 +270,7 @@ bool CCompleteLinkage::On_Execute(void){
 		nRegionNXY = (long) (Get_NX() % regionExtent) * (Get_NY() % regionExtent) * genFactor * genFactorRegion;
 
 		// ------------------- region loops -------------------------
-		Message_Add("aggregating inside regions\n");
+		Message_Add(_TL("aggregating inside regions\n"));
 		i = 0;
 		for( int regy = 0; regy < pRegionMinDistGrid->Get_NY() && Set_Progress(regy); regy++ ){
 			for( int regx = 0; regx < pRegionMinDistGrid->Get_NX() ; regx++ ){
@@ -303,7 +303,7 @@ bool CCompleteLinkage::On_Execute(void){
 			}
 		}
 
-		Message_Add("Recalculating all Regions Minimum Distances\n");
+		Message_Add(_TL("Recalculating all Regions Minimum Distances\n"));
 		prof.start("recalcRegionMins_1");
 		recalcRegionMins(affectedRegionSet);
 		prof.stop("recalcRegionMins_1");
@@ -312,7 +312,7 @@ bool CCompleteLinkage::On_Execute(void){
 		// ----------------- grids loop --------------------------------
 		// needs recalculation of several Regions 
 		// and minimum loop over all regions
-		Message_Add("aggregating over all the grid\n");
+		Message_Add(_TL("aggregating over all the grid\n"));
 		try{
 			for( i = i; (i<nAll) && Set_Progress_NCells(i-Get_NCells()); i++ ){
 				prof.start("mainLoop");
@@ -345,7 +345,7 @@ bool CCompleteLinkage::On_Execute(void){
 		// -------------- remove Orphants ---------------------
 		//(classes with only few cells)
 		if( minPixelCnt > 1){
-			Message_Add("removing orphants\n");
+			Message_Add(_TL("removing orphants\n"));
 			prof.start("removeOrphantClasses");
 			removeOrphantClasses(minPixelCnt, pOrphantsGrid, i, classDistMap, affectedRegionSet);
 			prof.stop("removeOrphantClasses");
@@ -353,7 +353,7 @@ bool CCompleteLinkage::On_Execute(void){
 
 		// ----------------- rename classes --------------------
 		//prof.start("renameClasses");
-		Message_Add("renaming classes\n");
+		Message_Add(_TL("renaming classes\n"));
 		renameClasses();
 		//prof.stop("renameClasses");
 
@@ -363,7 +363,7 @@ bool CCompleteLinkage::On_Execute(void){
 	}
 
 	// -------------------- cleanup --------------
-	Message_Add("clean up temporary data structures\n");
+	Message_Add(_TL("clean up temporary data structures\n"));
 	prof.start("cleanup");
 	{for( distMapT::iterator it = classDistMap.begin(); it != classDistMap.end(); ++it){
 		delete (*it).second;

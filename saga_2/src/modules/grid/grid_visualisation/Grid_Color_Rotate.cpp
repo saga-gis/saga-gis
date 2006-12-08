@@ -78,9 +78,9 @@ CGrid_Color_Rotate::CGrid_Color_Rotate(void)
 		_TL("The 'Color Palette Rotator' rotates the grids color palette. ")
 	);
 
-	Parameters.Add_Grid(	NULL, "GRID"	, _TL("Grid")	, "", PARAMETER_INPUT);
-	Parameters.Add_Colors(	NULL, "COLORS"	, _TL("Colors")	, "");
-	Parameters.Add_Value(	NULL, "DIR"		, _TL("Down")	, "", PARAMETER_TYPE_Bool, true);
+	Parameters.Add_Grid(	NULL, "GRID"	, _TL("Grid")	, _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Colors(	NULL, "COLORS"	, _TL("Colors")	, _TL(""));
+	Parameters.Add_Value(	NULL, "DIR"		, _TL("Down")	, _TL(""), PARAMETER_TYPE_Bool, true);
 
 }
 

@@ -85,7 +85,7 @@ public:
 	CGridding_Spline_Base(void);
 	virtual ~CGridding_Spline_Base(void);
 
-	virtual const char *	Get_MenuPath	(void)	{	return( _TL("R:Spline Interpolation") );	}
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Spline Interpolation") );	}
 
 
 protected:

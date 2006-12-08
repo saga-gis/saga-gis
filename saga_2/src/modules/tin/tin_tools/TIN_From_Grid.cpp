@@ -83,19 +83,19 @@ CTIN_From_Grid::CTIN_From_Grid(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL	, "GRID"		, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid_List(
 		NULL	, "VALUES"		, _TL("Values"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_TIN(
-		NULL	, "TIN"			, "TIN",
-		"",
+		NULL	, "TIN"			, _TL("TIN"),
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 }

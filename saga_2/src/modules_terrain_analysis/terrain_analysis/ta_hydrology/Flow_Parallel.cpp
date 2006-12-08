@@ -74,7 +74,7 @@ CFlow_Parallel::CFlow_Parallel(void)
 
 	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Parallel processing of cells for calculation of flow accumulation and related parameters. "
 		"This set of algorithms processes a DEM downwards from the highest to the lowest cell.\n\n"
 
@@ -117,13 +117,13 @@ CFlow_Parallel::CFlow_Parallel(void)
 
 	Parameters.Add_Grid(
 		NULL	, "CASPECT"		, _TL("Catchment Aspect"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "FLWPATH"		, _TL("Flow Path Length"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
@@ -133,8 +133,8 @@ CFlow_Parallel::CFlow_Parallel(void)
 
 	Parameters.Add_Choice(
 		NULL	, "Method"		, _TL("Method"),
-		"",
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("Deterministic 8"),
 			_TL("Rho 8"),
 			_TL("Braunschweiger Reliefmodell"),

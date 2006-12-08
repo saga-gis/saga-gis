@@ -78,7 +78,7 @@ CGSGrid_Zonal_Statistics::CGSGrid_Zonal_Statistics(void)
 
 	Set_Author		(_TL("Copyrights (c) 2005 by Volker Wichmann"));
 
-	Set_Description	(_TL("{STATZONAL_DESC} "
+	Set_Description	(_TW("{STATZONAL_DESC} "
 		"The module can be used to create a contingency table of unique condition units (UCUs). These "
 		"units are delineated from a zonal grid (e.g. sub catchments) and optional categorial grids (e.g. "
 		"landcover, soil, ...). It is possible to calculate simple statistics (min, max, mean, standard "
@@ -145,7 +145,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 {
 	int						x, y, nCatGrids, nStatGrids, iGrid, zoneID, catID, NDcount, catLevel, NDcountStat;
 	double					statID;
-	const char				*Gridname;
+	const SG_Char			*Gridname;
 
 	CSG_Grid				*pZones, *pGrid;
 	CSG_Parameter_Grid_List	*pCatList;
@@ -347,11 +347,11 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 	{
 		Gridname = pStatList->asGrid(iGrid)->Get_Name();
 
-		pOutTab->Add_Field(CSG_String::Format("%s_MIN"   , Gridname), TABLE_FIELDTYPE_Double);
-		pOutTab->Add_Field(CSG_String::Format("%s_MAX"   , Gridname), TABLE_FIELDTYPE_Double);
-		pOutTab->Add_Field(CSG_String::Format("%s_MEAN"  , Gridname), TABLE_FIELDTYPE_Double);
-		pOutTab->Add_Field(CSG_String::Format("%s_STDDEV", Gridname), TABLE_FIELDTYPE_Double);
-		pOutTab->Add_Field(CSG_String::Format("%s_SUM"   , Gridname), TABLE_FIELDTYPE_Double);
+		pOutTab->Add_Field(CSG_String::Format(SG_T("%s_MIN")   , Gridname), TABLE_FIELDTYPE_Double);
+		pOutTab->Add_Field(CSG_String::Format(SG_T("%s_MAX")   , Gridname), TABLE_FIELDTYPE_Double);
+		pOutTab->Add_Field(CSG_String::Format(SG_T("%s_MEAN")  , Gridname), TABLE_FIELDTYPE_Double);
+		pOutTab->Add_Field(CSG_String::Format(SG_T("%s_STDDEV"), Gridname), TABLE_FIELDTYPE_Double);
+		pOutTab->Add_Field(CSG_String::Format(SG_T("%s_SUM")   , Gridname), TABLE_FIELDTYPE_Double);
 	}
 
 
@@ -431,7 +431,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 
 	if( NDcountStat > 0 )
 	{
-		Message_Add(CSG_String::Format("\n\n\nWARNING: Encountered %d no-data value(s) in statistic grid(s)!\n\n\n", NDcountStat));
+		Message_Add(CSG_String::Format(SG_T("\n\n\n%s: %d %s\n\n\n"), _TL("WARNING"), NDcountStat, _TL("no-data value(s) in statistic grid(s)!")));
 	}
 
 	return (true);

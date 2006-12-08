@@ -73,33 +73,33 @@ CGSGrid_Residuals::CGSGrid_Residuals(void)
 	//-----------------------------------------------------
 	// 1. Info...
 
-	Set_Name(_TL("Residual Analysis (Grid)"));
+	Set_Name		(_TL("Residual Analysis (Grid)"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL("Relations of each grid cell to its neighborhood. "
+	Set_Description	(_TW("Relations of each grid cell to its neighborhood. "
 		"Wilson & Gallant (2000) used this type of calculation in terrain analysis.\n"
 		"\n"
 		"Reference:\n"
 		"- Wilson, J.P., Gallant, J.C., (Eds.), 2000: "
 		"'Terrain analysis - principles and applications', "
-		"New York, John Wiley & Sons, Inc.\n")
-	);
+		"New York, John Wiley & Sons, Inc.\n"
+	));
 
 
 	//-----------------------------------------------------
 	// 2. Parameters...
 
-	Parameters.Add_Grid(	NULL, "INPUT"		, _TL("Grid")						, "", PARAMETER_INPUT);
+	Parameters.Add_Grid(	NULL, "INPUT"		, _TL("Grid")						, _TL(""), PARAMETER_INPUT);
 
-	Parameters.Add_Grid(	NULL, "MEAN"		, _TL("Mean Value")					, "", PARAMETER_OUTPUT);
-	Parameters.Add_Grid(	NULL, "DIFF"		, _TL("Difference from Mean Value")	, "", PARAMETER_OUTPUT);
-	Parameters.Add_Grid(	NULL, "STDDEV"		, _TL("Standard Deviation")			, "", PARAMETER_OUTPUT);
-	Parameters.Add_Grid(	NULL, "RANGE"		, _TL("Value Range")				, "", PARAMETER_OUTPUT);
-	Parameters.Add_Grid(	NULL, "DEVMEAN"		, _TL("Deviation from Mean Value")	, "", PARAMETER_OUTPUT);
-	Parameters.Add_Grid(	NULL, "PERCENTILE"	, _TL("Percentile")					, "", PARAMETER_OUTPUT);
+	Parameters.Add_Grid(	NULL, "MEAN"		, _TL("Mean Value")					, _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid(	NULL, "DIFF"		, _TL("Difference from Mean Value")	, _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid(	NULL, "STDDEV"		, _TL("Standard Deviation")			, _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid(	NULL, "RANGE"		, _TL("Value Range")				, _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid(	NULL, "DEVMEAN"		, _TL("Deviation from Mean Value")	, _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid(	NULL, "PERCENTILE"	, _TL("Percentile")					, _TL(""), PARAMETER_OUTPUT);
 
-	Parameters.Add_Value(	NULL, "RADIUS"		, _TL("Radius (Cells)")				, "", PARAMETER_TYPE_Int, 7, 1, true);
+	Parameters.Add_Value(	NULL, "RADIUS"		, _TL("Radius (Cells)")				, _TL(""), PARAMETER_TYPE_Int, 7, 1, true);
 }
 
 //---------------------------------------------------------

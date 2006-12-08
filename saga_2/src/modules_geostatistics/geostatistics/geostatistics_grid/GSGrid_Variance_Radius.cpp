@@ -70,45 +70,47 @@
 //---------------------------------------------------------
 CGSGrid_Variance_Radius::CGSGrid_Variance_Radius(void)
 {
-	Set_Name(_TL("Radius of Variance (Grid)"));
+	Set_Name		(_TL("Radius of Variance (Grid)"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL("Find the radius within which the cell values exceed the given variance criterium. "
+	Set_Description	(_TW(
+		"Find the radius within which the cell values exceed the given variance criterium. "
 		"This module is closely related to the representativeness calculation "
 		"(variance within given search radius). "
-		"For easier usage, the variance criterium is entered as standard deviation value. ")
-	);
+		"For easier usage, the variance criterium is entered as standard deviation value. "
+	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL	, "INPUT"		, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "RESULT"		, _TL("Variance Radius"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Value(
 		NULL	, "VARIANCE"	, _TL("Standard Deviation"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 1.0
 	);
 
 	Parameters.Add_Value(
 		NULL	, "RADIUS"		, _TL("Maximum Search Radius (cells)"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int		, 20
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "OUTPUT"		, _TL("Type of Output"),
-		"",
-		CSG_String::Format("%s|%s|",
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Cells"),
 			_TL("Map Units")
 		), 0
@@ -139,12 +141,12 @@ bool CGSGrid_Variance_Radius::On_Execute(void)
 
 	//-----------------------------------------------------
 	stopVariance	= M_SQR(Parameters("VARIANCE")->asDouble());
-	maxRadius		= Parameters("RADIUS")->asInt();
-	bWriteGridsize	= Parameters("OUTPUT")->asInt() == 1;
+	maxRadius		= Parameters("RADIUS")	->asInt();
+	bWriteGridsize	= Parameters("OUTPUT")	->asInt() == 1;
 
-	pGrid			= Parameters("INPUT")->asGrid();
-	pResult			= Parameters("RESULT")->asGrid();
-	pResult->Set_Name(CSG_String::Format("Radius with Variance >= %f", stopVariance));
+	pGrid			= Parameters("INPUT")	->asGrid();
+	pResult			= Parameters("RESULT")	->asGrid();
+	pResult->Set_Name(CSG_String::Format(_TL("Radius with Variance >= %f"), stopVariance));
 
 	//-----------------------------------------------------
 	Initialize();

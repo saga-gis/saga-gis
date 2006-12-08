@@ -80,19 +80,19 @@ CGrid_Color_Blend::CGrid_Color_Blend(void)
 
 	Parameters.Add_Grid(
 		NULL	, "GRID"	, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid_List(
 		NULL	, "GRIDS"	, _TL("Grids"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Value(
 		NULL	, "NSTEPS"	, _TL("Interpolation Steps"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int	, 0.0, 0.0, true
 	);
 }

@@ -85,7 +85,7 @@ public:
 	CGrid_Cut(void);
 	virtual ~CGrid_Cut(void);
 
-	virtual const char *	Get_MenuPath			(void)	{	return( _TL("R:Construction") );	}
+	virtual const SG_Char *	Get_MenuPath			(void)	{	return( _TL("R:Construction") );	}
 
 
 protected:

@@ -77,7 +77,7 @@ CRaw_Import::CRaw_Import(void)
 
 	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Imports grid from binary raw data.\n")
 	);
 
@@ -87,109 +87,115 @@ CRaw_Import::CRaw_Import(void)
 
 	Parameters.Add_Grid_Output(
 		NULL	, "GRID"			, _TL("Grid"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_FilePath(
 		NULL	, "FILE_DATA"		, _TL("Raw Data File"),
-		""
+		_TL("")
 	);
 
 
 	//-----------------------------------------------------
 	Parameters.Add_Value(
 		NULL	, "NX"				, _TL("Cell Count (X)"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int			, 1
 	);
 
 	Parameters.Add_Value(
 		NULL	, "NY"				, _TL("Cell Count (Y)"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int			, 1
 	);
 
 	Parameters.Add_Value(
 		NULL	, "DXY"				, _TL("Cell Size"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double		, 1.0
 	);
 
 	Parameters.Add_Value(
 		NULL	, "XMIN"			, _TL("Left Border (X)"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double		, 0.0
 	);
 
 	Parameters.Add_Value(
 		NULL	, "YMIN"			, _TL("Lower Border (Y)"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double		, 0.0
 	);
 
 	Parameters.Add_String(
 		NULL	, "UNIT"			, _TL("Unit Name"),
-		"",
-		" "
+		_TL(""),
+		_TL("")
 	);
 
 	Parameters.Add_Value(
 		NULL	, "ZFACTOR"			, _TL("Z Multiplier"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double		, 1.0
 	);
 
 	Parameters.Add_Value(
 		NULL	, "NODATA"			, _TL("No Data Value"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double		, -99999.0
 	);
 
 	Parameters.Add_Value(
 		NULL	, "DATA_OFFSET"		, _TL("Data Offset (Bytes)"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int			, 0.0
 	);
 
 	Parameters.Add_Value(
 		NULL	, "LINE_OFFSET"		, _TL("Line Offset (Bytes)"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int			, 0.0
 	);
 
 	Parameters.Add_Value(
 		NULL	, "LINE_ENDSET"		, _TL("Line Endset (Bytes)"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int			, 0.0
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "DATA_TYPE"		, _TL("Data Type"),
-		"",_TL(
-		"1 Byte Integer (unsigned)|"
-		"1 Byte Integer (signed)|"
-		"2 Byte Integer (unsigned)|"
-		"2 Byte Integer (signed)|"
-		"4 Byte Integer (unsigned)|"
-		"4 Byte Integer (signed)|"
-		"4 Byte Floating Point|"
-		"8 Byte Floating Point|")
+		_TL(""),
+		_TW(
+			"1 Byte Integer (unsigned)|"
+			"1 Byte Integer (signed)|"
+			"2 Byte Integer (unsigned)|"
+			"2 Byte Integer (signed)|"
+			"4 Byte Integer (unsigned)|"
+			"4 Byte Integer (signed)|"
+			"4 Byte Floating Point|"
+			"8 Byte Floating Point|"
+		)
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "BYTEORDER_BIG"	, _TL("Byte Order"),
-		"",
-		_TL(
-		"Little Endian (Intel)|"
-		"Big Endian (Motorola)|")	, 0
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("Little Endian (Intel)"),
+			_TL("Big Endian (Motorola)")
+		), 0
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "TOPDOWN"			, _TL("Line Order"),
-		"",
-		_TL(
-		"Bottom to Top|"
-		"Top to Bottom|")			, 0
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("Bottom to Top"),
+			_TL("Top to Bottom")
+		), 0
 	);
 }
 
@@ -247,7 +253,7 @@ bool CRaw_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( data_type != GRID_TYPE_Undefined && (Stream = fopen(FileName, "rb")) != NULL )
+	if( data_type != GRID_TYPE_Undefined && (Stream = fopen(FileName.b_str(), "rb")) != NULL )
 	{
 		if( (pGrid = Load_Data(Stream, data_type, nx, ny, dxy, xmin, ymin, data_head, line_head, line_tail, bDown, bBig)) != NULL )
 		{

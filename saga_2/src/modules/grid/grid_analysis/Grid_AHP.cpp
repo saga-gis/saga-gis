@@ -22,25 +22,25 @@
 CAHP::CAHP(void){
 
 	Parameters.Set_Name(_TL("Analytical Hierarchy Process"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2004 by Victor Olaya. Analytical Hierarchy Process"));
 
 	Parameters.Add_Grid_List(NULL,
 						"GRIDS", 
 						_TL("Input Grids"),
-						"Input Grids",
+						_TL("Input Grids"),
 						PARAMETER_INPUT);
 
 	Parameters.Add_Table(NULL,
 						"TABLE", 
 						_TL("Pairwise Comparisons Table "),
-						"",	
+						_TL(""),	
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL,
 						"OUTPUT",
 						_TL("Output Grid"),
-						"",
+						_TL(""),
 						PARAMETER_OUTPUT);
 
 }//constructor

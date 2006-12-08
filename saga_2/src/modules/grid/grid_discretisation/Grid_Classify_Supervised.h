@@ -85,7 +85,7 @@ public:
 	CGrid_Classify_Supervised(void);
 	virtual ~CGrid_Classify_Supervised(void);
 
-	virtual const char *		Get_MenuPath			(void)	{	return( _TL("R:Classification") );	}
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Classification") );	}
 
 
 protected:
@@ -96,7 +96,7 @@ protected:
 private:
 
 	bool						Get_Class_Information	(CSG_Parameter_Grid_List *pGrids, CSG_Shapes *pPolygons, int iField, CSG_Table *pClasses, CSG_Table *pLUT);
-	CSG_Table_Record *				Get_Class				(CSG_Table *pClasses, const char *Identifier);
+	CSG_Table_Record *			Get_Class				(CSG_Table *pClasses, const SG_Char *Identifier);
 
 	bool						Do_Minimum_Distance		(CSG_Parameter_Grid_List *pGrids, CSG_Table *pClasses, CSG_Grid *pResult);
 	bool						Do_Maximum_Likelihood	(CSG_Parameter_Grid_List *pGrids, CSG_Table *pClasses, CSG_Grid *pResult);

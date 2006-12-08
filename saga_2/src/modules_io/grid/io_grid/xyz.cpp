@@ -77,7 +77,7 @@ CXYZ_Export::CXYZ_Export(void)
 
 	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Export grid to a table (text format), that contains for each grid cell "
 		"the x/y-coordinates and additionally data from selected grids.\n")
 	);
@@ -88,18 +88,18 @@ CXYZ_Export::CXYZ_Export(void)
 
 	Parameters.Add_Grid_List(
 		NULL	, "GRIDS"		, _TL("Grids"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_FilePath(
 		NULL	, "FILENAME"	, _TL("File Name"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Value(
 		NULL	, "CAPTION"		, _TL("Write Field Names"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Bool, true
 	);
 }
@@ -118,16 +118,16 @@ CXYZ_Export::~CXYZ_Export(void)
 //---------------------------------------------------------
 bool CXYZ_Export::On_Execute(void)
 {
-	const char				*FileName;
 	int						x, y, i;
 	double					xMin, yMin;
 	FILE					*aus;
+	CSG_String				FileName;
 	CSG_Parameter_Grid_List	*pGrids;
 
 	pGrids		= Parameters("GRIDS")	->asGridList();
 	FileName	= Parameters("FILENAME")->asString();
 
-	if( pGrids->Get_Count() > 0 && FileName && (aus = fopen(FileName, "w")) != NULL )
+	if( pGrids->Get_Count() > 0 && (aus = fopen(FileName.b_str(), "w")) != NULL )
 	{
 		xMin	= pGrids->asGrid(0)->Get_XMin();
 		yMin	= pGrids->asGrid(0)->Get_YMin();

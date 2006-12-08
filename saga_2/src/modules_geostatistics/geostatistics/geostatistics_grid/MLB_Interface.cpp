@@ -66,12 +66,12 @@
 //---------------------------------------------------------
 // 2. Place general module library informations here...
 
-const char * Get_Info(int i)
+const SG_Char * Get_Info(int i)
 {
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return(_TL( "Geostatistics - Grids" ));
+		return( _TL("Geostatistics - Grids") );
 
 	case MLB_INFO_Author:
 		return( _TL("Olaf Conrad, Volker Wichmann (c) 2002-5" ));
@@ -80,7 +80,7 @@ const char * Get_Info(int i)
 		return( _TL("Tools for (geo)statistical analyses of grids.") );
 
 	case MLB_INFO_Version:
-		return( "1.0" );
+		return( SG_T("1.0") );
 
 	case MLB_INFO_Menu_Path:
 		return( _TL("Geostatistics|Grid") );

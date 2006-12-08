@@ -80,7 +80,7 @@ CGrid_Fill::CGrid_Fill(void)
 
 	Set_Author		(_TL("(c) 2005 by A.Ringeler, (c) 2006 by O.Conrad"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"Interactively use the flood fill method to replace a grid's cell values. "
 		"If the target is not set, the changes will be stored to the original grid. ")
 	);
@@ -91,27 +91,27 @@ CGrid_Fill::CGrid_Fill(void)
 
 	Parameters.Add_Grid(
 		NULL	, "GRID_IN"		, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "GRID_OUT"	, _TL("Changed Grid"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Value(
 		NULL	, "FILL"		, _TL("Fill Value"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 1
 	); 
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Value to be replaced"),
-		"",
+		_TL(""),
 
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("value at mouse position"),
 			_TL("fixed value"),
 			_TL("tolerance as absolute values")
@@ -120,19 +120,19 @@ CGrid_Fill::CGrid_Fill(void)
 
 	Parameters.Add_Value(
 		NULL	, "ZFIXED"		, _TL("Fixed value to be replaced"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 0.0
 	); 
 
 	Parameters.Add_Value(
 		NULL	, "DZMAX"		, _TL("Upper Tolerance"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 1.0
 	); 
 
 	Parameters.Add_Value(
 		NULL	, "DZMIN"		, _TL("Lower Tolerance"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, -1.0
 	);
 }
@@ -281,7 +281,7 @@ bool CGrid_Fill::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_M
 
 			//---------------------------------------------
 			Message_Add(_TL("ready"), false);
-			Message_Add(CSG_String::Format("%d %s", nReplaced, _TL("replacements")));
+			Message_Add(CSG_String::Format(SG_T("%d %s"), nReplaced, _TL("replacements")));
 
 			DataObject_Update(m_pGrid, m_pGrid->Get_ZMin(), m_pGrid->Get_ZMax());
 

@@ -74,7 +74,7 @@ CInterpolation_Shepard::CInterpolation_Shepard(void)
 
 	Set_Author		(_TL("Copyrights (c) 2003 by Andre Ringeler"));
 
-	Set_Description	(_TL(
+	Set_Description	(_TW(
 		"Modified  Quadratic Shepard method for grid interpolation "
 		"from irregular distributed points. This module is based on "
 		"Module 660 in TOMS.\n"
@@ -83,18 +83,18 @@ CInterpolation_Shepard::CInterpolation_Shepard(void)
 		"method for bivariate interpolation of scattered data "
 		"(see R. J. Renka, ACM TOMS 14 (1988) pp.149-150).\n"
 
-		"Classes: E2b. Interpolation of scattered, non-gridded multivariate data.")
-	);
+		"Classes: E2b. Interpolation of scattered, non-gridded multivariate data."
+	));
 
 	Parameters.Add_Value(
 		NULL	, "QUADRATIC_NEIGHBORS"	, _TL("Quadratic Neighbors"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int		, 13, 5, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "WEIGHTING_NEIGHBORS"	, _TL("Weighting Neighbors"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int		, 19, 3, true
 	);
 

@@ -75,7 +75,7 @@ CGrid_Gaps::CGrid_Gaps(void)
 
 	Set_Author(_TL("Copyrights (c) 2002 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Close gaps of a grid data set (i.e. eliminate no data values). "
 		"If the target is not set, the changes will be stored to the original grid. ")
 	);
@@ -84,13 +84,13 @@ CGrid_Gaps::CGrid_Gaps(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL, "INPUT"		, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL, "RESULT"		, _TL("Changed Grid"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
@@ -98,7 +98,7 @@ CGrid_Gaps::CGrid_Gaps(void)
 	//-----------------------------------------------------
 	Parameters.Add_Value(
 		NULL, "THRESHOLD"	, _TL("Tension Threshold"),
-		"", PARAMETER_TYPE_Double, 0.1
+		_TL(""), PARAMETER_TYPE_Double, 0.1
 	);
 }
 

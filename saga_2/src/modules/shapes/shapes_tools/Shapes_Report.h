@@ -78,7 +78,7 @@ public:
 	CShapes_Report(void);
 	virtual ~CShapes_Report(void);
 
-	virtual const char *	Get_MenuPath		(void)	{	return( _TL("A:Shapes|Reports") );	}
+	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("A:Shapes|Reports") );	}
 
 
 protected:
@@ -100,7 +100,7 @@ private:
 
 
 	bool					Add_Shapes			(void);
-	bool					Add_Shape			(CSG_Shape *pShape, const char *Title);
+	bool					Add_Shape			(CSG_Shape *pShape, const SG_Char *Title);
 
 };
 

@@ -70,7 +70,7 @@ CFillSinks::CFillSinks(void)
 
 	Set_Author(_TL("Copyrights (c) 2003 by Volker Wichmann"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Depression filling algorithm after Olivier Planchon & Frederic Darboux (2001)\n\n"
 		"Planchon, O. & F. Darboux (2001):\n"
 		"  A fast, simple and versatile algorithm to fill the depressions of digital elevation models.\n"

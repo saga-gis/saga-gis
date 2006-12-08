@@ -100,7 +100,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVIEW_Table_Diagram::CVIEW_Table_Diagram(CWKSP_Table *pTable)
-	: CVIEW_Base(ID_VIEW_TABLE_DIAGRAM, wxString::Format("%s [%s]", LNG("[CAP] Diagram"), pTable->Get_Name().c_str()), ID_IMG_WND_DIAGRAM, CVIEW_Table_Diagram::_Create_Menu(), LNG("[CAP] Diagram"))
+	: CVIEW_Base(ID_VIEW_TABLE_DIAGRAM, wxString::Format(wxT("%s [%s]"), LNG("[CAP] Diagram"), pTable->Get_Name().c_str()), ID_IMG_WND_DIAGRAM, CVIEW_Table_Diagram::_Create_Menu(), LNG("[CAP] Diagram"))
 {
 	SYS_Set_Color_BG_Window(this);
 
@@ -231,7 +231,7 @@ bool CVIEW_Table_Diagram::_Set_Fields(void)
 
 	if( m_pTable && m_pTable->Get_Field_Count() > 0 )
 	{
-		const char	*sField;
+		const wxChar	*sField;
 		int			iField;
 
 		iField		= m_Parameters("_DIAGRAM_XFIELD")->asInt();
@@ -240,7 +240,7 @@ bool CVIEW_Table_Diagram::_Set_Fields(void)
 
 		for(iField=0; iField<m_pTable->Get_Field_Count(); iField++)
 		{
-			if( strcmp(sField, m_pTable->Get_Field_Name(iField)) == 0 )
+			if( SG_STR_CMP(sField, m_pTable->Get_Field_Name(iField)) == 0 )
 			{
 				m_xMin	= m_pTable->Get_MinValue(iField);
 				m_xMax	= m_pTable->Get_MaxValue(iField);
@@ -263,12 +263,12 @@ bool CVIEW_Table_Diagram::_Set_Fields(void)
 		for(iField=0; iField<m_pTable->Get_Field_Count(); iField++)
 		{
 			if(	m_pTable->Get_Field_Type(iField) != TABLE_FIELDTYPE_String
-			&&	m_Parameters(wxString::Format("FIELD_%d", iField))->asBool() )
+			&&	m_Parameters(wxString::Format(wxT("FIELD_%d"), iField))->asBool() )
 			{
 				m_Fields			= (int *)SG_Realloc(m_Fields, (m_nFields + 1) * sizeof(int));
 				m_Fields[m_nFields]	= iField;
 
-				m_Colors.Set_Color(iField, m_Parameters(wxString::Format("COLOR_%d", iField))->asColor());
+				m_Colors.Set_Color(iField, m_Parameters(wxString::Format(wxT("COLOR_%d"), iField))->asColor());
 
 				m_nFields++;
 
@@ -310,44 +310,44 @@ void CVIEW_Table_Diagram::_Initialize(void)
 
 		m_Colors.Set_Count(m_pTable->Get_Field_Count());
 
-		m_Parameters.Create(NULL, LNG("[CAP] Properties"), "");
+		m_Parameters.Create(NULL, LNG("[CAP] Properties"), LNG(""));
 
-		pFields	= m_Parameters.Add_Node(NULL, "NODE_FIELDS", LNG("[CAP] Attributes"), "");
-		pColors	= m_Parameters.Add_Node(NULL, "NODE_COLORS", LNG("[CAP] Colors")	, "");
+		pFields	= m_Parameters.Add_Node(NULL, "NODE_FIELDS", LNG("[CAP] Attributes")	, LNG(""));
+		pColors	= m_Parameters.Add_Node(NULL, "NODE_COLORS", LNG("[CAP] Colors")		, LNG(""));
 
 		for(iField=0; iField<m_pTable->Get_Field_Count(); iField++)
 		{
 			if( m_pTable->Get_Field_Type(iField) != TABLE_FIELDTYPE_String )
 			{
 				m_Parameters.Add_Value(
-					pFields, wxString::Format("FIELD_%d", iField), m_pTable->Get_Field_Name(iField),
+					pFields, wxString::Format(wxT("FIELD_%d"), iField), m_pTable->Get_Field_Name(iField),
 					LNG("[CAP] Show"),
 					PARAMETER_TYPE_Bool, false
 				);
 
 				m_Parameters.Add_Value(
-					pColors, wxString::Format("COLOR_%d", iField), m_pTable->Get_Field_Name(iField),
+					pColors, wxString::Format(wxT("COLOR_%d"), iField), m_pTable->Get_Field_Name(iField),
 					LNG("[CAP] Color"),
 					PARAMETER_TYPE_Color, m_Colors.Get_Color(iField)
 				);
 
 				sFields_Num.Append(m_pTable->Get_Field_Name(iField));
-				sFields_Num.Append("|");
+				sFields_Num.Append(wxT("|"));
 			}
 
 			sFields_All.Append(m_pTable->Get_Field_Name(iField));
-			sFields_All.Append("|");
+			sFields_All.Append(wxT("|"));
 		}
 
 		pNode	= m_Parameters.Add_Node(
 			NULL, "GENERAL", LNG("[CAP] General"),
-			""
+			LNG("")
 		);
 
 		m_Parameters.Add_Choice(
 			pNode, "_DIAGRAM_TYPE"		, LNG("[CAP] Display Type"),
-			"",
-			wxString::Format("%s|%s|%s|%s|",
+			LNG(""),
+			wxString::Format(wxT("%s|%s|%s|%s|"),
 				LNG("Bars"),
 				LNG("Lines and Points"),
 				LNG("Lines"),
@@ -357,30 +357,30 @@ void CVIEW_Table_Diagram::_Initialize(void)
 
 		m_pFont	= m_Parameters.Add_Font(
 			pNode, "_DIAGRAM_FONT"		, LNG("[CAP] Font"),
-			""
+			LNG("")
 		)->asFont();
 
 		m_Parameters.Add_Value(
 			pNode, "_DIAGRAM_LEGEND"	, LNG("[CAP] Legend"),
-			"",
+			LNG(""),
 			PARAMETER_TYPE_Bool, true
 		);
 
 		sFields_Num.Append(LNG("[CAP] [none]"));
-		sFields_Num.Append("|");
+		sFields_Num.Append(wxT("|"));
 
 		m_Parameters.Add_Choice(
 			pNode, "_DIAGRAM_XFIELD"	, LNG("[CAP] X Axis"),
-			"",
+			LNG(""),
 			sFields_Num, m_pTable->Get_Field_Count() + 1
 		);
 
 		sFields_All.Append(LNG("[CAP] [none]"));
-		sFields_All.Append("|");
+		sFields_All.Append(wxT("|"));
 
 		m_Parameters.Add_Choice(
 			pNode, "_DIAGRAM_LABEL"		, LNG("[CAP] X Label"),
-			"",
+			LNG(""),
 			sFields_All, m_pTable->Get_Field_Count() + 1
 		);
 
@@ -527,7 +527,7 @@ void CVIEW_Table_Diagram::_Draw_Frame(wxDC &dc, wxRect r, double dx, double dy)
 			}
 			else
 			{
-				sLabel.Printf("%d", iRecord);
+				sLabel.Printf(wxT("%d"), iRecord);
 			}
 
 			Draw_Text(dc, TEXTALIGN_CENTERRIGHT, ix, r.GetBottom() + 7, 45.0, sLabel);
@@ -545,7 +545,7 @@ void CVIEW_Table_Diagram::_Draw_Frame(wxDC &dc, wxRect r, double dx, double dy)
 
 			dc.DrawLine(ix, r.GetBottom(), ix, r.GetBottom() + 5);
 
-			sLabel.Printf("%.*f", Precision, z);
+			sLabel.Printf(wxT("%.*f"), Precision, z);
 
 			Draw_Text(dc, TEXTALIGN_CENTERRIGHT, ix, r.GetBottom() + 7, 45.0, sLabel);
 		}
@@ -562,7 +562,7 @@ void CVIEW_Table_Diagram::_Draw_Frame(wxDC &dc, wxRect r, double dx, double dy)
 
 		dc.DrawLine(r.GetLeft(), ix, r.GetLeft() - 5, ix);
 
-		Draw_Text(dc, TEXTALIGN_TOPRIGHT, r.GetLeft() - 7, ix - dyFont / 2, wxString::Format("%.*f", Precision, z));
+		Draw_Text(dc, TEXTALIGN_TOPRIGHT, r.GetLeft() - 7, ix - dyFont / 2, wxString::Format(wxT("%.*f"), Precision, z));
 	}
 }
 

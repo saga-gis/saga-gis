@@ -115,11 +115,11 @@ CSG_Table_DBase::~CSG_Table_DBase(void)
 
 //---------------------------------------------------------
 // Creates a new DBase-File using FieldDescription...
-bool CSG_Table_DBase::Open(const char *FileName, int anFields, TFieldDesc *aFieldDesc)
+bool CSG_Table_DBase::Open(const SG_Char *FileName, int anFields, TFieldDesc *aFieldDesc)
 {
 	Close();
 
-	if( (hFile = fopen(FileName, "w+b")) != NULL )
+	if( (hFile = SG_FILE_OPEN(FileName, SG_T("w+b"))) != NULL )
 	{
 		bOpen		= true;
 		bReadOnly	= false;
@@ -139,11 +139,11 @@ bool CSG_Table_DBase::Open(const char *FileName, int anFields, TFieldDesc *aFiel
 
 //---------------------------------------------------------
 // Opens an existing DBase-File...
-bool CSG_Table_DBase::Open(const char *FileName)
+bool CSG_Table_DBase::Open(const SG_Char *FileName)
 {
 	Close();
 
-	if( (hFile = fopen(FileName, "rb")) != NULL )
+	if( (hFile = SG_FILE_OPEN(FileName, SG_T("rb"))) != NULL )
 	{
 		bOpen		= true;
 		bReadOnly	= true;
@@ -228,6 +228,19 @@ void CSG_Table_DBase::Close(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifdef _SAGA_LINUX
+char * _strupr(char *String)
+{
+	if( String )
+		for(char *p=String; *p; p++)
+			if( 'a' <= *p && *p <= 'z' )
+				*p	+= 'A' - 'a';
+
+	return( String );
+}
+#endif
+
+//---------------------------------------------------------
 void CSG_Table_DBase::Header_Write(void)
 {
 	char		buf[16];
@@ -291,15 +304,10 @@ void CSG_Table_DBase::Header_Write(void)
 
 		//-------------------------------------------------
 		// Bytes 32-n: Field Descriptor Array...
-
 		for(iField=0; iField<nFields; iField++)
 		{
 			FieldDesc[iField].Name[11]	= '\0';
-
-			//_strupr(FieldDesc[iField].Name);	// MSW specific, not ANSI standard ??!!..
-			s	= FieldDesc[iField].Name;
-			s.Make_Upper();
-			strncpy(FieldDesc[iField].Name, s, 11);
+			_strupr(FieldDesc[iField].Name);
 
 			fwrite( FieldDesc[iField].Name			, sizeof(char), 11, hFile);	// 00-10	Field Name ASCII padded with 0x00
 			fwrite(&FieldDesc[iField].Type			, sizeof(char),  1, hFile);	// 11		Field Type Identifier (see table)

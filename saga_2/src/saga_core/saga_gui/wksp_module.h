@@ -84,43 +84,41 @@
 class CWKSP_Module : public CWKSP_Base_Item
 {
 public:
-	CWKSP_Module(class CSG_Module *pModule, const char *Menu_Path_default);
+	CWKSP_Module(class CSG_Module *pModule, const wxChar *Menu_Path_default);
 	virtual ~CWKSP_Module(void);
 
-	virtual TWKSP_Item			Get_Type		(void)			{	return( WKSP_ITEM_Module );	}
+	virtual TWKSP_Item				Get_Type		(void)			{	return( WKSP_ITEM_Module );	}
 
-	virtual wxString			Get_Name		(void);
-	virtual wxString			Get_Description	(void);
+	virtual wxString				Get_Name		(void);
+	virtual wxString				Get_Description	(void);
 
-	virtual wxMenu *			Get_Menu		(void);
+	virtual wxMenu *				Get_Menu		(void);
 
-	virtual bool				On_Command		(int Cmd_ID);
+	virtual bool					On_Command		(int Cmd_ID);
 
 	virtual class CSG_Parameters *	Get_Parameters	(void);
 
 	class CSG_Module *				Get_Module		(void)			{	return( m_pModule );	}
 
-	void						Set_Menu_ID		(int Menu_ID);
-	int							Get_Menu_ID		(void)			{	return( m_Menu_ID );	}
-	wxString &					Get_Menu_Path	(void)			{	return( m_Menu_Path );	}
+	void							Set_Menu_ID		(int Menu_ID);
+	int								Get_Menu_ID		(void)			{	return( m_Menu_ID );	}
+	wxString &						Get_Menu_Path	(void)			{	return( m_Menu_Path );	}
 
-	wxString &					Get_File_Name	(void);
-	void						Set_File_Name	(wxString);
-	bool						is_Interactive	(void);
-	bool						is_Executing	(void);
+	wxString &						Get_File_Name	(void);
+	void							Set_File_Name	(wxString);
+	bool							is_Interactive	(void);
+	bool							is_Executing	(void);
 
-	bool						Execute			(bool bDialog);
-	bool						Execute			(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode, int Keys);
-
-	void						Make_Report		(FILE *Stream);
+	bool							Execute			(bool bDialog);
+	bool							Execute			(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode, int Keys);
 
 
 private:
 
-	wxString					m_Menu_Path;
+	wxString						m_Menu_Path;
 
-	wxString					m_File_Name;
-	int							m_Menu_ID;
+	wxString						m_File_Name;
+	int								m_Menu_ID;
 
 	class CSG_Module				*m_pModule;
 
@@ -128,7 +126,7 @@ private:
 };
 
 //---------------------------------------------------------
-extern CWKSP_Module				*g_pModule;
+extern CWKSP_Module					*g_pModule;
 
 
 ///////////////////////////////////////////////////////////

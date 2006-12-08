@@ -78,7 +78,7 @@ public:
 	CTIN_From_Grid_Specific_Points(void);
 	virtual ~CTIN_From_Grid_Specific_Points(void);
 
-	virtual const char *		Get_MenuPath	(void)	{	return( _TL("R:Conversion") );	}
+	virtual const SG_Char *		Get_MenuPath	(void)	{	return( _TL("R:Conversion") );	}
 
 
 protected:

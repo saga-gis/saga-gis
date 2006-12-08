@@ -72,33 +72,33 @@ CSurfaceSpecificPoints::CSurfaceSpecificPoints(void)
 {
 	CSG_Parameter	*pNode;
 
-	Set_Name(_TL("Surface Specific Points"));
+	Set_Name		(_TL("Surface Specific Points"));
 
-	Set_Author("Copyrights (c) 2001 by Olaf Conrad");
+	Set_Author		(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"References:\n"
 		"Peucker, T.K. and Douglas, D.H., 1975:\n"
 		"'Detection of surface-specific points by local parallel processing of discrete terrain elevation data',\n"
-		"Computer Graphics and Image Processing, 4, 375-387\n")
-	);
+		"Computer Graphics and Image Processing, 4, 375-387\n"
+	));
 
 	Parameters.Add_Grid(
 		NULL	, "ELEVATION"	, _TL("Elevation"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "RESULT"		, _TL("Result"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	pNode	= Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
 		_TL("Algorithm for the detection of Surface Specific Points"),
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("Mark Highest Neighbour"),
 			_TL("Opposite Neighbours"),
 			_TL("Flow Direction"),

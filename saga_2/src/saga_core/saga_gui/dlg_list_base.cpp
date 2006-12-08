@@ -103,8 +103,8 @@ CDLG_List_Base::CDLG_List_Base(CSG_Parameter_List *pList, wxString Caption)
 	m_pSelect		= new wxListBox	(this, ID_LISTBOX_SELECT, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE|wxLB_NEEDED_SB|wxLB_SORT);	// |wxLB_EXTENDED
 	m_pAdd			= new wxListBox	(this, ID_LISTBOX_ADD   , wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE|wxLB_NEEDED_SB);
 
-	m_pBtn_Add		= new wxButton	(this, ID_BTN_ADD   , ">>");
-	m_pBtn_Del		= new wxButton	(this, ID_BTN_DELETE, "<<");
+	m_pBtn_Add		= new wxButton	(this, ID_BTN_ADD   , wxT(">>"));
+	m_pBtn_Del		= new wxButton	(this, ID_BTN_DELETE, wxT("<<"));
 	m_pBtn_Up		= new wxButton	(this, ID_BTN_UP    , CTRL_Get_Name(ID_BTN_UP));
 	m_pBtn_Down		= new wxButton	(this, ID_BTN_DOWN  , CTRL_Get_Name(ID_BTN_DOWN));
 

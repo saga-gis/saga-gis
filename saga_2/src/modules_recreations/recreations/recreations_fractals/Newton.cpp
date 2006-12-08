@@ -76,7 +76,7 @@ CNewton::CNewton(void)
 
 	Set_Author(_TL("Copyrights (c) 2003 by Andre Ringeler"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Newton-Raphson Fractals")
 	);
 
@@ -84,26 +84,26 @@ CNewton::CNewton(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid_Output(
 		NULL	, "RESULT"	, _TL("Result"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Grid_Output(
 		NULL	, "SHADE"	, _TL("Shade"),
-		""
+		_TL("")
 	);
 
-	Parameters.Add_Value(	NULL	, "NX"		, _TL("Width (Cells)")		, "", PARAMETER_TYPE_Int, 400, 1, true);
-	Parameters.Add_Value(	NULL	, "NY"		, _TL("Height (Cells)")		, "", PARAMETER_TYPE_Int, 400, 1, true);
+	Parameters.Add_Value(	NULL	, "NX"		, _TL("Width (Cells)")		, _TL(""), PARAMETER_TYPE_Int, 400, 1, true);
+	Parameters.Add_Value(	NULL	, "NY"		, _TL("Height (Cells)")		, _TL(""), PARAMETER_TYPE_Int, 400, 1, true);
 
-	Parameters.Add_Range(	NULL	, "XRANGE"	, _TL("X-Range"	)			, "", -2.0, 2.0);
-	Parameters.Add_Range(	NULL	, "YRANGE"	, _TL("Y-Range"	)			, "", -2.0, 2.0);
+	Parameters.Add_Range(	NULL	, "XRANGE"	, _TL("X-Range"	)			, _TL(""), -2.0, 2.0);
+	Parameters.Add_Range(	NULL	, "YRANGE"	, _TL("Y-Range"	)			, _TL(""), -2.0, 2.0);
 
-	Parameters.Add_Choice(	NULL	, "METHOD"	, _TL("Equation")		, "", 
-							"z^3-1|"
+	Parameters.Add_Choice(	NULL	, "METHOD"	, _TL("Equation")		, _TL(""), 
+						_TW("z^3-1|"
 							"z^4-1|"
 							"z^5-1|"
 							"z^6-1|"
-							"z^10 + 0.2 i * z^5 - 1|", 0);
+							"z^10 + 0.2 i * z^5 - 1|"), 0);
 
 	//-----------------------------------------------------
 	Parameters.Add_Value(	NULL, "MAXITER"	, _TL("Max Iterations")	, _TL("Maximum Iterations")		, PARAMETER_TYPE_Double	, 50);
@@ -138,11 +138,11 @@ bool CNewton::On_Execute(void)
 	method			= Parameters("METHOD")->asInt();
 
 	pResult			= SG_Create_Grid(GRID_TYPE_Double, x, y, dx, xMin, yMin);
-	pResult->Set_Name("Newton [A]");
+	pResult->Set_Name(_TL("Newton [A]"));
 	Parameters("RESULT")->Set_Value(pResult);
 
 	pShade			= SG_Create_Grid(GRID_TYPE_Double, x, y, dx, xMin, yMin);
-	pShade->Set_Name("Newton [B]");
+	pShade->Set_Name(_TL("Newton [B]"));
 	Parameters("SHADE")	->Set_Value(pShade);
 
 	Get_System()->Assign(pShade->Get_System());

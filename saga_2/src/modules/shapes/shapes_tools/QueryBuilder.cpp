@@ -27,21 +27,21 @@ CQueryBuilder::CQueryBuilder(void){
 
 	Parameters.Set_Name(_TL("Query builder for shapes"));
 
-	Parameters.Set_Description(_TL("(c) 2004 by Victor Olaya. Query builder for shapes"));
+	Parameters.Set_Description(_TW("(c) 2004 by Victor Olaya. Query builder for shapes"));
 
 	Parameters.Add_Shapes(NULL,
 						"SHAPES",
 						_TL("Shapes"),
-						"",
+						_TL(""),
 						PARAMETER_INPUT);
 
-	Parameters.Add_String(NULL, "QUERY", _TL("Expression"), "", "");
+	Parameters.Add_String(NULL, "QUERY", _TL("Expression"), _TL(""), _TL(""));
 
 	Parameters.Add_Choice(NULL, 
 						"METHOD", 
-						"Method", 
-						"", 
-						_TL(
+						_TL("Method"), 
+						_TL(""), 
+						_TW(
 						"New selection|"
 						"Add to current selection|"
 						"Select from current selection|"),

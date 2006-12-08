@@ -29,25 +29,25 @@ CSimplifyShapes::CSimplifyShapes(void){
 
 	
 	Parameters.Set_Name(_TL("Simplify Lines"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2004 by Victor Olaya. Use this module to simplify a lines layer, removing points from it."));
 
 	Parameters.Add_Shapes(NULL, 
 						"OUT", 
 						_TL("Output"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT);
 
 	Parameters.Add_Shapes(NULL, 
 						"IN", 
 						_TL("Lines"),
-						"",
+						_TL(""),
 						PARAMETER_INPUT);
 
 	Parameters.Add_Choice(NULL, 
 						"METHOD", 
 						_TL("Method"), 
-						"", _TL(
+						_TL(""), _TW(
 						"Tolerance|"
 						"Percentage of initial points|"
 						"Number of total points|"),						

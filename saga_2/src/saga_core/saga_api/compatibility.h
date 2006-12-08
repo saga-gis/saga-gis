@@ -216,6 +216,7 @@ TGEO_iRect;
 #define API_Read_						SG_Read_
 #define API_Write_						SG_Write_
 #define API_Get_						SG_Get_
+#defind SG_Dir_isValid					SG_Dir_Exists
 
 
 //---------------------------------------------------------

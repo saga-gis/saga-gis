@@ -70,8 +70,8 @@ void CalculateFlowAccGrid(CSG_Grid *pFlowAccGrid,
 		}//for
 	}//for
 
-	pFlowAccGrid->Set_Description("Acc. Area");
-	pFlowAccGrid->Set_Unit("m2");
+	pFlowAccGrid->Set_Description(_TL("Acc. Area"));
+	pFlowAccGrid->Set_Unit(_TL("m2"));
 	
 }//function
 

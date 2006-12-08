@@ -92,53 +92,54 @@ CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name(_TL("Supervised Classification"));
+	Set_Name		(_TL("Supervised Classification"));
 
-	Set_Author(_TL("Copyrights (c) 2005 by Olaf Conrad"));
+	Set_Author		(_TL("Copyrights (c) 2005 by Olaf Conrad"));
 
-	Set_Description(_TL("Supervised Classification: Minimum Distance, Maximum Likelihood.\n")
-	);
+	Set_Description	(_TW(
+		"Supervised Classification: Minimum Distance, Maximum Likelihood.\n"
+	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List(
 		NULL	, "GRIDS"			, _TL("Grids"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "POLYGONS"		, _TL("Training Areas"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Table_Field(
 		pNode	, "FIELD"			, _TL("Class Identifier"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Table(
 		NULL	, "CLASSES"			, _TL("Class Information"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Table(
 		NULL	, "LUT"				, _TL("Lookup Table"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "RESULT"			, _TL("Classification"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT, true, GRID_TYPE_Char
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"			, _TL("Method"),
-		"",
-		CSG_String::Format("%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Minimum Distance"),
 			_TL("Maximum Likelihood")
 		), 0
@@ -167,11 +168,11 @@ bool CGrid_Classify_Supervised::On_Execute(void)
 {
 	bool					bResult	= false;
 	int						iField;
-	CSG_Table					*pClasses, *pLUT;
-	CSG_Shapes					*pPolygons;
-	CSG_Grid					*pGrid, *pResult;
+	CSG_Table				*pClasses, *pLUT;
+	CSG_Shapes				*pPolygons;
+	CSG_Grid				*pGrid, *pResult;
 	CSG_Parameter_Grid_List	*pGrids;
-	CSG_Parameters				P;
+	CSG_Parameters			P;
 
 	//-----------------------------------------------------
 	iField		= Parameters("FIELD")		->asInt();
@@ -184,7 +185,7 @@ bool CGrid_Classify_Supervised::On_Execute(void)
 	//-------------------------------------------------
 	if( Parameters("NORMALISE")->asBool() )
 	{
-		P.Add_Grid_List(NULL, "GRIDS", "", "", PARAMETER_INPUT, false);
+		P.Add_Grid_List(NULL, "GRIDS", _TL(""), _TL(""), PARAMETER_INPUT, false);
 
 		for(int i=0; i<pGrids->Get_Count(); i++)
 		{
@@ -235,9 +236,9 @@ bool CGrid_Classify_Supervised::On_Execute(void)
 //---------------------------------------------------------
 bool CGrid_Classify_Supervised::Get_Class_Information(CSG_Parameter_Grid_List *pGrids, CSG_Shapes *pPolygons, int iField, CSG_Table *pClasses, CSG_Table *pLUT)
 {
-	int				x, y, iGrid, iClass, iPolygon;
-	double			d, n;
-	TSG_Point		p;
+	int					x, y, iGrid, iClass, iPolygon;
+	double				d, n;
+	TSG_Point			p;
 	CSG_Table_Record	*pClass;
 	CSG_Shape_Polygon	*pPolygon;
 
@@ -340,9 +341,9 @@ bool CGrid_Classify_Supervised::Get_Class_Information(CSG_Parameter_Grid_List *p
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Table_Record * CGrid_Classify_Supervised::Get_Class(CSG_Table *pClasses, const char *Identifier)
+CSG_Table_Record * CGrid_Classify_Supervised::Get_Class(CSG_Table *pClasses, const SG_Char *Identifier)
 {
-	int				i;
+	int					i;
 	CSG_Table_Record	*pClass;
 
 	if( pClasses && Identifier )
@@ -351,7 +352,7 @@ CSG_Table_Record * CGrid_Classify_Supervised::Get_Class(CSG_Table *pClasses, con
 		{
 			pClass	= pClasses->Get_Record(i);
 
-			if( !strcmp(pClass->asString(CLASS_ID), Identifier) )
+			if( !SG_STR_CMP(pClass->asString(CLASS_ID), Identifier) )
 			{
 				return( pClass );
 			}

@@ -73,7 +73,7 @@ public:
 	CGrid_Value_Type(void);
 	virtual ~CGrid_Value_Type(void);
 
-	virtual const char *	Get_MenuPath		(void)	{	return( _TL("R:Values") );	}
+	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Values") );	}
 
 
 protected:

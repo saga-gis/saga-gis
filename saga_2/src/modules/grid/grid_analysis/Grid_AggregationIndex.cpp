@@ -22,16 +22,18 @@
 
 CAggregationIndex::CAggregationIndex(void){
 
-	Parameters.Set_Name(_TL("Aggregation Index"));
-	Parameters.Set_Description(_TL(
+	Set_Name		(_TL("Aggregation Index"));
+
+	Set_Description	(_TW(
 		"(c) 2004 by Victor Olaya. Aggregation Index\r\n"
 		"References:\r\n"
-		"1. Hong S. He, et al. An aggregation index to quantify spatial patterns of landscapes, Landscape Ecology 15, 591-601,2000\r\n"));
+		"1. Hong S. He, et al. An aggregation index to quantify spatial patterns of landscapes, Landscape Ecology 15, 591-601,2000\r\n"
+	));
 
 	Parameters.Add_Grid(NULL,
 						"INPUT",
 						_TL("Input Grid"),
-						"",
+						_TL(""),
 						PARAMETER_INPUT);
 
 	Parameters.Add_Value(NULL,
@@ -44,7 +46,7 @@ CAggregationIndex::CAggregationIndex(void){
 	Parameters.Add_Table(NULL,
 						"RESULT",
 						_TL("Result"),
-						"",
+						_TL(""),
 						PARAMETER_OUTPUT);
 
 }//constructor

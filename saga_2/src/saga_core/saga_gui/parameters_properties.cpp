@@ -91,7 +91,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_DATAOBJECT_LABEL(p)	(p->is_Option() ? p->Get_Name() : wxString::Format("%s %s", p->is_Input() ? (p->is_Optional() ? ">" : ">>") : (p->is_Optional() ? "<" : "<<"), p->Get_Name()).c_str())
+#define GET_DATAOBJECT_LABEL(p)	(p->is_Option() ? p->Get_Name() : wxString::Format(wxT("%s %s"), p->is_Input() ? (p->is_Optional() ? wxT(">") : wxT(">>")) : (p->is_Optional() ? wxT("<") : wxT("<<")), p->Get_Name()).c_str())
 
 
 ///////////////////////////////////////////////////////////
@@ -149,21 +149,21 @@ void CParameters_PG_Choice::_Destroy(void)
 //---------------------------------------------------------
 const wxChar * CParameters_PG_Choice::GetClassName(void) const
 {
-	return( "CParameters_PG_Choice" );
+	return( wxT("CParameters_PG_Choice") );
 }
 
 //---------------------------------------------------------
-void CParameters_PG_Choice::_Append(const char *Label, long Value)
+void CParameters_PG_Choice::_Append(const wxChar *Label, long Value)
 {
 	m_choices.Add(Label, Value);
 }
 
-void CParameters_PG_Choice::_Append(const char *Label, void *Value)
+void CParameters_PG_Choice::_Append(const wxChar *Label, void *Value)
 {
 	_Append(Label, (long)Value);
 }
 
-void CParameters_PG_Choice::_Append(const char *Label)
+void CParameters_PG_Choice::_Append(const wxChar *Label)
 {
 	m_choices.Add(Label);
 }
@@ -609,7 +609,7 @@ bool CParameters_PG_GridSystem::SetValueFromInt(long value, int arg_flags)
 
 			while( Id.IsOk() )
 			{
-				if( strcmp("CParameters_PG_Choice", Id.GetPropertyPtr()->GetClassName()) == 0 )
+				if( SG_STR_CMP(wxT("CParameters_PG_Choice"), Id.GetPropertyPtr()->GetClassName()) == 0 )
 				{
 					((CParameters_PG_Choice *)Id.GetPropertyPtr())->Update();
 				}
@@ -808,7 +808,7 @@ CParameters_PG_DoublesClass::CParameters_PG_DoublesClass(const wxString &Name, c
 
 	for(int i=0; i<m_value.m_nValues; i++)
 	{
-		AddChild(wxFloatProperty(m_value.m_Labels[i], wxString::Format("%s_%d", Identifier.c_str(), i), m_value.m_Values[i]));
+		AddChild(wxFloatProperty(m_value.m_Labels[i], wxString::Format(wxT("%s_%d"), Identifier.c_str(), i), m_value.m_Values[i]));
 	}
 }
 
@@ -979,9 +979,9 @@ bool CParameters_PG_DialogedValue::Do_Dialog(void)
 
 						for(size_t i=0; i<Files.GetCount(); i++)
 						{
-							Text.Append(i > 0 ? " \"" : "\"");
+							Text.Append(i > 0 ? wxT(" \"") : wxT("\""));
 							Text.Append(Files.Item(i));
-							Text.Append("\"");
+							Text.Append(wxT("\""));
 						}
 					}
 					else

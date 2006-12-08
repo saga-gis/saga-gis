@@ -35,7 +35,7 @@ public:
 	CEdgeContamination(void);
 	virtual ~CEdgeContamination(void);
 
-	virtual const char *	Get_MenuPath	(void)	{	return( _TL("R:Catchment Area" ));	}
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Catchment Area" ));	}
 
 protected:
 	virtual bool		On_Execute(void);

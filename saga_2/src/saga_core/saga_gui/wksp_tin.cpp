@@ -105,7 +105,7 @@ CWKSP_TIN::~CWKSP_TIN(void)
 //---------------------------------------------------------
 wxString CWKSP_TIN::Get_Name(void)
 {
-	return( wxString::Format("%02d. %s", 1 + Get_ID(), m_pTIN->Get_Name()) );
+	return( wxString::Format(wxT("%02d. %s"), 1 + Get_ID(), m_pTIN->Get_Name()) );
 }
 
 //---------------------------------------------------------
@@ -114,32 +114,32 @@ wxString CWKSP_TIN::Get_Description(void)
 	wxString	s;
 
 	//-----------------------------------------------------
-	s.Append(wxString::Format("<b>%s</b><table border=\"0\">",
+	s.Append(wxString::Format(wxT("<b>%s</b><table border=\"0\">"),
 		LNG("[CAP] TIN")
 	));
 
-	s.Append(wxString::Format("<tr><td>%s</td><td>%s</td></tr>",
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
 		LNG("[CAP] Name")					, m_pTIN->Get_Name()
 	));
 
-	s.Append(wxString::Format("<tr><td>%s</td><td>%s</td></tr>",
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
 		LNG("[CAP] File")					, m_pTIN->Get_File_Name()
 	));
 
-	s.Append(wxString::Format("<tr><td>%s</td><td>%d</td></tr>",
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%d</td></tr>"),
 		LNG("[CAP] Points")					, m_pTIN->Get_Point_Count()
 	));
 
-	s.Append("</table>");
+	s.Append(wxT("</table>"));
 
 	//-----------------------------------------------------
-	s.Append(wxString::Format("<hr><b>%s</b>", LNG("[CAP] Table Description")));
+	s.Append(wxString::Format(wxT("<hr><b>%s</b>"), LNG("[CAP] Table Description")));
 	s.Append(Get_TableInfo_asHTML(&m_pTIN->Get_Table()));
 
 	//-----------------------------------------------------
-	s.Append(wxString::Format("<hr><b>%s</b><font size=\"-1\">", LNG("[CAP] Data History")));
+	s.Append(wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), LNG("[CAP] Data History")));
 	s.Append(m_pTIN->Get_History().Get_HTML());
-	s.Append(wxString::Format("</font"));
+	s.Append(wxString::Format(wxT("</font")));
 
 	//-----------------------------------------------------
 	return( s );
@@ -204,35 +204,35 @@ void CWKSP_TIN::On_Create_Parameters(void)
 
 	m_Parameters.Add_Choice(
 		m_Parameters("NODE_METRIC")		, "COLORS_ATTRIB"			, LNG("[CAP] Attribute"),
-		"",
-		""
+		LNG(""),
+		LNG("")
 	);
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_POINTS"			, LNG("[CAP] Show Points"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Bool, false
 	);
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_EDGES"			, LNG("[CAP] Show Edges"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Bool, true
 	);
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_TRIANGES"		, LNG("[CAP] Show Filled"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Bool, true
 	);
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_TRANSPARENCY"	, LNG("[CAP] Transparency [%]"),
-		"",
+		LNG(""),
 		PARAMETER_TYPE_Double, 0.0, 0.0, true, 100.0, true
 	);
 
@@ -253,7 +253,7 @@ void CWKSP_TIN::On_DataObject_Changed(void)
 
 	for(i=0; i<m_pTIN->Get_Table().Get_Field_Count(); i++)
 	{
-		sChoices.Append(wxString::Format("%s|", m_pTIN->Get_Table().Get_Field_Name(i)));
+		sChoices.Append(wxString::Format(wxT("%s|"), m_pTIN->Get_Table().Get_Field_Name(i)));
 	}
 
 	m_Parameters("COLORS_ATTRIB")->asChoice()->Set_Items(sChoices);
@@ -281,11 +281,9 @@ void CWKSP_TIN::On_Parameters_Changed(void)
 //---------------------------------------------------------
 int CWKSP_TIN::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	int		zField;
-
-	if( !strcmp(pParameter->Get_Identifier(), "COLORS_ATTRIB") )
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), wxT("COLORS_ATTRIB")) )
 	{
-		zField	= pParameter->asInt();
+		int		zField	= pParameter->asInt();
 
 		pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(
 			m_pTIN->Get_Table().Get_MinValue(zField),
@@ -306,7 +304,7 @@ int CWKSP_TIN::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 //---------------------------------------------------------
 wxString CWKSP_TIN::Get_Value(CSG_Point ptWorld, double Epsilon)
 {
-	return( "" );
+	return( LNG("") );
 }
 
 //---------------------------------------------------------

@@ -27,21 +27,21 @@ CSearchInTable::CSearchInTable(void){
 
 	Parameters.Set_Name(_TL("Search in attributes table"));
 
-	Parameters.Set_Description(_TL("(c) 2004 Victor Olaya. Searches for an expression in the attributes table and selects records where the expression is found"));
+	Parameters.Set_Description(_TW("(c) 2004 Victor Olaya. Searches for an expression in the attributes table and selects records where the expression is found"));
 
 	Parameters.Add_Shapes(NULL,
 						"SHAPES",
 						_TL("Shapes"),
-						"",
+						_TL(""),
 						PARAMETER_INPUT);
 
-	Parameters.Add_String(NULL, "EXPRESSION", _TL("Expression"), "", "");
+	Parameters.Add_String(NULL, "EXPRESSION", _TL("Expression"), _TL(""), _TL(""));
 
 	Parameters.Add_Choice(NULL, 
 						"METHOD", 
 						_TL("Method"), 
-						"",
-						_TL(
+						_TL(""),
+						_TW(
 						"New selection|"
 						"Add to current selection|"
 						"Select from current selection|"),

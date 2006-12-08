@@ -71,6 +71,9 @@
 //---------------------------------------------------------
 #include <wx/notebook.h>
 
+//---------------------------------------------------------
+#include <saga_api/saga_api.h>
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -101,7 +104,7 @@ public:
 	class CWKSP_Map_Control *		Get_Maps				(void)	{	return( m_pMaps );		}
 
 	bool							Open					(void);
-	bool							Open					(const char *File_Name);
+	bool							Open					(const wxChar *File_Name);
 
 
 private:

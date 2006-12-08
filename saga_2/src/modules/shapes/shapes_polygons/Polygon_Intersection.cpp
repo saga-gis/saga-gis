@@ -78,37 +78,40 @@ CPolygon_Intersection::CPolygon_Intersection(void)
 
 	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Polygon_Intersection of polygon shapes. Based on the GPC (General Polygon Clipper, version 2.31) code of Alan Murta.")
 	);
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES_A"	, _TL("Layer A"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES_B"	, _TL("Layer B"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "RESULT"		, _TL("Polygon Intersection"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
-		"", _TL(
-		"Complete Intersection|"
-		"Intersection|"
-		"Difference (A - B)|")	, 0
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("Complete Intersection"),
+			_TL("Intersection"),
+			_TL("Difference (A - B)")
+		), 0
 	);
 
 	pNode	= Parameters.Add_Value(
@@ -148,7 +151,7 @@ bool CPolygon_Intersection::On_Execute(void)
 		{
 		//-------------------------------------------------
 		case 0: case 1: default:	// Intersection...
-			sName.Printf("%s [%s / %s]", _TL("Intersection"), pShapes_A->Get_Name(), pShapes_B->Get_Name());
+			sName.Printf(SG_T("%s [%s / %s]"), _TL("Intersection"), pShapes_A->Get_Name(), pShapes_B->Get_Name());
 
 			pShapes_AB	= Parameters("RESULT")->asShapes();
 			pShapes_AB->Create(SHAPE_TYPE_Polygon, sName);
@@ -167,7 +170,7 @@ bool CPolygon_Intersection::On_Execute(void)
 
 		//-------------------------------------------------
 		case 2:						// Difference...
-			sName.Printf("%s [%s / %s]", _TL("Difference"), pShapes_A->Get_Name(), pShapes_B->Get_Name());
+			sName.Printf(SG_T("%s [%s / %s]"), _TL("Difference"), pShapes_A->Get_Name(), pShapes_B->Get_Name());
 
 			pShapes_AB	= Parameters("RESULT")->asShapes();
 			pShapes_AB->Create(SHAPE_TYPE_Polygon, sName);

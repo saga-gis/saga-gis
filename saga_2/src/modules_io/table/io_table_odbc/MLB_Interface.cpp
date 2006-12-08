@@ -66,7 +66,7 @@
 //---------------------------------------------------------
 // 2. Place general module library informations here...
 
-const char *	Get_Info(int i)
+const SG_Char *	Get_Info(int i)
 {
 	switch( i )
 	{

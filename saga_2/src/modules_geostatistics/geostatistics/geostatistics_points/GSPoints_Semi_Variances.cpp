@@ -86,43 +86,43 @@ CGSPoints_Semi_Variances::CGSPoints_Semi_Variances(void)
 	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
 	Set_Description(
-		""
+		_TL("")
 	);
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "POINTS"		, _TL("Points"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table_Field(
 		pNode	, "FIELD"		, _TL("Attribute"),
-		""
+		_TL("")
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Table(
 		NULL	, "RESULT"		, _TL("Semivariances"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Value(
 		NULL	, "DISTSTEP"	, _TL("Distance Increment"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, 10.0, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "DISTMAX"		, _TL("Maximum Distance"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double	, -1.0
 	);
 
 	Parameters.Add_Value(
 		NULL	, "NSKIP"		, _TL("Skip Number"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 1, 1, true
 	);
 }
@@ -165,7 +165,7 @@ bool CGSPoints_Semi_Variances::On_Execute(void)
 	);
 
 	//-----------------------------------------------------
-	pTable->Set_Name(CSG_String::Format("%s [%s]: %s",
+	pTable->Set_Name(CSG_String::Format(SG_T("%s [%s]: %s"),
 		pShapes->Get_Name(),
 		pShapes->Get_Table().Get_Field_Name(Parameters("FIELD")->asInt()),
 		"Semivariances")

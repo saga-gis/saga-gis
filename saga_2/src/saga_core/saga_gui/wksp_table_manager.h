@@ -99,7 +99,7 @@ public:
 
 	bool						Exists			(class CSG_Table *pTable);
 	class CWKSP_Table *			Add				(class CSG_Table *pTable);
-	class CSG_Table *				Get_byFileName	(const char *File_Name);
+	class CSG_Table *				Get_byFileName	(const wxChar *File_Name);
 
 	bool						Update			(class CSG_Table *pTable, class CSG_Parameters *pParameters);
 	bool						Update_Views	(class CSG_Table *pTable);

@@ -85,7 +85,7 @@ CHillShade::CHillShade(void)
 
 	Parameters.Add_Grid(
 		NULL	, "ELEVATION"		, _TL("Elevation"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
@@ -105,8 +105,8 @@ CHillShade::CHillShade(void)
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"			, _TL("Shading Method"),
-		"",
-		CSG_String::Format("%s|%s|%s|%s|",
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
 			_TL("Standard"),
 			_TL("Standard (max. 90Degree)"),
 			_TL("Combined Shading"),

@@ -123,17 +123,17 @@ typedef enum ESG_Table_FieldType
 TSG_Table_Field_Type;
 
 //---------------------------------------------------------
-const char	gSG_Table_Field_Type_Names[][32]	=
+const SG_Char	gSG_Table_Field_Type_Names[][32]	=
 {
-	"NONE",
-	"CHARACTER",
-	"SHORTINT",
-	"INTEGER",
-	"LONGINT",
-	"FLOAT",
-	"DOUBLE",
-	"STRING",
-	"COLOR"
+	SG_T("NONE"),
+	SG_T("CHARACTER"),
+	SG_T("SHORTINT"),
+	SG_T("INTEGER"),
+	SG_T("LONGINT"),
+	SG_T("FLOAT"),
+	SG_T("DOUBLE"),
+	SG_T("STRING"),
+	SG_T("COLOR")
 };
 
 
@@ -153,42 +153,42 @@ public:
 	class CSG_Table *			Get_Owner		(void)				{	return( m_pOwner );	}
 	int							Get_Index		(void)	const		{	return( m_Index );	}
 
-	bool						Set_Value		(int        iField, const char *Value);
-	bool						Set_Value		(const char *Field, const char *Value);
-	bool						Set_Value		(int        iField, double      Value);
-	bool						Set_Value		(const char *Field, double      Value);
-	bool						Add_Value		(int        iField, double      Value);
-	bool						Add_Value		(const char *Field, double      Value);
-	bool						Mul_Value		(int        iField, double      Value);
-	bool						Mul_Value		(const char *Field, double      Value);
+	bool						Set_Value		(int           iField, const SG_Char *Value);
+	bool						Set_Value		(const SG_Char *Field, const SG_Char *Value);
+	bool						Set_Value		(int           iField, double         Value);
+	bool						Set_Value		(const SG_Char *Field, double         Value);
+	bool						Add_Value		(int           iField, double         Value);
+	bool						Add_Value		(const SG_Char *Field, double         Value);
+	bool						Mul_Value		(int           iField, double         Value);
+	bool						Mul_Value		(const SG_Char *Field, double         Value);
 
-	bool						Set_NoData		(int        iField);
-	bool						Set_NoData		(const char *Field);
-	bool						is_NoData		(int        iField)	const;
-	bool						is_NoData		(const char *Field)	const;
+	bool						Set_NoData		(int           iField);
+	bool						Set_NoData		(const SG_Char *Field);
+	bool						is_NoData		(int           iField)	const;
+	bool						is_NoData		(const SG_Char *Field)	const;
 
-	const char *				asString		(int        iField, int Decimals = -1)	const;
-	const char *				asString		(const char *Field, int Decimals = -1)	const;
+	const SG_Char *				asString		(int           iField, int Decimals = -1)	const;
+	const SG_Char *				asString		(const SG_Char *Field, int Decimals = -1)	const;
 
-	char						asChar			(int        iField)	const	{	return( (char  )asInt   (iField) );	}
-	char						asChar			(const char *Field)	const	{	return( (char  )asInt   ( Field) );	}
-	short						asShort			(int        iField)	const	{	return( (short )asInt   (iField) );	}
-	short						asShort			(const char *Field)	const	{	return( (short )asInt   ( Field) );	}
-	int							asInt			(int        iField)	const;
-	int							asInt			(const char *Field)	const;
-	long						asLong			(int        iField)	const	{	return( (long  )asInt   (iField) );	}
-	long						asLong			(const char *Field)	const	{	return( (long  )asInt   ( Field) );	}
+	SG_Char						asChar			(int           iField)	const	{	return( (SG_Char)asInt   (iField) );	}
+	SG_Char						asChar			(const SG_Char *Field)	const	{	return( (SG_Char)asInt   ( Field) );	}
+	short						asShort			(int           iField)	const	{	return( (short  )asInt   (iField) );	}
+	short						asShort			(const SG_Char *Field)	const	{	return( (short  )asInt   ( Field) );	}
+	int							asInt			(int           iField)	const;
+	int							asInt			(const SG_Char *Field)	const;
+	long						asLong			(int           iField)	const	{	return( (long   )asInt   (iField) );	}
+	long						asLong			(const SG_Char *Field)	const	{	return( (long   )asInt   ( Field) );	}
 
-	float						asFloat			(int        iField)	const	{	return( (float )asDouble(iField) );	}
-	float						asFloat			(const char *Field)	const	{	return( (float )asDouble( Field) );	}
-	double						asDouble		(int        iField)	const;
-	double						asDouble		(const char *Field)	const;
+	float						asFloat			(int           iField)	const	{	return( (float  )asDouble(iField) );	}
+	float						asFloat			(const SG_Char *Field)	const	{	return( (float  )asDouble( Field) );	}
+	double						asDouble		(int           iField)	const;
+	double						asDouble		(const SG_Char *Field)	const;
 
-	double						operator []		(int        iField)	const	{	return(         asDouble(iField) );	}
+	double						operator []		(int           iField)	const	{	return(          asDouble(iField) );	}
 
 	void						Assign			(CSG_Table_Record *pValues);
 
-	bool						is_Selected		(void)				const	{	return( m_bSelected );	}
+	bool						is_Selected		(void)					const	{	return( m_bSelected );	}
 
 
 protected:
@@ -211,7 +211,7 @@ protected:
 	bool						_Add_Field		(int add_Field);
 	bool						_Del_Field		(int del_Field);
 
-	int							_Get_Field	 	(const char *Field)	const;
+	int							_Get_Field	 	(const SG_Char *Field)	const;
 
 };
 
@@ -236,8 +236,8 @@ public:
 								CSG_Table			(const CSG_Table &Table);
 	bool						Create				(const CSG_Table &Table);
 
-								CSG_Table			(const char *File_Name, char Separator = '\t');
-	bool						Create				(const char *File_Name, char Separator = '\t');
+								CSG_Table			(const SG_Char *File_Name, SG_Char Separator = SG_T('\t'));
+	bool						Create				(const SG_Char *File_Name, SG_Char Separator = SG_T('\t'));
 
 								CSG_Table			(CSG_Table *pStructure);
 	bool						Create				(CSG_Table *pStructure);
@@ -251,9 +251,9 @@ public:
 	virtual bool				Assign				(CSG_Data_Object *pSource);
 	bool						Assign_Values		(CSG_Table *pTable);
 
-	virtual bool				Save				(const char *File_Name, int Format = 0);
-	virtual bool				Save				(const char *File_Name, int Format, char Separator);
-	bool						Serialize			(FILE *Stream, bool bSave);
+	virtual bool				Save				(const SG_Char *File_Name, int Format = 0);
+	virtual bool				Save				(const SG_Char *File_Name, int Format, SG_Char Separator);
+	bool						Serialize			(CSG_File &Stream, bool bSave);
 
 	//-----------------------------------------------------
 	CSG_Data_Object *			Get_Owner			(void)					{	return( m_pOwner );			}
@@ -263,11 +263,14 @@ public:
 	bool						is_Compatible		(CSG_Table *pTable, bool bExactMatch = false)	const;
 
 	//-----------------------------------------------------
-	void						Add_Field			(const char *Name, TSG_Table_Field_Type Type, int iField = -1);
+	void						Add_Field			(const SG_Char *Name, TSG_Table_Field_Type Type, int iField = -1);
+#ifdef _UNICODE
+	void						Add_Field			(const char    *Name, TSG_Table_Field_Type Type, int iField = -1);
+#endif
 	bool						Del_Field			(int iField);
 
 	int							Get_Field_Count		(void)			const	{	return( m_nFields );	}
-	const char *				Get_Field_Name		(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Name[iField]->c_str() : NULL );			}
+	const SG_Char *				Get_Field_Name		(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Name[iField]->c_str() : NULL );			}
 	TSG_Table_Field_Type		Get_Field_Type		(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Type[iField] : TABLE_FIELDTYPE_None );	}
 
 	double						Get_MinValue		(int iField)	const	{	return( _Range_Update(iField) ? m_Field_Val_Min[iField] : 0.0 );	}
@@ -299,7 +302,7 @@ public:
 	}
 
 	//-----------------------------------------------------
-	bool						Set_Value			(int iRecord, int iField, const char  *Value);
+	bool						Set_Value			(int iRecord, int iField, const SG_Char  *Value);
 	bool						Set_Value			(int iRecord, int iField, double       Value);
 
 	bool						Get_Value			(int iRecord, int iField, CSG_String  &Value)	const;
@@ -344,7 +347,7 @@ protected:
 	void						_On_Construction	(void);
 
 	bool						_Create				(const CSG_Table &Table);
-	bool						_Create				(const char *File_Name, char Separator);
+	bool						_Create				(const SG_Char *File_Name, SG_Char Separator);
 	bool						_Create				(CSG_Table *pStructure);
 
 	bool						_Destroy			(void);
@@ -361,11 +364,11 @@ protected:
 	bool						_Range_Invalidate	(int iField)	const;
 	bool						_Range_Update		(int iField)	const;
 
-	bool						_Load				(const char *File_Name, int Format, char Separator);
-	bool						_Load_Text			(const char *File_Name, bool bHeadline, char Separator);
-	bool						_Save_Text			(const char *File_Name, bool bHeadline, char Separator);
-	bool						_Load_DBase			(const char *File_Name);
-	bool						_Save_DBase			(const char *File_Name);
+	bool						_Load				(const SG_Char *File_Name, int Format    , SG_Char Separator);
+	bool						_Load_Text			(const SG_Char *File_Name, bool bHeadline, SG_Char Separator);
+	bool						_Save_Text			(const SG_Char *File_Name, bool bHeadline, SG_Char Separator);
+	bool						_Load_DBase			(const SG_Char *File_Name);
+	bool						_Save_DBase			(const SG_Char *File_Name);
 
 	void						_Index_Create		(int iField);
 	void						_Index_Destroy		(void);
@@ -388,7 +391,7 @@ SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(void);
 SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(const CSG_Table &Table);
 
 /** Safe table construction */
-SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(const char *FileName);
+SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(const SG_Char *FileName);
 
 /** Safe table construction */
 SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(CSG_Table *pStructure);

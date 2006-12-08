@@ -292,13 +292,13 @@ bool CWKSP_Shapes::On_Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, in
 
 				if( !FileName.FileExists() || !g_pACTIVE->Get_HTMLExtraInfo()->LoadPage(FileName.GetFullPath()) )
 				{
-					g_pACTIVE->Get_HTMLExtraInfo()->SetPage("");
+					g_pACTIVE->Get_HTMLExtraInfo()->SetPage(LNG(""));
 				}
 				
 			}
 			else
 			{
-				g_pACTIVE->Get_HTMLExtraInfo()->SetPage("");
+				g_pACTIVE->Get_HTMLExtraInfo()->SetPage(LNG(""));
 			}
 		}
 

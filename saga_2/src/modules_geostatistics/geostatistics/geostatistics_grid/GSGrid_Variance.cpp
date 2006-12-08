@@ -70,39 +70,40 @@
 //---------------------------------------------------------
 CGSGrid_Variance::CGSGrid_Variance(void)
 {
-	Set_Name(_TL("Representativeness (Grid)"));
+	Set_Name		(_TL("Representativeness (Grid)"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description(_TL("Representativeness - calculation of the variance within a given search radius.\n"
+	Set_Description	(_TW(
+		"Representativeness - calculation of the variance within a given search radius.\n"
 		"\n"
 		"Reference:\n"
 		"- Boehner, J., Koethe, R., Trachinow, C. (1997): "
 		"'Weiterentwicklung der automatischen Reliefanalyse auf der Basis von Digitalen Gelaendemodellen', "
-		"Goettinger Geographische Abhandlungen, Vol.100, p.3-21\n")
-	);
+		"Goettinger Geographische Abhandlungen, Vol.100, p.3-21\n"
+	));
 
 	Parameters.Add_Grid(
 		NULL	, "INPUT"	, _TL("Grid"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "RESULT"	, _TL("Representativeness"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Value(
 		NULL	, "RADIUS"	, _TL("Radius (Cells)"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 10
 	);
 
 	Parameters.Add_Value(
 		NULL	, "EXPONENT", _TL("Exponent"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 1
 	);
 }

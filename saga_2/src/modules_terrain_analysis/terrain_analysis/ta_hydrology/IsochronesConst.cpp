@@ -24,19 +24,19 @@ CIsochronesConst::CIsochronesConst(void){
 
 	Set_Name(_TL("Isochrones Constant Speed"));
 	Set_Author(_TL("Copyrights (c) 2004 by Victor Olaya"));
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"(c) 2004 by Victor Olaya. Isochrones calculation with constant speed"));
 
 	Parameters.Add_Grid(NULL, 
 						"DEM", 
 						_TL("Elevation Grid"), 
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"TIME", 
 						_TL("Time Out (h)"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
 						GRID_TYPE_Double);

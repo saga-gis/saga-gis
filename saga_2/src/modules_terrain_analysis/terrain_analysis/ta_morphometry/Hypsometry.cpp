@@ -75,7 +75,7 @@ CHypsometry::CHypsometry(void)
 
 	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Calculates the hypsometric curve for a given DEM.\n\n"
 		"References:\n"
 		"- Harlin, J.M (1978):\n"
@@ -92,7 +92,7 @@ CHypsometry::CHypsometry(void)
 
 	Parameters.Add_Grid(
 		NULL	, "ELEVATION"	, _TL("Elevation"),
-		"",
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
@@ -102,7 +102,7 @@ CHypsometry::CHypsometry(void)
 
 	Parameters.Add_Table(
 		NULL	, "TABLE"		, _TL("Hypsometry"),
-		"",
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
@@ -112,15 +112,15 @@ CHypsometry::CHypsometry(void)
 
 	Parameters.Add_Value(
 		NULL	, "COUNT"		, _TL("Number of Classes"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 100, 1, true
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "SORTING"		, _TL("Sort"),
-		"",
+		_TL(""),
 
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("up"),
 			_TL("down")
 		), 1
@@ -128,9 +128,9 @@ CHypsometry::CHypsometry(void)
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Classification Constant"),
-		"",
+		_TL(""),
 
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("height"),
 			_TL("area")
 		), 1
@@ -138,13 +138,13 @@ CHypsometry::CHypsometry(void)
 
 	Parameters.Add_Value(
 		NULL	, "BZRANGE"		, _TL("Use Z-Range"),
-		"applies to ",
+		_TL(""),
 		PARAMETER_TYPE_Bool, false
 	);
 
 	Parameters.Add_Range(
 		NULL	, "ZRANGE"		, _TL("Z-Range"),
-		"",
+		_TL(""),
 		0.0, 1000.0
 	);
 }
@@ -177,7 +177,7 @@ bool CHypsometry::On_Execute(void)
 	zMax		= Parameters("BZRANGE")		->asBool() ? Parameters("ZRANGE")->asRange()->Get_HiVal() : 0.0;
 	
 	pTable->Destroy();
-	pTable->Set_Name(CSG_String::Format("%s: %s", _TL("Hypsometric Curve"), pDEM->Get_Name()));
+	pTable->Set_Name(CSG_String::Format(SG_T("%s: %s"), _TL("Hypsometric Curve"), pDEM->Get_Name()));
 	pTable->Add_Field(_TL("Relative Height"), TABLE_FIELDTYPE_Double);
 	pTable->Add_Field(_TL("Relative Area")	, TABLE_FIELDTYPE_Double);
 	pTable->Add_Field(_TL("Absolute Height"), TABLE_FIELDTYPE_Double);
@@ -339,7 +339,7 @@ bool CHypsometry::Calculate_B(CSG_Grid *pDEM, CSG_Table *pTable, bool bDown, int
 		pTable->Add_Field(_TL("Absolute Height"), TABLE_FIELDTYPE_Double);
 		pTable->Add_Field(_TL("Absolute Area")	, TABLE_FIELDTYPE_Double);
 
-		pTable->Set_Name(CSG_String::Format("%s: %s", _TL("Hypsometric Curve"), pDEM->Get_Name()));
+		pTable->Set_Name(CSG_String::Format(SG_T("%s: %s"), _TL("Hypsometric Curve"), pDEM->Get_Name()));
 
 		//-------------------------------------------------
 		nStep	= nRange / nClasses;

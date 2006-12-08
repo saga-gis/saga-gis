@@ -118,7 +118,7 @@
 class CSAGA_Frame_StatusBar : public wxStatusBar
 {
 public:
-	CSAGA_Frame_StatusBar(wxWindow *parent, wxWindowID id, long style = wxST_SIZEGRIP, const wxString& name = "statusBar")
+	CSAGA_Frame_StatusBar(wxWindow *parent, wxWindowID id, long style = wxST_SIZEGRIP, const wxString& name = wxT("statusBar"))
 		: wxStatusBar(parent, id, style, name)
 	{
 		m_pProgressBar	= new wxGauge(this, ID_WND_PROGRESSBAR, 100);
@@ -229,7 +229,7 @@ CSAGA_Frame::CSAGA_Frame(void)
 	: wxMDIParentFrame(NULL, ID_WND_MAIN, LNG("SAGA"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE|wxHSCROLL|wxVSCROLL|wxFRAME_NO_WINDOW_MENU)
 {
 #ifdef _DEBUG
-	SetTitle("SAGA [Debug]");
+	SetTitle(wxT("SAGA [Debug]"));
 #endif
 
 	//-----------------------------------------------------
@@ -299,27 +299,27 @@ CSAGA_Frame::CSAGA_Frame(void)
 
 	wxString	s;
 
-	if( CONFIG_Read("/FL", "MANAGER", s) )
+	if( CONFIG_Read(wxT("/FL"), wxT("MANAGER"), s) )
 	{
 		m_pLayout->LoadPerspective(s);
 	}
 	else
 	{
-		s	= "layout1|"
-			  "name=mdiclient;caption=;state=256;dir=5;layer=0;row=0;pos=0;prop=100000;bestw=0;besth=0;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|"
-			  "name=Messages;caption=Messages;state=16779260;dir=3;layer=0;row=0;pos=0;prop=100000;bestw=200;besth=100;minw=100;minh=100;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=400;floath=200|"
-			  "name=Object Properties;caption=Object Properties;state=16779260;dir=2;layer=1;row=0;pos=0;prop=100000;bestw=200;besth=100;minw=100;minh=100;maxw=-1;maxh=-1;floatx=917;floaty=69;floatw=200;floath=400|"
-			  "name=Workspace;caption=Workspace;state=16779260;dir=4;layer=0;row=0;pos=0;prop=100000;bestw=200;besth=100;minw=100;minh=100;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=200;floath=400|"
-			  "name=Standard;caption=Standard;state=16788208;dir=1;layer=10;row=0;pos=0;prop=100000;bestw=131;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|"
-			  "name=Map;caption=Map;state=16788210;dir=1;layer=10;row=0;pos=142;prop=100000;bestw=269;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|"
-			  "name=3D-View;caption=3D-View;state=16788210;dir=1;layer=10;row=0;pos=0;prop=100000;bestw=423;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|"
-			  "name=Map-Layout;caption=Map-Layout;state=16788210;dir=1;layer=10;row=0;pos=0;prop=100000;bestw=69;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|"
-			  "name=Table;caption=Table;state=16788210;dir=1;layer=10;row=0;pos=0;prop=100000;bestw=146;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|"
-			  "name=Diagram;caption=Diagram;state=16788210;dir=1;layer=10;row=0;pos=0;prop=100000;bestw=23;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|"
-			  "name=Histogram;caption=Histogram;state=16788210;dir=1;layer=10;row=0;pos=0;prop=100000;bestw=46;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|"
-			  "name=Scatterplot;caption=Scatterplot;state=16788210;dir=1;layer=10;row=0;pos=0;prop=100000;bes"
-			  "tw=46;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|"
-			  "dock_size(5,0,0)=10|dock_size(3,0,0)=116|dock_size(4,0,0)=195|dock_size(1,10,0)=10|dock_size(2,1,0)=245|";
+		s	= wxT("layout1|")
+			  wxT("name=mdiclient;caption=;state=256;dir=5;layer=0;row=0;pos=0;prop=100000;bestw=0;besth=0;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|")
+			  wxT("name=Messages;caption=Messages;state=16779260;dir=3;layer=0;row=0;pos=0;prop=100000;bestw=200;besth=100;minw=100;minh=100;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=400;floath=200|")
+			  wxT("name=Object Properties;caption=Object Properties;state=16779260;dir=2;layer=1;row=0;pos=0;prop=100000;bestw=200;besth=100;minw=100;minh=100;maxw=-1;maxh=-1;floatx=917;floaty=69;floatw=200;floath=400|")
+			  wxT("name=Workspace;caption=Workspace;state=16779260;dir=4;layer=0;row=0;pos=0;prop=100000;bestw=200;besth=100;minw=100;minh=100;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=200;floath=400|")
+			  wxT("name=Standard;caption=Standard;state=16788208;dir=1;layer=10;row=0;pos=0;prop=100000;bestw=131;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|")
+			  wxT("name=Map;caption=Map;state=16788210;dir=1;layer=10;row=0;pos=142;prop=100000;bestw=269;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|")
+			  wxT("name=3D-View;caption=3D-View;state=16788210;dir=1;layer=10;row=0;pos=0;prop=100000;bestw=423;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|")
+			  wxT("name=Map-Layout;caption=Map-Layout;state=16788210;dir=1;layer=10;row=0;pos=0;prop=100000;bestw=69;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|")
+			  wxT("name=Table;caption=Table;state=16788210;dir=1;layer=10;row=0;pos=0;prop=100000;bestw=146;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|")
+			  wxT("name=Diagram;caption=Diagram;state=16788210;dir=1;layer=10;row=0;pos=0;prop=100000;bestw=23;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|")
+			  wxT("name=Histogram;caption=Histogram;state=16788210;dir=1;layer=10;row=0;pos=0;prop=100000;bestw=46;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|")
+			  wxT("name=Scatterplot;caption=Scatterplot;state=16788210;dir=1;layer=10;row=0;pos=0;prop=100000;bes")
+			  wxT("tw=46;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|")
+			  wxT("dock_size(5,0,0)=10|dock_size(3,0,0)=116|dock_size(4,0,0)=195|dock_size(1,10,0)=10|dock_size(2,1,0)=245|");
 
 		m_pLayout->LoadPerspective(s);
 	}
@@ -334,14 +334,14 @@ CSAGA_Frame::CSAGA_Frame(void)
 	int		x, y, dx, dy;
 	long	l;
 
-	x	= CONFIG_Read("/FL", "X" , l) ? l : -1;
-	y	= CONFIG_Read("/FL", "Y" , l) ? l : -1;
-	dx	= CONFIG_Read("/FL", "DX", l) ? l : 800;
-	dy	= CONFIG_Read("/FL", "DY", l) ? l : 600;
+	x	= CONFIG_Read(wxT("/FL"), wxT("X" ), l) ? l : -1;
+	y	= CONFIG_Read(wxT("/FL"), wxT("Y" ), l) ? l : -1;
+	dx	= CONFIG_Read(wxT("/FL"), wxT("DX"), l) ? l : 800;
+	dy	= CONFIG_Read(wxT("/FL"), wxT("DY"), l) ? l : 600;
 
 	SetSize(x, y, dx, dy);
 
-	if( !(CONFIG_Read("/FL", "STATE", l) && l == 0) )
+	if( !(CONFIG_Read(wxT("/FL"), wxT("STATE"), l) && l == 0) )
 	{
 		Maximize();
 	}
@@ -366,19 +366,19 @@ CSAGA_Frame::~CSAGA_Frame(void)
 
 	if( IsMaximized() )
 	{
-		CONFIG_Write("/FL", "STATE" , (long)1);
+		CONFIG_Write(wxT("/FL"), wxT("STATE"), (long)1);
 	}
 	else
 	{
-		CONFIG_Write("/FL", "STATE", (long)0);
-		CONFIG_Write("/FL", "X"    , (long)GetPosition().x);
-		CONFIG_Write("/FL", "Y"    , (long)GetPosition().y);
-		CONFIG_Write("/FL", "DX"   , (long)GetSize().x);
-		CONFIG_Write("/FL", "DY"   , (long)GetSize().y);
+		CONFIG_Write(wxT("/FL"), wxT("STATE"), (long)0);
+		CONFIG_Write(wxT("/FL"), wxT("X"    ), (long)GetPosition().x);
+		CONFIG_Write(wxT("/FL"), wxT("Y"    ), (long)GetPosition().y);
+		CONFIG_Write(wxT("/FL"), wxT("DX"   ), (long)GetSize().x);
+		CONFIG_Write(wxT("/FL"), wxT("DY"   ), (long)GetSize().y);
 	}
 
 	//-----------------------------------------------------
-	CONFIG_Write("/FL", "MANAGER", m_pLayout->SavePerspective().c_str());
+	CONFIG_Write(wxT("/FL"), wxT("MANAGER"), m_pLayout->SavePerspective().c_str());
 
 	m_pLayout->UnInit();
 
@@ -673,21 +673,21 @@ void CSAGA_Frame::Show_Tips(bool bShow)
 {
 	bool			bTip;
 	long			iTip;
-	wxFileName		fTip(g_pSAGA->Get_App_Path(), "saga_gui", "tip");
+	wxFileName		fTip(g_pSAGA->Get_App_Path(), wxT("saga_gui"), wxT("tip"));
 	wxTipProvider	*pTip;
 
-	bTip	= CONFIG_Read("/TIPS", "ATSTART", bTip) ? bTip : true;
+	bTip	= CONFIG_Read(wxT("/TIPS"), wxT("ATSTART"), bTip) ? bTip : true;
 
 	if( bShow || (bTip && fTip.FileExists()) )
 	{
-		iTip	= CONFIG_Read("/TIPS", "CURRENT", iTip) ? iTip : 0;
+		iTip	= CONFIG_Read(wxT("/TIPS"), wxT("CURRENT"), iTip) ? iTip : 0;
 		pTip	= wxCreateFileTipProvider(fTip.GetFullPath(), iTip);
 
 		bTip	= wxShowTip(this, pTip, bTip);
 		iTip	= pTip->GetCurrentTip();
 
-		CONFIG_Write("/TIPS", "ATSTART", bTip);
-		CONFIG_Write("/TIPS", "CURRENT", iTip);
+		CONFIG_Write(wxT("/TIPS"), wxT("ATSTART"), bTip);
+		CONFIG_Write(wxT("/TIPS"), wxT("CURRENT"), iTip);
 
 		delete(pTip);
 	}
@@ -749,7 +749,7 @@ bool CSAGA_Frame::ProgressBar_Set_Position(double Position, double Range)
 }
 
 //---------------------------------------------------------
-void CSAGA_Frame::StatusBar_Set_Text(const char *Text, int iPane)
+void CSAGA_Frame::StatusBar_Set_Text(const wxChar *Text, int iPane)
 {
 	if( iPane < 0 || iPane >= STATUSBAR_PROGRESS )
 	{
@@ -758,7 +758,7 @@ void CSAGA_Frame::StatusBar_Set_Text(const char *Text, int iPane)
 
 	if( iPane == STATUSBAR_ACTIVE )
 	{
-		Set_Pane_Caption(m_pActive, Text && strlen(Text) > 0 ? Text : LNG("[CAP] Object Properties"));
+		Set_Pane_Caption(m_pActive, Text && SG_STR_LEN(Text) > 0 ? Text : LNG("[CAP] Object Properties"));
 	}
 
 	SetStatusText(Text, iPane);
@@ -979,7 +979,7 @@ wxToolBarBase * CSAGA_Frame::TB_Create(int ID)
 }
 
 //---------------------------------------------------------
-void CSAGA_Frame::TB_Add(wxToolBarBase *pToolBar, const char *Name)
+void CSAGA_Frame::TB_Add(wxToolBarBase *pToolBar, const wxChar *Name)
 {
 	pToolBar->Realize();
 	pToolBar->Hide();

@@ -88,7 +88,7 @@ CGaussian_Landscapes::CGaussian_Landscapes(void)
 
 	Set_Author(_TL("Copyrights (c) 2005 by Olaf Conrad"));
 
-	Set_Description(_TL(
+	Set_Description	(_TW(
 		"Generates Gaussian landscapes.\n\n"
 		"References:\n"
 		"- Halling, H., Moeller, R. (1995): 'Mathematik fuers Auge', Heidelberg, 144p.\n"
@@ -101,38 +101,40 @@ CGaussian_Landscapes::CGaussian_Landscapes(void)
 
 	Parameters.Add_Grid_Output(
 		NULL	, "GRID"	, _TL("Grid"),
-		""
+		_TL("")
 	);
 
 	Parameters.Add_Value(
 		NULL	, "NX"		, _TL("Width (Cells)"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 100, 1, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "NY"		, _TL("Height (Cells)"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Int, 100, 1, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "H"		, _TL("Roughness/Smoothness"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 0.75, 0.0, true, 1.0, true
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"	, _TL("Method"),
-		"",
+		_TL(""),
 
-		"Simple|"
-		"Flattening|", 0
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("Simple"),
+			_TL("Flattening")
+		), 0
 	);
 
 	Parameters.Add_Value(
 		NULL	, "M"		, _TL("Flattening"),
-		"",
+		_TL(""),
 		PARAMETER_TYPE_Double, 2.0
 	);
 }

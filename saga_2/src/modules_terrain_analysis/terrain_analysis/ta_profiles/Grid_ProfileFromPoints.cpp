@@ -24,34 +24,34 @@ CProfileFromPoints::CProfileFromPoints(void){
 	CSG_Parameter	*pNode_0, *pNode_1;
 
 	Parameters.Set_Name(_TL("Profile from points"));
-	Parameters.Set_Description(_TL("(c) 2004 by Victor Olaya. Creates a profile from coordinates stored in a table"));
+	Parameters.Set_Description(_TW("(c) 2004 by Victor Olaya. Creates a profile from coordinates stored in a table"));
 
 	Parameters.Add_Grid(NULL, 
 						"GRID",
 						_TL("Grid"), 						
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	pNode_0 = Parameters.Add_Table(NULL,
 								"TABLE", 
 								_TL("Input"),
-								"",	
+								_TL(""),	
 								PARAMETER_INPUT);
 	
 	pNode_1	= Parameters.Add_Table_Field(pNode_0,
 									"X",
-									"X",
-									"");
+									_TL("X"),
+									_TL(""));
 
 	pNode_1	= Parameters.Add_Table_Field(pNode_0,
 									"Y",
-									"Y",
-									"");
+									_TL("Y"),
+									_TL(""));
 
 	Parameters.Add_Table(NULL, 
 						"RESULT", 
 						_TL("Result"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT);
 
 }//constructor
@@ -86,10 +86,10 @@ bool CProfileFromPoints::On_Execute(void){
 
 	for (i = 0; i < pTable->Get_Record_Count()-1; i++){
 		
-		x1=(pTable->Get_Record(i)->asInt(iXField) - pGrid->Get_XMin()) / pGrid->Get_Cellsize();
-		x2=(pTable->Get_Record(i+1)->asInt(iXField) - pGrid->Get_XMin()) / pGrid->Get_Cellsize();
-		y1=(pTable->Get_Record(i)->asInt(iYField) - pGrid->Get_YMin()) / pGrid->Get_Cellsize();			
-		y2=(pTable->Get_Record(i+1)->asInt(iYField) - pGrid->Get_YMin()) / pGrid->Get_Cellsize();			
+		x1=(int)(0.5 + (pTable->Get_Record(i  )->asDouble(iXField) - pGrid->Get_XMin()) / pGrid->Get_Cellsize());
+		x2=(int)(0.5 + (pTable->Get_Record(i+1)->asDouble(iXField) - pGrid->Get_XMin()) / pGrid->Get_Cellsize());
+		y1=(int)(0.5 + (pTable->Get_Record(i  )->asDouble(iYField) - pGrid->Get_YMin()) / pGrid->Get_Cellsize());			
+		y2=(int)(0.5 + (pTable->Get_Record(i+1)->asDouble(iYField) - pGrid->Get_YMin()) / pGrid->Get_Cellsize());			
 
         int x = x1, y = y1, D = 0, HX = x2 - x1, HY = y2 - y1,
                 c, M, xInc = 1, yInc = 1, iLastX = x1, iLastY = y1;

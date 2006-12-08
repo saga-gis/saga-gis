@@ -24,19 +24,19 @@
 CProtectionIndex::CProtectionIndex(void){
 
 	Parameters.Set_Name(_TL("Morphometric Protection Index"));
-	Parameters.Set_Description(_TL(
+	Parameters.Set_Description(_TW(
 		"(c) 2005 by Victor Olaya."));
 
 	Parameters.Add_Grid(NULL, 
 						"DEM",
 						_TL("Elevation"), 						
-						"", 
+						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"PROTECTION", 
 						_TL("Protection Index"), 
-						"", 
+						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
 						GRID_TYPE_Float);
@@ -44,7 +44,7 @@ CProtectionIndex::CProtectionIndex(void){
 	Parameters.Add_Value(NULL, 
 						"RADIUS", 
 						_TL("Radius"), 
-						"", 
+						_TL(""), 
 						PARAMETER_TYPE_Double, 2000, 
 						0.0, 
 						true);

@@ -72,10 +72,10 @@
 //---------------------------------------------------------
 CPROJ4_Base::CPROJ4_Base(void)
 {
-	Parameters.Add_Node(NULL, "SOURCE_NODE"	, _TL("Source Parameters")	, "");
-	Parameters.Add_Node(NULL, "TARGET_NODE"	, _TL("Target Parameters")	, "");
+	Parameters.Add_Node(NULL, "SOURCE_NODE"	, _TL("Source Parameters")	, _TL(""));
+	Parameters.Add_Node(NULL, "TARGET_NODE"	, _TL("Target Parameters")	, _TL(""));
 
-	Parameters.Add_Node(NULL, "PROJECTION"	, _TL("Projection")			, "");
+	Parameters.Add_Node(NULL, "PROJECTION"	, _TL("Projection")			, _TL(""));
 
 	//-----------------------------------------------------
 	bInitialized	= false;
@@ -120,9 +120,12 @@ bool CPROJ4_Base::Initialize(void)
 
 		pNode_1	= Parameters.Add_Choice(
 			pNode_0, "DIRECTION"	, _TL("Direction"),
-			"",
-			_TL("Geodetic to Projection|"
-			"Projection to Geodetic|"), 0
+			_TL(""),
+
+			CSG_String::Format(SG_T("%s|%s|"),
+				_TL("Geodetic to Projection"),
+				_TL("Projection to Geodetic")
+			), 0
 		);
 
 
@@ -149,8 +152,8 @@ bool CPROJ4_Base::Initialize(void)
 				}
 			}
 
-			sList	+= CSG_String::Format("%s|", sName.c_str());
-			sDesc	+= CSG_String::Format("\n[%s] %s", pProjections->id, *pProjections->descr);
+			sList	+= CSG_String::Format(SG_T("%s|"), sName.c_str());
+			sDesc	+= CSG_String::Format(SG_T("\n[%s] %s"), pProjections->id, *pProjections->descr);
 
 			Initialize_ExtraParms(pProjections, sName);
 		}
@@ -170,27 +173,30 @@ bool CPROJ4_Base::Initialize(void)
 
 		pNode_1	= Parameters.Add_Choice(
 			pNode_0, "ELLIPSOID"	, _TL("Ellipsoid"),
-			"",_TL(
-			"Predefined Standard Ellipsoids|"
-			"Semimajor Axis and Semiminor Axis|"
-			"Semimajor Axis and Flattening|"
-			"Semimajor Axis and Reciprocal Flattening|"
-			"Semimajor Axis and Eccentricity|"
-			"Semimajor Axis and Eccentricity Squared|")
+			_TL(""),
+
+			CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|"),
+				_TL("Predefined Standard Ellipsoids"),
+				_TL("Semimajor Axis and Semiminor Axis"),
+				_TL("Semimajor Axis and Flattening"),
+				_TL("Semimajor Axis and Reciprocal Flattening"),
+				_TL("Semimajor Axis and Eccentricity"),
+				_TL("Semimajor Axis and Eccentricity Squared|")
+			)
 		);
 
 		sList.Clear();
 
 		for(pEllipses=pj_ellps; pEllipses->id; ++pEllipses)
 		{
-			sList	+= CSG_String::Format("%s (%s, %s)|", pEllipses->name, pEllipses->major, pEllipses->ell);
+			sList	+= CSG_String::Format(SG_T("%s (%s, %s)|"), pEllipses->name, pEllipses->major, pEllipses->ell);
 		}
 
 		if( sList.Length() > 0 )
 		{
 			pNode_2	= Parameters.Add_Choice(
 				pNode_1, "ELLPS_PREDEF"	, _TL("Predefined Standard Ellipsoids"),
-				"",
+				_TL(""),
 				sList
 			);
 		}
@@ -209,25 +215,25 @@ bool CPROJ4_Base::Initialize(void)
 
 		pNode_3	= Parameters.Add_Value(
 			pNode_2, "ELLPS_F"		, _TL("Flattening (f)"),
-			"",
+			_TL(""),
 			PARAMETER_TYPE_Double	, (BESSEL_A - BESSEL_B) / BESSEL_A
 		);
 
 		pNode_3	= Parameters.Add_Value(
 			pNode_2, "ELLPS_RF"		, _TL("Reciprocal Flattening (rf)"),
-			"",
+			_TL(""),
 			PARAMETER_TYPE_Double	, BESSEL_A / (BESSEL_A - BESSEL_B)
 		);
 
 		pNode_3	= Parameters.Add_Value(
 			pNode_2, "ELLPS_E"		, _TL("Eccentricity (e)"),
-			"",
+			_TL(""),
 			PARAMETER_TYPE_Double	, sqrt(BESSEL_A*BESSEL_A + BESSEL_B*BESSEL_B)
 		);
 
 		pNode_3	= Parameters.Add_Value(
 			pNode_2, "ELLPS_ES"		, _TL("Squared Eccentricity (es)"),
-			"",
+			_TL(""),
 			PARAMETER_TYPE_Double	, BESSEL_A*BESSEL_A + BESSEL_B*BESSEL_B
 		);
 
@@ -239,11 +245,11 @@ bool CPROJ4_Base::Initialize(void)
 
 		for(pDatums=pj_datums; pDatums->id; ++pDatums)
 		{
-			sList	+= CSG_String::Format(sName, "%s (%s) ", pDatums->defn, pDatums->ellipse_id);
+			sList	+= CSG_String::Format(sName, SG_T("%s (%s) "), pDatums->defn, pDatums->ellipse_id);
 
 			if( pDatums->comments != NULL && strlen(pDatums->comments) > 0 )
 			{
-				sList	+= CSG_String::Format(%s", pDatums->comments);
+				sList	+= CSG_String::Format(SG_T(%s"), pDatums->comments);
 			}
 
 			sList	+= '|';
@@ -253,7 +259,7 @@ bool CPROJ4_Base::Initialize(void)
 		{
 			pNode_1	= Parameters.Add_Choice(
 				pNode_0, "DATUM"		, "Datum",
-				"",
+				_TL(""),
 				sList
 			);
 		}/**/
@@ -266,14 +272,14 @@ bool CPROJ4_Base::Initialize(void)
 
 		for(pUnits=pj_units; pUnits->id; ++pUnits)
 		{
-			sList	+= CSG_String::Format("%s (%s)|", pUnits->name, pUnits->to_meter);
+			sList	+= CSG_String::Format(SG_T("%s (%s)|"), pUnits->name, pUnits->to_meter);
 		}
 
 		if( sList.Length() > 0 )
 		{
 			pNode_1	= Parameters.Add_Choice(
 				pNode_0, "UNIT"			, _TL("Unit"),
-				"",
+				_TL(""),
 				sList, 1
 			);
 		}
@@ -284,25 +290,25 @@ bool CPROJ4_Base::Initialize(void)
 
 		pNode_1	= Parameters.Add_Value(
 			pNode_0, "LON_0"			, _TL("Central Meridian"),
-			"",
+			_TL(""),
 			PARAMETER_TYPE_Double, 0.0
 		);
 
 		pNode_1	= Parameters.Add_Value(
 			pNode_0, "LAT_0"			, _TL("Central Parallel"),
-			"",
+			_TL(""),
 			PARAMETER_TYPE_Double, 0.0
 		);
 
 		pNode_1	= Parameters.Add_Value(
 			pNode_0, "X_0"				, _TL("False Easting"),
-			"",
+			_TL(""),
 			PARAMETER_TYPE_Double, 0.0
 		);
 
 		pNode_1	= Parameters.Add_Value(
 			pNode_0, "Y_0"				, _TL("False Northing"),
-			"",
+			_TL(""),
 			PARAMETER_TYPE_Double, 0.0
 		);
 	}
@@ -313,16 +319,16 @@ bool CPROJ4_Base::Initialize(void)
 //---------------------------------------------------------
 #define ISID(sID)					!strcmp(pProjection->id, sID)
 
-#define ADD_BOOLE(key, name, val)	pParms->Add_Value(NULL, key, name, "", PARAMETER_TYPE_Bool	, val);
-#define ADD_INTEG(key, name, val)	pParms->Add_Value(NULL, key, name, "", PARAMETER_TYPE_Int	, val);
-#define ADD_FLOAT(key, name, val)	pParms->Add_Value(NULL, key, name, "", PARAMETER_TYPE_Double, val);
+#define ADD_BOOLE(key, name, val)	pParms->Add_Value(NULL, key, name, _TL(""), PARAMETER_TYPE_Bool	, val);
+#define ADD_INTEG(key, name, val)	pParms->Add_Value(NULL, key, name, _TL(""), PARAMETER_TYPE_Int	, val);
+#define ADD_FLOAT(key, name, val)	pParms->Add_Value(NULL, key, name, _TL(""), PARAMETER_TYPE_Double, val);
 
 //---------------------------------------------------------
-bool CPROJ4_Base::Initialize_ExtraParms(struct PJ_LIST *pProjection, const char *sName)
+bool CPROJ4_Base::Initialize_ExtraParms(struct PJ_LIST *pProjection, const SG_Char *sName)
 {
 	CSG_Parameters	*pParms;
 
-	pParms	= Add_Parameters(pProjection->id, sName, *pProjection->descr);
+	pParms	= Add_Parameters(CSG_String(pProjection->id), sName, CSG_String(*pProjection->descr));
 
 
 	//-----------------------------------------------------
@@ -332,21 +338,21 @@ bool CPROJ4_Base::Initialize_ExtraParms(struct PJ_LIST *pProjection, const char 
 	||	ISID("eqc"		)	// Equidistant Cylindrical (Plate Caree) 
 	||	ISID("merc"		) )	// Mercator 
 	{
-		ADD_FLOAT("lat_ts"	, _TL("True Scale Latitude")	, 0.0);
+		ADD_FLOAT(SG_T("lat_ts")	, _TL("True Scale Latitude")	, 0.0);
 	}
 
 	if(	ISID("utm"		) )	// Universal Transverse Mercator (UTM)
 	{
-		ADD_INTEG("zone"	, _TL("Zone")				, 32);
-		ADD_BOOLE("south"	, _TL("South")				, false);
+		ADD_INTEG(SG_T("zone")	, _TL("Zone")				, 32);
+		ADD_BOOLE(SG_T("south")	, _TL("South")				, false);
 	}
 
 	if(	ISID("omerc"	) )	// Oblique Mercator 
 	{
-		ADD_FLOAT("lat_1"	, _TL("Latitude 1")			, 40.0);
-		ADD_FLOAT("lon_1"	, _TL("Longitude 1"	)		,-20.0);
-		ADD_FLOAT("lat_2"	, _TL("Latitude 2")			, 50.0);
-		ADD_FLOAT("lon_2"	, _TL("Longitude 2"	)		, 20.0);
+		ADD_FLOAT(SG_T("lat_1")	, _TL("Latitude 1")			, 40.0);
+		ADD_FLOAT(SG_T("lon_1")	, _TL("Longitude 1"	)		,-20.0);
+		ADD_FLOAT(SG_T("lat_2")	, _TL("Latitude 2")			, 50.0);
+		ADD_FLOAT(SG_T("lon_2")	, _TL("Longitude 2"	)		, 20.0);
 	}
 
 	//-----------------------------------------------------
@@ -354,36 +360,36 @@ bool CPROJ4_Base::Initialize_ExtraParms(struct PJ_LIST *pProjection, const char 
 
 	if(	ISID("gn_sinu"	) )	// General Sinusoidal Series
 	{
-		ADD_FLOAT("m"		, "m"					, 0.5);
-		ADD_FLOAT("n"		, "n"					, 1.0 + M_PI_045);
+		ADD_FLOAT(SG_T("m")		, SG_T("m")					, 0.5);
+		ADD_FLOAT(SG_T("n")		, SG_T("n")					, 1.0 + M_PI_045);
 	}
 
 	if(	ISID("loxim"	) )	// Loximuthal
 	{
-		ADD_FLOAT("lat_1"	, _TL("Latitude 1")			, 40.0);
+		ADD_FLOAT(SG_T("lat_1")	, _TL("Latitude 1")			, 40.0);
 	}
 
 	if(	ISID("urmfps"	) )	// Urmaev Flat-Polar Sinusoidal
 	{
-		ADD_FLOAT("n"		, "n"					, 1.0);
+		ADD_FLOAT(SG_T("n")		, SG_T("n")					, 1.0);
 	}
 
 	if(	ISID("urm5"		) )	// Urmaev V
 	{
-		ADD_FLOAT("n"		, "n"					, 1.0);
-		ADD_FLOAT("q"		, "q"					, 1.0);
-		ADD_FLOAT("alphi"	, "alphi"				, 45.0);
+		ADD_FLOAT(SG_T("n")		, SG_T("n")					, 1.0);
+		ADD_FLOAT(SG_T("q")		, SG_T("q")					, 1.0);
+		ADD_FLOAT(SG_T("alphi")	, SG_T("alphi")				, 45.0);
 	}
 
 	if(	ISID("wink1"	)	// Winkel I
 	||	ISID("wag3"		) )	// Wagner III
 	{
-		ADD_FLOAT("lat_ts"	, _TL("True Scale Latitude")	, 45.0);
+		ADD_FLOAT(SG_T("lat_ts"), _TL("True Scale Latitude"), 45.0);
 	}
 
 	if(	ISID("wink2"	) )	// Winkel II
 	{
-		ADD_FLOAT("lat_1"	, _TL("Latitude 1")			, 40.0);
+		ADD_FLOAT(SG_T("lat_1")	, _TL("Latitude 1")			, 40.0);
 	}
 
 
@@ -401,37 +407,37 @@ bool CPROJ4_Base::Initialize_ExtraParms(struct PJ_LIST *pProjection, const char 
 	||	ISID("tissot"	)	// Tissot 
 	||	ISID("vitk1"	) )	// Vitkovsky I 
 	{
-		ADD_FLOAT("lat_1"	, _TL("Latitude 1")			, 33.0);
-		ADD_FLOAT("lat_2"	, _TL("Latitude 2")			, 45.0);
+		ADD_FLOAT(SG_T("lat_1")	, _TL("Latitude 1")			, 33.0);
+		ADD_FLOAT(SG_T("lat_2")	, _TL("Latitude 2")			, 45.0);
 	}
 
 	if(	ISID("lcc"		) )	// Lambert Conformal Conic 
 	{
-		ADD_FLOAT("lat_1"	, _TL("Latitude 1")			, 33.0);
-		ADD_FLOAT("lat_2"	, _TL("Latitude 2")			, 45.0);
+		ADD_FLOAT(SG_T("lat_1")	, _TL("Latitude 1")			, 33.0);
+		ADD_FLOAT(SG_T("lat_2")	, _TL("Latitude 2")			, 45.0);
 	}
 
 	if( ISID("leac"		) )	// Lambert Equal Area Conic
 	{
-		ADD_FLOAT("lat_1"	, _TL("Latitude 1")			, 45.0);
-		ADD_BOOLE("south"	, _TL("South")				, false);
+		ADD_FLOAT(SG_T("lat_1")	, _TL("Latitude 1")			, 45.0);
+		ADD_BOOLE(SG_T("south")	, _TL("South")				, false);
 	}
 
 	if(	ISID("rpoly"	) )	// Rectangular Polyconic
 	{
-		ADD_FLOAT("lat_ts"	, _TL("True Scale Latitude")	, 45.0);
+		ADD_FLOAT(SG_T("lat_ts"), _TL("True Scale Latitude"), 45.0);
 	}
 
 	if(	ISID("mpoly"	) )	// Modified Polyconic
 	{
-		ADD_FLOAT("lat_1"	, _TL("Latitude 1")			, 33.0);
-		ADD_FLOAT("lat_2"	, _TL("Latitude 2")			, 45.0);
-		ADD_BOOLE("lotsa"	, _TL("Lotsa")				, true);
+		ADD_FLOAT(SG_T("lat_1")	, _TL("Latitude 1")			, 33.0);
+		ADD_FLOAT(SG_T("lat_2")	, _TL("Latitude 2")			, 45.0);
+		ADD_BOOLE(SG_T("lotsa")	, _TL("Lotsa")				, true);
 	}
 
 	if(	ISID("bonne"	) )	// Bonne
 	{
-		ADD_FLOAT("lat_1"	, _TL("Latitude 1")			, 45.0);
+		ADD_FLOAT(SG_T("lat_1")	, _TL("Latitude 1")			, 45.0);
 	}
 
 
@@ -440,39 +446,39 @@ bool CPROJ4_Base::Initialize_ExtraParms(struct PJ_LIST *pProjection, const char 
 
 	if(	ISID("stere"	) )	// Stereographic
 	{
-		ADD_FLOAT("lat_ts"	, _TL("True Scale Latitude")	, 45.0);
+		ADD_FLOAT(SG_T("lat_ts"), _TL("True Scale Latitude"), 45.0);
 	}
 
 	if(	ISID("ups"		) )	// Universal Polar Stereographic
 	{
-		ADD_BOOLE("south"	, _TL("South")				, true);
+		ADD_BOOLE(SG_T("south")	, _TL("South")				, true);
 	}
 
 	if(	ISID("airy"		) )	// Airy
 	{
-		ADD_FLOAT("lat_b"	, _TL("Latitude B")			, 45.0);
-		ADD_BOOLE("no_cut"	, _TL("No Cut"	)			, true);
+		ADD_FLOAT(SG_T("lat_b")	, _TL("Latitude B")			, 45.0);
+		ADD_BOOLE(SG_T("no_cut"), _TL("No Cut"	)			, true);
 	}
 
 	if(	ISID("nsper"	) )	// Near-sided perspective
 	{
-		ADD_FLOAT("h"		, _TL("Height of view point"), 1.0);
+		ADD_FLOAT(SG_T("h")		, _TL("Height of view point"), 1.0);
 	}
 
 	if(	ISID("aeqd"		) )	// Azimuthal Equidistant
 	{
-		ADD_BOOLE("guam"	, "guam"				, true);
+		ADD_BOOLE(SG_T("guam")	, _TL("guam")				, true);
 	}
 
 	if(	ISID("hammer"	) )	// Hammer & Eckert-Greifendorff
 	{
-		ADD_FLOAT("W"		, "W"					, 0.5);
-		ADD_FLOAT("M"		, "M"					, 1.0);
+		ADD_FLOAT(SG_T("W")		, _TL("W")					, 0.5);
+		ADD_FLOAT(SG_T("M")		, _TL("M")					, 1.0);
 	}
 
 	if(	ISID("wintri"	) )	// Winkel Tripel 
 	{
-		ADD_FLOAT("lat_1"	, _TL("Latitude 1")			, 40.0);
+		ADD_FLOAT(SG_T("lat_1")	, _TL("Latitude 1")			, 40.0);
 	}
 
 
@@ -482,58 +488,58 @@ bool CPROJ4_Base::Initialize_ExtraParms(struct PJ_LIST *pProjection, const char 
 	if(	ISID("ocea"		)	// Oblique Cylindrical Equal Area
 	||	ISID("tpeqd"	) )	// Two Point Equidistant 
 	{
-		ADD_FLOAT("lat_1"	, _TL("Latitude 1")			, 40.0);
-		ADD_FLOAT("lon_1"	, _TL("Longitude 1")			,-20.0);
-		ADD_FLOAT("lat_2"	, _TL("Latitude 2")			, 50.0);
-		ADD_FLOAT("lon_2"	, _TL("Longitude 2"	)		, 20.0);
+		ADD_FLOAT(SG_T("lat_1")	, _TL("Latitude 1")			, 40.0);
+		ADD_FLOAT(SG_T("lon_1")	, _TL("Longitude 1")		,-20.0);
+		ADD_FLOAT(SG_T("lat_2")	, _TL("Latitude 2")			, 50.0);
+		ADD_FLOAT(SG_T("lon_2")	, _TL("Longitude 2"	)		, 20.0);
 	}
 
 	if(	ISID("lsat"		) )	// Space oblique for LANDSAT
 	{
-		ADD_INTEG("lsat"	, _TL("Landsat")				, 1.0);
-		ADD_INTEG("path"	, _TL("Path")				, 1.0);
+		ADD_INTEG(SG_T("lsat")	, _TL("Landsat")			, 1.0);
+		ADD_INTEG(SG_T("path")	, _TL("Path")				, 1.0);
 	}
 
 	if(	ISID("labrd"	) )	// Laborde
 	{
-		ADD_FLOAT("azi"		, _TL("Azimuth"	)			, 19.0);
-		ADD_FLOAT("k_0"		, "k_0"					, 0.9995);
+		ADD_FLOAT(SG_T("azi")		, _TL("Azimuth"	)		, 19.0);
+		ADD_FLOAT(SG_T("k_0")		, _TL("k_0")			, 0.9995);
 	}
 
 	if(	ISID("lagrng"	) )	// Lagrange
 	{
-		ADD_FLOAT("lat_1"	, _TL("Latitude 1")			, 0.0);
-		ADD_FLOAT("W"		, "W"					, 2.0);
+		ADD_FLOAT(SG_T("lat_1")	, _TL("Latitude 1")			, 0.0);
+		ADD_FLOAT(SG_T("W")		, _TL("W")					, 2.0);
 	}
 
 	if(	ISID("chamb"	) )	// Chamberlin Trimetric
 	{
-		ADD_FLOAT("lat_1"	, _TL("Latitude 1")			, 30.0);
-		ADD_FLOAT("lon_1"	, _TL("Longitude 1"	)		,-20.0);
-		ADD_FLOAT("lat_2"	, _TL("Latitude 2")			, 40.0);
-		ADD_FLOAT("lon_2"	, _TL("Longitude 2")			, 00.0);
-		ADD_FLOAT("lat_3"	, _TL("Latitude 3")			, 50.0);
-		ADD_FLOAT("lon_3"	, _TL("Longitude 3"	)		, 20.0);
+		ADD_FLOAT(SG_T("lat_1")	, _TL("Latitude 1")			, 30.0);
+		ADD_FLOAT(SG_T("lon_1")	, _TL("Longitude 1"	)		,-20.0);
+		ADD_FLOAT(SG_T("lat_2")	, _TL("Latitude 2")			, 40.0);
+		ADD_FLOAT(SG_T("lon_2")	, _TL("Longitude 2")		, 00.0);
+		ADD_FLOAT(SG_T("lat_3")	, _TL("Latitude 3")			, 50.0);
+		ADD_FLOAT(SG_T("lon_3")	, _TL("Longitude 3"	)		, 20.0);
 	}
 
 	if(	ISID("oea"		) )	// Oblated Equal Area
 	{
-		ADD_FLOAT("m"		, "m"					, 1.0);
-		ADD_FLOAT("n"		, "n"					, 1.0);
-		ADD_FLOAT("theta"	, "theta"				, 45.0);
+		ADD_FLOAT(SG_T("m")		, _TL("m")					, 1.0);
+		ADD_FLOAT(SG_T("n")		, _TL("n")					, 1.0);
+		ADD_FLOAT(SG_T("theta")	, _TL("theta")				, 45.0);
 	}
 
 	if(	ISID("tpers"	) )	// Tilted perspective
 	{
-		ADD_FLOAT("tilt"	, _TL("Tilt")				, 45.0);
-		ADD_FLOAT("azi"		, _TL("Azimuth")				, 45.0);
-		ADD_FLOAT("h"		, "h"					, 1000.0);
+		ADD_FLOAT(SG_T("tilt")	, _TL("Tilt")				, 45.0);
+		ADD_FLOAT(SG_T("azi")	, _TL("Azimuth")			, 45.0);
+		ADD_FLOAT(SG_T("h")		, _TL("h")					, 1000.0);
 	}
 
 	if(	ISID("ob_tran"	) )	// General Oblique Transformation
 	{
-		ADD_FLOAT("o_lat_p"	, _TL("Latitude Pole")		, 40.0);
-		ADD_FLOAT("o_lon_p"	, _TL("Longitude Pole")		, 40.0);
+		ADD_FLOAT(SG_T("o_lat_p")	, _TL("Latitude Pole")	, 40.0);
+		ADD_FLOAT(SG_T("o_lon_p")	, _TL("Longitude Pole")	, 40.0);
 	}
 
 	return( true );
@@ -579,7 +585,7 @@ bool CPROJ4_Base::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define ADD_PARG(sKey, sVal)	s.Printf(sKey, sVal);\
+#define ADD_PARG(sKey, sVal)	s.Printf(CSG_String(sKey), sVal);\
 								pargv			= (char **)SG_Realloc(pargv, (pargc + 1) * sizeof(char *));\
 								pargv[pargc]	= (char  *)SG_Malloc((s.Length() + 1)    * sizeof(char  ));\
 								memcpy(pargv[pargc], s.c_str(), s.Length() + 1);\
@@ -655,8 +661,8 @@ bool CPROJ4_Base::Set_Transformation(bool bHistory)
 	else if( (m_Projection = pj_init(pargc, pargv)) == NULL )
 	{
 		Message_Add	(_TL("Projection initialization failure\ncause: "));
-		Message_Add	(pj_strerrno(pj_errno));
-		Error_Set	(pj_strerrno(pj_errno));
+		Message_Add	(CSG_String(pj_strerrno(pj_errno)));
+		Error_Set	(CSG_String(pj_strerrno(pj_errno)));
 
 		bResult		= false;
 	}
@@ -708,12 +714,12 @@ bool CPROJ4_Base::Get_ExtraParms(int &pargc, char ***p_pargv, char *id)
 					break;
 
 				case PARAMETER_TYPE_Int:
-					sFormat.Printf("%s=%%d", pParm->Get_Identifier());
+					sFormat.Printf(SG_T("%s=%%d"), pParm->Get_Identifier());
 					ADD_PARG(sFormat.c_str(), pParm->asInt());
 					break;
 
 				case PARAMETER_TYPE_Double:
-					sFormat.Printf("%s=%%f", pParm->Get_Identifier());
+					sFormat.Printf(SG_T("%s=%%f"), pParm->Get_Identifier());
 					ADD_PARG(sFormat.c_str(), pParm->asDouble());
 					break;
 				}
