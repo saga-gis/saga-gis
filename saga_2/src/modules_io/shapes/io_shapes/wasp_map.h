@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                       Shapes_IO                       //
+//                     shapes_tools                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                      WASP_MAP.h                       //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2006 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -48,79 +48,59 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-//---------------------------------------------------------
-
-
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__WASP_MAP_H
+#define HEADER_INCLUDED__WASP_MAP_H
 
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-const SG_Char * Get_Info(int i)
+//---------------------------------------------------------
+class CWASP_MAP_Export : public CSG_Module
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Import/Export - Shapes") );
+public:
+	CWASP_MAP_Export(void);
+	virtual ~CWASP_MAP_Export(void);
 
-	case MLB_INFO_Author:
-		return( _TL("SAGA User Group Associaton (c) 2002") );
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Export") );	}
 
-	case MLB_INFO_Description:
-		return( _TL("Tools for the import and export of vector data.") );
 
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
+protected:
 
-	case MLB_INFO_Menu_Path:
-		return( _TL("File|Shapes") );
-	}
-}
+	virtual bool				On_Execute				(void);
 
+
+};
 
 //---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "gstat.h"
-#include "xyz.h"
-#include "generate.h"
-#include "surfer_bln.h"
-#include "atlas_bna.h"
-#include "wasp_map.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
+class CWASP_MAP_Import : public CSG_Module
 {
-	switch( i )
-	{
-	case  0:	return( new CGStat_Export );
-	case  1:	return( new CGStat_Import );
-	case  2:	return( new CXYZ_Export );
-	case  3:	return( new CXYZ_Import );
-	case  4:	return( new CGenerate_Export );
-	case  5:	return( new CSurfer_BLN_Export );
-	case  6:	return( new CSurfer_BLN_Import );
-	case  7:	return( new CAtlas_BNA_Export );
-	case  8:	return( new CAtlas_BNA_Import );
-	case  9:	return( new CWASP_MAP_Export );
-	case 10:	return( new CWASP_MAP_Import );
-	}
+public:
+	CWASP_MAP_Import(void);
+	virtual ~CWASP_MAP_Import(void);
 
-	return( NULL );
-}
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Import") );	}
+
+
+protected:
+
+	virtual bool				On_Execute				(void);
+
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -130,8 +110,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__WASP_MAP_H

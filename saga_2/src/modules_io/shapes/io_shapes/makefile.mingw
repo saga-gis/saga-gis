@@ -18,7 +18,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/atlas_bna.o $(MLB_TEMP)/generate.o $(MLB_TEMP)/gstat.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/surfer_bln.o $(MLB_TEMP)/xyz.o
+OBJ      = $(MLB_TEMP)/atlas_bna.o $(MLB_TEMP)/generate.o $(MLB_TEMP)/gstat.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/surfer_bln.o $(MLB_TEMP)/wasp_map.o $(MLB_TEMP)/xyz.o
 
 CXXFLAGS = -I"$(MINGW)/include" -I"$(SAGA)/src/saga_core" -D$(PRJ_NAME)_EXPORTS -DBUILDING_DLL=1 -D_SAGA_MSW -D_SAGA_MINGW -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -fexpensive-optimizations -Os -O2 -O3 $(DEP_INCS) $(DEP_DEFS)
 
@@ -59,6 +59,9 @@ $(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
 
 $(MLB_TEMP)/surfer_bln.o: ./surfer_bln.cpp $(MLB_TEMP)
 	$(CPP) -c ./surfer_bln.cpp -o $(MLB_TEMP)/surfer_bln.o $(CXXFLAGS)
+
+$(MLB_TEMP)/wasp_map.o: ./wasp_map.cpp $(MLB_TEMP)
+	$(CPP) -c ./wasp_map.cpp -o $(MLB_TEMP)/wasp_map.o $(CXXFLAGS)
 
 $(MLB_TEMP)/xyz.o: ./xyz.cpp $(MLB_TEMP)
 	$(CPP) -c ./xyz.cpp -o $(MLB_TEMP)/xyz.o $(CXXFLAGS)

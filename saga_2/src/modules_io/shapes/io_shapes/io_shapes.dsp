@@ -173,6 +173,10 @@ SOURCE=.\surfer_bln.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\wasp_map.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\xyz.cpp
 # End Source File
 # End Group
@@ -198,6 +202,10 @@ SOURCE=.\MLB_Interface.h
 # Begin Source File
 
 SOURCE=.\surfer_bln.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\wasp_map.h
 # End Source File
 # Begin Source File
 

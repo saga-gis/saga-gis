@@ -612,6 +612,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\wasp_map.cpp"
+				>
+			</File>
+			<File
 				RelativePath="xyz.cpp"
 				>
 				<FileConfiguration
@@ -674,6 +678,10 @@
 			</File>
 			<File
 				RelativePath="surfer_bln.h"
+				>
+			</File>
+			<File
+				RelativePath=".\wasp_map.h"
 				>
 			</File>
 			<File
