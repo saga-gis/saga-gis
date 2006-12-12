@@ -302,7 +302,6 @@ bool CSG_Grid::_Load_Binary(CSG_File &Stream, TSG_Grid_Type File_Type, bool bFli
 						case GRID_TYPE_Short:	Set_Value(x, y, *(short  *)pValue);	break;
 						case GRID_TYPE_DWord:	Set_Value(x, y, *(DWORD  *)pValue);	break;
 						case GRID_TYPE_Int:		Set_Value(x, y, *(int    *)pValue);	break;
-						case GRID_TYPE_Long:	Set_Value(x, y, *(long   *)pValue);	break;
 						case GRID_TYPE_Float:	Set_Value(x, y, *(float  *)pValue);	break;
 						case GRID_TYPE_Double:	Set_Value(x, y, *(double *)pValue);	break;
 						}
@@ -411,7 +410,6 @@ bool CSG_Grid::_Save_Binary(CSG_File &Stream, int xA, int yA, int xN, int yN, TS
 						case GRID_TYPE_Short:	*(short  *)pValue	= asShort	(x, y);	break;
 						case GRID_TYPE_DWord:	*(DWORD  *)pValue	= asInt		(x, y);	break;
 						case GRID_TYPE_Int:		*(int    *)pValue	= asInt		(x, y);	break;
-						case GRID_TYPE_Long:	*(long   *)pValue	= asLong	(x, y);	break;
 						case GRID_TYPE_Float:	*(float  *)pValue	= asFloat	(x, y);	break;
 						case GRID_TYPE_Double:	*(double *)pValue	= asDouble	(x, y);	break;
 						}

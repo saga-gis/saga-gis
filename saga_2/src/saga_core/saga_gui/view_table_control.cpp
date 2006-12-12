@@ -690,8 +690,8 @@ void CVIEW_Table_Control::On_Autosize_Rows(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_LClick(wxGridEvent &event)
 {
-	int				iRecord, iField;
-	long			lValue;
+	int					iRecord, iField;
+	long				lValue;
 	CSG_Table_Record	*pRecord;
 
 	iRecord	= event.GetRow();
@@ -708,7 +708,7 @@ void CVIEW_Table_Control::On_LClick(wxGridEvent &event)
 				break;
 
 			case TABLE_FIELDTYPE_Color:
-				if( DLG_Color(lValue = pRecord->asLong(iField)) )
+				if( DLG_Color(lValue = pRecord->asInt(iField)) )
 				{
 					pRecord->Set_Value(iField, lValue);
 

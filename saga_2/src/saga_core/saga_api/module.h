@@ -113,6 +113,14 @@ TSG_Module_Error;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+/**
+  * CSG_Module is the base class for all executable SAGA modules.
+  * @see CSG_Parameters
+  * @see CSG_Module_Interactive
+  * @see CSG_Module_Grid
+  * @see CSG_Module_Grid_Interactive
+*/
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Module
 {
 	friend class CSG_Module_Interactive_Base;
@@ -240,6 +248,10 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+/**
+  * CSG_Module_Grid.
+*/
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Module_Grid : public CSG_Module
 {
 public:
@@ -341,6 +353,10 @@ TSG_Module_Interactive_DragMode;
 #define MODULE_INTERACTIVE_KEY_CTRL		0x20
 
 //---------------------------------------------------------
+/**
+  * CSG_Module_Interactive_Base.
+*/
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Module_Interactive_Base
 {
 	friend class CSG_Module_Interactive;
@@ -396,6 +412,10 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+/**
+  * CSG_Module_Interactive.
+*/
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Module_Interactive : public CSG_Module_Interactive_Base, public CSG_Module
 {
 public:
@@ -415,6 +435,10 @@ public:
 //														 //
 ///////////////////////////////////////////////////////////
 
+//---------------------------------------------------------
+/**
+  * CSG_Module_Grid_Interactive.
+*/
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Module_Grid_Interactive : public CSG_Module_Interactive_Base, public CSG_Module_Grid
 {

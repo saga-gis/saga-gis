@@ -90,7 +90,6 @@ typedef enum ESG_Grid_Type
 	GRID_TYPE_Short,
 	GRID_TYPE_DWord,
 	GRID_TYPE_Int,
-	GRID_TYPE_Long,
 	GRID_TYPE_Float,
 	GRID_TYPE_Double,
 	GRID_TYPE_Bit,
@@ -108,7 +107,6 @@ const SG_Char gSG_Grid_Type_Names[GRID_TYPE_Count][32]	=
 	SG_T("SHORTINT"),
 	SG_T("INTEGER_UNSIGNED"),
 	SG_T("INTEGER"),
-	SG_T("LONGINT"),
 	SG_T("FLOAT"),
 	SG_T("DOUBLE"),
 	SG_T("BIT")
@@ -118,15 +116,14 @@ const SG_Char gSG_Grid_Type_Names[GRID_TYPE_Count][32]	=
 const SG_Char gSG_Grid_Type_Sizes[GRID_TYPE_Count]	= 
 {
 	0,
-	sizeof(BYTE),
-	sizeof(char),
-	sizeof(WORD),
-	sizeof(short),
-	sizeof(DWORD),
-	sizeof(int),
-	sizeof(long),
-	sizeof(float),
-	sizeof(double),
+	1,
+	1,
+	2,
+	2,
+	4,
+	4,
+	4,
+	8,
 	-1
 };
 
@@ -245,6 +242,15 @@ TSG_Grid_Operation;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+/**
+  * CSG_Grid_System is used by the CSG_Grid class to provide
+  * information about the number of rows and columns, the
+  * cell size and the georeference, which define the grid.
+  * It offers various functions, which help when working
+  * with grids.
+  * @see CSG_Grid
+*/
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Grid_System
 {
 public:
@@ -293,9 +299,13 @@ public:
 
 
 	//-----------------------------------------------------
+	/// Aligns the world coordinate x to the rows of the grid system and returns it.
 	double						Fit_xto_Grid_System	(double x)	const	{	return( Get_XMin() + m_Cellsize * (int)(0.5 + (x - Get_XMin()) / m_Cellsize) );	}
+
+	/// Aligns the world coordinate y to the columns of the grid system and returns it.
 	double						Fit_yto_Grid_System	(double y)	const	{	return( Get_YMin() + m_Cellsize * (int)(0.5 + (y - Get_YMin()) / m_Cellsize) );	}
 
+	/// Aligns the world coordinate ptWorld to the rows and columns of the grid system and returns it.
 	TSG_Point					Fit_to_Grid_System	(TSG_Point ptWorld)	const
 	{
 		ptWorld.x	= Fit_xto_Grid_System(ptWorld.x);
@@ -388,6 +398,7 @@ private:	///////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
+//---------------------------------------------------------
 /**
   * CSG_Grid is the data object created for raster handling.
 */
@@ -653,8 +664,6 @@ public:		///////////////////////////////////////////////
 	virtual short				asShort	(      long n, bool bZFactor = false) const	{	return( (short)asDouble(   n, bZFactor) );	}
 	virtual int					asInt	(int x, int y, bool bZFactor = false) const	{	return( (int  )asDouble(x, y, bZFactor) );	}
 	virtual int					asInt	(      long n, bool bZFactor = false) const	{	return( (int  )asDouble(   n, bZFactor) );	}
-	virtual long				asLong	(int x, int y, bool bZFactor = false) const	{	return( (long )asDouble(x, y, bZFactor) );	}
-	virtual long				asLong	(      long n, bool bZFactor = false) const	{	return( (long )asDouble(   n, bZFactor) );	}
 	virtual float				asFloat	(int x, int y, bool bZFactor = false) const	{	return( (float)asDouble(x, y, bZFactor) );	}
 	virtual float				asFloat	(      long n, bool bZFactor = false) const	{	return( (float)asDouble(   n, bZFactor) );	}
 
@@ -679,7 +688,6 @@ public:		///////////////////////////////////////////////
 				case GRID_TYPE_Short:	Result	= ((short  **)m_Values)[y][x];	break;
 				case GRID_TYPE_DWord:	Result	= ((DWORD  **)m_Values)[y][x];	break;
 				case GRID_TYPE_Int:		Result	= ((int    **)m_Values)[y][x];	break;
-				case GRID_TYPE_Long:	Result	= ((long   **)m_Values)[y][x];	break;
 				case GRID_TYPE_Float:	Result	= ((float  **)m_Values)[y][x];	break;
 				case GRID_TYPE_Double:	Result	= ((double **)m_Values)[y][x];	break;
 				case GRID_TYPE_Bit:		Result	=(((BYTE   **)m_Values)[y][x / 8] & m_Bitmask[x % 8]) == 0 ? 0.0 : 1.0;	break;
@@ -727,7 +735,6 @@ public:		///////////////////////////////////////////////
 				case GRID_TYPE_Short:	((short  **)m_Values)[y][x]	= (short )Value;	break;
 				case GRID_TYPE_DWord:	((DWORD  **)m_Values)[y][x]	= (DWORD )Value;	break;
 				case GRID_TYPE_Int:		((int    **)m_Values)[y][x]	= (int   )Value;	break;
-				case GRID_TYPE_Long:	((long   **)m_Values)[y][x]	= (long  )Value;	break;
 				case GRID_TYPE_Float:	((float  **)m_Values)[y][x]	= (float )Value;	break;
 				case GRID_TYPE_Double:	((double **)m_Values)[y][x]	= (double)Value;	break;
 				case GRID_TYPE_Bit:		((BYTE   **)m_Values)[y][x / 8]	= Value != 0.0

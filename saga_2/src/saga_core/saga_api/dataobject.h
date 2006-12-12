@@ -63,6 +63,13 @@
 #ifndef HEADER_INCLUDED__SAGA_API__dataobject_H
 #define HEADER_INCLUDED__SAGA_API__dataobject_H
 
+//---------------------------------------------------------
+/** \file dataobject.h
+  * Base class for data objects and related declarations.
+  * @see CSG_Data_Object
+  * @see CSG_History
+*/
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -80,6 +87,17 @@
 //														 //
 ///////////////////////////////////////////////////////////
 
+//---------------------------------------------------------
+/**
+  * Definition of available data types. This is returned by
+  * the CSG_Data_Object::Get_ObjectType() function to allow
+  * type checking at run time.
+  * @see CSG_Data_Object
+  * @see CSG_Table
+  * @see CSG_Shapes
+  * @see CSG_TIN
+  * @see CSG_Grid
+*/
 //---------------------------------------------------------
 typedef enum ESG_Data_Object_Type
 {
@@ -112,15 +130,29 @@ SAGA_API_DLL_EXPORT const SG_Char *	SG_Get_DataObject_Name	(TSG_Data_Object_Type
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+/**
+  * CSG_History_Entry represents a setting, which has been
+  * used to calculate a data set.
+  * @see CSG_History
+  * @see CSG_Data_Object
+*/
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_History_Entry
 {
 	friend class CSG_History;
 
 public:
 
+	/// Returns the date, at which the entry has been created.
 	const SG_Char *				Get_Date		(void)	{	return( m_Date );		}
+
+	/// Returns the name of the entry.
 	const SG_Char *				Get_Name		(void)	{	return( m_Name );		}
+
+	/// Returns the content of the entry.
 	const SG_Char *				Get_Entry		(void)	{	return( m_Entry );		}
+
+	/// Returns the entry's subhistory, if it has one, or NULL.
 	class CSG_History *			Get_History		(void)	{	return( m_pHistory );	}
 
 
@@ -136,6 +168,17 @@ private:
 
 };
 
+//---------------------------------------------------------
+/**
+  * CSG_History manages a list of CSG_History_Entry objects.
+  * It is used by the CSG_Data_Object class. Entries to the
+  * history object of a data set are automatically added by
+  * the CSG_Module class, when it is executed. Therefore it
+  * it enables to see, how a data set has been calculated.
+  * @see CSG_History_Entry
+  * @see CSG_Data_Object
+  * @see CSG_Module
+*/
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_History
 {
@@ -179,6 +222,15 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+/**
+  * CSG_Data_Object is the base class for all types of data
+  * sets, which are provided by the SAGA API.
+  * @see CSG_Table
+  * @see CSG_Shapes
+  * @see CSG_TIN
+  * @see CSG_Grid
+*/
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Data_Object
 {
 public:
@@ -187,6 +239,7 @@ public:
 
 	virtual bool					Destroy			(void);
 
+	/// Returns the object type as defined by TSG_Data_Object_Type. Used for run time type checking.
 	virtual TSG_Data_Object_Type	Get_ObjectType	(void)	const							= 0;
 
 	virtual bool					is_Valid		(void)	const							= 0;

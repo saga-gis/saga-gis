@@ -500,7 +500,6 @@ wxString CWKSP_Grid::Get_Value(CSG_Point ptWorld, double Epsilon)
 			case GRID_TYPE_Short:
 			case GRID_TYPE_DWord:
 			case GRID_TYPE_Int:
-			case GRID_TYPE_Long:
 				s.Printf(wxT("%d%s"), (int)Value, m_pGrid->Get_Unit());
 				break;
 

@@ -176,8 +176,6 @@ public:
 	short						asShort			(const SG_Char *Field)	const	{	return( (short  )asInt   ( Field) );	}
 	int							asInt			(int           iField)	const;
 	int							asInt			(const SG_Char *Field)	const;
-	long						asLong			(int           iField)	const	{	return( (long   )asInt   (iField) );	}
-	long						asLong			(const SG_Char *Field)	const	{	return( (long   )asInt   ( Field) );	}
 
 	float						asFloat			(int           iField)	const	{	return( (float  )asDouble(iField) );	}
 	float						asFloat			(const SG_Char *Field)	const	{	return( (float  )asDouble( Field) );	}

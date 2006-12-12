@@ -561,7 +561,7 @@ inline double CSG_Grid::_Get_ValAtPos_NearestNeighbour(int x, int y, double dx, 
 #define BILINEAR_ADD(ix, iy, d)			if( is_InGrid(ix, iy) ) { n += d;\
 											z += d * asDouble(ix, iy); }
 
-#define BILINEAR_ADD_BYTE(ix, iy, d)	if( is_InGrid(ix, iy) ) { n += d; v = asLong(ix, iy);\
+#define BILINEAR_ADD_BYTE(ix, iy, d)	if( is_InGrid(ix, iy) ) { n += d; v = asInt(ix, iy);\
 											z[0] += d * SG_GET_BYTE_0(v);\
 											z[1] += d * SG_GET_BYTE_1(v);\
 											z[2] += d * SG_GET_BYTE_2(v);\
@@ -613,7 +613,7 @@ inline double CSG_Grid::_Get_ValAtPos_BiLinear(int x, int y, double dx, double d
 #define INVERSEDIST_ADD(ix, iy, dsx, dsy)		if( is_InGrid(ix, iy) ) { d = 1.0 / sqrt((dsx)*(dsx) + (dsy)*(dsy)); n += d;\
 													z += d * asDouble(ix, iy); }
 
-#define INVERSEDIST_ADD_BYTE(ix, iy, dsx, dsy)	if( is_InGrid(ix, iy) ) { d = 1.0 / sqrt((dsx)*(dsx) + (dsy)*(dsy)); n += d; v = asLong(ix, iy);\
+#define INVERSEDIST_ADD_BYTE(ix, iy, dsx, dsy)	if( is_InGrid(ix, iy) ) { d = 1.0 / sqrt((dsx)*(dsx) + (dsy)*(dsy)); n += d; v = asInt(ix, iy);\
 													z[0] += d * SG_GET_BYTE_0(v);\
 													z[1] += d * SG_GET_BYTE_1(v);\
 													z[2] += d * SG_GET_BYTE_2(v);\
@@ -830,7 +830,7 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 				return( false );
 			}
 
-			long	v	= asLong(px, py);
+			int		v	= asInt(px, py);
 
 			z_xy[0][ix][iy]	= SG_GET_BYTE_0(v);
 			z_xy[1][ix][iy]	= SG_GET_BYTE_1(v);

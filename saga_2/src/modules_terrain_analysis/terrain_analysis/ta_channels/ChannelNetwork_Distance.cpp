@@ -307,7 +307,7 @@ void CChannelNetwork_Distance::Initialize_MFD(void)
 
 	double	*Flow, z, dz, zSum;
 
-	pFlow	= SG_Create_Grid(pDTM, GRID_TYPE_Long);
+	pFlow	= SG_Create_Grid(pDTM, GRID_TYPE_Int);
 	Flow	= (double *)SG_Calloc(8 * Get_NCells(), sizeof(double));
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -353,7 +353,7 @@ void CChannelNetwork_Distance::Initialize_MFD(void)
 //---------------------------------------------------------
 void CChannelNetwork_Distance::Finalize_MFD(void)
 {
-	SG_Free((double *)pFlow->asLong(0));
+	SG_Free((double *)pFlow->asInt(0));
 
 	delete(pFlow);
 
@@ -386,7 +386,7 @@ void CChannelNetwork_Distance::Execute_MFD(int x, int y)
 		ix		= Get_xTo(i, x);
 		iy		= Get_yTo(i, y);
 
-		if( pDTM->is_InGrid(ix, iy) && (dFlow = ((double *)pFlow->asLong(ix, iy))[(i + 4) % 8]) > 0.0 )
+		if( pDTM->is_InGrid(ix, iy) && (dFlow = ((double *)pFlow->asInt(ix, iy))[(i + 4) % 8]) > 0.0 )
 		{
 			dVert	= pDTM->asDouble(ix, iy) - pDTM->asDouble(x, y);
 			dHorz	= Get_Length(i);

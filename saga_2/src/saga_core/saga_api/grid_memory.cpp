@@ -453,10 +453,6 @@ void CSG_Grid::_LineBuffer_Set_Value(int x, int y, double Value)
 			((int    *)pLine->Data)[x]	= (int   )Value;
 			break;
 
-		case GRID_TYPE_Long:
-			((long   *)pLine->Data)[x]	= (long  )Value;
-			break;
-
 		case GRID_TYPE_Float:
 			((float  *)pLine->Data)[x]	= (float )Value;
 			break;
@@ -499,9 +495,6 @@ double CSG_Grid::_LineBuffer_Get_Value(int x, int y) const
 
 		case GRID_TYPE_Int:
 			return( ((int    *)pLine->Data)[x] );
-
-		case GRID_TYPE_Long:
-			return( ((long   *)pLine->Data)[x] );
 
 		case GRID_TYPE_Float:
 			return( ((float  *)pLine->Data)[x] );

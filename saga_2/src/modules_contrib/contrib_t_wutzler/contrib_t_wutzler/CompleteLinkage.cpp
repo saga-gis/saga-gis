@@ -232,9 +232,9 @@ bool CCompleteLinkage::On_Execute(void){
 	int rny = ceil( Get_NY() / (double) regionExtent );
 	pRegionMinDistGrid = SG_Create_Grid(GRID_TYPE_Double, rnx, rny, Get_Cellsize()*regionExtent);
 	pRegionMinDistGrid->Set_Name(_TL("MinDist Region"));
-	pRegionMinPixelGrid = SG_Create_Grid(GRID_TYPE_Long, rnx, rny, Get_Cellsize()*regionExtent);
+	pRegionMinPixelGrid = SG_Create_Grid(GRID_TYPE_Int, rnx, rny, Get_Cellsize()*regionExtent);
 	pRegionMinPixelGrid->Set_Name(_TL("Regions MinPixel"));
-	pRegionNdvCntGrid = SG_Create_Grid(GRID_TYPE_Long, rnx, rny, Get_Cellsize()*regionExtent);
+	pRegionNdvCntGrid = SG_Create_Grid(GRID_TYPE_Int, rnx, rny, Get_Cellsize()*regionExtent);
 	pRegionNdvCntGrid->Set_Name(_TL("Regions Count of No-DataValue-Pixels"));
 	}
 
@@ -412,11 +412,11 @@ double *CCompleteLinkage::calcPixelsClassDistance(int x, int y, distMapT& cache,
 	double dist, minDist = DBL_MAX, minClass;
 	int dir; 
 	long class1, class2;
-	class1 = pClassGrid->asLong(x,y);
+	class1 = pClassGrid->asInt(x,y);
 	if( !pClassGrid->is_NoData_Value(class1) ){
 		for( int lx = xmin; lx <= xmax; lx++ ){
 			for( int ly = ymin; ly <= ymax; ly++ ){
-				class2 = pClassGrid->asLong(lx,ly);
+				class2 = pClassGrid->asInt(lx,ly);
 				if( (class2 != class1) && !pClassGrid->is_NoData_Value(class2) ){
 					//dist = minDist-1;
 					try{
@@ -543,12 +543,12 @@ double CCompleteLinkage::calcClassesDist(long class1, long class2){
 	// outer loop: all pixels of class1
 	for(y1=0; y1<Get_NY(); y1++)	{
 		for(x1=0; x1<Get_NX(); x1++)		{
-			if( pClassGrid->asLong(x1,y1) == class1 ){
+			if( pClassGrid->asInt(x1,y1) == class1 ){
 
 				// inner loop: all pixels of class2
 				for(y2=0; y2<Get_NY(); y2++)			{
 					for(x2=0; x2<Get_NX(); x2++)				{
-						if( pClassGrid->asLong(x2,y2) == class2 ){
+						if( pClassGrid->asInt(x2,y2) == class2 ){
 							dist = calculateEucledianDistance(x1,y1,x2,y2);
 							if( dist > maxDist ) maxDist = dist;
 						}// if class2 inner loop
@@ -603,12 +603,8 @@ CSG_Grid *CCompleteLinkage::copyGrid(CSG_Grid *fromGrid, TSG_Grid_Type gridType)
 					break;
 				case GRID_TYPE_Int:
 				case GRID_TYPE_Word:
-				case GRID_TYPE_Count:
-					targetGrid->Set_Value(x,y, fromGrid->asInt(x,y)  );
-					break;
-				case GRID_TYPE_Long:
 				case GRID_TYPE_DWord:
-					targetGrid->Set_Value(x,y, fromGrid->asLong(x,y)  );
+					targetGrid->Set_Value(x,y, fromGrid->asInt(x,y)  );
 					break;
 				case GRID_TYPE_Float:
 					targetGrid->Set_Value(x,y, fromGrid->asFloat(x,y)  );
@@ -632,7 +628,7 @@ long CCompleteLinkage::getDestClass(int x, int y){
 		return pClassGrid->Get_NoData_Value();
 	int dx = DIRX(dir);
 	int dy = DIRY(dir);
-	return pClassGrid->asLong( x+DIRX(dir), y+DIRY(dir) );
+	return pClassGrid->asInt( x+DIRX(dir), y+DIRY(dir) );
 }
 
 /*
@@ -722,7 +718,7 @@ void CCompleteLinkage::removeOrphantClasses(
 
 	for( int y = 0; y < Get_NY(); y++ ){
 		for( int x = 0; x < Get_NX(); x++ ){
-			class1 = pClassGrid->asLong(x,y);
+			class1 = pClassGrid->asInt(x,y);
 			if( !pClassGrid->is_NoData_Value(class1) && class1 < Get_NCells() ){
 				edist = pMinDist->asDouble(x,y);
 				aggregatePixel(i++, x, y, classDistMap, affectedRegionSet );
@@ -814,7 +810,7 @@ void CCompleteLinkage::removeOrphantClasses(
 		// construct histogram of classes and minimum points
 		for(y=0; y<Get_NY() && Set_Progress(y); y++){
 			for(x=0; x<Get_NX(); x++){
-				class1 = pClassGrid->asLong(x,y); 
+				class1 = pClassGrid->asInt(x,y); 
 				edist = pMinDist->asDouble(x,y);
 				it1 = classCntMap.find(class1);
 				if( it1 == classCntMap.end() ){
@@ -871,7 +867,7 @@ void CCompleteLinkage::removeOrphantClasses(
 		changedPixels.clear();
 		for(y=0; y<Get_NY() && Set_Progress(y); y++){
 			for(x=0; x<Get_NX(); x++){
-				class1 = pClassGrid->asLong(x,y); 
+				class1 = pClassGrid->asInt(x,y); 
 				it1 = classesToChange.find( class1 );
 				if( it1 != classesToChange.end() ){
 					class2 = (*it1).second;
@@ -935,7 +931,7 @@ void CCompleteLinkage::renameClasses(){
 	cnum = 0;
 	for(y=0; y<Get_NY() && Set_Progress(y); y++){
 		for(x=0; x<Get_NX(); x++){
-			class1 = pClassGrid->asLong(x,y); 
+			class1 = pClassGrid->asInt(x,y); 
 			it = cmap.find( class1 );
 			if( it == cmap.end() ){
 				cnum++;
@@ -951,7 +947,7 @@ void CCompleteLinkage::renameClasses(){
 	// substract maximum
 	for(y=0; y<Get_NY() && Set_Progress(y); y++){
 		for(x=0; x<Get_NX(); x++){
-			pClassGrid->Set_Value(x,y, pClassGrid->asLong(x,y) - maxC );
+			pClassGrid->Set_Value(x,y, pClassGrid->asInt(x,y) - maxC );
 		} // x
 	} // y
 	*/
@@ -1339,7 +1335,7 @@ long CCompleteLinkage::getGridsMinPixel(){
 }
 
 long CCompleteLinkage::getRegionsMinPixel(int regx, int regy){
-	return pRegionMinPixelGrid->asLong(regx, regy);
+	return pRegionMinPixelGrid->asInt(regx, regy);
 }
 
 
@@ -1549,7 +1545,7 @@ pixelSetPtrT CCompleteLinkage::aggregatePixel(int i, int minx, int miny,
 	long nClass, class1, class2; // new and former class-numbers
 	pixelSetT neighbourPixels;	// set of pixels pointing to changed class
 
-	class1 = pClassGrid->asLong(minx,miny);
+	class1 = pClassGrid->asInt(minx,miny);
 	class2 = getDestClass(minx,miny);
 	nClass = Get_NCells() + i;
 
@@ -1616,7 +1612,7 @@ long CCompleteLinkage::incrementRegionsNdvCnt(int x, int y){
 	int regx, regy;
 	regx = X2REGX(x);
 	regy = Y2REGY(y);
-	long cnt = pRegionNdvCntGrid->asLong(regx,regy);
+	long cnt = pRegionNdvCntGrid->asInt(regx,regy);
 	pRegionNdvCntGrid->Set_Value(regx,regy, ++cnt );
 	return cnt;
 }
