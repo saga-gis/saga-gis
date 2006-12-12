@@ -258,16 +258,16 @@ CSAGA_Frame::CSAGA_Frame(void)
 	//-----------------------------------------------------
 	m_pLayout			= new wxAuiManager(this);
 
-	m_pLayout->GetArtProvider()->SetColor	(wxAUI_ART_ACTIVE_CAPTION_COLOUR,
+	m_pLayout->GetArtProvider()->SetColor	(wxAUI_DOCKART_ACTIVE_CAPTION_COLOUR,
 		wxSystemSettings::GetColour(wxSYS_COLOUR_ACTIVECAPTION)
 	);
 
-	m_pLayout->GetArtProvider()->SetColor	(wxAUI_ART_INACTIVE_CAPTION_COLOUR,
+	m_pLayout->GetArtProvider()->SetColor	(wxAUI_DOCKART_INACTIVE_CAPTION_COLOUR,
 		wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE)
 	);
 
-	m_pLayout->GetArtProvider()->SetMetric	(wxAUI_ART_GRADIENT_TYPE	, wxAUI_GRADIENT_NONE);
-	m_pLayout->GetArtProvider()->SetMetric	(wxAUI_ART_CAPTION_SIZE		, 14);
+	m_pLayout->GetArtProvider()->SetMetric	(wxAUI_DOCKART_GRADIENT_TYPE	, wxAUI_GRADIENT_NONE);
+	m_pLayout->GetArtProvider()->SetMetric	(wxAUI_DOCKART_CAPTION_SIZE		, 14);
 
 	m_pLayout->SetFlags(m_pLayout->GetFlags() ^ wxAUI_MGR_TRANSPARENT_DRAG);
 //	m_pLayout->SetFlags(m_pLayout->GetFlags() ^ wxAUI_MGR_ALLOW_ACTIVE_PANE);
