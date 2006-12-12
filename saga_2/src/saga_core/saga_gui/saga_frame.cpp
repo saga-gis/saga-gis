@@ -305,7 +305,7 @@ CSAGA_Frame::CSAGA_Frame(void)
 	}
 	else
 	{
-		s	= wxT("layout1|")
+		s	= wxT("layout2|")
 			  wxT("name=mdiclient;caption=;state=256;dir=5;layer=0;row=0;pos=0;prop=100000;bestw=0;besth=0;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|")
 			  wxT("name=Messages;caption=Messages;state=16779260;dir=3;layer=0;row=0;pos=0;prop=100000;bestw=200;besth=100;minw=100;minh=100;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=400;floath=200|")
 			  wxT("name=Object Properties;caption=Object Properties;state=16779260;dir=2;layer=1;row=0;pos=0;prop=100000;bestw=200;besth=100;minw=100;minh=100;maxw=-1;maxh=-1;floatx=917;floaty=69;floatw=200;floath=400|")
