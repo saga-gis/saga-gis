@@ -119,10 +119,10 @@ void wxStringPropertyClass::SetAttribute( int id, wxVariant& value )
 
 wxPG_BEGIN_PROPERTY_CLASS_BODY(wxIntProperty,wxPGProperty,long,long)
     WX_PG_DECLARE_BASIC_TYPE_METHODS()
-    virtual bool SetValueFromInt ( long value, int flags );
+    virtual bool SetValueFromInt( long value, int flags );
 #if wxUSE_VALIDATORS
-    static wxValidator* GetClassValidator ();
-    virtual wxValidator* DoGetValidator () const;
+    static wxValidator* GetClassValidator();
+    virtual wxValidator* DoGetValidator() const;
 #endif
 wxPG_END_PROPERTY_CLASS_BODY()
 
@@ -340,8 +340,10 @@ wxPG_END_PROPERTY_CLASS_BODY()
 WX_PG_IMPLEMENT_PROPERTY_CLASS(wxFloatProperty,wxBaseProperty,
                                double,double,TextCtrl)
 
-wxFloatPropertyClass::wxFloatPropertyClass ( const wxString& label, const wxString& name,
-    double value ) : wxPGProperty(label,name)
+wxFloatPropertyClass::wxFloatPropertyClass( const wxString& label,
+                                            const wxString& name,
+                                            double value )
+    : wxPGProperty(label,name)
 {
     m_precision = -1;
     DoSetValue(value);
@@ -380,38 +382,36 @@ void wxPropertyGrid::DoubleToString(wxString& target,
             *precTemplate << wxT('f');
         }
 
-        target.Printf ( precTemplate->c_str(), value );
-
+        target.Printf( precTemplate->c_str(), value );
     }
     else
     {
-        target.Printf ( wxT("%f"), value );
+        target.Printf( wxT("%f"), value );
     }
 
-    if ( removeZeroes && precision != 0 )
+    if ( removeZeroes && precision != 0 && target.length() )
     {
-        // Remove excess zeroes (do not remove this code just yet)
-        int cur_pos = target.length() - 1;
+        // Remove excess zeroes (do not remove this code just yet,
+        // since sprintf can't do the same consistently across platforms).
+        unsigned int cur_pos = target.length() - 1;
         wxChar a;
-        a = target.GetChar ( cur_pos );
+        a = target.GetChar( cur_pos );
         while ( a == '0' && cur_pos > 0 )
         {
             cur_pos--;
-            a = target.GetChar ( cur_pos );
+            a = target.GetChar( cur_pos );
         }
 
-        wxChar cur_char = target.GetChar ( cur_pos );
+        wxChar cur_char = target.GetChar( cur_pos );
         if ( cur_char != wxT('.') && cur_char != wxT(',') )
-        {
             cur_pos += 1;
-            cur_char = target.GetChar ( cur_pos );
-        }
 
-        target.Truncate ( cur_pos );
+        if ( cur_pos < target.length() )
+            target.Truncate( cur_pos );
     }
 }
 
-wxString wxFloatPropertyClass::GetValueAsString ( int argFlags ) const
+wxString wxFloatPropertyClass::GetValueAsString( int argFlags ) const
 {
     wxString text;
     wxPropertyGrid::DoubleToString(text,m_value,
@@ -421,7 +421,7 @@ wxString wxFloatPropertyClass::GetValueAsString ( int argFlags ) const
     return text;
 }
 
-bool wxFloatPropertyClass::SetValueFromString ( const wxString& text, int argFlags )
+bool wxFloatPropertyClass::SetValueFromString( const wxString& text, int argFlags )
 {
     wxString s;
     double value;
@@ -436,8 +436,7 @@ bool wxFloatPropertyClass::SetValueFromString ( const wxString& text, int argFla
     }
     else if ( argFlags & wxPG_REPORT_ERROR )
     {
-        s.Printf ( _("\"%s\" is not a floating-point number."), text.c_str() );
-        ShowError(s);
+        ShowError(wxString::Format( _("\"%s\" is not a floating-point number"), text.c_str() ));
     }
     return false;
 }
@@ -475,7 +474,7 @@ wxPG_END_PROPERTY_CLASS_BODY()
 WX_PG_IMPLEMENT_CONSTFUNC(wxBoolProperty,bool)
 WX_PG_IMPLEMENT_CLASSINFO(wxBoolProperty,wxBasePropertyClass)
 wxPG_GETCLASSNAME_IMPLEMENTATION(wxBoolProperty)
-const wxPGValueType* wxBoolPropertyClass::GetValueType() const { return wxPG_VALUETYPE(bool); }
+wxPG_VALUETYPE_MSGVAL wxBoolPropertyClass::GetValueType() const { return wxPG_VALUETYPE(bool); }
 
 const wxChar* wxPG_ClassName_wxBoolProperty = wxBoolProperty_ClassName;
 
@@ -497,7 +496,7 @@ wxBoolPropertyClass::wxBoolPropertyClass( const wxString& label, const wxString&
     int useVal;
     if ( value ) useVal = 1;
     else useVal = 0;
-    DoSetValue(useVal);
+    DoSetValue((long)useVal);
 
     m_flags |= wxPG_PROP_USE_DCC;
 }
@@ -549,7 +548,7 @@ bool wxBoolPropertyClass::SetValueFromString( const wxString& text, int /*argFla
 
     if ( (m_value && !value) || (!m_value && value) )
     {
-        DoSetValue ( value );
+        DoSetValue( (long) value );
         return true;
     }
     /*
@@ -629,7 +628,7 @@ wxPGVariant wxBaseEnumPropertyClass::DoGetValue() const
     int val;
     GetEntry(m_index,&val);
 
-    return val;
+    return wxPGVariantCreator(val);
 }
 
 wxString wxBaseEnumPropertyClass::GetValueAsString( int ) const
@@ -711,7 +710,7 @@ bool wxBaseEnumPropertyClass::SetValueFromInt ( long value, int argFlags )
 
 // Class body is in propdev.h.
 
-wxPGProperty* wxEnumProperty ( const wxString& label, const wxString& name, const wxChar** labels,
+wxPGProperty* wxEnumProperty( const wxString& label, const wxString& name, const wxChar** labels,
     const long* values, int value )
 {
     return new wxEnumPropertyClass (label,name,labels,values,value);
@@ -720,7 +719,7 @@ wxPGProperty* wxEnumProperty ( const wxString& label, const wxString& name, cons
 wxPGProperty* wxEnumProperty( const wxString& label, const wxString& name,
     const wxArrayString& labels, const wxArrayInt& values, int value )
 {
-    return new wxEnumPropertyClass (label,name,labels,values,value);
+    return new wxEnumPropertyClass(label,name,labels,values,value);
 }
 
 wxPGProperty* wxEnumProperty( const wxString& label, const wxString& name,
@@ -729,7 +728,7 @@ wxPGProperty* wxEnumProperty( const wxString& label, const wxString& name,
     return new wxEnumPropertyClass (label,name,labels,*((const wxArrayInt*)NULL),value);
 }
 
-wxPGProperty* wxEnumProperty ( const wxString& label, const wxString& name,
+wxPGProperty* wxEnumProperty( const wxString& label, const wxString& name,
     wxPGChoices& choices, int value )
 {
     return new wxEnumPropertyClass (label,name,choices,value);
@@ -749,7 +748,7 @@ wxEnumPropertyClass::wxEnumPropertyClass ( const wxString& label, const wxString
         m_choices.Add(labels,values);
 
         if ( GetItemCount() )
-            wxEnumPropertyClass::DoSetValue( value );
+            wxEnumPropertyClass::DoSetValue( (long)value );
     }
 }
 
@@ -770,7 +769,7 @@ wxEnumPropertyClass::wxEnumPropertyClass ( const wxString& label, const wxString
         m_choices.Add(labels,values);
 
         if ( GetItemCount() )
-            wxEnumPropertyClass::DoSetValue( value );
+            wxEnumPropertyClass::DoSetValue( (long)value );
     }
 }
 
@@ -785,7 +784,7 @@ wxEnumPropertyClass::wxEnumPropertyClass ( const wxString& label, const wxString
         m_choices = choices.ExtractData();
 
         if ( GetItemCount() )
-            wxEnumPropertyClass::DoSetValue( value );
+            wxEnumPropertyClass::DoSetValue( (long)value );
     }
 }
 
@@ -796,7 +795,7 @@ wxEnumPropertyClass::wxEnumPropertyClass ( const wxString& label, const wxString
     m_choices.Assign( choices );
 
     if ( GetItemCount() )
-        wxEnumPropertyClass::DoSetValue( value );
+        wxEnumPropertyClass::DoSetValue( (long)value );
 }
 
 int wxEnumPropertyClass::GetIndexForValue( int value ) const
@@ -1135,9 +1134,9 @@ wxFlagsPropertyClass::wxFlagsPropertyClass ( const wxString& label, const wxStri
     {
         m_choices.Set(labels,values);
 
-        wxASSERT ( GetItemCount() );
+        wxASSERT( GetItemCount() );
 
-        DoSetValue( value );
+        DoSetValue( (long)value );
     }
 }
 
@@ -1343,7 +1342,7 @@ void wxFlagsPropertyClass::ChildChanged ( wxPGProperty* p )
     wxASSERT( this == p->GetParent() );
 
     const wxArrayInt& values = GetValues();
-    long val = p->DoGetValue().GetRawLong(); // bypass type checking
+    long val = p->DoGetValue().GetLong(); // bypass type checking
     unsigned int iip = p->GetIndexInParent();
     unsigned long vi = (1<<iip);
     if ( values.GetCount() ) vi = values[iip];
@@ -1889,7 +1888,7 @@ bool wxArrayEditorDialog::Create( wxWindow *parent,
                                   const wxSize& sz )
 {
 
-    bool res = wxDialog::Create (parent,1,caption,pos,sz,style);
+    bool res = wxDialog::Create(parent,1,caption,pos,sz,style);
 
     SetFont(parent->GetFont()); // To allow entering chars of the same set as the propGrid
 
@@ -1910,7 +1909,7 @@ bool wxArrayEditorDialog::Create( wxWindow *parent,
 
     // Message
     if ( message.length() )
-        topsizer->Add ( new wxStaticText(this,-1,message),
+        topsizer->Add( new wxStaticText(this,-1,message),
             0, wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL|wxALL, spacing );
 
     // String editor
@@ -2262,7 +2261,7 @@ void wxArrayStringPropertyClass::DoSetValue( wxPGVariant value )
 
 wxPGVariant wxArrayStringPropertyClass::DoGetValue() const
 {
-    return wxPGVariant(m_value);
+    return wxPGVariantCreator(m_value);
 }
 
 wxString wxArrayStringPropertyClass::GetValueAsString( int WXUNUSED(argFlags) ) const
@@ -2450,7 +2449,7 @@ wxPGProperty* wxCustomProperty( const wxString& label, const wxString& name )
 WX_PG_IMPLEMENT_CLASSINFO(wxCustomProperty,wxBaseParentPropertyClass)
 wxPG_GETCLASSNAME_IMPLEMENTATION(wxCustomProperty)
 
-const wxPGValueType* wxCustomPropertyClass::GetValueType() const
+wxPG_VALUETYPE_MSGVAL wxCustomPropertyClass::GetValueType() const
 {
     return wxPG_VALUETYPE(wxString);
 }

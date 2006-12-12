@@ -231,7 +231,7 @@ wxString CDLG_About::_Get_Version(void)
 		wxT("%s\n")
 		wxT("%s\n"),
 		wxVERSION_STRING,
-		wxT("wxPropertyGrid 1.2.2")
+		wxT("wxPropertyGrid 1.2.5")
 	));
 
 #ifndef _SAGA_DONOTUSE_HARU

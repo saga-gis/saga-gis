@@ -21,7 +21,7 @@
 
 
 // Item counts in GUI components were changed in 2.7.0
-#if wxMINOR_VERSION > 6
+#if wxCHECK_VERSION(2,7,0)
     #define wxODCCount  unsigned int
     #define wxODCIndex  unsigned int
 #else
@@ -29,11 +29,20 @@
     #define wxODCIndex  int
 #endif
 
+
+// wxRect: Inside(<=2.7.0) or Contains(>2.7.0)?
+#if !wxCHECK_VERSION(2,7,1)
+    #define wxPGRectContains    Inside
+#else
+    #define wxPGRectContains    Contains
+#endif
+
 class WXDLLEXPORT wxTextCtrl;
 class WXDLLEXPORT wxButton;
 
-// Temp stuff
-#ifdef WXMAKINGDLL_PROPGRID
+#ifdef WXMAKINGLIB_PROPGRID
+    #define WXDLLEXPORT_PGODC
+#elif defined(WXMAKINGDLL_PROPGRID)
     #define WXDLLEXPORT_PGODC WXEXPORT
 #elif defined(WXUSINGDLL)
     #define WXDLLEXPORT_PGODC WXIMPORT
@@ -81,6 +90,10 @@ enum
     wxPGCC_POPUP_ON_MOUSE_UP          = 0x0002,
     // All text is not automatically selected on click
     wxPGCC_NO_TEXT_AUTO_SELECT        = 0x0004,
+    // Drop-button stays depressed while the popup is open
+    wxPGCC_BUTTON_STAYS_DOWN          = 0x0008,
+    // Button covers the entire control
+    wxPGCC_FULL_BUTTON                = 0x0010,
 
     // Internal use: signals creation is complete
     wxPGCC_IFLAG_CREATED              = 0x0100,
@@ -90,6 +103,8 @@ enum
     wxPGCC_IFLAG_INDENT_SET           = 0x0400,
     // Internal use: Set wxTAB_TRAVERSAL to parent when popup is dismissed
     wxPGCC_IFLAG_PARENT_TAB_TRAVERSAL = 0x0800,
+    // Button has bitmap or has non-standard size
+    wxPGCC_IFLAG_HAS_NONSTANDARD_BUTTON = 0x1000
 };
 
 
@@ -307,6 +322,17 @@ public:
     //                                wxCONTROL_DISABLED: control/item is disabled
     virtual void DrawFocusBackground( wxDC& dc, const wxRect& rect, int flags );
 
+    // Returns true if focused. Differs from FindFocus in that takes
+    // child controls into account.
+    bool IsFocused() const
+    {
+        const wxWindow* curFocus = FindFocus();
+        if ( curFocus == this || (m_text && curFocus == m_text) )
+            return true;
+
+        return false;
+    }
+
     // Returns true if focus indicator should be drawn.
     inline bool ShouldDrawFocus() const
     {
@@ -341,6 +367,17 @@ public:
     // Return item width, or -1 for calculating from text extent (default)
     virtual wxCoord OnMeasureListItemWidth( int item );
 
+    // Returns true if can and should send focus event to the main control from
+    // textctrl input handler.
+    inline bool ConsumingTextCtrlFocusEvent()
+    {
+        if ( m_skipTextCtrlFocusEvents == 0 )
+            return true;
+
+        m_skipTextCtrlFocusEvents--;
+        return false;
+    }
+
     // NOTE:
     // I basicly needed to add callback methods into wxComboControlBase - otherwise it
     // will not be easily possible to use wxPGVListBoxComboPopup from simultaneously existing
@@ -369,8 +406,16 @@ protected:
     // Installs standard input handler to combo
     void InstallInputHandlers();
 
+    // Flags for DrawButton.
+    enum
+    {
+        Button_PaintBackground             = 0x0001, // Paints control background below the button
+        Button_BitmapOnly                  = 0x0002  // Only paints the bitmap
+    };
+
     // Draws dropbutton. Using wxRenderer or bitmaps, as appropriate.
-    void DrawButton( wxDC& dc, const wxRect& rect, bool paintBg = true );
+    // Flags are defined above.
+    void DrawButton( wxDC& dc, const wxRect& rect, int flags = Button_PaintBackground );
 
     // Call if cursor is on button area or mouse is captured for the button.
     //bool HandleButtonMouseEvent( wxMouseEvent& event, bool isInside );
@@ -516,8 +561,7 @@ protected:
     // TODO: Remove after real popup works ok.
     unsigned char           m_fakePopupUsage;
 
-    // Set to 1 on mouse down, 0 on mouse up. Used to eliminate down-less mouse ups.
-    //bool                    m_downReceived;
+    wxByte                  m_skipTextCtrlFocusEvents;
 
 private:
     void Init();

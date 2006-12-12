@@ -1113,7 +1113,7 @@ void wxPropertyGridManager::RecalculatePositions( int width, int height )
     #else
         // In wxWidgets 2.6.2+, Toolbar default height may be broken
         #if defined(__WXMSW__)
-            tbHeight = 22;
+            tbHeight = 24;
         #elif defined(__WXGTK__)
             tbHeight = 22;
         #elif defined(__WXMAC__)
@@ -1172,17 +1172,13 @@ void wxPropertyGridManager::RecalculatePositions( int width, int height )
     if ( m_iFlags & wxPG_FL_INITIALIZED )
     {
         int pgh = propgridBottomY - propgridY;
-        m_pPropGrid->SetSize ( 0, propgridY,
-            width, pgh );
+        m_pPropGrid->SetSize( 0, propgridY, width, pgh );
 
         m_extraHeight = height - pgh;
 
         m_width = width;
         m_height = height;
     }
-
-    //InvalidateBestSize();
-
 }
 
 // -----------------------------------------------------------------------
@@ -1193,14 +1189,15 @@ void wxPropertyGridManager::SetDescBoxHeight( int ht, bool refresh )
     {
         m_nextDescBoxSize = ht;
         if ( refresh )
-            RecalculatePositions(m_width,m_height);
-        /*
-        int newypos = m_height - ht - m_splitterHeight;
-        if ( refresh && m_pTxtHelpContent )
-            RefreshHelpBox(newypos,m_width,m_height);
-        else
-            m_splitterY = newypos;*/
+            RecalculatePositions(m_width, m_height);
     }
+}
+
+// -----------------------------------------------------------------------
+
+int wxPropertyGridManager::GetDescBoxHeight() const
+{
+    return GetClientSize().y - m_splitterY;
 }
 
 // -----------------------------------------------------------------------
@@ -1217,7 +1214,6 @@ void wxPropertyGridManager::OnPaint( wxPaintEvent& WXUNUSED(event) )
     int splitter_bottom = m_splitterY + m_splitterHeight;
     if ( r.y < splitter_bottom && r_bottom >= m_splitterY )
         RepaintSplitter ( m_splitterY, m_width, m_height, false );
-
 }
 
 // -----------------------------------------------------------------------
@@ -1261,6 +1257,23 @@ void wxPropertyGridManager::RecreateControls()
                                        wxDefaultPosition,wxDefaultSize,
                                        ((GetExtraStyle()&wxPG_EX_NO_FLAT_TOOLBAR)?0:wxTB_FLAT)
                                         /*| wxTB_HORIZONTAL | wxNO_BORDER*/ );
+
+        #if defined(__WXMSW__)
+            // Eliminate toolbar flicker on XP
+            // NOTE: Not enabled since it corrupts drawing somewhat.
+
+            /*
+            #ifndef WS_EX_COMPOSITED
+                #define WS_EX_COMPOSITED        0x02000000L
+            #endif
+
+            HWND hWnd = (HWND)m_pToolbar->GetHWND();
+
+            ::SetWindowLong( hWnd, GWL_EXSTYLE,
+                             ::GetWindowLong(hWnd, GWL_EXSTYLE) | WS_EX_COMPOSITED );
+            */
+
+        #endif
 
             m_pToolbar->SetCursor ( *wxSTANDARD_CURSOR );
 
@@ -1529,9 +1542,9 @@ wxPG_IMPLEMENT_PGMAN_METHOD_NORET1(SetPropertyValueWxObjectPtr,wxObject*)
 #ifndef __WXPYTHON__
 wxPG_IMPLEMENT_PGMAN_METHOD_NORET1(SetPropertyValue,void*)
 wxPG_IMPLEMENT_PGMAN_METHOD_NORET1(SetPropertyValue,wxVariant&)
-wxPG_IMPLEMENT_PGMAN_METHOD_NORET1(SetPropertyValueArrstr,const wxArrayString&)
+wxPG_IMPLEMENT_PGMAN_METHOD_NORET1(SetPropertyValueArrstr2,const wxArrayString&)
 #else
-wxPG_IMPLEMENT_PGMAN_METHOD_NORET1_P1(SetPropertyValueArrstr,const wxArrayString&)
+wxPG_IMPLEMENT_PGMAN_METHOD_NORET1_P1(SetPropertyValueArrstr2,const wxArrayString&)
 #endif
 #ifdef wxPG_COMPATIBILITY_1_0_0
 wxPG_IMPLEMENT_PGMAN_METHOD_NORET0(SetPropertyValueUnspecified)
@@ -1605,10 +1618,7 @@ void wxPropertyGridManager::OnToolbarClick( wxCommandEvent &event )
             {
 
                 // Event dispatching must be last.
-                wxPropertyGridEvent evt( wxEVT_PG_PAGE_CHANGED, GetId() );
-                evt.SetPropertyGrid(m_pPropGrid);
-                evt.SetEventObject(this);
-                GetEventHandler()->AddPendingEvent(evt);
+                m_pPropGrid->SendEvent(  wxEVT_PG_PAGE_CHANGED, (wxPGProperty*) NULL );
 
             }
             else

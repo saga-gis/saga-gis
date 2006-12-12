@@ -89,7 +89,6 @@ public:
         For custom colour properties <b>with</b> values array specified:
 
         m_arrValues[index] or wxPG_COLOUR_CUSTOM
-
     */
     wxUint32    m_type;
 
@@ -97,6 +96,12 @@ public:
     wxColour    m_colour;
 
     wxColourPropertyValue() { }
+
+    inline void Init( wxUint32 type, const wxColour& colour )
+    {
+        m_type = type;
+        m_colour = colour;
+    }
 
     inline wxColourPropertyValue( const wxColour& colour )
     {
@@ -111,8 +116,7 @@ public:
 
     inline wxColourPropertyValue( wxUint32 type, const wxColour& colour )
     {
-        m_type = type;
-        m_colour = colour;
+        Init( type, colour );
     }
 
 #ifndef SWIG
@@ -170,7 +174,7 @@ WX_PG_DECLARE_CUSTOM_COLOUR_PROPERTY_USES_WXCOLOUR_WITH_DECL(wxColourProperty,WX
 
 // MultiChoice is trickier.
 
-#ifndef SWIG
+#ifndef __WXPYTHON__
 
 extern WXDLLIMPEXP_PG wxPGProperty* wxMultiChoiceProperty(const wxString& label,
                                                           const wxString& name,
@@ -191,7 +195,13 @@ extern WXDLLIMPEXP_PG wxPGProperty* wxMultiChoiceProperty(const wxString& label,
 extern WXDLLIMPEXP_PG wxPGProperty* wxMultiChoiceProperty(const wxString& label,
                                                           const wxString& name = wxPG_LABEL,
                                                           const wxArrayString& choices = wxArrayString(),
-                                                          const wxArrayInt& value = wxPG_EMPTY_ARRAYINT);
+                                                    // This crazyness is needed for Python 2.3 (which uses
+                                                    // VC6) compatibility.
+                                                    #ifndef SWIG
+                                                          const wxArrayInt& value = (*((wxArrayInt*)NULL)));
+                                                    #else
+                                                          const wxArrayInt& value = wxArrayInt());
+                                                    #endif
 
 #endif
 
@@ -202,7 +212,7 @@ extern WXDLLIMPEXP_PG wxPGProperty* wxMultiChoiceProperty(const wxString& label,
 //
 #if defined(_WX_PROPGRID_PROPDEV_H_)
 
-#ifndef SWIG
+//#ifndef SWIG
 
 // -----------------------------------------------------------------------
 
@@ -211,7 +221,7 @@ class WXDLLIMPEXP_PG wxFontPropertyClass : public wxPGPropertyWithChildren
     WX_PG_DECLARE_PROPERTY_CLASS()
 public:
 
-    wxFontPropertyClass( const wxString& label, const wxString& name, const wxFont& );
+    wxFontPropertyClass( const wxString& label, const wxString& name, const wxFont& value );
     virtual ~wxFontPropertyClass();
 
     WX_PG_DECLARE_PARENTAL_TYPE_METHODS()
@@ -273,7 +283,9 @@ protected:
 
 // -----------------------------------------------------------------------
 
-class wxCursorPropertyClass : public wxEnumPropertyClass
+#ifndef SWIG
+
+class WXDLLIMPEXP_PG wxCursorPropertyClass : public wxEnumPropertyClass
 {
     WX_PG_DECLARE_DERIVED_PROPERTY_CLASS()
 public:
@@ -284,13 +296,15 @@ public:
     WX_PG_DECLARE_CUSTOM_PAINT_METHODS()
 };
 
+#endif
+
 // -----------------------------------------------------------------------
 
 #if wxUSE_IMAGE || defined(SWIG)
 
 WXDLLIMPEXP_PG const wxString& wxPGGetDefaultImageWildcard();
 
-class wxImageFilePropertyClass : public wxFilePropertyClass
+class WXDLLIMPEXP_PG wxImageFilePropertyClass : public wxFilePropertyClass
 {
     WX_PG_DECLARE_DERIVED_PROPERTY_CLASS()
 public:
@@ -309,9 +323,9 @@ protected:
 
 #endif
 
-#if wxUSE_CHOICEDLG
+#if wxUSE_CHOICEDLG && !defined(SWIG) //|| defined(SWIG)
 
-class wxMultiChoicePropertyClass : public wxPGProperty
+class WXDLLIMPEXP_PG wxMultiChoicePropertyClass : public wxPGProperty
 {
     WX_PG_DECLARE_PROPERTY_CLASS()
 public:
@@ -339,6 +353,7 @@ public:
 
 protected:
 
+    void SetValueI( const wxArrayInt& arr );  // I stands for internal
     void GenerateValueAsString();
 
     // Returns translation of values into string indices.
@@ -354,14 +369,14 @@ protected:
 
 // -----------------------------------------------------------------------
 
-#if wxUSE_DATETIME
+#if wxUSE_DATETIME && !defined(SWIG)
 
 class WXDLLIMPEXP_PG wxDatePropertyClass : public wxPGProperty
 {
     WX_PG_DECLARE_PROPERTY_CLASS()
 public:
 
-    wxDatePropertyClass( const wxString& label, const wxString& name, const wxDateTime& );
+    wxDatePropertyClass( const wxString& label, const wxString& name, const wxDateTime& value );
     virtual ~wxDatePropertyClass();
 
     virtual void DoSetValue( wxPGVariant value );
@@ -410,7 +425,7 @@ protected:
 
 // -----------------------------------------------------------------------
 
-#endif // #ifndef SWIG
+//#endif // #ifndef SWIG
 
 #endif // _WX_PROPGRID_PROPDEV_H_
 
