@@ -318,6 +318,11 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 			{
 				Thaw();
 
+				if( m_pManager->Get_Type() == WKSP_ITEM_Data_Manager )
+				{
+					g_pLayers->Update_Layers();
+				}
+
 				return( _Del_Item(pItem_Manager, true) );
 			}
 

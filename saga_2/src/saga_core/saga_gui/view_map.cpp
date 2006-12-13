@@ -232,7 +232,22 @@ void CVIEW_Map::On_Paint(wxPaintEvent &event)
 //---------------------------------------------------------
 void CVIEW_Map::On_Size(wxSizeEvent &event)
 {
-	_Set_Positions();
+	int		minSize	= 2 * m_Ruler_Size + 10;
+	wxSize	Size(GetClientSize()), fSize(GetSize().x - Size.x, GetSize().y - Size.y);
+
+	if( Size.x < minSize || Size.y < minSize )
+	{
+		SetSize(wxSize(
+			fSize.x + (Size.x < minSize ? minSize : Size.x),
+			fSize.y + (Size.y < minSize ? minSize : Size.y)
+		));
+	}
+	else
+	{
+		_Set_Positions();
+
+		event.Skip();
+	}
 }
 
 //---------------------------------------------------------
@@ -281,6 +296,8 @@ void CVIEW_Map::Ruler_Set_Width(int Width)
 {
 	if( m_Ruler_Size != Width )
 	{
+		Set_Size_Min(10 + 2 * Width, 10 + 2 * Width);
+
 		m_Ruler_Size	= Width;
 
 		if( m_Ruler_Size > 0 )

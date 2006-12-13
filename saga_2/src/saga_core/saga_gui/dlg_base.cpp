@@ -154,7 +154,7 @@ void CDLG_Base::On_Size(wxSizeEvent &event)
 		SetSize(s);
 	}
 
-	event.Skip();
+//	event.Skip();
 
 	Set_Positions();
 }

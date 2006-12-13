@@ -388,8 +388,6 @@ void CVIEW_ScatterPlot::On_Update(wxCommandEvent &event)
 void CVIEW_ScatterPlot::On_Size(wxSizeEvent &event)
 {
 	Refresh();
-
-	event.Skip();
 }
 
 
@@ -541,10 +539,10 @@ void CVIEW_ScatterPlot::_Draw_Regression(wxDC &dc, wxRect r, double dx, double d
 //---------------------------------------------------------
 void CVIEW_ScatterPlot::_Draw_Image(wxDC &dc, wxRect r, double dx, double dy)
 {
-	int		x, y, i, ax, ay, bx, by, Resolution;
+	int			x, y, i, ax, ay, bx, by, Resolution;
 	CSG_Grid	Count;
 	CSG_Colors	*pColors	= m_Parameters("COLORS")->asColors();
-	wxPen	Pen;
+	wxPen		Pen;
 
 	//-----------------------------------------------------
 	Resolution	= m_Parameters("RESOLUTION")->asInt();
