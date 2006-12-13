@@ -200,10 +200,9 @@ wxRect CVIEW_Histogram::_Draw_Get_rDiagram(wxRect r)
 //---------------------------------------------------------
 void CVIEW_Histogram::On_Paint(wxPaintEvent &event)
 {
-	wxRect		r;
 	wxPaintDC	dc(this);
+	wxRect		r(wxPoint(0, 0), GetClientSize());
 
-	r	= wxRect(wxPoint(0, 0), GetClientSize());
 	Draw_Edge(dc, EDGE_STYLE_SUNKEN, r);
 
 	Draw(dc, r);

@@ -111,22 +111,22 @@ public:
 
 	void							Draw						(wxDC &dc, wxRect r);
 
-	void							Update						(void);
+	void							Update_ScatterPlot			(void);
 
 
 private:
 
 	int								m_Method, m_xField, m_yField;
 
-	CSG_Grid							*m_pGrid_X, *m_pGrid_Y;
+	CSG_Grid						*m_pGrid_X, *m_pGrid_Y;
 
-	CSG_Shapes							*m_pShapes;
+	CSG_Shapes						*m_pShapes;
 
-	CSG_Table							*m_pTable;
+	CSG_Table						*m_pTable;
 
 	CSG_Regression					m_Regression;
 
-	CSG_Parameters						m_Parameters;
+	CSG_Parameters					m_Parameters;
 
 	wxString						m_sTitle, m_sX, m_sY;
 

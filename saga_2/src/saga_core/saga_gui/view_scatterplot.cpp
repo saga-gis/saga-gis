@@ -264,7 +264,7 @@ wxToolBarBase * CVIEW_ScatterPlot::_Create_ToolBar(void)
 #define CHECK_DATA(d)	if( d != NULL && !g_pData->Exists(d) )	d	= NULL;
 
 //---------------------------------------------------------
-void CVIEW_ScatterPlot::Update(void)
+void CVIEW_ScatterPlot::Update_ScatterPlot(void)
 {
 	CHECK_DATA(m_pGrid_X);
 	CHECK_DATA(m_pGrid_Y);
@@ -374,7 +374,7 @@ void CVIEW_ScatterPlot::On_Parameters(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVIEW_ScatterPlot::On_Update(wxCommandEvent &event)
 {
-	Update();
+	Update_ScatterPlot();
 }
 
 
@@ -388,6 +388,8 @@ void CVIEW_ScatterPlot::On_Update(wxCommandEvent &event)
 void CVIEW_ScatterPlot::On_Size(wxSizeEvent &event)
 {
 	Refresh();
+
+	event.Skip();
 }
 
 
@@ -540,6 +542,7 @@ void CVIEW_ScatterPlot::_Draw_Regression(wxDC &dc, wxRect r, double dx, double d
 void CVIEW_ScatterPlot::_Draw_Image(wxDC &dc, wxRect r, double dx, double dy)
 {
 	int			x, y, i, ax, ay, bx, by, Resolution;
+	double		zMax;
 	CSG_Grid	Count;
 	CSG_Colors	*pColors	= m_Parameters("COLORS")->asColors();
 	wxPen		Pen;
@@ -552,11 +555,13 @@ void CVIEW_ScatterPlot::_Draw_Image(wxDC &dc, wxRect r, double dx, double dy)
 	dx	/= Resolution;
 	dy	/= Resolution;
 
-	for(i=0; i<m_Regression.Get_Count(); i++)
+	for(i=0, zMax=0; i<m_Regression.Get_Count(); i++)
 	{
 		x	= (int)(dx * (m_Regression.Get_xValue(i) - m_Regression.Get_xMin()));
 		y	= (int)(dy * (m_Regression.Get_yValue(i) - m_Regression.Get_yMin()));
 		Count.Add_Value(x, y, 1);
+		if( Count(x, y) > zMax )
+			zMax	= Count(x, y);
 	}
 
 	//-----------------------------------------------------
@@ -568,7 +573,7 @@ void CVIEW_ScatterPlot::_Draw_Image(wxDC &dc, wxRect r, double dx, double dy)
 			{
 				if( (i = Count.asInt(x, y)) > 0 )
 				{
-					i	= (int)((pColors->Get_Count() - 1) * i / Count.Get_ZMax());
+					i	= (int)((pColors->Get_Count() - 1) * i / zMax);
 					Pen.SetColour(Get_Color_asWX(pColors->Get_Color(i)));
 					dc.SetPen(Pen);
 					dc.DrawPoint(ax, ay);
@@ -593,7 +598,7 @@ void CVIEW_ScatterPlot::_Draw_Image(wxDC &dc, wxRect r, double dx, double dy)
 
 				if( (i = Count.asInt(x, y)) > 0 )
 				{
-					i	= (int)((pColors->Get_Count() - 1) * i / Count.Get_ZMax());
+					i	= (int)((pColors->Get_Count() - 1) * i / zMax);
 					Draw_FillRect(dc, Get_Color_asWX(pColors->Get_Color(i)), ax, ay, bx, by);
 				}
 			}
