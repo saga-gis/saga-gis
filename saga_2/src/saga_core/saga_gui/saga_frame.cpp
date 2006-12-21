@@ -586,7 +586,7 @@ void CSAGA_Frame::On_WKSP_Show(wxCommandEvent &WXUNUSED(event))
 
 void CSAGA_Frame::On_WKSP_Show_UI(wxUpdateUIEvent &event)
 {
-	event.Check(m_pWKSP->IsShown());
+	event.Check(m_pWKSP->IsShown() && m_pLayout->GetPane(m_pWKSP).IsShown());
 }
 
 //---------------------------------------------------------
@@ -597,7 +597,7 @@ void CSAGA_Frame::On_Active_Show(wxCommandEvent &WXUNUSED(event))
 
 void CSAGA_Frame::On_Active_Show_UI(wxUpdateUIEvent &event)
 {
-	event.Check(m_pActive->IsShown());
+	event.Check(m_pActive->IsShown() && m_pLayout->GetPane(m_pActive).IsShown());
 }
 
 //---------------------------------------------------------
@@ -608,7 +608,7 @@ void CSAGA_Frame::On_INFO_Show(wxCommandEvent &WXUNUSED(event))
 
 void CSAGA_Frame::On_INFO_Show_UI(wxUpdateUIEvent &event)
 {
-	event.Check(m_pINFO->IsShown());
+	event.Check(m_pINFO->IsShown() && m_pLayout->GetPane(m_pINFO).IsShown());
 }
 
 
@@ -931,7 +931,7 @@ void CSAGA_Frame::_Bar_Add(wxWindow *pWindow, int Position)
 //---------------------------------------------------------
 void CSAGA_Frame::_Bar_Toggle(wxWindow *pWindow)
 {
-	if( pWindow->IsShown() )
+	if( pWindow->IsShown() && m_pLayout->GetPane(pWindow).IsShown() )
 	{
 		m_pLayout->GetPane(pWindow).Hide();
 
