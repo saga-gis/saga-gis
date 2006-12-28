@@ -586,7 +586,9 @@ bool CSG_Grid::_Cache_Create(const SG_Char *FilePath, TSG_Grid_Type File_Type, l
 	{
 		Cache_Path.Printf(FilePath);
 
-		if( m_Type == File_Type && Cache_Stream.Open(Cache_Path, SG_FILE_RWA, true) )
+		if( m_Type == File_Type
+		&&	(	Cache_Stream.Open(Cache_Path, SG_FILE_RWA, true)
+			||	Cache_Stream.Open(Cache_Path, SG_FILE_R  , true)) )
 		{
 			m_Memory_bLock	= true;
 
