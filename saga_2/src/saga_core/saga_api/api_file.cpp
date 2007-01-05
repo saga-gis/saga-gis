@@ -124,7 +124,7 @@ bool CSG_File::Open(const CSG_String &File_Name, int Mode, bool bBinary)
 	case SG_FILE_RWA:	sMode	= bBinary ? SG_T("rb+") : SG_T("r+");	break;
 	}
 
-	return( File_Name.Length() > 0 && (m_pStream = SG_FILE_OPEN(File_Name, sMode)) != NULL );
+	return( File_Name.Length() > 0 && (m_pStream = SG_FILE_OPEN( SG_STR_SGTOMB( File_Name ), SG_STR_SGTOMB( sMode ) )) != NULL );
 }
 
 //---------------------------------------------------------

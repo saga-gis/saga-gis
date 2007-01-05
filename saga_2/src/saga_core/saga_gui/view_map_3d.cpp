@@ -756,9 +756,9 @@ bool CVIEW_Map_3D::_Parms_Update(bool bGet, CVIEW_Map_3D_Image *pImage)
 //---------------------------------------------------------
 void CVIEW_Map_3D::_Parms_StatusBar(void)
 {
-	SetStatusText(wxString::Format(wxT("X %+.1f°"), m_pImage->m_xRotate * M_RAD_TO_DEG)	, MAP3D_STATUSBAR_ROTATE_X);
-	SetStatusText(wxString::Format(wxT("Y %+.1f°"), m_pImage->m_yRotate * M_RAD_TO_DEG)	, MAP3D_STATUSBAR_ROTATE_Y);
-	SetStatusText(wxString::Format(wxT("Z %+.1f°"), m_pImage->m_zRotate * M_RAD_TO_DEG)	, MAP3D_STATUSBAR_ROTATE_Z);
+	SetStatusText(wxString::Format(wxT("X %+.1f\xb0"), m_pImage->m_xRotate * M_RAD_TO_DEG)	, MAP3D_STATUSBAR_ROTATE_X);
+	SetStatusText(wxString::Format(wxT("Y %+.1f\xb0"), m_pImage->m_yRotate * M_RAD_TO_DEG)	, MAP3D_STATUSBAR_ROTATE_Y);
+	SetStatusText(wxString::Format(wxT("Z %+.1f\xb0"), m_pImage->m_zRotate * M_RAD_TO_DEG)	, MAP3D_STATUSBAR_ROTATE_Z);
 
 	SetStatusText(wxString::Format(wxT("X %+.1f" ), m_pImage->m_xShift)					, MAP3D_STATUSBAR_SHIFT_X);
 	SetStatusText(wxString::Format(wxT("Y %+.1f" ), m_pImage->m_yShift)					, MAP3D_STATUSBAR_SHIFT_Y);

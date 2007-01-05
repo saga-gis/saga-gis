@@ -114,7 +114,7 @@ CDLG_List_Grid::CDLG_List_Grid(CSG_Parameter_Grid_List *pList, wxString Caption)
 				m_pSystems->Append(pManager->Get_System(i)->Get_Name());
 			}
 
-			m_pSystems->Append(LNG("[VAL] [all grid systems]"));
+			m_pSystems->Append( wxT("[VAL] [all grid systems]") );
 			m_pSystems->SetSelection(m_pSystems->GetCount() - 1);
 
 			Set_Positions();
@@ -184,7 +184,7 @@ void CDLG_List_Grid::_Set_Objects(void)
 	//-----------------------------------------------------
 	for(i=0; i<m_pList->Get_Count(); i++)
 	{
-		m_pAdd->Append(m_pList->asDataObject(i)->Get_Name(), m_pList->asDataObject(i));
+		m_pAdd->Append( wxString( m_pList->asDataObject(i)->Get_Name(), wxConvUTF8 ), m_pList->asDataObject(i));
 	}
 
 	//-----------------------------------------------------
@@ -246,7 +246,7 @@ void CDLG_List_Grid::_Set_Grids(CWKSP_Grid_System *pSystem)
 
 			if( bList )
 			{
-				m_pSelect->Append(pGrid->Get_Name(), pGrid);
+				m_pSelect->Append( wxString( pGrid->Get_Name(), wxConvUTF8 ), pGrid);
 			}
 		}
 	}

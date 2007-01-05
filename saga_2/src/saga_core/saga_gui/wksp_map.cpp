@@ -1135,7 +1135,7 @@ void CWKSP_Map::Draw_PDF(CSG_Doc_PDF *pPDF, const wxChar *FilePath_Maps, int Ima
 			case SHAPE_TYPE_Polygon:
 				d	= ((CSG_Shape_Polygon *)pShapes->Get_Shape(Image_ID))->Get_Area();
 				e	= d > 1000000.0 ? 1000000.0  : (d > 10000.0 ? 10000.0   : 1.0);
-				s	= d > 1000000.0 ? wxT("km²") : (d > 10000.0 ? wxT("ha") : wxT("m²"));
+				s	= d > 1000000.0 ? wxT("km\xc2\xb2") : (d > 10000.0 ? wxT("ha") : wxT("m\xc2\xb2"));
 				Description.Append(wxString::Format(wxT("%s: %f%s\n"), LNG("Area")		, d / e, s.c_str()));
 
 				d	= ((CSG_Shape_Polygon *)pShapes->Get_Shape(Image_ID))->Get_Perimeter();

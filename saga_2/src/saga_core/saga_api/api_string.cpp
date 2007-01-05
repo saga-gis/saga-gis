@@ -719,7 +719,7 @@ CSG_String		SG_Double_To_Degree(double Value)
 	Value	= 60.0 * (Value - h);
 	s		= Value;
 
-	String.Printf(SG_T("%c%03d°%02d'%02f''"), c, d, h, s);
+	String.Printf(SG_T("%c%03d\xb0%02d'%02f''"), c, d, h, s);
 
 	return( String );
 }
@@ -733,7 +733,7 @@ double			SG_Degree_To_Double(const SG_Char *String)
 	sig	= 1.0;
 	d	= h	= s	= 0.0;
 
-	if( sVal.BeforeFirst('°').asDouble(d) )
+	if( sVal.BeforeFirst('\xb0').asDouble(d) )
 	{
 		if( d < 0.0 )
 		{
@@ -741,7 +741,7 @@ double			SG_Degree_To_Double(const SG_Char *String)
 			d	= -d;
 		}
 
-		sVal.AfterFirst('°' ).asDouble(h);
+		sVal.AfterFirst('\xb0' ).asDouble(h);
 		sVal.AfterFirst('\'').asDouble(s);
 	}
 	else

@@ -119,7 +119,7 @@ void CDLG_List_Table::_Set_Objects(void)
 	{
 		for(i=0; i<m_pList->Get_Count(); i++)
 		{
-			m_pAdd->Append(m_pList->asDataObject(i)->Get_Name(), m_pList->asDataObject(i));
+			m_pAdd->Append( wxString( m_pList->asDataObject(i)->Get_Name(), wxConvUTF8 ), m_pList->asDataObject(i));
 		}
 
 		//-------------------------------------------------
@@ -137,7 +137,7 @@ void CDLG_List_Table::_Set_Objects(void)
 
 			if( bList )
 			{
-				m_pSelect->Append(pTable->Get_Name(), pTable);
+				m_pSelect->Append( wxString( pTable->Get_Name(), wxConvUTF8 ), pTable);
 			}
 		}
 	}

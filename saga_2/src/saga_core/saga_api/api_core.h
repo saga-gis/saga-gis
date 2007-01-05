@@ -337,7 +337,11 @@ SAGA_API_DLL_EXPORT CSG_String		SG_Get_String					(double Value, int Precision =
 	#define SG_FILE_SCANF		fscanf
 	#define SG_FILE_GETC		fgetc
 #else
-	#define SG_FILE_OPEN		_wfopen
+	#ifndef _SAGA_LINUX
+		#define SG_FILE_OPEN		_wfopen
+	#else
+		#define SG_FILE_OPEN	fopen
+	#endif
 	#define SG_FILE_PRINTF		fwprintf
 	#define SG_FILE_SCANF		fwscanf
 	#define SG_FILE_GETC		fgetwc

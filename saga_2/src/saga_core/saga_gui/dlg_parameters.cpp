@@ -97,7 +97,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CDLG_Parameters::CDLG_Parameters(CSG_Parameters *pParameters)
-	: CDLG_Base(-1, pParameters ? pParameters->Get_Name() : LNG("[CAP] Parameters"))
+	: CDLG_Base(-1, pParameters ? wxString( pParameters->Get_Name(), wxConvUTF8 ) : wxT("[CAP] Parameters"))
 {
 	m_pControl		= new CParameters_Control(this, true);
 
