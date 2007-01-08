@@ -119,7 +119,11 @@ bool CSG_Table_DBase::Open(const SG_Char *FileName, int anFields, TFieldDesc *aF
 {
 	Close();
 
-	if( (hFile = SG_FILE_OPEN( wxString( FileName, wxConvUTF8 ).mb_str(), "w+b" ) ) != NULL )
+#if defined(_SAGA_LINUX) && defined(_UNICODE)
+	if( (hFile = SG_FILE_OPEN(CSG_String(FileName).b_str(), "w+b")) != NULL )
+#else
+	if( (hFile = SG_FILE_OPEN(FileName, SG_T("w+b"))) != NULL )
+#endif
 	{
 		bOpen		= true;
 		bReadOnly	= false;
@@ -143,7 +147,11 @@ bool CSG_Table_DBase::Open(const SG_Char *FileName)
 {
 	Close();
 
-	if( (hFile = SG_FILE_OPEN( wxString( FileName, wxConvUTF8 ).mb_str(), "rb")) != NULL )
+#if defined(_SAGA_LINUX) && defined(_UNICODE)
+	if( (hFile = SG_FILE_OPEN(CSG_String(FileName).b_str(), "rb")) != NULL )
+#else
+	if( (hFile = SG_FILE_OPEN(FileName, SG_T("rb"))) != NULL )
+#endif
 	{
 		bOpen		= true;
 		bReadOnly	= true;

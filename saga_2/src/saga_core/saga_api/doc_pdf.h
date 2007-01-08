@@ -281,7 +281,7 @@ private:
 	class PdfOutlineItem		*m_pLastLevel0OutlineItem, *m_pLastLevel1OutlineItem, *m_pLastLevel2OutlineItem;
 
 
-	const SG_Char *				_Get_Font_Name				(TSG_PDF_Font_Type Font);
+	const char *				_Get_Font_Name				(TSG_PDF_Font_Type Font);
 
 	void						_Layout_Set_Boxes			(void);
 	void						_Layout_Set_Box				(int iBox);

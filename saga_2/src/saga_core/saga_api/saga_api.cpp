@@ -72,7 +72,7 @@
 //---------------------------------------------------------
 const SG_Char *	SAGA_API_Get_Version(void)
 {
-	return( SG_T("SAGA Application Programming Interface - Version") SAGA_API_VERSION );
+	return( SG_T("SAGA Application Programming Interface - Version: ") SAGA_API_VERSION );
 }
 
 

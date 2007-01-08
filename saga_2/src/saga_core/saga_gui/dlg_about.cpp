@@ -203,7 +203,7 @@ wxString CDLG_About::_Get_Version(void)
 		wxT("SAGA GUI\n%s\n")
 		wxT("build: %s\n")
 		wxT("\n")
-		wxT("Copyrights (c) 2005, 2006 by Olaf Conrad\n")
+		wxT("Copyrights (c) 2005-2007 by Olaf Conrad\n")
 		wxT("\n")
 		wxT("GNU General Public License (GPL)\n"),
 		SAGA_GUI_Get_Version(),
@@ -215,9 +215,9 @@ wxString CDLG_About::_Get_Version(void)
 	s.Append(wxString::Format(
 		wxT("SAGA API\n%s\n")
 		wxT("\n")
-		wxT("Copyrights (c) 2002-2006 by Olaf Conrad\n")
+		wxT("Copyrights (c) 2002-2007 by Olaf Conrad\n")
 		wxT("Portions (c) 2002 by Andre Ringeler\n")	// " (mat_formula.cpp)\n")
-		wxT("Portions (c) 2005, 2006 by Victor Olaya\n")
+		wxT("Portions (c) 2005-2006 by Victor Olaya\n")
 		wxT("\n")
 		wxT("GNU Lesser General Public License (LGPL)\n"),
 		SAGA_API_Get_Version()
@@ -303,23 +303,30 @@ wxString CDLG_About::_Get_Acknowledgements(void)
 	return( SG_STR_MBTOSG(
 		"\n"
 		"Acknowledgements\n"
+		"\n"
+		"...to the growing list of developers and contributors.\n"
+		"(please let us know, if you feel your name should appear here too)\n"
 		"_______________________\n"
 		"\n"
-		"I would particularly like to thank the following for their support\n"
-		"and contributions to SAGA, and the many others who gave feedback\n"
-		"and useful tips and also made SAGA better known around the world.\n"
-		"Apologies for any unintentional omissions from this list.\n"
+		"Michael Bock\n"
+		"Juergen Boehner\n"
+		"Antonio Boggia\n"
+		"Kim Cimmery\n"
+		"Olaf Conrad\n"
+		"Frank Haselein\n"
+		"Tobias Heckmann\n"
+		"Ruediger Koethe\n"
+		"Angela Kreikemeyer\n"
+		"Stefan Liersch\n"
+		"Gianluca Massei\n"
+		"Victor Olaya\n"
+		"Andre Ringeler\n"
+		"Thomas Schmeja\n"
+		"Thomas Schorr\n"
+		"Volker Wichmann\n"
+		"Thomas Wutzler\n"
+		"_______________________\n"
 		"\n"
-		"Special thanks are due to\n"
-		"Juergen Boehner (my scientific mentor),\n"
-		"Victor Olaya (who amongst other contributions also wrote the SAGA manual).\n"
-		"\n"
-		"Michael Bock, Frank Haselein, Ruediger Koethe, Angela Kreikemeyer, Andre Ringeler, Thomas Schmeja.\n"
-		"\n"
-		"Thanks also to all the people, who submitted their SAGA modules.\n"
-		"(have a look at the module libraries to find out more...)"
-		"\n\n"
-		"O. Conrad, May 2005, Goettingen\n"
 	));
 }
 

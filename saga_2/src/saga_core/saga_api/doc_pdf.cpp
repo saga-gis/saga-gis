@@ -1698,7 +1698,7 @@ void CSG_Doc_PDF::Layout_Set_Box_Space(double Space, bool bPercent)					{}
 void CSG_Doc_PDF::_Layout_Set_Boxes(void)												{}
 void CSG_Doc_PDF::_Layout_Set_Box(int iBox)											{}
 double CSG_Doc_PDF::Get_Page_To_Meter(void)											{	return( 1.0 );	}
-const SG_Char * CSG_Doc_PDF::_Get_Font_Name(TSG_PDF_Font_Type Font)							{	return( SG_T("-") );	}
+const char * CSG_Doc_PDF::_Get_Font_Name(TSG_PDF_Font_Type Font)							{	return( SG_T("-") );	}
 const CSG_Rect & CSG_Doc_PDF::Layout_Get_Box(const SG_Char *ID)							{	return( m_Size_Margins );	}
 TSG_PDF_Title_Level CSG_Doc_PDF::_Get_Lowest_Level_Outline_Item(void)					{	return( PDF_TITLE_NONE );	}
 bool CSG_Doc_PDF::Open(const SG_Char *Title)												{	return( false );	}

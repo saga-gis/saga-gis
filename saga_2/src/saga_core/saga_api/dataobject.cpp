@@ -125,7 +125,7 @@ bool CSG_Data_Object::Destroy(void)
 //---------------------------------------------------------
 void CSG_Data_Object::Set_Name(const SG_Char *Name)
 {
-	m_Name.Printf(Name ? wxString( Name, wxConvUTF8 ).c_str() : LNG("[DAT] new") );
+	m_Name.Printf(Name ? CSG_String(Name).c_str() : LNG("[DAT] new") );
 }
 
 const SG_Char * CSG_Data_Object::Get_Name(void) const

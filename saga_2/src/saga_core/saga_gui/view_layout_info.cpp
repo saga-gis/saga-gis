@@ -86,9 +86,10 @@ CVIEW_Layout_Info::CVIEW_Layout_Info(CWKSP_Map *pMap)
 	m_pMap		= pMap;
 
 	m_pPrint	= new wxPrintData;
-	m_pPage		= new wxPageSetupDialogData;
-
 	m_pPrint	->SetOrientation		(wxLANDSCAPE);
+	m_pPrint	->SetPaperId			(wxPAPER_A4);
+
+	m_pPage		= new wxPageSetupDialogData;
 	m_pPage		->SetPrintData			(*m_pPrint);
 	m_pPage		->SetMarginTopLeft		(wxPoint(10, 10));
 	m_pPage		->SetMarginBottomRight	(wxPoint(10, 10));
