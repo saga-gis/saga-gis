@@ -18,6 +18,8 @@ FlowDepth.cpp\
 Helper.cpp\
 IsochronesConst.cpp\
 IsochronesVar.cpp\
+LakeFlood.cpp\
+LakeFloodInteractive.cpp\
 MLB_Interface.cpp\
 SAGA_Wetness_Index.cpp\
 Sinuosity.cpp\
@@ -38,6 +40,7 @@ FlowDepth.h\
 Helper.h\
 IsochronesConst.h\
 IsochronesVar.h\
+LakeFlood.h\
 MLB_Interface.h\
 SAGA_Wetness_Index.h\
 Sinuosity.h\

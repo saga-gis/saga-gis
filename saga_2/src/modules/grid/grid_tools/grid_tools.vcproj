@@ -492,6 +492,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Grid_Buffer_Proximity.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Grid_CombineGrids.cpp"
 				>
 				<FileConfiguration
@@ -1342,6 +1346,10 @@
 			</File>
 			<File
 				RelativePath="Grid_Buffer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Grid_Buffer_Proximity.h"
 				>
 			</File>
 			<File

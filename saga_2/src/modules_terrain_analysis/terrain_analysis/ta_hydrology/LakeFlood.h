@@ -10,10 +10,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                      LakeFlood.h                      //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                      Olaf Conrad                      //
+//                 Copyright (C) 2005-6 by               //
+//                    Volker Wichmann                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,23 +37,32 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     volkerwichmann@ku-eichstaett.de        //
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//    contact:    Volker Wichmann                        //
+//                Research Associate                     //
+//                Chair of Physical Geography		     //
+//				  KU Eichstätt-Ingolstadt				 //
+//                Ostenstr. 18                           //
+//                85072 Eichstätt                        //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
+#ifndef HEADER_INCLUDED__LakeFlood_H
+#define HEADER_INCLUDED__LakeFlood_H
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -61,82 +70,80 @@
 #include "MLB_Interface.h"
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-const SG_Char * Get_Info(int i)
+class CTraceOrder
 {
-	switch( i )
+public:
+	CTraceOrder(void)
 	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Terrain Analysis - Hydrology") );
+		x = y = 0;
+		prev = NULL;
+		next = NULL;
+	};
 
-	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad, Victor Olaya (c) 2001-4") );
+	~CTraceOrder(void)
+	{
+		if(next != NULL)
+			delete (next);
+		next = NULL;
+	};
 
-	case MLB_INFO_Description:
-		return( _TL("Tools for digital terrain analysis.") );
+	int		x;
+	int		y;
+	CTraceOrder *prev;
+	CTraceOrder	*next;
 
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Terrain Analysis|Hydrology") );
-	}
-}
-
-
-//---------------------------------------------------------
-#include "Flow_Parallel.h"
-#include "Flow_RecursiveUp.h"
-#include "Flow_RecursiveDown.h"
-#include "Flow_AreaUpslope.h"
-#include "Flow_AreaDownslope.h"
-
-#include "Flow_Distance.h"
-#include "SlopeLength.h"
-
-#include "EdgeContamination.h"
-
-#include "IsochronesConst.h"
-#include "IsochronesVar.h"
-
-#include "CellBalance.h"
-#include "Sinuosity.h"
-
-#include "FlowDepth.h"
-
-#include "TopographicIndices.h"
-#include "SAGA_Wetness_Index.h"
-
-#include "LakeFlood.h"
-
+};
 
 //---------------------------------------------------------
-CSG_Module *		Create_Module(int i)
+class ta_hydrology_EXPORT CLakeFlood : public CSG_Module_Grid
 {
-	switch( i )
-	{
-	case  0:	return( new CFlow_Parallel );
-	case  1:	return( new CFlow_RecursiveUp );
-	case  2:	return( new CFlow_RecursiveDown );
-	case  3:	return( new CFlow_AreaUpslope_Interactive );
-	case  4:	return( new CFlow_AreaUpslope_Area );
-	case  5:	return( new CFlow_AreaDownslope );
-	case  6:	return( new CFlow_Distance );
-	case  7:	return( new CSlopeLength );
-	case  8:	return( new CIsochronesConst );
-	case  9:	return( new CIsochronesVar );
-	case 10:	return( new CCellBalance );
-	case 11:	return( new CSinuosity );
-	case 12:	return( new CFlowDepth );
-	case 13:	return( new CEdgeContamination );
-	case 14:	return( new CTopographicIndices );
-	case 15:	return( new CSAGA_Wetness_Index );
-	case 16:	return( new CLakeFlood );
-	case 17:	return( new CLakeFloodInteractive );
-	}
+public:
+	CLakeFlood(void);
+	virtual ~CLakeFlood(void);
 
-	return( NULL );
-}
+	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Lakes") );	}
+
+
+protected:
+
+	virtual bool			On_Execute			(void);
+
+
+private:
+
+
+
+};
+
+//---------------------------------------------------------
+class ta_hydrology_EXPORT CLakeFloodInteractive : public CSG_Module_Grid_Interactive
+{
+public:
+	CLakeFloodInteractive(void);
+	virtual ~CLakeFloodInteractive(void);
+
+	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Lakes") );	}
+
+
+protected:
+	virtual bool			On_Execute			(void);
+	virtual bool			On_Execute_Finish	(void);
+	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
+
+private:
+	CSG_Grid				*pElev, *pOdepth;
+	CTraceOrder				*newCell, *firstCell, *iterCell, *lastCell;
+	double					wzSeed;
+
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -146,8 +153,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__LakeFlood_H

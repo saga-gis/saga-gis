@@ -209,6 +209,14 @@ SOURCE=.\IsochronesVar.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\LakeFlood.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\LakeFloodInteractive.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\MLB_Interface.cpp
 # End Source File
 # Begin Source File
@@ -293,6 +301,10 @@ SOURCE=.\IsochronesVar.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\LakeFlood.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\MLB_Interface.h
 # End Source File
 # Begin Source File
@@ -325,6 +337,18 @@ SOURCE=..\..\..\saga_core\saga_api\dataobject.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\saga_core\saga_api\doc_html.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\saga_core\saga_api\doc_pdf.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\saga_core\saga_api\doc_svg.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\saga_core\saga_api\geo_tools.h
 # End Source File
 # Begin Source File
@@ -338,6 +362,10 @@ SOURCE=..\..\..\saga_core\saga_api\mat_tools.h
 # Begin Source File
 
 SOURCE=..\..\..\saga_core\saga_api\module.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\saga_core\saga_api\module_library.h
 # End Source File
 # Begin Source File
 

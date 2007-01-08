@@ -114,118 +114,46 @@ const SG_Char * Get_Info(int i)
 
 #include "Grid_Buffer.h"
 #include "Grid_ThresholdBuffer.h"
+#include "Grid_Buffer_Proximity.h"
 
 #include "Grid_SortRaster.h"
 
 #include "Grid_Fill.h"
+
+
 //---------------------------------------------------------
 // 4. Allow your modules to be created here...
 
 CSG_Module *		Create_Module(int i)
 {
-	// Don't forget to continuously enumerate the case switches
-	// when adding new modules! Also bear in mind that the
-	// enumeration always has to start with [case 0:] and
-	// that [default:] must return NULL!...
-
-	CSG_Module	*pModule;
-
 	switch( i )
 	{
-	case 0:
-		pModule	= new CGrid_Resample;
-		break;
-
-	case 1:
-		pModule	= new CGrid_Aggregate;
-		break;
-
-	case 2:
-		pModule	= new CGrid_Cut;
-		break;
-
-	case 3:
-		pModule	= new CGrid_Merge;
-		break;
-
-	case 4: 
-		pModule = new CConstantGrid;
-		break;
-
-	case 5:
-		pModule	= new CGrid_Completion;
-		break;
-
-	case 6:
-		pModule	= new CGrid_Gaps_OneCell;
-		break;
-
-	case 7:
-		pModule	= new CGrid_Gaps;
-		break;
-
-	case 8:
-		pModule	= new CGrid_Buffer;
-		break;
-
-	case 9: 
-		pModule = new CThresholdBuffer;
-		break;
-
-	case 10:
-		pModule	= new CGrid_Value_Type;
-		break;
-
-	case 11:
-		pModule	= new CGrid_Value_Replace;
-		break;
-
-	case 12:
-		pModule	= new CGrid_Value_Replace_Interactive;
-		break;
-
-	case 13:
-		pModule	= new CGrid_Value_Request;
-		break;
-
-	case 14:
-		pModule	= new CGrid_Value_Reclassify;
-		break;
-
-	case 15:
-		pModule	= new CGrid_Fill;
-		break;
-
-	case 16: 
-		pModule = new CCropToData;
-		break;
-
-	case 17: 
-		pModule = new CInvertNoData;
-		break;
-
-	case 18:
-		pModule	= new CGrid_Orientation;
-		break;
-		
-	case 19: 
-		pModule = new CCombineGrids;
-		break;
-
-	case 20: 
-		pModule = new CSortRaster;
-		break;
-
-	case 21: 
-		pModule = new CGridsFromTableAndGrid;
-		break;
-
-	default:
-		pModule	= NULL;
-		break;
+	case  0:	return( new CGrid_Resample );
+	case  1:	return( new CGrid_Aggregate );
+	case  2:	return( new CGrid_Cut );
+	case  3:	return( new CGrid_Merge );
+	case  4: 	return( new CConstantGrid );
+	case  5:	return( new CGrid_Completion );
+	case  6:	return( new CGrid_Gaps_OneCell );
+	case  7:	return( new CGrid_Gaps );
+	case  8:	return( new CGrid_Buffer );
+	case  9: 	return( new CThresholdBuffer );
+	case 10:	return( new CGrid_Proximity_Buffer );
+	case 11:	return( new CGrid_Value_Type );
+	case 12:	return( new CGrid_Value_Replace );
+	case 13:	return( new CGrid_Value_Replace_Interactive );
+	case 14:	return( new CGrid_Value_Request );
+	case 15:	return( new CGrid_Value_Reclassify );
+	case 16:	return( new CGrid_Fill );
+	case 17: 	return( new CCropToData );
+	case 18: 	return( new CInvertNoData );
+	case 19:	return( new CGrid_Orientation );
+	case 20: 	return( new CCombineGrids );
+	case 21: 	return( new CSortRaster );
+	case 22: 	return( new CGridsFromTableAndGrid );
 	}
 
-	return( pModule );
+	return( NULL );
 }
 
 

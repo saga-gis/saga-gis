@@ -18,7 +18,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/Grid_Aggregate.o $(MLB_TEMP)/Grid_Buffer.o $(MLB_TEMP)/Grid_CombineGrids.o $(MLB_TEMP)/Grid_Completion.o $(MLB_TEMP)/Grid_ConstantGrid.o $(MLB_TEMP)/Grid_CropToData.o $(MLB_TEMP)/Grid_Cut.o $(MLB_TEMP)/Grid_Fill.o $(MLB_TEMP)/Grid_Gaps.o $(MLB_TEMP)/Grid_Gaps_OneCell.o $(MLB_TEMP)/Grid_InvertNoData.o $(MLB_TEMP)/Grid_Merge.o $(MLB_TEMP)/Grid_Orientation.o $(MLB_TEMP)/Grid_Resample.o $(MLB_TEMP)/Grid_SortRaster.o $(MLB_TEMP)/Grid_ThresholdBuffer.o $(MLB_TEMP)/Grid_Value_Reclassify.o $(MLB_TEMP)/Grid_Value_Replace.o $(MLB_TEMP)/Grid_Value_Replace_Interactive.o $(MLB_TEMP)/Grid_Value_Request.o $(MLB_TEMP)/Grid_Value_Type.o $(MLB_TEMP)/GridsFromTableAndGrid.o $(MLB_TEMP)/MLB_Interface.o
+OBJ      = $(MLB_TEMP)/Grid_Aggregate.o $(MLB_TEMP)/Grid_Buffer.o $(MLB_TEMP)/Grid_Buffer_Proximity.o $(MLB_TEMP)/Grid_CombineGrids.o $(MLB_TEMP)/Grid_Completion.o $(MLB_TEMP)/Grid_ConstantGrid.o $(MLB_TEMP)/Grid_CropToData.o $(MLB_TEMP)/Grid_Cut.o $(MLB_TEMP)/Grid_Fill.o $(MLB_TEMP)/Grid_Gaps.o $(MLB_TEMP)/Grid_Gaps_OneCell.o $(MLB_TEMP)/Grid_InvertNoData.o $(MLB_TEMP)/Grid_Merge.o $(MLB_TEMP)/Grid_Orientation.o $(MLB_TEMP)/Grid_Resample.o $(MLB_TEMP)/Grid_SortRaster.o $(MLB_TEMP)/Grid_ThresholdBuffer.o $(MLB_TEMP)/Grid_Value_Reclassify.o $(MLB_TEMP)/Grid_Value_Replace.o $(MLB_TEMP)/Grid_Value_Replace_Interactive.o $(MLB_TEMP)/Grid_Value_Request.o $(MLB_TEMP)/Grid_Value_Type.o $(MLB_TEMP)/GridsFromTableAndGrid.o $(MLB_TEMP)/MLB_Interface.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS = -I/usr/lib/glib/include -I/usr/include/glib-1.2
@@ -54,6 +54,9 @@ $(MLB_TEMP)/Grid_Aggregate.o: ./Grid_Aggregate.cpp $(MLB_TEMP)
 
 $(MLB_TEMP)/Grid_Buffer.o: ./Grid_Buffer.cpp $(MLB_TEMP)
 	$(CPP) -c ./Grid_Buffer.cpp -o $(MLB_TEMP)/Grid_Buffer.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Grid_Buffer_Proximity.o: ./Grid_Buffer_Proximity.cpp $(MLB_TEMP)
+	$(CPP) -c ./Grid_Buffer_Proximity.cpp -o $(MLB_TEMP)/Grid_Buffer_Proximity.o $(CXXFLAGS)
 
 $(MLB_TEMP)/Grid_CombineGrids.o: ./Grid_CombineGrids.cpp $(MLB_TEMP)
 	$(CPP) -c ./Grid_CombineGrids.cpp -o $(MLB_TEMP)/Grid_CombineGrids.o $(CXXFLAGS)

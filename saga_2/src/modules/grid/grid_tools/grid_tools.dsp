@@ -164,6 +164,10 @@ SOURCE=.\Grid_Buffer.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Grid_Buffer_Proximity.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Grid_CombineGrids.cpp
 # End Source File
 # Begin Source File
@@ -257,6 +261,10 @@ SOURCE=.\Grid_Aggregate.h
 # Begin Source File
 
 SOURCE=.\Grid_Buffer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Grid_Buffer_Proximity.h
 # End Source File
 # Begin Source File
 

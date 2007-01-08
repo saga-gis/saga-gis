@@ -972,6 +972,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\LakeFlood.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\LakeFloodInteractive.cpp"
+				>
+			</File>
+			<File
 				RelativePath="MLB_Interface.cpp"
 				>
 				<FileConfiguration
@@ -1234,6 +1242,10 @@
 			</File>
 			<File
 				RelativePath="IsochronesVar.h"
+				>
+			</File>
+			<File
+				RelativePath=".\LakeFlood.h"
 				>
 			</File>
 			<File

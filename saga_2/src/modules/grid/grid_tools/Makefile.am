@@ -6,6 +6,7 @@ pkglib_LTLIBRARIES = libgrid_tools.la
 libgrid_tools_la_SOURCES =\
 Grid_Aggregate.cpp\
 Grid_Buffer.cpp\
+Grid_Buffer_Proximity.cpp\
 Grid_CombineGrids.cpp\
 Grid_Completion.cpp\
 Grid_ConstantGrid.cpp\
@@ -29,6 +30,7 @@ GridsFromTableAndGrid.cpp\
 MLB_Interface.cpp\
 Grid_Aggregate.h\
 Grid_Buffer.h\
+Grid_Buffer_Proximity.h\
 Grid_CombineGrids.h\
 Grid_Completion.h\
 Grid_ConstantGrid.h\
