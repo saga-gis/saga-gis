@@ -128,7 +128,7 @@ bool CExercise_09::On_Execute(void)
 	// Initialisations...
 
 	m_pArea		->Assign(0.0);
-	m_pArea		->Set_Unit(SG_T("m²"));
+	m_pArea		->Set_Unit(SG_T("m\xc2\xb2"));
 	DataObject_Set_Colors(m_pArea, 100, SG_COLORS_WHITE_BLUE);
 
 

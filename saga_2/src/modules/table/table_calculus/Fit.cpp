@@ -355,9 +355,9 @@ bool CFit::On_Execute(void)
 	
 	msg.Printf(_TL(""));
 	for (j = 0; j < NrVars; j++)
-		msg.Printf(SG_T("%s\t%c"), msg, vars[j]);
+		msg.Printf(SG_T("%s\t%c"), msg.c_str(), vars[j]);
 	
-	msg.Printf(SG_T("%s\n"), msg);
+	msg.Printf(SG_T("%s\n"), msg.c_str());
 	
 	Message_Add(msg);
 	
@@ -366,9 +366,9 @@ bool CFit::On_Execute(void)
 		msg.Printf(SG_T("%c"), vars[i]);
 		for (j = 0; j <= i; j++)
 		{	
-			msg.Printf(SG_T("%s\t%f"), msg, covar[i][j]/covar[i][i]);
+			msg.Printf(SG_T("%s\t%f"), msg.c_str(), covar[i][j]/covar[i][i]);
 		}
-		msg.Printf(SG_T("%s\n"), msg);
+		msg.Printf(SG_T("%s\n"), msg.c_str());
 		
 		Message_Add(msg);
 	}

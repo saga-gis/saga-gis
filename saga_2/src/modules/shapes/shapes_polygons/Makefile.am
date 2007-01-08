@@ -1,6 +1,6 @@
 DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS           = -I$(top_srcdir)/src/saga_core
-AM_CXXFLAGS        = $(CXX_INCS) $(DEF_SAGA) $(DEP_INCS) $(DEP_DEFS)
+AM_CXXFLAGS        = $(CXX_INCS) $(DEF_SAGA) $(DEP_INCS) $(DEP_DEFS) `wx-config --cxxflags`
 AM_LDFLAGS         = -shared $(DEP_LFLG)
 pkglib_LTLIBRARIES = libshapes_polygons.la
 libshapes_polygons_la_SOURCES =\

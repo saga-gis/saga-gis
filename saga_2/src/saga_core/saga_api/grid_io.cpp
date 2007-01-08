@@ -82,7 +82,7 @@ bool CSG_Grid::_Load(const SG_Char *File_Name, TSG_Grid_Type Type, TSG_Grid_Memo
 	m_Type	= Type;
 
 	//-----------------------------------------------------
-	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Load grid"), File_Name), true);
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Load grid"), File_Name ), true);
 
 	if( SG_File_Cmp_Extension(File_Name, SG_T("grd")) )
 	{
@@ -154,7 +154,7 @@ bool CSG_Grid::Save(const SG_Char *File_Name, int Format, int xA, int yA, int xN
 	}
 
 	//-----------------------------------------------------
-	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Save grid"), File_Name), true);
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Save grid"), File_Name ), true);
 
 	switch( Format )
 	{

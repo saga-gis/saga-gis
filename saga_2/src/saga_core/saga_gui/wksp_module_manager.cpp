@@ -391,7 +391,7 @@ bool CWKSP_Module_Manager::Open(const wxChar *File_Name)
 	CWKSP_Module_Library	*pLibrary;
 
 	//-----------------------------------------------------
-	if( SG_File_Cmp_Extension(File_Name, wxT("mlb"))
+	if( SG_File_Cmp_Extension(File_Name, SG_T("mlb"))
 	||	SG_File_Cmp_Extension(File_Name, wxT("dll"))
 	||	SG_File_Cmp_Extension(File_Name, wxT("so")) )
 	{

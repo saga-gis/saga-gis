@@ -354,7 +354,7 @@ bool CSG_Shapes::_Save_ESRI(const SG_Char *File_Name)
 		return( false );
 	}
 
-	SG_UI_Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), LNG("[DAT] Save shapes"), fName.c_str()));
+	SG_UI_Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), LNG("[DAT] Save shapes"), fName.c_str() ));
 
 	//-----------------------------------------------------
 	// Save Header...

@@ -4,9 +4,7 @@ ARCHDEFS = -fPIC -fpermissive
 endif
 INCS  = -I.. -I.
 AM_CXXFLAGS = $(CXX_DEFS) $(ARCHDEFS) -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_DONOTUSE_HARU $(INCS)
-#AM_LDFLAGS = -static `wx-config --cxxflags`
-AM_LDFLAGS = `wx-config --cxxflags`
-LIBS = `wx-config --libs` -lm
+AM_LDFLAGS = `wx-config --libs` -lm
 bin_PROGRAMS = saga_gui
 
 saga_gui_SOURCES =\

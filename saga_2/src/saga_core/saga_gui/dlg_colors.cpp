@@ -164,7 +164,7 @@ void CDLG_Colors::On_Load(wxCommandEvent &event)
 
 	if( DLG_Open(File_Path, ID_DLG_COLORS_OPEN) )
 	{
-		m_pColors->Load(File_Path.mb_str());
+		m_pColors->Load( File_Path.c_str() );
 
 		m_pControl->Refresh(false);
 	}
@@ -177,7 +177,7 @@ void CDLG_Colors::On_Save(wxCommandEvent &event)
 
 	if( DLG_Save(File_Path, ID_DLG_COLORS_SAVE) )
 	{
-		m_pColors->Save(File_Path.mb_str(), true);
+		m_pColors->Save(File_Path.c_str(), true);
 
 		m_pControl->Refresh(false);
 	}

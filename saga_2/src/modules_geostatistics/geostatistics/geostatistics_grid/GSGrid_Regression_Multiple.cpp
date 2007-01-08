@@ -371,7 +371,7 @@ void CGSGrid_Regression_Multiple::Set_Message(CSG_Parameter_Grid_List *pGrids)
 	{
 		if( (j = m_Regression.Get_Ordered(i)) >= 0 && j < pGrids->Get_Count() )
 		{
-			Message_Add(CSG_String::Format(SG_T("\n%d: R² = %f%% [%f%%] -> %s"), i + 1, 100.0 * m_Regression.Get_R2(j), 100.0 * m_Regression.Get_R2_Change(j), pGrids->asGrid(j)->Get_Name()), false);
+			Message_Add(CSG_String::Format(SG_T("\n%d: R\xc2\xb2 = %f%% [%f%%] -> %s"), i + 1, 100.0 * m_Regression.Get_R2(j), 100.0 * m_Regression.Get_R2_Change(j), pGrids->asGrid(j)->Get_Name()), false);
 		}
 	}
 

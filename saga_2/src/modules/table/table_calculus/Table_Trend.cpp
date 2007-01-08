@@ -183,7 +183,7 @@ bool CTable_Trend_Base::Get_Trend(CSG_Table *pTable)
 		if( m_Trend.Get_Trend() )
 		{
 			Message_Add(m_Trend.Get_Formula());
-			Message_Add(CSG_String::Format(SG_T("R²: %f"), 100.0 * m_Trend.Get_R2()));
+			Message_Add(CSG_String::Format(SG_T("R\xc2\xb2 : %f"), 100.0 * m_Trend.Get_R2()));
 
 			if( Parameters("TREND")->asTable() == NULL )
 			{

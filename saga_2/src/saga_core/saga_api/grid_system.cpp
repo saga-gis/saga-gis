@@ -41,9 +41,9 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                Universit� G�tingen                  //
+//                Universit??? G???tingen                  //
 //                Goldschmidtstr. 5                      //
-//                37077 G�tingen                        //
+//                37077 G???tingen                        //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //

@@ -1,6 +1,6 @@
 CXX_DEFS  = `wx-config --cxxflags`
 AM_CXXFLAGS = -fPIC $(CXX_DEFS) -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_API_EXPORTS -D_SAGA_DONOTUSE_HARU
-AM_LDFLAGS = -shared `wx-config --cxxflags`
+AM_LDFLAGS = -shared `wx-config --libs`
 lib_LTLIBRARIES = libsaga_api.la
 libsaga_api_la_SOURCES =\
 api_callback.cpp\

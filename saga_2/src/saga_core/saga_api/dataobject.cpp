@@ -125,7 +125,7 @@ bool CSG_Data_Object::Destroy(void)
 //---------------------------------------------------------
 void CSG_Data_Object::Set_Name(const SG_Char *Name)
 {
-	m_Name.Printf(Name ? Name : LNG("[DAT] new"));
+	m_Name.Printf(Name ? wxString( Name, wxConvUTF8 ).c_str() : LNG("[DAT] new") );
 }
 
 const SG_Char * CSG_Data_Object::Get_Name(void) const
@@ -156,7 +156,7 @@ const SG_Char * CSG_Data_Object::Get_File_Name(bool bNullAsString)	const
 {
 	return(	m_File_Name.Length() > 0
 		?	m_File_Name.c_str()
-		:	(bNullAsString ? LNG("[DAT] [not set]") : NULL)
+		:	(bNullAsString ? (SG_Char*) LNG("[DAT] [not set]") : (SG_Char*) NULL)
 	);
 }
 

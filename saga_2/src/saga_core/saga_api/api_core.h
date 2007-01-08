@@ -101,6 +101,7 @@
 
 #endif	// #ifdef SWIG
 
+#include <wx/string.h>
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -623,7 +624,7 @@ SAGA_API_DLL_EXPORT const SG_Char *		SG_Translate		(const SG_Char *Text);
 #ifndef _UNICODE
 	#define LNG(s)	SG_Translate(s)
 #else
-	#define LNG(s)	SG_Translate(SG_T(s))
+	#define LNG(s)	SG_Translate( wxString(s, wxConvUTF8) )
 #endif
 
 

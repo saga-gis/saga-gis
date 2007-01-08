@@ -181,7 +181,7 @@ void CParameters_Control::On_PG_Changed(wxPropertyGridEvent &event)
 //---------------------------------------------------------
 bool CParameters_Control::Save_Changes(bool bSilent)
 {
-	if( m_pOriginal && m_bModified && (bSilent || DLG_Message_Confirm( LNG("[DLG] Save changes?"), wxString::Format(wxT("%s: %s"), LNG("[CAP] Parameters"), m_pParameters->Get_Name()))) )
+	if( m_pOriginal && m_bModified && (bSilent || DLG_Message_Confirm( wxString( LNG("[DLG] Save changes?"), wxConvUTF8 ), wxString::Format(wxT("%s: %s"), LNG("[CAP] Parameters"), m_pParameters->Get_Name()))) )
 	{
 		m_pOriginal->Assign_Values(m_pParameters);
 
@@ -284,7 +284,7 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 	}
 	else
 	{
-		m_pPG->Append(wxPropertyCategory(LNG("[TXT] No parameters available."), wxPG_LABEL));
+		m_pPG->Append(wxPropertyCategory( wxString( LNG("[TXT] No parameters available."), wxConvUTF8 ), wxPG_LABEL));
 	}
 
 	//-----------------------------------------------------
@@ -649,7 +649,7 @@ void CParameters_Control::_Set_Parameter(const wxChar *Identifier)
 
 			case PARAMETER_TYPE_String:
 			case PARAMETER_TYPE_FilePath:
-				pParameter->Set_Value( ( m_pPG->GetPropertyValueAsString(Id).mb_str() ) );
+				pParameter->Set_Value( ( m_pPG->GetPropertyValueAsString(Id).c_str() ) );
 				break;
 
 			case PARAMETER_TYPE_Bool:
@@ -733,14 +733,14 @@ void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
 			break;
 
 		case PARAMETER_TYPE_Range:
-			s.Printf( "%f; %f", pParameter->asRange()->Get_LoVal(), pParameter->asRange()->Get_HiVal());
+			s.Printf( SG_T("%f; %f"), pParameter->asRange()->Get_LoVal(), pParameter->asRange()->Get_HiVal());
 			m_pPG->SetPropertyValue(Id, s.c_str());
 			break;
 
 		case PARAMETER_TYPE_Degree:
 			double	d[3];
 			Decimal_To_Degree(pParameter->asDouble(), d[0], d[1], d[2]);
-			s.Printf( "%f; %f; %f", d[0], d[1], d[2]);
+			s.Printf( SG_T("%f; %f; %f"), d[0], d[1], d[2]);
 			m_pPG->SetPropertyValue(Id, s.c_str());
 			break;
 		}

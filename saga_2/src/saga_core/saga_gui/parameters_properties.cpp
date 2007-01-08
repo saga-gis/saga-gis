@@ -91,7 +91,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_DATAOBJECT_LABEL(p)	(p->is_Option() ? p->Get_Name() : (const char*) ( wxString::Format(wxT("%s %s"), p->is_Input() ? (p->is_Optional() ? wxT(">") : wxT(">>")) : (p->is_Optional() ? wxT("<") : wxT("<<")), p->Get_Name()).c_str()) )
+#define GET_DATAOBJECT_LABEL(p)	(p->is_Option() ? p->Get_Name() : ( wxString::Format(wxT("%s %s"), p->is_Input() ? (p->is_Optional() ? wxT(">") : wxT(">>")) : (p->is_Optional() ? wxT("<") : wxT("<<")), p->Get_Name()).c_str()) )
 
 
 ///////////////////////////////////////////////////////////
@@ -609,7 +609,7 @@ bool CParameters_PG_GridSystem::SetValueFromInt(long value, int arg_flags)
 
 			while( Id.IsOk() )
 			{
-				if( SG_STR_CMP( "CParameters_PG_Choice", wxString( Id.GetPropertyPtr()->GetClassName(), wxConvUTF8 ).mb_str() ) == 0 )
+				if( SG_STR_CMP( SG_T("CParameters_PG_Choice"), Id.GetPropertyPtr()->GetClassName() ) == 0 )
 				{
 					((CParameters_PG_Choice *)Id.GetPropertyPtr())->Update();
 				}
@@ -867,7 +867,7 @@ bool CParameters_PG_DialogedValue::fromString(wxString String)
 
 	case PARAMETER_TYPE_Text:
 	case PARAMETER_TYPE_FilePath:
-		m_pParameter->Set_Value(String.mb_str());
+		m_pParameter->Set_Value(String.c_str());
 		return( true );
 	}
 }
@@ -946,7 +946,7 @@ bool CParameters_PG_DialogedValue::Do_Dialog(void)
 
 			if( bModified )
 			{
-				m_pParameter->Set_Value(Text.mb_str());
+				m_pParameter->Set_Value(Text.c_str());
 			}
 			break;
 
@@ -993,7 +993,7 @@ bool CParameters_PG_DialogedValue::Do_Dialog(void)
 
 			if( bModified )
 			{
-				m_pParameter->Set_Value(Text.mb_str());
+				m_pParameter->Set_Value(Text.c_str());
 			}
 			break;
 

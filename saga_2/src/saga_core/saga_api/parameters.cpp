@@ -1101,7 +1101,7 @@ bool CSG_Parameters::DataObjects_Check(bool bSilent)
 	//-----------------------------------------------------
 	if( !bResult && !bSilent )
 	{
-		SG_UI_Dlg_Message(CSG_String::Format(SG_T("%s\n%s"), LNG("[DLG] Invalid parameters!"), s.c_str()), Get_Name());
+		SG_UI_Dlg_Message(CSG_String::Format(SG_T("%s\n%s"), LNG("[DLG] Invalid parameters!"), s.c_str() ), Get_Name() );
 	}
 
 	return( bResult );

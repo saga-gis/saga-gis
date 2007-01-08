@@ -105,7 +105,7 @@ CWKSP_Table::~CWKSP_Table(void)
 
 	if( m_pOwner->Get_Type() == WKSP_ITEM_Table_Manager )
 	{
-		MSG_General_Add(wxString::Format(wxT("%s: %s..."), LNG("[MSG] Close table"), m_pTable->Get_Name()), true, true);
+		MSG_General_Add(wxString::Format(wxT("%s: %s..."), LNG("[MSG] Close table"), m_pTable->Get_Name() ), true, true);
 
 		delete(m_pTable);
 
