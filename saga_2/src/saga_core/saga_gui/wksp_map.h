@@ -108,7 +108,7 @@ public:
 	virtual bool				On_Command				(int Cmd_ID);
 	virtual bool				On_Command_UI			(wxUpdateUIEvent &event);
 
-	virtual CSG_Parameters *		Get_Parameters			(void)		{	return( &m_Parameters );	}
+	virtual CSG_Parameters *	Get_Parameters			(void)		{	return( &m_Parameters );	}
 	virtual void				Parameters_Changed		(void);
 
 	const CSG_Rect &			Get_Extent				(void)		{	return( m_Extent );	}
@@ -169,6 +169,8 @@ public:
 private:
 
 	bool						m_bSynchronise;
+
+	wxString					m_Name;
 
 	CSG_Rect					m_Extent, m_Extent_Last;
 

@@ -472,34 +472,41 @@ void CWKSP_Layer::DataObject_Changed(void)
 //---------------------------------------------------------
 void CWKSP_Layer::Parameters_Changed(void)
 {
-	//-----------------------------------------------------
-	m_pObject->Set_Name(m_Parameters("OBJECT_NAME")->asString());
+	static bool	bUpdates	= false;
 
 	//-----------------------------------------------------
-	m_pClassify->Set_Mode(m_Parameters("COLORS_TYPE")->asInt());
-
-	m_pClassify->Set_Unique_Color(m_Parameters("UNISYMBOL_COLOR")->asInt());
-
-	m_pClassify->Set_Metric(
-		m_Parameters("METRIC_SCALE_MODE")	->asInt(),
-		m_Parameters("METRIC_SCALE_LOG")	->asDouble(),
-		m_Parameters("METRIC_ZRANGE")->asRange()->Get_LoVal() / (Get_Type() == WKSP_ITEM_Grid ? ((CSG_Grid *)m_pObject)->Get_ZFactor() : 1.0),
-		m_Parameters("METRIC_ZRANGE")->asRange()->Get_HiVal() / (Get_Type() == WKSP_ITEM_Grid ? ((CSG_Grid *)m_pObject)->Get_ZFactor() : 1.0)
-	);
-
-	//-----------------------------------------------------
-	On_Parameters_Changed();
-
-	if( GetId().IsOk() )
+	if( !bUpdates )
 	{
-		Get_Control()->SetItemText(GetId(), Get_Name());
+		bUpdates	= true;
+
+		m_pObject->Set_Name(m_Parameters("OBJECT_NAME")->asString());
+
+		//-----------------------------------------------------
+		m_pClassify->Set_Mode(m_Parameters("COLORS_TYPE")->asInt());
+
+		m_pClassify->Set_Unique_Color(m_Parameters("UNISYMBOL_COLOR")->asInt());
+
+		m_pClassify->Set_Metric(
+			m_Parameters("METRIC_SCALE_MODE")	->asInt(),
+			m_Parameters("METRIC_SCALE_LOG")	->asDouble(),
+			m_Parameters("METRIC_ZRANGE")->asRange()->Get_LoVal() / (Get_Type() == WKSP_ITEM_Grid ? ((CSG_Grid *)m_pObject)->Get_ZFactor() : 1.0),
+			m_Parameters("METRIC_ZRANGE")->asRange()->Get_HiVal() / (Get_Type() == WKSP_ITEM_Grid ? ((CSG_Grid *)m_pObject)->Get_ZFactor() : 1.0)
+		);
+
+		//-----------------------------------------------------
+		On_Parameters_Changed();
+
+		Update_Views(false);
+
+		_Set_Thumbnail();
+
+		g_pLayers->Refresh(false);
+
+		//-----------------------------------------------------
+		CWKSP_Base_Item::Parameters_Changed();
+
+		bUpdates	= false;
 	}
-
-	Update_Views(false);
-
-	_Set_Thumbnail();
-
-	g_pLayers->Refresh(false);
 }
 
 

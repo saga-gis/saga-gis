@@ -231,7 +231,7 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 		}
 	}
 
-	_Set_Description();
+	Update_Description();
 
 	//-----------------------------------------------------
 	if( m_pParameters )
@@ -420,7 +420,7 @@ bool CACTIVE::_Del_Page(int PageID)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CACTIVE::_Set_Description(void)
+bool CACTIVE::Update_Description(void)
 {
 	if( m_pDescription )
 	{
@@ -487,7 +487,7 @@ bool CACTIVE::Update(CWKSP_Base_Item *pItem, bool bSave)
 
 		if( !bSave )
 		{
-			_Set_Description();
+			Update_Description();
 		}
 
 		return( true );

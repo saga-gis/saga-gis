@@ -225,6 +225,8 @@ CSG_Parameters * CWKSP_Map_Layer::Get_Parameters(void)
 void CWKSP_Map_Layer::Parameters_Changed(void)
 {
 	m_pLayer->Parameters_Changed();
+
+	CWKSP_Base_Item::Parameters_Changed();
 }
 
 

@@ -274,12 +274,9 @@ void CWKSP_Table::Parameters_Changed(void)
 {
 	m_pTable->Set_Name(m_Parameters("NAME")->asString());
 
-	if( GetId().IsOk() )
-	{
-		Get_Control()->SetItemText(GetId(), Get_Name());
-	}
-
 	Update_Views();
+
+	CWKSP_Base_Item::Parameters_Changed();
 }
 
 //---------------------------------------------------------

@@ -108,6 +108,10 @@
 //---------------------------------------------------------
 CWKSP_Map::CWKSP_Map(void)
 {
+	static int	iMap	= 0;
+
+	m_Name.Printf(wxT("%02d. %s"), ++iMap, LNG("[CAP] Map"));
+
 	_Create_Parameters();
 
 	m_pView			= NULL;
@@ -138,13 +142,29 @@ CWKSP_Map::~CWKSP_Map(void)
 //---------------------------------------------------------
 wxString CWKSP_Map::Get_Name(void)
 {
-	return( wxString::Format(wxT("%02d. %s"), 1 + Get_Index(), LNG("[CAP] Map")) );
+	return( m_Name );
 }
 
 //---------------------------------------------------------
 wxString CWKSP_Map::Get_Description(void)
 {
-	return( wxString::Format(wxT("%02d. %s"), 1 + Get_Index(), LNG("[CAP] Map")) );
+	wxString	s;
+
+	s.Append(wxString::Format(wxT("<b>%s</b><table border=\"0\">"),
+		LNG("[CAP] Map")
+	));
+
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
+		LNG("[CAP] Name")					, m_Name.c_str()
+	));
+
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%d</td></tr>"),
+		LNG("[CAP] Layers")					, Get_Count()
+	));
+
+	s.Append(wxT("</table>"));
+
+	return( s );
 }
 
 //---------------------------------------------------------
@@ -265,6 +285,12 @@ void CWKSP_Map::_Create_Parameters(void)
 		LNG("")
 	);
 
+	m_Parameters.Add_String(
+		pNode_0	, "NAME"			, LNG("[CAP] Name"),
+		LNG(""),
+		m_Name.c_str()
+	);
+
 	m_Parameters.Add_Value(
 		pNode_0	, "GOTO_NEWLAYER"	, LNG("[CAP] Zoom to added layer"),
 		LNG(""),
@@ -374,12 +400,18 @@ int CWKSP_Map::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 //---------------------------------------------------------
 void CWKSP_Map::Parameters_Changed(void)
 {
+	m_Name	= m_Parameters("NAME")->asString();
+
 	if( m_pView )
 	{
+		m_pView->SetTitle(m_Name);
+
 		m_pView->Ruler_Set_Width(Get_Frame_Width());
 	}
 
 	View_Refresh(false);
+
+	CWKSP_Base_Manager::Parameters_Changed();
 }
 
 
@@ -447,9 +479,19 @@ CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 //---------------------------------------------------------
 bool CWKSP_Map::Update(CWKSP_Layer *pLayer, bool bMapOnly)
 {
-	if( m_pView && Get_Layer(pLayer) >= 0 )
+	int		iLayer;
+	
+	if( (iLayer = Get_Layer(pLayer)) >= 0 )
 	{
-		View_Refresh(bMapOnly);
+		if( !bMapOnly )
+		{
+			Get_Layer(iLayer)->Parameters_Changed();
+		}
+
+		if( m_pView )
+		{
+			View_Refresh(bMapOnly);
+		}
 
 		return( true );
 	}

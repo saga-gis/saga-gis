@@ -465,6 +465,8 @@ void CWKSP_Data_Manager::Parameters_Changed(void)
 	SG_Grid_Cache_Set_Threshold_MB	(m_Parameters("GRID_MEM_CACHE_THRSHLD")	->asDouble());
 	SG_Grid_Cache_Set_Confirm		(m_Parameters("GRID_MEM_CACHE_CONFIRM")	->asInt());
 	SG_Grid_Cache_Set_Directory		(m_Parameters("GRID_MEM_CACHE_TMPDIR")	->asString());
+
+	CWKSP_Base_Manager::Parameters_Changed();
 }
 
 
