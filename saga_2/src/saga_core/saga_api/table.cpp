@@ -442,7 +442,7 @@ void CSG_Table::Add_Field(const SG_Char *Name, TSG_Table_Field_Type Type, int ad
 }
 
 //---------------------------------------------------------
-#ifdef _UNICODE
+#ifdef _SAGA_UNICODE
 void CSG_Table::Add_Field(const char *Name, TSG_Table_Field_Type Type, int iField)
 {	Add_Field(CSG_String(Name), Type, iField);	}
 #endif

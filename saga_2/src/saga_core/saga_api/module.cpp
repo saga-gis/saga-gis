@@ -355,7 +355,7 @@ bool CSG_Module::Dlg_Parameters(CSG_Parameters *pParameters, const SG_Char *Capt
 }
 
 //---------------------------------------------------------
-#ifdef _UNICODE
+#ifdef _SAGA_UNICODE
 
 CSG_Parameters *	CSG_Module::Add_Parameters(const char *Identifier, const SG_Char *Name, const SG_Char *Description)
 {	return( Add_Parameters(CSG_String(Identifier), Name, Description) );	}

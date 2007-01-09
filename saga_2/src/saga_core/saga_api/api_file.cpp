@@ -124,7 +124,7 @@ bool CSG_File::Open(const CSG_String &File_Name, int Mode, bool bBinary)
 	case SG_FILE_RWA:	sMode	= bBinary ? SG_T("rb+") : SG_T("r+");	break;
 	}
 
-#if defined(_SAGA_LINUX) && defined(_UNICODE)
+#if defined(_SAGA_LINUX) && defined(_SAGA_UNICODE)
 	return( File_Name.Length() > 0 && (m_pStream = SG_FILE_OPEN( SG_STR_SGTOMB( File_Name ), SG_STR_SGTOMB( sMode ) )) != NULL );
 #else
 	return( File_Name.Length() > 0 && (m_pStream = SG_FILE_OPEN(File_Name, sMode)) != NULL );
@@ -219,7 +219,7 @@ int CSG_File::Printf(const SG_Char *Format, ...)
 
 		va_start(argptr, Format);
 
-#ifndef _UNICODE
+#ifndef _SAGA_UNICODE
 		result	= vfprintf (m_pStream, Format, argptr);
 #else
 		result	= vfwprintf(m_pStream, Format, argptr);

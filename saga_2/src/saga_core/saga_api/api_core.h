@@ -162,7 +162,7 @@ SAGA_API_DLL_EXPORT void			SG_Mem_Set_Double	(char *Buffer, double Value	, bool 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef _UNICODE
+#ifndef _SAGA_UNICODE
 	#define SG_Char				char
 	#define SG_T(s)				s
 	#define SG_PRINTF			printf
@@ -193,7 +193,7 @@ public:
 	CSG_String(void);
 	CSG_String(const CSG_String &String);
 	CSG_String(const SG_Char *String);
-#ifdef _UNICODE
+#ifdef _SAGA_UNICODE
 	CSG_String(const char *String);
 #endif
 	CSG_String(SG_Char Character);
@@ -203,7 +203,7 @@ public:
 	const SG_Char *					c_str				(void)	const;
 	operator const SG_Char *							(void)	const	{	return( c_str() );	}
 
-#ifndef _UNICODE
+#ifndef _SAGA_UNICODE
 	const char *					b_str				(void)			{	return( c_str() );	}
 #else
 	const char *					b_str				(void);
@@ -268,7 +268,7 @@ protected:
 
 	class wxString					*m_pString;
 
-#ifdef _UNICODE
+#ifdef _SAGA_UNICODE
 	char							*m_bString;
 #endif
 
@@ -331,7 +331,7 @@ SAGA_API_DLL_EXPORT CSG_String		SG_Get_String					(double Value, int Precision =
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef _UNICODE
+#ifndef _SAGA_UNICODE
 	#define SG_FILE_OPEN		fopen
 	#define SG_FILE_PRINTF		fprintf
 	#define SG_FILE_SCANF		fscanf
@@ -620,7 +620,7 @@ SAGA_API_DLL_EXPORT CSG_Translator *	SG_Get_Translator	(void);
 
 SAGA_API_DLL_EXPORT const SG_Char *		SG_Translate		(const SG_Char *Text);
 
-#ifndef _UNICODE
+#ifndef _SAGA_UNICODE
 	#define LNG(s)	SG_Translate(s)
 #else
 	#define LNG(s)	SG_Translate(SG_T(s))

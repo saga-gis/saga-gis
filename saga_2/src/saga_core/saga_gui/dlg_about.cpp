@@ -189,7 +189,7 @@ wxString CDLG_About::_Get_Version(void)
 		wxT("http://www.saga-gis.org\n")
 	);
 
-#ifdef _UNICODE
+#ifdef _SAGA_UNICODE
 	s.Append(wxT("_______________________\n\n"));
 
 	s.Append(

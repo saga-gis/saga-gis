@@ -145,7 +145,7 @@ public:
 	CSG_Parameters *			Get_Parameters				(void)	{	return( &Parameters );	}
 	CSG_Parameters *			Get_Parameters				(int i)	{	return( i >= 0 && i < m_npParameters ? m_pParameters[i] : NULL );	}
 	CSG_Parameters *			Get_Parameters				(const SG_Char *Identifier);
-#ifdef _UNICODE
+#ifdef _SAGA_UNICODE
 	CSG_Parameters *			Get_Parameters				(const char    *Identifier);
 #endif
 
@@ -187,7 +187,7 @@ protected:
 	CSG_Parameters *			Add_Parameters				(const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description);
 	bool						Dlg_Parameters				(const SG_Char *Identifier);
 	bool						Dlg_Parameters				(CSG_Parameters *pParameters, const SG_Char *Caption);
-#ifdef _UNICODE
+#ifdef _SAGA_UNICODE
 	CSG_Parameters *			Add_Parameters				(const char    *Identifier, const SG_Char *Name, const SG_Char *Description);
 	bool						Dlg_Parameters				(const char    *Identifier);
 #endif
@@ -559,7 +559,7 @@ extern CSG_Module_Library_Interface	MLB_Interface;
 #endif	// #ifdef SWIG
 
 //---------------------------------------------------------
-#ifndef _UNICODE
+#ifndef _SAGA_UNICODE
 	#define _TL			MLB_Interface.Get_Translation
 	#define _TW			MLB_Interface.Get_Translation
 #else

@@ -78,7 +78,7 @@
 CSG_String::CSG_String(void)
 {
 	m_pString	= new wxString;
-#ifdef _UNICODE
+#ifdef _SAGA_UNICODE
 	m_bString	= NULL;
 #endif
 }
@@ -86,7 +86,7 @@ CSG_String::CSG_String(void)
 CSG_String::CSG_String(const CSG_String &String)
 {
 	m_pString	= new wxString(*String.m_pString);
-#ifdef _UNICODE
+#ifdef _SAGA_UNICODE
 	m_bString	= NULL;
 #endif
 }
@@ -94,12 +94,12 @@ CSG_String::CSG_String(const CSG_String &String)
 CSG_String::CSG_String(const SG_Char *String)
 {
 	m_pString	= new wxString(String);
-#ifdef _UNICODE
+#ifdef _SAGA_UNICODE
 	m_bString	= NULL;
 #endif
 }
 
-#ifdef _UNICODE
+#ifdef _SAGA_UNICODE
 CSG_String::CSG_String(const char *String)
 {
 	m_pString	= new wxString(wxConvLibc.cMB2WC(String));
@@ -110,7 +110,7 @@ CSG_String::CSG_String(const char *String)
 CSG_String::CSG_String(SG_Char Character)
 {
 	m_pString	= new wxString(Character);
-#ifdef _UNICODE
+#ifdef _SAGA_UNICODE
 	m_bString	= NULL;
 #endif
 }
@@ -120,7 +120,7 @@ CSG_String::~CSG_String(void)
 {
 	delete(m_pString);
 
-#ifdef _UNICODE
+#ifdef _SAGA_UNICODE
 	if( m_bString )
 	{
 		SG_Free(m_bString);
@@ -142,7 +142,7 @@ const SG_Char * CSG_String::c_str(void) const
 }
 
 //---------------------------------------------------------
-#ifdef _UNICODE
+#ifdef _SAGA_UNICODE
 const char * CSG_String::b_str(void)
 {
 	m_bString	= (char *)SG_Realloc(m_bString, (1 + strlen(m_pString->mb_str())) * sizeof(char));

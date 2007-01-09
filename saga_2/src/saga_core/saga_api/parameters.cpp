@@ -1335,7 +1335,7 @@ bool CSG_Parameters::Set_History(CSG_History &History, bool bOptions, bool bData
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifdef _UNICODE
+#ifdef _SAGA_UNICODE
 
 CSG_Parameter * CSG_Parameters::Get_Parameter(const char *Identifier)
 {	return( Get_Parameter(SG_STR_MBTOSG(Identifier)) );	}

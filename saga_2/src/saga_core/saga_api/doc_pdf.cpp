@@ -1691,26 +1691,26 @@ void CSG_Doc_PDF::Draw_Curve(CSG_Points &Data, const CSG_Rect &r, int iGraphType
 
 #include "doc_pdf.h"
 
-CSG_Doc_PDF::CSG_Doc_PDF(void)														{	m_pPDF	= NULL;	}
+CSG_Doc_PDF::CSG_Doc_PDF(void)															{	m_pPDF	= NULL;	}
 CSG_Doc_PDF::CSG_Doc_PDF(TSG_PDF_Page_Size Size, int Orientation, const SG_Char *Title)	{	m_pPDF	= NULL;	}
-CSG_Doc_PDF::~CSG_Doc_PDF(void)														{}
-void CSG_Doc_PDF::Layout_Set_Box_Space(double Space, bool bPercent)					{}
+CSG_Doc_PDF::~CSG_Doc_PDF(void)															{}
+void CSG_Doc_PDF::Layout_Set_Box_Space(double Space, bool bPercent)						{}
 void CSG_Doc_PDF::_Layout_Set_Boxes(void)												{}
-void CSG_Doc_PDF::_Layout_Set_Box(int iBox)											{}
-double CSG_Doc_PDF::Get_Page_To_Meter(void)											{	return( 1.0 );	}
-const char * CSG_Doc_PDF::_Get_Font_Name(TSG_PDF_Font_Type Font)							{	return( SG_T("-") );	}
+void CSG_Doc_PDF::_Layout_Set_Box(int iBox)												{}
+double CSG_Doc_PDF::Get_Page_To_Meter(void)												{	return( 1.0 );	}
+const char * CSG_Doc_PDF::_Get_Font_Name(TSG_PDF_Font_Type Font)						{	return( "-" );	}
 const CSG_Rect & CSG_Doc_PDF::Layout_Get_Box(const SG_Char *ID)							{	return( m_Size_Margins );	}
 TSG_PDF_Title_Level CSG_Doc_PDF::_Get_Lowest_Level_Outline_Item(void)					{	return( PDF_TITLE_NONE );	}
-bool CSG_Doc_PDF::Open(const SG_Char *Title)												{	return( false );	}
-bool CSG_Doc_PDF::Open(TSG_PDF_Page_Size Size, int Orientation, const SG_Char *Title)		{	return( false );	}
+bool CSG_Doc_PDF::Open(const SG_Char *Title)											{	return( false );	}
+bool CSG_Doc_PDF::Open(TSG_PDF_Page_Size Size, int Orientation, const SG_Char *Title)	{	return( false );	}
 bool CSG_Doc_PDF::Close(void)															{	return( false );	}
 bool CSG_Doc_PDF::Save(const SG_Char *FileName)											{	return( false );	}
 bool CSG_Doc_PDF::Layout_Add_Box(double xMin_Percent, double yMin_Percent, double xMax_Percent, double yMax_Percent, const SG_Char *ID)	{	return( false );	}
 bool CSG_Doc_PDF::Layout_Add_Box(const CSG_Rect &Box_Percent, const SG_Char *ID)														{	return( false );	}
-bool CSG_Doc_PDF::_Fit_Rectangle(double &x, double &y, double &dx, double &dy, double XToY_Ratio, bool bShrink)						{	return( false );	}
-bool CSG_Doc_PDF::_Fit_Rectangle(CSG_Rect &r, double XToY_Ratio, bool bShrink)														{	return( false );	}
-bool CSG_Doc_PDF::_Add_Outline_Item(const SG_Char *Title, PdfPage *pPage, TSG_PDF_Title_Level Level)										{	return( false );	}
-bool CSG_Doc_PDF::Add_Outline_Item(const SG_Char *Title)																					{	return( false );	}
+bool CSG_Doc_PDF::_Fit_Rectangle(double &x, double &y, double &dx, double &dy, double XToY_Ratio, bool bShrink)							{	return( false );	}
+bool CSG_Doc_PDF::_Fit_Rectangle(CSG_Rect &r, double XToY_Ratio, bool bShrink)															{	return( false );	}
+bool CSG_Doc_PDF::_Add_Outline_Item(const SG_Char *Title, PdfPage *pPage, TSG_PDF_Title_Level Level)									{	return( false );	}
+bool CSG_Doc_PDF::Add_Outline_Item(const SG_Char *Title)																				{	return( false );	}
 bool CSG_Doc_PDF::Add_Page(void)																																						{	return( false );	}
 bool CSG_Doc_PDF::Add_Page(TSG_PDF_Page_Size Size, int Orientation)																														{	return( false );	}
 bool CSG_Doc_PDF::Add_Page(double Width, double Height)																																{	return( false );	}
@@ -1750,7 +1750,7 @@ void CSG_Doc_PDF::Draw_Curve(CSG_Points &Data, const CSG_Rect &r, int iGraphType
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifdef _UNICODE
+#ifdef _SAGA_UNICODE
 
 bool CSG_Doc_PDF::Layout_Add_Box(double xMin_Percent, double yMin_Percent, double xMax_Percent, double yMax_Percent, const char *ID)
 {	return( Layout_Add_Box(xMin_Percent, yMin_Percent, xMax_Percent, yMax_Percent, SG_STR_MBTOSG(ID)) );	}

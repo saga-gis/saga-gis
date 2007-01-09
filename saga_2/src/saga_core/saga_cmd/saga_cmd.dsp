@@ -95,7 +95,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MDd /W3 /Gm /GR /ZI /Od /I "$(WXWIN)/lib/vc_lib/mswd" /I "$(SAGA)/src/saga_core" /I "$(WXWIN)/include" /D "WIN32" /D "_DEBUG" /D "__WXMSW__" /D "__WXDEBUG__" /D "_CONSOLE" /D wxUSE_GUI=0 /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /Fd"./../../../bin/tmp/saga_vc_dbg/saga_cmd/saga_cmd.pdb" /FD /GZ /EHsc /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /ZI /Od /I "./.." /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc_lib/mswud" /D "_CONSOLE" /D wxUSE_GUI=0 /D "WIN32" /D "_DEBUG" /D "__WXMSW__" /D "__WXDEBUG__" /D "_UNICODE" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /Fd"./../../../bin/tmp/saga_vc_dbg/saga_cmd/saga_cmd.pdb" /FD /GZ /EHsc /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /ZI /Od /I "./.." /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc_lib/mswud" /D "_CONSOLE" /D wxUSE_GUI=0 /D "__WXMSW__" /D "__WXDEBUG__" /D "_DEBUG" /D "WIN32" /D "_UNICODE" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_UNICODE" /Fd"./../../../bin/tmp/saga_vc_dbg/saga_cmd/saga_cmd.pdb" /FD /GZ /EHsc /c
 # ADD BASE RSC /l 0x409 /i ".\..\..\include" /i ".\..\..\lib\vc_lib\mswd" /i "." /d "_DEBUG" /d "__WXMSW__" /d "__WXDEBUG__" /d "_CONSOLE" /d wxUSE_GUI=0
 # ADD RSC /l 0x409 /i ".\..\..\include" /i ".\..\..\lib\vc_lib\mswd" /i "." /d "_DEBUG" /d "__WXMSW__" /d "__WXDEBUG__" /d "_CONSOLE" /d wxUSE_GUI=0
 BSC32=bscmake.exe
@@ -122,7 +122,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /GR /O2 /I "$(WXWIN)/lib/vc_lib/msw" /I "$(SAGA)/src/saga_core" /I "$(WXWIN)/include" /D "WIN32" /D "__WXMSW__" /D "_CONSOLE" /D wxUSE_GUI=0 /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /Fd"./../../../bin/tmp/saga_vc/saga_cmd/saga_cmd.pdb" /FD /EHsc /c
-# ADD CPP /nologo /MD /W3 /GR /O2 /I "./.." /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc_lib/mswu" /D "_CONSOLE" /D wxUSE_GUI=0 /D "WIN32" /D "__WXMSW__" /D "_UNICODE" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /Fd"./../../../bin/tmp/saga_vc/saga_cmd/saga_cmd.pdb" /FD /EHsc /c
+# ADD CPP /nologo /MD /W3 /GR /O2 /I "./.." /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc_lib/mswu" /D "_CONSOLE" /D wxUSE_GUI=0 /D "__WXMSW__" /D "WIN32" /D "_UNICODE" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_UNICODE" /Fd"./../../../bin/tmp/saga_vc/saga_cmd/saga_cmd.pdb" /FD /EHsc /c
 # ADD BASE RSC /l 0x409 /i ".\..\..\include" /i ".\..\..\lib\vc_lib\msw" /i "." /d "__WXMSW__" /d "_CONSOLE" /d wxUSE_GUI=0
 # ADD RSC /l 0x409 /i ".\..\..\include" /i ".\..\..\lib\vc_lib\msw" /i "." /d "__WXMSW__" /d "_CONSOLE" /d wxUSE_GUI=0
 BSC32=bscmake.exe

@@ -262,7 +262,7 @@ public:
 
 	//-----------------------------------------------------
 	void						Add_Field			(const SG_Char *Name, TSG_Table_Field_Type Type, int iField = -1);
-#ifdef _UNICODE
+#ifdef _SAGA_UNICODE
 	void						Add_Field			(const char    *Name, TSG_Table_Field_Type Type, int iField = -1);
 #endif
 	bool						Del_Field			(int iField);

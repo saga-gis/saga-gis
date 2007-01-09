@@ -101,7 +101,7 @@ LINK32=link.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc_lib/mswd" /I "$(HARU)" /I "$(HARU)/msvc" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "__WXMSW__" /D "__WXDEBUG__" /D "_SAGA_API_EXPORTS" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /FD /GZ /c
 # SUBTRACT BASE CPP /YX /Yc /Yu
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "$(HARU)" /I "$(HARU)/msvc" /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc_lib/mswud" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_SAGA_API_EXPORTS" /D "WIN32" /D "_DEBUG" /D "__WXMSW__" /D "__WXDEBUG__" /D "_UNICODE" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "$(HARU)" /I "$(HARU)/msvc" /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc_lib/mswud" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_SAGA_API_EXPORTS" /D "__WXMSW__" /D "__WXDEBUG__" /D "_DEBUG" /D "WIN32" /D "_UNICODE" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_UNICODE" /FD /GZ /c
 # SUBTRACT CPP /YX /Yc /Yu
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
@@ -130,7 +130,7 @@ LINK32=link.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /GX /O2 /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc_lib/msw" /I "$(HARU)" /I "$(HARU)/msvc" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "__WXMSW__" /D "_SAGA_API_EXPORTS" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /FR /FD /c
 # SUBTRACT BASE CPP /YX /Yc /Yu
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "$(HARU)" /I "$(HARU)/msvc" /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc_lib/mswu" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_SAGA_API_EXPORTS" /D "WIN32" /D "__WXMSW__" /D "_UNICODE" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /FR /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "$(HARU)" /I "$(HARU)/msvc" /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc_lib/mswu" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_SAGA_API_EXPORTS" /D "__WXMSW__" /D "WIN32" /D "_UNICODE" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_UNICODE" /FR /FD /c
 # SUBTRACT CPP /YX /Yc /Yu
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
