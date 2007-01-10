@@ -74,11 +74,7 @@ bool CPolygonStatisticsFromPoints::On_Execute(void){
 			if (pTable->Get_Field_Type(i) > 1 && pTable->Get_Field_Type(i) < 7){ //is numeric field
 				sName.Printf(SG_T("%s%s"),
 					pTable->Get_Field_Name(i),
-#ifndef _UNICODE					
-					SG_STR_MBTOSG(sParamName[j]).c_str()
-#else
 					SG_STR_MBTOSG(sParamName[j])
-#endif					
 				);
 
 				pExtraParameter[i * 5 + j] = m_pExtraParameters->Add_Value(
@@ -183,11 +179,7 @@ void CPolygonStatisticsFromPoints::CalculateStatistics(){
 		if (m_bIncludeParam[i]){
 			iField = (int) (i / 5);
 			iParam = i % 5;
-#ifndef _UNICODE			
-			sName.Printf(SG_T("%s%s"), pPointsTable->Get_Field_Name(iField), SG_STR_MBTOSG(sParamName[iParam]).c_str());
-#else
 			sName.Printf(SG_T("%s%s"), pPointsTable->Get_Field_Name(iField), SG_STR_MBTOSG(sParamName[iParam]));
-#endif
 			pPolygonsTable->Add_Field(sName.c_str(), TABLE_FIELDTYPE_Double); 
 			if (iField != iLastField){					
 				for (j = 0; j < pPolygonsTable->Get_Record_Count(); j++){

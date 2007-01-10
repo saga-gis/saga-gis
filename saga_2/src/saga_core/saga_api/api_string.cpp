@@ -75,6 +75,16 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define WXCONV			wxConvUTF8
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CSG_String::CSG_String(void)
 {
 	m_pString	= new wxString;
@@ -102,7 +112,7 @@ CSG_String::CSG_String(const SG_Char *String)
 #ifdef _SAGA_UNICODE
 CSG_String::CSG_String(const char *String)
 {
-	m_pString	= new wxString(wxConvLibc.cMB2WC(String));
+	m_pString	= new wxString(WXCONV.cMB2WC(String));
 	m_bString	= NULL;
 }
 #endif
@@ -145,9 +155,9 @@ const SG_Char * CSG_String::c_str(void) const
 #ifdef _SAGA_UNICODE
 const char * CSG_String::b_str(void)
 {
-	m_bString	= (char *)SG_Realloc(m_bString, (1 + strlen(m_pString->mb_str())) * sizeof(char));
+	m_bString	= (char *)SG_Realloc(m_bString, (1 + strlen(m_pString->mb_str(WXCONV))) * sizeof(char));
 
-	strcpy(m_bString, m_pString->mb_str());
+	strcpy(m_bString, m_pString->mb_str(WXCONV));
 
 	return( m_bString );
 }

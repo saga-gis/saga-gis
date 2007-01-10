@@ -169,10 +169,10 @@ bool CGrid_Proximity_Buffer::On_Execute(void){
 				pAlloc->Set_Value(x, y, alloc);
 				pDistance->Set_Value(x, y, 0.0);
 
-				imin = __max(0, x-iBufDist);
-				imax = __min(x+iBufDist, Get_NX());
-				jmin = __max(0, y-iBufDist);
-				jmax = __min(y+iBufDist, Get_NY());
+				imin = M_GET_MAX(0, x-iBufDist);
+				imax = M_GET_MIN(x+iBufDist, Get_NX());
+				jmin = M_GET_MAX(0, y-iBufDist);
+				jmax = M_GET_MIN(y+iBufDist, Get_NY());
 
 				for(i=imin; i<imax; i++)
 				{
