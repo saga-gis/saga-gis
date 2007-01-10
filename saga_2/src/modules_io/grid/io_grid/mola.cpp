@@ -297,9 +297,6 @@ bool CMOLA_Import::On_Execute(void)
 			SG_Free(sLine);
 
 			Parameters("GRID")->Set_Value(pGrid);
-
-			DataObject_Add		(pGrid);
-			DataObject_Update	(pGrid, -8200.0, 21200.0);
 		}
 	}
 
