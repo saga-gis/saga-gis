@@ -1,6 +1,14 @@
-CXX_DEFS  = `wx-config --cxxflags`
-AM_CXXFLAGS = -fPIC $(CXX_DEFS) -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_API_EXPORTS -D_SAGA_DONOTUSE_HARU
+if DEBUG
+DBGFLAGS = -g -DDEBUG
+endif
+if SAGA_UNICODE
+AM_CXXFLAGS = -fPIC `wx-config --unicode=yes --cxxflags` -D_SAGA_LINUX -D_SAGA_UNICODE -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_API_EXPORTS -D_SAGA_DONOTUSE_HARU $(DBGFLAGS)
+AM_LDFLAGS = -shared `wx-config --unicode=yes --libs`
+else
+AM_CXXFLAGS = -fPIC `wx-config --unicode=no --cxxflags` -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_API_EXPORTS -D_SAGA_DONOTUSE_HARU $(DBGFLAGS)
 AM_LDFLAGS = -shared `wx-config --libs`
+endif
+
 lib_LTLIBRARIES = libsaga_api.la
 libsaga_api_la_SOURCES =\
 api_callback.cpp\

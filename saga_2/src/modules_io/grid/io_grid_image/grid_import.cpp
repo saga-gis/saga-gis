@@ -247,7 +247,7 @@ bool CGrid_Import::On_Execute(void)
 				Colors.Set_Color(i->second.index, SG_GET_R(i->first), SG_GET_G(i->first), SG_GET_B(i->first));
 			}
 
-			ADD_GRID(pR, fName.GetName(), yy <= 2 ? GRID_TYPE_Bit : GRID_TYPE_Byte);
+			ADD_GRID(pR, CSG_String( fName.GetName() ), yy <= 2 ? GRID_TYPE_Bit : GRID_TYPE_Byte);
 
 			for(y=0, yy=pR->Get_NY()-1; y<pR->Get_NY() && Set_Progress(y, pR->Get_NY()); y++, yy--)
 			{
@@ -266,7 +266,7 @@ bool CGrid_Import::On_Execute(void)
 		{
 			hst.clear();
 
-			ADD_GRID(pR, fName.GetName(), GRID_TYPE_Int);
+			ADD_GRID(pR, CSG_String( fName.GetName() ).c_str(), GRID_TYPE_Int);
 
 			for(y=0, yy=pR->Get_NY()-1; y<pR->Get_NY() && Set_Progress(y, pR->Get_NY()); y++, yy--)
 			{

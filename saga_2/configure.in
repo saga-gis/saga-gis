@@ -37,8 +37,26 @@ AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([floor memmove memset modf pow sqrt strchr strdup strerror strrchr strstr strtol])
 
 # conditionals
-AM_CONDITIONAL(DEBUG, test "$enable_debug" = yes)
-AM_CONDITIONAL(X86_64, test `uname -m` = "x86_64")
+AC_ARG_ENABLE(debug,
+     [  --enable-debug	  Turn on debugging],
+     [case "${enableval}" in
+        yes) debug=true ;;
+        no)  debug=false ;;
+        *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug) ;;
+      esac],[debug=false])
+      AM_CONDITIONAL(DEBUG, test x$debug = xtrue)
+
+AC_ARG_ENABLE(unicode,
+     [  --enable-unicode	  Build with unicode support (wx has to be built with unicode support, too) ],
+     [case "${enableval}" in
+     	yes) unicode=true ;;
+	no)  unicode=false ;;
+	*) AC_MSG_ERROR(bad value ${enableval} for --enable-unicode) ;;
+      esac],[unicode=false])
+      AM_CONDITIONAL(SAGA_UNICODE, test "`wx-config --list | grep unicode`" != "" -a x$unicode = xtrue )
+
+AM_CONDITIONAL(X86_64, test "`uname -m`" = "x86_64")
+
 
 #AC_CONFIG_FILES([Makefile])
 AC_OUTPUT(Makefile \
@@ -92,8 +110,6 @@ AC_OUTPUT(Makefile \
 	src/modules_projection/Makefile \
 	src/modules_projection/pj_georeference/Makefile \
 	src/modules_projection/pj_georeference/pj_georeference/Makefile \
-	src/modules_projection/pj_geotrans/Makefile \
-	src/modules_projection/pj_geotrans/pj_geotrans/Makefile \
 	src/modules_projection/pj_proj4/Makefile \
 	src/modules_projection/pj_proj4/pj_proj4/Makefile \
 	src/modules_recreations/Makefile \
@@ -116,5 +132,4 @@ AC_OUTPUT(Makefile \
 	src/modules_terrain_analysis/terrain_analysis/ta_lighting/Makefile \
 	src/modules_terrain_analysis/terrain_analysis/ta_morphometry/Makefile \
 	src/modules_terrain_analysis/terrain_analysis/ta_preprocessor/Makefile \
-	src/modules_terrain_analysis/terrain_analysis/ta_profiles/Makefile \
-	src/modules_terrain_analysis/terrain_analysis/ta_compound/Makefile)
+	src/modules_terrain_analysis/terrain_analysis/ta_profiles/Makefile)

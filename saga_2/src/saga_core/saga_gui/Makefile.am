@@ -1,10 +1,19 @@
-CXX_DEFS  = `wx-config --cxxflags`
-if X86_64
-ARCHDEFS = -fPIC -fpermissive
+INCS = -I.. -I.
+if DEBUG
+DBGFLAGS = -g -DDEBUG
 endif
-INCS  = -I.. -I.
-AM_CXXFLAGS = $(CXX_DEFS) $(ARCHDEFS) -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_DONOTUSE_HARU $(INCS)
-AM_LDFLAGS = `wx-config --libs` -lm
+
+if X86_64
+ARCHDEFS =  -fPIC -fpermissive
+endif
+if SAGA_UNICODE
+AM_CXXFLAGS = -fPIC `wx-config --unicode=yes --cxxflags` $(ARCHDEFS) -D_SAGA_LINUX -D_SAGA_UNICODE -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_DONOTUSE_HARU $(DBGFLAGS) $(INCS)
+AM_LDFLAGS = -shared `wx-config --unicode=yes --libs` -lm 
+else
+AM_CXXFLAGS = -fPIC `wx-config --unicode=no --cxxflags` $(ARCHDEFS) -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_API_EXPORTS -D_SAGA_DONOTUSE_HARU $(DBGFLAGS) $(INCS)
+AM_LDFLAGS = -shared `wx-config --unicode=no --libs` -lm
+endif
+
 bin_PROGRAMS = saga_gui
 
 saga_gui_SOURCES =\
