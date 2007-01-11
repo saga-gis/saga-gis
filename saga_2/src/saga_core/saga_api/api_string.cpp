@@ -549,6 +549,8 @@ bool CSG_String::asInt(int &Value) const
 		return( true );
 	}
 
+	Value	= (int)lValue;
+
 	return( false );
 }
 
