@@ -1,0 +1,6 @@
+SUBDIRS = . src
+if DEBUG
+AM_CFLAGS = -g -DDEBUG
+AM_CXXFLAGS = -g _DDEBUG
+endif
+
