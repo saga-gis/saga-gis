@@ -8,10 +8,10 @@ ARCHDEFS =  -fPIC -fpermissive
 endif
 if SAGA_UNICODE
 AM_CXXFLAGS = -fPIC `wx-config --unicode=yes --cxxflags` $(ARCHDEFS) -D_SAGA_LINUX -D_SAGA_UNICODE -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_DONOTUSE_HARU $(DBGFLAGS) $(INCS)
-AM_LDFLAGS = -shared `wx-config --unicode=yes --libs` -lm 
+AM_LDFLAGS = `wx-config --unicode=yes --libs` -lm 
 else
-AM_CXXFLAGS = -fPIC `wx-config --unicode=no --cxxflags` $(ARCHDEFS) -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_API_EXPORTS -D_SAGA_DONOTUSE_HARU $(DBGFLAGS) $(INCS)
-AM_LDFLAGS = -shared `wx-config --unicode=no --libs` -lm
+AM_CXXFLAGS = -fPIC `wx-config --unicode=no --cxxflags` $(ARCHDEFS) -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_DONOTUSE_HARU $(DBGFLAGS) $(INCS)
+AM_LDFLAGS = `wx-config --unicode=no --libs` -lm
 endif
 
 bin_PROGRAMS = saga_gui
