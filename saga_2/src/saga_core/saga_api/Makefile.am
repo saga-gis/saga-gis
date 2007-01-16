@@ -6,7 +6,7 @@ AM_CXXFLAGS = -fPIC `wx-config --unicode=yes --cxxflags` -D_SAGA_LINUX -D_SAGA_U
 AM_LDFLAGS = -shared `wx-config --unicode=yes --libs`
 else
 AM_CXXFLAGS = -fPIC `wx-config --unicode=no --cxxflags` -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_API_EXPORTS -D_SAGA_DONOTUSE_HARU $(DBGFLAGS)
-AM_LDFLAGS = -shared `wx-config --libs`
+AM_LDFLAGS = -shared `wx-config --unicode=no --libs`
 endif
 
 lib_LTLIBRARIES = libsaga_api.la
