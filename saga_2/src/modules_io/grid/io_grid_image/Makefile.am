@@ -1,11 +1,16 @@
 if DEBUG
 DBGFLAGS = -g -DDEBUG
 endif
-DEP_DEFS = `wx-config --unicode=no --cxxflags`
-DEP_LFLG = `wx-config --unicode=no --libs`
+if SAGA_UNICODE
+DEP_DEFS = -fPIC `wx-config --unicode=yes --cxxflags` -D_SAGA_LINUX -D_SAGA_UNICODE -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_API_EXPORTS -D_SAGA_DONOTUSE_HARU $(DBGFLAGS)
+DEP_LFLG = -shared `wx-config --unicode=yes --libs`
+else
+DEP_DEFS = -fPIC `wx-config --unicode=no --cxxflags` -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_API_EXPORTS -D_SAGA_DONOTUSE_HARU $(DBGFLAGS)
+DEP_LFLG = -shared `wx-config --unicode=no --libs`
+endif
 DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS           = -I$(top_srcdir)/src/saga_core
-AM_CXXFLAGS        = $(CXX_INCS) $(DEF_SAGA) $(DEP_DEFS) $(DBGFLAGS) `wx-config --cxxflags`
+AM_CXXFLAGS        = $(CXX_INCS) $(DEF_SAGA) $(DEP_DEFS) $(DBGFLAGS)
 AM_LDFLAGS         = -shared $(DEP_LFLG)
 pkglib_LTLIBRARIES = libio_grid_image.la
 libio_grid_image_la_SOURCES =\
