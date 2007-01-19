@@ -82,6 +82,8 @@ CSG_File::CSG_File(void)
 CSG_File::CSG_File(const CSG_String &FileName, int Mode, bool bBinary)
 {
 	m_pStream	= NULL;
+
+	Open(FileName, Mode, bBinary);
 }
 
 //---------------------------------------------------------
