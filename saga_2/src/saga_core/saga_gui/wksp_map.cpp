@@ -1204,7 +1204,7 @@ void CWKSP_Map::Draw_PDF(CSG_Doc_PDF *pPDF, const wxChar *FilePath_Maps, int Ima
 //---------------------------------------------------------
 void CWKSP_Map::SaveAs_Interactive_SVG(void)
 {
-	static CSG_Parameters	Parameters(NULL, LNG("[CAP] Save as Interactive SVG"), LNG(""), NULL, false);
+	static CSG_Parameters	Parameters(NULL, LNG("[CAP] Save As Interactive SVG"), LNG(""), NULL, false);
 
 	//-----------------------------------------------------
 	if( Parameters.Get_Count() == 0 )
@@ -1212,9 +1212,10 @@ void CWKSP_Map::SaveAs_Interactive_SVG(void)
 		Parameters.Add_FilePath(
 			NULL	, "FILENAME"	, LNG("[FLD] SVG File"),
 			LNG(""),
-			wxString::Format(wxT("%s%s"),
-			LNG("Standard Vector Graphics (SVG)(*.svg)|*.svg|"),
-			LNG("All Files|*.*")), NULL, true, false
+			wxString::Format(wxT("%s|*.svg|%s|*.*"),
+				LNG("SVG - Scalable Vector Graphics Files (*.svg)"),
+				LNG("All Files")
+			), NULL, true, false
 		);
 
 		Parameters.Add_Shapes(

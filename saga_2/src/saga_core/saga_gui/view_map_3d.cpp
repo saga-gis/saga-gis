@@ -355,6 +355,9 @@ void CVIEW_Map_3D::On_Key_Down(wxKeyEvent &event)
 	case WXK_UP:		_Parms_Command(ID_CMD_MAP3D_ROTATE_X_LESS);		break;
 	case WXK_DOWN:		_Parms_Command(ID_CMD_MAP3D_ROTATE_X_MORE);		break;
 
+	case WXK_F3:		_Parms_Command(ID_CMD_MAP3D_ROTATE_Y_LESS);		break;
+	case WXK_F4:		_Parms_Command(ID_CMD_MAP3D_ROTATE_Y_MORE);		break;
+
 	case WXK_LEFT:		_Parms_Command(ID_CMD_MAP3D_ROTATE_Z_LESS);		break;
 	case WXK_RIGHT:		_Parms_Command(ID_CMD_MAP3D_ROTATE_Z_MORE);		break;
 
@@ -371,12 +374,12 @@ void CVIEW_Map_3D::On_Key_Down(wxKeyEvent &event)
 	case WXK_F2:		_Parms_Command(ID_CMD_MAP3D_EXAGGERATE_MORE);	break;
 
 	case 'C':			_Parms_Command(ID_CMD_MAP3D_CENTRAL);			break;
-	case WXK_F3:		_Parms_Command(ID_CMD_MAP3D_CENTRAL_LESS);		break;
-	case WXK_F4:		_Parms_Command(ID_CMD_MAP3D_CENTRAL_MORE);		break;
+	case WXK_F5:		_Parms_Command(ID_CMD_MAP3D_CENTRAL_LESS);		break;
+	case WXK_F6:		_Parms_Command(ID_CMD_MAP3D_CENTRAL_MORE);		break;
 
 	case 'S':			_Parms_Command(ID_CMD_MAP3D_STEREO);			break;
-	case WXK_F5:		_Parms_Command(ID_CMD_MAP3D_STEREO_LESS);		break;
-	case WXK_F6:		_Parms_Command(ID_CMD_MAP3D_STEREO_MORE);		break;
+//	case WXK_F5:		_Parms_Command(ID_CMD_MAP3D_STEREO_LESS);		break;
+//	case WXK_F6:		_Parms_Command(ID_CMD_MAP3D_STEREO_MORE);		break;
 
 	case 'I':			_Parms_Command(ID_CMD_MAP3D_INTERPOLATED);		break;
 
@@ -571,19 +574,19 @@ void CVIEW_Map_3D::_Parms_Create(void)
 	pNode	= m_Parameters.Add_Node(NULL, "SHIFT", LNG("[CAP] Shift"), LNG(""));
 
 	m_Parameters.Add_Value(
-		pNode	, "SHIFT_X"			, LNG("X"),
+		pNode	, "SHIFT_X"			, LNG("Left/Right"),
 		LNG(""),
 		PARAMETER_TYPE_Double, 0.0
 	);
 
 	m_Parameters.Add_Value(
-		pNode	, "SHIFT_Y"			, LNG("Y"),
+		pNode	, "SHIFT_Y"			, LNG("Up/Down"),
 		LNG(""),
 		PARAMETER_TYPE_Double, 0.0
 	);
 
 	m_Parameters.Add_Value(
-		pNode	, "SHIFT_Z"			, LNG("Z"),
+		pNode	, "SHIFT_Z"			, LNG("In/Out"),
 		LNG(""),
 		PARAMETER_TYPE_Double, 200.0
 	);

@@ -188,6 +188,8 @@ const wxChar * CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAP3D_PARAMETERS:		return( LNG("[CMD] Properties") );
 	case ID_CMD_MAP3D_ROTATE_X_LESS:	return( LNG("[CMD] Up") );
 	case ID_CMD_MAP3D_ROTATE_X_MORE:	return( LNG("[CMD] Down") );
+	case ID_CMD_MAP3D_ROTATE_Y_LESS:	return( LNG("[CMD] Left [F3]") );
+	case ID_CMD_MAP3D_ROTATE_Y_MORE:	return( LNG("[CMD] Right [F4]") );
 	case ID_CMD_MAP3D_ROTATE_Z_LESS:	return( LNG("[CMD] Left") );
 	case ID_CMD_MAP3D_ROTATE_Z_MORE:	return( LNG("[CMD] Right") );
 	case ID_CMD_MAP3D_SHIFT_X_LESS:		return( LNG("[CMD] Left") );
@@ -198,11 +200,11 @@ const wxChar * CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAP3D_SHIFT_Z_MORE:		return( LNG("[CMD] Backward") );
 	case ID_CMD_MAP3D_EXAGGERATE_LESS:	return( LNG("[CMD] Decrease Exaggeration [F1]") );
 	case ID_CMD_MAP3D_EXAGGERATE_MORE:	return( LNG("[CMD] Increase Exaggeration [F2]") );
-	case ID_CMD_MAP3D_CENTRAL_LESS:		return( LNG("[CMD] Decrease Perspectivic Distance") );
-	case ID_CMD_MAP3D_CENTRAL_MORE:		return( LNG("[CMD] Increase Perspectivic Distance") );
+	case ID_CMD_MAP3D_CENTRAL_LESS:		return( LNG("[CMD] Decrease Perspectivic Distance [F5]") );
+	case ID_CMD_MAP3D_CENTRAL_MORE:		return( LNG("[CMD] Increase Perspectivic Distance [F6]") );
 	case ID_CMD_MAP3D_CENTRAL:			return( LNG("[CMD] Central Projection") );
-	case ID_CMD_MAP3D_STEREO_LESS:		return( LNG("[CMD] Decrease Eye Distance [F5]") );
-	case ID_CMD_MAP3D_STEREO_MORE:		return( LNG("[CMD] Increase Eye Distance [F6]") );
+	case ID_CMD_MAP3D_STEREO_LESS:		return( LNG("[CMD] Decrease Eye Distance") );
+	case ID_CMD_MAP3D_STEREO_MORE:		return( LNG("[CMD] Increase Eye Distance") );
 	case ID_CMD_MAP3D_STEREO:			return( LNG("[CMD] Anaglyph [S]") );
 	case ID_CMD_MAP3D_INTERPOLATED:		return( LNG("[CMD] Interpolated Colors") );
 	case ID_CMD_MAP3D_SAVE:				return( LNG("[CMD] Save As Image...") );
