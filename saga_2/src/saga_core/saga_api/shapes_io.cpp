@@ -72,6 +72,8 @@
 //---------------------------------------------------------
 bool CSG_Shapes::_Load_ESRI(const SG_Char *File_Name)
 {
+	bool		bError;
+
 	char		buf_Header[100];
 
 	int			Type_File, Type_Shape,
@@ -140,25 +142,11 @@ bool CSG_Shapes::_Load_ESRI(const SG_Char *File_Name)
 
 	switch( Type_File )
 	{
-	case 1:		// Point...
-		m_Type	= SHAPE_TYPE_Point;
-		break;
-
-	case 8:		// Multipoint...
-		m_Type	= SHAPE_TYPE_Points;
-		break;
-
-	case 3:		// Line...
-		m_Type	= SHAPE_TYPE_Line;
-		break;
-
-	case 5:		// Polygon...
-		m_Type	= SHAPE_TYPE_Polygon;
-		break;
-
-	default:	// unsupported...
-		m_Type	= SHAPE_TYPE_Undefined;
-		break;
+	case 1:		m_Type	= SHAPE_TYPE_Point;		break;
+	case 8:		m_Type	= SHAPE_TYPE_Points;	break;
+	case 3:		m_Type	= SHAPE_TYPE_Line;		break;
+	case 5:		m_Type	= SHAPE_TYPE_Polygon;	break;
+	default:	m_Type	= SHAPE_TYPE_Undefined;	break;	// unsupported...
 	}
 
 	if( Stream.is_EOF() || FileCode != 9994 || Version != 1000 || m_Type == SHAPE_TYPE_Undefined )
@@ -173,11 +161,23 @@ bool CSG_Shapes::_Load_ESRI(const SG_Char *File_Name)
 	//-------------------------------------------------
 	// Load Shapes...
 
+	m_nShapes	= m_Table.Get_Record_Count();
+	m_Shapes	= (CSG_Shape **)SG_Malloc(m_nShapes * sizeof(CSG_Shape *));
+
 	buf_nParts	= 0;
 	buf_nPoints	= NULL;
 
-	for(iShape=0; iShape<m_Table.Get_Record_Count() && SG_UI_Process_Set_Progress(iShape, m_Table.Get_Record_Count()); iShape++)
+	for(iShape=0, bError=false; iShape<m_nShapes && SG_UI_Process_Set_Progress(iShape, m_nShapes); iShape++)
 	{
+		switch( m_Type )
+		{
+		default:
+		case SHAPE_TYPE_Point:		m_Shapes[iShape]	= pShape	= new CSG_Shape_Point	(this, m_Table.Get_Record(iShape));	break;
+		case SHAPE_TYPE_Points:		m_Shapes[iShape]	= pShape	= new CSG_Shape_Points	(this, m_Table.Get_Record(iShape));	break;
+		case SHAPE_TYPE_Line:		m_Shapes[iShape]	= pShape	= new CSG_Shape_Line	(this, m_Table.Get_Record(iShape));	break;
+		case SHAPE_TYPE_Polygon:	m_Shapes[iShape]	= pShape	= new CSG_Shape_Polygon	(this, m_Table.Get_Record(iShape));	break;
+		}
+
 		RecordNumber	= Stream.Read_Int(true);
 		ContentLength	= Stream.Read_Int(true);
 
@@ -185,16 +185,10 @@ bool CSG_Shapes::_Load_ESRI(const SG_Char *File_Name)
 
 		if( Type_Shape != Type_File || Stream.is_EOF() )
 		{
-			SG_UI_Msg_Add(LNG("[MSG] failed"), false);
-
-			SG_UI_Msg_Add_Error(LNG("[ERR] Shape file is corrupted."));
-
-			break;
+			bError	= true;
 		}
 		else
 		{
-			pShape	= _Add_Shape(m_Table.Get_Record(iShape));
-
 			switch( Type_Shape )
 			{
 			//---------------------------------------------
@@ -251,10 +245,6 @@ bool CSG_Shapes::_Load_ESRI(const SG_Char *File_Name)
 		}
 	}
 
-	SG_UI_Msg_Add(LNG("[MSG] okay"), false);
-
-	SG_UI_Process_Set_Ready();
-
 	//-----------------------------------------------------
 	// Clean up...
 
@@ -263,7 +253,20 @@ bool CSG_Shapes::_Load_ESRI(const SG_Char *File_Name)
 		SG_Free(buf_nPoints);
 	}
 
-	return( Get_Count() > 0 );
+	if( bError )
+	{
+		SG_UI_Msg_Add(LNG("[MSG] failed"), false);
+
+		SG_UI_Msg_Add_Error(LNG("[ERR] Shape file is corrupted."));
+	}
+	else
+	{
+		SG_UI_Msg_Add(LNG("[MSG] okay"), false);
+	}
+
+	SG_UI_Process_Set_Ready();
+
+	return( bError == false );
 }
 
 

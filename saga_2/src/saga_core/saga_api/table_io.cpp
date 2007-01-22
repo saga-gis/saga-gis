@@ -430,11 +430,14 @@ bool CSG_Table::_Load_DBase(const SG_Char *File_Name)
 		}
 
 		//-------------------------------------------------
-		if( dbf.Move_First() )
+		if( dbf.Move_First() && dbf.Get_Record_Count() > 0 )
 		{
-			do
+			m_nRecords		= dbf.Get_Record_Count();
+			m_Records		= (CSG_Table_Record **)SG_Malloc(m_nRecords * sizeof(CSG_Table_Record *));
+
+			for(int iRecord=0; iRecord<m_nRecords && SG_UI_Process_Set_Progress(iRecord, m_nRecords); iRecord++)
 			{
-				pRecord	= _Add_Record();
+				m_Records[iRecord]	= pRecord	= new CSG_Table_Record(this, iRecord);
 
 				for(iField=0; iField<Get_Field_Count(); iField++)
 				{
@@ -457,10 +460,13 @@ bool CSG_Table::_Load_DBase(const SG_Char *File_Name)
 						break;
 					}
 				}
+
+				dbf.Move_Next();
 			}
-			while( dbf.Move_Next() && SG_UI_Process_Set_Progress(dbf.Get_File_Position(), dbf.Get_File_Length()) );
 
 			SG_UI_Process_Set_Ready();
+
+			Set_Modified(false);
 
 			_Range_Invalidate();
 		}
