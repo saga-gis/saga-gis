@@ -606,7 +606,7 @@ void CVIEW_Map_3D::_Parms_Create(void)
 		LNG(""),
 
 		CSG_String::Format(wxT("%s|%s|"),
-			LNG("parellel"),
+			LNG("parallel"),
 			LNG("central")
 		), 1
 	);
