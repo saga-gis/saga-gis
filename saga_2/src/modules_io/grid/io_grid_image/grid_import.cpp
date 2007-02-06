@@ -125,7 +125,7 @@ CGrid_Import::CGrid_Import(void)
 
 		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("Standard"),
-			_TL("Split Channels|"),
+			_TL("Split Channels"),
 			_TL("Enforce True Color")
 		)
 	);
