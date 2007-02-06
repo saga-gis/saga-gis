@@ -144,27 +144,27 @@ int CWKSP_Shapes_Points::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_P
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Points::_Draw_Initialize(CWKSP_Map_DC &dc_Map)
-{
-	CWKSP_Shapes_Point::_Draw_Initialize(dc_Map);
-}
-
-//---------------------------------------------------------
 void CWKSP_Shapes_Points::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, bool bSelection)
 {
-	int			iPart, iPoint;
-	TSG_Point_Int	p;
+	int		Size;
 
 	//-----------------------------------------------------
-	CWKSP_Shapes_Point::_Draw_Shape(dc_Map, pShape, bSelection);
-
-	for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+	if( CWKSP_Shapes_Point::_Draw_Initialize(dc_Map, Size, pShape, bSelection) )
 	{
-		for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{
-			p	= dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
+			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+			{
+				TSG_Point_Int	p	= dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
 
-			Draw_Symbol(dc_Map.dc, p.x, p.y, 5);
+				Draw_Symbol(dc_Map.dc, p.x, p.y, Size);
+			}
+		}
+
+		//-------------------------------------------------
+		if( bSelection )
+		{
+			CWKSP_Shapes_Point::_Draw_Initialize(dc_Map);
 		}
 	}
 }
