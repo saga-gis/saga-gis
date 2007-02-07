@@ -109,6 +109,18 @@
 //														 //
 ///////////////////////////////////////////////////////////
 
+/*
+* this is defined by configure, but will not be on a normal application build
+*/
+
+#ifndef SIZEOF_LONG
+# if defined(__alpha) || defined(__sparcv9) || defined(__LP64__) || (defined(__HOS_AIX__) && defined(_LP64))
+# define SIZEOF_LONG        8
+#else
+# define SIZEOF_LONG        4
+#endif
+#endif
+
 //---------------------------------------------------------
 #ifdef _TYPEDEF_BOOL
 	typedef unsigned int	bool;
@@ -124,7 +136,11 @@
 //---------------------------------------------------------
 #ifdef _TYPEDEF_WORD
 	typedef unsigned short	WORD;
-	typedef unsigned long	DWORD;
+	#if (SIZEOF_LONG == 4)
+	typedef unsigned long           DWORD;
+	#else
+	typedef unsigned int            DWORD;
+	#endif
 #endif	// _TYPEDEF_WORD
 
 

@@ -79,6 +79,8 @@
 #include "saga_api.h"
 #include "shapes.h"
 #include "table.h"
+#include "table_dbase.h"
+#include "table_value.h"
 #include "tin.h"
 %}
 
