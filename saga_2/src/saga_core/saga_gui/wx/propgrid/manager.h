@@ -1049,63 +1049,7 @@ public:
     }
 
 #ifdef SWIG
-    %pythoncode {
-        def GetValuesFromPage(self,page,dict_=None,as_strings=False):
-            """\
-            Same as GetValues, but returns values from specific page only.
-
-            For argument descriptions, see GetValues.
-            """
-
-            if dict_ is None:
-                dict_ = {}
-            elif hasattr(dict_,'__dict__'):
-                dict_ = dict_.__dict__
-
-            if not as_strings:
-                getter = self.GetPropertyValue
-            else:
-                getter = self.GetPropertyValueAsString
-
-            root = self.GetPageRoot(page)
-            self._GetValues(root,self.GetFirstChild(root),dict_,getter)
-
-            return dict_
-
-
-        def GetValues(self,dict_=None,as_strings=False):
-            """\
-            Returns values in the grid.
-
-            dict_: if not given, then a new one is created. dict_ can be
-              object as well, in which case it's __dict__ is used.
-            as_strings: if True, then string representations of values
-              are fetched instead of native types. Useful for config and such.
-
-            Return value: dictionary with values. It is always a dictionary,
-            so if dict_ was object with __dict__ attribute, then that attribute
-            is returned.
-            """
-
-            if dict_ is None:
-                dict_ = {}
-            elif hasattr(dict_,'__dict__'):
-                dict_ = dict_.__dict__
-
-            if not as_strings:
-                getter = self.GetPropertyValue
-            else:
-                getter = self.GetPropertyValueAsString
-
-            for page in range(0,self.GetPageCount()):
-                root = self.GetPageRoot(page)
-                self._GetValues(root,self.GetFirstChild(root),dict_,getter)
-
-            return dict_
-
-        GetPropertyValues = GetValues
-
-    }
+// O.C.:    %pythoncode { ... }
 #endif
 
 protected:

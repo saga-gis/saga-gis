@@ -259,6 +259,7 @@ bool CGrid_Import::On_Execute(void)
 
 			Parameters("OUT_GRID")	->Set_Value(pR);
 			DataObject_Set_Colors(pR, Colors);
+			DataObject_Update(pR, 0, Colors.Get_Count() - 1);
 		}
 
 		//-------------------------------------------------
