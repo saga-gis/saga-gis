@@ -148,7 +148,7 @@ bool CCollect_Points::On_Execute(void)
 //---------------------------------------------------------
 bool CCollect_Points::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
 {
-	if( Mode == MODULE_INTERACTIVE_LDOWN && Dlg_Parameters("REFERENCE") )
+	if( Mode == MODULE_INTERACTIVE_LUP && Dlg_Parameters("REFERENCE") )
 	{
 		double	xSource, ySource, xTarget, yTarget;
 		CSG_Shape	*pShape;
@@ -164,12 +164,16 @@ bool CCollect_Points::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interact
 		pShape	->Get_Record()->Set_Value(0, xTarget);
 		pShape	->Get_Record()->Set_Value(1, yTarget);
 
+		DataObject_Update(m_pSource);
+
 		if( m_pTarget )
 		{
 			pShape	= m_pTarget->Add_Shape();
 			pShape	->Add_Point(xTarget, yTarget);
 			pShape	->Get_Record()->Set_Value(0, xSource);
 			pShape	->Get_Record()->Set_Value(1, ySource);
+
+			DataObject_Update(m_pTarget);
 		}
 	}
 
