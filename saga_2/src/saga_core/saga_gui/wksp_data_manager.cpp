@@ -58,6 +58,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifdef _SAGA_LINUX
+#include <stdlib.h>
+#endif
+
 #include <wx/filename.h>
 
 #include <saga_api/saga_api.h>
@@ -254,7 +258,11 @@ bool CWKSP_Data_Manager::Finalise(void)
 	CONFIG_Write(wxT("/DATA/GRIDS")	, wxT("CACHE_CONFIRM")	, (long)SG_Grid_Cache_Get_Confirm  ());
 
 	//-----------------------------------------------------
+#ifdef _SAGA_LINUX
+	wxFileName	fProject( wxT( getenv( "HOME" ) ), wxT( "saga_gui" ), wxT( "cfg" ) );
+#else
 	wxFileName	fProject(g_pSAGA->Get_App_Path(), wxT("saga_gui"), wxT("cfg"));
+#endif
 
 	CONFIG_Write(wxT("/DATA")		, wxT("PROJECT_START")	, (long)m_Parameters("PROJECT_START")	->asInt());
 	CONFIG_Write(wxT("/DATA")		, wxT("START_LOGO")		, (long)m_Parameters("START_LOGO")		->asInt());
