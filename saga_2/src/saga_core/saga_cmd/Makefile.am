@@ -1,10 +1,10 @@
+#
+# $Id $
+#
 if DEBUG
 DBGFLAGS = -g -DDEBUG
 endif
 
-if X86_64
-ARCHDEFS =  -fPIC -fpermissive
-endif
 if SAGA_UNICODE
 AM_CXXFLAGS = -fPIC `wx-config --unicode=yes --cxxflags` $(ARCHDEFS) -D_SAGA_LINUX -D_SAGA_UNICODE -D_TYPEDEF_BYTE -D_TYPEDEF_WORD $(DBGFLAGS) -I.. 
 AM_LDFLAGS = `wx-config --unicode=yes --libs` -lm -lpangox-1.0
