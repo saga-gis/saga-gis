@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
+// $Id: callback.cpp,v 1.6 2007-02-12 15:43:51 tschorr Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -218,7 +218,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_FIND_BY_FILE:
 
-		Result	= (int)g_pData->Get_byFileName((const wxChar *)Param_1, Param_2);
+		Result	= (long)g_pData->Get_byFileName((const wxChar *)Param_1, Param_2);
 
 		break;
 
@@ -301,7 +301,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_GUI_GET_WINDOW:
 
-		Result	= (int)MDI_Get_Frame();
+		Result	= (long)MDI_Get_Frame();
 
 		break;
 	}

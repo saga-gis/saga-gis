@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
+// $Id: dlg_list_grid.cpp,v 1.5 2007-02-12 15:43:51 tschorr Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -107,7 +107,7 @@ CDLG_List_Grid::CDLG_List_Grid(CSG_Parameter_Grid_List *pList, wxString Caption)
 		else
 		{
 			m_pSystem	= NULL;
-			m_pSystems	= new wxChoice(this, ID_COMBOBOX_SELECT, wxDefaultPosition, wxDefaultSize, 0, NULL);
+			m_pSystems	= new wxChoice(this, ID_COMBOBOX_SELECT, wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
 
 			for(int i=0; i<pManager->Get_Count(); i++)
 			{

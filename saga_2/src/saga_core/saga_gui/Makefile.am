@@ -1,11 +1,11 @@
+#
+# $Id: Makefile.am,v 1.10 2007-02-12 15:43:51 tschorr Exp $
+#
 INCS = -I.. -I.
 if DEBUG
 DBGFLAGS = -g -DDEBUG
 endif
 
-if X86_64
-ARCHDEFS =  -fPIC -fpermissive
-endif
 if SAGA_UNICODE
 AM_CXXFLAGS = -fPIC `wx-config --unicode=yes --cxxflags` $(ARCHDEFS) -D_SAGA_LINUX -D_SAGA_UNICODE -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_DONOTUSE_HARU $(DBGFLAGS) $(INCS)
 AM_LDFLAGS = `wx-config --unicode=yes --libs` -lm 

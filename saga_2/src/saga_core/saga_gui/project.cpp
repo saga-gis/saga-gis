@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
+// $Id: project.cpp,v 1.9 2007-02-12 15:43:51 tschorr Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -704,13 +704,13 @@ bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *
 		//-------------------------------------------------
 		pNode	= pParameters->Add_Node(
 			pParent,
-			wxString::Format(wxT("%d NODE"), (int)pObject),
+			wxString::Format(wxT("%d NODE"), (long)pObject),
 			pItem->Get_Name(), wxT("")
 		);
 
 		pParameters->Add_Value(
 			pNode,
-			wxString::Format(wxT("%d")     , (int)pObject),
+			wxString::Format(wxT("%d")     , (long)pObject),
 			LNG("[CAP] Save"), wxT(""), PARAMETER_TYPE_Bool, false
 		);
 
@@ -720,7 +720,7 @@ bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *
 
 		pParameters->Add_FilePath(
 			pNode,
-			wxString::Format(wxT("%d FILE"), (int)pObject),
+			wxString::Format(wxT("%d FILE"), (long)pObject),
 			LNG("[CAP] File"), wxT(""), sFilter, sPath, true
 		);
 
@@ -746,7 +746,7 @@ bool CWKSP_Project::_Modified_Save(CSG_Parameters *pParameters)
 		{
 			CSG_String	fPath;
 
-			if(	(pPath = pParameters->Get_Parameter(wxString::Format(wxT("%d FILE"), (int)pObject))) != NULL
+			if(	(pPath = pParameters->Get_Parameter(wxString::Format(wxT("%d FILE"), (long)pObject))) != NULL
 			&&	pPath->asString() != NULL && SG_STR_LEN(pPath->asString()) > 0 )
 			{
 				fPath	= pPath->asString();
