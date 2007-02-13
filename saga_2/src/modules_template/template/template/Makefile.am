@@ -1,12 +1,15 @@
 #
-# $Id: Makefile.am,v 1.4 2007-02-13 09:58:05 tschorr Exp $
+# $Id: Makefile.am,v 1.5 2007-02-13 12:49:31 tschorr Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
 endif
+if SAGA_UNICODE
+DEP_DEFS = -D_SAGA_UNICODE
+endif
 DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS           = -I$(top_srcdir)/src/saga_core
-AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(DEP_INCS) $(DEP_DEFS) $(DBGFLAGS)
+AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(DEP_DEFS) $(DBGFLAGS)
 AM_LDFLAGS         = -fPIC -shared $(DEP_LFLG)
 pkglib_LTLIBRARIES = libTemplate.la
 libTemplate_la_SOURCES =\
