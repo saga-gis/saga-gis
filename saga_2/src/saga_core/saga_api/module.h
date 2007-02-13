@@ -51,7 +51,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: module.h,v 1.11 2007-02-13 09:58:09 tschorr Exp $
+// $Id: module.h,v 1.12 2007-02-13 12:59:17 tschorr Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -195,7 +195,7 @@ protected:
 
 	//-----------------------------------------------------
 	virtual bool				Process_Get_Okay			(bool bBlink);
-	void				Process_Set_Text			(const SG_Char *Text);
+	virtual void				Process_Set_Text			(const SG_Char *Text);
 
 	virtual bool				Set_Progress				(int Position);
 	virtual bool				Set_Progress				(double Position, double Range);
