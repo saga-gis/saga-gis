@@ -126,8 +126,14 @@ void CSG_Module_Grid::Lock_Create(void)
 {
 	if( Get_System()->is_Valid() )
 	{
-		if( Get_System()->is_Valid() && m_pLock == NULL )
+		if( m_pLock && Get_System()->is_Equal(m_pLock->Get_System()) )
 		{
+			m_pLock->Assign(0.0);
+		}
+		else
+		{
+			Lock_Destroy();
+
 			m_pLock	= new CSG_Grid(
 				GRID_TYPE_Char,
 				Get_System()->Get_NX(),
@@ -136,10 +142,6 @@ void CSG_Module_Grid::Lock_Create(void)
 				Get_System()->Get_XMin(),
 				Get_System()->Get_YMin()
 			);
-		}
-		else
-		{
-			m_pLock->Assign(0.0);
 		}
 	}
 }
