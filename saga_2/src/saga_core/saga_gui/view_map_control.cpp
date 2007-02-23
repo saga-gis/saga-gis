@@ -599,11 +599,12 @@ void CVIEW_Map_Control::On_Mouse_LDown(wxMouseEvent &event)
 		}
 		else if( m_pMap->Find_Layer(Get_Active_Layer()) )
 		{
-			if( Get_Active_Layer()->Get_Type() == WKSP_ITEM_Grid )
+			if(	Get_Active_Layer()->Get_Type() == WKSP_ITEM_Grid
+			||	Get_Active_Layer()->Get_Type() == WKSP_ITEM_Shapes )
 			{
 				m_Drag_Mode		= MODULE_INTERACTIVE_DRAG_BOX;
 			}
-			else //if( Get_Active_Layer()->Get_Type() == WKSP_ITEM_Shapes )
+			else
 			{
 				m_Drag_Mode		= MODULE_INTERACTIVE_DRAG_NONE;
 			}
