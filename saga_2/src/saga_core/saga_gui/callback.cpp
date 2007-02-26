@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: callback.cpp,v 1.6 2007-02-12 15:43:51 tschorr Exp $
+// $Id: callback.cpp,v 1.7 2007-02-26 17:48:36 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -280,6 +280,22 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	case CALLBACK_DATAOBJECT_COLORS_SET:
 
 		Result	= g_pData->Set_Colors((CSG_Data_Object *)Param_1, (CSG_Colors *)Param_2) ? 1 : 0;
+
+		break;
+
+
+	//-----------------------------------------------------
+	case CALLBACK_DATAOBJECT_PARAMS_GET:
+
+		Result	= g_pData->Get_Parameters((CSG_Data_Object *)Param_1, (CSG_Parameters *)Param_2) ? 1 : 0;
+
+		break;
+
+
+	//-----------------------------------------------------
+	case CALLBACK_DATAOBJECT_PARAMS_SET:
+
+		Result	= g_pData->Set_Parameters((CSG_Data_Object *)Param_1, (CSG_Parameters *)Param_2) ? 1 : 0;
 
 		break;
 

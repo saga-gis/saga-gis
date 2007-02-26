@@ -263,6 +263,30 @@ wxSize		MDI_Get_Def_Size(void)
 	return( wxSize(400, 300) );
 }
 
+//---------------------------------------------------------
+void		MDI_Top_Window_Push(wxWindow *pWindow)
+{
+	if( g_pSAGA_Frame )
+	{
+		g_pSAGA_Frame->Top_Window_Push(pWindow);
+	}
+}
+
+//---------------------------------------------------------
+void		MDI_Top_Window_Pop(wxWindow *pWindow)
+{
+	if( g_pSAGA_Frame )
+	{
+		g_pSAGA_Frame->Top_Window_Pop(pWindow);
+	}
+}
+
+//---------------------------------------------------------
+wxWindow *	MDI_Get_Top_Window(void)
+{
+	return( g_pSAGA_Frame ? g_pSAGA_Frame->Top_Window_Get() : NULL );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

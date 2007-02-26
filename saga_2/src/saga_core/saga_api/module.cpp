@@ -624,6 +624,17 @@ bool CSG_Module::DataObject_Set_Colors(CSG_Data_Object *pDataObject, int nColors
 	return( SG_UI_DataObject_Colors_Set(pDataObject, &c) );
 }
 
+//---------------------------------------------------------
+bool CSG_Module::DataObject_Get_Parameters(CSG_Data_Object *pDataObject, CSG_Parameters &Parameters)
+{
+	return( SG_UI_DataObject_Params_Get(pDataObject, &Parameters) );
+}
+
+bool CSG_Module::DataObject_Set_Parameters(CSG_Data_Object *pDataObject, CSG_Parameters &Parameters)
+{
+	return( SG_UI_DataObject_Params_Set(pDataObject, &Parameters) );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

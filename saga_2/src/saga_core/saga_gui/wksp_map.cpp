@@ -834,60 +834,73 @@ bool CWKSP_Map::Get_Image(wxImage &Image, CSG_Rect &rWorld)
 //---------------------------------------------------------
 void CWKSP_Map::SaveAs_Image(void)
 {
-	int				nx, ny, Frame, type;
-	wxSize			s;
-	wxRect			r;
-	wxString		file;
-	wxBitmap		BMP;
-	wxMemoryDC		dc;
-	CSG_Parameters	Parms;
-	CSG_Parameter	*pNode;
+	static CSG_Parameters	Parms;
+
+	int			type;
+	wxString	file;
 
 	//-----------------------------------------------------
-	Parms.Set_Name(LNG("[CAP] Save Map as Image..."));
+	if( Parms.Get_Count() == 0 )
+	{
+		CSG_Parameter	*pNode;
 
-	pNode	= Parms.Add_Node(NULL, "NODE_MAP", LNG("Map"), LNG(""));
+		Parms.Set_Name(LNG("[CAP] Save Map as Image..."));
 
-	Parms.Add_Value(
-		pNode	, "NX"	, LNG("[PRM] Map Width [Pixels]"),
-		LNG(""),
-		PARAMETER_TYPE_Int, 800	, 1, true
-	);
+		pNode	= Parms.Add_Node(NULL, "NODE_MAP", LNG("Map"), LNG(""));
 
-	Parms.Add_Value(
-		pNode	, "NY"	, LNG("[PRM] Map Height [Pixels]"),
-		LNG(""),
-		PARAMETER_TYPE_Int, 600	, 1, true
-	);
+		Parms.Add_Value(
+			pNode	, "NX"	, LNG("[PRM] Map Width [Pixels]"),
+			LNG(""),
+			PARAMETER_TYPE_Int, 800	, 1, true
+		);
 
-	Parms.Add_Value(
-		pNode	, "FR"	, LNG("[PRM] Frame Width [Pixels]"),
-		LNG(""),
-		PARAMETER_TYPE_Int, 20	, 0, true
-	);
+		Parms.Add_Value(
+			pNode	, "NY"	, LNG("[PRM] Map Height [Pixels]"),
+			LNG(""),
+			PARAMETER_TYPE_Int, 600	, 1, true
+		);
 
-	pNode	= Parms.Add_Node(NULL, "NODE_LEGEND", LNG("[PRM] Legend"), LNG(""));
+		Parms.Add_Value(
+			pNode	, "FR"	, LNG("[PRM] Frame Width [Pixels]"),
+			LNG(""),
+			PARAMETER_TYPE_Int, 20	, 0, true
+		);
 
-	Parms.Add_Value(
-		pNode	, "LG"	, LNG("[PRM] Save"),
-		LNG(""),
-		PARAMETER_TYPE_Bool, 1
-	);
+		Parms.Add_Value(
+			pNode	, "REF"	, LNG("[PRM] Save Georeference (world file)"),
+			LNG(""),
+			PARAMETER_TYPE_Bool, 1
+		);
 
-	Parms.Add_Value(
-		pNode	, "LZ"	, LNG("[PRM] Zoom"),
-		LNG(""),
-		PARAMETER_TYPE_Double, 1.0, 0, true
-	);
+		pNode	= Parms.Add_Node(NULL, "NODE_LEGEND", LNG("[PRM] Legend"), LNG(""));
+
+		Parms.Add_Value(
+			pNode	, "LG"	, LNG("[PRM] Save"),
+			LNG(""),
+			PARAMETER_TYPE_Bool, 1
+		);
+
+		Parms.Add_Value(
+			pNode	, "LZ"	, LNG("[PRM] Zoom"),
+			LNG(""),
+			PARAMETER_TYPE_Double, 1.0, 0, true
+		);
+	}
 
 	//-----------------------------------------------------
 	if( DLG_Image_Save(file, type) && DLG_Parameters(&Parms) )
 	{
+		int			nx, ny, Frame;
+		wxSize		s;
+		wxRect		r;
+		wxBitmap	BMP;
+		wxMemoryDC	dc;
+
 		Set_Buisy_Cursor(true);
 
 		nx		= Parms("NX")->asInt();
 		ny		= Parms("NY")->asInt();
-		Frame	= Parms("FR")->asInt();
+		Frame	= Parms("FR")->asInt();	if( Frame < 5 )	Frame	= 0;
 		r		= wxRect(0, 0, nx + 2 * Frame, ny + 2 * Frame);
 
 		BMP.Create(r.GetWidth(), r.GetHeight());
@@ -901,6 +914,25 @@ void CWKSP_Map::SaveAs_Image(void)
 
 		dc.SelectObject(wxNullBitmap);
 		BMP.SaveFile(file, (wxBitmapType)type);
+
+		if( Parms("REF")->asBool() )
+		{
+			CSG_File	Stream;
+			wxFileName	fn(file);
+			fn.SetExt(wxT("world"));
+
+			if( Stream.Open(fn.GetFullPath().c_str(), SG_FILE_W, false) )
+			{
+				CSG_Rect	rWorld(Get_World(r));
+				double		d	= rWorld.Get_XRange() / r.GetWidth();
+
+				Stream.Printf(wxT("%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n"),
+					d, 0.0, 0.0,-d,
+					rWorld.Get_XMin() - Frame * d,
+					rWorld.Get_YMax() + Frame * d
+				);
+			}
+		}
 
 		if( Parms("LG")->asBool() && Get_Legend_Size(s, 1.0, Parms("LZ")->asDouble()) )
 		{

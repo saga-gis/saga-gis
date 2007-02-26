@@ -230,6 +230,10 @@ bool CParameters_Control::Load(void)
 			m_bModified	= true;
 			bResult		= true;
 		}
+		else
+		{
+			DLG_Message_Show(LNG("Parameters file could not be imported."), LNG("Load Parameters"));
+		}
 	}
 
 	return( bResult );
@@ -247,6 +251,10 @@ bool CParameters_Control::Save(void)
 		if( m_pParameters->Serialize(Stream, true) )
 		{
 			bResult		= true;
+		}
+		else
+		{
+			DLG_Message_Show(LNG("Parameters file could not be exported."), LNG("Save Parameters"));
 		}
 	}
 

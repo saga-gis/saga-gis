@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: wksp_data_manager.cpp,v 1.15 2007-02-13 09:58:10 tschorr Exp $
+// $Id: wksp_data_manager.cpp,v 1.16 2007-02-26 17:48:37 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -1046,6 +1046,87 @@ bool CWKSP_Data_Manager::Set_Colors(CSG_Data_Object *pObject, CSG_Colors *pColor
 
 		default:
 			break;
+		}
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Data_Manager::Get_Parameters(CSG_Data_Object *pObject, CSG_Parameters *pParameters)
+{
+	if( pObject && pParameters )
+	{
+		CWKSP_Base_Item	*pItem;
+
+		switch( pObject->Get_ObjectType() )
+		{
+		case DATAOBJECT_TYPE_Grid:
+			pItem	= (CWKSP_Base_Item *)m_pGrids ->Get_Grid  ((CSG_Grid   *)pObject);
+			break;
+
+		case DATAOBJECT_TYPE_Shapes:
+			pItem	= (CWKSP_Base_Item *)m_pShapes->Get_Shapes((CSG_Shapes *)pObject);
+			break;
+
+		case DATAOBJECT_TYPE_TIN:
+			pItem	= (CWKSP_Base_Item *)m_pTINs  ->Get_TIN   ((CSG_TIN    *)pObject);
+			break;
+
+		case DATAOBJECT_TYPE_Table:
+			pItem	= (CWKSP_Base_Item *)m_pTables->Get_Table ((CSG_Table  *)pObject);
+			break;
+
+		default:
+			pItem	= NULL;
+			break;
+		}
+
+		if( pItem && pItem->Get_Parameters() )
+		{
+			return( pParameters->Assign(pItem->Get_Parameters()) != 0 );
+		}
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Data_Manager::Set_Parameters(CSG_Data_Object *pObject, CSG_Parameters *pParameters)
+{
+	if( pObject && pParameters )
+	{
+		CWKSP_Base_Item	*pItem;
+
+		switch( pObject->Get_ObjectType() )
+		{
+		case DATAOBJECT_TYPE_Grid:
+			pItem	= (CWKSP_Base_Item *)m_pGrids ->Get_Grid  ((CSG_Grid   *)pObject);
+			break;
+
+		case DATAOBJECT_TYPE_Shapes:
+			pItem	= (CWKSP_Base_Item *)m_pShapes->Get_Shapes((CSG_Shapes *)pObject);
+			break;
+
+		case DATAOBJECT_TYPE_TIN:
+			pItem	= (CWKSP_Base_Item *)m_pTINs  ->Get_TIN   ((CSG_TIN    *)pObject);
+			break;
+
+		case DATAOBJECT_TYPE_Table:
+			pItem	= (CWKSP_Base_Item *)m_pTables->Get_Table ((CSG_Table  *)pObject);
+			break;
+
+		default:
+			pItem	= NULL;
+			break;
+		}
+
+		if( pItem && pItem->Get_Parameters() )
+		{
+			if( pItem->Get_Parameters()->Assign_Values(pParameters) != 0 )
+			{
+				pItem->Parameters_Changed();
+			}
 		}
 	}
 

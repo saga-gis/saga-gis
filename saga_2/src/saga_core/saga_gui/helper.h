@@ -112,6 +112,10 @@ class wxWindow *	MDI_Get_Frame					(void);
 wxPoint				MDI_Get_Def_Position			(void);
 wxSize				MDI_Get_Def_Size				(void);
 
+void				MDI_Top_Window_Push				(wxWindow *pWindow);
+void				MDI_Top_Window_Pop				(wxWindow *pWindow);
+wxWindow *			MDI_Get_Top_Window				(void);
+
 //---------------------------------------------------------
 void				Set_Buisy_Cursor				(bool bOn);
 

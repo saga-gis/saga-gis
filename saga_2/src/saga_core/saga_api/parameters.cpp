@@ -969,10 +969,10 @@ int CSG_Parameters::Assign_Values(CSG_Parameters *pSource)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define PARAMETER_ENTRIES_BEGIN		SG_T("[PARAMETER_ENTRIES_BEGIN]")
-#define PARAMETER_ENTRIES_END		SG_T("[PARAMETER_ENTRIES_END]")
-#define PARAMETER_ENTRY_BEGIN		SG_T("[PARAMETER_ENTRY_BEGIN]")
-#define PARAMETER_ENTRY_END			SG_T("[PARAMETER_ENTRY_END]")
+#define PARAMETER_ENTRIES_BEGIN				SG_T("[PARAMETER_ENTRIES_BEGIN]")
+#define PARAMETER_ENTRIES_END				SG_T("[PARAMETER_ENTRIES_END]")
+#define PARAMETER_ENTRY_BEGIN				SG_T("[PARAMETER_ENTRY_BEGIN]")
+#define PARAMETER_ENTRY_END					SG_T("[PARAMETER_ENTRY_END]")
 
 //---------------------------------------------------------
 bool CSG_Parameters::Serialize(const SG_Char *File_Name, bool bSave)
@@ -991,10 +991,6 @@ bool CSG_Parameters::Serialize(const SG_Char *File_Name, bool bSave)
 //---------------------------------------------------------
 bool CSG_Parameters::Serialize(CSG_File &Stream, bool bSave)
 {
-	int			i;
-	CSG_Parameter	*pParameter;
-	CSG_String	sLine;
-
 	if( Stream.is_Open() )
 	{
 		//-------------------------------------------------
@@ -1002,7 +998,7 @@ bool CSG_Parameters::Serialize(CSG_File &Stream, bool bSave)
 		{
 			Stream.Printf(SG_T("\n%s\n"), PARAMETER_ENTRIES_BEGIN);
 
-			for(i=0; i<m_nParameters; i++)
+			for(int i=0; i<m_nParameters; i++)
 			{
 				if(	m_Parameters[i]->is_Serializable() )
 				{
@@ -1023,6 +1019,9 @@ bool CSG_Parameters::Serialize(CSG_File &Stream, bool bSave)
 		//-------------------------------------------------
 		else
 		{
+			CSG_Parameter	*pParameter;
+			CSG_String		sLine;
+
 			while( Stream.Read_Line(sLine) && sLine.Cmp(PARAMETER_ENTRIES_BEGIN) );
 
 			if( !sLine.Cmp(PARAMETER_ENTRIES_BEGIN) )
@@ -1037,9 +1036,70 @@ bool CSG_Parameters::Serialize(CSG_File &Stream, bool bSave)
 						}
 					}
 				}
+
+				return( true );
 			}
 
-			return( true );
+			//---------------------------------------------
+			else	// SAGA 1.x compatibility...
+			{
+				CSG_Parameter	*pParameter;
+				CSG_String		sLine;
+
+				Stream.Seek_Start();
+
+				while( Stream.Read_Line(sLine) && sLine.Cmp(SG_T("SERIALIZE_PARAMETERS_VERSION_0.101")) );
+
+				if( !sLine.Cmp(SG_T("SERIALIZE_PARAMETERS_VERSION_0.101")) )
+				{
+					while( Stream.Read_Line(sLine) )
+					{
+						if( !sLine.Cmp(SG_T("SERIALIZE_PARAMETER_BEGIN")) )
+						{
+							if( Stream.Read_Line(sLine) && (pParameter = Get_Parameter(sLine)) != NULL && Stream.Read_Line(sLine) )
+							{
+								bool	bOkay	= false;
+
+								switch( sLine.asInt() )
+								{
+								case 1:		bOkay	= pParameter->Get_Type() == PARAMETER_TYPE_Bool;		break;
+								case 2:		bOkay	= pParameter->Get_Type() == PARAMETER_TYPE_Int;			break;
+								case 3:		bOkay	= pParameter->Get_Type() == PARAMETER_TYPE_Int;			break;
+								case 4:		bOkay	= pParameter->Get_Type() == PARAMETER_TYPE_Double;		break;
+								case 5:		bOkay	= pParameter->Get_Type() == PARAMETER_TYPE_Degree;		break;
+								case 7:		bOkay	= pParameter->Get_Type() == PARAMETER_TYPE_Choice;		break;
+								case 8:		bOkay	= pParameter->Get_Type() == PARAMETER_TYPE_String;		break;
+								case 10:	bOkay	= pParameter->Get_Type() == PARAMETER_TYPE_FilePath;	break;
+								case 12:	bOkay	= pParameter->Get_Type() == PARAMETER_TYPE_Color;		break;
+
+								case 6:
+									if( pParameter->Get_Type() == PARAMETER_TYPE_Range )
+									{
+										double	min, max;
+
+										Stream.Read_Line(sLine);	// empty
+										Stream.Read_Line(sLine);	Stream.Read_Line(sLine);	min	= sLine.asDouble();
+										Stream.Read_Line(sLine);	Stream.Read_Line(sLine);	max	= sLine.asDouble();
+
+										pParameter->asRange()->Set_Range(min, max);
+									}
+									break;
+								}
+
+								if( bOkay )
+								{
+									pParameter->Get_Data()->Serialize(Stream, false);
+								}
+							}
+
+							while( Stream.Read_Line(sLine) && sLine.Cmp(SG_T("SERIALIZE_PARAMETER_END")) );
+						}
+					}
+
+					return( true );
+				}
+			}		// SAGA 1.x compatibility...
+			//---------------------------------------------
 		}
 	}
 

@@ -51,7 +51,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: module.h,v 1.12 2007-02-13 12:59:17 tschorr Exp $
+// $Id: module.h,v 1.13 2007-02-26 17:48:37 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -217,6 +217,9 @@ protected:
 	bool						DataObject_Get_Colors		(CSG_Data_Object *pDataObject, CSG_Colors &Colors);
 	bool						DataObject_Set_Colors		(CSG_Data_Object *pDataObject, const CSG_Colors &Colors);
 	bool						DataObject_Set_Colors		(CSG_Data_Object *pDataObject, int nColors, int Palette = SG_COLORS_DEFAULT, bool bRevert = false);
+
+	bool						DataObject_Get_Parameters	(CSG_Data_Object *pDataObject, CSG_Parameters &Parameters);
+	bool						DataObject_Set_Parameters	(CSG_Data_Object *pDataObject, CSG_Parameters &Parameters);
 
 
 private:

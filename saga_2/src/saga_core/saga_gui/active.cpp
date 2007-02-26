@@ -197,6 +197,10 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 		return( true );
 	}
 
+	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_X);
+	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_Y);
+	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_Z);
+
 	//-----------------------------------------------------
 	CWKSP_Base_Item	*pLegend, *pHTML;
 

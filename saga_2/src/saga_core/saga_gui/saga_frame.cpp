@@ -235,6 +235,9 @@ CSAGA_Frame::CSAGA_Frame(void)
 	//-----------------------------------------------------
 	g_pSAGA_Frame		= this;
 
+	m_nTopWindows		= 0;
+	m_pTopWindows		= NULL;
+
 	m_pINFO				= NULL;
 	m_pActive			= NULL;
 	m_pWKSP				= NULL;
@@ -385,6 +388,11 @@ CSAGA_Frame::~CSAGA_Frame(void)
 	delete(m_pLayout);
 
 	//-----------------------------------------------------
+	if( m_pTopWindows )
+	{
+		delete(m_pTopWindows);
+	}
+
 	SG_Set_UI_Callback(NULL);
 
 	g_pSAGA_Frame	= NULL;
@@ -762,6 +770,61 @@ void CSAGA_Frame::StatusBar_Set_Text(const wxChar *Text, int iPane)
 	}
 
 	SetStatusText(Text, iPane);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CSAGA_Frame::Top_Window_Push(wxWindow *pWindow)
+{
+	if( pWindow )
+	{
+		for(int i=0; i<m_nTopWindows; i++)
+		{
+			if( m_pTopWindows[i] == pWindow )
+			{
+				return;
+			}
+		}
+
+		m_pTopWindows	= (wxWindow **)SG_Realloc(m_pTopWindows, (m_nTopWindows + 1) * sizeof(wxWindow *));
+		m_pTopWindows[m_nTopWindows++]	= pWindow;
+	}
+}
+
+//---------------------------------------------------------
+void CSAGA_Frame::Top_Window_Pop(wxWindow *pWindow)
+{
+	if( pWindow )
+	{
+		int		i, j;
+
+		for(i=j=0; j<m_nTopWindows; i++, j++)
+		{
+			if( m_pTopWindows[i] == pWindow )
+				j++;
+
+			if( i < j && j < m_nTopWindows )
+				m_pTopWindows[i]	= m_pTopWindows[j];
+		}
+
+		if( i < j )
+		{
+			m_nTopWindows--;
+			m_pTopWindows	= (wxWindow **)SG_Realloc(m_pTopWindows, m_nTopWindows * sizeof(wxWindow *));
+		}
+	}
+}
+
+//---------------------------------------------------------
+wxWindow * CSAGA_Frame::Top_Window_Get(void)
+{
+	return( m_nTopWindows > 0 ? m_pTopWindows[m_nTopWindows - 1] : this );
 }
 
 

@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: project.cpp,v 1.9 2007-02-12 15:43:51 tschorr Exp $
+// $Id: project.cpp,v 1.10 2007-02-26 17:48:36 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -618,13 +618,15 @@ bool CWKSP_Project::Save_Modified(CWKSP_Base_Item *pItem)
 {
 	CSG_Parameters	Parameters;
 
-	Parameters.Set_Name(LNG("[CAP] Save Modified Data Objects"));
+	Parameters.Create(this, LNG("[CAP] Close and save modified data sets..."), LNG(""));
 	Parameters.Add_Value(NULL, "SAVE_ALL", LNG("Save all"), LNG(""), PARAMETER_TYPE_Bool, false);
 
 	_Modified_Get(&Parameters, pItem);
 
 	if( Parameters.Get_Count() > 1 )
 	{
+		Parameters.Set_Callback_On_Parameter_Changed(&_Modified_Changed);
+
 		if( !DLG_Parameters(&Parameters) )
 		{
 			return( false );
@@ -634,6 +636,33 @@ bool CWKSP_Project::Save_Modified(CWKSP_Base_Item *pItem)
 	}
 
 	return( true );
+}
+
+//---------------------------------------------------------
+int CWKSP_Project::_Modified_Changed(CSG_Parameter *pParameter)
+{
+	if( pParameter && pParameter->Get_Owner() && pParameter->Get_Owner()->Get_Owner() )
+	{
+		if( !strcmp(pParameter->Get_Identifier(), "SAVE_ALL") )
+		{
+			for(int i=0; i<pParameter->Get_Owner()->Get_Count(); i++)
+			{
+				if( pParameter->Get_Owner()->Get_Parameter(i)->Get_Type() == PARAMETER_TYPE_Bool )
+				{
+					pParameter->Get_Owner()->Get_Parameter(i)->Set_Value(pParameter->asBool());
+				}
+			}
+		}
+		else if( pParameter->Get_Type() == PARAMETER_TYPE_Bool && pParameter->asBool() == false )
+		{
+			if( (pParameter = pParameter->Get_Owner()->Get_Parameter("SAVE_ALL")) != NULL )
+			{
+				pParameter->Set_Value(0);
+			}
+		}
+	}
+
+	return( 0 );
 }
 
 //---------------------------------------------------------

@@ -462,7 +462,7 @@ bool		DLG_Colors(int &Palette)
 	Palettes[SG_COLORS_NEON]			= LNG("Neon");
 
 	wxSingleChoiceDialog	dlg(
-		MDI_Get_Frame(),
+		MDI_Get_Top_Window(),
 		wxT(""),
 		LNG("[CAP] Preset Selection"),		
 		SG_COLORS_COUNT, Palettes
@@ -482,7 +482,7 @@ bool		DLG_Colors(int &Palette)
 bool		DLG_Color(long &_Colour)
 {
 	wxColour		Colour(SG_GET_R(_Colour), SG_GET_G(_Colour), SG_GET_B(_Colour));
-	wxColourDialog	dlg(MDI_Get_Frame());
+	wxColourDialog	dlg(MDI_Get_Top_Window());
 
 	dlg.GetColourData().SetColour(Colour);
 
@@ -501,7 +501,7 @@ bool		DLG_Color(long &_Colour)
 bool		DLG_Font(wxFont *pFont, long &_Colour)
 {
 	wxColour		Colour(SG_GET_R(_Colour), SG_GET_G(_Colour), SG_GET_B(_Colour));
-	wxFontDialog	dlg(MDI_Get_Frame());
+	wxFontDialog	dlg(MDI_Get_Top_Window());
 
 	dlg.GetFontData().SetInitialFont(*pFont);
 	dlg.GetFontData().SetColour(Colour);
@@ -528,7 +528,7 @@ bool		DLG_Font(wxFont *pFont, long &_Colour)
 //---------------------------------------------------------
 bool		DLG_Get_Number(double &Number, const wxChar *Caption, const wxChar *Text)
 {
-	wxTextEntryDialog	dlg(MDI_Get_Frame(), Text, Caption, wxString::Format(wxT("%f"), Number));
+	wxTextEntryDialog	dlg(MDI_Get_Top_Window(), Text, Caption, wxString::Format(wxT("%f"), Number));
 
 	return( dlg.ShowModal() == wxID_OK && dlg.GetValue().ToDouble(&Number) );
 }
@@ -542,7 +542,7 @@ bool		DLG_Get_Number(double &Number)
 bool		DLG_Get_Number(int &Number, const wxChar *Caption, const wxChar *Text)
 {
 	long				lValue;
-	wxTextEntryDialog	dlg(MDI_Get_Frame(), Text, Caption, wxString::Format(wxT("%d"), Number));
+	wxTextEntryDialog	dlg(MDI_Get_Top_Window(), Text, Caption, wxString::Format(wxT("%d"), Number));
 
 	if( dlg.ShowModal() == wxID_OK && dlg.GetValue().ToLong(&lValue) )
 	{
@@ -569,7 +569,7 @@ bool		DLG_Get_Number(int &Number)
 //---------------------------------------------------------
 bool		DLG_Directory(wxString &Directory, const wxChar *Caption, const wxChar *def_Dir)
 {
-	wxDirDialog	dlg(MDI_Get_Frame(), Caption, def_Dir);
+	wxDirDialog	dlg(MDI_Get_Top_Window(), Caption, def_Dir);
 
 	if( dlg.ShowModal() == wxID_OK )
 	{
@@ -589,7 +589,7 @@ bool		DLG_Directory(wxString &Directory, const wxChar *Caption)
 //---------------------------------------------------------
 bool		DLG_Save(wxString &File_Path, const wxChar *Caption, const wxChar *def_Dir, const wxChar *def_File, const wxChar *Filter)
 {
-	wxFileDialog	dlg(MDI_Get_Frame(), Caption, def_Dir, def_File, Filter, wxSAVE|wxOVERWRITE_PROMPT);
+	wxFileDialog	dlg(MDI_Get_Top_Window(), Caption, def_Dir, def_File, Filter, wxSAVE|wxOVERWRITE_PROMPT);
 
 	if( dlg.ShowModal() == wxID_OK )
 	{
@@ -625,7 +625,7 @@ bool		DLG_Save(wxString &File_Path, const wxChar *Caption, const wxChar *Filter)
 //---------------------------------------------------------
 bool		DLG_Open(wxString &File_Path, const wxChar *Caption, const wxChar *def_Dir, const wxChar *def_File, const wxChar *Filter)
 {
-	wxFileDialog	dlg(MDI_Get_Frame(), Caption, def_Dir, def_File, Filter, wxOPEN|wxFILE_MUST_EXIST);
+	wxFileDialog	dlg(MDI_Get_Top_Window(), Caption, def_Dir, def_File, Filter, wxOPEN|wxFILE_MUST_EXIST);
 
 	if( dlg.ShowModal() == wxID_OK )
 	{
@@ -661,7 +661,7 @@ bool		DLG_Open(wxString &File_Path, const wxChar *Caption, const wxChar *Filter)
 //---------------------------------------------------------
 bool		DLG_Open(wxArrayString &File_Paths, const wxChar *Caption, const wxChar *def_Dir, const wxChar *Filter)
 {
-	wxFileDialog	dlg(MDI_Get_Frame(), Caption, def_Dir, wxT(""), Filter, wxOPEN|wxFILE_MUST_EXIST|wxMULTIPLE);
+	wxFileDialog	dlg(MDI_Get_Top_Window(), Caption, def_Dir, wxT(""), Filter, wxOPEN|wxFILE_MUST_EXIST|wxMULTIPLE);
 
 	if( dlg.ShowModal() == wxID_OK )
 	{
@@ -707,7 +707,7 @@ bool		DLG_Image_Save(wxString &File_Path, int &Type, const wxChar *def_Dir, cons
 	static	int	Filter_Index	= 3;
 
 	wxFileDialog	dlg(
-		MDI_Get_Frame(), LNG("[CAP] Save As Image"), def_Dir, def_File, wxString::Format(
+		MDI_Get_Top_Window(), LNG("[CAP] Save As Image"), def_Dir, def_File, wxString::Format(
 			wxT("%s|*.bmp|")
 			wxT("%s|*.jpg;*.jif;*.jpeg|")
 			wxT("%s|*.tif;*.tiff|")
@@ -758,7 +758,7 @@ bool		DLG_Image_Save(wxString &File_Path, int &Type, const wxChar *def_Dir, cons
 //---------------------------------------------------------
 void		DLG_Message_Show(const wxChar *Message, const wxChar *Caption)
 {
-	wxMessageDialog	dlg(MDI_Get_Frame(), Message, Caption, wxOK);
+	wxMessageDialog	dlg(MDI_Get_Top_Window(), Message, Caption, wxOK);
 
 	dlg.ShowModal();
 }
@@ -776,7 +776,7 @@ void		DLG_Message_Show(const wxChar *Message)
 //---------------------------------------------------------
 int			DLG_Message_Show_Error(const wxChar *Message, const wxChar *Caption)
 {
-	wxMessageDialog	dlg(MDI_Get_Frame(), Message, Caption, wxOK|wxCANCEL|wxICON_ERROR);
+	wxMessageDialog	dlg(MDI_Get_Top_Window(), Message, Caption, wxOK|wxCANCEL|wxICON_ERROR);
 
 	switch( dlg.ShowModal() )
 	{
@@ -796,7 +796,7 @@ int			DLG_Message_Show_Error(int ID_DLG)
 //---------------------------------------------------------
 bool		DLG_Message_Confirm(const wxChar *Message, const wxChar *Caption)
 {
-	wxMessageDialog	dlg(MDI_Get_Frame(), Message, Caption, wxYES_NO|wxICON_QUESTION);
+	wxMessageDialog	dlg(MDI_Get_Top_Window(), Message, Caption, wxYES_NO|wxICON_QUESTION);
 
 	return( dlg.ShowModal() == wxID_YES );
 }
@@ -809,7 +809,7 @@ bool		DLG_Message_Confirm(int ID_DLG)
 //---------------------------------------------------------
 int			DLG_Message_YesNoCancel(const wxChar *Message, const wxChar *Caption)
 {
-	wxMessageDialog	dlg(MDI_Get_Frame(), Message, Caption, wxYES|wxNO|wxCANCEL|wxICON_QUESTION);
+	wxMessageDialog	dlg(MDI_Get_Top_Window(), Message, Caption, wxYES|wxNO|wxCANCEL|wxICON_QUESTION);
 
 	switch( dlg.ShowModal() )
 	{
@@ -861,7 +861,7 @@ int			DLG_Maps_Add(void)
 			Maps[i]	= LNG("[VAL] New");
 
 			wxSingleChoiceDialog	dlg(
-				MDI_Get_Frame(),
+				MDI_Get_Top_Window(),
 				LNG("[CAP] Map Selection"),
 				LNG("[DLG] Add layer to selected map"),
 				g_pMaps->Get_Count() + 1,

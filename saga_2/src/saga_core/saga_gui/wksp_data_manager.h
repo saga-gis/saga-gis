@@ -126,7 +126,7 @@ public:
 	bool							Exists				(class CSG_Grid_System *pSystem);
 	bool							Exists				(class CSG_Data_Object *pObject, int DataType = -1);
 
-	class CSG_Data_Object *				Get_byFileName		(const wxChar *File_Name, int DataType = -1);
+	class CSG_Data_Object *			Get_byFileName		(const wxChar *File_Name, int DataType = -1);
 
 	bool							Save_Modified		(class CWKSP_Base_Item *pItem);
 	bool							Close				(bool bSilent);
@@ -139,6 +139,8 @@ public:
 
 	bool							Get_Colors			(class CSG_Data_Object *pObject, class CSG_Colors *pColors);
 	bool							Set_Colors			(class CSG_Data_Object *pObject, class CSG_Colors *pColors);
+	bool							Get_Parameters		(class CSG_Data_Object *pObject, class CSG_Parameters *pParameters);
+	bool							Set_Parameters		(class CSG_Data_Object *pObject, class CSG_Parameters *pParameters);
 
 
 private:
