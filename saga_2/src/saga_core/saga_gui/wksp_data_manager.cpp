@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: wksp_data_manager.cpp,v 1.16 2007-02-26 17:48:37 oconrad Exp $
+// $Id: wksp_data_manager.cpp,v 1.17 2007-02-27 14:36:36 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -286,7 +286,7 @@ bool CWKSP_Data_Manager::Finalise(void)
 
 	case 2:	// automatically save and load		
 		m_pProject->Save(fProject.GetFullPath(), false);
-		CONFIG_Write(wxT("/DATA"), wxT("PROJECT_FILE"), m_pProject->Get_File_Name());
+		CONFIG_Write(wxT("/DATA"), wxT("PROJECT_FILE"), fProject.GetFullPath());
 		break;
 	}
 
