@@ -146,6 +146,8 @@ public:
 
 	void						StatusBar_Set_Text			(const wxChar *Text, int iPane = 0);
 
+	void						Set_Project_Name			(wxString Project_Name = wxEmptyString);
+
 	void						Top_Window_Push				(wxWindow *pWindow);
 	void						Top_Window_Pop				(wxWindow *pWindow);
 	wxWindow *					Top_Window_Get				(void);

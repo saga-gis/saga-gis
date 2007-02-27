@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: project.cpp,v 1.11 2007-02-27 11:46:53 oconrad Exp $
+// $Id: project.cpp,v 1.12 2007-02-27 13:35:51 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -59,12 +59,15 @@
 
 //---------------------------------------------------------
 #include <wx/string.h>
+#include <wx/filename.h>
 
 #include <saga_api/saga_api.h>
 
 #include "helper.h"
 
 #include "res_dialogs.h"
+
+#include "saga_frame.h"
 
 #include "wksp_data_manager.h"
 #include "wksp_data_menu_files.h"
@@ -137,6 +140,34 @@ CWKSP_Project::~CWKSP_Project(void)
 bool CWKSP_Project::Has_File_Name(void)
 {
 	return( wxFileExists(m_File_Name) );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Project::Clr_File_Name(void)
+{
+	m_File_Name.Clear();
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Project::_Set_Project_Name(void)
+{
+	if( Has_File_Name() )
+	{
+		wxFileName	fn(m_File_Name);
+
+		if( fn.GetFullName().CmpNoCase(wxT("saga_gui.cfg")) )
+		{
+			g_pSAGA_Frame->Set_Project_Name(m_File_Name);
+
+			return( true );
+		}
+
+		Clr_File_Name();
+	}
+
+	return( false );
 }
 
 
@@ -258,6 +289,8 @@ bool CWKSP_Project::_Load(const wxChar *FileName, bool bAdd, bool bUpdateMenu)
 
 		MSG_General_Add(LNG("[MSG] Project has been successfully loaded."), true, true);
 
+		_Set_Project_Name();
+
 		return( true );
 	}
 	else
@@ -371,6 +404,8 @@ bool CWKSP_Project::_Save(const wxChar *FileName, bool bSaveModified, bool bUpda
 			g_pData->Get_FileMenus()->Recent_Add(DATAOBJECT_TYPE_Undefined, FileName);
 
 		MSG_General_Add(LNG("[MSG] Project has been saved."), true, true);
+
+		_Set_Project_Name();
 
 		return( true );
 	}

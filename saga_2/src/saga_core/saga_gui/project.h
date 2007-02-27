@@ -77,6 +77,7 @@ public:
 
 	const wxChar *			Get_File_Name		(void)	{	return( m_File_Name );	}
 	bool					Has_File_Name		(void);
+	bool					Clr_File_Name		(void);
 
 	bool					Load				(bool bAdd);
 	bool					Load				(const wxChar *FileName, bool bAdd, bool bUpdateMenu);
@@ -91,6 +92,8 @@ public:
 private:
 
 	wxString				m_File_Name;
+
+	bool					_Set_Project_Name	(void);
 
 	bool					_Load				(const wxChar *FileName, bool bAdd, bool bUpdateMenu);
 	bool					_Save				(const wxChar *FileName, bool bSaveModified, bool bUpdateMenu);

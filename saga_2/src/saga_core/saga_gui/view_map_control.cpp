@@ -869,7 +869,13 @@ void CVIEW_Map_Control::On_Mouse_Motion(wxMouseEvent &event)
 	case MAP_MODE_SELECT:
 		if( g_pModule )
 		{
-			g_pModule->Execute(_Get_World(event.GetPosition()), MODULE_INTERACTIVE_MOVE, GET_KEYS(event));
+			TSG_Module_Interactive_Mode	iMode
+				= event.LeftIsDown()	? MODULE_INTERACTIVE_MOVE_LDOWN
+				: event.MiddleIsDown()	? MODULE_INTERACTIVE_MOVE_MDOWN
+				: event.RightIsDown()	? MODULE_INTERACTIVE_MOVE_RDOWN
+										: MODULE_INTERACTIVE_MOVE;
+
+			g_pModule->Execute(_Get_World(event.GetPosition()), iMode, GET_KEYS(event));
 		}
 		else if( m_pMap->Find_Layer(Get_Active_Layer()) )
 		{

@@ -115,6 +115,20 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifdef _DEBUG
+	#define SAGA_CAPTION	wxT("SAGA [Debug]")
+#else
+	#define SAGA_CAPTION	wxT("SAGA")
+#endif
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CSAGA_Frame_StatusBar : public wxStatusBar
 {
 public:
@@ -226,12 +240,8 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CSAGA_Frame::CSAGA_Frame(void)
-	: wxMDIParentFrame(NULL, ID_WND_MAIN, LNG("SAGA"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE|wxHSCROLL|wxVSCROLL|wxFRAME_NO_WINDOW_MENU)
+	: wxMDIParentFrame(NULL, ID_WND_MAIN, SAGA_CAPTION, wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE|wxHSCROLL|wxVSCROLL|wxFRAME_NO_WINDOW_MENU)
 {
-#ifdef _DEBUG
-	SetTitle(wxT("SAGA [Debug]"));
-#endif
-
 	//-----------------------------------------------------
 	g_pSAGA_Frame		= this;
 
@@ -770,6 +780,19 @@ void CSAGA_Frame::StatusBar_Set_Text(const wxChar *Text, int iPane)
 	}
 
 	SetStatusText(Text, iPane);
+}
+
+//---------------------------------------------------------
+void CSAGA_Frame::Set_Project_Name(wxString Project_Name)
+{
+	if( Project_Name.Length() > 0 )
+	{
+		SetTitle(wxString::Format("%s [%s]", SAGA_CAPTION, Project_Name.c_str()));
+	}
+	else
+	{
+		SetTitle(SAGA_CAPTION);
+	}
 }
 
 
