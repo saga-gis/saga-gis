@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: project.cpp,v 1.10 2007-02-26 17:48:36 oconrad Exp $
+// $Id: project.cpp,v 1.11 2007-02-27 11:46:53 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -643,7 +643,7 @@ int CWKSP_Project::_Modified_Changed(CSG_Parameter *pParameter)
 {
 	if( pParameter && pParameter->Get_Owner() && pParameter->Get_Owner()->Get_Owner() )
 	{
-		if( !strcmp(pParameter->Get_Identifier(), "SAVE_ALL") )
+		if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SAVE_ALL")) )
 		{
 			for(int i=0; i<pParameter->Get_Owner()->Get_Count(); i++)
 			{
