@@ -279,6 +279,15 @@ bool CGrid_Import::On_Execute(void)
 
 			Parameters("OUT_GRID")	->Set_Value(pR);
 			DataObject_Set_Colors(pR, 100, SG_COLORS_BLACK_WHITE);
+
+			CSG_Parameters	Parms;
+
+			if( DataObject_Get_Parameters(pR, Parms) && Parms("COLORS_TYPE") )
+			{
+				Parms("COLORS_TYPE")->Set_Value(3);	// Color Classification Type: RGB
+
+				DataObject_Set_Parameters(pR, Parms);
+			}
 		}
 
 		return( true );

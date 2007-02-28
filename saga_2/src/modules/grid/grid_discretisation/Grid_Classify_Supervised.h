@@ -95,11 +95,24 @@ protected:
 
 private:
 
-	bool						Get_Class_Information	(CSG_Parameter_Grid_List *pGrids, CSG_Shapes *pPolygons, int iField, CSG_Table *pClasses, CSG_Table *pLUT);
-	CSG_Table_Record *			Get_Class				(CSG_Table *pClasses, const SG_Char *Identifier);
+	bool						m_bNormalise;
 
-	bool						Do_Minimum_Distance		(CSG_Parameter_Grid_List *pGrids, CSG_Table *pClasses, CSG_Grid *pResult);
-	bool						Do_Maximum_Likelihood	(CSG_Parameter_Grid_List *pGrids, CSG_Table *pClasses, CSG_Grid *pResult);
+	double						m_ML_Threshold;
+
+	CSG_Table					*m_pClasses;
+
+	CSG_Grid					*m_pResult, *m_pProbability;
+
+	CSG_Parameter_Grid_List		*m_pGrids;
+
+
+	bool						Initialise				(void);
+	bool						Finalise				(void);
+
+	CSG_Table_Record *			Get_Class				(const SG_Char *Identifier);
+
+	bool						Set_Minimum_Distance	(void);
+	bool						Set_Maximum_Likelihood	(void);
 
 };
 
