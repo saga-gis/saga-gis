@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: project.cpp,v 1.12 2007-02-27 13:35:51 oconrad Exp $
+// $Id: project.cpp,v 1.13 2007-03-01 15:31:45 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -146,6 +146,8 @@ bool CWKSP_Project::Has_File_Name(void)
 bool CWKSP_Project::Clr_File_Name(void)
 {
 	m_File_Name.Clear();
+
+	g_pSAGA_Frame->Set_Project_Name();
 
 	return( true );
 }

@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: wksp_data_manager.cpp,v 1.17 2007-02-27 14:36:36 oconrad Exp $
+// $Id: wksp_data_manager.cpp,v 1.18 2007-03-01 15:31:45 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -289,6 +289,8 @@ bool CWKSP_Data_Manager::Finalise(void)
 		CONFIG_Write(wxT("/DATA"), wxT("PROJECT_FILE"), fProject.GetFullPath());
 		break;
 	}
+
+	m_pProject->Clr_File_Name();
 
 	return( true );
 }
