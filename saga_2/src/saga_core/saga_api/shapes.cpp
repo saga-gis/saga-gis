@@ -358,6 +358,9 @@ bool CSG_Shapes::Save(const SG_Char *File_Name, int Format)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define GET_GROW_SIZE(n)	(n < 256 ? 1 : (n < 8192 ? 64 : 1024))
+
+//---------------------------------------------------------
 CSG_Shape * CSG_Shapes::_Add_Shape(CSG_Table_Record *pRecord)
 {
 	CSG_Shape	*pShape	= NULL;
@@ -388,7 +391,20 @@ CSG_Shape * CSG_Shapes::_Add_Shape(CSG_Table_Record *pRecord)
 
 		if( pShape )
 		{
-			m_Shapes				= (CSG_Shape **)SG_Realloc(m_Shapes, (m_nShapes + 1) * sizeof(CSG_Shape *));
+			if( (m_nShapes % GET_GROW_SIZE(m_nShapes)) == 0 )
+			{
+				CSG_Shape	**pShapes	= (CSG_Shape **)SG_Realloc(m_Shapes, (m_nShapes + GET_GROW_SIZE(m_nShapes)) * sizeof(CSG_Shape *));
+
+				if( pShapes == NULL )
+				{
+					delete(pShape);
+
+					return( NULL );
+				}
+
+				m_Shapes	= pShapes;
+			}
+
 			m_Shapes[m_nShapes++]	= pShape;
 
 			m_bUpdate				= true;
