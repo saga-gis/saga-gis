@@ -286,65 +286,79 @@ void CWKSP_Map_DC::Draw_Polygon(CSG_Shape_Polygon *pPolygon)
 {
 //	TEST_Draw_Polygon(pPolygon);	return;	// testing alternative polygon drawing
 
-	int			iPart, iPoint, jPoint, *nPoints;
-	TSG_Point	p;
-	wxPoint		*Points;
-
 	//-----------------------------------------------------
-	if( pPolygon->Get_Part_Count() == 1 )
+	if(	m_World2DC * pPolygon->Get_Extent().Get_XRange() <= 2.0
+	&&	m_World2DC * pPolygon->Get_Extent().Get_YRange() <= 2.0 )
 	{
-		if( pPolygon->Get_Point_Count(0) > 2 )
-		{
-			Points	= new wxPoint[pPolygon->Get_Point_Count(0)];
-
-			for(iPoint=0; iPoint<pPolygon->Get_Point_Count(0); iPoint++)
-			{
-				p					= pPolygon->Get_Point(iPoint, 0);
-				Points[iPoint].x	= (int)xWorld2DC(p.x);
-				Points[iPoint].y	= (int)yWorld2DC(p.y);
-			}
-
-			dc.DrawPolygon(pPolygon->Get_Point_Count(0), Points);
-
-			delete[](Points);
-		}
+		dc.DrawPoint(
+			(int)xWorld2DC(pPolygon->Get_Extent().Get_XCenter()),
+			(int)yWorld2DC(pPolygon->Get_Extent().Get_YCenter())
+		);
 	}
 
 	//-----------------------------------------------------
-	else if( pPolygon->Get_Part_Count() > 1 )
+	else
 	{
-		nPoints	= new int[pPolygon->Get_Part_Count()];
+		int			iPart, iPoint, jPoint, *nPoints;
+		TSG_Point	p;
+		wxPoint		*Points;
 
-		for(iPart=0, jPoint=0; iPart<pPolygon->Get_Part_Count(); iPart++)
+		//-------------------------------------------------
+		if( pPolygon->Get_Part_Count() == 1 )
 		{
-			jPoint	+= (nPoints[iPart] = pPolygon->Get_Point_Count(iPart) > 2 ? pPolygon->Get_Point_Count(iPart) + 1 : 0);
+			if( pPolygon->Get_Point_Count(0) > 2 )
+			{
+				Points	= new wxPoint[pPolygon->Get_Point_Count(0)];
+
+				for(iPoint=0; iPoint<pPolygon->Get_Point_Count(0); iPoint++)
+				{
+					p					= pPolygon->Get_Point(iPoint, 0);
+					Points[iPoint].x	= (int)xWorld2DC(p.x);
+					Points[iPoint].y	= (int)yWorld2DC(p.y);
+				}
+
+				dc.DrawPolygon(pPolygon->Get_Point_Count(0), Points);
+
+				delete[](Points);
+			}
 		}
 
-		Points	= new wxPoint[jPoint];
-
-		for(iPart=0, jPoint=0; iPart<pPolygon->Get_Part_Count(); iPart++)
+		//-------------------------------------------------
+		else if( pPolygon->Get_Part_Count() > 1 )
 		{
-			if( nPoints[iPart] > 0 )
+			nPoints	= new int[pPolygon->Get_Part_Count()];
+
+			for(iPart=0, jPoint=0; iPart<pPolygon->Get_Part_Count(); iPart++)
 			{
-				for(iPoint=0; iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
+				jPoint	+= (nPoints[iPart] = pPolygon->Get_Point_Count(iPart) > 2 ? pPolygon->Get_Point_Count(iPart) + 1 : 0);
+			}
+
+			Points	= new wxPoint[jPoint];
+
+			for(iPart=0, jPoint=0; iPart<pPolygon->Get_Part_Count(); iPart++)
+			{
+				if( nPoints[iPart] > 0 )
 				{
-					p					= pPolygon->Get_Point(iPoint, iPart);
+					for(iPoint=0; iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
+					{
+						p					= pPolygon->Get_Point(iPoint, iPart);
+						Points[jPoint].x	= (int)xWorld2DC(p.x);
+						Points[jPoint].y	= (int)yWorld2DC(p.y);
+						jPoint++;
+					}
+
+					p					= pPolygon->Get_Point(0, iPart);
 					Points[jPoint].x	= (int)xWorld2DC(p.x);
 					Points[jPoint].y	= (int)yWorld2DC(p.y);
 					jPoint++;
 				}
-
-				p					= pPolygon->Get_Point(0, iPart);
-				Points[jPoint].x	= (int)xWorld2DC(p.x);
-				Points[jPoint].y	= (int)yWorld2DC(p.y);
-				jPoint++;
 			}
+
+			dc.DrawPolyPolygon(pPolygon->Get_Part_Count(), nPoints, Points, 0, 0, wxODDEVEN_RULE);
+
+			delete[](Points);
+			delete[](nPoints);
 		}
-
-		dc.DrawPolyPolygon(pPolygon->Get_Part_Count(), nPoints, Points, 0, 0, wxODDEVEN_RULE);
-
-		delete[](Points);
-		delete[](nPoints);
 	}
 }
 
@@ -358,109 +372,79 @@ void CWKSP_Map_DC::Draw_Polygon(CSG_Shape_Polygon *pPolygon)
 //---------------------------------------------------------
 void CWKSP_Map_DC::TEST_Draw_Polygon(CSG_Shape_Polygon *pPolygon)
 {
+	double		xa, y, ya, d;
+	int			xDC, xaDC, xbDC, yDC, yaDC, ybDC, Fill, *cross, iPart, iPoint, i, n, j;
+	TSG_Point	iPt, jPt, Pt, aPt, bPt;
+
+	Fill	= Get_Color_asInt(dc.GetBrush().GetColour());
+	d		= 1.0 / m_World2DC;
+	xaDC	= (int)xWorld2DC(pPolygon->Get_Extent().Get_XMin());
+	xbDC	= (int)xWorld2DC(pPolygon->Get_Extent().Get_XMax());
+	yaDC	= (int)yWorld2DC(pPolygon->Get_Extent().Get_YMin());
+	ybDC	= (int)yWorld2DC(pPolygon->Get_Extent().Get_YMax());
+
+	aPt.x	= pPolygon->Get_Extent().Get_XMin() - 1.0;
+	bPt.x	= pPolygon->Get_Extent().Get_XMax() + 1.0;
+	xa		= pPolygon->Get_Extent().Get_XMin();
+	ya		= pPolygon->Get_Extent().Get_YMin();
+
+	n		= xbDC - xaDC + 1;
+	cross	= (int *)SG_Malloc(n * sizeof(int));
+
 	IMG_Draw_Begin(0.5);
 
-	int			iPart, iPoint, ix, iy, jx, jy, idy, jdy;
-	TSG_Point	p;
-	CSG_Grid		Mask(GRID_TYPE_Byte, m_rDC.GetWidth(), m_rDC.GetHeight());
-
-	for(iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
+	for(yDC=yaDC, y=ya; yDC>=ybDC; yDC--, y+=d)
 	{
-		if( pPolygon->Get_Point_Count(iPart) > 2 )
+		if( yDC >= 0 && yDC < m_rDC.GetHeight() )
 		{
-			p	= pPolygon->Get_Point(pPolygon->Get_Point_Count(iPart) - 2, iPart);
-			jy	= (int)yWorld2DC(p.y);
-			p	= pPolygon->Get_Point(pPolygon->Get_Point_Count(iPart) - 1, iPart);
-			ix	= (int)xWorld2DC(p.x);
-			iy	= (int)yWorld2DC(p.y);
-			idy	= jy < iy ? -1 : (jy > iy ? 1 : 0);
+			aPt.y	= bPt.y	= y;
+			memset(cross, 0, n * sizeof(int));
 
-			for(iPoint=0; iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
+			for(iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
 			{
-				jx	= ix;
-				jy	= iy;
-				p	= pPolygon->Get_Point(iPoint, iPart);
-				ix	= (int)xWorld2DC(p.x);
-				iy	= (int)yWorld2DC(p.y);
+				iPt	= pPolygon->Get_Point(pPolygon->Get_Point_Count(iPart) - 1, iPart);
 
-				if( jy != iy )
+				for(iPoint=0; iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
 				{
-					jdy	= idy;
-					idy	= jy < iy ? -1 : 1;
+					jPt	= iPt;
+					iPt	= pPolygon->Get_Point(iPoint, iPart);
 
-					TEST_Draw_Polygon_Line(Mask, ix, iy, jx, jy, jdy != idy);
+					if(	(iPt.y <= y && y <= jPt.y)
+					||	(iPt.y >= y && y >= jPt.y) )
+					{
+						if( SG_Get_Crossing(Pt, aPt, bPt, iPt, jPt, true) )
+						{
+							i	= (int)xWorld2DC(Pt.x) - xaDC;
+
+							if( i >= 0 && i < n )
+							{
+								cross[i]++;
+							}
+						}
+					}
 				}
 			}
-		}
-	}
 
-	bool	bFill;
-	int		x, y, Fill	= Get_Color_asInt(dc.GetBrush().GetColour());
-
-	for(y=0; y<Mask.Get_NY(); y++)
-	{
-		for(x=0, bFill=false; x<Mask.Get_NX(); x++)
-		{
-			if( Mask.asInt(x, y) )
+			for(i=0, j=0, xDC=xaDC; i<n; xDC++, i++)
 			{
-				bFill	= !bFill;
+				j	+= cross[i];
 
-				IMG_Set_Pixel(x, y, Fill);
-			}
-			else if( bFill )
-			{
-				IMG_Set_Pixel(x, y, Fill);
+				if( (j % 2) != 0 && xDC >= 0 && xDC < m_rDC.GetWidth() )
+				{
+					IMG_Set_Pixel(xDC, yDC, Fill);
+				}
 			}
 		}
 	}
 
 	IMG_Draw_End();
+
+	SG_Free(cross);
 }
 
 //---------------------------------------------------------
 void CWKSP_Map_DC::TEST_Draw_Polygon_Line(CSG_Grid &Mask, int ax, int ay, int bx, int by, bool bDirChanged)
-{
-	int		x, y, dy, nx, ny;
-	double	fx, dx;
-
-	nx	= bx - ax;
-	ny	= by - ay;
-
-	if( ny != 0 )
-	{
-		if( ny < 0 )
-		{
-			dx	= -nx / (double)ny;
-			dy	= -1;
-		}
-		else
-		{
-			dx	=  nx / (double)ny;
-			dy	=  1;
-		}
-
-		for(y=ay, fx=ax+0.5; y!=by; y+=dy, fx+=dx)
-		{
-			if( y >= 0 && y < Mask.Get_NY() )
-			{
-				if( (x = (int)fx) < Mask.Get_NX() )
-				{
-					if( x < 0 )	x	= 0;
-					Mask.Set_Value(x, y, Mask.asInt(x, y) == 0 ? 1 : 0);
-				}
-			}
-		}
-
-		if( bDirChanged && y >= 0 && y < Mask.Get_NY() )
-		{
-			if( (x = (int)fx) < Mask.Get_NX() )
-			{
-				if( x < 0 )	x	= 0;
-				Mask.Set_Value(x, y, Mask.asInt(x, y) == 0 ? 1 : 0);
-			}
-		}
-	}
-}
+{}
 
 
 ///////////////////////////////////////////////////////////
