@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: wksp_data_manager.cpp,v 1.18 2007-03-01 15:31:45 oconrad Exp $
+// $Id: wksp_data_manager.cpp,v 1.19 2007-03-22 14:24:43 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -259,7 +259,9 @@ bool CWKSP_Data_Manager::Finalise(void)
 
 	//-----------------------------------------------------
 #ifdef _SAGA_LINUX
-	wxFileName	fProject( wxString( getenv( "HOME" ), wxConvFile ), wxT( "saga_gui" ), wxT( "cfg" ) );
+//	wxFileName	fProject(wxString(getenv( "HOME"), wxConvFile ), wxT("saga_gui"), wxT("cfg"));
+	CSG_String	sHome(getenv("HOME"));
+	wxFileName	fProject(sHome.c_str(), wxT("saga_gui"), wxT("cfg"));
 #else
 	wxFileName	fProject(g_pSAGA->Get_App_Path(), wxT("saga_gui"), wxT("cfg"));
 #endif

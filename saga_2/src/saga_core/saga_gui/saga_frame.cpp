@@ -776,7 +776,7 @@ void CSAGA_Frame::StatusBar_Set_Text(const wxChar *Text, int iPane)
 
 	if( iPane == STATUSBAR_ACTIVE )
 	{
-		Set_Pane_Caption(m_pActive, Text && SG_STR_LEN(Text) > 0 ? wxString( Text, wxConvUTF8 ) : wxString( LNG("[CAP] Object Properties"), wxConvUTF8 ) );
+		Set_Pane_Caption(m_pActive, Text && SG_STR_LEN(Text) > 0 ? Text : LNG("[CAP] Object Properties"));
 	}
 
 	SetStatusText(Text, iPane);

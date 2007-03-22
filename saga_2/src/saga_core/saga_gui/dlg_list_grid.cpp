@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: dlg_list_grid.cpp,v 1.5 2007-02-12 15:43:51 tschorr Exp $
+// $Id: dlg_list_grid.cpp,v 1.6 2007-03-22 14:23:33 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -179,12 +179,10 @@ void CDLG_List_Grid::On_Select_System(wxCommandEvent &event)
 //---------------------------------------------------------
 void CDLG_List_Grid::_Set_Objects(void)
 {
-	int		i;
-
 	//-----------------------------------------------------
-	for(i=0; i<m_pList->Get_Count(); i++)
+	for(int i=0; i<m_pList->Get_Count(); i++)
 	{
-		m_pAdd->Append( wxString( m_pList->asDataObject(i)->Get_Name(), wxConvUTF8 ), m_pList->asDataObject(i));
+		m_pAdd->Append(m_pList->asDataObject(i)->Get_Name(), m_pList->asDataObject(i));
 	}
 
 	//-----------------------------------------------------
@@ -226,8 +224,8 @@ void CDLG_List_Grid::_Set_Grids(void)
 //---------------------------------------------------------
 void CDLG_List_Grid::_Set_Grids(CWKSP_Grid_System *pSystem)
 {
-	bool	bList;
-	int		i, j;
+	bool		bList;
+	int			i, j;
 	CSG_Grid	*pGrid;
 
 	if( pSystem )
@@ -246,7 +244,7 @@ void CDLG_List_Grid::_Set_Grids(CWKSP_Grid_System *pSystem)
 
 			if( bList )
 			{
-				m_pSelect->Append( wxString( pGrid->Get_Name(), wxConvUTF8 ), pGrid);
+				m_pSelect->Append(pGrid->Get_Name(), pGrid);
 			}
 		}
 	}

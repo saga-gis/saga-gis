@@ -98,7 +98,7 @@ CWKSP_Shapes_Type::~CWKSP_Shapes_Type(void)
 //---------------------------------------------------------
 wxString CWKSP_Shapes_Type::Get_Name(void)
 {
-	return( wxString( SG_Get_ShapeType_Name((TSG_Shape_Type)m_Shapes_Type), wxConvUTF8 ) );
+	return( SG_Get_ShapeType_Name((TSG_Shape_Type)m_Shapes_Type) );
 }
 
 //---------------------------------------------------------

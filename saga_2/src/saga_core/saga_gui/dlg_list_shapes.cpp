@@ -120,7 +120,7 @@ void CDLG_List_Shapes::_Set_Objects(void)
 	{
 		for(i=0; i<m_pList->Get_Count(); i++)
 		{
-			m_pAdd->Append( wxString( m_pList->asDataObject(i)->Get_Name(), wxConvUTF8 ), m_pList->asDataObject(i));
+			m_pAdd->Append(m_pList->asDataObject(i)->Get_Name(), m_pList->asDataObject(i));
 		}
 
 		//-------------------------------------------------
@@ -141,8 +141,8 @@ void CDLG_List_Shapes::_Set_Objects(void)
 //---------------------------------------------------------
 void CDLG_List_Shapes::_Set_Shapes(CWKSP_Shapes_Type *pType)
 {
-	bool	bList;
-	int		i, j;
+	bool		bList;
+	int			i, j;
 	CSG_Shapes	*pShapes;
 
 	if( pType )
@@ -161,7 +161,7 @@ void CDLG_List_Shapes::_Set_Shapes(CWKSP_Shapes_Type *pType)
 
 			if( bList )
 			{
-				m_pSelect->Append( wxString( pShapes->Get_Name(), wxConvUTF8 ), pShapes);
+				m_pSelect->Append(pShapes->Get_Name(), pShapes);
 			}
 		}
 	}

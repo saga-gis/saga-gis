@@ -132,7 +132,7 @@ bool CWKSP_Module_Manager::Initialise(void)
 	if( Get_Count() == 0 )
 	{
 #if defined(_SAGA_LINUX)
-		if( _Open_Directory( wxString( "/usr/local/lib/saga", wxConvUTF8 ) ) == 0 )
+		if( _Open_Directory(wxT("/usr/local/lib/saga")) == 0 )
 #endif
 		_Open_Directory(g_pSAGA->Get_App_Path());
 	}

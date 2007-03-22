@@ -1,15 +1,15 @@
 #
-# $Id: Makefile.am,v 1.9 2007-02-13 13:08:20 tschorr Exp $
+# $Id: Makefile.am,v 1.10 2007-03-22 14:24:55 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
 endif
 if SAGA_UNICODE
-AM_CXXFLAGS = -fPIC -Wall -Wextra `wx-config --unicode=yes --cxxflags` -D_SAGA_LINUX -D_SAGA_UNICODE -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_API_EXPORTS -D_SAGA_DONOTUSE_HARU $(DBGFLAGS)
-AM_LDFLAGS = -fPIC -shared -Wall -Wextra `wx-config --unicode=yes --libs`
+AM_CXXFLAGS = -fPIC -Wall `wx-config --unicode=yes --cxxflags` -D_SAGA_LINUX -D_SAGA_UNICODE -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_API_EXPORTS -D_SAGA_DONOTUSE_HARU $(DBGFLAGS)
+AM_LDFLAGS = -fPIC -shared -Wall `wx-config --unicode=yes --libs`
 else
-AM_CXXFLAGS = -fPIC -Wall -Wextra `wx-config --unicode=no --cxxflags` -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_API_EXPORTS -D_SAGA_DONOTUSE_HARU $(DBGFLAGS)
-AM_LDFLAGS = -fPIC -shared -Wall -Wextra `wx-config --unicode=no --libs`
+AM_CXXFLAGS = -fPIC -Wall `wx-config --unicode=no --cxxflags` -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_API_EXPORTS -D_SAGA_DONOTUSE_HARU $(DBGFLAGS)
+AM_LDFLAGS = -fPIC -shared -Wall `wx-config --unicode=no --libs`
 endif
 
 lib_LTLIBRARIES = libsaga_api.la

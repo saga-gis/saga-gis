@@ -181,7 +181,7 @@ void CParameters_Control::On_PG_Changed(wxPropertyGridEvent &event)
 //---------------------------------------------------------
 bool CParameters_Control::Save_Changes(bool bSilent)
 {
-	if( m_pOriginal && m_bModified && (bSilent || DLG_Message_Confirm( wxString( LNG("[DLG] Save changes?"), wxConvUTF8 ), wxString::Format(wxT("%s: %s"), LNG("[CAP] Parameters"), m_pParameters->Get_Name()))) )
+	if( m_pOriginal && m_bModified && (bSilent || DLG_Message_Confirm(LNG("[DLG] Save changes?"), wxString::Format(wxT("%s: %s"), LNG("[CAP] Parameters"), m_pParameters->Get_Name()))) )
 	{
 		m_pOriginal->Assign_Values(m_pParameters);
 
@@ -292,7 +292,7 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 	}
 	else
 	{
-		m_pPG->Append(wxPropertyCategory( wxString( LNG("[TXT] No parameters available."), wxConvUTF8 ), wxPG_LABEL));
+		m_pPG->Append(wxPropertyCategory(LNG("[TXT] No parameters available."), wxPG_LABEL));
 	}
 
 	//-----------------------------------------------------
@@ -315,9 +315,9 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 #define CHECK_DATA_NODE(pNode, Name, ID)	if( !pNode )\
 	{\
-		pNode	= wxPropertyCategory( wxString( Name, wxConvUTF8 ), ID);\
+		pNode	= wxPropertyCategory(Name, ID);\
 		if( !pData )\
-			m_pPG->Append(pData = wxPropertyCategory( wxString( LNG("[PRM] Data Objects"), wxConvUTF8 ), wxT("_DATAOBJECT_DATAOBJECTS")));\
+			m_pPG->Append(pData = wxPropertyCategory(LNG("[PRM] Data Objects"), wxT("_DATAOBJECT_DATAOBJECTS")));\
 		_Add_Property(pNode, pData);\
 	}\
 	pRoot	= pNode;
@@ -382,7 +382,7 @@ void CParameters_Control::_Add_Properties(CSG_Parameters *pParameters)
 			default:
 				if( !pOptions )
 				{
-					pOptions	= wxPropertyCategory( wxString( LNG("[PRM] Options"), wxConvUTF8 ), wxT("_DATAOBJECT_OPTIONS"));
+					pOptions	= wxPropertyCategory(LNG("[PRM] Options"), wxT("_DATAOBJECT_OPTIONS"));
 					m_pPG->Append(pOptions);
 				}
 
@@ -485,23 +485,23 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 	{
 	default:
 		pProperty	= _Add_Property(wxStringProperty(
-			wxString( pParameter->Get_Name(), wxConvUTF8 ), 
-			wxString( pParameter->Get_Identifier(), wxConvUTF8 ),
-			wxString( pParameter->Get_Type_Name(), wxConvUTF8 )
+			pParameter->Get_Name(),
+			pParameter->Get_Identifier(),
+			pParameter->Get_Type_Name()
 		), pParent);
 		break;
 
 	case PARAMETER_TYPE_Node:
 		pProperty	= _Add_Property(wxPropertyCategory(
-			wxString( pParameter->Get_Name(), wxConvUTF8 ),
-			wxString( pParameter->Get_Identifier(), wxConvUTF8 ) ),
-			pParent);
+			pParameter->Get_Name(),
+			pParameter->Get_Identifier()
+		), pParent);
 		break;
 
 	case PARAMETER_TYPE_Bool:
 		pProperty	= _Add_Property(wxBoolProperty(
-			wxString( pParameter->Get_Name(), wxConvUTF8 ),
-			wxString( pParameter->Get_Identifier(), wxConvUTF8 ),
+			pParameter->Get_Name(),
+			pParameter->Get_Identifier(),
 			pParameter->asBool()
 		), pParent);
 
@@ -510,15 +510,16 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 
 	case PARAMETER_TYPE_Int:
 		pProperty	= _Add_Property(wxIntProperty(
-			wxString( pParameter->Get_Name(), wxConvUTF8 ),
-			wxString( pParameter->Get_Identifier(), wxConvUTF8 ), pParameter->asInt()
+			pParameter->Get_Name(),
+			pParameter->Get_Identifier(),
+			pParameter->asInt()
 		), pParent);
 		break;
 
 	case PARAMETER_TYPE_Double:
 		pProperty	= _Add_Property(wxFloatProperty(
-			wxString( pParameter->Get_Name(), wxConvUTF8 ),
-			wxString( pParameter->Get_Identifier(), wxConvUTF8 ),
+			pParameter->Get_Name(),
+			pParameter->Get_Identifier(),
 			pParameter->asDouble()
 		), pParent);
 
@@ -528,24 +529,24 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 	case PARAMETER_TYPE_Range:
 	case PARAMETER_TYPE_Degree:
 		pProperty	= _Add_Property(CParameters_PG_Doubles(
-			wxString( pParameter->Get_Name(), wxConvUTF8 ),
-			wxString( pParameter->Get_Identifier(), wxConvUTF8 ),
+			pParameter->Get_Name(),
+			pParameter->Get_Identifier(),
 			CParameters_PG_DoublesValue(pParameter)
 		), pParent);
 		break;
 
 	case PARAMETER_TYPE_String:
 		pProperty	= _Add_Property(wxStringProperty(
-			wxString( pParameter->Get_Name(), wxConvUTF8 ),
-			wxString( pParameter->Get_Identifier(), wxConvUTF8 ),
-			wxString( pParameter->asString(), wxConvUTF8 )
+			pParameter->Get_Name(),
+			pParameter->Get_Identifier(),
+			pParameter->asString()
 		), pParent);
 		break;
 
 	case PARAMETER_TYPE_Color:
 		pProperty	= _Add_Property(wxColourProperty(
-			wxString( pParameter->Get_Name(), wxConvUTF8 ),
-			wxString( pParameter->Get_Identifier(), wxConvUTF8 ),
+			pParameter->Get_Name(),
+			pParameter->Get_Identifier(),
 			Get_Color_asWX(pParameter->asColor())
 		), pParent);
 
@@ -554,8 +555,9 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 
 	case PARAMETER_TYPE_Colors:
 		pProperty	= _Add_Property(CParameters_PG_Colors(
-			wxString( pParameter->Get_Name(), wxConvUTF8 ),
-			wxString( pParameter->Get_Identifier(), wxConvUTF8 ), CParameters_PG_DialogedValue(pParameter)
+			pParameter->Get_Name(),
+			pParameter->Get_Identifier(),
+			CParameters_PG_DialogedValue(pParameter)
 		), pParent);
 
 		m_pPG->LimitPropertyEditing(pProperty->GetId());
@@ -582,8 +584,8 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 
 	case PARAMETER_TYPE_FilePath:
 		pProperty	= _Add_Property(CParameters_PG_Dialoged(
-			wxString( pParameter->Get_Name(), wxConvUTF8 ),
-			wxString( pParameter->Get_Identifier(), wxConvUTF8 ),
+			pParameter->Get_Name(),
+			pParameter->Get_Identifier(),
 			CParameters_PG_DialogedValue(pParameter)
 		), pParent);
 		break;
@@ -602,8 +604,8 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 	case PARAMETER_TYPE_TIN_List:
 	case PARAMETER_TYPE_Parameters:
 		pProperty	= _Add_Property(CParameters_PG_Dialoged(
-			wxString( pParameter->Get_Name(), wxConvUTF8 ),
-			wxString( pParameter->Get_Identifier(), wxConvUTF8 ),
+			pParameter->Get_Name(),
+			pParameter->Get_Identifier(),
 			CParameters_PG_DialogedValue(pParameter)
 		), pParent);
 
@@ -624,7 +626,7 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 		s		= pParameter->Get_Description(PARAMETER_DESCRIPTION_PROPERTIES);
 		if( s.Length() > 0 )	{	sDesc.Append(wxT("\n___\n"));	sDesc.Append(s);	}
 
-		m_pPG->SetPropertyHelpString(pProperty->GetId(), wxString( sDesc.b_str(), wxConvUTF8 ) );
+		m_pPG->SetPropertyHelpString(pProperty->GetId(), sDesc.c_str());
 	}
 
 	return( pProperty );
@@ -700,7 +702,7 @@ void CParameters_Control::_Update_Parameters(void)
 //---------------------------------------------------------
 void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
 {
-	wxPGId		Id	= m_pPG->GetPropertyByName( wxString( pParameter->Get_Identifier(), wxConvUTF8 ) );
+	wxPGId		Id	= m_pPG->GetPropertyByName(pParameter->Get_Identifier());
 
 	if( Id.IsOk()  )
 	{
@@ -713,7 +715,7 @@ void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
 
 		case PARAMETER_TYPE_String:
 		case PARAMETER_TYPE_FilePath:
-			if( m_pPG->GetPropertyValueAsString	(Id).Cmp( wxString( pParameter->asString(), wxConvUTF8 ) ) != 0 )
+			if( m_pPG->GetPropertyValueAsString	(Id).Cmp(pParameter->asString()) != 0 )
 			{
 				m_pPG->SetPropertyValue(Id, pParameter->asString());
 			}
@@ -766,7 +768,7 @@ bool CParameters_Control::Update_DataObjects(void)
 		for(int i=0; i<m_pParameters->Get_Count(); i++)
 		{
 			pParameter	= m_pParameters->Get_Parameter(i);
-			Id			= m_pPG->GetPropertyByName( wxString( pParameter->Get_Identifier(), wxConvUTF8 ) );
+			Id			= m_pPG->GetPropertyByName(pParameter->Get_Identifier());
 
 			if( Id.IsOk()  )
 			{
