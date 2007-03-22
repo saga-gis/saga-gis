@@ -1,3 +1,23 @@
-This is my first tip...
-This is my second tip...
-This is my third tip...
+that you can resize the Workspace, Messages and Object Properties windows by grabbing the border of the window?
+that you can move the Workspace, Messages and Object Properties windows by grabbing the title bar of the windows? Once you approach a docking position, it will be displayed in transparent red.
+that a lot of functionality becomes available when you do a right-click on an object in the Workspace window?
+that you can display a histogram of a grid data layer by a right-click on a data set in the Layers or Data Tab of the Workspace window?
+that you can use the mouse pointer in a histogram window to interactively adjust the value range the selected color ramp is applied to? Just click and drag to mark the desired range. A right-click returns to the full value range.
+that you can overlay multiple data sets in a Map View? To change the drawing order of the map layers do a right-click on a data set in the Maps Tab of the Workspace window.
+that you can create nice hillshaded maps by overlaying your data on top of an analytical hillshading grid and setting the transparency of your grid to an appealing amount?
+that there are two ways to execute a module? You can use the Modules menu to open up its dialog or you can access it via the Workspace Modules Tab. In case you do the latter, there will be more information about module operation available via the Description Tab of the Object Properties window.
+that interactive modules are executed as long as you execute them again, i.e. to exit an interactive module you simply have to execute it again?
+that profiles are not further implemented in the GUI but included as stand-alone modules?
+that once you executed a profile module you need to select the Arrow tool to draw a profile?
+that you can display a profile by adding the corresponding output shape to a map view? You can do this while the module is running.
+that there is a history file kept with each grid, documenting how this data set was derived? The History is displayed in the Description Tab of the Object Properties window as soon as you select the grid in the Workspace window.
+that there is also a Command Line Interpreter available? It can be used for automating your tasks via batch scripting.
+that you can access the SAGA API via Python?
+that you can use the Synchronize Map Extents tool to synchronize the map extents of all open map view windows?
+that you can use the Action tool to select a feature on the active shapes data layer and display its' attributes in the Attributes tab area of the Object Properties Window?
+that you can use the Shapes/Tools/Construction/Merge Shapes Layer module to merge two shapes data layers into a composite?
+that you can view actual grid cell data values on a grid data layer by zooming in to grid cell level granularity?
+that you can use the Table Calculator module to create a new attribute in a shapes data layer based on one or more existing attributes for the layer?
+that you can use the Terrain Analysis - Lighting, Visibility - Visibility (single point) [Interactive] module to create a seen area for a vantage point?
+that you can use the 3D - Sequencer tool to create a fly-through based on a DEM map view window that optionally includes other grid and shapes data layers?
+that you can see in the Message window what the current project is?
