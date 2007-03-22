@@ -91,7 +91,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_DATAOBJECT_LABEL(p)	(p->is_Option() ? p->Get_Name() : ( wxString::Format(wxT("%s %s"), p->is_Input() ? (p->is_Optional() ? wxT(">") : wxT(">>")) : (p->is_Optional() ? wxT("<") : wxT("<<")), p->Get_Name()).c_str()) )
+#define GET_DATAOBJECT_LABEL(p)	(p->is_Option() ? wxString::Format(p->Get_Name()) : wxString::Format(wxT("%s %s"), p->is_Input() ? (p->is_Optional() ? wxT(">") : wxT(">>")) : (p->is_Optional() ? wxT("<") : wxT("<<")), p->Get_Name()))
 
 
 ///////////////////////////////////////////////////////////
@@ -102,7 +102,8 @@
 
 //---------------------------------------------------------
 CParameters_PG_Choice::CParameters_PG_Choice(CSG_Parameter *pParameter)
-	: wxEnumPropertyClass( wxString( (const char* )GET_DATAOBJECT_LABEL(pParameter), wxConvUTF8 ), wxString( pParameter->Get_Identifier(), wxConvUTF8 ), NULL)
+	: wxEnumPropertyClass(GET_DATAOBJECT_LABEL(pParameter), pParameter->Get_Identifier(), NULL)
+	: wxEnumPropertyClass(GET_DATAOBJECT_LABEL(pParameter), wxString(pParameter->Get_Identifier(), wxConvUTF8 ), NULL)
 {
 	m_pParameter	= pParameter;
 
@@ -1061,7 +1062,7 @@ WX_PG_IMPLEMENT_PROPERTY_CLASS(CParameters_PG_Dialoged, wxBaseProperty, CParamet
 
 //---------------------------------------------------------
 CParameters_PG_DialogedClass::CParameters_PG_DialogedClass(const wxString &Name, const wxString &Identifier, const CParameters_PG_DialogedValue &value)
-	: wxPGProperty( value.m_pParameter ? wxString( (const char*)GET_DATAOBJECT_LABEL(value.m_pParameter), wxConvUTF8 ) : wxString( Name.c_str(), wxConvUTF8 ), Identifier)
+	: wxPGProperty(value.m_pParameter ? GET_DATAOBJECT_LABEL(value.m_pParameter) : Name, Identifier)
 {
 	m_value	= value;
 
