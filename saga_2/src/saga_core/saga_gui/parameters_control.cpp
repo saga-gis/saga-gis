@@ -505,7 +505,7 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 			pParameter->asBool()
 		), pParent);
 
-	    m_pPG->SetPropertyAttribute(pProperty->GetId(), wxPG_BOOL_USE_CHECKBOX, (long)1, wxPG_RECURSE);
+	    m_pPG->SetPropertyAttribute(pProperty->GetId(), wxPG_BOOL_USE_CHECKBOX, (long)1);
 		break;
 
 	case PARAMETER_TYPE_Int:
@@ -541,6 +541,11 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 			pParameter->Get_Identifier(),
 			pParameter->asString()
 		), pParent);
+
+		if( ((CSG_Parameter_String *)pParameter->Get_Data())->is_Password() )
+		{
+			m_pPG->SetPropertyAttribute(pProperty->GetId(), wxPG_STRING_PASSWORD, (long)pParameter->asString());
+		}
 		break;
 
 	case PARAMETER_TYPE_Color:

@@ -671,7 +671,7 @@ CSG_Parameter * CSG_Parameters::_Add_String(CSG_Parameter *pParent, const SG_Cha
 
 	pParameter->Set_Value((void *)String);
 
-	((CSG_Parameter_String *)pParameter)->Set_Password(bPassword);
+	((CSG_Parameter_String *)pParameter->Get_Data())->Set_Password(bPassword);
 
 	return( pParameter );
 }
