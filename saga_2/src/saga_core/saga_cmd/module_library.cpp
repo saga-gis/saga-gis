@@ -675,9 +675,16 @@ bool CModule_Library::_Destroy_DataObjects(bool bSave, CSG_Parameters *pParamete
 				}
 				else if( pParameter->is_DataObject_List() )
 				{
-					for(i=0; i<pParameter->asList()->Get_Count(); i++)
+					if( pParameter->asList()->Get_Count() == 1 )
 					{
-						pParameter->asList()->asDataObject(i)->Save(CSG_String::Format(SG_T("%02d_%s"), i, s.c_str()));
+						pParameter->asList()->asDataObject(0)->Save(s);
+					}
+					else
+					{
+						for(i=0; i<pParameter->asList()->Get_Count(); i++)
+						{
+							pParameter->asList()->asDataObject(i)->Save(CSG_String::Format(SG_T("%s_%02d"), s.c_str(), i + 1));
+						}
 					}
 				}
 			}
