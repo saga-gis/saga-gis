@@ -334,6 +334,9 @@
 #endif
 
 // -----------------------------------------------------------------------
+#if defined(__WXMSW__) && defined(WXUSINGDLL)	// O.C. > wxPropertyGrid is built-in SAGA
+	#define WXMAKINGLIB_PROPGRID
+#endif
 
 #ifdef WXMAKINGLIB_PROPGRID
     #define WXDLLIMPEXP_PG

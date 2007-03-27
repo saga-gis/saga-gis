@@ -40,6 +40,10 @@
 class WXDLLEXPORT wxTextCtrl;
 class WXDLLEXPORT wxButton;
 
+#if defined(__WXMSW__) && defined(WXUSINGDLL)	// O.C. > wxPropertyGrid is built-in SAGA
+	#define WXMAKINGLIB_PROPGRID
+#endif
+
 #ifdef WXMAKINGLIB_PROPGRID
     #define WXDLLEXPORT_PGODC
 #elif defined(WXMAKINGDLL_PROPGRID)
