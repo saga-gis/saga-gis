@@ -126,7 +126,9 @@ TGEO_iRect;
 #define M_PI_4								M_PI_045
 #define ALMOST_ZERO							0.0001
 
+#ifndef RGB
 #define RGB									SG_GET_RGB
+#endif
 
 #define SYS_Malloc							SG_Malloc
 #define SYS_Calloc							SG_Calloc
@@ -216,7 +218,7 @@ TGEO_iRect;
 #define API_Read_						SG_Read_
 #define API_Write_						SG_Write_
 #define API_Get_						SG_Get_
-#defind SG_Dir_isValid					SG_Dir_Exists
+#define SG_Dir_isValid					SG_Dir_Exists
 
 
 //---------------------------------------------------------
