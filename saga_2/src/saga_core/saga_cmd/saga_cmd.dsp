@@ -95,7 +95,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MDd /W3 /Gm /GR /ZI /Od /I "$(WXWIN)/lib/vc_lib/mswd" /I "$(SAGA)/src/saga_core" /I "$(WXWIN)/include" /D "WIN32" /D "_DEBUG" /D "__WXMSW__" /D "__WXDEBUG__" /D "_CONSOLE" /D wxUSE_GUI=0 /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /Fd"./../../../bin/tmp/saga_vc_dbg/saga_cmd/saga_cmd.pdb" /FD /GZ /EHsc /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /ZI /Od /I "./.." /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc_lib/mswud" /D "_CONSOLE" /D wxUSE_GUI=0 /D "__WXMSW__" /D "__WXDEBUG__" /D "_DEBUG" /D "WIN32" /D "_UNICODE" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_UNICODE" /Fd"./../../../bin/tmp/saga_vc_dbg/saga_cmd/saga_cmd.pdb" /FD /GZ /EHsc /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /ZI /Od /I "./.." /I "$(WXWIN)/lib/vc_lib/mswud" /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc_dll/mswud" /D "_CONSOLE" /D wxUSE_GUI=0 /D "__WXMSW__" /D "__WXDEBUG__" /D "WXUSINGDLL" /D "_DEBUG" /D "WIN32" /D "_UNICODE" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_UNICODE" /Fd"./../../../bin/tmp/saga_vc_dbg/saga_cmd/saga_cmd.pdb" /FD /GZ /EHsc /c
 # ADD BASE RSC /l 0x409 /i ".\..\..\include" /i ".\..\..\lib\vc_lib\mswd" /i "." /d "_DEBUG" /d "__WXMSW__" /d "__WXDEBUG__" /d "_CONSOLE" /d wxUSE_GUI=0
 # ADD RSC /l 0x409 /i ".\..\..\include" /i ".\..\..\lib\vc_lib\mswd" /i "." /d "_DEBUG" /d "__WXMSW__" /d "__WXDEBUG__" /d "_CONSOLE" /d wxUSE_GUI=0
 BSC32=bscmake.exe
@@ -104,7 +104,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 wxbase28d.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib oleacc.lib odbc32.lib /nologo /debug /machine:I386 /libpath:"$(WXWIN)/lib/vc_lib"
 # SUBTRACT BASE LINK32 /pdb:none
-# ADD LINK32 wxbase28ud.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib oleacc.lib odbc32.lib /nologo /debug /machine:I386 /libpath:"$(WXWIN)/lib/vc_lib"
+# ADD LINK32 wxbase28ud.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib oleacc.lib odbc32.lib /nologo /debug /machine:I386 /libpath:"$(WXWIN)/lib/vc_dll"
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "saga_cmd - Win32 Unicode Release"
@@ -122,7 +122,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /GR /O2 /I "$(WXWIN)/lib/vc_lib/msw" /I "$(SAGA)/src/saga_core" /I "$(WXWIN)/include" /D "WIN32" /D "__WXMSW__" /D "_CONSOLE" /D wxUSE_GUI=0 /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /Fd"./../../../bin/tmp/saga_vc/saga_cmd/saga_cmd.pdb" /FD /EHsc /c
-# ADD CPP /nologo /MD /W3 /GR /O2 /I "./.." /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc_lib/mswu" /D "_CONSOLE" /D wxUSE_GUI=0 /D "__WXMSW__" /D "WIN32" /D "_UNICODE" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_UNICODE" /Fd"./../../../bin/tmp/saga_vc/saga_cmd/saga_cmd.pdb" /FD /EHsc /c
+# ADD CPP /nologo /MD /W3 /GR /O2 /I "./.." /I "$(WXWIN)/lib/vc_lib/mswu" /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc_dll/mswu" /D "_CONSOLE" /D wxUSE_GUI=0 /D "__WXMSW__" /D "WIN32" /D "WXUSINGDLL" /D "_UNICODE" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_UNICODE" /Fd"./../../../bin/tmp/saga_vc/saga_cmd/saga_cmd.pdb" /FD /EHsc /c
 # ADD BASE RSC /l 0x409 /i ".\..\..\include" /i ".\..\..\lib\vc_lib\msw" /i "." /d "__WXMSW__" /d "_CONSOLE" /d wxUSE_GUI=0
 # ADD RSC /l 0x409 /i ".\..\..\include" /i ".\..\..\lib\vc_lib\msw" /i "." /d "__WXMSW__" /d "_CONSOLE" /d wxUSE_GUI=0
 BSC32=bscmake.exe
@@ -131,7 +131,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 wxbase28.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib oleacc.lib odbc32.lib /nologo /machine:I386 /libpath:"$(WXWIN)/lib/vc_lib"
 # SUBTRACT BASE LINK32 /pdb:none
-# ADD LINK32 wxbase28u.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib oleacc.lib odbc32.lib /nologo /machine:I386 /libpath:"$(WXWIN)/lib/vc_lib"
+# ADD LINK32 wxbase28u.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib oleacc.lib odbc32.lib /nologo /machine:I386 /libpath:"$(WXWIN)/lib/vc_dll"
 # SUBTRACT LINK32 /pdb:none
 
 !ENDIF 

@@ -14,14 +14,14 @@ CPP       = g++.exe
 OBJ       = $(TMP_SAGA)/callback.o $(TMP_SAGA)/module_library.o $(TMP_SAGA)/saga_cmd.o
 
 DEF_SAGA  = -D_SAGA_MSW -D_SAGA_MINGW -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
-DEF_WIN   = -D__WXMSW__ -DwxUSE_GUI=0
-CXXINCS   = -I"$(WXWIN)/include" -I"$(WXWIN)/lib/gcc_lib/msw" -I"$(INC_GCC)" -I"$(LIB_GCC)" -I"$(LIB_GCC)/gcc/mingw32/3.4.2/include"  -I"$(INC_GCC)/c++/3.4.2/backward" -I"$(INC_GCC)/c++/3.4.2/mingw32" -I"$(INC_GCC)/c++/3.4.2" -I"$(INC_SAGA)"
+DEF_WIN   = -D__WXMSW__ -DWXUSINGDLL -DwxUSE_GUI=0
+CXXINCS   = -I"$(WXWIN)/include" -I"$(WXWIN)/lib/gcc_dll/msw" -I"$(INC_GCC)" -I"$(LIB_GCC)" -I"$(LIB_GCC)/gcc/mingw32/3.4.2/include"  -I"$(INC_GCC)/c++/3.4.2/backward" -I"$(INC_GCC)/c++/3.4.2/mingw32" -I"$(INC_GCC)/c++/3.4.2" -I"$(INC_SAGA)"
 CXXFLAGS  = $(CXXINCS) $(DEF_WIN) $(DEF_SAGA) -O3 -Wno-ctor-dtor-privacy
 #CXXFLAGS  = $(CXXINCS) $(DEF_WIN) $(DEF_SAGA) -O2 -Wall -Wno-ctor-dtor-privacy -mthreads
 
 LDFLAGS   =
 #LDFLAGS   = -mthreads -mwindows
-LIBS_WX   = -L"$(WXWIN)/lib/gcc_lib" -lwxbase28 -lwxtiff -lwxjpeg -lwxpng -lwxzlib -lwxregex -lwxexpat
+LIBS_WX   = -L"$(WXWIN)/lib/gcc_dll" -lwxbase28 -lwxtiff -lwxjpeg -lwxpng -lwxzlib -lwxregex -lwxexpat
 LIBS      = $(LIBS_WX) -L"$(LIB_GCC)" -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lwinspool -lwinmm -lshell32 -lcomctl32 -lole32 -loleaut32 -luuid -lrpcrt4 -ladvapi32 -lwsock32 -loleacc -lodbc32  $(BIN_SAGA)/libsaga_api.a
 
 

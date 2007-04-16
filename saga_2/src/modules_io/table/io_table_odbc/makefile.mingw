@@ -19,7 +19,7 @@ DEP_LIBS =
 DEP_LFLG = 
 
 DEP_INCS = -I"$(WXWIN)/lib/gcc_lib/msw" -I"$(WXWIN)/include"
-DEP_DEFS = -DwxUSE_GUI=0 -D__WXMSW__ -DNOPCH
+DEP_DEFS = -D__WXMSW__ -DWXUSINGDLL -DNOPCH -DwxUSE_GUI=0
 DEP_LIBS = -L"$(WXWIN)/lib" -lwxbase28_odbc -lwxbase28 -lwxtiff -lwxjpeg -lwxpng -lwxzlib -lwxregex -lwxexpat -lole32 -luuid -lodbc32
 
 
