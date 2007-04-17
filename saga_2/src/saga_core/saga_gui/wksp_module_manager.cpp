@@ -298,11 +298,17 @@ bool CWKSP_Module_Manager::Do_Beep(void)
 //---------------------------------------------------------
 void CWKSP_Module_Manager::_Config_Read(void)
 {
-	wxString	Value;
+	bool		bValue;
+	wxString	sValue;
 
-	for(int i=0; CONFIG_Read(CFG_LIBS, wxString::Format(CFG_LIBF, i), Value); i++)
+	if( CONFIG_Read(wxT("/MODULES"), wxT("BEEP")	, bValue) )
 	{
-		Open(Value);
+		m_Parameters("BEEP")->Set_Value(bValue);
+	}
+
+	for(int i=0; CONFIG_Read(CFG_LIBS, wxString::Format(CFG_LIBF, i), sValue); i++)
+	{
+		Open(sValue);
 	}
 
 	m_pMenu->Update();
@@ -311,6 +317,8 @@ void CWKSP_Module_Manager::_Config_Read(void)
 //---------------------------------------------------------
 void CWKSP_Module_Manager::_Config_Write(void)
 {
+	CONFIG_Write(wxT("/MODULES")	, wxT("BEEP")	,		m_Parameters("BEEP")->asBool());
+
 	CONFIG_Delete(CFG_LIBS);
 
 	for(int i=0; i<Get_Count(); i++)

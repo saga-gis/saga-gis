@@ -1,7 +1,10 @@
 @echo off
 
-set SWIG_PATH=D:\tools\develop\swigwin-1.3.29
-set PYTHON_PATH=C:\Program Files\Python23
+rem set SWIG_PATH=D:\tools\develop\swigwin-1.3.25
+set SWIG_PATH=%SWIG%
+
+rem set PYTHON_PATH=C:\Program Files\Python23
+set PYTHON_PATH=C:\Programme\Python23
 
 echo SWIG compilation...
 "%SWIG_PATH%\swig" -c++ -python -includeall saga_api.h

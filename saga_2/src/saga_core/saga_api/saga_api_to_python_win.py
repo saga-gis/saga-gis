@@ -14,7 +14,7 @@ module1 = Extension(
 	],
 
 	library_dirs = [
-		os.environ['WXWIN'] + '/lib/vc_lib',
+		os.environ['WXWIN'] + '/lib/vc_dll',
 		os.environ['SAGA'] + '/bin/saga_vc'
 	],
 
@@ -52,6 +52,7 @@ module1 = Extension(
 
 	extra_compile_args = [
 		'-D__WXMSW__',
+		'-DWXUSINGDLL',
 		'-D_FILE_OFFSET_BITS=64',
 		'-D_LARGE_FILES',
 		'-D_LARGEFILE_SOURCE=1',

@@ -355,7 +355,7 @@ bool			Get_YesNo		(const SG_Char *caption, const SG_Char *message)
 	{
 		CSG_String	sKey, sYes(LNG("Y")), sNo(LNG("N"));
 
-		SG_PRINTF(SG_T("%s? (%s/%s)"), LNG("continue"), sYes, sNo);
+		SG_PRINTF(SG_T("%s? (%s/%s)"), LNG("continue"), sYes.c_str(), sNo.c_str());
 
 		do
 		{
