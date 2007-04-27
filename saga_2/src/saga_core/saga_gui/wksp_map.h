@@ -122,6 +122,8 @@ public:
 	void						Set_Synchronising		(bool bOn);
 	bool						is_Synchronising		(void)	{	return( m_bSynchronise );	}
 
+	bool						is_Image_Save_Mode		(void)	{	return( m_Img_bSave );		}
+
 	class CWKSP_Map_Layer *		Add_Layer				(class CWKSP_Layer *pLayer);
 	int							Get_Layer				(class CWKSP_Layer *pLayer);
 	class CWKSP_Map_Layer *		Get_Layer				(int i)		{	return( (class CWKSP_Map_Layer *)Get_Item(i) );	}
@@ -147,6 +149,7 @@ public:
 
 	bool						Get_Image				(wxImage &Image, CSG_Rect &rWorld);
 	void						SaveAs_Image			(void);
+	void						SaveAs_Image_On_Change	(void);
 	void						SaveAs_PDF_Indexed		(void);
 	void						SaveAs_Interactive_SVG	(void);
 
@@ -168,13 +171,15 @@ public:
 
 private:
 
-	bool						m_bSynchronise;
+	bool						m_bSynchronise, m_Img_bSave;
 
-	wxString					m_Name;
+	int							m_Img_Type, m_Img_Count;
+
+	wxString					m_Name, m_Img_File;
 
 	CSG_Rect					m_Extent, m_Extent_Last;
 
-	CSG_Parameters				m_Parameters;
+	CSG_Parameters				m_Parameters, m_Img_Parms;
 
 	class CVIEW_Map				*m_pView;
 
@@ -190,6 +195,9 @@ private:
 	int							On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	void						_Synchronise_Extents	(void);
+
+	void						_Img_Save				(wxString file, int type);
+	void						_Img_Save_On_Change		(void);
 
 };
 

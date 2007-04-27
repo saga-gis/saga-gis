@@ -91,6 +91,7 @@ BEGIN_EVENT_TABLE(CVIEW_Map, CVIEW_Base)
 	EVT_MENU			(ID_CMD_MAP_3D_SHOW				, CVIEW_Map::On_Map_3D_Show)
 	EVT_MENU			(ID_CMD_MAP_LAYOUT_SHOW			, CVIEW_Map::On_Map_Layout_Show)
 	EVT_MENU			(ID_CMD_MAP_SAVE_IMAGE			, CVIEW_Map::On_Map_Save_Image)
+	EVT_MENU			(ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE, CVIEW_Map::On_Map_Save_Image_On_Change)
 	EVT_MENU			(ID_CMD_MAP_SAVE_PDF_INDEXED	, CVIEW_Map::On_Map_Save_PDF_Indexed)
 	EVT_MENU			(ID_CMD_MAP_SAVE_INTERACTIVE_SVG, CVIEW_Map::On_Map_Save_Interactive_SVG)
 
@@ -158,6 +159,7 @@ wxMenu * CVIEW_Map::_Create_Menu(void)
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_LAYOUT_SHOW);
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_SAVE_IMAGE);
+//	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE);
 #ifndef _SAGA_DONOTUSE_HARU
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_SAVE_PDF_INDEXED);
 #endif
@@ -374,6 +376,10 @@ void CVIEW_Map::On_Command_UI(wxUpdateUIEvent &event)
 		event.Check(m_pMap->is_Synchronising());
 		break;
 
+	case ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE:
+		event.Check(m_pMap->is_Image_Save_Mode());
+		break;
+
 	case ID_CMD_MAP_MODE_ZOOM:
 		event.Check(m_pControl->Get_Mode() == MAP_MODE_ZOOM);
 		break;
@@ -415,6 +421,12 @@ void CVIEW_Map::On_Map_Layout_Show(wxCommandEvent &event)
 void CVIEW_Map::On_Map_Save_Image(wxCommandEvent &event)
 {
 	m_pMap->SaveAs_Image();
+}
+
+//---------------------------------------------------------
+void CVIEW_Map::On_Map_Save_Image_On_Change(wxCommandEvent &event)
+{
+	m_pMap->SaveAs_Image_On_Change();
 }
 
 //---------------------------------------------------------

@@ -120,6 +120,7 @@ CWKSP_Map::CWKSP_Map(void)
 	m_pLayout_Info	= new CVIEW_Layout_Info(this);
 
 	m_bSynchronise	= false;
+	m_Img_bSave		= false;
 }
 
 //---------------------------------------------------------
@@ -177,6 +178,7 @@ wxMenu * CWKSP_Map::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_SHOW);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SAVE_IMAGE);
+	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE);
 #ifndef _SAGA_DONOTUSE_HARU
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SAVE_PDF_INDEXED);
 #endif
@@ -209,6 +211,10 @@ bool CWKSP_Map::On_Command(int Cmd_ID)
 
 	case ID_CMD_MAPS_SAVE_IMAGE:
 		SaveAs_Image();
+		break;
+
+	case ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE:
+		SaveAs_Image_On_Change();
 		break;
 
 	case ID_CMD_MAPS_SAVE_PDF_INDEXED:
@@ -257,6 +263,10 @@ bool CWKSP_Map::On_Command_UI(wxUpdateUIEvent &event)
 
 	case ID_CMD_MAPS_LAYOUT_SHOW:
 		event.Check(m_pLayout != NULL);
+		break;
+
+	case ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE:
+		event.Check(is_Image_Save_Mode());
 		break;
 	}
 
@@ -351,6 +361,49 @@ void CWKSP_Map::_Create_Parameters(void)
 		pNode_1	, "PRINT_FRAME_WIDTH"	, LNG("[CAP] Width"),
 		LNG(""),
 		PARAMETER_TYPE_Int, 7, 5, true
+	);
+
+	//-----------------------------------------------------
+	m_Img_Parms.Set_Name(LNG("[CAP] Save Map as Image..."));
+
+	pNode_0	= m_Img_Parms.Add_Node(NULL, "NODE_MAP", LNG("Map"), LNG(""));
+
+	m_Img_Parms.Add_Value(
+		pNode_0	, "NX"	, LNG("[PRM] Map Width [Pixels]"),
+		LNG(""),
+		PARAMETER_TYPE_Int, 800	, 1, true
+	);
+
+	m_Img_Parms.Add_Value(
+		pNode_0	, "NY"	, LNG("[PRM] Map Height [Pixels]"),
+		LNG(""),
+		PARAMETER_TYPE_Int, 600	, 1, true
+	);
+
+	m_Img_Parms.Add_Value(
+		pNode_0	, "FR"	, LNG("[PRM] Frame Width [Pixels]"),
+		LNG(""),
+		PARAMETER_TYPE_Int, 20	, 0, true
+	);
+
+	m_Img_Parms.Add_Value(
+		pNode_0	, "REF"	, LNG("[PRM] Save Georeference (world file)"),
+		LNG(""),
+		PARAMETER_TYPE_Bool, 1
+	);
+
+	pNode_0	= m_Img_Parms.Add_Node(NULL, "NODE_LEGEND", LNG("[PRM] Legend"), LNG(""));
+
+	m_Img_Parms.Add_Value(
+		pNode_0	, "LG"	, LNG("[PRM] Save"),
+		LNG(""),
+		PARAMETER_TYPE_Bool, 1
+	);
+
+	m_Img_Parms.Add_Value(
+		pNode_0	, "LZ"	, LNG("[PRM] Zoom"),
+		LNG(""),
+		PARAMETER_TYPE_Double, 1.0, 0, true
 	);
 }
 
@@ -492,6 +545,8 @@ bool CWKSP_Map::Update(CWKSP_Layer *pLayer, bool bMapOnly)
 		{
 			View_Refresh(bMapOnly);
 		}
+
+		_Img_Save_On_Change();
 
 		return( true );
 	}
@@ -834,127 +889,107 @@ bool CWKSP_Map::Get_Image(wxImage &Image, CSG_Rect &rWorld)
 //---------------------------------------------------------
 void CWKSP_Map::SaveAs_Image(void)
 {
-	static CSG_Parameters	Parms;
-
-	int			type;
-	wxString	file;
-
 	//-----------------------------------------------------
-	if( Parms.Get_Count() == 0 )
+	if( DLG_Image_Save(m_Img_File, m_Img_Type) && DLG_Parameters(&m_Img_Parms) )
 	{
-		CSG_Parameter	*pNode;
+		_Img_Save(m_Img_File, m_Img_Type);
+	}
+}
 
-		Parms.Set_Name(LNG("[CAP] Save Map as Image..."));
+//---------------------------------------------------------
+void CWKSP_Map::SaveAs_Image_On_Change(void)
+{
+	if( m_Img_bSave )
+	{
+		m_Img_bSave	= false;
+	}
+	else if( DLG_Image_Save(m_Img_File, m_Img_Type) && DLG_Parameters(&m_Img_Parms) )
+	{
+		m_Img_bSave	= true;
+		m_Img_Count	= 0;
+	}
+}
 
-		pNode	= Parms.Add_Node(NULL, "NODE_MAP", LNG("Map"), LNG(""));
+//---------------------------------------------------------
+void CWKSP_Map::_Img_Save_On_Change(void)
+{
+	if( m_Img_bSave )
+	{
+		wxFileName	fn(m_Img_File), file(m_Img_File);
 
-		Parms.Add_Value(
-			pNode	, "NX"	, LNG("[PRM] Map Width [Pixels]"),
-			LNG(""),
-			PARAMETER_TYPE_Int, 800	, 1, true
-		);
+		file.SetName(wxString::Format(wxT("%s_%03d"), fn.GetName().c_str(), m_Img_Count++));
 
-		Parms.Add_Value(
-			pNode	, "NY"	, LNG("[PRM] Map Height [Pixels]"),
-			LNG(""),
-			PARAMETER_TYPE_Int, 600	, 1, true
-		);
+		_Img_Save(file.GetFullPath(), m_Img_Type);
+	}
+}
 
-		Parms.Add_Value(
-			pNode	, "FR"	, LNG("[PRM] Frame Width [Pixels]"),
-			LNG(""),
-			PARAMETER_TYPE_Int, 20	, 0, true
-		);
+//---------------------------------------------------------
+void CWKSP_Map::_Img_Save(wxString file, int type)
+{
+	int			nx, ny, Frame;
+	wxSize		s;
+	wxRect		r;
+	wxBitmap	BMP;
+	wxMemoryDC	dc;
 
-		Parms.Add_Value(
-			pNode	, "REF"	, LNG("[PRM] Save Georeference (world file)"),
-			LNG(""),
-			PARAMETER_TYPE_Bool, 1
-		);
+	Set_Buisy_Cursor(true);
 
-		pNode	= Parms.Add_Node(NULL, "NODE_LEGEND", LNG("[PRM] Legend"), LNG(""));
+	nx		= m_Img_Parms("NX")->asInt();
+	ny		= m_Img_Parms("NY")->asInt();
+	Frame	= m_Img_Parms("FR")->asInt();	if( Frame < 5 )	Frame	= 0;
+	r		= wxRect(0, 0, nx + 2 * Frame, ny + 2 * Frame);
 
-		Parms.Add_Value(
-			pNode	, "LG"	, LNG("[PRM] Save"),
-			LNG(""),
-			PARAMETER_TYPE_Bool, 1
-		);
+	BMP.Create(r.GetWidth(), r.GetHeight());
+	r.Deflate(Frame);
+	dc.SelectObject(BMP);
+	dc.SetBackground(*wxWHITE_BRUSH);
+	dc.Clear();
 
-		Parms.Add_Value(
-			pNode	, "LZ"	, LNG("[PRM] Zoom"),
-			LNG(""),
-			PARAMETER_TYPE_Double, 1.0, 0, true
-		);
+	Draw_Map(dc, 1.0, r, false);
+	Draw_Frame(dc, r, Frame);
+
+	dc.SelectObject(wxNullBitmap);
+	BMP.SaveFile(file, (wxBitmapType)type);
+
+	if( m_Img_Parms("REF")->asBool() )
+	{
+		CSG_File	Stream;
+		wxFileName	fn(file);
+		fn.SetExt(wxT("world"));
+
+		if( Stream.Open(fn.GetFullPath().c_str(), SG_FILE_W, false) )
+		{
+			CSG_Rect	rWorld(Get_World(r));
+			double		d	= rWorld.Get_XRange() / r.GetWidth();
+
+			Stream.Printf(wxT("%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n"),
+				d, 0.0, 0.0,-d,
+				rWorld.Get_XMin() - Frame * d,
+				rWorld.Get_YMax() + Frame * d
+			);
+		}
 	}
 
-	//-----------------------------------------------------
-	if( DLG_Image_Save(file, type) && DLG_Parameters(&Parms) )
+	if( m_Img_Parms("LG")->asBool() && Get_Legend_Size(s, 1.0, m_Img_Parms("LZ")->asDouble()) )
 	{
-		int			nx, ny, Frame;
-		wxSize		s;
-		wxRect		r;
-		wxBitmap	BMP;
-		wxMemoryDC	dc;
+		wxFileName	fn(file);
+		file	= fn.GetName();
+		file.Append(wxT("_legend"));
+		fn.SetName(file);
+		file	= fn.GetFullPath();
 
-		Set_Buisy_Cursor(true);
-
-		nx		= Parms("NX")->asInt();
-		ny		= Parms("NY")->asInt();
-		Frame	= Parms("FR")->asInt();	if( Frame < 5 )	Frame	= 0;
-		r		= wxRect(0, 0, nx + 2 * Frame, ny + 2 * Frame);
-
-		BMP.Create(r.GetWidth(), r.GetHeight());
-		r.Deflate(Frame);
+		BMP.Create(s.GetWidth(), s.GetHeight());
 		dc.SelectObject(BMP);
 		dc.SetBackground(*wxWHITE_BRUSH);
 		dc.Clear();
 
-		Draw_Map(dc, 1.0, r, false);
-		Draw_Frame(dc, r, Frame);
+		Draw_Legend(dc, 1.0, m_Img_Parms("LZ")->asDouble(), wxPoint(0, 0));
 
 		dc.SelectObject(wxNullBitmap);
 		BMP.SaveFile(file, (wxBitmapType)type);
-
-		if( Parms("REF")->asBool() )
-		{
-			CSG_File	Stream;
-			wxFileName	fn(file);
-			fn.SetExt(wxT("world"));
-
-			if( Stream.Open(fn.GetFullPath().c_str(), SG_FILE_W, false) )
-			{
-				CSG_Rect	rWorld(Get_World(r));
-				double		d	= rWorld.Get_XRange() / r.GetWidth();
-
-				Stream.Printf(wxT("%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n"),
-					d, 0.0, 0.0,-d,
-					rWorld.Get_XMin() - Frame * d,
-					rWorld.Get_YMax() + Frame * d
-				);
-			}
-		}
-
-		if( Parms("LG")->asBool() && Get_Legend_Size(s, 1.0, Parms("LZ")->asDouble()) )
-		{
-			wxFileName	fn(file);
-			file	= fn.GetName();
-			file.Append(wxT("_legend"));
-			fn.SetName(file);
-			file	= fn.GetFullPath();
-
-			BMP.Create(s.GetWidth(), s.GetHeight());
-			dc.SelectObject(BMP);
-			dc.SetBackground(*wxWHITE_BRUSH);
-			dc.Clear();
-
-			Draw_Legend(dc, 1.0, Parms("LZ")->asDouble(), wxPoint(0, 0));
-
-			dc.SelectObject(wxNullBitmap);
-			BMP.SaveFile(file, (wxBitmapType)type);
-		}
-
-		Set_Buisy_Cursor(false);
 	}
+
+	Set_Buisy_Cursor(false);
 }
 
 //---------------------------------------------------------

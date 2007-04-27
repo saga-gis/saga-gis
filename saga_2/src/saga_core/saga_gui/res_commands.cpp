@@ -152,6 +152,8 @@ const wxChar * CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAPS_3D_SHOW:			return( LNG("[CMD] Show 3D-View") );
 	case ID_CMD_MAP_LAYOUT_SHOW:
 	case ID_CMD_MAPS_LAYOUT_SHOW:		return( LNG("[CMD] Show Print Layout") );
+	case ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE:
+	case ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE:	return( LNG("[CMD] Save As Image when changed") );
 	case ID_CMD_MAP_SAVE_IMAGE:
 	case ID_CMD_MAPS_SAVE_IMAGE:		return( LNG("[CMD] Save As Image") );
 	case ID_CMD_MAP_SAVE_PDF_INDEXED:
