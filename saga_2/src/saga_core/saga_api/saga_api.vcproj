@@ -57,7 +57,7 @@
 				AssemblerListingLocation=".\./../../../bin/tmp/saga_vc8/saga_api/"
 				ObjectFile=".\./../../../bin/tmp/saga_vc8/saga_api/"
 				ProgramDataBaseFileName=".\./../../../bin/tmp/saga_vc8/saga_api/"
-				BrowseInformation="1"
+				BrowseInformation="0"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 			/>
