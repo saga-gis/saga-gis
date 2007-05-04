@@ -157,10 +157,16 @@ bool wxIntPropertyClass::SetValueFromString( const wxString& text, int argFlags 
     wxString s;
     long value;
 
-    if ( text.IsNumber() )
+    if ( text.length() == 0 )
     {
-        text.ToLong(&value,0); // we know its number, so need to check retval
+        SetValueToUnspecified();
+        return true;
+    }
 
+    // We know it is a number, but let's still check
+    // the return value.
+    if ( text.IsNumber() && text.ToLong( &value, 0 ) )
+    {
         if ( m_value != value )
         {
             return StdValidationProcedure(value);
@@ -168,7 +174,7 @@ bool wxIntPropertyClass::SetValueFromString( const wxString& text, int argFlags 
     }
     else if ( argFlags & wxPG_REPORT_ERROR )
     {
-        s.Printf ( wxT("! %s: \"%s\" is not a number."), m_label.c_str(), text.c_str() );
+        s.Printf( wxT("! %s: \"%s\" is not a number."), m_label.c_str(), text.c_str() );
         ShowError(s);
     }
     return false;
@@ -265,19 +271,28 @@ wxString wxUIntPropertyClass::GetValueAsString( int ) const
 
 bool wxUIntPropertyClass::SetValueFromString( const wxString& text, int WXUNUSED(argFlags) )
 {
-    wxString s;
-    long value = 0;
+    //wxString s;
+    long unsigned value = 0;
 
-    const wxChar *start = text.c_str();
-    if ( text[0] && !wxIsalnum(text[0]) )
+    if ( text.length() == 0 )
+    {
+        SetValueToUnspecified();
+        return true;
+    }
+
+    size_t start = 0;
+    if ( text.length() > 0 && !wxIsalnum(text[0]) )
         start++;
 
-    wxChar *end;
-    value = wxStrtoul(start, &end, (unsigned int)m_realBase);
+    wxString s = text.substr(start, text.length() - start);
+    bool res = s.ToULong(&value, (unsigned int)m_realBase);
 
-    if ( m_value != value )
+    //wxChar *end;
+    //value = wxStrtoul(text.c_str() + ((size_t)start), &end, (unsigned int)m_realBase);
+
+    if ( res && m_value != (long)value )
     {
-        return StdValidationProcedure(value);
+        return StdValidationProcedure((long)value);
     }
     /*}
     else if ( argFlags & wxPG_REPORT_ERROR )
@@ -393,10 +408,28 @@ void wxPropertyGrid::DoubleToString(wxString& target,
     {
         // Remove excess zeroes (do not remove this code just yet,
         // since sprintf can't do the same consistently across platforms).
+        wxString::const_iterator i = target.end() - 1;
+        size_t new_len = target.length() - 1;
+
+        for ( ; i != target.begin(); i-- )
+        {
+            if ( wxPGGetIterChar(target, i) != wxT('0') )
+                break;
+            new_len--;
+        }
+
+        wxChar cur_char = wxPGGetIterChar(target, i);
+        if ( cur_char != wxT('.') && cur_char != wxT(',') )
+            new_len++;
+
+        if ( new_len != target.length() )
+            target.resize(new_len);
+
+        /*
         unsigned int cur_pos = target.length() - 1;
         wxChar a;
         a = target.GetChar( cur_pos );
-        while ( a == '0' && cur_pos > 0 )
+        while ( a == wxT('0') && cur_pos > 0 )
         {
             cur_pos--;
             a = target.GetChar( cur_pos );
@@ -408,6 +441,7 @@ void wxPropertyGrid::DoubleToString(wxString& target,
 
         if ( cur_pos < target.length() )
             target.Truncate( cur_pos );
+        */
     }
 }
 
@@ -425,6 +459,13 @@ bool wxFloatPropertyClass::SetValueFromString( const wxString& text, int argFlag
 {
     wxString s;
     double value;
+
+    if ( text.length() == 0 )
+    {
+        SetValueToUnspecified();
+        return true;
+    }
+
     bool res = text.ToDouble(&value);
     if ( res )
     {
@@ -505,7 +546,10 @@ wxBoolPropertyClass::~wxBoolPropertyClass() { }
 
 void wxBoolPropertyClass::DoSetValue( wxPGVariant value )
 {
-    if ( wxPGVariantToLong(value) != 0 )
+    long v = wxPGVariantToLong(value);
+    if ( v == 2 )
+        SetValueToUnspecified();
+    else if ( v != 0 )
         m_value = 1;
     else
         m_value = 0;
@@ -534,6 +578,8 @@ int wxBoolPropertyClass::GetChoiceInfo( wxPGChoiceInfo* choiceinfo )
 {
     if ( choiceinfo )
     {
+        // 3 choice mode (ie. true, false, unspecified) does not work well (yet).
+        //choiceinfo->m_itemCount = wxPGGlobalVars->m_numBoolChoices;
         choiceinfo->m_itemCount = 2;
         choiceinfo->m_arrWxString = wxPGGlobalVars->m_boolChoices;
     }
@@ -545,6 +591,12 @@ bool wxBoolPropertyClass::SetValueFromString( const wxString& text, int /*argFla
     int value = 0;
     if ( text.CmpNoCase(wxPGGlobalVars->m_boolChoices[1]) == 0 || text.CmpNoCase(wxT("true")) == 0 )
         value = 1;
+
+    if ( text.length() == 0 )
+    {
+        SetValueToUnspecified();
+        return true;
+    }
 
     if ( (m_value && !value) || (!m_value && value) )
     {
@@ -1498,13 +1550,49 @@ void wxFilePropertyClass::DoSetValue( wxPGVariant value )
     // Find index for extension.
     if ( m_indFilter < 0 && m_fnstr.length() )
     {
+        wxString ext = m_filename.GetExt();
+        int curind = 0;
+        size_t pos = 0;
+        size_t len = m_wildcard.length();
+
+        pos = m_wildcard.find(wxT("|"), pos);
+        while ( pos != wxString::npos && pos < (len-3) )
+        {
+            size_t ext_begin = pos + 3;
+
+            pos = m_wildcard.find(wxT("|"), ext_begin);
+            if ( pos == wxString::npos )
+                pos = len;
+            wxString found_ext = m_wildcard.substr(ext_begin, pos-ext_begin);
+
+            if ( found_ext.length() > 0 )
+            {
+                if ( found_ext[0] == wxT('*') )
+                {
+                    m_indFilter = curind;
+                    break;
+                }
+                if ( ext.CmpNoCase(found_ext) == 0 )
+                {
+                    m_indFilter = curind;
+                    break;
+                }
+            }
+
+            if ( pos != len )
+                pos = m_wildcard.find(wxT("|"), pos+1);
+
+            curind++;
+        }
+
+        /*
         wxChar a = wxT(' ');
         const wxChar* p = m_wildcard.c_str();
         wxString ext = m_filename.GetExt();
         int curind = 0;
         do
         {
-            while ( a && a != '|' ) { a = *p; p++; }
+            while ( a && a != wxT('|') ) { a = *p; p++; }
             if ( !a ) break;
 
             a = *p;
@@ -1541,6 +1629,7 @@ void wxFilePropertyClass::DoSetValue( wxPGVariant value )
             curind++;
 
         } while ( a );
+        */
     }
 }
 

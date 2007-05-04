@@ -450,6 +450,7 @@ void wxPropertyGridManager::Init2( int style )
     // NB: But just prepare - you still need to call Add/InsertPage
     //     to actually add properties on it.
     wxPropertyGridPage* pd = new wxPropertyGridPage();
+    pd->m_isDefault = true;
     wxPropertyGridState* state = pd->GetStatePtr();
     state->m_pPropGrid = m_pPropGrid;
     m_arrPages.Add( (void*)pd );
@@ -460,6 +461,11 @@ void wxPropertyGridManager::Init2( int style )
     wxWindowID useId = baseId;
     if ( baseId < 0 )
         baseId = wxPG_MAN_ALTERNATE_BASE_ID;
+
+#ifdef __WXMAC__
+   // Smaller controls on Mac
+   SetWindowVariant(wxWINDOW_VARIANT_SMALL);
+#endif 
 
     // Create propertygrid.
     m_pPropGrid->Create(this,baseId,wxPoint(0,0),csz,
@@ -609,7 +615,7 @@ bool wxPropertyGridManager::DoSelectPage( int index )
     // -1 means no page was selected
     //wxASSERT( m_selPage >= 0 );
 
-    wxCHECK_MSG( index >= -1 && index < (int)m_arrPages.GetCount(),
+    wxCHECK_MSG( index >= -1 && index < (int)GetPageCount(),
                  false,
                  wxT("invalid page index") );
 
@@ -681,7 +687,7 @@ int wxPropertyGridManager::GetPageByName( const wxChar* name ) const
     wxASSERT( name );
 
     size_t i;
-    for ( i=0; i<m_arrPages.GetCount(); i++ )
+    for ( i=0; i<GetPageCount(); i++ )
     {
         if ( ((wxPropertyGridPage*)m_arrPages.Item(i))->m_label == name )
             return i;
@@ -696,7 +702,7 @@ int wxPropertyGridManager::GetPageByState( wxPropertyGridState* pState ) const
     wxASSERT( pState );
 
     size_t i;
-    for ( i=0; i<m_arrPages.GetCount(); i++ )
+    for ( i=0; i<GetPageCount(); i++ )
     {
         if ( pState == ((wxPropertyGridPage*)m_arrPages.Item(i))->GetStatePtr() )
             return i;
@@ -709,7 +715,7 @@ int wxPropertyGridManager::GetPageByState( wxPropertyGridState* pState ) const
 
 const wxString& wxPropertyGridManager::GetPageName( int index ) const
 {
-    wxASSERT( index >= 0 && index < (int)m_arrPages.GetCount() );
+    wxASSERT( index >= 0 && index < (int)GetPageCount() );
     return ((wxPropertyGridPage*)m_arrPages.Item(index))->m_label;
 }
 
@@ -720,7 +726,7 @@ void wxPropertyGridManager::SetTargetPage( int index )
 {
     wxASSERT( m_selPage >= 0 );
     wxASSERT( index >= 0 );
-    wxASSERT( index < (int)m_arrPages.GetCount() );
+    wxASSERT( index < (int)GetPageCount() );
 
     m_targetPage = index;
     m_targetState = ((wxPropertyGridPage*)m_arrPages.Item(index))->GetStatePtr();
@@ -732,9 +738,9 @@ void wxPropertyGridManager::SetTargetPage( int index )
 void wxPropertyGridManager::ClearPage( int page )
 {
     wxASSERT( page >= 0 );
-    wxASSERT( page < (int)m_arrPages.GetCount() );
+    wxASSERT( page < (int)GetPageCount() );
 
-    if ( page >= 0 && page < (int)m_arrPages.GetCount() )
+    if ( page >= 0 && page < (int)GetPageCount() )
     {
         wxPropertyGridState* state = GetPageState(page);
 
@@ -750,7 +756,7 @@ void wxPropertyGridManager::ClearPage( int page )
 void wxPropertyGridManager::SetPropertyAttributeAll( int attrid, wxVariant value )
 {
     size_t i;
-    for ( i=0; i<m_arrPages.GetCount(); i++ )
+    for ( i=0; i<GetPageCount(); i++ )
     {
         wxPropertyGridPage* page = (wxPropertyGridPage*)m_arrPages.Item(i);
 
@@ -776,28 +782,45 @@ bool wxPropertyGridManager::Compact( bool compact )
 
 // -----------------------------------------------------------------------
 
+size_t wxPropertyGridManager::GetPageCount() const
+{
+	if ( !(m_iFlags & wxPG_MAN_FL_PAGE_INSERTED) )
+		return 0;
+
+	return m_arrPages.GetCount();
+}
+
+// -----------------------------------------------------------------------
+
 int wxPropertyGridManager::InsertPage( int index, const wxString& label,
-                                    #if wxUSE_TOOLBAR
-                                       const wxBitmap& bmp,
-                                    #else
-                                       const wxBitmap& WXUNUSED(bmp),
-                                    #endif
-                                       wxPropertyGridPage* pageObj )
+                                       const wxBitmap& bmp, wxPropertyGridPage* pageObj )
 {
     if ( index < 0 )
-        index = m_arrPages.GetCount();
+        index = GetPageCount();
 
-    wxCHECK_MSG( (size_t)index == m_arrPages.GetCount(), -1,
+    wxCHECK_MSG( (size_t)index == GetPageCount(), -1,
         wxT("wxPropertyGridManager currently only supports appending pages (due to wxToolBar limitation)."));
 
     bool needInit = true;
     bool isPageInserted = m_iFlags & wxPG_MAN_FL_PAGE_INSERTED ? true : false;
 
+    wxASSERT( index == 0 || isPageInserted );
+
     if ( !pageObj )
     {
+        // No custom page object was given, so we will either re-use the default base
+        // page (if index==0), or create a new default page object.
         if ( !isPageInserted )
         {
             pageObj = GetPage(0);
+            // Of course, if the base page was custom, we need to delete and
+            // re-create it.
+            if ( !pageObj->m_isDefault )
+            {
+                delete pageObj;
+                pageObj = new wxPropertyGridPage();
+                m_arrPages[0] = pageObj;
+            }
             needInit = false;
         }
         else
@@ -845,7 +868,7 @@ int wxPropertyGridManager::InsertPage( int index, const wxString& label,
         wxASSERT( m_pToolbar );
 
         // Add separator before first page.
-        if ( m_arrPages.GetCount() < 2 && (GetExtraStyle()&wxPG_EX_MODE_BUTTONS) )
+        if ( GetPageCount() < 2 && (GetExtraStyle()&wxPG_EX_MODE_BUTTONS) )
             m_pToolbar->AddSeparator();
 
         if ( &bmp != &wxNullBitmap )
@@ -859,6 +882,8 @@ int wxPropertyGridManager::InsertPage( int index, const wxString& label,
 
         m_pToolbar->Realize();
     }
+#else
+    wxUnusedVar(bmp);
 #endif
 
     // If selected page was above the point of insertion, fix the current page index
@@ -887,7 +912,7 @@ int wxPropertyGridManager::InsertPage( int index, const wxString& label,
 bool wxPropertyGridManager::IsAnyModified() const
 {
     size_t i;
-    for ( i=0; i<m_arrPages.GetCount(); i++ )
+    for ( i=0; i<GetPageCount(); i++ )
     {
         if ( ((wxPropertyGridPage*)m_arrPages.Item(i))->GetStatePtr()->m_anyModified )
             return true;
@@ -918,7 +943,7 @@ wxPGId wxPropertyGridManager::GetPageRoot( int index ) const
 
 bool wxPropertyGridManager::RemovePage( int page )
 {
-    wxCHECK_MSG( (page >= 0) && (page < (int)m_arrPages.GetCount()),
+    wxCHECK_MSG( (page >= 0) && (page < (int)GetPageCount()),
                  false,
                  wxT("invalid page index") );
 
@@ -929,6 +954,8 @@ bool wxPropertyGridManager::RemovePage( int page )
         // Last page: do not remove page entry
         m_pPropGrid->Clear();
         m_selPage = -1;
+        m_iFlags &= ~wxPG_MAN_FL_PAGE_INSERTED;
+        pd->m_label.clear();
     }
     // Change selection if current is page
     else if ( page == m_selPage )
@@ -957,7 +984,7 @@ bool wxPropertyGridManager::RemovePage( int page )
 
         // Delete separator as well, for consistency
         if ( (GetExtraStyle() & wxPG_EX_MODE_BUTTONS) &&
-             m_arrPages.GetCount() == 1 )
+             GetPageCount() == 1 )
             m_pToolbar->DeleteToolByPos(2);
     }
 #endif
@@ -995,28 +1022,31 @@ bool wxPropertyGridManager::ProcessEvent( wxEvent& event )
          m_selPage >= 0 )
     {
         wxPropertyGridPage* page = GetPage(m_selPage);
+        wxPropertyGridEvent* pgEvent = wxDynamicCast(&event, wxPropertyGridEvent);
 
         // Add property grid events to appropriate custom pages
         // but stop propagating to parent if page says it is
         // handling everything.
-        if ( !page->m_isDefault )
+        if ( pgEvent && !page->m_isDefault )
         {
-            page->AddPendingEvent(event);
+            if ( pgEvent->IsPending() )
+                page->AddPendingEvent(event);
+            else
+                page->ProcessEvent(event);
+
             if ( page->IsHandlingAllEvents() )
                 event.StopPropagation();
         }
     }
-    
+
     return wxPanel::ProcessEvent(event);
 }
 
 // -----------------------------------------------------------------------
 
-void wxPropertyGridManager::RepaintSplitter( int new_splittery, int new_width, int new_height,
-                                             bool desc_too )
+void wxPropertyGridManager::RepaintSplitter( wxDC& dc, int new_splittery, int new_width,
+                                             int new_height, bool desc_too )
 {
-    wxClientDC dc(this);
-
     int use_hei = new_height;
     if ( m_pButCompactor )
         use_hei = m_pButCompactor->GetPosition().y;
@@ -1087,7 +1117,8 @@ void wxPropertyGridManager::RefreshHelpBox( int new_splittery, int new_width, in
         }
     }
 
-    RepaintSplitter ( new_splittery, new_width, new_height, true );
+    wxClientDC dc(this);
+    RepaintSplitter( dc, new_splittery, new_width, new_height, true );
 
     m_splitterY = new_splittery;
 
@@ -1115,7 +1146,7 @@ void wxPropertyGridManager::RecalculatePositions( int width, int height )
         #if defined(__WXMSW__)
             tbHeight = 24;
         #elif defined(__WXGTK__)
-            tbHeight = 22;
+            tbHeight = -1; // 22;
         #elif defined(__WXMAC__)
             tbHeight = 22;
         #else
@@ -1213,7 +1244,7 @@ void wxPropertyGridManager::OnPaint( wxPaintEvent& WXUNUSED(event) )
     int r_bottom = r.y + r.height;
     int splitter_bottom = m_splitterY + m_splitterHeight;
     if ( r.y < splitter_bottom && r_bottom >= m_splitterY )
-        RepaintSplitter ( m_splitterY, m_width, m_height, false );
+        RepaintSplitter( dc, m_splitterY, m_width, m_height, false );
 }
 
 // -----------------------------------------------------------------------
@@ -1387,7 +1418,7 @@ wxPGId wxPropertyGridManager::DoGetPropertyByName( wxPGPropNameStr name ) const
 {
     //return GetPropertyByName2(name, (wxPropertyGridState**)NULL );
     size_t i;
-    for ( i=0; i<m_arrPages.GetCount(); i++ )
+    for ( i=0; i<GetPageCount(); i++ )
     {
         wxPropertyGridState* pState = ((wxPropertyGridPage*)m_arrPages.Item(i))->GetStatePtr();
         wxPGId id = pState->BaseGetPropertyByName(name);
@@ -1406,7 +1437,7 @@ wxPGId wxPropertyGridManager::GetPropertyByLabel( const wxString& label,
                                                   wxPropertyGridState** ppState ) const
 {
     size_t i;
-    for ( i=0; i<m_arrPages.GetCount(); i++ )
+    for ( i=0; i<GetPageCount(); i++ )
     {
         wxPropertyGridState* pState = ((wxPropertyGridPage*)m_arrPages.Item(i))->GetStatePtr();
         wxPGId id = pState->GetPropertyByLabel(label);
@@ -1602,7 +1633,7 @@ void wxPropertyGridManager::OnToolbarClick( wxCommandEvent &event )
             wxPropertyGridPage* pdc;
 
             // Find page with given id.
-            for ( i=0; i<m_arrPages.GetCount(); i++ )
+            for ( i=0; i<GetPageCount(); i++ )
             {
                 pdc = (wxPropertyGridPage*)m_arrPages.Item(i);
                 if ( pdc->m_id == id )
@@ -1684,7 +1715,7 @@ void wxPropertyGridManager::SetSplitterLeft( bool subProps, bool allPages )
         int highest = 0;
         unsigned int i;
 
-        for ( i=0; i<m_arrPages.GetCount(); i++ )
+        for ( i=0; i<GetPageCount(); i++ )
         {
             int maxW = m_pState->GetLeftSplitterPos(dc, GetPageState(i)->m_properties, subProps );
             wxLogDebug(wxT("%i"),maxW);

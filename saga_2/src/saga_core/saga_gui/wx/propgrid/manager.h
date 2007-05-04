@@ -560,7 +560,7 @@ public:
     int GetPageByState( wxPropertyGridState* pstate ) const;
 
     /** Returns number of managed pages. */
-    size_t GetPageCount() const { return m_arrPages.GetCount(); }
+    size_t GetPageCount() const;
 
     /** Returns name of given page. */
     const wxString& GetPageName( int index ) const;
@@ -925,6 +925,8 @@ public:
 #endif
     wxPG_IMPLEMENT_PGMAN_METHOD_NORET1_INBODY(SetPropertyValuePoint,const wxPoint&)
     wxPG_IMPLEMENT_PGMAN_METHOD_NORET1_INBODY(SetPropertyValueSize,const wxSize&)
+    wxPG_IMPLEMENT_PGMAN_METHOD_NORET1_INBODY(SetPropertyValueLongLong,const wxLongLong&)
+    wxPG_IMPLEMENT_PGMAN_METHOD_NORET1_INBODY(SetPropertyValueULongLong,const wxULongLong&)
 #ifdef __WXPYTHON__
     wxPG_IMPLEMENT_PGMAN_METHOD_NORET1_INBODY(SetPropertyValuePyObject,PyObject*)
 #endif
@@ -1172,7 +1174,7 @@ protected:
 
     void RefreshHelpBox( int new_splittery, int new_width, int new_height );
 
-    void RepaintSplitter( int new_splittery, int new_width, int new_height, bool desc_too );
+    void RepaintSplitter( wxDC& dc, int new_splittery, int new_width, int new_height, bool desc_too );
 
     void SetDescribedProperty( wxPGProperty* p );
 
