@@ -61,6 +61,13 @@
 #include <wx/notebook.h>
 #include <wx/textctrl.h>
 
+#include <wx/scrolwin.h>
+#include <wx/toolbar.h>
+#include <wx/stattext.h>
+#include <wx/dcclient.h>
+#include <wx/button.h>
+#include <wx/propgrid/propgrid.h>
+
 #include <saga_api/saga_api.h>
 
 #include "helper.h"
@@ -229,10 +236,18 @@ wxString CDLG_About::_Get_Version(void)
 		wxT("SAGA uses the portable C++ GUI toolkit wxWidgets\n")
 		wxT("http://www.wxwidgets.org\n\n")
 		wxT("%s\n")
-		wxT("%s\n"),
-		wxVERSION_STRING,
-		wxT("wxPropertyGrid 1.2.5")
+		wxT("wxPropertyGrid"),
+		wxVERSION_STRING
 	));
+
+	int		Version	= wxPG_VERSION;
+	s.Append(wxString::Format(wxT(" %d"), Version / 1000));
+	Version	-= (Version / 1000) * 1000;
+	s.Append(wxString::Format(wxT(".%d"), Version / 100));
+	Version	-= (Version / 100 ) * 100;
+	s.Append(wxString::Format(wxT(".%d"), Version / 10));
+	Version	-= (Version / 10  ) * 10;
+	s.Append(wxT("\n"));
 
 #ifndef _SAGA_DONOTUSE_HARU
 	s.Append(wxT("_______________________\n\n"));

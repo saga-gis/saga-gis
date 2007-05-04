@@ -346,7 +346,7 @@ int CWKSP_Module_Manager::_Open_Directory(const wxChar *sDirectory)
 		if( Dir.GetFirst(&FileName, wxEmptyString, wxDIR_FILES) )
 		{
 			do
-			{	if( FileName.Find(wxT("saga_api")) < 0 )
+			{	if( FileName.Find(wxT("saga_api")) < 0 && FileName.Find(wxT("wx")) < 0 && FileName.Find(wxT("mingw")) < 0 )
 				if( Open(SG_File_Make_Path(Dir.GetName(), FileName, NULL)) )
 				{
 					nOpened++;
