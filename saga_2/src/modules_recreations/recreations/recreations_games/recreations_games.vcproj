@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="recreations_games"
 	ProjectGUID="{189C7A65-50E3-47EB-B4CF-2C5C73D025DF}"
+	RootNamespace="recreations_games"
 	>
 	<Platforms>
 		<Platform
@@ -146,10 +147,11 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="$(SAGA)/src/saga_core"
-				PreprocessorDefinitions="_DEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC"
+				PreprocessorDefinitions="_DEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				TreatWChar_tAsBuiltInType="false"
 				PrecompiledHeaderFile=".\./../../../../bin/tmp/saga_vc8_u_dbg/recreations_games/recreations_games.pch"
 				AssemblerListingLocation=".\./../../../../bin/tmp/saga_vc8_u_dbg/recreations_games/"
 				ObjectFile=".\./../../../../bin/tmp/saga_vc8_u_dbg/recreations_games/"
@@ -245,10 +247,11 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="$(SAGA)/src/saga_core"
-				PreprocessorDefinitions="NDEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC"
+				PreprocessorDefinitions="NDEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
+				TreatWChar_tAsBuiltInType="false"
 				PrecompiledHeaderFile=".\./../../../../bin/tmp/saga_vc8_u/recreations_games/recreations_games.pch"
 				AssemblerListingLocation=".\./../../../../bin/tmp/saga_vc8_u/recreations_games/"
 				ObjectFile=".\./../../../../bin/tmp/saga_vc8_u/recreations_games/"
