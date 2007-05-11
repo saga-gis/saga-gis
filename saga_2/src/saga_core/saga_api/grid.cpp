@@ -336,6 +336,44 @@ void CSG_Grid::_Set_Properties(TSG_Grid_Type Type, int NX, int NY, double Cellsi
 	m_System.Assign(Cellsize > 0.0 ? Cellsize : 1.0, xMin, yMin, NX, NY);
 
 	m_zMin	= m_zMax	= 0.0;
+
+	switch( m_Type )
+	{
+	case GRID_TYPE_Bit:
+		m_NoData_Value		= m_NoData_hiValue	= 0.0;
+		break;
+
+	case GRID_TYPE_Byte:
+		m_NoData_Value		= m_NoData_hiValue	= 255.0;
+		break;
+
+	case GRID_TYPE_Char:
+		m_NoData_Value		= m_NoData_hiValue	= -127.0;
+		break;
+
+	case GRID_TYPE_Word:
+		m_NoData_Value		= m_NoData_hiValue	= 65535.0;
+		break;
+
+	case GRID_TYPE_Short:
+		m_NoData_Value		= m_NoData_hiValue	= -32767.0;
+		break;
+
+	case GRID_TYPE_DWord:
+		m_NoData_Value		= m_NoData_hiValue	= 4294967295.0;
+		break;
+
+	case GRID_TYPE_Int:
+		m_NoData_Value		= m_NoData_hiValue	= -2147483647.0;
+		break;
+
+	default:
+	case GRID_TYPE_Float:
+	case GRID_TYPE_Double:
+		m_NoData_Value		= -99999.0;
+		m_NoData_hiValue	= -  999.0;
+		break;
+	}
 }
 
 //---------------------------------------------------------
