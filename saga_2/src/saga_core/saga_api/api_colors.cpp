@@ -762,45 +762,14 @@ bool CSG_Colors::Load(const SG_Char *File_Name)
 
 		if( !Version.Cmp(COLORS_SERIAL_VERSION_BINARY) )
 		{
-			return( Serialize(Stream, false, true) );
+			Serialize(Stream, false, true);
 		}
 		else if( !Version.Cmp(COLORS_SERIAL_VERSION__ASCII) )
 		{
-			return( Serialize(Stream, false, false) );
+			Serialize(Stream, false, false);
 		}
-		else	// SAGA 1.x compatibility...
-		{
-			short		nColors;
 
-			Stream.Seek_Start();
-			Stream.Read(&nColors, sizeof(short));
-
-			if( Stream.Length() == (int)(sizeof(short) + 3 * nColors) )
-			{
-				BYTE	*R, *G, *B;
-
-				R	= (BYTE *)SG_Malloc(nColors * sizeof(BYTE));
-				G	= (BYTE *)SG_Malloc(nColors * sizeof(BYTE));
-				B	= (BYTE *)SG_Malloc(nColors * sizeof(BYTE));
-
-				Stream.Read(R, nColors * sizeof(BYTE));
-				Stream.Read(G, nColors * sizeof(BYTE));
-				Stream.Read(B, nColors * sizeof(BYTE));
-
-				Set_Count(nColors);
-
-				for(int i=0; i<nColors; i++)
-				{
-					Set_Color(i, R[i], G[i], B[i]);
-				}
-
-				SG_Free(R);
-				SG_Free(G);
-				SG_Free(B);
-
-				return( true );
-			}
-		}
+		return( true );
 	}
 
 	return( false );

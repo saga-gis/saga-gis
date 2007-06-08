@@ -219,8 +219,8 @@ wxString CWKSP_Module::Get_Description(void)
 
 	//-----------------------------------------------------
 	s.Append(wxString::Format(wxT("<hr><b>%s</b><br>"), LNG("Parameters")));
-	s.Append(wxString::Format(wxT("<table border=\"1\" width=\"100%%\" valign=\"top\"><tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>"),
-		LNG("Name"), LNG("Type"), LNG("Identifier"), LNG("Description"), LNG("Constraints")
+	s.Append(wxString::Format(wxT("<table border=\"1\" width=\"100%%\"><tr><th>%s</th><th>%s</th><th>%s</th></tr>"),
+		LNG("Name"), LNG("Type"), LNG("Description")
 	));
 
 	for(i=0, bFirst=true; i<m_pModule->Get_Parameters()->Get_Count(); i++)
@@ -232,16 +232,14 @@ wxString CWKSP_Module::Get_Description(void)
 			if( bFirst )
 			{
 				bFirst	= false;
-				s.Append(wxString::Format(wxT("<tr><th colspan=\"5\">%s</th></tr>"), LNG("Input")));
+				s.Append(wxString::Format(wxT("<tr><th colspan=\"3\">%s</th></tr>"), LNG("Input")));
 			}
 
-			s.Append(wxString::Format(wxT("<tr><td>%s%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"),
+			s.Append(wxString::Format(wxT("<tr><td>%s%s</td><td>%s</td><td>%s</td></tr>"),
 				pParameter->Get_Name(),
 				pParameter->is_Optional() ? wxT(" (*)") : wxT(" "),
-				pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE).c_str(),
-				pParameter->Get_Identifier(),
-				pParameter->Get_Description(),
-				pParameter->Get_Description(PARAMETER_DESCRIPTION_PROPERTIES).c_str()
+				pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE|PARAMETER_DESCRIPTION_PROPERTIES).c_str(),
+				pParameter->Get_Description()
 			));
 		}
 	}
@@ -255,16 +253,14 @@ wxString CWKSP_Module::Get_Description(void)
 			if( bFirst )
 			{
 				bFirst	= false;
-				s.Append(wxString::Format(wxT("<tr><th colspan=\"5\">%s</th></tr>"), LNG("Output")));
+				s.Append(wxString::Format(wxT("<tr><th colspan=\"3\">%s</th></tr>"), LNG("Output")));
 			}
 
-			s.Append(wxString::Format(wxT("<tr><td>%s%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"),
+			s.Append(wxString::Format(wxT("<tr><td>%s%s</td><td>%s</td><td>%s</td></tr>"),
 				pParameter->Get_Name(),
 				pParameter->is_Optional() ? wxT(" (*)") : wxT(""),
-				pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE).c_str(),
-				pParameter->Get_Identifier(),
-				pParameter->Get_Description(),
-				pParameter->Get_Description(PARAMETER_DESCRIPTION_PROPERTIES).c_str()
+				pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE|PARAMETER_DESCRIPTION_PROPERTIES).c_str(),
+				pParameter->Get_Description()
 			));
 		}
 	}
@@ -273,20 +269,18 @@ wxString CWKSP_Module::Get_Description(void)
 	{
 		pParameter	= m_pModule->Get_Parameters()->Get_Parameter(i);
 
-		if( pParameter->is_Option() && pParameter->Get_Type() != PARAMETER_TYPE_Grid_System )
+		if( pParameter->is_Option() )
 		{
 			if( bFirst )
 			{
 				bFirst	= false;
-				s.Append(wxString::Format(wxT("<tr><th colspan=\"5\">%s</th></tr>"), LNG("Options")));
+				s.Append(wxString::Format(wxT("<tr><th colspan=\"3\">%s</th></tr>"), LNG("Options")));
 			}
 
-			s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"),
+			s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td><td>%s</td></tr>"),
 				pParameter->Get_Name(),
-				pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE).c_str(),
-				pParameter->Get_Identifier(),
-				pParameter->Get_Description(),
-				pParameter->Get_Description(PARAMETER_DESCRIPTION_PROPERTIES).c_str()
+				pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE|PARAMETER_DESCRIPTION_PROPERTIES).c_str(),
+				pParameter->Get_Description()
 			));
 		}
 		else if( pParameter->is_Optional() )

@@ -119,8 +119,8 @@ CSolarRadiation::CSolarRadiation(void)
 		_TL(""),
 
 		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("kWh/m\xc2\xb2"),
-			_TL("J/m\xc2\xb2")
+			_TL("kWh/m²"),
+			_TL("J/m²")
 		), 0
 	);
 
@@ -132,7 +132,7 @@ CSolarRadiation::CSolarRadiation(void)
 	);
 
 	pNode_1	= Parameters.Add_Value(
-		pNode_0	, "SOLCONST"	, _TL("Solar Constant [W/m\xc2\xb2]"),
+		pNode_0	, "SOLCONST"	, _TL("Solar Constant [W/m²]"),
 		_TL(""),
 		PARAMETER_TYPE_Double	, 1367
 	);
@@ -374,11 +374,11 @@ bool CSolarRadiation::On_Execute(void)
 	{
 		*m_pRadiation	*= 10.0 / 36.0;	// 1 J = 1 Ws = 1/(60*60) Wh = 1/3600 Wh >> 1 J = 1000/3600 kWh = 10/36 kWh
 
-		m_pRadiation->Set_Unit(_TL("J/m\xc2\xb2"));
+		m_pRadiation->Set_Unit(_TL("J/m²"));
 	}
 	else
 	{
-		m_pRadiation->Set_Unit(_TL("kWh/m\xc2\xb2"));
+		m_pRadiation->Set_Unit(_TL("kWh/m²"));
 	}
 
 	//-----------------------------------------------------

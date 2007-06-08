@@ -98,7 +98,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CDLG_Colors::CDLG_Colors(CSG_Colors *pColors)
-	: CDLG_Base(-1, wxT("[CAP] Colors"))
+	: CDLG_Base(-1, LNG("[CAP] Colors"))
 {
 	m_pOriginal	= pColors;
 	m_pColors	= new CSG_Colors();
@@ -164,14 +164,9 @@ void CDLG_Colors::On_Load(wxCommandEvent &event)
 
 	if( DLG_Open(File_Path, ID_DLG_COLORS_OPEN) )
 	{
-		if( m_pColors->Load(File_Path.c_str()) == false )
-		{
-			DLG_Message_Show(LNG("Colors file could not be imported."), LNG("Load Colors"));
-		}
-		else
-		{
-			m_pControl->Refresh(false);
-		}
+		m_pColors->Load(File_Path);
+
+		m_pControl->Refresh(false);
 	}
 }
 
@@ -182,10 +177,9 @@ void CDLG_Colors::On_Save(wxCommandEvent &event)
 
 	if( DLG_Save(File_Path, ID_DLG_COLORS_SAVE) )
 	{
-		if( m_pColors->Save(File_Path.c_str(), true) == false )
-		{
-			DLG_Message_Show(LNG("Colors file could not be exported."), LNG("Save Colors"));
-		}
+		m_pColors->Save(File_Path, true);
+
+		m_pControl->Refresh(false);
 	}
 }
 

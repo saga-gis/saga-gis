@@ -132,7 +132,7 @@ bool CWKSP_Module_Manager::Initialise(void)
 	if( Get_Count() == 0 )
 	{
 #if defined(_SAGA_LINUX)
-		if( _Open_Directory(wxT("/usr/local/lib/saga")) == 0 )
+		if( _Open_Directory("/usr/local/lib/saga") == 0 )
 #endif
 		_Open_Directory(g_pSAGA->Get_App_Path());
 	}
@@ -298,17 +298,11 @@ bool CWKSP_Module_Manager::Do_Beep(void)
 //---------------------------------------------------------
 void CWKSP_Module_Manager::_Config_Read(void)
 {
-	bool		bValue;
-	wxString	sValue;
+	wxString	Value;
 
-	if( CONFIG_Read(wxT("/MODULES"), wxT("BEEP")	, bValue) )
+	for(int i=0; CONFIG_Read(CFG_LIBS, wxString::Format(CFG_LIBF, i), Value); i++)
 	{
-		m_Parameters("BEEP")->Set_Value(bValue);
-	}
-
-	for(int i=0; CONFIG_Read(CFG_LIBS, wxString::Format(CFG_LIBF, i), sValue); i++)
-	{
-		Open(sValue);
+		Open(Value);
 	}
 
 	m_pMenu->Update();
@@ -317,8 +311,6 @@ void CWKSP_Module_Manager::_Config_Read(void)
 //---------------------------------------------------------
 void CWKSP_Module_Manager::_Config_Write(void)
 {
-	CONFIG_Write(wxT("/MODULES")	, wxT("BEEP")	,		m_Parameters("BEEP")->asBool());
-
 	CONFIG_Delete(CFG_LIBS);
 
 	for(int i=0; i<Get_Count(); i++)
@@ -346,7 +338,7 @@ int CWKSP_Module_Manager::_Open_Directory(const wxChar *sDirectory)
 		if( Dir.GetFirst(&FileName, wxEmptyString, wxDIR_FILES) )
 		{
 			do
-			{	if( FileName.Find(wxT("saga_api")) < 0 && FileName.Find(wxT("wx")) < 0 && FileName.Find(wxT("mingw")) < 0 )
+			{	if( FileName.Find(wxT("saga_api")) < 0 )
 				if( Open(SG_File_Make_Path(Dir.GetName(), FileName, NULL)) )
 				{
 					nOpened++;
@@ -399,7 +391,7 @@ bool CWKSP_Module_Manager::Open(const wxChar *File_Name)
 	CWKSP_Module_Library	*pLibrary;
 
 	//-----------------------------------------------------
-	if( SG_File_Cmp_Extension(File_Name, SG_T("mlb"))
+	if( SG_File_Cmp_Extension(File_Name, wxT("mlb"))
 	||	SG_File_Cmp_Extension(File_Name, wxT("dll"))
 	||	SG_File_Cmp_Extension(File_Name, wxT("so")) )
 	{

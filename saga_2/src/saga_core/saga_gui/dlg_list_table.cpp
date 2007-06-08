@@ -112,7 +112,7 @@ void CDLG_List_Table::_Set_Objects(void)
 	bool				bList;
 	int					i, j;
 	CWKSP_Table_Manager	*pTables;
-	CSG_Table			*pTable;
+	CSG_Table				*pTable;
 
 	//-----------------------------------------------------
 	if( (pTables = g_pData->Get_Tables()) != NULL )

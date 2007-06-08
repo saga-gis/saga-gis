@@ -120,7 +120,7 @@ CForecasting::CForecasting(void){
 	Parameters.Add_Value(NULL,
 						"MONTECARLO",
 						_TL("Number of Events"),
-						_TL("N\xc3\xbamero of Monte-Carlo events"),
+						_TL("Número of Monte-Carlo events"),
 						PARAMETER_TYPE_Int,
 						1000,
 						1.,

@@ -117,13 +117,13 @@ CHugget_01::CHugget_01(void)
 	);
 
 	Parameters.Add_Value(
-		NULL	, "C_INIT"		, _TL("Initial Litter Storage [g/m\xc2\xb2]"),
+		NULL	, "C_INIT"		, _TL("Initial Litter Storage [g/m²]"),
 		_TL(""),
 		PARAMETER_TYPE_Double	, 0.0, 0.0, true
 	);
 
 	Parameters.Add_Value(
-		NULL	, "C_INPUT"		, _TL("Litterfall Rate [g/m\xc2\xb2/a]"),
+		NULL	, "C_INPUT"		, _TL("Litterfall Rate [g/m²/a]"),
 		_TL(""),
 		PARAMETER_TYPE_Double	, 240.0, 0.0, true
 	);

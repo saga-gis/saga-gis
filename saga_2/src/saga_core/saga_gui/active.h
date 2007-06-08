@@ -99,7 +99,6 @@ public:
 
 	bool							Update					(class CWKSP_Base_Item *pItem, bool bSave);
 	bool							Update_DataObjects		(void);
-	bool							Update_Description		(void);
 
 
 private:
@@ -121,6 +120,8 @@ private:
 
 	bool							_Add_Page				(int PageID);
 	bool							_Del_Page				(int PageID);
+
+	bool							_Set_Description		(void);
 
 
 //---------------------------------------------------------

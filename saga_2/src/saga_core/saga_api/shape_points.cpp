@@ -111,11 +111,13 @@ void CSG_Shape_Points::Destroy(void)
 //---------------------------------------------------------
 bool CSG_Shape_Points::On_Assign(CSG_Shape *pShape)
 {
+	int		iPart, iPoint;
+
 	Del_Parts();
 
-	for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+	for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 	{
-		for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+		for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 		{
 			CSG_Shape::Add_Point(pShape->Get_Point(iPoint, iPart), iPart);
 		}
@@ -134,10 +136,10 @@ bool CSG_Shape_Points::On_Assign(CSG_Shape *pShape)
 //---------------------------------------------------------
 int CSG_Shape_Points::_Add_Part(void)
 {
-	m_Points			= (TSG_Point **)SG_Realloc(m_Points , (m_nParts + 1) * sizeof(TSG_Point *));
-	m_Points [m_nParts]	= NULL;
+	m_Points			= (TSG_Point **)	SG_Realloc( m_Points, (m_nParts + 1) * sizeof(TSG_Point *));
+	m_Points[m_nParts]	= NULL;
 
-	m_nPoints			= (int        *)SG_Realloc(m_nPoints, (m_nParts + 1) * sizeof(int));
+	m_nPoints			= (int *)			SG_Realloc(m_nPoints, (m_nParts + 1) * sizeof(int));
 	m_nPoints[m_nParts]	= 0;
 
 	m_nParts++;
@@ -148,6 +150,8 @@ int CSG_Shape_Points::_Add_Part(void)
 //---------------------------------------------------------
 int CSG_Shape_Points::Del_Part(int del_Part)
 {
+	int		iPart;
+
 	if( del_Part >= 0 && del_Part < m_nParts )
 	{
 		if( m_Points[del_Part] != NULL )
@@ -157,14 +161,14 @@ int CSG_Shape_Points::Del_Part(int del_Part)
 
 		m_nParts--;
 
-		for(int iPart=del_Part; iPart<m_nParts; iPart++)
+		for(iPart=del_Part; iPart<m_nParts; iPart++)
 		{
-			m_Points [iPart]	= m_Points [iPart + 1];
+			m_Points[iPart]	= m_Points[iPart + 1];
 			m_nPoints[iPart]	= m_nPoints[iPart + 1];
 		}
 
-		m_Points	= (TSG_Point **)SG_Realloc(m_Points , m_nParts * sizeof(TSG_Point *));
-		m_nPoints	= (int        *)SG_Realloc(m_nPoints, m_nParts * sizeof(int));
+		m_Points	= (TSG_Point **)SG_Realloc(m_Points, m_nParts * sizeof(TSG_Point *));
+		m_nPoints	= (int          *)SG_Realloc(m_nPoints, m_nParts * sizeof(int));
 
 		_Extent_Invalidate();
 	}
@@ -175,7 +179,9 @@ int CSG_Shape_Points::Del_Part(int del_Part)
 //---------------------------------------------------------
 int CSG_Shape_Points::Del_Parts(void)
 {
-	for(int iPart=m_nParts-1; iPart>=0; iPart--)
+	int		iPart;
+
+	for(iPart=m_nParts-1; iPart>=0; iPart--)
 	{
 		Del_Part(iPart);
 	}
@@ -197,14 +203,13 @@ int CSG_Shape_Points::Add_Point(double x, double y, int iPart)
 }
 
 //---------------------------------------------------------
-#define GET_GROW_SIZE(n)	(n < 128 ? 1 : (n < 2048 ? 32 : 256))
-
-//---------------------------------------------------------
 int CSG_Shape_Points::Ins_Point(double x, double y, int iPoint, int iPart)
 {
+	int		i;
+
 	if( iPart >= m_nParts )
 	{
-		for(int i=m_nParts; i<=iPart; i++)
+		for(i=m_nParts; i<=iPart; i++)
 		{
 			_Add_Part();
 		}
@@ -212,19 +217,9 @@ int CSG_Shape_Points::Ins_Point(double x, double y, int iPoint, int iPart)
 
 	if( iPart >= 0 && iPart < m_nParts && iPoint >= 0 && iPoint <= m_nPoints[iPart] )
 	{
-		if( (m_nPoints[iPart] % GET_GROW_SIZE(m_nPoints[iPart])) == 0 )
-		{
-			TSG_Point	*Points	= (TSG_Point *)SG_Realloc(m_Points[iPart], (m_nPoints[iPart] + GET_GROW_SIZE(m_nPoints[iPart])) * sizeof(TSG_Point));
+		m_Points[iPart]	= (TSG_Point *)SG_Realloc(m_Points[iPart], (m_nPoints[iPart] + 1) * sizeof(TSG_Point));
 
-			if( Points == NULL )
-			{
-				return( 0 );
-			}
-
-			m_Points[iPart]	= Points;
-		}
-
-		for(int i=m_nPoints[iPart]; i>iPoint; i--)
+		for(i=m_nPoints[iPart]; i>iPoint; i--)
 		{
 			m_Points[iPart][i]	= m_Points[iPart][i - 1];
 		}
@@ -239,18 +234,20 @@ int CSG_Shape_Points::Ins_Point(double x, double y, int iPoint, int iPart)
 		return( m_nPoints[iPart] );
 	}
 
-	return( 0 );
+	return( -1 );
 }
 
 //---------------------------------------------------------
 int CSG_Shape_Points::Set_Point(double x, double y, int iPoint, int iPart)
 {
+	TSG_Point	*pPoint;
+
 	if( iPart >= 0 && iPart < m_nParts && iPoint >= 0 && iPoint < m_nPoints[iPart] )
 	{
-		TSG_Point	*pPoint	= m_Points[iPart] + iPoint;
+		pPoint			= m_Points[iPart] + iPoint;
 
-		pPoint->x	= x;
-		pPoint->y	= y;
+		pPoint->x		= x;
+		pPoint->y		= y;
 
 		_Extent_Invalidate();
 

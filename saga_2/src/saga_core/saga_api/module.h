@@ -51,7 +51,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: module.h,v 1.13 2007-02-26 17:48:37 oconrad Exp $
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -145,7 +145,7 @@ public:
 	CSG_Parameters *			Get_Parameters				(void)	{	return( &Parameters );	}
 	CSG_Parameters *			Get_Parameters				(int i)	{	return( i >= 0 && i < m_npParameters ? m_pParameters[i] : NULL );	}
 	CSG_Parameters *			Get_Parameters				(const SG_Char *Identifier);
-#ifdef _SAGA_UNICODE
+#ifdef _UNICODE
 	CSG_Parameters *			Get_Parameters				(const char    *Identifier);
 #endif
 
@@ -187,7 +187,7 @@ protected:
 	CSG_Parameters *			Add_Parameters				(const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description);
 	bool						Dlg_Parameters				(const SG_Char *Identifier);
 	bool						Dlg_Parameters				(CSG_Parameters *pParameters, const SG_Char *Caption);
-#ifdef _SAGA_UNICODE
+#ifdef _UNICODE
 	CSG_Parameters *			Add_Parameters				(const char    *Identifier, const SG_Char *Name, const SG_Char *Description);
 	bool						Dlg_Parameters				(const char    *Identifier);
 #endif
@@ -217,9 +217,6 @@ protected:
 	bool						DataObject_Get_Colors		(CSG_Data_Object *pDataObject, CSG_Colors &Colors);
 	bool						DataObject_Set_Colors		(CSG_Data_Object *pDataObject, const CSG_Colors &Colors);
 	bool						DataObject_Set_Colors		(CSG_Data_Object *pDataObject, int nColors, int Palette = SG_COLORS_DEFAULT, bool bRevert = false);
-
-	bool						DataObject_Get_Parameters	(CSG_Data_Object *pDataObject, CSG_Parameters &Parameters);
-	bool						DataObject_Set_Parameters	(CSG_Data_Object *pDataObject, CSG_Parameters &Parameters);
 
 
 private:
@@ -562,7 +559,7 @@ extern CSG_Module_Library_Interface	MLB_Interface;
 #endif	// #ifdef SWIG
 
 //---------------------------------------------------------
-#ifndef _SAGA_UNICODE
+#ifndef _UNICODE
 	#define _TL			MLB_Interface.Get_Translation
 	#define _TW			MLB_Interface.Get_Translation
 #else

@@ -885,8 +885,6 @@ const SG_Char * CSG_Parameter_String::asString(void)
 void CSG_Parameter_String::On_Assign(CSG_Parameter_Data *pSource)
 {
 	m_String.Printf(((CSG_Parameter_String *)pSource)->m_String.c_str());
-
-	bPassword	= ((CSG_Parameter_String *)pSource)->bPassword;
 }
 
 //---------------------------------------------------------

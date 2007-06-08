@@ -824,7 +824,7 @@ void CWKSP_Grid::_Save_Image(void)
 
 			if( Stream.Open(fn.GetFullPath().c_str(), SG_FILE_W, false) )
 			{
-				Stream.Printf(wxT("%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n"),
+				Stream.Printf(wxT("%f\n%f\n%f\n%f\n%f\n%f\n"),
 					 m_pGrid->Get_Cellsize(),
 					 0.0, 0.0,
 					-m_pGrid->Get_Cellsize(),

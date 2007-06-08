@@ -99,7 +99,7 @@ CGrid_RGB_Composite::CGrid_RGB_Composite(void)
 			_TL("User defined rescale"),
 			_TL("Percentiles"),
 			_TL("Percentage of standard deviation")
-		), 4
+		), 1
 	);
 
 	Parameters.Add_Range(
@@ -139,7 +139,7 @@ CGrid_RGB_Composite::CGrid_RGB_Composite(void)
 			_TL("User defined rescale"),
 			_TL("Percentiles"),
 			_TL("Percentage of standard deviation")
-		), 4
+		), 1
 	);
 
 	Parameters.Add_Range(
@@ -179,7 +179,7 @@ CGrid_RGB_Composite::CGrid_RGB_Composite(void)
 			_TL("User defined rescale"),
 			_TL("Percentiles"),
 			_TL("Percentage of standard deviation")
-		), 4
+		), 1
 	);
 
 	Parameters.Add_Range(
@@ -219,7 +219,7 @@ CGrid_RGB_Composite::CGrid_RGB_Composite(void)
 			_TL("User defined rescale"),
 			_TL("Percentiles"),
 			_TL("Percentage of standard deviation")
-		), 4
+		), 1
 	);
 
 	Parameters.Add_Range(
@@ -276,15 +276,6 @@ bool CGrid_RGB_Composite::On_Execute(void)
 	pRGB	= Parameters("GRID_RGB")->asGrid();
 	pRGB->Create(pRGB->Get_System(), GRID_TYPE_Int);
 	DataObject_Set_Colors(pRGB, 100, SG_COLORS_BLACK_WHITE);
-
-	CSG_Parameters	Parms;
-
-	if( DataObject_Get_Parameters(pRGB, Parms) && Parms("COLORS_TYPE") )
-	{
-		Parms("COLORS_TYPE")->Set_Value(3);	// Color Classification Type: RGB
-
-		DataObject_Set_Parameters(pRGB, Parms);
-	}
 
 	//-----------------------------------------------------
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)

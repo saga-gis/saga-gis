@@ -131,18 +131,10 @@ CGrid_Resample::CGrid_Resample(void)
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("SYSTEM"	, _TL("Choose Grid System")	, _TL(""));
-
-	pParameters->Add_Grid_System(
-		NULL	, "SYSTEM"		, _TL("Grid System"),
-		_TL("")
-	);
-
-	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GRID"		, _TL("Target Grid")				, _TL(""));
+	pParameters	= Add_Parameters("TARGET"		, _TL("Target Grid")				, _TL(""));
 
 	pNode	= pParameters->Add_Grid(
-		NULL	, "GRID"		, _TL("Target Grid"),
+		NULL	, "TARGET"		, _TL("Target Grid"),
 		_TL(""),
 		PARAMETER_INPUT			, false
 	);
@@ -153,7 +145,7 @@ CGrid_Resample::CGrid_Resample(void)
 	pNode	= pParameters->Add_Choice(
 		NULL	, "METHOD"		, _TL("Interpolation Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("Nearest Neighbor"),
 			_TL("Bilinear Interpolation"),
 			_TL("Inverse Distance Interpolation"),
@@ -274,18 +266,18 @@ bool CGrid_Resample::On_Execute(void)
 		break;
 
 	case 1:	// Target Project...
-		if( Dlg_Parameters("SYSTEM") )
+		if( Dlg_Parameters("TARGET") )
 		{
-			System.Assign(*Get_Parameters("SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System());
+			System.Assign(Get_Parameters("TARGET")->Get_Parameter("TARGET")->asGrid()->Get_System());
 		}
 		break;
 
 	case 2:	// Target Grid...
-		if( Dlg_Parameters("GRID") )
+		if( Dlg_Parameters("TARGET") )
 		{
-			System.Assign(Get_Parameters("GRID")->Get_Parameter("GRID")->asGrid()->Get_System());
+			System.Assign(Get_Parameters("TARGET")->Get_Parameter("TARGET")->asGrid()->Get_System());
 
-			pOutput	= Get_Parameters("GRID")->Get_Parameter("GRID")->asGrid();
+			pOutput	= Get_Parameters("TARGET")->Get_Parameter("TARGET")->asGrid();
 		}
 		break;
 	}

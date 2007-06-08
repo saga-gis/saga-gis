@@ -91,7 +91,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_DATAOBJECT_LABEL(p)	(p->is_Option() ? wxString::Format(p->Get_Name()) : wxString::Format(wxT("%s %s"), p->is_Input() ? (p->is_Optional() ? wxT(">") : wxT(">>")) : (p->is_Optional() ? wxT("<") : wxT("<<")), p->Get_Name()))
+#define GET_DATAOBJECT_LABEL(p)	(p->is_Option() ? p->Get_Name() : wxString::Format(wxT("%s %s"), p->is_Input() ? (p->is_Optional() ? wxT(">") : wxT(">>")) : (p->is_Optional() ? wxT("<") : wxT("<<")), p->Get_Name()).c_str())
 
 
 ///////////////////////////////////////////////////////////
@@ -212,14 +212,14 @@ int CParameters_PG_Choice::_Set_Table_Field(void)
 
 			if( m_pParameter->is_Optional() || pTable->Get_Field_Count() == 0 )
 			{
-				_Append( LNG("[VAL] [not set]") );
+				_Append(LNG("[VAL] [not set]"));
 			}
 
 			return( m_pParameter->asInt() >= 0 ? m_pParameter->asInt() : m_choices.GetCount() - 1);
 		}
 	}
 
-	_Append( LNG("[VAL] [not set]") );
+	_Append(LNG("[VAL] [not set]"));
 
 	return( m_choices.GetCount() - 1 );
 }
@@ -300,7 +300,7 @@ int CParameters_PG_Choice::_Set_Grid_System(void)
 			}
 		}
 
-		_Append( LNG("[VAL] [not set]"), (void *)NULL );
+		_Append(LNG("[VAL] [not set]"), (void *)NULL);
 
 		g_pData->Check_Parameter(m_pParameter);
 
@@ -315,7 +315,7 @@ int CParameters_PG_Choice::_Set_Grid_System(void)
 		return( m_choices.GetCount() - 1 );
 	}
 
-	_Append( LNG("[VAL] [no choice available]"), (void *)NULL );
+	_Append(LNG("[VAL] [no choice available]"), (void *)NULL);
 
 	return( m_choices.GetCount() - 1 );
 }
@@ -577,7 +577,7 @@ wxString CParameters_PG_GridSystem::GetValueAsString(int arg_flags) const
 		return( m_choices.GetLabel(m_index) );
 	}
 
-	return( _("<none>") );
+	return( LNG("<none>") );
 }
 
 //---------------------------------------------------------
@@ -609,7 +609,7 @@ bool CParameters_PG_GridSystem::SetValueFromInt(long value, int arg_flags)
 
 			while( Id.IsOk() )
 			{
-				if( SG_STR_CMP( SG_T("CParameters_PG_Choice"), Id.GetPropertyPtr()->GetClassName() ) == 0 )
+				if( SG_STR_CMP(wxT("CParameters_PG_Choice"), Id.GetPropertyPtr()->GetClassName()) == 0 )
 				{
 					((CParameters_PG_Choice *)Id.GetPropertyPtr())->Update();
 				}
@@ -676,8 +676,8 @@ bool CParameters_PG_DoublesValue::_Create(CSG_Parameter *pParameter)
 			m_Values	= (double *)SG_Malloc(m_nValues * sizeof(double));
 			m_Labels	= new wxString[m_nValues];
 
-			m_Labels[0]	= _("Minimum");
-			m_Labels[1]	= _("Maximum");
+			m_Labels[0]	= LNG("Minimum");
+			m_Labels[1]	= LNG("Maximum");
 			break;
 
 		case PARAMETER_TYPE_Degree:
@@ -685,9 +685,9 @@ bool CParameters_PG_DoublesValue::_Create(CSG_Parameter *pParameter)
 			m_Values	= (double *)SG_Malloc(m_nValues * sizeof(double));
 			m_Labels	= new wxString[m_nValues];
 
-			m_Labels[0]	= _("\xb0");
-			m_Labels[1]	= _("'");
-			m_Labels[2]	= _("''");
+			m_Labels[0]	= LNG("°");
+			m_Labels[1]	= LNG("'");
+			m_Labels[2]	= LNG("''");
 			break;
 		}
 
@@ -1061,7 +1061,7 @@ WX_PG_IMPLEMENT_PROPERTY_CLASS(CParameters_PG_Dialoged, wxBaseProperty, CParamet
 
 //---------------------------------------------------------
 CParameters_PG_DialogedClass::CParameters_PG_DialogedClass(const wxString &Name, const wxString &Identifier, const CParameters_PG_DialogedValue &value)
-	: wxPGProperty(value.m_pParameter ? GET_DATAOBJECT_LABEL(value.m_pParameter) : Name, Identifier)
+	: wxPGProperty(value.m_pParameter ? GET_DATAOBJECT_LABEL(value.m_pParameter) : Name.c_str(), Identifier)
 {
 	m_value	= value;
 

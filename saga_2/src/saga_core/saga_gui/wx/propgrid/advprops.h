@@ -46,7 +46,7 @@ bool WXDLLIMPEXP_PG operator == (const wxArrayInt& array1, const wxArrayInt& arr
 //
 // Additional Property Editors
 //
-#if wxUSE_SPINBTN
+#if wxUSE_SPINCTRL
 WX_PG_DECLARE_EDITOR_WITH_DECL(SpinCtrl,WXDLLIMPEXP_PG)
 #endif
 

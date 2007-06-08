@@ -95,7 +95,7 @@ public:
 	virtual bool				On_Command				(int Cmd_ID);
 	virtual bool				On_Command_UI			(wxUpdateUIEvent &event);
 
-	CSG_Shapes *				Get_Shapes				(void)	{	return( m_pShapes );	}
+	CSG_Shapes *					Get_Shapes				(void)	{	return( m_pShapes );	}
 	class CWKSP_Table *			Get_Table				(void)	{	return( m_pTable );		}
 
 	virtual wxString			Get_Value				(CSG_Point ptWorld, double Epsilon);
@@ -105,9 +105,6 @@ public:
 
 	int							Get_Color_Field			(void)	{	return( m_iColor );		}
 	int							Get_Label_Field			(void)	{	return( m_iLabel );		}
-
-	bool						is_Editing				(void)	{	return( m_Edit_pShape != NULL );	}
-
 
 protected:
 
@@ -119,11 +116,11 @@ protected:
 
 	CSG_Points_Int				m_Chart;
 
-	CSG_Parameters				m_Chart_Options;
+	CSG_Parameters					m_Chart_Options;
 
-	CSG_Shape					*m_Edit_pShape;
+	CSG_Shape						*m_Edit_pShape;
 
-	CSG_Shapes					*m_pShapes, m_Edit_Shapes;
+	CSG_Shapes						*m_pShapes, m_Edit_Shapes;
 
 	class CWKSP_Table			*m_pTable;
 

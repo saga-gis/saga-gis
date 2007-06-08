@@ -399,28 +399,6 @@ bool		SG_UI_DataObject_Colors_Set(CSG_Data_Object *pDataObject, CSG_Colors *pCol
 }
 
 //---------------------------------------------------------
-bool		SG_UI_DataObject_Params_Get	(CSG_Data_Object *pDataObject, CSG_Parameters *pParameters)
-{
-	if( gSG_UI_Callback && pDataObject && pParameters )
-	{
-		return( gSG_UI_Callback(CALLBACK_DATAOBJECT_PARAMS_GET, (long)pDataObject, (long)pParameters) != 0 );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool		SG_UI_DataObject_Params_Set	(CSG_Data_Object *pDataObject, CSG_Parameters *pParameters)
-{
-	if( gSG_UI_Callback && pDataObject && pParameters )
-	{
-		return( gSG_UI_Callback(CALLBACK_DATAOBJECT_PARAMS_SET, (long)pDataObject, (long)pParameters) != 0 );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
 bool		SG_UI_DataObject_Get_All(class CSG_Parameters *pParameters)
 {
 	if( gSG_UI_Callback && pParameters )

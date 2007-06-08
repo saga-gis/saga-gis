@@ -69,7 +69,6 @@
 #include "wksp_map.h"
 #include "wksp_module.h"
 #include "wksp_grid.h"
-#include "wksp_shapes.h"
 
 #include "view_map.h"
 #include "view_map_control.h"
@@ -600,21 +599,13 @@ void CVIEW_Map_Control::On_Mouse_LDown(wxMouseEvent &event)
 		}
 		else if( m_pMap->Find_Layer(Get_Active_Layer()) )
 		{
-			switch(	Get_Active_Layer()->Get_Type() )
+			if( Get_Active_Layer()->Get_Type() == WKSP_ITEM_Grid )
 			{
-			default:
-				m_Drag_Mode		= MODULE_INTERACTIVE_DRAG_NONE;
-				break;
-
-			case WKSP_ITEM_Grid:
 				m_Drag_Mode		= MODULE_INTERACTIVE_DRAG_BOX;
-				break;
-
-			case WKSP_ITEM_Shapes:
-				m_Drag_Mode		= ((CWKSP_Shapes *)Get_Active_Layer())->is_Editing()
-								? MODULE_INTERACTIVE_DRAG_NONE
-								: MODULE_INTERACTIVE_DRAG_BOX;
-				break;
+			}
+			else //if( Get_Active_Layer()->Get_Type() == WKSP_ITEM_Shapes )
+			{
+				m_Drag_Mode		= MODULE_INTERACTIVE_DRAG_NONE;
 			}
 
 			Get_Active_Layer()->Edit_On_Mouse_Down(_Get_World(event.GetPosition()), _Get_World(1.0), GET_KEYS(event));
@@ -869,13 +860,7 @@ void CVIEW_Map_Control::On_Mouse_Motion(wxMouseEvent &event)
 	case MAP_MODE_SELECT:
 		if( g_pModule )
 		{
-			TSG_Module_Interactive_Mode	iMode
-				= event.LeftIsDown()	? MODULE_INTERACTIVE_MOVE_LDOWN
-				: event.MiddleIsDown()	? MODULE_INTERACTIVE_MOVE_MDOWN
-				: event.RightIsDown()	? MODULE_INTERACTIVE_MOVE_RDOWN
-										: MODULE_INTERACTIVE_MOVE;
-
-			g_pModule->Execute(_Get_World(event.GetPosition()), iMode, GET_KEYS(event));
+			g_pModule->Execute(_Get_World(event.GetPosition()), MODULE_INTERACTIVE_MOVE, GET_KEYS(event));
 		}
 		else if( m_pMap->Find_Layer(Get_Active_Layer()) )
 		{

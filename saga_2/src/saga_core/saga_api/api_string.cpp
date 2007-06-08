@@ -75,20 +75,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define WXCONV			wxConvUTF8
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 CSG_String::CSG_String(void)
 {
 	m_pString	= new wxString;
-#ifdef _SAGA_UNICODE
+#ifdef _UNICODE
 	m_bString	= NULL;
 #endif
 }
@@ -96,7 +86,7 @@ CSG_String::CSG_String(void)
 CSG_String::CSG_String(const CSG_String &String)
 {
 	m_pString	= new wxString(*String.m_pString);
-#ifdef _SAGA_UNICODE
+#ifdef _UNICODE
 	m_bString	= NULL;
 #endif
 }
@@ -104,15 +94,15 @@ CSG_String::CSG_String(const CSG_String &String)
 CSG_String::CSG_String(const SG_Char *String)
 {
 	m_pString	= new wxString(String);
-#ifdef _SAGA_UNICODE
+#ifdef _UNICODE
 	m_bString	= NULL;
 #endif
 }
 
-#ifdef _SAGA_UNICODE
+#ifdef _UNICODE
 CSG_String::CSG_String(const char *String)
 {
-	m_pString	= new wxString(WXCONV.cMB2WC(String));
+	m_pString	= new wxString(wxConvLibc.cMB2WC(String));
 	m_bString	= NULL;
 }
 #endif
@@ -120,7 +110,7 @@ CSG_String::CSG_String(const char *String)
 CSG_String::CSG_String(SG_Char Character)
 {
 	m_pString	= new wxString(Character);
-#ifdef _SAGA_UNICODE
+#ifdef _UNICODE
 	m_bString	= NULL;
 #endif
 }
@@ -130,7 +120,7 @@ CSG_String::~CSG_String(void)
 {
 	delete(m_pString);
 
-#ifdef _SAGA_UNICODE
+#ifdef _UNICODE
 	if( m_bString )
 	{
 		SG_Free(m_bString);
@@ -152,12 +142,12 @@ const SG_Char * CSG_String::c_str(void) const
 }
 
 //---------------------------------------------------------
-#ifdef _SAGA_UNICODE
+#ifdef _UNICODE
 const char * CSG_String::b_str(void)
 {
-	m_bString	= (char *)SG_Realloc(m_bString, (1 + strlen(m_pString->mb_str(WXCONV))) * sizeof(char));
+	m_bString	= (char *)SG_Realloc(m_bString, (1 + strlen(m_pString->mb_str())) * sizeof(char));
 
-	strcpy(m_bString, m_pString->mb_str(WXCONV));
+	strcpy(m_bString, m_pString->mb_str());
 
 	return( m_bString );
 }
@@ -549,8 +539,6 @@ bool CSG_String::asInt(int &Value) const
 		return( true );
 	}
 
-	Value	= (int)lValue;
-
 	return( false );
 }
 
@@ -731,7 +719,7 @@ CSG_String		SG_Double_To_Degree(double Value)
 	Value	= 60.0 * (Value - h);
 	s		= Value;
 
-	String.Printf(SG_T("%c%03d\xb0%02d'%02f''"), c, d, h, s);
+	String.Printf(SG_T("%c%03d°%02d'%02f''"), c, d, h, s);
 
 	return( String );
 }
@@ -745,7 +733,7 @@ double			SG_Degree_To_Double(const SG_Char *String)
 	sig	= 1.0;
 	d	= h	= s	= 0.0;
 
-	if( sVal.BeforeFirst('\xb0').asDouble(d) )
+	if( sVal.BeforeFirst('°').asDouble(d) )
 	{
 		if( d < 0.0 )
 		{
@@ -753,7 +741,7 @@ double			SG_Degree_To_Double(const SG_Char *String)
 			d	= -d;
 		}
 
-		sVal.AfterFirst('\xb0' ).asDouble(h);
+		sVal.AfterFirst('°' ).asDouble(h);
 		sVal.AfterFirst('\'').asDouble(s);
 	}
 	else

@@ -235,15 +235,6 @@ bool CWKSP_Base_Item::On_Command_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CWKSP_Base_Item::Parameters_Changed(void)
 {
-	if( Get_Control() && GetId().IsOk() )
-	{
-		Get_Control()->SetItemText(GetId(), Get_Name());
-	}
-
-	if( g_pACTIVE )
-	{
-		g_pACTIVE->Update_Description();
-	}
 }
 
 

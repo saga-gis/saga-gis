@@ -44,7 +44,7 @@ CImage_VI_Distance::CImage_VI_Distance(void){
 						_TL("Slope of the soil line"), 
 						_TL("Slope of the soil line"), 
 						PARAMETER_TYPE_Double, 
-						0.5);
+						0);
 
 	Parameters.Add_Value(NULL, 
 						"INTERCEPT", 
@@ -55,8 +55,8 @@ CImage_VI_Distance::CImage_VI_Distance(void){
 
 		
 	Parameters.Add_Grid(NULL, 
-						"PVI", 
-						_TL("PVI (Richardson and Wiegand)"), 
+						"PVI (Richardson and Wiegand)", 
+						_TL("PVI"), 
 						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 

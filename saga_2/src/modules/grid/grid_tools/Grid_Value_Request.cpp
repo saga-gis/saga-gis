@@ -111,7 +111,7 @@ CGrid_Value_Request::CGrid_Value_Request(void)
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Single value"),
 			_TL("Collect values")
-		), 0
+		), 4
 	);
 
 	Parameters.Add_Choice(
@@ -125,8 +125,6 @@ CGrid_Value_Request::CGrid_Value_Request(void)
 			_TL("B-Spline Interpolation")
 		), 0
 	);
-
-	Set_Drag_Mode(MODULE_INTERACTIVE_DRAG_NONE);
 }
 
 //---------------------------------------------------------
@@ -157,11 +155,8 @@ bool CGrid_Value_Request::On_Execute(void)
 		switch( m_Method )
 		{
 		case 0: default:
-			m_pTable->Add_Field(_TL("NAME")		, TABLE_FIELDTYPE_String);
+			m_pTable->Add_Field(_TL("NAME")	, TABLE_FIELDTYPE_String);
 			m_pTable->Add_Field(_TL("VALUE")	, TABLE_FIELDTYPE_Double);
-
-			m_pTable->Add_Record()->Set_Value(FIELD_NAME, _TL("X"));
-			m_pTable->Add_Record()->Set_Value(FIELD_NAME, _TL("Y"));
 
 			for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
 			{
@@ -170,8 +165,8 @@ bool CGrid_Value_Request::On_Execute(void)
 			break;
 
 		case 1:
-			m_pTable->Add_Field(_TL("X")		, TABLE_FIELDTYPE_Double);
-			m_pTable->Add_Field(_TL("Y")		, TABLE_FIELDTYPE_Double);
+			m_pTable->Add_Field("X"		, TABLE_FIELDTYPE_Double);
+			m_pTable->Add_Field("Y"		, TABLE_FIELDTYPE_Double);
 
 			for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
 			{
@@ -193,66 +188,54 @@ bool CGrid_Value_Request::On_Execute(void)
 //---------------------------------------------------------
 bool CGrid_Value_Request::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
 {
-	int					iGrid;
-	double				Value;
+	int				iGrid;
+	double			Value;
 	CSG_Table_Record	*pRecord;
 
-	if( m_pGrids->Get_Count() > 0 )
+	if( Mode == MODULE_INTERACTIVE_LDOWN && m_pGrids->Get_Count() > 0 )
 	{
 		switch( m_Method )
 		{
-		//-------------------------------------------------
+		default:
+			return( false );
+
 		case 0:
-			if( Mode == MODULE_INTERACTIVE_LDOWN || Mode == MODULE_INTERACTIVE_MOVE_LDOWN )
+			for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
 			{
-				m_pTable->Get_Record(0)->Set_Value(FIELD_VALUE, ptWorld.Get_X());
-				m_pTable->Get_Record(1)->Set_Value(FIELD_VALUE, ptWorld.Get_Y());
-
-				for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
+				if( m_pGrids->asGrid(iGrid)->Get_Value(ptWorld.m_point, Value, m_Interpolation, true) )
 				{
-					if( m_pGrids->asGrid(iGrid)->Get_Value(ptWorld.m_point, Value, m_Interpolation, true) )
-					{
-						m_pTable->Get_Record(iGrid + 2)->Set_Value(FIELD_VALUE, Value);
-					}
-					else
-					{
-						m_pTable->Get_Record(iGrid + 2)->Set_Value(FIELD_VALUE, 0.0);
-					}
+					m_pTable->Get_Record(iGrid)->Set_Value(FIELD_VALUE, Value);
 				}
-
-				DataObject_Update(m_pTable);
-
-				return( true );
+				else
+				{
+					m_pTable->Get_Record(iGrid)->Set_Value(FIELD_VALUE, 0.0);
+				}
 			}
 			break;
 
-		//-------------------------------------------------
 		case 1:
-			if( Mode == MODULE_INTERACTIVE_LDOWN )
+			pRecord	= m_pTable->Add_Record();
+
+			pRecord->Set_Value(FIELD_X, ptWorld.Get_X());
+			pRecord->Set_Value(FIELD_Y, ptWorld.Get_Y());
+
+			for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
 			{
-				pRecord	= m_pTable->Add_Record();
-
-				pRecord->Set_Value(FIELD_X, ptWorld.Get_X());
-				pRecord->Set_Value(FIELD_Y, ptWorld.Get_Y());
-
-				for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
+				if( m_pGrids->asGrid(iGrid)->Get_Value(ptWorld.m_point, Value, m_Interpolation, true) )
 				{
-					if( m_pGrids->asGrid(iGrid)->Get_Value(ptWorld.m_point, Value, m_Interpolation, true) )
-					{
-						pRecord->Set_Value(FIELD_GRIDS + iGrid, Value);
-					}
-					else
-					{
-						pRecord->Set_Value(FIELD_GRIDS + iGrid, 0.0);
-					}
+					pRecord->Set_Value(FIELD_GRIDS + iGrid, Value);
 				}
-
-				DataObject_Update(m_pTable);
-
-				return( true );
+				else
+				{
+					pRecord->Set_Value(FIELD_GRIDS + iGrid, 0.0);
+				}
 			}
 			break;
 		}
+
+		DataObject_Update(m_pTable);
+
+		return( true );
 	}
 
 	return( false );

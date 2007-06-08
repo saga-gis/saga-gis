@@ -59,9 +59,7 @@ public:
 
     wxPGChoices*        m_fontFamilyChoices;
 
-    int                 m_numBoolChoices;  // 2 or 3
-
-    wxString            m_boolChoices[3]; // default is ["False", "True"]. Extra space is for "Unspecified".
+    wxString            m_boolChoices[2]; // default is ["False", "True"]
 
     bool                m_autoGetTranslation; // If true then some things are automatically translated
 
@@ -133,9 +131,9 @@ public:
             // control to the OnEvent.
             // NOTE: This event in particular is actually automatically conveyed, but
             //   it is just used as an example.
-            propgrid->Connect( wxPG_SUBID1, wxEVT_COMMAND_TEXT_UPDATED,
-                              (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction)
-                              &wxPropertyGrid::OnCustomEditorEvent );
+            propgrid->Connect ( wxPG_SUBID1, wxEVT_COMMAND_TEXT_UPDATED,
+                               (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction)
+                               &wxPropertyGrid::OnCustomEditorEvent );
         \endcode
       OnCustomEditorEvent will then forward events, first to wxPGEditor::OnEvent
       and then to wxPGProperty::OnEvent.
@@ -1669,10 +1667,13 @@ public:
 protected:
 #ifndef SWIG
 
-    const wxString*             m_str;
-    wxString::const_iterator    m_curPos;
-    wxString                    m_readyToken;
-    wxUniChar                   m_delimeter;
+    const wxString* m_str;
+    const wxChar*   m_curPos;
+#if wxUSE_STL
+    //wxString        m_buffer;
+#endif
+    wxString        m_readyToken;
+    wxChar          m_delimeter;
 #endif
 };
 

@@ -212,7 +212,7 @@ public:
 	bool						Layout_Add_Box				(const CSG_Rect &Box_Percent, const SG_Char *ID = NULL);
 	const CSG_Rect &			Layout_Get_Box				(int iBox)	{	return( iBox >= 0 && iBox < m_Boxes.Get_Count() ? m_Boxes[iBox] : m_Size_Margins );	}
 	const CSG_Rect &			Layout_Get_Box				(const SG_Char *ID);
-#ifdef _SAGA_UNICODE
+#ifdef _UNICODE
 	bool						Layout_Add_Box				(double xMin_Percent, double yMin_Percent, double xMax_Percent, double yMax_Percent, const char *ID);
 	bool						Layout_Add_Box				(const CSG_Rect &Box_Percent, const char *ID);
 	const CSG_Rect &			Layout_Get_Box				(const char *ID);

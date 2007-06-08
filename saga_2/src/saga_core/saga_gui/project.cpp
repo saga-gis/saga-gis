@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: project.cpp,v 1.13 2007-03-01 15:31:45 oconrad Exp $
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -59,15 +59,12 @@
 
 //---------------------------------------------------------
 #include <wx/string.h>
-#include <wx/filename.h>
 
 #include <saga_api/saga_api.h>
 
 #include "helper.h"
 
 #include "res_dialogs.h"
-
-#include "saga_frame.h"
 
 #include "wksp_data_manager.h"
 #include "wksp_data_menu_files.h"
@@ -140,36 +137,6 @@ CWKSP_Project::~CWKSP_Project(void)
 bool CWKSP_Project::Has_File_Name(void)
 {
 	return( wxFileExists(m_File_Name) );
-}
-
-//---------------------------------------------------------
-bool CWKSP_Project::Clr_File_Name(void)
-{
-	m_File_Name.Clear();
-
-	g_pSAGA_Frame->Set_Project_Name();
-
-	return( true );
-}
-
-//---------------------------------------------------------
-bool CWKSP_Project::_Set_Project_Name(void)
-{
-	if( Has_File_Name() )
-	{
-		wxFileName	fn(m_File_Name);
-
-		if( fn.GetFullName().CmpNoCase(wxT("saga_gui.cfg")) )
-		{
-			g_pSAGA_Frame->Set_Project_Name(m_File_Name);
-
-			return( true );
-		}
-
-		Clr_File_Name();
-	}
-
-	return( false );
 }
 
 
@@ -291,8 +258,6 @@ bool CWKSP_Project::_Load(const wxChar *FileName, bool bAdd, bool bUpdateMenu)
 
 		MSG_General_Add(LNG("[MSG] Project has been successfully loaded."), true, true);
 
-		_Set_Project_Name();
-
 		return( true );
 	}
 	else
@@ -406,8 +371,6 @@ bool CWKSP_Project::_Save(const wxChar *FileName, bool bSaveModified, bool bUpda
 			g_pData->Get_FileMenus()->Recent_Add(DATAOBJECT_TYPE_Undefined, FileName);
 
 		MSG_General_Add(LNG("[MSG] Project has been saved."), true, true);
-
-		_Set_Project_Name();
 
 		return( true );
 	}
@@ -655,15 +618,13 @@ bool CWKSP_Project::Save_Modified(CWKSP_Base_Item *pItem)
 {
 	CSG_Parameters	Parameters;
 
-	Parameters.Create(this, LNG("[CAP] Close and save modified data sets..."), LNG(""));
+	Parameters.Set_Name(LNG("[CAP] Save Modified Data Objects"));
 	Parameters.Add_Value(NULL, "SAVE_ALL", LNG("Save all"), LNG(""), PARAMETER_TYPE_Bool, false);
 
 	_Modified_Get(&Parameters, pItem);
 
 	if( Parameters.Get_Count() > 1 )
 	{
-		Parameters.Set_Callback_On_Parameter_Changed(&_Modified_Changed);
-
 		if( !DLG_Parameters(&Parameters) )
 		{
 			return( false );
@@ -673,33 +634,6 @@ bool CWKSP_Project::Save_Modified(CWKSP_Base_Item *pItem)
 	}
 
 	return( true );
-}
-
-//---------------------------------------------------------
-int CWKSP_Project::_Modified_Changed(CSG_Parameter *pParameter)
-{
-	if( pParameter && pParameter->Get_Owner() && pParameter->Get_Owner()->Get_Owner() )
-	{
-		if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SAVE_ALL")) )
-		{
-			for(int i=0; i<pParameter->Get_Owner()->Get_Count(); i++)
-			{
-				if( pParameter->Get_Owner()->Get_Parameter(i)->Get_Type() == PARAMETER_TYPE_Bool )
-				{
-					pParameter->Get_Owner()->Get_Parameter(i)->Set_Value(pParameter->asBool());
-				}
-			}
-		}
-		else if( pParameter->Get_Type() == PARAMETER_TYPE_Bool && pParameter->asBool() == false )
-		{
-			if( (pParameter = pParameter->Get_Owner()->Get_Parameter("SAVE_ALL")) != NULL )
-			{
-				pParameter->Set_Value(0);
-			}
-		}
-	}
-
-	return( 0 );
 }
 
 //---------------------------------------------------------
@@ -770,13 +704,13 @@ bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *
 		//-------------------------------------------------
 		pNode	= pParameters->Add_Node(
 			pParent,
-			wxString::Format(wxT("%d NODE"), (long)pObject),
+			wxString::Format(wxT("%d NODE"), (int)pObject),
 			pItem->Get_Name(), wxT("")
 		);
 
 		pParameters->Add_Value(
 			pNode,
-			wxString::Format(wxT("%d")     , (long)pObject),
+			wxString::Format(wxT("%d")     , (int)pObject),
 			LNG("[CAP] Save"), wxT(""), PARAMETER_TYPE_Bool, false
 		);
 
@@ -786,7 +720,7 @@ bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *
 
 		pParameters->Add_FilePath(
 			pNode,
-			wxString::Format(wxT("%d FILE"), (long)pObject),
+			wxString::Format(wxT("%d FILE"), (int)pObject),
 			LNG("[CAP] File"), wxT(""), sFilter, sPath, true
 		);
 
@@ -812,7 +746,7 @@ bool CWKSP_Project::_Modified_Save(CSG_Parameters *pParameters)
 		{
 			CSG_String	fPath;
 
-			if(	(pPath = pParameters->Get_Parameter(wxString::Format(wxT("%d FILE"), (long)pObject))) != NULL
+			if(	(pPath = pParameters->Get_Parameter(wxString::Format(wxT("%d FILE"), (int)pObject))) != NULL
 			&&	pPath->asString() != NULL && SG_STR_LEN(pPath->asString()) > 0 )
 			{
 				fPath	= pPath->asString();

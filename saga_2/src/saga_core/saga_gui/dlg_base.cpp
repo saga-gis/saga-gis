@@ -102,8 +102,6 @@ END_EVENT_TABLE()
 CDLG_Base::CDLG_Base(int id, wxString Caption, bool bCancelBtn)
 	: wxDialog(MDI_Get_Frame(), id, Caption, DLG_Get_Def_Position(), DLG_Get_Def_Size(), wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
 {
-	MDI_Top_Window_Push(this);
-
 	m_Panel_Buttons	= new wxPanel(this);
 
 	m_nButtons		= 0;
@@ -121,7 +119,6 @@ CDLG_Base::CDLG_Base(int id, wxString Caption, bool bCancelBtn)
 //---------------------------------------------------------
 CDLG_Base::~CDLG_Base(void)
 {
-	MDI_Top_Window_Pop(this);
 }
 
 

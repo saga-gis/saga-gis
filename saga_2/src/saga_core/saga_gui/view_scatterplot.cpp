@@ -531,7 +531,7 @@ void CVIEW_ScatterPlot::_Draw_Regression(wxDC &dc, wxRect r, double dx, double d
 	);
 
 	Draw_Text(dc, TEXTALIGN_BOTTOMRIGHT, r.GetRight(), r.GetBottom(),
-		wxString::Format(wxT("R2: %f%%"), 100.0 * m_Regression.Get_R2())	// Coefficient of Determination...
+		wxString::Format(wxT("R²: %f%%"), 100.0 * m_Regression.Get_R2())	// Coefficient of Determination...
 	);
 
 	dc.SetPen(oldPen);

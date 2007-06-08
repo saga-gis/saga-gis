@@ -104,7 +104,7 @@ CTopographicIndices::CTopographicIndices(void)
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		NULL, "WETNESS"		, _TL("Topographic Wetness Index"),
-		_TL("The Topographic Wetness Index: ln( A / tan(\xc3\x9f) )"),
+		_TL("The Topographic Wetness Index: ln( A / tan(ß) )"),
 		PARAMETER_OUTPUT
 	);
 

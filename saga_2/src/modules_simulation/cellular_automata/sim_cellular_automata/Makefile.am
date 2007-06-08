@@ -1,16 +1,7 @@
-#
-# $Id: Makefile.am,v 1.5 2007-02-13 12:49:30 tschorr Exp $
-#
-if DEBUG
-DBGFLAGS = -g -DDEBUG
-endif
-if SAGA_UNICODE
-UC_DEFS = -D_SAGA_UNICODE
-endif
 DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS           = -I$(top_srcdir)/src/saga_core
-AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS)
-AM_LDFLAGS         = -fPIC -shared
+AM_CXXFLAGS        = $(CXX_INCS) $(DEF_SAGA) $(DEP_INCS) $(DEP_DEFS)
+AM_LDFLAGS         = -shared $(DEP_LFLG)
 pkglib_LTLIBRARIES = libsim_cellular_automata.la
 libsim_cellular_automata_la_SOURCES =\
 Life.cpp\
@@ -22,3 +13,5 @@ Wator.h
 
 libsim_cellular_automata_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 
+#install-exec-hook:
+#	pushd .; cd $(pkglibdir); ln -s libsim_cellular_automata.so sim_cellular_automata.so; popd

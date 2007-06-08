@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: callback.cpp,v 1.7 2007-02-26 17:48:36 oconrad Exp $
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -218,7 +218,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_FIND_BY_FILE:
 
-		Result	= (long)g_pData->Get_byFileName((const wxChar *)Param_1, Param_2);
+		Result	= (int)g_pData->Get_byFileName((const wxChar *)Param_1, Param_2);
 
 		break;
 
@@ -285,22 +285,6 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 
 
 	//-----------------------------------------------------
-	case CALLBACK_DATAOBJECT_PARAMS_GET:
-
-		Result	= g_pData->Get_Parameters((CSG_Data_Object *)Param_1, (CSG_Parameters *)Param_2) ? 1 : 0;
-
-		break;
-
-
-	//-----------------------------------------------------
-	case CALLBACK_DATAOBJECT_PARAMS_SET:
-
-		Result	= g_pData->Set_Parameters((CSG_Data_Object *)Param_1, (CSG_Parameters *)Param_2) ? 1 : 0;
-
-		break;
-
-
-	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_GET_ALL:
 
 		Result	= g_pData->Get_DataObject_List((CSG_Parameters *)Param_1) ? 1 : 0;
@@ -317,7 +301,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_GUI_GET_WINDOW:
 
-		Result	= (long)MDI_Get_Frame();
+		Result	= (int)MDI_Get_Frame();
 
 		break;
 	}

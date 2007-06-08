@@ -77,7 +77,6 @@ public:
 
 	const wxChar *			Get_File_Name		(void)	{	return( m_File_Name );	}
 	bool					Has_File_Name		(void);
-	bool					Clr_File_Name		(void);
 
 	bool					Load				(bool bAdd);
 	bool					Load				(const wxChar *FileName, bool bAdd, bool bUpdateMenu);
@@ -93,8 +92,6 @@ private:
 
 	wxString				m_File_Name;
 
-	bool					_Set_Project_Name	(void);
-
 	bool					_Load				(const wxChar *FileName, bool bAdd, bool bUpdateMenu);
 	bool					_Save				(const wxChar *FileName, bool bSaveModified, bool bUpdateMenu);
 
@@ -106,7 +103,6 @@ private:
 
 	class CWKSP_Base_Item *	_Get_byFileName		(wxString FileName);
 
-	static int				_Modified_Changed	(class CSG_Parameter  *pParameter);
 	bool					_Modified_Get		(class CSG_Parameters *pParameters, class CWKSP_Base_Item *pItem);
 	bool					_Modified_Get		(class CSG_Parameters *pParameters, class CWKSP_Base_Item *pItem, class CSG_Data_Object *pObject);
 	bool					_Modified_Save		(class CSG_Parameters *pParameters);

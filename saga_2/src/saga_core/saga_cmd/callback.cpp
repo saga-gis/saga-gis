@@ -262,18 +262,6 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 		break;
 
 
-	//-----------------------------------------------------
-	case CALLBACK_DATAOBJECT_PARAMS_GET:
-
-		break;
-
-
-	//-----------------------------------------------------
-	case CALLBACK_DATAOBJECT_PARAMS_SET:
-
-		break;
-
-
 	///////////////////////////////////////////////////////
 	//                                                   //
 	//                                                   //

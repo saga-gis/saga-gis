@@ -372,17 +372,20 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)
 			if( asValue()->has_Minimum() && asValue()->has_Maximum() )
 			{
 				SEPARATE;
-				s.Append(CSG_String::Format(SG_T("%s: %f - %f"), LNG("Value Range"), asValue()->Get_Minimum(), asValue()->Get_Maximum()));
+				s.Append(CSG_String::Format(SG_T("%s: "), LNG("Limits")));
+				s.Append(CSG_String::Format(SG_T("%f < x < %f"), asValue()->Get_Minimum(), asValue()->Get_Maximum()));
 			}
 			else if( asValue()->has_Minimum() )
 			{
 				SEPARATE;
-				s.Append(CSG_String::Format(SG_T("%s: %f"), LNG("Minimum"), asValue()->Get_Minimum()));
+				s.Append(CSG_String::Format(SG_T("%s: "), LNG("Limit")));
+				s.Append(CSG_String::Format(SG_T("%f < x"), asValue()->Get_Minimum()));
 			}
 			else if( asValue()->has_Maximum() )
 			{
 				SEPARATE;
-				s.Append(CSG_String::Format(SG_T("%s: %f"), LNG("Maximum"), asValue()->Get_Maximum()));
+				s.Append(CSG_String::Format(SG_T("%s: "), LNG("Limit")));
+				s.Append(CSG_String::Format(SG_T("%s < %f"), asValue()->Get_Maximum()));
 			}
 			break;
 

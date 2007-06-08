@@ -197,10 +197,6 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 		return( true );
 	}
 
-	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_X);
-	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_Y);
-	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_Z);
-
 	//-----------------------------------------------------
 	CWKSP_Base_Item	*pLegend, *pHTML;
 
@@ -235,7 +231,7 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 		}
 	}
 
-	Update_Description();
+	_Set_Description();
 
 	//-----------------------------------------------------
 	if( m_pParameters )
@@ -424,7 +420,7 @@ bool CACTIVE::_Del_Page(int PageID)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CACTIVE::Update_Description(void)
+bool CACTIVE::_Set_Description(void)
 {
 	if( m_pDescription )
 	{
@@ -491,7 +487,7 @@ bool CACTIVE::Update(CWKSP_Base_Item *pItem, bool bSave)
 
 		if( !bSave )
 		{
-			Update_Description();
+			_Set_Description();
 		}
 
 		return( true );

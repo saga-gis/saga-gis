@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="grid_tools"
 	ProjectGUID="{55768140-D38D-434E-81DB-E773F73002F5}"
 	>
@@ -49,11 +49,10 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="$(SAGA)/src/saga_core"
-				PreprocessorDefinitions="grid_tools_EXPORTS;NDEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE"
+				PreprocessorDefinitions="grid_tools_EXPORTS;NDEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
-				TreatWChar_tAsBuiltInType="false"
 				PrecompiledHeaderFile=".\./../../../../bin/tmp/saga_vc8_u/grid_tools/grid_tools.pch"
 				AssemblerListingLocation=".\./../../../../bin/tmp/saga_vc8_u/grid_tools/"
 				ObjectFile=".\./../../../../bin/tmp/saga_vc8_u/grid_tools/"
@@ -146,11 +145,10 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="$(SAGA)/src/saga_core"
-				PreprocessorDefinitions="grid_tools_EXPORTS;_DEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE"
+				PreprocessorDefinitions="grid_tools_EXPORTS;_DEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				TreatWChar_tAsBuiltInType="false"
 				PrecompiledHeaderFile=".\./../../../../bin/tmp/saga_vc8_u_dbg/grid_tools/grid_tools.pch"
 				AssemblerListingLocation=".\./../../../../bin/tmp/saga_vc8_u_dbg/grid_tools/"
 				ObjectFile=".\./../../../../bin/tmp/saga_vc8_u_dbg/grid_tools/"
@@ -492,10 +490,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\Grid_Buffer_Proximity.cpp"
-				>
 			</File>
 			<File
 				RelativePath="Grid_CombineGrids.cpp"
@@ -1348,10 +1342,6 @@
 			</File>
 			<File
 				RelativePath="Grid_Buffer.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Grid_Buffer_Proximity.h"
 				>
 			</File>
 			<File

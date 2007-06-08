@@ -178,7 +178,7 @@ CWKSP_Table * CWKSP_Table_Manager::Add(CSG_Table *pTable)
 {
 	CWKSP_Table	*pItem;
 
-	if( pTable && !Exists(pTable) && Add_Item(pItem = new CWKSP_Table(pTable, this)) )
+	if( pTable && pTable->is_Valid() && !Exists(pTable) && Add_Item(pItem = new CWKSP_Table(pTable, this)) )
 	{
 		return( pItem );
 	}

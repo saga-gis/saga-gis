@@ -100,7 +100,7 @@ LINK32=link.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "$(SAGA)/src/saga_core" /D "ta_hydrology_EXPORTS" /D "_DEBUG" /D "WIN32" /D "_USRDLL" /D "_MBCS" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_VC" /YX /FD /GZ /c
 # SUBTRACT BASE CPP /Fr
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "$(SAGA)/src/saga_core" /D "ta_hydrology_EXPORTS" /D "_USRDLL" /D "_MBCS" /D "_SAGA_VC" /D "_DEBUG" /D "WIN32" /D "_UNICODE" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_UNICODE" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "$(SAGA)/src/saga_core" /D "ta_hydrology_EXPORTS" /D "_DEBUG" /D "WIN32" /D "_USRDLL" /D "_MBCS" /D "_UNICODE" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_VC" /YX /FD /GZ /c
 # SUBTRACT CPP /Fr
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
@@ -128,7 +128,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /GX /O2 /I "$(SAGA)/src/saga_core" /D "ta_hydrology_EXPORTS" /D "NDEBUG" /D "WIN32" /D "_USRDLL" /D "_MBCS" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_VC" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "$(SAGA)/src/saga_core" /D "ta_hydrology_EXPORTS" /D "NDEBUG" /D "_USRDLL" /D "_MBCS" /D "_SAGA_VC" /D "WIN32" /D "_UNICODE" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_UNICODE" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "$(SAGA)/src/saga_core" /D "ta_hydrology_EXPORTS" /D "NDEBUG" /D "WIN32" /D "_USRDLL" /D "_MBCS" /D "_UNICODE" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_VC" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x407 /d "NDEBUG"
@@ -206,14 +206,6 @@ SOURCE=.\IsochronesConst.cpp
 # Begin Source File
 
 SOURCE=.\IsochronesVar.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\LakeFlood.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\LakeFloodInteractive.cpp
 # End Source File
 # Begin Source File
 
@@ -301,10 +293,6 @@ SOURCE=.\IsochronesVar.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\LakeFlood.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\MLB_Interface.h
 # End Source File
 # Begin Source File
@@ -337,18 +325,6 @@ SOURCE=..\..\..\saga_core\saga_api\dataobject.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\..\saga_core\saga_api\doc_html.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\..\saga_core\saga_api\doc_pdf.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\..\saga_core\saga_api\doc_svg.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\..\saga_core\saga_api\geo_tools.h
 # End Source File
 # Begin Source File
@@ -362,10 +338,6 @@ SOURCE=..\..\..\saga_core\saga_api\mat_tools.h
 # Begin Source File
 
 SOURCE=..\..\..\saga_core\saga_api\module.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\..\saga_core\saga_api\module_library.h
 # End Source File
 # Begin Source File
 

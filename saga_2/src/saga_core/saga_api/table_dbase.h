@@ -147,7 +147,6 @@ public:
 	//-----------------------------------------------------
 	int							Get_File_Position	(void);
 	int							Get_File_Length		(void)	{	return( nFileBytes );	}
-	int							Get_Record_Count	(void)	{	return( nRecords );		}
 
 	//-----------------------------------------------------
 	bool						Move_First			(void);

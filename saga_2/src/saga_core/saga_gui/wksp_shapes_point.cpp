@@ -339,17 +339,21 @@ bool CWKSP_Shapes_Point::Get_Style_Size(int &min_Size, int &max_Size, double &mi
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline void CWKSP_Shapes_Point::_Draw_Initialize(CWKSP_Map_DC &dc_Map)
+void CWKSP_Shapes_Point::_Draw_Initialize(CWKSP_Map_DC &dc_Map)
 {
-	dc_Map.dc.SetBrush	(m_Brush);
-	dc_Map.dc.SetPen	(m_Pen);
+	dc_Map.dc.SetBrush(m_Brush);
+	dc_Map.dc.SetPen(m_Pen);
 }
 
 //---------------------------------------------------------
-inline bool CWKSP_Shapes_Point::_Draw_Initialize(CWKSP_Map_DC &dc_Map, int &Size, CSG_Shape *pShape, bool bSelection)
+void CWKSP_Shapes_Point::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, bool bSelection)
 {
+	int		Size;
+	double	dSize;
+
 	//-----------------------------------------------------
-	double	dSize	= m_iSize < 0 ? m_Size : m_Size + (pShape->Get_Record()->asDouble(m_iSize) - m_Size_Min) * m_dSize;
+	dSize	= m_iSize < 0 ? m_Size
+			: m_Size + (pShape->Get_Record()->asDouble(m_iSize) - m_Size_Min) * m_dSize;
 
 	switch( m_Size_Type )
 	{
@@ -358,19 +362,19 @@ inline bool CWKSP_Shapes_Point::_Draw_Initialize(CWKSP_Map_DC &dc_Map, int &Size
 	case 1:	dSize	*= dc_Map.m_World2DC;	break;
 	}
 
-	Size	= (int)(0.5 + dSize);
-
 	//-----------------------------------------------------
-	if( Size > 0 )
+	if( (Size = (int)(0.5 + dSize)) > 0 )
 	{
 		if( bSelection )
 		{
-			dc_Map.dc.SetBrush	(wxBrush(wxColour(255, 255, 0), wxSOLID));
-			dc_Map.dc.SetPen	(wxPen	(wxColour(255,   0, 0), pShape == m_pShapes->Get_Selection(0) ? 2 : 1, wxSOLID));
+			dc_Map.dc.SetBrush(wxBrush(wxColour(255, 255, 0), wxSOLID));
+			dc_Map.dc.SetPen(wxPen(wxColour(255, 0, 0), pShape == m_pShapes->Get_Selection(0) ? 2 : 1, wxSOLID));
 		}
 		else if( !bSelection && m_iColor >= 0 )
 		{
-			int		Color	= m_pClassify->Get_Class_Color_byValue(pShape->Get_Record()->asDouble(m_iColor));
+			int		Color;
+
+			Color	= m_pClassify->Get_Class_Color_byValue(pShape->Get_Record()->asDouble(m_iColor));
 
 			wxBrush	Brush(m_Brush);
 			Brush.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
@@ -384,20 +388,7 @@ inline bool CWKSP_Shapes_Point::_Draw_Initialize(CWKSP_Map_DC &dc_Map, int &Size
 			}
 		}
 
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-void CWKSP_Shapes_Point::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, bool bSelection)
-{
-	int		Size;
-
-	//-----------------------------------------------------
-	if( _Draw_Initialize(dc_Map, Size, pShape, bSelection) )
-	{
+		//-------------------------------------------------
 		TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Point(0)));
 
 		Draw_Symbol(dc_Map.dc, p.x, p.y, Size);
@@ -405,7 +396,8 @@ void CWKSP_Shapes_Point::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, bo
 		//-------------------------------------------------
 		if( bSelection )
 		{
-			_Draw_Initialize(dc_Map);
+			dc_Map.dc.SetBrush(m_Brush);
+			dc_Map.dc.SetPen(m_Pen);
 		}
 	}
 }

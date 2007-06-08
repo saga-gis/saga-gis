@@ -1,19 +1,12 @@
-#
-# $Id: Makefile.am,v 1.11 2007-02-13 09:58:10 tschorr Exp $
-#
-INCS = -I.. -I.
-if DEBUG
-DBGFLAGS = -g -DDEBUG
+CXX_DEFS  = `wx-config --cxxflags`
+if X86_64
+ARCHDEFS = -fPIC -fpermissive
 endif
-
-if SAGA_UNICODE
-AM_CXXFLAGS = -fPIC `wx-config --unicode=yes --cxxflags` -D_SAGA_LINUX -D_SAGA_UNICODE -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_DONOTUSE_HARU $(DBGFLAGS) $(INCS)
-AM_LDFLAGS = -fPIC `wx-config --unicode=yes --libs` -lm 
-else
-AM_CXXFLAGS = -fPIC `wx-config --unicode=no --cxxflags` -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_DONOTUSE_HARU $(DBGFLAGS) $(INCS)
-AM_LDFLAGS = -fPIC `wx-config --unicode=no --libs` -lm
-endif
-
+INCS  = -I.. -I.
+AM_CXXFLAGS = $(CXX_DEFS) $(ARCHDEFS) -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_DONOTUSE_HARU $(INCS)
+#AM_LDFLAGS = -static `wx-config --cxxflags`
+AM_LDFLAGS = `wx-config --cxxflags`
+LIBS = `wx-config --libs` -lm
 bin_PROGRAMS = saga_gui
 
 saga_gui_SOURCES =\

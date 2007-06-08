@@ -162,7 +162,7 @@ bool CDistance_Gradient::On_Execute(void)
 
 		case 2:	// gradient (degree)
 			DataObject_Set_Colors(pGradient, 100, SG_COLORS_YELLOW_RED	, false);
-			pGradient->Set_Unit(_TL("\xc2\xb0"));
+			pGradient->Set_Unit(_TL("°"));
 			pGradient->Set_ZFactor(M_RAD_TO_DEG);
 			break;
 		}
@@ -170,7 +170,7 @@ bool CDistance_Gradient::On_Execute(void)
 		if( pDifference )
 		{
 			DataObject_Set_Colors(pDifference, 100, SG_COLORS_RED_GREY_BLUE	, false);
-			pDifference->Set_Unit(_TL("\xc2\xb0"));
+			pDifference->Set_Unit(_TL("°"));
 			pDifference->Set_ZFactor(M_RAD_TO_DEG);
 		}
 

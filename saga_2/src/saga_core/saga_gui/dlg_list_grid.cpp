@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: dlg_list_grid.cpp,v 1.6 2007-03-22 14:23:33 oconrad Exp $
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -107,14 +107,14 @@ CDLG_List_Grid::CDLG_List_Grid(CSG_Parameter_Grid_List *pList, wxString Caption)
 		else
 		{
 			m_pSystem	= NULL;
-			m_pSystems	= new wxChoice(this, ID_COMBOBOX_SELECT, wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
+			m_pSystems	= new wxChoice(this, ID_COMBOBOX_SELECT, wxDefaultPosition, wxDefaultSize, 0, NULL);
 
 			for(int i=0; i<pManager->Get_Count(); i++)
 			{
 				m_pSystems->Append(pManager->Get_System(i)->Get_Name());
 			}
 
-			m_pSystems->Append( wxT("[VAL] [all grid systems]") );
+			m_pSystems->Append(LNG("[VAL] [all grid systems]"));
 			m_pSystems->SetSelection(m_pSystems->GetCount() - 1);
 
 			Set_Positions();
@@ -179,8 +179,10 @@ void CDLG_List_Grid::On_Select_System(wxCommandEvent &event)
 //---------------------------------------------------------
 void CDLG_List_Grid::_Set_Objects(void)
 {
+	int		i;
+
 	//-----------------------------------------------------
-	for(int i=0; i<m_pList->Get_Count(); i++)
+	for(i=0; i<m_pList->Get_Count(); i++)
 	{
 		m_pAdd->Append(m_pList->asDataObject(i)->Get_Name(), m_pList->asDataObject(i));
 	}
@@ -224,8 +226,8 @@ void CDLG_List_Grid::_Set_Grids(void)
 //---------------------------------------------------------
 void CDLG_List_Grid::_Set_Grids(CWKSP_Grid_System *pSystem)
 {
-	bool		bList;
-	int			i, j;
+	bool	bList;
+	int		i, j;
 	CSG_Grid	*pGrid;
 
 	if( pSystem )

@@ -98,7 +98,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <wchar.h>
 
 #endif	// #ifdef SWIG
 
@@ -108,18 +107,6 @@
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
-
-/*
-* this is defined by configure, but will not be on a normal application build
-*/
-
-#ifndef SIZEOF_LONG
-# if defined(__alpha) || defined(__sparcv9) || defined(__LP64__) || (defined(__HOS_AIX__) && defined(_LP64))
-# define SIZEOF_LONG        8
-#else
-# define SIZEOF_LONG        4
-#endif
-#endif
 
 //---------------------------------------------------------
 #ifdef _TYPEDEF_BOOL
@@ -136,11 +123,7 @@
 //---------------------------------------------------------
 #ifdef _TYPEDEF_WORD
 	typedef unsigned short	WORD;
-	#if (SIZEOF_LONG == 4)
-	typedef unsigned long           DWORD;
-	#else
-	typedef unsigned int            DWORD;
-	#endif
+	typedef unsigned long	DWORD;
 #endif	// _TYPEDEF_WORD
 
 
@@ -179,7 +162,7 @@ SAGA_API_DLL_EXPORT void			SG_Mem_Set_Double	(char *Buffer, double Value	, bool 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef _SAGA_UNICODE
+#ifndef _UNICODE
 	#define SG_Char				char
 	#define SG_T(s)				s
 	#define SG_PRINTF			printf
@@ -210,7 +193,7 @@ public:
 	CSG_String(void);
 	CSG_String(const CSG_String &String);
 	CSG_String(const SG_Char *String);
-#ifdef _SAGA_UNICODE
+#ifdef _UNICODE
 	CSG_String(const char *String);
 #endif
 	CSG_String(SG_Char Character);
@@ -220,7 +203,7 @@ public:
 	const SG_Char *					c_str				(void)	const;
 	operator const SG_Char *							(void)	const	{	return( c_str() );	}
 
-#ifndef _SAGA_UNICODE
+#ifndef _UNICODE
 	const char *					b_str				(void)			{	return( c_str() );	}
 #else
 	const char *					b_str				(void);
@@ -285,7 +268,7 @@ protected:
 
 	class wxString					*m_pString;
 
-#ifdef _SAGA_UNICODE
+#ifdef _UNICODE
 	char							*m_bString;
 #endif
 
@@ -348,17 +331,13 @@ SAGA_API_DLL_EXPORT CSG_String		SG_Get_String					(double Value, int Precision =
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef _SAGA_UNICODE
+#ifndef _UNICODE
 	#define SG_FILE_OPEN		fopen
 	#define SG_FILE_PRINTF		fprintf
 	#define SG_FILE_SCANF		fscanf
 	#define SG_FILE_GETC		fgetc
 #else
-	#ifndef _SAGA_LINUX
-		#define SG_FILE_OPEN	_wfopen
-	#else
-		#define SG_FILE_OPEN	fopen
-	#endif
+	#define SG_FILE_OPEN		_wfopen
 	#define SG_FILE_PRINTF		fwprintf
 	#define SG_FILE_SCANF		fwscanf
 	#define SG_FILE_GETC		fgetwc
@@ -637,7 +616,7 @@ SAGA_API_DLL_EXPORT CSG_Translator *	SG_Get_Translator	(void);
 
 SAGA_API_DLL_EXPORT const SG_Char *		SG_Translate		(const SG_Char *Text);
 
-#ifndef _SAGA_UNICODE
+#ifndef _UNICODE
 	#define LNG(s)	SG_Translate(s)
 #else
 	#define LNG(s)	SG_Translate(SG_T(s))
@@ -678,8 +657,6 @@ typedef enum ESG_UI_Callback_ID
 
 	CALLBACK_DATAOBJECT_COLORS_GET,
 	CALLBACK_DATAOBJECT_COLORS_SET,
-	CALLBACK_DATAOBJECT_PARAMS_GET,
-	CALLBACK_DATAOBJECT_PARAMS_SET,
 
 	CALLBACK_DATAOBJECT_GET_ALL,
 
@@ -719,8 +696,6 @@ SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_asImage	(class CSG_Data_Object *pD
 
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Colors_Get	(class CSG_Data_Object *pDataObject, class CSG_Colors *pColors);
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Colors_Set	(class CSG_Data_Object *pDataObject, class CSG_Colors *pColors);
-SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Params_Get	(class CSG_Data_Object *pDataObject, class CSG_Parameters *pParameters);
-SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Params_Set	(class CSG_Data_Object *pDataObject, class CSG_Parameters *pParameters);
 
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Get_All	(class CSG_Parameters *pParameters);
 

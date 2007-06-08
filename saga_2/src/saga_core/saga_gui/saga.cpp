@@ -62,7 +62,6 @@
 #include <wx/fileconf.h>
 #include <wx/image.h>
 #include <wx/splash.h>
-#include <wx/filename.h>
 
 #include <saga_api/saga_api.h>
 
@@ -221,16 +220,9 @@ void CSAGA::_Init_Config(void)
 {
 	wxConfigBase	*pConfig;
 
-#if defined(_SAGA_MSW)
-	wxFileName	fConfig(Get_App_Path(), wxT("saga_gui"), wxT("ini"));
-
-	if(	( fConfig.FileExists() && (!fConfig.IsFileReadable() || !fConfig.IsFileWritable()))
-	||	(!fConfig.FileExists() && (!fConfig.IsDirReadable () || !fConfig.IsDirWritable ())) )
-	{
-		fConfig.Assign(wxFileName::GetTempDir(), wxT("saga_gui"), wxT("ini"));
-	}
-
-	pConfig = new wxFileConfig(wxEmptyString, wxEmptyString, fConfig.GetFullPath(), fConfig.GetFullPath(), wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_GLOBAL_FILE|wxCONFIG_USE_RELATIVE_PATH);
+#if defined(_SAGA_MSW) && (!defined(__VISUALC__) || __VISUALC__ <= 1200)
+	wxString	sConfig(SG_File_Make_Path(Get_App_Path(), wxT("saga_gui"), wxT("ini")));
+	pConfig = new wxFileConfig(wxEmptyString, wxEmptyString, sConfig, sConfig, wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_GLOBAL_FILE|wxCONFIG_USE_RELATIVE_PATH);
 #else
 	pConfig	= new wxConfig;
 #endif

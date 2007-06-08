@@ -141,7 +141,7 @@ bool CSurfer_Import::On_Execute(void)
 	fName	= Parameters("FILE")->asString();
 
 	//-----------------------------------------------------
-	if( fName.Length() > 0 && (Stream = fopen(fName.b_str(), "rb")) != NULL )
+	if( Parameters("FILE")->asString() && (Stream = fopen(fName.b_str(), "rb")) != NULL )
 	{
 		fread(&lValue, 1, sizeof(long), Stream);
 

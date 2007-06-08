@@ -107,35 +107,84 @@ const SG_Char * Get_Info(int i)
 #include "TopographicIndices.h"
 #include "SAGA_Wetness_Index.h"
 
-#include "LakeFlood.h"
-
 
 //---------------------------------------------------------
 CSG_Module *		Create_Module(int i)
 {
+	CSG_Module	*pModule;
+
 	switch( i )
 	{
-	case  0:	return( new CFlow_Parallel );
-	case  1:	return( new CFlow_RecursiveUp );
-	case  2:	return( new CFlow_RecursiveDown );
-	case  3:	return( new CFlow_AreaUpslope_Interactive );
-	case  4:	return( new CFlow_AreaUpslope_Area );
-	case  5:	return( new CFlow_AreaDownslope );
-	case  6:	return( new CFlow_Distance );
-	case  7:	return( new CSlopeLength );
-	case  8:	return( new CIsochronesConst );
-	case  9:	return( new CIsochronesVar );
-	case 10:	return( new CCellBalance );
-	case 11:	return( new CSinuosity );
-	case 12:	return( new CFlowDepth );
-	case 13:	return( new CEdgeContamination );
-	case 14:	return( new CTopographicIndices );
-	case 15:	return( new CSAGA_Wetness_Index );
-	case 16:	return( new CLakeFlood );
-	case 17:	return( new CLakeFloodInteractive );
+	case 0:
+		pModule	= new CFlow_Parallel;
+		break;
+
+	case 1:
+		pModule	= new CFlow_RecursiveUp;
+		break;
+
+	case 2:
+		pModule	= new CFlow_RecursiveDown;
+		break;
+
+	case 3:
+		pModule	= new CFlow_AreaUpslope_Interactive;
+		break;
+
+	case 4:
+		pModule	= new CFlow_AreaUpslope_Area;
+		break;
+
+	case 5:
+		pModule	= new CFlow_AreaDownslope;
+		break;
+
+	case 6:
+		pModule	= new CFlow_Distance;
+		break;
+
+	case 7:
+		pModule = new CSlopeLength;
+		break;
+
+	case 8:
+		pModule	= new CIsochronesConst;
+		break;
+
+	case 9:
+		pModule	= new CIsochronesVar;
+		break;
+
+	case 10:
+		pModule	= new CCellBalance;
+		break;
+
+	case 11:
+		pModule	= new CSinuosity;
+		break;
+
+	case 12:
+		pModule	= new CFlowDepth;
+		break;
+
+	case 13:
+		pModule	= new CEdgeContamination;
+		break;
+
+	case 14:
+		pModule	= new CTopographicIndices;
+		break;
+
+	case 15:
+		pModule	= new CSAGA_Wetness_Index;
+		break;
+
+	default:
+		pModule	= NULL;
+		break;
 	}
 
-	return( NULL );
+	return( pModule );
 }
 
 

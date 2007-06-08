@@ -108,7 +108,7 @@ public:
 	virtual bool				On_Command				(int Cmd_ID);
 	virtual bool				On_Command_UI			(wxUpdateUIEvent &event);
 
-	virtual CSG_Parameters *	Get_Parameters			(void)		{	return( &m_Parameters );	}
+	virtual CSG_Parameters *		Get_Parameters			(void)		{	return( &m_Parameters );	}
 	virtual void				Parameters_Changed		(void);
 
 	const CSG_Rect &			Get_Extent				(void)		{	return( m_Extent );	}
@@ -121,8 +121,6 @@ public:
 
 	void						Set_Synchronising		(bool bOn);
 	bool						is_Synchronising		(void)	{	return( m_bSynchronise );	}
-
-	bool						is_Image_Save_Mode		(void)	{	return( m_Img_bSave );		}
 
 	class CWKSP_Map_Layer *		Add_Layer				(class CWKSP_Layer *pLayer);
 	int							Get_Layer				(class CWKSP_Layer *pLayer);
@@ -149,7 +147,6 @@ public:
 
 	bool						Get_Image				(wxImage &Image, CSG_Rect &rWorld);
 	void						SaveAs_Image			(void);
-	void						SaveAs_Image_On_Change	(void);
 	void						SaveAs_PDF_Indexed		(void);
 	void						SaveAs_Interactive_SVG	(void);
 
@@ -171,15 +168,11 @@ public:
 
 private:
 
-	bool						m_bSynchronise, m_Img_bSave;
-
-	int							m_Img_Type, m_Img_Count;
-
-	wxString					m_Name, m_Img_File;
+	bool						m_bSynchronise;
 
 	CSG_Rect					m_Extent, m_Extent_Last;
 
-	CSG_Parameters				m_Parameters, m_Img_Parms;
+	CSG_Parameters				m_Parameters;
 
 	class CVIEW_Map				*m_pView;
 
@@ -195,9 +188,6 @@ private:
 	int							On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	void						_Synchronise_Extents	(void);
-
-	void						_Img_Save				(wxString file, int type);
-	void						_Img_Save_On_Change		(void);
 
 };
 

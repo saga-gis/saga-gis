@@ -141,8 +141,8 @@ void CDLG_List_Shapes::_Set_Objects(void)
 //---------------------------------------------------------
 void CDLG_List_Shapes::_Set_Shapes(CWKSP_Shapes_Type *pType)
 {
-	bool		bList;
-	int			i, j;
+	bool	bList;
+	int		i, j;
 	CSG_Shapes	*pShapes;
 
 	if( pType )

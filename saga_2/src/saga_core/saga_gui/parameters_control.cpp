@@ -215,7 +215,7 @@ bool CParameters_Control::Load(void)
 	CSG_File	Stream;
 	wxString	File_Path;
 
-	if( DLG_Open(File_Path, ID_DLG_PARAMETERS_OPEN) && Stream.Open( CSG_String( File_Path.mb_str() ), SG_FILE_R, true) )
+	if( DLG_Open(File_Path, ID_DLG_PARAMETERS_OPEN) && Stream.Open(File_Path.c_str(), SG_FILE_R, true) )
 	{
 		if( m_pParameters->Serialize(Stream, false) )
 		{
@@ -230,10 +230,6 @@ bool CParameters_Control::Load(void)
 			m_bModified	= true;
 			bResult		= true;
 		}
-		else
-		{
-			DLG_Message_Show(LNG("Parameters file could not be imported."), LNG("Load Parameters"));
-		}
 	}
 
 	return( bResult );
@@ -246,15 +242,11 @@ bool CParameters_Control::Save(void)
 	CSG_File	Stream;
 	wxString	File_Path;
 
-	if( DLG_Save(File_Path, ID_DLG_PARAMETERS_SAVE) && Stream.Open( CSG_String( File_Path.mb_str() ), SG_FILE_W, true) )
+	if( DLG_Save(File_Path, ID_DLG_PARAMETERS_SAVE) && Stream.Open(File_Path.c_str(), SG_FILE_W, true) )
 	{
 		if( m_pParameters->Serialize(Stream, true) )
 		{
 			bResult		= true;
-		}
-		else
-		{
-			DLG_Message_Show(LNG("Parameters file could not be exported."), LNG("Save Parameters"));
 		}
 	}
 
@@ -347,7 +339,7 @@ void CParameters_Control::_Add_Properties(CSG_Parameters *pParameters)
 			case PARAMETER_TYPE_Grid_System:
 				if(1|| pParameters->Get_Parameter(i)->Get_Children_Count() > 0 )
 				{
-					CHECK_DATA_NODE( pGrids, LNG("[PRM] Grids"), wxT("_DATAOBJECT_GRIDS") );
+					CHECK_DATA_NODE(pGrids	, LNG("[PRM] Grids") , wxT("_DATAOBJECT_GRIDS"));
 				}
 				else
 				{
@@ -485,42 +477,33 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 	{
 	default:
 		pProperty	= _Add_Property(wxStringProperty(
-			pParameter->Get_Name(),
-			pParameter->Get_Identifier(),
-			pParameter->Get_Type_Name()
+			pParameter->Get_Name(), pParameter->Get_Identifier(), pParameter->Get_Type_Name()
 		), pParent);
 		break;
 
 	case PARAMETER_TYPE_Node:
 		pProperty	= _Add_Property(wxPropertyCategory(
-			pParameter->Get_Name(),
-			pParameter->Get_Identifier()
+			pParameter->Get_Name(), pParameter->Get_Identifier()
 		), pParent);
 		break;
 
 	case PARAMETER_TYPE_Bool:
 		pProperty	= _Add_Property(wxBoolProperty(
-			pParameter->Get_Name(),
-			pParameter->Get_Identifier(),
-			pParameter->asBool()
+			pParameter->Get_Name(), pParameter->Get_Identifier(), pParameter->asBool()
 		), pParent);
 
-	    m_pPG->SetPropertyAttribute(pProperty->GetId(), wxPG_BOOL_USE_CHECKBOX, (long)1);
+	    m_pPG->SetPropertyAttribute(pProperty->GetId(), wxPG_BOOL_USE_CHECKBOX, (long)1, wxPG_RECURSE);
 		break;
 
 	case PARAMETER_TYPE_Int:
 		pProperty	= _Add_Property(wxIntProperty(
-			pParameter->Get_Name(),
-			pParameter->Get_Identifier(),
-			pParameter->asInt()
+			pParameter->Get_Name(), pParameter->Get_Identifier(), pParameter->asInt()
 		), pParent);
 		break;
 
 	case PARAMETER_TYPE_Double:
 		pProperty	= _Add_Property(wxFloatProperty(
-			pParameter->Get_Name(),
-			pParameter->Get_Identifier(),
-			pParameter->asDouble()
+			pParameter->Get_Name(), pParameter->Get_Identifier(), pParameter->asDouble()
 		), pParent);
 
 		m_pPG->SetPropertyAttribute(pProperty->GetId(), wxPG_FLOAT_PRECISION, (long)12);
@@ -529,30 +512,19 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 	case PARAMETER_TYPE_Range:
 	case PARAMETER_TYPE_Degree:
 		pProperty	= _Add_Property(CParameters_PG_Doubles(
-			pParameter->Get_Name(),
-			pParameter->Get_Identifier(),
-			CParameters_PG_DoublesValue(pParameter)
+			pParameter->Get_Name(), pParameter->Get_Identifier(), CParameters_PG_DoublesValue(pParameter)
 		), pParent);
 		break;
 
 	case PARAMETER_TYPE_String:
 		pProperty	= _Add_Property(wxStringProperty(
-			pParameter->Get_Name(),
-			pParameter->Get_Identifier(),
-			pParameter->asString()
+			pParameter->Get_Name(), pParameter->Get_Identifier(), pParameter->asString()
 		), pParent);
-
-		if( ((CSG_Parameter_String *)pParameter->Get_Data())->is_Password() )
-		{
-			m_pPG->SetPropertyAttribute(pProperty->GetId(), wxPG_STRING_PASSWORD, (long)pParameter->asString());
-		}
 		break;
 
 	case PARAMETER_TYPE_Color:
 		pProperty	= _Add_Property(wxColourProperty(
-			pParameter->Get_Name(),
-			pParameter->Get_Identifier(),
-			Get_Color_asWX(pParameter->asColor())
+			pParameter->Get_Name(), pParameter->Get_Identifier(), Get_Color_asWX(pParameter->asColor())
 		), pParent);
 
 		pProperty->SetEditor(wxPGEditor_Choice);
@@ -560,9 +532,7 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 
 	case PARAMETER_TYPE_Colors:
 		pProperty	= _Add_Property(CParameters_PG_Colors(
-			pParameter->Get_Name(),
-			pParameter->Get_Identifier(),
-			CParameters_PG_DialogedValue(pParameter)
+			pParameter->Get_Name(), pParameter->Get_Identifier(), CParameters_PG_DialogedValue(pParameter)
 		), pParent);
 
 		m_pPG->LimitPropertyEditing(pProperty->GetId());
@@ -589,9 +559,7 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 
 	case PARAMETER_TYPE_FilePath:
 		pProperty	= _Add_Property(CParameters_PG_Dialoged(
-			pParameter->Get_Name(),
-			pParameter->Get_Identifier(),
-			CParameters_PG_DialogedValue(pParameter)
+			pParameter->Get_Name(), pParameter->Get_Identifier(), CParameters_PG_DialogedValue(pParameter)
 		), pParent);
 		break;
 
@@ -609,9 +577,7 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 	case PARAMETER_TYPE_TIN_List:
 	case PARAMETER_TYPE_Parameters:
 		pProperty	= _Add_Property(CParameters_PG_Dialoged(
-			pParameter->Get_Name(),
-			pParameter->Get_Identifier(),
-			CParameters_PG_DialogedValue(pParameter)
+			pParameter->Get_Name(), pParameter->Get_Identifier(), CParameters_PG_DialogedValue(pParameter)
 		), pParent);
 
 		m_pPG->LimitPropertyEditing(pProperty->GetId());
@@ -626,7 +592,7 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 		sDesc	= pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE);
 
 		s		= pParameter->Get_Description(PARAMETER_DESCRIPTION_TEXT);
-		if( s.Length() > 0 )	{	sDesc.Append( wxT("\n___\n") );	sDesc.Append( s );	}
+		if( s.Length() > 0 )	{	sDesc.Append(wxT("\n___\n"));	sDesc.Append(s);	}
 
 		s		= pParameter->Get_Description(PARAMETER_DESCRIPTION_PROPERTIES);
 		if( s.Length() > 0 )	{	sDesc.Append(wxT("\n___\n"));	sDesc.Append(s);	}
@@ -664,7 +630,7 @@ void CParameters_Control::_Set_Parameter(const wxChar *Identifier)
 
 			case PARAMETER_TYPE_String:
 			case PARAMETER_TYPE_FilePath:
-				pParameter->Set_Value( ( m_pPG->GetPropertyValueAsString(Id).c_str() ) );
+				pParameter->Set_Value(m_pPG->GetPropertyValueAsString	(Id));
 				break;
 
 			case PARAMETER_TYPE_Bool:
@@ -748,14 +714,14 @@ void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
 			break;
 
 		case PARAMETER_TYPE_Range:
-			s.Printf( SG_T("%f; %f"), pParameter->asRange()->Get_LoVal(), pParameter->asRange()->Get_HiVal());
+			s.Printf(wxT("%f; %f"), pParameter->asRange()->Get_LoVal(), pParameter->asRange()->Get_HiVal());
 			m_pPG->SetPropertyValue(Id, s.c_str());
 			break;
 
 		case PARAMETER_TYPE_Degree:
 			double	d[3];
 			Decimal_To_Degree(pParameter->asDouble(), d[0], d[1], d[2]);
-			s.Printf( SG_T("%f; %f; %f"), d[0], d[1], d[2]);
+			s.Printf(wxT("%f; %f; %f"), d[0], d[1], d[2]);
 			m_pPG->SetPropertyValue(Id, s.c_str());
 			break;
 		}

@@ -8,17 +8,17 @@ module1 = Extension(
 	],
 
 	include_dirs = [
-		'/usr/local/lib/wx/include/gtk2-ansi-release-2.8',
-		'/usr/local/include/wx-2.8',
+		'/usr/local/lib/wx/include/gtk2-ansi-release-2.6',
+		'/usr/local/include/wx-2.6',
 		'./'
 	],
 
 	libraries = [
 		'pthread',
-		'wx_base-2.8',
-		'wx_gtk2_core-2.8',
+		'wx_base-2.6',
+		'wx_gtk2_core-2.6',
 		'saga_api',
-#		'/opt/gnome/lib/pangox-1.0'
+		'/opt/gnome/lib/pangox-1.0'
 	],
 
 	extra_compile_args = [
@@ -35,7 +35,7 @@ module1 = Extension(
 		'-D_TYPEDEF_BYTE',
 		'-D_TYPEDEF_WORD',
 		'-D_SAGA_API_EXPORTS',
-		'-D_SAGA_DONOTUSE_HARU',
+		'-D_SAGA_DONOTUSE_HARU'
 	],
 
 	extra_link_args = [

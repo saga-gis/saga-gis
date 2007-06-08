@@ -442,7 +442,7 @@ void CSG_Table::Add_Field(const SG_Char *Name, TSG_Table_Field_Type Type, int ad
 }
 
 //---------------------------------------------------------
-#ifdef _SAGA_UNICODE
+#ifdef _UNICODE
 void CSG_Table::Add_Field(const char *Name, TSG_Table_Field_Type Type, int iField)
 {	Add_Field(CSG_String(Name), Type, iField);	}
 #endif
@@ -496,9 +496,6 @@ bool CSG_Table::Del_Field(int del_Field)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_GROW_SIZE(n)	(n < 256 ? 1 : (n < 8192 ? 64 : 1024))
-
-//---------------------------------------------------------
 CSG_Table_Record * CSG_Table::Add_Record(CSG_Table_Record *pValues)
 {
 	return( is_Private() ? NULL : _Add_Record(pValues) );
@@ -506,18 +503,6 @@ CSG_Table_Record * CSG_Table::Add_Record(CSG_Table_Record *pValues)
 
 CSG_Table_Record * CSG_Table::_Add_Record(CSG_Table_Record *pValues)
 {
-	if( (m_nRecords % GET_GROW_SIZE(m_nRecords)) == 0 )
-	{
-		CSG_Table_Record	**pRecords	= (CSG_Table_Record **)SG_Realloc(m_Records, (m_nRecords + GET_GROW_SIZE(m_nRecords)) * sizeof(CSG_Table_Record *));
-
-		if( pRecords == NULL )
-		{
-			return( NULL );
-		}
-
-		m_Records	= pRecords;
-	}
-
 	CSG_Table_Record	*pRecord;
 
 	//-----------------------------------------------------
@@ -528,6 +513,7 @@ CSG_Table_Record * CSG_Table::_Add_Record(CSG_Table_Record *pValues)
 	}
 
 	//-----------------------------------------------------
+	m_Records				= (CSG_Table_Record **)SG_Realloc(m_Records, (m_nRecords + 1) * sizeof(CSG_Table_Record *));
 	m_Records[m_nRecords]	= pRecord	= new CSG_Table_Record(this, m_nRecords);
 	m_nRecords++;
 
@@ -551,6 +537,9 @@ CSG_Table_Record * CSG_Table::Ins_Record(int iRecord, CSG_Table_Record *pValues)
 
 CSG_Table_Record * CSG_Table::_Ins_Record(int iRecord, CSG_Table_Record *pValues)
 {
+	int				i;
+	CSG_Table_Record	*pRecord;
+
 	//-----------------------------------------------------
 	if( iRecord >= m_nRecords )
 	{
@@ -562,22 +551,6 @@ CSG_Table_Record * CSG_Table::_Ins_Record(int iRecord, CSG_Table_Record *pValues
 	}
 
 	//-----------------------------------------------------
-	if( (m_nRecords % GET_GROW_SIZE(m_nRecords)) == 0 )
-	{
-		CSG_Table_Record	**pRecords	= (CSG_Table_Record **)SG_Realloc(m_Records, (m_nRecords + GET_GROW_SIZE(m_nRecords)) * sizeof(CSG_Table_Record *));
-
-		if( pRecords == NULL )
-		{
-			return( NULL );
-		}
-
-		m_Records	= pRecords;
-	}
-
-	//-----------------------------------------------------
-	int					i;
-	CSG_Table_Record	*pRecord;
-
 	if( is_Indexed() )
 	{
 		m_Index				= (int *)SG_Realloc(m_Index, (m_nRecords + 1) * sizeof(int));
@@ -591,6 +564,8 @@ CSG_Table_Record * CSG_Table::_Ins_Record(int iRecord, CSG_Table_Record *pValues
 	}
 
 	//-----------------------------------------------------
+	m_Records				= (CSG_Table_Record **)SG_Realloc(m_Records, (m_nRecords + 1) * sizeof(CSG_Table_Record *));
+
 	for(i=m_nRecords; i>iRecord; i--)
 	{
 		m_Records[i]			= m_Records[i - 1];

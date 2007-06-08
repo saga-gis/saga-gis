@@ -1,20 +1,14 @@
-#
-# $Id: Makefile.am,v 1.8 2007-03-22 14:24:54 oconrad Exp $
-#
-if DEBUG
-DBGFLAGS = -g -DDEBUG
+CXX_DEFS  = `wx-config --cxxflags`
+if X86_64
+ARCHDEFS =  -fPIC -fpermissive
 endif
+AM_CXXFLAGS = $(CXX_DEFS) $(ARCHDEFS) -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -I..
 
-if SAGA_UNICODE
-AM_CXXFLAGS = -fPIC `wx-config --unicode=yes --cxxflags` -D_SAGA_LINUX -D_SAGA_UNICODE -D_TYPEDEF_BYTE -D_TYPEDEF_WORD $(DBGFLAGS) -I.. 
-AM_LDFLAGS = -fPIC `wx-config --unicode=yes --libs` -lm
-else
-AM_CXXFLAGS = -fPIC `wx-config --unicode=no --cxxflags` -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD $(DBGFLAGS) -I..
-AM_LDFLAGS = -fPIC `wx-config --unicode=no --libs` -lm
-endif
-
+#LIBS = `wx-config --libs` -pthread -L/usr/X11R6/lib -ldl -lm -Wl,--export-dynamic
+#LIBS = `wx-config --libs` -lm -L/opt/gnome/lib -lpangox-1.0 -lsaga_api
+LIBS = `wx-config --libs` -lm -L/opt/gnome/lib -lpangox-1.0
 bin_PROGRAMS = saga_cmd
-saga_cmd_LDADD = ../saga_api/libsaga_api.la
+
 saga_cmd_SOURCES =\
 callback.cpp\
 module_library.cpp\
@@ -22,4 +16,4 @@ saga_cmd.cpp\
 callback.h\
 module_library.h
 
-
+saga_cmd_LDADD = ../saga_api/libsaga_api.la

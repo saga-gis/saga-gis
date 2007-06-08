@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: wksp_data_manager.cpp,v 1.19 2007-03-22 14:24:43 oconrad Exp $
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -58,10 +58,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifdef _SAGA_LINUX
-#include <stdlib.h>
-#endif
-
 #include <wx/filename.h>
 
 #include <saga_api/saga_api.h>
@@ -258,13 +254,7 @@ bool CWKSP_Data_Manager::Finalise(void)
 	CONFIG_Write(wxT("/DATA/GRIDS")	, wxT("CACHE_CONFIRM")	, (long)SG_Grid_Cache_Get_Confirm  ());
 
 	//-----------------------------------------------------
-#ifdef _SAGA_LINUX
-//	wxFileName	fProject(wxString(getenv( "HOME"), wxConvFile ), wxT("saga_gui"), wxT("cfg"));
-	CSG_String	sHome(getenv("HOME"));
-	wxFileName	fProject(sHome.c_str(), wxT("saga_gui"), wxT("cfg"));
-#else
 	wxFileName	fProject(g_pSAGA->Get_App_Path(), wxT("saga_gui"), wxT("cfg"));
-#endif
 
 	CONFIG_Write(wxT("/DATA")		, wxT("PROJECT_START")	, (long)m_Parameters("PROJECT_START")	->asInt());
 	CONFIG_Write(wxT("/DATA")		, wxT("START_LOGO")		, (long)m_Parameters("START_LOGO")		->asInt());
@@ -288,11 +278,9 @@ bool CWKSP_Data_Manager::Finalise(void)
 
 	case 2:	// automatically save and load		
 		m_pProject->Save(fProject.GetFullPath(), false);
-		CONFIG_Write(wxT("/DATA"), wxT("PROJECT_FILE"), fProject.GetFullPath());
+		CONFIG_Write(wxT("/DATA"), wxT("PROJECT_FILE"), m_pProject->Get_File_Name());
 		break;
 	}
-
-	m_pProject->Clr_File_Name();
 
 	return( true );
 }
@@ -477,8 +465,6 @@ void CWKSP_Data_Manager::Parameters_Changed(void)
 	SG_Grid_Cache_Set_Threshold_MB	(m_Parameters("GRID_MEM_CACHE_THRSHLD")	->asDouble());
 	SG_Grid_Cache_Set_Confirm		(m_Parameters("GRID_MEM_CACHE_CONFIRM")	->asInt());
 	SG_Grid_Cache_Set_Directory		(m_Parameters("GRID_MEM_CACHE_TMPDIR")	->asString());
-
-	CWKSP_Base_Manager::Parameters_Changed();
 }
 
 
@@ -1050,87 +1036,6 @@ bool CWKSP_Data_Manager::Set_Colors(CSG_Data_Object *pObject, CSG_Colors *pColor
 
 		default:
 			break;
-		}
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CWKSP_Data_Manager::Get_Parameters(CSG_Data_Object *pObject, CSG_Parameters *pParameters)
-{
-	if( pObject && pParameters )
-	{
-		CWKSP_Base_Item	*pItem;
-
-		switch( pObject->Get_ObjectType() )
-		{
-		case DATAOBJECT_TYPE_Grid:
-			pItem	= (CWKSP_Base_Item *)m_pGrids ->Get_Grid  ((CSG_Grid   *)pObject);
-			break;
-
-		case DATAOBJECT_TYPE_Shapes:
-			pItem	= (CWKSP_Base_Item *)m_pShapes->Get_Shapes((CSG_Shapes *)pObject);
-			break;
-
-		case DATAOBJECT_TYPE_TIN:
-			pItem	= (CWKSP_Base_Item *)m_pTINs  ->Get_TIN   ((CSG_TIN    *)pObject);
-			break;
-
-		case DATAOBJECT_TYPE_Table:
-			pItem	= (CWKSP_Base_Item *)m_pTables->Get_Table ((CSG_Table  *)pObject);
-			break;
-
-		default:
-			pItem	= NULL;
-			break;
-		}
-
-		if( pItem && pItem->Get_Parameters() )
-		{
-			return( pParameters->Assign(pItem->Get_Parameters()) != 0 );
-		}
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CWKSP_Data_Manager::Set_Parameters(CSG_Data_Object *pObject, CSG_Parameters *pParameters)
-{
-	if( pObject && pParameters )
-	{
-		CWKSP_Base_Item	*pItem;
-
-		switch( pObject->Get_ObjectType() )
-		{
-		case DATAOBJECT_TYPE_Grid:
-			pItem	= (CWKSP_Base_Item *)m_pGrids ->Get_Grid  ((CSG_Grid   *)pObject);
-			break;
-
-		case DATAOBJECT_TYPE_Shapes:
-			pItem	= (CWKSP_Base_Item *)m_pShapes->Get_Shapes((CSG_Shapes *)pObject);
-			break;
-
-		case DATAOBJECT_TYPE_TIN:
-			pItem	= (CWKSP_Base_Item *)m_pTINs  ->Get_TIN   ((CSG_TIN    *)pObject);
-			break;
-
-		case DATAOBJECT_TYPE_Table:
-			pItem	= (CWKSP_Base_Item *)m_pTables->Get_Table ((CSG_Table  *)pObject);
-			break;
-
-		default:
-			pItem	= NULL;
-			break;
-		}
-
-		if( pItem && pItem->Get_Parameters() )
-		{
-			if( pItem->Get_Parameters()->Assign_Values(pParameters) != 0 )
-			{
-				pItem->Parameters_Changed();
-			}
 		}
 	}
 

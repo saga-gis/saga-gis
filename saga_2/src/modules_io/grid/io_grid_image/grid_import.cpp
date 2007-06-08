@@ -125,7 +125,7 @@ CGrid_Import::CGrid_Import(void)
 
 		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("Standard"),
-			_TL("Split Channels"),
+			_TL("Split Channels|"),
 			_TL("Enforce True Color")
 		)
 	);
@@ -247,7 +247,7 @@ bool CGrid_Import::On_Execute(void)
 				Colors.Set_Color(i->second.index, SG_GET_R(i->first), SG_GET_G(i->first), SG_GET_B(i->first));
 			}
 
-			ADD_GRID(pR, CSG_String( fName.GetName() ), yy <= 2 ? GRID_TYPE_Bit : GRID_TYPE_Byte);
+			ADD_GRID(pR, fName.GetName(), yy <= 2 ? GRID_TYPE_Bit : GRID_TYPE_Byte);
 
 			for(y=0, yy=pR->Get_NY()-1; y<pR->Get_NY() && Set_Progress(y, pR->Get_NY()); y++, yy--)
 			{
@@ -259,7 +259,6 @@ bool CGrid_Import::On_Execute(void)
 
 			Parameters("OUT_GRID")	->Set_Value(pR);
 			DataObject_Set_Colors(pR, Colors);
-			DataObject_Update(pR, 0, Colors.Get_Count() - 1);
 		}
 
 		//-------------------------------------------------
@@ -267,7 +266,7 @@ bool CGrid_Import::On_Execute(void)
 		{
 			hst.clear();
 
-			ADD_GRID(pR, CSG_String( fName.GetName() ).c_str(), GRID_TYPE_Int);
+			ADD_GRID(pR, fName.GetName(), GRID_TYPE_Int);
 
 			for(y=0, yy=pR->Get_NY()-1; y<pR->Get_NY() && Set_Progress(y, pR->Get_NY()); y++, yy--)
 			{
@@ -279,15 +278,6 @@ bool CGrid_Import::On_Execute(void)
 
 			Parameters("OUT_GRID")	->Set_Value(pR);
 			DataObject_Set_Colors(pR, 100, SG_COLORS_BLACK_WHITE);
-
-			CSG_Parameters	Parms;
-
-			if( DataObject_Get_Parameters(pR, Parms) && Parms("COLORS_TYPE") )
-			{
-				Parms("COLORS_TYPE")->Set_Value(3);	// Color Classification Type: RGB
-
-				DataObject_Set_Parameters(pR, Parms);
-			}
 		}
 
 		return( true );

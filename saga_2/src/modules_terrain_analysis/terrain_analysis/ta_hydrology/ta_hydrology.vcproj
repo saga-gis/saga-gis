@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="ta_hydrology"
 	ProjectGUID="{07CA5C78-54E2-4B0E-B394-1EB6300AD6A7}"
 	>
@@ -49,11 +49,10 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="$(SAGA)/src/saga_core"
-				PreprocessorDefinitions="ta_hydrology_EXPORTS;NDEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE"
+				PreprocessorDefinitions="ta_hydrology_EXPORTS;NDEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
-				TreatWChar_tAsBuiltInType="false"
 				PrecompiledHeaderFile=".\./../../../../bin/tmp/saga_vc8_u/ta_hydrology/ta_hydrology.pch"
 				AssemblerListingLocation=".\./../../../../bin/tmp/saga_vc8_u/ta_hydrology/"
 				ObjectFile=".\./../../../../bin/tmp/saga_vc8_u/ta_hydrology/"
@@ -244,11 +243,10 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="$(SAGA)/src/saga_core"
-				PreprocessorDefinitions="ta_hydrology_EXPORTS;_DEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE"
+				PreprocessorDefinitions="ta_hydrology_EXPORTS;_DEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				TreatWChar_tAsBuiltInType="false"
 				PrecompiledHeaderFile=".\./../../../../bin/tmp/saga_vc8_u_dbg/ta_hydrology/ta_hydrology.pch"
 				AssemblerListingLocation=".\./../../../../bin/tmp/saga_vc8_u_dbg/ta_hydrology/"
 				ObjectFile=".\./../../../../bin/tmp/saga_vc8_u_dbg/ta_hydrology/"
@@ -974,14 +972,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\LakeFlood.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\LakeFloodInteractive.cpp"
-				>
-			</File>
-			<File
 				RelativePath="MLB_Interface.cpp"
 				>
 				<FileConfiguration
@@ -1244,10 +1234,6 @@
 			</File>
 			<File
 				RelativePath="IsochronesVar.h"
-				>
-			</File>
-			<File
-				RelativePath=".\LakeFlood.h"
 				>
 			</File>
 			<File

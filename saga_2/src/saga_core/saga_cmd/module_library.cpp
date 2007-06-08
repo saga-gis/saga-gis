@@ -1,4 +1,4 @@
- 
+
 ///////////////////////////////////////////////////////////
 //                                                       //
 //                         SAGA                          //
@@ -587,7 +587,7 @@ bool CModule_Library::_Create_DataObject_List(CSG_Parameter *pParameter, wxStrin
 			{
 			default:							pObject	= NULL;						break;
 			case PARAMETER_TYPE_Grid_List:		pObject	= new CSG_Grid  (s.c_str());	break;
-			case PARAMETER_TYPE_TIN_List:		pObject	= new CSG_TIN   ( (const SG_Char*)s.c_str() );	break;
+			case PARAMETER_TYPE_TIN_List:		pObject	= new CSG_TIN   (s.c_str());	break;
 			case PARAMETER_TYPE_Shapes_List:	pObject	= new CSG_Shapes(s.c_str());	break;
 			case PARAMETER_TYPE_Table_List:		pObject	= new CSG_Table (s.c_str());	break;
 			}
@@ -675,16 +675,9 @@ bool CModule_Library::_Destroy_DataObjects(bool bSave, CSG_Parameters *pParamete
 				}
 				else if( pParameter->is_DataObject_List() )
 				{
-					if( pParameter->asList()->Get_Count() == 1 )
+					for(i=0; i<pParameter->asList()->Get_Count(); i++)
 					{
-						pParameter->asList()->asDataObject(0)->Save(s);
-					}
-					else
-					{
-						for(i=0; i<pParameter->asList()->Get_Count(); i++)
-						{
-							pParameter->asList()->asDataObject(i)->Save(CSG_String::Format(SG_T("%s_%02d"), s.c_str(), i + 1));
-						}
+						pParameter->asList()->asDataObject(i)->Save(CSG_String::Format(SG_T("%02d_%s"), i, s.c_str()));
 					}
 				}
 			}

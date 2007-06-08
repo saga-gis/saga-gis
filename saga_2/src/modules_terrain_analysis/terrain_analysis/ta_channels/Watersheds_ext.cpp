@@ -388,7 +388,7 @@ out2:
 	pTable->Add_Field(_TL("Perimeter (m)"), TABLE_FIELDTYPE_Double); //3
 	pTable->Add_Field(_TL("Area (ha)"), TABLE_FIELDTYPE_Double); //4
 	pTable->Add_Field(_TL("Avg. Curve Number"), TABLE_FIELDTYPE_Double); //5
-	pTable->Add_Field(_TL("Soil losses (t/ha\xc2\xb7year)"), TABLE_FIELDTYPE_Double); //6
+	pTable->Add_Field(_TL("Soil losses (t/ha·year)"), TABLE_FIELDTYPE_Double); //6
 	pTable->Add_Field(_TL("Concentration time (h)"), TABLE_FIELDTYPE_Double); //7 
 	pTable->Add_Field(_TL("Upslope Basins"), TABLE_FIELDTYPE_String); //8
 	pTable->Add_Field(_TL("Downslope basins"), TABLE_FIELDTYPE_Int); //9 
@@ -399,7 +399,7 @@ out2:
 	pTable->Add_Field(_TL("Massivity coef."), TABLE_FIELDTYPE_Double); //14
 	pTable->Add_Field(_TL("Centroid X"), TABLE_FIELDTYPE_Double); //15
 	pTable->Add_Field(_TL("Centroid Y"), TABLE_FIELDTYPE_Double); //16
-	pTable->Add_Field(_TL("Maximum flow distance(m)"), TABLE_FIELDTYPE_Double); //17
+	pTable->Add_Field(_TL("Máximum flow distance(m)"), TABLE_FIELDTYPE_Double); //17
 
 	for (i = 0; i < m_pBasins->Get_Count(); i++) {								            
         pSubbasin = m_pBasins->Get_Shape(i);

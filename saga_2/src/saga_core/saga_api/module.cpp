@@ -355,7 +355,7 @@ bool CSG_Module::Dlg_Parameters(CSG_Parameters *pParameters, const SG_Char *Capt
 }
 
 //---------------------------------------------------------
-#ifdef _SAGA_UNICODE
+#ifdef _UNICODE
 
 CSG_Parameters *	CSG_Module::Add_Parameters(const char *Identifier, const SG_Char *Name, const SG_Char *Description)
 {	return( Add_Parameters(CSG_String(Identifier), Name, Description) );	}
@@ -622,17 +622,6 @@ bool CSG_Module::DataObject_Set_Colors(CSG_Data_Object *pDataObject, int nColors
 	CSG_Colors	c(nColors, Palette, bRevert);
 
 	return( SG_UI_DataObject_Colors_Set(pDataObject, &c) );
-}
-
-//---------------------------------------------------------
-bool CSG_Module::DataObject_Get_Parameters(CSG_Data_Object *pDataObject, CSG_Parameters &Parameters)
-{
-	return( SG_UI_DataObject_Params_Get(pDataObject, &Parameters) );
-}
-
-bool CSG_Module::DataObject_Set_Parameters(CSG_Data_Object *pDataObject, CSG_Parameters &Parameters)
-{
-	return( SG_UI_DataObject_Params_Set(pDataObject, &Parameters) );
 }
 
 

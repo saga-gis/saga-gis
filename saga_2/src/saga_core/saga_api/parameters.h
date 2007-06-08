@@ -1103,7 +1103,7 @@ public:
 	bool						is_Managed				(void)	{	return( m_bManaged );	}
 
 
-#ifdef _SAGA_UNICODE
+#ifdef _UNICODE
 	CSG_Parameter *				Get_Parameter			(const char *Identifier);
 	CSG_Parameter *				operator()				(const char *Identifier)	{	return( Get_Parameter(Identifier) );	}
 	CSG_Parameter *				Add_Node				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description);
