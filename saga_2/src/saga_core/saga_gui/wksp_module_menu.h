@@ -98,7 +98,7 @@ private:
 
 	void						_Update				(class wxMenu *pMenu);
 	class wxMenu *				_Get_SubMenu		(class wxMenu *pMenu, wxString Menu_Path);
-
+	class wxMenu* 				_Find_SubMenu_For_Token( wxMenu* menu, wxString token );
 	void						_Set_Recent			(class wxMenu *pMenu);
 
 };

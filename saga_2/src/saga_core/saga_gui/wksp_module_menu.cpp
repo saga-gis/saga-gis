@@ -64,7 +64,7 @@
 #include "wksp_module_library.h"
 #include "wksp_module_menu.h"
 #include "wksp_module.h"
-
+#include <wx/tokenzr.h>
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -196,63 +196,41 @@ void CWKSP_Module_Menu::_Update(wxMenu *pMenu)
 //---------------------------------------------------------
 wxMenu * CWKSP_Module_Menu::_Get_SubMenu(wxMenu *pMenu, wxString Menu_Path)
 {
-	int			i;
-	size_t		iItem;
-	wxString	sSubMenu;
-	wxMenu		*pSubMenu;
-	wxMenuItem	*pItem;
-
-	if( !Menu_Path.IsNull() )
-	{
-		if( (i = Menu_Path.Find('|')) > 0 )
-		{
-			sSubMenu	= Menu_Path.Left(i);
-			Menu_Path	= Menu_Path.Right(Menu_Path.Length() - i - 1);
+	wxStringTokenizer *tk;
+	wxList path_elements;
+	wxString current_element;
+	wxMenu *sub_menu, *next_level;
+	int i;
+	
+	tk = new wxStringTokenizer( Menu_Path, "|" );
+	sub_menu = pMenu;
+	current_element = tk->GetNextToken();
+	while( ! current_element.IsNull() ) {
+		next_level = _Find_SubMenu_For_Token( sub_menu, current_element );
+		if( ! next_level ) {
+			next_level	= new wxMenu();
+			sub_menu->Append( ID_CMD_MODULES_FIRST, current_element, next_level );
 		}
-		else
-		{
-			sSubMenu	= Menu_Path;
-			Menu_Path.Empty();
-		}
-
-		//-------------------------------------------------
-		for(iItem=0, pSubMenu=NULL; iItem<pMenu->GetMenuItemCount() && !pSubMenu; iItem++)
-		{
-			pItem	= pMenu->GetMenuItems()[iItem];
-			i		= sSubMenu.Cmp(pItem->GetLabel());
-
-			if( i < 0 )
-			{
-				pSubMenu	= new wxMenu();
-				pMenu->Insert(iItem, new wxMenuItem(pMenu, ID_CMD_MODULES_FIRST, sSubMenu, LNG(""), 1, pSubMenu));
-			}
-			else if( i == 0 )
-			{
-				if( pItem->GetSubMenu() )
-				{
-					pSubMenu	= pItem->GetSubMenu();
-				}
-				else
-				{
-					pSubMenu	= new wxMenu();
-					pMenu->Insert(iItem, new wxMenuItem(pMenu, ID_CMD_MODULES_FIRST, sSubMenu, LNG(""), 1, pSubMenu));
-				}
-			}
-		}
-
-		if( !pSubMenu )
-		{
-			pSubMenu	= new wxMenu();
-			pMenu->Append(ID_CMD_MODULES_FIRST, sSubMenu, pSubMenu);
-		}
-
-		//-------------------------------------------------
-		return( _Get_SubMenu(pSubMenu, Menu_Path) );
+		sub_menu = next_level;
+		current_element = tk->GetNextToken();
 	}
-
-	return( pMenu );
+	return sub_menu;
 }
 
+wxMenu* CWKSP_Module_Menu::_Find_SubMenu_For_Token( wxMenu* menu, wxString token ) {
+	
+	wxMenuItem* item;
+	wxMenu* result = NULL;
+	
+	for( int i = 0; i < menu->GetMenuItemCount(); i++ ) {
+		item = menu->GetMenuItems()[ i ];
+		if ( item->GetLabel() == token ) {
+			result = item->GetSubMenu();
+			break;
+		}
+	}
+	return result;
+}
 
 ///////////////////////////////////////////////////////////
 //														 //
