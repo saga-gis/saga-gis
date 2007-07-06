@@ -200,9 +200,8 @@ wxMenu * CWKSP_Module_Menu::_Get_SubMenu(wxMenu *pMenu, wxString Menu_Path)
 	wxList path_elements;
 	wxString current_element;
 	wxMenu *sub_menu, *next_level;
-	int i;
 	
-	tk = new wxStringTokenizer( Menu_Path, "|" );
+	tk = new wxStringTokenizer( Menu_Path, SG_T( "|" ) );
 	sub_menu = pMenu;
 	current_element = tk->GetNextToken();
 	while( ! current_element.IsNull() ) {
