@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
+// $Id: wksp_module_menu.cpp,v 1.6 2007-07-06 10:07:54 tschorr Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -213,6 +213,7 @@ wxMenu * CWKSP_Module_Menu::_Get_SubMenu(wxMenu *pMenu, wxString Menu_Path)
 		sub_menu = next_level;
 		current_element = tk->GetNextToken();
 	}
+	delete tk;
 	return sub_menu;
 }
 
