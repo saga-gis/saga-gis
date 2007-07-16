@@ -220,6 +220,8 @@ TGEO_iRect;
 #define API_Get_						SG_Get_
 #define SG_Dir_isValid					SG_Dir_Exists
 
+#define SYS_Swap_Bytes					SG_Swap_Bytes
+#define Get_SafeNew_Shapes				SG_Create_Shapes
 
 //---------------------------------------------------------
 #define CMAT_Spline						CSG_Spline
@@ -242,14 +244,17 @@ TGEO_iRect;
 
 #define TGEO_Intersection				TSG_Intersection
 #define TGEO_Point						TSG_Point
+#define TGEO_dPoint						TSG_Point
 #define CGEO_Point						CSG_Point
 #define CGEO_Points						CSG_Points
 #define TAPI_dPoint						TSG_Point
 #define CAPI_dPoints					CSG_Points
 #define TAPI_iPoint						TSG_Point_Int
 #define CAPI_iPoint						CSG_Points_Int
+#define TGEO_Position					TSG_Point_3D
 #define TAPI_3D_dPoint					TSG_Point_3D
 #define CAPI_3D_dPoints					CSG_Points_3D
+#define TGEO_dRect						TSG_Rect
 #define TGEO_Rect						TSG_Rect
 #define CGEO_Rect						CSG_Rect
 #define CGEO_Rects						CSG_Rects
@@ -266,11 +271,15 @@ TGEO_iRect;
 #define CHTML_Document					CSG_Doc_HTML
 #define CSVG_Graph						CSG_Doc_SVG
 
+#define Message_Popup_Set				Message_Dlg
+#define Message_Popup_Add				Message_Dlg
+
 //---------------------------------------------------------
 #define CDataObject						CSG_Data_Object
 #define CGrid							CSG_Grid
 #define CGrid_System					CSG_Grid_System
 #define CModule							CSG_Module
+#define CModule_Grid					CSG_Module_Grid
 #define CModule_Grid_Interactive		CSG_Module_Grid_Interactive
 #define CModule_Interactive				CSG_Module_Interactive
 #define CModule_Interactive_Base		CSG_Module_Interactive_Base
@@ -297,6 +306,7 @@ TGEO_iRect;
 #define CParameters						CSG_Parameters
 #define CParameter						CSG_Parameter
 #define CParameter_Bool					CSG_Parameter_Bool
+#define CParameter_Select				CSG_Parameter_Choice
 #define CParameter_Choice				CSG_Parameter_Choice
 #define CParameter_Color				CSG_Parameter_Color
 #define CParameter_Colors				CSG_Parameter_Colors
@@ -348,6 +358,8 @@ TGEO_iRect;
 #define TModule_Interactive_DragMode	TSG_Module_Interactive_DragMode
 #define TModule_Error					TSG_Module_Error
 #define TMLB_Info						TSG_MLB_Info
+
+#define GRID_TYPE_Long					GRID_TYPE_Int
 
 #define Add_Extra_Parameters			Add_Parameters
 #define Get_Extra_Parameters			Get_Parameters
