@@ -85,6 +85,7 @@
 #include "wksp_table.h"
 
 #include "wksp_map.h"
+#include "wksp_map_buttons.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -294,9 +295,14 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 
 			Thaw();
 
-			if( g_pLayers )
+			if( g_pData_Buttons )
 			{
-				g_pLayers->Update_Layers();
+				g_pData_Buttons->Update_Buttons();
+			}
+
+			if( g_pMap_Buttons )
+			{
+				g_pMap_Buttons->Update_Buttons();
 			}
 
 			return( true );
@@ -320,7 +326,12 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 
 				if( m_pManager->Get_Type() == WKSP_ITEM_Data_Manager )
 				{
-					g_pLayers->Update_Layers();
+					g_pData_Buttons->Update_Buttons();
+				}
+
+				if( m_pManager->Get_Type() == WKSP_ITEM_Map_Manager )
+				{
+					g_pMap_Buttons->Update_Buttons();
 				}
 
 				return( _Del_Item(pItem_Manager, true) );
@@ -342,7 +353,12 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 
 			if( m_pManager->Get_Type() == WKSP_ITEM_Data_Manager )
 			{
-				g_pLayers->Update_Layers();
+				g_pData_Buttons->Update_Buttons();
+			}
+
+			if( m_pManager->Get_Type() == WKSP_ITEM_Map_Manager )
+			{
+				g_pMap_Buttons->Update_Buttons();
 			}
 
 			return( true );

@@ -11,7 +11,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  WKSP_Data_Layers.h                   //
+//                  wksp_map_buttons.h                   //
 //                                                       //
 //          Copyright (C) 2006 by Olaf Conrad            //
 //                                                       //
@@ -58,8 +58,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Data_Layers_H
-#define _HEADER_INCLUDED__SAGA_GUI__WKSP_Data_Layers_H
+#ifndef _HEADER_INCLUDED__SAGA_GUI__wksp_map_buttons_H
+#define _HEADER_INCLUDED__SAGA_GUI__wksp_map_buttons_H
 
 
 ///////////////////////////////////////////////////////////
@@ -81,14 +81,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CWKSP_Data_Button : public wxPanel
+class CWKSP_Map_Button : public wxPanel
 {
-	DECLARE_CLASS(CWKSP_Data_Button)
+	DECLARE_CLASS(CWKSP_Map_Button)
 
 public:
-	CWKSP_Data_Button(wxWindow *pParent, class CWKSP_Layer *pLayer);
-	CWKSP_Data_Button(wxWindow *pParent, const wxChar *Title);
-	virtual ~CWKSP_Data_Button(void)	{}
+	CWKSP_Map_Button(wxWindow *pParent, class CWKSP_Map *pMap);
+	CWKSP_Map_Button(wxWindow *pParent, const wxChar *Title);
+	virtual ~CWKSP_Map_Button(void)	{}
 
 	void						On_Paint			(wxPaintEvent &event);
 
@@ -96,16 +96,14 @@ public:
 	void						On_Mouse_LDClick	(wxMouseEvent &event);
 	void						On_Mouse_RDown		(wxMouseEvent &event);
 
-	bool						is_Title			(void)		{	return( m_pLayer == NULL );	}
+	bool						is_Title			(void)		{	return( m_pMap == NULL );	}
 
 
 private:
 
 	wxString					m_Title;
 
-	class CWKSP_Layer			*m_pLayer;
-
-	CSG_Data_Object				*m_pObject;
+	class CWKSP_Map				*m_pMap;
 
 
 	bool						_Set_Layer_Active	(void);
@@ -116,13 +114,13 @@ DECLARE_EVENT_TABLE()
 };
 
 //---------------------------------------------------------
-class CWKSP_Data_Buttons : public wxScrolledWindow
+class CWKSP_Map_Buttons : public wxScrolledWindow
 {
-	DECLARE_CLASS(CWKSP_Data_Buttons)
+	DECLARE_CLASS(CWKSP_Map_Buttons)
 
 public:
-	CWKSP_Data_Buttons(wxWindow *pParent);
-	virtual ~CWKSP_Data_Buttons(void);
+	CWKSP_Map_Buttons(wxWindow *pParent);
+	virtual ~CWKSP_Map_Buttons(void);
 
 	void						On_Mouse_RDown		(wxMouseEvent &event);
 
@@ -138,13 +136,11 @@ public:
 
 private:
 
-	bool						m_bCategorised;
-
 	int							m_xScroll, m_yScroll, m_nItems, m_Size;
 
 	long						m_Active_Color;
 
-	CWKSP_Data_Button			**m_Items;
+	CWKSP_Map_Button			**m_Items;
 
 	CSG_Parameters				m_Parameters;
 
@@ -152,7 +148,7 @@ private:
 	void						_Set_Positions		(void);
 
 	bool						_Add_Items			(class CWKSP_Base_Item *pItem);
-	bool						_Add_Item			(class CWKSP_Layer *pLayer);
+	bool						_Add_Item			(class CWKSP_Map *pMap);
 	bool						_Add_Item			(const wxChar *Title);
 	bool						_Del_Items			(void);
 
@@ -162,7 +158,7 @@ DECLARE_EVENT_TABLE()
 };
 
 //---------------------------------------------------------
-extern CWKSP_Data_Buttons		*g_pData_Buttons;
+extern CWKSP_Map_Buttons		*g_pMap_Buttons;
 
 
 ///////////////////////////////////////////////////////////
@@ -172,4 +168,4 @@ extern CWKSP_Data_Buttons		*g_pData_Buttons;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Data_Layers_H
+#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__wksp_map_buttons_H

@@ -115,25 +115,12 @@ void CDLG_About_Logo::On_Paint(wxPaintEvent &event)
 	if( m_logo.Ok() && m_icon.Ok() )
 	{
 		int			x, y;
-		wxCoord		w, h;
 		wxString	s;
 		wxPaintDC	dc(this);
 
 		x	= (GetClientSize().x - m_logo.GetWidth()) / 2;
 		y	= (GetClientSize().y - (m_logo.GetHeight() + 10 + m_icon.GetHeight())) / 2;
 		dc.DrawBitmap(m_logo, x, y, true);
-
-		s.Printf(LNG("System for Automated Geoscientific Analyses"));
-		dc.GetTextExtent(s, &w, &h);
-		x	= (GetClientSize().x - (m_icon.GetWidth() + 10 + w)) / 2;
-		y	+= 10 + m_logo.GetHeight();
-		dc.DrawBitmap(m_icon, x, y, true);
-
-		x	+= 10 + m_icon.GetWidth();
-		dc.DrawText(s, x, y);
-		y	+= 2 + h;
-		s.Printf(LNG("Version 2.0, Goettingen, 2006"));
-		dc.DrawText(s, x + m_icon.GetWidth() + 10, y);
 	}
 }
 

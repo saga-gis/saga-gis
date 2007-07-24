@@ -500,7 +500,7 @@ void CWKSP_Layer::Parameters_Changed(void)
 
 		_Set_Thumbnail();
 
-		g_pLayers->Refresh(false);
+		g_pData_Buttons->Refresh(false);
 
 		//-----------------------------------------------------
 		CWKSP_Base_Item::Parameters_Changed();

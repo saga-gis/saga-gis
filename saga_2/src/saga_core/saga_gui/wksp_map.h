@@ -161,6 +161,8 @@ public:
 	void						Draw_Frame				(wxDC &dc, const CSG_Rect &rWorld, wxRect rMap, int Width);
 	bool						Draw_Legend				(wxDC &dc, double Zoom_Map, double Zoom, wxPoint Position, wxSize *pSize = NULL, int Layout = LEGEND_LAYOUT_VERTICAL);
 
+	const wxBitmap &			Get_Thumbnail			(int dx, int dy);
+
 	bool						Get_Legend_Size			(wxSize &Size, double Zoom_Map = 1.0, double Zoom = 1.0, int Layout = LEGEND_LAYOUT_VERTICAL);
 
 	int							Get_Frame_Width			(void);
@@ -176,6 +178,8 @@ private:
 	int							m_Img_Type, m_Img_Count;
 
 	wxString					m_Name, m_Img_File;
+
+	wxBitmap					m_Thumbnail;
 
 	CSG_Rect					m_Extent, m_Extent_Last;
 
@@ -198,6 +202,8 @@ private:
 
 	void						_Img_Save				(wxString file, int type);
 	void						_Img_Save_On_Change		(void);
+
+	bool						_Set_Thumbnail			(void);
 
 };
 

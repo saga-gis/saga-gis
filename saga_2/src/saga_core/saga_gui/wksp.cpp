@@ -79,11 +79,11 @@
 
 #include "wksp_data_control.h"
 #include "wksp_data_manager.h"
-
 #include "wksp_data_layers.h"
 
 #include "wksp_map_control.h"
 #include "wksp_map_manager.h"
+#include "wksp_map_buttons.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -97,8 +97,9 @@ enum
 {
 	IMG_MODULES	= 0,
 	IMG_DATA,
-	IMG_LAYERS,
-	IMG_MAPS
+	IMG_DATA_BUTTONS,
+	IMG_MAPS,
+	IMG_MAPS_BUTTONS
 };
 
 
@@ -142,23 +143,26 @@ CWKSP::CWKSP(wxWindow *pParent)
 
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_MODULES);
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_DATA);
-	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_LAYERS);
+	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_DATA_BUTTONS);
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_MAPS);
+	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_MAPS_BUTTONS);
 
 	//-----------------------------------------------------
-	m_pModules	= new CWKSP_Module_Control(this);
-	m_pData		= new CWKSP_Data_Control  (this);
-	m_pLayers	= new CWKSP_Data_Layers   (this);
-	m_pMaps		= new CWKSP_Map_Control   (this);
+	m_pModules		= new CWKSP_Module_Control	(this);
+	m_pData			= new CWKSP_Data_Control	(this);
+	m_pData_Buttons	= new CWKSP_Data_Buttons	(this);
+	m_pMaps			= new CWKSP_Map_Control		(this);
+	m_pMaps_Buttons	= new CWKSP_Map_Buttons		(this);
 }
 
 //---------------------------------------------------------
 void CWKSP::Add_Pages(void)
 {
-	AddPage(m_pModules, LNG("[CAP] Modules"), false, IMG_MODULES);
-	AddPage(m_pData   , LNG("[CAP] Data")   , false, IMG_DATA);
-	AddPage(m_pLayers , LNG("[CAP] Layers") , false, IMG_LAYERS);
-	AddPage(m_pMaps   , LNG("[CAP] Maps")   , false, IMG_MAPS);
+	AddPage(m_pModules		, LNG("[CAP] Modules")	, false, IMG_MODULES);
+	AddPage(m_pData			, LNG("[CAP] Data")		, false, IMG_DATA);
+	AddPage(m_pData_Buttons	, LNG("[CAP] Data *")	, false, IMG_DATA_BUTTONS);
+	AddPage(m_pMaps			, LNG("[CAP] Maps")		, false, IMG_MAPS);
+	AddPage(m_pMaps_Buttons	, LNG("[CAP] Maps *")	, false, IMG_MAPS_BUTTONS);
 }
 
 //---------------------------------------------------------
@@ -185,7 +189,7 @@ void CWKSP::On_Page_Changed(wxNotebookEvent &event)
 {
 	event.Skip();
 
-	if( event.GetSelection() >= 0 && g_pACTIVE && GetPage(event.GetSelection()) != m_pLayers )
+	if( event.GetSelection() >= 0 && g_pACTIVE && GetPage(event.GetSelection()) != m_pData_Buttons && GetPage(event.GetSelection()) != m_pMaps_Buttons )
 	{
 		g_pACTIVE->Set_Active(((CWKSP_Base_Control *)GetPage(event.GetSelection()))->Get_Item_Selected());
 	}

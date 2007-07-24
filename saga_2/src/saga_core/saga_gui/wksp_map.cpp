@@ -78,6 +78,7 @@
 #include "wksp_map_manager.h"
 #include "wksp_map.h"
 #include "wksp_map_layer.h"
+#include "wksp_map_buttons.h"
 
 #include "wksp_layer_legend.h"
 #include "wksp_shapes.h"
@@ -733,6 +734,13 @@ void CWKSP_Map::View_Refresh(bool bMapOnly)
 	{
 		m_pLayout->Refresh_Layout();
 	}
+
+	_Set_Thumbnail();
+
+	if( g_pMap_Buttons )
+	{
+		g_pMap_Buttons->Refresh();
+	}
 }
 
 //---------------------------------------------------------
@@ -1308,6 +1316,49 @@ void CWKSP_Map::SaveAs_Interactive_SVG(void)
 
 		MSG_General_Add(LNG("[MSG] okay"), false, false);
 	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+const wxBitmap & CWKSP_Map::Get_Thumbnail(int dx, int dy)
+{
+	if( dx > 0 && m_Thumbnail.GetWidth()  != dx
+	&&	dy > 0 && m_Thumbnail.GetHeight() != dy )
+	{
+		m_Thumbnail.Create(dx, dy);
+
+		_Set_Thumbnail();
+	}
+
+	return( m_Thumbnail );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Map::_Set_Thumbnail(void)
+{
+	if( m_Thumbnail.GetWidth() > 0 && m_Thumbnail.GetHeight() > 0 )
+	{
+		wxMemoryDC		dc;
+		wxRect			r(0, 0, m_Thumbnail.GetWidth(), m_Thumbnail.GetHeight());
+
+		dc.SelectObject(m_Thumbnail);
+		dc.SetBackground(*wxWHITE_BRUSH);
+		dc.Clear();
+
+		Draw_Map(dc, Get_Extent(), 1.0, r, false);
+
+		dc.SelectObject(wxNullBitmap);
+
+		return( true );
+	}
+
+	return( false );
 }
 
 

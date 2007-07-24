@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: wksp_module_menu.cpp,v 1.6 2007-07-06 10:07:54 tschorr Exp $
+// $Id: wksp_module_menu.cpp,v 1.7 2007-07-24 12:17:00 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -175,9 +175,24 @@ void CWKSP_Module_Menu::_Update(wxMenu *pMenu)
 			for(iModule=0; iModule<pLibrary->Get_Count(); iModule++, ID_Menu++)
 			{
 				pModule		= pLibrary->Get_Module(iModule);
+				pModule		->Set_Menu_ID(ID_Menu);
 				pSubMenu	= _Get_SubMenu(pMenu, pModule->Get_Menu_Path());
-				pSubMenu->AppendCheckItem(ID_Menu, pModule->Get_Name(), pModule->Get_Name());
-				pModule->Set_Menu_ID(ID_Menu);
+
+				size_t	iPos;
+
+				for(iPos=0; iPos<pSubMenu->GetMenuItemCount(); iPos++)
+				{
+#if defined(MODULES_MENU_SORT_SIMPLE)
+					if( pSubMenu->FindItemByPosition(iPos)->GetLabel().Cmp(pModule->Get_Name()) > 0 )
+#else
+					if(	pSubMenu->FindItemByPosition(iPos)->IsSubMenu() == false
+					&&	pSubMenu->FindItemByPosition(iPos)->GetLabel().Cmp(pModule->Get_Name()) > 0 )
+#endif
+						break;
+				}
+
+				pSubMenu->InsertCheckItem(iPos, ID_Menu, pModule->Get_Name(), pModule->Get_Name());
+			//	pSubMenu->AppendCheckItem(ID_Menu, pModule->Get_Name(), pModule->Get_Name());
 			}
 		}
 
@@ -196,33 +211,54 @@ void CWKSP_Module_Menu::_Update(wxMenu *pMenu)
 //---------------------------------------------------------
 wxMenu * CWKSP_Module_Menu::_Get_SubMenu(wxMenu *pMenu, wxString Menu_Path)
 {
-	wxStringTokenizer *tk;
-	wxList path_elements;
-	wxString current_element;
-	wxMenu *sub_menu, *next_level;
-	
-	tk = new wxStringTokenizer( Menu_Path, SG_T( "|" ) );
-	sub_menu = pMenu;
-	current_element = tk->GetNextToken();
-	while( ! current_element.IsNull() ) {
-		next_level = _Find_SubMenu_For_Token( sub_menu, current_element );
-		if( ! next_level ) {
-			next_level	= new wxMenu();
-			sub_menu->Append( ID_CMD_MODULES_FIRST, current_element, next_level );
+	wxStringTokenizer	*tk;
+	wxString			sSubMenu;
+	wxMenu				*pSubMenu;
+
+	tk			= new wxStringTokenizer(Menu_Path, SG_T("|"));
+	sSubMenu	= tk->GetNextToken();
+
+	while( ! sSubMenu.IsNull() )
+	{
+		pSubMenu	= _Find_SubMenu_For_Token(pMenu, sSubMenu);
+
+		if( ! pSubMenu )
+		{
+			pSubMenu	= new wxMenu();
+
+			size_t	iPos;
+
+			for(iPos=0; iPos<pMenu->GetMenuItemCount(); iPos++)
+			{
+#if defined(MODULES_MENU_SORT_SIMPLE)
+				if( pMenu->FindItemByPosition(iPos)->GetLabel().Cmp(sSubMenu) > 0 )
+#else
+				if(	pMenu->FindItemByPosition(iPos)->IsSubMenu() == false
+				||	pMenu->FindItemByPosition(iPos)->GetLabel().Cmp(sSubMenu) > 0 )
+#endif
+					break;
+			}
+
+			pMenu->Insert(iPos, ID_CMD_MODULES_FIRST, sSubMenu, pSubMenu);
+		//	pMenu->Append(ID_CMD_MODULES_FIRST, sSubMenu, pSubMenu);
 		}
-		sub_menu = next_level;
-		current_element = tk->GetNextToken();
+
+		pMenu		= pSubMenu;
+		sSubMenu	= tk->GetNextToken();
 	}
+
 	delete tk;
-	return sub_menu;
+
+	return pMenu;
 }
 
-wxMenu* CWKSP_Module_Menu::_Find_SubMenu_For_Token( wxMenu* menu, wxString token ) {
+//---------------------------------------------------------
+wxMenu * CWKSP_Module_Menu::_Find_SubMenu_For_Token( wxMenu* menu, wxString token ) {
 	
 	wxMenuItem* item;
 	wxMenu* result = NULL;
 	
-	for( int i = 0; i < menu->GetMenuItemCount(); i++ ) {
+	for( size_t i = 0; i < menu->GetMenuItemCount(); i++ ) {
 		item = menu->GetMenuItems()[ i ];
 		if ( item->GetLabel() == token ) {
 			result = item->GetSubMenu();
@@ -231,6 +267,7 @@ wxMenu* CWKSP_Module_Menu::_Find_SubMenu_For_Token( wxMenu* menu, wxString token
 	}
 	return result;
 }
+
 
 ///////////////////////////////////////////////////////////
 //														 //

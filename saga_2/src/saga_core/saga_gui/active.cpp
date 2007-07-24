@@ -79,6 +79,7 @@
 #include "wksp_module.h"
 
 #include "wksp_data_layers.h"
+#include "wksp_map_buttons.h"
 
 #include "wksp_layer.h"
 #include "wksp_map_layer.h"
@@ -289,9 +290,14 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 	}
 
 	//-----------------------------------------------------
-	if( g_pLayers )
+	if( g_pData_Buttons )
 	{
-		g_pLayers->Refresh(false);
+		g_pData_Buttons->Refresh(false);
+	}
+
+	if( g_pMap_Buttons )
+	{
+		g_pMap_Buttons->Refresh(false);
 	}
 
 	return( true );
