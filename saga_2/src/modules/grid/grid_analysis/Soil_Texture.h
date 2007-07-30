@@ -3,22 +3,22 @@
 //                                                       //
 //                         SAGA                          //
 //                                                       //
-//      System for Automated Geoscientific Analyses      //
+//    System for an Automated Geo-Scientific Analysis    //
 //                                                       //
 //                    Module Library:                    //
-//                    ta_preprocessor                    //
+//                    grid_analysis                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                    Soil_Texture.h                     //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                      Olaf Conrad                      //
+//                 Copyright (C) 2007 by                 //
+//                   Gianluca Massei                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-// This file is part of 'SAGA - System for Automated     //
-// Geoscientific Analyses'. SAGA is free software; you   //
+// This file is part of 'SAGA - System for an Automated  //
+// Geo-Scientific Analysis'. SAGA is free software; you  //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
 // Free Software Foundation; version 2 of the License.   //
@@ -37,94 +37,73 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     g_massa@libero.it				     	 //
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
-//                Germany                                //
+//    contact:    Gianluca Massei                        //
+//                Department of Economics and Appraisal  //
+//                University of Perugia - Italy			 //
+//                www.unipg.it                           //
 //                                                       //
+///////////////////////////////////////////////////////////
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//			The Module Link Library Interface			 //
-//														 //
-///////////////////////////////////////////////////////////
+#ifndef HEADER_INCLUDED__Soil_Texture_H
+#define HEADER_INCLUDED__Soil_Texture_H
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-const SG_Char * Get_Info(int i)
+class CSoil_Texture : public CSG_Module_Grid
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Terrain Analysis - Preprocessing" ));
+public:
+	CSoil_Texture(void);
+	virtual ~CSoil_Texture(void);
 
-	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad (c) 2001, Volker Wichmann (c) 2003") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for the preprocessing of digital terrain models." ));
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Terrain Analysis|Preprocessing" ));
-	}
-}
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Soil Analysis") );	}
 
 
-//---------------------------------------------------------
-#include "Pit_Router.h"
-#include "Pit_Eliminator.h"
-#include "FillSinks.h"
-#include "FillSinks_WL.h"
+protected:
+
+	virtual bool			On_Execute(void);
 
 
-//---------------------------------------------------------
-CSG_Module *		Create_Module(int i)
-{
-	CSG_Module	*pModule;
+private:
 
-	switch( i )
-	{
-	case 0:
-		pModule	= new CPit_Router;
-		break;
 
-	case 1:
-		pModule	= new CPit_Eliminator;
-		break;
+	///////////////////////////////////////
+	/* Declare specific texture function */
+	///////////////////////////////////////
 
-	case 2:
-		pModule	= new CFillSinks;
-		break;
+	int Clay_Texture(float, float);                   // 1 define Clay soils function
+	int SiltyClay_Texture(float, float);              // 2 define SiltyClay soils function
+	int SiltyClayLoam_Texture(float, float);          // 3 define SiltyClayLoam soils function
+	int SandyClay_Texture(float, float);              // 4 define SandyClay soils function
+	int SandyClayLoam_Texture(float, float);          // 5 define SandyClayLoam soils function
+	int ClayLoam_Texture(float, float);               // 6 define ClayLoam soils function
+	int Silt_Texture(float, float);                   // 7 define Silt soils function
+	int SiltLoam_Texture(float, float);               // 8 define SiltLoam soils function
+	int Loam_Texture(float, float);                   // 9 define Loam soils function
+	int Sand_Texture(float, float);                   // 10 define Sand soils function
+	int LoamySand_Texture(float, float);              // 11 define LoamySand soils function
+	int SandyLoam_Texture(float, float);              // 12 define SandyLoam soils function
+	int OutTexture(float, float);                     //function output   
 
-	case 3:
-		pModule	= new CFillSinks_WL;
-		break;
-
-	case 4:
-		pModule	= new CFillSinks_WL_XXL;
-		break;
-
-	default:
-		pModule	= NULL;
-		break;
-	}
-
-	return( pModule );
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -134,8 +113,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__Soil_Texture_H

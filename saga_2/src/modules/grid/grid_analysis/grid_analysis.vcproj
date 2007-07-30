@@ -1213,6 +1213,10 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\Soil_Texture.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1296,6 +1300,10 @@
 			</File>
 			<File
 				RelativePath="PointsEx.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Soil_Texture.h"
 				>
 			</File>
 		</Filter>

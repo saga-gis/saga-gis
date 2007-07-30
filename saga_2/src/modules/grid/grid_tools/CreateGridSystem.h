@@ -6,14 +6,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                    ta_preprocessor                    //
+//                   CreateGridSystem                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                  CreateGridSystem.h                   //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                      Olaf Conrad                      //
+//                 Copyright (C) 2007 by                 //
+//                    Volker Wichmann                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,94 +37,61 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     wichmann@laserdata.at                  //
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
-//                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-//---------------------------------------------------------
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifndef HEADER_INCLUDED__CreateGridSystem_H
+#define HEADER_INCLUDED__CreateGridSystem_H
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 
 //---------------------------------------------------------
-const SG_Char * Get_Info(int i)
+class grid_tools_EXPORT CCreateGridSystem : public CSG_Module
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Terrain Analysis - Preprocessing" ));
+public:
+	CCreateGridSystem(void);
+	virtual ~CCreateGridSystem(void);
 
-	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad (c) 2001, Volker Wichmann (c) 2003") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for the preprocessing of digital terrain models." ));
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Terrain Analysis|Preprocessing" ));
-	}
-}
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Construction") );	}
 
 
-//---------------------------------------------------------
-#include "Pit_Router.h"
-#include "Pit_Eliminator.h"
-#include "FillSinks.h"
-#include "FillSinks_WL.h"
+protected:
+
+	virtual bool		On_Execute			(void);
 
 
-//---------------------------------------------------------
-CSG_Module *		Create_Module(int i)
-{
-	CSG_Module	*pModule;
+private:
 
-	switch( i )
-	{
-	case 0:
-		pModule	= new CPit_Router;
-		break;
+};
 
-	case 1:
-		pModule	= new CPit_Eliminator;
-		break;
 
-	case 2:
-		pModule	= new CFillSinks;
-		break;
 
-	case 3:
-		pModule	= new CFillSinks_WL;
-		break;
-
-	case 4:
-		pModule	= new CFillSinks_WL_XXL;
-		break;
-
-	default:
-		pModule	= NULL;
-		break;
-	}
-
-	return( pModule );
-}
 
 
 ///////////////////////////////////////////////////////////
@@ -134,8 +101,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__CreateGridSystem_H

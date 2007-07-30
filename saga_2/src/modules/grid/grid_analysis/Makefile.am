@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.5 2007-02-13 12:49:16 tschorr Exp $
+# $Id: Makefile.am,v 1.6 2007-07-30 07:29:24 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -33,6 +33,7 @@ LeastCostPathProfile.cpp\
 MLB_Interface.cpp\
 owa.cpp\
 PointsEx.cpp\
+Soil_Texture.cpp\
 Cost_Anisotropic.h\
 Cost_Isotropic.h\
 Cost_PolarToRect.h\
@@ -52,7 +53,8 @@ Image_VI_Slope.h\
 LeastCostPathProfile.h\
 MLB_Interface.h\
 owa.h\
-PointsEx.h
+PointsEx.h\
+Soil_Texture.h
 
 libgrid_analysis_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(ADD_MLBS)
 

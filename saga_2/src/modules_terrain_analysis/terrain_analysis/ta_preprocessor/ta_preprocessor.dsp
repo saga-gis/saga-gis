@@ -157,6 +157,14 @@ SOURCE=.\FillSinks.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\FillSinks_WL.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\FillSinks_WL_XXL.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\MLB_Interface.cpp
 # End Source File
 # Begin Source File
@@ -174,6 +182,10 @@ SOURCE=.\Pit_Router.cpp
 # Begin Source File
 
 SOURCE=.\FillSinks.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\FillSinks_WL.h
 # End Source File
 # Begin Source File
 

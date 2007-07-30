@@ -454,6 +454,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\FillSinks_WL.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\FillSinks_WL_XXL.cpp"
+				>
+			</File>
+			<File
 				RelativePath="MLB_Interface.cpp"
 				>
 				<FileConfiguration
@@ -580,6 +588,10 @@
 			>
 			<File
 				RelativePath="FillSinks.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FillSinks_WL.h"
 				>
 			</File>
 			<File

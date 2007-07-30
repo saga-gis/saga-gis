@@ -18,7 +18,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/FillSinks.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/Pit_Eliminator.o $(MLB_TEMP)/Pit_Router.o
+OBJ      = $(MLB_TEMP)/FillSinks.o $(MLB_TEMP)/FillSinks_WL.o $(MLB_TEMP)/FillSinks_WL_XXL.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/Pit_Eliminator.o $(MLB_TEMP)/Pit_Router.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS = -I/usr/lib/glib/include -I/usr/include/glib-1.2
@@ -51,6 +51,12 @@ $(MLB_NAME): $(OBJ) $(MLB_PATH)
 
 $(MLB_TEMP)/FillSinks.o: ./FillSinks.cpp $(MLB_TEMP)
 	$(CPP) -c ./FillSinks.cpp -o $(MLB_TEMP)/FillSinks.o $(CXXFLAGS)
+
+$(MLB_TEMP)/FillSinks_WL.o: ./FillSinks_WL.cpp $(MLB_TEMP)
+	$(CPP) -c ./FillSinks_WL.cpp -o $(MLB_TEMP)/FillSinks_WL.o $(CXXFLAGS)
+
+$(MLB_TEMP)/FillSinks_WL_XXL.o: ./FillSinks_WL_XXL.cpp $(MLB_TEMP)
+	$(CPP) -c ./FillSinks_WL_XXL.cpp -o $(MLB_TEMP)/FillSinks_WL_XXL.o $(CXXFLAGS)
 
 $(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)

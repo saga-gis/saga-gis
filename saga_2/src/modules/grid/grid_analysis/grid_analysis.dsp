@@ -231,6 +231,10 @@ SOURCE=.\owa.cpp
 
 SOURCE=.\PointsEx.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\Soil_Texture.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -314,6 +318,10 @@ SOURCE=.\owa.h
 # Begin Source File
 
 SOURCE=.\PointsEx.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Soil_Texture.h
 # End Source File
 # End Group
 # Begin Group "Include"

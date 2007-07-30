@@ -120,6 +120,8 @@ const SG_Char * Get_Info(int i)
 
 #include "Grid_Fill.h"
 
+#include "CreateGridSystem.h"
+
 
 //---------------------------------------------------------
 // 4. Allow your modules to be created here...
@@ -151,6 +153,7 @@ CSG_Module *		Create_Module(int i)
 	case 20: 	return( new CCombineGrids );
 	case 21: 	return( new CSortRaster );
 	case 22: 	return( new CGridsFromTableAndGrid );
+	case 23: 	return( new CCreateGridSystem );
 	}
 
 	return( NULL );

@@ -10,10 +10,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                    FillSinks_WL.h                     //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                      Olaf Conrad                      //
+//                 Copyright (C) 2007 by                 //
+//                    Volker Wichmann                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,94 +37,106 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
-//                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
-//                Germany                                //
+//    e-mail:     reklovw@web.de					     //
 //                                                       //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifndef HEADER_INCLUDED__FillSinks_WL_H
+#define HEADER_INCLUDED__FillSinks_WL_H
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
+#include <iostream>
+#include <queue>
+#include <vector>
+using namespace std;
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const SG_Char * Get_Info(int i)
+class CFillSinks_WL_Node
 {
-	switch( i )
+public:
+	CFillSinks_WL_Node() : spill( 0 ) {}
+		~CFillSinks_WL_Node(){}
+
+	struct Greater : public binary_function< CFillSinks_WL_Node, CFillSinks_WL_Node, bool >
 	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Terrain Analysis - Preprocessing" ));
+		bool operator()(const CFillSinks_WL_Node n1, const CFillSinks_WL_Node n2) const
+		{
+			return n1.spill > n2.spill;
+		}
+	};
 
-	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad (c) 2001, Volker Wichmann (c) 2003") );
+	int		x;
+	int		y;
+	double	spill;
+};
 
-	case MLB_INFO_Description:
-		return( _TL("Tools for the preprocessing of digital terrain models." ));
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Terrain Analysis|Preprocessing" ));
-	}
-}
 
 
 //---------------------------------------------------------
-#include "Pit_Router.h"
-#include "Pit_Eliminator.h"
-#include "FillSinks.h"
-#include "FillSinks_WL.h"
-
-
-//---------------------------------------------------------
-CSG_Module *		Create_Module(int i)
+class ta_preprocessor_EXPORT CFillSinks_WL : public CSG_Module_Grid
 {
-	CSG_Module	*pModule;
+public:
+	CFillSinks_WL(void);
+	virtual ~CFillSinks_WL(void);
 
-	switch( i )
-	{
-	case 0:
-		pModule	= new CPit_Router;
-		break;
 
-	case 1:
-		pModule	= new CPit_Eliminator;
-		break;
+protected:
 
-	case 2:
-		pModule	= new CFillSinks;
-		break;
+	virtual bool		On_Execute(void);
 
-	case 3:
-		pModule	= new CFillSinks_WL;
-		break;
 
-	case 4:
-		pModule	= new CFillSinks_WL_XXL;
-		break;
+private:
 
-	default:
-		pModule	= NULL;
-		break;
-	}
+	typedef				vector< CFillSinks_WL_Node > nodeVector;
+	typedef				priority_queue< CFillSinks_WL_Node, nodeVector, CFillSinks_WL_Node::Greater > PriorityQ;
 
-	return( pModule );
-}
+	CSG_Grid			*pFilled;
+
+	int					Get_Dir(int x, int y, double z);
+
+};
+
+//---------------------------------------------------------
+class ta_preprocessor_EXPORT CFillSinks_WL_XXL : public CSG_Module_Grid
+{
+public:
+	CFillSinks_WL_XXL(void);
+	virtual ~CFillSinks_WL_XXL(void);
+
+
+protected:
+
+	virtual bool		On_Execute(void);
+
+
+private:
+
+	typedef		vector< CFillSinks_WL_Node > nodeVector;
+	typedef		priority_queue< CFillSinks_WL_Node, nodeVector, CFillSinks_WL_Node::Greater > PriorityQ;
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -134,8 +146,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__FillSinks_WL_H
