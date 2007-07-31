@@ -3,6 +3,7 @@
 # Created by O. Conrad
 
 PRJ_NAME = grid_calculus
+SAGA     = ./../../..
 BIN_SAGA = $(SAGA)/../bin/saga_gtk
 TMP_SAGA = $(SAGA)/../bin/tmp/saga_gtk
 INC_SAGA = $(SAGA)/saga_core
@@ -21,9 +22,9 @@ DEP_LFLG =
 OBJ      = $(MLB_TEMP)/Grid_Calculator.o $(MLB_TEMP)/Grid_Geometric_Figures.o $(MLB_TEMP)/Grid_Normalise.o $(MLB_TEMP)/Grid_Plotter.o $(MLB_TEMP)/Grid_Random_Field.o $(MLB_TEMP)/Grid_Random_Terrain.o $(MLB_TEMP)/Grid_Volume.o $(MLB_TEMP)/MLB_Interface.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
-CXX_INCS = -I/usr/lib/glib/include -I/usr/include/glib-1.2
-CXX_DEFS = -D_REENTRANT -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -DGTK_NO_CHECK_CASTS
-CXX_FLGS = -O2 -MMD -pthread -fPIC
+CXX_INCS =
+CXX_DEFS =
+CXX_FLGS = -O2
 CXXFLAGS = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEP_INCS) $(DEP_DEFS) -I$(INC_SAGA) $(DEF_SAGA)
 
 LDFLAGS  = -shared $(DEP_LFLG)
@@ -45,30 +46,30 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	-mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
 	$(LD) $(LDFLAGS) -o $(MLB_NAME) $(OBJ) $(LIBS)
 
 
-$(MLB_TEMP)/Grid_Calculator.o: ./Grid_Calculator.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Calculator.o: ./Grid_Calculator.cpp
 	$(CPP) -c ./Grid_Calculator.cpp -o $(MLB_TEMP)/Grid_Calculator.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Geometric_Figures.o: ./Grid_Geometric_Figures.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Geometric_Figures.o: ./Grid_Geometric_Figures.cpp
 	$(CPP) -c ./Grid_Geometric_Figures.cpp -o $(MLB_TEMP)/Grid_Geometric_Figures.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Normalise.o: ./Grid_Normalise.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Normalise.o: ./Grid_Normalise.cpp
 	$(CPP) -c ./Grid_Normalise.cpp -o $(MLB_TEMP)/Grid_Normalise.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Plotter.o: ./Grid_Plotter.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Plotter.o: ./Grid_Plotter.cpp
 	$(CPP) -c ./Grid_Plotter.cpp -o $(MLB_TEMP)/Grid_Plotter.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Random_Field.o: ./Grid_Random_Field.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Random_Field.o: ./Grid_Random_Field.cpp
 	$(CPP) -c ./Grid_Random_Field.cpp -o $(MLB_TEMP)/Grid_Random_Field.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Random_Terrain.o: ./Grid_Random_Terrain.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Random_Terrain.o: ./Grid_Random_Terrain.cpp
 	$(CPP) -c ./Grid_Random_Terrain.cpp -o $(MLB_TEMP)/Grid_Random_Terrain.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Volume.o: ./Grid_Volume.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Volume.o: ./Grid_Volume.cpp
 	$(CPP) -c ./Grid_Volume.cpp -o $(MLB_TEMP)/Grid_Volume.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)

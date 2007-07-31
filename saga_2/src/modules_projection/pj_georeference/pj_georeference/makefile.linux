@@ -3,6 +3,7 @@
 # Created by O. Conrad
 
 PRJ_NAME = pj_georeference
+SAGA     = ./../../..
 BIN_SAGA = $(SAGA)/../bin/saga_gtk
 TMP_SAGA = $(SAGA)/../bin/tmp/saga_gtk
 INC_SAGA = $(SAGA)/saga_core
@@ -21,9 +22,9 @@ DEP_LFLG =
 OBJ      = $(MLB_TEMP)/Collect_Points.o $(MLB_TEMP)/Georef_Engine.o $(MLB_TEMP)/Georef_Grid.o $(MLB_TEMP)/Georef_Shapes.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/enorm.o $(MLB_TEMP)/fdjac2.o $(MLB_TEMP)/lmdif.o $(MLB_TEMP)/lmdif0.o $(MLB_TEMP)/lmpar.o $(MLB_TEMP)/qrfac.o $(MLB_TEMP)/qrsolv.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
-CXX_INCS = -I/usr/lib/glib/include -I/usr/include/glib-1.2
-CXX_DEFS = -D_REENTRANT -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -DGTK_NO_CHECK_CASTS
-CXX_FLGS = -O2 -MMD -pthread -fPIC
+CXX_INCS =
+CXX_DEFS =
+CXX_FLGS = -O2
 CXXFLAGS = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEP_INCS) $(DEP_DEFS) -I$(INC_SAGA) $(DEF_SAGA)
 
 LDFLAGS  = -shared $(DEP_LFLG)
@@ -45,23 +46,23 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	-mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
 	$(LD) $(LDFLAGS) -o $(MLB_NAME) $(OBJ) $(LIBS)
 
 
-$(MLB_TEMP)/Collect_Points.o: ./Collect_Points.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Collect_Points.o: ./Collect_Points.cpp
 	$(CPP) -c ./Collect_Points.cpp -o $(MLB_TEMP)/Collect_Points.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Georef_Engine.o: ./Georef_Engine.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Georef_Engine.o: ./Georef_Engine.cpp
 	$(CPP) -c ./Georef_Engine.cpp -o $(MLB_TEMP)/Georef_Engine.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Georef_Grid.o: ./Georef_Grid.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Georef_Grid.o: ./Georef_Grid.cpp
 	$(CPP) -c ./Georef_Grid.cpp -o $(MLB_TEMP)/Georef_Grid.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Georef_Shapes.o: ./Georef_Shapes.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Georef_Shapes.o: ./Georef_Shapes.cpp
 	$(CPP) -c ./Georef_Shapes.cpp -o $(MLB_TEMP)/Georef_Shapes.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
 $(MLB_TEMP)/enorm.o: ./enorm.c $(MLB_TEMP)

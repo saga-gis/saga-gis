@@ -3,6 +3,7 @@
 # Created by O. Conrad
 
 PRJ_NAME = sim_hydrology
+SAGA     = ./../../..
 BIN_SAGA = $(SAGA)/../bin/saga_gtk
 TMP_SAGA = $(SAGA)/../bin/tmp/saga_gtk
 INC_SAGA = $(SAGA)/saga_core
@@ -21,9 +22,9 @@ DEP_LFLG =
 OBJ      = $(MLB_TEMP)/DVWK_SoilMoisture.o $(MLB_TEMP)/idw.o $(MLB_TEMP)/KinWav_D8.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/topmodel.o $(MLB_TEMP)/topmodel_values.o $(MLB_TEMP)/WaterRetentionCapacity.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
-CXX_INCS = -I/usr/lib/glib/include -I/usr/include/glib-1.2
-CXX_DEFS = -D_REENTRANT -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -DGTK_NO_CHECK_CASTS
-CXX_FLGS = -O2 -MMD -pthread -fPIC
+CXX_INCS =
+CXX_DEFS =
+CXX_FLGS = -O2
 CXXFLAGS = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEP_INCS) $(DEP_DEFS) -I$(INC_SAGA) $(DEF_SAGA)
 
 LDFLAGS  = -shared $(DEP_LFLG)
@@ -45,27 +46,27 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	-mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
 	$(LD) $(LDFLAGS) -o $(MLB_NAME) $(OBJ) $(LIBS)
 
 
-$(MLB_TEMP)/DVWK_SoilMoisture.o: ./DVWK_SoilMoisture.cpp $(MLB_TEMP)
+$(MLB_TEMP)/DVWK_SoilMoisture.o: ./DVWK_SoilMoisture.cpp
 	$(CPP) -c ./DVWK_SoilMoisture.cpp -o $(MLB_TEMP)/DVWK_SoilMoisture.o $(CXXFLAGS)
 
-$(MLB_TEMP)/idw.o: ./idw.cpp $(MLB_TEMP)
+$(MLB_TEMP)/idw.o: ./idw.cpp
 	$(CPP) -c ./idw.cpp -o $(MLB_TEMP)/idw.o $(CXXFLAGS)
 
-$(MLB_TEMP)/KinWav_D8.o: ./KinWav_D8.cpp $(MLB_TEMP)
+$(MLB_TEMP)/KinWav_D8.o: ./KinWav_D8.cpp
 	$(CPP) -c ./KinWav_D8.cpp -o $(MLB_TEMP)/KinWav_D8.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
-$(MLB_TEMP)/topmodel.o: ./topmodel.cpp $(MLB_TEMP)
+$(MLB_TEMP)/topmodel.o: ./topmodel.cpp
 	$(CPP) -c ./topmodel.cpp -o $(MLB_TEMP)/topmodel.o $(CXXFLAGS)
 
-$(MLB_TEMP)/topmodel_values.o: ./topmodel_values.cpp $(MLB_TEMP)
+$(MLB_TEMP)/topmodel_values.o: ./topmodel_values.cpp
 	$(CPP) -c ./topmodel_values.cpp -o $(MLB_TEMP)/topmodel_values.o $(CXXFLAGS)
 
-$(MLB_TEMP)/WaterRetentionCapacity.o: ./WaterRetentionCapacity.cpp $(MLB_TEMP)
+$(MLB_TEMP)/WaterRetentionCapacity.o: ./WaterRetentionCapacity.cpp
 	$(CPP) -c ./WaterRetentionCapacity.cpp -o $(MLB_TEMP)/WaterRetentionCapacity.o $(CXXFLAGS)

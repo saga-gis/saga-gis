@@ -8,10 +8,6 @@ BIN_SAGA  = $(TOP_SAGA)/bin/saga_gtk
 TMP_SAGA  = $(TOP_SAGA)/bin/tmp/saga_gtk/$(PRJ_NAME)
 LIB_NAME  = $(BIN_SAGA)/lib$(PRJ_NAME).so
 
-WX_INC    = /usr/local/include/wx-2.6
-WX_LIB    = /usr/local/lib
-WX_LIBH   = $(WX_LIB)/wx/include/gtk2-ansi-release-static-2.6
-
 CPP       = g++
 LD        = g++
 
@@ -23,8 +19,8 @@ CXX_DEFS  = `wx-config --cxxflags`
 CXX_FLGS  =
 CXXFLAGS  = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEF_SAGA)
 
-LDFLAGS   = -shared `wx-config --cxxflags`
-LIBS      = $(WX_LIB)/libwx_gtk2_core-2.8.a $(WX_LIB)/libwx_base-2.8.a -lpng -ljpeg -lharu
+LDFLAGS   = -shared `wx-config --static=yes --libs base,core`
+LIBS      = -lharu
 
 .PHONY: all all-before all-after clean clean-custom
 

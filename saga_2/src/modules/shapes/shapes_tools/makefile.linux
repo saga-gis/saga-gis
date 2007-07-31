@@ -3,6 +3,7 @@
 # Created by O. Conrad
 
 PRJ_NAME = shapes_tools
+SAGA     = ./../../..
 BIN_SAGA = $(SAGA)/../bin/saga_gtk
 TMP_SAGA = $(SAGA)/../bin/tmp/saga_gtk
 INC_SAGA = $(SAGA)/saga_core
@@ -21,9 +22,9 @@ DEP_LFLG =
 OBJ      = $(MLB_TEMP)/CreateChartLayer.o $(MLB_TEMP)/CreateWebContent.o $(MLB_TEMP)/GraticuleBuilder.o $(MLB_TEMP)/Intersection_GPC.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/NewLayerFromSelectedShapes.o $(MLB_TEMP)/QueryBuilder.o $(MLB_TEMP)/QueryParser.o $(MLB_TEMP)/SearchInTable.o $(MLB_TEMP)/SelectByTheme.o $(MLB_TEMP)/SeparateShapes.o $(MLB_TEMP)/Shapes_Assign_Table.o $(MLB_TEMP)/Shapes_Create_Empty.o $(MLB_TEMP)/Shapes_Merge.o $(MLB_TEMP)/Shapes_Report.o $(MLB_TEMP)/ShapeSearchSelector.o $(MLB_TEMP)/ShapeSelector.o $(MLB_TEMP)/Summarize.o $(MLB_TEMP)/SummaryPDFDocEngine.o $(MLB_TEMP)/TransformShapes.o $(MLB_TEMP)/shapes_cut.o $(MLB_TEMP)/shapes_cut_interactive.o $(MLB_TEMP)/shapes_split.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
-CXX_INCS = -I/usr/lib/glib/include -I/usr/include/glib-1.2
-CXX_DEFS = -D_REENTRANT -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -DGTK_NO_CHECK_CASTS
-CXX_FLGS = -O2 -MMD -pthread -fPIC
+CXX_INCS =
+CXX_DEFS =
+CXX_FLGS = -O2
 CXXFLAGS = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEP_INCS) $(DEP_DEFS) -I$(INC_SAGA) $(DEF_SAGA)
 
 LDFLAGS  = -shared $(DEP_LFLG)
@@ -45,75 +46,75 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	-mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
 	$(LD) $(LDFLAGS) -o $(MLB_NAME) $(OBJ) $(LIBS)
 
 
-$(MLB_TEMP)/CreateChartLayer.o: ./CreateChartLayer.cpp $(MLB_TEMP)
+$(MLB_TEMP)/CreateChartLayer.o: ./CreateChartLayer.cpp
 	$(CPP) -c ./CreateChartLayer.cpp -o $(MLB_TEMP)/CreateChartLayer.o $(CXXFLAGS)
 
-$(MLB_TEMP)/CreateWebContent.o: ./CreateWebContent.cpp $(MLB_TEMP)
+$(MLB_TEMP)/CreateWebContent.o: ./CreateWebContent.cpp
 	$(CPP) -c ./CreateWebContent.cpp -o $(MLB_TEMP)/CreateWebContent.o $(CXXFLAGS)
 
-$(MLB_TEMP)/GraticuleBuilder.o: ./GraticuleBuilder.cpp $(MLB_TEMP)
+$(MLB_TEMP)/GraticuleBuilder.o: ./GraticuleBuilder.cpp
 	$(CPP) -c ./GraticuleBuilder.cpp -o $(MLB_TEMP)/GraticuleBuilder.o $(CXXFLAGS)
 
 $(MLB_TEMP)/Intersection_GPC.o: ./Intersection_GPC.c $(MLB_TEMP)
 	$(CPP) -c ./Intersection_GPC.c -o $(MLB_TEMP)/Intersection_GPC.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
-$(MLB_TEMP)/NewLayerFromSelectedShapes.o: ./NewLayerFromSelectedShapes.cpp $(MLB_TEMP)
+$(MLB_TEMP)/NewLayerFromSelectedShapes.o: ./NewLayerFromSelectedShapes.cpp
 	$(CPP) -c ./NewLayerFromSelectedShapes.cpp -o $(MLB_TEMP)/NewLayerFromSelectedShapes.o $(CXXFLAGS)
 
-$(MLB_TEMP)/QueryBuilder.o: ./QueryBuilder.cpp $(MLB_TEMP)
+$(MLB_TEMP)/QueryBuilder.o: ./QueryBuilder.cpp
 	$(CPP) -c ./QueryBuilder.cpp -o $(MLB_TEMP)/QueryBuilder.o $(CXXFLAGS)
 
-$(MLB_TEMP)/QueryParser.o: ./QueryParser.cpp $(MLB_TEMP)
+$(MLB_TEMP)/QueryParser.o: ./QueryParser.cpp
 	$(CPP) -c ./QueryParser.cpp -o $(MLB_TEMP)/QueryParser.o $(CXXFLAGS)
 
-$(MLB_TEMP)/SearchInTable.o: ./SearchInTable.cpp $(MLB_TEMP)
+$(MLB_TEMP)/SearchInTable.o: ./SearchInTable.cpp
 	$(CPP) -c ./SearchInTable.cpp -o $(MLB_TEMP)/SearchInTable.o $(CXXFLAGS)
 
-$(MLB_TEMP)/SelectByTheme.o: ./SelectByTheme.cpp $(MLB_TEMP)
+$(MLB_TEMP)/SelectByTheme.o: ./SelectByTheme.cpp
 	$(CPP) -c ./SelectByTheme.cpp -o $(MLB_TEMP)/SelectByTheme.o $(CXXFLAGS)
 
-$(MLB_TEMP)/SeparateShapes.o: ./SeparateShapes.cpp $(MLB_TEMP)
+$(MLB_TEMP)/SeparateShapes.o: ./SeparateShapes.cpp
 	$(CPP) -c ./SeparateShapes.cpp -o $(MLB_TEMP)/SeparateShapes.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Shapes_Assign_Table.o: ./Shapes_Assign_Table.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Shapes_Assign_Table.o: ./Shapes_Assign_Table.cpp
 	$(CPP) -c ./Shapes_Assign_Table.cpp -o $(MLB_TEMP)/Shapes_Assign_Table.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Shapes_Create_Empty.o: ./Shapes_Create_Empty.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Shapes_Create_Empty.o: ./Shapes_Create_Empty.cpp
 	$(CPP) -c ./Shapes_Create_Empty.cpp -o $(MLB_TEMP)/Shapes_Create_Empty.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Shapes_Merge.o: ./Shapes_Merge.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Shapes_Merge.o: ./Shapes_Merge.cpp
 	$(CPP) -c ./Shapes_Merge.cpp -o $(MLB_TEMP)/Shapes_Merge.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Shapes_Report.o: ./Shapes_Report.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Shapes_Report.o: ./Shapes_Report.cpp
 	$(CPP) -c ./Shapes_Report.cpp -o $(MLB_TEMP)/Shapes_Report.o $(CXXFLAGS)
 
-$(MLB_TEMP)/ShapeSearchSelector.o: ./ShapeSearchSelector.cpp $(MLB_TEMP)
+$(MLB_TEMP)/ShapeSearchSelector.o: ./ShapeSearchSelector.cpp
 	$(CPP) -c ./ShapeSearchSelector.cpp -o $(MLB_TEMP)/ShapeSearchSelector.o $(CXXFLAGS)
 
-$(MLB_TEMP)/ShapeSelector.o: ./ShapeSelector.cpp $(MLB_TEMP)
+$(MLB_TEMP)/ShapeSelector.o: ./ShapeSelector.cpp
 	$(CPP) -c ./ShapeSelector.cpp -o $(MLB_TEMP)/ShapeSelector.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Summarize.o: ./Summarize.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Summarize.o: ./Summarize.cpp
 	$(CPP) -c ./Summarize.cpp -o $(MLB_TEMP)/Summarize.o $(CXXFLAGS)
 
-$(MLB_TEMP)/SummaryPDFDocEngine.o: ./SummaryPDFDocEngine.cpp $(MLB_TEMP)
+$(MLB_TEMP)/SummaryPDFDocEngine.o: ./SummaryPDFDocEngine.cpp
 	$(CPP) -c ./SummaryPDFDocEngine.cpp -o $(MLB_TEMP)/SummaryPDFDocEngine.o $(CXXFLAGS)
 
-$(MLB_TEMP)/TransformShapes.o: ./TransformShapes.cpp $(MLB_TEMP)
+$(MLB_TEMP)/TransformShapes.o: ./TransformShapes.cpp
 	$(CPP) -c ./TransformShapes.cpp -o $(MLB_TEMP)/TransformShapes.o $(CXXFLAGS)
 
-$(MLB_TEMP)/shapes_cut.o: ./shapes_cut.cpp $(MLB_TEMP)
+$(MLB_TEMP)/shapes_cut.o: ./shapes_cut.cpp
 	$(CPP) -c ./shapes_cut.cpp -o $(MLB_TEMP)/shapes_cut.o $(CXXFLAGS)
 
-$(MLB_TEMP)/shapes_cut_interactive.o: ./shapes_cut_interactive.cpp $(MLB_TEMP)
+$(MLB_TEMP)/shapes_cut_interactive.o: ./shapes_cut_interactive.cpp
 	$(CPP) -c ./shapes_cut_interactive.cpp -o $(MLB_TEMP)/shapes_cut_interactive.o $(CXXFLAGS)
 
-$(MLB_TEMP)/shapes_split.o: ./shapes_split.cpp $(MLB_TEMP)
+$(MLB_TEMP)/shapes_split.o: ./shapes_split.cpp
 	$(CPP) -c ./shapes_split.cpp -o $(MLB_TEMP)/shapes_split.o $(CXXFLAGS)

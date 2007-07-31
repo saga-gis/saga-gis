@@ -318,27 +318,20 @@ CSAGA_Frame::CSAGA_Frame(void)
 	}
 	else
 	{
-		m_pLayout->GetPane(m_pINFO			).BestSize(400, 100).FloatingSize(600, 400).Bottom();
-		m_pLayout->GetPane(m_pActive		).BestSize(250, 400).FloatingSize(250, 400).Right();
-		m_pLayout->GetPane(m_pWKSP			).BestSize(250, 400).FloatingSize(250, 400).Left();
-
-		m_pLayout->GetPane(m_pTB_Main		).BestSize(m_pTB_Main		->GetBestSize());
-		m_pLayout->GetPane(m_pTB_Map		).BestSize(m_pTB_Map		->GetBestSize());
-		m_pLayout->GetPane(m_pTB_Map_3D		).BestSize(m_pTB_Map_3D		->GetBestSize());
-		m_pLayout->GetPane(m_pTB_Layout		).BestSize(m_pTB_Layout		->GetBestSize());
-		m_pLayout->GetPane(m_pTB_Table		).BestSize(m_pTB_Table		->GetBestSize());
-		m_pLayout->GetPane(m_pTB_Diagram	).BestSize(m_pTB_Diagram	->GetBestSize());
-		m_pLayout->GetPane(m_pTB_Histogram	).BestSize(m_pTB_Histogram	->GetBestSize());
-		m_pLayout->GetPane(m_pTB_ScatterPlot).BestSize(m_pTB_ScatterPlot->GetBestSize());
+		m_pLayout->GetPane(m_pINFO  ).BestSize(400, 100).FloatingSize(600, 400).Bottom();
+		m_pLayout->GetPane(m_pActive).BestSize(250, 400).FloatingSize(250, 400).Right();
+		m_pLayout->GetPane(m_pWKSP  ).BestSize(250, 400).FloatingSize(250, 400).Left();
 	}
 
 	_Bar_Show(m_pTB_Main, true);
 
+	//-----------------------------------------------------
 	m_pLayout->Update();
 
+#if !defined(_SAGA_LINUX)
 	Show(true);
+#endif
 
-	//-----------------------------------------------------
 	int		x, y, dx, dy;
 	long	l;
 
@@ -353,6 +346,10 @@ CSAGA_Frame::CSAGA_Frame(void)
 	{
 		Maximize();
 	}
+
+#if defined(_SAGA_LINUX)
+	Show(true);
+#endif
 
 	Update();
 
@@ -1074,6 +1071,7 @@ void CSAGA_Frame::TB_Add(wxToolBarBase *pToolBar, const wxChar *Name)
 		.LeftDockable	(false)
 		.RightDockable	(false)
 		.Hide			()
+		.BestSize		(pToolBar->GetBestSize())
 	);
 }
 

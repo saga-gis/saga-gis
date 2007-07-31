@@ -3,6 +3,7 @@
 # Created by O. Conrad
 
 PRJ_NAME = table_calculus
+SAGA     = ./../../..
 BIN_SAGA = $(SAGA)/../bin/saga_gtk
 TMP_SAGA = $(SAGA)/../bin/tmp/saga_gtk
 INC_SAGA = $(SAGA)/saga_core
@@ -21,9 +22,9 @@ DEP_LFLG =
 OBJ      = $(MLB_TEMP)/Fit.o $(MLB_TEMP)/LMFit.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/Table_Calculator.o $(MLB_TEMP)/Table_CalculatorShapes.o $(MLB_TEMP)/Table_Trend.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
-CXX_INCS = -I/usr/lib/glib/include -I/usr/include/glib-1.2
-CXX_DEFS = -D_REENTRANT -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -DGTK_NO_CHECK_CASTS
-CXX_FLGS = -O2 -MMD -pthread -fPIC
+CXX_INCS =
+CXX_DEFS =
+CXX_FLGS = -O2
 CXXFLAGS = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEP_INCS) $(DEP_DEFS) -I$(INC_SAGA) $(DEF_SAGA)
 
 LDFLAGS  = -shared $(DEP_LFLG)
@@ -45,24 +46,24 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	-mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
 	$(LD) $(LDFLAGS) -o $(MLB_NAME) $(OBJ) $(LIBS)
 
 
-$(MLB_TEMP)/Fit.o: ./Fit.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Fit.o: ./Fit.cpp
 	$(CPP) -c ./Fit.cpp -o $(MLB_TEMP)/Fit.o $(CXXFLAGS)
 
-$(MLB_TEMP)/LMFit.o: ./LMFit.cpp $(MLB_TEMP)
+$(MLB_TEMP)/LMFit.o: ./LMFit.cpp
 	$(CPP) -c ./LMFit.cpp -o $(MLB_TEMP)/LMFit.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Table_Calculator.o: ./Table_Calculator.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Table_Calculator.o: ./Table_Calculator.cpp
 	$(CPP) -c ./Table_Calculator.cpp -o $(MLB_TEMP)/Table_Calculator.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Table_CalculatorShapes.o: ./Table_CalculatorShapes.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Table_CalculatorShapes.o: ./Table_CalculatorShapes.cpp
 	$(CPP) -c ./Table_CalculatorShapes.cpp -o $(MLB_TEMP)/Table_CalculatorShapes.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Table_Trend.o: ./Table_Trend.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Table_Trend.o: ./Table_Trend.cpp
 	$(CPP) -c ./Table_Trend.cpp -o $(MLB_TEMP)/Table_Trend.o $(CXXFLAGS)

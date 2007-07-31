@@ -142,10 +142,6 @@ END_EVENT_TABLE()
 CWKSP_Base_Control::CWKSP_Base_Control(wxWindow *pParent, wxWindowID id)
 	: wxTreeCtrl(pParent, id, wxDefaultPosition, wxDefaultSize, wxTR_HAS_BUTTONS)
 {
-#if defined(__WXGTK__)
-	SYS_Set_Color_BG(this, wxSYS_COLOUR_BACKGROUND);
-#endif
-
 	m_pManager	= NULL;
 
 	AssignImageList(new wxImageList(IMG_SIZE_TREECTRL, IMG_SIZE_TREECTRL, true, 0));

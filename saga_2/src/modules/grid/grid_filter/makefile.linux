@@ -3,6 +3,7 @@
 # Created by O. Conrad
 
 PRJ_NAME = grid_filter
+SAGA     = ./../../..
 BIN_SAGA = $(SAGA)/../bin/saga_gtk
 TMP_SAGA = $(SAGA)/../bin/tmp/saga_gtk
 INC_SAGA = $(SAGA)/saga_core
@@ -21,9 +22,9 @@ DEP_LFLG =
 OBJ      = $(MLB_TEMP)/Filter.o $(MLB_TEMP)/Filter_3x3.o $(MLB_TEMP)/Filter_Gauss.o $(MLB_TEMP)/Filter_LoG.o $(MLB_TEMP)/Filter_Multi_Dir_Lee.o $(MLB_TEMP)/FilterClumps.o $(MLB_TEMP)/MLB_Interface.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
-CXX_INCS = -I/usr/lib/glib/include -I/usr/include/glib-1.2
-CXX_DEFS = -D_REENTRANT -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -DGTK_NO_CHECK_CASTS
-CXX_FLGS = -O2 -MMD -pthread -fPIC
+CXX_INCS =
+CXX_DEFS =
+CXX_FLGS = -O2
 CXXFLAGS = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEP_INCS) $(DEP_DEFS) -I$(INC_SAGA) $(DEF_SAGA)
 
 LDFLAGS  = -shared $(DEP_LFLG)
@@ -45,27 +46,27 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	-mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
 	$(LD) $(LDFLAGS) -o $(MLB_NAME) $(OBJ) $(LIBS)
 
 
-$(MLB_TEMP)/Filter.o: ./Filter.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Filter.o: ./Filter.cpp
 	$(CPP) -c ./Filter.cpp -o $(MLB_TEMP)/Filter.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Filter_3x3.o: ./Filter_3x3.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Filter_3x3.o: ./Filter_3x3.cpp
 	$(CPP) -c ./Filter_3x3.cpp -o $(MLB_TEMP)/Filter_3x3.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Filter_Gauss.o: ./Filter_Gauss.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Filter_Gauss.o: ./Filter_Gauss.cpp
 	$(CPP) -c ./Filter_Gauss.cpp -o $(MLB_TEMP)/Filter_Gauss.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Filter_LoG.o: ./Filter_LoG.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Filter_LoG.o: ./Filter_LoG.cpp
 	$(CPP) -c ./Filter_LoG.cpp -o $(MLB_TEMP)/Filter_LoG.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Filter_Multi_Dir_Lee.o: ./Filter_Multi_Dir_Lee.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Filter_Multi_Dir_Lee.o: ./Filter_Multi_Dir_Lee.cpp
 	$(CPP) -c ./Filter_Multi_Dir_Lee.cpp -o $(MLB_TEMP)/Filter_Multi_Dir_Lee.o $(CXXFLAGS)
 
-$(MLB_TEMP)/FilterClumps.o: ./FilterClumps.cpp $(MLB_TEMP)
+$(MLB_TEMP)/FilterClumps.o: ./FilterClumps.cpp
 	$(CPP) -c ./FilterClumps.cpp -o $(MLB_TEMP)/FilterClumps.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)

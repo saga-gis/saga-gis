@@ -3,6 +3,7 @@
 # Created by O. Conrad
 
 PRJ_NAME = io_grid
+SAGA     = ./../../..
 BIN_SAGA = $(SAGA)/../bin/saga_gtk
 TMP_SAGA = $(SAGA)/../bin/tmp/saga_gtk
 INC_SAGA = $(SAGA)/saga_core
@@ -21,9 +22,9 @@ DEP_LFLG =
 OBJ      = $(MLB_TEMP)/bmp_export.o $(MLB_TEMP)/erdas_lan.o $(MLB_TEMP)/esri_arcinfo.o $(MLB_TEMP)/grid_table.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/mola.o $(MLB_TEMP)/raw.o $(MLB_TEMP)/srtm30.o $(MLB_TEMP)/surfer.o $(MLB_TEMP)/usgs_srtm.o $(MLB_TEMP)/xyz.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
-CXX_INCS = -I/usr/lib/glib/include -I/usr/include/glib-1.2
-CXX_DEFS = -D_REENTRANT -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -DGTK_NO_CHECK_CASTS
-CXX_FLGS = -O2 -MMD -pthread -fPIC
+CXX_INCS =
+CXX_DEFS =
+CXX_FLGS = -O2
 CXXFLAGS = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEP_INCS) $(DEP_DEFS) -I$(INC_SAGA) $(DEF_SAGA)
 
 LDFLAGS  = -shared $(DEP_LFLG)
@@ -45,39 +46,39 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	-mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
 	$(LD) $(LDFLAGS) -o $(MLB_NAME) $(OBJ) $(LIBS)
 
 
-$(MLB_TEMP)/bmp_export.o: ./bmp_export.cpp $(MLB_TEMP)
+$(MLB_TEMP)/bmp_export.o: ./bmp_export.cpp
 	$(CPP) -c ./bmp_export.cpp -o $(MLB_TEMP)/bmp_export.o $(CXXFLAGS)
 
-$(MLB_TEMP)/erdas_lan.o: ./erdas_lan.cpp $(MLB_TEMP)
+$(MLB_TEMP)/erdas_lan.o: ./erdas_lan.cpp
 	$(CPP) -c ./erdas_lan.cpp -o $(MLB_TEMP)/erdas_lan.o $(CXXFLAGS)
 
-$(MLB_TEMP)/esri_arcinfo.o: ./esri_arcinfo.cpp $(MLB_TEMP)
+$(MLB_TEMP)/esri_arcinfo.o: ./esri_arcinfo.cpp
 	$(CPP) -c ./esri_arcinfo.cpp -o $(MLB_TEMP)/esri_arcinfo.o $(CXXFLAGS)
 
-$(MLB_TEMP)/grid_table.o: ./grid_table.cpp $(MLB_TEMP)
+$(MLB_TEMP)/grid_table.o: ./grid_table.cpp
 	$(CPP) -c ./grid_table.cpp -o $(MLB_TEMP)/grid_table.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
-$(MLB_TEMP)/mola.o: ./mola.cpp $(MLB_TEMP)
+$(MLB_TEMP)/mola.o: ./mola.cpp
 	$(CPP) -c ./mola.cpp -o $(MLB_TEMP)/mola.o $(CXXFLAGS)
 
-$(MLB_TEMP)/raw.o: ./raw.cpp $(MLB_TEMP)
+$(MLB_TEMP)/raw.o: ./raw.cpp
 	$(CPP) -c ./raw.cpp -o $(MLB_TEMP)/raw.o $(CXXFLAGS)
 
-$(MLB_TEMP)/srtm30.o: ./srtm30.cpp $(MLB_TEMP)
+$(MLB_TEMP)/srtm30.o: ./srtm30.cpp
 	$(CPP) -c ./srtm30.cpp -o $(MLB_TEMP)/srtm30.o $(CXXFLAGS)
 
-$(MLB_TEMP)/surfer.o: ./surfer.cpp $(MLB_TEMP)
+$(MLB_TEMP)/surfer.o: ./surfer.cpp
 	$(CPP) -c ./surfer.cpp -o $(MLB_TEMP)/surfer.o $(CXXFLAGS)
 
-$(MLB_TEMP)/usgs_srtm.o: ./usgs_srtm.cpp $(MLB_TEMP)
+$(MLB_TEMP)/usgs_srtm.o: ./usgs_srtm.cpp
 	$(CPP) -c ./usgs_srtm.cpp -o $(MLB_TEMP)/usgs_srtm.o $(CXXFLAGS)
 
-$(MLB_TEMP)/xyz.o: ./xyz.cpp $(MLB_TEMP)
+$(MLB_TEMP)/xyz.o: ./xyz.cpp
 	$(CPP) -c ./xyz.cpp -o $(MLB_TEMP)/xyz.o $(CXXFLAGS)

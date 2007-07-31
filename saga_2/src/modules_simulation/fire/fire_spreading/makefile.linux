@@ -3,6 +3,7 @@
 # Created by O. Conrad
 
 PRJ_NAME = sim_fire_spreading
+SAGA     = ./../../..
 BIN_SAGA = $(SAGA)/../bin/saga_gtk
 TMP_SAGA = $(SAGA)/../bin/tmp/saga_gtk
 INC_SAGA = $(SAGA)/saga_core
@@ -21,9 +22,9 @@ DEP_LFLG =
 OBJ      = $(MLB_TEMP)/fireLib.o $(MLB_TEMP)/Forecasting.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/Simulate.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
-CXX_INCS = -I/usr/lib/glib/include -I/usr/include/glib-1.2
-CXX_DEFS = -D_REENTRANT -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -DGTK_NO_CHECK_CASTS
-CXX_FLGS = -O2 -MMD -pthread -fPIC
+CXX_INCS =
+CXX_DEFS =
+CXX_FLGS = -O2
 CXXFLAGS = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEP_INCS) $(DEP_DEFS) -I$(INC_SAGA) $(DEF_SAGA)
 
 LDFLAGS  = -shared $(DEP_LFLG)
@@ -45,18 +46,18 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	-mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
 	$(LD) $(LDFLAGS) -o $(MLB_NAME) $(OBJ) $(LIBS)
 
 
 $(MLB_TEMP)/fireLib.o: ./fireLib.c $(MLB_TEMP)
 	$(CPP) -c ./fireLib.c -o $(MLB_TEMP)/fireLib.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Forecasting.o: ./Forecasting.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Forecasting.o: ./Forecasting.cpp
 	$(CPP) -c ./Forecasting.cpp -o $(MLB_TEMP)/Forecasting.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Simulate.o: ./Simulate.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Simulate.o: ./Simulate.cpp
 	$(CPP) -c ./Simulate.cpp -o $(MLB_TEMP)/Simulate.o $(CXXFLAGS)

@@ -3,14 +3,10 @@
 
 PRJ_NAME  = saga_cmd
 
-TOP_SAGA  = $(SAGA)/..
+TOP_SAGA  = ./../../..
 BIN_SAGA  = $(TOP_SAGA)/bin/saga_gtk
 TMP_SAGA  = $(TOP_SAGA)/bin/tmp/saga_gtk/$(PRJ_NAME)
 EXE_NAME  = $(BIN_SAGA)/$(PRJ_NAME)
-
-WX_INC    = /usr/local/include/wx-2.6
-WX_LIB    = /usr/local/lib
-WX_LIBH   = $(WX_LIB)/wx/include/gtk2-ansi-release-static-2.6
 
 CPP       = g++
 LD        = g++
@@ -18,14 +14,13 @@ LD        = g++
 OBJ       = $(TMP_SAGA)/callback.o $(TMP_SAGA)/module_library.o $(TMP_SAGA)/saga_cmd.o
 
 DEF_SAGA  = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
-CXX_INCS  =
+CXX_INCS  = -I./..
 CXX_DEFS  = `wx-config --cxxflags` -DwxUSE_GUI=0
 CXX_FLGS  =
 CXXFLAGS  = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEF_SAGA)
 
 LDFLAGS   = 
-WX_LIBS   = $(WX_LIB)/libwx_gtk2_core-2.8.a $(WX_LIB)/libwx_base-2.8.a
-LIBS      = -fPIC `wx-config --libs` -pthread -L/usr/X11R6/lib -L/opt/gnome/lib -ldl -lm -Wl,--export-dynamic -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lgdk_pixbuf-2.0 -lpangoxft-1.0 -lpangox-1.0 -lpango-1.0 -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lglib-2.0 -lXinerama -lXxf86vm $(WX_LIBS) -lsaga_api
+LIBS      = -fPIC `wx-config --static=yes --libs` -pthread -L$(BIN_SAGA) -lsaga_api
 
 
 .PHONY: all all-before all-after clean clean-custom
