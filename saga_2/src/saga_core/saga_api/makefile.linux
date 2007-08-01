@@ -15,7 +15,7 @@ OBJ       = $(TMP_SAGA)/api_callback.o $(TMP_SAGA)/api_colors.o $(TMP_SAGA)/api_
 
 DEF_SAGA  = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_API_EXPORTS
 CXX_INCS  =
-CXX_DEFS  = `wx-config --cxxflags`
+CXX_DEFS  = `wx-config --static=yes --cxxflags`
 CXX_FLGS  =
 CXXFLAGS  = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEF_SAGA)
 
@@ -35,7 +35,7 @@ $(TOP_SAGA)/bin:
 $(BIN_SAGA): $(TOP_SAGA)/bin
 	-mkdir $(BIN_SAGA)
 
-$(TOP_SAGA)/bin/tmp:
+$(TOP_SAGA)/bin/tmp: $(TOP_SAGA)/bin
 	-mkdir $(TOP_SAGA)/bin/tmp
 
 $(TOP_SAGA)/bin/tmp/saga_gtk: $(TOP_SAGA)/bin/tmp

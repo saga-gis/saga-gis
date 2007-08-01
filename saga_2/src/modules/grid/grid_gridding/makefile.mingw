@@ -41,30 +41,30 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/Interpolation.o: ./Interpolation.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Interpolation.o: ./Interpolation.cpp
 	$(CPP) -c ./Interpolation.cpp -o $(MLB_TEMP)/Interpolation.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Interpolation_InverseDistance.o: ./Interpolation_InverseDistance.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Interpolation_InverseDistance.o: ./Interpolation_InverseDistance.cpp
 	$(CPP) -c ./Interpolation_InverseDistance.cpp -o $(MLB_TEMP)/Interpolation_InverseDistance.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Interpolation_NearestNeighbour.o: ./Interpolation_NearestNeighbour.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Interpolation_NearestNeighbour.o: ./Interpolation_NearestNeighbour.cpp
 	$(CPP) -c ./Interpolation_NearestNeighbour.cpp -o $(MLB_TEMP)/Interpolation_NearestNeighbour.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Interpolation_Shepard.o: ./Interpolation_Shepard.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Interpolation_Shepard.o: ./Interpolation_Shepard.cpp
 	$(CPP) -c ./Interpolation_Shepard.cpp -o $(MLB_TEMP)/Interpolation_Shepard.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Interpolation_Triangulation.o: ./Interpolation_Triangulation.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Interpolation_Triangulation.o: ./Interpolation_Triangulation.cpp
 	$(CPP) -c ./Interpolation_Triangulation.cpp -o $(MLB_TEMP)/Interpolation_Triangulation.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Shapes2Grid.o: ./Shapes2Grid.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Shapes2Grid.o: ./Shapes2Grid.cpp
 	$(CPP) -c ./Shapes2Grid.cpp -o $(MLB_TEMP)/Shapes2Grid.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Shepard.o: ./Shepard.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Shepard.o: ./Shepard.cpp
 	$(CPP) -c ./Shepard.cpp -o $(MLB_TEMP)/Shepard.o $(CXXFLAGS)

@@ -41,24 +41,24 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/Grid_3D_Image.o: ./Grid_3D_Image.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_3D_Image.o: ./Grid_3D_Image.cpp
 	$(CPP) -c ./Grid_3D_Image.cpp -o $(MLB_TEMP)/Grid_3D_Image.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Color_Blend.o: ./Grid_Color_Blend.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Color_Blend.o: ./Grid_Color_Blend.cpp
 	$(CPP) -c ./Grid_Color_Blend.cpp -o $(MLB_TEMP)/Grid_Color_Blend.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Color_Rotate.o: ./Grid_Color_Rotate.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Color_Rotate.o: ./Grid_Color_Rotate.cpp
 	$(CPP) -c ./Grid_Color_Rotate.cpp -o $(MLB_TEMP)/Grid_Color_Rotate.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Colors_Fit.o: ./Grid_Colors_Fit.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Colors_Fit.o: ./Grid_Colors_Fit.cpp
 	$(CPP) -c ./Grid_Colors_Fit.cpp -o $(MLB_TEMP)/Grid_Colors_Fit.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_RGB_Composite.o: ./Grid_RGB_Composite.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_RGB_Composite.o: ./Grid_RGB_Composite.cpp
 	$(CPP) -c ./Grid_RGB_Composite.cpp -o $(MLB_TEMP)/Grid_RGB_Composite.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)

@@ -41,18 +41,18 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/Mine_Sweeper.o: ./Mine_Sweeper.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Mine_Sweeper.o: ./Mine_Sweeper.cpp
 	$(CPP) -c ./Mine_Sweeper.cpp -o $(MLB_TEMP)/Mine_Sweeper.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Mine_Sweeper_Res.o: ./Mine_Sweeper_Res.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Mine_Sweeper_Res.o: ./Mine_Sweeper_Res.cpp
 	$(CPP) -c ./Mine_Sweeper_Res.cpp -o $(MLB_TEMP)/Mine_Sweeper_Res.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Sudoku.o: ./Sudoku.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Sudoku.o: ./Sudoku.cpp
 	$(CPP) -c ./Sudoku.cpp -o $(MLB_TEMP)/Sudoku.o $(CXXFLAGS)

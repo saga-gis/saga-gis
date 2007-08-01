@@ -207,14 +207,12 @@ wxString CDLG_About::_Get_Version(void)
 	s.Append(wxT("_______________________\n\n"));
 
 	s.Append(wxString::Format(
-		wxT("SAGA GUI\n%s\n")
-		wxT("build: %s\n")
+		wxT("SAGA GUI\nSAGA Graphical User Interface - Version: %s\n")
 		wxT("\n")
 		wxT("Copyrights (c) 2005-2007 by Olaf Conrad\n")
 		wxT("\n")
 		wxT("GNU General Public License (GPL)\n"),
-		SAGA_GUI_Get_Version(),
-		SAGA_GUI_Get_Build()
+		SAGA_GUI_Get_Version()
 	));
 
 	s.Append(wxT("_______________________\n\n"));

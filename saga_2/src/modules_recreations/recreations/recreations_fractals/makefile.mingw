@@ -41,27 +41,27 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/Bifurcation.o: ./Bifurcation.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Bifurcation.o: ./Bifurcation.cpp
 	$(CPP) -c ./Bifurcation.cpp -o $(MLB_TEMP)/Bifurcation.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Gaussian_Landscapes.o: ./Gaussian_Landscapes.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Gaussian_Landscapes.o: ./Gaussian_Landscapes.cpp
 	$(CPP) -c ./Gaussian_Landscapes.cpp -o $(MLB_TEMP)/Gaussian_Landscapes.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_FractalDimension.o: ./Grid_FractalDimension.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_FractalDimension.o: ./Grid_FractalDimension.cpp
 	$(CPP) -c ./Grid_FractalDimension.cpp -o $(MLB_TEMP)/Grid_FractalDimension.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Mandelbrot.o: ./Mandelbrot.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Mandelbrot.o: ./Mandelbrot.cpp
 	$(CPP) -c ./Mandelbrot.cpp -o $(MLB_TEMP)/Mandelbrot.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Newton.o: ./Newton.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Newton.o: ./Newton.cpp
 	$(CPP) -c ./Newton.cpp -o $(MLB_TEMP)/Newton.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Pythagoras_Tree.o: ./Pythagoras_Tree.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Pythagoras_Tree.o: ./Pythagoras_Tree.cpp
 	$(CPP) -c ./Pythagoras_Tree.cpp -o $(MLB_TEMP)/Pythagoras_Tree.o $(CXXFLAGS)

@@ -41,15 +41,15 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/GPSBabel.o: ./GPSBabel.cpp $(MLB_TEMP)
+$(MLB_TEMP)/GPSBabel.o: ./GPSBabel.cpp
 	$(CPP) -c ./GPSBabel.cpp -o $(MLB_TEMP)/GPSBabel.o $(CXXFLAGS)
 
-$(MLB_TEMP)/gpx2shp.o: ./gpx2shp.cpp $(MLB_TEMP)
+$(MLB_TEMP)/gpx2shp.o: ./gpx2shp.cpp
 	$(CPP) -c ./gpx2shp.cpp -o $(MLB_TEMP)/gpx2shp.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)

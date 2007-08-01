@@ -41,30 +41,30 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/Gridding_Spline_BA.o: ./Gridding_Spline_BA.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Gridding_Spline_BA.o: ./Gridding_Spline_BA.cpp
 	$(CPP) -c ./Gridding_Spline_BA.cpp -o $(MLB_TEMP)/Gridding_Spline_BA.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Gridding_Spline_Base.o: ./Gridding_Spline_Base.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Gridding_Spline_Base.o: ./Gridding_Spline_Base.cpp
 	$(CPP) -c ./Gridding_Spline_Base.cpp -o $(MLB_TEMP)/Gridding_Spline_Base.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Gridding_Spline_MBA.o: ./Gridding_Spline_MBA.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Gridding_Spline_MBA.o: ./Gridding_Spline_MBA.cpp
 	$(CPP) -c ./Gridding_Spline_MBA.cpp -o $(MLB_TEMP)/Gridding_Spline_MBA.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Gridding_Spline_TPS_Global.o: ./Gridding_Spline_TPS_Global.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Gridding_Spline_TPS_Global.o: ./Gridding_Spline_TPS_Global.cpp
 	$(CPP) -c ./Gridding_Spline_TPS_Global.cpp -o $(MLB_TEMP)/Gridding_Spline_TPS_Global.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Gridding_Spline_TPS_Local.o: ./Gridding_Spline_TPS_Local.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Gridding_Spline_TPS_Local.o: ./Gridding_Spline_TPS_Local.cpp
 	$(CPP) -c ./Gridding_Spline_TPS_Local.cpp -o $(MLB_TEMP)/Gridding_Spline_TPS_Local.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Gridding_Spline_TPS_TIN.o: ./Gridding_Spline_TPS_TIN.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Gridding_Spline_TPS_TIN.o: ./Gridding_Spline_TPS_TIN.cpp
 	$(CPP) -c ./Gridding_Spline_TPS_TIN.cpp -o $(MLB_TEMP)/Gridding_Spline_TPS_TIN.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Thin_Plate_Spline.o: ./Thin_Plate_Spline.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Thin_Plate_Spline.o: ./Thin_Plate_Spline.cpp
 	$(CPP) -c ./Thin_Plate_Spline.cpp -o $(MLB_TEMP)/Thin_Plate_Spline.o $(CXXFLAGS)

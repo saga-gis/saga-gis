@@ -76,6 +76,14 @@ REM Module Libraries...
 REM -----------------------------------
 
 ECHO ###################################
+ECHO contrib_a_perego
+ECHO -----------------------------------
+
+PUSHD .\modules_contrib\contrib_a_perego\contrib_a_perego
+make -fmakefile.mingw
+POPD
+
+ECHO ###################################
 ECHO contrib_t_wutzler
 ECHO -----------------------------------
 

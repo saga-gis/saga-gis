@@ -41,27 +41,27 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Polygon_Centroids.o: ./Polygon_Centroids.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Polygon_Centroids.o: ./Polygon_Centroids.cpp
 	$(CPP) -c ./Polygon_Centroids.cpp -o $(MLB_TEMP)/Polygon_Centroids.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Polygon_Geometrics.o: ./Polygon_Geometrics.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Polygon_Geometrics.o: ./Polygon_Geometrics.cpp
 	$(CPP) -c ./Polygon_Geometrics.cpp -o $(MLB_TEMP)/Polygon_Geometrics.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Polygon_Intersection.o: ./Polygon_Intersection.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Polygon_Intersection.o: ./Polygon_Intersection.cpp
 	$(CPP) -c ./Polygon_Intersection.cpp -o $(MLB_TEMP)/Polygon_Intersection.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Polygon_Intersection_GPC.o: ./Polygon_Intersection_GPC.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Polygon_Intersection_GPC.o: ./Polygon_Intersection_GPC.cpp
 	$(CPP) -c ./Polygon_Intersection_GPC.cpp -o $(MLB_TEMP)/Polygon_Intersection_GPC.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Polygon_StatisticsFromPoints.o: ./Polygon_StatisticsFromPoints.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Polygon_StatisticsFromPoints.o: ./Polygon_StatisticsFromPoints.cpp
 	$(CPP) -c ./Polygon_StatisticsFromPoints.cpp -o $(MLB_TEMP)/Polygon_StatisticsFromPoints.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Polygons_From_Lines.o: ./Polygons_From_Lines.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Polygons_From_Lines.o: ./Polygons_From_Lines.cpp
 	$(CPP) -c ./Polygons_From_Lines.cpp -o $(MLB_TEMP)/Polygons_From_Lines.o $(CXXFLAGS)

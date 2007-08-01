@@ -41,23 +41,23 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/Collect_Points.o: ./Collect_Points.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Collect_Points.o: ./Collect_Points.cpp
 	$(CPP) -c ./Collect_Points.cpp -o $(MLB_TEMP)/Collect_Points.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Georef_Engine.o: ./Georef_Engine.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Georef_Engine.o: ./Georef_Engine.cpp
 	$(CPP) -c ./Georef_Engine.cpp -o $(MLB_TEMP)/Georef_Engine.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Georef_Grid.o: ./Georef_Grid.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Georef_Grid.o: ./Georef_Grid.cpp
 	$(CPP) -c ./Georef_Grid.cpp -o $(MLB_TEMP)/Georef_Grid.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Georef_Shapes.o: ./Georef_Shapes.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Georef_Shapes.o: ./Georef_Shapes.cpp
 	$(CPP) -c ./Georef_Shapes.cpp -o $(MLB_TEMP)/Georef_Shapes.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
 $(MLB_TEMP)/enorm.o: ./enorm.c $(MLB_TEMP)

@@ -41,21 +41,21 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/HillShade.o: ./HillShade.cpp $(MLB_TEMP)
+$(MLB_TEMP)/HillShade.o: ./HillShade.cpp
 	$(CPP) -c ./HillShade.cpp -o $(MLB_TEMP)/HillShade.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
-$(MLB_TEMP)/SADO_SolarRadiation.o: ./SADO_SolarRadiation.cpp $(MLB_TEMP)
+$(MLB_TEMP)/SADO_SolarRadiation.o: ./SADO_SolarRadiation.cpp
 	$(CPP) -c ./SADO_SolarRadiation.cpp -o $(MLB_TEMP)/SADO_SolarRadiation.o $(CXXFLAGS)
 
-$(MLB_TEMP)/SolarRadiation.o: ./SolarRadiation.cpp $(MLB_TEMP)
+$(MLB_TEMP)/SolarRadiation.o: ./SolarRadiation.cpp
 	$(CPP) -c ./SolarRadiation.cpp -o $(MLB_TEMP)/SolarRadiation.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Visibility_Point.o: ./Visibility_Point.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Visibility_Point.o: ./Visibility_Point.cpp
 	$(CPP) -c ./Visibility_Point.cpp -o $(MLB_TEMP)/Visibility_Point.o $(CXXFLAGS)

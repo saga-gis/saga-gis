@@ -41,24 +41,24 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/FillSinks.o: ./FillSinks.cpp $(MLB_TEMP)
+$(MLB_TEMP)/FillSinks.o: ./FillSinks.cpp
 	$(CPP) -c ./FillSinks.cpp -o $(MLB_TEMP)/FillSinks.o $(CXXFLAGS)
 
-$(MLB_TEMP)/FillSinks_WL.o: ./FillSinks_WL.cpp $(MLB_TEMP)
+$(MLB_TEMP)/FillSinks_WL.o: ./FillSinks_WL.cpp
 	$(CPP) -c ./FillSinks_WL.cpp -o $(MLB_TEMP)/FillSinks_WL.o $(CXXFLAGS)
 
-$(MLB_TEMP)/FillSinks_WL_XXL.o: ./FillSinks_WL_XXL.cpp $(MLB_TEMP)
+$(MLB_TEMP)/FillSinks_WL_XXL.o: ./FillSinks_WL_XXL.cpp
 	$(CPP) -c ./FillSinks_WL_XXL.cpp -o $(MLB_TEMP)/FillSinks_WL_XXL.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Pit_Eliminator.o: ./Pit_Eliminator.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Pit_Eliminator.o: ./Pit_Eliminator.cpp
 	$(CPP) -c ./Pit_Eliminator.cpp -o $(MLB_TEMP)/Pit_Eliminator.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Pit_Router.o: ./Pit_Router.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Pit_Router.o: ./Pit_Router.cpp
 	$(CPP) -c ./Pit_Router.cpp -o $(MLB_TEMP)/Pit_Router.o $(CXXFLAGS)

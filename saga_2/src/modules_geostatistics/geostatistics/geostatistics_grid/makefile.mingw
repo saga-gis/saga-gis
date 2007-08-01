@@ -41,30 +41,30 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/GSGrid_Regression.o: ./GSGrid_Regression.cpp $(MLB_TEMP)
+$(MLB_TEMP)/GSGrid_Regression.o: ./GSGrid_Regression.cpp
 	$(CPP) -c ./GSGrid_Regression.cpp -o $(MLB_TEMP)/GSGrid_Regression.o $(CXXFLAGS)
 
-$(MLB_TEMP)/GSGrid_Regression_Multiple.o: ./GSGrid_Regression_Multiple.cpp $(MLB_TEMP)
+$(MLB_TEMP)/GSGrid_Regression_Multiple.o: ./GSGrid_Regression_Multiple.cpp
 	$(CPP) -c ./GSGrid_Regression_Multiple.cpp -o $(MLB_TEMP)/GSGrid_Regression_Multiple.o $(CXXFLAGS)
 
-$(MLB_TEMP)/GSGrid_Residuals.o: ./GSGrid_Residuals.cpp $(MLB_TEMP)
+$(MLB_TEMP)/GSGrid_Residuals.o: ./GSGrid_Residuals.cpp
 	$(CPP) -c ./GSGrid_Residuals.cpp -o $(MLB_TEMP)/GSGrid_Residuals.o $(CXXFLAGS)
 
-$(MLB_TEMP)/GSGrid_Statistics.o: ./GSGrid_Statistics.cpp $(MLB_TEMP)
+$(MLB_TEMP)/GSGrid_Statistics.o: ./GSGrid_Statistics.cpp
 	$(CPP) -c ./GSGrid_Statistics.cpp -o $(MLB_TEMP)/GSGrid_Statistics.o $(CXXFLAGS)
 
-$(MLB_TEMP)/GSGrid_Variance.o: ./GSGrid_Variance.cpp $(MLB_TEMP)
+$(MLB_TEMP)/GSGrid_Variance.o: ./GSGrid_Variance.cpp
 	$(CPP) -c ./GSGrid_Variance.cpp -o $(MLB_TEMP)/GSGrid_Variance.o $(CXXFLAGS)
 
-$(MLB_TEMP)/GSGrid_Variance_Radius.o: ./GSGrid_Variance_Radius.cpp $(MLB_TEMP)
+$(MLB_TEMP)/GSGrid_Variance_Radius.o: ./GSGrid_Variance_Radius.cpp
 	$(CPP) -c ./GSGrid_Variance_Radius.cpp -o $(MLB_TEMP)/GSGrid_Variance_Radius.o $(CXXFLAGS)
 
-$(MLB_TEMP)/GSGrid_Zonal_Statistics.o: ./GSGrid_Zonal_Statistics.cpp $(MLB_TEMP)
+$(MLB_TEMP)/GSGrid_Zonal_Statistics.o: ./GSGrid_Zonal_Statistics.cpp
 	$(CPP) -c ./GSGrid_Zonal_Statistics.cpp -o $(MLB_TEMP)/GSGrid_Zonal_Statistics.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)

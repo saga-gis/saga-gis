@@ -46,15 +46,15 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/grid_export.o: ./grid_export.cpp $(MLB_TEMP)
+$(MLB_TEMP)/grid_export.o: ./grid_export.cpp
 	$(CPP) -c ./grid_export.cpp -o $(MLB_TEMP)/grid_export.o $(CXXFLAGS)
 
-$(MLB_TEMP)/grid_import.o: ./grid_import.cpp $(MLB_TEMP)
+$(MLB_TEMP)/grid_import.o: ./grid_import.cpp
 	$(CPP) -c ./grid_import.cpp -o $(MLB_TEMP)/grid_import.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)

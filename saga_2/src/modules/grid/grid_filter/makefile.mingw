@@ -41,27 +41,27 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/Filter.o: ./Filter.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Filter.o: ./Filter.cpp
 	$(CPP) -c ./Filter.cpp -o $(MLB_TEMP)/Filter.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Filter_3x3.o: ./Filter_3x3.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Filter_3x3.o: ./Filter_3x3.cpp
 	$(CPP) -c ./Filter_3x3.cpp -o $(MLB_TEMP)/Filter_3x3.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Filter_Gauss.o: ./Filter_Gauss.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Filter_Gauss.o: ./Filter_Gauss.cpp
 	$(CPP) -c ./Filter_Gauss.cpp -o $(MLB_TEMP)/Filter_Gauss.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Filter_LoG.o: ./Filter_LoG.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Filter_LoG.o: ./Filter_LoG.cpp
 	$(CPP) -c ./Filter_LoG.cpp -o $(MLB_TEMP)/Filter_LoG.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Filter_Multi_Dir_Lee.o: ./Filter_Multi_Dir_Lee.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Filter_Multi_Dir_Lee.o: ./Filter_Multi_Dir_Lee.cpp
 	$(CPP) -c ./Filter_Multi_Dir_Lee.cpp -o $(MLB_TEMP)/Filter_Multi_Dir_Lee.o $(CXXFLAGS)
 
-$(MLB_TEMP)/FilterClumps.o: ./FilterClumps.cpp $(MLB_TEMP)
+$(MLB_TEMP)/FilterClumps.o: ./FilterClumps.cpp
 	$(CPP) -c ./FilterClumps.cpp -o $(MLB_TEMP)/FilterClumps.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)

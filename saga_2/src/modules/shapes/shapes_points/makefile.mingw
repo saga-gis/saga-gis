@@ -41,30 +41,30 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/AddCoordinates.o: ./AddCoordinates.cpp $(MLB_TEMP)
+$(MLB_TEMP)/AddCoordinates.o: ./AddCoordinates.cpp
 	$(CPP) -c ./AddCoordinates.cpp -o $(MLB_TEMP)/AddCoordinates.o $(CXXFLAGS)
 
-$(MLB_TEMP)/CountPoints.o: ./CountPoints.cpp $(MLB_TEMP)
+$(MLB_TEMP)/CountPoints.o: ./CountPoints.cpp
 	$(CPP) -c ./CountPoints.cpp -o $(MLB_TEMP)/CountPoints.o $(CXXFLAGS)
 
-$(MLB_TEMP)/CreatePointGrid.o: ./CreatePointGrid.cpp $(MLB_TEMP)
+$(MLB_TEMP)/CreatePointGrid.o: ./CreatePointGrid.cpp
 	$(CPP) -c ./CreatePointGrid.cpp -o $(MLB_TEMP)/CreatePointGrid.o $(CXXFLAGS)
 
-$(MLB_TEMP)/DistanceMatrix.o: ./DistanceMatrix.cpp $(MLB_TEMP)
+$(MLB_TEMP)/DistanceMatrix.o: ./DistanceMatrix.cpp
 	$(CPP) -c ./DistanceMatrix.cpp -o $(MLB_TEMP)/DistanceMatrix.o $(CXXFLAGS)
 
-$(MLB_TEMP)/FitNPointsToShape.o: ./FitNPointsToShape.cpp $(MLB_TEMP)
+$(MLB_TEMP)/FitNPointsToShape.o: ./FitNPointsToShape.cpp
 	$(CPP) -c ./FitNPointsToShape.cpp -o $(MLB_TEMP)/FitNPointsToShape.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Points_From_Lines.o: ./Points_From_Lines.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Points_From_Lines.o: ./Points_From_Lines.cpp
 	$(CPP) -c ./Points_From_Lines.cpp -o $(MLB_TEMP)/Points_From_Lines.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Points_From_Table.o: ./Points_From_Table.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Points_From_Table.o: ./Points_From_Table.cpp
 	$(CPP) -c ./Points_From_Table.cpp -o $(MLB_TEMP)/Points_From_Table.o $(CXXFLAGS)

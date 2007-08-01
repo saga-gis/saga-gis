@@ -41,24 +41,24 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/Fit.o: ./Fit.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Fit.o: ./Fit.cpp
 	$(CPP) -c ./Fit.cpp -o $(MLB_TEMP)/Fit.o $(CXXFLAGS)
 
-$(MLB_TEMP)/LMFit.o: ./LMFit.cpp $(MLB_TEMP)
+$(MLB_TEMP)/LMFit.o: ./LMFit.cpp
 	$(CPP) -c ./LMFit.cpp -o $(MLB_TEMP)/LMFit.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Table_Calculator.o: ./Table_Calculator.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Table_Calculator.o: ./Table_Calculator.cpp
 	$(CPP) -c ./Table_Calculator.cpp -o $(MLB_TEMP)/Table_Calculator.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Table_CalculatorShapes.o: ./Table_CalculatorShapes.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Table_CalculatorShapes.o: ./Table_CalculatorShapes.cpp
 	$(CPP) -c ./Table_CalculatorShapes.cpp -o $(MLB_TEMP)/Table_CalculatorShapes.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Table_Trend.o: ./Table_Trend.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Table_Trend.o: ./Table_Trend.cpp
 	$(CPP) -c ./Table_Trend.cpp -o $(MLB_TEMP)/Table_Trend.o $(CXXFLAGS)

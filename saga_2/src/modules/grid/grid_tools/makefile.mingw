@@ -41,81 +41,81 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/CreateGridSystem.o: ./CreateGridSystem.cpp $(MLB_TEMP)
+$(MLB_TEMP)/CreateGridSystem.o: ./CreateGridSystem.cpp
 	$(CPP) -c ./CreateGridSystem.cpp -o $(MLB_TEMP)/CreateGridSystem.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Aggregate.o: ./Grid_Aggregate.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Aggregate.o: ./Grid_Aggregate.cpp
 	$(CPP) -c ./Grid_Aggregate.cpp -o $(MLB_TEMP)/Grid_Aggregate.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Buffer.o: ./Grid_Buffer.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Buffer.o: ./Grid_Buffer.cpp
 	$(CPP) -c ./Grid_Buffer.cpp -o $(MLB_TEMP)/Grid_Buffer.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Buffer_Proximity.o: ./Grid_Buffer_Proximity.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Buffer_Proximity.o: ./Grid_Buffer_Proximity.cpp
 	$(CPP) -c ./Grid_Buffer_Proximity.cpp -o $(MLB_TEMP)/Grid_Buffer_Proximity.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_CombineGrids.o: ./Grid_CombineGrids.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_CombineGrids.o: ./Grid_CombineGrids.cpp
 	$(CPP) -c ./Grid_CombineGrids.cpp -o $(MLB_TEMP)/Grid_CombineGrids.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Completion.o: ./Grid_Completion.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Completion.o: ./Grid_Completion.cpp
 	$(CPP) -c ./Grid_Completion.cpp -o $(MLB_TEMP)/Grid_Completion.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_ConstantGrid.o: ./Grid_ConstantGrid.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_ConstantGrid.o: ./Grid_ConstantGrid.cpp
 	$(CPP) -c ./Grid_ConstantGrid.cpp -o $(MLB_TEMP)/Grid_ConstantGrid.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_CropToData.o: ./Grid_CropToData.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_CropToData.o: ./Grid_CropToData.cpp
 	$(CPP) -c ./Grid_CropToData.cpp -o $(MLB_TEMP)/Grid_CropToData.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Cut.o: ./Grid_Cut.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Cut.o: ./Grid_Cut.cpp
 	$(CPP) -c ./Grid_Cut.cpp -o $(MLB_TEMP)/Grid_Cut.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Fill.o: ./Grid_Fill.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Fill.o: ./Grid_Fill.cpp
 	$(CPP) -c ./Grid_Fill.cpp -o $(MLB_TEMP)/Grid_Fill.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Gaps.o: ./Grid_Gaps.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Gaps.o: ./Grid_Gaps.cpp
 	$(CPP) -c ./Grid_Gaps.cpp -o $(MLB_TEMP)/Grid_Gaps.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Gaps_OneCell.o: ./Grid_Gaps_OneCell.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Gaps_OneCell.o: ./Grid_Gaps_OneCell.cpp
 	$(CPP) -c ./Grid_Gaps_OneCell.cpp -o $(MLB_TEMP)/Grid_Gaps_OneCell.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_InvertNoData.o: ./Grid_InvertNoData.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_InvertNoData.o: ./Grid_InvertNoData.cpp
 	$(CPP) -c ./Grid_InvertNoData.cpp -o $(MLB_TEMP)/Grid_InvertNoData.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Merge.o: ./Grid_Merge.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Merge.o: ./Grid_Merge.cpp
 	$(CPP) -c ./Grid_Merge.cpp -o $(MLB_TEMP)/Grid_Merge.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Orientation.o: ./Grid_Orientation.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Orientation.o: ./Grid_Orientation.cpp
 	$(CPP) -c ./Grid_Orientation.cpp -o $(MLB_TEMP)/Grid_Orientation.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Resample.o: ./Grid_Resample.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Resample.o: ./Grid_Resample.cpp
 	$(CPP) -c ./Grid_Resample.cpp -o $(MLB_TEMP)/Grid_Resample.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_SortRaster.o: ./Grid_SortRaster.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_SortRaster.o: ./Grid_SortRaster.cpp
 	$(CPP) -c ./Grid_SortRaster.cpp -o $(MLB_TEMP)/Grid_SortRaster.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_ThresholdBuffer.o: ./Grid_ThresholdBuffer.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_ThresholdBuffer.o: ./Grid_ThresholdBuffer.cpp
 	$(CPP) -c ./Grid_ThresholdBuffer.cpp -o $(MLB_TEMP)/Grid_ThresholdBuffer.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Value_Reclassify.o: ./Grid_Value_Reclassify.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Value_Reclassify.o: ./Grid_Value_Reclassify.cpp
 	$(CPP) -c ./Grid_Value_Reclassify.cpp -o $(MLB_TEMP)/Grid_Value_Reclassify.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Value_Replace.o: ./Grid_Value_Replace.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Value_Replace.o: ./Grid_Value_Replace.cpp
 	$(CPP) -c ./Grid_Value_Replace.cpp -o $(MLB_TEMP)/Grid_Value_Replace.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Value_Replace_Interactive.o: ./Grid_Value_Replace_Interactive.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Value_Replace_Interactive.o: ./Grid_Value_Replace_Interactive.cpp
 	$(CPP) -c ./Grid_Value_Replace_Interactive.cpp -o $(MLB_TEMP)/Grid_Value_Replace_Interactive.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Value_Request.o: ./Grid_Value_Request.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Value_Request.o: ./Grid_Value_Request.cpp
 	$(CPP) -c ./Grid_Value_Request.cpp -o $(MLB_TEMP)/Grid_Value_Request.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Value_Type.o: ./Grid_Value_Type.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Value_Type.o: ./Grid_Value_Type.cpp
 	$(CPP) -c ./Grid_Value_Type.cpp -o $(MLB_TEMP)/Grid_Value_Type.o $(CXXFLAGS)
 
-$(MLB_TEMP)/GridsFromTableAndGrid.o: ./GridsFromTableAndGrid.cpp $(MLB_TEMP)
+$(MLB_TEMP)/GridsFromTableAndGrid.o: ./GridsFromTableAndGrid.cpp
 	$(CPP) -c ./GridsFromTableAndGrid.cpp -o $(MLB_TEMP)/GridsFromTableAndGrid.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
