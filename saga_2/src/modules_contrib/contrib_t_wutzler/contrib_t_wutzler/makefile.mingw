@@ -41,30 +41,30 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/CompleteLinkage.o: ./CompleteLinkage.cpp $(MLB_TEMP)
+$(MLB_TEMP)/CompleteLinkage.o: ./CompleteLinkage.cpp
 	$(CPP) -c ./CompleteLinkage.cpp -o $(MLB_TEMP)/CompleteLinkage.o $(CXXFLAGS)
 
-$(MLB_TEMP)/DebugStream.o: ./DebugStream.cpp $(MLB_TEMP)
+$(MLB_TEMP)/DebugStream.o: ./DebugStream.cpp
 	$(CPP) -c ./DebugStream.cpp -o $(MLB_TEMP)/DebugStream.o $(CXXFLAGS)
 
-$(MLB_TEMP)/GridCalcError.o: ./GridCalcError.cpp $(MLB_TEMP)
+$(MLB_TEMP)/GridCalcError.o: ./GridCalcError.cpp
 	$(CPP) -c ./GridCalcError.cpp -o $(MLB_TEMP)/GridCalcError.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
-$(MLB_TEMP)/NoDataValueError.o: ./NoDataValueError.cpp $(MLB_TEMP)
+$(MLB_TEMP)/NoDataValueError.o: ./NoDataValueError.cpp
 	$(CPP) -c ./NoDataValueError.cpp -o $(MLB_TEMP)/NoDataValueError.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Profiler.o: ./Profiler.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Profiler.o: ./Profiler.cpp
 	$(CPP) -c ./Profiler.cpp -o $(MLB_TEMP)/Profiler.o $(CXXFLAGS)
 
-$(MLB_TEMP)/rgbOverlay.o: ./rgbOverlay.cpp $(MLB_TEMP)
+$(MLB_TEMP)/rgbOverlay.o: ./rgbOverlay.cpp
 	$(CPP) -c ./rgbOverlay.cpp -o $(MLB_TEMP)/rgbOverlay.o $(CXXFLAGS)
 
-$(MLB_TEMP)/tomaschTool.o: ./tomaschTool.cpp $(MLB_TEMP)
+$(MLB_TEMP)/tomaschTool.o: ./tomaschTool.cpp
 	$(CPP) -c ./tomaschTool.cpp -o $(MLB_TEMP)/tomaschTool.o $(CXXFLAGS)
