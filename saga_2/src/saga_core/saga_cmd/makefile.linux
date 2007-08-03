@@ -1,5 +1,5 @@
 # Project: SAGA_CMD
-# Makefile created by O.Conrad
+# Makefile for wxGTK, created by O.Conrad
 
 PRJ_NAME  = saga_cmd
 
@@ -15,13 +15,12 @@ OBJ       = $(TMP_SAGA)/callback.o $(TMP_SAGA)/module_library.o $(TMP_SAGA)/saga
 
 DEF_SAGA  = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS  = -I./..
-CXX_DEFS  = `wx-config --cxxflags` -DwxUSE_GUI=0
-CXX_FLGS  =
+CXX_DEFS  = -O2
+CXX_FLGS  = `wx-config --static=yes --cxxflags` -DwxUSE_GUI=0
 CXXFLAGS  = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEF_SAGA)
 
-LDFLAGS   = 
-LIBS      = -fPIC `wx-config --static=yes --libs` -pthread -L$(BIN_SAGA) -lsaga_api
-
+LDFLAGS   = -fPIC -pthread
+LIBS      = `wx-config --static=yes --libs` -L$(BIN_SAGA) -lsaga_api
 
 .PHONY: all all-before all-after clean clean-custom
 
@@ -30,13 +29,13 @@ all: all-before $(EXE_NAME) all-after
 clean: clean-custom
 	-rm -f $(OBJ) $(EXE_NAME)
 
-$(TOP_SAGA)/bin: $(TOP_SAGA)
+$(TOP_SAGA)/bin:
 	-mkdir $(TOP_SAGA)/bin
 
 $(BIN_SAGA): $(TOP_SAGA)/bin
 	-mkdir $(BIN_SAGA)
 
-$(TOP_SAGA)/bin/tmp: $(TOP_SAGA)
+$(TOP_SAGA)/bin/tmp: $(TOP_SAGA)/bin
 	-mkdir $(TOP_SAGA)/bin/tmp
 
 $(TOP_SAGA)/bin/tmp/saga_gtk: $(TOP_SAGA)/bin/tmp
@@ -46,11 +45,11 @@ $(TMP_SAGA): $(TOP_SAGA)/bin/tmp/saga_gtk
 	-mkdir $(TMP_SAGA)
 
 
-$(EXE_NAME): $(OBJ) $(BIN_SAGA)
+$(EXE_NAME): $(TMP_SAGA) $(BIN_SAGA) $(OBJ)
 	$(LD) $(LDFLAGS) -o $(EXE_NAME) $(OBJ) $(LIBS)
 
-#$(TMP_SAGA)/callback.o: callback.cpp
-$(TMP_SAGA)/callback.o: callback.cpp $(TMP_SAGA)
+
+$(TMP_SAGA)/callback.o: callback.cpp
 	$(CPP) -c callback.cpp -o $(TMP_SAGA)/callback.o $(CXXFLAGS)
 
 $(TMP_SAGA)/module_library.o: module_library.cpp

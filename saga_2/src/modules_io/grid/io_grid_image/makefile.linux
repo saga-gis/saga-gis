@@ -14,15 +14,10 @@ MLB_NAME = $(MLB_PATH)/$(PRJ_NAME).so
 CPP      = g++
 LD       = g++
 
-DEP_INCS = 
-DEP_DEFS = 
-DEP_LIBS = 
-DEP_LFLG = 
-
-DEP_INCS = -I/usr/local/lib/wx
-DEP_DEFS = `wx-config --cxxflags`
-DEP_LFLG = `wx-config --cxxflags`
-
+DEP_INCS =
+DEP_DEFS = `wx-config --static=yes --cxxflags`
+DEP_LFLG = -fPIC -pthread
+DEP_LIBS = `wx-config --static=yes --libs` -L$(BIN_SAGA) -l_saga_api
 
 OBJ      = $(MLB_TEMP)/grid_export.o $(MLB_TEMP)/grid_import.o $(MLB_TEMP)/MLB_Interface.o
 
@@ -32,7 +27,7 @@ CXX_DEFS =
 CXX_FLGS = -O2
 CXXFLAGS = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEP_INCS) $(DEP_DEFS) -I$(INC_SAGA) $(DEF_SAGA)
 
-LDFLAGS  = -shared $(DEP_LFLG)
+LDFLAGS  = $(DEP_LFLG) -shared
 LIBS     = $(DEP_LIBS)
 
 .PHONY: all all-before all-after clean clean-custom
