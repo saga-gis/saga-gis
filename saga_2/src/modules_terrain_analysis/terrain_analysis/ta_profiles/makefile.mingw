@@ -41,36 +41,36 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/Grid_Cross_Profiles.o: ./Grid_Cross_Profiles.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Cross_Profiles.o: ./Grid_Cross_Profiles.cpp
 	$(CPP) -c ./Grid_Cross_Profiles.cpp -o $(MLB_TEMP)/Grid_Cross_Profiles.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_CrossSections.o: ./Grid_CrossSections.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_CrossSections.o: ./Grid_CrossSections.cpp
 	$(CPP) -c ./Grid_CrossSections.cpp -o $(MLB_TEMP)/Grid_CrossSections.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Flow_Profile.o: ./Grid_Flow_Profile.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Flow_Profile.o: ./Grid_Flow_Profile.cpp
 	$(CPP) -c ./Grid_Flow_Profile.cpp -o $(MLB_TEMP)/Grid_Flow_Profile.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Profile.o: ./Grid_Profile.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Profile.o: ./Grid_Profile.cpp
 	$(CPP) -c ./Grid_Profile.cpp -o $(MLB_TEMP)/Grid_Profile.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Profile_From_Lines.o: ./Grid_Profile_From_Lines.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Profile_From_Lines.o: ./Grid_Profile_From_Lines.cpp
 	$(CPP) -c ./Grid_Profile_From_Lines.cpp -o $(MLB_TEMP)/Grid_Profile_From_Lines.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_ProfileFromPoints.o: ./Grid_ProfileFromPoints.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_ProfileFromPoints.o: ./Grid_ProfileFromPoints.cpp
 	$(CPP) -c ./Grid_ProfileFromPoints.cpp -o $(MLB_TEMP)/Grid_ProfileFromPoints.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Swath_Profile.o: ./Grid_Swath_Profile.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Swath_Profile.o: ./Grid_Swath_Profile.cpp
 	$(CPP) -c ./Grid_Swath_Profile.cpp -o $(MLB_TEMP)/Grid_Swath_Profile.o $(CXXFLAGS)
 
 $(MLB_TEMP)/Intersection_GPC.o: ./Intersection_GPC.c $(MLB_TEMP)
 	$(CPP) -c ./Intersection_GPC.c -o $(MLB_TEMP)/Intersection_GPC.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
-$(MLB_TEMP)/PDFDocEngine_CrossSections.o: ./PDFDocEngine_CrossSections.cpp $(MLB_TEMP)
+$(MLB_TEMP)/PDFDocEngine_CrossSections.o: ./PDFDocEngine_CrossSections.cpp
 	$(CPP) -c ./PDFDocEngine_CrossSections.cpp -o $(MLB_TEMP)/PDFDocEngine_CrossSections.o $(CXXFLAGS)

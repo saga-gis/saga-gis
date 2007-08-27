@@ -3,6 +3,7 @@
 # Created by O. Conrad
 
 PRJ_NAME = ta_morphometry
+SAGA     = ./../../..
 BIN_SAGA = $(SAGA)/../bin/saga_gtk
 TMP_SAGA = $(SAGA)/../bin/tmp/saga_gtk
 INC_SAGA = $(SAGA)/saga_core
@@ -21,9 +22,9 @@ DEP_LFLG =
 OBJ      = $(MLB_TEMP)/Convergence.o $(MLB_TEMP)/Convergence_Radius.o $(MLB_TEMP)/Curvature_Classification.o $(MLB_TEMP)/Hypsometry.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/Morphometry.o $(MLB_TEMP)/ProtectionIndex.o $(MLB_TEMP)/RealArea.o $(MLB_TEMP)/SurfaceSpecificPoints.o $(MLB_TEMP)/mrvbf.o $(MLB_TEMP)/distance_gradient.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
-CXX_INCS = -I/usr/lib/glib/include -I/usr/include/glib-1.2
-CXX_DEFS = -D_REENTRANT -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -DGTK_NO_CHECK_CASTS
-CXX_FLGS = -O2 -MMD -pthread -fPIC
+CXX_INCS =
+CXX_DEFS =
+CXX_FLGS = -O2
 CXXFLAGS = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEP_INCS) $(DEP_DEFS) -I$(INC_SAGA) $(DEF_SAGA)
 
 LDFLAGS  = -shared $(DEP_LFLG)
@@ -45,39 +46,39 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	-mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
 	$(LD) $(LDFLAGS) -o $(MLB_NAME) $(OBJ) $(LIBS)
 
 
-$(MLB_TEMP)/Convergence.o: ./Convergence.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Convergence.o: ./Convergence.cpp
 	$(CPP) -c ./Convergence.cpp -o $(MLB_TEMP)/Convergence.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Convergence_Radius.o: ./Convergence_Radius.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Convergence_Radius.o: ./Convergence_Radius.cpp
 	$(CPP) -c ./Convergence_Radius.cpp -o $(MLB_TEMP)/Convergence_Radius.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Curvature_Classification.o: ./Curvature_Classification.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Curvature_Classification.o: ./Curvature_Classification.cpp
 	$(CPP) -c ./Curvature_Classification.cpp -o $(MLB_TEMP)/Curvature_Classification.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Hypsometry.o: ./Hypsometry.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Hypsometry.o: ./Hypsometry.cpp
 	$(CPP) -c ./Hypsometry.cpp -o $(MLB_TEMP)/Hypsometry.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Morphometry.o: ./Morphometry.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Morphometry.o: ./Morphometry.cpp
 	$(CPP) -c ./Morphometry.cpp -o $(MLB_TEMP)/Morphometry.o $(CXXFLAGS)
 
-$(MLB_TEMP)/ProtectionIndex.o: ./ProtectionIndex.cpp $(MLB_TEMP)
+$(MLB_TEMP)/ProtectionIndex.o: ./ProtectionIndex.cpp
 	$(CPP) -c ./ProtectionIndex.cpp -o $(MLB_TEMP)/ProtectionIndex.o $(CXXFLAGS)
 
-$(MLB_TEMP)/RealArea.o: ./RealArea.cpp $(MLB_TEMP)
+$(MLB_TEMP)/RealArea.o: ./RealArea.cpp
 	$(CPP) -c ./RealArea.cpp -o $(MLB_TEMP)/RealArea.o $(CXXFLAGS)
 
-$(MLB_TEMP)/SurfaceSpecificPoints.o: ./SurfaceSpecificPoints.cpp $(MLB_TEMP)
+$(MLB_TEMP)/SurfaceSpecificPoints.o: ./SurfaceSpecificPoints.cpp
 	$(CPP) -c ./SurfaceSpecificPoints.cpp -o $(MLB_TEMP)/SurfaceSpecificPoints.o $(CXXFLAGS)
 
-$(MLB_TEMP)/mrvbf.o: ./mrvbf.cpp $(MLB_TEMP)
+$(MLB_TEMP)/mrvbf.o: ./mrvbf.cpp
 	$(CPP) -c ./mrvbf.cpp -o $(MLB_TEMP)/mrvbf.o $(CXXFLAGS)
 
-$(MLB_TEMP)/distance_gradient.o: ./distance_gradient.cpp $(MLB_TEMP)
+$(MLB_TEMP)/distance_gradient.o: ./distance_gradient.cpp
 	$(CPP) -c ./distance_gradient.cpp -o $(MLB_TEMP)/distance_gradient.o $(CXXFLAGS)

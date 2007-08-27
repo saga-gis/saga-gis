@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.6 2007-02-13 12:49:19 tschorr Exp $
+# $Id: Makefile.am,v 1.7 2007-07-30 07:29:24 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -13,6 +13,7 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS)
 AM_LDFLAGS         = -fPIC -shared
 pkglib_LTLIBRARIES = libgrid_tools.la
 libgrid_tools_la_SOURCES =\
+CreateGridSystem.cpp\
 Grid_Aggregate.cpp\
 Grid_Buffer.cpp\
 Grid_Buffer_Proximity.cpp\
@@ -37,6 +38,7 @@ Grid_Value_Request.cpp\
 Grid_Value_Type.cpp\
 GridsFromTableAndGrid.cpp\
 MLB_Interface.cpp\
+CreateGridSystem.h\
 Grid_Aggregate.h\
 Grid_Buffer.h\
 Grid_Buffer_Proximity.h\

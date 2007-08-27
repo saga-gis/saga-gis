@@ -41,18 +41,18 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Table_Create_Empty.o: ./Table_Create_Empty.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Table_Create_Empty.o: ./Table_Create_Empty.cpp
 	$(CPP) -c ./Table_Create_Empty.cpp -o $(MLB_TEMP)/Table_Create_Empty.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Table_Enumerate.o: ./Table_Enumerate.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Table_Enumerate.o: ./Table_Enumerate.cpp
 	$(CPP) -c ./Table_Enumerate.cpp -o $(MLB_TEMP)/Table_Enumerate.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Table_Rotate.o: ./Table_Rotate.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Table_Rotate.o: ./Table_Rotate.cpp
 	$(CPP) -c ./Table_Rotate.cpp -o $(MLB_TEMP)/Table_Rotate.o $(CXXFLAGS)

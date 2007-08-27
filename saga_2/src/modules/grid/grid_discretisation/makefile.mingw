@@ -41,24 +41,24 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/Grid_Classify_Supervised.o: ./Grid_Classify_Supervised.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Classify_Supervised.o: ./Grid_Classify_Supervised.cpp
 	$(CPP) -c ./Grid_Classify_Supervised.cpp -o $(MLB_TEMP)/Grid_Classify_Supervised.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Cluster_Analysis.o: ./Grid_Cluster_Analysis.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Cluster_Analysis.o: ./Grid_Cluster_Analysis.cpp
 	$(CPP) -c ./Grid_Cluster_Analysis.cpp -o $(MLB_TEMP)/Grid_Cluster_Analysis.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_FastSegments.o: ./Grid_FastSegments.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_FastSegments.o: ./Grid_FastSegments.cpp
 	$(CPP) -c ./Grid_FastSegments.cpp -o $(MLB_TEMP)/Grid_FastSegments.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Segmentation.o: ./Grid_Segmentation.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Segmentation.o: ./Grid_Segmentation.cpp
 	$(CPP) -c ./Grid_Segmentation.cpp -o $(MLB_TEMP)/Grid_Segmentation.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Skeletonize.o: ./Grid_Skeletonize.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Skeletonize.o: ./Grid_Skeletonize.cpp
 	$(CPP) -c ./Grid_Skeletonize.cpp -o $(MLB_TEMP)/Grid_Skeletonize.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)

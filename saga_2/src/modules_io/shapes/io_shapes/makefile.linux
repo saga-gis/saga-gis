@@ -3,6 +3,7 @@
 # Created by O. Conrad
 
 PRJ_NAME = io_shapes
+SAGA     = ./../../..
 BIN_SAGA = $(SAGA)/../bin/saga_gtk
 TMP_SAGA = $(SAGA)/../bin/tmp/saga_gtk
 INC_SAGA = $(SAGA)/saga_core
@@ -21,9 +22,9 @@ DEP_LFLG =
 OBJ      = $(MLB_TEMP)/atlas_bna.o $(MLB_TEMP)/generate.o $(MLB_TEMP)/gstat.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/surfer_bln.o $(MLB_TEMP)/wasp_map.o $(MLB_TEMP)/xyz.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
-CXX_INCS = -I/usr/lib/glib/include -I/usr/include/glib-1.2
-CXX_DEFS = -D_REENTRANT -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -DGTK_NO_CHECK_CASTS
-CXX_FLGS = -O2 -MMD -pthread -fPIC
+CXX_INCS =
+CXX_DEFS =
+CXX_FLGS = -O2
 CXXFLAGS = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEP_INCS) $(DEP_DEFS) -I$(INC_SAGA) $(DEF_SAGA)
 
 LDFLAGS  = -shared $(DEP_LFLG)
@@ -45,27 +46,27 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	-mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
 	$(LD) $(LDFLAGS) -o $(MLB_NAME) $(OBJ) $(LIBS)
 
 
-$(MLB_TEMP)/atlas_bna.o: ./atlas_bna.cpp $(MLB_TEMP)
+$(MLB_TEMP)/atlas_bna.o: ./atlas_bna.cpp
 	$(CPP) -c ./atlas_bna.cpp -o $(MLB_TEMP)/atlas_bna.o $(CXXFLAGS)
 
-$(MLB_TEMP)/generate.o: ./generate.cpp $(MLB_TEMP)
+$(MLB_TEMP)/generate.o: ./generate.cpp
 	$(CPP) -c ./generate.cpp -o $(MLB_TEMP)/generate.o $(CXXFLAGS)
 
-$(MLB_TEMP)/gstat.o: ./gstat.cpp $(MLB_TEMP)
+$(MLB_TEMP)/gstat.o: ./gstat.cpp
 	$(CPP) -c ./gstat.cpp -o $(MLB_TEMP)/gstat.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
-$(MLB_TEMP)/surfer_bln.o: ./surfer_bln.cpp $(MLB_TEMP)
+$(MLB_TEMP)/surfer_bln.o: ./surfer_bln.cpp
 	$(CPP) -c ./surfer_bln.cpp -o $(MLB_TEMP)/surfer_bln.o $(CXXFLAGS)
 
-$(MLB_TEMP)/wasp_map.o: ./wasp_map.cpp $(MLB_TEMP)
+$(MLB_TEMP)/wasp_map.o: ./wasp_map.cpp
 	$(CPP) -c ./wasp_map.cpp -o $(MLB_TEMP)/wasp_map.o $(CXXFLAGS)
 
-$(MLB_TEMP)/xyz.o: ./xyz.cpp $(MLB_TEMP)
+$(MLB_TEMP)/xyz.o: ./xyz.cpp
 	$(CPP) -c ./xyz.cpp -o $(MLB_TEMP)/xyz.o $(CXXFLAGS)

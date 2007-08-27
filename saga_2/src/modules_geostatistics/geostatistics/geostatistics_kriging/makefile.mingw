@@ -41,24 +41,24 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/Kriging_Base.o: ./Kriging_Base.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Kriging_Base.o: ./Kriging_Base.cpp
 	$(CPP) -c ./Kriging_Base.cpp -o $(MLB_TEMP)/Kriging_Base.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Kriging_Ordinary.o: ./Kriging_Ordinary.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Kriging_Ordinary.o: ./Kriging_Ordinary.cpp
 	$(CPP) -c ./Kriging_Ordinary.cpp -o $(MLB_TEMP)/Kriging_Ordinary.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Kriging_Ordinary_Global.o: ./Kriging_Ordinary_Global.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Kriging_Ordinary_Global.o: ./Kriging_Ordinary_Global.cpp
 	$(CPP) -c ./Kriging_Ordinary_Global.cpp -o $(MLB_TEMP)/Kriging_Ordinary_Global.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Kriging_Universal.o: ./Kriging_Universal.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Kriging_Universal.o: ./Kriging_Universal.cpp
 	$(CPP) -c ./Kriging_Universal.cpp -o $(MLB_TEMP)/Kriging_Universal.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Kriging_Universal_Global.o: ./Kriging_Universal_Global.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Kriging_Universal_Global.o: ./Kriging_Universal_Global.cpp
 	$(CPP) -c ./Kriging_Universal_Global.cpp -o $(MLB_TEMP)/Kriging_Universal_Global.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)

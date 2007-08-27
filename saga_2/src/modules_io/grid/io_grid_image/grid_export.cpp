@@ -120,6 +120,8 @@ CGrid_Export::~CGrid_Export(void)
 //---------------------------------------------------------
 bool CGrid_Export::On_Execute(void)
 {
+	wxInitAllImageHandlers();
+
 	int			x, y, c, r, g, b;
 	double		d;
 	CSG_Grid	*pGrid, *pShade, Grid, Shade;
@@ -133,79 +135,122 @@ bool CGrid_Export::On_Execute(void)
 	fName	= Parameters("FILE")	->asString();
 
 	//-----------------------------------------------------
-	if( SG_UI_DataObject_asImage(pGrid, &Grid) )
+	if( !pGrid || pGrid->Get_ZRange() == 0.0 )
 	{
-		if( !SG_UI_DataObject_asImage(pShade, &Shade) )
-		{
-			pShade	= NULL;
-		}
+		return( false );
+	}
+	else if( !SG_UI_DataObject_asImage(pGrid, &Grid) )
+	{
+		int			nColors	= 100;
+		CSG_Colors	Colors(nColors, SG_COLORS_DEFAULT);
 
-		img.Create(Get_NX(), Get_NY());
+		Grid.Create(*Get_System(), GRID_TYPE_Int);
 
 		for(y=0; y<Get_NY() && Set_Progress(y); y++)
 		{
 			for(x=0; x<Get_NX(); x++)
 			{
-				c	= Grid.asInt(x, y);
-
-				r	= SG_GET_R(c);
-				g	= SG_GET_G(c);
-				b	= SG_GET_B(c);
-
-				if( pShade )
-				{
-					c	= Shade.asInt(x, y);
-
-					d	= (SG_GET_R(c) + SG_GET_G(c) + SG_GET_B(c)) / (3.0 * 255.0);
-
-					r	= (int)(d * r);
-					g	= (int)(d * g);
-					b	= (int)(d * b);
-				}
-
-				img.SetRGB(x, y, r, g, b);
+				if( pGrid->is_NoData(x, y) )
+					Grid.Set_NoData(x, Get_NY() - 1 - y);
+				else
+					Grid.Set_Value(x, Get_NY() - 1 - y, Colors[(int)(
+						nColors * (pGrid->asDouble(x, y) - pGrid->Get_ZMin()) / pGrid->Get_ZRange()
+					)]);
 			}
 		}
+	}
 
-		//-------------------------------------------------
-		if( img.SaveFile(fName.GetFullPath()) )
+	if( !pShade || pShade->Get_ZRange() == 0.0 )
+	{
+		pShade	= NULL;
+	}
+	else if( !SG_UI_DataObject_asImage(pShade, &Shade) )
+	{
+		int			nColors	= 100;
+		CSG_Colors	Colors(nColors, SG_COLORS_BLACK_WHITE);
+
+		Shade.Create(*Get_System(), GRID_TYPE_Int);
+
+		for(y=0; y<Get_NY() && Set_Progress(y); y++)
 		{
-			if(      !fName.GetExt().CmpNoCase(SG_T("bmp")) )
+			for(x=0; x<Get_NX(); x++)
 			{
-				fName.SetExt(SG_T("bpw"));
+				if( pShade->is_NoData(x, y) )
+					Shade.Set_NoData(x, Get_NY() - 1 - y);
+				else
+					Shade.Set_Value(x, Get_NY() - 1 - y, Colors[(int)(
+						nColors * (pShade->asDouble(x, y) - pShade->Get_ZMin()) / pShade->Get_ZRange()
+					)]);
 			}
-			else if( !fName.GetExt().CmpNoCase(SG_T("jpg")) )
-			{
-				fName.SetExt(SG_T("jgw"));
-			}
-			else if( !fName.GetExt().CmpNoCase(SG_T("png")) )
-			{
-				fName.SetExt(SG_T("pgw"));
-			}
-			else if( !fName.GetExt().CmpNoCase(SG_T("tif")) )
-			{
-				fName.SetExt(SG_T("tfw"));
-			}
-			else
-			{
-				fName.SetExt(SG_T("world"));
-			}
-
-			if( (Stream = fopen(fName.GetFullPath().mb_str(), "w")) != NULL )
-			{
-				fprintf(Stream, "%f\n%f\n%f\n%f\n%f\n%f\n",
-					 pGrid->Get_Cellsize(),
-					 0.0, 0.0,
-					-pGrid->Get_Cellsize(),
-					 pGrid->Get_XMin(),
-					 pGrid->Get_YMax()
-				);
-
-				fclose(Stream);
-			}
-
-			return( true );
 		}
+	}
+
+	//-------------------------------------------------
+	img.Create(Get_NX(), Get_NY());
+
+	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(x=0; x<Get_NX(); x++)
+		{
+			c	= Grid.asInt(x, y);
+
+			r	= SG_GET_R(c);
+			g	= SG_GET_G(c);
+			b	= SG_GET_B(c);
+
+			if( pShade )
+			{
+				c	= Shade.asInt(x, y);
+
+				d	= (SG_GET_R(c) + SG_GET_G(c) + SG_GET_B(c)) / (3.0 * 255.0);
+
+				r	= (int)(d * r);
+				g	= (int)(d * g);
+				b	= (int)(d * b);
+			}
+
+			img.SetRGB(x, y, r, g, b);
+		}
+	}
+
+	//-------------------------------------------------
+	if( img.SaveFile(fName.GetFullPath()) )
+	{
+		if(      !fName.GetExt().CmpNoCase(SG_T("bmp")) )
+		{
+			fName.SetExt(SG_T("bpw"));
+		}
+		else if( !fName.GetExt().CmpNoCase(SG_T("jpg")) )
+		{
+			fName.SetExt(SG_T("jgw"));
+		}
+		else if( !fName.GetExt().CmpNoCase(SG_T("png")) )
+		{
+			fName.SetExt(SG_T("pgw"));
+		}
+		else if( !fName.GetExt().CmpNoCase(SG_T("tif")) )
+		{
+			fName.SetExt(SG_T("tfw"));
+		}
+		else
+		{
+			fName.SetExt(SG_T("world"));
+		}
+
+		if( (Stream = fopen(fName.GetFullPath().mb_str(), "w")) != NULL )
+		{
+			fprintf(Stream, "%f\n%f\n%f\n%f\n%f\n%f\n",
+				 pGrid->Get_Cellsize(),
+				 0.0, 0.0,
+				-pGrid->Get_Cellsize(),
+				 pGrid->Get_XMin(),
+				 pGrid->Get_YMax()
+			);
+
+			fclose(Stream);
+		}
+
+		return( true );
 	}
 
 	return( false );

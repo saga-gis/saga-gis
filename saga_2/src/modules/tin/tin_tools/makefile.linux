@@ -3,6 +3,7 @@
 # Created by O. Conrad
 
 PRJ_NAME = tin_tools
+SAGA     = ./../../..
 BIN_SAGA = $(SAGA)/../bin/saga_gtk
 TMP_SAGA = $(SAGA)/../bin/tmp/saga_gtk
 INC_SAGA = $(SAGA)/saga_core
@@ -21,9 +22,9 @@ DEP_LFLG =
 OBJ      = $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/TIN_Flow_Parallel.o $(MLB_TEMP)/TIN_Flow_Trace.o $(MLB_TEMP)/TIN_From_Grid.o $(MLB_TEMP)/TIN_From_Grid_Specific_Points.o $(MLB_TEMP)/TIN_From_Shapes.o $(MLB_TEMP)/TIN_Gradient.o $(MLB_TEMP)/TIN_To_Shapes.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
-CXX_INCS = -I/usr/lib/glib/include -I/usr/include/glib-1.2
-CXX_DEFS = -D_REENTRANT -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -DGTK_NO_CHECK_CASTS
-CXX_FLGS = -O2 -MMD -pthread -fPIC
+CXX_INCS =
+CXX_DEFS =
+CXX_FLGS = -O2
 CXXFLAGS = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEP_INCS) $(DEP_DEFS) -I$(INC_SAGA) $(DEF_SAGA)
 
 LDFLAGS  = -shared $(DEP_LFLG)
@@ -45,30 +46,30 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	-mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
 	$(LD) $(LDFLAGS) -o $(MLB_NAME) $(OBJ) $(LIBS)
 
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
-$(MLB_TEMP)/TIN_Flow_Parallel.o: ./TIN_Flow_Parallel.cpp $(MLB_TEMP)
+$(MLB_TEMP)/TIN_Flow_Parallel.o: ./TIN_Flow_Parallel.cpp
 	$(CPP) -c ./TIN_Flow_Parallel.cpp -o $(MLB_TEMP)/TIN_Flow_Parallel.o $(CXXFLAGS)
 
-$(MLB_TEMP)/TIN_Flow_Trace.o: ./TIN_Flow_Trace.cpp $(MLB_TEMP)
+$(MLB_TEMP)/TIN_Flow_Trace.o: ./TIN_Flow_Trace.cpp
 	$(CPP) -c ./TIN_Flow_Trace.cpp -o $(MLB_TEMP)/TIN_Flow_Trace.o $(CXXFLAGS)
 
-$(MLB_TEMP)/TIN_From_Grid.o: ./TIN_From_Grid.cpp $(MLB_TEMP)
+$(MLB_TEMP)/TIN_From_Grid.o: ./TIN_From_Grid.cpp
 	$(CPP) -c ./TIN_From_Grid.cpp -o $(MLB_TEMP)/TIN_From_Grid.o $(CXXFLAGS)
 
-$(MLB_TEMP)/TIN_From_Grid_Specific_Points.o: ./TIN_From_Grid_Specific_Points.cpp $(MLB_TEMP)
+$(MLB_TEMP)/TIN_From_Grid_Specific_Points.o: ./TIN_From_Grid_Specific_Points.cpp
 	$(CPP) -c ./TIN_From_Grid_Specific_Points.cpp -o $(MLB_TEMP)/TIN_From_Grid_Specific_Points.o $(CXXFLAGS)
 
-$(MLB_TEMP)/TIN_From_Shapes.o: ./TIN_From_Shapes.cpp $(MLB_TEMP)
+$(MLB_TEMP)/TIN_From_Shapes.o: ./TIN_From_Shapes.cpp
 	$(CPP) -c ./TIN_From_Shapes.cpp -o $(MLB_TEMP)/TIN_From_Shapes.o $(CXXFLAGS)
 
-$(MLB_TEMP)/TIN_Gradient.o: ./TIN_Gradient.cpp $(MLB_TEMP)
+$(MLB_TEMP)/TIN_Gradient.o: ./TIN_Gradient.cpp
 	$(CPP) -c ./TIN_Gradient.cpp -o $(MLB_TEMP)/TIN_Gradient.o $(CXXFLAGS)
 
-$(MLB_TEMP)/TIN_To_Shapes.o: ./TIN_To_Shapes.cpp $(MLB_TEMP)
+$(MLB_TEMP)/TIN_To_Shapes.o: ./TIN_To_Shapes.cpp
 	$(CPP) -c ./TIN_To_Shapes.cpp -o $(MLB_TEMP)/TIN_To_Shapes.o $(CXXFLAGS)

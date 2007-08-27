@@ -108,6 +108,8 @@ const SG_Char * Get_Info(int i)
 #include "FuzzyOR.h"
 #include "Fuzzify.h"
 
+#include "Soil_Texture.h"
+
 //---------------------------------------------------------
 // 4. Allow your modules to be created here...
 
@@ -166,7 +168,7 @@ CSG_Module *		Create_Module(int i)
 	case 10:
 		pModule	= new CGrid_CVA;
 		break;
-	
+
 	case 11:
 		pModule = new CCoveredDistance;
 		break;
@@ -194,7 +196,11 @@ CSG_Module *		Create_Module(int i)
 	case 17:
 		pModule	= new CCrossClassification;
 		break;
-	
+
+	case 18:
+		pModule	= new CSoil_Texture;
+		break;
+
 	default:
 		pModule	= NULL;
 		break;

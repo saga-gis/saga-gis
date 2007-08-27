@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
+// $Id: wksp_module_manager.cpp,v 1.11 2007-07-03 10:20:32 tschorr Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -74,7 +74,6 @@
 #include "wksp_module_library.h"
 #include "wksp_module_menu.h"
 #include "wksp_module.h"
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -132,7 +131,7 @@ bool CWKSP_Module_Manager::Initialise(void)
 	if( Get_Count() == 0 )
 	{
 #if defined(_SAGA_LINUX)
-		if( _Open_Directory(wxT("/usr/local/lib/saga")) == 0 )
+	if( _Open_Directory( wxT( MODULE_LIBRARY_PATH ) ) == 0 )
 #endif
 		_Open_Directory(g_pSAGA->Get_App_Path());
 	}

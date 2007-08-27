@@ -1,16 +1,18 @@
 #
-# $Id: Makefile.am,v 1.11 2007-02-13 09:58:10 tschorr Exp $
+# $Id: Makefile.am,v 1.13 2007-07-24 12:17:00 oconrad Exp $
 #
 INCS = -I.. -I.
 if DEBUG
 DBGFLAGS = -g -DDEBUG
 endif
+MLIBPATH = "MODULE_LIBRARY_PATH=\"$(prefix)/lib/saga\""
 
+BASEFLAGS = -fPIC -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_DONOTUSE_HARU -D$(MLIBPATH) $(DBGFLAGS) $(INCS)
 if SAGA_UNICODE
-AM_CXXFLAGS = -fPIC `wx-config --unicode=yes --cxxflags` -D_SAGA_LINUX -D_SAGA_UNICODE -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_DONOTUSE_HARU $(DBGFLAGS) $(INCS)
+AM_CXXFLAGS = $(BASEFLAGS) `wx-config --unicode=yes --cxxflags` -D_SAGA_UNICODE
 AM_LDFLAGS = -fPIC `wx-config --unicode=yes --libs` -lm 
 else
-AM_CXXFLAGS = -fPIC `wx-config --unicode=no --cxxflags` -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_DONOTUSE_HARU $(DBGFLAGS) $(INCS)
+AM_CXXFLAGS = $(BASEFLAGS) `wx-config --unicode=no --cxxflags`
 AM_LDFLAGS = -fPIC `wx-config --unicode=no --libs` -lm
 endif
 
@@ -83,6 +85,7 @@ wksp_layer.cpp\
 wksp_layer_classify.cpp\
 wksp_layer_legend.cpp\
 wksp_map.cpp\
+wksp_map_buttons.cpp\
 wksp_map_control.cpp\
 wksp_map_dc.cpp\
 wksp_map_layer.cpp\
@@ -170,6 +173,7 @@ wksp_layer.h\
 wksp_layer_classify.h\
 wksp_layer_legend.h\
 wksp_map.h\
+wksp_map_buttons.h\
 wksp_map_control.h\
 wksp_map_dc.h\
 wksp_map_layer.h\

@@ -3,6 +3,7 @@
 # Created by O. Conrad
 
 PRJ_NAME = recreations_fractals
+SAGA     = ./../../..
 BIN_SAGA = $(SAGA)/../bin/saga_gtk
 TMP_SAGA = $(SAGA)/../bin/tmp/saga_gtk
 INC_SAGA = $(SAGA)/saga_core
@@ -21,9 +22,9 @@ DEP_LFLG =
 OBJ      = $(MLB_TEMP)/Bifurcation.o $(MLB_TEMP)/Gaussian_Landscapes.o $(MLB_TEMP)/Grid_FractalDimension.o $(MLB_TEMP)/Mandelbrot.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/Newton.o $(MLB_TEMP)/Pythagoras_Tree.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
-CXX_INCS = -I/usr/lib/glib/include -I/usr/include/glib-1.2
-CXX_DEFS = -D_REENTRANT -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -DGTK_NO_CHECK_CASTS
-CXX_FLGS = -O2 -MMD -pthread -fPIC
+CXX_INCS =
+CXX_DEFS =
+CXX_FLGS = -O2
 CXXFLAGS = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEP_INCS) $(DEP_DEFS) -I$(INC_SAGA) $(DEF_SAGA)
 
 LDFLAGS  = -shared $(DEP_LFLG)
@@ -45,27 +46,27 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	-mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
 	$(LD) $(LDFLAGS) -o $(MLB_NAME) $(OBJ) $(LIBS)
 
 
-$(MLB_TEMP)/Bifurcation.o: ./Bifurcation.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Bifurcation.o: ./Bifurcation.cpp
 	$(CPP) -c ./Bifurcation.cpp -o $(MLB_TEMP)/Bifurcation.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Gaussian_Landscapes.o: ./Gaussian_Landscapes.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Gaussian_Landscapes.o: ./Gaussian_Landscapes.cpp
 	$(CPP) -c ./Gaussian_Landscapes.cpp -o $(MLB_TEMP)/Gaussian_Landscapes.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_FractalDimension.o: ./Grid_FractalDimension.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_FractalDimension.o: ./Grid_FractalDimension.cpp
 	$(CPP) -c ./Grid_FractalDimension.cpp -o $(MLB_TEMP)/Grid_FractalDimension.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Mandelbrot.o: ./Mandelbrot.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Mandelbrot.o: ./Mandelbrot.cpp
 	$(CPP) -c ./Mandelbrot.cpp -o $(MLB_TEMP)/Mandelbrot.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Newton.o: ./Newton.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Newton.o: ./Newton.cpp
 	$(CPP) -c ./Newton.cpp -o $(MLB_TEMP)/Newton.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Pythagoras_Tree.o: ./Pythagoras_Tree.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Pythagoras_Tree.o: ./Pythagoras_Tree.cpp
 	$(CPP) -c ./Pythagoras_Tree.cpp -o $(MLB_TEMP)/Pythagoras_Tree.o $(CXXFLAGS)

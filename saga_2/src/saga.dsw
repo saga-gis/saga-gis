@@ -3,6 +3,18 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
+Project: "contrib_a_perego"=.\modules_contrib\contrib_a_perego\contrib_a_perego\contrib_a_perego.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "contrib_t_wutzler"=.\modules_contrib\contrib_t_wutzler\contrib_t_wutzler\contrib_t_wutzler.dsp - Package Owner=<4>
 
 Package=<5>

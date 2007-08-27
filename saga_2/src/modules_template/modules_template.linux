@@ -1,8 +1,6 @@
 # Linux GCC Makefile
 # Created by O. Conrad
 
-export SAGA = /develop/saga_2.0/saga_2.0
-
 PROJECTS = ./TEMPLATE/TEMPLATE
 
 all:

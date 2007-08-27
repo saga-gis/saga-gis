@@ -45,18 +45,18 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
-$(MLB_TEMP)/PROJ4_Base.o: ./PROJ4_Base.cpp $(MLB_TEMP)
+$(MLB_TEMP)/PROJ4_Base.o: ./PROJ4_Base.cpp
 	$(CPP) -c ./PROJ4_Base.cpp -o $(MLB_TEMP)/PROJ4_Base.o $(CXXFLAGS)
 
-$(MLB_TEMP)/PROJ4_Grid.o: ./PROJ4_Grid.cpp $(MLB_TEMP)
+$(MLB_TEMP)/PROJ4_Grid.o: ./PROJ4_Grid.cpp
 	$(CPP) -c ./PROJ4_Grid.cpp -o $(MLB_TEMP)/PROJ4_Grid.o $(CXXFLAGS)
 
-$(MLB_TEMP)/PROJ4_Shapes.o: ./PROJ4_Shapes.cpp $(MLB_TEMP)
+$(MLB_TEMP)/PROJ4_Shapes.o: ./PROJ4_Shapes.cpp
 	$(CPP) -c ./PROJ4_Shapes.cpp -o $(MLB_TEMP)/PROJ4_Shapes.o $(CXXFLAGS)

@@ -41,27 +41,27 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/DVWK_SoilMoisture.o: ./DVWK_SoilMoisture.cpp $(MLB_TEMP)
+$(MLB_TEMP)/DVWK_SoilMoisture.o: ./DVWK_SoilMoisture.cpp
 	$(CPP) -c ./DVWK_SoilMoisture.cpp -o $(MLB_TEMP)/DVWK_SoilMoisture.o $(CXXFLAGS)
 
-$(MLB_TEMP)/IDW.o: ./IDW.cpp $(MLB_TEMP)
+$(MLB_TEMP)/IDW.o: ./IDW.cpp
 	$(CPP) -c ./IDW.cpp -o $(MLB_TEMP)/IDW.o $(CXXFLAGS)
 
-$(MLB_TEMP)/KinWav_D8.o: ./KinWav_D8.cpp $(MLB_TEMP)
+$(MLB_TEMP)/KinWav_D8.o: ./KinWav_D8.cpp
 	$(CPP) -c ./KinWav_D8.cpp -o $(MLB_TEMP)/KinWav_D8.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
-$(MLB_TEMP)/topmodel.o: ./topmodel.cpp $(MLB_TEMP)
+$(MLB_TEMP)/topmodel.o: ./topmodel.cpp
 	$(CPP) -c ./topmodel.cpp -o $(MLB_TEMP)/topmodel.o $(CXXFLAGS)
 
-$(MLB_TEMP)/topmodel_values.o: ./topmodel_values.cpp $(MLB_TEMP)
+$(MLB_TEMP)/topmodel_values.o: ./topmodel_values.cpp
 	$(CPP) -c ./topmodel_values.cpp -o $(MLB_TEMP)/topmodel_values.o $(CXXFLAGS)
 
-$(MLB_TEMP)/WaterRetentionCapacity.o: ./WaterRetentionCapacity.cpp $(MLB_TEMP)
+$(MLB_TEMP)/WaterRetentionCapacity.o: ./WaterRetentionCapacity.cpp
 	$(CPP) -c ./WaterRetentionCapacity.cpp -o $(MLB_TEMP)/WaterRetentionCapacity.o $(CXXFLAGS)

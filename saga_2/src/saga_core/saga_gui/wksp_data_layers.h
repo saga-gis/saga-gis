@@ -81,14 +81,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CWKSP_Data_Layers_Item : public wxPanel
+class CWKSP_Data_Button : public wxPanel
 {
-	DECLARE_CLASS(CWKSP_Data_Layers_Item)
+	DECLARE_CLASS(CWKSP_Data_Button)
 
 public:
-	CWKSP_Data_Layers_Item(wxWindow *pParent, class CWKSP_Layer *pLayer);
-	CWKSP_Data_Layers_Item(wxWindow *pParent, const wxChar *Title);
-	virtual ~CWKSP_Data_Layers_Item(void)	{}
+	CWKSP_Data_Button(wxWindow *pParent, class CWKSP_Layer *pLayer);
+	CWKSP_Data_Button(wxWindow *pParent, const wxChar *Title);
+	virtual ~CWKSP_Data_Button(void)	{}
 
 	void						On_Paint			(wxPaintEvent &event);
 
@@ -96,7 +96,7 @@ public:
 	void						On_Mouse_LDClick	(wxMouseEvent &event);
 	void						On_Mouse_RDown		(wxMouseEvent &event);
 
-	bool						is_Title			(void)				{	return( m_pLayer == NULL );	}
+	bool						is_Title			(void)		{	return( m_pLayer == NULL );	}
 
 
 private:
@@ -116,19 +116,19 @@ DECLARE_EVENT_TABLE()
 };
 
 //---------------------------------------------------------
-class CWKSP_Data_Layers : public wxScrolledWindow
+class CWKSP_Data_Buttons : public wxScrolledWindow
 {
-	DECLARE_CLASS(CWKSP_Data_Layers)
+	DECLARE_CLASS(CWKSP_Data_Buttons)
 
 public:
-	CWKSP_Data_Layers(wxWindow *pParent);
-	virtual ~CWKSP_Data_Layers(void);
+	CWKSP_Data_Buttons(wxWindow *pParent);
+	virtual ~CWKSP_Data_Buttons(void);
 
 	void						On_Mouse_RDown		(wxMouseEvent &event);
 
-	void						On_Size				(wxSizeEvent &event);
+	void						On_Size				(wxSizeEvent  &event);
 
-	void						Update_Layers		(void);
+	void						Update_Buttons		(void);
 
 	void						Set_Item_Size		(int Size);
 	int							Get_Item_Size		(void)		{	return( m_Size );	}
@@ -144,7 +144,7 @@ private:
 
 	long						m_Active_Color;
 
-	CWKSP_Data_Layers_Item		**m_Items;
+	CWKSP_Data_Button			**m_Items;
 
 	CSG_Parameters				m_Parameters;
 
@@ -162,7 +162,7 @@ DECLARE_EVENT_TABLE()
 };
 
 //---------------------------------------------------------
-extern CWKSP_Data_Layers		*g_pLayers;
+extern CWKSP_Data_Buttons		*g_pData_Buttons;
 
 
 ///////////////////////////////////////////////////////////

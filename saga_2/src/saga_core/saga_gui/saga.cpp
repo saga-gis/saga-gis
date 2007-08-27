@@ -101,15 +101,19 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define SAGA_GUI_VERSION		wxT("2.0.1")
+#define SAGA_GUI_BUILD			wxT("20070101")
+
+//---------------------------------------------------------
 const wxChar *	SAGA_GUI_Get_Version(void)
 {
-	return( wxT("SAGA Graphical User Interface - Version: ") SAGA_GUI_VERSION );
+	return( SAGA_GUI_VERSION );
 }
 
 //---------------------------------------------------------
 const wxChar *	SAGA_GUI_Get_Build(void)
 {
-	return( wxT("20070101") );
+	return( SAGA_GUI_BUILD );
 }
 
 

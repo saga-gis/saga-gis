@@ -318,32 +318,20 @@ CSAGA_Frame::CSAGA_Frame(void)
 	}
 	else
 	{
-		s	= wxT("layout2|")
-			  wxT("name=mdiclient;caption=;state=256;dir=5;layer=0;row=0;pos=0;prop=100000;bestw=0;besth=0;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|")
-			  wxT("name=Messages;caption=Messages;state=16779260;dir=3;layer=0;row=0;pos=0;prop=100000;bestw=200;besth=100;minw=100;minh=100;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=400;floath=200|")
-			  wxT("name=Object Properties;caption=Object Properties;state=16779260;dir=2;layer=1;row=0;pos=0;prop=100000;bestw=200;besth=100;minw=100;minh=100;maxw=-1;maxh=-1;floatx=917;floaty=69;floatw=200;floath=400|")
-			  wxT("name=Workspace;caption=Workspace;state=16779260;dir=4;layer=0;row=0;pos=0;prop=100000;bestw=200;besth=100;minw=100;minh=100;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=200;floath=400|")
-			  wxT("name=Standard;caption=Standard;state=16788208;dir=1;layer=10;row=0;pos=0;prop=100000;bestw=131;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|")
-			  wxT("name=Map;caption=Map;state=16788210;dir=1;layer=10;row=0;pos=142;prop=100000;bestw=269;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|")
-			  wxT("name=3D-View;caption=3D-View;state=16788210;dir=1;layer=10;row=0;pos=0;prop=100000;bestw=423;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|")
-			  wxT("name=Map-Layout;caption=Map-Layout;state=16788210;dir=1;layer=10;row=0;pos=0;prop=100000;bestw=69;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|")
-			  wxT("name=Table;caption=Table;state=16788210;dir=1;layer=10;row=0;pos=0;prop=100000;bestw=146;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|")
-			  wxT("name=Diagram;caption=Diagram;state=16788210;dir=1;layer=10;row=0;pos=0;prop=100000;bestw=23;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|")
-			  wxT("name=Histogram;caption=Histogram;state=16788210;dir=1;layer=10;row=0;pos=0;prop=100000;bestw=46;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|")
-			  wxT("name=Scatterplot;caption=Scatterplot;state=16788210;dir=1;layer=10;row=0;pos=0;prop=100000;bes")
-			  wxT("tw=46;besth=23;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|")
-			  wxT("dock_size(5,0,0)=10|dock_size(3,0,0)=116|dock_size(4,0,0)=195|dock_size(1,10,0)=10|dock_size(2,1,0)=245|");
-
-		m_pLayout->LoadPerspective(s);
+		m_pLayout->GetPane(m_pINFO  ).BestSize(400, 100).FloatingSize(600, 400).Bottom();
+		m_pLayout->GetPane(m_pActive).BestSize(250, 400).FloatingSize(250, 400).Right();
+		m_pLayout->GetPane(m_pWKSP  ).BestSize(250, 400).FloatingSize(250, 400).Left();
 	}
 
 	_Bar_Show(m_pTB_Main, true);
 
+	//-----------------------------------------------------
 	m_pLayout->Update();
 
+#if !defined(_SAGA_LINUX)
 	Show(true);
+#endif
 
-	//-----------------------------------------------------
 	int		x, y, dx, dy;
 	long	l;
 
@@ -358,6 +346,10 @@ CSAGA_Frame::CSAGA_Frame(void)
 	{
 		Maximize();
 	}
+
+#if defined(_SAGA_LINUX)
+	Show(true);
+#endif
 
 	Update();
 
@@ -1079,6 +1071,7 @@ void CSAGA_Frame::TB_Add(wxToolBarBase *pToolBar, const wxChar *Name)
 		.LeftDockable	(false)
 		.RightDockable	(false)
 		.Hide			()
+		.BestSize		(pToolBar->GetBestSize())
 	);
 }
 

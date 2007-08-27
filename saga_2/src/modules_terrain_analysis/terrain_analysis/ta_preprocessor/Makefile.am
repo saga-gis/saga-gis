@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.5 2007-02-13 12:49:32 tschorr Exp $
+# $Id: Makefile.am,v 1.6 2007-07-30 07:29:24 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -14,10 +14,13 @@ AM_LDFLAGS         = -fPIC -shared
 pkglib_LTLIBRARIES = libta_preprocessor.la
 libta_preprocessor_la_SOURCES =\
 FillSinks.cpp\
+FillSinks_WL.cpp\
+FillSinks_WL_XXL.cpp\
 MLB_Interface.cpp\
 Pit_Eliminator.cpp\
 Pit_Router.cpp\
 FillSinks.h\
+FillSinks_WL.h\
 MLB_Interface.h\
 Pit_Eliminator.h\
 Pit_Router.h

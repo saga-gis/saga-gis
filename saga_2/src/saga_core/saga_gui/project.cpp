@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: project.cpp,v 1.13 2007-03-01 15:31:45 oconrad Exp $
+// $Id: project.cpp,v 1.14 2007-07-24 12:17:00 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -111,6 +111,7 @@
 #define MAP_ENTRIES_END		wxT("[MAP_ENTRIES_END]")
 #define MAP_ENTRY_BEGIN		wxT("[MAP_ENTRY_BEGIN]")
 #define MAP_ENTRY_END		wxT("[MAP_ENTRY_END]")
+#define MAP_ENTRY_NAME		wxT("[MAP_ENTRY_NAME]")
 
 
 ///////////////////////////////////////////////////////////
@@ -497,38 +498,51 @@ bool CWKSP_Project::_Save_Data(CSG_File &Stream, const wxChar *ProjectDir, CSG_D
 bool CWKSP_Project::_Load_Map(CSG_File &Stream, const wxChar *ProjectDir)
 {
 	TSG_Rect		r;
-	CSG_String		sLine;
+	CSG_String		sLine, sName;
 	CWKSP_Base_Item	*pItem;
 	CWKSP_Map		*pMap;
 
 	while( Stream.Read_Line(sLine) && sLine.Cmp(MAP_ENTRY_BEGIN) && sLine.Cmp(MAP_ENTRIES_END) );
 
-	if( !sLine.Cmp(MAP_ENTRY_BEGIN) )
+	if( !sLine.Cmp(MAP_ENTRY_BEGIN) && Stream.Read_Line(sLine) )
 	{
-		if(	Stream.Read_Line(sLine) && SG_SSCANF(sLine, wxT("%lf %lf %lf %lf"), &r.xMin, &r.xMax, &r.yMin, &r.yMax) == 4 )
+		if(	SG_SSCANF(sLine, wxT("%lf %lf %lf %lf"), &r.xMin, &r.xMax, &r.yMin, &r.yMax) == 4 )
 		{
 			pMap	= NULL;
 
 			while( Stream.Read_Line(sLine) && sLine.Cmp(MAP_ENTRY_END) )
 			{
-				sLine	= Get_FilePath_Absolute(ProjectDir, sLine).c_str();
-
-				if(	(pItem = _Get_byFileName(sLine.c_str())) != NULL
-				&&	(	pItem->Get_Type()	== WKSP_ITEM_Grid
-					||	pItem->Get_Type()	== WKSP_ITEM_TIN
-					||	pItem->Get_Type()	== WKSP_ITEM_Shapes) )
+				if( !sLine.Cmp(MAP_ENTRY_NAME) )
 				{
-					if( pMap == NULL )
-					{
-						pMap	= new CWKSP_Map;
-					}
+					Stream.Read_Line(sName);
+				}
+				else
+				{
+					sLine	= Get_FilePath_Absolute(ProjectDir, sLine).c_str();
 
-					g_pMaps->Add((CWKSP_Layer *)pItem, pMap);
+					if(	(pItem = _Get_byFileName(sLine.c_str())) != NULL
+					&&	(	pItem->Get_Type()	== WKSP_ITEM_Grid
+						||	pItem->Get_Type()	== WKSP_ITEM_TIN
+						||	pItem->Get_Type()	== WKSP_ITEM_Shapes) )
+					{
+						if( pMap == NULL )
+						{
+							pMap	= new CWKSP_Map;
+						}
+
+						g_pMaps->Add((CWKSP_Layer *)pItem, pMap);
+					}
 				}
 			}
 
 			if( pMap )
 			{
+				if( sName.Length() > 0 )
+				{
+					pMap->Get_Parameters()->Get_Parameter("NAME")->Set_Value(sName);
+					pMap->Parameters_Changed();
+				}
+
 				pMap->Set_Extent(r);
 				pMap->View_Show(true);
 			}
@@ -552,6 +566,8 @@ bool CWKSP_Project::_Save_Map(CSG_File &Stream, const wxChar *ProjectDir, CWKSP_
 			pMap->Get_Extent().Get_XMin(), pMap->Get_Extent().Get_XMax(),
 			pMap->Get_Extent().Get_YMin(), pMap->Get_Extent().Get_YMax()
 		);
+
+		Stream.Printf(wxT("%s\n%s\n"), MAP_ENTRY_NAME, pMap->Get_Name().c_str());
 
 		for(int i=pMap->Get_Count()-1; i>=0; i--)
 		{

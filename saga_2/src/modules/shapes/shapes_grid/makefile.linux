@@ -3,6 +3,7 @@
 # Created by O. Conrad
 
 PRJ_NAME = shapes_grid
+SAGA     = ./../../..
 BIN_SAGA = $(SAGA)/../bin/saga_gtk
 TMP_SAGA = $(SAGA)/../bin/tmp/saga_gtk
 INC_SAGA = $(SAGA)/saga_core
@@ -21,9 +22,9 @@ DEP_LFLG =
 OBJ      = $(MLB_TEMP)/Grid_Classes_To_Shapes.o $(MLB_TEMP)/Grid_Polygon_Clip.o $(MLB_TEMP)/Grid_Statistics_AddTo_Polygon.o $(MLB_TEMP)/Grid_To_Contour.o $(MLB_TEMP)/Grid_To_Gradient.o $(MLB_TEMP)/Grid_To_Points.o $(MLB_TEMP)/Grid_To_Points_Random.o $(MLB_TEMP)/Grid_Values_AddTo_Points.o $(MLB_TEMP)/Grid_Values_AddTo_Shapes.o $(MLB_TEMP)/MLB_Interface.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
-CXX_INCS = -I/usr/lib/glib/include -I/usr/include/glib-1.2
-CXX_DEFS = -D_REENTRANT -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -DGTK_NO_CHECK_CASTS
-CXX_FLGS = -O2 -MMD -pthread -fPIC
+CXX_INCS =
+CXX_DEFS =
+CXX_FLGS = -O2
 CXXFLAGS = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEP_INCS) $(DEP_DEFS) -I$(INC_SAGA) $(DEF_SAGA)
 
 LDFLAGS  = -shared $(DEP_LFLG)
@@ -45,36 +46,36 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	-mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
 	$(LD) $(LDFLAGS) -o $(MLB_NAME) $(OBJ) $(LIBS)
 
 
-$(MLB_TEMP)/Grid_Classes_To_Shapes.o: ./Grid_Classes_To_Shapes.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Classes_To_Shapes.o: ./Grid_Classes_To_Shapes.cpp
 	$(CPP) -c ./Grid_Classes_To_Shapes.cpp -o $(MLB_TEMP)/Grid_Classes_To_Shapes.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Polygon_Clip.o: ./Grid_Polygon_Clip.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Polygon_Clip.o: ./Grid_Polygon_Clip.cpp
 	$(CPP) -c ./Grid_Polygon_Clip.cpp -o $(MLB_TEMP)/Grid_Polygon_Clip.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Statistics_AddTo_Polygon.o: ./Grid_Statistics_AddTo_Polygon.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Statistics_AddTo_Polygon.o: ./Grid_Statistics_AddTo_Polygon.cpp
 	$(CPP) -c ./Grid_Statistics_AddTo_Polygon.cpp -o $(MLB_TEMP)/Grid_Statistics_AddTo_Polygon.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_To_Contour.o: ./Grid_To_Contour.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_To_Contour.o: ./Grid_To_Contour.cpp
 	$(CPP) -c ./Grid_To_Contour.cpp -o $(MLB_TEMP)/Grid_To_Contour.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_To_Gradient.o: ./Grid_To_Gradient.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_To_Gradient.o: ./Grid_To_Gradient.cpp
 	$(CPP) -c ./Grid_To_Gradient.cpp -o $(MLB_TEMP)/Grid_To_Gradient.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_To_Points.o: ./Grid_To_Points.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_To_Points.o: ./Grid_To_Points.cpp
 	$(CPP) -c ./Grid_To_Points.cpp -o $(MLB_TEMP)/Grid_To_Points.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_To_Points_Random.o: ./Grid_To_Points_Random.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_To_Points_Random.o: ./Grid_To_Points_Random.cpp
 	$(CPP) -c ./Grid_To_Points_Random.cpp -o $(MLB_TEMP)/Grid_To_Points_Random.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Values_AddTo_Points.o: ./Grid_Values_AddTo_Points.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Values_AddTo_Points.o: ./Grid_Values_AddTo_Points.cpp
 	$(CPP) -c ./Grid_Values_AddTo_Points.cpp -o $(MLB_TEMP)/Grid_Values_AddTo_Points.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Values_AddTo_Shapes.o: ./Grid_Values_AddTo_Shapes.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Values_AddTo_Shapes.o: ./Grid_Values_AddTo_Shapes.cpp
 	$(CPP) -c ./Grid_Values_AddTo_Shapes.cpp -o $(MLB_TEMP)/Grid_Values_AddTo_Shapes.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)

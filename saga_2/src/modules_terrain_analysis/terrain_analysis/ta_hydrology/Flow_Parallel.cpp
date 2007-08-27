@@ -70,9 +70,9 @@
 //---------------------------------------------------------
 CFlow_Parallel::CFlow_Parallel(void)
 {
-	Set_Name(_TL("Parallel Processing"));
+	Set_Name		(_TL("Parallel Processing"));
 
-	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
 	Set_Description	(_TW(
 		"Parallel processing of cells for calculation of flow accumulation and related parameters. "
@@ -108,8 +108,15 @@ CFlow_Parallel::CFlow_Parallel(void)
 
 		"- Quinn, P.F. / Beven, K.J. / Chevallier, P. / Planchon, O. (1991):\n"
 		"    'The prediction of hillslope flow paths for distributed hydrological modelling using digital terrain models',\n"
-		"    Hydrological Processes, 5:59-79\n\n")
-	);
+		"    Hydrological Processes, 5:59-79\n\n"
+		
+		"Triangular Multiple Flow Direction\n"
+		"- Seibert, J. / McGlynn, B. (2007):\n"
+		"    'A new triangular multiple flow direction algorithm for computing upslope areas from gridded digital elevation models',\n"
+		"    Water Ressources Research, Vol. 43, W04501\n"
+		"    C++ Implementation into SAGA by Thomas Grabs, Copyrights (c) 2007\n"
+		"    Contact: thomas.grabs@natgeo.su.se, jan.seibert@natgeo.su.se \n\n"
+	));
 
 
 	//-----------------------------------------------------
@@ -134,12 +141,13 @@ CFlow_Parallel::CFlow_Parallel(void)
 	Parameters.Add_Choice(
 		NULL	, "Method"		, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|"),
 			_TL("Deterministic 8"),
 			_TL("Rho 8"),
 			_TL("Braunschweiger Reliefmodell"),
 			_TL("Deterministic Infinity"),
-			_TL("Multiple Flow Direction")
+			_TL("Multiple Flow Direction"),
+			_TL("Multiple Triangular Flow Directon")
 		), 4
 	);
 
@@ -161,7 +169,7 @@ CFlow_Parallel::CFlow_Parallel(void)
 
 	Parameters.Add_Value(
 		NULL	, "CONVERGENCE"	, _TL("Convergence"),
-		_TL("Convergence factor for Multiple Flow Direction Algorithm (Freeman 1991)"),
+		_TL("Convergence factor for Multiple Flow Direction Algorithm after Freeman (1991) and Multiple Triangular Flow Directon Algorithm after Seibert/Glynn (2007)."),
 		PARAMETER_TYPE_Double	, 1.1, 0.0, true
 	);
 }
@@ -258,25 +266,12 @@ void CFlow_Parallel::Set_Flow(void)
 		{
 			switch( Method )
 			{
-			case 0:
-				Set_D8(x, y);
-				break;
-
-			case 1:
-				Set_Rho8(x, y);
-				break;
-
-			case 3:
-				Set_DInf(x, y);
-				break;
-
-			case 4:
-				Set_MFD(x, y);
-				break;
-
-			case 2:
-				Set_BRM(x, y);
-				break;
+			case 0:		Set_D8		(x, y);		break;
+			case 1:		Set_Rho8	(x, y);		break;
+			case 3:		Set_DInf	(x, y);		break;
+			case 4:		Set_MFD		(x, y);		break;
+			case 5:		Set_MDInf	(x, y);		break;				
+			case 2:		Set_BRM		(x, y);		break;
 			}
 		}
 	}
@@ -553,6 +548,185 @@ void CFlow_Parallel::Set_MFD(	int x, int y )
 			{
 				Add_Fraction(x, y, i, dz[i] / dzSum );
 			}
+		}
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//			Multiple Triangular Flow Directon			 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CFlow_Parallel::Set_MDInf(	int x, int y )
+{
+	int		i, ii, ix, iy;
+	double	z, dzSum, dz[8];
+	double	hs, hr, s_facet[8], r_facet[8];
+	double	valley[8], portion[8];
+	double  cellsize, cellarea;
+	double	nx, ny, nz, n_norm;
+	bool	Dir_inGrid[8];
+
+	z			= pDTM->asDouble(x, y);
+	cellsize	= Get_Cellsize();
+	cellarea	= cellsize * cellsize;
+
+	for(i=0; i<8; i++)
+	{
+		ix		= Get_xTo(i, x);
+		iy		= Get_yTo(i, y);
+		
+//	???
+//		if( x == 6 && y == 7 )
+//		{
+//			int k = 1;
+//		}
+//	???
+
+		s_facet[i] = r_facet[i] = -999.0;
+
+		if( pDTM->is_InGrid(ix, iy) )
+		{
+			dz[i]			= z - pDTM->asDouble(ix, iy);
+			Dir_inGrid[i]	= true;
+		}
+		else
+		{
+			dz[i]			= 0.0;
+			Dir_inGrid[i]	= false;
+		}
+	}
+
+	for(i=0; i<8; i++)
+	{
+		hr = hs = -999.0;
+
+		if( Dir_inGrid[i] )
+		{
+			ii = (i < 7) ? i+1 : 0;
+
+			if( Dir_inGrid[ii] )
+			{
+				nx = ( dz[ii] * Get_yTo( i  ) - dz[i ] * Get_yTo( ii )) * cellsize;
+				ny = ( dz[i ] * Get_xTo( ii ) - dz[ii] * Get_xTo( i  )) * cellsize;
+
+				nz = ( Get_xTo( i ) * Get_yTo( ii ) - Get_xTo( ii ) * Get_yTo( i )) * cellarea;
+
+				n_norm = sqrt( nx*nx + ny*ny +nz*nz );
+
+				if( nx == 0.0 )
+				{
+					hr = (ny >= 0.0)? 0.0 : M_PI;
+				} 
+				else if( nx < 0.0 )
+				{
+					hr = M_PI_270 - atan(ny / nx);
+				} 
+				else
+				{
+					hr = M_PI_090 - atan(ny / nx);
+				}
+
+				hs = -tan( acos( nz/n_norm ) );
+
+				if( hr < i * M_PI_045 || hr > (i+1) * M_PI_045 )
+				{
+					if( dz[i] > dz[ii] )
+					{
+						hr = i * M_PI_045;
+						hs = dz[i] / Get_Length(i);
+					}
+					else
+					{
+						hr = ii * M_PI_045;
+						hs = dz[ii] / Get_Length(ii);						
+					}
+				}
+				
+			}
+			else if( dz[i] > 0.0 )
+			{
+				hr = i * M_PI_045;
+				hs = dz[i] / Get_Length(i);
+			}
+			
+			s_facet[i] = hs;
+			r_facet[i] = hr;
+		}
+	}
+	
+	dzSum		= 0.0;
+	
+	for(i=0; i<8; i++)
+	{		
+		valley[i]	= 0.0;
+		ii = (i < 7)? i+1 : 0;
+		
+		if( s_facet[i] > 0.0 )
+		{
+			if( r_facet[i] > i * M_PI_045 && r_facet[i] < (i+1) * M_PI_045 )
+			{
+				valley[i] = s_facet[i];
+			}
+			else if( r_facet[i] == r_facet[ii] )
+			{
+				valley[i] = s_facet[i];
+			}
+			else if( s_facet[ii] == -999.0 && r_facet[i] == (i+1) * M_PI_045)
+			{
+				valley[i] = s_facet[i];
+			}
+			else
+			{
+				ii = (i > 0)? i-1 : 7;
+
+				if( s_facet[ii] == -999.0 && r_facet[i] == i * M_PI_045 )
+				{
+					valley[i] = s_facet[i];
+				}
+			}
+			
+			valley[i] = pow(valley[i], MFD_Converge);
+			dzSum += valley[i];
+		} 
+		
+		portion[i] = 0.0;
+	}
+
+	if( dzSum )
+	{
+		for(i=0; i<8; i++)
+		{
+			if (i < 7)
+			{
+				ii = i+1;
+			}
+			else
+			{
+				ii = 0;
+
+				if( r_facet[i] == 0.0)
+				{
+					r_facet[i] = M_PI_360;
+				}
+			}
+
+			if( valley[i] )
+			{
+				valley[i] /= dzSum;
+
+				portion[i] += valley[i] * ((i+1) * M_PI_045 - r_facet[i]) / M_PI_045;
+
+				portion[ii] += valley[i] * (r_facet[i] - i * M_PI_045) / M_PI_045;
+			}
+		}
+
+		for(i=0; i<8; i++)
+		{
+			Add_Fraction(x, y, i, portion[i]);
 		}
 	}
 }

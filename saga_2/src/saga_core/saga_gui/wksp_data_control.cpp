@@ -267,9 +267,9 @@ void CWKSP_Data_Control::Add_Item(CWKSP_Base_Manager *pManager, CWKSP_Base_Item 
 			AppendItem(pItem->GetId(), pTable->Get_Name(), IMG_TABLE, IMG_TABLE, (wxTreeItemData *)pTable);
 		}
 
-		if( g_pLayers )
+		if( g_pData_Buttons )
 		{
-			g_pLayers->Update_Layers();
+			g_pData_Buttons->Update_Buttons();
 		}
 	}
 }

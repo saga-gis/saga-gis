@@ -93,15 +93,16 @@ public:
 	void							On_Page_Changing		(wxNotebookEvent &event);
 	void							On_Page_Changed			(wxNotebookEvent &event);
 
-	void							On_Command				(wxCommandEvent &event);
+	void							On_Command				(wxCommandEvent  &event);
 	void							On_Command_UI			(wxUpdateUIEvent &event);
-	void							On_Command_Module		(wxCommandEvent &event);
+	void							On_Command_Module		(wxCommandEvent  &event);
 	void							On_Command_UI_Module	(wxUpdateUIEvent &event);
 
-	class CWKSP_Module_Control *	Get_Modules				(void)	{	return( m_pModules );	}
-	class CWKSP_Data_Control *		Get_Data				(void)	{	return( m_pData );		}
-	class CWKSP_Data_Layers *		Get_Layers				(void)	{	return( m_pLayers );	}
-	class CWKSP_Map_Control *		Get_Maps				(void)	{	return( m_pMaps );		}
+	class CWKSP_Module_Control *	Get_Modules				(void)	{	return( m_pModules );		}
+	class CWKSP_Data_Control *		Get_Data				(void)	{	return( m_pData );			}
+	class CWKSP_Data_Buttons *		Get_Data_Buttons		(void)	{	return( m_pData_Buttons );	}
+	class CWKSP_Map_Control *		Get_Maps				(void)	{	return( m_pMaps );			}
+	class CWKSP_Map_Buttons *		Get_Maps_Buttons		(void)	{	return( m_pMaps_Buttons );	}
 
 	bool							Open					(void);
 	bool							Open					(const wxChar *File_Name);
@@ -113,9 +114,11 @@ private:
 
 	class CWKSP_Data_Control		*m_pData;
 
-	class CWKSP_Data_Layers			*m_pLayers;
+	class CWKSP_Data_Buttons		*m_pData_Buttons;
 
 	class CWKSP_Map_Control			*m_pMaps;
+
+	class CWKSP_Map_Buttons			*m_pMaps_Buttons;
 
 
 //---------------------------------------------------------

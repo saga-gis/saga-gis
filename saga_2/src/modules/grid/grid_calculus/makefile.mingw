@@ -41,30 +41,30 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/Grid_Calculator.o: ./Grid_Calculator.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Calculator.o: ./Grid_Calculator.cpp
 	$(CPP) -c ./Grid_Calculator.cpp -o $(MLB_TEMP)/Grid_Calculator.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Geometric_Figures.o: ./Grid_Geometric_Figures.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Geometric_Figures.o: ./Grid_Geometric_Figures.cpp
 	$(CPP) -c ./Grid_Geometric_Figures.cpp -o $(MLB_TEMP)/Grid_Geometric_Figures.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Normalise.o: ./Grid_Normalise.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Normalise.o: ./Grid_Normalise.cpp
 	$(CPP) -c ./Grid_Normalise.cpp -o $(MLB_TEMP)/Grid_Normalise.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Plotter.o: ./Grid_Plotter.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Plotter.o: ./Grid_Plotter.cpp
 	$(CPP) -c ./Grid_Plotter.cpp -o $(MLB_TEMP)/Grid_Plotter.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Random_Field.o: ./Grid_Random_Field.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Random_Field.o: ./Grid_Random_Field.cpp
 	$(CPP) -c ./Grid_Random_Field.cpp -o $(MLB_TEMP)/Grid_Random_Field.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Random_Terrain.o: ./Grid_Random_Terrain.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Random_Terrain.o: ./Grid_Random_Terrain.cpp
 	$(CPP) -c ./Grid_Random_Terrain.cpp -o $(MLB_TEMP)/Grid_Random_Terrain.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Volume.o: ./Grid_Volume.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Volume.o: ./Grid_Volume.cpp
 	$(CPP) -c ./Grid_Volume.cpp -o $(MLB_TEMP)/Grid_Volume.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)

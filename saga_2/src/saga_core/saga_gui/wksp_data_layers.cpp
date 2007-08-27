@@ -103,7 +103,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Data_Layers	*g_pLayers	= NULL;
+CWKSP_Data_Buttons	*g_pData_Buttons	= NULL;
 
 
 ///////////////////////////////////////////////////////////
@@ -113,18 +113,18 @@ CWKSP_Data_Layers	*g_pLayers	= NULL;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-IMPLEMENT_CLASS(CWKSP_Data_Layers_Item, wxPanel)
+IMPLEMENT_CLASS(CWKSP_Data_Button, wxPanel)
 
 //---------------------------------------------------------
-BEGIN_EVENT_TABLE(CWKSP_Data_Layers_Item, wxPanel)
-	EVT_PAINT			(CWKSP_Data_Layers_Item::On_Paint)
-	EVT_LEFT_DOWN		(CWKSP_Data_Layers_Item::On_Mouse_LDown)
-	EVT_LEFT_DCLICK		(CWKSP_Data_Layers_Item::On_Mouse_LDClick)
-	EVT_RIGHT_DOWN		(CWKSP_Data_Layers_Item::On_Mouse_RDown)
+BEGIN_EVENT_TABLE(CWKSP_Data_Button, wxPanel)
+	EVT_PAINT			(CWKSP_Data_Button::On_Paint)
+	EVT_LEFT_DOWN		(CWKSP_Data_Button::On_Mouse_LDown)
+	EVT_LEFT_DCLICK		(CWKSP_Data_Button::On_Mouse_LDClick)
+	EVT_RIGHT_DOWN		(CWKSP_Data_Button::On_Mouse_RDown)
 END_EVENT_TABLE()
 
 //---------------------------------------------------------
-CWKSP_Data_Layers_Item::CWKSP_Data_Layers_Item(wxWindow *pParent, class CWKSP_Layer *pLayer)
+CWKSP_Data_Button::CWKSP_Data_Button(wxWindow *pParent, class CWKSP_Layer *pLayer)
 	: wxPanel(pParent, -1, wxDefaultPosition, wxDefaultSize, wxRAISED_BORDER)
 {
 	m_pLayer	= pLayer;
@@ -133,7 +133,7 @@ CWKSP_Data_Layers_Item::CWKSP_Data_Layers_Item(wxWindow *pParent, class CWKSP_La
 }
 
 //---------------------------------------------------------
-CWKSP_Data_Layers_Item::CWKSP_Data_Layers_Item(wxWindow *pParent, const wxChar *Title)
+CWKSP_Data_Button::CWKSP_Data_Button(wxWindow *pParent, const wxChar *Title)
 	: wxPanel(pParent, -1, wxDefaultPosition, wxDefaultSize, 0)
 {
 	m_pLayer	= NULL;
@@ -148,7 +148,7 @@ CWKSP_Data_Layers_Item::CWKSP_Data_Layers_Item(wxWindow *pParent, const wxChar *
 }
 
 //---------------------------------------------------------
-void CWKSP_Data_Layers_Item::On_Paint(wxPaintEvent &event)
+void CWKSP_Data_Button::On_Paint(wxPaintEvent &event)
 {
 	wxPaintDC	dc(this);
 	wxRect		r(wxPoint(0, 0), GetClientSize());
@@ -163,7 +163,7 @@ void CWKSP_Data_Layers_Item::On_Paint(wxPaintEvent &event)
 
 			if( g_pACTIVE->Get_Item() == m_pLayer )
 			{
-				dc.SetPen(wxPen(((CWKSP_Data_Layers *)GetParent())->Get_Active_Color()));
+				dc.SetPen(wxPen(((CWKSP_Data_Buttons *)GetParent())->Get_Active_Color()));
 				Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);	r.Deflate(1);
 				Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);	r.Deflate(1);
 				Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);
@@ -181,7 +181,7 @@ void CWKSP_Data_Layers_Item::On_Paint(wxPaintEvent &event)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Data_Layers_Item::_Set_Layer_Active(void)
+bool CWKSP_Data_Button::_Set_Layer_Active(void)
 {
 	if( m_pLayer && g_pData->Exists(m_pObject) )
 	{
@@ -196,7 +196,7 @@ bool CWKSP_Data_Layers_Item::_Set_Layer_Active(void)
 }
 
 //---------------------------------------------------------
-void CWKSP_Data_Layers_Item::On_Mouse_LDown(wxMouseEvent &event)
+void CWKSP_Data_Button::On_Mouse_LDown(wxMouseEvent &event)
 {
 	_Set_Layer_Active();
 
@@ -204,7 +204,7 @@ void CWKSP_Data_Layers_Item::On_Mouse_LDown(wxMouseEvent &event)
 }
 
 //---------------------------------------------------------
-void CWKSP_Data_Layers_Item::On_Mouse_LDClick(wxMouseEvent &event)
+void CWKSP_Data_Button::On_Mouse_LDClick(wxMouseEvent &event)
 {
 	if( _Set_Layer_Active() )
 	{
@@ -215,7 +215,7 @@ void CWKSP_Data_Layers_Item::On_Mouse_LDClick(wxMouseEvent &event)
 }
 
 //---------------------------------------------------------
-void CWKSP_Data_Layers_Item::On_Mouse_RDown(wxMouseEvent &event)
+void CWKSP_Data_Button::On_Mouse_RDown(wxMouseEvent &event)
 {
 	if( _Set_Layer_Active() )
 	{
@@ -241,12 +241,12 @@ void CWKSP_Data_Layers_Item::On_Mouse_RDown(wxMouseEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-IMPLEMENT_CLASS(CWKSP_Data_Layers, wxScrolledWindow)
+IMPLEMENT_CLASS(CWKSP_Data_Buttons, wxScrolledWindow)
 
 //---------------------------------------------------------
-BEGIN_EVENT_TABLE(CWKSP_Data_Layers, wxScrolledWindow)
-	EVT_RIGHT_DOWN		(CWKSP_Data_Layers::On_Mouse_RDown)
-	EVT_SIZE			(CWKSP_Data_Layers::On_Size)
+BEGIN_EVENT_TABLE(CWKSP_Data_Buttons, wxScrolledWindow)
+	EVT_RIGHT_DOWN		(CWKSP_Data_Buttons::On_Mouse_RDown)
+	EVT_SIZE			(CWKSP_Data_Buttons::On_Size)
 END_EVENT_TABLE()
 
 
@@ -257,10 +257,10 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Data_Layers::CWKSP_Data_Layers(wxWindow *pParent)
+CWKSP_Data_Buttons::CWKSP_Data_Buttons(wxWindow *pParent)
 	: wxScrolledWindow(pParent, -1, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER|wxFULL_REPAINT_ON_RESIZE)
 {
-	g_pLayers		= this;
+	g_pData_Buttons	= this;
 
 	m_xScroll		= 0;
 	m_yScroll		= 0;
@@ -299,7 +299,7 @@ CWKSP_Data_Layers::CWKSP_Data_Layers(wxWindow *pParent)
 }
 
 //---------------------------------------------------------
-CWKSP_Data_Layers::~CWKSP_Data_Layers(void)
+CWKSP_Data_Buttons::~CWKSP_Data_Buttons(void)
 {
 	CONFIG_Write(wxT("/LAYERS"), wxT("SIZE")	, (long)m_Parameters("SIZE")	->asInt());
 	CONFIG_Write(wxT("/LAYERS"), wxT("CATEGORY"),       m_Parameters("CATEGORY")->asBool());
@@ -307,7 +307,7 @@ CWKSP_Data_Layers::~CWKSP_Data_Layers(void)
 
 	_Del_Items();
 
-	g_pLayers	= NULL;
+	g_pData_Buttons	= NULL;
 }
 
 
@@ -318,7 +318,7 @@ CWKSP_Data_Layers::~CWKSP_Data_Layers(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Data_Layers::On_Mouse_RDown(wxMouseEvent &event)
+void CWKSP_Data_Buttons::On_Mouse_RDown(wxMouseEvent &event)
 {
 	if( DLG_Parameters(&m_Parameters) )
 	{
@@ -326,14 +326,14 @@ void CWKSP_Data_Layers::On_Mouse_RDown(wxMouseEvent &event)
 		m_bCategorised	= m_Parameters("CATEGORY")	->asBool();
 		m_Active_Color	= m_Parameters("SELCOLOR")	->asColor();
 
-		Update_Layers();
+		Update_Buttons();
 	}
 
 	event.Skip();
 }
 
 //---------------------------------------------------------
-void CWKSP_Data_Layers::On_Size(wxSizeEvent &event)
+void CWKSP_Data_Buttons::On_Size(wxSizeEvent &event)
 {
 	_Set_Positions();
 }
@@ -346,7 +346,7 @@ void CWKSP_Data_Layers::On_Size(wxSizeEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Data_Layers::Update_Layers(void)
+void CWKSP_Data_Buttons::Update_Buttons(void)
 {
 	Freeze();
 
@@ -368,7 +368,7 @@ void CWKSP_Data_Layers::Update_Layers(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Data_Layers::_Set_Positions(void)
+void CWKSP_Data_Buttons::_Set_Positions(void)
 {
 	int		xSize, ySize, xPos, yPos, xAdd, yAdd, i, x, y;
 
@@ -386,7 +386,7 @@ void CWKSP_Data_Layers::_Set_Positions(void)
 
 	for(i=0; i<m_nItems; i++)
 	{
-		CWKSP_Data_Layers_Item	*pItem	= m_Items[i];
+		CWKSP_Data_Button	*pItem	= m_Items[i];
 
 		if( pItem->is_Title() )
 		{
@@ -439,7 +439,7 @@ void CWKSP_Data_Layers::_Set_Positions(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Data_Layers::_Add_Items(CWKSP_Base_Item *pItem)
+bool CWKSP_Data_Buttons::_Add_Items(CWKSP_Base_Item *pItem)
 {
 	if( pItem )
 	{
@@ -480,12 +480,12 @@ bool CWKSP_Data_Layers::_Add_Items(CWKSP_Base_Item *pItem)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Data_Layers::_Add_Item(CWKSP_Layer *pLayer)
+bool CWKSP_Data_Buttons::_Add_Item(CWKSP_Layer *pLayer)
 {
 	if( pLayer )
 	{
-		m_Items	= (CWKSP_Data_Layers_Item **)SG_Realloc(m_Items, (m_nItems + 1) * sizeof(CWKSP_Data_Layers_Item *));
-		m_Items[m_nItems++]	= new CWKSP_Data_Layers_Item(this, pLayer);
+		m_Items	= (CWKSP_Data_Button **)SG_Realloc(m_Items, (m_nItems + 1) * sizeof(CWKSP_Data_Button *));
+		m_Items[m_nItems++]	= new CWKSP_Data_Button(this, pLayer);
 
 		return( true );
 	}
@@ -494,12 +494,12 @@ bool CWKSP_Data_Layers::_Add_Item(CWKSP_Layer *pLayer)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Data_Layers::_Add_Item(const wxChar *Title)
+bool CWKSP_Data_Buttons::_Add_Item(const wxChar *Title)
 {
 	if( Title )
 	{
-		m_Items	= (CWKSP_Data_Layers_Item **)SG_Realloc(m_Items, (m_nItems + 1) * sizeof(CWKSP_Data_Layers_Item *));
-		m_Items[m_nItems++]	= new CWKSP_Data_Layers_Item(this, Title);
+		m_Items	= (CWKSP_Data_Button **)SG_Realloc(m_Items, (m_nItems + 1) * sizeof(CWKSP_Data_Button *));
+		m_Items[m_nItems++]	= new CWKSP_Data_Button(this, Title);
 
 		return( true );
 	}
@@ -508,7 +508,7 @@ bool CWKSP_Data_Layers::_Add_Item(const wxChar *Title)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Data_Layers::_Del_Items(void)
+bool CWKSP_Data_Buttons::_Del_Items(void)
 {
 	if( m_nItems > 0 )
 	{

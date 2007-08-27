@@ -88,6 +88,7 @@ const SG_Char * Get_Info(int i)
 #include "Pit_Router.h"
 #include "Pit_Eliminator.h"
 #include "FillSinks.h"
+#include "FillSinks_WL.h"
 
 
 //---------------------------------------------------------
@@ -107,6 +108,14 @@ CSG_Module *		Create_Module(int i)
 
 	case 2:
 		pModule	= new CFillSinks;
+		break;
+
+	case 3:
+		pModule	= new CFillSinks_WL;
+		break;
+
+	case 4:
+		pModule	= new CFillSinks_WL_XXL;
 		break;
 
 	default:

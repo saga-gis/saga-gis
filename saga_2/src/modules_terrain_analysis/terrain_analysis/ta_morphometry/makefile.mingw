@@ -41,39 +41,39 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/Convergence.o: ./Convergence.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Convergence.o: ./Convergence.cpp
 	$(CPP) -c ./Convergence.cpp -o $(MLB_TEMP)/Convergence.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Convergence_Radius.o: ./Convergence_Radius.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Convergence_Radius.o: ./Convergence_Radius.cpp
 	$(CPP) -c ./Convergence_Radius.cpp -o $(MLB_TEMP)/Convergence_Radius.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Curvature_Classification.o: ./Curvature_Classification.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Curvature_Classification.o: ./Curvature_Classification.cpp
 	$(CPP) -c ./Curvature_Classification.cpp -o $(MLB_TEMP)/Curvature_Classification.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Hypsometry.o: ./Hypsometry.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Hypsometry.o: ./Hypsometry.cpp
 	$(CPP) -c ./Hypsometry.cpp -o $(MLB_TEMP)/Hypsometry.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Morphometry.o: ./Morphometry.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Morphometry.o: ./Morphometry.cpp
 	$(CPP) -c ./Morphometry.cpp -o $(MLB_TEMP)/Morphometry.o $(CXXFLAGS)
 
-$(MLB_TEMP)/ProtectionIndex.o: ./ProtectionIndex.cpp $(MLB_TEMP)
+$(MLB_TEMP)/ProtectionIndex.o: ./ProtectionIndex.cpp
 	$(CPP) -c ./ProtectionIndex.cpp -o $(MLB_TEMP)/ProtectionIndex.o $(CXXFLAGS)
 
-$(MLB_TEMP)/RealArea.o: ./RealArea.cpp $(MLB_TEMP)
+$(MLB_TEMP)/RealArea.o: ./RealArea.cpp
 	$(CPP) -c ./RealArea.cpp -o $(MLB_TEMP)/RealArea.o $(CXXFLAGS)
 
-$(MLB_TEMP)/SurfaceSpecificPoints.o: ./SurfaceSpecificPoints.cpp $(MLB_TEMP)
+$(MLB_TEMP)/SurfaceSpecificPoints.o: ./SurfaceSpecificPoints.cpp
 	$(CPP) -c ./SurfaceSpecificPoints.cpp -o $(MLB_TEMP)/SurfaceSpecificPoints.o $(CXXFLAGS)
 
-$(MLB_TEMP)/mrvbf.o: ./mrvbf.cpp $(MLB_TEMP)
+$(MLB_TEMP)/mrvbf.o: ./mrvbf.cpp
 	$(CPP) -c ./mrvbf.cpp -o $(MLB_TEMP)/mrvbf.o $(CXXFLAGS)
 
-$(MLB_TEMP)/distance_gradient.o: ./distance_gradient.cpp $(MLB_TEMP)
+$(MLB_TEMP)/distance_gradient.o: ./distance_gradient.cpp
 	$(CPP) -c ./distance_gradient.cpp -o $(MLB_TEMP)/distance_gradient.o $(CXXFLAGS)

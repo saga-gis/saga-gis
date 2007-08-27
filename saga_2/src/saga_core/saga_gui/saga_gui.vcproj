@@ -3072,6 +3072,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\wksp_map_buttons.cpp"
+				>
+			</File>
+			<File
 				RelativePath="wksp_map_control.cpp"
 				>
 				<FileConfiguration
@@ -4178,6 +4182,10 @@
 			</File>
 			<File
 				RelativePath="WKSP_Map.h"
+				>
+			</File>
+			<File
+				RelativePath=".\wksp_map_buttons.h"
 				>
 			</File>
 			<File

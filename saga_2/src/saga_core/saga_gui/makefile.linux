@@ -1,38 +1,26 @@
 # Project: SAGA_GUI
 # Makefile for wxGTK, created by O.Conrad
 
-####export SAGA = /windows/E/saga/saga_2/src
-
 PRJ_NAME  = saga_gui
 
-TOP_SAGA  = $(SAGA)/..
+TOP_SAGA  = ./../../..
 BIN_SAGA  = $(TOP_SAGA)/bin/saga_gtk
 TMP_SAGA  = $(TOP_SAGA)/bin/tmp/saga_gtk/$(PRJ_NAME)
 EXE_NAME  = $(BIN_SAGA)/$(PRJ_NAME)
 
-WX_INC    = /usr/local/include/wx-2.6
-WX_LIB    = /usr/local/lib
-WX_LIBH   = $(WX_LIB)/wx/include/gtk2-ansi-release-static-2.6
-
 CPP       = g++
 LD        = g++
 
-OBJ       = $(TMP_SAGA)/active.o $(TMP_SAGA)/active_attributes.o $(TMP_SAGA)/active_description.o $(TMP_SAGA)/active_HTMLExtraInfo.o $(TMP_SAGA)/active_legend.o $(TMP_SAGA)/active_parameters.o $(TMP_SAGA)/callback.o $(TMP_SAGA)/dc_helper.o $(TMP_SAGA)/dlg_about.o $(TMP_SAGA)/dlg_about_logo.o $(TMP_SAGA)/dlg_base.o $(TMP_SAGA)/dlg_colors.o $(TMP_SAGA)/dlg_colors_control.o $(TMP_SAGA)/dlg_list_base.o $(TMP_SAGA)/dlg_list_grid.o $(TMP_SAGA)/dlg_list_shapes.o $(TMP_SAGA)/dlg_list_table.o $(TMP_SAGA)/dlg_list_tin.o $(TMP_SAGA)/dlg_parameters.o $(TMP_SAGA)/dlg_table.o $(TMP_SAGA)/dlg_text.o $(TMP_SAGA)/helper.o $(TMP_SAGA)/info.o $(TMP_SAGA)/info_messages.o $(TMP_SAGA)/parameters_control.o $(TMP_SAGA)/parameters_properties.o $(TMP_SAGA)/project.o $(TMP_SAGA)/res_commands.o $(TMP_SAGA)/res_controls.o $(TMP_SAGA)/res_dialogs.o $(TMP_SAGA)/res_images.o $(TMP_SAGA)/saga.o $(TMP_SAGA)/saga_frame.o $(TMP_SAGA)/saga_frame_droptarget.o $(TMP_SAGA)/svg_interactive_map.o $(TMP_SAGA)/view_base.o $(TMP_SAGA)/view_histogram.o $(TMP_SAGA)/view_layout.o $(TMP_SAGA)/view_layout_control.o $(TMP_SAGA)/view_layout_info.o $(TMP_SAGA)/view_layout_printout.o $(TMP_SAGA)/view_map.o $(TMP_SAGA)/view_map_3d.o $(TMP_SAGA)/view_map_3d_image.o $(TMP_SAGA)/view_map_control.o  $(TMP_SAGA)/view_ruler.o $(TMP_SAGA)/view_scatterplot.o $(TMP_SAGA)/view_table.o $(TMP_SAGA)/view_table_control.o $(TMP_SAGA)/view_table_diagram.o $(TMP_SAGA)/wksp.o $(TMP_SAGA)/wksp_base_control.o $(TMP_SAGA)/wksp_base_item.o $(TMP_SAGA)/wksp_base_manager.o $(TMP_SAGA)/wksp_data_control.o $(TMP_SAGA)/wksp_data_layers.o $(TMP_SAGA)/wksp_data_manager.o $(TMP_SAGA)/wksp_data_menu_file.o $(TMP_SAGA)/wksp_data_menu_files.o $(TMP_SAGA)/wksp_grid.o $(TMP_SAGA)/wksp_grid_manager.o $(TMP_SAGA)/wksp_grid_system.o $(TMP_SAGA)/wksp_layer.o $(TMP_SAGA)/wksp_layer_classify.o $(TMP_SAGA)/wksp_layer_legend.o $(TMP_SAGA)/wksp_map.o $(TMP_SAGA)/wksp_map_control.o $(TMP_SAGA)/wksp_map_dc.o $(TMP_SAGA)/wksp_map_layer.o $(TMP_SAGA)/wksp_map_manager.o $(TMP_SAGA)/wksp_module.o $(TMP_SAGA)/wksp_module_control.o $(TMP_SAGA)/wksp_module_library.o $(TMP_SAGA)/wksp_module_manager.o $(TMP_SAGA)/wksp_module_menu.o $(TMP_SAGA)/wksp_shapes.o $(TMP_SAGA)/wksp_shapes_edit.o $(TMP_SAGA)/wksp_shapes_line.o $(TMP_SAGA)/wksp_shapes_manager.o $(TMP_SAGA)/wksp_shapes_point.o $(TMP_SAGA)/wksp_shapes_points.o $(TMP_SAGA)/wksp_shapes_polygon.o $(TMP_SAGA)/wksp_shapes_type.o $(TMP_SAGA)/wksp_table.o $(TMP_SAGA)/wksp_table_manager.o $(TMP_SAGA)/wksp_tin.o $(TMP_SAGA)/wksp_tin_manager.o $(TMP_SAGA)/advprops.o $(TMP_SAGA)/extras.o $(TMP_SAGA)/manager.o $(TMP_SAGA)/odcombo.o $(TMP_SAGA)/propgrid.o $(TMP_SAGA)/props.o
+OBJ       = $(TMP_SAGA)/active.o $(TMP_SAGA)/active_attributes.o $(TMP_SAGA)/active_description.o $(TMP_SAGA)/active_HTMLExtraInfo.o $(TMP_SAGA)/active_legend.o $(TMP_SAGA)/active_parameters.o $(TMP_SAGA)/callback.o $(TMP_SAGA)/dc_helper.o $(TMP_SAGA)/dlg_about.o $(TMP_SAGA)/dlg_about_logo.o $(TMP_SAGA)/dlg_base.o $(TMP_SAGA)/dlg_colors.o $(TMP_SAGA)/dlg_colors_control.o $(TMP_SAGA)/dlg_list_base.o $(TMP_SAGA)/dlg_list_grid.o $(TMP_SAGA)/dlg_list_shapes.o $(TMP_SAGA)/dlg_list_table.o $(TMP_SAGA)/dlg_list_tin.o $(TMP_SAGA)/dlg_parameters.o $(TMP_SAGA)/dlg_table.o $(TMP_SAGA)/dlg_text.o $(TMP_SAGA)/helper.o $(TMP_SAGA)/info.o $(TMP_SAGA)/info_messages.o $(TMP_SAGA)/parameters_control.o $(TMP_SAGA)/parameters_properties.o $(TMP_SAGA)/project.o $(TMP_SAGA)/res_commands.o $(TMP_SAGA)/res_controls.o $(TMP_SAGA)/res_dialogs.o $(TMP_SAGA)/res_images.o $(TMP_SAGA)/saga.o $(TMP_SAGA)/saga_frame.o $(TMP_SAGA)/saga_frame_droptarget.o $(TMP_SAGA)/svg_interactive_map.o $(TMP_SAGA)/view_base.o $(TMP_SAGA)/view_histogram.o $(TMP_SAGA)/view_layout.o $(TMP_SAGA)/view_layout_control.o $(TMP_SAGA)/view_layout_info.o $(TMP_SAGA)/view_layout_printout.o $(TMP_SAGA)/view_map.o $(TMP_SAGA)/view_map_3d.o $(TMP_SAGA)/view_map_3d_image.o $(TMP_SAGA)/view_map_control.o  $(TMP_SAGA)/view_ruler.o $(TMP_SAGA)/view_scatterplot.o $(TMP_SAGA)/view_table.o $(TMP_SAGA)/view_table_control.o $(TMP_SAGA)/view_table_diagram.o $(TMP_SAGA)/wksp.o $(TMP_SAGA)/wksp_base_control.o $(TMP_SAGA)/wksp_base_item.o $(TMP_SAGA)/wksp_base_manager.o $(TMP_SAGA)/wksp_data_control.o $(TMP_SAGA)/wksp_data_layers.o $(TMP_SAGA)/wksp_data_manager.o $(TMP_SAGA)/wksp_data_menu_file.o $(TMP_SAGA)/wksp_data_menu_files.o $(TMP_SAGA)/wksp_grid.o $(TMP_SAGA)/wksp_grid_manager.o $(TMP_SAGA)/wksp_grid_system.o $(TMP_SAGA)/wksp_layer.o $(TMP_SAGA)/wksp_layer_classify.o $(TMP_SAGA)/wksp_layer_legend.o $(TMP_SAGA)/wksp_map.o $(TMP_SAGA)/wksp_map_buttons.o $(TMP_SAGA)/wksp_map_control.o $(TMP_SAGA)/wksp_map_dc.o $(TMP_SAGA)/wksp_map_layer.o $(TMP_SAGA)/wksp_map_manager.o $(TMP_SAGA)/wksp_module.o $(TMP_SAGA)/wksp_module_control.o $(TMP_SAGA)/wksp_module_library.o $(TMP_SAGA)/wksp_module_manager.o $(TMP_SAGA)/wksp_module_menu.o $(TMP_SAGA)/wksp_shapes.o $(TMP_SAGA)/wksp_shapes_edit.o $(TMP_SAGA)/wksp_shapes_line.o $(TMP_SAGA)/wksp_shapes_manager.o $(TMP_SAGA)/wksp_shapes_point.o $(TMP_SAGA)/wksp_shapes_points.o $(TMP_SAGA)/wksp_shapes_polygon.o $(TMP_SAGA)/wksp_shapes_type.o $(TMP_SAGA)/wksp_table.o $(TMP_SAGA)/wksp_table_manager.o $(TMP_SAGA)/wksp_tin.o $(TMP_SAGA)/wksp_tin_manager.o $(TMP_SAGA)/advprops.o $(TMP_SAGA)/extras.o $(TMP_SAGA)/manager.o $(TMP_SAGA)/odcombo.o $(TMP_SAGA)/propgrid.o $(TMP_SAGA)/props.o
 
-DEF_SAGA  = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
-CXX_INCS  = -I. -I/usr/include/cairo -I/opt/gnome/include/gtk-2.0 -I/opt/gnome/lib/gtk-2.0/include -I/opt/gnome/include/glib-2.0 -I/opt/gnome/lib/glib-2.0/include -I/opt/gnome/include/atk-1.0 -I/opt/gnome/include/pango-1.0
-#CXX_INCS  = -I.
-CXX_DEFS  = `wx-config --cxxflags`
-CXX_FLGS  =
-#CXX_INCS  = -I/usr/X11R6/include -I/opt/gnome/include/gtk-2.0 -I/opt/gnome/lib/gtk-2.0/include -I/opt/gnome/include/glib-2.0 -I/opt/gnome/lib/glib-2.0/include -I/opt/gnome/include/atk-1.0 -I/opt/gnome/include/pango-1.0 -I/usr/include/freetype2 -I/usr/include/freetype2/config -I$(WX_INC) -I$(WX_LIBH)
-#CXX_DEFS  = -D__WXGTK__ -DGTK_NO_CHECK_CASTS -DXTHREADS -D_REENTRANT -DXUSE_MTSAFE_API -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -D_LARGEFILE_SOURCE=1
-#CXX_FLGS  = -pthread -Wall -Wno-ctor-dtor-privacy -O2
-CXXFLAGS  = $(CXX_DEFS) $(CXX_INCS) $(CXX_FLGS) $(DEF_SAGA)
+DEF_SAGA  = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -DMODULE_LIBRARY_PATH=\"\"
+CXX_INCS  = -I./.. -I.
+CXX_DEFS  = -O2
+CXX_FLGS  = `wx-config --static=yes --cxxflags`
+CXXFLAGS  = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEF_SAGA)
 
-
-LDFLAGS   = 
-WX_LIBS   = $(WX_LIB)/libwx_base_xml-2.8.a $(WX_LIB)/libwx_gtk2_html-2.8.a $(WX_LIB)/libwx_gtk2_aui-2.8.a $(WX_LIB)/libwx_gtk2_adv-2.8.a $(WX_LIB)/libwx_gtk2_core-2.8.a $(WX_LIB)/libwx_base-2.8.a $(WX_LIB)/libwxtiff-2.8.a -lz -lpng -ljpeg
-LIBS      = -fPIC `wx-config --libs` -pthread -L/usr/X11R6/lib -L/opt/gnome/lib -ldl -lm -Wl,--export-dynamic -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 -lgdk_pixbuf-2.0 -lpangoxft-1.0 -lpangox-1.0 -lpango-1.0 -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lglib-2.0 -lXinerama -lXxf86vm $(WX_LIBS) -lsaga_api
+LDFLAGS   = -fPIC -pthread
+LIBS      = `wx-config --static=yes --libs` -L$(BIN_SAGA) -lsaga_api
 
 .PHONY: all all-before all-after clean clean-custom
 
@@ -41,13 +29,13 @@ all: all-before $(EXE_NAME) all-after
 clean: clean-custom
 	-rm -f $(OBJ) $(EXE_NAME)
 
-$(TOP_SAGA)/bin: $(TOP_SAGA)
+$(TOP_SAGA)/bin:
 	-mkdir $(TOP_SAGA)/bin
 
 $(BIN_SAGA): $(TOP_SAGA)/bin
 	-mkdir $(BIN_SAGA)
 
-$(TOP_SAGA)/bin/tmp: $(TOP_SAGA)
+$(TOP_SAGA)/bin/tmp: $(TOP_SAGA)/bin
 	-mkdir $(TOP_SAGA)/bin/tmp
 
 $(TOP_SAGA)/bin/tmp/saga_gtk: $(TOP_SAGA)/bin/tmp
@@ -57,12 +45,11 @@ $(TMP_SAGA): $(TOP_SAGA)/bin/tmp/saga_gtk
 	-mkdir $(TMP_SAGA)
 
 
-$(EXE_NAME): $(OBJ) $(BIN_SAGA)
+$(EXE_NAME): $(TMP_SAGA) $(BIN_SAGA) $(OBJ)
 	$(LD) $(LDFLAGS) -o $(EXE_NAME) $(OBJ) $(LIBS)
 
 
-#$(TMP_SAGA)/active.o: active.cpp
-$(TMP_SAGA)/active.o: active.cpp $(TMP_SAGA)
+$(TMP_SAGA)/active.o: active.cpp
 	$(CPP) -c active.cpp -o $(TMP_SAGA)/active.o $(CXXFLAGS)
 
 $(TMP_SAGA)/active_attributes.o: active_attributes.cpp
@@ -259,6 +246,9 @@ $(TMP_SAGA)/wksp_layer_legend.o: wksp_layer_legend.cpp
 
 $(TMP_SAGA)/wksp_map.o: wksp_map.cpp
 	$(CPP) -c wksp_map.cpp -o $(TMP_SAGA)/wksp_map.o $(CXXFLAGS)
+
+$(TMP_SAGA)/wksp_map_buttons.o: wksp_map_buttons.cpp
+	$(CPP) -c wksp_map_buttons.cpp -o $(TMP_SAGA)/wksp_map_buttons.o $(CXXFLAGS)
 
 $(TMP_SAGA)/wksp_map_control.o: wksp_map_control.cpp
 	$(CPP) -c wksp_map_control.cpp -o $(TMP_SAGA)/wksp_map_control.o $(CXXFLAGS)

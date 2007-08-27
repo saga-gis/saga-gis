@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
+// $Id: wksp_module_menu.cpp,v 1.7 2007-07-24 12:17:00 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -64,7 +64,7 @@
 #include "wksp_module_library.h"
 #include "wksp_module_menu.h"
 #include "wksp_module.h"
-
+#include <wx/tokenzr.h>
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -175,9 +175,24 @@ void CWKSP_Module_Menu::_Update(wxMenu *pMenu)
 			for(iModule=0; iModule<pLibrary->Get_Count(); iModule++, ID_Menu++)
 			{
 				pModule		= pLibrary->Get_Module(iModule);
+				pModule		->Set_Menu_ID(ID_Menu);
 				pSubMenu	= _Get_SubMenu(pMenu, pModule->Get_Menu_Path());
-				pSubMenu->AppendCheckItem(ID_Menu, pModule->Get_Name(), pModule->Get_Name());
-				pModule->Set_Menu_ID(ID_Menu);
+
+				size_t	iPos;
+
+				for(iPos=0; iPos<pSubMenu->GetMenuItemCount(); iPos++)
+				{
+#if defined(MODULES_MENU_SORT_SIMPLE)
+					if( pSubMenu->FindItemByPosition(iPos)->GetLabel().Cmp(pModule->Get_Name()) > 0 )
+#else
+					if(	pSubMenu->FindItemByPosition(iPos)->IsSubMenu() == false
+					&&	pSubMenu->FindItemByPosition(iPos)->GetLabel().Cmp(pModule->Get_Name()) > 0 )
+#endif
+						break;
+				}
+
+				pSubMenu->InsertCheckItem(iPos, ID_Menu, pModule->Get_Name(), pModule->Get_Name());
+			//	pSubMenu->AppendCheckItem(ID_Menu, pModule->Get_Name(), pModule->Get_Name());
 			}
 		}
 
@@ -196,61 +211,61 @@ void CWKSP_Module_Menu::_Update(wxMenu *pMenu)
 //---------------------------------------------------------
 wxMenu * CWKSP_Module_Menu::_Get_SubMenu(wxMenu *pMenu, wxString Menu_Path)
 {
-	int			i;
-	size_t		iItem;
-	wxString	sSubMenu;
-	wxMenu		*pSubMenu;
-	wxMenuItem	*pItem;
+	wxStringTokenizer	*tk;
+	wxString			sSubMenu;
+	wxMenu				*pSubMenu;
 
-	if( !Menu_Path.IsNull() )
+	tk			= new wxStringTokenizer(Menu_Path, SG_T("|"));
+	sSubMenu	= tk->GetNextToken();
+
+	while( ! sSubMenu.IsNull() )
 	{
-		if( (i = Menu_Path.Find('|')) > 0 )
-		{
-			sSubMenu	= Menu_Path.Left(i);
-			Menu_Path	= Menu_Path.Right(Menu_Path.Length() - i - 1);
-		}
-		else
-		{
-			sSubMenu	= Menu_Path;
-			Menu_Path.Empty();
-		}
+		pSubMenu	= _Find_SubMenu_For_Token(pMenu, sSubMenu);
 
-		//-------------------------------------------------
-		for(iItem=0, pSubMenu=NULL; iItem<pMenu->GetMenuItemCount() && !pSubMenu; iItem++)
-		{
-			pItem	= pMenu->GetMenuItems()[iItem];
-			i		= sSubMenu.Cmp(pItem->GetLabel());
-
-			if( i < 0 )
-			{
-				pSubMenu	= new wxMenu();
-				pMenu->Insert(iItem, new wxMenuItem(pMenu, ID_CMD_MODULES_FIRST, sSubMenu, LNG(""), 1, pSubMenu));
-			}
-			else if( i == 0 )
-			{
-				if( pItem->GetSubMenu() )
-				{
-					pSubMenu	= pItem->GetSubMenu();
-				}
-				else
-				{
-					pSubMenu	= new wxMenu();
-					pMenu->Insert(iItem, new wxMenuItem(pMenu, ID_CMD_MODULES_FIRST, sSubMenu, LNG(""), 1, pSubMenu));
-				}
-			}
-		}
-
-		if( !pSubMenu )
+		if( ! pSubMenu )
 		{
 			pSubMenu	= new wxMenu();
-			pMenu->Append(ID_CMD_MODULES_FIRST, sSubMenu, pSubMenu);
+
+			size_t	iPos;
+
+			for(iPos=0; iPos<pMenu->GetMenuItemCount(); iPos++)
+			{
+#if defined(MODULES_MENU_SORT_SIMPLE)
+				if( pMenu->FindItemByPosition(iPos)->GetLabel().Cmp(sSubMenu) > 0 )
+#else
+				if(	pMenu->FindItemByPosition(iPos)->IsSubMenu() == false
+				||	pMenu->FindItemByPosition(iPos)->GetLabel().Cmp(sSubMenu) > 0 )
+#endif
+					break;
+			}
+
+			pMenu->Insert(iPos, ID_CMD_MODULES_FIRST, sSubMenu, pSubMenu);
+		//	pMenu->Append(ID_CMD_MODULES_FIRST, sSubMenu, pSubMenu);
 		}
 
-		//-------------------------------------------------
-		return( _Get_SubMenu(pSubMenu, Menu_Path) );
+		pMenu		= pSubMenu;
+		sSubMenu	= tk->GetNextToken();
 	}
 
-	return( pMenu );
+	delete tk;
+
+	return pMenu;
+}
+
+//---------------------------------------------------------
+wxMenu * CWKSP_Module_Menu::_Find_SubMenu_For_Token( wxMenu* menu, wxString token ) {
+	
+	wxMenuItem* item;
+	wxMenu* result = NULL;
+	
+	for( size_t i = 0; i < menu->GetMenuItemCount(); i++ ) {
+		item = menu->GetMenuItems()[ i ];
+		if ( item->GetLabel() == token ) {
+			result = item->GetSubMenu();
+			break;
+		}
+	}
+	return result;
 }
 
 

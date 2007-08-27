@@ -430,6 +430,10 @@ SOURCE=.\wksp_map.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\wksp_map_buttons.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\wksp_map_control.cpp
 # End Source File
 # Begin Source File
@@ -779,6 +783,10 @@ SOURCE=.\WKSP_Layer_Legend.h
 # Begin Source File
 
 SOURCE=.\WKSP_Map.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\wksp_map_buttons.h
 # End Source File
 # Begin Source File
 

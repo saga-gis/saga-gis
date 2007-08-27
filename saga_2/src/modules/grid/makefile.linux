@@ -1,0 +1,12 @@
+# Linux GCC Makefile
+# Created by O. Conrad
+
+PROJECTS = grid_visualisation grid_tools grid_spline grid_gridding grid_filter grid_discretisation grid_calculus grid_analysis
+
+all:
+	@for i in $(PROJECTS); do (cd $$i && $(MAKE) -fmakefile.linux); done
+
+clean:
+	@for i in $(PROJECTS); do (cd $$i && $(MAKE) -fmakefile.linux clean); done
+
+.PHONY: all clean

@@ -41,51 +41,51 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/Exercise_01.o: ./Exercise_01.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Exercise_01.o: ./Exercise_01.cpp
 	$(CPP) -c ./Exercise_01.cpp -o $(MLB_TEMP)/Exercise_01.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Exercise_02.o: ./Exercise_02.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Exercise_02.o: ./Exercise_02.cpp
 	$(CPP) -c ./Exercise_02.cpp -o $(MLB_TEMP)/Exercise_02.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Exercise_03.o: ./Exercise_03.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Exercise_03.o: ./Exercise_03.cpp
 	$(CPP) -c ./Exercise_03.cpp -o $(MLB_TEMP)/Exercise_03.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Exercise_04.o: ./Exercise_04.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Exercise_04.o: ./Exercise_04.cpp
 	$(CPP) -c ./Exercise_04.cpp -o $(MLB_TEMP)/Exercise_04.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Exercise_05.o: ./Exercise_05.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Exercise_05.o: ./Exercise_05.cpp
 	$(CPP) -c ./Exercise_05.cpp -o $(MLB_TEMP)/Exercise_05.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Exercise_06.o: ./Exercise_06.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Exercise_06.o: ./Exercise_06.cpp
 	$(CPP) -c ./Exercise_06.cpp -o $(MLB_TEMP)/Exercise_06.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Exercise_07.o: ./Exercise_07.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Exercise_07.o: ./Exercise_07.cpp
 	$(CPP) -c ./Exercise_07.cpp -o $(MLB_TEMP)/Exercise_07.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Exercise_08.o: ./Exercise_08.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Exercise_08.o: ./Exercise_08.cpp
 	$(CPP) -c ./Exercise_08.cpp -o $(MLB_TEMP)/Exercise_08.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Exercise_09.o: ./Exercise_09.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Exercise_09.o: ./Exercise_09.cpp
 	$(CPP) -c ./Exercise_09.cpp -o $(MLB_TEMP)/Exercise_09.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Exercise_10.o: ./Exercise_10.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Exercise_10.o: ./Exercise_10.cpp
 	$(CPP) -c ./Exercise_10.cpp -o $(MLB_TEMP)/Exercise_10.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Exercise_11.o: ./Exercise_11.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Exercise_11.o: ./Exercise_11.cpp
 	$(CPP) -c ./Exercise_11.cpp -o $(MLB_TEMP)/Exercise_11.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Exercise_12.o: ./Exercise_12.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Exercise_12.o: ./Exercise_12.cpp
 	$(CPP) -c ./Exercise_12.cpp -o $(MLB_TEMP)/Exercise_12.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Exercise_13.o: ./Exercise_13.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Exercise_13.o: ./Exercise_13.cpp
 	$(CPP) -c ./Exercise_13.cpp -o $(MLB_TEMP)/Exercise_13.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Exercise_14.o: ./Exercise_14.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Exercise_14.o: ./Exercise_14.cpp
 	$(CPP) -c ./Exercise_14.cpp -o $(MLB_TEMP)/Exercise_14.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)

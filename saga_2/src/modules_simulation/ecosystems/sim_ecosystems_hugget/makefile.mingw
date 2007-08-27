@@ -41,18 +41,18 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	if not exist $(MLB_PATH) mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/Hugget_01.o: ./Hugget_01.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Hugget_01.o: ./Hugget_01.cpp
 	$(CPP) -c ./Hugget_01.cpp -o $(MLB_TEMP)/Hugget_01.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Hugget_02.o: ./Hugget_02.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Hugget_02.o: ./Hugget_02.cpp
 	$(CPP) -c ./Hugget_02.cpp -o $(MLB_TEMP)/Hugget_02.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Hugget_03.o: ./Hugget_03.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Hugget_03.o: ./Hugget_03.cpp
 	$(CPP) -c ./Hugget_03.cpp -o $(MLB_TEMP)/Hugget_03.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)

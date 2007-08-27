@@ -8,10 +8,6 @@ BIN_SAGA  = $(TOP_SAGA)/bin/saga_gtk
 TMP_SAGA  = $(TOP_SAGA)/bin/tmp/saga_gtk/$(PRJ_NAME)
 LIB_NAME  = $(BIN_SAGA)/lib$(PRJ_NAME).so
 
-WX_INC    = /usr/local/include/wx-2.6
-WX_LIB    = /usr/local/lib
-WX_LIBH   = $(WX_LIB)/wx/include/gtk2-ansi-release-static-2.6
-
 CPP       = g++
 LD        = g++
 
@@ -19,12 +15,12 @@ OBJ       = $(TMP_SAGA)/api_callback.o $(TMP_SAGA)/api_colors.o $(TMP_SAGA)/api_
 
 DEF_SAGA  = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_API_EXPORTS
 CXX_INCS  =
-CXX_DEFS  = `wx-config --cxxflags`
-CXX_FLGS  =
+CXX_DEFS  = -O2
+CXX_FLGS  = `wx-config --static=yes --cxxflags`
 CXXFLAGS  = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEF_SAGA)
 
-LDFLAGS   = -shared `wx-config --cxxflags`
-LIBS      = $(WX_LIB)/libwx_gtk2_core-2.8.a $(WX_LIB)/libwx_base-2.8.a -lpng -ljpeg -lharu
+LDFLAGS   = -fPIC -pthread -shared
+LIBS      = `wx-config --static=yes --libs` -lharu
 
 .PHONY: all all-before all-after clean clean-custom
 
@@ -39,7 +35,7 @@ $(TOP_SAGA)/bin:
 $(BIN_SAGA): $(TOP_SAGA)/bin
 	-mkdir $(BIN_SAGA)
 
-$(TOP_SAGA)/bin/tmp:
+$(TOP_SAGA)/bin/tmp: $(TOP_SAGA)/bin
 	-mkdir $(TOP_SAGA)/bin/tmp
 
 $(TOP_SAGA)/bin/tmp/saga_gtk: $(TOP_SAGA)/bin/tmp
@@ -49,11 +45,11 @@ $(TMP_SAGA): $(TOP_SAGA)/bin/tmp/saga_gtk
 	-mkdir $(TMP_SAGA)
 
 
-$(LIB_NAME): $(OBJ) $(BIN_SAGA)
+$(LIB_NAME): $(TMP_SAGA) $(BIN_SAGA) $(OBJ)
 	$(LD) $(LDFLAGS) -o $(LIB_NAME) $(OBJ) $(LIBS)
 
 
-$(TMP_SAGA)/api_callback.o: api_callback.cpp $(TMP_SAGA)
+$(TMP_SAGA)/api_callback.o: api_callback.cpp
 	$(CPP) -c api_callback.cpp -o $(TMP_SAGA)/api_callback.o $(CXXFLAGS)
 
 $(TMP_SAGA)/api_colors.o: api_colors.cpp

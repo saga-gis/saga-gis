@@ -72,6 +72,7 @@
 #include "wksp_map_manager.h"
 #include "wksp_map.h"
 #include "wksp_map_layer.h"
+#include "wksp_map_buttons.h"
 
 #include "wksp_shapes.h"
 
@@ -229,6 +230,11 @@ void CWKSP_Map_Control::Add_Item(CWKSP_Base_Manager *pManager, CWKSP_Base_Item *
 		AppendItem	(pManager->GetId(), pItem->Get_Name(), _Get_Image_ID(pItem), _Get_Image_ID(pItem), pItem);
 		SortChildren(pManager->GetId());
 		Expand		(pManager->GetId());
+
+		if( g_pMap_Buttons )
+		{
+			g_pMap_Buttons->Update_Buttons();
+		}
 	}
 }
 

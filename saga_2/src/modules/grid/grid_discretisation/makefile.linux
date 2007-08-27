@@ -3,6 +3,7 @@
 # Created by O. Conrad
 
 PRJ_NAME = grid_discretisation
+SAGA     = ./../../..
 BIN_SAGA = $(SAGA)/../bin/saga_gtk
 TMP_SAGA = $(SAGA)/../bin/tmp/saga_gtk
 INC_SAGA = $(SAGA)/saga_core
@@ -21,9 +22,9 @@ DEP_LFLG =
 OBJ      = $(MLB_TEMP)/Grid_Classify_Supervised.o $(MLB_TEMP)/Grid_Cluster_Analysis.o $(MLB_TEMP)/Grid_FastSegments.o $(MLB_TEMP)/Grid_Segmentation.o $(MLB_TEMP)/Grid_Skeletonize.o $(MLB_TEMP)/MLB_Interface.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
-CXX_INCS = -I/usr/lib/glib/include -I/usr/include/glib-1.2
-CXX_DEFS = -D_REENTRANT -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -DGTK_NO_CHECK_CASTS
-CXX_FLGS = -O2 -MMD -pthread -fPIC
+CXX_INCS =
+CXX_DEFS =
+CXX_FLGS = -O2
 CXXFLAGS = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEP_INCS) $(DEP_DEFS) -I$(INC_SAGA) $(DEF_SAGA)
 
 LDFLAGS  = -shared $(DEP_LFLG)
@@ -45,24 +46,24 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	-mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
 	$(LD) $(LDFLAGS) -o $(MLB_NAME) $(OBJ) $(LIBS)
 
 
-$(MLB_TEMP)/Grid_Classify_Supervised.o: ./Grid_Classify_Supervised.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Classify_Supervised.o: ./Grid_Classify_Supervised.cpp
 	$(CPP) -c ./Grid_Classify_Supervised.cpp -o $(MLB_TEMP)/Grid_Classify_Supervised.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Cluster_Analysis.o: ./Grid_Cluster_Analysis.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Cluster_Analysis.o: ./Grid_Cluster_Analysis.cpp
 	$(CPP) -c ./Grid_Cluster_Analysis.cpp -o $(MLB_TEMP)/Grid_Cluster_Analysis.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_FastSegments.o: ./Grid_FastSegments.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_FastSegments.o: ./Grid_FastSegments.cpp
 	$(CPP) -c ./Grid_FastSegments.cpp -o $(MLB_TEMP)/Grid_FastSegments.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Segmentation.o: ./Grid_Segmentation.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Segmentation.o: ./Grid_Segmentation.cpp
 	$(CPP) -c ./Grid_Segmentation.cpp -o $(MLB_TEMP)/Grid_Segmentation.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Grid_Skeletonize.o: ./Grid_Skeletonize.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Grid_Skeletonize.o: ./Grid_Skeletonize.cpp
 	$(CPP) -c ./Grid_Skeletonize.cpp -o $(MLB_TEMP)/Grid_Skeletonize.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)

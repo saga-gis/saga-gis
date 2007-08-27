@@ -3,6 +3,7 @@
 # Created by O. Conrad
 
 PRJ_NAME = ta_preprocessor
+SAGA     = ./../../..
 BIN_SAGA = $(SAGA)/../bin/saga_gtk
 TMP_SAGA = $(SAGA)/../bin/tmp/saga_gtk
 INC_SAGA = $(SAGA)/saga_core
@@ -18,12 +19,12 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/FillSinks.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/Pit_Eliminator.o $(MLB_TEMP)/Pit_Router.o
+OBJ      = $(MLB_TEMP)/FillSinks.o $(MLB_TEMP)/FillSinks_WL.o $(MLB_TEMP)/FillSinks_WL_XXL.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/Pit_Eliminator.o $(MLB_TEMP)/Pit_Router.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
-CXX_INCS = -I/usr/lib/glib/include -I/usr/include/glib-1.2
-CXX_DEFS = -D_REENTRANT -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -DGTK_NO_CHECK_CASTS
-CXX_FLGS = -O2 -MMD -pthread -fPIC
+CXX_INCS =
+CXX_DEFS =
+CXX_FLGS = -O2
 CXXFLAGS = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEP_INCS) $(DEP_DEFS) -I$(INC_SAGA) $(DEF_SAGA)
 
 LDFLAGS  = -shared $(DEP_LFLG)
@@ -45,18 +46,24 @@ $(MLB_TEMP): $(TMP_SAGA)
 $(MLB_PATH):
 	-mkdir $(MLB_PATH)
 
-$(MLB_NAME): $(OBJ) $(MLB_PATH)
+$(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
 	$(LD) $(LDFLAGS) -o $(MLB_NAME) $(OBJ) $(LIBS)
 
 
-$(MLB_TEMP)/FillSinks.o: ./FillSinks.cpp $(MLB_TEMP)
+$(MLB_TEMP)/FillSinks.o: ./FillSinks.cpp
 	$(CPP) -c ./FillSinks.cpp -o $(MLB_TEMP)/FillSinks.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp $(MLB_TEMP)
+$(MLB_TEMP)/FillSinks_WL.o: ./FillSinks_WL.cpp
+	$(CPP) -c ./FillSinks_WL.cpp -o $(MLB_TEMP)/FillSinks_WL.o $(CXXFLAGS)
+
+$(MLB_TEMP)/FillSinks_WL_XXL.o: ./FillSinks_WL_XXL.cpp
+	$(CPP) -c ./FillSinks_WL_XXL.cpp -o $(MLB_TEMP)/FillSinks_WL_XXL.o $(CXXFLAGS)
+
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Pit_Eliminator.o: ./Pit_Eliminator.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Pit_Eliminator.o: ./Pit_Eliminator.cpp
 	$(CPP) -c ./Pit_Eliminator.cpp -o $(MLB_TEMP)/Pit_Eliminator.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Pit_Router.o: ./Pit_Router.cpp $(MLB_TEMP)
+$(MLB_TEMP)/Pit_Router.o: ./Pit_Router.cpp
 	$(CPP) -c ./Pit_Router.cpp -o $(MLB_TEMP)/Pit_Router.o $(CXXFLAGS)
