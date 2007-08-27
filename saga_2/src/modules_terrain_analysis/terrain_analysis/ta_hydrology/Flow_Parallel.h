@@ -104,11 +104,12 @@ private:
 	void					Set_Flow		(void);
 	void					Check_Route		(int x, int y);
 
-	void					Set_D8			(int x, int y );
-	void					Set_Rho8		(int x, int y );
-	void					Set_DInf		(int x, int y );
-	void					Set_MFD			(int x, int y );
-	void					Set_BRM			(int x, int y );
+	void					Set_D8			(int x, int y);
+	void					Set_Rho8		(int x, int y);
+	void					Set_DInf		(int x, int y);
+	void					Set_MFD			(int x, int y);
+	void					Set_MDInf		(int x, int y);
+	void					Set_BRM			(int x, int y);
 
 	void					BRM_Init		(void);
 	int						BRM_InitRZ		(int x, int y, int ix[3], int iy[3]);
