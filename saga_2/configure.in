@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.5 2007-08-03 11:37:15 oconrad Exp $
+# $Id: configure.in,v 1.6 2007-09-18 11:49:04 tschorr Exp $
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
@@ -103,6 +103,7 @@ AC_OUTPUT(Makefile \
 	src/modules_io/grid/Makefile \
 	src/modules_io/grid/io_grid/Makefile \
 	src/modules_io/grid/io_grid_image/Makefile \
+	src/modules_io/grid/io_grid_grib2/Makefile \
 	src/modules_io/gps/Makefile \
 	src/modules_io/gps/io_gps/Makefile \
 	src/modules_io_gdal/Makefile \
