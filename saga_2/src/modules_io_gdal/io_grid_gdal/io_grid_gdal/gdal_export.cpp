@@ -68,7 +68,7 @@
 //---------------------------------------------------------
 CGDAL_Export::CGDAL_Export(void)
 {
-	Set_Name	(_TL("GDAL Raster Export"));
+	Set_Name	(_TL("Export Raster via GDAL"));
 
 	Set_Author	(_TL("Copyrights (c) 2007 by O.Conrad"));
 

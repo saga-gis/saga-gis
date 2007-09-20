@@ -66,7 +66,7 @@
 //---------------------------------------------------------
 CGDAL_Import::CGDAL_Import(void)
 {
-	Set_Name	(_TL("GDAL Raster Import"));
+	Set_Name	(_TL("Import Raster via GDAL"));
 
 	Set_Author	(_TL("Copyrights (c) 2007 by O.Conrad (A.Ringeler)"));
 
@@ -214,7 +214,7 @@ bool CGDAL_Import::On_Execute(void)
 		//-------------------------------------------------
 		SG_Free(zLine);
 
-        GDALClose(pDataset);
+		GDALClose(pDataset);
 
 		return( true );
 	}

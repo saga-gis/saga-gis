@@ -68,7 +68,7 @@
 //---------------------------------------------------------
 CGDAL_Export_GeoTIFF::CGDAL_Export_GeoTIFF(void)
 {
-	Set_Name		(_TL("GDAL GeoTIFF Export"));
+	Set_Name		(_TL("Export Raster to GeoTIFF via GDAL"));
 
 	Set_Author		(_TL("Copyrights (c) 2007 by O.Conrad"));
 
