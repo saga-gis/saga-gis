@@ -1,1 +1,1 @@
-SUBDIRS = contrib_t_wutzler contrib_a_perego
+SUBDIRS = contrib_a_perego
