@@ -7,13 +7,13 @@
 //                                                       //
 //                    Module Library                     //
 //                                                       //
-//                      $$modul$$                        //
+//                     io_grid_gdal                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                      Grid_IO_GDAL.h                       //
+//                    gdal_import.h                      //
 //                                                       //
-//            Copyright (C) 2003 Your Name               //
+//            Copyright (C) 2007 O. Conrad               //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,10 +37,12 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     your@e-mail.abc                        //
+//    e-mail:     oconrad@saga-gis.de                    //
 //                                                       //
-//    contact:    Your Name                              //
-//                And Address                            //
+//    contact:    Olaf Conrad                            //
+//                Bundesstr. 55                          //
+//                D-20146 Hamburg                        //
+//                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -52,11 +54,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Grid_IO_GDAL_H
-#define HEADER_INCLUDED__Grid_IO_GDAL_H
+#ifndef HEADER_INCLUDED__gdal_import_H
+#define HEADER_INCLUDED__gdal_import_H
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include "gdal_driver.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -66,22 +68,25 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_IO_GDAL : public CSG_Module
+class CGDAL_Import : public CSG_Module
 {
 public:
-	CGrid_IO_GDAL(void);
-	virtual ~CGrid_IO_GDAL(void);
+	CGDAL_Import(void);
+	virtual ~CGDAL_Import(void);
 
-    void						Gdal_To_World (double GeoTransform[6], int x, int y, double &GeoX, double &GeoY );
-	void						World_To_Saga (CSG_Grid *grid , double GeoX, double GeoY, int &x, int &y );
 
 protected:
 
-	virtual bool		On_Execute(void);
-
-
-private:
+	virtual bool		On_Execute		(void);
 
 };
 
-#endif // #ifndef HEADER_INCLUDED__Grid_IO_GDAL_H
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__gdal_import_H

@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.6 2007-07-03 10:30:51 tschorr Exp $
+# $Id: Makefile.am,v 1.7 2007-09-20 14:41:39 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -14,9 +14,15 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS)
 AM_LDFLAGS         = -fPIC -shared $(DEP_LIBS)
 pkglib_LTLIBRARIES = libio_grid_gdal.la
 libio_grid_gdal_la_SOURCES =\
-Grid_IO_GDAL.cpp\
+gdal_driver.cpp\
+gdal_export.cpp\
+gdal_export_geotiff.cpp\
+gdal_import.cpp\
 MLB_Interface.cpp\
-Grid_IO_GDAL.h\
+gdal_driver.h\
+gdal_export.h\
+gdal_export_geotiff.h\
+gdal_import.h\
 MLB_Interface.h
 
 libio_grid_gdal_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la

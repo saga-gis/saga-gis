@@ -153,7 +153,19 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\Grid_IO_GDAL.cpp
+SOURCE=.\gdal_driver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\gdal_export.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\gdal_export_geotiff.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\gdal_import.cpp
 # End Source File
 # Begin Source File
 
@@ -165,7 +177,19 @@ SOURCE=.\MLB_Interface.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\Grid_IO_GDAL.h
+SOURCE=.\gdal_driver.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\gdal_export.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\gdal_export_geotiff.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\gdal_import.h
 # End Source File
 # Begin Source File
 
