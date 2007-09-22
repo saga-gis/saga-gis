@@ -410,7 +410,7 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters)
 					pParameter->asRange()->Set_LoVal(d);
 				}
 
-				if( m_pCMD->Found(GET_ID2(pParameter, "MIN"), &s) && s.ToDouble(&d) )
+				if( m_pCMD->Found(GET_ID2(pParameter, "MAX"), &s) && s.ToDouble(&d) )
 				{
 					pParameter->asRange()->Set_HiVal(d);
 				}
