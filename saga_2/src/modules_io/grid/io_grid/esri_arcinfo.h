@@ -12,7 +12,7 @@
 //                                                       //
 //                    ESRI_ArcInfo.h                     //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2007 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -62,6 +62,11 @@
 #define HEADER_INCLUDED__ESRI_ArcInfo_H
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
@@ -83,9 +88,19 @@ protected:
 
 private:
 
-	CSG_Grid *					Read_Header(FILE *Stream);
+	bool					Read_Line		(FILE *Stream, CSG_String &sLine);
+	bool					Read_Value		(const CSG_String &sKey, CSG_String &sLine, int    &Value);
+	bool					Read_Value		(const CSG_String &sKey, CSG_String &sLine, double &Value);
+	CSG_Grid *				Read_Header		(FILE *Stream);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CESRI_ArcInfo_Export : public CSG_Module_Grid
@@ -104,8 +119,16 @@ protected:
 
 private:
 
-	bool					Write_Header(FILE *Stream, CSG_Grid *pGrid);
+	bool					Write_Header	(FILE *Stream, CSG_Grid *pGrid, bool bComma);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__ESRI_ArcInfo_H

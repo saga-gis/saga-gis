@@ -12,7 +12,7 @@
 //                                                       //
 //                   ESRI_ArcInfo.cpp                    //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2007 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -58,19 +58,27 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <string.h>
-
 #include "esri_arcinfo.h"
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#define HDR_NROWS		"NROWS"
-#define HDR_NCOLS		"NCOLS"
-#define HDR_X_CORNER	"XLLCORNER"
-#define HDR_Y_CORNER	"YLLCORNER"
-#define HDR_X_CENTER	"XLLCENTER"
-#define HDR_Y_CENTER	"YLLCENTER"
-#define HDR_CELLSIZE	"CELLSIZE"
-#define HDR_NODATA		"NODATA_VALUE"
+#define HDR_NROWS			"NROWS"
+#define HDR_NCOLS			"NCOLS"
+#define HDR_X_CORNER		"XLLCORNER"
+#define HDR_Y_CORNER		"YLLCORNER"
+#define HDR_X_CENTER		"XLLCENTER"
+#define HDR_Y_CENTER		"YLLCENTER"
+#define HDR_CELLSIZE		"CELLSIZE"
+#define HDR_NODATA			"NODATA_VALUE"
+#define HDR_BYTEORDER		"BYTE_ORDER"
+#define HDR_BYTEORDER_HI	"MSB_FIRST"
+#define HDR_BYTEORDER_LO	"LSB_FIRST"
 
 
 ///////////////////////////////////////////////////////////
@@ -85,12 +93,12 @@ CESRI_ArcInfo_Import::CESRI_ArcInfo_Import(void)
 	//-----------------------------------------------------
 	// 1. Info...
 
-	Set_Name(_TL("Import ESRI Arc/Info Grid"));
+	Set_Name		(_TL("Import ESRI Arc/Info Grid"));
 
-	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(_TL("Copyrights (c) 2007 by Olaf Conrad"));
 
 	Set_Description	(_TW(
-		"Import grid from ESRI's Arc/Info grid format.\n")
+		"Import grid from ESRI's Arc/Info grid format.")
 	);
 
 
@@ -142,15 +150,15 @@ bool CESRI_ArcInfo_Import::On_Execute(void)
 		if(	SG_File_Cmp_Extension(Parameters("FILE")->asString(), SG_T("flt"))
 		||	SG_File_Cmp_Extension(Parameters("FILE")->asString(), SG_T("hdr")) )
 		{
-			fName	= SG_File_Make_Path(_TL(""), Parameters("FILE")->asString(), SG_T("hdr"));
+			fName	= SG_File_Make_Path(SG_T(""), Parameters("FILE")->asString(), SG_T("hdr"));
 
-			if( (Stream = fopen(fName.b_str(), "r")) != NULL )
+			if( (Stream = fopen(fName.b_str(), "r")) != NULL && (pGrid = Read_Header(Stream)) != NULL )
 			{
-				pGrid	= Read_Header(Stream);
+				fclose(Stream);
 
-				fName	= SG_File_Make_Path(_TL(""), Parameters("FILE")->asString(), SG_T("flt"));
+				fName	= SG_File_Make_Path(SG_T(""), Parameters("FILE")->asString(), SG_T("flt"));
 
-				if( pGrid && (Stream = fopen(fName.b_str(), "rb")) != NULL )
+				if( (Stream = fopen(fName.b_str(), "rb")) != NULL )
 				{
 					Line	= (float *)SG_Malloc(pGrid->Get_NX() * sizeof(float));
 
@@ -213,103 +221,110 @@ bool CESRI_ArcInfo_Import::On_Execute(void)
 }
 
 //---------------------------------------------------------
-#ifdef _SAGA_LINUX
-char * _strupr(char *String)
+bool CESRI_ArcInfo_Import::Read_Line(FILE *Stream, CSG_String &sLine)
 {
-	if( String )
-		for(char *p=String; *p; p++)
-			if( 'a' <= *p && *p <= 'z' )
-				*p	+= 'A' - 'a';
+	if( Stream && !feof(Stream) )
+	{
+		char	c;
 
-	return( String );
+		sLine.Clear();
+
+		while( !feof(Stream) && (c = getc(Stream)) != 0x0A && c != 0x0D )
+		{
+			sLine.Append(c);
+		}
+
+		sLine.Make_Upper();
+
+		sLine.Replace(SG_T(","), SG_T("."));
+
+		return( true );
+	}
+
+	return( false );
 }
-#endif
+
+//---------------------------------------------------------
+bool CESRI_ArcInfo_Import::Read_Value(const CSG_String &sKey, CSG_String &sLine, int &Value)
+{
+	if( sLine.Contains(sKey) )
+	{
+		CSG_String	sValue(sLine.c_str() + sKey.Length());
+
+		return( sValue.asInt(Value) );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CESRI_ArcInfo_Import::Read_Value(const CSG_String &sKey, CSG_String &sLine, double &Value)
+{
+	if( sLine.Contains(sKey) )
+	{
+		CSG_String	sValue(sLine.c_str() + sKey.Length());
+
+		return( sValue.asDouble(Value) );
+	}
+
+	return( false );
+}
 
 //---------------------------------------------------------
 CSG_Grid * CESRI_ArcInfo_Import::Read_Header(FILE *Stream)
 {
 	bool		bCorner_X, bCorner_Y;
-	char		buffer[32];
 	int			NX, NY;
 	double		CellSize, xMin, yMin, NoData;
+	CSG_String	sLine;
 	CSG_Grid	*pGrid;
 
 	//-----------------------------------------------------
 	if( Stream )
 	{
 		//-------------------------------------------------
-		fread(buffer, 1, strlen(HDR_NCOLS)		, Stream);
-		buffer[strlen(HDR_NCOLS)]		= '\0';
-		_strupr(buffer);
+		Read_Line(Stream, sLine);
 
-		if( strcmp(buffer, HDR_NCOLS) )
+		if( !Read_Value(HDR_NCOLS   , sLine, NX) )
 			return( NULL );
 
-		fscanf(Stream, "%d", &NX);
-		while( !feof(Stream) && fgetc(Stream) != '\n' );
-
 		//-------------------------------------------------
-		fread(buffer, 1, strlen(HDR_NROWS)		, Stream);
-		buffer[strlen(HDR_NROWS)]		= '\0';
-		_strupr(buffer);
+		Read_Line(Stream, sLine);
 
-		if( strcmp(buffer, HDR_NROWS) )
+		if( !Read_Value(HDR_NROWS   , sLine, NY) )
 			return( NULL );
 
-		fscanf(Stream, "%d", &NY);
-		while( !feof(Stream) && fgetc(Stream) != '\n' );
-
 		//-------------------------------------------------
-		fread(buffer, 1, strlen(HDR_X_CORNER)	, Stream);
-		buffer[strlen(HDR_X_CORNER)]	= '\0';
-		_strupr(buffer);
+		Read_Line(Stream, sLine);
 
-		if(      !strcmp(buffer, HDR_X_CORNER) )
+		if(	     Read_Value(HDR_X_CORNER, sLine, xMin) )
 			bCorner_X	= true;
-		else if( !strcmp(buffer, HDR_X_CENTER) )
+		else if( Read_Value(HDR_X_CENTER, sLine, xMin) )
 			bCorner_X	= false;
 		else
 			return( NULL );
 
-		fscanf(Stream, "%lf", &xMin);
-		while( !feof(Stream) && fgetc(Stream) != '\n' );
-
 		//-------------------------------------------------
-		fread(buffer, 1, strlen(HDR_Y_CORNER)	, Stream);
-		buffer[strlen(HDR_Y_CORNER)]	= '\0';
-		_strupr(buffer);
+		Read_Line(Stream, sLine);
 
-		if(      !strcmp(buffer, HDR_Y_CORNER) )
+		if(	     Read_Value(HDR_Y_CORNER, sLine, yMin) )
 			bCorner_Y	= true;
-		else if( !strcmp(buffer, HDR_Y_CENTER) )
+		else if( Read_Value(HDR_Y_CENTER, sLine, yMin) )
 			bCorner_Y	= false;
 		else
 			return( NULL );
 
-		fscanf(Stream, "%lf", &yMin);
-		while( !feof(Stream) && fgetc(Stream) != '\n' );
-
 		//-------------------------------------------------
-		fread(buffer, 1, strlen(HDR_CELLSIZE)	, Stream);
-		buffer[strlen(HDR_CELLSIZE)]	= '\0';
-		_strupr(buffer);
+		Read_Line(Stream, sLine);
 
-		if( strcmp(buffer, HDR_CELLSIZE) )
+		if( !Read_Value(HDR_CELLSIZE, sLine, CellSize) )
 			return( NULL );
 
-		fscanf(Stream, "%lf", &CellSize);
-		while( !feof(Stream) && fgetc(Stream) != '\n' );
-
 		//-------------------------------------------------
-		fread(buffer, 1, strlen(HDR_NODATA)		, Stream);
-		buffer[strlen(HDR_NODATA)]		= '\0';
-		_strupr(buffer);
+		Read_Line(Stream, sLine);
 
-		if( strcmp(buffer, HDR_NODATA) )
+		if( !Read_Value(HDR_NODATA  , sLine, NoData) )
 			return( NULL );
-
-		fscanf(Stream, "%lf", &NoData);
-		while( !feof(Stream) && fgetc(Stream) != '\n' );
 
 		//-------------------------------------------------
 		if( bCorner_X )
@@ -343,12 +358,12 @@ CESRI_ArcInfo_Export::CESRI_ArcInfo_Export(void)
 	//-----------------------------------------------------
 	// 1. Info...
 
-	Set_Name(_TL("Export ESRI Arc/Info Grid"));
+	Set_Name		(_TL("Export ESRI Arc/Info Grid"));
 
-	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
 	Set_Description	(_TW(
-		"Export grid to ESRI's Arc/Info grid format.\n")
+		"Export grid to ESRI's Arc/Info grid format.")
 	);
 
 
@@ -386,8 +401,7 @@ CESRI_ArcInfo_Export::CESRI_ArcInfo_Export(void)
 
 	Parameters.Add_Choice(
 		NULL	, "GEOREF"	, _TL("Geo-Reference"),
-		_TL(
-		"The grids geo-reference must be related either to the center or the corner of its lower left grid cell."),
+		_TL("The grids geo-reference must be related either to the center or the corner of its lower left grid cell."),
 
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("corner"),
@@ -396,10 +410,30 @@ CESRI_ArcInfo_Export::CESRI_ArcInfo_Export(void)
 	);
 
 	Parameters.Add_Value(
-		NULL	, "PREC"	, _TL("Precision"),
-		_TL("Number of decimals when writing floating point values to ASCII format"),
-		PARAMETER_TYPE_Int	, 2
+		NULL	, "PREC"	, _TL("ASCII Precision"),
+		_TL("Number of decimals when writing floating point values in ASCII format."),
+		PARAMETER_TYPE_Int	, 4, -1, true
 	);
+
+	Parameters.Add_Choice(
+		NULL	, "DECSEP"	, _TL("ASCII Decimal Separator"),
+		_TL("Applies also to the binary format header file."),
+
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("point (.)"),
+			_TL("comma (,)")
+		), 0
+	);
+
+//	Parameters.Add_Choice(
+//		NULL	, "BYTEORD"	, _TL("Binary Byte Order"),
+//		_TL("Byte order when writing floating point values in binary format"),
+//
+//		CSG_String::Format(SG_T("%s|%s|"),
+//			_TL("most significant first"),
+//			_TL("least significant first")
+//		), 0
+//	);
 }
 
 //---------------------------------------------------------
@@ -409,7 +443,7 @@ CESRI_ArcInfo_Export::~CESRI_ArcInfo_Export(void)
 //---------------------------------------------------------
 bool CESRI_ArcInfo_Export::On_Execute(void)
 {
-	bool		bResult;
+	bool		bResult, bSwapBytes, bComma;
 	int			x, y, iy, Precision;
 	float		*Line;
 	FILE		*Stream;
@@ -417,8 +451,12 @@ bool CESRI_ArcInfo_Export::On_Execute(void)
 	CSG_String	fName;
 
 	//-----------------------------------------------------
-	bResult	= false;
-	pGrid	= Parameters("GRID")->asGrid();
+	bResult		= false;
+
+	pGrid		= Parameters("GRID")	->asGrid();
+	Precision	= Parameters("PREC")	->asInt();
+	bComma		= Parameters("DECSEP")	->asInt() == 1;
+	bSwapBytes	= false;	//	bSwapBytes	= Parameters("BYTEORD")	->asInt() == 1;
 
 
 	//-----------------------------------------------------
@@ -426,15 +464,15 @@ bool CESRI_ArcInfo_Export::On_Execute(void)
 
 	if( Parameters("FORMAT")->asInt() == 0 )
 	{
-		fName	= SG_File_Make_Path(_TL(""), Parameters("FILE")->asString(), SG_T("hdr"));
+		fName	= SG_File_Make_Path(SG_T(""), Parameters("FILE")->asString(), SG_T("hdr"));
 
 		if( (Stream = fopen(fName.b_str(), "w")) != NULL )
 		{
-			if( Write_Header(Stream, pGrid) )
+			if( Write_Header(Stream, pGrid, bComma) )
 			{
 				fclose(Stream);
 
-				fName	= SG_File_Make_Path(_TL(""), Parameters("FILE")->asString(), SG_T("flt"));
+				fName	= SG_File_Make_Path(SG_T(""), Parameters("FILE")->asString(), SG_T("flt"));
 
 				if( (Stream = fopen(fName.b_str(), "wb")) != NULL )
 				{
@@ -445,6 +483,11 @@ bool CESRI_ArcInfo_Export::On_Execute(void)
 						for(x=0; x<pGrid->Get_NX(); x++)
 						{
 							Line[x]	= pGrid->asFloat(x, y);
+
+							if( bSwapBytes )
+							{
+								SG_Swap_Bytes(Line + x, sizeof(float));
+							}
 						}
 
 						fwrite(Line, pGrid->Get_NX(), sizeof(float), Stream);
@@ -474,9 +517,9 @@ bool CESRI_ArcInfo_Export::On_Execute(void)
 
 		if( (Stream = fopen(fName.b_str(), "w")) != NULL )
 		{
-			if( Write_Header(Stream, pGrid) )
+			if( Write_Header(Stream, pGrid, bComma) )
 			{
-				Precision	= Parameters("PREC")->asInt();
+				CSG_String	s;
 
 				for(iy=0, y=pGrid->Get_NY()-1; iy<pGrid->Get_NY() && Set_Progress(iy, pGrid->Get_NY()); iy++, y--)
 				{
@@ -484,12 +527,23 @@ bool CESRI_ArcInfo_Export::On_Execute(void)
 					{
 						if( Precision < 0 )
 						{
-							fprintf(Stream, "%f "	, Precision, pGrid->asFloat(x, y));
+							s.Printf(SG_T("%f")		, pGrid->asFloat(x, y));
+						}
+						else if( Precision == 0 )
+						{
+							s.Printf(SG_T("%d")		, (int)(0.5 + pGrid->asFloat(x, y)));
 						}
 						else
 						{
-							fprintf(Stream, "%.*f "	, Precision, pGrid->asFloat(x, y));
+							s.Printf(SG_T("%.*f")	, Precision, pGrid->asFloat(x, y));
 						}
+
+						if( bComma )
+							s.Replace(SG_T("."), SG_T(","));
+						else
+							s.Replace(SG_T(","), SG_T("."));
+
+						fprintf(Stream, "%s ", s.b_str());
 					}
 
 					fprintf(Stream, "\n");
@@ -506,29 +560,52 @@ bool CESRI_ArcInfo_Export::On_Execute(void)
 }
 
 //---------------------------------------------------------
-bool CESRI_ArcInfo_Export::Write_Header(FILE *Stream, CSG_Grid *pGrid)
+bool CESRI_ArcInfo_Export::Write_Header(FILE *Stream, CSG_Grid *pGrid, bool bComma)
 {
 	if( Stream && pGrid && pGrid->is_Valid() )
 	{
-		fprintf(Stream, "%s %d\n"		, HDR_NCOLS		, pGrid->Get_NX());
-		fprintf(Stream, "%s %d\n"		, HDR_NROWS		, pGrid->Get_NY());
+		CSG_String	s;
+
+		s	+= CSG_String::Format(SG_T("%s %d\n")		, HDR_NCOLS		, pGrid->Get_NX());
+		s	+= CSG_String::Format(SG_T("%s %d\n")		, HDR_NROWS		, pGrid->Get_NY());
 
 		if( Parameters("GEOREF")->asInt() == 0 )
 		{
-			fprintf(Stream, "%s %f\n"	, HDR_X_CORNER	, pGrid->Get_XMin() - pGrid->Get_Cellsize() / 2.0);
-			fprintf(Stream, "%s %f\n"	, HDR_Y_CORNER	, pGrid->Get_YMin() - pGrid->Get_Cellsize() / 2.0);
+			s	+= CSG_String::Format(SG_T("%s %f\n")	, HDR_X_CORNER	, pGrid->Get_XMin() - 0.5 * pGrid->Get_Cellsize());
+			s	+= CSG_String::Format(SG_T("%s %f\n")	, HDR_Y_CORNER	, pGrid->Get_YMin() - 0.5 * pGrid->Get_Cellsize());
 		}
 		else
 		{
-			fprintf(Stream, "%s %f\n"	, HDR_X_CENTER	, pGrid->Get_XMin());
-			fprintf(Stream, "%s %f\n"	, HDR_Y_CENTER	, pGrid->Get_YMin());
+			s	+= CSG_String::Format(SG_T("%s %f\n")	, HDR_X_CENTER	, pGrid->Get_XMin());
+			s	+= CSG_String::Format(SG_T("%s %f\n")	, HDR_Y_CENTER	, pGrid->Get_YMin());
 		}
 
-		fprintf(Stream, "%s %f\n"		, HDR_CELLSIZE	, (float)pGrid->Get_Cellsize());
-		fprintf(Stream, "%s %f\n"		, HDR_NODATA	, (float)pGrid->Get_NoData_Value());
+		s	+= CSG_String::Format(SG_T("%s %f\n")		, HDR_CELLSIZE	, (float)pGrid->Get_Cellsize());
+		s	+= CSG_String::Format(SG_T("%s %f\n")		, HDR_NODATA	, (float)pGrid->Get_NoData_Value());
+
+		if( Parameters("FORMAT")->asInt() == 0 )	// binary
+		{	if( Parameters("BYTEORD") )
+			s	+= CSG_String::Format(SG_T("%s %s\n")	, HDR_BYTEORDER	, Parameters("BYTEORD")->asInt() == 1 ? HDR_BYTEORDER_LO : HDR_BYTEORDER_HI);
+		}
+
+		if( bComma )
+			s.Replace(SG_T("."), SG_T(","));
+		else
+			s.Replace(SG_T(","), SG_T("."));
+
+		fprintf(Stream, s.b_str());
 
 		return( true );
 	}
 
 	return( false );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
