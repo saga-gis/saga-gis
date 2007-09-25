@@ -73,31 +73,32 @@ CGrid_Merge::CGrid_Merge(void)
 	//-----------------------------------------------------
 	// 1. Info...
 
-	Set_Name(_TL("Merging"));
+	Set_Name		(_TL("Merging"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
-	Set_Description	(_TW("Merge Grids.\n")
-	);
+	Set_Description	(_TW(
+		"Merge Grids."
+	));
 
 
 	//-----------------------------------------------------
 	// 2. Standard in- and output...
 
 	Parameters.Add_Grid_List(
-		NULL	, "GRID_LIST"	, _TL("Grids to merge"),
+		NULL	, "GRIDS"		, _TL("Grids to Merge"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "MERGED"		, _TL("Merged Grid"),
+		NULL	, "GRID_TARGET"	, _TL("Target Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid_Output(
-		NULL	, "GRID"		, _TL("Merged Grid (unknown grid system)"),
+		NULL	, "GRID"		, _TL("Merged Grid"),
 		_TL("")
 	);
 
@@ -122,22 +123,17 @@ CGrid_Merge::CGrid_Merge(void)
 	CSG_Parameters	*pParameters;
 
 	pParameters	= Add_Parameters(
-		"MERGE_INFO"	, _TL("Mesh Size Specification"),
-		_TW("The grid selection contains grids with different mesh sizes."
-		"Please specify the mesh size that you desire for the merged grid."
-		"All grids with other mesh sizes will then be resampled according to your specification.")
+		"MERGE_INFO"	, _TL("Cell Size Specification"),
+		_TW(	"Your grid selection contains grids with different cell sizes. "
+				"Please specify the cell size that you desire for the merged "
+				"grid. All grids with other cell sizes will then be resampled "
+				"according to your specification.")
 	);
 
 	pParameters->Add_Value(
-		NULL	, "MESH_SIZE_X"	, _TL("Mesh Width"),
+		NULL	, "MESH_SIZE"	, _TL("Cell Size"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1
-	);
-
-	pParameters->Add_Value(
-		NULL	, "MESH_SIZE_Y"	, _TL("Mesh Height"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 1
+		PARAMETER_TYPE_Double, 1.0, 0.0, true
 	);
 
 	Parameters.Add_Choice(
@@ -160,56 +156,60 @@ CGrid_Merge::~CGrid_Merge(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//	Run													 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_Merge::On_Execute(void)
 {
-	int						iGrid, nGrids, nx, ny, x, y, Interpol;
-	double					d, Cellsize, xPos, yPos;
-	TSG_Grid_Type				Type;
-	CSG_Rect				Extent;
-	CSG_Grid					*pGrid, *pMerge;
-	CSG_Parameter_Grid_List	*pParm_Grids;
+	int						Interpolation;
+	CSG_Parameter_Grid_List	*pGrids;
+	CSG_Grid				*pGrid;
 
-	pParm_Grids	= Parameters("GRID_LIST")	->asGridList();
-	Interpol	= Parameters("INTERPOL")	->asInt();
+	//-----------------------------------------------------
+	Interpolation	= Parameters("INTERPOL")	->asInt();
+	pGrids			= Parameters("GRIDS")		->asGridList();
+	pGrid			= Parameters("GRID_TARGET")	->asGrid();
 
-	if( (nGrids = pParm_Grids->Get_Count()) > 1 )
+	//-----------------------------------------------------
+	if( pGrids->Get_Count() > 1 )
 	{
-		if( (pMerge = Parameters("MERGED")->asGrid()) == NULL )
+		bool	bResampling;
+		int		i, x, y;
+		double	Cellsize;
+
+		//-------------------------------------------------
+		Cellsize	= pGrids->asGrid(0)->Get_Cellsize();
+
+		for(i=1, bResampling=false; i<pGrids->Get_Count(); i++)
 		{
-			//---------------------------------------------
-			// 1. Check the mesh sizes...
-
-			pGrid		= pParm_Grids->asGrid(0);
-
-			Cellsize	= pGrid->Get_Cellsize();
-
-			for(iGrid=1; iGrid<nGrids; iGrid++)
+			if( Cellsize != pGrids->asGrid(i)->Get_Cellsize() )
 			{
-				pGrid	= pParm_Grids->asGrid(iGrid);
+				bResampling	= true;
 
-				if( Cellsize != pGrid->Get_Cellsize() )
+				if( Cellsize > pGrids->asGrid(i)->Get_Cellsize() )
 				{
-					Get_Parameters("MERGE_INFO")->Get_Parameter("MESH_SIZE_X")->Set_Value(Cellsize);
-					Get_Parameters("MERGE_INFO")->Get_Parameter("MESH_SIZE_Y")->Set_Value(Cellsize);
+					Cellsize	= pGrids->asGrid(i)->Get_Cellsize();
+				}
 
-					if( !Dlg_Parameters("MERGE_INFO") )
-					{
-						return( false );
-					}
-
-					Cellsize	= Get_Parameters("MERGE_INFO")->Get_Parameter("MESH_SIZE_X")->asDouble();
-
-					break;
+				if( !bResampling )
+				{
+					if(	(pGrids->asGrid(0)->Get_XMin() - pGrids->asGrid(i)->Get_XMin()) / Cellsize != 0.0
+					||	(pGrids->asGrid(0)->Get_YMin() - pGrids->asGrid(i)->Get_YMin()) / Cellsize != 0.0 )
+						bResampling	= true;
 				}
 			}
+		}
+
+		//-------------------------------------------------
+		if( pGrid == NULL )
+		{
+			TSG_Grid_Type	Type;
+			CSG_Rect		Extent;
 
 			//---------------------------------------------
-			// 2. Calculate the dimensions of the merged grid and create it...
+			// Type...
 
 			switch( Parameters("TYPE")->asInt() )
 			{
@@ -224,49 +224,76 @@ bool CGrid_Merge::On_Execute(void)
 			case 8:				Type	= GRID_TYPE_Double;	break;
 			}
 
-			pGrid	= pParm_Grids->asGrid(0);
+			//---------------------------------------------
+			// Cell Size...
 
-			Extent.Assign(pGrid->Get_Extent());
-
-			for(iGrid=1; iGrid<nGrids; iGrid++)
+			if( bResampling )
 			{
-				pGrid	= pParm_Grids->asGrid(iGrid);
+				Get_Parameters("MERGE_INFO")->Get_Parameter("MESH_SIZE_X")->Set_Value(Cellsize);
 
-				Extent.Union(pGrid->Get_Extent());
+				if( !Dlg_Parameters("MERGE_INFO") )
+				{
+					return( false );
+				}
+
+				Cellsize	= Get_Parameters("MERGE_INFO")->Get_Parameter("MESH_SIZE_X")->asDouble();
 			}
 
-			nx		= 1 + (int)((Extent.m_rect.xMax - Extent.m_rect.xMin) / Cellsize);
-			ny		= 1 + (int)((Extent.m_rect.yMax - Extent.m_rect.yMin) / Cellsize);
+			//---------------------------------------------
+			// Extent...
 
-			pMerge	= SG_Create_Grid(Type, nx, ny, Cellsize, Extent.m_rect.xMin, Extent.m_rect.yMin);
+			Extent.Assign(pGrids->asGrid(0)->Get_Extent());
 
-			Parameters("GRID")->Set_Value(pMerge);
+			for(i=1; i<pGrids->Get_Count(); i++)
+			{
+				Extent.Union(pGrids->asGrid(i)->Get_Extent());
+			}
+
+			//---------------------------------------------
+			// Create Grid...
+
+			Parameters("GRID")->Set_Value(pGrid	= SG_Create_Grid(
+				Type,
+				1 + (int)(0.5 + Extent.Get_XRange() / Cellsize),
+				1 + (int)(0.5 + Extent.Get_YRange() / Cellsize),
+				Cellsize,
+				Extent.Get_XMin(),
+				Extent.Get_YMin()
+			));
 		}
 
 
 		//-------------------------------------------------
-		// 3. Merge grids...
+		// Merge grids...
 
-		pMerge->Assign_NoData();
-		pMerge->Set_Name(_TL("Merged Grid"));
+		pGrid->Set_Name(_TL("Merged Grid"));
 
-		for(iGrid=0; iGrid<nGrids; iGrid++)
+		//-------------------------------------------------
+		if( !bResampling )	// without resampling...
 		{
-			Process_Set_Text(CSG_String::Format(_TL("Merging grid %d of %d..."), iGrid + 1, nGrids));
+			pGrid->Assign_NoData();
 
-			pGrid	= pParm_Grids->asGrid(iGrid);
-
-			for(y=0, yPos=pMerge->Get_YMin(); y<pMerge->Get_NY() && yPos<=pGrid->Get_YMax() && Set_Progress(y, pMerge->Get_NY()); y++, yPos+=pMerge->Get_Cellsize())
+			for(i=0; i<pGrids->Get_Count(); i++)
 			{
-				if( yPos >= pGrid->Get_YMin() )
+				int			ix, iy;
+				CSG_Grid	*g	= pGrids->asGrid(i);
+
+				iy	= (int)((g->Get_YMin() - pGrid->Get_YMin()) / Cellsize);
+
+				for(y=0; y<g->Get_NY() && Set_Progress(y, g->Get_NY()); y++, iy++)
 				{
-					for(x=0, xPos=pMerge->Get_XMin(); x<pMerge->Get_NX() && xPos<=pGrid->Get_XMax(); x++, xPos+=pMerge->Get_Cellsize())
+					if( iy >= 0 && iy < pGrid->Get_NY() )
 					{
-						if( xPos >= pGrid->Get_XMin() )
+						ix	= (int)((g->Get_XMin() - pGrid->Get_XMin()) / Cellsize);
+
+						for(x=0; x<g->Get_NX(); x++, ix++)
 						{
-							if( (d = pGrid->Get_Value(xPos, yPos, Interpol)) != pGrid->Get_NoData_Value() )
+							if( ix >= 0 && ix < pGrid->Get_NX() )
 							{
-								pMerge->Set_Value(x, y, pMerge->is_NoData(x, y) ? d : (d + pMerge->asDouble(x, y)) / 2.0);
+								if( pGrid->is_NoData(ix, iy) )
+									pGrid->Set_Value(ix, iy,  g->asDouble(x, y));
+								else
+									pGrid->Set_Value(ix, iy, (g->asDouble(x, y) + pGrid->asDouble(ix, iy)) / 2.0);
 							}
 						}
 					}
@@ -275,7 +302,36 @@ bool CGrid_Merge::On_Execute(void)
 		}
 
 		//-------------------------------------------------
-		DataObject_Update(pMerge);
+		else				// with resampling...
+		{
+			int			zCount;
+			double		z, zSum;
+			TSG_Point	p;
+
+			for(y=0, p.y=pGrid->Get_YMin(); y<pGrid->Get_NY() && Set_Progress(y, pGrid->Get_NY()); y++, p.y+=pGrid->Get_Cellsize())
+			{
+				for(x=0, p.x=pGrid->Get_XMin(); x<pGrid->Get_NX(); x++, p.x+=pGrid->Get_Cellsize())
+				{
+					for(i=0, zCount=0, zSum=0.0; i<pGrids->Get_Count(); i++)
+					{
+						if( pGrids->asGrid(i)->Get_Value(p, z, Interpolation) )
+						{
+							zSum	+= z;
+							zCount	++;
+						}
+					}
+
+					if( zCount > 0 )
+						pGrid->Set_Value (x, y, zSum / zCount);
+					else
+						pGrid->Set_NoData(x, y);
+				}
+			}
+		}
+
+
+		//-------------------------------------------------
+		DataObject_Update(pGrid);
 
 		return( true );
 	}
@@ -284,3 +340,12 @@ bool CGrid_Merge::On_Execute(void)
 
 	return( false );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

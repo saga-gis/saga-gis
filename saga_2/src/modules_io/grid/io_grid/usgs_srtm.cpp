@@ -75,9 +75,9 @@ CUSGS_SRTM_Import::CUSGS_SRTM_Import(void)
 	//-----------------------------------------------------
 	// 1. Info...
 
-	Set_Name(_TL("Import USGS SRTM Grid"));
+	Set_Name		(_TL("Import USGS SRTM Grid"));
 
-	Set_Author(_TL("Copyrights (c) 2004 by Olaf Conrad"));
+	Set_Author		(_TL("Copyrights (c) 2004 by Olaf Conrad"));
 
 	Set_Description	(_TW(
 		"Import grid from USGS SRTM (Shuttle Radar Topography Mission) data.\n"
@@ -96,8 +96,8 @@ CUSGS_SRTM_Import::CUSGS_SRTM_Import(void)
 
 		"\nRosen, P.A., S. Hensley, I.R. Joughin, F.K. Li, S.N. Madsen, E. Rodriguez, R.M. Goldstein (2000):\n"
 		"  'Synthetic aperture radar interferometry'\n"
-		"  Proc. IEEE, v. 88, p. 333-382\n")
-	);
+		"  Proc. IEEE, v. 88, p. 333-382\n"
+	));
 
 
 	//-----------------------------------------------------
@@ -144,9 +144,9 @@ bool CUSGS_SRTM_Import::On_Execute(void)
 
 	//-----------------------------------------------------
 	fName	= SG_File_Get_Name(Parameters("FILE")->asString(), false);
-	fName.Make_Upper();
+	fName	.Make_Upper();
 
-	yMin	= (fName[0] == 'N' ?  1.0 : -1.0) * fName.Right(0).asInt();
+	yMin	= (fName[0] == 'N' ?  1.0 : -1.0) * fName.Right(6).asInt();
 	xMin	= (fName[3] == 'W' ? -1.0 :  1.0) * fName.Right(3).asInt();
 
 	//-----------------------------------------------------
