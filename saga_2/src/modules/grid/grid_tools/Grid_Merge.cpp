@@ -107,12 +107,12 @@ CGrid_Merge::CGrid_Merge(void)
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
 			_TL("1 bit"),
-			_TL("1 byte unsigned"),
-			_TL("1 byte signed"),
-			_TL("2 byte unsigned"),
-			_TL("2 byte signed"),
-			_TL("4 byte unsigned"),
-			_TL("4 byte signed"),
+			_TL("1 byte unsigned integer"),
+			_TL("1 byte signed integer"),
+			_TL("2 byte unsigned integer"),
+			_TL("2 byte signed integer"),
+			_TL("4 byte unsigned integer"),
+			_TL("4 byte signed integer"),
 			_TL("4 byte floating point"),
 			_TL("8 byte floating point")
 		), 7
@@ -292,10 +292,13 @@ bool CGrid_Merge::On_Execute(void)
 						{
 							if( ix >= 0 && ix < pGrid->Get_NX() )
 							{
-								if( pGrid->is_NoData(ix, iy) )
-									pGrid->Set_Value(ix, iy,  g->asDouble(x, y));
-								else
-									pGrid->Set_Value(ix, iy, (g->asDouble(x, y) + pGrid->asDouble(ix, iy)) / 2.0);
+								if( !g->is_NoData(x, y) )
+								{
+									if( pGrid->is_NoData(ix, iy) )
+										pGrid->Set_Value(ix, iy,  g->asDouble(x, y));
+									else
+										pGrid->Set_Value(ix, iy, (g->asDouble(x, y) + pGrid->asDouble(ix, iy)) / 2.0);
+								}
 							}
 						}
 					}
