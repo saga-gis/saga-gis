@@ -278,6 +278,8 @@ bool CGrid_Merge::On_Execute(void)
 				int			ix, iy;
 				CSG_Grid	*g	= pGrids->asGrid(i);
 
+				Process_Set_Text(CSG_String::Format(SG_T("%s: %d (%d)"), _TL("merging grid"), i + 1, pGrids->Get_Count()));
+
 				iy	= (int)((g->Get_YMin() - pGrid->Get_YMin()) / Cellsize);
 
 				for(y=0; y<g->Get_NY() && Set_Progress(y, g->Get_NY()); y++, iy++)
