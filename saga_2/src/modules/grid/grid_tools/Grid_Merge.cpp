@@ -98,7 +98,7 @@ CGrid_Merge::CGrid_Merge(void)
 	);
 
 	Parameters.Add_Grid_Output(
-		NULL	, "GRID"		, _TL("Merged Grid"),
+		NULL	, "MERGED"		, _TL("Merged Grid"),
 		_TL("")
 	);
 
@@ -147,6 +147,15 @@ CGrid_Merge::CGrid_Merge(void)
 			_TL("B-Spline Interpolation")
 		), 4
 	);
+
+	Parameters.Add_Choice(
+		NULL	, "OVERLAP"		, _TL("Overlapping Cells"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("mean value"),
+			_TL("first value in order of grid list")
+		), 0
+	);
 }
 
 //---------------------------------------------------------
@@ -163,48 +172,32 @@ CGrid_Merge::~CGrid_Merge(void)
 //---------------------------------------------------------
 bool CGrid_Merge::On_Execute(void)
 {
-	int						Interpolation;
+	bool					bMean;
+	int						x, y, i, ix, iy, ax, ay, Interpolation;
+	double					z;
+	TSG_Point				p;
 	CSG_Parameter_Grid_List	*pGrids;
-	CSG_Grid				*pGrid;
+	CSG_Grid				*pMerged, *pGrid;
 
 	//-----------------------------------------------------
-	Interpolation	= Parameters("INTERPOL")	->asInt();
 	pGrids			= Parameters("GRIDS")		->asGridList();
-	pGrid			= Parameters("GRID_TARGET")	->asGrid();
+	pMerged			= Parameters("GRID_TARGET")	->asGrid();
+	Interpolation	= Parameters("INTERPOL")	->asInt();
+	bMean			= Parameters("OVERLAP")		->asInt() == 0;
 
 	//-----------------------------------------------------
-	if( pGrids->Get_Count() > 1 )
+	if( pGrids->Get_Count() < 2 )
 	{
-		bool	bResampling;
-		int		i, x, y;
-		double	Cellsize;
+		Message_Dlg(_TL("There is nothing to merge, because less than 2 grids have been selected."), Get_Name());
+	}
 
-		//-------------------------------------------------
-		Cellsize	= pGrids->asGrid(0)->Get_Cellsize();
-
-		for(i=1, bResampling=false; i<pGrids->Get_Count(); i++)
+	//-----------------------------------------------------
+	else
+	{
+		if( pMerged == NULL )
 		{
-			if( Cellsize != pGrids->asGrid(i)->Get_Cellsize() )
-			{
-				bResampling	= true;
-
-				if( Cellsize > pGrids->asGrid(i)->Get_Cellsize() )
-				{
-					Cellsize	= pGrids->asGrid(i)->Get_Cellsize();
-				}
-
-				if( !bResampling )
-				{
-					if(	(pGrids->asGrid(0)->Get_XMin() - pGrids->asGrid(i)->Get_XMin()) / Cellsize != 0.0
-					||	(pGrids->asGrid(0)->Get_YMin() - pGrids->asGrid(i)->Get_YMin()) / Cellsize != 0.0 )
-						bResampling	= true;
-				}
-			}
-		}
-
-		//-------------------------------------------------
-		if( pGrid == NULL )
-		{
+			bool			bResampling;
+			double			Cellsize;
 			TSG_Grid_Type	Type;
 			CSG_Rect		Extent;
 
@@ -227,16 +220,29 @@ bool CGrid_Merge::On_Execute(void)
 			//---------------------------------------------
 			// Cell Size...
 
+			for(i=1, Cellsize=pGrids->asGrid(0)->Get_Cellsize(), bResampling=false; i<pGrids->Get_Count(); i++)
+			{
+				if( Cellsize != pGrids->asGrid(i)->Get_Cellsize() )
+				{
+					bResampling	= true;
+
+					if( Cellsize > pGrids->asGrid(i)->Get_Cellsize() )
+					{
+						Cellsize	= pGrids->asGrid(i)->Get_Cellsize();
+					}
+				}
+			}
+
 			if( bResampling )
 			{
-				Get_Parameters("MERGE_INFO")->Get_Parameter("MESH_SIZE_X")->Set_Value(Cellsize);
+				Get_Parameters("MERGE_INFO")->Get_Parameter("MESH_SIZE")->Set_Value(Cellsize);
 
 				if( !Dlg_Parameters("MERGE_INFO") )
 				{
 					return( false );
 				}
 
-				Cellsize	= Get_Parameters("MERGE_INFO")->Get_Parameter("MESH_SIZE_X")->asDouble();
+				Cellsize	= Get_Parameters("MERGE_INFO")->Get_Parameter("MESH_SIZE")->asDouble();
 			}
 
 			//---------------------------------------------
@@ -252,7 +258,7 @@ bool CGrid_Merge::On_Execute(void)
 			//---------------------------------------------
 			// Create Grid...
 
-			Parameters("GRID")->Set_Value(pGrid	= SG_Create_Grid(
+			Parameters("MERGED")->Set_Value(pMerged	= SG_Create_Grid(
 				Type,
 				1 + (int)(0.5 + Extent.Get_XRange() / Cellsize),
 				1 + (int)(0.5 + Extent.Get_YRange() / Cellsize),
@@ -266,38 +272,71 @@ bool CGrid_Merge::On_Execute(void)
 		//-------------------------------------------------
 		// Merge grids...
 
-		pGrid->Set_Name(_TL("Merged Grid"));
+		pMerged->Set_Name(_TL("Merged Grid"));
+
+		pMerged->Assign_NoData();
 
 		//-------------------------------------------------
-		if( !bResampling )	// without resampling...
+		for(i=0; i<pGrids->Get_Count(); i++)
 		{
-			pGrid->Assign_NoData();
+			Process_Set_Text(CSG_String::Format(SG_T("%s: %d (%d)"), _TL("merging grid"), i + 1, pGrids->Get_Count()));
 
-			for(i=0; i<pGrids->Get_Count(); i++)
+			pGrid	= pGrids->asGrid(i);
+
+			ax		= (int)((pGrid->Get_XMin() - pMerged->Get_XMin()) / pMerged->Get_Cellsize());
+			ay		= (int)((pGrid->Get_YMin() - pMerged->Get_YMin()) / pMerged->Get_Cellsize());
+
+			//---------------------------------------------
+			if(	pGrid->Get_Cellsize() == pMerged->Get_Cellsize()
+			&&	fabs(fmod(pGrid->Get_XMin() - pMerged->Get_XMin(), pMerged->Get_Cellsize())) <= 0.001 * pMerged->Get_Cellsize()
+			&&	fabs(fmod(pGrid->Get_YMin() - pMerged->Get_YMin(), pMerged->Get_Cellsize())) <= 0.001 * pMerged->Get_Cellsize() )
 			{
-				int			ix, iy;
-				CSG_Grid	*g	= pGrids->asGrid(i);
-
-				Process_Set_Text(CSG_String::Format(SG_T("%s: %d (%d)"), _TL("merging grid"), i + 1, pGrids->Get_Count()));
-
-				iy	= (int)((g->Get_YMin() - pGrid->Get_YMin()) / Cellsize);
-
-				for(y=0; y<g->Get_NY() && Set_Progress(y, g->Get_NY()); y++, iy++)
+				for(y=ay, iy=0; iy<pGrid->Get_NY() && Set_Progress(iy, pGrid->Get_NY()); y++, iy++)
 				{
-					if( iy >= 0 && iy < pGrid->Get_NY() )
+					if( y >= 0 && y < pMerged->Get_NY() )
 					{
-						ix	= (int)((g->Get_XMin() - pGrid->Get_XMin()) / Cellsize);
-
-						for(x=0; x<g->Get_NX(); x++, ix++)
+						for(x=ax, ix=0; ix<pGrid->Get_NX(); x++, ix++)
 						{
-							if( ix >= 0 && ix < pGrid->Get_NX() )
+							if( x >= 0 && x < pMerged->Get_NX() && !pGrid->is_NoData(ix, iy) )
 							{
-								if( !g->is_NoData(x, y) )
+								if( pMerged->is_NoData(x, y) )
 								{
-									if( pGrid->is_NoData(ix, iy) )
-										pGrid->Set_Value(ix, iy,  g->asDouble(x, y));
-									else
-										pGrid->Set_Value(ix, iy, (g->asDouble(x, y) + pGrid->asDouble(ix, iy)) / 2.0);
+									pMerged->Set_Value(x, y, pGrid->asDouble(ix, iy));
+								}
+								else if( bMean )
+								{
+									pMerged->Set_Value(x, y, 0.5 * (pMerged->asDouble(x, y) + pGrid->asDouble(ix, iy)));
+								}
+							}
+						}
+					}
+				}
+			}
+
+			//---------------------------------------------
+			else
+			{
+				Message_Add(_TL("interpolating grid: "));	Message_Add(pGrid->Get_Name(), false);
+
+				p.y	= pMerged->Get_YMin() + ay * pMerged->Get_Cellsize();
+
+				for(y=ay; p.y<=pGrid->Get_YMax() && Set_Progress(p.y-pGrid->Get_YMin(), pGrid->Get_System().Get_YRange()); y++, p.y+=pMerged->Get_Cellsize())
+				{
+					if( y >= 0 && y < pMerged->Get_NY() )
+					{
+						p.x	= pMerged->Get_XMin() + ax * pMerged->Get_Cellsize();
+
+						for(x=ax; p.x<pGrid->Get_XMax(); x++, p.x+=pMerged->Get_Cellsize())
+						{
+							if( x >= 0 && x < pMerged->Get_NX() && pGrid->Get_Value(p, z, Interpolation) )
+							{
+								if( pMerged->is_NoData(x, y) )
+								{
+									pMerged->Set_Value(x, y, z);
+								}
+								else if( bMean )
+								{
+									pMerged->Set_Value(x, y, 0.5 * (pMerged->asDouble(x, y) + z));
 								}
 							}
 						}
@@ -306,42 +345,12 @@ bool CGrid_Merge::On_Execute(void)
 			}
 		}
 
-		//-------------------------------------------------
-		else				// with resampling...
-		{
-			int			zCount;
-			double		z, zSum;
-			TSG_Point	p;
-
-			for(y=0, p.y=pGrid->Get_YMin(); y<pGrid->Get_NY() && Set_Progress(y, pGrid->Get_NY()); y++, p.y+=pGrid->Get_Cellsize())
-			{
-				for(x=0, p.x=pGrid->Get_XMin(); x<pGrid->Get_NX(); x++, p.x+=pGrid->Get_Cellsize())
-				{
-					for(i=0, zCount=0, zSum=0.0; i<pGrids->Get_Count(); i++)
-					{
-						if( pGrids->asGrid(i)->Get_Value(p, z, Interpolation) )
-						{
-							zSum	+= z;
-							zCount	++;
-						}
-					}
-
-					if( zCount > 0 )
-						pGrid->Set_Value (x, y, zSum / zCount);
-					else
-						pGrid->Set_NoData(x, y);
-				}
-			}
-		}
-
 
 		//-------------------------------------------------
-		DataObject_Update(pGrid);
+		DataObject_Update(pMerged);
 
 		return( true );
 	}
-
-	Message_Dlg(_TL("There is nothing to merge, because less than 2 grids have been selected."), Get_Name());
 
 	return( false );
 }
