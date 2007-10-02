@@ -98,7 +98,7 @@ CFilter::CFilter(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL, "SEARCH_MODE"	, _TL("Search Mode"),
+		NULL, "MODE"		, _TL("Search Mode"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Square"),
@@ -137,33 +137,29 @@ CFilter::~CFilter(void)
 //---------------------------------------------------------
 bool CFilter::On_Execute(void)
 {
-	int		x, y, Mode, Method, Radius;
-	double	Mean;
+	int			x, y, Mode, Radius, Method;
+	double		Mean;
 	CSG_Grid	*pResult;
 
 	//-----------------------------------------------------
-	pInput		= Parameters("INPUT")->asGrid();
-	Mode		= Parameters("SEARCH_MODE")->asInt();
-	Method		= Parameters("METHOD")->asInt();
-	Radius		= Parameters("RADIUS")->asInt();
+	m_pInput	= Parameters("INPUT")	->asGrid();
+	pResult		= Parameters("RESULT")	->asGrid();
+	Radius		= Parameters("RADIUS")	->asInt();
+	Mode		= Parameters("MODE")	->asInt();
+	Method		= Parameters("METHOD")	->asInt();
 
-	if( !Parameters("RESULT")->asGrid() )
+	if( !pResult || pResult == m_pInput )
 	{
-		Parameters("RESULT")->Set_Value(pInput);
+		pResult	= SG_Create_Grid(m_pInput);
+
+		Parameters("RESULT")->Set_Value(m_pInput);
 	}
 
-	pResult		= Parameters("RESULT")->asGrid();
-
-	if( !pResult || pResult == pInput )
-	{
-		pResult	= SG_Create_Grid(pInput);
-	}
-
-	pResult->Set_NoData_Value(pInput->Get_NoData_Value());
+	pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
 
 	switch( Mode )
 	{
-	case 0:	break;
+	case 0:								break;
 	case 1:	m_Radius.Create(Radius);	break;
 	}
 
@@ -172,17 +168,12 @@ bool CFilter::On_Execute(void)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
-			if( pInput->is_InGrid(x, y) )
+			if( m_pInput->is_InGrid(x, y) )
 			{
 				switch( Mode )
 				{
-				case 0:
-					Mean	= Get_Mean_Square(x, y, Radius);
-					break;
-
-				case 1:
-					Mean	= Get_Mean_Circle(x, y);
-					break;
+				case 0:		Mean	= Get_Mean_Square(x, y, Radius);	break;
+				case 1:		Mean	= Get_Mean_Circle(x, y);			break;
 				}
 
 				switch( Method )
@@ -192,11 +183,11 @@ bool CFilter::On_Execute(void)
 					break;
 
 				case 1:				// Sharpen...
-					pResult->Set_Value(x, y, pInput->asDouble(x, y) + (pInput->asDouble(x, y) - Mean));
+					pResult->Set_Value(x, y, m_pInput->asDouble(x, y) + (m_pInput->asDouble(x, y) - Mean));
 					break;
 
 				case 2:				// Edge...
-					pResult->Set_Value(x, y, pInput->asDouble(x, y) - Mean);
+					pResult->Set_Value(x, y, m_pInput->asDouble(x, y) - Mean);
 					break;
 				}
 			}
@@ -204,9 +195,9 @@ bool CFilter::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( !Parameters("RESULT")->asGrid() || Parameters("RESULT")->asGrid() == pInput )
+	if( m_pInput == Parameters("RESULT")->asGrid() )
 	{
-		pInput->Assign(pResult);
+		m_pInput->Assign(pResult);
 
 		delete(pResult);
 	}
@@ -226,27 +217,22 @@ bool CFilter::On_Execute(void)
 //---------------------------------------------------------
 double CFilter::Get_Mean_Square(int x, int y, int Radius)
 {
-	int		ax, ay, bx, by, ix, iy, n;
+	int		ix, iy, n;
 	double	s;
 
-	if( (ax = x - Radius) <  0 )		{	ax	= 0;			}	
-	if( (bx = x + Radius) >= Get_NX() )	{	bx	= Get_NX() - 1;	}
-	if( (ay = y - Radius) <  0 )		{	ay	= 0;			}
-	if( (by = y + Radius) >= Get_NY() )	{	by	= Get_NY() - 1;	}
-
-	for(n=0, s=0.0, iy=ay; iy<=by; iy++)
+	for(n=0, s=0.0, iy=y-Radius; iy<=y+Radius; iy++)
 	{
-		for(ix=ax; ix<=bx; ix++)
+		for(ix=x-Radius; ix<=x+Radius; ix++)
 		{
-			if( pInput->is_InGrid(ix, iy) )
+			if( m_pInput->is_InGrid(ix, iy) )
 			{
-				s	+= pInput->asDouble(ix, iy);
-				n++;
+				s	+= m_pInput->asDouble(ix, iy);
+				n	++;
 			}
 		}
 	}
 
-	return( n > 0 ? s / n : pInput->Get_NoData_Value() );
+	return( n > 0 ? s / n : m_pInput->Get_NoData_Value() );
 }
 
 //---------------------------------------------------------
@@ -259,14 +245,14 @@ double CFilter::Get_Mean_Circle(int x, int y)
 	{
 		m_Radius.Get_Point(i, x, y, ix, iy);
 
-		if( pInput->is_InGrid(ix, iy) )
+		if( m_pInput->is_InGrid(ix, iy) )
 		{
-			s	+= pInput->asDouble(ix, iy);
-			n++;
+			s	+= m_pInput->asDouble(ix, iy);
+			n	++;
 		}
 	}
 
-	return( n > 0 ? s / n : pInput->Get_NoData_Value() );
+	return( n > 0 ? s / n : m_pInput->Get_NoData_Value() );
 }
 
 

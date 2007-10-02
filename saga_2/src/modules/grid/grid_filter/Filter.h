@@ -83,7 +83,7 @@ private:
 
 	CSG_Grid_Radius			m_Radius;
 
-	CSG_Grid					*pInput;
+	CSG_Grid				*m_pInput;
 
 
 	double					Get_Mean_Square	(int x, int y, int Radius);

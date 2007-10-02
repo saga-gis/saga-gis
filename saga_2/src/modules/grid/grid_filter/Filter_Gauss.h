@@ -80,12 +80,12 @@ protected:
 
 private:
 
-	CSG_Grid			*m_pInput, m_Kernel, m_Mask;
+	CSG_Grid			*m_pInput, m_Weights;
 
 
 	bool				Initialise			(int Radius, double Sigma, int Mode);
 
-	double				Get_Mean			(int x, int y, int Radius);
+	double				Get_Mean			(int x, int y);
 
 };
 

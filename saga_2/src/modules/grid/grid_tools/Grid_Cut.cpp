@@ -73,24 +73,36 @@
 CGrid_Cut::CGrid_Cut(void)
 {
 	//-----------------------------------------------------
-	Set_Name(_TL("Cutting"));
+	Set_Name		(_TL("Cutting"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
 	Set_Description	(_TW(
-		"Create a new grid from interactively selected cut of an input grid.\n")
-	);
+		"Create a new grid from interactively selected cut of an input grid.\n"
+	));
 
 	//-----------------------------------------------------
+	Parameters.Add_Grid(
+		NULL	, "GRID"	, _TL("Grid"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
 	Parameters.Add_Grid_Output(
 		NULL	, "CUT"		, _TL("Cut"),
 		_TL("")
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "GRID"	, _TL("Grid"),
+	Parameters.Add_Grid_List(
+		NULL	, "GRIDS"	, _TL("Additional Grids"),
 		_TL(""),
-		PARAMETER_INPUT
+		PARAMETER_INPUT_OPTIONAL, false
+	);
+
+	Parameters.Add_Grid_List(
+		NULL	, "CUTS"	, _TL("Additional Cuts"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL, false
 	);
 
 	//-----------------------------------------------------
@@ -138,7 +150,7 @@ int CGrid_Cut::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	int		nx, ny;
 	double	xMin, xMax, yMin, yMax, d;
 
-	if( m_pInput && !SG_STR_CMP(pParameters->Get_Identifier(), SG_T("CUT")) )
+	if( m_pGrid && !SG_STR_CMP(pParameters->Get_Identifier(), SG_T("CUT")) )
 	{
 		xMin	= pParameters->Get_Parameter("XMIN")->asDouble();
 		xMax	= pParameters->Get_Parameter("XMAX")->asDouble();
@@ -150,7 +162,7 @@ int CGrid_Cut::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 		if( xMin > xMax )	{	d	= xMin;	xMin	= xMax;	xMax	= d;	}
 		if( yMin > yMax )	{	d	= yMin;	yMin	= yMax;	yMax	= d;	}
 
-		d		= m_pInput->Get_Cellsize();
+		d		= m_pGrid->Get_Cellsize();
 
 		if     ( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("NX")) )
 		{
@@ -206,7 +218,11 @@ int CGrid_Cut::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 bool CGrid_Cut::On_Execute(void)
 {
 	m_bDown		= false;
-	m_pInput	= Parameters("GRID")->asGrid();
+
+	m_pGrid		= Parameters("GRID")	->asGrid();
+	m_pGrids	= Parameters("GRIDS")	->asGridList();
+
+	Parameters("CUTS")->asGridList()->Del_Items();
 
 	return( true );
 }
@@ -223,8 +239,8 @@ bool CGrid_Cut::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mo
 {
 	CSG_Rect		r;
 	CSG_Grid_System	System;
-	CSG_Grid			*pCut;
-	CSG_Parameters		*pParameters;
+	CSG_Grid		*pCut;
+	CSG_Parameters	*pParameters;
 
 	switch( Mode )
 	{
@@ -253,8 +269,8 @@ bool CGrid_Cut::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mo
 			pParameters->Get_Parameter("XMAX")	->Set_Value(r.Get_XMax());
 			pParameters->Get_Parameter("YMIN")	->Set_Value(r.Get_YMin());
 			pParameters->Get_Parameter("YMAX")	->Set_Value(r.Get_YMax());
-			pParameters->Get_Parameter("NX")	->Set_Value(1 + (int)(r.Get_XRange() / m_pInput->Get_Cellsize()));
-			pParameters->Get_Parameter("NY")	->Set_Value(1 + (int)(r.Get_YRange() / m_pInput->Get_Cellsize()));
+			pParameters->Get_Parameter("NX")	->Set_Value(1 + (int)(r.Get_XRange() / m_pGrid->Get_Cellsize()));
+			pParameters->Get_Parameter("NY")	->Set_Value(1 + (int)(r.Get_YRange() / m_pGrid->Get_Cellsize()));
 
 			if( Dlg_Parameters("CUT") )
 			{
@@ -265,12 +281,24 @@ bool CGrid_Cut::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mo
 					pParameters->Get_Parameter("YMAX")->asDouble()
 				);
 
-				if( r.Intersect(m_pInput->Get_Extent()) && System.Assign(m_pInput->Get_Cellsize(), r) )
+				if( r.Intersect(m_pGrid->Get_Extent()) && System.Assign(m_pGrid->Get_Cellsize(), r) )
 				{
-					pCut	= SG_Create_Grid(System, m_pInput->Get_Type());
-					pCut->Assign(m_pInput, GRID_INTERPOLATION_NearestNeighbour);
-					pCut->Set_Name(m_pInput->Get_Name());
+					pCut	= SG_Create_Grid(System, m_pGrid->Get_Type());
+					pCut->Assign(m_pGrid, GRID_INTERPOLATION_NearestNeighbour);
+					pCut->Set_Name(m_pGrid->Get_Name());
 					Parameters("CUT")->Set_Value(pCut);
+
+					for(int i=0; i<m_pGrids->Get_Count(); i++)
+					{
+						if( r.Intersect(m_pGrids->asGrid(i)->Get_Extent()) )
+						{
+							pCut	= SG_Create_Grid(System, m_pGrids->asGrid(i)->Get_Type());
+							pCut->Assign(m_pGrids->asGrid(i), GRID_INTERPOLATION_NearestNeighbour);
+							pCut->Set_Name(m_pGrids->asGrid(i)->Get_Name());
+							Parameters("CUTS")->asGridList()->Add_Item(pCut);
+							DataObject_Add(pCut);
+						}
+					}
 				}
 			}
 		}
@@ -291,8 +319,8 @@ bool CGrid_Cut::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mo
 //---------------------------------------------------------
 TSG_Point CGrid_Cut::Fit_to_Grid(TSG_Point pt)
 {
-	pt.x	= m_pInput->Get_XMin() + m_pInput->Get_Cellsize() * (int)(0.5 + (pt.x - m_pInput->Get_XMin()) / m_pInput->Get_Cellsize());
-	pt.y	= m_pInput->Get_YMin() + m_pInput->Get_Cellsize() * (int)(0.5 + (pt.y - m_pInput->Get_YMin()) / m_pInput->Get_Cellsize());
+	pt.x	= m_pGrid->Get_XMin() + m_pGrid->Get_Cellsize() * (int)(0.5 + (pt.x - m_pGrid->Get_XMin()) / m_pGrid->Get_Cellsize());
+	pt.y	= m_pGrid->Get_YMin() + m_pGrid->Get_Cellsize() * (int)(0.5 + (pt.y - m_pGrid->Get_YMin()) / m_pGrid->Get_Cellsize());
 
 	return( pt );
 }

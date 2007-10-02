@@ -102,7 +102,9 @@ private:
 
 	CSG_Point				m_ptDown;
 
-	CSG_Grid					*m_pInput;
+	CSG_Grid				*m_pGrid;
+
+	CSG_Parameter_Grid_List	*m_pGrids;
 
 
 	TSG_Point				Fit_to_Grid				(TSG_Point pt);

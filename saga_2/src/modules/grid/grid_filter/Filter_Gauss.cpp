@@ -143,9 +143,9 @@ bool CFilter_Gauss::On_Execute(void)
 	//-----------------------------------------------------
 	m_pInput	= Parameters("INPUT")	->asGrid();
 	pResult		= Parameters("RESULT")	->asGrid();
-	Sigma		= Parameters("SIGMA")	->asDouble();
-	Mode		= Parameters("MODE")	->asInt();
 	Radius		= Parameters("RADIUS")	->asInt();
+	Mode		= Parameters("MODE")	->asInt();
+	Sigma		= Parameters("SIGMA")	->asDouble();
 
 	if( !pResult || pResult == m_pInput )
 	{
@@ -153,6 +153,8 @@ bool CFilter_Gauss::On_Execute(void)
 
 		Parameters("RESULT")->Set_Value(m_pInput);
 	}
+
+	pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
 
 	//-----------------------------------------------------
 	if( Initialise(Radius, Sigma, Mode) )
@@ -163,7 +165,7 @@ bool CFilter_Gauss::On_Execute(void)
 			{
 				if( m_pInput->is_InGrid(x, y) )
 				{
-					pResult->Set_Value(x, y, Get_Mean(x, y, Radius));
+					pResult->Set_Value(x, y, Get_Mean(x, y));
 				}
 			}
 		}
@@ -176,7 +178,7 @@ bool CFilter_Gauss::On_Execute(void)
 			delete(pResult);
 		}
 
-		m_Kernel.Destroy();
+		m_Weights.Destroy();
 
 		return( true );
 	}
@@ -191,12 +193,12 @@ bool CFilter_Gauss::Initialise(int Radius, double Sigma, int Mode)
 	double	dx, dy, val, min, max;
 
 	//-----------------------------------------------------
-	m_Kernel.Create(GRID_TYPE_Double, 1 + 2 * Radius, 1 + 2 * Radius);
+	m_Weights.Create(GRID_TYPE_Double, 1 + 2 * Radius, 1 + 2 * Radius);
 
 	//-----------------------------------------------------
-	for(y=0, dy=-Radius, min=1.0, max=0.0; y<m_Kernel.Get_NY(); y++, dy++)
+	for(y=0, dy=-Radius, min=1.0, max=0.0; y<m_Weights.Get_NY(); y++, dy++)
 	{
-		for(x=0, dx=-Radius; x<m_Kernel.Get_NX(); x++, dx++)
+		for(x=0, dx=-Radius; x<m_Weights.Get_NX(); x++, dx++)
 		{
 			switch( Mode )
 			{
@@ -211,7 +213,7 @@ bool CFilter_Gauss::Initialise(int Radius, double Sigma, int Mode)
 				break;
 			}
 
-			m_Kernel.Set_Value(x, y, val);
+			m_Weights.Set_Value(x, y, val);
 
 			if( min > max )
 			{
@@ -242,35 +244,30 @@ bool CFilter_Gauss::Initialise(int Radius, double Sigma, int Mode)
 		return( true );
 	}
 
-	m_Kernel.Destroy();
+	m_Weights.Destroy();
 
 	return( false );
 }
 
 //---------------------------------------------------------
-double CFilter_Gauss::Get_Mean(int x, int y, int Radius)
+double CFilter_Gauss::Get_Mean(int x, int y)
 {
 	int		ix, iy, jx, jy;
-	double	Result, Kernel_Sum, Kernel;
+	double	s, n, w;
 
-	Result		= 0.0;
-	Kernel_Sum	= 0.0;
-
-	//-----------------------------------------------------
-	for(jy=0, iy=y-Radius; jy<m_Kernel.Get_NY(); jy++, iy++)
+	for(n=0.0, s=0.0, jy=0, iy=y-(m_Weights.Get_NY()-1)/2; jy<m_Weights.Get_NY(); jy++, iy++)
 	{
-		for(jx=0, ix=x-Radius; jx<m_Kernel.Get_NX(); jx++, ix++)
+		for(jx=0, ix=x-(m_Weights.Get_NX()-1)/2; jx<m_Weights.Get_NX(); jx++, ix++)
 		{
-			if( (Kernel = m_Kernel.asDouble(jx, jy)) > 0.0 && m_pInput->is_InGrid(ix, iy) )
+			if( (w = m_Weights.asDouble(jx, jy)) > 0.0 && m_pInput->is_InGrid(ix, iy) )
 			{
-				Result		+= Kernel * m_pInput->asDouble(ix, iy);
-				Kernel_Sum	+= Kernel;
+				s	+= w * m_pInput->asDouble(ix, iy);
+				n	+= w;
 			}
 		}
 	}
 
-	//-----------------------------------------------------
-	return( Kernel_Sum > 0.0 ? Result / Kernel_Sum : m_pInput->Get_NoData_Value() );
+	return( n > 0.0 ? s / n : m_pInput->Get_NoData_Value() );
 }
 
 
