@@ -7,8 +7,18 @@
 #include "grib2_import.h"
 #include <sys/types.h>
 #include <sys/stat.h>
+
+#ifdef _SAGA_LINUX
 #include <unistd.h>
-#include <wx/filename.h>
+#endif
+
+#ifdef _SAGA_MSW
+double rint(double x)
+{
+	return( (int)(0.5 + x) );
+}
+#endif
+
 
 SGGrib2Import::SGGrib2Import(void)
 {
@@ -29,7 +39,11 @@ SGGrib2Import::SGGrib2Import(void)
 	Parameters.Add_FilePath(
 		NULL	, "FILE"	, _TL("File"),
 		_TL(""),
-		_TL("GRIB2 file|*.grib2|All Files|*.*")
+		_TW(
+			"GRIdded Binary (GRIB) files|*.grib*;*.grb*|"
+			"GRIB2 files|*.grib2;*.grb2|"
+			"All Files|*.*"
+		)
 	);
 }
 
@@ -72,7 +86,8 @@ bool SGGrib2Import::On_Execute(void)
 				fprintf( stderr, "unhandled grid definition template no.: %d\n", gf->igdtnum );
 				if ( ! handle_latlon() ) return false; 
 		}
-		pGrid->Set_Name( wxFileName( wxString( FileName ) ).GetName() );
+		pGrid->Set_Name( SG_File_Get_Name(FileName, false) );	// no need to use wx!!!
+//		pGrid->Set_Name( wxFileName( wxString( FileName ) ).GetName() );
 		Parameters( "OUT_GRID" )->Set_Value( pGrid );
 		g2_free( gf );
 		free( raw );
@@ -84,6 +99,9 @@ bool SGGrib2Import::On_Execute(void)
 bool SGGrib2Import::handle_latlon( void ) {
 	int x, y, nx, ny;
 	double cellsize, xmin, ymin;
+
+	if( gf->igdtmpl == NULL || gf->fld == NULL )	// possible if jpeg/png is not supported!?
+		return( false );
 
 	nx = ( int ) gf->igdtmpl[ 7 ];
 	ny = ( int ) gf->igdtmpl[ 8 ];

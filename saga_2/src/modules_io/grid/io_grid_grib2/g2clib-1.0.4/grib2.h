@@ -2,6 +2,10 @@
 #define _grib2_H
 #include<stdio.h>
 
+#ifdef _SAGA_MSW
+extern double rint(double x);
+#endif
+
 #define G2_VERSION "g2clib-1.0.4"
 /*                .      .    .                                       .
 //   PRGMMR: Gilbert         ORG: W/NP11    DATE: 2002-10-25
@@ -173,6 +177,8 @@ struct _template {
 };
 
 typedef struct _template _template;
+
+#define template _template
 
 struct gribfield {
    g2int   version,discipline;
