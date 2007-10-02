@@ -107,7 +107,7 @@ CFilter_Gauss::CFilter_Gauss(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL, "SEARCH_MODE"	, _TL("Search Mode"),
+		NULL, "MODE"		, _TL("Search Mode"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Square"),
@@ -132,195 +132,152 @@ CFilter_Gauss::~CFilter_Gauss(void)
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
-double CFilter_Gauss::Gauss_Function(double x, double y)
-{
-	return exp(- (x*x+y*y) / (2*m_sigma*m_sigma)) / (2*M_PI*m_sigma*m_sigma);
-}
-
-void CFilter_Gauss::Init_Kernel(int Radius)
-{
-	int x,y;
-	double val, min, max;
-
-	min = 999999;
-	max = 0;
-	
-	pKernel = (CSG_Grid *) new CSG_Grid( GRID_TYPE_Double , 1+2*Radius, 1+2*Radius);
-
-	for(y=-Radius; y<=Radius ; y++)
-	{
-		for(x=-Radius; x<=Radius; x++)
-		{
-			val = Gauss_Function(x , y);
-			pKernel->Set_Value(x+Radius, y+Radius, val);
-			if (min > val)
-				min =val;
-
-			if (max < val)
-				max =val;
-		}
-	}
-	
-	if (min/max > 0.367/2.0)
-		Message_Add(_TL("Radius is too small for your Standard Deviation"));
-}
 
 //---------------------------------------------------------
 bool CFilter_Gauss::On_Execute(void)
 {
-	int		x, y, Mode,  Radius;
-
-	double	Mean;
-
+	int			x, y, Mode, Radius;
+	double		Sigma;
 	CSG_Grid	*pResult;
 
 	//-----------------------------------------------------
-	pInput		= Parameters("INPUT")->asGrid();
+	m_pInput	= Parameters("INPUT")	->asGrid();
+	pResult		= Parameters("RESULT")	->asGrid();
+	Sigma		= Parameters("SIGMA")	->asDouble();
+	Mode		= Parameters("MODE")	->asInt();
+	Radius		= Parameters("RADIUS")	->asInt();
 
-	if( !Parameters("RESULT")->asGrid() )
+	if( !pResult || pResult == m_pInput )
 	{
-		Parameters("RESULT")->Set_Value(pInput);
+		pResult	= SG_Create_Grid(m_pInput);
+
+		Parameters("RESULT")->Set_Value(m_pInput);
 	}
-
-	pResult		= Parameters("RESULT")->asGrid();
-
-	if( !pResult || pResult == pInput )
-	{
-		pResult	= SG_Create_Grid(pInput);
-	}
-
-	Mode		= Parameters("SEARCH_MODE")->asInt();
-	m_sigma		= Parameters("SIGMA")->asDouble();
-	Radius		= Parameters("RADIUS")->asInt();
-
-	switch( Mode )
-	{
-	case 0:	break;
-	case 1:	m_Radius.Create(1 + Radius);	break;
-	}
-
-	Init_Kernel( Radius );
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	if( Initialise(Radius, Sigma, Mode) )
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(y=0; y<Get_NY() && Set_Progress(y); y++)
 		{
-			if( pInput->is_InGrid(x, y) )
+			for(x=0; x<Get_NX(); x++)
 			{
-				switch( Mode )
+				if( m_pInput->is_InGrid(x, y) )
 				{
-				case 0:
-					Mean	= Get_Mean_Square(x, y, Radius);
-					break;
-
-				case 1:
-					Mean	= Get_Mean_Circle(x, y);
-					break;
+					pResult->Set_Value(x, y, Get_Mean(x, y, Radius));
 				}
+			}
+		}
 
-					pResult->Set_Value(x, y, Mean);
+		//-------------------------------------------------
+		if( m_pInput == Parameters("RESULT")->asGrid() )
+		{
+			m_pInput->Assign(pResult);
+
+			delete(pResult);
+		}
+
+		m_Kernel.Destroy();
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CFilter_Gauss::Initialise(int Radius, double Sigma, int Mode)
+{
+	int		x, y;
+	double	dx, dy, val, min, max;
+
+	//-----------------------------------------------------
+	m_Kernel.Create(GRID_TYPE_Double, 1 + 2 * Radius, 1 + 2 * Radius);
+
+	//-----------------------------------------------------
+	for(y=0, dy=-Radius, min=1.0, max=0.0; y<m_Kernel.Get_NY(); y++, dy++)
+	{
+		for(x=0, dx=-Radius; x<m_Kernel.Get_NX(); x++, dx++)
+		{
+			switch( Mode )
+			{
+			case 1:
+				val	= sqrt(dx*dx + dy*dy) > Radius
+					? 0.0
+					: exp(-(dx*dx + dy*dy) / (2.0 * Sigma*Sigma)) / (M_PI * 2.0 * Sigma*Sigma);
+				break;
+
+			case 0:
+				val	= exp(-(dx*dx + dy*dy) / (2.0 * Sigma*Sigma)) / (M_PI * 2.0 * Sigma*Sigma);
+				break;
+			}
+
+			m_Kernel.Set_Value(x, y, val);
+
+			if( min > max )
+			{
+				min	= max	= val;
+			}
+			else if( val < min )
+			{
+				min	= val;
+			}
+			else if( val > max )
+			{
+				max	= val;
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	if( !Parameters("RESULT")->asGrid() || Parameters("RESULT")->asGrid() == pInput )
+	if( max == 0.0 )
 	{
-		pInput->Assign(pResult);
-
-		delete(pResult);
+		Message_Dlg(_TL("Radius is too small"));
+	}
+	else if( min / max > 0.367 / 2.0 )
+	{
+		Message_Dlg(_TL("Radius is too small for your Standard Deviation"), Get_Name());
+	}
+	else
+	{
+		return( true );
 	}
 
-	m_Radius.Destroy();
+	m_Kernel.Destroy();
 
-	return( true );
+	return( false );
 }
 
 //---------------------------------------------------------
-double CFilter_Gauss::Get_Mean_Square(int x, int y, int Radius)
+double CFilter_Gauss::Get_Mean(int x, int y, int Radius)
 {
-	int		ax, ay, bx, by, ix, iy;
-	double	Result;
-	double	Kernel_Sum;
+	int		ix, iy, jx, jy;
+	double	Result, Kernel_Sum, Kernel;
 
-	Result	= 0.0;
+	Result		= 0.0;
 	Kernel_Sum	= 0.0;
 
 	//-----------------------------------------------------
-	ax		= x - Radius;
-	bx		= x + Radius;
-
-	if( ax < 0 )
+	for(jy=0, iy=y-Radius; jy<m_Kernel.Get_NY(); jy++, iy++)
 	{
-		ax	= 0;
-	}
-	else if( bx >= Get_NX() )
-	{
-		bx	= Get_NX() - 1;
-	}
-
-	ay		= y - Radius;
-	by		= y + Radius;
-
-	if( ay < 0 )
-	{
-		ay	= 0;
-	}
-	else if( by >= Get_NY() )
-	{
-		by	= Get_NY() - 1;
-	}
-
-	//-----------------------------------------------------
-	for(iy=ay; iy<=by; iy++)
-	{
-		for(ix=ax; ix<=bx; ix++)
+		for(jx=0, ix=x-Radius; jx<m_Kernel.Get_NX(); jx++, ix++)
 		{
-			if( pInput->is_InGrid(ix, iy) )
+			if( (Kernel = m_Kernel.asDouble(jx, jy)) > 0.0 && m_pInput->is_InGrid(ix, iy) )
 			{
-				Result	+= pInput->asDouble(ix, iy)* pKernel->asDouble(Radius + ix-x,Radius+ iy-y);
-				Kernel_Sum += pKernel->asDouble(Radius +ix-x,Radius+ iy-y);
+				Result		+= Kernel * m_pInput->asDouble(ix, iy);
+				Kernel_Sum	+= Kernel;
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	if( Kernel_Sum > 0.0 )
-	{
-		Result	/=  Kernel_Sum;
-	}
-
-	return( Result );
+	return( Kernel_Sum > 0.0 ? Result / Kernel_Sum : m_pInput->Get_NoData_Value() );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CFilter_Gauss::Get_Mean_Circle(int x, int y)
-{
-	int		iPoint, ix, iy, Radius;
-	double	Result,Kernel_Sum;
-
-	Radius = m_Radius.Get_Maximum()-1;
-	Result	= 0.0;
-	Kernel_Sum		= 0.0;
-
-	//-----------------------------------------------------
-	for(iPoint=0; iPoint<m_Radius.Get_nPoints(); iPoint++)
-	{
-		m_Radius.Get_Point(iPoint, x, y, ix, iy);
-
-		if( pInput->is_InGrid(ix, iy) )
-		{
-			Result	+= pInput->asDouble(ix, iy)* pKernel->asDouble(Radius+ix-x,Radius+ iy-y);
-			Kernel_Sum += pKernel->asDouble(Radius+ix-x,Radius+ iy-y);
-		}
-	}
-
-	//-----------------------------------------------------
-	if( Kernel_Sum > 0 )
-	{
-		Result	/= (double)Kernel_Sum;
-	}
-
-	return( Result );
-}

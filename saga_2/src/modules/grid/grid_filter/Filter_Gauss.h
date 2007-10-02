@@ -75,25 +75,17 @@ public:
 
 protected:
 
-	virtual bool		On_Execute		(void);
+	virtual bool		On_Execute			(void);
 
 
 private:
 
-	CSG_Grid_Radius		m_Radius;
-
-	CSG_Grid				*pInput;
-
-	CSG_Grid				*pKernel;
-
-	double				m_sigma;
+	CSG_Grid			*m_pInput, m_Kernel, m_Mask;
 
 
-	double				Gauss_Function	(double x, double y);
-	void				Init_Kernel		(int Radius);
-	
-	double				Get_Mean_Square	(int x, int y, int Radius);
-	double				Get_Mean_Circle	(int x, int y);
+	bool				Initialise			(int Radius, double Sigma, int Mode);
+
+	double				Get_Mean			(int x, int y, int Radius);
 
 };
 
