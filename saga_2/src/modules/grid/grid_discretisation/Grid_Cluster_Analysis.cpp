@@ -194,7 +194,8 @@ bool CGrid_Cluster_Analysis::On_Execute(void)
 			}
 		}
 
-		pCluster->Assign(-1);
+		pCluster->Set_NoData_Value(-1.0);
+		pCluster->Assign_NoData();
 
 		nMembers	= (int     *)SG_Malloc(nCluster * sizeof(int));
 		Variances	= (double  *)SG_Malloc(nCluster * sizeof(double));
@@ -248,8 +249,39 @@ bool CGrid_Cluster_Analysis::On_Execute(void)
 
 		Write_Result(Parameters("STATISTICS")->asTable(), nElements, nCluster, SP);
 
-		SG_Free(Grids);
+		//-------------------------------------------------
+		CSG_Parameters	Parms;
 
+		if( DataObject_Get_Parameters(pCluster, Parms) && Parms("COLORS_TYPE") && Parms("LUT") )
+		{
+			CSG_Table_Record	*pClass;
+			CSG_Table			*pLUT	= Parms("LUT")->asTable();
+
+			for(i=0; i<nCluster; i++)
+			{
+				if( (pClass = pLUT->Get_Record(i)) == NULL )
+				{
+					pClass	= pLUT->Add_Record();
+					pClass->Set_Value(0, SG_GET_RGB(rand() * 255.0 / RAND_MAX, rand() * 255.0 / RAND_MAX, rand() * 255.0 / RAND_MAX));
+				}
+
+				pClass->Set_Value(1, CSG_String::Format(SG_T("%s %d"), _TL("Class"), i + 1));
+				pClass->Set_Value(2, CSG_String::Format(SG_T("%s %d"), _TL("Class"), i + 1));
+				pClass->Set_Value(3, i + 1);
+				pClass->Set_Value(4, i + 1);
+			}
+
+			while( pLUT->Get_Record_Count() > nCluster )
+			{
+				pLUT->Del_Record(pLUT->Get_Record_Count() - 1);
+			}
+
+			Parms("COLORS_TYPE")->Set_Value(1);	// Color Classification Type: Lookup Table
+
+			DataObject_Set_Parameters(pCluster, Parms);
+		}
+
+		//-------------------------------------------------
 		for(i=0; i<nCluster; i++)
 		{
 			SG_Free(Centroids[i]);
@@ -258,6 +290,8 @@ bool CGrid_Cluster_Analysis::On_Execute(void)
 		SG_Free(Centroids);
 		SG_Free(Variances);
 		SG_Free(nMembers);
+
+		SG_Free(Grids);
 
 		return( true );
 	}

@@ -189,13 +189,22 @@ bool CSG_Grid::Assign(CSG_Grid *pGrid, TSG_Grid_Interpolation Interpolation)
 bool CSG_Grid::_Assign_Interpolated(CSG_Grid *pGrid, TSG_Grid_Interpolation Interpolation)
 {
 	int		x, y;
-	double	xPosition, yPosition;
+	double	xPosition, yPosition, z;
+
+	Set_NoData_Value_Range(pGrid->Get_NoData_Value(), pGrid->Get_NoData_hiValue());
 
 	for(y=0, yPosition=Get_YMin(); y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++, yPosition+=Get_Cellsize())
 	{
 		for(x=0, xPosition=Get_XMin(); x<Get_NX(); x++, xPosition+=Get_Cellsize())
 		{
-			Set_Value(x, y, pGrid->Get_Value(xPosition, yPosition, Interpolation));
+			if( pGrid->Get_Value(xPosition, yPosition, z, Interpolation) )
+			{
+				Set_Value (x, y, z);
+			}
+			else
+			{
+				Set_NoData(x, y);
+			}
 		}
 	}
 
@@ -701,6 +710,9 @@ void CSG_Grid::Mirror(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define NORMALISED_NODATA	9.0
+
+//---------------------------------------------------------
 void CSG_Grid::Normalise(void)
 {
 	int		x, y;
@@ -712,6 +724,23 @@ void CSG_Grid::Normalise(void)
 
 		if( m_Variance > 0.0 )
 		{
+			if(	(Get_NoData_hiValue() > -NORMALISED_NODATA && Get_NoData_hiValue() < NORMALISED_NODATA)
+			||	(Get_NoData_Value  () > -NORMALISED_NODATA && Get_NoData_Value  () < NORMALISED_NODATA) )
+			{
+				for(y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+				{
+					for(x=0; x<Get_NX(); x++)
+					{
+						if( is_NoData(x, y) )
+						{
+							Set_Value(x, y, -NORMALISED_NODATA);
+						}
+					}
+				}
+
+				Set_NoData_Value(-NORMALISED_NODATA);
+			}
+
 			d	= sqrt(m_Variance);
 
 			for(y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
