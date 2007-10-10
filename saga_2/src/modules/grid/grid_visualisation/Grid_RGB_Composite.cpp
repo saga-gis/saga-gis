@@ -291,25 +291,32 @@ bool CGrid_RGB_Composite::On_Execute(void)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
-			r	= (int)(rRange * (pR->asDouble(x, y) - rMin));
-			if( r > 255 )	r	= 255;	else if( r < 0 )	r	= 0;
-
-			g	= (int)(gRange * (pG->asDouble(x, y) - gMin));
-			if( g > 255 )	g	= 255;	else if( g < 0 )	g	= 0;
-
-			b	= (int)(bRange * (pB->asDouble(x, y) - bMin));
-			if( b > 255 )	b	= 255;	else if( b < 0 )	b	= 0;
-
-			if( pA )
+			if( pR->is_NoData(x, y) || pG->is_NoData(x, y) || pB->is_NoData(x, y) )
 			{
-				a	= (int)(aRange * (pA->asDouble(x, y) - aMin));
-				if( a > 255 )	a	= 255;	else if( a < 0 )	a	= 0;
-
-				pRGB->Set_Value(x, y, SG_GET_RGBA(r, g, b, a));
+				pRGB->Set_NoData(x, y);
 			}
 			else
 			{
-				pRGB->Set_Value(x, y, SG_GET_RGB(r, g, b));
+				r	= (int)(rRange * (pR->asDouble(x, y) - rMin));
+				if( r > 255 )	r	= 255;	else if( r < 0 )	r	= 0;
+
+				g	= (int)(gRange * (pG->asDouble(x, y) - gMin));
+				if( g > 255 )	g	= 255;	else if( g < 0 )	g	= 0;
+
+				b	= (int)(bRange * (pB->asDouble(x, y) - bMin));
+				if( b > 255 )	b	= 255;	else if( b < 0 )	b	= 0;
+
+				if( pA )
+				{
+					a	= (int)(aRange * (pA->asDouble(x, y) - aMin));
+					if( a > 255 )	a	= 255;	else if( a < 0 )	a	= 0;
+
+					pRGB->Set_Value(x, y, SG_GET_RGBA(r, g, b, a));
+				}
+				else
+				{
+					pRGB->Set_Value(x, y, SG_GET_RGB(r, g, b));
+				}
 			}
 		}
 	}
