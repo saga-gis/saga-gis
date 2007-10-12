@@ -713,11 +713,9 @@ void CSAGA_Frame::Show_Tips(bool bShow)
 //---------------------------------------------------------
 bool CSAGA_Frame::Process_Get_Okay(bool bBlink)
 {
-	static bool	s_bBlink	= false;
-
 	if( bBlink )
 	{
-		ProgressBar_Set_Position((s_bBlink = !s_bBlink) == true ? 100 : 0);
+		m_pProgressBar->Pulse();
 	}
 
 	return( g_pSAGA->Process_Get_Okay() );
