@@ -318,6 +318,8 @@ bool CSG_Grid::Destroy(void)
 	m_Description	.Clear();
 	m_Unit			.Clear();
 
+	m_System		.Assign(0.0, 0.0, 0.0, 0, 0);
+
 	return( CSG_Data_Object::Destroy() );
 }
 

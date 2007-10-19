@@ -551,11 +551,6 @@ CSG_Grid & CSG_Grid::_Operation_Arithmetic(const CSG_Grid &Grid, TSG_Grid_Operat
 //---------------------------------------------------------
 CSG_Grid & CSG_Grid::_Operation_Arithmetic(double Value, TSG_Grid_Operation Operation)
 {
-	if( Operation == GRID_OPERATION_Division && Value == 0.0 )
-	{
-		return( *this );
-	}
-
 	//-----------------------------------------------------
 	switch( Operation )
 	{
@@ -573,7 +568,11 @@ CSG_Grid & CSG_Grid::_Operation_Arithmetic(double Value, TSG_Grid_Operation Oper
 		break;
 
 	case GRID_OPERATION_Division:
+		if( Value == 0.0 )
+			return( *this );
+
 		Get_History().Add_Entry(LNG("[HST] Value division")			, CSG_String::Format(SG_T("%f"), Value));
+		Value	= 1.0 / Value;
 		break;
 	}
 
