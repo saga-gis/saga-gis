@@ -1,11 +1,7 @@
 #ifndef USE_PNG
-#ifndef _SAGA_MSW
- void dummy(void) {}
-#else
 #include "grib2.h"
  int dec_png(unsigned char *pngbuf,g2int *width,g2int *height,char *cout)
  {	return( 0 );	}
-#endif	// _SAGA_MSW
 #else   /* USE_PNG */
 
 #include <stdio.h>

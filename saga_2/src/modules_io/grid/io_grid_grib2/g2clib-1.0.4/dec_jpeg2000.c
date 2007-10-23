@@ -1,11 +1,7 @@
 #ifndef USE_JPEG2000
-#ifndef _SAGA_MSW
- void dummy(void) {}
-#else
 #include "grib2.h"
  int dec_jpeg2000(char *injpc,g2int bufsize,g2int *outfld)
  {	return( 0 );	}
-#endif	// _SAGA_MSW
 #else   /* USE_JPEG2000 */
 #include <stdio.h>
 #include <stdlib.h>
