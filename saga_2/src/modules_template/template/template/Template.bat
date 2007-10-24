@@ -24,8 +24,6 @@ ECHO ###################################
 ECHO Template
 ECHO -----------------------------------
 
-PUSHD .\TEMPLATE\TEMPLATE
 make -fmakefile.mingw
-POPD
 
 pause

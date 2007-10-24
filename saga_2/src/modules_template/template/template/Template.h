@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                       template                        //
+//                       Template                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
 //                      Template.h                       //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2007 by                 //
 //                        Author                         //
 //                                                       //
 //-------------------------------------------------------//
@@ -70,18 +70,25 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class template_EXPORT CTemplate : public CSG_Module
+// Use the 'Template_EXPORT' macro as defined in
+// 'MLB_Interface.h' to export this class to allow other
+// programs/libraries to use its functions:
+//
+// class Template_EXPORT CTemplate : public CSG_Module
+// ...
+//
+
+class CTemplate : public CSG_Module
 {
 public:
 	CTemplate(void);
-	virtual ~CTemplate(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( "R:Sub Menu" );	}
+	virtual const SG_Char *		Get_MenuPath	(void)	{	return( _TL("Template Module Sub Menu") );	}
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual bool				On_Execute		(void);
 
 
 private:

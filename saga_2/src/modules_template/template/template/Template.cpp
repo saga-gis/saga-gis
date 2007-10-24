@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                       template                        //
+//                       Template                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
 //                     Template.cpp                      //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2007 by                 //
 //                        Author                         //
 //                                                       //
 //-------------------------------------------------------//
@@ -37,7 +37,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     author@email.de                        //
+//    e-mail:     author@email.net                       //
 //                                                       //
 //    contact:    Author                                 //
 //                Sesame Street. 7                       //
@@ -68,20 +68,16 @@
 //---------------------------------------------------------
 CTemplate::CTemplate(void)
 {
-	Set_Name("Template");
-	Set_Author("copyrights (c) 2005 Hans Hacker");
-	Set_Description("I am a module template.");
+	Set_Name		(_TL("Module Template"));
+	Set_Author		(_TL("(c) 1984 by George Orwell"));
+	Set_Description	(_TL("I am a module template."));
 
 	Parameters.Add_Value(
-		NULL, "VALUE", "Value",
-		"This is a value.",
+		NULL	, "VALUE"	, _TL("Value"),
+		_TL("This is a floating point value parameter with double precision (8 bytes)."),
 		PARAMETER_TYPE_Double, M_PI
 	);
 }
-
-//---------------------------------------------------------
-CTemplate::~CTemplate(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
@@ -93,6 +89,10 @@ CTemplate::~CTemplate(void)
 //---------------------------------------------------------
 bool CTemplate::On_Execute(void)
 {
+	double	Value;
+
+	Value	= Parameters("VALUE")->asDouble();
+
 	return( true );
 }
 

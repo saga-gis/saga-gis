@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                       template                        //
+//                       Template                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
 //                   MLB_Interface.cpp                   //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2007 by                 //
 //                        Author                         //
 //                                                       //
 //-------------------------------------------------------//
@@ -69,19 +69,19 @@ const SG_Char * Get_Info(int i)
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return( "Template" );
+		return( _TL("Module Library Template") );
 
 	case MLB_INFO_Author:
-		return( "George Orwell (c) 1984" );
+		return( _TL("(c) 1984 by George Orwell") );
 
 	case MLB_INFO_Description:
-		return( "Template" );
+		return( _TL("I am a module library template.") );
 
 	case MLB_INFO_Version:
 		return( SG_T("1.0") );
 
 	case MLB_INFO_Menu_Path:
-		return( "Template|Sub Menu" );
+		return( _TL("Template Menu|Template Sub Menu") );
 	}
 }
 
@@ -102,20 +102,12 @@ CSG_Module *		Create_Module(int i)
 	// enumeration always has to start with [case 0:] and
 	// that [default:] must return NULL!...
 
-	CSG_Module	*pModule;
-
 	switch( i )
 	{
-	case 0:
-		pModule	= new CTemplate;
-		break;
+	case 0:		return( new CTemplate );
 
-	default:
-		pModule	= NULL;
-		break;
+	default:	return( NULL );
 	}
-
-	return( pModule );
 }
 
 
