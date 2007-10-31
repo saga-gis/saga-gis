@@ -415,13 +415,29 @@ CSG_Parameters * CGEOTRANS_Base::Get_Projection_Parameters(bool bSource, Coordin
 		break;
 
 	//-----------------------------------------------------
+	case Lambert_Conformal_Conic_1:
+		sIdentifier.Append(SG_T("LAMBERT_1"));
+
+		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
+		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
+		{
+			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, _TL(""), _TL("Lambert Conformal Conic (1 parallel)"));
+			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
+			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude"	)	, _TL(""), PARAMETER_TYPE_Degree, 45.0);
+			pParameters->Add_Value		(NULL, "SCALE"			, _TL("Scale Factor")		, _TL(""), PARAMETER_TYPE_Degree, 1.0);
+			pParameters->Add_Value		(NULL, "EASTING"		, _TL("False Easting [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
+			pParameters->Add_Value		(NULL, "NORTHING"		, _TL("False Northing [m]")	, _TL(""), PARAMETER_TYPE_Double, 0.0);
+		}
+		break;
+
+	//-----------------------------------------------------
 	case Lambert_Conformal_Conic:
 		sIdentifier.Append(SG_T("LAMBERT"));
 
 		if( (pParameters = Get_Parameters(sIdentifier))				== NULL
 		&&	(pParameters = Add_Parameters(sIdentifier, sName, _TL("")))	!= NULL )
 		{
-			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, _TL(""), _TL("Lambert Conformal Conic"));
+			pParameters->Add_Info_String(NULL, "TYPE"			, _TL("Projection")			, _TL(""), _TL("Lambert Conformal Conic (2 parallel)"));
 			pParameters->Add_Value		(NULL, "MERIDIAN"		, _TL("Central Meridian")	, _TL(""), PARAMETER_TYPE_Degree, 0.0);
 			pParameters->Add_Value		(NULL, "LATITUDE"		, _TL("Origin Latitude"	)	, _TL(""), PARAMETER_TYPE_Degree, 45.0);
 			pParameters->Add_Value		(NULL, "PARALLEL_1"		, _TL("1st Std. Parallel")	, _TL(""), PARAMETER_TYPE_Degree, 40.0);
@@ -772,6 +788,7 @@ bool CGEOTRANS_Base::Set_Transformation(bool bShow_Dialog)
 
 	if(	(pParms = Get_Projection_Parameters(true, Type_Input, bShow_Dialog))	== NULL )
 	{
+		Message_Dlg(_TL("Source Parameter List Initialisation Error"));
 		return( false );
 	}
 
@@ -808,6 +825,7 @@ bool CGEOTRANS_Base::Set_Transformation(bool bShow_Dialog)
 
 	if(	(pParms = Get_Projection_Parameters(false, Type_Output, bShow_Dialog))	== NULL )
 	{
+		Message_Dlg(_TL("Target Parameter List Initialisation Error"));
 		return( false );
 	}
 
@@ -1015,6 +1033,20 @@ bool CGEOTRANS_Base::Set_Projection_Parameters(Input_Output dir, Coordinate_Type
 				params.false_northing	= pParms->Get_Parameter("NORTHING")		->asDouble();
 
 				Set_Gnomonic_Params(Interactive, dir, params);
+				break;
+			}
+
+		//-------------------------------------------------
+		case Lambert_Conformal_Conic_1:		// Layout: 4*2*2
+			{	Lambert_Conformal_Conic_1_Parameters		params;
+
+				params.central_meridian	= pParms->Get_Parameter("MERIDIAN")		->asDouble() * M_DEG_TO_RAD;
+				params.origin_latitude	= pParms->Get_Parameter("LATITUDE")		->asDouble() * M_DEG_TO_RAD;
+				params.scale_factor		= pParms->Get_Parameter("SCALE")		->asDouble();
+				params.false_easting	= pParms->Get_Parameter("EASTING")		->asDouble();
+				params.false_northing	= pParms->Get_Parameter("NORTHING")		->asDouble();
+
+				Set_Lambert_Conformal_Conic_1_Params(Interactive, dir, params);
 				break;
 			}
 
@@ -1448,6 +1480,15 @@ bool CGEOTRANS_Base::Convert_Set(double x, double y)
 				break;
 			}
 
+		case Lambert_Conformal_Conic_1:
+			{
+				Lambert_Conformal_Conic_1_Tuple coord;
+				coord.easting		= x;
+				coord.northing		= y;
+				error_code			= Set_Lambert_Conformal_Conic_1_Coordinates(Interactive, Input, coord);
+				break;
+			}
+
 		case Lambert_Conformal_Conic:
 			{
 				Lambert_Conformal_Conic_Tuple coord;
@@ -1751,6 +1792,15 @@ bool CGEOTRANS_Base::Convert_Get(double &x, double &y)
 			{
 				Gnomonic_Tuple coord;
 				error_code	= Get_Gnomonic_Coordinates(Interactive, Output, &coord);
+				x			= coord.easting;
+				y			= coord.northing;
+				break;
+			}
+
+		case Lambert_Conformal_Conic_1:
+			{
+				Lambert_Conformal_Conic_1_Tuple coord;
+				error_code	= Get_Lambert_Conformal_Conic_1_Coordinates(Interactive, Output, &coord);
 				x			= coord.easting;
 				y			= coord.northing;
 				break;
