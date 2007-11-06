@@ -579,9 +579,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name grid_tools
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name saga_api
     End Project Dependency
 }}}

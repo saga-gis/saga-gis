@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/ 
 
-#include "../../../modules/grid/grid_tools/Grid_Gaps.h"
+//#include "../../../modules/grid/grid_tools/Grid_Gaps.h"
 
 #include "Forecasting.h"
 
@@ -29,9 +29,18 @@
 
 CForecasting::CForecasting(void){
 
-	Parameters.Set_Name(_TL("Fire Risk Analysis"));
-	Parameters.Set_Description(_TW(
-		"(c) 2004 Victor Olaya. Fire Risk Analysis"));
+	Set_Name		(_TL("Fire Risk Analysis"));
+	Set_Author		(_TL("(c) 2004 Victor Olaya"));
+	Set_Description	(_TW(
+		"Fire risk analysis based on the BEHAVE fire modeling system "
+		"supported by the U.S. Forest Service, Fire and Aviation Management. "
+		"Find more information on BEHAVE at the <i>Public Domain Software for the Wildland Fire Community</i> at "
+		"<a target=\"_blank\" href=\"http://fire.org\">http://fire.org</a>\n"
+		"\n"
+		"Reference:\n"
+		"Andrews, P.L. (1986): BEHAVE: Fire Behavior Prediction and Fuel Modeling System - "
+		"Burn Subsystem, Part 1. U.S. Department of Agriculture, Forest Service General, Technical Report INT-194. "
+	));
 
 	Parameters.Add_Grid(NULL, 
 						"DEM", 
@@ -296,9 +305,8 @@ void CForecasting::CalculateGrids(){
 	
 	Process_Set_Text(_TL("Closing Gaps..."));
 
-	CGrid_Gaps pGaps;
-	if(	!pGaps.Get_Parameters()->Set_Parameter(SG_T("INPUT"), PARAMETER_TYPE_Grid, m_pDangerGrid)
-	||	!pGaps.Execute() ){
+	if(	!Gaps_Close(m_pDangerGrid) )
+	{
 		return;
 	}//if
 
@@ -423,3 +431,233 @@ double CForecasting::CalculateFireSpreading(){
 	return dBurntValue;
 
 }//method
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CForecasting::Gaps_Close(CSG_Grid *pInput)
+{
+	int			iStep, iStart, n;
+	double		max, Threshold;
+	CSG_Grid	*pResult, *pTension_Keep, *pTension_Temp;
+
+	//-----------------------------------------------------
+	pResult		= pInput;
+	pInput		= SG_Create_Grid(pInput);
+	pInput->Assign(pResult);
+
+	//-----------------------------------------------------
+	Threshold	= 0.1;
+
+	n			= Get_NX() > Get_NY() ? Get_NX() : Get_NY();
+	iStep		= 0;
+	do	{	iStep++;	}	while( pow(2.0, iStep + 1) < n );
+	iStart		= (int)pow(2.0, iStep);
+
+	pTension_Keep		= new CSG_Grid(pResult, GRID_TYPE_Byte);
+	pTension_Temp		= new CSG_Grid(pResult);
+
+	pResult->Assign_NoData();
+
+	for(iStep=iStart; iStep>=1; iStep/=2)
+	{
+		Gaps_Tension_Init(iStep, pTension_Temp, pTension_Keep, pResult, pInput);
+
+		do
+		{
+			max		= Gaps_Tension_Step(iStep, pTension_Temp, pTension_Keep, pResult);
+		}
+		while( max > Threshold && Process_Get_Okay(true) );
+	}
+
+	//-----------------------------------------------------
+	delete(pTension_Keep);
+	delete(pTension_Temp);
+	delete(pInput);
+
+	return( true );
+}
+
+//---------------------------------------------------------
+void CForecasting::Gaps_Tension_Init(int iStep, CSG_Grid *pTension_Temp, CSG_Grid *pTension_Keep, CSG_Grid *pResult, CSG_Grid *pInput)
+{
+	int		x, y, i, ix, iy, nx, ny, nz;
+	double	z;
+
+	//-----------------------------------------------------
+	// 1. Channels...
+
+	pTension_Temp->Assign_NoData();
+	pTension_Keep->Assign();
+
+	for(y=0; y<Get_NY(); y+=iStep)
+	{
+		ny	= y + iStep < Get_NY() ? y + iStep : Get_NY();
+
+		for(x=0; x<Get_NX(); x+=iStep)
+		{
+			if( !pInput->is_NoData(x, y) )
+			{
+				pTension_Temp->Set_Value(x, y, pInput->asDouble(x, y) );
+				pTension_Keep->Set_Value(x, y, 1.0);
+			}
+			else
+			{
+				nx	= x + iStep < Get_NX() ? x + iStep : Get_NX();
+				nz	= 0;
+				z	= 0.0;
+
+				for(iy=y; iy<ny; iy++)
+				{
+					for(ix=x; ix<nx; ix++)
+					{
+						if( pInput->is_InGrid(ix, iy) )
+						{
+							z	+= pInput->asDouble(ix, iy);
+							nz++;
+						}
+					}
+				}
+
+				if( nz > 0 )
+				{
+					pTension_Temp->Set_Value(x, y, z / (double)nz );
+					pTension_Keep->Set_Value(x, y, 1.0);
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	// 2. Previous Iteration...
+
+	for(y=0; y<Get_NY(); y+=iStep)
+	{
+		for(x=0; x<Get_NX(); x+=iStep)
+		{
+			if( pTension_Keep->asByte(x, y) == false )
+			{
+				if( !pResult->is_NoData(x, y) )
+				{
+					pTension_Temp->Set_Value(x, y, pResult->asDouble(x, y));
+				}
+				else
+				{
+					nz	= 0;
+					z	= 0.0;
+
+					for(i=0; i<8; i++)
+					{
+						ix	= x + iStep * Get_System()->Get_xTo(i);
+						iy	= y + iStep * Get_System()->Get_yTo(i);
+
+						if( pResult->is_InGrid(ix, iy) )
+						{
+							z	+= pResult->asDouble(ix, iy);
+							nz++;
+						}
+					}
+
+					if( nz > 0.0 )
+					{
+						pTension_Temp->Set_Value(x, y, z / (double)nz);
+					}
+					else
+					{
+						pTension_Temp->Set_Value(x, y, pInput->asDouble(x, y));
+					}
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	// 3. ...
+
+	pResult->Assign(pTension_Temp);
+}
+
+//---------------------------------------------------------
+double CForecasting::Gaps_Tension_Step(int iStep, CSG_Grid *pTension_Temp, CSG_Grid *pTension_Keep, CSG_Grid *pResult)
+{
+	int		x, y;
+	double	d, dMax;
+
+	dMax	= 0.0;
+
+	for(y=0; y<Get_NY(); y+=iStep)
+	{
+		for(x=0; x<Get_NX(); x+=iStep)
+		{
+			if( pTension_Keep->asByte(x, y) == false )
+			{
+				d	= Gaps_Tension_Change(x, y, iStep, pResult);
+
+				pTension_Temp->Set_Value(x, y, d);
+
+				d	= fabs(d - pResult->asDouble(x, y));
+
+				if( d > dMax )
+				{
+					dMax	= d;
+				}
+			}
+		}
+	}
+
+	for(y=0; y<Get_NY(); y+=iStep)
+	{
+		for(x=0; x<Get_NX(); x+=iStep)
+		{
+			if( pTension_Keep->asByte(x, y) == false )
+			{
+				pResult->Set_Value(x, y, pTension_Temp->asDouble(x, y));
+			}
+		}
+	}
+
+	return( dMax );
+}
+
+//---------------------------------------------------------
+double CForecasting::Gaps_Tension_Change(int x, int y, int iStep, CSG_Grid *pResult)
+{
+	int		i, ix, iy;
+	double	n, d, dz;
+
+	for(i=0, d=0.0, n=0.0; i<8; i++)
+	{
+		ix	= x + iStep * Get_System()->Get_xTo(i);
+		iy	= y + iStep * Get_System()->Get_yTo(i);
+
+		if( pResult->is_InGrid(ix, iy) )
+		{
+			dz	= 1.0 / Get_System()->Get_UnitLength(i);
+			d	+= dz * pResult->asDouble(ix, iy);
+			n	+= dz;
+		}
+	}
+
+	if( n > 0.0 )
+	{
+		d	/= n;
+
+		return( d );
+	}
+
+	return( pResult->asDouble(x, y) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

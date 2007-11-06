@@ -103,15 +103,16 @@ CUSGS_SRTM_Import::CUSGS_SRTM_Import(void)
 	//-----------------------------------------------------
 	// 2. Parameters...
 
-	Parameters.Add_Grid_Output(
-		NULL	, "GRID"	, _TL("Grid"),
-		_TL("")
+	Parameters.Add_Grid_List(
+		NULL	, "GRIDS"	, _TL("Grids"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL, false
 	);
 
 	Parameters.Add_FilePath(
-		NULL	, "FILE"		, _TL("File"),
+		NULL	, "FILE"		, _TL("Files"),
 		_TL(""),
-		_TL("USGS SRTM Grids (*.hgt)|*.hgt|All Files|*.*")
+		_TL("USGS SRTM Grids (*.hgt)|*.hgt|All Files|*.*"), NULL, false, false, true
 	);
 
 	Parameters.Add_Choice(
@@ -132,22 +133,14 @@ CUSGS_SRTM_Import::~CUSGS_SRTM_Import(void)
 //---------------------------------------------------------
 bool CUSGS_SRTM_Import::On_Execute(void)
 {
-	int			x, y, N;
-	short		*sLine;
-	double		xMin, yMin, D;
-	FILE		*Stream;
-	CSG_String	fName;
-	CSG_Grid	*pGrid;
+	int						N;
+	double					D;
+	CSG_Strings				fNames;
+	CSG_Grid				*pGrid;
+	CSG_Parameter_Grid_List	*pGrids;
 
-	//-----------------------------------------------------
-	pGrid	= NULL;
-
-	//-----------------------------------------------------
-	fName	= SG_File_Get_Name(Parameters("FILE")->asString(), false);
-	fName	.Make_Upper();
-
-	yMin	= (fName[0] == 'N' ?  1.0 : -1.0) * fName.Right(6).asInt();
-	xMin	= (fName[3] == 'W' ? -1.0 :  1.0) * fName.Right(3).asInt();
+	pGrids	= Parameters("GRIDS")->asGridList();
+	pGrids	->Del_Items();
 
 	//-----------------------------------------------------
 	switch( Parameters("RESOLUTION")->asInt() )
@@ -167,37 +160,83 @@ bool CUSGS_SRTM_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	fName	= Parameters("FILE")->asString();
-
-	if( (Stream = fopen(fName.b_str(), "rb")) != NULL )
+	if( Parameters("FILE")->asFilePath()->Get_FilePaths(fNames) && fNames.Get_Count() > 0 )
 	{
-		if( (pGrid = SG_Create_Grid(GRID_TYPE_Float, N, N, D, xMin, yMin)) != NULL )
+		for(int i=0; i<fNames.Get_Count(); i++)
 		{
-			pGrid->Set_Name			(fName);
-			pGrid->Set_NoData_Value	(-32768);
-
-			//---------------------------------------------
-			sLine	= (short *)SG_Malloc(N * sizeof(short));
-
-			for(y=0; y<N && !feof(Stream) && Set_Progress(y, N); y++)
+			if( (pGrid = Load(fNames.Get_String(i), N, D)) != NULL )
 			{
-				fread(sLine, N, sizeof(short), Stream);
-
-				for(x=0; x<N; x++)
-				{
-					SG_Swap_Bytes(sLine + x, sizeof(short));
-
-					pGrid->Set_Value(x, N - 1 - y, sLine[x]);
-				}
+				pGrids->Add_Item(pGrid);
 			}
-
-			SG_Free(sLine);
-
-			Parameters("GRID")->Set_Value(pGrid);
 		}
 
-		fclose(Stream);
+		return( pGrids->Get_Count() > 0 );
 	}
 
-	return( pGrid != NULL );
+	return( false );
 }
+
+//---------------------------------------------------------
+CSG_Grid * CUSGS_SRTM_Import::Load(CSG_String File, int N, double D)
+{
+	int			x, y;
+	short		*sLine;
+	double		xMin, yMin;
+	FILE		*Stream;
+	CSG_String	fName;
+	CSG_Grid	*pGrid;
+
+	//-----------------------------------------------------
+	pGrid	= NULL;
+	fName	= SG_File_Get_Name(File, false);
+
+	if( fName.Length() >= 7 )
+	{
+		fName	.Make_Upper();
+
+		Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), _TL("Importing"), fName.c_str()));
+
+		yMin	= (fName[0] == 'N' ?  1.0 : -1.0) * fName.Right(6).asInt();
+		xMin	= (fName[3] == 'W' ? -1.0 :  1.0) * fName.Right(3).asInt();
+
+		//-------------------------------------------------
+		if( (Stream = fopen(File.b_str(), "rb")) != NULL )
+		{
+			if( (pGrid = SG_Create_Grid(GRID_TYPE_Float, N, N, D, xMin, yMin)) != NULL )
+			{
+				pGrid->Set_Name			(fName);
+				pGrid->Set_NoData_Value	(-32768);
+
+				//-----------------------------------------
+				sLine	= (short *)SG_Malloc(N * sizeof(short));
+
+				for(y=0; y<N && !feof(Stream) && Set_Progress(y, N); y++)
+				{
+					fread(sLine, N, sizeof(short), Stream);
+
+					for(x=0; x<N; x++)
+					{
+						SG_Swap_Bytes(sLine + x, sizeof(short));
+
+						pGrid->Set_Value(x, N - 1 - y, sLine[x]);
+					}
+				}
+
+				SG_Free(sLine);
+			}
+
+			fclose(Stream);
+		}
+	}
+
+	return( pGrid );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

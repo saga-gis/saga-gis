@@ -143,11 +143,11 @@ wxString CWKSP_Grid::Get_Description(void)
 	));
 
 	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>[%f] - [%f] = [%f]</td></tr>"),
-		LNG("[CAP] East/West")				, m_pGrid->Get_XMin(), m_pGrid->Get_XMax(), m_pGrid->Get_XRange()
+		LNG("[CAP] West-East")				, m_pGrid->Get_XMin(), m_pGrid->Get_XMax(), m_pGrid->Get_XRange()
 	));
 
 	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>[%f] - [%f] = [%f]</td></tr>"),
-		LNG("[CAP] South/North")			, m_pGrid->Get_YMin(), m_pGrid->Get_YMax(), m_pGrid->Get_YRange()
+		LNG("[CAP] South-North")			, m_pGrid->Get_YMin(), m_pGrid->Get_YMax(), m_pGrid->Get_YRange()
 	));
 
 	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),

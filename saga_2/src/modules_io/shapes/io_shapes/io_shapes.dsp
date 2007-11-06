@@ -225,6 +225,18 @@ SOURCE=..\..\..\saga_core\saga_api\dataobject.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\saga_core\saga_api\doc_html.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\saga_core\saga_api\doc_pdf.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\saga_core\saga_api\doc_svg.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\saga_core\saga_api\geo_tools.h
 # End Source File
 # Begin Source File
@@ -241,6 +253,10 @@ SOURCE=..\..\..\saga_core\saga_api\module.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\saga_core\saga_api\module_library.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\saga_core\saga_api\parameters.h
 # End Source File
 # Begin Source File
@@ -254,6 +270,10 @@ SOURCE=..\..\..\saga_core\saga_api\shapes.h
 # Begin Source File
 
 SOURCE=..\..\..\saga_core\saga_api\table.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\saga_core\saga_api\table_value.h
 # End Source File
 # Begin Source File
 

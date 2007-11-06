@@ -1,7 +1,6 @@
 #
-# $Id: Makefile.am,v 1.7 2007-07-06 11:17:03 tschorr Exp $
+# $Id: Makefile.am,v 1.8 2007-11-06 15:51:42 oconrad Exp $
 #
-ADD_MLBS = $(top_srcdir)/src/modules/grid/grid_tools/.libs/libgrid_tools.a
 if DEBUG
 DBGFLAGS = -g -DDEBUG
 endif
@@ -23,5 +22,5 @@ Forecasting.h\
 MLB_Interface.h\
 Simulate.h
 
-libsim_fire_spreading_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(ADD_MLBS)
+libsim_fire_spreading_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 

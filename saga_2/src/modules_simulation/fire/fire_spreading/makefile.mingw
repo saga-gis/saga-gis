@@ -18,8 +18,6 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-DEP_LIBS = -L"$(MLB_PATH)" -lgrid_tools
-
 
 OBJ      = $(MLB_TEMP)/fireLib.o $(MLB_TEMP)/Forecasting.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/Simulate.o
 

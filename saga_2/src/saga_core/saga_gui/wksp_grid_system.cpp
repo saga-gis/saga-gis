@@ -74,12 +74,17 @@
 CWKSP_Grid_System::CWKSP_Grid_System(const CSG_Grid_System &System)
 {
 	m_System	= System;
+
+	m_Parameters.Add_String(
+		NULL	, "NAME"	, LNG("Name"),
+		LNG("Descriptive name for the grid system"),
+		m_System.Get_Name()
+	);
 }
 
 //---------------------------------------------------------
 CWKSP_Grid_System::~CWKSP_Grid_System(void)
-{
-}
+{}
 
 
 ///////////////////////////////////////////////////////////
@@ -89,9 +94,15 @@ CWKSP_Grid_System::~CWKSP_Grid_System(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CWKSP_Grid_System::Parameters_Changed(void)
+{
+	CWKSP_Base_Item::Parameters_Changed();
+}
+
+//---------------------------------------------------------
 wxString CWKSP_Grid_System::Get_Name(void)
 {
-	return( m_System.Get_Name() );
+	return( m_Parameters("NAME")->asString() );
 }
 
 //---------------------------------------------------------
@@ -102,7 +113,7 @@ wxString CWKSP_Grid_System::Get_Description(void)
 	s.Printf(wxT("<b>%s</b><table border=\"0\">"), LNG("[CAP] Grid System"));
 
 	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
-		LNG("[CAP] Name")					, m_System.Get_Name()
+		LNG("[CAP] Name")					, Get_Name()
 	));
 
 	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%d</td></tr>"),
@@ -118,11 +129,11 @@ wxString CWKSP_Grid_System::Get_Description(void)
 	));
 
 	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>[%f] - [%f] = [%f]</td></tr>"),
-		LNG("[CAP] East/West")				, m_System.Get_XMin(), m_System.Get_XMax(), m_System.Get_XRange()
+		LNG("[CAP] West-East")				, m_System.Get_XMin(), m_System.Get_XMax(), m_System.Get_XRange()
 	));
 
 	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>[%f] - [%f] = [%f]</td></tr>"),
-		LNG("[CAP] South/North")			, m_System.Get_YMin(), m_System.Get_YMax(), m_System.Get_YRange()
+		LNG("[CAP] South-North")			, m_System.Get_YMin(), m_System.Get_YMax(), m_System.Get_YRange()
 	));
 
 	s.Append(wxT("</table>"));
@@ -136,7 +147,7 @@ wxMenu * CWKSP_Grid_System::Get_Menu(void)
 {
 	wxMenu	*pMenu;
 
-	pMenu	= new wxMenu(m_System.Get_Name());
+	pMenu	= new wxMenu(Get_Name());
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 

@@ -236,6 +236,10 @@ SOURCE=..\..\..\saga_core\saga_api\table.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\saga_core\saga_api\table_value.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\saga_core\saga_api\tin.h
 # End Source File
 # End Group

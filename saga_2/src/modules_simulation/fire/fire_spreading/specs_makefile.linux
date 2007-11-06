@@ -1,1 +1,0 @@
-ADD_MLBS = $(top_srcdir)/src/modules/grid/grid_tools/libgrid_tools.la

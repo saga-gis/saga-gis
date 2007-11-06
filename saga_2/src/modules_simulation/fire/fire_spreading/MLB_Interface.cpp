@@ -64,7 +64,16 @@ const SG_Char * Get_Info(int i)
 		return( _TL("Victor Olaya (c) 2004") );
 
 	case MLB_INFO_Description:
-		return( _TL("Fire Spreading Analysis") );
+		return( _TW(
+			"Fire spreading analyses based on the BEHAVE fire modeling system "
+			"supported by the U.S. Forest Service, Fire and Aviation Management. "
+			"Find more information on BEHAVE at the <i>Public Domain Software for the Wildland Fire Community</i> at "
+			"<a target=\"_blank\" href=\"http://fire.org\">http://fire.org</a>\n"
+			"\n"
+			"Reference:\n"
+			"Andrews, P.L. (1986): BEHAVE: Fire Behavior Prediction and Fuel Modeling System - "
+			"Burn Subsystem, Part 1. U.S. Department of Agriculture, Forest Service General, Technical Report INT-194. "
+		));
 
 	case MLB_INFO_Version:
 		return( SG_T("1.0") );

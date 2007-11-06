@@ -87,25 +87,30 @@ public:
 	CWKSP_Grid_System(const CSG_Grid_System &System);
 	virtual ~CWKSP_Grid_System(void);
 
-	virtual TWKSP_Item			Get_Type		(void)		{	return( WKSP_ITEM_Grid_System );	}
+	virtual TWKSP_Item				Get_Type			(void)		{	return( WKSP_ITEM_Grid_System );	}
 
-	virtual wxString			Get_Name		(void);
-	virtual wxString			Get_Description	(void);
+	virtual wxString				Get_Name			(void);
+	virtual wxString				Get_Description		(void);
 
-	virtual wxMenu *			Get_Menu		(void);
+	virtual CSG_Parameters *		Get_Parameters		(void)		{	return( &m_Parameters );	}
+	virtual void					Parameters_Changed	(void);
 
-	CSG_Grid_System *				Get_System		(void)		{	return( &m_System );	}
+	virtual wxMenu *				Get_Menu			(void);
 
-	class CWKSP_Grid *			Get_Grid		(int i)		{	return( (class CWKSP_Grid *)Get_Item(i) );	}
-	class CWKSP_Grid *			Get_Grid		(class CSG_Grid *pGrid);
+	CSG_Grid_System *				Get_System			(void)		{	return( &m_System );	}
 
-	bool						Exists			(class CSG_Grid *pGrid);
-	class CWKSP_Grid *			Add				(class CSG_Grid *pGrid);
+	class CWKSP_Grid *				Get_Grid			(int i)		{	return( (class CWKSP_Grid *)Get_Item(i) );	}
+	class CWKSP_Grid *				Get_Grid			(class CSG_Grid *pGrid);
+
+	bool							Exists				(class CSG_Grid *pGrid);
+	class CWKSP_Grid *				Add					(class CSG_Grid *pGrid);
 
 
 private:
 
-	CSG_Grid_System				m_System;
+	CSG_Grid_System					m_System;
+
+	CSG_Parameters					m_Parameters;
 
 };
 

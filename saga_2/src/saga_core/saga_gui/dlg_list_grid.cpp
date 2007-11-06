@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: dlg_list_grid.cpp,v 1.6 2007-03-22 14:23:33 oconrad Exp $
+// $Id: dlg_list_grid.cpp,v 1.7 2007-11-06 15:51:31 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -114,7 +114,7 @@ CDLG_List_Grid::CDLG_List_Grid(CSG_Parameter_Grid_List *pList, wxString Caption)
 				m_pSystems->Append(pManager->Get_System(i)->Get_Name());
 			}
 
-			m_pSystems->Append( wxT("[VAL] [all grid systems]") );
+			m_pSystems->Append( LNG("[VAL] [all grid systems]") );
 			m_pSystems->SetSelection(m_pSystems->GetCount() - 1);
 
 			Set_Positions();

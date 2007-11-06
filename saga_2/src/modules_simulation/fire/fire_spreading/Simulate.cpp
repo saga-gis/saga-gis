@@ -28,9 +28,18 @@
 
 CSimulate::CSimulate(void){
 	
-	Parameters.Set_Name(_TL("Simulation"));
-	Parameters.Set_Description(_TW(
-		"(c) 2004 by Victor Olaya. Simulation."));
+	Set_Name		(_TL("Simulation"));
+	Set_Author		(_TL("(c) 2004 Victor Olaya"));
+	Set_Description	(_TW(
+		"Fire simulation based on the BEHAVE fire modeling system "
+		"supported by the U.S. Forest Service, Fire and Aviation Management. "
+		"Find more information on BEHAVE at the <i>Public Domain Software for the Wildland Fire Community</i> at "
+		"<a target=\"_blank\" href=\"http://fire.org\">http://fire.org</a>\n"
+		"\n"
+		"Reference:\n"
+		"Andrews, P.L. (1986): BEHAVE: Fire Behavior Prediction and Fuel Modeling System - "
+		"Burn Subsystem, Part 1. U.S. Department of Agriculture, Forest Service General, Technical Report INT-194. "
+	));
 
 	Parameters.Add_Grid(NULL, 
 						"DEM", 

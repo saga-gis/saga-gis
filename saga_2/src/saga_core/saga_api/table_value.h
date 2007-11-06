@@ -100,14 +100,20 @@ public:
 	virtual ~CSG_Table_Value(void)	{}
 
 	virtual bool				Set_Value		(const SG_Char *Value)	= 0;
-	virtual bool				Set_Value		(double      Value)	= 0;
+	virtual bool				Set_Value		(double         Value)	= 0;
 
-	virtual bool				Set_NoData		(void)				= 0;
-	virtual bool				is_NoData		(void)				= 0;
+	virtual bool				Set_NoData		(void)					= 0;
+	virtual bool				is_NoData		(void)					= 0;
 
-	virtual const SG_Char *		asString		(int Decimals)		= 0;
-	virtual int					asInt			(void)				= 0;
-	virtual double				asDouble		(void)				= 0;
+	virtual const SG_Char *		asString		(int Decimals = -1)		= 0;
+	virtual int					asInt			(void)					= 0;
+	virtual double				asDouble		(void)					= 0;
+
+	operator const SG_Char *	(void)			{	return( asString() );	}
+	operator double				(void)			{	return( asDouble() );	}
+
+	CSG_Table_Value &			operator = (const SG_Char *Value)	{	Set_Value(Value); return( *this );	}
+	CSG_Table_Value &			operator = (double         Value)	{	Set_Value(Value); return( *this );	}
 
 };
 
@@ -149,13 +155,13 @@ public:
 	}
 
 	//-----------------------------------------------------
-	virtual bool				Set_NoData		(void)			{	return( Set_Value(NODATA_STRING) );			}
-	virtual bool				is_NoData		(void)			{	return( m_Value.Cmp(NODATA_STRING) == 0 );	}
+	virtual bool				Set_NoData		(void)				{	return( Set_Value(NODATA_STRING) );			}
+	virtual bool				is_NoData		(void)				{	return( m_Value.Cmp(NODATA_STRING) == 0 );	}
 
 	//-----------------------------------------------------
-	virtual const SG_Char *		asString		(int Decimals)	{	return( m_Value );	}
-	virtual int					asInt			(void)			{	return( m_Value.asInt() );	}
-	virtual double				asDouble		(void)			{	return( m_Value.asDouble() );	}
+	virtual const SG_Char *		asString		(int Decimals = -1)	{	return( m_Value );	}
+	virtual int					asInt			(void)				{	return( m_Value.asInt() );	}
+	virtual double				asDouble		(void)				{	return( m_Value.asDouble() );	}
 
 
 private:
@@ -199,13 +205,13 @@ public:
 	}
 
 	//-----------------------------------------------------
-	virtual bool				Set_NoData		(void)			{	return( Set_Value(NODATA_INT) );	}
-	virtual bool				is_NoData		(void)			{	return( m_Value == NODATA_INT );	}
+	virtual bool				Set_NoData		(void)				{	return( Set_Value(NODATA_INT) );	}
+	virtual bool				is_NoData		(void)				{	return( m_Value == NODATA_INT );	}
 
 	//-----------------------------------------------------
-	virtual const SG_Char *		asString		(int Decimals)	{	return( m_Date );	}
-	virtual int					asInt			(void)			{	return( m_Value );	}
-	virtual double				asDouble		(void)			{	return( m_Value );	}
+	virtual const SG_Char *		asString		(int Decimals = -1)	{	return( m_Date );	}
+	virtual int					asInt			(void)				{	return( m_Value );	}
+	virtual double				asDouble		(void)				{	return( m_Value );	}
 
 
 private:
@@ -257,7 +263,7 @@ public:
 	virtual bool				is_NoData		(void)			{	return( m_Value == NODATA_INT );	}
 
 	//-----------------------------------------------------
-	virtual const SG_Char *		asString		(int Decimals)
+	virtual const SG_Char *		asString		(int Decimals = -1)
 	{
 		static CSG_String	s;
 
@@ -318,11 +324,11 @@ public:
 	virtual bool				is_NoData		(void)			{	return( m_Value == NODATA_DOUBLE );	}
 
 	//-----------------------------------------------------
-	virtual const SG_Char *		asString		(int Decimals)
+	virtual const SG_Char *		asString		(int Decimals = -1)
 	{
 		static CSG_String	s;
 
-		if( Decimals > 0 )
+		if( Decimals >= 0 )
 		{
 			s.Printf(SG_T("%.*f"), Decimals, m_Value);
 		}

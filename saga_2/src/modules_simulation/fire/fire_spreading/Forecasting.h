@@ -60,7 +60,13 @@ private:
 
 	bool AssignParameters();
 	void CalculateGrids();	
-	double CalculateFireSpreading();	
+	double CalculateFireSpreading();
+
+	bool	Gaps_Close			(CSG_Grid *pInput);
+	void	Gaps_Tension_Init	(int iStep, CSG_Grid *pTension_Temp, CSG_Grid *pTension_Keep, CSG_Grid *pResult, CSG_Grid *pInput);
+	double	Gaps_Tension_Step	(int iStep, CSG_Grid *pTension_Temp, CSG_Grid *pTension_Keep, CSG_Grid *pResult);
+	double	Gaps_Tension_Change	(int x, int y, int iStep, CSG_Grid *pResult);
+
 
 public:
 

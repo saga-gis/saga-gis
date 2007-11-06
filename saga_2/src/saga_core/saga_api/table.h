@@ -72,6 +72,7 @@
 
 //---------------------------------------------------------
 #include "dataobject.h"
+#include "table_value.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -182,7 +183,7 @@ public:
 	double						asDouble		(int           iField)	const;
 	double						asDouble		(const SG_Char *Field)	const;
 
-	double						operator []		(int           iField)	const	{	return(          asDouble(iField) );	}
+	CSG_Table_Value &			operator []		(int           iField)	const	{	return( *m_Values[iField] );	}
 
 	void						Assign			(CSG_Table_Record *pValues);
 
