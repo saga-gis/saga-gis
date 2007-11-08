@@ -106,7 +106,7 @@ bool CSG_Module_Grid::Set_Progress(double Position, double Range)
 //---------------------------------------------------------
 bool CSG_Module_Grid::Set_Progress_NCells(int iCell)
 {
-	if( Get_System()->is_Valid() && !(iCell % (Get_System()->Get_NCells() / 100)) )
+	if( Get_System()->is_Valid() && (Get_System()->Get_NCells() <= 100 || !(iCell % (Get_System()->Get_NCells() / 100))) )
 	{
 		return( CSG_Module::Set_Progress(iCell, Get_System()->Get_NCells()) );
 	}
