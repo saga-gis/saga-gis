@@ -71,6 +71,7 @@
 #include "wksp_data_manager.h"
 
 #include "wksp_module_manager.h"
+#include "wksp_module_library.h"
 #include "wksp_module_menu.h"
 #include "wksp_module.h"
 
@@ -174,15 +175,12 @@ wxString CWKSP_Module::Get_Name(void)
 	);
 }
 
-wxString & CWKSP_Module::Get_File_Name(void)
-{
-	return( m_File_Name );
-}
-
-void CWKSP_Module::Set_File_Name(wxString File_Name)
+//---------------------------------------------------------
+void CWKSP_Module::Set_File_Name(const wxString &File_Name)
 {
 	m_File_Name = File_Name;
 }
+
 //---------------------------------------------------------
 wxString CWKSP_Module::Get_Description(void)
 {
@@ -316,6 +314,10 @@ wxMenu * CWKSP_Module::Get_Menu(void)
 
 	pMenu->AppendCheckItem(Get_Menu_ID(), LNG("[CMD] Execute"), LNG("[HLP] Execute Module"));
 
+	pMenu->AppendSeparator();
+
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MODULES_SAVE_SCRIPT);
+
 	return( pMenu );
 }
 
@@ -343,9 +345,311 @@ bool CWKSP_Module::On_Command(int Cmd_ID)
 	case ID_CMD_WKSP_ITEM_RETURN:
 		Execute(true);
 		break;
+
+	case ID_CMD_MODULES_SAVE_SCRIPT:
+		_Save_Script();
+		break;
 	}
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Module::_Save_Script(void)
+{
+	wxString	FileName;
+
+	if( DLG_Save(FileName, LNG("[CAP] Create Script Command File"), SG_T("DOS Batch Script (*.bat)|*.bat|Python Script (*.py)|*.py")) )
+	{
+		CSG_File	File;
+		CSG_String	Command;
+
+		if(      SG_File_Cmp_Extension(FileName.c_str(), SG_T("bat")) )
+		{
+			Command	+= SG_T("@ECHO OFF\n\n");
+
+			Command	+= SG_T("REM SET SAGA_MLB = C:\\SAGA\\Modules\n");
+			Command	+= SG_T("REM SET PATH = %PATH%;C:\\SAGA\n\n");
+
+			Command	+= SG_T("saga_cmd ");
+
+			Command	+= SG_File_Get_Name(((CWKSP_Module_Library *)Get_Manager())->Get_File_Name(), false);
+
+			Command	+= SG_T(" \"");
+			Command	+= m_pModule->Get_Name();
+			Command	+= SG_T("\"");
+
+			_Save_Script_CMD(Command, m_pModule->Get_Parameters());
+
+			for(int i=0; i<m_pModule->Get_Parameters_Count(); i++)
+			{
+				_Save_Script_CMD(Command, m_pModule->Get_Parameters(i));
+			}
+
+			Command	+= SG_T("\n\nPAUSE\n");
+		}
+		else if( SG_File_Cmp_Extension(FileName.c_str(), SG_T("py" )) )
+		{
+			Command	+= SG_T("# Python script template for SAGA module execution (automatically created, experimental)\n\n");
+			Command	+= SG_T("import saga_api, sys, os\n");
+			Command	+= SG_T("\n");
+			Command	+= SG_T("def Call_SAGA_Module(in__grid, out_grid, in__shapes, out_shapes):\n");
+			Command	+= SG_T("    print saga_api.SAGA_API_Get_Version()\n");
+			Command	+= SG_T("\n");
+			Command	+= SG_T("    Library = saga_api.CSG_Module_Library()\n");
+			Command	+= SG_T("    if Library.Create('");
+			Command	+= ((CWKSP_Module_Library *)Get_Manager())->Get_File_Name();
+			Command	+= SG_T("') == 0:\n");
+			Command	+= SG_T("        print 'unable to load SAGA module library'\n");
+			Command	+= SG_T("        return 0\n");
+			Command	+= SG_T("\n");
+
+			switch( m_pModule->Get_Type() )
+			{
+			default:
+				Command	+= CSG_String::Format(SG_T("    Module = Library.Get_Module('%s')\n")		, m_pModule->Get_Name());
+				break;
+
+			case MODULE_TYPE_Grid:
+				Command	+= CSG_String::Format(SG_T("    Module = Library.Get_Module_Grid('%s')\n")	, m_pModule->Get_Name());
+				Command	+= SG_T("    Module.Get_System().Assign(in__grid.Get_System())\n");
+				break;
+			}
+
+			Command	+= SG_T("\n");
+			Command	+= SG_T("    Parms = Module.Get_Parameters() # default parameter list\n");
+			_Save_Script_Python(Command, m_pModule->Get_Parameters());
+
+			for(int i=0; i<m_pModule->Get_Parameters_Count(); i++)
+			{
+				Command	+= SG_T("\n");
+				Command	+= CSG_String::Format(SG_T("    Parms = Module.Get_Parameters(%d) # additional parameter list\n"), i);
+				_Save_Script_Python(Command, m_pModule->Get_Parameters(i));
+			}
+
+			Command	+= SG_T("\n");
+			Command	+= SG_T("    if Module.Execute() == 0:\n");
+			Command	+= SG_T("        print 'module execution failed'\n");
+			Command	+= SG_T("        return 0\n");
+			Command	+= SG_T("    print 'module successfully executed'\n");
+			Command	+= SG_T("    return 1\n");
+			Command	+= SG_T("\n");
+			Command	+= SG_T("\n");
+			Command	+= SG_T("if __name__ == '__main__':\n");
+			Command	+= SG_T("    if len( sys.argv ) != 4:\n");
+			Command	+= SG_T("        print 'Usage: this_script.py <in: gridfile> <out: gridfile> <in: shapefile> <out: shapefile>'\n");
+			Command	+= SG_T("\n");
+			Command	+= SG_T("    else:\n");
+			Command	+= SG_T("        in__grid    = saga_api.SG_Create_Grid(sys.argv[1])\n");
+			Command	+= SG_T("        out_grid    = saga_api.SG_Create_Grid(grid_in.Get_System())\n");
+			Command	+= SG_T("        in__shapes  = saga_api.SG_Create_Shapes(sys.argv[3])\n");
+			Command	+= SG_T("        out_shapes  = saga_api.SG_Create_Shapes()\n");
+			Command	+= SG_T("\n");
+			Command	+= SG_T("        if Call_SAGA_Module(in__grid, out_grid, in__shapes, out_shapes) != 0:\n");
+			Command	+= SG_T("            grid_out  .Save(sys.argv[2])\n");
+			Command	+= SG_T("            shapes_out.Save(sys.argv[4])\n");
+		}
+
+		if( File.Open(FileName.c_str(), SG_FILE_W, false) && Command.Length() > 0 )
+		{
+			File.Write(Command);
+		}
+	}
+}
+
+//---------------------------------------------------------
+#define GET_ID1(p)		(p->Get_Owner()->Get_Identifier() && *(p->Get_Owner()->Get_Identifier()) \
+						? wxString::Format(wxT("%s_%s"), p->Get_Owner()->Get_Identifier(), p->Get_Identifier()) \
+						: wxString::Format(p->Get_Identifier()))
+
+#define GET_ID2(p, s)	wxString::Format(wxT("%s_%s"), GET_ID1(p).c_str(), s)
+
+//---------------------------------------------------------
+void CWKSP_Module::_Save_Script_CMD(CSG_String &Command, CSG_Parameters *pParameters)
+{
+	for(int iParameter=0; iParameter<pParameters->Get_Count(); iParameter++)
+	{
+		CSG_Parameter	*p	= pParameters->Get_Parameter(iParameter);
+
+		switch( p->Get_Type() )
+		{
+		default:
+			break;
+
+		case PARAMETER_TYPE_Bool:
+			if( p->asBool() )
+				Command	+= CSG_String::Format(SG_T(" -%s"), GET_ID1(p));
+			break;
+
+		case PARAMETER_TYPE_Int:
+		case PARAMETER_TYPE_Choice:
+		case PARAMETER_TYPE_Table_Field:
+			Command	+= CSG_String::Format(SG_T(" -%s=%d"), GET_ID1(p), p->asInt());
+			break;
+
+		case PARAMETER_TYPE_Double:
+		case PARAMETER_TYPE_Degree:
+			Command	+= CSG_String::Format(SG_T(" -%s=%f"), GET_ID1(p), p->asDouble());
+			break;
+
+		case PARAMETER_TYPE_Range:
+			Command	+= CSG_String::Format(SG_T(" -%s=%f"), GET_ID2(p, "MIN"), p->asRange()->Get_LoVal());
+			Command	+= CSG_String::Format(SG_T(" -%s=%f"), GET_ID2(p, "MAX"), p->asRange()->Get_HiVal());
+			break;
+
+		case PARAMETER_TYPE_String:
+		case PARAMETER_TYPE_Text:
+		case PARAMETER_TYPE_FilePath:
+			Command	+= CSG_String::Format(SG_T(" -%s=%s"), GET_ID1(p), p->asString());
+			break;
+
+		case PARAMETER_TYPE_FixedTable:
+			Command	+= CSG_String::Format(SG_T(" -%s=%s"), GET_ID1(p), p->asString());
+			break;
+
+		case PARAMETER_TYPE_Grid_System:
+			if( p->Get_Children_Count() == 0 )
+			{
+				Command	+= CSG_String::Format(SG_T(" -%s=%d"), GET_ID2(p, "NX"), p->asGrid_System()->Get_NX());
+				Command	+= CSG_String::Format(SG_T(" -%s=%d"), GET_ID2(p, "NY"), p->asGrid_System()->Get_NY());
+				Command	+= CSG_String::Format(SG_T(" -%s=%f"), GET_ID2(p,  "X"), p->asGrid_System()->Get_XMin());
+				Command	+= CSG_String::Format(SG_T(" -%s=%f"), GET_ID2(p,  "Y"), p->asGrid_System()->Get_YMin());
+				Command	+= CSG_String::Format(SG_T(" -%s=%f"), GET_ID2(p,  "D"), p->asGrid_System()->Get_Cellsize());
+			}
+			break;
+
+		case PARAMETER_TYPE_Grid:
+		case PARAMETER_TYPE_Table:
+		case PARAMETER_TYPE_Shapes:
+		case PARAMETER_TYPE_TIN:
+			Command	+= CSG_String::Format(SG_T(" -%s=%s"), GET_ID1(p), p->asDataObject() && p->asDataObject()->Get_File_Name() ? p->asDataObject()->Get_File_Name() : SG_T("NULL"));
+			break;
+
+		case PARAMETER_TYPE_Grid_List:
+		case PARAMETER_TYPE_Table_List:
+		case PARAMETER_TYPE_Shapes_List:
+		case PARAMETER_TYPE_TIN_List:
+			if( p->is_Input() )
+			{
+				Command	+= CSG_String::Format(SG_T(" -%s="), GET_ID1(p));
+
+				if( p->asList()->Get_Count() == 0 )
+				{
+					Command	+= SG_T("NULL");
+				}
+				else
+				{
+					Command	+= p->asList()->asDataObject(0)->Get_File_Name(true);
+
+					for(int iObject=1; iObject<p->asList()->Get_Count(); iObject++)
+					{
+						Command	+= SG_T(";");
+						Command	+= p->asList()->asDataObject(iObject)->Get_File_Name(true);
+					}
+				}
+			}
+			break;
+		}
+	}
+}
+
+//---------------------------------------------------------
+void CWKSP_Module::_Save_Script_Python(CSG_String &Command, CSG_Parameters *pParameters)
+{
+	for(int iParameter=0; iParameter<pParameters->Get_Count(); iParameter++)
+	{
+		CSG_Parameter	*p	= pParameters->Get_Parameter(iParameter);
+
+		switch( p->Get_Type() )
+		{
+		default:
+			break;
+
+		case PARAMETER_TYPE_Bool:
+			Command	+= CSG_String::Format(SG_T("    Parms('%s').Set_Value(%d)\n"), p->Get_Identifier(), p->asBool() ? 1 : 0);
+			break;
+
+		case PARAMETER_TYPE_Int:
+		case PARAMETER_TYPE_Choice:
+		case PARAMETER_TYPE_Table_Field:
+			Command	+= CSG_String::Format(SG_T("    Parms('%s').Set_Value(%d)\n"), p->Get_Identifier(), p->asInt());
+			break;
+
+		case PARAMETER_TYPE_Double:
+		case PARAMETER_TYPE_Degree:
+			Command	+= CSG_String::Format(SG_T("    Parms('%s').Set_Value(%f)\n"), p->Get_Identifier(), p->asDouble());
+			break;
+
+		case PARAMETER_TYPE_Range:
+			Command	+= CSG_String::Format(SG_T("    Parms('%s').asRange().Set_LoVal(%f)\n"), p->Get_Identifier(), p->asRange()->Get_LoVal());
+			Command	+= CSG_String::Format(SG_T("    Parms('%s').asRange().Set_HiVal(%f)\n"), p->Get_Identifier(), p->asRange()->Get_HiVal());
+			break;
+
+		case PARAMETER_TYPE_String:
+		case PARAMETER_TYPE_Text:
+		case PARAMETER_TYPE_FilePath:
+			Command	+= CSG_String::Format(SG_T("    Parms('%s').Set_Value(%s)\n"), p->Get_Identifier(), p->asString());
+			break;
+
+		case PARAMETER_TYPE_FixedTable:
+			Command	+= CSG_String::Format(SG_T("#   Parms('%s').Set_Value(saga_api.SG_Create_Table('table.txt'))\n"), p->Get_Identifier());
+			break;
+
+		case PARAMETER_TYPE_Grid_System:
+			if( p->Get_Children_Count() == 0 )
+			{
+				Command	+= CSG_String::Format(SG_T("    Parms('%s').Set_Value(saga_api.CSG_Grid_System(%f, %f, %f, %d, %d))\n"), p->Get_Identifier(),
+					p->asGrid_System()->Get_Cellsize(),
+					p->asGrid_System()->Get_XMin()	, p->asGrid_System()->Get_YMin(),
+					p->asGrid_System()->Get_NX()	, p->asGrid_System()->Get_NY());
+			}
+			break;
+
+		case PARAMETER_TYPE_Grid:
+			Command	+= CSG_String::Format(SG_T("    Parms('%s').Set_Value(0) # %s %s grid\n"), p->Get_Identifier(),
+				p->is_Input()    ? SG_T("input")    : SG_T("output"), p->is_Optional() ? SG_T("optional") : SG_T("NOT optional")
+			);
+			break;
+
+		case PARAMETER_TYPE_Table:
+			Command	+= CSG_String::Format(SG_T("    Parms('%s').Set_Value(0) # %s %s table\n"), p->Get_Identifier(),
+				p->is_Input()    ? SG_T("input")    : SG_T("output"), p->is_Optional() ? SG_T("optional") : SG_T("NOT optional")
+			);
+			break;
+
+		case PARAMETER_TYPE_Shapes:
+			Command	+= CSG_String::Format(SG_T("    Parms('%s').Set_Value(0) # %s %s shapes\n"), p->Get_Identifier(),
+				p->is_Input()    ? SG_T("input")    : SG_T("output"), p->is_Optional() ? SG_T("optional") : SG_T("NOT optional")
+			);
+			break;
+
+		case PARAMETER_TYPE_TIN:
+			Command	+= CSG_String::Format(SG_T("    Parms('%s').Set_Value(0) # %s %s TIN\n"), p->Get_Identifier(),
+				p->is_Input()    ? SG_T("input")    : SG_T("output"), p->is_Optional() ? SG_T("optional") : SG_T("NOT optional")
+			);
+			break;
+
+		case PARAMETER_TYPE_Grid_List:
+		case PARAMETER_TYPE_Table_List:
+		case PARAMETER_TYPE_Shapes_List:
+		case PARAMETER_TYPE_TIN_List:
+			if( p->is_Input() )
+			{
+				if( !p->is_Optional() )
+					Command	+= CSG_String::Format(SG_T("    Parms('%s').Set_Value(0) # data object list\n"), p->Get_Identifier());
+				else
+					Command	+= CSG_String::Format(SG_T("    Parms('%s').Set_Value(0) # optional data object list\n"), p->Get_Identifier());
+			}
+			break;
+		}
+	}
 }
 
 

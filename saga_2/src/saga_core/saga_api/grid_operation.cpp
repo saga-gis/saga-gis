@@ -813,7 +813,10 @@ int CSG_Grid::Get_Gradient_NeighborDir(int x, int y, bool bMustBeLower)	const
 
 			if( !is_InGrid(ix, iy) )
 			{
-				return( i );
+				if( 1 )	// flag 'bStopOnNoData'
+				{
+					return( -1 );
+				}
 			}
 			else
 			{

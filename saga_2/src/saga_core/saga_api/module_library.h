@@ -108,9 +108,13 @@ public:
 	int								Get_Count			(void)		{	return( m_pInterface ? m_pInterface->Get_Count() : 0 );	}
 
 	CSG_Module *					Get_Module			(int i)		{	return( i >= 0 && i < Get_Count() ? m_pInterface->Get_Module(i) : NULL );	}
+	CSG_Module *					Get_Module			(const SG_Char *Name);
 	CSG_Module_Grid *				Get_Module_Grid		(int i);
+	CSG_Module_Grid *				Get_Module_Grid		(const SG_Char *Name);
 	CSG_Module_Interactive *		Get_Module_I		(int i);
+	CSG_Module_Interactive *		Get_Module_I		(const SG_Char *Name);
 	CSG_Module_Grid_Interactive *	Get_Module_Grid_I	(int i);
+	CSG_Module_Grid_Interactive *	Get_Module_Grid_I	(const SG_Char *Name);
 
 	CSG_String						Get_Menu			(int i);
 

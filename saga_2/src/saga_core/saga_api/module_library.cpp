@@ -310,9 +310,32 @@ CSG_String CSG_Module_Library::Get_Summary(bool bHTML)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_Module * CSG_Module_Library::Get_Module(const SG_Char *Name)
+{
+	for(int i=0; i<Get_Count(); i++)
+	{
+		if( !SG_STR_CMP(Name, Get_Module(i)->Get_Name()) )
+		{
+			return( Get_Module(i) );
+		}
+	}
+
+	return( NULL );
+}
+
+//---------------------------------------------------------
 CSG_Module_Grid * CSG_Module_Library::Get_Module_Grid(int i)
 {
 	CSG_Module	*pModule	= Get_Module(i);
+
+	return( pModule && pModule->Get_Type() == MODULE_TYPE_Grid
+		? (CSG_Module_Grid *)pModule : NULL
+	);
+}
+
+CSG_Module_Grid * CSG_Module_Library::Get_Module_Grid(const SG_Char *Name)
+{
+	CSG_Module	*pModule	= Get_Module(Name);
 
 	return( pModule && pModule->Get_Type() == MODULE_TYPE_Grid
 		? (CSG_Module_Grid *)pModule : NULL
@@ -329,10 +352,28 @@ CSG_Module_Interactive * CSG_Module_Library::Get_Module_I(int i)
 	);
 }
 
+CSG_Module_Interactive * CSG_Module_Library::Get_Module_I(const SG_Char *Name)
+{
+	CSG_Module	*pModule	= Get_Module(Name);
+
+	return( pModule && pModule->Get_Type() == MODULE_TYPE_Interactive
+		? (CSG_Module_Interactive *)pModule : NULL
+	);
+}
+
 //---------------------------------------------------------
 CSG_Module_Grid_Interactive * CSG_Module_Library::Get_Module_Grid_I(int i)
 {
 	CSG_Module	*pModule	= Get_Module(i);
+
+	return( pModule && pModule->Get_Type() == MODULE_TYPE_Grid_Interactive
+		? (CSG_Module_Grid_Interactive *)pModule : NULL
+	);
+}
+
+CSG_Module_Grid_Interactive * CSG_Module_Library::Get_Module_Grid_I(const SG_Char *Name)
+{
+	CSG_Module	*pModule	= Get_Module(Name);
 
 	return( pModule && pModule->Get_Type() == MODULE_TYPE_Grid_Interactive
 		? (CSG_Module_Grid_Interactive *)pModule : NULL

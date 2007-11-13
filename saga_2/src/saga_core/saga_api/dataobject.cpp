@@ -156,7 +156,7 @@ const SG_Char * CSG_Data_Object::Get_File_Name(bool bNullAsString)	const
 {
 	return(	m_File_Name.Length() > 0
 		?	m_File_Name.c_str()
-		:	(bNullAsString ? (SG_Char*) LNG("[DAT] [not set]") : (SG_Char*) NULL)
+		:	(bNullAsString ? (SG_Char *)LNG("[DAT] [not set]") : (SG_Char *)NULL)
 	);
 }
 
