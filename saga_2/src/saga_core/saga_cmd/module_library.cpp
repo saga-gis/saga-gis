@@ -594,12 +594,22 @@ bool CModule_Library::_Create_DataObject_List(CSG_Parameter *pParameter, wxStrin
 
 			if( pObject && pObject->is_Valid() )
 			{
-				if( pParameter->Get_Type() == PARAMETER_TYPE_Grid_List && pParameter->Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System )
-				{
-					pParameter->Get_Parent()->asGrid_System()->Assign(((CSG_Grid *)pObject)->Get_System());
-				}
+				if( pParameter->Get_Type() == PARAMETER_TYPE_Grid_List && (pParameter->Get_Parent() && pParameter->Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System) )
+				{	// grid system dependent grid list: first grid defines the grid system to be used!
+					if( pParameter->asList()->Get_Count() == 0 )
+					{
+						pParameter->Get_Parent()->asGrid_System()->Assign  (((CSG_Grid *)pObject)->Get_System());
+					}
 
-				pParameter->asList()->Add_Item(pObject);
+					if( pParameter->Get_Parent()->asGrid_System()->is_Equal(((CSG_Grid *)pObject)->Get_System()) )
+					{
+						pParameter->asList()->Add_Item(pObject);
+					}
+				}
+				else
+				{
+					pParameter->asList()->Add_Item(pObject);
+				}
 			}
 			else if( pObject )
 			{
