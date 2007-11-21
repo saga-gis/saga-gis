@@ -105,13 +105,13 @@ CCollect_Points::CCollect_Points(void)
 	pParameters->Add_Value(
 		NULL, "X"			, _TL("x Position"),
 		_TL(""),
-		PARAMETER_TYPE_Int
+		PARAMETER_TYPE_Double
 	);
 
 	pParameters->Add_Value(
 		NULL, "Y"			, _TL("y Position"),
 		_TL(""),
-		PARAMETER_TYPE_Int
+		PARAMETER_TYPE_Double
 	);
 }
 

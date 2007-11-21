@@ -70,9 +70,9 @@
 //---------------------------------------------------------
 CMorphometry::CMorphometry(void)
 {
-	Set_Name(_TL("Local Morphometry"));
+	Set_Name		(_TL("Local Morphometry"));
 
-	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(_TL("Copyrights (c) 2001 by Olaf Conrad"));
 
 	Set_Description	(_TW(
 		"Calculates local morphometric terrain attributes (i.e. slope, aspect and curvatures).\n\n"
@@ -88,7 +88,11 @@ CMorphometry::CMorphometry(void)
 		"    'A new method for the determination of flow directions and upslope areas in grid digital elevation models',\n"
 		"    Water Ressources Research, Vol.33, No.2, p.309-319\n\n"
 
-		"Least Squares or Best Fit Plane\n"
+		"Least Squares or Best Fitted Plane\n"
+		"- Horn, B. K. (1981):\n"
+		"    'Hill shading and the relectance map',\n"
+		"    Proceedings of the IEEE, v. 69, no. 1, p. 14-47.\n\n"
+
 		"- Beasley, D.B. / Huggins, L.F. (1982):\n"
 		"    'ANSWERS: User’s manual',\n"
 		"    U.S. EPA-905/9-82-001, Chicago, IL. 54pp.\n\n"
@@ -114,8 +118,8 @@ CMorphometry::CMorphometry(void)
 		"Fit 3.Degree Polynom\n"
 		"- R.M. Haralick (1983):\n"
 		"    'Ridge and valley detection on digital images',\n"
-		"    Computer Vision, Graphics and Image Processing, Vol.22, No.1, p.28-38\n\n")
-	);
+		"    Computer Vision, Graphics and Image Processing, Vol.22, No.1, p.28-38\n\n"
+	));
 
 
 	//-----------------------------------------------------
@@ -171,7 +175,7 @@ CMorphometry::CMorphometry(void)
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|"),
 			_TL("Maximum Slope (Travis et al. 1975)"),
 			_TL("Maximum Triangle Slope (Tarboton 1997)"),
-			_TL("Least Squares Fit Plane (Costa-Cabral & Burgess 1996)"),
+			_TL("Least Squares Fitted Plane (Horn 1981, Costa-Cabral & Burgess 1996)"),
 			_TL("Fit 2.Degree Polynom (Bauer, Rohdenburg, Bork 1985)"),
 			_TL("Fit 2.Degree Polynom (Heerdegen & Beran 1982)"),
 			_TL("Fit 2.Degree Polynom (Zevenbergen & Thorne 1987)"),
@@ -707,7 +711,11 @@ void CMorphometry::Do_Tarboton(int x, int y)
 }
 
 //---------------------------------------------------------
-// Least Squares or Best Fit Plane (Beasley & Huggins 1982, Costa-Cabral & Burgess 1994)
+// Least Squares or Best Fit Plane (Horn 1981, Beasley & Huggins 1982, Costa-Cabral & Burgess 1994)
+//
+// Horn, B. K. (1981):
+//      Hill shading and the relectance map.
+//      Proceedings of the IEEE, v. 69, no. 1, p 14-47.
 //
 // Beasley, D.B. and Huggins, L.F. 1982:
 //		ANSWERS: User’s manual.
