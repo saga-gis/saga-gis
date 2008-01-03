@@ -141,8 +141,8 @@ CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "ML_PROB"			, _TL("Probability (Maximum Likelihood)"),
-		_TL(""),
+		NULL	, "ML_PROB"			, _TL("Distance/Probability"),
+		_TL("Dependent on chosen method, these are the calculated minimum distances or the maximum probabilities."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
@@ -480,6 +480,11 @@ bool CGrid_Classify_Supervised::Set_Minimum_Distance(void)
 				if( dMin >= 0.0 )
 				{
 					m_pResult->Set_Value(x, y, iMin + 1);
+
+					if( m_pProbability )
+					{
+						m_pProbability->Set_Value(x, y, sqrt(dMin));
+					}
 				}
 			}
 		}
