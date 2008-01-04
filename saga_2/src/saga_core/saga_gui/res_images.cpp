@@ -148,6 +148,7 @@
 #include "./res/xpm/tb_map_zoom_active.xpm"
 #include "./res/xpm/tb_map_zoom_full.xpm"
 #include "./res/xpm/tb_map_zoom_last.xpm"
+#include "./res/xpm/tb_map_zoom_next.xpm"
 #include "./res/xpm/tb_map_zoom_selection.xpm"
 #include "./res/xpm/tb_open.xpm"
 #include "./res/xpm/tb_open_grid.xpm"
@@ -276,6 +277,7 @@ char ** IMG_Get_XPM(int ID_IMG)
 	case ID_IMG_TB_MAP_ZOOM_ACTIVE:	return( tb_map_zoom_active_xpm );
 	case ID_IMG_TB_MAP_ZOOM_FULL:	return( tb_map_zoom_full_xpm );
 	case ID_IMG_TB_MAP_ZOOM_LAST:	return( tb_map_zoom_last_xpm );
+	case ID_IMG_TB_MAP_ZOOM_NEXT:	return( tb_map_zoom_next_xpm );
 	case ID_IMG_TB_MAP_ZOOM_SELECTION:	return( tb_map_zoom_selection_xpm );
 	case ID_IMG_TB_OPEN:	return( tb_open_xpm );
 	case ID_IMG_TB_OPEN_GRID:	return( tb_open_grid_xpm );

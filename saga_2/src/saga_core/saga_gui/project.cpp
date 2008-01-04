@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: project.cpp,v 1.14 2007-07-24 12:17:00 oconrad Exp $
+// $Id: project.cpp,v 1.15 2008-01-04 15:25:28 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -543,7 +543,7 @@ bool CWKSP_Project::_Load_Map(CSG_File &Stream, const wxChar *ProjectDir)
 					pMap->Parameters_Changed();
 				}
 
-				pMap->Set_Extent(r);
+				pMap->Set_Extent(r, true);
 				pMap->View_Show(true);
 			}
 		}

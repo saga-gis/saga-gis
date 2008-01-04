@@ -92,6 +92,37 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class CWKSP_Map_Extents : public CSG_Rects
+{
+public:
+	CWKSP_Map_Extents(void);
+
+	bool						is_First				(void)		{	return( m_iExtent <= 0 );				}
+	bool						is_Last					(void)		{	return( m_iExtent >= m_nExtents - 1 );	}
+
+	CSG_Rect					Set_Back				(void);
+	CSG_Rect					Set_Forward				(void);
+
+	bool						Add_Extent				(const CSG_Rect &Extent, bool bReset = false);
+	const CSG_Rect &			Get_Extent				(void)		{	return( m_iExtent >= 0 ? Get_Rect(m_iExtent) : m_Dummy );	}
+
+
+private:
+
+	int							m_iExtent, m_nExtents;
+
+	static CSG_Rect				m_Dummy;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CWKSP_Map : public CWKSP_Base_Manager
 {
 public:
@@ -111,13 +142,14 @@ public:
 	virtual CSG_Parameters *	Get_Parameters			(void)		{	return( &m_Parameters );	}
 	virtual void				Parameters_Changed		(void);
 
-	const CSG_Rect &			Get_Extent				(void)		{	return( m_Extent );	}
-	void						Set_Extent				(TSG_Rect Extent);
+	const CSG_Rect &			Get_Extent				(void)		{	return( m_Extents.Get_Extent() );	}
+	void						Set_Extent				(const CSG_Rect &Extent, bool bReset = false);
 	void						Set_Extent				(void);
-	void						Set_Extent_Last			(void);
 	void						Set_Extent_Full			(void);
 	void						Set_Extent_Active		(void);
 	void						Set_Extent_Selection	(void);
+	bool						Set_Extent_Back			(bool bCheck_Only = false);
+	bool						Set_Extent_Forward		(bool bCheck_Only = false);
 
 	void						Set_Synchronising		(bool bOn);
 	bool						is_Synchronising		(void)	{	return( m_bSynchronise );	}
@@ -181,9 +213,9 @@ private:
 
 	wxBitmap					m_Thumbnail;
 
-	CSG_Rect					m_Extent, m_Extent_Last;
-
 	CSG_Parameters				m_Parameters, m_Img_Parms;
+
+	CWKSP_Map_Extents			m_Extents;
 
 	class CVIEW_Map				*m_pView;
 
@@ -198,6 +230,7 @@ private:
 	static int					_On_Parameter_Changed	(CSG_Parameter *pParameter);
 	int							On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
+	void						_Set_Extent				(const CSG_Rect &Extent);
 	void						_Synchronise_Extents	(void);
 
 	void						_Img_Save				(wxString file, int type);

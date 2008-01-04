@@ -1149,6 +1149,10 @@ SOURCE=.\RES\XPM\TB_MAP_ZOOM_LAST.xpm
 # End Source File
 # Begin Source File
 
+SOURCE=.\res\xpm\tb_map_zoom_next.xpm
+# End Source File
+# Begin Source File
+
 SOURCE=.\RES\XPM\TB_MAP_ZOOM_SELECTION.xpm
 # End Source File
 # Begin Source File

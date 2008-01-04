@@ -182,7 +182,8 @@ const wxChar * CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAP_TOOLBAR:			return( LNG("[CMD] Show Toolbar") );
 	case ID_CMD_MAP_LEGEND_VERTICAL:	return( LNG("[CMD] Show Vertical Legend") );
 	case ID_CMD_MAP_LEGEND_HORIZONTAL:	return( LNG("[CMD] Show Horizontal Legend") );
-	case ID_CMD_MAP_ZOOM_LAST:			return( LNG("[CMD] Zoom To Previous Extent") );
+	case ID_CMD_MAP_ZOOM_BACK:			return( LNG("[CMD] Zoom To Previous Extent") );
+	case ID_CMD_MAP_ZOOM_FORWARD:		return( LNG("[CMD] Zoom To Next Extent") );
 	case ID_CMD_MAP_ZOOM_FULL:			return( LNG("[CMD] Zoom To Full Extent") );
 	case ID_CMD_MAP_ZOOM_ACTIVE:		return( LNG("[CMD] Zoom To Active Layer") );
 	case ID_CMD_MAP_ZOOM_SELECTION:		return( LNG("[CMD] Zoom To Selection") );
@@ -281,7 +282,8 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_MAP_MODE_ZOOM:			return( ID_IMG_TB_MAP_MODE_ZOOM );
 	case ID_CMD_MAP_MODE_PAN:			return( ID_IMG_TB_MAP_MODE_PAN );
 	case ID_CMD_MAP_ZOOM_FULL:			return( ID_IMG_TB_MAP_ZOOM_FULL );
-	case ID_CMD_MAP_ZOOM_LAST:			return( ID_IMG_TB_MAP_ZOOM_LAST );
+	case ID_CMD_MAP_ZOOM_BACK:			return( ID_IMG_TB_MAP_ZOOM_LAST );
+	case ID_CMD_MAP_ZOOM_FORWARD:		return( ID_IMG_TB_MAP_ZOOM_NEXT );
 	case ID_CMD_MAP_ZOOM_ACTIVE:		return( ID_IMG_TB_MAP_ZOOM_ACTIVE );
 	case ID_CMD_MAP_ZOOM_SELECTION:		return( ID_IMG_TB_MAP_ZOOM_SELECTION );
 	case ID_CMD_MAP_ZOOM_EXTENT:		return( ID_IMG_TB_MAP_ZOOM_SELECTION );

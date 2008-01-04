@@ -107,6 +107,83 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_Rect	CWKSP_Map_Extents::m_Dummy	= CSG_Rect(0, 0, 1, 1);
+
+//---------------------------------------------------------
+CWKSP_Map_Extents::CWKSP_Map_Extents(void)
+{
+	m_iExtent	= -1;
+	m_nExtents	= 0;
+}
+
+//---------------------------------------------------------
+CSG_Rect CWKSP_Map_Extents::Set_Back(void)
+{
+	if( m_iExtent < 0 )
+		return( m_Dummy );
+
+	if( !is_First() )
+	{
+		m_iExtent--;
+	}
+
+	return( Get_Rect(m_iExtent) );
+}
+
+//---------------------------------------------------------
+CSG_Rect CWKSP_Map_Extents::Set_Forward(void)
+{
+	if( m_iExtent < 0 )
+		return( m_Dummy );
+
+	if( !is_Last() )
+	{
+		m_iExtent++;
+	}
+
+	return( Get_Rect(m_iExtent) );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Map_Extents::Add_Extent(const CSG_Rect &Extent, bool bReset)
+{
+	if( Extent.Get_XRange() > 0.0 && Extent.Get_YRange() > 0.0 )
+	{
+		if( bReset )
+		{
+			m_iExtent	= -1;
+			m_nExtents	= 0;
+		}
+
+		if( Extent != Get_Extent() )
+		{
+			m_iExtent	++;
+			m_nExtents	= m_iExtent + 1;
+
+			if( m_nExtents > Get_Count() )
+			{
+				Add(Extent);
+			}
+			else
+			{
+				Get_Rect(m_iExtent)	= Extent;
+			}
+
+			return( true );
+		}
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CWKSP_Map::CWKSP_Map(void)
 {
 	static int	iMap	= 0;
@@ -512,7 +589,7 @@ CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 	{
 		if( Get_Count() == 0 )
 		{
-			m_Extent	= pLayer->Get_Extent();
+			Set_Extent(pLayer->Get_Extent());
 		}
 
 		if( Get_Count() == 0 || m_Parameters("GOTO_NEWLAYER")->asBool() )
@@ -563,25 +640,10 @@ bool CWKSP_Map::Update(CWKSP_Layer *pLayer, bool bMapOnly)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Map::Set_Extent(TSG_Rect Extent)
+void CWKSP_Map::_Set_Extent(const CSG_Rect &Extent)
 {
-	if( Extent.xMax - Extent.xMin == 0.0 )
+	if( Extent.Get_XRange() > 0.0 && Extent.Get_YRange() > 0.0 )
 	{
-		Extent.xMin	-= 0.01 * m_Extent.Get_XRange();
-		Extent.xMax	+= 0.01 * m_Extent.Get_XRange();
-	}
-
-	if( Extent.yMax - Extent.yMin == 0.0 )
-	{
-		Extent.yMin	-= 0.01 * m_Extent.Get_YRange();
-		Extent.yMax	+= 0.01 * m_Extent.Get_YRange();
-	}
-
-	if( !(m_Extent == Extent) )
-	{
-		m_Extent_Last	= m_Extent;
-		m_Extent		= Extent;
-
 		View_Refresh(true);
 
 		if( m_bSynchronise )
@@ -592,29 +654,31 @@ void CWKSP_Map::Set_Extent(TSG_Rect Extent)
 }
 
 //---------------------------------------------------------
-void CWKSP_Map::Set_Extent(void)
+void CWKSP_Map::Set_Extent(const CSG_Rect &Extent, bool bReset)
 {
-	CSG_Parameters	p;
-
-	p.Create(NULL, LNG("[CAP] Map Extent"), LNG(""));
-	p.Add_Range(NULL, "X", LNG("West-East")		, LNG(""), m_Extent.Get_XMin(), m_Extent.Get_XMax());
-	p.Add_Range(NULL, "Y", LNG("South-North")	, LNG(""), m_Extent.Get_YMin(), m_Extent.Get_YMax());
-
-	if( DLG_Parameters(&p) )
+	if( m_Extents.Add_Extent(Extent, bReset) )
 	{
-		CSG_Rect	Extent(	p("X")->asRange()->Get_LoVal(),
-							p("Y")->asRange()->Get_LoVal(),
-							p("X")->asRange()->Get_HiVal(),
-							p("Y")->asRange()->Get_HiVal()	);
-
-		Set_Extent(Extent);
+		_Set_Extent(Extent);
 	}
 }
 
 //---------------------------------------------------------
-void CWKSP_Map::Set_Extent_Last(void)
+void CWKSP_Map::Set_Extent(void)
 {
-	Set_Extent(m_Extent_Last);
+	CSG_Parameters	p(NULL, LNG("[CAP] Map Extent"), LNG(""));
+
+	p.Add_Range(NULL, "X", LNG("West-East")		, LNG(""), Get_Extent().Get_XMin(), Get_Extent().Get_XMax());
+	p.Add_Range(NULL, "Y", LNG("South-North")	, LNG(""), Get_Extent().Get_YMin(), Get_Extent().Get_YMax());
+
+	if( DLG_Parameters(&p) )
+	{
+		Set_Extent(CSG_Rect(
+			p("X")->asRange()->Get_LoVal(),
+			p("Y")->asRange()->Get_LoVal(),
+			p("X")->asRange()->Get_HiVal(),
+			p("Y")->asRange()->Get_HiVal())
+		);
+	}
 }
 
 //---------------------------------------------------------
@@ -652,15 +716,35 @@ void CWKSP_Map::Set_Extent_Selection(void)
 }
 
 //---------------------------------------------------------
-void CWKSP_Map::_Synchronise_Extents(void)
+bool CWKSP_Map::Set_Extent_Back(bool bCheck_Only)
 {
-	for(int i=0; i<Get_Manager()->Get_Count(); i++)
+	if( !m_Extents.is_First() )
 	{
-		if( Get_Manager()->Get_Item(i) != this )
+		if( !bCheck_Only )
 		{
-			((CWKSP_Map_Manager *)Get_Manager())->Get_Map(i)->Set_Extent(m_Extent);
+			_Set_Extent(m_Extents.Set_Back());
 		}
+
+		return( true );
 	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Map::Set_Extent_Forward(bool bCheck_Only)
+{
+	if( !m_Extents.is_Last() )
+	{
+		if( !bCheck_Only )
+		{
+			_Set_Extent(m_Extents.Set_Forward());
+		}
+
+		return( true );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -671,6 +755,18 @@ void CWKSP_Map::Set_Synchronising(bool bOn)
 	if( m_bSynchronise )
 	{
 		_Synchronise_Extents();
+	}
+}
+
+//---------------------------------------------------------
+void CWKSP_Map::_Synchronise_Extents(void)
+{
+	for(int i=0; i<Get_Manager()->Get_Count(); i++)
+	{
+		if( Get_Manager()->Get_Item(i) != this )
+		{
+			((CWKSP_Map_Manager *)Get_Manager())->Get_Map(i)->Set_Extent(Get_Extent());
+		}
 	}
 }
 
@@ -824,20 +920,20 @@ CSG_Rect CWKSP_Map::Get_World(wxRect rClient)
 	double		d, dWorld, dClient;
 	TSG_Rect	Extent;
 
-	Extent	= m_Extent.m_rect;
+	Extent	= Get_Extent().m_rect;
 
 	dClient	= (double)rClient.GetHeight()	/ (double)rClient.GetWidth();
-	dWorld	= m_Extent.Get_YRange()			/ m_Extent.Get_XRange();
+	dWorld	= Get_Extent().Get_YRange()		/ Get_Extent().Get_XRange();
 
 	if( dWorld > dClient )
 	{
-		d			= (m_Extent.Get_XRange() - m_Extent.Get_YRange() / dClient) / 2.0;
+		d			= (Get_Extent().Get_XRange() - Get_Extent().Get_YRange() / dClient) / 2.0;
 		Extent.xMin	+= d;
 		Extent.xMax	-= d;
 	}
 	else
 	{
-		d			= (m_Extent.Get_YRange() - m_Extent.Get_XRange() * dClient) / 2.0;
+		d			= (Get_Extent().Get_YRange() - Get_Extent().Get_XRange() * dClient) / 2.0;
 		Extent.yMin	+= d;
 		Extent.yMax	-= d;
 	}

@@ -96,7 +96,8 @@ BEGIN_EVENT_TABLE(CVIEW_Map, CVIEW_Base)
 	EVT_MENU			(ID_CMD_MAP_SAVE_INTERACTIVE_SVG, CVIEW_Map::On_Map_Save_Interactive_SVG)
 
 	EVT_MENU			(ID_CMD_MAP_ZOOM_FULL			, CVIEW_Map::On_Map_Zoom_Full)
-	EVT_MENU			(ID_CMD_MAP_ZOOM_LAST			, CVIEW_Map::On_Map_Zoom_Last)
+	EVT_MENU			(ID_CMD_MAP_ZOOM_BACK			, CVIEW_Map::On_Map_Zoom_Back)
+	EVT_MENU			(ID_CMD_MAP_ZOOM_FORWARD		, CVIEW_Map::On_Map_Zoom_Forward)
 	EVT_MENU			(ID_CMD_MAP_ZOOM_ACTIVE			, CVIEW_Map::On_Map_Zoom_Layer)
 	EVT_MENU			(ID_CMD_MAP_ZOOM_SELECTION		, CVIEW_Map::On_Map_Zoom_Selection)
 	EVT_MENU			(ID_CMD_MAP_ZOOM_EXTENT			, CVIEW_Map::On_Map_Zoom_Extent)
@@ -165,7 +166,8 @@ wxMenu * CVIEW_Map::_Create_Menu(void)
 #endif
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_SAVE_INTERACTIVE_SVG);
 	pMenu->AppendSeparator();
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_LAST);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_BACK);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_FORWARD);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_FULL);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_ACTIVE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_SELECTION);
@@ -185,7 +187,8 @@ wxToolBarBase * CVIEW_Map::_Create_ToolBar(void)
 {
 	wxToolBarBase	*pToolBar	= CMD_ToolBar_Create(ID_TB_VIEW_MAP);
 
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP_ZOOM_LAST);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP_ZOOM_BACK);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP_ZOOM_FORWARD);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP_ZOOM_FULL);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP_ZOOM_ACTIVE);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP_ZOOM_SELECTION);
@@ -395,7 +398,15 @@ void CVIEW_Map::On_Command_UI(wxUpdateUIEvent &event)
 	case ID_CMD_MAP_MODE_DISTANCE:
 		event.Check(m_pControl->Get_Mode() == MAP_MODE_DISTANCE);
 		break;
-	}	
+
+	case ID_CMD_MAP_ZOOM_BACK:
+		event.Enable(m_pMap->Set_Extent_Back(true));
+		break;
+
+	case ID_CMD_MAP_ZOOM_FORWARD:
+		event.Enable(m_pMap->Set_Extent_Forward(true));
+		break;
+	}
 }
 
 
@@ -455,9 +466,15 @@ void CVIEW_Map::On_Map_Zoom_Full(wxCommandEvent &event)
 }
 
 //---------------------------------------------------------
-void CVIEW_Map::On_Map_Zoom_Last(wxCommandEvent &event)
+void CVIEW_Map::On_Map_Zoom_Back(wxCommandEvent &event)
 {
-	m_pMap->Set_Extent_Last();
+	m_pMap->Set_Extent_Back();
+}
+
+//---------------------------------------------------------
+void CVIEW_Map::On_Map_Zoom_Forward(wxCommandEvent &event)
+{
+	m_pMap->Set_Extent_Forward();
 }
 
 //---------------------------------------------------------
