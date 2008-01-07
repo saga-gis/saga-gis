@@ -69,6 +69,7 @@
 
 #include "active.h"
 
+#include "wksp_data_control.h"
 #include "wksp_data_manager.h"
 #include "wksp_layer.h"
 #include "wksp_map.h"
@@ -185,7 +186,8 @@ bool CWKSP_Data_Button::_Set_Layer_Active(void)
 {
 	if( m_pLayer && g_pData->Exists(m_pObject) )
 	{
-		g_pACTIVE->Set_Active(m_pLayer);
+	//	g_pACTIVE->Set_Active(m_pLayer);
+		g_pData_Ctrl->SelectItem(m_pLayer->GetId());
 
 		return( true );
 	}

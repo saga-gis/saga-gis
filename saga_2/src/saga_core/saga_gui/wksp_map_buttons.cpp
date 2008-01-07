@@ -69,6 +69,7 @@
 
 #include "active.h"
 
+#include "wksp_map_control.h"
 #include "wksp_map_manager.h"
 #include "wksp_map.h"
 #include "wksp_map_layer.h"
@@ -182,7 +183,8 @@ bool CWKSP_Map_Button::_Set_Layer_Active(void)
 {
 	if( m_pMap && g_pMaps->Exists(m_pMap) )
 	{
-		g_pACTIVE->Set_Active(m_pMap);
+	//	g_pACTIVE->Set_Active(m_pMap);
+		g_pMap_Ctrl->SelectItem(m_pMap->GetId());
 
 		return( true );
 	}

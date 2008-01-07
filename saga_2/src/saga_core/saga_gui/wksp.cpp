@@ -97,10 +97,25 @@ enum
 {
 	IMG_MODULES	= 0,
 	IMG_DATA,
-	IMG_DATA_BUTTONS,
-	IMG_MAPS,
-	IMG_MAPS_BUTTONS
+	IMG_MAPS
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define SUBNB_CAPTION_TREE		LNG("")
+#define SUBNB_CAPTION_BUTTONS	LNG("")
+
+//---------------------------------------------------------
+#define SUBNB_CREATE(ID, Name)	pNotebook	= new wxNotebook(this, ID, wxDefaultPosition, wxDefaultSize, wxNB_BOTTOM|wxNB_MULTILINE, Name);\
+								pNotebook	->AssignImageList(new wxImageList(IMG_SIZE_NOTEBOOK, IMG_SIZE_NOTEBOOK, true, 0));\
+								pNotebook	->IMG_ADD_TO_NOTEBOOK(ID_IMG_TB_WKSP);\
+								pNotebook	->IMG_ADD_TO_NOTEBOOK(ID_IMG_TB_MAP_LAYOUT_SHOW);
 
 
 ///////////////////////////////////////////////////////////
@@ -136,6 +151,9 @@ END_EVENT_TABLE()
 CWKSP::CWKSP(wxWindow *pParent)
 	: wxNotebook(pParent, ID_WND_WKSP, wxDefaultPosition, wxDefaultSize, NOTEBOOK_STYLE|wxNB_MULTILINE, LNG("[CAP] Workspace"))
 {
+	wxNotebook	*pNotebook;
+
+	//-----------------------------------------------------
 	g_pWKSP		= this;
 
 	//-----------------------------------------------------
@@ -143,26 +161,32 @@ CWKSP::CWKSP(wxWindow *pParent)
 
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_MODULES);
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_DATA);
-	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_DATA_BUTTONS);
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_MAPS);
-	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_MAPS_BUTTONS);
 
 	//-----------------------------------------------------
 	m_pModules		= new CWKSP_Module_Control	(this);
-	m_pData			= new CWKSP_Data_Control	(this);
-	m_pData_Buttons	= new CWKSP_Data_Buttons	(this);
-	m_pMaps			= new CWKSP_Map_Control		(this);
-	m_pMaps_Buttons	= new CWKSP_Map_Buttons		(this);
+
+	SUBNB_CREATE(ID_WND_WKSP_DATA, LNG("[CAP] Data"));
+	m_pData			= new CWKSP_Data_Control	(pNotebook);
+	m_pData_Buttons	= new CWKSP_Data_Buttons	(pNotebook);
+
+	SUBNB_CREATE(ID_WND_WKSP_MAPS, LNG("[CAP] Maps"));
+	m_pMaps			= new CWKSP_Map_Control		(pNotebook);
+	m_pMaps_Buttons	= new CWKSP_Map_Buttons		(pNotebook);
 }
 
 //---------------------------------------------------------
 void CWKSP::Add_Pages(void)
 {
-	AddPage(m_pModules		, LNG("[CAP] Modules")	, false, IMG_MODULES);
-	AddPage(m_pData			, LNG("[CAP] Data")		, false, IMG_DATA);
-	AddPage(m_pData_Buttons	, LNG("[CAP] Data *")	, false, IMG_DATA_BUTTONS);
-	AddPage(m_pMaps			, LNG("[CAP] Maps")		, false, IMG_MAPS);
-	AddPage(m_pMaps_Buttons	, LNG("[CAP] Maps *")	, false, IMG_MAPS_BUTTONS);
+	AddPage(m_pModules				, LNG("[CAP] Modules")	, false, IMG_MODULES);
+	AddPage(m_pData->GetParent()	, LNG("[CAP] Data")		, false, IMG_DATA);
+	AddPage(m_pMaps->GetParent()	, LNG("[CAP] Maps")		, false, IMG_MAPS);
+
+	((wxNotebook *)m_pData->GetParent())->AddPage(m_pData			, SUBNB_CAPTION_TREE	, false, 0);
+	((wxNotebook *)m_pData->GetParent())->AddPage(m_pData_Buttons	, SUBNB_CAPTION_BUTTONS	, false, 1);
+
+	((wxNotebook *)m_pMaps->GetParent())->AddPage(m_pMaps			, SUBNB_CAPTION_TREE	, false, 0);
+	((wxNotebook *)m_pMaps->GetParent())->AddPage(m_pMaps_Buttons	, SUBNB_CAPTION_BUTTONS	, false, 1);
 }
 
 //---------------------------------------------------------
@@ -189,9 +213,27 @@ void CWKSP::On_Page_Changed(wxNotebookEvent &event)
 {
 	event.Skip();
 
-	if( event.GetSelection() >= 0 && g_pACTIVE && GetPage(event.GetSelection()) != m_pData_Buttons && GetPage(event.GetSelection()) != m_pMaps_Buttons )
+	if( event.GetSelection() >= 0 && g_pACTIVE )
 	{
-		g_pACTIVE->Set_Active(((CWKSP_Base_Control *)GetPage(event.GetSelection()))->Get_Item_Selected());
+		CWKSP_Base_Item	*pItem	= NULL;
+
+		if( GetPage(event.GetSelection()) == m_pModules )
+		{
+			pItem	= m_pModules->Get_Item_Selected();
+		}
+		else if( GetPage(event.GetSelection()) == m_pData->GetParent() )
+		{
+			pItem	= m_pData->Get_Item_Selected();
+		}
+		else if( GetPage(event.GetSelection()) == m_pMaps->GetParent() )
+		{
+			pItem	= m_pMaps->Get_Item_Selected();
+		}
+
+		if( pItem )
+		{
+			g_pACTIVE->Set_Active(pItem);
+		}
 	}
 }
 
