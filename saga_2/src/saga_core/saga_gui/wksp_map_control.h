@@ -91,6 +91,9 @@ public:
 
 	virtual int					OnCompareItems	(const wxTreeItemId &item1, const wxTreeItemId &item2);
 
+	void						On_Drag_Begin	(wxTreeEvent &event);
+	void						On_Drag_End		(wxTreeEvent &event);
+
 	bool						Close			(bool bSilent);
 
 	void						Add_Item		(class CWKSP_Base_Manager *pManager, class CWKSP_Base_Item *pItem);
@@ -101,6 +104,7 @@ private:
 
 	int							_Get_Image_ID	(class CWKSP_Base_Item *pItem);
 
+	wxTreeItemId				m_draggedItem;
 
 //---------------------------------------------------------
 DECLARE_EVENT_TABLE()

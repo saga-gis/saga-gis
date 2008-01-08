@@ -270,20 +270,20 @@ CWKSP_Map_Buttons::CWKSP_Map_Buttons(wxWindow *pParent)
 	//-----------------------------------------------------
 	long	lValue;
 
-	m_Size			= CONFIG_Read(wxT("/LAYERS"), wxT("SIZE")		, lValue) ? (int)lValue : 75;
-	m_Active_Color	= CONFIG_Read(wxT("/LAYERS"), wxT("SELCOLOR")	, lValue) ?      lValue : Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW));
+	m_Size			= CONFIG_Read(wxT("/BUTTONS_MAPS"), wxT("SIZE")		, lValue) ? (int)lValue : 75;
+	m_Active_Color	= CONFIG_Read(wxT("/BUTTONS_MAPS"), wxT("SELCOLOR")	, lValue) ?      lValue : Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW));
 
 	//-----------------------------------------------------
-	m_Parameters.Create(this, LNG("Options for Layers Workspace"), LNG(""));
+	m_Parameters.Create(this, LNG("Options for Map Thumbnails"), LNG(""));
 
 	m_Parameters.Add_Value(
-		NULL, "SIZE"		, LNG("Button Size"),
+		NULL, "SIZE"		, LNG("Thumbnail Size"),
 		LNG(""),
 		PARAMETER_TYPE_Int, m_Size, 10, true
 	);
 
 	m_Parameters.Add_Value(
-		NULL, "SELCOLOR"	, LNG("Active Layer Color"),
+		NULL, "SELCOLOR"	, LNG("Selection Color"),
 		LNG(""),
 		PARAMETER_TYPE_Color, m_Active_Color
 	);
@@ -292,8 +292,8 @@ CWKSP_Map_Buttons::CWKSP_Map_Buttons(wxWindow *pParent)
 //---------------------------------------------------------
 CWKSP_Map_Buttons::~CWKSP_Map_Buttons(void)
 {
-	CONFIG_Write(wxT("/LAYERS"), wxT("SIZE")	, (long)m_Parameters("SIZE")	->asInt());
-	CONFIG_Write(wxT("/LAYERS"), wxT("SELCOLOR"),       m_Parameters("SELCOLOR")->asColor());
+	CONFIG_Write(wxT("/BUTTONS_MAPS"), wxT("SIZE")    , (long)m_Parameters("SIZE")    ->asInt());
+	CONFIG_Write(wxT("/BUTTONS_MAPS"), wxT("SELCOLOR"),       m_Parameters("SELCOLOR")->asColor());
 
 	_Del_Items();
 

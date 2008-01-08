@@ -274,15 +274,15 @@ CWKSP_Data_Buttons::CWKSP_Data_Buttons(wxWindow *pParent)
 	bool	bValue;
 	long	lValue;
 
-	m_Size			= CONFIG_Read(wxT("/LAYERS"), wxT("SIZE")		, lValue) ? (int)lValue : 75;
-	m_bCategorised	= CONFIG_Read(wxT("/LAYERS"), wxT("CATEGORY")	, bValue) ?      bValue : true;
-	m_Active_Color	= CONFIG_Read(wxT("/LAYERS"), wxT("SELCOLOR")	, lValue) ?      lValue : Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW));
+	m_Size			= CONFIG_Read(wxT("/BUTTONS_DATA"), wxT("SIZE")		, lValue) ? (int)lValue : 75;
+	m_bCategorised	= CONFIG_Read(wxT("/BUTTONS_DATA"), wxT("CATEGORY")	, bValue) ?      bValue : true;
+	m_Active_Color	= CONFIG_Read(wxT("/BUTTONS_DATA"), wxT("SELCOLOR")	, lValue) ?      lValue : Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW));
 
 	//-----------------------------------------------------
-	m_Parameters.Create(this, LNG("Options for Layers Workspace"), LNG(""));
+	m_Parameters.Create(this, LNG("Options for Data Thumbnails"), LNG(""));
 
 	m_Parameters.Add_Value(
-		NULL, "SIZE"		, LNG("Button Size"),
+		NULL, "SIZE"		, LNG("Thumbnail Size"),
 		LNG(""),
 		PARAMETER_TYPE_Int, m_Size, 10, true
 	);
@@ -294,7 +294,7 @@ CWKSP_Data_Buttons::CWKSP_Data_Buttons(wxWindow *pParent)
 	);
 
 	m_Parameters.Add_Value(
-		NULL, "SELCOLOR"	, LNG("Active Layer Color"),
+		NULL, "SELCOLOR"	, LNG("Selection Color"),
 		LNG(""),
 		PARAMETER_TYPE_Color, m_Active_Color
 	);
@@ -303,9 +303,9 @@ CWKSP_Data_Buttons::CWKSP_Data_Buttons(wxWindow *pParent)
 //---------------------------------------------------------
 CWKSP_Data_Buttons::~CWKSP_Data_Buttons(void)
 {
-	CONFIG_Write(wxT("/LAYERS"), wxT("SIZE")	, (long)m_Parameters("SIZE")	->asInt());
-	CONFIG_Write(wxT("/LAYERS"), wxT("CATEGORY"),       m_Parameters("CATEGORY")->asBool());
-	CONFIG_Write(wxT("/LAYERS"), wxT("SELCOLOR"),       m_Parameters("SELCOLOR")->asColor());
+	CONFIG_Write(wxT("/BUTTONS_DATA"), wxT("SIZE")    , (long)m_Parameters("SIZE")	  ->asInt());
+	CONFIG_Write(wxT("/BUTTONS_DATA"), wxT("CATEGORY"),       m_Parameters("CATEGORY")->asBool());
+	CONFIG_Write(wxT("/BUTTONS_DATA"), wxT("SELCOLOR"),       m_Parameters("SELCOLOR")->asColor());
 
 	_Del_Items();
 

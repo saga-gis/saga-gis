@@ -820,7 +820,17 @@ void CWKSP_Grid::_Save_Image(void)
 		if( Parms("WORLD")->asBool() )
 		{
 			wxFileName	fn(file);
-			fn.SetExt(wxT("world"));
+
+			switch( type )
+			{
+			default:					fn.SetExt(wxT("world"));	break;
+			case wxBITMAP_TYPE_BMP:		fn.SetExt(wxT("bpw"));		break;
+			case wxBITMAP_TYPE_GIF:		fn.SetExt(wxT("gfw"));		break;
+			case wxBITMAP_TYPE_JPEG:	fn.SetExt(wxT("jgw"));		break;
+			case wxBITMAP_TYPE_PNG:		fn.SetExt(wxT("pgw"));		break;
+			case wxBITMAP_TYPE_PCX:		fn.SetExt(wxT("pxw"));		break;
+			case wxBITMAP_TYPE_TIF:		fn.SetExt(wxT("tfw"));		break; 
+			}
 
 			if( Stream.Open(fn.GetFullPath().c_str(), SG_FILE_W, false) )
 			{

@@ -109,6 +109,8 @@ IMPLEMENT_CLASS(CWKSP_Map_Control, CWKSP_Base_Control)
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CWKSP_Map_Control, CWKSP_Base_Control)
+	EVT_TREE_BEGIN_DRAG		(ID_WND_WKSP_MAPS, CWKSP_Map_Control::On_Drag_Begin)
+	EVT_TREE_END_DRAG		(ID_WND_WKSP_MAPS, CWKSP_Map_Control::On_Drag_End)
 END_EVENT_TABLE()
 
 
@@ -258,6 +260,82 @@ bool CWKSP_Map_Control::Del_Item(CWKSP_Map *pMap, CWKSP_Layer *pLayer)
 	}
 
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Map_Control::On_Drag_Begin(wxTreeEvent &event)
+{
+	CWKSP_Base_Item	*pItem	= (CWKSP_Base_Item *)GetItemData(event.GetItem());
+
+	if( pItem && pItem->Get_Type() == WKSP_ITEM_Map_Layer )
+	{
+		m_draggedItem	= event.GetItem();
+
+		event.Allow();
+	}
+}
+
+//---------------------------------------------------------
+void CWKSP_Map_Control::On_Drag_End(wxTreeEvent &event)
+{
+	if( event.GetItem().IsOk() )
+	{
+		CWKSP_Map		*pDst_Map, *pSrc_Map;
+		CWKSP_Base_Item	*pSrc, *pDst, *pCpy;
+
+		if( ((CWKSP_Base_Item *)GetItemData(m_draggedItem))->Get_Type() == WKSP_ITEM_Map_Layer )
+		{
+			pDst		= (CWKSP_Base_Item *)GetItemData(event.GetItem());
+			pSrc		= (CWKSP_Base_Item *)GetItemData(m_draggedItem);
+			pSrc_Map	= (CWKSP_Map *)pSrc->Get_Manager();
+
+			switch( pDst->Get_Type() )
+			{
+			default:
+				pDst_Map	= NULL;
+				break;
+
+			case WKSP_ITEM_Map:
+				pDst_Map	= (CWKSP_Map *)pDst;
+				pDst		= NULL;
+				break;
+
+			case WKSP_ITEM_Map_Layer:
+				pDst_Map	= (CWKSP_Map *)pDst->Get_Manager();
+				break;
+			}
+
+			if( pDst_Map )
+			{
+				if( pDst_Map == pSrc_Map )
+				{
+					pDst_Map->Move_To(pSrc, pDst);
+
+					pDst_Map->View_Refresh(false);
+				}
+				else if( (pCpy = pDst_Map->Add_Layer(((CWKSP_Map_Layer *)pSrc)->Get_Layer())) != NULL )
+				{
+					pDst_Map->Move_To(pCpy, pDst);
+
+					if( pCpy && !wxGetKeyState(WXK_CONTROL) )
+					{
+						Del_Item(pSrc_Map, ((CWKSP_Map_Layer *)pSrc)->Get_Layer());
+					}
+
+					pDst_Map->View_Refresh(false);
+				}
+			}
+		}
+	}
+
+	m_draggedItem	= (wxTreeItemId)0l;
 }
 
 

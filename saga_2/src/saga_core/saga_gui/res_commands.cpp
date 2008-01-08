@@ -165,6 +165,7 @@ const wxChar * CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAPS_SYNCHRONIZE:		return( LNG("[CMD] Synchronise Map Extents") );
 
 	case ID_CMD_MAPS_SHOW:				return( LNG("[CMD] Show Map") );
+	case ID_CMD_MAPS_LAYER_SHOW:		return( LNG("[CMD] Show Layer") );
 	case ID_CMD_MAPS_MOVE_TOP:			return( LNG("[CMD] Move To Top") );
 	case ID_CMD_MAPS_MOVE_BOTTOM:		return( LNG("[CMD] Move To Bottom") );
 	case ID_CMD_MAPS_MOVE_UP:			return( LNG("[CMD] Move Up") );

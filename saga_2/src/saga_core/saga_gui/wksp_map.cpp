@@ -1059,7 +1059,17 @@ void CWKSP_Map::_Img_Save(wxString file, int type)
 	{
 		CSG_File	Stream;
 		wxFileName	fn(file);
-		fn.SetExt(wxT("world"));
+
+		switch( type )
+		{
+		default:					fn.SetExt(wxT("world"));	break;
+		case wxBITMAP_TYPE_BMP:		fn.SetExt(wxT("bpw"));		break;
+		case wxBITMAP_TYPE_GIF:		fn.SetExt(wxT("gfw"));		break;
+		case wxBITMAP_TYPE_JPEG:	fn.SetExt(wxT("jgw"));		break;
+		case wxBITMAP_TYPE_PNG:		fn.SetExt(wxT("pgw"));		break;
+		case wxBITMAP_TYPE_PCX:		fn.SetExt(wxT("pxw"));		break;
+		case wxBITMAP_TYPE_TIF:		fn.SetExt(wxT("tfw"));		break; 
+		}
 
 		if( Stream.Open(fn.GetFullPath().c_str(), SG_FILE_W, false) )
 		{
@@ -1473,16 +1483,13 @@ void CWKSP_Map::Draw_Map(wxDC &dc, double Zoom, const wxRect &rClient, bool bEdi
 //---------------------------------------------------------
 void CWKSP_Map::Draw_Map(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wxRect &rClient, bool bEdit, int Background)
 {
-	CWKSP_Layer		*pLayer;
 	CWKSP_Map_DC	dc_Map(rWorld, rClient, Zoom, Background);
 
 	for(int i=Get_Count()-1; i>=0; i--)
 	{
-		pLayer	= Get_Layer(i)->Get_Layer();
-
-		if( pLayer->do_Show(Get_Extent()) )
+		if( Get_Layer(i)->do_Show() && Get_Layer(i)->Get_Layer()->do_Show(Get_Extent()) )
 		{
-			pLayer->Draw(dc_Map, bEdit && pLayer == Get_Active_Layer());
+			Get_Layer(i)->Get_Layer()->Draw(dc_Map, bEdit && Get_Layer(i)->Get_Layer() == Get_Active_Layer());
 		}
 	}
 

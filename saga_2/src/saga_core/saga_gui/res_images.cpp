@@ -83,6 +83,8 @@
 #include "./res/xpm/nb_wksp_data.xpm"
 #include "./res/xpm/nb_wksp_maps.xpm"
 #include "./res/xpm/nb_wksp_modules.xpm"
+#include "./res/xpm/nb_wksp_thumbnails.xpm"
+#include "./res/xpm/nb_wksp_treeview.xpm"
 #include "./res/xpm/saga_icon_16.xpm"
 #include "./res/xpm/saga_icon_32.xpm"
 #include "./res/xpm/saga_splash.xpm"
@@ -212,6 +214,8 @@ char ** IMG_Get_XPM(int ID_IMG)
 	case ID_IMG_NB_WKSP_DATA:	return( nb_wksp_data_xpm );
 	case ID_IMG_NB_WKSP_MAPS:	return( nb_wksp_maps_xpm );
 	case ID_IMG_NB_WKSP_MODULES:	return( nb_wksp_modules_xpm );
+	case ID_IMG_NB_WKSP_THUMBNAILS:	return( nb_wksp_thumbnails_xpm );
+	case ID_IMG_NB_WKSP_TREEVIEW:	return( nb_wksp_treeview_xpm );
 	case ID_IMG_SAGA_ICON_16:	return( saga_icon_16_xpm );
 	case ID_IMG_SAGA_ICON_32:	return( saga_icon_32_xpm );
 	case ID_IMG_SAGA_SPLASH:	return( saga_splash_xpm );

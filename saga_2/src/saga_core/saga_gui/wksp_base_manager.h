@@ -97,6 +97,7 @@ public:
 	bool						Move_Bottom		(CWKSP_Base_Item *pItem);
 	bool						Move_Up			(CWKSP_Base_Item *pItem);
 	bool						Move_Down		(CWKSP_Base_Item *pItem);
+	bool						Move_To			(CWKSP_Base_Item *pItem, CWKSP_Base_Item *pItem_Dst);
 
 
 protected:

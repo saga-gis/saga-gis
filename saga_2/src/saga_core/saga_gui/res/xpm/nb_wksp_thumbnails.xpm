@@ -1,0 +1,29 @@
+/* XPM */
+static char *nb_wksp_thumbnails_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 7 1",
+"O c Black",
+"@ c #FFFFFF",
+"X c #808080",
+"  c None",
+"+ c #00FFFF",
+"o c #0000FF",
+". c #A0A0A0",
+/* pixels */
+" ......X ......X",
+" .oooooO .+++++O",
+" .oooooO .+++++O",
+" .oooooO .+++++O",
+" .oooooO .+++++O",
+" .oooooO .+++++O",
+" XOOOOOO XOOOOOO",
+"                ",
+" ......X ......X",
+" .+++++O .@@@@@O",
+" .+++++O .@@@@@O",
+" .+++++O .@@@@@O",
+" .+++++O .@@@@@O",
+" .+++++O .@@@@@O",
+" XOOOOOO XOOOOOO",
+"                "
+};

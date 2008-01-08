@@ -128,9 +128,7 @@ public:
 
 	void						Update_Buttons		(void);
 
-	void						Set_Item_Size		(int Size);
 	int							Get_Item_Size		(void)		{	return( m_Size );	}
-
 	long						Get_Active_Color	(void)		{	return( m_Active_Color );	}
 
 

@@ -95,13 +95,17 @@ public:
 	virtual bool				On_Command			(int Cmd_ID);
 	virtual bool				On_Command_UI		(wxUpdateUIEvent &event);
 
-	virtual CSG_Parameters *		Get_Parameters		(void);
+	virtual CSG_Parameters *	Get_Parameters		(void);
 	virtual void				Parameters_Changed	(void);
 
 	class CWKSP_Layer *			Get_Layer			(void)	{	return( m_pLayer );	}
 
+	bool						do_Show				(void)	{	return( m_bShow );	}
+
 
 private:
+
+	bool						m_bShow;
 
 	class CWKSP_Layer			*m_pLayer;
 

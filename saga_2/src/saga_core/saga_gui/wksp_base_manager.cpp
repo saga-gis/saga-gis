@@ -285,6 +285,41 @@ bool CWKSP_Base_Manager::Move_Down(CWKSP_Base_Item *pItem)
 	return( false );
 }
 
+//---------------------------------------------------------
+bool CWKSP_Base_Manager::Move_To(CWKSP_Base_Item *pItem, CWKSP_Base_Item *pItem_Dst)
+{
+	if( pItem && pItem_Dst && pItem != pItem_Dst && pItem->Get_Manager() == this && pItem_Dst->Get_Manager() == this )
+	{
+		int		Index, Index_Dst, i;
+
+		Index		= pItem		->Get_Index();
+		Index_Dst	= pItem_Dst	->Get_Index();
+
+		if( Index < Index_Dst )
+		{
+			for(i=Index; i<Index_Dst; i++)
+			{
+				m_Items[i]	= m_Items[i + 1];
+			}
+		}
+		else
+		{
+			for(i=Index; i>Index_Dst; i--)
+			{
+				m_Items[i]	= m_Items[i - 1];
+			}
+		}
+
+		m_Items[Index_Dst]	= pItem;
+
+		Get_Control()->SortChildren(GetId());
+
+		return( true );
+	}
+
+	return( false );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

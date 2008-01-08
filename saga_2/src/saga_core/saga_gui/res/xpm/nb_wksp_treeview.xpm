@@ -1,0 +1,27 @@
+/* XPM */
+static char *nb_wksp_treeview_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 5 1",
+". c Black",
+"X c #FFFFFF",
+"  c None",
+"o c #848484",
+"O c #0000FF",
+/* pixels */
+"                ",
+"............... ",
+".XXXXXXXXXXXXX.o",
+".XOXXXXXXXXXXX.o",
+".XooOXoooooXXX.o",
+".XXXoXXXXXXXXX.o",
+".XXXOXoooooXXX.o",
+".XXXXXXXXXXXXX.o",
+".XXXOXXXXXXXXX.o",
+".XXXooOXoooooX.o",
+".XXXXXoXXXXXXX.o",
+".XXXXXOXoooooX.o",
+".XXXXXXXXXXXXX.o",
+"...............o",
+" ooooooooooooooo",
+"                "
+};

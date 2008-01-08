@@ -81,6 +81,8 @@
 CWKSP_Map_Layer::CWKSP_Map_Layer(CWKSP_Layer *pLayer)
 {
 	m_pLayer	= pLayer;
+
+	m_bShow		= true;
 }
 
 //---------------------------------------------------------
@@ -99,7 +101,7 @@ CWKSP_Map_Layer::~CWKSP_Map_Layer(void)
 //---------------------------------------------------------
 wxString CWKSP_Map_Layer::Get_Name(void)
 {
-	return( m_pLayer->Get_Name() );
+	return( m_bShow ? m_pLayer->Get_Name() : wxString::Format(wxT("[%s]"), m_pLayer->Get_Name()) );
 }
 
 //---------------------------------------------------------
@@ -116,6 +118,7 @@ wxMenu * CWKSP_Map_Layer::Get_Menu(void)
 	pMenu	= new wxMenu(m_pLayer->Get_Name());
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
+	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_LAYER_SHOW);
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_MOVE_TOP);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_MOVE_UP);
@@ -157,6 +160,13 @@ bool CWKSP_Map_Layer::On_Command(int Cmd_ID)
 	default:
 		return( CWKSP_Base_Item::On_Command(Cmd_ID) );
 
+	case ID_CMD_WKSP_ITEM_RETURN:
+	case ID_CMD_MAPS_LAYER_SHOW:
+		m_bShow	= !m_bShow;
+		((CWKSP_Map *)Get_Manager())->View_Refresh(false);
+		CWKSP_Base_Item::Parameters_Changed();
+		break;
+
 	case ID_CMD_MAPS_MOVE_TOP:
 		if( Get_Manager()->Move_Top(this) )
 			((CWKSP_Map *)Get_Manager())->View_Refresh(false);
@@ -193,6 +203,10 @@ bool CWKSP_Map_Layer::On_Command_UI(wxUpdateUIEvent &event)
 	{
 	default:
 		return( CWKSP_Base_Item::On_Command_UI(event) );
+
+	case ID_CMD_MAPS_LAYER_SHOW:
+		event.Check(m_bShow);
+		break;
 
 	case ID_CMD_MAPS_MOVE_TOP:
 	case ID_CMD_MAPS_MOVE_UP:
