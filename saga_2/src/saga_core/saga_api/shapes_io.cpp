@@ -76,7 +76,7 @@ bool CSG_Shapes::_Load_ESRI(const SG_Char *File_Name)
 
 	char		buf_Header[100];
 
-	int			Type_File, Type_Shape,
+	int			Type_File, Type_Shape, Type_Ext,
 				FileCode, FileLength, Version,
 				RecordNumber, ContentLength,
 				iShape, iPart, nParts, iPoint, nPoints,
@@ -142,18 +142,30 @@ bool CSG_Shapes::_Load_ESRI(const SG_Char *File_Name)
 
 	switch( Type_File )
 	{
-	case 1:		m_Type	= SHAPE_TYPE_Point;		break;
-	case 8:		m_Type	= SHAPE_TYPE_Points;	break;
-	case 3:		m_Type	= SHAPE_TYPE_Line;		break;
-	case 5:		m_Type	= SHAPE_TYPE_Polygon;	break;
 	default:	m_Type	= SHAPE_TYPE_Undefined;	break;	// unsupported...
+	case 31:	m_Type	= SHAPE_TYPE_Undefined;	break;	// unsupported: MultiPatch...
+
+	case 1:		m_Type	= SHAPE_TYPE_Point;		Type_Ext	= 0;	break;	// Point
+	case 8:		m_Type	= SHAPE_TYPE_Points;	Type_Ext	= 0;	break;	// MultiPoint
+	case 3:		m_Type	= SHAPE_TYPE_Line;		Type_Ext	= 0;	break;	// PolyLine
+	case 5:		m_Type	= SHAPE_TYPE_Polygon;	Type_Ext	= 0;	break;	// Polygon
+
+	case 11:	m_Type	= SHAPE_TYPE_Point;		Type_Ext	= 2;	break;	// PointZ
+	case 18:	m_Type	= SHAPE_TYPE_Points;	Type_Ext	= 2;	break;	// MultiPointZ
+	case 13:	m_Type	= SHAPE_TYPE_Line;		Type_Ext	= 2;	break;	// PolyLineZ
+	case 15:	m_Type	= SHAPE_TYPE_Polygon;	Type_Ext	= 2;	break;	// PolygonZ
+
+	case 21:	m_Type	= SHAPE_TYPE_Point;		Type_Ext	= 1;	break;	// PointM
+	case 28:	m_Type	= SHAPE_TYPE_Points;	Type_Ext	= 1;	break;	// MultiPointM
+	case 23:	m_Type	= SHAPE_TYPE_Line;		Type_Ext	= 1;	break;	// PolyLineM
+	case 25:	m_Type	= SHAPE_TYPE_Polygon;	Type_Ext	= 1;	break;	// PolygonM
 	}
 
 	if( Stream.is_EOF() || FileCode != 9994 || Version != 1000 || m_Type == SHAPE_TYPE_Undefined )
 	{
 		SG_UI_Msg_Add(LNG("[MSG] failed"), false);
 
-		SG_UI_Msg_Add_Error(LNG("[ERR] Shape file header is invalid."));
+		SG_UI_Msg_Add_Error(LNG("[ERR] Shape file invalid or of unsupported type."));
 
 		return( false );
 	}
@@ -189,16 +201,34 @@ bool CSG_Shapes::_Load_ESRI(const SG_Char *File_Name)
 		}
 		else
 		{
-			switch( Type_Shape )
+			switch( m_Type )
 			{
-			//---------------------------------------------
-			case 1:			// Point...
-				Stream.Read(&dPoint	, sizeof(TSG_Point));
-				pShape->Add_Point(dPoint.x, dPoint.y);
+			default:
+				SG_UI_Msg_Add_Error(LNG("[ERR] Corrupted shape file."));
 				break;
 
 			//---------------------------------------------
-			case 8:			// Multipoint...
+			case SHAPE_TYPE_Point:
+
+				Stream.Read(&dPoint	, sizeof(TSG_Point));
+				pShape->Add_Point(dPoint.x, dPoint.y);
+
+				//-----------------------------------------
+				if( Type_Ext != 0 )
+				{
+					if( Type_Ext == 1 )	// read Z
+					{
+						Stream.Read_Double(false);
+					}
+
+					// read M (optional)
+					Stream.Read_Double(false);
+				}
+				break;
+
+			//---------------------------------------------
+			case SHAPE_TYPE_Points:
+
 				Stream.Read(&dRect	, sizeof(TSG_Rect));
 				Stream.Read(&nPoints, sizeof(int));
 
@@ -207,10 +237,33 @@ bool CSG_Shapes::_Load_ESRI(const SG_Char *File_Name)
 					Stream.Read(&dPoint, sizeof(TSG_Point));
 					pShape->Add_Point(dPoint.x, dPoint.y);
 				}
+
+				//-----------------------------------------
+				if( Type_Ext != 0 )
+				{
+					if( Type_Ext == 1 )	// read Z
+					{
+						Stream.Read_Double(false);
+						Stream.Read_Double(false);
+
+						for(iPoint=0; iPoint<nPoints; iPoint++)
+							Stream.Read_Double(false);
+					}
+
+					// read M (optional)
+					Stream.Read_Double(false);
+					Stream.Read_Double(false);
+
+					for(iPoint=0; iPoint<nPoints; iPoint++)
+						Stream.Read_Double(false);
+					break;
+				}
 				break;
 
 			//---------------------------------------------
-			case 3: case 5:	// Line, Polygon...
+			case SHAPE_TYPE_Line:
+			case SHAPE_TYPE_Polygon:
+
 				Stream.Read(&dRect	, sizeof(TSG_Rect));
 				Stream.Read(&nParts	, sizeof(int));
 				Stream.Read(&nPoints, sizeof(int));
@@ -239,6 +292,26 @@ bool CSG_Shapes::_Load_ESRI(const SG_Char *File_Name)
 
 					Stream.Read(&dPoint, sizeof(TSG_Point));
 					pShape->Add_Point(dPoint.x, dPoint.y, iPart);
+				}
+
+				//-----------------------------------------
+				if( Type_Ext != 0 )
+				{
+					if( Type_Ext == 1 )	// read Z
+					{
+						Stream.Read_Double(false);
+						Stream.Read_Double(false);
+
+						for(iPoint=0; iPoint<nPoints; iPoint++)
+							Stream.Read_Double(false);
+					}
+
+					// read M (optional)
+					Stream.Read_Double(false);
+					Stream.Read_Double(false);
+
+					for(iPoint=0; iPoint<nPoints; iPoint++)
+						Stream.Read_Double(false);
 				}
 				break;
 			}

@@ -303,6 +303,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "io_shapes_dxf"=.\modules_io\shapes\io_shapes_dxf\io_shapes_dxf.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "io_table_odbc"=.\modules_io\table\io_table_odbc\io_table_odbc.dsp - Package Owner=<4>
 
 Package=<5>
