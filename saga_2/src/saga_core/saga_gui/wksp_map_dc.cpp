@@ -137,6 +137,59 @@ void CWKSP_Map_DC::Draw(wxDC &dc_Target)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CWKSP_Map_DC::Draw_DC(CWKSP_Map_DC &dc_Source, double Transparency)
+{
+	if( 1 )
+	{
+		BYTE		*src_rgb, *dst_rgb;
+		int			i, n;
+		double		d;
+		wxImage		src_img, dst_img;
+		wxBitmap	bmp;
+		wxMemoryDC	mdc;
+
+		//-------------------------------------------------
+		n	= 3 * m_rDC.GetHeight() * m_rDC.GetWidth();
+		d	= 1.0 - Transparency;
+
+		bmp.Create(m_rDC.GetWidth(), m_rDC.GetHeight());
+
+		mdc.SelectObject(bmp);
+		mdc.Blit(0, 0, m_rDC.GetWidth(), m_rDC.GetHeight(), &dc, 0, 0);
+		mdc.SelectObject(wxNullBitmap);
+		dst_img	= bmp.ConvertToImage();
+		dst_rgb	= dst_img.GetData();
+
+		mdc.SelectObject(bmp);
+		mdc.Blit(0, 0, m_rDC.GetWidth(), m_rDC.GetHeight(), &dc_Source.dc, 0, 0);
+		mdc.SelectObject(wxNullBitmap);
+		src_img	= bmp.ConvertToImage();
+		src_rgb	= src_img.GetData();
+
+		//-------------------------------------------------
+		for(i=0; i<n; i+=3)
+		{
+			if( src_rgb[i + 0] < 255 || src_rgb[i + 1] < 255 || src_rgb[i + 2] < 255 )
+			{
+				dst_rgb[i + 0]	= (int)(d * src_rgb[i + 0] + Transparency * dst_rgb[i + 0]);
+				dst_rgb[i + 1]	= (int)(d * src_rgb[i + 1] + Transparency * dst_rgb[i + 1]);
+				dst_rgb[i + 2]	= (int)(d * src_rgb[i + 2] + Transparency * dst_rgb[i + 2]);
+			}
+		}
+
+		//-------------------------------------------------
+		dc.DrawBitmap(wxBitmap(dst_img), 0, 0, true);
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 void CWKSP_Map_DC::Set_Font(wxFont &Font)
 {
 	if( Font.Ok() )

@@ -117,12 +117,13 @@ public:
 	double						xWorld2DC				(double x)		{	return(                     (int)(0.5 + (x - m_rWorld.Get_XMin()) * m_World2DC) );	}
 	double						yWorld2DC				(double y)		{	return( m_rDC.GetHeight() - (int)(0.5 + (y - m_rWorld.Get_YMin()) * m_World2DC) );	}
 
-	TSG_Point_Int					World2DC				(TSG_Point p)	{	TSG_Point_Int _p; _p.x = (int)xWorld2DC(p.x), _p.y = (int)yWorld2DC(p.y); return( _p );	}
+	TSG_Point_Int				World2DC				(TSG_Point p)	{	TSG_Point_Int _p; _p.x = (int)xWorld2DC(p.x), _p.y = (int)yWorld2DC(p.y); return( _p );	}
 
 	//-----------------------------------------------------
 	void						Set_Font				(wxFont &Font);
 
 	//-----------------------------------------------------
+	void						Draw_DC					(CWKSP_Map_DC &dc_Source, double Transparency);
 	void						Draw_Polygon			(CSG_Shape_Polygon *pPolygon);
 
 	//-----------------------------------------------------

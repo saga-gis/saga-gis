@@ -243,6 +243,7 @@ void CWKSP_Base_Item::Parameters_Changed(void)
 	if( g_pACTIVE )
 	{
 		g_pACTIVE->Update_Description();
+		g_pACTIVE->Update(this, false);
 	}
 }
 
