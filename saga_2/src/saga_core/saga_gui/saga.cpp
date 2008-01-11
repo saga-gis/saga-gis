@@ -101,8 +101,8 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SAGA_GUI_VERSION		wxT("2.0.2")
-#define SAGA_GUI_BUILD			wxT("20070101")
+#define SAGA_GUI_VERSION		wxT("2.0.3")
+#define SAGA_GUI_BUILD			wxT("20080101")
 
 //---------------------------------------------------------
 const wxChar *	SAGA_GUI_Get_Version(void)
@@ -157,7 +157,7 @@ bool CSAGA::OnInit(void)
 	long			iLogo;
 	wxSplashScreen	*pLogo;
 
-	iLogo	= CONFIG_Read(wxT("/DATA"), wxT("START_LOGO"), iLogo) ? iLogo : 1;
+	iLogo	= CONFIG_Read(wxT("/MODULES"), wxT("START_LOGO"), iLogo) ? iLogo : 1;
 
 	switch( iLogo )
 	{
@@ -171,7 +171,7 @@ bool CSAGA::OnInit(void)
 		break;
 
 	case 2:
-		pLogo	= new wxSplashScreen(IMG_Get_Bitmap(ID_IMG_SAGA_SPLASH), wxSPLASH_CENTRE_ON_SCREEN|wxSPLASH_TIMEOUT, 30000, NULL, -1);
+		pLogo	= new wxSplashScreen(IMG_Get_Bitmap(ID_IMG_SAGA_SPLASH), wxSPLASH_CENTRE_ON_SCREEN|wxSPLASH_TIMEOUT, 20000, NULL, -1);
 		break;
 	}
 

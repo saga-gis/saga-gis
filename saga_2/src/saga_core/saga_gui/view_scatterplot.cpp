@@ -511,7 +511,11 @@ void CVIEW_ScatterPlot::_Draw_Regression(wxDC &dc, wxRect r, double dx, double d
 
 			ay	= by;
 			by	= r.GetBottom() - (int)(dy * (y - m_Regression.Get_yMin()));
-			dc.DrawLine(r.GetLeft() + ix - 1, ay, r.GetLeft() + ix, by);
+
+			if( ix > 0 )
+			{
+				dc.DrawLine(r.GetLeft() + ix - 1, ay, r.GetLeft() + ix, by);
+			}
 		}
 	}
 

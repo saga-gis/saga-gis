@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: wksp_module_manager.cpp,v 1.11 2007-07-03 10:20:32 tschorr Exp $
+// $Id: wksp_module_manager.cpp,v 1.12 2008-01-11 12:37:15 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -102,9 +102,20 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 	m_Parameters.Create(this, LNG(""), LNG(""));
 
 	m_Parameters.Add_Value(
-		NULL	, "BEEP"	, LNG("[CAP] Beep when finished"),
+		NULL	, "BEEP"		, LNG("[CAP] Beep when finished"),
 		LNG(""),
 		PARAMETER_TYPE_Bool	, true
+	);
+
+	m_Parameters.Add_Choice(
+		NULL	, "START_LOGO"	, LNG("Show Logo at Start Up"),
+		LNG(""),
+		CSG_String::Format(wxT("%s|%s|%s|%s|"),
+			LNG("do not show"),
+			LNG("only during start up phase"),
+			LNG("20 seconds"),
+			LNG("until user closes it")
+		), 1
 	);
 }
 
@@ -298,11 +309,17 @@ bool CWKSP_Module_Manager::Do_Beep(void)
 void CWKSP_Module_Manager::_Config_Read(void)
 {
 	bool		bValue;
+	long		lValue;
 	wxString	sValue;
 
-	if( CONFIG_Read(wxT("/MODULES"), wxT("BEEP")	, bValue) )
+	if( CONFIG_Read(wxT("/MODULES"), wxT("BEEP")		, bValue) )
 	{
-		m_Parameters("BEEP")->Set_Value(bValue);
+		m_Parameters("BEEP")		->Set_Value(bValue);
+	}
+
+	if( CONFIG_Read(wxT("/MODULES"), wxT("START_LOGO")	, lValue) )
+	{
+		m_Parameters("START_LOGO")	->Set_Value(lValue);
 	}
 
 	for(int i=0; CONFIG_Read(CFG_LIBS, wxString::Format(CFG_LIBF, i), sValue); i++)
@@ -316,7 +333,8 @@ void CWKSP_Module_Manager::_Config_Read(void)
 //---------------------------------------------------------
 void CWKSP_Module_Manager::_Config_Write(void)
 {
-	CONFIG_Write(wxT("/MODULES")	, wxT("BEEP")	,		m_Parameters("BEEP")->asBool());
+	CONFIG_Write(wxT("/MODULES")	, wxT("BEEP")		,		m_Parameters("BEEP")		->asBool());
+	CONFIG_Write(wxT("/MODULES")	, wxT("START_LOGO")	, (long)m_Parameters("START_LOGO")	->asInt());
 
 	CONFIG_Delete(CFG_LIBS);
 

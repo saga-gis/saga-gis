@@ -590,6 +590,8 @@ void CVIEW_Table_Diagram::_Draw_Legend(wxDC &dc, wxRect r)
 	Font.SetPointSize(dyFont);
 	dc.SetFont(Font);
 
+	dc.SetPen(*wxBLACK_PEN);
+
 	//-----------------------------------------------------
 	for(iField=0; iField<m_nFields; iField++)
 	{

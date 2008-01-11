@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: wksp_data_manager.cpp,v 1.19 2007-03-22 14:24:43 oconrad Exp $
+// $Id: wksp_data_manager.cpp,v 1.20 2008-01-11 12:37:15 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -196,23 +196,6 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 			LNG("automatically save and load")
 		), lValue
 	);
-
-	if( CONFIG_Read(wxT("/DATA"), wxT("START_LOGO")				, lValue) == false )
-	{
-		lValue	= 1;
-	}
-
-	m_Parameters.Add_Choice(
-		pNode	, "START_LOGO"				, LNG("Show Logo at Start Up"),
-		LNG(""),
-
-		CSG_String::Format(wxT("%s|%s|%s|%s|"),
-			LNG("do not show"),
-			LNG("only during start up phase"),
-			LNG("20 seconds"),
-			LNG("until user closes it")
-		), lValue
-	);
 }
 
 //---------------------------------------------------------
@@ -267,7 +250,6 @@ bool CWKSP_Data_Manager::Finalise(void)
 #endif
 
 	CONFIG_Write(wxT("/DATA")		, wxT("PROJECT_START")	, (long)m_Parameters("PROJECT_START")	->asInt());
-	CONFIG_Write(wxT("/DATA")		, wxT("START_LOGO")		, (long)m_Parameters("START_LOGO")		->asInt());
 
 	if( Get_Count() == 0 )
 	{

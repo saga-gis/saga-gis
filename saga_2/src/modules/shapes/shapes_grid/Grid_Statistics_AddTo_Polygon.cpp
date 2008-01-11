@@ -15,6 +15,10 @@
 //                 Copyright (C) 2003 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
+//                 quantile calculation:                 //
+//                 Copyright (C) 2007 by                 //
+//                   Johan Van de Wauw                   //
+//                                                       //
 //-------------------------------------------------------//
 //                                                       //
 // This file is part of 'SAGA - System for Automated     //
@@ -59,6 +63,8 @@
 
 //---------------------------------------------------------
 #include <memory.h>
+#include <vector>
+#include <list>
 
 #include "Grid_Statistics_AddTo_Polygon.h"
 
@@ -75,9 +81,9 @@ CGrid_Statistics_AddTo_Polygon::CGrid_Statistics_AddTo_Polygon(void)
 	//-----------------------------------------------------
 	// 1. Info...
 
-	Set_Name(_TL("Grid Statistics for Polygons"));
+	Set_Name		(_TL("Grid Statistics for Polygons"));
 
-	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(_TL("(c) 2003 by Olaf Conrad, Quantile Calculation (c) 2007 by Johan Van de Wauw"));
 
 	Set_Description	(_TW(
 		"For each polygon statistics of the contained grid values will be generated.")
@@ -104,8 +110,20 @@ CGrid_Statistics_AddTo_Polygon::CGrid_Statistics_AddTo_Polygon(void)
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
-}
 
+	Parameters.Add_Value(
+		NULL, "QUANTILES", _TL("Quantiles"), 
+		_TL("Calculate distribution Quantiles"),
+		PARAMETER_TYPE_Bool, 0.0
+	);
+
+	Parameters.Add_Choice(
+		NULL, "QUANTILE_STEP", _TL("Quantile Step"),
+		_TL("Choose which quantiles you would like to calculate"),
+		_TL("median|quartiles|deciles|5% interval|"),
+		1
+	);
+}
 //---------------------------------------------------------
 CGrid_Statistics_AddTo_Polygon::~CGrid_Statistics_AddTo_Polygon(void)
 {}
@@ -120,16 +138,37 @@ CGrid_Statistics_AddTo_Polygon::~CGrid_Statistics_AddTo_Polygon(void)
 //---------------------------------------------------------
 bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 {
-	int				x, y, iShape, nShapes, *Num,
-					field_CELLS, field_MEAN, field_VARI;
-	double			*Sum, *Dif, d;
+	bool				bQuantiles;
+	int					x, y, iShape, nShapes, *Num,
+						field_CELLS, field_MEAN, field_VARI, field_QUANTILES, quantile_step;
+	double				*Sum, *Dif, d;
 	CSG_Table_Record	*pRecord;
 	CSG_Grid			*pGrid, ShapeIDs;
 	CSG_Shapes			*pShapes;
 
 	//-----------------------------------------------------
-	pShapes	= Parameters("POLY")->asShapes();
-	pGrid	= Parameters("GRID")->asGrid();
+	pShapes		= Parameters("POLY")		->asShapes();
+	pGrid		= Parameters("GRID")		->asGrid();
+	bQuantiles	= Parameters("QUANTILES")	->asBool();
+
+	switch(Parameters("QUANTILE_STEP")->asInt())
+	{
+	case 0:
+		quantile_step	= 50;
+		break;
+
+	case 1:
+		quantile_step	= 25;
+		break;
+
+	case 2:
+		quantile_step	= 10;
+		break;
+
+	case 3: default:
+		quantile_step	= 5;
+		break;
+	}
 
 	//-----------------------------------------------------
 	if(	pShapes->Get_Type() == SHAPE_TYPE_Polygon && pShapes->Get_Count() > 0
@@ -147,6 +186,8 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 			Sum		= (double *)calloc(nShapes, sizeof(double));
 			Dif		= (double *)calloc(nShapes, sizeof(double));
 
+			std::vector<std::list<double> >ShapePixels(nShapes);
+
 			//---------------------------------------------
 			for(y=0; y<Get_NY() && Set_Progress(y); y++)
 			{
@@ -158,10 +199,13 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 						Sum[iShape]	+= d;
 						Dif[iShape]	+= d * d;
 						Num[iShape]	++;
+
+						if( bQuantiles )
+							ShapePixels[iShape].push_back(d);
 					}
 				}
 			}
-
+			
 			//---------------------------------------------
 			pShapes	= Parameters("RESULT")->asShapes();
 			pShapes->Assign(Parameters("POLY")->asShapes());
@@ -175,6 +219,16 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 			field_VARI	= pShapes->Get_Table().Get_Field_Count();
 			pShapes->Get_Table().Add_Field(_TL("VARIANCE")	, TABLE_FIELDTYPE_Double);
 
+			if( bQuantiles )
+			{
+				field_QUANTILES = pShapes->Get_Table().Get_Field_Count();
+
+				for(int i=quantile_step; i<100; i+=quantile_step)
+				{
+					pShapes->Get_Table().Add_Field(CSG_String::Format(SG_T("Q%d"), i).c_str(), TABLE_FIELDTYPE_Double);
+				}
+			}
+
 			for(iShape=0; iShape<nShapes; iShape++)
 			{
 				pRecord	= pShapes->Get_Shape(iShape)->Get_Record();
@@ -186,6 +240,26 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 					pRecord->Set_Value(field_CELLS	, Num[iShape]);
 					pRecord->Set_Value(field_MEAN	, d);
 					pRecord->Set_Value(field_VARI	, Dif[iShape] / (double)Num[iShape] - d * d);
+
+					if( bQuantiles )
+					{
+						Set_Progress(iShape,nShapes);
+						ShapePixels[iShape].sort();	
+
+						int		i	= 0;	// Used to iterate over the different quantiles
+						int		k	= 0;	// Used to count at which position in the list we are j: iterates over the list
+
+						for(std::list<double>::iterator j=ShapePixels[iShape].begin(); j!=ShapePixels[iShape].end(); j++)
+						{
+							k++;
+
+							while( ((double)k / (Num[iShape])) > ((double)i * quantile_step / 100.0) )
+							{
+								pRecord->Set_Value(field_QUANTILES + i, *j);
+								i++;
+							}
+						}
+					}	
 				}
 				else
 				{
@@ -215,7 +289,7 @@ bool CGrid_Statistics_AddTo_Polygon::Get_ShapeIDs(CSG_Shapes *pShapes, CSG_Grid 
 	double		yPos;
 	TSG_Point	pLeft, pRight, pa, pb, p;
 	TSG_Rect	Extent;
-	CSG_Shape		*pShape;
+	CSG_Shape	*pShape;
 
 	//-----------------------------------------------------
 	bCrossing	= (bool *)SG_Malloc(pShapeIDs->Get_NX() * sizeof(bool));
@@ -299,3 +373,5 @@ bool CGrid_Statistics_AddTo_Polygon::Get_ShapeIDs(CSG_Shapes *pShapes, CSG_Grid 
 
 	return( true );
 }
+
+
