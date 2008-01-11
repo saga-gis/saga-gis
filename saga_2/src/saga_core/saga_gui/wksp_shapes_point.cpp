@@ -415,7 +415,7 @@ void CWKSP_Shapes_Point::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 {
 	TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Point(0)));
 
-	Draw_Text(dc_Map.dc, TEXTALIGN_TOPCENTER, p.x, p.y, pShape->Get_Record()->asString(m_iLabel));
+	Draw_Text(dc_Map.dc, TEXTALIGN_TOPCENTER, p.x, p.y, pShape->Get_Record()->asString(m_iLabel, -2));
 }
 
 

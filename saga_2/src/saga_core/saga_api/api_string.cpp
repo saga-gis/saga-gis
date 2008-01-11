@@ -845,7 +845,18 @@ CSG_String		SG_Get_String(double Value, int Precision, bool bScientific)
 {
 	CSG_String	s;
 
-	s.Printf(SG_T("%.*f"), Precision, Value);
+	if( Precision >= 0 )
+	{
+		s.Printf(SG_T("%.*f"), Precision, Value);
+	}
+	else if( Precision == -1 )
+	{
+		s.Printf(SG_T("%.f"), Value);
+	}
+	else // if( Precision == -2 )
+	{
+		s.Printf(SG_T("%.*f"), SG_Get_Significant_Decimals(Value, 10), Value);
+	}
 
 	s.Replace(SG_T(","), SG_T("."));
 

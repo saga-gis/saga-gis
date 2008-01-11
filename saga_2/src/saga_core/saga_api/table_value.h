@@ -335,14 +335,7 @@ public:
 	{
 		static CSG_String	s;
 
-		if( Decimals >= 0 )
-		{
-			s.Printf(SG_T("%.*f"), Decimals, m_Value);
-		}
-		else
-		{
-			s.Printf(SG_T("%f"), m_Value);
-		}
+		s	= SG_Get_String(m_Value, Decimals, false);
 
 		return( s.c_str() );
 	}
