@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: wksp_module_manager.cpp,v 1.12 2008-01-11 12:37:15 oconrad Exp $
+// $Id: wksp_module_manager.cpp,v 1.13 2008-01-14 15:32:08 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -319,7 +319,7 @@ void CWKSP_Module_Manager::_Config_Read(void)
 
 	if( CONFIG_Read(wxT("/MODULES"), wxT("START_LOGO")	, lValue) )
 	{
-		m_Parameters("START_LOGO")	->Set_Value(lValue);
+		m_Parameters("START_LOGO")	->Set_Value((int)lValue);
 	}
 
 	for(int i=0; CONFIG_Read(CFG_LIBS, wxString::Format(CFG_LIBF, i), sValue); i++)
