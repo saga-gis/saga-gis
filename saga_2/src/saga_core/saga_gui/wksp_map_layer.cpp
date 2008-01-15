@@ -101,7 +101,7 @@ CWKSP_Map_Layer::~CWKSP_Map_Layer(void)
 //---------------------------------------------------------
 wxString CWKSP_Map_Layer::Get_Name(void)
 {
-	return( m_bShow ? m_pLayer->Get_Name() : wxString::Format(wxT("[%s]"), m_pLayer->Get_Name()) );
+	return( m_bShow ? m_pLayer->Get_Name() : wxString::Format(wxT("[%s]"), m_pLayer->Get_Name().c_str()) );
 }
 
 //---------------------------------------------------------
@@ -163,8 +163,8 @@ bool CWKSP_Map_Layer::On_Command(int Cmd_ID)
 	case ID_CMD_WKSP_ITEM_RETURN:
 	case ID_CMD_MAPS_LAYER_SHOW:
 		m_bShow	= !m_bShow;
-		((CWKSP_Map *)Get_Manager())->View_Refresh(false);
-		CWKSP_Base_Item::Parameters_Changed();
+		((wxTreeCtrl *)Get_Control())->SetItemText(GetId(), Get_Name());
+		((CWKSP_Map *)Get_Manager())->View_Refresh(true);
 		break;
 
 	case ID_CMD_MAPS_MOVE_TOP:
