@@ -295,7 +295,7 @@ void		Draw_Text(wxDC &dc, int Align, int x, int y, double Angle, const wxString 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define TEXTSPACE	4
+#define TEXTSPACE	6
 
 //---------------------------------------------------------
 void		Draw_Scale(wxDC &dc, wxRect r, double zMin, double zMax, bool bHorizontal, bool bAscendent, bool bTickAtTop)
@@ -327,7 +327,7 @@ void		Draw_Scale(wxDC &dc, wxRect r, double zMin, double zMax, bool bHorizontal,
 		zToDC		= (double)Width / (zMax - zMin);
 
 		dz			= pow(10.0, floor(log10(zMax - zMin)) - 1.0);
-		Decimals	= dz >= 1.0 ? 0 : (int)fabs(log10(dz));
+		Decimals	= dz >= 1.0 ? 0 : (int)floor(-log10(dz));
 
 		s.Printf(wxT("%.*f"), Decimals, zMax);
 		dc.GetTextExtent(s, &zDC, &yDC);
