@@ -1293,15 +1293,13 @@ bool CSG_Parameters::Get_String(CSG_String &String, bool bOptionsOnly)
 
 	if( Get_Count() > 0 )
 	{
-		String.Printf(SG_T("%s:"), bOptionsOnly ? LNG("[CAP] Options") : LNG("[CAP] Parameters"));
-
 		for(int i=0; i<Get_Count(); i++)
 		{
 			if( (!bOptionsOnly || m_Parameters[i]->is_Option()) && !m_Parameters[i]->is_Information() )
 			{
 				bResult	= true;
 
-				String.Append(CSG_String::Format(SG_T("\n[%s] %s: %s"),
+				String.Append(CSG_String::Format(SG_T("[%s] %s: %s\n"),
 					m_Parameters[i]->Get_Type_Name(),
 					m_Parameters[i]->Get_Name(),
 					m_Parameters[i]->asString())
@@ -1320,7 +1318,10 @@ bool CSG_Parameters::Msg_String(bool bOptionsOnly)
 
 	if( Get_String(s, bOptionsOnly) )
 	{
-		SG_UI_Msg_Add_Execution(s, true);
+		SG_UI_Msg_Add_Execution(SG_T("\n"), false);
+		SG_UI_Msg_Add_Execution(bOptionsOnly ? LNG("[CAP] Options") : LNG("[CAP] Parameters"), false);
+		SG_UI_Msg_Add_Execution(SG_T("\n"), false);
+		SG_UI_Msg_Add_Execution(s, false, SG_UI_MSG_STYLE_01);
 
 		return( true );
 	}

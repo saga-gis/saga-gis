@@ -131,12 +131,12 @@ bool CSG_Table::_Load(const SG_Char *File_Name, int Format, SG_Char Separator)
 			Get_History().Add_Entry(LNG("[HST] Loaded from file"), File_Name);
 		}
 
-		SG_UI_Msg_Add(LNG("[MSG] okay"), false);
+		SG_UI_Msg_Add(LNG("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 
 		return( true );
 	}
 
-	SG_UI_Msg_Add(LNG("[MSG] failed"), false);
+	SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
 	return( false );
 }
@@ -198,12 +198,12 @@ bool CSG_Table::Save(const SG_Char *File_Name, int Format, SG_Char Separator)
 
 		Get_History().Save(File_Name, HISTORY_EXT_TABLE);
 
-		SG_UI_Msg_Add(LNG("[MSG] okay"), false);
+		SG_UI_Msg_Add(LNG("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 
 		return( true );
 	}
 
-	SG_UI_Msg_Add(LNG("[MSG] failed"), false);
+	SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
 	return( false );
 }

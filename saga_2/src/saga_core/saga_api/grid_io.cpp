@@ -106,13 +106,13 @@ bool CSG_Grid::_Load(const SG_Char *File_Name, TSG_Grid_Type Type, TSG_Grid_Memo
 			Get_History().Add_Entry(LNG("[HST] Loaded from file"), File_Name);
 		}
 
-		SG_UI_Msg_Add(LNG("[MSG] okay"), false);
+		SG_UI_Msg_Add(LNG("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 	}
 	else
 	{
 		Destroy();
 
-		SG_UI_Msg_Add(LNG("[MSG] failed"), false);
+		SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
 		SG_UI_Msg_Add_Error(LNG("[ERR] Grid file could not be opened."));
 	}
@@ -177,11 +177,11 @@ bool CSG_Grid::Save(const SG_Char *File_Name, int Format, int xA, int yA, int xN
 
 		Get_History().Save(File_Name, HISTORY_EXT_GRID);
 
-		SG_UI_Msg_Add(LNG("[MSG] okay"), false);
+		SG_UI_Msg_Add(LNG("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 	}
 	else
 	{
-		SG_UI_Msg_Add(LNG("[MSG] failed"), false);
+		SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
 		SG_UI_Msg_Add_Error(LNG("[ERR] Grid file could not be saved."));
 	}

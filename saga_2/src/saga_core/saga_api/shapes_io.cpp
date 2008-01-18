@@ -112,7 +112,7 @@ bool CSG_Shapes::_Load_ESRI(const SG_Char *File_Name)
 
 	if( !Stream.Open(fName, SG_FILE_R, true) )
 	{
-		SG_UI_Msg_Add(LNG("[MSG] failed"), false);
+		SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
 		SG_UI_Msg_Add_Error(LNG("[ERR] Shape file could not be opened."));
 
@@ -163,7 +163,7 @@ bool CSG_Shapes::_Load_ESRI(const SG_Char *File_Name)
 
 	if( Stream.is_EOF() || FileCode != 9994 || Version != 1000 || m_Type == SHAPE_TYPE_Undefined )
 	{
-		SG_UI_Msg_Add(LNG("[MSG] failed"), false);
+		SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
 		SG_UI_Msg_Add_Error(LNG("[ERR] Shape file invalid or of unsupported type."));
 
@@ -328,13 +328,13 @@ bool CSG_Shapes::_Load_ESRI(const SG_Char *File_Name)
 
 	if( bError )
 	{
-		SG_UI_Msg_Add(LNG("[MSG] failed"), false);
+		SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
 		SG_UI_Msg_Add_Error(LNG("[ERR] Shape file is corrupted."));
 	}
 	else
 	{
-		SG_UI_Msg_Add(LNG("[MSG] okay"), false);
+		SG_UI_Msg_Add(LNG("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 	}
 
 	SG_UI_Process_Set_Ready();
@@ -412,7 +412,7 @@ bool CSG_Shapes::_Save_ESRI(const SG_Char *File_Name)
 
 	if( !Stream_Idx.Open(fName, SG_FILE_W, true) )
 	{
-		SG_UI_Msg_Add(LNG("[MSG] failed"), false);
+		SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
 		SG_UI_Msg_Add_Error(LNG("[ERR] Shape index file could not be opened."));
 
@@ -423,7 +423,7 @@ bool CSG_Shapes::_Save_ESRI(const SG_Char *File_Name)
 
 	if( !Stream.Open(fName, SG_FILE_W, true) )
 	{
-		SG_UI_Msg_Add(LNG("[MSG] failed"), false);
+		SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
 		SG_UI_Msg_Add_Error(LNG("[ERR] Shape file could not be opened."));
 
@@ -578,7 +578,7 @@ bool CSG_Shapes::_Save_ESRI(const SG_Char *File_Name)
 	Stream		.Write_Int(FileLength    , true);
 	Stream_Idx	.Write_Int(FileLength_idx, true);
 
-	SG_UI_Msg_Add(LNG("[MSG] okay"), false);
+	SG_UI_Msg_Add(LNG("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 
 	SG_UI_Process_Set_Ready();
 

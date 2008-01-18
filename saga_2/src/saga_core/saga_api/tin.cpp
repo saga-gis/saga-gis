@@ -227,13 +227,13 @@ bool CSG_TIN::Create(CSG_Shapes *pShapes)
 
 		if( _Triangulate() )
 		{
-			SG_UI_Msg_Add(LNG("[MSG] okay"), false);
+			SG_UI_Msg_Add(LNG("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 
 			return( true );
 		}
 	}
 
-	SG_UI_Msg_Add(LNG("[MSG] failed"), false);
+	SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
 	return( false );
 }
