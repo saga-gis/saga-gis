@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: project.cpp,v 1.15 2008-01-04 15:25:28 oconrad Exp $
+// $Id: project.cpp,v 1.16 2008-01-18 15:07:41 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -236,6 +236,7 @@ bool CWKSP_Project::_Load(const wxChar *FileName, bool bAdd, bool bUpdateMenu)
 	//-----------------------------------------------------
 	bSuccess	= false;
 
+	MSG_General_Add_Line();
 	MSG_General_Add(wxString::Format(wxT("%s: %s"), LNG("[MSG] Load project"), FileName), true, true);
 
 	//-----------------------------------------------------
@@ -290,7 +291,7 @@ bool CWKSP_Project::_Load(const wxChar *FileName, bool bAdd, bool bUpdateMenu)
 		if( bUpdateMenu )
 			g_pData->Get_FileMenus()->Recent_Add(DATAOBJECT_TYPE_Undefined, FileName);
 
-		MSG_General_Add(LNG("[MSG] Project has been successfully loaded."), true, true);
+		MSG_General_Add(LNG("[MSG] Project has been successfully loaded."), true, true, SG_UI_MSG_STYLE_SUCCESS);
 
 		_Set_Project_Name();
 
@@ -301,7 +302,7 @@ bool CWKSP_Project::_Load(const wxChar *FileName, bool bAdd, bool bUpdateMenu)
 		if( bUpdateMenu )
 			g_pData->Get_FileMenus()->Recent_Del(DATAOBJECT_TYPE_Undefined, FileName);
 
-		MSG_General_Add(LNG("[MSG] Could not load project."), true, true);
+		MSG_General_Add(LNG("[MSG] Could not load project."), true, true, SG_UI_MSG_STYLE_FAILURE);
 
 		return( false );
 	}
@@ -406,7 +407,7 @@ bool CWKSP_Project::_Save(const wxChar *FileName, bool bSaveModified, bool bUpda
 		if( bUpdateMenu )
 			g_pData->Get_FileMenus()->Recent_Add(DATAOBJECT_TYPE_Undefined, FileName);
 
-		MSG_General_Add(LNG("[MSG] Project has been saved."), true, true);
+		MSG_General_Add(LNG("[MSG] Project has been saved."), true, true, SG_UI_MSG_STYLE_SUCCESS);
 
 		_Set_Project_Name();
 
@@ -418,7 +419,7 @@ bool CWKSP_Project::_Save(const wxChar *FileName, bool bSaveModified, bool bUpda
 	if( bUpdateMenu )
 		g_pData->Get_FileMenus()->Recent_Del(DATAOBJECT_TYPE_Undefined, FileName);
 
-	MSG_General_Add(LNG("[MSG] Could not save project."), true, true);
+	MSG_General_Add(LNG("[MSG] Could not save project."), true, true, SG_UI_MSG_STYLE_FAILURE);
 
 	return( false );
 }
