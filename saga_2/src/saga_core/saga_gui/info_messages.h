@@ -87,9 +87,9 @@ public:
 	CINFO_Messages(wxWindow *pParent);
 	virtual ~CINFO_Messages(void);
 
-	void						Add_Time	(bool bNewLine = true);
-	void						Add_Line	(void);
-	void						Add_String	(wxString sMessage, bool bNewLine = true, bool bTime = false);
+	void						Add_Time		(bool bNewLine = true);
+	void						Add_Line		(void);
+	void						Add_String		(wxString sMessage, bool bNewLine = true, bool bTime = false, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
 
 
 private:
@@ -97,7 +97,14 @@ private:
 	int							m_MaxLength;
 
 
-	void						_Add_Text	(wxString Text);
+	void						On_Context_Menu	(wxContextMenuEvent &event);
+
+	void						On_Copy			(wxCommandEvent &event);
+	void						On_Clear		(wxCommandEvent &event);
+
+	void						_Add_Text		(wxString Text);
+
+	void						_Set_Style		(TSG_UI_MSG_STYLE Style);
 
 
 //---------------------------------------------------------

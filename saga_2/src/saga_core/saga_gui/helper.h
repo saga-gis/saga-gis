@@ -123,13 +123,13 @@ void				Do_Beep							(int Style = 0);
 
 //---------------------------------------------------------
 void				MSG_General_Add_Line			(void);
-void				MSG_General_Add					(const wxChar *Message, bool bNewLine = true, bool bTime = false);
+void				MSG_General_Add					(const wxChar *Message, bool bNewLine = true, bool bTime = false, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
 
 void				MSG_Error_Add_Line				(void);
-void				MSG_Error_Add					(const wxChar *Message, bool bNewLine = true, bool bTime = true);
+void				MSG_Error_Add					(const wxChar *Message, bool bNewLine = true, bool bTime = true , TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
 
 void				MSG_Execution_Add_Line			(void);
-void				MSG_Execution_Add				(const wxChar *Message, bool bNewLine = true, bool bTime = false);
+void				MSG_Execution_Add				(const wxChar *Message, bool bNewLine = true, bool bTime = false, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
 
 //---------------------------------------------------------
 bool				CONFIG_Read						(const wxChar *Group, const wxChar *Entry, class wxString &Value);
@@ -137,7 +137,7 @@ bool				CONFIG_Read						(const wxChar *Group, const wxChar *Entry, long        
 bool				CONFIG_Read						(const wxChar *Group, const wxChar *Entry, double         &Value);
 bool				CONFIG_Read						(const wxChar *Group, const wxChar *Entry, bool           &Value);
 
-bool				CONFIG_Write					(const wxChar *Group, const wxChar *Entry, const wxChar     *Value);
+bool				CONFIG_Write					(const wxChar *Group, const wxChar *Entry, const wxChar   *Value);
 bool				CONFIG_Write					(const wxChar *Group, const wxChar *Entry, long            Value);
 bool				CONFIG_Write					(const wxChar *Group, const wxChar *Entry, double          Value);
 bool				CONFIG_Write					(const wxChar *Group, const wxChar *Entry, bool            Value);

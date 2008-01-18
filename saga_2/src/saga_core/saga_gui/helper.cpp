@@ -340,11 +340,11 @@ void		MSG_General_Add_Line(void)
 }
 
 //---------------------------------------------------------
-void		MSG_General_Add(const wxChar *Message, bool bNewLine, bool bTime)
+void		MSG_General_Add(const wxChar *Message, bool bNewLine, bool bTime, TSG_UI_MSG_STYLE Style)
 {
 	if( g_pINFO )
 	{
-		g_pINFO->Get_General()->Add_String(Message, bNewLine, bTime);
+		g_pINFO->Get_General()->Add_String(Message, bNewLine, bTime, Style);
 	}
 }
 
@@ -358,11 +358,11 @@ void		MSG_Error_Add_Line(void)
 }
 
 //---------------------------------------------------------
-void		MSG_Error_Add(const wxChar *Message, bool bNewLine, bool bTime)
+void		MSG_Error_Add(const wxChar *Message, bool bNewLine, bool bTime, TSG_UI_MSG_STYLE Style)
 {
 	if( g_pINFO )
 	{
-		g_pINFO->Get_Errors()->Add_String(Message, bNewLine, bTime);
+		g_pINFO->Get_Errors()->Add_String(Message, bNewLine, bTime, Style);
 	}
 }
 
@@ -376,11 +376,11 @@ void		MSG_Execution_Add_Line(void)
 }
 
 //---------------------------------------------------------
-void		MSG_Execution_Add(const wxChar *Message, bool bNewLine, bool bTime)
+void		MSG_Execution_Add(const wxChar *Message, bool bNewLine, bool bTime, TSG_UI_MSG_STYLE Style)
 {
 	if( g_pINFO )
 	{
-		g_pINFO->Get_Execution()->Add_String(Message, bNewLine, bTime);
+		g_pINFO->Get_Execution()->Add_String(Message, bNewLine, bTime, Style);
 	}
 }
 

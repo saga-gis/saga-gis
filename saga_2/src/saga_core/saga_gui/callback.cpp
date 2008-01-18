@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: callback.cpp,v 1.7 2007-02-26 17:48:36 oconrad Exp $
+// $Id: callback.cpp,v 1.8 2008-01-18 14:16:51 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -76,7 +76,7 @@
 //---------------------------------------------------------
 int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 {
-	int		Result;
+	int		Result, *iArray;
 
 	Result	= 1;
 
@@ -144,7 +144,9 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_MESSAGE_ADD:
 
-		MSG_General_Add		((wxChar *)Param_1, Param_2 != 0, Param_2 != 0);
+		iArray	= (int *)Param_2;
+
+		MSG_General_Add		((wxChar *)Param_1, iArray[0] != 0, iArray[0] != 0, (TSG_UI_MSG_STYLE)iArray[1]);
 
 		break;
 
@@ -160,7 +162,9 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_MESSAGE_ADD_EXECUTION:
 
-		MSG_Execution_Add	((wxChar *)Param_1, Param_2 != 0, Param_2 != 0);
+		iArray	= (int *)Param_2;
+
+		MSG_Execution_Add	((wxChar *)Param_1, iArray[0] != 0, iArray[0] != 0, (TSG_UI_MSG_STYLE)iArray[1]);
 
 		break;
 
