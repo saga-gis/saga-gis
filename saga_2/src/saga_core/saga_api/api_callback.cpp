@@ -235,11 +235,16 @@ bool		SG_UI_Dlg_Parameters(CSG_Parameters *pParameters, const SG_Char *Caption)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void		SG_UI_Msg_Add(const SG_Char *Message, bool bNewLine)
+void		SG_UI_Msg_Add(const SG_Char *Message, bool bNewLine, TSG_UI_MSG_STYLE Style)
 {
 	if( gSG_UI_Callback )
 	{
-		gSG_UI_Callback(CALLBACK_MESSAGE_ADD, (long)Message, (long)bNewLine);
+		int		Parameters[2];
+
+		Parameters[0]	= bNewLine ? 1 : 0;
+		Parameters[1]	= Style;
+
+		gSG_UI_Callback(CALLBACK_MESSAGE_ADD, (long)Message, (long)Parameters);
 	}
 	else
 	{
@@ -266,11 +271,16 @@ void		SG_UI_Msg_Add_Error(const SG_Char *Message)
 }
 
 //---------------------------------------------------------
-void		SG_UI_Msg_Add_Execution(const SG_Char *Message, bool bNewLine)
+void		SG_UI_Msg_Add_Execution(const SG_Char *Message, bool bNewLine, TSG_UI_MSG_STYLE Style)
 {
 	if( gSG_UI_Callback )
 	{
-		gSG_UI_Callback(CALLBACK_MESSAGE_ADD_EXECUTION, (long)Message, (long)bNewLine);
+		int		Parameters[2];
+
+		Parameters[0]	= bNewLine ? 1 : 0;
+		Parameters[1]	= Style;
+
+		gSG_UI_Callback(CALLBACK_MESSAGE_ADD_EXECUTION, (long)Message, (long)Parameters);
 	}
 	else
 	{

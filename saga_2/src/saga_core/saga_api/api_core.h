@@ -651,6 +651,22 @@ SAGA_API_DLL_EXPORT const SG_Char *		SG_Translate		(const SG_Char *Text);
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+typedef enum ESG_UI_MSG_STYLE
+{
+	SG_UI_MSG_STYLE_NORMAL	= 0,
+	SG_UI_MSG_STYLE_BOLD,
+	SG_UI_MSG_STYLE_ITALIC,
+	SG_UI_MSG_STYLE_SUCCESS,
+	SG_UI_MSG_STYLE_FAILURE,
+	SG_UI_MSG_STYLE_BIG,
+	SG_UI_MSG_STYLE_SMALL,
+	SG_UI_MSG_STYLE_01,
+	SG_UI_MSG_STYLE_02,
+	SG_UI_MSG_STYLE_03
+}
+TSG_UI_MSG_STYLE;
+
+//---------------------------------------------------------
 typedef enum ESG_UI_Callback_ID
 {
 	CALLBACK_PROCESS_GET_OKAY,
@@ -706,11 +722,11 @@ SAGA_API_DLL_EXPORT bool					SG_UI_Dlg_Continue			(const SG_Char *Message, const
 SAGA_API_DLL_EXPORT int						SG_UI_Dlg_Error				(const SG_Char *Message, const SG_Char *Caption);
 SAGA_API_DLL_EXPORT bool					SG_UI_Dlg_Parameters		(class CSG_Parameters *pParameters, const SG_Char *Caption);
 
-SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add				(const SG_Char *Message, bool bNewLine);
+SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add				(const SG_Char *Message, bool bNewLine, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
 SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Error			(const SG_Char *Message);
-SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Execution		(const SG_Char *Message, bool bNewLine);
+SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Execution		(const SG_Char *Message, bool bNewLine, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
 
-SAGA_API_DLL_EXPORT class CSG_Data_Object *	SG_UI_DataObject_Find		(const SG_Char *File_Name             , int Object_Type);
+SAGA_API_DLL_EXPORT class CSG_Data_Object *	SG_UI_DataObject_Find		(const SG_Char *File_Name          , int Object_Type);
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Check		(class CSG_Data_Object *pDataObject, int Object_Type);
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Add		(class CSG_Data_Object *pDataObject, bool bShow);
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Update		(class CSG_Data_Object *pDataObject, bool bShow, class CSG_Parameters *pParameters);
