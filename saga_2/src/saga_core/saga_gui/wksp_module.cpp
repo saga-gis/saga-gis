@@ -692,7 +692,11 @@ bool CWKSP_Module::is_Executing(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define MSG_ADD(s)	MSG_General_Add(s, true, true);	MSG_Execution_Add(s, true, true);
+#define MSG_ADD(s)			MSG_General_Add  (s, true, true);\
+							MSG_Execution_Add(s, true, true);
+
+#define MSG_ADD2(b, s1, s2)	MSG_General_Add  (b ? s1 : s2, true, true, b ? SG_UI_MSG_STYLE_SUCCESS : SG_UI_MSG_STYLE_FAILURE);\
+							MSG_Execution_Add(b ? s1 : s2, true, true, b ? SG_UI_MSG_STYLE_SUCCESS : SG_UI_MSG_STYLE_FAILURE);
 
 //---------------------------------------------------------
 bool CWKSP_Module::Execute(bool bDialog)
@@ -718,9 +722,9 @@ bool CWKSP_Module::Execute(bool bDialog)
 
 				PROCESS_Set_Okay(true);
 
-				MSG_ADD(bResult
-					? LNG("[MSG] Interactive module execution has been stopped")
-					: LNG("[MSG] Interactive module execution failed")
+				MSG_ADD2(bResult,
+					LNG("[MSG] Interactive module execution has been stopped"),
+					LNG("[MSG] Interactive module execution failed")
 				);
 			}
 		}
@@ -753,16 +757,16 @@ bool CWKSP_Module::Execute(bool bDialog)
 
 			if( m_pModule->is_Interactive() )
 			{
-				MSG_ADD(bResult
-					? LNG("[MSG] Interactive module execution has been started")
-					: LNG("[MSG] Interactive module execution failed")
+				MSG_ADD2(bResult,
+					LNG("[MSG] Interactive module execution has been started"),
+					LNG("[MSG] Interactive module execution failed")
 				);
 			}
 			else
 			{
-				MSG_ADD(bResult
-					? LNG("[MSG] Module execution succeeded")
-					: LNG("[MSG] Module execution failed")
+				MSG_ADD2(bResult,
+					LNG("[MSG] Module execution succeeded"),
+					LNG("[MSG] Module execution failed")
 				);
 			}
 

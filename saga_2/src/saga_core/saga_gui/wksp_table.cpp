@@ -109,7 +109,7 @@ CWKSP_Table::~CWKSP_Table(void)
 
 		delete(m_pTable);
 
-		MSG_General_Add(LNG("[MSG] okay"), false);
+		MSG_General_Add(LNG("[MSG] okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
 	}
 }
 

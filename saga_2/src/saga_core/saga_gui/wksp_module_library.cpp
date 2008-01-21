@@ -177,7 +177,7 @@ CWKSP_Module_Library::~CWKSP_Module_Library(void)
 
 			m_Library.Unload();
 
-			MSG_General_Add(LNG("[MSG] okay"), false);
+			MSG_General_Add(LNG("[MSG] okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
 		}
 		else
 		{

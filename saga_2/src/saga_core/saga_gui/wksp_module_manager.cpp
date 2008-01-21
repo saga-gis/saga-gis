@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: wksp_module_manager.cpp,v 1.13 2008-01-14 15:32:08 oconrad Exp $
+// $Id: wksp_module_manager.cpp,v 1.14 2008-01-21 08:48:16 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -428,7 +428,7 @@ bool CWKSP_Module_Manager::Open(const wxChar *File_Name)
 			if( SG_STR_CMP(File_Name, Get_Library(i)->Get_File_Name()) == 0 )
 			{
 				MSG_Error_Add(wxString::Format(wxT("%s\n%s"), File_Name, LNG("[ERR] Library has already been loaded")), true);
-				MSG_General_Add(LNG("[MSG] is already loaded"), false);
+				MSG_General_Add(LNG("[MSG] has already been loaded"), false);
 
 				return( false );
 			}
@@ -441,14 +441,14 @@ bool CWKSP_Module_Manager::Open(const wxChar *File_Name)
 		{
 			Add_Item(pLibrary);
 
-			MSG_General_Add(LNG("[MSG] okay"), false);
+			MSG_General_Add(LNG("[MSG] okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
 
 			return( true );
 		}
 
 		delete(pLibrary);
 
-		MSG_General_Add(LNG("[MSG] failed"), false);
+		MSG_General_Add(LNG("[MSG] failed"), false, false, SG_UI_MSG_STYLE_FAILURE);
 	}
 
 	return( false );
@@ -537,7 +537,7 @@ void CWKSP_Module_Manager::_Make_HTML_Docs(void)
 		}
 	}
 
-	MSG_General_Add(LNG("okay"), false, false);
+	MSG_General_Add(LNG("okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
 }
 
 

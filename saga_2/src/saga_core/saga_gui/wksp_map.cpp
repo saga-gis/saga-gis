@@ -994,6 +994,14 @@ bool CWKSP_Map::Get_Image(wxImage &Image, CSG_Rect &rWorld)
 void CWKSP_Map::SaveAs_Image(void)
 {
 	//-----------------------------------------------------
+	if( View_Get() && View_Get()->Get_Map_Control() )
+	{
+		wxSize	s(View_Get()->Get_Map_Control()->GetClientSize());
+
+		m_Img_Parms("NX")->Set_Value(s.x);
+		m_Img_Parms("NY")->Set_Value(s.y);
+	}
+
 	if( DLG_Image_Save(m_Img_File, m_Img_Type) && DLG_Parameters(&m_Img_Parms) )
 	{
 		_Img_Save(m_Img_File, m_Img_Type);
@@ -1247,7 +1255,7 @@ void CWKSP_Map::SaveAs_PDF_Indexed(void)
 			Set_Buisy_Cursor(false);
 		}
 
-		MSG_General_Add(bResult ? LNG("[MSG] okay") : LNG("[MSG] failed"), false, false);
+		MSG_General_Add(bResult ? LNG("[MSG] okay") : LNG("[MSG] failed"), false, false, bResult ? SG_UI_MSG_STYLE_SUCCESS : SG_UI_MSG_STYLE_FAILURE);
 	}
 }
 
@@ -1420,7 +1428,7 @@ void CWKSP_Map::SaveAs_Interactive_SVG(void)
 
 		SVG.Create_From_Map(this, pIndexLayer, FileName);
 
-		MSG_General_Add(LNG("[MSG] okay"), false, false);
+		MSG_General_Add(LNG("[MSG] okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
 	}
 }
 

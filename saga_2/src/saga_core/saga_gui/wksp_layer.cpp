@@ -147,7 +147,7 @@ CWKSP_Layer::~CWKSP_Layer(void)
 
 			delete(m_pObject);
 
-			MSG_General_Add(LNG("[MSG] okay"), false);
+			MSG_General_Add(LNG("[MSG] okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
 		}
 		else
 		{
