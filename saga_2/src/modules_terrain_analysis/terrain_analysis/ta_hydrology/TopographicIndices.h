@@ -95,6 +95,13 @@ protected:
 
 private:
 
+	int						m_Method_LS, m_DG_Stability;
+
+	double					m_DG_Erosivity;
+
+
+	double					_Get_LS			(double Slope, double Area);
+
 };
 
 

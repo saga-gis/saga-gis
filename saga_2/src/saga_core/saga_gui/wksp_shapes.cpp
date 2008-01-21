@@ -213,6 +213,11 @@ bool CWKSP_Shapes::On_Command(int Cmd_ID)
 	case ID_CMD_SHAPES_EDIT_DEL_POINT:
 		_Edit_Point_Del();
 		break;
+
+	case ID_CMD_SHAPES_EDIT_SEL_INVERT:
+		m_pShapes->Inv_Selection();
+		Update_Views(false);
+		break;
 	}
 
 	return( true );
@@ -250,6 +255,10 @@ bool CWKSP_Shapes::On_Command_UI(wxUpdateUIEvent &event)
 	case ID_CMD_SHAPES_EDIT_DEL_POINT:
 		event.Enable(m_Edit_pShape != NULL && m_Edit_iPart >= 0 && m_Edit_iPoint >= 0);
 		break;
+
+//	case ID_CMD_SHAPES_EDIT_SEL_INVERT:
+//		event.Enable(m_pShapes->Get_Selection_Count() > 0);
+//		break;
 	}
 
 	return( true );

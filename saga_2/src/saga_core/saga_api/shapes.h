@@ -453,6 +453,7 @@ public:
 	bool						Select					(CSG_Shape *pShape = NULL	, bool bInvert = false);
 
 	int							Del_Selection			(void);
+	int							Inv_Selection			(void);
 
 
 protected:
