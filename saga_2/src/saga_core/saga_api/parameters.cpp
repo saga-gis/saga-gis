@@ -1299,8 +1299,9 @@ bool CSG_Parameters::Get_String(CSG_String &String, bool bOptionsOnly)
 			{
 				bResult	= true;
 
-				String.Append(CSG_String::Format(SG_T("[%s] %s: %s\n"),
-					m_Parameters[i]->Get_Type_Name(),
+			//	String.Append(CSG_String::Format(SG_T("[%s] %s: %s\n"),
+			//		m_Parameters[i]->Get_Type_Name(),
+				String.Append(CSG_String::Format(SG_T("%s: %s\n"),
 					m_Parameters[i]->Get_Name(),
 					m_Parameters[i]->asString())
 				);

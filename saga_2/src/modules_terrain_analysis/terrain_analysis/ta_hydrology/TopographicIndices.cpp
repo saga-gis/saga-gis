@@ -168,18 +168,27 @@ CTopographicIndices::CTopographicIndices(void)
 		), 0
 	);
 
+	Parameters.Add_Choice(
+		pNode	, "LS_AREA"			, _TL("Area to Length Conversion"),
+		_TL("Derivation of slope lengths from catchment areas. These are rough approximations! Applies not to Desmot & Govers' method."),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("1 / cell size (specific catchment area)"),
+			_TL("square root (catchment length)")
+		), 0
+	);
+
 	pSNode	= Parameters.Add_Node(pNode, "LS_DG", _TL("Desmot & Govers"), _TL(""));
 
 	Parameters.Add_Value(
-		pSNode	, "DG_EROSIVITY"		, "Rill/Interrill Erosivity",
+		pSNode	, "DG_EROSIVITY"	, _TL("Rill/Interrill Erosivity"),
 		_TL(""),
 		PARAMETER_TYPE_Double, 1.0, 0.0, true
 	);
 
 	Parameters.Add_Choice(
-		pSNode	, "DG_STABILITY"	, "Stability",
+		pSNode	, "DG_STABILITY"	, _TL("Stability"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("stable"),
 			_TL("instable (thawing)")
 		), 0
@@ -219,6 +228,8 @@ bool CTopographicIndices::On_Execute(void)
 	m_Method_LS		= Parameters("LS_METHOD")	->asInt();
 	m_DG_Erosivity	= Parameters("DG_EROSIVITY")->asInt();
 	m_DG_Stability	= Parameters("DG_STABILITY")->asInt();
+
+	m_Method_Area	= Parameters("LS_AREA")		->asInt();
 
 	//-----------------------------------------------------
 	Kf		= 1.0;
@@ -347,7 +358,10 @@ double CTopographicIndices::_Get_LS(double Slope, double Area)
 	//-----------------------------------------------------
 	case 0:	default:
 		{
-			Area		= Area / Get_Cellsize();	// pseudo specific catchment area...
+			Area		= m_Method_Area == 0
+						? Area / Get_Cellsize()	// pseudo specific catchment area...
+						: sqrt(Area);			// pseudo slope length
+
 			LS			= (0.4 + 1) * pow(Area / 22.13, 0.4) * pow(sin(Slope) / 0.0896, 1.3);
 		}
 		break;
@@ -368,9 +382,6 @@ double CTopographicIndices::_Get_LS(double Slope, double Area)
 		//	x			= sin(x) + cos(x);
 			x			= 1.0;
 
-			L			= (pow(Area + d*d, m + 1.0) - pow(Area, m + 1.0))
-						/ (pow(d, m + 2.0) * pow(22.13, m) * pow(x, m));
-
 			// x : coefficient that adjusts for width of flow at the center of the cell.
 			//     It has a value of 1.0 when the flow is toward a side and sqrt(2.0) when
 			//     the flow is toward a corner.
@@ -378,8 +389,11 @@ double CTopographicIndices::_Get_LS(double Slope, double Area)
 			//     USLE-M SLOPE LENGTH FACTOR FOR GRID CELLS'
 			//     http://soil.scijournals.org/cgi/content/full/69/3/674)
 
+			L			= (pow(Area + d*d, m + 1.0) - pow(Area, m + 1.0))
+						/ (pow(d, m + 2.0) * pow(22.13, m) * pow(x, m));
+
 			//-----------------------------------------------------
-			if( Slope < 0.08975817419 )	// < 9% Steigung := atan(0.09), ca. 5 Degree
+			if( Slope < 0.08975817419 )		// < 9% Steigung := atan(0.09), ca. 5 Degree
 			{
 				S		= 10.8 * sinSlope + 0.03;	
 			}
@@ -387,7 +401,7 @@ double CTopographicIndices::_Get_LS(double Slope, double Area)
 			{
 				S		= 16.8 * sinSlope - 0.5;
 			}
-			else						// >= 9% Steigung, tauend u. instabil
+			else							// >= 9% Steigung, tauend u. instabil
 			{
 				S		= pow(sinSlope / 0.896, 0.6);
 			}
@@ -399,8 +413,10 @@ double CTopographicIndices::_Get_LS(double Slope, double Area)
 	//-----------------------------------------------------
 	case 2:
 		{
-//			Area		= sqrt(Area);
-			Area		= Area / Get_Cellsize();	// pseudo specific catchment area...
+			Area		= m_Method_Area == 0
+						? Area / Get_Cellsize()	// pseudo specific catchment area...
+						: sqrt(Area);			// pseudo slope length
+
 			sinSlope	= sin(Slope);
 
 			if( Slope > 0.0505 )	// >  ca. 3 Degree

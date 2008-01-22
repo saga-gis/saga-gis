@@ -95,7 +95,8 @@ protected:
 
 private:
 
-	int						m_Method_LS, m_DG_Stability;
+	int						m_Method_LS, m_DG_Stability, m_Method_Area;
+
 
 	double					m_DG_Erosivity;
 
