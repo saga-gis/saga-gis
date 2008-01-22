@@ -256,9 +256,9 @@ bool CWKSP_Shapes::On_Command_UI(wxUpdateUIEvent &event)
 		event.Enable(m_Edit_pShape != NULL && m_Edit_iPart >= 0 && m_Edit_iPoint >= 0);
 		break;
 
-//	case ID_CMD_SHAPES_EDIT_SEL_INVERT:
-//		event.Enable(m_pShapes->Get_Selection_Count() > 0);
-//		break;
+	case ID_CMD_SHAPES_EDIT_SEL_INVERT:
+		event.Enable(m_Edit_pShape == NULL);
+		break;
 	}
 
 	return( true );
