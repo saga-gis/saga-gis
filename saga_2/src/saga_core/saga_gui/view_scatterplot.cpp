@@ -549,7 +549,7 @@ void CVIEW_ScatterPlot::_Draw_Image(wxDC &dc, wxRect r, double dx, double dy)
 	double		zMax;
 	CSG_Grid	Count;
 	CSG_Colors	*pColors	= m_Parameters("COLORS")->asColors();
-	wxPen		Pen;
+	wxPen		Pen, oldPen(dc.GetPen());
 
 	//-----------------------------------------------------
 	Resolution	= m_Parameters("RESOLUTION")->asInt();
@@ -608,6 +608,9 @@ void CVIEW_ScatterPlot::_Draw_Image(wxDC &dc, wxRect r, double dx, double dy)
 			}
 		}
 	}
+
+	//-----------------------------------------------------
+	dc.SetPen(oldPen);
 }
 
 //---------------------------------------------------------

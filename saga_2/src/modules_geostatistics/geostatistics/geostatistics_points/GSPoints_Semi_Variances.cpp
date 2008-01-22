@@ -60,13 +60,29 @@
 //---------------------------------------------------------
 #include "GSPoints_Semi_Variances.h"
 
-//---------------------------------------------------------
-#define DIF_FIELD_DISTANCE		0
-#define DIF_FIELD_DIFFERENCE	1
 
-#define VAR_FIELD_DISTANCE		0
-#define VAR_FIELD_VARIANCE		1
-#define VAR_FIELD_COUNT			2
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+enum
+{
+	DIF_FIELD_DISTANCE		= 0,
+	DIF_FIELD_DIFFERENCE
+};
+
+//---------------------------------------------------------
+enum
+{
+	VAR_FIELD_DISTANCE		= 0,
+	VAR_FIELD_VARIANCE,
+	VAR_FIELD_STDDEV,
+	VAR_FIELD_CLASSVAR,
+	VAR_FIELD_COUNT
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -81,7 +97,7 @@ CGSPoints_Semi_Variances::CGSPoints_Semi_Variances(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name	(_TL("Semivariogram"));
+	Set_Name	(_TL("Semi-Variogram"));
 
 	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 
@@ -93,7 +109,7 @@ CGSPoints_Semi_Variances::CGSPoints_Semi_Variances(void)
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "POINTS"		, _TL("Points"),
 		_TL(""),
-		PARAMETER_INPUT
+		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Table_Field(
@@ -103,13 +119,13 @@ CGSPoints_Semi_Variances::CGSPoints_Semi_Variances(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Table(
-		NULL	, "RESULT"		, _TL("Semivariances"),
+		NULL	, "RESULT"		, _TL("Semi-Variances"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Value(
-		NULL	, "DISTSTEP"	, _TL("Distance Increment"),
+		NULL	, "DISTLAG"		, _TL("Distance Increment"),
 		_TL(""),
 		PARAMETER_TYPE_Double	, 10.0, 0.0, true
 	);
@@ -161,15 +177,15 @@ bool CGSPoints_Semi_Variances::On_Execute(void)
 	Get_Variances(
 		pTable,
 		&Table_Differences,
-		Parameters("DISTSTEP")	->asDouble()
+		Parameters("DISTLAG")	->asDouble()
 	);
 
 	//-----------------------------------------------------
 	pTable->Set_Name(CSG_String::Format(SG_T("%s [%s]: %s"),
 		pShapes->Get_Name(),
 		pShapes->Get_Table().Get_Field_Name(Parameters("FIELD")->asInt()),
-		"Semivariances")
-	);
+		_TL("Semi-Variances")
+	));
 
 	return( true );
 }
@@ -184,56 +200,36 @@ bool CGSPoints_Semi_Variances::On_Execute(void)
 //---------------------------------------------------------
 void CGSPoints_Semi_Variances::Get_Differences(CSG_Shapes *pShapes, CSG_Table *pTable, int zField, int nSkip, double maxDist)
 {
-	int				iShape, iPart, iPoint, jShape, jPart, jPoint, nShapes;
-	double			d, dx, dy, iz, z;
-	CSG_Shape			*pShape_i, *pShape_j;
+	int					iPoint, jPoint;
+	double				d, dx, dy, z;
+	CSG_Shape			*pPoint;
 	CSG_Table_Record	*pRecord;
-	TSG_Point		Pt_i, Pt_j;
+	TSG_Point			Pt_i, Pt_j;
 
 	//-----------------------------------------------------
 	pTable->Destroy();
 	pTable->Add_Field(_TL("Distance")	, TABLE_FIELDTYPE_Double);	// DIF_FIELD_DISTANCE
 	pTable->Add_Field(_TL("Difference")	, TABLE_FIELDTYPE_Double);	// DIF_FIELD_DIFFERENCE
 
-	nShapes		= pShapes->Get_Count();
-
 	//-----------------------------------------------------
-	for(iShape=0; iShape<nShapes-1 && Set_Progress(iShape, nShapes-1); iShape+=nSkip)
+	for(iPoint=0; iPoint<pShapes->Get_Count()-nSkip && Set_Progress(iPoint, pShapes->Get_Count()-nSkip); iPoint+=nSkip)
 	{
-		pShape_i	= pShapes->Get_Shape(iShape);
+		pPoint	= pShapes->Get_Shape(iPoint);
+		Pt_i	= pPoint->Get_Point(0);
+		z		= pPoint->Get_Record()->asDouble(zField);
 
-		for(iPart=0; iPart<pShape_i->Get_Part_Count(); iPart++)
+		for(jPoint=iPoint+nSkip; jPoint<pShapes->Get_Count(); jPoint+=nSkip)
 		{
-			for(iPoint=0; iPoint<pShape_i->Get_Point_Count(iPart); iPoint++)
+			pPoint	= pShapes->Get_Shape(jPoint);
+			Pt_j	= pPoint->Get_Point(0);
+			dx		= Pt_j.x - Pt_i.x;
+			dy		= Pt_j.y - Pt_i.y;
+
+			if( (d = sqrt(dx*dx + dy*dy)) < maxDist || maxDist < 0.0 )
 			{
-				Pt_i	= pShape_i->Get_Point(iPoint, iPart);
-				iz		= pShape_i->Get_Record()->asDouble(zField);
-
-				for(jShape=iShape+nSkip; jShape<nShapes; jShape+=nSkip)
-				{
-					pShape_j	= pShapes->Get_Shape(jShape);
-
-					for(jPart=0; jPart<pShape_j->Get_Part_Count(); jPart++)
-					{
-						for(jPoint=0; jPoint<pShape_j->Get_Point_Count(jPart); jPoint++)
-						{
-							Pt_j	= pShape_j->Get_Point(jPoint, jPart);
-
-							dx		= Pt_j.x - Pt_i.x;
-							dy		= Pt_j.y - Pt_i.y;
-
-							if( (d = sqrt(dx*dx + dy*dy)) < maxDist || maxDist < 0.0 )
-							{
-								z		= pShape_j->Get_Record()->asDouble(zField) - iz;
-
-								pRecord	= pTable->Add_Record();
-
-								pRecord->Set_Value(DIF_FIELD_DISTANCE	, d);
-								pRecord->Set_Value(DIF_FIELD_DIFFERENCE	, z);
-							}
-						}
-					}
-				}
+				pRecord	= pTable->Add_Record();
+				pRecord->Set_Value(DIF_FIELD_DISTANCE	, d);
+				pRecord->Set_Value(DIF_FIELD_DIFFERENCE	, pPoint->Get_Record()->asDouble(zField) - z);
 			}
 		}
 	}
@@ -249,17 +245,19 @@ void CGSPoints_Semi_Variances::Get_Differences(CSG_Shapes *pShapes, CSG_Table *p
 //---------------------------------------------------------
 void CGSPoints_Semi_Variances::Get_Variances(CSG_Table *pTab_Var, CSG_Table *pTab_Dif, double Dist_Step)
 {
-	int				iDif, nVar;
-	double			iDist, dz, zVar, Dist;
+	int					iDif, nVar, nVarS;
+	double				iDist, dz, zVar, zVarS, Dist;
 	CSG_Table_Record	*pRec_Dif, *pRec_Var;
 
 	//-----------------------------------------------------
 	if( Process_Get_Okay(false) )
 	{
 		pTab_Var->Destroy();
-		pTab_Var->Add_Field(_TL("Distance")		, TABLE_FIELDTYPE_Double);	// VAR_FIELD_DISTANCE
-		pTab_Var->Add_Field(_TL("Semivariance")	, TABLE_FIELDTYPE_Double);	// VAR_FIELD_VARIANCE
-		pTab_Var->Add_Field(_TL("Count")			, TABLE_FIELDTYPE_Int);		// VAR_FIELD_COUNT
+		pTab_Var->Add_Field(_TL("Distance")			, TABLE_FIELDTYPE_Double);	// VAR_FIELD_DISTANCE
+		pTab_Var->Add_Field(_TL("Variance")			, TABLE_FIELDTYPE_Double);	// VAR_FIELD_VARIANCE
+		pTab_Var->Add_Field(_TL("Std.Deviation")	, TABLE_FIELDTYPE_Double);	// VAR_FIELD_STDDEV
+		pTab_Var->Add_Field(_TL("Class Variance")	, TABLE_FIELDTYPE_Double);	// VAR_FIELD_CLASSVAR
+		pTab_Var->Add_Field(_TL("Class Count")		, TABLE_FIELDTYPE_Int);		// VAR_FIELD_COUNT
 
 		pTab_Dif->Set_Index(DIF_FIELD_DISTANCE, TABLE_INDEX_Up);
 
@@ -267,6 +265,8 @@ void CGSPoints_Semi_Variances::Get_Variances(CSG_Table *pTab_Var, CSG_Table *pTa
 		iDist		= 0.0;
 		zVar		= 0.0;
 		nVar		= 0;
+		zVarS		= 0.0;
+		nVarS		= 0;
 
 		//-----------------------------------------------------
 		for(iDif=0; iDif<pTab_Dif->Get_Record_Count() && Set_Progress(iDif, pTab_Dif->Get_Record_Count()); iDif++)
@@ -277,9 +277,14 @@ void CGSPoints_Semi_Variances::Get_Variances(CSG_Table *pTab_Var, CSG_Table *pTa
 			{
 				if( nVar > 0 )
 				{
+					zVarS	+= zVar;
+					nVarS	+= nVar;
+
 					pRec_Var	= pTab_Var->Add_Record();
 					pRec_Var->Set_Value(VAR_FIELD_DISTANCE	, iDist);
-					pRec_Var->Set_Value(VAR_FIELD_VARIANCE	, 0.5 * zVar / (double)nVar);
+					pRec_Var->Set_Value(VAR_FIELD_VARIANCE	, 0.5 * zVarS / (double)nVarS);
+					pRec_Var->Set_Value(VAR_FIELD_STDDEV	, sqrt(0.5 * zVarS / (double)nVarS));
+					pRec_Var->Set_Value(VAR_FIELD_CLASSVAR	, 0.5 * zVar  / (double)nVar);
 					pRec_Var->Set_Value(VAR_FIELD_COUNT		, nVar);
 				}
 
