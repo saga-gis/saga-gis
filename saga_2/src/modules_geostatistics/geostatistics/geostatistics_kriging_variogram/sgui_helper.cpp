@@ -1,0 +1,253 @@
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                         SAGA                          //
+//                                                       //
+//      System for Automated Geoscientific Analyses      //
+//                                                       //
+//                    Module Library:                    //
+//                     SAGA_GUI_API                      //
+//                                                       //
+//-------------------------------------------------------//
+//                                                       //
+//                    sgui_helper.cpp                    //
+//                                                       //
+//                 Copyright (C) 2008 by                 //
+//                      Olaf Conrad                      //
+//                                                       //
+//-------------------------------------------------------//
+//                                                       //
+// This file is part of 'SAGA - System for Automated     //
+// Geoscientific Analyses'. SAGA is free software; you   //
+// can redistribute it and/or modify it under the terms  //
+// of the GNU General Public License as published by the //
+// Free Software Foundation; version 2 of the License.   //
+//                                                       //
+// SAGA is distributed in the hope that it will be       //
+// useful, but WITHOUT ANY WARRANTY; without even the    //
+// implied warranty of MERCHANTABILITY or FITNESS FOR A  //
+// PARTICULAR PURPOSE. See the GNU General Public        //
+// License for more details.                             //
+//                                                       //
+// You should have received a copy of the GNU General    //
+// Public License along with this program; if not,       //
+// write to the Free Software Foundation, Inc.,          //
+// 59 Temple Place - Suite 330, Boston, MA 02111-1307,   //
+// USA.                                                  //
+//                                                       //
+//-------------------------------------------------------//
+//                                                       //
+//    e-mail:     oconrad@saga-gis.org                   //
+//                                                       //
+//    contact:    SAGA User Group Association            //
+//                Institute of Geography                 //
+//                University of Goettingen               //
+//                Goldschmidtstr. 5                      //
+//                37077 Goettingen                       //
+//                Germany                                //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#include <wx/wxprec.h>
+
+#ifdef __BORLANDC__
+	#pragma hdrstop
+#endif
+
+#include <wx/dc.h>
+
+//---------------------------------------------------------
+#include "sgui_helper.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifndef M_PI
+#define M_PI						3.141592653589793
+#endif
+
+#ifndef M_DEG_TO_RAD
+#define M_DEG_TO_RAD				(M_PI / 180.0)
+#endif
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void		Draw_Text(wxDC &dc, int Align, int x, int y, const wxString &Text)
+{
+	wxCoord	xSize, ySize;
+
+	if( Align != TEXTALIGN_TOPLEFT )
+	{
+		dc.GetTextExtent(Text, &xSize, &ySize);
+
+		//-------------------------------------------------
+		if		( Align & TEXTALIGN_XCENTER )
+		{
+			x	-= xSize / 2;
+		}
+		else if	( Align & TEXTALIGN_RIGHT )
+		{
+			x	-= xSize;
+		}
+
+		//-------------------------------------------------
+		if		( Align & TEXTALIGN_YCENTER )
+		{
+			y	-= ySize / 2;
+		}
+		else if	( Align & TEXTALIGN_BOTTOM )
+		{
+			y	-= ySize;
+		}
+	}
+
+	dc.DrawText(Text, x, y);
+}
+
+//---------------------------------------------------------
+void		Draw_Text(wxDC &dc, int Align, int x, int y, double Angle, const wxString &Text)
+{
+	double	d;
+	wxCoord	xSize, ySize;
+
+	if( Align != TEXTALIGN_TOPLEFT )
+	{
+		dc.GetTextExtent(Text, &xSize, &ySize);
+
+		//-------------------------------------------------
+		d	 = M_DEG_TO_RAD * Angle;
+
+		if		( Align & TEXTALIGN_XCENTER )
+		{
+			x	-= (int)(xSize * cos(d) / 2.0);
+			y	+= (int)(xSize * sin(d) / 2.0);
+		}
+		else if	( Align & TEXTALIGN_RIGHT )
+		{
+			x	-= (int)(xSize * cos(d));
+			y	+= (int)(xSize * sin(d));
+		}
+
+		//-------------------------------------------------
+		d	 = M_DEG_TO_RAD * (Angle - 90.0);
+
+		if		( Align & TEXTALIGN_YCENTER )
+		{
+			x	-= (int)(ySize * cos(d) / 2.0);
+			y	+= (int)(ySize * sin(d) / 2.0);
+		}
+		else if	( Align & TEXTALIGN_BOTTOM )
+		{
+			x	-= (int)(ySize * cos(d));
+			y	+= (int)(ySize * sin(d));
+		}
+	}
+
+	dc.DrawRotatedText(Text, x, y, Angle);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define RULER_TEXT_SPACE	4
+
+//---------------------------------------------------------
+bool		Draw_Ruler(wxDC &dc, const wxRect &r, bool bHorizontal, double zMin, double zMax, bool bAscendent, int FontSize, const wxColour &Colour)
+{
+	int			xMin, xMax, yMin, yMax, Decimals, dxFont, dyFont;
+	double		Width, z, dz, zToDC, zDC, zPos;
+	wxString	s;
+
+	//-----------------------------------------------------
+	if( zMin < zMax && r.GetWidth() > 0 && r.GetHeight() > 0 )
+	{
+		dc.SetPen(wxPen(Colour));
+		dc.SetFont(wxFont(7, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+
+		Width		= bHorizontal ? r.GetWidth() : r.GetHeight();
+
+		xMin		= r.GetX();
+		xMax		= r.GetX() + r.GetWidth();
+		yMin		= r.GetY() + r.GetHeight();
+		yMax		= r.GetY();
+
+		//-------------------------------------------------
+		zToDC		= (double)Width / (zMax - zMin);
+
+		dz			= pow(10.0, floor(log10(zMax - zMin)) - 1.0);
+		Decimals	= dz >= 1.0 ? 0 : (int)fabs(log10(dz));
+
+		s.Printf(wxT("%.*f"), Decimals, zMax);
+		dyFont		= RULER_TEXT_SPACE + dc.GetTextExtent(s).y;
+		dxFont		= RULER_TEXT_SPACE;
+
+		zDC			= 2 * dc.GetTextExtent(s).x;
+		while( zToDC * dz < zDC + RULER_TEXT_SPACE )
+		{
+			dz	*= 2;
+		}
+
+		//-------------------------------------------------
+		z			= dz * floor(zMin / dz);
+		if( z < zMin )	z	+= dz;
+
+		for(; z<=zMax; z+=dz)
+		{
+			s.Printf(wxT("%.*f"), Decimals, z);
+
+			zDC	= bAscendent ? zToDC * (z - zMin) : Width - zToDC * (z - zMin);
+
+			if( bHorizontal )
+			{
+				zPos	= xMin + zDC;
+				dc.DrawLine(zPos, yMin, zPos, yMax);
+				dc.DrawText(s, zPos + dxFont, yMin - dyFont);
+			}
+			else
+			{
+				zPos	= yMin - zDC;
+				dc.DrawLine(xMin, zPos, xMax, zPos);
+				dc.DrawText(s, xMin + dxFont, zPos - dyFont);
+			}
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
