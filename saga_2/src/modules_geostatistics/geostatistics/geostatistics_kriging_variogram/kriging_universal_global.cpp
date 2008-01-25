@@ -6,11 +6,11 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                     SAGA_GUI_API                      //
+//                 Geostatistics_Kriging                 //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    sgui_helper.cpp                    //
+//             Kriging_Universal_Global.cpp              //
 //                                                       //
 //                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
@@ -41,9 +41,9 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Hamburg                  //
-//                Bundesstr. 55                          //
-//                20146 Hamburg                          //
+//                University of Goettingen               //
+//                Goldschmidtstr. 5                      //
+//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -58,16 +58,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <wx/wxprec.h>
-
-#ifdef __BORLANDC__
-	#pragma hdrstop
-#endif
-
-#include <wx/dc.h>
-
-//---------------------------------------------------------
-#include "sgui_helper.h"
+#include "Kriging_Universal_Global.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -77,170 +68,186 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef M_PI
-#define M_PI						3.141592653589793
-#endif
-
-#ifndef M_DEG_TO_RAD
-#define M_DEG_TO_RAD				(M_PI / 180.0)
-#endif
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void		Draw_Text(wxDC &dc, int Align, int x, int y, const wxString &Text)
+CKriging_Universal_Global::CKriging_Universal_Global(void)
+	: CKriging_Base()
 {
-	wxCoord	xSize, ySize;
+	Set_Name		(_TL("Universal Kriging (Global)"));
 
-	if( Align != TEXTALIGN_TOPLEFT )
-	{
-		dc.GetTextExtent(Text, &xSize, &ySize);
+	Set_Author		(_TL("Copyrights (c) 2008 by Olaf Conrad"));
 
-		//-------------------------------------------------
-		if		( Align & TEXTALIGN_XCENTER )
-		{
-			x	-= xSize / 2;
-		}
-		else if	( Align & TEXTALIGN_RIGHT )
-		{
-			x	-= xSize;
-		}
-
-		//-------------------------------------------------
-		if		( Align & TEXTALIGN_YCENTER )
-		{
-			y	-= ySize / 2;
-		}
-		else if	( Align & TEXTALIGN_BOTTOM )
-		{
-			y	-= ySize;
-		}
-	}
-
-	dc.DrawText(Text, x, y);
-}
-
-//---------------------------------------------------------
-void		Draw_Text(wxDC &dc, int Align, int x, int y, double Angle, const wxString &Text)
-{
-	double	d;
-	wxCoord	xSize, ySize;
-
-	if( Align != TEXTALIGN_TOPLEFT )
-	{
-		dc.GetTextExtent(Text, &xSize, &ySize);
-
-		//-------------------------------------------------
-		d	 = M_DEG_TO_RAD * Angle;
-
-		if		( Align & TEXTALIGN_XCENTER )
-		{
-			x	-= (int)(xSize * cos(d) / 2.0);
-			y	+= (int)(xSize * sin(d) / 2.0);
-		}
-		else if	( Align & TEXTALIGN_RIGHT )
-		{
-			x	-= (int)(xSize * cos(d));
-			y	+= (int)(xSize * sin(d));
-		}
-
-		//-------------------------------------------------
-		d	 = M_DEG_TO_RAD * (Angle - 90.0);
-
-		if		( Align & TEXTALIGN_YCENTER )
-		{
-			x	-= (int)(ySize * cos(d) / 2.0);
-			y	+= (int)(ySize * sin(d) / 2.0);
-		}
-		else if	( Align & TEXTALIGN_BOTTOM )
-		{
-			x	-= (int)(ySize * cos(d));
-			y	+= (int)(ySize * sin(d));
-		}
-	}
-
-	dc.DrawRotatedText(Text, x, y, Angle);
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#define RULER_TEXT_SPACE	4
-
-//---------------------------------------------------------
-bool		Draw_Ruler(wxDC &dc, const wxRect &r, bool bHorizontal, double zMin, double zMax, bool bAscendent, int FontSize, const wxColour &Colour)
-{
-	int			xMin, xMax, yMin, yMax, Decimals, dxFont, dyFont;
-	double		Width, z, dz, zToDC, zDC, zPos;
-	wxString	s;
+	Set_Description	(_TW(
+		"Universal Kriging for grid interpolation from irregular sample points.\n"
+		"This implementation does not use a maximum search radius. The weighting "
+		"matrix is generated globally for all points."
+	));
 
 	//-----------------------------------------------------
-	if( zMin < zMax && r.GetWidth() > 0 && r.GetHeight() > 0 )
+	Parameters.Add_Grid_List(
+		NULL	, "GRIDS"		, _TL("Grids"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Choice(
+		NULL	,"INTERPOL"		, _TL("Grid Interpolation"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+			_TL("Nearest Neighbor"),
+			_TL("Bilinear Interpolation"),
+			_TL("Inverse Distance Interpolation"),
+			_TL("Bicubic Spline Interpolation"),
+			_TL("B-Spline Interpolation")
+		), 4
+	);
+}
+
+//---------------------------------------------------------
+CKriging_Universal_Global::~CKriging_Universal_Global(void)
+{}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CKriging_Universal_Global::On_Initialise(void)
+{
+	m_pGrids		= Parameters("GRIDS")		->asGridList();
+	m_Interpolation	= Parameters("INTERPOL")	->asInt();
+
+	return( Get_Weights() );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CKriging_Universal_Global::Get_Value(double x, double y, double &z, double &v)
+{
+	int		i, j, n, nGrids;
+	double	Lambda;
+
+	//-----------------------------------------------------
+	if(	(n = m_Points.Get_Count()) > 1 && (nGrids = m_pGrids->Get_Count()) > 0 )
 	{
-		dc.SetPen(wxPen(Colour));
-		dc.SetFont(wxFont(7, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
-
-		Width		= bHorizontal ? r.GetWidth() : r.GetHeight();
-
-		xMin		= r.GetX();
-		xMax		= r.GetX() + r.GetWidth();
-		yMin		= r.GetY() + r.GetHeight();
-		yMax		= r.GetY();
-
-		//-------------------------------------------------
-		zToDC		= (double)Width / (zMax - zMin);
-
-		dz			= pow(10.0, floor(log10(zMax - zMin)) - 1.0);
-		Decimals	= dz >= 1.0 ? 0 : (int)fabs(log10(dz));
-
-		s.Printf(wxT("%.*f"), Decimals, zMax);
-		dyFont		= RULER_TEXT_SPACE + dc.GetTextExtent(s).y;
-		dxFont		= RULER_TEXT_SPACE;
-
-		zDC			= 2 * dc.GetTextExtent(s).x;
-		while( zToDC * dz < zDC + RULER_TEXT_SPACE )
+		for(i=0; i<n; i++)
 		{
-			dz	*= 2;
-		}
-
-		//-------------------------------------------------
-		z			= dz * floor(zMin / dz);
-		if( z < zMin )	z	+= dz;
-
-		for(; z<=zMax; z+=dz)
-		{
-			s.Printf(wxT("%.*f"), Decimals, z);
-
-			zDC	= bAscendent ? zToDC * (z - zMin) : Width - zToDC * (z - zMin);
-
-			if( bHorizontal )
+			if( !m_bBlock )
 			{
-				zPos	= xMin + zDC;
-				dc.DrawLine(zPos, yMin, zPos, yMax);
-				dc.DrawText(s, zPos + dxFont, yMin - dyFont);
+				m_G[i]	=	Get_Weight(x - m_Points[i].x, y - m_Points[i].y);
 			}
 			else
 			{
-				zPos	= yMin - zDC;
-				dc.DrawLine(xMin, zPos, xMax, zPos);
-				dc.DrawText(s, xMin + dxFont, zPos - dyFont);
+				m_G[i]	= (	Get_Weight((x          ) - m_Points[i].x, (y          ) - m_Points[i].y)
+						+	Get_Weight((x + m_Block) - m_Points[i].x, (y + m_Block) - m_Points[i].y)
+						+	Get_Weight((x + m_Block) - m_Points[i].x, (y - m_Block) - m_Points[i].y)
+						+	Get_Weight((x - m_Block) - m_Points[i].x, (y + m_Block) - m_Points[i].y)
+						+	Get_Weight((x - m_Block) - m_Points[i].x, (y - m_Block) - m_Points[i].y) ) / 5.0;
 			}
 		}
 
+		m_G[n]	= 1.0;
+
+		for(i=0, j=n+1; i<nGrids; i++, j++)
+		{
+			if( !m_pGrids->asGrid(i)->Get_Value(x, y, m_G[j], m_Interpolation, true) )
+			{
+				return( false );
+			}
+		}
+
+		//-------------------------------------------------
+		for(i=0, z=0.0, v=0.0; i<n; i++)
+		{
+			for(j=0, Lambda=0.0; j<=n+nGrids; j++)
+			{
+				Lambda	+= m_W[i][j] * m_G[j];
+			}
+
+			z	+= Lambda * m_Points[i].z;
+			v	+= Lambda * m_G[i];
+		}
+
+		//-------------------------------------------------
 		return( true );
 	}
 
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CKriging_Universal_Global::Get_Weights(void)
+{
+	int		i, j, n, iGrid, nGrids;
+
+	//-----------------------------------------------------
+	if( (nGrids = m_pGrids->Get_Count()) > 0 )
+	{
+		for(i=0; i<m_pPoints->Get_Count(); i++)
+		{
+			CSG_Shape	*pPoint	= m_pPoints->Get_Shape(i);
+
+			m_Points.Add(
+				pPoint->Get_Point(0).x,
+				pPoint->Get_Point(0).y,
+				pPoint->Get_Record()->asDouble(m_zField)
+			);
+		}
+
+		//-------------------------------------------------
+		if( (n = m_Points.Get_Count()) > 1 )
+		{
+			m_G.Create(n + 1 + nGrids);
+			m_W.Create(n + 1 + nGrids, n + 1 + nGrids);
+
+			for(i=0; i<n; i++)
+			{
+				m_W[i][i]	= 0.0;				// diagonal...
+				m_W[i][n]	= m_W[n][i]	= 1.0;	// edge...
+
+				for(j=i+1; j<n; j++)
+				{
+					m_W[i][j]	= m_W[j][i]	= Get_Weight(
+						m_Points[i].x - m_Points[j].x,
+						m_Points[i].y - m_Points[j].y
+					);
+				}
+
+				for(iGrid=0, j=n+1; iGrid<nGrids; iGrid++, j++)
+				{
+					m_W[i][j]	= m_W[j][i]	= m_pGrids->asGrid(iGrid)->Get_Value(
+						m_Points[i].x, m_Points[i].y, m_Interpolation
+					);
+				}
+			}
+
+			for(i=n; i<=n+nGrids; i++)
+			{
+				for(j=n; j<=n+nGrids; j++)
+				{
+					m_W[i][j]	= 0.0;
+				}
+			}
+
+			return( m_W.Set_Inverse() );
+		}
+	}
+
+	return( 0 );
 }
 
 

@@ -179,7 +179,7 @@ bool CGrid_Calculator::On_Execute(void)
 		Formel.Set_Formula(Parameters("FORMUL")->asString());
 		
 		int Pos;
-		const SG_Char * Msg;
+		CSG_String Msg;
 		if (Formel.Get_Error(&Pos, &Msg))
 		{
 			CSG_String	msg;
@@ -188,7 +188,7 @@ bool CGrid_Calculator::On_Execute(void)
 			
 			Message_Add(msg);
 			
-			msg.Printf(SG_T("\n%s\n"), Msg);
+			msg.Printf(SG_T("\n%s\n"), Msg.c_str());
 			
 			Message_Add(msg);
 			
@@ -206,7 +206,7 @@ bool CGrid_Calculator::On_Execute(void)
 					Grid_Vals[i]=Grids[i]->asDouble(x,y);
 				}
 				
-				val = Formel.Val(Grid_Vals, nGrids);	
+				val = Formel.Get_Value(Grid_Vals, nGrids);	
 
 				if (_finite(val) && MissingMap.asByte(x, y))
 					pResult->Set_Value(x, y, val);

@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                       image_io                        //
+//            geostatistics_kriging_variogram            //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
 //                    MLB_Interface.h                    //
 //                                                       //
-//                 Copyright (C) 2005 by                 //
+//                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -39,11 +39,11 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    SAGA User Group Association            //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
+//                Bundesstr. 55                          //
+//                20146 Hamburg                          //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -58,17 +58,17 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__io_grid_image_H
-#define HEADER_INCLUDED__io_grid_image_H
+#ifndef HEADER_INCLUDED__geostatistics_kriging_variogram_H
+#define HEADER_INCLUDED__geostatistics_kriging_variogram_H
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 //---------------------------------------------------------
-#ifdef io_grid_image_EXPORTS
-	#define	io_grid_image_EXPORT	_SAGA_DLL_EXPORT
+#ifdef geostatistics_kriging_variogram_EXPORTS
+	#define	geostatistics_kriging_variogram_EXPORT	_SAGA_DLL_EXPORT
 #else
-	#define	io_grid_image_EXPORT	_SAGA_DLL_IMPORT
+	#define	geostatistics_kriging_variogram_EXPORT	_SAGA_DLL_IMPORT
 #endif
 
 
@@ -79,4 +79,4 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__io_grid_image_H
+#endif // #ifndef HEADER_INCLUDED__geostatistics_kriging_variogram_H

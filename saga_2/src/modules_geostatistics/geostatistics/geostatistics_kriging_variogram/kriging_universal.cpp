@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//              Kriging_Ordinary_Global.cpp              //
+//                 Kriging_Universal.cpp                 //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -58,7 +58,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "Kriging_Ordinary_Global.h"
+#include "Kriging_Universal.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -68,22 +68,32 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CKriging_Ordinary_Global::CKriging_Ordinary_Global(void)
-	: CKriging_Base()
+CKriging_Universal::CKriging_Universal(void)
+	: CKriging_Universal_Global()
 {
-	Set_Name		(_TL("Ordinary Kriging (Global)"));
+	Set_Name		(_TL("Universal Kriging"));
 
 	Set_Author		(_TL("Copyrights (c) 2008 by Olaf Conrad"));
 
 	Set_Description	(_TW(
-		"Ordinary Kriging for grid interpolation from irregular sample points. "
-		"This implementation does not use a maximum search radius. The weighting "
-		"matrix is generated once globally for all points."
+		"Universal Kriging for grid interpolation from irregular sample points."
 	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Value(
+		NULL	, "MAXRADIUS"	, _TL("Maximum Search Radius (map units)"),
+		_TL(""),
+		PARAMETER_TYPE_Double	, 1000.0, 0, true
+	);
+
+	Parameters.Add_Range(
+		NULL	, "NPOINTS"		, _TL("Min./Max. Number of m_Points"),
+		_TL(""), 4, 20, 1, true
+	);
 }
 
 //---------------------------------------------------------
-CKriging_Ordinary_Global::~CKriging_Ordinary_Global(void)
+CKriging_Universal::~CKriging_Universal(void)
 {}
 
 
@@ -94,9 +104,27 @@ CKriging_Ordinary_Global::~CKriging_Ordinary_Global(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CKriging_Ordinary_Global::On_Initialise(void)
+bool CKriging_Universal::On_Initialise(void)
 {
-	return( Get_Weights() );
+	m_pGrids		= Parameters("GRIDS")		->asGridList();
+	m_Interpolation	= Parameters("INTERPOL")	->asInt();
+
+	m_Radius		= Parameters("MAXRADIUS")	->asDouble();
+
+	m_nPoints_Min	= (int)Parameters("NPOINTS")->asRange()->Get_LoVal();
+	m_nPoints_Max	= (int)Parameters("NPOINTS")->asRange()->Get_HiVal();
+
+	//-----------------------------------------------------
+	if( m_Search.Create(m_pPoints) )
+	{
+		m_Points.Set_Count	(m_nPoints_Max);
+		m_G		.Create		(m_nPoints_Max + 1 + m_pGrids->Get_Count());
+		m_W		.Create		(m_nPoints_Max + 1 + m_pGrids->Get_Count(), m_nPoints_Max + 1 + m_pGrids->Get_Count());
+
+		return( true );
+	}
+
+	return( false );
 }
 
 
@@ -107,13 +135,13 @@ bool CKriging_Ordinary_Global::On_Initialise(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CKriging_Ordinary_Global::Get_Value(double x, double y, double &z, double &v)
+bool CKriging_Universal::Get_Value(double x, double y, double &z, double &v)
 {
-	int		i, j, n;
+	int		i, j, n, nGrids;
 	double	Lambda;
 
 	//-----------------------------------------------------
-	if(	(n = m_Points.Get_Count()) > 0 )
+	if(	(n = Get_Weights(x, y)) > 0 && (nGrids = m_pGrids->Get_Count()) > 0 )
 	{
 		for(i=0; i<n; i++)
 		{
@@ -133,10 +161,18 @@ bool CKriging_Ordinary_Global::Get_Value(double x, double y, double &z, double &
 
 		m_G[n]	= 1.0;
 
+		for(i=0, j=n+1; i<nGrids; i++, j++)
+		{
+			if( !m_pGrids->asGrid(i)->Get_Value(x, y, m_G[j], m_Interpolation) )
+			{
+				return( false );
+			}
+		}
+
 		//-------------------------------------------------
 		for(i=0, z=0.0, v=0.0; i<n; i++)
 		{
-			for(j=0, Lambda=0.0; j<=n; j++)
+			for(j=0, Lambda=0.0; j<=n+nGrids; j++)
 			{
 				Lambda	+= m_W[i][j] * m_G[j];
 			}
@@ -160,34 +196,22 @@ bool CKriging_Ordinary_Global::Get_Value(double x, double y, double &z, double &
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CKriging_Ordinary_Global::Get_Weights(void)
+int CKriging_Universal::Get_Weights(double x, double y)
 {
-	int		i, j, n;
+	int		i, j, n, iGrid, nGrids;
 
 	//-----------------------------------------------------
-	for(int iShape=0; iShape<m_pShapes->Get_Count(); iShape++)
+	if( (n = m_Search.Select_Radius(x, y, m_Radius, true, m_nPoints_Max)) >= m_nPoints_Min && (nGrids = m_pGrids->Get_Count()) > 0 )
 	{
-		CSG_Shape	*pShape	= m_pShapes->Get_Shape(iShape);
-
-		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+		for(i=0; i<n; i++)
 		{
-			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
-			{
-				m_Points.Add(
-					pShape->Get_Point(iPoint, iPart).x,
-					pShape->Get_Point(iPoint, iPart).y,
-					pShape->Get_Record()->asDouble(m_zField)
-				);
-			}
+			CSG_Shape *pPoint	= m_Search.Get_Selected_Point(i);
+			m_Points[i].x	= pPoint->Get_Point(0).x;
+			m_Points[i].y	= pPoint->Get_Point(0).y;
+			m_Points[i].z	= pPoint->Get_Record()->asDouble(m_zField);
 		}
-	}
 
-	//-----------------------------------------------------
-	if( (n = m_Points.Get_Count()) > 4 )
-	{
-		m_G	.Create(n + 1);
-		m_W	.Create(n + 1, n + 1);
-
+		//-------------------------------------------------
 		for(i=0; i<n; i++)
 		{
 			m_W[i][i]	= 0.0;				// diagonal...
@@ -200,14 +224,30 @@ bool CKriging_Ordinary_Global::Get_Weights(void)
 					m_Points[i].y - m_Points[j].y
 				);
 			}
+
+			for(iGrid=0, j=n+1; iGrid<nGrids; iGrid++, j++)
+			{
+				m_W[i][j]	= m_W[j][i]	= m_pGrids->asGrid(iGrid)->Get_Value(
+					m_Points[i].x, m_Points[i].y, m_Interpolation
+				);
+			}
 		}
 
-		m_W[n][n]	= 0.0;
+		for(i=n; i<=n+nGrids; i++)
+		{
+			for(j=n; j<=n+nGrids; j++)
+			{
+				m_W[i][j]	= 0.0;
+			}
+		}
 
-		return( m_W.Set_Inverse(false) );
-	}
+		if( m_W.Set_Inverse(true, n + 1 + nGrids) )
+		{
+			return( n );
+		}
+	}	
 
-	return( false );
+	return( 0 );
 }
 
 

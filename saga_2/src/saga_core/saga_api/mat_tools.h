@@ -629,26 +629,27 @@ class SAGA_API_DLL_EXPORT CSG_Formula
 {
 public:
 	CSG_Formula(void);
+	virtual ~CSG_Formula(void);
 
 	static CSG_String			Get_Help_Operators	(void);
 	static CSG_String			Get_Help_Usage		(void);
 
-	bool						Get_Error			(int *Pos = NULL, const SG_Char **Msg = NULL);
+	bool						Get_Error			(int *pPosition = NULL, CSG_String *pMessage = NULL);
 
-	double						Val(double *Vals, int n);
-	double						Val(void);
-	double						Val(SG_Char *Args, ...);
-	double						Val(double x);
+	int							Add_Function		(SG_Char *Name, TSG_PFNC_Formula_1 f, int N_of_Pars, int Varying);
+	int							Del_Function		(SG_Char *Name);
 
-	void						Set_Variable(SG_Char Variable, double Value);
+	bool						Set_Formula			(const SG_Char *Formula);
+	CSG_String					Get_Formula			(void)		{	return( m_sFormula );	}
 
-	bool						Set_Formula(const SG_Char *Formula);
-	CSG_String					Get_Formula(void)	{	return( m_Formula );	}
+	void						Set_Variable		(SG_Char Variable, double Value);
 
-	int							Del_Function(SG_Char *Name);
-	int							Add_Function(SG_Char *Name, TSG_PFNC_Formula_1 f, int N_of_Pars, int Varying);
+	double						Get_Value			(void);
+	double						Get_Value			(double x);
+	double						Get_Value			(double *Values, int nValues);
+	double						Get_Value			(SG_Char *Arguments, ...);
 
-	const SG_Char *				Get_Used_Var(void);
+	const SG_Char *				Get_Used_Variables	(void);
 
 
 	//-----------------------------------------------------
@@ -674,37 +675,38 @@ private:
 
 
 	//-----------------------------------------------------
-	CSG_String					m_Formula;
+	bool						m_bError, m_Vars_Used[256];
 
-	const SG_Char				*i_error; 
-	bool						used_vars[256];	//['z' - 'a' + 1];
-	const SG_Char				*errmes;
-	int							i_pctable;	// number of items in a table of constants - used only by the translating functions
-	int							Error_Pos;
-	int							Length;
-	double						*i_ctable;	// current table of constants - used only by the translating functions
-	double						param[256];	//['z' - 'a' + 1];
-	TMAT_Formula				function;
+	int							m_Error_Position, m_Length;
+
+	TMAT_Formula				m_Formula;
+
+	CSG_String					m_sFormula, m_sError;
+
+	const SG_Char				*i_error;
+	int							i_pctable;			// number of items in a table of constants - used only by the translating functions
+
+	double						m_Parameters[256],
+								*i_ctable;			// current table of constants - used only by the translating functions
 
 
-	TMAT_Formula				translate(const SG_Char *source, const SG_Char *args, int *length, int *error);
-	int							fnot_empty(TMAT_Formula);
-	double						grid_value(TMAT_Formula func);
-	void						destrf(TMAT_Formula);
-	void						make_empty(TMAT_Formula);
-	const SG_Char *				fget_error(void);
-	int							read_table(int i, SG_Char *name, int *n_pars, int *varying);
-	int							where_table(SG_Char *name);
-	void						fset_error(const SG_Char *s);
-	double						value(TMAT_Formula func);
+	void						_Set_Error			(const SG_Char *Error = NULL);
+
+	double						_Get_Value			(TMAT_Formula Function);
+
+	int							_is_Operand			(SG_Char c);
+	int							_is_Operand_Code	(SG_Char c);
+	int							_is_Number			(SG_Char c);
+
+	int							_Get_Function		(int i, SG_Char *name, int *n_pars, int *varying);
+	int							_Get_Function		(SG_Char *name);
+
+	TMAT_Formula				_Translate			(const SG_Char *source, const SG_Char *args, int *length, int *error);
+
 	int							max_size(const SG_Char *source);
 	SG_Char *					my_strtok(SG_Char *s);
 	SG_Char *					i_trans(SG_Char *function, SG_Char *begin, SG_Char *end);
 	SG_Char *					comp_time(SG_Char *function, SG_Char *fend, int npars);
-
-	int							isoper(SG_Char c);
-	int							is_code_oper(SG_Char c);
-	int							isin_real(SG_Char c);
 
 };
 
@@ -716,6 +718,15 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+enum
+{
+	SG_TREND_STRING_Formula	= 0,
+	SG_TREND_STRING_Function,
+	SG_TREND_STRING_Formula_Parameters,
+	SG_TREND_STRING_Complete
+};
+
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Trend
 {
 public:
@@ -723,7 +734,7 @@ public:
 	virtual ~CSG_Trend(void);
 
 	bool						Set_Formula			(const SG_Char *Formula = NULL);
-	CSG_String					Get_Formula			(void);
+	CSG_String					Get_Formula			(int Type = SG_TREND_STRING_Complete);
 
 	int							Get_Parameter_Count	(void) const	{	return( m_Params.m_Count );		}
 	double *					Get_Parameters		(void) const	{	return( m_Params.m_A );			}
@@ -735,6 +746,10 @@ public:
 	int							Get_Data_Count		(void) const	{	return( m_Data.Get_Count() );	}
 	double						Get_Data_X			(int Index)		{	return( m_Data.Get_X(Index) );	}
 	double						Get_Data_Y			(int Index)		{	return( m_Data.Get_Y(Index) );	}
+	double						Get_Data_XMin		(void)			{	return( m_xMin );	}
+	double						Get_Data_XMax		(void)			{	return( m_xMax );	}
+	double						Get_Data_YMin		(void)			{	return( m_yMin );	}
+	double						Get_Data_YMax		(void)			{	return( m_yMax );	}
 
 	bool						Set_Max_Iterations	(int Iterations);
 	int							Get_Max_Iterations	(void)			{	return( m_Iter_Max);	}
@@ -781,7 +796,7 @@ private:
 
 	int							m_Iter_Max;
 
-	double						m_ChiSqr, m_ChiSqr_o, m_Lambda, m_Lambda_Max;
+	double						m_ChiSqr, m_ChiSqr_o, m_Lambda, m_Lambda_Max, m_xMin, m_xMax, m_yMin, m_yMax;
 
 	CSG_Points					m_Data;
 

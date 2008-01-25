@@ -160,7 +160,7 @@ int CFit::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pPara
 		Formel.Set_Formula(formel);
 	
 		int Pos;
-		const SG_Char * Msg;
+		CSG_String Msg;
 		if (Formel.Get_Error(&Pos, &Msg))
 		
 		{
@@ -190,13 +190,13 @@ void FitFunc(double x, vector < double> ca, double &y, vector < double> &dyda, i
 		Formel.Set_Variable(vars[i], ca[i]);
 	}
 	
-	y= Formel.Val(x);
+	y= Formel.Get_Value(x);
 	
 	for (i = 0; i < na; i++)
 	{
 		Formel.Set_Variable(vars[i], ca[i] + EPS);
 		
-		dyda[i] = Formel.Val(x);
+		dyda[i] = Formel.Get_Value(x);
 		dyda[i] -= y;
 		dyda[i] /= EPS;
 		
@@ -227,14 +227,14 @@ bool CFit::On_Execute(void)
 	
 	
 	int Pos;
-	const SG_Char * ErrorMsg;
+	CSG_String ErrorMsg;
 	if (Formel.Get_Error(&Pos, &ErrorMsg))
 	{
 		msg.Printf(_TL("Error at character #%d of the function: \n%s\n"), Pos, formel);
 		
 		Message_Add(msg);
 		
-		msg.Printf(SG_T("\n%s\n"), ErrorMsg);
+		msg.Printf(SG_T("\n%s\n"), ErrorMsg.c_str());
 		
 		Message_Add(msg);
 		
@@ -243,7 +243,7 @@ bool CFit::On_Execute(void)
 	
 	const SG_Char *uservars = NULL;
 	
-	uservars = Formel.Get_Used_Var();
+	uservars = Formel.Get_Used_Variables();
 	
 
 	NrVars	=	0;
@@ -379,7 +379,7 @@ bool CFit::On_Execute(void)
 	{
 		CSG_Table_Record *	Record = pTable->Get_Record(i);
 		
-		Record->Set_Value(Field_Count - 1, Formel.Val(x[i]));
+		Record->Set_Value(Field_Count - 1, Formel.Get_Value(x[i]));
 	}
 
 //	API_FREE (uservars);

@@ -91,7 +91,10 @@ const SG_Char *	Get_Info(int i)
 //---------------------------------------------------------
 // 3. Include the headers of your modules here...
 
-#include "kriging_base.h"
+#include "kriging_ordinary.h"
+#include "kriging_ordinary_global.h"
+#include "kriging_universal.h"
+#include "kriging_universal_global.h"
 
 
 //---------------------------------------------------------
@@ -101,8 +104,10 @@ CSG_Module *		Create_Module(int i)
 {
 	switch( i )
 	{
-	case 0:		return( new CGeostat_Kriging );
-	default:	break;
+	case 0:		return( new CKriging_Ordinary );
+	case 1:		return( new CKriging_Ordinary_Global );
+	case 2:		return( new CKriging_Universal );
+	case 3:		return( new CKriging_Universal_Global );
 	}
 
 	return( NULL );

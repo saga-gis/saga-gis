@@ -173,7 +173,7 @@ CSG_Trend::CSG_Trend(void)
 	m_Lambda_Max	= 10000;
 	m_Iter_Max		= 1000;
 
-//	Set_Formula("a * x + b");
+//	Set_Formula(SG_T("a + b * x"));
 }
 
 //---------------------------------------------------------
@@ -195,7 +195,7 @@ bool CSG_Trend::Set_Formula(const SG_Char *Formula)
 
 	if( m_Formula.Set_Formula(Formula) )
 	{
-		CSG_String	vars, uvars(m_Formula.Get_Used_Var());
+		CSG_String	vars, uvars(m_Formula.Get_Used_Variables());
 
 		for(unsigned int i=0; i<uvars.Length(); i++)
 		{
@@ -238,7 +238,7 @@ void CSG_Trend::Set_Data(double *xData, double *yData, int nData, bool bAdd)
 
 	for(int i=0; i<nData; i++)
 	{
-		m_Data.Add(xData[i], yData[i]);
+		Add_Data(xData[i], yData[i]);
 	}
 
 	m_bOkay	= false;
@@ -254,7 +254,7 @@ void CSG_Trend::Set_Data(const CSG_Points &Data, bool bAdd)
 
 	for(int i=0; i<Data.Get_Count(); i++)
 	{
-		m_Data.Add(Data.Get_X(i), Data.Get_Y(i));
+		Add_Data(Data.Get_X(i), Data.Get_Y(i));
 	}
 
 	m_bOkay	= false;
@@ -263,6 +263,17 @@ void CSG_Trend::Set_Data(const CSG_Points &Data, bool bAdd)
 //---------------------------------------------------------
 void CSG_Trend::Add_Data(double x, double y)
 {
+	if( m_Data.Get_Count() == 0 )
+	{
+		m_xMin	= m_xMax	= x;
+		m_yMin	= m_yMax	= y;
+	}
+	else
+	{
+		if( m_xMin > x )	m_xMin	= x;	else if( m_xMax < x )	m_xMax	= x;
+		if( m_yMin > y )	m_yMin	= y;	else if( m_yMax < y )	m_yMax	= y;
+	}
+
 	m_Data.Add(x, y);
 
 	m_bOkay	= false;
@@ -337,7 +348,7 @@ bool CSG_Trend::Get_Trend(const CSG_Points &Data, const SG_Char *Formula)
 //---------------------------------------------------------
 bool CSG_Trend::Get_Trend(void)
 {
-	if( !m_Formula.Get_Error(NULL, NULL) )
+	if( !m_Formula.Get_Error() )
 	{
 		int		i;
 
@@ -385,7 +396,7 @@ bool CSG_Trend::Get_Trend(void)
 			for(i=0, y_o=0.0, y_t=0.0; i<m_Data.Get_Count(); i++)
 			{
 				y_o	+= SG_Get_Square(y_m - m_Data.Get_Y(i));
-				y_t	+= SG_Get_Square(y_m - m_Formula.Val(m_Data.Get_X(i)));
+				y_t	+= SG_Get_Square(y_m - m_Formula.Get_Value(m_Data.Get_X(i)));
 			}
 
 			m_ChiSqr_o	= y_o > 0.0 ? y_t / y_o : 1.0;
@@ -405,16 +416,15 @@ bool CSG_Trend::Get_Trend(void)
 //---------------------------------------------------------
 CSG_String CSG_Trend::Get_Error(void)
 {
-	int			Position;
-	const SG_Char	*Message;
-	CSG_String	s;
+	int				Position;
+	CSG_String		s, Message;
 
 	if( m_bOkay )
 	{
 	}
 	else if( m_Formula.Get_Error(&Position, &Message) )
 	{
-		s.Printf(SG_T("%s [%s] %s: %d. \"%s\""), LNG("Error in formula"), m_Formula.Get_Formula().c_str(), LNG("Position"), Position + 1, Message);
+		s.Printf(SG_T("%s [%s] %s: %d. \"%s\""), LNG("Error in formula"), m_Formula.Get_Formula().c_str(), LNG("Position"), Position + 1, Message.c_str());
 	}
 	else
 	{
@@ -425,18 +435,48 @@ CSG_String CSG_Trend::Get_Error(void)
 }
 
 //---------------------------------------------------------
-CSG_String CSG_Trend::Get_Formula(void)
+CSG_String CSG_Trend::Get_Formula(int Type)
 {
+	int			i;
 	CSG_String	s;
 
-	s.Printf(CSG_String::Format(SG_T("%s\n"), m_Formula.Get_Formula().c_str()));
-
-	if( m_bOkay )
+	switch( Type )
 	{
-		for(int i=0; i<m_Params.m_Count; i++)
+	case SG_TREND_STRING_Formula:	default:
+		s	+= m_Formula.Get_Formula().c_str();
+		break;
+
+	case SG_TREND_STRING_Function:
+		s	+= m_Formula.Get_Formula().c_str();
+
+		for(i=0; i<m_Params.m_Count && m_bOkay; i++)
 		{
-			s.Append(CSG_String::Format(SG_T("%c = %g\n"), m_Params.m_Variables[i], m_Params.m_A[i]));
+			s	+= CSG_String::Format(SG_T("%c = %g\n"), m_Params.m_Variables[i], m_Params.m_A[i]);
 		}
+		break;
+
+	case SG_TREND_STRING_Formula_Parameters:
+		s	+= m_Formula.Get_Formula().c_str();
+		s	+= SG_T("\n");
+
+		for(i=0; i<m_Params.m_Count && m_bOkay; i++)
+		{
+			s	+= CSG_String::Format(SG_T("%c = %g\n"), m_Params.m_Variables[i], m_Params.m_A[i]);
+		}
+		break;
+
+	case SG_TREND_STRING_Complete:
+		s	+= m_Formula.Get_Formula().c_str();
+		s	+= SG_T("\n");
+
+		for(i=0; i<m_Params.m_Count && m_bOkay; i++)
+		{
+			s	+= CSG_String::Format(SG_T("%c = %g\n"), m_Params.m_Variables[i], m_Params.m_A[i]);
+		}
+
+		s	+= CSG_String::Format(SG_T("N = %d\n") , Get_Data_Count());
+		s	+= CSG_String::Format(SG_T("R2 = %g\n"), Get_R2());
+		break;
 	}
 
 	return( s );
@@ -470,7 +510,7 @@ double CSG_Trend::Get_Value(double x)
 {
 	if( m_bOkay )
 	{
-		return( m_Formula.Val(x) );
+		return( m_Formula.Get_Value(x) );
 	}
 
 	return( 0.0 );
@@ -757,14 +797,14 @@ void CSG_Trend::_Get_Function(double x, double *Parameters, double &y, double *d
 		m_Formula.Set_Variable(m_Params.m_Variables[i], Parameters[i]);
 	}
 
-	y	= m_Formula.Val(x);
+	y	= m_Formula.Get_Value(x);
 
 	//-----------------------------------------------------
 	for(i=0; i<m_Params.m_Count; i++)
 	{
 		m_Formula.Set_Variable(m_Params.m_Variables[i], Parameters[i] + EPSILON);
 
-		dy_da[i]	 = m_Formula.Val(x);
+		dy_da[i]	 = m_Formula.Get_Value(x);
 		dy_da[i]	-= y;
 		dy_da[i]	/= EPSILON;
 

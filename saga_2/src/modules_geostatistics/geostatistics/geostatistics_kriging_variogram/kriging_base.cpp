@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                       image_io                        //
+//            geostatistics_kriging_variogram            //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  Geostat_Kriging.cpp                  //
+//                   kriging_base.cpp                    //
 //                                                       //
-//                 Copyright (C) 2005 by                 //
+//                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -39,11 +39,11 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    SAGA User Group Association            //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
+//                Bundesstr. 55                          //
+//                20146 Hamburg                          //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -70,19 +70,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGeostat_Kriging::CGeostat_Kriging(void)
+CKriging_Base::CKriging_Base(void)
 {
 	CSG_Parameter	*pNode;
 	CSG_Parameters	*pParameters;
-
-	//-----------------------------------------------------
-	Set_Name		(_TL("Interactive Kriging"));
-
-	Set_Author		(_TL("Copyrights (c) 2008 by Olaf Conrad"));
-
-	Set_Description	(_TW(
-		""
-	));
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Shapes(
@@ -146,18 +137,6 @@ CGeostat_Kriging::CGeostat_Kriging(void)
 		pNode	, "NSKIP"		, _TL("Skip Number"),
 		_TL(""),
 		PARAMETER_TYPE_Int, 1, 1, true
-	);
-
-	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL	, "MAXRADIUS"	, _TL("Maximum Search Radius (map units)"),
-		_TL(""),
-		PARAMETER_TYPE_Double	, 1000.0, 0, true
-	);
-
-	Parameters.Add_Range(
-		NULL	, "NPOINTS"		, _TL("Min./Max. Number of m_Points"),
-		_TL(""), 4, 20, 1, true
 	);
 
 	//-----------------------------------------------------
@@ -228,7 +207,7 @@ CGeostat_Kriging::CGeostat_Kriging(void)
 }
 
 //---------------------------------------------------------
-CGeostat_Kriging::~CGeostat_Kriging(void)
+CKriging_Base::~CKriging_Base(void)
 {}
 
 
@@ -239,13 +218,13 @@ CGeostat_Kriging::~CGeostat_Kriging(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGeostat_Kriging::On_Execute(void)
+bool CKriging_Base::On_Execute(void)
 {
 	bool	bResult	= false;
 
 	if( _Initialise() && _Get_Variances() )
 	{
-		if( m_Variogram.Set_Formula(SG_T("a + b * x")) && m_Variogram.Get_Trend() )
+		if( m_Variogram.Set_Formula(SG_T("a + b * x")) && m_Variogram.Get_Trend() && On_Initialise() )
 		{
 			CVariogram_Dialog	dlg(&m_Variogram);
 
@@ -269,7 +248,7 @@ bool CGeostat_Kriging::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGeostat_Kriging::_Initialise(void)
+bool CKriging_Base::_Initialise(void)
 {
 	//-----------------------------------------------------
 	m_Block		= Parameters("DBLOCK")	->asDouble() / 2.0;
@@ -287,27 +266,11 @@ bool CGeostat_Kriging::_Initialise(void)
 	}
 
 	//-----------------------------------------------------
-	m_Radius		= Parameters("MAXRADIUS")->asDouble();
-	m_nPoints_Min	= (int)Parameters("NPOINTS")->asRange()->Get_LoVal();
-	m_nPoints_Max	= (int)Parameters("NPOINTS")->asRange()->Get_HiVal();
-
-	if( !m_Search.Create(m_pPoints) )
-	{
-		SG_UI_Msg_Add(_TL("not enough points for interpolation"), true);
-
-		return( false );
-	}
-
-	m_Points.Set_Count	(m_nPoints_Max);
-	m_G		.Create		(m_nPoints_Max + 1);
-	m_W		.Create		(m_nPoints_Max + 1, m_nPoints_Max + 1);
-
-	//-----------------------------------------------------
 	return( true );
 }
 
 //---------------------------------------------------------
-bool CGeostat_Kriging::_Initialise_Grids(void)
+bool CKriging_Base::_Initialise_Grids(void)
 {
 	//-----------------------------------------------------
 	m_pGrid		= NULL;
@@ -386,7 +349,7 @@ bool CGeostat_Kriging::_Initialise_Grids(void)
 }
 
 //---------------------------------------------------------
-bool CGeostat_Kriging::_Finalise(void)
+bool CKriging_Base::_Finalise(void)
 {
 	m_Points	.Clear();
 	m_Search	.Destroy();
@@ -405,7 +368,7 @@ bool CGeostat_Kriging::_Finalise(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGeostat_Kriging::_Interpolate(void)
+bool CKriging_Base::_Interpolate(void)
 {
 	if( _Initialise_Grids() )
 	{
@@ -451,7 +414,7 @@ bool CGeostat_Kriging::_Interpolate(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CGeostat_Kriging::Get_Weight(double d)
+double CKriging_Base::Get_Weight(double d)
 {
 	if( d > 0.0 )
 	{
@@ -464,104 +427,9 @@ double CGeostat_Kriging::Get_Weight(double d)
 }
 
 //---------------------------------------------------------
-double CGeostat_Kriging::Get_Weight(double dx, double dy)
+double CKriging_Base::Get_Weight(double dx, double dy)
 {
 	return( Get_Weight(sqrt(dx*dx + dy*dy)) );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CGeostat_Kriging::Get_Value(double x, double y, double &z, double &v)
-{
-	int		i, j, n;
-	double	Lambda;
-
-	//-----------------------------------------------------
-	if(	(n = Get_Weights(x, y)) > 0 )
-	{
-		for(i=0; i<n; i++)
-		{
-			if( !m_bBlock )
-			{
-				m_G[i]	=	Get_Weight(x - m_Points[i].x, y - m_Points[i].y);
-			}
-			else
-			{
-				m_G[i]	= (	Get_Weight((x          ) - m_Points[i].x, (y          ) - m_Points[i].y)
-						+	Get_Weight((x + m_Block) - m_Points[i].x, (y + m_Block) - m_Points[i].y)
-						+	Get_Weight((x + m_Block) - m_Points[i].x, (y - m_Block) - m_Points[i].y)
-						+	Get_Weight((x - m_Block) - m_Points[i].x, (y + m_Block) - m_Points[i].y)
-						+	Get_Weight((x - m_Block) - m_Points[i].x, (y - m_Block) - m_Points[i].y) ) / 5.0;
-			}
-		}
-
-		m_G[n]	= 1.0;
-
-		//-------------------------------------------------
-		for(i=0, z=0.0, v=0.0; i<n; i++)
-		{
-			for(j=0, Lambda=0.0; j<=n; j++)
-			{
-				Lambda	+= m_W[i][j] * m_G[j];
-			}
-
-			z	+= Lambda * m_Points[i].z;
-			v	+= Lambda * m_G[i];
-		}
-
-		//-------------------------------------------------
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-int CGeostat_Kriging::Get_Weights(double x, double y)
-{
-	int		i, j, n;
-
-	//-----------------------------------------------------
-	if( (n = m_Search.Select_Radius(x, y, m_Radius, true, m_nPoints_Max)) >= m_nPoints_Min )
-	{
-		for(i=0; i<n; i++)
-		{
-			CSG_Shape	*pPoint	= m_Search.Get_Selected_Point(i);
-			m_Points[i].x	= pPoint->Get_Point(0).x;
-			m_Points[i].y	= pPoint->Get_Point(0).y;
-			m_Points[i].z	= pPoint->Get_Record()->asDouble(m_zField);
-		}
-
-		//-------------------------------------------------
-		for(i=0; i<n; i++)
-		{
-			m_W[i][i]	= 0.0;				// diagonal...
-			m_W[i][n]	= m_W[n][i]	= 1.0;	// edge...
-
-			for(j=i+1; j<n; j++)
-			{
-				m_W[i][j]	= m_W[j][i]	= Get_Weight(
-					m_Points[i].x - m_Points[j].x,
-					m_Points[i].y - m_Points[j].y
-				);
-			}
-		}
-
-		m_W[n][n]	= 0.0;
-
-		if( m_W.Set_Inverse(true, 1 + n) )
-		{
-			return( n );
-		}
-	}
-
-	return( 0 );
 }
 
 
@@ -586,7 +454,7 @@ enum
 };
 
 //---------------------------------------------------------
-bool CGeostat_Kriging::_Get_Variances(void)
+bool CKriging_Base::_Get_Variances(void)
 {
 	int					iDif, nVar, nVarS, nSkip;
 	double				iDist, dz, zVar, zVarS, Dist, Dist_Step, Dist_Max;
@@ -648,7 +516,7 @@ bool CGeostat_Kriging::_Get_Variances(void)
 }
 
 //---------------------------------------------------------
-bool CGeostat_Kriging::_Get_Differences(CSG_Table *pTable, int zField, int nSkip, double maxDist)
+bool CKriging_Base::_Get_Differences(CSG_Table *pTable, int zField, int nSkip, double maxDist)
 {
 	int					iPoint, jPoint;
 	double				d, dx, dy, z;

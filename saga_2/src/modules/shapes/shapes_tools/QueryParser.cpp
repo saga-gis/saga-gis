@@ -39,7 +39,7 @@ CQueryParser::CQueryParser(CSG_Shapes *pShapes, CSG_String sExpression){
 		for (j = 0; j < iFields; j++){
 			pFieldValues[j] = pRecord->asDouble(j);
 		}//for
-		dValue = Formula.Val(pFieldValues, iFields);
+		dValue = Formula.Get_Value(pFieldValues, iFields);
 		if (dValue){
 			m_pSelectedRecords.push_back(i);
 		}//if

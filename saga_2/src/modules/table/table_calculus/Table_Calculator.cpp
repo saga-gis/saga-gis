@@ -62,14 +62,14 @@ bool CTableCalculator::On_Execute(void){
 	Formula.Set_Formula(pFormula);
 		
 	int Pos;
-	const SG_Char * Msg;
+	CSG_String Msg;
 	if (Formula.Get_Error(&Pos, &Msg)){
 		CSG_String msg;
 		msg.Printf(_TL("Syntax error at position #%d: \n%s\n"), Pos, pFormula);
 		
 		Message_Add(msg);
 		
-		msg.Printf(SG_T("\n%s\n"), Msg);
+		msg.Printf(SG_T("\n%s\n"), Msg.c_str());
 		
 		Message_Add(msg);
 		
@@ -86,7 +86,7 @@ bool CTableCalculator::On_Execute(void){
 			pFieldValues[j] = pRecord->asDouble(j);
 		}//for
 		
-		dValue = Formula.Val(pFieldValues, iFields);	
+		dValue = Formula.Get_Value(pFieldValues, iFields);	
 
 		pRecord->Set_Value(iFields, dValue);
 		

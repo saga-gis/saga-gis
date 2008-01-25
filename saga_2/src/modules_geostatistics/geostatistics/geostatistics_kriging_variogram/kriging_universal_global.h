@@ -6,14 +6,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                     Grid_Calculus                     //
+//            geostatistics_kriging_variogram            //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   Grid_Plotter.cpp                    //
+//              Kriging_Universal_Global.h               //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                    Andre Ringeler                     //
+//                 Copyright (C) 2008 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,9 +37,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     aringel@gwdg.de                        //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    Andre Ringeler                         //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Goettingen               //
 //                Goldschmidtstr. 5                      //
@@ -50,91 +50,66 @@
 
 //---------------------------------------------------------
 
-#include "Grid_Plotter.h"
 
-CGrid_Plotter::CGrid_Plotter(void)
-{
-	Set_Name(_TL("Function"));
-	Set_Author(_TL("Copyrights (c) 2003 by Andre Ringeler"));
-	Set_Description(_TW(
-		"Generate a grid based on a functional expression.\n"
-		"The function interpreter uses an expression parser "
-		"that offers the folowing operators:\n\n"
-		"+ Addition\n"
-		"- Subtraction\n"
-		"* Multiplication\n"
-		"/ Division\n"
-		"^ power\n"
-		"sin(a)\n"
-		"cos(a)\n"
-		"tan(a)\n"
-		"asin(a)\n"
-		"acos(a)\n"
-		"atan(a)\n"
-		"atan2(a,b)\n"
-		"abs(a)\n"
-		"int(a)\n"
-		"sqrt(a)\n"
-		"int(a)\n"
-		"mod(a,b)\n"
-		"gt(a,b) returns 1 if a greater b\n"
-		"lt(a,b) returns 1 if a lower b\n"
-		"eq(a,b) returns 1 if a equal b\n"
-		"The Variablen are x and y\n"
-		"Example: sin(x*x+y*y)/(x*x+y*y)\n")
-	);
-
-	Parameters.Add_Grid(	NULL, "RESULT"	, _TL("Function"), _TL(""), PARAMETER_OUTPUT);
-
-	Parameters.Add_Value(	NULL, "XMIN"	, _TL("xmin")	, _TL(""), PARAMETER_TYPE_Double,-5);
-	Parameters.Add_Value(	NULL, "XMAX"	, _TL("xmax")	, _TL(""), PARAMETER_TYPE_Double,5);
-	Parameters.Add_Value(	NULL, "YMIN"	, _TL("ymin")	, _TL(""), PARAMETER_TYPE_Double,-5);
-	Parameters.Add_Value(	NULL, "YMAX"	, _TL("ymax")	, _TL(""), PARAMETER_TYPE_Double,5);
-	Parameters.Add_String(	NULL, "FORMUL"	, _TL("Formula")	, _TL(""), _TL("sin(x*x + y*y)"));
-}
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGrid_Plotter::~CGrid_Plotter(void)
-{}
+#ifndef HEADER_INCLUDED__Kriging_Universal_Global_H
+#define HEADER_INCLUDED__Kriging_Universal_Global_H
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Plotter::On_Execute(void)
+#include "Kriging_Base.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class geostatistics_kriging_variogram_EXPORT CKriging_Universal_Global : public CKriging_Base
 {
-	pResult		= Parameters("RESULT")->asGrid();
-
-	double xmin	= Parameters("XMIN")->asDouble();
-	double ymin	= Parameters("YMIN")->asDouble();
-	double xmax	= Parameters("XMAX")->asDouble();
-	double ymax	= Parameters("YMAX")->asDouble();
-
-	const SG_Char *formel  = Parameters("FORMUL")->asString();
-
-	CSG_Formula Formel;
-
-	Formel.Set_Formula(formel);
-
-	int Pos;
-	CSG_String Msg;
-	if (Formel.Get_Error(&Pos,&Msg))
-	{
-		CSG_String	msg;
-		msg.Printf(_TL("Error at character #%d of the function: \n%s\n"), Pos, formel);
-		
-		Message_Add(msg);
-		
-		msg.Printf(SG_T("\n%s\n"), Msg.c_str());
-		
-		Message_Add(msg);
-
-		return false;
-	}
-
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
-	for(int x=0; x<Get_NX(); x++)
-	{
-		pResult->Set_Value(x,y,Formel.Get_Value(SG_T("xy"),(xmax-xmin)*((double)x/Get_NX())+xmin,(ymax-ymin)*((double)y/Get_NY())+ymin)); 
-	}
-	return( true );
-}
+public:
+	CKriging_Universal_Global(void);
+	virtual ~CKriging_Universal_Global(void);
 
 
+protected:
+
+	int						m_Interpolation;
+
+	CSG_Parameter_Grid_List	*m_pGrids;
+
+
+	virtual bool			On_Initialise	(void);
+
+	virtual bool			Get_Value		(double x, double y, double &z, double &Variance);
+
+
+private:
+
+	bool					Get_Weights		(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__Kriging_Universal_Global_H

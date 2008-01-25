@@ -77,8 +77,6 @@ public:
 	virtual ~CVariogram_Diagram(void)	{}
 
 
-	bool						m_bOkay;
-
 	CSG_Trend					*m_pVariogram;
 
 
@@ -100,7 +98,6 @@ CVariogram_Diagram::CVariogram_Diagram(wxWindow *pParent, CSG_Trend *pVariogram)
 	: CSGUI_Diagram(pParent)
 {
 	m_pVariogram	= pVariogram;
-	m_bOkay			= false;
 	m_xName			= _TL("Distance"); 
 	m_yName			= _TL("Semi-Variance"); 
 
@@ -147,7 +144,7 @@ void CVariogram_Diagram::On_Draw(wxDC &dc, wxRect rDraw)
 		}
 
 		//-------------------------------------------------
-		if( m_bOkay )
+		if( m_pVariogram->is_Okay() )
 		{
 			dc.SetPen(wxPen(*wxRED, 2));
 
@@ -245,17 +242,14 @@ void CVariogram_Dialog::Fit_Function(void)
 	if(	!m_pDiagram->m_pVariogram->Set_Formula(m_pFormula->GetValue().c_str()) )
 	{
 		m_pParameters->SetValue(_TL("Invalid formula !!!"));
-		m_pDiagram->m_bOkay	= false;
 	}
 	else if( !m_pDiagram->m_pVariogram->Get_Trend() )
 	{
 		m_pParameters->SetValue(_TL("Function fitting failed !!!"));
-		m_pDiagram->m_bOkay	= false;
 	}
 	else
 	{
 		m_pParameters->SetValue(m_pDiagram->m_pVariogram->Get_Formula().c_str());
-		m_pDiagram->m_bOkay	= true;
 		m_pDiagram->Refresh();
 	}
 }

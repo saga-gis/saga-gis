@@ -6,11 +6,11 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//            geostatistics_kriging_variogram            //
+//                 Geostatistics_Kriging                 //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    kriging_base.h                     //
+//              Kriging_Ordinary_Global.cpp              //
 //                                                       //
 //                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
@@ -41,9 +41,9 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Hamburg                  //
-//                Bundesstr. 55                          //
-//                20146 Hamburg                          //
+//                University of Goettingen               //
+//                Goldschmidtstr. 5                      //
+//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -58,8 +58,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__kriging_base_H
-#define HEADER_INCLUDED__kriging_base_H
+#include "Kriging_Ordinary_Global.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -69,81 +68,141 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class geostatistics_kriging_variogram_EXPORT CKriging_Base : public CSG_Module
+CKriging_Ordinary_Global::CKriging_Ordinary_Global(void)
+	: CKriging_Base()
 {
-public:
-	CKriging_Base(void);
-	virtual ~CKriging_Base(void);
+	Set_Name		(_TL("Ordinary Kriging (Global)"));
+
+	Set_Author		(_TL("Copyrights (c) 2008 by Olaf Conrad"));
+
+	Set_Description	(_TW(
+		"Ordinary Kriging for grid interpolation from irregular sample points. "
+		"This implementation does not use a maximum search radius. The weighting "
+		"matrix is generated once globally for all points."
+	));
+}
+
+//---------------------------------------------------------
+CKriging_Ordinary_Global::~CKriging_Ordinary_Global(void)
+{}
 
 
-protected:
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-	bool					m_bBlock;
-
-	int						m_zField;
-
-	double					m_Block;
-
-	CSG_Points_3D			m_Points;
-
-	CSG_Vector				m_G;
-
-	CSG_Matrix				m_W;
-
-	CSG_Shapes_Search		m_Search;
-
-	CSG_Shapes				*m_pPoints;
+//---------------------------------------------------------
+bool CKriging_Ordinary_Global::On_Initialise(void)
+{
+	return( Get_Weights() );
+}
 
 
-	virtual bool			On_Execute				(void);
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-	virtual bool			On_Initialise			(void)	{	return( true );	}
+//---------------------------------------------------------
+bool CKriging_Ordinary_Global::Get_Value(double x, double y, double &z, double &v)
+{
+	int		i, j, n;
+	double	Lambda;
 
-	virtual bool			Get_Value				(double x, double y, double &z, double &Variance)	= 0;
+	//-----------------------------------------------------
+	if(	(n = m_Points.Get_Count()) > 0 )
+	{
+		for(i=0; i<n; i++)
+		{
+			if( !m_bBlock )
+			{
+				m_G[i]	=	Get_Weight(x - m_Points[i].x, y - m_Points[i].y);
+			}
+			else
+			{
+				m_G[i]	= (	Get_Weight((x          ) - m_Points[i].x, (y          ) - m_Points[i].y)
+						+	Get_Weight((x + m_Block) - m_Points[i].x, (y + m_Block) - m_Points[i].y)
+						+	Get_Weight((x + m_Block) - m_Points[i].x, (y - m_Block) - m_Points[i].y)
+						+	Get_Weight((x - m_Block) - m_Points[i].x, (y + m_Block) - m_Points[i].y)
+						+	Get_Weight((x - m_Block) - m_Points[i].x, (y - m_Block) - m_Points[i].y) ) / 5.0;
+			}
+		}
 
-	double					Get_Weight				(double d);
-	double					Get_Weight				(double dx, double dy);
+		m_G[n]	= 1.0;
+
+		//-------------------------------------------------
+		for(i=0, z=0.0, v=0.0; i<n; i++)
+		{
+			for(j=0, Lambda=0.0; j<=n; j++)
+			{
+				Lambda	+= m_W[i][j] * m_G[j];
+			}
+
+			z	+= Lambda * m_Points[i].z;
+			v	+= Lambda * m_G[i];
+		}
+
+		//-------------------------------------------------
+		return( true );
+	}
+
+	return( false );
+}
 
 
-private:
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-	CSG_Trend				m_Variogram;
+//---------------------------------------------------------
+bool CKriging_Ordinary_Global::Get_Weights(void)
+{
+	int		i, j, n;
 
-	CSG_Grid				*m_pGrid, *m_pVariance;
+	//-----------------------------------------------------
+	for(i=0; i<m_pPoints->Get_Count(); i++)
+	{
+		CSG_Shape	*pPoint	= m_pPoints->Get_Shape(i);
 
+		m_Points.Add(
+			pPoint->Get_Point(0).x,
+			pPoint->Get_Point(0).y,
+			pPoint->Get_Record()->asDouble(m_zField)
+		);
+	}
 
-	bool					_Initialise				(void);
-	bool					_Initialise_Grids		(void);
-	bool					_Finalise				(void);
+	//-----------------------------------------------------
+	if( (n = m_Points.Get_Count()) > 4 )
+	{
+		m_G	.Create(n + 1);
+		m_W	.Create(n + 1, n + 1);
 
-	bool					_Interpolate			(void);
+		for(i=0; i<n; i++)
+		{
+			m_W[i][i]	= 0.0;				// diagonal...
+			m_W[i][n]	= m_W[n][i]	= 1.0;	// edge...
 
-	bool					_Get_Variances			(void);
-	bool					_Get_Differences		(CSG_Table *pTable, int zField, int nSkip, double maxDist);
+			for(j=i+1; j<n; j++)
+			{
+				m_W[i][j]	= m_W[j][i]	= Get_Weight(
+					m_Points[i].x - m_Points[j].x,
+					m_Points[i].y - m_Points[j].y
+				);
+			}
+		}
 
+		m_W[n][n]	= 0.0;
 
-private:
+		return( m_W.Set_Inverse(false) );
+	}
 
-	int						m_nPoints_Min, m_nPoints_Max;
-
-	double					m_Radius;
-
-
-	int						Get_Weights				(double x, double y);
-
-};
-
-#endif // #ifndef HEADER_INCLUDED__kriging_base_H
+	return( false );
+}
 
 
 ///////////////////////////////////////////////////////////
