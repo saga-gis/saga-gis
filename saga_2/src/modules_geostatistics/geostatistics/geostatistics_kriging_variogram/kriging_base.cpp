@@ -161,12 +161,6 @@ CKriging_Base::CKriging_Base(void)
 		PARAMETER_TYPE_Double, 100.0, 0.0, true
 	);
 
-	pNode	= pParameters->Add_Value(
-		NULL	, "FIT_EXTENT"	, _TL("Fit Extent"),
-		_TL("Automatically fits the grid to the shapes layers extent."),
-		PARAMETER_TYPE_Bool		, true
-	);
-
 	pParameters->Add_Range(
 		pNode	, "X_EXTENT"	, _TL("X-Extent"),
 		_TL("")
@@ -224,14 +218,13 @@ bool CKriging_Base::On_Execute(void)
 
 	if( _Initialise() && _Get_Variances() )
 	{
-		if( m_Variogram.Set_Formula(SG_T("a + b * x")) && m_Variogram.Get_Trend() && On_Initialise() )
-		{
-			CVariogram_Dialog	dlg(&m_Variogram);
+		m_Variogram.Set_Data(m_Variances);
 
-			if( dlg.ShowModal() == wxID_OK )
-			{
-				bResult	= _Interpolate();
-			}
+		CVariogram_Dialog	dlg(&m_Variogram, &m_Variances);
+
+		if( dlg.ShowModal() == wxID_OK && m_Variogram.is_Okay() && On_Initialise() )
+		{
+			bResult	= _Interpolate();
 		}
 	}
 
@@ -272,6 +265,9 @@ bool CKriging_Base::_Initialise(void)
 //---------------------------------------------------------
 bool CKriging_Base::_Initialise_Grids(void)
 {
+	TSG_Rect		r;
+	CSG_Parameters	*P;
+
 	//-----------------------------------------------------
 	m_pGrid		= NULL;
 	m_pVariance	= NULL;
@@ -280,26 +276,28 @@ bool CKriging_Base::_Initialise_Grids(void)
 	switch( Parameters("TARGET")->asInt() )
 	{
 	case 0:	// user defined...
+		r	= m_pPoints->Get_Extent();
+		P	= Get_Parameters("USER");
+
+		P->Get_Parameter("X_EXTENT")->asRange()->Set_LoVal(r.xMin);
+		P->Get_Parameter("Y_EXTENT")->asRange()->Set_LoVal(r.yMin);
+		P->Get_Parameter("X_EXTENT")->asRange()->Set_HiVal(r.xMax);
+		P->Get_Parameter("Y_EXTENT")->asRange()->Set_HiVal(r.yMax);
+
 		if( Dlg_Parameters("USER") )
 		{
-			TSG_Rect		Extent	= m_pPoints->Get_Extent();
-			CSG_Parameters	*P		= Get_Parameters("USER");
-
-			if( !P->Get_Parameter("FIT_EXTENT")->asBool() )
-			{
-				Extent.xMin	= P->Get_Parameter("X_EXTENT")->asRange()->Get_LoVal();
-				Extent.yMin	= P->Get_Parameter("Y_EXTENT")->asRange()->Get_LoVal();
-				Extent.xMax	= P->Get_Parameter("X_EXTENT")->asRange()->Get_HiVal();
-				Extent.yMax	= P->Get_Parameter("Y_EXTENT")->asRange()->Get_HiVal();
-			}
+			r.xMin	= P->Get_Parameter("X_EXTENT")->asRange()->Get_LoVal();
+			r.yMin	= P->Get_Parameter("Y_EXTENT")->asRange()->Get_LoVal();
+			r.xMax	= P->Get_Parameter("X_EXTENT")->asRange()->Get_HiVal();
+			r.yMax	= P->Get_Parameter("Y_EXTENT")->asRange()->Get_HiVal();
 
 			double	d	= P->Get_Parameter("CELL_SIZE")->asDouble();
-			int		nx	= 1 + (int)((Extent.xMax - Extent.xMin) / d);
-			int		ny	= 1 + (int)((Extent.yMax - Extent.yMin) / d);
+			int		nx	= 1 + (int)((r.xMax - r.xMin) / d);
+			int		ny	= 1 + (int)((r.yMax - r.yMin) / d);
 
 			if( nx > 1 && ny > 1 )
 			{
-				m_pGrid	= SG_Create_Grid(GRID_TYPE_Float, nx, ny, d, Extent.xMin, Extent.yMin);
+				m_pGrid	= SG_Create_Grid(GRID_TYPE_Float, nx, ny, d, r.xMin, r.yMin);
 			}
 		}
 		break;
@@ -356,6 +354,7 @@ bool CKriging_Base::_Finalise(void)
 	m_G			.Destroy();
 	m_W			.Destroy();
 	m_Variogram	.Clr_Data();
+	m_Variances	.Clear();
 
 	return( true );
 }
@@ -471,7 +470,7 @@ bool CKriging_Base::_Get_Variances(void)
 	{
 		Differences.Set_Index(DIF_FIELD_DISTANCE, TABLE_INDEX_Up);
 
-		m_Variogram	.Clr_Data();
+		m_Variances	.Clear();
 
 		//-----------------------------------------------------
 		iDist		= 0.0;
@@ -492,7 +491,7 @@ bool CKriging_Base::_Get_Variances(void)
 					zVarS	+= zVar;
 					nVarS	+= nVar;
 
-					m_Variogram.Add_Data(iDist, 0.5 * zVarS / (double)nVarS);
+					m_Variances.Add(iDist, 0.5 * zVarS / (double)nVarS);
 				}
 
 				zVar		= 0.0;

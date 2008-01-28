@@ -91,6 +91,8 @@
 #endif
 
 #include <wx/dc.h>
+#include <wx/slider.h>
+#include <wx/spinctrl.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -138,6 +140,66 @@ SGUI_API_DLL_EXPORT void	Draw_Text	(wxDC &dc, int Align, int x, int y, const wxS
 SGUI_API_DLL_EXPORT void	Draw_Text	(wxDC &dc, int Align, int x, int y, double Angle, const wxString &Text);
 
 SGUI_API_DLL_EXPORT bool	Draw_Ruler	(wxDC &dc, const wxRect &r, bool bHorizontal, double zMin, double zMax, bool bAscendent = true, int FontSize = 7, const wxColour &Colour = wxColour(127, 127, 127));
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SGUI_API_DLL_EXPORT CSGUI_Slider : public wxSlider
+{
+public:
+	CSGUI_Slider(wxWindow *pParent, int ID, double Value, double minValue, double maxValue, const wxPoint &Point = wxDefaultPosition, const wxSize &Size = wxDefaultSize, long Style = wxSL_HORIZONTAL);
+	virtual ~CSGUI_Slider(void);
+
+	bool				Set_Value			(double Value);
+	double				Get_Value			(void);
+
+	double				Get_Min				(void)	{	return( m_Min );	}
+	double				Get_Max				(void)	{	return( m_Max );	}
+	double				Get_Range			(void)	{	return( m_Max - m_Min );	}
+	bool				Set_Range			(double minValue, double maxValue);
+
+
+private:
+
+	double				m_Min, m_Max;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SGUI_API_DLL_EXPORT CSGUI_SpinCtrl : public wxSpinCtrl
+{
+public:
+	CSGUI_SpinCtrl(wxWindow *pParent, int ID, double Value, double minValue, double maxValue, bool bPercent = false, const wxPoint &Point = wxDefaultPosition, const wxSize &Size = wxDefaultSize, long Style = wxSP_ARROW_KEYS);
+	virtual ~CSGUI_SpinCtrl(void);
+
+	bool				Set_Value			(double Value);
+	double				Get_Value			(void);
+
+	double				Get_Min				(void)	{	return( m_Min );	}
+	double				Get_Max				(void)	{	return( m_Max );	}
+	double				Get_Range			(void)	{	return( m_Max - m_Min );	}
+	bool				Set_Range			(double minValue, double maxValue);
+
+
+private:
+
+	bool				m_bPercent;
+
+	double				m_Min, m_Max;
+
+};
 
 
 ///////////////////////////////////////////////////////////

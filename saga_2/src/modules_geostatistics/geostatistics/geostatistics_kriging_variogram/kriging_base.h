@@ -117,6 +117,8 @@ protected:
 
 private:
 
+	CSG_Points				m_Variances;
+
 	CSG_Trend				m_Variogram;
 
 	CSG_Grid				*m_pGrid, *m_pVariance;

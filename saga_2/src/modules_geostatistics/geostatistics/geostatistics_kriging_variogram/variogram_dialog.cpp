@@ -73,11 +73,15 @@
 class CVariogram_Diagram : public CSGUI_Diagram
 {
 public:
-	CVariogram_Diagram(wxWindow *pParent, CSG_Trend *pVariogram);
+	CVariogram_Diagram(wxWindow *pParent, CSG_Trend *pVariogram, CSG_Points *pVariances);
 	virtual ~CVariogram_Diagram(void)	{}
 
+	CSG_Points					*m_pVariances;
 
 	CSG_Trend					*m_pVariogram;
+
+
+	void						Set_Distance			(double d = -1.0);
 
 
 private:
@@ -94,53 +98,67 @@ BEGIN_EVENT_TABLE(CVariogram_Diagram, CSGUI_Diagram)
 END_EVENT_TABLE()
 
 //---------------------------------------------------------
-CVariogram_Diagram::CVariogram_Diagram(wxWindow *pParent, CSG_Trend *pVariogram)
+CVariogram_Diagram::CVariogram_Diagram(wxWindow *pParent, CSG_Trend *pVariogram, CSG_Points *pVariances)
 	: CSGUI_Diagram(pParent)
 {
 	m_pVariogram	= pVariogram;
+	m_pVariances	= pVariances;
+
 	m_xName			= _TL("Distance"); 
 	m_yName			= _TL("Semi-Variance"); 
 
+	//-----------------------------------------------------
+	m_pVariogram->Set_Data(*m_pVariances);
+
 	if( m_pVariogram->Get_Data_Count() > 1 )
 	{
-		m_xMin	= m_xMax	= m_pVariogram->Get_Data_X(0);
-		m_yMin	= m_yMax	= m_pVariogram->Get_Data_Y(0);
-
-		for(int i=0; i<m_pVariogram->Get_Data_Count(); i++)
-		{
-			double	d;
-
-			d	= m_pVariogram->Get_Data_X(i);
-			if( d < m_xMin )	m_xMin	= d;	else if( d > m_xMax )	m_xMax	= d;
-
-			d	= m_pVariogram->Get_Data_Y(i);
-			if( d < m_yMin )	m_yMin	= d;	else if( d > m_yMax )	m_yMax	= d;
-		}
-
 		m_xMin	= m_yMin	= 0.0;
-		m_xMax	+= 0.02 * m_xMax;
-		m_yMax	+= 0.02 * m_yMax;
+		m_xMax	= (1.0 + 0.02) * m_pVariogram->Get_Data_XMax();
+		m_yMax	= (1.0 + 0.02) * m_pVariogram->Get_Data_YMax();
+	}
+}
+
+//---------------------------------------------------------
+void CVariogram_Diagram::Set_Distance(double d)
+{
+	m_pVariogram->Clr_Data();
+
+	for(int i=0; i<m_pVariances->Get_Count(); i++)
+	{
+		if( m_pVariances->Get_X(i) <= d )
+		{
+			m_pVariogram->Add_Data(m_pVariances->Get_X(i), m_pVariances->Get_Y(i));
+		}
 	}
 }
 
 //---------------------------------------------------------
 void CVariogram_Diagram::On_Draw(wxDC &dc, wxRect rDraw)
 {
-	if( m_pVariogram->Get_Data_Count() > 1 )
+	if( m_pVariances->Get_Count() > 0 )
 	{
 		int		i, ix, iy, jx, jy;
 		double	x, dx;
 
 		//-------------------------------------------------
-		dc.SetPen  (*wxWHITE_PEN);
+		if( m_pVariogram->Get_Data_Count() > 0 )
+		{
+			ix	= Get_xToScreen(m_pVariogram->Get_Data_XMax());
+			dc.SetPen  (wxPen(wxColour(  0, 127,   0), 2));
+			dc.DrawLine(ix, Get_yToScreen(m_yMin), ix, Get_yToScreen(m_yMax));
+		}
+
+		//-------------------------------------------------
+	//	dc.SetPen  (*wxWHITE_PEN);
+		dc.SetPen  (wxColour(127, 127, 127));
 		dc.SetBrush(*wxBLACK_BRUSH);
 
-		for(i=0; i<m_pVariogram->Get_Data_Count(); i++)
+		for(i=0; i<m_pVariances->Get_Count(); i++)
 		{
-			ix	= Get_xToScreen(m_pVariogram->Get_Data_X(i));
-			iy	= Get_yToScreen(m_pVariogram->Get_Data_Y(i));
+			ix	= Get_xToScreen(m_pVariances->Get_X(i));
+			iy	= Get_yToScreen(m_pVariances->Get_Y(i));
 
-			dc.DrawCircle(ix, iy, 4);
+			dc.DrawCircle(ix, iy, 3);
 		}
 
 		//-------------------------------------------------
@@ -177,12 +195,16 @@ void CVariogram_Diagram::On_Draw(wxDC &dc, wxRect rDraw)
 BEGIN_EVENT_TABLE(CVariogram_Dialog, CSGUI_Dialog)
 	EVT_CHOICE		(wxID_ANY	, CVariogram_Dialog::On_Update_Choices)
 	EVT_TEXT_ENTER	(wxID_ANY	, CVariogram_Dialog::On_Update_Text)
+//	EVT_SPINCTRL	(wxID_ANY	, CVariogram_Dialog::On_Update_SpinCtrl)
+	EVT_SLIDER		(wxID_ANY	, CVariogram_Dialog::On_Update_Text)
 END_EVENT_TABLE()
 
 //---------------------------------------------------------
-CVariogram_Dialog::CVariogram_Dialog(CSG_Trend *pVariogram)
+CVariogram_Dialog::CVariogram_Dialog(CSG_Trend *pVariogram, CSG_Points *pVariances)
 	: CSGUI_Dialog(_TL("Semi-Variogram"))
 {
+	int				i;
+	double			Distance;
 	wxArrayString	Formulas;
 
 	Formulas.Empty();
@@ -197,19 +219,31 @@ CVariogram_Dialog::CVariogram_Dialog(CSG_Trend *pVariogram)
 	Formulas.Add(SG_T("a * (1 - exp(-(abs(x) / b)^2))"));
 
 	//-----------------------------------------------------
+	for(i=0, Distance=0.0; i<pVariances->Get_Count(); i++)
+	{
+		if( Distance < pVariances->Get_X(i) )
+		{
+			Distance	= pVariances->Get_X(i);
+		}
+	}
+
+	//-----------------------------------------------------
 	Add_Button(_TL("Ok")		, wxID_OK);
 	Add_Button(_TL("Cancel")	, wxID_CANCEL);
 
 	Add_Spacer();
-
 	m_pFormulas		= Add_Choice(_TL("Predefined Functions"), Formulas, 0);
 
 	Add_Spacer();
+//	m_pDistance		= Add_SpinCtrl(_TL("Function Fitting Range"), Distance, 0.0, Distance);
+	m_pDistance		= Add_Slider(_TL("Function Fitting Range"), Distance, 0.0, Distance);
 
+	Add_Spacer();
 	m_pParameters	= Add_TextCtrl(_TL("Function Parameters"), wxTE_MULTILINE|wxTE_READONLY);
 
+	//-----------------------------------------------------
 	Add_Output(
-		m_pDiagram = new CVariogram_Diagram(this, pVariogram),
+		m_pDiagram = new CVariogram_Diagram(this, pVariogram, pVariances),
 		m_pFormula = new wxTextCtrl(this, wxID_ANY, Formulas[0], wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER),
 		1, 0
 	);
@@ -237,8 +271,16 @@ void CVariogram_Dialog::On_Update_Text(wxCommandEvent &WXUNUSED(event))
 }
 
 //---------------------------------------------------------
+void CVariogram_Dialog::On_Update_SpinCtrl(wxSpinEvent &WXUNUSED(event))
+{
+	Fit_Function();
+}
+
+//---------------------------------------------------------
 void CVariogram_Dialog::Fit_Function(void)
 {
+	m_pDiagram->Set_Distance(m_pDistance->Get_Value());
+
 	if(	!m_pDiagram->m_pVariogram->Set_Formula(m_pFormula->GetValue().c_str()) )
 	{
 		m_pParameters->SetValue(_TL("Invalid formula !!!"));
@@ -250,8 +292,9 @@ void CVariogram_Dialog::Fit_Function(void)
 	else
 	{
 		m_pParameters->SetValue(m_pDiagram->m_pVariogram->Get_Formula().c_str());
-		m_pDiagram->Refresh();
 	}
+
+	m_pDiagram->Refresh(true);
 }
 
 

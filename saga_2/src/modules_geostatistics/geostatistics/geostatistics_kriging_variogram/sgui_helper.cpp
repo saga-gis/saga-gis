@@ -251,3 +251,157 @@ bool		Draw_Ruler(wxDC &dc, const wxRect &r, bool bHorizontal, double zMin, doubl
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define SLIDER_RANGE	100
+
+//---------------------------------------------------------
+CSGUI_Slider::CSGUI_Slider(wxWindow *pParent, int ID, double Value, double minValue, double maxValue, const wxPoint &Point, const wxSize &Size, long Style)
+	: wxSlider(pParent, ID, 0, 0, SLIDER_RANGE, Point, Size, Style)
+{
+	Set_Range(minValue, maxValue);
+
+	Set_Value(Value);
+
+	SetTickFreq(SLIDER_RANGE / 10, 0);
+}
+
+//---------------------------------------------------------
+CSGUI_Slider::~CSGUI_Slider(void)
+{}
+
+//---------------------------------------------------------
+bool CSGUI_Slider::Set_Value(double Value)
+{
+	int		Position	= (int)((double)SLIDER_RANGE * (Value - m_Min) / (m_Max - m_Min));
+
+	if( Position <= 0 )
+	{
+		SetValue(0);
+	}
+	else if( Position >= SLIDER_RANGE )
+	{
+		SetValue(SLIDER_RANGE);
+	}
+	else
+	{
+		SetValue(Position);
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+double CSGUI_Slider::Get_Value(void)
+{
+	return( m_Min + GetValue() * (m_Max - m_Min) / (double)SLIDER_RANGE );
+}
+
+//---------------------------------------------------------
+bool CSGUI_Slider::Set_Range(double minValue, double maxValue)
+{
+	if( maxValue == minValue )
+	{
+		minValue	= 0.0;
+		maxValue	= 1.0;
+	}
+
+	m_Min	= minValue;
+	m_Max	= maxValue;
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSGUI_SpinCtrl::CSGUI_SpinCtrl(wxWindow *pParent, int ID, double Value, double minValue, double maxValue, bool bPercent, const wxPoint &Point, const wxSize &Size, long Style)
+	: wxSpinCtrl(pParent, ID, wxEmptyString, Point, Size, Style, bPercent ? 0 : (int)minValue, bPercent ? 100 : (int)maxValue)
+{
+	m_bPercent	= bPercent;
+
+	Set_Range(minValue, maxValue);
+
+	Set_Value(Value);
+}
+
+//---------------------------------------------------------
+CSGUI_SpinCtrl::~CSGUI_SpinCtrl(void)
+{}
+
+//---------------------------------------------------------
+bool CSGUI_SpinCtrl::Set_Value(double Value)
+{
+	if( m_bPercent )
+	{
+		int		Position	= (int)((double)SLIDER_RANGE * (Value - m_Min) / (m_Max - m_Min));
+
+		if( Position <= 0 )
+		{
+			SetValue(0);
+		}
+		else if( Position >= SLIDER_RANGE )
+		{
+			SetValue(SLIDER_RANGE);
+		}
+		else
+		{
+			SetValue(Position);
+		}
+	}
+	else
+	{
+		if( Value <= m_Min )
+		{
+			SetValue(m_Min);
+		}
+		else if( Value >= m_Max )
+		{
+			SetValue(m_Max);
+		}
+		else
+		{
+			SetValue(Value);
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+double CSGUI_SpinCtrl::Get_Value(void)
+{
+	if( m_bPercent )
+	{
+		return( m_Min + GetValue() * (m_Max - m_Min) / (double)SLIDER_RANGE );
+	}
+
+	return( GetValue() );
+}
+
+//---------------------------------------------------------
+bool CSGUI_SpinCtrl::Set_Range(double minValue, double maxValue)
+{
+	if( maxValue == minValue )
+	{
+		minValue	= 0.0;
+		maxValue	= 1.0;
+	}
+
+	m_Min	= minValue;
+	m_Max	= maxValue;
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

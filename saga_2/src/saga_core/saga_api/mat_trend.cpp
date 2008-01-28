@@ -475,7 +475,7 @@ CSG_String CSG_Trend::Get_Formula(int Type)
 		}
 
 		s	+= CSG_String::Format(SG_T("N = %d\n") , Get_Data_Count());
-		s	+= CSG_String::Format(SG_T("R2 = %g\n"), Get_R2());
+		s	+= CSG_String::Format(SG_T("R2 = %g\n"), Get_R2() * 100.0);
 		break;
 	}
 

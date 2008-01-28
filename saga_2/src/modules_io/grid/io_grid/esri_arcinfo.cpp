@@ -247,6 +247,8 @@ bool CESRI_ArcInfo_Import::Read_Line(FILE *Stream, CSG_String &sLine)
 //---------------------------------------------------------
 bool CESRI_ArcInfo_Import::Read_Value(const CSG_String &sKey, CSG_String &sLine, int &Value)
 {
+	sLine.Make_Upper();
+
 	if( sLine.Contains(sKey) )
 	{
 		CSG_String	sValue(sLine.c_str() + sKey.Length());
@@ -260,6 +262,8 @@ bool CESRI_ArcInfo_Import::Read_Value(const CSG_String &sKey, CSG_String &sLine,
 //---------------------------------------------------------
 bool CESRI_ArcInfo_Import::Read_Value(const CSG_String &sKey, CSG_String &sLine, double &Value)
 {
+	sLine.Make_Upper();
+
 	if( sLine.Contains(sKey) )
 	{
 		CSG_String	sValue(sLine.c_str() + sKey.Length());
@@ -275,7 +279,7 @@ CSG_Grid * CESRI_ArcInfo_Import::Read_Header(FILE *Stream)
 {
 	bool		bCorner_X, bCorner_Y;
 	int			NX, NY;
-	double		CellSize, xMin, yMin, NoData;
+	double		CellSize, xMin, yMin, NoData	= -9999.0;
 	CSG_String	sLine;
 	CSG_Grid	*pGrid;
 
@@ -324,7 +328,8 @@ CSG_Grid * CESRI_ArcInfo_Import::Read_Header(FILE *Stream)
 		Read_Line(Stream, sLine);
 
 		if( !Read_Value(HDR_NODATA  , sLine, NoData) )
-			return( NULL );
+		//	return( NULL );
+			;
 
 		//-------------------------------------------------
 		if( bCorner_X )
