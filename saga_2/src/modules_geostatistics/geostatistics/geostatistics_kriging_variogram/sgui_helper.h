@@ -69,12 +69,19 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifdef SGUI_API_EXPORTS
-	#define	SGUI_API_DLL_EXPORT		__declspec( dllexport )
+#include "MLB_Interface.h"
+
+#ifdef geostatistics_kriging_variogram_EXPORTS
+	#define	SGUI_API_DLL_EXPORT		_SAGA_DLL_EXPORT
 #else
-//	#define	SGUI_API_DLL_EXPORT		__declspec( dllimport )
-	#define	SGUI_API_DLL_EXPORT		
+	#define	SGUI_API_DLL_EXPORT		_SAGA_DLL_IMPORT
 #endif
+
+// #ifdef SGUI_API_EXPORTS
+// 	#define	SGUI_API_DLL_EXPORT		__declspec( dllexport )
+// #else
+// 	#define	SGUI_API_DLL_EXPORT		__declspec( dllimport )
+// #endif
 
 
 ///////////////////////////////////////////////////////////
@@ -91,8 +98,13 @@
 #endif
 
 #include <wx/dc.h>
+#include <wx/button.h>
+#include <wx/choice.h>
+#include <wx/checkbox.h>
+#include <wx/textctrl.h>
 #include <wx/slider.h>
 #include <wx/spinctrl.h>
+#include <wx/dialog.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -102,13 +114,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SGUI_CTRL_WIDTH			100
-#define SGUI_CTRL_SPACE			10
-#define SGUI_CTRL_SMALLSPACE	2
+#define SGUI_CTRL_WIDTH				100
+#define SGUI_CTRL_SPACE				10
+#define SGUI_CTRL_SMALLSPACE		2
 
-#define SGUI_BTN_HEIGHT			25
-#define SGUI_BTN_WIDTH			SGUI_CTRL_WIDTH
-#define SGUI_BTN_SIZE			wxSize(SGUI_BTN_WIDTH, SGUI_BTN_HEIGHT)
+#define SGUI_BTN_HEIGHT				25
+#define SGUI_BTN_WIDTH				SGUI_CTRL_WIDTH
+#define SGUI_BTN_SIZE				wxSize(SGUI_BTN_WIDTH, SGUI_BTN_HEIGHT)
 
 
 ///////////////////////////////////////////////////////////

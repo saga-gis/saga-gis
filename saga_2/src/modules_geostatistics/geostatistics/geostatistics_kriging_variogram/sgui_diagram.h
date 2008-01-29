@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSGUI_Diagram : public wxPanel
+class SGUI_API_DLL_EXPORT CSGUI_Diagram : public wxPanel
 {
 public:
 	CSGUI_Diagram(wxWindow *pParent);

@@ -225,6 +225,10 @@ SOURCE=.\shapes_split.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\shapes_split_randomly.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ShapeSearchSelector.cpp
 # End Source File
 # Begin Source File
@@ -318,6 +322,10 @@ SOURCE=.\Shapes_Report.h
 # Begin Source File
 
 SOURCE=.\shapes_split.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\shapes_split_randomly.h
 # End Source File
 # Begin Source File
 

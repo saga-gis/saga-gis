@@ -598,16 +598,18 @@ int CSG_Formula::Del_Function(SG_Char *name)
 
 	free(gSG_Functions[place].name);
 
-	for(TSG_Formula_Item *scan=&gSG_Functions[place]; scan->f!=NULL; scan++)
+	TSG_Formula_Item	*pFunction;
+
+	for(pFunction=&gSG_Functions[place]; pFunction->f!=NULL; pFunction++)
 	{
-		scan->name		= (scan + 1)->name;
-		scan->f			= (scan + 1)->f;
-		scan->n_pars	= (scan + 1)->n_pars;
+		pFunction->name		= (pFunction + 1)->name;
+		pFunction->f		= (pFunction + 1)->f;
+		pFunction->n_pars	= (pFunction + 1)->n_pars;
 	}
 
 	_Set_Error();
 
-	return( scan - gSG_Functions );
+	return( pFunction - gSG_Functions );
 }
 
 //---------------------------------------------------------

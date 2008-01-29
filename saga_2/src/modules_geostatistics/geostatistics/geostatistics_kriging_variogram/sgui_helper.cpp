@@ -180,8 +180,8 @@ void		Draw_Text(wxDC &dc, int Align, int x, int y, double Angle, const wxString 
 //---------------------------------------------------------
 bool		Draw_Ruler(wxDC &dc, const wxRect &r, bool bHorizontal, double zMin, double zMax, bool bAscendent, int FontSize, const wxColour &Colour)
 {
-	int			xMin, xMax, yMin, yMax, Decimals, dxFont, dyFont;
-	double		Width, z, dz, zToDC, zDC, zPos;
+	int			xMin, xMax, yMin, yMax, Decimals, dxFont, dyFont, zPos;
+	double		Width, z, dz, zToDC, zDC;
 	wxString	s;
 
 	//-----------------------------------------------------
@@ -225,13 +225,13 @@ bool		Draw_Ruler(wxDC &dc, const wxRect &r, bool bHorizontal, double zMin, doubl
 
 			if( bHorizontal )
 			{
-				zPos	= xMin + zDC;
+				zPos	= (int)(xMin + zDC);
 				dc.DrawLine(zPos, yMin, zPos, yMax);
 				dc.DrawText(s, zPos + dxFont, yMin - dyFont);
 			}
 			else
 			{
-				zPos	= yMin - zDC;
+				zPos	= (int)(yMin - zDC);
 				dc.DrawLine(xMin, zPos, xMax, zPos);
 				dc.DrawText(s, xMin + dxFont, zPos - dyFont);
 			}
@@ -356,15 +356,15 @@ bool CSGUI_SpinCtrl::Set_Value(double Value)
 	{
 		if( Value <= m_Min )
 		{
-			SetValue(m_Min);
+			SetValue((int)m_Min);
 		}
 		else if( Value >= m_Max )
 		{
-			SetValue(m_Max);
+			SetValue((int)m_Max);
 		}
 		else
 		{
-			SetValue(Value);
+			SetValue((int)Value);
 		}
 	}
 

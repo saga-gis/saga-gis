@@ -111,6 +111,7 @@ const SG_Char * Get_Info(int i)
 #include "shapes_cut.h"
 #include "shapes_cut_interactive.h"
 #include "shapes_split.h"
+#include "shapes_split_randomly.h"
 
 
 //---------------------------------------------------------
@@ -137,6 +138,7 @@ CSG_Module *		Create_Module(int i)
 	case 14:	return( new CShapes_Cut );
 	case 15:	return( new CShapes_Cut_Interactive );
 	case 16:	return( new CShapes_Split );
+	case 17:	return( new CShapes_Split_Randomly );
 	}
 
 	return( NULL );

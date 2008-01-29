@@ -634,7 +634,10 @@ bool CSG_Table::_Del_Record(int iRecord)
 			m_Records[i]->m_Index	= i;
 		}
 
-		m_Records	= (CSG_Table_Record **)SG_Realloc(m_Records, m_nRecords * sizeof(CSG_Table_Record *));
+		if( (m_nRecords % GET_GROW_SIZE(m_nRecords)) == 0 )
+		{
+			m_Records	= (CSG_Table_Record **)SG_Realloc(m_Records, (m_nRecords + GET_GROW_SIZE(m_nRecords)) * sizeof(CSG_Table_Record *));
+		}
 
 		if( is_Indexed() )
 		{

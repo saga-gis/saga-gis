@@ -108,6 +108,14 @@ make -fmakefile.mingw
 POPD
 
 ECHO ###################################
+ECHO geostatistics_kriging_variogram
+ECHO -----------------------------------
+
+PUSHD .\modules_geostatistics\geostatistics\geostatistics_kriging_variogram
+make -fmakefile.mingw
+POPD
+
+ECHO ###################################
 ECHO geostatistics_points
 ECHO -----------------------------------
 
