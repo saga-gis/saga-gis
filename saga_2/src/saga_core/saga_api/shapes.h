@@ -448,9 +448,9 @@ public:
 	CSG_Shape *					Get_Selection			(int Index = 0);
 	const CSG_Rect &			Get_Selection_Extent	(void);
 
-	bool						Select					(TSG_Rect Extent		, bool bInvert = false);
-	bool						Select					(int iShape				, bool bInvert = false);
-	bool						Select					(CSG_Shape *pShape = NULL	, bool bInvert = false);
+	bool						Select					(TSG_Rect Extent         , bool bAdd = false);
+	bool						Select					(int iShape              , bool bAdd = false);
+	bool						Select					(CSG_Shape *pShape = NULL, bool bAdd = false);
 
 	int							Del_Selection			(void);
 	int							Inv_Selection			(void);

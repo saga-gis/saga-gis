@@ -97,21 +97,21 @@ CSG_Shape * CSG_Shapes::Get_Selection(int Index)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Shapes::Select(int iShape, bool bInvert)
+bool CSG_Shapes::Select(int iShape, bool bAdd)
 {
-	return( m_Table.Select(iShape, bInvert) );
+	return( m_Table.Select(iShape, bAdd) );
 }
 
 //---------------------------------------------------------
-bool CSG_Shapes::Select(CSG_Shape *pShape, bool bInvert)
+bool CSG_Shapes::Select(CSG_Shape *pShape, bool bAdd)
 {
-	return( m_Table.Select(pShape ? pShape->Get_Record() : NULL, bInvert) );
+	return( m_Table.Select(pShape ? pShape->Get_Record() : NULL, bAdd) );
 }
 
 //---------------------------------------------------------
-bool CSG_Shapes::Select(TSG_Rect Extent, bool bInvert)
+bool CSG_Shapes::Select(TSG_Rect Extent, bool bAdd)
 {
-	if( !bInvert )
+	if( !bAdd )
 	{
 		m_Table.Select();
 	}

@@ -183,6 +183,10 @@ SOURCE=.\Points_From_Lines.cpp
 
 SOURCE=.\Points_From_Table.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\remove_duplicates.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -218,6 +222,10 @@ SOURCE=.\Points_From_Lines.h
 # Begin Source File
 
 SOURCE=.\Points_From_Table.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\remove_duplicates.h
 # End Source File
 # End Group
 # Begin Group "Include"
