@@ -190,13 +190,22 @@ CKriging_Base::CKriging_Base(void)
 	pParameters->Add_Grid(
 		pNode	, "GRID"		, _TL("Grid"),
 		_TL(""),
-		PARAMETER_INPUT	, false
+		PARAMETER_OUTPUT, false
 	);
 
 	pParameters->Add_Grid(
 		pNode	, "VARIANCE"	, _TL("Variance"),
 		_TL(""),
-		PARAMETER_INPUT_OPTIONAL, false
+		PARAMETER_OUTPUT_OPTIONAL, false
+	);
+
+	//-----------------------------------------------------
+	pParameters	= Add_Parameters(SG_T("FORMULA"), _TL("Formula"), _TL(""));
+
+	pParameters->Add_String(
+		NULL	, "STRING"		, _TL("Formula String"),
+		_TL(""),
+		SG_T("a + b * x")
 	);
 }
 
@@ -218,13 +227,25 @@ bool CKriging_Base::On_Execute(void)
 
 	if( _Initialise() && _Get_Variances() )
 	{
-		m_Variogram.Set_Data(m_Variances);
+		m_Variogram.Set_Data	(m_Variances);
+		m_Variogram.Set_Formula	(Get_Parameters("FORMULA")->Get_Parameter("STRING")->asString());
 
-		CVariogram_Dialog	dlg(&m_Variogram, &m_Variances);
+		if( SG_UI_Get_Window_Main() )
+		{
+			CVariogram_Dialog	dlg(&m_Variogram, &m_Variances);
 
-		if( dlg.ShowModal() == wxID_OK && m_Variogram.is_Okay() && On_Initialise() )
+			bResult	= dlg.ShowModal() == wxID_OK;
+		}
+		else
+		{
+			bResult	= m_Variogram.Get_Trend();
+		}
+
+		if( bResult && m_Variogram.is_Okay() && On_Initialise() )
 		{
 			bResult	= _Interpolate();
+
+			Get_Parameters("FORMULA")->Get_Parameter("STRING")->Set_Value(m_Variogram.Get_Formula(SG_TREND_STRING_Formula));
 		}
 	}
 
@@ -403,32 +424,6 @@ bool CKriging_Base::_Interpolate(void)
 	}
 
 	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-double CKriging_Base::Get_Weight(double d)
-{
-	if( d > 0.0 )
-	{
-		d	= m_Variogram.Get_Value(d);
-
-		return( d > 0.0 ? d : 0.000001 );
-	}
-
-	return( 0.000001 );
-}
-
-//---------------------------------------------------------
-double CKriging_Base::Get_Weight(double dx, double dy)
-{
-	return( Get_Weight(sqrt(dx*dx + dy*dy)) );
 }
 
 

@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: wksp_module_manager.cpp,v 1.14 2008-01-21 08:48:16 oconrad Exp $
+// $Id: wksp_module_manager.cpp,v 1.15 2008-02-01 14:33:59 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -196,6 +196,7 @@ wxMenu * CWKSP_Module_Manager::Get_Menu(void)
 	if( Get_Count() > 0 )
 	{
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MODULES_SAVE_HTML);
 	}
 
 	return( pMenu );
@@ -221,6 +222,7 @@ bool CWKSP_Module_Manager::On_Command(int Cmd_ID)
 		break;
 
 	case WXK_F2:
+	case ID_CMD_MODULES_SAVE_HTML:
 		_Make_HTML_Docs();
 		break;
 
@@ -502,13 +504,22 @@ CWKSP_Module * CWKSP_Module_Manager::Get_Module_byID(int CMD_ID)
 void CWKSP_Module_Manager::_Make_HTML_Docs(void)
 {
 	int			i, j;
-	CSG_File	Stream, Stream_Lib;
+	CSG_File	Stream, Stream_Lib, Stream_Libs;
 	wxString	LibName;
 	wxFileName	FileName;
 
 	MSG_General_Add(wxString::Format(wxT("%s..."), LNG("Creating module documentation files")), true, true);
 
-	for(i=0; i<Get_Count(); i++)
+	FileName.Assign		(g_pSAGA->Get_App_Path());
+	FileName.SetName	(wxT("modules"));
+	FileName.SetExt		(wxT("html"));
+
+	if( Stream_Libs.Open(FileName.GetFullPath().c_str(), SG_FILE_W, false) )
+	{
+		Stream_Libs.Printf(wxT("<h1>%s</h1>\n<ul>\n"), LNG("SAGA Module Library Descriptions"));
+	}
+
+	for(i=0; i<Get_Count() && PROGRESSBAR_Set_Position(i, Get_Count()); i++)
 	{
 		FileName.Assign		(Get_Library(i)->Get_File_Name());
 		LibName				= FileName.GetName();
@@ -517,6 +528,11 @@ void CWKSP_Module_Manager::_Make_HTML_Docs(void)
 
 		if( (wxDirExists(FileName.GetPath()) || wxMkdir(FileName.GetPath())) && Stream_Lib.Open(FileName.GetFullPath().c_str(), SG_FILE_W, false) )
 		{
+			if( Stream_Libs.is_Open() )
+			{
+				Stream_Libs.Printf(wxT("<li><a href=\"%s\">%s</a></li>\n"), Get_FilePath_Relative(g_pSAGA->Get_App_Path(), FileName.GetFullPath()).c_str(), Get_Library(i)->Get_Name().c_str());
+			}
+
 			Stream_Lib.Printf(wxT("%s<hr>"), Get_Library(i)->Get_Description().c_str());
 
 			for(j=0; j<Get_Library(i)->Get_Count(); j++)
@@ -536,6 +552,13 @@ void CWKSP_Module_Manager::_Make_HTML_Docs(void)
 			Stream_Lib.Close();
 		}
 	}
+
+	if( Stream_Libs.is_Open() )
+	{
+		Stream_Libs.Printf(wxT("</ul>"));
+	}
+
+	PROCESS_Set_Okay(true);
 
 	MSG_General_Add(LNG("okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
 }

@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Import : public CSG_Module
+class io_grid_image_EXPORT CGrid_Import : public CSG_Module
 {
 public:
 	CGrid_Import(void);

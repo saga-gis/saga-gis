@@ -1116,7 +1116,7 @@ bool CSG_Parameters::Serialize(CSG_File &Stream, bool bSave)
 //---------------------------------------------------------
 bool CSG_Parameters::DataObjects_Check(bool bSilent)
 {
-	bool	bInvalid, bResult	= true;
+	bool		bInvalid, bResult	= true;
 	CSG_String	s;
 
 	//-----------------------------------------------------
@@ -1174,9 +1174,9 @@ bool CSG_Parameters::DataObjects_Create(void)
 	{
 		for(int i=0; i<Get_Count(); i++)
 		{
-			CSG_Data_Object		*pDataObject;
+			CSG_Data_Object	*pDataObject;
 			CSG_Grid_System	*pGrid_System;
-			CSG_Parameter		*p	= m_Parameters[i];
+			CSG_Parameter	*p	= m_Parameters[i];
 
 			if( p->Get_Type() == PARAMETER_TYPE_Parameters )
 			{
@@ -1259,7 +1259,7 @@ bool CSG_Parameters::DataObjects_Synchronize(void)
 					{
 						if( p->asDataObject() )
 						{
-							SG_UI_DataObject_Add		(p->asDataObject(), false);
+							SG_UI_DataObject_Add	(p->asDataObject(), false);
 							SG_UI_DataObject_Update	(p->asDataObject(), false, NULL);
 						}
 					}
@@ -1267,7 +1267,7 @@ bool CSG_Parameters::DataObjects_Synchronize(void)
 					{
 						for(int j=0; j<p->asList()->Get_Count(); j++)
 						{
-							SG_UI_DataObject_Add		(p->asList()->asDataObject(j), false);
+							SG_UI_DataObject_Add	(p->asList()->asDataObject(j), false);
 							SG_UI_DataObject_Update	(p->asList()->asDataObject(j), false, NULL);
 						}
 					}

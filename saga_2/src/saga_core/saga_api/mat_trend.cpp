@@ -448,10 +448,16 @@ CSG_String CSG_Trend::Get_Formula(int Type)
 
 	case SG_TREND_STRING_Function:
 		s	+= m_Formula.Get_Formula().c_str();
+		s	+= SG_T("\n");
 
-		for(i=0; i<m_Params.m_Count && m_bOkay; i++)
+		if( m_Params.m_Count > 0 )
 		{
-			s	+= CSG_String::Format(SG_T("%c = %g\n"), m_Params.m_Variables[i], m_Params.m_A[i]);
+			s	+= SG_T("\n");
+
+			for(i=0; i<m_Params.m_Count && m_bOkay; i++)
+			{
+				s	+= CSG_String::Format(SG_T("%c = %g\n"), m_Params.m_Variables[i], m_Params.m_A[i]);
+			}
 		}
 		break;
 
@@ -459,9 +465,14 @@ CSG_String CSG_Trend::Get_Formula(int Type)
 		s	+= m_Formula.Get_Formula().c_str();
 		s	+= SG_T("\n");
 
-		for(i=0; i<m_Params.m_Count && m_bOkay; i++)
+		if( m_Params.m_Count > 0 )
 		{
-			s	+= CSG_String::Format(SG_T("%c = %g\n"), m_Params.m_Variables[i], m_Params.m_A[i]);
+			s	+= SG_T("\n");
+
+			for(i=0; i<m_Params.m_Count && m_bOkay; i++)
+			{
+				s	+= CSG_String::Format(SG_T("%c = %g\n"), m_Params.m_Variables[i], m_Params.m_A[i]);
+			}
 		}
 		break;
 
@@ -469,11 +480,17 @@ CSG_String CSG_Trend::Get_Formula(int Type)
 		s	+= m_Formula.Get_Formula().c_str();
 		s	+= SG_T("\n");
 
-		for(i=0; i<m_Params.m_Count && m_bOkay; i++)
+		if( m_Params.m_Count > 0 )
 		{
-			s	+= CSG_String::Format(SG_T("%c = %g\n"), m_Params.m_Variables[i], m_Params.m_A[i]);
+			s	+= SG_T("\n");
+
+			for(i=0; i<m_Params.m_Count && m_bOkay; i++)
+			{
+				s	+= CSG_String::Format(SG_T("%c = %g\n"), m_Params.m_Variables[i], m_Params.m_A[i]);
+			}
 		}
 
+		s	+= SG_T("\n");
 		s	+= CSG_String::Format(SG_T("N = %d\n") , Get_Data_Count());
 		s	+= CSG_String::Format(SG_T("R2 = %g\n"), Get_R2() * 100.0);
 		break;

@@ -107,12 +107,12 @@ protected:
 
 	virtual bool			On_Execute				(void);
 
-	virtual bool			On_Initialise			(void)	{	return( true );	}
+	virtual bool			On_Initialise			(void)					{	return( true );	}
 
 	virtual bool			Get_Value				(double x, double y, double &z, double &Variance)	= 0;
 
-	double					Get_Weight				(double d);
-	double					Get_Weight				(double dx, double dy);
+	double					Get_Weight				(double d)				{	return( m_Variogram.Get_Value(d) );	}
+	double					Get_Weight				(double dx, double dy)	{	return( m_Variogram.Get_Value(sqrt(dx*dx + dy*dy)) );	}
 
 
 private:
@@ -132,16 +132,6 @@ private:
 
 	bool					_Get_Variances			(void);
 	bool					_Get_Differences		(CSG_Table *pTable, int zField, int nSkip, double maxDist);
-
-
-private:
-
-	int						m_nPoints_Min, m_nPoints_Max;
-
-	double					m_Radius;
-
-
-	int						Get_Weights				(double x, double y);
 
 };
 

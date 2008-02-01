@@ -217,6 +217,7 @@ CVariogram_Dialog::CVariogram_Dialog(CSG_Trend *pVariogram, CSG_Points *pVarianc
 	Formulas.Add(SG_T("a + b / x"));
 	Formulas.Add(SG_T("a + b * sqrt(c + x)"));
 	Formulas.Add(SG_T("a * (1 - exp(-(abs(x) / b)^2))"));
+	Formulas.Add(SG_T("n + (s - n) * (1 - exp(-(x / r)^2))"));
 
 	//-----------------------------------------------------
 	for(i=0, Distance=0.0; i<pVariances->Get_Count(); i++)
@@ -236,7 +237,7 @@ CVariogram_Dialog::CVariogram_Dialog(CSG_Trend *pVariogram, CSG_Points *pVarianc
 
 	Add_Spacer();
 //	m_pDistance		= Add_SpinCtrl(_TL("Function Fitting Range"), Distance, 0.0, Distance);
-	m_pDistance		= Add_Slider(_TL("Function Fitting Range"), Distance, 0.0, Distance);
+	m_pDistance		= Add_Slider(_TL("Function Fitting Range [%]"), Distance, 0.0, Distance);
 
 	Add_Spacer();
 	m_pParameters	= Add_TextCtrl(_TL("Function Parameters"), wxTE_MULTILINE|wxTE_READONLY);
@@ -244,7 +245,7 @@ CVariogram_Dialog::CVariogram_Dialog(CSG_Trend *pVariogram, CSG_Points *pVarianc
 	//-----------------------------------------------------
 	Add_Output(
 		m_pDiagram = new CVariogram_Diagram(this, pVariogram, pVariances),
-		m_pFormula = new wxTextCtrl(this, wxID_ANY, Formulas[0], wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER),
+		m_pFormula = new wxTextCtrl(this, wxID_ANY, pVariogram->Get_Formula(SG_TREND_STRING_Formula).c_str(), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER),
 		1, 0
 	);
 
@@ -279,20 +280,27 @@ void CVariogram_Dialog::On_Update_SpinCtrl(wxSpinEvent &WXUNUSED(event))
 //---------------------------------------------------------
 void CVariogram_Dialog::Fit_Function(void)
 {
+	wxString	s;
+
 	m_pDiagram->Set_Distance(m_pDistance->Get_Value());
 
 	if(	!m_pDiagram->m_pVariogram->Set_Formula(m_pFormula->GetValue().c_str()) )
 	{
-		m_pParameters->SetValue(_TL("Invalid formula !!!"));
+		s	+= _TL("Invalid formula !!!");
 	}
 	else if( !m_pDiagram->m_pVariogram->Get_Trend() )
 	{
-		m_pParameters->SetValue(_TL("Function fitting failed !!!"));
+		s	+= _TL("Function fitting failed !!!");
 	}
 	else
 	{
-		m_pParameters->SetValue(m_pDiagram->m_pVariogram->Get_Formula().c_str());
+		s	+= m_pDiagram->m_pVariogram->Get_Formula(SG_TREND_STRING_Function).c_str();
+		s	+= wxString::Format(wxT("\n%s: %.*f")	, _TL("Fitting range")		, SG_Get_Significant_Decimals(m_pDistance->Get_Value()), m_pDistance->Get_Value());
+		s	+= wxString::Format(wxT("\n%s: %d")		, _TL("Samples in range")	, m_pDiagram->m_pVariogram->Get_Data_Count());
+		s	+= wxString::Format(wxT("\n%s: %.2f%")	, _TL("R2")					, m_pDiagram->m_pVariogram->Get_R2() * 100.0);
 	}
+
+	m_pParameters->SetValue(s);
 
 	m_pDiagram->Refresh(true);
 }

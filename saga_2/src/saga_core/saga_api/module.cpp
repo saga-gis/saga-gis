@@ -655,20 +655,25 @@ void CSG_Module::_Set_Output_History(void)
 	History.Assign(History_Supplement, true);
 
 	//-----------------------------------------------------
-	for(int i=0; i<Parameters.Get_Count(); i++)	// set output history...
+	for(int j=-1; j<Get_Parameters_Count(); j++)
 	{
-		CSG_Parameter	*p	= Parameters(i);
+		CSG_Parameters	*pParameters	= j < 0 ? &Parameters : Get_Parameters(j);
 
-		if( p->is_Output() && p->is_DataObject() && p->asDataObject() )
+		for(int i=0; i<pParameters->Get_Count(); i++)	// set output history...
 		{
-			p->asDataObject()->Get_History().Assign(History);
-		}
+			CSG_Parameter	*p	= pParameters->Get_Parameter(i);
 
-		if( p->is_Output() && p->is_DataObject_List() )
-		{
-			for(int j=0; j<p->asList()->Get_Count(); j++)
+			if( p->is_Output() && p->is_DataObject() && p->asDataObject() )
 			{
-				p->asList()->asDataObject(j)->Get_History().Assign(History);
+				p->asDataObject()->Get_History().Assign(History);
+			}
+
+			if( p->is_Output() && p->is_DataObject_List() )
+			{
+				for(int j=0; j<p->asList()->Get_Count(); j++)
+				{
+					p->asList()->asDataObject(j)->Get_History().Assign(History);
+				}
 			}
 		}
 	}

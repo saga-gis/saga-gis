@@ -111,6 +111,7 @@ const wxChar * CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_INFO_COPY:				return( LNG("[CMD] Copy") );
 
 	case ID_CMD_MODULES_OPEN:			return( LNG("[CMD] Load Module Library") );
+	case ID_CMD_MODULES_SAVE_HTML:		return( LNG("[CMD] Create HTML Documentation") );
 	case ID_CMD_MODULES_SAVE_SCRIPT:	return( LNG("[CMD] Create Script Command File") );
 
 	case ID_CMD_DATA_PROJECT_OPEN:		return( LNG("[CMD] Load Project") );
