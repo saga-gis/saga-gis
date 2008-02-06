@@ -236,6 +236,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tin_tools", "modules\tin\ti
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "contrib_a_perego", "modules_contrib\contrib_a_perego\contrib_a_perego\contrib_a_perego.vcproj", "{86A0BA0D-1FC9-4895-B625-1C1A282FCF88}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "geostatistics_kriging_variogram", "modules_geostatistics\geostatistics\geostatistics_kriging_variogram\geostatistics_kriging_variogram.vcproj", "{3AA87427-B7C9-46FC-B7F8-DC831023393D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_shapes_dxf", "modules_io\shapes\io_shapes_dxf\io_shapes_dxf.vcproj", "{A9EA0DE9-F8C2-493E-8F36-A2A191DDCF9B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_grid_grib2", "modules_io\grid\io_grid_grib2\io_grid_grib2.vcproj", "{329F9DB0-81D1-430A-B98E-290CA356454F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -620,6 +626,30 @@ Global
 		{86A0BA0D-1FC9-4895-B625-1C1A282FCF88}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
 		{86A0BA0D-1FC9-4895-B625-1C1A282FCF88}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
 		{86A0BA0D-1FC9-4895-B625-1C1A282FCF88}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
+		{3AA87427-B7C9-46FC-B7F8-DC831023393D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3AA87427-B7C9-46FC-B7F8-DC831023393D}.Debug|Win32.Build.0 = Debug|Win32
+		{3AA87427-B7C9-46FC-B7F8-DC831023393D}.Release|Win32.ActiveCfg = Release|Win32
+		{3AA87427-B7C9-46FC-B7F8-DC831023393D}.Release|Win32.Build.0 = Release|Win32
+		{3AA87427-B7C9-46FC-B7F8-DC831023393D}.Unicode Debug|Win32.ActiveCfg = Unicode Debug|Win32
+		{3AA87427-B7C9-46FC-B7F8-DC831023393D}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
+		{3AA87427-B7C9-46FC-B7F8-DC831023393D}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
+		{3AA87427-B7C9-46FC-B7F8-DC831023393D}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
+		{A9EA0DE9-F8C2-493E-8F36-A2A191DDCF9B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A9EA0DE9-F8C2-493E-8F36-A2A191DDCF9B}.Debug|Win32.Build.0 = Debug|Win32
+		{A9EA0DE9-F8C2-493E-8F36-A2A191DDCF9B}.Release|Win32.ActiveCfg = Release|Win32
+		{A9EA0DE9-F8C2-493E-8F36-A2A191DDCF9B}.Release|Win32.Build.0 = Release|Win32
+		{A9EA0DE9-F8C2-493E-8F36-A2A191DDCF9B}.Unicode Debug|Win32.ActiveCfg = Unicode Debug|Win32
+		{A9EA0DE9-F8C2-493E-8F36-A2A191DDCF9B}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
+		{A9EA0DE9-F8C2-493E-8F36-A2A191DDCF9B}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
+		{A9EA0DE9-F8C2-493E-8F36-A2A191DDCF9B}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
+		{329F9DB0-81D1-430A-B98E-290CA356454F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{329F9DB0-81D1-430A-B98E-290CA356454F}.Debug|Win32.Build.0 = Debug|Win32
+		{329F9DB0-81D1-430A-B98E-290CA356454F}.Release|Win32.ActiveCfg = Release|Win32
+		{329F9DB0-81D1-430A-B98E-290CA356454F}.Release|Win32.Build.0 = Release|Win32
+		{329F9DB0-81D1-430A-B98E-290CA356454F}.Unicode Debug|Win32.ActiveCfg = Unicode Debug|Win32
+		{329F9DB0-81D1-430A-B98E-290CA356454F}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
+		{329F9DB0-81D1-430A-B98E-290CA356454F}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
+		{329F9DB0-81D1-430A-B98E-290CA356454F}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

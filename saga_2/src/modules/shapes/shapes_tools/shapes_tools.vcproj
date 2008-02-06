@@ -1134,6 +1134,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\shapes_split_randomly.cpp"
+				>
+			</File>
+			<File
 				RelativePath="ShapeSearchSelector.cpp"
 				>
 				<FileConfiguration
@@ -1408,6 +1412,10 @@
 			</File>
 			<File
 				RelativePath="shapes_split.h"
+				>
+			</File>
+			<File
+				RelativePath=".\shapes_split_randomly.h"
 				>
 			</File>
 			<File

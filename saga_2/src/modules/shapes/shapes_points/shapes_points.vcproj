@@ -733,6 +733,10 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\remove_duplicates.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -768,6 +772,10 @@
 			</File>
 			<File
 				RelativePath="Points_From_Table.h"
+				>
+			</File>
+			<File
+				RelativePath=".\remove_duplicates.h"
 				>
 			</File>
 		</Filter>

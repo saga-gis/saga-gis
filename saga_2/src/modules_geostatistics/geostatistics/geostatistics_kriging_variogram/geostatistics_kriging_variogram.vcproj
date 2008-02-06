@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8,00"
 	Name="geostatistics_kriging_variogram"
-	ProjectGUID="{1EAADA87-E16C-4EE7-970A-B58FFD65C6E2}"
+	ProjectGUID="{3AA87427-B7C9-46FC-B7F8-DC831023393D}"
 	>
 	<Platforms>
 		<Platform
@@ -49,7 +49,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="$(WXWIN)/lib/vc_dll/msw,$(WXWIN)/include,$(SAGA)/src/saga_core"
-				PreprocessorDefinitions="NDEBUG;WIN32;_USRDLL;_MBCS;WXUSINGDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE"
+				PreprocessorDefinitions="NDEBUG;WIN32;_USRDLL;_MBCS;WXUSINGDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE;geostatistics_kriging_variogram_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -146,7 +146,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="$(WXWIN)/lib/vc_dll/msw,$(WXWIN)/include,$(SAGA)/src/saga_core"
-				PreprocessorDefinitions="__WXDEBUG__;WXUSINGDLL;_DEBUG;WIN32;_USRDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC"
+				PreprocessorDefinitions="__WXDEBUG__;WXUSINGDLL;_DEBUG;WIN32;_USRDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;geostatistics_kriging_variogram_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -245,7 +245,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="$(WXWIN)/lib/vc_dll/msw,$(WXWIN)/include,$(SAGA)/src/saga_core"
-				PreprocessorDefinitions="NDEBUG;WIN32;_USRDLL;WXUSINGDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC"
+				PreprocessorDefinitions="NDEBUG;WIN32;_USRDLL;WXUSINGDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;geostatistics_kriging_variogram_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -341,7 +341,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="$(WXWIN)/lib/vc_dll/msw,$(WXWIN)/include,$(SAGA)/src/saga_core"
-				PreprocessorDefinitions="__WXDEBUG__;WXUSINGDLL;_DEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE"
+				PreprocessorDefinitions="__WXDEBUG__;WXUSINGDLL;_DEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE;geostatistics_kriging_variogram_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -414,84 +414,24 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath="grid_export.cpp"
+				RelativePath=".\kriging_base.cpp"
 				>
-				<FileConfiguration
-					Name="Unicode Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Unicode Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="grid_import.cpp"
+				RelativePath=".\kriging_ordinary.cpp"
 				>
-				<FileConfiguration
-					Name="Unicode Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Unicode Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\kriging_ordinary_global.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\kriging_universal.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\kriging_universal_global.cpp"
+				>
 			</File>
 			<File
 				RelativePath="MLB_Interface.cpp"
@@ -533,21 +473,65 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\sgui_diagram.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\sgui_dialog.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\sgui_helper.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\variogram_dialog.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
-				RelativePath="grid_export.h"
+				RelativePath=".\kriging_base.h"
 				>
 			</File>
 			<File
-				RelativePath="grid_import.h"
+				RelativePath=".\kriging_ordinary.h"
+				>
+			</File>
+			<File
+				RelativePath=".\kriging_ordinary_global.h"
+				>
+			</File>
+			<File
+				RelativePath=".\kriging_universal.h"
+				>
+			</File>
+			<File
+				RelativePath=".\kriging_universal_global.h"
 				>
 			</File>
 			<File
 				RelativePath="MLB_Interface.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sgui_diagram.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sgui_dialog.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sgui_helper.h"
+				>
+			</File>
+			<File
+				RelativePath=".\variogram_dialog.h"
 				>
 			</File>
 		</Filter>
