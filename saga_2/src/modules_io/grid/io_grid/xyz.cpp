@@ -94,7 +94,13 @@ CXYZ_Export::CXYZ_Export(void)
 
 	Parameters.Add_FilePath(
 		NULL	, "FILENAME"	, _TL("File Name"),
-		_TL("")
+		_TL(""),
+		CSG_String::Format(
+			SG_T("%s|*.xyz|%s|*.txt|%s|*.*"),
+			_TL("XYZ files (*.xyz)"),
+			_TL("Text files (*.txt)"),
+			_TL("All Files")
+		), NULL, true
 	);
 
 	Parameters.Add_Value(
@@ -166,3 +172,12 @@ bool CXYZ_Export::On_Execute(void)
 
 	return( false );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
