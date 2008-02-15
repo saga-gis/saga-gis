@@ -108,7 +108,7 @@ private:
 	CSG_Data_Object				*m_pObject;
 
 
-	bool						_Set_Layer_Active	(void);
+	bool						_Select				(bool bKeepOthers);
 
 
 //---------------------------------------------------------

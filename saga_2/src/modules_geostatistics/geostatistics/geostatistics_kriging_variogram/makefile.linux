@@ -19,7 +19,7 @@ DEP_DEFS = `wx-config --static=yes --cxxflags`
 DEP_LFLG = -fPIC -pthread
 DEP_LIBS = `wx-config --static=yes --libs` -L$(BIN_SAGA) -l_saga_api
 
-OBJ      = $(MLB_TEMP)/grid_export.o $(MLB_TEMP)/grid_import.o $(MLB_TEMP)/MLB_Interface.o
+OBJ      = $(MLB_TEMP)/Kriging_Base.o $(MLB_TEMP)/Kriging_Ordinary.o $(MLB_TEMP)/Kriging_Ordinary_Global.o $(MLB_TEMP)/Kriging_Universal.o $(MLB_TEMP)/Kriging_Universal_Global.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/sgui_diagram.o $(MLB_TEMP)/sgui_dialog.o $(MLB_TEMP)/sgui_helper.o $(MLB_TEMP)/variogram_dialog.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS =
@@ -50,11 +50,32 @@ $(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
 	$(LD) $(LDFLAGS) -o $(MLB_NAME) $(OBJ) $(LIBS)
 
 
-$(MLB_TEMP)/grid_export.o: ./grid_export.cpp
-	$(CPP) -c ./grid_export.cpp -o $(MLB_TEMP)/grid_export.o $(CXXFLAGS)
+$(MLB_TEMP)/Kriging_Base.o: ./Kriging_Base.cpp
+	$(CPP) -c ./Kriging_Base.cpp -o $(MLB_TEMP)/Kriging_Base.o $(CXXFLAGS)
 
-$(MLB_TEMP)/grid_import.o: ./grid_import.cpp
-	$(CPP) -c ./grid_import.cpp -o $(MLB_TEMP)/grid_import.o $(CXXFLAGS)
+$(MLB_TEMP)/Kriging_Ordinary.o: ./Kriging_Ordinary.cpp
+	$(CPP) -c ./Kriging_Ordinary.cpp -o $(MLB_TEMP)/Kriging_Ordinary.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Kriging_Ordinary_Global.o: ./Kriging_Ordinary_Global.cpp
+	$(CPP) -c ./Kriging_Ordinary_Global.cpp -o $(MLB_TEMP)/Kriging_Ordinary_Global.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Kriging_Universal.o: ./Kriging_Universal.cpp
+	$(CPP) -c ./Kriging_Universal.cpp -o $(MLB_TEMP)/Kriging_Universal.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Kriging_Universal_Global.o: ./Kriging_Universal_Global.cpp
+	$(CPP) -c ./Kriging_Universal_Global.cpp -o $(MLB_TEMP)/Kriging_Universal_Global.o $(CXXFLAGS)
 
 $(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
+
+$(MLB_TEMP)/sgui_diagram.o: ./sgui_diagram.cpp
+	$(CPP) -c ./sgui_diagram.cpp -o $(MLB_TEMP)/sgui_diagram.o $(CXXFLAGS)
+
+$(MLB_TEMP)/sgui_dialog.o: ./sgui_dialog.cpp
+	$(CPP) -c ./sgui_dialog.cpp -o $(MLB_TEMP)/sgui_dialog.o $(CXXFLAGS)
+
+$(MLB_TEMP)/sgui_helper.o: ./sgui_helper.cpp
+	$(CPP) -c ./sgui_helper.cpp -o $(MLB_TEMP)/sgui_helper.o $(CXXFLAGS)
+
+$(MLB_TEMP)/variogram_dialog.o: ./variogram_dialog.cpp
+	$(CPP) -c ./variogram_dialog.cpp -o $(MLB_TEMP)/variogram_dialog.o $(CXXFLAGS)

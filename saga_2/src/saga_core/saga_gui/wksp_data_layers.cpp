@@ -162,7 +162,7 @@ void CWKSP_Data_Button::On_Paint(wxPaintEvent &event)
 
 			dc.DrawBitmap(m_pLayer->Get_Thumbnail(r.GetWidth() - 1, r.GetHeight() - 1), r.GetLeft(), r.GetTop(), true);
 
-			if( g_pACTIVE->Get_Item() == m_pLayer )
+			if( g_pData_Ctrl->IsSelected(m_pLayer->GetId()) )
 			{
 				dc.SetPen(wxPen(((CWKSP_Data_Buttons *)GetParent())->Get_Active_Color()));
 				Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);	r.Deflate(1);
@@ -182,12 +182,13 @@ void CWKSP_Data_Button::On_Paint(wxPaintEvent &event)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Data_Button::_Set_Layer_Active(void)
+bool CWKSP_Data_Button::_Select(bool bKeepOthers)
 {
 	if( m_pLayer && g_pData->Exists(m_pObject) )
 	{
-	//	g_pACTIVE->Set_Active(m_pLayer);
-		g_pData_Ctrl->SelectItem(m_pLayer->GetId());
+		g_pData_Ctrl->Set_Item_Selected(m_pLayer, bKeepOthers);
+
+		GetParent()->Refresh();
 
 		return( true );
 	}
@@ -200,7 +201,7 @@ bool CWKSP_Data_Button::_Set_Layer_Active(void)
 //---------------------------------------------------------
 void CWKSP_Data_Button::On_Mouse_LDown(wxMouseEvent &event)
 {
-	_Set_Layer_Active();
+	_Select(event.ShiftDown() || event.ControlDown());
 
 	event.Skip();
 }
@@ -208,7 +209,7 @@ void CWKSP_Data_Button::On_Mouse_LDown(wxMouseEvent &event)
 //---------------------------------------------------------
 void CWKSP_Data_Button::On_Mouse_LDClick(wxMouseEvent &event)
 {
-	if( _Set_Layer_Active() )
+	if( _Select(false) )
 	{
 		m_pLayer->On_Command(ID_CMD_WKSP_ITEM_RETURN);
 	}
@@ -219,7 +220,7 @@ void CWKSP_Data_Button::On_Mouse_LDClick(wxMouseEvent &event)
 //---------------------------------------------------------
 void CWKSP_Data_Button::On_Mouse_RDown(wxMouseEvent &event)
 {
-	if( _Set_Layer_Active() )
+	if( _Select(event.ShiftDown() || event.ControlDown()) )
 	{
 		wxMenu	*pMenu;
 

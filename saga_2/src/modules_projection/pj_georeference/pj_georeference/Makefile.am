@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.5 2007-02-13 12:49:26 tschorr Exp $
+# $Id: Makefile.am,v 1.6 2008-02-15 14:30:51 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -16,6 +16,7 @@ libpj_georeference_la_SOURCES =\
 Collect_Points.cpp\
 Georef_Engine.cpp\
 Georef_Grid.cpp\
+georef_grid_move.cpp\
 Georef_Shapes.cpp\
 MLB_Interface.cpp\
 enorm.c\
@@ -28,6 +29,7 @@ qrsolv.c\
 Collect_Points.h\
 Georef_Engine.h\
 Georef_Grid.h\
+georef_grid_move.h\
 Georef_Shapes.h\
 MLB_Interface.h\
 cminpak.h\

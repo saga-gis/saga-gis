@@ -279,11 +279,11 @@ bool CVIEW_Table_Control::_Set_Record(int iRecord, CSG_Table_Record *pRecord)
 			switch( m_pTable->Get_Field_Type(iField) )
 			{
 			default:
-				SET_CELL_VALUE(iRecord, iField, pRecord->asString	(iField));
+				SET_CELL_VALUE(iRecord, iField, pRecord->asString(iField));
 				break;
 
 			case TABLE_FIELDTYPE_Color:
-				SET_CELL_COLOR(iRecord, iField, pRecord->asInt		(iField));
+				SET_CELL_COLOR(iRecord, iField, pRecord->asInt(iField));
 				break;
 			}
 		}

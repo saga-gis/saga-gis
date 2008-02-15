@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.5 2007-02-13 12:49:19 tschorr Exp $
+# $Id: Makefile.am,v 1.6 2008-02-15 14:30:50 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -15,6 +15,7 @@ pkglib_LTLIBRARIES = libgrid_visualisation.la
 libgrid_visualisation_la_SOURCES =\
 Grid_3D_Image.cpp\
 Grid_Color_Blend.cpp\
+Grid_Color_Triangle.cpp\
 Grid_Color_Rotate.cpp\
 Grid_Colors_Fit.cpp\
 Grid_RGB_Composite.cpp\
@@ -22,6 +23,7 @@ MLB_Interface.cpp\
 Grid_3D_Image.h\
 Grid_Color_Blend.h\
 Grid_Color_Rotate.h\
+Grid_Color_Triangle.h\
 Grid_Colors_Fit.h\
 Grid_RGB_Composite.h\
 MLB_Interface.h

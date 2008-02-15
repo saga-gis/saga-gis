@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="9,00"
 	Name="tin_tools"
 	ProjectGUID="{151EFE15-85D0-43BA-8FF0-0C3B4FEE813A}"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -81,6 +82,8 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\..\..\..\..\bin\saga_vc8_dbg\modules/tin_tools.pdb"
 				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\..\..\..\..\bin\saga_vc8_dbg\modules/tin_tools.lib"
 				TargetMachine="1"
 			/>
@@ -103,9 +106,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -179,6 +179,8 @@
 				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8_u"
 				ProgramDatabaseFile=".\./../../../../bin/saga_vc8_u/modules/tin_tools.pdb"
 				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\./../../../../bin/saga_vc8_u/modules/tin_tools.lib"
 				TargetMachine="1"
 			/>
@@ -201,9 +203,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -276,6 +275,8 @@
 				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8"
 				ProgramDatabaseFile=".\..\..\..\..\bin\saga_vc8\modules/tin_tools.pdb"
 				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\..\..\..\..\bin\saga_vc8\modules/tin_tools.lib"
 				TargetMachine="1"
 			/>
@@ -298,9 +299,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -375,6 +373,8 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\./../../../../bin/saga_vc8_u_dbg/modules/tin_tools.pdb"
 				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\./../../../../bin/saga_vc8_u_dbg/modules/tin_tools.lib"
 				TargetMachine="1"
 			/>
@@ -397,9 +397,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"

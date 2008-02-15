@@ -19,7 +19,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/Grid_3D_Image.o $(MLB_TEMP)/Grid_Color_Blend.o $(MLB_TEMP)/Grid_Color_Rotate.o $(MLB_TEMP)/Grid_Colors_Fit.o $(MLB_TEMP)/Grid_RGB_Composite.o $(MLB_TEMP)/MLB_Interface.o
+OBJ      = $(MLB_TEMP)/Grid_3D_Image.o $(MLB_TEMP)/Grid_Color_Blend.o $(MLB_TEMP)/Grid_Color_Rotate.o $(MLB_TEMP)/Grid_Color_Triangle.o $(MLB_TEMP)/Grid_Colors_Fit.o $(MLB_TEMP)/Grid_RGB_Composite.o $(MLB_TEMP)/MLB_Interface.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS =
@@ -58,6 +58,9 @@ $(MLB_TEMP)/Grid_Color_Blend.o: ./Grid_Color_Blend.cpp
 
 $(MLB_TEMP)/Grid_Color_Rotate.o: ./Grid_Color_Rotate.cpp
 	$(CPP) -c ./Grid_Color_Rotate.cpp -o $(MLB_TEMP)/Grid_Color_Rotate.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Grid_Color_Triangle.o: ./Grid_Color_Triangle.cpp
+	$(CPP) -c ./Grid_Color_Triangle.cpp -o $(MLB_TEMP)/Grid_Color_Triangle.o $(CXXFLAGS)
 
 $(MLB_TEMP)/Grid_Colors_Fit.o: ./Grid_Colors_Fit.cpp
 	$(CPP) -c ./Grid_Colors_Fit.cpp -o $(MLB_TEMP)/Grid_Colors_Fit.o $(CXXFLAGS)

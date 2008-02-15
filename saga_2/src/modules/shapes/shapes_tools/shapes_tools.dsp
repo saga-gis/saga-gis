@@ -201,6 +201,10 @@ SOURCE=.\Shapes_Assign_Table.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\shapes_buffer.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Shapes_Create_Empty.cpp
 # End Source File
 # Begin Source File
@@ -298,6 +302,10 @@ SOURCE=.\SeparateShapes.h
 # Begin Source File
 
 SOURCE=.\Shapes_Assign_Table.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\shapes_buffer.h
 # End Source File
 # Begin Source File
 

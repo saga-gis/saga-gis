@@ -73,6 +73,8 @@
 
 #include "active.h"
 
+#include "wksp.h"
+
 #include "wksp_base_control.h"
 #include "wksp_base_manager.h"
 
@@ -128,6 +130,7 @@ BEGIN_EVENT_TABLE(CWKSP_Base_Control, wxTreeCtrl)
 	EVT_TREE_SEL_CHANGED		(ID_WND_WKSP_MAPS		, CWKSP_Base_Control::On_Item_SelChanged)
 	EVT_TREE_KEY_DOWN			(ID_WND_WKSP_MAPS		, CWKSP_Base_Control::On_Item_KeyDown)
 
+	EVT_LEFT_DOWN				(CWKSP_Base_Control::On_Item_LClick)
 	EVT_LEFT_DCLICK				(CWKSP_Base_Control::On_Item_LDClick)
 END_EVENT_TABLE()
 
@@ -190,12 +193,12 @@ void CWKSP_Base_Control::On_Command(wxCommandEvent &event)
 	//-----------------------------------------------------
 	if( event.GetId() == ID_CMD_WKSP_ITEM_CLOSE )
 	{
-		if( Get_Active_Item() && Get_Active_Item()->Get_Control() == this )
+		if( g_pWKSP && g_pWKSP->GetCurrentPage() && g_pWKSP->GetCurrentPage()->GetId() == GetId() )
 		{
-			_Del_Item(Get_Active_Item(), false);
-		}
+			_Del_Active(false);
 
-		return;
+			return;
+		}
 	}
 
 	//-----------------------------------------------------
@@ -391,14 +394,47 @@ bool CWKSP_Base_Control::_Del_Item_Confirm(CWKSP_Base_Item *pItem)
 //---------------------------------------------------------
 CWKSP_Base_Item * CWKSP_Base_Control::Get_Item_Selected(void)
 {
-	wxTreeItemId	ID	= GetSelection();
+	wxTreeItemId	ID;
 
-	if(	ID.IsOk() )
+	if( GetWindowStyle() & wxTR_MULTIPLE )
 	{
-		return( (CWKSP_Base_Item *)GetItemData(ID) );
+		wxArrayTreeItemIds	IDs;
+
+		if( GetSelections(IDs) == 1 )
+		{
+			ID	= IDs[0];
+		}
+	}
+	else
+	{
+		ID	= GetSelection();
 	}
 
-	return( NULL );
+	return( ID.IsOk() ? (CWKSP_Base_Item *)GetItemData(ID) : NULL );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Base_Control::Set_Item_Selected(CWKSP_Base_Item *pItem, bool bKeepMultipleSelection)
+{
+	if( pItem && pItem->Get_Control() == this && pItem->GetId().IsOk() )
+	{
+		bool	bSelect	= bKeepMultipleSelection ? !IsSelected(pItem->GetId()) : true;
+
+		if( !bKeepMultipleSelection )
+		{
+			UnselectAll();
+		}
+
+		SelectItem(pItem->GetId(), bSelect);
+
+		Refresh();
+
+		_Set_Active();
+
+		return( true );
+	}
+
+	return( false );
 }
 
 
@@ -407,41 +443,108 @@ CWKSP_Base_Item * CWKSP_Base_Control::Get_Item_Selected(void)
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Base_Control::_Set_Active(void)
+{
+	if( g_pACTIVE )
+	{
+		g_pACTIVE->Set_Active(Get_Item_Selected());
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Base_Control::_Del_Active(bool bSilent)
+{
+	wxTreeItemId	ID;
+
+	if( GetWindowStyle() & wxTR_MULTIPLE )
+	{
+		wxArrayTreeItemIds	IDs;
+
+		if( GetSelections(IDs) > 0 && ((CWKSP_Base_Item *)GetItemData(IDs[0]))->Get_Control() == this )
+		{
+			if( DLG_Message_Confirm(ID_DLG_DELETE)
+			&&	(m_pManager->Get_Type() != WKSP_ITEM_Data_Manager || g_pData->Save_Modified(g_pData)) )
+			{
+				for(size_t i=0; i<IDs.GetCount(); i++)
+				{
+					if( IDs[i].IsOk() )
+					{
+						_Del_Item((CWKSP_Base_Item *)GetItemData(IDs[i]), true);
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		ID	= GetSelection();
+
+		if( ID.IsOk() && ((CWKSP_Base_Item *)GetItemData(ID))->Get_Control() == this )
+		{
+			_Del_Item((CWKSP_Base_Item *)GetItemData(ID), bSilent);
+		}
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Base_Control::On_Item_LClick(wxMouseEvent &event)
+{
+	_Set_Active();
+
+	event.Skip();
+}
+
+//---------------------------------------------------------
+void CWKSP_Base_Control::On_Item_LDClick(wxMouseEvent &event)
+{
+	CWKSP_Base_Item	*pItem;
+
+	if( (pItem = Get_Item_Selected()) != NULL )
+	{
+		pItem->On_Command(ID_CMD_WKSP_ITEM_RETURN);
+	}
+}
 
 //---------------------------------------------------------
 void CWKSP_Base_Control::On_Item_RClick(wxTreeEvent &event)
 {
-	CWKSP_Base_Item	*pItem;
-	wxMenu			*pContext	= NULL;
-
-	if(	event.GetItem().IsOk() && (pItem = (CWKSP_Base_Item *)GetItemData(event.GetItem())) != NULL && (pContext = pItem->Get_Menu()) != NULL )
+	if( !(GetWindowStyle() & wxTR_MULTIPLE) )
 	{
-		if( g_pACTIVE )
-		{
-			g_pACTIVE->Set_Active((CWKSP_Base_Item *)GetItemData(event.GetItem()));
-		}
-
-		PopupMenu(pContext, event.GetPoint());
-		delete(pContext);
+		Set_Item_Selected((CWKSP_Base_Item *)GetItemData(event.GetItem()));
 	}
 
-	event.Skip();
-}
+	CWKSP_Base_Item	*pItem	= Get_Item_Selected();
+	wxMenu			*pMenu	= NULL;
 
-//---------------------------------------------------------
-void CWKSP_Base_Control::On_Item_SelChanged(wxTreeEvent &event)
-{
-	if( g_pACTIVE && event.GetItem().IsOk() )
+	if( pItem && (pMenu = pItem->Get_Menu()) != NULL )
 	{
-		g_pACTIVE->Set_Active((CWKSP_Base_Item *)GetItemData(event.GetItem()));
+		PopupMenu(pMenu);
+		delete(pMenu);
 	}
 
-	event.Skip();
-}
+	else if( pItem == NULL )
+	{
+		pMenu	= new wxMenu;
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
+		PopupMenu(pMenu);
+		delete(pMenu);
+	}
 
-//---------------------------------------------------------
-void CWKSP_Base_Control::On_Item_Delete(wxTreeEvent &event)
-{
 	event.Skip();
 }
 
@@ -463,21 +566,24 @@ void CWKSP_Base_Control::On_Item_KeyDown(wxTreeEvent &event)
 			break;
 
 		case WXK_DELETE:
-			_Del_Item(pItem, false);
+			_Del_Active(false);
 			break;
 		}
 	}
 }
 
 //---------------------------------------------------------
-void CWKSP_Base_Control::On_Item_LDClick(wxMouseEvent &event)
+void CWKSP_Base_Control::On_Item_SelChanged(wxTreeEvent &event)
 {
-	CWKSP_Base_Item	*pItem;
+	_Set_Active();
 
-	if( (pItem = Get_Item_Selected()) != NULL )
-	{
-		pItem->On_Command(ID_CMD_WKSP_ITEM_RETURN);
-	}
+	event.Skip();
+}
+
+//---------------------------------------------------------
+void CWKSP_Base_Control::On_Item_Delete(wxTreeEvent &event)
+{
+	event.Skip();
 }
 
 

@@ -183,8 +183,7 @@ bool CWKSP_Map_Button::_Set_Layer_Active(void)
 {
 	if( m_pMap && g_pMaps->Exists(m_pMap) )
 	{
-	//	g_pACTIVE->Set_Active(m_pMap);
-		g_pMap_Ctrl->SelectItem(m_pMap->GetId());
+		g_pMap_Ctrl->Set_Item_Selected(m_pMap);
 
 		return( true );
 	}

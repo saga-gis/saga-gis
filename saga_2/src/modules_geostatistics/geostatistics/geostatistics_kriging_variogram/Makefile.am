@@ -14,12 +14,26 @@ AM_CXXFLAGS        = $(CXX_INCS) $(DEF_SAGA) $(DEP_DEFS) $(DBGFLAGS)
 AM_LDFLAGS         = $(DEP_LFLG)
 pkglib_LTLIBRARIES = libgeostatistics_kriging_variogram.la
 libgeostatistics_kriging_variogram_la_SOURCES =\
-grid_export.cpp\
-grid_import.cpp\
+kriging_base.cpp\
+kriging_ordinary.cpp\
+kriging_ordinary_global.cpp\
+kriging_universal.cpp\
+kriging_universal_global.cpp\
 MLB_Interface.cpp\
-grid_export.h\
-grid_import.h\
-MLB_Interface.h
- 
+sgui_diagram.cpp\
+sgui_dialog.cpp\
+sgui_helper.cpp\
+variogram_dialog.cpp\
+kriging_base.h\
+kriging_ordinary.h\
+kriging_ordinary_global.h\
+kriging_universal.h\
+kriging_universal_global.h\
+MLB_Interface.h\
+sgui_diagram.h\
+sgui_dialog.h\
+sgui_helper.h\
+variogram_dialog.h
+
 libgeostatistics_kriging_variogram_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 

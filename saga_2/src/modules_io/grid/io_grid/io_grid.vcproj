@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="9,00"
 	Name="io_grid"
 	ProjectGUID="{3999A66F-FDD0-470F-A9C0-3F2B5C86F34B}"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -80,6 +81,8 @@
 				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8"
 				ProgramDatabaseFile=".\..\..\..\..\bin\saga_vc8\modules/io_grid.pdb"
 				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\..\..\..\..\bin\saga_vc8\modules/io_grid.lib"
 				TargetMachine="1"
 			/>
@@ -102,9 +105,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -178,6 +178,8 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\..\..\..\..\bin\saga_vc8_dbg\modules/io_grid.pdb"
 				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\..\..\..\..\bin\saga_vc8_dbg\modules/io_grid.lib"
 				TargetMachine="1"
 			/>
@@ -200,9 +202,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -276,6 +275,8 @@
 				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8_u"
 				ProgramDatabaseFile=".\./../../../../bin/saga_vc8_u/modules/io_grid.pdb"
 				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\./../../../../bin/saga_vc8_u/modules/io_grid.lib"
 				TargetMachine="1"
 			/>
@@ -298,9 +299,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -375,6 +373,8 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\./../../../../bin/saga_vc8_u_dbg/modules/io_grid.pdb"
 				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\./../../../../bin/saga_vc8_u_dbg/modules/io_grid.lib"
 				TargetMachine="1"
 			/>
@@ -397,9 +397,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"

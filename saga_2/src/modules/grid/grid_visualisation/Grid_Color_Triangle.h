@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                     Shapes_Tools                      //
+//                  Grid_Visualisation                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                 Grid_Color_Triangle.h                 //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -53,109 +53,35 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__Grid_Color_Triangle_H
+#define HEADER_INCLUDED__Grid_Color_Triangle_H
 
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
-
 //---------------------------------------------------------
-// 2. Place general module library informations here...
-
-const SG_Char * Get_Info(int i)
+class CGrid_Color_Triangle : public CSG_Module_Grid  
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Shapes - Tools") );
-
-	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad, Victor Olaya (c) 2002-2006") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for the manipulation of vector data.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Shapes|Tools") );
-	}
-}
+public:
+	CGrid_Color_Triangle(void);
+	virtual ~CGrid_Color_Triangle(void);
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "Shapes_Create_Empty.h"
-#include "Shapes_Assign_Table.h"
-#include "Shapes_Merge.h"
-#include "Shapes_Report.h"
-#include "CreateWebContent.h"
-
-#include "QueryBuilder.h"
-#include "SearchInTable.h"
-#include "SelectByTheme.h"
-#include "SeparateShapes.h"
-#include "TransformShapes.h"
-#include "CreateChartLayer.h"
-#include "NewLayerFromSelectedShapes.h"
-#include "GraticuleBuilder.h"
-
-#include "Summarize.h"
-
-#include "shapes_cut.h"
-#include "shapes_cut_interactive.h"
-#include "shapes_split.h"
-#include "shapes_split_randomly.h"
-#include "shapes_buffer.h"
+	virtual bool		On_Execute(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+private:
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CShapes_Create_Empty );
-	case  1:	return( new CShapes_Assign_Table );
-	case  2:	return( new CShapes_Merge );
-	case  3:	return( new CNewLayerFromSelectedShapes );
-	case  4:	return( new CQueryBuilder );
-	case  5:	return( new CSearchInTable );
-	case  6:	return( new CSelectByTheme );
-	case  7:	return( new CSeparateShapes );
-	case  8:	return( new CTransformShapes );
-	case  9:	return( new CCreateChartLayer );
-	case 10:	return( new CGraticuleBuilder );
-	case 11:	return( new CShapes_Report );
-	case 12:	return( new CSummarize );
-	case 13:	return( new CCreateWebContent );
-	case 14:	return( new CShapes_Cut );
-	case 15:	return( new CShapes_Cut_Interactive );
-	case 16:	return( new CShapes_Split );
-	case 17:	return( new CShapes_Split_Randomly );
-	case 18:	return( new CShapes_Buffer );
-	}
+	CSG_Grid *				_Get_Grid	(CSG_Grid *pGrid, int Method, CSG_Parameter_Range *pRange, CSG_Parameter_Range *pPerctl, double Percent, double &Min, double &Range);
 
-	return( NULL );
-}
+};
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__Grid_Color_Triangle_H

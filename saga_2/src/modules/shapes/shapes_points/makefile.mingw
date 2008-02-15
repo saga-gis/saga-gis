@@ -18,7 +18,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/AddCoordinates.o $(MLB_TEMP)/CountPoints.o $(MLB_TEMP)/CreatePointGrid.o $(MLB_TEMP)/DistanceMatrix.o $(MLB_TEMP)/FitNPointsToShape.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/Points_From_Lines.o $(MLB_TEMP)/Points_From_Table.o
+OBJ      = $(MLB_TEMP)/AddCoordinates.o $(MLB_TEMP)/CountPoints.o $(MLB_TEMP)/CreatePointGrid.o $(MLB_TEMP)/DistanceMatrix.o $(MLB_TEMP)/FitNPointsToShape.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/Points_From_Lines.o $(MLB_TEMP)/Points_From_Table.o $(MLB_TEMP)/remove_duplicates.o
 
 CXXFLAGS = -I"$(MINGW)/include" -I"$(SAGA)/src/saga_core" -D$(PRJ_NAME)_EXPORTS -DBUILDING_DLL=1 -D_SAGA_MSW -D_SAGA_MINGW -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -fexpensive-optimizations -Os -O2 -O3 $(DEP_INCS) $(DEP_DEFS)
 
@@ -68,3 +68,6 @@ $(MLB_TEMP)/Points_From_Lines.o: ./Points_From_Lines.cpp
 
 $(MLB_TEMP)/Points_From_Table.o: ./Points_From_Table.cpp
 	$(CPP) -c ./Points_From_Table.cpp -o $(MLB_TEMP)/Points_From_Table.o $(CXXFLAGS)
+
+$(MLB_TEMP)/remove_duplicates.o: ./remove_duplicates.cpp
+	$(CPP) -c ./remove_duplicates.cpp -o $(MLB_TEMP)/remove_duplicates.o $(CXXFLAGS)

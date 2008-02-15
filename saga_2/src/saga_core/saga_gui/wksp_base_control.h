@@ -87,16 +87,18 @@ public:
 	CWKSP_Base_Control(wxWindow *pParent, wxWindowID id);
 	virtual ~CWKSP_Base_Control(void);
 
-	void						On_Command			(wxCommandEvent &event);
+	class CWKSP_Base_Item *		Get_Item_Selected	(void);
+	bool						Set_Item_Selected	(class CWKSP_Base_Item *pItem, bool bKeepMultipleSelection = false);
+
+	void						On_Command			(wxCommandEvent  &event);
 	void						On_Command_UI		(wxUpdateUIEvent &event);
 
-	class CWKSP_Base_Item *		Get_Item_Selected	(void);
-
-	void						On_Item_RClick		(wxTreeEvent &event);
-	void						On_Item_SelChanged	(wxTreeEvent &event);
-	void						On_Item_Delete		(wxTreeEvent &event);
-	void						On_Item_KeyDown		(wxTreeEvent &event);
-	void						On_Item_LDClick		(wxMouseEvent &event);
+	void						On_Item_LClick		(wxMouseEvent    &event);
+	void						On_Item_LDClick		(wxMouseEvent    &event);
+	void						On_Item_RClick		(wxTreeEvent     &event);
+	void						On_Item_SelChanged	(wxTreeEvent     &event);
+	void						On_Item_Delete		(wxTreeEvent     &event);
+	void						On_Item_KeyDown		(wxTreeEvent     &event);
 
 
 protected:
@@ -109,6 +111,9 @@ protected:
 	bool						_Add_Item			(class CWKSP_Base_Item *pItem, int Image, int selImage, bool bSort = true);
 	bool						_Del_Item			(class CWKSP_Base_Item *pItem, bool bSilent);
 	bool						_Del_Item_Confirm	(class CWKSP_Base_Item *pItem);
+
+	bool						_Set_Active			(void);
+	bool						_Del_Active			(bool bSilent);
 
 
 //---------------------------------------------------------

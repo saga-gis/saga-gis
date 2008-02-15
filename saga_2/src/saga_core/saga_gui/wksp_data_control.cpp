@@ -151,6 +151,8 @@ CWKSP_Data_Control::CWKSP_Data_Control(wxWindow *pParent)
 {
 	g_pData_Ctrl	= this;
 
+	SetWindowStyle(wxTR_HAS_BUTTONS|wxTR_MULTIPLE);
+
 	//-----------------------------------------------------
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DATA_MANAGER);
 

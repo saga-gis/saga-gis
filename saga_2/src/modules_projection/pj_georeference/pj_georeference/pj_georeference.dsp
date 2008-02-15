@@ -165,6 +165,10 @@ SOURCE=.\Georef_Grid.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\georef_grid_move.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Georef_Shapes.cpp
 # End Source File
 # Begin Source File
@@ -186,6 +190,10 @@ SOURCE=.\Georef_Engine.h
 # Begin Source File
 
 SOURCE=.\Georef_Grid.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\georef_grid_move.h
 # End Source File
 # Begin Source File
 

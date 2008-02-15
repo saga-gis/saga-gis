@@ -165,6 +165,10 @@ SOURCE=.\Grid_Color_Rotate.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Grid_Color_Triangle.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Grid_Colors_Fit.cpp
 # End Source File
 # Begin Source File
@@ -190,6 +194,10 @@ SOURCE=.\Grid_Color_Blend.h
 # Begin Source File
 
 SOURCE=.\Grid_Color_Rotate.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Grid_Color_Triangle.h
 # End Source File
 # Begin Source File
 

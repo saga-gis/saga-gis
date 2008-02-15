@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.6 2007-09-18 11:49:04 tschorr Exp $
+# $Id: configure.in,v 1.7 2008-02-15 14:37:04 oconrad Exp $
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
@@ -95,11 +95,13 @@ AC_OUTPUT(Makefile \
 	src/modules_geostatistics/geostatistics/geostatistics_points/Makefile \
 	src/modules_geostatistics/geostatistics/geostatistics_grid/Makefile \
 	src/modules_geostatistics/geostatistics/geostatistics_kriging/Makefile \
+	src/modules_geostatistics/geostatistics/geostatistics_kriging_variogram/Makefile \
 	src/modules_io/Makefile \
 	src/modules_io/esri_e00/Makefile \
 	src/modules_io/esri_e00/io_esri_e00/Makefile \
 	src/modules_io/shapes/Makefile \
 	src/modules_io/shapes/io_shapes/Makefile \
+	src/modules_io/shapes/io_shapes_dxf/Makefile \
 	src/modules_io/grid/Makefile \
 	src/modules_io/grid/io_grid/Makefile \
 	src/modules_io/grid/io_grid_image/Makefile \

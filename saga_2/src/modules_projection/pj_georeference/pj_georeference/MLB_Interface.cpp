@@ -72,7 +72,7 @@ const SG_Char * Get_Info(int i)
 		return( _TL("Projection - Georeferencing") );
 
 	case MLB_INFO_Author:
-		return( _TL("Andre Ringeler (c) 2004") );
+		return( _TL("(c) 2004 A.Ringeler, (c) 2008 O.Conrad") );
 
 	case MLB_INFO_Description:
 		return( _TL("Tools for the georeferencing of spatial data (grids/shapes).") );
@@ -92,6 +92,7 @@ const SG_Char * Get_Info(int i)
 #include "Collect_Points.h"
 #include "Georef_Grid.h"
 #include "Georef_Shapes.h"
+#include "georef_grid_move.h"
 
 
 //---------------------------------------------------------
@@ -99,33 +100,15 @@ const SG_Char * Get_Info(int i)
 
 CSG_Module *		Create_Module(int i)
 {
-	// Don't forget to continuously enumerate the case switches
-	// when adding new modules! Also bear in mind that the
-	// enumeration always has to start with [case 0:] and
-	// that [default:] must return NULL!...
-
-	CSG_Module	*pModule;
-
 	switch( i )
 	{
-	case 0:
-		pModule	= new CCollect_Points;
-		break;
-
-	case 1:
-		pModule	= new CGeoref_Grid;
-		break;
-
-	case 2:
-		pModule	= new CGeoref_Shapes;
-		break;
-
-	default:
-		pModule	= NULL;
-		break;
+	case 0:		return( new CCollect_Points );
+	case 1:		return( new CGeoref_Grid );
+	case 2:		return( new CGeoref_Shapes );
+	case 3:		return( new CGeoref_Grid_Move );
 	}
 
-	return( pModule );
+	return( NULL );
 }
 
 

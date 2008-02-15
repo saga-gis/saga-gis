@@ -18,7 +18,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/Collect_Points.o $(MLB_TEMP)/Georef_Engine.o $(MLB_TEMP)/Georef_Grid.o $(MLB_TEMP)/Georef_Shapes.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/enorm.o $(MLB_TEMP)/fdjac2.o $(MLB_TEMP)/lmdif.o $(MLB_TEMP)/lmdif0.o $(MLB_TEMP)/lmpar.o $(MLB_TEMP)/qrfac.o $(MLB_TEMP)/qrsolv.o
+OBJ      = $(MLB_TEMP)/Collect_Points.o $(MLB_TEMP)/Georef_Engine.o $(MLB_TEMP)/Georef_Grid.o $(MLB_TEMP)/georef_grid_move.o $(MLB_TEMP)/Georef_Shapes.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/enorm.o $(MLB_TEMP)/fdjac2.o $(MLB_TEMP)/lmdif.o $(MLB_TEMP)/lmdif0.o $(MLB_TEMP)/lmpar.o $(MLB_TEMP)/qrfac.o $(MLB_TEMP)/qrsolv.o
 
 CXXFLAGS = -I"$(MINGW)/include" -I"$(SAGA)/src/saga_core" -D$(PRJ_NAME)_EXPORTS -DBUILDING_DLL=1 -D_SAGA_MSW -D_SAGA_MINGW -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -fexpensive-optimizations -Os -O2 -O3 $(DEP_INCS) $(DEP_DEFS)
 
@@ -53,6 +53,9 @@ $(MLB_TEMP)/Georef_Engine.o: ./Georef_Engine.cpp
 
 $(MLB_TEMP)/Georef_Grid.o: ./Georef_Grid.cpp
 	$(CPP) -c ./Georef_Grid.cpp -o $(MLB_TEMP)/Georef_Grid.o $(CXXFLAGS)
+
+$(MLB_TEMP)/georef_grid_move.o: ./georef_grid_move.cpp
+	$(CPP) -c ./georef_grid_move.cpp -o $(MLB_TEMP)/georef_grid_move.o $(CXXFLAGS)
 
 $(MLB_TEMP)/Georef_Shapes.o: ./Georef_Shapes.cpp
 	$(CPP) -c ./Georef_Shapes.cpp -o $(MLB_TEMP)/Georef_Shapes.o $(CXXFLAGS)

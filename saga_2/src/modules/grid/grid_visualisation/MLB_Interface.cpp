@@ -96,6 +96,7 @@ const SG_Char * Get_Info(int i)
 #include "Grid_Colors_Fit.h"
 #include "Grid_RGB_Composite.h"
 #include "Grid_3D_Image.h"
+#include "Grid_Color_Triangle.h"
 
 
 //---------------------------------------------------------
@@ -103,41 +104,17 @@ const SG_Char * Get_Info(int i)
 
 CSG_Module *		Create_Module(int i)
 {
-	// Don't forget to continuously enumerate the case switches
-	// when adding new modules! Also bear in mind that the
-	// enumeration always has to start with [case 0:] and
-	// that [default:] must return NULL!...
-
-	CSG_Module	*pModule;
-
 	switch( i )
 	{
-	case 0:
-		pModule	= new CGrid_Color_Rotate;
-		break;
-
-	case 1:
-		pModule	= new CGrid_Color_Blend;
-		break;
-
-	case 2:
-		pModule	= new CGrid_Colors_Fit;
-		break;
-
-	case 3:
-		pModule	= new CGrid_RGB_Composite;
-		break;
-
-	case 4:
-		pModule	= new CGrid_3D_Image;
-		break;
-
-	default:
-		pModule	= NULL;
-		break;
+	case 0:		return( new CGrid_Color_Rotate );
+	case 1:		return( new CGrid_Color_Blend );
+	case 2:		return( new CGrid_Colors_Fit );
+	case 3:		return( new CGrid_RGB_Composite );
+	case 4:		return( new CGrid_3D_Image );
+	case 5:		return( new CGrid_Color_Triangle );
 	}
 
-	return( pModule );
+	return( NULL );
 }
 
 

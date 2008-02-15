@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="9,00"
 	Name="pj_georeference"
 	ProjectGUID="{4ED09F91-0293-49D7-B556-E7AEBF8F460B}"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -82,6 +83,8 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\./../../../../bin/saga_vc8_u_dbg/modules/pj_georeference.pdb"
 				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\./../../../../bin/saga_vc8_u_dbg/modules/pj_georeference.lib"
 				TargetMachine="1"
 			/>
@@ -104,9 +107,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -180,6 +180,8 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\..\..\..\..\bin\saga_vc8_dbg\modules/pj_georeference.pdb"
 				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\..\..\..\..\bin\saga_vc8_dbg\modules/pj_georeference.lib"
 				TargetMachine="1"
 			/>
@@ -202,9 +204,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -277,6 +276,8 @@
 				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8"
 				ProgramDatabaseFile=".\..\..\..\..\bin\saga_vc8\modules/pj_georeference.pdb"
 				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\..\..\..\..\bin\saga_vc8\modules/pj_georeference.lib"
 				TargetMachine="1"
 			/>
@@ -299,9 +300,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -375,6 +373,8 @@
 				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8_u"
 				ProgramDatabaseFile=".\./../../../../bin/saga_vc8_u/modules/pj_georeference.pdb"
 				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\./../../../../bin/saga_vc8_u/modules/pj_georeference.lib"
 				TargetMachine="1"
 			/>
@@ -397,9 +397,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -534,6 +531,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\georef_grid_move.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Georef_Shapes.cpp"
 				>
 				<FileConfiguration
@@ -628,6 +629,10 @@
 			</File>
 			<File
 				RelativePath="Georef_Grid.h"
+				>
+			</File>
+			<File
+				RelativePath=".\georef_grid_move.h"
 				>
 			</File>
 			<File

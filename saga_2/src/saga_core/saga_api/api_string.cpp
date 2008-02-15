@@ -851,7 +851,7 @@ CSG_String		SG_Get_String(double Value, int Precision, bool bScientific)
 	}
 	else if( Precision == -1 )
 	{
-		s.Printf(SG_T("%.f"), Value);
+		s.Printf(SG_T("%f"), Value);
 	}
 	else // if( Precision == -2 )
 	{
