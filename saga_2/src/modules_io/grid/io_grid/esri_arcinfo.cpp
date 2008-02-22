@@ -329,7 +329,7 @@ CSG_Grid * CESRI_ArcInfo_Import::Read_Header(FILE *Stream)
 
 		if( !Read_Value(HDR_NODATA  , sLine, NoData) )
 		//	return( NULL );
-			;
+		{}
 
 		//-------------------------------------------------
 		if( bCorner_X )

@@ -323,18 +323,18 @@ bool		SG_UI_DataObject_Check(CSG_Data_Object *pDataObject, int Object_Type)
 }
 
 //---------------------------------------------------------
-bool		SG_UI_DataObject_Add(CSG_Data_Object *pDataObject, bool bShow)
+bool		SG_UI_DataObject_Add(CSG_Data_Object *pDataObject, int Show)
 {
 	if( gSG_UI_Callback && pDataObject )
 	{
-		return( gSG_UI_Callback(CALLBACK_DATAOBJECT_ADD, (long)pDataObject, bShow ? 1 : 0) != 0 );
+		return( gSG_UI_Callback(CALLBACK_DATAOBJECT_ADD, (long)pDataObject, Show ? 1 : 0) != 0 );
 	}
 
 	return( false );
 }
 
 //---------------------------------------------------------
-bool		SG_UI_DataObject_Update(CSG_Data_Object *pDataObject, bool bShow, CSG_Parameters *pParameters)
+bool		SG_UI_DataObject_Update(CSG_Data_Object *pDataObject, int Show, CSG_Parameters *pParameters)
 {
 	CSG_Parameters	Parameters;
 
@@ -352,9 +352,9 @@ bool		SG_UI_DataObject_Update(CSG_Data_Object *pDataObject, bool bShow, CSG_Para
 
 		if( gSG_UI_Callback(CALLBACK_DATAOBJECT_UPDATE, (long)pDataObject, (long)pParameters) != 0 )
 		{
-			if( bShow )
+			if( Show != SG_UI_DATAOBJECT_UPDATE_ONLY )
 			{
-				SG_UI_DataObject_Show(pDataObject);
+				SG_UI_DataObject_Show(pDataObject, Show);
 			}
 
 			return( true );
@@ -365,11 +365,11 @@ bool		SG_UI_DataObject_Update(CSG_Data_Object *pDataObject, bool bShow, CSG_Para
 }
 
 //---------------------------------------------------------
-bool		SG_UI_DataObject_Show(CSG_Data_Object *pDataObject)
+bool		SG_UI_DataObject_Show(CSG_Data_Object *pDataObject, int Show)
 {
 	if( gSG_UI_Callback && pDataObject )
 	{
-		return( gSG_UI_Callback(CALLBACK_DATAOBJECT_SHOW, (long)pDataObject, 1) != 0 );
+		return( gSG_UI_Callback(CALLBACK_DATAOBJECT_SHOW, (long)pDataObject, Show) != 0 );
 	}
 
 	return( false );

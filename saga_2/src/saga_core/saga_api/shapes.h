@@ -436,6 +436,7 @@ public:
 	CSG_Shape *					Add_Shape				(CSG_Shape *pShape, bool bCopyAttributes = false);
 	bool						Del_Shape				(int iShape);
 	bool						Del_Shape				(CSG_Shape *pShape);
+	bool						Del_Shapes				(void);
 
 	int							Get_Count				(void)	const		{	return( m_nShapes );	}
 	CSG_Shape *					Get_Shape				(int iShape)		{	return( iShape >= 0 && iShape < m_nShapes ? m_Shapes[iShape] : NULL );	}

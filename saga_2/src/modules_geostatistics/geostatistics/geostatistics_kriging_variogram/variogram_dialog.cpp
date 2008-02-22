@@ -218,6 +218,7 @@ CVariogram_Dialog::CVariogram_Dialog(CSG_Trend *pVariogram, CSG_Points *pVarianc
 	Formulas.Add(SG_T("a + b * sqrt(c + x)"));
 	Formulas.Add(SG_T("a * (1 - exp(-(abs(x) / b)^2))"));
 	Formulas.Add(SG_T("n + (s - n) * (1 - exp(-(x / r)^2))"));
+	Formulas.Add(SG_T("n+(s-n)*ifelse(x>r,1,3*x/(2*r)-x^3/(2*r^3))"));
 
 	//-----------------------------------------------------
 	for(i=0, Distance=0.0; i<pVariances->Get_Count(); i++)

@@ -552,12 +552,12 @@ bool CSG_Module::DataObject_Add(CSG_Data_Object *pDataObject, bool bUpdate)
 }
 
 //---------------------------------------------------------
-bool CSG_Module::DataObject_Update(CSG_Data_Object *pDataObject, bool bShow)
+bool CSG_Module::DataObject_Update(CSG_Data_Object *pDataObject, int Show)
 {
-	return( SG_UI_DataObject_Update(pDataObject, bShow, NULL) );
+	return( SG_UI_DataObject_Update(pDataObject, Show, NULL) );
 }
 
-bool CSG_Module::DataObject_Update(CSG_Data_Object *pDataObject, double Parm_1, double Parm_2, bool bShow)
+bool CSG_Module::DataObject_Update(CSG_Data_Object *pDataObject, double Parm_1, double Parm_2, int Show)
 {
 	CSG_Parameters	Parameters;
 
@@ -576,7 +576,7 @@ bool CSG_Module::DataObject_Update(CSG_Data_Object *pDataObject, double Parm_1, 
 			break;
 		}
 
-		return( SG_UI_DataObject_Update(pDataObject, bShow, &Parameters) );
+		return( SG_UI_DataObject_Update(pDataObject, Show, &Parameters) );
 	}
 
 	return( false );

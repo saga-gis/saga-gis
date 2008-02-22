@@ -399,31 +399,15 @@ void CShapes_Buffer::Del_Duplicates(CSG_Shape *pShape)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CShapes_Buffer::Add_Line_Head(const TSG_Point &Center, const TSG_Point &Direction, bool bStart)
-{
-	double	alpha	= SG_Get_Angle_Of_Direction(Center, Direction);
-
-	if( bStart )
-	{
-		Add_Arc(Center, alpha, alpha + M_PI_090);
-	}
-	else
-	{
-		Add_Arc(Center, alpha - M_PI_090, alpha);
-	}
-}
-
-//---------------------------------------------------------
 void CShapes_Buffer::Add_Line(CSG_Shape_Line *pShape, int iPart)
 {
 	int			iPoint, n	= pShape->Get_Point_Count(iPart);
+	double		a;
 	TSG_Point	A, B, C, AB[2], BC[2];
 
-	//-------------------------------------------------
+	//-----------------------------------------------------
 	B	= pShape->Get_Point(0, iPart);
 	A	= pShape->Get_Point(1, iPart);
-
-	Add_Line_Head(B, A, true);
 
 	Get_Parallel(A, B, AB);
 
@@ -438,22 +422,17 @@ void CShapes_Buffer::Add_Line(CSG_Shape_Line *pShape, int iPart)
 		Get_Parallel(A, B, AB);
 
 		if( SG_Get_Crossing(C, AB[0], AB[1], BC[0], BC[1]) )
-		{
 			m_pSegment->Add_Point(C);
-		}
 		else
-		{
 			Add_Arc(B, BC[0], AB[1]);
-		}
 	}
 
-	Add_Line_Head(A, B, false);
+	a	= SG_Get_Angle_Of_Direction(A, B);
+	Add_Arc(A, a - M_PI_090, a + M_PI_090);
 
-	//-------------------------------------------------
+	//-----------------------------------------------------
 	B	= pShape->Get_Point(n - 1, iPart);
 	A	= pShape->Get_Point(n - 2, iPart);
-
-	Add_Line_Head(B, A, true);
 
 	Get_Parallel(A, B, AB);
 
@@ -468,16 +447,13 @@ void CShapes_Buffer::Add_Line(CSG_Shape_Line *pShape, int iPart)
 		Get_Parallel(A, B, AB);
 
 		if( SG_Get_Crossing(C, AB[0], AB[1], BC[0], BC[1]) )
-		{
 			m_pSegment->Add_Point(C);
-		}
 		else
-		{
 			Add_Arc(B, BC[0], AB[1]);
-		}
 	}
 
-	Add_Line_Head(A, B, false);
+	a	= SG_Get_Angle_Of_Direction(A, B);
+	Add_Arc(A, a - M_PI_090, a + M_PI_090);
 }
 
 
@@ -493,10 +469,10 @@ void CShapes_Buffer::Add_Polygon(CSG_Shape_Polygon *pShape, int iPart)
 	int			iPoint, n	= pShape->Get_Point_Count(iPart);
 	TSG_Point	A, B, C, AB[2], BC[2];
 
-	//-------------------------------------------------
+	//-----------------------------------------------------
 	bool	bClockwise	= pShape->is_Lake(iPart) ? !pShape->is_Clockwise(iPart) : pShape->is_Clockwise(iPart);
 
-	//-------------------------------------------------
+	//-----------------------------------------------------
 	if( bClockwise )
 	{
 		B	= pShape->Get_Point(pShape->Get_Point_Count(iPart) - 1, iPart);
@@ -504,10 +480,10 @@ void CShapes_Buffer::Add_Polygon(CSG_Shape_Polygon *pShape, int iPart)
 
 		Get_Parallel(A, B, AB);
 
-		for(iPoint=1; iPoint<n; iPoint++)
+		for(iPoint=1; iPoint<=n; iPoint++)
 		{
 			B	= A;
-			A	= pShape->Get_Point(iPoint, iPart);
+			A	= pShape->Get_Point(iPoint < n ? iPoint : 0, iPart);
 
 			BC[0]	= AB[0];
 			BC[1]	= AB[1];
@@ -515,17 +491,13 @@ void CShapes_Buffer::Add_Polygon(CSG_Shape_Polygon *pShape, int iPart)
 			Get_Parallel(A, B, AB);
 
 			if( SG_Get_Crossing(C, AB[0], AB[1], BC[0], BC[1]) )
-			{
 				m_pSegment->Add_Point(C);
-			}
 			else
-			{
 				Add_Arc(B, BC[0], AB[1]);
-			}
 		}
 	}
 
-	//-------------------------------------------------
+	//-----------------------------------------------------
 	else
 	{
 		B	= pShape->Get_Point(0    , iPart);
@@ -533,10 +505,10 @@ void CShapes_Buffer::Add_Polygon(CSG_Shape_Polygon *pShape, int iPart)
 
 		Get_Parallel(A, B, AB);
 
-		for(iPoint=n-2; iPoint>=0; iPoint--)
+		for(iPoint=n-2; iPoint>=-1; iPoint--)
 		{
 			B	= A;
-			A	= pShape->Get_Point(iPoint, iPart);
+			A	= pShape->Get_Point(iPoint >= 0 ? iPoint : n - 1, iPart);
 
 			BC[0]	= AB[0];
 			BC[1]	= AB[1];
@@ -544,13 +516,9 @@ void CShapes_Buffer::Add_Polygon(CSG_Shape_Polygon *pShape, int iPart)
 			Get_Parallel(A, B, AB);
 
 			if( SG_Get_Crossing(C, AB[0], AB[1], BC[0], BC[1]) )
-			{
 				m_pSegment->Add_Point(C);
-			}
 			else
-			{
 				Add_Arc(B, BC[0], AB[1]);
-			}
 		}
 	}
 }
@@ -606,7 +574,8 @@ void CShapes_Buffer::Get_SelfIntersection(void)
 
 	for(iPart=m_pUnion->Get_Part_Count()-1; iPart>=0; iPart--)
 	{
-		if( ((CSG_Shape_Polygon *)m_pUnion)->is_Clockwise(iPart) && iPart != iMax )
+		if(  ((CSG_Shape_Polygon *)m_pUnion)->Get_Area(iPart) == 0.0
+		||	(((CSG_Shape_Polygon *)m_pUnion)->is_Clockwise(iPart) && iPart != iMax) )
 		{
 			m_pUnion->Del_Part(iPart);
 		}

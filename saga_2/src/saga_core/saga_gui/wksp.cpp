@@ -269,6 +269,18 @@ void CWKSP::On_Command(wxCommandEvent &event)
 		}
 		break;
 
+	case ID_CMD_WKSP_ITEM_CLOSE:
+		if( GetCurrentPage() )
+		{
+			switch( GetCurrentPage()->GetId() )
+			{
+			case ID_WND_WKSP_MODULES:	m_pModules->On_Command(event);	break;
+			case ID_WND_WKSP_DATA:		m_pData   ->On_Command(event);	break;
+			case ID_WND_WKSP_MAPS:		m_pMaps   ->On_Command(event);	break;
+			}
+		}
+		break;
+
 	case ID_CMD_WKSP_OPEN:
 		Open();
 		break;
@@ -285,6 +297,18 @@ void CWKSP::On_Command_UI(wxUpdateUIEvent &event)
 			m_pModules->On_Command_UI(event);
 			m_pData   ->On_Command_UI(event);
 			m_pMaps   ->On_Command_UI(event);
+		}
+		break;
+
+	case ID_CMD_WKSP_ITEM_CLOSE:
+		if( GetCurrentPage() )
+		{
+			switch( GetCurrentPage()->GetId() )
+			{
+			case ID_WND_WKSP_MODULES:	m_pModules->On_Command_UI(event);	break;
+			case ID_WND_WKSP_DATA:		m_pData   ->On_Command_UI(event);	break;
+			case ID_WND_WKSP_MAPS:		m_pMaps   ->On_Command_UI(event);	break;
+			}
 		}
 		break;
 

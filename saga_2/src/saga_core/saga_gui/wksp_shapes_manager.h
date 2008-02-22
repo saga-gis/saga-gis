@@ -99,11 +99,11 @@ public:
 
 	bool						Exists			(class CSG_Shapes *pShapes);
 	class CWKSP_Shapes *		Add				(class CSG_Shapes *pShapes);
-	class CSG_Shapes *				Get_byFileName	(const wxChar *File_Name);
+	class CSG_Shapes *			Get_byFileName	(const wxChar *File_Name);
 
 	bool						Update			(class CSG_Shapes *pShapes, class CSG_Parameters *pParameters);
 	bool						Update_Views	(class CSG_Shapes *pShapes);
-	bool						Show			(class CSG_Shapes *pShapes);
+	bool						Show			(class CSG_Shapes *pShapes, int Map_Mode);
 	bool						asImage			(class CSG_Shapes *pShapes, class CSG_Grid *pImage);
 
 	bool						Get_Colors		(class CSG_Shapes *pShapes, class CSG_Colors *pColors);

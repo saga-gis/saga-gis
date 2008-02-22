@@ -103,7 +103,6 @@ private:
 	bool						Get_Parallel			(const TSG_Point &A, const TSG_Point &B, TSG_Point AB[2]);
 	void						Del_Duplicates			(CSG_Shape *pShape);
 
-	void						Add_Line_Head			(const TSG_Point &Center, const TSG_Point &Direction, bool bStart);
 	void						Add_Line				(CSG_Shape_Line    *pShape, int iPart);
 	void						Add_Polygon				(CSG_Shape_Polygon *pShape, int iPart);
 

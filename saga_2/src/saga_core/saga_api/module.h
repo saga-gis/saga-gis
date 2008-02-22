@@ -51,7 +51,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: module.h,v 1.13 2007-02-26 17:48:37 oconrad Exp $
+// $Id: module.h,v 1.14 2008-02-22 15:31:45 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -209,8 +209,8 @@ protected:
 
 	//-----------------------------------------------------
 	bool						DataObject_Add				(CSG_Data_Object *pDataObject, bool bUpdate = false);
-	bool						DataObject_Update			(CSG_Data_Object *pDataObject, bool bShow = false);
-	bool						DataObject_Update			(CSG_Data_Object *pDataObject, double Parm_1, double Parm_2, bool bShow = false);
+	bool						DataObject_Update			(CSG_Data_Object *pDataObject, int Show = SG_UI_DATAOBJECT_UPDATE_ONLY);
+	bool						DataObject_Update			(CSG_Data_Object *pDataObject, double Parm_1, double Parm_2, int Show = SG_UI_DATAOBJECT_UPDATE_ONLY);
 
 	void						DataObject_Update_All		(void);
 

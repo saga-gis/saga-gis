@@ -468,8 +468,6 @@ bool CSG_Shapes::Del_Shape(CSG_Shape *pShape)
 
 bool CSG_Shapes::Del_Shape(int iShape)
 {
-	int		i;
-
 	if( iShape >= 0 && iShape < m_nShapes )
 	{
 		if( m_Shapes[iShape]->is_Selected() )
@@ -481,12 +479,15 @@ bool CSG_Shapes::Del_Shape(int iShape)
 
 		m_nShapes--;
 
-		for(i=iShape; i<m_nShapes; i++)
+		for(int i=iShape; i<m_nShapes; i++)
 		{
 			m_Shapes[i]	= m_Shapes[i + 1];
 		}
 
-		m_Shapes	= (CSG_Shape **)SG_Realloc(m_Shapes, m_nShapes * sizeof(CSG_Shape *));
+		if( (m_nShapes % GET_GROW_SIZE(m_nShapes)) == 0 )
+		{
+			m_Shapes	= (CSG_Shape **)SG_Realloc(m_Shapes, (m_nShapes + GET_GROW_SIZE(m_nShapes)) * sizeof(CSG_Shape *));
+		}
 
 		m_Table._Del_Record(iShape);
 
@@ -498,6 +499,16 @@ bool CSG_Shapes::Del_Shape(int iShape)
 	}
 
 	return( false );
+}
+
+bool CSG_Shapes::Del_Shapes(void)
+{
+	for(int i=m_nShapes; i>=0; i--)
+	{
+		Del_Shape(i);
+	}
+
+	return( m_nShapes == 0 );
 }
 
 

@@ -193,12 +193,9 @@ void CWKSP_Base_Control::On_Command(wxCommandEvent &event)
 	//-----------------------------------------------------
 	if( event.GetId() == ID_CMD_WKSP_ITEM_CLOSE )
 	{
-		if( g_pWKSP && g_pWKSP->GetCurrentPage() && g_pWKSP->GetCurrentPage()->GetId() == GetId() )
-		{
-			_Del_Active(false);
+		_Del_Active(false);
 
-			return;
-		}
+		return;
 	}
 
 	//-----------------------------------------------------
@@ -207,9 +204,10 @@ void CWKSP_Base_Control::On_Command(wxCommandEvent &event)
 		return;
 	}
 
-	CWKSP_Base_Item	*pItem;
+	//-----------------------------------------------------
+	CWKSP_Base_Item	*pItem	= Get_Item_Selected();
 
-	if( (pItem = Get_Item_Selected()) != NULL )
+	if( pItem )
 	{
 		pItem->On_Command(event.GetId());
 	}
@@ -224,9 +222,10 @@ void CWKSP_Base_Control::On_Command_UI(wxUpdateUIEvent &event)
 		return;
 	}
 
-	CWKSP_Base_Item	*pItem;
+	//-----------------------------------------------------
+	CWKSP_Base_Item	*pItem	= Get_Item_Selected();
 
-	if( (pItem = Get_Item_Selected()) != NULL )
+	if( pItem )
 	{
 		pItem->On_Command_UI(event);
 	}
@@ -523,7 +522,7 @@ void CWKSP_Base_Control::On_Item_LDClick(wxMouseEvent &event)
 //---------------------------------------------------------
 void CWKSP_Base_Control::On_Item_RClick(wxTreeEvent &event)
 {
-	if( !(GetWindowStyle() & wxTR_MULTIPLE) )
+	if( !(GetWindowStyle() & wxTR_MULTIPLE) || wxGetKeyState(WXK_CONTROL) == false )
 	{
 		Set_Item_Selected((CWKSP_Base_Item *)GetItemData(event.GetItem()));
 	}
@@ -553,7 +552,11 @@ void CWKSP_Base_Control::On_Item_KeyDown(wxTreeEvent &event)
 {
 	CWKSP_Base_Item	*pItem;
 
-	if( (pItem = Get_Item_Selected()) != NULL )
+	if( event.GetKeyCode() == WXK_DELETE )
+	{
+		_Del_Active(false);
+	}
+	else if( (pItem = Get_Item_Selected()) != NULL )
 	{
 		switch( event.GetKeyCode() )
 		{
@@ -563,10 +566,6 @@ void CWKSP_Base_Control::On_Item_KeyDown(wxTreeEvent &event)
 
 		case WXK_RETURN:
 			pItem->On_Command(ID_CMD_WKSP_ITEM_RETURN);
-			break;
-
-		case WXK_DELETE:
-			_Del_Active(false);
 			break;
 		}
 	}

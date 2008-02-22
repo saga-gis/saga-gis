@@ -667,6 +667,16 @@ typedef enum ESG_UI_MSG_STYLE
 TSG_UI_MSG_STYLE;
 
 //---------------------------------------------------------
+typedef enum ESG_UI_DataObject_Update
+{
+	SG_UI_DATAOBJECT_UPDATE_ONLY	= 0,
+	SG_UI_DATAOBJECT_SHOW,
+	SG_UI_DATAOBJECT_SHOW_NEW_MAP,
+	SG_UI_DATAOBJECT_SHOW_LAST_MAP
+}
+TSG_UI_DataObject_Update;
+
+//---------------------------------------------------------
 typedef enum ESG_UI_Callback_ID
 {
 	CALLBACK_PROCESS_GET_OKAY,
@@ -728,9 +738,9 @@ SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Execution		(const SG_Char *Message, b
 
 SAGA_API_DLL_EXPORT class CSG_Data_Object *	SG_UI_DataObject_Find		(const SG_Char *File_Name          , int Object_Type);
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Check		(class CSG_Data_Object *pDataObject, int Object_Type);
-SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Add		(class CSG_Data_Object *pDataObject, bool bShow);
-SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Update		(class CSG_Data_Object *pDataObject, bool bShow, class CSG_Parameters *pParameters);
-SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Show		(class CSG_Data_Object *pDataObject);
+SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Add		(class CSG_Data_Object *pDataObject, int Show);
+SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Update		(class CSG_Data_Object *pDataObject, int Show, class CSG_Parameters *pParameters);
+SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Show		(class CSG_Data_Object *pDataObject, int Show);
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_asImage	(class CSG_Data_Object *pDataObject, class CSG_Grid *pGrid);
 
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Colors_Get	(class CSG_Data_Object *pDataObject, class CSG_Colors *pColors);

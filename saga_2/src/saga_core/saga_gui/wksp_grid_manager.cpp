@@ -64,6 +64,8 @@
 
 #include "wksp_data_manager.h"
 
+#include "wksp_map_manager.h"
+
 #include "wksp_grid_manager.h"
 #include "wksp_grid_system.h"
 #include "wksp_grid.h"
@@ -290,13 +292,23 @@ bool CWKSP_Grid_Manager::Update_Views(CSG_Grid *pGrid)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Grid_Manager::Show(CSG_Grid *pGrid)
+bool CWKSP_Grid_Manager::Show(CSG_Grid *pGrid, int Map_Mode)
 {
 	CWKSP_Grid	*pItem;
 
 	if( (pItem = Get_Grid(pGrid)) != NULL )
 	{
-		return( pItem->Show() );
+		switch( Map_Mode )
+		{
+		case SG_UI_DATAOBJECT_SHOW:
+			return( pItem->Show() );
+
+		case SG_UI_DATAOBJECT_SHOW_NEW_MAP:
+			g_pMaps->Add(pItem, NULL);
+
+		case SG_UI_DATAOBJECT_SHOW_LAST_MAP:
+			return( pItem->Show(g_pMaps->Get_Map(g_pMaps->Get_Count() - 1)) );
+		}
 	}
 
 	return( false );

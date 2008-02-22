@@ -138,7 +138,8 @@ bool CGrid_Profile::On_Execute(void)
 
 	m_bAdd		= false;
 
-	DataObject_Update(m_pDEM, true);
+	DataObject_Update(m_pDEM , SG_UI_DATAOBJECT_SHOW_NEW_MAP);
+	DataObject_Update(m_pLine, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
 
 	return( true );
 }
@@ -169,7 +170,7 @@ bool CGrid_Profile::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactiv
 
 		m_pLine->Get_Shape(0)->Add_Point(Get_System()->Fit_to_Grid_System(ptWorld));
 
-		DataObject_Update(m_pLine, false);
+		DataObject_Update(m_pLine, SG_UI_DATAOBJECT_UPDATE_ONLY);
 		break;
 
 	case MODULE_INTERACTIVE_RDOWN:

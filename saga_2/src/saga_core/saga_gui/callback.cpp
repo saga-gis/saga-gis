@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: callback.cpp,v 1.8 2008-01-18 14:16:51 oconrad Exp $
+// $Id: callback.cpp,v 1.9 2008-02-22 15:31:49 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -242,7 +242,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 
 		if( Result && Param_2 )
 		{
-			g_pData->Show((CSG_Data_Object *)Param_1);
+			g_pData->Show((CSG_Data_Object *)Param_1, false);
 		}
 
 		break;
@@ -259,7 +259,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_SHOW:
 
-		Result	= g_pData->Show((CSG_Data_Object *)Param_1) ? 1 : 0;
+		Result	= g_pData->Show((CSG_Data_Object *)Param_1, Param_2) ? 1 : 0;
 
 		break;
 

@@ -103,7 +103,7 @@ public:
 
 	bool						Update			(class CSG_TIN *pTIN, class CSG_Parameters *pParameters);
 	bool						Update_Views	(class CSG_TIN *pTIN);
-	bool						Show			(class CSG_TIN *pTIN);
+	bool						Show			(class CSG_TIN *pTIN, int Map_Mode);
 	bool						asImage			(class CSG_TIN *pTIN, class CSG_Grid *pImage);
 
 	bool						Get_Colors		(class CSG_TIN *pTIN, class CSG_Colors *pColors);

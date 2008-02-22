@@ -64,6 +64,8 @@
 
 #include "wksp_data_manager.h"
 
+#include "wksp_map_manager.h"
+
 #include "wksp_tin_manager.h"
 #include "wksp_tin.h"
 
@@ -240,13 +242,23 @@ bool CWKSP_TIN_Manager::Update_Views(CSG_TIN *pTIN)
 }
 
 //---------------------------------------------------------
-bool CWKSP_TIN_Manager::Show(CSG_TIN *pTIN)
+bool CWKSP_TIN_Manager::Show(CSG_TIN *pTIN, int Map_Mode)
 {
 	CWKSP_TIN	*pItem;
 
 	if( (pItem = Get_TIN(pTIN)) != NULL )
 	{
-		return( pItem->Show() );
+		switch( Map_Mode )
+		{
+		case SG_UI_DATAOBJECT_SHOW:
+			return( pItem->Show() );
+
+		case SG_UI_DATAOBJECT_SHOW_NEW_MAP:
+			g_pMaps->Add(pItem, NULL);
+
+		case SG_UI_DATAOBJECT_SHOW_LAST_MAP:
+			return( pItem->Show(g_pMaps->Get_Map(g_pMaps->Get_Count() - 1)) );
+		}
 	}
 
 	return( false );

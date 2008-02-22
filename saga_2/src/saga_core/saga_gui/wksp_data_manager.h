@@ -134,7 +134,7 @@ public:
 	CWKSP_Base_Item *				Add					(class CSG_Data_Object *pObject);
 	bool							Update				(class CSG_Data_Object *pObject, class CSG_Parameters *pParameters);
 	bool							Update_Views		(class CSG_Data_Object *pObject);
-	bool							Show				(class CSG_Data_Object *pObject);
+	bool							Show				(class CSG_Data_Object *pObject, int Map_Mode);
 	bool							asImage				(class CSG_Data_Object *pObject, class CSG_Grid *pImage);
 
 	bool							Get_Colors			(class CSG_Data_Object *pObject, class CSG_Colors *pColors);

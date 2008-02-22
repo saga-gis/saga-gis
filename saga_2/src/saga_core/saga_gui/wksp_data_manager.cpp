@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: wksp_data_manager.cpp,v 1.20 2008-01-11 12:37:15 oconrad Exp $
+// $Id: wksp_data_manager.cpp,v 1.21 2008-02-22 15:31:49 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -940,23 +940,23 @@ bool CWKSP_Data_Manager::Update_Views(CSG_Data_Object *pObject)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Data_Manager::Show(CSG_Data_Object *pObject)
+bool CWKSP_Data_Manager::Show(CSG_Data_Object *pObject, int Map_Mode)
 {
 	if( pObject )
 	{
 		switch( pObject->Get_ObjectType() )
 		{
 		case DATAOBJECT_TYPE_Grid:
-			return( m_pGrids  && m_pGrids ->Show((CSG_Grid   *)pObject) );
+			return( m_pGrids  && m_pGrids ->Show((CSG_Grid   *)pObject, Map_Mode) );
 
 		case DATAOBJECT_TYPE_Table:
 			return( m_pTables && m_pTables->Show((CSG_Table  *)pObject) );
 
 		case DATAOBJECT_TYPE_Shapes:
-			return( m_pShapes && m_pShapes->Show((CSG_Shapes *)pObject) );
+			return( m_pShapes && m_pShapes->Show((CSG_Shapes *)pObject, Map_Mode) );
 
 		case DATAOBJECT_TYPE_TIN:
-			return( m_pTINs   && m_pTINs  ->Show((CSG_TIN    *)pObject) );
+			return( m_pTINs   && m_pTINs  ->Show((CSG_TIN    *)pObject, Map_Mode) );
 
 		default:
 			break;
