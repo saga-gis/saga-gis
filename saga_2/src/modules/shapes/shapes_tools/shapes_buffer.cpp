@@ -148,11 +148,11 @@ bool CShapes_Buffer::On_Execute(void)
 	int			Type, Field, iShape;
 	double		Scale;
 	CSG_Shape	*pShape;
-	CSG_Shapes	*pShapes, Tmp;
+	CSG_Shapes	*pShapes, *pBuffers, Tmp;
 
 	//-----------------------------------------------------
 	pShapes		= Parameters("SHAPES")		->asShapes();
-	m_pBuffers	= Parameters("BUFFER")		->asShapes();
+	pBuffers	= Parameters("BUFFER")		->asShapes();
 	Type		= Parameters("BUF_TYPE")	->asInt();
 	Field		= Parameters("BUF_FIELD")	->asInt();
 	Scale		= Parameters("BUF_SCALE")	->asDouble();
@@ -176,8 +176,10 @@ bool CShapes_Buffer::On_Execute(void)
 		m_pSegment	= Tmp.Add_Shape();
 		m_pUnion	= Tmp.Add_Shape();
 
-		m_pBuffers->Create(SHAPE_TYPE_Polygon, CSG_String::Format(SG_T("%s [%s]"), pShapes->Get_Name(), _TL("Buffer")));
-		m_pBuffers->Get_Table().Add_Field(_TL("ID")	, TABLE_FIELDTYPE_Int);
+		pBuffers	->Create(SHAPE_TYPE_Polygon, CSG_String::Format(SG_T("%s [%s]"), pShapes->Get_Name(), _TL("Buffer")));
+		pBuffers	->Get_Table().Add_Field(_TL("ID")	, TABLE_FIELDTYPE_Int);
+		m_pBuffer	= pBuffers->Add_Shape();
+		m_pBuffer	->Get_Record()->Set_Value(0, 1);
 
 		for(iShape=0, m_ID=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
@@ -195,7 +197,7 @@ bool CShapes_Buffer::On_Execute(void)
 			}
 		}
 
-		return( m_pBuffers->is_Valid() );
+		return( pBuffers->is_Valid() );
 	}
 
 	return( false );
@@ -537,9 +539,15 @@ void CShapes_Buffer::Add_Buffer(void)
 
 	if( m_pUnion->is_Valid() )
 	{
-		CSG_Shape	*pBuffer	= m_pBuffers->Add_Shape(m_pUnion);
+		for(int iPart=0; iPart<m_pUnion->Get_Part_Count(); iPart++)
+		{
+			int		jPart	= m_pBuffer->Get_Part_Count();
 
-		pBuffer->Get_Record()->Set_Value(0, ++m_ID);
+			for(int iPoint=0; iPoint<m_pUnion->Get_Point_Count(iPart); iPoint++)
+			{
+				m_pBuffer->Add_Point(m_pUnion->Get_Point(iPoint, iPart), jPart);
+			}
+		}
 	}
 }
 

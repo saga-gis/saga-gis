@@ -142,11 +142,11 @@ bool CShapes_Split_Randomly::On_Execute(void)
 		{
 			if( Percent < rand() )
 			{
-				pA->Add_Shape(pShapes->Get_Shape(iShape));
+				pA->Add_Shape(pShapes->Get_Shape(iShape), true);
 			}
 			else
 			{
-				pB->Add_Shape(pShapes->Get_Shape(iShape));
+				pB->Add_Shape(pShapes->Get_Shape(iShape), true);
 			}
 		}
 

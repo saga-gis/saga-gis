@@ -51,7 +51,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: module.h,v 1.14 2008-02-22 15:31:45 oconrad Exp $
+// $Id: module.h,v 1.15 2008-02-25 15:42:03 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -202,6 +202,7 @@ protected:
 
 	void						Message_Add					(const SG_Char *Text, bool bNewLine = true);
 	void						Message_Dlg					(const SG_Char *Text, const SG_Char *Caption = NULL);
+	bool						Message_Dlg_Confirm			(const SG_Char *Text, const SG_Char *Caption = NULL);
 
 	bool						Error_Set					(TSG_Module_Error Error_ID = MODULE_ERROR_Unknown);
 	bool						Error_Set					(const SG_Char *Error_Text);

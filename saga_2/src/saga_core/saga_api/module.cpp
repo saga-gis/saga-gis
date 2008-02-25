@@ -409,14 +409,13 @@ bool CSG_Module::Set_Progress(double Position, double Range)
 //---------------------------------------------------------
 void CSG_Module::Message_Dlg(const SG_Char *Text, const SG_Char *Caption)
 {
-	if( Caption && Caption[0] != '\0' )
-	{
-		SG_UI_Dlg_Message(Text, Caption);
-	}
-	else
-	{
-		SG_UI_Dlg_Message(Text, Get_Name());
-	}
+	SG_UI_Dlg_Message(Text, Caption && Caption[0] != '\0' ? Caption : Get_Name());
+}
+
+//---------------------------------------------------------
+bool CSG_Module::Message_Dlg_Confirm(const SG_Char *Text, const SG_Char *Caption)
+{
+	return( SG_UI_Dlg_Continue(Text, Caption && Caption[0] != '\0' ? Caption : Get_Name()) );
 }
 
 //---------------------------------------------------------

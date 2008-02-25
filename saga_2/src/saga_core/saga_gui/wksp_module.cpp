@@ -467,9 +467,9 @@ void CWKSP_Module::_Save_Script(void)
 //---------------------------------------------------------
 #define GET_ID1(p)		(p->Get_Owner()->Get_Identifier() && *(p->Get_Owner()->Get_Identifier()) \
 						? wxString::Format(wxT("%s_%s"), p->Get_Owner()->Get_Identifier(), p->Get_Identifier()) \
-						: wxString::Format(p->Get_Identifier()))
+						: wxString::Format(p->Get_Identifier())).c_str()
 
-#define GET_ID2(p, s)	wxString::Format(wxT("%s_%s"), GET_ID1(p).c_str(), s)
+#define GET_ID2(p, s)	wxString::Format(wxT("%s_%s"), GET_ID1(p), s).c_str()
 
 //---------------------------------------------------------
 void CWKSP_Module::_Save_Script_CMD(CSG_String &Command, CSG_Parameters *pParameters)

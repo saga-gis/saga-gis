@@ -137,6 +137,7 @@ bool CGeoref_Grid_Move::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Intera
 			if( m_pSource == NULL )
 			{
 				m_pSource	= new CSG_Grid(*m_pGrid);
+				m_pSource	->Set_Name(m_pGrid->Get_Name());
 
 				m_Move		= m_Down - ptWorld;
 			}
@@ -192,7 +193,11 @@ bool CGeoref_Grid_Move::On_Execute_Finish(void)
 		m_pGrid->Set_Modified(m_bModified);
 		DataObject_Update(m_pGrid);
 
-		if( m_Move.Get_X() != 0.0 || m_Move.Get_Y() != 0.0 )
+		if( m_Move.Get_X() == 0.0 && m_Move.Get_Y() == 0.0 )
+		{
+			Message_Add(_TL("No translation set by user"));
+		}
+		else if( Message_Dlg_Confirm(_TL("Apply Move"), _TL("Move Grid")) )
 		{
 			m_pGrid	= new CSG_Grid(m_pSource->Get_Type(), m_pSource->Get_NX(), m_pSource->Get_NY(), m_pSource->Get_Cellsize(),
 				m_pSource->Get_XMin() - m_Move.Get_X(),
@@ -212,12 +217,14 @@ bool CGeoref_Grid_Move::On_Execute_Finish(void)
 			}
 
 			Parameters("GRID")->Set_Value(m_pGrid);
+
+			return( true );
 		}
 
 		delete(m_pSource);
 	}
 
-	return( true );
+	return( false );
 }
 
 

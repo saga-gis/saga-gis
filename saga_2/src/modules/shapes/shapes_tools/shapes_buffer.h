@@ -87,9 +87,7 @@ private:
 
 	double						m_Distance, m_dArc;
 
-	CSG_Shape					*m_pSegment, *m_pUnion;
-
-	CSG_Shapes					*m_pBuffers;
+	CSG_Shape					*m_pSegment, *m_pUnion, *m_pBuffer;
 
 
 	bool						Get_Buffer_Point		(CSG_Shape *pPoint);
