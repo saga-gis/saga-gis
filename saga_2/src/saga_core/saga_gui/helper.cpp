@@ -317,7 +317,7 @@ void		Do_Beep(int Style)
 		Beep(440, 100);
 		Beep(550, 100);
 #else
-		wxBell();
+//		wxBell();
 #endif
 		break;
 	}

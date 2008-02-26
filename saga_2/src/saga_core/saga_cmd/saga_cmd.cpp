@@ -169,7 +169,10 @@ _try
 			wxUnsetEnv(SYS_ENV_PATH);
 		}
 
-		wxBell();
+#if defined(__WXMSW__)
+		wxBell();	// seems to cause trouble with gtk!!
+#endif
+
 		wxUninitialize();
 	}
 
