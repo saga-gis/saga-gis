@@ -1,1 +1,1 @@
-SUBDIRS = io_shapes
+SUBDIRS = io_shapes io_shapes_dxf

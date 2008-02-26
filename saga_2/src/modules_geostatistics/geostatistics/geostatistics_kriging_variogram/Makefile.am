@@ -35,5 +35,4 @@ sgui_dialog.h\
 sgui_helper.h\
 variogram_dialog.h
 
-libgeostatistics_kriging_variogram_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
-
+libgeostatistics_kriging_variogram_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(ADD_MLBS)

@@ -105,6 +105,7 @@
 #include <wx/slider.h>
 #include <wx/spinctrl.h>
 #include <wx/dialog.h>
+#include <wx/panel.h>
 
 
 ///////////////////////////////////////////////////////////
