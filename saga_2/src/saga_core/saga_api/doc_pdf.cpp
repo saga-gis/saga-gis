@@ -71,17 +71,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#if defined(_SAGA_MSW)
-	#define XMD_H
-	#if !defined(_SAGA_MINGW)
-		#define HAVE_BOOLEAN
-		#define boolean	bool
-	#endif
-#endif
+#include <hpdf.h>
 
-#include <libharu.h>
-
-//---------------------------------------------------------
 #include "doc_pdf.h"
 
 
@@ -92,6 +83,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define PDF_PAGE_WIDTH_A4		595.276
+#define PDF_PAGE_HEIGHT_A4		841.89
+
 #define PDF_PAGE_HEIGHT_A4_M	0.297
 
 #define PDF_PAGE_WIDTH_A3		 PDF_PAGE_HEIGHT_A4
@@ -99,6 +93,11 @@
 
 #define PDF_METER_TO_POINT		(PDF_PAGE_HEIGHT_A4 / PDF_PAGE_HEIGHT_A4_M)
 #define PDF_POINT_TO_METER		(PDF_PAGE_HEIGHT_A4_M / PDF_PAGE_HEIGHT_A4)
+
+//---------------------------------------------------------
+#define PDF_GET_R(c)			(float)(SG_GET_R(c) / 255.0)
+#define PDF_GET_G(c)			(float)(SG_GET_G(c) / 255.0)
+#define PDF_GET_B(c)			(float)(SG_GET_B(c) / 255.0)
 
 
 ///////////////////////////////////////////////////////////
@@ -141,6 +140,21 @@ CSG_Doc_PDF::~CSG_Doc_PDF(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+const SG_Char * CSG_Doc_PDF::Get_Version(void)
+{
+	static CSG_String	s	= CSG_String::Format(SG_T("Haru Free PDF Library, Version %s"), HPDF_VERSION_TEXT);
+
+	return( s );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_Doc_PDF::Open(const SG_Char *Title)
 {
 	return( Open(PDF_PAGE_SIZE_A4, PDF_PAGE_ORIENTATION_PORTRAIT, Title) );
@@ -151,18 +165,13 @@ bool CSG_Doc_PDF::Open(TSG_PDF_Page_Size Size, int Orientation, const SG_Char *T
 {
 	if( Close() )
 	{
-		m_pPDF	= new PdfDoc();
-		m_pPDF	->NewDoc();
+		m_pPDF	= HPDF_New(NULL, NULL);
 
-		m_pLastLevel0OutlineItem = NULL;
-		m_pLastLevel1OutlineItem = NULL;
-		m_pLastLevel2OutlineItem = NULL;
+		m_pOutline_Last_Level_0 = NULL;
+		m_pOutline_Last_Level_1 = NULL;
+		m_pOutline_Last_Level_2 = NULL;
 
 		Set_Size_Page(Size, Orientation);
-
-		PdfType1FontDef	*pFontDef	= new PdfHelveticaFontDef();
-		m_pPDF	->AddType1Font(pFontDef, "WinAnsiEncoding", new PdfWinAnsiEncoding());
-		m_Font_Default	= pFontDef->FontName();
 
 		if( Title && *Title )
 		{
@@ -182,8 +191,7 @@ bool CSG_Doc_PDF::Close(void)
 	{
 		try
 		{
-			m_pPDF->FreeDoc();
-			delete(m_pPDF);
+			HPDF_Free(m_pPDF);
 		}
 		catch(...)
 		{
@@ -193,7 +201,6 @@ bool CSG_Doc_PDF::Close(void)
 
 	m_pPDF		= NULL;
 	m_pPage		= NULL;
-	m_pCanvas	= NULL;
 	m_nPages	= 0;
 
 	return( true );
@@ -213,14 +220,10 @@ bool CSG_Doc_PDF::Save(const SG_Char *FileName)
 	{
 		try
 		{
-			m_pPDF->WriteToFile(SG_STR_SGTOMB(FileName));
+			return( HPDF_SaveToFile(m_pPDF, SG_STR_SGTOMB(FileName)) == HPDF_OK );
 		}
 		catch(...)
-		{
-			return ( false );
-		}
-
-		return( true );
+		{}
 	}
 
 	SG_UI_Msg_Add_Error(LNG("[ERR] Could not save PDF file."));
@@ -249,29 +252,28 @@ double CSG_Doc_PDF::Get_Page_To_Meter(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const char * CSG_Doc_PDF::_Get_Font_Name(TSG_PDF_Font_Type Font)
+struct _HPDF_Dict_Rec * CSG_Doc_PDF::_Get_Font(TSG_PDF_Font_Type Font)
 {
-	return( "WinAnsiEncoding" );
-
 	switch( Font )
 	{
-	case PDF_FONT_Helvetica:				return( "Helvetica" );
-	case PDF_FONT_Helvetica_Bold:			return( "Helvetica-Bold" );
-	case PDF_FONT_Helvetica_Oblique:		return( "Helvetica-Oblique" );
-	case PDF_FONT_Helvetica_BoldOblique:	return( "Helvetica-BoldOblique" );
-	case PDF_FONT_Times_Roman:				return( "Times-Roman" );
-	case PDF_FONT_Times_Bold:				return( "Times-Bold" );
-	case PDF_FONT_Times_Italic:				return( "Times-Italic" );
-	case PDF_FONT_Times_BoldItalic:			return( "Times-BoldItalic" );
-	case PDF_FONT_Courier:					return( "Courier" );
-	case PDF_FONT_Courier_Bold:				return( "Courier-Bold" );
-	case PDF_FONT_Courier_Oblique:			return( "Courier-Oblique" );
-	case PDF_FONT_Courier_BoldOblique:		return( "Courier-BoldOblique" );
-	case PDF_FONT_Symbol:					return( "Symbol" );
-	case PDF_FONT_ZapfDingbats:				return( "ZapfDingbats" );
+	default:
+	case PDF_FONT_Helvetica:				return( HPDF_GetFont(m_pPDF, "Helvetica"			, NULL) );
+	case PDF_FONT_Helvetica_Bold:			return( HPDF_GetFont(m_pPDF, "Helvetica-Bold"		, NULL) );
+	case PDF_FONT_Helvetica_Oblique:		return( HPDF_GetFont(m_pPDF, "Helvetica-Oblique"	, NULL) );
+	case PDF_FONT_Helvetica_BoldOblique:	return( HPDF_GetFont(m_pPDF, "Helvetica-BoldOblique", NULL) );
+	case PDF_FONT_Times_Roman:				return( HPDF_GetFont(m_pPDF, "Times-Roman"			, NULL) );
+	case PDF_FONT_Times_Bold:				return( HPDF_GetFont(m_pPDF, "Times-Bold"			, NULL) );
+	case PDF_FONT_Times_Italic:				return( HPDF_GetFont(m_pPDF, "Times-Italic"			, NULL) );
+	case PDF_FONT_Times_BoldItalic:			return( HPDF_GetFont(m_pPDF, "Times-BoldItalic"		, NULL) );
+	case PDF_FONT_Courier:					return( HPDF_GetFont(m_pPDF, "Courier"				, NULL) );
+	case PDF_FONT_Courier_Bold:				return( HPDF_GetFont(m_pPDF, "Courier-Bold"			, NULL) );
+	case PDF_FONT_Courier_Oblique:			return( HPDF_GetFont(m_pPDF, "Courier-Oblique"		, NULL) );
+	case PDF_FONT_Courier_BoldOblique:		return( HPDF_GetFont(m_pPDF, "Courier-BoldOblique"	, NULL) );
+	case PDF_FONT_Symbol:					return( HPDF_GetFont(m_pPDF, "Symbol"				, NULL) );
+	case PDF_FONT_ZapfDingbats:				return( HPDF_GetFont(m_pPDF, "ZapfDingbats"			, NULL) );
 	}
 
-	return( m_Font_Default );
+	return( NULL );
 }
 
 
@@ -426,36 +428,36 @@ bool CSG_Doc_PDF::_Fit_Rectangle(CSG_Rect &r, double XToY_Ratio, bool bShrink)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Doc_PDF::_Add_Outline_Item(const SG_Char *Title, PdfPage *pPage, TSG_PDF_Title_Level Level)
+bool CSG_Doc_PDF::_Add_Outline_Item(const SG_Char *Title, struct _HPDF_Dict_Rec *pPage, TSG_PDF_Title_Level Level)
 {
 	if( m_pPDF && pPage )
 	{
-		PdfOutlineItem	*pOutlineItem	= NULL;
+		HPDF_Outline	pOutlineItem	= NULL;
 
 		switch( Level )
 		{
 		case PDF_TITLE:
-			pOutlineItem	= m_pLastLevel0OutlineItem	= new PdfOutlineItem(m_pPDF->Outlines());
+			pOutlineItem	= m_pOutline_Last_Level_0	= HPDF_CreateOutline(m_pPDF, NULL, SG_STR_SGTOMB(Title), NULL);
 			break;
 
 		case PDF_TITLE_01:
-			if( m_pLastLevel0OutlineItem )
+			if( m_pOutline_Last_Level_0 )
 			{
-				pOutlineItem	= m_pLastLevel1OutlineItem	= new PdfOutlineItem(m_pLastLevel0OutlineItem);
+				pOutlineItem	= m_pOutline_Last_Level_1	= HPDF_CreateOutline(m_pPDF, m_pOutline_Last_Level_0, SG_STR_SGTOMB(Title), NULL);
 			}
 			break;
 
 		case PDF_TITLE_02:
-			if( m_pLastLevel1OutlineItem )
+			if( m_pOutline_Last_Level_1 )
 			{
-				pOutlineItem	= m_pLastLevel2OutlineItem	= new PdfOutlineItem(m_pLastLevel1OutlineItem);
+				pOutlineItem	= m_pOutline_Last_Level_2	= HPDF_CreateOutline(m_pPDF, m_pOutline_Last_Level_1, SG_STR_SGTOMB(Title), NULL);
 			}
 			break;
 
 		case PDF_TITLE_NONE:
-			if( m_pLastLevel2OutlineItem )
+			if( m_pOutline_Last_Level_2 )
 			{
-				pOutlineItem	= new PdfOutlineItem(m_pLastLevel2OutlineItem);
+				pOutlineItem	= HPDF_CreateOutline(m_pPDF, m_pOutline_Last_Level_2, SG_STR_SGTOMB(Title), NULL);
 			}
 			break;
 
@@ -463,15 +465,12 @@ bool CSG_Doc_PDF::_Add_Outline_Item(const SG_Char *Title, PdfPage *pPage, TSG_PD
 
 		if( pOutlineItem )
 		{
-			pOutlineItem	->SetTitle(SG_STR_SGTOMB(Title));
-
 			if( pPage )
 			{
-				PdfDestination	*pDestination;
+				struct _HPDF_Array_Rec	*pDestination	= HPDF_Page_CreateDestination(pPage);
 
-				pDestination	= new PdfDestination(pPage);
-				pDestination	->SetFit();
-				pOutlineItem	->SetDestination(pDestination);
+				HPDF_Destination_SetFit		(pDestination);
+				HPDF_Outline_SetDestination	(pOutlineItem, pDestination);
 			}
 
 			return( true );
@@ -484,21 +483,21 @@ bool CSG_Doc_PDF::_Add_Outline_Item(const SG_Char *Title, PdfPage *pPage, TSG_PD
 //---------------------------------------------------------
 bool CSG_Doc_PDF::Add_Outline_Item(const SG_Char *Title)
 {
-	return( _Add_Outline_Item(Title, m_pPage, _Get_Lowest_Level_Outline_Item()) );
+	return( _Add_Outline_Item(Title, m_pPage, _Get_Lowest_Outline_Level()) );
 }
 
 //---------------------------------------------------------
-TSG_PDF_Title_Level CSG_Doc_PDF::_Get_Lowest_Level_Outline_Item(void)
+TSG_PDF_Title_Level CSG_Doc_PDF::_Get_Lowest_Outline_Level(void)
 {
-	if( m_pLastLevel2OutlineItem )
+	if( m_pOutline_Last_Level_2 )
 	{
 		return( PDF_TITLE_NONE );
 	}
-	else if( m_pLastLevel1OutlineItem )
+	else if( m_pOutline_Last_Level_1 )
 	{
 		return( PDF_TITLE_02 );
 	}
-	else if( m_pLastLevel0OutlineItem )
+	else if( m_pOutline_Last_Level_0 )
 	{
 		return( PDF_TITLE_01 );
 	}
@@ -522,14 +521,12 @@ bool CSG_Doc_PDF::Add_Page(void)
 //---------------------------------------------------------
 bool CSG_Doc_PDF::Add_Page(TSG_PDF_Page_Size Size, int Orientation)
 {
-	if (Add_Page())
+	if( Add_Page() )
 	{
-		return (Set_Size_Page(Size, Orientation));
+		return( Set_Size_Page(Size, Orientation) );
 	}
-	else
-	{
-		return false;
-	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -539,15 +536,12 @@ bool CSG_Doc_PDF::Add_Page(double Width, double Height)
 	{
 		m_nPages++;
 
-		m_pPage		= m_pPDF->AddPage();
+		m_pPage		= HPDF_AddPage(m_pPDF);
 
 		Set_Size_Page(Width, Height);
-		Set_Size_Page(m_Size_Paper.Get_XRange(), m_Size_Paper.Get_YRange());
 
-		m_pCanvas	= m_pPage->Canvas();
-
-		m_pCanvas	->SetRGBStroke	(  0,   0,   0);
-		m_pCanvas	->SetRGBFill	(255, 255, 255);
+		HPDF_Page_SetRGBStroke	(m_pPage, 0.0, 0.0, 0.0);
+		HPDF_Page_SetRGBFill	(m_pPage, 1.0, 1.0, 1.0);
 
 		return( true );
 	}
@@ -596,9 +590,9 @@ bool CSG_Doc_PDF::Set_Size_Page(TSG_PDF_Page_Size Size, int Orientation)
 //---------------------------------------------------------
 bool CSG_Doc_PDF::Set_Size_Page(double Width, double Height)
 {
-	if( (Width > 0.0 && Height > 0.0) )
+	if( Width > 0.0 && Height > 0.0 )
 	{
-		m_Size_Paper	.Assign(0.0, 0.0, Width, Height);
+		m_Size_Paper.Assign(0.0, 0.0, Width, Height);
 
 		m_Size_Margins	= m_Size_Paper;
 		m_Size_Margins.Deflate(10.0, false);
@@ -607,7 +601,8 @@ bool CSG_Doc_PDF::Set_Size_Page(double Width, double Height)
 
 		if( m_pPage )
 		{
-			m_pPage->SetSize((int)m_Size_Paper.Get_XRange(), (int)m_Size_Paper.Get_YRange());
+			HPDF_Page_SetWidth	(m_pPage, (float)m_Size_Paper.Get_XRange());
+			HPDF_Page_SetHeight	(m_pPage, (float)m_Size_Paper.Get_YRange());
 		}
 	}
 
@@ -678,13 +673,6 @@ bool CSG_Doc_PDF::Add_Page_Title(const SG_Char *Title, TSG_PDF_Title_Level Level
 			Draw_Line(Get_Margins().Get_XMin(), y, Get_Margins().Get_XMax(), y, 5, SG_GET_RGB(0, 0, 0), PDF_STYLE_LINE_END_ROUND);
 		}
 
-		if( bDestination )
-		{
-			PdfDestination	*pDestination	= new PdfDestination(m_pPage);
-			pDestination->SetFit();
-			m_pPDF->Catalog()->SetOpenAction(pDestination);
-		}
-
 		if( bPage )
 		{
 			Add_Page();
@@ -712,39 +700,39 @@ bool CSG_Doc_PDF::_Set_Style_FillStroke(int Style, int Fill_Color, int Line_Colo
 		{
 			if( Style & PDF_STYLE_LINE_END_ROUND )
 			{
-				m_pCanvas->SetLineCap(PDF_ROUND_END);
+				HPDF_Page_SetLineCap(m_pPage, HPDF_ROUND_END);
 			}
 			else if( Style & PDF_STYLE_LINE_END_SQUARE )
 			{
-				m_pCanvas->SetLineCap(PDF_PROJECTING_SCUARE_END);
+				HPDF_Page_SetLineCap(m_pPage, HPDF_PROJECTING_SCUARE_END);
 			}
 			else // if( Style & PDF_STYLE_LINE_END_BUTT )
 			{
-				m_pCanvas->SetLineCap(PDF_BUTT_END);
+				HPDF_Page_SetLineCap(m_pPage, HPDF_BUTT_END);
 			}
 
 			if( Style & PDF_STYLE_LINE_JOIN_ROUND )
 			{
-				m_pCanvas->SetLineJoin(PDF_ROUND_JOIN);
+				HPDF_Page_SetLineJoin(m_pPage, HPDF_ROUND_JOIN);
 			}
 			else if( Style & PDF_STYLE_LINE_JOIN_BEVEL )
 			{
-				m_pCanvas->SetLineJoin(PDF_BEVEL_JOIN);
+				HPDF_Page_SetLineJoin(m_pPage, HPDF_BEVEL_JOIN);
 			}
 			else // if( Style & PDF_STYLE_LINE_JOIN_MITER )
 			{
-				m_pCanvas->SetLineJoin(PDF_MITER_JOIN);
+				HPDF_Page_SetLineJoin(m_pPage, HPDF_MITER_JOIN);
 			}
 
-			m_pCanvas->SetRGBStroke(SG_GET_R(Line_Color), SG_GET_G(Line_Color), SG_GET_B(Line_Color));
+			HPDF_Page_SetRGBStroke	(m_pPage, PDF_GET_R(Line_Color), PDF_GET_G(Line_Color), PDF_GET_B(Line_Color));
 
-			m_pCanvas->SetLineWidth(Line_Width);
+			HPDF_Page_SetLineWidth	(m_pPage, (float)Line_Width);
 		}
 
 		//-------------------------------------------------
 		if( Style & PDF_STYLE_POLYGON_FILL )
 		{
-			m_pCanvas->SetRGBFill(SG_GET_R(Fill_Color), SG_GET_G(Fill_Color), SG_GET_B(Fill_Color));
+			HPDF_Page_SetRGBFill(m_pPage, PDF_GET_R(Fill_Color), PDF_GET_G(Fill_Color), PDF_GET_B(Fill_Color));
 		}
 
 		return( true );
@@ -788,15 +776,15 @@ bool CSG_Doc_PDF::Draw_Line(CSG_Points &Points, int Width, int Color, int Style)
 {
 	if( Points.Get_Count() > 1 && _Set_Style_FillStroke(Style|PDF_STYLE_POLYGON_STROKE, 0, Color, Width) )
 	{
-		m_pCanvas->MoveTo(Points[0].x, Points[0].y);
+		HPDF_Page_MoveTo(m_pPage, (float)Points[0].x, (float)Points[0].y);
 
 		for(int i=1; i<Points.Get_Count(); i++)
 		{
-			m_pCanvas->LineTo(Points[i].x, Points[i].y);
+			HPDF_Page_LineTo(m_pPage, (float)Points[i].x, (float)Points[i].y);
 		}
 
 		//-------------------------------------------------
-		m_pCanvas->Stroke();
+		HPDF_Page_Stroke(m_pPage);
 
 		return( true );
 	}
@@ -827,27 +815,27 @@ bool CSG_Doc_PDF::Draw_Polygon(CSG_Points &Points, int Style, int Fill_Color, in
 {
 	if( Points.Get_Count() > 2 && _Set_Style_FillStroke(Style, Fill_Color, Line_Color, Line_Width) )
 	{
-		m_pCanvas->MoveTo(Points[0].x, Points[0].y);
+		HPDF_Page_MoveTo(m_pPage, (float)Points[0].x, (float)Points[0].y);
 
 		for(int i=1; i<Points.Get_Count(); i++)
 		{
-			m_pCanvas->LineTo(Points[i].x, Points[i].y);
+			HPDF_Page_LineTo(m_pPage, (float)Points[i].x, (float)Points[i].y);
 		}
 
-		m_pCanvas->ClosePath();
+		HPDF_Page_ClosePath(m_pPage);
 
 		//-------------------------------------------------
 		if( Style & PDF_STYLE_POLYGON_FILL && Style & PDF_STYLE_POLYGON_STROKE )
 		{
-			m_pCanvas->EofillStroke();
+			HPDF_Page_EofillStroke(m_pPage);
 		}
 		else if( Style & PDF_STYLE_POLYGON_FILL )
 		{
-			m_pCanvas->Eofill();
+			HPDF_Page_Eofill(m_pPage);
 		}
 		else // if( Style & PDF_STYLE_POLYGON_STROKE )
 		{
-			m_pCanvas->Stroke();
+			HPDF_Page_Stroke(m_pPage);
 		}
 
 		return( true );
@@ -908,38 +896,37 @@ bool CSG_Doc_PDF::Draw_Text(double x, double y, const SG_Char *Text, int Size, i
 //---------------------------------------------------------
 bool CSG_Doc_PDF::_Draw_Text(double x, double y, const SG_Char *Text, int Size, int Style, double Angle, int Color, TSG_PDF_Font_Type Font)
 {
+	float	Width, Height;
 
-	float Width, Height;
-
-	if( m_pCanvas && Text && *Text != '\0' )
+	if( m_pPage && Text && *Text != '\0' )
 	{
 		double	ax, ay, bx, by;
 
-		m_pCanvas->SetFontAndSize(_Get_Font_Name(Font), Size);
+		HPDF_Page_SetFontAndSize(m_pPage, _Get_Font(Font), (float)Size);
 
-		m_pCanvas->SetTextRenderingMode(PDF_FILL_THEN_STROKE);
-		m_pCanvas->SetLineWidth(0);
-		m_pCanvas->SetRGBStroke(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
-		m_pCanvas->SetRGBFill  (SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
+		HPDF_Page_SetTextRenderingMode(m_pPage, HPDF_FILL_THEN_STROKE);
+		HPDF_Page_SetLineWidth	(m_pPage, 0);
+		HPDF_Page_SetRGBStroke	(m_pPage, PDF_GET_R(Color), PDF_GET_G(Color), PDF_GET_B(Color));
+		HPDF_Page_SetRGBFill	(m_pPage, PDF_GET_R(Color), PDF_GET_G(Color), PDF_GET_B(Color));
 
-		Width	= m_pCanvas->TextWidth(SG_STR_SGTOMB(Text)) * cos(Angle);
-		Height	= m_pCanvas->TextWidth(SG_STR_SGTOMB(Text)) * sin(Angle) + Size;
+		Width	= HPDF_Page_TextWidth(m_pPage, SG_STR_SGTOMB(Text)) * (float)cos(Angle);
+		Height	= HPDF_Page_TextWidth(m_pPage, SG_STR_SGTOMB(Text)) * (float)sin(Angle) + Size;
 
 		//-------------------------------------------------
 		if( Style & PDF_STYLE_TEXT_ALIGN_H_CENTER )
 		{
-			ax	= x - m_pCanvas->TextWidth(SG_STR_SGTOMB(Text)) / 2.0;
+			ax	= x - HPDF_Page_TextWidth(m_pPage, SG_STR_SGTOMB(Text)) / 2.0;
 		}
 		else if( Style & PDF_STYLE_TEXT_ALIGN_H_RIGHT )
 		{
-			ax	= x - m_pCanvas->TextWidth(SG_STR_SGTOMB(Text));
+			ax	= x - HPDF_Page_TextWidth(m_pPage, SG_STR_SGTOMB(Text));
 		}
 		else
 		{
 			ax	= x;
 		}
 
-		bx	= ax + m_pCanvas->TextWidth(SG_STR_SGTOMB(Text));
+		bx	= ax + HPDF_Page_TextWidth(m_pPage, SG_STR_SGTOMB(Text));
 
 		if( Style & PDF_STYLE_TEXT_ALIGN_V_CENTER )
 		{
@@ -957,7 +944,7 @@ bool CSG_Doc_PDF::_Draw_Text(double x, double y, const SG_Char *Text, int Size, 
 		by	= ay;
 
 		//-------------------------------------------------
-		m_pCanvas->BeginText();
+		HPDF_Page_BeginText(m_pPage);
 
 		if( Angle != 0.0 )
 		{
@@ -979,15 +966,15 @@ bool CSG_Doc_PDF::_Draw_Text(double x, double y, const SG_Char *Text, int Size, 
 			dSin	= sin(Angle);
 			dCos	= cos(Angle),
 
-			m_pCanvas->SetTextMatrix(dCos, dSin, -dSin, dCos, ax, ay);
+			HPDF_Page_SetTextMatrix(m_pPage, (float)dCos, (float)dSin, -(float)dSin, (float)dCos, (float)ax, (float)ay);
 		}
 		else
 		{
-			m_pCanvas->MoveTextPos(ax, ay);
+			HPDF_Page_MoveTextPos(m_pPage, (float)ax, (float)ay);
 		}
 
-		m_pCanvas->ShowText(SG_STR_SGTOMB(Text));
-		m_pCanvas->EndText();
+		HPDF_Page_ShowText(m_pPage, SG_STR_SGTOMB(Text));
+		HPDF_Page_EndText(m_pPage);
 
 		//-------------------------------------------------
 		if( Style & PDF_STYLE_TEXT_UNDERLINE )
@@ -1027,62 +1014,31 @@ bool CSG_Doc_PDF::_Draw_Text(double x, double y, const SG_Char *Text, int Size, 
 bool CSG_Doc_PDF::Draw_Image(double x, double y, double dx, double dy, const SG_Char *FileName)
 {
 	bool		bKeepRatio	= true;
-	PdfImage	*pImage		= NULL;
+	double		nx, ny;
+	HPDF_Image	pImage		= NULL;
 
 	//-----------------------------------------------------
-	if( m_pCanvas && SG_File_Exists(FileName) && dx > 0.0 && dy > 0.0 )
+	if( m_pPage && SG_File_Exists(FileName) && dx > 0.0 && dy > 0.0 )
 	{
 		if( SG_File_Cmp_Extension(FileName, SG_T("png")) )
 		{
-			PdfPngImage		*pPNG;
-
-			pPNG	= new PdfPngImage(m_pPDF);
-		//	pPNG	->LoadFromFile(SG_STR_SGTOMB(FileName));
-	try	{	pPNG	->LoadFromFile(SG_STR_SGTOMB(FileName));	}	catch(...)	{}
-
-			if( !pPNG->IsValidObject() )
-			{
-				delete(pPNG);
-			}
-			else
-			{
-				pImage	= pPNG;
-			}
+	try	{	pImage	= HPDF_LoadPngImageFromFile (m_pPDF, SG_STR_SGTOMB(FileName));	}	catch(...)	{}
 		}
 		else if( SG_File_Cmp_Extension(FileName, SG_T("jpg")) )
 		{
-			PdfJpegImage	*pJPG;
-
-			pJPG	= new PdfJpegImage(m_pPDF);
-		//	pJPG	->LoadFromFile(SG_STR_SGTOMB(FileName));
-	try	{	pJPG	->LoadFromFile(SG_STR_SGTOMB(FileName));	}	catch(...)	{}
-
-			if( !pJPG->IsValidObject() )
-			{
-				delete(pJPG);
-			}
-			else
-			{
-				pImage	= pJPG;
-			}
+	try	{	pImage	= HPDF_LoadJpegImageFromFile(m_pPDF, SG_STR_SGTOMB(FileName));	}	catch(...)	{}
 		}
 	}
 
 	//-----------------------------------------------------
-	if( pImage )
+	if( pImage && (nx = HPDF_Image_GetWidth(pImage)) > 0 && (ny = HPDF_Image_GetHeight(pImage)) > 0 )
 	{
 		if( bKeepRatio )
 		{
-			_Fit_Rectangle(x, y, dx, dy, pImage->Width() / pImage->Height(), true);
+			_Fit_Rectangle(x, y, dx, dy, nx / ny, true);
 		}
 
-		pImage->AddFilter(PDF_FILTER_DEFLATE);
-		m_pPDF->AddXObject(pImage);
-
-		m_pCanvas->GSave();
-		m_pCanvas->Concat(dx, 0, 0, dy, x, y);
-		m_pCanvas->ExecuteXObject(pImage);
-		m_pCanvas->GRestore();
+		HPDF_Page_DrawImage(m_pPage, pImage, (float)x, (float)y, (float)dx, (float)dy);
 
 		return( true );
 	}
@@ -1153,7 +1109,7 @@ bool CSG_Doc_PDF::_Draw_Ruler(const CSG_Rect &r, double zMin, double zMax, bool 
 		yOff		= r.Get_YMax();
 
 		FontSize	= (int)(0.45 * (double)Height);
-		m_pCanvas->SetFontAndSize(_Get_Font_Name(PDF_FONT_DEFAULT), FontSize);
+		HPDF_Page_SetFontAndSize(m_pPage, _Get_Font(PDF_FONT_DEFAULT), (float)FontSize);
 
 		Height_Tick	= (int)(0.3 * (double)Height);
 
@@ -1164,7 +1120,7 @@ bool CSG_Doc_PDF::_Draw_Ruler(const CSG_Rect &r, double zMin, double zMax, bool 
 		Decimals	= dz >= 1.0 ? 0 : (int)fabs(log10(dz));
 
 		s.Printf(SG_T("%.*f"), Decimals, zMax);
-		zDC			= m_pCanvas->TextWidth(SG_STR_SGTOMB(s));
+		zDC			= HPDF_Page_TextWidth(m_pPage, SG_STR_SGTOMB(s));
 		while( zToDC * dz < zDC + RULER_TEXT_SPACE )
 		{
 			dz	*= 2;
@@ -1597,7 +1553,7 @@ void CSG_Doc_PDF::Draw_Curve(CSG_Points &Data, const CSG_Rect &r, int iGraphType
         fY = r.Get_YMax() - ((fMinLine + fStep * i - fMin) / (fMax - fMin)) * r.Get_YRange();
         if (fY <= r.Get_YMax() && fY >= r.Get_YMin()) 
 		{
-			fY = m_pCanvas->Height() - fY;
+			fY = HPDF_Page_Height() - fY;
         }
     }
 
@@ -1608,7 +1564,7 @@ void CSG_Doc_PDF::Draw_Curve(CSG_Points &Data, const CSG_Rect &r, int iGraphType
 		{
 	        fX = r.Get_XMin() + i * fWidth;
 			fY = r.Get_YMax();
-			fY = m_pCanvas->Height() - fY;
+			fY = HPDF_Page_Height() - fY;
 			Draw_Rectangle(fX, fY, fX + fWidth,
 					fY - r.Get_YRange() * ((Data[i].y - fMin) / (fMax - fMin)),
 					PDF_STYLE_POLYGON_FILLSTROKE, 0x660000);
@@ -1619,13 +1575,13 @@ void CSG_Doc_PDF::Draw_Curve(CSG_Points &Data, const CSG_Rect &r, int iGraphType
 		fWidth = (float) r.Get_XRange() / (float) (Data.Get_Count() - 1);
 		fY = r.Get_YMin() + r.Get_YRange()
 				- r.Get_YRange() * ((Data[0].y - fMin) / (fMax - fMin));
-		fY = m_pCanvas->Height() - fY;
+		fY = HPDF_Page_Height() - fY;
 		Points.Add(r.Get_XMin(), fY);
 		for (i = 1; i < Data.Get_Count(); i++)
 		{
 			fY = r.Get_YMin() + r.Get_YRange()
 					- r.Get_YRange() * ((Data[i].y - fMin) / (fMax - fMin));
-			fY = m_pCanvas->Height() - fY;
+			fY = HPDF_Page_Height() - fY;
 			Points.Add(r.Get_XMin() + i * fWidth, fY);
 	    }
 		Draw_Line(Points, 3, 0x660000);
@@ -1653,7 +1609,7 @@ void CSG_Doc_PDF::Draw_Curve(CSG_Points &Data, const CSG_Rect &r, int iGraphType
 		}
 		fOffsetX = fMinX-fMinLine;
 
-		fY = m_pCanvas->Height() - r.Get_YMin() - r.Get_YRange();
+		fY = HPDF_Page_Height() - r.Get_YMin() - r.Get_YRange();
 		for (i = 0; i < iNumData; i++)
 		{
 			fX = r.Get_XMin() + ((fStep * (float) i-fOffsetX) / (fMaxX-fMinX)) * r.Get_XRange();
@@ -1672,10 +1628,10 @@ void CSG_Doc_PDF::Draw_Curve(CSG_Points &Data, const CSG_Rect &r, int iGraphType
 		}
     }
 
-	Draw_Line(r.Get_XMin(), m_pCanvas->Height() - r.Get_YMin(),
-			r.Get_XMin(), m_pCanvas->Height() - r.Get_YMax(), 4);
-	Draw_Line(r.Get_XMin(), m_pCanvas->Height() - r.Get_YMax(),
-			r.Get_XMax(), m_pCanvas->Height() - r.Get_YMax(), 4);
+	Draw_Line(r.Get_XMin(), HPDF_Page_Height() - r.Get_YMin(),
+			r.Get_XMin(), HPDF_Page_Height() - r.Get_YMax(), 4);
+	Draw_Line(r.Get_XMin(), HPDF_Page_Height() - r.Get_YMax(),
+			r.Get_XMax(), HPDF_Page_Height() - r.Get_YMax(), 4);
 */
 }
 
@@ -1698,9 +1654,9 @@ void CSG_Doc_PDF::Layout_Set_Box_Space(double Space, bool bPercent)						{}
 void CSG_Doc_PDF::_Layout_Set_Boxes(void)												{}
 void CSG_Doc_PDF::_Layout_Set_Box(int iBox)												{}
 double CSG_Doc_PDF::Get_Page_To_Meter(void)												{	return( 1.0 );	}
-const char * CSG_Doc_PDF::_Get_Font_Name(TSG_PDF_Font_Type Font)						{	return( "-" );	}
+struct _HPDF_Dict_Rec * CSG_Doc_PDF::_Get_Font(TSG_PDF_Font_Type Font)					{	return( NULL );	}
 const CSG_Rect & CSG_Doc_PDF::Layout_Get_Box(const SG_Char *ID)							{	return( m_Size_Margins );	}
-TSG_PDF_Title_Level CSG_Doc_PDF::_Get_Lowest_Level_Outline_Item(void)					{	return( PDF_TITLE_NONE );	}
+TSG_PDF_Title_Level CSG_Doc_PDF::_Get_Lowest_Outline_Level(void)						{	return( PDF_TITLE_NONE );	}
 bool CSG_Doc_PDF::Open(const SG_Char *Title)											{	return( false );	}
 bool CSG_Doc_PDF::Open(TSG_PDF_Page_Size Size, int Orientation, const SG_Char *Title)	{	return( false );	}
 bool CSG_Doc_PDF::Close(void)															{	return( false );	}

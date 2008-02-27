@@ -133,7 +133,7 @@
 typedef enum ESG_PDF_Font_Type
 {
 	PDF_FONT_DEFAULT	= 0,
-	PDF_FONT_Helvetica,
+	PDF_FONT_Helvetica	= 0,
 	PDF_FONT_Helvetica_Bold,
 	PDF_FONT_Helvetica_Oblique,
 	PDF_FONT_Helvetica_BoldOblique,
@@ -184,14 +184,16 @@ public:
 	CSG_Doc_PDF(TSG_PDF_Page_Size Size, int Orientation = PDF_PAGE_ORIENTATION_PORTRAIT, const SG_Char *Title = NULL);
 	virtual ~CSG_Doc_PDF(void);
 
+	static const SG_Char *		Get_Version					(void);
+
 	bool						Open						(TSG_PDF_Page_Size Size = PDF_PAGE_SIZE_A4, int Orientation = PDF_PAGE_ORIENTATION_PORTRAIT, const SG_Char *Title = NULL);
 	bool						Open						(const SG_Char *Title);
 	bool						Close						(void);
 
 	bool						Save						(const SG_Char *FileName);
 
-	bool						Is_Open						(void)	{	return( m_pPDF    != NULL );	}
-	bool						Is_Ready_To_Draw			(void)	{	return( m_pCanvas != NULL );	}
+	bool						Is_Open						(void)	{	return( m_pPDF != NULL );	}
+	bool						Is_Ready_To_Draw			(void)	{	return( m_pPDF != NULL );	}
 
 	static double				Get_Page_To_Meter			(void);
 
@@ -246,14 +248,14 @@ protected:
 	bool						_Fit_Rectangle				(double &x, double &y, double &dx, double &dy, double XToY_Ratio, bool bShrink);
 	bool						_Fit_Rectangle				(CSG_Rect &r, double XToY_Ratio, bool bShrink);
 
-	bool						_Add_Outline_Item			(const SG_Char *Title, class PdfPage *pPage, TSG_PDF_Title_Level Level = PDF_TITLE);
+	bool						_Add_Outline_Item			(const SG_Char *Title, struct _HPDF_Dict_Rec *pPage, TSG_PDF_Title_Level Level = PDF_TITLE);
 
 	bool						_Draw_Ruler					(const CSG_Rect &r, double zMin, double zMax, bool bHorizontal, bool bAscendent, bool bTickAtTop);
 	bool						_Draw_Text					(double x, double y, const SG_Char *Text, int Size, int Style, double Angle, int Color, TSG_PDF_Font_Type Font);
 	bool						_Draw_Table					(CSG_Rect r, CSG_Table *pTable, int iRecord, int nRecords, double CellHeight, double HeaderHeightRel);
 	bool						_Draw_Shape					(CSG_Rect r, CSG_Shape *pShape, double xMin, double yMin, double World2PDF, int Style = PDF_STYLE_POLYGON_FILLSTROKE, int Fill_Color = SG_COLOR_GREEN, int Line_Color = SG_COLOR_BLACK, int Line_Width = 0, int Point_Width = 5);
 
-	TSG_PDF_Title_Level			_Get_Lowest_Level_Outline_Item	(void);
+	TSG_PDF_Title_Level			_Get_Lowest_Outline_Level	(void);
 
 
 private:
@@ -268,20 +270,16 @@ private:
 
 	CSG_Rects					m_Boxes_Percent, m_Boxes;
 
-	const char *				m_Font_Default;
-
 	CSG_Strings					m_Boxes_ID;
 
-	class PdfDoc				*m_pPDF;
+	struct _HPDF_Doc_Rec		*m_pPDF;
 
-	class PdfPage				*m_pPage;
+	struct _HPDF_Dict_Rec		*m_pPage;
 
-	class PdfContents			*m_pCanvas;
-
-	class PdfOutlineItem		*m_pLastLevel0OutlineItem, *m_pLastLevel1OutlineItem, *m_pLastLevel2OutlineItem;
+	struct _HPDF_Dict_Rec		*m_pOutline_Last_Level_0, *m_pOutline_Last_Level_1, *m_pOutline_Last_Level_2;
 
 
-	const char *				_Get_Font_Name				(TSG_PDF_Font_Type Font);
+	struct _HPDF_Dict_Rec *		_Get_Font					(TSG_PDF_Font_Type Font);
 
 	void						_Layout_Set_Boxes			(void);
 	void						_Layout_Set_Box				(int iBox);

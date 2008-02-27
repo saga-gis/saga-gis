@@ -113,7 +113,7 @@ wxString CWKSP_Grid_System::Get_Description(void)
 	s.Printf(wxT("<b>%s</b><table border=\"0\">"), LNG("[CAP] Grid System"));
 
 	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
-		LNG("[CAP] Name")					, Get_Name()
+		LNG("[CAP] Name")					, Get_Name().c_str()
 	));
 
 	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%d</td></tr>"),

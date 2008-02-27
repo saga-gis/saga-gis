@@ -251,9 +251,16 @@ wxString CDLG_About::_Get_Version(void)
 	s.Append(wxT("_______________________\n\n"));
 
 	s.Append(
-		wxT("SAGA uses the HARU Free PDF Library\n")
+		wxT("SAGA uses\n")
+	);
+
+	s.Append(
+		CSG_Doc_PDF::Get_Version()
+	);
+
+	s.Append(
+		wxT("\n")
 		wxT("http://sourceforge.net/projects/libharu\n")
-		wxT("Version 1.2.0 Beta5\n")
 	);
 #endif
 

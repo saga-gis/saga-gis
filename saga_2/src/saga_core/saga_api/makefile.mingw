@@ -18,10 +18,10 @@ OBJ       = $(TMP_SAGA)api_callback.o $(TMP_SAGA)api_colors.o $(TMP_SAGA)api_cor
 DEF_SAGA  = -D_SAGA_API_EXPORTS -D_SAGA_MSW -D_SAGA_MINGW -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 DEF_WIN   = -D__WXMSW__ -DWXUSINGDLL -DNOPCH
 #DEF_WIN   = -DHAVE_W32API_H -D__WINDOWS__ -D__WIN32__ -D__GNUWIN32__ -D__MINGW32__ -D__WXMSW__
-CXXINCS   = -I"$(WXWIN)/include" -I"$(WXWIN)/lib/gcc_dll/msw" -I"$(HARU)" -I"$(LIB_GCC)/gcc/mingw32/3.4.2/include" -I"$(INC_GCC)" -I"$(INC_GCC)/c++/3.4.2/backward" -I"$(INC_GCC)/c++/3.4.2/mingw32" -I"$(INC_GCC)/c++/3.4.2"
+CXXINCS   = -I"$(WXWIN)/include" -I"$(WXWIN)/lib/gcc_dll/msw" -I"$(HARU)/include" -I"$(LIB_GCC)/gcc/mingw32/3.4.2/include" -I"$(INC_GCC)" -I"$(INC_GCC)/c++/3.4.2/backward" -I"$(INC_GCC)/c++/3.4.2/mingw32" -I"$(INC_GCC)/c++/3.4.2"
 CXXFLAGS  = $(CXXINCS) $(DEF_SAGA) $(DEF_WIN) -mthreads -O3 -Wno-ctor-dtor-privacy
 
-LIBS_WX   = -L"$(WXWIN)/lib/gcc_dll" -lwxmsw28_core -lwxbase28 -L"$(HARU)" -lharu
+LIBS_WX   = -L"$(WXWIN)/lib/gcc_dll" -lwxmsw28_core -lwxbase28 -L"$(HARU)" -lhpdf
 LIBS      = $(LIBS_WX) -L"$(LIB_GCC)" -lwxtiff -lwxjpeg -lwxpng -lwxzlib -lwxregex -lwxexpat -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lwinspool -lwinmm -lshell32 -lcomctl32 -lole32 -loleaut32 -luuid -lrpcrt4 -ladvapi32 -lwsock32 -lodbc32
 LDFLAGS   = --export-all --driver-name c++ -mthreads -mwindows
 
