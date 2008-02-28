@@ -164,7 +164,7 @@ void CACTIVE_Legend::OnDraw(wxDC &dc)
 	wxPoint	p(5, 5);
 	wxSize	s(0, 0);
 
-	if( m_pItem )
+	if( m_pItem && m_pItem->GetId().IsOk() )
 	{
 		switch( m_pItem->Get_Type() )
 		{

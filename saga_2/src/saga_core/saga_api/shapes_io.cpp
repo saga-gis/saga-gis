@@ -173,7 +173,7 @@ bool CSG_Shapes::_Load_ESRI(const SG_Char *File_Name)
 	//-------------------------------------------------
 	// Load Shapes...
 
-	m_nShapes	= m_Table.Get_Record_Count();
+	m_nShapes	= m_nBuffer	= m_Table.Get_Record_Count();
 	m_Shapes	= (CSG_Shape **)SG_Malloc(m_nShapes * sizeof(CSG_Shape *));
 
 	buf_nParts	= 0;

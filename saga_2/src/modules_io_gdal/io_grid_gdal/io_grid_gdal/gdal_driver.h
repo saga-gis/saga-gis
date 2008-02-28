@@ -58,9 +58,9 @@
 #define HEADER_INCLUDED__gdal_driver_H
 
 //---------------------------------------------------------
-#include <gdal_priv.h>
-
 #include "MLB_Interface.h"
+
+#include <gdal_priv.h>
 
 
 ///////////////////////////////////////////////////////////

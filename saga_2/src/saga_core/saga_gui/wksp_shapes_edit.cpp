@@ -454,20 +454,27 @@ bool CWKSP_Shapes::_Edit_Shape_Stop(bool bSave)
 	{
 		if( bSave )
 		{
-			if( m_pShapes->Get_Selection(0) != NULL )
+			CSG_Shape	*pShape;
+
+			if( (pShape = m_pShapes->Get_Selection(0)) == NULL )
 			{
-				m_pShapes->Get_Selection(0)->Assign(m_Edit_pShape, false);
+				if( (pShape = m_pShapes->Add_Shape()) != NULL )
+				{
+					m_pShapes->Select(pShape);
+				}
 			}
-			else
+
+			if( pShape != NULL )
 			{
-				m_pShapes->Add_Shape()->Assign(m_Edit_pShape, false);
+				pShape->Assign(m_Edit_pShape, false);
 			}
 		}
 
-		m_Edit_Shapes.Del_Shape(m_Edit_pShape);
+		m_Edit_Shapes.Del_Shapes();
 		m_Edit_pShape	= NULL;
 
 		Update_Views(false);
+		_Edit_Set_Attributes();
 
 		return( true );
 	}

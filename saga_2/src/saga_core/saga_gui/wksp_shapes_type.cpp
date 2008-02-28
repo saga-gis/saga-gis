@@ -155,7 +155,7 @@ bool CWKSP_Shapes_Type::On_Command(int Cmd_ID)
 //---------------------------------------------------------
 CWKSP_Shapes * CWKSP_Shapes_Type::Get_Shapes(CSG_Shapes *pShapes)
 {
-	if( pShapes && pShapes->Get_Type() == m_Shapes_Type )
+	if( pShapes )
 	{
 		for(int i=0; i<Get_Count(); i++)
 		{

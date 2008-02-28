@@ -432,7 +432,7 @@ bool CSG_Table::_Load_DBase(const SG_Char *File_Name)
 		//-------------------------------------------------
 		if( dbf.Move_First() && dbf.Get_Record_Count() > 0 )
 		{
-			m_nRecords		= dbf.Get_Record_Count();
+			m_nRecords		= m_nBuffer	= dbf.Get_Record_Count();
 			m_Records		= (CSG_Table_Record **)SG_Malloc(m_nRecords * sizeof(CSG_Table_Record *));
 
 			for(int iRecord=0; iRecord<m_nRecords && SG_UI_Process_Set_Progress(iRecord, m_nRecords); iRecord++)

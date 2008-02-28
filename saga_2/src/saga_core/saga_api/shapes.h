@@ -461,7 +461,7 @@ protected:
 
 	bool						m_bUpdate;
 
-	int							m_nShapes;
+	int							m_nShapes, m_nBuffer;
 
 	TSG_Shape_Type				m_Type;
 
@@ -476,6 +476,9 @@ protected:
 
 	void						_Extent_Invalidate		(void)				{	m_bUpdate	= true;	}
 	void						_Extent_Update			(void);
+
+	bool						_Inc_Array				(void);
+	bool						_Dec_Array				(void);
 
 	CSG_Shape *					_Add_Shape				(CSG_Table_Record *pRecord);
 

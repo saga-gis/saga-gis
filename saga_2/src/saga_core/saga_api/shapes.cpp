@@ -170,6 +170,7 @@ void CSG_Shapes::_On_Construction(void)
 
 	m_Shapes			= NULL;
 	m_nShapes			= 0;
+	m_nBuffer			= 0;
 
 	m_bUpdate			= true;
 
@@ -260,7 +261,7 @@ CSG_Shapes::~CSG_Shapes(void)
 //---------------------------------------------------------
 bool CSG_Shapes::Destroy(void)
 {
-	if( m_nShapes > 0 )
+	if( m_Shapes )
 	{
 		for(int i=0; i<m_nShapes; i++)
 		{
@@ -270,6 +271,7 @@ bool CSG_Shapes::Destroy(void)
 		SG_Free(m_Shapes);
 		m_Shapes	= NULL;
 		m_nShapes	= 0;
+		m_nBuffer	= 0;
 	}
 
 	m_Table._Destroy();
@@ -289,7 +291,7 @@ bool CSG_Shapes::Destroy(void)
 //---------------------------------------------------------
 bool CSG_Shapes::Assign(CSG_Data_Object *pObject)
 {
-	int		iShape;
+	int			iShape;
 	CSG_Shape	*pShape;
 	CSG_Shapes	*pShapes;
 
@@ -358,59 +360,71 @@ bool CSG_Shapes::Save(const SG_Char *File_Name, int Format)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_GROW_SIZE(n)	(n < 256 ? 1 : (n < 8192 ? 64 : 1024))
+#define GET_GROW_SIZE(n)	(n < 256 ? 1 : (n < 8192 ? 128 : 1024))
+
+//---------------------------------------------------------
+bool CSG_Shapes::_Inc_Array(void)
+{
+	if( m_nShapes >= m_nBuffer )
+	{
+		CSG_Shape	**pShapes	= (CSG_Shape **)SG_Realloc(m_Shapes, (m_nBuffer + GET_GROW_SIZE(m_nBuffer)) * sizeof(CSG_Shape *));
+
+		if( pShapes )
+		{
+			m_Shapes	= pShapes;
+			m_nBuffer	+= GET_GROW_SIZE(m_nBuffer);
+		}
+		else
+		{
+			return( false );
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Shapes::_Dec_Array(void)
+{
+	if( m_nShapes >= 0 && m_nShapes < m_nBuffer - GET_GROW_SIZE(m_nBuffer) )
+	{
+		CSG_Shape	**pShapes	= (CSG_Shape **)SG_Realloc(m_Shapes, (m_nBuffer - GET_GROW_SIZE(m_nBuffer)) * sizeof(CSG_Shape *));
+
+		if( pShapes )
+		{
+			m_Shapes	= pShapes;
+			m_nBuffer	-= GET_GROW_SIZE(m_nBuffer);
+		}
+		else
+		{
+			return( false );
+		}
+	}
+
+	return( true );
+}
 
 //---------------------------------------------------------
 CSG_Shape * CSG_Shapes::_Add_Shape(CSG_Table_Record *pRecord)
 {
 	CSG_Shape	*pShape	= NULL;
 
-	if( pRecord )
+	if( pRecord && _Inc_Array() )
 	{
 		switch( m_Type )
 		{
-	    default:
-	        break;
+	    default:	return( NULL );
 
-		case SHAPE_TYPE_Point:
-			pShape	= new CSG_Shape_Point	(this, pRecord);
-			break;
-
-		case SHAPE_TYPE_Points:
-			pShape	= new CSG_Shape_Points	(this, pRecord);
-			break;
-
-		case SHAPE_TYPE_Line:
-			pShape	= new CSG_Shape_Line	(this, pRecord);
-			break;
-
-		case SHAPE_TYPE_Polygon:
-			pShape	= new CSG_Shape_Polygon	(this, pRecord);
-			break;
+		case SHAPE_TYPE_Point:		pShape	= new CSG_Shape_Point	(this, pRecord);	break;
+		case SHAPE_TYPE_Points:		pShape	= new CSG_Shape_Points	(this, pRecord);	break;
+		case SHAPE_TYPE_Line:		pShape	= new CSG_Shape_Line	(this, pRecord);	break;
+		case SHAPE_TYPE_Polygon:	pShape	= new CSG_Shape_Polygon	(this, pRecord);	break;
 		}
 
-		if( pShape )
-		{
-			if( (m_nShapes % GET_GROW_SIZE(m_nShapes)) == 0 )
-			{
-				CSG_Shape	**pShapes	= (CSG_Shape **)SG_Realloc(m_Shapes, (m_nShapes + GET_GROW_SIZE(m_nShapes)) * sizeof(CSG_Shape *));
+		m_Shapes[m_nShapes++]	= pShape;
+		m_bUpdate				= true;
 
-				if( pShapes == NULL )
-				{
-					delete(pShape);
-
-					return( NULL );
-				}
-
-				m_Shapes	= pShapes;
-			}
-
-			m_Shapes[m_nShapes++]	= pShape;
-
-			m_bUpdate				= true;
-
-			Set_Modified();
-		}
+		Set_Modified();
 	}
 
 	return( pShape );
@@ -484,10 +498,7 @@ bool CSG_Shapes::Del_Shape(int iShape)
 			m_Shapes[i]	= m_Shapes[i + 1];
 		}
 
-		if( (m_nShapes % GET_GROW_SIZE(m_nShapes)) == 0 )
-		{
-			m_Shapes	= (CSG_Shape **)SG_Realloc(m_Shapes, (m_nShapes + GET_GROW_SIZE(m_nShapes)) * sizeof(CSG_Shape *));
-		}
+		_Dec_Array();
 
 		m_Table._Del_Record(iShape);
 
@@ -556,7 +567,7 @@ CSG_Shape * CSG_Shapes::Get_Shape(TSG_Point Point, double Epsilon)
 	int			iShape;
 	double		d, dNearest;
 	CSG_Rect	r(Point.x - Epsilon, Point.y - Epsilon, Point.x + Epsilon, Point.y + Epsilon);
-	CSG_Shape		*pShape, *pNearest;
+	CSG_Shape	*pShape, *pNearest;
 
 	pNearest	= NULL;
 

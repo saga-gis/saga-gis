@@ -328,7 +328,7 @@ public:
 
 protected:
 
-	int							m_nFields, m_nRecords, m_nSelected, *m_Index, m_Index_Field;
+	int							m_nFields, m_nRecords, m_nBuffer, m_nSelected, *m_Index, m_Index_Field;
 
 	double						*m_Field_Val_Min, *m_Field_Val_Max;
 
@@ -353,6 +353,9 @@ protected:
 	bool						_Destroy_Selection	(void);
 
 	bool						_Assign				(CSG_Data_Object *pObject);
+
+	bool						_Inc_Array			(void);
+	bool						_Dec_Array			(void);
 
 	CSG_Table_Record *			_Add_Record			(             CSG_Table_Record *pValues = NULL);
 	CSG_Table_Record *			_Ins_Record			(int iRecord, CSG_Table_Record *pValues = NULL);

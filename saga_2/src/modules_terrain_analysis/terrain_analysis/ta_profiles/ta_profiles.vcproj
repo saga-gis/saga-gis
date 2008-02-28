@@ -48,7 +48,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(HARU),$(HARU)/msvc,$(SAGA)/src/saga_core"
+				AdditionalIncludeDirectories="&quot;$(SAGA)/src/saga_core&quot;"
 				PreprocessorDefinitions="_DEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -75,7 +75,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib libharu.lib zlib.lib"
+				AdditionalDependencies="saga_api.lib"
 				OutputFile=".\./../../../../bin/saga_vc8_u_dbg/modules/ta_profiles.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -146,7 +146,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(HARU),$(HARU)/msvc,$(SAGA)/src/saga_core"
+				AdditionalIncludeDirectories="&quot;$(SAGA)/src/saga_core&quot;"
 				PreprocessorDefinitions="_DEBUG;WIN32;_USRDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -172,7 +172,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib libharu.lib zlib.lib"
+				AdditionalDependencies="saga_api.lib"
 				OutputFile=".\..\..\..\..\bin\saga_vc8_dbg\modules/ta_profiles.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -244,7 +244,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="$(HARU),$(HARU)/msvc,$(SAGA)/src/saga_core"
+				AdditionalIncludeDirectories="&quot;$(SAGA)/src/saga_core&quot;"
 				PreprocessorDefinitions="NDEBUG;WIN32;_USRDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -269,7 +269,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib libharu.lib zlib.lib"
+				AdditionalDependencies="saga_api.lib"
 				OutputFile=".\..\..\..\..\bin\saga_vc8\modules/ta_profiles.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -340,7 +340,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="$(HARU),$(HARU)/msvc,$(SAGA)/src/saga_core"
+				AdditionalIncludeDirectories="&quot;$(SAGA)/src/saga_core&quot;"
 				PreprocessorDefinitions="NDEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -366,7 +366,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib libharu.lib zlib.lib"
+				AdditionalDependencies="saga_api.lib"
 				OutputFile=".\./../../../../bin/saga_vc8_u/modules/ta_profiles.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

@@ -49,7 +49,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="&quot;$(WXWIN)/include&quot;;&quot;$(WXWIN)/lib/vc_dll/msw&quot;;&quot;$(HARU)&quot;;&quot;$(HARU)/msvc&quot;"
+				AdditionalIncludeDirectories="&quot;$(WXWIN)/include&quot;;&quot;$(WXWIN)/lib/vc_dll/msw&quot;;&quot;$(HARU)/include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;__WXMSW__;WXUSINGDLL;_SAGA_API_EXPORTS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -76,7 +76,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxmsw28_core.lib wxbase28.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib libharu.lib"
+				AdditionalDependencies="wxmsw28_core.lib wxbase28.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib libhpdf.lib"
 				OutputFile=".\./../../../bin/saga_vc8/saga_api.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -145,7 +145,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(WXWIN)/include&quot;;&quot;$(WXWIN)/lib/vc_dll/mswd&quot;;&quot;$(HARU)&quot;;&quot;$(HARU)/msvc&quot;"
+				AdditionalIncludeDirectories="&quot;$(WXWIN)/include&quot;;&quot;$(WXWIN)/lib/vc_dll/mswd&quot;;&quot;$(HARU)/include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;__WXMSW__;WXUSINGDLL;__WXDEBUG__;_SAGA_API_EXPORTS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -171,7 +171,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxmsw28d_core.lib wxbase28d.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib libharu.lib"
+				AdditionalDependencies="wxmsw28d_core.lib wxbase28d.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib libhpdf.lib"
 				OutputFile=".\./../../../bin/saga_vc8_dbg/saga_api.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -241,7 +241,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(HARU)&quot;;&quot;$(HARU)/msvc&quot;;&quot;$(WXWIN)/include&quot;;&quot;$(WXWIN)/lib/vc_dll/mswud&quot;"
+				AdditionalIncludeDirectories="&quot;$(HARU)/include&quot;;&quot;$(WXWIN)/include&quot;;&quot;$(WXWIN)/lib/vc_dll/mswud&quot;"
 				PreprocessorDefinitions="_WINDOWS;_MBCS;_USRDLL;_SAGA_API_EXPORTS;WIN32;_DEBUG;__WXMSW__;WXUSINGDLL;__WXDEBUG__;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_UNICODE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -268,7 +268,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxmsw28ud_core.lib libharu.lib wxbase28ud.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib"
+				AdditionalDependencies="wxmsw28ud_core.lib libhpdf.lib wxbase28ud.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib"
 				OutputFile=".\./../../../bin/saga_vc8_u_dbg/saga_api.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -339,7 +339,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="&quot;$(HARU)&quot;;&quot;$(HARU)/msvc&quot;;&quot;$(WXWIN)/include&quot;;&quot;$(WXWIN)/lib/vc_dll/mswu&quot;"
+				AdditionalIncludeDirectories="&quot;$(HARU)/include&quot;;&quot;$(WXWIN)/include&quot;;&quot;$(WXWIN)/lib/vc_dll/mswu&quot;"
 				PreprocessorDefinitions="NDEBUG;_WINDOWS;_MBCS;_USRDLL;_SAGA_API_EXPORTS;WIN32;__WXMSW__;WXUSINGDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_UNICODE"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -366,7 +366,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxmsw28u_core.lib libharu.lib wxbase28u.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib"
+				AdditionalDependencies="wxmsw28u_core.lib libhpdf.lib wxbase28u.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib"
 				OutputFile=".\./../../../bin/saga_vc8_u/saga_api.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

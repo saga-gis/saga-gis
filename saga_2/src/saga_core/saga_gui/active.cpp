@@ -244,19 +244,19 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 		m_pParameters->Set_Parameters(m_pItem);
 	}
 
-	if( m_pLayer == NULL && m_pAttributes		!= NULL )
-	{
-#ifndef ACTIVE_SHOW_ALL_PAGES
-		_Del_Page(IMG_ATTRIBUTES);
-#endif
-	}
-
 	if( pLegend  == NULL && m_pLegend			!= NULL )
 	{
 		m_pLegend->Set_Item(NULL);
 
 #ifndef ACTIVE_SHOW_ALL_PAGES
 		_Del_Page(IMG_LEGEND);
+#endif
+	}
+
+	if( m_pLayer == NULL && m_pAttributes		!= NULL )
+	{
+#ifndef ACTIVE_SHOW_ALL_PAGES
+		_Del_Page(IMG_ATTRIBUTES);
 #endif
 	}
 

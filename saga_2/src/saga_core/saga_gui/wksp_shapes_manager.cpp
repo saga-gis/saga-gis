@@ -203,9 +203,15 @@ CWKSP_Shapes_Type * CWKSP_Shapes_Manager::_Get_Shapes_Type(int Shape_Type)
 //---------------------------------------------------------
 CWKSP_Shapes * CWKSP_Shapes_Manager::Get_Shapes(CSG_Shapes *pShapes)
 {
-	if( pShapes && Get_Shapes_Type(pShapes->Get_Type()) != NULL )
+	if( pShapes )
 	{
-		return( Get_Shapes_Type(pShapes->Get_Type())->Get_Shapes(pShapes) );
+		for(int i=0; i<Get_Count(); i++)
+		{
+			if( ((CWKSP_Shapes_Type *)Get_Item(i))->Exists(pShapes) )
+			{
+				return( ((CWKSP_Shapes_Type *)Get_Item(i))->Get_Shapes(pShapes) );
+			}
+		}
 	}
 
 	return( NULL );

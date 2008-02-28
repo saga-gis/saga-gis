@@ -152,8 +152,9 @@ void CSG_Table::_On_Construction(void)
 	m_Field_Val_Min	= NULL;
 	m_Field_Val_Max	= NULL;
 
-	m_nRecords		= 0;
 	m_Records		= NULL;
+	m_nRecords		= 0;
+	m_nBuffer		= 0;
 
 	m_nSelected		= 0;
 	m_Selected		= NULL;
@@ -282,7 +283,7 @@ bool CSG_Table::Assign(CSG_Data_Object *pObject)
 
 bool CSG_Table::_Assign(CSG_Data_Object *pObject)
 {
-	int		i;
+	int			i;
 	CSG_Table	*pTable;
 
 	if( pObject && pObject->is_Valid() && pObject->Get_ObjectType() == Get_ObjectType() )
@@ -412,10 +413,10 @@ void CSG_Table::Add_Field(const SG_Char *Name, TSG_Table_Field_Type Type, int ad
 	//-----------------------------------------------------
 	m_nFields++;
 
-	m_Field_Name	= (CSG_String      **)SG_Realloc(m_Field_Name		, m_nFields * sizeof(CSG_String *));
+	m_Field_Name	= (CSG_String          **)SG_Realloc(m_Field_Name		, m_nFields * sizeof(CSG_String *));
 	m_Field_Type	= (TSG_Table_Field_Type *)SG_Realloc(m_Field_Type		, m_nFields * sizeof(TSG_Table_Field_Type));
-	m_Field_Val_Min	= (double           *)SG_Realloc(m_Field_Val_Min	, m_nFields * sizeof(double));
-	m_Field_Val_Max	= (double           *)SG_Realloc(m_Field_Val_Max	, m_nFields * sizeof(double));
+	m_Field_Val_Min	= (double               *)SG_Realloc(m_Field_Val_Min	, m_nFields * sizeof(double));
+	m_Field_Val_Max	= (double               *)SG_Realloc(m_Field_Val_Max	, m_nFields * sizeof(double));
 
 	//-----------------------------------------------------
 	for(iField=m_nFields-1; iField>add_Field; iField--)
@@ -469,10 +470,10 @@ bool CSG_Table::Del_Field(int del_Field)
 		}
 
 		//-------------------------------------------------
-		m_Field_Name	= (CSG_String     **)SG_Realloc(m_Field_Name		, m_nFields * sizeof(CSG_String *));
+		m_Field_Name	= (CSG_String          **)SG_Realloc(m_Field_Name		, m_nFields * sizeof(CSG_String *));
 		m_Field_Type	= (TSG_Table_Field_Type *)SG_Realloc(m_Field_Type		, m_nFields * sizeof(TSG_Table_Field_Type));
-		m_Field_Val_Min	= (double           *)SG_Realloc(m_Field_Val_Min	, m_nFields * sizeof(double));
-		m_Field_Val_Max	= (double           *)SG_Realloc(m_Field_Val_Max	, m_nFields * sizeof(double));
+		m_Field_Val_Min	= (double               *)SG_Realloc(m_Field_Val_Min	, m_nFields * sizeof(double));
+		m_Field_Val_Max	= (double               *)SG_Realloc(m_Field_Val_Max	, m_nFields * sizeof(double));
 
 		//-------------------------------------------------
 		for(iRecord=0; iRecord<m_nRecords; iRecord++)
@@ -496,7 +497,49 @@ bool CSG_Table::Del_Field(int del_Field)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_GROW_SIZE(n)	(n < 256 ? 1 : (n < 8192 ? 64 : 1024))
+#define GET_GROW_SIZE(n)	(n < 256 ? 1 : (n < 8192 ? 128 : 1024))
+
+//---------------------------------------------------------
+bool CSG_Table::_Inc_Array(void)
+{
+	if( m_nRecords >= m_nBuffer )
+	{
+		CSG_Table_Record	**pRecords	= (CSG_Table_Record **)SG_Realloc(m_Records, (m_nBuffer + GET_GROW_SIZE(m_nBuffer)) * sizeof(CSG_Table_Record *));
+
+		if( pRecords )
+		{
+			m_Records	= pRecords;
+			m_nBuffer	+= GET_GROW_SIZE(m_nBuffer);
+		}
+		else
+		{
+			return( false );
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Table::_Dec_Array(void)
+{
+	if( m_nRecords >= 0 && m_nRecords < m_nBuffer - GET_GROW_SIZE(m_nBuffer) )
+	{
+		CSG_Table_Record	**pRecords	= (CSG_Table_Record **)SG_Realloc(m_Records, (m_nBuffer - GET_GROW_SIZE(m_nBuffer)) * sizeof(CSG_Table_Record *));
+
+		if( pRecords )
+		{
+			m_Records	= pRecords;
+			m_nBuffer	-= GET_GROW_SIZE(m_nBuffer);
+		}
+		else
+		{
+			return( false );
+		}
+	}
+
+	return( true );
+}
 
 //---------------------------------------------------------
 CSG_Table_Record * CSG_Table::Add_Record(CSG_Table_Record *pValues)
@@ -506,16 +549,9 @@ CSG_Table_Record * CSG_Table::Add_Record(CSG_Table_Record *pValues)
 
 CSG_Table_Record * CSG_Table::_Add_Record(CSG_Table_Record *pValues)
 {
-	if( (m_nRecords % GET_GROW_SIZE(m_nRecords)) == 0 )
+	if( !_Inc_Array() )
 	{
-		CSG_Table_Record	**pRecords	= (CSG_Table_Record **)SG_Realloc(m_Records, (m_nRecords + GET_GROW_SIZE(m_nRecords)) * sizeof(CSG_Table_Record *));
-
-		if( pRecords == NULL )
-		{
-			return( NULL );
-		}
-
-		m_Records	= pRecords;
+		return( NULL );
 	}
 
 	CSG_Table_Record	*pRecord;
@@ -562,16 +598,9 @@ CSG_Table_Record * CSG_Table::_Ins_Record(int iRecord, CSG_Table_Record *pValues
 	}
 
 	//-----------------------------------------------------
-	if( (m_nRecords % GET_GROW_SIZE(m_nRecords)) == 0 )
+	if( !_Inc_Array() )
 	{
-		CSG_Table_Record	**pRecords	= (CSG_Table_Record **)SG_Realloc(m_Records, (m_nRecords + GET_GROW_SIZE(m_nRecords)) * sizeof(CSG_Table_Record *));
-
-		if( pRecords == NULL )
-		{
-			return( NULL );
-		}
-
-		m_Records	= pRecords;
+		return( NULL );
 	}
 
 	//-----------------------------------------------------
@@ -634,10 +663,7 @@ bool CSG_Table::_Del_Record(int iRecord)
 			m_Records[i]->m_Index	= i;
 		}
 
-		if( (m_nRecords % GET_GROW_SIZE(m_nRecords)) == 0 )
-		{
-			m_Records	= (CSG_Table_Record **)SG_Realloc(m_Records, (m_nRecords + GET_GROW_SIZE(m_nRecords)) * sizeof(CSG_Table_Record *));
-		}
+		_Dec_Array();
 
 		if( is_Indexed() )
 		{
@@ -680,7 +706,7 @@ bool CSG_Table::Del_Records(void)
 
 bool CSG_Table::_Del_Records(void)
 {
-	if( m_nRecords > 0 )
+	if( m_Records > 0 )
 	{
 		_Index_Destroy();
 
@@ -692,6 +718,7 @@ bool CSG_Table::_Del_Records(void)
 		SG_Free(m_Records);
 		m_Records	= NULL;
 		m_nRecords	= 0;
+		m_nBuffer	= 0;
 
 		return( true );
 	}
