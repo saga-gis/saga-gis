@@ -112,7 +112,7 @@ enum
 #define SUBNB_CAPTION_BUTTONS	LNG("Thumbnails")
 
 //---------------------------------------------------------
-#define SUBNB_CREATE(ID, Name)	pNotebook	= new wxNotebook(this, ID, wxDefaultPosition, wxDefaultSize, wxNB_BOTTOM|wxNB_MULTILINE, Name);\
+#define SUBNB_CREATE(ID, Name)	pNotebook	= new wxNotebook(this, ID, wxDefaultPosition, wxDefaultSize, NOTEBOOK_STYLE|wxNB_MULTILINE, Name);\
 								pNotebook	->AssignImageList(new wxImageList(IMG_SIZE_NOTEBOOK, IMG_SIZE_NOTEBOOK, true, 0));\
 								pNotebook	->IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_TREEVIEW);\
 								pNotebook	->IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_THUMBNAILS);
