@@ -1665,7 +1665,7 @@ bool CSG_Doc_PDF::Layout_Add_Box(double xMin_Percent, double yMin_Percent, doubl
 bool CSG_Doc_PDF::Layout_Add_Box(const CSG_Rect &Box_Percent, const SG_Char *ID)														{	return( false );	}
 bool CSG_Doc_PDF::_Fit_Rectangle(double &x, double &y, double &dx, double &dy, double XToY_Ratio, bool bShrink)							{	return( false );	}
 bool CSG_Doc_PDF::_Fit_Rectangle(CSG_Rect &r, double XToY_Ratio, bool bShrink)															{	return( false );	}
-bool CSG_Doc_PDF::_Add_Outline_Item(const SG_Char *Title, PdfPage *pPage, TSG_PDF_Title_Level Level)									{	return( false );	}
+bool CSG_Doc_PDF::_Add_Outline_Item(const SG_Char *Title, struct _HPDF_Dict_Rec *pPage, TSG_PDF_Title_Level Level)						{	return( false );	}
 bool CSG_Doc_PDF::Add_Outline_Item(const SG_Char *Title)																				{	return( false );	}
 bool CSG_Doc_PDF::Add_Page(void)																																						{	return( false );	}
 bool CSG_Doc_PDF::Add_Page(TSG_PDF_Page_Size Size, int Orientation)																														{	return( false );	}
