@@ -158,13 +158,15 @@ bool CSG_Translator::Create(const SG_Char *File_Name, bool bSetExtension)
 	{
 		m_Translations	= (CSG_Translation **)SG_Malloc(Translations.Get_Record_Count() * sizeof(CSG_Translation *));
 
+		Translations.Set_Index(0, TABLE_INDEX_Up);
+
 		for(int i=0; i<Translations.Get_Record_Count(); i++)
 		{
-			CSG_String	Translation(Translations[i][1]);
+			CSG_Table_Record	*pRecord	= Translations.Get_Record_byIndex(i);
 
-			if( Translation.Length() > 0 )
+			if( *pRecord->asString(0) && *pRecord->asString(1) )
 			{
-				m_Translations[m_nTranslations++]	= new CSG_Translation(Translations[i][0], Translation);
+				m_Translations[m_nTranslations++]	= new CSG_Translation(pRecord->asString(0), pRecord->asString(1));
 			}
 		}
 
