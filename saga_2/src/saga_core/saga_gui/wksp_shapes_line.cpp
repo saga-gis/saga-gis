@@ -98,7 +98,7 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 	// Display...
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY"), "DISPLAY_POINTS"	, LNG("[CAP] Show Points"),
+		m_Parameters("NODE_DISPLAY"), "DISPLAY_POINTS"	, LNG("[CAP] Show Vertices"),
 		LNG(""),
 		PARAMETER_TYPE_Bool, false
 	);

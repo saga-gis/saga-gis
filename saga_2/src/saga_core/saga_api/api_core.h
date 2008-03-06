@@ -109,16 +109,16 @@
 //														 //
 ///////////////////////////////////////////////////////////
 
-/*
-* this is defined by configure, but will not be on a normal application build
-*/
-
+//---------------------------------------------------------
+// this is defined by configure, but will not be on a normal
+// application build
+//
 #ifndef SIZEOF_LONG
-# if defined(__alpha) || defined(__sparcv9) || defined(__LP64__) || (defined(__HOS_AIX__) && defined(_LP64))
-# define SIZEOF_LONG        8
-#else
-# define SIZEOF_LONG        4
-#endif
+	#if defined(__alpha) || defined(__sparcv9) || defined(__LP64__) || (defined(__HOS_AIX__) && defined(_LP64))
+		#define SIZEOF_LONG        8
+	#else
+		#define SIZEOF_LONG        4
+	#endif
 #endif
 
 //---------------------------------------------------------
@@ -193,7 +193,7 @@ SAGA_API_DLL_EXPORT void			SG_Mem_Set_Double	(char *Buffer, double Value	, bool 
 #else
 	#define SG_Char				wchar_t
 	#define SG_T(s)				L ## s
-	#define SG_PRINTF			wprintf
+	#define SG_PRINTF			SG_Printf
 	#define SG_SSCANF			swscanf
 	#define SG_STR_CMP			wcscmp
 	#define SG_STR_CPY			wcscpy
@@ -328,6 +328,8 @@ protected:
 };
 
 //---------------------------------------------------------
+SAGA_API_DLL_EXPORT int				SG_Printf						(const SG_Char *Format, ...);
+
 SAGA_API_DLL_EXPORT CSG_String		SG_Get_CurrentTimeStr			(bool bWithDate = true);
 
 SAGA_API_DLL_EXPORT double			SG_Degree_To_Double				(const SG_Char *String);
@@ -586,49 +588,46 @@ private:
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Translator
 {
-private:
-
-	class CTranslation
-	{
-	public:
-		CTranslation(const SG_Char *Text, const SG_Char *Translation)
-		{
-			m_Text					= Text;
-			m_Translation			= Translation;
-		}
-
-		~CTranslation(void)	{}
-
-		CSG_String					m_Text, m_Translation;
-	};
-
-
 public:
 	CSG_Translator(void);
 	CSG_Translator(const SG_Char *File_Name, bool bSetExtension = true);
 
 	virtual ~CSG_Translator(void);
 
-	bool							Create				(const SG_Char *File_Name, bool bSetExtension = true);
-	void							Destroy				(void);
+	bool							Create					(const SG_Char *File_Name, bool bSetExtension = true);
+	void							Destroy					(void);
 
-	int								Get_Count			(void)	{	return( m_nTranslations );	}
+	int								Get_Count				(void)	{	return( m_nTranslations );	}
 
-	const SG_Char *					Get_Text			(int Index);
-	const SG_Char *					Get_Translation		(int Index);
+	const SG_Char *					Get_Text				(int Index);
+	const SG_Char *					Get_Translation			(int Index);
 
-	const SG_Char *					Get_Translation		(const SG_Char *Text);
+	const SG_Char *					Get_Translation			(const SG_Char *Text);
+
+
+private:
+
+	class CSG_Translation
+	{
+	public:
+		CSG_Translation(const SG_Char *Text, const SG_Char *Translation)
+		{
+			m_Text					= Text;
+			m_Translation			= Translation;
+		}
+
+		CSG_String					m_Text, m_Translation;
+	};
 
 
 private:
 
 	int								m_nTranslations;
 
-	CTranslation					**m_Translations;
+	CSG_Translation					**m_Translations;
 
 
-	void							_Add_Translation	(const SG_Char *Text, const SG_Char *Translation);
-	int								_Get_Index			(const SG_Char *Text);
+	int								_Get_Index				(const SG_Char *Text);
 
 };
 

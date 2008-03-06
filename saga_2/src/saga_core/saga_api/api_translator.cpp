@@ -60,9 +60,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <string.h>
-
 #include "api_core.h"
+
+#include "table.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -125,15 +125,18 @@ CSG_Translator::~CSG_Translator(void)
 //---------------------------------------------------------
 void CSG_Translator::Destroy(void)
 {
-	for(int i=0; i<m_nTranslations; i++)
+	if( m_Translations )
 	{
-		delete(m_Translations[i]);
+		for(int i=0; i<m_nTranslations; i++)
+		{
+			delete(m_Translations[i]);
+		}
+
+		SG_Free(m_Translations);
+
+		m_nTranslations	= 0;
+		m_Translations	= NULL;
 	}
-
-	SG_Free(m_Translations);
-
-	m_nTranslations	= 0;
-	m_Translations	= NULL;
 }
 
 
@@ -146,68 +149,34 @@ void CSG_Translator::Destroy(void)
 //---------------------------------------------------------
 bool CSG_Translator::Create(const SG_Char *File_Name, bool bSetExtension)
 {
-	int			a, b;
-	CSG_File	Stream;
-	CSG_String	Line, Text, Translation, LNG_File;
-
 	Destroy();
 
-	if( bSetExtension )
-	{
-		LNG_File	= SG_File_Make_Path(NULL, File_Name, SG_T("lng"));
-	}
-	else
-	{
-		LNG_File	= File_Name;
-	}
+	CSG_Table	Translations;
+	CSG_String	fName(bSetExtension ? SG_File_Make_Path(NULL, File_Name, SG_T("lng")) : File_Name);
 
-	if( Stream.Open(LNG_File, SG_FILE_R, false) )
+	if( SG_File_Exists(fName) && Translations.Create(fName) && Translations.Get_Field_Count() == 2 && Translations.Get_Record_Count() > 0 )
 	{
-		while( Stream.Read_Line(Line) )
+		m_Translations	= (CSG_Translation **)SG_Malloc(Translations.Get_Record_Count() * sizeof(CSG_Translation *));
+
+		for(int i=0; i<Translations.Get_Record_Count(); i++)
 		{
-			if( Line.Find(SG_T("ENTRY")) >= 0
-			&&	(a = Line.Find(SG_T('('), false)) >= 0
-			&&	(b = Line.Find(SG_T(')'), true )) >= 0 )
-			{
-				if( Text.Length() > 0 && Translation.Length() > 0 )
-				{
-					_Add_Translation(Text, Translation);
-				}
+			CSG_String	Translation(Translations[i][1]);
 
-				Text	= Line.Mid(a + 1, (b - a) - 1);
-				Translation.Clear();
-			}
-
-			if(	(a = Line.Find(SG_T('\"'), false)) >= 0
-			&&	(b = Line.Find(SG_T('\"'), true )) >= 0 && b - a > 0 )
+			if( Translation.Length() > 0 )
 			{
-				Translation	= Line.Mid(a + 1, (b - a) - 1);
+				m_Translations[m_nTranslations++]	= new CSG_Translation(Translations[i][0], Translation);
 			}
 		}
+
+		if( m_nTranslations < Translations.Get_Record_Count() )
+		{
+			m_Translations	= (CSG_Translation **)SG_Realloc(m_Translations, m_nTranslations * sizeof(CSG_Translation *));
+		}
+
+		SG_UI_Msg_Add(SG_T(" / "), false, SG_UI_MSG_STYLE_NORMAL);
 	}
 
 	return( m_nTranslations > 0 );
-}
-
-//---------------------------------------------------------
-void CSG_Translator::_Add_Translation(const SG_Char *Text, const SG_Char *Translation)
-{
-	int		i, Insert;
-
-	Insert	= _Get_Index(Text);
-
-	if( Insert == m_nTranslations || m_Translations[Insert]->m_Text.Cmp(Text) )
-	{
-		m_nTranslations++;
-		m_Translations	= (CTranslation **)SG_Realloc(m_Translations, m_nTranslations * sizeof(CTranslation *));
-
-		for(i=m_nTranslations-1; i>Insert; i--)
-		{
-			m_Translations[i]	= m_Translations[i - 1];
-		}
-
-		m_Translations[Insert]	= new CTranslation(Text, Translation);
-	}
 }
 
 

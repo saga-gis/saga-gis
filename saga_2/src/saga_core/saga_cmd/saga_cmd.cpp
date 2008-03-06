@@ -98,7 +98,7 @@ void		Error_Library	(const SG_Char *MLB_Path);
 void		Error_Module	(const SG_Char *MLB_Path, const SG_Char *FileName);
 
 void		Print_Logo		(const SG_Char *MLB_Path);
-void		Print_Execution	(const SG_Char *MLB_Path, const SG_Char *FileName, const SG_Char *ModuleName);
+void		Print_Execution	(const SG_Char *MLB_Path, const SG_Char *FileName, const SG_Char *ModuleName, const SG_Char *Author);
 void		Print_Help		(void);
 
 void		Create_Example	(void);
@@ -169,10 +169,6 @@ _try
 			wxUnsetEnv(SYS_ENV_PATH);
 		}
 
-#if defined(__WXMSW__)
-		wxBell();	// seems to cause trouble with gtk!!
-#endif
-
 		wxUninitialize();
 	}
 
@@ -229,7 +225,7 @@ bool		Execute(const SG_Char *MLB_Path, const SG_Char *FileName, const SG_Char *M
 	}
 	else
 	{
-		Print_Execution(MLB_Path, FileName, Library.Get_Selected()->Get_Name());
+		Print_Execution(MLB_Path, FileName, Library.Get_Selected()->Get_Name(), Library.Get_Selected()->Get_Author());
 
 		if( argc > 3 && !SG_STR_CMP(OPT_SILENT, SG_STR_MBTOSG(argv[3])) )
 		{
@@ -292,8 +288,12 @@ void		Error_Library	(const SG_Char *MLB_Path)
 		}
 		while( Dir.GetNext(&FileName) );
 
-		SG_PRINTF(SG_T("\n%d %s"), nLibraries, LNG("saga module libraries"));
+		SG_PRINTF(SG_T("\n%d %s\n"), nLibraries, LNG("saga module libraries"));
 	}
+
+	SG_PRINTF(LNG("\n"));
+	SG_PRINTF(LNG("type -h or --help for further information"));
+	SG_PRINTF(LNG("\n"));
 }
 
 //---------------------------------------------------------
@@ -309,31 +309,38 @@ void		Error_Module	(const SG_Char *MLB_Path, const SG_Char *FileName)
 	{
 		Create_Example();
 	}
-	else if( !Library.Create(FileName, MLB_Path) )
+	else 
 	{
-		Library.Destroy();
-
-		Print_Error(LNG("module library not found"), FileName);
-
-		Error_Library(MLB_Path);
-	}
-	else
-	{
-		Print_Error(LNG("module"));
-
-		SG_PRINTF(SG_T("\n%s:\n"), LNG("available modules"));
-
-		for(int i=0; i<Library.Get_Count(); i++)
+		if( !Library.Create(FileName, MLB_Path) )
 		{
-			if( Library.Get_Module(i)->is_Interactive() )
+			Library.Destroy();
+
+			Print_Error(LNG("module library not found"), FileName);
+
+			Error_Library(MLB_Path);
+		}
+		else
+		{
+			Print_Error(LNG("module"));
+
+			SG_PRINTF(SG_T("\n%s:\n"), LNG("available modules"));
+
+			for(int i=0; i<Library.Get_Count(); i++)
 			{
-				SG_PRINTF(SG_T("[%d]\t- [%s] %s\n"), i, LNG("interactive"), Library.Get_Module(i)->Get_Name());
-			}
-			else
-			{
-				SG_PRINTF(SG_T(" %d\t- %s\n"), i, Library.Get_Module(i)->Get_Name());
+				if( Library.Get_Module(i)->is_Interactive() )
+				{
+					SG_PRINTF(SG_T("[%d]\t- [%s] %s\n"), i, LNG("interactive"), Library.Get_Module(i)->Get_Name());
+				}
+				else
+				{
+					SG_PRINTF(SG_T(" %d\t- %s\n"), i, Library.Get_Module(i)->Get_Name());
+				}
 			}
 		}
+
+		SG_PRINTF(LNG("\n"));
+		SG_PRINTF(LNG("type -h or --help for further information"));
+		SG_PRINTF(LNG("\n"));
 	}
 }
 
@@ -354,20 +361,17 @@ void		Print_Logo		(const SG_Char *MLB_Path)
 	SG_PRINTF(SG_T("   ### ##### ##    # #####\n"));
 	SG_PRINTF(SG_T("##### #   ##  ##### #   ##\n"));
 	SG_PRINTF(SG_T("\n"));
-	SG_PRINTF(SG_T("SAGA CMD ") SAGA_CMD_VERSION SG_T("\n"));
-	SG_PRINTF(SG_T("\n"));
-	SG_PRINTF(SG_T("Copyright (C) 2005 by Olaf Conrad\n"));
-	SG_PRINTF(LNG("under GNU General Public License (GPL)\n"));
-	SG_PRINTF(LNG("type -h or --help for further information\n"));
+	SG_PRINTF(SG_T("SAGA CMD ") SAGA_API_VERSION SG_T("\n"));
 	SG_PRINTF(SG_T("_____________________________________________\n"));
 }
 
 //---------------------------------------------------------
-void		Print_Execution	(const SG_Char *MLB_Path, const SG_Char *FileName, const SG_Char *ModuleName)
+void		Print_Execution	(const SG_Char *MLB_Path, const SG_Char *FileName, const SG_Char *ModuleName, const SG_Char *Author)
 {
 	SG_PRINTF(SG_T("%s:\t%s\n"), LNG("library path"), MLB_Path);
 	SG_PRINTF(SG_T("%s:\t%s\n"), LNG("library name"), FileName);
-	SG_PRINTF(SG_T("%s:\t%s\n"), LNG("module name"), ModuleName);
+	SG_PRINTF(SG_T("%s:\t%s\n"), LNG("module name "), ModuleName);
+	SG_PRINTF(SG_T("%s:\t%s\n"), LNG("author      "), Author);
 	SG_PRINTF(SG_T("_____________________________________________\n"));
 	SG_PRINTF(SG_T("go...\n"));
 }
@@ -376,6 +380,9 @@ void		Print_Execution	(const SG_Char *MLB_Path, const SG_Char *FileName, const S
 void		Print_Help		(void)
 {
 	SG_PRINTF(
+		SG_T("(C) 2005-08 by O.Conrad\n")
+		SG_T("under GNU General Public License (GPL)\n")
+		SG_T("\n")
 		SG_T("Usage:\n")
 		SG_T("\n")
 		SG_T("saga_cmd [-h, --help]\n")

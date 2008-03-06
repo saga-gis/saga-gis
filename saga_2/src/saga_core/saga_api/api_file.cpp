@@ -222,9 +222,9 @@ int CSG_File::Printf(const SG_Char *Format, ...)
 		va_start(argptr, Format);
 
 #ifndef _SAGA_UNICODE
-		result	= vfprintf (m_pStream, Format, argptr);
+		result	= vfprintf  (m_pStream, Format, argptr);
 #else
-		result	= vfwprintf(m_pStream, Format, argptr);
+		result	= wxVfprintf(m_pStream, Format, argptr);
 #endif
 
 		va_end(argptr);

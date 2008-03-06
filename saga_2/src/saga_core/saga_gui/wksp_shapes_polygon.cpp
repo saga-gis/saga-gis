@@ -124,7 +124,7 @@ void CWKSP_Shapes_Polygon::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_POINTS"			, LNG("[CAP] Show Points"),
+		m_Parameters("NODE_DISPLAY")	, "DISPLAY_POINTS"			, LNG("[CAP] Show Vertices"),
 		LNG(""),
 		PARAMETER_TYPE_Bool, false
 	);

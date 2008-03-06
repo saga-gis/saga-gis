@@ -105,7 +105,7 @@ CFillSinks_WL::CFillSinks_WL(void)
 
 	Parameters.Add_Value(
 		NULL, "MINSLOPE", _TL("Minimum Slope"),
-		_TL("Minimum slope gradient to preserve from cell to cell; with a value of zero sinks are filled up to the spill elevation (which results in flat areas). Unit [°]"),
+		_TL("Minimum slope gradient to preserve from cell to cell; with a value of zero sinks are filled up to the spill elevation (which results in flat areas). Unit [Degree]"),
 		PARAMETER_TYPE_Double, 0.0, 0.0, true
 	);
 
