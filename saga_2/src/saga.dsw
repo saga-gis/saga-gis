@@ -63,21 +63,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "geostatistics_kriging_variogram"=.\modules_geostatistics\geostatistics\geostatistics_kriging_variogram\geostatistics_kriging_variogram.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name saga_api
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "geostatistics_points"=.\modules_geostatistics\geostatistics\geostatistics_points\geostatistics_points.dsp - Package Owner=<4>
 
 Package=<5>
