@@ -1,0 +1,49 @@
+ORIGINAL	TRANSLATION
+(c) 2006 by Olaf Conrad	
+Add Frame	
+Attribute	
+Automatically fits the grid to the shapes layers extent.	
+B-Spline Approximation	
+Choose Grid	
+Choose Grid System	
+Fit Extent	
+Grid	
+Grid - Spline Interpolation	
+Grid Size	
+Grid System	
+Grid|Gridding	
+Maximum Level	
+Maximum Number of Points	
+Method	
+Multilevel B-Spline Interpolation	
+Neighbourhood	
+Points	
+Points Selection	
+R:Spline Interpolation	
+Regularisation	
+Resolution	
+Search Radius	
+Solving Matrix	
+Target Grid	
+Thin Plate Spline (Global)	
+Thin Plate Spline (Local)	
+Thin Plate Spline (TIN)	
+Threshold Error	
+Update View	
+User defined grid	
+X-Extent	
+Y-Extent	
+all points in search radius	
+error	
+grid	
+grid system	
+immediate	
+level	
+level 1	
+level 2	
+max	
+maximum number of points	
+mean	
+user defined	
+with B-spline refinement	
+without B-spline refinement	

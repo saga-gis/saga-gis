@@ -1,0 +1,97 @@
+ORIGINAL	TRANSLATION
+1 arc-second	
+2 byte integer|4 byte floating point|	
+3 arc-second	
+ASCII	
+ASCII Decimal Separator	
+ASCII Precision	
+All Files	
+Applies also to the binary format header file.	
+Big Endian (Motorola)	
+Binary Byte Order	
+Bottom to Top	
+Byte Order	
+Byte order when writing floating point values in binary format	
+Cell Count (X)	
+Cell Count (Y)	
+Cell Size	
+Data Offset (Bytes)	
+Data Type	
+ERDAS files other than version 7.4 are not supported.	
+ESRI Arc/Info ASCII Grids (*.asc)	
+ESRI Arc/Info Binary Grids (*.flt)	
+ESRI Arc/Info Grids	
+East []	
+Erdas LAN/GIS files (*.lan, *.gis)|*.lan;*.gis|All Files|*.*	
+Export ESRI Arc/Info Grid	
+Export Grid to XYZ	
+Export Surfer Grid	
+Export True Color Bitmap	
+File	
+File Name	
+File does not exist:	
+File error	
+Files	
+File|Grid	
+Format	
+Geo-Reference	
+Grid	
+Grid Type	
+Grids	
+Image Grid	
+Import Binary Raw Data	
+Import ESRI Arc/Info Grid	
+Import Erdas LAN/GIS	
+Import Grid from Table	
+Import MOLA Grid (MEGDR)	
+Import SRTM30 DEM	
+Import Surfer Grid	
+Import USGS SRTM Grid	
+Import/Export - Grids	
+Importing	
+Left Border (X)	
+Line Endset (Bytes)	
+Line Offset (Bytes)	
+Line Order	
+Little Endian (Intel)	
+Locate STRM30 Data File	
+Lower Border (Y)	
+MOLA Grids (*.img)|*.img|All Files|*.*	
+MS Windows Bitmap (*.bmp)|*.bmp|All Files|*.*	
+No Data Value	
+North []	
+Number of decimals when writing floating point values in ASCII format.	
+Orientation	
+Path	
+R:Export	
+R:Import	
+Raw Data File	
+Resolution	
+SAGA User Group Associaton (c) 2002	
+SRTM30 DEM Tiles (*.dem)|*.dem|All Files|*.*	
+Select file	
+South []	
+Surfer Grid (*.grd)|*.grd|All Files|*.*	
+Surfer's No Data Value	
+Table	
+Text files (*.txt)	
+The grids geo-reference must be related either to the center or the corner of its lower left grid cell.	
+Tools for the import and export of gridded data.	
+Top to Bottom	
+USGS SRTM Grids (*.hgt)|*.hgt|All Files|*.*	
+Unit Name	
+Use Surfer's No-Data Value	
+User Defined	
+User Defined No Data Value	
+West []	
+Write Field Names	
+XYZ files (*.xyz)	
+Z Multiplier	
+binary	
+center	
+comma (,)	
+corner	
+least significant first	
+most significant first	
+normal|down under|	
+point (.)	

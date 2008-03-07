@@ -1,0 +1,61 @@
+ORIGINAL	TRANSLATION
+0 - 1	
+0 - 1.0	
+0 - 255	
+3D Image	
+3D Image Height	
+3D Image Width	
+A	
+B	
+Background Color	
+Blue	
+C	
+Circular	
+Color	
+Color Blending	
+Color Palette Rotation	
+Color Triangle Composite	
+Colors	
+Composite	
+Create 3D Image	
+Creates a color animation based on the values of selected grids.\n	
+Down	
+Elevation	
+Exaggeration	
+Fit Color Palette to Grid Values	
+Green	
+Grid	
+Grid - Visualisation	
+Grid range	
+Grids	
+Grid|Visualisation	
+Image Rotation [Degree]	
+Interpolation Steps	
+Local Rotation Base Level	
+Local Rotation [Degree]	
+Mean Elevation	
+Minimum Exaggeration [%]	
+Number of Colors	
+Olaf Conrad (c) 2002	
+Overlay Image	
+Panorama	
+Panorama Break [%]	
+Percentage of standard deviation	
+Percentiles	
+Project \'%s\'	
+Projected Height	
+Projection	
+RGB Composite	
+Red	
+Rescale Range	
+Rescale to 0 - 1	
+Rescale to 0 - 1.0	
+Rescale to 0 - 255	
+Scale	
+Shapes to project	
+Special visualisation functions for grids.	
+Transparency	
+User defined range	
+User defined rescale	
+Value Preparation	
+Zero	

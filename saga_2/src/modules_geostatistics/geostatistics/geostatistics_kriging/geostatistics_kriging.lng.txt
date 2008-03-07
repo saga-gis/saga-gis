@@ -1,0 +1,78 @@
+ORIGINAL	TRANSLATION
+Additional Parameters	
+Attribute	
+Automatically fits the grid to the shapes layers extent.	
+B-Spline Interpolation	
+Bicubic Spline Interpolation	
+Bilinear Interpolation	
+Block Kriging	
+Block Size	
+Cancel	
+Choose Grid	
+Choose Grid System	
+Create Variance Grid	
+Difference	
+Distance	
+Distance Increment	
+Exponential Model	
+Exponential Regression	
+Fit Extent	
+Fitting range	
+Formula	
+Formula String	
+Function Fitting Range	
+Function Fitting Range [%]	
+Function Parameters	
+Function fitting failed !!!	
+Gaussian Model	
+Geostatistics	
+Geostatistics - Kriging	
+Grid	
+Grid Interpolation	
+Grid Size	
+Grid System	
+Grids	
+Invalid formula !!!	
+Inverse Distance Interpolation	
+Kriging - geostatistical procedures for the gridding of irregular distributed point data.	
+Linear Regression	
+Logarithmic Transformation	
+Maximum Distance	
+Maximum Search Radius (map units)	
+Min./Max. Number of m_Points	
+Nearest Neighbor	
+Nugget	
+Ok	
+Ordinary Kriging	
+Ordinary Kriging (Global)	
+Parameter A for Power Function Regression:\n   y = A * x ^ B	
+Parameter B for Exponential Regression:\n   y = Nugget * e ^ (B * x)	
+Parameter B for Linear Regression:\n   y = Nugget + B * x	
+Parameter B for Power Function Regression:\n   y = A * x ^ B	
+Points	
+Power Function - A	
+Power Function - B	
+Power Function Regression	
+Predefined Functions	
+R2	
+R:Kriging	
+R:Kriging with Variogram Fit	
+Range	
+Samples in range	
+Semi-Variance	
+Semi-Variogram	
+Sill	
+Skip Number	
+Spherical Model	
+Target Grid	
+Universal Kriging	
+Universal Kriging (Global)	
+User defined grid	
+Variance	
+Variogram Model	
+X-Extent	
+Y-Extent	
+grid	
+grid system	
+not enough points for interpolation	
+user defined	

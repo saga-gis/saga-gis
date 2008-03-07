@@ -1,0 +1,10 @@
+ORIGINAL	TRANSLATION
+(c) 2007 by O. Conrad	
+DXF Files (*.dxf)|*.dxf|All Files|*.*	
+File	
+File|Shapes	
+Import DXF Files	
+Import/Export - DXF	
+R:Import	
+Shapes	
+Tools for the import and export of DXF files.	

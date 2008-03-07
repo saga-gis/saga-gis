@@ -1,0 +1,38 @@
+ORIGINAL	TRANSLATION
+01: A Simple Litter System	
+02: Carbon Cycle Simulation for Terrestrial Biomes	
+03: Spatially Distributed Simulation of Soil Nitrogen Dynamics	
+A Simple Litter System	
+Branches	
+Branches to Litter	
+Carbon Cycle Simulation	
+Carbonization Factor	
+Charcoal to Environment	
+Elevation	
+Humification Factor	
+Humus to Charcoal	
+Initial Litter Storage [g/m\xc2\xb2]	
+Initial Nitrogen Content [kg/ha]	
+Leaves	
+Leaves to Litter	
+Litter to Humus	
+Litterfall Rate [g/m\xc2\xb2/a]	
+Net Primary Production [Gt Carbon / a]	
+Nitrogen in Rainfall [kg/ha/a]	
+Partition Coefficients	
+Rate Constant for Litter Loss [1/a]	
+Results	
+Roots	
+Roots to Humus	
+Simulation - Modelling the Human Impact on Nature	
+Simulation|Ecology|Modelling the Human Impact on Nature	
+Soil Nitrogen	
+Stems	
+Stems to Litter	
+Time Interval [a]	
+Time Span	
+Time Span [a]	
+Time [a]	
+Time interval is to large for a stable solution.	
+Transfer Coefficients	
+Update View	

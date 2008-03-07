@@ -15,7 +15,6 @@ Activate Grid File Cache?
 Activate file caching automatically, if memory size exceeds the threshold value.	
 Add Field	
 All Files	
-All Files|*.*	
 All Recognised Files	
 Area	
 Attribute	
@@ -34,7 +33,6 @@ Clear
 Colors file could not be exported.	
 Colors file could not be imported.	
 CompuServe Graphics Interchange	
-CompuServe Graphics Interchange (*.gif)	
 Confirm file caching	
 Constraints	
 Copy	
@@ -42,7 +40,7 @@ Create Lookup Table
 Create index	
 Creating module documentation files	
 Currently no help files exist for SAGA.\nIt depends on your support, if you will find any help at this place in future!\nThanks a lot...	
-DBase (*.dbf)	
+DBase	
 DESCRIPTION	
 Data Table	
 Delete Fields	
@@ -50,7 +48,7 @@ Description
 Descriptive name for the grid system	
 Direction	
 Directory, where temporary cache files shall be saved.	
-ESRI Shape Files (*.shp)	
+ESRI Shape Files	
 Error	
 Error in Trend Calculation	
 Error in formula	
@@ -61,14 +59,12 @@ Field Type
 Fields	
 First Class	
 Function failed because no attributes are available	
-GPL	
 General	
 Grid File Caching	
-Grids (*.sgrd)	
-Grids (*.sgrd, *.dgm)	
+Grids	
 Height	
 I1: unrecognizable operator	
-I2: too many parameters\n	
+I2: too many parameters	
 I3: corrupted buffer	
 I4: size estimate too small	
 Identifier	
@@ -79,9 +75,7 @@ Input
 Insert Method	
 Insert Position	
 JPEG - JFIF Compliant	
-JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)	
 JPG Files	
-LGPL	
 Layers	
 Left/Right	
 Legend: Save	
@@ -100,7 +94,6 @@ Maximum
 Menu	
 Minimum	
 Module	
-N	
 NAME	
 Name	
 Neon	
@@ -108,7 +101,7 @@ Options
 Options for Data Thumbnails	
 Options for Map Thumbnails	
 Output	
-PDF Documents (*.pdf)|*.pdf|	
+PDF Files	
 PNG Files	
 Parameters	
 Parameters file could not be exported.	
@@ -118,18 +111,17 @@ Perimeter
 Please stop module execution before exiting SAGA.	
 Points	
 Portable Network Graphics	
-Portable Network Graphics (*.png)	
 Position	
 Rainbow	
 Resolution	
 Row	
-SAGA Colors (*.pal)	
+SAGA Colors	
 SAGA Help	
-SAGA Module Libraries (*.dll, *.so)	
+SAGA Module Libraries	
 SAGA Module Library Descriptions	
-SAGA Parameter Files (*.sprm)	
-SAGA Project (*.sprj)	
-SAGA Projects (*.sprj)	
+SAGA Parameter Files	
+SAGA Project	
+SAGA Projects	
 SAGA: Print Map	
 SVG - Scalable Vector Graphics Files (*.svg)	
 Save 3D Image Options	
@@ -148,12 +140,11 @@ Sort by
 South-North	
 Start Project	
 Table	
-Tables (*.txt, *.dbf)	
+Tables	
 Tagged Image File Format	
-Tagged Image File Format (*.tif, *.tiff)	
 Temporary files	
-Text (*.txt)	
-Text Files (*.txt)	
+Text	
+Text Files	
 This is a Test!!!	
 Threshold for automatic mode [MB]	
 Thumbnail Size	
@@ -167,13 +158,11 @@ Version
 West-East	
 Width	
 Windows or OS/2 Bitmap	
-Windows or OS/2 Bitmap (*.bmp)	
 X	
 X11 Pixel Map	
 Y	
 Z	
 Zsoft Paintbrush	
-Zsoft Paintbrush (*.pcx)	
 [BTN] Add	
 [BTN] Apply	
 [BTN] Button	
@@ -458,7 +447,6 @@ Zsoft Paintbrush (*.pcx)
 [CMD] Properties	
 [CMD] Right	
 [CMD] Right [F4]	
-[CMD] Save As Image	
 [CMD] Save As Image when changed	
 [CMD] Save As Image...	
 [CMD] Save As PDF	
@@ -534,6 +522,7 @@ Zsoft Paintbrush (*.pcx)
 [ERR] Can't execute a module while another runs	
 [ERR] Corrupted shape file.	
 [ERR] Could not save PDF file.	
+[ERR] DBase file could not be opened or it did not contain any records.	
 [ERR] Error: Continue anyway ?	
 [ERR] Grid file could not be opened.	
 [ERR] Grid file could not be saved.	
@@ -551,7 +540,6 @@ Zsoft Paintbrush (*.pcx)
 [ERR] There was a problem printing.\nPerhaps your current printer is not set correctly?	
 [ERR] Unknown Error	
 [ERR] You canceled printing	
-[FIL] All Files|*.*	
 [FLD] Attribute	
 [FLD] Central Projection	
 [FLD] Exaggeration	
@@ -825,7 +813,6 @@ red > grey > blue
 red > grey > green	
 rhombus	
 rows	
-saga module libraries	
 square	
 syntax error	
 too few parameters	

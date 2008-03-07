@@ -1,0 +1,22 @@
+ORIGINAL	TRANSLATION
+%d. Life Cycle	
+Birth Rate of Fishes	
+Birth Rate of Sharks	
+Cellular Automata	
+Conway's Life	
+Cycles	
+Dead after %d Life Cycles\n	
+Fade Color Count	
+Grid	
+Height (Cells)	
+If grid is not set, a new one will be created using chosen width and height.	
+Initial Number of Fishes [%]	
+Initial Number of Sharks [%]	
+Max. Starvation Time for Sharks	
+New Grid Dimensions	
+Olaf Conrad (c) 2002	
+Refresh	
+Simulation - Cellular Automata	
+Simulation|Cellular Automata	
+Wa-Tor	
+Width (Cells)	

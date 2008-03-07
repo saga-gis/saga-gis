@@ -1,0 +1,48 @@
+ORIGINAL	TRANSLATION
+Attribute	
+Automatically fits the grid to the shapes layers extent.	
+Choose Grid	
+Choose Grid Project	
+Choose Grid System	
+Copyrights (c) 2003 by Andre Ringeler	
+Fit Extent	
+Floating Point (4 byte)	
+Floating Point (8 byte)	
+Grid	
+Grid - Gridding	
+Grid Project	
+Grid Size	
+Grid System	
+Grid|Gridding	
+Integer (1 byte)	
+Integer (2 byte)	
+Integer (4 byte)	
+Inverse Distance	
+Inverse Distance: Power	
+Maximum Points	
+Method for Lines	
+Modifed Quadratic Shepard	
+Nearest Neighbour	
+Olaf Conrad (c) 2002	
+Points	
+Quadratic Neighbors	
+R:Interpolation from Points	
+Search Radius	
+Shapes	
+Shapes to Grid	
+System	
+Target Dimensions	
+Target Grid	
+Target Grid Type	
+Tools for the gridding of points and other vector data.	
+Triangulation	
+User defined	
+User defined grid	
+Weighting Neighbors	
+X-Extent	
+Y-Extent	
+grid	
+grid system	
+thick	
+thin	
+user defined	

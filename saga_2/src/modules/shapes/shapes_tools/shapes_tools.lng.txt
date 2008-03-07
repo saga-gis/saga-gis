@@ -1,0 +1,170 @@
+ORIGINAL	TRANSLATION
+(Selected)	
+(c) 2005 by Victor Olaya	
+A3 Landscape	
+A3 Portrait	
+A4 Landscape	
+A4 Portrait	
+A:Shapes|Reports	
+Add Link to Files	
+Additional Layers	
+Anchor Point	
+Angle	
+Angle in degrees, counting clockwise from north	
+Assign a Table to Shapes	
+Attribute	
+Attribute Table	
+Attributes	
+Bottom	
+Boundaries	
+Buffer	
+Buffer Distance	
+Buffer Distance (Attribute)	
+Buffer Distance (Fixed)	
+By number	
+Cell Height	
+Cell Sizes	
+Chart (bars):	
+Chart (sectors):	
+Circle Point Distance [Degree]	
+Class	
+Columns	
+Condition	
+Copy Rule	
+Copyrights (c) 2004 by Victor Olaya	
+Count	
+Create Chart Layer (bars/sectors)	
+Create Empty Shapes Layer	
+Create PDF Docs	
+Create PDF Report for Shapes Layer	
+Create Web Content	
+Create graticule	
+Cut	
+Cut Shapes Layer	
+Distance X	
+Distance Y	
+Expression	
+Extent	
+Extent [Cut]	
+Field	
+Field (ID)	
+Field (Name)	
+Field for File Naming	
+Field for Summary	
+Fields for diagram	
+File Naming	
+Files	
+Fill Color	
+Folder	
+Graticule	
+Graticule type	
+Grid Project	
+Group A	
+Group B	
+Height	
+Horizontal Range	
+ID	
+Identifier	
+Images|*.bmp;*.jpg;*.png;*.tif|HTML Files|*.htm|All Files|*.*	
+Input	
+Invalid Buffer Distance	
+Invalid Shapes	
+Join Table	
+Layers to merge with main layer	
+Layout	
+Left	
+Line Color	
+Lines	
+Main Layer	
+Main Layer. Output layer will have the same field in the attributes table as this layer	
+Map/Table Size Ratio [%]	
+Maximum size	
+Merge Shapes Layers	
+Merged Layer	
+Method	
+Minimum size	
+Move	
+Multipoint	
+Name	
+Name Field	
+New layer from selected shapes	
+New shapes layer	
+No shapes in selection	
+Number of atttribute table columns.	
+Number of horizontal tiles	
+Number of vertical tiles	
+Olaf Conrad, Victor Olaya (c) 2002-2006	
+Output	
+Overview	
+PDF Docs	
+PDF File	
+PDF Files (*.pdf)|*.pdf|All Files|*.*	
+Paper Format	
+Path for HTML Files	
+Point	
+Polygon	
+Query builder for shapes	
+R:Construction	
+Relation B / A	
+Resulting Shapes	
+Resulting shapes	
+Right	
+Rotate	
+Scale	
+Scale Factor X	
+Scale Factor Y	
+Scaling Factor for Attribute Value	
+Search in attributes table	
+Select by theme	
+Select features in Shapes 1 that fulfil this condition	
+Separate Shapes	
+Shape Type	
+Shapes	
+Shapes - Tools	
+Shapes 2	
+Shapes Buffer	
+Shapes_Merge	
+Shapes|Tools	
+Size field	
+Split Shapes Layer	
+Split Shapes Layer Randomly	
+Statistics	
+Subtitle	
+Summary	
+Summary Table	
+Summary_	
+Table	
+Tiles	
+Tools for the manipulation of vector data.	
+Top	
+Transform Shapes	
+Transformed Shapes	
+Type	
+Use field content	
+Value	
+Vertical Range	
+Width	
+X	
+Y	
+\n\n ** Error : Could not close PDF engine ** \n\n	
+\n\n ** Error : Could not save PDF file ** \n\n	
+all shapes	
+append	
+attribute field	
+center	
+completely contained	
+dX	
+dX(GridUnits)	
+dY	
+dY(GridUnits)	
+fit to page	
+fix value	
+fixed cell height	
+grid project	
+horizontal	
+intersects	
+only shapes with table entry	
+replace	
+shp files folder	
+user defined	
+vertical	

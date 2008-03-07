@@ -1,0 +1,28 @@
+ORIGINAL	TRANSLATION
+All Files	
+All Recognized File Types	
+CompuServe Graphics Interchange (*.gif)	
+Enforce True Color	
+Export Image (bmp, jpg, png)	
+File|Grid	
+Grid	
+Image	
+Image (Blue Channel)	
+Image (Green Channel)	
+Image (Red Channel)	
+Image File	
+Image Import/Export.	
+Import Image (bmp, jpg, png, tif, gif, pnm, xpm)	
+Import/Export - Images	
+JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)	
+Olaf Conrad (c) 2005	
+Options	
+Portable Network Graphics (*.png)	
+R:Export	
+R:Import	
+Shade	
+Split Channels	
+Standard	
+Tagged Image File Format (*.tif, *.tiff)	
+Windows or OS/2 Bitmap (*.bmp)	
+Zsoft Paintbrush (*.pcx)	

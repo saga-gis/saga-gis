@@ -1,0 +1,40 @@
+ORIGINAL	TRANSLATION
+Add Coordinates to points	
+Convert a Table to Points	
+Copyrights (c) 2004 by Victor Olaya	
+Count Points in Polygons	
+Create Point Grid	
+Distance	
+Distance Matrix	
+Distance Matrix Table	
+Distance between points (grid units).	
+Failed to initialise search engine.	
+Fit N Points to shape	
+Insert Additional Points	
+Insert Distance	
+Invalid shapes layer.	
+Lines	
+No duplicates found.	
+Number of points	
+Numerical Values	
+Point Grid	
+Points	
+Points from Lines	
+Polygons	
+Remove Duplicate Points	
+Result	
+Shapes	
+Shapes - Points	
+Shapes|Points	
+Table	
+Text	
+Tools for the manipulation of point vector data.	
+Victor Olaya (c) 2004	
+X	
+X-Extent	
+Y	
+Y-Extent	
+duplicates have been identified.	
+first	
+last	
+mean	

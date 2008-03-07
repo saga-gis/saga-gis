@@ -1,0 +1,16 @@
+ORIGINAL	TRANSLATION
+Lines	
+Method	
+Number of points	
+Number of points in the simplified line	
+Output	
+Percentage of points	
+Percentage of points remaining in the simplified line	
+Possible error	
+Shapes - Lines (extended)	
+Shapes|Lines	
+Simplified Lines	
+Simplify Lines	
+Tolerance	
+Tools for lines.	
+Victor Olaya (c) 2005	

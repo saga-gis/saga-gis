@@ -98,10 +98,20 @@ bool CSG_Shapes::_Load_ESRI(const SG_Char *File_Name)
 
 	fName	= SG_File_Make_Path(NULL, File_Name, SG_T("dbf"));
 
+	SG_UI_Msg_Lock(true);
+
 	if( !m_Table._Create(fName, SG_T('\t')) || m_Table.Get_Record_Count() == 0 )
 	{
+		SG_UI_Msg_Lock(false);
+
+		SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
+
+		SG_UI_Msg_Add_Error(LNG("[ERR] DBase file could not be opened or it did not contain any records."));
+
 		return( false );
 	}
+
+	SG_UI_Msg_Lock(false);
 
 	//-----------------------------------------------------
 	// Open Shapes File...

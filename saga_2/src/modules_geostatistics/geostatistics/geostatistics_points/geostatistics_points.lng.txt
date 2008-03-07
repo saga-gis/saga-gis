@@ -1,0 +1,18 @@
+ORIGINAL	TRANSLATION
+Attribute	
+Class Count	
+Class Variance	
+Difference	
+Distance	
+Distance Increment	
+Geostatistical analyses for point data.	
+Geostatistics - Points	
+Geostatistics|Points	
+Maximum Distance	
+Olaf Conrad (c) 2002	
+Points	
+Semi-Variances	
+Semi-Variogram	
+Skip Number	
+Std.Deviation	
+Variance	

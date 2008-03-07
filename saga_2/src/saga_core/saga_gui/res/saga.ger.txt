@@ -522,6 +522,7 @@ Zsoft Paintbrush
 [ERR] Can't execute a module while another runs	Modul kann nicht ausgeführt werden, während ein anderes läuft
 [ERR] Corrupted shape file.	
 [ERR] Could not save PDF file.	
+[ERR] DBase file could not be opened or it did not contain any records.	
 [ERR] Error: Continue anyway ?	
 [ERR] Grid file could not be opened.	Rasterdatei konnte nicht geöffnet werden
 [ERR] Grid file could not be saved.	Raster konnte nicht gespeichert werden

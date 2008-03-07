@@ -1,0 +1,28 @@
+ORIGINAL	TRANSLATION
+%s [rotated]	
+1 byte integer	
+2 byte integer	
+4 byte floating point	
+4 byte integer	
+8 byte floating point	
+Attribute	
+Create Empty Table	
+ENUM_ID	
+Enumerate a Table Attribute	
+Enumerate attribute of a table, i.e. assign to identical values of choosen attribute field unique identifiers.\n	
+Field	
+Field Properties	
+Input	
+Name	
+New table	
+Number of Fields	
+Output	
+Rotate Table	
+Rotate a table, i.e. swap rows and columns.\n	
+SAGA User Group Associaton (c) 2002	
+Table	
+Table - Tools	
+Table|Tools	
+Type	
+character string	
+color (rgb)	

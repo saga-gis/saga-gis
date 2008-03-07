@@ -1,0 +1,132 @@
+ORIGINAL	TRANSLATION
+** Error : Wrong outlet point selected **	
+** Warning : Outlet point was modified **	
+1 / cell size (specific catchment area)	
+Acc. Area	
+Area to Length Conversion	
+Avg. Curve Number	
+Avg. Manning's N	
+Avg. Rainfall Intensity (mm/h)	
+Boehner & Selige 2006	
+Braunschweiger Reliefmodell	
+Calculating Catchment Area...	
+Catchment Area	
+Catchment Aspect	
+Catchment Height	
+Catchment Slope	
+Catchment area	
+Catchment area calculation...	
+Catchment slope	
+Cell Balance	
+Channel Definition Threshold (ha)	
+Channel definition threshold	
+Channel side slope(m/m)	
+Convergence	
+Convergence (FD8)	
+Convergence factor for Multiple Flow Direction Algorithm (Freeman 1991)	
+Convergence factor for Multiple Flow Direction Algorithm after Freeman (1991) and Multiple Triangular Flow Directon Algorithm after Seibert/Glynn (2007).	
+Convergence factor for Multiple Flow Direction algorithm	
+Convergence factor for the \'Multiple Flow Direction\' algorithm (after Freeman 1991)	
+Copyrights (c) 2004 by Victor Olaya	
+Copyrights (c) 2005 by Volker Wichmann	
+Copyrights (c) 2005-6 by Volker Wichmann	
+Curve Number	
+DEM	
+DEMON	
+DEMON - Min. DQV	
+DEMON - Minium Drainage Quota Volume (DQV) for traced flow tubes	
+Default Weight	
+Derivation of slope lengths from catchment areas. These are rough approximations! Applies not to Desmot & Govers' method.	
+Desmot & Govers	
+Desmot & Govers 1996	
+Deterministic 8	
+Deterministic 8 (D8)	
+Deterministic Infinity	
+Downslope Area	
+Edge Contamination	
+Elevation	
+Elevation Grid	
+Flow Correction	
+Flow Depth	
+Flow Depth Grid (m)	
+Flow Path Length	
+Flow Routing Algorithm	
+Flow Sinuosity	
+Flow Tracing	
+Interactive version (left mouse clicks will trigger the calculation for the selected cell).	
+Isochrones Constant Speed	
+Isochrones Variable Speed	
+Kinematic Routing Algorithm	
+LS-Factor	
+Lake	
+Lake Flood	
+Linear Flow	
+Linear Flow Threshold	
+Manning's N	
+Method	
+Method (LS)	
+Method (TWI)	
+Min. Flow Speed (m/s)	
+Mixed Flow Threshold (ha)	
+Modified catchment area	
+Modify: post-processing...	
+Modify: pre-processing...	
+Moore et al. 1991	
+Multiple Flow Direction	
+Multiple Flow Direction (FD8)	
+Multiple Triangular Flow Directon	
+Olaf Conrad, Victor Olaya (c) 2001-4	
+Parallel Processing	
+Parameter	
+Peak Flow (m3/s)	
+Peak Flow (m3/s) at selected outlet cell	
+R:Catchment Area	
+R:Lakes	
+Recursive Upward Processing	
+Rho 8	
+Rill/Interrill Erosivity	
+SAGA Wetness Index	
+Seeds	
+Seeds Only	
+Sink Routes	
+Sinuosity	
+Slope	
+Slope Length	
+Speed (m/s)	
+Stability	
+Standard	
+Step	
+Stream Power Index	
+TOPMODEL	
+Target Area	
+Target Areas	
+Terrain Analysis - Hydrology	
+Terrain Analysis|Hydrology	
+The Topographic Wetness Index: ln( Area / tan(Slope) )	
+This version uses all valid cells (not \'no data\' values) of given target grid to determine the contributing area.	
+Time Out (h)	
+Time Out(h)	
+Tools for digital terrain analysis.	
+Topgraphic Wetness Index	
+Topographic Indices	
+Topographic Wetness Index	
+Transmissivity	
+Upslope Area	
+Use D8 if catchment area becomes higher than specified threshold (Cells).	
+Use D8 if catchment area becomes higher than specified threshold.	
+Use only seed cells as starting points.	
+Water Depth	
+Weight	
+Wetness index	
+Wetness index calculation...	
+digital elevation model [m]	
+extent of lake, coded with local water depth [m]	
+extent of lake, coded with water depth [m]	
+instable (thawing)	
+m2	
+ready	
+seed cell coded with local water depth [m], all other cells NoData	
+square root (catchment length)	
+stable	
+t	
+water depth at the user specified cell [m]	

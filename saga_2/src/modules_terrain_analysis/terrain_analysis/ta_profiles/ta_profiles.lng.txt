@@ -1,0 +1,75 @@
+ORIGINAL	TRANSLATION
+%s [max]	
+%s [max_sd]	
+%s [mean]	
+%s [min]	
+%s [min_sd]	
+Additional values that shall be saved to the output table.	
+Area +	
+Area -	
+Create PDF Documents	
+Cross Profiles	
+Cross Sections	
+DEM	
+Digital Terrain Model	
+Dist.	
+Distance	
+Distance Overland	
+Draw a section each n points	
+Each Line as new Profile	
+Flow Path Profile	
+Folder for PDF Files	
+Grid	
+Height Threshold	
+Height threshold for optimal profile calculation	
+Input	
+Interval	
+Interval between points (in grid units).	
+Lines	
+Longitudinal Profile	
+Number of points	
+Number of points on each side of the section	
+O. Conrad and V. Olaya, (c) 2004-06	
+PDF Documents	
+Partial D.	
+Path	
+Portable Document Format (*.pdf)|*.pdf|All Files|*.*	
+Profile	
+Profile Distance	
+Profile Length	
+Profile Line	
+Profile Points	
+Profile Samples	
+Profile [%s]	
+Profile from points	
+Profiles	
+Profiles from Lines	
+Report	
+Result	
+Road Width	
+SECTIONS	
+Section	
+Sections	
+Side Slope	
+Simple, flow path and swath profiles.	
+Swath Profile	
+Swath Width	
+Swath width measured in map units.	
+Terrain Analysis - Profiles	
+Terrain Analysis|Profiles	
+Values	
+Vol. +	
+Vol. -	
+Volumes	
+X	
+Y	
+Z [max]	
+Z [max_sd]	
+Z [mean]	
+Z [min]	
+Z [min_sd]	
+\n** Error : Invalid parameters **\n	
+\n\n ** Error : Could not close PDF engine ** \n\n	
+\n\n ** Error : Could not save PDF file ** \n\n	
+n	
+pdf	

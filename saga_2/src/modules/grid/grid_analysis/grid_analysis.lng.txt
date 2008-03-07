@@ -1,0 +1,134 @@
+ORIGINAL	TRANSLATION
+** ERROR : Invalid control points ** \n	
+3 X 3	
+5 X 5	
+7 X 7	
+Accumulated Cost	
+Accumulated Cost (Anisotropic)	
+Accumulated Cost (Isotropic)	
+Accumulated cost	
+Aggregation Index	
+Analytical Hierarchy Process	
+Angle	
+Angle. In radians	
+Area	
+Area[%]	
+Center Versus Neighbours	
+Change Vector Analysis	
+Class	
+Clay	
+Clay-Loam	
+Closest Point	
+Control Point A	
+Control Point B	
+Control Point C	
+Control Point D	
+Copyrights (c) 2004 by Antonio Boggia and Gianluca Massei	
+Copyrights (c) 2004 by Victor Olaya	
+Copyrights (c) 2007 by Gianluca Massei	
+Corrected Transformed Vegetation Index	
+Cost Grid	
+Covered Distance	
+Cross-Classification Grid	
+Cross-Classification and Tabulation	
+Cross-Tabulation	
+Cross-Tabulation Table	
+Destination Points	
+Direction of max cost	
+Direction of max cost for each cell. In degrees	
+Distance	
+Diversity	
+Dominance	
+Efective friction = stated friction ^f , where f = cos(DifAngle)^k.	
+Error : Wrong table. Check table dimensions	
+Error : Wrong weights table. Check table dimensions	
+Fragmentation	
+Fuzzified	
+Fuzzify	
+Fuzzy intersection grid	
+Fuzzy union grid	
+Grid - Analysis	
+Grid A. Final	
+Grid A. Init	
+Grid B. Final	
+Grid B. Init	
+Grids	
+Grid|Analysis	
+Hello by G. Massei	
+Input Grid	
+Input Grid 1	
+Input Grid 2	
+Input Grids	
+Intercept of the soil line	
+Intersection	
+Layer of extreme value	
+Least Cost Path	
+Linear	
+Loam	
+Loamy Sand	
+Magnitude	
+Max. Number of Classes	
+Maximum	
+Maximum number of classes in entire grid.	
+Maximum number of classes in the entire grid.	
+Membership function type	
+Method	
+Minimum	
+Near Infrared Band	
+Normalized Difference Vegetation Index	
+Normalized Ratio Vegetation Index	
+Number of Different Classes	
+Ordered Weighted Averaging (OWA)	
+Output Grid	
+PVI (Perry & Lautenschlager)	
+PVI (Qi, et al) 	
+PVI (Richardson and Wiegand)	
+PVI (Walther & Shabaani)	
+Pairwise Comparisons Table 	
+Pattern Analysis	
+Polar To Rect	
+Profile (lines)	
+Profile (points)	
+Profile [%s]	
+R:Cost Analysis	
+R:Fuzzy Logic	
+R:Image Analysis	
+R:Soil Analysis	
+Ratio Vegetation Index	
+Rect To Polar	
+Red Band	
+Relative Richness	
+Result	
+Sand	
+Sandy Clay	
+Sandy Clay-Loam	
+Sandy Loam	
+Sigmoidal	
+Silt	
+Silt-Loam	
+Silty Clay	
+Silty Clay-Loam	
+Size of Analysis Window	
+Slope of the soil line	
+Soil Texture	
+Soil Texture Classification	
+Soil texture	
+Some Grid Analysis Tools.	
+Thiam's Transformed Vegetation Index	
+Threshold for different route	
+Total	
+Transformed Vegetation Index	
+Union	
+Values	
+Vegetation Index[distance based]	
+Vegetation Index[slope based]	
+Victor Olaya (c) 2004	
+Weight	
+Weight for grid 	
+Weights	
+X Component	
+Y Component	
+clay content	
+j-shaped	
+k factor	
+sand content	

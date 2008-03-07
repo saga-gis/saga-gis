@@ -1,0 +1,92 @@
+ORIGINAL	TRANSLATION
+A / tan(\xc3\x9f)	
+Above Elevation	
+Air Humidity (2pm) [%%]	
+April	
+Areal average of ln(T0) = ln(Te) [ln(m^2/h)]	
+August	
+Climate Data	
+Climate Data (P, EP)	
+Crop Coefficients	
+DEM	
+December	
+Default	
+Elevation	
+Epsilon	
+Equivalent Moisture	
+February	
+Field Capacity [mm]	
+Final Parameters	
+Green-Ampt Infiltration	
+Hafer	
+Homogenous	
+Infiltration excess runoff [m/dt]	
+Infiltration rate [m/dt]	
+Initial root zone storage deficit [m]	
+Initial subsurface flow per unit area [m/h]	
+Internal subcatchment routing velocity [m/h]	
+January	
+July	
+June	
+Kartoffeln	
+Kind of initializing Precipitation Event	
+Land Use	
+Land Use ID	
+Left Half	
+Maehweide	
+Main channel routing velocity [m/h]	
+Manning's Roughness	
+March	
+Max. Iterations	
+Maximum root zone storage deficit [m]	
+May	
+Mean saturation deficit (in watershed) [m]	
+Model parameter [m]	
+Modelling hydrological processes.	
+Name	
+Newton-Raphson	
+November	
+Number of Classes	
+October	
+Olaf Conrad (c) 2001	
+Outlet Hydrographs	
+Outlets	
+Overland Flow - Kinematic Wave D8	
+Permanent Wilting Point [mm]	
+Permeability	
+Plot Holes	
+Precipitation	
+Precipitation [mm]	
+Runoff	
+Saturation overland flow [m/dt]	
+September	
+Simulation - Hydrology	
+Simulation Output	
+Simulation Time Step [h]	
+Simulation Time [h]	
+Simulation Time [h]: %f / %f	
+Simulation|Hydrology	
+Soil Moisture	
+Soil Moisture Content	
+Soil Moisture Deficit	
+Sommergerste	
+Subsurface flow [m/dt]	
+Surface hydraulic conductivity [m/h]	
+TOPMODEL	
+TOPMODEL - Simulation Output	
+Temperature (2pm) [DegreeC]	
+Threshold Elevation	
+Time Step [h]	
+Total flow (in watershed) [m\xc2\xb3/dt]	
+Total flow [m/dt]	
+Unknown	
+Unsaturated zone time delay per unit storage deficit [h]	
+Vertical (drainage) flux [m/dt]	
+Water Retention Capacity	
+Water content change across the wetting front	
+Wetting front suction [m]	
+Wintergerste	
+Winterraps	
+Winterroggen	
+Winterweizen	
+Zuckerrueben	

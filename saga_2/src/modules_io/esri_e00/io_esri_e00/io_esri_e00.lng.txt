@@ -1,0 +1,19 @@
+ORIGINAL	TRANSLATION
+%s - not found\n	
+(c) 2004 by Olaf Conrad, Goettingen	
+Arcs	
+Arcs to polygons	
+Assign attributes to shapes...	
+Boundary	
+ESRI E00 Files|*.e00;*.e0*|All Files|*.*	
+File	
+File|ESRI E00	
+Grid	
+Import ESRI E00 File	
+Import and export filter for ESRI's E00 file exchange format.	
+Import/Export - ESRI E00	
+Labels	
+Sites	
+Table	
+Tick Points	
+\"%s\" is not an Arc-info_Table Export file !\n	

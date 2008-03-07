@@ -1,0 +1,30 @@
+ORIGINAL	TRANSLATION
+CompleteLinkage	
+Contributions - T. Wutzler	
+Contributions from Thomas Wutzler.	
+Contributions|T. Wutzler	
+Copyrights (c) 2004 by Thomas Wutzler	
+Input	
+Input for module calculations.	
+Lower Limit of real data	
+LowerLimit	
+MinDist	
+MinDist Region	
+MinDistDir	
+NoDataValue	
+Output	
+Output of module calculations.	
+RGBOverlay	
+Recalculating all Regions Minimum Distances\n	
+Regions Count of No-DataValue-Pixels	
+Regions MinPixel	
+Thomas Wutzler (c) 2004	
+Value for 'no data'	
+Weight for Red Grid out of range (0..100) - Cannot execute module	
+aggregating inside regions\n	
+aggregating over all the grid\n	
+calculating initial distances\n	
+clean up temporary data structures\n	
+removing orphants\n	
+renaming classes\n	
+tomaschTool	

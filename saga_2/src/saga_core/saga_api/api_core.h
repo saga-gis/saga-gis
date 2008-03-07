@@ -731,6 +731,7 @@ SAGA_API_DLL_EXPORT bool					SG_UI_Dlg_Continue			(const SG_Char *Message, const
 SAGA_API_DLL_EXPORT int						SG_UI_Dlg_Error				(const SG_Char *Message, const SG_Char *Caption);
 SAGA_API_DLL_EXPORT bool					SG_UI_Dlg_Parameters		(class CSG_Parameters *pParameters, const SG_Char *Caption);
 
+SAGA_API_DLL_EXPORT int						SG_UI_Msg_Lock				(bool bOn);
 SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add				(const SG_Char *Message, bool bNewLine, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);
 SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Error			(const SG_Char *Message);
 SAGA_API_DLL_EXPORT void					SG_UI_Msg_Add_Execution		(const SG_Char *Message, bool bNewLine, TSG_UI_MSG_STYLE Style = SG_UI_MSG_STYLE_NORMAL);

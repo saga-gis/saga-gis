@@ -1,0 +1,34 @@
+ORIGINAL	TRANSLATION
+Circle	
+Copyrights (c) 2003 by Andre Ringeler	
+Direction	
+Direction of the filter with minimum variance.	
+Edge	
+Filter	
+Filter Clumps	
+Filter Matrix	
+Filtered Grid	
+Gaussian Filter	
+Grid	
+Grid - Filter	
+Grid|Filter	
+Input Grid	
+Laplacian Filter	
+Min. Size	
+Min. Size (Cells)	
+Minimum Variance	
+Multi Direction Lee Filter	
+Noise Variance	
+Radius	
+Radius is too small	
+Radius is too small for your Standard Deviation	
+SAGA User Group Associaton (c) 2002	
+Search Mode	
+Search Radius	
+Sharpen	
+Simple Filter	
+Smooth	
+Square	
+Standard Deviation	
+Tools for the manipulation of gridded data.	
+User Defined Filter (3x3)	

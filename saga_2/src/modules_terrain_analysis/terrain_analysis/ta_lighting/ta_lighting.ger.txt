@@ -1,0 +1,122 @@
+ORIGINAL	TRANSLATION
+%d. Day of Year, Local Time: %dh %02dm	
+Account for atmospheric effects using either a lumped atmospheric transmittance approach or by calculating the components (water and dust).	
+Analytical Hillshading	Beleuchtungsmodell
+Analytical hillshading calculation.	
+April	
+Atmospheric Effects	
+Atmospheric Pressure [mb]	
+August	
+Azimuth [Degree]	
+Calculating the components	
+Combined Shading	
+Daily Time Resolution	Zeitliche Auflösung (Tagesgang)
+Daily Time Resolution [h]	
+Day	Tag
+Day of Year	
+Day of Year (Range End)	
+December	Dezember
+Declination [Degree]	
+Declination of the light source, measured in degree above the horizon.	Deklination der Lichtquelle, gemessen in Grad über dem Horizont.
+Diffuse Insolation	
+Direct Insolation	
+Direction of the light source, measured in degree clockwise from the north direction.	Richtung der Lichtquelle, gemessen in Grad im Uhrzeigersinn von der Nordrichtung.
+Distance	
+Duration of Insolation	Einstrahlungsdauer
+Dust [ppm]	
+Dust factor: 100 ppm (standard)	
+Elevation	Höhe
+Exaggeration	Überhöhung
+February	Februar
+Height	Höhe
+Height of Atmosphere [m]	
+Height of the light source above ground.	Höhe der Lichtquelle über dem Gelände.
+Horizontal Projection	
+Hour	
+Incoming Solar Radiation	
+Insolation	
+J/m\xc2\xb2	
+January	Januar
+Joule	
+July	Juli
+June	Juni
+Latitude	
+Latitude (user defined reference)	
+Latitude [Degree]	
+Latitude [degree]	
+Latitude relates to grid's...	
+Lighting and visibility calculations for digital terrain models.	
+Local Time (user defined reference)	
+Local time relates to grid's...	
+Location	
+Longitude [degree]	
+Lumped Transmittance [%]	
+Lumped atmospheric transmittance	
+March	März
+May	Mai
+Moment [h]	
+Month	Monat
+No output grid has been choosen.	
+November	
+October	Oktober
+Olaf Conrad, Goettingen (c) 2003	
+One Year	Jahr
+Output must not overwrite elevation grid.	
+Planetary Radius	
+Planetery Bending	
+R:Lighting	
+Range of Days	Tage
+Range of Days Time Resolution [days]	
+Ray Tracing	Strahlverfolgung
+September	
+Shade	
+Shading Method	Schummerungsmethode
+Show each time step during calculation.	Zeige jeden Zeitschritt während der Berechnung.
+Simulation Time	Simulationszeitraum
+Single Day	Tag
+Size	
+Solar Constant [J]	
+Solar Constant [W/m\xc2\xb2]	
+Solar Radiation	Sonnenstrahlung
+Standard	
+Standard (max. 90Degree)	
+Terrain Analysis - Lighting, Visibility	
+Terrain Analysis|Lighting	Reliefanalyse|Beleuchtung
+The angle between the surface and the incoming light beams, measured in radians.	Der Winkel zwischen der Oberfläche und der einfallenden Lichtstrahlen, gemessen in Bogenmaß.
+The terrain exaggeration factor allows to increase the shading contrasts in flat areas.	Die Geländeüberhöhung erlaubt stärkere Kontraste in flachen Bereichen.
+The transmittance of the atmosphere (usually between 60 and 80%)	
+This value is used as constant if no vapour pressure grid is given.	
+Time	
+Time Period	
+Time Span [day of year]	Zeitspanne [Tag des Jahres]
+Time Span [h]	Zeitspanne [h]
+Time Step [h]	Zeitschrittweite [h]
+Time Step [number of days]	Zeitschritt [Anzahl der Tage]
+Time resolution for a day's calculation.	
+Time resolution for a range of days calculation.	
+Time span used for the calculation of daily radiation sums.	Zeitraum, der für die Berechnung berücksichtigt wird.
+Time step size used for the calculation of daily radiation sums.	Zeitschrittweite, die für die Berechnung täglicher Einstrahlungssummen benutzt wird.
+Total Insolation	
+Total insolation, the sum of direct and diffuse incoming solar radiation.	
+Unit	Einheit
+Update View	Zwischenergebnisse anzeigen
+Visibility	
+Visibility (single point)	
+Water Content [cm]	
+Water Vapour Pressure [mbar]	
+Water content of a vertical slice of atmosphere in cm: 1.5 to 1.7, average=1.68	
+bottom	
+center	
+day	
+h	
+initialising gradient...	
+initialising planetary bending...	
+initialising...	
+kWh/m\xc2\xb2	
+left	
+moment	
+range of days	
+right	
+same moment for a range of days	
+top	
+user defined reference	

@@ -1,0 +1,28 @@
+ORIGINAL	TRANSLATION
+Area	
+Centroids	
+Centroids for each part	
+Complete Intersection	
+Convert Lines to Polygons	
+Copyrights (c) 2004 by Victor Olaya	
+Difference	
+Difference (A - B)	
+Fields to add	
+Geometrical Properties of Polygons	
+Intersection	
+Layer A	
+Layer B	
+Lines	
+Method	
+Olaf Conrad, Victor Olaya (c) 2002-5	
+Perimeter	
+Points	
+Polygon Centroids	
+Polygon Intersection	
+Polygon statistics from points	
+Polygons	
+Set true if you want multipart polygons to become separate polygons.	
+Shapes - Polygons	
+Shapes|Polygons	
+Split Parts	
+Tools for polygons.	

@@ -1,0 +1,10 @@
+ORIGINAL	TRANSLATION
+0.1	
+Copyright (c) 2007 by Thomas Schorr	
+File	
+File|Grid	
+Grid	
+Import GRIB2 record	
+Import/Export - GRIB Files	
+R:Import	
+Thomas Schorr (c) 2007	

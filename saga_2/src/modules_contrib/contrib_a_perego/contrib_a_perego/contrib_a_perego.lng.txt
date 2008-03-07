@@ -1,0 +1,60 @@
+ORIGINAL	TRANSLATION
+0 is horizontal, 90 is vertical.	
+AWM1 Grid	
+AWM2 Grid	
+AWT Grid	
+Alessandro Perego	
+Angle (in degrees)	
+Average 2 With Thereshold for Grids calculates average in X and Y distances unsing only the values that differ form central pixel less than a specified threshold. Each value has a weight which is inversely proportional to the distance (method 1).	
+Average 3 With Thereshold for Grids calculates average in X and Y distances unsing only the values that differ form central pixel less than a specified threshold. Each value has a weight which is inversely proportional to the distance (method 2).	
+Average With Mask 1	
+Average With Mask 1 calculates average for cells specified by a mask grid. Cell excluded by the mask grid are NOT used in the average calculation.	
+Average With Mask 2	
+Average With Mask 2 calculates average for cells specified by a mask grid. However cell excluded by the mask grid are used in the average calculation for right pixels.	
+Average With Thereshold 1	
+Average With Thereshold 2	
+Average With Thereshold 3	
+Average With Thereshold for Grids calculates average in X and Y distances unsing only the values that differ form central pixel less than a specified threshold. It's useful to remove noise whit a known maximum reducing the loss of informations	
+Contributions - A. Perego	
+Contributions from Alessandro Perego.	
+Contributions|A. Perego	
+Destriped Grid	
+Destriping 1	
+Destriping 2	
+Directional Average 1	
+Input	
+Low-pass 1	
+Low-pass 2	
+Main Radius	
+Mask Grid	
+Mask Max	
+Mask Min	
+Mask value	
+Max	
+Min	
+New grid filtered with the A1WiTh module	
+New grid filtered with the A2WiTh module	
+New grid filtered with the A3WiTh module	
+New grid filtered with the AvWiMa1 module	
+New grid filtered with the AvWiMa2 module	
+New grid filtered with the destriping1 module	
+New grid filtered with the destriping2 module	
+New grid filtered with the directional1 module	
+Output Grid	
+R:Filter for Grids	
+Radius	
+Radius X	
+Radius Y	
+Step 1: low-pass of stripe	
+Step 2: low-pass between stripe and its surruondings	
+Stripes distance	
+The values in the specified radius is used in the average calculation only if its difference with the central value is lesser or equal to this threshold.	
+This grid indicates the cells you want calculate the average.	
+This grid is used to select cells.	
+This must be your input data of type grid.	
+Threshold	
+Transversal radius	
+Value of right cells in the Mask Grid	
+destriping1 filter for Grids	
+destriping2 filter for values in a specified range (min-max)	
+directional1 average for Grids	

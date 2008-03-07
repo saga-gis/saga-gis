@@ -1,0 +1,103 @@
+ORIGINAL	TRANSLATION
+1.0	
+Automatic fit	
+Available Projections:	
+Azimuth	
+B-Spline Interpolation	
+Bicubic Spline Interpolation	
+Bilinear Interpolation	
+Bottom	
+Central Meridian	
+Central Parallel	
+Check each point|	
+Choose Grid	
+Choose Grid Project	
+Choose Shapes	
+Columns	
+Coordinate Transformations based on the Proj4-Engine.	
+Create X/Y Grids	
+Direction	
+Eccentricity (e)	
+Ellipsoid	
+Extent only (fast)	
+False Easting	
+False Northing	
+Fit Size	
+Flattening (f)	
+Geodetic to Projection	
+Grid	
+Grid Interpolation	
+Grid Size	
+Height of view point	
+Inverse Distance Interpolation	
+Inverse transformation not available for selected projection type.	
+Landsat	
+Latitude 1	
+Latitude 2	
+Latitude 3	
+Latitude B	
+Latitude Pole	
+Left	
+Longitude 1	
+Longitude 2	
+Longitude 3	
+Longitude Pole	
+Lotsa	
+M	
+Nearest Neigbhor	
+No Cut	
+Olaf Conrad (c) 2004	
+Path	
+Predefined Standard Ellipsoids	
+Proj4 (Grid)	
+Proj4 (Shapes)	
+Projection	
+Projection - Proj4	
+Projection Type	
+Projection initialization failure\ncause: 	
+Projection to Geodetic	
+R:Grid	
+R:Shapes	
+Reciprocal Flattening (rf)	
+Right	
+Rows	
+Semimajor Axis (a)	
+Semimajor Axis and Eccentricity	
+Semimajor Axis and Eccentricity Squared|	
+Semimajor Axis and Flattening	
+Semimajor Axis and Reciprocal Flattening	
+Semimajor Axis and Semiminor Axis	
+Semimajor axis or equatorial radius.	
+Semiminor Axis (b)	
+Semiminor axis or polar radius.	
+Shapes	
+Source	
+Source Parameters	
+South	
+Squared Eccentricity (es)	
+System	
+Target	
+Target Parameters	
+Tilt	
+Top	
+True Scale Latitude	
+Unit	
+User defined	
+W	
+X Coordinates	
+X-Coordinate	
+Y Coordinates	
+Y-Coordinate	
+Zone	
+automatic fit	
+grid	
+grid system	
+guam	
+h	
+k_0	
+m	
+n	
+shapes	
+shapes have been dropped	
+theta	
+user defined	

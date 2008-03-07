@@ -1,0 +1,89 @@
+ORIGINAL	TRANSLATION
+Absolute Area	
+Absolute Height	
+Algorithm for the detection of Surface Specific Points	
+Aspect	
+Classification Constant	
+Classify	
+Convergence Index	
+Convergence Index (Search Radius)	
+Convergence_Radius Index	
+Curvature	
+Curvature Classification	
+Degree	
+Difference	
+Difference to local gradient.	
+Distance Weighted (Inverse)	
+Distance Weighted (Linear)	
+Downslope Distance Gradient	
+Elevation	
+Fit 2.Degree Polynom (Bauer, Rohdenburg, Bork 1985)	
+Fit 2.Degree Polynom (Heerdegen & Beran 1982)	
+Fit 2.Degree Polynom (Zevenbergen & Thorne 1987)	
+Fit 3.Degree Polynom (Haralick 1983)	
+Flow Direction	
+Flow Direction (up and down)	
+Gradient	
+Gradient Difference	
+Hypsometric Curve	
+Hypsometry	
+Initial Threshold for Slope	
+Least Squares Fitted Plane (Horn 1981, Costa-Cabral & Burgess 1996)	
+Local Morphometry	
+MRRTF	
+MRVBF	
+Mark Highest Neighbour	
+Maximum Resolution (Percentage)	
+Maximum Slope (Travis et al. 1975)	
+Maximum Triangle Slope (Tarboton 1997)	
+Maximum resolution as percentage of the diameter of the DEM.	
+Method	
+Morphometric Protection Index	
+Multiresolution Index of Valley Bottom Flatness (MRVBF)	
+Number of Classes	
+Olaf Conrad, Goettingen (c) 2001	
+Opposite Neighbours	
+Output	
+Peucker & Douglas	
+Plan Curvature	
+Profile Curvature	
+Protection Index	
+R:Classification	
+Radius	
+Real Area Calculation	
+Real Area Grid	
+Relative Area	
+Relative Height	
+Result	
+Shape Parameter for Elevation Percentile	
+Shape Parameter for Slope	
+Slope	
+Sort	
+Standard	
+Surface Specific Points	
+Terrain Analysis - Morphometry	
+Terrain Analysis|Morphometry	
+Threshold	
+Threshold for Elevation Percentile (Lowness)	
+Threshold for Elevation Percentile (Upness)	
+Threshold for Peucker & Douglas Algorithm	
+Threshold for plane	
+Tools for (grid based) digital terrain analysis.	
+Update Views	
+Use Z-Range	
+Vertical Distance	
+Z-Range	
+\xc2\xb0	
+area	
+center cell's aspect direcion	
+direction to the center cell	
+distance	
+down	
+gradient (degree)	
+gradient (tangens)	
+height	
+m	
+resolution	
+step	
+threshold slope	
+up	

@@ -235,8 +235,29 @@ bool		SG_UI_Dlg_Parameters(CSG_Parameters *pParameters, const SG_Char *Caption)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int			gSG_UI_Msg_Lock	= 0;
+
+//---------------------------------------------------------
+int			SG_UI_Msg_Lock(bool bOn)
+{
+	if( bOn )
+	{
+		gSG_UI_Msg_Lock++;
+	}
+	else if( gSG_UI_Msg_Lock > 0 )
+	{
+		gSG_UI_Msg_Lock--;
+	}
+
+	return( gSG_UI_Msg_Lock );
+}
+
+//---------------------------------------------------------
 void		SG_UI_Msg_Add(const SG_Char *Message, bool bNewLine, TSG_UI_MSG_STYLE Style)
 {
+	if( gSG_UI_Msg_Lock )
+		return;
+
 	if( gSG_UI_Callback )
 	{
 		int		Parameters[2];
@@ -260,6 +281,9 @@ void		SG_UI_Msg_Add(const SG_Char *Message, bool bNewLine, TSG_UI_MSG_STYLE Styl
 //---------------------------------------------------------
 void		SG_UI_Msg_Add_Error(const SG_Char *Message)
 {
+	if( gSG_UI_Msg_Lock )
+		return;
+
 	if( gSG_UI_Callback )
 	{
 		gSG_UI_Callback(CALLBACK_MESSAGE_ADD_ERROR, (long)Message, 0);
@@ -273,6 +297,9 @@ void		SG_UI_Msg_Add_Error(const SG_Char *Message)
 //---------------------------------------------------------
 void		SG_UI_Msg_Add_Execution(const SG_Char *Message, bool bNewLine, TSG_UI_MSG_STYLE Style)
 {
+	if( gSG_UI_Msg_Lock )
+		return;
+
 	if( gSG_UI_Callback )
 	{
 		int		Parameters[2];

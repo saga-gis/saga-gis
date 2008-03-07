@@ -154,6 +154,8 @@ bool CSG_Translator::Create(const SG_Char *File_Name, bool bSetExtension)
 	CSG_Table	Translations;
 	CSG_String	fName(bSetExtension ? SG_File_Make_Path(NULL, File_Name, SG_T("lng")) : File_Name);
 
+	SG_UI_Msg_Lock(true);
+
 	if( SG_File_Exists(fName) && Translations.Create(fName) && Translations.Get_Field_Count() == 2 && Translations.Get_Record_Count() > 0 )
 	{
 		m_Translations	= (CSG_Translation **)SG_Malloc(Translations.Get_Record_Count() * sizeof(CSG_Translation *));
@@ -174,9 +176,9 @@ bool CSG_Translator::Create(const SG_Char *File_Name, bool bSetExtension)
 		{
 			m_Translations	= (CSG_Translation **)SG_Realloc(m_Translations, m_nTranslations * sizeof(CSG_Translation *));
 		}
-
-		SG_UI_Msg_Add(SG_T(" / "), false, SG_UI_MSG_STYLE_NORMAL);
 	}
+
+	SG_UI_Msg_Lock(false);
 
 	return( m_nTranslations > 0 );
 }

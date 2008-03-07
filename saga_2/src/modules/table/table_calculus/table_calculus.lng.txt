@@ -1,0 +1,45 @@
+ORIGINAL	TRANSLATION
+CFit\n(created by SAGA Wizard).	
+Correlation Matrix of the Fit Parameters:\n	
+Cubic: a + b * x + c * x^2 + d * x^3	
+Error at character #%d of the function: \n%s\n	
+Error at character #%d of the function: \n%s\n%s\n	
+Error in Formula	
+Field Name	
+Fit	
+Formula	
+Function Fit	
+Iterationen	
+Linear: a + b * x	
+Logarithmic: a + b * ln(x)	
+Matrix signular\n	
+Max Lamda	
+Model Parameters:	
+No|Yes|	
+Power: a + b * x^c	
+Pre-defined Formulas	
+Quadric: a + b * x + c * x^2	
+SAGA User Group Associaton (c) 2002	
+Shapes	
+Source	
+Start Value	
+Start Values	
+Syntax error at position #%d: \n%s\n	
+Table	
+Table (with Trend)	
+Table - Calculus	
+Table calculator	
+Table calculator for shapes	
+Table|Calculus	
+Trend	
+Trend for Shapes Data	
+Trend for Table Data	
+Use x -Values	
+X Values	
+Y Values	
+\nRMS  of Residuals (stdfit):\t%f\n	
+a + b * (1 - exp(-(x / c)^2))	
+a + b * (1 - exp(-x / c))	
+a + b / x	
+x - Values	
+y - Values	

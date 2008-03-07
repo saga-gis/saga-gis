@@ -1,0 +1,42 @@
+ORIGINAL	TRANSLATION
+(c) 2004 Victor Olaya	
+** Warning : Number of events might not be representative.\nMinimum number recommended: 	
+Base Probability	
+Calculating danger...	
+Closing Gaps...	
+Compound Probability	
+DEM	
+Danger	
+Dead Fuel Moisture 100H	
+Dead Fuel Moisture 10H	
+Dead Fuel Moisture 1H	
+Fire Length	
+Fire Length (min)	
+Fire Risk Analysis	
+Flame Length	
+Flame Length (m)	
+Fuel Model	
+Herbaceous Fuel Moisture	
+Ignition Points	
+Intensity	
+Intensity (Kcal/m)	
+N\xc3\xbamero of Monte-Carlo events	
+Number of Events	
+Priority Index	
+Simulating...	
+Simulation	
+Simulation - Fire Spreading Analysis	
+Simulation|Fire Spreading	
+Time	
+Update View	
+Update view during simulation.	
+Value	
+Victor Olaya (c) 2004	
+Wind Direction	
+Wind Direction (degrees clockwise from north)	
+Wind Speed	
+Wind Speed (m/s)	
+Wind direction (degrees clockwise from north)	
+Wind speed (m/s)	
+Wood Fuel Moisture	
+m2/h	

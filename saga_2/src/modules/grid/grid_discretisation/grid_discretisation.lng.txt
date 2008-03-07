@@ -1,0 +1,75 @@
+ORIGINAL	TRANSLATION
+Automatically normalise grids before classifying. Useful for minimum distance classification.	
+Automatically normalise grids by standard deviation before clustering.	
+Borders	
+Channel Skeleton	
+Choose if you want to segmentate either on minima or on maxima.	
+Class	
+Class Identifier	
+Class Information	
+Classification	
+Cluster	
+Cluster Analysis	
+Cluster Analysis for Grids	
+ClusterID	
+Clusters	
+Combined Minimum Distance / Hillclimbing	
+Convergence	
+Dependent on chosen method, these are the calculated minimum distances or the maximum probabilities.	
+Distance/Probability	
+ELEMENTS	
+Elements	
+Features	
+Greater than	
+Grid	
+Grid - Discretisation	
+Grid Segmentation	
+Grid Segmentation (b)	
+Grid Skeletonization	
+Grids	
+Grid|Discretisation	
+Hilditch's Algorithm	
+Hill-Climbing (Rubin 1967)	
+IDENTIFIER	
+Initialisation	
+Iterative Minimum Distance (Forgy 1965)	
+Keep the borders between segments as special values.	
+Less than	
+Let pixel stay unclassified, if maximum likelihood probability is less than threshold.	
+MEAN_%02d	
+Maxima	
+Maximum Likelihood	
+Method	
+Minima	
+Minimum Distance	
+NR	
+Normalise	
+Number of Elements	
+Number of clusters	
+O. Conrad (c) 2002, Goettingen	
+Output	
+Probability Threshold (Percent)	
+R:Classification	
+STDDEV_%02d	
+Seed Value	
+Segment ID	
+Segments	
+Skeleton	
+Specify a threshold value as minimum difference between neighboured segments.	
+Standard	
+Statistics	
+Supervised Classification	
+The values of the resultant grid can be either the seed value (e.g. the local maximum) or the enumerated segment id.	
+Threshold	
+Threshold (Init.)	
+Tools for the discretisation/classification of metric gridded data.	
+Training Areas	
+Update View	
+Update cluster view while clustering.	
+Variance	
+\nNumber of Clusters	
+\nNumber of Variables	
+\nValue of Target Function	
+change	
+pass	
+segments identified	
