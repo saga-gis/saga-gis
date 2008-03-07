@@ -58,7 +58,7 @@ LINK32=link.exe
 # ADD LINK32 wxbase28_xml.lib wxmsw28_html.lib wxmsw28_aui.lib wxmsw28_adv.lib wxmsw28_core.lib wxbase28.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib oleacc.lib odbc32.lib /nologo /subsystem:windows /machine:I386 /libpath:"$(WXWIN)/lib/vc_dll"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy res\saga_eng.txt ..\..\..\bin\saga_vc\saga.eng	copy res\saga_ger.txt ..\..\..\bin\saga_vc\saga.ger	copy res\saga_tip.txt ..\..\..\bin\saga_vc\saga_gui.tip
+PostBuild_Cmds=copy res\saga.lng.txt ..\..\..\bin\saga_vc\saga.lng	copy res\saga.ger.txt ..\..\..\bin\saga_vc\saga.ger	copy res\saga_tip.txt ..\..\..\bin\saga_vc\saga_gui.tip
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "saga_gui - Win32 Debug"
@@ -88,7 +88,7 @@ LINK32=link.exe
 # ADD LINK32 wxbase28d_xml.lib wxmsw28d_html.lib wxmsw28d_aui.lib wxmsw28d_adv.lib wxmsw28d_core.lib wxbase28d.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib oleacc.lib odbc32.lib /nologo /subsystem:windows /debug /machine:I386 /libpath:"$(WXWIN)/lib/vc_dll"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy res\saga_eng.txt ..\..\..\bin\saga_vc_dbg\saga.eng	copy res\saga_ger.txt ..\..\..\bin\saga_vc_dbg\saga.ger	copy res\saga_tip.txt ..\..\..\bin\saga_vc_dbg\saga_gui.tip
+PostBuild_Cmds=copy res\saga.lng.txt ..\..\..\bin\saga_vc_dbg\saga.lng.txt	copy res\saga.ger.txt ..\..\..\bin\saga_vc_dbg\saga.lng	copy res\saga_tip.txt ..\..\..\bin\saga_vc_dbg\saga_gui.tip
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "saga_gui - Win32 Unicode Debug"
@@ -117,10 +117,6 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 wxbase28d_xml.lib wxmsw28d_html.lib wxmsw28d_aui.lib wxmsw28d_adv.lib wxmsw28d_core.lib wxbase28d.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib oleacc.lib odbc32.lib /nologo /subsystem:windows /debug /machine:I386 /libpath:"$(WXWIN)/lib/vc_lib" /libpath:"$(WXWIN)/wxDockIt/lib/vc_lib"
 # ADD LINK32 wxbase28ud_xml.lib wxmsw28ud_html.lib wxmsw28ud_aui.lib wxmsw28ud_adv.lib wxmsw28ud_core.lib wxbase28ud.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib oleacc.lib odbc32.lib /nologo /subsystem:windows /debug /machine:I386 /libpath:"$(WXWIN)/lib/vc_dll"
-# Begin Special Build Tool
-SOURCE="$(InputPath)"
-PostBuild_Cmds=copy res\saga_eng.txt ..\..\..\bin\saga_vc_dbg\saga.eng	copy res\saga_ger.txt ..\..\..\bin\saga_vc_dbg\saga.ger	copy res\saga_tip.txt ..\..\..\bin\saga_vc_dbg\saga_gui.tip
-# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "saga_gui - Win32 Unicode Release"
 
@@ -148,10 +144,6 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 wxbase28_xml.lib wxmsw28_html.lib wxmsw28_aui.lib wxmsw28_adv.lib wxmsw28_core.lib wxbase28.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib oleacc.lib odbc32.lib /nologo /subsystem:windows /machine:I386 /libpath:"$(WXWIN)/lib/vc_lib" /libpath:"$(WXWIN)/wxDockIt/lib/vc_lib"
 # ADD LINK32 wxbase28u_xml.lib wxmsw28u_html.lib wxmsw28u_aui.lib wxmsw28u_adv.lib wxmsw28u_core.lib wxbase28u.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib oleacc.lib odbc32.lib /nologo /subsystem:windows /machine:I386 /libpath:"$(WXWIN)/lib/vc_dll"
-# Begin Special Build Tool
-SOURCE="$(InputPath)"
-PostBuild_Cmds=copy res\saga_eng.txt ..\..\..\bin\saga_vc\saga.eng	copy res\saga_ger.txt ..\..\..\bin\saga_vc\saga.ger	copy res\saga_tip.txt ..\..\..\bin\saga_vc\saga_gui.tip
-# End Special Build Tool
 
 !ENDIF 
 
@@ -1335,14 +1327,6 @@ SOURCE=.\RES\resource.h
 # Begin Source File
 
 SOURCE=.\RES\SAGA.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\RES\saga_eng.txt
-# End Source File
-# Begin Source File
-
-SOURCE=.\RES\saga_ger.txt
 # End Source File
 # Begin Source File
 

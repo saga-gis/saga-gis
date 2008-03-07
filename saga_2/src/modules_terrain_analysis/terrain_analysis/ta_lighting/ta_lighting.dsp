@@ -58,7 +58,7 @@ LINK32=link.exe
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib /nologo /subsystem:windows /dll /machine:I386 /libpath:"$(SAGA)/bin/saga_vc"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy ta_lighting.ger ..\..\..\..\bin\saga_vc\modules\ta_lighting.ger
+PostBuild_Cmds=copy  ta_lighting.lng.txt  ..\..\..\..\bin\saga_vc\modules\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "ta_lighting - Win32 Debug"
@@ -89,7 +89,7 @@ LINK32=link.exe
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib /nologo /subsystem:windows /dll /debug /machine:I386 /pdbtype:sept /libpath:"$(SAGA)/bin/saga_vc_dbg"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy ta_lighting.ger ..\..\..\..\bin\saga_vc_dbg\modules\ta_lighting.lng
+PostBuild_Cmds=copy ta_lighting.ger.txt ..\..\..\..\bin\saga_vc_dbg\modules\ta_lighting.lng
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "ta_lighting - Win32 Unicode Debug"
@@ -120,10 +120,6 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib /nologo /subsystem:windows /dll /debug /machine:I386 /pdbtype:sept /libpath:"$(SAGA)/bin/saga_vc_dbg"
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib /nologo /subsystem:windows /dll /debug /machine:I386 /pdbtype:sept /libpath:"$(SAGA)/bin/saga_vc_u_dbg"
-# Begin Special Build Tool
-SOURCE="$(InputPath)"
-PostBuild_Cmds=copy ta_lighting.ger ..\..\..\..\bin\saga_vc_dbg\modules\ta_lighting.lng
-# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "ta_lighting - Win32 Unicode Release"
 
@@ -151,10 +147,6 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib /nologo /subsystem:windows /dll /machine:I386 /libpath:"$(SAGA)/bin/saga_vc"
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib /nologo /subsystem:windows /dll /machine:I386 /libpath:"$(SAGA)/bin/saga_vc_u"
-# Begin Special Build Tool
-SOURCE="$(InputPath)"
-PostBuild_Cmds=copy ta_lighting.ger ..\..\..\..\bin\saga_vc\modules\ta_lighting.ger
-# End Special Build Tool
 
 !ENDIF 
 
@@ -278,14 +270,6 @@ SOURCE=..\..\..\saga_core\saga_api\table_value.h
 # Begin Source File
 
 SOURCE=..\..\..\saga_core\saga_api\tin.h
-# End Source File
-# End Group
-# Begin Group "Translations"
-
-# PROP Default_Filter ""
-# Begin Source File
-
-SOURCE=.\ta_lighting.ger
 # End Source File
 # End Group
 # End Target
