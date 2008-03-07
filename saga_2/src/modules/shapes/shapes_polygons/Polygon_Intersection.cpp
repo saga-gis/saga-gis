@@ -74,13 +74,13 @@ CPolygon_Intersection::CPolygon_Intersection(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name(_TL("Polygon Intersection"));
+	Set_Name		(_TL("Polygon Intersection"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
-		"Polygon_Intersection of polygon shapes. Based on the GPC (General Polygon Clipper, version 2.31) code of Alan Murta.")
-	);
+		"Polygon_Intersection of polygon shapes. Based on the GPC (General Polygon Clipper, version 2.31) code of Alan Murta."
+	));
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Shapes(

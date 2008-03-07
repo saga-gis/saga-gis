@@ -1,1 +1,1 @@
-SUBDIRS = fire_spreading
+SUBDIRS = sim_fire_spreading

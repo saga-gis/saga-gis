@@ -71,10 +71,10 @@ CShapes_Cut_Interactive::CShapes_Cut_Interactive(void)
 {
 	Set_Name		(_TL("Cut Shapes Layer"));
 
-	Set_Author		(_TL("(c) 2006 by O. Conrad"));
+	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
 
 	Set_Description	(_TW(
-		_TL("")
+		""
 	));
 
 	Set_Drag_Mode	(MODULE_INTERACTIVE_DRAG_BOX);

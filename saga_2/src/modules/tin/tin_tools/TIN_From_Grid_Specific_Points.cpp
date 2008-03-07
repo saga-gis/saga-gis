@@ -73,13 +73,13 @@ CTIN_From_Grid_Specific_Points::CTIN_From_Grid_Specific_Points(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name(_TL("Grid to TIN (Surface Specific Points)"));
+	Set_Name		(_TL("Grid to TIN (Surface Specific Points)"));
 
-	Set_Author(_TL("Copyrights (c) 2004 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2004 by O.Conrad"));
 
-	Set_Description(
-		_TL("Creates a TIN by identifying (surface) specific points of a grid.\n\n")
-	);
+	Set_Description	(_TW(
+		"Creates a TIN by identifying (surface) specific points of a grid."
+	));
 
 
 	//-----------------------------------------------------

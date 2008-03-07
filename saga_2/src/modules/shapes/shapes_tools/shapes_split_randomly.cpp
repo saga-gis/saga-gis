@@ -71,7 +71,7 @@ CShapes_Split_Randomly::CShapes_Split_Randomly(void)
 {
 	Set_Name		(_TL("Split Shapes Layer Randomly"));
 
-	Set_Author		(_TL("(c) 2008 by O. Conrad"));
+	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Randomly splits one shapes layer into to new shapes layers. "

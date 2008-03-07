@@ -69,7 +69,7 @@
 CTemplate::CTemplate(void)
 {
 	Set_Name		(_TL("Module Template"));
-	Set_Author		(_TL("(c) 1984 by George Orwell"));
+	Set_Author		(SG_T("(c) 1984 by George Orwell"));
 	Set_Description	(_TL("I am a module template."));
 
 	Parameters.Add_Value(

@@ -72,7 +72,7 @@ CShapes_Buffer::CShapes_Buffer(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Shapes Buffer"));
 
-	Set_Author		(_TL("(c) 2008 by O. Conrad"));
+	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"A vector based buffer construction partly based on the method supposed by Dong et al. 2003. "

@@ -1,1533 +1,847 @@
-ENTRY(')
-	""
-
-ENTRY('')
-	""
-
-ENTRY(<none>)
-	""
-
-ENTRY(About SAGA)
-	""
-
-ENTRY(Create Modules Report)
-	""
-
-ENTRY(Currently no help files exist for SAGA.\nIt depends on your support, if you will find any help at this place in future!\nThanks a lot...)
-	""
-
-ENTRY(Frame Size)
-	""
-
-ENTRY(Height)
-	""
-
-ENTRY(Image Properties)
-	""
-
-ENTRY(Legend)
-	""
-
-ENTRY(Legend Zoom)
-	""
-
-ENTRY(Maximum)
-	""
-
-ENTRY(Minimum)
-	""
-
-ENTRY(Options)
-	""
-
-ENTRY(SAGA Help)
-	""
-
-ENTRY(Text Files (*.txt)|*.txt|All Files|*.*)
-	""
-
-ENTRY(Width)
-	""
-
-ENTRY([BTN] Add)
-	"Add"
-
-ENTRY([BTN] Apply)
-	"Apply"
-
-ENTRY([BTN] Button)
-	"Button"
-
-ENTRY([BTN] Cancel)
-	"Cancel"
-
-ENTRY([BTN] Clear)
-	"Clear"
-
-ENTRY([BTN] Count)
-	"Count"
-
-ENTRY([BTN] Delete)
-	"Delete"
-
-ENTRY([BTN] Down)
-	"Down"
-
-ENTRY([BTN] Execute)
-	"Execute"
-
-ENTRY([BTN] Insert)
-	"Insert"
-
-ENTRY([BTN] Invert)
-	"Invert"
-
-ENTRY([BTN] Load)
-	"Load"
-
-ENTRY([BTN] Mirror)
-	"Mirror"
-
-ENTRY([BTN] Okay)
-	"Okay"
-
-ENTRY([BTN] Random)
-	"Random"
-
-ENTRY([BTN] Restore)
-	"Restore"
-
-ENTRY([BTN] Save)
-	"Save"
-
-ENTRY([BTN] Up)
-	"Up"
-
-ENTRY([CAP] 3D-View)
-	"3D-View"
-
-ENTRY([CAP] 3D-View: Player Sequence)
-	"3D-View: Player Sequence"
-
-ENTRY([CAP] About)
-	"About"
-
-ENTRY([CAP] About SAGA)
-	"About SAGA"
-
-ENTRY([CAP] Active)
-	"Active"
-
-ENTRY([CAP] Always Show)
-	"Always Show"
-
-ENTRY([CAP] Anaglyph)
-	"Anaglyph"
-
-ENTRY([CAP] Arithmetic Mean)
-	"Arithmetic Mean"
-
-ENTRY([CAP] Attribute)
-	"Attribute"
-
-ENTRY([CAP] Attributes)
-	"Attributes"
-
-ENTRY([CAP] Author)
-	"Author"
-
-ENTRY([CAP] Background Color)
-	"Background Color"
-
-ENTRY([CAP] Buffer Size)
-	"Buffer Size"
-
-ENTRY([CAP] Cell Size)
-	"Cell Size"
-
-ENTRY([CAP] Cell size)
-	"Cell size"
-
-ENTRY([CAP] Circles)
-	"Circles"
-
-ENTRY([CAP] Classification)
-	"Classification"
-
-ENTRY([CAP] Color)
-	"Color"
-
-ENTRY([CAP] Colors)
-	"Colors"
-
-ENTRY([CAP] Compression Ratio)
-	"Compression Ratio"
-
-ENTRY([CAP] Data)
-	"Data"
-
-ENTRY([CAP] Date)
-	"Date"
-
-ENTRY([CAP] Decimals)
-	"Decimals"
-
-ENTRY([CAP] Default)
-	"Default"
-
-ENTRY([CAP] Delete)
-	"Delete"
-
-ENTRY([CAP] Description)
-	"Description"
-
-ENTRY([CAP] Diagram)
-	"Diagram"
-
-ENTRY([CAP] Display)
-	"Display"
-
-ENTRY([CAP] Display Resolution)
-	"Display Resolution"
-
-ENTRY([CAP] Display Type)
-	"Display Type"
-
-ENTRY([CAP] Display: Cell Values)
-	"Display: Cell Values"
-
-ENTRY([CAP] Display: Color Classification)
-	"Display: Color Classification"
-
-ENTRY([CAP] Display: Label)
-	"Display: Label"
-
-ENTRY([CAP] Display: Size)
-	"Display: Size"
-
-ENTRY([CAP] Display: Visibility)
-	"Display: Visibility"
-
-ENTRY([CAP] East/West)
-	"East/West"
-
-ENTRY([CAP] Edit Shapes)
-	"Edit Shapes"
-
-ENTRY([CAP] Elevation)
-	"Elevation"
-
-ENTRY([CAP] Entry)
-	"Entry"
-
-ENTRY([CAP] Errors)
-	"Errors"
-
-ENTRY([CAP] Exaggeration)
-	"Exaggeration"
-
-ENTRY([CAP] Execution)
-	"Execution"
-
-ENTRY([CAP] Exit)
-	"Exit"
-
-ENTRY([CAP] Eye Distance [°])
-	"Eye Distance [°]"
-
-ENTRY([CAP] Field)
-	"Field"
-
-ENTRY([CAP] File)
-	"File"
-
-ENTRY([CAP] Fill Style)
-	"Fill Style"
-
-ENTRY([CAP] Fit Map Scale)
-	"Fit Map Scale"
-
-ENTRY([CAP] Font)
-	"Font"
-
-ENTRY([CAP] General)
-	"General"
-
-ENTRY([CAP] Graduated Color)
-	"Graduated Color"
-
-ENTRY([CAP] Grid)
-	"Grid"
-
-ENTRY([CAP] Grid System)
-	"Grid System"
-
-ENTRY([CAP] Grid Systems)
-	"Grid Systems"
-
-ENTRY([CAP] Grids)
-	"Grids"
-
-ENTRY([CAP] Histogram)
-	"Histogram"
-
-ENTRY([CAP] History)
-	"History"
-
-ENTRY([CAP] Index)
-	"Index"
-
-ENTRY([CAP] Information)
-	"Information"
-
-ENTRY([CAP] Input)
-	"Input"
-
-ENTRY([CAP] Interpolated)
-	"Interpolated"
-
-ENTRY([CAP] Interpolation)
-	"Interpolation"
-
-ENTRY([CAP] Label)
-	"Label"
-
-ENTRY([CAP] Language)
-	"Language"
-
-ENTRY([CAP] Load Colors)
-	"Load Colors"
-
-ENTRY([CAP] Load Grid)
-	"Load Grid"
-
-ENTRY([CAP] Load Module Library)
-	"Load Module Library"
-
-ENTRY([CAP] Load Parameters)
-	"Load Parameters"
-
-ENTRY([CAP] Load Project)
-	"Load Project"
-
-ENTRY([CAP] Load Shapes)
-	"Load Shapes"
-
-ENTRY([CAP] Load T.I.N.)
-	"Load T.I.N."
-
-ENTRY([CAP] Load Table)
-	"Load Table"
-
-ENTRY([CAP] Load Text)
-	"Load Text"
-
-ENTRY([CAP] Logarithmic Stretch Factor)
-	"Logarithmic Stretch Factor"
-
-ENTRY([CAP] Lookup Table)
-	"Lookup Table"
-
-ENTRY([CAP] Map)
-	"Map"
-
-ENTRY([CAP] Map Layout)
-	"Map Layout"
-
-ENTRY([CAP] Map Scale)
-	"Map Scale"
-
-ENTRY([CAP] Map Selection)
-	"Map Selection"
-
-ENTRY([CAP] Maps)
-	"Maps"
-
-ENTRY([CAP] Memory)
-	"Memory"
-
-ENTRY([CAP] Memory Handling)
-	"Memory Handling"
-
-ENTRY([CAP] Memory Size)
-	"Memory Size"
-
-ENTRY([CAP] Messages)
-	"Messages"
-
-ENTRY([CAP] Mode)
-	"Mode"
-
-ENTRY([CAP] Modified)
-	"Modified"
-
-ENTRY([CAP] Module Execution)
-	"Module Execution"
-
-ENTRY([CAP] Module Libraries)
-	"Module Libraries"
-
-ENTRY([CAP] Module Library)
-	"Module Library"
-
-ENTRY([CAP] Modules)
-	"Modules"
-
-ENTRY([CAP] Name)
-	"Name"
-
-ENTRY([CAP] No Data)
-	"No Data"
-
-ENTRY([CAP] Number Of Cells)
-	"Number Of Cells"
-
-ENTRY([CAP] Number Of Grids)
-	"Number Of Grids"
-
-ENTRY([CAP] Number Of Shapes)
-	"Number Of Shapes"
-
-ENTRY([CAP] Number of cells)
-	"Number of cells"
-
-ENTRY([CAP] Options)
-	"Options"
-
-ENTRY([CAP] Outline)
-	"Outline"
-
-ENTRY([CAP] Outline Color)
-	"Outline Color"
-
-ENTRY([CAP] Parameters)
-	"Parameters"
-
-ENTRY([CAP] Perspectivic Distance)
-	"Perspectivic Distance"
-
-ENTRY([CAP] Points)
-	"Points"
-
-ENTRY([CAP] Print Preview)
-	"Print Preview"
-
-ENTRY([CAP] Projection)
-	"Projection"
-
-ENTRY([CAP] Properties)
-	"Properties"
-
-ENTRY([CAP] Regression Details)
-	"Regression Details"
-
-ENTRY([CAP] Regression Formula)
-	"Regression Formula"
-
-ENTRY([CAP] Relative Font Size)
-	"Relative Font Size"
-
-ENTRY([CAP] Relative font size)
-	"Relative font size"
-
-ENTRY([CAP] Rotation [°])
-	"Rotation [°]"
-
-ENTRY([CAP] Save)
-	"Save"
-
-ENTRY([CAP] Save As Image)
-	"Save As Image"
-
-ENTRY([CAP] Save Colors)
-	"Save Colors"
-
-ENTRY([CAP] Save Grid)
-	"Save Grid"
-
-ENTRY([CAP] Save Modified Data Objects)
-	"Save Modified Data Objects"
-
-ENTRY([CAP] Save Parameters)
-	"Save Parameters"
-
-ENTRY([CAP] Save Project)
-	"Save Project"
-
-ENTRY([CAP] Save Shapes)
-	"Save Shapes"
-
-ENTRY([CAP] Save T.I.N.)
-	"Save T.I.N."
-
-ENTRY([CAP] Save Table)
-	"Save Table"
-
-ENTRY([CAP] Save Text)
-	"Save Text"
-
-ENTRY([CAP] Scale Dependent)
-	"Scale Dependent"
-
-ENTRY([CAP] Scatterplot)
-	"Scatterplot"
-
-ENTRY([CAP] Select File)
-	"Select File"
-
-ENTRY([CAP] Shapes)
-	"Shapes"
-
-ENTRY([CAP] Show)
-	"Show"
-
-ENTRY([CAP] Show Edges)
-	"Show Edges"
-
-ENTRY([CAP] Show Legend)
-	"Show Legend"
-
-ENTRY([CAP] Show Points)
-	"Show Points"
-
-ENTRY([CAP] Show Regression Curve)
-	"Show Regression Curve"
-
-ENTRY([CAP] Show Values)
-	"Show Values"
-
-ENTRY([CAP] Size Range)
-	"Size Range"
-
-ENTRY([CAP] Size by...)
-	"Size by..."
-
-ENTRY([CAP] Source Resolution)
-	"Source Resolution"
-
-ENTRY([CAP] South/North)
-	"South/North"
-
-ENTRY([CAP] Standard)
-	"Standard"
-
-ENTRY([CAP] Standard Deviation)
-	"Standard Deviation"
-
-ENTRY([CAP] T.I.N.)
-	"T.I.N."
-
-ENTRY([CAP] Table)
-	"Table"
-
-ENTRY([CAP] Table description)
-	"Table description"
-
-ENTRY([CAP] Tables)
-	"Tables"
-
-ENTRY([CAP] This Is Not A Caption!)
-	"This Is Not A Caption!"
-
-ENTRY([CAP] Transparency [%])
-	"Transparency [%]"
-
-ENTRY([CAP] Type)
-	"Type"
-
-ENTRY([CAP] Unique Symbol)
-	"Unique Symbol"
-
-ENTRY([CAP] Unit)
-	"Unit"
-
-ENTRY([CAP] Value)
-	"Value"
-
-ENTRY([CAP] Value Range)
-	"Value Range"
-
-ENTRY([CAP] Version)
-	"Version"
-
-ENTRY([CAP] Workspace)
-	"Workspace"
-
-ENTRY([CAP] Z-Factor)
-	"Z-Factor"
-
-ENTRY([CAP] [no items])
-	"[no items]"
-
-ENTRY([CMD] About)
-	"About"
-
-ENTRY([CMD] About SAGA)
-	"About SAGA"
-
-ENTRY([CMD] Add Part)
-	"Add Part"
-
-ENTRY([CMD] Add Position [A])
-	"Add Position [A]"
-
-ENTRY([CMD] Add Project)
-	"Add Project"
-
-ENTRY([CMD] Add Shape)
-	"Add Shape"
-
-ENTRY([CMD] Anaglyph [S])
-	"Anaglyph [S]"
-
-ENTRY([CMD] Arrange Icons)
-	"Arrange Icons"
-
-ENTRY([CMD] Backward)
-	"Backward"
-
-ENTRY([CMD] Cascade)
-	"Cascade"
-
-ENTRY([CMD] Central Projection)
-	"Central Projection"
-
-ENTRY([CMD] Close)
-	"Close"
-
-ENTRY([CMD] Convert To Table)
-	"Convert To Table"
-
-ENTRY([CMD] Create Normalised Classification)
-	"Create Normalised Classification"
-
-ENTRY([CMD] Cumulative)
-	"Cumulative"
-
-ENTRY([CMD] Decrease Exaggeration [F1])
-	"Decrease Exaggeration [F1]"
-
-ENTRY([CMD] Decrease Eye Distance [F5])
-	"Decrease Eye Distance [F5]"
-
-ENTRY([CMD] Decrease Perspectivic Distance)
-	"Decrease Perspectivic Distance"
-
-ENTRY([CMD] Delete All Positions)
-	"Delete All Positions"
-
-ENTRY([CMD] Delete Last Position [D])
-	"Delete Last Position [D]"
-
-ENTRY([CMD] Delete Selected Part)
-	"Delete Selected Part"
-
-ENTRY([CMD] Delete Selected Point)
-	"Delete Selected Point"
-
-ENTRY([CMD] Delete Selected Shape(s)
-	"Delete Selected Shape(s"
-
-ENTRY([CMD] Delete Selected Shape(s))
-	"Delete Selected Shape(s)"
-
-ENTRY([CMD] Down)
-	"Down"
-
-ENTRY([CMD] Edit Positions)
-	"Edit Positions"
-
-ENTRY([CMD] Edit Selected Shape)
-	"Edit Selected Shape"
-
-ENTRY([CMD] Execute)
-	"Execute"
-
-ENTRY([CMD] Exit)
-	"Exit"
-
-ENTRY([CMD] Exit SAGA)
-	"Exit SAGA"
-
-ENTRY([CMD] Fit Grid Colors To Map Extent)
-	"Fit Grid Colors To Map Extent"
-
-ENTRY([CMD] Fit Scale...)
-	"Fit Scale..."
-
-ENTRY([CMD] Forward)
-	"Forward"
-
-ENTRY([CMD] Help)
-	"Help"
-
-ENTRY([CMD] Increase Exaggeration [F2])
-	"Increase Exaggeration [F2]"
-
-ENTRY([CMD] Increase Eye Distance [F6])
-	"Increase Eye Distance [F6]"
-
-ENTRY([CMD] Increase Perspectivic Distance)
-	"Increase Perspectivic Distance"
-
-ENTRY([CMD] Interpolated Colors)
-	"Interpolated Colors"
-
-ENTRY([CMD] Language)
-	"Language"
-
-ENTRY([CMD] Left)
-	"Left"
-
-ENTRY([CMD] Load Grid)
-	"Load Grid"
-
-ENTRY([CMD] Load Module Library)
-	"Load Module Library"
-
-ENTRY([CMD] Load Project)
-	"Load Project"
-
-ENTRY([CMD] Load Shapes)
-	"Load Shapes"
-
-ENTRY([CMD] Load T.I.N.)
-	"Load T.I.N."
-
-ENTRY([CMD] Load Table)
-	"Load Table"
-
-ENTRY([CMD] Move Down)
-	"Move Down"
-
-ENTRY([CMD] Move To Bottom)
-	"Move To Bottom"
-
-ENTRY([CMD] Move To Down)
-	"Move To Down"
-
-ENTRY([CMD] Move To Top)
-	"Move To Top"
-
-ENTRY([CMD] Move To Up)
-	"Move To Up"
-
-ENTRY([CMD] Move Up)
-	"Move Up"
-
-ENTRY([CMD] Next)
-	"Next"
-
-ENTRY([CMD] Page Setup)
-	"Page Setup"
-
-ENTRY([CMD] Pan)
-	"Pan"
-
-ENTRY([CMD] Play And Save As Images...)
-	"Play And Save As Images..."
-
-ENTRY([CMD] Play Loop [L])
-	"Play Loop [L]"
-
-ENTRY([CMD] Play Once [P])
-	"Play Once [P]"
-
-ENTRY([CMD] Previous)
-	"Previous"
-
-ENTRY([CMD] Print)
-	"Print"
-
-ENTRY([CMD] Print Preview)
-	"Print Preview"
-
-ENTRY([CMD] Print Setup)
-	"Print Setup"
-
-ENTRY([CMD] Properties)
-	"Properties"
-
-ENTRY([CMD] Right)
-	"Right"
-
-ENTRY([CMD] Save As Image)
-	"Save As Image"
-
-ENTRY([CMD] Save As Image...)
-	"Save As Image..."
-
-ENTRY([CMD] Save Grid)
-	"Save Grid"
-
-ENTRY([CMD] Save Grid As...)
-	"Save Grid As..."
-
-ENTRY([CMD] Save Project)
-	"Save Project"
-
-ENTRY([CMD] Save Shapes)
-	"Save Shapes"
-
-ENTRY([CMD] Save Shapes As...)
-	"Save Shapes As..."
-
-ENTRY([CMD] Save T.I.N.)
-	"Save T.I.N."
-
-ENTRY([CMD] Save T.I.N. As...)
-	"Save T.I.N. As..."
-
-ENTRY([CMD] Save Table)
-	"Save Table"
-
-ENTRY([CMD] Save Table As...)
-	"Save Table As..."
-
-ENTRY([CMD] Select)
-	"Select"
-
-ENTRY([CMD] Show 3D-View)
-	"Show 3D-View"
-
-ENTRY([CMD] Show Active)
-	"Show Active"
-
-ENTRY([CMD] Show Diagram)
-	"Show Diagram"
-
-ENTRY([CMD] Show Grid)
-	"Show Grid"
-
-ENTRY([CMD] Show Histogram)
-	"Show Histogram"
-
-ENTRY([CMD] Show Horizontal Legend)
-	"Show Horizontal Legend"
-
-ENTRY([CMD] Show Information)
-	"Show Information"
-
-ENTRY([CMD] Show Map)
-	"Show Map"
-
-ENTRY([CMD] Show Print Layout)
-	"Show Print Layout"
-
-ENTRY([CMD] Show Scatterplot)
-	"Show Scatterplot"
-
-ENTRY([CMD] Show Shapes)
-	"Show Shapes"
-
-ENTRY([CMD] Show T.I.N.)
-	"Show T.I.N."
-
-ENTRY([CMD] Show Table)
-	"Show Table"
-
-ENTRY([CMD] Show Toolbar)
-	"Show Toolbar"
-
-ENTRY([CMD] Show Vertical Legend)
-	"Show Vertical Legend"
-
-ENTRY([CMD] Show Workspace)
-	"Show Workspace"
-
-ENTRY([CMD] Synchronise Map Extents)
-	"Synchronise Map Extents"
-
-ENTRY([CMD] Tile Horizontally)
-	"Tile Horizontally"
-
-ENTRY([CMD] Tile Vertically)
-	"Tile Vertically"
-
-ENTRY([CMD] UNRECOGNISED COMMAND ID)
-	"UNRECOGNISED COMMAND ID"
-
-ENTRY([CMD] Up)
-	"Up"
-
-ENTRY([CMD] Zoom)
-	"Zoom"
-
-ENTRY([CMD] Zoom To Active Layer)
-	"Zoom To Active Layer"
-
-ENTRY([CMD] Zoom To Full Extent)
-	"Zoom To Full Extent"
-
-ENTRY([CMD] Zoom To Previous Extent)
-	"Zoom To Previous Extent"
-
-ENTRY([CMD] Zoom To Selection)
-	"Zoom To Selection"
-
-ENTRY([COL] Classes)
-	"Classes"
-
-ENTRY([DAT] Cell size)
-	"Cell size"
-
-ENTRY([DAT] Grid)
-	"Grid"
-
-ENTRY([DAT] Line)
-	"Line"
-
-ENTRY([DAT] Lower left corner)
-	"Lower left corner"
-
-ENTRY([DAT] Number of cells)
-	"Number of cells"
-
-ENTRY([DAT] Point)
-	"Point"
-
-ENTRY([DAT] Points)
-	"Points"
-
-ENTRY([DAT] Polygon)
-	"Polygon"
-
-ENTRY([DAT] Resampling)
-	"Resampling"
-
-ENTRY([DAT] Save shapes)
-	"Save shapes"
-
-ENTRY([DAT] Shapes)
-	"Shapes"
-
-ENTRY([DAT] T.I.N.)
-	"T.I.N."
-
-ENTRY([DAT] Table)
-	"Table"
-
-ENTRY([DAT] Undefined)
-	"Undefined"
-
-ENTRY([DAT] [not set])
-	"[not set]"
-
-ENTRY([DAT] new)
-	"new"
-
-ENTRY([DLG] Add layer to selected map)
-	"Add layer to selected map"
-
-ENTRY([DLG] Delete selected shape(s)
-	"Delete selected shape(s"
-
-ENTRY([DLG] Delete selected shape(s).)
-	"Delete selected shape(s)."
-
-ENTRY([DLG] Invalid parameters!)
-	"Invalid parameters!"
-
-ENTRY([DLG] Please enter a numeric value:)
-	"Please enter a numeric value:"
-
-ENTRY([DLG] Restart is needed to apply language changes.)
-	"Restart is needed to apply language changes."
-
-ENTRY([DLG] Save changes?)
-	"Save changes?"
-
-ENTRY([DLG] Scale 1 : )
-	"Scale 1 : "
-
-ENTRY([DLG] Select a language)
-	"Select a language"
-
-ENTRY([DLG] Set selected values to no data.)
-	"Set selected values to no data."
-
-ENTRY([ERR] Access Violation)
-	"Access Violation"
-
-ENTRY([ERR] Calculation Error)
-	"Calculation Error"
-
-ENTRY([ERR] Can't execute a module while another runs)
-	"Can't execute a module while another runs"
-
-ENTRY([ERR] Error: Continue anyway ?)
-	"Error: Continue anyway ?"
-
-ENTRY([ERR] Grid file could not be opened.)
-	"Grid file could not be opened."
-
-ENTRY([ERR] Grid file could not be saved.)
-	"Grid file could not be saved."
-
-ENTRY([ERR] Invalid data set!)
-	"Invalid data set!"
-
-ENTRY([ERR] Invalid data!)
-	"Invalid data!"
-
-ENTRY([ERR] Invalid display size!)
-	"Invalid display size!"
-
-ENTRY([ERR] Invalid library)
-	"Invalid library"
-
-ENTRY([ERR] Library could not be loaded)
-	"Library could not be loaded"
-
-ENTRY([ERR] Library does not contain any modules)
-	"Library does not contain any modules"
-
-ENTRY([ERR] Library has already been loaded)
-	"Library has already been loaded"
-
-ENTRY([ERR] Shape file could not be opened.)
-	"Shape file could not be opened."
-
-ENTRY([ERR] Shape file header is invalid.)
-	"Shape file header is invalid."
-
-ENTRY([ERR] Shape file is corrupted.)
-	"Shape file is corrupted."
-
-ENTRY([ERR] Shape index file could not be opened.)
-	"Shape index file could not be opened."
-
-ENTRY([ERR] There was a problem printing.\nPerhaps your current printer is not set correctly?)
-	"There was a problem printing.\nPerhaps your current printer is not set correctly?"
-
-ENTRY([ERR] Unknown Error)
-	"Unknown Error"
-
-ENTRY([ERR] You canceled printing)
-	"You canceled printing"
-
-ENTRY([FIL] All Files|*.*)
-	"All Files|*.*"
-
-ENTRY([FIL] All files|*.*)
-	"All files|*.*"
-
-ENTRY([FIL] ESRI Shape Files (*.shp)
-	"ESRI Shape Files (*.shp"
-
-ENTRY([FIL] ESRI Shape Files (*.shp)|*.shp|All Files|*.*)
-	"ESRI Shape Files (*.shp)|*.shp|All Files|*.*"
-
-ENTRY([FIL] Grids (*.dgm)
-	"Grids (*.dgm"
-
-ENTRY([FIL] Grids (*.dgm)|*.dgm;*.grd|All Files|*.*)
-	"Grids (*.dgm)|*.dgm;*.grd|All Files|*.*"
-
-ENTRY([FIL] Grids (*.dgm)|*.dgm|All Files|*.*)
-	"Grids (*.dgm)|*.dgm|All Files|*.*"
-
-ENTRY([FIL] SAGA Colors (*.pal)
-	"SAGA Colors (*.pal"
-
-ENTRY([FIL] SAGA Colors (*.pal)|*.pal|All Files|*.*)
-	"SAGA Colors (*.pal)|*.pal|All Files|*.*"
-
-ENTRY([FIL] SAGA Module Libraries (*.mlb, *.dll, *.so)
-	"SAGA Module Libraries (*.mlb, *.dll, *.so"
-
-ENTRY([FIL] SAGA Module Libraries (*.mlb, *.dll, *.so)|*.mlb;*.dll;*.so|All Files|*.*)
-	"SAGA Module Libraries (*.mlb, *.dll, *.so)|*.mlb;*.dll;*.so|All Files|*.*"
-
-ENTRY([FIL] SAGA Parameter Files (*.sprm)
-	"SAGA Parameter Files (*.sprm"
-
-ENTRY([FIL] SAGA Parameter Files (*.sprm)|*.sprm|All Files|*.*)
-	"SAGA Parameter Files (*.sprm)|*.sprm|All Files|*.*"
-
-ENTRY([FIL] SAGA Project (*.sprj)
-	"SAGA Project (*.sprj"
-
-ENTRY([FIL] SAGA Project (*.sprj)|*.sprj|All Files|*.*)
-	"SAGA Project (*.sprj)|*.sprj|All Files|*.*"
-
-ENTRY([FIL] Tables (*.txt, *.dbf)
-	"Tables (*.txt, *.dbf"
-
-ENTRY([FIL] Tables (*.txt, *.dbf)|*.txt;*.dbf|All Files|*.*)
-	"Tables (*.txt, *.dbf)|*.txt;*.dbf|All Files|*.*"
-
-ENTRY([FIL] Text Files (*.txt)
-	"Text Files (*.txt"
-
-ENTRY([FIL] Text Files (*.txt)|*.txt|All Files|*.*)
-	"Text Files (*.txt)|*.txt|All Files|*.*"
-
-ENTRY([FLD] Central Projection)
-	"Central Projection"
-
-ENTRY([FLD] Exaggeration)
-	"Exaggeration"
-
-ENTRY([FLD] Name)
-	"Name"
-
-ENTRY([FLD] Rotate X)
-	"Rotate X"
-
-ENTRY([FLD] Rotate Y)
-	"Rotate Y"
-
-ENTRY([FLD] Rotate Z)
-	"Rotate Z"
-
-ENTRY([FLD] Shift X)
-	"Shift X"
-
-ENTRY([FLD] Shift Y)
-	"Shift Y"
-
-ENTRY([FLD] Shift Z)
-	"Shift Z"
-
-ENTRY([FLD] Steps to Next)
-	"Steps to Next"
-
-ENTRY([FLD] Value)
-	"Value"
-
-ENTRY([HLP] Execute Module)
-	"Execute Module"
-
-ENTRY([HST] Created with Module)
-	"Created with Module"
-
-ENTRY([HST] File loaded)
-	"File loaded"
-
-ENTRY([HST] Grid addition)
-	"Grid addition"
-
-ENTRY([HST] Grid denormalisation)
-	"Grid denormalisation"
-
-ENTRY([HST] Grid division)
-	"Grid division"
-
-ENTRY([HST] Grid multiplication)
-	"Grid multiplication"
-
-ENTRY([HST] Grid normalisation)
-	"Grid normalisation"
-
-ENTRY([HST] Grid operation)
-	"Grid operation"
-
-ENTRY([HST] Grid subtraction)
-	"Grid subtraction"
-
-ENTRY([HST] Horizontally mirrored)
-	"Horizontally mirrored"
-
-ENTRY([HST] Input List)
-	"Input List"
-
-ENTRY([HST] Input: )
-	"Input: "
-
-ENTRY([HST] Inversion)
-	"Inversion"
-
-ENTRY([HST] Option)
-	"Option"
-
-ENTRY([HST] Value addition)
-	"Value addition"
-
-ENTRY([HST] Value assigned to grid)
-	"Value assigned to grid"
-
-ENTRY([HST] Value division)
-	"Value division"
-
-ENTRY([HST] Value multiplication)
-	"Value multiplication"
-
-ENTRY([HST] Value subtraction)
-	"Value subtraction"
-
-ENTRY([HST] Vertically mirrored)
-	"Vertically mirrored"
-
-ENTRY([MNU] ?)
-	"?"
-
-ENTRY([MNU] Edit)
-	"Edit"
-
-ENTRY([MNU] File)
-	"File"
-
-ENTRY([MNU] Grid)
-	"Grid"
-
-ENTRY([MNU] Help)
-	"Help"
-
-ENTRY([MNU] Modules)
-	"Modules"
-
-ENTRY([MNU] Project)
-	"Project"
-
-ENTRY([MNU] Rotation)
-	"Rotation"
-
-ENTRY([MNU] Sequencer)
-	"Sequencer"
-
-ENTRY([MNU] Shapes)
-	"Shapes"
-
-ENTRY([MNU] Shift)
-	"Shift"
-
-ENTRY([MNU] T.I.N.)
-	"T.I.N."
-
-ENTRY([MNU] Table)
-	"Table"
-
-ENTRY([MNU] Window)
-	"Window"
-
-ENTRY([MSG] Build Histogram...)
-	"Build Histogram..."
-
-ENTRY([MSG] Close)
-	"Close"
-
-ENTRY([MSG] Close Library)
-	"Close Library"
-
-ENTRY([MSG] Close table)
-	"Close table"
-
-ENTRY([MSG] Could not load project.)
-	"Could not load project."
-
-ENTRY([MSG] Create T.I.N. from shapes)
-	"Create T.I.N. from shapes"
-
-ENTRY([MSG] Execute module)
-	"Execute module"
-
-ENTRY([MSG] Interactive module execution failed)
-	"Interactive module execution failed"
-
-ENTRY([MSG] Interactive module execution has been started)
-	"Interactive module execution has been started"
-
-ENTRY([MSG] Interactive module execution has been stopped)
-	"Interactive module execution has been stopped"
-
-ENTRY([MSG] Load grid)
-	"Load grid"
-
-ENTRY([MSG] Load library)
-	"Load library"
-
-ENTRY([MSG] Load project)
-	"Load project"
-
-ENTRY([MSG] Load shapes)
-	"Load shapes"
-
-ENTRY([MSG] Load table)
-	"Load table"
-
-ENTRY([MSG] Module execution failed)
-	"Module execution failed"
-
-ENTRY([MSG] Module execution succeeded)
-	"Module execution succeeded"
-
-ENTRY([MSG] Project has been saved.)
-	"Project has been saved."
-
-ENTRY([MSG] Project has been successfully loaded.)
-	"Project has been successfully loaded."
-
-ENTRY([MSG] Save grid)
-	"Save grid"
-
-ENTRY([MSG] Save shapes)
-	"Save shapes"
-
-ENTRY([MSG] Save table)
-	"Save table"
-
-ENTRY([MSG] failed)
-	"failed"
-
-ENTRY([MSG] okay)
-	"okay"
-
-ENTRY([PRM] Boolean)
-	"Boolean"
-
-ENTRY([PRM] Choice)
-	"Choice"
-
-ENTRY([PRM] Color)
-	"Color"
-
-ENTRY([PRM] Colors)
-	"Colors"
-
-ENTRY([PRM] Data Objects)
-	"Data Objects"
-
-ENTRY([PRM] Degree)
-	"Degree"
-
-ENTRY([PRM] File path)
-	"File path"
-
-ENTRY([PRM] Floating point)
-	"Floating point"
-
-ENTRY([PRM] Font)
-	"Font"
-
-ENTRY([PRM] Grid)
-	"Grid"
-
-ENTRY([PRM] Grid list)
-	"Grid list"
-
-ENTRY([PRM] Grid system)
-	"Grid system"
-
-ENTRY([PRM] Integer)
-	"Integer"
-
-ENTRY([PRM] Long text)
-	"Long text"
-
-ENTRY([PRM] Node)
-	"Node"
-
-ENTRY([PRM] Options)
-	"Options"
-
-ENTRY([PRM] Parameter)
-	"Parameter"
-
-ENTRY([PRM] Shapes)
-	"Shapes"
-
-ENTRY([PRM] Shapes list)
-	"Shapes list"
-
-ENTRY([PRM] Static table)
-	"Static table"
-
-ENTRY([PRM] T.I.N.)
-	"T.I.N."
-
-ENTRY([PRM] T.I.N. list)
-	"T.I.N. list"
-
-ENTRY([PRM] Table)
-	"Table"
-
-ENTRY([PRM] Table field)
-	"Table field"
-
-ENTRY([PRM] Table list)
-	"Table list"
-
-ENTRY([PRM] Text)
-	"Text"
-
-ENTRY([PRM] Value range)
-	"Value range"
-
-ENTRY([TXT] Do you want to delete the selection?)
-	"Do you want to delete the selection?"
-
-ENTRY([TXT] Do you want to exit SAGA?)
-	"Do you want to exit SAGA?"
-
-ENTRY([TXT] No data loaded.)
-	"No data loaded."
-
-ENTRY([TXT] No description available)
-	"No description available"
-
-ENTRY([TXT] No history available.)
-	"No history available."
-
-ENTRY([TXT] No parameters available.)
-	"No parameters available."
-
-ENTRY([TXT] SAGA\nSystem for Automated Geoscientific Analyses\nVersion 2.0)
-	"SAGA\nSystem for Automated Geoscientific Analyses\nVersion 2.0"
-
-ENTRY([TXT] This is not a text!)
-	"This is not a text!"
-
-ENTRY([TXT] grid system)
-	"grid system"
-
-ENTRY([TXT] grid systems)
-	"grid systems"
-
-ENTRY([TXT] unknown)
-	"unknown"
-
-ENTRY([VAL] B-Spline)
-	"B-Spline"
-
-ENTRY([VAL] Backward Diagonal)
-	"Backward Diagonal"
-
-ENTRY([VAL] Bicubic Spline)
-	"Bicubic Spline"
-
-ENTRY([VAL] Bilinear)
-	"Bilinear"
-
-ENTRY([VAL] Cross)
-	"Cross"
-
-ENTRY([VAL] Cross Diagonal)
-	"Cross Diagonal"
-
-ENTRY([VAL] Dot And Dash)
-	"Dot And Dash"
-
-ENTRY([VAL] Dotted)
-	"Dotted"
-
-ENTRY([VAL] File Cache)
-	"File Cache"
-
-ENTRY([VAL] Forward Diagonal)
-	"Forward Diagonal"
-
-ENTRY([VAL] Graduated Color)
-	"Graduated Color"
-
-ENTRY([VAL] Horizontal)
-	"Horizontal"
-
-ENTRY([VAL] Inverse Distance)
-	"Inverse Distance"
-
-ENTRY([VAL] Linear)
-	"Linear"
-
-ENTRY([VAL] Logarithmic (down)
-	"Logarithmic (down"
-
-ENTRY([VAL] Logarithmic (down))
-	"Logarithmic (down)"
-
-ENTRY([VAL] Logarithmic (up)
-	"Logarithmic (up"
-
-ENTRY([VAL] Logarithmic (up))
-	"Logarithmic (up)"
-
-ENTRY([VAL] Long Dashed)
-	"Long Dashed"
-
-ENTRY([VAL] Lookup Table)
-	"Lookup Table"
-
-ENTRY([VAL] New)
-	"New"
-
-ENTRY([VAL] No objects)
-	"No objects"
-
-ENTRY([VAL] None)
-	"None"
-
-ENTRY([VAL] Normal)
-	"Normal"
-
-ENTRY([VAL] Opaque)
-	"Opaque"
-
-ENTRY([VAL] RGB)
-	"RGB"
-
-ENTRY([VAL] RTL Compression)
-	"RTL Compression"
-
-ENTRY([VAL] Shade)
-	"Shade"
-
-ENTRY([VAL] Short Dashed)
-	"Short Dashed"
-
-ENTRY([VAL] Solid)
-	"Solid"
-
-ENTRY([VAL] Transparent)
-	"Transparent"
-
-ENTRY([VAL] Unique Symbol)
-	"Unique Symbol"
-
-ENTRY([VAL] Vertical)
-	"Vertical"
-
-ENTRY([VAL] [all grid systems])
-	"[all grid systems]"
-
-ENTRY([VAL] [create])
-	"[create]"
-
-ENTRY([VAL] [default])
-	"[default]"
-
-ENTRY([VAL] [no choice available])
-	"[no choice available]"
-
-ENTRY([VAL] [no fields])
-	"[no fields]"
-
-ENTRY([VAL] [none])
-	"[none]"
-
-ENTRY([VAL] [not set])
-	"[not set]"
-
-ENTRY([VAL] no)
-	"no"
-
-ENTRY([VAL] object)
-	"object"
-
-ENTRY([VAL] objects)
-	"objects"
-
-ENTRY([VAL] ready)
-	"ready"
-
-ENTRY([VAL] yes)
-	"yes"
-
-ENTRY(lng)
-	""
-
-ENTRY(r)
-	""
-
-ENTRY(°)
-	""
-
+ORIGINAL	TRANSLATION
+1 byte integer	
+2 byte integer	
+20 seconds	
+4 byte floating point	
+4 byte integer	
+8 byte floating point	
+A3 Landscape	
+A3 Portrait	
+A4 Landscape	
+A4 Portrait	
+About SAGA	
+Acknowledgements	
+Activate Grid File Cache?	
+Activate file caching automatically, if memory size exceeds the threshold value.	
+Add Field	
+All Files	
+All Files|*.*	
+All Recognised Files	
+Area	
+Attribute	
+Automatic mode	
+Available Choices	
+Bars	
+Buffer Size [MB]	
+CLASS	
+COLOR	
+COUNT	
+Chart Type	
+Choose Attribute	
+Class 1	
+Class 2	
+Clear	
+Colors file could not be exported.	
+Colors file could not be imported.	
+CompuServe Graphics Interchange	
+CompuServe Graphics Interchange (*.gif)	
+Confirm file caching	
+Constraints	
+Copy	
+Create Lookup Table	
+Create index	
+Creating module documentation files	
+Currently no help files exist for SAGA.\nIt depends on your support, if you will find any help at this place in future!\nThanks a lot...	
+DBase (*.dbf)	
+DESCRIPTION	
+Data Table	
+Delete Fields	
+Description	
+Descriptive name for the grid system	
+Direction	
+Directory, where temporary cache files shall be saved.	
+ESRI Shape Files (*.shp)	
+Error	
+Error in Trend Calculation	
+Error in formula	
+Exit SAGA	
+Field	
+Field Colors	
+Field Type	
+Fields	
+First Class	
+Function failed because no attributes are available	
+GPL	
+General	
+Grid File Caching	
+Grids (*.sgrd)	
+Grids (*.sgrd, *.dgm)	
+Height	
+I1: unrecognizable operator	
+I2: too many parameters\n	
+I3: corrupted buffer	
+I4: size estimate too small	
+Identifier	
+Image Files	
+Image Resolution	
+In/Out	
+Input	
+Insert Method	
+Insert Position	
+JPEG - JFIF Compliant	
+JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)	
+JPG Files	
+LGPL	
+Layers	
+Left/Right	
+Legend: Save	
+Legend: Zoom	
+Length	
+Lines	
+Lines and Points	
+Load Colors	
+Load Parameters	
+Logo	
+MAXIMUM	
+MINIMUM	
+Map	
+Maps	
+Maximum	
+Menu	
+Minimum	
+Module	
+N	
+NAME	
+Name	
+Neon	
+Options	
+Options for Data Thumbnails	
+Options for Map Thumbnails	
+Output	
+PDF Documents (*.pdf)|*.pdf|	
+PNG Files	
+Parameters	
+Parameters file could not be exported.	
+Parameters file could not be imported.	
+Parts	
+Perimeter	
+Please stop module execution before exiting SAGA.	
+Points	
+Portable Network Graphics	
+Portable Network Graphics (*.png)	
+Position	
+Rainbow	
+Resolution	
+Row	
+SAGA Colors (*.pal)	
+SAGA Help	
+SAGA Module Libraries (*.dll, *.so)	
+SAGA Module Library Descriptions	
+SAGA Parameter Files (*.sprm)	
+SAGA Project (*.sprj)	
+SAGA Projects (*.sprj)	
+SAGA: Print Map	
+SVG - Scalable Vector Graphics Files (*.svg)	
+Save 3D Image Options	
+Save Colors	
+Save Georeference	
+Save Parameters	
+Save all	
+Scale	
+Second Class	
+Selection Color	
+Shall I activate file caching for new grid.	
+Show Categories	
+Show Logo at Start Up	
+Sort Table	
+Sort by	
+South-North	
+Start Project	
+Table	
+Tables (*.txt, *.dbf)	
+Tagged Image File Format	
+Tagged Image File Format (*.tif, *.tiff)	
+Temporary files	
+Text (*.txt)	
+Text Files (*.txt)	
+This is a Test!!!	
+Threshold for automatic mode [MB]	
+Thumbnail Size	
+Thumbnails	
+Total memory size	
+Tree	
+Type	
+Up/Down	
+Value Range	
+Version	
+West-East	
+Width	
+Windows or OS/2 Bitmap	
+Windows or OS/2 Bitmap (*.bmp)	
+X	
+X11 Pixel Map	
+Y	
+Z	
+Zsoft Paintbrush	
+Zsoft Paintbrush (*.pcx)	
+[BTN] Add	
+[BTN] Apply	
+[BTN] Button	
+[BTN] Cancel	
+[BTN] Clear	
+[BTN] Count	
+[BTN] Delete	
+[BTN] Down	
+[BTN] Execute	
+[BTN] Insert	
+[BTN] Invert	
+[BTN] Load	
+[BTN] Mirror	
+[BTN] Okay	
+[BTN] Presets	
+[BTN] Random	
+[BTN] Restore	
+[BTN] Save	
+[BTN] Up	
+[CAP] 3D-View	
+[CAP] 3D-View: Player Sequence	
+[CAP] About SAGA	
+[CAP] Anaglyph	
+[CAP] Arithmetic Mean	
+[CAP] Attribute	
+[CAP] Attribute (Size)	
+[CAP] Attributes	
+[CAP] Author	
+[CAP] Background Color	
+[CAP] Beep when finished	
+[CAP] Buffer Size MB	
+[CAP] Cell Size	
+[CAP] Cell size	
+[CAP] Chart	
+[CAP] Chart Properties	
+[CAP] Choose Directory	
+[CAP] Circles	
+[CAP] Close	
+[CAP] Close and save modified data sets...	
+[CAP] Color	
+[CAP] Colors	
+[CAP] Create Script Command File	
+[CAP] Data	
+[CAP] Data History	
+[CAP] Decimals	
+[CAP] Default Size	
+[CAP] Defaults	
+[CAP] Delete	
+[CAP] Description	
+[CAP] Diagram	
+[CAP] Display	
+[CAP] Display Resolution	
+[CAP] Display Type	
+[CAP] Display: Cell Values	
+[CAP] Display: Color Classification	
+[CAP] Display: Label	
+[CAP] Display: Size	
+[CAP] Display: Visibility	
+[CAP] Edit	
+[CAP] Edit Shapes	
+[CAP] Elevation	
+[CAP] Errors	
+[CAP] Exaggeration	
+[CAP] Execution	
+[CAP] Exit	
+[CAP] Eye Distance [Degree]	
+[CAP] Field	
+[CAP] Fields	
+[CAP] Figure	
+[CAP] File	
+[CAP] File cache activated	
+[CAP] Fill Style	
+[CAP] Fit Map Scale	
+[CAP] Font	
+[CAP] Frame	
+[CAP] General	
+[CAP] Graduated Color	
+[CAP] Grid	
+[CAP] Grid System	
+[CAP] Grid Systems	
+[CAP] Grids	
+[CAP] Histogram	
+[CAP] Html Extra Info	
+[CAP] Index	
+[CAP] Info	
+[CAP] Input	
+[CAP] Interpolated	
+[CAP] Interpolation	
+[CAP] Layers	
+[CAP] Legend	
+[CAP] Load	
+[CAP] Load Colors	
+[CAP] Load Grid	
+[CAP] Load Module Library	
+[CAP] Load Project	
+[CAP] Load Settings	
+[CAP] Load Shapes	
+[CAP] Load TIN	
+[CAP] Load Table	
+[CAP] Load Text	
+[CAP] Logarithmic Stretch Factor	
+[CAP] Lookup Table	
+[CAP] Map	
+[CAP] Map Extent	
+[CAP] Map Scale	
+[CAP] Map Selection	
+[CAP] Map-Layout	
+[CAP] Maps	
+[CAP] Memory	
+[CAP] Memory Compression	
+[CAP] Memory Handling	
+[CAP] Memory Size	
+[CAP] Messages	
+[CAP] Mode	
+[CAP] Modified	
+[CAP] Module Execution	
+[CAP] Module Libraries	
+[CAP] Module Library	
+[CAP] Modules	
+[CAP] Name	
+[CAP] No Data	
+[CAP] Number Of Cells	
+[CAP] Number Of Grids	
+[CAP] Number Of Shapes	
+[CAP] Number of cells	
+[CAP] Object Properties	
+[CAP] Open	
+[CAP] Options	
+[CAP] Outline	
+[CAP] Outline Color	
+[CAP] Outline Size	
+[CAP] Parameters	
+[CAP] Perspectivic Distance	
+[CAP] Points	
+[CAP] Preset Selection	
+[CAP] Print Layout	
+[CAP] Print Preview	
+[CAP] Project File	
+[CAP] Projection	
+[CAP] Properties	
+[CAP] Records	
+[CAP] Regression Details	
+[CAP] Regression Formula	
+[CAP] Rotation	
+[CAP] Save	
+[CAP] Save As Image	
+[CAP] Save As Interactive SVG	
+[CAP] Save Colors	
+[CAP] Save Grid	
+[CAP] Save Grid as Image...	
+[CAP] Save Map as Image...	
+[CAP] Save Project	
+[CAP] Save Settings	
+[CAP] Save Shapes	
+[CAP] Save TIN	
+[CAP] Save Table	
+[CAP] Save Text	
+[CAP] Save to PDF	
+[CAP] Scale Dependent	
+[CAP] Scatterplot	
+[CAP] Select File	
+[CAP] Settings	
+[CAP] Shapes	
+[CAP] Shift	
+[CAP] Show	
+[CAP] Show Always	
+[CAP] Show Edges	
+[CAP] Show Filled	
+[CAP] Show Legend	
+[CAP] Show Nodes	
+[CAP] Show Regression Curve	
+[CAP] Show Vertices	
+[CAP] Size	
+[CAP] Size Range	
+[CAP] Size relates to...	
+[CAP] Snap Distance	
+[CAP] Snap to...	
+[CAP] South-North	
+[CAP] Standard	
+[CAP] Standard Deviation	
+[CAP] Symbol Image	
+[CAP] Symbol Type	
+[CAP] TIN	
+[CAP] Table	
+[CAP] Table Description	
+[CAP] Tables	
+[CAP] This Is Not A Caption!	
+[CAP] Transparency [%]	
+[CAP] Type	
+[CAP] Unique Symbol	
+[CAP] Unit	
+[CAP] Value	
+[CAP] Value Range	
+[CAP] Value Type	
+[CAP] Version	
+[CAP] Weight	
+[CAP] West-East	
+[CAP] Width	
+[CAP] Workspace	
+[CAP] X Axis	
+[CAP] X Label	
+[CAP] Z-Factor	
+[CAP] Zoom to added layer	
+[CAP] [no items]	
+[CAP] [none]	
+[CMD] About SAGA	
+[CMD] Action	
+[CMD] Add Field	
+[CMD] Add Part	
+[CMD] Add Position [A]	
+[CMD] Add Project	
+[CMD] Add Record	
+[CMD] Add Shape	
+[CMD] Anaglyph [S]	
+[CMD] Arrange Icons	
+[CMD] Backward	
+[CMD] Cascade	
+[CMD] Central Projection	
+[CMD] Clear	
+[CMD] Close	
+[CMD] Close All	
+[CMD] Convert To Table	
+[CMD] Copy	
+[CMD] Create HTML Documentation	
+[CMD] Create Lookup Table	
+[CMD] Create Normalised Classification	
+[CMD] Create Script Command File	
+[CMD] Cumulative	
+[CMD] Decrease Exaggeration [F1]	
+[CMD] Decrease Eye Distance	
+[CMD] Decrease Perspectivic Distance [F5]	
+[CMD] Delete All Positions	
+[CMD] Delete All Records	
+[CMD] Delete Fields	
+[CMD] Delete Last Position [D]	
+[CMD] Delete Record	
+[CMD] Delete Selected Part	
+[CMD] Delete Selected Point	
+[CMD] Delete Selected Shape(s)	
+[CMD] Down	
+[CMD] Edit Positions	
+[CMD] Edit Selected Shape	
+[CMD] Execute	
+[CMD] Exit	
+[CMD] Exit SAGA	
+[CMD] Fit Column Sizes	
+[CMD] Fit Grid Colors To Map Extent	
+[CMD] Fit Row Sizes	
+[CMD] Fit Scale...	
+[CMD] Forward	
+[CMD] Help	
+[CMD] Increase Exaggeration [F2]	
+[CMD] Increase Eye Distance	
+[CMD] Increase Perspectivic Distance [F6]	
+[CMD] Insert Record	
+[CMD] Interpolated Colors	
+[CMD] Invert Selection	
+[CMD] Left	
+[CMD] Left [F3]	
+[CMD] Load	
+[CMD] Load Grid	
+[CMD] Load Module Library	
+[CMD] Load Project	
+[CMD] Load Shapes	
+[CMD] Load TIN	
+[CMD] Load Table	
+[CMD] Measure Distance	
+[CMD] Move Down	
+[CMD] Move To Bottom	
+[CMD] Move To Top	
+[CMD] Move Up	
+[CMD] Next	
+[CMD] Page Setup	
+[CMD] Pan	
+[CMD] Play And Save As Images...	
+[CMD] Play Loop [L]	
+[CMD] Play Once [P]	
+[CMD] Previous	
+[CMD] Print	
+[CMD] Print Preview	
+[CMD] Print Setup	
+[CMD] Properties	
+[CMD] Right	
+[CMD] Right [F4]	
+[CMD] Save As Image	
+[CMD] Save As Image when changed	
+[CMD] Save As Image...	
+[CMD] Save As PDF	
+[CMD] Save Grid	
+[CMD] Save Grid As Image...	
+[CMD] Save Grid As...	
+[CMD] Save Project	
+[CMD] Save Project As...	
+[CMD] Save Shapes	
+[CMD] Save Shapes As...	
+[CMD] Save TIN	
+[CMD] Save TIN As...	
+[CMD] Save Table	
+[CMD] Save Table As...	
+[CMD] Save as Interactive SVG	
+[CMD] Show 3D-View	
+[CMD] Show Diagram	
+[CMD] Show Grid	
+[CMD] Show Histogram	
+[CMD] Show Horizontal Legend	
+[CMD] Show Layer	
+[CMD] Show Map	
+[CMD] Show Message Window	
+[CMD] Show Object Properties	
+[CMD] Show Print Layout	
+[CMD] Show Scatterplot	
+[CMD] Show Shapes	
+[CMD] Show TIN	
+[CMD] Show Table	
+[CMD] Show Toolbar	
+[CMD] Show Vertical Legend	
+[CMD] Show Workspace	
+[CMD] Sort Fields	
+[CMD] Synchronise Map Extents	
+[CMD] Tile Horizontally	
+[CMD] Tile Vertically	
+[CMD] Tip of the Day...	
+[CMD] UNRECOGNISED COMMAND ID	
+[CMD] Up	
+[CMD] Update Data	
+[CMD] Zoom	
+[CMD] Zoom To Active Layer	
+[CMD] Zoom To Extent	
+[CMD] Zoom To Full Extent	
+[CMD] Zoom To Next Extent	
+[CMD] Zoom To Previous Extent	
+[CMD] Zoom To Selection	
+[DAT] Cell size	
+[DAT] Grid	
+[DAT] Line	
+[DAT] Lower left corner	
+[DAT] Number of cells	
+[DAT] Point	
+[DAT] Points	
+[DAT] Polygon	
+[DAT] Resampling	
+[DAT] Save shapes	
+[DAT] Shapes	
+[DAT] TIN	
+[DAT] Table	
+[DAT] Undefined	
+[DAT] [not set]	
+[DAT] new	
+[DLG] Add layer to selected map	
+[DLG] Delete selected shape(s).	
+[DLG] Invalid parameters!	
+[DLG] Please enter a numeric value:	
+[DLG] Save changes?	
+[DLG] Scale 1 : 	
+[DLG] Set selected values to no data.	
+[ERR] Access Violation	
+[ERR] Calculation Error	
+[ERR] Can't execute a module while another runs	
+[ERR] Corrupted shape file.	
+[ERR] Could not save PDF file.	
+[ERR] Error: Continue anyway ?	
+[ERR] Grid file could not be opened.	
+[ERR] Grid file could not be saved.	
+[ERR] Invalid data set!	
+[ERR] Invalid data!	
+[ERR] Invalid display size!	
+[ERR] Invalid library	
+[ERR] Library could not be loaded	
+[ERR] Library does not contain any modules	
+[ERR] Library has already been loaded	
+[ERR] Shape file could not be opened.	
+[ERR] Shape file invalid or of unsupported type.	
+[ERR] Shape file is corrupted.	
+[ERR] Shape index file could not be opened.	
+[ERR] There was a problem printing.\nPerhaps your current printer is not set correctly?	
+[ERR] Unknown Error	
+[ERR] You canceled printing	
+[FIL] All Files|*.*	
+[FLD] Attribute	
+[FLD] Central Projection	
+[FLD] Exaggeration	
+[FLD] Grid	
+[FLD] Icon	
+[FLD] Index Layer	
+[FLD] Name	
+[FLD] PDF Document	
+[FLD] Paper Format	
+[FLD] Rotate X	
+[FLD] Rotate Y	
+[FLD] Rotate Z	
+[FLD] Round Scale	
+[FLD] SVG File	
+[FLD] Shapes	
+[FLD] Shift X	
+[FLD] Shift Y	
+[FLD] Shift Z	
+[FLD] Steps to Next	
+[FLD] Title	
+[FLD] Value	
+[HLP] Execute Module	
+[HST] Created from file	
+[HST] Created with module	
+[HST] Grid addition	
+[HST] Grid denormalisation	
+[HST] Grid division	
+[HST] Grid multiplication	
+[HST] Grid normalisation	
+[HST] Grid operation	
+[HST] Grid subtraction	
+[HST] Horizontally mirrored	
+[HST] Inversion	
+[HST] Loaded from file	
+[HST] Value addition	
+[HST] Value assigned to grid	
+[HST] Value division	
+[HST] Value multiplication	
+[HST] Value subtraction	
+[HST] Vertically mirrored	
+[MNU] ?	
+[MNU] Edit	
+[MNU] File	
+[MNU] Grid	
+[MNU] Modules	
+[MNU] Project	
+[MNU] Rotation	
+[MNU] Sequencer	
+[MNU] Shapes	
+[MNU] Shift	
+[MNU] TIN	
+[MNU] Table	
+[MNU] Window	
+[MSG] Build Histogram...	
+[MSG] Close	
+[MSG] Close Library	
+[MSG] Close table	
+[MSG] Could not load project.	
+[MSG] Could not save project.	
+[MSG] Create TIN from shapes	
+[MSG] Executing module	
+[MSG] Execution has been stopped by user!	
+[MSG] Interactive module execution failed	
+[MSG] Interactive module execution has been started	
+[MSG] Interactive module execution has been stopped	
+[MSG] Load grid	
+[MSG] Load library	
+[MSG] Load project	
+[MSG] Load shapes	
+[MSG] Load table	
+[MSG] Module execution failed	
+[MSG] Module execution succeeded	
+[MSG] Project has been saved.	
+[MSG] Project has been successfully loaded.	
+[MSG] Save as Interactive SVG	
+[MSG] Save grid	
+[MSG] Save shapes	
+[MSG] Save table	
+[MSG] Save to PDF	
+[MSG] Shall execution be stopped?	
+[MSG] failed	
+[MSG] has already been loaded	
+[MSG] okay	
+[PRM] Boolean	
+[PRM] Choice	
+[PRM] Color	
+[PRM] Colors	
+[PRM] Data Object	
+[PRM] Data Objects	
+[PRM] Degree	
+[PRM] File path	
+[PRM] Floating point	
+[PRM] Font	
+[PRM] Frame Width [Pixels]	
+[PRM] Grid	
+[PRM] Grid list	
+[PRM] Grid system	
+[PRM] Grids	
+[PRM] Integer	
+[PRM] Legend	
+[PRM] Long text	
+[PRM] Map Height [Pixels]	
+[PRM] Map Width [Pixels]	
+[PRM] Node	
+[PRM] Options	
+[PRM] Parameter	
+[PRM] Parameters	
+[PRM] Save	
+[PRM] Save Georeference (world file)	
+[PRM] Shapes	
+[PRM] Shapes list	
+[PRM] Static table	
+[PRM] TIN	
+[PRM] TIN list	
+[PRM] Table	
+[PRM] Table field	
+[PRM] Table list	
+[PRM] Tables	
+[PRM] Text	
+[PRM] Value range	
+[PRM] Zoom	
+[TXT] Close all data sets	
+[TXT] Do you want to delete the selection?	
+[TXT] Do you want to exit SAGA?	
+[TXT] No data loaded.	
+[TXT] No description available	
+[TXT] No parameters available.	
+[TXT] SAGA\nSystem for Automated Geoscientific Analyses\nVersion 2.0	
+[TXT] This is not a text!	
+[TXT] grid system	
+[TXT] grid systems	
+[VAL] B-Spline	
+[VAL] Backward Diagonal	
+[VAL] Bicubic Spline	
+[VAL] Bilinear	
+[VAL] Cross	
+[VAL] Cross Diagonal	
+[VAL] Dot And Dash	
+[VAL] Dotted	
+[VAL] File Cache	
+[VAL] Forward Diagonal	
+[VAL] Graduated Color	
+[VAL] Horizontal	
+[VAL] Inverse Distance	
+[VAL] Linear	
+[VAL] Logarithmic (down)	
+[VAL] Logarithmic (up)	
+[VAL] Long Dashed	
+[VAL] Lookup Table	
+[VAL] Map Units	
+[VAL] New	
+[VAL] No objects	
+[VAL] None	
+[VAL] Normal	
+[VAL] Opaque	
+[VAL] RGB	
+[VAL] RTL Compression	
+[VAL] Screen	
+[VAL] Shade	
+[VAL] Short Dashed	
+[VAL] Solid	
+[VAL] Transparent	
+[VAL] Unique Symbol	
+[VAL] Vertical	
+[VAL] [all grid systems]	
+[VAL] [create]	
+[VAL] [default]	
+[VAL] [no choice available]	
+[VAL] [no fields]	
+[VAL] [none]	
+[VAL] [not set]	
+[VAL] no	
+[VAL] object	
+[VAL] objects	
+[VAL] ready	
+[VAL] yes	
+access violation	
+after	
+ascending	
+author      	
+automatically save and load	
+available module libraries	
+available modules	
+ball	
+bar	
+bar (not outlined)	
+before	
+black > blue	
+black > green	
+black > red	
+buffer size	
+cannot execute interactive module	
+central	
+character string	
+circle	
+circle in rhombus	
+circle in square	
+circle in triangle (down)	
+circle in triangle (up)	
+circle with rhombus	
+circle with square	
+circle with triangle (down)	
+circle with triangle (up)	
+color (rgb)	
+colors	
+columns	
+confirm	
+confirm with options	
+continue	
+creating batch file example	
+cylinder	
+date (dd.mm.yyyy)	
+default	
+default (same brightness)	
+descending	
+do not confirm	
+do not show	
+empty	
+empty coded function	
+empty input list	
+error	
+executing module	
+failed	
+function not found	
+function table full	
+green > blue	
+green > grey > blue	
+green > red > blue	
+greyscale	
+image	
+improper function syntax	
+index out of bounds	
+input	
+input file	
+interactive	
+interactive execution	
+invalid module libraries path	
+invalid number of parameters	
+last opened	
+library name	
+library path	
+missing operand	
+module	
+module library	
+module library not found	
+module name 	
+module not found	
+no	
+no memory	
+no valid module library found in path	
+okay	
+only during start up phase	
+optional	
+optional input	
+optional output	
+original functions may not be deleted	
+output	
+panorama	
+parallel	
+parameters	
+pie	
+pie (not outlined)	
+plain	
+press any key	
+ready	
+red > blue	
+red > blue > green	
+red > green	
+red > green > blue	
+red > grey > blue	
+red > grey > green	
+rhombus	
+rows	
+saga module libraries	
+square	
+syntax error	
+too few parameters	
+too many constants	
+too many parameters	
+triangle (down)	
+triangle (up)	
+type -h or --help for further information	
+undeclared parameter	
+unmatched parentheses	
+unsorted	
+until user closes it	
+white > blue	
+white > green	
+white > red	
+yellow > blue	
+yellow > green	
+yellow > red	
+yes	

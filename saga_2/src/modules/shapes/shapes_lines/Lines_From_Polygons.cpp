@@ -73,13 +73,13 @@ CLines_From_Polygons::CLines_From_Polygons(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name(_TL("Convert Polygons to Lines"));
+	Set_Name		(_TL("Convert Polygons to Lines"));
 
-	Set_Author(_TL("Copyrights (c) 2005 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2005 by O.Conrad"));
 
 	Set_Description	(_TW(
-		"Converts polygon shapes to line shapes.")
-	);
+		"Converts polygon shapes to line shapes."
+	));
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Shapes(

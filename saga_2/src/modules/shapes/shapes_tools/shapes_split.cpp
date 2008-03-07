@@ -69,10 +69,10 @@ CShapes_Split::CShapes_Split(void)
 {
 	Set_Name		(_TL("Split Shapes Layer"));
 
-	Set_Author		(_TL("(c) 2006 by O. Conrad"));
+	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
 
 	Set_Description	(_TW(
-		_TL("")
+		""
 	));
 
 	//-----------------------------------------------------

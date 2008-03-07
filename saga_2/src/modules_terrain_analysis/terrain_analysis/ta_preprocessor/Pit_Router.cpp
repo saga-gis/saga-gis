@@ -84,7 +84,7 @@ CPit_Router::CPit_Router(void)
 {
 	Set_Name(_TL("Sink Drainage Route Detection"));
 
-	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description(
 		_TL("")

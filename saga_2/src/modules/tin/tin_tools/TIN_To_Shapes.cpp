@@ -75,7 +75,7 @@ CTIN_To_Shapes::CTIN_To_Shapes(void)
 	//-----------------------------------------------------
 	Set_Name(_TL("TIN to Shapes"));
 
-	Set_Author(_TL("Copyrights (c) 2004 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2004 by O.Conrad"));
 
 	Set_Description(
 		_TL("Converts a TIN data set to shapes layers.\n\n")

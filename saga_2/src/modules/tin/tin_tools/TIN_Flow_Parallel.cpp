@@ -73,13 +73,13 @@ CTIN_Flow_Parallel::CTIN_Flow_Parallel(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name	(_TL("Flow Accumulation (Parallel)"));
+	Set_Name		(_TL("Flow Accumulation (Parallel)"));
 
-	Set_Author	(_TL("Copyrights (c) 2004 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2004 by O.Conrad"));
 
-	Set_Description(
-		_TL("Calculates the catchment area based on the selected elevation values.\n\n")
-	);
+	Set_Description	(_TW(
+		"Calculates the catchment area based on the selected elevation values.\n\n"
+	));
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_TIN(

@@ -76,7 +76,7 @@ CLife::CLife(void)
 
 	Set_Name(_TL("Conway's Life"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Conway's Life - a cellular automat.\n\n"

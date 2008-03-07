@@ -75,7 +75,7 @@ CPROJ4_Shapes::CPROJ4_Shapes(void)
 
 	Set_Name	(_TL("Proj4 (Shapes)"));
 
-	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Coordinate Transformation for Shapes.\n"

@@ -75,7 +75,7 @@ CTIN_Gradient::CTIN_Gradient(void)
 	//-----------------------------------------------------
 	Set_Name(_TL("Gradient"));
 
-	Set_Author(_TL("Copyrights (c) 2004 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2004 by O.Conrad"));
 
 	Set_Description(
 		_TL("Calculates the gradient based on the values of each triangle's points.\n\n")

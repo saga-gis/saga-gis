@@ -73,13 +73,13 @@ CPolygons_From_Lines::CPolygons_From_Lines(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name(_TL("Convert Lines to Polygons"));
+	Set_Name		(_TL("Convert Lines to Polygons"));
 
-	Set_Author(_TL("Copyrights (c) 2005 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2005 by O.Conrad"));
 
 	Set_Description	(_TW(
-		"Converts line shapes to polygon shapes. Line arcs are closed to polygons simply by connecting the last point with the first.")
-	);
+		"Converts line shapes to polygon shapes. Line arcs are closed to polygons simply by connecting the last point with the first."
+	));
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Shapes(

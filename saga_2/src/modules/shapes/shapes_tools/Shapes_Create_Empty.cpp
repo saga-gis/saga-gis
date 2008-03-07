@@ -71,9 +71,9 @@
 CShapes_Create_Empty::CShapes_Create_Empty(void)
 {
 	//-----------------------------------------------------
-	Set_Name(_TL("Create Empty Shapes Layer"));
+	Set_Name		(_TL("Create Empty Shapes Layer"));
 
-	Set_Author(_TL("Copyrights (c) 2005 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2005 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Creates a new empty shapes layer of given type "
@@ -85,8 +85,8 @@ CShapes_Create_Empty::CShapes_Create_Empty(void)
 		" 3 - 4 byte integer\n"
 		" 4 - 4 byte floating point\n"
 		" 5 - 8 byte floating point\n"
-		" 6 - color (rgb)\n")
-	);
+		" 6 - color (rgb)\n"
+	));
 
 
 	//-----------------------------------------------------

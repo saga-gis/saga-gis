@@ -76,7 +76,7 @@ CShapes_Report::CShapes_Report(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Create PDF Report for Shapes Layer"));
 
-	Set_Author		(_TL("Olaf Conrad, Victor Olaya"));
+	Set_Author		(SG_T("(c) 2005 by O.Conrad, V.Olaya"));
 
 	Set_Description	(_TW(
 		""

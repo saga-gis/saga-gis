@@ -69,7 +69,7 @@ CRemove_Duplicates::CRemove_Duplicates(void)
 {
 	Set_Name		(_TL("Remove Duplicate Points"));
 
-	Set_Author		(_TL("(c) 2008 by O. Conrad"));
+	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
 
 	Set_Description	(_TW(
 		""

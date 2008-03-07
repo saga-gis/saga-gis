@@ -79,7 +79,7 @@ CShapes_Assign_Table::CShapes_Assign_Table(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Assign a Table to Shapes"));
 
-	Set_Author		(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Assigns a table to a shapes layer."

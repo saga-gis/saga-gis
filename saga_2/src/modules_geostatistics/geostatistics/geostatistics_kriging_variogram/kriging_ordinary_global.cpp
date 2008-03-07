@@ -73,7 +73,7 @@ CKriging_Ordinary_Global::CKriging_Ordinary_Global(void)
 {
 	Set_Name		(_TL("Ordinary Kriging (Global)"));
 
-	Set_Author		(_TL("Copyrights (c) 2008 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Ordinary Kriging for grid interpolation from irregular sample points. "

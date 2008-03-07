@@ -73,13 +73,13 @@ CPolygon_Centroids::CPolygon_Centroids(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name(_TL("Polygon Centroids"));
+	Set_Name		(_TL("Polygon Centroids"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
-		"Creates a points layer containing the centroids of the input polygon layer.")
-	);
+		"Creates a points layer containing the centroids of the input polygon layer."
+	));
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Shapes(

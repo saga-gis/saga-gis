@@ -71,13 +71,13 @@
 CTIN_From_Grid::CTIN_From_Grid(void)
 {
 	//-----------------------------------------------------
-	Set_Name(_TL("Grid to TIN"));
+	Set_Name		(_TL("Grid to TIN"));
 
-	Set_Author(_TL("Copyrights (c) 2004 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2004 by O.Conrad"));
 
-	Set_Description(
-		_TL("Creates a TIN from grid points. No data values will be ignored.\n\n")
-	);
+	Set_Description	(_TW(
+		"Creates a TIN from grid points. No data values will be ignored.\n\n"
+	));
 
 
 	//-----------------------------------------------------

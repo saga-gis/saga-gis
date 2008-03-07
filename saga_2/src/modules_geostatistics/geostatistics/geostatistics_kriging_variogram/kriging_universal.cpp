@@ -73,7 +73,7 @@ CKriging_Universal::CKriging_Universal(void)
 {
 	Set_Name		(_TL("Universal Kriging"));
 
-	Set_Author		(_TL("Copyrights (c) 2008 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Universal Kriging for grid interpolation from irregular sample points."

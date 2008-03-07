@@ -969,7 +969,7 @@ bool CSG_Parameter_Text::On_Serialize(CSG_File &Stream, bool bSave)
 CSG_Parameter_File_Name::CSG_Parameter_File_Name(CSG_Parameter *pOwner, long Constraint)
 	: CSG_Parameter_String(pOwner, Constraint)
 {
-	m_Filter		= LNG("[FIL] All Files|*.*");
+	m_Filter.Printf(SG_T("%s|*.*"), LNG("All Files"));
 
 	m_bSave			= false;
 	m_bMultiple		= false;
@@ -989,7 +989,7 @@ void CSG_Parameter_File_Name::Set_Filter(const SG_Char *Filter)
 	}
 	else
 	{
-		m_Filter.Printf(LNG("[FIL] All Files|*.*"));
+		m_Filter.Printf(SG_T("%s|*.*"), LNG("All Files"));
 	}
 }
 

@@ -522,7 +522,7 @@ double CSG_Formula::_Get_Value(TMAT_Formula func)
 				break;
 
 			default:
-				_Set_Error(LNG("I2: too many parameters\n"));
+				_Set_Error(LNG("I2: too many parameters"));
 				return( 0 );
 			}
 			break;

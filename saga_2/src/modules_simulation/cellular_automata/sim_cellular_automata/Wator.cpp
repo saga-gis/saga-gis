@@ -80,7 +80,7 @@ CWator::CWator(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Wa-Tor"));
 
-	Set_Author		(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Wa-Tor - an ecological simulation of predator-prey populations - "
