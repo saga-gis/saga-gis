@@ -288,12 +288,12 @@ void		Error_Library	(const SG_Char *MLB_Path)
 		}
 		while( Dir.GetNext(&FileName) );
 
-		SG_PRINTF(SG_T("\n%d %s\n"), nLibraries, LNG("saga module libraries"));
+		SG_PRINTF(SG_T("\n%d %s\n"), nLibraries, LNG("SAGA Module Libraries"));
 	}
 
-	SG_PRINTF(LNG("\n"));
+	SG_PRINTF(SG_T("\n"));
 	SG_PRINTF(LNG("type -h or --help for further information"));
-	SG_PRINTF(LNG("\n"));
+	SG_PRINTF(SG_T("\n"));
 }
 
 //---------------------------------------------------------
@@ -338,9 +338,9 @@ void		Error_Module	(const SG_Char *MLB_Path, const SG_Char *FileName)
 			}
 		}
 
-		SG_PRINTF(LNG("\n"));
+		SG_PRINTF(SG_T("\n"));
 		SG_PRINTF(LNG("type -h or --help for further information"));
-		SG_PRINTF(LNG("\n"));
+		SG_PRINTF(SG_T("\n"));
 	}
 }
 

@@ -72,7 +72,7 @@ CHugget_03::CHugget_03(void)
 {
 	Set_Name	(_TL("03: Spatially Distributed Simulation of Soil Nitrogen Dynamics"));
 
-	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Spatially Distributed Simulation of Soil Nitrogen Dynamics. "

@@ -70,7 +70,7 @@ CGDAL_Export_GeoTIFF::CGDAL_Export_GeoTIFF(void)
 {
 	Set_Name		(_TL("Export Raster to GeoTIFF via GDAL"));
 
-	Set_Author		(_TL("Copyrights (c) 2007 by O.Conrad"));
+	Set_Author		(SG_T("(c) 2007 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"The \"GDAL GeoTIFF Export\" module exports one or more grids to a Geocoded Tagged Image File Format using the "

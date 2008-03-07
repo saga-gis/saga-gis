@@ -77,7 +77,7 @@ CSurfer_BLN_Import::CSurfer_BLN_Import(void)
 
 	Set_Name(_TL("Import Surfer Blanking Files"));
 
-	Set_Author(_TL("Copyrights (c) 2006 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Import polygons/polylines from Golden Software's Surfer Blanking File format.\n")
@@ -280,7 +280,7 @@ CSurfer_BLN_Export::CSurfer_BLN_Export(void)
 
 	Set_Name(_TL("Export Surfer Blanking File"));
 
-	Set_Author(_TL("Copyrights (c) 2006 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Export shapes to Golden Software's Surfer Blanking File format.\n")

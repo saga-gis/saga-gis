@@ -75,7 +75,7 @@ CXYZ_Export::CXYZ_Export(void)
 
 	Set_Name(_TL("Export Grid to XYZ"));
 
-	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Export grid to a table (text format), that contains for each grid cell "

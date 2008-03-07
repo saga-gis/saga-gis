@@ -71,13 +71,13 @@
 CGrid_To_Contour::CGrid_To_Contour(void)
 {
 	//-----------------------------------------------------
-	Set_Name(_TL("Contour Lines from Grid"));
+	Set_Name		(_TL("Contour Lines from Grid"));
 
-	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description	(_TW(
-		"Create contour lines (isolines) from grid values. ")
-	);
+		"Create contour lines (isolines) from grid values. "
+	));
 
 
 	//-----------------------------------------------------

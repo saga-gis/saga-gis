@@ -80,7 +80,7 @@ CGeoref_Grid::CGeoref_Grid(void)
 
 	Set_Name		(_TL("Georeferencing - Grids"));
 
-	Set_Author		(_TL("(c) 2004 Ringeler, (c) 2006 O.Conrad"));
+	Set_Author		(SG_T("(c) 2004 Ringeler, (c) 2006 O.Conrad"));
 
 	Set_Description	(_TW(
 		"Georeferencing of grids. Either choose the attribute fields (x/y) "

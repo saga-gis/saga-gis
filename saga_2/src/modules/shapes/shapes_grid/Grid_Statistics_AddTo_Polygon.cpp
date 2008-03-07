@@ -83,11 +83,11 @@ CGrid_Statistics_AddTo_Polygon::CGrid_Statistics_AddTo_Polygon(void)
 
 	Set_Name		(_TL("Grid Statistics for Polygons"));
 
-	Set_Author		(_TL("(c) 2003 by Olaf Conrad, Quantile Calculation (c) 2007 by Johan Van de Wauw"));
+	Set_Author		(SG_T("(c) 2003 by Olaf Conrad, Quantile Calculation (c) 2007 by Johan Van de Wauw"));
 
 	Set_Description	(_TW(
-		"For each polygon statistics of the contained grid values will be generated.")
-	);
+		"For each polygon statistics of the contained grid values will be generated."
+	));
 
 
 	//-----------------------------------------------------

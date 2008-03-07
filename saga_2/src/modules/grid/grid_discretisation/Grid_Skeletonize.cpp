@@ -80,7 +80,7 @@ CGrid_Skeletonize::CGrid_Skeletonize(void)
 {
 	Set_Name		(_TL("Grid Skeletonization"));
 
-	Set_Author		(_TL("Copyrights (c) 2002 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2002 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Simple skeletonisation methods for grids.\n"

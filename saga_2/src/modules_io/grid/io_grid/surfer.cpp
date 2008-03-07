@@ -82,7 +82,7 @@ CSurfer_Import::CSurfer_Import(void)
 
 	Set_Name(_TL("Import Surfer Grid"));
 
-	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Import grid from Golden Software's Surfer grid format.\n")
@@ -301,7 +301,7 @@ CSurfer_Export::CSurfer_Export(void)
 
 	Set_Name(_TL("Export Surfer Grid"));
 
-	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Export grid to Golden Software's Surfer grid format.\n")

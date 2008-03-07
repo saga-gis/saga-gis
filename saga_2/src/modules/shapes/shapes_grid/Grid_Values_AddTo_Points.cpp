@@ -71,14 +71,14 @@
 CGrid_Values_AddTo_Points::CGrid_Values_AddTo_Points(void)
 {
 	//-----------------------------------------------------
-	Set_Name(_TL("Add Grid Values to Points"));
+	Set_Name		(_TL("Add Grid Values to Points"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Retrieves information from the selected grids at the positions of the points of "
-		"the selected points layer and adds it to the resulting layer.")
-	);
+		"the selected points layer and adds it to the resulting layer."
+	));
 
 
 	//-----------------------------------------------------

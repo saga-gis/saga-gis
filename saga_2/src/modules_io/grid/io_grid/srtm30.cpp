@@ -76,7 +76,7 @@ CSRTM30_Import::CSRTM30_Import(void)
 	//-----------------------------------------------------
 	Set_Name(_TL("Import SRTM30 DEM"));
 
-	Set_Author(_TL("Copyrights (c) 2004 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2004 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Extracts elevation grids from SRTM30 data.\n\n"

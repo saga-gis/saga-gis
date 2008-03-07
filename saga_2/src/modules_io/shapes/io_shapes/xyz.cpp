@@ -75,7 +75,7 @@ CXYZ_Export::CXYZ_Export(void)
 	//-----------------------------------------------------
 	Set_Name(_TL("Export Shapes to XYZ"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description(
 		_TL("XYZ export filter for shapes. ")
@@ -260,7 +260,7 @@ CXYZ_Import::CXYZ_Import(void)
 	//-----------------------------------------------------
 	Set_Name(_TL("Import Shapes from XYZ"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description(
 		_TL("Point shapes import from text formated XYZ-table.")

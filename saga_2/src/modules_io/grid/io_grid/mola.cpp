@@ -75,7 +75,7 @@ CMOLA_Import::CMOLA_Import(void)
 
 	Set_Name		(_TL("Import MOLA Grid (MEGDR)"));
 
-	Set_Author		(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Import Mars Orbit Laser Altimeter (MOLA) grids of the Mars Global Surveyor (MGS) Mission "

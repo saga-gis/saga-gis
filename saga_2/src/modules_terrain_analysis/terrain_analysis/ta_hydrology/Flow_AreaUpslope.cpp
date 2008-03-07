@@ -377,7 +377,7 @@ void CFlow_AreaUpslope::Set_MFD(int x, int y)
 CFlow_AreaUpslope_Interactive::CFlow_AreaUpslope_Interactive(void)
 {
 	Set_Name		(_TL("Upslope Area"));
-	Set_Author		(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description	(CSG_String::Format(SG_T("%s_______\n%s"), m_Calculator.Get_Description().c_str(),
 		_TL("Interactive version (left mouse clicks will trigger the calculation for the selected cell).")
@@ -467,7 +467,7 @@ bool CFlow_AreaUpslope_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_M
 CFlow_AreaUpslope_Area::CFlow_AreaUpslope_Area(void)
 {
 	Set_Name		(_TL("Upslope Area"));
-	Set_Author		(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description	(CSG_String::Format(SG_T("%s_______\n%s"), m_Calculator.Get_Description().c_str(),
 		_TL("This version uses all valid cells (not \'no data\' values) of given target grid to determine the contributing area.")

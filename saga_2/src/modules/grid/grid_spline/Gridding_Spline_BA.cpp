@@ -73,7 +73,7 @@ CGridding_Spline_BA::CGridding_Spline_BA(void)
 {
 	Set_Name		(_TL("B-Spline Approximation"));
 
-	Set_Author		(_TL("Copyrights (c) 2006 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Calculates B-spline functions for choosen level of detail. "

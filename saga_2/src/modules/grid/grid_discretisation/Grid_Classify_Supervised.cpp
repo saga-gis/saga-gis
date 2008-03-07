@@ -104,7 +104,7 @@ CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Supervised Classification"));
 
-	Set_Author		(_TL("Copyrights (c) 2005 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2005 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Supervised Classification: Minimum Distance, Maximum Likelihood.\n"

@@ -69,7 +69,7 @@ CMRVBF::CMRVBF(void)
 {
 	Set_Name		(_TL("Multiresolution Index of Valley Bottom Flatness (MRVBF)"));
 
-	Set_Author		(_TL("Copyrights (c) 2006 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Calculation of the 'multiresolution index of valley bottom flatness' (MRVBF) and "

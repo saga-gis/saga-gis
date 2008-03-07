@@ -73,7 +73,7 @@ CGridding_Spline_MBA::CGridding_Spline_MBA(void)
 {
 	Set_Name		(_TL("Multilevel B-Spline Interpolation"));
 
-	Set_Author		(_TL("Copyrights (c) 2006 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Multilevel B-spline algorithm for spatial interpolation of scattered data "
@@ -341,7 +341,12 @@ bool CGridding_Spline_MBA::_Get_Difference(CSG_Grid &Phi)
 	//-----------------------------------------------------
 	i	= 1 + (int)(0.5 + log(Phi.Get_NX() - 4.0) / log(2.0));
 
-	s.Printf(_TL("level:%d, err:%d, max:%f, mean:%f"), i, nErrors, zMax, zMean);
+	s.Printf(SG_T("%s:%d, %s:%d, %s:%f, %s:%f"),
+		_TL("level"), i,
+		_TL("error"), nErrors,
+		_TL("max")	, zMax,
+		_TL("mean")	, zMean
+	);
 
 	Process_Set_Text(s);
 	Message_Add     (s);

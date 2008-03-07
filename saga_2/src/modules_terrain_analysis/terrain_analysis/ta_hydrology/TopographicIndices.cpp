@@ -75,7 +75,7 @@ CTopographicIndices::CTopographicIndices(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Topographic Indices"));
 
-	Set_Author		(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Calculation of slope and catchment area based topographic indices "

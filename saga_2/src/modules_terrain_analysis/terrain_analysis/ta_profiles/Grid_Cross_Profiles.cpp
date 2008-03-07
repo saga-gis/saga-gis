@@ -84,7 +84,7 @@ CGrid_Cross_Profiles::CGrid_Cross_Profiles(void)
 {
 	Set_Name(_TL("Cross Profiles"));
 
-	Set_Author(_TL("Copyrights (c) 2006 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Create cross profiles from a grid based DEM for given lines.\n"

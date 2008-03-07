@@ -75,7 +75,7 @@ CESRI_E00_Import::CESRI_E00_Import(void)
 
 	Set_Name	(_TL("Import ESRI E00 File"));
 
-	Set_Author	(_TL("Copyrights (c) 2004 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2004 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Import data sets from ESRI's E00 interchange format.\n\n"

@@ -77,7 +77,7 @@ CDXF_Import::CDXF_Import(void)
 
 	Set_Name		(_TL("Import DXF Files"));
 
-	Set_Author		(_TL("Copyrights (c) 2007 by O. Conrad"));
+	Set_Author		(SG_T("(c) 2007 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"This module imports DXF files using the free \"dxflib\" library. Get more information "

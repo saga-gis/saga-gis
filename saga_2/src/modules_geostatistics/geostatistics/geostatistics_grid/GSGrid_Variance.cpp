@@ -72,7 +72,7 @@ CGSGrid_Variance::CGSGrid_Variance(void)
 {
 	Set_Name		(_TL("Representativeness (Grid)"));
 
-	Set_Author		(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Representativeness - calculation of the variance within a given search radius.\n"

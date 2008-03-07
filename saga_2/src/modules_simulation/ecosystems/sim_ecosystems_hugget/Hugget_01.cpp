@@ -72,7 +72,7 @@ CHugget_01::CHugget_01(void)
 {
 	Set_Name	(_TL("01: A Simple Litter System"));
 
-	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"A simple litter system model using the euler method. "

@@ -73,7 +73,7 @@ CHillShade::CHillShade(void)
 	//-----------------------------------------------------
 	Set_Name(_TL("Analytical Hillshading"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description(
 		_TL("Analytical hillshading calculation.")

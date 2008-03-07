@@ -72,7 +72,7 @@ CGrid_FractalDimension::CGrid_FractalDimension(void)
 {
 	Set_Name(_TL("Fractal Dimension of Grid Surface"));
 
-	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Calculates surface areas for increasing mesh sizes.")

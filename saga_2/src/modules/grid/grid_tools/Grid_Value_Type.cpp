@@ -75,7 +75,7 @@ CGrid_Value_Type::CGrid_Value_Type(void)
 	//-----------------------------------------------------
 	Set_Name(_TL("Convert Data Storage Type"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Changes the storage data type of a grid "

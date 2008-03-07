@@ -113,7 +113,7 @@ CDLG_About::CDLG_About(void)
 
 	//-----------------------------------------------------
 	m_pVersion	=
-	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE|wxTE_RICH|wxTE_AUTO_URL);
+	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE|wxTE_RICH|wxTE_AUTO_URL|wxBORDER_SUNKEN);
 	pText->AppendText(_Get_Version());
 	m_pControl->AddPage(pText, LNG("Version"), false, -1);
 	pText->ShowPosition(0);
@@ -121,13 +121,13 @@ CDLG_About::CDLG_About(void)
 	//-----------------------------------------------------
 	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE);
 	pText->AppendText(_Get_GPL());
-	m_pControl->AddPage(pText, LNG("GPL"), false, -1);
+	m_pControl->AddPage(pText, SG_T("GPL"), false, -1);
 	pText->ShowPosition(0);
 
 	//-----------------------------------------------------
 	pText		= new wxTextCtrl(m_pControl, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE);
 	pText->AppendText(_Get_LGPL());
-	m_pControl->AddPage(pText, LNG("LGPL"), false, -1);
+	m_pControl->AddPage(pText, SG_T("LGPL"), false, -1);
 	pText->ShowPosition(0);
 
 	//-----------------------------------------------------

@@ -1125,9 +1125,12 @@ void CWKSP_Map::SaveAs_PDF_Indexed(void)
 		Parameters.Add_FilePath(
 			NULL	, "FILENAME"	, LNG("[FLD] PDF Document"),
 			LNG(""),
-			wxString::Format(wxT("%s%s"),
-			LNG("PDF Documents (*.pdf)|*.pdf|"),
-			LNG("All Files|*.*")), NULL, true, false
+			wxString::Format(
+				wxT("%s (*.pdf)|*pdf|")
+				wxT("%s|*.*"),
+				LNG("PDF Files"),
+				LNG("All Files")
+			), NULL, true, false
 		);
 
 		Parameters.Add_Choice(

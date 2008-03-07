@@ -73,7 +73,7 @@ CD8_Flow_Analysis::CD8_Flow_Analysis(void)
 	//-----------------------------------------------------
 	Set_Name(_TL("D8 Flow Analysis"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Deterministic 8 based flow network analysis\n")

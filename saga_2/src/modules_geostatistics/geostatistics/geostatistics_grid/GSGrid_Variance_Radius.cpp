@@ -72,7 +72,7 @@ CGSGrid_Variance_Radius::CGSGrid_Variance_Radius(void)
 {
 	Set_Name		(_TL("Radius of Variance (Grid)"));
 
-	Set_Author		(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Find the radius within which the cell values exceed the given variance criterium. "

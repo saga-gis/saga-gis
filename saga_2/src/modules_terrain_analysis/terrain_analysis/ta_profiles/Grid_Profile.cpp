@@ -82,7 +82,7 @@ CGrid_Profile::CGrid_Profile(void)
 {
 	Set_Name		(_TL("Profile"));
 
-	Set_Author		(_TL("Copyrights (c) 2004 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2004 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Create interactively profiles from a grid based DEM\n"

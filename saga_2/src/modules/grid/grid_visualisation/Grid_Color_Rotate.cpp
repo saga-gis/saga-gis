@@ -70,13 +70,13 @@
 //---------------------------------------------------------
 CGrid_Color_Rotate::CGrid_Color_Rotate(void)
 {
-	Set_Name(_TL("Color Palette Rotation"));
+	Set_Name		(_TL("Color Palette Rotation"));
 
-	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
-	Set_Description(
-		_TL("The 'Color Palette Rotator' rotates the grids color palette. ")
-	);
+	Set_Description	(_TW(
+		"The 'Color Palette Rotator' rotates the grids color palette. "
+	));
 
 	Parameters.Add_Grid(	NULL, "GRID"	, _TL("Grid")	, _TL(""), PARAMETER_INPUT);
 	Parameters.Add_Colors(	NULL, "COLORS"	, _TL("Colors")	, _TL(""));

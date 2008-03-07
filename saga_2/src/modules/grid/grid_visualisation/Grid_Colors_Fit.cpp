@@ -70,13 +70,13 @@
 //---------------------------------------------------------
 CGrid_Colors_Fit::CGrid_Colors_Fit(void)
 {
-	Set_Name(_TL("Fit Color Palette to Grid Values"));
+	Set_Name		(_TL("Fit Color Palette to Grid Values"));
 
-	Set_Author(_TL("Copyrights (c) 2005 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2005 by O.Conrad"));
 
-	Set_Description(
-		_TL("")
-	);
+	Set_Description	(_TW(
+		""
+	));
 
 	Parameters.Add_Grid(
 		NULL	, "GRID"	, _TL("Grid"),

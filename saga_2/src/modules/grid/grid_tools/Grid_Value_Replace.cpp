@@ -73,9 +73,9 @@ CGrid_Value_Replace::CGrid_Value_Replace(void)
 	//-----------------------------------------------------
 	// 1. Info...
 
-	Set_Name(_TL("Change Grid Values"));
+	Set_Name		(_TL("Change Grid Values"));
 
-	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Changes values of a grid according to the rules of a user defined lookup table. "

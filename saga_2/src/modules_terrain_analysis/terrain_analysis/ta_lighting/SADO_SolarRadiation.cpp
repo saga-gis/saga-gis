@@ -75,7 +75,7 @@ CSADO_SolarRadiation::CSADO_SolarRadiation(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Insolation"));
 
-	Set_Author		(_TL("Copyrights (c) 2006 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Calculation of incoming solar radiation (insolation). "

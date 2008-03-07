@@ -75,7 +75,7 @@ CMandelbrot::CMandelbrot(void)
 
 	Set_Name(_TL("Mandelbrot Set"));
 
-	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Calculates Mandelbrot and Julia sets.\n\n"

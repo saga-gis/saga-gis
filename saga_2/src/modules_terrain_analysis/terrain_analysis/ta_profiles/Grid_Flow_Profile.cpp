@@ -82,7 +82,7 @@ CGrid_Flow_Profile::CGrid_Flow_Profile(void)
 {
 	Set_Name(_TL("Flow Path Profile"));
 
-	Set_Author(_TL("Copyrights (c) 2004 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2004 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Create interactively flow path profiles from a grid based DEM\n"

@@ -73,7 +73,7 @@ CGeoref_Shapes::CGeoref_Shapes(void)
 {
 	//-----------------------------------------------------
 	Set_Name		(_TL("Georeferencing - Shapes"));
-	Set_Author		(_TL("Copyrights (c) 2006 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
 	Set_Description	(_TW(
 		"Georeferencing of shapes layers. Either choose the attribute fields (x/y) "
 		"with the projected coordinates for the reference points (origin) or supply a "

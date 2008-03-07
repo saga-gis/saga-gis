@@ -95,7 +95,7 @@ CESRI_ArcInfo_Import::CESRI_ArcInfo_Import(void)
 
 	Set_Name		(_TL("Import ESRI Arc/Info Grid"));
 
-	Set_Author		(_TL("Copyrights (c) 2007 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2007 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Import grid from ESRI's Arc/Info grid format.")
@@ -365,7 +365,7 @@ CESRI_ArcInfo_Export::CESRI_ArcInfo_Export(void)
 
 	Set_Name		(_TL("Export ESRI Arc/Info Grid"));
 
-	Set_Author		(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Export grid to ESRI's Arc/Info grid format.")

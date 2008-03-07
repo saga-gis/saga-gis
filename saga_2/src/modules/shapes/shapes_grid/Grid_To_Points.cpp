@@ -73,7 +73,7 @@ CGrid_To_Points::CGrid_To_Points(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Grid Values to Points"));
 
-	Set_Author		(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"This module saves grid values to a point shape. Optionally only points "

@@ -99,7 +99,7 @@ CGSPoints_Semi_Variances::CGSPoints_Semi_Variances(void)
 	//-----------------------------------------------------
 	Set_Name	(_TL("Semi-Variogram"));
 
-	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description(
 		_TL("")

@@ -73,7 +73,7 @@ CFlow_Distance::CFlow_Distance(void)
 	//-----------------------------------------------------
 	Set_Name(_TL("Flow Path Length"));
 
-	Set_Author(_TL("Copyrights (c) 2005 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2005 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"This module calculates the average flow path length starting from the seeds, "

@@ -73,7 +73,7 @@ CChannelNetwork_Altitude::CChannelNetwork_Altitude(void)
 	//-----------------------------------------------------
 	Set_Name(_TL("Vertical Distance to Channel Network"));
 
-	Set_Author(_TL("Copyrights (c) 2002 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2002 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"This module calculates the vertical distance to a channel network base level. "

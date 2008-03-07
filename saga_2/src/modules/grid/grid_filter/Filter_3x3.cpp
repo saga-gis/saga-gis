@@ -73,7 +73,7 @@ CFilter_3x3::CFilter_3x3(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("User Defined Filter (3x3)"));
 
-	Set_Author		(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"User defined 3x3 sub-window filter. The filter is entered as a table with 3 rows and 3 columns."

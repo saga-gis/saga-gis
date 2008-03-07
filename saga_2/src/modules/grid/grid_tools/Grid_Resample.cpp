@@ -76,9 +76,9 @@ CGrid_Resample::CGrid_Resample(void)
 	CSG_Parameters	*pParameters;
 
 	//-----------------------------------------------------
-	Set_Name(_TL("Resampling"));
+	Set_Name		(_TL("Resampling"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Resampling of grids.")

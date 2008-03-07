@@ -72,7 +72,7 @@ CGSGrid_Statistics::CGSGrid_Statistics(void)
 {
 	Set_Name		(_TL("Statistics for Grids"));
 
-	Set_Author		(_TL("Copyrights (c) 2005 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2005 by O.Conrad"));
 
 	Set_Description	(_TW("Calculates statistical properties (arithmetic mean, minimum, maximum, "
 		"variance, standard deviation) for each cell position for the values of "

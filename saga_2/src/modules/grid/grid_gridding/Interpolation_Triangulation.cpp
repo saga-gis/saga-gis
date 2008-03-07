@@ -72,7 +72,7 @@ CInterpolation_Triangulation::CInterpolation_Triangulation(void)
 {
 	Set_Name		(_TL("Triangulation"));
 
-	Set_Author		(_TL("Copyrights (c) 2004 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2004 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Gridding of a shapes layer using Delaunay Triangulation."

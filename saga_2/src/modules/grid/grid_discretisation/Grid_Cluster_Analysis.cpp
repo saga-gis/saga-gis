@@ -75,7 +75,7 @@ CGrid_Cluster_Analysis::CGrid_Cluster_Analysis(void)
 
 	Set_Name		(_TL("Cluster Analysis for Grids"));
 
-	Set_Author		(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description	(_TW(		
 		"Cluster Analysis for grids.\n\nReferences:\n\n"

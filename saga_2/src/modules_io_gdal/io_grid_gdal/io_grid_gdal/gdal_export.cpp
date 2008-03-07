@@ -70,7 +70,7 @@ CGDAL_Export::CGDAL_Export(void)
 {
 	Set_Name	(_TL("Export Raster via GDAL"));
 
-	Set_Author	(_TL("Copyrights (c) 2007 by O.Conrad"));
+	Set_Author		(SG_T("(c) 2007 by O.Conrad"));
 
 	CSG_String	Description, Formats;
 

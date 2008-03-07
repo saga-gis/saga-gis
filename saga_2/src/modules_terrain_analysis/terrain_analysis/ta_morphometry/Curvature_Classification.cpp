@@ -72,7 +72,7 @@ CCurvature_Classification::CCurvature_Classification(void)
 {
 	Set_Name(_TL("Curvature Classification"));
 
-	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Surface curvature based terrain classification.\n"

@@ -75,7 +75,7 @@ CErdas_LAN_Import::CErdas_LAN_Import(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Import Erdas LAN/GIS"));
 
-	Set_Author		(_TL("Copyrights (c) 2005 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2005 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Import Erdas LAN/GIS files. \n"

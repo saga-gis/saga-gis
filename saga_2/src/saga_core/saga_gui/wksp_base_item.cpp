@@ -177,42 +177,6 @@ CWKSP_Base_Control * CWKSP_Base_Item::Get_Control(void)
 //														 //
 ///////////////////////////////////////////////////////////
 
-/*/---------------------------------------------------------
-void print_parameter(FILE *Stream, CSG_Parameter *p, int Level)
-{
-	if( Level > 0 || !p->Get_Parent() )
-	{
-		int		i;
-
-		for(i=0; i<Level; i++)
-			fprintf(Stream, ">");
-
-		fprintf(Stream, "%s\t%s\n", p->Get_Name(), p->Get_Description(PARAMETER_DESCRIPTION_TYPE|PARAMETER_DESCRIPTION_TEXT|PARAMETER_DESCRIPTION_PROPERTIES, "\t").c_str());
-
-		for(i=0; i<p->Get_Children_Count(); i++)
-			print_parameter(Stream, p->Get_Child(i), Level + 1);
-	}
-}
-
-#include "res_dialogs.h"
-
-bool CWKSP_Base_Item::On_Command(int Cmd_ID)
-{
-	FILE		*Stream;
-	CSG_Parameters	*P;
-	wxString	File_Path;
-
-	if( (P = Get_Parameters()) != NULL && Cmd_ID == WXK_F9 && DLG_Save(File_Path, "Write Parameters", "Text Files (*.txt)|*.txt|All Files|*.*") && (Stream = fopen(File_Path, "w")) != NULL )
-	{
-		for(int i=0; i<P->Get_Count(); i++)
-			print_parameter(Stream, P->Get_Parameter(i), 0);
-
-		fclose(Stream);
-	}
-
-	return( false );
-}/**/
-
 //---------------------------------------------------------
 bool CWKSP_Base_Item::On_Command(int Cmd_ID)
 {

@@ -78,7 +78,7 @@ CGrid_Fill::CGrid_Fill(void)
 
 	Set_Name		(_TL("Change Grid Values - Flood Fill"));
 
-	Set_Author		(_TL("(c) 2005 by A.Ringeler, (c) 2006 by O.Conrad"));
+	Set_Author		(SG_T("(c) 2005 by A.Ringeler, (c) 2006 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Interactively use the flood fill method to replace a grid's cell values. "

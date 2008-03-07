@@ -83,7 +83,7 @@ CGrid_Value_Request::CGrid_Value_Request(void)
 
 	Set_Name(_TL("Grid Value Request"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Grid Value Request.\n")

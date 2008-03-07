@@ -152,7 +152,7 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 		CSG_String::Format(
 			wxT("%s|*.bmp;*.ico;*.gif;*.jpg;*.jif;*.jpeg;*.pcx;*.png;*.pnm;*.tif;*.tiff;*.xpm|")
 			wxT("%s (*.bmp)|*.bmp|")
-			wxT("%s (*.jpg)|*.jpg|")
+			wxT("%s (*.jpg)|*.jpg;*.jif;*.jpeg|")
 			wxT("%s (*.png)|*.png|")
 			wxT("%s (*.pcx)|*.pcx|")
 			wxT("%s (*.xpm)|*.xpm|")

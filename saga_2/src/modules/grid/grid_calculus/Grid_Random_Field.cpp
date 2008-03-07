@@ -77,7 +77,7 @@ CGrid_Random_Field::CGrid_Random_Field(void)
 	//-----------------------------------------------------
 	Set_Name(_TL("Random Field"));
 
-	Set_Author(_TL("Copyrights (c) 2005 by Olaf Conrad"));
+	Set_Author	(SG_T("(c) 2005 by O.Conrad"));
 
 	Set_Description(
 		_TL("Create a grid with pseudo-random numbers as grid cell values. ")

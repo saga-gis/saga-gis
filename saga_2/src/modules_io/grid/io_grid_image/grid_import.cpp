@@ -76,7 +76,7 @@ CGrid_Import::CGrid_Import(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Import Image (bmp, jpg, png, tif, gif, pnm, xpm)"));
 
-	Set_Author		(_TL("Copyrights (c) 2005 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2005 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Loads an image."

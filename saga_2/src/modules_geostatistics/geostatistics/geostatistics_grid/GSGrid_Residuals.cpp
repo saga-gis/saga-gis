@@ -75,7 +75,7 @@ CGSGrid_Residuals::CGSGrid_Residuals(void)
 
 	Set_Name		(_TL("Residual Analysis (Grid)"));
 
-	Set_Author		(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW("Relations of each grid cell to its neighborhood. "
 		"Wilson & Gallant (2000) used this type of calculation in terrain analysis.\n"

@@ -73,7 +73,7 @@ CGrid_Gaps::CGrid_Gaps(void)
 	//-----------------------------------------------------
 	Set_Name(_TL("Close Gaps"));
 
-	Set_Author(_TL("Copyrights (c) 2002 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2002 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Close gaps of a grid data set (i.e. eliminate no data values). "

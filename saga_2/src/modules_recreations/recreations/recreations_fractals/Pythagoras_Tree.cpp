@@ -78,7 +78,7 @@ CPythagoras_Tree::CPythagoras_Tree(void)
 
 	Set_Name(_TL("Pythagoras' Tree"));
 
-	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description	(_TW("Pythagoras' Tree."));
 

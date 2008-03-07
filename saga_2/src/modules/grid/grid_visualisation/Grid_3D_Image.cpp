@@ -72,7 +72,7 @@ CGrid_3D_Image::CGrid_3D_Image(void)
 {
 	Set_Name(_TL("Create 3D Image"));
 
-	Set_Author(_TL("Copyrights (c) 2005 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2005 by O.Conrad"));
 
 	Set_Description(
 		_TL("")

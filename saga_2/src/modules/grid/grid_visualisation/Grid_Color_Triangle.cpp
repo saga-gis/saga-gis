@@ -74,7 +74,7 @@ CGrid_Color_Triangle::CGrid_Color_Triangle(void)
 
 	Set_Name		(_TL("Color Triangle Composite"));
 
-	Set_Author		(_TL("Copyrights (c) 2008 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Similar to 'RGB Composite', but the three colors representing intensity of each data set can be chosen by user. "

@@ -347,15 +347,11 @@ void			Get_Pause		(void)
 //---------------------------------------------------------
 bool			Get_YesNo		(const SG_Char *caption, const SG_Char *message)
 {
-#if defined(__WXMSW__)
-	wxBell();	// seems to cause trouble with gtk!!
-#endif
-
 	SG_PRINTF(SG_T("\n%s: %s\n"), caption, message);
 
 	if( !g_bSilent )
 	{
-		CSG_String	sKey, sYes(LNG("Y")), sNo(LNG("N"));
+		CSG_String	sKey, sYes(SG_T("y")), sNo(SG_T("n"));
 
 		SG_PRINTF(SG_T("%s? (%s/%s)"), LNG("continue"), sYes.c_str(), sNo.c_str());
 

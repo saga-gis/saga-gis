@@ -63,9 +63,12 @@
 
 #include "res_images.h"
 
+#include "helper.h"
+
 #include "dlg_about_logo.h"
 
 #include <saga_api/api_core.h>
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -93,6 +96,8 @@ END_EVENT_TABLE()
 CDLG_About_Logo::CDLG_About_Logo(wxWindow *pParent)
 	: wxPanel(pParent, -1, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER)
 {
+	SYS_Set_Color_BG_Window(this);
+
 	m_logo	= IMG_Get_Bitmap(ID_IMG_SAGA_SPLASH);
 	m_icon	= IMG_Get_Bitmap(ID_IMG_SAGA_ICON_32);
 }

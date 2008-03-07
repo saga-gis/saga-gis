@@ -75,7 +75,7 @@ CGrid_Export::CGrid_Export(void)
 {
 	Set_Name	(_TL("Export Image (bmp, jpg, png)"));
 
-	Set_Author	(_TL("Copyrights (c) 2005 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2005 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Saves a grid as image using display properties as used by the graphical user interface.\n")

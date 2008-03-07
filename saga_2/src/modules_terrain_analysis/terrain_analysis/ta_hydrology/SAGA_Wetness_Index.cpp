@@ -73,7 +73,7 @@ CSAGA_Wetness_Index::CSAGA_Wetness_Index(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("SAGA Wetness Index"));
 
-	Set_Author		(_TL("Copyrights (c) 2005 by Juergen Boehner, Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by J.Boehner, O.Conrad"));
 
 	Set_Description	(_TW(
 		"The 'SAGA Wetness Index' is, as the name says, similar to the "

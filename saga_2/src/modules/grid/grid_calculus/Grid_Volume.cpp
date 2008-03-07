@@ -72,7 +72,7 @@ CGrid_Volume::CGrid_Volume(void)
 {
 	Set_Name(_TL("Grid Volume"));
 
-	Set_Author(_TL("Copyrights (c) 2005 by Olaf Conrad"));
+	Set_Author	(SG_T("(c) 2005 by O.Conrad"));
 
 	Set_Description(
 		_TL("Calculate the volume under the grid's surface. This is mainly useful for Digital Elevation Models (DEM).")

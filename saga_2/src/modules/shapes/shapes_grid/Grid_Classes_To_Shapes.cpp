@@ -71,13 +71,13 @@
 CGrid_Classes_To_Shapes::CGrid_Classes_To_Shapes(void)
 {
 	//-----------------------------------------------------
-	Set_Name(_TL("Vectorising Grid Classes"));
+	Set_Name		(_TL("Vectorising Grid Classes"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad, (c) 2005 by Hartmut Linke"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad, (c) 2005 by H.Linke"));
 
 	Set_Description	(_TW(
-		"Vectorising grid classes.")
-	);
+		"Vectorising grid classes."
+	));
 
 
 	//-----------------------------------------------------

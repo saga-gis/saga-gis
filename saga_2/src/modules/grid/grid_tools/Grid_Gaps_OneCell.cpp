@@ -72,7 +72,7 @@ CGrid_Gaps_OneCell::CGrid_Gaps_OneCell(void)
 {
 	Set_Name(_TL("Close One Cell Gaps"));
 
-	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Closes one cell gaps using the mean value of the surrounding cell values. "

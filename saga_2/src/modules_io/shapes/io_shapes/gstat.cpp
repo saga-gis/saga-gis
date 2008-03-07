@@ -77,7 +77,7 @@ CGStat_Export::CGStat_Export(void)
 	//-----------------------------------------------------
 	Set_Name(_TL("Export GStat Shapes"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description(
 		_TL("GStat shapes format export.")
@@ -245,7 +245,7 @@ CGStat_Import::CGStat_Import(void)
 	//-----------------------------------------------------
 	Set_Name(_TL("Import GStat Shapes"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description(
 		_TL("GStat shapes format import.")

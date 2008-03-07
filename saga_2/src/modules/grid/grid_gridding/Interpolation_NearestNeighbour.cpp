@@ -72,7 +72,7 @@ CInterpolation_NearestNeighbour::CInterpolation_NearestNeighbour(void)
 {
 	Set_Name		(_TL("Nearest Neighbour"));
 
-	Set_Author		(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Nearest Neighbour method for grid interpolation from irregular distributed points.")

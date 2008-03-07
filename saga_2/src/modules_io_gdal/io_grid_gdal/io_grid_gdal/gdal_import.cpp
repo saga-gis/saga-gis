@@ -68,7 +68,7 @@ CGDAL_Import::CGDAL_Import(void)
 {
 	Set_Name	(_TL("Import Raster via GDAL"));
 
-	Set_Author	(_TL("Copyrights (c) 2007 by O.Conrad (A.Ringeler)"));
+	Set_Author	(SG_T("(c) 2007 by O.Conrad (A.Ringeler)"));
 
 	CSG_String	Description;
 

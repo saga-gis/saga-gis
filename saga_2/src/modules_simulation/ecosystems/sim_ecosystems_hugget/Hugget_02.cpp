@@ -74,7 +74,7 @@ CHugget_02::CHugget_02(void)
 
 	Set_Name	(_TL("02: Carbon Cycle Simulation for Terrestrial Biomes"));
 
-	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Simulation of the Carbon Cycle in Terrestrial Biomes. "

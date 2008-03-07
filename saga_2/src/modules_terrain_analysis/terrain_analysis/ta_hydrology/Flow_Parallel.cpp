@@ -72,7 +72,7 @@ CFlow_Parallel::CFlow_Parallel(void)
 {
 	Set_Name		(_TL("Parallel Processing"));
 
-	Set_Author		(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Parallel processing of cells for calculation of flow accumulation and related parameters. "

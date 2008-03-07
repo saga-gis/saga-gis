@@ -75,7 +75,7 @@ CGEOTRANS_Shapes::CGEOTRANS_Shapes(void)
 
 	Set_Name	(_TL("GeoTRANS (Shapes)"));
 
-	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Coordinate Transformation for Shapes. "

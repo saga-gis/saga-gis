@@ -180,102 +180,114 @@ const wxString DLG_Get_FILE_Filter(int ID_DLG)
 	case ID_DLG_WKSP_OPEN:
 		return( wxString::Format(
 			wxT("%s|*.sprj;*.mlb;*.dll;*.so;*sgrd;*.dgm;*.grd;*.shp;*.txt;*.dbf|")
-			wxT("%s|*.sprj|")
-			wxT("%s|*.mlb;*.dll;*.so|")
-			wxT("%s|*.sgrd;*.dgm;*.grd|")
-			wxT("%s|*.shp|")
-			wxT("%s|*.txt;*.dbf|")
+			wxT("%s (*.sprj)|*.sprj|")
+			wxT("%s (*.dll, *.so)|*.dll;*.so;*.mlb|")
+			wxT("%s (*.sgrd)|*.sgrd;*.dgm;*.grd|")
+			wxT("%s (*.shp)|*.shp|")
+			wxT("%s (*.txt, *.dbf)|*.txt;*.dbf|")
 			wxT("%s|*.*"),
 			LNG("All Recognised Files"),
-			LNG("SAGA Project (*.sprj)"),
-			LNG("SAGA Module Libraries (*.dll, *.so)"),
-			LNG("Grids (*.sgrd, *.dgm)"),
-			LNG("ESRI Shape Files (*.shp)"),
-			LNG("Tables (*.txt, *.dbf)"),
+			LNG("SAGA Project"),
+			LNG("SAGA Module Libraries"),
+			LNG("Grids"),
+			LNG("ESRI Shape Files"),
+			LNG("Tables"),
 			LNG("All Files")
 		));
 
 	case ID_DLG_MODULES_OPEN:
-		return( wxString::Format(wxT("%s|%s|%s|*.*"),
-			LNG("SAGA Module Libraries (*.dll, *.so)"),
-			wxT("*.mlb;*.dll;*.so"),
+		return( wxString::Format(
+			wxT("%s (*.dll, *.so)|*.mlb;*.dll;*.so|")
+			wxT("%s|*.*"),
+			LNG("SAGA Module Libraries"),
 			LNG("All Files")
 		));
 
 	case ID_DLG_PROJECT_OPEN:
 	case ID_DLG_PROJECT_SAVE:
-		return( wxString::Format(wxT("%s|%s|%s|*.*"),
-			LNG("SAGA Projects (*.sprj)"),
-			wxT("*.sprj"),
+		return( wxString::Format(
+			wxT("%s (*.sprj)|*.sprj|")
+			wxT("%s|*.*"),
+			LNG("SAGA Projects"),
 			LNG("All Files")
 		));
 
 	case ID_DLG_GRIDS_OPEN:
-		return( wxString::Format(wxT("%s|%s|%s|*.*"),
-			LNG("Grids (*.sgrd, *.dgm)"),
-			wxT("*.sgrd;*.dgm;*.grd"),
+		return( wxString::Format(
+			wxT("%s (*.sgrd)|*.sgrd;*.dgm;*.grd|")
+			wxT("%s|*.*"),
+			LNG("Grids"),
 			LNG("All Files")
 		));
 
 	case ID_DLG_GRIDS_SAVE:
-		return( wxString::Format(wxT("%s|%s|%s|*.*"),
-			LNG("Grids (*.sgrd)"),
-			wxT("*.sgrd"),
+		return( wxString::Format(
+			wxT("%s (*.sgrd)|*.sgrd|")
+			wxT("%s|*.*"),
+			LNG("Grids"),
 			LNG("All Files")
 		));
 
 	case ID_DLG_SHAPES_OPEN:
 	case ID_DLG_SHAPES_SAVE:
-		return( wxString::Format(wxT("%s|%s|%s|*.*"),
-			LNG("ESRI Shape Files (*.shp)"),
-			wxT("*.shp"),
+		return( wxString::Format(
+			wxT("%s (*.shp)|*.shp|")
+			wxT("%s|*.*"),
+			LNG("ESRI Shape Files"),
 			LNG("All Files")
 		));
 
 	case ID_DLG_TABLES_OPEN:
-		return( wxString::Format(wxT("%s|%s|%s|*.*"),
-			LNG("Tables (*.txt, *.dbf)"),
-			wxT("*.txt;*.dbf"),
+		return( wxString::Format(
+			wxT("%s (*.txt, *.dbf)|*.txt;*.dbf|")
+			wxT("%s|*.*"),
+			LNG("Tables"),
 			LNG("All Files")
 		));
+
 	case ID_DLG_TABLES_SAVE:
-		return( wxString::Format(wxT("%s|%s|%s|%s|%s|*.*"),
-			LNG("Text (*.txt)"),
-			wxT("*.txt"),
-			LNG("DBase (*.dbf)"),
-			wxT("*.dbf"),
+		return( wxString::Format(
+			wxT("%s (*.txt)|*.txt|")
+			wxT("%s (*.dbf)|*.dbf|")
+			wxT("%s|*.*"),
+			LNG("Text"),
+			LNG("DBase"),
 			LNG("All Files")
 		));
 
 	case ID_DLG_TIN_OPEN:
 	case ID_DLG_TIN_SAVE:
-		return( wxString::Format(wxT("%s|%s|%s|*.*"),
-			LNG("ESRI Shape Files (*.shp)"),
-			wxT("*.shp"),
+		return( wxString::Format(
+			wxT("%s (*.shp)|*.shp|")
+			wxT("%s|*.*"),
+			LNG("ESRI Shape Files"),
 			LNG("All Files")
 		));
 
 	case ID_DLG_TEXT_OPEN:
 	case ID_DLG_TEXT_SAVE:
-		return( wxString::Format(wxT("%s|%s|%s|*.*"),
-			LNG("Text Files (*.txt)"),
-			wxT("*.txt"),
+		return( wxString::Format(
+			wxT("%s (*.txt)|*.txt|")
+			wxT("%s|*.*"),
+			LNG("Text Files"),
 			LNG("All Files")
 		));
 
 	case ID_DLG_PARAMETERS_OPEN:
 	case ID_DLG_PARAMETERS_SAVE:
-		return( wxString::Format(wxT("%s|%s|%s|*.*"),
-			LNG("SAGA Parameter Files (*.sprm)"),
-			wxT("*.sprm"),
+		return( wxString::Format(
+			wxT("%s (*.sprm)|*.sprm|")
+			wxT("%s|*.*"),
+			LNG("SAGA Parameter Files"),
 			LNG("All Files")
 		));
 
 	case ID_DLG_COLORS_OPEN:
 	case ID_DLG_COLORS_SAVE:
-		return( wxString::Format(wxT("%s|%s|%s|*.*"),
-			LNG("SAGA Colors (*.pal)"),
-			wxT("*.pal"),
+		return( wxString::Format(
+			wxT("%s (*.pal)|*.pal|")
+			wxT("%s|*.*"),
+			LNG("SAGA Colors"),
 			LNG("All Files")
 		));
 	}
@@ -708,18 +720,18 @@ bool		DLG_Image_Save(wxString &File_Path, int &Type, const wxChar *def_Dir, cons
 
 	wxFileDialog	dlg(
 		MDI_Get_Top_Window(), LNG("[CAP] Save As Image"), def_Dir, def_File, wxString::Format(
-			wxT("%s|*.bmp|")
-			wxT("%s|*.jpg;*.jif;*.jpeg|")
-			wxT("%s|*.tif;*.tiff|")
-			wxT("%s|*.png|")
-			wxT("%s|*.gif|")
-			wxT("%s|*.pcx"),
-			LNG("Windows or OS/2 Bitmap (*.bmp)"),
-			LNG("JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)"),
-			LNG("Tagged Image File Format (*.tif, *.tiff)"),
-			LNG("Portable Network Graphics (*.png)"),
-			LNG("CompuServe Graphics Interchange (*.gif)"),
-			LNG("Zsoft Paintbrush (*.pcx)")
+			wxT("%s (*.bmp)|*.bmp|")
+			wxT("%s (*.jpg)|*.jpg;*.jif;*.jpeg|")
+			wxT("%s (*.tif)|*.tif;*.tiff|")
+			wxT("%s (*.png)|*.png|")
+			wxT("%s (*.gif)|*.gif|")
+			wxT("%s (*.pcx)|*.pcx"),
+			LNG("Windows or OS/2 Bitmap"),
+			LNG("JPEG - JFIF Compliant"),
+			LNG("Tagged Image File Format"),
+			LNG("Portable Network Graphics"),
+			LNG("CompuServe Graphics Interchange"),
+			LNG("Zsoft Paintbrush")
 		), wxSAVE|wxOVERWRITE_PROMPT
 	);
 

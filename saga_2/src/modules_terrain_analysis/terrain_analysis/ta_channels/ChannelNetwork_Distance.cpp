@@ -73,7 +73,7 @@ CChannelNetwork_Distance::CChannelNetwork_Distance(void)
 	//-----------------------------------------------------
 	Set_Name(_TL("Overland Flow Distance to Channel Network"));
 
-	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"This module calculates overland flow distances to a channel network "

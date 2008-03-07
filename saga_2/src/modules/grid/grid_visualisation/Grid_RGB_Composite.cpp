@@ -72,13 +72,13 @@ CGrid_RGB_Composite::CGrid_RGB_Composite(void)
 {
 	CSG_Parameter	*pNode;
 
-	Set_Name(_TL("RGB Composite"));
+	Set_Name		(_TL("RGB Composite"));
 
-	Set_Author(_TL("Copyrights (c) 2002 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2002 by O.Conrad"));
 
-	Set_Description(
-		_TL("Create red-green-blue overlays of grids. ")
-	);
+	Set_Description	(_TW(
+		"Create red-green-blue overlays of grids. "
+	));
 
 	//-----------------------------------------------------
 	pNode	= NULL;

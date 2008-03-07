@@ -76,7 +76,7 @@ CSolarRadiation::CSolarRadiation(void)
 	//-----------------------------------------------------
 	Set_Name(_TL("Incoming Solar Radiation"));
 
-	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Calculation of the potential incoming solar radiation.\n\n"

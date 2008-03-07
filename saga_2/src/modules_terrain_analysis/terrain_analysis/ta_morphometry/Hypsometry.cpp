@@ -73,7 +73,7 @@ CHypsometry::CHypsometry(void)
 	//-----------------------------------------------------
 	Set_Name(_TL("Hypsometry"));
 
-	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Calculates the hypsometric curve for a given DEM.\n\n"

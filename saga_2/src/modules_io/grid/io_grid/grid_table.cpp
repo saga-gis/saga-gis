@@ -75,7 +75,7 @@ CGrid_Table_Import::CGrid_Table_Import(void)
 
 	Set_Name(_TL("Import Grid from Table"));
 
-	Set_Author(_TL("Copyrights (c) 2006 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Imports grid from from table.\n")

@@ -72,7 +72,7 @@ CGrid_Color_Blend::CGrid_Color_Blend(void)
 {
 	Set_Name(_TL("Color Blending"));
 
-	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description(
 		_TL("Creates a color animation based on the values of selected grids.\n")

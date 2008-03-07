@@ -75,7 +75,7 @@ CAtlas_BNA_Import::CAtlas_BNA_Import(void)
 
 	Set_Name		(_TL("Import Atlas Boundary File"));
 
-	Set_Author		(_TL("Copyrights (c) 2006 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"\n"
@@ -227,7 +227,7 @@ CAtlas_BNA_Export::CAtlas_BNA_Export(void)
 
 	Set_Name		(_TL("Export Atlas Boundary File"));
 
-	Set_Author		(_TL("Copyrights (c) 2006 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"\n"

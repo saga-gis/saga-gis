@@ -71,14 +71,14 @@
 CGrid_Values_AddTo_Shapes::CGrid_Values_AddTo_Shapes(void)
 {
 	//-----------------------------------------------------
-	Set_Name(_TL("Get Grid Data for Shapes"));
+	Set_Name		(_TL("Get Grid Data for Shapes"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Retrieves information from the selected grids at the positions of the shapes of "
-		"the selected shapes layer and adds it to the resulting shapes layer.")
-	);
+		"the selected shapes layer and adds it to the resulting shapes layer."
+	));
 
 
 	//-----------------------------------------------------

@@ -85,7 +85,7 @@ CGSGrid_Regression_Multiple::CGSGrid_Regression_Multiple(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Multiple Regression Analysis (Grids/Points)"));
 
-	Set_Author		(_TL("Copyrights (c) 2004 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2004 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Linear regression analysis of point attributes with multiple grids. "

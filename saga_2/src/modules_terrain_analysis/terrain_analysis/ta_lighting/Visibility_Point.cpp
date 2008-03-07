@@ -72,7 +72,7 @@ CVisibility_Point::CVisibility_Point(void)
 {
 	Set_Name(_TL("Visibility (single point)"));
 
-	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description(
 		_TL("")

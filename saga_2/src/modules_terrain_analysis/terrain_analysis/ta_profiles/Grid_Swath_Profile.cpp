@@ -82,7 +82,7 @@ CGrid_Swath_Profile::CGrid_Swath_Profile(void)
 {
 	Set_Name(_TL("Swath Profile"));
 
-	Set_Author(_TL("Copyrights (c) 2005 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2005 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Create interactively swath profiles from a grid based DEM\n"

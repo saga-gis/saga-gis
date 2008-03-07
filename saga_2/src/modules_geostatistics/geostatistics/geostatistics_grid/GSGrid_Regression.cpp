@@ -85,7 +85,7 @@ CGSGrid_Regression::CGSGrid_Regression(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Regression Analysis (Grid/Points)"));
 
-	Set_Author		(_TL("Copyrights (c) 2004 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2004 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Regression analysis of point attributes with grid values. "

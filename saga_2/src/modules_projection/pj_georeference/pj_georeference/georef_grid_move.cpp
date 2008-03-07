@@ -73,7 +73,7 @@ CGeoref_Grid_Move::CGeoref_Grid_Move(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Georeferencing - Move Grid"));
 
-	Set_Author		(_TL("(c) 2008 Conrad"));
+	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
 
 	Set_Description	(_TW(
 		""

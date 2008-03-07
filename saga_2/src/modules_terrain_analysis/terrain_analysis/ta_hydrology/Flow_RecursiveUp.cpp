@@ -74,7 +74,7 @@ CFlow_RecursiveUp::CFlow_RecursiveUp(void)
 {
 	Set_Name(_TL("Recursive Upward Processing"));
 
-	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Recursive upward processing of cells for calculation of flow accumulation and related parameters. "

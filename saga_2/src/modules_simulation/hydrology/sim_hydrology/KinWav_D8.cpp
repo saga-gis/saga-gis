@@ -78,7 +78,7 @@ CKinWav_D8::CKinWav_D8(void)
 
 	Set_Name	(_TL("Overland Flow - Kinematic Wave D8"));
 
-	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Overland Flow - Kinematic Wave D8"

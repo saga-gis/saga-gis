@@ -69,7 +69,7 @@ CWASP_MAP_Export::CWASP_MAP_Export(void)
 {
 	Set_Name		(_TL("Export WASP terrain map file"));
 
-	Set_Author		(_TL("Copyrights (c) 2006 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Reference:\n"
@@ -203,7 +203,7 @@ CWASP_MAP_Import::CWASP_MAP_Import(void)
 {
 	Set_Name		(_TL("Import WASP terrain map file"));
 
-	Set_Author		(_TL("Copyrights (c) 2006 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Reference:\n"

@@ -74,7 +74,7 @@ CGet_Table::CGet_Table(void)
 {
 	Set_Name	(_TL("Import Table via ODBC"));
 
-	Set_Author	(_TL("Copyrights (c) 2005 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2005 by O.Conrad"));
 
 	Set_Description(
 		_TL("Get table from ODBC source.\n")

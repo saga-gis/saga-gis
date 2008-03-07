@@ -72,14 +72,13 @@
 //---------------------------------------------------------
 CGrid_To_Points_Random::CGrid_To_Points_Random()
 {
-	Set_Name	(_TL("Grid Values to Points (randomly)"));
+	Set_Name		(_TL("Grid Values to Points (randomly)"));
 
-	Set_Author	(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
-		"Extract randomly points from gridded data.\n"
-		"(c) 2001 by Olaf Conrad, Goettingen\nemail: oconrad@gwdg.de")
-	);
+		"Extract randomly points from gridded data."
+	));
 
 	Parameters.Add_Grid(	NULL, "GRID"	, _TL("Grid")		, _TL(""), PARAMETER_INPUT);
 	Parameters.Add_Value(	NULL, "FREQ"	, _TL("Frequency")	, _TL("One per x"), PARAMETER_TYPE_Int, 100, 1, true);

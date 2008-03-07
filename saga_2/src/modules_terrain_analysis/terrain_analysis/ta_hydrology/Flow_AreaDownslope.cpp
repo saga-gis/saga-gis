@@ -74,7 +74,7 @@ CFlow_AreaDownslope::CFlow_AreaDownslope(void)
 {
 	Set_Name(_TL("Downslope Area"));
 
-	Set_Author(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"This interactive module allows you to specify source cells (with a left mouse click), "

@@ -39,7 +39,7 @@ CCellBalance::CCellBalance(void)
 {
 	Set_Name		(_TL("Cell Balance"));
 
-	Set_Author		(_TL("(c) 2004 by V.Olaya, (c) 2006 by O.Conrad"));
+	Set_Author		(SG_T("(c) 2004 by V.Olaya, (c) 2006 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"(c) 2004 by Victor Olaya. Cell Balance Calculation\r\n"

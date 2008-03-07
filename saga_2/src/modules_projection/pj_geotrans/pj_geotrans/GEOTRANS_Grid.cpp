@@ -77,7 +77,7 @@ CGEOTRANS_Grid::CGEOTRANS_Grid(void)
 	//-----------------------------------------------------
 	Set_Name	(_TL("GeoTrans (Grid)"));
 
-	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Coordinate Transformation for Grids. "

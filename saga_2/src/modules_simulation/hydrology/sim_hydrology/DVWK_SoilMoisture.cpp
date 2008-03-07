@@ -75,7 +75,7 @@ CDVWK_SoilMoisture::CDVWK_SoilMoisture(void)
 	//-----------------------------------------------------
 	Set_Name	(_TL("Soil Moisture Content"));
 
-	Set_Author	(_TL("Copyrights (c) 2002 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2002 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"The WEELS (Wind Erosion on European Light Soils) soil moisture "

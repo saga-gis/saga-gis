@@ -71,13 +71,13 @@
 CGrid_To_Gradient::CGrid_To_Gradient(void)
 {
 	//-----------------------------------------------------
-	Set_Name(_TL("Gradient from Grid"));
+	Set_Name		(_TL("Gradient from Grid"));
 
-	Set_Author(_TL("Copyrights (c) 2006 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
 
 	Set_Description	(_TW(
-		"Create lines indicating the gradient. ")
-	);
+		"Create lines indicating the gradient. "
+	));
 
 
 	//-----------------------------------------------------

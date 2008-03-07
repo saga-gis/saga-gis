@@ -72,7 +72,7 @@ CInterpolation_InverseDistance::CInterpolation_InverseDistance(void)
 {
 	Set_Name		(_TL("Inverse Distance"));
 
-	Set_Author		(_TL("Copyrights (c) 2003 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Inverse distance to a power method for grid interpolation from irregular distributed points."

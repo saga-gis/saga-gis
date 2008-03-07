@@ -72,7 +72,7 @@ CGrid_Geometric_Figures::CGrid_Geometric_Figures(void)
 {
 	Set_Name	(_TL("Geometric Figures"));
 
-	Set_Author	(_TL("Copyrights (c) 2001 by Olaf Conrad"));
+	Set_Author	(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description(_TW(
 		"Construct grids from geometric figures (planes, cones).\n"

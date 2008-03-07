@@ -73,7 +73,7 @@ CBMP_Export::CBMP_Export(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Export True Color Bitmap"));
 
-	Set_Author		(_TL("Copyrights (c) 2005 by Olaf Conrad"));
+	Set_Author		(SG_T("(c) 2005 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Export red-green-blue coded image grids to MS-Windows true color bitmaps. "

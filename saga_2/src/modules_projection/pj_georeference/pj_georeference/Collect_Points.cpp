@@ -76,7 +76,7 @@ CCollect_Points::CCollect_Points(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Create Reference Points"));
 
-	Set_Author		(_TL("(c) 2004 Ringeler, (c) 2006 O.Conrad"));
+	Set_Author		(SG_T("(c) 2004 Ringeler, (c) 2006 O.Conrad"));
 
 	Set_Description	(_TW(
 		"Digitize reference points for georeferencing grids, images and shapes. "
