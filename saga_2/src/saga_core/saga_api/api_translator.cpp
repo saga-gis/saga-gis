@@ -152,7 +152,7 @@ bool CSG_Translator::Create(const SG_Char *File_Name, bool bSetExtension)
 	Destroy();
 
 	CSG_Table	Translations;
-	CSG_String	fName(bSetExtension ? SG_File_Make_Path(NULL, File_Name, SG_T("lng")) : File_Name);
+	CSG_String	fName(bSetExtension ? SG_File_Make_Path(NULL, File_Name, SG_T("lng")).c_str() : File_Name);
 
 	SG_UI_Msg_Lock(true);
 
