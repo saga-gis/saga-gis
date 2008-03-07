@@ -10,7 +10,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    kriging_base.h                     //
+//                  Kriging_Ordinary.h                   //
 //                                                       //
 //                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
@@ -41,9 +41,9 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Hamburg                  //
-//                Bundesstr. 55                          //
-//                20146 Hamburg                          //
+//                University of Goettingen               //
+//                Goldschmidtstr. 5                      //
+//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -53,23 +53,13 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#ifndef HEADER_INCLUDED__kriging_base_H
-#define HEADER_INCLUDED__kriging_base_H
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#ifndef HEADER_INCLUDED__Kriging_Ordinary_H
+#define HEADER_INCLUDED__Kriging_Ordinary_H
 
 
 ///////////////////////////////////////////////////////////
@@ -79,63 +69,40 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class geostatistics_kriging_variogram_EXPORT CKriging_Base : public CSG_Module
+#include "kriging_ordinary_global.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class geostatistics_kriging_EXPORT CKriging_Ordinary : public CKriging_Ordinary_Global
 {
 public:
-	CKriging_Base(void);
-	virtual ~CKriging_Base(void);
+	CKriging_Ordinary(void);
+	virtual ~CKriging_Ordinary(void);
 
 
 protected:
 
-	bool					m_bBlock;
+	virtual bool			On_Initialise	(void);
 
-	int						m_zField;
-
-	double					m_Block;
-
-	CSG_Points_3D			m_Points;
-
-	CSG_Vector				m_G;
-
-	CSG_Matrix				m_W;
-
-	CSG_Shapes_Search		m_Search;
-
-	CSG_Shapes				*m_pPoints;
-
-
-	virtual bool			On_Execute				(void);
-
-	virtual bool			On_Initialise			(void)					{	return( true );	}
-
-	virtual bool			Get_Value				(double x, double y, double &z, double &Variance)	= 0;
-
-	double					Get_Weight				(double d)				{	return( m_Variogram.Get_Value(d) );	}
-	double					Get_Weight				(double dx, double dy)	{	return( m_Variogram.Get_Value(sqrt(dx*dx + dy*dy)) );	}
+	virtual bool			Get_Value		(double x, double y, double &z, double &Variance);
 
 
 private:
 
-	CSG_Points				m_Variances;
+	int						m_nPoints_Min, m_nPoints_Max;
 
-	CSG_Trend				m_Variogram;
-
-	CSG_Grid				*m_pGrid, *m_pVariance;
+	double					m_Radius;
 
 
-	bool					_Initialise				(void);
-	bool					_Initialise_Grids		(void);
-	bool					_Finalise				(void);
-
-	bool					_Interpolate			(void);
-
-	bool					_Get_Variances			(void);
-	bool					_Get_Differences		(CSG_Table *pTable, int zField, int nSkip, double maxDist);
+	int						Get_Weights		(double x, double y);
 
 };
-
-#endif // #ifndef HEADER_INCLUDED__kriging_base_H
 
 
 ///////////////////////////////////////////////////////////
@@ -145,3 +112,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__Kriging_Ordinary_H

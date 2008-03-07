@@ -1,30 +1,48 @@
-#
-# $Id: Makefile.am,v 1.6 2007-02-13 12:49:24 tschorr Exp $
-#
 if DEBUG
 DBGFLAGS = -g -DDEBUG
 endif
 if SAGA_UNICODE
-UC_DEFS = -D_SAGA_UNICODE
+DEP_DEFS = -fPIC `wx-config --unicode=yes --static=no --cxxflags` -D_SAGA_UNICODE $(DBGFLAGS)
+DEP_LFLG = -fPIC -shared `wx-config --unicode=yes --static=no --libs`
+else
+DEP_DEFS = -fPIC `wx-config --unicode=no --static=no --cxxflags` $(DBGFLAGS)
+DEP_LFLG = -fPIC -shared `wx-config --unicode=no --static=no --libs`
 endif
 DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS           = -I$(top_srcdir)/src/saga_core
-AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS)
-AM_LDFLAGS         = -fPIC -shared
-pkglib_LTLIBRARIES = libgeostatistics_kriging.la
-libgeostatistics_kriging_la_SOURCES =\
-Kriging_Base.cpp\
-Kriging_Ordinary.cpp\
-Kriging_Ordinary_Global.cpp\
-Kriging_Universal.cpp\
-Kriging_Universal_Global.cpp\
+AM_CXXFLAGS        = $(CXX_INCS) $(DEF_SAGA) $(DEP_DEFS) $(DBGFLAGS)
+AM_LDFLAGS         = $(DEP_LFLG)
+pkglib_LTLIBRARIES = libgeostatistics_kriging_variogram.la
+libgeostatistics_kriging_variogram_la_SOURCES =\
+_kriging_base.cpp\
+_kriging_ordinary.cpp\
+_kriging_ordinary_global.cpp\
+_kriging_universal.cpp\
+_kriging_universal_global.cpp\
+kriging_base.cpp\
+kriging_ordinary.cpp\
+kriging_ordinary_global.cpp\
+kriging_universal.cpp\
+kriging_universal_global.cpp\
 MLB_Interface.cpp\
-Kriging_Base.h\
-Kriging_Ordinary.h\
-Kriging_Ordinary_Global.h\
-Kriging_Universal.h\
-Kriging_Universal_Global.h\
-MLB_Interface.h
+sgui_diagram.cpp\
+sgui_dialog.cpp\
+sgui_helper.cpp\
+variogram_dialog.cpp\
+_kriging_base.h\
+_kriging_ordinary.h\
+_kriging_ordinary_global.h\
+_kriging_universal.h\
+_kriging_universal_global.h\
+kriging_base.h\
+kriging_ordinary.h\
+kriging_ordinary_global.h\
+kriging_universal.h\
+kriging_universal_global.h\
+MLB_Interface.h\
+sgui_diagram.h\
+sgui_dialog.h\
+sgui_helper.h\
+variogram_dialog.h
 
-libgeostatistics_kriging_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(ADD_MLBS)
-
+libgeostatistics_kriging_variogram_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(ADD_MLBS)

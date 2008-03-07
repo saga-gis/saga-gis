@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//            geostatistics_kriging_variogram            //
+//                 Geostatistics_Kriging                 //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  Kriging_Ordinary.h                   //
+//                  _Kriging_Ordinary.h                  //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2003 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -58,8 +58,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Kriging_Ordinary_H
-#define HEADER_INCLUDED__Kriging_Ordinary_H
+#ifndef _INTERPOLATION__Kriging_ORDINARY_H
+#define _INTERPOLATION__Kriging_ORDINARY_H
 
 
 ///////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "kriging_ordinary_global.h"
+#include "_kriging_ordinary_global.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -79,11 +79,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class geostatistics_kriging_variogram_EXPORT CKriging_Ordinary : public CKriging_Ordinary_Global
+class geostatistics_kriging_EXPORT C_Kriging_Ordinary : public C_Kriging_Ordinary_Global
 {
 public:
-	CKriging_Ordinary(void);
-	virtual ~CKriging_Ordinary(void);
+	C_Kriging_Ordinary(void);
+	virtual ~C_Kriging_Ordinary(void);
 
 
 protected:
@@ -112,4 +112,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Kriging_Ordinary_H
+#endif // #ifndef _INTERPOLATION__Kriging_ORDINARY_H

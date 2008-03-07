@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//            geostatistics_kriging_variogram            //
+//                 Geostatistics_Kriging                 //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//               Kriging_Ordinary_Global.h               //
+//                  _Kriging_Universal.h                 //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2003 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -58,8 +58,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Kriging_Ordinary_Global_H
-#define HEADER_INCLUDED__Kriging_Ordinary_Global_H
+#ifndef HEADER_INCLUDED___Kriging_UNIVERSAL_H
+#define HEADER_INCLUDED___Kriging_UNIVERSAL_H
 
 
 ///////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "kriging_base.h"
+#include "_kriging_universal_global.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -79,11 +79,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class geostatistics_kriging_variogram_EXPORT CKriging_Ordinary_Global : public CKriging_Base
+class geostatistics_kriging_EXPORT C_Kriging_Universal : public C_Kriging_Universal_Global
 {
 public:
-	CKriging_Ordinary_Global(void);
-	virtual ~CKriging_Ordinary_Global(void);
+	C_Kriging_Universal(void);
+	virtual ~C_Kriging_Universal(void);
 
 
 protected:
@@ -95,7 +95,12 @@ protected:
 
 private:
 
-	bool					Get_Weights		(void);
+	int						m_nPoints_Min, m_nPoints_Max;
+
+	double					m_Radius;
+
+
+	int						Get_Weights		(double x, double y);
 
 };
 
@@ -107,4 +112,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Kriging_Ordinary_Global_H
+#endif // #ifndef HEADER_INCLUDED___Kriging_UNIVERSAL_H

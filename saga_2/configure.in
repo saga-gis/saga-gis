@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.7 2008-02-15 14:37:04 oconrad Exp $
+# $Id: configure.in,v 1.8 2008-03-07 15:16:32 oconrad Exp $
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
@@ -95,7 +95,6 @@ AC_OUTPUT(Makefile \
 	src/modules_geostatistics/geostatistics/geostatistics_points/Makefile \
 	src/modules_geostatistics/geostatistics/geostatistics_grid/Makefile \
 	src/modules_geostatistics/geostatistics/geostatistics_kriging/Makefile \
-	src/modules_geostatistics/geostatistics/geostatistics_kriging_variogram/Makefile \
 	src/modules_io/Makefile \
 	src/modules_io/esri_e00/Makefile \
 	src/modules_io/esri_e00/io_esri_e00/Makefile \
@@ -131,7 +130,7 @@ AC_OUTPUT(Makefile \
 	src/modules_simulation/ecosystems/Makefile \
 	src/modules_simulation/ecosystems/sim_ecosystems_hugget/Makefile \
 	src/modules_simulation/fire/Makefile \
-	src/modules_simulation/fire/fire_spreading/Makefile \
+	src/modules_simulation/fire/sim_fire_spreading/Makefile \
 	src/modules_terrain_analysis/Makefile \
 	src/modules_terrain_analysis/terrain_analysis/Makefile \
 	src/modules_terrain_analysis/terrain_analysis/ta_channels/Makefile \

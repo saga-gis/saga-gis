@@ -1,8 +1,8 @@
-# Project: geostatistics_kriging
+# Project: geostatistics_kriging_variogram
 # MinGW Makefile
 # Created by O. Conrad
 
-PRJ_NAME = geostatistics_kriging
+PRJ_NAME = geostatistics_kriging_variogram
 BIN_SAGA = $(SAGA)\bin\saga_mingw
 TMP_SAGA = $(SAGA)\bin\tmp\saga_mingw
 MLB_TEMP = $(TMP_SAGA)\$(PRJ_NAME)
@@ -18,11 +18,16 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/Kriging_Base.o $(MLB_TEMP)/Kriging_Ordinary.o $(MLB_TEMP)/Kriging_Ordinary_Global.o $(MLB_TEMP)/Kriging_Universal.o $(MLB_TEMP)/Kriging_Universal_Global.o $(MLB_TEMP)/MLB_Interface.o
+DEP_INCS = -I"$(WXWIN)/lib/gcc_dll/msw" -I"$(WXWIN)/include"
+DEP_DEFS = -D__WXMSW__ -DWXUSINGDLL -DNOPCH
+DEP_LIBS = -L"$(WXWIN)/lib/gcc_dll" -lwxmsw28_core -lwxbase28 -lwxtiff -lwxjpeg -lwxpng -lwxzlib -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lwinmm -lshell32 -lcomctl32 -lole32 -loleaut32 -luuid -lrpcrt4
+
+
+OBJ      = $(MLB_TEMP)/_kriging_base.o $(MLB_TEMP)/_kriging_ordinary.o $(MLB_TEMP)/_kriging_ordinary_global.o $(MLB_TEMP)/_kriging_universal.o $(MLB_TEMP)/_kriging_universal_global.o $(MLB_TEMP)/kriging_base.o $(MLB_TEMP)/kriging_ordinary.o $(MLB_TEMP)/kriging_ordinary_global.o $(MLB_TEMP)/kriging_universal.o $(MLB_TEMP)/kriging_universal_global.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/sgui_diagram.o $(MLB_TEMP)/sgui_dialog.o $(MLB_TEMP)/sgui_helper.o $(MLB_TEMP)/variogram_dialog.o
 
 CXXFLAGS = -I"$(MINGW)/include" -I"$(SAGA)/src/saga_core" -D$(PRJ_NAME)_EXPORTS -DBUILDING_DLL=1 -D_SAGA_MSW -D_SAGA_MINGW -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -fexpensive-optimizations -Os -O2 -O3 $(DEP_INCS) $(DEP_DEFS)
 
-LIBS     = -L"$(MINGW)/lib" -L"$(WXWIN)/lib/gcc_lib" $(DEP_LIBS) $(BIN_SAGA)/libsaga_api.a
+LIBS     = -L"$(MINGW)/lib" -L"$(WXWIN)/lib/gcc_dll" $(DEP_LIBS) $(BIN_SAGA)/libsaga_api.a
 LDFLAGS  = --no-export-all-symbols --add-stdcall-alias --driver-name c++ $(DEP_LFLG)
 
 .PHONY: all all-before all-after clean clean-custom
@@ -45,20 +50,47 @@ $(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/Kriging_Base.o: ./Kriging_Base.cpp
-	$(CPP) -c ./Kriging_Base.cpp -o $(MLB_TEMP)/Kriging_Base.o $(CXXFLAGS)
+$(MLB_TEMP)/_kriging_base.o: ./_kriging_base.cpp
+	$(CPP) -c ./_kriging_base.cpp -o $(MLB_TEMP)/_kriging_base.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Kriging_Ordinary.o: ./Kriging_Ordinary.cpp
-	$(CPP) -c ./Kriging_Ordinary.cpp -o $(MLB_TEMP)/Kriging_Ordinary.o $(CXXFLAGS)
+$(MLB_TEMP)/_kriging_ordinary.o: ./_kriging_ordinary.cpp
+	$(CPP) -c ./_kriging_ordinary.cpp -o $(MLB_TEMP)/_kriging_ordinary.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Kriging_Ordinary_Global.o: ./Kriging_Ordinary_Global.cpp
-	$(CPP) -c ./Kriging_Ordinary_Global.cpp -o $(MLB_TEMP)/Kriging_Ordinary_Global.o $(CXXFLAGS)
+$(MLB_TEMP)/_kriging_ordinary_global.o: ./_kriging_ordinary_global.cpp
+	$(CPP) -c ./_kriging_ordinary_global.cpp -o $(MLB_TEMP)/_kriging_ordinary_global.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Kriging_Universal.o: ./Kriging_Universal.cpp
-	$(CPP) -c ./Kriging_Universal.cpp -o $(MLB_TEMP)/Kriging_Universal.o $(CXXFLAGS)
+$(MLB_TEMP)/_kriging_universal.o: ./_kriging_universal.cpp
+	$(CPP) -c ./_kriging_universal.cpp -o $(MLB_TEMP)/_kriging_universal.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Kriging_Universal_Global.o: ./Kriging_Universal_Global.cpp
-	$(CPP) -c ./Kriging_Universal_Global.cpp -o $(MLB_TEMP)/Kriging_Universal_Global.o $(CXXFLAGS)
+$(MLB_TEMP)/_kriging_universal_global.o: ./_kriging_universal_global.cpp
+	$(CPP) -c ./_kriging_universal_global.cpp -o $(MLB_TEMP)/_kriging_universal_global.o $(CXXFLAGS)
+
+$(MLB_TEMP)/kriging_base.o: ./kriging_base.cpp
+	$(CPP) -c ./kriging_base.cpp -o $(MLB_TEMP)/kriging_base.o $(CXXFLAGS)
+
+$(MLB_TEMP)/kriging_ordinary.o: ./kriging_ordinary.cpp
+	$(CPP) -c ./kriging_ordinary.cpp -o $(MLB_TEMP)/kriging_ordinary.o $(CXXFLAGS)
+
+$(MLB_TEMP)/kriging_ordinary_global.o: ./kriging_ordinary_global.cpp
+	$(CPP) -c ./kriging_ordinary_global.cpp -o $(MLB_TEMP)/kriging_ordinary_global.o $(CXXFLAGS)
+
+$(MLB_TEMP)/kriging_universal.o: ./kriging_universal.cpp
+	$(CPP) -c ./kriging_universal.cpp -o $(MLB_TEMP)/kriging_universal.o $(CXXFLAGS)
+
+$(MLB_TEMP)/kriging_universal_global.o: ./kriging_universal_global.cpp
+	$(CPP) -c ./kriging_universal_global.cpp -o $(MLB_TEMP)/kriging_universal_global.o $(CXXFLAGS)
 
 $(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
+
+$(MLB_TEMP)/sgui_diagram.o: ./sgui_diagram.cpp
+	$(CPP) -c ./sgui_diagram.cpp -o $(MLB_TEMP)/sgui_diagram.o $(CXXFLAGS)
+
+$(MLB_TEMP)/sgui_dialog.o: ./sgui_dialog.cpp
+	$(CPP) -c ./sgui_dialog.cpp -o $(MLB_TEMP)/sgui_dialog.o $(CXXFLAGS)
+
+$(MLB_TEMP)/sgui_helper.o: ./sgui_helper.cpp
+	$(CPP) -c ./sgui_helper.cpp -o $(MLB_TEMP)/sgui_helper.o $(CXXFLAGS)
+
+$(MLB_TEMP)/variogram_dialog.o: ./variogram_dialog.cpp
+	$(CPP) -c ./variogram_dialog.cpp -o $(MLB_TEMP)/variogram_dialog.o $(CXXFLAGS)

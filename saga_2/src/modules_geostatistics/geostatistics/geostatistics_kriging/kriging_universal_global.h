@@ -10,7 +10,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    MLB_Interface.h                    //
+//              Kriging_Universal_Global.h               //
 //                                                       //
 //                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
@@ -41,9 +41,9 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Hamburg                  //
-//                Bundesstr. 55                          //
-//                20146 Hamburg                          //
+//                University of Goettingen               //
+//                Goldschmidtstr. 5                      //
+//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -53,23 +53,13 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//				Include the SAGA-API here				 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__geostatistics_kriging_variogram_H
-#define HEADER_INCLUDED__geostatistics_kriging_variogram_H
-
-//---------------------------------------------------------
-#include <saga_api/saga_api.h>
-
-//---------------------------------------------------------
-#ifdef geostatistics_kriging_variogram_EXPORTS
-	#define	geostatistics_kriging_variogram_EXPORT	_SAGA_DLL_EXPORT
-#else
-	#define	geostatistics_kriging_variogram_EXPORT	_SAGA_DLL_IMPORT
-#endif
+#ifndef HEADER_INCLUDED__Kriging_Universal_Global_H
+#define HEADER_INCLUDED__Kriging_Universal_Global_H
 
 
 ///////////////////////////////////////////////////////////
@@ -79,4 +69,47 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__geostatistics_kriging_variogram_H
+#include "kriging_base.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class geostatistics_kriging_EXPORT CKriging_Universal_Global : public CKriging_Base
+{
+public:
+	CKriging_Universal_Global(void);
+	virtual ~CKriging_Universal_Global(void);
+
+
+protected:
+
+	int						m_Interpolation;
+
+	CSG_Parameter_Grid_List	*m_pGrids;
+
+
+	virtual bool			On_Initialise	(void);
+
+	virtual bool			Get_Value		(double x, double y, double &z, double &Variance);
+
+
+private:
+
+	bool					Get_Weights		(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__Kriging_Universal_Global_H

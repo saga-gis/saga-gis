@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                 Geostatistics_Kriging                 //
+//            geostatistics_kriging_variogram            //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                    kriging_base.h                     //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,9 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
+//                Bundesstr. 55                          //
+//                20146 Hamburg                          //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -53,75 +53,91 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__kriging_base_H
+#define HEADER_INCLUDED__kriging_base_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-const SG_Char * Get_Info(int i)
+//---------------------------------------------------------
+class geostatistics_kriging_EXPORT CKriging_Base : public CSG_Module
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Geostatistics - Kriging") );
+public:
+	CKriging_Base(void);
+	virtual ~CKriging_Base(void);
 
-	case MLB_INFO_Author:
-		return( SG_T("(c) 2003-08 by O.Conrad") );
-
-	case MLB_INFO_Description:
-		return( _TL("Kriging - geostatistical procedures for the gridding of irregular distributed point data." ));
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Geostatistics" ));
-	}
-}
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Kriging with Variogram Fit") );	}
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "kriging_ordinary.h"
-#include "kriging_ordinary_global.h"
-#include "kriging_universal.h"
-#include "kriging_universal_global.h"
+	bool					m_bBlock;
 
-#include "_kriging_ordinary.h"
-#include "_kriging_ordinary_global.h"
-#include "_kriging_universal.h"
-#include "_kriging_universal_global.h"
+	int						m_zField;
+
+	double					m_Block;
+
+	CSG_Points_3D			m_Points;
+
+	CSG_Vector				m_G;
+
+	CSG_Matrix				m_W;
+
+	CSG_Shapes_Search		m_Search;
+
+	CSG_Shapes				*m_pPoints;
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+	virtual bool			On_Execute				(void);
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case 0:		return( new CKriging_Ordinary );			break;
-	case 1:		return( new CKriging_Ordinary_Global );		break;
-	case 2:		return( new CKriging_Universal );			break;
-	case 3:		return( new CKriging_Universal_Global );	break;
+	virtual bool			On_Initialise			(void)					{	return( true );	}
 
-	case 4:		return( new C_Kriging_Ordinary );			break;
-	case 5:		return( new C_Kriging_Ordinary_Global );	break;
-	case 6:		return( new C_Kriging_Universal );			break;
-	case 7:		return( new C_Kriging_Universal_Global );	break;
-	}
+	virtual bool			Get_Value				(double x, double y, double &z, double &Variance)	= 0;
 
-	return( NULL );
-}
+	double					Get_Weight				(double d)				{	return( m_Variogram.Get_Value(d) );	}
+	double					Get_Weight				(double dx, double dy)	{	return( m_Variogram.Get_Value(sqrt(dx*dx + dy*dy)) );	}
+
+
+private:
+
+	CSG_Points				m_Variances;
+
+	CSG_Trend				m_Variogram;
+
+	CSG_Grid				*m_pGrid, *m_pVariance;
+
+
+	bool					_Initialise				(void);
+	bool					_Initialise_Grids		(void);
+	bool					_Finalise				(void);
+
+	bool					_Interpolate			(void);
+
+	bool					_Get_Variances			(void);
+	bool					_Get_Differences		(CSG_Table *pTable, int zField, int nSkip, double maxDist);
+
+};
+
+#endif // #ifndef HEADER_INCLUDED__kriging_base_H
 
 
 ///////////////////////////////////////////////////////////
@@ -131,8 +147,3 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA

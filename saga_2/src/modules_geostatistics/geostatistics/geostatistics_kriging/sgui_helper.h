@@ -71,7 +71,7 @@
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
-#ifdef geostatistics_kriging_variogram_EXPORTS
+#ifdef geostatistics_kriging_EXPORTS
 	#define	SGUI_API_DLL_EXPORT		_SAGA_DLL_EXPORT
 #else
 	#define	SGUI_API_DLL_EXPORT		_SAGA_DLL_IMPORT

@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                 Geostatistics_Kriging                 //
+//            geostatistics_kriging_variogram            //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                  Kriging_Universal.h                  //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -53,75 +53,56 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__Kriging_Universal_H
+#define HEADER_INCLUDED__Kriging_Universal_H
 
-#include "MLB_Interface.h"
 
-
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-
-const SG_Char * Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Geostatistics - Kriging") );
-
-	case MLB_INFO_Author:
-		return( SG_T("(c) 2003-08 by O.Conrad") );
-
-	case MLB_INFO_Description:
-		return( _TL("Kriging - geostatistical procedures for the gridding of irregular distributed point data." ));
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Geostatistics" ));
-	}
-}
-
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "kriging_ordinary.h"
-#include "kriging_ordinary_global.h"
-#include "kriging_universal.h"
 #include "kriging_universal_global.h"
 
-#include "_kriging_ordinary.h"
-#include "_kriging_ordinary_global.h"
-#include "_kriging_universal.h"
-#include "_kriging_universal_global.h"
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
+class geostatistics_kriging_EXPORT CKriging_Universal : public CKriging_Universal_Global
 {
-	switch( i )
-	{
-	case 0:		return( new CKriging_Ordinary );			break;
-	case 1:		return( new CKriging_Ordinary_Global );		break;
-	case 2:		return( new CKriging_Universal );			break;
-	case 3:		return( new CKriging_Universal_Global );	break;
+public:
+	CKriging_Universal(void);
+	virtual ~CKriging_Universal(void);
 
-	case 4:		return( new C_Kriging_Ordinary );			break;
-	case 5:		return( new C_Kriging_Ordinary_Global );	break;
-	case 6:		return( new C_Kriging_Universal );			break;
-	case 7:		return( new C_Kriging_Universal_Global );	break;
-	}
 
-	return( NULL );
-}
+protected:
+
+	virtual bool			On_Initialise	(void);
+
+	virtual bool			Get_Value		(double x, double y, double &z, double &Variance);
+
+
+private:
+
+	int						m_nPoints_Min, m_nPoints_Max;
+
+	double					m_Radius;
+
+
+	int						Get_Weights		(double x, double y);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -131,8 +112,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__Kriging_Universal_H

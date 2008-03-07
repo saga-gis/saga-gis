@@ -10,7 +10,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//              Kriging_Universal_Global.h               //
+//               Kriging_Ordinary_Global.h               //
 //                                                       //
 //                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
@@ -58,8 +58,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Kriging_Universal_Global_H
-#define HEADER_INCLUDED__Kriging_Universal_Global_H
+#ifndef HEADER_INCLUDED__Kriging_Ordinary_Global_H
+#define HEADER_INCLUDED__Kriging_Ordinary_Global_H
 
 
 ///////////////////////////////////////////////////////////
@@ -79,19 +79,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class geostatistics_kriging_variogram_EXPORT CKriging_Universal_Global : public CKriging_Base
+class geostatistics_kriging_EXPORT CKriging_Ordinary_Global : public CKriging_Base
 {
 public:
-	CKriging_Universal_Global(void);
-	virtual ~CKriging_Universal_Global(void);
+	CKriging_Ordinary_Global(void);
+	virtual ~CKriging_Ordinary_Global(void);
 
 
 protected:
-
-	int						m_Interpolation;
-
-	CSG_Parameter_Grid_List	*m_pGrids;
-
 
 	virtual bool			On_Initialise	(void);
 
@@ -112,4 +107,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Kriging_Universal_Global_H
+#endif // #ifndef HEADER_INCLUDED__Kriging_Ordinary_Global_H

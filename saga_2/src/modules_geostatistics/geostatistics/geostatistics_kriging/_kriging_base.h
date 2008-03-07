@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                    _Kriging_Base.h                    //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2006 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -53,75 +53,80 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED___Kriging_Base_H
+#define HEADER_INCLUDED___Kriging_Base_H
 
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-const SG_Char * Get_Info(int i)
+//---------------------------------------------------------
+class geostatistics_kriging_EXPORT C_Kriging_Base : public CSG_Module
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Geostatistics - Kriging") );
+public:
+	C_Kriging_Base(void);
+	virtual ~C_Kriging_Base(void);
 
-	case MLB_INFO_Author:
-		return( SG_T("(c) 2003-08 by O.Conrad") );
-
-	case MLB_INFO_Description:
-		return( _TL("Kriging - geostatistical procedures for the gridding of irregular distributed point data." ));
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Geostatistics" ));
-	}
-}
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Kriging") );	}
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "kriging_ordinary.h"
-#include "kriging_ordinary_global.h"
-#include "kriging_universal.h"
-#include "kriging_universal_global.h"
-
-#include "_kriging_ordinary.h"
-#include "_kriging_ordinary_global.h"
-#include "_kriging_universal.h"
-#include "_kriging_universal_global.h"
+	virtual bool			On_Execute		(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+	bool					m_bBlock;
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case 0:		return( new CKriging_Ordinary );			break;
-	case 1:		return( new CKriging_Ordinary_Global );		break;
-	case 2:		return( new CKriging_Universal );			break;
-	case 3:		return( new CKriging_Universal_Global );	break;
+	int						m_zField;
 
-	case 4:		return( new C_Kriging_Ordinary );			break;
-	case 5:		return( new C_Kriging_Ordinary_Global );	break;
-	case 6:		return( new C_Kriging_Universal );			break;
-	case 7:		return( new C_Kriging_Universal_Global );	break;
-	}
+	double					m_Block;
 
-	return( NULL );
-}
+	CSG_Points_3D			m_Points;
+
+	CSG_Vector				m_G;
+
+	CSG_Matrix				m_W;
+
+	CSG_Shapes_Search		m_Search;
+
+	CSG_Grid				*m_pGrid, *m_pVariance;
+
+	CSG_Shapes				*m_pShapes;
+
+
+	virtual bool			On_Initialise	(void)	{	return( true );	}
+
+	virtual bool			Get_Value		(double x, double y, double &z, double &Variance)	= 0;
+
+	double					Get_Weight		(double Distance);
+	double					Get_Weight		(double dx, double dy);
+
+
+private:
+
+	bool					m_bLog;
+
+	int						m_Model;
+
+	double					m_Nugget, m_Sill, m_Range, m_BLIN, m_BEXP, m_APOW, m_BPOW;
+
+
+	bool					_Get_Points		(void);
+	bool					_Get_Grid		(void);
+	CSG_Grid *				_Get_Grid		(TSG_Rect Extent);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -131,8 +136,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED___Kriging_Base_H
