@@ -108,14 +108,6 @@ make -fmakefile.mingw
 POPD
 
 ECHO ###################################
-ECHO geostatistics_kriging_variogram
-ECHO -----------------------------------
-
-PUSHD .\modules_geostatistics\geostatistics\geostatistics_kriging_variogram
-make -fmakefile.mingw
-POPD
-
-ECHO ###################################
 ECHO geostatistics_points
 ECHO -----------------------------------
 
@@ -359,7 +351,7 @@ ECHO ###################################
 ECHO sim_fire_spreading
 ECHO -----------------------------------
 
-PUSHD .\modules_simulation\fire\fire_spreading
+PUSHD .\modules_simulation\fire\sim_fire_spreading
 make -fmakefile.mingw
 POPD
 

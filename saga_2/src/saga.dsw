@@ -597,7 +597,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "sim_fire_spreading"=.\modules_simulation\fire\fire_spreading\sim_fire_spreading.dsp - Package Owner=<4>
+Project: "sim_fire_spreading"=.\modules_simulation\fire\sim_fire_spreading\sim_fire_spreading.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -605,9 +605,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name saga_api
-    End Project Dependency
 }}}
 
 ###############################################################################
