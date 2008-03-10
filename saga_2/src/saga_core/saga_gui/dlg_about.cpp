@@ -247,22 +247,23 @@ wxString CDLG_About::_Get_Version(void)
 	Version	-= (Version / 10  ) * 10;
 	s.Append(wxT("\n"));
 
-#ifndef _SAGA_DONOTUSE_HARU
-	s.Append(wxT("_______________________\n\n"));
+	if( CSG_Doc_PDF::Get_Version() != NULL )
+	{
+		s.Append(wxT("_______________________\n\n"));
 
-	s.Append(
-		wxT("SAGA uses\n")
-	);
+		s.Append(
+			wxT("SAGA uses\n")
+		);
 
-	s.Append(
-		CSG_Doc_PDF::Get_Version()
-	);
+		s.Append(
+			CSG_Doc_PDF::Get_Version()
+		);
 
-	s.Append(
-		wxT("\n")
-		wxT("http://sourceforge.net/projects/libharu\n")
-	);
-#endif
+		s.Append(
+			wxT("\n")
+			wxT("http://sourceforge.net/projects/libharu\n")
+		);
+	}
 
 	s.Append(wxT("_______________________\n\n"));
 

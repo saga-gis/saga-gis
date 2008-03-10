@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: wksp_data_manager.cpp,v 1.21 2008-02-22 15:31:49 oconrad Exp $
+// $Id: wksp_data_manager.cpp,v 1.22 2008-03-10 11:36:44 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -750,6 +750,12 @@ CSG_Data_Object * CWKSP_Data_Manager::Get_byFileName(const wxChar *File_Name, in
 bool CWKSP_Data_Manager::Save_Modified(CWKSP_Base_Item *pItem)
 {
 	return( m_pProject->Save_Modified(pItem) );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Data_Manager::Save_Modified_Sel(void)
+{
+	return( m_pProject->Save_Modified(this, true) );
 }
 
 //---------------------------------------------------------

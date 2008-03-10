@@ -86,7 +86,7 @@ public:
 	bool					Save				(bool bSaveAsOnError);
 	bool					Save				(const wxChar *FileName, bool bSaveModified);
 
-	bool					Save_Modified		(class CWKSP_Base_Item *pItem);
+	bool					Save_Modified		(class CWKSP_Base_Item *pItem, bool bSelections = false);
 
 
 private:
@@ -107,7 +107,7 @@ private:
 	class CWKSP_Base_Item *	_Get_byFileName		(wxString FileName);
 
 	static int				_Modified_Changed	(class CSG_Parameter  *pParameter);
-	bool					_Modified_Get		(class CSG_Parameters *pParameters, class CWKSP_Base_Item *pItem);
+	bool					_Modified_Get		(class CSG_Parameters *pParameters, class CWKSP_Base_Item *pItem, bool bSelections);
 	bool					_Modified_Get		(class CSG_Parameters *pParameters, class CWKSP_Base_Item *pItem, class CSG_Data_Object *pObject);
 	bool					_Modified_Save		(class CSG_Parameters *pParameters);
 

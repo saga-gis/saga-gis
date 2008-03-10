@@ -1,8 +1,8 @@
-# Project: geostatistics_kriging_variogram
+# Project: geostatistics_kriging
 # MinGW Makefile
 # Created by O. Conrad
 
-PRJ_NAME = geostatistics_kriging_variogram
+PRJ_NAME = geostatistics_kriging
 BIN_SAGA = $(SAGA)\bin\saga_mingw
 TMP_SAGA = $(SAGA)\bin\tmp\saga_mingw
 MLB_TEMP = $(TMP_SAGA)\$(PRJ_NAME)

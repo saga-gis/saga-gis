@@ -170,6 +170,14 @@ CWKSP_Base_Control * CWKSP_Base_Item::Get_Control(void)
 	}
 }
 
+//---------------------------------------------------------
+bool CWKSP_Base_Item::is_Selected(void)
+{
+	CWKSP_Base_Control	*pControl	= Get_Control();
+
+	return( pControl != NULL && pControl->IsSelected(GetId()) );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

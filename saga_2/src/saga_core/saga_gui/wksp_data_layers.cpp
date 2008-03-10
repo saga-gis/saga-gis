@@ -162,7 +162,7 @@ void CWKSP_Data_Button::On_Paint(wxPaintEvent &event)
 
 			dc.DrawBitmap(m_pLayer->Get_Thumbnail(r.GetWidth() - 1, r.GetHeight() - 1), r.GetLeft(), r.GetTop(), true);
 
-			if( g_pData_Ctrl->IsSelected(m_pLayer->GetId()) )
+			if( m_pLayer->is_Selected() )
 			{
 				dc.SetPen(wxPen(((CWKSP_Data_Buttons *)GetParent())->Get_Active_Color()));
 				Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);	r.Deflate(1);

@@ -1647,6 +1647,8 @@ void CSG_Doc_PDF::Draw_Curve(CSG_Points &Data, const CSG_Rect &r, int iGraphType
 
 #include "doc_pdf.h"
 
+//---------------------------------------------------------
+const SG_Char * CSG_Doc_PDF::Get_Version(void)											{	return( NULL );	}
 CSG_Doc_PDF::CSG_Doc_PDF(void)															{	m_pPDF	= NULL;	}
 CSG_Doc_PDF::CSG_Doc_PDF(TSG_PDF_Page_Size Size, int Orientation, const SG_Char *Title)	{	m_pPDF	= NULL;	}
 CSG_Doc_PDF::~CSG_Doc_PDF(void)															{}

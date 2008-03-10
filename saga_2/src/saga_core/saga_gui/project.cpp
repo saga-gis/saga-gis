@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// $Id: project.cpp,v 1.16 2008-01-18 15:07:41 oconrad Exp $
+// $Id: project.cpp,v 1.17 2008-03-10 11:36:44 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -668,14 +668,14 @@ CWKSP_Base_Item * CWKSP_Project::_Get_byFileName(wxString FileName)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Project::Save_Modified(CWKSP_Base_Item *pItem)
+bool CWKSP_Project::Save_Modified(CWKSP_Base_Item *pItem, bool bSelections)
 {
 	CSG_Parameters	Parameters;
 
 	Parameters.Create(this, LNG("[CAP] Close and save modified data sets..."), LNG(""));
 	Parameters.Add_Value(NULL, "SAVE_ALL", LNG("Save all"), LNG(""), PARAMETER_TYPE_Bool, false);
 
-	_Modified_Get(&Parameters, pItem);
+	_Modified_Get(&Parameters, pItem, bSelections);
 
 	if( Parameters.Get_Count() > 1 )
 	{
@@ -720,7 +720,7 @@ int CWKSP_Project::_Modified_Changed(CSG_Parameter *pParameter)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *pItem)
+bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *pItem, bool bSelections)
 {
 	int		i;
 
@@ -741,19 +741,25 @@ bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *
 		case WKSP_ITEM_Grid_System:
 			for(i=0; i<((CWKSP_Base_Manager *)pItem)->Get_Count(); i++)
 			{
-				_Modified_Get(pParameters, ((CWKSP_Base_Manager *)pItem)->Get_Item(i));
+				_Modified_Get(pParameters, ((CWKSP_Base_Manager *)pItem)->Get_Item(i), bSelections && !pItem->is_Selected());
 			}
 			break;
 
 		//-------------------------------------------------
 		case WKSP_ITEM_Table:
-			_Modified_Get(pParameters, pItem, ((CWKSP_Table *)pItem)->Get_Table() );
+			if( !bSelections || pItem->is_Selected() )
+			{
+				_Modified_Get(pParameters, pItem, ((CWKSP_Table *)pItem)->Get_Table() );
+			}
 			break;
 
 		case WKSP_ITEM_Shapes:
 		case WKSP_ITEM_TIN:
 		case WKSP_ITEM_Grid:
-			_Modified_Get(pParameters, pItem, ((CWKSP_Layer *)pItem)->Get_Object());
+			if( !bSelections || pItem->is_Selected() )
+			{
+				_Modified_Get(pParameters, pItem, ((CWKSP_Layer *)pItem)->Get_Object());
+			}
 			break;
 		}
 	}

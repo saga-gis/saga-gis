@@ -129,6 +129,7 @@ public:
 	class CSG_Data_Object *			Get_byFileName		(const wxChar *File_Name, int DataType = -1);
 
 	bool							Save_Modified		(class CWKSP_Base_Item *pItem);
+	bool							Save_Modified_Sel	(void);
 	bool							Close				(bool bSilent);
 
 	CWKSP_Base_Item *				Add					(class CSG_Data_Object *pObject);

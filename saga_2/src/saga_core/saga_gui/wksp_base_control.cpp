@@ -470,7 +470,7 @@ bool CWKSP_Base_Control::_Del_Active(bool bSilent)
 		if( GetSelections(IDs) > 0 && ((CWKSP_Base_Item *)GetItemData(IDs[0]))->Get_Control() == this )
 		{
 			if( DLG_Message_Confirm(ID_DLG_DELETE)
-			&&	(m_pManager->Get_Type() != WKSP_ITEM_Data_Manager || g_pData->Save_Modified(g_pData)) )
+			&&	(m_pManager->Get_Type() != WKSP_ITEM_Data_Manager || g_pData->Save_Modified_Sel()) )
 			{
 				for(size_t i=0; i<IDs.GetCount(); i++)
 				{

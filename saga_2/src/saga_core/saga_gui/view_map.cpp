@@ -161,9 +161,10 @@ wxMenu * CVIEW_Map::_Create_Menu(void)
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_SAVE_IMAGE);
 //	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE);
-#ifndef _SAGA_DONOTUSE_HARU
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_SAVE_PDF_INDEXED);
-#endif
+	if( CSG_Doc_PDF::Get_Version() != NULL )
+	{
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_SAVE_PDF_INDEXED);
+	}
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_SAVE_INTERACTIVE_SVG);
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_BACK);

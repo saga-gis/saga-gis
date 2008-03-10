@@ -146,6 +146,8 @@ public:
 	int							Get_ID				(void)	{	return( m_ID );			}
 	int							Get_Index			(void);
 
+	bool						is_Selected			(void);
+
 
 protected:
 
