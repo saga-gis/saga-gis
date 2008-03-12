@@ -71,7 +71,7 @@
 CKriging_Ordinary::CKriging_Ordinary(void)
 	: CKriging_Ordinary_Global()
 {
-	Set_Name		(_TL("Ordinary Kriging"));
+	Set_Name		(_TL("Ordinary Kriging (VF)"));
 
 	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
 
