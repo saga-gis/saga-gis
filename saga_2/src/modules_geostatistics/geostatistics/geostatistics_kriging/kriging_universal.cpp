@@ -71,7 +71,7 @@
 CKriging_Universal::CKriging_Universal(void)
 	: CKriging_Universal_Global()
 {
-	Set_Name		(_TL("Universal Kriging"));
+	Set_Name		(_TL("Universal Kriging (VF)"));
 
 	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
 
