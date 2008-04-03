@@ -124,9 +124,13 @@ int CSG_Shape_Point::Add_Point(double x, double y, int iPart)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Rect CSG_Shape_Point::Get_Extent(void)
+const CSG_Rect & CSG_Shape_Point::Get_Extent(void)
 {
-	return( CSG_Rect(m_Point.x, m_Point.y, m_Point.x, m_Point.y) );
+	static CSG_Rect	Extent;
+
+	Extent.Assign(m_Point.x, m_Point.y, m_Point.x, m_Point.y);
+
+	return( Extent );
 }
 
 //---------------------------------------------------------

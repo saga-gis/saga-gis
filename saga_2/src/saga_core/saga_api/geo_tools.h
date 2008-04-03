@@ -307,7 +307,7 @@ public:
 
 	~CSG_Rect(void);
 
-	operator TSG_Rect &							(void)	{	return( m_rect );	}
+	operator const TSG_Rect &					(void) const	{	return( m_rect );	}
 
 	bool						operator ==		(const CSG_Rect &Rect) const;
 	bool						operator !=		(const CSG_Rect &Rect) const;

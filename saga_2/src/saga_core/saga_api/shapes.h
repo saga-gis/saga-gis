@@ -127,9 +127,9 @@ public:
 	virtual int					Set_Point			(double x, double y, int iPoint, int iPart = 0)	= 0;
 	virtual int					Del_Point			(                    int iPoint, int iPart = 0)	= 0;
 
-	int							Add_Point			(TSG_Point Point,               int iPart = 0);
-	int							Ins_Point			(TSG_Point Point,   int iPoint, int iPart = 0);
-	int							Set_Point			(TSG_Point Point,   int iPoint, int iPart = 0);
+	int							Add_Point			(TSG_Point Point,                int iPart = 0);
+	int							Ins_Point			(TSG_Point Point,    int iPoint, int iPart = 0);
+	int							Set_Point			(TSG_Point Point,    int iPoint, int iPart = 0);
 
 	virtual int					Del_Part			(int iPart)										= 0;
 	virtual int					Del_Parts			(void)											= 0;
@@ -141,7 +141,8 @@ public:
 
 
 	//-----------------------------------------------------
-	virtual CSG_Rect			Get_Extent			(void)											= 0;
+	virtual const CSG_Rect &	Get_Extent			(void)											= 0;
+	virtual const CSG_Rect &	Get_Extent			(int iPart)	{	return( Get_Extent() );		}
 
 	int							Intersects			(TSG_Rect Extent);
 
@@ -196,7 +197,7 @@ public:
 	virtual int					Get_Point_Count		(int iPart)											{	return( 1 );				}
 	virtual TSG_Point			Get_Point			(int iPoint, int iPart = 0)							{	return( m_Point );			}
 
-	virtual CSG_Rect			Get_Extent			(void);
+	virtual const CSG_Rect &	Get_Extent			(void);
 
 	virtual double				Get_Distance		(TSG_Point Point)									{	return( SG_Get_Distance(Point, m_Point) );	}
 	virtual double				Get_Distance		(TSG_Point Point, int iPart)						{	return( SG_Get_Distance(Point, m_Point) );	}
@@ -226,15 +227,84 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Shape_Part
+{
+	friend class CSG_Shape_Points;
+	friend class CSG_Shape_Line;
+	friend class CSG_Shape_Polygon;
+
+public:
+
+	bool						Destroy				(void);
+
+	bool						Assign				(CSG_Shape_Part *pPart);
+
+	const CSG_Rect &			Get_Extent			(void)	{	_Extent_Update();	return( m_Extent );	}
+
+	int							Get_Count			(void)	{	return( m_nPoints );	}
+
+	TSG_Point					Get_Point			(int iPoint)
+	{
+		if( iPoint >= 0 && iPoint < m_nPoints )
+		{
+			return( m_Points[iPoint] );
+		}
+
+		return( CSG_Point(0.0, 0.0) );
+	}
+
+	int							Add_Point			(TSG_Point Point               )	{	return( Add_Point(Point.x, Point.y)         );	}
+	int							Ins_Point			(TSG_Point Point,    int iPoint)	{	return( Ins_Point(Point.x, Point.y, iPoint) );	}
+	int							Set_Point			(TSG_Point Point,    int iPoint)	{	return( Set_Point(Point.x, Point.y, iPoint) );	}
+
+	int							Add_Point			(double x, double y            );
+	int							Ins_Point			(double x, double y, int iPoint);
+	int							Set_Point			(double x, double y, int iPoint);
+	int							Del_Point			(                    int iPoint);
+
+
+protected:
+
+	CSG_Shape_Part(class CSG_Shape_Points *pOwner);
+	virtual ~CSG_Shape_Part(void);
+
+
+	bool						m_bUpdate;
+
+	int							m_nPoints, m_nBuffer;
+
+	TSG_Point					*m_Points;
+
+	CSG_Rect					m_Extent;
+
+	CSG_Shape_Points			*m_pOwner;
+
+
+	bool						_Alloc_Memory		(int nPoints);
+
+	void						_Extent_Invalidate	(void);
+	void						_Extent_Update		(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//						Points							 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Shape_Points : public CSG_Shape
 {
 	friend class CSG_Shapes;
+	friend class CSG_Shape_Part;
 
 public:
 
 	virtual void				Destroy				(void);
 
-	virtual bool				is_Valid			(void)	{	return( m_nParts > 0 && m_nPoints[0] > 0 );	}
+	virtual bool				is_Valid			(void)		{	return( m_nParts > 0 && m_pParts[0]->Get_Count() > 0 );	}
 
 	virtual int					Add_Point			(double x, double y,             int iPart = 0);
 	virtual int					Ins_Point			(double x, double y, int iPoint, int iPart = 0);
@@ -244,27 +314,21 @@ public:
 	virtual int					Del_Part			(int iPart);
 	virtual int					Del_Parts			(void);
 
-	virtual int					Get_Part_Count		(void)
-	{
-		return( m_nParts );
-	}
-
-	virtual int					Get_Point_Count		(int iPart)
-	{
-		return( iPart >= 0 && iPart < m_nParts ? m_nPoints[iPart] : 0 );
-	}
+	virtual int					Get_Part_Count		(void)		{	return( m_nParts );		}
+	virtual CSG_Shape_Part *	Get_Part			(int iPart)	{	return( iPart >= 0 && iPart < m_nParts ? m_pParts[iPart] : NULL );	}
+	virtual int					Get_Point_Count		(int iPart)	{	return( iPart >= 0 && iPart < m_nParts ? m_pParts[iPart]->Get_Count() : 0 );	}
 
 	virtual TSG_Point			Get_Point			(int iPoint, int iPart = 0)
 	{
-		if( iPart >= 0 && iPart < m_nParts && iPoint >= 0 && iPoint < m_nPoints[iPart] )
+		if( iPart >= 0 && iPart < m_nParts && iPoint >= 0 && iPoint < m_pParts[iPart]->Get_Count() )
 		{
-			return( m_Points[iPart][iPoint] );
+			return( m_pParts[iPart]->Get_Point(iPoint) );
 		}
 
 		return( CSG_Point(0.0, 0.0) );
 	}
 
-	virtual CSG_Rect			Get_Extent			(void)	{	_Extent_Update();	return( m_Extent );	}
+	virtual const CSG_Rect &	Get_Extent			(void)		{	_Extent_Update();	return( m_Extent );	}
 
 	virtual double				Get_Distance		(TSG_Point Point);
 	virtual double				Get_Distance		(TSG_Point Point, int iPart);
@@ -280,11 +344,11 @@ protected:
 
 	bool						m_bUpdate;
 
-	int							*m_nPoints, m_nParts;
-
-	TSG_Point					**m_Points;
+	int							m_nParts;
 
 	CSG_Rect					m_Extent;
+
+	CSG_Shape_Part				**m_pParts;
 
 
 	int							_Add_Part			(void);
@@ -321,7 +385,7 @@ class SAGA_API_DLL_EXPORT CSG_Shape_Line : public CSG_Shape_Points
 
 public:
 
-	virtual bool				is_Valid			(void)	{	return( m_nParts > 0 && m_nPoints[0] > 1 );	}
+	virtual bool				is_Valid			(void)	{	return( m_nParts > 0 && m_pParts[0]->Get_Count() > 1 );	}
 
 	double						Get_Length			(void);
 	double						Get_Length			(int iPart);
@@ -352,7 +416,7 @@ class SAGA_API_DLL_EXPORT CSG_Shape_Polygon : public CSG_Shape_Points
 
 public:
 
-	virtual bool				is_Valid			(void)	{	return( m_nParts > 0 && m_nPoints[0] > 2 );	}
+	virtual bool				is_Valid			(void)	{	return( m_nParts > 0 && m_pParts[0]->Get_Count() > 2 );	}
 
 
 	bool						is_Containing		(const TSG_Point &Point);
@@ -428,7 +492,7 @@ public:
 
 	CSG_Table &					Get_Table				(void)				{	return( m_Table );		}
 
-	CSG_Rect					Get_Extent				(void)				{	_Extent_Update();	return( m_Extent );	}
+	const CSG_Rect &			Get_Extent				(void)				{	_Extent_Update();	return( m_Extent );	}
 
 	//-----------------------------------------------------
 	CSG_Shape *					Add_Shape				(void);

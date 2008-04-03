@@ -12,7 +12,7 @@
 //                                                       //
 //                Grid_Classes_To_Shapes.h               //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -81,24 +81,33 @@ public:
 
 protected:
 
-	virtual bool		On_Execute		(void);
+	virtual bool			On_Execute		(void);
 
 
 private:
 
-	char				**Area;
+	CSG_Grid				*m_pGrid, m_Edge;
 
-	int					**Lock;
-
-	CSG_Grid				*pGrid;
-
-	CSG_Shapes				*pLayer;
+	CSG_Shape				*m_pShape;
 
 
-	void				Discrete_Create	(void);
-	void				Discrete_Lock	(int x, int y, int ID);
-	void				Discrete_Area	(int x, int y, int ID);
+	bool					Split_Polygons	(CSG_Shapes *pShapes, double Value, const CSG_String &ID);
+
+	bool					Get_Class		(double Value);
+
+	void					Get_Square		(int x, int y);
+
+	bool					Get_Polygons	(void);
+	void					Get_Polygon		(int x, int y, int iPart, int iDirection);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Grid_Classes_To_Shapes_H

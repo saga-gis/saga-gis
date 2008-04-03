@@ -235,7 +235,7 @@ bool CGrid_Classify_Supervised::Initialise(void)
 	}
 
 	//-----------------------------------------------------
-	if( m_pGrids->Get_Count() > 1 )
+	if( m_pGrids->Get_Count() > 0 )
 	{
 		iField		= Parameters("FIELD")		->asInt();
 		pPolygons	= Parameters("POLYGONS")	->asShapes();

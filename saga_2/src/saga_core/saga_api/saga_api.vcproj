@@ -2050,6 +2050,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\shape_part.cpp"
+				>
+			</File>
+			<File
 				RelativePath="shape_point.cpp"
 				>
 				<FileConfiguration

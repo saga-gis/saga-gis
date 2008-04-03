@@ -859,9 +859,12 @@ void CVIEW_Map_Control::On_Mouse_RDClick(wxMouseEvent &event)
 //---------------------------------------------------------
 void CVIEW_Map_Control::On_Mouse_Motion(wxMouseEvent &event)
 {
-	_Set_StatusBar(_Get_World(event.GetPosition()));
+	if( !event.LeftIsDown() && !event.MiddleIsDown() && !event.RightIsDown() )
+	{
+		_Set_StatusBar(_Get_World(event.GetPosition()));
 
-	m_pParent->Ruler_Set_Position(event.GetPosition().x, event.GetPosition().y);
+		m_pParent->Ruler_Set_Position(event.GetPosition().x, event.GetPosition().y);
+	}
 
 	switch( m_Mode )
 	{

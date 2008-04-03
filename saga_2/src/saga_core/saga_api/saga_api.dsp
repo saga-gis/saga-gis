@@ -320,6 +320,10 @@ SOURCE=.\shape_line.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\shape_part.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\shape_point.cpp
 # End Source File
 # Begin Source File

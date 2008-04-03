@@ -12,7 +12,7 @@
 //                                                       //
 //               Grid_Classes_To_Shapes.cpp              //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -73,7 +73,7 @@ CGrid_Classes_To_Shapes::CGrid_Classes_To_Shapes(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Vectorising Grid Classes"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad, (c) 2005 by H.Linke"));
+	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Vectorising grid classes."
@@ -82,25 +82,25 @@ CGrid_Classes_To_Shapes::CGrid_Classes_To_Shapes(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL, "INPUT"		, _TL("Input Grid"),
+		NULL, "GRID"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
-		NULL, "CONTOUR"		, _TL("Shapes"),
+		NULL, "SHAPES"		, _TL("Shapes"),
 		_TL(""),
-		PARAMETER_OUTPUT
+		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Choice(
-		NULL, "OUTPUT_TYPE"	, _TL("Output as..."),
+		NULL, "SPLIT"		, _TL("Vectorised class as..."),
 		_TL(""),
 
 		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("Lines"),
-			_TL("Polygons")
-		), 1
+			_TL("one single polygon object"),
+			_TL("each island as separated polygon")
+		), 0
 	);
 }
 
@@ -118,26 +118,81 @@ CGrid_Classes_To_Shapes::~CGrid_Classes_To_Shapes(void)
 //---------------------------------------------------------
 bool CGrid_Classes_To_Shapes::On_Execute(void)
 {
-	pGrid	= Parameters("INPUT")	->asGrid();
-	pLayer	= Parameters("CONTOUR")	->asShapes();
+	bool			bSplit;
+	CSG_Parameters	gParms, sParms;
+	CSG_Shapes		*pShapes, Shapes(SHAPE_TYPE_Polygon);
 
-	switch( Parameters("OUTPUT_TYPE")->asInt() )
+	//-----------------------------------------------------
+	m_pGrid		= Parameters("GRID")	->asGrid();
+	pShapes		= Parameters("SHAPES")	->asShapes();
+	bSplit		= Parameters("SPLIT")	->asInt() == 1;
+
+	//-----------------------------------------------------
+	pShapes->Create(SHAPE_TYPE_Polygon, m_pGrid->Get_Name());
+	pShapes->Get_Table().Add_Field(_TL("ID")			, TABLE_FIELDTYPE_Int);
+	pShapes->Get_Table().Add_Field(m_pGrid->Get_Name()	, TABLE_FIELDTYPE_Double);
+	pShapes->Get_Table().Add_Field(_TL("Name")			, TABLE_FIELDTYPE_String);
+
+	if(	DataObject_Get_Parameters(m_pGrid, gParms) && gParms("COLORS_TYPE") && gParms("LUT")
+	&&	DataObject_Get_Parameters(pShapes, sParms) && sParms("COLORS_TYPE") && sParms("LUT") && sParms("COLORS_ATTRIB") )
 	{
-	case 0:
-		pLayer->Create(SHAPE_TYPE_Line		, pGrid->Get_Name());
-		break;
-
-	case 1: default:
-		pLayer->Create(SHAPE_TYPE_Polygon	, pGrid->Get_Name());
-		break;
+		sParms("LUT")->asTable()->Assign_Values(gParms("LUT")->asTable());	// Lookup Table
+		sParms("COLORS_TYPE")->Set_Value(gParms("COLORS_TYPE")->asInt());	// Color Classification Type: Lookup Table
+		sParms("COLORS_ATTRIB")->Set_Value(1);								// Color Attribute
+		DataObject_Set_Parameters(pShapes, sParms);
 	}
 
-	pLayer->Get_Table().Add_Field("ID"				, TABLE_FIELDTYPE_Int);
-	pLayer->Get_Table().Add_Field(pGrid->Get_Name(), TABLE_FIELDTYPE_Double);
-	pLayer->Get_Table().Add_Field(_TL("Name")			, TABLE_FIELDTYPE_String);
+	//-----------------------------------------------------
+	m_pShape	= NULL;
 
-	Discrete_Create();
+	Lock_Create();
 
+	m_Edge.Create(GRID_TYPE_Byte, 2 * Get_NX() + 1, 2 * Get_NY() + 1, 0.5 * Get_Cellsize(), Get_XMin() - 0.5 * Get_Cellsize(), Get_YMin() - 0.5 * Get_Cellsize());
+
+	for(int y=0, nClasses=0; y<Get_NY() && Process_Get_Okay(false); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
+		{
+			if( !m_pGrid->is_NoData(x, y) && !Lock_Get(x, y) )
+			{
+				//-----------------------------------------
+				double		Value	= m_pGrid->asDouble(x, y);
+				CSG_String	ID		= CSG_String::Format(SG_T("%d"), ++nClasses);
+
+				if( bSplit )
+				{
+					if( m_pShape == NULL )
+						m_pShape	= Shapes.Add_Shape();
+
+					m_pShape->Del_Parts();
+				}
+				else
+				{
+					m_pShape	= pShapes->Add_Shape();
+					m_pShape->Get_Record()->Set_Value(0, pShapes->Get_Count());
+					m_pShape->Get_Record()->Set_Value(1, Value);
+					m_pShape->Get_Record()->Set_Value(2, ID);
+				}
+
+				//-----------------------------------------
+				Process_Set_Text(CSG_String::Format(SG_T("%s %d: %f"), _TL("vectorising class"), nClasses, Value));
+
+				Get_Class(Value);
+
+				//-----------------------------------------
+				if( bSplit )
+				{
+					Split_Polygons(pShapes, Value, ID);
+				}
+			}
+		}
+	}
+
+	Lock_Destroy();
+
+	m_Edge.Destroy();
+
+	//-----------------------------------------------------
 	return( true );
 }
 
@@ -149,294 +204,238 @@ bool CGrid_Classes_To_Shapes::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGrid_Classes_To_Shapes::Discrete_Create(void)
+bool CGrid_Classes_To_Shapes::Split_Polygons(CSG_Shapes *pShapes, double Value, const CSG_String &ID)
 {
-	int		x, y, ID;
-
-	//-----------------------------------------------------
-	Lock	= (int  **)SG_Calloc(Get_NY()    , sizeof(int  *));
-	Area	= (char **)SG_Calloc(Get_NY() + 1, sizeof(char *));
-	for(y=0; y<Get_NY(); y++)
+	if( m_pShape && m_pShape->Get_Part_Count() > 0 )
 	{
-		Lock[y]	= (int  *)SG_Calloc(Get_NX()    , sizeof(int ));
-		Area[y]	= (char *)SG_Calloc(Get_NX() + 1, sizeof(char));
+		bool		*bLake	= (bool *)SG_Malloc(m_pShape->Get_Part_Count() * sizeof(bool));
+		int			iPart, iPoint, jPart, iShape;
+		CSG_Shape	*pShape;
+
+		for(iPart=0; iPart<m_pShape->Get_Part_Count() && Set_Progress(iPart, m_pShape->Get_Part_Count()); iPart++)
+		{
+			if( (bLake[iPart] = ((CSG_Shape_Polygon *)m_pShape)->is_Lake(iPart)) == false )
+			{
+				pShape	= pShapes->Add_Shape();
+				pShape->Get_Record()->Set_Value(0, pShapes->Get_Count());
+				pShape->Get_Record()->Set_Value(1, Value);
+				pShape->Get_Record()->Set_Value(2, ID);
+
+				for(iPoint=0; iPoint<m_pShape->Get_Point_Count(iPart); iPoint++)
+				{
+					pShape->Add_Point(m_pShape->Get_Point(iPoint, iPart), 0);
+				}
+			}
+		}
+
+		for(iPart=0; iPart<m_pShape->Get_Part_Count() && Set_Progress(iPart, m_pShape->Get_Part_Count()); iPart++)
+		{
+			if( bLake[iPart] == true )
+			{
+				TSG_Point	p	= m_pShape->Get_Point(0, iPart);
+
+				for(iShape=0, jPart=0; jPart==0 && iShape<pShapes->Get_Count(); iShape++)
+				{
+					pShape	= pShapes->Get_Shape(iShape);
+
+					if( pShape->Get_Record()->asDouble(1) == Value && ((CSG_Shape_Polygon *)pShape)->is_Containing(p, 0) )
+					{
+						jPart	= pShape->Get_Part_Count();
+
+						for(iPoint=0; iPoint<m_pShape->Get_Point_Count(iPart); iPoint++)
+						{
+							pShape->Add_Point(m_pShape->Get_Point(iPoint, iPart), jPart);
+						}
+					}
+				}
+			}
+		}
+
+		SG_Free(bLake);
+
+		return( true );
 	}
-	Area[Get_NY()]	= (char *)SG_Calloc(Get_NX() + 1, sizeof(char));
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Classes_To_Shapes::Get_Class(double Value)
+{
+	int		x, y, i, ix, iy, n, nEdgeCells;
 
 	//-----------------------------------------------------
-	for(y=0, ID=1; y<Get_NY() && Set_Progress(y); y++)
+	for(y=0, nEdgeCells=0; y<Get_NY() && Set_Progress(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
-			if( !pGrid->is_NoData(x,y) && !Lock[y][x] )
+			if( !Lock_Get(x, y) && m_pGrid->asDouble(x, y) == Value )
 			{
-				Discrete_Lock(x, y, ID);
-				Discrete_Area(x, y, ID);
-				ID++;
-			}
-		}
-	}
+				Lock_Set(x, y);
 
-	//-----------------------------------------------------
-	for(y=0; y<Get_NY(); y++)
-	{
-		SG_Free(Lock[y]);
-		SG_Free(Area[y]);
-	}
-
-	SG_Free(Area[Get_NY()]);
-	SG_Free(Lock);
-	SG_Free(Area);
-}
-
-//---------------------------------------------------------
-void CGrid_Classes_To_Shapes::Discrete_Lock(int x, int y, int ID)
-{
-	const int	xTo[]	= { 0,  1,  0, -1 },
-				yTo[]	= { 1,  0, -1,  0 };
-
-	const char	goDir[]	= { 1, 2, 4, 8	};
-
-	bool	isBorder, doRecurse;
-
-	char	goTemp,
-			*goStack	= NULL;
-
-	int		i, ix, iy,
-			iStack		= 0,
-			nStack		= 0,
-			*xStack		= NULL,
-			*yStack		= NULL;
-
-	double	Value;
-
-	//-----------------------------------------------------
-	Value	= pGrid->asDouble(x,y);
-
-	for(iy=0; iy<=Get_NY(); iy++)
-	{
-		for(ix=0; ix<=Get_NX(); ix++)
-		{
-			Area[iy][ix]	= 0;
-		}
-	}
-
-	//-----------------------------------------------------
-	do
-	{
-		if( !Lock[y][x] )
-		{
-			if( nStack <= iStack )
-			{
-				nStack	+= 50;
-				goStack	= (char *)SG_Realloc(goStack	,nStack * sizeof(char));
-				xStack	= (int  *)SG_Realloc(xStack	,nStack * sizeof(int ));
-				yStack	= (int  *)SG_Realloc(yStack	,nStack * sizeof(int ));
-			}
-
-			goStack[iStack]	= 0;
-			Lock[y][x]		= ID;
-
-			//---------------------------------------------
-			for(i=0; i<4; i++)
-			{
-				ix	= x + xTo[i];
-				iy	= y + yTo[i];
-
-				isBorder	= true;
-
-				//-----------------------------------------
-				if( ix>=0 && ix<Get_NX() && iy>=0 && iy<Get_NY() && pGrid->asDouble(ix,iy)==Value )
+				for(i=0, n=0; i<8; i+=2)
 				{
-					isBorder	= false;
+					ix	= Get_xTo(i, x);
+					iy	= Get_yTo(i, y);
 
-					if( !Lock[iy][ix] )
-						goStack[iStack]	|= goDir[i];
-				}
-
-				//-----------------------------------------
-				if( isBorder )
-				{
-					switch(i)
+					if( !m_pGrid->is_InGrid(ix, iy) || m_pGrid->asDouble(ix, iy) != Value )
 					{
-					case 0:
-						Area[y+1][x  ]++;
-						Area[y+1][x+1]++;
-						break;
+						ix	= Get_xTo(i    , 1 + 2 * x);
+						iy	= Get_yTo(i    , 1 + 2 * y);
+						m_Edge.Add_Value(ix, iy, 1);
 
-					case 1:
-						Area[y  ][x+1]++;
-						Area[y+1][x+1]++;
-						break;
+						ix	= Get_xTo(i + 1, 1 + 2 * x);
+						iy	= Get_yTo(i + 1, 1 + 2 * y);
+						m_Edge.Add_Value(ix, iy, 1);
 
-					case 2:
-						Area[y  ][x  ]++;
-						Area[y  ][x+1]++;
-						break;
-
-					case 3:
-						Area[y  ][x  ]++;
-						Area[y+1][x  ]++;
-						break;
+						n++;
 					}
 				}
-			}
-		}
 
-		//-------------------------------------------------
-		doRecurse	= false;
-
-		for(i=0; i<4; i++)
-		{
-			if( goStack[iStack] & goDir[i] )
-			{
-				if( doRecurse )
-					goTemp			|= goDir[i];
-
+				//-----------------------------------------
+				if( n == 4 )
+				{
+					Get_Square(1 + 2 * x, 1 + 2 * y);
+				}
 				else
 				{
-					goTemp			= 0;
-					doRecurse		= true;
-					xStack[iStack]	= x;
-					yStack[iStack]	= y;
-					x				= x + xTo[i];
-					y				= y + yTo[i];
+					nEdgeCells++;
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if( nEdgeCells > 0 )
+	{
+		Get_Polygons();
+	}
+
+	return( m_pShape->Get_Part_Count() > 0 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CGrid_Classes_To_Shapes::Get_Square(int x, int y)
+{
+	int		i, ix, iy, iPart;
+
+	iPart	= m_pShape->Get_Part_Count();
+
+	for(i=0; i<8; i++)
+	{
+		ix	= Get_xTo(i, x);
+		iy	= Get_yTo(i, y);
+
+		if( m_Edge.is_InGrid(ix, iy) && m_Edge.asInt(ix, iy) )
+		{
+			m_Edge.Add_Value(ix, iy, -1);
+		}
+
+		if( i % 2 )
+		{
+			m_pShape->Add_Point(m_Edge.Get_System().Get_Grid_to_World(ix, iy), iPart);
+		}
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Classes_To_Shapes::Get_Polygons(void)
+{
+	if( m_pShape )
+	{
+		int		x, y, i, ix, iy, iPart;
+
+		for(y=0; y<m_Edge.Get_NY() && Set_Progress(y, m_Edge.Get_NY()); y++)
+		{
+			for(x=0; x<m_Edge.Get_NX(); x++)
+			{
+				if( m_Edge.asInt(x, y) )
+				{
+					iPart	= m_pShape->Get_Part_Count();
+
+					for(i=0; i<8; i+=2)
+					{
+						ix	= Get_xTo(i, x);
+						iy	= Get_yTo(i, y);
+
+						if( m_Edge.is_InGrid(ix, iy) && m_Edge.asInt(ix, iy) )
+						{
+							m_pShape->Add_Point(m_Edge.Get_System().Get_Grid_to_World(x, y), iPart);
+
+							Get_Polygon(ix, iy, iPart, i);
+							break;
+						}
+					}
 				}
 			}
 		}
 
-		//-------------------------------------------------
-		if( doRecurse )
-			goStack[iStack++]	= goTemp;
-
-		else if( iStack > 0 )
-		{
-			iStack--;
-			x	= xStack[iStack];
-			y	= yStack[iStack];
-		}
+		return( true );
 	}
-	while( iStack > 0 );
 
-	//-----------------------------------------------------
-	if(goStack)
-	{
-		SG_Free(goStack);
-		SG_Free(xStack);
-		SG_Free(yStack);
-	}
+	return( false );
 }
 
 //---------------------------------------------------------
-// 10 July, 2005: This function has been improved by
-//    Hartmut Linke
-//    e-mail: hartmut.linke@ast.iitb.fraunhofer.de
-//
-void CGrid_Classes_To_Shapes::Discrete_Area(int x, int y, int ID)
+void CGrid_Classes_To_Shapes::Get_Polygon(int x, int y, int iPart, int iDirection)
 {
-	const int	xTo[]	= { 0,  1,  0, -1 },
-				yTo[]	= { 1,  0, -1,  0 };
+	bool	bCorner;
+	int		i, iDir, ix, iy;
 
-	const int	xLock[]	= { 0,  0, -1, -1 },
-				yLock[] = { 0, -1, -1,  0 };
+	m_Edge.Add_Value(x, y, -1);
 
-	bool		bContinue, bStart;
+	bCorner	= m_Edge.asInt(x, y) > 0;
 
-	int			i, ix, iy, ix1, iy1, dir, iStart;
-  
-	double		xMin	= pGrid->Get_XMin(),
-				yMin	= pGrid->Get_YMin();
-
-	CSG_Shape		*pShape	= pLayer->Add_Shape();
-
-	//-----------------------------------------------------
-	pShape->Get_Record()->Set_Value(0, ID);
-	pShape->Get_Record()->Set_Value(1, pGrid->asDouble(x, y));
-	pShape->Get_Record()->Set_Value(2, pGrid->asDouble(x, y));
-
-	//-----------------------------------------------------
-	iStart	= 0;
-	bStart	= true;
-
-	do
+	for(iDir=iDirection; iDir<iDirection + 8; iDir+=2)
 	{
-		pShape->Add_Point(xMin + (x - 0.5) * Get_Cellsize(), yMin + (y - 0.5) * Get_Cellsize());
+		i	= iDir % 8;
 
-		Area[y][x]	= 0;
-		bContinue	= false;
-
-		while( 1 )
+		if( !bCorner || i != iDirection )
 		{
-			// assure clockwise direction at starting point
-			if( bStart )
+			ix	= Get_xTo(i, x);
+			iy	= Get_yTo(i, y);
+
+			if( m_Edge.is_InGrid(ix, iy) && m_Edge.asInt(ix, iy) )
 			{
-				for(i = 0; i < 4; i++)
+				if( i != iDirection )
 				{
-					ix	= x + xTo[i];
-					iy	= y + yTo[i];
-
-					if( ix>=0 && ix<=Get_NX() && iy>=0 && iy<=Get_NY() && Area[iy][ix]>0 )
-					{
-						// check, if inside situated cell (according to current direction) is locked
-						ix1	= x + xLock[i];
-						iy1	= y + yLock[i];
-
-						if( ix1>=0 && ix1<=Get_NX() && iy1>=0 && iy1<=Get_NY() && Lock[iy1][ix1] == ID )
-						{
-							x			= ix;
-							y			= iy;
-							iStart		= (i + 3) % 4;
-							bContinue	= true;
-							bStart		= false;
-							break;
-						}
-					}
+					m_pShape->Add_Point(m_Edge.Get_System().Get_Grid_to_World(x, y), iPart);
 				}
+
+				Get_Polygon(ix, iy, iPart, i);
+
+				return;
 			}
-			else
-			{
-				for(i = iStart; i < iStart+4; i++)
-				{
-					dir = i%4;
-					ix	= x + xTo[dir];
-					iy	= y + yTo[dir];
-
-					if( ix>=0 && ix<=Get_NX() && iy>=0 && iy<=Get_NY() && Area[iy][ix]>0 )
-					{
-						if(i < iStart+3)
-						{			  
-							// check, if inside situated cell (according to current direction) is locked
-							ix1 = x + xLock[dir];
-							iy1 = y + yLock[dir];
-
-							if(ix1>=0 && ix1<=Get_NX() && iy1>=0 && iy1<=Get_NY() && Lock[iy1][ix1] == ID)
-							{
-								x			= ix;
-								y			= iy;
-								iStart		= (i + 3) % 4;
-								bContinue	= true;
-								break;
-							}
-						}
-						else
-						{
-							x			= ix;
-							y			= iy;
-							bContinue	= true;
-							iStart		= (i + 3) % 4;
-							break;
-						}
-					}
-				}
-			}
-
-			break; 
-		};	// while( 1 )
-	}
-	while( bContinue );
-
-	if( pShape->Get_Point_Count(0) > 0 )
-	{
-		pShape->Add_Point(pShape->Get_Point(0, 0), 0);	// start point := end point...
+		}
 	}
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

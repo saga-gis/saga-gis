@@ -305,7 +305,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ta_lighting.ger ..\..\..\..\bin\saga_vc8\modules\ta_lighting.ger"
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration

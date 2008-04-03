@@ -579,17 +579,22 @@ CSG_Shape * CSG_Shapes::Get_Shape(TSG_Point Point, double Epsilon)
 
 			if( pShape->Intersects(r) )
 			{
-				d	= pShape->Get_Distance(Point);
-
-				if( d == 0.0 )
+				for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 				{
-					return( pShape );
-				}
+					if( r.Intersects(pShape->Get_Extent(iPart)) )
+					{
+						d	= pShape->Get_Distance(Point, iPart);
 
-				if( d > 0.0 && d <= Epsilon && (pNearest == NULL || d < dNearest) )
-				{
-					dNearest	= d;
-					pNearest	= pShape;
+						if( d == 0.0 )
+						{
+							return( pShape );
+						}
+						else if( d > 0.0 && d <= Epsilon && (pNearest == NULL || d < dNearest) )
+						{
+							dNearest	= d;
+							pNearest	= pShape;
+						}
+					}
 				}
 			}
 		}

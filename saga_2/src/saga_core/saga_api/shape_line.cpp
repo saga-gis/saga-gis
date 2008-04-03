@@ -90,14 +90,14 @@ int CSG_Shape_Line::On_Intersects(TSG_Rect Extent)
 {
 	for(int iPart=0; iPart<m_nParts; iPart++)
 	{
-		if( m_nPoints[iPart] > 1 )
+		if( m_pParts[iPart]->Get_Count() > 1 )
 		{
 			TSG_Point	*pA, *pB, Crossing;
 
-			pB	= m_Points[iPart];
+			pB	= m_pParts[iPart]->m_Points;
 			pA	= pB + 1;
 
-			for(int iPoint=1; iPoint<m_nPoints[iPart]; iPoint++, pB=pA++)
+			for(int iPoint=1; iPoint<m_pParts[iPart]->Get_Count(); iPoint++, pB=pA++)
 			{
 				if( SG_Get_Crossing_InRegion(Crossing, *pA, *pB, Extent) )
 				{
@@ -138,12 +138,12 @@ double CSG_Shape_Line::Get_Length(int iPart)
 	double		Length;
 	TSG_Point	*pA, *pB;
 
-	if( iPart >= 0 && iPart < m_nParts && m_nPoints[iPart] > 1 )
+	if( iPart >= 0 && iPart < m_nParts && m_pParts[iPart]->Get_Count() > 1 )
 	{
-		pB	= m_Points[iPart];
+		pB	= m_pParts[iPart]->m_Points;
 		pA	= pB + 1;
 
-		for(iPoint=1, Length=0.0; iPoint<m_nPoints[iPart]; iPoint++, pB=pA++)
+		for(iPoint=1, Length=0.0; iPoint<m_pParts[iPart]->Get_Count(); iPoint++, pB=pA++)
 		{
 			Length	+= SG_Get_Distance(*pA, *pB);
 		}
@@ -170,14 +170,14 @@ double CSG_Shape_Line::Get_Distance(TSG_Point Point, TSG_Point &Next, int iPart)
 
 	Distance	= -1.0;
 
-	if( iPart >= 0 && iPart < m_nParts && m_nPoints[iPart] > 1 )
+	if( iPart >= 0 && iPart < m_nParts && m_pParts[iPart]->Get_Count() > 1 )
 	{
-		pB	= m_Points[iPart];
+		pB	= m_pParts[iPart]->m_Points;
 		pA	= pB + 1;
 
 		Distance	= SG_Get_Nearest_Point_On_Line(Point, *pA, *pB, Next);
 
-		for(i=1; i<m_nPoints[iPart] && Distance!=0.0; i++, pB=pA++)
+		for(i=1; i<m_pParts[iPart]->Get_Count() && Distance!=0.0; i++, pB=pA++)
 		{
 			if(	(d = SG_Get_Nearest_Point_On_Line(Point, *pA, *pB, pt)) >= 0.0
 			&&	(d < Distance || Distance < 0.0) )

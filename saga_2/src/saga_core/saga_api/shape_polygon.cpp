@@ -100,19 +100,24 @@ int CSG_Shape_Polygon::On_Intersects(TSG_Rect Region)
 
 	for(int iPart=0; iPart<m_nParts; iPart++)
 	{
-		pb	= m_Points[iPart] + m_nPoints[iPart] - 1;
+		CSG_Shape_Part	*pPart	= m_pParts[iPart];
 
-		for(int iPoint=0; iPoint<m_nPoints[iPart]; iPoint++)
+		if( pPart->Get_Extent().Intersects(Region) )
 		{
-			pa	= pb;
-			pb	= m_Points[iPart] + iPoint;
+			pb	= m_pParts[iPart]->m_Points + m_pParts[iPart]->Get_Count() - 1;
 
-			if(	SG_Get_Crossing(c, *pa, *pb, r00, r10, true)
-			||	SG_Get_Crossing(c, *pa, *pb, r00, r01, true)
-			||	SG_Get_Crossing(c, *pa, *pb, r11, r10, true)
-			||	SG_Get_Crossing(c, *pa, *pb, r11, r01, true)	)
+			for(int iPoint=0; iPoint<m_pParts[iPart]->Get_Count(); iPoint++)
 			{
-				return( INTERSECTION_Overlaps );
+				pa	= pb;
+				pb	= m_pParts[iPart]->m_Points + iPoint;
+
+				if(	SG_Get_Crossing(c, *pa, *pb, r00, r10, true)
+				||	SG_Get_Crossing(c, *pa, *pb, r00, r01, true)
+				||	SG_Get_Crossing(c, *pa, *pb, r11, r10, true)
+				||	SG_Get_Crossing(c, *pa, *pb, r11, r01, true)	)
+				{
+					return( INTERSECTION_Overlaps );
+				}
 			}
 		}
 	}
@@ -147,30 +152,54 @@ bool CSG_Shape_Polygon::is_Containing(const TSG_Point &Point)
 
 bool CSG_Shape_Polygon::is_Containing(double x, double y)
 {
-	int			iPart, iPoint, nCrossings;
-	TSG_Point	A, B, C, *pA, *pB;
-
 	if( Get_Extent().Contains(x, y) )
 	{
+		int			nCrossings;
+		TSG_Point	A, B, C, *pA, *pB;
+
 		nCrossings	= 0;
 
 		A.x			= m_Extent.m_rect.xMin;
 		B.x			= x;
 		A.y = B.y	= y;
 
-		for(iPart=0; iPart<m_nParts; iPart++)
+		for(int iPart=0; iPart<m_nParts; iPart++)
 		{
-			if( m_nPoints[iPart] > 2 )
-			{
-				pB	= m_Points[iPart] + m_nPoints[iPart] - 1;
-				pA	= m_Points[iPart];
+			CSG_Shape_Part	*pPart	= m_pParts[iPart];
 
-				for(iPoint=0; iPoint<m_nPoints[iPart]; iPoint++, pB=pA++)
+			if( pPart->Get_Count() > 2 && pPart->Get_Extent().Contains(x, y) )
+			{
+				pB	= pPart->m_Points + pPart->Get_Count() - 1;
+				pA	= pPart->m_Points;
+
+				for(int iPoint=0, goNext=0; iPoint<pPart->Get_Count(); iPoint++, pB=pA++)
 				{
-					if( SG_Get_Crossing(C, *pA, *pB, A, B) )
+					if( pA->y != pB->y )
+					{
+						if( pA->y == y )
+						{
+							goNext	= pA->y > pB->y ? 1 : -1;
+						}
+						else if( goNext )	// pB->y == y
+						{
+							if( ((goNext > 0 && pA->y > pB->y) || (goNext < 0 && pA->y < pB->y)) && pB->x <= B.x )
+								nCrossings++;
+
+							goNext	= 0;
+						}
+						else if( ((pB->y < y && y <= pA->y) || (pB->y > y && y >= pA->y)) && (pB->x < x || pA->x < x) )
+						{
+							if( SG_Get_Crossing(C, *pA, *pB, A, B) )
+							{
+								nCrossings++;
+							}
+						}
+					}
+
+				/*	if( SG_Get_Crossing(C, *pA, *pB, A, B) )
 					{
 						nCrossings++;
-					}
+					}/**/
 				}
 			}
 		}
@@ -189,25 +218,44 @@ bool CSG_Shape_Polygon::is_Containing(const TSG_Point &Point, int iPart)
 
 bool CSG_Shape_Polygon::is_Containing(double x, double y, int iPart)
 {
-	int			iPoint, nCrossings;
-	TSG_Point	A, B, C, *pA, *pB;
+	CSG_Shape_Part	*pPart	= Get_Part(iPart);
 
-	if(	m_Extent.Contains(x, y) && iPart >= 0 && iPart < m_nParts && m_nPoints[iPart] > 2 )
+	if(	pPart && pPart->Get_Count() > 2 && pPart->Get_Extent().Contains(x, y) )
 	{
+		int			nCrossings;
+		TSG_Point	A, B, C, *pA, *pB;
+
 		nCrossings	= 0;
 
 		A.x			= m_Extent.m_rect.xMin;
 		B.x			= x;
 		A.y = B.y	= y;
 
-		pB	= m_Points[iPart] + m_nPoints[iPart] - 1;
-		pA	= m_Points[iPart];
+		pB	= pPart->m_Points + pPart->Get_Count() - 1;
+		pA	= pPart->m_Points;
 
-		for(iPoint=0; iPoint<m_nPoints[iPart]; iPoint++, pB=pA++)
+		for(int iPoint=0, goNext=0; iPoint<pPart->Get_Count(); iPoint++, pB=pA++)
 		{
-			if( SG_Get_Crossing(C, *pA, *pB, A, B) )
+			if( pA->y != pB->y )
 			{
-				nCrossings++;
+				if( pA->y == y )
+				{
+					goNext	= pA->y > pB->y ? 1 : -1;
+				}
+				else if( goNext )	// pB->y == y
+				{
+					if( ((goNext > 0 && pA->y > pB->y) || (goNext < 0 && pA->y < pB->y)) && pB->x <= B.x )
+						nCrossings++;
+
+					goNext	= 0;
+				}
+				else if( ((pB->y < y && y <= pA->y) || (pB->y > y && y >= pA->y)) && (pB->x < x || pA->x < x) )
+				{
+					if( SG_Get_Crossing(C, *pA, *pB, A, B) )
+					{
+						nCrossings++;
+					}
+				}
 			}
 		}
 
@@ -233,20 +281,24 @@ bool CSG_Shape_Polygon::is_Clockwise(int iPart)
 //---------------------------------------------------------
 bool CSG_Shape_Polygon::is_Lake(int iPart)
 {
-	int		jPart;
+	CSG_Shape_Part	*pPart	= Get_Part(iPart);
 
-	if( iPart >= 0 && iPart < m_nParts && m_nPoints[iPart] > 2 )
+	if( iPart >= 0 && iPart < m_nParts && m_pParts[iPart]->Get_Count() > 2 )
 	{
-		for(jPart=0; jPart<m_nParts; jPart++)
+		int		nOuter	= 0;
+
+		for(iPart=0; iPart<m_nParts; iPart++)
 		{
-			if( jPart != iPart && m_nPoints[jPart] > 2 )
+			if( pPart != m_pParts[iPart] && m_pParts[iPart]->Get_Count() > 2 )
 			{
-				if( is_Containing(m_Points[iPart][0], jPart) )
+				if( is_Containing(pPart->Get_Point(0), iPart) )
 				{
-					return( true );
+					nOuter++;
 				}
 			}
 		}
+
+		return( nOuter % 2 != 0 );
 	}
 
 	return( false );
@@ -276,16 +328,18 @@ double CSG_Shape_Polygon::Get_Perimeter(void)
 //---------------------------------------------------------
 double CSG_Shape_Polygon::Get_Perimeter(int iPart)
 {
-	int			iPoint;
-	double		Length;
-	TSG_Point	*pA, *pB;
+	CSG_Shape_Part	*pPart	= Get_Part(iPart);
 
-	if( iPart >= 0 && iPart < m_nParts && m_nPoints[iPart] > 2 )
+	if( pPart && pPart->Get_Count() > 2 )
 	{
-		pB	= m_Points[iPart] + m_nPoints[iPart] - 1;
-		pA	= m_Points[iPart];
+		int			iPoint;
+		double		Length;
+		TSG_Point	*pA, *pB;
 
-		for(iPoint=0, Length=0.0; iPoint<m_nPoints[iPart]; iPoint++, pB=pA++)
+		pB	= pPart->m_Points + pPart->Get_Count() - 1;
+		pA	= pPart->m_Points;
+
+		for(iPoint=0, Length=0.0; iPoint<pPart->Get_Count(); iPoint++, pB=pA++)
 		{
 			Length	+= SG_Get_Distance(*pA, *pB);
 		}
@@ -326,26 +380,27 @@ double CSG_Shape_Polygon::Get_Area(int iPart)
 //---------------------------------------------------------
 double CSG_Shape_Polygon::_Get_Area(int iPart)
 {
-	int			iPoint;
-	double		Area;
-	TSG_Point	*pA, *pB;
+	CSG_Shape_Part	*pPart	= Get_Part(iPart);
 
-	Area	= 0.0;
-
-	if( iPart >= 0 && iPart < m_nParts && m_nPoints[iPart] > 2 )
+	if( pPart && pPart->Get_Count() > 2 )
 	{
-		pB	= m_Points[iPart] + m_nPoints[iPart] - 1;
-		pA	= m_Points[iPart];
+		double		Area;
+		TSG_Point	*pA, *pB;
 
-		for(iPoint=0; iPoint<m_nPoints[iPart]; iPoint++, pB=pA++)
+		Area	= 0.0;
+
+		pB		= pPart->m_Points + pPart->Get_Count() - 1;
+		pA		= pPart->m_Points;
+
+		for(int iPoint=0; iPoint<pPart->Get_Count(); iPoint++, pB=pA++)
 		{
 			Area	+= (pA->x * pB->y) - (pB->x * pA->y);
 		}
 
-		Area	/= 2.0;
+		return( Area / 2.0 );
 	}
 
-	return( Area );
+	return( 0.0 );
 }
 
 
@@ -358,20 +413,21 @@ double CSG_Shape_Polygon::_Get_Area(int iPart)
 //---------------------------------------------------------
 TSG_Point CSG_Shape_Polygon::Get_Centroid(void)
 {
-	int			iPart, iPoint;
 	double		d, a;
 	TSG_Point	c, *pA, *pB;
 
 	c.x	= c.y	= a	= 0.0;
 
-	for(iPart=0; iPart<m_nParts; iPart++)
+	for(int iPart=0; iPart<m_nParts; iPart++)
 	{
-		if( m_nPoints[iPart] > 2 )
-		{
-			pB	= m_Points[iPart] + m_nPoints[iPart] - 1;
-			pA	= m_Points[iPart];
+		CSG_Shape_Part	*pPart	= m_pParts[iPart];
 
-			for(iPoint=0; iPoint<m_nPoints[iPart]; iPoint++, pB=pA++)
+		if( pPart->Get_Count() > 2 )
+		{
+			pB	= pPart->m_Points + pPart->Get_Count() - 1;
+			pA	= pPart->m_Points;
+
+			for(int iPoint=0; iPoint<pPart->Get_Count(); iPoint++, pB=pA++)
 			{
 				d	 = pA->x * pB->y - pB->x * pA->y;
 				a	+= d;
@@ -393,20 +449,19 @@ TSG_Point CSG_Shape_Polygon::Get_Centroid(void)
 //---------------------------------------------------------
 TSG_Point CSG_Shape_Polygon::Get_Centroid(int iPart)
 {
-	int			iPoint;
-	double		d, a;
-	TSG_Point	c, *pA, *pB;
+	CSG_Shape_Part	*pPart	= Get_Part(iPart);
 
-	c.x	= c.y	= 0.0;
-
-	if( iPart >= 0 && iPart < m_nParts && m_nPoints[iPart] > 2 )
+	if( pPart && pPart->Get_Count() > 2 )
 	{
-		a	= 0.0;
+		double		d, a;
+		TSG_Point	c, *pA, *pB;
 
-		pB	= m_Points[iPart] + m_nPoints[iPart] - 1;
-		pA	= m_Points[iPart];
+		c.x	= c.y	= a	= 0.0;
 
-		for(iPoint=0; iPoint<m_nPoints[iPart]; iPoint++, pB=pA++)
+		pB	= pPart->m_Points + pPart->Get_Count() - 1;
+		pA	= pPart->m_Points;
+
+		for(int iPoint=0; iPoint<pPart->Get_Count(); iPoint++, pB=pA++)
 		{
 			d	 = pA->x * pB->y - pB->x * pA->y;
 			a	+= d;
@@ -419,9 +474,11 @@ TSG_Point CSG_Shape_Polygon::Get_Centroid(int iPart)
 			c.x	/= d;
 			c.y	/= d;
 		}
+
+		return( c );
 	}
 
-	return( c );
+	return( CSG_Point(0.0, 0.0) );
 }
 
 
@@ -434,26 +491,29 @@ TSG_Point CSG_Shape_Polygon::Get_Centroid(int iPart)
 //---------------------------------------------------------
 double CSG_Shape_Polygon::Get_Distance(TSG_Point Point, TSG_Point &Next, int iPart)
 {
-	int			i;
-	double		d, Distance;
-	TSG_Point	*pA, *pB, pt;
+	double	Distance;
 
-	Distance	= -1.0;
-
-	if( iPart >= 0 && iPart < m_nParts && m_nPoints[iPart] > 2 )
+	if( is_Containing(Point, iPart) )
 	{
-		if( is_Containing(Point) )
+		Distance	=  0.0;
+	}
+	else
+	{
+		Distance	= -1.0;
+
+		CSG_Shape_Part	*pPart	= Get_Part(iPart);
+
+		if( pPart != NULL && pPart->Get_Count() > 2 )
 		{
-			Distance	= 0.0;
-		}
-		else
-		{
-			pB	= m_Points[iPart] + m_nPoints[iPart] - 1;
-			pA	= m_Points[iPart];
+			double		d;
+			TSG_Point	*pA, *pB, pt;
+
+			pB	= pPart->m_Points + pPart->Get_Count() - 1;
+			pA	= pPart->m_Points;
 
 			Distance	= SG_Get_Nearest_Point_On_Line(Point, *pA, *pB, Next);
 
-			for(i=0; i<m_nPoints[iPart] && Distance!=0.0; i++, pB=pA++)
+			for(int iPoint=0; iPoint<pPart->Get_Count() && Distance!=0.0; iPoint++, pB=pA++)
 			{
 				if(	(d = SG_Get_Nearest_Point_On_Line(Point, *pA, *pB, pt)) >= 0.0
 				&&	(d < Distance || Distance < 0.0) )

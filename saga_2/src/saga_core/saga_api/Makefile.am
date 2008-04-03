@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.10 2007-03-22 14:24:55 oconrad Exp $
+# $Id: Makefile.am,v 1.11 2008-04-03 10:57:11 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -55,6 +55,7 @@ parameters.cpp\
 saga_api.cpp\
 shape.cpp\
 shape_line.cpp\
+shape_part.cpp\
 shape_point.cpp\
 shape_points.cpp\
 shape_polygon.cpp\
