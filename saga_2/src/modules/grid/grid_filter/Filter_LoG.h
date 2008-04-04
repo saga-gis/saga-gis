@@ -62,8 +62,21 @@
 #define HEADER_INCLUDED__Filter_LoG_H
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #include "MLB_Interface.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CFilter_LoG : public CSG_Module_Grid
@@ -80,21 +93,21 @@ protected:
 
 private:
 
-	CSG_Grid_Radius		m_Radius;
+	CSG_Grid			*m_pInput, m_Kernel;
 
-	CSG_Grid				*pInput;
 
-	CSG_Grid				*pKernel;
-
-	double				m_sigma;
-
-	double				LoG_Function	(double x, double y);
-	void				Init_Kernel		(int Radius);
+	bool				Initialise		(int Method, int &Radius, double Sigma, bool bCircle);
 	
-	double				Get_Mean_Square	(int x, int y, int Radius);
-	double				Get_Mean_Circle	(int x, int y);
+	double				Get_Mean		(int x, int y, int Radius);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Filter_LoG_H

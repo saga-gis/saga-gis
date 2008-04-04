@@ -73,49 +73,72 @@ CFilter_LoG::CFilter_LoG(void)
 	//-----------------------------------------------------
 	// 1. Info...
 
-	Set_Name(_TL("Laplacian Filter"));
+	Set_Name		(_TL("Laplacian Filter"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Andre Ringeler"));
+	Set_Author		(SG_T("(c) 2003 by A. Ringeler, (c) 2008 by O. Conrad"));
 
 	Set_Description	(_TW(
-		 "Other Common Names: Laplacian, Laplacian of Gaussian, LoG, Marr Filter\n")
-	);
+		 "Other Common Names: Laplacian, Laplacian of Gaussian, LoG, Marr Filter\n"
+		 "\n"
+		 "Standard kernel 1 (3x3):\n"
+		 " 0 | -1 |  0\n"
+		 "-1 |  4 | -1\n"
+		 " 0 | -1 |  0\n"
+		 "\n"
+		 "Standard kernel 2 (3x3):\n"
+		 "-1 | -1 | -1\n"
+		 "-1 |  8 | -1\n"
+		 " 0 | -1 |  0\n"
+		 "\n"
+	));
 
 
 	//-----------------------------------------------------
 	// 2. Parameters...
 
 	Parameters.Add_Grid(
-		NULL, "INPUT"		, _TL("Grid"),
+		NULL	, "INPUT"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL, "RESULT"		, _TL("Filtered Grid"),
+		NULL	, "RESULT"		, _TL("Filtered Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-		NULL, "SIGMA"		, _TL("Standard Deviation"),
+	Parameters.Add_Choice(
+		NULL	, "METHOD"		, _TL("Method"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1, 0.0001, true
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("Standard Kernel 1"),
+			_TL("Standard Kernel 2"),
+			_TL("User defined")
+		), 2
+	);
+
+	CSG_Parameter	*pNode	= Parameters.Add_Node(NULL, "NODE_USER", _TL("User defined"), _TL(""));
+
+	Parameters.Add_Value(
+		pNode	, "SIGMA"		, _TL("Standard Deviation (Percent of Radius)"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 50.0, 0.00001, true
+	);
+
+	Parameters.Add_Value(
+		pNode	, "RADIUS"		, _TL("Radius"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 3, 1, true
 	);
 
 	Parameters.Add_Choice(
-		NULL, "SEARCH_MODE"	, _TL("Search Mode"),
+		pNode	, "MODE"		, _TL("Search Mode"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Square"),
 			_TL("Circle")
 		), 1
-	);
-
-	Parameters.Add_Value(
-		NULL, "RADIUS"		, _TL("Radius"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 3, 1, true
 	);
 }
 
@@ -129,199 +152,176 @@ CFilter_LoG::~CFilter_LoG(void)
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
-double CFilter_LoG::LoG_Function(double x, double y)
-{
-	
-	return  - exp(- (x*x+y*y) / (2*m_sigma*m_sigma))*(1-(x*x+y*y)/(2*m_sigma*m_sigma)) / (M_PI*m_sigma*m_sigma*m_sigma*m_sigma);
-
-
-}
-
-void CFilter_LoG::Init_Kernel(int Radius)
-{
-	int x,y;
-	double val, min, max;
-
-	min = 999999;
-	max = 0;
-	
-	pKernel = (CSG_Grid *) new CSG_Grid( GRID_TYPE_Double , 1+2*Radius, 1+2*Radius);
-
-	for(y=-Radius; y<=Radius ; y++)
-	{
-		for(x=-Radius; x<=Radius; x++)
-		{
-			val = LoG_Function(x , y);
-			pKernel->Set_Value(x+Radius, y+Radius, val);
-			if (min > val)
-				min =val;
-
-			if (max < val)
-				max =val;
-		}
-	}
-	
-/*	if (min/max > 0.367/2.0)
-		Message_Add("Warning: Radius is to small for your Standard Deviation\n\n");*/
-}
-
 
 //---------------------------------------------------------
 bool CFilter_LoG::On_Execute(void)
 {
-	int		x, y, Mode,  Radius;
-
-	double	Mean;
-
+	int			Radius;
 	CSG_Grid	*pResult;
 
 	//-----------------------------------------------------
-	pInput		= Parameters("INPUT")->asGrid();
-
-	if( !Parameters("RESULT")->asGrid() )
-	{
-		Parameters("RESULT")->Set_Value(pInput);
-	}
-
-	pResult		= Parameters("RESULT")->asGrid();
-
-	if( !pResult || pResult == pInput )
-	{
-		pResult	= SG_Create_Grid(pInput);
-	}
-
-	Mode		= Parameters("SEARCH_MODE")->asInt();
-	m_sigma		= Parameters("SIGMA")->asDouble();
-	Radius		= Parameters("RADIUS")->asInt();
-
-	switch( Mode )
-	{
-	case 0:	break;
-	case 1:	m_Radius.Create(1 + Radius);	break;
-	}
-
-	Init_Kernel( Radius );
+	m_pInput	= Parameters("INPUT")	->asGrid();
+	pResult		= Parameters("RESULT")	->asGrid();
+	Radius		= Parameters("RADIUS")	->asInt();
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	if( Initialise(Parameters("METHOD")->asInt(), Radius, Parameters("SIGMA")->asDouble(), Parameters("MODE")->asInt() == 1) )
 	{
-		for(x=0; x<Get_NX(); x++)
+		if( !pResult || pResult == m_pInput )
 		{
-			if( pInput->is_InGrid(x, y) )
+			pResult	= SG_Create_Grid(m_pInput);
+		}
+
+		DataObject_Set_Colors(pResult, 100, SG_COLORS_BLACK_WHITE);
+
+		//-------------------------------------------------
+		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		{
+			for(int x=0; x<Get_NX(); x++)
 			{
-				switch( Mode )
+				if( m_pInput->is_InGrid(x, y) )
 				{
-				case 0:
-					Mean	= Get_Mean_Square(x, y, Radius);
-					break;
-
-				case 1:
-					Mean	= Get_Mean_Circle(x, y);
-					break;
+					pResult->Set_Value(x, y, Get_Mean(x, y, Radius));
 				}
-
-					pResult->Set_Value(x, y, Mean);
+				else
+				{
+					pResult->Set_NoData(x, y);
+				}
 			}
 		}
+
+		//-------------------------------------------------
+		if( !Parameters("RESULT")->asGrid() || Parameters("RESULT")->asGrid() == m_pInput )
+		{
+			m_pInput->Assign(pResult);
+
+			delete(pResult);
+		}
+
+		m_Kernel.Destroy();
+
+		return( true );
 	}
 
 	//-----------------------------------------------------
-	if( !Parameters("RESULT")->asGrid() || Parameters("RESULT")->asGrid() == pInput )
-	{
-		pInput->Assign(pResult);
-
-		delete(pResult);
-	}
-
-	m_Radius.Destroy();
-
-	return( true );
+	return( false );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-double CFilter_LoG::Get_Mean_Square(int x, int y, int Radius)
+bool CFilter_LoG::Initialise(int Method, int &Radius, double Sigma, bool bCircle)
 {
-	int		ax, ay, bx, by, ix, iy;
-	double	Result;
-	double	Kernel_Sum;
-
-	Result	= 0.0;
-	Kernel_Sum	= 0.0;
-
-	//-----------------------------------------------------
-	ax		= x - Radius;
-	bx		= x + Radius;
-
-	if( ax < 0 )
+	switch( Method )
 	{
-		ax	= 0;
-	}
-	else if( bx >= Get_NX() )
-	{
-		bx	= Get_NX() - 1;
-	}
+	case 0:
+		m_Kernel.Create(GRID_TYPE_Double, 3, 3);
+		m_Kernel.Set_Value(0, 0,  0);	m_Kernel.Set_Value(0, 1, -1);	m_Kernel.Set_Value(0, 2,  0);
+		m_Kernel.Set_Value(1, 0, -1);	m_Kernel.Set_Value(1, 1,  4);	m_Kernel.Set_Value(1, 2, -1);
+		m_Kernel.Set_Value(2, 0,  0);	m_Kernel.Set_Value(2, 1, -1);	m_Kernel.Set_Value(2, 2,  0);
+		Radius	= 1;
+		return( true );
 
-	ay		= y - Radius;
-	by		= y + Radius;
+	case 1:
+		m_Kernel.Create(GRID_TYPE_Double, 3, 3);
+		m_Kernel.Set_Value(0, 0, -1);	m_Kernel.Set_Value(0, 1, -1);	m_Kernel.Set_Value(0, 2, -1);
+		m_Kernel.Set_Value(1, 0, -1);	m_Kernel.Set_Value(1, 1,  8);	m_Kernel.Set_Value(1, 2, -1);
+		m_Kernel.Set_Value(2, 0, -1);	m_Kernel.Set_Value(2, 1, -1);	m_Kernel.Set_Value(2, 2, -1);
+		Radius	= 1;
+		return( true );
 
-	if( ay < 0 )
-	{
-		ay	= 0;
-	}
-	else if( by >= Get_NY() )
-	{
-		by	= Get_NY() - 1;
-	}
-
-	//-----------------------------------------------------
-	for(iy=ay; iy<=by; iy++)
-	{
-		for(ix=ax; ix<=bx; ix++)
+	case 2:	default:
+		if( Sigma > 0.0 )
 		{
-			if( pInput->is_InGrid(ix, iy) )
+			m_Kernel.Create(GRID_TYPE_Double, 1 + 2 * Radius, 1 + 2 * Radius);
+
+			Sigma	= SG_Get_Square(Radius * Sigma * 0.01);
+
+		//	double	min		= 999999;
+		//	double	max		= 0;
+
+			for(int y=-Radius, iy=0; y<=Radius; y++, iy++)
 			{
-				Result	+= pInput->asDouble(ix, iy)* pKernel->asDouble(Radius + ix-x,Radius+ iy-y);
-				Kernel_Sum += pKernel->asDouble(Radius +ix-x,Radius+ iy-y);
+				for(int x=-Radius, ix=0; x<=Radius; x++, ix++)
+				{
+					double	d	= x * x + y * y;
+
+					if( bCircle && d > Radius*Radius )
+					{
+						d	= 0.0;
+					}
+					else
+					{
+						d	= 1.0 / (M_PI * Sigma*Sigma) * (1.0 - d / (2.0 * Sigma)) * exp(-d / (2.0 * Sigma));
+					}
+
+					m_Kernel.Set_Value(ix, iy, d);
+
+		//			if( min > k )	min	= k;
+		//			if( max < k )	max	= k;
+				}
+			}
+
+		//	this->DataObject_Add(SG_Create_Grid(m_Kernel));
+
+			m_Kernel	+= -m_Kernel.Get_ArithMean();
+
+		//	if( min / max > 0.367 / 2.0 )
+		//	{
+		//		Message_Add("Warning: Radius is to small for your Standard Deviation");
+		//		return( false );
+		//	}
+
+			return( true );
+		}
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+double CFilter_LoG::Get_Mean(int x, int y, int Radius)
+{
+	double	s, n, k;
+
+	//-----------------------------------------------------
+	s	= 0.0;
+	n	= 0.0;
+
+	//-----------------------------------------------------
+	for(int ky=0, iy=y-Radius; ky<m_Kernel.Get_NY(); ky++, iy++)
+	{
+		for(int kx=0, ix=x-Radius; kx<m_Kernel.Get_NX(); kx++, ix++)
+		{
+			if( m_pInput->is_InGrid(ix, iy) && (k = m_Kernel.asDouble(kx, ky)) != 0.0 )
+			{
+				s	+= k * m_pInput->asDouble(ix, iy);
+				n	+= fabs(k);
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	if( Kernel_Sum > 0.0 )
-	{
-		Result	/=  Kernel_Sum;
-	}
-
-	return( Result );
+	return( n > 0.0 ? s / n : 0.0 );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CFilter_LoG::Get_Mean_Circle(int x, int y)
-{
-	int		iPoint, ix, iy, Radius;
-	double	Result,Kernel_Sum;
-
-	Radius = m_Radius.Get_Maximum()-1;
-	Result	= 0.0;
-	Kernel_Sum		= 0.0;
-
-	//-----------------------------------------------------
-	for(iPoint=0; iPoint<m_Radius.Get_nPoints(); iPoint++)
-	{
-		m_Radius.Get_Point(iPoint, x, y, ix, iy);
-
-		if( pInput->is_InGrid(ix, iy) )
-		{
-			Result	+= pInput->asDouble(ix, iy)* pKernel->asDouble(Radius+ix-x,Radius+ iy-y);
-			Kernel_Sum += pKernel->asDouble(Radius+ix-x,Radius+ iy-y);
-		}
-	}
-
-	//-----------------------------------------------------
-	if( Kernel_Sum > 0 )
-	{
-		Result	/= (double)Kernel_Sum;
-	}
-
-	return( Result );
-}
