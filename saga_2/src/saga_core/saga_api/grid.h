@@ -271,6 +271,7 @@ public:
 	double						Get_Cellsize		(void)	const	{	return( m_Cellsize );				}
 	double						Get_Cellarea		(void)	const	{	return( m_Cellarea );				}
 	const CSG_Rect &			Get_Extent			(void)	const	{	return( m_Extent );					}
+	const CSG_Rect &			Get_Extent_Cells	(void)	const	{	return( m_Extent_Cells );			}
 
 	int							Get_NX				(void)	const	{	return( m_NX );						}
 	int							Get_NY				(void)	const	{	return( m_NY );						}
@@ -355,14 +356,28 @@ public:
 	{
 		static int	ix[8]	= { 0, 1, 1, 1, 0,-1,-1,-1 };
 
-		return( x + ix[Direction % 8] );
+		Direction	%= 8;
+
+		if( Direction < 0 )
+		{
+			Direction	+= 8;
+		}
+
+		return( x + ix[Direction] );
 	}
 
 	int							Get_yTo				(int Direction, int y = 0)	const
 	{
 		static int	iy[8]	= { 1, 1, 0,-1,-1,-1, 0, 1 };
 
-		return( y + iy[Direction % 8] );
+		Direction	%= 8;
+
+		if( Direction < 0 )
+		{
+			Direction	+= 8;
+		}
+
+		return( y + iy[Direction] );
 	}
 
 	int							Get_xFrom			(int Direction, int x = 0)	const	{	return( Get_xTo(Direction + 4, x) );	}
@@ -385,7 +400,7 @@ private:	///////////////////////////////////////////////
 
 	double						m_Cellsize, m_Cellarea, m_Diagonal;
 
-	CSG_Rect					m_Extent;
+	CSG_Rect					m_Extent, m_Extent_Cells;
 
 	CSG_String					m_Name;
 

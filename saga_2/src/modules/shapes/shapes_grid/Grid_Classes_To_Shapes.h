@@ -98,7 +98,7 @@ private:
 	void					Get_Square		(int x, int y);
 
 	bool					Get_Polygons	(void);
-	void					Get_Polygon		(int x, int y, int iPart, int iDirection);
+	void					Get_Polygon		(int x, int y, int iPart);
 
 };
 

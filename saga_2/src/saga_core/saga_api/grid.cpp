@@ -535,7 +535,8 @@ inline bool CSG_Grid::Get_Value(double xPosition, double yPosition, double &Valu
 	int		x, y;
 	double	dx, dy;
 
-	if(	Get_Extent().Contains(xPosition, yPosition) )
+	if(	m_System.Get_Extent_Cells().Contains(xPosition, yPosition) )
+//	if(	Get_Extent().Contains(xPosition, yPosition) )
 	{
 		x	= (int)(xPosition	= (xPosition - Get_XMin()) / Get_Cellsize());
 		y	= (int)(yPosition	= (yPosition - Get_YMin()) / Get_Cellsize());

@@ -762,7 +762,7 @@ void CSG_Parameter_Choice::Set_Items(const SG_Char *String)
 	//-----------------------------------------------------
 	s	= String;
 
-	while( s && *s > 0 )
+	while( s && *s != 0 )
 	{
 		sItem	= s;
 		sItem	= sItem.BeforeFirst('|');

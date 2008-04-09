@@ -226,7 +226,19 @@ bool CSG_Grid_System::Assign(double Cellsize, double xMin, double yMin, int NX, 
 		m_Cellsize	= Cellsize;
 		m_Cellarea	= Cellsize * Cellsize;
 
-		m_Extent.Assign(xMin, yMin, xMin + (NX - 1) * Cellsize, yMin + (NY - 1) * Cellsize);
+		m_Extent		.Assign(
+			xMin,
+			yMin,
+			xMin + (NX - 1.0) * Cellsize,
+			yMin + (NY - 1.0) * Cellsize
+		);
+
+		m_Extent_Cells	.Assign(
+			xMin - 0.5 * Cellsize,
+			yMin - 0.5 * Cellsize,
+			xMin + (NX - 0.5) * Cellsize,
+			yMin + (NY - 0.5) * Cellsize
+		);
 
 		m_Diagonal	= Cellsize * sqrt(2.0);
 

@@ -82,21 +82,35 @@ CGrid_Classes_To_Shapes::CGrid_Classes_To_Shapes(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL, "GRID"		, _TL("Grid"),
+		NULL	, "GRID"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
-		NULL, "SHAPES"		, _TL("Shapes"),
+		NULL	, "SHAPES"		, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Choice(
-		NULL, "SPLIT"		, _TL("Vectorised class as..."),
+		NULL	, "CLASS_ALL"	, _TL("Class Selection"),
 		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("one single class specified by class identifier"),
+			_TL("all classes")
+		), 1
+	);
 
+	Parameters.Add_Value(
+		NULL	, "CLASS_ID"	, _TL("Class Identifier"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 1
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "SPLIT"		, _TL("Vectorised class as..."),
+		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("one single polygon object"),
 			_TL("each island as separated polygon")
@@ -118,19 +132,23 @@ CGrid_Classes_To_Shapes::~CGrid_Classes_To_Shapes(void)
 //---------------------------------------------------------
 bool CGrid_Classes_To_Shapes::On_Execute(void)
 {
-	bool			bSplit;
+	bool			bSplit, bAll;
+	double			Class_ID, Value;
+	CSG_String		ID;
 	CSG_Parameters	gParms, sParms;
 	CSG_Shapes		*pShapes, Shapes(SHAPE_TYPE_Polygon);
 
 	//-----------------------------------------------------
-	m_pGrid		= Parameters("GRID")	->asGrid();
-	pShapes		= Parameters("SHAPES")	->asShapes();
-	bSplit		= Parameters("SPLIT")	->asInt() == 1;
+	m_pGrid		= Parameters("GRID")		->asGrid();
+	pShapes		= Parameters("SHAPES")		->asShapes();
+	bSplit		= Parameters("SPLIT")		->asInt() == 1;
+	bAll		= Parameters("CLASS_ALL")	->asInt() == 1;
+	Class_ID	= Parameters("CLASS_ID")	->asDouble();
 
 	//-----------------------------------------------------
-	pShapes->Create(SHAPE_TYPE_Polygon, m_pGrid->Get_Name());
-	pShapes->Get_Table().Add_Field(_TL("ID")			, TABLE_FIELDTYPE_Int);
+	pShapes->Create(SHAPE_TYPE_Polygon);
 	pShapes->Get_Table().Add_Field(m_pGrid->Get_Name()	, TABLE_FIELDTYPE_Double);
+	pShapes->Get_Table().Add_Field(_TL("ID")			, TABLE_FIELDTYPE_Int);
 	pShapes->Get_Table().Add_Field(_TL("Name")			, TABLE_FIELDTYPE_String);
 
 	if(	DataObject_Get_Parameters(m_pGrid, gParms) && gParms("COLORS_TYPE") && gParms("LUT")
@@ -142,22 +160,22 @@ bool CGrid_Classes_To_Shapes::On_Execute(void)
 		DataObject_Set_Parameters(pShapes, sParms);
 	}
 
+	pShapes->Set_Name(m_pGrid->Get_Name());
+
 	//-----------------------------------------------------
 	m_pShape	= NULL;
 
 	Lock_Create();
 
-	m_Edge.Create(GRID_TYPE_Byte, 2 * Get_NX() + 1, 2 * Get_NY() + 1, 0.5 * Get_Cellsize(), Get_XMin() - 0.5 * Get_Cellsize(), Get_YMin() - 0.5 * Get_Cellsize());
+	m_Edge.Create(GRID_TYPE_Char, 2 * Get_NX() + 1, 2 * Get_NY() + 1, 0.5 * Get_Cellsize(), Get_XMin() - 0.5 * Get_Cellsize(), Get_YMin() - 0.5 * Get_Cellsize());
 
 	for(int y=0, nClasses=0; y<Get_NY() && Process_Get_Okay(false); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
-			if( !m_pGrid->is_NoData(x, y) && !Lock_Get(x, y) )
+			if( !m_pGrid->is_NoData(x, y) && !Lock_Get(x, y) && (Class_ID == (Value = m_pGrid->asDouble(x, y)) || bAll) )
 			{
-				//-----------------------------------------
-				double		Value	= m_pGrid->asDouble(x, y);
-				CSG_String	ID		= CSG_String::Format(SG_T("%d"), ++nClasses);
+				ID		= CSG_String::Format(SG_T("%d"), ++nClasses);
 
 				if( bSplit )
 				{
@@ -169,8 +187,8 @@ bool CGrid_Classes_To_Shapes::On_Execute(void)
 				else
 				{
 					m_pShape	= pShapes->Add_Shape();
-					m_pShape->Get_Record()->Set_Value(0, pShapes->Get_Count());
-					m_pShape->Get_Record()->Set_Value(1, Value);
+					m_pShape->Get_Record()->Set_Value(0, Value);
+					m_pShape->Get_Record()->Set_Value(1, pShapes->Get_Count());
 					m_pShape->Get_Record()->Set_Value(2, ID);
 				}
 
@@ -214,11 +232,11 @@ bool CGrid_Classes_To_Shapes::Split_Polygons(CSG_Shapes *pShapes, double Value, 
 
 		for(iPart=0; iPart<m_pShape->Get_Part_Count() && Set_Progress(iPart, m_pShape->Get_Part_Count()); iPart++)
 		{
-			if( (bLake[iPart] = ((CSG_Shape_Polygon *)m_pShape)->is_Lake(iPart)) == false )
+			if( (bLake[iPart] = ((CSG_Shape_Polygon *)m_pShape)->is_Clockwise(iPart)) == false )
 			{
 				pShape	= pShapes->Add_Shape();
-				pShape->Get_Record()->Set_Value(0, pShapes->Get_Count());
-				pShape->Get_Record()->Set_Value(1, Value);
+				pShape->Get_Record()->Set_Value(0, Value);
+				pShape->Get_Record()->Set_Value(1, pShapes->Get_Count());
 				pShape->Get_Record()->Set_Value(2, ID);
 
 				for(iPoint=0; iPoint<m_pShape->Get_Point_Count(iPart); iPoint++)
@@ -238,7 +256,7 @@ bool CGrid_Classes_To_Shapes::Split_Polygons(CSG_Shapes *pShapes, double Value, 
 				{
 					pShape	= pShapes->Get_Shape(iShape);
 
-					if( pShape->Get_Record()->asDouble(1) == Value && ((CSG_Shape_Polygon *)pShape)->is_Containing(p, 0) )
+					if( pShape->Get_Record()->asDouble(0) == Value && ((CSG_Shape_Polygon *)pShape)->is_Containing(p, 0) )
 					{
 						jPart	= pShape->Get_Part_Count();
 
@@ -289,11 +307,11 @@ bool CGrid_Classes_To_Shapes::Get_Class(double Value)
 					{
 						ix	= Get_xTo(i    , 1 + 2 * x);
 						iy	= Get_yTo(i    , 1 + 2 * y);
-						m_Edge.Add_Value(ix, iy, 1);
+						m_Edge.Set_Value(ix, iy, i + 2);
 
-						ix	= Get_xTo(i + 1, 1 + 2 * x);
-						iy	= Get_yTo(i + 1, 1 + 2 * y);
-						m_Edge.Add_Value(ix, iy, 1);
+						ix	= Get_xTo(i - 1, 1 + 2 * x);
+						iy	= Get_yTo(i - 1, 1 + 2 * y);
+						m_Edge.Set_Value(ix, iy, m_Edge.asInt(ix, iy) ? -1 : i + 2);
 
 						n++;
 					}
@@ -340,10 +358,7 @@ void CGrid_Classes_To_Shapes::Get_Square(int x, int y)
 		ix	= Get_xTo(i, x);
 		iy	= Get_yTo(i, y);
 
-		if( m_Edge.is_InGrid(ix, iy) && m_Edge.asInt(ix, iy) )
-		{
-			m_Edge.Add_Value(ix, iy, -1);
-		}
+		m_Edge.Set_Value(ix, iy, m_Edge.asInt(ix, iy) > 0 ? 0 : (i > 1 ? i - 1 : i + 7));
 
 		if( i % 2 )
 		{
@@ -364,29 +379,13 @@ bool CGrid_Classes_To_Shapes::Get_Polygons(void)
 {
 	if( m_pShape )
 	{
-		int		x, y, i, ix, iy, iPart;
-
-		for(y=0; y<m_Edge.Get_NY() && Set_Progress(y, m_Edge.Get_NY()); y++)
+		for(int y=0; y<m_Edge.Get_NY() && Set_Progress(y, m_Edge.Get_NY()); y++)
 		{
-			for(x=0; x<m_Edge.Get_NX(); x++)
+			for(int x=0; x<m_Edge.Get_NX(); x++)
 			{
-				if( m_Edge.asInt(x, y) )
+				if( m_Edge.asInt(x, y) > 0 )
 				{
-					iPart	= m_pShape->Get_Part_Count();
-
-					for(i=0; i<8; i+=2)
-					{
-						ix	= Get_xTo(i, x);
-						iy	= Get_yTo(i, y);
-
-						if( m_Edge.is_InGrid(ix, iy) && m_Edge.asInt(ix, iy) )
-						{
-							m_pShape->Add_Point(m_Edge.Get_System().Get_Grid_to_World(x, y), iPart);
-
-							Get_Polygon(ix, iy, iPart, i);
-							break;
-						}
-					}
+					Get_Polygon(x, y, m_pShape->Get_Part_Count());
 				}
 			}
 		}
@@ -398,36 +397,34 @@ bool CGrid_Classes_To_Shapes::Get_Polygons(void)
 }
 
 //---------------------------------------------------------
-void CGrid_Classes_To_Shapes::Get_Polygon(int x, int y, int iPart, int iDirection)
+void CGrid_Classes_To_Shapes::Get_Polygon(int x, int y, int iPart)
 {
-	bool	bCorner;
-	int		i, iDir, ix, iy;
+	int		i, iLast;
 
-	m_Edge.Add_Value(x, y, -1);
+	iLast	= -1;
 
-	bCorner	= m_Edge.asInt(x, y) > 0;
-
-	for(iDir=iDirection; iDir<iDirection + 8; iDir+=2)
+	while( (i = m_Edge.asInt(x, y)) != 0 )
 	{
-		i	= iDir % 8;
-
-		if( !bCorner || i != iDirection )
+		if( i < 0 )
 		{
-			ix	= Get_xTo(i, x);
-			iy	= Get_yTo(i, y);
+			i	= iLast + 2;
 
-			if( m_Edge.is_InGrid(ix, iy) && m_Edge.asInt(ix, iy) )
-			{
-				if( i != iDirection )
-				{
-					m_pShape->Add_Point(m_Edge.Get_System().Get_Grid_to_World(x, y), iPart);
-				}
-
-				Get_Polygon(ix, iy, iPart, i);
-
-				return;
-			}
+			m_Edge.Set_Value(x, y, (iLast == 2 ? 8 : iLast - 2));
 		}
+		else
+		{
+			m_Edge.Set_Value(x, y, 0);
+		}
+
+		if( i != iLast )
+		{
+			m_pShape->Add_Point(m_Edge.Get_System().Get_Grid_to_World(x, y), iPart);
+
+			iLast	= i;
+		}
+
+		x	= Get_xTo(i, x);
+		y	= Get_yTo(i, y);
 	}
 }
 
