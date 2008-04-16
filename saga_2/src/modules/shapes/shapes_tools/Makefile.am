@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.7 2008-02-15 14:30:51 oconrad Exp $
+# $Id: Makefile.am,v 1.8 2008-04-16 16:21:03 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -16,7 +16,7 @@ libshapes_tools_la_SOURCES =\
 CreateChartLayer.cpp\
 CreateWebContent.cpp\
 GraticuleBuilder.cpp\
-Intersection_GPC.c\
+Polygon_Clipper.cpp\
 MLB_Interface.cpp\
 NewLayerFromSelectedShapes.cpp\
 QueryBuilder.cpp\
@@ -41,7 +41,7 @@ shapes_split_randomly.cpp\
 CreateChartLayer.h\
 CreateWebContent.h\
 GraticuleBuilder.h\
-Intersection_GPC.h\
+Polygon_Clipper.h\
 MLB_Interface.h\
 NewLayerFromSelectedShapes.h\
 QueryBuilder.h\

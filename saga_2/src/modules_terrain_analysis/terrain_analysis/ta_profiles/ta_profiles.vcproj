@@ -691,46 +691,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Intersection_GPC.c"
-				>
-				<FileConfiguration
-					Name="Unicode Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Unicode Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="MLB_Interface.cpp"
 				>
 				<FileConfiguration
@@ -810,6 +770,10 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\Polygon_Clipper.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -844,15 +808,15 @@
 				>
 			</File>
 			<File
-				RelativePath="Intersection_GPC.h"
-				>
-			</File>
-			<File
 				RelativePath="MLB_Interface.h"
 				>
 			</File>
 			<File
 				RelativePath="PDFDocEngine_CrossSections.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Polygon_Clipper.h"
 				>
 			</File>
 		</Filter>

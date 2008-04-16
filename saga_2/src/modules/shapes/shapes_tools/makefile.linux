@@ -19,7 +19,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/CreateChartLayer.o $(MLB_TEMP)/CreateWebContent.o $(MLB_TEMP)/GraticuleBuilder.o $(MLB_TEMP)/Intersection_GPC.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/NewLayerFromSelectedShapes.o $(MLB_TEMP)/QueryBuilder.o $(MLB_TEMP)/QueryParser.o $(MLB_TEMP)/SearchInTable.o $(MLB_TEMP)/SelectByTheme.o $(MLB_TEMP)/SeparateShapes.o $(MLB_TEMP)/Shapes_Assign_Table.o $(MLB_TEMP)/Shapes_Create_Empty.o $(MLB_TEMP)/Shapes_Merge.o $(MLB_TEMP)/Shapes_Report.o $(MLB_TEMP)/ShapeSearchSelector.o $(MLB_TEMP)/ShapeSelector.o $(MLB_TEMP)/Summarize.o $(MLB_TEMP)/SummaryPDFDocEngine.o $(MLB_TEMP)/TransformShapes.o $(MLB_TEMP)/shapes_cut.o $(MLB_TEMP)/shapes_cut_interactive.o $(MLB_TEMP)/shapes_split.o $(MLB_TEMP)/shapes_split_randomly.o $(MLB_TEMP)/shapes_buffer.o
+OBJ      = $(MLB_TEMP)/CreateChartLayer.o $(MLB_TEMP)/CreateWebContent.o $(MLB_TEMP)/GraticuleBuilder.o $(MLB_TEMP)/Polygon_Clipper.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/NewLayerFromSelectedShapes.o $(MLB_TEMP)/QueryBuilder.o $(MLB_TEMP)/QueryParser.o $(MLB_TEMP)/SearchInTable.o $(MLB_TEMP)/SelectByTheme.o $(MLB_TEMP)/SeparateShapes.o $(MLB_TEMP)/Shapes_Assign_Table.o $(MLB_TEMP)/Shapes_Create_Empty.o $(MLB_TEMP)/Shapes_Merge.o $(MLB_TEMP)/Shapes_Report.o $(MLB_TEMP)/ShapeSearchSelector.o $(MLB_TEMP)/ShapeSelector.o $(MLB_TEMP)/Summarize.o $(MLB_TEMP)/SummaryPDFDocEngine.o $(MLB_TEMP)/TransformShapes.o $(MLB_TEMP)/shapes_cut.o $(MLB_TEMP)/shapes_cut_interactive.o $(MLB_TEMP)/shapes_split.o $(MLB_TEMP)/shapes_split_randomly.o $(MLB_TEMP)/shapes_buffer.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS =
@@ -59,8 +59,8 @@ $(MLB_TEMP)/CreateWebContent.o: ./CreateWebContent.cpp
 $(MLB_TEMP)/GraticuleBuilder.o: ./GraticuleBuilder.cpp
 	$(CPP) -c ./GraticuleBuilder.cpp -o $(MLB_TEMP)/GraticuleBuilder.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Intersection_GPC.o: ./Intersection_GPC.c $(MLB_TEMP)
-	$(CPP) -c ./Intersection_GPC.c -o $(MLB_TEMP)/Intersection_GPC.o $(CXXFLAGS)
+$(MLB_TEMP)/Polygon_Clipper.o: ./Polygon_Clipper.cpp $(MLB_TEMP)
+	$(CPP) -c ./Polygon_Clipper.cpp -o $(MLB_TEMP)/Polygon_Clipper.o $(CXXFLAGS)
 
 $(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)

@@ -22,7 +22,6 @@
 
 #include <vector>
 #include <saga_api/doc_pdf.h>
-#include "Intersection_GPC.h"
 
 #define OFFSET_X 100
 #define OFFSET_Y 50
@@ -73,8 +72,6 @@ private:
 	void AdjustSections(TSG_Point *,TSG_Point *,std::vector<TSG_Point >&,std::vector<TSG_Point >&,float,int&,int&);
 	void Intersect_Lines(float,float,float,float,float,float,float,float,float&,float&);
 	void CalculateAreas(TSG_Point*,TSG_Point*,float,int,int,float&,float&);
-	bool GPC_Intersection(CSG_Shape *pShape_A, CSG_Shape *pShape_B, CSG_Shape *pShape_AB);
-	bool GPC_Create_Polygon(CSG_Shape *pShape, gpc_polygon *pPolygon);
 
 };
 

@@ -23,7 +23,6 @@
 
 #include <saga_api/saga_api.h>
 #include <vector>
-#include "Intersection_GPC.h"
 
 class CShapeSelector  
 {
@@ -36,8 +35,6 @@ public:
 private:
 
 	std::vector <int> m_pSelectedRecords;
-	bool GPC_Intersection(CSG_Shape *pShape_A, CSG_Shape *pShape_B, CSG_Shape *pShape_AB);
-	bool GPC_Create_Polygon(CSG_Shape *pShape, gpc_polygon *pPolygon);
 
 };
 

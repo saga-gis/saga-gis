@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.8 2007-02-13 12:49:33 tschorr Exp $
+# $Id: Makefile.am,v 1.9 2008-04-16 16:21:03 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -20,7 +20,7 @@ Grid_Profile.cpp\
 Grid_ProfileFromPoints.cpp\
 Grid_Profile_From_Lines.cpp\
 Grid_Swath_Profile.cpp\
-Intersection_GPC.c\
+Polygon_Clipper.cpp\
 MLB_Interface.cpp\
 PDFDocEngine_CrossSections.cpp\
 Geometry.h\
@@ -31,7 +31,7 @@ Grid_Profile.h\
 Grid_ProfileFromPoints.h\
 Grid_Profile_From_Lines.h\
 Grid_Swath_Profile.h\
-Intersection_GPC.h\
+Polygon_Clipper.h\
 MLB_Interface.h\
 PDFDocEngine_CrossSections.h
 

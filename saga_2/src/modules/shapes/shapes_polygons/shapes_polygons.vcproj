@@ -491,6 +491,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Polygon_Clipper.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Polygon_Geometrics.cpp"
 				>
 				<FileConfiguration
@@ -532,46 +536,6 @@
 			</File>
 			<File
 				RelativePath="Polygon_Intersection.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Unicode Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Unicode Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="Polygon_Intersection_GPC.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -704,15 +668,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Polygon_Clipper.h"
+				>
+			</File>
+			<File
 				RelativePath="Polygon_Geometrics.h"
 				>
 			</File>
 			<File
 				RelativePath="Polygon_Intersection.h"
-				>
-			</File>
-			<File
-				RelativePath="Polygon_Intersection_GPC.h"
 				>
 			</File>
 			<File

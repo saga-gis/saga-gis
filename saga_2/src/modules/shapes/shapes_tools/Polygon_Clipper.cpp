@@ -6,6 +6,172 @@ Project:   Generic Polygon Clipper
            A new algorithm for calculating the difference, intersection,
            exclusive-or or union of arbitrary polygon sets.
 
+File:      gpc.h
+Author:    Alan Murta (email: gpc@cs.man.ac.uk)
+Version:   2.31
+Date:      4th June 1999
+
+Copyright: (C) 1997-1999, Advanced Interfaces Group,
+           University of Manchester.
+
+           This software is free for non-commercial use. It may be copied,
+           modified, and redistributed provided that this copyright notice
+           is preserved on all copies. The intellectual property rights of
+           the algorithms used reside with the University of Manchester
+           Advanced Interfaces Group.
+
+           You may not use this software, in whole or in part, in support
+           of any commercial product without the express consent of the
+           author.
+
+           There is no warranty or other guarantee of fitness of this
+           software for any purpose. It is provided solely "as is".
+
+===========================================================================
+*/
+
+#ifndef __gpc_h
+#define __gpc_h
+
+#include <stdio.h>
+
+
+/*
+===========================================================================
+                               Constants
+===========================================================================
+*/
+
+/* Increase GPC_EPSILON to encourage merging of near coincident edges    */
+
+#define GPC_EPSILON (DBL_EPSILON)
+
+#define GPC_VERSION "2.31"
+
+
+/*
+===========================================================================
+                           Public Data Types
+===========================================================================
+*/
+
+typedef enum                        /* Set operation type                */
+{
+  GPC_DIFF,                         /* Difference                        */
+  GPC_INT,                          /* Intersection                      */
+  GPC_XOR,                          /* Exclusive or                      */
+  GPC_UNION                         /* Union                             */
+} gpc_op;
+
+typedef struct                      /* Polygon vertex structure          */
+{
+  double              x;            /* Vertex x component                */
+  double              y;            /* vertex y component                */
+} gpc_vertex;
+
+typedef struct                      /* Vertex list structure             */
+{
+  int                 num_vertices; /* Number of vertices in list        */
+  gpc_vertex         *vertex;       /* Vertex array pointer              */
+} gpc_vertex_list;
+
+typedef struct                      /* Polygon set structure             */
+{
+  int                 num_contours; /* Number of contours in polygon     */
+  int                *hole;         /* Hole / external contour flags     */
+  gpc_vertex_list    *contour;      /* Contour array pointer             */
+} gpc_polygon;
+
+typedef struct                      /* Tristrip set structure            */
+{
+  int                 num_strips;   /* Number of tristrips               */
+  gpc_vertex_list    *strip;        /* Tristrip array pointer            */
+} gpc_tristrip;
+
+
+/*
+===========================================================================
+                       Public Function Prototypes
+===========================================================================
+*/
+
+#ifdef __cplusplus
+extern "C" void gpc_read_polygon        (FILE            *infile_ptr, 
+                              int              read_hole_flags,
+                              gpc_polygon     *polygon);
+
+extern "C" void gpc_write_polygon       (FILE            *outfile_ptr,
+                              int              write_hole_flags,
+                              gpc_polygon     *polygon);
+
+extern "C" void gpc_add_contour         (gpc_polygon     *polygon,
+                              gpc_vertex_list *contour,
+                              int              hole);
+
+extern "C" void gpc_polygon_clip        (gpc_op           set_operation,
+                              gpc_polygon     *subject_polygon,
+                              gpc_polygon     *clip_polygon,
+                              gpc_polygon     *result_polygon);
+
+extern "C" void gpc_tristrip_clip       (gpc_op           set_operation,
+                              gpc_polygon     *subject_polygon,
+                              gpc_polygon     *clip_polygon,
+                              gpc_tristrip    *result_tristrip);
+
+extern "C" void gpc_polygon_to_tristrip (gpc_polygon     *polygon,
+                              gpc_tristrip    *tristrip);
+
+extern "C" void gpc_free_polygon        (gpc_polygon     *polygon);
+
+extern "C" void gpc_free_tristrip       (gpc_tristrip    *tristrip);
+
+#else
+void gpc_read_polygon        (FILE            *infile_ptr, 
+                              int              read_hole_flags,
+                              gpc_polygon     *polygon);
+
+void gpc_write_polygon       (FILE            *outfile_ptr,
+                              int              write_hole_flags,
+                              gpc_polygon     *polygon);
+
+void gpc_add_contour         (gpc_polygon     *polygon,
+                              gpc_vertex_list *contour,
+                              int              hole);
+
+void gpc_polygon_clip        (gpc_op           set_operation,
+                              gpc_polygon     *subject_polygon,
+                              gpc_polygon     *clip_polygon,
+                              gpc_polygon     *result_polygon);
+
+void gpc_tristrip_clip       (gpc_op           set_operation,
+                              gpc_polygon     *subject_polygon,
+                              gpc_polygon     *clip_polygon,
+                              gpc_tristrip    *result_tristrip);
+
+void gpc_polygon_to_tristrip (gpc_polygon     *polygon,
+                              gpc_tristrip    *tristrip);
+
+void gpc_free_polygon        (gpc_polygon     *polygon);
+
+void gpc_free_tristrip       (gpc_tristrip    *tristrip);
+#endif
+
+#endif
+
+/*
+===========================================================================
+                           End of file: gpc.h
+===========================================================================
+*/
+
+/*
+===========================================================================
+
+Project:   Generic Polygon Clipper
+
+           A new algorithm for calculating the difference, intersection,
+           exclusive-or or union of arbitrary polygon sets.
+
 File:      gpc.c
 Author:    Alan Murta (email: gpc@cs.man.ac.uk)
 Version:   2.31
@@ -36,8 +202,6 @@ Copyright: (C) 1997-1999, Advanced Interfaces Group,
                                 Includes
 ===========================================================================
 */
-
-#include "Polygon_Intersection_GPC.h"
 
 #include <stdlib.h>
 #include <float.h>
@@ -2470,3 +2634,187 @@ void gpc_tristrip_clip(gpc_op op, gpc_polygon *subj, gpc_polygon *clip,
 ===========================================================================
 */
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#include "Polygon_Clipper.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool _GPC_Set_Polygon(CSG_Shape *pShape, gpc_polygon *pPolygon)
+{
+	pPolygon->contour		= NULL;
+	pPolygon->hole			= NULL;
+	pPolygon->num_contours	= 0;
+
+	for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+	{
+		if( pShape->Get_Point_Count(iPart) > 0 )
+		{
+			gpc_vertex	*Contour	= (gpc_vertex *)malloc(pShape->Get_Point_Count(iPart) * sizeof(gpc_vertex));
+
+			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+			{
+				TSG_Point	Point	= pShape->Get_Point(iPoint, iPart);
+				Contour[iPoint].x	= Point.x;
+				Contour[iPoint].y	= Point.y;
+			}
+
+			gpc_vertex_list	vList;
+
+			vList.num_vertices	= pShape->Get_Point_Count(iPart);
+			vList.vertex		= Contour;
+			gpc_add_contour(pPolygon, &vList, ((CSG_Shape_Polygon *)pShape)->is_Lake(iPart) ? 1 : 0);
+
+			free(Contour);
+		}
+	}
+
+	return( pPolygon->num_contours > 0 );
+}
+
+//---------------------------------------------------------
+bool _GPC_Get_Polygon(CSG_Shape *pShape, gpc_polygon *pPolygon)
+{
+	pShape->Del_Parts();
+
+	if( pPolygon->num_contours > 0 )
+	{
+		for(int iPart=0; iPart<pPolygon->num_contours; iPart++)
+		{
+			gpc_vertex	*Contour	= pPolygon->contour[iPart].vertex;
+			int			nPoints		= pPolygon->contour[iPart].num_vertices;
+
+			for(int iPoint=0; iPoint<nPoints; iPoint++)
+			{
+				pShape->Add_Point(Contour[iPoint].x, Contour[iPoint].y, iPart);
+			}
+		}
+	}
+
+	return( pShape->is_Valid() );
+}
+
+//---------------------------------------------------------
+bool _GPC_Clip(gpc_op Clip_Type, CSG_Shape *pShape_A, CSG_Shape *pShape_B, CSG_Shape *pShape_AB)
+{
+	gpc_polygon	poly_A, poly_B, poly_AB;
+
+	if(	_GPC_Set_Polygon(pShape_A, &poly_A) )
+	{
+		if( _GPC_Set_Polygon(pShape_B, &poly_B) )
+		{
+			gpc_polygon_clip(Clip_Type, &poly_A, &poly_B, &poly_AB);
+
+			if( pShape_AB == NULL )
+			{
+				pShape_AB	= pShape_A;
+			}
+
+			_GPC_Get_Polygon(pShape_AB, &poly_AB);
+
+			gpc_free_polygon(&poly_AB);
+			gpc_free_polygon(&poly_B);
+		}
+
+		gpc_free_polygon(&poly_A);
+	}
+
+	return( pShape_AB && pShape_AB->is_Valid() );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool GPC_Intersection(CSG_Shape *pShape_A, CSG_Shape *pShape_B, CSG_Shape *pShape_AB)
+{
+	return( _GPC_Clip(GPC_INT, pShape_A, pShape_B, pShape_AB) );
+}
+
+//---------------------------------------------------------
+bool GPC_Difference(CSG_Shape *pShape_A, CSG_Shape *pShape_B, CSG_Shape *pShape_AB)
+{
+	return( _GPC_Clip(GPC_DIFF, pShape_A, pShape_B, pShape_AB) );
+}
+
+//---------------------------------------------------------
+bool GPC_ExclusiveOr(CSG_Shape *pShape_A, CSG_Shape *pShape_B, CSG_Shape *pShape_AB)
+{
+	return( _GPC_Clip(GPC_XOR, pShape_A, pShape_B, pShape_AB) );
+}
+
+//---------------------------------------------------------
+bool GPC_Union(CSG_Shape *pShape_A, CSG_Shape *pShape_B, CSG_Shape *pShape_AB)
+{
+	return( _GPC_Clip(GPC_UNION, pShape_A, pShape_B, pShape_AB) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool GPC_Self_Union(CSG_Shapes *pShapes, CSG_Shape *pUnion)
+{
+	if(	pShapes && pShapes->is_Valid() && pShapes->Get_Count() > 1 )
+	{
+		gpc_polygon	poly_A, poly_B, poly, *pA, *pB, *pC;
+
+		pA	= &poly_A;
+		pB	= &poly_B;
+
+		if( _GPC_Set_Polygon(pShapes->Get_Shape(0), &poly_A) )
+		{
+			for(int iShape=1; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+			{
+				if( _GPC_Set_Polygon(pShapes->Get_Shape(iShape), &poly) )
+				{
+					gpc_polygon_clip(GPC_UNION, pA, &poly, pB);
+
+					pC	= pA;
+					pA	= pB;
+					pB	= pC;
+
+					gpc_free_polygon(&poly);
+					gpc_free_polygon(pB);
+				}
+			}
+
+			_GPC_Get_Polygon(pUnion, pA);
+
+			gpc_free_polygon(pA);
+
+			return( pUnion->is_Valid() );
+		}
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

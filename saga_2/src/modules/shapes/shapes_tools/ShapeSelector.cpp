@@ -17,7 +17,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/ 
 #include "ShapeSelector.h"
-#include "Intersection_GPC.h"
+#include "Polygon_Clipper.h"
 
 
 CShapeSelector::CShapeSelector(CSG_Shapes *pShapes,
@@ -102,80 +102,3 @@ int CShapeSelector::GetSelectedRecordsCount(){
 	return m_pSelectedRecords.size();
 
 }//method
-
-bool CShapeSelector::GPC_Intersection(CSG_Shape *pShape_A, CSG_Shape *pShape_B, CSG_Shape *pShape_AB)
-{
-	bool		bResult;
-	int			iPoint, nPoints, iPart;
-	gpc_polygon	poly_A, poly_B, poly_AB;
-	gpc_vertex	*Contour;
-
-	bResult	= false;
-
-	if(	GPC_Create_Polygon(pShape_A, &poly_A)
-	&&	GPC_Create_Polygon(pShape_B, &poly_B) )
-	{
-		gpc_polygon_clip(GPC_INT, &poly_A, &poly_B, &poly_AB);
-
-		if( poly_AB.num_contours > 0 )
-		{
-			pShape_AB->Del_Parts();
-
-			for(iPart=0; iPart<poly_AB.num_contours; iPart++)
-			{
-				Contour	= poly_AB.contour[iPart].vertex;
-				nPoints	= poly_AB.contour[iPart].num_vertices;
-
-				for(iPoint=0; iPoint<nPoints; iPoint++)
-				{
-					pShape_AB->Add_Point(Contour[iPoint].x, Contour[iPoint].y, iPart);
-				}
-			}
-
-			bResult	= true;
-		}
-
-		gpc_free_polygon(&poly_AB);
-	}
-
-	gpc_free_polygon(&poly_A);
-	gpc_free_polygon(&poly_B);
-
-	return( bResult );
-}
-
-bool CShapeSelector::GPC_Create_Polygon(CSG_Shape *pShape, gpc_polygon *pPolygon)
-{
-	int				iPoint, iPart;
-	TSG_Point		Point;
-	gpc_vertex		*Contour;
-	gpc_vertex_list	vList;
-
-	pPolygon->contour		= NULL;
-	pPolygon->hole			= NULL;
-	pPolygon->num_contours	= 0;
-
-	//-----------------------------------------------------
-	for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
-	{
-		if( pShape->Get_Point_Count(iPart) > 0 )
-		{
-			Contour	= (gpc_vertex *)malloc(pShape->Get_Point_Count(iPart) * sizeof(gpc_vertex));
-
-			for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
-			{
-				Point	= pShape->Get_Point(iPoint, iPart);
-				Contour[iPoint].x	= Point.x;
-				Contour[iPoint].y	= Point.y;
-			}
-
-			vList.num_vertices	= pShape->Get_Point_Count(iPart);
-			vList.vertex		= Contour;
-			gpc_add_contour(pPolygon, &vList, ((CSG_Shape_Polygon *)pShape)->is_Lake(iPart) ? 1 : 0);
-
-			free(Contour);
-		}
-	}
-
-	return( pPolygon->num_contours > 0 );
-}

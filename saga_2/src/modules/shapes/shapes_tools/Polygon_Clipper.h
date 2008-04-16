@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 Polygon_Intersection.h                //
+//                   Polygon_Clipper.h                   //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -58,8 +58,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Polygon_Intersection_H
-#define HEADER_INCLUDED__Polygon_Intersection_H
+#ifndef HEADER_INCLUDED__Polygon_Clipper_H
+#define HEADER_INCLUDED__Polygon_Clipper_H
 
 
 ///////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -79,35 +79,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPolygon_Intersection : public CSG_Module  
-{
-public:
-	CPolygon_Intersection(void);
-	virtual ~CPolygon_Intersection(void);
-
-
-protected:
-
-	virtual bool			On_Execute			(void);
-
-
-private:
-
-	bool					m_bSplitParts;
-
-	int						m_ID_Mode;
-
-	CSG_Shapes				*m_pShapes_AB;
-
-
-	bool					Get_Intersection	(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B);
-	bool					Get_Difference		(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B, int ID_Mode = 0);
-	bool					Get_Union			(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B);
-
-	void					Add_Polygon			(CSG_Shape *pShape, int ID_A, int ID_B = -1);
-	CSG_Shape *				Add_Polygon			(int ID_A, int ID_B);
-
-};
+bool		GPC_Intersection	(CSG_Shape *pShape_A, CSG_Shape *pShape_B, CSG_Shape *pShape_AB = NULL);
+bool		GPC_Difference		(CSG_Shape *pShape_A, CSG_Shape *pShape_B, CSG_Shape *pShape_AB = NULL);
+bool		GPC_ExclusiveOr		(CSG_Shape *pShape_A, CSG_Shape *pShape_B, CSG_Shape *pShape_AB = NULL);
+bool		GPC_Union			(CSG_Shape *pShape_A, CSG_Shape *pShape_B, CSG_Shape *pShape_AB = NULL);
 
 
 ///////////////////////////////////////////////////////////
@@ -117,4 +92,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Polygon_Intersection_H
+#endif // #ifndef HEADER_INCLUDED__Polygon_Clipper_H

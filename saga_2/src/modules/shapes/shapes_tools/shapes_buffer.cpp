@@ -57,6 +57,8 @@
 //---------------------------------------------------------
 #include "shapes_buffer.h"
 
+#include "Polygon_Clipper.h"
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -539,14 +541,13 @@ void CShapes_Buffer::Add_Buffer(void)
 
 	if( m_pUnion->is_Valid() )
 	{
-		for(int iPart=0; iPart<m_pUnion->Get_Part_Count(); iPart++)
+		if( m_pBuffer->Get_Part_Count() )
 		{
-			int		jPart	= m_pBuffer->Get_Part_Count();
-
-			for(int iPoint=0; iPoint<m_pUnion->Get_Point_Count(iPart); iPoint++)
-			{
-				m_pBuffer->Add_Point(m_pUnion->Get_Point(iPoint, iPart), jPart);
-			}
+			GPC_Union(m_pBuffer, m_pUnion);
+		}
+		else
+		{
+			m_pBuffer->Assign(m_pUnion, false);
 		}
 	}
 }
