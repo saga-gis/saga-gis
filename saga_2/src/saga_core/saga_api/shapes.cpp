@@ -310,7 +310,7 @@ bool CSG_Shapes::Assign(CSG_Data_Object *pObject)
 
 		SG_UI_Process_Set_Ready();
 
-		_Extent_Update();
+		_Update_Extent();
 
 		Get_History().Assign(pObject->Get_History());
 
@@ -530,7 +530,7 @@ bool CSG_Shapes::Del_Shapes(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Shapes::_Extent_Update(void)
+void CSG_Shapes::_Update_Extent(void)
 {
 	int		i;
 

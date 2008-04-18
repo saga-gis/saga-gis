@@ -445,7 +445,7 @@ bool CSG_Shapes::_Save_ESRI(const SG_Char *File_Name)
 	//-----------------------------------------------------
 	// Save Header...
 
-	_Extent_Update();
+	_Update_Extent();
 
 	dRect	= m_Extent.m_rect;
 

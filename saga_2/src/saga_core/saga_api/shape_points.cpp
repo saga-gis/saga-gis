@@ -134,7 +134,7 @@ bool CSG_Shape_Points::On_Assign(CSG_Shape *pShape)
 int CSG_Shape_Points::_Add_Part(void)
 {
 	m_pParts			= (CSG_Shape_Part **)SG_Realloc(m_pParts , (m_nParts + 1) * sizeof(CSG_Shape_Part *));
-	m_pParts[m_nParts]	= new CSG_Shape_Part(this);
+	m_pParts[m_nParts]	= _Get_Part();
 
 	m_nParts++;
 
@@ -157,7 +157,7 @@ int CSG_Shape_Points::Del_Part(int del_Part)
 
 		m_pParts	= (CSG_Shape_Part **)SG_Realloc(m_pParts , m_nParts * sizeof(CSG_Shape_Part *));
 
-		_Extent_Invalidate();
+		_Invalidate();
 	}
 
 	return( m_nParts );
@@ -229,7 +229,7 @@ int CSG_Shape_Points::Del_Point(int del_Point, int iPart)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Shape_Points::_Extent_Update(void)
+void CSG_Shape_Points::_Update_Extent(void)
 {
 	if( m_bUpdate )
 	{

@@ -95,14 +95,13 @@ private:
 
 	bool					m_bSplitParts;
 
-	int						m_ID_Mode;
+	int						m_Mode;
 
 	CSG_Shapes				*m_pShapes_AB;
 
 
-	bool					Get_Intersection	(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B);
-	bool					Get_Difference		(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B, int ID_Mode = 0);
-	bool					Get_Union			(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B);
+	bool					Get_Intersection	(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B, int Mode);
+	bool					Get_Difference		(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B, int Mode);
 
 	void					Add_Polygon			(CSG_Shape *pShape, int ID_A, int ID_B = -1);
 	CSG_Shape *				Add_Polygon			(int ID_A, int ID_B);

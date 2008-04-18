@@ -111,7 +111,7 @@ int CSG_Shape_Point::Add_Point(double x, double y, int iPart)
 	m_Point.x	= x;
 	m_Point.y	= y;
 
-	_Extent_Invalidate();
+	_Invalidate();
 
 	return( 1 );
 }

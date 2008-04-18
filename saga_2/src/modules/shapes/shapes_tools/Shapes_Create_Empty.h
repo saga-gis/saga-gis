@@ -78,10 +78,12 @@ public:
 	CShapes_Create_Empty(void);
 	virtual ~CShapes_Create_Empty(void);
 
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Construction") );	}
+
 
 protected:
 
-	virtual bool			On_Execute(void);
+	virtual bool				On_Execute				(void);
 
 };
 

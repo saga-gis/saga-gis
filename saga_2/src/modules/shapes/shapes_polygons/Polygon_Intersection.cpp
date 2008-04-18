@@ -70,6 +70,18 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define MODE_SINGLE		1
+#define MODE_FIRST		2
+#define MODE_SECOND		3
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CPolygon_Intersection::CPolygon_Intersection(void)
 {
 	CSG_Parameter	*pNode;
@@ -80,27 +92,27 @@ CPolygon_Intersection::CPolygon_Intersection(void)
 	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
-		"Polygon_Intersection of polygon shapes. Based on the GPC (General Polygon Clipper, version 2.31) code of Alan Murta."
+		"Intersection of polygon layers. Uses GPC - General Polygon Clipper - version 2.31 by Alan Murta."
 	));
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES_A"	, _TL("Layer A"),
 		_TL(""),
-		PARAMETER_INPUT
+		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES_B"	, _TL("Layer B"),
 		_TL(""),
-		PARAMETER_INPUT
+		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES_AB"	, _TL("Intersection"),
 		_TL(""),
-		PARAMETER_OUTPUT
+		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
 	//-----------------------------------------------------
@@ -159,13 +171,9 @@ bool CPolygon_Intersection::On_Execute(void)
 		case 0:	// Complete Intersection...
 			sName.Printf(SG_T("%s [%s]-[%s]"), _TL("Intersection"), pShapes_A->Get_Name(), pShapes_B->Get_Name());
 
-			Get_Intersection(pShapes_A, pShapes_B);
-
-			if( Parameters("METHOD")->asInt() == 0 )	// Complete Intersection...
-			{
-				Get_Difference(pShapes_A, pShapes_B, 1);
-				Get_Difference(pShapes_B, pShapes_A, 2);
-			}
+			Get_Intersection(pShapes_A, pShapes_B, MODE_FIRST);
+			Get_Difference	(pShapes_A, pShapes_B, MODE_FIRST);
+			Get_Difference	(pShapes_B, pShapes_A, MODE_SECOND);
 
 			break;
 
@@ -173,7 +181,7 @@ bool CPolygon_Intersection::On_Execute(void)
 		case 1:	// Intersection...
 			sName.Printf(SG_T("%s [%s]-[%s]"), _TL("Intersection"), pShapes_A->Get_Name(), pShapes_B->Get_Name());
 
-			Get_Intersection(pShapes_A, pShapes_B);
+			Get_Intersection(pShapes_A, pShapes_B, MODE_SINGLE);
 
 			break;
 
@@ -181,7 +189,7 @@ bool CPolygon_Intersection::On_Execute(void)
 		case 2:						// Difference A - B...
 			sName.Printf(SG_T("%s [%s]-[%s]"), _TL("Difference"), pShapes_A->Get_Name(), pShapes_B->Get_Name());
 
-			Get_Difference(pShapes_A, pShapes_B);
+			Get_Difference	(pShapes_A, pShapes_B, MODE_SINGLE);
 
 			break;
 
@@ -189,15 +197,7 @@ bool CPolygon_Intersection::On_Execute(void)
 		case 3:						// Difference B - A...
 			sName.Printf(SG_T("%s [%s]-[%s]"), _TL("Difference"), pShapes_B->Get_Name(), pShapes_A->Get_Name());
 
-			Get_Difference(pShapes_B, pShapes_A);
-
-			break;
-
-		//-------------------------------------------------
-		case 4:						// Union...
-			sName.Printf(SG_T("%s [%s]-[%s]"), _TL("Union"), pShapes_A->Get_Name(), pShapes_B->Get_Name());
-
-			Get_Union(pShapes_A, pShapes_B);
+			Get_Difference	(pShapes_B, pShapes_A, MODE_SINGLE);
 
 			break;
 		}
@@ -219,14 +219,18 @@ bool CPolygon_Intersection::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPolygon_Intersection::Get_Intersection(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B)
+bool CPolygon_Intersection::Get_Intersection(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B, int Mode)
 {
 	CSG_Shape	*pShape_A, *pShape_AB;
 	CSG_Shapes	Tmp(SHAPE_TYPE_Polygon);
 
-	m_pShapes_AB->Get_Table().Add_Field("ID_B"	, TABLE_FIELDTYPE_Int);
+	if( Mode == MODE_FIRST )
+	{
+		m_pShapes_AB->Get_Table().Add_Field("ID_B"	, TABLE_FIELDTYPE_Int);
+		m_pShapes_AB->Get_Table().Add_Field("ID_AB"	, TABLE_FIELDTYPE_Int);
+	}
 
-	m_ID_Mode	= 1;
+	m_Mode		= Mode;
 
 	pShape_A	= Tmp.Add_Shape();
 	pShape_AB	= Tmp.Add_Shape();
@@ -253,12 +257,12 @@ bool CPolygon_Intersection::Get_Intersection(CSG_Shapes *pShapes_A, CSG_Shapes *
 }
 
 //---------------------------------------------------------
-bool CPolygon_Intersection::Get_Difference(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B, int ID_Mode)
+bool CPolygon_Intersection::Get_Difference(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B, int Mode)
 {
 	CSG_Shape	*pShape_A;
 	CSG_Shapes	Tmp(SHAPE_TYPE_Polygon);
 
-	m_ID_Mode	= ID_Mode;
+	m_Mode		= Mode;
 
 	pShape_A	= Tmp.Add_Shape();
 
@@ -292,34 +296,6 @@ bool CPolygon_Intersection::Get_Difference(CSG_Shapes *pShapes_A, CSG_Shapes *pS
 	return( m_pShapes_AB->is_Valid() );
 }
 
-//---------------------------------------------------------
-bool CPolygon_Intersection::Get_Union(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B)
-{
-	if( pShapes_A->Get_Count() > 0 )
-	{
-		int			iShape;
-		CSG_Shape	*pShape	= Add_Polygon(0, 0);
-
-		pShape->Assign(pShapes_A->Get_Shape(0), false);
-
-		for(iShape=1; iShape<pShapes_A->Get_Count() && Set_Progress(iShape, pShapes_A->Get_Count()); iShape++)
-		{
-			if( GPC_Union(pShape, pShapes_A->Get_Shape(iShape)) )
-			{
-			}
-		}
-
-		for(iShape=0; iShape<pShapes_B->Get_Count() && Set_Progress(iShape, pShapes_B->Get_Count()); iShape++)
-		{
-			if( GPC_Union(pShape, pShapes_B->Get_Shape(iShape)) )
-			{
-			}
-		}
-	}
-
-	return( m_pShapes_AB->is_Valid() );
-}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -336,21 +312,20 @@ CSG_Shape * CPolygon_Intersection::Add_Polygon(int ID_A, int ID_B)
 	{
 		pShape->Get_Record()->Set_Value(0, m_pShapes_AB->Get_Count());
 
-		switch( m_ID_Mode )
+		if( m_Mode == MODE_SINGLE )	// ID_A only
 		{
-		case 0:	// ID_A only
 			pShape->Get_Record()->Set_Value(1, ID_A);
-			break;
+		}
+		else
+		{
+			if( m_Mode == MODE_SECOND )
+			{
+				int		ID	= ID_A;	ID_A	= ID_B;	ID_B	= ID;
+			}
 
-		case 1:	// ID_A first
 			pShape->Get_Record()->Set_Value(1, ID_A);
 			pShape->Get_Record()->Set_Value(2, ID_B);
-			break;
-
-		case 2:	// ID_B first
-			pShape->Get_Record()->Set_Value(1, ID_B);
-			pShape->Get_Record()->Set_Value(2, ID_A);
-			break;
+			pShape->Get_Record()->Set_Value(3, ID_A >= 0 && ID_B >= 0 ? 0 : ID_A >= 0 ? -1 : 1);
 		}
 	}
 
@@ -366,8 +341,7 @@ void CPolygon_Intersection::Add_Polygon(CSG_Shape *pShape, int ID_A, int ID_B)
 	{
 		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{
-			if( !((CSG_Shape_Polygon *)pShape)->is_Lake(iPart)
-			&&	(pShape_Add = Add_Polygon(ID_A, ID_B)) != NULL )
+			if( !((CSG_Shape_Polygon *)pShape)->is_Lake(iPart) && (pShape_Add = Add_Polygon(ID_A, ID_B)) != NULL )
 			{
 				int		iPoint;
 

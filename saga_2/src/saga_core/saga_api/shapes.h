@@ -165,7 +165,7 @@ protected:
 	virtual bool				On_Assign			(CSG_Shape *pShape)								= 0;
 	virtual int					On_Intersects		(TSG_Rect Extent)								= 0;
 
-	virtual void				_Extent_Invalidate	(void);
+	virtual void				_Invalidate			(void);
 
 };
 
@@ -239,7 +239,7 @@ public:
 
 	bool						Assign				(CSG_Shape_Part *pPart);
 
-	const CSG_Rect &			Get_Extent			(void)	{	_Extent_Update();	return( m_Extent );	}
+	const CSG_Rect &			Get_Extent			(void)	{	_Update_Extent();	return( m_Extent );	}
 
 	int							Get_Count			(void)	{	return( m_nPoints );	}
 
@@ -282,8 +282,9 @@ protected:
 
 	bool						_Alloc_Memory		(int nPoints);
 
-	void						_Extent_Invalidate	(void);
-	void						_Extent_Update		(void);
+	virtual void				_Invalidate			(void);
+
+	virtual void				_Update_Extent		(void);
 
 };
 
@@ -328,7 +329,7 @@ public:
 		return( CSG_Point(0.0, 0.0) );
 	}
 
-	virtual const CSG_Rect &	Get_Extent			(void)		{	_Extent_Update();	return( m_Extent );	}
+	virtual const CSG_Rect &	Get_Extent			(void)		{	_Update_Extent();	return( m_Extent );	}
 
 	virtual double				Get_Distance		(TSG_Point Point);
 	virtual double				Get_Distance		(TSG_Point Point, int iPart);
@@ -353,17 +354,19 @@ protected:
 
 	int							_Add_Part			(void);
 
-	virtual void				_Extent_Invalidate	(void)
+	virtual CSG_Shape_Part *	_Get_Part			(void)	{	return( new CSG_Shape_Part(this) );	}
+
+	virtual void				_Invalidate			(void)
 	{
 		if( !m_bUpdate )
 		{
 			m_bUpdate	= true;
 
-			CSG_Shape::_Extent_Invalidate();
+			CSG_Shape::_Invalidate();
 		}
 	}
 
-	void						_Extent_Update		(void);
+	void						_Update_Extent		(void);
 
 	virtual bool				On_Assign			(CSG_Shape *pShape);
 
@@ -410,32 +413,74 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Shape_Polygon_Part : public CSG_Shape_Part
+{
+	friend class CSG_Shape_Polygon;
+
+public:
+
+	bool						is_Clockwise		(void)	{	_Update_Area();	return( m_bClockwise == 1 );	}
+
+	double						Get_Perimeter		(void)	{	_Update_Area();	return( m_Perimeter );	}
+
+	double						Get_Area			(void)	{	_Update_Area();	return( m_Area );	}
+
+	const TSG_Point &			Get_Centroid		(void)	{	_Update_Area();	return( m_Centroid );	}
+
+	bool						is_Containing		(const TSG_Point &Point);
+	bool						is_Containing		(double x, double y);
+
+	double						Get_Distance		(TSG_Point Point, TSG_Point &Next);
+
+
+protected:
+
+	CSG_Shape_Polygon_Part(class CSG_Shape_Points *pOwner);
+	virtual ~CSG_Shape_Polygon_Part(void);
+
+
+	int							m_bClockwise, m_bLake;
+
+	double						m_Area, m_Perimeter;
+
+	TSG_Point					m_Centroid;
+
+
+	virtual void				_Invalidate			(void);
+
+	void						_Update_Area		(void);
+
+};
+
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Shape_Polygon : public CSG_Shape_Points
 {
 	friend class CSG_Shapes;
 
 public:
 
-	virtual bool				is_Valid			(void)	{	return( m_nParts > 0 && m_pParts[0]->Get_Count() > 2 );	}
+	virtual bool				is_Valid			(void)		{	return( m_nParts > 0 && m_pParts[0]->Get_Count() > 2 );	}
 
 
-	bool						is_Containing		(const TSG_Point &Point);
-	bool						is_Containing		(double x, double y);
-	bool						is_Containing		(const TSG_Point &Point, int iPart);
-	bool						is_Containing		(double x, double y, int iPart);
-
-	bool						is_Clockwise		(int iPart);
+	CSG_Shape_Polygon_Part *	Get_Polygon_Part	(int iPart)	{	return( (CSG_Shape_Polygon_Part *)Get_Part(iPart) );	}
 
 	bool						is_Lake				(int iPart);
 
-	double						Get_Perimeter		(void);
+	bool						is_Clockwise		(int iPart);
+
 	double						Get_Perimeter		(int iPart);
+	double						Get_Perimeter		(void);
 
-	double						Get_Area			(void);
 	double						Get_Area			(int iPart);
+	double						Get_Area			(void);
 
-	TSG_Point					Get_Centroid		(void);
 	TSG_Point					Get_Centroid		(int iPart);
+	TSG_Point					Get_Centroid		(void);
+
+	bool						is_Containing		(const TSG_Point &Point, int iPart);
+	bool						is_Containing		(const TSG_Point &Point);
+	bool						is_Containing		(double x, double y, int iPart);
+	bool						is_Containing		(double x, double y);
 
 	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next, int iPart);
 
@@ -445,9 +490,15 @@ protected:
 	CSG_Shape_Polygon(class CSG_Shapes *pOwner, CSG_Table_Record *pRecord);
 	virtual ~CSG_Shape_Polygon(void);
 
-	virtual int					On_Intersects		(TSG_Rect Region);
 
-	double						_Get_Area			(int iPart);
+	int							m_bUpdate_Lakes;
+
+
+	virtual CSG_Shape_Part *	_Get_Part			(void)	{	return( new CSG_Shape_Polygon_Part(this) );	}
+
+	virtual void				_Invalidate			(void);
+
+	virtual int					On_Intersects		(TSG_Rect Region);
 
 };
 
@@ -492,7 +543,7 @@ public:
 
 	CSG_Table &					Get_Table				(void)				{	return( m_Table );		}
 
-	const CSG_Rect &			Get_Extent				(void)				{	_Extent_Update();	return( m_Extent );	}
+	const CSG_Rect &			Get_Extent				(void)				{	_Update_Extent();	return( m_Extent );	}
 
 	//-----------------------------------------------------
 	CSG_Shape *					Add_Shape				(void);
@@ -538,8 +589,8 @@ protected:
 
 	void						_On_Construction		(void);
 
-	void						_Extent_Invalidate		(void)				{	m_bUpdate	= true;	}
-	void						_Extent_Update			(void);
+	void						_Invalidate				(void)				{	m_bUpdate	= true;	}
+	void						_Update_Extent			(void);
 
 	bool						_Inc_Array				(void);
 	bool						_Dec_Array				(void);

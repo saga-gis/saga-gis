@@ -151,7 +151,7 @@ bool CSG_Shape_Part::Destroy(void)
 
 	m_bUpdate	= true;
 
-	_Extent_Invalidate();
+	_Invalidate();
 
 	return( true );
 }
@@ -168,7 +168,7 @@ bool CSG_Shape_Part::Assign(CSG_Shape_Part *pPart)
 
 		if( m_pOwner )
 		{
-			m_pOwner->_Extent_Invalidate();
+			m_pOwner->_Invalidate();
 		}
 
 		return( true );
@@ -205,7 +205,7 @@ int CSG_Shape_Part::Ins_Point(double x, double y, int iPoint)
 		m_Points[iPoint].x	= x;
 		m_Points[iPoint].y	= y;
 
-		_Extent_Invalidate();
+		_Invalidate();
 
 		return( m_nPoints );
 	}
@@ -221,7 +221,7 @@ int CSG_Shape_Part::Set_Point(double x, double y, int iPoint)
 		m_Points[iPoint].x	= x;
 		m_Points[iPoint].y	= y;
 
-		_Extent_Invalidate();
+		_Invalidate();
 
 		return( 1 );
 	}
@@ -243,7 +243,7 @@ int CSG_Shape_Part::Del_Point(int del_Point)
 
 		_Alloc_Memory(m_nPoints);
 
-		_Extent_Invalidate();
+		_Invalidate();
 
 		return( 1 );
 	}
@@ -259,58 +259,51 @@ int CSG_Shape_Part::Del_Point(int del_Point)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Shape_Part::_Extent_Invalidate(void)
+inline void CSG_Shape_Part::_Invalidate(void)
 {
 	m_bUpdate	= true;
 
 	if( m_pOwner )
 	{
-		m_pOwner->_Extent_Invalidate();
+		m_pOwner->_Invalidate();
 	}
 }
 
 //---------------------------------------------------------
-void CSG_Shape_Part::_Extent_Update(void)
+void CSG_Shape_Part::_Update_Extent(void)
 {
 	if( m_bUpdate )
 	{
-		int			iPoint;
-		TSG_Point	*pPoint;
-		TSG_Rect	r;
-
-		r.xMin	=  1.0;
-		r.xMax	= -1.0;
-
-		for(iPoint=0, pPoint=m_Points; iPoint<m_nPoints; iPoint++, pPoint++)
+		if( m_nPoints > 0 )
 		{
-			if( r.xMin > r.xMax )
+			int			i;
+			TSG_Point	*p;
+			TSG_Rect	*r	= &m_Extent.m_rect;
+
+			r->xMin	= r->xMax	= m_Points[0].x;
+			r->yMin	= r->yMax	= m_Points[0].y;
+
+			for(i=1, p=m_Points; i<m_nPoints; i++, p++)
 			{
-				r.xMin	= r.xMax	= pPoint->x;
-				r.yMin	= r.yMax	= pPoint->y;
-			}
-			else
-			{
-				if( r.xMin > pPoint->x )
+				if( r->xMin > p->x )
 				{
-					r.xMin	= pPoint->x;
+					r->xMin	= p->x;
 				}
-				else if( r.xMax < pPoint->x )
+				else if( r->xMax < p->x )
 				{
-					r.xMax	= pPoint->x;
+					r->xMax	= p->x;
 				}
 
-				if( r.yMin > pPoint->y )
+				if( r->yMin > p->y )
 				{
-					r.yMin	= pPoint->y;
+					r->yMin	= p->y;
 				}
-				else if( r.yMax < pPoint->y )
+				else if( r->yMax < p->y )
 				{
-					r.yMax	= pPoint->y;
+					r->yMax	= p->y;
 				}
 			}
 		}
-
-		m_Extent.Assign(r);
 
 		m_bUpdate	= false;
 	}
