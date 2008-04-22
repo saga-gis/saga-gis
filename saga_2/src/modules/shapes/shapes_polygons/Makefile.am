@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.6 2008-04-16 16:21:00 oconrad Exp $
+# $Id: Makefile.am,v 1.7 2008-04-22 09:43:54 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -19,6 +19,7 @@ Polygon_Geometrics.cpp\
 Polygon_Intersection.cpp\
 Polygon_Clipper.cpp\
 Polygon_StatisticsFromPoints.cpp\
+Polygon_Union.cpp\
 Polygons_From_Lines.cpp\
 MLB_Interface.h\
 Polygon_Centroids.h\
@@ -26,6 +27,7 @@ Polygon_Geometrics.h\
 Polygon_Intersection.h\
 Polygon_Clipper.h\
 Polygon_StatisticsFromPoints.h\
+Polygon_Union.h\
 Polygons_From_Lines.h
 
 libshapes_polygons_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la

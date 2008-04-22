@@ -615,6 +615,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Polygon_Union.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Polygons_From_Lines.cpp"
 				>
 				<FileConfiguration
@@ -681,6 +685,10 @@
 			</File>
 			<File
 				RelativePath="Polygon_StatisticsFromPoints.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Polygon_Union.h"
 				>
 			</File>
 			<File

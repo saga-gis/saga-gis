@@ -237,9 +237,7 @@ bool CPolygon_Intersection::Get_Intersection(CSG_Shapes *pShapes_A, CSG_Shapes *
 
 	for(int iShape_A=0; iShape_A<pShapes_A->Get_Count() && Set_Progress(iShape_A, pShapes_A->Get_Count()); iShape_A++)
 	{
-		pShapes_B->Select(pShapes_A->Get_Shape(iShape_A)->Get_Extent().m_rect);
-
-		if( pShapes_B->Get_Selection_Count() > 0 )
+		if( pShapes_B->Select(pShapes_A->Get_Shape(iShape_A)->Get_Extent()) )
 		{
 			pShape_A	= pShapes_A->Get_Shape(iShape_A);
 

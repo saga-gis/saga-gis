@@ -127,6 +127,12 @@ CShapes_Buffer::CShapes_Buffer(void)
 	);
 
 	Parameters.Add_Value(
+		NULL	, "BUF_ZONES"	, _TL("Number of Buffer Zones"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 1, 1, true
+	);
+
+	Parameters.Add_Value(
 		NULL	, "DCIRCLE"		, _TL("Circle Point Distance [Degree]"),
 		_TL(""),
 		PARAMETER_TYPE_Double, 5.0, 0.01, true, 45.0, true
@@ -147,49 +153,82 @@ CShapes_Buffer::~CShapes_Buffer(void)
 //---------------------------------------------------------
 bool CShapes_Buffer::On_Execute(void)
 {
-	int			Type, Field, iShape;
-	double		Scale;
-	CSG_Shape	*pShape;
-	CSG_Shapes	*pShapes, *pBuffers, Tmp;
+	int			nZones;
+	CSG_Shapes	*pBuffers;
 
-	//-----------------------------------------------------
-	pShapes		= Parameters("SHAPES")		->asShapes();
 	pBuffers	= Parameters("BUFFER")		->asShapes();
-	Type		= Parameters("BUF_TYPE")	->asInt();
-	Field		= Parameters("BUF_FIELD")	->asInt();
-	Scale		= Parameters("BUF_SCALE")	->asDouble();
-	m_Distance	= Parameters("BUF_DIST")	->asDouble();
-	m_dArc		= Parameters("DCIRCLE")		->asDouble() * M_DEG_TO_RAD;
+	nZones		= Parameters("BUF_ZONES")	->asInt();
 
-	//-----------------------------------------------------
-	if( Type == 0 && m_Distance <= 0.0 )
+	if( Initialise() )
 	{
-		Message_Add(_TL("Invalid Buffer Distance"));
+		if( nZones == 1 )
+		{
+			Get_Buffers(pBuffers, 1.0);
+		}
+
+		//-------------------------------------------------
+		else if( nZones > 1 )
+		{
+			double		dZone		= 1.0 / nZones;
+			CSG_Shape	*pBuffer;
+			CSG_Shapes	Buffers;
+
+			pBuffers->Create(SHAPE_TYPE_Polygon);
+			pBuffers->Get_Table().Add_Field(_TL("ID")	, TABLE_FIELDTYPE_Int);
+			pBuffers->Get_Table().Add_Field(_TL("ZONE")	, TABLE_FIELDTYPE_Double);
+
+			for(int iZone=0; iZone<nZones; iZone++)
+			{
+				Get_Buffers(&Buffers, (nZones - iZone) * dZone);
+
+				if( iZone > 0 )
+				{
+					GPC_Difference(pBuffer, Buffers.Get_Shape(0));
+				}
+
+				pBuffer	= pBuffers->Add_Shape(Buffers.Get_Shape(0));
+				pBuffer	->Get_Record()->Set_Value(0, (nZones - iZone) + 1);
+				pBuffer	->Get_Record()->Set_Value(1, (nZones - iZone) * dZone * 100.0);
+			}
+		}
+
+		Finalise();
+
+		return( pBuffers->is_Valid() );
 	}
-	else if( !pShapes->is_Valid() )
-	{
-		Message_Add(_TL("Invalid Shapes"));
-	}
 
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CShapes_Buffer::Get_Buffers(CSG_Shapes *pBuffers, double dZone)
+{
 	//-----------------------------------------------------
-	else
+	if( pBuffers )
 	{
-		Tmp.Create(SHAPE_TYPE_Polygon);
-		m_pSegment	= Tmp.Add_Shape();
-		m_pUnion	= Tmp.Add_Shape();
-
-		pBuffers	->Create(SHAPE_TYPE_Polygon, CSG_String::Format(SG_T("%s [%s]"), pShapes->Get_Name(), _TL("Buffer")));
-		pBuffers	->Get_Table().Add_Field(_TL("ID")	, TABLE_FIELDTYPE_Int);
+		pBuffers	->Create(SHAPE_TYPE_Polygon, CSG_String::Format(SG_T("%s [%s]"), m_pShapes->Get_Name(), _TL("Buffer")));
+		pBuffers	->Get_Table().Add_Field(_TL("ID"), TABLE_FIELDTYPE_Int);
 		m_pBuffer	= pBuffers->Add_Shape();
 		m_pBuffer	->Get_Record()->Set_Value(0, 1);
 
-		for(iShape=0, m_ID=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
-		{
-			pShape	= pShapes->Get_Shape(iShape);
+		m_Distance	= dZone * Parameters("BUF_DIST")	->asDouble();
+		m_Scale		= dZone * Parameters("BUF_SCALE")	->asDouble();
+		m_ID		= 0;
 
-			if( Type == 0 || (m_Distance = Scale * pShape->Get_Record()->asDouble(Field)) > 0.0 )
+		for(int iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
+		{
+			CSG_Shape	*pShape	= m_pShapes->Get_Shape(iShape);
+
+			if( m_Type == 0 || (m_Distance = m_Scale * pShape->Get_Record()->asDouble(m_Field)) > 0.0 )
 			{
-				switch( pShapes->Get_Type() )
+				switch( m_pShapes->Get_Type() )
 				{
 				case SHAPE_TYPE_Point:		Get_Buffer_Point	(pShape);	break;
 				case SHAPE_TYPE_Points:		Get_Buffer_Points	(pShape);	break;
@@ -203,6 +242,54 @@ bool CShapes_Buffer::On_Execute(void)
 	}
 
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CShapes_Buffer::Initialise(void)
+{
+	//-----------------------------------------------------
+	m_pShapes	= Parameters("SHAPES")		->asShapes();
+	m_Type		= Parameters("BUF_TYPE")	->asInt();
+	m_Field		= Parameters("BUF_FIELD")	->asInt();
+	m_dArc		= Parameters("DCIRCLE")		->asDouble() * M_DEG_TO_RAD;
+
+	//-----------------------------------------------------
+	if( m_Type == 0 && Parameters("BUF_DIST")->asDouble() <= 0.0 )
+	{
+		Message_Add(_TL("Invalid Buffer Distance"));
+	}
+	else if( !m_pShapes->is_Valid() )
+	{
+		Message_Add(_TL("Invalid Shapes"));
+	}
+
+	//-----------------------------------------------------
+	else
+	{
+		m_Tmp.Create(SHAPE_TYPE_Polygon);
+
+		m_pSegment	= m_Tmp.Add_Shape();
+		m_pUnion	= m_Tmp.Add_Shape();
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CShapes_Buffer::Finalise(void)
+{
+	m_Tmp.Destroy();
+
+	return( true );
 }
 
 

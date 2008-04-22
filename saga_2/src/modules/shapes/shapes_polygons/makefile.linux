@@ -19,7 +19,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/Polygon_Centroids.o $(MLB_TEMP)/Polygon_Geometrics.o $(MLB_TEMP)/Polygon_Intersection.o $(MLB_TEMP)/Polygon_Clipper.o $(MLB_TEMP)/Polygon_StatisticsFromPoints.o $(MLB_TEMP)/Polygons_From_Lines.o
+OBJ      = $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/Polygon_Centroids.o $(MLB_TEMP)/Polygon_Geometrics.o $(MLB_TEMP)/Polygon_Intersection.o $(MLB_TEMP)/Polygon_Clipper.o $(MLB_TEMP)/Polygon_StatisticsFromPoints.o $(MLB_TEMP)/Polygon_Union.o $(MLB_TEMP)/Polygons_From_Lines.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS =
@@ -67,6 +67,9 @@ $(MLB_TEMP)/Polygon_Clipper.o: ./Polygon_Clipper.cpp
 
 $(MLB_TEMP)/Polygon_StatisticsFromPoints.o: ./Polygon_StatisticsFromPoints.cpp
 	$(CPP) -c ./Polygon_StatisticsFromPoints.cpp -o $(MLB_TEMP)/Polygon_StatisticsFromPoints.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Polygon_Union.o: ./Polygon_Union.cpp
+	$(CPP) -c ./Polygon_Union.cpp -o $(MLB_TEMP)/Polygon_Union.o $(CXXFLAGS)
 
 $(MLB_TEMP)/Polygons_From_Lines.o: ./Polygons_From_Lines.cpp
 	$(CPP) -c ./Polygons_From_Lines.cpp -o $(MLB_TEMP)/Polygons_From_Lines.o $(CXXFLAGS)

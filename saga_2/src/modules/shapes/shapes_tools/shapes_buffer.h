@@ -80,14 +80,21 @@ protected:
 
 	virtual bool				On_Execute				(void);
 
+	bool						Initialise				(void);
+	bool						Finalise				(void);
+
+	bool						Get_Buffers				(CSG_Shapes *pBuffers, double dZone);
+
 
 private:
 
-	int							m_ID;
+	int							m_ID, m_Type, m_Field;
 
-	double						m_Distance, m_dArc;
+	double						m_Distance, m_dArc, m_Scale;
 
 	CSG_Shape					*m_pSegment, *m_pUnion, *m_pBuffer;
+
+	CSG_Shapes					*m_pShapes, m_Tmp;
 
 
 	bool						Get_Buffer_Point		(CSG_Shape *pPoint);
