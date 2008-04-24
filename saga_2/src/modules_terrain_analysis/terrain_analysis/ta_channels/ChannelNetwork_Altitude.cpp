@@ -79,7 +79,7 @@ CChannelNetwork_Altitude::CChannelNetwork_Altitude(void)
 		"This module calculates the vertical distance to a channel network base level. "
 		"The algorithm consists of two major steps:\n"
 		" 1. Interpolation of a channel network base level elevation grid\n"
-		" 2. Sutraction of this grid from the original elevations\n")
+		" 2. Subtraction of this grid from the original elevations\n")
 	);
 
 
@@ -124,6 +124,12 @@ CChannelNetwork_Altitude::CChannelNetwork_Altitude(void)
 		_TL(""),
 		PARAMETER_TYPE_Double, 0.1
 	);
+
+	Parameters.Add_Value(
+		NULL, "NOUNDERGROUND", _TL("Keep Base Level above Surface"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	);
 }
 
 //---------------------------------------------------------
@@ -144,12 +150,13 @@ bool CChannelNetwork_Altitude::On_Execute(void)
 	double		max_Change, Threshold;
 
 	//-----------------------------------------------------
-	pDTM			= Parameters("ELEVATION")	->asGrid();
-	pChannels		= Parameters("CHANNELS")	->asGrid();
+	pDTM				= Parameters("ELEVATION")		->asGrid();
+	pChannels			= Parameters("CHANNELS")		->asGrid();
 
-	pResult			= Parameters("ALTITUDE")	->asGrid();
+	pResult				= Parameters("ALTITUDE")		->asGrid();
 
-	Threshold		= Parameters("THRESHOLD")	->asDouble();
+	Threshold			= Parameters("THRESHOLD")		->asDouble();
+	m_bNoUnderground	= Parameters("NOUNDERGROUND")	->asBool();
 
 	//-----------------------------------------------------
 	nCells			= Get_NX() > Get_NY() ? Get_NX() : Get_NY();
@@ -367,7 +374,7 @@ double CChannelNetwork_Altitude::Get_Changed(int x, int y, int nCells)
 	{
 		d	/= n;
 
-		return( d > pDTM->asDouble(x, y) ? pDTM->asDouble(x, y) : d );
+		return( m_bNoUnderground && d > pDTM->asDouble(x, y) ? pDTM->asDouble(x, y) : d );
 	}
 
 	return( pResult->asDouble(x, y) );

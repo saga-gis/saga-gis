@@ -134,7 +134,8 @@ const SG_Char	gSG_Table_Field_Type_Names[][32]	=
 	SG_T("FLOAT"),
 	SG_T("DOUBLE"),
 	SG_T("STRING"),
-	SG_T("COLOR")
+	SG_T("COLOR"),
+	SG_T("DATE")
 };
 
 

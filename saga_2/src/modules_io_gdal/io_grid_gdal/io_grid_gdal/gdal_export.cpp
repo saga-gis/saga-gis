@@ -198,7 +198,11 @@ bool CGDAL_Export::On_Execute(void)
 	}
 	else
 	{
-		double	Transform[6]	= {	Get_XMin(), Get_Cellsize(), 0.0, Get_System()->Get_YMax(), 0.0, -Get_Cellsize()	};
+		double	Transform[6]	=
+		{
+			Get_System()->Get_XMin() - 0.5 * Get_Cellsize(), Get_Cellsize(), 0.0,
+			Get_System()->Get_YMax() + 0.5 * Get_Cellsize(), 0.0, -Get_Cellsize()
+		};
 
 		pDataset->SetGeoTransform(Transform);
 		zLine	= (double *)SG_Malloc(Get_NX() * sizeof(double));

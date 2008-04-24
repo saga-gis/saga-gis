@@ -181,7 +181,12 @@ bool CSG_Table::Create(const CSG_Table &Table)
 
 bool CSG_Table::_Create(const CSG_Table &Table)
 {
-	return( Assign((CSG_Data_Object *)&Table) );
+	if( Assign((CSG_Data_Object *)&Table) )
+	{
+		Set_Name(Table.Get_Name());
+
+		return( true );
+	}
 }
 
 //---------------------------------------------------------

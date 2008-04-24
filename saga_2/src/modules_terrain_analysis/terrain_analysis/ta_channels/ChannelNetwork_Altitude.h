@@ -93,7 +93,9 @@ protected:
 
 private:
 
-	CSG_Grid					*pDTM, *pChannels, *pResult, *pT_Chnl, *pT_Temp;
+	bool					m_bNoUnderground;
+
+	CSG_Grid				*pDTM, *pChannels, *pResult, *pT_Chnl, *pT_Temp;
 
 
 	void					Initialize_Surface	(int nCells);
