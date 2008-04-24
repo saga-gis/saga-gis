@@ -142,6 +142,25 @@ GDALDataType CGDAL_Driver::Get_GDAL_Type(CSG_Parameter_Grid_List *pGrids)
 	return( Get_GDAL_Type(Type) );
 }
 
+//---------------------------------------------------------
+bool CGDAL_Driver::Set_Transform(GDALDataset *pDataset, CSG_Grid_System *pSystem)
+{
+	if( pDataset && pSystem )
+	{
+		double	Transform[6]	=
+		{
+			pSystem->Get_XMin() - 0.5 * pSystem->Get_Cellsize(), pSystem->Get_Cellsize(), 0.0,
+			pSystem->Get_YMax() + 0.5 * pSystem->Get_Cellsize(), 0.0, -pSystem->Get_Cellsize()
+		};
+
+		pDataset->SetGeoTransform(Transform);
+
+		return( true );
+	}
+
+	return( false );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -192,7 +211,7 @@ bool CGDAL_System::Create(GDALDataset *pDataSet)
 		m_DX	= m_Transform[1];
 		m_DY	= m_Transform[5];
 
-		to_World(0, m_NY - 1, m_xMin, m_yMin);
+		to_World(0.5, m_NY - 0.5, m_xMin, m_yMin);
 
 		return( true );
 	}

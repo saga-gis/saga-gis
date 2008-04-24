@@ -194,6 +194,8 @@ bool CShapes_Buffer::On_Execute(void)
 
 		Finalise();
 
+		pBuffers->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pShapes->Get_Name(), _TL("Buffer")));
+
 		return( pBuffers->is_Valid() );
 	}
 
@@ -213,7 +215,7 @@ bool CShapes_Buffer::Get_Buffers(CSG_Shapes *pBuffers, double dZone)
 	//-----------------------------------------------------
 	if( pBuffers )
 	{
-		pBuffers	->Create(SHAPE_TYPE_Polygon, CSG_String::Format(SG_T("%s [%s]"), m_pShapes->Get_Name(), _TL("Buffer")));
+		pBuffers	->Create(SHAPE_TYPE_Polygon);
 		pBuffers	->Get_Table().Add_Field(_TL("ID"), TABLE_FIELDTYPE_Int);
 		m_pBuffer	= pBuffers->Add_Shape();
 		m_pBuffer	->Get_Record()->Set_Value(0, 1);
@@ -349,15 +351,32 @@ bool CShapes_Buffer::Get_Buffer_Line(CSG_Shape *pLine)
 //---------------------------------------------------------
 bool CShapes_Buffer::Get_Buffer_Polygon(CSG_Shape *pPolygon)
 {
+	int		iPart;
+
 	Del_Duplicates(pPolygon);
 
-	for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
+	for(iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
 	{
-		m_pSegment->Del_Parts();
+		if( ((CSG_Shape_Polygon *)pPolygon)->is_Lake(iPart) == false )
+		{
+			m_pSegment->Del_Parts();
 
-		Add_Polygon((CSG_Shape_Polygon *)pPolygon, iPart);
+			Add_Polygon((CSG_Shape_Polygon *)pPolygon, iPart);
 
-		Add_Buffer();
+			Add_Buffer();
+		}
+	}
+
+	for(iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
+	{
+		if( ((CSG_Shape_Polygon *)pPolygon)->is_Lake(iPart) == true )
+		{
+			m_pSegment->Del_Parts();
+
+			Add_Polygon((CSG_Shape_Polygon *)pPolygon, iPart);
+
+			Add_Buffer(true);
+		}
 	}
 
 	return( true );
@@ -622,7 +641,7 @@ void CShapes_Buffer::Add_Polygon(CSG_Shape_Polygon *pShape, int iPart)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CShapes_Buffer::Add_Buffer(void)
+void CShapes_Buffer::Add_Buffer(bool bLake)
 {
 	Get_SelfIntersection();
 
@@ -630,7 +649,25 @@ void CShapes_Buffer::Add_Buffer(void)
 	{
 		if( m_pBuffer->Get_Part_Count() )
 		{
-			GPC_Union(m_pBuffer, m_pUnion);
+			if( bLake )
+			{
+				for(int iPart=m_pUnion->Get_Part_Count()-1; iPart>=0; iPart--)
+				{
+					if( ((CSG_Shape_Polygon *)m_pUnion)->is_Clockwise(iPart) )
+					{
+						m_pUnion->Del_Part(iPart);
+					}
+				}
+
+				if( m_pUnion->Get_Part_Count() > 0 )
+				{
+					GPC_Difference(m_pBuffer, m_pUnion);
+				}
+			}
+			else
+			{
+				GPC_Union(m_pBuffer, m_pUnion);
+			}
 		}
 		else
 		{

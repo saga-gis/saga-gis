@@ -87,6 +87,7 @@ public:
 	static TSG_Grid_Type	Get_Grid_Type	(GDALDataType  Type);
 	static GDALDataType		Get_GDAL_Type	(TSG_Grid_Type Type);
 	static GDALDataType		Get_GDAL_Type	(CSG_Parameter_Grid_List *pGrids);
+	static bool				Set_Transform	(GDALDataset *pDataset, CSG_Grid_System *pSystem);
 
 
 private:
@@ -127,7 +128,7 @@ private:
 
 public:
 
-	bool					to_World		(int x, int y, double &xWorld, double &yWorld)
+	bool					to_World		(double x, double y, double &xWorld, double &yWorld)
 	{
 		if( m_pDataSet )
 		{

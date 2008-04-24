@@ -198,13 +198,8 @@ bool CGDAL_Export::On_Execute(void)
 	}
 	else
 	{
-		double	Transform[6]	=
-		{
-			Get_System()->Get_XMin() - 0.5 * Get_Cellsize(), Get_Cellsize(), 0.0,
-			Get_System()->Get_YMax() + 0.5 * Get_Cellsize(), 0.0, -Get_Cellsize()
-		};
+		g_GDAL_Driver.Set_Transform(pDataset, Get_System());
 
-		pDataset->SetGeoTransform(Transform);
 		zLine	= (double *)SG_Malloc(Get_NX() * sizeof(double));
 
 		for(n=0; n<pGrids->Get_Count(); n++)

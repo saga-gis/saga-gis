@@ -111,7 +111,7 @@ private:
 	void						Add_Line				(CSG_Shape_Line    *pShape, int iPart);
 	void						Add_Polygon				(CSG_Shape_Polygon *pShape, int iPart);
 
-	void						Add_Buffer				(void);
+	void						Add_Buffer				(bool bLake = false);
 
 	void						Get_SelfIntersection	(void);
 	void						Get_SelfIntersection	(CSG_Shape_Polygon *pSegment);

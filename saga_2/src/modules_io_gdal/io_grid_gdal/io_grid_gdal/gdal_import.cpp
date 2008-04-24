@@ -181,7 +181,11 @@ bool CGDAL_Import::On_Execute(void)
 
 			pGrids->Add_Item(
 				pGrid	= SG_Create_Grid(g_GDAL_Driver.Get_Grid_Type(pBand->GetRasterDataType()),
-					System.Get_NX(), System.Get_NY(), System.Get_DX(), System.Get_xMin(), System.Get_yMin()
+					System.Get_NX(),
+					System.Get_NY(),
+					System.Get_DX(),
+					System.Get_xMin(),
+					System.Get_yMin()
 				)
 			);
 
