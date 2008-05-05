@@ -505,8 +505,8 @@ void CWKSP_Shapes::_LUT_Create(void)
 			pLUT		= m_Parameters("LUT")	->asTable();
 			pLUT		->Del_Records();
 
-			old_Order	= pTable->Get_Index_Order();
-			old_Field	= pTable->Get_Index_Field();
+			old_Order	= pTable->Get_Index_Order(0);
+			old_Field	= pTable->Get_Index_Field(0);
 
 			pTable->Set_Index(iField, TABLE_INDEX_Up);
 			sValue		= pTable->Get_Record_byIndex(0)->asString(iField);

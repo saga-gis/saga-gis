@@ -145,30 +145,38 @@ bool CGDAL_Import::On_Execute(void)
 		File_Name	= SG_File_Get_Name(File_Name, true);
 
 		Summary	+= CSG_String::Format(
-			SG_T("%s: %s/%s\n"),
+			SG_T("\n%s: %s/%s\n"),
 			_TL("Driver"),
 			pDataset->GetDriver()->GetDescription(), 
 			pDataset->GetDriver()->GetMetadataItem(GDAL_DMD_LONGNAME)
 		);
 
 		Summary	+= CSG_String::Format(
-			SG_T("%s: x %d, y %d\n%s: %d\n%s: x %.6f, y %.6f\n%s: x %.6f, y %.6f"),
-			_TL("Cells")	, System.Get_NX(), System.Get_NY(),
-			_TL("Bands")	, pDataset->GetRasterCount(),
-			_TL("Offset")	, System.Get_xMin(), System.Get_yMin(),
-			_TL("Cellsize")	, System.Get_DX(), System.Get_DY()
+			SG_T("%s: x %d, y %d\n%s: %d\n%s x: %.6f, %.6f, %.6f\n%s y: %.6f, %.6f, %.6f"),
+			_TL("Cells")			, System.Get_NX(), System.Get_NY(),
+			_TL("Bands")			, pDataset->GetRasterCount(),
+			_TL("Transformation")	, System.Get_Transform(0), System.Get_Transform(1), System.Get_Transform(2),
+			_TL("Transformation")	, System.Get_Transform(3), System.Get_Transform(4), System.Get_Transform(5)
 		);
 
 		if( pDataset->GetProjectionRef() != NULL )
 		{
+			CSG_String	s(pDataset->GetProjectionRef());
+
+			s.Replace(SG_T("[")  , SG_T("\t"));
+			s.Replace(SG_T("]],"), SG_T("\n"));
+			s.Replace(SG_T("]]") , SG_T("\n"));
+			s.Replace(SG_T("],") , SG_T("\n"));
+			s.Replace(SG_T(",")  , SG_T("\t"));
+
 			Summary	+= CSG_String::Format(
-				SG_T("\n%s: %s"),
+				SG_T("\n%s:\n%s"),
 				_TL("Projection"),
-				pDataset->GetProjectionRef()
+				s.c_str()
 			);
 		}
 
-		Message_Add(Summary);
+		Message_Add(Summary, false);
 
 		//-------------------------------------------------
 		zLine	= (double *)SG_Malloc(System.Get_NX() * sizeof(double));

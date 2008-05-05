@@ -290,12 +290,12 @@ public:
 	{
 		if( Index >= 0 && Index < m_nRecords )
 		{
-			switch( m_Index_Order )
+			if( m_Index != NULL )
 			{
-			case TABLE_INDEX_None:	return( m_Records[Index] );
-			case TABLE_INDEX_Up:	return( m_Records[m_Index[Index]] );
-			case TABLE_INDEX_Down:	return( m_Records[m_Index[m_nRecords - 1 - Index]] );
+				return( m_Records[m_Index[Index]] );
 			}
+
+			return( m_Records[Index] );
 		}
 
 		return( NULL );
@@ -303,39 +303,40 @@ public:
 
 	//-----------------------------------------------------
 	bool						Set_Value			(int iRecord, int iField, const SG_Char  *Value);
-	bool						Set_Value			(int iRecord, int iField, double       Value);
+	bool						Set_Value			(int iRecord, int iField, double          Value);
 
-	bool						Get_Value			(int iRecord, int iField, CSG_String  &Value)	const;
-	bool						Get_Value			(int iRecord, int iField, double      &Value)	const;
+	bool						Get_Value			(int iRecord, int iField, CSG_String     &Value)	const;
+	bool						Get_Value			(int iRecord, int iField, double         &Value)	const;
 
 	//-----------------------------------------------------
 	int							Get_Selection_Count	(void)			const	{	return( m_nSelected );	}
 	CSG_Table_Record *			Get_Selection		(int Index = 0)	const	{	return( Index >= 0 && Index < m_nSelected ? m_Selected[Index] : NULL );	}
 
-	bool						Select				(int iRecord					, bool bInvert = false);
+	bool						Select				(int iRecord						, bool bInvert = false);
 	bool						Select				(CSG_Table_Record *pRecord = NULL	, bool bInvert = false);
 
 	int							Del_Selection		(void);
 
 	//-----------------------------------------------------
-	bool						Set_Index			(int iField, TSG_Table_Index_Order Order);
+	bool						Set_Index			(int Field_1, TSG_Table_Index_Order Order_1, int Field_2 = -1, TSG_Table_Index_Order Order_2 = TABLE_INDEX_None, int Field_3 = -1, TSG_Table_Index_Order Order_3 = TABLE_INDEX_None);
+	bool						Del_Index			(void);
 	bool						Toggle_Index		(int iField);
 
-	bool						is_Indexed			(void)	const		{	return( m_Index_Order != TABLE_INDEX_None );	}
+	bool						is_Indexed			(void)	const		{	return( m_Index != NULL );	}
 
-	int							Get_Index_Field		(void)	const		{	return( m_Index_Field );	}
-	TSG_Table_Index_Order		Get_Index_Order		(void)	const		{	return( m_Index_Order );	}
+	int							Get_Index_Field		(int i)	const		{	return( i >= 0 && i < 3 ? m_Index_Field[i] : -1 );	}
+	TSG_Table_Index_Order		Get_Index_Order		(int i)	const		{	return( i >= 0 && i < 3 ? m_Index_Order[i] : TABLE_INDEX_None );	}
 
 
 protected:
 
-	int							m_nFields, m_nRecords, m_nBuffer, m_nSelected, *m_Index, m_Index_Field;
+	int							m_nFields, m_nRecords, m_nBuffer, m_nSelected, *m_Index, m_Index_Field[3];
 
 	double						*m_Field_Val_Min, *m_Field_Val_Max;
 
 	TSG_Table_Field_Type		*m_Field_Type;
 
-	TSG_Table_Index_Order		m_Index_Order;
+	TSG_Table_Index_Order		m_Index_Order[3];
 
 	CSG_Table_Record			**m_Records, **m_Selected;
 
@@ -373,9 +374,10 @@ protected:
 	bool						_Load_DBase			(const SG_Char *File_Name);
 	bool						_Save_DBase			(const SG_Char *File_Name);
 
-	void						_Index_Create		(int iField);
+	void						_Index_Create		(void);
 	void						_Index_Destroy		(void);
 	int							_Index_Compare		(int a, int b);
+	int							_Index_Compare		(int a, int b, int Field);
 
 };
 

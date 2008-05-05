@@ -348,7 +348,14 @@ bool CWKSP_Table::Save(const wxChar *File_Path)
 //---------------------------------------------------------
 bool CWKSP_Table::DataObject_Changed(CSG_Parameters *pParameters)
 {
-	Update_Views();
+	m_Parameters.Set_Name(wxString::Format(wxT("%02d. %s"), 1 + Get_ID(), m_pTable->Get_Name()));
+
+	m_Parameters("NAME")->Set_Value(m_pTable->Get_Name());
+
+	//-----------------------------------------------------
+//	g_pACTIVE->Update(this, false);
+
+	Parameters_Changed();
 
 	return( true );
 }

@@ -570,7 +570,8 @@ void CVIEW_Table_Control::On_Field_Del_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_Field_Sort(wxCommandEvent &event)
 {
-	CSG_String	sFields;
+	CSG_String		sFields, sOrder;
+	CSG_Parameter	*pNode;
 	CSG_Parameters	P;
 
 	//-----------------------------------------------------
@@ -579,29 +580,34 @@ void CVIEW_Table_Control::On_Field_Sort(wxCommandEvent &event)
 		sFields.Append(m_pTable->Get_Field_Name(i));	sFields.Append('|');
 	}
 
+	sOrder.Printf(wxT("%s|%s|%s|"),
+		LNG("unsorted"),
+		LNG("ascending"),
+		LNG("descending")
+	);
+
 	//-----------------------------------------------------
 	P.Set_Name(LNG("Sort Table"));
 
-	P.Add_Choice(
-		NULL	, "FIELD"	, LNG("Sort by"),
-		LNG(""),
-		sFields
-	);
+	pNode	= P.Add_Choice(NULL , "FIELD_1"	, LNG("Sort first by")	,	LNG(""),	sFields	, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(0));
+	pNode	= P.Add_Choice(pNode, "ORDER_1"	, LNG("Direction")		,	LNG(""),	sOrder	, !m_pTable->is_Indexed() ? 1 : m_pTable->Get_Index_Order(0));
 
-	P.Add_Choice(
-		NULL	, "METHOD"	, LNG("Direction"),
-		LNG(""),
-		CSG_String::Format(wxT("%s|%s|%s|"),
-			LNG("unsorted"),
-			LNG("ascending"),
-			LNG("descending")
-		), 1
-	);
+	pNode	= P.Add_Choice(NULL , "FIELD_2"	, LNG("Sort second by")	,	LNG(""),	sFields	, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(1));
+	pNode	= P.Add_Choice(pNode, "ORDER_2"	, LNG("Direction")		,	LNG(""),	sOrder	, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Order(1));
+
+	pNode	= P.Add_Choice(NULL , "FIELD_3"	, LNG("Sort third by")	,	LNG(""),	sFields	, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(2));
+	pNode	= P.Add_Choice(pNode, "ORDER_3"	, LNG("Direction")		,	LNG(""),	sOrder	, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Order(2));
 
 	//-----------------------------------------------------
 	if( DLG_Parameters(&P) )
 	{
-		Sort_Table(P("FIELD")->asInt(), P("METHOD")->asInt());
+		m_pTable->Set_Index(
+			P("FIELD_1")->asInt(), P("ORDER_1")->asInt() == 1 ? TABLE_INDEX_Up : P("ORDER_1")->asInt() == 2 ? TABLE_INDEX_Down : TABLE_INDEX_None,
+			P("FIELD_2")->asInt(), P("ORDER_2")->asInt() == 1 ? TABLE_INDEX_Up : P("ORDER_2")->asInt() == 2 ? TABLE_INDEX_Down : TABLE_INDEX_None,
+			P("FIELD_3")->asInt(), P("ORDER_3")->asInt() == 1 ? TABLE_INDEX_Up : P("ORDER_3")->asInt() == 2 ? TABLE_INDEX_Down : TABLE_INDEX_None
+		);
+
+		_Set_Records();
 	}
 }
 

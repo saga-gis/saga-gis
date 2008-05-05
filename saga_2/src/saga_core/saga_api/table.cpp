@@ -146,6 +146,8 @@ CSG_Table::CSG_Table(CSG_Table *pStructure)
 //---------------------------------------------------------
 void CSG_Table::_On_Construction(void)
 {
+	m_pOwner		= NULL;
+
 	m_nFields		= 0;
 	m_Field_Name	= NULL;
 	m_Field_Type	= NULL;
@@ -160,10 +162,6 @@ void CSG_Table::_On_Construction(void)
 	m_Selected		= NULL;
 
 	m_Index			= NULL;
-	m_Index_Field	= -1;
-	m_Index_Order	= TABLE_INDEX_None;
-
-	m_pOwner		= NULL;
 }
 
 
@@ -187,6 +185,8 @@ bool CSG_Table::_Create(const CSG_Table &Table)
 
 		return( true );
 	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -871,24 +871,42 @@ bool CSG_Table::_Range_Update(int iField) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Table::Set_Index(int iField, TSG_Table_Index_Order Order)
+bool CSG_Table::Set_Index(int Field_1, TSG_Table_Index_Order Order_1, int Field_2, TSG_Table_Index_Order Order_2, int Field_3, TSG_Table_Index_Order Order_3)
 {
-	if( iField >= 0 && iField < m_nFields )
+	m_Index_Field[0]	= m_Index_Field[1]	= m_Index_Field[2]	= -1;
+	m_Index_Order[0]	= m_Index_Order[1]	= m_Index_Order[2]	= TABLE_INDEX_None;
+
+	if( Field_1 >= 0 && Field_1 < m_nFields && Order_1 != TABLE_INDEX_None )
 	{
-		m_Index_Order	= Order;
+		m_Index_Field[0]	= Field_1;
+		m_Index_Order[0]	= Order_1;
 
-		switch( m_Index_Order )
+		if( Field_2 >= 0 && Field_2 < m_nFields && Order_2 != TABLE_INDEX_None )
 		{
-		case TABLE_INDEX_None: default:
-			_Index_Destroy();
-			break;
+			m_Index_Field[1]	= Field_2;
+			m_Index_Order[1]	= Order_2;
 
-		case TABLE_INDEX_Up:
-		case TABLE_INDEX_Down:
-			_Index_Create(iField);
-			break;
+			if( Field_3 >= 0 && Field_3 < m_nFields && Order_3 != TABLE_INDEX_None )
+			{
+				m_Index_Field[2]	= Field_3;
+				m_Index_Order[2]	= Order_3;
+			}
 		}
+
+		_Index_Create();
 	}
+	else
+	{
+		_Index_Destroy();
+	}
+
+	return( is_Indexed() );
+}
+
+//---------------------------------------------------------
+bool CSG_Table::Del_Index(void)
+{
+	_Index_Destroy();
 
 	return( is_Indexed() );
 }
@@ -898,19 +916,16 @@ bool CSG_Table::Toggle_Index(int iField)
 {
 	if( iField >= 0 && iField < m_nFields )
 	{
-		if( iField != m_Index_Field )
+		if( iField != m_Index_Field[0] )
 		{
 			return( Set_Index(iField, TABLE_INDEX_Up) );
 		}
-		else switch( m_Index_Order )
+		else if( m_Index_Order[0] == TABLE_INDEX_Up )
 		{
-		case TABLE_INDEX_None:
-			return( Set_Index(iField, TABLE_INDEX_Up) );
-
-		case TABLE_INDEX_Up:
 			return( Set_Index(iField, TABLE_INDEX_Down) );
-
-		case TABLE_INDEX_Down:
+		}
+		else
+		{
 			return( Set_Index(iField, TABLE_INDEX_None) );
 		}
 	}
@@ -921,7 +936,7 @@ bool CSG_Table::Toggle_Index(int iField)
 //---------------------------------------------------------
 #define SORT_SWAP(a,b)	{itemp=(a);(a)=(b);(b)=itemp;}
 
-void CSG_Table::_Index_Create(int iField)
+void CSG_Table::_Index_Create(void)
 {
 	const int	M	= 7;
 
@@ -933,8 +948,6 @@ void CSG_Table::_Index_Create(int iField)
 			jstack	= 0;
 
 	//-----------------------------------------------------
-	m_Index_Field	= iField;
-
 	if( m_Index == NULL )
 	{
 		m_Index	= (int *)SG_Malloc(m_nRecords * sizeof(int));
@@ -1041,8 +1054,7 @@ void CSG_Table::_Index_Create(int iField)
 //---------------------------------------------------------
 void CSG_Table::_Index_Destroy(void)
 {
-	m_Index_Field	= -1;
-	m_Index_Order	= TABLE_INDEX_None;
+	m_Index_Field[0]	= -1;
 
 	if( m_Index )
 	{
@@ -1055,20 +1067,45 @@ void CSG_Table::_Index_Destroy(void)
 //---------------------------------------------------------
 inline int CSG_Table::_Index_Compare(int a, int b)
 {
-	switch( m_Field_Type[m_Index_Field] )
+	int		Result	= _Index_Compare(a, b, 0);
+
+	if( Result == 0 && m_Index_Field[1] >= 0 )
+	{
+		Result	= _Index_Compare(a, b, 1);
+
+		if( Result == 0 && m_Index_Field[2] >= 0 )
+		{
+			Result	= _Index_Compare(a, b, 2);
+		}
+	}
+
+	return( Result );
+}
+
+//---------------------------------------------------------
+inline int CSG_Table::_Index_Compare(int a, int b, int Field)
+{
+	double	Result;
+
+	switch( m_Field_Type[m_Index_Field[Field]] )
 	{
 	case TABLE_FIELDTYPE_String:
-		return( SG_STR_CMP(
-			m_Records[a]->asString(m_Index_Field),
-			m_Records[b]->asString(m_Index_Field))
-		);
+		Result	= SG_STR_CMP(
+					m_Records[a]->asString(m_Index_Field[Field]),
+					m_Records[b]->asString(m_Index_Field[Field])
+				);
+		break;
 
 	default:
-		double	d	= m_Records[a]->asDouble(m_Index_Field)
-					- m_Records[b]->asDouble(m_Index_Field);
-
-		return( d < 0.0 ? -1 : (d > 0.0 ? 1 : 0) );
+		Result	= m_Records[a]->asDouble(m_Index_Field[Field])
+				- m_Records[b]->asDouble(m_Index_Field[Field]);
+		break;
 	}
+
+	return( m_Index_Order[Field] == TABLE_INDEX_Up
+		? (Result < 0.0 ? -1 : (Result > 0.0 ? 1 : 0))
+		: (Result > 0.0 ? -1 : (Result < 0.0 ? 1 : 0))
+	);
 }
 
 

@@ -115,6 +115,7 @@ public:
 	double					Get_yMin		(void)	{	return( m_yMin );	}
 	double					Get_DX			(void)	{	return( m_DX );		}
 	double					Get_DY			(void)	{	return( m_DY );		}
+	double					Get_Transform	(int i)	{	return( m_Transform[i] );	}
 
 
 private:
