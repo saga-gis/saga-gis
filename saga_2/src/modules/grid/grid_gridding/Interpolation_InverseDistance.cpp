@@ -124,11 +124,11 @@ bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &z)
 	int			i, n;
 	double		d, ds;
 	TSG_Point	p;
-	CSG_Shape		*pPoint;
+	CSG_Shape	*pPoint;
 
 	if( (n = m_Search.Select_Radius(x, y, m_Radius, true, m_nPoints_Max)) > 0 )
 	{
-		for(i=0, p.x=0, p.y=y, z=0.0, ds=0.0; i<n; i++)
+		for(i=0, p.x=x, p.y=y, z=0.0, ds=0.0; i<n; i++)
 		{
 			if( (pPoint = m_Search.Get_Selected_Point(i)) != NULL )
 			{
