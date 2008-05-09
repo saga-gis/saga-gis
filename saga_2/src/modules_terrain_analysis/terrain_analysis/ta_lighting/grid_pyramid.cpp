@@ -5,14 +5,15 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
-//                      ta_lighting                      //
+//           Application Programming Interface           //
+//                                                       //
+//                  Library: SAGA_API                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   grid_pyramids.cpp                   //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +42,9 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
+//                Bundesstr. 55                          //
+//                20146 Hamburg                          //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -53,55 +54,42 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include "grid_pyramid.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const SG_Char * Get_Info(int i)
+CSG_Grid_Pyramid::CSG_Grid_Pyramid(void)
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Terrain Analysis - Lighting, Visibility" ));
-
-	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad, Goettingen (c) 2003" ));
-
-	case MLB_INFO_Description:
-		return( _TL("Lighting and visibility calculations for digital terrain models." ));
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Terrain Analysis|Lighting" ));
-	}
+	m_nLevels	= 0;
+	m_pLevels	= NULL;
+	m_pGrid		= NULL;
 }
 
 //---------------------------------------------------------
-#include "HillShade.h"
-#include "Visibility_Point.h"
-#include "SolarRadiation.h"
-#include "SADO_SolarRadiation.h"
-#include "view_shed.h"
+CSG_Grid_Pyramid::CSG_Grid_Pyramid(CSG_Grid *pGrid, double Grow, TSG_Grid_Pyramid_Generalisation Generalisation)
+{
+	m_nLevels	= 0;
+	m_pLevels	= NULL;
+	m_pGrid		= NULL;
+
+	Create(pGrid, Grow, Generalisation);
+}
 
 //---------------------------------------------------------
-CSG_Module * Create_Module(int i)
+CSG_Grid_Pyramid::~CSG_Grid_Pyramid(void)
 {
-	switch( i )
-	{
-	case 0:		return( new CHillShade );
-	case 1:		return( new CVisibility_Point );
-	case 2:		return( new CSolarRadiation );
-	case 3:		return( new CSADO_SolarRadiation );
-	case 4:		return( new CView_Shed );
-	}
-
-	return( NULL );
+	Destroy();
 }
 
 
@@ -112,8 +100,87 @@ CSG_Module * Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+bool CSG_Grid_Pyramid::Create(CSG_Grid *pGrid, double Grow, TSG_Grid_Pyramid_Generalisation Generalisation)
+{
+	if( pGrid && pGrid->is_Valid() && Grow > 1.0 && (pGrid->Get_NX() > Grow || pGrid->Get_NY() > Grow) )
+	{
+		Destroy();
 
-	MLB_INTERFACE
+		m_pGrid				= pGrid;
+		m_Grow				= Grow;
+		m_Generalisation	= Generalisation;
 
-//}}AFX_SAGA
+		_Get_Next_Level(pGrid);
+
+		return( true );
+	}
+
+	return( false );	
+}
+
+//---------------------------------------------------------
+bool CSG_Grid_Pyramid::Destroy(void)
+{
+	if( m_pLevels )
+	{
+		for(int i=0; i<m_nLevels; i++)
+		{
+			delete(m_pLevels[i]);
+		}
+
+		SG_Free(m_pLevels);
+
+		m_nLevels	= 0;
+		m_pLevels	= NULL;
+		m_pGrid		= NULL;
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Grid_Pyramid::_Get_Next_Level(CSG_Grid *pGrid)
+{
+	if( pGrid->Get_NX() > m_Grow || pGrid->Get_NY() > m_Grow )
+	{
+		int		nx, ny;
+		double	d;
+
+		d	= pGrid->Get_Cellsize() * m_Grow;
+		nx	= (int)(1.5 + m_pGrid->Get_XRange() / d);	if( nx < 1 )	nx	= 1;
+		ny	= (int)(1.5 + m_pGrid->Get_YRange() / d);	if( ny < 1 )	ny	= 1;
+
+		if( nx > 1 || ny > 1 )
+		{
+			CSG_Grid	*pNext	= SG_Create_Grid(GRID_TYPE_Float, nx, ny, d, pGrid->Get_XMin(), pGrid->Get_YMin());
+
+			pNext->Set_NoData_Value(pGrid->Get_NoData_Value());
+			pNext->Assign(pGrid);
+
+			m_pLevels	= (CSG_Grid **)SG_Realloc(m_pLevels, (m_nLevels + 1) * sizeof(CSG_Grid *));
+			m_pLevels[m_nLevels++]	= pNext;
+
+			_Get_Next_Level(pNext);
+
+			return( true );
+		}
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

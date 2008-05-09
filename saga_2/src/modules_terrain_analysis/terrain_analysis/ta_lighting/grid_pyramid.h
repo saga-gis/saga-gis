@@ -5,14 +5,15 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
-//                      ta_lighting                      //
+//           Application Programming Interface           //
+//                                                       //
+//                  Library: SAGA_API                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                    grid_pyramids.h                    //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +42,9 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
+//                Bundesstr. 55                          //
+//                20146 Hamburg                          //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -53,56 +54,33 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifndef HEADER_INCLUDED__grid_pyramid_H
+#define HEADER_INCLUDED__grid_pyramid_H
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-const SG_Char * Get_Info(int i)
+typedef enum ESG_Grid_Pyramid_Generalisation
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Terrain Analysis - Lighting, Visibility" ));
-
-	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad, Goettingen (c) 2003" ));
-
-	case MLB_INFO_Description:
-		return( _TL("Lighting and visibility calculations for digital terrain models." ));
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Terrain Analysis|Lighting" ));
-	}
+	GRID_PYRAMID_Mean	= 0,
+	GRID_PYRAMID_Max,
+	GRID_PYRAMID_Min,
+	GRID_PYRAMID_MaxCount
 }
-
-//---------------------------------------------------------
-#include "HillShade.h"
-#include "Visibility_Point.h"
-#include "SolarRadiation.h"
-#include "SADO_SolarRadiation.h"
-#include "view_shed.h"
-
-//---------------------------------------------------------
-CSG_Module * Create_Module(int i)
-{
-	switch( i )
-	{
-	case 0:		return( new CHillShade );
-	case 1:		return( new CVisibility_Point );
-	case 2:		return( new CSolarRadiation );
-	case 3:		return( new CSADO_SolarRadiation );
-	case 4:		return( new CView_Shed );
-	}
-
-	return( NULL );
-}
+TSG_Grid_Pyramid_Generalisation;
 
 
 ///////////////////////////////////////////////////////////
@@ -112,8 +90,42 @@ CSG_Module * Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CSG_Grid_Pyramid
+{
+public:
+	CSG_Grid_Pyramid(void);
+	CSG_Grid_Pyramid(CSG_Grid *pGrid, double Grow = 2.0, TSG_Grid_Pyramid_Generalisation Generalisation = GRID_PYRAMID_Mean);
+	virtual ~CSG_Grid_Pyramid(void);
 
-	MLB_INTERFACE
+	bool								Create			(CSG_Grid *pGrid, double Grow = 2.0, TSG_Grid_Pyramid_Generalisation Generalisation = GRID_PYRAMID_Mean);
+	bool								Destroy			(void);
 
-//}}AFX_SAGA
+
+	int									Get_Count		(void)			{	return( m_nLevels );	}
+	CSG_Grid *							Get_Grid		(int iLevel)	{	return( iLevel >= 0 && iLevel < m_nLevels ? m_pLevels[iLevel] : m_pGrid );	}
+
+
+private:
+
+	int									m_nLevels;
+
+	double								m_Grow;
+
+	TSG_Grid_Pyramid_Generalisation		m_Generalisation;
+
+	CSG_Grid							**m_pLevels, *m_pGrid;
+
+
+	bool								_Get_Next_Level	(CSG_Grid *pGrid);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__grid_pyramid_H
