@@ -353,6 +353,9 @@ TGEO_iRect;
 #define Get_Extra_Parameters			Get_Parameters
 #define Dlg_Extra_Parameters			Dlg_Parameters
 
+#define TABLE_INDEX_Up					TABLE_INDEX_Ascending
+#define TABLE_INDEX_Down				TABLE_INDEX_Descending
+
 
 ///////////////////////////////////////////////////////////
 //														 //

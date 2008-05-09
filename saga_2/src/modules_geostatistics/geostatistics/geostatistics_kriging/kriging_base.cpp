@@ -463,7 +463,7 @@ bool CKriging_Base::_Get_Variances(void)
 	//-----------------------------------------------------
 	if( _Get_Differences(&Differences, m_zField, nSkip, Dist_Max) )
 	{
-		Differences.Set_Index(DIF_FIELD_DISTANCE, TABLE_INDEX_Up);
+		Differences.Set_Index(DIF_FIELD_DISTANCE, TABLE_INDEX_Ascending);
 
 		m_Variances	.Clear();
 

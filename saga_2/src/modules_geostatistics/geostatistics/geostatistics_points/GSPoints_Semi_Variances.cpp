@@ -259,7 +259,7 @@ void CGSPoints_Semi_Variances::Get_Variances(CSG_Table *pTab_Var, CSG_Table *pTa
 		pTab_Var->Add_Field(_TL("Class Variance")	, TABLE_FIELDTYPE_Double);	// VAR_FIELD_CLASSVAR
 		pTab_Var->Add_Field(_TL("Class Count")		, TABLE_FIELDTYPE_Int);		// VAR_FIELD_COUNT
 
-		pTab_Dif->Set_Index(DIF_FIELD_DISTANCE, TABLE_INDEX_Up);
+		pTab_Dif->Set_Index(DIF_FIELD_DISTANCE, TABLE_INDEX_Ascending);
 
 		//-----------------------------------------------------
 		iDist		= 0.0;

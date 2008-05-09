@@ -138,7 +138,7 @@ bool CTable_Enumerate::On_Execute(void)
 		old_Order	= pTable->Get_Index_Order(0);
 		old_Field	= pTable->Get_Index_Field(0);
 
-		pTable->Set_Index(iField, TABLE_INDEX_Down);
+		pTable->Set_Index(iField, TABLE_INDEX_Descending);
 		Value		= pTable->Get_Record_byIndex(0)->asString(iField);
 
 		for(iRecord=0, iID=1; iRecord<pTable->Get_Record_Count(); iRecord++)

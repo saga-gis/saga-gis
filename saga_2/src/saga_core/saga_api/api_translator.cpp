@@ -160,7 +160,7 @@ bool CSG_Translator::Create(const SG_Char *File_Name, bool bSetExtension)
 	{
 		m_Translations	= (CSG_Translation **)SG_Malloc(Translations.Get_Record_Count() * sizeof(CSG_Translation *));
 
-		Translations.Set_Index(0, TABLE_INDEX_Up);
+		Translations.Set_Index(0, TABLE_INDEX_Ascending);
 
 		for(int i=0; i<Translations.Get_Record_Count(); i++)
 		{

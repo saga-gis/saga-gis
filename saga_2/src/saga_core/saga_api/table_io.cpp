@@ -451,6 +451,10 @@ bool CSG_Table::_Load_DBase(const SG_Char *File_Name)
 						pRecord->Set_Value(iField, SG_STR_MBTOSG(dbf.asString(iField)) );
 						break;
 
+					case TABLE_FIELDTYPE_Date:
+						pRecord->Set_Value(iField, dbf.asDouble(iField) );
+						break;
+
 					case TABLE_FIELDTYPE_Long:
 						pRecord->Set_Value(iField, dbf.asInt(iField) );
 						break;
@@ -502,7 +506,7 @@ bool CSG_Table::_Save_DBase(const SG_Char *File_Name)
 
 		case TABLE_FIELDTYPE_Date:
 			dbfFieldDesc[iField].Type		= DBF_FT_DATE;
-			dbfFieldDesc[iField].Width		= (char)12;
+			dbfFieldDesc[iField].Width		= (char)8;
 			break;
 
 		case TABLE_FIELDTYPE_Char:
@@ -545,6 +549,10 @@ bool CSG_Table::_Save_DBase(const SG_Char *File_Name)
 			{
 			case DBF_FT_CHARACTER:
 				dbf.Set_Value(iField, SG_STR_SGTOMB(pRecord->asString(iField)));
+				break;
+
+			case DBF_FT_DATE:
+				dbf.Set_Value(iField, pRecord->asDouble(iField));
 				break;
 
 			case DBF_FT_NUMERIC:

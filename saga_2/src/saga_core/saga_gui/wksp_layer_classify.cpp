@@ -283,9 +283,9 @@ int CWKSP_Layer_Classify::_LUT_Get_Class(double Value)
 
 	if( m_pLUT->Get_Record_Count() > 0 )
 	{
-		if( m_pLUT->Get_Index_Field(0) != LUT_MIN || m_pLUT->Get_Index_Order(0) != TABLE_INDEX_Up )
+		if( m_pLUT->Get_Index_Field(0) != LUT_MIN || m_pLUT->Get_Index_Order(0) != TABLE_INDEX_Ascending )
 		{
-			m_pLUT->Set_Index(LUT_MIN, TABLE_INDEX_Up);
+			m_pLUT->Set_Index(LUT_MIN, TABLE_INDEX_Ascending);
 		}
 
 		for(a=0, b=m_pLUT->Get_Record_Count()-1; a < b; )

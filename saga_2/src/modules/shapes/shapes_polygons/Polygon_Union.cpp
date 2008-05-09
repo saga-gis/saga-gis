@@ -160,7 +160,7 @@ bool CPolygon_Union::On_Execute(void)
 		//-------------------------------------------------
 		else
 		{
-			pTable	->Set_Index(iField, TABLE_INDEX_Up);
+			pTable	->Set_Index(iField, TABLE_INDEX_Ascending);
 
 			pUnions	->Set_Name(CSG_String::Format(SG_T("%s [%s]-[%s]"), _TL("Union"), pPolygons->Get_Name(), pTable->Get_Field_Name(iField)));
 

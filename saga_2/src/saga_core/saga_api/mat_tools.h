@@ -287,6 +287,9 @@ public:
 
 	bool						Destroy				(void);
 
+	bool						Add_Cols			(int nCols);
+	bool						Add_Rows			(int nRows);
+
 	int							Get_NX				(void)			const	{	return( m_nx );			}
 	int							Get_NY				(void)			const	{	return( m_ny );			}
 	double **					Get_Data			(void)			const	{	return( m_z );			}

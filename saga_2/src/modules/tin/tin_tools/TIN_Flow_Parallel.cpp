@@ -144,7 +144,7 @@ bool CTIN_Flow_Parallel::On_Execute(void)
 	m_pFlow->Get_Table().Add_Field(_TL("SPECIFIC")	, TABLE_FIELDTYPE_Double);
 
 	//-----------------------------------------------------
-	m_pFlow->Get_Table().Set_Index(m_iHeight, TABLE_INDEX_Down);
+	m_pFlow->Get_Table().Set_Index(m_iHeight, TABLE_INDEX_Descending);
 
 	for(iPoint=0; iPoint<m_pFlow->Get_Point_Count() && Set_Progress(iPoint, m_pFlow->Get_Point_Count()); iPoint++)
 	{

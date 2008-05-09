@@ -614,6 +614,8 @@ bool CSG_Matrix::Create(int nx, int ny, double *Data)
 	{
 		if( nx != m_nx || ny != m_ny )
 		{
+			Destroy();
+
 			m_nx	= nx;
 			m_ny	= ny;
 			m_z		= (double **)SG_Malloc(m_ny        * sizeof(double *));
@@ -654,6 +656,7 @@ bool CSG_Matrix::Destroy(void)
 	{
 		SG_Free(m_z[0]);
 		SG_Free(m_z);
+
 		m_z		= NULL;
 		m_nx	= 0;
 		m_ny	= 0;
@@ -668,6 +671,48 @@ void CSG_Matrix::_On_Construction(void)
 	m_z		= NULL;
 	m_nx	= 0;
 	m_ny	= 0;
+}
+
+//---------------------------------------------------------
+bool CSG_Matrix::Add_Cols(int nCols)
+{
+	if( nCols > 0 && m_ny > 0 )
+	{
+		CSG_Matrix	Tmp(*this);
+
+		if( Create(Tmp.m_nx + nCols, Tmp.m_ny) )
+		{
+			for(int y=0; y<Tmp.m_ny; y++)
+			{
+				memcpy(m_z[y], Tmp.m_z[y], Tmp.m_nx * sizeof(double));
+			}
+
+			return( true );
+		}
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Matrix::Add_Rows(int nRows)
+{
+	if( nRows > 0 && m_nx > 0 )
+	{
+		CSG_Matrix	Tmp(*this);
+
+		if( Create(Tmp.m_nx, Tmp.m_ny + nRows) )
+		{
+			for(int y=0; y<Tmp.m_ny; y++)
+			{
+				memcpy(m_z[y], Tmp.m_z[y], Tmp.m_nx * sizeof(double));
+			}
+
+			return( true );
+		}
+	}
+
+	return( false );
 }
 
 

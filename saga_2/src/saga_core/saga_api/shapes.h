@@ -112,14 +112,41 @@ public:
 
 	bool						Assign				(CSG_Shape *pShape, bool bAssign_Attributes = true);
 
-	CSG_Table_Record *			Get_Record			(void)		{	return( m_pRecord );	}
-
 	TSG_Shape_Type				Get_Type			(void);
 
 	virtual bool				is_Valid			(void)											= 0;
 
 	bool						is_Selected			(void)		{	return( m_pRecord->is_Selected() );	}
 
+	//-----------------------------------------------------
+	CSG_Table_Record *			Get_Record			(void)		{	return( m_pRecord );	}
+
+	bool						Set_Value			(int           iField, const SG_Char *Value)		{	return( m_pRecord->Set_Value (iField, Value) );		}
+	bool						Set_Value			(const SG_Char *Field, const SG_Char *Value)		{	return( m_pRecord->Set_Value ( Field, Value) );		}
+	bool						Set_Value			(int           iField, double         Value)		{	return( m_pRecord->Set_Value (iField, Value) );		}
+	bool						Set_Value			(const SG_Char *Field, double         Value)		{	return( m_pRecord->Set_Value ( Field, Value) );		}
+	bool						Add_Value			(int           iField, double         Value)		{	return( m_pRecord->Add_Value (iField, Value) );		}
+	bool						Add_Value			(const SG_Char *Field, double         Value)		{	return( m_pRecord->Add_Value ( Field, Value) );		}
+	bool						Mul_Value			(int           iField, double         Value)		{	return( m_pRecord->Mul_Value (iField, Value) );		}
+	bool						Mul_Value			(const SG_Char *Field, double         Value)		{	return( m_pRecord->Mul_Value ( Field, Value) );		}
+
+	bool						Set_NoData			(int           iField)								{	return( m_pRecord->Set_NoData(iField) );			}
+	bool						Set_NoData			(const SG_Char *Field)								{	return( m_pRecord->Set_NoData( Field) );			}
+	bool						is_NoData			(int           iField)	const						{	return( m_pRecord->is_NoData (iField) );			}
+	bool						is_NoData			(const SG_Char *Field)	const						{	return( m_pRecord->is_NoData ( Field) );			}
+
+	const SG_Char *				asString			(int           iField, int Decimals = -1)	const	{	return( m_pRecord->asString  (iField, Decimals) );	}
+	const SG_Char *				asString			(const SG_Char *Field, int Decimals = -1)	const	{	return( m_pRecord->asString  ( Field, Decimals) );	}
+	SG_Char						asChar				(int           iField)	const						{	return( m_pRecord->asChar    (iField) );			}
+	SG_Char						asChar				(const SG_Char *Field)	const						{	return( m_pRecord->asChar    ( Field) );			}
+	short						asShort				(int           iField)	const						{	return( m_pRecord->asShort   (iField) );			}
+	short						asShort				(const SG_Char *Field)	const						{	return( m_pRecord->asShort   ( Field) );			}
+	int							asInt				(int           iField)	const						{	return( m_pRecord->asInt     (iField) );			}
+	int							asInt				(const SG_Char *Field)	const						{	return( m_pRecord->asInt     ( Field) );			}
+	float						asFloat				(int           iField)	const						{	return( m_pRecord->asFloat   (iField) );			}
+	float						asFloat				(const SG_Char *Field)	const						{	return( m_pRecord->asFloat   ( Field) );			}
+	double						asDouble			(int           iField)	const						{	return( m_pRecord->asDouble  (iField) );			}
+	double						asDouble			(const SG_Char *Field)	const						{	return( m_pRecord->asDouble  ( Field) );			}
 
 	//-----------------------------------------------------
 	virtual int					Add_Point			(double x, double y,             int iPart = 0)	= 0;

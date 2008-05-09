@@ -575,7 +575,22 @@ double CSG_Table_DBase::asDouble(int iField)
 		{
 			s		= (char *)SG_Calloc(FieldDesc[iField].Width + 1, sizeof(char));
 			memcpy(s, Record + FieldOffset[iField], FieldDesc[iField].Width);
+
 			Result	= atof(s);
+
+			SG_Free(s);
+		}
+		else if( FieldDesc[iField].Type == DBF_FT_DATE )
+		{
+			s		= (char *)SG_Calloc(FieldDesc[iField].Width + 1, sizeof(char));
+			memcpy(s, Record + FieldOffset[iField], FieldDesc[iField].Width);
+
+			int	d	= atoi(s + 6);	s[6]	= '\0';	if( d < 1 )	d	= 1;	else if( d > 31 )	d	= 31;
+			int	m	= atoi(s + 4);	s[4]	= '\0';	if( m < 1 )	m	= 1;	else if( m > 12 )	m	= 12;
+			int	y	= atoi(s);		
+
+			Result	= 10000 * y + 100 * m + 1 * d;
+
 			SG_Free(s);
 		}
 	}
@@ -635,6 +650,27 @@ bool CSG_Table_DBase::Set_Value(int iField, double Value)
 			{
 				sprintf(s, "%d", (int)Value);
 			}
+
+			if( (n = strlen(s)) > FieldDesc[iField].Width )
+			{
+				n	= FieldDesc[iField].Width;
+			}
+
+			memset(Record + FieldOffset[iField], ' ', FieldDesc[iField].Width);
+			memcpy(Record + FieldOffset[iField], s	, n);
+
+			return( true );
+		}
+		
+		if( FieldDesc[iField].Type == DBF_FT_DATE )
+		{
+			int		y	= (int)(Value / 10000);	Value	-= y * 10000;
+			int		m	= (int)(Value / 100);	Value	-= m * 100;
+			int		d	= (int)(Value / 1);
+
+			bRecModified	= true;
+
+			sprintf(s, "%04d%02d%02d", y, m, d);
 
 			if( (n = strlen(s)) > FieldDesc[iField].Width )
 			{

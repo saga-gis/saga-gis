@@ -879,7 +879,7 @@ double			SG_Date_To_Double(const SG_Char *String)
 		d		= sValue.asInt();
 
 		if( d < 1 )	d	= 1;	else if( d > 31 )	d	= 31;
-		if( m < 1 )	m	= 1;	else if( m > 12 )	d	= 12;
+		if( m < 1 )	m	= 1;	else if( m > 12 )	m	= 12;
 
 		return( 10000 * y + 100 * m + 1 * d );
 	}

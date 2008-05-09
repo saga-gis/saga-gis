@@ -918,11 +918,11 @@ bool CSG_Table::Toggle_Index(int iField)
 	{
 		if( iField != m_Index_Field[0] )
 		{
-			return( Set_Index(iField, TABLE_INDEX_Up) );
+			return( Set_Index(iField, TABLE_INDEX_Ascending) );
 		}
-		else if( m_Index_Order[0] == TABLE_INDEX_Up )
+		else if( m_Index_Order[0] == TABLE_INDEX_Ascending )
 		{
-			return( Set_Index(iField, TABLE_INDEX_Down) );
+			return( Set_Index(iField, TABLE_INDEX_Descending) );
 		}
 		else
 		{
@@ -1102,7 +1102,7 @@ inline int CSG_Table::_Index_Compare(int a, int b, int Field)
 		break;
 	}
 
-	return( m_Index_Order[Field] == TABLE_INDEX_Up
+	return( m_Index_Order[Field] == TABLE_INDEX_Ascending
 		? (Result < 0.0 ? -1 : (Result > 0.0 ? 1 : 0))
 		: (Result > 0.0 ? -1 : (Result < 0.0 ? 1 : 0))
 	);

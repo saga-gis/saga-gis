@@ -508,7 +508,7 @@ void CWKSP_Shapes::_LUT_Create(void)
 			old_Order	= pTable->Get_Index_Order(0);
 			old_Field	= pTable->Get_Index_Field(0);
 
-			pTable->Set_Index(iField, TABLE_INDEX_Up);
+			pTable->Set_Index(iField, TABLE_INDEX_Ascending);
 			sValue		= pTable->Get_Record_byIndex(0)->asString(iField);
 			dValue		= iID != iField ? 1.0 : pTable->Get_Record_byIndex(0)->asDouble(iField);
 

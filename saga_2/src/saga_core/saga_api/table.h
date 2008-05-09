@@ -95,8 +95,8 @@ TSG_Table_File_Type;
 typedef enum ESG_Table_Index_Order
 {
 	TABLE_INDEX_None			= 0,
-	TABLE_INDEX_Up,
-	TABLE_INDEX_Down
+	TABLE_INDEX_Ascending,
+	TABLE_INDEX_Descending
 }
 TSG_Table_Index_Order;
 
@@ -285,6 +285,8 @@ public:
 	int							Get_Record_Count	(void)			const	{	return( m_nRecords );	}
 	CSG_Table_Record *			Get_Record			(int iRecord)	const	{	return( iRecord >= 0 && iRecord < m_nRecords ? m_Records[iRecord] : NULL );	}
 	CSG_Table_Record &			operator []			(int iRecord)	const	{	return( *Get_Record(iRecord) );	}
+
+	int							Get_Index			(int Index)		const	{	return( Index >= 0 && Index < m_nRecords ? (m_Index ? m_Index[Index] : Index) : -1 );	}
 
 	CSG_Table_Record *			Get_Record_byIndex	(int Index)		const
 	{

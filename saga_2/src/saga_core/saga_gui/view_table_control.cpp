@@ -171,9 +171,9 @@ void CVIEW_Table_Control::Sort_Table(int iField, int Direction)
 		switch( Direction )
 		{
 		default:	m_pTable->Toggle_Index(iField);	break;
-		case 0:		m_pTable->Set_Index(iField, TABLE_INDEX_None);	break;
-		case 1:		m_pTable->Set_Index(iField, TABLE_INDEX_Up  );	break;
-		case 2:		m_pTable->Set_Index(iField, TABLE_INDEX_Down);	break;
+		case 0:		m_pTable->Set_Index(iField, TABLE_INDEX_None      );	break;
+		case 1:		m_pTable->Set_Index(iField, TABLE_INDEX_Ascending );	break;
+		case 2:		m_pTable->Set_Index(iField, TABLE_INDEX_Descending);	break;
 		}
 
 		_Set_Records();
@@ -602,9 +602,9 @@ void CVIEW_Table_Control::On_Field_Sort(wxCommandEvent &event)
 	if( DLG_Parameters(&P) )
 	{
 		m_pTable->Set_Index(
-			P("FIELD_1")->asInt(), P("ORDER_1")->asInt() == 1 ? TABLE_INDEX_Up : P("ORDER_1")->asInt() == 2 ? TABLE_INDEX_Down : TABLE_INDEX_None,
-			P("FIELD_2")->asInt(), P("ORDER_2")->asInt() == 1 ? TABLE_INDEX_Up : P("ORDER_2")->asInt() == 2 ? TABLE_INDEX_Down : TABLE_INDEX_None,
-			P("FIELD_3")->asInt(), P("ORDER_3")->asInt() == 1 ? TABLE_INDEX_Up : P("ORDER_3")->asInt() == 2 ? TABLE_INDEX_Down : TABLE_INDEX_None
+			P("FIELD_1")->asInt(), P("ORDER_1")->asInt() == 1 ? TABLE_INDEX_Ascending : P("ORDER_1")->asInt() == 2 ? TABLE_INDEX_Descending : TABLE_INDEX_None,
+			P("FIELD_2")->asInt(), P("ORDER_2")->asInt() == 1 ? TABLE_INDEX_Ascending : P("ORDER_2")->asInt() == 2 ? TABLE_INDEX_Descending : TABLE_INDEX_None,
+			P("FIELD_3")->asInt(), P("ORDER_3")->asInt() == 1 ? TABLE_INDEX_Ascending : P("ORDER_3")->asInt() == 2 ? TABLE_INDEX_Descending : TABLE_INDEX_None
 		);
 
 		_Set_Records();
