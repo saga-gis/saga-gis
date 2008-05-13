@@ -160,6 +160,22 @@ bool CErdas_LAN_Import::On_Execute(void)
 		fread(&dy		,  1, sizeof(float)	, Stream);	SWAP(dy);		// linear size of a pixel (feet/degrees/meters)
 
 		//-------------------------------------------------
+		CSG_File	fWorld;
+
+		if( fWorld.Open(SG_File_Make_Path(NULL, FileName, SG_T("lnw")), SG_FILE_R, false) )
+		{
+			double		d;
+			CSG_String	sLine;
+
+			if( fWorld.Read_Line(sLine) )	{	if( sLine.asDouble(d) )	dx		= (float)d;	}
+			if( fWorld.Read_Line(sLine) )	{	}
+			if( fWorld.Read_Line(sLine) )	{	}
+			if( fWorld.Read_Line(sLine) )	{	if( sLine.asDouble(d) )	dy		= (float)d;	}
+			if( fWorld.Read_Line(sLine) )	{	if( sLine.asDouble(d) )	xPos	= (float)d;	}
+			if( fWorld.Read_Line(sLine) )	{	if( sLine.asDouble(d) )	yPos	= (float)d;	}
+		}
+
+		//-------------------------------------------------
 		if( feof(Stream) )
 		{
 			Message_Add(_TL("File error"));
@@ -175,7 +191,7 @@ bool CErdas_LAN_Import::On_Execute(void)
 			bResult		= true;
 			Cellsize	= dx;
 			xMin		= xPos;
-			yMin		= yPos - nx * Cellsize;
+			yMin		= yPos - ny * Cellsize;
 
 			switch( vType )
 			{
