@@ -218,7 +218,7 @@ bool CSG_Table::Save(const SG_Char *File_Name, int Format, SG_Char Separator)
 //---------------------------------------------------------
 bool CSG_Table::_Load_Text(const SG_Char *File_Name, bool bHeadline, SG_Char Separator)
 {
-	bool				bContinue, bNumeric, bFloat;
+	bool				bNumeric, bFloat;
 	int					i, iField, iRecord, fLength;
 	double				Value;
 	CSG_String			sLine, sField;
@@ -255,33 +255,29 @@ bool CSG_Table::_Load_Text(const SG_Char *File_Name, bool bHeadline, SG_Char Sep
 				Stream.Seek_Start();
 			}
 
-			bContinue	= true;
-
-			while( bContinue && Stream.Read_Line(sLine) && SG_UI_Process_Set_Progress(Stream.Tell(), fLength) )
+			while( Stream.Read_Line(sLine) && SG_UI_Process_Set_Progress(Stream.Tell(), fLength) )
 			{
-				sLine.Append(Separator);
-
-				pRecord	= newTable._Add_Record();
-
-				for(iField=0; iField<newTable.Get_Field_Count() && bContinue; iField++)
+				if( sLine.Length() > 1 )
 				{
-					if( (i = sLine.Find(Separator)) >= 0 )
+					sLine.Append(Separator);
+
+					pRecord	= newTable._Add_Record();
+
+					for(iField=0; iField<newTable.Get_Field_Count(); iField++)
 					{
-						sField.Printf(sLine.Left(i));
+						if( (i = sLine.Find(Separator)) >= 0 )
+						{
+							sField.Printf(sLine.Left(i));
 
-						pRecord->Set_Value(iField, sField);
+							pRecord->Set_Value(iField, sField);
 
-						sLine.Remove(0, i + 1);
+							sLine.Remove(0, i + 1);
+						}
+						else
+						{
+							break;
+						}
 					}
-					else
-					{
-						bContinue	= false;
-					}
-				}
-
-				if( !bContinue )
-				{
-					newTable._Del_Record(newTable.Get_Record_Count() - 1);
 				}
 			}
 
