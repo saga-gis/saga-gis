@@ -415,6 +415,10 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath=".\grid_pyramid.cpp"
+				>
+			</File>
+			<File
 				RelativePath="HillShade.cpp"
 				>
 				<FileConfiguration
@@ -575,6 +579,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\view_shed.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Visibility_Point.cpp"
 				>
 				<FileConfiguration
@@ -620,6 +628,10 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
+				RelativePath=".\grid_pyramid.h"
+				>
+			</File>
+			<File
 				RelativePath="HillShade.h"
 				>
 			</File>
@@ -633,6 +645,10 @@
 			</File>
 			<File
 				RelativePath="SolarRadiation.h"
+				>
+			</File>
+			<File
+				RelativePath=".\view_shed.h"
 				>
 			</File>
 			<File
