@@ -79,9 +79,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define FIXED_COLS		((m_Constraint & TABLE_CTRL_FIXED_COLS)  != 0)
-#define FIXED_ROWS		((m_Constraint & TABLE_CTRL_FIXED_ROWS)  != 0)
-#define FIXED_TABLE		((m_Constraint & TABLE_CTRL_FIXED_TABLE) != 0)
+#define FIXED_COLS		((m_Constraint & TABLE_CTRL_FIXED_COLS)   != 0)
+#define FIXED_ROWS		((m_Constraint & TABLE_CTRL_FIXED_ROWS)   != 0)
+#define FIXED_TABLE		((m_Constraint & TABLE_CTRL_FIXED_TABLE)  != 0)
 
 //---------------------------------------------------------
 #define SET_CELL_VALUE(REC, FLD, VAL)	SetCellValue(REC, FLD, VAL)
@@ -147,8 +147,7 @@ CVIEW_Table_Control::CVIEW_Table_Control(wxWindow *pParent, CSG_Table *pTable, i
 
 //---------------------------------------------------------
 CVIEW_Table_Control::~CVIEW_Table_Control(void)
-{
-}
+{}
 
 
 ///////////////////////////////////////////////////////////
@@ -304,7 +303,7 @@ bool CVIEW_Table_Control::_Set_Record(int iRecord, CSG_Table_Record *pRecord)
 //---------------------------------------------------------
 bool CVIEW_Table_Control::Add_Record(void)
 {
-	if( !FIXED_ROWS )
+	if( !FIXED_ROWS && !m_pTable->is_Private() )
 	{
 		AppendRows();
 
@@ -319,7 +318,7 @@ bool CVIEW_Table_Control::Add_Record(void)
 //---------------------------------------------------------
 bool CVIEW_Table_Control::Ins_Record(void)
 {
-	if( !FIXED_ROWS )
+	if( !FIXED_ROWS && !m_pTable->is_Private() )
 	{
 		int		iRecord	= GetGridCursorRow();
 
@@ -339,15 +338,29 @@ bool CVIEW_Table_Control::Ins_Record(void)
 //---------------------------------------------------------
 bool CVIEW_Table_Control::Del_Record(void)
 {
-	if( !FIXED_ROWS )
+	if( !FIXED_ROWS && (!m_pTable->is_Private() || (m_pTable->Get_Owner() && m_pTable->Get_Owner()->Get_ObjectType() == DATAOBJECT_TYPE_Shapes)) )
 	{
-		int		iRecord	= GetGridCursorRow();
+		wxArrayInt	Records	= GetSelectedRows();
 
-		if( iRecord >= 0 && iRecord < GetNumberRows() )
+		if( Records.GetCount() > 0 )
 		{
-			DeleteRows(iRecord);
+			do
+			{
+				DeleteRows(Records[0]);
+				Records	= GetSelectedRows();
+			}
+			while( Records.GetCount() > 0 );
 
-			m_pTable->Del_Record(iRecord);
+			if( m_pTable->is_Private() )
+			{
+				((CSG_Shapes *)m_pTable->Get_Owner())->Del_Selection();
+
+				g_pData->Update_Views(m_pTable->Get_Owner());
+			}
+			else
+			{
+				m_pTable->Del_Selection();
+			}
 
 			return( true );
 		}
@@ -359,7 +372,7 @@ bool CVIEW_Table_Control::Del_Record(void)
 //---------------------------------------------------------
 bool CVIEW_Table_Control::Del_Records(void)
 {
-	if( !FIXED_ROWS && m_pTable->Del_Records() )
+	if( !FIXED_ROWS && !m_pTable->is_Private() && m_pTable->Del_Records() )
 	{
 		DeleteRows(0, GetNumberRows());
 
@@ -631,7 +644,7 @@ void CVIEW_Table_Control::On_Record_Add(wxCommandEvent &event)
 
 void CVIEW_Table_Control::On_Record_Add_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(!FIXED_ROWS);
+	event.Enable(!FIXED_ROWS && !m_pTable->is_Private());
 }
 
 //---------------------------------------------------------
@@ -642,7 +655,7 @@ void CVIEW_Table_Control::On_Record_Ins(wxCommandEvent &event)
 
 void CVIEW_Table_Control::On_Record_Ins_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(!FIXED_ROWS);
+	event.Enable(!FIXED_ROWS && !m_pTable->is_Private());
 }
 
 //---------------------------------------------------------
@@ -664,7 +677,7 @@ void CVIEW_Table_Control::On_Record_Clr(wxCommandEvent &event)
 
 void CVIEW_Table_Control::On_Record_Clr_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(!FIXED_ROWS);
+	event.Enable(!FIXED_ROWS && !m_pTable->is_Private());
 }
 
 
@@ -728,7 +741,11 @@ void CVIEW_Table_Control::On_LClick(wxGridEvent &event)
 		}
 	}
 
-	event.Skip();
+	SelectRow(iRecord, wxGetKeyState(WXK_CONTROL));
+
+	SetGridCursor(iRecord, event.GetCol());
+
+//	event.Skip();
 }
 
 
@@ -743,17 +760,15 @@ void CVIEW_Table_Control::On_LClick_Label(wxGridEvent &event)
 {
 	if( event.GetCol() >= 0 )
 	{
-		SelectRow		(GetGridCursorRow(), false);
 		SetGridCursor	(GetGridCursorRow(), event.GetCol());
 	}
 	else if( event.GetRow() >= 0 )
 	{
-		SelectRow		(event.GetRow(), false);
 		SetGridCursor	(event.GetRow(), GetGridCursorCol());
 	}
 	else
 	{
-		SelectAll();
+	//	SelectAll();
 	}
 }
 
@@ -765,9 +780,7 @@ void CVIEW_Table_Control::On_RClick_Label(wxGridEvent &event)
 	//-----------------------------------------------------
 	if( event.GetCol() != -1 )
 	{
-		SetGridCursor	(GetGridCursorRow(), event.GetCol());
-
-		pMenu	= new wxMenu(GetColLabelValue(event.GetCol()), 0);
+		pMenu	= new wxMenu(wxString::Format(wxT("%s"), LNG("Columns")), 0);
 
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_ADD);
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_DEL);
@@ -782,10 +795,7 @@ void CVIEW_Table_Control::On_RClick_Label(wxGridEvent &event)
 	//-----------------------------------------------------
 	else if( event.GetRow() != -1 )
 	{
-		SelectRow		(event.GetRow(), false);
-		SetGridCursor	(event.GetRow(), GetGridCursorCol());
-
-		pMenu	= new wxMenu(wxString::Format(wxT("%s %d"), LNG("Row"), 1 + event.GetRow()), 0);
+		pMenu	= new wxMenu(wxString::Format(wxT("%s"), LNG("Rows")), 0);
 
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_RECORD_ADD);
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_RECORD_INS);

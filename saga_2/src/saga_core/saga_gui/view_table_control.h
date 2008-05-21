@@ -81,6 +81,7 @@
 //---------------------------------------------------------
 #define TABLE_CTRL_FIXED_COLS	0x01
 #define TABLE_CTRL_FIXED_ROWS	0x02
+#define TABLE_CTRL_FIXED_SHAPES	0x04
 #define TABLE_CTRL_FIXED_TABLE	(TABLE_CTRL_FIXED_ROWS|TABLE_CTRL_FIXED_COLS)
 
 

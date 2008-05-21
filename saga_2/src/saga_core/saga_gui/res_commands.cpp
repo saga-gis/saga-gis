@@ -237,7 +237,7 @@ const wxChar * CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_TABLE_FIELD_SORT:		return( LNG("[CMD] Sort Fields") );
 	case ID_CMD_TABLE_RECORD_ADD:		return( LNG("[CMD] Add Record") );
 	case ID_CMD_TABLE_RECORD_INS:		return( LNG("[CMD] Insert Record") );
-	case ID_CMD_TABLE_RECORD_DEL:		return( LNG("[CMD] Delete Record") );
+	case ID_CMD_TABLE_RECORD_DEL:		return( LNG("[CMD] Delete Selected Record(s)") );
 	case ID_CMD_TABLE_RECORD_DEL_ALL:	return( LNG("[CMD] Delete All Records") );
 	case ID_CMD_TABLE_AUTOSIZE_COLS:	return( LNG("[CMD] Fit Column Sizes") );
 	case ID_CMD_TABLE_AUTOSIZE_ROWS:	return( LNG("[CMD] Fit Row Sizes") );

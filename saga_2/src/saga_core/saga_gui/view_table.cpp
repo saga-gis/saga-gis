@@ -113,7 +113,7 @@ CVIEW_Table::CVIEW_Table(CWKSP_Table *pTable)
 {
 	m_pTable	= pTable;
 
-	m_pControl	= new CVIEW_Table_Control(this, m_pTable->Get_Table(), m_pTable->Get_Table()->is_Private() ? TABLE_CTRL_FIXED_ROWS : 0);
+	m_pControl	= new CVIEW_Table_Control(this, m_pTable->Get_Table(), 0);
 }
 
 //---------------------------------------------------------
