@@ -10,7 +10,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLP_Interface.cpp                   //
+//               Gridding_Spline_MBA_Grid.h              //
 //                                                       //
 //                 Copyright (C) 2006 by                 //
 //                      Olaf Conrad                      //
@@ -53,72 +53,68 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__Gridding_Spline_MBA_Grid_H
+#define HEADER_INCLUDED__Gridding_Spline_MBA_Grid_H
 
-#include "MLB_Interface.h"
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 2. Place general module library informations here...
+#include "Gridding_Spline_Base.h"
 
-const SG_Char *	Get_Info(int i)
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class grid_spline_EXPORT CGridding_Spline_MBA_Grid : public CGridding_Spline_Base
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Grid - Spline Interpolation") );
-
-	case MLB_INFO_Author:
-		return( _TL("(c) 2006 by Olaf Conrad") );
-
-	case MLB_INFO_Description:
-		return( _TW(
-			"Several spline interpolation/approximation methods for the gridding of scattered data. "
-			"In most cases the 'Multilevel B-spline Interpolation' will be the optimal choice. "
-		));
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Grid|Gridding") );
-	}
-}
+public:
+	CGridding_Spline_MBA_Grid(void);
+	virtual ~CGridding_Spline_MBA_Grid(void);
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "Gridding_Spline_TPS_Global.h"
-#include "Gridding_Spline_TPS_Local.h"
-#include "Gridding_Spline_TPS_TIN.h"
-#include "Gridding_Spline_BA.h"
-#include "Gridding_Spline_MBA.h"
-#include "Gridding_Spline_MBA_Grid.h"
+	virtual bool			On_Execute			(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+private:
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case 0:		return( new CGridding_Spline_TPS_Global );
-	case 1:		return( new CGridding_Spline_TPS_Local );
-	case 2:		return( new CGridding_Spline_TPS_TIN );
-	case 3:		return( new CGridding_Spline_BA );
-	case 4:		return( new CGridding_Spline_MBA );
-	case 5:		return( new CGridding_Spline_MBA_Grid );
-	}
+	bool					m_bUpdate;
 
-	return( NULL );
-}
+	int						m_Level_Max;
+
+	double					m_Epsilon, m_Resolution;
+
+	CSG_Grid				m_Points;
+
+
+	bool					_Set_MBA			(double dCell);
+	bool					_Set_MBA_Refinement	(double dCell);
+	bool					_Set_MBA_Refinement	(CSG_Grid *Psi, CSG_Grid *Phi);
+
+	bool					_Get_Phi			(CSG_Grid &Phi, double dCell, int nCells);
+	bool					_Get_Difference		(CSG_Grid &Phi);
+
+	void					BA_Set_Grid			(CSG_Grid &Phi, bool bAdd = false);
+	double					BA_Get_Value		(double x, double y, CSG_Grid &Phi);
+	bool					BA_Get_Phi			(CSG_Grid &Phi);
+	double					BA_Get_B			(int i, double d);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -128,8 +124,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__Gridding_Spline_MBA_Grid_H

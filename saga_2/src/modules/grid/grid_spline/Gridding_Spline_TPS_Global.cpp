@@ -116,6 +116,8 @@ CGridding_Spline_TPS_Global::~CGridding_Spline_TPS_Global(void)
 //---------------------------------------------------------
 bool CGridding_Spline_TPS_Global::On_Initialise(void)
 {
+	m_pShapes			= Parameters("SHAPES")	->asShapes();
+	m_zField			= Parameters("FIELD")	->asInt();
 	m_Regularisation	= Parameters("REGUL")	->asDouble();
 
 	return( true );

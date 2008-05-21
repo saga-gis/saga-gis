@@ -82,7 +82,7 @@
 class grid_spline_EXPORT CGridding_Spline_Base : public CSG_Module
 {
 public:
-	CGridding_Spline_Base(void);
+	CGridding_Spline_Base(bool bGridPoints = false);
 	virtual ~CGridding_Spline_Base(void);
 
 	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Spline Interpolation") );	}
@@ -90,11 +90,7 @@ public:
 
 protected:
 
-	int						m_zField;
-
-	CSG_Grid					*m_pGrid;
-
-	CSG_Shapes					*m_pShapes;
+	CSG_Grid				*m_pGrid;
 
 
 	bool					Initialise		(void);
@@ -105,9 +101,12 @@ protected:
 
 private:
 
+	bool					m_bGridPoints;
+
+
 	bool					_Get_Points		(CSG_Points_3D &Points, bool bInGridOnly);
 	bool					_Get_Grid		(void);
-	CSG_Grid *					_Get_Grid		(TSG_Rect Extent);
+	CSG_Grid *				_Get_Grid		(TSG_Rect Extent);
 
 };
 

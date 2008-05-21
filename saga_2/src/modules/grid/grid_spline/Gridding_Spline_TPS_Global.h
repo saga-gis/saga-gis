@@ -94,7 +94,11 @@ protected:
 	virtual bool			On_Initialise	(void);
 
 
+	int						m_zField;
+
 	double					m_Regularisation;
+
+	CSG_Shapes				*m_pShapes;
 
 	CThin_Plate_Spline		m_Spline;
 
