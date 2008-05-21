@@ -271,7 +271,7 @@ bool CWKSP_Shapes::On_Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, in
 
 		pRecord	= m_pShapes->Get_Table().Get_Selection();
 		
-		m_pShapes->Select(rWorld, (Key & MODULE_INTERACTIVE_KEY_SHIFT) != 0);
+		m_pShapes->Select(rWorld, (Key & MODULE_INTERACTIVE_KEY_CTRL) != 0);
 
 		if( m_pTable->Get_View() )
 		{

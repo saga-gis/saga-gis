@@ -858,35 +858,27 @@ inline void CVIEW_Table_Control::_Select(int iRow, bool bSelect)
 //---------------------------------------------------------
 void CVIEW_Table_Control::Update_Selection(void)
 {
-	int				i, j, n;
-	CSG_Table_Record	*pRecord, **Selection;
-
-	if( (n = m_pTable->Get_Selection_Count()) > 0 )
+	if( m_pTable->Get_Selection_Count() > 0 )
 	{
-		Selection	= (CSG_Table_Record **)SG_Malloc(n * sizeof(CSG_Table_Record *));
+		int		iRecord;
+		bool	*Select	= (bool *)SG_Malloc(m_pTable->Get_Record_Count() * sizeof(bool));
 
-		for(i=0; i<n; i++)
+		for(iRecord=0; iRecord<m_pTable->Get_Record_Count(); iRecord++)
 		{
-			Selection[i]	= m_pTable->Get_Selection(i);
+			Select[iRecord]	= m_pTable->Get_Record_byIndex(iRecord)->is_Selected();
 		}
 
 		ClearSelection();
 
-		for(j=0; j<m_pTable->Get_Record_Count(); j++)
+		for(iRecord=0; iRecord<m_pTable->Get_Record_Count(); iRecord++)
 		{
-			pRecord	= m_pTable->Get_Record_byIndex(j);
-
-			for(i=0; i<n; i++)
+			if( Select[iRecord] )
 			{
-				if( pRecord == Selection[i] )
-				{
-					SelectRow(j, true);
-					break;
-				}
+				SelectRow(iRecord, true);
 			}
 		}
 
-		SG_Free(Selection);
+		SG_Free(Select);
 	}
 	else
 	{
