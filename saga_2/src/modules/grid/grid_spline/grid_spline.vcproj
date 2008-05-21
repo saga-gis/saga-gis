@@ -531,6 +531,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Gridding_Spline_MBA_Grid.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Gridding_Spline_TPS_Global.cpp"
 				>
 				<FileConfiguration
@@ -745,6 +749,10 @@
 			</File>
 			<File
 				RelativePath="Gridding_Spline_MBA.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Gridding_Spline_MBA_Grid.h"
 				>
 			</File>
 			<File
