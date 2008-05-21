@@ -132,6 +132,8 @@ private:
 	CSG_Grid					*m_pGrid;
 
 
+	void						_LUT_Create				(void);
+
 	bool						_Edit_Del_Selection		(void);
 
 	void						_Save_Image				(void);

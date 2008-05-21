@@ -463,7 +463,7 @@ void CWKSP_Shapes::_LUT_Create(void)
 	int						iField, iRecord, old_Field, iID;
 	double					dValue;
 	TSG_Table_Index_Order	old_Order;
-	CSG_Colors				Colors;
+	CSG_Colors				*pColors;
 	CSG_String				sFields, sValue;
 	CSG_Table_Record		*pRecord, *pRecord_LUT;
 	CSG_Table				*pTable, *pLUT;
@@ -485,11 +485,10 @@ void CWKSP_Shapes::_LUT_Create(void)
 
 		Parameters.Create(NULL, LNG("Choose Attribute"), LNG(""));
 		Parameters.Add_Choice(NULL, "FIELD"	, LNG("Attribute")	, LNG(""), sFields);
+		Parameters.Add_Colors(NULL, "COLOR"	, LNG("Colors")		, LNG(""));
 
 		if( DLG_Parameters(&Parameters) )
 		{
-			Colors.Random();
-
 			iField		= Parameters("FIELD")	->asInt();
 
 			if( pTable->Get_Field_Type(iField) == TABLE_FIELDTYPE_String )
@@ -525,7 +524,6 @@ void CWKSP_Shapes::_LUT_Create(void)
 					}
 
 					pRecord_LUT	= pLUT->Add_Record();
-					pRecord_LUT	->Set_Value(0, Colors.Get_Color(pLUT->Get_Record_Count() % Colors.Get_Count()));			// Color
 					pRecord_LUT	->Set_Value(1, sValue.c_str());	// Name
 					pRecord_LUT	->Set_Value(2, sValue.c_str());	// Description
 					pRecord_LUT	->Set_Value(3, dValue);			// Minimum
@@ -536,6 +534,14 @@ void CWKSP_Shapes::_LUT_Create(void)
 				{
 					pRecord->Set_Value(iID, dValue);
 				}
+			}
+
+			pColors	= Parameters("COLOR")->asColors();
+			pColors->Set_Count(pLUT->Get_Record_Count());
+
+			for(iRecord=0; iRecord<pLUT->Get_Record_Count(); iRecord++)
+			{
+				pLUT->Get_Record(iRecord)->Set_Value(0, pColors->Get_Color(iRecord));
 			}
 
 			pTable->Set_Index(old_Field, old_Order);

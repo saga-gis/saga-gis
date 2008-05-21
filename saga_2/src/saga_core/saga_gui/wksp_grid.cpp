@@ -213,6 +213,7 @@ wxMenu * CWKSP_Grid::Get_Menu(void)
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_SCATTERPLOT);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_EQUALINTERVALS);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_SET_LUT);
 
 	return( pMenu );
 }
@@ -248,6 +249,10 @@ bool CWKSP_Grid::On_Command(int Cmd_ID)
 
 	case ID_CMD_GRIDS_EQUALINTERVALS:
 		m_pClassify->Metric2EqualElements();
+		break;
+
+	case ID_CMD_SHAPES_SET_LUT:
+		_LUT_Create();
 		break;
 	}
 
@@ -466,6 +471,65 @@ void CWKSP_Grid::On_Parameters_Changed(void)
 			m_pGrid->Set_Cache(true);
 		}
 		break;
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Grid::_LUT_Create(void)
+{
+	CSG_Parameters	Parameters;
+
+	Parameters.Create(NULL, LNG("Choose Attribute"), LNG(""));
+	Parameters.Add_Colors(NULL, "COLOR"	, LNG("Colors")	, LNG(""));
+
+	if( DLG_Parameters(&Parameters) )
+	{
+		int					i, x, y;
+		double				dValue;
+		CSG_String			sValue;
+		CSG_Colors			*pColors;
+		CSG_Table_Record	*pRecord_LUT;
+		CSG_Table			*pLUT;
+
+		pLUT	= m_Parameters("LUT")->asTable();
+		pLUT	->Del_Records();
+
+		for(i=0; i<m_pGrid->Get_NCells() && PROGRESSBAR_Set_Position(i, m_pGrid->Get_NCells()); i++)
+		{
+			if( m_pGrid->Get_Sorted(i, x, y) && (pLUT->Get_Record_Count() == 0 || dValue != m_pGrid->asDouble(x, y)) )
+			{
+				dValue		= m_pGrid->asDouble(x, y);
+				sValue		= SG_Get_String(dValue, SG_Get_Significant_Decimals(dValue), false);
+				pRecord_LUT	= pLUT->Add_Record();
+				pRecord_LUT	->Set_Value(1, sValue);			// Name
+				pRecord_LUT	->Set_Value(2, sValue);			// Description
+				pRecord_LUT	->Set_Value(3, dValue);			// Minimum
+				pRecord_LUT	->Set_Value(4, dValue);			// Maximum
+			}
+		}
+
+		pColors	= Parameters("COLOR")->asColors();
+		pColors->Set_Count(pLUT->Get_Record_Count());
+
+		for(i=0; i<pLUT->Get_Record_Count(); i++)
+		{
+			pLUT->Get_Record(i)->Set_Value(0, pColors->Get_Color(i));
+		}
+
+		PROGRESSBAR_Set_Position(0);
+
+		DataObject_Changed();
+
+		m_Parameters("COLORS_TYPE")		->Set_Value(1);		// Lookup Table
+
+		Parameters_Changed();
 	}
 }
 
