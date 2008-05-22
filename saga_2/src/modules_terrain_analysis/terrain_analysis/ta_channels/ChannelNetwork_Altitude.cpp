@@ -126,7 +126,7 @@ CChannelNetwork_Altitude::CChannelNetwork_Altitude(void)
 	);
 
 	Parameters.Add_Value(
-		NULL, "NOUNDERGROUND", _TL("Keep Base Level above Surface"),
+		NULL, "NOUNDERGROUND", _TL("Keep Base Level below Surface"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, true
 	);

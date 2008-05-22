@@ -95,6 +95,13 @@ CPolygon_Intersection::CPolygon_Intersection(void)
 		"Intersection of polygon layers. Uses GPC - General Polygon Clipper - version 2.31 by Alan Murta."
 	));
 
+	/*/-----------------------------------------------------
+	pNode	= Parameters.Add_Shapes_List(
+		NULL	, "SHAPES"		, _TL("Polygon Layers"),
+		_TL(""),
+		PARAMETER_INPUT, SHAPE_TYPE_Polygon
+	);/**/
+
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES_A"	, _TL("Layer A"),
@@ -106,7 +113,7 @@ CPolygon_Intersection::CPolygon_Intersection(void)
 		NULL	, "SHAPES_B"	, _TL("Layer B"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
-	);
+	);/**/
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Shapes(
@@ -145,6 +152,103 @@ CPolygon_Intersection::~CPolygon_Intersection(void)
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+/*/---------------------------------------------------------
+bool CPolygon_Intersection::On_Execute(void)
+{
+	CSG_Parameter_Shapes_List	*pList;
+
+	pList			= Parameters("SHAPES")		->asShapesList();
+	m_pShapes_AB	= Parameters("SHAPES_AB")	->asShapes();
+	m_bSplitParts	= Parameters("SPLITPARTS")	->asBool();
+
+	if(	pList->Get_Count() < 2 )
+	{
+		Message_Add(_TL("At least two polygons have to be given for intersection"));
+	}
+	else
+	{
+		m_pShapes_AB->Create(SHAPE_TYPE_Polygon);
+		m_pShapes_AB->Get_Table().Add_Field("ID"	, TABLE_FIELDTYPE_Int);
+		m_pShapes_AB->Get_Table().Add_Field("ID_A"	, TABLE_FIELDTYPE_Int);
+
+		Intersect(pList->asShapes(0), pList->asShapes(1));
+
+		//-------------------------------------------------
+		if( pList->Get_Count() > 2 )
+		{
+			CSG_Shapes	Tmp;
+
+			for(int i=2; i<pList->Get_Count() && Process_Get_Okay(false); i++)
+			{
+				Tmp.Create(*m_pShapes_AB);
+
+				Intersect(&Tmp, pList->asShapes(i));
+			}
+		}
+
+		//-------------------------------------------------
+		return( m_pShapes_AB->is_Valid() );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CPolygon_Intersection::Intersect(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B)
+{
+	CSG_String	sName;
+
+	if(	pShapes_A->Get_Type() == SHAPE_TYPE_Polygon && pShapes_A->is_Valid()
+	&&	pShapes_B->Get_Type() == SHAPE_TYPE_Polygon && pShapes_B->is_Valid() )
+	{
+		m_pShapes_AB->Del_Shapes();
+
+		switch( Parameters("METHOD")->asInt() )
+		{
+		//-------------------------------------------------
+		case 0:	// Complete Intersection...
+			sName.Printf(SG_T("%s [%s]-[%s]"), _TL("Intersection"), pShapes_A->Get_Name(), pShapes_B->Get_Name());
+
+			Get_Intersection(pShapes_A, pShapes_B, MODE_FIRST);
+			Get_Difference	(pShapes_A, pShapes_B, MODE_FIRST);
+			Get_Difference	(pShapes_B, pShapes_A, MODE_SECOND);
+
+			break;
+
+		//-------------------------------------------------
+		case 1:	// Intersection...
+			sName.Printf(SG_T("%s [%s]-[%s]"), _TL("Intersection"), pShapes_A->Get_Name(), pShapes_B->Get_Name());
+
+			Get_Intersection(pShapes_A, pShapes_B, MODE_SINGLE);
+
+			break;
+
+		//-------------------------------------------------
+		case 2:						// Difference A - B...
+			sName.Printf(SG_T("%s [%s]-[%s]"), _TL("Difference"), pShapes_A->Get_Name(), pShapes_B->Get_Name());
+
+			Get_Difference	(pShapes_A, pShapes_B, MODE_SINGLE);
+
+			break;
+
+		//-------------------------------------------------
+		case 3:						// Difference B - A...
+			sName.Printf(SG_T("%s [%s]-[%s]"), _TL("Difference"), pShapes_B->Get_Name(), pShapes_A->Get_Name());
+
+			Get_Difference	(pShapes_B, pShapes_A, MODE_SINGLE);
+
+			break;
+		}
+
+		//-------------------------------------------------
+		m_pShapes_AB->Set_Name(sName);
+
+		return( m_pShapes_AB->Get_Count() > 0 );
+	}
+
+	return( false );
+}/**/
 
 //---------------------------------------------------------
 bool CPolygon_Intersection::On_Execute(void)
@@ -209,7 +313,7 @@ bool CPolygon_Intersection::On_Execute(void)
 	}
 
 	return( false );
-}
+}/**/
 
 
 ///////////////////////////////////////////////////////////

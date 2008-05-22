@@ -100,6 +100,8 @@ private:
 	CSG_Shapes				*m_pShapes_AB;
 
 
+//	bool					Intersect			(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B);
+
 	bool					Get_Intersection	(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B, int Mode);
 	bool					Get_Difference		(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B, int Mode);
 
