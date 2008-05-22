@@ -254,7 +254,7 @@ void CVIEW_Histogram::_Draw_Frame(wxDC &dc, wxRect r)
 				Precision	= 3;
 
 	int		iPixel, iStep, nSteps, Maximum, nClasses;
-	double	dPixel, dPixelFont, dz;
+	double	dPixel, dPixelFont, dz, dArea	= m_pLayer->Get_Type() == WKSP_ITEM_Grid ? ((CSG_Grid *)m_pLayer->Get_Object())->Get_Cellarea() : 1.0;
 	wxFont	Font;
 
 	//-----------------------------------------------------
@@ -285,9 +285,15 @@ void CVIEW_Histogram::_Draw_Frame(wxDC &dc, wxRect r)
 		{
 			iPixel	= r.GetBottom()	- (int)(dPixel * iStep);
 			dc.DrawLine(r.GetLeft(), iPixel, r.GetLeft() - 5, iPixel);
-			Draw_Text(dc, TEXTALIGN_CENTERRIGHT, r.GetLeft() - 7, iPixel,
-				wxString::Format(wxT("%d"), (int)(iStep * dz))
-			);
+
+			if( 1 )
+				Draw_Text(dc, TEXTALIGN_CENTERRIGHT, r.GetLeft() - 7, iPixel,
+					wxString::Format(wxT("%d"), (int)(iStep * dz))
+				);
+			else
+				Draw_Text(dc, TEXTALIGN_CENTERRIGHT, r.GetLeft() - 7, iPixel,
+					wxString::Format(wxT("%.2f"), iStep * dz * dArea)
+				);
 		}
 
 		//-------------------------------------------------
@@ -453,7 +459,8 @@ void CVIEW_Histogram::On_Cumulative_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
 {
-	int				i, n;
+	int					i, n;
+	double				dArea	= m_pLayer->Get_Type() == WKSP_ITEM_Grid ? ((CSG_Grid *)m_pLayer->Get_Object())->Get_Cellarea() : 1.0;
 	CSG_Table			*pTable;
 	CSG_Table_Record	*pRecord;
 
@@ -465,6 +472,7 @@ void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
 
 		pTable->Add_Field(LNG("CLASS")	, TABLE_FIELDTYPE_Int);
 		pTable->Add_Field(LNG("COUNT")	, TABLE_FIELDTYPE_Int);
+		pTable->Add_Field(LNG("AREA")	, TABLE_FIELDTYPE_Double);
 		pTable->Add_Field(LNG("NAME")	, TABLE_FIELDTYPE_String);
 
 		for(i=0; i<n; i++)
@@ -473,7 +481,8 @@ void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
 
 			pRecord->Set_Value(0, i + 1);
 			pRecord->Set_Value(1, m_pLayer->Get_Classifier()->Histogram_Get_Count(i, false));
-			pRecord->Set_Value(2, m_pLayer->Get_Classifier()->Get_Class_Name(i).c_str());
+			pRecord->Set_Value(2, m_pLayer->Get_Classifier()->Histogram_Get_Count(i, false) * dArea);
+			pRecord->Set_Value(3, m_pLayer->Get_Classifier()->Get_Class_Name(i).c_str());
 		}
 
 		g_pData->Add(pTable);
