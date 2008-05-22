@@ -86,6 +86,7 @@
 #include "wksp_data_layers.h"
 #include "wksp_table.h"
 
+#include "wksp_map_manager.h"
 #include "wksp_map.h"
 #include "wksp_map_buttons.h"
 
@@ -194,6 +195,14 @@ void CWKSP_Base_Control::On_Command(wxCommandEvent &event)
 	if( event.GetId() == ID_CMD_WKSP_ITEM_CLOSE )
 	{
 		_Del_Active(false);
+
+		return;
+	}
+
+	//-----------------------------------------------------
+	if( event.GetId() == ID_CMD_WKSP_ITEM_SHOW )
+	{
+		_Show_Active();
 
 		return;
 	}
@@ -446,6 +455,46 @@ bool CWKSP_Base_Control::Set_Item_Selected(CWKSP_Base_Item *pItem, bool bKeepMul
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+wxMenu * CWKSP_Base_Control::Get_Context_Menu(void)
+{
+	wxMenu			*pMenu	= NULL;
+	CWKSP_Base_Item	*pItem	= Get_Item_Selected();
+
+	if( pItem )
+	{
+		pMenu	= pItem->Get_Menu();
+	}
+	else if( GetWindowStyle() & wxTR_MULTIPLE )
+	{
+		wxArrayTreeItemIds	IDs;
+
+		if( GetSelections(IDs) > 0 )
+		{
+			pMenu	= new wxMenu;
+
+			CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
+			CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SHOW);
+		}
+	}
+
+	if( pMenu == NULL )
+	{
+		pMenu	= new wxMenu;
+
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
+	}
+
+	return( pMenu );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CWKSP_Base_Control::_Set_Active(void)
 {
 	if( g_pACTIVE )
@@ -495,6 +544,72 @@ bool CWKSP_Base_Control::_Del_Active(bool bSilent)
 	return( true );
 }
 
+//---------------------------------------------------------
+bool CWKSP_Base_Control::_Show_Active(void)
+{
+	wxArrayTreeItemIds	IDs;
+
+	if( (GetWindowStyle() & wxTR_MULTIPLE) != 0 && GetSelections(IDs) > 0 && ((CWKSP_Base_Item *)GetItemData(IDs[0]))->Get_Control() == this )
+	{
+		int				iMap;
+		size_t			iItem;
+		CWKSP_Base_Item	*pItem;
+
+		for(iItem=0, iMap=0; iItem<IDs.GetCount(); iItem++)
+		{
+			if( IDs[iItem].IsOk() )
+			{
+				pItem	= (CWKSP_Base_Item *)GetItemData(IDs[iItem]);
+
+				switch( pItem->Get_Type() )
+				{
+				case WKSP_ITEM_Grid:
+				case WKSP_ITEM_Shapes:
+				case WKSP_ITEM_TIN:
+					iMap	= 1;
+					break;
+
+				case WKSP_ITEM_Table:
+					((CWKSP_Table *)pItem)->Set_View(true);
+					break;
+
+				default:
+					break;
+				}
+			}
+		}
+
+		if( iMap && (iMap = DLG_Maps_Add()) >= 0 )
+		{
+			for(iItem=0; iItem<IDs.GetCount(); iItem++)
+			{
+				if( IDs[iItem].IsOk() )
+				{
+					pItem	= (CWKSP_Base_Item *)GetItemData(IDs[iItem]);
+
+					switch( pItem->Get_Type() )
+					{
+					case WKSP_ITEM_Grid:
+					case WKSP_ITEM_Shapes:
+					case WKSP_ITEM_TIN:
+						g_pMaps->Add((CWKSP_Layer *)pItem, g_pMaps->Get_Map(iMap));
+						break;
+
+					default:
+						break;
+					}
+				}
+			}
+
+			g_pMaps->Get_Map(iMap)->View_Show(true);
+
+			return( true );
+		}
+	}
+
+	return( false );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -524,25 +639,12 @@ void CWKSP_Base_Control::On_Item_LDClick(wxMouseEvent &event)
 //---------------------------------------------------------
 void CWKSP_Base_Control::On_Item_RClick(wxTreeEvent &event)
 {
-	if( !(GetWindowStyle() & wxTR_MULTIPLE) || wxGetKeyState(WXK_CONTROL) == false )
-	{
-		Set_Item_Selected((CWKSP_Base_Item *)GetItemData(event.GetItem()));
-	}
+	wxMenu	*pMenu	= Get_Context_Menu();
 
-	CWKSP_Base_Item	*pItem	= Get_Item_Selected();
-	wxMenu			*pMenu	= NULL;
-
-	if( pItem && (pMenu = pItem->Get_Menu()) != NULL )
+	if( pMenu )
 	{
 		PopupMenu(pMenu);
-		delete(pMenu);
-	}
 
-	else if( pItem == NULL )
-	{
-		pMenu	= new wxMenu;
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
-		PopupMenu(pMenu);
 		delete(pMenu);
 	}
 

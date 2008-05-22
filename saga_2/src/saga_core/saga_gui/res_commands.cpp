@@ -104,6 +104,7 @@ const wxChar * CMD_Get_Name(int Cmd_ID)
 	// Workspace...
 
 	case ID_CMD_WKSP_ITEM_CLOSE:		return( LNG("[CMD] Close") );
+	case ID_CMD_WKSP_ITEM_SHOW:			return( LNG("[CMD] Show") );
 
 	case ID_CMD_WKSP_OPEN:				return( LNG("[CMD] Load") );
 

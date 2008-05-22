@@ -100,6 +100,8 @@ public:
 	void						On_Item_Delete		(wxTreeEvent     &event);
 	void						On_Item_KeyDown		(wxTreeEvent     &event);
 
+	wxMenu *					Get_Context_Menu	(void);
+
 
 protected:
 
@@ -114,6 +116,8 @@ protected:
 
 	bool						_Set_Active			(void);
 	bool						_Del_Active			(bool bSilent);
+
+	bool						_Show_Active		(void);
 
 
 //---------------------------------------------------------

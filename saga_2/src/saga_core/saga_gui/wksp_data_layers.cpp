@@ -220,17 +220,15 @@ void CWKSP_Data_Button::On_Mouse_LDClick(wxMouseEvent &event)
 //---------------------------------------------------------
 void CWKSP_Data_Button::On_Mouse_RDown(wxMouseEvent &event)
 {
-	if( _Select(event.ShiftDown() || event.ControlDown()) )
+	wxMenu	*pMenu	= g_pData_Ctrl->Get_Context_Menu();
+
+	if( pMenu )
 	{
-		wxMenu	*pMenu;
+		PopupMenu(pMenu, event.GetPosition());
 
-		if( (pMenu = m_pLayer->Get_Menu()) != NULL )
-		{
-			PopupMenu(pMenu, event.GetPosition());
-			delete(pMenu);
+		delete(pMenu);
 
-			return;
-		}
+		return;
 	}
 
 	event.Skip();

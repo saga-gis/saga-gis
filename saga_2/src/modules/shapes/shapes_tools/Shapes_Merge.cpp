@@ -56,12 +56,11 @@ bool CShapes_Merge::On_Execute(void){
 
 	CSG_Table *pTable;
 	CSG_Shapes *pShapes, *pOutput;
-	TSG_Point	Point;
 	CSG_Shape *pShape, *pShape2;
 	CSG_Parameter_Shapes_List	*pShapesList;
 	CSG_Shapes* pMainShapes;
-	int i,j,k;
-	int iLayer, iField;
+	int i,j;
+	int iLayer, iField, nFields;
 	int iFieldMain, iFieldAdditional;
 	std::vector<int> FieldsMain, FieldsAdditional;
 	CSG_String sName1,sName2;
@@ -72,75 +71,88 @@ bool CShapes_Merge::On_Execute(void){
 
 	pOutput->Create(MainType, _TL("Shapes_Merge"));
 
-	pTable=&pMainShapes->Get_Table();
-	for (i=0; i<pTable->Get_Field_Count(); i++){
-		pOutput->Get_Table().Add_Field(pTable->Get_Field_Name(i), pTable->Get_Field_Type(i));	
+	pTable	= &pMainShapes->Get_Table();
+	nFields	= pTable->Get_Field_Count();
+
+	for (i=0; i<nFields; i++)
+	{
+		pOutput->Get_Table().Add_Field(pTable->Get_Field_Name(i), pTable->Get_Field_Type(i));
 	}//for
 
+	pOutput->Get_Table().Add_Field(SG_T("LAYER_ID")	, TABLE_FIELDTYPE_Int);
+	pOutput->Get_Table().Add_Field(SG_T("LAYER")	, TABLE_FIELDTYPE_String);
 	
 	//copy main layer into destination
-	for(i=0; i<pMainShapes->Get_Count(); i++){			
-		pShape = pMainShapes->Get_Shape(i);					
-		pShape2 = pOutput->Add_Shape();	
-		for(int j=0; j<pShape->Get_Part_Count(); j++){	
-			for(int k=0; k<pShape->Get_Point_Count(j)-1; k++){
-				Point = pShape->Get_Point(k,j);	
-				pShape2->Add_Point(Point.x,Point.y,j);
-				for	(iField = 0; iField<pTable->Get_Field_Count(); iField++){
-					if (pTable->Get_Field_Type(iField) == TABLE_FIELDTYPE_String){
-						const SG_Char *cValue = pShape->Get_Record()->asString(iField);
-						pShape2->Get_Record()->Set_Value(iField, cValue);
-					}//if
-					else{
-						double dValue = pShape->Get_Record()->asDouble(iField);
-						pShape2->Get_Record()->Set_Value(iField, dValue);
-					}//else
-				}//for
-			}//for
+	for(i=0; i<pMainShapes->Get_Count(); i++)
+	{
+		pShape	= pMainShapes->Get_Shape(i);
+		pShape2	= pOutput->Add_Shape(pShape);
+		pShape2	->Set_Value(nFields + 0, 1);
+		pShape2	->Set_Value(nFields + 1, pMainShapes->Get_Name());
+
+		for	(iField = 0; iField<nFields; iField++)
+		{
+			if (pTable->Get_Field_Type(iField) == TABLE_FIELDTYPE_String)
+			{
+				pShape2->Set_Value(iField, pShape->asString(iField));
+			}//if
+			else
+			{
+				pShape2->Set_Value(iField, pShape->asDouble(iField));
+			}//else
 		}//for
 	}//for
 
 	//now copy the additional layers	
-	if( (pShapesList = Parameters("LAYERS")->asShapesList()) != 
-			NULL && pShapesList->Get_Count() > 0 ){
-		for (iLayer=0; iLayer<pShapesList->Get_Count(); iLayer++){
-			if( (pShapes = pShapesList->asShapes(iLayer)) != NULL ){
-				if (pShapes->Get_Type() == MainType){
+	if( (pShapesList = Parameters("LAYERS")->asShapesList()) != NULL && pShapesList->Get_Count() > 0 )
+	{
+		for (iLayer=0; iLayer<pShapesList->Get_Count(); iLayer++)
+		{
+			if( (pShapes = pShapesList->asShapes(iLayer)) != NULL )
+			{
+				if (pShapes->Get_Type() == MainType)
+				{
 					FieldsMain.clear();
 					FieldsAdditional.clear();
+
 					//see which fields are in both attributes tables
-					for (i=0; i<pTable->Get_Field_Count(); i++){
-						for (j=0; j<pShapes->Get_Table().Get_Field_Count(); j++){
+					for (i=0; i<nFields; i++)
+					{
+						for (j=0; j<pShapes->Get_Table().Get_Field_Count(); j++)
+						{
 							sName1 = pShapes->Get_Table().Get_Field_Name(j);
 							sName2 = pTable->Get_Field_Name(i);
-							if (!sName1.CmpNoCase(sName2)){
+
+							if (!sName1.CmpNoCase(sName2))
+							{
 								FieldsMain.push_back(i);
 								FieldsAdditional.push_back(j);
 								continue;
 							}//if
 						}//for
 					}//for
+
 					//copy shapes and attributes
-					for(i=0; i<pShapes->Get_Count(); i++){			
-						pShape = pShapes->Get_Shape(i);					
-						pShape2 = pOutput->Add_Shape();
-						for (j=0; j<FieldsMain.size(); j++){
-							iFieldMain = FieldsMain.at(j);
-							iFieldAdditional = FieldsAdditional.at(j);
-							if (pTable->Get_Field_Type(iFieldMain) == TABLE_FIELDTYPE_String){
-								const SG_Char* cValue = pShape->Get_Record()->asString(iFieldAdditional);
-								pShape2->Get_Record()->Set_Value(iFieldMain, cValue);
+					for(i=0; i<pShapes->Get_Count(); i++)
+					{
+						pShape	= pShapes->Get_Shape(i);					
+						pShape2 = pOutput->Add_Shape(pShape);
+						pShape2	->Set_Value(nFields + 0, 2 + iLayer);
+						pShape2	->Set_Value(nFields + 1, pShapes->Get_Name());
+
+						for (j=0; j<FieldsMain.size(); j++)
+						{
+							iFieldMain			= FieldsMain.at(j);
+							iFieldAdditional	= FieldsAdditional.at(j);
+
+							if (pTable->Get_Field_Type(iFieldMain) == TABLE_FIELDTYPE_String)
+							{
+								pShape2->Set_Value(iFieldMain, pShape->asString(iFieldAdditional));
 							}//if
-							else{
-								double dValue = pShape->Get_Record()->asDouble(iFieldAdditional);
-								pShape2->Get_Record()->Set_Value(iFieldMain, dValue);
+							else
+							{
+								pShape2->Set_Value(iFieldMain, pShape->asDouble(iFieldAdditional));
 							}//else
-						}//for
-						for(j=0; j<pShape->Get_Part_Count(); j++){	
-							for(k=0; k<pShape->Get_Point_Count(j)-1; k++){
-								Point = pShape->Get_Point(k,j);	
-								pShape2->Add_Point(Point.x,Point.y,j);			
-							}//for
 						}//for
 					}//for
 				}//if
