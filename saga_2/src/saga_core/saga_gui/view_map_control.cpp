@@ -105,6 +105,7 @@ BEGIN_EVENT_TABLE(CVIEW_Map_Control, wxPanel)
 	EVT_SIZE			(CVIEW_Map_Control::On_Size)
 	EVT_KEY_DOWN		(CVIEW_Map_Control::On_Key_Down)
 
+	EVT_MOUSEWHEEL		(CVIEW_Map_Control::On_Mouse_Wheel)
 	EVT_MOTION			(CVIEW_Map_Control::On_Mouse_Motion)
 	EVT_LEFT_DOWN		(CVIEW_Map_Control::On_Mouse_LDown)
 	EVT_LEFT_UP			(CVIEW_Map_Control::On_Mouse_LUp)
@@ -648,6 +649,8 @@ void CVIEW_Map_Control::On_Mouse_LDown(wxMouseEvent &event)
 	{
 		CaptureMouse();
 	}
+
+	event.Skip();
 }
 
 //---------------------------------------------------------
@@ -924,6 +927,26 @@ void CVIEW_Map_Control::On_Mouse_Motion(wxMouseEvent &event)
 
 	//-----------------------------------------------------
 	m_Mouse_Move	= event.GetPosition();
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Map_Control::On_Mouse_Wheel(wxMouseEvent &event)
+{
+	if( event.GetWheelRotation() < 0 )
+	{
+		_Zoom(_Get_World(event.GetPosition()), false);
+	}
+	else if( event.GetWheelRotation() > 0 )
+	{
+		_Zoom(_Get_World(event.GetPosition()), true);
+	}
 }
 
 

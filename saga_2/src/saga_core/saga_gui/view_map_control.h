@@ -110,6 +110,7 @@ public:
 	void						On_Size				(wxSizeEvent  &event);
 	void						On_Key_Down			(wxKeyEvent   &event);
 
+	void						On_Mouse_Wheel		(wxMouseEvent &event);
 	void						On_Mouse_Motion		(wxMouseEvent &event);
 	void						On_Mouse_LDown		(wxMouseEvent &event);
 	void						On_Mouse_LUp		(wxMouseEvent &event);
