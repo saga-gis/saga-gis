@@ -103,11 +103,12 @@ public:
 	static class wxToolBarBase *	_Create_ToolBar				(void);
 	static class wxMenu *			_Create_Menu				(void);
 
-	void							On_Size						(wxSizeEvent &event);
-	void							On_Paint					(wxPaintEvent &event);
+	void							On_Size						(wxSizeEvent    &event);
+	void							On_Paint					(wxPaintEvent   &event);
 
 	void							On_Parameters				(wxCommandEvent &event);
 	void							On_Update					(wxCommandEvent &event);
+	void							On_AsTable					(wxCommandEvent &event);
 
 	void							Draw						(wxDC &dc, wxRect r);
 

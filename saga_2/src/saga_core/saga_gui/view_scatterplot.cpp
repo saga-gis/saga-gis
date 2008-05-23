@@ -167,6 +167,7 @@ BEGIN_EVENT_TABLE(CVIEW_ScatterPlot, CVIEW_Base)
 
 	EVT_MENU			(ID_CMD_SCATTERPLOT_PARAMETERS	, CVIEW_ScatterPlot::On_Parameters)
 	EVT_MENU			(ID_CMD_SCATTERPLOT_UPDATE		, CVIEW_ScatterPlot::On_Update)
+	EVT_MENU			(ID_CMD_HISTOGRAM_AS_TABLE		, CVIEW_ScatterPlot::On_AsTable)
 END_EVENT_TABLE()
 
 
@@ -236,6 +237,7 @@ wxMenu * CVIEW_ScatterPlot::_Create_Menu(void)
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SCATTERPLOT_PARAMETERS);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SCATTERPLOT_UPDATE);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_HISTOGRAM_AS_TABLE);
 
 	return( pMenu );
 }
@@ -247,6 +249,7 @@ wxToolBarBase * CVIEW_ScatterPlot::_Create_ToolBar(void)
 
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_SCATTERPLOT_PARAMETERS);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_SCATTERPLOT_UPDATE);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_HISTOGRAM_AS_TABLE);
 
 	CMD_ToolBar_Add(pToolBar, LNG("[CAP] Scatterplot"));
 
@@ -375,6 +378,34 @@ void CVIEW_ScatterPlot::On_Parameters(wxCommandEvent &event)
 void CVIEW_ScatterPlot::On_Update(wxCommandEvent &event)
 {
 	Update_ScatterPlot();
+}
+
+//---------------------------------------------------------
+void CVIEW_ScatterPlot::On_AsTable(wxCommandEvent &event)
+{
+	if( m_Regression.Get_Count() > 1 )
+	{
+		CSG_Table	*pTable	= new CSG_Table;
+
+		pTable->Set_Name(wxString::Format(wxT("%s: [%s]-[%s]"), LNG("[CAP] Scatterplot"), m_sX.c_str(), m_sY.c_str()));
+
+		pTable->Add_Field(SG_T("ID"), TABLE_FIELDTYPE_Int);
+		pTable->Add_Field(m_sX		, TABLE_FIELDTYPE_Double);
+		pTable->Add_Field(m_sY		, TABLE_FIELDTYPE_Double);
+
+		for(int i=0; i<m_Regression.Get_Count() && PROGRESSBAR_Set_Position(i, m_Regression.Get_Count()); i++)
+		{
+			CSG_Table_Record	*pRecord	= pTable->Add_Record();
+
+			pRecord->Set_Value(0, i + 1);
+			pRecord->Set_Value(1, m_Regression.Get_xValue(i));
+			pRecord->Set_Value(2, m_Regression.Get_yValue(i));
+		}
+
+		PROGRESSBAR_Set_Position(0);
+
+		g_pData->Add(pTable);
+	}
 }
 
 
