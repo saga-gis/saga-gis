@@ -89,6 +89,7 @@ public:
 
 	class CWKSP_Base_Item *		Get_Item_Selected	(void);
 	bool						Set_Item_Selected	(class CWKSP_Base_Item *pItem, bool bKeepMultipleSelection = false);
+	int							Get_Selection_Count	(void);
 
 	void						On_Command			(wxCommandEvent  &event);
 	void						On_Command_UI		(wxUpdateUIEvent &event);

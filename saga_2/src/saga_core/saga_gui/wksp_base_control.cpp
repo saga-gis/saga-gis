@@ -447,6 +447,23 @@ bool CWKSP_Base_Control::Set_Item_Selected(CWKSP_Base_Item *pItem, bool bKeepMul
 	return( false );
 }
 
+//---------------------------------------------------------
+int CWKSP_Base_Control::Get_Selection_Count(void)
+{
+	if( GetWindowStyle() & wxTR_MULTIPLE )
+	{
+		wxArrayTreeItemIds	IDs;
+
+		return( GetSelections(IDs) );
+	}
+	else
+	{
+		wxTreeItemId	ID	= GetSelection();
+
+		return( ID.IsOk() ? 1 : 0 );
+	}
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

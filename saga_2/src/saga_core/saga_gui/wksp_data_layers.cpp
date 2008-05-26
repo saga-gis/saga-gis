@@ -201,7 +201,7 @@ bool CWKSP_Data_Button::_Select(bool bKeepOthers)
 //---------------------------------------------------------
 void CWKSP_Data_Button::On_Mouse_LDown(wxMouseEvent &event)
 {
-	_Select(event.ShiftDown() || event.ControlDown());
+	_Select(event.ControlDown());
 
 	event.Skip();
 }
@@ -220,6 +220,11 @@ void CWKSP_Data_Button::On_Mouse_LDClick(wxMouseEvent &event)
 //---------------------------------------------------------
 void CWKSP_Data_Button::On_Mouse_RDown(wxMouseEvent &event)
 {
+	if( g_pData_Ctrl->Get_Selection_Count() <= 1 )
+	{
+		_Select(false);
+	}
+
 	wxMenu	*pMenu	= g_pData_Ctrl->Get_Context_Menu();
 
 	if( pMenu )
