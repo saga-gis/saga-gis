@@ -265,7 +265,7 @@ void CWKSP_Layer_Classify::Set_Metric(int Mode, double LogFactor, double zMin, d
 //---------------------------------------------------------
 inline int CWKSP_Layer_Classify::_LUT_Cmp_Class(double Value, int iClass)
 {
-	double			d;
+	double				d;
 	CSG_Table_Record	*pClass	= m_pLUT->Get_Record_byIndex(iClass);
 
 	if( (d = pClass->asDouble(LUT_MIN)) <= Value && Value <= pClass->asDouble(LUT_MAX) )
@@ -295,21 +295,11 @@ int CWKSP_Layer_Classify::_LUT_Get_Class(double Value)
 
 			if( c > 0 )
 			{
-				if( b == i )
-				{
-					return( i - 1 );
-				}
-
-				b	= i;
+				b	= b > i ? i : b - 1;
 			}
 			else if( c < 0 )
 			{
-				if( a == i )
-				{
-					return( i + 1 );
-				}
-
-				a	= i;
+				a	= a < i ? i : a + 1;
 			}
 			else
 			{
@@ -320,6 +310,11 @@ int CWKSP_Layer_Classify::_LUT_Get_Class(double Value)
 		if( _LUT_Cmp_Class(Value, a) == 0 )
 		{
 			return( m_pLUT->Get_Record_byIndex(a)->Get_Index() );
+		}
+
+		if( a != b && _LUT_Cmp_Class(Value, b) == 0 )
+		{
+			return( m_pLUT->Get_Record_byIndex(b)->Get_Index() );
 		}
 	}
 

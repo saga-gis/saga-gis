@@ -90,7 +90,7 @@
 					|(e.ControlDown()  ? MODULE_INTERACTIVE_KEY_CTRL   : 0))
 
 //---------------------------------------------------------
-#define STANDARD_ZOOM_FACTOR	150
+#define STANDARD_ZOOM_FACTOR	110
 
 
 ///////////////////////////////////////////////////////////
