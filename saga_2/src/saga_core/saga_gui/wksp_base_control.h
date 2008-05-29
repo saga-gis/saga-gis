@@ -120,6 +120,9 @@ protected:
 
 	bool						_Show_Active		(void);
 
+	bool						_Load_Settings		(void);
+	bool						_Load_Settings		(class CSG_File *pStream, class CWKSP_Base_Item *pItem);
+
 
 //---------------------------------------------------------
 DECLARE_EVENT_TABLE()

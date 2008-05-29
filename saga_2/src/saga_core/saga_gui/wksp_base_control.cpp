@@ -208,6 +208,14 @@ void CWKSP_Base_Control::On_Command(wxCommandEvent &event)
 	}
 
 	//-----------------------------------------------------
+	if( event.GetId() == ID_CMD_WKSP_ITEM_SETTINGS_LOAD && Get_Selection_Count() > 1 )
+	{
+		_Load_Settings();
+
+		return;
+	}
+
+	//-----------------------------------------------------
 	if( m_pManager->On_Command(event.GetId()) )
 	{
 		return;
@@ -491,6 +499,7 @@ wxMenu * CWKSP_Base_Control::Get_Context_Menu(void)
 
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SHOW);
+			CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_LOAD);
 		}
 	}
 
@@ -622,6 +631,62 @@ bool CWKSP_Base_Control::_Show_Active(void)
 
 			return( true );
 		}
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Base_Control::_Load_Settings(void)
+{
+	wxString	File_Path;
+	CSG_File	Stream;
+
+	if( Get_Selection_Count() > 0 && DLG_Open(File_Path, ID_DLG_PARAMETERS_OPEN) && Stream.Open(CSG_String( File_Path.mb_str()), SG_FILE_R, true) )
+	{
+		if(	GetWindowStyle() & wxTR_MULTIPLE )
+		{
+			wxArrayTreeItemIds	IDs;
+
+			if( GetSelections(IDs) > 0 )
+			{
+				for(size_t i=0; i<IDs.GetCount(); i++)
+				{
+					Stream.Seek_Start();
+
+					_Load_Settings(&Stream, (CWKSP_Base_Item *)GetItemData(IDs[i]));
+				}
+
+				return( true );
+			}
+		}
+		else
+		{
+			return( _Load_Settings(&Stream, Get_Item_Selected()) );
+		}
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Base_Control::_Load_Settings(CSG_File *pStream, CWKSP_Base_Item *pItem)
+{
+	if( pItem && pItem->Get_Parameters() )
+	{
+		if( pItem->Get_Parameters()->Serialize(*pStream, false) )
+		{
+			pItem->Parameters_Changed();
+		}
+
+		return( true );
 	}
 
 	return( false );
