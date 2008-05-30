@@ -950,7 +950,7 @@ bool CWKSP_Grid::Get_Image_Legend(wxBitmap &BMP, double Zoom)
 	if( Zoom > 0.0 )
 	{
 		wxMemoryDC	dc;
-		wxSize		s(Get_Legend()->Get_Size(1.0, Zoom));
+		wxSize		s(Get_Legend()->Get_Size(Zoom, 1.0));
 
 		BMP.Create(s.GetWidth(), s.GetHeight());
 
@@ -958,7 +958,7 @@ bool CWKSP_Grid::Get_Image_Legend(wxBitmap &BMP, double Zoom)
 		dc.SetBackground(*wxWHITE_BRUSH);
 		dc.Clear();
 
-		Get_Legend()->Draw(dc, 1.0, Zoom, wxPoint(0, 0));
+		Get_Legend()->Draw(dc, Zoom, 1.0, wxPoint(0, 0));
 
 		dc.SelectObject(wxNullBitmap);
 
