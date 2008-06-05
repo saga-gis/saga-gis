@@ -549,6 +549,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\active_history.cpp"
+				>
+			</File>
+			<File
 				RelativePath="ACTIVE_HTMLExtraInfo.cpp"
 				>
 				<FileConfiguration
@@ -3927,6 +3931,10 @@
 			</File>
 			<File
 				RelativePath="ACTIVE_Description.h"
+				>
+			</File>
+			<File
+				RelativePath=".\active_history.h"
 				>
 			</File>
 			<File
