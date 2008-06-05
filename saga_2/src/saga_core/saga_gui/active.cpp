@@ -72,6 +72,7 @@
 #include "active.h"
 #include "active_parameters.h"
 #include "active_description.h"
+#include "active_history.h"
 #include "active_attributes.h"
 #include "active_legend.h"
 #include "active_HTMLExtraInfo.h"
@@ -106,8 +107,9 @@ enum
 {
 	IMG_PARAMETERS	= 0,
 	IMG_DESCRIPTION,
-	IMG_LEGEND,
+	IMG_HISTORY,
 	IMG_ATTRIBUTES,
+	IMG_LEGEND,
 	IMG_HTMLEXTRAINFO
 };
 
@@ -153,6 +155,7 @@ CACTIVE::CACTIVE(wxWindow *pParent)
 
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_PARAMETERS);
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_DESCRIPTION);
+	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_HISTORY);
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_ATTRIBUTES);
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_LEGEND);
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_HTMLEXTRAINFO);
@@ -160,6 +163,7 @@ CACTIVE::CACTIVE(wxWindow *pParent)
 	//-----------------------------------------------------
 	m_pParameters		= NULL;
 	m_pDescription		= NULL;
+	m_pHistory			= NULL;
 	m_pLegend			= NULL;
 	m_pAttributes		= NULL;
 	m_pHTMLExtraInfo	= NULL;
@@ -172,6 +176,7 @@ void CACTIVE::Add_Pages(void)
 	_Add_Page(IMG_DESCRIPTION);
 #ifdef ACTIVE_SHOW_ALL_PAGES
 	_Add_Page(IMG_LEGEND);
+	_Add_Page(IMG_HISTORY);
 	_Add_Page(IMG_ATTRIBUTES);
 	_Add_Page(IMG_HTMLEXTRAINFO);
 #endif
@@ -203,10 +208,11 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_Z);
 
 	//-----------------------------------------------------
-	CWKSP_Base_Item	*pLegend, *pHTML;
+	CWKSP_Base_Item	*pLegend, *pHistory, *pHTML;
 
 	m_pLayer	= NULL;
 	pLegend		= NULL;
+	pHistory	= NULL;
 	pHTML		= NULL;
 
 	//-----------------------------------------------------
@@ -222,16 +228,20 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 			break;
 
 		case WKSP_ITEM_Map_Layer:
-			pLegend		= m_pLayer	= ((CWKSP_Map_Layer *)m_pItem)->Get_Layer();
+			pLegend		= pHistory	= m_pLayer	= ((CWKSP_Map_Layer *)m_pItem)->Get_Layer();
+			break;
+
+		case WKSP_ITEM_Table:
+			pHistory	= m_pItem;
 			break;
 
 		case WKSP_ITEM_Shapes:
 #ifdef USE_HTMLINFO
-			pHTML					= (CWKSP_Layer      *)m_pItem;
+			pHTML		= m_pItem;
 #endif
 		case WKSP_ITEM_TIN:
 		case WKSP_ITEM_Grid:
-			pLegend		= m_pLayer	= (CWKSP_Layer      *)m_pItem;
+			pLegend		= pHistory	= m_pLayer	= (CWKSP_Layer *)m_pItem;
 			break;
 		}
 	}
@@ -250,6 +260,15 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 
 #ifndef ACTIVE_SHOW_ALL_PAGES
 		_Del_Page(IMG_LEGEND);
+#endif
+	}
+
+	if( pHistory  == NULL && m_pHistory			!= NULL )
+	{
+		m_pHistory->Set_Item(NULL);
+
+#ifndef ACTIVE_SHOW_ALL_PAGES
+		_Del_Page(IMG_HISTORY);
 #endif
 	}
 
@@ -273,6 +292,13 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 		_Add_Page(IMG_ATTRIBUTES);
 
 		m_pAttributes->Set_Layer(m_pLayer);
+	}
+
+	if( pHistory )
+	{
+		_Add_Page(IMG_HISTORY);
+
+		m_pHistory->Set_Item(pHistory);
 	}
 
 	if( pLegend )
@@ -335,6 +361,14 @@ bool CACTIVE::_Add_Page(int PageID)
 		Caption	= LNG("[CAP] Description");
 		break;
 
+	case IMG_HISTORY:
+		if( m_pHistory != NULL )
+			return( true );
+
+		pPage	= m_pHistory		= new CACTIVE_History		(this);
+		Caption	= LNG("[CAP] History");
+		break;
+
 	case IMG_ATTRIBUTES:
 		if( m_pAttributes != NULL )
 			return( true );
@@ -389,6 +423,11 @@ bool CACTIVE::_Del_Page(int PageID)
 		m_pDescription		= NULL;
 		break;
 
+	case IMG_HISTORY:
+		pPage				= m_pHistory;
+		m_pHistory			= NULL;
+		break;
+
 	case IMG_ATTRIBUTES:
 		pPage				= m_pAttributes;
 		m_pAttributes		= NULL;
@@ -432,50 +471,56 @@ bool CACTIVE::_Del_Page(int PageID)
 //---------------------------------------------------------
 bool CACTIVE::Update_Description(void)
 {
-	if( m_pDescription )
+	if( m_pItem != NULL )
 	{
-		if( m_pItem != NULL )
+		STATUSBAR_Set_Text(m_pItem->Get_Name(), STATUSBAR_ACTIVE);
+
+		//-------------------------------------------------
+		if( m_pDescription )
 		{
-			if( m_pItem->Get_Type() == WKSP_ITEM_Module )
+			switch( m_pItem->Get_Type() )
 			{
-				wxFileName	FileName;
+			default:
+				m_pDescription->SetPage(m_pItem->Get_Description());
+				break;
 
-				FileName.Assign		(((CWKSP_Module *)m_pItem)->Get_File_Name());
-				FileName.AppendDir	(FileName.GetName());
-				FileName.SetName	(wxString::Format(wxT("%s_%02d"), FileName.GetName().c_str(), m_pItem->Get_Index()));
-
-				FileName.SetExt		(wxT("html"));
-
-				if( !FileName.FileExists() || !m_pDescription->LoadPage(FileName.GetFullPath()) )
+			case WKSP_ITEM_Module:
 				{
-					FileName.SetExt		(wxT("htm"));
+					wxFileName	FileName;
+
+					FileName.Assign		(((CWKSP_Module *)m_pItem)->Get_File_Name());
+					FileName.AppendDir	(FileName.GetName());
+					FileName.SetName	(wxString::Format(wxT("%s_%02d"), FileName.GetName().c_str(), m_pItem->Get_Index()));
+
+					FileName.SetExt		(wxT("html"));
 
 					if( !FileName.FileExists() || !m_pDescription->LoadPage(FileName.GetFullPath()) )
 					{
-						m_pDescription->SetPage(m_pItem->Get_Description());
+						FileName.SetExt		(wxT("htm"));
+
+						if( !FileName.FileExists() || !m_pDescription->LoadPage(FileName.GetFullPath()) )
+						{
+							m_pDescription->SetPage(m_pItem->Get_Description());
+						}
 					}
 				}
+				break;
 			}
-			else
-			{
-				m_pDescription->SetPage(m_pItem->Get_Description());
-			}
-
-			STATUSBAR_Set_Text(m_pItem->Get_Name(), STATUSBAR_ACTIVE);
 		}
-		else
-		{
-			m_pDescription->SetPage(LNG("[TXT] No description available"));
-
-			STATUSBAR_Set_Text(wxT(""), STATUSBAR_ACTIVE);
-		}
-
-		return( true );
 	}
 
-	STATUSBAR_Set_Text(wxT(""), STATUSBAR_ACTIVE);
+	//-----------------------------------------------------
+	else
+	{
+		STATUSBAR_Set_Text(wxT(""), STATUSBAR_ACTIVE);
 
-	return( false );
+		if( m_pDescription )
+		{
+			m_pDescription->SetPage(LNG("[TXT] No description available"));
+		}
+	}
+
+	return( true );
 }
 
 

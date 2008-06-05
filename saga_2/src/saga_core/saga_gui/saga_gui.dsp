@@ -170,6 +170,10 @@ SOURCE=.\active_description.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\active_history.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ACTIVE_HTMLExtraInfo.cpp
 # End Source File
 # Begin Source File
@@ -523,6 +527,10 @@ SOURCE=.\ACTIVE_Attributes.h
 # Begin Source File
 
 SOURCE=.\ACTIVE_Description.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\active_history.h
 # End Source File
 # Begin Source File
 

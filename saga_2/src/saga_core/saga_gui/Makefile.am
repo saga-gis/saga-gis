@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.13 2007-07-24 12:17:00 oconrad Exp $
+# $Id: Makefile.am,v 1.14 2008-06-05 15:46:51 oconrad Exp $
 #
 INCS = -I.. -I.
 if DEBUG
@@ -22,6 +22,7 @@ saga_gui_SOURCES =\
 active.cpp\
 active_attributes.cpp\
 active_description.cpp\
+active_history.cpp\
 active_HTMLExtraInfo.cpp\
 active_legend.cpp\
 active_parameters.cpp\
@@ -110,6 +111,7 @@ wksp_tin_manager.cpp\
 active.h\
 active_attributes.h\
 active_description.h\
+active_history.h\
 active_HTMLExtraInfo.h\
 active_legend.h\
 active_parameters.h\

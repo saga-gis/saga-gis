@@ -89,6 +89,7 @@ public:
 
 	class CACTIVE_Parameters *		Get_Parameters			(void)	{	return( m_pParameters );	}
 	class CACTIVE_Description *		Get_Description			(void)	{	return( m_pDescription );	}
+	class CACTIVE_History *			Get_History				(void)	{	return( m_pHistory );	}
 	class CACTIVE_Attributes *		Get_Attributes			(void)	{	return( m_pAttributes );	}
 	class CACTIVE_Legend *			Get_Legend				(void)	{	return( m_pLegend );		}
 	class CACTIVE_HTMLExtraInfo *	Get_HTMLExtraInfo		(void)	{	return( m_pHTMLExtraInfo );	}
@@ -107,6 +108,8 @@ private:
 	class CACTIVE_Parameters		*m_pParameters;
 
 	class CACTIVE_Description		*m_pDescription;
+
+	class CACTIVE_History			*m_pHistory;
 
 	class CACTIVE_Attributes		*m_pAttributes;
 

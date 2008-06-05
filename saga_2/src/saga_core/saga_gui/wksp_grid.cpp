@@ -486,9 +486,13 @@ void CWKSP_Grid::_LUT_Create(void)
 {
 	static CSG_Parameters	Parameters;
 
-	Parameters.Create(NULL, LNG("Choose Attribute"), LNG(""));
-	Parameters.Add_Colors(NULL, "COLOR"	, LNG("Colors")	, LNG(""));
+	if( Parameters.Get_Count() == 0 )
+	{
+		Parameters.Create(NULL, LNG("Create Lookup Table"), LNG(""));
+		Parameters.Add_Colors(NULL, "COLOR"	, LNG("Colors")	, LNG(""));
+	}
 
+	//-----------------------------------------------------
 	if( DLG_Parameters(&Parameters) )
 	{
 		int					i, n, x, y;
@@ -513,6 +517,7 @@ void CWKSP_Grid::_LUT_Create(void)
 			}
 		}
 
+		//-------------------------------------------------
 		if( n >= pColors->Get_Count() )
 		{
 			dValue	= m_pGrid->Get_ZMin();
