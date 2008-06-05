@@ -721,6 +721,13 @@ void CWKSP_Base_Control::On_Item_LDClick(wxMouseEvent &event)
 //---------------------------------------------------------
 void CWKSP_Base_Control::On_Item_RClick(wxTreeEvent &event)
 {
+	if( Get_Selection_Count() <= 1 )
+	{
+		SelectItem(event.GetItem());
+
+		_Set_Active();
+	}
+
 	wxMenu	*pMenu	= Get_Context_Menu();
 
 	if( pMenu )

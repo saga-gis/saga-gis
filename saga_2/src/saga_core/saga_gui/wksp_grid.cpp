@@ -484,43 +484,75 @@ void CWKSP_Grid::On_Parameters_Changed(void)
 //---------------------------------------------------------
 void CWKSP_Grid::_LUT_Create(void)
 {
-	CSG_Parameters	Parameters;
+	static CSG_Parameters	Parameters;
 
 	Parameters.Create(NULL, LNG("Choose Attribute"), LNG(""));
 	Parameters.Add_Colors(NULL, "COLOR"	, LNG("Colors")	, LNG(""));
 
 	if( DLG_Parameters(&Parameters) )
 	{
-		int					i, x, y;
-		double				dValue;
+		int					i, n, x, y;
+		double				dValue, dStep, eValue;
 		CSG_String			sValue;
 		CSG_Colors			*pColors;
 		CSG_Table_Record	*pRecord_LUT;
 		CSG_Table			*pLUT;
 
+		//-------------------------------------------------
+		pColors	= Parameters("COLOR")->asColors();
+
 		pLUT	= m_Parameters("LUT")->asTable();
 		pLUT	->Del_Records();
 
-		for(i=0; i<m_pGrid->Get_NCells() && PROGRESSBAR_Set_Position(i, m_pGrid->Get_NCells()); i++)
+		for(i=0, n=0; i<m_pGrid->Get_NCells() && n < pColors->Get_Count() && PROGRESSBAR_Set_Position(i, m_pGrid->Get_NCells()); i++)
 		{
-			if( m_pGrid->Get_Sorted(i, x, y) && (pLUT->Get_Record_Count() == 0 || dValue != m_pGrid->asDouble(x, y)) )
+			if( m_pGrid->Get_Sorted(i, x, y) && (n == 0 || dValue != m_pGrid->asDouble(x, y)) )
 			{
 				dValue		= m_pGrid->asDouble(x, y);
-				sValue		= SG_Get_String(dValue, SG_Get_Significant_Decimals(dValue), false);
-				pRecord_LUT	= pLUT->Add_Record();
-				pRecord_LUT	->Set_Value(1, sValue);			// Name
-				pRecord_LUT	->Set_Value(2, sValue);			// Description
-				pRecord_LUT	->Set_Value(3, dValue);			// Minimum
-				pRecord_LUT	->Set_Value(4, dValue);			// Maximum
+				n++;
 			}
 		}
 
-		pColors	= Parameters("COLOR")->asColors();
-		pColors->Set_Count(pLUT->Get_Record_Count());
-
-		for(i=0; i<pLUT->Get_Record_Count(); i++)
+		if( n >= pColors->Get_Count() )
 		{
-			pLUT->Get_Record(i)->Set_Value(0, pColors->Get_Color(i));
+			dValue	= m_pGrid->Get_ZMin();
+			dStep	= m_pGrid->Get_ZRange() / pColors->Get_Count();
+
+			for(i=0; i<pColors->Get_Count(); i++)
+			{
+				eValue		 = dValue;
+				dValue		+= dStep;
+				sValue		 = SG_Get_String(eValue, SG_Get_Significant_Decimals(eValue), false);
+				sValue		+= SG_T(" - ");
+				sValue		+= SG_Get_String(dValue, SG_Get_Significant_Decimals(dValue), false);
+
+				pRecord_LUT	= pLUT->Add_Record();
+				pRecord_LUT	->Set_Value(0, pColors->Get_Color(i));
+				pRecord_LUT	->Set_Value(1, sValue);			// Name
+				pRecord_LUT	->Set_Value(2, sValue);			// Description
+				pRecord_LUT	->Set_Value(3, eValue);			// Minimum
+				pRecord_LUT	->Set_Value(4, dValue);			// Maximum
+			}
+		}
+		else
+		{
+			pColors->Set_Count(n);
+
+			for(i=0, n=0; i<m_pGrid->Get_NCells() && PROGRESSBAR_Set_Position(i, m_pGrid->Get_NCells()); i++)
+			{
+				if( m_pGrid->Get_Sorted(i, x, y) && (pLUT->Get_Record_Count() == 0 || dValue != m_pGrid->asDouble(x, y)) )
+				{
+					dValue		= m_pGrid->asDouble(x, y);
+					sValue		= SG_Get_String(dValue, SG_Get_Significant_Decimals(dValue), false);
+
+					pRecord_LUT	= pLUT->Add_Record();
+					pRecord_LUT	->Set_Value(0, pColors->Get_Color(n++));
+					pRecord_LUT	->Set_Value(1, sValue);		// Name
+					pRecord_LUT	->Set_Value(2, sValue);		// Description
+					pRecord_LUT	->Set_Value(3, dValue);		// Minimum
+					pRecord_LUT	->Set_Value(4, dValue);		// Maximum
+				}
+			}
 		}
 
 		PROGRESSBAR_Set_Position(0);
