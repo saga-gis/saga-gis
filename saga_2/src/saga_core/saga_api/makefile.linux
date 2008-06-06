@@ -20,7 +20,7 @@ CXX_FLGS  = `wx-config --static=yes --cxxflags`
 CXXFLAGS  = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEF_SAGA)
 
 LDFLAGS   = -fPIC -pthread -shared
-LIBS      = `wx-config --static=yes --libs` -lharu
+LIBS      = `wx-config --static=yes --libs` -lhpdf
 
 .PHONY: all all-before all-after clean clean-custom
 
