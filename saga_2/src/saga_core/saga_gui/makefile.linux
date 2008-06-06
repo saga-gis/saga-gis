@@ -59,7 +59,7 @@ $(TMP_SAGA)/active_description.o: active_description.cpp
 	$(CPP) -c active_description.cpp -o $(TMP_SAGA)/active_description.o $(CXXFLAGS)
 
 $(TMP_SAGA)/active_history.o: active_history.cpp
-	$(CPP) -c active_description.cpp -o $(TMP_SAGA)/active_history.o $(CXXFLAGS)
+	$(CPP) -c active_history.cpp -o $(TMP_SAGA)/active_history.o $(CXXFLAGS)
 
 $(TMP_SAGA)/active_HTMLExtraInfo.o: active_HTMLExtraInfo.cpp
 	$(CPP) -c active_HTMLExtraInfo.cpp -o $(TMP_SAGA)/active_HTMLExtraInfo.o $(CXXFLAGS)
