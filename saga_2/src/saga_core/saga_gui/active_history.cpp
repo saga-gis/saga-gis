@@ -58,13 +58,15 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <wx/imaglist.h>
+
 #include "res_controls.h"
 #include "res_images.h"
 
 #include "wksp_table.h"
 #include "wksp_layer.h"
 
-#include "ACTIVE_History.h"
+#include "active_history.h"
 
 
 ///////////////////////////////////////////////////////////
