@@ -78,11 +78,11 @@
 //---------------------------------------------------------
 enum
 {
-	IMG_ROOT	= 0,
+	IMG_DATA	= 0,
+	IMG_DATE,
 	IMG_NAME,
 	IMG_ENTRY,
-	IMG_DATE,
-	IMG_HISTORY
+	IMG_ENTRY_DATA
 };
 
 
@@ -111,11 +111,11 @@ CACTIVE_History::CACTIVE_History(wxWindow *pParent)
 	: wxTreeCtrl(pParent, ID_WND_ACTIVE_HISTORY , wxDefaultPosition, wxDefaultSize, wxTR_HAS_BUTTONS)
 {
 	AssignImageList(new wxImageList(IMG_SIZE_TREECTRL, IMG_SIZE_TREECTRL, true, 0));
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DATA_MANAGER);
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_MODULE);
-	IMG_ADD_TO_TREECTRL(ID_IMG_TB_INFO);
-	IMG_ADD_TO_TREECTRL(ID_IMG_TB_INFO);
-	IMG_ADD_TO_TREECTRL(ID_IMG_TB_INFO);
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_DATA_MANAGER);	// DATA
+	IMG_ADD_TO_TREECTRL(ID_IMG_NB_INFO_EXECUTION);	// DATE
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_MODULE);		// NAME
+	IMG_ADD_TO_TREECTRL(ID_IMG_TB_INFO);			// ENTRY
+	IMG_ADD_TO_TREECTRL(ID_IMG_TB_MAP_ZOOM_NEXT);	// ENTRY_DATA
 
 	Set_Item(NULL);
 }
@@ -160,11 +160,11 @@ bool CACTIVE_History::Set_Item(CWKSP_Base_Item *pItem)
 
 	if( pObject == NULL || pObject->Get_History().Get_Count() <= 0 )
 	{
-		AddRoot(LNG("No history available"), IMG_ROOT, IMG_ROOT);
+		AddRoot(LNG("No history available"), IMG_DATA);
 	}
 	else
 	{
-		_Add_History(AddRoot(pObject->Get_Name(), IMG_ROOT, IMG_ROOT), pObject->Get_History(), true);
+		_Add_History(AddRoot(pObject->Get_Name(), IMG_DATA), pObject->Get_History());
 
 		Expand(GetRootItem());
 	}
@@ -173,29 +173,30 @@ bool CACTIVE_History::Set_Item(CWKSP_Base_Item *pItem)
 }
 
 //---------------------------------------------------------
-bool CACTIVE_History::_Add_History(wxTreeItemId Parent, CSG_History &History, bool bExpand)
+bool CACTIVE_History::_Add_History(wxTreeItemId Parent, CSG_History &History)
 {
 	if( Parent.IsOk() && History.Get_Count() > 0 )
 	{
 		wxTreeItemId	Name, Entry;
 
-		AppendItem(Parent, History.Get_Entry(0).Get_Date() , IMG_DATE, IMG_DATE);
+		AppendItem(Parent, History.Get_Entry(0).Get_Date() , IMG_DATE);
 
 		for(int i=0; i<History.Get_Count(); i++)
 		{
-			Entry	= AppendItem(Parent, History.Get_Entry(i).Get_Name() , IMG_NAME , IMG_NAME);
-			Name	= AppendItem(Entry , History.Get_Entry(i).Get_Entry(), IMG_ENTRY, IMG_ENTRY);
-
 			if( History.Get_Entry(i).Get_History() )
 			{
-			//	_Add_History(AppendItem(Entry, LNG("History"), IMG_HISTORY, IMG_HISTORY), *History.Get_Entry(i).Get_History(), false);
-				_Add_History(Name, *History.Get_Entry(i).Get_History(), false);
+				Entry	= AppendItem(Parent, History.Get_Entry(i).Get_Name() , IMG_ENTRY_DATA);
+				Name	= AppendItem(Entry , History.Get_Entry(i).Get_Entry(), IMG_DATA);
+
+				_Add_History(Name, *History.Get_Entry(i).Get_History());
+			}
+			else
+			{
+				Entry	= AppendItem(Parent, History.Get_Entry(i).Get_Name() , IMG_NAME);
+				Name	= AppendItem(Entry , History.Get_Entry(i).Get_Entry(), IMG_ENTRY);
 			}
 
-			if( bExpand )
-			{
-				Expand(Entry);
-			}
+			Expand(Entry);
 		}
 
 		return( true );
