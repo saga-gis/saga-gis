@@ -96,7 +96,7 @@
 class CSG_Table_Value
 {
 public:
-	CSG_Table_Value(void)	{}
+	CSG_Table_Value(void)			{}
 	virtual ~CSG_Table_Value(void)	{}
 
 	virtual bool				Set_Value		(const SG_Char *Value)		= 0;

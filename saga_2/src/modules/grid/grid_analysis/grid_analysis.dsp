@@ -58,7 +58,7 @@ LINK32=link.exe
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib /nologo /subsystem:windows /dll /machine:I386 /libpath:"$(SAGA)/bin/saga_vc"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy   *.lng.txt   ..\..\..\..\bin\saga_vc\modules\ 
+PostBuild_Cmds=copy    *.lng.txt    ..\..\..\..\bin\saga_vc\modules\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "grid_analysis - Win32 Debug"
@@ -181,6 +181,22 @@ SOURCE=.\CrossClassification.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\fragmentation_base.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\fragmentation_classify.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\fragmentation_resampling.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\fragmentation_standard.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Fuzzify.cpp
 # End Source File
 # Begin Source File
@@ -210,6 +226,10 @@ SOURCE=.\Grid_LayerOfMaximumValue.cpp
 # Begin Source File
 
 SOURCE=.\Grid_Pattern.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\grid_pyramid.cpp
 # End Source File
 # Begin Source File
 
@@ -269,6 +289,22 @@ SOURCE=.\CrossClassification.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\fragmentation_base.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\fragmentation_classify.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\fragmentation_resampling.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\fragmentation_standard.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Fuzzify.h
 # End Source File
 # Begin Source File
@@ -298,6 +334,10 @@ SOURCE=.\Grid_LayerOfMaximumValue.h
 # Begin Source File
 
 SOURCE=.\Grid_Pattern.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\grid_pyramid.h
 # End Source File
 # Begin Source File
 

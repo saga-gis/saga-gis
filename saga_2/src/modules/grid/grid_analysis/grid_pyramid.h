@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                    shapes_polygons                    //
+//                    grid_multilevel                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                    grid_pyramids.h                    //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -53,71 +53,41 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__grid_pyramid_H
+#define HEADER_INCLUDED__grid_pyramid_H
 
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-const SG_Char * Get_Info(int i)
+//---------------------------------------------------------
+typedef enum ESG_Grid_Pyramid_Generalisation
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Shapes - Polygons") );
-
-	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad, Victor Olaya (c) 2002-5") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for polygons.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Shapes|Polygons") );
-	}
+	GRID_PYRAMID_Mean	= 0,
+	GRID_PYRAMID_Max,
+	GRID_PYRAMID_Min,
+	GRID_PYRAMID_MaxCount
 }
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "Polygon_Intersection.h"
-#include "Polygon_Centroids.h"
-#include "Polygon_Geometrics.h"
-#include "Polygons_From_Lines.h"
-#include "Polygon_StatisticsFromPoints.h"
-#include "Polygon_Union.h"
-#include "shape_index.h"
-
+TSG_Grid_Pyramid_Generalisation;
 
 //---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
+typedef enum ESG_Grid_Pyramid_Grow_Type
 {
-	switch( i )
-	{
-	case 0:		return( new CPolygon_Intersection );
-	case 1:		return( new CPolygon_Centroids );
-	case 2:		return( new CPolygon_Geometrics );
-	case 3:		return( new CPolygons_From_Lines );
-	case 4:		return( new CPolygonStatisticsFromPoints );
-	case 5:		return( new CPolygon_Union );
-	case 6:		return( new CShape_Index );
-	}
-
-	return( NULL );
+	GRID_PYRAMID_Arithmetic	= 0,
+	GRID_PYRAMID_Geometric
 }
+TSG_Grid_Pyramid_Grow_Type;
 
 
 ///////////////////////////////////////////////////////////
@@ -127,8 +97,50 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CSG_Grid_Pyramid
+{
+public:
+	CSG_Grid_Pyramid(void);
 
-	MLB_INTERFACE
+	CSG_Grid_Pyramid									(CSG_Grid *pGrid, double Grow = 2.0, TSG_Grid_Pyramid_Generalisation Generalisation = GRID_PYRAMID_Mean, TSG_Grid_Pyramid_Grow_Type Grow_Type = GRID_PYRAMID_Geometric);
+	bool								Create			(CSG_Grid *pGrid, double Grow = 2.0, TSG_Grid_Pyramid_Generalisation Generalisation = GRID_PYRAMID_Mean, TSG_Grid_Pyramid_Grow_Type Grow_Type = GRID_PYRAMID_Geometric);
 
-//}}AFX_SAGA
+	CSG_Grid_Pyramid									(CSG_Grid *pGrid, double Grow, double Start, int nMaxLevels, TSG_Grid_Pyramid_Generalisation Generalisation = GRID_PYRAMID_Mean, TSG_Grid_Pyramid_Grow_Type Grow_Type = GRID_PYRAMID_Geometric);
+	bool								Create			(CSG_Grid *pGrid, double Grow, double Start, int nMaxLevels, TSG_Grid_Pyramid_Generalisation Generalisation = GRID_PYRAMID_Mean, TSG_Grid_Pyramid_Grow_Type Grow_Type = GRID_PYRAMID_Geometric);
+
+	virtual ~CSG_Grid_Pyramid(void);
+
+	bool								Destroy			(void);
+
+
+	int									Get_Count		(void)			{	return( m_nLevels );	}
+	CSG_Grid *							Get_Grid		(int iLevel)	{	return( iLevel >= 0 && iLevel < m_nLevels ? m_pLevels[iLevel] : m_pGrid );	}
+
+
+private:
+
+	int									m_nLevels, m_nMaxLevels;
+
+	double								m_Grow;
+
+	TSG_Grid_Pyramid_Generalisation		m_Generalisation;
+
+	TSG_Grid_Pyramid_Grow_Type			m_Grow_Type;
+
+	CSG_Grid							**m_pLevels, *m_pGrid;
+
+
+	bool								_Get_Next_Level	(CSG_Grid *pGrid);
+	bool								_Get_Next_Level	(CSG_Grid *pGrid, double Cellsize);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__grid_pyramid_H

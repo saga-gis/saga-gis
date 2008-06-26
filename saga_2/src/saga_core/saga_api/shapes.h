@@ -580,11 +580,37 @@ public:
 	bool						Del_Shape				(CSG_Shape *pShape);
 	bool						Del_Shapes				(void);
 
-	int							Get_Count				(void)	const		{	return( m_nShapes );	}
-	CSG_Shape *					Get_Shape				(int iShape)		{	return( iShape >= 0 && iShape < m_nShapes ? m_Shapes[iShape] : NULL );	}
-	int							Get_Shape_Index			(CSG_Shape *pShape)	{	return( pShape ? pShape->Get_Record()->Get_Index() : -1 );	}
+	int							Get_Count				(void)				const	{	return( m_nShapes );	}
+	CSG_Shape *					Get_Shape				(int iShape)		const	{	return( iShape >= 0 && iShape < m_nShapes ? m_Shapes[iShape] : NULL );	}
+	int							Get_Shape_Index			(CSG_Shape *pShape)	const	{	return( pShape ? pShape->Get_Record()->Get_Index() : -1 );	}
 
 	CSG_Shape *					Get_Shape				(TSG_Point Point, double Epsilon = 0.0);
+
+
+	//-----------------------------------------------------
+	bool						Set_Index				(int Field_1, TSG_Table_Index_Order Order_1, int Field_2 = -1, TSG_Table_Index_Order Order_2 = TABLE_INDEX_None, int Field_3 = -1, TSG_Table_Index_Order Order_3 = TABLE_INDEX_None);
+
+	bool						Del_Index				(void)				{	return( m_Table.Del_Index() );			}
+	bool						Toggle_Index			(int iField)		{	return( m_Table.Toggle_Index(iField) );	}
+	bool						is_Indexed				(void)	const		{	return( m_Table.is_Indexed() );			}
+
+	int							Get_Index_Field			(int i)	const		{	return( m_Table.Get_Index_Field(i) );	}
+	TSG_Table_Index_Order		Get_Index_Order			(int i)	const		{	return( m_Table.Get_Index_Order(i) );	}
+
+	CSG_Shape *					Get_Shape_byIndex		(int Index)			const
+	{
+		if( Index >= 0 && Index < m_nShapes )
+		{
+			if( m_Table.m_Index != NULL )
+			{
+				return( m_Shapes[m_Table.m_Index[Index]] );
+			}
+
+			return( m_Shapes[Index] );
+		}
+
+		return( NULL );
+	}
 
 	//-----------------------------------------------------
 	int							Get_Selection_Count		(void)				{	return( m_Table.m_nSelected );	}

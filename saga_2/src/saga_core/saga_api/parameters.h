@@ -439,6 +439,11 @@ public:
 
 	CSG_Table *					Get_Table				(void);
 
+
+protected:
+
+	bool						m_bAllowNone;
+
 };
 
 //---------------------------------------------------------
@@ -934,14 +939,14 @@ public:
 	long						asColor					(void)	{	return( (long          )m_pData->asInt		() );	}
 	double						asDouble				(void)	{	return( (double        )m_pData->asDouble	() );	}
 
-	void *						asPointer				(void)	{	return( (void         *)m_pData->asPointer	() );	}
+	void *						asPointer				(void)	{	return( (void            *)m_pData->asPointer	() );	}
 
 	const SG_Char *				asString				(void)	{	return( (const SG_Char   *)m_pData->asString	() );	}
-	class wxFont *				asFont					(void)	{	return( (wxFont       *)m_pData->asPointer	() );	}
+	class wxFont *				asFont					(void)	{	return( (wxFont          *)m_pData->asPointer	() );	}
 	CSG_Colors *				asColors				(void)	{	return( (CSG_Colors      *)m_pData->asPointer	() );	}
 	CSG_Grid_System *			asGrid_System			(void)	{	return( (CSG_Grid_System *)m_pData->asPointer	() );	}
 
-	CSG_Data_Object *			asDataObject			(void)	{	return( (CSG_Data_Object  *)m_pData->asPointer	() );	}
+	CSG_Data_Object *			asDataObject			(void)	{	return( (CSG_Data_Object *)m_pData->asPointer	() );	}
 	CSG_Grid *					asGrid					(void)	{	return( (CSG_Grid        *)m_pData->asPointer	() );	}
 	CSG_Table *					asTable					(void)	{	return( (CSG_Table       *)m_pData->asPointer	() );	}
 	CSG_Shapes *				asShapes				(void)	{	return( (CSG_Shapes      *)m_pData->asPointer	() );	}
@@ -950,7 +955,7 @@ public:
 	CSG_Parameter_Value *		asValue					(void)	{	return( (CSG_Parameter_Value       *)m_pData );		}
 	CSG_Parameter_Choice *		asChoice				(void)	{	return( (CSG_Parameter_Choice      *)m_pData );		}
 	CSG_Parameter_Range *		asRange					(void)	{	return( (CSG_Parameter_Range       *)m_pData );		}
-	CSG_Parameter_File_Name *	asFilePath				(void)	{	return( (CSG_Parameter_File_Name    *)m_pData );		}
+	CSG_Parameter_File_Name *	asFilePath				(void)	{	return( (CSG_Parameter_File_Name   *)m_pData );		}
 
 	CSG_Parameter_List *		asList					(void)	{	return( (CSG_Parameter_List        *)m_pData );		}
 	CSG_Parameter_Grid_List *	asGridList				(void)	{	return( (CSG_Parameter_Grid_List   *)m_pData );		}
@@ -1061,7 +1066,7 @@ public:
 	CSG_Parameter *				Add_Grid_Output			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description);
 	CSG_Parameter *				Add_Grid_List			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint, bool bSystem_Dependent = true);
 
-	CSG_Parameter *				Add_Table_Field			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description);
+	CSG_Parameter *				Add_Table_Field			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, bool bAllowNone = false);
 	CSG_Parameter *				Add_Table				(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint);
 	CSG_Parameter *				Add_Table_Output		(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description);
 	CSG_Parameter *				Add_Table_List			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint);
@@ -1122,7 +1127,7 @@ public:
 	CSG_Parameter *				Add_Grid				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint, bool bSystem_Dependent = true, TSG_Grid_Type Preferred_Type = GRID_TYPE_Undefined);
 	CSG_Parameter *				Add_Grid_Output			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description);
 	CSG_Parameter *				Add_Grid_List			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint, bool bSystem_Dependent = true);
-	CSG_Parameter *				Add_Table_Field			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description);
+	CSG_Parameter *				Add_Table_Field			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, bool bAllowNone = false);
 	CSG_Parameter *				Add_Table				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint);
 	CSG_Parameter *				Add_Table_Output		(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description);
 	CSG_Parameter *				Add_Table_List			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint);

@@ -19,7 +19,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/Cost_Anisotropic.o $(MLB_TEMP)/Cost_Isotropic.o $(MLB_TEMP)/Cost_PolarToRect.o $(MLB_TEMP)/Cost_RectToPolar.o $(MLB_TEMP)/CoveredDistance.o $(MLB_TEMP)/CrossClassification.o $(MLB_TEMP)/Fuzzify.o $(MLB_TEMP)/FuzzyAND.o $(MLB_TEMP)/FuzzyOR.o $(MLB_TEMP)/Grid_AggregationIndex.o $(MLB_TEMP)/Grid_AHP.o $(MLB_TEMP)/Grid_CVA.o $(MLB_TEMP)/Grid_LayerOfMaximumValue.o $(MLB_TEMP)/Grid_Pattern.o $(MLB_TEMP)/Image_VI_Distance.o $(MLB_TEMP)/Image_VI_Slope.o $(MLB_TEMP)/LeastCostPathProfile.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/owa.o $(MLB_TEMP)/PointsEx.o $(MLB_TEMP)/Soil_Texture.o
+OBJ      = $(MLB_TEMP)/Cost_Anisotropic.o $(MLB_TEMP)/Cost_Isotropic.o $(MLB_TEMP)/Cost_PolarToRect.o $(MLB_TEMP)/Cost_RectToPolar.o $(MLB_TEMP)/CoveredDistance.o $(MLB_TEMP)/CrossClassification.o $(MLB_TEMP)/Fuzzify.o $(MLB_TEMP)/FuzzyAND.o $(MLB_TEMP)/FuzzyOR.o $(MLB_TEMP)/Grid_AggregationIndex.o $(MLB_TEMP)/Grid_AHP.o $(MLB_TEMP)/Grid_CVA.o $(MLB_TEMP)/Grid_LayerOfMaximumValue.o $(MLB_TEMP)/Grid_Pattern.o $(MLB_TEMP)/Image_VI_Distance.o $(MLB_TEMP)/Image_VI_Slope.o $(MLB_TEMP)/LeastCostPathProfile.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/owa.o $(MLB_TEMP)/PointsEx.o $(MLB_TEMP)/Soil_Texture.o $(MLB_TEMP)/fragmentation_base.o $(MLB_TEMP)/fragmentation_classify.o $(MLB_TEMP)/fragmentation_resampling.o $(MLB_TEMP)/fragmentation_standard.o $(MLB_TEMP)/grid_pyramid.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS =
@@ -112,3 +112,18 @@ $(MLB_TEMP)/PointsEx.o: ./PointsEx.cpp
 
 $(MLB_TEMP)/Soil_Texture.o: ./Soil_Texture.cpp
 	$(CPP) -c ./Soil_Texture.cpp -o $(MLB_TEMP)/Soil_Texture.o $(CXXFLAGS)
+
+$(MLB_TEMP)/fragmentation_base.o: ./fragmentation_base.cpp
+	$(CPP) -c ./fragmentation_base.cpp -o $(MLB_TEMP)/fragmentation_base.o $(CXXFLAGS)
+
+$(MLB_TEMP)/fragmentation_classify.o: ./fragmentation_classify.cpp
+	$(CPP) -c ./fragmentation_classify.cpp -o $(MLB_TEMP)/fragmentation_classify.o $(CXXFLAGS)
+
+$(MLB_TEMP)/fragmentation_resampling.o: ./fragmentation_resampling.cpp
+	$(CPP) -c ./fragmentation_resampling.cpp -o $(MLB_TEMP)/fragmentation_resampling.o $(CXXFLAGS)
+
+$(MLB_TEMP)/fragmentation_standard.o: ./fragmentation_standard.cpp
+	$(CPP) -c ./fragmentation_standard.cpp -o $(MLB_TEMP)/fragmentation_standard.o $(CXXFLAGS)
+
+$(MLB_TEMP)/grid_pyramid.o: ./grid_pyramid.cpp
+	$(CPP) -c ./grid_pyramid.cpp -o $(MLB_TEMP)/grid_pyramid.o $(CXXFLAGS)

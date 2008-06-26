@@ -411,6 +411,10 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath=".\Lines_From_Points.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Lines_From_Polygons.cpp"
 				>
 				<FileConfiguration
@@ -495,6 +499,10 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl"
 			>
+			<File
+				RelativePath=".\Lines_From_Points.h"
+				>
+			</File>
 			<File
 				RelativePath="Lines_From_Polygons.h"
 				>

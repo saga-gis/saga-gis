@@ -658,6 +658,10 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\shape_index.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -693,6 +697,10 @@
 			</File>
 			<File
 				RelativePath="Polygons_From_Lines.h"
+				>
+			</File>
+			<File
+				RelativePath=".\shape_index.h"
 				>
 			</File>
 		</Filter>

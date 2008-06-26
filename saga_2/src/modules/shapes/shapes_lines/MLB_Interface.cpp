@@ -92,31 +92,21 @@ const SG_Char * Get_Info(int i)
 // 3. Include the headers of your modules here...
 
 #include "Lines_From_Polygons.h"
+#include "Lines_From_Points.h"
+
 
 //---------------------------------------------------------
 // 4. Allow your modules to be created here...
 
 CSG_Module *		Create_Module(int i)
 {
-	// Don't forget to continuously enumerate the case switches
-	// when adding new modules! Also bear in mind that the
-	// enumeration always has to start with [case 0:] and
-	// that [default:] must return NULL!...
-
-	CSG_Module	*pModule;
-
 	switch( i )
 	{
-	case 0:
-		pModule	= new CLines_From_Polygons;
-		break;
-
-	default:
-		pModule	= NULL;
-		break;
+	case 0:		return( new CLines_From_Polygons );
+	case 1:		return( new CLines_From_Points );
 	}
 
-	return( pModule );
+	return( NULL );
 }
 
 

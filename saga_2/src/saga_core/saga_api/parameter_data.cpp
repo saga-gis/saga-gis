@@ -1369,12 +1369,10 @@ bool CSG_Parameter_Grid_System::On_Serialize(CSG_File &Stream, bool bSave)
 //---------------------------------------------------------
 CSG_Parameter_Table_Field::CSG_Parameter_Table_Field(CSG_Parameter *pOwner, long Constraint)
 	: CSG_Parameter_Int(pOwner, Constraint)
-{
-}
+{}
 
 CSG_Parameter_Table_Field::~CSG_Parameter_Table_Field(void)
-{
-}
+{}
 
 //---------------------------------------------------------
 const SG_Char * CSG_Parameter_Table_Field::asString(void)
@@ -1398,7 +1396,7 @@ const SG_Char * CSG_Parameter_Table_Field::asString(void)
 bool CSG_Parameter_Table_Field::Set_Value(int Value)
 {
 	bool		bChanged;
-	CSG_Table		*pTable;
+	CSG_Table	*pTable;
 
 	bChanged	= false;
 

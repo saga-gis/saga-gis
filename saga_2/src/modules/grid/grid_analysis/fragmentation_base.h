@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                    shapes_polygons                    //
+//                     grid_analysis                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                    Fragmentation.h                    //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -53,71 +53,59 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__Fragmentation_Base_H
+#define HEADER_INCLUDED__Fragmentation_Base_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-const SG_Char * Get_Info(int i)
-{
-	switch( i )
+//---------------------------------------------------------
+// #define CLASS_ORIGINAL
+
+#ifdef CLASS_ORIGINAL
+	enum
 	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Shapes - Polygons") );
-
-	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad, Victor Olaya (c) 2002-5") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for polygons.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Shapes|Polygons") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "Polygon_Intersection.h"
-#include "Polygon_Centroids.h"
-#include "Polygon_Geometrics.h"
-#include "Polygons_From_Lines.h"
-#include "Polygon_StatisticsFromPoints.h"
-#include "Polygon_Union.h"
-#include "shape_index.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
+		CLASS_CORE			= 7,
+		CLASS_INTERIOR		= 4,
+		CLASS_UNDETERMINED	= 2,
+		CLASS_PERFORATED	= 3,
+		CLASS_EDGE			= 1,
+		CLASS_TRANSITIONAL	= 6,
+		CLASS_PATCH			= 5,
+		CLASS_NONE			= 0
+	};
+#else
+	enum
 	{
-	case 0:		return( new CPolygon_Intersection );
-	case 1:		return( new CPolygon_Centroids );
-	case 2:		return( new CPolygon_Geometrics );
-	case 3:		return( new CPolygons_From_Lines );
-	case 4:		return( new CPolygonStatisticsFromPoints );
-	case 5:		return( new CPolygon_Union );
-	case 6:		return( new CShape_Index );
-	}
-
-	return( NULL );
-}
+		CLASS_CORE			= 1,
+		CLASS_INTERIOR,
+		CLASS_UNDETERMINED,
+		CLASS_PERFORATED,
+		CLASS_EDGE,
+		CLASS_TRANSITIONAL,
+		CLASS_PATCH,
+		CLASS_NONE
+	};
+#endif
 
 
 ///////////////////////////////////////////////////////////
@@ -127,8 +115,46 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CFragmentation_Base : public CSG_Module_Grid
+{
+public:
+	CFragmentation_Base(void);
+	virtual ~CFragmentation_Base(void);
 
-	MLB_INTERFACE
+	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Fragmentation Analysis") );	}
 
-//}}AFX_SAGA
+
+protected:
+
+	virtual bool			On_Execute			(void);
+
+	virtual bool			Initialise			(CSG_Grid *pClasses, int Class)	{	return( true );	}
+	virtual bool			Finalise			(void)							{	return( true );	}
+
+	virtual bool			Get_Fragmentation	(int x, int y, double &Density, double &Connectivity)	= 0;
+
+
+	int						m_Aggregation, m_Radius_iMin, m_Radius_iMax;
+
+	double					m_Density_Min, m_Density_Interior, m_Weight, m_Radius_Min, m_Radius_Max;
+
+	CSG_Table				m_LUT;
+
+
+	int						Get_Classification	(double Density, double Connectivity);
+
+	void					Add_Border			(CSG_Grid *pFragmentation);
+
+	void					Get_Statistics		(CSG_Grid *pFragmentation, CSG_Table &Statistics);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__Fragmentation_Base_H

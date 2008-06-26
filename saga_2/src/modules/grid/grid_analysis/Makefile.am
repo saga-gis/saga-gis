@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.6 2007-07-30 07:29:24 oconrad Exp $
+# $Id: Makefile.am,v 1.7 2008-06-26 13:18:09 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -19,6 +19,11 @@ Cost_PolarToRect.cpp\
 Cost_RectToPolar.cpp\
 CoveredDistance.cpp\
 CrossClassification.cpp\
+fragmentation_base.cpp\
+fragmentation_classify.cpp\
+fragmentation_resampling.cpp\
+fragmentation_standard.cpp\
+grid_pyramid.cpp\
 Fuzzify.cpp\
 FuzzyAND.cpp\
 FuzzyOR.cpp\
@@ -40,6 +45,11 @@ Cost_PolarToRect.h\
 Cost_RectToPolar.h\
 CoveredDistance.h\
 CrossClassification.h\
+fragmentation_base.h\
+fragmentation_classify.h\
+fragmentation_resampling.h\
+fragmentation_standard.h\
+grid_pyramid.h\
 Fuzzify.h\
 FuzzyAND.h\
 FuzzyOR.h\

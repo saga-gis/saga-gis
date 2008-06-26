@@ -603,6 +603,12 @@ CSG_Shape * CSG_Shapes::Get_Shape(TSG_Point Point, double Epsilon)
 	return( pNearest );
 }
 
+//---------------------------------------------------------
+bool CSG_Shapes::Set_Index(int Field_1, TSG_Table_Index_Order Order_1, int Field_2, TSG_Table_Index_Order Order_2, int Field_3, TSG_Table_Index_Order Order_3)
+{
+	return( m_Table.Set_Index(Field_1, Order_1, Field_2, Order_2, Field_3, Order_3) );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

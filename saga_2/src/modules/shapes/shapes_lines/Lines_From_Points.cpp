@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                    shapes_polygons                    //
+//                     shapes_lines                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                 Lines_From_Points.cpp                 //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -53,73 +53,97 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#include "Lines_From_Points.h"
 
-#include "MLB_Interface.h"
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 2. Place general module library informations here...
-
-const SG_Char * Get_Info(int i)
+CLines_From_Points::CLines_From_Points(void)
 {
-	switch( i )
+	CSG_Parameter	*pNode;
+
+	//-----------------------------------------------------
+	Set_Name		(_TL("Convert Points to Line"));
+
+	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
+
+	Set_Description	(_TW(
+		"Converts points to a line."
+	));
+
+	//-----------------------------------------------------
+	pNode	= Parameters.Add_Shapes(
+		NULL	, "LINES"		, _TL("Lines"),
+		_TL(""),
+		PARAMETER_OUTPUT, SHAPE_TYPE_Line
+	);
+
+	pNode	= Parameters.Add_Shapes(
+		NULL	, "POINTS"		, _TL("Points"),
+		_TL(""),
+		PARAMETER_INPUT, SHAPE_TYPE_Point
+	);
+
+	Parameters.Add_Table_Field(
+		pNode	, "ORDER"		, _TL("Order by..."),
+		_TL(""),
+		true
+	);
+}
+
+//---------------------------------------------------------
+CLines_From_Points::~CLines_From_Points(void)
+{}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CLines_From_Points::On_Execute(void)
+{
+	CSG_Shape	*pLine , *pPoint;
+	CSG_Shapes	*pLines, *pPoints;
+
+	pPoints	= Parameters("POINTS")	->asShapes();
+	pLines	= Parameters("LINES")	->asShapes();
+
+	if(	pPoints->Get_Count() > 0 )
 	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Shapes - Polygons") );
+		pPoints->Set_Index(Parameters("ORDER")->asInt(), TABLE_INDEX_Ascending);
 
-	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad, Victor Olaya (c) 2002-5") );
+		pLines->Create(SHAPE_TYPE_Line, pPoints->Get_Name(), &pPoints->Get_Table());
+		pLines->Get_Table().Add_Field(SG_T("ID"), TABLE_FIELDTYPE_Int);
+		pLine	= pLines->Add_Shape();
 
-	case MLB_INFO_Description:
-		return( _TL("Tools for polygons.") );
+		//-------------------------------------------------
+		for(int iPoint=0; iPoint<pPoints->Get_Count(); iPoint++)
+		{
+			pPoint	= pPoints->Get_Shape_byIndex(iPoint);
 
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
+			pLine->Add_Point(pPoint->Get_Point(0));
+		}
 
-	case MLB_INFO_Menu_Path:
-		return( _TL("Shapes|Polygons") );
+		return( true );
 	}
+
+	return( false );
 }
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "Polygon_Intersection.h"
-#include "Polygon_Centroids.h"
-#include "Polygon_Geometrics.h"
-#include "Polygons_From_Lines.h"
-#include "Polygon_StatisticsFromPoints.h"
-#include "Polygon_Union.h"
-#include "shape_index.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case 0:		return( new CPolygon_Intersection );
-	case 1:		return( new CPolygon_Centroids );
-	case 2:		return( new CPolygon_Geometrics );
-	case 3:		return( new CPolygons_From_Lines );
-	case 4:		return( new CPolygonStatisticsFromPoints );
-	case 5:		return( new CPolygon_Union );
-	case 6:		return( new CShape_Index );
-	}
-
-	return( NULL );
-}
-
-
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
@@ -127,8 +151,3 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA

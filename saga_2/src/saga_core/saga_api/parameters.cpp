@@ -436,14 +436,14 @@ CSG_Parameter * CSG_Parameters::Add_Grid_List(CSG_Parameter *pParent, const SG_C
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_Table_Field(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description)
+CSG_Parameter * CSG_Parameters::Add_Table_Field(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, bool bAllowNone)
 {
 	if( pParent
 	&&	(	pParent->Get_Type() == PARAMETER_TYPE_Table
 		||	pParent->Get_Type() == PARAMETER_TYPE_Shapes
 		||	pParent->Get_Type() == PARAMETER_TYPE_TIN	) )
 	{
-		return( _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_Table_Field, 0) );
+		return( _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_Table_Field, bAllowNone ? PARAMETER_OPTIONAL : 0) );
 	}
 
 	return( NULL );
@@ -1450,8 +1450,8 @@ CSG_Parameter * CSG_Parameters::Add_Grid_Output			(CSG_Parameter *pParent, const
 CSG_Parameter * CSG_Parameters::Add_Grid_List			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint, bool bSystem_Dependent)
 {	return( Add_Grid_List			(pParent, SG_STR_MBTOSG(Identifier), Name, Description, Constraint, bSystem_Dependent) );	}
 
-CSG_Parameter * CSG_Parameters::Add_Table_Field			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description)
-{	return( Add_Table_Field			(pParent, SG_STR_MBTOSG(Identifier), Name, Description) );	}
+CSG_Parameter * CSG_Parameters::Add_Table_Field			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, bool bAllowNone)
+{	return( Add_Table_Field			(pParent, SG_STR_MBTOSG(Identifier), Name, Description, bAllowNone) );	}
 
 CSG_Parameter * CSG_Parameters::Add_Table				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint)
 {	return( Add_Table				(pParent, SG_STR_MBTOSG(Identifier), Name, Description, Constraint) );	}

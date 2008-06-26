@@ -651,6 +651,22 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\fragmentation_base.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\fragmentation_classify.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\fragmentation_resampling.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\fragmentation_standard.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Fuzzify.cpp"
 				>
 				<FileConfiguration
@@ -971,6 +987,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\grid_pyramid.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Image_VI_Distance.cpp"
 				>
 				<FileConfiguration
@@ -1244,6 +1264,22 @@
 				>
 			</File>
 			<File
+				RelativePath=".\fragmentation_base.h"
+				>
+			</File>
+			<File
+				RelativePath=".\fragmentation_classify.h"
+				>
+			</File>
+			<File
+				RelativePath=".\fragmentation_resampling.h"
+				>
+			</File>
+			<File
+				RelativePath=".\fragmentation_standard.h"
+				>
+			</File>
+			<File
 				RelativePath="Fuzzify.h"
 				>
 			</File>
@@ -1273,6 +1309,10 @@
 			</File>
 			<File
 				RelativePath="Grid_Pattern.h"
+				>
+			</File>
+			<File
+				RelativePath=".\grid_pyramid.h"
 				>
 			</File>
 			<File
