@@ -530,7 +530,7 @@ bool CSG_Grid::Get_Value(TSG_Point Position, double &Value, int Interpolation, b
 }
 
 //---------------------------------------------------------
-inline bool CSG_Grid::Get_Value(double xPosition, double yPosition, double &Value, int Interpolation, bool bZFactor, bool bByteWise) const
+bool CSG_Grid::Get_Value(double xPosition, double yPosition, double &Value, int Interpolation, bool bZFactor, bool bByteWise) const
 {
 	int		x, y;
 	double	dx, dy;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: dl_writer.h,v 1.1 2007-10-08 15:31:19 oconrad Exp $
+** $Id: dl_writer.h,v 1.2 2008-07-15 14:56:42 oconrad Exp $
 **
 ** Copyright (C) 2001-2003 RibbonSoft. All rights reserved.
 ** Copyright (C) 2001 Robert J. Campbell Jr.
@@ -37,6 +37,7 @@
 #endif
 
 #include <iostream>
+#include <string.h>
 
 #include "dl_attributes.h"
 #include "dl_codes.h"

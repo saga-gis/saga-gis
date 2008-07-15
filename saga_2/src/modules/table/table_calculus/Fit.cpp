@@ -53,6 +53,7 @@
 #include "LMFit.h"
 #include <vector>
 #include <math.h>
+#include <string.h>
 
 #include "Fit.h"
 
