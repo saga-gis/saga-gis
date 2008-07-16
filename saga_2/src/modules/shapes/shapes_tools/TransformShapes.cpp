@@ -24,7 +24,7 @@
 CTransformShapes::CTransformShapes(void)
 {
 	Set_Name		(_TL("Transform Shapes"));
-	Set_Author		(_TL("(c) 2004 by Victor Olaya");
+	Set_Author		(_TL("(c) 2004 by Victor Olaya"));
 	Set_Description	(_TW(
 		"(c) 2004 by Victor Olaya. Use this module to move, rotate and/or scale shapes."
 	));

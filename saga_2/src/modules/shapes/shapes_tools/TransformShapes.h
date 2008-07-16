@@ -27,18 +27,10 @@ class CTransformShapes : public CSG_Module{
 public:
 	CTransformShapes(void);
 	virtual ~CTransformShapes(void);
-	virtual bool is_ProjectDependent(void) {return( false );}
 
 protected:
 	virtual bool On_Execute(void);
 
 private:
-	double m_dScaleX;
-	double m_dScaleY;
-	double m_dDX;
-	double m_dDY;
-	double m_dAngle;
-	double m_dAnchorX;
-	double m_dAnchorY;
 
 };
