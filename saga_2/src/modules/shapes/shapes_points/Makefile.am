@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.6 2008-02-15 14:30:50 oconrad Exp $
+# $Id: Makefile.am,v 1.7 2008-07-16 11:47:47 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -14,6 +14,7 @@ AM_LDFLAGS         = -fPIC -shared
 pkglib_LTLIBRARIES = libshapes_points.la
 libshapes_points_la_SOURCES =\
 AddCoordinates.cpp\
+Clip_Points.cpp\
 CountPoints.cpp\
 CreatePointGrid.cpp\
 DistanceMatrix.cpp\
@@ -24,6 +25,7 @@ Points_From_Table.cpp\
 remove_duplicates.cpp\
 AddCoordinates.h\
 CountPoints.h\
+Clip_Points.h\
 CreatePointGrid.h\
 DistanceMatrix.h\
 FitNPointsToShape.h\
