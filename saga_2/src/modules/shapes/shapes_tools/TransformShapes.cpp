@@ -132,7 +132,7 @@ bool CTransformShapes::On_Execute(void)
 	Move.y		= Parameters("DY")		->asDouble();
 	Anchor.x	= Parameters("ANCHORX")	->asDouble();
 	Anchor.y	= Parameters("ANCHORY")	->asDouble();
-	Angle		= Parameters("ANGLE")	->asDouble() * M_DEG_TO_RAD;
+	Angle		= Parameters("ANGLE")	->asDouble() * -M_DEG_TO_RAD;
 
 	if( pIn == pOut )
 	{
