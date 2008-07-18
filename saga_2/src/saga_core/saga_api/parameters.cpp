@@ -227,6 +227,15 @@ void CSG_Parameters::Set_Translation(CSG_Translator &Translator)
 	}
 }
 
+//---------------------------------------------------------
+void CSG_Parameters::Set_Enabled(bool bEnabled)
+{
+	for(int i=0; i<m_nParameters; i++)
+	{
+		m_Parameters[i]->Set_Enabled(bEnabled);
+	}
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

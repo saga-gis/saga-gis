@@ -411,6 +411,14 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath=".\Get_Connection.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Get_SQLTable.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Get_Table.cpp"
 				>
 				<FileConfiguration
@@ -490,17 +498,33 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\odbc.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
+				RelativePath=".\Get_Connection.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Get_SQLTable.h"
+				>
+			</File>
+			<File
 				RelativePath="Get_Table.h"
 				>
 			</File>
 			<File
 				RelativePath="MLB_Interface.h"
+				>
+			</File>
+			<File
+				RelativePath=".\odbc.h"
 				>
 			</File>
 		</Filter>

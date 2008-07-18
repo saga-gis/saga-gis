@@ -83,7 +83,7 @@ const SG_Char *	Get_Info(int i)
 		return( _TL("1.0") );
 
 	case MLB_INFO_Menu_Path:
-		return( _TL("File|Table") );
+		return( _TL("Database|ODBC") );
 	}
 }
 
@@ -91,7 +91,9 @@ const SG_Char *	Get_Info(int i)
 //---------------------------------------------------------
 // 3. Include the headers of your modules here...
 
+#include "Get_Connection.h"
 #include "Get_Table.h"
+#include "Get_SQLTable.h"
 
 
 //---------------------------------------------------------
@@ -99,20 +101,14 @@ const SG_Char *	Get_Info(int i)
 
 CSG_Module *		Create_Module(int i)
 {
-	CSG_Module	*pModule;
-
 	switch( i )
 	{
-	case 0:
-		pModule	= new CGet_Table;
-		break;
-
-	default:
-		pModule	= NULL;
-		break;
+	case 0:		return( new CGet_Connection );
+	case 1:		return( new CGet_Table );
+	case 2:		return( new CGet_SQLTable );
 	}
 
-	return( pModule );
+	return( NULL );
 }
 
 

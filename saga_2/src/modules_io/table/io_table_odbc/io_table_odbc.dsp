@@ -59,7 +59,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy   *.lng.txt   ..\..\..\..\bin\saga_vc\modules\ 
+PostBuild_Cmds=copy      *.lng.txt      ..\..\..\..\bin\saga_vc\modules\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "io_table_odbc - Win32 Debug"
@@ -160,11 +160,23 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\Get_Connection.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Get_SQLTable.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Get_Table.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\MLB_Interface.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\odbc.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -172,11 +184,23 @@ SOURCE=.\MLB_Interface.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=.\Get_Connection.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Get_SQLTable.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Get_Table.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\MLB_Interface.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\odbc.h
 # End Source File
 # End Group
 # Begin Group "Include"

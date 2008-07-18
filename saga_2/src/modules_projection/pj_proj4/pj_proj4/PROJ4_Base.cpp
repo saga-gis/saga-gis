@@ -181,7 +181,7 @@ bool CPROJ4_Base::Initialize(void)
 				_TL("Semimajor Axis and Flattening"),
 				_TL("Semimajor Axis and Reciprocal Flattening"),
 				_TL("Semimajor Axis and Eccentricity"),
-				_TL("Semimajor Axis and Eccentricity Squared|")
+				_TL("Semimajor Axis and Eccentricity Squared")
 			)
 		);
 

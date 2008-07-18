@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                      Table_ODBC                       //
+//                      saga_api_db                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     Get_Table.h                       //
+//                        odbc.h                         //
 //                                                       //
-//                 Copyright (C) 2005 by                 //
+//                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -58,8 +58,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Get_Table_H
-#define HEADER_INCLUDED__Get_Table_H
+#ifndef HEADER_INCLUDED__SAGA_API_DB_ODBC_H
+#define HEADER_INCLUDED__SAGA_API_DB_ODBC_H
 
 
 ///////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -79,25 +79,45 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGet_Table : public CSG_Module
+class CSG_ODBC_Connection
 {
 public:
-	CGet_Table(void);
+	CSG_ODBC_Connection(void);
+	virtual ~CSG_ODBC_Connection(void);
+
+	bool						Create					(void);
+	bool						Destroy					(void);
+
+	bool						Connect					(const CSG_String &Server, const CSG_String &User, const CSG_String &Password, const CSG_String &Directory = SG_T(""));
+	bool						Disconnect				(void);
+
+	bool						is_Connected			(void)	{	return( m_pDB != NULL );	}
+
+	CSG_String					Get_Server				(void);
+
+	CSG_String					Get_Servers				(void)	{	return( m_Servers );	}
+	CSG_String					Get_Tables				(void);
+
+	bool						Get_Table				(int iTable, const CSG_String &Table_Name, CSG_Table &Table);
+
+	bool						Get_Query				(const CSG_String &Fields, const CSG_String &Tables, const CSG_String &Where, const CSG_String &Order, CSG_Table &Table);
 
 
 protected:
 
-	virtual bool				On_Before_Execution		(void);
-
-	virtual bool				On_Execute				(void);
-
 
 private:
+
+	CSG_String					m_Servers;
+
+	class wxDbConnectInf		*m_pDBCInf;
+
+	class wxDb					*m_pDB;
 
 
 };
 
-#endif // #ifndef HEADER_INCLUDED__Get_Table_H
+#endif // #ifndef HEADER_INCLUDED__SAGA_API_DB_ODBC_H
 
 
 ///////////////////////////////////////////////////////////

@@ -15,16 +15,11 @@ CPP      = g++
 LD       = g++
 
 DEP_INCS = 
-DEP_DEFS = 
-DEP_LIBS = 
-DEP_LFLG = 
+DEP_DEFS = `wx-config --static=yes --cxxflags`
+DEP_LFLG = -fPIC -pthread
+DEP_LIBS = `wx-config --static=yes --libs` -L$(BIN_SAGA) -l_saga_api
 
-DEP_INCS = -I/usr/local/lib/wx
-DEP_DEFS = `wx-config --cxxflags`
-DEP_LFLG = `wx-config --cxxflags`
-
-
-OBJ      = $(MLB_TEMP)/Get_Table.o $(MLB_TEMP)/MLB_Interface.o
+OBJ      = $(MLB_TEMP)/Get_Connection.o $(MLB_TEMP)/Get_SQLTable.o $(MLB_TEMP)/Get_Table.o $(MLB_TEMP)/odbc.o $(MLB_TEMP)/MLB_Interface.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS =
@@ -32,7 +27,7 @@ CXX_DEFS =
 CXX_FLGS = -O2
 CXXFLAGS = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEP_INCS) $(DEP_DEFS) -I$(INC_SAGA) $(DEF_SAGA)
 
-LDFLAGS  = -shared $(DEP_LFLG)
+LDFLAGS  = $(DEP_LFLG) -shared
 LIBS     = $(DEP_LIBS)
 
 .PHONY: all all-before all-after clean clean-custom
@@ -55,8 +50,17 @@ $(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
 	$(LD) $(LDFLAGS) -o $(MLB_NAME) $(OBJ) $(LIBS)
 
 
+$(MLB_TEMP)/Get_Connection.o: ./Get_Connection.cpp
+	$(CPP) -c ./Get_Connection.cpp -o $(MLB_TEMP)/Get_Connection.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Get_SQLTable.o: ./Get_SQLTable.cpp
+	$(CPP) -c ./Get_SQLTable.cpp -o $(MLB_TEMP)/Get_SQLTable.o $(CXXFLAGS)
+
 $(MLB_TEMP)/Get_Table.o: ./Get_Table.cpp
 	$(CPP) -c ./Get_Table.cpp -o $(MLB_TEMP)/Get_Table.o $(CXXFLAGS)
+
+$(MLB_TEMP)/odbc.o: ./odbc.cpp
+	$(CPP) -c ./odbc.cpp -o $(MLB_TEMP)/odbc.o $(CXXFLAGS)
 
 $(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)

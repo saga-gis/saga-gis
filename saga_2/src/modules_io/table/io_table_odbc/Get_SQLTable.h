@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     Get_Table.h                       //
+//                    Get_SQLTable.h                     //
 //                                                       //
-//                 Copyright (C) 2005 by                 //
+//                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -58,8 +58,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Get_Table_H
-#define HEADER_INCLUDED__Get_Table_H
+#ifndef HEADER_INCLUDED__Get_SQLTable_H
+#define HEADER_INCLUDED__Get_SQLTable_H
 
 
 ///////////////////////////////////////////////////////////
@@ -79,10 +79,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGet_Table : public CSG_Module
+class CGet_SQLTable : public CSG_Module
 {
 public:
-	CGet_Table(void);
+	CGet_SQLTable(void);
 
 
 protected:
@@ -97,7 +97,7 @@ private:
 
 };
 
-#endif // #ifndef HEADER_INCLUDED__Get_Table_H
+#endif // #ifndef HEADER_INCLUDED__Get_SQLTable_H
 
 
 ///////////////////////////////////////////////////////////

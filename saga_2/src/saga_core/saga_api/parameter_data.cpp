@@ -719,6 +719,25 @@ CSG_Parameter_Choice::~CSG_Parameter_Choice(void)
 }
 
 //---------------------------------------------------------
+bool CSG_Parameter_Choice::Set_Value(void *Value)
+{
+	if( Value && *((SG_Char *)Value) )
+	{
+		for(int i=0; i<nItems; i++)
+		{
+			if( Items[i]->Cmp((SG_Char *)Value) == 0 )
+			{
+				m_Value	= i;
+
+				return( true );
+			}
+		}
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 const SG_Char * CSG_Parameter_Choice::asString(void)
 {
 	if( m_Value >= 0 && m_Value < nItems )

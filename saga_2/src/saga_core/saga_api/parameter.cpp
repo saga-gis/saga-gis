@@ -79,6 +79,8 @@ CSG_Parameter::CSG_Parameter(CSG_Parameters *pOwner, CSG_Parameter *pParent, con
 	m_Name			= Name;
 	m_Description	= Description;
 
+	m_bEnabled		= true;
+
 	//-----------------------------------------------------
 	m_nChildren		= 0;
 	m_Children		= NULL;
@@ -175,6 +177,19 @@ void CSG_Parameter::_Add_Child(CSG_Parameter *pChild)
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Parameter::Set_Enabled(bool bEnabled)
+{
+	if( m_bEnabled != bEnabled )
+	{
+		m_bEnabled	= bEnabled;
+
+		return( !bEnabled );
+	}
+
+	return( bEnabled );
+}
 
 //---------------------------------------------------------
 bool CSG_Parameter::is_Option(void)

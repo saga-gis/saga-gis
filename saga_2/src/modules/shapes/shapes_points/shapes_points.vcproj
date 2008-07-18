@@ -451,6 +451,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Clip_Points.cpp"
+				>
+			</File>
+			<File
 				RelativePath="CountPoints.cpp"
 				>
 				<FileConfiguration
@@ -741,6 +745,10 @@
 			>
 			<File
 				RelativePath="AddCoordinates.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Clip_Points.h"
 				>
 			</File>
 			<File

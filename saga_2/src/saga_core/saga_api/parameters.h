@@ -402,6 +402,8 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Choice );	}
 
+	virtual bool				Set_Value				(void *Value);
+
 	virtual const SG_Char *		asString				(void);
 
 	void						Set_Items				(const SG_Char *String);
@@ -914,6 +916,9 @@ public:
 	const SG_Char *				Get_Description			(void);
 	CSG_String					Get_Description			(int Flags, const SG_Char *Separator = SG_T("\n"));
 
+	bool						Set_Enabled				(bool bEnabled);
+	bool						is_Enabled				(void)	{	return( m_bEnabled );				}
+
 	bool						is_Valid				(void)	{	return( m_pData->is_Valid() );		}
 	bool						is_Input				(void)	{	return( !!(m_pData->Get_Constraint() & PARAMETER_INPUT)	      );	}
 	bool						is_Output				(void)	{	return( !!(m_pData->Get_Constraint() & PARAMETER_OUTPUT)      );	}
@@ -979,6 +984,8 @@ private:
 	void						_Add_Child				(CSG_Parameter *pChild);
 
 
+	bool						m_bEnabled;
+
 	int							m_nChildren;
 
 	CSG_Parameter				**m_Children;
@@ -1029,6 +1036,8 @@ public:
 	const SG_Char *				Get_Description			(void);
 
 	void						Set_Translation			(CSG_Translator &Translator);
+
+	void						Set_Enabled				(bool bEnabled);
 
 	//-----------------------------------------------------
 	void						Set_Callback_On_Parameter_Changed	(TSG_PFNC_Parameter_Changed pCallback);

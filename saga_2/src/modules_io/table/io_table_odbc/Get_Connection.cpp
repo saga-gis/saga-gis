@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     Get_Table.h                       //
+//                   Get_Connection.cpp                  //
 //                                                       //
-//                 Copyright (C) 2005 by                 //
+//                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -58,8 +58,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Get_Table_H
-#define HEADER_INCLUDED__Get_Table_H
+#include "Get_Connection.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -69,7 +68,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+CSG_ODBC_Connection	g_Connection;
 
 
 ///////////////////////////////////////////////////////////
@@ -79,25 +78,120 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGet_Table : public CSG_Module
+#define STR_DISCONNTECT	_TL("--- DISCONNECT ---")
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CGet_Connection::CGet_Connection(void)
 {
-public:
-	CGet_Table(void);
+	Set_Name		(_TL("ODBC: Connect/Disconnect"));
+
+	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
+
+	Set_Description	(_TW(
+		"Connect/disconnect ODBC source."
+	));
+
+	Parameters.Add_Choice(
+		NULL	, "SERVERS"		, _TL("Server"),
+		_TL(""),
+		g_Connection.Get_Servers()
+	);
+
+	Parameters.Add_String(
+		NULL	, "USERNAME"	, _TL("User"),
+		_TL(""),
+		_TL("")
+	);
+
+	Parameters.Add_String(
+		NULL	, "PASSWORD"	, _TL("Password"),
+		_TL(""),
+		SG_T(""), false, true
+	);
+
+	Parameters.Add_FilePath(
+		NULL	, "DIRPATH"		, _TL("Directory"),
+		_TL(""),
+		NULL, NULL, false, true
+	);
+}
 
 
-protected:
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-	virtual bool				On_Before_Execution		(void);
+//---------------------------------------------------------
+bool CGet_Connection::On_Before_Execution(void)
+{
+	CSG_String	Servers(g_Connection.Get_Servers());
 
-	virtual bool				On_Execute				(void);
+	if( g_Connection.is_Connected() )
+	{
+		Servers	+= CSG_String::Format(SG_T("%s|"), STR_DISCONNTECT);
+	}
+
+	Parameters("SERVERS")->asChoice()->Set_Items(Servers);
+	Parameters("SERVERS")->Set_Value(g_Connection.Get_Server());
+
+	return( true );
+}
 
 
-private:
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
+//---------------------------------------------------------
+bool CGet_Connection::On_Execute(void)
+{
+	CSG_String	Server, User, Password, Directory;
 
-};
+	//-----------------------------------------------------
+	if( g_Connection.is_Connected() )
+	{
+		Server	= g_Connection.Get_Server();
 
-#endif // #ifndef HEADER_INCLUDED__Get_Table_H
+		g_Connection.Disconnect();
+
+		Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("ODBC source disconnected")));
+	}
+
+	//-----------------------------------------------------
+	Server		= Parameters("SERVERS")		->asString();
+	User		= Parameters("USERNAME")	->asString();
+	Password	= Parameters("PASSWORD")	->asString();
+	Directory	= Parameters("DIRPATH")		->asString();
+
+	if( Server.Cmp(STR_DISCONNTECT) == 0 )
+	{
+		return( true );
+	}
+
+	if( g_Connection.Connect(Server, User, Password, Directory) )
+	{
+		Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("ODBC source connected")));
+
+		return( true );
+	}
+	else
+	{
+		Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("could not connect ODBC source")));
+
+		return( false );
+	}
+}
 
 
 ///////////////////////////////////////////////////////////

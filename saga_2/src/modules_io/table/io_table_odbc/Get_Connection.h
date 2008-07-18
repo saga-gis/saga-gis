@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     Get_Table.h                       //
+//                   Get_Connection.h                    //
 //                                                       //
-//                 Copyright (C) 2005 by                 //
+//                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -58,8 +58,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Get_Table_H
-#define HEADER_INCLUDED__Get_Table_H
+#ifndef HEADER_INCLUDED__Get_Connection_H
+#define HEADER_INCLUDED__Get_Connection_H
 
 
 ///////////////////////////////////////////////////////////
@@ -71,6 +71,8 @@
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
+#include "odbc.h"
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -79,10 +81,20 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGet_Table : public CSG_Module
+extern CSG_ODBC_Connection	g_Connection;
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGet_Connection : public CSG_Module
 {
 public:
-	CGet_Table(void);
+	CGet_Connection(void);
 
 
 protected:
@@ -94,10 +106,9 @@ protected:
 
 private:
 
-
 };
 
-#endif // #ifndef HEADER_INCLUDED__Get_Table_H
+#endif // #ifndef HEADER_INCLUDED__Get_Connection_H
 
 
 ///////////////////////////////////////////////////////////

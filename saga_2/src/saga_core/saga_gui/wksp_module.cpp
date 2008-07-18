@@ -739,7 +739,7 @@ bool CWKSP_Module::Execute(bool bDialog)
 	{
 		g_pModule	= this;
 
-		if( !bDialog || DLG_Parameters(m_pModule->Get_Parameters()) )
+		if( m_pModule->On_Before_Execution() && (!bDialog || DLG_Parameters(m_pModule->Get_Parameters())) )
 		{
 			g_pModules->Get_Modules_Menu()->Set_Recent(this);
 
