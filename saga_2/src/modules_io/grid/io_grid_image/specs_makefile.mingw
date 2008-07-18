@@ -1,3 +1,0 @@
-DEP_INCS = -I"$(WXWIN)/lib/gcc_dll/msw" -I"$(WXWIN)/include"
-DEP_DEFS = -D__WXMSW__ -DNOPCH
-DEP_LIBS = -L"$(WXWIN)/lib/gcc_dll" -lwxmsw28_core -lwxbase28 -lwxtiff -lwxjpeg -lwxpng -lwxzlib -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lwinmm -lshell32 -lcomctl32 -lole32 -loleaut32 -luuid -lrpcrt4

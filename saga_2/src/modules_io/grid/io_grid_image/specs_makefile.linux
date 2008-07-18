@@ -1,3 +1,0 @@
-DEP_INCS = -I/usr/local/lib/wx
-DEP_DEFS = `wx-config --cxxflags`
-DEP_LFLG = `wx-config --cxxflags`

@@ -1,1 +1,0 @@
-DEP_LIBS = -L"$(MLB_PATH)" -lta_channels -lta_hydrology -lta_lighting -lta_morphometry -lta_preprocessor
