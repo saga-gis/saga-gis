@@ -134,6 +134,8 @@ CParameters_Control::CParameters_Control(wxWindow *pParent, bool bDialog)
 	m_pPGM->SetDescBoxHeight(bDialog ? 100 : 50);
 #endif
 
+//	m_pPG->SetCellDisabledTextColour(wxColour(200, 200, 200));
+
 	m_pParameters	= new CSG_Parameters();
 	m_pOriginal		= NULL;
 
@@ -712,6 +714,8 @@ void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
 	if( Id.IsOk()  )
 	{
 		CSG_String	s;
+
+		m_pPG->EnableProperty(Id, pParameter->is_Enabled());
 
 		switch( pParameter->Get_Type() )
 		{
