@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.6 2007-02-13 12:49:32 tschorr Exp $
+# $Id: Makefile.am,v 1.7 2008-07-21 09:31:44 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -18,6 +18,7 @@ Convergence_Radius.cpp\
 Curvature_Classification.cpp\
 Hypsometry.cpp\
 MLB_Interface.cpp\
+mass_balance_index.cpp\
 Morphometry.cpp\
 ProtectionIndex.cpp\
 RealArea.cpp\
@@ -29,6 +30,7 @@ Convergence_Radius.h\
 Curvature_Classification.h\
 Hypsometry.h\
 MLB_Interface.h\
+mass_balance_index.h\
 Morphometry.h\
 ProtectionIndex.h\
 RealArea.h\
