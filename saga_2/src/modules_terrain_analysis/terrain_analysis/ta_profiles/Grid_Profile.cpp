@@ -144,6 +144,17 @@ bool CGrid_Profile::On_Execute(void)
 	return( true );
 }
 
+//---------------------------------------------------------
+bool CGrid_Profile::On_Execute_Finish(void)
+{
+	if( m_bAdd )
+	{
+		Set_Profile();
+	}
+
+	return( true );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -170,7 +181,7 @@ bool CGrid_Profile::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactiv
 
 		m_pLine->Get_Shape(0)->Add_Point(Get_System()->Fit_to_Grid_System(ptWorld));
 
-		DataObject_Update(m_pLine, SG_UI_DATAOBJECT_UPDATE_ONLY);
+		DataObject_Update(m_pLine);
 		break;
 
 	case MODULE_INTERACTIVE_RDOWN:
@@ -199,12 +210,12 @@ bool CGrid_Profile::Set_Profile(void)
 	//-----------------------------------------------------
 	m_pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("Profile [%s]"), m_pDEM->Get_Name()));
 
-	m_pPoints->Get_Table().Add_Field("ID"				, TABLE_FIELDTYPE_Int);
+	m_pPoints->Get_Table().Add_Field("ID"						, TABLE_FIELDTYPE_Int);
 	m_pPoints->Get_Table().Add_Field(_TL("Distance")			, TABLE_FIELDTYPE_Double);
-	m_pPoints->Get_Table().Add_Field(_TL("Distance Overland"), TABLE_FIELDTYPE_Double);
-	m_pPoints->Get_Table().Add_Field("X"				, TABLE_FIELDTYPE_Double);
-	m_pPoints->Get_Table().Add_Field("Y"				, TABLE_FIELDTYPE_Double);
-	m_pPoints->Get_Table().Add_Field("Z"				, TABLE_FIELDTYPE_Double);
+	m_pPoints->Get_Table().Add_Field(_TL("Distance Overland")	, TABLE_FIELDTYPE_Double);
+	m_pPoints->Get_Table().Add_Field("X"						, TABLE_FIELDTYPE_Double);
+	m_pPoints->Get_Table().Add_Field("Y"						, TABLE_FIELDTYPE_Double);
+	m_pPoints->Get_Table().Add_Field("Z"						, TABLE_FIELDTYPE_Double);
 
 	for(i=0; i<m_pValues->Get_Count(); i++)
 	{
@@ -226,8 +237,8 @@ bool CGrid_Profile::Set_Profile(void)
 	}
 
 	//-----------------------------------------------------
-	DataObject_Update(m_pLine	, false);
-	DataObject_Update(m_pPoints	, false);
+	DataObject_Update(m_pLine);
+	DataObject_Update(m_pPoints);
 
 	return( m_pPoints->Get_Count() > 0 );
 }

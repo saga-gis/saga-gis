@@ -17,138 +17,96 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/ 
 
+//---------------------------------------------------------
 #include "Strahler.h"
-#include "Helper.h"
 
+//---------------------------------------------------------
 CStrahler::CStrahler(void){
 
 	Set_Name		(_TL("Strahler Order"));
 	Set_Author		(_TL("Copyrights (c) 2004 by Victor Olaya"));
 	Set_Description	(_TW(
-		"(c) 2004 by Victor Olaya. Strahler Order Calculation"));
+		"(c) 2004 by Victor Olaya. Strahler Order Calculation"
+	));
 
-	Parameters.Add_Grid(NULL, 
-						"DEM", 
-						_TL("Elevation Grid"), 
-						_TL(""), 
-						PARAMETER_INPUT);
+	Parameters.Add_Grid(
+		NULL	, "DEM"			, _TL("Elevation"), 
+		_TL(""), 
+		PARAMETER_INPUT
+	);
 
-	Parameters.Add_Grid(NULL, 
-						"STRAHLER", 
-						_TL("Strahler Order"), 
-						_TL(""), 
-						PARAMETER_OUTPUT, 
-						true, 
-						GRID_TYPE_Int);
+	Parameters.Add_Grid(
+		NULL	, "STRAHLER"	, _TL("Strahler Order"), 
+		_TL(""), 
+		PARAMETER_OUTPUT, true, GRID_TYPE_Short
+	);
+}
 
-}//constructor
-
-
+//---------------------------------------------------------
 CStrahler::~CStrahler(void)
 {}
 
+//---------------------------------------------------------
+int CStrahler::getStrahlerOrder(int x, int y)
+{
+	int		Order	= m_pStrahler->asInt(x, y);
 
-/*
-void getNextCell(
-		CSG_Grid *g,
-		int iX,
-        int iY,
-		int &iNextX,
-		int &iNextY) {
+	if( Order == 0 )
+	{
+		int		i, ix, iy, n;
 
-    float fDist;
-    float fMaxSlope;
-    float fSlope;
+		for(i=0, n=0, Order=1; i<8; i++)
+		{
+			if( Get_System()->Get_Neighbor_Pos(i + 4, x, y, ix, iy) && m_pDEM->Get_Gradient_NeighborDir(ix, iy) == i )
+			{
+				int		iOrder	= getStrahlerOrder(ix, iy);
 
-    fMaxSlope = 0;
-    fSlope = 0;
+				if( Order < iOrder )
+				{
+					Order	= iOrder;
+					n		= 1;
+				}
+				else if( Order == iOrder )
+				{
+					n++;
+				}
+			}
+		}
 
-    if (iX < 1 || iX >= g->Get_NX() - 1 || iY < 1 || iY >= g->Get_NY() - 1
-            || g->asFloat(iX,iY) == g->Get_NoData_Value()) {
-        iNextX = iX;
-		iNextY = iY;
-		return;
-    }// if
+		if( n > 1 )
+		{
+			Order++;
+		}
 
-    for (int i = -1; i < 2; i++) {
-        for (int j = -1; j < 2; j++) {                	
-            if (g->asFloat(iX+i,iY+j) != g->Get_NoData_Value()){
-                if (i == 0 || j == 0) {
-                    fDist = 1.0f;
-                }// if
-                else {
-                    fDist = 1.44f;
-                }// else
-                fSlope = (g->asFloat(iX+i,iY+j)
-                         - g->asFloat(iX,iY)) / fDist;                                				
-                if (fSlope <= fMaxSlope) {
-                    iNextX = iX+i;
-					iNextY = iY+j;                        
-                    fMaxSlope = fSlope;
-                }// if
-            }//if                    
-        }// for
-    }// for
+		m_pStrahler->Set_Value(x, y, Order);
+	}
 
-}// method
-*/
+	return( Order );
+}
 
-int CStrahler::getStrahlerOrder(
-		int iX,
-		int iY){
-		
-	int iMaxOrder=1;
-	int iNextX, iNextY;
-	int iOrder = 1;
-	int iMaxOrderCells=0;
-	
-	
-	if (m_pStrahler->asInt(iX,iY) ==0 ){;
-		for (int i = -1; i<2; i++){
-			for (int j = -1; j<2; j++){
-				if (!(i == 0) || !(j == 0)) {
-					getNextCell(m_pDEM, iX + i, iY + j, iNextX, iNextY);
-					if (iNextY == iY && iNextX == iX) {
-						iOrder=m_pStrahler->asInt(iX+i,iY+j);
-						if (iOrder==0){
-							iOrder=getStrahlerOrder(iX+i,iY+j);
-						}//if
-						if (iOrder>iMaxOrder){
-							iMaxOrder=iOrder;
-							iMaxOrderCells=1;
-						}//if
-						else if (iOrder==iMaxOrder){
-							iMaxOrderCells++;
-						}//if
-					}// if				
-				}//if				
-			}//for
-		}//for
-		
-		if (iMaxOrderCells>1){
-			iMaxOrder++;
-		}//if
-		
-		m_pStrahler->Set_Value(iX,iY,iMaxOrder);
-	
-	}//if
+//---------------------------------------------------------
+bool CStrahler::On_Execute(void)
+{
+	m_pDEM		= Parameters("DEM")			->asGrid();
+	m_pStrahler	= Parameters("STRAHLER")	->asGrid();
 
-	return iMaxOrder;
-	
-}//function
+	m_pStrahler	->Set_NoData_Value(0.0);
+	m_pStrahler	->Assign(0.0);
 
-bool CStrahler::On_Execute(void){
-	
-	m_pDEM = Parameters("DEM")->asGrid(); 
-	m_pStrahler = Parameters("STRAHLER")->asGrid();
-	m_pStrahler->Assign(0.0);
+	DataObject_Set_Colors(m_pStrahler, 10, SG_COLORS_WHITE_BLUE);
 
-    for(int y=0; y<Get_NY() && Set_Progress(y); y++){		
-		for(int x=0; x<Get_NX(); x++){			
-            getStrahlerOrder(x,y);
-        }// for
-    }// for
+    for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
+		{
+			if( !m_pDEM->is_NoData(x, y) )
+			{
+				getStrahlerOrder(x, y);
+			}
+        }
+    }
 
 	return( true );
+}
 
-}//method
+//---------------------------------------------------------

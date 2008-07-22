@@ -82,6 +82,7 @@ public:
 protected:
 
 	virtual bool				On_Execute			(void);
+	virtual bool				On_Execute_Finish	(void);
 	virtual bool				On_Execute_Position	(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
 
 
@@ -91,9 +92,9 @@ private:
 
 	double						m_Width;
 
-	CSG_Shapes						*m_pPoints, *m_pLine;
+	CSG_Shapes					*m_pPoints, *m_pLine;
 
-	CSG_Grid						*m_pDEM;
+	CSG_Grid					*m_pDEM;
 
 	CSG_Parameter_Grid_List		*m_pValues;
 

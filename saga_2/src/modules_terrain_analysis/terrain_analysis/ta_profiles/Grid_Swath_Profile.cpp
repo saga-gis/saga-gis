@@ -145,7 +145,19 @@ bool CGrid_Swath_Profile::On_Execute(void)
 
 	m_bAdd		= false;
 
-	DataObject_Update(m_pDEM, true);
+	DataObject_Update(m_pDEM , SG_UI_DATAOBJECT_SHOW_NEW_MAP);
+	DataObject_Update(m_pLine, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CGrid_Swath_Profile::On_Execute_Finish(void)
+{
+	if( m_bAdd )
+	{
+		Set_Profile();
+	}
 
 	return( true );
 }
@@ -176,7 +188,7 @@ bool CGrid_Swath_Profile::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Inte
 
 		m_pLine->Get_Shape(0)->Add_Point(Get_System()->Fit_to_Grid_System(ptWorld));
 
-		DataObject_Update(m_pLine, false);
+		DataObject_Update(m_pLine);
 		break;
 
 	case MODULE_INTERACTIVE_RDOWN:
@@ -201,7 +213,7 @@ bool CGrid_Swath_Profile::Set_Profile(void)
 	int			i;
 	double		d;
 	CSG_Point	A, B, P, Left, Right;
-	CSG_Shape		*pLine, *pLeft, *pRight;
+	CSG_Shape	*pLine, *pLeft, *pRight;
 
 	//-----------------------------------------------------
 	m_pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("Profile [%s]"), m_pDEM->Get_Name()));
@@ -266,8 +278,8 @@ bool CGrid_Swath_Profile::Set_Profile(void)
 	}
 
 	//-----------------------------------------------------
-	DataObject_Update(m_pLine	, false);
-	DataObject_Update(m_pPoints	, false);
+	DataObject_Update(m_pLine);
+	DataObject_Update(m_pPoints);
 
 	return( m_pPoints->Get_Count() > 0 );
 }
