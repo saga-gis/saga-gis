@@ -17,7 +17,7 @@ LD       = g++
 DEP_INCS = 
 DEP_DEFS = `wx-config --static=yes --cxxflags`
 DEP_LFLG = -fPIC -pthread
-DEP_LIBS = `wx-config --static=yes --libs` -L$(BIN_SAGA) -l_saga_api
+DEP_LIBS = `wx-config --static=yes --libs` -L$(BIN_SAGA) -lsaga_api
 
 OBJ      = $(MLB_TEMP)/Get_Connection.o $(MLB_TEMP)/Get_SQLTable.o $(MLB_TEMP)/Get_Table.o $(MLB_TEMP)/odbc.o $(MLB_TEMP)/MLB_Interface.o
 
