@@ -323,7 +323,7 @@ bool CTopographicIndices::On_Execute(void)
 				if( pLSF )
 				{
 					pLSF->Set_Value(x, y,
-						_Get_LS(Slope, Area)
+						_Get_LS(Slope, pArea->asDouble(x, y))
 					);
 				}
 
