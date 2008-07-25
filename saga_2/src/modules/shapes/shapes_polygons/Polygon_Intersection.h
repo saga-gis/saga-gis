@@ -95,9 +95,9 @@ private:
 
 	bool					m_bSplitParts;
 
-	int						m_Mode;
+	int						m_Mode, m_iField_A, m_iField_B;
 
-	CSG_Shapes				*m_pShapes_AB;
+	CSG_Shapes				*m_pShapes_A, *m_pShapes_B, *m_pShapes_AB;
 
 
 //	bool					Intersect			(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B);
@@ -106,7 +106,7 @@ private:
 	bool					Get_Difference		(CSG_Shapes *pShapes_A, CSG_Shapes *pShapes_B, int Mode);
 
 	void					Add_Polygon			(CSG_Shape *pShape, int ID_A, int ID_B = -1);
-	CSG_Shape *				Add_Polygon			(int ID_A, int ID_B);
+	CSG_Shape *				Get_Polygon			(int ID_A, int ID_B);
 
 };
 
