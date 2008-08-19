@@ -250,7 +250,7 @@ bool CGrid_Polygon_Clip::Get_Mask(CSG_Shapes *pShapes, CSG_Grid *pMask)
 	double		yPos;
 	TSG_Point	pLeft, pRight, pa, pb, p;
 	TSG_Rect	Extent;
-	CSG_Shape		*pShape;
+	CSG_Shape	*pShape;
 
 	//-----------------------------------------------------
 	pMask->Assign(MASK_OFF);
@@ -263,13 +263,8 @@ bool CGrid_Polygon_Clip::Get_Mask(CSG_Shapes *pShapes, CSG_Grid *pMask)
 		pShape		= pShapes->Get_Shape(iShape);
 		Extent		= pShape->Get_Extent().m_rect;
 
-		xStart		= (int)((Extent.xMin - pMask->Get_XMin()) / pMask->Get_Cellsize()) - 1;
-		if( xStart < 0 )
-			xStart	= 0;
-
-		xStop		= (int)((Extent.xMax - pMask->Get_XMin()) / pMask->Get_Cellsize()) + 1;
-		if( xStop >= pMask->Get_NX() )
-			xStop	= pMask->Get_NX() - 1;
+		xStart		= Get_System()->Get_xWorld_to_Grid(Extent.xMin) - 3;	if( xStart < 0 )		xStart	= 0;
+		xStop		= Get_System()->Get_xWorld_to_Grid(Extent.xMax) + 3;	if( xStop >= Get_NX() )	xStop	= Get_NX() - 1;
 
 		pLeft.x		= pMask->Get_XMin() - 1.0;
 		pRight.x	= pMask->Get_XMax() + 1.0;

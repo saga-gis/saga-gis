@@ -153,21 +153,10 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 
 	switch(Parameters("QUANTILE_STEP")->asInt())
 	{
-	case 0:
-		quantile_step	= 50;
-		break;
-
-	case 1:
-		quantile_step	= 25;
-		break;
-
-	case 2:
-		quantile_step	= 10;
-		break;
-
-	case 3: default:
-		quantile_step	= 5;
-		break;
+	case 0:				quantile_step	= 50;	break;
+	case 1:				quantile_step	= 25;	break;
+	case 2:				quantile_step	= 10;	break;
+	case 3: default:	quantile_step	= 5;	break;
 	}
 
 	//-----------------------------------------------------
@@ -300,13 +289,8 @@ bool CGrid_Statistics_AddTo_Polygon::Get_ShapeIDs(CSG_Shapes *pShapes, CSG_Grid 
 		pShape		= pShapes->Get_Shape(iShape);
 		Extent		= pShape->Get_Extent().m_rect;
 
-		xStart		= (int)((Extent.xMin - pShapeIDs->Get_XMin()) / pShapeIDs->Get_Cellsize()) - 1;
-		if( xStart < 0 )
-			xStart	= 0;
-
-		xStop		= (int)((Extent.xMax - pShapeIDs->Get_XMin()) / pShapeIDs->Get_Cellsize()) + 1;
-		if( xStop >= pShapeIDs->Get_NX() )
-			xStop	= pShapeIDs->Get_NX() - 1;
+		xStart		= Get_System()->Get_xWorld_to_Grid(Extent.xMin) - 3;	if( xStart < 0 )		xStart	= 0;
+		xStop		= Get_System()->Get_xWorld_to_Grid(Extent.xMax) + 3;	if( xStop >= Get_NX() )	xStop	= Get_NX() - 1;
 
 		pLeft.x		= pShapeIDs->Get_XMin() - 1.0;
 		pRight.x	= pShapeIDs->Get_XMax() + 1.0;
