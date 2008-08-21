@@ -231,7 +231,7 @@ bool CGrid_Classes_To_Shapes::Split_Polygons(CSG_Shapes *pShapes, double Value, 
 
 		for(iPart=0; iPart<m_pShape->Get_Part_Count() && Set_Progress(iPart, m_pShape->Get_Part_Count()); iPart++)
 		{
-			if( ((CSG_Shape_Polygon *)m_pShape)->is_Clockwise(iPart) == false )	// No Lake
+			if( ((CSG_Shape_Polygon *)m_pShape)->is_Clockwise(iPart) == true )	// No Lake
 			{
 				pShape	= pShapes->Add_Shape();
 				pShape->Get_Record()->Set_Value(0, Value);
@@ -247,7 +247,7 @@ bool CGrid_Classes_To_Shapes::Split_Polygons(CSG_Shapes *pShapes, double Value, 
 
 		for(iPart=0; iPart<m_pShape->Get_Part_Count() && Set_Progress(iPart, m_pShape->Get_Part_Count()); iPart++)
 		{
-			if( ((CSG_Shape_Polygon *)m_pShape)->is_Clockwise(iPart) == true )	// Lake
+			if( ((CSG_Shape_Polygon *)m_pShape)->is_Clockwise(iPart) == false )	// Lake
 			{
 				TSG_Point	p	= m_pShape->Get_Point(0, iPart);
 

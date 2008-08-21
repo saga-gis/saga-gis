@@ -263,8 +263,8 @@ bool CGrid_Polygon_Clip::Get_Mask(CSG_Shapes *pShapes, CSG_Grid *pMask)
 		pShape		= pShapes->Get_Shape(iShape);
 		Extent		= pShape->Get_Extent().m_rect;
 
-		xStart		= Get_System()->Get_xWorld_to_Grid(Extent.xMin) - 3;	if( xStart < 0 )		xStart	= 0;
-		xStop		= Get_System()->Get_xWorld_to_Grid(Extent.xMax) + 3;	if( xStop >= Get_NX() )	xStop	= Get_NX() - 1;
+		xStart		= Get_System()->Get_xWorld_to_Grid(Extent.xMin) - 1;	if( xStart < 0 )		xStart	= 0;
+		xStop		= Get_System()->Get_xWorld_to_Grid(Extent.xMax) + 1;	if( xStop >= Get_NX() )	xStop	= Get_NX() - 1;
 
 		pLeft.x		= pMask->Get_XMin() - 1.0;
 		pRight.x	= pMask->Get_XMax() + 1.0;

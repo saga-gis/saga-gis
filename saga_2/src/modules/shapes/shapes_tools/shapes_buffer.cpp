@@ -580,7 +580,7 @@ void CShapes_Buffer::Add_Polygon(CSG_Shape_Polygon *pShape, int iPart)
 	TSG_Point	A, B, C, AB[2], BC[2];
 
 	//-----------------------------------------------------
-	bool	bClockwise	= pShape->is_Lake(iPart) ? !pShape->is_Clockwise(iPart) : pShape->is_Clockwise(iPart);
+	bool	bClockwise	= pShape->is_Lake(iPart) ? pShape->is_Clockwise(iPart) : !pShape->is_Clockwise(iPart);
 
 	//-----------------------------------------------------
 	if( bClockwise )
@@ -653,7 +653,7 @@ void CShapes_Buffer::Add_Buffer(bool bLake)
 			{
 				for(int iPart=m_pUnion->Get_Part_Count()-1; iPart>=0; iPart--)
 				{
-					if( ((CSG_Shape_Polygon *)m_pUnion)->is_Clockwise(iPart) )
+					if( ((CSG_Shape_Polygon *)m_pUnion)->is_Clockwise(iPart) == false )
 					{
 						m_pUnion->Del_Part(iPart);
 					}
@@ -695,7 +695,7 @@ void CShapes_Buffer::Get_SelfIntersection(void)
 
 	for(iPart=0, iMax=-1; iPart<m_pUnion->Get_Part_Count(); iPart++)
 	{
-		if( ((CSG_Shape_Polygon *)m_pUnion)->is_Clockwise(iPart) )
+		if( ((CSG_Shape_Polygon *)m_pUnion)->is_Clockwise(iPart) == false )
 		{
 			if( iMax < 0 || dMax < ((CSG_Shape_Polygon *)m_pUnion)->Get_Area(iPart) )
 			{
@@ -708,7 +708,7 @@ void CShapes_Buffer::Get_SelfIntersection(void)
 	for(iPart=m_pUnion->Get_Part_Count()-1; iPart>=0; iPart--)
 	{
 		if(  ((CSG_Shape_Polygon *)m_pUnion)->Get_Area(iPart) == 0.0
-		||	(((CSG_Shape_Polygon *)m_pUnion)->is_Clockwise(iPart) && iPart != iMax) )
+		||	(((CSG_Shape_Polygon *)m_pUnion)->is_Clockwise(iPart) == false && iPart != iMax) )
 		{
 			m_pUnion->Del_Part(iPart);
 		}
