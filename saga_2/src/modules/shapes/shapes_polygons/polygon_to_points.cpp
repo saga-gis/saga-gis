@@ -5,15 +5,15 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library                     //
-//                                                       //
-//                     io_grid_gdal                      //
+//                    Module Library:                    //
+//                    Shapes_Polygon                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//               gdal_export_geotiff.cpp                 //
+//                 Polygon_To_Points.cpp                 //
 //                                                       //
-//            Copyright (C) 2007 O. Conrad               //
+//                 Copyright (C) 2008 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,26 +37,18 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.de                    //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
 //    contact:    Olaf Conrad                            //
-//                Bundesstr. 55                          //
-//                D-20146 Hamburg                        //
+//                Institute of Geography                 //
+//                University of Goettingen               //
+//                Goldschmidtstr. 5                      //
+//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-#include "gdal_export_geotiff.h"
-
-#include <cpl_string.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -66,41 +58,43 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGDAL_Export_GeoTIFF::CGDAL_Export_GeoTIFF(void)
+#include "polygon_to_points.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CPolygon_To_Points::CPolygon_To_Points(void)
 {
-	Set_Name		(_TL("Export Raster to GeoTIFF via GDAL"));
+	//-----------------------------------------------------
+	Set_Name		(_TL("Convert Polygon/Line Vertices to Points"));
 
-	Set_Author		(SG_T("(c) 2007 by O.Conrad"));
+	Set_Author		(_TL("(c) 2008 by O. Conrad"));
 
 	Set_Description	(_TW(
-		"The \"GDAL GeoTIFF Export\" module exports one or more grids to a Geocoded Tagged Image File Format using the "
-		"\"Geospatial Data Abstraction Library\" (GDAL) by Frank Warmerdam. "
-		"For more information have a look at the GDAL homepage:\n"
-		"  <a target=\"_blank\" href=\"http://www.gdal.org/\">"
-		"  http://www.gdal.org</a>\n"
+		""
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL, "GRIDS"	, _TL("Grid(s)"),
+	Parameters.Add_Shapes(
+		NULL	, "SHAPES"		, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_FilePath(
-		NULL, "FILE"	, _TL("File"),
+	Parameters.Add_Shapes(
+		NULL	, "POINTS"		, _TL("Points"),
 		_TL(""),
-
-		CSG_String::Format(
-			SG_T("%s|*.tif;*.tiff|%s|*.*"),
-			_TL("TIFF files (*.tif)"),
-			_TL("All Files")
-		), NULL, true
+		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 }
 
 //---------------------------------------------------------
-CGDAL_Export_GeoTIFF::~CGDAL_Export_GeoTIFF(void)
+CPolygon_To_Points::~CPolygon_To_Points(void)
 {}
 
 
@@ -111,69 +105,55 @@ CGDAL_Export_GeoTIFF::~CGDAL_Export_GeoTIFF(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGDAL_Export_GeoTIFF::On_Execute(void)
+bool CPolygon_To_Points::On_Execute(void)
 {
-	char					**pOptions	= NULL;
-	int						x, y, n;
-	double					*zLine;
-	CSG_String				File_Name;
-	CSG_Parameter_Grid_List	*pGrids;
-	CSG_Grid				*pGrid;
-	GDALDataType			gdal_Type;
-	GDALDriver				*pDriver;
-	GDALDataset				*pDataset;
-	GDALRasterBand			*pBand;
+	CSG_Shapes		*pShapes, *pPoints;
+
+	pShapes			= Parameters("SHAPES")	->asShapes();
+	pPoints			= Parameters("POINTS")	->asShapes();
 
 	//-----------------------------------------------------
-	pGrids		= Parameters("GRIDS")	->asGridList();
-	File_Name	= Parameters("FILE")	->asString();
-
-	//-----------------------------------------------------
-	gdal_Type	= g_GDAL_Driver.Get_GDAL_Type(pGrids);
-
-	//-----------------------------------------------------
-	if( (pDriver = g_GDAL_Driver.Get_Driver("GTiff")) == NULL )
+	if( pShapes->is_Valid() )
 	{
-		Message_Add(_TL("GeoTIFF driver not found."));
-	}
-	else if( CSLFetchBoolean(pDriver->GetMetadata(), GDAL_DCAP_CREATE, false) == false )
-	{
-		Message_Add(_TL("Driver does not support file creation."));
-	}
-	else if( (pDataset = pDriver->Create(File_Name.b_str(), Get_NX(), Get_NY(), pGrids->Get_Count(), gdal_Type, pOptions)) == NULL )
-	{
-		Message_Add(_TL("Could not create dataset."));
-	}
-	else
-	{
-		g_GDAL_Driver.Set_Transform(pDataset, Get_System());
+		pPoints->Create(SHAPE_TYPE_Point, pShapes->Get_Name());
+		pPoints->Get_Table().Add_Field(SG_T("ID")		, TABLE_FIELDTYPE_String);
+		pPoints->Get_Table().Add_Field(SG_T("ID_SHAPE")	, TABLE_FIELDTYPE_Int);
+		pPoints->Get_Table().Add_Field(SG_T("ID_PART")	, TABLE_FIELDTYPE_Int);
+		pPoints->Get_Table().Add_Field(SG_T("ID_POINT")	, TABLE_FIELDTYPE_Int);
 
-		zLine	= (double *)SG_Malloc(Get_NX() * sizeof(double));
-
-		for(n=0; n<pGrids->Get_Count(); n++)
+		if( pShapes->Get_Type() == SHAPE_TYPE_Polygon )
 		{
-			Process_Set_Text(CSG_String::Format(SG_T("%s %d"), _TL("Band"), n + 1));
+			pPoints->Get_Table().Add_Field(SG_T("CLOCKWISE"), TABLE_FIELDTYPE_String);
+			pPoints->Get_Table().Add_Field(SG_T("LAKE")		, TABLE_FIELDTYPE_String);
+		}
 
-			pGrid	= pGrids->asGrid(n);
-			pBand	= pDataset->GetRasterBand(n + 1);
+		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		{
+			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
 
-			for(y=0; y<Get_NY() && Set_Progress(y, Get_NY()); y++)
+			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
-				for(x=0; x<Get_NX(); x++)
+				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
-					zLine[x]	= pGrid->asDouble(x, Get_NY() - 1 - y);
-				}
+					CSG_Shape	*pPoint	= pPoints->Add_Shape();
 
-				pBand->RasterIO(GF_Write, 0, y, Get_NX(), 1, zLine, Get_NX(), 1, GDT_Float64, 0, 0);
+					pPoint->Add_Point(pShape->Get_Point(iPoint, iPart));
+
+					pPoint->Set_Value(0, CSG_String::Format(SG_T("%d/%d/%d"), iShape, iPart, iPoint));
+					pPoint->Set_Value(1, iShape);
+					pPoint->Set_Value(2, iPart);
+					pPoint->Set_Value(3, iPoint);
+
+					if( pShapes->Get_Type() == SHAPE_TYPE_Polygon )
+					{
+						pPoint->Set_Value(4, ((CSG_Shape_Polygon *)pShape)->is_Clockwise(iPart) ? SG_T("Y") : SG_T("N"));
+						pPoint->Set_Value(5, ((CSG_Shape_Polygon *)pShape)->is_Lake     (iPart) ? SG_T("Y") : SG_T("N"));
+					}
+				}
 			}
 		}
 
-		//-------------------------------------------------
-		SG_Free(zLine);
-
-		GDALClose(pDataset);
-
-		return( true );
+		return( pPoints->is_Valid() );
 	}
 
 	//-----------------------------------------------------

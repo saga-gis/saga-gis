@@ -5,15 +5,15 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
-//                    shapes_polygons                    //
+//                    Module Library                     //
+//                                                       //
+//                       io_gdal                         //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                     ogr_export.h                      //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                      Olaf Conrad                      //
+//            Copyright (C) 2008 O. Conrad               //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,89 +37,49 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     oconrad@saga-gis.de                    //
 //                                                       //
 //    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                Bundesstr. 55                          //
+//                D-20146 Hamburg                        //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-//---------------------------------------------------------
-
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
-#include "MLB_Interface.h"
-
+#ifndef HEADER_INCLUDED__ogr_export_H
+#define HEADER_INCLUDED__ogr_export_H
 
 //---------------------------------------------------------
-// 2. Place general module library informations here...
+#include "ogr_driver.h"
 
-const SG_Char * Get_Info(int i)
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class COGR_Export : public CSG_Module
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Shapes - Polygons") );
-
-	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad, Victor Olaya (c) 2002-5") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for polygons.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Shapes|Polygons") );
-	}
-}
+public:
+	COGR_Export(void);
+	virtual ~COGR_Export(void);
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "Polygon_Intersection.h"
-#include "Polygon_Centroids.h"
-#include "Polygon_Geometrics.h"
-#include "Polygons_From_Lines.h"
-#include "Polygon_StatisticsFromPoints.h"
-#include "Polygon_Union.h"
-#include "polygon_to_points.h"
-#include "shape_index.h"
+	virtual bool				On_Execute		(void);
 
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case 0:		return( new CPolygon_Intersection );
-	case 1:		return( new CPolygon_Centroids );
-	case 2:		return( new CPolygon_Geometrics );
-	case 3:		return( new CPolygons_From_Lines );
-	case 4:		return( new CPolygonStatisticsFromPoints );
-	case 5:		return( new CPolygon_Union );
-	case 6:		return( new CPolygon_To_Points );
-	case 7:		return( new CShape_Index );
-	}
-
-	return( NULL );
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -129,8 +89,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__ogr_export_H

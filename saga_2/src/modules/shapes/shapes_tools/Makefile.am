@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.8 2008-04-16 16:21:03 oconrad Exp $
+# $Id: Makefile.am,v 1.9 2008-09-03 13:27:08 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -36,6 +36,7 @@ TransformShapes.cpp\
 shapes_buffer.cpp\
 shapes_cut.cpp\
 shapes_cut_interactive.cpp\
+shapes_extents.cpp\
 shapes_split.cpp\
 shapes_split_randomly.cpp\
 CreateChartLayer.h\
@@ -61,6 +62,7 @@ TransformShapes.h\
 shapes_buffer.h\
 shapes_cut.h\
 shapes_cut_interactive.h\
+shapes_extents.h\
 shapes_split.h\
 shapes_split_randomly.h
 

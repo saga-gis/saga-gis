@@ -1,8 +1,8 @@
-# Project: io_grid_gdal
+# Project: io_gdal
 # MinGW Makefile
 # Created by O. Conrad
 
-PRJ_NAME = io_grid_gdal
+PRJ_NAME = io_gdal
 BIN_SAGA = $(SAGA)\bin\saga_mingw
 TMP_SAGA = $(SAGA)\bin\tmp\saga_mingw
 MLB_TEMP = $(TMP_SAGA)\$(PRJ_NAME)
@@ -21,8 +21,7 @@ DEP_LFLG =
 DEP_INCS = -I"$(GDAL)/include"
 DEP_LIBS = -L"$(GDAL)/lib"
 
-
-OBJ      = $(MLB_TEMP)/gdal_driver.o $(MLB_TEMP)/gdal_export.o $(MLB_TEMP)/gdal_export_geotiff.o $(MLB_TEMP)/gdal_import.o $(MLB_TEMP)/MLB_Interface.o
+OBJ      = $(MLB_TEMP)/gdal_driver.o $(MLB_TEMP)/gdal_export.o $(MLB_TEMP)/gdal_export_geotiff.o $(MLB_TEMP)/gdal_import.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/ogr_driver.o $(MLB_TEMP)/ogr_export.o $(MLB_TEMP)/ogr_import.o
 
 CXXFLAGS = -I"$(MINGW)/include" -I"$(SAGA)/src/saga_core" -D$(PRJ_NAME)_EXPORTS -DBUILDING_DLL=1 -D_SAGA_MSW -D_SAGA_MINGW -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -fexpensive-optimizations -Os -O2 -O3 $(DEP_INCS) $(DEP_DEFS)
 
@@ -63,3 +62,12 @@ $(MLB_TEMP)/gdal_import.o: ./gdal_import.cpp
 
 $(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
+
+$(MLB_TEMP)/ogr_driver.o: ./ogr_driver.cpp
+	$(CPP) -c ./ogr_driver.cpp -o $(MLB_TEMP)/ogr_driver.o $(CXXFLAGS)
+
+$(MLB_TEMP)/ogr_export.o: ./ogr_export.cpp
+	$(CPP) -c ./ogr_export.cpp -o $(MLB_TEMP)/ogr_export.o $(CXXFLAGS)
+
+$(MLB_TEMP)/ogr_import.o: ./ogr_import.cpp
+	$(CPP) -c ./ogr_import.cpp -o $(MLB_TEMP)/ogr_import.o $(CXXFLAGS)

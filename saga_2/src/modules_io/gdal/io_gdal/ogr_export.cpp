@@ -7,13 +7,13 @@
 //                                                       //
 //                    Module Library                     //
 //                                                       //
-//                     io_grid_gdal                      //
+//                       io_gdal                         //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    gdal_import.h                      //
+//                    ogr_export.cpp                     //
 //                                                       //
-//            Copyright (C) 2007 O. Conrad               //
+//            Copyright (C) 2008 O. Conrad               //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -54,11 +54,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__gdal_import_H
-#define HEADER_INCLUDED__gdal_import_H
-
-//---------------------------------------------------------
-#include "gdal_driver.h"
+#include "ogr_export.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -68,18 +64,65 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGDAL_Import : public CSG_Module
+COGR_Export::COGR_Export(void)
 {
-public:
-	CGDAL_Import(void);
-	virtual ~CGDAL_Import(void);
+	Set_Name		(_TL("OGR: Export Vector Data"));
 
+	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
 
-protected:
+	CSG_String	Description, Formats;
 
-	virtual bool		On_Execute		(void);
+	Description	= _TW(
+		"The \"GDAL Vector Data Export\" module exports vector data to various file formats using the "
+		"\"Geospatial Data Abstraction Library\" (GDAL) by Frank Warmerdam. "
+		"For more information have a look at the GDAL homepage:\n"
+		"  <a target=\"_blank\" href=\"http://www.gdal.org/\">"
+		"  http://www.gdal.org</a>\n"
+		"\n"
+		"Following vector formats are currently supported:\n"
+		"<table border=\"1\"><tr><th>Name</th><th>Description</th></tr>\n"
+	);
 
-};
+	for(int i=0; i<g_OGR_Driver.Get_Count(); i++)
+    {
+		if( g_OGR_Driver.Can_Write(i) )
+		{
+			Description	+= CSG_String::Format(SG_T("<tr><td>%s</td><td>%s</td></tr>\n"),
+				g_OGR_Driver.Get_Name(i).c_str(),
+				g_OGR_Driver.Get_Description(i).c_str()
+			);
+
+			Formats		+= CSG_String::Format(SG_T("%s|"), g_OGR_Driver.Get_Name(i).c_str());
+		}
+    }
+
+	Description	+= SG_T("</table>");
+
+	Set_Description(Description);
+
+	//-----------------------------------------------------
+	Parameters.Add_Shapes(
+		NULL, "SHAPES"	, _TL("Shapes"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_FilePath(
+		NULL, "FILE"	, _TL("File"),
+		_TL(""),
+		NULL, NULL, true
+	);
+
+	Parameters.Add_Choice(
+		NULL, "FORMAT"	, _TL("Format"),
+		_TL(""),
+		Formats
+	);
+}
+
+//---------------------------------------------------------
+COGR_Export::~COGR_Export(void)
+{}
 
 
 ///////////////////////////////////////////////////////////
@@ -89,4 +132,34 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__gdal_import_H
+bool COGR_Export::On_Execute(void)
+{
+	CSG_String		File_Name;
+	CSG_Shapes		*pShapes;
+	COGR_DataSource	ds;
+
+	//-----------------------------------------------------
+	pShapes		= Parameters("SHAPES")	->asShapes();
+	File_Name	= Parameters("FILE")	->asString();
+
+	//-----------------------------------------------------
+	if( ds.Create(File_Name, Parameters("FORMAT")->asString()) == false )
+	{
+		Message_Add(_TL("Could not create data source."));
+	}
+	else if( ds.Write_Shapes(pShapes) )
+	{
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

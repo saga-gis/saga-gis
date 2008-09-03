@@ -5,15 +5,15 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
-//                     Grid_IO_GDAL                      //
+//                    Module Library                     //
+//                                                       //
+//                       io_gdal                         //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                    gdal_import.h                      //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                        Author                         //
+//            Copyright (C) 2007 O. Conrad               //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,79 +37,49 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     author@email.de                        //
+//    e-mail:     oconrad@saga-gis.de                    //
 //                                                       //
-//    contact:    Author                                 //
-//                Sesame Street 7                        //
-//                12345 Metropolis                       //
-//                Nirwana                                //
+//    contact:    Olaf Conrad                            //
+//                Bundesstr. 55                          //
+//                D-20146 Hamburg                        //
+//                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
-#include "MLB_Interface.h"
-
+#ifndef HEADER_INCLUDED__gdal_import_H
+#define HEADER_INCLUDED__gdal_import_H
 
 //---------------------------------------------------------
-// 2. Place general module library informations here...
+#include "gdal_driver.h"
 
-const SG_Char * Get_Info(int i)
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGDAL_Import : public CSG_Module
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Import/Export - Grids via GDAL") );
-
-	case MLB_INFO_Author:
-		return( _TL("SAGA User Group Associaton (c) 2007" ));
-
-	case MLB_INFO_Description:
-		return( _TL("SAGA interface to Frank Warmerdam's Geospatial Data Abstraction Library (GDAL).") );
-
-	case MLB_INFO_Version:
-		return( SG_T("2.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("File|Grid|GDAL|") );
-	}
-}
+public:
+	CGDAL_Import(void);
+	virtual ~CGDAL_Import(void);
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "gdal_import.h"
-#include "gdal_export.h"
-#include "gdal_export_geotiff.h"
+	virtual bool				On_Execute		(void);
 
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case 0:		return( new CGDAL_Import );
-	case 1:		return( new CGDAL_Export );
-	case 2:		return( new CGDAL_Export_GeoTIFF );
-	}
-
-	return( NULL );
-}
-
-
-//---------------------------------------------------------
-CGDAL_Driver	g_GDAL_Driver;
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -119,8 +89,4 @@ CGDAL_Driver	g_GDAL_Driver;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__gdal_import_H

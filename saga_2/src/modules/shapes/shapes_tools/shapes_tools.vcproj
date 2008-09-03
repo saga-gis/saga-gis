@@ -979,6 +979,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\shapes_extents.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Shapes_Merge.cpp"
 				>
 				<FileConfiguration
@@ -1369,6 +1373,10 @@
 			</File>
 			<File
 				RelativePath="shapes_cut_interactive.h"
+				>
+			</File>
+			<File
+				RelativePath=".\shapes_extents.h"
 				>
 			</File>
 			<File

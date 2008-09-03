@@ -1,1 +1,1 @@
-SUBDIRS = shapes grid gps esri_e00 table
+SUBDIRS = esri_e00 gps gdal grid shapes table

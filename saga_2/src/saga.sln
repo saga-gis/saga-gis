@@ -71,7 +71,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_grid", "modules_io\grid\
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_grid_gdal", "modules_io_gdal\io_grid_gdal\io_grid_gdal\io_grid_gdal.vcproj", "{DC653312-204F-4DB4-9FD5-0B8E941C388D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_gdal", "modules_io\gdal\io_gdal\io_gdal.vcproj", "{DC653312-204F-4DB4-9FD5-0B8E941C388D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection

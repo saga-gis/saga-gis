@@ -7,11 +7,11 @@
 //                                                       //
 //                    Module Library                     //
 //                                                       //
-//                     io_grid_gdal                      //
+//                       io_gdal                         //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   gdal_import.cpp                     //
+//                   gdal_export.cpp                     //
 //                                                       //
 //            Copyright (C) 2007 O. Conrad               //
 //                                                       //
@@ -54,7 +54,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "gdal_import.h"
+#include "gdal_export.h"
+
+#include <cpl_string.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -64,16 +66,16 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGDAL_Import::CGDAL_Import(void)
+CGDAL_Export::CGDAL_Export(void)
 {
-	Set_Name	(_TL("Import Raster via GDAL"));
+	Set_Name	(_TL("GDAL: Export Raster"));
 
-	Set_Author	(SG_T("(c) 2007 by O.Conrad (A.Ringeler)"));
+	Set_Author		(SG_T("(c) 2007 by O.Conrad"));
 
-	CSG_String	Description;
+	CSG_String	Description, Formats;
 
 	Description	= _TW(
-		"The \"GDAL Raster Import\" module imports grid data from various file formats using the "
+		"The \"GDAL Raster Export\" module exports one or more grids to various file formats using the "
 		"\"Geospatial Data Abstraction Library\" (GDAL) by Frank Warmerdam. "
 		"For more information have a look at the GDAL homepage:\n"
 		"  <a target=\"_blank\" href=\"http://www.gdal.org/\">"
@@ -85,10 +87,17 @@ CGDAL_Import::CGDAL_Import(void)
 
 	for(int i=0; i<g_GDAL_Driver.Get_Count(); i++)
     {
-		Description	+= CSG_String::Format(SG_T("<tr><td>%s</td><td>%s</td></tr>\n"),
-			g_GDAL_Driver.Get_Identifier(i),
-			g_GDAL_Driver.Get_Name(i)
-		);
+		if( CSLFetchBoolean(g_GDAL_Driver.Get_Driver(i)->GetMetadata(), GDAL_DCAP_CREATE, false) )
+		{
+			Description	+= CSG_String::Format(SG_T("<tr><td>%s</td><td>%s</td></tr>\n"),
+				g_GDAL_Driver.Get_Identifier(i),
+				g_GDAL_Driver.Get_Name(i)
+			);
+
+			Formats		+= CSG_String::Format(SG_T("%s|"), g_GDAL_Driver.Get_Name(i));
+
+			m_DriverIDs.Add(g_GDAL_Driver.Get_Identifier(i));
+		}
     }
 
 	Description	+= SG_T("</table>");
@@ -97,19 +106,42 @@ CGDAL_Import::CGDAL_Import(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List(
-		NULL, "GRIDS"	, _TL("Grids"),
+		NULL, "GRIDS"	, _TL("Grid(s)"),
 		_TL(""),
-		PARAMETER_OUTPUT, false
+		PARAMETER_INPUT
 	);
 
 	Parameters.Add_FilePath(
 		NULL, "FILE"	, _TL("File"),
-		_TL("")
+		_TL(""),
+		NULL, NULL, true
+	);
+
+	Parameters.Add_Choice(
+		NULL, "FORMAT"	, _TL("Format"),
+		_TL(""),
+		Formats
+	);
+
+	Parameters.Add_Choice(
+		NULL, "TYPE"	, _TL("Data Type"),
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|"),
+			_TL("match input data"),
+			_TL("8 bit unsigned integer"),
+			_TL("16 bit unsigned integer"),
+			_TL("16 bit signed integer"),
+			_TL("32 bit unsigned integer"),
+			_TL("32 bit signed integer"),
+			_TL("32 bit floating point"),
+			_TL("64 bit floating point")
+		), 0
 	);
 }
 
 //---------------------------------------------------------
-CGDAL_Import::~CGDAL_Import(void)
+CGDAL_Export::~CGDAL_Export(void)
 {}
 
 
@@ -120,108 +152,73 @@ CGDAL_Import::~CGDAL_Import(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGDAL_Import::On_Execute(void)
+bool CGDAL_Export::On_Execute(void)
 {
-	double					zMin, *zLine;
-	CSG_String				File_Name, Summary;
+	char					**pOptions	= NULL;
+	int						x, y, n;
+	double					*zLine;
+	CSG_String				File_Name;
 	CSG_Parameter_Grid_List	*pGrids;
 	CSG_Grid				*pGrid;
-	CGDAL_System			System;
+	GDALDataType			gdal_Type;
+	GDALDriver				*pDriver;
 	GDALDataset				*pDataset;
 	GDALRasterBand			*pBand;
 
 	//-----------------------------------------------------
-	File_Name	= Parameters("FILE")	->asString();
 	pGrids		= Parameters("GRIDS")	->asGridList();
-	pGrids		->Del_Items();
+	File_Name	= Parameters("FILE")	->asString();
 
 	//-----------------------------------------------------
-	if( System.Create(pDataset = (GDALDataset *)GDALOpen(File_Name.b_str(), GA_ReadOnly)) == false )
+	switch( Parameters("TYPE")->asInt() )
 	{
-		Message_Add(_TL("Unable to find appropriate import drivers."));
+	default:
+	case 0:	gdal_Type	= g_GDAL_Driver.Get_GDAL_Type(pGrids);	break;	// match input data
+	case 1:	gdal_Type	= GDT_Byte;		break;	// Eight bit unsigned integer
+	case 2:	gdal_Type	= GDT_UInt16;	break;	// Sixteen bit unsigned integer
+	case 3:	gdal_Type	= GDT_Int16;	break;	// Sixteen bit signed integer
+	case 4:	gdal_Type	= GDT_UInt32;	break;	// Thirty two bit unsigned integer
+	case 5:	gdal_Type	= GDT_Int32;	break;	// Thirty two bit signed integer
+	case 6:	gdal_Type	= GDT_Float32;	break;	// Thirty two bit floating point
+	case 7:	gdal_Type	= GDT_Float64;	break;	// Sixty four bit floating point
+	}
+
+	//-----------------------------------------------------
+	if( (pDriver = g_GDAL_Driver.Get_Driver(m_DriverIDs[Parameters("FORMAT")->asInt()].b_str())) == NULL )
+	{
+		Message_Add(_TL("Driver not found."));
+	}
+	else if( CSLFetchBoolean(pDriver->GetMetadata(), GDAL_DCAP_CREATE, false) == false )
+	{
+		Message_Add(_TL("Driver does not support file creation."));
+	}
+	else if( (pDataset = pDriver->Create(File_Name.b_str(), Get_NX(), Get_NY(), pGrids->Get_Count(), gdal_Type, pOptions)) == NULL )
+	{
+		Message_Add(_TL("Could not create dataset."));
 	}
 	else
-    {
-		File_Name	= SG_File_Get_Name(File_Name, true);
+	{
+		g_GDAL_Driver.Set_Transform(pDataset, Get_System());
 
-		Summary	+= CSG_String::Format(
-			SG_T("\n%s: %s/%s\n"),
-			_TL("Driver"),
-			pDataset->GetDriver()->GetDescription(), 
-			pDataset->GetDriver()->GetMetadataItem(GDAL_DMD_LONGNAME)
-		);
+		zLine	= (double *)SG_Malloc(Get_NX() * sizeof(double));
 
-		Summary	+= CSG_String::Format(
-			SG_T("%s: x %d, y %d\n%s: %d\n%s x: %.6f, %.6f, %.6f\n%s y: %.6f, %.6f, %.6f"),
-			_TL("Cells")			, System.Get_NX(), System.Get_NY(),
-			_TL("Bands")			, pDataset->GetRasterCount(),
-			_TL("Transformation")	, System.Get_Transform(0), System.Get_Transform(1), System.Get_Transform(2),
-			_TL("Transformation")	, System.Get_Transform(3), System.Get_Transform(4), System.Get_Transform(5)
-		);
-
-		if( pDataset->GetProjectionRef() != NULL )
+		for(n=0; n<pGrids->Get_Count(); n++)
 		{
-			CSG_String	s(pDataset->GetProjectionRef());
+			Process_Set_Text(CSG_String::Format(SG_T("%s %d"), _TL("Band"), n + 1));
 
-			s.Replace(SG_T("[")  , SG_T("\t"));
-			s.Replace(SG_T("]],"), SG_T("\n"));
-			s.Replace(SG_T("]]") , SG_T("\n"));
-			s.Replace(SG_T("],") , SG_T("\n"));
-			s.Replace(SG_T(",")  , SG_T("\t"));
+			pGrid	= pGrids->asGrid(n);
+			pBand	= pDataset->GetRasterBand(n + 1);
 
-			Summary	+= CSG_String::Format(
-				SG_T("\n%s:\n%s"),
-				_TL("Projection"),
-				s.c_str()
-			);
-		}
-
-		Message_Add(Summary, false);
-
-		//-------------------------------------------------
-		zLine	= (double *)SG_Malloc(System.Get_NX() * sizeof(double));
-
-		//-------------------------------------------------
-		for(int i=0; i<pDataset->GetRasterCount(); i++)
-		{
-			pBand	= pDataset->GetRasterBand(i + 1);
-			zMin	= pBand->GetOffset();
-
-			pGrids->Add_Item(
-				pGrid	= SG_Create_Grid(g_GDAL_Driver.Get_Grid_Type(pBand->GetRasterDataType()),
-					System.Get_NX(),
-					System.Get_NY(),
-					System.Get_DX(),
-					System.Get_xMin(),
-					System.Get_yMin()
-				)
-			);
-
-			pGrid->Set_Name(pDataset->GetRasterCount() > 1
-				? CSG_String::Format(SG_T("%s [%02d]"), File_Name.c_str(), i + 1).c_str()
-				: File_Name.c_str()
-			);
-
-			pGrid->Set_Unit			(CSG_String(pBand->GetUnitType()));
-			pGrid->Set_NoData_Value	(pBand->GetNoDataValue());
-			pGrid->Set_ZFactor		(pBand->GetScale());
-
-			DataObject_Add			(pGrid);
-			DataObject_Set_Colors	(pGrid, CSG_Colors(100, SG_COLORS_BLACK_WHITE, false));
-
-			for(int y=0; y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y++)
+			for(y=0; y<Get_NY() && Set_Progress(y, Get_NY()); y++)
 			{
-				if( pBand->RasterIO(GF_Read, 0, y, System.Get_NX(), 1, zLine, System.Get_NX(), 1, GDT_Float64, 0, 0) == CE_None )
+				for(x=0; x<Get_NX(); x++)
 				{
-					for(int x=0; x<System.Get_NX(); x++)
-					{
-					//	double	NaN	= 0.0;	NaN	= -1.0 / NaN;	if( NaN == zLine[x] )	pGrid->Set_NoData(x, System.Get_NY() - 1 - y); else
-
-						pGrid->Set_Value (x, System.Get_NY() - 1 - y, zMin + zLine[x]);
-					}
+					zLine[x]	= pGrid->asDouble(x, Get_NY() - 1 - y);
 				}
+
+				pBand->RasterIO(GF_Write, 0, y, Get_NX(), 1, zLine, Get_NX(), 1, GDT_Float64, 0, 0);
 			}
-        }
+		}
 
 		//-------------------------------------------------
 		SG_Free(zLine);

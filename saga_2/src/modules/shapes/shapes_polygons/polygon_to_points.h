@@ -5,15 +5,15 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library                     //
-//                                                       //
-//                     io_grid_gdal                      //
+//                    Module Library:                    //
+//                    Shapes_Polygon                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    gdal_export_geotiff.h                      //
+//                  Polygon_To_Points.h                  //
 //                                                       //
-//            Copyright (C) 2007 O. Conrad               //
+//                 Copyright (C) 2008 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,28 +37,18 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.de                    //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
 //    contact:    Olaf Conrad                            //
-//                Bundesstr. 55                          //
-//                D-20146 Hamburg                        //
+//                Institute of Geography                 //
+//                University of Goettingen               //
+//                Goldschmidtstr. 5                      //
+//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__gdal_export_geotiff_H
-#define HEADER_INCLUDED__gdal_export_geotiff_H
-
-//---------------------------------------------------------
-#include "gdal_driver.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -68,16 +58,34 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGDAL_Export_GeoTIFF : public CSG_Module_Grid
+#ifndef HEADER_INCLUDED__Polygon_To_Points_H
+#define HEADER_INCLUDED__Polygon_To_Points_H
+
+//---------------------------------------------------------
+#include "MLB_Interface.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CPolygon_To_Points : public CSG_Module
 {
 public:
-	CGDAL_Export_GeoTIFF(void);
-	virtual ~CGDAL_Export_GeoTIFF(void);
+	CPolygon_To_Points(void);
+	virtual ~CPolygon_To_Points(void);
 
 
 protected:
 
-	virtual bool		On_Execute		(void);
+	virtual bool			On_Execute		(void);
+
+
+private:
+
 
 };
 
@@ -89,4 +97,4 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__gdal_export_geotiff_H
+#endif // #ifndef HEADER_INCLUDED__Polygon_To_Points_H

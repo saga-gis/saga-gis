@@ -1,8 +1,8 @@
-# Project: io_grid_gdal
+# Project: io_gdal
 # Linux GCC Makefile
 # Created by O. Conrad
 
-PRJ_NAME = io_grid_gdal
+PRJ_NAME = io_gdal
 SAGA     = ./../../..
 BIN_SAGA = $(SAGA)/../bin/saga_gtk
 TMP_SAGA = $(SAGA)/../bin/tmp/saga_gtk
@@ -19,7 +19,7 @@ DEP_DEFS =
 DEP_LIBS = -lgdal
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/gdal_driver.o $(MLB_TEMP)/gdal_export.o $(MLB_TEMP)/gdal_export_geotiff.o $(MLB_TEMP)/gdal_import.o $(MLB_TEMP)/MLB_Interface.o
+OBJ      = $(MLB_TEMP)/gdal_driver.o $(MLB_TEMP)/gdal_export.o $(MLB_TEMP)/gdal_export_geotiff.o $(MLB_TEMP)/gdal_import.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/ogr_driver.o $(MLB_TEMP)/ogr_export.o $(MLB_TEMP)/ogr_import.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS =
@@ -64,3 +64,12 @@ $(MLB_TEMP)/gdal_import.o: ./gdal_import.cpp
 
 $(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
+
+$(MLB_TEMP)/ogr_driver.o: ./ogr_driver.cpp
+	$(CPP) -c ./ogr_driver.cpp -o $(MLB_TEMP)/ogr_driver.o $(CXXFLAGS)
+
+$(MLB_TEMP)/ogr_export.o: ./ogr_export.cpp
+	$(CPP) -c ./ogr_export.cpp -o $(MLB_TEMP)/ogr_export.o $(CXXFLAGS)
+
+$(MLB_TEMP)/ogr_import.o: ./ogr_import.cpp
+	$(CPP) -c ./ogr_import.cpp -o $(MLB_TEMP)/ogr_import.o $(CXXFLAGS)

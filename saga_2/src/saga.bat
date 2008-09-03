@@ -204,10 +204,10 @@ make -fmakefile.mingw
 POPD
 
 ECHO ###################################
-ECHO io_grid_gdal
+ECHO io_gdal
 ECHO -----------------------------------
 
-PUSHD .\modules_io_gdal\io_grid_gdal\io_grid_gdal
+PUSHD .\modules_io\gdal\io_gdal
 rem make -fmakefile.mingw
 POPD
 
