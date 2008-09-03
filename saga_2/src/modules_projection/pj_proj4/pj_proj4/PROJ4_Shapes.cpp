@@ -81,7 +81,7 @@ CPROJ4_Shapes::CPROJ4_Shapes(void)
 		"Coordinate Transformation for Shapes.\n"
 		"Based on the PROJ.4 Cartographic Projections library originally written by Gerald Evenden "
 		"and later continued by the United States Department of the Interior, Geological Survey (USGS).\n"
-		"<a target=\"_blank\" href=\"http://remotesensing.org/proj/\">Homepage</a>\n"
+		"<a target=\"_blank\" href=\"http://trac.osgeo.org/proj/\">Homepage</a>\n"
 	));
 
 
