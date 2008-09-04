@@ -361,6 +361,14 @@ CSG_Parameter * CSG_Parameters::Add_FixedTable(CSG_Parameter *pParent, const SG_
 
 	pParameter->asTable()->Create(pTemplate);
 
+	if( pTemplate )
+	{
+		for(int i=0; i<pTemplate->Get_Record_Count(); i++)
+		{
+			pParameter->asTable()->Add_Record(pTemplate->Get_Record(i));
+		}
+	}
+
 	return( pParameter );
 }
 
