@@ -97,17 +97,25 @@ private:
 };
 
 //---------------------------------------------------------
+#define IO_CLOSED		0x00
+#define IO_READ			0x01
+#define IO_WRITE		0x02
+#define IO_READWRITE	(IO_READ|IO_WRITE)
+
+//---------------------------------------------------------
 class CGDAL_System
 {
 public:
 	CGDAL_System(void);
-	CGDAL_System(GDALDataset *pDataSet);
+	CGDAL_System(const CSG_String &File_Name, int ioAccess = IO_READ);
 	virtual ~CGDAL_System(void);
 
-	bool					Create			(GDALDataset *pDataSet);
+	bool					Create			(const CSG_String &File_Name, int ioAccess = IO_READ);
 	bool					Destroy			(void);
 
 	bool					is_Okay			(void)	{	return( m_pDataSet != NULL );	}
+	bool					is_Reading		(void)	{	return( m_pDataSet != NULL && m_Access & IO_READ );	 }
+	bool					is_Writing		(void)	{	return( m_pDataSet != NULL && m_Access & IO_WRITE );	}
 
 	int						Get_NX			(void)	{	return( m_NX );		}
 	int						Get_NY			(void)	{	return( m_NY );		}
@@ -117,10 +125,18 @@ public:
 	double					Get_DY			(void)	{	return( m_DY );		}
 	double					Get_Transform	(int i)	{	return( m_Transform[i] );	}
 
+	GDALDriver *			Get_Driver		(void)	{	return( m_pDataSet ? m_pDataSet->GetDriver     () : NULL );	}
+	const char *			Get_Projection	(void)	{	return( m_pDataSet && m_pDataSet->GetProjectionRef() ? m_pDataSet->GetProjectionRef() : NULL );	}
+
+	int						Get_Count		(void)	{	return( m_pDataSet ? m_pDataSet->GetRasterCount() : 0    );	}
+	CSG_Grid *				Read_Band		(int i);
+
+	GDALDataset *			Get_DataSet		(void)	{	return( m_pDataSet );	}
+
 
 private:
 
-	int						m_NX, m_NY;
+	int						m_Access, m_NX, m_NY;
 
 	double					m_xMin, m_yMin, m_DX, m_DY, m_Transform[6];
 

@@ -79,6 +79,15 @@ protected:
 
 	virtual bool				On_Execute		(void);
 
+
+private:
+
+	CSG_Parameter_Grid_List		*m_pGrids;
+
+
+	bool						Load_Sub		(CGDAL_System &System, const CSG_String &Name);
+	bool						Load			(CGDAL_System &System, const CSG_String &Name);
+
 };
 
 

@@ -122,46 +122,128 @@ CGDAL_Import::~CGDAL_Import(void)
 //---------------------------------------------------------
 bool CGDAL_Import::On_Execute(void)
 {
-	double					zMin, *zLine;
-	CSG_String				File_Name, Summary;
-	CSG_Parameter_Grid_List	*pGrids;
-	CSG_Grid				*pGrid;
-	CGDAL_System			System;
-	GDALDataset				*pDataset;
-	GDALRasterBand			*pBand;
+	CSG_String		File_Name;
+	CGDAL_System	System;
 
 	//-----------------------------------------------------
 	File_Name	= Parameters("FILE")	->asString();
-	pGrids		= Parameters("GRIDS")	->asGridList();
-	pGrids		->Del_Items();
+
+	m_pGrids	= Parameters("GRIDS")	->asGridList();
+
+	m_pGrids	->Del_Items();
 
 	//-----------------------------------------------------
-	if( System.Create(pDataset = (GDALDataset *)GDALOpen(File_Name.b_str(), GA_ReadOnly)) == false )
+	if( System.Create(File_Name, IO_READ) == false )
 	{
-		Message_Add(_TL("Unable to find appropriate import drivers."));
+		Message_Add(_TL("could not find suitable import driver"));
+	}
+	else if( System.Get_Count() <= 0 )
+	{
+		return( Load_Sub(System, SG_File_Get_Name(File_Name, true)) );
 	}
 	else
     {
-		File_Name	= SG_File_Get_Name(File_Name, true);
+		return( Load(System, SG_File_Get_Name(File_Name, true)) );
+	}
 
-		Summary	+= CSG_String::Format(
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGDAL_Import::Load_Sub(CGDAL_System &System, const CSG_String &Name)
+{
+	if( System.is_Reading() )
+	{
+		char	**pMetaData	= System.Get_DataSet()->GetMetadata("SUBDATASETS");
+
+		if( CSLCount(pMetaData) > 0 )
+		{
+			int				i, n;
+			CSG_String		s, sID, sName, sDesc;
+			CSG_Parameters	P;
+
+			for(i=0; pMetaData[i]!=NULL; i++)
+			{
+				Message_Add(CSG_String::Format(SG_T("  %s\n"), pMetaData[i]), false);
+
+				s		= pMetaData[i];
+
+				if( s.Contains(SG_T("SUBDATASET_")) && s.Contains(SG_T("_NAME=")) )
+				{
+					sID		= s.AfterFirst('_').BeforeFirst('_');
+					sName	= s.AfterFirst('=');
+					sDesc	= _TL("no description available");
+
+					if( pMetaData[i + 1] != NULL )
+					{
+						s		= pMetaData[i + 1];
+
+						if( s.Contains(SG_T("SUBDATASET_")) && s.Contains(SG_T("_DESC")) )
+						{
+							sDesc	= s.AfterFirst ('=');
+						}
+					}
+
+					P.Add_Value(NULL, sName, sDesc, SG_T(""), PARAMETER_TYPE_Bool, false);
+				}
+			}
+
+			if( Dlg_Parameters(&P, _TL("Select from Subdatasets...")) )
+			{
+				for(i=0, n=0; i<P.Get_Count() && Process_Get_Okay(false); i++)
+				{
+					if( P(i)->asBool() && System.Create(P(i)->Get_Identifier(), IO_READ) && Load(System, P(i)->Get_Name()) )
+					{
+						n++;
+					}
+				}
+
+				return( n > 0 );
+			}
+		}
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGDAL_Import::Load(CGDAL_System &System, const CSG_String &Name)
+{
+	//-----------------------------------------------------
+	if( System.is_Reading() )
+	{
+		Message_Add(CSG_String::Format(
 			SG_T("\n%s: %s/%s\n"),
 			_TL("Driver"),
-			pDataset->GetDriver()->GetDescription(), 
-			pDataset->GetDriver()->GetMetadataItem(GDAL_DMD_LONGNAME)
-		);
+			System.Get_Driver()->GetDescription(), 
+			System.Get_Driver()->GetMetadataItem(GDAL_DMD_LONGNAME)
+		), false);
 
-		Summary	+= CSG_String::Format(
+		Message_Add(CSG_String::Format(
 			SG_T("%s: x %d, y %d\n%s: %d\n%s x: %.6f, %.6f, %.6f\n%s y: %.6f, %.6f, %.6f"),
 			_TL("Cells")			, System.Get_NX(), System.Get_NY(),
-			_TL("Bands")			, pDataset->GetRasterCount(),
+			_TL("Bands")			, System.Get_Count(),
 			_TL("Transformation")	, System.Get_Transform(0), System.Get_Transform(1), System.Get_Transform(2),
 			_TL("Transformation")	, System.Get_Transform(3), System.Get_Transform(4), System.Get_Transform(5)
-		);
+		), false);
 
-		if( pDataset->GetProjectionRef() != NULL )
+		if( System.Get_Projection() != NULL )
 		{
-			CSG_String	s(pDataset->GetProjectionRef());
+			CSG_String	s(System.Get_Projection());
 
 			s.Replace(SG_T("[")  , SG_T("\t"));
 			s.Replace(SG_T("]],"), SG_T("\n"));
@@ -169,66 +251,37 @@ bool CGDAL_Import::On_Execute(void)
 			s.Replace(SG_T("],") , SG_T("\n"));
 			s.Replace(SG_T(",")  , SG_T("\t"));
 
-			Summary	+= CSG_String::Format(
+			Message_Add(CSG_String::Format(
 				SG_T("\n%s:\n%s"),
 				_TL("Projection"),
 				s.c_str()
-			);
+			), false);
 		}
 
-		Message_Add(Summary, false);
-
 		//-------------------------------------------------
-		zLine	= (double *)SG_Malloc(System.Get_NX() * sizeof(double));
+		int			i, n;
+		CSG_Grid	*pGrid;
 
-		//-------------------------------------------------
-		for(int i=0; i<pDataset->GetRasterCount(); i++)
+		for(i=0, n=0; i<System.Get_Count(); i++)
 		{
-			pBand	= pDataset->GetRasterBand(i + 1);
-			zMin	= pBand->GetOffset();
-
-			pGrids->Add_Item(
-				pGrid	= SG_Create_Grid(g_GDAL_Driver.Get_Grid_Type(pBand->GetRasterDataType()),
-					System.Get_NX(),
-					System.Get_NY(),
-					System.Get_DX(),
-					System.Get_xMin(),
-					System.Get_yMin()
-				)
-			);
-
-			pGrid->Set_Name(pDataset->GetRasterCount() > 1
-				? CSG_String::Format(SG_T("%s [%02d]"), File_Name.c_str(), i + 1).c_str()
-				: File_Name.c_str()
-			);
-
-			pGrid->Set_Unit			(CSG_String(pBand->GetUnitType()));
-			pGrid->Set_NoData_Value	(pBand->GetNoDataValue());
-			pGrid->Set_ZFactor		(pBand->GetScale());
-
-			DataObject_Add			(pGrid);
-			DataObject_Set_Colors	(pGrid, CSG_Colors(100, SG_COLORS_BLACK_WHITE, false));
-
-			for(int y=0; y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y++)
+			if( (pGrid = System.Read_Band(i)) != NULL )
 			{
-				if( pBand->RasterIO(GF_Read, 0, y, System.Get_NX(), 1, zLine, System.Get_NX(), 1, GDT_Float64, 0, 0) == CE_None )
-				{
-					for(int x=0; x<System.Get_NX(); x++)
-					{
-					//	double	NaN	= 0.0;	NaN	= -1.0 / NaN;	if( NaN == zLine[x] )	pGrid->Set_NoData(x, System.Get_NY() - 1 - y); else
+				n++;
 
-						pGrid->Set_Value (x, System.Get_NY() - 1 - y, zMin + zLine[x]);
-					}
-				}
+				pGrid->Set_Name(System.Get_Count() > 1
+					? CSG_String::Format(SG_T("%s [%02d]"), Name.c_str(), i + 1).c_str()
+					: Name.c_str()
+				);
+
+				m_pGrids->Add_Item(pGrid);
+
+				DataObject_Add			(pGrid);
+				DataObject_Set_Colors	(pGrid, CSG_Colors(100, SG_COLORS_BLACK_WHITE, false));
 			}
         }
 
 		//-------------------------------------------------
-		SG_Free(zLine);
-
-		GDALClose(pDataset);
-
-		return( true );
+		return( n > 0 );
 	}
 
 	//-----------------------------------------------------

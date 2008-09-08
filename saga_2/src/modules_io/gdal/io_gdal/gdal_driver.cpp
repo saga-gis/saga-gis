@@ -185,11 +185,11 @@ CGDAL_System::CGDAL_System(void)
 }
 
 //---------------------------------------------------------
-CGDAL_System::CGDAL_System(GDALDataset *pDataSet)
+CGDAL_System::CGDAL_System(const CSG_String &File_Name, int ioAccess)
 {
 	m_pDataSet	= NULL;
 
-	Create(pDataSet);
+	Create(File_Name, ioAccess);
 }
 
 //---------------------------------------------------------
@@ -199,31 +199,42 @@ CGDAL_System::~CGDAL_System(void)
 }
 
 //---------------------------------------------------------
-bool CGDAL_System::Create(GDALDataset *pDataSet)
+bool CGDAL_System::Create(const CSG_String &File_Name, int ioAccess)
 {
 	Destroy();
 
-	if( (m_pDataSet = pDataSet) != NULL )
+	//-----------------------------------------------------
+	if( ioAccess == IO_READ )
 	{
-		if( m_pDataSet->GetGeoTransform(m_Transform) != CE_None )
+		if( (m_pDataSet = (GDALDataset *)GDALOpen(SG_STR_SGTOMB(File_Name), GA_ReadOnly)) != NULL )
 		{
-			m_Transform[0]	=  0.0;
-			m_Transform[1]	=  1.0;
-			m_Transform[2]	=  0.0;
-			m_Transform[3]	=  0.0;
-			m_Transform[4]	=  0.0;
-			m_Transform[5]	= -1.0;
+			if( m_pDataSet->GetGeoTransform(m_Transform) != CE_None )
+			{
+				m_Transform[0]	=  0.0;
+				m_Transform[1]	=  1.0;
+				m_Transform[2]	=  0.0;
+				m_Transform[3]	=  0.0;
+				m_Transform[4]	=  0.0;
+				m_Transform[5]	= -1.0;
+			}
+
+			m_Access	= IO_READ;
+
+			m_NX		= m_pDataSet->GetRasterXSize();
+			m_NY		= m_pDataSet->GetRasterYSize();
+
+			m_DX		= m_Transform[1];
+			m_DY		= m_Transform[5];
+
+			to_World(0.5, m_NY - 0.5, m_xMin, m_yMin);
+
+			return( true );
 		}
+	}
 
-		m_NX	= m_pDataSet->GetRasterXSize();
-		m_NY	= m_pDataSet->GetRasterYSize();
-
-		m_DX	= m_Transform[1];
-		m_DY	= m_Transform[5];
-
-		to_World(0.5, m_NY - 0.5, m_xMin, m_yMin);
-
-		return( true );
+	//-----------------------------------------------------
+	else if( ioAccess == IO_WRITE )
+	{
 	}
 
 	Destroy();
@@ -234,9 +245,60 @@ bool CGDAL_System::Create(GDALDataset *pDataSet)
 //---------------------------------------------------------
 bool CGDAL_System::Destroy(void)
 {
-	m_pDataSet	= NULL;
+	if( m_pDataSet )
+	{
+		GDALClose(m_pDataSet);
+
+		m_pDataSet	= NULL;
+	}
+
+	m_Access	= IO_CLOSED;
 
 	return( true );
+}
+
+//---------------------------------------------------------
+CSG_Grid * CGDAL_System::Read_Band(int i)
+{
+	GDALRasterBand	*pBand;
+
+	if( is_Reading() && (pBand = m_pDataSet->GetRasterBand(i + 1)) != NULL )
+	{
+		CSG_Grid	*pGrid	= SG_Create_Grid(g_GDAL_Driver.Get_Grid_Type(pBand->GetRasterDataType()),
+			Get_NX(), Get_NY(), Get_DX(), Get_xMin(), Get_yMin()
+		);
+
+		pGrid->Set_Name			(SG_STR_MBTOSG(pBand->GetMetadataItem(GDAL_DMD_LONGNAME)));
+		pGrid->Set_Description	(SG_STR_MBTOSG(pBand->GetMetadataItem(GDAL_DMD_LONGNAME)));
+		pGrid->Set_Unit			(SG_STR_MBTOSG(pBand->GetUnitType()));
+		pGrid->Set_NoData_Value	(pBand->GetNoDataValue());
+		pGrid->Set_ZFactor		(pBand->GetScale());
+
+		//-------------------------------------------------
+		double		zMin, *zLine;
+
+		zLine	= (double *)SG_Malloc(Get_NX() * sizeof(double));
+		zMin	= pBand->GetOffset();
+
+		for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+		{
+			if( pBand->RasterIO(GF_Read, 0, y, Get_NX(), 1, zLine, Get_NX(), 1, GDT_Float64, 0, 0) == CE_None )
+			{
+				for(int x=0; x<Get_NX(); x++)
+				{
+				//	double	NaN	= 0.0;	NaN	= -1.0 / NaN;	if( NaN == zLine[x] )	pGrid->Set_NoData(x, System.Get_NY() - 1 - y); else
+
+					pGrid->Set_Value (x, Get_NY() - 1 - y, zMin + zLine[x]);
+				}
+			}
+		}
+
+		SG_Free(zLine);
+
+		return( pGrid );
+	}
+
+	return( NULL );
 }
 
 
