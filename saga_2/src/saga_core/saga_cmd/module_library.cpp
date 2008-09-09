@@ -365,96 +365,104 @@ void CModule_Library::_Set_CMD(CSG_Parameters *pParameters, bool bExtra)
 //---------------------------------------------------------
 bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters)
 {
-	int			i;
-	long		l;
-	double		d;
-	CSG_Parameter	*pParameter;
-	wxString	s;
-
 	//-----------------------------------------------------
-	if( m_pCMD && pParameters && !m_pCMD->Parse() && _Create_DataObjects(pParameters) )
+	if( m_pCMD == NULL || pParameters == NULL )
 	{
-		for(i=0; i<pParameters->Get_Count(); i++)
-		{
-			pParameter	= pParameters->Get_Parameter(i);
+		Print_Error(LNG("[ERR] Internal system error"));
 
-			switch( pParameter->Get_Type() )
-			{
-			default:
-				break;
-
-			case PARAMETER_TYPE_Bool:
-				pParameter->Set_Value(m_pCMD->Found(GET_ID1(pParameter)) ? 1 : 0);
-				break;
-
-			case PARAMETER_TYPE_Int:
-			case PARAMETER_TYPE_Choice:
-			case PARAMETER_TYPE_Table_Field:
-				if( m_pCMD->Found(GET_ID1(pParameter), &l) )
-				{
-					pParameter->Set_Value((int)l);
-				}
-				break;
-
-			case PARAMETER_TYPE_Double:
-			case PARAMETER_TYPE_Degree:
-				if( m_pCMD->Found(GET_ID1(pParameter), &s) && s.ToDouble(&d) )
-				{
-					pParameter->Set_Value(d);
-				}
-				break;
-
-			case PARAMETER_TYPE_Range:
-				if( m_pCMD->Found(GET_ID2(pParameter, "MIN"), &s) && s.ToDouble(&d) )
-				{
-					pParameter->asRange()->Set_LoVal(d);
-				}
-
-				if( m_pCMD->Found(GET_ID2(pParameter, "MAX"), &s) && s.ToDouble(&d) )
-				{
-					pParameter->asRange()->Set_HiVal(d);
-				}
-				break;
-
-			case PARAMETER_TYPE_String:
-			case PARAMETER_TYPE_Text:
-			case PARAMETER_TYPE_FilePath:
-				if( m_pCMD->Found(GET_ID1(pParameter), &s) )
-				{
-					pParameter->Set_Value(s.c_str());
-				}
-				break;
-
-			case PARAMETER_TYPE_FixedTable:
-				if( m_pCMD->Found(GET_ID1(pParameter), &s) )
-				{
-					CSG_Table	Table(s.c_str());
-					pParameter->asTable()->Assign_Values(&Table);
-				}
-				break;
-
-			case PARAMETER_TYPE_Grid_System:
-				if( pParameter->Get_Children_Count() == 0 )
-				{
-					int		nx, ny;
-					double	d, x, y;
-
-					if( !m_pCMD->Found(GET_ID2(pParameter, "NX"), &l) )	nx	= 1;	else	nx	= (int)l;
-					if( !m_pCMD->Found(GET_ID2(pParameter, "NY"), &l) )	ny	= nx;	else	ny	= (int)l;
-					if( !m_pCMD->Found(GET_ID2(pParameter,  "X"), &s) || !s.ToDouble(&x) )	x	= 0.0;
-					if( !m_pCMD->Found(GET_ID2(pParameter,  "Y"), &s) || !s.ToDouble(&y) )	y	= 0.0;
-					if( !m_pCMD->Found(GET_ID2(pParameter,  "D"), &s) || !s.ToDouble(&d) )	d	= 1.0;
-
-					pParameter->asGrid_System()->Assign(d, x, y, nx, ny);
-				}
-				break;
-			}
-		}
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	if( m_pCMD->Parse(false) != 0 || _Create_DataObjects(pParameters) == false )
+	{
+		m_pCMD->Usage();
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	for(int i=0; i<pParameters->Get_Count(); i++)
+	{
+		long			l;
+		double			d;
+		wxString		s;
+
+		CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
+
+		switch( pParameter->Get_Type() )
+		{
+		default:
+			break;
+
+		case PARAMETER_TYPE_Bool:
+			pParameter->Set_Value(m_pCMD->Found(GET_ID1(pParameter)) ? 1 : 0);
+			break;
+
+		case PARAMETER_TYPE_Int:
+		case PARAMETER_TYPE_Choice:
+		case PARAMETER_TYPE_Table_Field:
+			if( m_pCMD->Found(GET_ID1(pParameter), &l) )
+			{
+				pParameter->Set_Value((int)l);
+			}
+			break;
+
+		case PARAMETER_TYPE_Double:
+		case PARAMETER_TYPE_Degree:
+			if( m_pCMD->Found(GET_ID1(pParameter), &s) && s.ToDouble(&d) )
+			{
+				pParameter->Set_Value(d);
+			}
+			break;
+
+		case PARAMETER_TYPE_Range:
+			if( m_pCMD->Found(GET_ID2(pParameter, "MIN"), &s) && s.ToDouble(&d) )
+			{
+				pParameter->asRange()->Set_LoVal(d);
+			}
+
+			if( m_pCMD->Found(GET_ID2(pParameter, "MAX"), &s) && s.ToDouble(&d) )
+			{
+				pParameter->asRange()->Set_HiVal(d);
+			}
+			break;
+
+		case PARAMETER_TYPE_String:
+		case PARAMETER_TYPE_Text:
+		case PARAMETER_TYPE_FilePath:
+			if( m_pCMD->Found(GET_ID1(pParameter), &s) )
+			{
+				pParameter->Set_Value(s.c_str());
+			}
+			break;
+
+		case PARAMETER_TYPE_FixedTable:
+			if( m_pCMD->Found(GET_ID1(pParameter), &s) )
+			{
+				CSG_Table	Table(s.c_str());
+				pParameter->asTable()->Assign_Values(&Table);
+			}
+			break;
+
+		case PARAMETER_TYPE_Grid_System:
+			if( pParameter->Get_Children_Count() == 0 )
+			{
+				int		nx, ny;
+				double	d, x, y;
+
+				if( !m_pCMD->Found(GET_ID2(pParameter, "NX"), &l) )	nx	= 1;	else	nx	= (int)l;
+				if( !m_pCMD->Found(GET_ID2(pParameter, "NY"), &l) )	ny	= nx;	else	ny	= (int)l;
+				if( !m_pCMD->Found(GET_ID2(pParameter,  "X"), &s) || !s.ToDouble(&x) )	x	= 0.0;
+				if( !m_pCMD->Found(GET_ID2(pParameter,  "Y"), &s) || !s.ToDouble(&y) )	y	= 0.0;
+				if( !m_pCMD->Found(GET_ID2(pParameter,  "D"), &s) || !s.ToDouble(&d) )	d	= 1.0;
+
+				pParameter->asGrid_System()->Assign(d, x, y, nx, ny);
+			}
+			break;
+		}
+	}
+
+	return( true );
 }
 
 
@@ -467,71 +475,31 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 bool CModule_Library::_Create_DataObjects(CSG_Parameters *pParameters)
 {
-	int			j;
-	CSG_Data_Object	*pObject;
-	CSG_Parameter	*pParameter;
-	wxString	s;
-
-	if( pParameters && m_pCMD )
+	//-----------------------------------------------------
+	if( m_pCMD == NULL || pParameters == NULL )
 	{
-		for(j=0; j<pParameters->Get_Count(); j++)
+		Print_Error(LNG("[ERR] Internal system error"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	int		nObjects	= 0;
+
+	for(int i=0; i<pParameters->Get_Count(); i++)
+	{
+		wxString		s;
+		CSG_Data_Object	*pObject;
+
+		CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
+
+		if(	pParameter->is_DataObject() || pParameter->is_DataObject_List() )
 		{
-			pParameter	= pParameters->Get_Parameter(j);
-
-			if(	pParameter->is_DataObject() || pParameter->is_DataObject_List() )
+			if( m_pCMD->Found(GET_ID1(pParameter), &s) )
 			{
-				if( m_pCMD->Found(GET_ID1(pParameter), &s) )
+				if( pParameter->is_Input() )
 				{
-					if( pParameter->is_Input() )
-					{
-						if( pParameter->is_DataObject() )
-						{
-							switch( pParameter->Get_Type() )
-							{
-							default:
-								pObject	= NULL;
-								break;
-
-							case PARAMETER_TYPE_Grid:
-								pObject	= new CSG_Grid  (s.c_str());
-								if( pObject && pObject->is_Valid() )
-								{
-									pParameter->Get_Parent()->asGrid_System()->Assign(((CSG_Grid *)pObject)->Get_System());
-									pParameter->Set_Value(pObject);
-								}
-								break;
-
-							case PARAMETER_TYPE_TIN:
-								pParameter->Set_Value(pObject = new CSG_TIN   (s.c_str()));
-								break;
-
-							case PARAMETER_TYPE_Shapes:
-								pParameter->Set_Value(pObject = new CSG_Shapes(s.c_str()));
-								break;
-
-							case PARAMETER_TYPE_Table:
-								pParameter->Set_Value(pObject = new CSG_Table (s.c_str()));
-								break;
-							}
-
-							if( !pObject || !pObject->is_Valid() )
-							{
-								Print_Error(LNG("input file"), s);
-
-								return( false );
-							}
-						}
-						else if( pParameter->is_DataObject_List() )
-						{
-							if( !_Create_DataObject_List(pParameter, s) && !pParameter->is_Optional() )
-							{
-								Print_Error(LNG("empty input list"), GET_ID1(pParameter));
-
-								return( false );
-							}
-						}
-					}
-					else if( pParameter->is_Output() )
+					if( pParameter->is_DataObject() )
 					{
 						switch( pParameter->Get_Type() )
 						{
@@ -540,34 +508,87 @@ bool CModule_Library::_Create_DataObjects(CSG_Parameters *pParameters)
 							break;
 
 						case PARAMETER_TYPE_Grid:
-							pParameter->Set_Value(pObject = new CSG_Grid  (*pParameter->Get_Parent()->asGrid_System(), GRID_TYPE_Float));
+							pObject	= new CSG_Grid  (s.c_str());
+							if( pObject && pObject->is_Valid() )
+							{
+								pParameter->Get_Parent()->asGrid_System()->Assign(((CSG_Grid *)pObject)->Get_System());
+								pParameter->Set_Value(pObject);
+							}
 							break;
 
 						case PARAMETER_TYPE_TIN:
-							pParameter->Set_Value(pObject = new CSG_TIN   ());
+							pParameter->Set_Value(pObject = new CSG_TIN   (s.c_str()));
 							break;
 
 						case PARAMETER_TYPE_Shapes:
-							pParameter->Set_Value(pObject = new CSG_Shapes());
+							pParameter->Set_Value(pObject = new CSG_Shapes(s.c_str()));
 							break;
 
 						case PARAMETER_TYPE_Table:
-							pParameter->Set_Value(pObject = new CSG_Table ());
+							pParameter->Set_Value(pObject = new CSG_Table (s.c_str()));
 							break;
 						}
+
+						if( !pObject || !pObject->is_Valid() )
+						{
+							Print_Error(LNG("input file"), s);
+
+							return( false );
+						}
+
+						nObjects++;
+					}
+					else if( pParameter->is_DataObject_List() )
+					{
+						if( !_Create_DataObject_List(pParameter, s) && !pParameter->is_Optional() )
+						{
+							Print_Error(LNG("empty input list"), GET_ID1(pParameter));
+
+							return( false );
+						}
+
+						nObjects++;
 					}
 				}
-				else if( !pParameter->is_Optional() )
+				else if( pParameter->is_Output() )
 				{
-					return( false );
+					switch( pParameter->Get_Type() )
+					{
+					default:
+						pObject	= NULL;
+						break;
+
+					case PARAMETER_TYPE_Grid:
+						pParameter->Set_Value(pObject = new CSG_Grid  (*pParameter->Get_Parent()->asGrid_System(), GRID_TYPE_Float));
+						break;
+
+					case PARAMETER_TYPE_TIN:
+						pParameter->Set_Value(pObject = new CSG_TIN   ());
+						break;
+
+					case PARAMETER_TYPE_Shapes:
+						pParameter->Set_Value(pObject = new CSG_Shapes());
+						break;
+
+					case PARAMETER_TYPE_Table:
+						pParameter->Set_Value(pObject = new CSG_Table ());
+						break;
+					}
+
+					if( pObject )
+					{
+						nObjects++;
+					}
 				}
 			}
+			else if( !pParameter->is_Optional() )
+			{
+				return( false );
+			}
 		}
-
-		return( true );
 	}
 
-	return( false );
+	return( nObjects > 0 );
 }
 
 //---------------------------------------------------------
