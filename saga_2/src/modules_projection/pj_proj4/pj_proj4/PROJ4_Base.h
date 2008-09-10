@@ -80,16 +80,13 @@ public:
 	CPROJ4_Base(void);
 	virtual ~CPROJ4_Base(void);
 
-	bool				Initialize					(void);
-
 
 protected:
 
 	virtual bool		On_Execute					(void);
 	virtual bool		On_Execute_Conversion		(void)	= 0;
 
-	bool				Set_Transformation			(bool bHistory);
-	bool				Set_Transformation_Inverse	(void);
+	bool				Set_Inverse					(bool bOn = true);
 
 	bool				Get_Converted				(double &x, double &y);
 	bool				Get_Converted				(TSG_Point &Point);
@@ -97,14 +94,16 @@ protected:
 
 private:
 
-	bool				bInitialized, m_Inverse, m_Reverse;
+	bool				m_bInverse;
 
-	PJ					*m_Projection;
+	PJ					*m_pPrjSrc, *m_pPrjDst;
 
 
-	bool				Initialize_ExtraParms		(struct PJ_LIST *pProjection, const SG_Char *sName);
+	bool				_Init_Projection			(CSG_Parameters &P);
+	bool				_Init_Projection			(const CSG_String &sID, const CSG_String &sDesc, const CSG_String &sName);
 
-	bool				Get_ExtraParms				(int &pargc, char ***p_pargv, char *id);
+	bool				_Get_Projection				(PJ **ppPrj, CSG_Parameters &P);
+	bool				_Get_Projection				(CSG_String &sPrj, const CSG_String &id);
 
 };
 

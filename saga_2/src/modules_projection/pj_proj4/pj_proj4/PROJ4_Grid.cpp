@@ -586,7 +586,7 @@ bool CPROJ4_Grid::Set_Grid(CSG_Grid *pSource, CSG_Grid *pTarget, int Interpol)
 	TSG_Point	Pt_Source, Pt_Target;
 	CSG_Grid		*pX, *pY;
 
-	if( pSource && pTarget && Set_Transformation_Inverse() )
+	if( pSource && pTarget && Set_Inverse() )
 	{
 		pTarget->Set_NoData_Value_Range(pSource->Get_NoData_Value(), pSource->Get_NoData_hiValue());
 		pTarget->Set_ZFactor(pSource->Get_ZFactor());

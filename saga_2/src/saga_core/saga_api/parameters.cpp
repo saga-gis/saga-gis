@@ -1146,7 +1146,7 @@ bool CSG_Parameters::DataObjects_Check(bool bSilent)
 			break;
 
 		case PARAMETER_TYPE_Parameters:
-			bInvalid	= m_Parameters[i]->asParameters()->DataObjects_Check(bSilent);
+			bInvalid	= m_Parameters[i]->asParameters()->DataObjects_Check(bSilent) == false;
 			break;
 
 		case PARAMETER_TYPE_Grid:
