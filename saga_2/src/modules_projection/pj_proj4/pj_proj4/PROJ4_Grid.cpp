@@ -58,8 +58,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <string.h>
-
 #include "PROJ4_Grid.h"
 
 
@@ -70,20 +68,21 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CPROJ4_Grid::CPROJ4_Grid(void)
+CPROJ4_Grid::CPROJ4_Grid(int Interface)
+	: CPROJ4_Base(Interface)
 {
 	CSG_Parameters	*pParameters;
 
 	//-----------------------------------------------------
-	Set_Name	(_TL("Proj4 (Grid)"));
+	Set_Name		(Interface == 1 ? _TL("Proj.4 (Grid)") : _TL("Proj.4 (Grid, Command Line Arguments)"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		(SG_T("O. Conrad (c) 2004-8"));
 
 	Set_Description	(_TW(
 		"Coordinate Transformation for Grids.\n"
 		"Based on the PROJ.4 Cartographic Projections library originally written by Gerald Evenden "
 		"and later continued by the United States Department of the Interior, Geological Survey (USGS).\n"
-		"<a target=\"_blank\" href=\"http://trac.osgeo.org/proj/\">Homepage</a>\n"
+		"<a target=\"_blank\" href=\"http://trac.osgeo.org/proj/\">Proj.4 Homepage</a>\n"
 	));
 
 
@@ -221,10 +220,6 @@ CPROJ4_Grid::CPROJ4_Grid(void)
 	);
 }
 
-//---------------------------------------------------------
-CPROJ4_Grid::~CPROJ4_Grid(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -320,6 +315,9 @@ bool CPROJ4_Grid::On_Execute_Conversion(void)
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#include <string.h>
 
 //---------------------------------------------------------
 int CPROJ4_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)

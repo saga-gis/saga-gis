@@ -75,8 +75,7 @@
 class pj_proj4_EXPORT CPROJ4_Shapes : public CPROJ4_Base
 {
 public:
-	CPROJ4_Shapes(void);
-	virtual ~CPROJ4_Shapes(void);
+	CPROJ4_Shapes(int Interface);
 
 	virtual const SG_Char *	Get_MenuPath			(void)	{	return( _TL("R:Shapes") );	}
 
@@ -88,4 +87,12 @@ protected:
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__PROJ4_Shapes_H

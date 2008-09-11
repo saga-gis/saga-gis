@@ -75,8 +75,7 @@
 class pj_proj4_EXPORT CPROJ4_Grid : public CPROJ4_Base
 {
 public:
-	CPROJ4_Grid(void);
-	virtual ~CPROJ4_Grid(void);
+	CPROJ4_Grid(int Interface);
 
 	virtual const SG_Char *	Get_MenuPath			(void)	{	return( _TL("R:Grid") );	}
 
@@ -99,4 +98,12 @@ private:
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__PROJ4_Grid_H

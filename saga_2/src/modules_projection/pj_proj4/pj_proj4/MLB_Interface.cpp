@@ -71,16 +71,19 @@ const SG_Char * Get_Info(int i)
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return( _TL("Projection - Proj4") );
+		return( _TL("Projection - Proj.4") );
 
 	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad (c) 2004") );
+		return( SG_T("O. Conrad (c) 2004-8") );
 
 	case MLB_INFO_Description:
-		return( _TL("Coordinate Transformations based on the Proj4-Engine.") );
+		return( _TW(
+			"Coordinate transformation based on the "
+			"<a target=\"_blank\" href=\"http://trac.osgeo.org/proj/\">Proj.4</a> library."
+		));
 
 	case MLB_INFO_Version:
-		return( _TL("1.0") );
+		return( _TL("2.0") );
 
 	case MLB_INFO_Menu_Path:
 		return( _TL("Projection") );
@@ -100,29 +103,15 @@ const SG_Char * Get_Info(int i)
 
 CSG_Module *		Create_Module(int i)
 {
-	// Don't forget to continuously enumerate the case switches
-	// when adding new modules! Also bear in mind that the
-	// enumeration always has to start with [case 0:] and
-	// that [default:] must return NULL!...
-
-	CSG_Module	*pModule;
-
 	switch( i )
 	{
-	case 0:
-		pModule	= new CPROJ4_Shapes;
-		break;
-
-	case 1:
-		pModule	= new CPROJ4_Grid;
-		break;
-
-	default:
-		pModule	= NULL;
-		break;
+	case 0:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_SIMPLE) );
+	case 1:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_DIALOG) );
+	case 2:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_SIMPLE) );
+	case 3:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_DIALOG) );
 	}
 
-	return( pModule );
+	return( NULL );
 }
 
 

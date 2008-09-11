@@ -68,20 +68,21 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CPROJ4_Shapes::CPROJ4_Shapes(void)
+CPROJ4_Shapes::CPROJ4_Shapes(int Interface)
+	: CPROJ4_Base(Interface)
 {
 	//-----------------------------------------------------
 	// 1. Info...
 
-	Set_Name	(_TL("Proj4 (Shapes)"));
+	Set_Name		(Interface == 1 ? _TL("Proj.4 (Shapes)") : _TL("Proj.4 (Shapes, Command Line Arguments)"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		(SG_T("O. Conrad (c) 2004-8"));
 
 	Set_Description	(_TW(
 		"Coordinate Transformation for Shapes.\n"
 		"Based on the PROJ.4 Cartographic Projections library originally written by Gerald Evenden "
 		"and later continued by the United States Department of the Interior, Geological Survey (USGS).\n"
-		"<a target=\"_blank\" href=\"http://trac.osgeo.org/proj/\">Homepage</a>\n"
+		"<a target=\"_blank\" href=\"http://trac.osgeo.org/proj/\">Proj.4 Homepage</a>\n"
 	));
 
 
@@ -100,10 +101,6 @@ CPROJ4_Shapes::CPROJ4_Shapes(void)
 		PARAMETER_OUTPUT
 	);
 }
-
-//---------------------------------------------------------
-CPROJ4_Shapes::~CPROJ4_Shapes(void)
-{}
 
 
 ///////////////////////////////////////////////////////////

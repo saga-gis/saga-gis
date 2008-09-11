@@ -74,11 +74,24 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class pj_proj4_EXPORT CPROJ4_Base : public CSG_Module  
+enum
+{
+	PROJ4_INTERFACE_SIMPLE	= 0,
+	PROJ4_INTERFACE_DIALOG
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class pj_proj4_EXPORT CPROJ4_Base : public CSG_Module
 {
 public:
-	CPROJ4_Base(void);
-	virtual ~CPROJ4_Base(void);
+	CPROJ4_Base(int Interface);
 
 
 protected:
@@ -96,15 +109,26 @@ private:
 
 	bool				m_bInverse;
 
+	int					m_Interface;
+
 	PJ					*m_pPrjSrc, *m_pPrjDst;
 
 
-	bool				_Init_Projection			(CSG_Parameters &P);
-	bool				_Init_Projection			(const CSG_String &sID, const CSG_String &sDesc, const CSG_String &sName);
+	bool				_Get_Projections			(CSG_String &sPrjSrc, CSG_String &sPrjDst);
+	bool				_Get_Projection				(CSG_String &sPrj, CSG_Parameters &P);
 
-	bool				_Get_Projection				(PJ **ppPrj, CSG_Parameters &P);
-	bool				_Get_Projection				(CSG_String &sPrj, const CSG_String &id);
+	bool				_Init_Projection			(CSG_Parameters &P);
+	bool				_Init_Projection			(const CSG_String &sID, const CSG_String &sName, const CSG_String &sArgs);
+
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__PROJ4_Base_H
