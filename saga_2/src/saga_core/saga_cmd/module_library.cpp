@@ -484,6 +484,7 @@ bool CModule_Library::_Create_DataObjects(CSG_Parameters *pParameters)
 	}
 
 	//-----------------------------------------------------
+	bool	bObjects	= false;
 	int		nObjects	= 0;
 
 	for(int i=0; i<pParameters->Get_Count(); i++)
@@ -495,6 +496,8 @@ bool CModule_Library::_Create_DataObjects(CSG_Parameters *pParameters)
 
 		if(	pParameter->is_DataObject() || pParameter->is_DataObject_List() )
 		{
+			bObjects	= true;
+
 			if( m_pCMD->Found(GET_ID1(pParameter), &s) )
 			{
 				if( pParameter->is_Input() )
@@ -552,33 +555,9 @@ bool CModule_Library::_Create_DataObjects(CSG_Parameters *pParameters)
 				}
 				else if( pParameter->is_Output() )
 				{
-					switch( pParameter->Get_Type() )
-					{
-					default:
-						pObject	= NULL;
-						break;
+					pParameter->Set_Value(DATAOBJECT_CREATE);
 
-					case PARAMETER_TYPE_Grid:
-						pParameter->Set_Value(pObject = new CSG_Grid  (*pParameter->Get_Parent()->asGrid_System(), GRID_TYPE_Float));
-						break;
-
-					case PARAMETER_TYPE_TIN:
-						pParameter->Set_Value(pObject = new CSG_TIN   ());
-						break;
-
-					case PARAMETER_TYPE_Shapes:
-						pParameter->Set_Value(pObject = new CSG_Shapes());
-						break;
-
-					case PARAMETER_TYPE_Table:
-						pParameter->Set_Value(pObject = new CSG_Table ());
-						break;
-					}
-
-					if( pObject )
-					{
-						nObjects++;
-					}
+					nObjects++;
 				}
 			}
 			else if( !pParameter->is_Optional() )
@@ -588,7 +567,7 @@ bool CModule_Library::_Create_DataObjects(CSG_Parameters *pParameters)
 		}
 	}
 
-	return( nObjects > 0 );
+	return( bObjects == false || nObjects > 0 );
 }
 
 //---------------------------------------------------------
