@@ -1606,7 +1606,12 @@ bool CSG_Parameter_Data_Object_Output::Set_Value(void *Value)
 {
 	CSG_Data_Object	*pDataObject	= (CSG_Data_Object *)Value;
 
-	if( m_pDataObject != pDataObject && (!pDataObject || (pDataObject && pDataObject->Get_ObjectType() == m_Type)) )
+	if( pDataObject == DATAOBJECT_CREATE )
+	{
+		pDataObject	= NULL;
+	}
+
+	if( m_pDataObject != pDataObject && (pDataObject == NULL || pDataObject->Get_ObjectType() == m_Type) )
 	{
 		m_pDataObject	= pDataObject;
 
