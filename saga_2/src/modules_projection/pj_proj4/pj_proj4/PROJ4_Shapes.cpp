@@ -68,13 +68,17 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CPROJ4_Shapes::CPROJ4_Shapes(int Interface)
-	: CPROJ4_Base(Interface)
+CPROJ4_Shapes::CPROJ4_Shapes(int Interface, bool bInputList)
+	: CPROJ4_Base(Interface, bInputList)
 {
 	//-----------------------------------------------------
 	// 1. Info...
 
-	Set_Name		(Interface == 1 ? _TL("Proj.4 (Shapes)") : _TL("Proj.4 (Shapes, Command Line Arguments)"));
+	Set_Name		(CSG_String::Format(SG_T("%s (%s, %s)"),
+		_TL("Proj.4"),
+		Interface == PROJ4_INTERFACE_DIALOG ? _TL("Dialog") : _TL("Command Line Arguments"),
+		m_bInputList ? _TL("List of Shapes Layers") : _TL("Shapes")
+	));
 
 	Set_Author		(SG_T("O. Conrad (c) 2004-8"));
 
@@ -89,17 +93,34 @@ CPROJ4_Shapes::CPROJ4_Shapes(int Interface)
 	//-----------------------------------------------------
 	// 2. In-/Output...
 
-	Parameters.Add_Shapes(
-		Parameters("SOURCE_NODE"), "SOURCE", _TL("Source"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
+	if( m_bInputList )
+	{
+		Parameters.Add_Shapes_List(
+			Parameters("SOURCE_NODE")	, "SOURCE", _TL("Source"),
+			_TL(""),
+			PARAMETER_INPUT
+		);
 
-	Parameters.Add_Shapes(
-		Parameters("TARGET_NODE"), "TARGET", _TL("Target"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
+		Parameters.Add_Shapes_List(
+			NULL						, "TARGET", _TL("Target"),
+			_TL(""),
+			PARAMETER_OUTPUT_OPTIONAL
+		);
+	}
+	else
+	{
+		Parameters.Add_Shapes(
+			Parameters("SOURCE_NODE")	, "SOURCE", _TL("Source"),
+			_TL(""),
+			PARAMETER_INPUT
+		);
+
+		Parameters.Add_Shapes(
+			Parameters("TARGET_NODE")	, "TARGET", _TL("Target"),
+			_TL(""),
+			PARAMETER_OUTPUT
+		);
+	}
 }
 
 
@@ -112,42 +133,92 @@ CPROJ4_Shapes::CPROJ4_Shapes(int Interface)
 //---------------------------------------------------------
 bool CPROJ4_Shapes::On_Execute_Conversion(void)
 {
-	bool		bCopy, bDropped;
-	int			iShape, iPart, iPoint, nDropped;
-	TSG_Point	Point;
-	CSG_Shape	*pShape_Source, *pShape_Target;
+	bool	bResult	= false;
+
 	CSG_Shapes	*pSource, *pTarget;
 
 	//-----------------------------------------------------
-	if( 1 )
+	if( m_bInputList )
 	{
-		pSource		= Parameters("SOURCE")->asShapes();
-		pTarget		= Parameters("TARGET")->asShapes();
+		CSG_Parameter_Shapes_List	*pSources, *pTargets;
 
-		if( pSource == pTarget )
+		pSources	= Parameters("SOURCE")->asShapesList();
+		pTargets	= Parameters("TARGET")->asShapesList();
+
+		pTargets->Del_Items();
+
+		for(int i=0; i<pSources->Get_Count() && Process_Get_Okay(false); i++)
 		{
-			bCopy		= true;
+			pSource	= pSources->asShapes(i);
+			pTarget	= SG_Create_Shapes();
 
-			pTarget		= SG_Create_Shapes();
+			if( _Get_Conversion(pSource, pTarget) )
+			{
+				bResult	= true;
+				pTargets->Add_Item(pTarget);
+			}
+			else
+			{
+				delete( pTarget );
+			}
 		}
-		else
+	}
+	else
+	{
+		bool	bCopy;
+
+		pSource	= Parameters("SOURCE")->asShapes();
+		pTarget	= Parameters("TARGET")->asShapes();
+
+		if( (bCopy = pSource == pTarget) == true )
 		{
-			bCopy		= false;
+			pTarget	= SG_Create_Shapes();
 		}
-
-		pTarget->Create(pSource->Get_Type(), pSource->Get_Name(), &pSource->Get_Table());
 
 		//-------------------------------------------------
-		for(iShape=0, nDropped=0; iShape<pSource->Get_Count() && Set_Progress(iShape, pSource->Get_Count()); iShape++)
-		{
-			pShape_Source	= pSource->Get_Shape(iShape);
-			pShape_Target	= pTarget->Add_Shape(pShape_Source->Get_Record());
+		bResult	= _Get_Conversion(pSource, pTarget);
 
-			for(iPart=0, bDropped=false; iPart<pShape_Source->Get_Part_Count() && !bDropped; iPart++)
+		//-------------------------------------------------
+		if( bCopy )
+		{
+			pSource->Assign(pTarget);
+			delete( pTarget );
+		}
+	}
+
+	return( bResult );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CPROJ4_Shapes::_Get_Conversion(CSG_Shapes *pSource, CSG_Shapes *pTarget)
+{
+	if( pSource && pSource->is_Valid() && pTarget )
+	{
+		int		nDropped	= 0;
+
+		Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), _TL("Processing"), pSource->Get_Name()));
+
+		pTarget->Create(pSource->Get_Type(), CSG_String::Format(SG_T("%s [%s]"), pSource->Get_Name(), Get_Proj_Name().c_str()), &pSource->Get_Table());
+
+		for(int iShape=0; iShape<pSource->Get_Count() && Set_Progress(iShape, pSource->Get_Count()); iShape++)
+		{
+			CSG_Shape	*pShape_Source	= pSource->Get_Shape(iShape);
+			CSG_Shape	*pShape_Target	= pTarget->Add_Shape(pShape_Source->Get_Record());
+
+			bool	bDropped	= false;
+
+			for(int iPart=0; iPart<pShape_Source->Get_Part_Count() && !bDropped; iPart++)
 			{
-				for(iPoint=0; iPoint<pShape_Source->Get_Point_Count(iPart) && !bDropped; iPoint++)
+				for(int iPoint=0; iPoint<pShape_Source->Get_Point_Count(iPart) && !bDropped; iPoint++)
 				{
-					Point	= pShape_Source->Get_Point(iPoint, iPart);
+					TSG_Point	Point	= pShape_Source->Get_Point(iPoint, iPart);
 
 					if( Get_Converted(Point.x, Point.y) )
 					{
@@ -167,21 +238,22 @@ bool CPROJ4_Shapes::On_Execute_Conversion(void)
 			}
 		}
 
-		//-------------------------------------------------
 		if( nDropped > 0 )
 		{
 			Message_Add(CSG_String::Format(SG_T("%d %s"), nDropped, _TL("shapes have been dropped")));
 		}
 
-		if( bCopy )
-		{
-			pSource->Assign(pTarget);
-
-			delete( pTarget );
-		}
-
-		return( true );
+		return( pTarget->Get_Count() > 0 );
 	}
 
 	return( false );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

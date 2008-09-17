@@ -75,7 +75,7 @@
 class pj_proj4_EXPORT CPROJ4_Grid : public CPROJ4_Base
 {
 public:
-	CPROJ4_Grid(int Interface);
+	CPROJ4_Grid(int Interface, bool bInputList);
 
 	virtual const SG_Char *	Get_MenuPath			(void)	{	return( _TL("R:Grid") );	}
 
@@ -89,12 +89,20 @@ protected:
 
 private:
 
-	void					Get_MinMax				(double &xMin, double &xMax, double &yMin, double &yMax, TSG_Point Point);
-	CSG_Grid *				Get_Target_Userdef		(CSG_Grid *pSource, bool bNearest);
-	CSG_Grid *				Get_Target_Autofit		(CSG_Grid *pSource, double Grid_Size, int AutoExtMode, bool bNearest);
+	int						m_Interpolation;
 
-	bool					Set_Grid				(CSG_Grid *pSource, CSG_Grid   *pTarget, int Interpol);
+
+	bool					Set_Grids				(const CSG_Grid_System &System, CSG_Parameter_Grid_List *pSources, CSG_Parameter_Grid_List *pTargets);
+	bool					Set_Grid				(CSG_Grid *pSource, CSG_Grid   *pTarget);
 	bool					Set_Shapes				(CSG_Grid *pSource, CSG_Shapes *pTarget);
+
+	bool					Init_XY					(const CSG_Grid_System &System, CSG_Grid **ppX, CSG_Grid **ppY);
+	bool					Init_Target				(CSG_Grid *pSource, CSG_Grid *pTarget);
+
+	bool					Get_MinMax				(TSG_Rect &r, TSG_Point p);
+	bool					Get_Target_System		(const CSG_Grid_System &Source, CSG_Grid_System &Target);
+	bool					Get_Target_Userdef		(const CSG_Grid_System &Source, CSG_Grid_System &Target);
+	bool					Get_Target_Autofit		(const CSG_Grid_System &Source, CSG_Grid_System &Target);
 
 };
 

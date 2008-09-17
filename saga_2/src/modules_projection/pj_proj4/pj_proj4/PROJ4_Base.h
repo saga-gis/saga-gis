@@ -91,15 +91,20 @@ enum
 class pj_proj4_EXPORT CPROJ4_Base : public CSG_Module
 {
 public:
-	CPROJ4_Base(int Interface);
+	CPROJ4_Base(int Interface, bool bInputList);
 
 
 protected:
+
+	bool				m_bInputList;
+
 
 	virtual bool		On_Execute					(void);
 	virtual bool		On_Execute_Conversion		(void)	= 0;
 
 	bool				Set_Inverse					(bool bOn = true);
+
+	CSG_String			Get_Proj_Name				(void);
 
 	bool				Get_Converted				(double &x, double &y);
 	bool				Get_Converted				(TSG_Point &Point);

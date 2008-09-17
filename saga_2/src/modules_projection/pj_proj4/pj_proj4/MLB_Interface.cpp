@@ -105,10 +105,14 @@ CSG_Module *		Create_Module(int i)
 {
 	switch( i )
 	{
-	case 0:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_SIMPLE) );
-	case 1:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_DIALOG) );
-	case 2:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_SIMPLE) );
-	case 3:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_DIALOG) );
+	case 0:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_SIMPLE, false) );
+	case 1:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_DIALOG, false) );
+	case 2:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_SIMPLE, false) );
+	case 3:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_DIALOG, false) );
+	case 4:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_SIMPLE, true) );
+	case 5:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_DIALOG, true) );
+	case 6:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_SIMPLE, true) );
+	case 7:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_DIALOG, true) );
 	}
 
 	return( NULL );

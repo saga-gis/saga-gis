@@ -90,11 +90,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CPROJ4_Base::CPROJ4_Base(int Interface)
+CPROJ4_Base::CPROJ4_Base(int Interface, bool bInputList)
 {
 	CSG_Parameter	*pNode;
 
-	m_Interface	= Interface;
+	m_Interface		= Interface;
+	m_bInputList	= bInputList;
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Node(
@@ -264,6 +265,17 @@ bool CPROJ4_Base::Set_Inverse(bool bOn)
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_String CPROJ4_Base::Get_Proj_Name(void)
+{
+	if( m_pPrjDst )
+	{
+		return( CSG_String(m_pPrjDst->descr).BeforeFirst('\n') );
+	}
+
+	return( _TL("") );
+}
 
 //---------------------------------------------------------
 bool CPROJ4_Base::Get_Converted(TSG_Point &Point)

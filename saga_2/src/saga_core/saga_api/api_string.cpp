@@ -396,46 +396,16 @@ CSG_String & CSG_String::Remove(size_t pos, size_t len)
 //---------------------------------------------------------
 int CSG_String::Remove_WhiteChars(bool fromEnd)
 {
-	int		n, c;
+	CSG_String	s(m_pString->Trim(fromEnd));
 
-	if( fromEnd )
+	if( s.Length() < m_pString->Length() )
 	{
-		for(n=Length()-1; n>=0; n--)
-		{
-			c	= m_pString->GetChar(n);
+		*m_pString	= s;
 
-			if( c == ' ' || c == '\t' )
-			{
-				break;
-			}
-		}
-
-		if( n < (int)Length() - 1 )
-		{
-			Remove(n);
-		}
-
-		n	= Length() - n;
-	}
-	else
-	{
-		for(n=0; n<(int)Length(); n++)
-		{
-			c	= m_pString->GetChar(n);
-
-			if( c == ' ' || c == '\t' )
-			{
-				break;
-			}
-		}
-
-		if( n > 0 )
-		{
-			Remove(0, n);
-		}
+		return( 1 );
 	}
 
-	return( n );
+	return( 0 );
 }
 
 
