@@ -394,18 +394,13 @@ CSG_String & CSG_String::Remove(size_t pos, size_t len)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSG_String::Remove_WhiteChars(bool fromEnd)
+int CSG_String::Trim(bool fromRight)
 {
-	CSG_String	s(m_pString->Trim(fromEnd));
+	int		n	= m_pString->Length();
 
-	if( s.Length() < m_pString->Length() )
-	{
-		*m_pString	= s;
+	m_pString->Trim(fromRight);
 
-		return( 1 );
-	}
-
-	return( 0 );
+	return( n - m_pString->Length() );
 }
 
 
@@ -510,16 +505,14 @@ int CSG_String::asInt(void) const
 
 bool CSG_String::asInt(int &Value) const
 {
-	long	lValue;
+	long	lValue	= 0;
 
-	if( m_pString->ToLong(&lValue) )
+	if( m_pString->ToLong(&lValue) || lValue != 0 )
 	{
 		Value	= (int)lValue;
 
 		return( true );
 	}
-
-	Value	= (int)lValue;
 
 	return( false );
 }
@@ -532,13 +525,20 @@ double CSG_String::asDouble(void) const
 	asDouble(Value);
 
 	return( Value );
-
-//	return( asDouble(Value) ? Value : 0.0 );
 }
 
 bool CSG_String::asDouble(double &Value) const
 {
-	return( m_pString->ToDouble(&Value) );
+	double	dValue	= 0.0;
+
+	if( m_pString->ToDouble(&dValue) || dValue != 0.0 )
+	{
+		Value	= dValue;
+
+		return( true );
+	}
+
+	return( false );
 }
 
 
@@ -885,6 +885,26 @@ int				SG_Get_Significant_Decimals(double Value, int maxDecimals)
 	}
 
 	return( maxDecimals );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void			SG_Flip_Decimal_Separators(CSG_String &String)
+{
+	for(int i=0; i<(int)String.Length(); i++)
+	{
+		switch( String[i] )
+		{
+		case '.':	String[i]	= ',';	break;
+		case ',':	String[i]	= '.';	break;
+		}
+	}
 }
 
 

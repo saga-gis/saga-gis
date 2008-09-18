@@ -228,6 +228,14 @@ make -fmakefile.mingw
 POPD
 
 ECHO ###################################
+ECHO io_table
+ECHO -----------------------------------
+
+PUSHD .\modules_io\table\io_table
+make -fmakefile.mingw
+POPD
+
+ECHO ###################################
 ECHO io_table_odbc
 ECHO -----------------------------------
 

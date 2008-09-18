@@ -78,7 +78,7 @@ bool CPoints_From_Table::On_Execute(void)
 
 	if( pTable->Get_Field_Count() > 1 && pTable->Get_Record_Count() > 0 )
 	{
-		for(iRecord=0; iRecord<pTable->Get_Record_Count(); iRecord++)
+		for(iRecord=0; iRecord<pTable->Get_Record_Count() && Set_Progress(iRecord, pTable->Get_Record_Count()); iRecord++)
 		{
 			pRecord	= pTable->Get_Record(iRecord);
 

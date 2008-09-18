@@ -213,6 +213,21 @@ Package=<4>
 
 ###############################################################################
 
+Project: "io_gdal"=.\modules_io\gdal\io_gdal\io_gdal.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "io_gps"=.\modules_io\gps\io_gps\io_gps.dsp - Package Owner=<4>
 
 Package=<5>
@@ -229,21 +244,6 @@ Package=<4>
 ###############################################################################
 
 Project: "io_grid"=.\modules_io\grid\io_grid\io_grid.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name saga_api
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "io_gdal"=.\modules_io\gdal\io_gdal\io_gdal.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -311,6 +311,21 @@ Package=<5>
 
 Package=<4>
 {{{
+}}}
+
+###############################################################################
+
+Project: "io_table"=.\modules_io\table\io_table\io_table.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
 }}}
 
 ###############################################################################

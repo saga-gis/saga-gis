@@ -294,7 +294,7 @@ bool CSG_File::Read_Line(CSG_String &sLine)
 	{
 		sLine.Clear();
 
-		while( !feof(m_pStream) && (c = SG_FILE_GETC(m_pStream)) != 0x0A && c != 0x0D )
+		while( !feof(m_pStream) && (c = SG_FILE_GETC(m_pStream)) != 0x0A && c != 0x0D && c != EOF )
 		{
 			sLine.Append(c);
 		}

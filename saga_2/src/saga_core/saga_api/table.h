@@ -236,8 +236,8 @@ public:
 								CSG_Table			(const CSG_Table &Table);
 	bool						Create				(const CSG_Table &Table);
 
-								CSG_Table			(const SG_Char *File_Name, SG_Char Separator = SG_T('\t'));
-	bool						Create				(const SG_Char *File_Name, SG_Char Separator = SG_T('\t'));
+								CSG_Table			(const SG_Char *File_Name, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, const SG_Char *Separator = SG_T("\t"));
+	bool						Create				(const SG_Char *File_Name, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, const SG_Char *Separator = SG_T("\t"));
 
 								CSG_Table			(CSG_Table *pStructure);
 	bool						Create				(CSG_Table *pStructure);
@@ -252,7 +252,7 @@ public:
 	bool						Assign_Values		(CSG_Table *pTable);
 
 	virtual bool				Save				(const SG_Char *File_Name, int Format = 0);
-	virtual bool				Save				(const SG_Char *File_Name, int Format, SG_Char Separator);
+	virtual bool				Save				(const SG_Char *File_Name, int Format, const SG_Char *Separator);
 	bool						Serialize			(CSG_File &Stream, bool bSave);
 
 	//-----------------------------------------------------
@@ -350,7 +350,7 @@ protected:
 	void						_On_Construction	(void);
 
 	bool						_Create				(const CSG_Table &Table);
-	bool						_Create				(const SG_Char *File_Name, SG_Char Separator);
+	bool						_Create				(const SG_Char *File_Name, TSG_Table_File_Type Format, const SG_Char *Separator);
 	bool						_Create				(CSG_Table *pStructure);
 
 	bool						_Destroy			(void);
@@ -370,9 +370,9 @@ protected:
 	bool						_Range_Invalidate	(int iField)	const;
 	bool						_Range_Update		(int iField)	const;
 
-	bool						_Load				(const SG_Char *File_Name, int Format    , SG_Char Separator);
-	bool						_Load_Text			(const SG_Char *File_Name, bool bHeadline, SG_Char Separator);
-	bool						_Save_Text			(const SG_Char *File_Name, bool bHeadline, SG_Char Separator);
+	bool						_Load				(const SG_Char *File_Name, TSG_Table_File_Type Format, const SG_Char *Separator);
+	bool						_Load_Text			(const SG_Char *File_Name, bool bHeadline, const SG_Char *Separator);
+	bool						_Save_Text			(const SG_Char *File_Name, bool bHeadline, const SG_Char *Separator);
 	bool						_Load_DBase			(const SG_Char *File_Name);
 	bool						_Save_DBase			(const SG_Char *File_Name);
 

@@ -789,7 +789,7 @@ int CSG_Grid::_Load_Native_Get_Key(CSG_File &Stream, CSG_String &Value)
 	if( Stream.Read_Line(sLine) && (i = sLine.Find('=')) > 0 )
 	{
 		Value.Printf(sLine.AfterFirst('='));
-		Value.Remove_WhiteChars();
+		Value.Trim();
 
 		sLine.Remove(i);
 

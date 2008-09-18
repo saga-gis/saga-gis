@@ -73,17 +73,17 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Table::_Load(const SG_Char *File_Name, int Format, SG_Char Separator)
+bool CSG_Table::_Load(const SG_Char *File_Name, TSG_Table_File_Type Format, const SG_Char *Separator)
 {
 	bool		bResult;
-	CSG_String	fName;
+	CSG_String	fName, sSeparator(Separator);
 
 	_Destroy();
 
 	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Load table"), File_Name), true);
 
 	//-----------------------------------------------------
-	if( Format <= TABLE_FILETYPE_Undefined || Format > TABLE_FILETYPE_DBase )
+	if( Format == TABLE_FILETYPE_Undefined )
 	{
 		if( SG_File_Cmp_Extension(File_Name, SG_T("dbf")) )
 		{
@@ -92,7 +92,7 @@ bool CSG_Table::_Load(const SG_Char *File_Name, int Format, SG_Char Separator)
 		else if( SG_File_Cmp_Extension(File_Name, SG_T("csv")) )
 		{
 			Format	= TABLE_FILETYPE_Text;
-			Separator	= ';';
+			sSeparator	= ";";
 		}
 		else //if( SG_File_Cmp_Extension(File_Name, SG_T("txt")) )
 		{
@@ -104,11 +104,11 @@ bool CSG_Table::_Load(const SG_Char *File_Name, int Format, SG_Char Separator)
 	switch( Format )
 	{
 	case TABLE_FILETYPE_Text:
-		bResult	= _Load_Text (File_Name, true , Separator);
+		bResult	= _Load_Text (File_Name, true , sSeparator);
 		break;
 
 	case TABLE_FILETYPE_Text_NoHeadLine:
-		bResult	= _Load_Text (File_Name, false, Separator);
+		bResult	= _Load_Text (File_Name, false, sSeparator);
 		break;
 
 	case TABLE_FILETYPE_DBase:
@@ -144,13 +144,14 @@ bool CSG_Table::_Load(const SG_Char *File_Name, int Format, SG_Char Separator)
 //---------------------------------------------------------
 bool CSG_Table::Save(const SG_Char *File_Name, int Format)
 {
-	return( Save(File_Name, Format, '\t') );
+	return( Save(File_Name, Format, SG_T("\t")) );
 }
 
 //---------------------------------------------------------
-bool CSG_Table::Save(const SG_Char *File_Name, int Format, SG_Char Separator)
+bool CSG_Table::Save(const SG_Char *File_Name, int Format, const SG_Char *Separator)
 {
-	bool	bResult;
+	bool		bResult;
+	CSG_String	sSeparator(Separator);
 
 	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Save table"), File_Name), true);
 
@@ -164,7 +165,7 @@ bool CSG_Table::Save(const SG_Char *File_Name, int Format, SG_Char Separator)
 		else if( SG_File_Cmp_Extension(File_Name, SG_T("csv")) )
 		{
 			Format	= TABLE_FILETYPE_Text;
-			Separator	= ';';
+			sSeparator	= ';';
 		}
 		else //if( SG_File_Cmp_Extension(File_Name, SG_T("txt")) )
 		{
@@ -216,7 +217,7 @@ bool CSG_Table::Save(const SG_Char *File_Name, int Format, SG_Char Separator)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Table::_Load_Text(const SG_Char *File_Name, bool bHeadline, SG_Char Separator)
+bool CSG_Table::_Load_Text(const SG_Char *File_Name, bool bHeadline, const SG_Char *Separator)
 {
 	bool				bNumeric, bFloat;
 	int					i, iField, iRecord, fLength;
@@ -346,7 +347,7 @@ bool CSG_Table::_Load_Text(const SG_Char *File_Name, bool bHeadline, SG_Char Sep
 }
 
 //---------------------------------------------------------
-bool CSG_Table::_Save_Text(const SG_Char *File_Name, bool bHeadline, SG_Char Separator)
+bool CSG_Table::_Save_Text(const SG_Char *File_Name, bool bHeadline, const SG_Char *Separator)
 {
 	int			iField, iRecord;
 	CSG_File	Stream;
@@ -357,7 +358,7 @@ bool CSG_Table::_Save_Text(const SG_Char *File_Name, bool bHeadline, SG_Char Sep
 		{
 			for(iField=0; iField<Get_Field_Count(); iField++)
 			{
-				Stream.Printf(SG_T("%s%c"), Get_Field_Name(iField), iField < Get_Field_Count() - 1 ? Separator : SG_T('\n'));
+				Stream.Printf(SG_T("%s%s"), Get_Field_Name(iField), iField < Get_Field_Count() - 1 ? Separator : SG_T("\n"));
 			}
 
 			for(iRecord=0; iRecord<Get_Record_Count() && SG_UI_Process_Set_Progress(iRecord, Get_Record_Count()); iRecord++)
@@ -365,7 +366,7 @@ bool CSG_Table::_Save_Text(const SG_Char *File_Name, bool bHeadline, SG_Char Sep
 				for(iField=0; iField<Get_Field_Count(); iField++)
 				{
 					Stream.Printf(SG_T("%s"), Get_Record(iRecord)->asString(iField));
-					Stream.Printf(SG_T("%c"), iField < Get_Field_Count() - 1 ? Separator : SG_T('\n'));
+					Stream.Printf(SG_T("%s"), iField < Get_Field_Count() - 1 ? Separator : SG_T("\n"));
 				}
 			}
 
