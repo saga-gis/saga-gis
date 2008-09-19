@@ -328,7 +328,7 @@ CTable_Text_Import_Numbers::CTable_Text_Import_Numbers(void)
 	Parameters.Add_Value(
 		NULL	, "HEADLINE"	, _TL("File contains headline"),
 		_TL(""),
-		PARAMETER_TYPE_Bool		, true
+		PARAMETER_TYPE_Bool		, false
 	);
 
 	Parameters.Add_Choice(
@@ -438,7 +438,7 @@ bool CTable_Text_Import_Numbers::On_Execute(void)
 					sLine	= sLine.AfterFirst(' ');
 				}
 			}
-			while( Stream.Read_Line(sLine) && Set_Progress(Stream.Tell(), fLength) );
+			while( Stream.Read_Line(sLine) && sLine.Length() > 0 && Set_Progress(Stream.Tell(), fLength) );
 		}
 
 		return( true );
