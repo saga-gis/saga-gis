@@ -95,9 +95,12 @@ protected:
 
 private:
 
-	int						m_nPoints_Max;
+	int						m_nPoints_Max, m_Mode;
 
 	double					m_Power, m_Radius;
+
+
+	bool					_Get_Value			(const TSG_Point &p, double &z, double &ds);
 
 };
 

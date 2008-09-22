@@ -1103,6 +1103,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\shapes_split_by_attribute.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\shapes_split_randomly.cpp"
 				>
 			</File>
@@ -1389,6 +1393,10 @@
 			</File>
 			<File
 				RelativePath="shapes_split.h"
+				>
+			</File>
+			<File
+				RelativePath=".\shapes_split_by_attribute.h"
 				>
 			</File>
 			<File

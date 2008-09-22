@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.9 2008-09-03 13:27:08 oconrad Exp $
+# $Id: Makefile.am,v 1.10 2008-09-22 15:19:44 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -35,6 +35,7 @@ SummaryPDFDocEngine.cpp\
 TransformShapes.cpp\
 shapes_buffer.cpp\
 shapes_cut.cpp\
+shapes_cut_by_attribute.cpp\
 shapes_cut_interactive.cpp\
 shapes_extents.cpp\
 shapes_split.cpp\
@@ -61,6 +62,7 @@ SummaryPDFDocEngine.h\
 TransformShapes.h\
 shapes_buffer.h\
 shapes_cut.h\
+shapes_cut_by_attribute.h\
 shapes_cut_interactive.h\
 shapes_extents.h\
 shapes_split.h\

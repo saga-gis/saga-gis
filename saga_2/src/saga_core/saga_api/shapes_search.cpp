@@ -500,8 +500,9 @@ void CSG_Shapes_Search::_Select_Add(CSG_Shape *pPoint, double Distance)
 }
 
 //---------------------------------------------------------
-int CSG_Shapes_Search::Select_Radius(double x, double y, double Radius, bool bSort, int MaxPoints)
+int CSG_Shapes_Search::Select_Radius(double x, double y, double Radius, bool bSort, int MaxPoints, int iQuadrant)
 {
+	bool		bInclude;
 	int			ix, xLeft, xRight;
 	double		d, dx, Radius_2;
 
@@ -509,14 +510,46 @@ int CSG_Shapes_Search::Select_Radius(double x, double y, double Radius, bool bSo
 
 	Radius_2	= Radius * Radius;
 
-	xLeft		= _Get_Index_Next(x - Radius);
-	xRight		= _Get_Index_Next(x + Radius);
+	switch( iQuadrant )
+	{
+	default:
+		xLeft		= _Get_Index_Next(x - Radius);
+		xRight		= _Get_Index_Next(x + Radius);
+		break;
+
+	case 0:	// upper right
+		xLeft		= _Get_Index_Next(x);
+		xRight		= _Get_Index_Next(x + Radius);
+		break;
+
+	case 1:	// lower right
+		xLeft		= _Get_Index_Next(x);
+		xRight		= _Get_Index_Next(x + Radius);
+		break;
+
+	case 2:	// upper left
+		xLeft		= _Get_Index_Next(x - Radius);
+		xRight		= _Get_Index_Next(x);
+		break;
+
+	case 3:	// lower left
+		xLeft		= _Get_Index_Next(x - Radius);
+		xRight		= _Get_Index_Next(x);
+		break;
+	}
 
 	for(ix=xLeft; ix<=xRight; ix++)
 	{
 		d		= m_Pos[ix].y - y;
 
-		if( d >= -Radius && d <= Radius )
+		switch( iQuadrant )
+		{
+		default:		bInclude	= d >= -Radius && d <= Radius;	break;	// all
+		case 0:	case 2:	bInclude	= d >= 0.0     && d <= Radius;	break;	// upper
+		case 1:	case 3:	bInclude	= d >= -Radius && d <= 0.0;		break;	// lower
+		}
+
+		if( bInclude )
 		{
 			dx	= m_Pos[ix].x - x;
 			d	= dx*dx + d*d;
