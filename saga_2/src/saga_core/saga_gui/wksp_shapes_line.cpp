@@ -335,6 +335,9 @@ void CWKSP_Shapes_Line::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, boo
 }
 
 //---------------------------------------------------------
+#define GET_ANGLE(a, b)	M_RAD_TO_DEG * (b.x != a.x ? M_PI_180 - atan2(b.y - a.y, b.x - a.x) : (b.y > a.y ? M_PI_270 : (b.y < a.y ? M_PI_090 : 0.0)))
+
+//---------------------------------------------------------
 void CWKSP_Shapes_Line::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 {
 	const int	m_Label_Freq	= 10,
@@ -381,9 +384,7 @@ void CWKSP_Shapes_Line::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 						bLabel	= false;
 						d		= 0.0;
 
-						dc_Map.dc.DrawRotatedText(s, B.x, B.y, 
-							M_RAD_TO_DEG * SG_Get_Angle_Of_Direction(B.x - A.x, A.y - B.y)
-						);
+						dc_Map.dc.DrawRotatedText(s, B.x, B.y, GET_ANGLE(A, B));
 
 					//	dc_Map.dc.DrawCircle(A.x, A.y, 3);	dc_Map.dc.DrawCircle(B.x, B.y, 3);
 					}

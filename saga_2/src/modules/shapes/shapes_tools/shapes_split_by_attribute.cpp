@@ -127,29 +127,23 @@ bool CShapes_Split_by_Attribute::On_Execute(void)
 		CSG_String	sValue;
 		CSG_Shapes	*pCut	= NULL;
 
-		for(int iShape=0; iShape<pShapes->Get_Count(); iShape++)
+		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
 			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
 
 			if( !pCut || sValue.Cmp(pShape->asString(iField)) )
 			{
-				if( pCut )
-				{
-					if( pCut->Get_Count() > 0 )
-					{
-						Parameters("CUTS")->asShapesList()->Add_Item(pCut);
-					}
-					else
-					{
-						delete(pCut);
-					}
-				}
-
 				pCut	= SG_Create_Shapes(
 					pShapes->Get_Type(),
-					CSG_String::Format(SG_T("%s [%s = %s]"), pShapes->Get_Name(), pShapes->Get_Table().Get_Field_Name(iField), pShape->asString(iField)),
+					CSG_String::Format(SG_T("%s [%s = %s]"),
+						pShapes->Get_Name(),
+						pShapes->Get_Table().Get_Field_Name(iField),
+						pShape->asString(iField)
+					),
 					&pShapes->Get_Table()
 				);
+
+				Parameters("CUTS")->asShapesList()->Add_Item(pCut);
 
 				sValue	= pShape->asString(iField);
 			}
@@ -157,7 +151,7 @@ bool CShapes_Split_by_Attribute::On_Execute(void)
 			pCut->Add_Shape(pShape, true);
 		}
 
-		return( pCut->Get_Count() > 0 );
+		return( pCut != NULL );
 	}
 
 	return( false );

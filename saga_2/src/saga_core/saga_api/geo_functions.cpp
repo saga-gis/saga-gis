@@ -106,11 +106,14 @@ double		SG_Get_Distance(const TSG_Point &A, const TSG_Point &B)
 //---------------------------------------------------------
 double		SG_Get_Angle_Of_Direction(double dx, double dy)
 {
-	return(	dx != 0.0 ?	M_PI_180 + atan2(dy, dx)	: (
-			dy  > 0.0 ?	M_PI_270					: (
-			dy  < 0.0 ?	M_PI_090					:
-						0.0							) )
-	);
+	if( dx == 0.0 )
+	{
+		return( dy > 0.0 ? 0.0 : M_PI_180 );
+	}
+
+	dx	= M_PI_090 - atan2(dy, dx);
+
+	return( dx < 0.0 ? M_PI_360 + dx : dx );
 }
 
 //---------------------------------------------------------

@@ -390,6 +390,20 @@ bool CShapes_Buffer::Get_Buffer_Polygon(CSG_Shape *pPolygon)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+inline double CShapes_Buffer::Get_Direction(const TSG_Point &From, const TSG_Point &To)
+{
+	double	dx	= To.x - From.x;
+	double	dy	= To.y - From.y;
+
+	return(	dx != 0.0 ?	M_PI_180 + atan2(dy, dx)	: (
+			dy  > 0.0 ?	M_PI_270					: (
+			dy  < 0.0 ?	M_PI_090					:
+						0.0							) )
+	);
+}
+
+
+//---------------------------------------------------------
 inline void CShapes_Buffer::Add_Vertex(const TSG_Point &Center, double theta)
 {
 	m_pSegment->Add_Point(
@@ -426,8 +440,8 @@ void CShapes_Buffer::Add_Arc(const TSG_Point &Center, const TSG_Point &A, const 
 {
 	double	alpha, beta;
 
-	alpha	= SG_Get_Angle_Of_Direction(A, Center);
-	beta	= SG_Get_Angle_Of_Direction(B, Center);
+	alpha	= Get_Direction(A, Center);
+	beta	= Get_Direction(B, Center);
 
 	if( alpha - beta >= M_PI_180 )
 	{
@@ -537,7 +551,7 @@ void CShapes_Buffer::Add_Line(CSG_Shape_Line *pShape, int iPart)
 			Add_Arc(B, BC[0], AB[1]);
 	}
 
-	a	= SG_Get_Angle_Of_Direction(A, B);
+	a	= Get_Direction(A, B);
 	Add_Arc(A, a - M_PI_090, a + M_PI_090);
 
 	//-----------------------------------------------------
@@ -562,7 +576,7 @@ void CShapes_Buffer::Add_Line(CSG_Shape_Line *pShape, int iPart)
 			Add_Arc(B, BC[0], AB[1]);
 	}
 
-	a	= SG_Get_Angle_Of_Direction(A, B);
+	a	= Get_Direction(A, B);
 	Add_Arc(A, a - M_PI_090, a + M_PI_090);
 }
 
