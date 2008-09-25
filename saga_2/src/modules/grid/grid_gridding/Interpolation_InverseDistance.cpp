@@ -142,8 +142,9 @@ bool CInterpolation_InverseDistance::_Get_Value(const TSG_Point &p, double &z, d
 			if( d <= 0.0 )
 			{
 				z	= pPoint->Get_Record()->asDouble(m_zField);
+				ds	= 1.0;
 
-				return( true );
+				return( false );
 			}
 
 			d	= pow(d, -m_Power);
@@ -153,7 +154,7 @@ bool CInterpolation_InverseDistance::_Get_Value(const TSG_Point &p, double &z, d
 		}
 	}
 
-	return( false );
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -170,25 +171,24 @@ bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &z)
 	switch( m_Mode )
 	{
 	case 0: default:
-		if( m_Search.Select_Radius(x, y, m_Radius, true, m_nPoints_Max) > 0 )
+		if( m_Search.Select_Radius(x, y, m_Radius, false, m_nPoints_Max) > 0 )
 		{
-			if( _Get_Value(p, z, ds) )
+			if( !_Get_Value(p, z, ds) )
 			{
 				return( true );
 			}
 		}
+		break;
 
 	case 1:
-		for(int iQuadrant=0; iQuadrant<4; iQuadrant++)
+		if( m_Search.Select_Quadrants(x, y, m_Radius, m_nPoints_Max) > 0 )
 		{
-			if( m_Search.Select_Radius(x, y, m_Radius, true, m_nPoints_Max, iQuadrant) > 0 )
+			if( !_Get_Value(p, z, ds) )
 			{
-				if( _Get_Value(p, z, ds) )
-				{
-					return( true );
-				}
+				return( true );
 			}
 		}
+		break;
 	}
 
 	if( ds > 0.0 )

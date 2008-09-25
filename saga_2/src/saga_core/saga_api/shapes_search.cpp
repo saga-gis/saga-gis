@@ -491,7 +491,7 @@ void CSG_Shapes_Search::_Select_Add(CSG_Shape *pPoint, double Distance)
 		m_Selected_Buf	+= 8;
 
 		m_Selected		= (CSG_Shape **)SG_Realloc(m_Selected    , m_Selected_Buf * sizeof(CSG_Shape *));
-		m_Selected_Dst	= (double  *)SG_Realloc(m_Selected_Dst, m_Selected_Buf * sizeof(double  ));
+		m_Selected_Dst	= (double     *)SG_Realloc(m_Selected_Dst, m_Selected_Buf * sizeof(double     ));
 	}
 
 	m_Selected    [m_nSelected]	= pPoint;
@@ -546,7 +546,7 @@ int CSG_Shapes_Search::Select_Radius(double x, double y, double Radius, bool bSo
 		{
 		default:		bInclude	= d >= -Radius && d <= Radius;	break;	// all
 		case 0:	case 2:	bInclude	= d >= 0.0     && d <= Radius;	break;	// upper
-		case 1:	case 3:	bInclude	= d >= -Radius && d <= 0.0;		break;	// lower
+		case 1:	case 3:	bInclude	= d >= -Radius && d <  0.0;		break;	// lower
 		}
 
 		if( bInclude )
@@ -567,6 +567,47 @@ int CSG_Shapes_Search::Select_Radius(double x, double y, double Radius, bool bSo
 	}
 
 	return( MaxPoints <= 0 || MaxPoints > m_nSelected ? m_nSelected : MaxPoints );
+}
+
+//---------------------------------------------------------
+int CSG_Shapes_Search::Select_Quadrants(double x, double y, double Radius, int MaxPoints, int MinPoints)
+{
+	if( MaxPoints <= 0 )
+	{
+		return( Select_Radius(x, y, Radius, true, MaxPoints) );
+	}
+
+	int			iQuadrant, i, n, nTotal;
+
+	CSG_Shape	**Selected		= (CSG_Shape **)SG_Malloc(4 * MaxPoints * sizeof(CSG_Shape *));
+
+
+	for(iQuadrant=0, nTotal=0; iQuadrant<4; iQuadrant++)
+	{
+		n	= Select_Radius(x, y, Radius, false, MaxPoints, iQuadrant);
+
+		if( n < MinPoints )
+		{
+			return( 0 );
+		}
+
+		for(i=0; i<n; i++)
+		{
+			Selected[nTotal + i]	= Get_Selected_Point(i);
+		}
+
+		nTotal	+= n;
+	}
+
+
+	for(i=0, m_nSelected=0; i<nTotal; i++)
+	{
+		_Select_Add(Selected[i], -1.0);
+	}
+
+	SG_Free(Selected);
+
+	return( m_nSelected );
 }
 
 

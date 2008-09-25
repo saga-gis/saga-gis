@@ -95,7 +95,7 @@ protected:
 
 private:
 
-	int						m_nPoints_Min, m_nPoints_Max;
+	int						m_nPoints_Min, m_nPoints_Max, m_Mode;
 
 	double					m_Radius;
 

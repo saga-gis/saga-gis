@@ -6,11 +6,11 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//            geostatistics_kriging_variogram            //
+//                     grid_spline                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  Kriging_Ordinary.h                   //
+//                 Gridding_Spline_CSA.h                 //
 //                                                       //
 //                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
@@ -53,23 +53,16 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Kriging_Ordinary_H
-#define HEADER_INCLUDED__Kriging_Ordinary_H
-
-
-///////////////////////////////////////////////////////////
-//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "kriging_ordinary_global.h"
+#ifndef HEADER_INCLUDED__Gridding_Spline_CSA_H
+#define HEADER_INCLUDED__Gridding_Spline_CSA_H
+
+//---------------------------------------------------------
+#include "Gridding_Spline_Base.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -79,28 +72,23 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class geostatistics_kriging_EXPORT CKriging_Ordinary : public CKriging_Ordinary_Global
+class CGridding_Spline_CSA : public CGridding_Spline_Base
 {
 public:
-	CKriging_Ordinary(void);
-	virtual ~CKriging_Ordinary(void);
+	CGridding_Spline_CSA(void);
 
 
 protected:
 
-	virtual bool			On_Initialise	(void);
+	virtual bool			On_Execute		(void);
 
-	virtual bool			Get_Value		(double x, double y, double &z, double &Variance);
+	virtual bool			On_Initialise	(void);
 
 
 private:
 
-	int						m_nPoints_Min, m_nPoints_Max, m_Mode;
+	CSG_Points_3D			m_Points;
 
-	double					m_Radius;
-
-
-	int						Get_Weights		(double x, double y);
 
 };
 
@@ -112,4 +100,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Kriging_Ordinary_H
+#endif // #ifndef HEADER_INCLUDED__Gridding_Spline_CSA_H

@@ -74,12 +74,12 @@ const SG_Char *	Get_Info(int i)
 		return( _TL("Grid - Spline Interpolation") );
 
 	case MLB_INFO_Author:
-		return( _TL("(c) 2006 by Olaf Conrad") );
+		return( _TL("O. Conrad (c) 2006-8") );
 
 	case MLB_INFO_Description:
 		return( _TW(
 			"Several spline interpolation/approximation methods for the gridding of scattered data. "
-			"In most cases the 'Multilevel B-spline Interpolation' will be the optimal choice. "
+			"In most cases the 'Multilevel B-spline Interpolation' might be the optimal choice. "
 		));
 
 	case MLB_INFO_Version:
@@ -100,6 +100,7 @@ const SG_Char *	Get_Info(int i)
 #include "Gridding_Spline_BA.h"
 #include "Gridding_Spline_MBA.h"
 #include "Gridding_Spline_MBA_Grid.h"
+#include "Gridding_Spline_CSA.h"
 
 
 //---------------------------------------------------------
@@ -115,6 +116,7 @@ CSG_Module *		Create_Module(int i)
 	case 3:		return( new CGridding_Spline_BA );
 	case 4:		return( new CGridding_Spline_MBA );
 	case 5:		return( new CGridding_Spline_MBA_Grid );
+	case 6:		return( new CGridding_Spline_CSA );
 	}
 
 	return( NULL );

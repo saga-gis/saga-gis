@@ -700,6 +700,7 @@ public:
 	CSG_Shape *					Get_Point_Nearest	(double x, double y, int iQuadrant);
 
 	int							Select_Radius		(double x, double y, double Radius, bool bSort = false, int MaxPoints = -1, int iQuadrant = -1);
+	int							Select_Quadrants	(double x, double y, double Radius, int MaxPoints, int MinPoints = 0);
 	int							Get_Selected_Count	(void)	{	return( m_nSelected );		}
 
 	CSG_Shape *					Get_Selected_Point	(int iSelected)
