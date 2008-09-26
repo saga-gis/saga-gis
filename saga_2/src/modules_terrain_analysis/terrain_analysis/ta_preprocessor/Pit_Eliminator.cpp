@@ -71,11 +71,13 @@
 //---------------------------------------------------------
 CPit_Eliminator::CPit_Eliminator(void)
 {
-	Set_Name(_TL("Sink Removal"));
+	Set_Name		(_TL("Sink Removal"));
 
-	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
+	Set_Author		(SG_T("O. Conrad (c) 2001"));
 
-	Set_Description(_TL(""));
+	Set_Description	(_TW(
+		""
+	));
 
 	Parameters.Add_Grid(
 		NULL, "DEM"			, _TL("DEM"),
@@ -102,6 +104,18 @@ CPit_Eliminator::CPit_Eliminator(void)
 			_TL("Deepen Drainage Routes"),
 			_TL("Fill Sinks")
 		), 1
+	);
+
+	Parameters.Add_Value(
+		NULL	, "THRESHOLD"	, _TL("Threshold"),
+		_TL(""),
+		PARAMETER_TYPE_Bool
+	);
+
+	Parameters.Add_Value(
+		NULL	, "THRSHEIGHT"	, _TL("Threshold Height"),
+		_TL(""),
+		PARAMETER_TYPE_Double	, 100
 	);
 }
 
@@ -145,7 +159,7 @@ bool CPit_Eliminator::On_Execute(void)
 	if( bKillRoute )
 	{
 		pRoute	= SG_Create_Grid(pDTM);
-		nPits	= Router.Get_Routes(pDTM, pRoute);
+		nPits	= Router.Get_Routes(pDTM, pRoute, Parameters("THRESHOLD")->asBool() ? Parameters("THRSHEIGHT")->asDouble() : -1.0);
 	}
 	else
 	{

@@ -120,11 +120,9 @@ private:
 
 	int							**m_Junction, *m_nJunctions;
 
-	double						m_Threshold;
+	double						m_Threshold, m_zThr, m_zMax;
 
-	CSG_Grid_System				m_System;
-
-	CSG_Grid						*m_pDEM, *m_pRoute, *m_pFlats, *m_pPits;
+	CSG_Grid					*m_pDEM, *m_pRoute, *m_pFlats, *m_pPits, m_Route;
 
 	TGEO_iRect					*m_Flat;
 
@@ -147,6 +145,10 @@ private:
 	void						Drain_Flat		(int x, int y );
 
 	void						Mark_Flat		(int x, int y, TGEO_iRect *pFlat, int Flat_ID, int Pit_ID);
+
+
+	int							Process_Threshold	(void);
+	void						Check_Threshold		(int x, int y);
 
 };
 
