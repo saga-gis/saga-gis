@@ -502,62 +502,58 @@ void CSG_Shapes_Search::_Select_Add(CSG_Shape *pPoint, double Distance)
 //---------------------------------------------------------
 int CSG_Shapes_Search::Select_Radius(double x, double y, double Radius, bool bSort, int MaxPoints, int iQuadrant)
 {
-	bool		bInclude;
-	int			ix, xLeft, xRight;
-	double		d, dx, Radius_2;
+	int		xLeft, xRight;
+	double	yBottom, yTop, Radius_2;
 
 	m_nSelected	= 0;
 
-	Radius_2	= Radius * Radius;
+	Radius_2	= Radius*Radius;
 
 	switch( iQuadrant )
 	{
-	default:
-		xLeft		= _Get_Index_Next(x - Radius);
-		xRight		= _Get_Index_Next(x + Radius);
+	default:	// all
+		xLeft	= _Get_Index_Next(x - Radius);
+		xRight	= _Get_Index_Next(x + Radius);
+		yBottom	= -Radius;
+		yTop	=  Radius;
 		break;
 
 	case 0:	// upper right
-		xLeft		= _Get_Index_Next(x);
-		xRight		= _Get_Index_Next(x + Radius);
+		xLeft	= _Get_Index_Next(x);
+		xRight	= _Get_Index_Next(x + Radius);
+		yBottom	=  0.0;
+		yTop	=  Radius;
 		break;
 
 	case 1:	// lower right
-		xLeft		= _Get_Index_Next(x);
-		xRight		= _Get_Index_Next(x + Radius);
+		xLeft	= _Get_Index_Next(x);
+		xRight	= _Get_Index_Next(x + Radius);
+		yBottom	= -Radius;
+		yTop	=  0.0;
 		break;
 
 	case 2:	// upper left
-		xLeft		= _Get_Index_Next(x - Radius);
-		xRight		= _Get_Index_Next(x);
+		xLeft	= _Get_Index_Next(x - Radius);
+		xRight	= _Get_Index_Next(x);
+		yBottom	=  0.0;
+		yTop	=  Radius;
 		break;
 
 	case 3:	// lower left
-		xLeft		= _Get_Index_Next(x - Radius);
-		xRight		= _Get_Index_Next(x);
+		xLeft	= _Get_Index_Next(x - Radius);
+		xRight	= _Get_Index_Next(x);
+		yBottom	= -Radius;
+		yTop	=  0.0;
 		break;
 	}
 
-	for(ix=xLeft; ix<=xRight; ix++)
+	for(int ix=xLeft; ix<=xRight; ix++)
 	{
-		d		= m_Pos[ix].y - y;
+		double	d	= m_Pos[ix].y - y;
 
-		switch( iQuadrant )
+		if( yBottom <= d && d < yTop && (d = d*d + SG_Get_Square(m_Pos[ix].x - x)) <= Radius_2 )
 		{
-		default:		bInclude	= d >= -Radius && d <= Radius;	break;	// all
-		case 0:	case 2:	bInclude	= d >= 0.0     && d <= Radius;	break;	// upper
-		case 1:	case 3:	bInclude	= d >= -Radius && d <  0.0;		break;	// lower
-		}
-
-		if( bInclude )
-		{
-			dx	= m_Pos[ix].x - x;
-			d	= dx*dx + d*d;
-
-			if( d <= Radius_2 )
-			{
-				_Select_Add(m_pPoints->Get_Shape(m_Idx[ix]), d);
-			}
+			_Select_Add(m_pPoints->Get_Shape(m_Idx[ix]), d);
 		}
 	}
 

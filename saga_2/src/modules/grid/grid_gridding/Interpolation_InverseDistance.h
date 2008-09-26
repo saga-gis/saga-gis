@@ -83,7 +83,6 @@ class CInterpolation_InverseDistance : public CInterpolation
 {
 public:
 	CInterpolation_InverseDistance(void);
-	virtual ~CInterpolation_InverseDistance(void);
 
 
 protected:
@@ -99,8 +98,6 @@ private:
 
 	double					m_Power, m_Radius;
 
-
-	bool					_Get_Value			(const TSG_Point &p, double &z, double &ds);
 
 };
 

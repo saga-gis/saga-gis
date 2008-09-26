@@ -72,7 +72,7 @@ CInterpolation_InverseDistance::CInterpolation_InverseDistance(void)
 {
 	Set_Name		(_TL("Inverse Distance"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		(SG_T("O. Conrad (c) 2003"));
 
 	Set_Description	(_TW(
 		"Inverse distance to a power method for grid interpolation from irregular distributed points."
@@ -106,10 +106,6 @@ CInterpolation_InverseDistance::CInterpolation_InverseDistance(void)
 	);
 }
 
-//---------------------------------------------------------
-CInterpolation_InverseDistance::~CInterpolation_InverseDistance(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -129,22 +125,30 @@ bool CInterpolation_InverseDistance::On_Initialize(void)
 }
 
 //---------------------------------------------------------
-bool CInterpolation_InverseDistance::_Get_Value(const TSG_Point &p, double &z, double &ds)
+bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &z)
 {
-	for(int i=0; i<m_Search.Get_Selected_Count(); i++)
-	{
-		CSG_Shape	*pPoint	= m_Search.Get_Selected_Point(i);
+	int			i, n;
+	double		ds;
+	TSG_Point	p;
+	CSG_Shape	*pPoint;
 
-		if( pPoint )
+	switch( m_Mode )
+	{
+	case 0:	n	= m_Search.Select_Radius	(x, y, m_Radius, false, m_nPoints_Max);		break;
+	case 1:	n	= m_Search.Select_Quadrants	(x, y, m_Radius, m_nPoints_Max);			break;
+	}
+
+	for(i=0, z=0.0, ds=0.0, p.x=x, p.y=y; i<n; i++)
+	{
+		if( (pPoint	= m_Search.Get_Selected_Point(i)) != NULL )
 		{
 			double	d	= SG_Get_Distance(p, pPoint->Get_Point(0));
 
 			if( d <= 0.0 )
 			{
 				z	= pPoint->Get_Record()->asDouble(m_zField);
-				ds	= 1.0;
 
-				return( false );
+				return( true );
 			}
 
 			d	= pow(d, -m_Power);
@@ -152,43 +156,6 @@ bool CInterpolation_InverseDistance::_Get_Value(const TSG_Point &p, double &z, d
 			z	+= d * pPoint->Get_Record()->asDouble(m_zField);
 			ds	+= d;
 		}
-	}
-
-	return( true );
-}
-
-//---------------------------------------------------------
-bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &z)
-{
-	double		ds;
-	TSG_Point	p;
-
-	p.x	= x;
-	p.y	= y;
-	z	= 0.0;
-	ds	= 0.0;
-
-	switch( m_Mode )
-	{
-	case 0: default:
-		if( m_Search.Select_Radius(x, y, m_Radius, false, m_nPoints_Max) > 0 )
-		{
-			if( !_Get_Value(p, z, ds) )
-			{
-				return( true );
-			}
-		}
-		break;
-
-	case 1:
-		if( m_Search.Select_Quadrants(x, y, m_Radius, m_nPoints_Max) > 0 )
-		{
-			if( !_Get_Value(p, z, ds) )
-			{
-				return( true );
-			}
-		}
-		break;
 	}
 
 	if( ds > 0.0 )
