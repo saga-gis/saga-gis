@@ -19,7 +19,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/Interpolation.o $(MLB_TEMP)/Interpolation_InverseDistance.o $(MLB_TEMP)/Interpolation_NearestNeighbour.o $(MLB_TEMP)/Interpolation_Shepard.o $(MLB_TEMP)/Interpolation_Triangulation.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/Shapes2Grid.o $(MLB_TEMP)/Shepard.o
+OBJ      = $(MLB_TEMP)/Interpolation.o $(MLB_TEMP)/Interpolation_InverseDistance.o $(MLB_TEMP)/Interpolation_NaturalNeighbour.o $(MLB_TEMP)/Interpolation_NearestNeighbour.o $(MLB_TEMP)/Interpolation_Shepard.o $(MLB_TEMP)/Interpolation_Triangulation.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/Shapes2Grid.o $(MLB_TEMP)/Shepard.o $(MLB_TEMP)/delaunay.o $(MLB_TEMP)/hash.o $(MLB_TEMP)/istack.o $(MLB_TEMP)/lpi.o $(MLB_TEMP)/nnai.o $(MLB_TEMP)/nncommon.o $(MLB_TEMP)/nnpi.o $(MLB_TEMP)/triangle.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS =
@@ -56,6 +56,9 @@ $(MLB_TEMP)/Interpolation.o: ./Interpolation.cpp
 $(MLB_TEMP)/Interpolation_InverseDistance.o: ./Interpolation_InverseDistance.cpp
 	$(CPP) -c ./Interpolation_InverseDistance.cpp -o $(MLB_TEMP)/Interpolation_InverseDistance.o $(CXXFLAGS)
 
+$(MLB_TEMP)/Interpolation_NaturalNeighbour.o: ./Interpolation_NaturalNeighbour.cpp
+	$(CPP) -c ./Interpolation_NaturalNeighbour.cpp -o $(MLB_TEMP)/Interpolation_NaturalNeighbour.o $(CXXFLAGS)
+
 $(MLB_TEMP)/Interpolation_NearestNeighbour.o: ./Interpolation_NearestNeighbour.cpp
 	$(CPP) -c ./Interpolation_NearestNeighbour.cpp -o $(MLB_TEMP)/Interpolation_NearestNeighbour.o $(CXXFLAGS)
 
@@ -73,3 +76,27 @@ $(MLB_TEMP)/Shapes2Grid.o: ./Shapes2Grid.cpp
 
 $(MLB_TEMP)/Shepard.o: ./Shepard.cpp
 	$(CPP) -c ./Shepard.cpp -o $(MLB_TEMP)/Shepard.o $(CXXFLAGS)
+
+$(MLB_TEMP)/delaunay.o: ./nn/delaunay.c
+	$(CPP) -c ./nn/delaunay.c -o $(MLB_TEMP)/delaunay.o $(CXXFLAGS)
+
+$(MLB_TEMP)/hash.o: ./nn/hash.c
+	$(CPP) -c ./nn/hash.c -o $(MLB_TEMP)/hash.o $(CXXFLAGS)
+
+$(MLB_TEMP)/istack.o: ./nn/istack.c
+	$(CPP) -c ./nn/istack.c -o $(MLB_TEMP)/istack.o $(CXXFLAGS)
+
+$(MLB_TEMP)/lpi.o: ./nn/lpi.c
+	$(CPP) -c ./nn/lpi.c -o $(MLB_TEMP)/lpi.o $(CXXFLAGS)
+
+$(MLB_TEMP)/nnai.o: ./nn/nnai.c
+	$(CPP) -c ./nn/nnai.c -o $(MLB_TEMP)/nnai.o $(CXXFLAGS)
+
+$(MLB_TEMP)/nncommon.o: ./nn/nncommon.c
+	$(CPP) -c ./nn/nncommon.c -o $(MLB_TEMP)/nncommon.o $(CXXFLAGS)
+
+$(MLB_TEMP)/nnpi.o: ./nn/nnpi.c
+	$(CPP) -c ./nn/nnpi.c -o $(MLB_TEMP)/nnpi.o $(CXXFLAGS)
+
+$(MLB_TEMP)/triangle.o: ./nn/triangle.c
+	$(CPP) -c ./nn/triangle.c -o $(MLB_TEMP)/triangle.o $(CXXFLAGS)

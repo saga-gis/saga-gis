@@ -738,6 +738,10 @@
 				RelativePath=".\remove_duplicates.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\separate_by_direction.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -781,6 +785,10 @@
 			</File>
 			<File
 				RelativePath=".\remove_duplicates.h"
+				>
+			</File>
+			<File
+				RelativePath=".\separate_by_direction.h"
 				>
 			</File>
 		</Filter>

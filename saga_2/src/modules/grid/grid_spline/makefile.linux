@@ -50,8 +50,8 @@ $(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
 	$(LD) $(LDFLAGS) -o $(MLB_NAME) $(OBJ) $(LIBS)
 
 
-$(MLB_TEMP)/csa.o: ./csa.cpp
-	$(CPP) -c ./csa.cpp -o $(MLB_TEMP)/csa.o $(CXXFLAGS)
+$(MLB_TEMP)/csa.o: ./csa.c
+	$(CPP) -c ./csa.c -o $(MLB_TEMP)/csa.o $(CXXFLAGS)
 
 $(MLB_TEMP)/Gridding_Spline_BA.o: ./Gridding_Spline_BA.cpp
 	$(CPP) -c ./Gridding_Spline_BA.cpp -o $(MLB_TEMP)/Gridding_Spline_BA.o $(CXXFLAGS)

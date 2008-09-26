@@ -491,6 +491,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Interpolation_NaturalNeighbour.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Interpolation_NearestNeighbour.cpp"
 				>
 				<FileConfiguration
@@ -744,6 +748,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Interpolation_NaturalNeighbour.h"
+				>
+			</File>
+			<File
 				RelativePath="Interpolation_NearestNeighbour.h"
 				>
 			</File>
@@ -829,6 +837,70 @@
 			</File>
 			<File
 				RelativePath="..\..\..\saga_core\saga_api\tin.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="nn"
+			>
+			<File
+				RelativePath=".\nn\delaunay.c"
+				>
+			</File>
+			<File
+				RelativePath=".\nn\delaunay.h"
+				>
+			</File>
+			<File
+				RelativePath=".\nn\hash.c"
+				>
+			</File>
+			<File
+				RelativePath=".\nn\hash.h"
+				>
+			</File>
+			<File
+				RelativePath=".\nn\istack.c"
+				>
+			</File>
+			<File
+				RelativePath=".\nn\istack.h"
+				>
+			</File>
+			<File
+				RelativePath=".\nn\lpi.c"
+				>
+			</File>
+			<File
+				RelativePath=".\nn\nan.h"
+				>
+			</File>
+			<File
+				RelativePath=".\nn\nn.h"
+				>
+			</File>
+			<File
+				RelativePath=".\nn\nnai.c"
+				>
+			</File>
+			<File
+				RelativePath=".\nn\nncommon.c"
+				>
+			</File>
+			<File
+				RelativePath=".\nn\nnpi.c"
+				>
+			</File>
+			<File
+				RelativePath=".\nn\triangle.c"
+				>
+			</File>
+			<File
+				RelativePath=".\nn\triangle.h"
+				>
+			</File>
+			<File
+				RelativePath=".\nn\version.h"
 				>
 			</File>
 		</Filter>

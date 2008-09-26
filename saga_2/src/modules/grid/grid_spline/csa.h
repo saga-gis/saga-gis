@@ -20,12 +20,7 @@
 //---------------------------------------------------------
 extern int csa_verbose;
 
-char* csa_version = "0.23";
-
 #include <float.h>
-
-#define copysign	_copysign
-#define isnan		_isnan
 
 #ifdef __cplusplus
 extern "C" {
@@ -67,6 +62,9 @@ void csa_setnppc(csa* a, double nppc);
 #elif defined(_SAGA_VC)
 	static const __int64 lNaN = 0xfff8000000000000;
 	#define NaN (*(double*)&lNaN)
+
+	#define copysign	_copysign
+	#define isnan		_isnan
 
 #else
 	static const long long lNaN = 0xfff8000000000000;

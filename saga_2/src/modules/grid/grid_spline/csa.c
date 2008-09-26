@@ -160,13 +160,13 @@ static void* alloc2d(int n1, int n2, size_t unitsize)
     assert((double) n1 * (double) n2 <= (double) UINT_MAX);
 
     size = n1 * n2;
-    if ((p = calloc(size, unitsize)) == NULL)
+    if ((p = (char *)calloc(size, unitsize)) == NULL)
         csa_quit("alloc2d(): %s\n", strerror(errno));
 
     assert((double) n2 * (double) sizeof(void*) <= (double) UINT_MAX);
 
     size = n2 * sizeof(void*);
-    if ((pp = malloc(size)) == NULL)
+    if ((pp = (char **)malloc(size)) == NULL)
         csa_quit("alloc2d(): %s\n", strerror(errno));
     for (i = 0; i < n2; i++)
         pp[i] = &p[i * n1 * unitsize];
@@ -190,7 +190,7 @@ static void free2d(void* pp)
 
 static triangle* triangle_create(square* s, point vertices[], int index)
 {
-    triangle* t = malloc(sizeof(triangle));
+    triangle* t = (triangle *)malloc(sizeof(triangle));
 
     t->parent = s;
     memcpy(t->vertices, vertices, sizeof(point) * 3);
@@ -214,10 +214,10 @@ static void triangle_addpoint(triangle* t, point* p)
 {
     if (t->nallocated == t->npoints) {
         if (t->nallocated == 0) {
-            t->points = malloc(NPASTART * sizeof(point*));
+            t->points = (point **)malloc(NPASTART * sizeof(point*));
             t->nallocated = NPASTART;
         } else {
-            t->points = realloc(t->points, t->nallocated * 2 * sizeof(point*));
+            t->points = (point **)realloc(t->points, t->nallocated * 2 * sizeof(point*));
             t->nallocated *= 2;
         }
     }
@@ -264,7 +264,7 @@ static square* square_create(csa* parent, double xmin, double ymin, int i, int j
 {
     int ii;
 
-    square* s = malloc(sizeof(square));
+    square* s = (square *)malloc(sizeof(square));
     double h = parent->h;
 
     s->parent = parent;
@@ -313,10 +313,10 @@ static void square_addpoint(square* s, point* p)
 {
     if (s->nallocated == s->npoints) {
         if (s->nallocated == 0) {
-            s->points = malloc(NPASTART * sizeof(point*));
+            s->points = (point **)malloc(NPASTART * sizeof(point*));
             s->nallocated = NPASTART;
         } else {
-            s->points = realloc(s->points, s->nallocated * 2 * sizeof(point*));
+            s->points = (point **)realloc(s->points, s->nallocated * 2 * sizeof(point*));
             s->nallocated *= 2;
         }
     }
@@ -327,14 +327,14 @@ static void square_addpoint(square* s, point* p)
 
 csa* csa_create()
 {
-    csa* a = malloc(sizeof(csa));
+    csa* a = (csa *)malloc(sizeof(csa));
 
     a->xmin = DBL_MAX;
     a->xmax = -DBL_MAX;
     a->ymin = DBL_MAX;
     a->ymax = -DBL_MAX;
 
-    a->points = malloc(NPASTART * sizeof(point*));
+    a->points = (point **)malloc(NPASTART * sizeof(point*));
     a->nallocated = NPASTART;
     a->npoints = 0;
 
@@ -384,7 +384,7 @@ void csa_addpoints(csa* a, int n, point points[])
     while (na < a->npoints + n)
         na *= 2;
     if (na != a->nallocated) {
-        a->points = realloc(a->points, na * sizeof(point*));
+        a->points = (point **)realloc(a->points, na * sizeof(point*));
         a->nallocated = na;
     }
 
@@ -464,8 +464,8 @@ static void csa_squarize(csa* a)
         h = dx * a->nppc / npoints;
     a->h = h;
 
-    a->ni = ceil(dx / h) + 2;
-    a->nj = ceil(dy / h) + 2;
+    a->ni = (int)ceil(dx / h) + 2;
+    a->nj = (int)ceil(dy / h) + 2;
 
     if (csa_verbose) {
         fprintf(stderr, "  %d x %d squares\n", a->ni, a->nj);
@@ -475,7 +475,7 @@ static void csa_squarize(csa* a)
     /*
      * create squares 
      */
-    a->squares = alloc2d(a->ni, a->nj, sizeof(void*));
+    a->squares = (square ***)alloc2d(a->ni, a->nj, sizeof(void*));
     for (j = 0; j < a->nj; ++j)
         for (i = 0; i < a->ni; ++i)
             a->squares[j][i] = square_create(a, a->xmin + h * (i - 1), a->ymin + h * (j - 1), i, j);
@@ -486,8 +486,8 @@ static void csa_squarize(csa* a)
     for (ii = 0; ii < npoints; ++ii) {
         point* p = a->points[ii];
 
-        i = floor((p->x - a->xmin) / h) + 1;
-        j = floor((p->y - a->ymin) / h) + 1;
+        i = (int)floor((p->x - a->xmin) / h) + 1;
+        j = (int)floor((p->y - a->ymin) / h) + 1;
         square_addpoint(a->squares[j][i], p);
     }
 
@@ -501,7 +501,7 @@ static void csa_squarize(csa* a)
      * will be calculated directy (by least squares method), without using
      * C1 smoothness conditions. 
      */
-    a->pt = malloc((a->ni / 2 + 1) * a->nj * sizeof(triangle*));
+    a->pt = (triangle **)malloc((a->ni / 2 + 1) * a->nj * sizeof(triangle*));
     for (j = 0, ii = 0, nadj = 0; j < a->nj; ++j) {
         for (i = 0; i < a->ni; ++i) {
             square* s = a->squares[j][i];
@@ -565,10 +565,10 @@ static void csa_squarize(csa* a)
  */
 static void getsquares(csa* a, triangle* t, int* n, square*** squares)
 {
-    int imin = floor((t->middle.x - t->r - a->xmin) / t->h);
-    int imax = ceil((t->middle.x + t->r - a->xmin) / t->h);
-    int jmin = floor((t->middle.y - t->r - a->ymin) / t->h);
-    int jmax = ceil((t->middle.y + t->r - a->ymin) / t->h);
+    int imin = (int)floor((t->middle.x - t->r - a->xmin) / t->h);
+    int imax = (int)ceil((t->middle.x + t->r - a->xmin) / t->h);
+    int jmin = (int)floor((t->middle.y - t->r - a->ymin) / t->h);
+    int jmax = (int)ceil((t->middle.y + t->r - a->ymin) / t->h);
     int i, j;
 
     if (imin < 0)
@@ -581,7 +581,7 @@ static void getsquares(csa* a, triangle* t, int* n, square*** squares)
         jmax = a->nj - 1;
 
     *n = 0;
-    (*squares) = malloc((imax - imin + 1) * (jmax - jmin + 1) * sizeof(square*));
+    (*squares) = (square **)malloc((imax - imin + 1) * (jmax - jmin + 1) * sizeof(square*));
 
     for (j = jmin; j <= jmax; ++j) {
         for (i = imin; i <= imax; ++i) {
@@ -611,8 +611,8 @@ static double distance(point* p1, point* p2)
 static void thindata(triangle* t, int npmax)
 {
     csa* a = t->parent->parent;
-    int imax = ceil(sqrt((double) (npmax * 3 / 2)));
-    square*** squares = alloc2d(imax, imax, sizeof(void*));
+    int imax = (int)ceil(sqrt((double) (npmax * 3 / 2)));
+    square*** squares = (square ***)alloc2d(imax, imax, sizeof(void*));
     double h = t->r * 2.0 / imax;
     double h2 = h / 2.0;
     double xmin = t->middle.x - t->r;
@@ -625,8 +625,8 @@ static void thindata(triangle* t, int npmax)
 
     for (ii = 0; ii < t->npoints; ++ii) {
         point* p = t->points[ii];
-        int i = floor((p->x - xmin) / h);
-        int j = floor((p->y - ymin) / h);
+        int i = (int)floor((p->x - xmin) / h);
+        int j = (int)floor((p->y - ymin) / h);
         square* s = squares[j][i];
 
         if (s->npoints == 0)
@@ -768,7 +768,7 @@ static void svd(double** a, int n, int m, double* w, double** v)
 
     assert(m > 0 && n > 0);
 
-    rv1 = malloc(n * sizeof(double));
+    rv1 = (double *)malloc(n * sizeof(double));
 
     /*
      * householder reduction to bidiagonal form 
@@ -1044,8 +1044,8 @@ static void svd(double** a, int n, int m, double* w, double** v)
  */
 static void lsq(double** A, int ni, int nj, double* z, double* w, double* sol)
 {
-    double** V = alloc2d(ni, ni, sizeof(double));
-    double** B = alloc2d(nj, ni, sizeof(double));
+    double** V = (double **)alloc2d(ni, ni, sizeof(double));
+    double** B = (double **)alloc2d(nj, ni, sizeof(double));
     int i, j, ii;
 
     svd(A, ni, nj, w, V);
@@ -1103,7 +1103,7 @@ static void csa_findprimarycoeffs(csa* a)
         triangle* t = a->pt[i];
         int npoints = t->npoints;
         point** points = t->points;
-        double* z = malloc(npoints * sizeof(double));
+        double* z = (double *)malloc(npoints * sizeof(double));
         int q = n2q(t->npoints);
         int ok = 1;
         double b[10];
@@ -1128,7 +1128,7 @@ static void csa_findprimarycoeffs(csa* a)
             assert(q >= 0);
 
             if (q == 3) {
-                double** A = alloc2d(10, npoints, sizeof(double));
+                double** A = (double **)alloc2d(10, npoints, sizeof(double));
                 double w[10];
 
                 for (ii = 0; ii < npoints; ++ii) {
@@ -1175,7 +1175,7 @@ static void csa_findprimarycoeffs(csa* a)
                 free2d(A);
 
             } else if (q == 2) {
-                double** A = alloc2d(6, npoints, sizeof(double));
+                double** A = (double **)alloc2d(6, npoints, sizeof(double));
                 double w[6];
 
                 for (ii = 0; ii < npoints; ++ii) {
@@ -1225,7 +1225,7 @@ static void csa_findprimarycoeffs(csa* a)
                 free2d(A);
 
             } else if (q == 1) {
-                double** A = alloc2d(3, npoints, sizeof(double));
+                double** A = (double **)alloc2d(3, npoints, sizeof(double));
                 double w[3];
 
                 for (ii = 0; ii < npoints; ++ii) {
@@ -1266,7 +1266,7 @@ static void csa_findprimarycoeffs(csa* a)
 
                 free2d(A);
             } else if (q == 0) {
-                double** A = alloc2d(1, npoints, sizeof(double));
+                double** A = (double **)alloc2d(1, npoints, sizeof(double));
                 double w[1];
 
                 for (ii = 0; ii < npoints; ++ii)
@@ -1552,8 +1552,8 @@ void csa_approximate_point(csa* a, point* p)
         return;
     }
 
-    i = floor(ii);
-    j = floor(jj);
+    i = (int)floor(ii);
+    j = (int)floor(jj);
     s = a->squares[j][i];
     fi = ii - i;
     fj = jj - j;
@@ -1627,7 +1627,7 @@ void csa_setk(csa* a, int k)
 
 void csa_setnppc(csa* a, double nppc)
 {
-    a->nppc = nppc;
+    a->nppc = (int)(0.5 + nppc);
 }
 
 #if defined(STANDALONE)
@@ -1651,7 +1651,7 @@ static void points_generate(double xmin, double xmax, double ymin, double ymax, 
     }
 
     *nout = nx * ny;
-    *pout = malloc(*nout * sizeof(point));
+    *pout = (point *)malloc(*nout * sizeof(point));
 
     stepx = (nx > 1) ? (xmax - xmin) / (nx - 1) : 0.0;
     stepy = (ny > 1) ? (ymax - ymin) / (ny - 1) : 0.0;
@@ -1727,14 +1727,14 @@ void points_read(char* fname, int dim, int* n, point** points)
         }
     }
 
-    *points = malloc(nallocated * sizeof(point));
+    *points = (point *)malloc(nallocated * sizeof(point));
     *n = 0;
     while (fgets(buf, BUFSIZE, f) != NULL) {
         point* p;
 
         if (*n == nallocated) {
             nallocated *= 2;
-            *points = realloc(*points, nallocated * sizeof(point));
+            *points = (point *)realloc(*points, nallocated * sizeof(point));
         }
 
         p = &(*points)[*n];
@@ -1764,7 +1764,7 @@ void points_read(char* fname, int dim, int* n, point** points)
         free(*points);
         *points = NULL;
     } else
-        *points = realloc(*points, *n * sizeof(point));
+        *points = (point *)realloc(*points, *n * sizeof(point));
 
     if (f != stdin)
         if (fclose(f) != 0)
@@ -1861,7 +1861,6 @@ static void usage()
 
 static void version()
 {
-    printf("csa version %s\n", csa_version);
     exit(0);
 }
 
