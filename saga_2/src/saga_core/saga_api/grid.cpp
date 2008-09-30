@@ -1090,12 +1090,15 @@ bool CSG_Grid::Set_Index(bool bOn)
 			return( false );
 		}
 	}
-	else if( !bOn && m_bIndexed )
+	else if( !bOn )
 	{
 		m_bIndexed	= false;
 
-		SG_Free(m_Index);
-		m_Index		= NULL;
+		if( m_Index )
+		{
+			SG_Free(m_Index);
+			m_Index		= NULL;
+		}
 	}
 
 	return( true );

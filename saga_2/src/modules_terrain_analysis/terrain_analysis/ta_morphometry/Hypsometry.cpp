@@ -299,9 +299,7 @@ bool CHypsometry::Calculate_B(CSG_Grid *pDEM, CSG_Table *pTable, bool bDown, int
 	{
 		for(nMin=0; nMin<pDEM->Get_NCells() && Set_Progress_NCells(nMin); nMin++)
 		{
-			pDEM->Get_Sorted(nMin, x, y, !bDown);
-
-			if( zMin <= pDEM->asDouble(x, y) )
+			if( pDEM->Get_Sorted(nMin, x, y, !bDown) && zMin <= pDEM->asDouble(x, y) )
 			{
 				zMin	= pDEM->asDouble(x, y);
 				break;
@@ -310,9 +308,7 @@ bool CHypsometry::Calculate_B(CSG_Grid *pDEM, CSG_Table *pTable, bool bDown, int
 
 		for(nMax=pDEM->Get_NCells() - 1; nMax > nMin && Set_Progress_NCells(nMax); nMax--)
 		{
-			pDEM->Get_Sorted(nMax, x, y, !bDown);
-
-			if( zMax >= pDEM->asDouble(x, y) )
+			if( pDEM->Get_Sorted(nMax, x, y, !bDown) && zMax >= pDEM->asDouble(x, y) )
 			{
 				zMax	= pDEM->asDouble(x, y);
 				break;
@@ -346,15 +342,16 @@ bool CHypsometry::Calculate_B(CSG_Grid *pDEM, CSG_Table *pTable, bool bDown, int
 
 		for(i=0, n=nMax; i<=nClasses; i++, n-=nStep)
 		{
-			pDEM->Get_Sorted(n, x, y, !bDown);
+			if( pDEM->Get_Sorted(n, x, y, !bDown) )
+			{
+				z	= pDEM->asDouble(x, y);
 
-			z	= pDEM->asDouble(x, y);
-
-			pRecord	= pTable->Add_Record();
-			pRecord->Set_Value(0, 100.0 * i / nClasses);				// Relative Area
-			pRecord->Set_Value(1, 100.0 * (z - zMin) / zRange);			// Relative Height
-			pRecord->Set_Value(2, z);									// Absolute Height
-			pRecord->Set_Value(3, i * nStep * pDEM->Get_Cellarea());	// Absolute Area
+				pRecord	= pTable->Add_Record();
+				pRecord->Set_Value(0, 100.0 * i / nClasses);				// Relative Area
+				pRecord->Set_Value(1, 100.0 * (z - zMin) / zRange);			// Relative Height
+				pRecord->Set_Value(2, z);									// Absolute Height
+				pRecord->Set_Value(3, i * nStep * pDEM->Get_Cellarea());	// Absolute Area
+			}
 		}
 
 		return( true );

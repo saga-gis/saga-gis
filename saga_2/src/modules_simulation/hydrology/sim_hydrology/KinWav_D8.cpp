@@ -375,7 +375,7 @@ bool CKinWav_D8::On_Execute(void)
 
 			for(n=0; n<pDTM->Get_NCells(); n++)
 			{
-				pDTM->Get_Sorted(n, x, y);
+				pDTM->Get_Sorted(n, x, y, true, false);
 
 				if( pDTM->is_NoData(x, y) )
 				{

@@ -162,7 +162,7 @@ bool CWatersheds::On_Execute(void)
 	//-----------------------------------------------------
 	for(n=0, m_nBasins=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
-		pDTM->Get_Sorted(n, x, y);
+		pDTM->Get_Sorted(n, x, y, true, false);
 
 		if( !pSeed->is_NoData(x, y) && pSeed->asInt(x, y) < 0 )
 		{

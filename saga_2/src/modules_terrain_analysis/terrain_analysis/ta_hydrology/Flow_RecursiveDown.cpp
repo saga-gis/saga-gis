@@ -225,9 +225,9 @@ void CFlow_RecursiveDown::On_Finalize(void)
 	{
 		for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 		{
-			pDTM->Get_Sorted(n, x, y);
+			;
 
-			if( !pDTM->is_NoData(x, y) && (qFlow = pLinear->asDouble(x, y)) > 0.0 )
+			if( pDTM->Get_Sorted(n, x, y) && (qFlow = pLinear->asDouble(x, y)) > 0.0 )
 			{
 				Add_Flow(x, y, qFlow);
 

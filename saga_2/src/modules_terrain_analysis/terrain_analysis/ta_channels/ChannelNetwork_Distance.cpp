@@ -183,12 +183,12 @@ bool CChannelNetwork_Distance::On_Execute(void)
 		break;
 	}
 
-	pDTM->Get_Sorted(0, x, y);
+	pDTM->Set_Index(true);
 
 	//-----------------------------------------------------
 	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
-		pDTM->Get_Sorted(n, x, y, false);
+		pDTM->Get_Sorted(n, x, y, false, false);
 
 		if( pDTM->is_NoData(x, y) )
 		{

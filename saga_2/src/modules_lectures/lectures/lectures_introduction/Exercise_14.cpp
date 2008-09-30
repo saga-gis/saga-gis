@@ -259,9 +259,7 @@ void CExercise_14::Find_Channels(void)
 
 	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
-		m_pDTM->Get_Sorted(n, x, y, true);
-
-		if( m_pChnl->asInt(x, y) == SPRING )
+		if( m_pDTM->Get_Sorted(n, x, y, true) && m_pChnl->asInt(x, y) == SPRING )
 		{
 			m_pChnl	->Set_Value(x, y, SPRING);
 

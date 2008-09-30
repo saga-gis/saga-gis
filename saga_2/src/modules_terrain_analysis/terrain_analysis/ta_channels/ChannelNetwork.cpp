@@ -297,9 +297,10 @@ bool CChannelNetwork::On_Execute(void)
 
 	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
-		pDTM->Get_Sorted(n,x,y);
-
-		Set_Channel_Route(x,y);
+		if( pDTM->Get_Sorted(n,x,y) )
+		{
+			Set_Channel_Route(x,y);
+		}
 	}
 
 	if( Direction )

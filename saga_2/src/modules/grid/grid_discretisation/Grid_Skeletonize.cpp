@@ -809,41 +809,42 @@ void CGrid_Skeletonize::SK_Execute(void)
 
 	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{	
-		pInput->Get_Sorted(n, x, y);	// Von oben nach unten...
-
-		z	= pInput->asDouble(x, y);
-
-		for(i=0; i<8; i++)
+		if( pInput->Get_Sorted(n, x, y) )	// Von oben nach unten...
 		{
-			ix	= Get_System()->Get_xTo(i,x);
-			iy	= Get_System()->Get_yTo(i,y);
+			z	= pInput->asDouble(x, y);
 
-			if( !pInput->is_InGrid(ix, iy) )
+			for(i=0; i<8; i++)
 			{
-				NB[i]	= skNE;
-			}
-			else
-			{
-				iz	= pInput->asDouble(ix, iy);
+				ix	= Get_System()->Get_xTo(i,x);
+				iy	= Get_System()->Get_yTo(i,y);
 
-				if( iz < z )
+				if( !pInput->is_InGrid(ix, iy) )
 				{
 					NB[i]	= skNE;
 				}
-				else if( iz > z && pResult->asByte(ix, iy) )
-				{
-					NB[i]	= skJA;
-				}
 				else
 				{
-					NB[i]	= 0;
+					iz	= pInput->asDouble(ix, iy);
+
+					if( iz < z )
+					{
+						NB[i]	= skNE;
+					}
+					else if( iz > z && pResult->asByte(ix, iy) )
+					{
+						NB[i]	= skJA;
+					}
+					else
+					{
+						NB[i]	= 0;
+					}
 				}
 			}
-		}
 
-		if( SK_Connectivity(NB) )
-		{
-			pResult->Set_Value(x, y, 1);
+			if( SK_Connectivity(NB) )
+			{
+				pResult->Set_Value(x, y, 1);
+			}
 		}
 	}
 

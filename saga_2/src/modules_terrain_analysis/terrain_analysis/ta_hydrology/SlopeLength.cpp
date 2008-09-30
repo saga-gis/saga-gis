@@ -66,8 +66,8 @@ bool CSlopeLength::On_Execute(void){
 	}//for
 
 	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++){
-		m_pDEM->Get_Sorted(n, x, y);
-		Set_Length(x, y);	
+		if( m_pDEM->Get_Sorted(n, x, y) )
+			Set_Length(x, y);	
 	}//for
 
 	delete m_pSlopeGrid;
