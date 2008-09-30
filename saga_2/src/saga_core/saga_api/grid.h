@@ -570,40 +570,45 @@ public:		///////////////////////////////////////////////
 		{
 			m_bUpdate	= true;
 
-			m_bSorted	= false;
+			m_bIndexed	= false;
 		}
 	}
 
 
 	//-----------------------------------------------------
-	// Sort...
+	// Index...
 
-	void						Sort_Discard	(void);
+	bool						Set_Index		(bool bOn = false);
+
+	long						Get_Sorted		(long Position, bool bDown = true, bool bCheckNoData = true)
+	{
+		if( Position >= 0 && Position < Get_NCells() && (m_bIndexed || Set_Index(true)) )
+		{
+			Position	= m_Index[bDown ? Get_NCells() - Position - 1 : Position];
+
+			if( !bCheckNoData || !is_NoData(Position) )
+			{
+				return( Position );
+			}
+		}
+
+		return( -1 );
+	}
+
+	bool						Get_Sorted		(long Position, long &n, bool bDown = true, bool bCheckNoData = true)
+	{
+		return( (n = Get_Sorted(Position, bDown, bCheckNoData)) >= 0 );
+	}
 
 	bool						Get_Sorted		(long Position, int &x, int &y, bool bDown = true, bool bCheckNoData = true)
 	{
-		if( Position >= 0 && Position < Get_NCells() && (m_bSorted || _Sort_Execute()) )
+		if( (Position = Get_Sorted(Position, bDown, bCheckNoData)) >= 0 )
 		{
-			if( !bDown )
-			{
-				Position	= Get_NCells() - Position - 1;
-			}
+			x	= (int)(Position % Get_NX());
+			y	= (int)(Position / Get_NX());
 
-			if( m_Sort_2b )
-			{
-				x	= m_Sort_2b[0][Position];
-				y	= m_Sort_2b[1][Position];
-			}
-			else
-			{
-				x	= m_Sort_4b[0][Position];
-				y	= m_Sort_4b[1][Position];
-			}
-
-			return( bCheckNoData ? !is_NoData(x, y) : true );
+			return( true );
 		}
-
-		x	= y	= 0;
 
 		return( false );
 	}
@@ -766,21 +771,21 @@ public:		///////////////////////////////////////////////
 		Set_Modified();
 	}
 
+	virtual void				Set_Value_And_Sort(      long n, double Value);
+	virtual void				Set_Value_And_Sort(int x, int y, double Value);
+
 
 //---------------------------------------------------------
 private:	///////////////////////////////////////////////
 
 	void						**m_Values;
 
-	bool						m_bCreated, m_bUpdate, m_bSorted, m_Memory_bLock,
+	bool						m_bCreated, m_bUpdate, m_bIndexed, m_Memory_bLock,
 								Cache_bTemp, Cache_bSwap, Cache_bFlip;
 
-	unsigned short				**m_Sort_2b;	// Index sorted by data values (NX && NY < 2^8)...
+	int							LineBuffer_Count;
 
-	int							**m_Sort_4b,	// Index sorted by data values (NX || NY >= 2^8)...
-								LineBuffer_Count;
-
-	long						Cache_Offset;
+	long						*m_Index, Cache_Offset;
 
 	double						m_zMin, m_zMax, m_zFactor,
 								m_ArithMean, m_Variance,
@@ -817,8 +822,7 @@ private:	///////////////////////////////////////////////
 
 	void						_Set_Properties			(TSG_Grid_Type m_Type, int NX, int NY, double Cellsize, double xMin, double yMin);
 
-	bool						_Sort_Execute			(void);
-	bool						_Sort_Index				(long *Index);
+	bool						_Set_Index				(void);
 
 
 	//-----------------------------------------------------

@@ -226,10 +226,8 @@ void CSG_Grid::_On_Construction(void)
 	m_NoData_Value		= -99999.0;
 	m_NoData_hiValue	= -999.0;
 
-	m_bSorted			= false;
-
-	m_Sort_2b			= NULL;
-	m_Sort_4b			= NULL;
+	m_bIndexed			= false;
+	m_Index				= NULL;
 
 	m_bUpdate			= true;
 }
@@ -984,9 +982,80 @@ bool CSG_Grid::Update_Statistics(bool bEnforce)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//						Sort							 //
+//						Index							 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CSG_Grid::Set_Value_And_Sort(long n, double Value)
+{
+	if( !m_bIndexed )
+	{
+		Set_Value(n, Value);
+
+		Set_Index(true);
+
+		return;
+	}
+
+	//-----------------------------------------------------
+	if( Value == asDouble(n) )
+		return;
+
+	long	i, j;
+
+	for(i=0, j=-1; i<Get_NCells() && j<0; i++)	// find index, could be faster...
+	{
+		if( n == m_Index[i] )
+		{
+			j	= i;
+		}
+	}
+
+	if( j > 0 )
+	{
+		if( Value < asDouble(n) )
+		{
+			for(i=j-1; i>=0; i--, j--)
+			{
+				if( Value < asDouble(m_Index[i]) )
+				{
+					m_Index[j]	= m_Index[i];
+				}
+				else
+				{
+					m_Index[j]	= n;
+					break;
+				}
+			}
+		}
+		else
+		{
+			for(i=j+1; i<Get_NCells(); i++, j++)
+			{
+				if( Value > asDouble(m_Index[i]) )
+				{
+					m_Index[j]	= m_Index[i];
+				}
+				else
+				{
+					m_Index[j]	= n;
+					break;
+				}
+			}
+		}
+
+		Set_Value(n, Value);
+
+		m_bIndexed	= true;
+	}
+}
+
+//---------------------------------------------------------
+void CSG_Grid::Set_Value_And_Sort(int x, int y, double Value)
+{
+	Set_Value_And_Sort(x + y * Get_NX(), Value);
+}
 
 //---------------------------------------------------------
 double CSG_Grid::Get_Percentile(double Percent, bool bZFactor)
@@ -1008,98 +1077,34 @@ double CSG_Grid::Get_Percentile(double Percent, bool bZFactor)
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::_Sort_Execute(void)
+bool CSG_Grid::Set_Index(bool bOn)
 {
-	long	i, j, *Index;
-
-	//-----------------------------------------------------
-	SG_UI_Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), LNG("Create index"), Get_Name()));
-
-	Index	= (long *)SG_Calloc(Get_NCells(), sizeof(long));
-
-	//-----------------------------------------------------
-	if( (m_bSorted = _Sort_Index(Index)) == false )
+	if( bOn && !m_bIndexed )
 	{
-		Sort_Discard();
-	}
-	else if( Get_NX() < 65536 && Get_NY() < 65536 )
-	{
-		if( m_Sort_4b )
-		{
-			Sort_Discard();
-		}
+		m_bIndexed	= true;
 
-		if( !m_Sort_2b )
+		if( _Set_Index() == false )
 		{
-			m_Sort_2b		= (unsigned short **)SG_Calloc(2			, sizeof(unsigned short *));
-			m_Sort_2b[0]	= (unsigned short  *)SG_Calloc(Get_NCells(), sizeof(unsigned short));
-			m_Sort_2b[1]	= (unsigned short  *)SG_Calloc(Get_NCells(), sizeof(unsigned short));
-		}
+			Set_Index(false);
 
-		for(i=0; i<Get_NCells(); i++)
-		{
-			j				= Index[Get_NCells() - i - 1];
-			m_Sort_2b[0][i]	= (unsigned short)(j % Get_NX());
-			m_Sort_2b[1][i]	= (unsigned short)(j / Get_NX());
+			return( false );
 		}
 	}
-	else
+	else if( !bOn && m_bIndexed )
 	{
-		if( m_Sort_2b )
-		{
-			Sort_Discard();
-		}
+		m_bIndexed	= false;
 
-		if( !m_Sort_4b )
-		{
-			m_Sort_4b		= (int **)SG_Calloc(2           , sizeof(int *));
-			m_Sort_4b[0]	= (int  *)SG_Calloc(Get_NCells(), sizeof(int));
-			m_Sort_4b[1]	= (int  *)SG_Calloc(Get_NCells(), sizeof(int));
-		}
-
-		for(i=0; i<Get_NCells(); i++)
-		{
-			j				= Index[Get_NCells() - i - 1];
-			m_Sort_4b[0][i]	= (int)(j % Get_NX());
-			m_Sort_4b[1][i]	= (int)(j / Get_NX());
-		}
+		SG_Free(m_Index);
+		m_Index		= NULL;
 	}
 
-	//-----------------------------------------------------
-	SG_Free(Index);
-
-	SG_UI_Process_Set_Ready();
-	SG_UI_Process_Set_Text(LNG("ready"));
-
-	return( m_bSorted );
-}
-
-//---------------------------------------------------------
-void CSG_Grid::Sort_Discard(void)
-{
-	m_bSorted	= false;
-
-	if( m_Sort_2b )
-	{
-		SG_Free(m_Sort_2b[0]);
-		SG_Free(m_Sort_2b[1]);
-		SG_Free(m_Sort_2b);
-		m_Sort_2b	= NULL;
-	}
-
-	if( m_Sort_4b )
-	{
-		SG_Free(m_Sort_4b[0]);
-		SG_Free(m_Sort_4b[1]);
-		SG_Free(m_Sort_4b);
-		m_Sort_4b	= NULL;
-	}
+	return( true );
 }
 
 //---------------------------------------------------------
 #define SORT_SWAP(a,b)	{itemp=(a);(a)=(b);(b)=itemp;}
 
-bool CSG_Grid::_Sort_Index(long *Index)
+bool CSG_Grid::_Set_Index(void)
 {
 	const int	M	= 7;
 
@@ -1107,136 +1112,150 @@ bool CSG_Grid::_Sort_Index(long *Index)
 	double	a;
 
 	//-----------------------------------------------------
-	for(i=0, l=0; i<Get_NCells(); i++)
-	{
-		if(  is_NoData(i) )
-		{
-			Index[l++]	= i;
-		}
-	}
+	SG_UI_Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), LNG("Create index"), Get_Name()));
 
-	if( (nCells = Get_NCells() - l) > 1 )
+	if( m_Index == NULL )
 	{
+		m_Index		= (long *)SG_Calloc(Get_NCells(), sizeof(long));
+
+		for(i=0, l=0; i<Get_NCells(); i++)
+		{
+			if(  is_NoData(i) )
+			{
+				m_Index[l++]	= i;
+			}
+		}
+
 		for(i=0, j=l; i<Get_NCells(); i++)
 		{
 			if( !is_NoData(i) )
 			{
-				Index[j++]	= i;
+				m_Index[j++]	= i;
 			}
 		}
+	}
+	else
+	{
+		l	= 0;
+	}
 
-		//-------------------------------------------------
-		n		= 0;
-		ir		= Get_NCells() - 1;
+	//-----------------------------------------------------
+	if( (nCells = Get_NCells() - l) <= 1 )
+	{
+		return( false );
+	}
 
-		nstack	= 64;
-		istack	= (int *)SG_Malloc(nstack * sizeof(int));
-		jstack	= 0;
+	//-----------------------------------------------------
+	n		= 0;
+	ir		= Get_NCells() - 1;
 
-		for(;;)
+	nstack	= 64;
+	istack	= (int *)SG_Malloc(nstack * sizeof(int));
+	jstack	= 0;
+
+	for(;;)
+	{
+		if( ir - l < M )
 		{
-			if( ir - l < M )
+			if( !SG_UI_Process_Set_Progress(n += M - 1, nCells) )
 			{
-				if( !SG_UI_Process_Set_Progress(n += M - 1, nCells) )
-				{
-					SG_Free(istack);
+				SG_Free(istack);
 
-					return( false );
-				}
-
-				for(j=l+1; j<=ir; j++)
-				{
-					indxt	= Index[j];
-					a		= asDouble(indxt);
-
-					for(i=j-1; i>=0; i--)
-					{
-						if( asDouble(Index[i]) <= a )
-						{
-							break;
-						}
-
-						Index[i + 1]	= Index[i];
-					}
-
-					Index[i + 1]	= indxt;
-				}
-
-				if( jstack == 0 )
-				{
-					break;
-				}
-
-				ir		= istack[jstack--];
-				l		= istack[jstack--];
+				return( false );
 			}
 
-			//---------------------------------------------
-			else
+			for(j=l+1; j<=ir; j++)
 			{
-				k		= (l + ir) >> 1;
-
-				SORT_SWAP(Index[k], Index[l + 1]);
-
-				if( asDouble( Index[l + 1])	> asDouble(Index[ir]) )
-					SORT_SWAP(Index[l + 1],            Index[ir]);
-
-				if( asDouble( Index[l    ])	> asDouble(Index[ir]) )
-					SORT_SWAP(Index[l    ],            Index[ir]);
-
-				if( asDouble( Index[l + 1])	> asDouble(Index[l ]) )
-					SORT_SWAP(Index[l + 1],            Index[l ]);
-
-				i		= l + 1;
-				j		= ir;
-				indxt	= Index[l];
+				indxt	= m_Index[j];
 				a		= asDouble(indxt);
 
-				for(;;)
+				for(i=j-1; i>=0; i--)
 				{
-					do	i++;	while(asDouble(Index[i]) < a);
-					do	j--;	while(asDouble(Index[j]) > a);
-
-					if( j < i )
+					if( asDouble(m_Index[i]) <= a )
 					{
 						break;
 					}
 
-					SORT_SWAP(Index[i], Index[j]);
+					m_Index[i + 1]	= m_Index[i];
 				}
 
-				Index[l]	= Index[j];
-				Index[j]	= indxt;
-				jstack		+= 2;
-
-				if( jstack >= nstack )
-				{
-					nstack	+= 64;
-					istack	= (int *)SG_Realloc(istack, nstack * sizeof(int));
-				}
-
-				if( ir - i + 1 >= j - l )
-				{
-					istack[jstack]		= ir;
-					istack[jstack - 1]	= i;
-					ir					= j - 1;
-				}
-				else
-				{
-					istack[jstack]		= j - 1;
-					istack[jstack - 1]	= l;
-					l					= i;
-				}
+				m_Index[i + 1]	= indxt;
 			}
+
+			if( jstack == 0 )
+			{
+				break;
+			}
+
+			ir		= istack[jstack--];
+			l		= istack[jstack--];
 		}
 
 		//-------------------------------------------------
-		SG_Free(istack);
+		else
+		{
+			k		= (l + ir) >> 1;
 
-		return( true );
+			SORT_SWAP(m_Index[k], m_Index[l + 1]);
+
+			if( asDouble( m_Index[l + 1]) > asDouble(m_Index[ir]) )
+				SORT_SWAP(m_Index[l + 1],            m_Index[ir]);
+
+			if( asDouble( m_Index[l    ]) > asDouble(m_Index[ir]) )
+				SORT_SWAP(m_Index[l    ],            m_Index[ir]);
+
+			if( asDouble( m_Index[l + 1]) > asDouble(m_Index[l ]) )
+				SORT_SWAP(m_Index[l + 1],            m_Index[l ]);
+
+			i		= l + 1;
+			j		= ir;
+			indxt	= m_Index[l];
+			a		= asDouble(indxt);
+
+			for(;;)
+			{
+				do	i++;	while(asDouble(m_Index[i]) < a);
+				do	j--;	while(asDouble(m_Index[j]) > a);
+
+				if( j < i )
+				{
+					break;
+				}
+
+				SORT_SWAP(m_Index[i], m_Index[j]);
+			}
+
+			m_Index[l]	= m_Index[j];
+			m_Index[j]	= indxt;
+			jstack		+= 2;
+
+			if( jstack >= nstack )
+			{
+				nstack	+= 64;
+				istack	= (int *)SG_Realloc(istack, nstack * sizeof(int));
+			}
+
+			if( ir - i + 1 >= j - l )
+			{
+				istack[jstack]		= ir;
+				istack[jstack - 1]	= i;
+				ir					= j - 1;
+			}
+			else
+			{
+				istack[jstack]		= j - 1;
+				istack[jstack - 1]	= l;
+				l					= i;
+			}
+		}
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	SG_Free(istack);
+
+	SG_UI_Process_Set_Ready();
+
+	return( true );
 }
 #undef SORT_SWAP
 

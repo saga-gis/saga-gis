@@ -258,7 +258,7 @@ bool CGrid_Segmentation::On_Execute(void)
 	if( !bDown )
 	{
 		pGrid->Invert();
-		pGrid->Sort_Discard();
+		pGrid->Set_Index(false);
 	}
 
 	//-----------------------------------------------------
