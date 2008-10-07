@@ -1121,6 +1121,13 @@ bool CSG_Grid::_Set_Index(void)
 	{
 		m_Index		= (long *)SG_Calloc(Get_NCells(), sizeof(long));
 
+		if( m_Index == NULL )
+		{
+			SG_UI_Process_Set_Ready();
+
+			return( false );
+		}
+
 		for(i=0, l=0; i<Get_NCells(); i++)
 		{
 			if(  is_NoData(i) )
