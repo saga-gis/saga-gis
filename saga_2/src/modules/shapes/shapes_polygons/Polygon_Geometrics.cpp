@@ -32,6 +32,12 @@ CPolygon_Geometrics::CPolygon_Geometrics(void){
 						_TL(""),
 						PARAMETER_INPUT, SHAPE_TYPE_Polygon);
 
+	Parameters.Add_Value(
+		NULL, "SAVE", _TL("Save Shapefile"),
+		_TL("Save the results to the input shapefile."),
+		PARAMETER_TYPE_Bool, false
+	);
+
 }//constructor
 
 
@@ -46,8 +52,10 @@ bool CPolygon_Geometrics::On_Execute(void){
 	CSG_Shape *pShape;
 	double dArea;
 	double dPerim;
+	bool	bSave;
 		
-	pPolygs = Parameters("POLYG")->asShapes();			
+	pPolygs = Parameters("POLYG")->asShapes();
+	bSave	= Parameters("SAVE")->asBool();
 
 	pTable=&pPolygs->Get_Table();
 	pTable->Add_Field(_TL("Perimeter"), TABLE_FIELDTYPE_Double);
@@ -74,6 +82,9 @@ bool CPolygon_Geometrics::On_Execute(void){
 		pShape->Get_Record()->Set_Value(pTable->Get_Field_Count()-1, dArea);
 
 	}//for
+
+	if (bSave)
+		pPolygs->Save(pPolygs->Get_File_Name());
 
 	return true;
 
