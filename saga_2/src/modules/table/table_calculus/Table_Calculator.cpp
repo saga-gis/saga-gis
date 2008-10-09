@@ -36,6 +36,12 @@ CTableCalculator::CTableCalculator(void){
 	
 	Parameters.Add_String(NULL, "NAME", _TL("Field Name"), _TL(""), SG_T("a+b"));
 
+	Parameters.Add_Table(
+		NULL, "RESULT"	, _TL("Result"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
 }//constructor
 
 
@@ -52,7 +58,13 @@ bool CTableCalculator::On_Execute(void){
 	const SG_Char *pFormula;
 	CSG_Formula Formula;
 
-	pTable	= Parameters("TABLE")->asTable();
+	pTable	= Parameters("RESULT")->asTable();
+
+	if( Parameters("TABLE")->asTable() != pTable )
+	{
+		pTable->Assign(Parameters("TABLE")->asTable());
+	}
+
 	iFields = pTable->Get_Field_Count();
 
 	pTable->Add_Field(Parameters("NAME")->asString(), TABLE_FIELDTYPE_Double);
