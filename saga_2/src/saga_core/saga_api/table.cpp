@@ -501,6 +501,8 @@ bool CSG_Table::Set_Field_Name(int iField, const SG_Char *Name)
 	{
 		*(m_Field_Name[iField])	= Name;
 
+		Set_Modified();
+
 		return( true );
 	}
 

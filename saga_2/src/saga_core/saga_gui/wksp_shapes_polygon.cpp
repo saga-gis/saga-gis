@@ -128,6 +128,12 @@ void CWKSP_Shapes_Polygon::On_Create_Parameters(void)
 		LNG(""),
 		PARAMETER_TYPE_Bool, false
 	);
+
+	m_Parameters.Add_Value(
+		m_Parameters("NODE_DISPLAY")	, "DISPLAY_CENTROID"		, LNG("[CAP] Show Centroid"),
+		LNG(""),
+		PARAMETER_TYPE_Bool, false
+	);
 }
 
 
@@ -151,7 +157,8 @@ void CWKSP_Shapes_Polygon::On_Parameters_Changed(void)
 	//-----------------------------------------------------
 	Get_Style(m_Pen, m_Brush, m_bOutline);
 
-	m_bPoints	= m_Parameters("DISPLAY_POINTS")->asBool();
+	m_bPoints	= m_Parameters("DISPLAY_POINTS")	->asBool();
+	m_bCentroid	= m_Parameters("DISPLAY_CENTROID")	->asBool();
 }
 
 
@@ -240,6 +247,13 @@ void CWKSP_Shapes_Polygon::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, 
 		}
 
 		dc_Map.Draw_Polygon((CSG_Shape_Polygon *)pShape);
+	}
+
+	if( m_bCentroid )
+	{
+		TSG_Point	Point	= ((CSG_Shape_Polygon *)pShape)->Get_Centroid();
+
+		dc_Map.dc.DrawCircle((int)dc_Map.xWorld2DC(Point.x), (int)dc_Map.yWorld2DC(Point.y), 2);
 	}
 
 	if( m_bPoints )

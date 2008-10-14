@@ -312,6 +312,8 @@ public:
 	bool						Get_Value			(int iRecord, int iField, CSG_String     &Value)	const;
 	bool						Get_Value			(int iRecord, int iField, double         &Value)	const;
 
+	virtual void				Set_Modified		(bool bModified = true)	{	CSG_Data_Object::Set_Modified(bModified);	if( m_pOwner )	m_pOwner->Set_Modified(bModified);	}
+
 	//-----------------------------------------------------
 	int							Get_Selection_Count	(void)			const	{	return( m_nSelected );	}
 	CSG_Table_Record *			Get_Selection		(int Index = 0)	const	{	return( Index >= 0 && Index < m_nSelected ? m_Selected[Index] : NULL );	}

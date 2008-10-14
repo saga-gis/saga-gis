@@ -90,7 +90,7 @@ public:
 
 protected:
 
-	bool						m_bPoints, m_bOutline;
+	bool						m_bPoints, m_bCentroid, m_bOutline;
 
 	wxPen						m_Pen;
 
