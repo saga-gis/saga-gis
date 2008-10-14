@@ -705,9 +705,17 @@ CSG_Parameter * CSG_Parameters::_Add(CSG_Parameter *pParent, const SG_Char *Iden
 {
 	CSG_Parameter	*pParameter;
 
-	m_Parameters	= (CSG_Parameter **)SG_Realloc(m_Parameters, (m_nParameters + 1) * sizeof(CSG_Parameter *));
+	if( Identifier && *Identifier )
+	{
+		pParameter	= new CSG_Parameter(this, pParent, Identifier, Name, Description, Type, Constraint);
+	}
+	else
+	{
+		pParameter	= new CSG_Parameter(this, pParent, CSG_String::Format(SG_T("%d"), m_nParameters), Name, Description, Type, Constraint);
+	}
 
-	pParameter		= m_Parameters[m_nParameters++]	= new CSG_Parameter(this, pParent, Identifier, Name, Description, Type, Constraint);
+	m_Parameters	= (CSG_Parameter **)SG_Realloc(m_Parameters, (m_nParameters + 1) * sizeof(CSG_Parameter *));
+	m_Parameters[m_nParameters++]	= pParameter;
 
 	return( pParameter );
 }

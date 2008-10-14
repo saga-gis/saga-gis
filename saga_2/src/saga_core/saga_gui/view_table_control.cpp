@@ -112,6 +112,8 @@ BEGIN_EVENT_TABLE(CVIEW_Table_Control, wxGrid)
 	EVT_UPDATE_UI				(ID_CMD_TABLE_FIELD_DEL			, CVIEW_Table_Control::On_Field_Del_UI)
 	EVT_MENU					(ID_CMD_TABLE_FIELD_SORT		, CVIEW_Table_Control::On_Field_Sort)
 	EVT_UPDATE_UI				(ID_CMD_TABLE_FIELD_SORT		, CVIEW_Table_Control::On_Field_Sort_UI)
+	EVT_MENU					(ID_CMD_TABLE_FIELD_RENAME		, CVIEW_Table_Control::On_Field_Rename)
+	EVT_UPDATE_UI				(ID_CMD_TABLE_FIELD_RENAME		, CVIEW_Table_Control::On_Field_Rename_UI)
 
 	EVT_MENU					(ID_CMD_TABLE_RECORD_ADD		, CVIEW_Table_Control::On_Record_Add)
 	EVT_UPDATE_UI				(ID_CMD_TABLE_RECORD_ADD		, CVIEW_Table_Control::On_Record_Add_UI)
@@ -629,6 +631,41 @@ void CVIEW_Table_Control::On_Field_Sort_UI(wxUpdateUIEvent &event)
 	event.Enable(m_pTable->Get_Field_Count() > 0 && m_pTable->Get_Record_Count() > 1);
 }
 
+//---------------------------------------------------------
+void CVIEW_Table_Control::On_Field_Rename(wxCommandEvent &event)
+{
+	int				i;
+	CSG_Parameters	P;
+
+	P.Set_Name(LNG("Rename Fields"));
+
+	for(i=0; i<m_pTable->Get_Field_Count(); i++)
+	{
+		P.Add_String(NULL, "", m_pTable->Get_Field_Name(i), LNG(""), m_pTable->Get_Field_Name(i));
+	}
+
+	//-----------------------------------------------------
+	if( DLG_Parameters(&P) )
+	{
+		for(i=0; i<m_pTable->Get_Field_Count(); i++)
+		{
+			CSG_String	s(P(i)->asString());
+
+			if( s.Length() > 0 && s.Cmp(m_pTable->Get_Field_Name(i)) )
+			{
+				m_pTable->Set_Field_Name(i, s);
+
+				SetColLabelValue(i, s.c_str());
+			}
+		}
+	}
+}
+
+void CVIEW_Table_Control::On_Field_Rename_UI(wxUpdateUIEvent &event)
+{
+	event.Enable(m_pTable->Get_Field_Count() > 0);
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -787,6 +824,7 @@ void CVIEW_Table_Control::On_RClick_Label(wxGridEvent &event)
 		pMenu->AppendSeparator();
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_AUTOSIZE_COLS);
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_SORT);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_RENAME);
 
 		PopupMenu(pMenu, event.GetPosition().x, event.GetPosition().y - GetColLabelSize());
 		delete(pMenu);

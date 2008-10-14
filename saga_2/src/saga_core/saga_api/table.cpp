@@ -494,6 +494,19 @@ bool CSG_Table::Del_Field(int del_Field)
 	return( false );
 }
 
+//---------------------------------------------------------
+bool CSG_Table::Set_Field_Name(int iField, const SG_Char *Name)
+{
+	if( iField >= 0 && iField < m_nFields && Name && *Name )
+	{
+		*(m_Field_Name[iField])	= Name;
+
+		return( true );
+	}
+
+	return( false );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
