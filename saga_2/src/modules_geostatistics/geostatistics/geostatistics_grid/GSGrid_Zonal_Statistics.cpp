@@ -37,15 +37,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     volker.wichmann@ku-eichstaett.de       //
-//                                                       //
-//    contact:    Volker Wichmann                        //
-//                Research Associate                     //
-//                Chair of Physical Geography		     //
-//				  KU Eichstaett-Ingolstadt				 //
-//                Ostenstr. 18                           //
-//                85072 Eichstaett                       //
-//                Germany                                //
+//    e-mail:     reklovw@web.de                         //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -168,9 +160,10 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 	NDcount		= 0;						// NoData Counter (ZoneGrid)
 	NDcountStat	= 0;						// NoData Counter (StatGrids)
 
-	
+	if (pOutTab != NULL)
+		pOutTab->Destroy();
+
 	newZone		= new CList_Conti();								// create first list entry (dummy)
-	//newZone->dummy = true;
 	startList	= newZone;
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -180,7 +173,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 			runList		= startList;
 			zoneID		= pZones->asInt(x, y);								// get zone ID
 
-			while( runList->next != NULL && runList->cat < zoneID )		// search for last entry in list or insert point
+			while( runList->next != NULL && runList->cat < zoneID )			// search for last entry in list or insert point
 			{
 				runList = runList->next;
 			}
@@ -192,14 +185,13 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 			}
 			else if( runList->cat == zoneID )
 				runList = runList;											// zoneID found				
-			else if( runList->next == NULL )								// append zoneID
+			else if( runList->next == NULL && runList->cat < zoneID )		// append zoneID
 			{
 				newZone = new CList_Conti();
 				newZone->previous	= runList;
 				runList->next		= newZone;
 
-				newZone->cat	= zoneID;									//		... and write info
-//				
+				newZone->cat	= zoneID;									// ... and write info		
 				newZone->dummy	= false;
 				runList			= newZone;
 			}
@@ -207,28 +199,27 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 			{
 				newZone = new CList_Conti();
 
-				newZone->next		= runList;
+				newZone->next = runList;
 				if( runList->previous != NULL )
 				{
 					newZone->previous = runList->previous;
 					runList->previous->next = newZone;
 				}
-				runList->previous	= newZone;
+				runList->previous = newZone;
 					
 				if( runList == startList )
 					startList = newZone;									// if new entry is first element, update startList pointer
 
-				newZone->cat	= zoneID;									//		... and write info
-//
+				newZone->cat	= zoneID;									// ... and write info
 				newZone->dummy	= false;
 				runList			= newZone;
 			}
 
 
-			for(iGrid=0; iGrid<nCatGrids; iGrid++)								// collect categories
+			for(iGrid=0; iGrid<nCatGrids; iGrid++)							// collect categories
 			{
 				parent  = runList;
-				if( runList->sub == NULL )										// no sub class found
+				if( runList->sub == NULL )									// no sub class found
 				{
 					newSub = new CList_Conti();
 					runList->sub = newSub;
@@ -250,55 +241,51 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 
 				if( runList->dummy == true )
 				{
-					runList->cat = catID;										// first list entry, write and
-					runList->dummy = false;										// setup
-					runList->parent = parent;
+					runList->cat	= catID;								// first list entry, write and
+					runList->dummy	= false;								// setup
+					runList->parent	= parent;
 				}
 				else if( runList->cat == catID )
-					runList = runList;											// zoneID found, all infos already written
-				else if( runList->next == NULL && runList->cat < catID)								// append zoneID
+					runList = runList;										// zoneID found, all infos already written
+				else if( runList->next == NULL && runList->cat < catID)		// append zoneID
 				{
 					newSub = new CList_Conti();
-					newSub->cat		= catID;									//		... and write info
+					newSub->cat			= catID;							// ... and write info
 					newSub->previous	= runList;
 					newSub->parent		= parent;
-//
 					newSub->dummy		= false;
 					runList->next		= newSub;
-
-					runList			= newSub;
+					runList				= newSub;
 				}
-				else															// insert new entry
+				else														// insert new entry
 				{
 					newSub = new CList_Conti();
-					newSub->cat		= catID;									//		... and write info
-					newSub->next		= runList;
-					newSub->parent		= parent;
-//
-					newSub->dummy		= false;
+					newSub->cat		= catID;								// ... and write info
+					newSub->next	= runList;
+					newSub->parent	= parent;
+					newSub->dummy	= false;
 					if( runList->previous != NULL )
 					{
 						newSub->previous = runList->previous;
 						runList->previous->next = newSub;
 					}
 					else
-						parent->sub		= newSub;
+						parent->sub	 = newSub;
 							
-					runList->previous	= newSub;
-
-					runList			= newSub;
+					runList->previous = newSub;
+					runList	= newSub;
 				}
 			}
 
 
-			for(iGrid=0; iGrid<nStatGrids; iGrid++)									// collect statistics for StatGrids
+			for(iGrid=0; iGrid<nStatGrids; iGrid++)							// collect statistics for StatGrids
 			{
 				if( iGrid == 0 )
 				{
 					if( runList->stats == NULL )
 						runList->stats = new CList_Stat();
 						
-					runStats	= runList->stats;
+					runStats = runList->stats;
 				}
 				else
 				{
@@ -330,12 +317,12 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 			}
 				
 
-			runList->count += 1;												// sum up unique condition area
+			runList->count += 1;											// sum up unique condition area
 		}
 	}
 
 
-	Gridname = pZones->Get_Name();													// Create fields in output table (1st = Zone, 2nd = Catgrid1, 3rd = Catgrid 2, ...)
+	Gridname = pZones->Get_Name();											// Create fields in output table (1st = Zone, 2nd = Catgrid1, 3rd = Catgrid 2, ...)
 	pOutTab->Add_Field(Gridname, TABLE_FIELDTYPE_Int);
 	for(iGrid=0; iGrid<nCatGrids; iGrid++)
 	{
@@ -354,25 +341,22 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 		pOutTab->Add_Field(CSG_String::Format(SG_T("%s_SUM")   , Gridname), TABLE_FIELDTYPE_Double);
 	}
 
-
-
-
-	while( startList != NULL )														// scan zone layer list and write cat values in table
+	while( startList != NULL )												// scan zone layer list and write cat values in table
 	{
 		runList = startList;
-		while( runList->sub != NULL )												// fall down to lowest layer
+		while( runList->sub != NULL )										// fall down to lowest layer
 			runList = runList->sub;
 		
-		subList = runList;															// use pointer to scan horizontal
+		subList = runList;													// use pointer to scan horizontal
 
-		while( subList != NULL )													// move forward and read all categories of this layer (including the parent layers)
+		while( subList != NULL )											// move forward and read all categories of this layer (including the parent layers)
 		{
 			runSub = subList;
 			catLevel = nCatGrids;
-			pRecord	= pOutTab->Add_Record();										// create new record in table
-			pRecord->Set_Value((catLevel+1), runSub->count);						// read/write field count			
+			pRecord	= pOutTab->Add_Record();								// create new record in table
+			pRecord->Set_Value((catLevel+1), runSub->count);				// read/write field count			
 
-			for(iGrid=0; iGrid<nStatGrids; iGrid++)									// read/write statistics
+			for(iGrid=0; iGrid<nStatGrids; iGrid++)							// read/write statistics
 			{
 				if( iGrid == 0 )
 					runStats = runSub->stats;
@@ -387,7 +371,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 				pRecord->Set_Value(catLevel+6+iGrid*5, runStats->sum);
 			}			
 			
-			while( runSub != NULL )													// read/write categories
+			while( runSub != NULL )											// read/write categories
 			{
 				pRecord->Set_Value(catLevel, runSub->cat);
 				runSub = runSub->parent;
@@ -396,35 +380,35 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 			subList = subList->next;
 		}
 
-		while( runList->parent != NULL && runList->parent->next == NULL )			// move up to next 'Caterory with -> next'
+		while( runList->parent != NULL && runList->parent->next == NULL )	// move up to next 'Caterory with -> next'
 			runList = runList->parent;
 
-		if( runList->parent != NULL )												// if not upper layer (zones)
+		if( runList->parent != NULL )										// if not upper layer (zones)
 		{	
-			runList = runList->parent;												// move to parent of next 'Caterory with -> next'
+			runList = runList->parent;										// move to parent of next 'Caterory with -> next'
 			if( runList->next != NULL && runList->parent != NULL )
-				runList->parent->sub = runList->next;								// redirect pointer to category which is next 'Categora with -> next' next
+				runList->parent->sub = runList->next;						// redirect pointer to category which is next 'Categora with -> next' next
 			else if (runList->parent == NULL && runList->next != NULL )				
-				startList = runList->next;											// when upper layer (zones) is reached, move to next zone
+				startList = runList->next;									// when upper layer (zones) is reached, move to next zone
 			else
-				startList = NULL;													// reading finished
+				startList = NULL;											// reading finished
 			
 			if( runList->parent == NULL )
-				startList = runList->next;											// ?? when upper layer is reached, move to next zone
+				startList = runList->next;									// ?? when upper layer is reached, move to next zone
 			else
-				runList->sub = runList->sub->next;									// on sub layers redirect pointer to ->next
+				runList->sub = runList->sub->next;							// on sub layers redirect pointer to ->next
 		}
 		else
 		{
 			if( nCatGrids == 0 )
 				startList = NULL;
 			else
-				startList = runList->next;												// ?? upper layer is reached, move to next zone
+				startList = runList->next;									// ?? upper layer is reached, move to next zone
 		}
 
 
 		runList->next = NULL;					
-		delete (runList);															// delete disconneted part of the list
+		delete (runList);													// delete disconneted part of the list
 
 	}
 
