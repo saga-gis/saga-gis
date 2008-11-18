@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.10 2008-09-22 15:19:44 oconrad Exp $
+# $Id: Makefile.am,v 1.11 2008-11-18 13:56:12 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -35,10 +35,10 @@ SummaryPDFDocEngine.cpp\
 TransformShapes.cpp\
 shapes_buffer.cpp\
 shapes_cut.cpp\
-shapes_cut_by_attribute.cpp\
 shapes_cut_interactive.cpp\
 shapes_extents.cpp\
 shapes_split.cpp\
+shapes_split_by_attribute.cpp\
 shapes_split_randomly.cpp\
 CreateChartLayer.h\
 CreateWebContent.h\
@@ -62,10 +62,10 @@ SummaryPDFDocEngine.h\
 TransformShapes.h\
 shapes_buffer.h\
 shapes_cut.h\
-shapes_cut_by_attribute.h\
 shapes_cut_interactive.h\
 shapes_extents.h\
 shapes_split.h\
+shapes_split_by_attribute.h\
 shapes_split_randomly.h
 
 libshapes_tools_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la

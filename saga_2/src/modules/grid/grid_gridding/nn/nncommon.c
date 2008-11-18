@@ -19,7 +19,9 @@
  *                   file specified by name, not by handle.
  *
  *****************************************************************************/
-#define isnan	_isnan
+#ifdef _SAGA_MSW
+   #define isnan    _isnan
+#endif
 
 #include <stdlib.h>
 #include <stdio.h>

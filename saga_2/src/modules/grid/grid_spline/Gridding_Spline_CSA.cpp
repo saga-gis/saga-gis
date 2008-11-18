@@ -70,6 +70,18 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifdef _SAGA_MSW
+   #define isnan    _isnan
+#endif
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CGridding_Spline_CSA::CGridding_Spline_CSA(void)
 	: CGridding_Spline_Base()
 {
@@ -225,7 +237,7 @@ bool CGridding_Spline_CSA::On_Execute(void)
 	{
 		for(x=0; x<m_pGrid->Get_NX(); x++, i++)
 		{
-			if( _isnan(pDst[i].z) )
+			if( isnan(pDst[i].z) )
 			{
 				m_pGrid->Set_NoData(x, y);
 			}
