@@ -70,7 +70,7 @@ CGDAL_Export::CGDAL_Export(void)
 {
 	Set_Name	(_TL("GDAL: Export Raster"));
 
-	Set_Author		(SG_T("(c) 2007 by O.Conrad"));
+	Set_Author	(SG_T("(c) 2007 by O.Conrad"));
 
 	CSG_String	Description, Formats;
 
@@ -82,7 +82,7 @@ CGDAL_Export::CGDAL_Export(void)
 		"  http://www.gdal.org</a>\n"
 		"\n"
 		"Following raster formats are currently supported:\n"
-		"<table border=\"1\"><tr><th>Name</th><th>Description</th></tr>\n"
+		"<table border=\"1\"><tr><th>ID</th><th>Name</th></tr>\n"
 	);
 
 	for(int i=0; i<g_GDAL_Driver.Get_Count(); i++)
@@ -90,13 +90,13 @@ CGDAL_Export::CGDAL_Export(void)
 		if( CSLFetchBoolean(g_GDAL_Driver.Get_Driver(i)->GetMetadata(), GDAL_DCAP_CREATE, false) )
 		{
 			Description	+= CSG_String::Format(SG_T("<tr><td>%s</td><td>%s</td></tr>\n"),
-				g_GDAL_Driver.Get_Identifier(i),
+				g_GDAL_Driver.Get_Description(i),
 				g_GDAL_Driver.Get_Name(i)
 			);
 
 			Formats		+= CSG_String::Format(SG_T("%s|"), g_GDAL_Driver.Get_Name(i));
 
-			m_DriverIDs.Add(g_GDAL_Driver.Get_Identifier(i));
+			m_DriverNames.Add(g_GDAL_Driver.Get_Name(i));
 		}
     }
 
@@ -184,7 +184,7 @@ bool CGDAL_Export::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( (pDriver = g_GDAL_Driver.Get_Driver(m_DriverIDs[Parameters("FORMAT")->asInt()].b_str())) == NULL )
+	if( (pDriver = g_GDAL_Driver.Get_Driver(m_DriverNames[Parameters("FORMAT")->asInt()].b_str())) == NULL )
 	{
 		Message_Add(_TL("Driver not found."));
 	}

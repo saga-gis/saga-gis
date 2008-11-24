@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.7 2008-05-09 15:20:58 oconrad Exp $
+# $Id: Makefile.am,v 1.8 2008-11-24 10:36:12 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -18,6 +18,7 @@ HillShade.cpp\
 MLB_Interface.cpp\
 SADO_SolarRadiation.cpp\
 SolarRadiation.cpp\
+topographic_correction.cpp\
 view_shed.cpp\
 Visibility_Point.cpp\
 grid_pyramid.h\
@@ -25,6 +26,7 @@ HillShade.h\
 MLB_Interface.h\
 SADO_SolarRadiation.h\
 SolarRadiation.h\
+topographic_correction.h\
 view_shed.h\
 Visibility_Point.h
 

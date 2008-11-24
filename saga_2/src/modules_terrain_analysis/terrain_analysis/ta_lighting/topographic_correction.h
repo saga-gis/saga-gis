@@ -5,15 +5,15 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library                     //
-//                                                       //
-//                       io_gdal                         //
+//                    Module Library:                    //
+//                      ta_lighting                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    ogr_import.cpp                     //
+//                topographic_correction.h               //
 //                                                       //
-//            Copyright (C) 2008 O. Conrad               //
+//                 Copyright (C) 2008 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,15 +37,30 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.de                    //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
 //    contact:    Olaf Conrad                            //
-//                Bundesstr. 55                          //
-//                D-20146 Hamburg                        //
+//                Institute of Geography                 //
+//                University of Goettingen               //
+//                Goldschmidtstr. 5                      //
+//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifndef HEADER_INCLUDED__topographic_correction_H
+#define HEADER_INCLUDED__topographic_correction_H
+
+//---------------------------------------------------------
+#include "MLB_Interface.h"
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -54,67 +69,32 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "ogr_import.h"
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-COGR_Import::COGR_Import(void)
+class CTopographic_Correction : public CSG_Module_Grid
 {
-	Set_Name	(_TL("OGR: Import Vector Data"));
+public:
+	CTopographic_Correction(void);
 
-	Set_Author	(SG_T("(c) 2008 by O.Conrad"));
 
-	CSG_String	Description;
+protected:
 
-	Description	= _TW(
-		"The \"GDAL Vector Data Import\" module imports vector data from various file/database formats using the "
-		"\"Geospatial Data Abstraction Library\" (GDAL) by Frank Warmerdam. "
-		"For more information have a look at the GDAL homepage:\n"
-		"  <a target=\"_blank\" href=\"http://www.gdal.org/\">"
-		"  http://www.gdal.org</a>\n"
-		"\n"
-		"Following vector data formats are currently supported:\n"
-		"<table border=\"1\"><tr><th>Name</th><th>Description</th></tr>\n"
-	);
+	virtual bool				On_Execute				(void);
 
-	for(int i=0; i<g_OGR_Driver.Get_Count(); i++)
-    {
-		if( g_OGR_Driver.Can_Read(i) )
-		{
-			Description	+= CSG_String::Format(SG_T("<tr><td>%s</td><td>%s</td></tr>\n"),
-				g_OGR_Driver.Get_Name(i).b_str(),
-				g_OGR_Driver.Get_Description(i).b_str()
-			);
-		}
-    }
 
-	Description	+= SG_T("</table>");
+private:
 
-	Set_Description(Description);
+	int							m_Method;
 
-	//-----------------------------------------------------
-	Parameters.Add_Shapes_List(
-		NULL, "SHAPES"	, _TL("Shapes"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
+	double						m_Minnaert, m_cosDec, m_sinDec, m_C;
 
-	Parameters.Add_FilePath(
-		NULL, "FILE"	, _TL("File"),
-		_TL("")
-	);
-}
+	CSG_Grid					*m_pOriginal, *m_pCorrected, m_Slope, m_Incidence;
 
-//---------------------------------------------------------
-COGR_Import::~COGR_Import(void)
-{}
 
+	bool						Initialise				(void);
+	bool						Finalise				(void);
+
+	double						Get_Correction			(double Slope, double Incidence, double Value);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -124,46 +104,4 @@ COGR_Import::~COGR_Import(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool COGR_Import::On_Execute(void)
-{
-	COGR_DataSource	ds;
-
-	//-----------------------------------------------------
-	if( !ds.Create(Parameters("FILE")->asString()) )
-	{
-		Message_Add(_TL("could not open data source"));
-
-		return( false );
-	}
-
-	if( ds.Get_Count() <= 0 )
-	{
-		Message_Add(_TL("no layers in data source"));
-
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	Parameters("SHAPES")->asShapesList()->Del_Items();
-
-	for(int iLayer=0; iLayer<ds.Get_Count(); iLayer++)
-	{
-		CSG_Shapes	*pShapes	= ds.Read_Shapes(iLayer);
-
-		if( pShapes )
-		{
-			Parameters("SHAPES")->asShapesList()->Add_Item(pShapes);
-		}
-	}
-
-	return( Parameters("SHAPES")->asShapesList()->Get_Count() > 0 );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__topographic_correction_H

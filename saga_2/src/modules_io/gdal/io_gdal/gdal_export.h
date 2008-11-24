@@ -82,7 +82,7 @@ protected:
 
 private:
 
-	CSG_Strings					m_DriverIDs;
+	CSG_Strings					m_DriverNames;
 
 };
 

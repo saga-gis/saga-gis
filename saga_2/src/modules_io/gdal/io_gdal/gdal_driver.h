@@ -77,11 +77,10 @@ public:
 	virtual ~CGDAL_Driver(void);
 
 	int						Get_Count		(void)				{	return( pManager->GetDriverCount() );	}
-	const char *			Get_Identifier	(int Index)			{	return( GDALGetDriverShortName(GDALGetDriver(Index)) );	}
-	const char *			Get_Name		(int Index)			{	return( GDALGetDriverLongName (GDALGetDriver(Index)) );	}
-	const char *			Get_Description	(int Index)			{	return( GDALGetDescription    (GDALGetDriver(Index)) );	}
-	GDALDriver *			Get_Driver		(int Index)			{	return( (GDALDriver *)GDALGetDriver(Index) );			}
-	GDALDriver *			Get_Driver		(const char *Name)	{	return( (GDALDriver *)GDALGetDriverByName(Name) );		}
+	const char *			Get_Name		(int Index)			{	return( Get_Driver(Index)->GetMetadataItem(GDAL_DMD_LONGNAME) );	}
+	const char *			Get_Description	(int Index)			{	return( Get_Driver(Index)->GetDescription() );	}
+	GDALDriver *			Get_Driver		(int Index)			{	return( (GDALDriver *)GDALGetDriver(Index) );	}
+	GDALDriver *			Get_Driver		(const char *Name)	{	return( (GDALDriver *)GDALGetDriverByName(Name) );	}
 
 
 	static TSG_Grid_Type	Get_Grid_Type	(GDALDataType  Type);

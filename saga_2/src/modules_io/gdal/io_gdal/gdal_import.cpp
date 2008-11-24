@@ -80,13 +80,13 @@ CGDAL_Import::CGDAL_Import(void)
 		"  http://www.gdal.org</a>\n"
 		"\n"
 		"Following raster formats are currently supported:\n"
-		"<table border=\"1\"><tr><th>Name</th><th>Description</th></tr>\n"
+		"<table border=\"1\"><tr><th>ID</th><th>Name</th></tr>\n"
 	);
 
 	for(int i=0; i<g_GDAL_Driver.Get_Count(); i++)
     {
 		Description	+= CSG_String::Format(SG_T("<tr><td>%s</td><td>%s</td></tr>\n"),
-			g_GDAL_Driver.Get_Identifier(i),
+			g_GDAL_Driver.Get_Description(i),
 			g_GDAL_Driver.Get_Name(i)
 		);
     }
