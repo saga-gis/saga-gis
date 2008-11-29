@@ -96,7 +96,7 @@ CGDAL_Export::CGDAL_Export(void)
 
 			Formats		+= CSG_String::Format(SG_T("%s|"), g_GDAL_Driver.Get_Name(i));
 
-			m_DriverNames.Add(g_GDAL_Driver.Get_Name(i));
+			m_DriverNames.Add(g_GDAL_Driver.Get_Description(i));
 		}
     }
 
