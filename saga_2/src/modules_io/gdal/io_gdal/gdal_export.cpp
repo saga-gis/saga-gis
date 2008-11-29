@@ -90,13 +90,13 @@ CGDAL_Export::CGDAL_Export(void)
 		if( CSLFetchBoolean(g_GDAL_Driver.Get_Driver(i)->GetMetadata(), GDAL_DCAP_CREATE, false) )
 		{
 			Description	+= CSG_String::Format(SG_T("<tr><td>%s</td><td>%s</td></tr>\n"),
-				g_GDAL_Driver.Get_Description(i),
-				g_GDAL_Driver.Get_Name(i)
+				SG_STR_MBTOSG(g_GDAL_Driver.Get_Description(i)),
+				SG_STR_MBTOSG(g_GDAL_Driver.Get_Name(i))
 			);
 
-			Formats		+= CSG_String::Format(SG_T("%s|"), g_GDAL_Driver.Get_Name(i));
+			Formats		+= CSG_String::Format(SG_T("%s|"), SG_STR_MBTOSG(g_GDAL_Driver.Get_Name(i)));
 
-			m_DriverNames.Add(g_GDAL_Driver.Get_Description(i));
+			m_DriverNames.Add(SG_STR_MBTOSG(g_GDAL_Driver.Get_Description(i)));
 		}
     }
 
@@ -184,7 +184,7 @@ bool CGDAL_Export::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( (pDriver = g_GDAL_Driver.Get_Driver(m_DriverNames[Parameters("FORMAT")->asInt()].b_str())) == NULL )
+	if( (pDriver = g_GDAL_Driver.Get_Driver(SG_STR_SGTOMB(m_DriverNames[Parameters("FORMAT")->asInt()]))) == NULL )
 	{
 		Message_Add(_TL("Driver not found."));
 	}

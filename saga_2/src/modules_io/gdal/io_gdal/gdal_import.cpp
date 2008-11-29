@@ -86,8 +86,8 @@ CGDAL_Import::CGDAL_Import(void)
 	for(int i=0; i<g_GDAL_Driver.Get_Count(); i++)
     {
 		Description	+= CSG_String::Format(SG_T("<tr><td>%s</td><td>%s</td></tr>\n"),
-			g_GDAL_Driver.Get_Description(i),
-			g_GDAL_Driver.Get_Name(i)
+			SG_STR_MBTOSG(g_GDAL_Driver.Get_Description(i)),
+			SG_STR_MBTOSG(g_GDAL_Driver.Get_Name(i))
 		);
     }
 
