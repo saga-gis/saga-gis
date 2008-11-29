@@ -78,7 +78,7 @@ public:
 	virtual ~COGR_Driver(void);
 
 	int							Get_Count		(void)				{	return( m_pManager->GetDriverCount() );	}
-	CSG_String					Get_Name		(int iDriver)		{	return( m_pManager->GetDriver(iDriver)->GetName() );	}
+	CSG_String					Get_Name		(int iDriver)		{	return( SG_STR_MBTOSG(m_pManager->GetDriver(iDriver)->GetName()) );	}
 	CSG_String					Get_Description	(int iDriver);
 	OGRSFDriver *				Get_Driver		(int iDriver)		{	return( m_pManager->GetDriver(iDriver) );			}
 	OGRSFDriver *				Get_Driver		(const CSG_String &Name);

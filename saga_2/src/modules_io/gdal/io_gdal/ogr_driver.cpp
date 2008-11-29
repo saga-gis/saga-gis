@@ -137,7 +137,7 @@ CSG_String COGR_Driver::Get_Description(int iDriver)
 	s	+= _TL("sequential write");
 /**/
 
-	return( s );
+	return( SG_STR_MBTOSG(s) );
 }
 
 //---------------------------------------------------------

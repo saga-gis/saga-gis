@@ -88,8 +88,8 @@ COGR_Export::COGR_Export(void)
 		if( g_OGR_Driver.Can_Write(i) )
 		{
 			Description	+= CSG_String::Format(SG_T("<tr><td>%s</td><td>%s</td></tr>\n"),
-				g_OGR_Driver.Get_Name(i).b_str(),
-				g_OGR_Driver.Get_Description(i).b_str()
+				g_OGR_Driver.Get_Name(i).c_str(),
+				g_OGR_Driver.Get_Description(i).c_str()
 			);
 
 			Formats		+= CSG_String::Format(SG_T("%s|"), g_OGR_Driver.Get_Name(i).c_str());
