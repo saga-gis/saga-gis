@@ -507,11 +507,11 @@ bool CPROJ4_Base::_Init_Projection(CSG_Parameters &P)
 
 	for(struct PJ_DATUMS *pDatum=pj_datums; pDatum->id; ++pDatum)
 	{
-		sList	+= CSG_String::Format(SG_T("[%s]"), pDatum->id);
+		sList	+= CSG_String::Format(SG_T("[%s]"), SG_STR_MBTOSG(pDatum->id));
 
 		if( pDatum->comments != NULL && *pDatum->comments != NULL )
 		{
-			sList	+= CSG_String::Format(SG_T(" %s"), pDatum->comments);
+			sList	+= CSG_String::Format(SG_T(" %s"), SG_STR_MBTOSG(pDatum->comments));
 		}
 
 		sList	+= '|';
@@ -550,7 +550,7 @@ bool CPROJ4_Base::_Init_Projection(CSG_Parameters &P)
 
 	for(struct PJ_ELLPS *pEllipse=pj_ellps; pEllipse->id; ++pEllipse)
 	{
-		sList	+= CSG_String::Format(SG_T("[%s] %s (%s, %s)|"), pEllipse->id, pEllipse->name, pEllipse->major, pEllipse->ell);
+		sList	+= CSG_String::Format(SG_T("[%s] %s (%s, %s)|"), SG_STR_MBTOSG(pEllipse->id), SG_STR_MBTOSG(pEllipse->name), SG_STR_MBTOSG(pEllipse->major), SG_STR_MBTOSG(pEllipse->ell));
 	}
 
 	if( sList.Length() > 0 )
@@ -689,7 +689,7 @@ bool CPROJ4_Base::_Init_Projection(CSG_Parameters &P)
 
 	for(struct PJ_UNITS *pUnit=pj_units; pUnit->id; ++pUnit)
 	{
-		sList	+= CSG_String::Format(SG_T("%s (%s)|"), pUnit->name, pUnit->to_meter);
+		sList	+= CSG_String::Format(SG_T("%s (%s)|"), SG_STR_MBTOSG(pUnit->name), SG_STR_MBTOSG(pUnit->to_meter));
 	}
 
 	if( sList.Length() > 0 )
