@@ -290,7 +290,7 @@ bool CSG_Formula::Get_Error(int *pPosition, CSG_String *pMessage)
 //---------------------------------------------------------
 void CSG_Formula::_Set_Error(const SG_Char *Error)
 {
-	if( Error == NULL || *Error == '\0' )
+	if( Error == NULL || *Error == SG_T('\0') )
 	{
 		m_bError	= false;
 		m_sError	.Clear();
@@ -420,7 +420,7 @@ double CSG_Formula::_Get_Value(TMAT_Formula func)
 	{
 		switch( *function++ )
 		{
-		case '\0':
+		case SG_T('\0'):
 			goto finish;	// there is a reason for this "goto": this function must be as fast as possible
 
 		case 'D': 
@@ -802,7 +802,7 @@ CSG_Formula::TMAT_Formula CSG_Formula::_Translate(const SG_Char *sourc, const SG
 	i_error = NULL;
 
 	//-----------------------------------------------------
-	source	= (SG_Char *)SG_Malloc(SG_STR_LEN(sourc) + 1);
+	source	= (SG_Char *)SG_Malloc((SG_STR_LEN(sourc) + 1) * sizeof(SG_Char));
 
 	if( source == NULL )
 	{
@@ -813,14 +813,14 @@ CSG_Formula::TMAT_Formula CSG_Formula::_Translate(const SG_Char *sourc, const SG
 
 	SG_STR_CPY(source, sourc);
 
-	for(scan=source; *scan!='\0'; scan++)
+	for(scan=source; *scan!=SG_T('\0'); scan++)
 	{
 		if( islower(*scan) && !isalpha(*(scan + 1)) && (scan == source || !isalpha(*(scan - 1))) )
 		{
-			for(scarg=args; *scarg!='\0' && *scarg != *scan; scarg++)
+			for(scarg=args; *scarg!=SG_T('\0') && *scarg != *scan; scarg++)
 			{}
 
-			if( *scarg == '\0' )
+			if( *scarg == SG_T('\0') )
 			{
 				_Set_Error(LNG("undeclared parameter"));
 
@@ -883,7 +883,7 @@ CSG_Formula::TMAT_Formula CSG_Formula::_Translate(const SG_Char *sourc, const SG
 	}
 	else 
 	{
-		*result	= '\0';
+		*result	= SG_T('\0');
 		*error	= -1;
 		*leng	= result - code;
 
@@ -986,7 +986,7 @@ SG_Char *CSG_Formula::i_trans(SG_Char *function, SG_Char *begin, SG_Char *end)
 	for (pars = 0, scan = end - 1; scan >= begin; scan--)
 	{
 		if (*scan == SG_T('(')) pars++;
-		else if (*scan == ')')
+		else if (*scan == SG_T(')'))
 			pars--;
 		else if (!pars &&(*scan == SG_T('+') ||((*scan == SG_T('-')) && scan != begin))
 			&&(scan == begin || *(scan - 1) != SG_T('E')))
@@ -1011,10 +1011,10 @@ SG_Char *CSG_Formula::i_trans(SG_Char *function, SG_Char *begin, SG_Char *end)
 	
 	for (pars = 0, scan = end - 1; scan >= begin; scan--)
 	{
-		if (*scan == '(') pars++;
-		else if (*scan == ')')
+		if (*scan == SG_T('(')) pars++;
+		else if (*scan == SG_T(')'))
 			pars--;
-		else if (!pars &&(*scan == '*' || *scan == '/'))
+		else if (!pars &&(*scan == SG_T('*') || *scan == SG_T('/')))
 			break;
 	}
 	if (scan >= begin)
@@ -1034,12 +1034,12 @@ SG_Char *CSG_Formula::i_trans(SG_Char *function, SG_Char *begin, SG_Char *end)
 	}
 	
 	/* unary minus */
-	if (*begin == '-')
+	if (*begin == SG_T('-'))
 	{
 		tempu = i_trans(function, begin + 1, end);
 		if (tempu)
 		{
-			*tempu++ = 'M';
+			*tempu++ = SG_T('M');
 			tempu = comp_time(function, tempu, 1); 
 			if (m_bError)
 				return NULL; 
@@ -1052,23 +1052,23 @@ SG_Char *CSG_Formula::i_trans(SG_Char *function, SG_Char *begin, SG_Char *end)
 	
 	for (pars = 0, scan = end - 1; scan >= begin; scan--)
 	{
-		if (*scan == '(') pars++;
-		else if (*scan == ')')
+		if (*scan == SG_T('(')) pars++;
+		else if (*scan == SG_T(')'))
 			pars--;
-		else if (!pars &&(*scan == '^'))
+		else if (!pars &&(*scan == SG_T('^')))
 			break;
-		else if (!pars &&(*scan == '='))
+		else if (!pars &&(*scan == SG_T('=')))
 			break;
-		else if (!pars &&(*scan == '>'))
+		else if (!pars &&(*scan == SG_T('>')))
 			break;
-		else if (!pars &&(*scan == '<'))
+		else if (!pars &&(*scan == SG_T('<')))
 			break;
-		else if (!pars &&(*scan == '&'))
+		else if (!pars &&(*scan == SG_T('&')))
 			break;
-		else if (!pars &&(*scan == '|'))
+		else if (!pars &&(*scan == SG_T('|')))
 			break;
 	}
-	
+
 	if (scan >= begin)
 	{                                 
 		if ((tempu = i_trans(function, begin, scan)) &&      
@@ -1091,23 +1091,23 @@ SG_Char *CSG_Formula::i_trans(SG_Char *function, SG_Char *begin, SG_Char *end)
 	while (isspace(*(end - 1)))
 		end--;
 	
-	if (*begin == '(' && *(end - 1) == ')')
+	if (*begin == SG_T('(') && *(end - 1) == SG_T(')'))
 		return i_trans(function, begin + 1, end - 1);
 	
 	if (end == begin + 1 && islower(*begin))
 	{
-		*function++ = 'V';
+		*function++ = SG_T('V');
 		*function++ = *begin;
 		return function;
 	}
 	
 	tempch = *end;
-	*end = '\0';
+	*end = SG_T('\0');
 	tempd = SG_STR_TOD(begin, (SG_Char**) &tempu);
 	*end = tempch;
 	if ((SG_Char*) tempu == end)
 	{
-		*function++ = 'D';
+		*function++ = SG_T('D');
 		if (i_pctable < MAX_CTABLE)
 		{
 			i_ctable[i_pctable] = tempd;
@@ -1123,17 +1123,17 @@ SG_Char *CSG_Formula::i_trans(SG_Char *function, SG_Char *begin, SG_Char *end)
 	}
 	
 				/*function*/
-	if (!isalpha(*begin) && *begin != '_')
+	if (!isalpha(*begin) && *begin != SG_T('_'))
 	{
 		_Set_Error(LNG("syntax error"));
 		i_error = begin;
 		return NULL;
 	}
-	for (endf = begin + 1; endf < end &&(isalnum(*endf) || *endf == '_');
+	for (endf = begin + 1; endf < end &&(isalnum(*endf) || *endf == SG_T('_'));
 	endf++)
 		;
 	tempch = *endf;
-	*endf = '\0';
+	*endf = SG_T('\0');
 	if ((n_function = _Get_Function(begin)) == -1)
 	{
 		*endf = tempch;
@@ -1141,7 +1141,7 @@ SG_Char *CSG_Formula::i_trans(SG_Char *function, SG_Char *begin, SG_Char *end)
 		return NULL;
 	}
 	*endf = tempch;
-	if (*endf != '(' || *(end - 1) != ')')
+	if (*endf != SG_T('(') || *(end - 1) != SG_T(')'))
 	{
 		_Set_Error(LNG("improper function syntax"));
 		i_error = endf;
@@ -1156,7 +1156,7 @@ SG_Char *CSG_Formula::i_trans(SG_Char *function, SG_Char *begin, SG_Char *end)
 				space = 0;
 			if (space)
 			{
-				*function++ = 'F';
+				*function++ = SG_T('F');
 				*function++ = n_function;
 				function = comp_time(function - 2, function, 0);
 				if (m_bError)
@@ -1174,7 +1174,7 @@ SG_Char *CSG_Formula::i_trans(SG_Char *function, SG_Char *begin, SG_Char *end)
 	else 
 	{	/*function with parameters*/
 		tempch = *(end - 1);
-		*(end - 1) = '\0';
+		*(end - 1) = SG_T('\0');
 		par_buf =(SG_Char *) SG_Malloc(SG_STR_LEN(endf + 1) + 1);
 
 		if (!par_buf)
@@ -1222,7 +1222,7 @@ SG_Char *CSG_Formula::i_trans(SG_Char *function, SG_Char *begin, SG_Char *end)
 
 		/* OK */
 		SG_Free(par_buf);
-		*tempu++ = 'F';
+		*tempu++ = SG_T('F');
 		*tempu++ = n_function;
 		tempu = comp_time(function, tempu, gSG_Functions[n_function].n_pars);
 		if (m_bError)
@@ -1244,26 +1244,26 @@ SG_Char *CSG_Formula::comp_time(SG_Char *function, SG_Char *fend, int npars)
 	scan = function;
 	for (i = 0; i < npars; i++)
 	{
-		if (*scan++ != 'D')
+		if (*scan++ != SG_T('D'))
 			return fend;
 		scan++;
 	}
 	
-	if (!((scan == fend -(sizeof((SG_Char) 'F') + sizeof(SG_Char))
-		&& *(fend - 2) == 'F' && gSG_Functions[*(fend - 1)].varying == 0) ||
+	if (!((scan == fend -(sizeof((SG_Char) SG_T('F')) + sizeof(SG_Char))
+		&& *(fend - 2) == SG_T('F') && gSG_Functions[*(fend - 1)].varying == 0) ||
 		(scan == fend - sizeof(SG_Char)
 		&& _is_Operand_Code(*(fend - 1))))
 		)
 		return fend;
 	
 	temp = *fend;
-	*fend = '\0';
+	*fend = SG_T('\0');
 	
 	trans.code = function;
 	trans.ctable = i_ctable;
 	tempd = _Get_Value(trans);
 	*fend = temp;
-	*function++ = 'D';
+	*function++ = SG_T('D');
 	i_pctable -= npars;
 	*function++ =(SG_Char) i_pctable;
 	i_ctable[i_pctable++] = tempd;
@@ -1282,31 +1282,31 @@ int CSG_Formula::max_size(const SG_Char *source)
 	const size_t var_size	= 2*sizeof(SG_Char);
 	const size_t num_size	= sizeof(SG_Char) + sizeof(double);
 	const size_t op_size	= sizeof(SG_Char);
-	const size_t end_size	= sizeof('\0');
+	const size_t end_size	= sizeof(SG_T('\0'));
 
 	const SG_Char *scan;
 
-    for(int i=0; i<'z'-'a'; i++)
+    for(int i=0; i<SG_T('z')-SG_T('a'); i++)
 	{
 		m_Vars_Used[i]	= false;
 	}
 
 	for(scan=source; *scan; scan++)
 	{
-		if( isalpha(*scan) && (*scan != 'E') )
+		if( isalpha(*scan) && (*scan != SG_T('E')) )
 		{
 			if( isalpha(*(scan + 1)) )
 			{
 				// it is a function name, it will be counted later on
 			}
-			else if( *(scan + 1) == '(' )
+			else if( *(scan + 1) == SG_T('(') )
 			{
 				functions++;
 			}
 			else
 			{
 				variables++;
-				m_Vars_Used[(int)(*scan - 'a')] = true;
+				m_Vars_Used[(int)(*scan - SG_T('a'))] = true;
 			}
 		}
 	}
@@ -1316,11 +1316,11 @@ int CSG_Formula::max_size(const SG_Char *source)
 		operators++;
 	}
 
-	if( *source != '\0' )
+	if( *source != SG_T('\0') )
 	{
 		for(scan=source+1; *scan; scan++)
 		{
-			if( _is_Operand(*scan) && *(scan - 1) != 'E' )
+			if( _is_Operand(*scan) && *(scan - 1) != SG_T('E') )
 			{
 				operators++;
 			}
@@ -1330,12 +1330,12 @@ int CSG_Formula::max_size(const SG_Char *source)
 	scan	= source;
 	while( *scan )
 	{
-		if( _is_Number(*scan) || ((*scan == '+' || *scan == '-') && scan > source && *(scan - 1) == 'E') )
+		if( _is_Number(*scan) || ((*scan == SG_T('+') || *scan == SG_T('-')) && scan > source && *(scan - 1) == SG_T('E')) )
 		{
 			numbers++;
 			scan++;
 
-			while( _is_Number(*scan) ||((*scan == '+' || *scan == '-') && scan > source && *(scan - 1) == 'E') )
+			while( _is_Number(*scan) ||((*scan == SG_T('+') || *scan == SG_T('-')) && scan > source && *(scan - 1) == SG_T('E')) )
 				scan++;
 		}
 		else 
@@ -1361,13 +1361,13 @@ SG_Char *CSG_Formula::my_strtok(SG_Char *s)
 	else 
 		return NULL;
 	
-	for (pars = 0; *s != '\0' &&(*s != ',' || pars != 0); s++)
+	for (pars = 0; *s != SG_T('\0') &&(*s != SG_T(',') || pars != 0); s++)
 	{
-		if (*s == '(') ++pars;
-		if (*s == ')')
+		if (*s == SG_T('(')) ++pars;
+		if (*s == SG_T(')'))
 			--pars;
 	}
-	if (*s == '\0')
+	if (*s == SG_T('\0'))
 	{
 		next_token = NULL;
 		s = token;
@@ -1377,7 +1377,7 @@ SG_Char *CSG_Formula::my_strtok(SG_Char *s)
 	}
 	else 
 	{
-		*s = '\0';
+		*s = SG_T('\0');
 		next_token = s + 1;
 		s = token;
 		
