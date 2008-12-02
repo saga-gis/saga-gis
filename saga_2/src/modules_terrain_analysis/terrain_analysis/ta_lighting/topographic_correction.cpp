@@ -141,8 +141,8 @@ CTopographic_Correction::CTopographic_Correction(void)
 			_TL("Cosine Correction (Teillet et al. 1982)"),
 			_TL("Cosine Correction (Civco 1989)"),
 			_TL("Minnaert Correction"),
-			_TL("Minnaert Correction with Slope"),
-			_TL("Minnaert Correction with Slope"),
+			_TL("Minnaert Correction with Slope (Riano et al. 2003)"),
+			_TL("Minnaert Correction with Slope (Law & Nichol 2004)"),
 			_TL("C Correction")
 		), 4
 	);

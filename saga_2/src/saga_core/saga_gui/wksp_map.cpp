@@ -62,6 +62,7 @@
 #include <wx/dcmemory.h>
 #include <wx/filename.h>
 #include <wx/clipbrd.h>
+#include <wx/dataobj.h>
 
 #include <saga_api/doc_pdf.h>
 #include "svg_interactive_map.h"
