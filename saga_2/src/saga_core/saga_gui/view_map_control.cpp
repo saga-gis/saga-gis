@@ -873,7 +873,7 @@ void CVIEW_Map_Control::On_Mouse_RDClick(wxMouseEvent &event)
 //---------------------------------------------------------
 void CVIEW_Map_Control::On_Mouse_Motion(wxMouseEvent &event)
 {
-	if( !event.LeftIsDown() && !event.MiddleIsDown() && !event.RightIsDown() )
+	if( m_Mode != MAP_MODE_PAN_DOWN )
 	{
 		_Set_StatusBar(_Get_World(event.GetPosition()));
 

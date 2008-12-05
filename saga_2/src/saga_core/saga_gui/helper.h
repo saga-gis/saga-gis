@@ -92,6 +92,9 @@ double				Degree_To_Decimal				(double Deg, double Min, double Sec);
 void				Decimal_To_Degree				(double Value, double &Deg, double &Min, double &Sec);
 
 //---------------------------------------------------------
+double				Get_Random						(double loValue, double hiValue);
+
+//---------------------------------------------------------
 wxString			Get_FilePath_Relative			(const wxChar *Directory, const wxChar *FileName);
 wxString			Get_FilePath_Absolute			(const wxChar *Directory, const wxChar *FileName);
 
@@ -101,6 +104,8 @@ wxString			Get_TableInfo_asHTML			(class CSG_Table *pTable);
 //---------------------------------------------------------
 wxColour			Get_Color_asWX					(int Color);
 int					Get_Color_asInt					(wxColour Color);
+
+wxColour			Get_Color_Random				(int rLo = 0, int rHi = 255, int gLo = 0, int gHi = 255, int bLo = 0, int bHi = 255);
 
 wxColour			SYS_Get_Color					(wxSystemColour index);
 void				SYS_Set_Color_BG				(class wxWindow *pWindow, wxSystemColour index);

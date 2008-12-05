@@ -90,6 +90,39 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define DEF_LAYER_COLOUR_COUNT	15
+
+//---------------------------------------------------------
+static int	s_Def_Layer_Colours[DEF_LAYER_COLOUR_COUNT]	=
+{
+	SG_COLOR_RED,
+	SG_COLOR_GREEN,
+	SG_COLOR_BLUE,
+	SG_COLOR_YELLOW,
+
+	SG_GET_RGB(255, 127,   0),
+	SG_COLOR_GREEN_LIGHT,
+	SG_COLOR_BLUE_LIGHT,
+	SG_GET_RGB(255, 255, 127),
+
+	SG_COLOR_RED_DARK,
+	SG_COLOR_GREEN_DARK,
+	SG_COLOR_BLUE_DARK,
+	SG_COLOR_YELLOW_DARK,
+
+	SG_COLOR_BLUE_GREEN,
+	SG_COLOR_PURPLE,
+	SG_COLOR_PINK
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CWKSP_Layer *	Get_Active_Layer(void)
 {
 	return( g_pACTIVE ? g_pACTIVE->Get_Layer() : NULL );
@@ -298,10 +331,13 @@ void CWKSP_Layer::Create_Parameters(void)
 		LNG("")
 	);
 
+	static	BYTE	s_Def_Layer_Colour	= 0;
+
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_UNISYMBOL")	, "UNISYMBOL_COLOR"		, LNG("[CAP] Color"),
 		LNG(""),
-		PARAMETER_TYPE_Color, SG_GET_RGB(0, 255, 0)
+		PARAMETER_TYPE_Color, s_Def_Layer_Colours[s_Def_Layer_Colour++ % DEF_LAYER_COLOUR_COUNT]
+	//	PARAMETER_TYPE_Color, SG_GET_RGB(Get_Random(128, 250), Get_Random(128, 200), Get_Random(128, 200))
 	);
 
 

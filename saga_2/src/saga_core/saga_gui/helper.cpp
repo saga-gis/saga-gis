@@ -127,6 +127,19 @@ void		Decimal_To_Degree(double Value, double &Deg, double &Min, double &Sec)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+double		Get_Random(double loValue, double hiValue)
+{
+	return( loValue + (hiValue - loValue) * (double)rand() / (double)RAND_MAX );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 wxString	Get_FilePath_Relative(const wxChar *Directory, const wxChar *FileName)
 {
 	int		i, n;
@@ -200,6 +213,16 @@ wxColour	Get_Color_asWX(int Color)
 int			Get_Color_asInt(wxColour Color)
 {
 	return( SG_GET_RGB(Color.Red(), Color.Green(), Color.Blue()) );
+}
+
+//---------------------------------------------------------
+wxColour	Get_Color_Random(int rLo, int rHi, int gLo, int gHi, int bLo, int bHi)
+{
+	return( wxColour(
+		(int)(0.5 + Get_Random(rLo, rHi)),
+		(int)(0.5 + Get_Random(gLo, gHi)),
+		(int)(0.5 + Get_Random(bLo, bHi))
+	));
 }
 
 //---------------------------------------------------------

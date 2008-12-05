@@ -587,7 +587,7 @@ bool CPROJ4_Grid::Get_Target_Userdef(const CSG_Grid_System &Source, CSG_Grid_Sys
 	if( r.xMin < r.xMax && r.yMin < r.yMax )
 	{
 		CSG_Parameters	*pParameters	= Get_Parameters("GET_USER");
-		double			Cellsize		= (r.xMax - r.xMin) / 100.0;
+		double			Cellsize		= (r.yMax - r.yMin) / Source.Get_NY();
 
 		pParameters->Get_Parameter("XMIN")	->Set_Value(r.xMin);
 		pParameters->Get_Parameter("XMAX")	->Set_Value(r.xMax);

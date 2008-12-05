@@ -114,7 +114,7 @@ void CWKSP_Shapes_Polygon::On_Create_Parameters(void)
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_OUTLINE_COLOR"	, LNG("[CAP] Outline Color"),
 		LNG(""),
-		PARAMETER_TYPE_Color, SG_GET_RGB(0, 127, 0)
+		PARAMETER_TYPE_Color, SG_GET_RGB(0, 0, 0)
 	);
 
 	m_Parameters.Add_Value(
