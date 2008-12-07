@@ -298,7 +298,10 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 		if( m_pManager->Get_Count() > 0 && (bSilent || _Del_Item_Confirm(pItem)) )
 		{
 			Freeze();
-			g_pData_Buttons->Freeze();
+			if( g_pData_Buttons )
+			{
+				g_pData_Buttons->Freeze();
+			}
 
 			DeleteChildren	(m_pManager->GetId());
 			AppendItem		(m_pManager->GetId(), LNG("[CAP] [no items]"), 0, 0, NULL);
@@ -310,10 +313,10 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 			}
 
 			Thaw();
-			g_pData_Buttons->Thaw();
 
 			if( g_pData_Buttons )
 			{
+				g_pData_Buttons->Thaw();
 				g_pData_Buttons->Update_Buttons();
 			}
 
