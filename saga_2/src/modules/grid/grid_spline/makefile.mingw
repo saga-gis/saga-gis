@@ -18,7 +18,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/csa.o $(MLB_TEMP)/Gridding_Spline_BA.o $(MLB_TEMP)/Gridding_Spline_Base.o $(MLB_TEMP)/Gridding_Spline_CSA.o $(MLB_TEMP)/Gridding_Spline_MBA.o $(MLB_TEMP)/Gridding_Spline_MBA_Grid.o $(MLB_TEMP)/Gridding_Spline_TPS_Global.o $(MLB_TEMP)/Gridding_Spline_TPS_Local.o $(MLB_TEMP)/Gridding_Spline_TPS_TIN.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/Thin_Plate_Spline.o
+OBJ      = $(MLB_TEMP)/Gridding_Spline_BA.o $(MLB_TEMP)/Gridding_Spline_Base.o $(MLB_TEMP)/Gridding_Spline_MBA.o $(MLB_TEMP)/Gridding_Spline_MBA_Grid.o $(MLB_TEMP)/Gridding_Spline_TPS_Global.o $(MLB_TEMP)/Gridding_Spline_TPS_Local.o $(MLB_TEMP)/Gridding_Spline_TPS_TIN.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/Thin_Plate_Spline.o
 
 CXXFLAGS = -I"$(MINGW)/include" -I"$(SAGA)/src/saga_core" -D$(PRJ_NAME)_EXPORTS -DBUILDING_DLL=1 -D_SAGA_MSW -D_SAGA_MINGW -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -fexpensive-optimizations -Os -O2 -O3 $(DEP_INCS) $(DEP_DEFS)
 
@@ -45,17 +45,11 @@ $(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
-$(MLB_TEMP)/csa.o: ./csa.c
-	$(CPP) -c ./csa.c -o $(MLB_TEMP)/csa.o $(CXXFLAGS)
-
 $(MLB_TEMP)/Gridding_Spline_BA.o: ./Gridding_Spline_BA.cpp
 	$(CPP) -c ./Gridding_Spline_BA.cpp -o $(MLB_TEMP)/Gridding_Spline_BA.o $(CXXFLAGS)
 
 $(MLB_TEMP)/Gridding_Spline_Base.o: ./Gridding_Spline_Base.cpp
 	$(CPP) -c ./Gridding_Spline_Base.cpp -o $(MLB_TEMP)/Gridding_Spline_Base.o $(CXXFLAGS)
-
-$(MLB_TEMP)/Gridding_Spline_CSA.o: ./Gridding_Spline_CSA.cpp
-	$(CPP) -c ./Gridding_Spline_CSA.cpp -o $(MLB_TEMP)/Gridding_Spline_CSA.o $(CXXFLAGS)
 
 $(MLB_TEMP)/Gridding_Spline_MBA.o: ./Gridding_Spline_MBA.cpp
 	$(CPP) -c ./Gridding_Spline_MBA.cpp -o $(MLB_TEMP)/Gridding_Spline_MBA.o $(CXXFLAGS)

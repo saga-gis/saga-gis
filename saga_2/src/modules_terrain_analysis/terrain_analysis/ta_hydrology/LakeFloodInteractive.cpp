@@ -37,7 +37,15 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     reklovw@web.de                         //
+//    e-mail:     volker.wichmann@ku-eichstaett.de       //
+//                                                       //
+//    contact:    Volker Wichmann                        //
+//                Research Associate                     //
+//                Chair of Physical Geography		     //
+//				  KU Eichstätt-Ingolstadt				 //
+//                Ostenstr. 18                           //
+//                85072 Eichstätt                        //
+//                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 

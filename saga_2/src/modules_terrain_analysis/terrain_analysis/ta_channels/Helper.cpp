@@ -22,7 +22,7 @@
 // getNextCell() >> changed by O.Conrad, 28 July 2005...
 void getNextCell(CSG_Grid *g, int iX, int iY, int &iNextX, int &iNextY)
 {
-	int		Dir	= g->Get_Gradient_NeighborDir(iX, iY, true);
+	int		Dir	= g->Get_Gradient_NeighborDir(iX, iY, false);
 
 	if( Dir >= 0 )
 	{

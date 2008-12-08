@@ -644,7 +644,7 @@ bool CSG_Grid::_Load_Native(const SG_Char *File_Header, TSG_Grid_Memory_Type Mem
 				}
 				else
 				{
-					File_Data	= SG_File_Make_Path(SG_File_Get_Path(File_Header), Value);
+					File_Data	= SG_File_Make_Path(SG_File_Get_Path(Value), Value);
 				}
 				break;
 
@@ -789,15 +789,13 @@ int CSG_Grid::_Load_Native_Get_Key(CSG_File &Stream, CSG_String &Value)
 	if( Stream.Read_Line(sLine) && (i = sLine.Find('=')) > 0 )
 	{
 		Value.Printf(sLine.AfterFirst('='));
-		Value.Trim();
+		Value.Remove_WhiteChars();
 
 		sLine.Remove(i);
 
 		for(i=0; i<GRID_FILE_KEY_Count; i++)
 		{
-			CSG_String	s(gSG_Grid_File_Key_Names[i]);
-
-			if( s.Find(sLine.Left(s.Length())) >= 0 )
+			if( sLine.Find(gSG_Grid_File_Key_Names[i]) >= 0 )
 			{
 				return( i );
 			}

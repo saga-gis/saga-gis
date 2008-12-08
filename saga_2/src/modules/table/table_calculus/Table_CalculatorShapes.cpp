@@ -34,11 +34,6 @@ CTableCalculatorShapes::CTableCalculatorShapes(void){
 
 	Parameters.Add_String(NULL, "NAME", _TL("Field Name"), _TL(""), SG_T("a+b"));
 
-	Parameters.Add_Shapes(
-		NULL, "RESULT"	, _TL("Result"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
 
 }//constructor
 
@@ -57,13 +52,7 @@ bool CTableCalculatorShapes::On_Execute(void){
 	const SG_Char *pFormula;
 	CSG_Formula Formula;
 
-	pShapes = Parameters("RESULT")->asShapes();
-
-	if( Parameters("SHAPES")->asShapes() != pShapes )
-	{
-		pShapes->Assign(Parameters("SHAPES")->asShapes());
-	}
-
+	pShapes = Parameters("SHAPES")->asShapes();
 	pTable	= &pShapes->Get_Table();
 	iFields = pTable->Get_Field_Count();
 
@@ -81,7 +70,7 @@ bool CTableCalculatorShapes::On_Execute(void){
 
 		Message_Add(msg);
 
-		msg.Printf(SG_T("\n%s\n"), Msg.c_str());
+		msg.Printf(SG_T("\n%s\n"), Msg);
 
 		Message_Add(msg);
 

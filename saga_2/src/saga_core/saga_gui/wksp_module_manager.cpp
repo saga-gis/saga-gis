@@ -49,6 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+// $Id: wksp_module_manager.cpp,v 1.15 2008-02-01 14:33:59 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -241,7 +242,7 @@ bool CWKSP_Module_Manager::On_Command_UI(wxUpdateUIEvent &event)
 		return( CWKSP_Base_Manager::On_Command_UI(event) );
 
 	case ID_CMD_WKSP_ITEM_CLOSE:
-		event.Enable(Get_Count() > 0 && g_pModule == NULL);
+		event.Enable(Get_Count() > 0);
 		break;
 	}
 

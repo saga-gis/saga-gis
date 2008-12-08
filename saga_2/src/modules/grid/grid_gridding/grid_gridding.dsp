@@ -58,7 +58,7 @@ LINK32=link.exe
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib /nologo /subsystem:windows /dll /machine:I386 /libpath:"$(SAGA)/bin/saga_vc"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy     *.lng.txt     ..\..\..\..\bin\saga_vc\modules\ 
+PostBuild_Cmds=copy   *.lng.txt   ..\..\..\..\bin\saga_vc\modules\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "grid_gridding - Win32 Debug"
@@ -165,10 +165,6 @@ SOURCE=.\Interpolation_InverseDistance.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Interpolation_NaturalNeighbour.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Interpolation_NearestNeighbour.cpp
 # End Source File
 # Begin Source File
@@ -202,10 +198,6 @@ SOURCE=.\Interpolation.h
 # Begin Source File
 
 SOURCE=.\Interpolation_InverseDistance.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\Interpolation_NaturalNeighbour.h
 # End Source File
 # Begin Source File
 
@@ -298,70 +290,6 @@ SOURCE=..\..\..\saga_core\saga_api\table_value.h
 # Begin Source File
 
 SOURCE=..\..\..\saga_core\saga_api\tin.h
-# End Source File
-# End Group
-# Begin Group "nn"
-
-# PROP Default_Filter ""
-# Begin Source File
-
-SOURCE=.\nn\delaunay.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\nn\delaunay.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\nn\hash.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\nn\hash.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\nn\istack.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\nn\istack.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\nn\lpi.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\nn\nan.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\nn\nn.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\nn\nnai.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\nn\nncommon.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\nn\nnpi.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\nn\triangle.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\nn\triangle.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\nn\version.h
 # End Source File
 # End Group
 # End Target

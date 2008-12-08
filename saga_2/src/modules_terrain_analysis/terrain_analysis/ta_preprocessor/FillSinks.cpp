@@ -37,7 +37,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     reklovw@web.de                         //
+//    e-mail: volker.wichmann@geographie.uni-muenchen.de //
+//                                                       //
+//    contact:    Volker Wichmann                        //
+//                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 

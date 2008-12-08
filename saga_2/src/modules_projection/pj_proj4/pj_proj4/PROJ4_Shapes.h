@@ -75,7 +75,8 @@
 class pj_proj4_EXPORT CPROJ4_Shapes : public CPROJ4_Base
 {
 public:
-	CPROJ4_Shapes(int Interface, bool bInputList);
+	CPROJ4_Shapes(void);
+	virtual ~CPROJ4_Shapes(void);
 
 	virtual const SG_Char *	Get_MenuPath			(void)	{	return( _TL("R:Shapes") );	}
 
@@ -85,19 +86,6 @@ protected:
 	virtual bool			On_Execute_Conversion	(void);
 
 
-private:
-
-	bool					_Get_Conversion			(CSG_Shapes *pSource, CSG_Shapes *pTarget);
-
-
 };
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__PROJ4_Shapes_H

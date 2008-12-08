@@ -260,7 +260,7 @@ public:
 	CSG_String &					Remove				(size_t pos);
 	CSG_String &					Remove				(size_t pos, size_t len);
 
-	int								Trim				(bool fromRight = false);
+	int								Remove_WhiteChars	(bool fromEnd = false);
 
 	int								Find				(SG_Char Character, bool fromEnd = false);
 	int								Find				(const SG_Char *String);
@@ -339,8 +339,6 @@ SAGA_API_DLL_EXPORT double			SG_Date_To_Double				(const SG_Char *String);
 SAGA_API_DLL_EXPORT CSG_String		SG_Double_To_Date				(double Value);
 
 SAGA_API_DLL_EXPORT int				SG_Get_Significant_Decimals		(double Value, int maxDecimals = 6);
-
-SAGA_API_DLL_EXPORT void			SG_Flip_Decimal_Separators		(CSG_String &String);
 
 SAGA_API_DLL_EXPORT CSG_String		SG_Get_String					(double Value, int Precision = 2, bool bScientific = false);
 

@@ -97,7 +97,6 @@ const SG_Char * Get_Info(int i)
 #include "AddCoordinates.h"
 #include "remove_duplicates.h"
 #include "Clip_Points.h"
-#include "separate_by_direction.h"
 
 
 //---------------------------------------------------------
@@ -116,7 +115,6 @@ CSG_Module *		Create_Module(int i)
 	case 6:		return( new CAddCoordinates );
 	case 7:		return( new CRemove_Duplicates );
 	case 8:		return( new CClip_Points );
-	case 9:		return( new CSeparate_by_Direction );
 	}
 
 	return( NULL );

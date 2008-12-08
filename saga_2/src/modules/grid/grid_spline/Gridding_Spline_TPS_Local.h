@@ -93,14 +93,12 @@ protected:
 
 private:
 
-	int						m_nPoints_Max, m_Mode;
+	int						m_nPoints_Max;
 
 	double					m_Radius;
 
-	CSG_Shapes_Search		m_Search;
+	CSG_Shapes_Search			m_Search;
 
-
-	int						Get_Points				(const TSG_Point &p, int iQuadrant = -1);
 
 	bool					Set_Value				(int x, int y, const TSG_Point &p);
 

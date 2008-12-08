@@ -223,7 +223,7 @@ bool CSG_Grid::_Memory_Create(TSG_Grid_Memory_Type Memory_Type)
 //---------------------------------------------------------
 void CSG_Grid::_Memory_Destroy(void)
 {
-	Set_Index(false);
+	Sort_Discard();
 
 	switch( m_Memory_Type )
 	{

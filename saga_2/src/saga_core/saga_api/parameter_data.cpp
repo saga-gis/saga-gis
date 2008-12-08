@@ -719,25 +719,6 @@ CSG_Parameter_Choice::~CSG_Parameter_Choice(void)
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter_Choice::Set_Value(void *Value)
-{
-	if( Value && *((SG_Char *)Value) )
-	{
-		for(int i=0; i<nItems; i++)
-		{
-			if( Items[i]->Cmp((SG_Char *)Value) == 0 )
-			{
-				m_Value	= i;
-
-				return( true );
-			}
-		}
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
 const SG_Char * CSG_Parameter_Choice::asString(void)
 {
 	if( m_Value >= 0 && m_Value < nItems )
@@ -1606,12 +1587,7 @@ bool CSG_Parameter_Data_Object_Output::Set_Value(void *Value)
 {
 	CSG_Data_Object	*pDataObject	= (CSG_Data_Object *)Value;
 
-	if( pDataObject == DATAOBJECT_CREATE )
-	{
-		pDataObject	= NULL;
-	}
-
-	if( m_pDataObject != pDataObject && (pDataObject == NULL || pDataObject->Get_ObjectType() == m_Type) )
+	if( m_pDataObject != pDataObject && (!pDataObject || (pDataObject && pDataObject->Get_ObjectType() == m_Type)) )
 	{
 		m_pDataObject	= pDataObject;
 

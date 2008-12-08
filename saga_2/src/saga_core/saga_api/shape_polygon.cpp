@@ -136,7 +136,7 @@ void CSG_Shape_Polygon_Part::_Update_Area(void)
 			m_Centroid.y	/= (3.0 * m_Area);
 		}
 
-		m_bClockwise	= m_Area > 0.0 ? BOOL3_TRUE : BOOL3_FALSE;
+		m_bClockwise	= m_Area < 0.0 ? BOOL3_TRUE : BOOL3_FALSE;
 
 		m_Area			= fabs(m_Area) / 2.0;
 	}

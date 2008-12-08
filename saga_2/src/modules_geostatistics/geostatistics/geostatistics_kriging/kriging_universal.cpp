@@ -90,15 +90,6 @@ CKriging_Universal::CKriging_Universal(void)
 		NULL	, "NPOINTS"		, _TL("Min./Max. Number of m_Points"),
 		_TL(""), 4, 20, 1, true
 	);
-
-	Parameters.Add_Choice(
-		NULL	, "MODE"		, _TL("Search Mode"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("all directions"),
-			_TL("quadrants")
-		)
-	);
 }
 
 //---------------------------------------------------------
@@ -123,30 +114,17 @@ bool CKriging_Universal::On_Initialise(void)
 	m_nPoints_Min	= (int)Parameters("NPOINTS")->asRange()->Get_LoVal();
 	m_nPoints_Max	= (int)Parameters("NPOINTS")->asRange()->Get_HiVal();
 
-	m_Mode			= Parameters("MODE")		->asInt();
-
 	//-----------------------------------------------------
-	if( !m_Search.Create(m_pPoints) )
+	if( m_Search.Create(m_pPoints) )
 	{
-		SG_UI_Msg_Add(_TL("not enough points for interpolation"), true);
+		m_Points.Set_Count	(m_nPoints_Max);
+		m_G		.Create		(m_nPoints_Max + 1 + m_pGrids->Get_Count());
+		m_W		.Create		(m_nPoints_Max + 1 + m_pGrids->Get_Count(), m_nPoints_Max + 1 + m_pGrids->Get_Count());
 
-		return( false );
+		return( true );
 	}
 
-	//-----------------------------------------------------
-	int		nPoints_Max;
-
-	switch( m_Mode )
-	{
-	default:	nPoints_Max	= m_nPoints_Max;		break;
-	case 1:		nPoints_Max	= m_nPoints_Max * 4;	break;
-	}
-
-	m_Points.Set_Count	(nPoints_Max);
-	m_G		.Create		(nPoints_Max + 1 + m_pGrids->Get_Count());
-	m_W		.Create		(nPoints_Max + 1 + m_pGrids->Get_Count(), nPoints_Max + 1 + m_pGrids->Get_Count());
-
-	return( true );
+	return( false );
 }
 
 
@@ -220,17 +198,10 @@ bool CKriging_Universal::Get_Value(double x, double y, double &z, double &v)
 //---------------------------------------------------------
 int CKriging_Universal::Get_Weights(double x, double y)
 {
-	int		i, j, n, iGrid, nGrids	= m_pGrids->Get_Count();
+	int		i, j, n, iGrid, nGrids;
 
 	//-----------------------------------------------------
-	switch( m_Mode )
-	{
-	default:	n	= m_Search.Select_Radius	(x, y, m_Radius, false, m_nPoints_Max);	break;
-	case 1:		n	= m_Search.Select_Quadrants	(x, y, m_Radius, m_nPoints_Max);		break;
-	}
-
-	//-----------------------------------------------------
-	if( n >= m_nPoints_Min )
+	if( (n = m_Search.Select_Radius(x, y, m_Radius, true, m_nPoints_Max)) >= m_nPoints_Min && (nGrids = m_pGrids->Get_Count()) > 0 )
 	{
 		for(i=0; i<n; i++)
 		{

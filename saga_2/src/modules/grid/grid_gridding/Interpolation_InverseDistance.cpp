@@ -72,7 +72,7 @@ CInterpolation_InverseDistance::CInterpolation_InverseDistance(void)
 {
 	Set_Name		(_TL("Inverse Distance"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2003"));
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
 		"Inverse distance to a power method for grid interpolation from irregular distributed points."
@@ -95,16 +95,11 @@ CInterpolation_InverseDistance::CInterpolation_InverseDistance(void)
 		_TL(""),
 		PARAMETER_TYPE_Int		, 10.0
 	);
-
-	Parameters.Add_Choice(
-		NULL	, "MODE"		, _TL("Search Mode"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("all directions"),
-			_TL("quadrants")
-		)
-	);
 }
+
+//---------------------------------------------------------
+CInterpolation_InverseDistance::~CInterpolation_InverseDistance(void)
+{}
 
 
 ///////////////////////////////////////////////////////////
@@ -119,7 +114,6 @@ bool CInterpolation_InverseDistance::On_Initialize(void)
 	m_Power			= Parameters("POWER")	->asDouble();
 	m_Radius		= Parameters("RADIUS")	->asDouble();
 	m_nPoints_Max	= Parameters("NPOINTS")	->asInt();
-	m_Mode			= Parameters("MODE")	->asInt();
 
 	return( Set_Search_Engine() );
 }
@@ -128,41 +122,38 @@ bool CInterpolation_InverseDistance::On_Initialize(void)
 bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &z)
 {
 	int			i, n;
-	double		ds;
+	double		d, ds;
 	TSG_Point	p;
 	CSG_Shape	*pPoint;
 
-	switch( m_Mode )
+	if( (n = m_Search.Select_Radius(x, y, m_Radius, true, m_nPoints_Max)) > 0 )
 	{
-	case 0:	n	= m_Search.Select_Radius	(x, y, m_Radius, false, m_nPoints_Max);		break;
-	case 1:	n	= m_Search.Select_Quadrants	(x, y, m_Radius, m_nPoints_Max);			break;
-	}
-
-	for(i=0, z=0.0, ds=0.0, p.x=x, p.y=y; i<n; i++)
-	{
-		if( (pPoint	= m_Search.Get_Selected_Point(i)) != NULL )
+		for(i=0, p.x=x, p.y=y, z=0.0, ds=0.0; i<n; i++)
 		{
-			double	d	= SG_Get_Distance(p, pPoint->Get_Point(0));
-
-			if( d <= 0.0 )
+			if( (pPoint = m_Search.Get_Selected_Point(i)) != NULL )
 			{
-				z	= pPoint->Get_Record()->asDouble(m_zField);
+				d	= SG_Get_Distance(p, pPoint->Get_Point(0));
 
-				return( true );
+				if( d <= 0.0 )
+				{
+					z	= pPoint->Get_Record()->asDouble(m_zField);
+
+					return( true );
+				}
+
+				d	= pow(d, -m_Power);
+
+				z	+= d * pPoint->Get_Record()->asDouble(m_zField);
+				ds	+= d;
 			}
-
-			d	= pow(d, -m_Power);
-
-			z	+= d * pPoint->Get_Record()->asDouble(m_zField);
-			ds	+= d;
 		}
-	}
 
-	if( ds > 0.0 )
-	{
-		z	/= ds;
+		if( ds > 0.0 )
+		{
+			z	/= ds;
 
-		return( true );
+			return( true );
+		}
 	}
 
 	return( false );

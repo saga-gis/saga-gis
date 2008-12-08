@@ -227,15 +227,6 @@ void CSG_Parameters::Set_Translation(CSG_Translator &Translator)
 	}
 }
 
-//---------------------------------------------------------
-void CSG_Parameters::Set_Enabled(bool bEnabled)
-{
-	for(int i=0; i<m_nParameters; i++)
-	{
-		m_Parameters[i]->Set_Enabled(bEnabled);
-	}
-}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -360,14 +351,6 @@ CSG_Parameter * CSG_Parameters::Add_FixedTable(CSG_Parameter *pParent, const SG_
 	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_FixedTable, 0);
 
 	pParameter->asTable()->Create(pTemplate);
-
-	if( pTemplate )
-	{
-		for(int i=0; i<pTemplate->Get_Record_Count(); i++)
-		{
-			pParameter->asTable()->Add_Record(pTemplate->Get_Record(i));
-		}
-	}
 
 	return( pParameter );
 }
@@ -705,17 +688,9 @@ CSG_Parameter * CSG_Parameters::_Add(CSG_Parameter *pParent, const SG_Char *Iden
 {
 	CSG_Parameter	*pParameter;
 
-	if( Identifier && *Identifier )
-	{
-		pParameter	= new CSG_Parameter(this, pParent, Identifier, Name, Description, Type, Constraint);
-	}
-	else
-	{
-		pParameter	= new CSG_Parameter(this, pParent, CSG_String::Format(SG_T("%d"), m_nParameters), Name, Description, Type, Constraint);
-	}
-
 	m_Parameters	= (CSG_Parameter **)SG_Realloc(m_Parameters, (m_nParameters + 1) * sizeof(CSG_Parameter *));
-	m_Parameters[m_nParameters++]	= pParameter;
+
+	pParameter		= m_Parameters[m_nParameters++]	= new CSG_Parameter(this, pParent, Identifier, Name, Description, Type, Constraint);
 
 	return( pParameter );
 }
@@ -1154,7 +1129,7 @@ bool CSG_Parameters::DataObjects_Check(bool bSilent)
 			break;
 
 		case PARAMETER_TYPE_Parameters:
-			bInvalid	= m_Parameters[i]->asParameters()->DataObjects_Check(bSilent) == false;
+			bInvalid	= m_Parameters[i]->asParameters()->DataObjects_Check(bSilent);
 			break;
 
 		case PARAMETER_TYPE_Grid:

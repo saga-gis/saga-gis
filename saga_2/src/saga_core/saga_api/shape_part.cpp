@@ -277,13 +277,13 @@ void CSG_Shape_Part::_Update_Extent(void)
 		if( m_nPoints > 0 )
 		{
 			int			i;
-			TSG_Point	*p	= m_Points;
+			TSG_Point	*p;
 			TSG_Rect	*r	= &m_Extent.m_rect;
 
-			r->xMin	= r->xMax	= p->x;
-			r->yMin	= r->yMax	= p->y;
+			r->xMin	= r->xMax	= m_Points[0].x;
+			r->yMin	= r->yMax	= m_Points[0].y;
 
-			for(i=1, p++; i<m_nPoints; i++, p++)
+			for(i=1, p=m_Points; i<m_nPoints; i++, p++)
 			{
 				if( r->xMin > p->x )
 				{

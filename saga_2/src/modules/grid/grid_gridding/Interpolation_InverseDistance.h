@@ -83,6 +83,7 @@ class CInterpolation_InverseDistance : public CInterpolation
 {
 public:
 	CInterpolation_InverseDistance(void);
+	virtual ~CInterpolation_InverseDistance(void);
 
 
 protected:
@@ -94,10 +95,9 @@ protected:
 
 private:
 
-	int						m_nPoints_Max, m_Mode;
+	int						m_nPoints_Max;
 
 	double					m_Power, m_Radius;
-
 
 };
 

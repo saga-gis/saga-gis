@@ -159,10 +159,9 @@ bool CGrid_FastSegments::On_Execute(void)
 	//-----------------------------------------------------
 	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
-		if( m_pGrid->Get_Sorted(n, x, y, m_bDown) )
-		{
-			Set_Cell(x, y);
-		}
+		m_pGrid->Get_Sorted(n, x, y, m_bDown);
+
+		Set_Cell(x, y);
 	}
 
 	//-----------------------------------------------------
@@ -179,7 +178,6 @@ bool CGrid_FastSegments::On_Execute(void)
 				else
 				{
 					m_pSegments->Set_NoData(n);
-					m_pObjects ->Set_NoData(n);
 				}
 			}
 		}

@@ -343,12 +343,12 @@ void CWKSP_Layer_Classify::Metric2EqualElements(void)
 		pGrid	= ((CWKSP_Grid *)m_pLayer)->Get_Grid();
 		dClass	= (double)pGrid->Get_NCells() / (double)(nClasses);
 
-		pGrid->Get_Sorted(0, x, y, false, false);
+		pGrid->Get_Sorted(0, x, y, false);
 		zA		= pGrid->asDouble(x, y);
 
 		for(iClass=0; iClass<nClasses-1; iClass++)
 		{
-			pGrid->Get_Sorted((int)(dClass * (iClass + 1.0)), x, y, false, false);
+			pGrid->Get_Sorted((int)(dClass * (iClass + 1.0)), x, y, false);
 			zB		= zA;
 			zA		= pGrid->asDouble(x, y);
 
@@ -360,7 +360,7 @@ void CWKSP_Layer_Classify::Metric2EqualElements(void)
 			pRecord->Set_Value(LUT_MAX			, zA);
 		}
 
-		pGrid->Get_Sorted(pGrid->Get_NCells() - 1, x, y, false, false);
+		pGrid->Get_Sorted(pGrid->Get_NCells() - 1, x, y, false);
 		zB		= zA;
 		zA		= pGrid->asDouble(x, y);
 		pRecord	= m_pLUT->Add_Record();

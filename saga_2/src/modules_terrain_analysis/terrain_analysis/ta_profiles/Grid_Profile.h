@@ -81,8 +81,7 @@ public:
 
 protected:
 
-	virtual bool				On_Execute			(void);
-	virtual bool				On_Execute_Finish	(void);
+	virtual bool				On_Execute(void);
 	virtual bool				On_Execute_Position	(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
 
 
@@ -90,17 +89,17 @@ private:
 
 	bool						m_bAdd;
 
-	CSG_Shapes					*m_pPoints, *m_pLine;
+	CSG_Shapes						*m_pPoints, *m_pLine;
 
-	CSG_Grid					*m_pDEM;
+	CSG_Grid						*m_pDEM;
 
 	CSG_Parameter_Grid_List		*m_pValues;
 
 
-	bool						Set_Profile			(void);
-	bool						Set_Profile			(TSG_Point A, TSG_Point B);
+	bool						Set_Profile(void);
+	bool						Set_Profile(TSG_Point A, TSG_Point B);
 
-	bool						Add_Point			(CSG_Point Point);
+	bool						Add_Point(CSG_Point Point);
 
 };
 

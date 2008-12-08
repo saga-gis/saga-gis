@@ -451,10 +451,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Clip_Points.cpp"
-				>
-			</File>
-			<File
 				RelativePath="CountPoints.cpp"
 				>
 				<FileConfiguration
@@ -738,10 +734,6 @@
 				RelativePath=".\remove_duplicates.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\separate_by_direction.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -749,10 +741,6 @@
 			>
 			<File
 				RelativePath="AddCoordinates.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Clip_Points.h"
 				>
 			</File>
 			<File
@@ -785,10 +773,6 @@
 			</File>
 			<File
 				RelativePath=".\remove_duplicates.h"
-				>
-			</File>
-			<File
-				RelativePath=".\separate_by_direction.h"
 				>
 			</File>
 		</Filter>

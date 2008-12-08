@@ -194,20 +194,20 @@ CShapes_Cut::CShapes_Cut(void)
 {
 	Set_Name		(_TL("Cut Shapes Layer"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2006"));
+	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
 
 	Set_Description	(_TW(
 		""
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes_List(
+	Parameters.Add_Shapes(
 		NULL	, "SHAPES"		, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Shapes_List(
+	Parameters.Add_Shapes(
 		NULL	, "CUT"			, _TL("Cut"),
 		_TL(""),
 		PARAMETER_OUTPUT
@@ -229,10 +229,9 @@ CShapes_Cut::CShapes_Cut(void)
 		NULL	, "TARGET"		, _TL("Extent"),
 		_TL(""),
 
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("user defined"),
-			_TL("grid project"),
-			_TL("shapes extent")
+			_TL("grid project")
 		), 0
 	);
 
@@ -270,12 +269,6 @@ CShapes_Cut::CShapes_Cut(void)
 	pParameters->Add_Grid_System(
 		NULL, "GRID", _TL("Grid Project")		, _TL("")
 	);
-
-	pParameters	= Add_Parameters("SHAPES", _TL("Extent"), _TL(""));
-
-	pParameters->Add_Shapes(
-		NULL, "SHAPES", _TL("Shapes")			, _TL(""), PARAMETER_INPUT
-	);
 }
 
 //---------------------------------------------------------
@@ -292,49 +285,23 @@ CShapes_Cut::~CShapes_Cut(void)
 //---------------------------------------------------------
 bool CShapes_Cut::On_Execute(void)
 {
-	int							Method;
-	CSG_Shapes					*pExtent;
-	CSG_Parameter_Shapes_List	*pShapes, *pCuts;
+	int			Method;
+	CSG_Shapes	*pShapes, *pCut, *pExtent;
 
 	//-----------------------------------------------------
-	pShapes	= Parameters("SHAPES")	->asShapesList();
-	pCuts	= Parameters("CUT")		->asShapesList();
+	pShapes	= Parameters("SHAPES")	->asShapes();
+	pCut	= Parameters("CUT")		->asShapes();
 	pExtent	= Parameters("EXTENT")	->asShapes();
 	Method	= Parameters("METHOD")	->asInt();
 
 	//-----------------------------------------------------
-	if( pShapes->Get_Count() > 0 )
+	CSG_Rect	r(pShapes->Get_Extent());
+
+	if( Get_Extent(r) )
 	{
-		int			i;
-		CSG_Rect	r(pShapes->asShapes(0)->Get_Extent());
+		Cut_Set_Extent(r, pExtent, true);
 
-		for(i=1; i<pShapes->Get_Count(); i++)
-		{
-			r.Union(pShapes->asShapes(i)->Get_Extent());
-		}
-
-		if( Get_Extent(r) )
-		{
-			pCuts->Del_Items();
-
-			Cut_Set_Extent(r, pExtent, true);
-
-			for(i=0; i<pShapes->Get_Count(); i++)
-			{
-				CSG_Shapes	*pCut	= SG_Create_Shapes();
-
-				if( Cut_Shapes(r, Method, pShapes->asShapes(i), pCut) )
-				{
-					pCuts->Add_Item(pCut);
-				}
-				else
-				{
-					delete(pCut);
-				}
-			}
-
-			return( pCuts->Get_Count() > 0 );
-		}
+		return( Cut_Shapes(r, Method, pShapes, pCut) );
 	}
 
 	return( false );
@@ -379,16 +346,6 @@ bool CShapes_Cut::Get_Extent(CSG_Rect &r)
 		if( Dlg_Parameters("GRID") )
 		{
 			r.Assign(Get_Parameters("GRID")->Get_Parameter("GRID")->asGrid_System()->Get_Extent());
-
-			return( true );
-		}
-		break;
-
-	//-----------------------------------------------------
-	case 2:	// shapes extent
-		if( Dlg_Parameters("SHAPES") )
-		{
-			r.Assign(Get_Parameters("SHAPES")->Get_Parameter("SHAPES")->asShapes()->Get_Extent());
 
 			return( true );
 		}

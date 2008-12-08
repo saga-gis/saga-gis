@@ -254,7 +254,7 @@ void CFlow_Parallel::Set_Flow(void)
 	//-----------------------------------------------------
 	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
-		pDTM->Get_Sorted(n,x,y, true, false);
+		pDTM->Get_Sorted(n,x,y);
 
 		//if( !(n%(4*Get_NX())) )DataObject_Update(pFlow);
 
@@ -281,10 +281,9 @@ void CFlow_Parallel::Set_Flow(void)
 	{
 		for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 		{
-			if( pDTM->Get_Sorted(n, x, y, false) )
-			{
-				Check_Route(x, y);
-			}
+			pDTM->Get_Sorted(n, x, y, false);
+
+			Check_Route(x, y);
 		}
 	}
 }

@@ -51,6 +51,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+// $Id: module.h,v 1.15 2008-02-25 15:42:03 oconrad Exp $
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -161,8 +162,6 @@ public:
 	void						Set_Managed					(bool bOn = true);
 	void						Set_Show_Progress			(bool bOn = true);
 
-	virtual bool				On_Before_Execution			(void)	{	return( true );	}
-
 	bool						Execute						(void);
 
 
@@ -179,7 +178,7 @@ protected:
 	void						Set_Author					(const SG_Char *String);
 
 	//-----------------------------------------------------
-	virtual bool				On_Execute					(void)	= 0;
+	virtual bool				On_Execute					(void)		= 0;
 
 	virtual int					On_Parameter_Changed		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 

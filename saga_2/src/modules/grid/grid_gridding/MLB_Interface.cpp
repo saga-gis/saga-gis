@@ -74,7 +74,7 @@ const SG_Char * Get_Info(int i)
 		return( _TL("Grid - Gridding") );
 
 	case MLB_INFO_Author:
-		return( _TL("O. Conrad (c) 2002-8") );
+		return( _TL("Olaf Conrad (c) 2002") );
 
 	case MLB_INFO_Description:
 		return( _TL("Tools for the gridding of points and other vector data.") );
@@ -93,7 +93,6 @@ const SG_Char * Get_Info(int i)
 
 #include "Interpolation_InverseDistance.h"
 #include "Interpolation_NearestNeighbour.h"
-#include "Interpolation_NaturalNeighbour.h"
 #include "Interpolation_Shepard.h"
 #include "Interpolation_Triangulation.h"
 #include "Shapes2Grid.h"
@@ -104,17 +103,41 @@ const SG_Char * Get_Info(int i)
 
 CSG_Module *		Create_Module(int i)
 {
+	// Don't forget to continuously enumerate the case switches
+	// when adding new modules! Also bear in mind that the
+	// enumeration always has to start with [case 0:] and
+	// that [default:] must return NULL!...
+
+	CSG_Module	*pModule;
+
 	switch( i )
 	{
-	case 0:	return( new CShapes2Grid );
-	case 1:	return( new CInterpolation_InverseDistance );
-	case 2:	return( new CInterpolation_NearestNeighbour );
-	case 3:	return( new CInterpolation_NaturalNeighbour );
-	case 4:	return( new CInterpolation_Shepard );
-	case 5:	return( new CInterpolation_Triangulation );
+	case 0:
+		pModule	= new CInterpolation_InverseDistance;
+		break;
+
+	case 1:
+		pModule	= new CInterpolation_NearestNeighbour;
+		break;
+
+	case 2:
+		pModule	= new CInterpolation_Shepard;
+		break;
+
+	case 3:
+		pModule	= new CShapes2Grid;
+		break;
+
+	case 4:
+		pModule	= new CInterpolation_Triangulation;
+		break;
+		
+	default:
+		pModule	= NULL;
+		break;
 	}
 
-	return( NULL );
+	return( pModule );
 }
 
 

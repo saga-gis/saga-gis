@@ -362,7 +362,7 @@ bool CGeoref_Grid::On_Execute(void)
 //---------------------------------------------------------
 bool CGeoref_Grid::Get_Conversion(void)
 {
-	int				Interpolation;
+	int			Interpolation;
 	TSG_Grid_Type	Type;
 	CSG_Grid		*pSource, *pGrid;
 	CSG_Shapes		*pShapes;
@@ -494,7 +494,7 @@ CSG_Grid * CGeoref_Grid::Get_Target_Userdef(CSG_Grid *pSource, TSG_Grid_Type Typ
 			pParameters->Get_Parameter("XMAX")->Set_Value(xMax);
 			pParameters->Get_Parameter("YMIN")->Set_Value(yMin);
 			pParameters->Get_Parameter("YMAX")->Set_Value(yMax);
-			size	= (yMax - yMin) / pSource->Get_NY();
+			size	= (xMax - xMin) / 100.0;
 			pParameters->Get_Parameter("SIZE")->Set_Value(size);
 			pParameters->Get_Parameter("NX")->Set_Value(1 + (int)((xMax - xMin) / size));
 			pParameters->Get_Parameter("NY")->Set_Value(1 + (int)((yMax - yMin) / size));

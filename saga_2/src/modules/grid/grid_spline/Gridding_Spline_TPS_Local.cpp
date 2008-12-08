@@ -104,17 +104,9 @@ CGridding_Spline_TPS_Local::CGridding_Spline_TPS_Local(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "MODE"		, _TL("Search Mode"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("all directions"),
-			_TL("quadrants")
-		)
-	);
-
-	Parameters.Add_Choice(
 		NULL	, "SELECT"		, _TL("Points Selection"),
 		_TL(""),
+
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("all points in search radius"),
 			_TL("maximum number of points")
@@ -152,7 +144,6 @@ bool CGridding_Spline_TPS_Local::On_Execute(void)
 		m_Radius		= Parameters("RADIUS")		->asDouble();
 		m_nPoints_Max	= Parameters("SELECT")		->asInt() == 1
 						? Parameters("MAXPOINTS")	->asInt()  : 1;
-		m_Mode			= Parameters("MODE")		->asInt();
 
 		int			x, y;
 		TSG_Point	p;
@@ -182,51 +173,32 @@ bool CGridding_Spline_TPS_Local::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CGridding_Spline_TPS_Local::Get_Points(const TSG_Point &p, int iQuadrant)
-{
-	if( m_Search.Select_Radius(p.x, p.y, m_Radius, true, m_nPoints_Max, iQuadrant) > 0 )
-	{
-		for(int iPoint=0; iPoint<m_Search.Get_Selected_Count(); iPoint++)
-		{
-			CSG_Shape	*pPoint	= m_Search.Get_Selected_Point(iPoint);
-
-			if( pPoint != NULL )
-			{
-				m_Spline.Add_Point(pPoint->Get_Point(0), pPoint->Get_Record()->asDouble(m_zField));
-			}
-		}
-	}
-
-	return( m_Search.Get_Selected_Count() );
-}
-
-//---------------------------------------------------------
 bool CGridding_Spline_TPS_Local::Set_Value(int x, int y, const TSG_Point &p)
 {
-	int		nPoints	= 0;
+	int			iPoint, nPoints;
+	TSG_Point	Point;
+	CSG_Shape		*pPoint;
 
-	m_Spline.Destroy();
-
-	switch( m_Mode )
+	if( (nPoints = m_Search.Select_Radius(p.x, p.y, m_Radius, true, m_nPoints_Max)) >= 3 )
 	{
-	default:
-		nPoints	+= Get_Points(p);
-		break;
+		m_Spline.Destroy();
 
-	case 1:
-		nPoints	+= Get_Points(p, 0);
-		nPoints	+= Get_Points(p, 1);
-		nPoints	+= Get_Points(p, 2);
-		nPoints	+= Get_Points(p, 3);
-		break;
-	}
+		for(iPoint=0; iPoint<nPoints; iPoint++)
+		{
+			if( (pPoint = m_Search.Get_Selected_Point(iPoint)) != NULL )
+			{
+				Point	= pPoint->Get_Point(0);
 
-	//-----------------------------------------------------
-	if( nPoints >= 3 && m_Spline.Create(m_Regularisation, true) )
-	{
-		m_pGrid->Set_Value(x, y, m_Spline.Get_Value(p.x, p.y));
+				m_Spline.Add_Point(Point.x, Point.y, pPoint->Get_Record()->asDouble(m_zField));
+			}
+		}
 
-		return( true );
+		if( m_Spline.Create(m_Regularisation, true) )
+		{
+			m_pGrid->Set_Value(x, y, m_Spline.Get_Value(p.x, p.y));
+
+			return( true );
+		}
 	}
 
 	m_pGrid->Set_NoData(x, y);

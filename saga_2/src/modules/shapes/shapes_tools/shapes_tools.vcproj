@@ -979,10 +979,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\shapes_extents.cpp"
-				>
-			</File>
-			<File
 				RelativePath="Shapes_Merge.cpp"
 				>
 				<FileConfiguration
@@ -1101,10 +1097,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\shapes_split_by_attribute.cpp"
-				>
 			</File>
 			<File
 				RelativePath=".\shapes_split_randomly.cpp"
@@ -1380,10 +1372,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\shapes_extents.h"
-				>
-			</File>
-			<File
 				RelativePath="Shapes_Merge.h"
 				>
 			</File>
@@ -1393,10 +1381,6 @@
 			</File>
 			<File
 				RelativePath="shapes_split.h"
-				>
-			</File>
-			<File
-				RelativePath=".\shapes_split_by_attribute.h"
 				>
 			</File>
 			<File

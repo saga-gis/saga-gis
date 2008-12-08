@@ -126,12 +126,6 @@ void CThin_Plate_Spline::Add_Point(double x, double y, double z)
 	m_Points.Add(x, y, z);
 }
 
-//---------------------------------------------------------
-void CThin_Plate_Spline::Add_Point(const TSG_Point &p, double z)
-{
-	m_Points.Add(p.x, p.y, z);
-}
-
 
 ///////////////////////////////////////////////////////////
 //														 //

@@ -183,7 +183,7 @@ bool CExercise_08::Method_01(void)
 	//-----------------------------------------------------
 	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
-		m_pDTM->Get_Sorted(n, x, y, true, false);
+		m_pDTM->Get_Sorted(n, x, y);
 
 		if( m_pDTM->is_NoData(x, y) )
 		{
@@ -238,7 +238,7 @@ bool CExercise_08::Method_02(void)
 	//-----------------------------------------------------
 	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
-		m_pDTM->Get_Sorted(n, x, y, true, false);
+		m_pDTM->Get_Sorted(n, x, y);
 
 		if( m_pDTM->is_NoData(x, y) )
 		{

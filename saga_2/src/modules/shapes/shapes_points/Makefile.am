@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.8 2008-09-26 08:53:19 oconrad Exp $
+# $Id: Makefile.am,v 1.7 2008-07-16 11:47:47 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -23,7 +23,6 @@ MLB_Interface.cpp\
 Points_From_Lines.cpp\
 Points_From_Table.cpp\
 remove_duplicates.cpp\
-separate_by_direction.cpp\
 AddCoordinates.h\
 CountPoints.h\
 Clip_Points.h\
@@ -33,8 +32,7 @@ FitNPointsToShape.h\
 MLB_Interface.h\
 Points_From_Lines.h\
 Points_From_Table.h\
-remove_duplicates.h\
-separate_by_direction.h
+remove_duplicates.h
 
 libshapes_points_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 

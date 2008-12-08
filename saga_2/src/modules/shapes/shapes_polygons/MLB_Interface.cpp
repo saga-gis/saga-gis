@@ -97,7 +97,6 @@ const SG_Char * Get_Info(int i)
 #include "Polygons_From_Lines.h"
 #include "Polygon_StatisticsFromPoints.h"
 #include "Polygon_Union.h"
-#include "polygon_to_points.h"
 #include "shape_index.h"
 
 
@@ -114,8 +113,7 @@ CSG_Module *		Create_Module(int i)
 	case 3:		return( new CPolygons_From_Lines );
 	case 4:		return( new CPolygonStatisticsFromPoints );
 	case 5:		return( new CPolygon_Union );
-	case 6:		return( new CPolygon_To_Points );
-	case 7:		return( new CShape_Index );
+	case 6:		return( new CShape_Index );
 	}
 
 	return( NULL );

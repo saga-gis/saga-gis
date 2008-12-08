@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.8 2008-09-26 08:53:19 oconrad Exp $
+# $Id: Makefile.am,v 1.6 2008-05-21 12:15:11 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -13,10 +13,8 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS)
 AM_LDFLAGS         = -fPIC -shared
 pkglib_LTLIBRARIES = libgrid_spline.la
 libgrid_spline_la_SOURCES =\
-csa.c\
 Gridding_Spline_BA.cpp\
 Gridding_Spline_Base.cpp\
-Gridding_Spline_CSA.cpp\
 Gridding_Spline_MBA.cpp\
 Gridding_Spline_MBA_Grid.cpp\
 Gridding_Spline_TPS_Global.cpp\
@@ -24,11 +22,9 @@ Gridding_Spline_TPS_Local.cpp\
 Gridding_Spline_TPS_TIN.cpp\
 MLB_Interface.cpp\
 Thin_Plate_Spline.cpp\
-csa.h\
 Gridding_Spline_BA.h\
 Gridding_Spline_Base.h\
 Gridding_Spline_MBA.h\
-Gridding_Spline_CSA.h\
 Gridding_Spline_MBA_Grid.h\
 Gridding_Spline_TPS_Global.h\
 Gridding_Spline_TPS_Local.h\

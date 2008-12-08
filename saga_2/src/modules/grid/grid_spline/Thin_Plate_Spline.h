@@ -88,7 +88,6 @@ public:
 	bool					Destroy				(void);
 
 	void					Add_Point			(double x, double y, double z);
-	void					Add_Point			(const TSG_Point &p, double z);
 	CSG_Points_3D &			Get_Points			(void)	{	return( m_Points );		}
 
 	bool					Create				(double Regularization = 0.0, bool bSilent = true);

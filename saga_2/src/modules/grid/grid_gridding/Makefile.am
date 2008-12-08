@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.6 2008-09-26 08:53:19 oconrad Exp $
+# $Id: Makefile.am,v 1.5 2007-02-13 12:49:18 tschorr Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -18,37 +18,20 @@ pkglib_LTLIBRARIES = libgrid_gridding.la
 libgrid_gridding_la_SOURCES =\
 Interpolation.cpp\
 Interpolation_InverseDistance.cpp\
-Interpolation_NaturalNeighbour.cpp\
 Interpolation_NearestNeighbour.cpp\
 Interpolation_Shepard.cpp\
 Interpolation_Triangulation.cpp\
 MLB_Interface.cpp\
 Shapes2Grid.cpp\
 Shepard.cpp\
-./nn/delaunay.c\
-./nn/hash.c\
-./nn/istack.c\
-./nn/lpi.c\
-./nn/nnai.c\
-./nn/nncommon.c\
-./nn/nnpi.c\
-./nn/triangle.c\
 Interpolation.h\
 Interpolation_InverseDistance.h\
-Interpolation_NaturalNeighbour.h\
 Interpolation_NearestNeighbour.h\
 Interpolation_Shepard.h\
 Interpolation_Triangulation.h\
 MLB_Interface.h\
 Shapes2Grid.h\
-Shepard.h\
-./nn/delaunay.h\
-./nn/hash.h\
-./nn/istack.h\
-./nn/nan.h\
-./nn/nn.h\
-./nn/triangle.h\
-./nn/version.h
+Shepard.h
 
 libgrid_gridding_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 

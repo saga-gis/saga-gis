@@ -83,17 +83,29 @@ class CGet_Table : public CSG_Module
 {
 public:
 	CGet_Table(void);
+	virtual ~CGet_Table(void);
+
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Import") );	}
 
 
 protected:
 
-	virtual bool				On_Before_Execution		(void);
-
 	virtual bool				On_Execute				(void);
+
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
 private:
 
+	SG_Char						*m_DSN;
+
+	class wxDbConnectInf		*m_DBC_Inf;
+
+
+	bool						_Initialize				(void);
+	class wxDb *				_Connect				(void);
+	class wxDbTable *			_Get_Table				(class wxDb *pDB);
+	bool						_Get_Data				(CSG_Table *pTable, class wxDbTable *pDBTable);
 
 };
 

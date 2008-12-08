@@ -1,1 +1,1 @@
-SUBDIRS = saga_core modules modules_contrib modules_geostatistics modules_projection modules_io modules_recreations modules_simulation modules_terrain_analysis modules_lectures
+SUBDIRS = saga_core modules modules_contrib modules_geostatistics modules_projection modules_io modules_io_gdal modules_recreations modules_simulation modules_terrain_analysis modules_lectures

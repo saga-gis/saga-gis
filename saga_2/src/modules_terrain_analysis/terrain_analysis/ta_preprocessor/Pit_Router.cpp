@@ -82,13 +82,13 @@
 //---------------------------------------------------------
 CPit_Router::CPit_Router(void)
 {
-	Set_Name		(_TL("Sink Drainage Route Detection"));
+	Set_Name(_TL("Sink Drainage Route Detection"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2001"));
+	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
-	Set_Description	(_TW(
-		""
-	));
+	Set_Description(
+		_TL("")
+	);
 
 	Parameters.Add_Grid(
 		NULL	, "ELEVATION"	, _TL("Elevation"),
@@ -129,11 +129,18 @@ CPit_Router::~CPit_Router(void)
 //---------------------------------------------------------
 bool CPit_Router::On_Execute(void)
 {
-	return( Get_Routes(
-		Parameters("ELEVATION")->asGrid(),
-		Parameters("SINKROUTE")->asGrid(),
-		Parameters("THRESHOLD")->asBool() ? Parameters("THRSHEIGHT")->asDouble() : -1.0
-	) >= 0 );
+	double		Threshold;
+	CSG_Grid		*pDEM, *pRoute;
+
+	pDEM		= Parameters("ELEVATION")->asGrid();
+	pRoute		= Parameters("SINKROUTE")->asGrid();
+
+	Threshold	= Parameters("THRESHOLD")->asBool()
+				? Parameters("THRSHEIGHT")->asDouble() : -1.0;
+
+	Get_Routes(pDEM, pRoute, Threshold);
+
+	return( true );
 }
 
 
@@ -152,7 +159,7 @@ int CPit_Router::Get_Routes(CSG_Grid *pDEM, CSG_Grid *pRoute, double Threshold)
 	//-----------------------------------------------------
 	m_pDEM		= pDEM;
 	m_pRoute	= pRoute;
-	m_Threshold	= Threshold;
+	m_Threshold	= Threshold  > 0.0 ? Threshold : -1.0;
 
 	//-----------------------------------------------------
 	m_pPits		= NULL;
@@ -164,7 +171,7 @@ int CPit_Router::Get_Routes(CSG_Grid *pDEM, CSG_Grid *pRoute, double Threshold)
 	m_Outlets	= NULL;
 
 	//-----------------------------------------------------
-	Get_System()->Assign(m_pDEM->Get_System());
+	m_System.Assign(m_pDEM->Get_System());
 
 	//-----------------------------------------------------
 	if( Initialize() )
@@ -228,15 +235,6 @@ int CPit_Router::Get_Routes(CSG_Grid *pDEM, CSG_Grid *pRoute, double Threshold)
 				}
 			}
 			while( iPit < nPits && SG_UI_Process_Set_Progress(iPit, nPits) );
-		}
-
-
-		//-------------------------------------------------
-		// 4. Threshold
-
-		if( m_Threshold > 0.0 )
-		{
-			nPits	-= Process_Threshold();
 		}
 	}
 
@@ -354,11 +352,11 @@ int CPit_Router::Find_Pits(void)
 	nFlats		= 0;
 	nPits		= 0;
 
-	for(n=0; n<Get_NCells() && SG_UI_Process_Set_Progress(n, Get_NCells()); n++)
+	for(n=0; n<m_System.Get_NCells() && SG_UI_Process_Set_Progress(n, m_System.Get_NCells()); n++)
 	{
-		m_pDEM->Get_Sorted(n,x,y,false,false);	// von tief nach hoch...
+		m_pDEM->Get_Sorted(n,x,y,false);	// von tief nach hoch...
 
-		if(	x > 0 && x < Get_NX() - 1 && y > 0 && y < Get_NY() - 1	// Randzellen und Missing Values sind
+		if(	x > 0 && x < m_System.Get_NX() - 1 && y > 0 && y < m_System.Get_NY() - 1	// Randzellen und Missing Values sind
 		&&	!m_pDEM->is_NoData(x, y)									// per Definition drainiert (:= 0)...
 		&&	m_pPits->asInt(x, y) == 0	)	// ...oder schon als m_Flat markiert sein...
 		{
@@ -368,8 +366,8 @@ int CPit_Router::Find_Pits(void)
 
 			for(i=0; i<8 && !bLower; i++)
 			{
-				ix	= Get_xTo(i,x);
-				iy	= Get_yTo(i,y);
+				ix	= m_System.Get_xTo(i,x);
+				iy	= m_System.Get_yTo(i,y);
 
 				if( !m_pDEM->is_InGrid(ix, iy) || z > m_pDEM->asDouble(ix, iy) )
 				{
@@ -431,9 +429,11 @@ int CPit_Router::Find_Outlets(int nPits)
 		m_Junction	= (int **)SG_Calloc(nPits, sizeof(int *));
 
 		//-------------------------------------------------
-		for(n=0; n<Get_NCells() && SG_UI_Process_Set_Progress(n, Get_NCells()); n++)
+		for(n=0; n<m_System.Get_NCells() && SG_UI_Process_Set_Progress(n, m_System.Get_NCells()); n++)
 		{
-			if(	m_pDEM->Get_Sorted(n, x, y, false) && m_pPits->asInt(x,y) == 0	)
+			m_pDEM->Get_Sorted(n, x, y, false);	// von tief nach hoch...
+
+			if(	m_pPits->asInt(x,y) == 0	)
 			{
 				z			= m_pDEM->asDouble(x,y);
 				iMin		= -1;
@@ -444,8 +444,8 @@ int CPit_Router::Find_Outlets(int nPits)
 				//-----------------------------------------
 				for(i=0; i<8; i++)
 				{
-					ix		= Get_xTo(i,x);
-					iy		= Get_yTo(i,y);
+					ix		= m_System.Get_xTo(i,x);
+					iy		= m_System.Get_yTo(i,y);
 
 					bExArea	= !m_pDEM->is_InGrid(ix, iy);
 
@@ -476,7 +476,7 @@ int CPit_Router::Find_Outlets(int nPits)
 							}
 							else
 							{
-								dz			= (z - m_pDEM->asDouble(ix,iy)) / Get_Length(i);
+								dz			= (z - m_pDEM->asDouble(ix,iy)) / m_System.Get_Length(i);
 
 								if( iMin < 0 || dzMin < dz )
 								{
@@ -610,7 +610,7 @@ int CPit_Router::Find_Route(TPit_Outlet *pOutlet)
 			//---------------------------------------------
 			// 2. Threshold ??!!...
 
-		/*	if( m_Threshold > 0.0 )
+			if( m_Threshold > 0.0 )
 			{
 				for(i=0; i<8; i++)
 				{
@@ -621,7 +621,7 @@ int CPit_Router::Find_Route(TPit_Outlet *pOutlet)
 						pOutlet->Pit_ID[i]	= -1;
 					}
 				}
-			}/**/
+			}
 
 
 			//---------------------------------------------
@@ -633,8 +633,8 @@ int CPit_Router::Find_Route(TPit_Outlet *pOutlet)
 
 				for(i=0; i<8; i++)
 				{
-					ix	= Get_xTo(i,x);
-					iy	= Get_yTo(i,y);
+					ix	= m_System.Get_xTo(i,x);
+					iy	= m_System.Get_yTo(i,y);
 
 					if( !m_pDEM->is_InGrid(ix, iy) || m_pRoute->asChar(ix, iy) > 0 )
 					{
@@ -647,7 +647,7 @@ int CPit_Router::Find_Route(TPit_Outlet *pOutlet)
 
 						if(	Pit_ID == 0 || (Pit_ID > 0 && m_Pit[Pit_ID - 1].bDrained) )
 						{
-							dz		= (z - m_pDEM->asDouble(ix,iy)) / Get_Length(i);
+							dz		= (z - m_pDEM->asDouble(ix,iy)) / m_System.Get_Length(i);
 
 							if( iMin < 0 || dzMin < dz )
 							{
@@ -800,12 +800,12 @@ void CPit_Router::Drain_Pit(int x, int y, int Pit_ID)
 
 			for(i=0; i<8; i++)
 			{
-				ix	= Get_xTo(i,x);
-				iy	= Get_yTo(i,y);
+				ix	= m_System.Get_xTo(i,x);
+				iy	= m_System.Get_yTo(i,y);
 
 				if( m_pDEM->is_InGrid(ix,iy) && m_pPits->asInt(ix,iy) == Pit_ID && !m_pRoute->asChar(ix,iy) )
 				{
-					dz		= (z - m_pDEM->asDouble(ix,iy)) / Get_Length(i);
+					dz		= (z - m_pDEM->asDouble(ix,iy)) / m_System.Get_Length(i);
 
 					if( dzMin < dz )
 					{
@@ -817,8 +817,8 @@ void CPit_Router::Drain_Pit(int x, int y, int Pit_ID)
 
 			if( iMin >= 0 )
 			{
-				x	+= Get_xTo(iMin);
-				y	+= Get_yTo(iMin);
+				x	+= m_System.Get_xTo(iMin);
+				y	+= m_System.Get_yTo(iMin);
 
 				i	= (iMin + 4) % 8;
 
@@ -865,8 +865,8 @@ void CPit_Router::Drain_Flat(int x, int y)
 					{
 						for(i=0; i<8; i++)
 						{
-							ix	= Get_xTo(i,x);
-							iy	= Get_yTo(i,y);
+							ix	= m_System.Get_xTo(i,x);
+							iy	= m_System.Get_yTo(i,y);
 
 							if(	m_pDEM->is_InGrid(ix, iy) && Flat_ID == m_pFlats->asInt(ix, iy) )
 							{
@@ -947,8 +947,8 @@ void CPit_Router::Mark_Flat(int x, int y, TGEO_iRect *pFlat, int Flat_ID, int Pi
 
 		for(i=iStart; i<8 && goStackDown; i++)
 		{
-			ix	= Get_xTo(i,x);
-			iy	= Get_yTo(i,y);
+			ix	= m_System.Get_xTo(i,x);
+			iy	= m_System.Get_yTo(i,y);
 
 			if(	m_pDEM->is_InGrid(ix, iy) && !m_pPits->asInt(ix, iy) && IS_Flat(z, m_pDEM->asDouble(ix, iy)) )
 			{
@@ -1009,116 +1009,6 @@ void CPit_Router::Mark_Flat(int x, int y, TGEO_iRect *pFlat, int Flat_ID, int Pi
 		SG_Free(xMem);
 		SG_Free(yMem);
 		SG_Free(iMem);
-	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-int CPit_Router::Process_Threshold(void)
-{
-	int		x, y, i, n;
-
-	m_Route.Create(*Get_System(), GRID_TYPE_Char);
-
-	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
-	{
-		for(x=0; x<Get_NX(); x++)
-		{
-			if( m_pDEM->is_NoData(x, y) )
-			{
-				m_Route.Set_Value(x, y, -1);
-			}
-			else if( (i = m_pRoute->asInt(x, y)) > 0 )
-			{
-				m_Route.Set_Value(x, y, i % 8);
-			}
-			else
-			{
-				m_Route.Set_Value(x, y, m_pDEM->Get_Gradient_NeighborDir(x, y));
-			}
-		}
-	}
-
-	//-----------------------------------------------------
-	Lock_Create();
-
-	for(i=0, n=0; i<Get_NCells() && Set_Progress_NCells(i); i++)
-	{
-		if( m_pDEM->Get_Sorted(i, x, y, false) && m_pPits->asInt(x, y) )
-		{
-			m_zThr	= m_pDEM->asDouble(x, y) + m_Threshold;
-			m_zMax	= m_pDEM->asDouble(x, y);
-
-			Check_Threshold(x, y);
-
-			if( m_zMax > m_zThr )
-				n++;
-		}
-	}
-
-	Lock_Destroy();
-
-	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
-	{
-		for(x=0; x<Get_NX(); x++)
-		{
-			i	= m_Route.asInt(x, y);
-
-			if( i < 0 || i == m_pDEM->Get_Gradient_NeighborDir(x, y) )
-			{
-				m_pRoute->Set_Value(x, y, 0);
-			}
-			else
-			{
-				m_pRoute->Set_Value(x, y, i == 0 ? 8 : i);
-			}
-		}
-	}
-
-	//-----------------------------------------------------
-	Message_Add(CSG_String::Format(_TL("%d pits above threshold level."), n));
-
-	m_Route.Destroy();
-
-	return( n );
-}
-
-//---------------------------------------------------------
-void CPit_Router::Check_Threshold(int x, int y)
-{
-	if( Lock_Get(x, y) )
-		return;
-
-	Lock_Set(x, y);
-
-	if( m_pDEM->asDouble(x, y) > m_zMax )
-	{
-		m_zMax	= m_pDEM->asDouble(x, y);
-	}
-
-	int		i	= m_Route.asInt(x, y);
-	int		ix	= Get_xTo(i, x);
-	int		iy	= Get_yTo(i, y);
-
-	if( m_pDEM->is_InGrid(ix, iy) )
-	{
-		if( m_pDEM->asDouble(x, y) < m_pDEM->asDouble(ix, iy) || m_zMax < m_zThr )
-		{
-			Check_Threshold(ix, iy);
-		}
-	}
-
-	if( m_zMax > m_zThr )
-	{
-		m_Route.Set_Value(x, y, (i + 4) % 8);
 	}
 }
 

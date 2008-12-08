@@ -88,7 +88,6 @@ const SG_Char * Get_Info(int i)
 #include "SolarRadiation.h"
 #include "SADO_SolarRadiation.h"
 #include "view_shed.h"
-#include "topographic_correction.h"
 
 //---------------------------------------------------------
 CSG_Module * Create_Module(int i)
@@ -100,7 +99,6 @@ CSG_Module * Create_Module(int i)
 	case 2:		return( new CSolarRadiation );
 	case 3:		return( new CSADO_SolarRadiation );
 	case 4:		return( new CView_Shed );
-	case 5:		return( new CTopographic_Correction );
 	}
 
 	return( NULL );

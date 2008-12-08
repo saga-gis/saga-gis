@@ -1,0 +1,2 @@
+DEP_INCS = -I"$(GDAL)/include"
+DEP_LIBS = -L"$(GDAL)/lib"

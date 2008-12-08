@@ -58,7 +58,7 @@ LINK32=link.exe
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib /nologo /subsystem:windows /dll /machine:I386 /libpath:"$(SAGA)/bin/saga_vc"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy     *.lng.txt     ..\..\..\..\bin\saga_vc\modules\ 
+PostBuild_Cmds=copy    *.lng.txt    ..\..\..\..\bin\saga_vc\modules\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "shapes_points - Win32 Debug"
@@ -195,10 +195,6 @@ SOURCE=.\Points_From_Table.cpp
 
 SOURCE=.\remove_duplicates.cpp
 # End Source File
-# Begin Source File
-
-SOURCE=.\separate_by_direction.cpp
-# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -242,10 +238,6 @@ SOURCE=.\Points_From_Table.h
 # Begin Source File
 
 SOURCE=.\remove_duplicates.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\separate_by_direction.h
 # End Source File
 # End Group
 # Begin Group "Include"

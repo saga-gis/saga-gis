@@ -1,0 +1,2 @@
+DEP_INCS = -I"$(GEOTRANS)"
+DEP_LIBS = -L"$(GEOTRANS)" -lgeotrans

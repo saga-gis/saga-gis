@@ -1,0 +1,2 @@
+DEP_INCS = -I"$(PROJ4)"
+DEP_LIBS = -L"$(PROJ4)" -lproj4

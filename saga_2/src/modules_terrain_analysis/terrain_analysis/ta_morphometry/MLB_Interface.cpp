@@ -70,7 +70,7 @@ const SG_Char * Get_Info(int i)
 		return( _TL("Terrain Analysis - Morphometry") );
 
 	case MLB_INFO_Author:
-		return( SG_T("Various Authors") );
+		return( _TL("Olaf Conrad, Goettingen (c) 2001") );
 
 	case MLB_INFO_Description:
 		return( _TL("Tools for (grid based) digital terrain analysis.") );
@@ -95,28 +95,60 @@ const SG_Char * Get_Info(int i)
 #include "ProtectionIndex.h"
 #include "mrvbf.h"
 #include "distance_gradient.h"
-#include "mass_balance_index.h"
-
 
 //---------------------------------------------------------
 CSG_Module *		Create_Module(int i)
 {
+	CSG_Module	*pModule;
+
 	switch( i )
 	{
-	case 0:		return( new CMorphometry );
-	case 1:		return( new CConvergence );
-	case 2:		return( new CConvergence_Radius );
-	case 3:		return( new CSurfaceSpecificPoints );
-	case 4:		return( new CCurvature_Classification );
-	case 5:		return( new CHypsometry );
-	case 6:		return( new CRealArea );
-	case 7:		return( new CProtectionIndex );
-	case 8:		return( new CMRVBF );
-	case 9:		return( new CDistance_Gradient );
-	case 10:	return( new CMass_Balance_Index );
+	case 0:
+		pModule	= new CMorphometry;
+		break;
+
+	case 1:
+		pModule	= new CConvergence;
+		break;
+
+	case 2:
+		pModule	= new CConvergence_Radius;
+		break;
+
+	case 3:
+		pModule	= new CSurfaceSpecificPoints;
+		break;
+
+	case 4:
+		pModule	= new CCurvature_Classification;
+		break;
+
+	case 5:
+		pModule	= new CHypsometry;
+		break;
+
+	case 6:
+		pModule	= new CRealArea;
+		break;
+
+	case 7:
+		pModule	= new CProtectionIndex;
+		break;
+
+	case 8:
+		pModule	= new CMRVBF;
+		break;
+
+	case 9:
+		pModule	= new CDistance_Gradient;
+		break;
+
+	default:
+		pModule	= NULL;
+		break;
 	}
 
-	return( NULL );
+	return( pModule );
 }
 
 

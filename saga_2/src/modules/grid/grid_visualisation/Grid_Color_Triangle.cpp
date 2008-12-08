@@ -345,10 +345,10 @@ CSG_Grid * CGrid_Color_Triangle::_Get_Grid(CSG_Grid *pGrid, int Method, CSG_Para
 
 		case 3:	// Normalise
 			n		= (long)(pGrid->Get_NCells() * pPerctl->Get_LoVal() / 100.0);
-			pGrid->Get_Sorted(n < 0 ? 0 : (n >= pGrid->Get_NCells() ? pGrid->Get_NCells() - 1 : n), x, y, false, false);
+			pGrid->Get_Sorted(n < 0 ? 0 : (n >= pGrid->Get_NCells() ? pGrid->Get_NCells() - 1 : n), x, y, false);
 			Min		= pGrid->asDouble(x, y);
 			n		= (long)(pGrid->Get_NCells() * pPerctl->Get_HiVal() / 100.0);
-			pGrid->Get_Sorted(n < 0 ? 0 : (n >= pGrid->Get_NCells() ? pGrid->Get_NCells() - 1 : n), x, y, false, false);
+			pGrid->Get_Sorted(n < 0 ? 0 : (n >= pGrid->Get_NCells() ? pGrid->Get_NCells() - 1 : n), x, y, false);
 			Range	= pGrid->asDouble(x, y) - Min;
 			Range	= Range > 0.0 ? 1.0 / Range : 0.0;
 			break;

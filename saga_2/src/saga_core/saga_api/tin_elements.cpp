@@ -203,9 +203,6 @@ int SG_TIN_Compare_Triangle_Center(const void *pz1, const void *pz2)
 }
 
 //---------------------------------------------------------
-#define M_GET_DIRECTION(a, b)	(b.x != a.x ? M_PI_180 - atan2(b.y - a.y, b.x - a.x) : (b.y > a.y ? M_PI_270 : (b.y < a.y ? M_PI_090 : 0.0)))
-
-//---------------------------------------------------------
 bool CSG_TIN_Point::Get_Polygon(CSG_Points &Points)
 {
 	if( m_nTriangles >= 3 )
@@ -218,7 +215,7 @@ bool CSG_TIN_Point::Get_Polygon(CSG_Points &Points)
 		{
 			c	= m_Triangles[i]->Get_CircumCircle_Point();
 
-			p.Add(c.x, c.y, M_GET_DIRECTION(m_Point, c));
+			p.Add(c.x, c.y, SG_Get_Angle_Of_Direction(c.x - m_Point.x, c.y - m_Point.y));
 		}
 
 		qsort(&(p[0]), p.Get_Count(), sizeof(TSG_Point_3D), SG_TIN_Compare_Triangle_Center);

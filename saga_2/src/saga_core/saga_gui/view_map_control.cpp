@@ -573,17 +573,6 @@ void CVIEW_Map_Control::On_Key_Down(wxKeyEvent &event)
 	case WXK_F2:
 		m_pMap->SaveAs_Image();
 		break;
-
-	case 'C':
-		if( event.GetModifiers() == wxMOD_CONTROL )
-		{
-			m_pMap->SaveAs_Image_Clipboard();
-		}
-		else if( event.GetModifiers() == wxMOD_ALT )
-		{
-			m_pMap->SaveAs_Image_Clipboard(GetClientSize().x, GetClientSize().y, -1);
-		}
-		break;
 	}
 }
 
@@ -873,7 +862,7 @@ void CVIEW_Map_Control::On_Mouse_RDClick(wxMouseEvent &event)
 //---------------------------------------------------------
 void CVIEW_Map_Control::On_Mouse_Motion(wxMouseEvent &event)
 {
-	if( m_Mode != MAP_MODE_PAN_DOWN )
+	if( !event.LeftIsDown() && !event.MiddleIsDown() && !event.RightIsDown() )
 	{
 		_Set_StatusBar(_Get_World(event.GetPosition()));
 

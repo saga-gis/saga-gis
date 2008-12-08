@@ -102,8 +102,6 @@ private:
 	bool						Get_Buffer_Line			(CSG_Shape *pLine);
 	bool						Get_Buffer_Polygon		(CSG_Shape *pPolygon);
 
-	double						Get_Direction			(const TSG_Point &From, const TSG_Point &To);
-
 	void						Add_Vertex				(const TSG_Point &Center, double theta);
 	void						Add_Arc					(const TSG_Point &Center, double alpha, double beta);
 	void						Add_Arc					(const TSG_Point &Center, const TSG_Point &A, const TSG_Point &B);

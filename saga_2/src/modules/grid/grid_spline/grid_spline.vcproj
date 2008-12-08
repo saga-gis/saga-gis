@@ -411,10 +411,6 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath=".\csa.c"
-				>
-			</File>
-			<File
 				RelativePath="Gridding_Spline_BA.cpp"
 				>
 				<FileConfiguration
@@ -493,10 +489,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\Gridding_Spline_CSA.cpp"
-				>
 			</File>
 			<File
 				RelativePath="Gridding_Spline_MBA.cpp"
@@ -748,19 +740,11 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
-				RelativePath=".\csa.h"
-				>
-			</File>
-			<File
 				RelativePath="Gridding_Spline_BA.h"
 				>
 			</File>
 			<File
 				RelativePath="Gridding_Spline_Base.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Gridding_Spline_CSA.h"
 				>
 			</File>
 			<File

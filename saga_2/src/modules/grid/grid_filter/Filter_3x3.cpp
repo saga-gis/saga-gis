@@ -93,32 +93,30 @@ CFilter_3x3::CFilter_3x3(void)
 	);
 
 	//-----------------------------------------------------
-	CSG_Table	Filter;
+	CSG_Table			Filter, *pFilter;
+	CSG_Table_Record	*pRecord;
 
 	Filter.Add_Field("1", TABLE_FIELDTYPE_Double);
 	Filter.Add_Field("2", TABLE_FIELDTYPE_Double);
 	Filter.Add_Field("3", TABLE_FIELDTYPE_Double);
 
-	Filter.Add_Record();
-	Filter[0][0]	= 0.25;
-	Filter[0][1]	= 0.5;
-	Filter[0][2]	= 0.25;
+	Parameters.Add_FixedTable(NULL, "FILTER"	, _TL("Filter Matrix")	, _TL(""), &Filter);
+	pFilter	= Parameters("FILTER")->asTable();
 
-	Filter.Add_Record();
-	Filter[1][0]	= 0.5;
-	Filter[1][1]	=-1.0;
-	Filter[1][2]	= 0.5;
+	pRecord	= pFilter->Add_Record();
+	pRecord->Set_Value(0, 0.25);
+	pRecord->Set_Value(1, 0.5);
+	pRecord->Set_Value(2, 0.25);
 
-	Filter.Add_Record();
-	Filter[2][0]	= 0.25;
-	Filter[2][1]	= 0.5;
-	Filter[2][2]	= 0.25;
+	pRecord	= pFilter->Add_Record();
+	pRecord->Set_Value(0, 0.5);
+	pRecord->Set_Value(1,-1.0);
+	pRecord->Set_Value(2, 0.5);
 
-	Parameters.Add_FixedTable(
-		NULL, "FILTER"	, _TL("Filter Matrix"),
-		_TL(""),
-		&Filter
-	);
+	pRecord	= pFilter->Add_Record();
+	pRecord->Set_Value(0, 0.25);
+	pRecord->Set_Value(1, 0.5);
+	pRecord->Set_Value(2, 0.25);
 }
 
 //---------------------------------------------------------

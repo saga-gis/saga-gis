@@ -493,18 +493,13 @@ bool		DLG_Colors(int &Palette)
 //---------------------------------------------------------
 bool		DLG_Color(long &_Colour)
 {
-	static wxColourData	Colours;
-
-	Colours.SetChooseFull(true);
-
 	wxColour		Colour(SG_GET_R(_Colour), SG_GET_G(_Colour), SG_GET_B(_Colour));
-	wxColourDialog	dlg(MDI_Get_Top_Window(), &Colours);
+	wxColourDialog	dlg(MDI_Get_Top_Window());
 
 	dlg.GetColourData().SetColour(Colour);
 
 	if( dlg.ShowModal() == wxID_OK )
 	{
-		Colours	= dlg.GetColourData();
 		Colour	= dlg.GetColourData().GetColour();
 		_Colour	= Get_Color_asInt(Colour);
 

@@ -100,7 +100,7 @@ bool CSG_Shapes::_Load_ESRI(const SG_Char *File_Name)
 
 	SG_UI_Msg_Lock(true);
 
-	if( !m_Table._Create(fName.c_str(), TABLE_FILETYPE_DBase, SG_T("")) || m_Table.Get_Record_Count() == 0 )
+	if( !m_Table._Create(fName, SG_T('\t')) || m_Table.Get_Record_Count() == 0 )
 	{
 		SG_UI_Msg_Lock(false);
 

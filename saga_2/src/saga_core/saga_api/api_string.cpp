@@ -394,13 +394,48 @@ CSG_String & CSG_String::Remove(size_t pos, size_t len)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSG_String::Trim(bool fromRight)
+int CSG_String::Remove_WhiteChars(bool fromEnd)
 {
-	int		n	= m_pString->Length();
+	int		n, c;
 
-	m_pString->Trim(fromRight);
+	if( fromEnd )
+	{
+		for(n=Length()-1; n>=0; n--)
+		{
+			c	= m_pString->GetChar(n);
 
-	return( n - m_pString->Length() );
+			if( c == ' ' || c == '\t' )
+			{
+				break;
+			}
+		}
+
+		if( n < (int)Length() - 1 )
+		{
+			Remove(n);
+		}
+
+		n	= Length() - n;
+	}
+	else
+	{
+		for(n=0; n<(int)Length(); n++)
+		{
+			c	= m_pString->GetChar(n);
+
+			if( c == ' ' || c == '\t' )
+			{
+				break;
+			}
+		}
+
+		if( n > 0 )
+		{
+			Remove(0, n);
+		}
+	}
+
+	return( n );
 }
 
 
@@ -505,14 +540,16 @@ int CSG_String::asInt(void) const
 
 bool CSG_String::asInt(int &Value) const
 {
-	long	lValue	= 0;
+	long	lValue;
 
-	if( m_pString->ToLong(&lValue) || lValue != 0 )
+	if( m_pString->ToLong(&lValue) )
 	{
 		Value	= (int)lValue;
 
 		return( true );
 	}
+
+	Value	= (int)lValue;
 
 	return( false );
 }
@@ -525,20 +562,13 @@ double CSG_String::asDouble(void) const
 	asDouble(Value);
 
 	return( Value );
+
+//	return( asDouble(Value) ? Value : 0.0 );
 }
 
 bool CSG_String::asDouble(double &Value) const
 {
-	double	dValue	= 0.0;
-
-	if( m_pString->ToDouble(&dValue) || dValue != 0.0 )
-	{
-		Value	= dValue;
-
-		return( true );
-	}
-
-	return( false );
+	return( m_pString->ToDouble(&Value) );
 }
 
 
@@ -885,26 +915,6 @@ int				SG_Get_Significant_Decimals(double Value, int maxDecimals)
 	}
 
 	return( maxDecimals );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void			SG_Flip_Decimal_Separators(CSG_String &String)
-{
-	for(int i=0; i<(int)String.Length(); i++)
-	{
-		switch( String[i] )
-		{
-		case '.':	String[i]	= ',';	break;
-		case ',':	String[i]	= '.';	break;
-		}
-	}
 }
 
 

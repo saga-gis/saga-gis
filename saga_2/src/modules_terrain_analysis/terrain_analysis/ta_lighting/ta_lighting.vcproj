@@ -579,10 +579,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\topographic_correction.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\view_shed.cpp"
 				>
 			</File>
@@ -649,10 +645,6 @@
 			</File>
 			<File
 				RelativePath="SolarRadiation.h"
-				>
-			</File>
-			<File
-				RelativePath=".\topographic_correction.h"
 				>
 			</File>
 			<File

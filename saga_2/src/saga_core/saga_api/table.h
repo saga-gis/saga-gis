@@ -236,8 +236,8 @@ public:
 								CSG_Table			(const CSG_Table &Table);
 	bool						Create				(const CSG_Table &Table);
 
-								CSG_Table			(const SG_Char *File_Name, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, const SG_Char *Separator = SG_T("\t"));
-	bool						Create				(const SG_Char *File_Name, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, const SG_Char *Separator = SG_T("\t"));
+								CSG_Table			(const SG_Char *File_Name, SG_Char Separator = SG_T('\t'));
+	bool						Create				(const SG_Char *File_Name, SG_Char Separator = SG_T('\t'));
 
 								CSG_Table			(CSG_Table *pStructure);
 	bool						Create				(CSG_Table *pStructure);
@@ -252,7 +252,7 @@ public:
 	bool						Assign_Values		(CSG_Table *pTable);
 
 	virtual bool				Save				(const SG_Char *File_Name, int Format = 0);
-	virtual bool				Save				(const SG_Char *File_Name, int Format, const SG_Char *Separator);
+	virtual bool				Save				(const SG_Char *File_Name, int Format, SG_Char Separator);
 	bool						Serialize			(CSG_File &Stream, bool bSave);
 
 	//-----------------------------------------------------
@@ -272,8 +272,6 @@ public:
 	int							Get_Field_Count		(void)			const	{	return( m_nFields );	}
 	const SG_Char *				Get_Field_Name		(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Name[iField]->c_str() : NULL );			}
 	TSG_Table_Field_Type		Get_Field_Type		(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Type[iField] : TABLE_FIELDTYPE_None );	}
-
-	bool						Set_Field_Name		(int iField, const SG_Char *Name);
 
 	double						Get_MinValue		(int iField)	const	{	return( _Range_Update(iField) ? m_Field_Val_Min[iField] : 0.0 );	}
 	double						Get_MaxValue		(int iField)	const	{	return( _Range_Update(iField) ? m_Field_Val_Max[iField] : 0.0 );	}
@@ -311,8 +309,6 @@ public:
 
 	bool						Get_Value			(int iRecord, int iField, CSG_String     &Value)	const;
 	bool						Get_Value			(int iRecord, int iField, double         &Value)	const;
-
-	virtual void				Set_Modified		(bool bModified = true)	{	CSG_Data_Object::Set_Modified(bModified);	if( m_pOwner )	m_pOwner->Set_Modified(bModified);	}
 
 	//-----------------------------------------------------
 	int							Get_Selection_Count	(void)			const	{	return( m_nSelected );	}
@@ -354,7 +350,7 @@ protected:
 	void						_On_Construction	(void);
 
 	bool						_Create				(const CSG_Table &Table);
-	bool						_Create				(const SG_Char *File_Name, TSG_Table_File_Type Format, const SG_Char *Separator);
+	bool						_Create				(const SG_Char *File_Name, SG_Char Separator);
 	bool						_Create				(CSG_Table *pStructure);
 
 	bool						_Destroy			(void);
@@ -374,9 +370,9 @@ protected:
 	bool						_Range_Invalidate	(int iField)	const;
 	bool						_Range_Update		(int iField)	const;
 
-	bool						_Load				(const SG_Char *File_Name, TSG_Table_File_Type Format, const SG_Char *Separator);
-	bool						_Load_Text			(const SG_Char *File_Name, bool bHeadline, const SG_Char *Separator);
-	bool						_Save_Text			(const SG_Char *File_Name, bool bHeadline, const SG_Char *Separator);
+	bool						_Load				(const SG_Char *File_Name, int Format    , SG_Char Separator);
+	bool						_Load_Text			(const SG_Char *File_Name, bool bHeadline, SG_Char Separator);
+	bool						_Save_Text			(const SG_Char *File_Name, bool bHeadline, SG_Char Separator);
 	bool						_Load_DBase			(const SG_Char *File_Name);
 	bool						_Save_DBase			(const SG_Char *File_Name);
 

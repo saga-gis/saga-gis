@@ -164,7 +164,6 @@ const wxChar * CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE:	return( LNG("[CMD] Save As Image when changed") );
 	case ID_CMD_MAP_SAVE_IMAGE:
 	case ID_CMD_MAPS_SAVE_IMAGE:		return( LNG("[CMD] Save As Image...") );
-	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD:	return( LNG("[CMD] Save to Clipboard") );
 	case ID_CMD_MAP_SAVE_PDF_INDEXED:
 	case ID_CMD_MAPS_SAVE_PDF_INDEXED:	return( LNG("[CMD] Save As PDF") );
 	case ID_CMD_MAP_SAVE_INTERACTIVE_SVG:
@@ -238,7 +237,6 @@ const wxChar * CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_TABLE_FIELD_ADD:		return( LNG("[CMD] Add Field") );
 	case ID_CMD_TABLE_FIELD_DEL:		return( LNG("[CMD] Delete Fields") );
 	case ID_CMD_TABLE_FIELD_SORT:		return( LNG("[CMD] Sort Fields") );
-	case ID_CMD_TABLE_FIELD_RENAME:		return( LNG("[CMD] Rename Fields") );
 	case ID_CMD_TABLE_RECORD_ADD:		return( LNG("[CMD] Add Record") );
 	case ID_CMD_TABLE_RECORD_INS:		return( LNG("[CMD] Insert Record") );
 	case ID_CMD_TABLE_RECORD_DEL:		return( LNG("[CMD] Delete Selected Record(s)") );
@@ -301,7 +299,6 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_MAPS_3D_SHOW:			return( ID_IMG_TB_MAP_3D_SHOW );
 	case ID_CMD_MAP_LAYOUT_SHOW:		return( ID_IMG_TB_MAP_LAYOUT_SHOW );
 	case ID_CMD_MAPS_LAYOUT_SHOW:		return( ID_IMG_TB_MAP_LAYOUT_SHOW );
-	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD:
 	case ID_CMD_MAPS_SAVE_IMAGE:
 	case ID_CMD_MAPS_SYNCHRONIZE:		return( ID_IMG_TB_MAP_SYNCHRONIZE );
 	case ID_CMD_MAP_LEGEND_VERTICAL:	return( ID_IMG_TB_MAP_LEGEND_VERTICAL );

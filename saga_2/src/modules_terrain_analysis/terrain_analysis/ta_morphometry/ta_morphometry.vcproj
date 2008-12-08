@@ -611,10 +611,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\mass_balance_index.cpp"
-				>
-			</File>
-			<File
 				RelativePath="MLB_Interface.cpp"
 				>
 				<FileConfiguration
@@ -877,10 +873,6 @@
 			</File>
 			<File
 				RelativePath="Hypsometry.h"
-				>
-			</File>
-			<File
-				RelativePath=".\mass_balance_index.h"
 				>
 			</File>
 			<File

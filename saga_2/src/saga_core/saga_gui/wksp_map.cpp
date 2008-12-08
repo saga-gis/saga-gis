@@ -61,8 +61,6 @@
 #include <wx/window.h>
 #include <wx/dcmemory.h>
 #include <wx/filename.h>
-#include <wx/clipbrd.h>
-#include <wx/dataobj.h>
 
 #include <saga_api/doc_pdf.h>
 #include "svg_interactive_map.h"
@@ -259,7 +257,6 @@ wxMenu * CWKSP_Map::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_SHOW);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SAVE_IMAGE);
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SAVE_TO_CLIPBOARD);
 	if( CSG_Doc_PDF::Get_Version() != NULL )
 	{
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SAVE_PDF_INDEXED);
@@ -297,10 +294,6 @@ bool CWKSP_Map::On_Command(int Cmd_ID)
 
 	case ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE:
 		SaveAs_Image_On_Change();
-		break;
-
-	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD:
-		SaveAs_Image_Clipboard();
 		break;
 
 	case ID_CMD_MAPS_SAVE_PDF_INDEXED:
@@ -1014,53 +1007,6 @@ void CWKSP_Map::SaveAs_Image(void)
 	{
 		_Img_Save(m_Img_File, m_Img_Type);
 	}
-}
-
-//---------------------------------------------------------
-void CWKSP_Map::SaveAs_Image_Clipboard(void)
-{
-	SaveAs_Image_Clipboard(
-		Get_Manager()->Get_Parameters()->Get_Parameter("CLIP_NX")	->asInt(),
-		Get_Manager()->Get_Parameters()->Get_Parameter("CLIP_NY")	->asInt(),
-		Get_Manager()->Get_Parameters()->Get_Parameter("CLIP_FRAME")->asInt()
-	);
-}
-
-//---------------------------------------------------------
-void CWKSP_Map::SaveAs_Image_Clipboard(int nx, int ny, int frame)
-{
-	Set_Buisy_Cursor(true);
-
-	wxSize		s;
-	wxRect		r;
-	wxBitmap	BMP;
-	wxMemoryDC	dc;
-
-//	if( frame < 0 )	frame	= Get_Frame_Width();
-	if( frame < 5 )	frame	= 0;
-
-	r		= wxRect(0, 0, nx + 2 * frame, ny + 2 * frame);
-
-	BMP.Create(r.GetWidth(), r.GetHeight());
-	r.Deflate(frame);
-	dc.SelectObject(BMP);
-	dc.SetBackground(*wxWHITE_BRUSH);
-	dc.Clear();
-
-	Draw_Map(dc, 1.0, r, false);
-	Draw_Frame(dc, r, frame);
-
-	dc.SelectObject(wxNullBitmap);
-
-	if( wxTheClipboard->Open() )
-	{
-		wxBitmapDataObject	*pBMP	= new wxBitmapDataObject;
-		pBMP->SetBitmap(BMP);
-		wxTheClipboard->SetData(pBMP);
-		wxTheClipboard->Close();
-	}
-
-	Set_Buisy_Cursor(false);
 }
 
 //---------------------------------------------------------

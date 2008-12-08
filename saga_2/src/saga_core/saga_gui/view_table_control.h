@@ -106,8 +106,6 @@ public:
 	void						On_Field_Del_UI		(wxUpdateUIEvent &event);
 	void						On_Field_Sort		(wxCommandEvent  &event);
 	void						On_Field_Sort_UI	(wxUpdateUIEvent &event);
-	void						On_Field_Rename		(wxCommandEvent  &event);
-	void						On_Field_Rename_UI	(wxUpdateUIEvent &event);
 
 	void						On_Record_Add		(wxCommandEvent  &event);
 	void						On_Record_Add_UI	(wxUpdateUIEvent &event);

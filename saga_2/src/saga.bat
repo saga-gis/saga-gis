@@ -204,10 +204,10 @@ make -fmakefile.mingw
 POPD
 
 ECHO ###################################
-ECHO io_gdal
+ECHO io_grid_gdal
 ECHO -----------------------------------
 
-PUSHD .\modules_io\gdal\io_gdal
+PUSHD .\modules_io_gdal\io_grid_gdal\io_grid_gdal
 rem make -fmakefile.mingw
 POPD
 
@@ -224,14 +224,6 @@ ECHO io_shapes
 ECHO -----------------------------------
 
 PUSHD .\modules_io\shapes\io_shapes
-make -fmakefile.mingw
-POPD
-
-ECHO ###################################
-ECHO io_table
-ECHO -----------------------------------
-
-PUSHD .\modules_io\table\io_table
 make -fmakefile.mingw
 POPD
 
