@@ -179,12 +179,12 @@ bool CPROJ4_Base::On_Execute(void)
 	{
 		if( (m_pPrjSrc = pj_init_plus(sSrc.b_str())) == NULL )
 		{
-			Error_Set(CSG_String::Format(SG_T("%s:\n%s"), _TL("projection initialization failure"), pj_strerrno(pj_errno)));
+			Error_Set(CSG_String::Format(SG_T("%s:\n%s"), _TL("projection initialization failure"), SG_STR_MBTOSG(pj_strerrno(pj_errno))));
 		}
 
 		if( (m_pPrjDst = pj_init_plus(sDst.b_str())) == NULL )
 		{
-			Error_Set(CSG_String::Format(SG_T("%s:\n%s"), _TL("projection initialization failure"), pj_strerrno(pj_errno)));
+			Error_Set(CSG_String::Format(SG_T("%s:\n%s"), _TL("projection initialization failure"), SG_STR_MBTOSG(pj_strerrno(pj_errno))));
 		}
 
 		Message_Add(CSG_String::Format(SG_T("\n%s: %s\n"), _TL("Source"), sSrc.c_str()), false);
@@ -346,20 +346,20 @@ bool CPROJ4_Base::_Get_Projection(CSG_String &sPrj, CSG_Parameters &P)
 	//-----------------------------------------------------
 	sPrj	.Clear();
 
-	sPrj	+= STR_ADD_STR("proj"	, pj_list[P("PROJ_TYPE")->asInt()].id);
+	sPrj	+= STR_ADD_STR(SG_T("proj")	, SG_STR_MBTOSG(pj_list[P("PROJ_TYPE")->asInt()].id));
 
-	sPrj	+= STR_ADD_FLT("lon_0"	, P("LON_0")->asDouble());
-	sPrj	+= STR_ADD_FLT("lat_0"	, P("LAT_0")->asDouble());
+	sPrj	+= STR_ADD_FLT(SG_T("lon_0")	, P("LON_0")->asDouble());
+	sPrj	+= STR_ADD_FLT(SG_T("lat_0")	, P("LAT_0")->asDouble());
 
-	sPrj	+= STR_ADD_FLT("x_0"	, P("X_0"  )->asDouble());
-	sPrj	+= STR_ADD_FLT("y_0"	, P("Y_0"  )->asDouble());
+	sPrj	+= STR_ADD_FLT(SG_T("x_0")	, P("X_0"  )->asDouble());
+	sPrj	+= STR_ADD_FLT(SG_T("y_0")	, P("Y_0"  )->asDouble());
 
-	sPrj	+= STR_ADD_STR("units"	, pj_units[P("UNIT")->asInt()].id);
+	sPrj	+= STR_ADD_STR(SG_T("units")	, SG_STR_MBTOSG(pj_units[P("UNIT")->asInt()].id));
 
 	//-----------------------------------------------------
 	if( P("DATUM_DEF")->asInt() == 0 )	// predefined datum
 	{
-		sPrj	+= STR_ADD_STR("datum"	, pj_datums[P("DATUM")->asInt()].id);
+		sPrj	+= STR_ADD_STR(SG_T("datum")	, SG_STR_MBTOSG(pj_datums[P("DATUM")->asInt()].id));
 	}
 
 	//-----------------------------------------------------
@@ -368,32 +368,32 @@ bool CPROJ4_Base::_Get_Projection(CSG_String &sPrj, CSG_Parameters &P)
 		switch( P("ELLIPSOID")->asInt() )
 		{
 		case 0:	// Predefined Ellipsoid
-			sPrj	+= STR_ADD_STR("ellps"	, pj_ellps[P("ELLPS_PREDEF")->asInt()].id);
+			sPrj	+= STR_ADD_STR(SG_T("ellps")	, SG_STR_MBTOSG(pj_ellps[P("ELLPS_PREDEF")->asInt()].id));
 			break;
 
 		case 1:	// Semiminor axis
-			sPrj	+= STR_ADD_FLT("a"		, P("ELLPS_A" )->asDouble());
-			sPrj	+= STR_ADD_FLT("b"		, P("ELLPS_B" )->asDouble());
+			sPrj	+= STR_ADD_FLT(SG_T("a")		, P("ELLPS_A" )->asDouble());
+			sPrj	+= STR_ADD_FLT(SG_T("b")		, P("ELLPS_B" )->asDouble());
 			break;
 
 		case 2:	// Flattening
-			sPrj	+= STR_ADD_FLT("a"		, P("ELLPS_A" )->asDouble());
-			sPrj	+= STR_ADD_FLT("f"		, P("ELLPS_F" )->asDouble());
+			sPrj	+= STR_ADD_FLT(SG_T("a")		, P("ELLPS_A" )->asDouble());
+			sPrj	+= STR_ADD_FLT(SG_T("f")		, P("ELLPS_F" )->asDouble());
 			break;
 
 		case 3:	// Reciprocal Flattening
-			sPrj	+= STR_ADD_FLT("a"		, P("ELLPS_A" )->asDouble());
-			sPrj	+= STR_ADD_FLT("rf"		, P("ELLPS_RF")->asDouble());
+			sPrj	+= STR_ADD_FLT(SG_T("a")		, P("ELLPS_A" )->asDouble());
+			sPrj	+= STR_ADD_FLT(SG_T("rf")		, P("ELLPS_RF")->asDouble());
 			break;
 
 		case 4:	// Eccentricity
-			sPrj	+= STR_ADD_FLT("a"		, P("ELLPS_A" )->asDouble());
-			sPrj	+= STR_ADD_FLT("e"		, P("ELLPS_E" )->asDouble());
+			sPrj	+= STR_ADD_FLT(SG_T("a")		, P("ELLPS_A" )->asDouble());
+			sPrj	+= STR_ADD_FLT(SG_T("e")		, P("ELLPS_E" )->asDouble());
 			break;
 
 		case 5:	// Eccentricity Squared
-			sPrj	+= STR_ADD_FLT("a"		, P("ELLPS_A" )->asDouble());
-			sPrj	+= STR_ADD_FLT("es"		, P("ELLPS_ES")->asDouble());
+			sPrj	+= STR_ADD_FLT(SG_T("a")		, P("ELLPS_A" )->asDouble());
+			sPrj	+= STR_ADD_FLT(SG_T("es")		, P("ELLPS_ES")->asDouble());
 			break;
 		}
 
@@ -422,14 +422,14 @@ bool CPROJ4_Base::_Get_Projection(CSG_String &sPrj, CSG_Parameters &P)
 	}
 
 	//-----------------------------------------------------
-	CSG_Parameters	*pParms	= Get_Parameters(pj_list[P("PROJ_TYPE")->asInt()].id);
+	CSG_Parameters	*pParms	= Get_Parameters(SG_STR_MBTOSG(pj_list[P("PROJ_TYPE")->asInt()].id));
 
 	if( pParms == NULL || pParms->Get_Count() <= 0 )
 	{
 		return( true );
 	}
 
-	if( Dlg_Parameters(pj_list[P("PROJ_TYPE")->asInt()].id) )
+	if( Dlg_Parameters(SG_STR_MBTOSG(pj_list[P("PROJ_TYPE")->asInt()].id)) )
 	{
 		for(int i=0; i<pParms->Get_Count(); i++)
 		{
@@ -479,7 +479,7 @@ bool CPROJ4_Base::_Init_Projection(CSG_Parameters &P)
 		sArgs	= sArgs.AfterFirst ('\n').AfterFirst('\n').AfterFirst('\t');
 
 		sList	+= CSG_String::Format(SG_T("%s|"), sName.c_str());
-		sDesc	+= CSG_String::Format(SG_T("\n[%s] %s (%s)"), pProjection->id, sName.c_str(), sArgs.c_str());
+		sDesc	+= CSG_String::Format(SG_T("\n[%s] %s (%s)"), SG_STR_MBTOSG(pProjection->id), sName.c_str(), sArgs.c_str());
 
 		_Init_Projection(pProjection->id, sName, sArgs);
 	}
@@ -509,7 +509,7 @@ bool CPROJ4_Base::_Init_Projection(CSG_Parameters &P)
 	{
 		sList	+= CSG_String::Format(SG_T("[%s]"), SG_STR_MBTOSG(pDatum->id));
 
-		if( pDatum->comments != NULL && *pDatum->comments != NULL )
+		if( SG_STR_MBTOSG(pDatum->comments) != NULL && SG_STR_MBTOSG(*pDatum->comments) != NULL )
 		{
 			sList	+= CSG_String::Format(SG_T(" %s"), SG_STR_MBTOSG(pDatum->comments));
 		}
