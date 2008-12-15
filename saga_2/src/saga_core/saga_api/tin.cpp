@@ -153,9 +153,9 @@ void CSG_TIN::_On_Construction(void)
 	m_Triangles			= NULL;
 	m_nTriangles		= 0;
 
-	m_bUpdate			= true;
-
 	m_Table.m_pOwner	= this;
+
+	Set_Update_Flag();
 }
 
 
@@ -183,6 +183,7 @@ bool CSG_TIN::Create(const SG_Char *File_Name)
 
 		Set_File_Name(File_Name);
 		Set_Modified(false);
+		Set_Update_Flag();
 
 		return( true );
 	}
@@ -206,7 +207,7 @@ bool CSG_TIN::Create(CSG_Shapes *pShapes)
 
 		Get_History().Assign(pShapes->Get_History());
 
-		m_Table._Create(&pShapes->Get_Table());
+		m_Table._Create(pShapes);
 		m_Table.Set_Name(pShapes->Get_Name());
 
 		//-------------------------------------------------
@@ -218,7 +219,7 @@ bool CSG_TIN::Create(CSG_Shapes *pShapes)
 			{
 				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
-					Add_Point(pShape->Get_Point(iPoint, iPart), pShape->Get_Record(), false);
+					Add_Point(pShape->Get_Point(iPoint, iPart), pShape, false);
 				}
 			}
 		}
@@ -454,7 +455,7 @@ CSG_TIN_Point * CSG_TIN::Add_Point(TSG_Point Point, CSG_Table_Record *pRecord, b
 	m_Points[m_nPoints]	= new CSG_TIN_Point(m_nPoints, Point, m_Table._Add_Record(pRecord));
 	m_nPoints++;
 
-	m_bUpdate			= true;
+	Set_Update_Flag();
 
 	if( bUpdateNow )
 	{
@@ -484,7 +485,7 @@ bool CSG_TIN::Del_Point(int iPoint, bool bUpdateNow)
 
 		m_Table._Del_Record(iPoint);
 
-		m_bUpdate	= true;
+		Set_Update_Flag();
 
 		if( bUpdateNow )
 		{
@@ -554,33 +555,28 @@ bool CSG_TIN::_Add_Triangle(CSG_TIN_Point *a, CSG_TIN_Point *b, CSG_TIN_Point *c
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_TIN::_Extent_Update(void)
+void CSG_TIN::On_Update(void)
 {
-	if( m_bUpdate )
+	if( m_nPoints > 0 )
 	{
-		if( m_nPoints > 0 )
+		TSG_Rect	r;
+
+		m_Extent.Assign(
+			m_Points[0]->Get_X(), m_Points[0]->Get_Y(),
+			m_Points[0]->Get_X(), m_Points[0]->Get_Y()
+		);
+
+		for(int i=1; i<m_nPoints; i++)
 		{
-			TSG_Rect	r;
+			r.xMin	= r.xMax	= m_Points[i]->Get_X();
+			r.yMin	= r.yMax	= m_Points[i]->Get_Y();
 
-			m_Extent.Assign(
-				m_Points[0]->Get_X(), m_Points[0]->Get_Y(),
-				m_Points[0]->Get_X(), m_Points[0]->Get_Y()
-			);
-
-			for(int i=1; i<m_nPoints; i++)
-			{
-				r.xMin	= r.xMax	= m_Points[i]->Get_X();
-				r.yMin	= r.yMax	= m_Points[i]->Get_Y();
-
-				m_Extent.Union(r);
-			}
+			m_Extent.Union(r);
 		}
-		else
-		{
-			m_Extent.Assign(0.0, 0.0, 0.0, 0.0);
-		}
-
-		m_bUpdate	= false;
+	}
+	else
+	{
+		m_Extent.Assign(0.0, 0.0, 0.0, 0.0);
 	}
 }
 

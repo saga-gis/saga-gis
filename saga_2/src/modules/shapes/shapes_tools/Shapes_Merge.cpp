@@ -71,16 +71,16 @@ bool CShapes_Merge::On_Execute(void){
 
 	pOutput->Create(MainType, _TL("Shapes_Merge"));
 
-	pTable	= &pMainShapes->Get_Table();
+	pTable	= pMainShapes;
 	nFields	= pTable->Get_Field_Count();
 
 	for (i=0; i<nFields; i++)
 	{
-		pOutput->Get_Table().Add_Field(pTable->Get_Field_Name(i), pTable->Get_Field_Type(i));
+		pOutput->Add_Field(pTable->Get_Field_Name(i), pTable->Get_Field_Type(i));
 	}//for
 
-	pOutput->Get_Table().Add_Field(SG_T("LAYER_ID")	, TABLE_FIELDTYPE_Int);
-	pOutput->Get_Table().Add_Field(SG_T("LAYER")	, TABLE_FIELDTYPE_String);
+	pOutput->Add_Field(SG_T("LAYER_ID")	, TABLE_FIELDTYPE_Int);
+	pOutput->Add_Field(SG_T("LAYER")	, TABLE_FIELDTYPE_String);
 	
 	//copy main layer into destination
 	for(i=0; i<pMainShapes->Get_Count(); i++)
@@ -118,9 +118,9 @@ bool CShapes_Merge::On_Execute(void){
 					//see which fields are in both attributes tables
 					for (i=0; i<nFields; i++)
 					{
-						for (j=0; j<pShapes->Get_Table().Get_Field_Count(); j++)
+						for (j=0; j<pShapes->Get_Field_Count(); j++)
 						{
-							sName1 = pShapes->Get_Table().Get_Field_Name(j);
+							sName1 = pShapes->Get_Field_Name(j);
 							sName2 = pTable->Get_Field_Name(i);
 
 							if (!sName1.CmpNoCase(sName2))

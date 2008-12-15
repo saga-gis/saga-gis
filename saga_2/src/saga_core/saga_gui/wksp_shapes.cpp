@@ -68,6 +68,8 @@
 #include "wksp_shapes.h"
 #include "wksp_table.h"
 
+#include "view_scatterplot.h"
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -80,7 +82,7 @@ CWKSP_Shapes::CWKSP_Shapes(CSG_Shapes *pShapes)
 	: CWKSP_Layer(pShapes)
 {
 	m_pShapes		= pShapes;
-	m_pTable		= new CWKSP_Table(&m_pShapes->Get_Table(), this);
+	m_pTable		= new CWKSP_Table(m_pShapes, this);
 
 	m_Edit_Shapes.Create(m_pShapes->Get_Type());
 	m_Edit_pShape	= NULL;
@@ -93,6 +95,7 @@ CWKSP_Shapes::CWKSP_Shapes(CSG_Shapes *pShapes)
 //---------------------------------------------------------
 CWKSP_Shapes::~CWKSP_Shapes(void)
 {
+	delete(m_pTable);
 }
 
 
@@ -142,7 +145,7 @@ wxString CWKSP_Shapes::Get_Description(void)
 
 	//-----------------------------------------------------
 	s.Append(wxString::Format(wxT("<hr><b>%s</b>"), LNG("[CAP] Table Description")));
-	s.Append(Get_TableInfo_asHTML(&m_pShapes->Get_Table()));
+	s.Append(Get_TableInfo_asHTML(m_pShapes));
 
 	//-----------------------------------------------------
 	s.Append(wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), LNG("[CAP] Data History")));
@@ -166,6 +169,13 @@ wxMenu * CWKSP_Shapes::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_SET_LUT);
 
 	pMenu->AppendSeparator();
+
+	wxMenu	*pTable	= new wxMenu(LNG("[MNU] Table"));
+	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLES_SHOW);
+	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLES_DIAGRAM);
+	CMD_Menu_Add_Item(pTable, false, ID_CMD_TABLES_SCATTERPLOT);
+	pMenu->Append(ID_CMD_WKSP_FIRST, LNG("[MNU] Attributes"), pTable);
+
 	pMenu->Append(ID_CMD_WKSP_FIRST, LNG("[MNU] Edit"), Edit_Get_Menu());
 
 	return( pMenu );
@@ -218,6 +228,18 @@ bool CWKSP_Shapes::On_Command(int Cmd_ID)
 		m_pShapes->Inv_Selection();
 		Update_Views(false);
 		break;
+
+	case ID_CMD_TABLES_SHOW:
+		m_pTable->Toggle_View();
+		break;
+
+	case ID_CMD_TABLES_DIAGRAM:
+		m_pTable->Toggle_Diagram();
+		break;
+
+	case ID_CMD_TABLES_SCATTERPLOT:
+		Add_ScatterPlot(Get_Table()->Get_Table());
+		break;
 	}
 
 	return( true );
@@ -258,6 +280,14 @@ bool CWKSP_Shapes::On_Command_UI(wxUpdateUIEvent &event)
 
 	case ID_CMD_SHAPES_EDIT_SEL_INVERT:
 		event.Enable(m_Edit_pShape == NULL);
+		break;
+
+	case ID_CMD_TABLES_SHOW:
+		event.Check(m_pTable->Get_View() != NULL);
+		break;
+
+	case ID_CMD_TABLES_DIAGRAM:
+		event.Check(m_pTable->Get_Diagram() != NULL);
 		break;
 	}
 
@@ -367,6 +397,23 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 		LNG(""),
 		PARAMETER_INPUT
 	);
+
+	m_Parameters.Add_Value(
+		m_Parameters("NODE_EDIT")		, "EDIT_COLOR"				, LNG("[CAP] Color"),
+		LNG(""),
+		PARAMETER_TYPE_Color, SG_GET_RGB(0, 0, 0)
+	);
+
+	m_Parameters.Add_Node(
+		m_Parameters("NODE_EDIT")		, "NODE_SELECTION"			, LNG("[CAP] Selection"),
+		LNG("")
+	);
+
+	m_Parameters.Add_Value(
+		m_Parameters("NODE_SELECTION")	, "EDIT_SEL_COLOR"			, LNG("[CAP] Color"),
+		LNG(""),
+		PARAMETER_TYPE_Color, SG_GET_RGB(255, 0, 0)
+	);
 }
 
 
@@ -396,7 +443,7 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 	m_Def_Color	= Get_Color_asWX(m_Parameters("UNISYMBOL_COLOR")->asColor());
 
 	//-----------------------------------------------------
-	if( (m_iColor = m_Parameters("COLORS_ATTRIB")->asInt()) >= m_pShapes->Get_Table().Get_Field_Count() )
+	if( (m_iColor = m_Parameters("COLORS_ATTRIB")->asInt()) >= m_pShapes->Get_Field_Count() )
 	{
 		m_iColor	= -1;
 	}
@@ -407,14 +454,14 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 	}
 
 	//-----------------------------------------------------
-	if( (m_iLabel = m_Parameters("LABEL_ATTRIB")->asInt()) >= m_pShapes->Get_Table().Get_Field_Count() )
+	if( (m_iLabel = m_Parameters("LABEL_ATTRIB")->asInt()) >= m_pShapes->Get_Field_Count() )
 	{
 		m_iLabel	= -1;
 	}
 
 	//-----------------------------------------------------
 #ifdef USE_HTMLINFO
-	if( (m_iExtraInfo = m_Parameters("EXTRAINFO_ATTRIB")->asInt()) >= m_pShapes->Get_Table().Get_Field_Count() )
+	if( (m_iExtraInfo = m_Parameters("EXTRAINFO_ATTRIB")->asInt()) >= m_pShapes->Get_Field_Count() )
 	{
 		m_iExtraInfo	= -1;
 	}
@@ -441,8 +488,8 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 		int		zField	= pParameters->Get_Parameter("COLORS_ATTRIB")->asInt();
 
 		pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(
-			m_pShapes->Get_Table().Get_MinValue(zField),
-			m_pShapes->Get_Table().Get_MaxValue(zField)
+			m_pShapes->Get_MinValue(zField),
+			m_pShapes->Get_MaxValue(zField)
 		);
 	}
 
@@ -575,15 +622,15 @@ wxString CWKSP_Shapes::Get_Value(CSG_Point ptWorld, double Epsilon)
 			switch( m_pClassify->Get_Mode() )
 			{
 			case CLASSIFY_LUT:
-				return( m_pClassify->Get_Class_Name_byValue(pShape->Get_Record()->asDouble(m_iColor)) );
+				return( m_pClassify->Get_Class_Name_byValue(pShape->asDouble(m_iColor)) );
 
 			case CLASSIFY_METRIC:	default:
-				return( pShape->Get_Record()->asString(m_iColor) );
+				return( pShape->asString(m_iColor) );
 			}
 		}
 		else
 		{
-			return( wxString::Format(wxT("%s: %d"), LNG("[CAP] Index"), pShape->Get_Record()->Get_Index() + 1) );
+			return( wxString::Format(wxT("%s: %d"), LNG("[CAP] Index"), pShape->Get_Index() + 1) );
 		}
 	}
 
@@ -596,8 +643,8 @@ double CWKSP_Shapes::Get_Value_Range(void)
 	if( m_iColor >= 0 )
 	{
 		return(
-			  m_pShapes->Get_Table().Get_MaxValue(m_iColor)
-			- m_pShapes->Get_Table().Get_MinValue(m_iColor)
+			  m_pShapes->Get_MaxValue(m_iColor)
+			- m_pShapes->Get_MinValue(m_iColor)
 		);
 	}
 	else
@@ -637,7 +684,10 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 		double	Transparency	= m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.0;
 
 		CWKSP_Map_DC	*pDC	= Transparency > 0.0 ? new CWKSP_Map_DC(dc_Map.m_rWorld, dc_Map.m_rDC, dc_Map.m_Scale, SG_GET_RGB(255, 255, 255)) : NULL;
-		CWKSP_Map_DC	&dc	= pDC ? *pDC : dc_Map;
+		CWKSP_Map_DC	&dc		= pDC ? *pDC : dc_Map;
+
+		m_Edit_Color	= Get_Color_asWX(m_Parameters("EDIT_COLOR")		->asInt());
+		m_Sel_Color		= Get_Color_asWX(m_Parameters("EDIT_SEL_COLOR")	->asInt());
 
 		_Draw_Initialize(dc);
 
@@ -648,7 +698,7 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 			{
 				pShape	= m_pShapes->Get_Shape(iShape);
 
-				if( !pShape->Get_Record()->is_Selected() && dc.m_rWorld.Intersects(pShape->Get_Extent()) != INTERSECTION_None )
+				if( !pShape->is_Selected() && dc.m_rWorld.Intersects(pShape->Get_Extent()) != INTERSECTION_None )
 				{
 					_Draw_Shape(dc, pShape, false);
 				}
@@ -792,9 +842,9 @@ void CWKSP_Shapes::_AttributeList_Set(CSG_Parameter *pFields, bool bAddNoField)
 	{
 		wxString	s;
 
-		for(int i=0; i<m_pShapes->Get_Table().Get_Field_Count(); i++)
+		for(int i=0; i<m_pShapes->Get_Field_Count(); i++)
 		{
-			s.Append(wxString::Format(wxT("%s|"), m_pShapes->Get_Table().Get_Field_Name(i)));
+			s.Append(wxString::Format(wxT("%s|"), m_pShapes->Get_Field_Name(i)));
 		}
 
 		if( bAddNoField )
@@ -806,7 +856,7 @@ void CWKSP_Shapes::_AttributeList_Set(CSG_Parameter *pFields, bool bAddNoField)
 
 		if( bAddNoField )
 		{
-			pFields->Set_Value(m_pShapes->Get_Table().Get_Field_Count());
+			pFields->Set_Value(m_pShapes->Get_Field_Count());
 		}
 	}
 }
@@ -911,11 +961,10 @@ bool CWKSP_Shapes::_Chart_Set_Options(void)
 		CSG_Colors		Colors;
 		CSG_String	sFields;
 		CSG_Parameter	*pFields, *pColors;
-		CSG_Table		*pTable	= &m_pShapes->Get_Table();
 
-		for(i=0, n=0; i<pTable->Get_Field_Count(); i++)
+		for(i=0, n=0; i<m_pShapes->Get_Field_Count(); i++)
 		{
-			if( pTable->Get_Field_Type(i) != TABLE_FIELDTYPE_String )
+			if( m_pShapes->Get_Field_Type(i) != TABLE_FIELDTYPE_String )
 				n++;
 		}
 
@@ -966,20 +1015,20 @@ bool CWKSP_Shapes::_Chart_Set_Options(void)
 
 			Colors.Set_Count(n);
 
-			for(i=0, n=0; i<pTable->Get_Field_Count(); i++)
+			for(i=0, n=0; i<m_pShapes->Get_Field_Count(); i++)
 			{
-				if( pTable->Get_Field_Type(i) != TABLE_FIELDTYPE_String )
+				if( m_pShapes->Get_Field_Type(i) != TABLE_FIELDTYPE_String )
 				{
-					sFields.Append(CSG_String::Format(wxT("%s|"), pTable->Get_Field_Name(i)));
+					sFields.Append(CSG_String::Format(wxT("%s|"), m_pShapes->Get_Field_Name(i)));
 
 					pChart->Add_Value(
-						pFields	, wxString::Format(wxT("FIELD_%d"), i), pTable->Get_Field_Name(i),
+						pFields	, wxString::Format(wxT("FIELD_%d"), i), m_pShapes->Get_Field_Name(i),
 						LNG(""),
 						PARAMETER_TYPE_Bool , false
 					);
 
 					pChart->Add_Value(
-						pColors	, wxString::Format(wxT("COLOR_%d"), i), pTable->Get_Field_Name(i),
+						pColors	, wxString::Format(wxT("COLOR_%d"), i), m_pShapes->Get_Field_Name(i),
 						LNG(""),
 						PARAMETER_TYPE_Color, Colors.Get_Color(n++)
 					);
@@ -989,7 +1038,7 @@ bool CWKSP_Shapes::_Chart_Set_Options(void)
 			sFields.Append(CSG_String::Format(wxT("%s|"), LNG("[VAL] [none]")));
 			pFields	= pChart->Get_Parameter("SIZE_FIELD");
 			pFields->asChoice()->Set_Items(sFields);
-			pFields->Set_Value(m_pShapes->Get_Table().Get_Field_Count());
+			pFields->Set_Value(m_pShapes->Get_Field_Count());
 
 			return( true );
 		}
@@ -1009,7 +1058,7 @@ bool CWKSP_Shapes::_Chart_Get_Options(void)
 
 	if( pChart->Get_Parameter("NODE_FIELDS") )
 	{
-		for(int i=0, n=0; i<m_pShapes->Get_Table().Get_Field_Count(); i++)
+		for(int i=0, n=0; i<m_pShapes->Get_Field_Count(); i++)
 		{
 			if(	(p = pChart->Get_Parameter(wxString::Format(wxT("FIELD_%d"), i))) != NULL )
 			{
@@ -1045,10 +1094,10 @@ void CWKSP_Shapes::_Draw_Chart(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 
 		if( m_Chart_sField >= 0 )
 		{
-			double	range, min	= m_pShapes->Get_Table().Get_MinValue(m_Chart_sField);
+			double	range, min	= m_pShapes->Get_MinValue(m_Chart_sField);
 
-			if( (range = (m_pShapes->Get_Table().Get_MaxValue(m_Chart_sField) - min)) > 0.0 )
-				dSize	+= m_Chart_sRange * ((pShape->Get_Record()->asDouble(m_Chart_sField) - min) / range);
+			if( (range = (m_pShapes->Get_MaxValue(m_Chart_sField) - min)) > 0.0 )
+				dSize	+= m_Chart_sRange * ((pShape->asDouble(m_Chart_sField) - min) / range);
 		}
 
 		s	= (int)(dSize * (m_Chart_sType == 1 ? dc_Map.m_World2DC : dc_Map.m_Scale));
@@ -1063,10 +1112,10 @@ void CWKSP_Shapes::_Draw_Chart(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 
 		switch( m_Chart_Type )
 		{
-		case 0:	_Draw_Chart_Bar(dc_Map, pShape->Get_Record(),  true, p.x, p.y, (int)(0.8 * s), s);	break; // bar outlined
-		case 1:	_Draw_Chart_Bar(dc_Map, pShape->Get_Record(), false, p.x, p.y, (int)(0.8 * s), s);	break; // bar
-		case 2:	_Draw_Chart_Pie(dc_Map, pShape->Get_Record(),  true, p.x, p.y, (int)(1.0 * s));	break; // pie outlined
-		case 3:	_Draw_Chart_Pie(dc_Map, pShape->Get_Record(), false, p.x, p.y, (int)(1.0 * s));	break; // pie
+		case 0:	_Draw_Chart_Bar(dc_Map, pShape,  true, p.x, p.y, (int)(0.8 * s), s);	break; // bar outlined
+		case 1:	_Draw_Chart_Bar(dc_Map, pShape, false, p.x, p.y, (int)(0.8 * s), s);	break; // bar
+		case 2:	_Draw_Chart_Pie(dc_Map, pShape,  true, p.x, p.y, (int)(1.0 * s));	break; // pie outlined
+		case 3:	_Draw_Chart_Pie(dc_Map, pShape, false, p.x, p.y, (int)(1.0 * s));	break; // pie
 		}
 	}
 }

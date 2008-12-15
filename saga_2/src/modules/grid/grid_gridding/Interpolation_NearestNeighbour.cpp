@@ -103,7 +103,7 @@ bool CInterpolation_NearestNeighbour::Get_Value(double x, double y, double &z)
 
 	if( (pPoint = m_Search.Get_Point_Nearest(x, y)) != NULL )
 	{
-		z	= pPoint->Get_Record()->asDouble(m_zField);
+		z	= pPoint->asDouble(m_zField);
 
 		return( true );
 	}

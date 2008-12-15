@@ -302,15 +302,14 @@ void CExercise_14::Find_Channels(int x, int y)
 //---------------------------------------------------------
 void CExercise_14::Vectorise(void)
 {
-	int				x, y, Segment_ID;
-	double			Length;
-	CSG_Shape			*pSegment;
-	CSG_Table_Record	*pRecord;
+	int			x, y, Segment_ID;
+	double		Length;
+	CSG_Shape	*pSegment;
 
 	m_pShapes->Create(SHAPE_TYPE_Line, _TL("Channels"));
 
-	m_pShapes->Get_Table().Add_Field("SEGMENT_ID"	, TABLE_FIELDTYPE_Int);
-	m_pShapes->Get_Table().Add_Field("LENGTH"		, TABLE_FIELDTYPE_Double);
+	m_pShapes->Add_Field("SEGMENT_ID"	, TABLE_FIELDTYPE_Int);
+	m_pShapes->Add_Field("LENGTH"		, TABLE_FIELDTYPE_Double);
 
 	//-----------------------------------------------------
 	for(y=0, Segment_ID=0; y<Get_NY() && Set_Progress(y); y++)
@@ -326,9 +325,8 @@ void CExercise_14::Vectorise(void)
 
 				if( Length > 0.0 )
 				{
-					pRecord		= pSegment->Get_Record();
-					pRecord->Set_Value(0, ++Segment_ID);
-					pRecord->Set_Value(1, Length);
+					pSegment->Set_Value(0, ++Segment_ID);
+					pSegment->Set_Value(1, Length);
 				}
 				else
 				{

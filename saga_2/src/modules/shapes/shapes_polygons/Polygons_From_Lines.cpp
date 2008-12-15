@@ -118,13 +118,13 @@ bool CPolygons_From_Lines::On_Execute(void)
 
 	if(	pLines->Get_Count() > 0 )
 	{
-		pPolygons->Create(SHAPE_TYPE_Polygon, pLines->Get_Name(), &pLines->Get_Table());
+		pPolygons->Create(SHAPE_TYPE_Polygon, pLines->Get_Name(), pLines);
 
 		//-------------------------------------------------
 		for(iShape=0; iShape<pLines->Get_Count(); iShape++)
 		{
 			pLine		= pLines	->Get_Shape(iShape);
-			pPolygon	= pPolygons	->Add_Shape(pLine->Get_Record());
+			pPolygon	= pPolygons	->Add_Shape(pLine, SHAPE_COPY_ATTR);
 
 			for(iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
 			{

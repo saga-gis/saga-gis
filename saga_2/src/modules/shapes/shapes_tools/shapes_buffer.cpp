@@ -174,8 +174,8 @@ bool CShapes_Buffer::On_Execute(void)
 			CSG_Shapes	Buffers;
 
 			pBuffers->Create(SHAPE_TYPE_Polygon);
-			pBuffers->Get_Table().Add_Field(_TL("ID")	, TABLE_FIELDTYPE_Int);
-			pBuffers->Get_Table().Add_Field(_TL("ZONE")	, TABLE_FIELDTYPE_Double);
+			pBuffers->Add_Field(_TL("ID")	, TABLE_FIELDTYPE_Int);
+			pBuffers->Add_Field(_TL("ZONE")	, TABLE_FIELDTYPE_Double);
 
 			for(int iZone=0; iZone<nZones; iZone++)
 			{
@@ -187,8 +187,8 @@ bool CShapes_Buffer::On_Execute(void)
 				}
 
 				pBuffer	= pBuffers->Add_Shape(Buffers.Get_Shape(0));
-				pBuffer	->Get_Record()->Set_Value(0, (nZones - iZone) + 1);
-				pBuffer	->Get_Record()->Set_Value(1, (nZones - iZone) * dZone * 100.0);
+				pBuffer	->Set_Value(0, (nZones - iZone) + 1);
+				pBuffer	->Set_Value(1, (nZones - iZone) * dZone * 100.0);
 			}
 		}
 
@@ -216,9 +216,9 @@ bool CShapes_Buffer::Get_Buffers(CSG_Shapes *pBuffers, double dZone)
 	if( pBuffers )
 	{
 		pBuffers	->Create(SHAPE_TYPE_Polygon);
-		pBuffers	->Get_Table().Add_Field(_TL("ID"), TABLE_FIELDTYPE_Int);
+		pBuffers	->Add_Field(_TL("ID"), TABLE_FIELDTYPE_Int);
 		m_pBuffer	= pBuffers->Add_Shape();
-		m_pBuffer	->Get_Record()->Set_Value(0, 1);
+		m_pBuffer	->Set_Value(0, 1);
 
 		m_Distance	= dZone * Parameters("BUF_DIST")	->asDouble();
 		m_Scale		= dZone * Parameters("BUF_SCALE")	->asDouble();
@@ -228,7 +228,7 @@ bool CShapes_Buffer::Get_Buffers(CSG_Shapes *pBuffers, double dZone)
 		{
 			CSG_Shape	*pShape	= m_pShapes->Get_Shape(iShape);
 
-			if( m_Type == 0 || (m_Distance = m_Scale * pShape->Get_Record()->asDouble(m_Field)) > 0.0 )
+			if( m_Type == 0 || (m_Distance = m_Scale * pShape->asDouble(m_Field)) > 0.0 )
 			{
 				switch( m_pShapes->Get_Type() )
 				{

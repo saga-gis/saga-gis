@@ -182,16 +182,16 @@ bool CSurfer_BLN_Import::On_Execute(void)
 			pTable->			 Add_Field("NAME"	, TABLE_FIELDTYPE_String);
 			pTable->			 Add_Field("DESC"	, TABLE_FIELDTYPE_String);
 
-			pShapes->Get_Table().Add_Field("ID"		, TABLE_FIELDTYPE_Int);
-			pShapes->Get_Table().Add_Field("ID_LUT"	, TABLE_FIELDTYPE_Int);
-			pShapes->Get_Table().Add_Field("Z"		, TABLE_FIELDTYPE_Double);
+			pShapes->Add_Field("ID"		, TABLE_FIELDTYPE_Int);
+			pShapes->Add_Field("ID_LUT"	, TABLE_FIELDTYPE_Int);
+			pShapes->Add_Field("Z"		, TABLE_FIELDTYPE_Double);
 		}
 		else
 		{
-			pShapes->Get_Table().Add_Field("ID"		, TABLE_FIELDTYPE_Int);
-			pShapes->Get_Table().Add_Field("FLAG"	, TABLE_FIELDTYPE_Int);
-			pShapes->Get_Table().Add_Field("NAME"	, TABLE_FIELDTYPE_String);
-			pShapes->Get_Table().Add_Field("DESC"	, TABLE_FIELDTYPE_String);
+			pShapes->Add_Field("ID"		, TABLE_FIELDTYPE_Int);
+			pShapes->Add_Field("FLAG"	, TABLE_FIELDTYPE_Int);
+			pShapes->Add_Field("NAME"	, TABLE_FIELDTYPE_String);
+			pShapes->Add_Field("DESC"	, TABLE_FIELDTYPE_String);
 		}
 
 		//-------------------------------------------------
@@ -223,9 +223,9 @@ bool CSurfer_BLN_Import::On_Execute(void)
 					if( (bOk = SG_Read_Line(Stream, sLine)) == true )
 					{
 						pShape	= pShapes->Add_Shape();
-						pShape->Get_Record()->Set_Value(0, iPoint + 1);
-						pShape->Get_Record()->Set_Value(1, ID);
-						pShape->Get_Record()->Set_Value(2, sLine.AfterLast (',').asDouble());
+						pShape->Set_Value(0, iPoint + 1);
+						pShape->Set_Value(1, ID);
+						pShape->Set_Value(2, sLine.AfterLast (',').asDouble());
 
 						x	= sLine.BeforeFirst(',').asDouble();
 						y	= sLine.AfterFirst (',').asDouble();
@@ -236,10 +236,10 @@ bool CSurfer_BLN_Import::On_Execute(void)
 			else
 			{
 				pShape	= pShapes->Add_Shape();
-				pShape->Get_Record()->Set_Value(0, ID);
-				pShape->Get_Record()->Set_Value(1, Flag);
-				pShape->Get_Record()->Set_Value(2, sName);
-				pShape->Get_Record()->Set_Value(3, sDesc);
+				pShape->Set_Value(0, ID);
+				pShape->Set_Value(1, Flag);
+				pShape->Set_Value(2, sName);
+				pShape->Set_Value(3, sDesc);
 
 				for(iPoint=0; iPoint<nPoints && bOk; iPoint++)
 				{
@@ -373,7 +373,7 @@ bool CSurfer_BLN_Export::On_Execute(void)
 
 			if( iZVal >= 0 )
 			{
-				z		= pShape->Get_Record()->asDouble(iZVal);
+				z		= pShape->asDouble(iZVal);
 			}
 
 			for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
@@ -382,12 +382,12 @@ bool CSurfer_BLN_Export::On_Execute(void)
 
 				if( iName >= 0 )
 				{
-					fprintf(Stream, ",\"%s\"", pShape->Get_Record()->asString(iName));
+					fprintf(Stream, ",\"%s\"", pShape->asString(iName));
 				}
 
 				if( iDesc >= 0 )
 				{
-					fprintf(Stream, ",\"%s\"", pShape->Get_Record()->asString(iDesc));
+					fprintf(Stream, ",\"%s\"", pShape->asString(iDesc));
 				}
 
 				fprintf(Stream, "\n");

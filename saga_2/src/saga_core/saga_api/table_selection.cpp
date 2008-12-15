@@ -155,20 +155,55 @@ bool CSG_Table::Select(CSG_Table_Record *pRecord, bool bInvert)
 //---------------------------------------------------------
 int CSG_Table::Del_Selection(void)
 {
-	int		i, n	= 0;
+	int		n	= 0;
 
-	if( !is_Private() )
+	if( !is_Private() && m_nSelected > 0 )
 	{
-		for(i=m_nSelected-1; i>=0; i--)
+		for(int i=m_nSelected-1; i>=0; i--)
 		{
-			if( _Del_Record(m_Selected[i]->Get_Index()) )
+			CSG_Table_Record	*pRecord	= m_Selected[i];
+
+			pRecord->m_bSelected	= false;
+
+			if( _Del_Record(pRecord->Get_Index()) )
 			{
 				n++;
 			}
 		}
+
+		SG_Free(m_Selected);
+		m_Selected	= NULL;
+		m_nSelected	= 0;
 	}
 
 	return( n );
+}
+
+//---------------------------------------------------------
+int CSG_Table::Inv_Selection(void)
+{
+	CSG_Table_Record	**pRecord	= m_Records + 0;
+
+	if( Get_Record_Count() > 0 )
+	{
+		m_nSelected	= m_nRecords - m_nSelected;
+		m_Selected	= (CSG_Table_Record **)SG_Realloc(m_Selected, m_nSelected * sizeof(CSG_Table_Record *));
+
+		for(int i=0, j=0; i<m_nRecords; i++, pRecord++)
+		{
+			if( (*pRecord)->m_bSelected )
+			{
+				(*pRecord)->m_bSelected	= false;
+			}
+			else
+			{
+				(*pRecord)->m_bSelected	= true;
+				m_Selected[j++]			= (*pRecord);
+			}
+		}
+	}
+
+	return( Get_Selection_Count() );
 }
 
 

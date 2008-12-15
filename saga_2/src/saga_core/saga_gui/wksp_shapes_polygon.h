@@ -92,6 +92,8 @@ protected:
 
 	bool						m_bPoints, m_bCentroid, m_bOutline;
 
+	wxColour					m_Sel_Color_Fill;
+
 	wxPen						m_Pen;
 
 	wxBrush						m_Brush;

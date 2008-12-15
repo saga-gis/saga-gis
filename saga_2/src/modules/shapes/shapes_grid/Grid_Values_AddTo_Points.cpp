@@ -151,11 +151,11 @@ bool CGrid_Values_AddTo_Points::On_Execute(void)
 			pShapes->Assign(Parameters("SHAPES")->asShapes());
 		}
 
-		nFields		= pShapes->Get_Table().Get_Field_Count();
+		nFields		= pShapes->Get_Field_Count();
 
 		for(iGrid=0; iGrid<pGrids->Get_Count(); iGrid++)
 		{
-			pShapes->Get_Table().Add_Field(pGrids->asGrid(iGrid)->Get_Name(), TABLE_FIELDTYPE_Double);
+			pShapes->Add_Field(pGrids->asGrid(iGrid)->Get_Name(), TABLE_FIELDTYPE_Double);
 		}
 
 		//-------------------------------------------------
@@ -168,7 +168,7 @@ bool CGrid_Values_AddTo_Points::On_Execute(void)
 			{
 				pGrid	= pGrids->asGrid(iGrid);
 
-				pShape->Get_Record()->Set_Value(iField,
+				pShape->Set_Value(iField,
 					pGrid->is_InGrid_byPos(Point) ? pGrid->Get_Value(Point, Interpol, bZFactor) : -99999
 				);
 			}

@@ -135,8 +135,8 @@ bool CD8_Flow_Analysis::On_Execute(void)
 
 	m_pNet		= Parameters("NETWORK")		->asShapes();
 	m_pNet->Create(SHAPE_TYPE_Line, _TL("D8 Flow Network"));
-	m_pNet->Get_Table().Add_Field("ID"		, TABLE_FIELDTYPE_Int);
-	m_pNet->Get_Table().Add_Field(_TL("LENGTH")	, TABLE_FIELDTYPE_Double);
+	m_pNet->Add_Field("ID"		, TABLE_FIELDTYPE_Int);
+	m_pNet->Add_Field(_TL("LENGTH")	, TABLE_FIELDTYPE_Double);
 
 	//-----------------------------------------------------
 	//Process_Set_Text("Channel Network: Pass 1");
@@ -230,7 +230,7 @@ bool CD8_Flow_Analysis::Set_Network(void)
 			if( !is_Locked(x, y) && (i = m_pCon->asInt(x, y)) != 1 && i >= m_MinCon )
 			{
 				pLine	= m_pNet->Add_Shape();
-				pLine->Get_Record()->Set_Value(0, ++n);
+				pLine->Set_Value(0, ++n);
 
 				Set_Network(x, y, pLine);
 			}
@@ -251,7 +251,7 @@ bool CD8_Flow_Analysis::Set_Network(int x, int y, CSG_Shape *pLine)
 
 	if( (i = m_pDir->asInt(x, y)) >= 0 )
 	{
-		pLine->Get_Record()->Add_Value(1, Get_Length(i));
+		pLine->Add_Value(1, Get_Length(i));
 
 		ix	= Get_xTo(i, x);
 		iy	= Get_yTo(i, y);

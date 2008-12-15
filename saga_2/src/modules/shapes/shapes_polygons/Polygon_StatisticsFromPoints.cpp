@@ -64,8 +64,8 @@ bool CPolygonStatisticsFromPoints::On_Execute(void){
 	CSG_Parameter **pExtraParameter;
 	CSG_String sName;
 	
-	pTable = &m_pPoints->Get_Table();
-	pShapesTable = &m_pPolygons->Get_Table();
+	pTable = m_pPoints;
+	pShapesTable = m_pPolygons;
 	m_bIncludeParam = new bool [pTable->Get_Field_Count() * 5];
 	pExtraParameter = new CSG_Parameter* [pTable->Get_Field_Count() * 5];
 
@@ -135,9 +135,9 @@ void CPolygonStatisticsFromPoints::CalculateStatistics(){
 	int iField;
 	int iParam;
 
-	pPointsTable = &m_pPoints->Get_Table();
+	pPointsTable = m_pPoints;
 
-	pPolygonsTable = &m_pPolygons->Get_Table();	
+	pPolygonsTable = m_pPolygons;	
 	pPolygonsTable->Add_Field("Count", TABLE_FIELDTYPE_Int);
 	m_pClasses = new int[pPointsTable->Get_Record_Count()];
 	m_pCount = new int[pPolygonsTable->Get_Record_Count()];

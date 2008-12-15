@@ -83,13 +83,13 @@ bool CSeparateShapes::On_Execute(void)
 				break;
 
 			case NAMING_FIELD:
-				sName.Printf(SG_T("%s_%s")	, SG_File_Get_Name(pShapes->Get_Name(), false).c_str(), pShapes->Get_Table().Get_Record(iShape)->asString(iField));
+				sName.Printf(SG_T("%s_%s")	, SG_File_Get_Name(pShapes->Get_Name(), false).c_str(), pShapes->Get_Record(iShape)->asString(iField));
 				break;
 			}
 
 			sFile	= SG_File_Make_Path(sPath, sName, SG_T("shp"));
-			pShape	= SG_Create_Shapes(pShapes->Get_Type(), sName, &pShapes->Get_Table());
-			pShape	->Add_Shape(pShapes->Get_Shape(iShape), true);
+			pShape	= SG_Create_Shapes(pShapes->Get_Type(), sName, pShapes);
+			pShape	->Add_Shape(pShapes->Get_Shape(iShape));
 			pShape	->Save(sFile);
 
 			delete(pShape);

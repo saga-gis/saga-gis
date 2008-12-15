@@ -70,10 +70,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Shape::CSG_Shape(CSG_Shapes *pOwner, CSG_Table_Record *pRecord)
+CSG_Shape::CSG_Shape(CSG_Shapes *pOwner, int Index)
+	: CSG_Table_Record(pOwner, Index)
 {
-	m_pOwner	= pOwner;
-	m_pRecord	= pRecord;
 }
 
 //---------------------------------------------------------
@@ -91,9 +90,7 @@ CSG_Shape::~CSG_Shape(void)
 
 //---------------------------------------------------------
 void CSG_Shape::Destroy(void)
-{
-	m_pRecord	= NULL;
-}
+{}
 
 
 ///////////////////////////////////////////////////////////
@@ -105,7 +102,7 @@ void CSG_Shape::Destroy(void)
 //---------------------------------------------------------
 TSG_Shape_Type CSG_Shape::Get_Type(void)
 {
-	return( m_pOwner->Get_Type() );
+	return( ((CSG_Shapes *)m_pTable)->Get_Type() );
 }
 
 //---------------------------------------------------------
@@ -156,7 +153,7 @@ int CSG_Shape::Set_Point(TSG_Point Point, int iPoint, int iPart)
 //---------------------------------------------------------
 inline void CSG_Shape::_Invalidate(void)
 {
-	m_pOwner->_Invalidate();
+	((CSG_Shapes *)m_pTable)->Set_Update_Flag();
 }
 
 
@@ -199,7 +196,7 @@ bool CSG_Shape::Assign(CSG_Shape *pShape, bool bAssign_Attributes)
 	{
 		if( bAssign_Attributes )
 		{
-			m_pRecord->Assign(pShape->Get_Record());
+			CSG_Table_Record::Assign(pShape);
 		}
  
 		return( true );

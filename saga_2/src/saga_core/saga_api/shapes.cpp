@@ -124,14 +124,14 @@ CSG_Shapes *		SG_Create_Shapes(TSG_Shape_Type Type, const SG_Char *Name, CSG_Tab
 
 //---------------------------------------------------------
 CSG_Shapes::CSG_Shapes(void)
-	: CSG_Data_Object()
+	: CSG_Table()
 {
 	_On_Construction();
 }
 
 //---------------------------------------------------------
 CSG_Shapes::CSG_Shapes(const CSG_Shapes &Shapes)
-	: CSG_Data_Object()
+	: CSG_Table()
 {
 	_On_Construction();
 
@@ -140,7 +140,7 @@ CSG_Shapes::CSG_Shapes(const CSG_Shapes &Shapes)
 
 //---------------------------------------------------------
 CSG_Shapes::CSG_Shapes(const SG_Char *File_Name)
-	: CSG_Data_Object()
+	: CSG_Table()
 {
 	_On_Construction();
 
@@ -149,7 +149,7 @@ CSG_Shapes::CSG_Shapes(const SG_Char *File_Name)
 
 //---------------------------------------------------------
 CSG_Shapes::CSG_Shapes(TSG_Shape_Type Type, const SG_Char *Name, CSG_Table *pStructure)
-	: CSG_Data_Object()
+	: CSG_Table()
 {
 	_On_Construction();
 
@@ -166,15 +166,9 @@ CSG_Shapes::CSG_Shapes(TSG_Shape_Type Type, const SG_Char *Name, CSG_Table *pStr
 //---------------------------------------------------------
 void CSG_Shapes::_On_Construction(void)
 {
-	m_Type				= SHAPE_TYPE_Undefined;
+	CSG_Table::_On_Construction();
 
-	m_Shapes			= NULL;
-	m_nShapes			= 0;
-	m_nBuffer			= 0;
-
-	m_bUpdate			= true;
-
-	m_Table.m_pOwner	= this;
+	m_Type	= SHAPE_TYPE_Undefined;
 }
 
 
@@ -199,14 +193,6 @@ bool CSG_Shapes::Create(const SG_Char *File_Name)
 
 	if( _Load_ESRI(File_Name) )
 	{
-		if( Get_Count() < m_Table.Get_Record_Count() )
-		{
-			for(iShape=m_Table.Get_Record_Count()-1; iShape >= Get_Count(); iShape--)
-			{
-				m_Table._Del_Record(iShape);
-			}
-		}
-
 		for(iShape=Get_Count()-1; iShape >= 0; iShape--)
 		{
 			if( !Get_Shape(iShape)->is_Valid() )
@@ -235,8 +221,7 @@ bool CSG_Shapes::Create(TSG_Shape_Type Type, const SG_Char *Name, CSG_Table *pSt
 {
 	Destroy();
 
-	m_Table._Create(pStructure);
-	m_Table.Set_Name(Name);
+	_Create(pStructure);
 
 	Set_Name(Name);
 
@@ -261,24 +246,7 @@ CSG_Shapes::~CSG_Shapes(void)
 //---------------------------------------------------------
 bool CSG_Shapes::Destroy(void)
 {
-	if( m_Shapes )
-	{
-		for(int i=0; i<m_nShapes; i++)
-		{
-			delete(m_Shapes[i]);
-		}
-
-		SG_Free(m_Shapes);
-		m_Shapes	= NULL;
-		m_nShapes	= 0;
-		m_nBuffer	= 0;
-	}
-
-	m_Table._Destroy();
-
-	CSG_Data_Object::Destroy();
-
-	return( true );
+	return( CSG_Table::Destroy() );
 }
 
 
@@ -300,7 +268,7 @@ bool CSG_Shapes::Assign(CSG_Data_Object *pObject)
 	{
 		pShapes	= (CSG_Shapes *)pObject;
 
-		Create(pShapes->Get_Type(), pShapes->Get_Name(), &pShapes->Get_Table());
+		Create(pShapes->Get_Type(), pShapes->Get_Name(), pShapes);
 
 		for(iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
@@ -310,7 +278,7 @@ bool CSG_Shapes::Assign(CSG_Data_Object *pObject)
 
 		SG_UI_Process_Set_Ready();
 
-		_Update_Extent();
+		Update();
 
 		Get_History().Assign(pObject->Get_History());
 
@@ -360,166 +328,48 @@ bool CSG_Shapes::Save(const SG_Char *File_Name, int Format)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_GROW_SIZE(n)	(n < 256 ? 1 : (n < 8192 ? 128 : 1024))
-
-//---------------------------------------------------------
-bool CSG_Shapes::_Inc_Array(void)
+CSG_Table_Record * CSG_Shapes::_Get_New_Record(int Index)
 {
-	if( m_nShapes >= m_nBuffer )
+	switch( m_Type )
 	{
-		CSG_Shape	**pShapes	= (CSG_Shape **)SG_Realloc(m_Shapes, (m_nBuffer + GET_GROW_SIZE(m_nBuffer)) * sizeof(CSG_Shape *));
-
-		if( pShapes )
-		{
-			m_Shapes	= pShapes;
-			m_nBuffer	+= GET_GROW_SIZE(m_nBuffer);
-		}
-		else
-		{
-			return( false );
-		}
+	case SHAPE_TYPE_Point:		return( new CSG_Shape_Point		(this, Index) );
+	case SHAPE_TYPE_Points:		return( new CSG_Shape_Points	(this, Index) );
+	case SHAPE_TYPE_Line:		return( new CSG_Shape_Line		(this, Index) );
+	case SHAPE_TYPE_Polygon:	return( new CSG_Shape_Polygon	(this, Index) );
+	default:					return( NULL );
 	}
-
-	return( true );
 }
 
 //---------------------------------------------------------
-bool CSG_Shapes::_Dec_Array(void)
+CSG_Shape * CSG_Shapes::Add_Shape(CSG_Table_Record *pCopy, TSG_ADD_Shape_Copy_Mode mCopy)
 {
-	if( m_nShapes >= 0 && m_nShapes < m_nBuffer - GET_GROW_SIZE(m_nBuffer) )
+	CSG_Shape	*pShape	= (CSG_Shape *)Add_Record(mCopy == SHAPE_COPY || mCopy == SHAPE_COPY_ATTR ? pCopy : NULL);
+
+	if( pShape && pCopy && (mCopy == SHAPE_COPY || mCopy == SHAPE_COPY_GEOM)
+	&&	pCopy->Get_Table()->Get_ObjectType() == DATAOBJECT_TYPE_Shapes
+	&&	((CSG_Shape *)pCopy)->Get_Type() == Get_Type() )
 	{
-		CSG_Shape	**pShapes	= (CSG_Shape **)SG_Realloc(m_Shapes, (m_nBuffer - GET_GROW_SIZE(m_nBuffer)) * sizeof(CSG_Shape *));
-
-		if( pShapes )
+		for(int iPart=0; iPart<((CSG_Shape *)pCopy)->Get_Part_Count(); iPart++)
 		{
-			m_Shapes	= pShapes;
-			m_nBuffer	-= GET_GROW_SIZE(m_nBuffer);
+			for(int iPoint=0; iPoint<((CSG_Shape *)pCopy)->Get_Point_Count(iPart); iPoint++)
+			{
+				pShape->Add_Point(((CSG_Shape *)pCopy)->Get_Point(iPoint, iPart), iPart);
+			}
 		}
-		else
-		{
-			return( false );
-		}
-	}
-
-	return( true );
-}
-
-//---------------------------------------------------------
-CSG_Shape * CSG_Shapes::_Add_Shape(CSG_Table_Record *pRecord)
-{
-	CSG_Shape	*pShape	= NULL;
-
-	if( pRecord && _Inc_Array() )
-	{
-		switch( m_Type )
-		{
-	    default:	return( NULL );
-
-		case SHAPE_TYPE_Point:		pShape	= new CSG_Shape_Point	(this, pRecord);	break;
-		case SHAPE_TYPE_Points:		pShape	= new CSG_Shape_Points	(this, pRecord);	break;
-		case SHAPE_TYPE_Line:		pShape	= new CSG_Shape_Line	(this, pRecord);	break;
-		case SHAPE_TYPE_Polygon:	pShape	= new CSG_Shape_Polygon	(this, pRecord);	break;
-		}
-
-		m_Shapes[m_nShapes++]	= pShape;
-		m_bUpdate				= true;
-
-		Set_Modified();
 	}
 
 	return( pShape );
 }
 
 //---------------------------------------------------------
-CSG_Shape * CSG_Shapes::Add_Shape(void)
-{
-	if( m_Type != SHAPE_TYPE_Undefined )
-	{
-		return( _Add_Shape(m_Table._Add_Record(NULL)) );
-	}
-
-	return( NULL );
-}
-
-CSG_Shape * CSG_Shapes::Add_Shape(CSG_Table_Record *pValues)
-{
-	if( m_Type != SHAPE_TYPE_Undefined )
-	{
-		return( _Add_Shape(m_Table._Add_Record(pValues)) );
-	}
-
-	return( NULL );
-}
-
-CSG_Shape * CSG_Shapes::Add_Shape(CSG_Shape *pShape, bool bCopyAttributes)
-{
-	if( pShape && pShape->Get_Type() == m_Type )
-	{
-		CSG_Shape	*_pShape;
-
-		if( (_pShape = _Add_Shape(m_Table._Add_Record(bCopyAttributes ? pShape->Get_Record() : NULL))) != NULL )
-		{
-			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
-			{
-				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
-				{
-					_pShape->Add_Point(pShape->Get_Point(iPoint, iPart), iPart);
-				}
-			}
-
-			return( _pShape );
-		}
-	}
-
-	return( NULL );
-}
-
-//---------------------------------------------------------
 bool CSG_Shapes::Del_Shape(CSG_Shape *pShape)
 {
-	return( Del_Shape(pShape->Get_Record()->Get_Index()) );
+	return( Del_Record(pShape->Get_Index()) );
 }
 
 bool CSG_Shapes::Del_Shape(int iShape)
 {
-	if( iShape >= 0 && iShape < m_nShapes )
-	{
-		if( m_Shapes[iShape]->is_Selected() )
-		{
-			Select(m_Shapes[iShape], true);
-		}
-
-		delete(m_Shapes[iShape]);
-
-		m_nShapes--;
-
-		for(int i=iShape; i<m_nShapes; i++)
-		{
-			m_Shapes[i]	= m_Shapes[i + 1];
-		}
-
-		_Dec_Array();
-
-		m_Table._Del_Record(iShape);
-
-		m_bUpdate	= true;
-
-		Set_Modified();
-
-		return( true );
-	}
-
-	return( false );
-}
-
-bool CSG_Shapes::Del_Shapes(void)
-{
-	for(int i=m_nShapes; i>=0; i--)
-	{
-		Del_Shape(i);
-	}
-
-	return( m_nShapes == 0 );
+	return( Del_Record(iShape) );
 }
 
 
@@ -530,27 +380,22 @@ bool CSG_Shapes::Del_Shapes(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Shapes::_Update_Extent(void)
+void CSG_Shapes::On_Update(void)
 {
-	int		i;
+	CSG_Table::On_Update();
 
-	if( m_bUpdate )
+	if( Get_Count() > 0 )
 	{
-		if( m_nShapes > 0 )
-		{
-			m_Extent	= m_Shapes[0]->Get_Extent();
+		m_Extent	= Get_Shape(0)->Get_Extent();
 
-			for(i=1; i<m_nShapes; i++)
-			{
-				m_Extent.Union(m_Shapes[i]->Get_Extent());
-			}
-		}
-		else
+		for(int i=1; i<Get_Count(); i++)
 		{
-			m_Extent.Assign(0.0, 0.0, 0.0, 0.0);
+			m_Extent.Union(Get_Shape(i)->Get_Extent());
 		}
-
-		m_bUpdate	= false;
+	}
+	else
+	{
+		m_Extent.Assign(0.0, 0.0, 0.0, 0.0);
 	}
 }
 
@@ -573,9 +418,9 @@ CSG_Shape * CSG_Shapes::Get_Shape(TSG_Point Point, double Epsilon)
 
 	if( r.Intersects(Get_Extent()) != INTERSECTION_None )
 	{
-		for(iShape=0, dNearest=-1.0; iShape<m_nShapes; iShape++)
+		for(iShape=0, dNearest=-1.0; iShape<Get_Count(); iShape++)
 		{
-			pShape	= m_Shapes[iShape];
+			pShape	= Get_Shape(iShape);
 
 			if( pShape->Intersects(r) )
 			{
@@ -601,12 +446,6 @@ CSG_Shape * CSG_Shapes::Get_Shape(TSG_Point Point, double Epsilon)
 	}
 
 	return( pNearest );
-}
-
-//---------------------------------------------------------
-bool CSG_Shapes::Set_Index(int Field_1, TSG_Table_Index_Order Order_1, int Field_2, TSG_Table_Index_Order Order_2, int Field_3, TSG_Table_Index_Order Order_3)
-{
-	return( m_Table.Set_Index(Field_1, Order_1, Field_2, Order_2, Field_3, Order_3) );
 }
 
 

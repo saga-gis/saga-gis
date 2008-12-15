@@ -422,7 +422,7 @@ bool CPROJ4_Grid::Set_Shapes(CSG_Grid *pSource, CSG_Shapes *pTarget)
 	if( pSource && pTarget )
 	{
 		pTarget->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), pSource->Get_Name(), Get_Proj_Name().c_str()));
-		pTarget->Get_Table().Add_Field("Z", TABLE_FIELDTYPE_Double);
+		pTarget->Add_Field("Z", TABLE_FIELDTYPE_Double);
 
 		for(y=0, Pt_Source.y=pSource->Get_YMin(); y<pSource->Get_NY() && Set_Progress(y, pSource->Get_NY()); y++, Pt_Source.y+=pSource->Get_Cellsize())
 		{

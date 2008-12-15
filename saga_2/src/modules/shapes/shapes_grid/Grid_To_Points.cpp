@@ -144,13 +144,13 @@ bool CGrid_To_Points::On_Execute(void)
 	{
 		pPoints->Create(SHAPE_TYPE_Point, _TL("Points from Grid(s)"));
 
-		pPoints->Get_Table().Add_Field("ID"	, TABLE_FIELDTYPE_Int);
-		pPoints->Get_Table().Add_Field("X"	, TABLE_FIELDTYPE_Double);
-		pPoints->Get_Table().Add_Field("Y"	, TABLE_FIELDTYPE_Double);
+		pPoints->Add_Field("ID"	, TABLE_FIELDTYPE_Int);
+		pPoints->Add_Field("X"	, TABLE_FIELDTYPE_Double);
+		pPoints->Add_Field("Y"	, TABLE_FIELDTYPE_Double);
 
 		for(iGrid=0; iGrid<pGrids->Get_Count(); iGrid++)
 		{
-			pPoints->Get_Table().Add_Field(pGrids->asGrid(iGrid)->Get_Name(), TABLE_FIELDTYPE_Double);
+			pPoints->Add_Field(pGrids->asGrid(iGrid)->Get_Name(), TABLE_FIELDTYPE_Double);
 		}
 
 		//-------------------------------------------------
@@ -164,15 +164,15 @@ bool CGrid_To_Points::On_Execute(void)
 					pPoint	= pPoints->Add_Shape();
 					pPoint->Add_Point(xPos, yPos);
 
-					pPoint->Get_Record()->Set_Value(0, ++iPoint);
-					pPoint->Get_Record()->Set_Value(1, xPos);
-					pPoint->Get_Record()->Set_Value(2, yPos);
+					pPoint->Set_Value(0, ++iPoint);
+					pPoint->Set_Value(1, xPos);
+					pPoint->Set_Value(2, yPos);
 
 					for(iGrid=0; iGrid<pGrids->Get_Count(); iGrid++)
 					{
 						pGrid	= pGrids->asGrid(iGrid);
 
-						pPoint->Get_Record()->Set_Value(iGrid + 3, pGrid->is_NoData(x, y) ? -99999 : pGrid->asDouble(x, y, bZFactor));
+						pPoint->Set_Value(iGrid + 3, pGrid->is_NoData(x, y) ? -99999 : pGrid->asDouble(x, y, bZFactor));
 					}
 				}
 			}

@@ -198,7 +198,7 @@ bool CGridding_Spline_Base::_Get_Points(CSG_Points_3D &Points, bool bInGridOnly)
 		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
 			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
-			double		zValue	= pShape->Get_Record()->asDouble(zField);
+			double		zValue	= pShape->asDouble(zField);
 
 			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{

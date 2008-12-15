@@ -114,16 +114,16 @@ bool CAtlas_BNA_Import::On_Execute(void)
 	if( (Stream = fopen(FileName.b_str(), "r")) != NULL )
 	{
 		pPoints		= SG_Create_Shapes(SHAPE_TYPE_Point  , SG_File_Get_Name(FileName, true));
-		pPoints		->Get_Table().Add_Field("NAME1"	, TABLE_FIELDTYPE_String);
-		pPoints		->Get_Table().Add_Field("NAME2"	, TABLE_FIELDTYPE_String);
+		pPoints		->Add_Field("NAME1"	, TABLE_FIELDTYPE_String);
+		pPoints		->Add_Field("NAME2"	, TABLE_FIELDTYPE_String);
 
 		pLines		= SG_Create_Shapes(SHAPE_TYPE_Line   , SG_File_Get_Name(FileName, true));
-		pLines		->Get_Table().Add_Field("NAME1"	, TABLE_FIELDTYPE_String);
-		pLines		->Get_Table().Add_Field("NAME2"	, TABLE_FIELDTYPE_String);
+		pLines		->Add_Field("NAME1"	, TABLE_FIELDTYPE_String);
+		pLines		->Add_Field("NAME2"	, TABLE_FIELDTYPE_String);
 
 		pPolygons	= SG_Create_Shapes(SHAPE_TYPE_Polygon, SG_File_Get_Name(FileName, true));
-		pPolygons	->Get_Table().Add_Field("NAME1"	, TABLE_FIELDTYPE_String);
-		pPolygons	->Get_Table().Add_Field("NAME2"	, TABLE_FIELDTYPE_String);
+		pPolygons	->Add_Field("NAME1"	, TABLE_FIELDTYPE_String);
+		pPolygons	->Add_Field("NAME2"	, TABLE_FIELDTYPE_String);
 
 		//-------------------------------------------------
 		bOk		= true;
@@ -156,8 +156,8 @@ bool CAtlas_BNA_Import::On_Execute(void)
 
 			if( bOk )
 			{
-				pShape->Get_Record()->Set_Value(0, sName1);
-				pShape->Get_Record()->Set_Value(1, sName2);
+				pShape->Set_Value(0, sName1);
+				pShape->Set_Value(1, sName2);
 
 				for(iPoint=0; iPoint<nPoints && bOk; iPoint++)
 				{
@@ -300,8 +300,8 @@ bool CAtlas_BNA_Export::On_Execute(void)
 			//---------------------------------------------
 			case SHAPE_TYPE_Point:
 				fprintf(Stream, "\"%s\",\"%s\",%d\n",
-					pShape->Get_Record()->asString(iName1),
-					pShape->Get_Record()->asString(iName2),
+					pShape->asString(iName1),
+					pShape->asString(iName2),
 					1
 				);
 
@@ -314,8 +314,8 @@ bool CAtlas_BNA_Export::On_Execute(void)
 				for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 				{
 					fprintf(Stream, "\"%s\",\"%s\",%d\n",
-						pShape->Get_Record()->asString(iName1),
-						pShape->Get_Record()->asString(iName2),
+						pShape->asString(iName1),
+						pShape->asString(iName2),
 						-pShape->Get_Point_Count(iPart)
 					);
 
@@ -349,8 +349,8 @@ bool CAtlas_BNA_Export::On_Execute(void)
 					if( Pts.Get_Count() > 2 )
 					{
 						fprintf(Stream, "\"%s\",\"%s\",%d\n",
-							pShape->Get_Record()->asString(iName1),
-							pShape->Get_Record()->asString(iName2),
+							pShape->asString(iName1),
+							pShape->asString(iName2),
 							Pts.Get_Count()
 						);
 

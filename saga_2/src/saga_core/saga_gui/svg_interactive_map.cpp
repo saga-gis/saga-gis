@@ -467,7 +467,7 @@ void CSVG_Interactive_Map::_Add_Shapes(CWKSP_Shapes *pLayer)
 	for (i = 0; i < ((CSG_Shapes*)pLayer->Get_Object())->Get_Count(); i++)
 	{
 		pShape = pLayer->Get_Shapes()->Get_Shape(i);
-		Line_Color = Fill_Color = pLayer->Get_Classifier()->Get_Class_Color_byValue(pShape->Get_Record()->asDouble(iColorField));
+		Line_Color = Fill_Color = pLayer->Get_Classifier()->Get_Class_Color_byValue(pShape->asDouble(iColorField));
 		Line_Width = Point_Width = m_dWidth / MAP_WINDOW_WIDTH;
 		Point_Width *= 5;
 		_Add_Shape(pShape, Fill_Color, Line_Color, Line_Width, Point_Width);
@@ -480,7 +480,7 @@ void CSVG_Interactive_Map::_Add_Shapes(CWKSP_Shapes *pLayer)
 		{
 			pShape = pLayer->Get_Shapes()->Get_Shape(i);
 			Line_Width = Point_Width = m_dWidth / MAP_WINDOW_WIDTH;
-			sLabel = (pShape)->Get_Record()->asString(pLayer->Get_Label_Field());
+			sLabel = pShape->asString(pLayer->Get_Label_Field());
 			switch( pLayer->Get_Parameters()->Get_Parameter(wxT("LABEL_ATTRIB_SIZE_TYPE"))->asInt() )
 			{
 				case 0:	default:

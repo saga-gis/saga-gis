@@ -149,8 +149,8 @@ bool CGrid_To_Contour::On_Execute(void)
 
 		pLayer->Create(SHAPE_TYPE_Line, pGrid->Get_Name());
 
-		pLayer->Get_Table().Add_Field("ID", TABLE_FIELDTYPE_Int);
-		pLayer->Get_Table().Add_Field(pGrid->Get_Name(), TABLE_FIELDTYPE_Double);
+		pLayer->Add_Field("ID", TABLE_FIELDTYPE_Int);
+		pLayer->Add_Field(pGrid->Get_Name(), TABLE_FIELDTYPE_Double);
 
 		Contour_Create(zMin, zMax, zStep);
 
@@ -256,8 +256,8 @@ void CGrid_To_Contour::Contour_Find(int x, int y, double z, bool doRow, int ID)
 
 	CSG_Shape	*pShape	= pLayer->Add_Shape();
 
-	pShape->Get_Record()->Set_Value(0, ID);
-	pShape->Get_Record()->Set_Value(1, z);
+	pShape->Set_Value(0, ID);
+	pShape->Set_Value(1, z);
 
 	do
 	{

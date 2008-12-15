@@ -353,15 +353,11 @@ bool CVIEW_Table_Control::Del_Record(void)
 			}
 			while( Records.GetCount() > 0 );
 
-			if( m_pTable->is_Private() )
-			{
-				((CSG_Shapes *)m_pTable->Get_Owner())->Del_Selection();
-
-				g_pData->Update_Views(m_pTable->Get_Owner());
-			}
-			else
+			if( !m_pTable->is_Private() )
 			{
 				m_pTable->Del_Selection();
+
+				g_pData->Update_Views(m_pTable);
 			}
 
 			return( true );

@@ -182,8 +182,8 @@ bool CGrid_Swath_Profile::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Inte
 		{
 			m_bAdd	= true;
 			m_pLine->Create(SHAPE_TYPE_Line, CSG_String::Format(SG_T("Profile [%s]"), m_pDEM->Get_Name()));
-			m_pLine->Get_Table().Add_Field("ID"	, TABLE_FIELDTYPE_Int);
-			m_pLine->Add_Shape()->Get_Record()->Set_Value(0, 1);
+			m_pLine->Add_Field("ID"	, TABLE_FIELDTYPE_Int);
+			m_pLine->Add_Shape()->Set_Value(0, 1);
 		}
 
 		m_pLine->Get_Shape(0)->Add_Point(Get_System()->Fit_to_Grid_System(ptWorld));
@@ -218,25 +218,25 @@ bool CGrid_Swath_Profile::Set_Profile(void)
 	//-----------------------------------------------------
 	m_pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("Profile [%s]"), m_pDEM->Get_Name()));
 
-	m_pPoints->Get_Table().Add_Field("ID"			, TABLE_FIELDTYPE_Int);
-	m_pPoints->Get_Table().Add_Field("D"			, TABLE_FIELDTYPE_Double);
-	m_pPoints->Get_Table().Add_Field("X"			, TABLE_FIELDTYPE_Double);
-	m_pPoints->Get_Table().Add_Field("Y"			, TABLE_FIELDTYPE_Double);
-	m_pPoints->Get_Table().Add_Field("Z"			, TABLE_FIELDTYPE_Double);
-	m_pPoints->Get_Table().Add_Field(_TL("Z [mean]")		, TABLE_FIELDTYPE_Double);
-	m_pPoints->Get_Table().Add_Field(_TL("Z [min]")		, TABLE_FIELDTYPE_Double);
-	m_pPoints->Get_Table().Add_Field(_TL("Z [max]")		, TABLE_FIELDTYPE_Double);
-	m_pPoints->Get_Table().Add_Field(_TL("Z [min_sd]")	, TABLE_FIELDTYPE_Double);
-	m_pPoints->Get_Table().Add_Field(_TL("Z [max_sd]")	, TABLE_FIELDTYPE_Double);
+	m_pPoints->Add_Field("ID"			, TABLE_FIELDTYPE_Int);
+	m_pPoints->Add_Field("D"			, TABLE_FIELDTYPE_Double);
+	m_pPoints->Add_Field("X"			, TABLE_FIELDTYPE_Double);
+	m_pPoints->Add_Field("Y"			, TABLE_FIELDTYPE_Double);
+	m_pPoints->Add_Field("Z"			, TABLE_FIELDTYPE_Double);
+	m_pPoints->Add_Field(_TL("Z [mean]")		, TABLE_FIELDTYPE_Double);
+	m_pPoints->Add_Field(_TL("Z [min]")		, TABLE_FIELDTYPE_Double);
+	m_pPoints->Add_Field(_TL("Z [max]")		, TABLE_FIELDTYPE_Double);
+	m_pPoints->Add_Field(_TL("Z [min_sd]")	, TABLE_FIELDTYPE_Double);
+	m_pPoints->Add_Field(_TL("Z [max_sd]")	, TABLE_FIELDTYPE_Double);
 
 	for(i=0; i<m_pValues->Get_Count(); i++)
 	{
-		m_pPoints->Get_Table().Add_Field(m_pValues->asGrid(i)->Get_Name(), TABLE_FIELDTYPE_Double);
-		m_pPoints->Get_Table().Add_Field(CSG_String::Format(_TL("%s [mean]")	, m_pValues->asGrid(i)->Get_Name()), TABLE_FIELDTYPE_Double);
-		m_pPoints->Get_Table().Add_Field(CSG_String::Format(_TL("%s [min]"	)	, m_pValues->asGrid(i)->Get_Name()), TABLE_FIELDTYPE_Double);
-		m_pPoints->Get_Table().Add_Field(CSG_String::Format(_TL("%s [max]"	)	, m_pValues->asGrid(i)->Get_Name()), TABLE_FIELDTYPE_Double);
-		m_pPoints->Get_Table().Add_Field(CSG_String::Format(_TL("%s [min_sd]")	, m_pValues->asGrid(i)->Get_Name()), TABLE_FIELDTYPE_Double);
-		m_pPoints->Get_Table().Add_Field(CSG_String::Format(_TL("%s [max_sd]")	, m_pValues->asGrid(i)->Get_Name()), TABLE_FIELDTYPE_Double);
+		m_pPoints->Add_Field(m_pValues->asGrid(i)->Get_Name(), TABLE_FIELDTYPE_Double);
+		m_pPoints->Add_Field(CSG_String::Format(_TL("%s [mean]")	, m_pValues->asGrid(i)->Get_Name()), TABLE_FIELDTYPE_Double);
+		m_pPoints->Add_Field(CSG_String::Format(_TL("%s [min]"	)	, m_pValues->asGrid(i)->Get_Name()), TABLE_FIELDTYPE_Double);
+		m_pPoints->Add_Field(CSG_String::Format(_TL("%s [max]"	)	, m_pValues->asGrid(i)->Get_Name()), TABLE_FIELDTYPE_Double);
+		m_pPoints->Add_Field(CSG_String::Format(_TL("%s [min_sd]")	, m_pValues->asGrid(i)->Get_Name()), TABLE_FIELDTYPE_Double);
+		m_pPoints->Add_Field(CSG_String::Format(_TL("%s [max_sd]")	, m_pValues->asGrid(i)->Get_Name()), TABLE_FIELDTYPE_Double);
 	}
 
 	//-----------------------------------------------------
@@ -378,24 +378,24 @@ bool CGrid_Swath_Profile::Add_Point(CSG_Point Point, CSG_Point Left, CSG_Point R
 				return( false );
 			}
 
-			Distance	+= pLast->Get_Record()->asDouble(1);
+			Distance	+= pLast->asDouble(1);
 		}
 
 		pPoint	= m_pPoints->Add_Shape();
 		pPoint->Add_Point(Point);
 
-		pPoint->Get_Record()->Set_Value(0, m_pPoints->Get_Count());
-		pPoint->Get_Record()->Set_Value(1, Distance);
-		pPoint->Get_Record()->Set_Value(2, Point.Get_X());
-		pPoint->Get_Record()->Set_Value(3, Point.Get_Y());
+		pPoint->Set_Value(0, m_pPoints->Get_Count());
+		pPoint->Set_Value(1, Distance);
+		pPoint->Set_Value(2, Point.Get_X());
+		pPoint->Set_Value(3, Point.Get_Y());
 
-		pPoint->Get_Record()->Set_Value(4, m_pDEM->Get_Value(Point, GRID_INTERPOLATION_BSpline, true));
-		Add_Swath(pPoint->Get_Record(), 4, m_pDEM, Left, Right, Step);
+		pPoint->Set_Value(4, m_pDEM->Get_Value(Point, GRID_INTERPOLATION_BSpline, true));
+		Add_Swath(pPoint, 4, m_pDEM, Left, Right, Step);
 
 		for(i=0, j=VALUE_OFFSET; i<m_pValues->Get_Count(); i++, j+=6)
 		{
-			pPoint->Get_Record()->Set_Value(j, m_pValues->asGrid(i)->Get_Value(Point, GRID_INTERPOLATION_BSpline, true));
-			Add_Swath(pPoint->Get_Record(), j, m_pValues->asGrid(i), Left, Right, Step);
+			pPoint->Set_Value(j, m_pValues->asGrid(i)->Get_Value(Point, GRID_INTERPOLATION_BSpline, true));
+			Add_Swath(pPoint, j, m_pValues->asGrid(i), Left, Right, Step);
 		}
 
 		return( true );

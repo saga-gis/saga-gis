@@ -138,7 +138,7 @@ bool CShapes_Extents::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	pExtents->Create(SHAPE_TYPE_Polygon, pShapes->Get_Name(), &pShapes->Get_Table());
+	pExtents->Create(SHAPE_TYPE_Polygon, pShapes->Get_Name(), pShapes);
 
 	for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 	{
@@ -150,7 +150,7 @@ bool CShapes_Extents::On_Execute(void)
 			{
 				r		= pShape->Get_Extent(iPart);
 
-				pExtent	= pExtents->Add_Shape(pShape->Get_Record());
+				pExtent	= pExtents->Add_Shape(pShape, SHAPE_COPY_ATTR);
 
 				pExtent->Add_Point(r.xMin, r.yMin);
 				pExtent->Add_Point(r.xMin, r.yMax);
@@ -162,7 +162,7 @@ bool CShapes_Extents::On_Execute(void)
 		{
 			r		= pShape->Get_Extent();
 
-			pExtent	= pExtents->Add_Shape(pShape->Get_Record());
+			pExtent	= pExtents->Add_Shape(pShape, SHAPE_COPY_ATTR);
 
 			pExtent->Add_Point(r.xMin, r.yMin);
 			pExtent->Add_Point(r.xMin, r.yMax);

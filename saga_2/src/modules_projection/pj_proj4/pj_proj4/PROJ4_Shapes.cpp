@@ -205,12 +205,12 @@ bool CPROJ4_Shapes::_Get_Conversion(CSG_Shapes *pSource, CSG_Shapes *pTarget)
 
 		Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), _TL("Processing"), pSource->Get_Name()));
 
-		pTarget->Create(pSource->Get_Type(), CSG_String::Format(SG_T("%s [%s]"), pSource->Get_Name(), Get_Proj_Name().c_str()), &pSource->Get_Table());
+		pTarget->Create(pSource->Get_Type(), CSG_String::Format(SG_T("%s [%s]"), pSource->Get_Name(), Get_Proj_Name().c_str()), pSource);
 
 		for(int iShape=0; iShape<pSource->Get_Count() && Set_Progress(iShape, pSource->Get_Count()); iShape++)
 		{
 			CSG_Shape	*pShape_Source	= pSource->Get_Shape(iShape);
-			CSG_Shape	*pShape_Target	= pTarget->Add_Shape(pShape_Source->Get_Record());
+			CSG_Shape	*pShape_Target	= pTarget->Add_Shape(pShape_Source, SHAPE_COPY_ATTR);
 
 			bool	bDropped	= false;
 

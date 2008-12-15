@@ -146,14 +146,14 @@ bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &z)
 
 			if( d <= 0.0 )
 			{
-				z	= pPoint->Get_Record()->asDouble(m_zField);
+				z	= pPoint->asDouble(m_zField);
 
 				return( true );
 			}
 
 			d	= pow(d, -m_Power);
 
-			z	+= d * pPoint->Get_Record()->asDouble(m_zField);
+			z	+= d * pPoint->asDouble(m_zField);
 			ds	+= d;
 		}
 	}

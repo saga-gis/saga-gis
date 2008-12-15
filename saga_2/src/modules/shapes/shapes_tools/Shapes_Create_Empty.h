@@ -76,14 +76,22 @@ class CShapes_Create_Empty : public CSG_Module
 {
 public:
 	CShapes_Create_Empty(void);
-	virtual ~CShapes_Create_Empty(void);
 
-	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Construction") );	}
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("A:Shapes|Construction") );	}
 
 
 protected:
 
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
 	virtual bool				On_Execute				(void);
+
+
+private:
+
+	static CSG_String			m_Types;
+
+	void						_Set_Field_Count		(CSG_Parameters *pAttributes, int nAttributes);
 
 };
 

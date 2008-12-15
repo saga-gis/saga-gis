@@ -134,6 +134,12 @@ void CWKSP_Shapes_Polygon::On_Create_Parameters(void)
 		LNG(""),
 		PARAMETER_TYPE_Bool, false
 	);
+
+	m_Parameters.Add_Value(
+		m_Parameters("NODE_SELECTION")	, "EDIT_SEL_COLOR_FILL"		, LNG("[CAP] Fill Color"),
+		LNG(""),
+		PARAMETER_TYPE_Color, SG_GET_RGB(255, 255, 0)
+	);
 }
 
 
@@ -198,7 +204,7 @@ bool CWKSP_Shapes_Polygon::Get_Style(wxPen &Pen, wxBrush &Brush, bool &bOutline,
 		}
 		else
 		{
-			pName->Printf(m_pShapes->Get_Table().Get_Field_Name(m_iColor));
+			pName->Printf(m_pShapes->Get_Field_Name(m_iColor));
 		}
 	}
 
@@ -217,6 +223,8 @@ void CWKSP_Shapes_Polygon::_Draw_Initialize(CWKSP_Map_DC &dc_Map)
 {
 	dc_Map.dc.SetBrush(m_Brush);
 	dc_Map.dc.SetPen(m_Pen);
+
+	m_Sel_Color_Fill	= Get_Color_asWX(m_Parameters("EDIT_SEL_COLOR_FILL")->asInt());
 }
 
 //---------------------------------------------------------
@@ -225,8 +233,8 @@ void CWKSP_Shapes_Polygon::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, 
 	//-----------------------------------------------------
 	if( bSelection )
 	{
-		dc_Map.dc.SetBrush(wxBrush(wxColour(255, 255, 0), wxSOLID));
-		dc_Map.dc.SetPen(wxPen(wxColour(255, 0, 0), pShape == m_pShapes->Get_Selection(0) ? 2 : 1, wxSOLID));
+		dc_Map.dc.SetBrush(wxBrush(m_Sel_Color_Fill, wxSOLID));
+		dc_Map.dc.SetPen(wxPen(m_Sel_Color, pShape == m_pShapes->Get_Selection(0) ? 2 : 1, wxSOLID));
 
 		dc_Map.Draw_Polygon((CSG_Shape_Polygon *)pShape);
 
@@ -235,7 +243,7 @@ void CWKSP_Shapes_Polygon::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, 
 	}
 	else if( m_iColor >= 0 )
 	{
-		int		Color	= m_pClassify->Get_Class_Color_byValue(pShape->Get_Record()->asDouble(m_iColor));
+		int		Color	= m_pClassify->Get_Class_Color_byValue(pShape->asDouble(m_iColor));
 
 		m_Brush.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
 		dc_Map.dc.SetBrush(m_Brush);
@@ -275,7 +283,7 @@ void CWKSP_Shapes_Polygon::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 		p.x	= dc_Map.xWorld2DC(p.x);
 		p.y	= dc_Map.yWorld2DC(p.y);
 
-		Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, (int)p.x, (int)p.y, pShape->Get_Record()->asString(m_iLabel, -2));
+		Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, (int)p.x, (int)p.y, pShape->asString(m_iLabel, -2));
 	}
 	else
 	{
@@ -287,7 +295,7 @@ void CWKSP_Shapes_Polygon::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 				p.x	= dc_Map.xWorld2DC(p.x);
 				p.y	= dc_Map.yWorld2DC(p.y);
 
-				Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, (int)p.x, (int)p.y, pShape->Get_Record()->asString(m_iLabel, -2));
+				Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, (int)p.x, (int)p.y, pShape->asString(m_iLabel, -2));
 			}
 		}
 	}
@@ -349,7 +357,7 @@ void CWKSP_Shapes_Polygon::_Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
 
 	if( m_Edit_pShape )
 	{
-		dc_Map.dc.SetPen(*wxBLACK_PEN);
+		dc_Map.dc.SetPen(wxPen(m_Edit_Color));
 
 		for(iPart=0; iPart<m_Edit_pShape->Get_Part_Count(); iPart++)
 		{

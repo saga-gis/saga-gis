@@ -183,7 +183,7 @@ bool CGSPoints_Semi_Variances::On_Execute(void)
 	//-----------------------------------------------------
 	pTable->Set_Name(CSG_String::Format(SG_T("%s [%s]: %s"),
 		pShapes->Get_Name(),
-		pShapes->Get_Table().Get_Field_Name(Parameters("FIELD")->asInt()),
+		pShapes->Get_Field_Name(Parameters("FIELD")->asInt()),
 		_TL("Semi-Variances")
 	));
 
@@ -216,7 +216,7 @@ void CGSPoints_Semi_Variances::Get_Differences(CSG_Shapes *pShapes, CSG_Table *p
 	{
 		pPoint	= pShapes->Get_Shape(iPoint);
 		Pt_i	= pPoint->Get_Point(0);
-		z		= pPoint->Get_Record()->asDouble(zField);
+		z		= pPoint->asDouble(zField);
 
 		for(jPoint=iPoint+nSkip; jPoint<pShapes->Get_Count(); jPoint+=nSkip)
 		{
@@ -229,7 +229,7 @@ void CGSPoints_Semi_Variances::Get_Differences(CSG_Shapes *pShapes, CSG_Table *p
 			{
 				pRecord	= pTable->Add_Record();
 				pRecord->Set_Value(DIF_FIELD_DISTANCE	, d);
-				pRecord->Set_Value(DIF_FIELD_DIFFERENCE	, pPoint->Get_Record()->asDouble(zField) - z);
+				pRecord->Set_Value(DIF_FIELD_DIFFERENCE	, pPoint->asDouble(zField) - z);
 			}
 		}
 	}

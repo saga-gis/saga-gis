@@ -124,6 +124,8 @@ bool CSG_Table::_Load(const SG_Char *File_Name, TSG_Table_File_Type Format, cons
 	{
 		Set_Modified(false);
 
+		Set_Update_Flag();
+
 		Set_File_Name(File_Name);
 
 		if( !Get_History().Load(File_Name, HISTORY_EXT_TABLE) )
@@ -192,6 +194,8 @@ bool CSG_Table::Save(const SG_Char *File_Name, int Format, const SG_Char *Separa
 	if( bResult )
 	{
 		Set_Modified(false);
+
+		Set_Update_Flag();
 
 		Set_File_Type(Format);
 
@@ -434,7 +438,7 @@ bool CSG_Table::_Load_DBase(const SG_Char *File_Name)
 
 			for(int iRecord=0; iRecord<m_nRecords && SG_UI_Process_Set_Progress(iRecord, m_nRecords); iRecord++)
 			{
-				m_Records[iRecord]	= pRecord	= new CSG_Table_Record(this, iRecord);
+				m_Records[iRecord]	= pRecord	= _Get_New_Record(iRecord);
 
 				for(iField=0; iField<Get_Field_Count(); iField++)
 				{
@@ -468,6 +472,8 @@ bool CSG_Table::_Load_DBase(const SG_Char *File_Name)
 			SG_UI_Process_Set_Ready();
 
 			Set_Modified(false);
+
+			Set_Update_Flag();
 
 			_Range_Invalidate();
 		}

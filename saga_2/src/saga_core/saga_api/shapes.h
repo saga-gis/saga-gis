@@ -101,7 +101,7 @@ SAGA_API_DLL_EXPORT const SG_Char *	SG_Get_ShapeType_Name	(TSG_Shape_Type Type);
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Shape
+class SAGA_API_DLL_EXPORT CSG_Shape : public CSG_Table_Record
 {
 	friend class CSG_Shapes;
 
@@ -115,38 +115,6 @@ public:
 	TSG_Shape_Type				Get_Type			(void);
 
 	virtual bool				is_Valid			(void)											= 0;
-
-	bool						is_Selected			(void)		{	return( m_pRecord->is_Selected() );	}
-
-	//-----------------------------------------------------
-	CSG_Table_Record *			Get_Record			(void)		{	return( m_pRecord );	}
-
-	bool						Set_Value			(int           iField, const SG_Char *Value)		{	return( m_pRecord->Set_Value (iField, Value) );		}
-	bool						Set_Value			(const SG_Char *Field, const SG_Char *Value)		{	return( m_pRecord->Set_Value ( Field, Value) );		}
-	bool						Set_Value			(int           iField, double         Value)		{	return( m_pRecord->Set_Value (iField, Value) );		}
-	bool						Set_Value			(const SG_Char *Field, double         Value)		{	return( m_pRecord->Set_Value ( Field, Value) );		}
-	bool						Add_Value			(int           iField, double         Value)		{	return( m_pRecord->Add_Value (iField, Value) );		}
-	bool						Add_Value			(const SG_Char *Field, double         Value)		{	return( m_pRecord->Add_Value ( Field, Value) );		}
-	bool						Mul_Value			(int           iField, double         Value)		{	return( m_pRecord->Mul_Value (iField, Value) );		}
-	bool						Mul_Value			(const SG_Char *Field, double         Value)		{	return( m_pRecord->Mul_Value ( Field, Value) );		}
-
-	bool						Set_NoData			(int           iField)								{	return( m_pRecord->Set_NoData(iField) );			}
-	bool						Set_NoData			(const SG_Char *Field)								{	return( m_pRecord->Set_NoData( Field) );			}
-	bool						is_NoData			(int           iField)	const						{	return( m_pRecord->is_NoData (iField) );			}
-	bool						is_NoData			(const SG_Char *Field)	const						{	return( m_pRecord->is_NoData ( Field) );			}
-
-	const SG_Char *				asString			(int           iField, int Decimals = -1)	const	{	return( m_pRecord->asString  (iField, Decimals) );	}
-	const SG_Char *				asString			(const SG_Char *Field, int Decimals = -1)	const	{	return( m_pRecord->asString  ( Field, Decimals) );	}
-	SG_Char						asChar				(int           iField)	const						{	return( m_pRecord->asChar    (iField) );			}
-	SG_Char						asChar				(const SG_Char *Field)	const						{	return( m_pRecord->asChar    ( Field) );			}
-	short						asShort				(int           iField)	const						{	return( m_pRecord->asShort   (iField) );			}
-	short						asShort				(const SG_Char *Field)	const						{	return( m_pRecord->asShort   ( Field) );			}
-	int							asInt				(int           iField)	const						{	return( m_pRecord->asInt     (iField) );			}
-	int							asInt				(const SG_Char *Field)	const						{	return( m_pRecord->asInt     ( Field) );			}
-	float						asFloat				(int           iField)	const						{	return( m_pRecord->asFloat   (iField) );			}
-	float						asFloat				(const SG_Char *Field)	const						{	return( m_pRecord->asFloat   ( Field) );			}
-	double						asDouble			(int           iField)	const						{	return( m_pRecord->asDouble  (iField) );			}
-	double						asDouble			(const SG_Char *Field)	const						{	return( m_pRecord->asDouble  ( Field) );			}
 
 	//-----------------------------------------------------
 	virtual int					Add_Point			(double x, double y,             int iPart = 0)	= 0;
@@ -181,12 +149,7 @@ public:
 
 protected:
 
-	CSG_Table_Record			*m_pRecord;
-
-	class CSG_Shapes			*m_pOwner;
-
-
-	CSG_Shape(class CSG_Shapes *pOwner, CSG_Table_Record *pRecord);
+	CSG_Shape(class CSG_Shapes *pOwner, int Index);
 	virtual ~CSG_Shape(void);
 
 	virtual bool				On_Assign			(CSG_Shape *pShape)								= 0;
@@ -234,7 +197,7 @@ public:
 
 protected:
 
-	CSG_Shape_Point(class CSG_Shapes *pOwner, CSG_Table_Record *pRecord);
+	CSG_Shape_Point(class CSG_Shapes *pOwner, int Index);
 	virtual ~CSG_Shape_Point(void);
 
 
@@ -366,7 +329,7 @@ public:
 
 protected:
 
-	CSG_Shape_Points(class CSG_Shapes *pOwner, CSG_Table_Record *pRecord);
+	CSG_Shape_Points(class CSG_Shapes *pOwner, int Index);
 	virtual ~CSG_Shape_Points(void);
 
 
@@ -425,7 +388,7 @@ public:
 
 protected:
 
-	CSG_Shape_Line(class CSG_Shapes *pOwner, CSG_Table_Record *pRecord);
+	CSG_Shape_Line(class CSG_Shapes *pOwner, int Index);
 	virtual ~CSG_Shape_Line(void);
 
 	virtual int					On_Intersects		(TSG_Rect Region);
@@ -514,7 +477,7 @@ public:
 
 protected:
 
-	CSG_Shape_Polygon(class CSG_Shapes *pOwner, CSG_Table_Record *pRecord);
+	CSG_Shape_Polygon(class CSG_Shapes *pOwner, int Index);
 	virtual ~CSG_Shape_Polygon(void);
 
 
@@ -537,7 +500,17 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Shapes : public CSG_Data_Object
+typedef enum ESG_Shape_Copy_Mode
+{
+	SHAPE_NO_COPY	= 0,
+	SHAPE_COPY_GEOM,
+	SHAPE_COPY_ATTR,
+	SHAPE_COPY
+}
+TSG_ADD_Shape_Copy_Mode;
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Shapes : public CSG_Table
 {
 	friend class CSG_Shape;
 
@@ -545,113 +518,64 @@ public:
 
 	CSG_Shapes(void);
 
-								CSG_Shapes	(const CSG_Shapes &Shapes);
-	bool						Create		(const CSG_Shapes &Shapes);
+									CSG_Shapes	(const CSG_Shapes &Shapes);
+	bool							Create		(const CSG_Shapes &Shapes);
 
-								CSG_Shapes	(const SG_Char *File_Name);
-	bool						Create		(const SG_Char *File_Name);
+									CSG_Shapes	(const SG_Char *File_Name);
+	bool							Create		(const SG_Char *File_Name);
 
-								CSG_Shapes	(TSG_Shape_Type Type, const SG_Char *Name = NULL, CSG_Table *pStructure = NULL);
-	bool						Create		(TSG_Shape_Type Type, const SG_Char *Name = NULL, CSG_Table *pStructure = NULL);
+									CSG_Shapes	(TSG_Shape_Type Type, const SG_Char *Name = NULL, CSG_Table *pStructure = NULL);
+	bool							Create		(TSG_Shape_Type Type, const SG_Char *Name = NULL, CSG_Table *pStructure = NULL);
 
 	virtual ~CSG_Shapes(void);
 
-	virtual bool				Destroy					(void);
+	virtual bool					Destroy					(void);
 
-	virtual TSG_Data_Object_Type	Get_ObjectType		(void)	const		{	return( DATAOBJECT_TYPE_Shapes );	}
+	virtual TSG_Data_Object_Type	Get_ObjectType			(void)	const			{	return( DATAOBJECT_TYPE_Shapes );	}
 
-	virtual bool				Assign					(CSG_Data_Object *pObject);
+	virtual bool					Assign					(CSG_Data_Object *pObject);
 
-	virtual bool				Save					(const SG_Char *File_Name, int Format = 0);
+	virtual bool					Save					(const SG_Char *File_Name, int Format = 0);
 
-	virtual bool				is_Valid				(void)	const		{	return( m_Type != SHAPE_TYPE_Undefined && m_nShapes >= 0 );				}
+	virtual bool					is_Valid				(void)	const			{	return( m_Type != SHAPE_TYPE_Undefined && Get_Count() >= 0 );		}
 
-	TSG_Shape_Type				Get_Type				(void)	const		{	return( m_Type );		}
+	TSG_Shape_Type					Get_Type				(void)	const			{	return( m_Type );		}
 
-	CSG_Table &					Get_Table				(void)				{	return( m_Table );		}
-
-	const CSG_Rect &			Get_Extent				(void)				{	_Update_Extent();	return( m_Extent );	}
+	const CSG_Rect &				Get_Extent				(void)					{	Update();	return( m_Extent );	}
 
 	//-----------------------------------------------------
-	CSG_Shape *					Add_Shape				(void);
-	CSG_Shape *					Add_Shape				(CSG_Table_Record *pValues);
-	CSG_Shape *					Add_Shape				(CSG_Shape *pShape, bool bCopyAttributes = false);
-	bool						Del_Shape				(int iShape);
-	bool						Del_Shape				(CSG_Shape *pShape);
-	bool						Del_Shapes				(void);
+	CSG_Shape *						Add_Shape				(CSG_Table_Record *pCopy = NULL, TSG_ADD_Shape_Copy_Mode mCopy = SHAPE_COPY);
+	bool							Del_Shape				(int iShape);
+	bool							Del_Shape				(CSG_Shape *pShape);
+	bool							Del_Shapes				(void)					{	return( Del_Records() );	}
 
-	int							Get_Count				(void)				const	{	return( m_nShapes );	}
-	CSG_Shape *					Get_Shape				(int iShape)		const	{	return( iShape >= 0 && iShape < m_nShapes ? m_Shapes[iShape] : NULL );	}
-	int							Get_Shape_Index			(CSG_Shape *pShape)	const	{	return( pShape ? pShape->Get_Record()->Get_Index() : -1 );	}
-
-	CSG_Shape *					Get_Shape				(TSG_Point Point, double Epsilon = 0.0);
-
+	CSG_Shape *						Get_Shape				(TSG_Point Point, double Epsilon = 0.0);
+	CSG_Shape *						Get_Shape				(int iShape)	const	{	return( (CSG_Shape *)Get_Record(iShape) );	}
+	CSG_Shape *						Get_Shape_byIndex		(int Index)		const	{	return( (CSG_Shape *)Get_Record_byIndex(Index) );	}
 
 	//-----------------------------------------------------
-	bool						Set_Index				(int Field_1, TSG_Table_Index_Order Order_1, int Field_2 = -1, TSG_Table_Index_Order Order_2 = TABLE_INDEX_None, int Field_3 = -1, TSG_Table_Index_Order Order_3 = TABLE_INDEX_None);
+	virtual CSG_Shape *				Get_Selection			(int Index = 0)			{	return( (CSG_Shape *)CSG_Table::Get_Selection(Index) );	};
+	const CSG_Rect &				Get_Selection_Extent	(void);
 
-	bool						Del_Index				(void)				{	return( m_Table.Del_Index() );			}
-	bool						Toggle_Index			(int iField)		{	return( m_Table.Toggle_Index(iField) );	}
-	bool						is_Indexed				(void)	const		{	return( m_Table.is_Indexed() );			}
-
-	int							Get_Index_Field			(int i)	const		{	return( m_Table.Get_Index_Field(i) );	}
-	TSG_Table_Index_Order		Get_Index_Order			(int i)	const		{	return( m_Table.Get_Index_Order(i) );	}
-
-	CSG_Shape *					Get_Shape_byIndex		(int Index)			const
-	{
-		if( Index >= 0 && Index < m_nShapes )
-		{
-			if( m_Table.m_Index != NULL )
-			{
-				return( m_Shapes[m_Table.m_Index[Index]] );
-			}
-
-			return( m_Shapes[Index] );
-		}
-
-		return( NULL );
-	}
-
-	//-----------------------------------------------------
-	int							Get_Selection_Count		(void)				{	return( m_Table.m_nSelected );	}
-	CSG_Shape *					Get_Selection			(int Index = 0);
-	const CSG_Rect &			Get_Selection_Extent	(void);
-
-	bool						Select					(TSG_Rect Extent         , bool bAdd = false);
-	bool						Select					(int iShape              , bool bAdd = false);
-	bool						Select					(CSG_Shape *pShape = NULL, bool bAdd = false);
-
-	int							Del_Selection			(void);
-	int							Inv_Selection			(void);
+	virtual bool					Select					(CSG_Shape *pShape = NULL, bool bInvert = false);
+	virtual bool					Select					(TSG_Rect Extent         , bool bInvert = false);
 
 
 protected:
 
-	bool						m_bUpdate;
+	TSG_Shape_Type					m_Type;
 
-	int							m_nShapes, m_nBuffer;
-
-	TSG_Shape_Type				m_Type;
-
-	CSG_Rect					m_Extent, m_Extent_Selected;
-
-	CSG_Table					m_Table;
-
-	CSG_Shape					**m_Shapes;
+	CSG_Rect						m_Extent, m_Extent_Selected;
 
 
-	void						_On_Construction		(void);
+	virtual void					_On_Construction		(void);
 
-	void						_Invalidate				(void)				{	m_bUpdate	= true;	}
-	void						_Update_Extent			(void);
+	virtual CSG_Table_Record *		_Get_New_Record			(int Index);
 
-	bool						_Inc_Array				(void);
-	bool						_Dec_Array				(void);
+	virtual void					On_Update				(void);
 
-	CSG_Shape *					_Add_Shape				(CSG_Table_Record *pRecord);
-
-	bool						_Load_ESRI				(const SG_Char *File_Name);
-	bool						_Save_ESRI				(const SG_Char *File_Name);
+	bool							_Load_ESRI				(const SG_Char *File_Name);
+	bool							_Save_ESRI				(const SG_Char *File_Name);
 
 };
 

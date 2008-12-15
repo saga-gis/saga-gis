@@ -289,7 +289,7 @@ float DrainageDensity(CSG_Shapes *pHeaders,
 		}// if
 	}// for	
 
-	float fArea = pBasins->Get_Shape(0)->Get_Record()->asFloat(4);
+	float fArea = pBasins->Get_Shape(0)->asFloat(4);
 		
 	return fLength / fArea / 10000.0;
 

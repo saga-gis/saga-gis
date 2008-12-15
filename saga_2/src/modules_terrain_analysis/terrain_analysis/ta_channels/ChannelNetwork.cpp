@@ -344,9 +344,9 @@ bool CChannelNetwork::On_Execute(void)
 
 		pShapes->Create(SHAPE_TYPE_Line, _TL("Channel Network"));
 
-		pShapes->Get_Table().Add_Field("SegmentID"	,TABLE_FIELDTYPE_Int);
-		pShapes->Get_Table().Add_Field("Order"		,TABLE_FIELDTYPE_Int);
-		pShapes->Get_Table().Add_Field("Length"		,TABLE_FIELDTYPE_Double);
+		pShapes->Add_Field("SegmentID"	,TABLE_FIELDTYPE_Int);
+		pShapes->Add_Field("Order"		,TABLE_FIELDTYPE_Int);
+		pShapes->Add_Field("Length"		,TABLE_FIELDTYPE_Double);
 
 		Lock_Create();
 
@@ -785,9 +785,9 @@ void CChannelNetwork::Set_Vector(int x, int y, int ID)
 			}
 			while( bContinue );
 
-			pShape->Get_Record()->Set_Value(0, ID );
-			pShape->Get_Record()->Set_Value(1, Order );
-			pShape->Get_Record()->Set_Value(2, Length );
+			pShape->Set_Value(0, ID );
+			pShape->Set_Value(1, Order );
+			pShape->Set_Value(2, Length );
 		}
 	}
 }

@@ -1436,9 +1436,9 @@ void CWKSP_Map::Draw_PDF(CSG_Doc_PDF *pPDF, const wxChar *FilePath_Maps, int Ima
 				break;
 			}
 
-			if( iField >= 0 && iField < pShapes->Get_Table().Get_Field_Count() )
+			if( iField >= 0 && iField < pShapes->Get_Field_Count() )
 			{
-				Description.Append(wxString::Format(wxT("%s: %s\n"), pShapes->Get_Table().Get_Field_Name(iField), pShapes->Get_Shape(Image_ID)->Get_Record()->asString(iField)));
+				Description.Append(wxString::Format(wxT("%s: %s\n"), pShapes->Get_Field_Name(iField), pShapes->Get_Shape(Image_ID)->asString(iField)));
 			}
 		}
 

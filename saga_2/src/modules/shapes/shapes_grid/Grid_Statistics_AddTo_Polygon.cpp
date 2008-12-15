@@ -199,28 +199,28 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 			pShapes	= Parameters("RESULT")->asShapes();
 			pShapes->Assign(Parameters("POLY")->asShapes());
 
-			field_CELLS	= pShapes->Get_Table().Get_Field_Count();
-			pShapes->Get_Table().Add_Field(_TL("CELLS")		, TABLE_FIELDTYPE_Int);
+			field_CELLS	= pShapes->Get_Field_Count();
+			pShapes->Add_Field(_TL("CELLS")		, TABLE_FIELDTYPE_Int);
 
-			field_MEAN	= pShapes->Get_Table().Get_Field_Count();
-			pShapes->Get_Table().Add_Field(_TL("MEAN")		, TABLE_FIELDTYPE_Double);
+			field_MEAN	= pShapes->Get_Field_Count();
+			pShapes->Add_Field(_TL("MEAN")		, TABLE_FIELDTYPE_Double);
 
-			field_VARI	= pShapes->Get_Table().Get_Field_Count();
-			pShapes->Get_Table().Add_Field(_TL("VARIANCE")	, TABLE_FIELDTYPE_Double);
+			field_VARI	= pShapes->Get_Field_Count();
+			pShapes->Add_Field(_TL("VARIANCE")	, TABLE_FIELDTYPE_Double);
 
 			if( bQuantiles )
 			{
-				field_QUANTILES = pShapes->Get_Table().Get_Field_Count();
+				field_QUANTILES = pShapes->Get_Field_Count();
 
 				for(int i=quantile_step; i<100; i+=quantile_step)
 				{
-					pShapes->Get_Table().Add_Field(CSG_String::Format(SG_T("Q%d"), i).c_str(), TABLE_FIELDTYPE_Double);
+					pShapes->Add_Field(CSG_String::Format(SG_T("Q%d"), i).c_str(), TABLE_FIELDTYPE_Double);
 				}
 			}
 
 			for(iShape=0; iShape<nShapes; iShape++)
 			{
-				pRecord	= pShapes->Get_Shape(iShape)->Get_Record();
+				pRecord	= pShapes->Get_Shape(iShape);
 
 				if( Num[iShape] > 0 )
 				{

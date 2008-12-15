@@ -128,8 +128,8 @@ bool CShapes_Split_Randomly::On_Execute(void)
 	Percent	= Parameters("PERCENT")	->asDouble();
 
 	//-----------------------------------------------------
-	pA->Create(pShapes->Get_Type(), CSG_String::Format(SG_T("%s [%d%%]"), pShapes->Get_Name(), (int)(100.5 - Percent)), &pShapes->Get_Table());
-	pB->Create(pShapes->Get_Type(), CSG_String::Format(SG_T("%s [%d%%]"), pShapes->Get_Name(), (int)(  0.5 + Percent)), &pShapes->Get_Table());
+	pA->Create(pShapes->Get_Type(), CSG_String::Format(SG_T("%s [%d%%]"), pShapes->Get_Name(), (int)(100.5 - Percent)), pShapes);
+	pB->Create(pShapes->Get_Type(), CSG_String::Format(SG_T("%s [%d%%]"), pShapes->Get_Name(), (int)(  0.5 + Percent)), pShapes);
 
 	Percent	*= RAND_MAX / 100.0;
 
@@ -142,11 +142,11 @@ bool CShapes_Split_Randomly::On_Execute(void)
 		{
 			if( Percent < rand() )
 			{
-				pA->Add_Shape(pShapes->Get_Shape(iShape), true);
+				pA->Add_Shape(pShapes->Get_Shape(iShape));
 			}
 			else
 			{
-				pB->Add_Shape(pShapes->Get_Shape(iShape), true);
+				pB->Add_Shape(pShapes->Get_Shape(iShape));
 			}
 		}
 

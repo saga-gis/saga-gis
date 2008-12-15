@@ -99,6 +99,8 @@ CSG_Data_Object::CSG_Data_Object(void)
 
 	Set_Name		(NULL);
 	Set_File_Name	(NULL);
+
+	m_bUpdate		= false;
 }
 
 //---------------------------------------------------------
@@ -169,6 +171,17 @@ void CSG_Data_Object::Set_File_Type(int File_Type)
 int CSG_Data_Object::Get_File_Type(void) const
 {
 	return( m_File_Type );
+}
+
+//---------------------------------------------------------
+void CSG_Data_Object::Update(void)
+{
+	if( m_bUpdate )
+	{
+		On_Update();
+
+		m_bUpdate	= false;
+	}
 }
 
 

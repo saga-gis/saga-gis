@@ -125,7 +125,7 @@ bool CShape_Index::On_Execute(void)
 	//-----------------------------------------------------
 	if( pShapes->is_Valid() )
 	{
-		int		iField	= pShapes->Get_Table().Get_Field_Count();
+		int		iField	= pShapes->Get_Field_Count();
 
 		if( pIndex == NULL )
 		{
@@ -134,17 +134,17 @@ bool CShape_Index::On_Execute(void)
 
 		if( pIndex != pShapes )
 		{
-			pIndex->Create(SHAPE_TYPE_Polygon, _TL("Shape Index"), &pShapes->Get_Table());
+			pIndex->Create(SHAPE_TYPE_Polygon, _TL("Shape Index"), pShapes);
 		}
 
-		pIndex->Get_Table().Add_Field(_TL("Area")			, TABLE_FIELDTYPE_Double);
-		pIndex->Get_Table().Add_Field(_TL("Perimenter")		, TABLE_FIELDTYPE_Double);
-		pIndex->Get_Table().Add_Field(_TL("P/A")			, TABLE_FIELDTYPE_Double);
-		pIndex->Get_Table().Add_Field(_TL("P/sqrt(A)")		, TABLE_FIELDTYPE_Double);
-		pIndex->Get_Table().Add_Field(_TL("Max.Distance")	, TABLE_FIELDTYPE_Double);
-		pIndex->Get_Table().Add_Field(_TL("D/A")			, TABLE_FIELDTYPE_Double);
-		pIndex->Get_Table().Add_Field(_TL("D/sqrt(A)")		, TABLE_FIELDTYPE_Double);
-		pIndex->Get_Table().Add_Field(_TL("Shape Index")	, TABLE_FIELDTYPE_Double);
+		pIndex->Add_Field(_TL("Area")			, TABLE_FIELDTYPE_Double);
+		pIndex->Add_Field(_TL("Perimenter")		, TABLE_FIELDTYPE_Double);
+		pIndex->Add_Field(_TL("P/A")			, TABLE_FIELDTYPE_Double);
+		pIndex->Add_Field(_TL("P/sqrt(A)")		, TABLE_FIELDTYPE_Double);
+		pIndex->Add_Field(_TL("Max.Distance")	, TABLE_FIELDTYPE_Double);
+		pIndex->Add_Field(_TL("D/A")			, TABLE_FIELDTYPE_Double);
+		pIndex->Add_Field(_TL("D/sqrt(A)")		, TABLE_FIELDTYPE_Double);
+		pIndex->Add_Field(_TL("Shape Index")	, TABLE_FIELDTYPE_Double);
 
 		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
@@ -158,7 +158,7 @@ bool CShape_Index::On_Execute(void)
 			{
 				if( pIndex != pShapes )
 				{
-					pShape		= (CSG_Shape_Polygon *)pIndex->Add_Shape(pShape, true);
+					pShape		= (CSG_Shape_Polygon *)pIndex->Add_Shape(pShape, SHAPE_COPY_ATTR);
 				}
 
 				pShape->Set_Value(iField + 0, Area);

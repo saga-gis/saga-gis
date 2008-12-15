@@ -205,6 +205,16 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 		LNG(""),
 		2, 10, 0, true
 	);
+
+
+	//-----------------------------------------------------
+	// Edit...
+
+	m_Parameters.Add_Value(
+		m_Parameters("NODE_SELECTION")	, "EDIT_SEL_COLOR_FILL"	, LNG("[CAP] Fill Color"),
+		LNG(""),
+		PARAMETER_TYPE_Color, SG_GET_RGB(255, 255, 0)
+	);
 }
 
 
@@ -239,8 +249,8 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 	//-----------------------------------------------------
 	m_Size_Type		= m_Parameters("SIZE_TYPE")->asInt();
 
-	if(	(m_iSize	= m_Parameters("SIZE_ATTRIB")->asInt()) >= m_pShapes->Get_Table().Get_Field_Count()
-	||	(m_dSize	= m_pShapes->Get_Table().Get_MaxValue(m_iSize) - (m_Size_Min = m_pShapes->Get_Table().Get_MinValue(m_iSize))) <= 0.0 )
+	if(	(m_iSize	= m_Parameters("SIZE_ATTRIB")->asInt()) >= m_pShapes->Get_Field_Count()
+	||	(m_dSize	= m_pShapes->Get_MaxValue(m_iSize) - (m_Size_Min = m_pShapes->Get_MinValue(m_iSize))) <= 0.0 )
 	{
 		m_iSize		= -1;
 		m_Size		= m_Parameters("SIZE_DEFAULT")->asDouble();
@@ -273,8 +283,8 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 		int		zField	= pParameters->Get_Parameter("COLORS_ATTRIB")->asInt();
 
 		pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(
-			m_pShapes->Get_Table().Get_MinValue(zField),
-			m_pShapes->Get_Table().Get_MaxValue(zField)
+			m_pShapes->Get_MinValue(zField),
+			m_pShapes->Get_MaxValue(zField)
 		);
 	}
 
@@ -303,7 +313,7 @@ bool CWKSP_Shapes_Point::Get_Style(wxPen &Pen, wxBrush &Brush, bool &bOutline, w
 		}
 		else
 		{
-			pName->Printf(m_pShapes->Get_Table().Get_Field_Name(m_iColor));
+			pName->Printf(m_pShapes->Get_Field_Name(m_iColor));
 		}
 	}
 
@@ -316,13 +326,13 @@ bool CWKSP_Shapes_Point::Get_Style_Size(int &min_Size, int &max_Size, double &mi
 	if( m_iSize >= 0 )
 	{
 		min_Size	= (int)(m_Size);
-		max_Size	= (int)(m_Size + (m_pShapes->Get_Table().Get_MaxValue(m_iSize) - m_Size_Min) * m_dSize);
+		max_Size	= (int)(m_Size + (m_pShapes->Get_MaxValue(m_iSize) - m_Size_Min) * m_dSize);
 		min_Value	= m_Size_Min;
 		dValue		= m_dSize;
 
 		if( pName )
 		{
-			pName->Printf(m_pShapes->Get_Table().Get_Field_Name(m_iSize));
+			pName->Printf(m_pShapes->Get_Field_Name(m_iSize));
 		}
 
 		return( true );
@@ -343,13 +353,15 @@ inline void CWKSP_Shapes_Point::_Draw_Initialize(CWKSP_Map_DC &dc_Map)
 {
 	dc_Map.dc.SetBrush	(m_Brush);
 	dc_Map.dc.SetPen	(m_Pen);
+
+	m_Sel_Color_Fill	= Get_Color_asWX(m_Parameters("EDIT_SEL_COLOR_FILL")->asInt());
 }
 
 //---------------------------------------------------------
 inline bool CWKSP_Shapes_Point::_Draw_Initialize(CWKSP_Map_DC &dc_Map, int &Size, CSG_Shape *pShape, bool bSelection)
 {
 	//-----------------------------------------------------
-	double	dSize	= m_iSize < 0 ? m_Size : m_Size + (pShape->Get_Record()->asDouble(m_iSize) - m_Size_Min) * m_dSize;
+	double	dSize	= m_iSize < 0 ? m_Size : m_Size + (pShape->asDouble(m_iSize) - m_Size_Min) * m_dSize;
 
 	switch( m_Size_Type )
 	{
@@ -365,12 +377,12 @@ inline bool CWKSP_Shapes_Point::_Draw_Initialize(CWKSP_Map_DC &dc_Map, int &Size
 	{
 		if( bSelection )
 		{
-			dc_Map.dc.SetBrush	(wxBrush(wxColour(255, 255, 0), wxSOLID));
-			dc_Map.dc.SetPen	(wxPen	(wxColour(255,   0, 0), pShape == m_pShapes->Get_Selection(0) ? 2 : 1, wxSOLID));
+			dc_Map.dc.SetBrush	(wxBrush(m_Sel_Color_Fill	, wxSOLID));
+			dc_Map.dc.SetPen	(wxPen	(m_Sel_Color		, pShape == m_pShapes->Get_Selection(0) ? 2 : 1, wxSOLID));
 		}
 		else if( !bSelection && m_iColor >= 0 )
 		{
-			int		Color	= m_pClassify->Get_Class_Color_byValue(pShape->Get_Record()->asDouble(m_iColor));
+			int		Color	= m_pClassify->Get_Class_Color_byValue(pShape->asDouble(m_iColor));
 
 			wxBrush	Brush(m_Brush);
 			Brush.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
@@ -415,7 +427,7 @@ void CWKSP_Shapes_Point::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 {
 	TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Point(0)));
 
-	Draw_Text(dc_Map.dc, TEXTALIGN_TOPCENTER, p.x, p.y, pShape->Get_Record()->asString(m_iLabel, -2));
+	Draw_Text(dc_Map.dc, TEXTALIGN_TOPCENTER, p.x, p.y, pShape->asString(m_iLabel, -2));
 }
 
 

@@ -153,7 +153,7 @@ bool CGrid_Values_AddTo_Shapes::On_Execute(void)
 		//-------------------------------------------------
 		for(iGrid=0; iGrid<pGrids->Get_Count(); iGrid++)
 		{
-			pResult->Get_Table().Add_Field(pGrids->asGrid(iGrid)->Get_Name(), TABLE_FIELDTYPE_Double);
+			pResult->Add_Field(pGrids->asGrid(iGrid)->Get_Name(), TABLE_FIELDTYPE_Double);
 		}
 
 		//-------------------------------------------------
@@ -230,7 +230,7 @@ void CGrid_Values_AddTo_Shapes::Get_Data_Point(CSG_Shape *pShape)
 
 		if( nValues > 0 )
 		{
-			pShape_Result->Get_Record()->Set_Value(iGrid, Value_Sum / (double)nValues);
+			pShape_Result->Set_Value(iGrid, Value_Sum / (double)nValues);
 		}
 	}
 }

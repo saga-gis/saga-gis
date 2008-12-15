@@ -70,69 +70,29 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Shape * CSG_Shapes::Get_Selection(int Index)
+bool CSG_Shapes::Select(CSG_Shape *pShape, bool bInvert)
 {
-	int				i;
-	CSG_Table_Record	*pRecord;
+	return( CSG_Table::Select(pShape, bInvert) );
+}
 
-	if( (pRecord = m_Table.Get_Selection(Index)) != NULL )
+//---------------------------------------------------------
+bool CSG_Shapes::Select(TSG_Rect Extent, bool bInvert)
+{
+	if( !bInvert )
 	{
-		for(i=0; i<m_nShapes; i++)
-		{
-			if( m_Shapes[i]->Get_Record() == pRecord )
-			{
-				return( m_Shapes[i] );
-			}
-		}
+		CSG_Table::Select();
 	}
 
-	return( NULL );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CSG_Shapes::Select(int iShape, bool bAdd)
-{
-	return( m_Table.Select(iShape, bAdd) );
-}
-
-//---------------------------------------------------------
-bool CSG_Shapes::Select(CSG_Shape *pShape, bool bAdd)
-{
-	return( m_Table.Select(pShape ? pShape->Get_Record() : NULL, bAdd) );
-}
-
-//---------------------------------------------------------
-bool CSG_Shapes::Select(TSG_Rect Extent, bool bAdd)
-{
-	if( !bAdd )
+	for(int i=0; i<Get_Count(); i++)
 	{
-		m_Table.Select();
-	}
-
-	for(int i=0; i<m_nShapes; i++)
-	{
-		if( m_Shapes[i]->Intersects(Extent) )
+		if( Get_Shape(i)->Intersects(Extent) )
 		{
-			Select(i, true);
+			CSG_Table::Select(i, true);
 		}
 	}
 
 	return( Get_Selection_Count() > 0 );
 }
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 const CSG_Rect & CSG_Shapes::Get_Selection_Extent(void)
@@ -152,47 +112,6 @@ const CSG_Rect & CSG_Shapes::Get_Selection_Extent(void)
 	}
 
 	return( m_Extent_Selected );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-int CSG_Shapes::Del_Selection(void)
-{
-	int		i, n	= 0;
-
-	for(i=Get_Selection_Count()-1; i>=0; i--)
-	{
-		if( Del_Shape(Get_Selection(i)) )
-		{
-			n++;
-		}
-	}
-
-	return( n );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-int CSG_Shapes::Inv_Selection(void)
-{
-	for(int i=0; i<m_nShapes; i++)
-	{
-		Select(i, true);
-	}
-
-	return( Get_Selection_Count() > 0 );
 }
 
 

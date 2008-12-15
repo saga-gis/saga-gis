@@ -234,12 +234,12 @@ bool CGSGrid_Regression::Get_Regression(CSG_Grid *pGrid, CSG_Shapes *pShapes, CS
 	if( pResiduals )
 	{
 		pResiduals->Create(SHAPE_TYPE_Point, _TL("Residuals"));
-		pResiduals->Get_Table().Add_Field("ID"			, TABLE_FIELDTYPE_Int);
-		pResiduals->Get_Table().Add_Field("Y"			, TABLE_FIELDTYPE_Double);
-		pResiduals->Get_Table().Add_Field("X"			, TABLE_FIELDTYPE_Double);
-		pResiduals->Get_Table().Add_Field("Y_GUESS"		, TABLE_FIELDTYPE_Double);
-		pResiduals->Get_Table().Add_Field("Y_RESIDUAL"	, TABLE_FIELDTYPE_Double);
-		pResiduals->Get_Table().Add_Field("Y_RES_VAR"	, TABLE_FIELDTYPE_Double);
+		pResiduals->Add_Field("ID"			, TABLE_FIELDTYPE_Int);
+		pResiduals->Add_Field("Y"			, TABLE_FIELDTYPE_Double);
+		pResiduals->Add_Field("X"			, TABLE_FIELDTYPE_Double);
+		pResiduals->Add_Field("Y_GUESS"		, TABLE_FIELDTYPE_Double);
+		pResiduals->Add_Field("Y_RESIDUAL"	, TABLE_FIELDTYPE_Double);
+		pResiduals->Add_Field("Y_RES_VAR"	, TABLE_FIELDTYPE_Double);
 	}
 
 	m_Regression.Destroy();
@@ -248,7 +248,7 @@ bool CGSGrid_Regression::Get_Regression(CSG_Grid *pGrid, CSG_Shapes *pShapes, CS
 	for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 	{
 		pShape	= pShapes->Get_Shape(iShape);
-		zShape	= pShape->Get_Record()->asDouble(iAttribute);
+		zShape	= pShape->asDouble(iAttribute);
 
 		for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{
@@ -262,9 +262,9 @@ bool CGSGrid_Regression::Get_Regression(CSG_Grid *pGrid, CSG_Shapes *pShapes, CS
 					{
 						pResidual	= pResiduals->Add_Shape();
 						pResidual->Add_Point(Point);
-						pResidual->Get_Record()->Set_Value(0, m_Regression.Get_Count());
-						pResidual->Get_Record()->Set_Value(1, zShape);
-						pResidual->Get_Record()->Set_Value(2, zGrid);
+						pResidual->Set_Value(0, m_Regression.Get_Count());
+						pResidual->Set_Value(1, zShape);
+						pResidual->Set_Value(2, zGrid);
 					}
 				}
 			}
@@ -309,9 +309,9 @@ bool CGSGrid_Regression::Set_Residuals(CSG_Shapes *pResiduals)
 		{
 			pPoint	= pResiduals->Get_Shape(iPoint);
 
-			pPoint->Get_Record()->Set_Value(3, y = pPoint->Get_Record()->asDouble(2) * m + b);
-			pPoint->Get_Record()->Set_Value(4, y = pPoint->Get_Record()->asDouble(1) - y);
-			pPoint->Get_Record()->Set_Value(5, y * v);
+			pPoint->Set_Value(3, y = pPoint->asDouble(2) * m + b);
+			pPoint->Set_Value(4, y = pPoint->asDouble(1) - y);
+			pPoint->Set_Value(5, y * v);
 		}
 
 		return( true );

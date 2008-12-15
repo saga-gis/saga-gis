@@ -75,15 +75,15 @@ bool CCreatePointGrid::On_Execute(void){
 	CSG_Shapes *pShapes = Parameters("POINTS")->asShapes();
 	pShapes->Create(SHAPE_TYPE_Point, _TL("Point Grid"));
 
-	pShapes->Get_Table().Add_Field("X", TABLE_FIELDTYPE_Double);
-	pShapes->Get_Table().Add_Field("Y", TABLE_FIELDTYPE_Double);
+	pShapes->Add_Field("X", TABLE_FIELDTYPE_Double);
+	pShapes->Add_Field("Y", TABLE_FIELDTYPE_Double);
 	
 	for (double x=dXMin; x<dXMax; x=x+dDistance){
 		for (double y=dYMin; y<dYMax; y=y+dDistance){ 
 			pShape = pShapes->Add_Shape();
 			pShape->Add_Point(x,y);
-			pShape->Get_Record()->Set_Value(0, x);
-			pShape->Get_Record()->Set_Value(1, y);
+			pShape->Set_Value(0, x);
+			pShape->Set_Value(1, y);
 		}//for
 	}//for
 

@@ -240,9 +240,9 @@ public:
 	virtual bool					Destroy			(void);
 
 	/// Returns the object type as defined by TSG_Data_Object_Type. Used for run time type checking.
-	virtual TSG_Data_Object_Type	Get_ObjectType	(void)	const							= 0;
+	virtual TSG_Data_Object_Type	Get_ObjectType	(void)	const								= 0;
 
-	virtual bool					is_Valid		(void)	const							= 0;
+	virtual bool					is_Valid		(void)	const								= 0;
 
 	virtual bool					Save			(const SG_Char *File_Name, int Format = 0)	= 0;
 
@@ -254,10 +254,10 @@ public:
 	void							Set_Name		(const SG_Char *Name);
 	const SG_Char *					Get_Name		(void)	const;
 
-	virtual void					Set_Modified	(bool bModified = true)	{	m_bModified	= bModified;	}
-	bool							is_Modified		(void)	const			{	return( m_bModified );		}
+	virtual void					Set_Modified	(bool bOn = true)	{	m_bModified	= bOn;		}
+	bool							is_Modified		(void)	const		{	return( m_bModified );	}
 
-	CSG_History &					Get_History		(void)					{	return( m_History );		}
+	CSG_History &					Get_History		(void)				{	return( m_History );	}
 
 	class CSG_Table *				asTable			(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Table  ? (class CSG_Table  *)this : NULL );	}
 	class CSG_Shapes *				asShapes		(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Shapes ? (class CSG_Shapes *)this : NULL );	}
@@ -267,15 +267,21 @@ public:
 
 protected:
 
+	CSG_History						m_History;
+
+
 	void							Set_File_Name	(const SG_Char *File_Name);
 	void							Set_File_Type	(int File_Type);
 
-	CSG_History						m_History;
+	void							Set_Update_Flag	(bool bOn = true)	{	m_bUpdate	= bOn;		}
+	bool							Get_Update_Flag	(void)				{	return( m_bUpdate );	}
+	void							Update			(void);
+	virtual void					On_Update		(void)				{}
 
 
 private:
 
-	bool							m_bModified;
+	bool							m_bModified, m_bUpdate;
 
 	int								m_File_Type;
 

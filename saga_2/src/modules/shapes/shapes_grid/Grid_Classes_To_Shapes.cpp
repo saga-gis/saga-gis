@@ -147,9 +147,9 @@ bool CGrid_Classes_To_Shapes::On_Execute(void)
 
 	//-----------------------------------------------------
 	pShapes->Create(SHAPE_TYPE_Polygon);
-	pShapes->Get_Table().Add_Field(m_pGrid->Get_Name()	, TABLE_FIELDTYPE_Double);
-	pShapes->Get_Table().Add_Field(_TL("ID")			, TABLE_FIELDTYPE_Int);
-	pShapes->Get_Table().Add_Field(_TL("Name")			, TABLE_FIELDTYPE_String);
+	pShapes->Add_Field(m_pGrid->Get_Name()	, TABLE_FIELDTYPE_Double);
+	pShapes->Add_Field(_TL("ID")			, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field(_TL("Name")			, TABLE_FIELDTYPE_String);
 
 	if(	DataObject_Get_Parameters(m_pGrid, gParms) && gParms("COLORS_TYPE") && gParms("LUT")
 	&&	DataObject_Get_Parameters(pShapes, sParms) && sParms("COLORS_TYPE") && sParms("LUT") && sParms("COLORS_ATTRIB") )
@@ -187,9 +187,9 @@ bool CGrid_Classes_To_Shapes::On_Execute(void)
 				else
 				{
 					m_pShape	= pShapes->Add_Shape();
-					m_pShape->Get_Record()->Set_Value(0, Value);
-					m_pShape->Get_Record()->Set_Value(1, pShapes->Get_Count());
-					m_pShape->Get_Record()->Set_Value(2, ID);
+					m_pShape->Set_Value(0, Value);
+					m_pShape->Set_Value(1, pShapes->Get_Count());
+					m_pShape->Set_Value(2, ID);
 				}
 
 				//-----------------------------------------
@@ -234,9 +234,9 @@ bool CGrid_Classes_To_Shapes::Split_Polygons(CSG_Shapes *pShapes, double Value, 
 			if( ((CSG_Shape_Polygon *)m_pShape)->is_Clockwise(iPart) == true )	// No Lake
 			{
 				pShape	= pShapes->Add_Shape();
-				pShape->Get_Record()->Set_Value(0, Value);
-				pShape->Get_Record()->Set_Value(1, pShapes->Get_Count());
-				pShape->Get_Record()->Set_Value(2, ID);
+				pShape->Set_Value(0, Value);
+				pShape->Set_Value(1, pShapes->Get_Count());
+				pShape->Set_Value(2, ID);
 
 				for(iPoint=0; iPoint<m_pShape->Get_Point_Count(iPart); iPoint++)
 				{
@@ -255,7 +255,7 @@ bool CGrid_Classes_To_Shapes::Split_Polygons(CSG_Shapes *pShapes, double Value, 
 				{
 					pShape	= pShapes->Get_Shape(iShape);
 
-					if( pShape->Get_Record()->asDouble(0) == Value && ((CSG_Shape_Polygon *)pShape)->is_Containing(p, 0) )
+					if( pShape->asDouble(0) == Value && ((CSG_Shape_Polygon *)pShape)->is_Containing(p, 0) )
 					{
 						jPart	= pShape->Get_Part_Count();
 

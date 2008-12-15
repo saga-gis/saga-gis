@@ -175,8 +175,8 @@ bool CGrid_Profile::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactiv
 		{
 			m_bAdd	= true;
 			m_pLine->Create(SHAPE_TYPE_Line, CSG_String::Format(SG_T("Profile [%s]"), m_pDEM->Get_Name()));
-			m_pLine->Get_Table().Add_Field("ID"	, TABLE_FIELDTYPE_Int);
-			m_pLine->Add_Shape()->Get_Record()->Set_Value(0, 1);
+			m_pLine->Add_Field("ID"	, TABLE_FIELDTYPE_Int);
+			m_pLine->Add_Shape()->Set_Value(0, 1);
 		}
 
 		m_pLine->Get_Shape(0)->Add_Point(Get_System()->Fit_to_Grid_System(ptWorld));
@@ -210,16 +210,16 @@ bool CGrid_Profile::Set_Profile(void)
 	//-----------------------------------------------------
 	m_pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("Profile [%s]"), m_pDEM->Get_Name()));
 
-	m_pPoints->Get_Table().Add_Field("ID"						, TABLE_FIELDTYPE_Int);
-	m_pPoints->Get_Table().Add_Field(_TL("Distance")			, TABLE_FIELDTYPE_Double);
-	m_pPoints->Get_Table().Add_Field(_TL("Distance Overland")	, TABLE_FIELDTYPE_Double);
-	m_pPoints->Get_Table().Add_Field("X"						, TABLE_FIELDTYPE_Double);
-	m_pPoints->Get_Table().Add_Field("Y"						, TABLE_FIELDTYPE_Double);
-	m_pPoints->Get_Table().Add_Field("Z"						, TABLE_FIELDTYPE_Double);
+	m_pPoints->Add_Field("ID"						, TABLE_FIELDTYPE_Int);
+	m_pPoints->Add_Field(_TL("Distance")			, TABLE_FIELDTYPE_Double);
+	m_pPoints->Add_Field(_TL("Distance Overland")	, TABLE_FIELDTYPE_Double);
+	m_pPoints->Add_Field("X"						, TABLE_FIELDTYPE_Double);
+	m_pPoints->Add_Field("Y"						, TABLE_FIELDTYPE_Double);
+	m_pPoints->Add_Field("Z"						, TABLE_FIELDTYPE_Double);
 
 	for(i=0; i<m_pValues->Get_Count(); i++)
 	{
-		m_pPoints->Get_Table().Add_Field(m_pValues->asGrid(i)->Get_Name(), TABLE_FIELDTYPE_Double);
+		m_pPoints->Add_Field(m_pValues->asGrid(i)->Get_Name(), TABLE_FIELDTYPE_Double);
 	}
 
 	//-----------------------------------------------------
@@ -317,26 +317,26 @@ bool CGrid_Profile::Add_Point(CSG_Point Point)
 				return( false );
 			}
 
-			Distance_2	= pLast->Get_Record()->asDouble(5) - z;
+			Distance_2	= pLast->asDouble(5) - z;
 			Distance_2	= sqrt(Distance*Distance + Distance_2*Distance_2);
 
-			Distance	+= pLast->Get_Record()->asDouble(1);
-			Distance_2	+= pLast->Get_Record()->asDouble(2);
+			Distance	+= pLast->asDouble(1);
+			Distance_2	+= pLast->asDouble(2);
 		}
 
 		pPoint	= m_pPoints->Add_Shape();
 		pPoint->Add_Point(Point);
 
-		pPoint->Get_Record()->Set_Value(0, m_pPoints->Get_Count());
-		pPoint->Get_Record()->Set_Value(1, Distance);
-		pPoint->Get_Record()->Set_Value(2, Distance_2);
-		pPoint->Get_Record()->Set_Value(3, Point.Get_X());
-		pPoint->Get_Record()->Set_Value(4, Point.Get_Y());
-		pPoint->Get_Record()->Set_Value(5, z);
+		pPoint->Set_Value(0, m_pPoints->Get_Count());
+		pPoint->Set_Value(1, Distance);
+		pPoint->Set_Value(2, Distance_2);
+		pPoint->Set_Value(3, Point.Get_X());
+		pPoint->Set_Value(4, Point.Get_Y());
+		pPoint->Set_Value(5, z);
 
 		for(i=0; i<m_pValues->Get_Count(); i++)
 		{
-			pPoint->Get_Record()->Set_Value(VALUE_OFFSET + i, m_pValues->asGrid(i)->asDouble(x, y, true));
+			pPoint->Set_Value(VALUE_OFFSET + i, m_pValues->asGrid(i)->asDouble(x, y, true));
 		}
 
 		return( true );

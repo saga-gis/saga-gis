@@ -96,10 +96,11 @@ bool CSG_Grid::_Load(const SG_Char *File_Name, TSG_Grid_Type Type, TSG_Grid_Memo
 	//-----------------------------------------------------
 	if( bResult )
 	{
+		Set_Update_Flag();
+
 		Set_File_Name(File_Name);
 
 		m_bCreated	= true;
-		m_bUpdate	= true;
 
 		if( !Get_History().Load(File_Name, HISTORY_EXT_GRID) )
 		{

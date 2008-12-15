@@ -140,13 +140,13 @@ bool CGEOTRANS_Shapes::On_Execute_Conversion(void)
 			bCopy		= false;
 		}
 
-		pTarget->Create(pSource->Get_Type(), pSource->Get_Name(), &pSource->Get_Table());
+		pTarget->Create(pSource->Get_Type(), pSource->Get_Name(), pSource);
 
 		//-------------------------------------------------
 		for(iShape=0, nDropped=0; iShape<pSource->Get_Count() && Set_Progress(iShape, pSource->Get_Count()); iShape++)
 		{
 			pShape_Source	= pSource->Get_Shape(iShape);
-			pShape_Target	= pTarget->Add_Shape(pShape_Source->Get_Record());
+			pShape_Target	= pTarget->Add_Shape(pShape_Source, SHAPE_COPY_ATTR);
 
 			for(iPart=0, bDropped=false; iPart<pShape_Source->Get_Part_Count() && !bDropped; iPart++)
 			{

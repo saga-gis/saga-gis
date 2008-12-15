@@ -235,7 +235,7 @@ bool CGSGrid_Regression_Multiple::Get_Regression(CSG_Parameter_Grid_List *pGrids
 	for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 	{
 		pShape	= pShapes->Get_Shape(iShape);
-		zShape	= pShape->Get_Record()->asDouble(iAttribute);
+		zShape	= pShape->asDouble(iAttribute);
 
 		for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{
@@ -314,15 +314,15 @@ bool CGSGrid_Regression_Multiple::Set_Residuals(CSG_Shapes *pShapes, int iAttrib
 	if( pResiduals )
 	{
 		pResiduals->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), pShapes->Get_Name(), _TL("Residuals")));
-		pResiduals->Get_Table().Add_Field(pShapes->Get_Table().Get_Field_Name(iAttribute), TABLE_FIELDTYPE_Double);
-		pResiduals->Get_Table().Add_Field("TREND"	, TABLE_FIELDTYPE_Double);
-		pResiduals->Get_Table().Add_Field("RESIDUAL", TABLE_FIELDTYPE_Double);
+		pResiduals->Add_Field(pShapes->Get_Field_Name(iAttribute), TABLE_FIELDTYPE_Double);
+		pResiduals->Add_Field("TREND"	, TABLE_FIELDTYPE_Double);
+		pResiduals->Add_Field("RESIDUAL", TABLE_FIELDTYPE_Double);
 
 		//-------------------------------------------------
 		for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
 			pShape	= pShapes->Get_Shape(iShape);
-			zShape	= pShape->Get_Record()->asDouble(iAttribute);
+			zShape	= pShape->asDouble(iAttribute);
 
 			for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
@@ -334,9 +334,9 @@ bool CGSGrid_Regression_Multiple::Set_Residuals(CSG_Shapes *pShapes, int iAttrib
 					{
 						pResidual	= pResiduals->Add_Shape();
 						pResidual->Add_Point(Point);
-						pResidual->Get_Record()->Set_Value(0, zShape);
-						pResidual->Get_Record()->Set_Value(1, zGrid);
-						pResidual->Get_Record()->Set_Value(2, zShape - zGrid);
+						pResidual->Set_Value(0, zShape);
+						pResidual->Set_Value(1, zGrid);
+						pResidual->Set_Value(2, zShape - zGrid);
 					}
 				}
 			}

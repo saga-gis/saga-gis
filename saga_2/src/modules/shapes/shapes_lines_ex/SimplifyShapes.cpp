@@ -114,9 +114,7 @@ bool CSimplifyShapes::On_Execute(void){
 		bCopy = false;
 	}//else
 
-	pOut->Create(pIn->Get_Type(), _TL("Simplified Lines"));
-
-	pOut->Get_Table().Create(pIn->Get_Table());	
+	pOut->Create(pIn->Get_Type(), _TL("Simplified Lines"), pIn);	
 
 	vector<float> vx(5000),vy(5000);
 	for(i=0; i<pIn->Get_Count(); i++){	

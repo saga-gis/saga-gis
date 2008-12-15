@@ -137,10 +137,10 @@ bool CShapes_Split_by_Attribute::On_Execute(void)
 					pShapes->Get_Type(),
 					CSG_String::Format(SG_T("%s [%s = %s]"),
 						pShapes->Get_Name(),
-						pShapes->Get_Table().Get_Field_Name(iField),
+						pShapes->Get_Field_Name(iField),
 						pShape->asString(iField)
 					),
-					&pShapes->Get_Table()
+					pShapes
 				);
 
 				Parameters("CUTS")->asShapesList()->Add_Item(pCut);
@@ -148,7 +148,7 @@ bool CShapes_Split_by_Attribute::On_Execute(void)
 				sValue	= pShape->asString(iField);
 			}
 
-			pCut->Add_Shape(pShape, true);
+			pCut->Add_Shape(pShape);
 		}
 
 		return( pCut != NULL );

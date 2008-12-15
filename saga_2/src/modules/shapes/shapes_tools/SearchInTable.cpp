@@ -65,7 +65,7 @@ bool CSearchInTable::On_Execute(void){
 	int i;
 	
 	pShapes = Parameters("SHAPES")->asShapes();
-	pTable	= &pShapes->Get_Table();	
+	pTable	= pShapes;	
 	sExpression = Parameters("EXPRESSION")->asString();
 	iMethod = Parameters("METHOD")->asInt();
 

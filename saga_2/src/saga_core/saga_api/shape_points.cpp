@@ -70,8 +70,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Shape_Points::CSG_Shape_Points(CSG_Shapes *pOwner, CSG_Table_Record *pRecord)
-	: CSG_Shape(pOwner, pRecord)
+CSG_Shape_Points::CSG_Shape_Points(CSG_Shapes *pOwner, int Index)
+	: CSG_Shape(pOwner, Index)
 {
 	m_pParts	= NULL;
 	m_nParts	= 0;

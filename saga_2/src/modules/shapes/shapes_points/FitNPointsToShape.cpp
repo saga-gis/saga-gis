@@ -87,8 +87,8 @@ bool CFitNPointsToShape::On_Execute(void){
 	}//else
 
 	pPoints->Create(SHAPE_TYPE_Point, _TL("Point Grid"));
-	pPoints->Get_Table().Add_Field("X", TABLE_FIELDTYPE_Double);
-	pPoints->Get_Table().Add_Field("Y", TABLE_FIELDTYPE_Double);
+	pPoints->Add_Field("X", TABLE_FIELDTYPE_Double);
+	pPoints->Add_Field("Y", TABLE_FIELDTYPE_Double);
 
 	for (i = 0; i < pShapes->Get_Selection_Count(); i++){
 		iRep = 0;
@@ -115,8 +115,8 @@ bool CFitNPointsToShape::On_Execute(void){
 					if (((CSG_Shape_Polygon*)pShape)->is_Containing(x,y)){
 						pShape2 = pPoints->Add_Shape();
 						pShape2->Add_Point(x,y);
-						pShape2->Get_Record()->Set_Value(0, x);
-						pShape2->Get_Record()->Set_Value(1, y);
+						pShape2->Set_Value(0, x);
+						pShape2->Set_Value(1, y);
 						iPointsIn++;
 					}//if
 				}//for

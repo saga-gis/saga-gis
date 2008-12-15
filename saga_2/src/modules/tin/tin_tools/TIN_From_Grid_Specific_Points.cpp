@@ -200,11 +200,11 @@ bool CTIN_From_Grid_Specific_Points::On_Execute(void)
 		pValues	= Parameters("VALUES")->asGridList();
 
 		Points.Create(SHAPE_TYPE_Point);
-		Points.Get_Table().Add_Field(_TL("VALUE"), TABLE_FIELDTYPE_Double);
+		Points.Add_Field(_TL("VALUE"), TABLE_FIELDTYPE_Double);
 
 		for(i=0; i<pValues->Get_Count(); i++)
 		{
-			Points.Get_Table().Add_Field(pValues->asGrid(i)->Get_Name(), TABLE_FIELDTYPE_Double);
+			Points.Add_Field(pValues->asGrid(i)->Get_Name(), TABLE_FIELDTYPE_Double);
 		}
 
 		for(y=0; y<Get_NY() && Set_Progress(y, Get_NY()); y++)
@@ -220,11 +220,11 @@ bool CTIN_From_Grid_Specific_Points::On_Execute(void)
 						Get_YMin() + Get_Cellsize() * y
 					);
 
-					pPoint->Get_Record()->Set_Value(0, pGrid->asDouble(x, y));
+					pPoint->Set_Value(0, pGrid->asDouble(x, y));
 
 					for(i=0; i<pValues->Get_Count(); i++)
 					{
-						pPoint->Get_Record()->Set_Value(1 + i, pValues->asGrid(i)->asDouble(x, y));
+						pPoint->Set_Value(1 + i, pValues->asGrid(i)->asDouble(x, y));
 					}
 				}
 			}

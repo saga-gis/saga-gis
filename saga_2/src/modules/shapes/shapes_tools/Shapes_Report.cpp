@@ -287,9 +287,9 @@ bool CShapes_Report::Add_Shapes(void)
 
 		for(int iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
 		{
-			if( bAddAll || m_pShapes->Get_Table().Get_Record(iShape)->is_Selected() )
+			if( bAddAll || m_pShapes->Get_Record(iShape)->is_Selected() )
 			{
-				Title.Printf(SG_T("%s: %s"), m_pShapes->Get_Table().Get_Field_Name(m_iSubtitle), m_pShapes->Get_Shape(iShape)->Get_Record()->asString(m_iSubtitle));
+				Title.Printf(SG_T("%s: %s"), m_pShapes->Get_Field_Name(m_iSubtitle), m_pShapes->Get_Shape(iShape)->asString(m_iSubtitle));
 
 				Add_Shape(m_pShapes->Get_Shape(iShape), Title);
 			}
@@ -320,7 +320,7 @@ bool CShapes_Report::Add_Shape(CSG_Shape *pShape, const SG_Char *Title)
 		m_pPDF->Draw_Graticule	(r, rWorld, 10);
 
 		//-------------------------------------------------
-		if( pShape->Get_Record()->Get_Owner()->Get_Field_Count() > 0 )
+		if( pShape->Get_Table()->Get_Field_Count() > 0 )
 		{
 			CSG_Table_Record	*pRecord;
 			CSG_Table			Table;
@@ -330,12 +330,12 @@ bool CShapes_Report::Add_Shape(CSG_Shape *pShape, const SG_Char *Title)
 			Table.Add_Field(_TL("Attribute"), TABLE_FIELDTYPE_String);
 			Table.Add_Field(_TL("Value")	, TABLE_FIELDTYPE_String);
 
-			for(int iField=0; iField<pShape->Get_Record()->Get_Owner()->Get_Field_Count(); iField++)
+			for(int iField=0; iField<pShape->Get_Table()->Get_Field_Count(); iField++)
 			{
 				pRecord	= Table.Add_Record();
 
-				pRecord->Set_Value(0, pShape->Get_Record()->Get_Owner()->Get_Field_Name(iField));
-				pRecord->Set_Value(1, pShape->Get_Record()->asString(iField));
+				pRecord->Set_Value(0, pShape->Get_Table()->Get_Field_Name(iField));
+				pRecord->Set_Value(1, pShape->asString(iField));
 			}
 
 			m_pPDF->Draw_Table(m_rTable, &Table, m_nColumns, m_Cell_Height, 0.0);

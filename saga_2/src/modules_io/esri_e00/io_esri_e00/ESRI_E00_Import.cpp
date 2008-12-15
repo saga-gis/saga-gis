@@ -633,12 +633,12 @@ CSG_Shapes * CESRI_E00_Import::getarcs(int prec, double scale, TSG_Shape_Type &s
 
 	//-----------------------------------------------------
 	pShapes	= SG_Create_Shapes(shape_type);
-	pShapes->Get_Table().Add_Field("ID"	, TABLE_FIELDTYPE_Int);
-	pShapes->Get_Table().Add_Field("ID#"	, TABLE_FIELDTYPE_Int);
-	pShapes->Get_Table().Add_Field("FNODE"	, TABLE_FIELDTYPE_Int);
-	pShapes->Get_Table().Add_Field("TNODE"	, TABLE_FIELDTYPE_Int);
-	pShapes->Get_Table().Add_Field("LPOL"	, TABLE_FIELDTYPE_Int);
-	pShapes->Get_Table().Add_Field("RPOL"	, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("ID"	, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("ID#"	, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("FNODE"	, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("TNODE"	, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("LPOL"	, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("RPOL"	, TABLE_FIELDTYPE_Int);
 
 	Set_Progress(0, 100);
 
@@ -660,12 +660,12 @@ CSG_Shapes * CESRI_E00_Import::getarcs(int prec, double scale, TSG_Shape_Type &s
 		{
 			pShape	= pShapes->Add_Shape();
 
-			pShape->Get_Record()->Set_Value(0			, covnum);
-			pShape->Get_Record()->Set_Value(1			, cov_id);
-			pShape->Get_Record()->Set_Value(ARC_FNODE	, fnode);
-			pShape->Get_Record()->Set_Value(ARC_TNODE	, tnode);
-			pShape->Get_Record()->Set_Value(ARC_LPOL	, lpol);
-			pShape->Get_Record()->Set_Value(ARC_RPOL	, rpol);
+			pShape->Set_Value(0			, covnum);
+			pShape->Set_Value(1			, cov_id);
+			pShape->Set_Value(ARC_FNODE	, fnode);
+			pShape->Set_Value(ARC_TNODE	, tnode);
+			pShape->Set_Value(ARC_LPOL	, lpol);
+			pShape->Set_Value(ARC_RPOL	, rpol);
 
 			//---------------------------------------------
 			if( prec )	// double precision : 1 coord pair / line
@@ -733,16 +733,16 @@ CSG_Shapes * CESRI_E00_Import::Arcs2Polygons(CSG_Shapes *pArcs)
 	Process_Set_Text(_TL("Arcs to polygons"));
 
 	pPolygons	= SG_Create_Shapes(SHAPE_TYPE_Polygon);
-	pPolygons->Get_Table().Add_Field("ID", TABLE_FIELDTYPE_Int);
+	pPolygons->Add_Field("ID", TABLE_FIELDTYPE_Int);
 
 	nArcs		= pArcs->Get_Count();
 
 	//-----------------------------------------------------
 	while( (iArc = pArcs->Get_Count() - 1) >= 0 && Set_Progress(nArcs - iArc - 1, nArcs) )
 	{
-		id	= pArcs->Get_Shape(iArc)->Get_Record()->asInt(ARC_LPOL);
+		id	= pArcs->Get_Shape(iArc)->asInt(ARC_LPOL);
 
-		if( id == pArcs->Get_Shape(iArc)->Get_Record()->asInt(ARC_RPOL) )
+		if( id == pArcs->Get_Shape(iArc)->asInt(ARC_RPOL) )
 		{
 			pArcs->Del_Shape(iArc);
 		}
@@ -753,7 +753,7 @@ CSG_Shapes * CESRI_E00_Import::Arcs2Polygons(CSG_Shapes *pArcs)
 
 		if( (iArc = pArcs->Get_Count() - 1) >= 0 )
 		{
-			id	= pArcs->Get_Shape(iArc)->Get_Record()->asInt(ARC_RPOL);
+			id	= pArcs->Get_Shape(iArc)->asInt(ARC_RPOL);
 
 			if( id > 1 )
 			{
@@ -777,52 +777,52 @@ void CESRI_E00_Import::Arcs2Polygon(CSG_Shapes *pArcs, CSG_Shapes *pPolygons, in
 
 	//-----------------------------------------------------
 	Arcs.Create(SHAPE_TYPE_Line);
-	Arcs.Get_Table().Add_Field("FROM_NODE", TABLE_FIELDTYPE_Int);
-	Arcs.Get_Table().Add_Field("TO___NODE", TABLE_FIELDTYPE_Int);
+	Arcs.Add_Field("FROM_NODE", TABLE_FIELDTYPE_Int);
+	Arcs.Add_Field("TO___NODE", TABLE_FIELDTYPE_Int);
 
 	//-----------------------------------------------------
 	for(iShape=pArcs->Get_Count()-1; iShape>=0; iShape--)
 	{
 		pShape	= pArcs->Get_Shape(iShape);
 
-		if( id == pShape->Get_Record()->asInt(ARC_LPOL) )
+		if( id == pShape->asInt(ARC_LPOL) )
 		{
 			pArc	= Arcs.Add_Shape();
-			pArc->Get_Record()->Set_Value(0, pShape->Get_Record()->asInt(ARC_FNODE));
-			pArc->Get_Record()->Set_Value(1, pShape->Get_Record()->asInt(ARC_TNODE));
+			pArc->Set_Value(0, pShape->asInt(ARC_FNODE));
+			pArc->Set_Value(1, pShape->asInt(ARC_TNODE));
 
 			for(iPoint=0; iPoint<pShape->Get_Point_Count(0); iPoint++)
 			{
 				pArc->Add_Point(pShape->Get_Point(iPoint, 0), 0);
 			}
 
-			if( pShape->Get_Record()->asInt(ARC_RPOL) <= 1 )
+			if( pShape->asInt(ARC_RPOL) <= 1 )
 			{
 				pArcs->Del_Shape(iShape);
 			}
 			else
 			{
-				pShape->Get_Record()->Set_Value(ARC_LPOL, 1);
+				pShape->Set_Value(ARC_LPOL, 1);
 			}
 		}
-		else if( id == pShape->Get_Record()->asInt(ARC_RPOL) )
+		else if( id == pShape->asInt(ARC_RPOL) )
 		{
 			pArc	= Arcs.Add_Shape();
-			pArc->Get_Record()->Set_Value(1, pShape->Get_Record()->asInt(ARC_FNODE));
-			pArc->Get_Record()->Set_Value(0, pShape->Get_Record()->asInt(ARC_TNODE));
+			pArc->Set_Value(1, pShape->asInt(ARC_FNODE));
+			pArc->Set_Value(0, pShape->asInt(ARC_TNODE));
 
 			for(iPoint=pShape->Get_Point_Count(0)-1; iPoint>=0; iPoint--)
 			{
 				pArc->Add_Point(pShape->Get_Point(iPoint, 0), 0);
 			}
 
-			if( pShape->Get_Record()->asInt(ARC_LPOL) <= 1 )
+			if( pShape->asInt(ARC_LPOL) <= 1 )
 			{
 				pArcs->Del_Shape(iShape);
 			}
 			else
 			{
-				pShape->Get_Record()->Set_Value(ARC_RPOL, 1);
+				pShape->Set_Value(ARC_RPOL, 1);
 			}
 		}
 	}
@@ -832,7 +832,7 @@ void CESRI_E00_Import::Arcs2Polygon(CSG_Shapes *pArcs, CSG_Shapes *pPolygons, in
 	{
 		iPart	= 0;
 		pShape	= pPolygons->Add_Shape();
-		pShape->Get_Record()->Set_Value(0, id);
+		pShape->Set_Value(0, id);
 
 		do
 		{
@@ -845,12 +845,12 @@ void CESRI_E00_Import::Arcs2Polygon(CSG_Shapes *pArcs, CSG_Shapes *pPolygons, in
 					pShape->Add_Point(pArc->Get_Point(iPoint, 0), iPart);
 				}
 
-				iNode	= pArc->Get_Record()->asInt(1);
+				iNode	= pArc->asInt(1);
 				Arcs.Del_Shape(pArc);
 
 				for(iShape=0, pArc=NULL; iShape<Arcs.Get_Count() && !pArc; iShape++)
 				{
-					if( iNode == Arcs.Get_Shape(iShape)->Get_Record()->asInt(0) )
+					if( iNode == Arcs.Get_Shape(iShape)->asInt(0) )
 					{
 						pArc	= Arcs.Get_Shape(iShape);
 					}
@@ -882,8 +882,8 @@ CSG_Shapes * CESRI_E00_Import::getlabels(int prec, double scale)	// shape_type: 
 
 	pShapes	= SG_Create_Shapes(SHAPE_TYPE_Point);
 
-	pShapes->Get_Table().Add_Field("ID#"	, TABLE_FIELDTYPE_Int);
-	pShapes->Get_Table().Add_Field("ID"	, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("ID#"	, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("ID"	, TABLE_FIELDTYPE_Int);
 
 	while( (line = E00ReadNextLine(hReadPtr)) != NULL )
 	{
@@ -899,8 +899,8 @@ CSG_Shapes * CESRI_E00_Import::getlabels(int prec, double scale)	// shape_type: 
 
 			pShape->Add_Point(x * scale, y * scale);
 
-			pShape->Get_Record()->Set_Value(0, num);
-			pShape->Get_Record()->Set_Value(1, id);
+			pShape->Set_Value(0, num);
+			pShape->Set_Value(1, id);
 
 			//---------------------------------------------
 			E00ReadNextLine(hReadPtr);		// 4 values to skip
@@ -939,7 +939,7 @@ CSG_Shapes * CESRI_E00_Import::getsites(int prec, double scale)
 	CSG_Shapes	*pShapes;
 
 	pShapes	= SG_Create_Shapes(SHAPE_TYPE_Point);
-	pShapes->Get_Table().Add_Field("ID", TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("ID", TABLE_FIELDTYPE_Int);
 
 	while( (line = E00ReadNextLine(hReadPtr)) != NULL )
 	{
@@ -953,7 +953,7 @@ CSG_Shapes * CESRI_E00_Import::getsites(int prec, double scale)
 		pShape	= pShapes->Add_Shape();
 
 		pShape->Add_Point(x * scale, y * scale);
-		pShape->Get_Record()->Set_Value(0, id);
+		pShape->Set_Value(0, id);
 
 		//-------------------------------------------------
 		E00ReadNextLine(hReadPtr);		// 4 values to skip
@@ -1157,16 +1157,16 @@ int CESRI_E00_Import::info_Get_Tables(void)
 			if     ( !s.CmpNoCase(SG_T("bnd")) )	// coverage boundaries
 			{
 				pBND	= SG_Create_Shapes(SHAPE_TYPE_Polygon, SG_T("Boundary"));
-				pBND->Get_Table().Add_Field("XMIN", TABLE_FIELDTYPE_Double);
-				pBND->Get_Table().Add_Field("YMIN", TABLE_FIELDTYPE_Double);
-				pBND->Get_Table().Add_Field("XMAX", TABLE_FIELDTYPE_Double);
-				pBND->Get_Table().Add_Field("YMAX", TABLE_FIELDTYPE_Double);
+				pBND->Add_Field("XMIN", TABLE_FIELDTYPE_Double);
+				pBND->Add_Field("YMIN", TABLE_FIELDTYPE_Double);
+				pBND->Add_Field("XMAX", TABLE_FIELDTYPE_Double);
+				pBND->Add_Field("YMAX", TABLE_FIELDTYPE_Double);
 				pRecord	= pTable->Get_Record(0);
 				pShape	= pBND->Add_Shape();
-				pShape->Get_Record()->Set_Value(0, pRecord->asDouble(0));
-				pShape->Get_Record()->Set_Value(1, pRecord->asDouble(1));
-				pShape->Get_Record()->Set_Value(2, pRecord->asDouble(2));
-				pShape->Get_Record()->Set_Value(3, pRecord->asDouble(3));
+				pShape->Set_Value(0, pRecord->asDouble(0));
+				pShape->Set_Value(1, pRecord->asDouble(1));
+				pShape->Set_Value(2, pRecord->asDouble(2));
+				pShape->Set_Value(3, pRecord->asDouble(3));
 				pShape->Add_Point(pRecord->asDouble(0), pRecord->asDouble(1));
 				pShape->Add_Point(pRecord->asDouble(0), pRecord->asDouble(3));
 				pShape->Add_Point(pRecord->asDouble(2), pRecord->asDouble(3));
@@ -1177,16 +1177,16 @@ int CESRI_E00_Import::info_Get_Tables(void)
 			else if( !s.CmpNoCase(SG_T("tic")) )	// tick marks
 			{
 				pTIC	= SG_Create_Shapes(SHAPE_TYPE_Point, SG_T("Tick Points"));
-				pTIC->Get_Table().Add_Field("ID", TABLE_FIELDTYPE_Int);
-				pTIC->Get_Table().Add_Field("X" , TABLE_FIELDTYPE_Double);
-				pTIC->Get_Table().Add_Field("Y" , TABLE_FIELDTYPE_Double);
+				pTIC->Add_Field("ID", TABLE_FIELDTYPE_Int);
+				pTIC->Add_Field("X" , TABLE_FIELDTYPE_Double);
+				pTIC->Add_Field("Y" , TABLE_FIELDTYPE_Double);
 				for(i=0; i<pTable->Get_Record_Count(); i++)
 				{
 					pRecord	= pTable->Get_Record(i);
 					pShape	= pTIC->Add_Shape();
-					pShape->Get_Record()->Set_Value(0, pRecord->asInt   (0));
-					pShape->Get_Record()->Set_Value(1, pRecord->asDouble(1));
-					pShape->Get_Record()->Set_Value(2, pRecord->asDouble(2));
+					pShape->Set_Value(0, pRecord->asInt   (0));
+					pShape->Set_Value(1, pRecord->asDouble(1));
+					pShape->Set_Value(2, pRecord->asDouble(2));
 					pShape->Add_Point(pRecord->asDouble(1), pRecord->asDouble(2));
 				}
 				Parameters("TIC")->Set_Value(pTIC);
@@ -1368,21 +1368,21 @@ bool CESRI_E00_Import::Assign_Attributes(CSG_Shapes *pShapes)
 	CSG_Table_Record	*pRec;
 	CSG_Shape			*pShape;
 
-	if( pShapes && pShapes->Get_Table().Get_Field_Count() > 0 && pPAT && pPAT->Get_Field_Count() > 2 )
+	if( pShapes && pShapes->Get_Field_Count() > 0 && pPAT && pPAT->Get_Field_Count() > 2 )
 	{
 		Process_Set_Text(_TL("Assign attributes to shapes..."));
 
-		oField	= pShapes->Get_Table().Get_Field_Count();
+		oField	= pShapes->Get_Field_Count();
 
 		for(iField=0; iField<pPAT->Get_Field_Count(); iField++)
 		{
-			pShapes->Get_Table().Add_Field(pPAT->Get_Field_Name(iField), pPAT->Get_Field_Type(iField));
+			pShapes->Add_Field(pPAT->Get_Field_Name(iField), pPAT->Get_Field_Type(iField));
 		}
 
 		for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
 			pShape	= pShapes->Get_Shape(iShape);
-			id		= pShape->Get_Record()->asInt(0);
+			id		= pShape->asInt(0);
 
 			for(iRecord=0; iRecord<pPAT->Get_Record_Count(); iRecord++)
 			{
@@ -1395,11 +1395,11 @@ bool CESRI_E00_Import::Assign_Attributes(CSG_Shapes *pShapes)
 						switch( pPAT->Get_Field_Type(iField) )
 						{
 						case TABLE_FIELDTYPE_String:
-							pShape->Get_Record()->Set_Value(oField + iField, pRec->asString(iField));
+							pShape->Set_Value(oField + iField, pRec->asString(iField));
 							break;
 
 						default:
-							pShape->Get_Record()->Set_Value(oField + iField, pRec->asDouble(iField));
+							pShape->Set_Value(oField + iField, pRec->asDouble(iField));
 							break;
 						}
 					}

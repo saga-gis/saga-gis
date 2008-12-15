@@ -275,7 +275,7 @@ bool CShapes2Grid::On_Execute(void)
 	m_pShapes	= Parameters("INPUT")->asShapes();
 
 	//-----------------------------------------------------
-	if( m_pShapes->Get_Table().Get_Field_Count() > 0 )
+	if( m_pShapes->Get_Field_Count() > 0 )
 	{
 		switch( Parameters("TARGET_TYPE")->asInt() )
 		{
@@ -314,10 +314,10 @@ bool CShapes2Grid::On_Execute(void)
 			m_Method_Lines	= Parameters("LINE_TYPE")	->asInt();
 			iField			= Parameters("FIELD")		->asInt();
 
-			if( iField >= 0 && iField < m_pShapes->Get_Table().Get_Field_Count()
-			&&	m_pShapes->Get_Table().Get_Field_Type(iField) != TABLE_FIELDTYPE_String )
+			if( iField >= 0 && iField < m_pShapes->Get_Field_Count()
+			&&	m_pShapes->Get_Field_Type(iField) != TABLE_FIELDTYPE_String )
 			{
-				m_pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pShapes->Get_Name(), m_pShapes->Get_Table().Get_Field_Name(iField)));
+				m_pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pShapes->Get_Name(), m_pShapes->Get_Field_Name(iField)));
 			}
 			else
 			{
@@ -336,7 +336,7 @@ bool CShapes2Grid::On_Execute(void)
 			for(i=0, m_Lock_ID=1; i<m_pShapes->Get_Count() && Set_Progress(i, m_pShapes->Get_Count()); i++, m_Lock_ID++)
 			{
 				pShape	= m_pShapes->Get_Shape(i);
-				m_Value	= iField < 0 ? i + 1 : pShape->Get_Record()->asDouble(iField);
+				m_Value	= iField < 0 ? i + 1 : pShape->asDouble(iField);
 
 				if( pShape->Intersects(m_pGrid->Get_Extent().m_rect) )
 				{

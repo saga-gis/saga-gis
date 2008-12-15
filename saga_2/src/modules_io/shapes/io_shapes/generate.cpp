@@ -122,11 +122,11 @@ bool CGenerate_Export::On_Execute(void)
 	{
 		if( (aus = fopen(fName.b_str(), "w")) != NULL )
 		{
-			if( pLayer->Get_Table().Get_Field_Count() > 0 )
+			if( pLayer->Get_Field_Count() > 0 )
 			{
 				iField	= Parameters("FIELD")->asInt();
 
-				if( pLayer->Get_Table().Get_Field_Type(iField) == TABLE_FIELDTYPE_String )
+				if( pLayer->Get_Field_Type(iField) == TABLE_FIELDTYPE_String )
 				{
 					iField	= -1;
 				}
@@ -146,7 +146,7 @@ bool CGenerate_Export::On_Execute(void)
 						}
 						else
 						{
-							fprintf(aus, "%lf ", pShape->Get_Record()->asDouble(iField));
+							fprintf(aus, "%lf ", pShape->asDouble(iField));
 						}
 
 						// dummy_I dummy_I dummy_I dummy_I dummy_I...

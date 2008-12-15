@@ -276,7 +276,7 @@ CTable_Trend_Shapes::CTable_Trend_Shapes(void)
 //---------------------------------------------------------
 bool CTable_Trend_Shapes::On_Execute(void)
 {
-	return( Get_Trend(&Parameters("TABLE")->asShapes()->Get_Table()) );
+	return( Get_Trend(Parameters("TABLE")->asShapes()) );
 }
 
 

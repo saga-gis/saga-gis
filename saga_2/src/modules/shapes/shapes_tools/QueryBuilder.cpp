@@ -65,7 +65,7 @@ bool CQueryBuilder::On_Execute(void){
 	int i;
 
 	pShapes = Parameters("SHAPES")->asShapes();
-	pTable	= &pShapes->Get_Table();
+	pTable	= pShapes;
 	sExpression = Parameters("QUERY")->asString();
 	iMethod = Parameters("METHOD")->asInt();
 

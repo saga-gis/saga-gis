@@ -233,8 +233,8 @@ double CSG_Shape_Polygon_Part::Get_Distance(TSG_Point Point, TSG_Point &Next)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Shape_Polygon::CSG_Shape_Polygon(CSG_Shapes *pOwner, CSG_Table_Record *pRecord)
-	: CSG_Shape_Points(pOwner, pRecord)
+CSG_Shape_Polygon::CSG_Shape_Polygon(CSG_Shapes *pOwner, int Index)
+	: CSG_Shape_Points(pOwner, Index)
 {}
 
 //---------------------------------------------------------

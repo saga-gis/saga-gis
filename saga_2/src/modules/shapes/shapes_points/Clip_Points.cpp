@@ -150,7 +150,7 @@ bool CClip_Points::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( iField >= pPolygons->Get_Table().Get_Field_Count() )
+	if( iField >= pPolygons->Get_Field_Count() )
 	{
 		iField	= -1;
 	}
@@ -159,11 +159,11 @@ bool CClip_Points::On_Execute(void)
 
 	if( Method == 0 )
 	{
-		pClip	= SG_Create_Shapes(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), pPoints->Get_Name(), pPolygons->Get_Name()), &pPoints->Get_Table());
+		pClip	= SG_Create_Shapes(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), pPoints->Get_Name(), pPolygons->Get_Name()), pPoints);
 
 		if( iField >= 0 )
 		{
-			pClip->Get_Table().Add_Field(pPolygons->Get_Table().Get_Field_Name(iField), pPolygons->Get_Table().Get_Field_Type(iField));
+			pClip->Add_Field(pPolygons->Get_Field_Name(iField), pPolygons->Get_Field_Type(iField));
 		}
 	}
 
@@ -180,11 +180,11 @@ bool CClip_Points::On_Execute(void)
 					? CSG_String::Format(SG_T(" [%s]"), pPolygon->asString(iField))
 					: CSG_String::Format(SG_T(" [%00d]"), 1 + pClips->Get_Count());
 
-			pClip	= SG_Create_Shapes(SHAPE_TYPE_Point, Name, &pPoints->Get_Table());
+			pClip	= SG_Create_Shapes(SHAPE_TYPE_Point, Name, pPoints);
 
 			if( iField >= 0 )
 			{
-				pClip->Get_Table().Add_Field(pPolygons->Get_Table().Get_Field_Name(iField), pPolygons->Get_Table().Get_Field_Type(iField));
+				pClip->Add_Field(pPolygons->Get_Field_Name(iField), pPolygons->Get_Field_Type(iField));
 			}
 		}
 
@@ -194,11 +194,11 @@ bool CClip_Points::On_Execute(void)
 
 			if( pPolygon->is_Containing(pPoint->Get_Point(0)) )
 			{
-				pPoint	= pClip->Add_Shape(pPoint, true);
+				pPoint	= pClip->Add_Shape(pPoint, SHAPE_COPY_ATTR);
 
 				if( iField >= 0 )
 				{
-					pPoint->Set_Value(pPoints->Get_Table().Get_Field_Count(), pPolygon->asString(iField));
+					pPoint->Set_Value(pPoints->Get_Field_Count(), pPolygon->asString(iField));
 				}
 			}
 		}

@@ -176,7 +176,7 @@ bool C_Kriging_Ordinary_Global::Get_Weights(void)
 				m_Points.Add(
 					pShape->Get_Point(iPoint, iPart).x,
 					pShape->Get_Point(iPoint, iPart).y,
-					pShape->Get_Record()->asDouble(m_zField)
+					pShape->asDouble(m_zField)
 				);
 			}
 		}

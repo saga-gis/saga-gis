@@ -75,7 +75,7 @@ public:
 	CShapes_Split_by_Attribute(void);
 	virtual ~CShapes_Split_by_Attribute(void);
 
-	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Construction") );	}
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("A:Shapes|Construction") );	}
 
 
 protected:

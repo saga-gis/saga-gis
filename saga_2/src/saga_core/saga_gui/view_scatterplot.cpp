@@ -809,7 +809,7 @@ bool CVIEW_ScatterPlot::_Initialize_Grid_Unequal(CSG_Grid *pGrid_X, CSG_Grid *pG
 //---------------------------------------------------------
 bool CVIEW_ScatterPlot::_Initialize_Shapes(CSG_Grid *pGrid_X, CSG_Shapes *pShapes_Y, int Field)
 {
-	if( pGrid_X && pShapes_Y && Field >= 0 && Field < pShapes_Y->Get_Table().Get_Field_Count() )
+	if( pGrid_X && pShapes_Y && Field >= 0 && Field < pShapes_Y->Get_Field_Count() )
 	{
 		int		iShape, iPart, iPoint;
 		double	z;
@@ -820,7 +820,7 @@ bool CVIEW_ScatterPlot::_Initialize_Shapes(CSG_Grid *pGrid_X, CSG_Shapes *pShape
 		m_sTitle.Printf(wxT("%s: [%s/%s]"), LNG("[CAP] Scatterplot"), pGrid_X->Get_Name(), pShapes_Y->Get_Name());
 
 		m_sX.Printf(wxT("%s"), pGrid_X->Get_Name());
-		m_sY.Printf(wxT("%s"), pShapes_Y->Get_Table().Get_Field_Name(Field));
+		m_sY.Printf(wxT("%s"), pShapes_Y->Get_Field_Name(Field));
 
 		for(iShape=0; iShape<pShapes_Y->Get_Count() && PROGRESSBAR_Set_Position(iShape, pShapes_Y->Get_Count()); iShape++)
 		{
@@ -832,7 +832,7 @@ bool CVIEW_ScatterPlot::_Initialize_Shapes(CSG_Grid *pGrid_X, CSG_Shapes *pShape
 				{
 					if( pGrid_X->Get_Value(pShape->Get_Point(iPoint, iPart), z, GRID_INTERPOLATION_BSpline, true) )
 					{
-						m_Regression.Add_Values(z, pShape->Get_Record()->asDouble(Field));
+						m_Regression.Add_Values(z, pShape->asDouble(Field));
 					}
 				}
 			}

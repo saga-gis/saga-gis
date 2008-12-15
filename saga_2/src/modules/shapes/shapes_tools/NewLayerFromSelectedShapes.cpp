@@ -52,14 +52,14 @@ bool CNewLayerFromSelectedShapes::On_Execute(void){
 	CSG_Table *pTable;
 	CSG_String sName;
 
-	pTable	= &pInput->Get_Table();
+	pTable	= pInput;
 	pOutput = SG_Create_Shapes(pInput->Get_Type());
 	
 	sName = CSG_String(pInput->Get_Name()) + _TL("(Selected)");
 	pOutput->Set_Name(sName.c_str());
 
 	for (i=0; i<pTable->Get_Field_Count(); i++){
-		pOutput->Get_Table().Add_Field(pTable->Get_Field_Name(i), pTable->Get_Field_Type(i));	
+		pOutput->Add_Field(pTable->Get_Field_Name(i), pTable->Get_Field_Type(i));	
 	}//for
 
 	for (i = 0; i < pInput->Get_Selection_Count(); i++){

@@ -72,13 +72,13 @@ bool CIDW::Get_Grid_Value(int x, int y)
 		d		= sqrt(dx*dx + d*d);
 
 		if( d <= 0.0 ){
-			m_pGrid->Set_Value(x, y, pPoint->Get_Record()->asDouble(m_iField) );
+			m_pGrid->Set_Value(x, y, pPoint->asDouble(m_iField) );
 			return( true );
 		}//if
 
 		d		= pow(d, -2);
 
-		zSum	+= d * pPoint->Get_Record()->asDouble(m_iField);
+		zSum	+= d * pPoint->asDouble(m_iField);
 		dSum	+= d;
 	}//for
 

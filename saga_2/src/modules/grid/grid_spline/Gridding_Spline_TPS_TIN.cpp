@@ -318,9 +318,9 @@ bool CGridding_Spline_TPS_TIN::_Get_TIN(CSG_TIN &TIN)
 		TSG_Point	p;
 		CSG_Shape		*pShape;
 
-		for(iField=0; iField<m_pShapes->Get_Table().Get_Field_Count(); iField++)
+		for(iField=0; iField<m_pShapes->Get_Field_Count(); iField++)
 		{
-			TIN.Get_Table().Add_Field(m_pShapes->Get_Table().Get_Field_Name(iField), m_pShapes->Get_Table().Get_Field_Type(iField));
+			TIN.Get_Table().Add_Field(m_pShapes->Get_Field_Name(iField), m_pShapes->Get_Field_Type(iField));
 		}
 
 		x[0]	= m_pGrid->Get_Extent().Get_XMin();	y[0]	= m_pGrid->Get_Extent().Get_YMin();	dMin[0]	= -1.0;
@@ -338,7 +338,7 @@ bool CGridding_Spline_TPS_TIN::_Get_TIN(CSG_TIN &TIN)
 				{
 					p	= pShape->Get_Point(iPoint, iPart);
 
-					TIN.Add_Point(p, pShape->Get_Record(), false);
+					TIN.Add_Point(p, pShape, false);
 
 					for(iCorner=0; iCorner<4; iCorner++)
 					{
@@ -361,7 +361,7 @@ bool CGridding_Spline_TPS_TIN::_Get_TIN(CSG_TIN &TIN)
 				p.x	= x[iCorner];
 				p.y	= y[iCorner];
 
-				TIN.Add_Point(p, m_pShapes->Get_Shape(z[iCorner])->Get_Record(), false);
+				TIN.Add_Point(p, m_pShapes->Get_Shape(z[iCorner]), false);
 			}
 		}
 

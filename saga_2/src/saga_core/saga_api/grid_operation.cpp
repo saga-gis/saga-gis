@@ -80,20 +80,18 @@ void CSG_Grid::Assign_NoData(void)
 //---------------------------------------------------------
 bool CSG_Grid::Assign(double Value)
 {
-	int		n, m;
-
 	if( is_Valid() )
 	{
 		if( Value == 0.0 && m_Memory_Type == GRID_MEMORY_Normal )
 		{
-			for(n=0, m=_Get_nLineBytes(); n<Get_NY(); n++)
+			for(int n=0, m=_Get_nLineBytes(); n<Get_NY(); n++)
 			{
 				memset(m_Values[n], 0, m);
 			}
 		}
 		else
 		{
-			for(n=0; n<Get_NCells(); n++)
+			for(int n=0; n<Get_NCells(); n++)
 			{
 				Set_Value(n, Value);
 			}
@@ -104,9 +102,10 @@ bool CSG_Grid::Assign(double Value)
 		Get_History().Add_Entry(LNG("[HST] Value assigned to grid"), CSG_String::Format(SG_T("%f"), Value));
 
 		//-------------------------------------------------
-		m_bUpdate	= false;
 		m_ArithMean	= m_zMin	= m_zMax	= Value;
 		m_Variance	= 0.0;
+
+		Set_Update_Flag(false);
 
 		return( true );
 	}
@@ -714,15 +713,15 @@ void CSG_Grid::Mirror(void)
 //---------------------------------------------------------
 void CSG_Grid::Normalise(void)
 {
-	int		x, y;
-	double	d;
-
 	if( is_Valid() )
 	{
-		Update_Statistics();
+		Update();
 
 		if( m_Variance > 0.0 )
 		{
+			int		x, y;
+			double	d;
+
 			if(	(Get_NoData_hiValue() > -NORMALISED_NODATA && Get_NoData_hiValue() < NORMALISED_NODATA)
 			||	(Get_NoData_Value  () > -NORMALISED_NODATA && Get_NoData_Value  () < NORMALISED_NODATA) )
 			{

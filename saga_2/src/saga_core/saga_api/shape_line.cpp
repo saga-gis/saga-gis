@@ -70,8 +70,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Shape_Line::CSG_Shape_Line(CSG_Shapes *pOwner, CSG_Table_Record *pRecord)
-	: CSG_Shape_Points(pOwner, pRecord)
+CSG_Shape_Line::CSG_Shape_Line(CSG_Shapes *pOwner, int Index)
+	: CSG_Shape_Points(pOwner, Index)
 {}
 
 //---------------------------------------------------------

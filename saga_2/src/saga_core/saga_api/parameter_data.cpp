@@ -1467,11 +1467,8 @@ CSG_Table * CSG_Parameter_Table_Field::Get_Table(void)
 			break;
 
 		case PARAMETER_TYPE_Table:
-			pTable	= pParent->asTable();
-			break;
-
 		case PARAMETER_TYPE_Shapes:
-			pTable	= pParent->asShapes() ? &pParent->asShapes()->Get_Table() : NULL;
+			pTable	= pParent->asTable();
 			break;
 
 		case PARAMETER_TYPE_TIN:

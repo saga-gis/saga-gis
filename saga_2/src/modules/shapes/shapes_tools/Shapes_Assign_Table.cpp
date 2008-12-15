@@ -77,12 +77,12 @@ CShapes_Assign_Table::CShapes_Assign_Table(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name		(_TL("Assign a Table to Shapes"));
+	Set_Name		(_TL("Join a Table"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		(SG_T("V. Olaya, O. Conrad (c) 2003"));
 
 	Set_Description	(_TW(
-		"Assigns a table to a shapes layer."
+		"Joins a table with shapes layer's attributes."
 	));
 
 
@@ -172,7 +172,7 @@ bool CShapes_Assign_Table::On_Execute(void)
 	bAddAll		= Parameters("ADDALL")		->asInt() == 0;
 
 	//-----------------------------------------------------
-	if(	id_Shapes >= 0 && id_Shapes < pShapes_A->Get_Table().Get_Field_Count() && pShapes_A->Get_Count() > 0
+	if(	id_Shapes >= 0 && id_Shapes < pShapes_A->Get_Field_Count() && pShapes_A->Get_Count() > 0
 	&&	id_Table  >= 0 && id_Table  < pTable_A->Get_Field_Count() && pTable_A->Get_Record_Count() > 0 )
 	{
 		if( pShapes_A == pShapes_B || pShapes_A->Get_Type() != pShapes_B->Get_Type() )
@@ -182,13 +182,13 @@ bool CShapes_Assign_Table::On_Execute(void)
 
 		if( Method == METHOD_ADD )
 		{
-			pShapes_B->Create(pShapes_A->Get_Type(), CSG_String::Format(SG_T("%s / %s"), pShapes_A->Get_Name(), pTable_A->Get_Name()), &pShapes_A->Get_Table());
-			off_Field	= pShapes_A->Get_Table().Get_Field_Count();
+			pShapes_B->Create(pShapes_A->Get_Type(), CSG_String::Format(SG_T("%s / %s"), pShapes_A->Get_Name(), pTable_A->Get_Name()), pShapes_A);
+			off_Field	= pShapes_A->Get_Field_Count();
 
 			for(iField=0; iField<pTable_A->Get_Field_Count(); iField++)
 			{
 				if( iField != id_Table )
-					pShapes_B->Get_Table().Add_Field(pTable_A->Get_Field_Name(iField), pTable_A->Get_Field_Type(iField));
+					pShapes_B->Add_Field(pTable_A->Get_Field_Name(iField), pTable_A->Get_Field_Type(iField));
 			}
 		}
 		else	//  METHOD_REPLACE
@@ -201,7 +201,7 @@ bool CShapes_Assign_Table::On_Execute(void)
 		for(iShape=0; iShape<pShapes_A->Get_Count() && Set_Progress(iShape, pShapes_A->Get_Count()); iShape++)
 		{
 			pShape_A	= pShapes_A->Get_Shape(iShape);
-			sID			= pShape_A->Get_Record()->asString(id_Shapes);
+			sID			= pShape_A->asString(id_Shapes);
 
 			for(iRecord=0, pShape_B=NULL; iRecord<pTable_A->Get_Record_Count() && pShape_B==NULL; iRecord++)
 			{
@@ -209,22 +209,22 @@ bool CShapes_Assign_Table::On_Execute(void)
 
 				if( !sID.CmpNoCase(pRecord_A->asString(id_Table)) )
 				{
-					pShape_B	= pShapes_B->Add_Shape(Method == METHOD_ADD ? pShape_A->Get_Record() : NULL);
+					pShape_B	= pShapes_B->Add_Shape(Method == METHOD_ADD ? pShape_A : NULL);
 
 					for(iField=0, jField=off_Field; iField<pTable_A->Get_Field_Count(); iField++)
 					{
 						if( Method != METHOD_ADD || iField != id_Table )
-							pShape_B->Get_Record()->Set_Value(jField++, pRecord_A->asString(iField));
+							pShape_B->Set_Value(jField++, pRecord_A->asString(iField));
 					}
 				}
 			}
 
 			if( pShape_B == NULL && bAddAll )
 			{
-				pShape_B	= pShapes_B->Add_Shape(Method == METHOD_ADD ? pShape_A->Get_Record() : NULL);
+				pShape_B	= pShapes_B->Add_Shape(Method == METHOD_ADD ? pShape_A : NULL);
 
 				if( Method != METHOD_ADD )
-					pShape_B->Get_Record()->Set_Value(id_Table, sID);
+					pShape_B->Set_Value(id_Table, sID);
 			}
 
 			if( pShape_B )

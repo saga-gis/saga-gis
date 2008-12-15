@@ -192,7 +192,7 @@ int CGridding_Spline_TPS_Local::Get_Points(const TSG_Point &p, int iQuadrant)
 
 			if( pPoint != NULL )
 			{
-				m_Spline.Add_Point(pPoint->Get_Point(0), pPoint->Get_Record()->asDouble(m_zField));
+				m_Spline.Add_Point(pPoint->Get_Point(0), pPoint->asDouble(m_zField));
 			}
 		}
 	}

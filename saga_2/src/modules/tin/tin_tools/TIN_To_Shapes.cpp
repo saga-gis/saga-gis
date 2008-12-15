@@ -149,10 +149,10 @@ bool CTIN_To_Shapes::On_Execute(void)
 	pShapes		= Parameters("POINTS")		->asShapes();
 	pShapes->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("%s [TIN]"), pTIN->Get_Name()));
 
-	pShapes->Get_Table().Add_Field("POINT_ID", TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("POINT_ID", TABLE_FIELDTYPE_Int);
 	for(j=0; j<pTIN->Get_Table().Get_Field_Count(); j++)
 	{
-		pShapes->Get_Table().Add_Field(pTIN->Get_Table().Get_Field_Name(j), pTIN->Get_Table().Get_Field_Type(j));
+		pShapes->Add_Field(pTIN->Get_Table().Get_Field_Name(j), pTIN->Get_Table().Get_Field_Type(j));
 	}
 
 	for(i=0; i<pTIN->Get_Point_Count() && Set_Progress(i, pTIN->Get_Point_Count()); i++)
@@ -162,10 +162,10 @@ bool CTIN_To_Shapes::On_Execute(void)
 
 		pShape->Add_Point(pPoint->Get_Point());
 
-		pShape->Get_Record()->Set_Value(0, 1 + i);
+		pShape->Set_Value(0, 1 + i);
 		for(j=0; j<pTIN->Get_Table().Get_Field_Count(); j++)
 		{
-			pShape->Get_Record()->Set_Value(j + 1, pPoint->Get_Record()->asString(j));
+			pShape->Set_Value(j + 1, pPoint->Get_Record()->asString(j));
 		}
 	}
 
@@ -173,9 +173,9 @@ bool CTIN_To_Shapes::On_Execute(void)
 	pShapes		= Parameters("EDGES")	->asShapes();
 	pShapes->Create(SHAPE_TYPE_Line, CSG_String::Format(_TL("%s [TIN]"), pTIN->Get_Name()));
 
-	pShapes->Get_Table().Add_Field("ID"			, TABLE_FIELDTYPE_Int);
-	pShapes->Get_Table().Add_Field("POINT_ID_A"	, TABLE_FIELDTYPE_Int);
-	pShapes->Get_Table().Add_Field("POINT_ID_B"	, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("ID"			, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("POINT_ID_A"	, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("POINT_ID_B"	, TABLE_FIELDTYPE_Int);
 
 	for(i=0; i<pTIN->Get_Edge_Count() && Set_Progress(i, pTIN->Get_Edge_Count()); i++)
 	{
@@ -185,19 +185,19 @@ bool CTIN_To_Shapes::On_Execute(void)
 		pShape->Add_Point(pEdge->Get_Point(0)->Get_Point());
 		pShape->Add_Point(pEdge->Get_Point(1)->Get_Point());
 
-		pShape->Get_Record()->Set_Value(0, 1 + i);
-		pShape->Get_Record()->Set_Value(1, 1 + pEdge->Get_Point(0)->Get_ID());
-		pShape->Get_Record()->Set_Value(2, 1 + pEdge->Get_Point(1)->Get_ID());
+		pShape->Set_Value(0, 1 + i);
+		pShape->Set_Value(1, 1 + pEdge->Get_Point(0)->Get_ID());
+		pShape->Set_Value(2, 1 + pEdge->Get_Point(1)->Get_ID());
 	}
 
 	//-----------------------------------------------------
 	pShapes		= Parameters("TRIANGLES")	->asShapes();
 	pShapes->Create(SHAPE_TYPE_Polygon, CSG_String::Format(_TL("%s [TIN]"), pTIN->Get_Name()));
 
-	pShapes->Get_Table().Add_Field("ID"			, TABLE_FIELDTYPE_Int);
-	pShapes->Get_Table().Add_Field("POINT_ID_A"	, TABLE_FIELDTYPE_Int);
-	pShapes->Get_Table().Add_Field("POINT_ID_B"	, TABLE_FIELDTYPE_Int);
-	pShapes->Get_Table().Add_Field("POINT_ID_C"	, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("ID"			, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("POINT_ID_A"	, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("POINT_ID_B"	, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("POINT_ID_C"	, TABLE_FIELDTYPE_Int);
 
 	for(i=0; i<pTIN->Get_Triangle_Count() && Set_Progress(i, pTIN->Get_Triangle_Count()); i++)
 	{
@@ -208,20 +208,20 @@ bool CTIN_To_Shapes::On_Execute(void)
 		pShape->Add_Point(pTriangle->Get_Point(1)->Get_Point());
 		pShape->Add_Point(pTriangle->Get_Point(2)->Get_Point());
 
-		pShape->Get_Record()->Set_Value(0, 1 + i);
-		pShape->Get_Record()->Set_Value(1, 1 + pTriangle->Get_Point(0)->Get_ID());
-		pShape->Get_Record()->Set_Value(2, 1 + pTriangle->Get_Point(1)->Get_ID());
-		pShape->Get_Record()->Set_Value(3, 1 + pTriangle->Get_Point(2)->Get_ID());
+		pShape->Set_Value(0, 1 + i);
+		pShape->Set_Value(1, 1 + pTriangle->Get_Point(0)->Get_ID());
+		pShape->Set_Value(2, 1 + pTriangle->Get_Point(1)->Get_ID());
+		pShape->Set_Value(3, 1 + pTriangle->Get_Point(2)->Get_ID());
 	}
 
 	//-----------------------------------------------------
 	pShapes		= Parameters("CENTER")		->asShapes();
 	pShapes->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("%s [TIN]"), pTIN->Get_Name()));
 
-	pShapes->Get_Table().Add_Field("ID"			, TABLE_FIELDTYPE_Int);
-	pShapes->Get_Table().Add_Field("POINT_ID_A"	, TABLE_FIELDTYPE_Int);
-	pShapes->Get_Table().Add_Field("POINT_ID_B"	, TABLE_FIELDTYPE_Int);
-	pShapes->Get_Table().Add_Field("POINT_ID_C"	, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("ID"			, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("POINT_ID_A"	, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("POINT_ID_B"	, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("POINT_ID_C"	, TABLE_FIELDTYPE_Int);
 
 	for(i=0; i<pTIN->Get_Triangle_Count() && Set_Progress(i, pTIN->Get_Triangle_Count()); i++)
 	{
@@ -230,10 +230,10 @@ bool CTIN_To_Shapes::On_Execute(void)
 
 		pShape->Add_Point(pTriangle->Get_CircumCircle_Point());
 
-		pShape->Get_Record()->Set_Value(0, 1 + i);
-		pShape->Get_Record()->Set_Value(1, 1 + pTriangle->Get_Point(0)->Get_ID());
-		pShape->Get_Record()->Set_Value(2, 1 + pTriangle->Get_Point(1)->Get_ID());
-		pShape->Get_Record()->Set_Value(3, 1 + pTriangle->Get_Point(2)->Get_ID());
+		pShape->Set_Value(0, 1 + i);
+		pShape->Set_Value(1, 1 + pTriangle->Get_Point(0)->Get_ID());
+		pShape->Set_Value(2, 1 + pTriangle->Get_Point(1)->Get_ID());
+		pShape->Set_Value(3, 1 + pTriangle->Get_Point(2)->Get_ID());
 	}
 
 	//-----------------------------------------------------
@@ -242,10 +242,10 @@ bool CTIN_To_Shapes::On_Execute(void)
 	pShapes		= Parameters("POLYGONS")	->asShapes();
 	pShapes->Create(SHAPE_TYPE_Polygon, CSG_String::Format(_TL("%s [TIN]"), pTIN->Get_Name()));
 
-	pShapes->Get_Table().Add_Field("POINT_ID", TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("POINT_ID", TABLE_FIELDTYPE_Int);
 	for(j=0; j<pTIN->Get_Table().Get_Field_Count(); j++)
 	{
-		pShapes->Get_Table().Add_Field(pTIN->Get_Table().Get_Field_Name(j), pTIN->Get_Table().Get_Field_Type(j));
+		pShapes->Add_Field(pTIN->Get_Table().Get_Field_Name(j), pTIN->Get_Table().Get_Field_Type(j));
 	}
 
 	for(i=0; i<pTIN->Get_Point_Count() && Set_Progress(i, pTIN->Get_Point_Count()); i++)
@@ -261,10 +261,10 @@ bool CTIN_To_Shapes::On_Execute(void)
 				pShape->Add_Point(Points[j]);
 			}
 
-			pShape->Get_Record()->Set_Value(0, 1 + i);
+			pShape->Set_Value(0, 1 + i);
 			for(j=0; j<pTIN->Get_Table().Get_Field_Count(); j++)
 			{
-				pShape->Get_Record()->Set_Value(j + 1, pPoint->Get_Record()->asString(j));
+				pShape->Set_Value(j + 1, pPoint->Get_Record()->asString(j));
 			}
 		}
 	}

@@ -95,7 +95,7 @@ public:
 	virtual bool				On_Command				(int Cmd_ID);
 	virtual bool				On_Command_UI			(wxUpdateUIEvent &event);
 
-	CSG_TIN *						Get_TIN					(void)	{	return( m_pTIN );	}
+	CSG_TIN *					Get_TIN					(void)	{	return( m_pTIN );	}
 	class CWKSP_Table *			Get_Table				(void)	{	return( m_pTable );	}
 
 	virtual wxString			Get_Value				(CSG_Point ptWorld, double Epsilon);

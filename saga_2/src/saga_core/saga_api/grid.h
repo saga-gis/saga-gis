@@ -501,8 +501,6 @@ public:		///////////////////////////////////////////////
 	double						Get_NoData_Value		(void)	const	{	return( m_NoData_Value );			}
 	double						Get_NoData_hiValue		(void)	const	{	return( m_NoData_hiValue );			}
 
-	bool						Update_Statistics		(bool bEnforce = false);
-
 	virtual bool				Save	(const SG_Char *File_Name, int Format = GRID_FILE_FORMAT_Binary);
 	virtual bool				Save	(const SG_Char *File_Name, int Format, int xA, int yA, int xN, int yN);
 
@@ -568,7 +566,7 @@ public:		///////////////////////////////////////////////
 
 		if( bFlag )
 		{
-			m_bUpdate	= true;
+			Set_Update_Flag();
 
 			m_bIndexed	= false;
 		}
@@ -776,11 +774,17 @@ public:		///////////////////////////////////////////////
 
 
 //---------------------------------------------------------
+protected:	///////////////////////////////////////////////
+
+	virtual void				On_Update				(void);
+
+
+//---------------------------------------------------------
 private:	///////////////////////////////////////////////
 
 	void						**m_Values;
 
-	bool						m_bCreated, m_bUpdate, m_bIndexed, m_Memory_bLock,
+	bool						m_bCreated, m_bIndexed, m_Memory_bLock,
 								Cache_bTemp, Cache_bSwap, Cache_bFlip;
 
 	int							LineBuffer_Count;

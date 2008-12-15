@@ -115,7 +115,7 @@ protected:
 
 	double						m_Chart_sSize, m_Chart_sRange;
 
-	wxColour					m_Def_Color;
+	wxColour					m_Def_Color, m_Edit_Color, m_Sel_Color;
 
 	CSG_Points_Int				m_Chart;
 

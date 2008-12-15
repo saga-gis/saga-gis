@@ -237,7 +237,7 @@ int CKriging_Universal::Get_Weights(double x, double y)
 			CSG_Shape *pPoint	= m_Search.Get_Selected_Point(i);
 			m_Points[i].x	= pPoint->Get_Point(0).x;
 			m_Points[i].y	= pPoint->Get_Point(0).y;
-			m_Points[i].z	= pPoint->Get_Record()->asDouble(m_zField);
+			m_Points[i].z	= pPoint->asDouble(m_zField);
 		}
 
 		//-------------------------------------------------

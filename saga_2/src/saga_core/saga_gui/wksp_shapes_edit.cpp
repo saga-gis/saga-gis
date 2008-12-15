@@ -176,6 +176,7 @@ bool CWKSP_Shapes::On_Edit_On_Mouse_Down(CSG_Point Point, double ClientToWorld, 
 		}
 		else switch( _Edit_Shape_HitTest(Point, EDIT_TICKMARK_SIZE * ClientToWorld, iPart, iPoint) )
 		{
+		//-------------------------------------------------
 		case 0:	default:
 		case 1:
 			if( m_Edit_iPart != iPart || m_Edit_iPoint != iPoint )
@@ -184,11 +185,11 @@ bool CWKSP_Shapes::On_Edit_On_Mouse_Down(CSG_Point Point, double ClientToWorld, 
 				m_Edit_iPoint	= iPoint;
 
 				Update_Views(true);
-
-				return( true );
 			}
-			break;
 
+			return( true );
+
+		//-------------------------------------------------
 		case 2:
 			m_Edit_pShape->Ins_Point(Point, iPoint, iPart);
 
@@ -269,7 +270,7 @@ bool CWKSP_Shapes::On_Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, in
 
 		g_pACTIVE->Get_Attributes()->Set_Attributes();
 
-		pRecord	= m_pShapes->Get_Table().Get_Selection();
+		pRecord	= m_pShapes->Get_Selection();
 		
 		m_pShapes->Select(rWorld, (Key & MODULE_INTERACTIVE_KEY_CTRL) != 0);
 
@@ -278,12 +279,12 @@ bool CWKSP_Shapes::On_Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, in
 			m_pTable->Get_View()->Update_Selection();
 		}
 
-		if( pRecord != m_pShapes->Get_Table().Get_Selection() )
+		if( pRecord != m_pShapes->Get_Selection() )
 		{
 			_Edit_Set_Attributes();
 		}
 
-		pRecord	= m_pShapes->Get_Table().Get_Selection();
+		pRecord	= m_pShapes->Get_Selection();
 
 		if( g_pACTIVE->Get_HTMLExtraInfo() )
 		{
@@ -375,12 +376,12 @@ bool CWKSP_Shapes::_Edit_Set_Attributes(void)
 
 	m_Edit_Attributes.Del_Records();
 
-	if( (pRecord = m_pShapes->Get_Table().Get_Selection()) != NULL )
+	if( (pRecord = m_pShapes->Get_Selection()) != NULL )
 	{
-		for(int i=0; i<m_pShapes->Get_Table().Get_Field_Count(); i++)
+		for(int i=0; i<m_pShapes->Get_Field_Count(); i++)
 		{
 			pAttribute	= m_Edit_Attributes.Add_Record();
-			pAttribute->Set_Value(0, pRecord->Get_Owner()->Get_Field_Name(i));
+			pAttribute->Set_Value(0, pRecord->Get_Table()->Get_Field_Name(i));
 			pAttribute->Set_Value(1, pRecord->asString(i));
 		}
 	}
@@ -395,7 +396,7 @@ bool CWKSP_Shapes::On_Edit_Set_Attributes(void)
 {
 	CSG_Table_Record	*pRecord;
 
-	if( (pRecord = m_pShapes->Get_Table().Get_Selection()) != NULL )
+	if( (pRecord = m_pShapes->Get_Selection()) != NULL )
 	{
 		for(int i=0; i<m_Edit_Attributes.Get_Record_Count(); i++)
 		{
@@ -489,7 +490,7 @@ bool CWKSP_Shapes::_Edit_Shape_Add(void)
 	{
 		if( m_pShapes->Get_Selection_Count() > 0 )
 		{
-			m_pShapes->Select();
+			m_pShapes->Select(NULL);
 		}
 
 		m_Edit_pShape	= m_Edit_Shapes.Add_Shape();
@@ -620,7 +621,7 @@ void CWKSP_Shapes::_Edit_Shape_Draw_Point(wxDC &dc, TSG_Point_Int Point, bool bS
 
 void CWKSP_Shapes::_Edit_Shape_Draw_Point(wxDC &dc, int x, int y, bool bSelected)
 {
-	dc.SetPen  (*wxBLACK_PEN);
+	dc.SetPen  (wxPen(m_Edit_Color));
 	dc.SetBrush(*wxTRANSPARENT_BRUSH);
 
 	dc.DrawCircle(x, y, 2);

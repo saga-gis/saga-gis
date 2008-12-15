@@ -289,7 +289,7 @@ int CGrid_Skeletonize::Vectorize(CSG_Shapes *pShapes)
 
 	//-----------------------------------------------------
 	pShapes->Create(SHAPE_TYPE_Line, _TL("Skeleton"));
-	pShapes->Get_Table().Add_Field("ID", TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("ID", TABLE_FIELDTYPE_Int);
 
 	Lock_Create();
 
@@ -353,7 +353,7 @@ int CGrid_Skeletonize::Vectorize(CSG_Shapes *pShapes)
 					if( pResult->is_InGrid(ix, iy) && pResult->asByte(ix, iy) && !Lock_Get(ix, iy) )
 					{
 						pShape	= pShapes->Add_Shape();
-						pShape->Get_Record()->Set_Value(0, ++nSegments);
+						pShape->Set_Value(0, ++nSegments);
 						pShape->Add_Point(xMin + dx * (double)x, yMin + dy * (double)y);
 
 						Vectorize_Trace(ix, iy, pShape);

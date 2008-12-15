@@ -74,7 +74,7 @@ bool Cut_Shapes(CSG_Rect Extent, int Method, CSG_Shapes *pShapes, CSG_Shapes *pC
 		pCut->Create(
 			pShapes->Get_Type(),
 			CSG_String::Format(SG_T("%s [%s]"), pShapes->Get_Name(), _TL("Cut")),
-			&pShapes->Get_Table()
+			pShapes
 		);
 
 		for(int iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
@@ -117,7 +117,7 @@ bool Cut_Shapes(CSG_Rect Extent, int Method, CSG_Shapes *pShapes, CSG_Shapes *pC
 
 			if( bAdd )
 			{
-				pCut->Add_Shape(pShape, true);
+				pCut->Add_Shape(pShape);
 			}
 		}
 
@@ -160,14 +160,14 @@ bool Cut_Set_Extent(CSG_Rect Extent, CSG_Shapes *pExtent, bool bClear)
 		if( bClear )
 		{
 			pExtent->Create(SHAPE_TYPE_Polygon, _TL("Extent [Cut]"));
-			pExtent->Get_Table().Add_Field("ID", TABLE_FIELDTYPE_Int);
+			pExtent->Add_Field("ID", TABLE_FIELDTYPE_Int);
 		}
 
 		if( pExtent->Get_Type() == SHAPE_TYPE_Polygon )
 		{
 			CSG_Shape	*pShape	= pExtent->Add_Shape();
 
-			pShape->Get_Record()->Set_Value(SG_T("ID"), pExtent->Get_Count());
+			pShape->Set_Value(SG_T("ID"), pExtent->Get_Count());
 
 			pShape->Add_Point(Extent.Get_XMin(), Extent.Get_YMin());
 			pShape->Add_Point(Extent.Get_XMin(), Extent.Get_YMax());

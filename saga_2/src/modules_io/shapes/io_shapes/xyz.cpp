@@ -151,7 +151,7 @@ bool CXYZ_Export::On_Execute(void)
 	Separate	= pShapes->Get_Type() == SHAPE_TYPE_Point ? 0
 				: Parameters("SEPARATE")->asInt();
 
-	if( bAll && (iField < 0 || iField >= pShapes->Get_Table().Get_Field_Count()) )
+	if( bAll && (iField < 0 || iField >= pShapes->Get_Field_Count()) )
 	{
 		return( false );
 	}
@@ -165,9 +165,9 @@ bool CXYZ_Export::On_Execute(void)
 
 			if( bAll )
 			{
-				for(iField=0; iField<pShapes->Get_Table().Get_Field_Count(); iField++)
+				for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
 				{
-					fprintf(Stream, "\t%s", pShapes->Get_Table().Get_Field_Name(iField));
+					fprintf(Stream, "\t%s", pShapes->Get_Field_Name(iField));
 				}
 			}
 			else
@@ -203,30 +203,30 @@ bool CXYZ_Export::On_Execute(void)
 
 					if( bAll )
 					{
-						for(iField=0; iField<pShapes->Get_Table().Get_Field_Count(); iField++)
+						for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
 						{
-							switch( pShapes->Get_Table().Get_Field_Type(iField) )
+							switch( pShapes->Get_Field_Type(iField) )
 							{
 							case TABLE_FIELDTYPE_String:
-								fprintf(Stream, "\t\"%s\""	,pShape->Get_Record()->asString(iField));
+								fprintf(Stream, "\t\"%s\""	,pShape->asString(iField));
 								break;
 
 							default:
-								fprintf(Stream, "\t%f"		,pShape->Get_Record()->asDouble(iField));
+								fprintf(Stream, "\t%f"		,pShape->asDouble(iField));
 								break;
 							}
 						}
 					}
 					else
 					{
-						switch( pShapes->Get_Table().Get_Field_Type(iField) )
+						switch( pShapes->Get_Field_Type(iField) )
 						{
 						case TABLE_FIELDTYPE_String:
-							fprintf(Stream, "\t\"%s\""	,pShape->Get_Record()->asString(iField));
+							fprintf(Stream, "\t\"%s\""	,pShape->asString(iField));
 							break;
 
 						default:
-							fprintf(Stream, "\t%f"		,pShape->Get_Record()->asDouble(iField));
+							fprintf(Stream, "\t%f"		,pShape->asDouble(iField));
 							break;
 						}
 					}

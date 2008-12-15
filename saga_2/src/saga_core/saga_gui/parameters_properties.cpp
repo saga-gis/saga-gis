@@ -199,7 +199,7 @@ int CParameters_PG_Choice::_Set_Table_Field(void)
 		{
 	    default:					pTable	= NULL;					break;
 		case PARAMETER_TYPE_Table:	pTable	= pParent->asTable();	break;
-		case PARAMETER_TYPE_Shapes:	pTable	= pParent->asShapes() ? &pParent->asShapes()->Get_Table() : NULL;	break;
+		case PARAMETER_TYPE_Shapes:	pTable	= pParent->asShapes();	break;
 		case PARAMETER_TYPE_TIN:	pTable	= pParent->asTIN()    ? &pParent->asTIN()   ->Get_Table() : NULL;	break;
 		}
 
@@ -237,27 +237,40 @@ int CParameters_PG_Choice::_Set_Table(void)
 		}
 	}
 
+	CWKSP_Shapes_Manager	*pManager;
+
+	if( (pManager = g_pData->Get_Shapes()) != NULL )
+	{
+		for(int i=0; i<pManager->Get_Count(); i++)
+		{
+			CWKSP_Shapes_Type	*pShapes	= (CWKSP_Shapes_Type *)pManager->Get_Item(i);
+
+			for(int j=0; j<pShapes->Get_Count(); j++)
+			{
+				_Append(pShapes->Get_Shapes(j)->Get_Name(), pShapes->Get_Shapes(j)->Get_Shapes());
+			}
+		}
+	}
+
 	return( _DataObject_Init() );
 }
 
 //---------------------------------------------------------
 int CParameters_PG_Choice::_Set_Shapes(void)
 {
-	int						i, j, Shape_Type;
 	CWKSP_Shapes_Manager	*pManager;
-	CWKSP_Shapes_Type		*pShapes;
 
 	if( (pManager = g_pData->Get_Shapes()) != NULL )
 	{
-		Shape_Type	= ((CSG_Parameter_Shapes *)m_pParameter->Get_Data())->Get_Shape_Type();
+		int		Shape_Type	= ((CSG_Parameter_Shapes *)m_pParameter->Get_Data())->Get_Shape_Type();
 
-		for(i=0; i<pManager->Get_Count(); i++)
+		for(int i=0; i<pManager->Get_Count(); i++)
 		{
-			pShapes	= (CWKSP_Shapes_Type *)pManager->Get_Item(i);
+			CWKSP_Shapes_Type	*pShapes	= (CWKSP_Shapes_Type *)pManager->Get_Item(i);
 
 			if( Shape_Type == SHAPE_TYPE_Undefined || Shape_Type == pShapes->Get_Shapes_Type() )
 			{
-				for(j=0; j<pShapes->Get_Count(); j++)
+				for(int j=0; j<pShapes->Get_Count(); j++)
 				{
 					_Append(pShapes->Get_Shapes(j)->Get_Name(), pShapes->Get_Shapes(j)->Get_Shapes());
 				}

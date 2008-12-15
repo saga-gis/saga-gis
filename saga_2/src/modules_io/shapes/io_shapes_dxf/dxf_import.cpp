@@ -125,16 +125,16 @@ bool CDXF_Import::On_Execute(void)
 	FileName	= Parameters("FILE")->asString();
 
 	m_pPoints	= SG_Create_Shapes(SHAPE_TYPE_Point		, SG_File_Get_Name(FileName, true));
-	m_pPoints	->Get_Table().Add_Field("VAL"	, TABLE_FIELDTYPE_Double);
-	m_pPoints	->Get_Table().Add_Field("NAM"	, TABLE_FIELDTYPE_String);
+	m_pPoints	->Add_Field("VAL"	, TABLE_FIELDTYPE_Double);
+	m_pPoints	->Add_Field("NAM"	, TABLE_FIELDTYPE_String);
 
 	m_pLines	= SG_Create_Shapes(SHAPE_TYPE_Line		, SG_File_Get_Name(FileName, true));
-	m_pLines	->Get_Table().Add_Field("VAL"	, TABLE_FIELDTYPE_Double);
-	m_pLines	->Get_Table().Add_Field("NAM"	, TABLE_FIELDTYPE_String);
+	m_pLines	->Add_Field("VAL"	, TABLE_FIELDTYPE_Double);
+	m_pLines	->Add_Field("NAM"	, TABLE_FIELDTYPE_String);
 
 	m_pPolygons	= SG_Create_Shapes(SHAPE_TYPE_Polygon	, SG_File_Get_Name(FileName, true));
-	m_pPolygons	->Get_Table().Add_Field("VAL"	, TABLE_FIELDTYPE_Double);
-	m_pPolygons	->Get_Table().Add_Field("NAM"	, TABLE_FIELDTYPE_String);
+	m_pPolygons	->Add_Field("VAL"	, TABLE_FIELDTYPE_Double);
+	m_pPolygons	->Add_Field("NAM"	, TABLE_FIELDTYPE_String);
 
 	m_pShape	= NULL;
 
@@ -238,7 +238,7 @@ void CDXF_Import::addPoint(const DL_PointData &data)
 	CSG_Shape	*pShape	= m_pPoints->Add_Shape();
 
 	pShape->Add_Point(m_Offset.x + data.x, m_Offset.y + data.y);
-	pShape->Get_Record()->Set_Value(0, m_Offset.z + data.z);
+	pShape->Set_Value(0, m_Offset.z + data.z);
 }
 
 //---------------------------------------------------------
@@ -248,8 +248,8 @@ void CDXF_Import::addLine(const DL_LineData &data)
 
 	pShape->Add_Point(m_Offset.x + data.x1, m_Offset.y + data.y1);
 	pShape->Add_Point(m_Offset.x + data.x2, m_Offset.y + data.y2);
-//	pShape->Get_Record()->Set_Value(0, m_Offset.z + data.z1);
-//	pShape->Get_Record()->Set_Value(0, m_Offset.z + data.z2);
+//	pShape->Set_Value(0, m_Offset.z + data.z1);
+//	pShape->Set_Value(0, m_Offset.z + data.z2);
 }
 
 //---------------------------------------------------------

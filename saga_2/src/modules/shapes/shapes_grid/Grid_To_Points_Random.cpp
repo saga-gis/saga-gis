@@ -111,8 +111,8 @@ bool CGrid_To_Points_Random::On_Execute(void)
 	pShapes		= Parameters("POINTS")->asShapes();
 
 	pShapes->Create(SHAPE_TYPE_Point, pGrid->Get_Name());
-	pShapes->Get_Table().Add_Field("ID"		, TABLE_FIELDTYPE_Int);
-	pShapes->Get_Table().Add_Field("VALUE"	, TABLE_FIELDTYPE_Double);
+	pShapes->Add_Field("ID"		, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("VALUE"	, TABLE_FIELDTYPE_Double);
 
 	srand((unsigned)time(NULL));
 
@@ -129,8 +129,8 @@ bool CGrid_To_Points_Random::On_Execute(void)
 					pGrid->Get_YMin() + y * Get_Cellsize()
 				);
 
-				pShape->Get_Record()->Set_Value(0, ++n);
-				pShape->Get_Record()->Set_Value(1, pGrid->asDouble(x, y));
+				pShape->Set_Value(0, ++n);
+				pShape->Set_Value(1, pGrid->asDouble(x, y));
 			}
 		}
 	}

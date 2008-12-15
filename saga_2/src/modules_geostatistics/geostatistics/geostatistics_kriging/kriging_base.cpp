@@ -528,7 +528,7 @@ bool CKriging_Base::_Get_Differences(CSG_Table *pTable, int zField, int nSkip, d
 	{
 		pPoint	= m_pPoints->Get_Shape(iPoint);
 		Pt_i	= pPoint->Get_Point(0);
-		z		= pPoint->Get_Record()->asDouble(zField);
+		z		= pPoint->asDouble(zField);
 
 		for(jPoint=iPoint+nSkip; jPoint<m_pPoints->Get_Count(); jPoint+=nSkip)
 		{
@@ -541,7 +541,7 @@ bool CKriging_Base::_Get_Differences(CSG_Table *pTable, int zField, int nSkip, d
 			{
 				pRecord	= pTable->Add_Record();
 				pRecord->Set_Value(DIF_FIELD_DISTANCE	, d);
-				pRecord->Set_Value(DIF_FIELD_DIFFERENCE	, pPoint->Get_Record()->asDouble(zField) - z);
+				pRecord->Set_Value(DIF_FIELD_DIFFERENCE	, pPoint->asDouble(zField) - z);
 			}
 		}
 	}

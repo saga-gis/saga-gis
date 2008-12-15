@@ -99,6 +99,15 @@ public:
 
 	CSG_Table_Record *			Get_Record				(void)			{	return( m_pRecord );	}
 
+	bool						Set_Value				(int iField, const SG_Char *Value)		{	return( m_pRecord->Set_Value(iField, Value) );	}
+	bool						Set_Value				(int iField, double         Value)		{	return( m_pRecord->Set_Value(iField, Value) );	}
+	const SG_Char *				asString				(int iField, int Decimals = -1)	const	{	return( m_pRecord->asString(iField, Decimals) );	}
+	SG_Char						asChar					(int iField)					const	{	return( m_pRecord->asChar  (iField) );	}
+	short						asShort					(int iField)					const	{	return( m_pRecord->asShort (iField) );	}
+	int							asInt					(int iField)					const	{	return( m_pRecord->asInt   (iField) );	}
+	float						asFloat					(int iField)					const	{	return( m_pRecord->asChar  (iField) );	}
+	double						asDouble				(int iField)					const	{	return( m_pRecord->asChar  (iField) );	}
+
 	int							Get_Neighbor_Count		(void)			{	return( m_nNeighbors );	}
 	CSG_TIN_Point *				Get_Neighbor			(int iNeighbor)	{	return( iNeighbor >= 0 && iNeighbor < m_nNeighbors ? m_Neighbors[iNeighbor] : NULL );	}
 	double						Get_Gradient			(int iNeighbor, int iField);
@@ -259,7 +268,7 @@ public:
 	int							Get_Triangle_Count		(void)		const	{	return( m_nTriangles );	}
 	CSG_TIN_Triangle *			Get_Triangle			(int Index)	const	{	return( Index >= 0 && Index < m_nTriangles ? m_Triangles[Index] : NULL );	}
 
-	CSG_Rect					Get_Extent				(void)				{	_Extent_Update();	return( m_Extent );	}
+	CSG_Rect					Get_Extent				(void)				{	Update();	return( m_Extent );	}
 
 
 protected:
@@ -278,8 +287,6 @@ protected:
 
 
 protected:
-
-	bool						m_bUpdate;
 
 	int							m_nPoints, m_nEdges, m_nTriangles;
 
@@ -300,7 +307,7 @@ protected:
 	bool						_Destroy_Edges			(void);
 	bool						_Destroy_Triangles		(void);
 
-	void						_Extent_Update			(void);
+	virtual void				On_Update				(void);
 
 	bool						_Add_Edge				(CSG_TIN_Point *a, CSG_TIN_Point *b);
 	bool						_Add_Triangle			(CSG_TIN_Point *a, CSG_TIN_Point *b, CSG_TIN_Point *c);

@@ -131,7 +131,7 @@ bool CInterpolation_Shepard::On_Initialize(void)
 		{
 			x_vals[iPoint]	= m_pShapes->Get_Shape(iPoint)->Get_Point(0).x;
 			y_vals[iPoint]	= m_pShapes->Get_Shape(iPoint)->Get_Point(0).y;
-			f_vals[iPoint]	= m_pShapes->Get_Shape(iPoint)->Get_Record()->asDouble(m_zField);
+			f_vals[iPoint]	= m_pShapes->Get_Shape(iPoint)->asDouble(m_zField);
 		}
 
 		Remove_Duplicate();

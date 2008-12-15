@@ -131,8 +131,8 @@ bool CExercise_12::On_Execute(void)
 	int			iShape, iPart, iPoint;
 	double		dx, dy;
 	TSG_Point	Point;
-	CSG_Shapes		*pShapes_A, *pShapes_B;
-	CSG_Shape		*pShape_A, *pShape_B;
+	CSG_Shapes	*pShapes_A, *pShapes_B;
+	CSG_Shape	*pShape_A, *pShape_B;
 
 
 	//-----------------------------------------------------
@@ -144,7 +144,7 @@ bool CExercise_12::On_Execute(void)
 	dx			= Parameters("DX")		->asDouble();
 	dy			= Parameters("DY")		->asDouble();
 
-	pShapes_B->Create(pShapes_A->Get_Type(), _TL("Translation"), &pShapes_A->Get_Table());
+	pShapes_B->Create(pShapes_A->Get_Type(), _TL("Translation"), pShapes_A);
 
 
 	//-----------------------------------------------------
@@ -153,7 +153,7 @@ bool CExercise_12::On_Execute(void)
 	for(iShape=0; iShape<pShapes_A->Get_Count() && Set_Progress(iShape, pShapes_A->Get_Count()); iShape++)
 	{
 		pShape_A	= pShapes_A->Get_Shape(iShape);
-		pShape_B	= pShapes_B->Add_Shape(pShape_A->Get_Record());
+		pShape_B	= pShapes_B->Add_Shape(pShape_A, SHAPE_COPY_ATTR);
 
 		for(iPart=0; iPart<pShape_A->Get_Part_Count(); iPart++)
 		{

@@ -369,7 +369,7 @@ CSG_Shapes * COGR_DataSource::Read_Shapes(int iLayer)
 		{
 			OGRFieldDefn	*pDefField	= pDef->GetFieldDefn(iField);
 
-			pShapes->Get_Table().Add_Field(pDefField->GetNameRef(), COGR_Driver::Get_Type(pDefField->GetType()));
+			pShapes->Add_Field(pDefField->GetNameRef(), COGR_Driver::Get_Type(pDefField->GetType()));
 		}
 
 		pLayer->ResetReading();
@@ -513,9 +513,9 @@ bool COGR_DataSource::Write_Shapes(CSG_Shapes *pShapes)
 		int				iField;
 
 		//-------------------------------------------------
-		for(iField=0; iField<pShapes->Get_Table().Get_Field_Count() && bResult; iField++)
+		for(iField=0; iField<pShapes->Get_Field_Count() && bResult; iField++)
 		{
-			OGRFieldDefn	DefField(SG_STR_SGTOMB(pShapes->Get_Table().Get_Field_Name(iField)), g_OGR_Driver.Get_Type(pShapes->Get_Table().Get_Field_Type(iField)));
+			OGRFieldDefn	DefField(SG_STR_SGTOMB(pShapes->Get_Field_Name(iField)), g_OGR_Driver.Get_Type(pShapes->Get_Field_Type(iField)));
 
 			//	DefField.SetWidth(32);
 
@@ -531,9 +531,9 @@ bool COGR_DataSource::Write_Shapes(CSG_Shapes *pShapes)
 			CSG_Shape	*pShape		= pShapes->Get_Shape(iShape);
 			OGRFeature	*pFeature	= OGRFeature::CreateFeature(pLayer->GetLayerDefn());
 
-			for(iField=0; iField<pShapes->Get_Table().Get_Field_Count(); iField++)
+			for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
 			{
-				switch( pShapes->Get_Table().Get_Field_Type(iField) )
+				switch( pShapes->Get_Field_Type(iField) )
 				{
 				default:
 				case TABLE_FIELDTYPE_Char:

@@ -205,17 +205,17 @@ bool CGrid_Profile_From_Lines::Init_Profile(CSG_Shapes *pPoints, const SG_Char *
 	{
 		pPoints->Create(SHAPE_TYPE_Point, Name);
 
-		pPoints->Get_Table().Add_Field("LINE_ID"	, TABLE_FIELDTYPE_Int);
-		pPoints->Get_Table().Add_Field("ID"			, TABLE_FIELDTYPE_Int);
-		pPoints->Get_Table().Add_Field("DIST"		, TABLE_FIELDTYPE_Double);
-		pPoints->Get_Table().Add_Field("DIST_SURF"	, TABLE_FIELDTYPE_Double);
-		pPoints->Get_Table().Add_Field("X"			, TABLE_FIELDTYPE_Double);
-		pPoints->Get_Table().Add_Field("Y"			, TABLE_FIELDTYPE_Double);
-		pPoints->Get_Table().Add_Field("Z"			, TABLE_FIELDTYPE_Double);
+		pPoints->Add_Field("LINE_ID"	, TABLE_FIELDTYPE_Int);
+		pPoints->Add_Field("ID"			, TABLE_FIELDTYPE_Int);
+		pPoints->Add_Field("DIST"		, TABLE_FIELDTYPE_Double);
+		pPoints->Add_Field("DIST_SURF"	, TABLE_FIELDTYPE_Double);
+		pPoints->Add_Field("X"			, TABLE_FIELDTYPE_Double);
+		pPoints->Add_Field("Y"			, TABLE_FIELDTYPE_Double);
+		pPoints->Add_Field("Z"			, TABLE_FIELDTYPE_Double);
 
 		for(int i=0; i<m_pValues->Get_Count(); i++)
 		{
-			pPoints->Get_Table().Add_Field(m_pValues->asGrid(i)->Get_Name(), TABLE_FIELDTYPE_Double);
+			pPoints->Add_Field(m_pValues->asGrid(i)->Get_Name(), TABLE_FIELDTYPE_Double);
 		}
 
 		return( true );
@@ -326,27 +326,27 @@ bool CGrid_Profile_From_Lines::Add_Point(int Line_ID, bool bStart, const TSG_Poi
 				return( false );
 			}
 
-			Distance_2	= pLast->Get_Record()->asDouble(F_Z) - z;
+			Distance_2	= pLast->asDouble(F_Z) - z;
 			Distance_2	= sqrt(Distance*Distance + Distance_2*Distance_2);
 
-			Distance	+= pLast->Get_Record()->asDouble(F_DIST);
-			Distance_2	+= pLast->Get_Record()->asDouble(F_DIST_SURF);
+			Distance	+= pLast->asDouble(F_DIST);
+			Distance_2	+= pLast->asDouble(F_DIST_SURF);
 		}
 
 		pPoint	= m_pProfile->Add_Shape();
 		pPoint->Add_Point(Point);
 
-		pPoint->Get_Record()->Set_Value(F_LINE_ID	, Line_ID);
-		pPoint->Get_Record()->Set_Value(F_ID		, m_pProfile->Get_Count());
-		pPoint->Get_Record()->Set_Value(F_DIST		, Distance);
-		pPoint->Get_Record()->Set_Value(F_DIST_SURF	, Distance_2);
-		pPoint->Get_Record()->Set_Value(F_X			, Point.x);
-		pPoint->Get_Record()->Set_Value(F_Y			, Point.y);
-		pPoint->Get_Record()->Set_Value(F_Z			, z);
+		pPoint->Set_Value(F_LINE_ID	, Line_ID);
+		pPoint->Set_Value(F_ID		, m_pProfile->Get_Count());
+		pPoint->Set_Value(F_DIST		, Distance);
+		pPoint->Set_Value(F_DIST_SURF	, Distance_2);
+		pPoint->Set_Value(F_X			, Point.x);
+		pPoint->Set_Value(F_Y			, Point.y);
+		pPoint->Set_Value(F_Z			, z);
 
 		for(i=0; i<m_pValues->Get_Count(); i++)
 		{
-			pPoint->Get_Record()->Set_Value(F_VALUES + i, m_pValues->asGrid(i)->asDouble(x, y, true));
+			pPoint->Set_Value(F_VALUES + i, m_pValues->asGrid(i)->asDouble(x, y, true));
 		}
 
 		return( true );

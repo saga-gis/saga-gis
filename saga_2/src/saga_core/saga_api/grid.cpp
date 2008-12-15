@@ -229,7 +229,7 @@ void CSG_Grid::_On_Construction(void)
 	m_bIndexed			= false;
 	m_Index				= NULL;
 
-	m_bUpdate			= true;
+	Set_Update_Flag();
 }
 
 
@@ -434,9 +434,9 @@ void CSG_Grid::Set_NoData_Value_Range(double loValue, double hiValue)
 		hiValue		= d;
 	}
 
-	if( !m_bUpdate )
+	if( !Get_Update_Flag() && (loValue != m_NoData_Value || hiValue != m_NoData_hiValue) )
 	{
-		m_bUpdate	= loValue != m_NoData_Value || hiValue != m_NoData_hiValue;
+		Set_Update_Flag();
 	}
 
 	m_NoData_Value		= loValue;
@@ -891,7 +891,7 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 //---------------------------------------------------------
 double CSG_Grid::Get_ZMin(bool bZFactor)
 {
-	Update_Statistics();
+	Update();
 
 	return( bZFactor ? m_zFactor * m_zMin : m_zMin );
 }
@@ -899,7 +899,7 @@ double CSG_Grid::Get_ZMin(bool bZFactor)
 //---------------------------------------------------------
 double CSG_Grid::Get_ZMax(bool bZFactor)
 {
-	Update_Statistics();
+	Update();
 
 	return( bZFactor ? m_zFactor * m_zMax : m_zMax );
 }
@@ -913,7 +913,7 @@ double CSG_Grid::Get_ZRange(bool bZFactor)
 //---------------------------------------------------------
 double CSG_Grid::Get_ArithMean(bool bZFactor)
 {
-	Update_Statistics();
+	Update();
 
 	return( bZFactor ? m_zFactor * m_ArithMean : m_ArithMean );
 }
@@ -921,27 +921,26 @@ double CSG_Grid::Get_ArithMean(bool bZFactor)
 //---------------------------------------------------------
 double CSG_Grid::Get_Variance(bool bZFactor)
 {
-	Update_Statistics();
+	Update();
 
 	return( bZFactor ? m_zFactor * m_Variance : m_Variance);
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::Update_Statistics(bool bEnforce)
+void CSG_Grid::On_Update(void)
 {
-	int		x, y;
-	long	nValues;
-	double	z;
-
-	if( is_Valid() && (m_bUpdate || bEnforce) )
+	if( is_Valid() )
 	{
+		long	nValues;
+		double	z;
+
 		m_ArithMean	= 0.0;
 		m_Variance	= 0.0;
 		nValues		= 0;
 
-		for(y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+		for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 		{
-			for(x=0; x<Get_NX(); x++)
+			for(int x=0; x<Get_NX(); x++)
 			{
 				if( !is_NoData_Value(z = asDouble(x, y)) )
 				{
@@ -971,12 +970,8 @@ bool CSG_Grid::Update_Statistics(bool bEnforce)
 			m_Variance	= m_Variance / (double)nValues - m_ArithMean * m_ArithMean;
 		}
 
-		m_bUpdate	= false;
-
 		SG_UI_Process_Set_Ready();
 	}
-
-	return( m_bUpdate == false );
 }
 
 

@@ -57,7 +57,7 @@ bool CPolygon_Geometrics::On_Execute(void){
 	pPolygs = Parameters("POLYG")->asShapes();
 	bSave	= Parameters("SAVE")->asBool();
 
-	pTable=&pPolygs->Get_Table();
+	pTable=pPolygs;
 	pTable->Add_Field(_TL("Perimeter"), TABLE_FIELDTYPE_Double);
 	pTable->Add_Field(_TL("Area"), TABLE_FIELDTYPE_Double);
 	
@@ -78,8 +78,8 @@ bool CPolygon_Geometrics::On_Execute(void){
 			dPerim += (sqrt(pow(Point.x-Point2.x,2)+pow(Point.y-Point2.y,2)));
 		}//for
 		dArea= fabs(dArea/2);
-		pShape->Get_Record()->Set_Value(pTable->Get_Field_Count()-2, dPerim);
-		pShape->Get_Record()->Set_Value(pTable->Get_Field_Count()-1, dArea);
+		pShape->Set_Value(pTable->Get_Field_Count()-2, dPerim);
+		pShape->Set_Value(pTable->Get_Field_Count()-1, dArea);
 
 	}//for
 

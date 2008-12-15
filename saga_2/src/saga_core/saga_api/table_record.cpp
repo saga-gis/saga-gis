@@ -73,19 +73,19 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Table_Record::CSG_Table_Record(CSG_Table *pOwner, int Index)
+CSG_Table_Record::CSG_Table_Record(CSG_Table *pTable, int Index)
 {
-	m_pOwner	= pOwner;
+	m_pTable	= pTable;
 	m_Index		= Index;
 	m_bSelected	= false;
 
-	if( m_pOwner && m_pOwner->Get_Field_Count() > 0 )
+	if( m_pTable && m_pTable->Get_Field_Count() > 0 )
 	{
-		m_Values	= (CSG_Table_Value **)SG_Malloc(m_pOwner->Get_Field_Count() * sizeof(CSG_Table_Value *));
+		m_Values	= (CSG_Table_Value **)SG_Malloc(m_pTable->Get_Field_Count() * sizeof(CSG_Table_Value *));
 
-		for(int iField=0; iField<m_pOwner->Get_Field_Count(); iField++)
+		for(int iField=0; iField<m_pTable->Get_Field_Count(); iField++)
 		{
-			m_Values[iField]	= _Create_Value(m_pOwner->Get_Field_Type(iField));
+			m_Values[iField]	= _Create_Value(m_pTable->Get_Field_Type(iField));
 		}
 	}
 	else
@@ -97,9 +97,14 @@ CSG_Table_Record::CSG_Table_Record(CSG_Table *pOwner, int Index)
 //---------------------------------------------------------
 CSG_Table_Record::~CSG_Table_Record(void)
 {
-	if( m_pOwner->Get_Field_Count() > 0 )
+	if( m_bSelected )
 	{
-		for(int iField=0; iField<m_pOwner->Get_Field_Count(); iField++)
+		m_pTable->Select(m_Index, true);
+	}
+
+	if( m_pTable->Get_Field_Count() > 0 )
+	{
+		for(int iField=0; iField<m_pTable->Get_Field_Count(); iField++)
 		{
 			delete(m_Values[iField]);
 		}
@@ -150,19 +155,19 @@ bool CSG_Table_Record::_Add_Field(int add_Field)
 	{
 		add_Field	= 0;
 	}
-	else if( add_Field >= m_pOwner->Get_Field_Count() )
+	else if( add_Field >= m_pTable->Get_Field_Count() )
 	{
-		add_Field	= m_pOwner->Get_Field_Count() - 1;
+		add_Field	= m_pTable->Get_Field_Count() - 1;
 	}
 
-	m_Values	= (CSG_Table_Value **)SG_Realloc(m_Values, m_pOwner->Get_Field_Count() * sizeof(CSG_Table_Value *));
+	m_Values	= (CSG_Table_Value **)SG_Realloc(m_Values, m_pTable->Get_Field_Count() * sizeof(CSG_Table_Value *));
 
-	for(int iField=m_pOwner->Get_Field_Count()-1; iField>add_Field; iField--)
+	for(int iField=m_pTable->Get_Field_Count()-1; iField>add_Field; iField--)
 	{
 		m_Values[iField]	= m_Values[iField - 1];
 	}
 
-	m_Values[add_Field]	= _Create_Value(m_pOwner->Get_Field_Type(add_Field));
+	m_Values[add_Field]	= _Create_Value(m_pTable->Get_Field_Type(add_Field));
 
 	return( true );
 }
@@ -172,12 +177,12 @@ bool CSG_Table_Record::_Del_Field(int del_Field)
 {
 	delete(m_Values[del_Field]);
 
-	for(int iField=del_Field; iField<m_pOwner->Get_Field_Count(); iField++)
+	for(int iField=del_Field; iField<m_pTable->Get_Field_Count(); iField++)
 	{
 		m_Values[iField]	= m_Values[iField + 1];
 	}
 
-	m_Values	= (CSG_Table_Value **)SG_Realloc(m_Values, m_pOwner->Get_Field_Count() * sizeof(CSG_Table_Value *));
+	m_Values	= (CSG_Table_Value **)SG_Realloc(m_Values, m_pTable->Get_Field_Count() * sizeof(CSG_Table_Value *));
 
 	return( true );
 }
@@ -187,9 +192,9 @@ int CSG_Table_Record::_Get_Field(const SG_Char *Field) const
 {
 	if( Field && *Field )
 	{
-		for(int iField=0; iField<m_pOwner->Get_Field_Count(); iField++)
+		for(int iField=0; iField<m_pTable->Get_Field_Count(); iField++)
 		{
-			if( !SG_STR_CMP(Field, m_pOwner->Get_Field_Name(iField)) )
+			if( !SG_STR_CMP(Field, m_pTable->Get_Field_Name(iField)) )
 			{
 				return( iField );
 			}
@@ -209,12 +214,13 @@ int CSG_Table_Record::_Get_Field(const SG_Char *Field) const
 //---------------------------------------------------------
 bool CSG_Table_Record::Set_Value(int iField, const SG_Char *Value)
 {
-	if( iField >= 0 && iField < m_pOwner->Get_Field_Count() )
+	if( iField >= 0 && iField < m_pTable->Get_Field_Count() )
 	{
 		if( m_Values[iField]->Set_Value(Value) )
 		{
-			m_pOwner->Set_Modified();
-			m_pOwner->_Range_Invalidate(iField);
+			m_pTable->Set_Modified();
+			m_pTable->Set_Update_Flag();
+			m_pTable->_Range_Invalidate(iField);
 
 			return( true );
 		}
@@ -231,12 +237,13 @@ bool CSG_Table_Record::Set_Value(const SG_Char *Field, const SG_Char *Value)
 //---------------------------------------------------------
 bool CSG_Table_Record::Set_Value(int iField, double Value)
 {
-	if( iField >= 0 && iField < m_pOwner->Get_Field_Count() )
+	if( iField >= 0 && iField < m_pTable->Get_Field_Count() )
 	{
 		if( m_Values[iField]->Set_Value(Value) )
 		{
-			m_pOwner->Set_Modified();
-			m_pOwner->_Range_Invalidate(iField);
+			m_pTable->Set_Modified();
+			m_pTable->Set_Update_Flag();
+			m_pTable->_Range_Invalidate(iField);
 
 			return( true );
 		}
@@ -253,7 +260,7 @@ bool CSG_Table_Record::Set_Value(const SG_Char *Field, double Value)
 //---------------------------------------------------------
 bool CSG_Table_Record::Add_Value(int iField, double Value)
 {
-	if( iField >= 0 && iField < m_pOwner->Get_Field_Count() )
+	if( iField >= 0 && iField < m_pTable->Get_Field_Count() )
 	{
 		return( Set_Value(iField, asDouble(iField) + Value) );
 	}
@@ -269,7 +276,7 @@ bool CSG_Table_Record::Add_Value(const SG_Char *Field, double Value)
 //---------------------------------------------------------
 bool CSG_Table_Record::Mul_Value(int iField, double Value)
 {
-	if( iField >= 0 && iField < m_pOwner->Get_Field_Count() )
+	if( iField >= 0 && iField < m_pTable->Get_Field_Count() )
 	{
 		return( Set_Value(iField, asDouble(iField) * Value) );
 	}
@@ -292,12 +299,13 @@ bool CSG_Table_Record::Mul_Value(const SG_Char *Field, double Value)
 //---------------------------------------------------------
 bool CSG_Table_Record::Set_NoData(int iField)
 {
-	if( iField >= 0 && iField < m_pOwner->Get_Field_Count() )
+	if( iField >= 0 && iField < m_pTable->Get_Field_Count() )
 	{
 		if( m_Values[iField]->Set_NoData() )
 		{
-			m_pOwner->Set_Modified();
-			m_pOwner->_Range_Invalidate(iField);
+			m_pTable->Set_Modified();
+			m_pTable->Set_Update_Flag();
+			m_pTable->_Range_Invalidate(iField);
 
 			return( true );
 		}
@@ -314,7 +322,7 @@ bool CSG_Table_Record::Set_NoData(const SG_Char *Field)
 //---------------------------------------------------------
 bool CSG_Table_Record::is_NoData(int iField) const
 {
-	return( iField >= 0 && iField < m_pOwner->Get_Field_Count() ? m_Values[iField]->is_NoData() : true );
+	return( iField >= 0 && iField < m_pTable->Get_Field_Count() ? m_Values[iField]->is_NoData() : true );
 }
 
 bool CSG_Table_Record::is_NoData(const SG_Char *Field) const
@@ -332,7 +340,7 @@ bool CSG_Table_Record::is_NoData(const SG_Char *Field) const
 //---------------------------------------------------------
 const SG_Char * CSG_Table_Record::asString(int iField, int Decimals) const
 {
-	return( iField >= 0 && iField < m_pOwner->Get_Field_Count() ? m_Values[iField]->asString(Decimals) : NULL );
+	return( iField >= 0 && iField < m_pTable->Get_Field_Count() ? m_Values[iField]->asString(Decimals) : NULL );
 }
 
 const SG_Char * CSG_Table_Record::asString(const SG_Char *Field, int Decimals) const
@@ -343,7 +351,7 @@ const SG_Char * CSG_Table_Record::asString(const SG_Char *Field, int Decimals) c
 //---------------------------------------------------------
 int CSG_Table_Record::asInt(int iField) const
 {
-	return( iField >= 0 && iField < m_pOwner->Get_Field_Count() ? m_Values[iField]->asInt() : 0 );
+	return( iField >= 0 && iField < m_pTable->Get_Field_Count() ? m_Values[iField]->asInt() : 0 );
 }
 
 int CSG_Table_Record::asInt(const SG_Char *Field) const
@@ -354,7 +362,7 @@ int CSG_Table_Record::asInt(const SG_Char *Field) const
 //---------------------------------------------------------
 double CSG_Table_Record::asDouble(int iField) const
 {
-	return( iField >= 0 && iField < m_pOwner->Get_Field_Count() ? m_Values[iField]->asDouble() : 0.0 );
+	return( iField >= 0 && iField < m_pTable->Get_Field_Count() ? m_Values[iField]->asDouble() : 0.0 );
 }
 
 double CSG_Table_Record::asDouble(const SG_Char *Field) const
@@ -372,7 +380,7 @@ double CSG_Table_Record::asDouble(const SG_Char *Field) const
 //---------------------------------------------------------
 void CSG_Table_Record::Assign(CSG_Table_Record *pSource)
 {
-	for(int iField=0; iField<m_pOwner->Get_Field_Count(); iField++)
+	for(int iField=0; iField<m_pTable->Get_Field_Count(); iField++)
 	{
 		Set_Value(iField, pSource->asString(iField) );
 	}

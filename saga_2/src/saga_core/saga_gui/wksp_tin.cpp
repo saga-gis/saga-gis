@@ -69,6 +69,8 @@
 #include "wksp_tin.h"
 #include "wksp_table.h"
 
+#include "view_scatterplot.h"
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -93,6 +95,7 @@ CWKSP_TIN::CWKSP_TIN(CSG_TIN *pTIN)
 //---------------------------------------------------------
 CWKSP_TIN::~CWKSP_TIN(void)
 {
+	delete(m_pTable);
 }
 
 
@@ -155,6 +158,14 @@ wxMenu * CWKSP_TIN::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TIN_SHOW);
 
+	pMenu->AppendSeparator();
+
+	wxMenu	*pTable	= new wxMenu(LNG("[MNU] Table"));
+	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLES_SHOW);
+	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLES_DIAGRAM);
+	CMD_Menu_Add_Item(pTable, false, ID_CMD_TABLES_SCATTERPLOT);
+	pMenu->Append(ID_CMD_WKSP_FIRST, LNG("[MNU] Attributes"), pTable);
+
 	return( pMenu );
 }
 
@@ -168,25 +179,45 @@ wxMenu * CWKSP_TIN::Get_Menu(void)
 //---------------------------------------------------------
 bool CWKSP_TIN::On_Command(int Cmd_ID)
 {
-//	switch( Cmd_ID )
+	switch( Cmd_ID )
 	{
-//	default:
+	default:
 		return( CWKSP_Layer::On_Command(Cmd_ID) );
+
+	case ID_CMD_TABLES_SHOW:
+		m_pTable->Toggle_View();
+		break;
+
+	case ID_CMD_TABLES_DIAGRAM:
+		m_pTable->Toggle_Diagram();
+		break;
+
+	case ID_CMD_TABLES_SCATTERPLOT:
+		Add_ScatterPlot(Get_Table()->Get_Table());
+		break;
 	}
 
-//	return( true );
+	return( true );
 }
 
 //---------------------------------------------------------
 bool CWKSP_TIN::On_Command_UI(wxUpdateUIEvent &event)
 {
-//	switch( event.GetId() )
+	switch( event.GetId() )
 	{
-//	default:
+	default:
 		return( CWKSP_Layer::On_Command_UI(event) );
+
+	case ID_CMD_TABLES_SHOW:
+		event.Check(m_pTable->Get_View() != NULL);
+		break;
+
+	case ID_CMD_TABLES_DIAGRAM:
+		event.Check(m_pTable->Get_Diagram() != NULL);
+		break;
 	}
 
-//	return( true );
+	return( true );
 }
 
 
@@ -458,7 +489,7 @@ void CWKSP_TIN::_Draw_Triangles(CWKSP_Map_DC &dc_Map)
 					Point		= dc_Map.World2DC(pTriangle->Get_Point(iPoint)->Get_Point());
 					p[iPoint].x	= Point.x;
 					p[iPoint].y	= Point.y;
-					p[iPoint].z	= pTriangle->Get_Point(iPoint)->Get_Record()->asDouble(m_Color_Field);
+					p[iPoint].z	= pTriangle->Get_Point(iPoint)->asDouble(m_Color_Field);
 				}
 
 				_Draw_Triangle(dc_Map, p);

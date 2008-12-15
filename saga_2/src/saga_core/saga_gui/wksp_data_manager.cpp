@@ -696,7 +696,10 @@ bool CWKSP_Data_Manager::Exists(CSG_Data_Object *pObject, int Type)
 		return( m_pGrids  && m_pGrids ->Exists((CSG_Grid   *)pObject) );
 
 	case DATAOBJECT_TYPE_Table:
-		return( m_pTables && m_pTables->Exists((CSG_Table  *)pObject) );
+		return(
+			(	m_pTables && m_pTables->Exists((CSG_Table  *)pObject)	)
+		||	(	m_pShapes && m_pShapes->Exists((CSG_Shapes *)pObject)	)
+		);
 
 	case DATAOBJECT_TYPE_Shapes:
 		return( m_pShapes && m_pShapes->Exists((CSG_Shapes *)pObject) );

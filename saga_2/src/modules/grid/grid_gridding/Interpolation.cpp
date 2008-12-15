@@ -230,7 +230,7 @@ CSG_Shapes * CInterpolation::Get_Points(void)
 
 	if( m_pShapes->Get_Type() != SHAPE_TYPE_Point )
 	{
-		pPoints	= SG_Create_Shapes(SHAPE_TYPE_Point, _TL(""), &m_pShapes->Get_Table());
+		pPoints	= SG_Create_Shapes(SHAPE_TYPE_Point, _TL(""), m_pShapes);
 
 		for(iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
 		{
@@ -240,7 +240,7 @@ CSG_Shapes * CInterpolation::Get_Points(void)
 			{
 				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
-					pPoint	= pPoints->Add_Shape(pShape->Get_Record());
+					pPoint	= pPoints->Add_Shape(pShape, SHAPE_COPY_ATTR);
 					pPoint->Add_Point(pShape->Get_Point(iPoint, iPart));
 				}
 			}

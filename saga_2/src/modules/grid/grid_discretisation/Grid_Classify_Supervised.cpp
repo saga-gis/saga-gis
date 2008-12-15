@@ -281,7 +281,7 @@ bool CGrid_Classify_Supervised::Initialise(void)
 					{
 						pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
 
-						if( pPolygon->is_Containing(p) && (pClass = Get_Class(pPolygon->Get_Record()->asString(iField))) != NULL )
+						if( pPolygon->is_Containing(p) && (pClass = Get_Class(pPolygon->asString(iField))) != NULL )
 						{
 							pClass->Add_Value(CLASS_N, 1.0);
 

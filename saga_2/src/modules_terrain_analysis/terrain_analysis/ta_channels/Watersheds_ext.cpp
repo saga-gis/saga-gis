@@ -284,18 +284,18 @@ void CWatersheds_ext::CreateShapesLayer(){ //first shape (0) is the whole basin.
 	Process_Set_Text(_TL("Vectorizing headers..."));
 		
 	m_pHeaders->Create(SHAPE_TYPE_Point, _TL("Headers"));
-	pTable=&m_pHeaders->Get_Table();
+	pTable=m_pHeaders;
 	pTable->Add_Field("Header", TABLE_FIELDTYPE_Int);
 	for (i = 0; i < m_Headers.Get_Count(); i++){
 		m_pHeaders->Add_Shape()->Add_Point(m_Headers.Get_Point(i).x * m_pDEM->Get_Cellsize() + m_pDEM->Get_XMin(), 
 											m_Headers.Get_Point(i).y * m_pDEM->Get_Cellsize() + m_pDEM->Get_YMin());
-		m_pHeaders->Get_Shape(i)->Get_Record()->Set_Value(0,i);
+		m_pHeaders->Get_Shape(i)->Set_Value(0,i);
 	}//for
 
 	Process_Set_Text(_TL("Vectorizing subbasins..."));
 
 	m_pBasins->Create(SHAPE_TYPE_Polygon, _TL("Subbasins"));
-	pTable = &m_pBasins->Get_Table();
+	pTable = m_pBasins;
 	pTable->Add_Field(_TL("Basin Code"), TABLE_FIELDTYPE_Int);
 
 	pSubbasin = m_pBasins->Add_Shape();		
@@ -337,7 +337,7 @@ out:
 							iY* m_pDEM->Get_Cellsize() + m_pDEM->Get_YMin());
 	}while ((iY != iYOrig) || (iX != iXOrig));
 	
-	pSubbasin->Get_Record()->Set_Value(0,(double)0);
+	pSubbasin->Set_Value(0,(double)0);
 
 	for (k = 1; k < m_iNumBasins; k++) {
 
@@ -379,7 +379,7 @@ out2:
 	        pSubbasin->Add_Point(iX * m_pDEM->Get_Cellsize() + m_pDEM->Get_XMin(),
 								iY* m_pDEM->Get_Cellsize() + m_pDEM->Get_YMin());
 	    }while ((iY != iYOrig) || (iX != iXOrig));
-		pSubbasin->Get_Record()->Set_Value(0,k);
+		pSubbasin->Set_Value(0,k);
 	    
 	}// for
 
@@ -407,23 +407,23 @@ out2:
 		fArea = ((CSG_Shape_Polygon*)pSubbasin)->Get_Area();
 		fPerim = ((CSG_Shape_Polygon*)pSubbasin)->Get_Perimeter();
 		Point = ((CSG_Shape_Polygon*)pSubbasin)->Get_Centroid();
-		pSubbasin->Get_Record()->Set_Value(15, Point.x);
-		pSubbasin->Get_Record()->Set_Value(16, Point.y);
+		pSubbasin->Set_Value(15, Point.x);
+		pSubbasin->Set_Value(16, Point.y);
 
 		EquivalentRectangle(fPerim,fArea, fSide1, fSide2);
-		pSubbasin->Get_Record()->Set_Value(3, fPerim);
-		pSubbasin->Get_Record()->Set_Value(4, fArea/10000.0);
-		pSubbasin->Get_Record()->Set_Value(10, GraveliusType(fPerim, fArea).c_str());
+		pSubbasin->Set_Value(3, fPerim);
+		pSubbasin->Set_Value(4, fArea/10000.0);
+		pSubbasin->Set_Value(10, GraveliusType(fPerim, fArea).c_str());
 		if (fSide1!=NO_EQUIVALENT_RECTANGLE){
-			pSubbasin->Get_Record()->Set_Value(11, SG_Get_String(fSide1).c_str());
-			pSubbasin->Get_Record()->Set_Value(12, SG_Get_String(fSide2).c_str());
+			pSubbasin->Set_Value(11, SG_Get_String(fSide1).c_str());
+			pSubbasin->Set_Value(12, SG_Get_String(fSide2).c_str());
 		}//if
 		else{
-			pSubbasin->Get_Record()->Set_Value(11, SG_T("---"));
-			pSubbasin->Get_Record()->Set_Value(12, SG_T("---"));
+			pSubbasin->Set_Value(11, SG_T("---"));
+			pSubbasin->Set_Value(12, SG_T("---"));
 		}//else
-		pSubbasin->Get_Record()->Set_Value(13, OrographicIndex(fPerim, fArea/10000));
-		pSubbasin->Get_Record()->Set_Value(14, MassivityIndex(fPerim, fArea/10000));
+		pSubbasin->Set_Value(13, OrographicIndex(fPerim, fArea/10000));
+		pSubbasin->Set_Value(14, MassivityIndex(fPerim, fArea/10000));
 	}//for
 
 	//upstream and downstream basins

@@ -38,7 +38,7 @@ CShapeSelector::CShapeSelector(CSG_Shapes *pShapes,
 		pShape = pShapes->Get_Shape(i);
 		bSelect = false;
 		for (j = 0; j < pShapes2->Get_Count(); j++){
-			if (pShapes2->Get_Table().Get_Record(j)->is_Selected()){
+			if (pShapes2->Get_Record(j)->is_Selected()){
 				pShape2 = pShapes2->Get_Shape(i);
 				switch (iCondition){
 				case 0: //intersect

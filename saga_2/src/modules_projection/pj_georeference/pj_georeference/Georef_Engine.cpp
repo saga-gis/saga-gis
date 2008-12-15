@@ -176,8 +176,8 @@ bool CGeoref_Engine::Set_Engine(CSG_Shapes *pSource, int xField, int yField)
 	CSG_Shape			*pShape;
 
 	if( pSource && pSource->Get_Type() == SHAPE_TYPE_Point
-	&&	xField >= 0 && xField < pSource->Get_Table().Get_Field_Count()
-	&&	yField >= 0 && yField < pSource->Get_Table().Get_Field_Count()	)
+	&&	xField >= 0 && xField < pSource->Get_Field_Count()
+	&&	yField >= 0 && yField < pSource->Get_Field_Count()	)
 	{
 		for(iShape=0; iShape<pSource->Get_Count(); iShape++)
 		{
@@ -185,8 +185,8 @@ bool CGeoref_Engine::Set_Engine(CSG_Shapes *pSource, int xField, int yField)
 			Point	= pShape->Get_Point(0);
 			Pts_Source.Add(Point.x, Point.y);
 			Pts_Target.Add(
-				pShape->Get_Record()->asDouble(xField),
-				pShape->Get_Record()->asDouble(yField)
+				pShape->asDouble(xField),
+				pShape->asDouble(yField)
 			);
 		}
 

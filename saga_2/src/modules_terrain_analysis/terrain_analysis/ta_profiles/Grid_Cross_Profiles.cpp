@@ -163,13 +163,13 @@ bool CGrid_Cross_Profiles::On_Execute(void)
 
 	//-----------------------------------------------------
 	pProfiles->Create(SHAPE_TYPE_Line, _TL("Profiles"));
-	pProfiles->Get_Table().Add_Field("ID"	, TABLE_FIELDTYPE_Int);
-	pProfiles->Get_Table().Add_Field("LINE"	, TABLE_FIELDTYPE_Int);
-	pProfiles->Get_Table().Add_Field("PART"	, TABLE_FIELDTYPE_Int);
+	pProfiles->Add_Field("ID"	, TABLE_FIELDTYPE_Int);
+	pProfiles->Add_Field("LINE"	, TABLE_FIELDTYPE_Int);
+	pProfiles->Add_Field("PART"	, TABLE_FIELDTYPE_Int);
 
 	for(iPoint=0; iPoint<nSamples; iPoint++)
 	{
-		pProfiles->Get_Table().Add_Field(CSG_String::Format(SG_T("X%03d"), iPoint), TABLE_FIELDTYPE_Double);
+		pProfiles->Add_Field(CSG_String::Format(SG_T("X%03d"), iPoint), TABLE_FIELDTYPE_Double);
 	}
 
 	//-----------------------------------------------------
@@ -209,9 +209,9 @@ bool CGrid_Cross_Profiles::On_Execute(void)
 							pProfile	= pProfiles->Add_Shape();
 							pProfile->Add_Point(aPt);
 							pProfile->Add_Point(bPt);
-							pProfile->Get_Record()->Set_Value(0, pProfiles->Get_Count());
-							pProfile->Get_Record()->Set_Value(1, iLine);
-							pProfile->Get_Record()->Set_Value(2, iPart);
+							pProfile->Set_Value(0, pProfiles->Get_Count());
+							pProfile->Set_Value(1, iLine);
+							pProfile->Set_Value(2, iPart);
 
 							Get_Profile(pProfile, aPt, bPt, nSamples);
 						}
@@ -264,11 +264,11 @@ bool CGrid_Cross_Profiles::Get_Profile(CSG_Shape *pProfile, TSG_Point A, TSG_Poi
 		{
 			if( m_pDEM->Get_Value(A, z) )
 			{
-				pProfile->Get_Record()->Set_Value	(OFFSET + i, z);
+				pProfile->Set_Value	(OFFSET + i, z);
 			}
 			else
 			{
-				pProfile->Get_Record()->Set_NoData	(OFFSET + i);
+				pProfile->Set_NoData	(OFFSET + i);
 			}
 
 			A.x	+= dx;
@@ -308,7 +308,7 @@ void CGrid_Cross_Profiles::Make_Report(const SG_Char *FileName, CSG_Grid *pDEM, 
 		pdf.Layout_Add_Box(5, 50, 95, 70);
 		pdf.Layout_Add_Box(5, 75, 95, 90);
 
-		nSamples	= pProfiles->Get_Table().Get_Field_Count() - OFFSET;
+		nSamples	= pProfiles->Get_Field_Count() - OFFSET;
 		Distance	= Distance / (nSamples - 1);
 		iBox		= 0;
 
@@ -321,11 +321,11 @@ void CGrid_Cross_Profiles::Make_Report(const SG_Char *FileName, CSG_Grid *pDEM, 
 
 			for(iPoint=0; iPoint<nSamples; iPoint++)
 			{
-				if( !pProfile->Get_Record()->is_NoData(OFFSET + iPoint) )
+				if( !pProfile->is_NoData(OFFSET + iPoint) )
 				{
 					pLine->Add_Point(
 						(iPoint - nSamples / 2) * Distance,
-						pProfile->Get_Record()->asDouble(OFFSET + iPoint)
+						pProfile->asDouble(OFFSET + iPoint)
 					);
 				}
 			}

@@ -180,7 +180,7 @@ bool CRemove_Duplicates::On_Execute(void)
 					{
 						pPoints->Select(pDuplicate, true);
 
-						Set_Attributes(pPoint->Get_Record(), pDuplicate->Get_Record());
+						Set_Attributes(pPoint, pDuplicate);
 					}
 				}
 			}
@@ -215,7 +215,7 @@ void CRemove_Duplicates::Set_Attributes(CSG_Table_Record *pTarget, CSG_Table_Rec
 	}
 	else
 	{
-		CSG_Table	*pTable	= pTarget->Get_Owner();
+		CSG_Table	*pTable	= pTarget->Get_Table();
 
 		for(int iField=0; iField<pTable->Get_Field_Count(); iField++)
 		{

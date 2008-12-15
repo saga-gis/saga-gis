@@ -154,7 +154,7 @@ bool CWASP_MAP_Export::On_Execute(void)
 					// 5a)	Height contour: elevation (Z) and number of points (n) in line:
 					//			Z n
 
-					fprintf(Stream, "%f %d\n", pLine->Get_Record()->asDouble(zField), pLine->Get_Point_Count(iPart));
+					fprintf(Stream, "%f %d\n", pLine->asDouble(zField), pLine->Get_Point_Count(iPart));
 
 
 					// 5b)	Roughness change line:
@@ -271,18 +271,18 @@ bool CWASP_MAP_Import::On_Execute(void)
 		switch( Method )
 		{
 		case 0:	// elevation
-			pLines->Get_Table().Add_Field("Z"		, TABLE_FIELDTYPE_Double);
+			pLines->Add_Field("Z"		, TABLE_FIELDTYPE_Double);
 			break;
 
 		case 1:	// roughness
-			pLines->Get_Table().Add_Field("RLEFT"	, TABLE_FIELDTYPE_Double);
-			pLines->Get_Table().Add_Field("RRIGHT"	, TABLE_FIELDTYPE_Double);
+			pLines->Add_Field("RLEFT"	, TABLE_FIELDTYPE_Double);
+			pLines->Add_Field("RRIGHT"	, TABLE_FIELDTYPE_Double);
 			break;
 
 		case 2:	// elevation and roughness
-			pLines->Get_Table().Add_Field("Z"		, TABLE_FIELDTYPE_Double);
-			pLines->Get_Table().Add_Field("RLEFT"	, TABLE_FIELDTYPE_Double);
-			pLines->Get_Table().Add_Field("RRIGHT"	, TABLE_FIELDTYPE_Double);
+			pLines->Add_Field("Z"		, TABLE_FIELDTYPE_Double);
+			pLines->Add_Field("RLEFT"	, TABLE_FIELDTYPE_Double);
+			pLines->Add_Field("RRIGHT"	, TABLE_FIELDTYPE_Double);
 			break;
 		}
 
@@ -325,7 +325,7 @@ bool CWASP_MAP_Import::On_Execute(void)
 				if( !feof(Stream) && n > 1 )
 				{
 					pLine	= pLines->Add_Shape();
-					pLine->Get_Record()->Set_Value(0, zMin + dz * z);
+					pLine->Set_Value(0, zMin + dz * z);
 				}
 				break;
 
@@ -340,8 +340,8 @@ bool CWASP_MAP_Import::On_Execute(void)
 				if( !feof(Stream) && n > 1 )
 				{
 					pLine	= pLines->Add_Shape();
-					pLine->Get_Record()->Set_Value(0, rLeft);
-					pLine->Get_Record()->Set_Value(1, rRight);
+					pLine->Set_Value(0, rLeft);
+					pLine->Set_Value(1, rRight);
 				}
 				break;
 
@@ -356,9 +356,9 @@ bool CWASP_MAP_Import::On_Execute(void)
 				if( !feof(Stream) && n > 1 )
 				{
 					pLine	= pLines->Add_Shape();
-					pLine->Get_Record()->Set_Value(0, zMin + dz * z);
-					pLine->Get_Record()->Set_Value(1, rLeft);
-					pLine->Get_Record()->Set_Value(2, rRight);
+					pLine->Set_Value(0, zMin + dz * z);
+					pLine->Set_Value(1, rLeft);
+					pLine->Set_Value(2, rRight);
 				}
 				break;
 			}

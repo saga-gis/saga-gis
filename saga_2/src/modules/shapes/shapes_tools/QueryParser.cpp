@@ -29,7 +29,7 @@ CQueryParser::CQueryParser(CSG_Shapes *pShapes, CSG_String sExpression){
 	double *pFieldValues;
 	double dValue;
 
-	pTable = &pShapes->Get_Table();
+	pTable = pShapes;
 	iFields = pTable->Get_Field_Count();
 	Formula.Set_Formula(sExpression.c_str());
 	pFieldValues= new double[iFields];

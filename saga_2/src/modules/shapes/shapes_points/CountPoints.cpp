@@ -53,8 +53,8 @@ bool CCountPoints::On_Execute(void){
 	CSG_Shapes *pPolygons = Parameters("POLYGONS")->asShapes();
 	CSG_Shape *pShape, *pPoly;
 
-	pPolygons->Get_Table().Add_Field(_TL("Points"),TABLE_FIELDTYPE_Int);
-	iField = pPolygons->Get_Table().Get_Field_Count()-1;
+	pPolygons->Add_Field(_TL("Points"),TABLE_FIELDTYPE_Int);
+	iField = pPolygons->Get_Field_Count()-1;
 
 	for(iPoly = 0; iPoly < pPolygons->Get_Count(); iPoly++){
 		pPoly = pPolygons->Get_Shape(iPoly);
@@ -69,7 +69,7 @@ bool CCountPoints::On_Execute(void){
 				}//for
 			}//for
 		}//for
-		pPoly->Get_Record()->Set_Value(iField, iPoints);
+		pPoly->Set_Value(iField, iPoints);
 	}//for
 
 	return true;

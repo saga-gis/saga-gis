@@ -184,8 +184,8 @@ bool CPolygon_Intersection::On_Execute(void)
 	else
 	{
 		m_pShapes_AB->Create(SHAPE_TYPE_Polygon);
-		m_pShapes_AB->Get_Table().Add_Field("ID"	, TABLE_FIELDTYPE_Int);
-		m_pShapes_AB->Get_Table().Add_Field("ID_A"	, TABLE_FIELDTYPE_Int);
+		m_pShapes_AB->Add_Field("ID"	, TABLE_FIELDTYPE_Int);
+		m_pShapes_AB->Add_Field("ID_A"	, TABLE_FIELDTYPE_Int);
 
 		Intersect(pList->asShapes(0), pList->asShapes(1));
 
@@ -274,26 +274,26 @@ bool CPolygon_Intersection::On_Execute(void)
 	m_pShapes_B		= Parameters("SHAPES_B")	->asShapes();
 	m_pShapes_AB	= Parameters("SHAPES_AB")	->asShapes();
 	m_bSplitParts	= Parameters("SPLITPARTS")	->asBool();
-	m_iField_A		= Parameters("FIELD_A")		->asInt();	if( m_iField_A >= m_pShapes_A->Get_Table().Get_Field_Count() )	{	m_iField_A	= -1;	}
-	m_iField_B		= Parameters("FIELD_B")		->asInt();	if( m_iField_B >= m_pShapes_B->Get_Table().Get_Field_Count() )	{	m_iField_B	= -1;	}
+	m_iField_A		= Parameters("FIELD_A")		->asInt();	if( m_iField_A >= m_pShapes_A->Get_Field_Count() )	{	m_iField_A	= -1;	}
+	m_iField_B		= Parameters("FIELD_B")		->asInt();	if( m_iField_B >= m_pShapes_B->Get_Field_Count() )	{	m_iField_B	= -1;	}
 
 	if(	m_pShapes_A->Get_Type() == SHAPE_TYPE_Polygon && m_pShapes_A->is_Valid()
 	&&	m_pShapes_B->Get_Type() == SHAPE_TYPE_Polygon && m_pShapes_B->is_Valid() )
 	{
 		m_pShapes_AB->Create(SHAPE_TYPE_Polygon);
-		m_pShapes_AB->Get_Table().Add_Field("ID"	, TABLE_FIELDTYPE_Int);
-		m_pShapes_AB->Get_Table().Add_Field("ID_A"	, TABLE_FIELDTYPE_Int);
-		m_pShapes_AB->Get_Table().Add_Field("ID_B"	, TABLE_FIELDTYPE_Int);
-		m_pShapes_AB->Get_Table().Add_Field("ID_AB"	, TABLE_FIELDTYPE_Int);
+		m_pShapes_AB->Add_Field("ID"	, TABLE_FIELDTYPE_Int);
+		m_pShapes_AB->Add_Field("ID_A"	, TABLE_FIELDTYPE_Int);
+		m_pShapes_AB->Add_Field("ID_B"	, TABLE_FIELDTYPE_Int);
+		m_pShapes_AB->Add_Field("ID_AB"	, TABLE_FIELDTYPE_Int);
 
 		if( m_iField_A >= 0 )
 		{
-			m_pShapes_AB->Get_Table().Add_Field(m_pShapes_A->Get_Table().Get_Field_Name(m_iField_A), m_pShapes_A->Get_Table().Get_Field_Type(m_iField_A));
+			m_pShapes_AB->Add_Field(m_pShapes_A->Get_Field_Name(m_iField_A), m_pShapes_A->Get_Field_Type(m_iField_A));
 		}
 
 		if( m_iField_B >= 0 )
 		{
-			m_pShapes_AB->Get_Table().Add_Field(m_pShapes_B->Get_Table().Get_Field_Name(m_iField_B), m_pShapes_B->Get_Table().Get_Field_Type(m_iField_B));
+			m_pShapes_AB->Add_Field(m_pShapes_B->Get_Field_Name(m_iField_B), m_pShapes_B->Get_Field_Type(m_iField_B));
 		}
 
 		//-------------------------------------------------
@@ -373,7 +373,7 @@ bool CPolygon_Intersection::Get_Intersection(CSG_Shapes *pShapes_A, CSG_Shapes *
 
 				if( GPC_Intersection(pShape_A, pShape_B, pShape_AB) )
 				{
-					Add_Polygon(pShape_AB, iShape_A, pShape_B->Get_Record()->Get_Index());
+					Add_Polygon(pShape_AB, iShape_A, pShape_B->Get_Index());
 				}
 			}
 		}

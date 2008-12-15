@@ -233,8 +233,6 @@ inline int CWKSP_Data_Control::_Get_Image_ID(CWKSP_Base_Item *pItem)
 //---------------------------------------------------------
 void CWKSP_Data_Control::Add_Item(CWKSP_Base_Manager *pManager, CWKSP_Base_Item *pItem)
 {
-	CWKSP_Table	*pTable;
-
 	if( pManager && pItem )
 	{
 		if( pManager == Get_Manager() )
@@ -249,26 +247,6 @@ void CWKSP_Data_Control::Add_Item(CWKSP_Base_Manager *pManager, CWKSP_Base_Item 
 		Expand		(pManager->GetId());
 
 		//-------------------------------------------------
-		switch( pItem->Get_Type() )
-		{
-		default:
-			pTable	= NULL;
-			break;
-
-		case WKSP_ITEM_Shapes:
-			pTable	= ((CWKSP_Shapes *)pItem)->Get_Table();
-			break;
-
-		case WKSP_ITEM_TIN:
-			pTable	= ((CWKSP_TIN    *)pItem)->Get_Table();
-			break;
-		}
-
-		if( pTable )
-		{
-			AppendItem(pItem->GetId(), pTable->Get_Name(), IMG_TABLE, IMG_TABLE, (wxTreeItemData *)pTable);
-		}
-
 		if( g_pData_Buttons )
 		{
 			g_pData_Buttons->Update_Buttons();

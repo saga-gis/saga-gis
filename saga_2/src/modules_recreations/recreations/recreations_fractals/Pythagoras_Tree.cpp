@@ -151,8 +151,8 @@ bool CPythagoras_Tree::On_Execute(void)
 
 	pShapes		= Parameters("RESULT")	->asShapes();
 	pShapes->Create(Parameters("TYPE")->asInt() == 0 ? SHAPE_TYPE_Line : SHAPE_TYPE_Polygon, _TL("Pythagoras' Tree"));
-	pShapes->Get_Table().Add_Field(_TL("Iteration")	, TABLE_FIELDTYPE_Int);
-	pShapes->Get_Table().Add_Field(_TL("Size")		, TABLE_FIELDTYPE_Double);
+	pShapes->Add_Field(_TL("Iteration")	, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field(_TL("Size")		, TABLE_FIELDTYPE_Double);
 
 	Min_Size	= Parameters("MINSIZE")	->asDouble() / 100.0;
 
@@ -263,8 +263,8 @@ void CPythagoras_Tree::Add_Shape(TSG_Point pt_A, TSG_Point pt_B, TSG_Point pt_C,
 	CSG_Shape	*pShape;
 
 	pShape	= pShapes->Add_Shape();
-	pShape->Get_Record()->Set_Value(0, Iteration);
-	pShape->Get_Record()->Set_Value(1, Size);
+	pShape->Set_Value(0, Iteration);
+	pShape->Set_Value(1, Size);
 
 	pShape->Add_Point(pt_A);
 	pShape->Add_Point(pt_B);
@@ -283,8 +283,8 @@ void CPythagoras_Tree::Add_Shape(TSG_Point pt_A, TSG_Point pt_B, TSG_Point pt_C)
 	CSG_Shape	*pShape;
 
 	pShape	= pShapes->Add_Shape();
-	pShape->Get_Record()->Set_Value(0, Iteration);
-	pShape->Get_Record()->Set_Value(1, Size);
+	pShape->Set_Value(0, Iteration);
+	pShape->Set_Value(1, Size);
 
 	pShape->Add_Point(pt_A);
 	pShape->Add_Point(pt_B);

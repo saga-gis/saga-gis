@@ -89,7 +89,7 @@ bool CSummarize::On_Execute(void){
 	m_pShapes = Parameters("SHAPES")->asShapes();
 	m_pTable = Parameters("TABLE")->asTable();
 
-	pShapesTable = &m_pShapes->Get_Table();
+	pShapesTable = m_pShapes;
 	m_bIncludeParam = new bool [pShapesTable->Get_Field_Count() * 5];
 	pExtraParameter = new CSG_Parameter* [pShapesTable->Get_Field_Count() * 5];
 
@@ -165,7 +165,7 @@ void CSummarize::CreatePDFDocs(){
 	
 	m_DocEngine.Add_Page_Title (_TL("Summary"), PDF_TITLE_01, PDF_PAGE_SIZE_A3, PDF_PAGE_ORIENTATION_LANDSCAPE);
 
-	pShapesTable = &m_pShapes->Get_Table();
+	pShapesTable = m_pShapes;
 	pShapes = new CSG_Shapes();
 	for (i = 0; i < m_ClassesID.size(); i++){
 		Set_Progress(i,m_ClassesID.size());
@@ -208,7 +208,7 @@ void CSummarize::Summarize(){
 
 	m_ClassesID.clear();
 
-	pShapesTable = &m_pShapes->Get_Table();
+	pShapesTable = m_pShapes;
 	m_pClasses = new int[pShapesTable->Get_Record_Count()];
 
 	for (i = 0; i < pShapesTable->Get_Record_Count(); i++){

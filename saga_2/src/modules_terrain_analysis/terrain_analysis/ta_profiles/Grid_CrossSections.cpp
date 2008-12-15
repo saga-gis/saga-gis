@@ -151,12 +151,12 @@ bool CGrid_CrossSections::On_Execute(void){
 
 	m_pSections->Create(SHAPE_TYPE_Line, _TL("Cross Sections"));
 	for (i = iNumPoints; i > 0; i--){
-		m_pSections->Get_Table().Add_Field(CSG_String::Format(SG_T("-%s"), SG_Get_String(fInterval * i, 2).c_str()),
+		m_pSections->Add_Field(CSG_String::Format(SG_T("-%s"), SG_Get_String(fInterval * i, 2).c_str()),
 										TABLE_FIELDTYPE_Double);
 	}//for
-	m_pSections->Get_Table().Add_Field("0", TABLE_FIELDTYPE_Double);
+	m_pSections->Add_Field("0", TABLE_FIELDTYPE_Double);
 	for (i = 1; i < iNumPoints +1; i++){
-		m_pSections->Get_Table().Add_Field(SG_Get_String(fInterval * i).c_str(), TABLE_FIELDTYPE_Double);
+		m_pSections->Add_Field(SG_Get_String(fInterval * i).c_str(), TABLE_FIELDTYPE_Double);
 	}//for
 	for(i=0; i<pLines->Get_Count() && Set_Progress(i, pLines->Get_Count()); i++){
 		pShape = pLines->Get_Shape(i);
@@ -179,17 +179,17 @@ bool CGrid_CrossSections::On_Execute(void){
 					dX2 = dX - iPoint * fStepX;
 					dY2 = dY - iPoint * fStepY;
 					dHeight = pDEM->Get_Value(dX2, dY2);
-					pSection->Get_Record()->Set_Value(iField, dHeight);
+					pSection->Set_Value(iField, dHeight);
 					iField++;
 				}//for
 				dHeight = pDEM->Get_Value(dX, dY);
-				pSection->Get_Record()->Set_Value(iField, dHeight);
+				pSection->Set_Value(iField, dHeight);
 				iField++;
 				for (iPoint = 1; iPoint < iNumPoints +1; iPoint++){
 					dX2 = dX + iPoint * fStepX;
 					dY2 = dY + iPoint * fStepY;
 					dHeight = pDEM->Get_Value(dX2, dY2);
-					pSection->Get_Record()->Set_Value(iField, dHeight);
+					pSection->Set_Value(iField, dHeight);
 					iField++;
 				}//for*/
 			}//for
@@ -257,7 +257,7 @@ void CGrid_CrossSections::AddLongitudinalProfiles(){
 	TSG_Point	Point, Point2;
 	CSG_Shapes* pLines = Parameters("LINES")->asShapes();
 
-	pTable = &m_pSections->Get_Table();
+	pTable = m_pSections;
 	iSections = pTable->Get_Record_Count();
 
 	m_pProfile = new TSG_Point[iSections];
@@ -352,7 +352,7 @@ void CGrid_CrossSections::AddCrossSections(){
 	pRoadSection[1].x = dWidth / 2.;
 	pRoadSection[1].y = 0;
 
-	pTable = &m_pSections->Get_Table();
+	pTable = m_pSections;
 	pCrossSections = new TSG_Point *[pTable->Get_Record_Count()];
 
 	for (i = 0; i < pTable->Get_Record_Count(); i++){

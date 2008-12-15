@@ -125,8 +125,8 @@ bool CLines_From_Points::On_Execute(void)
 	{
 		pPoints->Set_Index(Parameters("ORDER")->asInt(), TABLE_INDEX_Ascending);
 
-		pLines->Create(SHAPE_TYPE_Line, pPoints->Get_Name(), &pPoints->Get_Table());
-		pLines->Get_Table().Add_Field(SG_T("ID"), TABLE_FIELDTYPE_Int);
+		pLines->Create(SHAPE_TYPE_Line, pPoints->Get_Name(), pPoints);
+		pLines->Add_Field(SG_T("ID"), TABLE_FIELDTYPE_Int);
 		pLine	= pLines->Add_Shape();
 
 		//-------------------------------------------------

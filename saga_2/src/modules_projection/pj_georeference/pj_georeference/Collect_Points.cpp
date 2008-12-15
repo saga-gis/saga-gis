@@ -132,14 +132,14 @@ bool CCollect_Points::On_Execute(void)
 {
 	m_pSource	= Parameters("REF_SOURCE")	->asShapes();
 	m_pSource	->Create(SHAPE_TYPE_Point, _TL("Reference Points (Origin)"));
-	m_pSource	->Get_Table().Add_Field("X", TABLE_FIELDTYPE_Double);
-	m_pSource	->Get_Table().Add_Field("Y", TABLE_FIELDTYPE_Double);
+	m_pSource	->Add_Field("X", TABLE_FIELDTYPE_Double);
+	m_pSource	->Add_Field("Y", TABLE_FIELDTYPE_Double);
 
 	if( (m_pTarget = Parameters("REF_TARGET")->asShapes()) != NULL )
 	{
 		m_pTarget	->Create(SHAPE_TYPE_Point, _TL("Reference Points (Projection)"));
-		m_pTarget	->Get_Table().Add_Field("X", TABLE_FIELDTYPE_Double);
-		m_pTarget	->Get_Table().Add_Field("Y", TABLE_FIELDTYPE_Double);
+		m_pTarget	->Add_Field("X", TABLE_FIELDTYPE_Double);
+		m_pTarget	->Add_Field("Y", TABLE_FIELDTYPE_Double);
 	}
 
 	return( true );
@@ -161,8 +161,8 @@ bool CCollect_Points::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interact
 
 		pShape	= m_pSource->Add_Shape();
 		pShape	->Add_Point(xSource, ySource);
-		pShape	->Get_Record()->Set_Value(0, xTarget);
-		pShape	->Get_Record()->Set_Value(1, yTarget);
+		pShape	->Set_Value(0, xTarget);
+		pShape	->Set_Value(1, yTarget);
 
 		DataObject_Update(m_pSource);
 
@@ -170,8 +170,8 @@ bool CCollect_Points::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interact
 		{
 			pShape	= m_pTarget->Add_Shape();
 			pShape	->Add_Point(xTarget, yTarget);
-			pShape	->Get_Record()->Set_Value(0, xSource);
-			pShape	->Get_Record()->Set_Value(1, ySource);
+			pShape	->Set_Value(0, xSource);
+			pShape	->Set_Value(1, ySource);
 
 			DataObject_Update(m_pTarget);
 		}

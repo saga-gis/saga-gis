@@ -144,12 +144,12 @@ bool CTransformShapes::On_Execute(void)
 		bCopy = false;
 	}//else
 
-	pOut->Create(pIn->Get_Type(), CSG_String::Format(SG_T("%s [%s]"), pIn->Get_Name(), _TL("Transformed")), &pIn->Get_Table());
+	pOut->Create(pIn->Get_Type(), CSG_String::Format(SG_T("%s [%s]"), pIn->Get_Name(), _TL("Transformed")), pIn);
 
 	//-----------------------------------------------------
 	for(int iShape=0; iShape<pIn->Get_Count(); iShape++)
 	{
-		CSG_Shape	*pShape	= pOut->Add_Shape(pIn->Get_Shape(iShape), true);
+		CSG_Shape	*pShape	= pOut->Add_Shape(pIn->Get_Shape(iShape));
 
 		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{

@@ -90,28 +90,6 @@ bool CSG_Shapes::_Load_ESRI(const SG_Char *File_Name)
 
 	CSG_File	Stream;
 
-	CSG_Shape	*pShape;
-
-
-	//-----------------------------------------------------
-	// Load Attributes...
-
-	fName	= SG_File_Make_Path(NULL, File_Name, SG_T("dbf"));
-
-	SG_UI_Msg_Lock(true);
-
-	if( !m_Table._Create(fName.c_str(), TABLE_FILETYPE_DBase, SG_T("")) || m_Table.Get_Record_Count() == 0 )
-	{
-		SG_UI_Msg_Lock(false);
-
-		SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
-
-		SG_UI_Msg_Add_Error(LNG("[ERR] DBase file could not be opened or it did not contain any records."));
-
-		return( false );
-	}
-
-	SG_UI_Msg_Lock(false);
 
 	//-----------------------------------------------------
 	// Open Shapes File...
@@ -180,25 +158,35 @@ bool CSG_Shapes::_Load_ESRI(const SG_Char *File_Name)
 		return( false );
 	}
 
+	//-----------------------------------------------------
+	// Load Attributes...
+
+	fName	= SG_File_Make_Path(NULL, File_Name, SG_T("dbf"));
+
+	SG_UI_Msg_Lock(true);
+
+	if( !_Create(fName.c_str(), TABLE_FILETYPE_DBase, SG_T("")) || Get_Count() == 0 )
+	{
+		SG_UI_Msg_Lock(false);
+
+		SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
+
+		SG_UI_Msg_Add_Error(LNG("[ERR] DBase file could not be opened or it did not contain any records."));
+
+		return( false );
+	}
+
+	SG_UI_Msg_Lock(false);
+
 	//-------------------------------------------------
 	// Load Shapes...
-
-	m_nShapes	= m_nBuffer	= m_Table.Get_Record_Count();
-	m_Shapes	= (CSG_Shape **)SG_Malloc(m_nShapes * sizeof(CSG_Shape *));
 
 	buf_nParts	= 0;
 	buf_nPoints	= NULL;
 
-	for(iShape=0, bError=false; iShape<m_nShapes && SG_UI_Process_Set_Progress(iShape, m_nShapes); iShape++)
+	for(iShape=0, bError=false; iShape<Get_Count() && SG_UI_Process_Set_Progress(iShape, Get_Count()); iShape++)
 	{
-		switch( m_Type )
-		{
-		default:
-		case SHAPE_TYPE_Point:		m_Shapes[iShape]	= pShape	= new CSG_Shape_Point	(this, m_Table.Get_Record(iShape));	break;
-		case SHAPE_TYPE_Points:		m_Shapes[iShape]	= pShape	= new CSG_Shape_Points	(this, m_Table.Get_Record(iShape));	break;
-		case SHAPE_TYPE_Line:		m_Shapes[iShape]	= pShape	= new CSG_Shape_Line	(this, m_Table.Get_Record(iShape));	break;
-		case SHAPE_TYPE_Polygon:	m_Shapes[iShape]	= pShape	= new CSG_Shape_Polygon	(this, m_Table.Get_Record(iShape));	break;
-		}
+		CSG_Shape	*pShape	= Get_Shape(iShape);
 
 		RecordNumber	= Stream.Read_Int(true);
 		ContentLength	= Stream.Read_Int(true);
@@ -445,7 +433,7 @@ bool CSG_Shapes::_Save_ESRI(const SG_Char *File_Name)
 	//-----------------------------------------------------
 	// Save Header...
 
-	_Update_Extent();
+	Update();
 
 	dRect	= m_Extent.m_rect;
 
@@ -597,7 +585,7 @@ bool CSG_Shapes::_Save_ESRI(const SG_Char *File_Name)
 
 	fName	= SG_File_Make_Path(NULL, File_Name, SG_T("dbf"));
 
-	return( m_Table.Save(fName, TABLE_FILETYPE_DBase) );
+	return( CSG_Table::Save(fName, TABLE_FILETYPE_DBase) );
 }
 
 

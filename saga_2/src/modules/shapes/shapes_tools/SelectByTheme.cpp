@@ -82,7 +82,7 @@ bool CSelectByTheme::On_Execute(void){
 
 	pShapes = Parameters("SHAPES")->asShapes();
 	pShapes2 = Parameters("SHAPES2")->asShapes();
-	pTable	= &pShapes->Get_Table();
+	pTable	= pShapes;
 	iCondition = Parameters("CONDITION")->asInt();
 	iMethod = Parameters("METHOD")->asInt();
 

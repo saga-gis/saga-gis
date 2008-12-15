@@ -131,7 +131,7 @@ bool CPolygon_Centroids::On_Execute(void)
 
 	if(	pPolygons->Get_Type() == SHAPE_TYPE_Polygon && pPolygons->Get_Count() > 0 )
 	{
-		pCentroids->Create(SHAPE_TYPE_Point, pPolygons->Get_Name(), &pPolygons->Get_Table());
+		pCentroids->Create(SHAPE_TYPE_Point, pPolygons->Get_Name(), pPolygons);
 
 		//-------------------------------------------------
 		for(iShape=0; iShape<pPolygons->Get_Count(); iShape++)
@@ -142,13 +142,13 @@ bool CPolygon_Centroids::On_Execute(void)
 			{
 				for(iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
 				{
-					pCentroid	= pCentroids->Add_Shape(pPolygon->Get_Record());
+					pCentroid	= pCentroids->Add_Shape(pPolygon, SHAPE_COPY_ATTR);
 					pCentroid->Add_Point(pPolygon->Get_Centroid(iPart));
 				}
 			}
 			else
 			{
-				pCentroid	= pCentroids->Add_Shape(pPolygon->Get_Record());
+				pCentroid	= pCentroids->Add_Shape(pPolygon, SHAPE_COPY_ATTR);
 				pCentroid->Add_Point(pPolygon->Get_Centroid());
 			}
 		}

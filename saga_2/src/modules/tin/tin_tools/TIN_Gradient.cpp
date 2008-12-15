@@ -142,10 +142,10 @@ bool CTIN_Gradient::On_Execute(void)
 	//-----------------------------------------------------
 	pShapes->Create(SHAPE_TYPE_Polygon, CSG_String::Format(_TL("TIN_Gradient [%s], TIN [%s]"), pTIN->Get_Table().Get_Field_Name(zField), pTIN->Get_Name()));
 
-	pShapes->Get_Table().Add_Field(_TL("ID")		, TABLE_FIELDTYPE_Int);
-	pShapes->Get_Table().Add_Field(_TL("AREA")	, TABLE_FIELDTYPE_Double);
-	pShapes->Get_Table().Add_Field(_TL("DECLINE"), TABLE_FIELDTYPE_Double);
-	pShapes->Get_Table().Add_Field(_TL("AZIMUTH"), TABLE_FIELDTYPE_Double);
+	pShapes->Add_Field(_TL("ID")		, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field(_TL("AREA")	, TABLE_FIELDTYPE_Double);
+	pShapes->Add_Field(_TL("DECLINE"), TABLE_FIELDTYPE_Double);
+	pShapes->Add_Field(_TL("AZIMUTH"), TABLE_FIELDTYPE_Double);
 
 	//-----------------------------------------------------
 	for(iTriangle=0; iTriangle<pTIN->Get_Triangle_Count() && Set_Progress(iTriangle, pTIN->Get_Triangle_Count()); iTriangle++)
@@ -165,10 +165,10 @@ bool CTIN_Gradient::On_Execute(void)
 			pShape->Add_Point(pTriangle->Get_Point(1)->Get_Point());
 			pShape->Add_Point(pTriangle->Get_Point(2)->Get_Point());
 
-			pShape->Get_Record()->Set_Value(0, iTriangle + 1);
-			pShape->Get_Record()->Set_Value(1, pTriangle->Get_Area());
-			pShape->Get_Record()->Set_Value(2, a);
-			pShape->Get_Record()->Set_Value(3, b);
+			pShape->Set_Value(0, iTriangle + 1);
+			pShape->Set_Value(1, pTriangle->Get_Area());
+			pShape->Set_Value(2, a);
+			pShape->Set_Value(3, b);
 		}
 	}
 

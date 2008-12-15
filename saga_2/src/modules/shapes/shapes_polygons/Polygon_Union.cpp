@@ -139,17 +139,17 @@ bool CPolygon_Union::On_Execute(void)
 	bAll		= Parameters("ALL")			->asInt() == 1;
 
 	//-----------------------------------------------------
-	if(	pPolygons->is_Valid() && iField >= 0 && iField < pPolygons->Get_Table().Get_Field_Count() )
+	if(	pPolygons->is_Valid() && iField >= 0 && iField < pPolygons->Get_Field_Count() )
 	{
-		pTable	= &pPolygons->Get_Table();
+		pTable	= pPolygons;
 
 		pUnions	->Create(SHAPE_TYPE_Polygon);
-		pUnions	->Get_Table().Add_Field(pTable->Get_Field_Name(iField), pTable->Get_Field_Type(iField));
+		pUnions	->Add_Field(pTable->Get_Field_Name(iField), pTable->Get_Field_Type(iField));
 
 		//-------------------------------------------------
 		if( bAll )
 		{
-			pUnion	= pUnions->Add_Shape(pPolygons->Get_Shape(0), false);
+			pUnion	= pUnions->Add_Shape(pPolygons->Get_Shape(0), SHAPE_COPY_GEOM);
 
 			for(iPolygon=1; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
 			{
@@ -168,11 +168,11 @@ bool CPolygon_Union::On_Execute(void)
 			{
 				pPolygon	= pPolygons->Get_Shape(pTable->Get_Record_byIndex(iPolygon)->Get_Index());
 
-				if( iPolygon == 0 || Value.Cmp(pPolygon->Get_Record()->asString(iField)) )
+				if( iPolygon == 0 || Value.Cmp(pPolygon->asString(iField)) )
 				{
-					Value	= pPolygon->Get_Record()->asString(iField);
-					pUnion	= pUnions->Add_Shape(pPolygon, false);
-					pUnion	->Get_Record()->Set_Value(0, Value);
+					Value	= pPolygon->asString(iField);
+					pUnion	= pUnions->Add_Shape(pPolygon, SHAPE_COPY_GEOM);
+					pUnion	->Set_Value(0, Value);
 				}
 				else
 				{

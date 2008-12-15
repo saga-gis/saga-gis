@@ -75,7 +75,7 @@ bool CPoints_From_Lines::On_Execute(void)
 	pPoints	= Parameters("POINTS")	->asShapes();
 	dDist	= Parameters("ADD")		->asBool() ? Parameters("DIST")->asDouble() : -1.0;
 
-	pPoints->Create(SHAPE_TYPE_Point, pLines->Get_Name(), &pLines->Get_Table());
+	pPoints->Create(SHAPE_TYPE_Point, pLines->Get_Name(), pLines);
 
 	//-----------------------------------------------------
 	for(iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
@@ -99,7 +99,7 @@ bool CPoints_From_Lines::On_Execute(void)
 					dx		/= nPoints;
 					dy		/= nPoints;
 
-					pPoint	= pPoints->Add_Shape(pLine->Get_Record());
+					pPoint	= pPoints->Add_Shape(pLine, SHAPE_COPY_ATTR);
 					pPoint	->Add_Point(Pt_A);
 
 					for(jPoint=1; jPoint<nPoints; jPoint++)
@@ -107,7 +107,7 @@ bool CPoints_From_Lines::On_Execute(void)
 						Pt_A.x	+= dx;
 						Pt_A.y	+= dy;
 
-						pPoint	= pPoints->Add_Shape(pLine->Get_Record());
+						pPoint	= pPoints->Add_Shape(pLine, SHAPE_COPY_ATTR);
 						pPoint	->Add_Point(Pt_A);
 					}
 				}
@@ -118,7 +118,7 @@ bool CPoints_From_Lines::On_Execute(void)
 			{
 				for(iPoint=0; iPoint<pLine->Get_Point_Count(iPart); iPoint++)
 				{
-					pPoint	= pPoints->Add_Shape(pLine->Get_Record());
+					pPoint	= pPoints->Add_Shape(pLine, SHAPE_COPY_ATTR);
 					pPoint	->Add_Point(pLine->Get_Point(iPoint, iPart));
 				}
 			}

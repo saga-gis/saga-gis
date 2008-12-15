@@ -85,9 +85,7 @@ bool CPoints_From_Table::On_Execute(void)
 			dX		= pRecord->asDouble(iXField);
 			dY		= pRecord->asDouble(iYField);
 
-			pShape	= pShapes->Add_Shape();
-
-			pShape->Get_Record()->Assign(pRecord);
+			pShape	= pShapes->Add_Shape(pRecord, SHAPE_COPY_ATTR);
 			pShape->Add_Point(dX, dY);
 		}//for
 

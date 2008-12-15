@@ -116,15 +116,15 @@ bool CPolygon_To_Points::On_Execute(void)
 	if( pShapes->is_Valid() )
 	{
 		pPoints->Create(SHAPE_TYPE_Point, pShapes->Get_Name());
-		pPoints->Get_Table().Add_Field(SG_T("ID")		, TABLE_FIELDTYPE_String);
-		pPoints->Get_Table().Add_Field(SG_T("ID_SHAPE")	, TABLE_FIELDTYPE_Int);
-		pPoints->Get_Table().Add_Field(SG_T("ID_PART")	, TABLE_FIELDTYPE_Int);
-		pPoints->Get_Table().Add_Field(SG_T("ID_POINT")	, TABLE_FIELDTYPE_Int);
+		pPoints->Add_Field(SG_T("ID")		, TABLE_FIELDTYPE_String);
+		pPoints->Add_Field(SG_T("ID_SHAPE")	, TABLE_FIELDTYPE_Int);
+		pPoints->Add_Field(SG_T("ID_PART")	, TABLE_FIELDTYPE_Int);
+		pPoints->Add_Field(SG_T("ID_POINT")	, TABLE_FIELDTYPE_Int);
 
 		if( pShapes->Get_Type() == SHAPE_TYPE_Polygon )
 		{
-			pPoints->Get_Table().Add_Field(SG_T("CLOCKWISE"), TABLE_FIELDTYPE_String);
-			pPoints->Get_Table().Add_Field(SG_T("LAKE")		, TABLE_FIELDTYPE_String);
+			pPoints->Add_Field(SG_T("CLOCKWISE"), TABLE_FIELDTYPE_String);
+			pPoints->Add_Field(SG_T("LAKE")		, TABLE_FIELDTYPE_String);
 		}
 
 		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)

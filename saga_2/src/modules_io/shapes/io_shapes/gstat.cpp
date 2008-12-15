@@ -129,18 +129,18 @@ bool CGStat_Export::On_Execute(void)
 		case SHAPE_TYPE_Point:
 			fprintf(Stream, "%s (created by DiGeM 2.0)\n%d\nX-Coordinate\nY-Coordinate",
 				Parameters("FILENAME")->asString(),
-				pShapes->Get_Table().Get_Field_Count() + 2
+				pShapes->Get_Field_Count() + 2
 			);
 
-			for(iField=0; iField<pShapes->Get_Table().Get_Field_Count(); iField++)
+			for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
 			{
-				if( pShapes->Get_Table().Get_Field_Type(iField) == TABLE_FIELDTYPE_String )
+				if( pShapes->Get_Field_Type(iField) == TABLE_FIELDTYPE_String )
 				{
-					fprintf(Stream, "\n%%%s",	pShapes->Get_Table().Get_Field_Name(iField) );
+					fprintf(Stream, "\n%%%s",	pShapes->Get_Field_Name(iField) );
 				}
 				else
 				{
-					fprintf(Stream, "\n%s",	pShapes->Get_Table().Get_Field_Name(iField) );
+					fprintf(Stream, "\n%s",	pShapes->Get_Field_Name(iField) );
 				}
 			}
 
@@ -155,15 +155,15 @@ bool CGStat_Export::On_Execute(void)
 						Point	= pShape->Get_Point(iPoint, iPart);
 						fprintf(Stream, "\n%f\t%f", Point.x, Point.y);
 
-						for(iField=0; iField<pShapes->Get_Table().Get_Field_Count(); iField++)
+						for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
 						{
-							if( pShapes->Get_Table().Get_Field_Type(iField) == TABLE_FIELDTYPE_String )
+							if( pShapes->Get_Field_Type(iField) == TABLE_FIELDTYPE_String )
 							{
-								fprintf(Stream, "\t\"%s\"",	pShape->Get_Record()->asString(iField) );
+								fprintf(Stream, "\t\"%s\"",	pShape->asString(iField) );
 							}
 							else
 							{
-								fprintf(Stream, "\t%f",		pShape->Get_Record()->asDouble(iField) );
+								fprintf(Stream, "\t%f",		pShape->asDouble(iField) );
 							}
 						}
 					}
@@ -318,11 +318,11 @@ bool CGStat_Import::On_Execute(void)
 					{
 						if( !s.CmpNoCase(SG_T("[ignore]")) || s[0] == '%' )
 						{
-							pShapes->Get_Table().Add_Field(s, TABLE_FIELDTYPE_String);
+							pShapes->Add_Field(s, TABLE_FIELDTYPE_String);
 						}
 						else
 						{
-							pShapes->Get_Table().Add_Field(s, TABLE_FIELDTYPE_Double);
+							pShapes->Add_Field(s, TABLE_FIELDTYPE_Double);
 						}
 					}
 				}
@@ -342,25 +342,25 @@ bool CGStat_Import::On_Execute(void)
 						{
 							pShape	= pShapes->Add_Shape();
 							pShape->Add_Point(x, y);
-							pShape->Get_Record()->Set_Value(0, x);
-							pShape->Get_Record()->Set_Value(1, y);
+							pShape->Set_Value(0, x);
+							pShape->Set_Value(1, y);
 
 							for(i=2; i<nFields && !feof(Stream); i++)
 							{
-								if( SG_STR_CMP(pShapes->Get_Table().Get_Field_Name(i), SG_T("[ignore]")) )
+								if( SG_STR_CMP(pShapes->Get_Field_Name(i), SG_T("[ignore]")) )
 								{
 									Stream_Find_NextWhiteChar(Stream);
-									pShape->Get_Record()->Set_Value(i, SG_T("NA"));
+									pShape->Set_Value(i, SG_T("NA"));
 								}
-								else if( pShapes->Get_Table().Get_Field_Name(i)[0] == '%' )
+								else if( pShapes->Get_Field_Name(i)[0] == '%' )
 								{
 									Stream_Get_StringInQuota(Stream, s);
-									pShape->Get_Record()->Set_Value(i, s);
+									pShape->Set_Value(i, s);
 								}
 								else
 								{
 									fscanf(Stream, "%lf", &Value);
-									pShape->Get_Record()->Set_Value(i, Value);
+									pShape->Set_Value(i, Value);
 								}
 							}
 
@@ -379,7 +379,7 @@ bool CGStat_Import::On_Execute(void)
 				if( !strncmp(c, "ARC", 3) )
 				{
 					pShapes->Create(SHAPE_TYPE_Line, Parameters("FILENAME")->asString());
-					pShapes->Get_Table().Add_Field("VALUE", TABLE_FIELDTYPE_Double);
+					pShapes->Add_Field("VALUE", TABLE_FIELDTYPE_Double);
 
 					//---------------------------------------------
 					while( !feof(Stream) && Set_Progress(ftell(Stream), fLength) )
@@ -401,7 +401,7 @@ bool CGStat_Import::On_Execute(void)
 									if( !pShape )
 									{
 										pShape	= pShapes->Add_Shape();
-										pShape->Get_Record()->Set_Value(0, Value);
+										pShape->Set_Value(0, Value);
 									}
 
 									pShape->Add_Point(x, y);

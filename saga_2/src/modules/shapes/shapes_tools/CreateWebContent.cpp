@@ -61,8 +61,8 @@ bool CCreateWebContent::On_Execute(void)
 	m_iNameField = Parameters("NAME")->asInt();
 	m_sOutputPath = Parameters("OUTPUTPATH")->asString();
 
-	m_pShapes->Get_Table().Add_Field("HTML", TABLE_FIELDTYPE_String);
-	m_iField = m_pShapes->Get_Table().Get_Field_Count() - 1;
+	m_pShapes->Add_Field("HTML", TABLE_FIELDTYPE_String);
+	m_iField = m_pShapes->Get_Field_Count() - 1;
 	
 	m_Pictures = new std::vector<CSG_String> [m_pShapes->Get_Count()];
 	m_Links = new std::vector<CSG_String> [m_pShapes->Get_Count()];
@@ -116,7 +116,7 @@ bool CCreateWebContent::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Intera
 		if( Dlg_Parameters(&dlg_files, _TL("Add Link to Files")) && dlg_files("FILES")->asFilePath()->Get_FilePaths(files) )
 		{
 			for (iShape = 0; iShape < m_pShapes->Get_Selection_Count(); iShape++){
-				iIndex = m_pShapes->Get_Shape_Index(m_pShapes->Get_Selection(iShape));
+				iIndex = m_pShapes->Get_Selection(iShape)->Get_Index();
 				for (i = 0; i < files.Get_Count(); i++)
 				{
 					sFileName = "file://";
@@ -132,8 +132,8 @@ bool CCreateWebContent::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Intera
 						m_Pictures[iIndex].push_back(sFileName);
 					}//else
 				}				
-				sFileName = SG_File_Make_Path(m_sOutputPath.c_str(), m_pShapes->Get_Shape(iIndex)->Get_Record()->asString(m_iNameField), SG_T("htm"));
-				m_pShapes->Get_Shape(iIndex)->Get_Record()->Set_Value(m_iField, sFileName);
+				sFileName = SG_File_Make_Path(m_sOutputPath.c_str(), m_pShapes->Get_Shape(iIndex)->asString(m_iNameField), SG_T("htm"));
+				m_pShapes->Get_Shape(iIndex)->Set_Value(m_iField, sFileName);
 			}
 		}
 		break;
@@ -155,7 +155,7 @@ bool CCreateWebContent::On_Execute_Finish(void){
 		const SG_Char **Pictures;
 
 		if (m_Pictures[i].size() || m_Links[i].size()){
-			HTMLDoc.Open(m_pShapes->Get_Shape(i)->Get_Record()->asString(m_iNameField));
+			HTMLDoc.Open(m_pShapes->Get_Shape(i)->asString(m_iNameField));
 			Pictures = new const SG_Char *[m_Pictures[i].size()];
 			for (j = 0; j < m_Pictures[i].size(); j++){
 				Pictures[j] = m_Pictures[i].at(j).c_str();
@@ -168,7 +168,7 @@ bool CCreateWebContent::On_Execute_Finish(void){
 				HTMLDoc.AddLineBreak();
 			}//for
 
-			sFileName = SG_File_Make_Path(m_sOutputPath.c_str(), m_pShapes->Get_Shape(i)->Get_Record()->asString(m_iNameField), SG_T("htm"));
+			sFileName = SG_File_Make_Path(m_sOutputPath.c_str(), m_pShapes->Get_Shape(i)->asString(m_iNameField), SG_T("htm"));
 			HTMLDoc.Save(sFileName);
 		}//if
 

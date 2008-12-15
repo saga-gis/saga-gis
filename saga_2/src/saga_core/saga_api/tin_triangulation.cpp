@@ -237,7 +237,7 @@ bool CSG_TIN::_Triangulate(CSG_TIN_Point **Points, int nPoints, TTIN_Triangle *T
 	//	vertex list. The supertriangle is the first triangle in
 	//	the triangle list.
 
-	_Extent_Update();
+	Update();
 
 	dmax	= m_Extent.Get_XRange() > m_Extent.Get_YRange() ? m_Extent.Get_XRange() : m_Extent.Get_YRange();
 	xmid	= m_Extent.Get_XCenter();

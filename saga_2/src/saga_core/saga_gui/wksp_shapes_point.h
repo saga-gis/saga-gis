@@ -99,6 +99,8 @@ protected:
 
 	double						m_Size, m_dSize, m_Size_Min;
 
+	wxColour					m_Sel_Color_Fill;
+
 	wxPen						m_Pen;
 
 	wxBrush						m_Brush;

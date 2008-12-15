@@ -27,10 +27,10 @@ CShapeSearchSelector::CShapeSearchSelector(CSG_Shapes *pShapes,
 	CSG_String sValue;
 	int iFields;
 
-	iFields = pShapes->Get_Table().Get_Field_Count();
+	iFields = pShapes->Get_Field_Count();
 
 	for (i = 0 ; i < pShapes->Get_Count(); i++){
-		pRecord = pShapes->Get_Shape(i)->Get_Record();
+		pRecord = pShapes->Get_Shape(i);
 		for (j = 0; j < iFields; j++){
 			sValue = pRecord->asString(j);
 			if (sValue.Find(sExpression) != -1){

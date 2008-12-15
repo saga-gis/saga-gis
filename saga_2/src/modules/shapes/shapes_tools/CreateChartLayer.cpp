@@ -101,8 +101,8 @@ bool CCreateChartLayer::On_Execute(void){
 
 		iType = Parameters("TYPE")->asInt();
 		pInput = Parameters("INPUT")->asShapes();
-		m_fMaxValue = pInput->Get_Table().Get_MaxValue(iSizeField);
-		m_fMinValue = pInput->Get_Table().Get_MinValue(iSizeField);
+		m_fMaxValue = pInput->Get_MaxValue(iSizeField);
+		m_fMinValue = pInput->Get_MinValue(iSizeField);
 
 		if (iType == TYPE_PIE){		
 			m_pOutput = SG_Create_Shapes(SHAPE_TYPE_Polygon, _TL("Chart (sectors):"));				
@@ -111,8 +111,8 @@ bool CCreateChartLayer::On_Execute(void){
 			m_pOutput = SG_Create_Shapes(SHAPE_TYPE_Polygon, _TL("Chart (bars):"));
 		}//else
 
-		m_pOutput->Get_Table().Add_Field(_TL("Field (ID)"), TABLE_FIELDTYPE_Int);
-		m_pOutput->Get_Table().Add_Field(_TL("Field (Name)"), TABLE_FIELDTYPE_String);
+		m_pOutput->Add_Field(_TL("Field (ID)"), TABLE_FIELDTYPE_Int);
+		m_pOutput->Add_Field(_TL("Field (Name)"), TABLE_FIELDTYPE_String);
 
 
 		for (i = 0; i < pInput->Get_Count(); i++){
@@ -151,7 +151,7 @@ bool CCreateChartLayer::GetExtraParameters(){
 
 	pInput = Parameters("INPUT")->asShapes();
 
-	pShapesTable = &pInput->Get_Table();
+	pShapesTable = pInput;
 	m_bIncludeParam = new bool [pShapesTable->Get_Field_Count() ];
 
 	for (i = 0; i < pShapesTable->Get_Field_Count(); i++){		
@@ -204,8 +204,8 @@ void CCreateChartLayer::AddPieChart(CSG_Shape* pShape, int iType){
 		
 	iSizeField = Parameters("SIZE")->asInt();
 
-	pRecord = pShape->Get_Record();
-	for (i = 0; i < pRecord->Get_Owner()->Get_Field_Count(); i++){
+	pRecord = pShape;
+	for (i = 0; i < pRecord->Get_Table()->Get_Field_Count(); i++){
 		if (m_bIncludeParam[i]){
 			fSum += pRecord->asFloat(i);
 		}//if
@@ -232,7 +232,7 @@ void CCreateChartLayer::AddPieChart(CSG_Shape* pShape, int iType){
 
 	fPartialSum = 0;
 	iField = 1;
-	for (i = 0; i < pRecord->Get_Owner()->Get_Field_Count(); i++){
+	for (i = 0; i < pRecord->Get_Table()->Get_Field_Count(); i++){
 		if (m_bIncludeParam[i]){
 			fSectorSize = pRecord->asFloat(i) / fSum;
 			pSector = m_pOutput->Add_Shape();
@@ -245,8 +245,8 @@ void CCreateChartLayer::AddPieChart(CSG_Shape* pShape, int iType){
 			fPartialSum +=fSectorSize;
 			pSector->Add_Point(dX + fSize * sin(fPartialSum * PI2),
 								dY + fSize * cos(fPartialSum * PI2));		
-			pSector->Get_Record()->Set_Value(0,iField);
-			pSector->Get_Record()->Set_Value(1,pRecord->Get_Owner()->Get_Field_Name(i));
+			pSector->Set_Value(0,iField);
+			pSector->Set_Value(1,pRecord->Get_Table()->Get_Field_Name(i));
 			iField++;
 		}//if
 	}//for
@@ -269,10 +269,10 @@ void CCreateChartLayer::AddBarChart(CSG_Shape* pShape, int iType){
 	TSG_Point Point;
 		
 	iSizeField = Parameters("SIZE")->asInt();
-	pRecord = pShape->Get_Record();
+	pRecord = pShape;
 
-	pRecord = pShape->Get_Record();
-	for (i = 0; i < pRecord->Get_Owner()->Get_Field_Count(); i++){
+	pRecord = pShape;
+	for (i = 0; i < pRecord->Get_Table()->Get_Field_Count(); i++){
 		if (m_bIncludeParam[i]){
 			if (!iValidFields){
 				fMin = fMax = pRecord->asFloat(i);
@@ -318,7 +318,7 @@ void CCreateChartLayer::AddBarChart(CSG_Shape* pShape, int iType){
 	fBarWidth = fSize / (float)iValidFields;
 
 	iField = 1;
-	for (i = 0; i < pRecord->Get_Owner()->Get_Field_Count(); i++){
+	for (i = 0; i < pRecord->Get_Table()->Get_Field_Count(); i++){
 		if (m_bIncludeParam[i]){
 			fBarHeight = pRecord->asFloat(i) / (fMax - fMin) * fSize;
 			pSector = m_pOutput->Add_Shape();
@@ -330,8 +330,8 @@ void CCreateChartLayer::AddBarChart(CSG_Shape* pShape, int iType){
 								dY + fBarHeight);
 			pSector->Add_Point(dX - fSize / 2. + fBarWidth * (iField - 1) ,
 								dY + fBarHeight);
-			pSector->Get_Record()->Set_Value(0,iField);
-			pSector->Get_Record()->Set_Value(1,pRecord->Get_Owner()->Get_Field_Name(i));
+			pSector->Set_Value(0,iField);
+			pSector->Set_Value(1,pRecord->Get_Table()->Get_Field_Name(i));
 			iField++;
 		}//if
 	}//for

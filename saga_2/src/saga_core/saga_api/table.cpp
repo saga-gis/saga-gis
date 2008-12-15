@@ -162,6 +162,8 @@ void CSG_Table::_On_Construction(void)
 	m_Selected		= NULL;
 
 	m_Index			= NULL;
+
+	Set_Update_Flag();
 }
 
 
@@ -530,6 +532,20 @@ bool CSG_Table::_Inc_Array(void)
 		{
 			m_Records	= pRecords;
 			m_nBuffer	+= GET_GROW_SIZE(m_nBuffer);
+
+			if( is_Indexed() )
+			{
+				int		*Index	= (int *)SG_Realloc(m_Index, m_nBuffer * sizeof(int));
+
+				if( Index )
+				{
+					m_Index	= Index;
+				}
+				else
+				{
+					_Index_Destroy();
+				}
+			}
 		}
 		else
 		{
@@ -551,6 +567,20 @@ bool CSG_Table::_Dec_Array(void)
 		{
 			m_Records	= pRecords;
 			m_nBuffer	-= GET_GROW_SIZE(m_nBuffer);
+
+			if( is_Indexed() )
+			{
+				int		*Index	= (int *)SG_Realloc(m_Index, m_nBuffer * sizeof(int));
+
+				if( Index )
+				{
+					m_Index	= Index;
+				}
+				else
+				{
+					_Index_Destroy();
+				}
+			}
 		}
 		else
 		{
@@ -562,55 +592,59 @@ bool CSG_Table::_Dec_Array(void)
 }
 
 //---------------------------------------------------------
-CSG_Table_Record * CSG_Table::Add_Record(CSG_Table_Record *pValues)
+CSG_Table_Record * CSG_Table::_Get_New_Record(int Index)
 {
-	return( is_Private() ? NULL : _Add_Record(pValues) );
-}
-
-CSG_Table_Record * CSG_Table::_Add_Record(CSG_Table_Record *pValues)
-{
-	if( !_Inc_Array() )
-	{
-		return( NULL );
-	}
-
-	CSG_Table_Record	*pRecord;
-
-	//-----------------------------------------------------
-	if( is_Indexed() )
-	{
-		m_Index				= (int *)SG_Realloc(m_Index, (m_nRecords + 1) * sizeof(int));
-		m_Index[m_nRecords]	= m_nRecords;
-	}
-
-	//-----------------------------------------------------
-	m_Records[m_nRecords]	= pRecord	= new CSG_Table_Record(this, m_nRecords);
-	m_nRecords++;
-
-	//-----------------------------------------------------
-	if( pValues )
-	{
-		pRecord->Assign(pValues);
-	}
-
-	Set_Modified();
-	_Range_Invalidate();
-
-	return( pRecord );
+	return( new CSG_Table_Record(this, Index) );
 }
 
 //---------------------------------------------------------
-CSG_Table_Record * CSG_Table::Ins_Record(int iRecord, CSG_Table_Record *pValues)
+CSG_Table_Record * CSG_Table::Add_Record(CSG_Table_Record *pCopy)
 {
-	return( is_Private() ? NULL : _Ins_Record(iRecord, pValues) );
+	return( is_Private() ? NULL : _Add_Record(pCopy) );
 }
 
-CSG_Table_Record * CSG_Table::_Ins_Record(int iRecord, CSG_Table_Record *pValues)
+CSG_Table_Record * CSG_Table::_Add_Record(CSG_Table_Record *pCopy)
 {
-	//-----------------------------------------------------
+	CSG_Table_Record	*pRecord;
+
+	if( _Inc_Array() && (pRecord = _Get_New_Record(m_nRecords)) != NULL )
+	{
+		if( pCopy )
+		{
+			pRecord->Assign(pCopy);
+		}
+
+		if( is_Indexed() )
+		{
+			m_Index[m_nRecords]	= m_nRecords;
+		}
+
+		m_Records[m_nRecords]	= pRecord;
+		m_nRecords++;
+
+		Set_Modified();
+
+		Set_Update_Flag();
+
+		_Range_Invalidate();
+
+		return( pRecord );
+	}
+
+	return( NULL );
+}
+
+//---------------------------------------------------------
+CSG_Table_Record * CSG_Table::Ins_Record(int iRecord, CSG_Table_Record *pCopy)
+{
+	return( is_Private() ? NULL : _Ins_Record(iRecord, pCopy) );
+}
+
+CSG_Table_Record * CSG_Table::_Ins_Record(int iRecord, CSG_Table_Record *pCopy)
+{
 	if( iRecord >= m_nRecords )
 	{
-		return( _Add_Record(pValues) );
+		return( _Add_Record(pCopy) );
 	}
 	else if( iRecord < 0 )
 	{
@@ -618,47 +652,44 @@ CSG_Table_Record * CSG_Table::_Ins_Record(int iRecord, CSG_Table_Record *pValues
 	}
 
 	//-----------------------------------------------------
-	if( !_Inc_Array() )
-	{
-		return( NULL );
-	}
-
-	//-----------------------------------------------------
-	int					i;
 	CSG_Table_Record	*pRecord;
 
-	if( is_Indexed() )
+	if( _Inc_Array() && (pRecord = _Get_New_Record(m_nRecords)) != NULL )
 	{
-		m_Index				= (int *)SG_Realloc(m_Index, (m_nRecords + 1) * sizeof(int));
-
-		for(i=m_nRecords; i>iRecord; i--)
+		if( pCopy )
 		{
-			m_Index[i]		= m_Index[i - 1];
+			pRecord->Assign(pCopy);
 		}
 
-		m_Index[iRecord]	= iRecord;
+		for(int i=m_nRecords; i>iRecord; i--)
+		{
+			if( is_Indexed() )
+			{
+				m_Index[i]		= m_Index[i - 1];
+			}
+
+			m_Records[i]			= m_Records[i - 1];
+			m_Records[i]->m_Index	= i;
+		}
+
+		if( is_Indexed() )
+		{
+			m_Index[iRecord]	= iRecord;
+		}
+
+		m_Records[iRecord]		= pRecord;
+		m_nRecords++;
+
+		Set_Modified();
+
+		Set_Update_Flag();
+
+		_Range_Invalidate();
+
+		return( pRecord );
 	}
 
-	//-----------------------------------------------------
-	for(i=m_nRecords; i>iRecord; i--)
-	{
-		m_Records[i]			= m_Records[i - 1];
-		m_Records[i]->m_Index	= i;
-	}
-
-	m_Records[iRecord]		= pRecord	= new CSG_Table_Record(this, iRecord);
-	m_nRecords++;
-
-	//-----------------------------------------------------
-	if( pValues )
-	{
-		pRecord->Assign(pValues);
-	}
-
-	Set_Modified();
-	_Range_Invalidate();
-
-	return( pRecord );
+	return( NULL );
 }
 
 //---------------------------------------------------------
@@ -683,8 +714,6 @@ bool CSG_Table::_Del_Record(int iRecord)
 			m_Records[i]->m_Index	= i;
 		}
 
-		_Dec_Array();
-
 		if( is_Indexed() )
 		{
 			for(i=0; i<m_nRecords; i++)
@@ -698,8 +727,6 @@ bool CSG_Table::_Del_Record(int iRecord)
 				}
 			}
 
-			m_Index	= (int *)SG_Realloc(m_Index, m_nRecords * sizeof(int));
-
 			for(i=0; i<m_nRecords; i++)
 			{
 				if( m_Index[i] > iRecord )
@@ -709,7 +736,12 @@ bool CSG_Table::_Del_Record(int iRecord)
 			}
 		}
 
+		_Dec_Array();
+
 		Set_Modified();
+
+		Set_Update_Flag();
+
 		_Range_Invalidate();
 
 		return( true );
@@ -965,7 +997,7 @@ void CSG_Table::_Index_Create(void)
 	//-----------------------------------------------------
 	if( m_Index == NULL )
 	{
-		m_Index	= (int *)SG_Malloc(m_nRecords * sizeof(int));
+		m_Index	= (int *)SG_Malloc(m_nBuffer * sizeof(int));
 	}
 
 	for(j=0; j<m_nRecords; j++)

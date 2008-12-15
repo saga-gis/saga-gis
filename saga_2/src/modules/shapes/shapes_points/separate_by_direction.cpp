@@ -135,12 +135,12 @@ bool CSeparate_by_Direction::On_Execute(void)
 	//-----------------------------------------------------
 	pOutput->Del_Items();
 
-	dir_Field	= pPoints->Get_Table().Get_Field_Count();
+	dir_Field	= pPoints->Get_Field_Count();
 
 	for(iSector=0; iSector<m_nSectors; iSector++)
 	{
-		pOutput->Add_Item(SG_Create_Shapes(SHAPE_TYPE_Point, CSG_String::Format(SG_T("Direction %.2f"), iSector * m_dSector * M_RAD_TO_DEG), &pPoints->Get_Table()));
-		pOutput->asShapes(iSector)->Get_Table().Add_Field(_TL("Direction"), TABLE_FIELDTYPE_Double);
+		pOutput->Add_Item(SG_Create_Shapes(SHAPE_TYPE_Point, CSG_String::Format(SG_T("Direction %.2f"), iSector * m_dSector * M_RAD_TO_DEG), pPoints));
+		pOutput->asShapes(iSector)->Add_Field(_TL("Direction"), TABLE_FIELDTYPE_Double);
 	}
 
 	//-----------------------------------------------------
@@ -180,7 +180,7 @@ bool CSeparate_by_Direction::On_Execute(void)
 
 			if( iSector >= 0 && iSector < m_nSectors )
 			{
-				pOutput->asShapes(iSector)->Add_Shape(pt_B, true)->Set_Value(dir_Field, dir * M_RAD_TO_DEG);
+				pOutput->asShapes(iSector)->Add_Shape(pt_B)->Set_Value(dir_Field, dir * M_RAD_TO_DEG);
 			}
 		}
 	}

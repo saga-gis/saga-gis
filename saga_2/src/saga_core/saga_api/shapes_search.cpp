@@ -174,7 +174,7 @@ bool CSG_Shapes_Search::Create(CSG_Shapes *pShapes)
 		else
 		{
 			m_bDestroy	= true;
-			m_pPoints	= SG_Create_Shapes(SHAPE_TYPE_Point, NULL, &pShapes->Get_Table());
+			m_pPoints	= SG_Create_Shapes(SHAPE_TYPE_Point, NULL, pShapes);
 
 			for(iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 			{
@@ -184,7 +184,7 @@ bool CSG_Shapes_Search::Create(CSG_Shapes *pShapes)
 				{
 					for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 					{
-						pPoint	= m_pPoints->Add_Shape(pShape->Get_Record());
+						pPoint	= m_pPoints->Add_Shape(pShape);
 						pPoint->Add_Point(pShape->Get_Point(iPoint, iPart));
 					}
 				}

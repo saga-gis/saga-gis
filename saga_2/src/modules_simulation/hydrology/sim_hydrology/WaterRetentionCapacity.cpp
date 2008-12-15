@@ -76,11 +76,11 @@ bool CWaterRetentionCapacity::On_Execute(void){
 	m_pOutput = Parameters("OUTPUT")->asShapes();
 
 	m_pOutput->Assign(pShapes);
-	m_pOutput->Get_Table().Add_Field("CCC", TABLE_FIELDTYPE_Double);
-	m_pOutput->Get_Table().Add_Field("CIL", TABLE_FIELDTYPE_Double);
-	m_pOutput->Get_Table().Add_Field(_TL("Permeability"), TABLE_FIELDTYPE_Double);
-	m_pOutput->Get_Table().Add_Field(_TL("Equivalent Moisture"), TABLE_FIELDTYPE_Double);
-	m_pOutput->Get_Table().Add_Field(_TL("Water Retention Capacity"), TABLE_FIELDTYPE_Double);
+	m_pOutput->Add_Field("CCC", TABLE_FIELDTYPE_Double);
+	m_pOutput->Add_Field("CIL", TABLE_FIELDTYPE_Double);
+	m_pOutput->Add_Field(_TL("Permeability"), TABLE_FIELDTYPE_Double);
+	m_pOutput->Add_Field(_TL("Equivalent Moisture"), TABLE_FIELDTYPE_Double);
+	m_pOutput->Add_Field(_TL("Water Retention Capacity"), TABLE_FIELDTYPE_Double);
 
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++){		
@@ -94,7 +94,7 @@ bool CWaterRetentionCapacity::On_Execute(void){
 		}
 	}
 
-	iRows = pShapes->Get_Table().Get_Field_Count() / 5;
+	iRows = pShapes->Get_Field_Count() / 5;
 	pData = new float*[iRows];
 
 	for (iShape = 0; iShape < pShapes->Get_Count(); iShape++){
@@ -104,7 +104,7 @@ bool CWaterRetentionCapacity::On_Execute(void){
 			for (j = 0; j < 5; j++){
 				pData[i][j] = 0;
 				try{
-					pData[i][j] = pShape->Get_Record()->asFloat(j+i*5);
+					pData[i][j] = pShape->asFloat(j+i*5);
 				}//try
 				catch(...){}
 			}//for
@@ -113,10 +113,10 @@ bool CWaterRetentionCapacity::On_Execute(void){
 		iY = (int)((pShape->Get_Point(0).y - pDEM->Get_YMin())/pDEM->Get_Cellsize());
 		fC = (float)(1. - tan(m_pSlope->asFloat(iX,iY,false)));
 		pShape = m_pOutput->Get_Shape(iShape);
-		CalculateWaterRetention(pData, iRows, fC, pShape->Get_Record());
+		CalculateWaterRetention(pData, iRows, fC, pShape);
 	}//for
 
-	iField = m_pOutput->Get_Table().Get_Field_Count()-1;
+	iField = m_pOutput->Get_Field_Count()-1;
 
 	CIDW IDW;
 
@@ -171,7 +171,7 @@ void CWaterRetentionCapacity::CalculateWaterRetention(float **pData,
 		fK += pData[i][0] / fTotalDepth * pK[i];
 	}//for
 
-	iField = pRecord->Get_Owner()->Get_Field_Count() - 1;
+	iField = pRecord->Get_Table()->Get_Field_Count() - 1;
 
 	pRecord->Set_Value(iField - 4, fCCC);
 	pRecord->Set_Value(iField - 3, fCIL);

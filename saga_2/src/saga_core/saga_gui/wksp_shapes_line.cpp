@@ -103,6 +103,27 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 		PARAMETER_TYPE_Bool, false
 	);
 
+	m_Parameters.Add_Choice(
+		m_Parameters("NODE_DISPLAY"), "LINE_STYLE"		, LNG("[CAP] Line Style"),
+		LNG(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
+			LNG("Solid style"),
+			LNG("Dotted style"),
+			LNG("Long dashed style"),
+			LNG("Short dashed style"), 
+			LNG("Dot and dash style"),
+			LNG("Backward diagonal hatch"),
+			LNG("Cross-diagonal hatch"),
+			LNG("Forward diagonal hatch"),
+			LNG("Cross hatch"),
+			LNG("Horizontal hatch"),
+			LNG("Vertical hatch")
+		//	LNG("Use the stipple bitmap")
+		//	LNG("Use the user dashes")
+		//	LNG("No pen is used")
+		), 0
+	);
+
 
 	//-----------------------------------------------------
 	// Size...
@@ -162,8 +183,8 @@ void CWKSP_Shapes_Line::On_Parameters_Changed(void)
 	//-----------------------------------------------------
 	m_Size_Type		= m_Parameters("SIZE_TYPE")->asInt();
 
-	if(	(m_iSize	= m_Parameters("SIZE_ATTRIB")->asInt()) >= m_pShapes->Get_Table().Get_Field_Count()
-	||	(m_dSize	= m_pShapes->Get_Table().Get_MaxValue(m_iSize) - (m_Size_Min = m_pShapes->Get_Table().Get_MinValue(m_iSize))) <= 0.0 )
+	if(	(m_iSize	= m_Parameters("SIZE_ATTRIB")->asInt()) >= m_pShapes->Get_Field_Count()
+	||	(m_dSize	= m_pShapes->Get_MaxValue(m_iSize) - (m_Size_Min = m_pShapes->Get_MinValue(m_iSize))) <= 0.0 )
 	{
 		m_iSize		= -1;
 		m_Size		= m_Parameters("SIZE_DEFAULT")->asInt();
@@ -205,7 +226,7 @@ int CWKSP_Shapes_Line::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 //---------------------------------------------------------
 bool CWKSP_Shapes_Line::Get_Style(wxPen &Pen, wxString *pName)
 {
-	Pen		= wxPen(m_Def_Color, (int)m_Size, wxSOLID);
+	Pen		= wxPen(m_Def_Color, (int)m_Size, m_Line_Style);
 
 	if( pName )
 	{
@@ -215,7 +236,7 @@ bool CWKSP_Shapes_Line::Get_Style(wxPen &Pen, wxString *pName)
 		}
 		else
 		{
-			pName->Printf(m_pShapes->Get_Table().Get_Field_Name(m_iColor));
+			pName->Printf(m_pShapes->Get_Field_Name(m_iColor));
 		}
 	}
 
@@ -228,13 +249,13 @@ bool CWKSP_Shapes_Line::Get_Style_Size(int &min_Size, int &max_Size, double &min
 	if( m_iSize >= 0 )
 	{
 		min_Size	= (int)(m_Size);
-		max_Size	= (int)(m_Size + ((m_pShapes->Get_Table().Get_MaxValue(m_iSize) - m_Size_Min) * m_dSize));
+		max_Size	= (int)(m_Size + ((m_pShapes->Get_MaxValue(m_iSize) - m_Size_Min) * m_dSize));
 		min_Value	= m_Size_Min;
 		dValue		= m_dSize;
 
 		if( pName )
 		{
-			pName->Printf(m_pShapes->Get_Table().Get_Field_Name(m_iSize));
+			pName->Printf(m_pShapes->Get_Field_Name(m_iSize));
 		}
 
 		return( true );
@@ -253,6 +274,26 @@ bool CWKSP_Shapes_Line::Get_Style_Size(int &min_Size, int &max_Size, double &min
 //---------------------------------------------------------
 void CWKSP_Shapes_Line::_Draw_Initialize(CWKSP_Map_DC &dc_Map)
 {
+	switch( m_Parameters("LINE_STYLE")->asInt() )
+	{
+	case  0:	m_Line_Style	= wxSOLID;				break; // Solid style.
+	case  1:	m_Line_Style	= wxDOT;				break; // Dotted style.
+	case  2:	m_Line_Style	= wxLONG_DASH;			break; // Long dashed style.
+	case  3:	m_Line_Style	= wxSHORT_DASH;			break; // Short dashed style.
+	case  4:	m_Line_Style	= wxDOT_DASH;			break; // Dot and dash style.
+	case  5:	m_Line_Style	= wxBDIAGONAL_HATCH;	break; // Backward diagonal hatch.
+	case  6:	m_Line_Style	= wxCROSSDIAG_HATCH;	break; // Cross-diagonal hatch.
+	case  7:	m_Line_Style	= wxFDIAGONAL_HATCH;	break; // Forward diagonal hatch.
+	case  8:	m_Line_Style	= wxCROSS_HATCH;		break; // Cross hatch.
+	case  9:	m_Line_Style	= wxHORIZONTAL_HATCH;	break; // Horizontal hatch.
+	case 10:	m_Line_Style	= wxVERTICAL_HATCH;		break; // Vertical hatch.
+//	case 11:	m_Line_Style	= wxSTIPPLE;			break; // Use the stipple bitmap. 
+//	case 12:	m_Line_Style	= wxUSER_DASH;			break; // Use the user dashes: see wxPen::SetDashes.
+//	case 13:	m_Line_Style	= wxTRANSPARENT;		break; // No pen is used.
+	}
+
+	m_Pen.SetStyle(m_Line_Style);
+
 	dc_Map.dc.SetPen(m_Pen);
 }
 
@@ -262,7 +303,7 @@ void CWKSP_Shapes_Line::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, boo
 	//-----------------------------------------------------
 	if( bSelection )
 	{
-		dc_Map.dc.SetPen(wxPen(wxColour(255, 0, 0), pShape == m_pShapes->Get_Selection(0) ? 2 : 1, wxSOLID));
+		dc_Map.dc.SetPen(wxPen(wxColour(255, 0, 0), m_Size + (pShape == m_pShapes->Get_Selection(0) ? 2 : 0), m_Line_Style));
 	}
 	else if( m_iColor >= 0 || m_iSize >= 0 )
 	{
@@ -270,12 +311,12 @@ void CWKSP_Shapes_Line::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, boo
 
 		if( m_iColor >= 0 )
 		{
-			int		Color	= m_pClassify->Get_Class_Color_byValue(pShape->Get_Record()->asDouble(m_iColor));
+			int		Color	= m_pClassify->Get_Class_Color_byValue(pShape->asDouble(m_iColor));
 			Pen.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
 		}
 
 		double	dSize	= m_iSize < 0 ? m_Size
-						: m_Size + (pShape->Get_Record()->asDouble(m_iSize) - m_Size_Min) * m_dSize;
+						: m_Size + (pShape->asDouble(m_iSize) - m_Size_Min) * m_dSize;
 
 		switch( m_Size_Type )
 		{
@@ -348,7 +389,7 @@ void CWKSP_Shapes_Line::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 	double			d;
 	TSG_Point_Int	A, B;
 	wxCoord			sx, sy;
-	wxString		s(pShape->Get_Record()->asString(m_iLabel, m_Label_Prec));
+	wxString		s(pShape->asString(m_iLabel, m_Label_Prec));
 
 	dc_Map.dc.GetTextExtent(s, &sx, &sy);
 
@@ -448,7 +489,7 @@ void CWKSP_Shapes_Line::_Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
 
 	if( m_Edit_pShape )
 	{
-		dc_Map.dc.SetPen(*wxBLACK_PEN);
+		dc_Map.dc.SetPen(wxPen(m_Edit_Color));
 
 		for(iPart=0; iPart<m_Edit_pShape->Get_Part_Count(); iPart++)
 		{
