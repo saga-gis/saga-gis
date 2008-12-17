@@ -19,7 +19,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/atlas_bna.o $(MLB_TEMP)/generate.o $(MLB_TEMP)/gstat.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/surfer_bln.o $(MLB_TEMP)/wasp_map.o $(MLB_TEMP)/xyz.o
+OBJ      = $(MLB_TEMP)/atlas_bna.o $(MLB_TEMP)/generate.o $(MLB_TEMP)/gstat.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/stl.o $(MLB_TEMP)/surfer_bln.o $(MLB_TEMP)/wasp_map.o $(MLB_TEMP)/xyz.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS =
@@ -61,6 +61,9 @@ $(MLB_TEMP)/gstat.o: ./gstat.cpp
 
 $(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
+
+$(MLB_TEMP)/stl.o: ./stl.cpp
+	$(CPP) -c ./stl.cpp -o $(MLB_TEMP)/stl.o $(CXXFLAGS)
 
 $(MLB_TEMP)/surfer_bln.o: ./surfer_bln.cpp
 	$(CPP) -c ./surfer_bln.cpp -o $(MLB_TEMP)/surfer_bln.o $(CXXFLAGS)
