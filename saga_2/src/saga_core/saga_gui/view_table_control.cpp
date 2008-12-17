@@ -882,9 +882,9 @@ inline void CVIEW_Table_Control::_Select(int iRow, bool bSelect)
 	{
 		m_pTable->Select(pRecord, true);
 
-		if( m_pTable->is_Private() )
+	//	if( m_pTable->Get_ObjectType() != DATAOBJECT_TYPE_Table )
 		{
-			g_pData->Update_Views(m_pTable->Get_Owner());
+			g_pData->Update_Views(m_pTable);
 		}
 	}
 }
