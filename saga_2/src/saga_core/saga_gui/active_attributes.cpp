@@ -103,7 +103,7 @@ CACTIVE_Attributes::CACTIVE_Attributes(wxWindow *pParent)
 	: wxPanel(pParent, ID_WND_INFO_ATTRIBUTES)//, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER)
 {
 	m_pAttributes	= new CSG_Table;
-	m_pControl		= new CVIEW_Table_Control(this, m_pAttributes, TABLE_CTRL_FIXED_TABLE);
+	m_pControl		= new CVIEW_Table_Control(this, m_pAttributes, TABLE_CTRL_FIXED_TABLE|TABLE_CTRL_COL1ISLABEL);
 	m_pLayer		= NULL;
 
 	//-----------------------------------------------------
@@ -216,6 +216,8 @@ void CACTIVE_Attributes::Set_Attributes(void)
 		_Save_Changes();
 
 		m_pAttributes->Assign(m_pLayer->Edit_Get_Attributes());
+
+		m_pControl->Set_Labeling(m_pLayer->Get_Object()->Get_ObjectType() == DATAOBJECT_TYPE_Shapes);
 	}
 	else
 	{

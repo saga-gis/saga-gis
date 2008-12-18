@@ -81,8 +81,8 @@
 //---------------------------------------------------------
 #define TABLE_CTRL_FIXED_COLS	0x01
 #define TABLE_CTRL_FIXED_ROWS	0x02
-#define TABLE_CTRL_FIXED_SHAPES	0x04
 #define TABLE_CTRL_FIXED_TABLE	(TABLE_CTRL_FIXED_ROWS|TABLE_CTRL_FIXED_COLS)
+#define TABLE_CTRL_COL1ISLABEL	0x04
 
 
 ///////////////////////////////////////////////////////////
@@ -121,6 +121,7 @@ public:
 	void						On_Autosize_Cols	(wxCommandEvent  &event);
 	void						On_Autosize_Rows	(wxCommandEvent  &event);
 
+	void						On_Size				(wxSizeEvent &event);
 	void						On_Change			(wxGridEvent &event);
 	void						On_LClick			(wxGridEvent &event);
 	void						On_LClick_Label		(wxGridEvent &event);
@@ -136,6 +137,7 @@ public:
 	bool						Del_Record			(void);
 	bool						Del_Records			(void);
 
+	void						Set_Labeling		(bool bOn);
 	void						Update_Selection	(void);
 	void						Update_Table		(void);
 	void						Sort_Table			(int iField, int Direction);
@@ -143,7 +145,7 @@ public:
 
 private:
 
-	int							m_Constraint;
+	int							m_Constraint, m_Field_Offset;
 
 	class CSG_Table				*m_pTable;
 

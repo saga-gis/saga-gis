@@ -378,7 +378,7 @@ inline bool CWKSP_Shapes_Point::_Draw_Initialize(CWKSP_Map_DC &dc_Map, int &Size
 		if( bSelection )
 		{
 			dc_Map.dc.SetBrush	(wxBrush(m_Sel_Color_Fill	, wxSOLID));
-			dc_Map.dc.SetPen	(wxPen	(m_Sel_Color		, pShape == m_pShapes->Get_Selection(0) ? 2 : 1, wxSOLID));
+			dc_Map.dc.SetPen	(wxPen	(m_Sel_Color     , 0, wxSOLID));
 		}
 		else if( !bSelection && m_iColor >= 0 )
 		{

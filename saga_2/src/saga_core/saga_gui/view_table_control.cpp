@@ -81,7 +81,7 @@
 //---------------------------------------------------------
 #define FIXED_COLS		((m_Constraint & TABLE_CTRL_FIXED_COLS)   != 0)
 #define FIXED_ROWS		((m_Constraint & TABLE_CTRL_FIXED_ROWS)   != 0)
-#define FIXED_TABLE		((m_Constraint & TABLE_CTRL_FIXED_TABLE)  != 0)
+#define LABEL_COL		((m_Constraint & TABLE_CTRL_COL1ISLABEL)  != 0)
 
 //---------------------------------------------------------
 #define SET_CELL_VALUE(REC, FLD, VAL)	SetCellValue(REC, FLD, VAL)
@@ -105,6 +105,8 @@ BEGIN_EVENT_TABLE(CVIEW_Table_Control, wxGrid)
 	EVT_GRID_LABEL_LEFT_DCLICK	(CVIEW_Table_Control::On_LDClick_Label)
 	EVT_GRID_LABEL_RIGHT_CLICK	(CVIEW_Table_Control::On_RClick_Label)
 	EVT_GRID_RANGE_SELECT		(CVIEW_Table_Control::On_Select)
+
+	EVT_SIZE					(CVIEW_Table_Control::On_Size)
 
 	EVT_MENU					(ID_CMD_TABLE_FIELD_ADD			, CVIEW_Table_Control::On_Field_Add)
 	EVT_UPDATE_UI				(ID_CMD_TABLE_FIELD_ADD			, CVIEW_Table_Control::On_Field_Add_UI)
@@ -142,6 +144,8 @@ CVIEW_Table_Control::CVIEW_Table_Control(wxWindow *pParent, CSG_Table *pTable, i
 	m_pTable		= pTable;
 	m_Constraint	= Constraint;
 
+	Set_Labeling(false);
+
 	CreateGrid(m_pTable->Get_Record_Count(), m_pTable->Get_Field_Count(), wxGrid::wxGridSelectRows);
 
 	_Set_Table();
@@ -157,6 +161,23 @@ CVIEW_Table_Control::~CVIEW_Table_Control(void)
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Table_Control::Set_Labeling(bool bOn)
+{
+	if( bOn )
+	{
+		m_Field_Offset	= 1;
+
+		SetRowLabelAlignment(wxALIGN_RIGHT, wxALIGN_CENTRE);
+	}
+	else
+	{
+		m_Field_Offset	= 0;
+
+		SetRowLabelAlignment(wxALIGN_CENTRE, wxALIGN_CENTRE);
+	}
+}
 
 //---------------------------------------------------------
 void CVIEW_Table_Control::Update_Table(void)
@@ -184,7 +205,7 @@ void CVIEW_Table_Control::Sort_Table(int iField, int Direction)
 //---------------------------------------------------------
 bool CVIEW_Table_Control::_Set_Table(void)
 {
-	int		iField, Difference;
+	int		Difference;
 
 	//-----------------------------------------------------
 	BeginBatch();
@@ -198,26 +219,35 @@ bool CVIEW_Table_Control::_Set_Table(void)
 	}
 	else if( Difference < 0 )
 	{
-		DeleteRows(0, -Difference);
+		Difference	= -Difference < GetNumberRows() ? -Difference : GetNumberRows();
+
+		if( Difference > 0 )
+		{
+			DeleteRows(0, Difference);
+		}
 	}
 
 	//-----------------------------------------------------
-	Difference	= m_pTable->Get_Field_Count() - GetNumberCols();
+	Difference	= (m_pTable->Get_Field_Count() - m_Field_Offset) - GetNumberCols();
 
 	if( Difference > 0 )
 	{
 		AppendCols(Difference);
 	}
-	else if( Difference < 0 )
+	else
 	{
-		DeleteCols(0, -Difference);
-		// here is a memory leak - solution: use own wxGridTableBase derived grid table class
+		Difference	= -Difference < GetNumberCols() ? -Difference : GetNumberCols();
+
+		if( Difference > 0 )
+		{
+			DeleteCols(0, Difference);
+		}	// here is (or was!?) a memory leak - solution: use own wxGridTableBase derived grid table class
 	}
 
 	//-----------------------------------------------------
-	for(iField=0; iField<m_pTable->Get_Field_Count(); iField++)
+	for(int iCol=0, iField=m_Field_Offset; iField<m_pTable->Get_Field_Count(); iCol++, iField++)
 	{
-		SetColLabelValue(iField, m_pTable->Get_Field_Name(iField));
+		SetColLabelValue(iCol, m_pTable->Get_Field_Name(iField));
 
 		switch( m_pTable->Get_Field_Type(iField) )
 		{
@@ -228,16 +258,16 @@ bool CVIEW_Table_Control::_Set_Table(void)
 		case TABLE_FIELDTYPE_Short:
 		case TABLE_FIELDTYPE_Int:
 		case TABLE_FIELDTYPE_Long:
-			SetColFormatNumber(iField);
+			SetColFormatNumber(iCol);
 			break;
 
 		case TABLE_FIELDTYPE_Float:
 		case TABLE_FIELDTYPE_Double:
-			SetColFormatFloat(iField);
+			SetColFormatFloat(iCol);
 			break;
 
 		case TABLE_FIELDTYPE_Color:
-			SetColFormatNumber(iField);
+			SetColFormatNumber(iCol);
 			break;
 		}
 	}
@@ -275,16 +305,21 @@ bool CVIEW_Table_Control::_Set_Record(int iRecord, CSG_Table_Record *pRecord)
 {
 	if( pRecord && iRecord >= 0 && iRecord < GetNumberRows() )
 	{
-		for(int iField=0; iField<m_pTable->Get_Field_Count(); iField++)
+		if( m_Field_Offset )
+		{
+			SetRowLabelValue(iRecord, pRecord->asString(0));
+		}
+
+		for(int iCol=0, iField=m_Field_Offset; iField<m_pTable->Get_Field_Count(); iCol++, iField++)
 		{
 			switch( m_pTable->Get_Field_Type(iField) )
 			{
 			default:
-				SET_CELL_VALUE(iRecord, iField, pRecord->asString(iField));
+				SET_CELL_VALUE(iRecord, iCol, pRecord->asString	(iField));
 				break;
 
 			case TABLE_FIELDTYPE_Color:
-				SET_CELL_COLOR(iRecord, iField, pRecord->asInt(iField));
+				SET_CELL_COLOR(iRecord, iCol, pRecord->asInt	(iField));
 				break;
 			}
 		}
@@ -429,22 +464,30 @@ bool CVIEW_Table_Control::Save(const wxChar *File_Name, int Format)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CVIEW_Table_Control::On_Size(wxSizeEvent &event)//&WXUNUSED(event))
+{
+	if( m_Field_Offset && GetNumberCols() )
+	{
+		SetColSize(0, GetClientSize().x - GetRowLabelSize());
+	}
+
+	event.Skip();
+}
+
+//---------------------------------------------------------
 void CVIEW_Table_Control::On_Change(wxGridEvent &event)
 {
-	int				iRecord, iField;
 	CSG_Table_Record	*pRecord;
 
-	iRecord	= event.GetRow();
-
-	if( (pRecord = m_pTable->Get_Record_byIndex(iRecord)) != NULL )
+	if( (pRecord = m_pTable->Get_Record_byIndex(event.GetRow())) != NULL )
 	{
-		iField	= event.GetCol();
+		int	iField	= m_Field_Offset + event.GetCol();
 
-		if( iField >= 0 && iField < m_pTable->Get_Field_Count() )
+		if( iField >= m_Field_Offset && iField < m_pTable->Get_Field_Count() )
 		{
-			pRecord->Set_Value(iField, GetCellValue(iRecord, iField).c_str());
+			pRecord->Set_Value(iField, GetCellValue(event.GetRow(), event.GetCol()).c_str());
 
-			SET_CELL_VALUE(iRecord, iField, pRecord->asString(iField));
+			SET_CELL_VALUE(event.GetRow(), event.GetCol(), pRecord->asString(iField));
 		}
 	}
 }
@@ -742,18 +785,16 @@ void CVIEW_Table_Control::On_Autosize_Rows(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_LClick(wxGridEvent &event)
 {
-	int					iRecord, iField;
-	long				lValue;
 	CSG_Table_Record	*pRecord;
 
-	iRecord	= event.GetRow();
-
-	if( (pRecord = m_pTable->Get_Record_byIndex(iRecord)) != NULL )
+	if( (pRecord = m_pTable->Get_Record_byIndex(event.GetRow())) != NULL )
 	{
-		iField	= event.GetCol();
+		int	iField	= m_Field_Offset + event.GetCol();
 
-		if( iField >= 0 && iField < m_pTable->Get_Field_Count() )
+		if( iField >= m_Field_Offset && iField < m_pTable->Get_Field_Count() )
 		{
+			long	lValue;
+
 			switch( m_pTable->Get_Field_Type(iField) )
 			{
 			default:
@@ -764,19 +805,18 @@ void CVIEW_Table_Control::On_LClick(wxGridEvent &event)
 				{
 					pRecord->Set_Value(iField, lValue);
 
-					SET_CELL_COLOR(iRecord, iField, lValue);
+					SET_CELL_COLOR(event.GetRow(), event.GetCol(), lValue);
 
 					ForceRefresh();
 				}
-
 				return;
 			}
 		}
 	}
 
-	SelectRow(iRecord, wxGetKeyState(WXK_CONTROL));
+	SelectRow(event.GetRow(), wxGetKeyState(WXK_CONTROL));
 
-	SetGridCursor(iRecord, event.GetCol());
+	SetGridCursor(event.GetRow(), event.GetCol());
 
 //	event.Skip();
 }
@@ -874,6 +914,10 @@ void CVIEW_Table_Control::On_Select(wxGridRangeSelectEvent &event)
 }
 
 //---------------------------------------------------------
+#include "wksp_shapes_manager.h"
+#include "wksp_shapes.h"
+
+//---------------------------------------------------------
 inline void CVIEW_Table_Control::_Select(int iRow, bool bSelect)
 {
 	CSG_Table_Record	*pRecord;
@@ -882,9 +926,13 @@ inline void CVIEW_Table_Control::_Select(int iRow, bool bSelect)
 	{
 		m_pTable->Select(pRecord, true);
 
-	//	if( m_pTable->Get_ObjectType() != DATAOBJECT_TYPE_Table )
+		if( m_pTable->is_Private() )
 		{
-			g_pData->Update_Views(m_pTable);
+			g_pData->Update_Views(m_pTable->Get_Owner());
+		}
+		else if( m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Shapes )
+		{
+			g_pData->Get_Shapes()->Get_Shapes((CSG_Shapes *)m_pTable)->Update_Views(true);
 		}
 	}
 }

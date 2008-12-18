@@ -234,7 +234,7 @@ void CWKSP_Shapes_Polygon::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, 
 	if( bSelection )
 	{
 		dc_Map.dc.SetBrush(wxBrush(m_Sel_Color_Fill, wxSOLID));
-		dc_Map.dc.SetPen(wxPen(m_Sel_Color, pShape == m_pShapes->Get_Selection(0) ? 2 : 1, wxSOLID));
+		dc_Map.dc.SetPen(wxPen(m_Sel_Color, 0, wxSOLID));
 
 		dc_Map.Draw_Polygon((CSG_Shape_Polygon *)pShape);
 
