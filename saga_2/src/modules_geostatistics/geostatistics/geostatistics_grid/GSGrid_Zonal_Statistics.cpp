@@ -137,7 +137,6 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 {
 	int						x, y, nCatGrids, nStatGrids, iGrid, zoneID, catID, NDcount, catLevel, NDcountStat;
 	double					statID;
-	const SG_Char			*Gridname;
 
 	CSG_Grid				*pZones, *pGrid;
 	CSG_Parameter_Grid_List	*pCatList;
@@ -322,23 +321,20 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 	}
 
 
-	Gridname = pZones->Get_Name();											// Create fields in output table (1st = Zone, 2nd = Catgrid1, 3rd = Catgrid 2, ...)
-	pOutTab->Add_Field(Gridname, TABLE_FIELDTYPE_Int);
+	// Create fields in output table (1st = Zone, 2nd = Catgrid1, 3rd = Catgrid 2, ...)
+	pOutTab->Add_Field(CSG_String::Format(SG_T("%s"),pZones->Get_Name()).BeforeFirst(SG_Char('.')), TABLE_FIELDTYPE_Int);
 	for(iGrid=0; iGrid<nCatGrids; iGrid++)
 	{
-		Gridname = pCatList->asGrid(iGrid)->Get_Name();
-		pOutTab->Add_Field(Gridname, TABLE_FIELDTYPE_Int);
+		pOutTab->Add_Field(CSG_String::Format(SG_T("%s"),pCatList->asGrid(iGrid)->Get_Name()).BeforeFirst(SG_Char('.')), TABLE_FIELDTYPE_Int);
 	}
 	pOutTab->Add_Field("Count", TABLE_FIELDTYPE_Int);
 	for(iGrid=0; iGrid<nStatGrids; iGrid++)
 	{
-		Gridname = pStatList->asGrid(iGrid)->Get_Name();
-
-		pOutTab->Add_Field(CSG_String::Format(SG_T("%s_MIN")   , Gridname), TABLE_FIELDTYPE_Double);
-		pOutTab->Add_Field(CSG_String::Format(SG_T("%s_MAX")   , Gridname), TABLE_FIELDTYPE_Double);
-		pOutTab->Add_Field(CSG_String::Format(SG_T("%s_MEAN")  , Gridname), TABLE_FIELDTYPE_Double);
-		pOutTab->Add_Field(CSG_String::Format(SG_T("%s_STDDEV"), Gridname), TABLE_FIELDTYPE_Double);
-		pOutTab->Add_Field(CSG_String::Format(SG_T("%s_SUM")   , Gridname), TABLE_FIELDTYPE_Double);
+		pOutTab->Add_Field(CSG_String::Format(SG_T("%s_MIN")   , CSG_String::Format(SG_T("%s"),pStatList->asGrid(iGrid)->Get_Name()).BeforeFirst(SG_Char('.')).c_str()), TABLE_FIELDTYPE_Double);
+		pOutTab->Add_Field(CSG_String::Format(SG_T("%s_MAX")   , CSG_String::Format(SG_T("%s"),pStatList->asGrid(iGrid)->Get_Name()).BeforeFirst(SG_Char('.')).c_str()), TABLE_FIELDTYPE_Double);
+		pOutTab->Add_Field(CSG_String::Format(SG_T("%s_MEAN")  , CSG_String::Format(SG_T("%s"),pStatList->asGrid(iGrid)->Get_Name()).BeforeFirst(SG_Char('.')).c_str()), TABLE_FIELDTYPE_Double);
+		pOutTab->Add_Field(CSG_String::Format(SG_T("%s_STDDEV"), CSG_String::Format(SG_T("%s"),pStatList->asGrid(iGrid)->Get_Name()).BeforeFirst(SG_Char('.')).c_str()), TABLE_FIELDTYPE_Double);
+		pOutTab->Add_Field(CSG_String::Format(SG_T("%s_SUM")   , CSG_String::Format(SG_T("%s"),pStatList->asGrid(iGrid)->Get_Name()).BeforeFirst(SG_Char('.')).c_str()), TABLE_FIELDTYPE_Double);
 	}
 
 	while( startList != NULL )												// scan zone layer list and write cat values in table
