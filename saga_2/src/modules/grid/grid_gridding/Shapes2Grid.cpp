@@ -323,6 +323,7 @@ bool CShapes2Grid::On_Execute(void)
 			{
 				m_pGrid->Set_Name(m_pShapes->Get_Name());
 				iField	= -1;
+				Message_Add( _TL("WARNING: The selected attribute is of field type string, generating unique identifiers instead.\n"));
 			}
 
 			//---------------------------------------------
