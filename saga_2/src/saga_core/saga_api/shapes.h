@@ -572,7 +572,7 @@ protected:
 
 	virtual CSG_Table_Record *		_Get_New_Record			(int Index);
 
-	virtual void					On_Update				(void);
+	virtual bool					On_Update				(void);
 
 	bool							_Load_ESRI				(const SG_Char *File_Name);
 	bool							_Save_ESRI				(const SG_Char *File_Name);

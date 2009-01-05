@@ -187,13 +187,11 @@ bool CSG_Shapes::Create(const CSG_Shapes &Shapes)
 //---------------------------------------------------------
 bool CSG_Shapes::Create(const SG_Char *File_Name)
 {
-	int		iShape;
-
 	Destroy();
 
 	if( _Load_ESRI(File_Name) )
 	{
-		for(iShape=Get_Count()-1; iShape >= 0; iShape--)
+		for(int iShape=Get_Count()-1; iShape >= 0; iShape--)
 		{
 			if( !Get_Shape(iShape)->is_Valid() )
 			{
@@ -380,10 +378,8 @@ bool CSG_Shapes::Del_Shape(int iShape)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Shapes::On_Update(void)
+bool CSG_Shapes::On_Update(void)
 {
-	CSG_Table::On_Update();
-
 	if( Get_Count() > 0 )
 	{
 		m_Extent	= Get_Shape(0)->Get_Extent();
@@ -397,6 +393,8 @@ void CSG_Shapes::On_Update(void)
 	{
 		m_Extent.Assign(0.0, 0.0, 0.0, 0.0);
 	}
+
+	return( CSG_Table::On_Update() );
 }
 
 

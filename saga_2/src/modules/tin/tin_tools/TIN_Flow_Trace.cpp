@@ -115,9 +115,9 @@ CTIN_Flow_Trace::~CTIN_Flow_Trace(void)
 //---------------------------------------------------------
 bool CTIN_Flow_Trace::On_Execute(void)
 {
-	int			iPoint;
-	CSG_TIN_Point	*pPoint;
-	CSG_TIN		*pDEM;
+	int				iPoint;
+	CSG_TIN_Node	*pPoint;
+	CSG_TIN			*pDEM;
 
 	//-----------------------------------------------------
 	pDEM		= Parameters("DEM")		->asTIN();
@@ -126,45 +126,45 @@ bool CTIN_Flow_Trace::On_Execute(void)
 
 	m_pFlow->Create(*pDEM);
 
-	m_iDir		= m_pFlow->Get_Table().Get_Field_Count();
-	m_pFlow->Get_Table().Add_Field("DIRECTION"	, TABLE_FIELDTYPE_Double);
+	m_iDir		= m_pFlow->Get_Field_Count();
+	m_pFlow->Add_Field("DIRECTION"	, TABLE_FIELDTYPE_Double);
 
-	m_iArea		= m_pFlow->Get_Table().Get_Field_Count();
-	m_pFlow->Get_Table().Add_Field("AREA"		, TABLE_FIELDTYPE_Double);
+	m_iArea		= m_pFlow->Get_Field_Count();
+	m_pFlow->Add_Field("AREA"		, TABLE_FIELDTYPE_Double);
 
-	m_iFlow		= m_pFlow->Get_Table().Get_Field_Count();
-	m_pFlow->Get_Table().Add_Field("FLOW"		, TABLE_FIELDTYPE_Double);
+	m_iFlow		= m_pFlow->Get_Field_Count();
+	m_pFlow->Add_Field("FLOW"		, TABLE_FIELDTYPE_Double);
 
-	m_iSpecific	= m_pFlow->Get_Table().Get_Field_Count();
-	m_pFlow->Get_Table().Add_Field("Specific"	, TABLE_FIELDTYPE_Double);
+	m_iSpecific	= m_pFlow->Get_Field_Count();
+	m_pFlow->Add_Field("Specific"	, TABLE_FIELDTYPE_Double);
 
 	//-----------------------------------------------------
-	for(iPoint=0; iPoint<m_pFlow->Get_Point_Count(); iPoint++)
+	for(iPoint=0; iPoint<m_pFlow->Get_Node_Count(); iPoint++)
 	{
-		pPoint	= m_pFlow->Get_Point(iPoint);
+		pPoint	= m_pFlow->Get_Node(iPoint);
 
-		pPoint->Get_Record()->Set_Value(m_iDir	, Get_Lowest_Neighbor(pPoint));
-		pPoint->Get_Record()->Set_Value(m_iArea	, pPoint->Get_Polygon_Area());
+		pPoint->Set_Value(m_iDir	, Get_Lowest_Neighbor(pPoint));
+		pPoint->Set_Value(m_iArea	, pPoint->Get_Polygon_Area());
 	}
 
 	//-----------------------------------------------------
-	for(iPoint=0; iPoint<m_pFlow->Get_Point_Count() && Set_Progress(iPoint, m_pFlow->Get_Point_Count()); iPoint++)
+	for(iPoint=0; iPoint<m_pFlow->Get_Node_Count() && Set_Progress(iPoint, m_pFlow->Get_Node_Count()); iPoint++)
 	{
-		pPoint	= m_pFlow->Get_Point(iPoint);
+		pPoint	= m_pFlow->Get_Node(iPoint);
 
-		if( pPoint->Get_Record()->asDouble(m_iArea) > 0.0 )
+		if( pPoint->asDouble(m_iArea) > 0.0 )
 		{
-			Trace(pPoint, pPoint->Get_Record()->asDouble(m_iArea));
+			Trace(pPoint, pPoint->asDouble(m_iArea));
 		}
 	}
 
 	//-----------------------------------------------------
-	for(iPoint=0; iPoint<m_pFlow->Get_Point_Count() && Set_Progress(iPoint, m_pFlow->Get_Point_Count()); iPoint++)
+	for(iPoint=0; iPoint<m_pFlow->Get_Node_Count() && Set_Progress(iPoint, m_pFlow->Get_Node_Count()); iPoint++)
 	{
-		pPoint	= m_pFlow->Get_Point(iPoint);
+		pPoint	= m_pFlow->Get_Node(iPoint);
 
-		pPoint->Get_Record()->Set_Value(m_iSpecific, pPoint->Get_Record()->asDouble(m_iArea) > 0.0
-			? 1.0 / pPoint->Get_Record()->asDouble(m_iArea)
+		pPoint->Set_Value(m_iSpecific, pPoint->asDouble(m_iArea) > 0.0
+			? 1.0 / pPoint->asDouble(m_iArea)
 			: -1.0
 		);
 	}
@@ -180,7 +180,7 @@ bool CTIN_Flow_Trace::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CTIN_Flow_Trace::Get_Lowest_Neighbor(CSG_TIN_Point *pPoint)
+int CTIN_Flow_Trace::Get_Lowest_Neighbor(CSG_TIN_Node *pPoint)
 {
 	int		i, iMin;
 	double	dz, dzMin;
@@ -205,13 +205,13 @@ int CTIN_Flow_Trace::Get_Lowest_Neighbor(CSG_TIN_Point *pPoint)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CTIN_Flow_Trace::Trace(CSG_TIN_Point *pPoint, double Area)
+void CTIN_Flow_Trace::Trace(CSG_TIN_Node *pPoint, double Area)
 {
-	CSG_TIN_Point	*pNeighbor;
+	CSG_TIN_Node	*pNeighbor;
 
-	if( (pNeighbor = pPoint->Get_Neighbor(pPoint->Get_Record()->asInt(m_iDir))) != NULL )
+	if( (pNeighbor = pPoint->Get_Neighbor(pPoint->asInt(m_iDir))) != NULL )
 	{
-		pNeighbor->Get_Record()->Add_Value(m_iFlow, Area);
+		pNeighbor->Add_Value(m_iFlow, Area);
 
 		Trace(pNeighbor, Area);
 	}

@@ -174,14 +174,16 @@ int CSG_Data_Object::Get_File_Type(void) const
 }
 
 //---------------------------------------------------------
-void CSG_Data_Object::Update(void)
+bool CSG_Data_Object::Update(void)
 {
 	if( m_bUpdate )
 	{
-		On_Update();
-
 		m_bUpdate	= false;
+
+		return( On_Update() );
 	}
+
+	return( true );
 }
 
 

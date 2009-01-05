@@ -95,7 +95,7 @@ private:
 
 	int						m_nPoints, m_nPoints_Buf, m_Level;
 
-	CSG_TIN_Point				**m_Points;
+	CSG_TIN_Node			**m_Points;
 
 
 	bool					_Initialise		(void);
@@ -104,8 +104,8 @@ private:
 	void					_Set_Triangle	(CSG_TIN_Triangle *pTriangle);
 	void					_Set_Grid		(CSG_TIN_Triangle *pTriangle);
 
-	void					_Add_Points		(CSG_TIN_Point *Point, int Level);
-	bool					_Add_Point		(CSG_TIN_Point *Point);
+	void					_Add_Points		(CSG_TIN_Node *Point, int Level);
+	bool					_Add_Point		(CSG_TIN_Node *Point);
 
 	bool					_Get_TIN		(CSG_TIN &TIN);
 

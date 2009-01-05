@@ -200,7 +200,7 @@ int CParameters_PG_Choice::_Set_Table_Field(void)
 	    default:					pTable	= NULL;					break;
 		case PARAMETER_TYPE_Table:	pTable	= pParent->asTable();	break;
 		case PARAMETER_TYPE_Shapes:	pTable	= pParent->asShapes();	break;
-		case PARAMETER_TYPE_TIN:	pTable	= pParent->asTIN()    ? &pParent->asTIN()   ->Get_Table() : NULL;	break;
+		case PARAMETER_TYPE_TIN:	pTable	= pParent->asTIN();		break;
 		}
 
 		if( pTable )

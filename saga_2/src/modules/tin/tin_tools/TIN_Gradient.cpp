@@ -140,7 +140,7 @@ bool CTIN_Gradient::On_Execute(void)
 	bDegree		= Parameters("DEGREE")		->asInt() == 1;
 
 	//-----------------------------------------------------
-	pShapes->Create(SHAPE_TYPE_Polygon, CSG_String::Format(_TL("TIN_Gradient [%s], TIN [%s]"), pTIN->Get_Table().Get_Field_Name(zField), pTIN->Get_Name()));
+	pShapes->Create(SHAPE_TYPE_Polygon, CSG_String::Format(_TL("TIN_Gradient [%s], TIN [%s]"), pTIN->Get_Field_Name(zField), pTIN->Get_Name()));
 
 	pShapes->Add_Field(_TL("ID")		, TABLE_FIELDTYPE_Int);
 	pShapes->Add_Field(_TL("AREA")	, TABLE_FIELDTYPE_Double);
@@ -161,9 +161,9 @@ bool CTIN_Gradient::On_Execute(void)
 			}
 
 			pShape		= pShapes->Add_Shape();
-			pShape->Add_Point(pTriangle->Get_Point(0)->Get_Point());
-			pShape->Add_Point(pTriangle->Get_Point(1)->Get_Point());
-			pShape->Add_Point(pTriangle->Get_Point(2)->Get_Point());
+			pShape->Add_Point(pTriangle->Get_Node(0)->Get_Point());
+			pShape->Add_Point(pTriangle->Get_Node(1)->Get_Point());
+			pShape->Add_Point(pTriangle->Get_Node(2)->Get_Point());
 
 			pShape->Set_Value(0, iTriangle + 1);
 			pShape->Set_Value(1, pTriangle->Get_Area());

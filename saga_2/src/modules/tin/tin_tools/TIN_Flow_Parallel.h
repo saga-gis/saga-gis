@@ -93,8 +93,8 @@ private:
 	CSG_TIN						*m_pFlow;
 
 
-	void						Let_it_flow_single		(CSG_TIN_Point *pPoint);
-	void						Let_it_flow_multiple	(CSG_TIN_Point *pPoint);
+	void						Let_it_flow_single		(CSG_TIN_Node *pPoint);
+	void						Let_it_flow_multiple	(CSG_TIN_Node *pPoint);
 
 };
 

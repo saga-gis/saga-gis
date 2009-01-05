@@ -83,7 +83,7 @@ CWKSP_TIN::CWKSP_TIN(CSG_TIN *pTIN)
 	: CWKSP_Layer(pTIN)
 {
 	m_pTIN		= pTIN;
-	m_pTable	= new CWKSP_Table(&m_pTIN->Get_Table(), this);
+	m_pTable	= new CWKSP_Table(m_pTIN, this);
 
 	m_Edit_Attributes.Destroy();
 	m_Edit_Attributes.Add_Field(LNG("[CAP] Name") , TABLE_FIELDTYPE_String);
@@ -130,14 +130,14 @@ wxString CWKSP_TIN::Get_Description(void)
 	));
 
 	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%d</td></tr>"),
-		LNG("[CAP] Points")					, m_pTIN->Get_Point_Count()
+		LNG("[CAP] Points")					, m_pTIN->Get_Node_Count()
 	));
 
 	s.Append(wxT("</table>"));
 
 	//-----------------------------------------------------
 	s.Append(wxString::Format(wxT("<hr><b>%s</b>"), LNG("[CAP] Table Description")));
-	s.Append(Get_TableInfo_asHTML(&m_pTIN->Get_Table()));
+	s.Append(Get_TableInfo_asHTML(m_pTIN));
 
 	//-----------------------------------------------------
 	s.Append(wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), LNG("[CAP] Data History")));
@@ -282,9 +282,9 @@ void CWKSP_TIN::On_DataObject_Changed(void)
 	int			i;
 	wxString	sChoices;
 
-	for(i=0; i<m_pTIN->Get_Table().Get_Field_Count(); i++)
+	for(i=0; i<m_pTIN->Get_Field_Count(); i++)
 	{
-		sChoices.Append(wxString::Format(wxT("%s|"), m_pTIN->Get_Table().Get_Field_Name(i)));
+		sChoices.Append(wxString::Format(wxT("%s|"), m_pTIN->Get_Field_Name(i)));
 	}
 
 	m_Parameters("COLORS_ATTRIB")->asChoice()->Set_Items(sChoices);
@@ -293,7 +293,7 @@ void CWKSP_TIN::On_DataObject_Changed(void)
 //---------------------------------------------------------
 void CWKSP_TIN::On_Parameters_Changed(void)
 {
-	if( (m_Color_Field = m_Parameters("COLORS_ATTRIB")->asInt()) >= m_pTIN->Get_Table().Get_Field_Count() )
+	if( (m_Color_Field = m_Parameters("COLORS_ATTRIB")->asInt()) >= m_pTIN->Get_Field_Count() )
 	{
 		m_Color_Field	= -1;
 	}
@@ -312,13 +312,13 @@ void CWKSP_TIN::On_Parameters_Changed(void)
 //---------------------------------------------------------
 int CWKSP_TIN::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), wxT("COLORS_ATTRIB")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), wxT("COLORS_ATTRIB")) )
 	{
 		int		zField	= pParameter->asInt();
 
 		pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(
-			m_pTIN->Get_Table().Get_MinValue(zField),
-			m_pTIN->Get_Table().Get_MaxValue(zField)
+			m_pTIN->Get_MinValue(zField),
+			m_pTIN->Get_MaxValue(zField)
 		);
 	}
 
@@ -344,8 +344,8 @@ double CWKSP_TIN::Get_Value_Range(void)
 	if( m_Color_Field >= 0 )
 	{
 		return(
-			  m_pTIN->Get_Table().Get_MaxValue(m_Color_Field)
-			- m_pTIN->Get_Table().Get_MinValue(m_Color_Field)
+			  m_pTIN->Get_MaxValue(m_Color_Field)
+			- m_pTIN->Get_MinValue(m_Color_Field)
 		);
 	}
 	else
@@ -438,12 +438,9 @@ void CWKSP_TIN::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 //---------------------------------------------------------
 void CWKSP_TIN::_Draw_Points(CWKSP_Map_DC &dc_Map)
 {
-	int			i;
-	TSG_Point_Int	Point;
-
-	for(i=0; i<m_pTIN->Get_Point_Count(); i++)
+	for(int i=0; i<m_pTIN->Get_Node_Count(); i++)
 	{
-		Point	= dc_Map.World2DC(m_pTIN->Get_Point(i)->Get_Point());
+		TSG_Point_Int	Point	= dc_Map.World2DC(m_pTIN->Get_Node(i)->Get_Point());
 
 		dc_Map.dc.DrawCircle(Point.x, Point.y, 5);
 	}
@@ -452,16 +449,13 @@ void CWKSP_TIN::_Draw_Points(CWKSP_Map_DC &dc_Map)
 //---------------------------------------------------------
 void CWKSP_TIN::_Draw_Edges(CWKSP_Map_DC &dc_Map)
 {
-	int			i;
-	CSG_TIN_Edge	*pEdge;
-	TSG_Point_Int	Point[2];
-
-	for(i=0; i<m_pTIN->Get_Edge_Count(); i++)
+	for(int i=0; i<m_pTIN->Get_Edge_Count(); i++)
 	{
-		pEdge	= m_pTIN->Get_Edge(i);
+		TSG_Point_Int	Point[2];
+		CSG_TIN_Edge	*pEdge	= m_pTIN->Get_Edge(i);
 
-		Point[0]	= dc_Map.World2DC(pEdge->Get_Point(0)->Get_Point());
-		Point[1]	= dc_Map.World2DC(pEdge->Get_Point(1)->Get_Point());
+		Point[0]	= dc_Map.World2DC(pEdge->Get_Node(0)->Get_Point());
+		Point[1]	= dc_Map.World2DC(pEdge->Get_Node(1)->Get_Point());
 
 		dc_Map.dc.DrawLine(Point[0].x, Point[0].y, Point[1].x, Point[1].y);
 	}
@@ -473,23 +467,22 @@ void CWKSP_TIN::_Draw_Triangles(CWKSP_Map_DC &dc_Map)
 	if(	m_Parameters("DISPLAY_TRIANGES")->asBool()
 	&&	dc_Map.IMG_Draw_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.0) )
 	{
-		int					iTriangle, iPoint;
-		TSG_Point_Int		Point;
-		TPoint				p[3];
-		CSG_TIN_Triangle	*pTriangle;
-
-		for(iTriangle=0; iTriangle<m_pTIN->Get_Triangle_Count(); iTriangle++)
+		for(int iTriangle=0; iTriangle<m_pTIN->Get_Triangle_Count(); iTriangle++)
 		{
-			pTriangle	= m_pTIN->Get_Triangle(iTriangle);
+			CSG_TIN_Triangle	*pTriangle	= m_pTIN->Get_Triangle(iTriangle);
 
 			if( dc_Map.m_rWorld.Intersects(pTriangle->Get_Extent()) != INTERSECTION_None )
 			{
-				for(iPoint=0; iPoint<3; iPoint++)
+				TPoint	p[3];
+
+				for(int iNode=0; iNode<3; iNode++)
 				{
-					Point		= dc_Map.World2DC(pTriangle->Get_Point(iPoint)->Get_Point());
-					p[iPoint].x	= Point.x;
-					p[iPoint].y	= Point.y;
-					p[iPoint].z	= pTriangle->Get_Point(iPoint)->asDouble(m_Color_Field);
+					CSG_TIN_Node	*pNode	= pTriangle->Get_Node(iNode);
+					TSG_Point_Int	Point	= dc_Map.World2DC(pNode->Get_Point());
+
+					p[iNode].x	= Point.x;
+					p[iNode].y	= Point.y;
+					p[iNode].z	= pNode->asDouble(m_Color_Field);
 				}
 
 				_Draw_Triangle(dc_Map, p);

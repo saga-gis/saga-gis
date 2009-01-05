@@ -134,11 +134,11 @@ CTIN_To_Shapes::~CTIN_To_Shapes(void)
 //---------------------------------------------------------
 bool CTIN_To_Shapes::On_Execute(void)
 {
-	int				i, j;
-	CSG_TIN_Point		*pPoint;
+	int					i, j;
+	CSG_TIN_Node		*pPoint;
 	CSG_TIN_Edge		*pEdge;
 	CSG_TIN_Triangle	*pTriangle;
-	CSG_TIN			*pTIN;
+	CSG_TIN				*pTIN;
 	CSG_Shape			*pShape;
 	CSG_Shapes			*pShapes;
 
@@ -150,22 +150,22 @@ bool CTIN_To_Shapes::On_Execute(void)
 	pShapes->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("%s [TIN]"), pTIN->Get_Name()));
 
 	pShapes->Add_Field("POINT_ID", TABLE_FIELDTYPE_Int);
-	for(j=0; j<pTIN->Get_Table().Get_Field_Count(); j++)
+	for(j=0; j<pTIN->Get_Field_Count(); j++)
 	{
-		pShapes->Add_Field(pTIN->Get_Table().Get_Field_Name(j), pTIN->Get_Table().Get_Field_Type(j));
+		pShapes->Add_Field(pTIN->Get_Field_Name(j), pTIN->Get_Field_Type(j));
 	}
 
-	for(i=0; i<pTIN->Get_Point_Count() && Set_Progress(i, pTIN->Get_Point_Count()); i++)
+	for(i=0; i<pTIN->Get_Node_Count() && Set_Progress(i, pTIN->Get_Node_Count()); i++)
 	{
-		pPoint		= pTIN->Get_Point(i);
+		pPoint		= pTIN->Get_Node(i);
 		pShape		= pShapes->Add_Shape();
 
 		pShape->Add_Point(pPoint->Get_Point());
 
 		pShape->Set_Value(0, 1 + i);
-		for(j=0; j<pTIN->Get_Table().Get_Field_Count(); j++)
+		for(j=0; j<pTIN->Get_Field_Count(); j++)
 		{
-			pShape->Set_Value(j + 1, pPoint->Get_Record()->asString(j));
+			pShape->Set_Value(j + 1, pPoint->asString(j));
 		}
 	}
 
@@ -182,12 +182,12 @@ bool CTIN_To_Shapes::On_Execute(void)
 		pEdge		= pTIN->Get_Edge(i);
 		pShape		= pShapes->Add_Shape();
 
-		pShape->Add_Point(pEdge->Get_Point(0)->Get_Point());
-		pShape->Add_Point(pEdge->Get_Point(1)->Get_Point());
+		pShape->Add_Point(pEdge->Get_Node(0)->Get_Point());
+		pShape->Add_Point(pEdge->Get_Node(1)->Get_Point());
 
 		pShape->Set_Value(0, 1 + i);
-		pShape->Set_Value(1, 1 + pEdge->Get_Point(0)->Get_ID());
-		pShape->Set_Value(2, 1 + pEdge->Get_Point(1)->Get_ID());
+		pShape->Set_Value(1, 1 + pEdge->Get_Node(0)->Get_ID());
+		pShape->Set_Value(2, 1 + pEdge->Get_Node(1)->Get_ID());
 	}
 
 	//-----------------------------------------------------
@@ -204,14 +204,14 @@ bool CTIN_To_Shapes::On_Execute(void)
 		pTriangle	= pTIN->Get_Triangle(i);
 		pShape		= pShapes->Add_Shape();
 
-		pShape->Add_Point(pTriangle->Get_Point(0)->Get_Point());
-		pShape->Add_Point(pTriangle->Get_Point(1)->Get_Point());
-		pShape->Add_Point(pTriangle->Get_Point(2)->Get_Point());
+		pShape->Add_Point(pTriangle->Get_Node(0)->Get_Point());
+		pShape->Add_Point(pTriangle->Get_Node(1)->Get_Point());
+		pShape->Add_Point(pTriangle->Get_Node(2)->Get_Point());
 
 		pShape->Set_Value(0, 1 + i);
-		pShape->Set_Value(1, 1 + pTriangle->Get_Point(0)->Get_ID());
-		pShape->Set_Value(2, 1 + pTriangle->Get_Point(1)->Get_ID());
-		pShape->Set_Value(3, 1 + pTriangle->Get_Point(2)->Get_ID());
+		pShape->Set_Value(1, 1 + pTriangle->Get_Node(0)->Get_ID());
+		pShape->Set_Value(2, 1 + pTriangle->Get_Node(1)->Get_ID());
+		pShape->Set_Value(3, 1 + pTriangle->Get_Node(2)->Get_ID());
 	}
 
 	//-----------------------------------------------------
@@ -231,9 +231,9 @@ bool CTIN_To_Shapes::On_Execute(void)
 		pShape->Add_Point(pTriangle->Get_CircumCircle_Point());
 
 		pShape->Set_Value(0, 1 + i);
-		pShape->Set_Value(1, 1 + pTriangle->Get_Point(0)->Get_ID());
-		pShape->Set_Value(2, 1 + pTriangle->Get_Point(1)->Get_ID());
-		pShape->Set_Value(3, 1 + pTriangle->Get_Point(2)->Get_ID());
+		pShape->Set_Value(1, 1 + pTriangle->Get_Node(0)->Get_Index());
+		pShape->Set_Value(2, 1 + pTriangle->Get_Node(1)->Get_Index());
+		pShape->Set_Value(3, 1 + pTriangle->Get_Node(2)->Get_Index());
 	}
 
 	//-----------------------------------------------------
@@ -243,14 +243,14 @@ bool CTIN_To_Shapes::On_Execute(void)
 	pShapes->Create(SHAPE_TYPE_Polygon, CSG_String::Format(_TL("%s [TIN]"), pTIN->Get_Name()));
 
 	pShapes->Add_Field("POINT_ID", TABLE_FIELDTYPE_Int);
-	for(j=0; j<pTIN->Get_Table().Get_Field_Count(); j++)
+	for(j=0; j<pTIN->Get_Field_Count(); j++)
 	{
-		pShapes->Add_Field(pTIN->Get_Table().Get_Field_Name(j), pTIN->Get_Table().Get_Field_Type(j));
+		pShapes->Add_Field(pTIN->Get_Field_Name(j), pTIN->Get_Field_Type(j));
 	}
 
-	for(i=0; i<pTIN->Get_Point_Count() && Set_Progress(i, pTIN->Get_Point_Count()); i++)
+	for(i=0; i<pTIN->Get_Node_Count() && Set_Progress(i, pTIN->Get_Node_Count()); i++)
 	{
-		pPoint		= pTIN->Get_Point(i);
+		pPoint		= pTIN->Get_Node(i);
 
 		if( pPoint->Get_Polygon(Points) )
 		{
@@ -262,9 +262,9 @@ bool CTIN_To_Shapes::On_Execute(void)
 			}
 
 			pShape->Set_Value(0, 1 + i);
-			for(j=0; j<pTIN->Get_Table().Get_Field_Count(); j++)
+			for(j=0; j<pTIN->Get_Field_Count(); j++)
 			{
-				pShape->Set_Value(j + 1, pPoint->Get_Record()->asString(j));
+				pShape->Set_Value(j + 1, pPoint->asString(j));
 			}
 		}
 	}

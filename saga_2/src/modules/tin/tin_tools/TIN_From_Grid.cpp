@@ -162,6 +162,7 @@ bool CTIN_From_Grid::On_Execute(void)
 	{
 		pTIN	= Parameters("TIN")->asTIN();
 		pTIN->Create(&Points);
+		pTIN->Set_Name(pGrid->Get_Name());
 
 		return( true );
 	}

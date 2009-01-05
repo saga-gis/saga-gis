@@ -256,6 +256,7 @@ public:
 
 	virtual void					Set_Modified	(bool bOn = true)	{	m_bModified	= bOn;		}
 	bool							is_Modified		(void)	const		{	return( m_bModified );	}
+	bool							Update			(void);
 
 	CSG_History &					Get_History		(void)				{	return( m_History );	}
 
@@ -275,8 +276,7 @@ protected:
 
 	void							Set_Update_Flag	(bool bOn = true)	{	m_bUpdate	= bOn;		}
 	bool							Get_Update_Flag	(void)				{	return( m_bUpdate );	}
-	void							Update			(void);
-	virtual void					On_Update		(void)				{}
+	virtual bool					On_Update		(void)				{	return( true );			}
 
 
 private:

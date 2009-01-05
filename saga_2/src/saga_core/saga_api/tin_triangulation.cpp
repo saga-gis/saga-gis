@@ -87,8 +87,8 @@
 //---------------------------------------------------------
 int SG_TIN_Compare(const void *pp1, const void *pp2)
 {
-	CSG_TIN_Point	*p1	= *((CSG_TIN_Point **)pp1),
-				*p2	= *((CSG_TIN_Point **)pp2);
+	CSG_TIN_Node	*p1	= *((CSG_TIN_Node **)pp1),
+					*p2	= *((CSG_TIN_Node **)pp2);
 
 	if( p1->Get_X() < p2->Get_X() )
 	{
@@ -125,7 +125,7 @@ bool CSG_TIN::_Triangulate(void)
 {
 	bool			bResult;
 	int				i, j, n, nTriangles;
-	CSG_TIN_Point		**Points;
+	CSG_TIN_Node	**Nodes;
 	TTIN_Triangle	*Triangles;
 
 	//-----------------------------------------------------
@@ -133,57 +133,55 @@ bool CSG_TIN::_Triangulate(void)
 	_Destroy_Triangles();
 
 	//-----------------------------------------------------
-	Points		= (CSG_TIN_Point **)SG_Malloc(m_nPoints * sizeof(CSG_TIN_Point *));
+	Nodes	= (CSG_TIN_Node **)SG_Malloc((Get_Node_Count() + 3) * sizeof(CSG_TIN_Node *));
 
-	for(i=0; i<m_nPoints; i++)
+	for(i=0; i<Get_Node_Count(); i++)
 	{
-		Points[i]	= m_Points[i];
-		Points[i]->_Del_Relations();
+		Nodes[i]	= Get_Node(i);
+		Nodes[i]	->_Del_Relations();
 	}
 
-	qsort(Points, m_nPoints, sizeof(CSG_TIN_Point *), SG_TIN_Compare);
-
 	//-----------------------------------------------------
-	for(i=0, j=0, n=m_nPoints; j<n; i++)
+	qsort(Nodes, Get_Node_Count(), sizeof(CSG_TIN_Node *), SG_TIN_Compare);
+
+	for(i=0, j=0, n=Get_Node_Count(); j<n; i++)	// remove duplicates
 	{
-		Points[i]	= Points[j++];
+		Nodes[i]	= Nodes[j++];
 
 		while(	j < n
-			&&	Points[i]->Get_X() == Points[j]->Get_X()
-			&&	Points[i]->Get_Y() == Points[j]->Get_Y() )
+			&&	Nodes[i]->Get_X() == Nodes[j]->Get_X()
+			&&	Nodes[i]->Get_Y() == Nodes[j]->Get_Y() )
 		{
-			Del_Point(Points[j++]->Get_Record()->Get_Index(), false);
+			Del_Node(Nodes[j++]->Get_Index(), false);
 		}
 	}
 
 	//-----------------------------------------------------
-	Points		= (CSG_TIN_Point **)SG_Realloc(Points, (m_nPoints + 3) * sizeof(CSG_TIN_Point *));
-
-	for(i=m_nPoints; i<m_nPoints+3; i++)
+	for(i=Get_Node_Count(); i<Get_Node_Count()+3; i++)
 	{
-		Points[i]	= new CSG_TIN_Point;
+		Nodes[i]	= new CSG_TIN_Node(this, NULL);
 	}
 
 	//-----------------------------------------------------
-	Triangles	= (TTIN_Triangle *)SG_Malloc(3 * m_nPoints * sizeof(TTIN_Triangle));
+	Triangles	= (TTIN_Triangle *)SG_Malloc(3 * Get_Node_Count() * sizeof(TTIN_Triangle));
 
-	if( (bResult = _Triangulate(Points, m_nPoints, Triangles, nTriangles)) == true )
+	if( (bResult = _Triangulate(Nodes, Get_Node_Count(), Triangles, nTriangles)) == true )
 	{
 		for(i=0; i<nTriangles && SG_UI_Process_Set_Progress(i, nTriangles); i++)
 		{
-			_Add_Triangle(Points[Triangles[i].p1], Points[Triangles[i].p2], Points[Triangles[i].p3]);
+			_Add_Triangle(Nodes[Triangles[i].p1], Nodes[Triangles[i].p2], Nodes[Triangles[i].p3]);
 		}
 	}
 
 	SG_Free(Triangles);
 
 	//-----------------------------------------------------
-	for(i=m_nPoints; i<m_nPoints+3; i++)
+	for(i=Get_Node_Count(); i<Get_Node_Count()+3; i++)
 	{
-		delete(Points[i]);
+		delete(Nodes[i]);
 	}
 
-	SG_Free(Points);
+	SG_Free(Nodes);
 
 	SG_UI_Process_Set_Ready();
 
@@ -198,7 +196,7 @@ bool CSG_TIN::_Triangulate(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_TIN::_Triangulate(CSG_TIN_Point **Points, int nPoints, TTIN_Triangle *Triangles, int &nTriangles)
+bool CSG_TIN::_Triangulate(CSG_TIN_Node **Points, int nPoints, TTIN_Triangle *Triangles, int &nTriangles)
 {
 	int			i, j, k, inside, trimax,
 				nedge		= 0,
@@ -206,10 +204,33 @@ bool CSG_TIN::_Triangulate(CSG_TIN_Point **Points, int nPoints, TTIN_Triangle *T
 				status		= 0,
 				*complete	= NULL;
 
-	double		xmid, ymid, dmax,
-				xp, yp, x1, y1, x2, y2, x3, y3, xc, yc, r;
+	double		dmax, xp, yp, x1, y1, x2, y2, x3, y3, xc, yc, r;
 
 	TTIN_Edge	*edges		= NULL;
+
+	//-----------------------------------------------------
+	// Update extent...
+	if( nPoints >= 3 )
+	{
+		TSG_Rect	r;
+
+		m_Extent.Assign(
+			Points[0]->Get_X(), Points[0]->Get_Y(),
+			Points[0]->Get_X(), Points[0]->Get_Y()
+		);
+
+		for(i=1; i<nPoints; i++)
+		{
+			r.xMin	= r.xMax	= Points[i]->Get_X();
+			r.yMin	= r.yMax	= Points[i]->Get_Y();
+
+			m_Extent.Union(r);
+		}
+	}
+	else
+	{
+		return( false );
+	}
 
 	//-----------------------------------------------------
 	// Allocate memory for the completeness list, flag for each triangle
@@ -237,18 +258,15 @@ bool CSG_TIN::_Triangulate(CSG_TIN_Point **Points, int nPoints, TTIN_Triangle *T
 	//	vertex list. The supertriangle is the first triangle in
 	//	the triangle list.
 
-	Update();
-
 	dmax	= m_Extent.Get_XRange() > m_Extent.Get_YRange() ? m_Extent.Get_XRange() : m_Extent.Get_YRange();
-	xmid	= m_Extent.Get_XCenter();
-	ymid	= m_Extent.Get_YCenter();
 
-	Points[nPoints + 0]->m_Point.x	= xmid - 20 * dmax;
-	Points[nPoints + 0]->m_Point.y	= ymid - dmax;
-	Points[nPoints + 1]->m_Point.x	= xmid;
-	Points[nPoints + 1]->m_Point.y	= ymid + 20 * dmax;
-	Points[nPoints + 2]->m_Point.x	= xmid + 20 * dmax;
-	Points[nPoints + 2]->m_Point.y	= ymid - dmax;
+	Points[nPoints + 0]->m_Point.x	= m_Extent.Get_XCenter() - 20 * dmax;
+	Points[nPoints + 1]->m_Point.x	= m_Extent.Get_XCenter();
+	Points[nPoints + 2]->m_Point.x	= m_Extent.Get_XCenter() + 20 * dmax;
+
+	Points[nPoints + 0]->m_Point.y	= m_Extent.Get_YCenter() -      dmax;
+	Points[nPoints + 1]->m_Point.y	= m_Extent.Get_YCenter() + 20 * dmax;
+	Points[nPoints + 2]->m_Point.y	= m_Extent.Get_YCenter() -      dmax;
 
 	Triangles[0].p1	= nPoints;
 	Triangles[0].p2	= nPoints + 1;
@@ -262,8 +280,8 @@ bool CSG_TIN::_Triangulate(CSG_TIN_Point **Points, int nPoints, TTIN_Triangle *T
 	//	Include each point one at a time into the existing mesh
 	for(i=0; i<nPoints && SG_UI_Process_Set_Progress(i, nPoints); i++)
 	{
-		xp		= Points[i]->m_Point.x;
-		yp		= Points[i]->m_Point.y;
+		xp		= Points[i]->Get_X();
+		yp		= Points[i]->Get_Y();
 		nedge	= 0;
 
 		//-------------------------------------------------
@@ -278,12 +296,12 @@ bool CSG_TIN::_Triangulate(CSG_TIN_Point **Points, int nPoints, TTIN_Triangle *T
 				continue;
 			}
 
-			x1		= Points[Triangles[j].p1]->m_Point.x;
-			y1		= Points[Triangles[j].p1]->m_Point.y;
-			x2		= Points[Triangles[j].p2]->m_Point.x;
-			y2		= Points[Triangles[j].p2]->m_Point.y;
-			x3		= Points[Triangles[j].p3]->m_Point.x;
-			y3		= Points[Triangles[j].p3]->m_Point.y;
+			x1		= Points[Triangles[j].p1]->Get_X();
+			y1		= Points[Triangles[j].p1]->Get_Y();
+			x2		= Points[Triangles[j].p2]->Get_X();
+			y2		= Points[Triangles[j].p2]->Get_Y();
+			x3		= Points[Triangles[j].p3]->Get_X();
+			y3		= Points[Triangles[j].p3]->Get_Y();
 
 			inside	= _CircumCircle(xp, yp, x1, y1, x2, y2, x3, y3, &xc, &yc, &r);
 

@@ -292,7 +292,7 @@ TGEO_iRect;
 #define CTable_Value_String				CSG_Table_Value_String
 #define CTIN							CSG_TIN
 #define CTIN_Edge						CSG_TIN_Edge
-#define CTIN_Point						CSG_TIN_Point
+#define CTIN_Point						CSG_TIN_Node
 #define CTIN_Triangle					CSG_TIN_Triangle
 #define CParameters						CSG_Parameters
 #define CParameter						CSG_Parameter

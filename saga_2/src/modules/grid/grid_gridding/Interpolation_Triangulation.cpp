@@ -110,9 +110,9 @@ bool CInterpolation_Triangulation::Interpolate(void)
 			{
 				for(iPoint=0; iPoint<3; iPoint++)
 				{
-					p[iPoint].x	= m_pGrid->Get_System().Get_xWorld_to_Grid(pTriangle->Get_Point(iPoint)->Get_X());
-					p[iPoint].y	= m_pGrid->Get_System().Get_yWorld_to_Grid(pTriangle->Get_Point(iPoint)->Get_Y());
-					p[iPoint].z	= pTriangle->Get_Point(iPoint)->Get_Record()->asDouble(m_zField);
+					p[iPoint].x	= m_pGrid->Get_System().Get_xWorld_to_Grid(pTriangle->Get_Node(iPoint)->Get_X());
+					p[iPoint].y	= m_pGrid->Get_System().Get_yWorld_to_Grid(pTriangle->Get_Node(iPoint)->Get_Y());
+					p[iPoint].z	= pTriangle->Get_Node(iPoint)->asDouble(m_zField);
 				}
 
 				Set_Triangle(p);

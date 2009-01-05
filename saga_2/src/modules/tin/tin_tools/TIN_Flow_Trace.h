@@ -93,9 +93,9 @@ private:
 	CSG_TIN						*m_pFlow;
 
 
-	int							Get_Lowest_Neighbor(CSG_TIN_Point *pPoint);
+	int							Get_Lowest_Neighbor(CSG_TIN_Node *pPoint);
 
-	void						Trace(CSG_TIN_Point *pPoint, double Area);
+	void						Trace(CSG_TIN_Node *pPoint, double Area);
 
 };
 

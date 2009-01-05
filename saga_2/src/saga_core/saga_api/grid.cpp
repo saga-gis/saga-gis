@@ -927,7 +927,7 @@ double CSG_Grid::Get_Variance(bool bZFactor)
 }
 
 //---------------------------------------------------------
-void CSG_Grid::On_Update(void)
+bool CSG_Grid::On_Update(void)
 {
 	if( is_Valid() )
 	{
@@ -972,6 +972,8 @@ void CSG_Grid::On_Update(void)
 
 		SG_UI_Process_Set_Ready();
 	}
+
+	return( true );
 }
 
 

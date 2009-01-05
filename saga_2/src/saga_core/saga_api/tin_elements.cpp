@@ -70,37 +70,26 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_TIN_Point::CSG_TIN_Point(void)
+CSG_TIN_Node::CSG_TIN_Node(CSG_TIN *pOwner, int Index)
+	: CSG_Table_Record(pOwner, Index)
 {
-	m_ID			= -1;
 	m_Point.x		= m_Point.y	= 0.0;
-	m_pRecord		= NULL;
+
 	m_Neighbors		= NULL;
 	m_nNeighbors	= 0;
+
 	m_Triangles		= NULL;
 	m_nTriangles	= 0;
 }
 
 //---------------------------------------------------------
-CSG_TIN_Point::CSG_TIN_Point(int ID, TSG_Point Point, CSG_Table_Record *pRecord)
-{
-	m_ID			= ID;
-	m_Point			= Point;
-	m_pRecord		= pRecord;
-	m_Neighbors		= NULL;
-	m_nNeighbors	= 0;
-	m_Triangles		= NULL;
-	m_nTriangles	= 0;
-}
-
-//---------------------------------------------------------
-CSG_TIN_Point::~CSG_TIN_Point(void)
+CSG_TIN_Node::~CSG_TIN_Node(void)
 {
 	_Del_Relations();
 }
 
 //---------------------------------------------------------
-bool CSG_TIN_Point::_Add_Triangle(CSG_TIN_Triangle *pTriangle)
+bool CSG_TIN_Node::_Add_Triangle(CSG_TIN_Triangle *pTriangle)
 {
 	for(int i=0; i<m_nTriangles; i++)
 	{
@@ -121,7 +110,7 @@ bool CSG_TIN_Point::_Add_Triangle(CSG_TIN_Triangle *pTriangle)
 }
 
 //---------------------------------------------------------
-bool CSG_TIN_Point::_Add_Neighbor(CSG_TIN_Point *pNeighbor)
+bool CSG_TIN_Node::_Add_Neighbor(CSG_TIN_Node *pNeighbor)
 {
 	if( pNeighbor == this )
 	{
@@ -136,14 +125,14 @@ bool CSG_TIN_Point::_Add_Neighbor(CSG_TIN_Point *pNeighbor)
 		}
 	}
 
-	m_Neighbors	= (CSG_TIN_Point **)SG_Realloc(m_Neighbors, (m_nNeighbors + 1) * sizeof(CSG_TIN_Point *));
+	m_Neighbors	= (CSG_TIN_Node **)SG_Realloc(m_Neighbors, (m_nNeighbors + 1) * sizeof(CSG_TIN_Node *));
 	m_Neighbors[m_nNeighbors++]	= pNeighbor;
 
 	return( true );
 }
 
 //---------------------------------------------------------
-bool CSG_TIN_Point::_Del_Relations(void)
+bool CSG_TIN_Node::_Del_Relations(void)
 {
 	if( m_nTriangles > 0 )
 	{
@@ -163,16 +152,16 @@ bool CSG_TIN_Point::_Del_Relations(void)
 }
 
 //---------------------------------------------------------
-double CSG_TIN_Point::Get_Gradient(int iNeighbor, int iField)
+double CSG_TIN_Node::Get_Gradient(int iNeighbor, int iField)
 {
 	double		dx, dy, dz;
-	CSG_TIN_Point	*pNeighbor;
+	CSG_TIN_Node	*pNeighbor;
 
 	if( (pNeighbor = Get_Neighbor(iNeighbor)) != NULL )
 	{
 		dx	= Get_X() - pNeighbor->Get_X();
 		dy	= Get_Y() - pNeighbor->Get_Y();
-		dz	= Get_Record()->asDouble(iField) - pNeighbor->Get_Record()->asDouble(iField);
+		dz	= asDouble(iField) - pNeighbor->asDouble(iField);
 
 		if( (dx = sqrt(dx*dx + dy*dy)) > 0.0 )
 		{
@@ -206,7 +195,7 @@ int SG_TIN_Compare_Triangle_Center(const void *pz1, const void *pz2)
 #define M_GET_DIRECTION(a, b)	(b.x != a.x ? M_PI_180 - atan2(b.y - a.y, b.x - a.x) : (b.y > a.y ? M_PI_270 : (b.y < a.y ? M_PI_090 : 0.0)))
 
 //---------------------------------------------------------
-bool CSG_TIN_Point::Get_Polygon(CSG_Points &Points)
+bool CSG_TIN_Node::Get_Polygon(CSG_Points &Points)
 {
 	if( m_nTriangles >= 3 )
 	{
@@ -237,7 +226,7 @@ bool CSG_TIN_Point::Get_Polygon(CSG_Points &Points)
 }
 
 //---------------------------------------------------------
-double CSG_TIN_Point::Get_Polygon_Area(void)
+double CSG_TIN_Node::Get_Polygon_Area(void)
 {
 	CSG_Points	Points;
 
@@ -257,10 +246,10 @@ double CSG_TIN_Point::Get_Polygon_Area(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_TIN_Edge::CSG_TIN_Edge(CSG_TIN_Point *a, CSG_TIN_Point *b)
+CSG_TIN_Edge::CSG_TIN_Edge(CSG_TIN_Node *a, CSG_TIN_Node *b)
 {
-	m_Points[0]		= a;
-	m_Points[1]		= b;
+	m_Nodes[0]		= a;
+	m_Nodes[1]		= b;
 }
 
 //---------------------------------------------------------
@@ -276,11 +265,11 @@ CSG_TIN_Edge::~CSG_TIN_Edge(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_TIN_Triangle::CSG_TIN_Triangle(CSG_TIN_Point *a, CSG_TIN_Point *b, CSG_TIN_Point *c)
+CSG_TIN_Triangle::CSG_TIN_Triangle(CSG_TIN_Node *a, CSG_TIN_Node *b, CSG_TIN_Node *c)
 {
-	m_Points[0]		= a;
-	m_Points[1]		= b;
-	m_Points[2]		= c;
+	m_Nodes[0]		= a;
+	m_Nodes[1]		= b;
+	m_Nodes[2]		= c;
 
 	//-----------------------------------------------------
 	double	xMin, yMin, xMax, yMax;
@@ -318,9 +307,9 @@ CSG_TIN_Triangle::CSG_TIN_Triangle(CSG_TIN_Point *a, CSG_TIN_Point *b, CSG_TIN_P
 	//-----------------------------------------------------
 	TSG_Point	Points[3];
 
-	Points[0]	= m_Points[0]->Get_Point();
-	Points[1]	= m_Points[1]->Get_Point();
-	Points[2]	= m_Points[2]->Get_Point();
+	Points[0]	= m_Nodes[0]->Get_Point();
+	Points[1]	= m_Nodes[1]->Get_Point();
+	Points[2]	= m_Nodes[2]->Get_Point();
 
 	SG_Get_Triangle_CircumCircle(Points, m_Center, m_Radius);
 }
@@ -347,37 +336,37 @@ bool CSG_TIN_Triangle::is_Containing(double x, double y)
 		int			nCrossings;
 		TSG_Point	A, B, C;
 
-		if(	(x == m_Points[0]->Get_Point().x && y == m_Points[0]->Get_Point().y)
-		||	(x == m_Points[1]->Get_Point().x && y == m_Points[1]->Get_Point().y)
-		||	(x == m_Points[2]->Get_Point().x && y == m_Points[2]->Get_Point().y) )
+		if(	(x == m_Nodes[0]->Get_Point().x && y == m_Nodes[0]->Get_Point().y)
+		||	(x == m_Nodes[1]->Get_Point().x && y == m_Nodes[1]->Get_Point().y)
+		||	(x == m_Nodes[2]->Get_Point().x && y == m_Nodes[2]->Get_Point().y) )
 			return( true );
 
 		if( y == m_Extent.Get_YMin() || y == m_Extent.Get_YMax() )
 		{
-			if(	IS_ONLINE(m_Points[0]->Get_Point(), m_Points[1]->Get_Point())
-			||	IS_ONLINE(m_Points[1]->Get_Point(), m_Points[2]->Get_Point())
-			||	IS_ONLINE(m_Points[2]->Get_Point(), m_Points[0]->Get_Point()) )
+			if(	IS_ONLINE(m_Nodes[0]->Get_Point(), m_Nodes[1]->Get_Point())
+			||	IS_ONLINE(m_Nodes[1]->Get_Point(), m_Nodes[2]->Get_Point())
+			||	IS_ONLINE(m_Nodes[2]->Get_Point(), m_Nodes[0]->Get_Point()) )
 				return( true );
 		}
 
 		nCrossings	= 0;
 
-		if(	(y == m_Points[0]->Get_Point().y && x > m_Points[0]->Get_Point().x)
-		||	(y == m_Points[1]->Get_Point().y && x > m_Points[1]->Get_Point().x)
-		||	(y == m_Points[2]->Get_Point().y && x > m_Points[2]->Get_Point().x) )
+		if(	(y == m_Nodes[0]->Get_Point().y && x > m_Nodes[0]->Get_Point().x)
+		||	(y == m_Nodes[1]->Get_Point().y && x > m_Nodes[1]->Get_Point().x)
+		||	(y == m_Nodes[2]->Get_Point().y && x > m_Nodes[2]->Get_Point().x) )
 			nCrossings	= -1;
 
 		A.x			= m_Extent.m_rect.xMin - 1.0;
 		B.x			= x;
 		A.y = B.y	= y;
 
-		if( SG_Get_Crossing(C, m_Points[0]->Get_Point(), m_Points[1]->Get_Point(), A, B) )
+		if( SG_Get_Crossing(C, m_Nodes[0]->Get_Point(), m_Nodes[1]->Get_Point(), A, B) )
 			nCrossings++;
 
-		if( SG_Get_Crossing(C, m_Points[1]->Get_Point(), m_Points[2]->Get_Point(), A, B) )
+		if( SG_Get_Crossing(C, m_Nodes[1]->Get_Point(), m_Nodes[2]->Get_Point(), A, B) )
 			nCrossings++;
 
-		if( SG_Get_Crossing(C, m_Points[2]->Get_Point(), m_Points[0]->Get_Point(), A, B) )
+		if( SG_Get_Crossing(C, m_Nodes[2]->Get_Point(), m_Nodes[0]->Get_Point(), A, B) )
 			nCrossings++;
 
 		return( nCrossings == 1 );
@@ -394,9 +383,9 @@ bool CSG_TIN_Triangle::Get_Gradient(int zField, double &Decline, double &Azimuth
 
 	for(i=0; i<3; i++)
 	{
-		x[i]	= m_Points[i]->Get_X();
-		y[i]	= m_Points[i]->Get_Y();
-		z[i]	= m_Points[i]->Get_Record()->asDouble(zField);
+		x[i]	= m_Nodes[i]->Get_X();
+		y[i]	= m_Nodes[i]->Get_Y();
+		z[i]	= m_Nodes[i]->asDouble(zField);
 	}
 
 	A		= z[0] * (x[1] - x[2]) + z[1] * (x[2] - x[0]) + z[2] * (x[0] - x[1]);

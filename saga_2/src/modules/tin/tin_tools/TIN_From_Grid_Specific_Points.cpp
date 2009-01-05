@@ -234,7 +234,8 @@ bool CTIN_From_Grid_Specific_Points::On_Execute(void)
 		if( Points.Get_Count() >= 3 )
 		{
 			pTIN	= Parameters("TIN")->asTIN();
-			bResult	= pTIN->Create(&Points);
+			pTIN->Create(&Points);
+			pTIN->Set_Name(pGrid->Get_Name());
 		}
 	}
 
