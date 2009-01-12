@@ -242,7 +242,11 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 						{
 							k++;
 
-							while( ((double)k / (Num[iShape])) > ((double)i * quantile_step / 100.0) )
+						// Konstantin Stricker (stricker@iawg.de) reported an error in indexing the search for quantils.
+						// Original code:
+						//	while( ((double)k / (Num[iShape])) > ((double)i * quantile_step / 100.0) )
+						// His solution:
+							while( ((double)k / (Num[iShape])) > ((double)(i + 1) * quantile_step / 100.0) )
 							{
 								pRecord->Set_Value(field_QUANTILES + i, *j);
 								i++;
