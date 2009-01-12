@@ -594,6 +594,8 @@ CSG_Parameter * CSG_Parameters::Add_Parameters(CSG_Parameter *pParent, const SG_
 
 	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_Parameters, 0);
 
+	pParameter->asParameters()->m_Callback	= m_Callback;
+
 	return( pParameter );
 }
 
