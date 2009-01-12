@@ -74,7 +74,7 @@ const SG_Char * Get_Info(int i)
 		return( _TL("Grid - Discretisation") );
 
 	case MLB_INFO_Author:
-		return( _TL("O. Conrad (c) 2002, Goettingen") );
+		return( _TL("O. Conrad (c) 2002-9") );
 
 	case MLB_INFO_Description:
 		return( _TL("Tools for the discretisation/classification of metric gridded data.") );
@@ -96,6 +96,7 @@ const SG_Char * Get_Info(int i)
 #include "Grid_Segmentation.h"
 #include "Grid_FastSegments.h"
 #include "Grid_Skeletonize.h"
+#include "rga_basic.h"
 
 
 //---------------------------------------------------------
@@ -103,41 +104,17 @@ const SG_Char * Get_Info(int i)
 
 CSG_Module *		Create_Module(int i)
 {
-	// Don't forget to continuously enumerate the case switches
-	// when adding new modules! Also bear in mind that the
-	// enumeration always has to start with [case 0:] and
-	// that [default:] must return NULL!...
-
-	CSG_Module	*pModule;
-
 	switch( i )
 	{
-	case 0:
-		pModule	= new CGrid_Classify_Supervised;
-		break;
-
-	case 1:
-		pModule	= new CGrid_Cluster_Analysis;
-		break;
-
-	case 2:
-		pModule	= new CGrid_Segmentation;
-		break;
-
-	case 3:
-		pModule	= new CGrid_FastSegments;
-		break;
-
-	case 4:
-		pModule	= new CGrid_Skeletonize;
-		break;
-
-	default:
-		pModule	= NULL;
-		break;
+	case 0:		return( new CGrid_Classify_Supervised );
+	case 1:		return( new CGrid_Cluster_Analysis );
+	case 2:		return( new CGrid_Segmentation );
+	case 3:		return( new CGrid_FastSegments );
+	case 4:		return( new CGrid_Skeletonize );
+	case 5:		return( new CRGA_Basic );
 	}
 
-	return( pModule );
+	return( NULL );
 }
 
 

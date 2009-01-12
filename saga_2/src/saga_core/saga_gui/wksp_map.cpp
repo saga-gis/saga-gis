@@ -260,6 +260,7 @@ wxMenu * CWKSP_Map::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SAVE_IMAGE);
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SAVE_TO_CLIPBOARD);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND);
 	if( CSG_Doc_PDF::Get_Version() != NULL )
 	{
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SAVE_PDF_INDEXED);
@@ -300,7 +301,11 @@ bool CWKSP_Map::On_Command(int Cmd_ID)
 		break;
 
 	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD:
-		SaveAs_Image_Clipboard();
+		SaveAs_Image_Clipboard(false);
+		break;
+
+	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND:
+		SaveAs_Image_Clipboard(true);
 		break;
 
 	case ID_CMD_MAPS_SAVE_PDF_INDEXED:
@@ -1017,13 +1022,60 @@ void CWKSP_Map::SaveAs_Image(void)
 }
 
 //---------------------------------------------------------
-void CWKSP_Map::SaveAs_Image_Clipboard(void)
+void CWKSP_Map::SaveAs_Image_Clipboard(bool bLegend)
 {
-	SaveAs_Image_Clipboard(
-		Get_Manager()->Get_Parameters()->Get_Parameter("CLIP_NX")	->asInt(),
-		Get_Manager()->Get_Parameters()->Get_Parameter("CLIP_NY")	->asInt(),
-		Get_Manager()->Get_Parameters()->Get_Parameter("CLIP_FRAME")->asInt()
-	);
+	if( bLegend == false )
+	{
+		SaveAs_Image_Clipboard(
+			Get_Manager()->Get_Parameters()->Get_Parameter("CLIP_NX")	->asInt(),
+			Get_Manager()->Get_Parameters()->Get_Parameter("CLIP_NY")	->asInt(),
+			Get_Manager()->Get_Parameters()->Get_Parameter("CLIP_FRAME")->asInt()
+		);
+
+		return;
+	}
+
+	//-----------------------------------------------------
+	// draw a legend...
+
+	Set_Buisy_Cursor(true);
+
+	int			Frame	= Get_Manager()->Get_Parameters()->Get_Parameter("CLIP_LEGEND_FRAME")->asInt();
+	double		Scale	= Get_Manager()->Get_Parameters()->Get_Parameter("CLIP_LEGEND_SCALE")->asDouble();
+	wxSize		s;
+	wxBitmap	BMP;
+	wxMemoryDC	dc;
+
+	if( Get_Legend_Size(s, 1.0, Scale) )
+	{
+		s.x	+= 2 * Frame;
+		s.y	+= 2 * Frame;
+
+		BMP.Create(s.GetWidth(), s.GetHeight());
+		dc.SelectObject(BMP);
+		dc.SetBackground(*wxWHITE_BRUSH);
+		dc.Clear();
+
+		if( Frame > 0 )
+		{
+			dc.SetPen(Get_Color_asWX(Get_Manager()->Get_Parameters()->Get_Parameter("CLIP_LEGEND_COLOR")->asInt()));
+			Draw_Edge(dc, EDGE_STYLE_SIMPLE, 0, 0, s.x - 1, s.y - 1);
+		}
+
+		Draw_Legend(dc, 1.0, Scale, wxPoint(Frame, Frame));
+
+		dc.SelectObject(wxNullBitmap);
+
+		if( wxTheClipboard->Open() )
+		{
+			wxBitmapDataObject	*pBMP	= new wxBitmapDataObject;
+			pBMP->SetBitmap(BMP);
+			wxTheClipboard->SetData(pBMP);
+			wxTheClipboard->Close();
+		}
+	}
+
+	Set_Buisy_Cursor(false);
 }
 
 //---------------------------------------------------------

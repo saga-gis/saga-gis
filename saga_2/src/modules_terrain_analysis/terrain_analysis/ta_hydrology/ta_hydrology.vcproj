@@ -691,6 +691,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\flow_massflux.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Flow_Parallel.cpp"
 				>
 				<FileConfiguration
@@ -1213,6 +1217,10 @@
 			</File>
 			<File
 				RelativePath="Flow_Distance.h"
+				>
+			</File>
+			<File
+				RelativePath=".\flow_massflux.h"
 				>
 			</File>
 			<File

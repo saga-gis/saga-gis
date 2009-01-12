@@ -2111,7 +2111,7 @@ CSG_Parameter_TIN_List::~CSG_Parameter_TIN_List(void)
 CSG_Parameter_Parameters::CSG_Parameter_Parameters(CSG_Parameter *pOwner, long Constraint)
 	: CSG_Parameter_Data(pOwner, Constraint)
 {
-	m_pParameters	= new CSG_Parameters(pOwner->Get_Owner()->Get_Owner(), pOwner->Get_Name(), pOwner->Get_Description());
+	m_pParameters	= new CSG_Parameters(pOwner->Get_Owner()->Get_Owner(), pOwner->Get_Name(), pOwner->Get_Description(), pOwner->Get_Identifier());
 }
 
 CSG_Parameter_Parameters::~CSG_Parameter_Parameters(void)

@@ -182,7 +182,7 @@ public:
 	bool						Get_Image				(wxImage &Image, CSG_Rect &rWorld);
 	void						SaveAs_Image			(void);
 	void						SaveAs_Image_Clipboard	(int nx, int ny, int frame);
-	void						SaveAs_Image_Clipboard	(void);
+	void						SaveAs_Image_Clipboard	(bool bLegend = false);
 	void						SaveAs_Image_On_Change	(void);
 	void						SaveAs_PDF_Indexed		(void);
 	void						SaveAs_Interactive_SVG	(void);

@@ -577,13 +577,19 @@ void CVIEW_Map_Control::On_Key_Down(wxKeyEvent &event)
 	case 'C':
 		if( event.GetModifiers() == wxMOD_CONTROL )
 		{
-			m_pMap->SaveAs_Image_Clipboard();
+			m_pMap->SaveAs_Image_Clipboard(false);
 		}
 		else if( event.GetModifiers() == wxMOD_ALT )
 		{
 			m_pMap->SaveAs_Image_Clipboard(GetClientSize().x, GetClientSize().y, -1);
 		}
 		break;
+
+	case 'L':
+		if( event.GetModifiers() == wxMOD_CONTROL )
+		{
+			m_pMap->SaveAs_Image_Clipboard(true);
+		}
 	}
 }
 

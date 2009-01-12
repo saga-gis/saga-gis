@@ -98,6 +98,7 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
 	bool			bValue;
+	double			dValue;
 	long			lValue;
 	CSG_Parameter	*pNode_0, *pNode_1;
 
@@ -163,6 +164,29 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 		PARAMETER_TYPE_Int,
 		CONFIG_Read(wxT("/MAPS"), wxT("CLIP_FRAME"), lValue) ? lValue : 17,
 		5, true
+	);
+
+	m_Parameters.Add_Value(
+		pNode_1	, "CLIP_LEGEND_SCALE", LNG("[CAP] Legend Scale"),
+		LNG(""),
+		PARAMETER_TYPE_Double,
+		CONFIG_Read(wxT("/MAPS"), wxT("CLIP_LEGEND_SCALE"), dValue) ? dValue : 2.0,
+		1.0, true
+	);
+
+	m_Parameters.Add_Value(
+		pNode_1	, "CLIP_LEGEND_FRAME", LNG("[CAP] Legend Frame Width"),
+		LNG(""),
+		PARAMETER_TYPE_Int,
+		CONFIG_Read(wxT("/MAPS"), wxT("CLIP_LEGEND_FRAME"), lValue) ? lValue : 10,
+		0, true
+	);
+
+	m_Parameters.Add_Value(
+		pNode_1	, "CLIP_LEGEND_COLOR", LNG("[CAP] Legend Border Colour"),
+		LNG(""),
+		PARAMETER_TYPE_Color,
+		CONFIG_Read(wxT("/MAPS"), wxT("CLIP_LEGEND_COLOR"), lValue) ? lValue : SG_GET_RGB(0, 0, 0)
 	);
 }
 

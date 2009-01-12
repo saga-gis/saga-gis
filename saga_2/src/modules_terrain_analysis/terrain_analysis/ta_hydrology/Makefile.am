@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.6 2007-02-13 12:49:32 tschorr Exp $
+# $Id: Makefile.am,v 1.7 2009-01-12 15:22:21 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -23,6 +23,7 @@ Flow_Distance.cpp\
 Flow_Parallel.cpp\
 Flow_RecursiveDown.cpp\
 Flow_RecursiveUp.cpp\
+flow_massflux.cpp\
 FlowDepth.cpp\
 Helper.cpp\
 IsochronesConst.cpp\
@@ -45,6 +46,7 @@ Flow_Distance.h\
 Flow_Parallel.h\
 Flow_RecursiveDown.h\
 Flow_RecursiveUp.h\
+flow_massflux.h\
 FlowDepth.h\
 Helper.h\
 IsochronesConst.h\

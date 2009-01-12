@@ -109,6 +109,8 @@ const SG_Char * Get_Info(int i)
 
 #include "LakeFlood.h"
 
+#include "flow_massflux.h"
+
 
 //---------------------------------------------------------
 CSG_Module *		Create_Module(int i)
@@ -133,6 +135,7 @@ CSG_Module *		Create_Module(int i)
 	case 15:	return( new CSAGA_Wetness_Index );
 	case 16:	return( new CLakeFlood );
 	case 17:	return( new CLakeFloodInteractive );
+	case 18:	return( new CFlow_MassFlux );
 	}
 
 	return( NULL );

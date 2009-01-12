@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.5 2007-02-13 12:49:17 tschorr Exp $
+# $Id: Makefile.am,v 1.6 2009-01-12 15:22:21 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -19,12 +19,14 @@ Grid_FastSegments.cpp\
 Grid_Segmentation.cpp\
 Grid_Skeletonize.cpp\
 MLB_Interface.cpp\
+rgb_basic.cpp\
 Grid_Classify_Supervised.h\
 Grid_Cluster_Analysis.h\
 Grid_FastSegments.h\
 Grid_Segmentation.h\
 Grid_Skeletonize.h\
-MLB_Interface.h
+MLB_Interface.h\
+rgb_basic.h
 
 libgrid_discretisation_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 
