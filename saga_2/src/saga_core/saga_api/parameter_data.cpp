@@ -1040,7 +1040,11 @@ bool CSG_Parameter_File_Name::Get_FilePaths(CSG_Strings &FilePaths)
 
 	if( m_String.Length() > 0 )
 	{
-		if( m_String[0] != '\"' )
+		if( !m_bMultiple )
+		{
+			FilePaths.Add(m_String);
+		}
+		else if( m_String[0] != '\"' )
 		{
 			FilePaths.Add(m_String);
 		}
@@ -1050,10 +1054,9 @@ bool CSG_Parameter_File_Name::Get_FilePaths(CSG_Strings &FilePaths)
 
 			while( s.Length() > 2 )
 			{
-				sTmp	= s.AfterFirst('\"');
-				s		= sTmp;
-
+				s	= s.AfterFirst('\"');
 				FilePaths.Add(s.BeforeFirst('\"'));
+				s	= s.AfterFirst('\"');
 			}
 		}
 	}
