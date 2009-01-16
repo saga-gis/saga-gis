@@ -611,6 +611,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\table_running_average.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Table_Trend.cpp"
 				>
 				<FileConfiguration
@@ -673,6 +677,10 @@
 			</File>
 			<File
 				RelativePath="Table_CalculatorShapes.h"
+				>
+			</File>
+			<File
+				RelativePath=".\table_running_average.h"
 				>
 			</File>
 			<File

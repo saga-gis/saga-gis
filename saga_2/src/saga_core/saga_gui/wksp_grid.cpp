@@ -187,9 +187,9 @@ wxString CWKSP_Grid::Get_Description(void)
 	s.Append(wxT("</table>"));
 
 	//-----------------------------------------------------
-	s.Append(wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), LNG("[CAP] Data History")));
-	s.Append(m_pGrid->Get_History().Get_HTML());
-	s.Append(wxString::Format(wxT("</font")));
+//	s.Append(wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), LNG("[CAP] Data History")));
+//	s.Append(m_pGrid->Get_History().Get_HTML());
+//	s.Append(wxString::Format(wxT("</font")));
 
 	return( s );
 }

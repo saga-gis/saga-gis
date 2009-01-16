@@ -148,9 +148,9 @@ wxString CWKSP_Shapes::Get_Description(void)
 	s.Append(Get_TableInfo_asHTML(m_pShapes));
 
 	//-----------------------------------------------------
-	s.Append(wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), LNG("[CAP] Data History")));
-	s.Append(m_pShapes->Get_History().Get_HTML());
-	s.Append(wxString::Format(wxT("</font")));
+//	s.Append(wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), LNG("[CAP] Data History")));
+//	s.Append(m_pShapes->Get_History().Get_HTML());
+//	s.Append(wxString::Format(wxT("</font")));
 
 	return( s );
 }

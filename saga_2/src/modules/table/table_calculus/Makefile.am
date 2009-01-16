@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.5 2007-02-13 12:49:21 tschorr Exp $
+# $Id: Makefile.am,v 1.6 2009-01-16 14:18:44 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -18,12 +18,14 @@ LMFit.cpp\
 MLB_Interface.cpp\
 Table_Calculator.cpp\
 Table_CalculatorShapes.cpp\
+table_running_average.cpp\
 Table_Trend.cpp\
 Fit.h\
 LMFit.h\
 MLB_Interface.h\
 Table_Calculator.h\
 Table_CalculatorShapes.h\
+table_running_average.h\
 Table_Trend.h
 
 libtable_calculus_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la

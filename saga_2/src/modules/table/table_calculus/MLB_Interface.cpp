@@ -95,47 +95,25 @@ const SG_Char * Get_Info(int i)
 #include "Table_Calculator.h"
 #include "Table_CalculatorShapes.h"
 #include "Table_Trend.h"
+#include "table_running_average.h"
+
 
 //---------------------------------------------------------
 // 4. Allow your modules to be created here...
 
 CSG_Module *		Create_Module(int i)
 {
-	// Don't forget to continuously enumerate the case switches
-	// when adding new modules! Also bear in mind that the
-	// enumeration always has to start with [case 0:] and
-	// that [default:] must return NULL!...
-
-	CSG_Module	*pModule;
-
 	switch( i )
 	{
-	case 0:
-		pModule	= new CFit;
-		break;
-
-	case 1:
-		pModule	= new CTableCalculator;
-		break;
-
-	case 2:
-		pModule	= new CTableCalculatorShapes;
-		break;
-
-	case 3:
-		pModule	= new CTable_Trend;
-		break;
-
-	case 4:
-		pModule	= new CTable_Trend_Shapes;
-		break;
-
-	default:
-		pModule	= NULL;
-		break;
+	case 0:		return( new CFit );
+	case 1:		return( new CTableCalculator );
+	case 2:		return( new CTableCalculatorShapes );
+	case 3:		return( new CTable_Trend );
+	case 4:		return( new CTable_Trend_Shapes );
+	case 5:		return( new CTable_Running_Average );
 	}
 
-	return( pModule );
+	return( NULL );
 }
 
 
