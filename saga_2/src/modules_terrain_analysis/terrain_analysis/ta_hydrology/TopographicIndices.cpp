@@ -171,7 +171,8 @@ CTopographicIndices::CTopographicIndices(void)
 	Parameters.Add_Choice(
 		pNode	, "LS_AREA"			, _TL("Area to Length Conversion"),
 		_TL("Derivation of slope lengths from catchment areas. These are rough approximations! Applies not to Desmot & Govers' method."),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("no conversion (areas already given as specific catchment area)"),
 			_TL("1 / cell size (specific catchment area)"),
 			_TL("square root (catchment length)")
 		), 0
@@ -308,8 +309,8 @@ bool CTopographicIndices::On_Execute(void)
 			else
 			{
 				//-----------------------------------------
-				Area		= pArea	->asDouble(x, y) / Get_Cellsize();	// pseudo specific catchment area...
-				Slope		= pSlope->asDouble(x, y);					// slope as radians...
+				Area		= _Get_Area(pArea->asDouble(x, y));	// specific catchment area...
+				Slope		= pSlope->asDouble(x, y);			// slope as radians...
 				tan_Slope	= tan(Slope);
 				if( tan_Slope < M_ALMOST_ZERO )	tan_Slope	= M_ALMOST_ZERO;
 
@@ -349,6 +350,17 @@ bool CTopographicIndices::On_Execute(void)
 }
 
 //---------------------------------------------------------
+inline double CTopographicIndices::_Get_Area(double Area)
+{
+	switch( m_Method_Area )
+	{
+	default:	return( Area );						// no conversion...
+	case 1:		return( Area / Get_Cellsize() );	// pseudo specific catchment area...
+	case 2:		return( sqrt(Area) );				// pseudo slope length...
+	}
+}
+
+//---------------------------------------------------------
 double CTopographicIndices::_Get_LS(double Slope, double Area)
 {
 	double	LS, sinSlope;
@@ -358,11 +370,7 @@ double CTopographicIndices::_Get_LS(double Slope, double Area)
 	//-----------------------------------------------------
 	case 0:	default:
 		{
-			Area		= m_Method_Area == 0
-						? Area / Get_Cellsize()	// pseudo specific catchment area...
-						: sqrt(Area);			// pseudo slope length
-
-			LS			= (0.4 + 1) * pow(Area / 22.13, 0.4) * pow(sin(Slope) / 0.0896, 1.3);
+			LS			= (0.4 + 1) * pow(_Get_Area(Area) / 22.13, 0.4) * pow(sin(Slope) / 0.0896, 1.3);
 		}
 		break;
 
@@ -413,20 +421,16 @@ double CTopographicIndices::_Get_LS(double Slope, double Area)
 	//-----------------------------------------------------
 	case 2:
 		{
-			Area		= m_Method_Area == 0
-						? Area / Get_Cellsize()	// pseudo specific catchment area...
-						: sqrt(Area);			// pseudo slope length
-
 			sinSlope	= sin(Slope);
 
 			if( Slope > 0.0505 )	// >  ca. 3 Degree
 			{
-				LS		= sqrt(Area / 22.13)
+				LS		= sqrt(_Get_Area(Area) / 22.13)
 						* (65.41 * sinSlope * sinSlope + 4.56 * sinSlope + 0.065);
 			}
 			else					// <= ca. 3 Degree
 			{
-				LS		= pow (Area / 22.13, 3.0 * pow(Slope, 0.6))
+				LS		= pow (_Get_Area(Area) / 22.13, 3.0 * pow(Slope, 0.6))
 						* (65.41 * sinSlope * sinSlope + 4.56 * sinSlope + 0.065);
 			}
 		}

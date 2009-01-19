@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                     flow_width.h                      //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,118 +41,58 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
+//                Bundesstr. 55                          //
+//                20146 Hamburg                          //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-//---------------------------------------------------------
-
-
 ///////////////////////////////////////////////////////////
-//														 //
-//			The Module Link Library Interface			 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
-
+#ifndef HEADER_INCLUDED__flow_width_H
+#define HEADER_INCLUDED__flow_width_H
 
 //---------------------------------------------------------
-const SG_Char * Get_Info(int i)
+#include <saga_api/saga_api.h>
+
+//---------------------------------------------------------
+class CFlow_Width : public CSG_Module_Grid
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Terrain Analysis - Hydrology") );
+public: ////// public members and functions: //////////////
 
-	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad, Victor Olaya (c) 2001-4") );
+	CFlow_Width(void);
 
-	case MLB_INFO_Description:
-		return( _TL("Tools for digital terrain analysis.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Terrain Analysis|Hydrology") );
-	}
-}
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Catchment Area" ));	}
 
 
-//---------------------------------------------------------
-#include "Flow_Parallel.h"
-#include "Flow_RecursiveUp.h"
-#include "Flow_RecursiveDown.h"
-#include "Flow_AreaUpslope.h"
-#include "Flow_AreaDownslope.h"
+protected: /// protected members and functions: ///////////
 
-#include "Flow_Distance.h"
-#include "SlopeLength.h"
-
-#include "EdgeContamination.h"
-
-#include "IsochronesConst.h"
-#include "IsochronesVar.h"
-
-#include "CellBalance.h"
-#include "Sinuosity.h"
-
-#include "FlowDepth.h"
-
-#include "TopographicIndices.h"
-#include "SAGA_Wetness_Index.h"
-
-#include "LakeFlood.h"
-
-#include "flow_massflux.h"
-#include "flow_width.h"
+	virtual bool			On_Execute		(void);
 
 
-//---------------------------------------------------------
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CFlow_Parallel );
-	case  1:	return( new CFlow_RecursiveUp );
-	case  2:	return( new CFlow_RecursiveDown );
-	case  3:	return( new CFlow_AreaUpslope_Interactive );
-	case  4:	return( new CFlow_AreaUpslope_Area );
-	case  5:	return( new CFlow_AreaDownslope );
-	case  6:	return( new CFlow_Distance );
-	case  7:	return( new CSlopeLength );
-	case  8:	return( new CIsochronesConst );
-	case  9:	return( new CIsochronesVar );
-	case 10:	return( new CCellBalance );
-	case 11:	return( new CSinuosity );
-	case 12:	return( new CFlowDepth );
-	case 13:	return( new CEdgeContamination );
-	case 14:	return( new CTopographicIndices );
-	case 15:	return( new CSAGA_Wetness_Index );
-	case 16:	return( new CLakeFlood );
-	case 17:	return( new CLakeFloodInteractive );
-	case 18:	return( new CFlow_MassFlux );
-	case 19:	return( new CFlow_Width );
-	}
+private: ///// private members and functions: /////////////
 
-	return( NULL );
-}
+	CSG_Grid				*m_pDEM;
+
+
+	double					Get_D8			(int x, int y);
+	double					Get_MFD			(int x, int y);
+	double					Get_Aspect		(int x, int y);
+
+};
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__flow_width_H

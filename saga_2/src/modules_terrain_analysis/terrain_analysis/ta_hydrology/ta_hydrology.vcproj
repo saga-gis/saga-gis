@@ -815,6 +815,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\flow_width.cpp"
+				>
+			</File>
+			<File
 				RelativePath="FlowDepth.cpp"
 				>
 				<FileConfiguration
@@ -1233,6 +1237,10 @@
 			</File>
 			<File
 				RelativePath="Flow_RecursiveUp.h"
+				>
+			</File>
+			<File
+				RelativePath=".\flow_width.h"
 				>
 			</File>
 			<File

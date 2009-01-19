@@ -101,6 +101,7 @@ private:
 	double					m_DG_Erosivity;
 
 
+	double					_Get_Area		(double Area);
 	double					_Get_LS			(double Slope, double Area);
 
 };

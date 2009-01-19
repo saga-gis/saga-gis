@@ -18,7 +18,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/BasinGrid.o $(MLB_TEMP)/CellBalance.o $(MLB_TEMP)/EdgeContamination.o $(MLB_TEMP)/Flow.o $(MLB_TEMP)/Flow_AreaDownslope.o $(MLB_TEMP)/Flow_AreaUpslope.o $(MLB_TEMP)/Flow_Distance.o $(MLB_TEMP)/Flow_Parallel.o $(MLB_TEMP)/Flow_RecursiveDown.o $(MLB_TEMP)/Flow_RecursiveUp.o $(MLB_TEMP)/flow_massflux.o $(MLB_TEMP)/FlowDepth.o $(MLB_TEMP)/Helper.o $(MLB_TEMP)/IsochronesConst.o $(MLB_TEMP)/IsochronesVar.o $(MLB_TEMP)/LakeFlood.o $(MLB_TEMP)/LakeFloodInteractive.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/SAGA_Wetness_Index.o $(MLB_TEMP)/Sinuosity.o $(MLB_TEMP)/SlopeLength.o $(MLB_TEMP)/TopographicIndices.o
+OBJ      = $(MLB_TEMP)/BasinGrid.o $(MLB_TEMP)/CellBalance.o $(MLB_TEMP)/EdgeContamination.o $(MLB_TEMP)/Flow.o $(MLB_TEMP)/Flow_AreaDownslope.o $(MLB_TEMP)/Flow_AreaUpslope.o $(MLB_TEMP)/Flow_Distance.o $(MLB_TEMP)/Flow_Parallel.o $(MLB_TEMP)/Flow_RecursiveDown.o $(MLB_TEMP)/Flow_RecursiveUp.o $(MLB_TEMP)/flow_massflux.o $(MLB_TEMP)/flow_width.o $(MLB_TEMP)/FlowDepth.o $(MLB_TEMP)/Helper.o $(MLB_TEMP)/IsochronesConst.o $(MLB_TEMP)/IsochronesVar.o $(MLB_TEMP)/LakeFlood.o $(MLB_TEMP)/LakeFloodInteractive.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/SAGA_Wetness_Index.o $(MLB_TEMP)/Sinuosity.o $(MLB_TEMP)/SlopeLength.o $(MLB_TEMP)/TopographicIndices.o
 
 CXXFLAGS = -I"$(MINGW)/include" -I"$(SAGA)/src/saga_core" -D$(PRJ_NAME)_EXPORTS -DBUILDING_DLL=1 -D_SAGA_MSW -D_SAGA_MINGW -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -fexpensive-optimizations -Os -O2 -O3 $(DEP_INCS) $(DEP_DEFS)
 
@@ -77,6 +77,9 @@ $(MLB_TEMP)/Flow_RecursiveUp.o: ./Flow_RecursiveUp.cpp
 
 $(MLB_TEMP)/flow_massflux.o: ./flow_massflux.cpp
 	$(CPP) -c ./flow_massflux.cpp -o $(MLB_TEMP)/flow_massflux.o $(CXXFLAGS)
+
+$(MLB_TEMP)/flow_width.o: ./flow_width.cpp
+	$(CPP) -c ./flow_width.cpp -o $(MLB_TEMP)/flow_width.o $(CXXFLAGS)
 
 $(MLB_TEMP)/FlowDepth.o: ./FlowDepth.cpp
 	$(CPP) -c ./FlowDepth.cpp -o $(MLB_TEMP)/FlowDepth.o $(CXXFLAGS)
