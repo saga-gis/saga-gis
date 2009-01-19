@@ -773,8 +773,10 @@ void CSG_Parameter_Choice::Del_Items(void)
 void CSG_Parameter_Choice::Set_Items(const SG_Char *String)
 {
 	const SG_Char	*s;
-	int			n;
+	int			n, oldValue;
 	CSG_String	sItem;
+
+	oldValue	= m_Value;
 
 	Del_Items();
 
@@ -804,6 +806,8 @@ void CSG_Parameter_Choice::Set_Items(const SG_Char *String)
 
 	Set_Minimum(0, true);
 	Set_Maximum(nItems - 1, true);
+
+	CSG_Parameter_Int::Set_Value(oldValue);
 }
 
 //---------------------------------------------------------
