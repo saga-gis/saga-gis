@@ -459,7 +459,7 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters)
 					d	= -1.0;
 				}
 
-				pParameter->asGrid_System()->Assign(d, x, y, nx, ny);
+				pParameter->asGrid_System()->Assign(d, x, y, (int)nx, (int)ny);
 			}
 			break;
 		}
