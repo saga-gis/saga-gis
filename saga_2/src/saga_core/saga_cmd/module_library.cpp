@@ -78,7 +78,7 @@
 						? wxString::Format(wxT("%s_%s"), p->Get_Owner()->Get_Identifier(), p->Get_Identifier()) \
 						: wxString::Format(p->Get_Identifier()))
 
-#define GET_ID2(p, s)	wxString::Format(wxT("%s_%s"), GET_ID1(p).c_str(), s)
+#define GET_ID2(p, s)	wxString::Format(wxT("%s_%s"), GET_ID1(p).c_str(), wxT(s))
 
 
 ///////////////////////////////////////////////////////////
@@ -447,14 +447,17 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters)
 		case PARAMETER_TYPE_Grid_System:
 			if( pParameter->Get_Children_Count() == 0 )
 			{
-				int		nx, ny;
+				long	nx, ny;
 				double	d, x, y;
 
-				if( !m_pCMD->Found(GET_ID2(pParameter, "NX"), &l) )	nx	= 1;	else	nx	= (int)l;
-				if( !m_pCMD->Found(GET_ID2(pParameter, "NY"), &l) )	ny	= nx;	else	ny	= (int)l;
-				if( !m_pCMD->Found(GET_ID2(pParameter,  "X"), &s) || !s.ToDouble(&x) )	x	= 0.0;
-				if( !m_pCMD->Found(GET_ID2(pParameter,  "Y"), &s) || !s.ToDouble(&y) )	y	= 0.0;
-				if( !m_pCMD->Found(GET_ID2(pParameter,  "D"), &s) || !s.ToDouble(&d) )	d	= 1.0;
+				if(	!m_pCMD->Found(GET_ID2(pParameter, "NX"), &nx)
+				||	!m_pCMD->Found(GET_ID2(pParameter, "NY"), &ny)
+				||	!m_pCMD->Found(GET_ID2(pParameter,  "X"), &s) || !s.ToDouble(&x)
+				||	!m_pCMD->Found(GET_ID2(pParameter,  "Y"), &s) || !s.ToDouble(&y)
+				||	!m_pCMD->Found(GET_ID2(pParameter,  "D"), &s) || !s.ToDouble(&d) )
+				{
+					d	= -1.0;
+				}
 
 				pParameter->asGrid_System()->Assign(d, x, y, nx, ny);
 			}
