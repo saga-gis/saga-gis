@@ -78,7 +78,7 @@
 						? wxString::Format(wxT("%s_%s"), p->Get_Owner()->Get_Identifier(), p->Get_Identifier()) \
 						: wxString::Format(p->Get_Identifier()))
 
-#define GET_ID2(p, s)	wxString::Format(wxT("%s_%s"), GET_ID1(p).c_str(), wxT(s))
+#define GET_ID2(p, s)	wxString::Format(wxT("%s_%s"), GET_ID1(p).c_str(), s)
 
 
 ///////////////////////////////////////////////////////////
@@ -332,8 +332,8 @@ void CModule_Library::_Set_CMD(CSG_Parameters *pParameters, bool bExtra)
 					break;
 
 				case PARAMETER_TYPE_Range:
-					m_pCMD->AddOption(GET_ID2(pParameter, "MIN"), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-					m_pCMD->AddOption(GET_ID2(pParameter, "MAX"), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+					m_pCMD->AddOption(GET_ID2(pParameter, wxT("MIN")), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+					m_pCMD->AddOption(GET_ID2(pParameter, wxT("MAX")), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
 					break;
 
 				case PARAMETER_TYPE_String:
@@ -349,11 +349,11 @@ void CModule_Library::_Set_CMD(CSG_Parameters *pParameters, bool bExtra)
 				case PARAMETER_TYPE_Grid_System:
 					if( pParameter->Get_Children_Count() == 0 )
 					{
-						m_pCMD->AddOption(GET_ID2(pParameter, "NX"), wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
-						m_pCMD->AddOption(GET_ID2(pParameter, "NY"), wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
-						m_pCMD->AddOption(GET_ID2(pParameter,  "X"), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-						m_pCMD->AddOption(GET_ID2(pParameter,  "Y"), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-						m_pCMD->AddOption(GET_ID2(pParameter,  "D"), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+						m_pCMD->AddOption(GET_ID2(pParameter, wxT("NX")), wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
+						m_pCMD->AddOption(GET_ID2(pParameter, wxT("NY")), wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
+						m_pCMD->AddOption(GET_ID2(pParameter, wxT( "X")), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+						m_pCMD->AddOption(GET_ID2(pParameter, wxT( "Y")), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+						m_pCMD->AddOption(GET_ID2(pParameter, wxT( "D")), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
 					}
 					break;
 				}
@@ -416,12 +416,12 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters)
 			break;
 
 		case PARAMETER_TYPE_Range:
-			if( m_pCMD->Found(GET_ID2(pParameter, "MIN"), &s) && s.ToDouble(&d) )
+			if( m_pCMD->Found(GET_ID2(pParameter, wxT("MIN")), &s) && s.ToDouble(&d) )
 			{
 				pParameter->asRange()->Set_LoVal(d);
 			}
 
-			if( m_pCMD->Found(GET_ID2(pParameter, "MAX"), &s) && s.ToDouble(&d) )
+			if( m_pCMD->Found(GET_ID2(pParameter, wxT("MAX")), &s) && s.ToDouble(&d) )
 			{
 				pParameter->asRange()->Set_HiVal(d);
 			}
@@ -450,11 +450,11 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters)
 				long	nx, ny;
 				double	d, x, y;
 
-				if(	!m_pCMD->Found(GET_ID2(pParameter, "NX"), &nx)
-				||	!m_pCMD->Found(GET_ID2(pParameter, "NY"), &ny)
-				||	!m_pCMD->Found(GET_ID2(pParameter,  "X"), &s) || !s.ToDouble(&x)
-				||	!m_pCMD->Found(GET_ID2(pParameter,  "Y"), &s) || !s.ToDouble(&y)
-				||	!m_pCMD->Found(GET_ID2(pParameter,  "D"), &s) || !s.ToDouble(&d) )
+				if(	!m_pCMD->Found(GET_ID2(pParameter, wxT("NX")), &nx)
+				||	!m_pCMD->Found(GET_ID2(pParameter, wxT("NY")), &ny)
+				||	!m_pCMD->Found(GET_ID2(pParameter, wxT( "X")), &s) || !s.ToDouble(&x)
+				||	!m_pCMD->Found(GET_ID2(pParameter, wxT( "Y")), &s) || !s.ToDouble(&y)
+				||	!m_pCMD->Found(GET_ID2(pParameter, wxT( "D")), &s) || !s.ToDouble(&d) )
 				{
 					d	= -1.0;
 				}
