@@ -651,62 +651,6 @@ bool CSG_Strings::Set_Count(int nStrings)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// From: Johan Van de Wauw <johan@zadeh.ugent.be>
-//
-// The following wxFormatConverter code is copied from wxwidgets wxchar.cpp 
-// The license is compatible with GPL/LGPL
-// It will convert all statements of "%s" to "%ls" in unicode gcc applications. 
-// 
-class wxFormatConverter
-{
-public:
-	wxFormatConverter(const wxChar *format);
-
-	operator const wxChar * () const { return m_fmtOrig ? m_fmtOrig : m_fmt.c_str(); }
-
-private:
-	wxChar CopyFmtChar(wxChar ch)
-	{
-		if ( !m_fmtOrig )
-		{	m_fmt += ch;	}
-		else
-		{	m_nCopied++;	}
-
-		return ch;
-	}
-
-	void InsertFmtChar(wxChar ch)
-	{
-		if ( m_fmtOrig )
-		{	CopyAllBefore();	}
-
-		m_fmt += ch;
-	}
-
-	void CopyAllBefore()
-	{
-	//	wxASSERT_MSG( m_fmtOrig && m_fmt.empty(), _T("logic error") );
-		m_fmt		= wxString(m_fmtOrig, m_nCopied);
-		m_fmtOrig	= NULL;
-	}
-
-	static bool IsFlagChar(wxChar ch)
-	{
-		return ch == _T('-') || ch == _T('+') || ch == _T('0') || ch == _T(' ') || ch == _T('#');
-	}
-
-	void SkipDigits(const wxChar **ptpc)
-	{
-		while ( **ptpc >= _T('0') && **ptpc <= _T('9') )
-			CopyFmtChar(*(*ptpc)++);
-	}
-
-	size_t			m_nCopied;
-	wxString		m_fmt;
-	const wxChar	*m_fmtOrig;
-};
-
-//---------------------------------------------------------
 int				SG_Printf(const SG_Char *Format, ...)
 {
 	int		ret;
@@ -714,13 +658,7 @@ int				SG_Printf(const SG_Char *Format, ...)
 
 	va_start(argptr, Format);
 
-#if !defined(_SAGA_UNICODE)
-	ret	= vprintf (Format, argptr);
-#elif !defined(__GNUC__)
-	ret	= vwprintf(Format, argptr);
-#else
-	ret	= vwprintf(wxFormatConverter(Format), argptr);
-#endif
+	ret	= wxVprintf(Format, argptr);
 
 	va_end(argptr);
 

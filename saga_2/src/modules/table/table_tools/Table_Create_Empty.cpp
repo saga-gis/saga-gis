@@ -73,7 +73,7 @@ CTable_Create_Empty::CTable_Create_Empty(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Create Empty Table"));
 
-	Set_Author		(SG_T("(c) 2005 by O.Conrad"));
+	Set_Author		(SG_T("O. Conrad (c) 2005"));
 
 	Set_Description	(_TW(
 		"Creates a new empty table."
@@ -153,7 +153,8 @@ bool CTable_Create_Empty::On_Execute(void)
 	//-----------------------------------------------------
 	if( Dlg_Parameters(&P, _TL("Field Properties")) )
 	{
-		pTable->Create(Name);
+		pTable->Destroy();
+		pTable->Set_Name(Name);
 
 		for(iField=0; iField<nFields; iField++)
 		{
