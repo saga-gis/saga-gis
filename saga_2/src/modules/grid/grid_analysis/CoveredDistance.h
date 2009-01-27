@@ -22,11 +22,10 @@
 
 #include "MLB_Interface.h"
 
-class CCoveredDistance : public CSG_Module_Grid {
-
+class CCoveredDistance : public CSG_Module_Grid
+{
 public:
 	CCoveredDistance(void);
-	virtual ~CCoveredDistance(void);
 
 protected:
 	

@@ -34,7 +34,7 @@ COWA::COWA(void){
 	Parameters.Add_FixedTable(NULL, 
 							"WEIGHTS", 
 							_TL("Weights"),
-							_TL(""))->asTable();
+							_TL(""));
 
 	Parameters.Add_Grid(NULL,
 						"OUTPUT",
@@ -72,7 +72,7 @@ bool COWA::On_Execute(void){
 	CSG_Table *pTable;
 	CSG_Parameter_Grid_List* pGridsList;
 
-	pTable = Parameters("TABLE")->asTable();
+	pTable = Parameters("WEIGHTS")->asTable();
 	pOutputGrid = Parameters("OUTPUT")->asGrid();
 
 	if( (pGridsList = (CSG_Parameter_Grid_List *)Parameters("GRIDS")->Get_Data()) != 
