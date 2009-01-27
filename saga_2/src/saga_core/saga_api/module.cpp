@@ -196,14 +196,6 @@ bool CSG_Module::Execute(void)
 {
 	bool	bResult	= false;
 
-///////////////////////////////////////////////////////////
-#if !defined(_DEBUG) && defined(_SAGA_VC)
-#define _MODULE_EXCEPTION
-_try 
-{
-#endif
-///////////////////////////////////////////////////////////
-
 	if( m_bExecutes == false )
 	{
 		m_bExecutes		= true;
@@ -215,6 +207,14 @@ _try
 			Parameters.DataObjects_Create();
 			Parameters.Msg_String(false);
 
+///////////////////////////////////////////////////////////
+#if !defined(_DEBUG) && defined(_SAGA_VC)
+#define _MODULE_EXCEPTION
+__try
+{
+#endif
+///////////////////////////////////////////////////////////
+
 			if( (bResult = On_Execute()) == true )
 			{
 				_Set_Output_History();
@@ -225,6 +225,18 @@ _try
 				SG_UI_Msg_Add(LNG("[MSG] Execution has been stopped by user!"), true);
 			}
 
+///////////////////////////////////////////////////////////
+#ifdef _MODULE_EXCEPTION
+}	// try
+__except(1)
+{
+	Message_Add(LNG("[ERR] Module caused access violation!"));
+	Message_Dlg(LNG("[ERR] Module caused access violation!"));
+	bResult	= false;
+}	// except(1)
+#endif
+///////////////////////////////////////////////////////////
+
 			Destroy();
 
 			Parameters.DataObjects_Synchronize();
@@ -232,18 +244,6 @@ _try
 
 		m_bExecutes		= false;
 	}
-
-///////////////////////////////////////////////////////////
-#ifdef _MODULE_EXCEPTION
-}
-_except(1)
-{
-	Message_Add(Get_Name());
-	Message_Add(LNG("[ERR] Access Violation"));
-	Message_Dlg(LNG("[ERR] Access Violation"));
-}
-#endif
-///////////////////////////////////////////////////////////
 
 	return( bResult );
 }

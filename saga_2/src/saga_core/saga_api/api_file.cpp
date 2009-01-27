@@ -221,11 +221,7 @@ int CSG_File::Printf(const SG_Char *Format, ...)
 
 		va_start(argptr, Format);
 
-#ifndef _SAGA_UNICODE
-		result	= vfprintf  (m_pStream, Format, argptr);
-#else
 		result	= wxVfprintf(m_pStream, Format, argptr);
-#endif
 
 		va_end(argptr);
 	}
@@ -244,8 +240,7 @@ int CSG_File::Scanf(const SG_Char *Format, ...) const
 
 		va_start(argptr, Format);
 
-//		TODO...
-//		result	= _input(m_pStream, Format, argptr);
+		result	= 0;	// wxVfscanf(m_pStream, Format, argptr);
 
 		va_end(argptr);
 	}

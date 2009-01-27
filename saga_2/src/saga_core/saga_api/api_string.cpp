@@ -183,6 +183,21 @@ void CSG_String::Clear(void)
 }
 
 //---------------------------------------------------------
+CSG_String CSG_String::Format(const SG_Char *Format, ...)
+{
+	va_list		argptr;
+	CSG_String	s;
+
+	va_start(argptr, Format);
+
+	s.m_pString->PrintfV(Format, argptr);
+
+	va_end(argptr);
+
+	return( s );
+}
+
+//---------------------------------------------------------
 int CSG_String::Printf(const SG_Char *Format, ...)
 {
 	va_list	argptr;
@@ -197,18 +212,17 @@ int CSG_String::Printf(const SG_Char *Format, ...)
 }
 
 //---------------------------------------------------------
-CSG_String CSG_String::Format(const SG_Char *Format, ...)
+int CSG_String::Scanf(const SG_Char *Format, ...)
 {
-	va_list		argptr;
-	CSG_String	s;
+	va_list	argptr;
 
 	va_start(argptr, Format);
 
-	s.m_pString->PrintfV(Format, argptr);
+	int	ret	= SG_Sscanf(m_pString->c_str(), Format, argptr);
 
 	va_end(argptr);
 
-	return( s );
+	return( ret );
 }
 
 //---------------------------------------------------------
@@ -475,7 +489,7 @@ CSG_String CSG_String::Right(size_t count) const
 //---------------------------------------------------------
 CSG_String CSG_String::Mid(size_t first, size_t count) const
 {
-	return( CSG_String(m_pString->Mid(first, count).c_str()) );
+	return( CSG_String(m_pString->Mid(first, count <= 0 ? wxSTRING_MAXLEN : count).c_str()) );
 }
 
 //---------------------------------------------------------
@@ -653,12 +667,25 @@ bool CSG_Strings::Set_Count(int nStrings)
 //---------------------------------------------------------
 int				SG_Printf(const SG_Char *Format, ...)
 {
-	int		ret;
 	va_list	argptr;
 
 	va_start(argptr, Format);
 
-	ret	= wxVprintf(Format, argptr);
+	int		ret	= wxVprintf(Format, argptr);
+
+	va_end(argptr);
+
+	return( ret );
+}
+
+//---------------------------------------------------------
+int				SG_Sscanf(const SG_Char *Buffer, const SG_Char *Format, ...)
+{
+	va_list	argptr;
+
+	va_start(argptr, Format);
+
+	int		ret	= 0;	// wxVsscanf(Buffer, Format, argptr);
 
 	va_end(argptr);
 

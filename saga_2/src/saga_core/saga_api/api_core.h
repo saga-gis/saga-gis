@@ -229,8 +229,9 @@ public:
 	size_t							Length				(void)	const;
 
 	void							Clear				(void);
-	int								Printf				(const SG_Char *Format, ...);
 	static CSG_String				Format				(const SG_Char *Format, ...);
+	int								Printf				(const SG_Char *Format, ...);
+	int								Scanf				(const SG_Char *Format, ...);
 
 	CSG_String &					Append				(const SG_Char *String);
 	CSG_String &					Append				(SG_Char Character);
@@ -272,7 +273,7 @@ public:
 	CSG_String						BeforeLast			(SG_Char Character)				const;
 
 	CSG_String						Right				(size_t count)					const;
-	CSG_String						Mid					(size_t first, size_t count)	const;
+	CSG_String						Mid					(size_t first, size_t count = 0)const;
 	CSG_String						Left				(size_t count) const;
 
 	int								asInt				(void)							const;
@@ -329,6 +330,7 @@ protected:
 
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT int				SG_Printf						(const SG_Char *Format, ...);
+SAGA_API_DLL_EXPORT int				SG_Sscanf						(const SG_Char *Buffer, const SG_Char *Format, ...);
 
 SAGA_API_DLL_EXPORT CSG_String		SG_Get_CurrentTimeStr			(bool bWithDate = true);
 
