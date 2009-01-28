@@ -939,6 +939,8 @@ public:
 	bool						Set_Value				(void       *Value);
 	bool						Set_Value				(const SG_Char *Value);
 
+	bool						has_Changed				(void);
+
 	bool						asBool					(void)	{	return( (bool          )!!m_pData->asInt	() );	}
 	int							asInt					(void)	{	return( (int           )m_pData->asInt		() );	}
 	long						asColor					(void)	{	return( (long          )m_pData->asInt		() );	}

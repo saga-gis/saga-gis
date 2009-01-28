@@ -448,10 +448,7 @@ bool CSG_Parameter::Set_Value(int Value)
 {
 	if( m_pData->Set_Value(Value) )
 	{
-		if( m_pOwner )
-		{
-			m_pOwner->_On_Parameter_Changed(this);
-		}
+		has_Changed();
 
 		return( true );
 	}
@@ -464,10 +461,7 @@ bool CSG_Parameter::Set_Value(double Value)
 {
 	if( m_pData->Set_Value(Value) )
 	{
-		if( m_pOwner )
-		{
-			m_pOwner->_On_Parameter_Changed(this);
-		}
+		has_Changed();
 
 		return( true );
 	}
@@ -480,10 +474,7 @@ bool CSG_Parameter::Set_Value(void *Value)
 {
 	if( m_pData->Set_Value(Value) )
 	{
-		if( m_pOwner )
-		{
-			m_pOwner->_On_Parameter_Changed(this);
-		}
+		has_Changed();
 
 		return( true );
 	}
@@ -495,6 +486,17 @@ bool CSG_Parameter::Set_Value(void *Value)
 bool CSG_Parameter::Set_Value(const SG_Char *Value)
 {
 	return( Set_Value((void *)Value) );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter::has_Changed(void)
+{
+	if( m_pOwner )
+	{
+		return( m_pOwner->_On_Parameter_Changed(this) );
+	}
+
+	return( false );
 }
 
 
