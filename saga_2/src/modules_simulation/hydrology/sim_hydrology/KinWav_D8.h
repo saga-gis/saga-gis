@@ -84,40 +84,33 @@ class CKinWav_D8 : public CSG_Module_Grid
 {
 public:
 	CKinWav_D8(void);
-	virtual ~CKinWav_D8(void);
 
 
 protected:
 
-	virtual bool		On_Execute(void);
+	virtual bool		On_Execute			(void);
 
 
 private:
 
-	typedef struct
-	{
-		int				x, y;
-	}
-	TPoint;
+	double				m_dTime, Newton_MaxIter, Newton_Epsilon;
+
+	CSG_Grid			*m_pDEM, *m_pFlow, m_Direction, m_Alpha, m_Flow_Last;
+
+	CSG_Table			*m_pGauges_Flow;
+
+	CSG_Shapes			*m_pGauges;
 
 
-	double				Time_Step, Newton_MaxIter, Newton_Epsilon, P;
+	bool				Initialize			(double Roughness);
+	bool				Finalize			(void);
 
-	TPoint				*pos_Gauges;
+	bool				Set_Gauges			(void);
 
-	CSG_Grid				*pDTM, *pWater,
-						*pAlpha, *pFlow_Dir,
-						*pFlow, *pFlow_Last;
+	void				Get_Precipitation	(double Time);
 
-	CSG_Table				*pGauges;
-
-
-	bool				Initialize(void);
-	bool				Finalize(void);
-
-	void				Set_Runoff(int x, int y);
-
-	double				Get_Runoff(double q_Up, double q_Last, double dL, double alpha, double r, double r_Last);
+	void				Get_Runoff			(int x, int y);
+	double				Get_Runoff			(double q_Up, double q_Last, double alpha, double dL, double r, double r_Last);
 
 };
 

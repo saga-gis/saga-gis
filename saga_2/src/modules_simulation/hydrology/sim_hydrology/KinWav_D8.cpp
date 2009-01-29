@@ -76,9 +76,9 @@ CKinWav_D8::CKinWav_D8(void)
 {
 	CSG_Parameter	*pNode;
 
-	Set_Name	(_TL("Overland Flow - Kinematic Wave D8"));
+	Set_Name		(_TL("Overland Flow - Kinematic Wave D8"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		(SG_T("O. Conrad (c) 2003"));
 
 	Set_Description	(_TW(
 		"Overland Flow - Kinematic Wave D8"
@@ -91,41 +91,47 @@ CKinWav_D8::CKinWav_D8(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "DTM"			, _TL("Elevation"),
+		NULL	, "DEM"			, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "RUNOFF"		, _TL("Runoff"),
+		NULL	, "FLOW"		, _TL("Runoff"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
+	Parameters.Add_Shapes(
+		NULL	, "GAUGES"		, _TL("Gauges"),
+		_TL(""),
+		PARAMETER_INPUT_OPTIONAL
+	);
+
 	Parameters.Add_Table(
-		NULL	, "GAUGES"		, _TL("Outlets"),
+		NULL	, "GAUGES_Q"	, _TL("Flow at Gauges"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Value(
-		NULL	, "TIME_END"	, _TL("Simulation Time [h]"),
+		NULL	, "TIME_SPAN"	, _TL("Simulation Time [h]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 24.0
+		PARAMETER_TYPE_Double, 24.0, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "TIME_STEP"	, _TL("Simulation Time Step [h]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.1
+		PARAMETER_TYPE_Double,  0.1, 0.0, true
 	);
 
 	Parameters.Add_Value(
 		NULL	, "ROUGHNESS"	, _TL("Manning's Roughness"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0
+		PARAMETER_TYPE_Double,  1.0, 0.0, true
 	);
 
 	//-----------------------------------------------------
@@ -162,177 +168,6 @@ CKinWav_D8::CKinWav_D8(void)
 	);
 }
 
-//---------------------------------------------------------
-CKinWav_D8::~CKinWav_D8(void)
-{}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CKinWav_D8::Initialize(void)
-{
-	int			x, y, i, ix, iy, iMax;
-	double		z, dz, dzMax, Roughness, t;
-	CSG_String	s;
-
-
-	//-----------------------------------------------------
-	// 1. Get DTM...
-
-	pDTM			= Parameters("DTM")->asGrid();
-
-	Roughness		= Parameters("ROUGHNESS")->asDouble();
-
-	Newton_MaxIter	= Parameters("NEWTON_MAXITER")->asInt();
-	Newton_Epsilon	= Parameters("NEWTON_EPSILON")->asDouble();
-
-
-	//-----------------------------------------------------
-	// 2. Gauges Table...
-
-	pos_Gauges	= NULL;
-
-	if( (pGauges = Parameters("GAUGES")->asTable()) != NULL )
-	{
-		pGauges->Destroy();
-		pGauges->Set_Name(_TL("Outlet Hydrographs"));
-		pGauges->Add_Field("TIME", TABLE_FIELDTYPE_Double);
-	}
-
-
-	//-----------------------------------------------------
-	// 3. Calculate Alphas...
-
-	pAlpha		= new CSG_Grid(pDTM, GRID_TYPE_Float);
-	pFlow_Dir	= new CSG_Grid(pDTM, GRID_TYPE_Char);
-
-	for(y=0; y<pDTM->Get_NY(); y++)
-	{
-		for(x=0; x<pDTM->Get_NX(); x++)
-		{
-			if( pDTM->is_NoData(x, y) )
-			{
-				pAlpha->Set_NoData(x, y);
-				pFlow_Dir->Set_Value(x, y, -1);
-			}
-			else
-			{
-				dzMax	= 0.0;
-				iMax	= -1;
-				z		= pDTM->asDouble(x, y);
-
-				for(i=0; i<8; i++)
-				{
-					ix	= Get_xTo(i, x);
-					iy	= Get_yTo(i, y);
-
-					if( !is_InGrid(ix, iy) )
-					{
-					}
-					else if( (dz = pDTM->asDouble(ix, iy)) < z )
-					{
-						dz	= (z - dz) / Get_Length(i);
-
-						if( iMax < 0 || dz > dzMax )
-						{
-							dzMax	= dz;
-							iMax	= i;
-						}
-					}
-				}
-
-				if( iMax >= 0 )
-				{
-					pAlpha->Set_Value(x, y, pow(Roughness / sqrt(dzMax), Beta));
-				}
-				else
-				{
-					pAlpha->Set_NoData(x, y);
-
-					if( pGauges )
-					{
-						i				= pGauges->Get_Field_Count() - 1;
-						s.Printf(SG_T("GAUGE_%02d"), i + 1);
-						pGauges->Add_Field(s, TABLE_FIELDTYPE_Double);
-
-						pos_Gauges		= (TPoint *)SG_Realloc(pos_Gauges, (i + 1) * sizeof(TPoint));
-						pos_Gauges[i].x	= x;
-						pos_Gauges[i].y	= y;
-					}
-				}
-
-				pFlow_Dir->Set_Value(x, y, iMax);
-			}
-		}
-	}
-
-
-	//-----------------------------------------------------
-	// 4. Get and initialize Flow grids...
-
-	pFlow		= Parameters("RUNOFF")->asGrid();
-	pFlow->Assign();
-
-	DataObject_Set_Colors(pFlow, 100, SG_COLORS_YELLOW_BLUE);
-
-	pFlow_Last	= new CSG_Grid(pDTM, GRID_TYPE_Float);
-
-	//-----------------------------------------------------
-	switch( Parameters("PRECIP")->asInt() )
-	{
-	case 0:
-		pFlow->Assign(100.0);
-		break;
-
-	case 1:
-		t	= Parameters("THRESHOLD")->asDouble();
-
-		for(y=0; y<pDTM->Get_NY(); y++)
-		{
-			for(x=0; x<pDTM->Get_NX(); x++)
-			{
-				pFlow->Set_Value(x, y, !pDTM->is_NoData(x, y) && pDTM->asDouble(x, y) > t ? 100.0 : 0.0);
-			}
-		}
-		break;
-
-	case 2:
-		for(y=0; y<pDTM->Get_NY(); y++)
-		{
-			for(x=0; x<pDTM->Get_NX() / 2; x++)
-			{
-				pFlow->Set_Value(x, y, !pDTM->is_NoData(x, y) ? 100.0 : 0.0);
-			}
-		}
-		break;
-	}
-
-	DataObject_Update(pFlow, 0, 200, true);
-
-	//-----------------------------------------------------
-	return( true );
-}
-
-//---------------------------------------------------------
-bool CKinWav_D8::Finalize(void)
-{
-	delete(pFlow_Last);
-	delete(pFlow_Dir);
-	delete(pAlpha);
-
-	if( pos_Gauges )
-	{
-		SG_Free(pos_Gauges);
-	}
-
-	return( true );
-}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -343,68 +178,70 @@ bool CKinWav_D8::Finalize(void)
 //---------------------------------------------------------
 bool CKinWav_D8::On_Execute(void)
 {
-	int				x, y, n;
-	double			Time, Time_End;
-	CSG_String		s;
-	CSG_Table_Record	*pRecord;
+	double	Roughness;
 
 	//-----------------------------------------------------
-	if( Initialize() )
+	m_pDEM				= Parameters("DEM")				->asGrid();
+	m_pFlow				= Parameters("FLOW")			->asGrid();
+
+	m_pGauges			= Parameters("GAUGES")			->asShapes();
+	m_pGauges_Flow		= Parameters("GAUGES_Q")		->asTable();
+
+	Newton_MaxIter		= Parameters("NEWTON_MAXITER")	->asInt();
+	Newton_Epsilon		= Parameters("NEWTON_EPSILON")	->asDouble();
+
+	Roughness			= Parameters("ROUGHNESS")		->asDouble();
+
+	//-----------------------------------------------------
+	if( Initialize(Roughness) )
 	{
-		Time_End	= Parameters("TIME_END")->asDouble();
-		Time_Step	= Parameters("TIME_STEP")->asDouble();
+		int		x, y, n;
+		double	Time, Time_Span, Flow;
 
-		P			= 0.0;
-//		pFlow->Assign(0);
+		Set_Gauges();
 
-		for(Time=0.0; Time<=Time_End && Set_Progress(Time, Time_End); Time+=Time_Step)
+		Time_Span		= Parameters("TIME_SPAN")		->asDouble();
+		m_dTime			= Parameters("TIME_STEP")		->asDouble();
+
+		for(Time=0.0; Time<=Time_Span && Set_Progress(Time, Time_Span); Time+=m_dTime)
 		{
-//			P	= 2 * (1 - cos(GRAD2PI * Time * 360 / 1));
-//			if( Time < 1.0 )
-//			{
-//				P	= 50 * (1.0 - Time);
-//			}
-//			else	P	= 0.0;
+			Process_Set_Text(CSG_String::Format(SG_T("%s [h]: %f (%f)"), _TL("Simulation Time"), Time, Time_Span));
 
-			s.Printf(_TL("Simulation Time [h]: %f / %f"), Time, Time_End);
-			Process_Set_Text(s);
+			m_Flow_Last  .Assign(m_pFlow);
 
-			//---------------------------------------------
-			pFlow_Last->Assign(pFlow);
-			pFlow->Assign();
+			Get_Precipitation(Time);
 
-			for(n=0; n<pDTM->Get_NCells(); n++)
+			for(n=0; n<m_pDEM->Get_NCells(); n++)
 			{
-				pDTM->Get_Sorted(n, x, y, true, false);
-
-				if( pDTM->is_NoData(x, y) )
+				if( m_pDEM->Get_Sorted(n, x, y) )
 				{
-					pFlow->Set_NoData(x, y);
+					Get_Runoff(x, y);
 				}
 				else
 				{
-					Set_Runoff(x, y);
+					m_pFlow->Set_NoData(x, y);
 				}
 			}
+
+			DataObject_Update(m_pFlow, 0.0, 100.0);
 
 			//---------------------------------------------
-			if( pGauges && pGauges->Get_Field_Count() > 1 )
+			if( m_pGauges_Flow && m_pGauges_Flow->Get_Field_Count() == m_pGauges->Get_Count() + 1 )
 			{
-				pRecord	= pGauges->Add_Record();
+				CSG_Table_Record	*pRecord	= m_pGauges_Flow->Add_Record();
+
 				pRecord->Set_Value(0, Time);
 
-				for(n=0; n<pGauges->Get_Field_Count() - 1; n++)
+				for(n=0; n<m_pGauges->Get_Count(); n++)
 				{
-					x	= pos_Gauges[n].x;
-					y	= pos_Gauges[n].y;
-
-					pRecord->Set_Value(n + 1, pFlow->asDouble(x, y));
-
-					pFlow->Set_Value(x, y, 0.0);
+					if( m_pFlow->Get_Value(m_pGauges->Get_Shape(n)->Get_Point(0), Flow) )
+					{
+						pRecord->Set_Value(n + 1, Flow);
+					}
 				}
-			}
 
-			DataObject_Update_All();
+				DataObject_Update(m_pGauges_Flow);
+			}
 		}
 
 		//-------------------------------------------------
@@ -417,33 +254,213 @@ bool CKinWav_D8::On_Execute(void)
 	return( false );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-void CKinWav_D8::Set_Runoff(int x, int y)
+bool CKinWav_D8::Initialize(double Roughness)
 {
-	int		i, ix, iy;
-	double	q;
+	m_Flow_Last	.Create(*Get_System(), GRID_TYPE_Float);
+	m_Alpha		.Create(*Get_System(), GRID_TYPE_Float);
+	m_Direction	.Create(*Get_System(), GRID_TYPE_Char);
+	m_Direction	.Set_NoData_Value(-1);
 
-	if( (i = pFlow_Dir->asChar(x, y)) >= 0 )
+	m_pFlow->Assign(0.0);
+	DataObject_Set_Colors(m_pFlow, 100, SG_COLORS_WHITE_BLUE);
+	DataObject_Update(m_pFlow, SG_UI_DATAOBJECT_SHOW);
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		ix	= Get_xTo(i, x);
-		iy	= Get_yTo(i, y);
+		for(int x=0; x<Get_NX(); x++)
+		{
+			int		Direction	= m_pDEM->Get_Gradient_NeighborDir(x, y);
 
-		q	= Get_Runoff(pFlow->asDouble(x, y), pFlow_Last->asDouble(x, y), Get_UnitLength(i), pAlpha->asDouble(x, y), P, P);
+			if( Direction < 0 )
+			{
+				m_Direction	 .Set_NoData(x, y);
+			}
+			else
+			{
+				double	d	= (m_pDEM->asDouble(x, y) - m_pDEM->asDouble(Get_xTo(Direction, x), Get_yTo(Direction, y))) / Get_Length(Direction);
 
-		pFlow->Set_Value(x, y, q);
-		pFlow->Add_Value(ix, iy, pFlow_Last->asDouble(x, y));
+				m_Alpha		.Set_Value(x, y, pow(Roughness / sqrt(d), Beta));
+
+				m_Direction	.Set_Value(x, y, Direction);
+			}
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CKinWav_D8::Finalize(void)
+{
+	m_Direction	.Destroy();
+	m_Alpha		.Destroy();
+	m_Flow_Last	.Destroy();
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CKinWav_D8::Set_Gauges(void)
+{
+	if( m_pGauges_Flow != NULL )
+	{
+		if( m_pGauges == NULL )
+		{
+			DataObject_Add(m_pGauges = SG_Create_Shapes(SHAPE_TYPE_Point, _TL("Gauges")));
+
+			Parameters("GAUGES")->Set_Value(m_pGauges);
+
+			m_pGauges->Add_Field(_TL("ID"), TABLE_FIELDTYPE_Int);
+
+			for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+			{
+				for(int x=0; x<Get_NX(); x++)
+				{
+					bool	bBorder	= false;
+					bool	bLowest	= true;
+
+					for(int i=0; i<8; i++)
+					{
+						int	ix	= Get_xTo(i, x);
+						int	iy	= Get_yTo(i, y);
+
+						if( !m_pDEM->is_InGrid(ix, iy) )
+						{
+							bBorder	= true;
+						}
+						else if( m_pDEM->asDouble(ix, iy) < m_pDEM->asDouble(x, y) )
+						{
+							bLowest	= false;
+						}
+					}
+
+					if( bLowest && bBorder )
+					{
+						CSG_Shape	*pGauge	= m_pGauges->Add_Shape();
+
+						pGauge->Add_Point(Get_System()->Get_Grid_to_World(x, y));
+						pGauge->Set_Value(0, m_pGauges->Get_Count() + 1);
+					}
+				}
+			}
+		}
+
+		m_pGauges_Flow->Destroy();
+		m_pGauges_Flow->Set_Name(_TL("Outlet Hydrographs"));
+		m_pGauges_Flow->Add_Field("TIME", TABLE_FIELDTYPE_Double);
+
+		for(int i=0; i<m_pGauges->Get_Count(); i++)
+		{
+			m_pGauges_Flow->Add_Field(CSG_String::Format(SG_T("GAUGE_%02d"), i + 1), TABLE_FIELDTYPE_Double);
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CKinWav_D8::Get_Precipitation(double Time)
+{
+	if( Time > 0.0 )
+	{
+		m_pFlow->Assign(0.0);
+	}
+	else
+	{
+		int		x, y;
+		double	t;
+
+		switch( Parameters("PRECIP")->asInt() )
+		{
+		case 0:
+			m_pFlow->Assign(100.0);
+			break;
+
+		case 1:
+			t	= Parameters("THRESHOLD")->asDouble();
+
+			for(y=0; y<m_pDEM->Get_NY(); y++)
+			{
+				for(x=0; x<m_pDEM->Get_NX(); x++)
+				{
+					m_pFlow->Set_Value(x, y, !m_pDEM->is_NoData(x, y) && m_pDEM->asDouble(x, y) > t ? 100.0 : 0.0);
+				}
+			}
+			break;
+
+		case 2:
+			for(y=0; y<m_pDEM->Get_NY(); y++)
+			{
+				for(x=0; x<m_pDEM->Get_NX() / 2; x++)
+				{
+					m_pFlow->Set_Value(x, y, !m_pDEM->is_NoData(x, y) ? 100.0 : 0.0);
+				}
+			}
+			break;
+		}
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CKinWav_D8::Get_Runoff(int x, int y)
+{
+	int		Direction	= m_Direction.asChar(x, y);
+
+	if( Direction >= 0 )
+	{
+		m_pFlow->Set_Value(x, y, 
+			Get_Runoff(
+				m_pFlow		->asDouble(x, y),
+				m_Flow_Last	 .asDouble(x, y),
+				m_Alpha		 .asDouble(x, y),
+				Get_UnitLength(Direction), 0.0, 0.0
+			)
+		);
+
+		m_pFlow->Add_Value(Get_xTo(Direction, x), Get_yTo(Direction, y), m_Flow_Last.asDouble(x, y));
 	}
 }
 
 //---------------------------------------------------------
-double CKinWav_D8::Get_Runoff(double q_Up, double q_Last, double dL, double alpha, double r, double r_Last)
+double CKinWav_D8::Get_Runoff(double q_Up, double q_Last, double alpha, double dL, double r, double r_Last)
 {
-	int		i;
 	double	dTdL, d, c, q, Res, dRes, dR;
 
 	//-----------------------------------------------------
-	dTdL	= Time_Step / dL;
-	dR		= Time_Step / 2.0 * (r + r_Last);
+	dTdL	= m_dTime / dL;
+	dR		= m_dTime / 2.0 * (r + r_Last);
 
 
 	//-----------------------------------------------------
@@ -465,7 +482,7 @@ double CKinWav_D8::Get_Runoff(double q_Up, double q_Last, double dL, double alph
 
 	c	= dTdL * q_Up + alpha * pow(q_Last, Beta) + dR;
 
-	for(i=0; i<Newton_MaxIter; i++)
+	for(int i=0; i<Newton_MaxIter; i++)
 	{
 		if( q <= 0 )
 		{
@@ -485,7 +502,7 @@ double CKinWav_D8::Get_Runoff(double q_Up, double q_Last, double dL, double alph
 		}
 	}
 
-	return( q );
+	return( q < 0.0 ? 0.0 : q );
 }
 
 
