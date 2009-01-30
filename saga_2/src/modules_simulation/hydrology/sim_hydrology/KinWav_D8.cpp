@@ -203,15 +203,17 @@ bool CKinWav_D8::On_Execute(void)
 		Time_Span		= Parameters("TIME_SPAN")		->asDouble();
 		m_dTime			= Parameters("TIME_STEP")		->asDouble();
 
-		for(Time=0.0; Time<=Time_Span && Set_Progress(Time, Time_Span); Time+=m_dTime)
+		for(Time=0.0; Time<=Time_Span && Process_Get_Okay(false); Time+=m_dTime)
 		{
 			Process_Set_Text(CSG_String::Format(SG_T("%s [h]: %f (%f)"), _TL("Simulation Time"), Time, Time_Span));
 
-			m_Flow_Last  .Assign(m_pFlow);
+			m_Flow_Last.Assign(m_pFlow);
 
 			Get_Precipitation(Time);
 
-			for(n=0; n<m_pDEM->Get_NCells(); n++)
+			m_pFlow->Assign(0.0);
+
+			for(n=0; n<m_pDEM->Get_NCells() && Process_Get_Okay(false); n++)
 			{
 				if( m_pDEM->Get_Sorted(n, x, y) )
 				{
@@ -271,26 +273,43 @@ bool CKinWav_D8::Initialize(double Roughness)
 
 	m_pFlow->Assign(0.0);
 	DataObject_Set_Colors(m_pFlow, 100, SG_COLORS_WHITE_BLUE);
-	DataObject_Update(m_pFlow, SG_UI_DATAOBJECT_SHOW);
+	DataObject_Update(m_pFlow, 0.0, 100.0, SG_UI_DATAOBJECT_SHOW);
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
-			int		Direction	= m_pDEM->Get_Gradient_NeighborDir(x, y);
-
-			if( Direction < 0 )
+			if( !m_pDEM->is_NoData(x, y) )
 			{
-				m_Direction	 .Set_NoData(x, y);
-			}
-			else
-			{
-				double	d	= (m_pDEM->asDouble(x, y) - m_pDEM->asDouble(Get_xTo(Direction, x), Get_yTo(Direction, y))) / Get_Length(Direction);
+				int		i, ix, iy, iMax;
+				double	z, d, dMax;
 
-				m_Alpha		.Set_Value(x, y, pow(Roughness / sqrt(d), Beta));
+				for(i=0, iMax=-1, dMax=0.0, z=m_pDEM->asDouble(x, y); i<8; i++)
+				{
+					ix	= Get_xTo(i, x);
+					iy	= Get_yTo(i, y);
 
-				m_Direction	.Set_Value(x, y, Direction);
+					if( is_InGrid(ix, iy) && (d = (z - m_pDEM->asDouble(ix, iy)) / Get_Length(i)) > dMax )
+					{
+						dMax	= d;
+						iMax	= i;
+					}
+				}
+
+				if( iMax < 0 )
+				{
+					m_Direction	 .Set_NoData(x, y);
+				}
+				else
+				{
+					m_Direction	.Set_Value(x, y, iMax);
+
+					m_Alpha		.Set_Value(x, y, pow(Roughness / sqrt(dMax), Beta));
+
+					if( m_Alpha.asDouble(x, y) > 10 )
+						m_Alpha.Set_Value(x, y, 10);
+				}
 			}
 		}
 	}
@@ -386,11 +405,7 @@ bool CKinWav_D8::Set_Gauges(void)
 //---------------------------------------------------------
 void CKinWav_D8::Get_Precipitation(double Time)
 {
-	if( Time > 0.0 )
-	{
-		m_pFlow->Assign(0.0);
-	}
-	else
+	if( Time == 0.0 )
 	{
 		int		x, y;
 		double	t;
@@ -398,7 +413,7 @@ void CKinWav_D8::Get_Precipitation(double Time)
 		switch( Parameters("PRECIP")->asInt() )
 		{
 		case 0:
-			m_pFlow->Assign(100.0);
+			m_Flow_Last	+= 100.0;
 			break;
 
 		case 1:
@@ -408,7 +423,10 @@ void CKinWav_D8::Get_Precipitation(double Time)
 			{
 				for(x=0; x<m_pDEM->Get_NX(); x++)
 				{
-					m_pFlow->Set_Value(x, y, !m_pDEM->is_NoData(x, y) && m_pDEM->asDouble(x, y) > t ? 100.0 : 0.0);
+					if( !m_pDEM->is_NoData(x, y) && m_pDEM->asDouble(x, y) > t )
+					{
+						m_Flow_Last.Add_Value(x, y, 100.0);
+					}
 				}
 			}
 			break;
@@ -418,7 +436,10 @@ void CKinWav_D8::Get_Precipitation(double Time)
 			{
 				for(x=0; x<m_pDEM->Get_NX() / 2; x++)
 				{
-					m_pFlow->Set_Value(x, y, !m_pDEM->is_NoData(x, y) ? 100.0 : 0.0);
+					if( !m_pDEM->is_NoData(x, y) )
+					{
+						m_Flow_Last.Add_Value(x, y, 100.0);
+					}
 				}
 			}
 			break;
