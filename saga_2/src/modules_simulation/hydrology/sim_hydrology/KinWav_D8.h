@@ -102,15 +102,16 @@ private:
 	CSG_Shapes			*m_pGauges;
 
 
+	void				Get_Runoff			(int x, int y);
+	double				Get_Runoff			(double q_Up, double q_Last, double alpha, double dL, double r, double r_Last);
+
 	bool				Initialize			(double Roughness);
 	bool				Finalize			(void);
 
-	bool				Set_Gauges			(void);
+	bool				Gauges_Initialise	(void);
+	bool				Gauges_Set_Flow		(double Time);
 
 	void				Get_Precipitation	(double Time);
-
-	void				Get_Runoff			(int x, int y);
-	double				Get_Runoff			(double q_Up, double q_Last, double alpha, double dL, double r, double r_Last);
 
 };
 

@@ -61,7 +61,7 @@
 #include "KinWav_D8.h"
 
 //---------------------------------------------------------
-#define Beta		(3.0 / 5.0)
+#define Beta_0		(3.0 / 5.0)
 #define Beta_1		(3.0 / 5.0 - 1.0)
 
 
@@ -106,11 +106,11 @@ CKinWav_D8::CKinWav_D8(void)
 	Parameters.Add_Shapes(
 		NULL	, "GAUGES"		, _TL("Gauges"),
 		_TL(""),
-		PARAMETER_INPUT_OPTIONAL
+		PARAMETER_INPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Table(
-		NULL	, "GAUGES_Q"	, _TL("Flow at Gauges"),
+		NULL	, "GAUGES_FLOW"	, _TL("Flow at Gauges"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
@@ -131,7 +131,7 @@ CKinWav_D8::CKinWav_D8(void)
 	Parameters.Add_Value(
 		NULL	, "ROUGHNESS"	, _TL("Manning's Roughness"),
 		_TL(""),
-		PARAMETER_TYPE_Double,  1.0, 0.0, true
+		PARAMETER_TYPE_Double,  0.03, 0.0, true
 	);
 
 	//-----------------------------------------------------
@@ -185,7 +185,7 @@ bool CKinWav_D8::On_Execute(void)
 	m_pFlow				= Parameters("FLOW")			->asGrid();
 
 	m_pGauges			= Parameters("GAUGES")			->asShapes();
-	m_pGauges_Flow		= Parameters("GAUGES_Q")		->asTable();
+	m_pGauges_Flow		= Parameters("GAUGES_FLOW")		->asTable();
 
 	Newton_MaxIter		= Parameters("NEWTON_MAXITER")	->asInt();
 	Newton_Epsilon		= Parameters("NEWTON_EPSILON")	->asDouble();
@@ -196,9 +196,9 @@ bool CKinWav_D8::On_Execute(void)
 	if( Initialize(Roughness) )
 	{
 		int		x, y, n;
-		double	Time, Time_Span, Flow;
+		double	Time, Time_Span;
 
-		Set_Gauges();
+		Gauges_Initialise();
 
 		Time_Span		= Parameters("TIME_SPAN")		->asDouble();
 		m_dTime			= Parameters("TIME_STEP")		->asDouble();
@@ -207,9 +207,9 @@ bool CKinWav_D8::On_Execute(void)
 		{
 			Process_Set_Text(CSG_String::Format(SG_T("%s [h]: %f (%f)"), _TL("Simulation Time"), Time, Time_Span));
 
-			m_Flow_Last.Assign(m_pFlow);
-
 			Get_Precipitation(Time);
+
+			m_Flow_Last.Assign(m_pFlow);
 
 			m_pFlow->Assign(0.0);
 
@@ -227,23 +227,7 @@ bool CKinWav_D8::On_Execute(void)
 
 			DataObject_Update(m_pFlow, 0.0, 100.0);
 
-			//---------------------------------------------
-			if( m_pGauges_Flow && m_pGauges_Flow->Get_Field_Count() == m_pGauges->Get_Count() + 1 )
-			{
-				CSG_Table_Record	*pRecord	= m_pGauges_Flow->Add_Record();
-
-				pRecord->Set_Value(0, Time);
-
-				for(n=0; n<m_pGauges->Get_Count(); n++)
-				{
-					if( m_pFlow->Get_Value(m_pGauges->Get_Shape(n)->Get_Point(0), Flow) )
-					{
-						pRecord->Set_Value(n + 1, Flow);
-					}
-				}
-
-				DataObject_Update(m_pGauges_Flow);
-			}
+			Gauges_Set_Flow(Time);
 		}
 
 		//-------------------------------------------------
@@ -254,6 +238,85 @@ bool CKinWav_D8::On_Execute(void)
 
 	//-----------------------------------------------------
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CKinWav_D8::Get_Runoff(int x, int y)
+{
+	int		Direction	= m_Direction.asChar(x, y);
+
+	if( Direction >= 0 )
+	{
+		m_pFlow->Set_Value(x, y, 
+			Get_Runoff(
+				m_pFlow		->asDouble(x, y),
+				m_Flow_Last	 .asDouble(x, y),
+				m_Alpha		 .asDouble(x, y),
+				Get_UnitLength(Direction), 0.0, 0.0
+			)
+		);
+
+		m_pFlow->Add_Value(Get_xTo(Direction, x), Get_yTo(Direction, y), m_Flow_Last.asDouble(x, y));
+	}
+}
+
+//---------------------------------------------------------
+double CKinWav_D8::Get_Runoff(double q_Up, double q_Last, double alpha, double dL, double r, double r_Last)
+{
+	double	dTdL, d, c, q, Res, dRes, dR;
+
+	//-----------------------------------------------------
+	dTdL	= m_dTime / dL;
+	dR		= m_dTime / 2.0 * (r + r_Last);
+
+
+	//-----------------------------------------------------
+	// 1. Initial estimation of q...
+
+	if( q_Last + q_Up != 0.0 )
+	{
+		d	= alpha * Beta_0 * pow((q_Last + q_Up) / 2.0, Beta_1);
+		q	= ( dTdL * q_Up + q_Last * d + dR ) / ( dTdL + d );
+	}
+	else
+	{
+		q	= dR;
+	}
+
+
+	//-----------------------------------------------------
+	// 2. Newton-Raphson...
+
+	c	= dTdL * q_Up + alpha * pow(q_Last, Beta_0) + dR;
+
+	for(int i=0; i<Newton_MaxIter; i++)
+	{
+		if( q <= 0 )
+		{
+			return( dR );
+		}
+
+		Res		= dTdL * q + alpha		    * pow(q, Beta_0) - c;
+		dRes	= dTdL     + alpha * Beta_0 * pow(q, Beta_1);
+//		if( dRes == 0.0 )	{	return( 0.0 );	}
+
+		d		= Res / dRes;
+		q		-= d;
+
+		if( fabs(d) < Newton_Epsilon )
+		{
+			break;
+		}
+	}
+
+	return( q < 0.0 ? 0.0 : q );
 }
 
 
@@ -305,7 +368,7 @@ bool CKinWav_D8::Initialize(double Roughness)
 				{
 					m_Direction	.Set_Value(x, y, iMax);
 
-					m_Alpha		.Set_Value(x, y, pow(Roughness / sqrt(dMax), Beta));
+					m_Alpha		.Set_Value(x, y, pow(Roughness / sqrt(dMax), Beta_0));
 
 					if( m_Alpha.asDouble(x, y) > 10 )
 						m_Alpha.Set_Value(x, y, 10);
@@ -335,7 +398,7 @@ bool CKinWav_D8::Finalize(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CKinWav_D8::Set_Gauges(void)
+bool CKinWav_D8::Gauges_Initialise(void)
 {
 	if( m_pGauges_Flow != NULL )
 	{
@@ -395,6 +458,33 @@ bool CKinWav_D8::Set_Gauges(void)
 	return( false );
 }
 
+//---------------------------------------------------------
+bool CKinWav_D8::Gauges_Set_Flow(double Time)
+{
+	if( m_pGauges_Flow && m_pGauges_Flow->Get_Field_Count() == m_pGauges->Get_Count() + 1 )
+	{
+		CSG_Table_Record	*pRecord	= m_pGauges_Flow->Add_Record();
+
+		pRecord->Set_Value(0, Time);
+
+		for(int i=0; i<m_pGauges->Get_Count(); i++)
+		{
+			double	Flow;
+
+			if( m_pFlow->Get_Value(m_pGauges->Get_Shape(i)->Get_Point(0), Flow) )
+			{
+				pRecord->Set_Value(i + 1, Flow);
+			}
+		}
+
+		DataObject_Update(m_pGauges_Flow);
+
+		return( true );
+	}
+
+	return( false );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -413,7 +503,7 @@ void CKinWav_D8::Get_Precipitation(double Time)
 		switch( Parameters("PRECIP")->asInt() )
 		{
 		case 0:
-			m_Flow_Last	+= 100.0;
+			(*m_pFlow)	+= 100.0;
 			break;
 
 		case 1:
@@ -425,7 +515,7 @@ void CKinWav_D8::Get_Precipitation(double Time)
 				{
 					if( !m_pDEM->is_NoData(x, y) && m_pDEM->asDouble(x, y) > t )
 					{
-						m_Flow_Last.Add_Value(x, y, 100.0);
+						m_pFlow->Add_Value(x, y, 100.0);
 					}
 				}
 			}
@@ -438,92 +528,13 @@ void CKinWav_D8::Get_Precipitation(double Time)
 				{
 					if( !m_pDEM->is_NoData(x, y) )
 					{
-						m_Flow_Last.Add_Value(x, y, 100.0);
+						m_pFlow->Add_Value(x, y, 100.0);
 					}
 				}
 			}
 			break;
 		}
 	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CKinWav_D8::Get_Runoff(int x, int y)
-{
-	int		Direction	= m_Direction.asChar(x, y);
-
-	if( Direction >= 0 )
-	{
-		m_pFlow->Set_Value(x, y, 
-			Get_Runoff(
-				m_pFlow		->asDouble(x, y),
-				m_Flow_Last	 .asDouble(x, y),
-				m_Alpha		 .asDouble(x, y),
-				Get_UnitLength(Direction), 0.0, 0.0
-			)
-		);
-
-		m_pFlow->Add_Value(Get_xTo(Direction, x), Get_yTo(Direction, y), m_Flow_Last.asDouble(x, y));
-	}
-}
-
-//---------------------------------------------------------
-double CKinWav_D8::Get_Runoff(double q_Up, double q_Last, double alpha, double dL, double r, double r_Last)
-{
-	double	dTdL, d, c, q, Res, dRes, dR;
-
-	//-----------------------------------------------------
-	dTdL	= m_dTime / dL;
-	dR		= m_dTime / 2.0 * (r + r_Last);
-
-
-	//-----------------------------------------------------
-	// 1. Initial estimation of q...
-
-	if( q_Last + q_Up != 0.0 )
-	{
-		d	= alpha * Beta * pow((q_Last + q_Up) / 2.0, Beta_1);
-		q	= ( dTdL * q_Up + q_Last * d + dR ) / ( dTdL + d );
-	}
-	else
-	{
-		q	= dR;
-	}
-
-
-	//-----------------------------------------------------
-	// 2. Newton-Raphson...
-
-	c	= dTdL * q_Up + alpha * pow(q_Last, Beta) + dR;
-
-	for(int i=0; i<Newton_MaxIter; i++)
-	{
-		if( q <= 0 )
-		{
-			return( dR );
-		}
-
-		Res		= dTdL * q + alpha		  * pow(q, Beta) - c;
-		dRes	= dTdL     + alpha * Beta * pow(q, Beta_1);
-//		if( dRes == 0.0 )	{	return( 0.0 );	}
-
-		d		= Res / dRes;
-		q		-= d;
-
-		if( fabs(d) < Newton_Epsilon )
-		{
-			break;
-		}
-	}
-
-	return( q < 0.0 ? 0.0 : q );
 }
 
 
