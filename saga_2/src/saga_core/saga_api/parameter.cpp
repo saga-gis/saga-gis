@@ -316,7 +316,7 @@ const SG_Char * CSG_Parameter::Get_Description(void)
 #define SEPARATE	if( bSeparate )	s.Append(Separator);	bSeparate	= true;
 
 //---------------------------------------------------------
-CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)
+CSG_String CSG_Parameter::Get_Description(int Flags, const CSG_String &Separator)
 {
 	bool		bSeparate	= false;
 	int			i;
@@ -376,7 +376,7 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)
 
 			for(i=0; i<asChoice()->Get_Count(); i++)
 			{
-				s.Append(CSG_String::Format(SG_T("%s[%d] %s"), Separator, i, asChoice()->Get_Item(i)));
+				s.Append(CSG_String::Format(SG_T("%s[%d] %s"), Separator.c_str(), i, asChoice()->Get_Item(i)));
 			}
 			break;
 
@@ -404,22 +404,22 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)
 		case PARAMETER_TYPE_FixedTable:
 			SEPARATE;
 
-			s.Append(CSG_String::Format(SG_T("%d %s:%s"), asTable()->Get_Field_Count(), LNG("Fields"), Separator));
+			s.Append(CSG_String::Format(SG_T("%d %s:%s"), asTable()->Get_Field_Count(), LNG("Fields"), Separator.c_str()));
 
 			for(i=0; i<asTable()->Get_Field_Count(); i++)
 			{
-				s.Append(CSG_String::Format(SG_T("- %d. [%s] %s%s"), i + 1, gSG_Table_Field_Type_Names[asTable()->Get_Field_Type(i)], asTable()->Get_Field_Name(i), Separator));
+				s.Append(CSG_String::Format(SG_T("- %d. [%s] %s%s"), i + 1, gSG_Table_Field_Type_Names[asTable()->Get_Field_Type(i)], asTable()->Get_Field_Name(i), Separator.c_str()));
 			}
 			break;
 
 		case PARAMETER_TYPE_Parameters:
 			SEPARATE;
 
-			s.Append(CSG_String::Format(SG_T("%d %s:%s"), asParameters()->Get_Count(), LNG("Parameters"), Separator));
+			s.Append(CSG_String::Format(SG_T("%d %s:%s"), asParameters()->Get_Count(), LNG("Parameters"), Separator.c_str()));
 
 			for(i=0; i<asParameters()->Get_Count(); i++)
 			{
-				s.Append(CSG_String::Format(SG_T("- %d. %s%s"), i + 1, asParameters()->Get_Parameter(i)->Get_Description(Flags, Separator).c_str(), Separator));
+				s.Append(CSG_String::Format(SG_T("- %d. %s%s"), i + 1, asParameters()->Get_Parameter(i)->Get_Description(Flags, Separator).c_str(), Separator.c_str()));
 			}
 			break;
 		}

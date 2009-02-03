@@ -235,8 +235,8 @@ public:
 									CSG_Table			(const CSG_Table &Table);
 	bool							Create				(const CSG_Table &Table);
 
-									CSG_Table			(const SG_Char *File_Name, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, const SG_Char *Separator = SG_T("\t"));
-	bool							Create				(const SG_Char *File_Name, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, const SG_Char *Separator = SG_T("\t"));
+									CSG_Table			(const SG_Char *File_Name, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, const CSG_String &Separator = SG_T("\t"));
+	bool							Create				(const SG_Char *File_Name, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, const CSG_String &Separator = SG_T("\t"));
 
 									CSG_Table			(CSG_Table *pStructure);
 	bool							Create				(CSG_Table *pStructure);
@@ -245,7 +245,7 @@ public:
 
 	virtual bool					Destroy				(void);
 
-	virtual TSG_Data_Object_Type	Get_ObjectType	(void)	const			{	return( DATAOBJECT_TYPE_Table );	}
+	virtual TSG_Data_Object_Type	Get_ObjectType		(void)	const			{	return( DATAOBJECT_TYPE_Table );	}
 
 	virtual bool					Assign				(CSG_Data_Object *pSource);
 	bool							Assign_Values		(CSG_Table *pTable);

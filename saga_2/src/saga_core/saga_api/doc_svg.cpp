@@ -146,7 +146,7 @@ void CSG_Doc_SVG::Draw_Circle(double x,
 							 int Fill_Color, 
 							 int Line_Color, 
 							 double Line_Width, 
-							 const SG_Char *Unit)
+							 const CSG_String &Unit)
 {
 	
 	CSG_String sWidth;
@@ -171,7 +171,7 @@ void CSG_Doc_SVG::Draw_LinkedCircle(double x,
 								 int Fill_Color, 
 								 int Line_Color, 
 								 double Line_Width, 
-								 const SG_Char *Unit)
+								 const CSG_String &Unit)
 {
 	
 	CSG_String sWidth;
@@ -199,7 +199,7 @@ void CSG_Doc_SVG::Draw_Line(double xa,
 						   double xb, 
 						   double yb, 
 						   double Width, 
-						   const SG_Char *Unit, 
+						   const CSG_String &Unit, 
 						   int Color)
 {
 
@@ -219,7 +219,7 @@ void CSG_Doc_SVG::Draw_Line(double xa,
 
 void CSG_Doc_SVG::Draw_Line(CSG_Points &Points, 
 						   double Width, 
-						   const SG_Char *Unit, 
+						   const CSG_String &Unit, 
 						   int Color)
 {
 	int i;
@@ -251,7 +251,7 @@ void CSG_Doc_SVG::Draw_Rectangle(double xa,
 								int Fill_Color, 
 								int Line_Color, 
 								double Line_Width, 
-								const SG_Char *Unit)
+								const CSG_String &Unit)
 {
 	CSG_Points	Points;
 
@@ -267,7 +267,7 @@ void CSG_Doc_SVG::Draw_Rectangle(const CSG_Rect &r,
 								int Fill_Color, 
 								int Line_Color, 
 								double Line_Width, 
-								const SG_Char *Unit)
+								const CSG_String &Unit)
 {
 	Draw_Rectangle(r.Get_XMin(), r.Get_YMin(), r.Get_XMax(), r.Get_YMax(), Fill_Color, Line_Color, Line_Width) ;
 }
@@ -276,7 +276,7 @@ void CSG_Doc_SVG::Draw_Polygon(CSG_Points &Points,
 							  int Fill_Color, 
 							  int Line_Color, 
 							  double Line_Width, 
-							  const SG_Char *Unit)
+							  const CSG_String &Unit)
 {
 	if( Points.Get_Count() > 2 )
 	{
@@ -307,7 +307,7 @@ void CSG_Doc_SVG::Draw_LinkedPolygon(CSG_Points &Points,
 							  int Fill_Color, 
 							  int Line_Color, 
 							  double Line_Width, 
-							  const SG_Char *Unit)
+							  const CSG_String &Unit)
 {
 	if( Points.Get_Count() > 2 )
 	{
@@ -344,7 +344,7 @@ void CSG_Doc_SVG::Draw_Text(double x,
 						 int Color, 
 						 const SG_Char* Font, 
 						 double dSize,
-						 const SG_Char* Unit,
+						 const CSG_String &Unit,
 						 TSG_SVG_Alignment iAlignment)
 {
 
