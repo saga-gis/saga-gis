@@ -417,7 +417,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy res\saga_eng.txt ..\..\..\bin\saga_vc8\saga.eng&#x0D;&#x0A;copy res\saga_ger.txt ..\..\..\bin\saga_vc8\saga.ger&#x0D;&#x0A;copy res\saga_tip.txt ..\..\..\bin\saga_vc8\saga_gui.tip&#x0D;&#x0A;"
+				CommandLine="copy res\saga.lng.txt ..\..\..\bin\saga_vc8\saga.lng&#x0D;&#x0A;copy res\saga.ger.txt ..\..\..\bin\saga_vc8\saga.ger&#x0D;&#x0A;copy res\saga_tip.txt ..\..\..\bin\saga_vc8\saga_gui.tip&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>

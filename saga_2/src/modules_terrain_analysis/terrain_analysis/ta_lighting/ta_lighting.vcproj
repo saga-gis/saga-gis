@@ -305,7 +305,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine=""
+				CommandLine="copy *.lng.txt ..\..\..\..\bin\saga_vc8\modules\"
 			/>
 		</Configuration>
 		<Configuration
