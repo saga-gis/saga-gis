@@ -894,6 +894,7 @@ private:	///////////////////////////////////////////////
 	double						_Get_ValAtPos_BSpline			(int x, int y, double dx, double dy, bool bByteWise) const;
 	double						_Get_ValAtPos_BSpline			(double dx, double dy, double z_xy[4][4])			 const;
 	bool						_Get_ValAtPos_Fill4x4Submatrix	(int x, int y, double z_xy[4][4])					 const;
+	bool						_Get_ValAtPos_Fill4x4Submatrix	(int x, int y, double z_xy[4][4][4])				 const;
 
 	bool						_Assign_Interpolated	(CSG_Grid *pSource, TSG_Grid_Interpolation Interpolation);
 	bool						_Assign_MeanValue		(CSG_Grid *pSource);

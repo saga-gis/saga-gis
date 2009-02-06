@@ -538,7 +538,7 @@ bool CSG_Grid::Get_Value(double xPosition, double yPosition, double &Value, int 
 		double	dx	= xPosition - x;
 		double	dy	= yPosition - y;
 
-	//	if( is_InGrid(x + (int)(0.5 + dx), y + (int)(0.5 + dy)) )
+		if( is_InGrid(x + (int)(0.5 + dx), y + (int)(0.5 + dy)) )
 		{
 			switch( Interpolation )
 			{
@@ -737,36 +737,26 @@ inline double CSG_Grid::_Get_ValAtPos_BiCubicSpline(double dx, double dy, double
 
 inline double CSG_Grid::_Get_ValAtPos_BiCubicSpline(int x, int y, double dx, double dy, bool bByteWise) const
 {
-	double	z_xy[4][4];
-
-	if( _Get_ValAtPos_Fill4x4Submatrix(x, y, z_xy) )
+	if( !bByteWise )
 	{
-		if( !bByteWise )
+		double	z_xy[4][4];
+
+		if( _Get_ValAtPos_Fill4x4Submatrix(x, y, z_xy) )
 		{
 			return( _Get_ValAtPos_BiCubicSpline(dx, dy, z_xy) );
 		}
-		else
+	}
+	else
+	{
+		double	z_xy[4][4][4];
+
+		if( _Get_ValAtPos_Fill4x4Submatrix(x, y, z_xy) )
 		{
-			double	rgb_xy[4][4][4];
-
-			for(int iy=0; iy<4; iy++)
-			{
-				for(int ix=0; ix<4; ix++)
-				{
-					int		v	= (int)z_xy[ix][iy];
-
-					rgb_xy[0][ix][iy]	= SG_GET_BYTE_0(v);
-					rgb_xy[1][ix][iy]	= SG_GET_BYTE_1(v);
-					rgb_xy[2][ix][iy]	= SG_GET_BYTE_2(v);
-					rgb_xy[3][ix][iy]	= SG_GET_BYTE_3(v);
-				}
-			}
-
 			return( SG_GET_LONG(
-				_Get_ValAtPos_BiCubicSpline(dx, dy, rgb_xy[0]),
-				_Get_ValAtPos_BiCubicSpline(dx, dy, rgb_xy[1]),
-				_Get_ValAtPos_BiCubicSpline(dx, dy, rgb_xy[2]),
-				_Get_ValAtPos_BiCubicSpline(dx, dy, rgb_xy[3])
+				_Get_ValAtPos_BiCubicSpline(dx, dy, z_xy[0]),
+				_Get_ValAtPos_BiCubicSpline(dx, dy, z_xy[1]),
+				_Get_ValAtPos_BiCubicSpline(dx, dy, z_xy[2]),
+				_Get_ValAtPos_BiCubicSpline(dx, dy, z_xy[3])
 			));
 		}
 	}
@@ -819,36 +809,26 @@ inline double CSG_Grid::_Get_ValAtPos_BSpline(double dx, double dy, double z_xy[
 
 inline double CSG_Grid::_Get_ValAtPos_BSpline(int x, int y, double dx, double dy, bool bByteWise) const
 {
-	double	z_xy[4][4];
-
-	if(	_Get_ValAtPos_Fill4x4Submatrix(x, y, z_xy) )
+	if( !bByteWise )
 	{
-		if( !bByteWise )
+		double	z_xy[4][4];
+
+		if( _Get_ValAtPos_Fill4x4Submatrix(x, y, z_xy) )
 		{
 			return( _Get_ValAtPos_BSpline(dx, dy, z_xy) );
 		}
-		else
+	}
+	else
+	{
+		double	z_xy[4][4][4];
+
+		if( _Get_ValAtPos_Fill4x4Submatrix(x, y, z_xy) )
 		{
-			double	rgb_xy[4][4][4];
-
-			for(int iy=0; iy<4; iy++)
-			{
-				for(int ix=0; ix<4; ix++)
-				{
-					int		v	= (int)z_xy[ix][iy];
-
-					rgb_xy[0][ix][iy]	= SG_GET_BYTE_0(v);
-					rgb_xy[1][ix][iy]	= SG_GET_BYTE_1(v);
-					rgb_xy[2][ix][iy]	= SG_GET_BYTE_2(v);
-					rgb_xy[3][ix][iy]	= SG_GET_BYTE_3(v);
-				}
-			}
-
 			return( SG_GET_LONG(
-				_Get_ValAtPos_BSpline(dx, dy, rgb_xy[0]),
-				_Get_ValAtPos_BSpline(dx, dy, rgb_xy[1]),
-				_Get_ValAtPos_BSpline(dx, dy, rgb_xy[2]),
-				_Get_ValAtPos_BSpline(dx, dy, rgb_xy[3])
+				_Get_ValAtPos_BSpline(dx, dy, z_xy[0]),
+				_Get_ValAtPos_BSpline(dx, dy, z_xy[1]),
+				_Get_ValAtPos_BSpline(dx, dy, z_xy[2]),
+				_Get_ValAtPos_BSpline(dx, dy, z_xy[3])
 			));
 		}
 	}
@@ -947,7 +927,132 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 				for(ix=0; ix<4; ix++)
 				{
 					if( t_xy[ix][iy] != z_xy[ix][iy] )
+					{
 						z_xy[ix][iy]	= t_xy[ix][iy];
+					}
+				}
+			}
+		}
+		while( nNoData > 0 );
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4][4][4]) const
+{
+	int		ix, iy, jx, jy, nNoData;
+
+	for(iy=0, jy=y-1, nNoData=0; iy<4; iy++, jy++)
+	{
+		for(ix=0, jx=x-1; ix<4; ix++, jx++)
+		{
+			if( is_InGrid(jx, jy) )
+			{
+				int		v	= asInt(jx, jy);
+
+				z_xy[0][ix][iy]	= SG_GET_BYTE_0(v);
+				z_xy[1][ix][iy]	= SG_GET_BYTE_1(v);
+				z_xy[2][ix][iy]	= SG_GET_BYTE_2(v);
+				z_xy[3][ix][iy]	= SG_GET_BYTE_3(v);
+			}
+			else
+			{
+				z_xy[0][ix][iy]	= m_NoData_Value;
+
+				nNoData++;
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if( nNoData >= 16 )
+	{
+		return( false );
+	}
+
+	if( nNoData > 0 )
+	{
+		double	t_xy[4][4][4];
+
+		for(iy=0; iy<4; iy++)
+		{
+			for(ix=0; ix<4; ix++)
+			{
+				t_xy[0][ix][iy]	= z_xy[0][ix][iy];
+				t_xy[1][ix][iy]	= z_xy[1][ix][iy];
+				t_xy[2][ix][iy]	= z_xy[2][ix][iy];
+				t_xy[3][ix][iy]	= z_xy[3][ix][iy];
+			}
+		}
+
+		do
+		{
+			for(iy=0; iy<4; iy++)
+			{
+				for(ix=0; ix<4; ix++)
+				{
+					if( z_xy[0][ix][iy] == m_NoData_Value )
+					{
+						int		n	= 0;
+
+						for(jy=iy-1; jy<=iy+1; jy++)
+						{
+							if( jy >= 0 && jy < 4 )
+							{
+								for(jx=ix-1; jx<=ix+1; jx++)
+								{
+									if( jx >= 0 && jx < 4 && !(jx == ix && jy == iy) && z_xy[0][jx][jy] != m_NoData_Value )
+									{
+										if( n == 0 )
+										{
+											t_xy[0][ix][iy]	 = z_xy[0][jx][jy];
+											t_xy[1][ix][iy]	 = z_xy[1][jx][jy];
+											t_xy[2][ix][iy]	 = z_xy[2][jx][jy];
+											t_xy[3][ix][iy]	 = z_xy[3][jx][jy];
+										}
+										else
+										{
+											t_xy[0][ix][iy]	+= z_xy[0][jx][jy];
+											t_xy[1][ix][iy]	+= z_xy[1][jx][jy];
+											t_xy[2][ix][iy]	+= z_xy[2][jx][jy];
+											t_xy[3][ix][iy]	+= z_xy[3][jx][jy];
+										}
+
+										n++;
+									}
+								}
+							}
+						}
+
+						if( n > 0 )
+						{
+							if( n > 1 )
+							{
+								t_xy[0][ix][iy]	/= n;
+								t_xy[1][ix][iy]	/= n;
+								t_xy[2][ix][iy]	/= n;
+								t_xy[3][ix][iy]	/= n;
+							}
+
+							nNoData--;
+						}
+					}
+				}
+			}
+
+			for(iy=0; iy<4; iy++)
+			{
+				for(ix=0; ix<4; ix++)
+				{
+					if( t_xy[0][ix][iy] != z_xy[0][ix][iy] )
+					{
+						z_xy[0][ix][iy]	= t_xy[0][ix][iy];
+						z_xy[1][ix][iy]	= t_xy[1][ix][iy];
+						z_xy[2][ix][iy]	= t_xy[2][ix][iy];
+						z_xy[3][ix][iy]	= t_xy[3][ix][iy];
+					}
 				}
 			}
 		}
