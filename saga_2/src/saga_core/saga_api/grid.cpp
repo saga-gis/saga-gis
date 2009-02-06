@@ -947,7 +947,7 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 				for(ix=0; ix<4; ix++)
 				{
 					if( t_xy[ix][iy] != z_xy[ix][iy] )
-						t_xy[ix][iy]	= z_xy[ix][iy];
+						z_xy[ix][iy]	= t_xy[ix][iy];
 				}
 			}
 		}

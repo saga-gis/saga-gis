@@ -274,7 +274,7 @@ void CChannelNetwork_Distance::Execute_D8(int x, int y)
 	zVert	= pDistVert->asDouble(x, y);
 	zHorz	= pDistHorz->asDouble(x, y);
 
-	for(i=1; i<=8; i++)
+	for(i=0; i<8; i++)
 	{
 		ix		= Get_xFrom(i, x);
 		iy		= Get_yFrom(i, y);
