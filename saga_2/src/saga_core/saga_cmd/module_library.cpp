@@ -254,6 +254,12 @@ bool CModule_Library::Execute(int argc, char *argv[])
 	{
 		m_pCMD->SetCmdLine(argc, argv);
 
+		if( argc == 1 )
+		{
+			m_pCMD->Usage();
+			return( true );
+		}
+
 		if( _Get_CMD(m_pSelected->Get_Parameters()) )
 		{
 			bResult	= m_pSelected->Execute();
