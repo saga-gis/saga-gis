@@ -150,7 +150,7 @@ bool CGrid_To_Points::On_Execute(void)
 
 		for(iGrid=0; iGrid<pGrids->Get_Count(); iGrid++)
 		{
-			pPoints->Add_Field(pGrids->asGrid(iGrid)->Get_Name(), TABLE_FIELDTYPE_Double);
+			pPoints->Add_Field(CSG_String::Format(SG_T("%s"),pGrids->asGrid(iGrid)->Get_Name()).BeforeFirst(SG_Char('.')).c_str(), TABLE_FIELDTYPE_Double);
 		}
 
 		//-------------------------------------------------
