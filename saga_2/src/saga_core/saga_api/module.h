@@ -195,7 +195,7 @@ protected:
 
 
 	//-----------------------------------------------------
-	virtual bool				Process_Get_Okay			(bool bBlink);
+	virtual bool				Process_Get_Okay			(bool bBlink = false);
 	virtual void				Process_Set_Text			(const SG_Char *Text);
 
 	virtual bool				Set_Progress				(int Position);

@@ -96,15 +96,33 @@ TSG_PFNC_UI_Callback	SG_Get_UI_Callback(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int			gSG_UI_Progress_Lock	= 0;
+
+//---------------------------------------------------------
+int			SG_UI_Progress_Lock(bool bOn)
+{
+	if( bOn )
+	{
+		gSG_UI_Progress_Lock++;
+	}
+	else if( gSG_UI_Progress_Lock > 0 )
+	{
+		gSG_UI_Progress_Lock--;
+	}
+
+	return( gSG_UI_Progress_Lock );
+}
+
+//---------------------------------------------------------
 bool		SG_UI_Process_Get_Okay(bool bBlink)
 {
 	if( gSG_UI_Callback )
 	{
-		return( gSG_UI_Callback(CALLBACK_PROCESS_GET_OKAY, bBlink ? 1 : 0, 0) != 0 );
+		return( gSG_UI_Callback(CALLBACK_PROCESS_GET_OKAY, gSG_UI_Progress_Lock && bBlink ? 1 : 0, 0) != 0 );
 	}
 	else
 	{
-		if( bBlink )
+		if( gSG_UI_Progress_Lock && bBlink )
 		{
 			static int	iBuisy		= 0;
 			const SG_Char	Buisy[4]	= {	'|', '/', '-', '\\'	};
@@ -131,13 +149,23 @@ bool		SG_UI_Process_Set_Okay(bool bOkay)
 //---------------------------------------------------------
 bool		SG_UI_Process_Set_Progress(double Position, double Range)
 {
-	if( gSG_UI_Callback )
+	if( gSG_UI_Progress_Lock > 0 )
 	{
-		return( gSG_UI_Callback(CALLBACK_PROCESS_SET_PROGRESS, (long)&Position, (long)&Range) != 0 );
+		if( gSG_UI_Callback )
+		{
+			return( gSG_UI_Callback(CALLBACK_PROCESS_GET_OKAY, 0, 0) != 0 );
+		}
 	}
 	else
 	{
-		SG_PRINTF(SG_T("\r%3d%%"), Range != 0.0 ? 1 + (int)(100.0 * Position / Range) : 100);
+		if( gSG_UI_Callback )
+		{
+			return( gSG_UI_Callback(CALLBACK_PROCESS_SET_PROGRESS, (long)&Position, (long)&Range) != 0 );
+		}
+		else
+		{
+			SG_PRINTF(SG_T("\r%3d%%"), Range != 0.0 ? 1 + (int)(100.0 * Position / Range) : 100);
+		}
 	}
 
 	return( true );
@@ -159,13 +187,16 @@ bool		SG_UI_Process_Set_Ready(void)
 //---------------------------------------------------------
 void		SG_UI_Process_Set_Text(const SG_Char *Text)
 {
-	if( gSG_UI_Callback )
+	if( gSG_UI_Progress_Lock == 0 )
 	{
-		gSG_UI_Callback(CALLBACK_PROCESS_SET_TEXT, (long)Text, 0);
-	}
-	else
-	{
-		SG_PRINTF(SG_T("\n%s"), Text);
+		if( gSG_UI_Callback )
+		{
+			gSG_UI_Callback(CALLBACK_PROCESS_SET_TEXT, (long)Text, 0);
+		}
+		else
+		{
+			SG_PRINTF(SG_T("\n%s"), Text);
+		}
 	}
 }
 
