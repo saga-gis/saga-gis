@@ -138,31 +138,37 @@ bool CSG_Grid::Assign(CSG_Grid *pGrid, TSG_Grid_Interpolation Interpolation)
 	//-----------------------------------------------------
 	if(	is_Valid() && pGrid && pGrid->is_Valid() && is_Intersecting(pGrid->Get_Extent()) != INTERSECTION_None )
 	{
-		if(	Get_Cellsize() == pGrid->Get_Cellsize()
+		if(	Get_Cellsize() == pGrid->Get_Cellsize()			// No-Scaling...
 		&&	fmod(Get_XMin() - pGrid->Get_XMin(), Get_Cellsize()) == 0.0
 		&&	fmod(Get_YMin() - pGrid->Get_YMin(), Get_Cellsize()) == 0.0	)
-		{	// in this case 'Nearest Neighbor' is always the best choice...
-			bResult	= _Assign_Interpolated(pGrid, GRID_INTERPOLATION_NearestNeighbour);
+		{
+			bResult	= _Assign_Interpolated	(pGrid, GRID_INTERPOLATION_NearestNeighbour);
 		}
 		else switch( Interpolation )
 		{
-		case GRID_INTERPOLATION_NearestNeighbour:
-		case GRID_INTERPOLATION_Bilinear:
-		case GRID_INTERPOLATION_InverseDistance:
-		case GRID_INTERPOLATION_BicubicSpline:
-		case GRID_INTERPOLATION_BSpline:
-			bResult	= _Assign_Interpolated(pGrid, Interpolation);
+			case GRID_INTERPOLATION_NearestNeighbour:
+			case GRID_INTERPOLATION_Bilinear:
+			case GRID_INTERPOLATION_InverseDistance:
+			case GRID_INTERPOLATION_BicubicSpline:
+			case GRID_INTERPOLATION_BSpline:
+
+				bResult	= _Assign_Interpolated	(pGrid, Interpolation);
+
 			break;
 
-		default:
-			if( Get_Cellsize() < pGrid->Get_Cellsize() )	// Down-Scaling...
-			{
-				bResult	= _Assign_Interpolated(pGrid, GRID_INTERPOLATION_BSpline);
-			}
-			else											// Up-Scaling...
-			{
-				bResult	= _Assign_MeanValue(pGrid);
-			}
+			default:
+			case GRID_INTERPOLATION_Mean_Nodes:
+			case GRID_INTERPOLATION_Mean_Cells:
+
+				if( Get_Cellsize() < pGrid->Get_Cellsize() )	// Down-Scaling...
+				{
+					bResult	= _Assign_Interpolated	(pGrid, GRID_INTERPOLATION_BSpline);
+				}
+				else											// Up-Scaling...
+				{
+					bResult	= _Assign_MeanValue		(pGrid, Interpolation != GRID_INTERPOLATION_Mean_Nodes);
+				}
+
 			break;
 		}
 
@@ -216,88 +222,128 @@ bool CSG_Grid::_Assign_Interpolated(CSG_Grid *pGrid, TSG_Grid_Interpolation Inte
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::_Assign_MeanValue(CSG_Grid *pGrid)
+bool CSG_Grid::_Assign_MeanValue(CSG_Grid *pGrid, bool bAreaProportional)
 {
-	int		o_x, o_y, o_ax, o_ay,
-			ix, iy, ix_A, iy_A, ix_B, iy_B,
-			n;
-
-	double	i_x, i_y, i_ax, i_ay, i_dx, i_dy,
-			Sum;
+	if( Get_Cellsize() < pGrid->Get_Cellsize() || is_Intersecting(pGrid->Get_Extent()) == INTERSECTION_None )
+	{
+		return( false );
+	}
 
 	//-----------------------------------------------------
-	i_dx	= Get_Cellsize() / pGrid->Get_Cellsize();
-	i_dy	= Get_Cellsize() / pGrid->Get_Cellsize();
+	int			x, y, ix, iy, jx, jy;
+	double		px, py, ax, ay, d, w, wx, wy, z;
+	CSG_Matrix	S(Get_NY(), Get_NX()), N(Get_NY(), Get_NX());
 
-	i_ax	=	(Get_XMin() - pGrid->Get_XMin()) / pGrid->Get_Cellsize();
-	if( i_ax < 0 )
-		i_ax	= 0;
+	d	= pGrid->Get_Cellsize() / Get_Cellsize();
 
-	o_ax	= (int)((pGrid->Get_XMin() - Get_XMin()) / Get_Cellsize());
-	if( o_ax < 0 )
-		o_ax	= 0;
-
-	i_ay	=		(Get_YMin() - pGrid->Get_YMin()) / pGrid->Get_Cellsize();
-	if( i_ay < 0 )
-		i_ay	= 0;
-
-	o_ay	= (int)((pGrid->Get_YMin() - Get_YMin()) / Get_Cellsize());
-	if( o_ay < 0 )
-		o_ay	= 0;
-
-	if(	i_ax < pGrid->Get_NX() && o_ax < Get_NX()
-	&&	i_ay < pGrid->Get_NY() && o_ay < Get_NY()	)
+	//-----------------------------------------------------
+	if( bAreaProportional == false )
 	{
-		Assign_NoData();
+		ax	= 0.5 + (pGrid->Get_XMin() - Get_XMin()) / Get_Cellsize();
+		ay	= 0.5 + (pGrid->Get_YMin() - Get_YMin()) / Get_Cellsize();
 
-		for(o_y=o_ay, i_y=i_ay; o_y<Get_NY() && i_y<pGrid->Get_NY() && SG_UI_Process_Set_Progress(o_y, Get_NY()); o_y++, i_y+=i_dy)
+		for(y=0, py=ay; y<pGrid->Get_NY() && SG_UI_Process_Set_Progress(y, pGrid->Get_NY()); y++, py+=d)
 		{
-			iy_A	= (int)(0.5 + i_y - i_dy / 2.0);
-			if( iy_A < 0 )
-				iy_A	= 0;
-
-			iy_B	= (int)(0.5 + i_y + i_dy / 2.0);
-			if( iy_B  >= pGrid->Get_NY() )
-				iy_B	= pGrid->Get_NY() - 1;
-
-			for(o_x=o_ax, i_x=i_ax; o_x<Get_NX() && i_x<pGrid->Get_NX(); o_x++, i_x+=i_dx)
+			if( (iy = (int)floor(py)) >= 0 && iy < Get_NY() )
 			{
-				ix_A	= (int)(0.5 + i_x - i_dx / 2.0);
-				if( ix_A < 0 )
-					ix_A	= 0;
-
-				ix_B	= (int)(0.5 + i_x + i_dx / 2.0);
-				if( ix_B  >= pGrid->Get_NX() )
-					ix_B	= pGrid->Get_NX() - 1;
-
-				for(iy=iy_A, n=0, Sum=0.0; iy<=iy_B; iy++)
+				for(x=0, px=ax; x<pGrid->Get_NX(); x++, px+=d)
 				{
-					for(ix=ix_A; ix<=ix_B; ix++)
+					if( !pGrid->is_NoData(x, y) && (ix = (int)floor(px)) >= 0 && ix < Get_NX() )
 					{
-						if( pGrid->is_InGrid(ix, iy) )
-						{
-							Sum	+= pGrid->asDouble(ix, iy);
-							n++;
-						}
+						S[ix][iy]	+= pGrid->asDouble(x, y);
+						N[ix][iy]	++;
 					}
-				}
-
-				if( n > 0 )
-				{
-					Set_Value(o_x, o_y, Sum / (double)n);
 				}
 			}
 		}
-
-		Get_History().Assign(pGrid->Get_History());
-		Get_History().Add_Entry(LNG("[DAT] Resampling"), CSG_String::Format(SG_T("%f -> %f"), pGrid->Get_Cellsize(), Get_Cellsize()));
-
-		SG_UI_Process_Set_Ready();
-
-		return( true );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	else // if( bAreaProportional == true )
+	{
+		ax	= ((pGrid->Get_XMin() - 0.5 * pGrid->Get_Cellsize()) - (Get_XMin() - 0.5 * Get_Cellsize())) / Get_Cellsize();
+		ay	= ((pGrid->Get_YMin() - 0.5 * pGrid->Get_Cellsize()) - (Get_YMin() - 0.5 * Get_Cellsize())) / Get_Cellsize();
+
+		for(y=0, py=ay; y<pGrid->Get_NY() && SG_UI_Process_Set_Progress(y, pGrid->Get_NY()); y++, py+=d)
+		{
+			if( py > -d || py < Get_NY() )
+			{
+				iy	= (int)floor(py);
+				wy	= (py + d) - iy;
+				wy	= wy < 1.0 ? 1.0 : wy - 1.0; 
+
+				for(x=0, px=ax; x<pGrid->Get_NX(); x++, px+=d)
+				{
+					if( !pGrid->is_NoData(x, y) && (px > -d && px < Get_NX()) )
+					{
+						ix	= (int)floor(px);
+						wx	= (px + d) - ix;
+						wx	= wx < 1.0 ? 1.0 : wx - 1.0; 
+
+						z	= pGrid->asDouble(x, y);
+
+						if( iy >= 0 && iy < Get_NY() )		// wy > 0.0 is always true
+						{
+							if( ix >= 0 && ix < Get_NX() )	// wx > 0.0 is always true
+							{
+								w	= wx * wy;
+								S[ix][iy]	+= w * z;
+								N[ix][iy]	+= w;
+							}
+
+							if( wx < 1.0 && (jx = ix + 1) >= 0 && jx < Get_NX() )
+							{
+								w	= (1.0 - wx) * wy;
+								S[jx][iy]	+= w * z;
+								N[jx][iy]	+= w;
+							}
+						}
+
+						if( wy < 1.0 && (jy = iy + 1) >= 0 && jy < Get_NY() )
+						{
+							if( ix >= 0 && ix < Get_NX() )
+							{
+								w	= wx * (1.0 - wy);
+								S[ix][jy]	+= w * z;
+								N[ix][jy]	+= w;
+							}
+
+							if( wx < 1.0 && (jx = ix + 1) >= 0 && jx < Get_NX() )
+							{
+								w	= (1.0 - wx) * (1.0 - wy);
+								S[jx][jy]	+= w * z;
+								N[jx][jy]	+= w;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	for(y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+	{
+		for(x=0; x<Get_NX(); x++)
+		{
+			if( N[x][y] )
+			{
+				Set_Value(x, y, S[x][y] / N[x][y]);
+			}
+			else
+			{
+				Set_NoData(x, y);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	Get_History().Assign(pGrid->Get_History());
+	Get_History().Add_Entry(LNG("[DAT] Resampling"), CSG_String::Format(SG_T("%f -> %f"), pGrid->Get_Cellsize(), Get_Cellsize()));
+
+	SG_UI_Process_Set_Ready();
+
+	return( true );
 }
 
 

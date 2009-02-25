@@ -220,6 +220,10 @@ typedef enum ESG_Grid_Interpolation
 	GRID_INTERPOLATION_InverseDistance,
 	GRID_INTERPOLATION_BicubicSpline,
 	GRID_INTERPOLATION_BSpline,
+
+	GRID_INTERPOLATION_Mean_Nodes,
+	GRID_INTERPOLATION_Mean_Cells,
+
 	GRID_INTERPOLATION_Undefined
 }
 TSG_Grid_Interpolation;
@@ -669,10 +673,10 @@ public:		///////////////////////////////////////////////
 	//-----------------------------------------------------
 	// Get Value...
 
-	double						Get_Value(double xPos, double yPos,                int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false, bool bByteWise = false) const;
-	double						Get_Value(TSG_Point Position      ,                int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false, bool bByteWise = false) const;
-	bool						Get_Value(double xPos, double yPos, double &Value, int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false, bool bByteWise = false) const;
-	bool						Get_Value(TSG_Point Position      , double &Value, int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false, bool bByteWise = false) const;
+	double						Get_Value(double xPos, double yPos,                int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false, bool bByteWise = false, bool bOnlyValidCells = false) const;
+	double						Get_Value(TSG_Point Position      ,                int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false, bool bByteWise = false, bool bOnlyValidCells = false) const;
+	bool						Get_Value(double xPos, double yPos, double &Value, int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false, bool bByteWise = false, bool bOnlyValidCells = false) const;
+	bool						Get_Value(TSG_Point Position      , double &Value, int Interpolation = GRID_INTERPOLATION_BSpline, bool bZFactor = false, bool bByteWise = false, bool bOnlyValidCells = false) const;
 
 	virtual BYTE				asByte	(int x, int y, bool bZFactor = false) const	{	return( (BYTE )asDouble(x, y, bZFactor) );	}
 	virtual BYTE				asByte	(      long n, bool bZFactor = false) const	{	return( (BYTE )asDouble(   n, bZFactor) );	}
@@ -897,7 +901,7 @@ private:	///////////////////////////////////////////////
 	bool						_Get_ValAtPos_Fill4x4Submatrix	(int x, int y, double z_xy[4][4][4])				 const;
 
 	bool						_Assign_Interpolated	(CSG_Grid *pSource, TSG_Grid_Interpolation Interpolation);
-	bool						_Assign_MeanValue		(CSG_Grid *pSource);
+	bool						_Assign_MeanValue		(CSG_Grid *pSource, bool bAreaProportional);
 
 };
 

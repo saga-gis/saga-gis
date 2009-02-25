@@ -508,27 +508,27 @@ bool CSG_Grid::is_Compatible(int NX, int NY, double Cellsize, double xMin, doubl
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CSG_Grid::Get_Value(TSG_Point Position, int Interpolation, bool bZFactor, bool bByteWise) const
+double CSG_Grid::Get_Value(TSG_Point Position, int Interpolation, bool bZFactor, bool bByteWise, bool bOnlyValidCells) const
 {
 	double	Value;
 
-	return( Get_Value(Position.x, Position.y, Value, Interpolation, bZFactor, bByteWise) ? Value : m_NoData_Value );
+	return( Get_Value(Position.x, Position.y, Value, Interpolation, bZFactor, bByteWise, bOnlyValidCells) ? Value : m_NoData_Value );
 }
 
-double CSG_Grid::Get_Value(double xPosition, double yPosition, int Interpolation, bool bZFactor, bool bByteWise) const
+double CSG_Grid::Get_Value(double xPosition, double yPosition, int Interpolation, bool bZFactor, bool bByteWise, bool bOnlyValidCells) const
 {
 	double	Value;
 
-	return( Get_Value(xPosition, yPosition, Value, Interpolation, bZFactor, bByteWise) ? Value : m_NoData_Value );
+	return( Get_Value(xPosition, yPosition, Value, Interpolation, bZFactor, bByteWise, bOnlyValidCells) ? Value : m_NoData_Value );
 }
 
-bool CSG_Grid::Get_Value(TSG_Point Position, double &Value, int Interpolation, bool bZFactor, bool bByteWise) const
+bool CSG_Grid::Get_Value(TSG_Point Position, double &Value, int Interpolation, bool bZFactor, bool bByteWise, bool bOnlyValidCells) const
 {
-	return( Get_Value(Position.x, Position.y, Value, Interpolation, bZFactor, bByteWise) );
+	return( Get_Value(Position.x, Position.y, Value, Interpolation, bZFactor, bByteWise, bOnlyValidCells) );
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::Get_Value(double xPosition, double yPosition, double &Value, int Interpolation, bool bZFactor, bool bByteWise) const
+bool CSG_Grid::Get_Value(double xPosition, double yPosition, double &Value, int Interpolation, bool bZFactor, bool bByteWise, bool bOnlyValidCells) const
 {
 	if(	m_System.Get_Extent_Cells().Contains(xPosition, yPosition) )
 	{
@@ -538,13 +538,10 @@ bool CSG_Grid::Get_Value(double xPosition, double yPosition, double &Value, int 
 		double	dx	= xPosition - x;
 		double	dy	= yPosition - y;
 
-		if( is_InGrid(x + (int)(0.5 + dx), y + (int)(0.5 + dy)) )
+		if( !bOnlyValidCells || is_InGrid(x + (int)(0.5 + dx), y + (int)(0.5 + dy)) )
 		{
 			switch( Interpolation )
 			{
-			default:
-				return( false );
-
 			case GRID_INTERPOLATION_NearestNeighbour:
 				Value	= _Get_ValAtPos_NearestNeighbour(x, y, dx, dy);
 				break;
@@ -561,6 +558,7 @@ bool CSG_Grid::Get_Value(double xPosition, double yPosition, double &Value, int 
 				Value	= _Get_ValAtPos_BiCubicSpline	(x, y, dx, dy, bByteWise);
 				break;
 
+			default:
 			case GRID_INTERPOLATION_BSpline:
 				Value	= _Get_ValAtPos_BSpline			(x, y, dx, dy, bByteWise);
 				break;
