@@ -46,7 +46,6 @@ CPolygon_Geometrics::~CPolygon_Geometrics(void)
 
 bool CPolygon_Geometrics::On_Execute(void){
 
-	CSG_Table *pTable;
 	CSG_Shapes *pPolygs;
 	TSG_Point	Point, Point2;	
 	CSG_Shape *pShape;
@@ -57,9 +56,8 @@ bool CPolygon_Geometrics::On_Execute(void){
 	pPolygs = Parameters("POLYG")->asShapes();
 	bSave	= Parameters("SAVE")->asBool();
 
-	pTable=pPolygs;
-	pTable->Add_Field(_TL("Perimeter"), TABLE_FIELDTYPE_Double);
-	pTable->Add_Field(_TL("Area"), TABLE_FIELDTYPE_Double);
+	pPolygs->Add_Field(_TL("Perimeter"), TABLE_FIELDTYPE_Double);
+	pPolygs->Add_Field(_TL("Area"), TABLE_FIELDTYPE_Double);
 	
 	for(int i=0; i<pPolygs->Get_Count() && Set_Progress(i, pPolygs->Get_Count()); i++){			
 		pShape = pPolygs->Get_Shape(i);		
@@ -78,10 +76,12 @@ bool CPolygon_Geometrics::On_Execute(void){
 			dPerim += (sqrt(pow(Point.x-Point2.x,2)+pow(Point.y-Point2.y,2)));
 		}//for
 		dArea= fabs(dArea/2);
-		pShape->Set_Value(pTable->Get_Field_Count()-2, dPerim);
-		pShape->Set_Value(pTable->Get_Field_Count()-1, dArea);
+		pShape->Set_Value(pPolygs->Get_Field_Count()-2, dPerim);
+		pShape->Set_Value(pPolygs->Get_Field_Count()-1, dArea);
 
 	}//for
+
+	DataObject_Update(pPolygs);
 
 	if (bSave)
 		pPolygs->Save(pPolygs->Get_File_Name());

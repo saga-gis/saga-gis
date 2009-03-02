@@ -1322,15 +1322,17 @@ bool CSG_Parameters::Get_String(CSG_String &String, bool bOptionsOnly)
 	{
 		for(int i=0; i<Get_Count(); i++)
 		{
-			if( (!bOptionsOnly || m_Parameters[i]->is_Option()) && !m_Parameters[i]->is_Information() )
+			CSG_Parameter	*p	= m_Parameters[i];
+
+			if( (!bOptionsOnly || p->is_Option()) && !p->is_Information() && !(p->Get_Type() == PARAMETER_TYPE_String && ((CSG_Parameter_String *)p->Get_Data())->is_Password()) )
 			{
 				bResult	= true;
 
 			//	String.Append(CSG_String::Format(SG_T("[%s] %s: %s\n"),
-			//		m_Parameters[i]->Get_Type_Name(),
+			//		p->Get_Type_Name(),
 				String.Append(CSG_String::Format(SG_T("%s: %s\n"),
-					m_Parameters[i]->Get_Name(),
-					m_Parameters[i]->asString())
+					p->Get_Name(),
+					p->asString())
 				);
 			}
 		}
@@ -1360,7 +1362,7 @@ bool CSG_Parameters::Msg_String(bool bOptionsOnly)
 //---------------------------------------------------------
 bool CSG_Parameters::Set_History(CSG_History &History, bool bOptions, bool bDataObjects)
 {
-	int			i, j;
+	int				i, j;
 	CSG_Data_Object	*pObject;
 	CSG_Parameter	*p;
 
@@ -1371,7 +1373,7 @@ bool CSG_Parameters::Set_History(CSG_History &History, bool bOptions, bool bData
 		{
 			p	= m_Parameters[i];
 
-			if(	p->is_Option() && !p->is_Information() )
+			if(	p->is_Option() && !p->is_Information() && !(p->Get_Type() == PARAMETER_TYPE_String && ((CSG_Parameter_String *)p->Get_Data())->is_Password()) )
 			{
 				History.Add_Entry(p->Get_Name(), p->asString());
 			}

@@ -282,6 +282,9 @@ bool CSG_Parameter::is_Serializable(void)
 	case PARAMETER_TYPE_DataObject_Output:
 		return( false );
 
+	case PARAMETER_TYPE_String:
+		return( ((CSG_Parameter_String *)Get_Data())->is_Password() == false );
+
 	default:
 		return( !is_Information() );
 	}
