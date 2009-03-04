@@ -91,7 +91,7 @@ CShapes2Grid::CShapes2Grid(void)
 	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
-		"Gridding of a shapes layer."
+		"Gridding of a shapes layer. If some shapes are selected, only these will be gridded."
 	));
 
 
@@ -337,6 +337,11 @@ bool CShapes2Grid::On_Execute(void)
 			for(i=0, m_Lock_ID=1; i<m_pShapes->Get_Count() && Set_Progress(i, m_pShapes->Get_Count()); i++, m_Lock_ID++)
 			{
 				pShape	= m_pShapes->Get_Shape(i);
+				if (m_pShapes->Get_Selection_Count() > 0)
+				{
+					if (!pShape->is_Selected())
+						continue;
+				}
 				m_Value	= iField < 0 ? i + 1 : pShape->asDouble(iField);
 
 				if( pShape->Intersects(m_pGrid->Get_Extent().m_rect) )
