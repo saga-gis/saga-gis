@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.11 2008-11-18 13:56:12 oconrad Exp $
+# $Id: Makefile.am,v 1.12 2009-03-11 15:08:35 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -19,6 +19,7 @@ GraticuleBuilder.cpp\
 Polygon_Clipper.cpp\
 MLB_Interface.cpp\
 NewLayerFromSelectedShapes.cpp\
+quadtree_structure.cpp\
 QueryBuilder.cpp\
 QueryParser.cpp\
 SearchInTable.cpp\
@@ -46,6 +47,7 @@ GraticuleBuilder.h\
 Polygon_Clipper.h\
 MLB_Interface.h\
 NewLayerFromSelectedShapes.h\
+quadtree_structure.cpp\
 QueryBuilder.h\
 QueryParser.h\
 SearchInTable.h\

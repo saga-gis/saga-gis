@@ -144,10 +144,6 @@ CInterpolation::CInterpolation(void)
 	);
 }
 
-//---------------------------------------------------------
-CInterpolation::~CInterpolation(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -222,25 +218,22 @@ bool CInterpolation::Interpolate(void)
 //---------------------------------------------------------
 CSG_Shapes * CInterpolation::Get_Points(void)
 {
-	int		iShape, iPart, iPoint;
-	CSG_Shape	*pShape , *pPoint;
-	CSG_Shapes	*pPoints;
-
 	m_pShapes	= Parameters("SHAPES")	->asShapes();
 
 	if( m_pShapes->Get_Type() != SHAPE_TYPE_Point )
 	{
-		pPoints	= SG_Create_Shapes(SHAPE_TYPE_Point, _TL(""), m_pShapes);
+		CSG_Shapes	*pPoints	= SG_Create_Shapes(SHAPE_TYPE_Point, _TL(""), m_pShapes);
 
-		for(iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
+		for(int iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
 		{
-			pShape	= m_pShapes->Get_Shape(iShape);
+			CSG_Shape	*pShape	= m_pShapes->Get_Shape(iShape);
 
-			for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
-				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
-					pPoint	= pPoints->Add_Shape(pShape, SHAPE_COPY_ATTR);
+					CSG_Shape	*pPoint	= pPoints->Add_Shape(pShape, SHAPE_COPY_ATTR);
+
 					pPoint->Add_Point(pShape->Get_Point(iPoint, iPart));
 				}
 			}
@@ -255,7 +248,7 @@ CSG_Shapes * CInterpolation::Get_Points(void)
 //---------------------------------------------------------
 bool CInterpolation::Set_Search_Engine(void)
 {
-	return( m_Search.Create(Get_Points()) );
+	return( m_Search.Create(m_pShapes, m_zField) );
 }
 
 

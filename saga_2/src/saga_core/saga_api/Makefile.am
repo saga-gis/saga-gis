@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.11 2008-04-03 10:57:11 oconrad Exp $
+# $Id: Makefile.am,v 1.12 2009-03-11 15:08:35 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -52,6 +52,7 @@ module_library_interface.cpp\
 parameter.cpp\
 parameter_data.cpp\
 parameters.cpp\
+quadtree.cpp\
 saga_api.cpp\
 shape.cpp\
 shape_line.cpp\

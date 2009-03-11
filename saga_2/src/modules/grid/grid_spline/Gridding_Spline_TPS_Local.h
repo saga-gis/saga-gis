@@ -83,7 +83,6 @@ class grid_spline_EXPORT CGridding_Spline_TPS_Local : public CGridding_Spline_TP
 {
 public:
 	CGridding_Spline_TPS_Local(void);
-	virtual ~CGridding_Spline_TPS_Local(void);
 
 
 protected:
@@ -97,7 +96,7 @@ private:
 
 	double					m_Radius;
 
-	CSG_Shapes_Search		m_Search;
+	CSG_PRQuadTree			m_Search;
 
 
 	int						Get_Points				(const TSG_Point &p, int iQuadrant = -1);

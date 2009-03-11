@@ -616,6 +616,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\quadtree_structure.cpp"
+				>
+			</File>
+			<File
 				RelativePath="QueryBuilder.cpp"
 				>
 				<FileConfiguration
@@ -1338,6 +1342,10 @@
 			</File>
 			<File
 				RelativePath=".\Polygon_Clipper.h"
+				>
+			</File>
+			<File
+				RelativePath=".\quadtree_structure.h"
 				>
 			</File>
 			<File

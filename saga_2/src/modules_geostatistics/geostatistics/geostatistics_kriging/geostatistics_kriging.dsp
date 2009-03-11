@@ -59,7 +59,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy   *.lng.txt   ..\..\..\..\bin\saga_vc\modules\ 
+PostBuild_Cmds=copy    *.lng.txt    ..\..\..\..\bin\saga_vc\modules\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "geostatistics_kriging - Win32 Debug"
@@ -204,6 +204,10 @@ SOURCE=.\MLB_Interface.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\semivariogram.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\sgui_diagram.cpp
 # End Source File
 # Begin Source File
@@ -265,6 +269,10 @@ SOURCE=.\kriging_universal_global.h
 # Begin Source File
 
 SOURCE=.\MLB_Interface.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\semivariogram.h
 # End Source File
 # Begin Source File
 

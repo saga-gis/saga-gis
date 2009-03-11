@@ -123,9 +123,9 @@ bool CKriging_Ordinary::On_Initialise(void)
 	m_Mode			= Parameters("MODE")		->asInt();
 
 	//-----------------------------------------------------
-	if( !m_Search.Create(m_pPoints) )
+	if( !m_Search.Create(m_pPoints, m_zField) )
 	{
-		SG_UI_Msg_Add(_TL("not enough points for interpolation"), true);
+		SG_UI_Msg_Add(_TL("could not initialize point search engine"), true);
 
 		return( false );
 	}
@@ -214,8 +214,8 @@ int CKriging_Ordinary::Get_Weights(double x, double y)
 	//-----------------------------------------------------
 	switch( m_Mode )
 	{
-	default:	n	= m_Search.Select_Radius	(x, y, m_Radius, false, m_nPoints_Max);	break;
-	case 1:		n	= m_Search.Select_Quadrants	(x, y, m_Radius, m_nPoints_Max);		break;
+	default:	n	= m_Search.Select_Nearest_Points(x, y, m_nPoints_Max, m_Radius);	break;
+	case 1:		n	= m_Search.Select_Nearest_Points(x, y, m_nPoints_Max, m_Radius, 4);	break;
 	}
 
 	//-----------------------------------------------------
@@ -223,10 +223,7 @@ int CKriging_Ordinary::Get_Weights(double x, double y)
 	{
 		for(i=0; i<n; i++)
 		{
-			CSG_Shape	*pPoint	= m_Search.Get_Selected_Point(i);
-			m_Points[i].x	= pPoint->Get_Point(0).x;
-			m_Points[i].y	= pPoint->Get_Point(0).y;
-			m_Points[i].z	= pPoint->asDouble(m_zField);
+			m_Search.Get_Selected_Point(i, m_Points[i].x, m_Points[i].y, m_Points[i].z);
 		}
 
 		//-------------------------------------------------

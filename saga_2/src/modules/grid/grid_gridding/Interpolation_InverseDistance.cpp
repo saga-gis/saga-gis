@@ -128,39 +128,37 @@ bool CInterpolation_InverseDistance::On_Initialize(void)
 bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &z)
 {
 	int			i, n;
-	double		ds;
-	TSG_Point	p;
-	CSG_Shape	*pPoint;
+	double		ix, iy, iz, d, w;
 
 	switch( m_Mode )
 	{
-	case 0:	n	= m_Search.Select_Radius	(x, y, m_Radius, false, m_nPoints_Max);		break;
-	case 1:	n	= m_Search.Select_Quadrants	(x, y, m_Radius, m_nPoints_Max);			break;
+	case 0:	n	= m_Search.Select_Nearest_Points(x, y, m_nPoints_Max, m_Radius);	break;
+	case 1:	n	= m_Search.Select_Nearest_Points(x, y, m_nPoints_Max, m_Radius, 4);	break;
 	}
 
-	for(i=0, z=0.0, ds=0.0, p.x=x, p.y=y; i<n; i++)
+	for(i=0, z=0.0, w=0.0; i<n; i++)
 	{
-		if( (pPoint	= m_Search.Get_Selected_Point(i)) != NULL )
+		if( m_Search.Get_Selected_Point(i, ix, iy, iz) )
 		{
-			double	d	= SG_Get_Distance(p, pPoint->Get_Point(0));
+			d	= SG_Get_Distance(x, y, ix, iy);
 
 			if( d <= 0.0 )
 			{
-				z	= pPoint->asDouble(m_zField);
+				z	= iz;
 
 				return( true );
 			}
 
 			d	= pow(d, -m_Power);
 
-			z	+= d * pPoint->asDouble(m_zField);
-			ds	+= d;
+			z	+= d * iz;
+			w	+= d;
 		}
 	}
 
-	if( ds > 0.0 )
+	if( w > 0.0 )
 	{
-		z	/= ds;
+		z	/= w;
 
 		return( true );
 	}

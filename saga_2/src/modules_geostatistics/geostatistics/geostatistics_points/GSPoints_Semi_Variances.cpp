@@ -97,7 +97,7 @@ CGSPoints_Semi_Variances::CGSPoints_Semi_Variances(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name	(_TL("Semi-Variogram"));
+	Set_Name	(_TL("Semivariogram"));
 
 	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 

@@ -98,7 +98,7 @@ protected:
 
 	CSG_Matrix				m_W;
 
-	CSG_Shapes_Search		m_Search;
+	CSG_PRQuadTree			m_Search;
 
 	CSG_Grid				*m_pGrid, *m_pVariance;
 

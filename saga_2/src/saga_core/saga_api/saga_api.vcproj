@@ -1930,6 +1930,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\quadtree.cpp"
+				>
+			</File>
+			<File
 				RelativePath="saga_api.cpp"
 				>
 				<FileConfiguration

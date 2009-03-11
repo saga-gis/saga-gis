@@ -83,7 +83,6 @@ class CInterpolation_NearestNeighbour : public CInterpolation
 {
 public:
 	CInterpolation_NearestNeighbour(void);
-	virtual ~CInterpolation_NearestNeighbour(void);
 
 
 protected:

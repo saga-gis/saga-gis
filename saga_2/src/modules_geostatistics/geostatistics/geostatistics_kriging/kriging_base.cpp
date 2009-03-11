@@ -122,15 +122,15 @@ CKriging_Base::CKriging_Base(void)
 	);
 
 	Parameters.Add_Value(
-		pNode	, "DISTLAG"		, _TL("Distance Increment"),
-		_TL(""),
-		PARAMETER_TYPE_Double	, 10.0, 0.0, true
-	);
-
-	Parameters.Add_Value(
 		pNode	, "DISTMAX"		, _TL("Maximum Distance"),
 		_TL(""),
 		PARAMETER_TYPE_Double	, -1.0
+	);
+
+	Parameters.Add_Value(
+		pNode	, "DISTCOUNT"	, _TL("Initial Number of Distance Classes"),
+		_TL(""),
+		PARAMETER_TYPE_Int		, 100, 1, true
 	);
 
 	Parameters.Add_Value(
@@ -450,103 +450,66 @@ enum
 //---------------------------------------------------------
 bool CKriging_Base::_Get_Variances(void)
 {
-	int					iDif, nVar, nVarS, nSkip;
-	double				iDist, dz, zVar, zVarS, Dist, Dist_Step, Dist_Max;
-	CSG_Table_Record	*pRec_Dif;
-	CSG_Table			Differences;
+	int			i, j, k, n, nDistances, nSkip;
+	double		z, d, dx, dy, maxDistance, lagDistance;
+	TSG_Point	Pt_i, Pt_j;
+	CSG_Vector	Count, Variance;
+	CSG_Shape	*pPoint;
 
 	//-----------------------------------------------------
-	nSkip		= Parameters("NSKIP")	->asInt();
-	Dist_Max	= Parameters("DISTMAX")	->asDouble();
-	Dist_Step	= Parameters("DISTLAG")	->asDouble();
+	nSkip		= Parameters("NSKIP")		->asInt();
+	maxDistance	= Parameters("DISTMAX")		->asDouble();
+	nDistances	= Parameters("DISTCOUNT")	->asInt();
 
-	//-----------------------------------------------------
-	if( _Get_Differences(&Differences, m_zField, nSkip, Dist_Max) )
+	if( maxDistance <= 0.0 )
 	{
-		Differences.Set_Index(DIF_FIELD_DISTANCE, TABLE_INDEX_Ascending);
-
-		m_Variances	.Clear();
-
-		//-----------------------------------------------------
-		iDist		= 0.0;
-		zVar		= 0.0;
-		nVar		= 0;
-		zVarS		= 0.0;
-		nVarS		= 0;
-
-		//-----------------------------------------------------
-		for(iDif=0; iDif<Differences.Get_Record_Count() && Set_Progress(iDif, Differences.Get_Record_Count()); iDif++)
-		{
-			pRec_Dif	= Differences.Get_Record_byIndex(iDif);
-
-			if( (Dist = pRec_Dif->asDouble(DIF_FIELD_DISTANCE)) > iDist )
-			{
-				if( nVar > 0 )
-				{
-					zVarS	+= zVar;
-					nVarS	+= nVar;
-
-					m_Variances.Add(iDist, 0.5 * zVarS / (double)nVarS);
-				}
-
-				zVar		= 0.0;
-				nVar		= 0;
-
-				do	iDist	+= Dist_Step;	while( Dist > iDist );
-			}
-
-			dz		= pRec_Dif->asDouble(DIF_FIELD_DIFFERENCE);
-			zVar	+= dz*dz;
-			nVar++;
-		}
-
-		//-----------------------------------------------------
-		Differences.Set_Index(DIF_FIELD_DISTANCE, TABLE_INDEX_None);
-
-		return( Process_Get_Okay(false) );
+		maxDistance	= SG_Get_Length(m_pPoints->Get_Extent().Get_XRange(), m_pPoints->Get_Extent().Get_XRange());
 	}
 
-	return( false );
-}
+	lagDistance	= maxDistance / nDistances;
 
-//---------------------------------------------------------
-bool CKriging_Base::_Get_Differences(CSG_Table *pTable, int zField, int nSkip, double maxDist)
-{
-	int					iPoint, jPoint;
-	double				d, dx, dy, z;
-	CSG_Shape			*pPoint;
-	CSG_Table_Record	*pRecord;
-	TSG_Point			Pt_i, Pt_j;
+	Count		.Create(nDistances);
+	Variance	.Create(nDistances);
 
 	//-----------------------------------------------------
-	pTable->Destroy();
-	pTable->Add_Field(_TL("Distance")	, TABLE_FIELDTYPE_Double);	// DIF_FIELD_DISTANCE
-	pTable->Add_Field(_TL("Difference")	, TABLE_FIELDTYPE_Double);	// DIF_FIELD_DIFFERENCE
-
-	//-----------------------------------------------------
-	for(iPoint=0; iPoint<m_pPoints->Get_Count()-nSkip && Set_Progress(iPoint, m_pPoints->Get_Count()-nSkip); iPoint+=nSkip)
+	for(i=0, n=0; i<m_pPoints->Get_Count()-nSkip && Set_Progress(n, SG_Get_Square(m_pPoints->Get_Count()/nSkip)/2); i+=nSkip)
 	{
-		pPoint	= m_pPoints->Get_Shape(iPoint);
+		pPoint	= m_pPoints->Get_Shape(i);
 		Pt_i	= pPoint->Get_Point(0);
-		z		= pPoint->asDouble(zField);
+		z		= pPoint->asDouble(m_zField);
 
-		for(jPoint=iPoint+nSkip; jPoint<m_pPoints->Get_Count(); jPoint+=nSkip)
+		for(j=i+nSkip; j<m_pPoints->Get_Count(); j+=nSkip, n++)
 		{
-			pPoint	= m_pPoints->Get_Shape(jPoint);
+			pPoint	= m_pPoints->Get_Shape(j);
 			Pt_j	= pPoint->Get_Point(0);
 			dx		= Pt_j.x - Pt_i.x;
 			dy		= Pt_j.y - Pt_i.y;
+			d		= sqrt(dx*dx + dy*dy);
+			k		= (int)(d / lagDistance);
 
-			if( (d = sqrt(dx*dx + dy*dy)) < maxDist || maxDist < 0.0 )
+			if( k < nDistances )
 			{
-				pRecord	= pTable->Add_Record();
-				pRecord->Set_Value(DIF_FIELD_DISTANCE	, d);
-				pRecord->Set_Value(DIF_FIELD_DIFFERENCE	, pPoint->asDouble(zField) - z);
+				d	= pPoint->asDouble(m_zField) - z;
+
+				Count	[k]	++;
+				Variance[k]	+= d * d;
 			}
 		}
 	}
 
-	return( Process_Get_Okay(false) );
+	//-----------------------------------------------------
+	for(i=0, z=0.0, n=0; i<nDistances && Process_Get_Okay(); i++)
+	{
+		if( Count[i] > 0 )
+		{
+			n	+= Count	[i];
+			z	+= Variance	[i];
+
+			m_Variances.Add((i + 0.5) * lagDistance, 0.5 * z / n);
+		}
+	}
+
+	return( Process_Get_Okay() );
 }
 
 

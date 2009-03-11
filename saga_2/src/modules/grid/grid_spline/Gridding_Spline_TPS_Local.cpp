@@ -131,10 +131,6 @@ CGridding_Spline_TPS_Local::CGridding_Spline_TPS_Local(void)
 	Parameters("REGUL")->Set_Value(0.0001);
 }
 
-//---------------------------------------------------------
-CGridding_Spline_TPS_Local::~CGridding_Spline_TPS_Local(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -147,7 +143,7 @@ bool CGridding_Spline_TPS_Local::On_Execute(void)
 {
 	bool	bResult	= false;
 
-	if( Initialise() && m_Search.Create(m_pShapes) )
+	if( Initialise() && m_Search.Create(m_pShapes, m_zField) )
 	{
 		m_Radius		= Parameters("RADIUS")		->asDouble();
 		m_nPoints_Max	= Parameters("SELECT")		->asInt() == 1
@@ -184,15 +180,15 @@ bool CGridding_Spline_TPS_Local::On_Execute(void)
 //---------------------------------------------------------
 int CGridding_Spline_TPS_Local::Get_Points(const TSG_Point &p, int iQuadrant)
 {
-	if( m_Search.Select_Radius(p.x, p.y, m_Radius, true, m_nPoints_Max, iQuadrant) > 0 )
-	{
-		for(int iPoint=0; iPoint<m_Search.Get_Selected_Count(); iPoint++)
-		{
-			CSG_Shape	*pPoint	= m_Search.Get_Selected_Point(iPoint);
+	double	x, y, z;
 
-			if( pPoint != NULL )
+	if( m_Search.Select_Nearest_Points(p.x, p.y, m_nPoints_Max, m_Radius, iQuadrant) > 0 )
+	{
+		for(int i=0; i<m_Search.Get_Selected_Count(); i++)
+		{
+			if( m_Search.Get_Selected_Point(i, x, y, z) )
 			{
-				m_Spline.Add_Point(pPoint->Get_Point(0), pPoint->asDouble(m_zField));
+				m_Spline.Add_Point(x, y, z);
 			}
 		}
 	}

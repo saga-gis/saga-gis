@@ -74,7 +74,7 @@ const SG_Char * Get_Info(int i)
 		return( _TL("Shapes - Tools") );
 
 	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad, Victor Olaya (c) 2002-2006") );
+		return( _TL("Olaf Conrad, Victor Olaya (c) 2002-2009") );
 
 	case MLB_INFO_Description:
 		return( _TL("Tools for the manipulation of vector data.") );
@@ -116,6 +116,8 @@ const SG_Char * Get_Info(int i)
 #include "shapes_buffer.h"
 #include "shapes_extents.h"
 
+#include "quadtree_structure.h"
+
 
 //---------------------------------------------------------
 // 4. Allow your modules to be created here...
@@ -145,6 +147,7 @@ CSG_Module *		Create_Module(int i)
 	case 18:	return( new CShapes_Split_by_Attribute );
 	case 19:	return( new CShapes_Buffer );
 	case 20:	return( new CShapes_Extents );
+	case 21:	return( new CQuadTree_Structure );
 	}
 
 	return( NULL );

@@ -115,7 +115,7 @@ bool C_Kriging_Universal::On_Initialise(void)
 	m_nPoints_Max	= (int)Parameters("NPOINTS")->asRange()->Get_HiVal();
 
 	//-----------------------------------------------------
-	if( m_Search.Create(m_pShapes) )
+	if( m_Search.Create(m_pShapes, m_zField) )
 	{
 		m_Points.Set_Count	(m_nPoints_Max);
 		m_G		.Create		(m_nPoints_Max + 1 + m_pGrids->Get_Count());
@@ -201,14 +201,11 @@ int C_Kriging_Universal::Get_Weights(double x, double y)
 	int		i, j, n, iGrid, nGrids;
 
 	//-----------------------------------------------------
-	if( (n = m_Search.Select_Radius(x, y, m_Radius, true, m_nPoints_Max)) >= m_nPoints_Min && (nGrids = m_pGrids->Get_Count()) > 0 )
+	if( (n = m_Search.Select_Nearest_Points(x, y, m_nPoints_Max, m_Radius)) >= m_nPoints_Min  && (nGrids = m_pGrids->Get_Count()) > 0 )
 	{
 		for(i=0; i<n; i++)
 		{
-			CSG_Shape *pPoint	= m_Search.Get_Selected_Point(i);
-			m_Points[i].x	= pPoint->Get_Point(0).x;
-			m_Points[i].y	= pPoint->Get_Point(0).y;
-			m_Points[i].z	= pPoint->asDouble(m_zField);
+			m_Search.Get_Selected_Point(i, m_Points[i].x, m_Points[i].y, m_Points[i].z);
 		}
 
 		//-------------------------------------------------

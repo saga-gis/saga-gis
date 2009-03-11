@@ -602,6 +602,171 @@ SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(TSG_Shape_Type Type, const SG
 
 ///////////////////////////////////////////////////////////
 //														 //
+//				Point Region QuadTree					 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_PRQuadTree_Item
+{
+public:
+
+	virtual bool			is_Leaf			(void)	const	{	return( false );	}
+	virtual bool			is_Node			(void)	const	{	return( false );	}
+
+	CSG_Rect				Get_Extent		(void)	const	{	return( CSG_Rect(m_xCenter - m_Size, m_yCenter - m_Size, m_xCenter + m_Size, m_yCenter + m_Size) );	}
+	double					Get_xMin		(void)	const	{	return( m_xCenter - m_Size );	}
+	double					Get_yMin		(void)	const	{	return( m_yCenter - m_Size );	}
+	double					Get_xCenter		(void)	const	{	return( m_xCenter          );	}
+	double					Get_yCenter		(void)	const	{	return( m_yCenter          );	}
+	double					Get_xMax		(void)	const	{	return( m_xCenter + m_Size );	}
+	double					Get_yMax		(void)	const	{	return( m_yCenter + m_Size );	}
+	double					Get_Size		(void)	const	{	return( m_Size * 2.0       );	}
+
+	bool					Contains		(double x, double y)	const
+	{
+		return(	m_xCenter - m_Size <= x && x < m_xCenter + m_Size
+			&&	m_yCenter - m_Size <= y && y < m_yCenter + m_Size );
+	}
+
+	class CSG_PRQuadTree_Leaf *	asLeaf		(void)	const	{	return( (class CSG_PRQuadTree_Leaf *)this );	}
+	class CSG_PRQuadTree_Node *	asNode		(void)	const	{	return( (class CSG_PRQuadTree_Node *)this );	}
+
+
+protected:
+
+	CSG_PRQuadTree_Item(double xCenter, double yCenter, double Size)
+	{
+		m_xCenter	= xCenter;
+		m_yCenter	= yCenter;
+		m_Size		= Size;
+	}
+
+
+	double					m_xCenter, m_yCenter, m_Size;
+
+};
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_PRQuadTree_Leaf : public CSG_PRQuadTree_Item
+{
+	friend class CSG_PRQuadTree_Node;
+
+public:
+
+	virtual bool			is_Leaf			(void)	const	{	return( true );		}
+
+	const TSG_Point &		Get_Point		(void)	const	{	return( m_Point );		}
+	double					Get_X			(void)	const	{	return( m_Point.x );	}
+	double					Get_Y			(void)	const	{	return( m_Point.y );	}
+	double					Get_Z			(void)	const	{	return( m_z );			}
+
+
+protected:
+
+	CSG_PRQuadTree_Leaf(double xCenter, double yCenter, double Size, double x, double y, double z)
+		: CSG_PRQuadTree_Item(xCenter, yCenter, Size)
+	{
+		m_Point.x	= x;
+		m_Point.y	= y;
+		m_z			= z;
+	}
+
+
+	double					m_z;
+
+	TSG_Point				m_Point;
+
+};
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_PRQuadTree_Node : public CSG_PRQuadTree_Item
+{
+	friend class CSG_PRQuadTree;
+
+public:
+
+	virtual bool			is_Node			(void)	const	{	return( true );		}
+
+	CSG_PRQuadTree_Item *	Get_Child		(int i)	const	{	return( i >= 0 && i < 4 ? m_pChildren[i] : NULL );	}
+
+	bool					Add_Point		(double x, double y, double z);
+
+
+protected:
+
+	CSG_PRQuadTree_Node(double xCenter, double yCenter, double Size);
+	CSG_PRQuadTree_Node(CSG_PRQuadTree_Leaf *pLeaf);
+	virtual ~CSG_PRQuadTree_Node(void);
+
+
+	CSG_PRQuadTree_Item		*m_pChildren[4];
+
+};
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_PRQuadTree
+{
+public:
+	CSG_PRQuadTree(void);
+	CSG_PRQuadTree(const TSG_Rect &Extent);
+	CSG_PRQuadTree(CSG_Shapes *pShapes, int Attribute);
+	virtual ~CSG_PRQuadTree(void);
+
+	bool						Create					(const CSG_Rect &Extent);
+	bool						Create					(CSG_Shapes *pShapes, int Attribute);
+	void						Destroy					(void);
+
+	bool						Add_Point				(double x, double y, double z);
+
+	const CSG_PRQuadTree_Node &	Get_Root				(void) const	{	return( *m_pRoot );			}
+
+	bool						is_Okay					(void) const	{	return( m_pRoot != NULL );	}
+
+	bool						Get_Nearest_Point		(double x, double y, TSG_Point &Point, double &Value, double &Distance);
+
+	int							Select_Nearest_Points	(double x, double y, int maxPoints, double Radius = 0.0, int iQuadrant = -1);
+
+	int							Get_Selected_Count		(void) const	{	return( m_nSelected );		}
+
+	bool						Get_Selected_Point		(int i, double &x, double &y, double &z) const
+	{
+		if( i >= 0 && i < m_nSelected )
+		{
+			x	= m_Selected[i][0];
+			y	= m_Selected[i][1];
+			z	= m_Selected[i][2];
+
+			return( true );
+		}
+
+		return( false );
+	}
+
+
+private:
+
+	int							m_nSelected;
+
+	CSG_Matrix					m_Selected;
+
+	CSG_PRQuadTree_Node			*m_pRoot;
+
+	bool						_Quadrant_Contains		(double x, double y, int iQuadrant, const TSG_Point &p);
+	bool						_Radius_Contains		(double x, double y, double r, const TSG_Point &p);
+	bool						_Radius_Contains		(double x, double y, double r, int iQuadrant, const TSG_Point &p);
+	bool						_Quadrant_Intersects	(double x, double y, int iQuadrant, CSG_PRQuadTree_Item *pItem);
+	bool						_Radius_Intersects		(double x, double y, double r, CSG_PRQuadTree_Item *pItem);
+	bool						_Radius_Intersects		(double x, double y, double r, int iQuadrant, CSG_PRQuadTree_Item *pItem);
+
+	void						_Get_Nearest_Point		(CSG_PRQuadTree_Item *pItem, double x, double y, double &maxDistance, double Point[4]);
+	void						_Get_Nearest_Points		(CSG_PRQuadTree_Item *pItem, double x, double y, double &maxDistance, double Radius, int iQuadrant);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //					Search Engine						 //
 //														 //
 ///////////////////////////////////////////////////////////

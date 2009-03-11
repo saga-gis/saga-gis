@@ -668,8 +668,8 @@ void CVIEW_Table_Diagram::_Draw_Bars(wxDC &dc, wxRect r, double dx, double dy, i
 	int		iRecord, x, y, xa, xb, dxa, dxb;
 	wxPen	Pen;
 
-	dxb		= (int)(dx / m_nFields);
-	dxa		= (int)(dx / m_nFields * iField);
+	dxb		= m_xField < 0 ? (int)(dx / m_nFields)			: iField + 1;
+	dxa		= m_xField < 0 ? (int)(dx / m_nFields * iField)	: iField + 0;
 
 	iField	= m_Fields[iField];
 
@@ -678,7 +678,9 @@ void CVIEW_Table_Diagram::_Draw_Bars(wxDC &dc, wxRect r, double dx, double dy, i
 
 	for(iRecord=0; iRecord<m_pTable->Get_Record_Count(); iRecord++)
 	{
-		xa	= dxa + r.GetLeft() + (int)(dx * iRecord);
+		xa	= dxa + r.GetLeft() + (m_xField < 0
+			? (int)(dx * iRecord)
+			: (int)(dx * (m_pTable->Get_Record_byIndex(iRecord)->asDouble(m_xField) - m_xMin)));
 		xb	= dxb + xa;
 
 		y	= r.GetBottom()	- (int)(dy * (m_pTable->Get_Record_byIndex(iRecord)->asDouble(iField) - m_zMin));

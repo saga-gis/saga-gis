@@ -102,7 +102,7 @@ protected:
 
 	CSG_Matrix				m_W;
 
-	CSG_Shapes_Search		m_Search;
+	CSG_PRQuadTree			m_Search;
 
 	CSG_Shapes				*m_pPoints;
 
@@ -133,7 +133,6 @@ private:
 	bool					_Interpolate			(void);
 
 	bool					_Get_Variances			(void);
-	bool					_Get_Differences		(CSG_Table *pTable, int zField, int nSkip, double maxDist);
 
 };
 

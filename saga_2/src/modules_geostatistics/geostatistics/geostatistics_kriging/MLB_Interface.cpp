@@ -96,6 +96,8 @@ const SG_Char * Get_Info(int i)
 #include "kriging_universal.h"
 #include "kriging_universal_global.h"
 
+#include "semivariogram.h"
+
 #include "_kriging_ordinary.h"
 #include "_kriging_ordinary_global.h"
 #include "_kriging_universal.h"
@@ -109,15 +111,17 @@ CSG_Module *		Create_Module(int i)
 {
 	switch( i )
 	{
-	case 0:		return( new CKriging_Ordinary );			break;
-	case 1:		return( new CKriging_Ordinary_Global );		break;
-	case 2:		return( new CKriging_Universal );			break;
-	case 3:		return( new CKriging_Universal_Global );	break;
+	case 0:		return( new CKriging_Ordinary );
+	case 1:		return( new CKriging_Ordinary_Global );
+	case 2:		return( new CKriging_Universal );
+	case 3:		return( new CKriging_Universal_Global );
 
-	case 4:		return( new C_Kriging_Ordinary );			break;
-	case 5:		return( new C_Kriging_Ordinary_Global );	break;
-	case 6:		return( new C_Kriging_Universal );			break;
-	case 7:		return( new C_Kriging_Universal_Global );	break;
+	case 4:		return( new CSemiVariogram );
+
+	case 5:		return( new C_Kriging_Ordinary );
+	case 6:		return( new C_Kriging_Ordinary_Global );
+	case 7:		return( new C_Kriging_Universal );
+	case 8:		return( new C_Kriging_Universal_Global );
 	}
 
 	return( NULL );

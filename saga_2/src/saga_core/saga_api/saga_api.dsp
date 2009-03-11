@@ -308,6 +308,10 @@ SOURCE=.\parameters.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\quadtree.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\saga_api.cpp
 # End Source File
 # Begin Source File

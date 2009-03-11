@@ -11,7 +11,7 @@ LIB_NAME  = $(BIN_SAGA)/lib$(PRJ_NAME).so
 CPP       = g++
 LD        = g++
 
-OBJ       = $(TMP_SAGA)/api_callback.o $(TMP_SAGA)/api_colors.o $(TMP_SAGA)/api_core.o $(TMP_SAGA)/api_file.o $(TMP_SAGA)/api_history.o $(TMP_SAGA)/api_memory.o $(TMP_SAGA)/api_string.o $(TMP_SAGA)/api_translator.o $(TMP_SAGA)/dataobject.o $(TMP_SAGA)/doc_html.o $(TMP_SAGA)/doc_pdf.o $(TMP_SAGA)/doc_svg.o $(TMP_SAGA)/geo_classes.o $(TMP_SAGA)/geo_functions.o $(TMP_SAGA)/grid.o $(TMP_SAGA)/grid_io.o $(TMP_SAGA)/grid_memory.o $(TMP_SAGA)/grid_operation.o $(TMP_SAGA)/grid_system.o $(TMP_SAGA)/mat_formula.o $(TMP_SAGA)/mat_grid_radius.o $(TMP_SAGA)/mat_indexing.o $(TMP_SAGA)/mat_matrix.o $(TMP_SAGA)/mat_regression.o $(TMP_SAGA)/mat_regression_multiple.o $(TMP_SAGA)/mat_spline.o $(TMP_SAGA)/mat_tools.o $(TMP_SAGA)/mat_trend.o $(TMP_SAGA)/module.o $(TMP_SAGA)/module_grid.o $(TMP_SAGA)/module_grid_interactive.o $(TMP_SAGA)/module_interactive.o $(TMP_SAGA)/module_interactive_base.o $(TMP_SAGA)/module_library.o $(TMP_SAGA)/module_library_interface.o $(TMP_SAGA)/parameter.o $(TMP_SAGA)/parameter_data.o $(TMP_SAGA)/parameters.o $(TMP_SAGA)/saga_api.o $(TMP_SAGA)/shape.o $(TMP_SAGA)/shape_line.o $(TMP_SAGA)/shape_part.o $(TMP_SAGA)/shape_point.o $(TMP_SAGA)/shape_points.o $(TMP_SAGA)/shape_polygon.o $(TMP_SAGA)/shapes.o $(TMP_SAGA)/shapes_io.o $(TMP_SAGA)/shapes_search.o $(TMP_SAGA)/shapes_selection.o $(TMP_SAGA)/table.o $(TMP_SAGA)/table_dbase.o $(TMP_SAGA)/table_io.o $(TMP_SAGA)/table_record.o $(TMP_SAGA)/table_selection.o $(TMP_SAGA)/tin.o $(TMP_SAGA)/tin_elements.o $(TMP_SAGA)/tin_triangulation.o
+OBJ       = $(TMP_SAGA)/api_callback.o $(TMP_SAGA)/api_colors.o $(TMP_SAGA)/api_core.o $(TMP_SAGA)/api_file.o $(TMP_SAGA)/api_history.o $(TMP_SAGA)/api_memory.o $(TMP_SAGA)/api_string.o $(TMP_SAGA)/api_translator.o $(TMP_SAGA)/dataobject.o $(TMP_SAGA)/doc_html.o $(TMP_SAGA)/doc_pdf.o $(TMP_SAGA)/doc_svg.o $(TMP_SAGA)/geo_classes.o $(TMP_SAGA)/geo_functions.o $(TMP_SAGA)/grid.o $(TMP_SAGA)/grid_io.o $(TMP_SAGA)/grid_memory.o $(TMP_SAGA)/grid_operation.o $(TMP_SAGA)/grid_system.o $(TMP_SAGA)/mat_formula.o $(TMP_SAGA)/mat_grid_radius.o $(TMP_SAGA)/mat_indexing.o $(TMP_SAGA)/mat_matrix.o $(TMP_SAGA)/mat_regression.o $(TMP_SAGA)/mat_regression_multiple.o $(TMP_SAGA)/mat_spline.o $(TMP_SAGA)/mat_tools.o $(TMP_SAGA)/mat_trend.o $(TMP_SAGA)/module.o $(TMP_SAGA)/module_grid.o $(TMP_SAGA)/module_grid_interactive.o $(TMP_SAGA)/module_interactive.o $(TMP_SAGA)/module_interactive_base.o $(TMP_SAGA)/module_library.o $(TMP_SAGA)/module_library_interface.o $(TMP_SAGA)/parameter.o $(TMP_SAGA)/parameter_data.o $(TMP_SAGA)/parameters.o $(TMP_SAGA)/quadtree.o $(TMP_SAGA)/saga_api.o $(TMP_SAGA)/shape.o $(TMP_SAGA)/shape_line.o $(TMP_SAGA)/shape_part.o $(TMP_SAGA)/shape_point.o $(TMP_SAGA)/shape_points.o $(TMP_SAGA)/shape_polygon.o $(TMP_SAGA)/shapes.o $(TMP_SAGA)/shapes_io.o $(TMP_SAGA)/shapes_search.o $(TMP_SAGA)/shapes_selection.o $(TMP_SAGA)/table.o $(TMP_SAGA)/table_dbase.o $(TMP_SAGA)/table_io.o $(TMP_SAGA)/table_record.o $(TMP_SAGA)/table_selection.o $(TMP_SAGA)/tin.o $(TMP_SAGA)/tin_elements.o $(TMP_SAGA)/tin_triangulation.o
 
 DEF_SAGA  = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_API_EXPORTS
 CXX_INCS  =
@@ -162,6 +162,9 @@ $(TMP_SAGA)/parameter_data.o: parameter_data.cpp
 
 $(TMP_SAGA)/parameters.o: parameters.cpp
 	$(CPP) -c parameters.cpp -o $(TMP_SAGA)/parameters.o $(CXXFLAGS)
+
+$(TMP_SAGA)/quadtree.o: quadtree.cpp
+	$(CPP) -c quadtree.cpp -o $(TMP_SAGA)/quadtree.o $(CXXFLAGS)
 
 $(TMP_SAGA)/saga_api.o: saga_api.cpp
 	$(CPP) -c saga_api.cpp -o $(TMP_SAGA)/saga_api.o $(CXXFLAGS)
