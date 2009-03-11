@@ -492,6 +492,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\semivariogram.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\sgui_diagram.cpp"
 				>
 			</File>
@@ -554,6 +558,10 @@
 			</File>
 			<File
 				RelativePath="MLB_Interface.h"
+				>
+			</File>
+			<File
+				RelativePath=".\semivariogram.h"
 				>
 			</File>
 			<File

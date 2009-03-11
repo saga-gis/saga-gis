@@ -25,6 +25,7 @@ kriging_ordinary_global.cpp\
 kriging_universal.cpp\
 kriging_universal_global.cpp\
 MLB_Interface.cpp\
+semivariogram.cpp\
 sgui_diagram.cpp\
 sgui_dialog.cpp\
 sgui_helper.cpp\
@@ -40,6 +41,7 @@ kriging_ordinary_global.h\
 kriging_universal.h\
 kriging_universal_global.h\
 MLB_Interface.h\
+semivariogram.h\
 sgui_diagram.h\
 sgui_dialog.h\
 sgui_helper.h\

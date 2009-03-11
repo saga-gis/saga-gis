@@ -159,7 +159,7 @@ bool CSG_TIN::_Triangulate(void)
 	//-----------------------------------------------------
 	for(i=Get_Node_Count(); i<Get_Node_Count()+3; i++)
 	{
-		Nodes[i]	= new CSG_TIN_Node(this, NULL);
+		Nodes[i]	= new CSG_TIN_Node(this, 0);
 	}
 
 	//-----------------------------------------------------
