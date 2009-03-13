@@ -762,6 +762,10 @@ void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
 			s.Printf( SG_T("%f; %f; %f"), d[0], d[1], d[2]);
 			m_pPG->SetPropertyValue(Id, s.c_str());
 			break;
+
+		case PARAMETER_TYPE_Choice:
+			((CParameters_PG_Choice *)Id.GetPropertyPtr())->Update();
+			break;
 		}
 	}
 }
