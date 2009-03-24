@@ -1102,7 +1102,7 @@ public:
 	int							Assign					(CSG_Parameters *pSource);
 	int							Assign_Values			(CSG_Parameters *pSource);
 
-	bool						Serialize				(const SG_Char *File_Name	, bool bSave);
+	bool						Serialize				(const CSG_String &File_Name, bool bSave);
 	bool						Serialize				(CSG_File &Stream			, bool bSave);
 
 	//-----------------------------------------------------

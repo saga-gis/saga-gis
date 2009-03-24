@@ -1002,7 +1002,7 @@ int CSG_Parameters::Assign_Values(CSG_Parameters *pSource)
 #define PARAMETER_ENTRY_END					SG_T("[PARAMETER_ENTRY_END]")
 
 //---------------------------------------------------------
-bool CSG_Parameters::Serialize(const SG_Char *File_Name, bool bSave)
+bool CSG_Parameters::Serialize(const CSG_String &File_Name, bool bSave)
 {
 	bool		bResult	= false;
 	CSG_File	Stream;

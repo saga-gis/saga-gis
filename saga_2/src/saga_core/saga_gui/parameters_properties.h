@@ -101,6 +101,8 @@ protected:
 
 	class CSG_Parameter			*m_pParameter;
 
+	wxArrayPtrVoid				m_choices_data;
+
 
 	void						_Create				(void);
 	void						_Destroy			(void);
@@ -148,6 +150,8 @@ protected:
 	int							m_index;
 
 	class CSG_Parameter			*m_pParameter;
+
+	wxArrayPtrVoid				m_choices_data;
 
 
 	void						_Create				(void);

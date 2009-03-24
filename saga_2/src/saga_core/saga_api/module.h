@@ -499,7 +499,7 @@ public:
 	bool						Add_Module				(CSG_Module *pModule);
 	CSG_Module *				Get_Module				(int iModule);
 
-	void						Set_File_Name			(const SG_Char *File_Name);
+	void						Set_File_Name			(const CSG_String &File_Name);
 	const SG_Char *				Get_File_Name			(void);
 
 	const SG_Char *				Get_Translation			(const SG_Char *Text);

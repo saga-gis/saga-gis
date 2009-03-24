@@ -73,14 +73,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Table::_Load(const SG_Char *File_Name, TSG_Table_File_Type Format, const SG_Char *Separator)
+bool CSG_Table::_Load(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char *Separator)
 {
 	bool		bResult;
 	CSG_String	fName, sSeparator(Separator);
 
 	_Destroy();
 
-	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Load table"), File_Name), true);
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Load table"), File_Name.c_str()), true);
 
 	//-----------------------------------------------------
 	if( Format == TABLE_FILETYPE_Undefined )
@@ -144,18 +144,18 @@ bool CSG_Table::_Load(const SG_Char *File_Name, TSG_Table_File_Type Format, cons
 }
 
 //---------------------------------------------------------
-bool CSG_Table::Save(const SG_Char *File_Name, int Format)
+bool CSG_Table::Save(const CSG_String &File_Name, int Format)
 {
 	return( Save(File_Name, Format, SG_T("\t")) );
 }
 
 //---------------------------------------------------------
-bool CSG_Table::Save(const SG_Char *File_Name, int Format, const SG_Char *Separator)
+bool CSG_Table::Save(const CSG_String &File_Name, int Format, const SG_Char *Separator)
 {
 	bool		bResult;
 	CSG_String	sSeparator(Separator);
 
-	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Save table"), File_Name), true);
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Save table"), File_Name.c_str()), true);
 
 	//-----------------------------------------------------
 	if( Format <= TABLE_FILETYPE_Undefined || Format > TABLE_FILETYPE_DBase )
@@ -221,7 +221,7 @@ bool CSG_Table::Save(const SG_Char *File_Name, int Format, const SG_Char *Separa
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Table::_Load_Text(const SG_Char *File_Name, bool bHeadline, const SG_Char *Separator)
+bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG_Char *Separator)
 {
 	bool				bNumeric, bFloat;
 	int					i, iField, iRecord, fLength;
@@ -351,7 +351,7 @@ bool CSG_Table::_Load_Text(const SG_Char *File_Name, bool bHeadline, const SG_Ch
 }
 
 //---------------------------------------------------------
-bool CSG_Table::_Save_Text(const SG_Char *File_Name, bool bHeadline, const SG_Char *Separator)
+bool CSG_Table::_Save_Text(const CSG_String &File_Name, bool bHeadline, const SG_Char *Separator)
 {
 	int			iField, iRecord;
 	CSG_File	Stream;
@@ -391,7 +391,7 @@ bool CSG_Table::_Save_Text(const SG_Char *File_Name, bool bHeadline, const SG_Ch
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Table::_Load_DBase(const SG_Char *File_Name)
+bool CSG_Table::_Load_DBase(const CSG_String &File_Name)
 {
 	int					iField;
 	CSG_Table_DBase		dbf;
@@ -485,7 +485,7 @@ bool CSG_Table::_Load_DBase(const SG_Char *File_Name)
 }
 
 //---------------------------------------------------------
-bool CSG_Table::_Save_DBase(const SG_Char *File_Name)
+bool CSG_Table::_Save_DBase(const CSG_String &File_Name)
 {
 	int							iField, iRecord;
 	CSG_Table_Record			*pRecord;

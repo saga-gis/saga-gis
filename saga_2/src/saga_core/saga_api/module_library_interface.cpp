@@ -158,7 +158,7 @@ CSG_Module * CSG_Module_Library_Interface::Get_Module(int iModule)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Module_Library_Interface::Set_File_Name(const SG_Char *File_Name)
+void CSG_Module_Library_Interface::Set_File_Name(const CSG_String &File_Name)
 {
 	m_File_Name	= File_Name;
 

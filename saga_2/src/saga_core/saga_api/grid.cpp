@@ -92,7 +92,7 @@ CSG_Grid * SG_Create_Grid(const CSG_Grid &Grid)
 }
 
 //---------------------------------------------------------
-CSG_Grid * SG_Create_Grid(const SG_Char *File_Name, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
+CSG_Grid * SG_Create_Grid(const CSG_String &File_Name, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
 {
 	return( new CSG_Grid(File_Name, Type, Memory_Type) );
 }
@@ -151,7 +151,7 @@ CSG_Grid::CSG_Grid(const CSG_Grid &Grid)
   * Create a grid from file.
 */
 //---------------------------------------------------------
-CSG_Grid::CSG_Grid(const SG_Char *File_Name, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
+CSG_Grid::CSG_Grid(const CSG_String &File_Name, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
 	: CSG_Data_Object()
 {
 	_On_Construction();
@@ -263,7 +263,7 @@ bool CSG_Grid::Create(const CSG_Grid_System &System, TSG_Grid_Type Type, TSG_Gri
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::Create(const SG_Char *File_Name, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
+bool CSG_Grid::Create(const CSG_String &File_Name, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
 {
 	return( _Load(File_Name, Type, Memory_Type) );
 }
@@ -1247,9 +1247,12 @@ double CSG_Grid::Get_Percentile(double Percent, bool bZFactor)
 		Percent	= 100.0;
 	}
 
-	Get_Sorted((int)(Percent * Get_NCells() / 100.0), x, y, true);
+	if( Get_Sorted((int)(Percent * Get_NCells() / 100.0), x, y, true) )
+	{
+		return( asDouble(x, y, bZFactor) );
+	}
 
-	return( asDouble(x, y, bZFactor) );
+	return( 0.0 );
 }
 
 //---------------------------------------------------------

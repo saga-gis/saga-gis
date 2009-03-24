@@ -565,8 +565,8 @@ public:
 	bool							Assign				(const CSG_Colors &Colors);
 	bool							Assign				(CSG_Colors *pSource);
 
-	bool							Load				(const SG_Char *File_Name);
-	bool							Save				(const SG_Char *File_Name, bool bBinary);
+	bool							Load				(const CSG_String &File_Name);
+	bool							Save				(const CSG_String &File_Name, bool bBinary);
 
 	bool							Serialize			(CSG_File &Stream, bool bSave, bool bBinary);
 
@@ -594,11 +594,11 @@ class SAGA_API_DLL_EXPORT CSG_Translator
 {
 public:
 	CSG_Translator(void);
-	CSG_Translator(const SG_Char *File_Name, bool bSetExtension = true);
+	CSG_Translator(const CSG_String &File_Name, bool bSetExtension = true);
 
 	virtual ~CSG_Translator(void);
 
-	bool							Create					(const SG_Char *File_Name, bool bSetExtension = true);
+	bool							Create					(const CSG_String &File_Name, bool bSetExtension = true);
 	void							Destroy					(void);
 
 	int								Get_Count				(void)	{	return( m_nTranslations );	}

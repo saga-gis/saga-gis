@@ -82,7 +82,7 @@ CSG_TIN * SG_Create_TIN(const CSG_TIN &TIN)
 }
 
 //---------------------------------------------------------
-CSG_TIN * SG_Create_TIN(const SG_Char *File_Name)
+CSG_TIN * SG_Create_TIN(const CSG_String &File_Name)
 {
 	return( new CSG_TIN(File_Name) );
 }
@@ -117,7 +117,7 @@ CSG_TIN::CSG_TIN(const CSG_TIN &TIN)
 }
 
 //---------------------------------------------------------
-CSG_TIN::CSG_TIN(const SG_Char *File_Name)
+CSG_TIN::CSG_TIN(const CSG_String &File_Name)
 	: CSG_Table()
 {
 	_On_Construction();
@@ -167,7 +167,7 @@ bool CSG_TIN::Create(const CSG_TIN &TIN)
 }
 
 //---------------------------------------------------------
-bool CSG_TIN::Create(const SG_Char *File_Name)
+bool CSG_TIN::Create(const CSG_String &File_Name)
 {
 	CSG_Shapes	Shapes(File_Name);
 
@@ -358,7 +358,7 @@ bool CSG_TIN::Assign(CSG_Data_Object *pObject)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_TIN::Save(const SG_Char *File_Name, int Format)
+bool CSG_TIN::Save(const CSG_String &File_Name, int Format)
 {
 	bool	bResult	= false;
 

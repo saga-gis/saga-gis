@@ -433,8 +433,8 @@ public:		///////////////////////////////////////////////
 								CSG_Grid	(const CSG_Grid &Grid);
 	bool						Create		(const CSG_Grid &Grid);
 
-								CSG_Grid	(const SG_Char *File_Name, TSG_Grid_Type Type = GRID_TYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
-	bool						Create		(const SG_Char *File_Name, TSG_Grid_Type Type = GRID_TYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
+								CSG_Grid	(const CSG_String &File_Name, TSG_Grid_Type Type = GRID_TYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
+	bool						Create		(const CSG_String &File_Name, TSG_Grid_Type Type = GRID_TYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
 
 								CSG_Grid	(CSG_Grid *pGrid, TSG_Grid_Type Type = GRID_TYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
 	bool						Create		(CSG_Grid *pGrid, TSG_Grid_Type Type = GRID_TYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
@@ -505,8 +505,8 @@ public:		///////////////////////////////////////////////
 	double						Get_NoData_Value		(void)	const	{	return( m_NoData_Value );			}
 	double						Get_NoData_hiValue		(void)	const	{	return( m_NoData_hiValue );			}
 
-	virtual bool				Save	(const SG_Char *File_Name, int Format = GRID_FILE_FORMAT_Binary);
-	virtual bool				Save	(const SG_Char *File_Name, int Format, int xA, int yA, int xN, int yN);
+	virtual bool				Save	(const CSG_String &File_Name, int Format = GRID_FILE_FORMAT_Binary);
+	virtual bool				Save	(const CSG_String &File_Name, int Format, int xA, int yA, int xN, int yN);
 
 
 	//-----------------------------------------------------
@@ -869,18 +869,18 @@ private:	///////////////////////////////////////////////
 
 	void						_Swap_Bytes				(char *Bytes, int nBytes)			const;
 
-	bool						_Load					(const SG_Char *File_Name, TSG_Grid_Type m_Type, TSG_Grid_Memory_Type aMemory_Type);
+	bool						_Load					(const CSG_String &File_Name, TSG_Grid_Type m_Type, TSG_Grid_Memory_Type aMemory_Type);
 
 	bool						_Load_Binary			(CSG_File &Stream, TSG_Grid_Type File_Type, bool bFlip, bool bSwapBytes);
 	bool						_Save_Binary			(CSG_File &Stream, int xA, int yA, int xN, int yN, TSG_Grid_Type File_Type, bool bFlip, bool bSwapBytes);
 	bool						_Load_ASCII				(CSG_File &Stream, TSG_Grid_Memory_Type aMemory_Type, bool bFlip = false);
 	bool						_Save_ASCII				(CSG_File &Stream, int xA, int yA, int xN, int yN, bool bFlip = false);
-	bool						_Load_Native			(const SG_Char *File_Header, TSG_Grid_Memory_Type aMemory_Type);
-	bool						_Save_Native			(const SG_Char *File_Header, int xA, int yA, int xN, int yN, bool bBinary = true);
+	bool						_Load_Native			(const CSG_String &File_Name, TSG_Grid_Memory_Type aMemory_Type);
+	bool						_Save_Native			(const CSG_String &File_Name, int xA, int yA, int xN, int yN, bool bBinary = true);
 
 	int							_Load_Native_Get_Key	(CSG_File &Stream, CSG_String &Line);
 
-	bool						_Load_Surfer			(const SG_Char *File_Name, TSG_Grid_Memory_Type aMemory_Type);
+	bool						_Load_Surfer			(const CSG_String &File_Name, TSG_Grid_Memory_Type aMemory_Type);
 
 	//-----------------------------------------------------
 	CSG_Grid &					_Operation_Arithmetic	(const CSG_Grid &Grid, TSG_Grid_Operation Operation);
@@ -920,7 +920,7 @@ SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(void);
 SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(const CSG_Grid &Grid);
 
 /** Safe grid construction */
-SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(const SG_Char *FileName, TSG_Grid_Type Type = GRID_TYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
+SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(const CSG_String &File_Name, TSG_Grid_Type Type = GRID_TYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
 
 /** Safe grid construction */
 SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(CSG_Grid *pGrid, TSG_Grid_Type Type = GRID_TYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);

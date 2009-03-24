@@ -142,6 +142,7 @@ void CParameters_PG_Choice::_Destroy(void)
 	wxPGChoices	choices;
 
 	m_choices.Assign(choices);
+	m_choices_data.Clear();
 
 	m_index		= 0;
 }
@@ -156,16 +157,19 @@ const wxChar * CParameters_PG_Choice::GetClassName(void) const
 void CParameters_PG_Choice::_Append(const wxChar *Label, long Value)
 {
 	m_choices.Add(Label, Value);
+	m_choices_data.Add((void *)NULL);
 }
 
 void CParameters_PG_Choice::_Append(const wxChar *Label, void *Value)
 {
-	_Append(Label, (long)Value);
+	m_choices.Add(Label, m_choices_data.Count());
+	m_choices_data.Add(Value);
 }
 
 void CParameters_PG_Choice::_Append(const wxChar *Label)
 {
-	m_choices.Add(Label);
+	m_choices.Add(Label, m_choices_data.Count());
+	m_choices_data.Add((void *)NULL);
 }
 
 //---------------------------------------------------------
@@ -319,7 +323,7 @@ int CParameters_PG_Choice::_Set_Grid_System(void)
 
 		for(i=0; i<(int)m_choices.GetCount()-1; i++)
 		{
-			if( m_pParameter->asGrid_System()->is_Equal(*((CSG_Grid_System *)m_choices.GetValue(i))) )
+			if( m_pParameter->asGrid_System()->is_Equal(*((CSG_Grid_System *)m_choices_data.Item(m_choices.GetValue(i)))) )
 			{
 				return( i );
 			}
@@ -384,7 +388,7 @@ int CParameters_PG_Choice::_DataObject_Init(void)
 
 	for(int i=0; i<(int)m_choices.GetCount(); i++)
 	{
-		if( m_pParameter->asDataObject() == (void *)m_choices.GetValue(i) )
+		if( m_pParameter->asDataObject() == (void *)m_choices_data.Item(m_choices.GetValue(i)) )
 		{
 			return( i );
 		}
@@ -411,18 +415,18 @@ bool CParameters_PG_Choice::OnEvent(wxPropertyGrid *pPG, wxWindow *pPGCtrl, wxEv
 				break;
 
 			case PARAMETER_TYPE_Grid:
-				m_pParameter->Set_Value((void *)m_choices.GetValue(m_index));
+				m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(m_index)));
 				break;
 
 			case PARAMETER_TYPE_Grid_System:
-				m_pParameter->Set_Value((void *)m_choices.GetValue(m_index));
+				m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(m_index)));
 				_Update_Grids(pPG);
 				break;
 
 			case PARAMETER_TYPE_Table:
 			case PARAMETER_TYPE_Shapes:
 			case PARAMETER_TYPE_TIN:
-				m_pParameter->Set_Value((void *)m_choices.GetValue(m_index));
+				m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(m_index)));
 				_Update_TableFields(pPG);
 				break;
 			}
@@ -499,10 +503,6 @@ void CParameters_PG_Choice::_Update_TableFields(wxPropertyGrid *pPG)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GRIDSYSTEM_GET_COUNT		(int)(m_choices.IsOk() ? m_choices.GetCount() : 0)
-#define GRIDSYSTEM_GET_SYSTEM(i)	(i >= 0 && i < GRIDSYSTEM_GET_COUNT ? (CSG_Grid_System *)m_choices.GetValue(i) : NULL)
-
-//---------------------------------------------------------
 CParameters_PG_GridSystem::CParameters_PG_GridSystem(CSG_Parameter *pParameter)
 	: wxCustomPropertyClass(pParameter->Get_Name(), pParameter->Get_Identifier())
 {
@@ -538,7 +538,8 @@ void CParameters_PG_GridSystem::_Create(void)
 			{
 				for(int i=0; i<pSystems->Get_Count(); i++)
 				{
-					m_choices.Add(pSystems->Get_System(i)->Get_Name().c_str(), (long)pSystems->Get_System(i)->Get_System());
+					m_choices.Add(pSystems->Get_System(i)->Get_Name().c_str(), m_choices_data.Count());
+					m_choices_data.Add(pSystems->Get_System(i)->Get_System());
 
 					if( pSystems->Get_System(i)->Get_System()->is_Equal(*m_pParameter->asGrid_System()) )
 					{
@@ -547,18 +548,20 @@ void CParameters_PG_GridSystem::_Create(void)
 				}
 			}
 
-			m_choices.Add(LNG("[VAL] [not set]"), 0);
+			m_choices.Add(LNG("[VAL] [not set]"), m_choices_data.Count());
+			m_choices_data.Add(NULL);
 		}
 	}
 
-	if( GRIDSYSTEM_GET_COUNT == 0 )
+	if( !m_choices.IsOk() || m_choices.GetCount() == 0 )
 	{
-		m_choices.Add(LNG("[VAL] [no choice available]"), 0);
+		m_choices.Add(LNG("[VAL] [no choice available]"), m_choices_data.Count());
+		m_choices_data.Add(NULL);
 	}
 
 	if( m_index < 0 )
 	{
-		m_index	= GRIDSYSTEM_GET_COUNT - 1;
+		m_index	= m_choices.GetCount() - 1;
 	}
 
 	SetValueFromInt(m_index);
@@ -599,22 +602,22 @@ bool CParameters_PG_GridSystem::SetValueFromInt(long value, int arg_flags)
 	//-----------------------------------------------------
 	if( arg_flags & wxPG_FULL_VALUE )
 	{
-		return( SetValueFromInt(GRIDSYSTEM_GET_COUNT > 0 ? m_choices.GetValues().Index(value) : 0) );
+		return( SetValueFromInt(m_choices.IsOk() && m_choices.GetCount() > 0 ? m_choices.GetValues().Index(value) : 0) );
 	}
 
 	//-----------------------------------------------------
 	bool	bChanged;
 
-	if( GRIDSYSTEM_GET_COUNT > 0 )
+	if( m_choices.IsOk() && m_choices.GetCount() > 0 )
 	{
 		bChanged	= m_index != value;
 		m_index		= value;
-		value		= (long)GRIDSYSTEM_GET_SYSTEM(m_index);
+		value		= m_choices.GetValue(m_index);
 
 		wxCustomPropertyClass::SetValueFromInt(value, arg_flags);
 
 		//-------------------------------------------------
-		m_pParameter->Set_Value((void *)value);
+		m_pParameter->Set_Value(m_choices_data.Item(value));
 
 		if( GetParent() && GetGrid() )
 		{

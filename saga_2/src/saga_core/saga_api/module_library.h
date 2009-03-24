@@ -87,8 +87,8 @@ public:
 	CSG_Module_Library(void);
 	virtual ~CSG_Module_Library(void);
 
-									CSG_Module_Library	(const SG_Char *File_Name);
-	bool							Create				(const SG_Char *File_Name);
+									CSG_Module_Library	(const CSG_String &File_Name);
+	bool							Create				(const CSG_String &File_Name);
 
 	bool							Destroy				(void);
 

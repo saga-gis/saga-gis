@@ -119,7 +119,7 @@ CSG_Table::CSG_Table(const CSG_Table &Table)
 }
 
 //---------------------------------------------------------
-CSG_Table::CSG_Table(const SG_Char *File_Name, TSG_Table_File_Type Format, const CSG_String &Separator)
+CSG_Table::CSG_Table(const CSG_String &File_Name, TSG_Table_File_Type Format, const CSG_String &Separator)
 	: CSG_Data_Object()
 {
 	_On_Construction();
@@ -192,12 +192,12 @@ bool CSG_Table::_Create(const CSG_Table &Table)
 }
 
 //---------------------------------------------------------
-bool CSG_Table::Create(const SG_Char *File_Name, TSG_Table_File_Type Format, const CSG_String &Separator)
+bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format, const CSG_String &Separator)
 {
 	return( is_Private() ? false : _Create(File_Name, Format, Separator) );
 }
 
-bool CSG_Table::_Create(const SG_Char *File_Name, TSG_Table_File_Type Format, const SG_Char *Separator)
+bool CSG_Table::_Create(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char *Separator)
 {
 	return( _Load(File_Name, Format, Separator) );
 }

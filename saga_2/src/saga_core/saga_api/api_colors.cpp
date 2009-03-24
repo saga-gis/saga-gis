@@ -751,7 +751,7 @@ bool CSG_Colors::Assign(CSG_Colors *pColors)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Colors::Load(const SG_Char *File_Name)
+bool CSG_Colors::Load(const CSG_String &File_Name)
 {
 	CSG_String	Version;
 	CSG_File	Stream;
@@ -807,7 +807,7 @@ bool CSG_Colors::Load(const SG_Char *File_Name)
 }
 
 //---------------------------------------------------------
-bool CSG_Colors::Save(const SG_Char *File_Name, bool bBinary)
+bool CSG_Colors::Save(const CSG_String &File_Name, bool bBinary)
 {
 	CSG_File	Stream;
 

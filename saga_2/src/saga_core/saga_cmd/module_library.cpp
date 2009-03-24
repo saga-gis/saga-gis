@@ -689,14 +689,14 @@ bool CModule_Library::_Destroy_DataObjects(bool bSave, CSG_Parameters *pParamete
 				{
 					if( pParameter->asDataObject() )
 					{
-						pParameter->asDataObject()->Save(s);
+						pParameter->asDataObject()->Save(s.c_str());
 					}
 				}
 				else if( pParameter->is_DataObject_List() )
 				{
 					if( pParameter->asList()->Get_Count() == 1 )
 					{
-						pParameter->asList()->asDataObject(0)->Save(s);
+						pParameter->asList()->asDataObject(0)->Save(s.c_str());
 					}
 					else
 					{

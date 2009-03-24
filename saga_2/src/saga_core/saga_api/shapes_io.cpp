@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Shapes::_Load_ESRI(const SG_Char *File_Name)
+bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 {
 	bool		bError;
 
@@ -94,7 +94,7 @@ bool CSG_Shapes::_Load_ESRI(const SG_Char *File_Name)
 	//-----------------------------------------------------
 	// Open Shapes File...
 
-	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Load shapes"), File_Name), true);
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Load shapes"), File_Name.c_str()), true);
 
 	fName	= SG_File_Make_Path(NULL, File_Name, SG_T("shp"));
 
@@ -356,7 +356,7 @@ bool CSG_Shapes::_Load_ESRI(const SG_Char *File_Name)
 								FileLength_idx	+= 4;\
 
 //---------------------------------------------------------
-bool CSG_Shapes::_Save_ESRI(const SG_Char *File_Name)
+bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 {
 	char		buf_Header[100];
 
@@ -404,7 +404,7 @@ bool CSG_Shapes::_Save_ESRI(const SG_Char *File_Name)
 	//-----------------------------------------------------
 	// File Access...
 
-	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Save shapes"), File_Name), true);
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Save shapes"), File_Name.c_str()), true);
 
 	fName	= SG_File_Make_Path(NULL, File_Name, SG_T("shx"));
 

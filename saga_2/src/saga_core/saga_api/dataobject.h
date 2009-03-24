@@ -194,8 +194,8 @@ public:
 	CSG_History_Entry &			Get_Entry		(int iEntry)	{	return( *m_pEntries[iEntry] );	}
 	void						Add_Entry		(const SG_Char *Name, const SG_Char *Entry, CSG_History *pHistory = NULL);
 
-	bool						Load			(const SG_Char *File_Name, const SG_Char *File_Extension);
-	bool						Save			(const SG_Char *File_Name, const SG_Char *File_Extension);
+	bool						Load			(const CSG_String &File_Name, const CSG_String &File_Extension);
+	bool						Save			(const CSG_String &File_Name, const CSG_String &File_Extension);
 
 	CSG_String					Get_HTML		(void);
 
@@ -244,7 +244,7 @@ public:
 
 	virtual bool					is_Valid		(void)	const								= 0;
 
-	virtual bool					Save			(const SG_Char *File_Name, int Format = 0)	= 0;
+	virtual bool					Save			(const CSG_String &File_Name, int Format = 0)	= 0;
 
 	const SG_Char *					Get_File_Name	(bool bNullAsString = false)	const;
 	int								Get_File_Type	(void)	const;

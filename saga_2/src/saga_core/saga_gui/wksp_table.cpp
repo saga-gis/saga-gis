@@ -313,7 +313,7 @@ bool CWKSP_Table::Save(void)
 
 	if( DLG_Save(File_Path, ID_DLG_TABLES_SAVE) )
 	{
-		bResult	= m_pTable->Save(File_Path);
+		bResult	= m_pTable->Save(File_Path.c_str());
 
 		PROCESS_Set_Okay();
 	}

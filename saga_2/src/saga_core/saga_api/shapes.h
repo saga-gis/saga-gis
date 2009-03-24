@@ -521,8 +521,8 @@ public:
 									CSG_Shapes	(const CSG_Shapes &Shapes);
 	bool							Create		(const CSG_Shapes &Shapes);
 
-									CSG_Shapes	(const SG_Char *File_Name);
-	bool							Create		(const SG_Char *File_Name);
+									CSG_Shapes	(const CSG_String &File_Name);
+	bool							Create		(const CSG_String &File_Name);
 
 									CSG_Shapes	(TSG_Shape_Type Type, const SG_Char *Name = NULL, CSG_Table *pStructure = NULL);
 	bool							Create		(TSG_Shape_Type Type, const SG_Char *Name = NULL, CSG_Table *pStructure = NULL);
@@ -535,7 +535,7 @@ public:
 
 	virtual bool					Assign					(CSG_Data_Object *pObject);
 
-	virtual bool					Save					(const SG_Char *File_Name, int Format = 0);
+	virtual bool					Save					(const CSG_String &File_Name, int Format = 0);
 
 	virtual bool					is_Valid				(void)	const			{	return( m_Type != SHAPE_TYPE_Undefined && Get_Count() >= 0 );		}
 
@@ -574,8 +574,8 @@ protected:
 
 	virtual bool					On_Update				(void);
 
-	bool							_Load_ESRI				(const SG_Char *File_Name);
-	bool							_Save_ESRI				(const SG_Char *File_Name);
+	bool							_Load_ESRI				(const CSG_String &File_Name);
+	bool							_Save_ESRI				(const CSG_String &File_Name);
 
 };
 
@@ -594,7 +594,7 @@ SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(void);
 SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(const CSG_Shapes &Shapes);
 
 /** Safe shapes construction */
-SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(const SG_Char *FileName);
+SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(const CSG_String &File_Name);
 
 /** Safe shapes construction */
 SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(TSG_Shape_Type Type, const SG_Char *Name = NULL, CSG_Table *pStructure = NULL);

@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid::_Load(const SG_Char *File_Name, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
+bool CSG_Grid::_Load(const CSG_String &File_Name, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
 {
 	bool	bResult;
 
@@ -82,7 +82,7 @@ bool CSG_Grid::_Load(const SG_Char *File_Name, TSG_Grid_Type Type, TSG_Grid_Memo
 	m_Type	= Type;
 
 	//-----------------------------------------------------
-	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Load grid"), File_Name ), true);
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Load grid"), File_Name.c_str()), true);
 
 	if( SG_File_Cmp_Extension(File_Name, SG_T("grd")) )
 	{
@@ -123,12 +123,12 @@ bool CSG_Grid::_Load(const SG_Char *File_Name, TSG_Grid_Type Type, TSG_Grid_Memo
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::Save(const SG_Char *File_Name, int Format)
+bool CSG_Grid::Save(const CSG_String &File_Name, int Format)
 {
 	return( Save(File_Name, Format, 0, 0, Get_NX(), Get_NY()) );
 }
 
-bool CSG_Grid::Save(const SG_Char *File_Name, int Format, int xA, int yA, int xN, int yN)
+bool CSG_Grid::Save(const CSG_String &File_Name, int Format, int xA, int yA, int xN, int yN)
 {
 	bool		bResult;
 	CSG_String	sFile_Name	= SG_File_Make_Path(NULL, File_Name, SG_T("sgrd"));
@@ -155,7 +155,7 @@ bool CSG_Grid::Save(const SG_Char *File_Name, int Format, int xA, int yA, int xN
 	}
 
 	//-----------------------------------------------------
-	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Save grid"), File_Name ), true);
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Save grid"), File_Name.c_str()), true);
 
 	switch( Format )
 	{
@@ -589,7 +589,7 @@ int SG_Grid_Cache_Check(CSG_Grid_System &m_System, int nValueBytes)
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::_Load_Native(const SG_Char *File_Header, TSG_Grid_Memory_Type Memory_Type)
+bool CSG_Grid::_Load_Native(const CSG_String &File_Name, TSG_Grid_Memory_Type Memory_Type)
 {
 	bool			bResult, hdr_bFlip, hdr_bSwapBytes;
 	int				iType, hdr_Offset, NX, NY;
@@ -602,7 +602,7 @@ bool CSG_Grid::_Load_Native(const SG_Char *File_Header, TSG_Grid_Memory_Type Mem
 	//-----------------------------------------------------
 	bResult	= false;
 
-	if( Stream.Open(File_Header, SG_FILE_R, false) )
+	if( Stream.Open(File_Name, SG_FILE_R, false) )
 	{
 		//-------------------------------------------------
 		// Load Header...
@@ -645,7 +645,7 @@ bool CSG_Grid::_Load_Native(const SG_Char *File_Header, TSG_Grid_Memory_Type Mem
 				}
 				else
 				{
-					File_Data	= SG_File_Make_Path(SG_File_Get_Path(File_Header), Value);
+					File_Data	= SG_File_Make_Path(SG_File_Get_Path(File_Name), Value);
 				}
 				break;
 
@@ -679,8 +679,8 @@ bool CSG_Grid::_Load_Native(const SG_Char *File_Header, TSG_Grid_Memory_Type Mem
 				}
 
 				if(	Stream.Open(File_Data											, SG_FILE_R, false)
-				||	Stream.Open(SG_File_Make_Path(NULL, File_Header, SG_T( "dat"))	, SG_FILE_R, false)
-				||	Stream.Open(SG_File_Make_Path(NULL, File_Header, SG_T("sdat"))	, SG_FILE_R, false) )
+				||	Stream.Open(SG_File_Make_Path(NULL, File_Name, SG_T( "dat"))	, SG_FILE_R, false)
+				||	Stream.Open(SG_File_Make_Path(NULL, File_Name, SG_T("sdat"))	, SG_FILE_R, false) )
 				{
 					Stream.Seek(hdr_Offset);
 					bResult	= _Load_ASCII(Stream, Memory_Type);
@@ -701,9 +701,9 @@ bool CSG_Grid::_Load_Native(const SG_Char *File_Header, TSG_Grid_Memory_Type Mem
 				{
 					Set_Buffer_Size(NX);
 
-					if( _Cache_Create(File_Data												, hdr_Type, hdr_Offset, hdr_bSwapBytes, hdr_bFlip)
-					||	_Cache_Create(SG_File_Make_Path(NULL, File_Header, SG_T( "dat"))	, hdr_Type, hdr_Offset, hdr_bSwapBytes, hdr_bFlip)
-					||	_Cache_Create(SG_File_Make_Path(NULL, File_Header, SG_T("sdat"))	, hdr_Type, hdr_Offset, hdr_bSwapBytes, hdr_bFlip) )
+					if( _Cache_Create(File_Data											, hdr_Type, hdr_Offset, hdr_bSwapBytes, hdr_bFlip)
+					||	_Cache_Create(SG_File_Make_Path(NULL, File_Name, SG_T( "dat"))	, hdr_Type, hdr_Offset, hdr_bSwapBytes, hdr_bFlip)
+					||	_Cache_Create(SG_File_Make_Path(NULL, File_Name, SG_T("sdat"))	, hdr_Type, hdr_Offset, hdr_bSwapBytes, hdr_bFlip) )
 					{
 						return( true );
 					}
@@ -714,8 +714,8 @@ bool CSG_Grid::_Load_Native(const SG_Char *File_Header, TSG_Grid_Memory_Type Mem
 				if( _Memory_Create(Memory_Type) )
 				{
 					if(	Stream.Open(File_Data											, SG_FILE_R, true)
-					||	Stream.Open(SG_File_Make_Path(NULL, File_Header, SG_T( "dat"))	, SG_FILE_R, true)
-					||	Stream.Open(SG_File_Make_Path(NULL, File_Header, SG_T("sdat"))	, SG_FILE_R, true) )
+					||	Stream.Open(SG_File_Make_Path(NULL, File_Name, SG_T( "dat"))	, SG_FILE_R, true)
+					||	Stream.Open(SG_File_Make_Path(NULL, File_Name, SG_T("sdat"))	, SG_FILE_R, true) )
 					{
 						Stream.Seek(hdr_Offset);
 						bResult	= _Load_Binary(Stream, hdr_Type, hdr_bFlip, hdr_bSwapBytes);
@@ -729,7 +729,7 @@ bool CSG_Grid::_Load_Native(const SG_Char *File_Header, TSG_Grid_Memory_Type Mem
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::_Save_Native(const SG_Char *File_Name, int xA, int yA, int xN, int yN, bool bBinary)
+bool CSG_Grid::_Save_Native(const CSG_String &File_Name, int xA, int yA, int xN, int yN, bool bBinary)
 {
 	bool		bResult		= false;
 	CSG_File	Stream;
@@ -816,7 +816,7 @@ int CSG_Grid::_Load_Native_Get_Key(CSG_File &Stream, CSG_String &Value)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid::_Load_Surfer(const SG_Char *File_Name, TSG_Grid_Memory_Type Memory_Type)
+bool CSG_Grid::_Load_Surfer(const CSG_String &File_Name, TSG_Grid_Memory_Type Memory_Type)
 {
 	bool		bResult		= false;
 	char		Identifier[4];

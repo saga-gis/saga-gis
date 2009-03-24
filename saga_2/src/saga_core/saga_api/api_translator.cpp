@@ -108,7 +108,7 @@ CSG_Translator::CSG_Translator(void)
 }
 
 //---------------------------------------------------------
-CSG_Translator::CSG_Translator(const SG_Char *File_Name, bool bSetExtension)
+CSG_Translator::CSG_Translator(const CSG_String &File_Name, bool bSetExtension)
 {
 	m_nTranslations	= 0;
 	m_Translations	= NULL;
@@ -147,12 +147,12 @@ void CSG_Translator::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Translator::Create(const SG_Char *File_Name, bool bSetExtension)
+bool CSG_Translator::Create(const CSG_String &File_Name, bool bSetExtension)
 {
 	Destroy();
 
 	CSG_Table	Translations;
-	CSG_String	fName(bSetExtension ? SG_File_Make_Path(NULL, File_Name, SG_T("lng")).c_str() : File_Name);
+	CSG_String	fName(bSetExtension ? SG_File_Make_Path(NULL, File_Name, SG_T("lng")) : File_Name);
 
 	SG_UI_Msg_Lock(true);
 

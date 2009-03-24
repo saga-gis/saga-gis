@@ -104,7 +104,7 @@ CSG_Shapes *		SG_Create_Shapes(const CSG_Shapes &Shapes)
 }
 
 //---------------------------------------------------------
-CSG_Shapes *		SG_Create_Shapes(const SG_Char *File_Name)
+CSG_Shapes *		SG_Create_Shapes(const CSG_String &File_Name)
 {
 	return( new CSG_Shapes(File_Name) );
 }
@@ -139,7 +139,7 @@ CSG_Shapes::CSG_Shapes(const CSG_Shapes &Shapes)
 }
 
 //---------------------------------------------------------
-CSG_Shapes::CSG_Shapes(const SG_Char *File_Name)
+CSG_Shapes::CSG_Shapes(const CSG_String &File_Name)
 	: CSG_Table()
 {
 	_On_Construction();
@@ -185,7 +185,7 @@ bool CSG_Shapes::Create(const CSG_Shapes &Shapes)
 }
 
 //---------------------------------------------------------
-bool CSG_Shapes::Create(const SG_Char *File_Name)
+bool CSG_Shapes::Create(const CSG_String &File_Name)
 {
 	Destroy();
 
@@ -294,7 +294,7 @@ bool CSG_Shapes::Assign(CSG_Data_Object *pObject)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Shapes::Save(const SG_Char *File_Name, int Format)
+bool CSG_Shapes::Save(const CSG_String &File_Name, int Format)
 {
 	bool		bResult		= false;
 	CSG_String	sFile_Name	= SG_File_Make_Path(NULL, File_Name, SG_T("shp"));

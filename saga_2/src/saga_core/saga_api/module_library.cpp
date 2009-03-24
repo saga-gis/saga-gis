@@ -105,7 +105,7 @@ CSG_Module_Library::CSG_Module_Library(void)
 }
 
 //---------------------------------------------------------
-CSG_Module_Library::CSG_Module_Library(const SG_Char *File_Name)
+CSG_Module_Library::CSG_Module_Library(const CSG_String &File_Name)
 {
 	_On_Construction();
 
@@ -136,7 +136,7 @@ void CSG_Module_Library::_On_Construction(void)
 }
 
 //---------------------------------------------------------
-bool CSG_Module_Library::Create(const SG_Char *File_Name)
+bool CSG_Module_Library::Create(const CSG_String &File_Name)
 {
 	Destroy();
 
@@ -144,7 +144,7 @@ bool CSG_Module_Library::Create(const SG_Char *File_Name)
 	TSG_PFNC_MLB_Get_Interface	MLB_Get_Interface;
 
 	wxString	sPath;
-	wxFileName	fName(File_Name);
+	wxFileName	fName(File_Name.c_str());
 
 	fName.MakeAbsolute();
 	m_File_Name		= fName.GetFullPath();

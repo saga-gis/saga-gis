@@ -437,7 +437,7 @@ bool CWKSP_Layer::Save(void)
 
 	if( bResult )
 	{
-		bResult	= m_pObject->Save(File_Path);
+		bResult	= m_pObject->Save(File_Path.c_str());
 
 		PROCESS_Set_Okay();
 	}

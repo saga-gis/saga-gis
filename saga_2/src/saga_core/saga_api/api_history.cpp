@@ -200,7 +200,7 @@ void CSG_History::_Add_Entry(CSG_History_Entry *pEntry)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_History::Load(const SG_Char *File_Name, const SG_Char *File_Extension)
+bool CSG_History::Load(const CSG_String &File_Name, const CSG_String &File_Extension)
 {
 	bool		bResult	= false;
 	CSG_File	Stream;
@@ -221,7 +221,7 @@ bool CSG_History::Load(const SG_Char *File_Name, const SG_Char *File_Extension)
 }
 
 //---------------------------------------------------------
-bool CSG_History::Save(const SG_Char *File_Name, const SG_Char *File_Extension)
+bool CSG_History::Save(const CSG_String &File_Name, const CSG_String &File_Extension)
 {
 	bool		bResult	= false;
 	CSG_File	Stream;
