@@ -84,9 +84,9 @@ CSG_Table * SG_Create_Table(const CSG_Table &Table)
 }
 
 //---------------------------------------------------------
-CSG_Table * SG_Create_Table(const SG_Char *FileName)
+CSG_Table * SG_Create_Table(const CSG_String &File_Name)
 {
-	return( new CSG_Table(FileName) );
+	return( new CSG_Table(File_Name) );
 }
 
 //---------------------------------------------------------
