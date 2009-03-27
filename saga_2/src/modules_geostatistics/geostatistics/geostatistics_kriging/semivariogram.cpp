@@ -68,6 +68,24 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+enum
+{
+	FIELD_CLASSNR	= 0,
+	FIELD_DISTANCE,
+	FIELD_COUNT,
+	FIELD_VARIANCE,
+	FIELD_VARCUMUL,
+	FIELD_MODEL
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CSemiVariogram::CSemiVariogram(void)
 {
 	CSG_Parameter	*pNode;
@@ -128,6 +146,11 @@ CSemiVariogram::CSemiVariogram(void)
 		_TL(""),
 		SG_T("a + b * x")
 	);
+
+	//-----------------------------------------------------
+	m_Variances.Add_Field(SG_T("DISTANCE")	, TABLE_FIELDTYPE_Double);
+	m_Variances.Add_Field(SG_T("VAR_CUM")	, TABLE_FIELDTYPE_Double);
+	m_Variances.Add_Field(SG_T("VAR_CLS")	, TABLE_FIELDTYPE_Double);
 }
 
 
@@ -153,7 +176,6 @@ bool CSemiVariogram::On_Execute(void)
 	//-----------------------------------------------------
 	if( Get_Variances(pTable, pPoints, Attribute) )
 	{
-		m_Variogram.Set_Data	(m_Variances);
 		m_Variogram.Set_Formula	(Get_Parameters("FORMULA")->Get_Parameter("STRING")->asString());
 
 		if( SG_UI_Get_Window_Main() )
@@ -164,6 +186,13 @@ bool CSemiVariogram::On_Execute(void)
 		}
 		else
 		{
+			m_Variogram.Clr_Data();
+
+			for(int i=0; i<m_Variances.Get_Count(); i++)
+			{
+				m_Variogram.Add_Data(m_Variances[i][0], m_Variances[i][1]);
+			}
+
 			bResult	= m_Variogram.Get_Trend();
 		}
 
@@ -172,11 +201,18 @@ bool CSemiVariogram::On_Execute(void)
 			Get_Parameters("FORMULA")->Get_Parameter("STRING")->Set_Value(m_Variogram.Get_Formula(SG_TREND_STRING_Formula));
 
 			Message_Add(m_Variogram.Get_Formula(), false);
+
+			for(int i=0; i<pTable->Get_Count(); i++)
+			{
+				CSG_Table_Record	*pRecord	= pTable->Get_Record(i);
+
+				pRecord->Set_Value(FIELD_MODEL, m_Variogram.Get_Value(pRecord->asDouble(FIELD_DISTANCE)));
+			}
 		}
 	}
 
 	m_Variogram	.Clr_Data();
-	m_Variances	.Clear();
+	m_Variances	.Del_Records();
 
 	return( bResult );
 }
@@ -187,16 +223,6 @@ bool CSemiVariogram::On_Execute(void)
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-enum
-{
-	FIELD_CLASSNR	= 0,
-	FIELD_DISTANCE,
-	FIELD_COUNT,
-	FIELD_SEMIVAR,
-	FIELD_VARIANCE
-};
 
 //---------------------------------------------------------
 bool CSemiVariogram::Get_Variances(CSG_Table *pTable, CSG_Shapes *pPoints, int Attribute)
@@ -252,11 +278,19 @@ bool CSemiVariogram::Get_Variances(CSG_Table *pTable, CSG_Shapes *pPoints, int A
 	//-----------------------------------------------------
 	pTable->Destroy();
 	pTable->Set_Name(CSG_String::Format(SG_T("%s [%s]"), _TL("Semivariogram"), pPoints->Get_Name()));
-	pTable->Add_Field(_TL("Class")			, TABLE_FIELDTYPE_Int);		// FIELD_CLASSNR
-	pTable->Add_Field(_TL("Distance")		, TABLE_FIELDTYPE_Double);	// FIELD_DISTANCE
-	pTable->Add_Field(_TL("Count")			, TABLE_FIELDTYPE_Int);		// FIELD_COUNT
-	pTable->Add_Field(_TL("Semivariance")	, TABLE_FIELDTYPE_Double);	// FIELD_SEMIVAR
-	pTable->Add_Field(_TL("Variance")		, TABLE_FIELDTYPE_Double);	// FIELD_VARIANCE
+	pTable->Add_Field(_TL("Class")		, TABLE_FIELDTYPE_Int);		// FIELD_CLASSNR
+	pTable->Add_Field(_TL("Distance")	, TABLE_FIELDTYPE_Double);	// FIELD_DISTANCE
+	pTable->Add_Field(_TL("Count")		, TABLE_FIELDTYPE_Int);		// FIELD_COUNT
+	pTable->Add_Field(_TL("Variance")	, TABLE_FIELDTYPE_Double);	// FIELD_VARIANCE
+	pTable->Add_Field(_TL("Cum.Var.")	, TABLE_FIELDTYPE_Double);	// FIELD_VARCUMUL
+	pTable->Add_Field(_TL("Model")		, TABLE_FIELDTYPE_Double);	// FIELD_MODEL
+
+	pRecord	= pTable->Add_Record();
+	pRecord->Set_Value(FIELD_CLASSNR	, 0.0);
+	pRecord->Set_Value(FIELD_DISTANCE	, 0.0);
+	pRecord->Set_Value(FIELD_COUNT		, 0.0);
+	pRecord->Set_Value(FIELD_VARIANCE	, 0.0);
+	pRecord->Set_Value(FIELD_VARCUMUL	, 0.0);
 
 	for(i=0, z=0.0, n=0; i<nDistances; i++)
 	{
@@ -266,14 +300,16 @@ bool CSemiVariogram::Get_Variances(CSG_Table *pTable, CSG_Shapes *pPoints, int A
 			z	+= Variance[i];
 
 			pRecord	= pTable->Add_Record();
-
 			pRecord->Set_Value(FIELD_CLASSNR	, (i + 1));
 			pRecord->Set_Value(FIELD_DISTANCE	, (i + 1) * lagDistance);
-			pRecord->Add_Value(FIELD_COUNT		, Count[i]);
-			pRecord->Add_Value(FIELD_SEMIVAR	, 0.5 * z / n);
-			pRecord->Add_Value(FIELD_VARIANCE	, 0.5 * Variance[i] / Count[i]);
+			pRecord->Set_Value(FIELD_COUNT		, Count[i]);
+			pRecord->Set_Value(FIELD_VARIANCE	, 0.5 * Variance[i] / Count[i]);
+			pRecord->Set_Value(FIELD_VARCUMUL	, 0.5 * z / n);
 
-			m_Variances.Add((i + 0.5) * lagDistance, 0.5 * z / n);
+			pRecord	= m_Variances.Add_Record();
+			pRecord->Set_Value(0				, (i + 1) * lagDistance);
+			pRecord->Set_Value(1				, 0.5 * Variance[i] / Count[i]);
+			pRecord->Set_Value(2				, 0.5 * z / n);
 		}
 	}
 

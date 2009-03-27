@@ -84,24 +84,24 @@
 class CVariogram_Dialog : public CSGUI_Dialog
 {
 public:
-	CVariogram_Dialog(CSG_Trend *pVariogram, CSG_Points *pVariances);
-	virtual ~CVariogram_Dialog(void);
+	CVariogram_Dialog(CSG_Trend *pVariogram, CSG_Table *pVariances);
 
 
 private:
 
+	wxCheckBox					*m_pCumulative;
+
 	wxChoice					*m_pFormulas;
 
 	wxTextCtrl					*m_pFormula, *m_pParameters;
-	
+
 	CSGUI_Slider				*m_pDistance;
 
 	class CVariogram_Diagram	*m_pDiagram;
 
 
+	void						On_Update_Control		(wxCommandEvent &event);
 	void						On_Update_Choices		(wxCommandEvent &event);
-	void						On_Update_Text			(wxCommandEvent &event);
-	void						On_Update_SpinCtrl		(wxSpinEvent    &event);
 
 	void						Fit_Function			(void);
 

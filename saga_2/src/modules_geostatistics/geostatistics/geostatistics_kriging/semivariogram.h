@@ -86,7 +86,7 @@ protected:
 
 private:
 
-	CSG_Points				m_Variances;
+	CSG_Table				m_Variances;
 
 	CSG_Trend				m_Variogram;
 

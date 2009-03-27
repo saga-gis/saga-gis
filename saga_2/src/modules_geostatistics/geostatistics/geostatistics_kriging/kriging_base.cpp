@@ -207,6 +207,11 @@ CKriging_Base::CKriging_Base(void)
 		_TL(""),
 		SG_T("a + b * x")
 	);
+
+	//-----------------------------------------------------
+	m_Variances.Add_Field(SG_T("DISTANCE")	, TABLE_FIELDTYPE_Double);
+	m_Variances.Add_Field(SG_T("VAR_CUM")	, TABLE_FIELDTYPE_Double);
+	m_Variances.Add_Field(SG_T("VAR_CLS")	, TABLE_FIELDTYPE_Double);
 }
 
 //---------------------------------------------------------
@@ -227,7 +232,6 @@ bool CKriging_Base::On_Execute(void)
 
 	if( _Initialise() && _Get_Variances() )
 	{
-		m_Variogram.Set_Data	(m_Variances);
 		m_Variogram.Set_Formula	(Get_Parameters("FORMULA")->Get_Parameter("STRING")->asString());
 
 		if( SG_UI_Get_Window_Main() )
@@ -238,6 +242,13 @@ bool CKriging_Base::On_Execute(void)
 		}
 		else
 		{
+			m_Variogram.Clr_Data();
+
+			for(int i=0; i<m_Variances.Get_Count(); i++)
+			{
+				m_Variogram.Add_Data(m_Variances[i][0], m_Variances[i][1]);
+			}
+
 			bResult	= m_Variogram.Get_Trend();
 		}
 
@@ -375,7 +386,7 @@ bool CKriging_Base::_Finalise(void)
 	m_G			.Destroy();
 	m_W			.Destroy();
 	m_Variogram	.Clr_Data();
-	m_Variances	.Clear();
+	m_Variances	.Del_Records();
 
 	return( true );
 }
@@ -505,7 +516,10 @@ bool CKriging_Base::_Get_Variances(void)
 			n	+= Count	[i];
 			z	+= Variance	[i];
 
-			m_Variances.Add((i + 0.5) * lagDistance, 0.5 * z / n);
+			CSG_Table_Record	*pRecord	= m_Variances.Add_Record();
+			pRecord->Set_Value(0, (i + 1) * lagDistance);
+			pRecord->Set_Value(1, 0.5 * Variance[i] / Count[i]);
+			pRecord->Set_Value(2, 0.5 * z / n);
 		}
 	}
 
