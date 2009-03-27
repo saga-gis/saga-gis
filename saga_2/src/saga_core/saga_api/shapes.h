@@ -746,7 +746,7 @@ public:
 
 private:
 
-	int							m_nSelected;
+	int							m_nSelected, m_nPoints;
 
 	CSG_Matrix					m_Selected;
 

@@ -162,6 +162,7 @@ CSG_PRQuadTree::CSG_PRQuadTree(void)
 {
 	m_pRoot		= NULL;
 	m_nSelected	= 0;
+	m_nPoints	= 0;
 }
 
 //---------------------------------------------------------
@@ -169,6 +170,7 @@ CSG_PRQuadTree::CSG_PRQuadTree(const TSG_Rect &Extent)
 {
 	m_pRoot		= NULL;
 	m_nSelected	= 0;
+	m_nPoints	= 0;
 
 	Create(Extent);
 }
@@ -178,6 +180,7 @@ CSG_PRQuadTree::CSG_PRQuadTree(CSG_Shapes *pShapes, int Attribute)
 {
 	m_pRoot		= NULL;
 	m_nSelected	= 0;
+	m_nPoints	= 0;
 
 	Create(pShapes, Attribute);
 }
@@ -247,6 +250,7 @@ void CSG_PRQuadTree::Destroy(void)
 
 	m_Selected.Destroy();
 	m_nSelected	= 0;
+	m_nPoints	= 0;
 }
 
 
@@ -259,9 +263,11 @@ void CSG_PRQuadTree::Destroy(void)
 //---------------------------------------------------------
 bool CSG_PRQuadTree::Add_Point(double x, double y, double z)
 {
-	if( m_pRoot )
+	if( m_pRoot && m_pRoot->Add_Point(x, y, z) )
 	{
-		return( m_pRoot->Add_Point(x, y, z) );
+		m_nPoints++;
+
+		return( true );
 	}
 
 	return( false );
@@ -451,6 +457,11 @@ int CSG_PRQuadTree::Select_Nearest_Points(double x, double y, int maxPoints, dou
 	if( m_pRoot )
 	{
 		double	maxDistance;
+
+		if( maxPoints < 1 )
+		{
+			maxPoints	= m_nPoints;
+		}
 
 		if( iQuadrant != 4 )
 		{

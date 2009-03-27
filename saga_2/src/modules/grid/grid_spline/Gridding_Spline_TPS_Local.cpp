@@ -147,7 +147,7 @@ bool CGridding_Spline_TPS_Local::On_Execute(void)
 	{
 		m_Radius		= Parameters("RADIUS")		->asDouble();
 		m_nPoints_Max	= Parameters("SELECT")		->asInt() == 1
-						? Parameters("MAXPOINTS")	->asInt()  : 1;
+						? Parameters("MAXPOINTS")	->asInt()  : -1;
 		m_Mode			= Parameters("MODE")		->asInt();
 
 		int			x, y;
