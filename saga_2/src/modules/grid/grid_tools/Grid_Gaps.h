@@ -88,7 +88,7 @@ protected:
 
 private:
 
-	CSG_Grid					*pInput, *pResult, *pTension_Keep, *pTension_Temp;
+	CSG_Grid				*pInput, *pMask, *pResult, *pTension_Keep, *pTension_Temp;
 
 
 	void					Tension_Main	(void);

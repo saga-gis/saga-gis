@@ -68,6 +68,16 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define IS_MASKED(x, y)	(pMask ? pMask->is_NoData(x, y) : false)
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CGrid_Gaps::CGrid_Gaps(void)
 {
 	//-----------------------------------------------------
@@ -86,6 +96,12 @@ CGrid_Gaps::CGrid_Gaps(void)
 		NULL, "INPUT"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL, "MASK"		, _TL("Mask"),
+		_TL(""),
+		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
@@ -119,7 +135,8 @@ bool CGrid_Gaps::On_Execute(void)
 	bool	bKillInput;
 
 	//-----------------------------------------------------
-	pInput		= Parameters("INPUT")->asGrid();
+	pInput		= Parameters("INPUT")	->asGrid();
+	pMask		= Parameters("MASK")	->asGrid();
 
 	if( Parameters("RESULT")->asGrid() == NULL || Parameters("RESULT")->asGrid() == pInput )
 	{
@@ -185,6 +202,8 @@ void CGrid_Gaps::Tension_Main(void)
 		do
 		{
 			max		= Tension_Step(iStep);
+
+			Process_Set_Text(CSG_String::Format(SG_T("[%d] %s: %f"), iStep, _TL("max. change"), max));
 		}
 		while( max > Threshold && Process_Get_Okay(true) );
 
@@ -221,7 +240,7 @@ void CGrid_Gaps::Tension_Init(int iStep)
 
 		for(x=0; x<Get_NX(); x+=iStep)
 		{
-			if( !pInput->is_NoData(x, y) )
+			if( !pInput->is_NoData(x, y) || IS_MASKED(x, y) )
 			{
 				pTension_Temp->Set_Value(x, y, pInput->asDouble(x, y) );
 				pTension_Keep->Set_Value(x, y, 1.0);
