@@ -87,38 +87,17 @@ IMPLEMENT_CLASS(CVIEW_Histogram, CVIEW_Base);
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CVIEW_Histogram, CVIEW_Base)
-	EVT_PAINT			(CVIEW_Histogram::On_Paint)
-	EVT_SIZE			(CVIEW_Histogram::On_Size)
-
-	EVT_MOTION			(CVIEW_Histogram::On_Mouse_Motion)
-	EVT_LEFT_DOWN		(CVIEW_Histogram::On_Mouse_LDown)
-	EVT_LEFT_UP			(CVIEW_Histogram::On_Mouse_LUp)
-	EVT_RIGHT_DOWN		(CVIEW_Histogram::On_Mouse_RDown)
-
 	EVT_MENU			(ID_CMD_HISTOGRAM_CUMULATIVE	, CVIEW_Histogram::On_Cumulative)
 	EVT_UPDATE_UI		(ID_CMD_HISTOGRAM_CUMULATIVE	, CVIEW_Histogram::On_Cumulative_UI)
 	EVT_MENU			(ID_CMD_HISTOGRAM_AS_TABLE		, CVIEW_Histogram::On_AsTable)
 END_EVENT_TABLE()
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 CVIEW_Histogram::CVIEW_Histogram(CWKSP_Layer *pLayer)
 	: CVIEW_Base(ID_VIEW_HISTOGRAM, pLayer->Get_Name(), ID_IMG_WND_HISTOGRAM, CVIEW_Histogram::_Create_Menu(), LNG("[CAP] Histogram"))
 {
-	SYS_Set_Color_BG_Window(this);
-
-	m_pLayer		= pLayer;
-
-	m_bCumulative	= false;
-	m_bMouse_Down	= false;
-
-	Update_Histogram();
+	m_pLayer	= pLayer;
+	m_pControl	= new CVIEW_Histogram_Control(this, pLayer);
 }
 
 //---------------------------------------------------------
@@ -126,13 +105,6 @@ CVIEW_Histogram::~CVIEW_Histogram(void)
 {
 	m_pLayer->View_Closes(this);
 }
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 wxMenu * CVIEW_Histogram::_Create_Menu(void)
@@ -158,6 +130,70 @@ wxToolBarBase * CVIEW_Histogram::_Create_ToolBar(void)
 	return( pToolBar );
 }
 
+//---------------------------------------------------------
+void CVIEW_Histogram::On_Command_UI(wxUpdateUIEvent &event)
+{
+	switch( event.GetId() )
+	{
+	default:
+		break;
+
+	case ID_CMD_HISTOGRAM_CUMULATIVE:
+		On_Cumulative_UI(event);
+		break;
+	}
+}
+
+//---------------------------------------------------------
+void CVIEW_Histogram::On_Cumulative(wxCommandEvent &event)
+{
+	m_pControl->Set_Cumulative(!m_pControl->Get_Cumulative());
+}
+
+void CVIEW_Histogram::On_Cumulative_UI(wxUpdateUIEvent &event)
+{
+	event.Check(m_pControl->Get_Cumulative());
+}
+
+//---------------------------------------------------------
+void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
+{
+	int					i, n;
+	double				dArea	= m_pLayer->Get_Type() == WKSP_ITEM_Grid ? ((CSG_Grid *)m_pLayer->Get_Object())->Get_Cellarea() : 1.0;
+	CSG_Table			*pTable;
+	CSG_Table_Record	*pRecord;
+
+	if( (n = m_pLayer->Get_Classifier()->Get_Class_Count()) > 0 )
+	{
+		pTable	= new CSG_Table;
+
+		pTable->Set_Name(wxString::Format(wxT("%s: %s"), LNG("[CAP] Histogram"), m_pLayer->Get_Name().c_str()));
+
+		pTable->Add_Field(LNG("CLASS")	, TABLE_FIELDTYPE_Int);
+		pTable->Add_Field(LNG("COUNT")	, TABLE_FIELDTYPE_Int);
+		pTable->Add_Field(LNG("AREA")	, TABLE_FIELDTYPE_Double);
+		pTable->Add_Field(LNG("NAME")	, TABLE_FIELDTYPE_String);
+
+		for(i=0; i<n; i++)
+		{
+			pRecord	= pTable->Add_Record();
+
+			pRecord->Set_Value(0, i + 1);
+			pRecord->Set_Value(1, m_pLayer->Get_Classifier()->Histogram_Get_Count(i, false));
+			pRecord->Set_Value(2, m_pLayer->Get_Classifier()->Histogram_Get_Count(i, false) * dArea);
+			pRecord->Set_Value(3, m_pLayer->Get_Classifier()->Get_Class_Name(i).c_str());
+		}
+
+		g_pData->Add(pTable);
+	}
+}
+
+//---------------------------------------------------------
+bool CVIEW_Histogram::Update_Histogram(void)
+{
+	return( m_pControl->Update_Histogram() );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -166,50 +202,190 @@ wxToolBarBase * CVIEW_Histogram::_Create_ToolBar(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CVIEW_Histogram::On_Size(wxSizeEvent &event)
+IMPLEMENT_CLASS(CVIEW_Histogram_Control, wxScrolledWindow);
+
+//---------------------------------------------------------
+BEGIN_EVENT_TABLE(CVIEW_Histogram_Control, wxScrolledWindow)
+	EVT_PAINT			(CVIEW_Histogram_Control::On_Paint)
+	EVT_SIZE			(CVIEW_Histogram_Control::On_Size)
+	EVT_MOTION			(CVIEW_Histogram_Control::On_Mouse_Motion)
+	EVT_LEFT_DOWN		(CVIEW_Histogram_Control::On_Mouse_LDown)
+	EVT_LEFT_UP			(CVIEW_Histogram_Control::On_Mouse_LUp)
+	EVT_RIGHT_DOWN		(CVIEW_Histogram_Control::On_Mouse_RDown)
+END_EVENT_TABLE()
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CVIEW_Histogram_Control::CVIEW_Histogram_Control(wxWindow *pParent, CWKSP_Layer *pLayer)
+	: wxScrolledWindow(pParent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER|wxFULL_REPAINT_ON_RESIZE)
+{
+	SYS_Set_Color_BG_Window(this);
+
+	m_pLayer		= pLayer;
+
+	m_bCumulative	= false;
+	m_bMouse_Down	= false;
+
+	Update_Histogram();
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CVIEW_Histogram_Control::Update_Histogram(void)
+{
+	if( m_pLayer->Get_Classifier()->Histogram_Update() )
+	{
+		Refresh();
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+void CVIEW_Histogram_Control::Set_Cumulative(bool bOn)
+{
+	if( m_bCumulative != bOn )
+	{
+		m_bCumulative	= bOn;
+
+		Refresh();
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Histogram_Control::On_Mouse_Motion(wxMouseEvent &event)
+{
+	if( m_bMouse_Down )
+	{
+		wxClientDC	dc(this);
+		wxRect		r(_Draw_Get_rDiagram(wxRect(wxPoint(0, 0), GetClientSize())));
+		dc.SetLogicalFunction(wxINVERT);
+
+		dc.DrawRectangle(m_Mouse_Down.x, r.GetTop(), m_Mouse_Move.x - m_Mouse_Down.x, r.GetHeight());
+		m_Mouse_Move	= event.GetPosition();
+		dc.DrawRectangle(m_Mouse_Down.x, r.GetTop(), m_Mouse_Move.x - m_Mouse_Down.x, r.GetHeight());
+	}
+}
+
+//---------------------------------------------------------
+void CVIEW_Histogram_Control::On_Mouse_LDown(wxMouseEvent &event)
+{
+	if(	m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_METRIC
+	||	m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_SHADE )
+	{
+		m_bMouse_Down	= true;
+		m_Mouse_Move	= m_Mouse_Down	= event.GetPosition();
+
+		CaptureMouse();
+	}
+}
+
+//---------------------------------------------------------
+void CVIEW_Histogram_Control::On_Mouse_LUp(wxMouseEvent &event)
+{
+	if( m_bMouse_Down )
+	{
+		ReleaseMouse();
+
+		m_bMouse_Down	= false;
+		m_Mouse_Move	= event.GetPosition();
+
+		wxRect	r(_Draw_Get_rDiagram(wxRect(wxPoint(0, 0), GetClientSize())));
+		double	zFactor	= m_pLayer->Get_Type() == WKSP_ITEM_Grid ? ((CWKSP_Grid *)m_pLayer)->Get_Grid()->Get_ZFactor() : 1.0;
+
+		m_pLayer->Set_Color_Range(
+			zFactor * m_pLayer->Get_Classifier()->Get_RelativeToMetric(
+				(double)(m_Mouse_Down.x - r.GetLeft()) / (double)r.GetWidth()),
+			zFactor * m_pLayer->Get_Classifier()->Get_RelativeToMetric(
+				(double)(m_Mouse_Move.x - r.GetLeft()) / (double)r.GetWidth())
+		);
+	}
+}
+
+//---------------------------------------------------------
+void CVIEW_Histogram_Control::On_Mouse_RDown(wxMouseEvent &event)
+{
+	if(	m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_METRIC
+	||	m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_SHADE )
+	{
+		switch( m_pLayer->Get_Type() )
+		{
+		default:
+			return;
+
+		case WKSP_ITEM_Grid:
+			m_pLayer->Set_Color_Range(
+				((CWKSP_Grid *)m_pLayer)->Get_Grid()->Get_ZMin(true),
+				((CWKSP_Grid *)m_pLayer)->Get_Grid()->Get_ZMax(true)
+			);
+			break;
+
+		case WKSP_ITEM_Shapes:
+			m_pLayer->Set_Color_Range(
+				((CWKSP_Shapes *)m_pLayer)->Get_Shapes()->Get_MinValue(m_pLayer->Get_Parameters()->Get_Parameter("COLORS_ATTRIB")->asInt()),
+				((CWKSP_Shapes *)m_pLayer)->Get_Shapes()->Get_MaxValue(m_pLayer->Get_Parameters()->Get_Parameter("COLORS_ATTRIB")->asInt())
+			);
+			break;
+		}
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Histogram_Control::On_Size(wxSizeEvent &event)
 {
 	Refresh();
 
 	event.Skip();
 }
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-wxRect CVIEW_Histogram::_Draw_Get_rDiagram(wxRect r)
-{
-	if( m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_LUT )
-	{
-		return(	wxRect(
-			wxPoint(r.GetLeft()  + 50, r.GetTop()    +  10),
-			wxPoint(r.GetRight() - 10, r.GetBottom() - 100)
-		));
-	}
-
-	return(	wxRect(
-		wxPoint(r.GetLeft()  + 50, r.GetTop()    + 10),
-		wxPoint(r.GetRight() - 10, r.GetBottom() - 40)
-	));
-}
-
-//---------------------------------------------------------
-void CVIEW_Histogram::On_Paint(wxPaintEvent &event)
+void CVIEW_Histogram_Control::On_Paint(wxPaintEvent &event)
 {
 	wxPaintDC	dc(this);
 	wxRect		r(wxPoint(0, 0), GetClientSize());
 
 	Draw_Edge(dc, EDGE_STYLE_SUNKEN, r);
 
-	Draw(dc, r);
+	_Draw(dc, r);
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-void CVIEW_Histogram::Draw(wxDC &dc, wxRect rDraw)
+void CVIEW_Histogram_Control::_Draw(wxDC &dc, wxRect rDraw)
 {
 	wxRect		r(_Draw_Get_rDiagram(rDraw));
 	wxFont		Font;
@@ -222,33 +398,40 @@ void CVIEW_Histogram::Draw(wxDC &dc, wxRect rDraw)
 }
 
 //---------------------------------------------------------
-void CVIEW_Histogram::_Draw_Histogram(wxDC &dc, wxRect r)
+void CVIEW_Histogram_Control::_Draw_Histogram(wxDC &dc, wxRect r)
 {
-	int		iClass, nClasses, ax, bx, ay, by;
-	double	dx, Value;
+	int		nClasses	= m_pLayer->Get_Classifier()->Get_Class_Count();
 
-	nClasses	= m_pLayer->Get_Classifier()->Get_Class_Count();
-
-	dx	= (double)r.GetWidth() / (double)nClasses;
-	ay	= r.GetBottom();
-	bx	= r.GetLeft();
-
-	for(iClass=0; iClass<nClasses; iClass++)
+	if( nClasses > 1 )
 	{
-		Value	= m_bCumulative
-				? m_pLayer->Get_Classifier()->Histogram_Get_Cumulative(iClass)
-				: m_pLayer->Get_Classifier()->Histogram_Get_Count     (iClass);
+		int		ax, ay, bx, by;
+		double	dx, Value;
 
-		ax	= bx;
-		bx	= r.GetLeft() + (int)(dx * (iClass + 1.0));
-		by	= ay - (int)(r.GetHeight() * Value);
+		dx	= (double)r.GetWidth() / (double)nClasses;
+		ay	= r.GetBottom();
+		bx	= r.GetLeft();
 
-		Draw_FillRect(dc, m_pLayer->Get_Classifier()->Get_Class_Color(iClass), ax, ay, bx, by);
+		for(int iClass=0; iClass<nClasses; iClass++)
+		{
+			Value	= m_bCumulative
+					? m_pLayer->Get_Classifier()->Histogram_Get_Cumulative(iClass)
+					: m_pLayer->Get_Classifier()->Histogram_Get_Count     (iClass);
+
+			ax	= bx;
+			bx	= r.GetLeft() + (int)(dx * (iClass + 1.0));
+			by	= ay - (int)(r.GetHeight() * Value);
+
+			Draw_FillRect(dc, m_pLayer->Get_Classifier()->Get_Class_Color(iClass), ax, ay, bx, by);
+		}
+	}
+	else
+	{
+		Draw_Text(dc, TEXTALIGN_CENTER, r.GetLeft() + r.GetWidth() / 2, r.GetBottom() - r.GetHeight() / 2, LNG("no histogram for unclassified data"));
 	}
 }
 
 //---------------------------------------------------------
-void CVIEW_Histogram::_Draw_Frame(wxDC &dc, wxRect r)
+void CVIEW_Histogram_Control::_Draw_Frame(wxDC &dc, wxRect r)
 {
 	const int	dyFont		= 12,
 				Precision	= 3;
@@ -335,175 +518,21 @@ void CVIEW_Histogram::_Draw_Frame(wxDC &dc, wxRect r)
 	}
 }
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-void CVIEW_Histogram::On_Mouse_Motion(wxMouseEvent &event)
+wxRect CVIEW_Histogram_Control::_Draw_Get_rDiagram(wxRect r)
 {
-	if( m_bMouse_Down )
+	if( m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_LUT )
 	{
-		wxClientDC	dc(this);
-		wxRect		r(_Draw_Get_rDiagram(wxRect(wxPoint(0, 0), GetClientSize())));
-		dc.SetLogicalFunction(wxINVERT);
-
-		dc.DrawRectangle(m_Mouse_Down.x, r.GetTop(), m_Mouse_Move.x - m_Mouse_Down.x, r.GetHeight());
-		m_Mouse_Move	= event.GetPosition();
-		dc.DrawRectangle(m_Mouse_Down.x, r.GetTop(), m_Mouse_Move.x - m_Mouse_Down.x, r.GetHeight());
+		return(	wxRect(
+			wxPoint(r.GetLeft()  + 50, r.GetTop()    +  10),
+			wxPoint(r.GetRight() - 10, r.GetBottom() - 100)
+		));
 	}
-}
 
-//---------------------------------------------------------
-void CVIEW_Histogram::On_Mouse_LDown(wxMouseEvent &event)
-{
-	if(	m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_METRIC
-	||	m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_SHADE )
-	{
-		m_bMouse_Down	= true;
-		m_Mouse_Move	= m_Mouse_Down	= event.GetPosition();
-
-		CaptureMouse();
-	}
-}
-
-//---------------------------------------------------------
-void CVIEW_Histogram::On_Mouse_LUp(wxMouseEvent &event)
-{
-	if( m_bMouse_Down )
-	{
-		ReleaseMouse();
-
-		m_bMouse_Down	= false;
-		m_Mouse_Move	= event.GetPosition();
-
-		wxRect	r(_Draw_Get_rDiagram(wxRect(wxPoint(0, 0), GetClientSize())));
-		double	zFactor	= m_pLayer->Get_Type() == WKSP_ITEM_Grid ? ((CWKSP_Grid *)m_pLayer)->Get_Grid()->Get_ZFactor() : 1.0;
-
-		m_pLayer->Set_Color_Range(
-			zFactor * m_pLayer->Get_Classifier()->Get_RelativeToMetric(
-				(double)(m_Mouse_Down.x - r.GetLeft()) / (double)r.GetWidth()),
-			zFactor * m_pLayer->Get_Classifier()->Get_RelativeToMetric(
-				(double)(m_Mouse_Move.x - r.GetLeft()) / (double)r.GetWidth())
-		);
-	}
-}
-
-//---------------------------------------------------------
-void CVIEW_Histogram::On_Mouse_RDown(wxMouseEvent &event)
-{
-	double	zMin, zMax;
-
-	if(	m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_METRIC
-	||	m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_SHADE )
-	{
-		switch( m_pLayer->Get_Type() )
-		{
-		default:
-			break;
-
-		case WKSP_ITEM_Grid:
-			zMin	= ((CWKSP_Grid *)m_pLayer)->Get_Grid()->Get_ZMin(true);
-			zMax	= ((CWKSP_Grid *)m_pLayer)->Get_Grid()->Get_ZMax(true);
-
-			m_pLayer->Set_Color_Range(zMin, zMax);
-			break;
-
-		case WKSP_ITEM_Shapes:
-			break;
-		}
-	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CVIEW_Histogram::On_Command_UI(wxUpdateUIEvent &event)
-{
-	switch( event.GetId() )
-	{
-	case ID_CMD_HISTOGRAM_CUMULATIVE:
-		On_Cumulative_UI(event);
-		break;
-	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CVIEW_Histogram::On_Cumulative(wxCommandEvent &event)
-{
-	m_bCumulative	= !m_bCumulative;
-
-	Refresh();
-}
-
-void CVIEW_Histogram::On_Cumulative_UI(wxUpdateUIEvent &event)
-{
-	event.Check(m_bCumulative);
-}
-
-//---------------------------------------------------------
-void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
-{
-	int					i, n;
-	double				dArea	= m_pLayer->Get_Type() == WKSP_ITEM_Grid ? ((CSG_Grid *)m_pLayer->Get_Object())->Get_Cellarea() : 1.0;
-	CSG_Table			*pTable;
-	CSG_Table_Record	*pRecord;
-
-	if( (n = m_pLayer->Get_Classifier()->Get_Class_Count()) > 0 )
-	{
-		pTable	= new CSG_Table;
-
-		pTable->Set_Name(wxString::Format(wxT("%s: %s"), LNG("[CAP] Histogram"), m_pLayer->Get_Name().c_str()));
-
-		pTable->Add_Field(LNG("CLASS")	, TABLE_FIELDTYPE_Int);
-		pTable->Add_Field(LNG("COUNT")	, TABLE_FIELDTYPE_Int);
-		pTable->Add_Field(LNG("AREA")	, TABLE_FIELDTYPE_Double);
-		pTable->Add_Field(LNG("NAME")	, TABLE_FIELDTYPE_String);
-
-		for(i=0; i<n; i++)
-		{
-			pRecord	= pTable->Add_Record();
-
-			pRecord->Set_Value(0, i + 1);
-			pRecord->Set_Value(1, m_pLayer->Get_Classifier()->Histogram_Get_Count(i, false));
-			pRecord->Set_Value(2, m_pLayer->Get_Classifier()->Histogram_Get_Count(i, false) * dArea);
-			pRecord->Set_Value(3, m_pLayer->Get_Classifier()->Get_Class_Name(i).c_str());
-		}
-
-		g_pData->Add(pTable);
-	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CVIEW_Histogram::Update_Histogram(void)
-{
-	bool	bResult	= m_pLayer->Get_Classifier()->Histogram_Update();
-
-	Refresh();
-
-	return( bResult );
+	return(	wxRect(
+		wxPoint(r.GetLeft()  + 50, r.GetTop()    + 10),
+		wxPoint(r.GetRight() - 10, r.GetBottom() - 40)
+	));
 }
 
 

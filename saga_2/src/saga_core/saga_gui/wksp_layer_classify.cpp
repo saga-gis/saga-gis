@@ -414,7 +414,7 @@ bool CWKSP_Layer_Classify::Histogram_Update(void)
 			break;
 
 		case WKSP_ITEM_Shapes:
-			_Histogram_Update(((CWKSP_Shapes *)m_pLayer)->Get_Shapes());
+			_Histogram_Update(((CWKSP_Shapes *)m_pLayer)->Get_Shapes(), m_pLayer->Get_Parameters()->Get_Parameter("COLORS_ATTRIB")->asInt());
 			break;
 		}
 
@@ -439,15 +439,18 @@ bool CWKSP_Layer_Classify::Histogram_Update(void)
 //---------------------------------------------------------
 bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Grid *pGrid)
 {
-	int		x, y, i;
-
-	for(y=0; y<pGrid->Get_NY() && PROGRESSBAR_Set_Position(y, pGrid->Get_NY()); y++)
+	for(int y=0; y<pGrid->Get_NY() && PROGRESSBAR_Set_Position(y, pGrid->Get_NY()); y++)
 	{
-		for(x=0; x<pGrid->Get_NX(); x++)
+		for(int x=0; x<pGrid->Get_NX(); x++)
 		{
-			if( !pGrid->is_NoData(x, y) && (i = Get_Class(pGrid->asDouble(x, y))) >= 0 && i < Get_Class_Count() )
+			if( !pGrid->is_NoData(x, y) )
 			{
-				m_HST_Count[i]++;
+				int		Class	= Get_Class(pGrid->asDouble(x, y));
+				
+				if( Class >= 0 && Class < Get_Class_Count() )
+				{
+					m_HST_Count[Class]++;
+				}
 			}
 		}
 	}
@@ -456,9 +459,24 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Grid *pGrid)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Shapes *pShapes)
+bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Shapes *pShapes, int Attribute)
 {
-	return( true );
+	if( Attribute >= 0 && Attribute < pShapes->Get_Field_Count() )
+	{
+		for(int i=0; i<pShapes->Get_Count() && PROGRESSBAR_Set_Position(i, pShapes->Get_Count()); i++)
+		{
+			int		Class	= Get_Class(pShapes->Get_Record(i)->asDouble(Attribute));
+			
+			if( Class >= 0 && Class < Get_Class_Count() )
+			{
+				m_HST_Count[Class]++;
+			}
+		}
+
+		return( true );
+	}
+
+	return( false );
 }
 
 

@@ -166,6 +166,7 @@ wxMenu * CWKSP_Shapes::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_SAVE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_SAVEAS);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_SHOW);
+	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_SHAPES_HISTOGRAM);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_SET_LUT);
 
 	pMenu->AppendSeparator();
@@ -240,6 +241,10 @@ bool CWKSP_Shapes::On_Command(int Cmd_ID)
 	case ID_CMD_TABLES_SCATTERPLOT:
 		Add_ScatterPlot(Get_Table()->Get_Table());
 		break;
+
+	case ID_CMD_SHAPES_HISTOGRAM:
+		Histogram_Toggle();
+		break;
 	}
 
 	return( true );
@@ -288,6 +293,10 @@ bool CWKSP_Shapes::On_Command_UI(wxUpdateUIEvent &event)
 
 	case ID_CMD_TABLES_DIAGRAM:
 		event.Check(m_pTable->Get_Diagram() != NULL);
+		break;
+
+	case ID_CMD_SHAPES_HISTOGRAM:
+		event.Check(m_pHistogram != NULL);
 		break;
 	}
 

@@ -132,7 +132,7 @@ public: ///////////////////////////////////////////////////
 
 	void						Set_Metric				(int Mode, double LogFactor, double zMin, double zMax);
 	int							Get_Metric_Mode			(void)		{	return( m_zMode );		}
-	CSG_Colors *					Get_Metric_Colors		(void)		{	return( m_pColors );	}
+	CSG_Colors *				Get_Metric_Colors		(void)		{	return( m_pColors );	}
 
 	void						Metric2EqualElements	(void);
 
@@ -357,9 +357,9 @@ protected: ////////////////////////////////////////////////
 
 	double						m_zMin, m_zRange, m_zLogRange, m_zLogMax;
 
-	CSG_Colors						*m_pColors;
+	CSG_Colors					*m_pColors;
 
-	CSG_Table						*m_pLUT;
+	CSG_Table					*m_pLUT;
 
 	class CWKSP_Layer			*m_pLayer;
 
@@ -386,7 +386,7 @@ protected: ////////////////////////////////////////////////
 
 	//-----------------------------------------------------
 	bool						_Histogram_Update		(CSG_Grid *pGrid);
-	bool						_Histogram_Update		(CSG_Shapes *pShapes);
+	bool						_Histogram_Update		(CSG_Shapes *pShapes, int Attribute);
 
 };
 

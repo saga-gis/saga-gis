@@ -135,6 +135,7 @@ const wxChar * CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_SHAPES_SAVE:			return( LNG("[CMD] Save Shapes") );
 	case ID_CMD_SHAPES_SAVEAS:			return( LNG("[CMD] Save Shapes As...") );
 	case ID_CMD_SHAPES_SHOW:			return( LNG("[CMD] Show Shapes") );
+	case ID_CMD_SHAPES_HISTOGRAM:		return( LNG("[CMD] Show Histogram") );
 	case ID_CMD_SHAPES_SET_LUT:			return( LNG("[CMD] Create Lookup Table") );
 	case ID_CMD_SHAPES_EDIT_SHAPE:		return( LNG("[CMD] Edit Selected Shape") );
 	case ID_CMD_SHAPES_EDIT_SEL_INVERT:	return( LNG("[CMD] Invert Selection") );
