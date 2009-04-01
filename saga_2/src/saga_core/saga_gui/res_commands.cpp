@@ -249,6 +249,9 @@ const wxChar * CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_TABLE_AUTOSIZE_ROWS:	return( LNG("[CMD] Fit Row Sizes") );
 
 	case ID_CMD_DIAGRAM_PARAMETERS:		return( LNG("[CMD] Properties") );
+	case ID_CMD_DIAGRAM_SIZE_FIT:		return( LNG("[CMD] Fit Diagram to Window") );
+	case ID_CMD_DIAGRAM_SIZE_INC:		return( LNG("[CMD] Increase Diagram Size") );
+	case ID_CMD_DIAGRAM_SIZE_DEC:		return( LNG("[CMD] Decrease Diagram Size") );
 
 	case ID_CMD_SCATTERPLOT_PARAMETERS:	return( LNG("[CMD] Properties") );
 	case ID_CMD_SCATTERPLOT_UPDATE:		return( LNG("[CMD] Update Data") );
@@ -347,6 +350,9 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_SCATTERPLOT_UPDATE:		return( ID_IMG_DEFAULT );
 
 	case ID_CMD_DIAGRAM_PARAMETERS:		return( ID_IMG_TB_DIAGRAM_PARAMETERS );
+	case ID_CMD_DIAGRAM_SIZE_FIT:		break;
+	case ID_CMD_DIAGRAM_SIZE_INC:		return( ID_IMG_TB_MAP3D_CENTRAL_MORE );
+	case ID_CMD_DIAGRAM_SIZE_DEC:		return( ID_IMG_TB_MAP3D_CENTRAL_LESS );
 	}
 
 	return( ID_IMG_DEFAULT );

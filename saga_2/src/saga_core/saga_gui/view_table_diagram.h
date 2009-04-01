@@ -69,8 +69,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <saga_api/saga_api.h>
-
 #include "view_base.h"
 
 
@@ -87,49 +85,23 @@ public:
 	CVIEW_Table_Diagram(class CWKSP_Table *pTable);
 	virtual ~CVIEW_Table_Diagram(void);
 
-	static class wxToolBarBase *	_Create_ToolBar		(void);
-	static class wxMenu *			_Create_Menu		(void);
+	static class wxToolBarBase *		_Create_ToolBar		(void);
+	static class wxMenu *				_Create_Menu		(void);
 
-	void							On_Size				(wxSizeEvent &event);
-	void							On_Paint			(wxPaintEvent &event);
-
-	void							On_Parameters		(wxCommandEvent &event);
-
-	void							Draw				(wxDC &dc, wxRect rDraw);
-
-	bool							Update_Diagram		(void);
+	bool								Update_Diagram		(void);
 
 
 private:
 
-	int								m_nFields, *m_Fields, m_xField;
+	class CVIEW_Table_Diagram_Control	*m_pControl;
 
-	double							m_zMin, m_zMax, m_xMin, m_xMax;
-
-	CSG_Colors							m_Colors;
-
-	CSG_Table							*m_pTable, m_Structure;
-
-	CSG_Parameters						m_Parameters;
-
-	class CWKSP_Table				*m_pOwner;
-
-	class wxFont					*m_pFont;
+	class CWKSP_Table					*m_pOwner;
 
 
-	void							_Destroy_Fields		(void);
-	bool							_Set_Fields			(void);
-
-	void							_Initialize			(void);
-
-	bool							_DLG_Parameters		(void);
-
-	void							_Draw_Diagram		(wxDC &dc, wxRect r);
-	void							_Draw_Frame			(wxDC &dc, wxRect r, double dx, double dy);
-	void							_Draw_Legend		(wxDC &dc, wxRect r);
-
-	void							_Draw_Line			(wxDC &dc, wxRect r, double dx, double dy, int iField, bool bLine, bool bPoint);
-	void							_Draw_Bars			(wxDC &dc, wxRect r, double dx, double dy, int iField);
+	void								On_Parameters		(wxCommandEvent &event);
+	void								On_Size_Fit			(wxCommandEvent &event);
+	void								On_Size_Inc			(wxCommandEvent &event);
+	void								On_Size_Dec			(wxCommandEvent &event);
 
 
 private:

@@ -60,6 +60,7 @@
 //---------------------------------------------------------
 #include <wx/window.h>
 #include <wx/toolbar.h>
+#include <wx/scrolwin.h>
 
 #include "res_commands.h"
 #include "res_controls.h"
@@ -83,121 +84,50 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-IMPLEMENT_CLASS(CVIEW_Histogram, CVIEW_Base);
-
-//---------------------------------------------------------
-BEGIN_EVENT_TABLE(CVIEW_Histogram, CVIEW_Base)
-	EVT_MENU			(ID_CMD_HISTOGRAM_CUMULATIVE	, CVIEW_Histogram::On_Cumulative)
-	EVT_UPDATE_UI		(ID_CMD_HISTOGRAM_CUMULATIVE	, CVIEW_Histogram::On_Cumulative_UI)
-	EVT_MENU			(ID_CMD_HISTOGRAM_AS_TABLE		, CVIEW_Histogram::On_AsTable)
-END_EVENT_TABLE()
-
-//---------------------------------------------------------
-CVIEW_Histogram::CVIEW_Histogram(CWKSP_Layer *pLayer)
-	: CVIEW_Base(ID_VIEW_HISTOGRAM, pLayer->Get_Name(), ID_IMG_WND_HISTOGRAM, CVIEW_Histogram::_Create_Menu(), LNG("[CAP] Histogram"))
+class CVIEW_Histogram_Control : public wxScrolledWindow
 {
-	m_pLayer	= pLayer;
-	m_pControl	= new CVIEW_Histogram_Control(this, pLayer);
-}
+public:
+	CVIEW_Histogram_Control(wxWindow *pParent, class CWKSP_Layer *pLayer);
 
-//---------------------------------------------------------
-CVIEW_Histogram::~CVIEW_Histogram(void)
-{
-	m_pLayer->View_Closes(this);
-}
+	bool							Update_Histogram	(void);
 
-//---------------------------------------------------------
-wxMenu * CVIEW_Histogram::_Create_Menu(void)
-{
-	wxMenu	*pMenu	= new wxMenu();
+	bool							Get_Cumulative		(void)	{	return( m_bCumulative );	}
+	void							Set_Cumulative		(bool bOn);
 
-	CMD_Menu_Add_Item(pMenu, true , ID_CMD_HISTOGRAM_CUMULATIVE);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_HISTOGRAM_AS_TABLE);
+	void							Draw				(wxDC &dc, wxRect rDraw);
 
-	return( pMenu );
-}
 
-//---------------------------------------------------------
-wxToolBarBase * CVIEW_Histogram::_Create_ToolBar(void)
-{
-	wxToolBarBase	*pToolBar	= CMD_ToolBar_Create(ID_TB_VIEW_HISTOGRAM);
+private:
 
-	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_HISTOGRAM_CUMULATIVE);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_HISTOGRAM_AS_TABLE);
+	bool							m_bCumulative, m_bMouse_Down;
 
-	CMD_ToolBar_Add(pToolBar, LNG("[CAP] Histogram"));
+	wxPoint							m_Mouse_Down, m_Mouse_Move;
 
-	return( pToolBar );
-}
+	class CWKSP_Layer				*m_pLayer;
 
-//---------------------------------------------------------
-void CVIEW_Histogram::On_Command_UI(wxUpdateUIEvent &event)
-{
-	switch( event.GetId() )
-	{
-	default:
-		break;
 
-	case ID_CMD_HISTOGRAM_CUMULATIVE:
-		On_Cumulative_UI(event);
-		break;
-	}
-}
+	void							On_Mouse_Motion		(wxMouseEvent &event);
+	void							On_Mouse_LDown		(wxMouseEvent &event);
+	void							On_Mouse_LUp		(wxMouseEvent &event);
+	void							On_Mouse_RDown		(wxMouseEvent &event);
 
-//---------------------------------------------------------
-void CVIEW_Histogram::On_Cumulative(wxCommandEvent &event)
-{
-	m_pControl->Set_Cumulative(!m_pControl->Get_Cumulative());
-}
+	void							On_Size				(wxSizeEvent  &event);
+	void							On_Paint			(wxPaintEvent &event);
 
-void CVIEW_Histogram::On_Cumulative_UI(wxUpdateUIEvent &event)
-{
-	event.Check(m_pControl->Get_Cumulative());
-}
+	void							_Draw_Histogram		(wxDC &dc, wxRect r);
+	void							_Draw_Frame			(wxDC &dc, wxRect r);
+	wxRect							_Draw_Get_rDiagram	(wxRect r);
 
-//---------------------------------------------------------
-void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
-{
-	int					i, n;
-	double				dArea	= m_pLayer->Get_Type() == WKSP_ITEM_Grid ? ((CSG_Grid *)m_pLayer->Get_Object())->Get_Cellarea() : 1.0;
-	CSG_Table			*pTable;
-	CSG_Table_Record	*pRecord;
 
-	if( (n = m_pLayer->Get_Classifier()->Get_Class_Count()) > 0 )
-	{
-		pTable	= new CSG_Table;
+private:
 
-		pTable->Set_Name(wxString::Format(wxT("%s: %s"), LNG("[CAP] Histogram"), m_pLayer->Get_Name().c_str()));
+	DECLARE_EVENT_TABLE()
+	DECLARE_CLASS(CVIEW_Histogram_Control)
 
-		pTable->Add_Field(LNG("CLASS")	, TABLE_FIELDTYPE_Int);
-		pTable->Add_Field(LNG("COUNT")	, TABLE_FIELDTYPE_Int);
-		pTable->Add_Field(LNG("AREA")	, TABLE_FIELDTYPE_Double);
-		pTable->Add_Field(LNG("NAME")	, TABLE_FIELDTYPE_String);
-
-		for(i=0; i<n; i++)
-		{
-			pRecord	= pTable->Add_Record();
-
-			pRecord->Set_Value(0, i + 1);
-			pRecord->Set_Value(1, m_pLayer->Get_Classifier()->Histogram_Get_Count(i, false));
-			pRecord->Set_Value(2, m_pLayer->Get_Classifier()->Histogram_Get_Count(i, false) * dArea);
-			pRecord->Set_Value(3, m_pLayer->Get_Classifier()->Get_Class_Name(i).c_str());
-		}
-
-		g_pData->Add(pTable);
-	}
-}
-
-//---------------------------------------------------------
-bool CVIEW_Histogram::Update_Histogram(void)
-{
-	return( m_pControl->Update_Histogram() );
-}
+};
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -217,8 +147,6 @@ END_EVENT_TABLE()
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -237,8 +165,6 @@ CVIEW_Histogram_Control::CVIEW_Histogram_Control(wxWindow *pParent, CWKSP_Layer 
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -268,8 +194,6 @@ void CVIEW_Histogram_Control::Set_Cumulative(bool bOn)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -354,16 +278,12 @@ void CVIEW_Histogram_Control::On_Mouse_RDown(wxMouseEvent &event)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CVIEW_Histogram_Control::On_Size(wxSizeEvent &event)
+void CVIEW_Histogram_Control::On_Size(wxSizeEvent &WXUNUSED(event))
 {
 	Refresh();
-
-	event.Skip();
 }
 
 //---------------------------------------------------------
@@ -374,18 +294,16 @@ void CVIEW_Histogram_Control::On_Paint(wxPaintEvent &event)
 
 	Draw_Edge(dc, EDGE_STYLE_SUNKEN, r);
 
-	_Draw(dc, r);
+	Draw(dc, r);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CVIEW_Histogram_Control::_Draw(wxDC &dc, wxRect rDraw)
+void CVIEW_Histogram_Control::Draw(wxDC &dc, wxRect rDraw)
 {
 	wxRect		r(_Draw_Get_rDiagram(rDraw));
 	wxFont		Font;
@@ -533,6 +451,140 @@ wxRect CVIEW_Histogram_Control::_Draw_Get_rDiagram(wxRect r)
 		wxPoint(r.GetLeft()  + 50, r.GetTop()    + 10),
 		wxPoint(r.GetRight() - 10, r.GetBottom() - 40)
 	));
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+IMPLEMENT_CLASS(CVIEW_Histogram, CVIEW_Base);
+
+//---------------------------------------------------------
+BEGIN_EVENT_TABLE(CVIEW_Histogram, CVIEW_Base)
+	EVT_MENU			(ID_CMD_HISTOGRAM_CUMULATIVE	, CVIEW_Histogram::On_Cumulative)
+	EVT_UPDATE_UI		(ID_CMD_HISTOGRAM_CUMULATIVE	, CVIEW_Histogram::On_Cumulative_UI)
+	EVT_MENU			(ID_CMD_HISTOGRAM_AS_TABLE		, CVIEW_Histogram::On_AsTable)
+END_EVENT_TABLE()
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CVIEW_Histogram::CVIEW_Histogram(CWKSP_Layer *pLayer)
+	: CVIEW_Base(ID_VIEW_HISTOGRAM, pLayer->Get_Name(), ID_IMG_WND_HISTOGRAM, CVIEW_Histogram::_Create_Menu(), LNG("[CAP] Histogram"))
+{
+	m_pLayer	= pLayer;
+	m_pControl	= new CVIEW_Histogram_Control(this, pLayer);
+}
+
+//---------------------------------------------------------
+CVIEW_Histogram::~CVIEW_Histogram(void)
+{
+	m_pLayer->View_Closes(this);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+wxMenu * CVIEW_Histogram::_Create_Menu(void)
+{
+	wxMenu	*pMenu	= new wxMenu();
+
+	CMD_Menu_Add_Item(pMenu, true , ID_CMD_HISTOGRAM_CUMULATIVE);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_HISTOGRAM_AS_TABLE);
+
+	return( pMenu );
+}
+
+//---------------------------------------------------------
+wxToolBarBase * CVIEW_Histogram::_Create_ToolBar(void)
+{
+	wxToolBarBase	*pToolBar	= CMD_ToolBar_Create(ID_TB_VIEW_HISTOGRAM);
+
+	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_HISTOGRAM_CUMULATIVE);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_HISTOGRAM_AS_TABLE);
+
+	CMD_ToolBar_Add(pToolBar, LNG("[CAP] Histogram"));
+
+	return( pToolBar );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Histogram::On_Command_UI(wxUpdateUIEvent &event)
+{
+	switch( event.GetId() )
+	{
+	default:
+		break;
+
+	case ID_CMD_HISTOGRAM_CUMULATIVE:
+		On_Cumulative_UI(event);
+		break;
+	}
+}
+
+//---------------------------------------------------------
+void CVIEW_Histogram::On_Cumulative(wxCommandEvent &event)
+{
+	m_pControl->Set_Cumulative(!m_pControl->Get_Cumulative());
+}
+
+void CVIEW_Histogram::On_Cumulative_UI(wxUpdateUIEvent &event)
+{
+	event.Check(m_pControl->Get_Cumulative());
+}
+
+//---------------------------------------------------------
+void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
+{
+	int					i, n;
+	double				dArea	= m_pLayer->Get_Type() == WKSP_ITEM_Grid ? ((CSG_Grid *)m_pLayer->Get_Object())->Get_Cellarea() : 1.0;
+	CSG_Table			*pTable;
+	CSG_Table_Record	*pRecord;
+
+	if( (n = m_pLayer->Get_Classifier()->Get_Class_Count()) > 0 )
+	{
+		pTable	= new CSG_Table;
+
+		pTable->Set_Name(wxString::Format(wxT("%s: %s"), LNG("[CAP] Histogram"), m_pLayer->Get_Name().c_str()));
+
+		pTable->Add_Field(LNG("CLASS")	, TABLE_FIELDTYPE_Int);
+		pTable->Add_Field(LNG("COUNT")	, TABLE_FIELDTYPE_Int);
+		pTable->Add_Field(LNG("AREA")	, TABLE_FIELDTYPE_Double);
+		pTable->Add_Field(LNG("NAME")	, TABLE_FIELDTYPE_String);
+
+		for(i=0; i<n; i++)
+		{
+			pRecord	= pTable->Add_Record();
+
+			pRecord->Set_Value(0, i + 1);
+			pRecord->Set_Value(1, m_pLayer->Get_Classifier()->Histogram_Get_Count(i, false));
+			pRecord->Set_Value(2, m_pLayer->Get_Classifier()->Histogram_Get_Count(i, false) * dArea);
+			pRecord->Set_Value(3, m_pLayer->Get_Classifier()->Get_Class_Name(i).c_str());
+		}
+
+		g_pData->Add(pTable);
+	}
+}
+
+//---------------------------------------------------------
+bool CVIEW_Histogram::Update_Histogram(void)
+{
+	return( m_pControl->Update_Histogram() );
 }
 
 
