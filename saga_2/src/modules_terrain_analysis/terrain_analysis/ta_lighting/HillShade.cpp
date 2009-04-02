@@ -111,7 +111,7 @@ CHillShade::CHillShade(void)
 			_TL("Standard (max. 90Degree)"),
 			_TL("Combined Shading"),
 			_TL("Ray Tracing")
-		), 2
+		), 0
 	);
 
 	Parameters.Add_Value(

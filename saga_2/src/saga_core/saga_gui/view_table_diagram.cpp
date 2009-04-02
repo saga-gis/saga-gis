@@ -136,8 +136,6 @@ private:
 	void							On_Mouse_LDown		(wxMouseEvent &event);
 	void							On_Mouse_RDown		(wxMouseEvent &event);
 
-	void							On_Size				(wxSizeEvent  &event);
-
 	void							_Destroy			(void);
 	bool							_Create				(void);
 	bool							_Initialize			(void);
@@ -164,7 +162,6 @@ IMPLEMENT_CLASS(CVIEW_Table_Diagram_Control, wxScrolledWindow);
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CVIEW_Table_Diagram_Control, wxScrolledWindow)
-	EVT_SIZE			(CVIEW_Table_Diagram_Control::On_Size)
 	EVT_LEFT_DOWN		(CVIEW_Table_Diagram_Control::On_Mouse_LDown)
 	EVT_RIGHT_DOWN		(CVIEW_Table_Diagram_Control::On_Mouse_RDown)
 END_EVENT_TABLE()
@@ -459,12 +456,6 @@ void CVIEW_Table_Diagram_Control::On_Mouse_RDown(wxMouseEvent &event)
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CVIEW_Table_Diagram_Control::On_Size(wxSizeEvent &WXUNUSED(event))
-{
-//	Refresh();
-}
 
 //---------------------------------------------------------
 void CVIEW_Table_Diagram_Control::OnDraw(wxDC &dc)
@@ -774,6 +765,8 @@ CVIEW_Table_Diagram::CVIEW_Table_Diagram(CWKSP_Table *pTable)
 	m_pOwner	= pTable;
 
 	m_pControl	= new CVIEW_Table_Diagram_Control(this, pTable);
+
+	On_Size_Fit(wxCommandEvent());
 }
 
 //---------------------------------------------------------
@@ -840,7 +833,12 @@ void CVIEW_Table_Diagram::On_Parameters(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Diagram::On_Size_Fit(wxCommandEvent &event)
 {
-	m_pControl->Set_Size(GetClientSize());
+	wxSize	Size(GetClientSize());
+
+	Size.x	-= 2 * SCROLL_BAR_DX;
+	Size.y	-= 2 * SCROLL_BAR_DY;
+
+	m_pControl->Set_Size(Size);
 }
 
 //---------------------------------------------------------

@@ -200,6 +200,7 @@ bool CWator::On_Execute(void)
 	Colors.Set_Color(1, SG_GET_RGB(  0, 255,   0));
 	Colors.Set_Color(2, SG_GET_RGB(255,   0,   0));
 	DataObject_Set_Colors(pWator, Colors);
+	DataObject_Update(pWator, 0, 3, SG_UI_DATAOBJECT_SHOW);
 
 	//-----------------------------------------------------
 	Fish_Birth		= Parameters("FISH_BIRTH")	->asInt();
@@ -268,6 +269,8 @@ bool CWator::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	SG_UI_Progress_Lock(true);
+
 	for(i=1; Process_Get_Okay(true) && Next_Cycle(); i++)
 	{
 		Process_Set_Text(CSG_String::Format(_TL("%d. Life Cycle"), i));
@@ -277,9 +280,11 @@ bool CWator::On_Execute(void)
 		pRecord->Set_Value(1, nFishes);
 		pRecord->Set_Value(2, nSharks);
 
-		DataObject_Update(pWator, 0, 3, true);
+		DataObject_Update(pWator, 0, 3);
 		DataObject_Update(pTable);
 	}
+
+	SG_UI_Progress_Lock(false);
 
 	//-----------------------------------------------------
 	delete(pNext);

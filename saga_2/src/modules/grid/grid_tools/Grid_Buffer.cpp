@@ -82,6 +82,9 @@ bool CGrid_Buffer::On_Execute(void){
 	double dValue = 0;
 	int x2=0, y2=0;
 
+	pGrid_Buffer->Set_NoData_Value(0.0);
+	pGrid_Buffer->Assign(0.0);
+
     for(int y=0; y<Get_NY() && Set_Progress(y); y++){		
 		for(int x=0; x<Get_NX(); x++){			
             dValue = pFeatures->asDouble(x,y);
