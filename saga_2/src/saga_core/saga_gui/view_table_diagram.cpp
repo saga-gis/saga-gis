@@ -766,7 +766,9 @@ CVIEW_Table_Diagram::CVIEW_Table_Diagram(CWKSP_Table *pTable)
 
 	m_pControl	= new CVIEW_Table_Diagram_Control(this, pTable);
 
-	On_Size_Fit(wxCommandEvent());
+	wxCommandEvent	dummy;
+
+	On_Size_Fit(dummy);
 }
 
 //---------------------------------------------------------
