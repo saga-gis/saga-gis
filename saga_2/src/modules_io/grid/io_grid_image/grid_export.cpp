@@ -104,6 +104,51 @@ CGrid_Export::CGrid_Export(void)
 			_TL("Tagged Image File Format (*.tif, *.tiff)")		, SG_T("*.tif;*.tiff")
 		), NULL, true
 	);
+
+	if( !SG_UI_Get_Window_Main() )
+	{
+		Parameters.Add_Value(
+			NULL	, "COL_COUNT", _TL("Number of Colors"),
+			_TL(""),
+			PARAMETER_TYPE_Int, 100
+		);
+		Parameters.Add_Choice(
+			NULL	, "COL_PALETTE", _TL("Color Palette"),
+			_TL(""),
+			CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
+				_TL("SG_COLORS_DEFAULT"),
+				_TL("SG_COLORS_DEFAULT_BRIGHT"),
+				_TL("SG_COLORS_BLACK_WHITE"),
+				_TL("SG_COLORS_BLACK_RED"),
+				_TL("SG_COLORS_BLACK_GREEN"),
+				_TL("SG_COLORS_BLACK_BLUE"),
+				_TL("SG_COLORS_WHITE_RED"),
+				_TL("SG_COLORS_WHITE_GREEN"),
+				_TL("SG_COLORS_WHITE_BLUE"),
+				_TL("SG_COLORS_YELLOW_RED"),
+				_TL("SG_COLORS_YELLOW_GREEN"),
+				_TL("SG_COLORS_YELLOW_BLUE"),
+				_TL("SG_COLORS_RED_GREEN"),
+				_TL("SG_COLORS_RED_BLUE"),
+				_TL("SG_COLORS_GREEN_BLUE"),
+				_TL("SG_COLORS_RED_GREY_BLUE"),
+				_TL("SG_COLORS_RED_GREY_GREEN"),
+				_TL("SG_COLORS_GREEN_GREY_BLUE"),
+				_TL("SG_COLORS_RED_GREEN_BLUE"),
+				_TL("SG_COLORS_RED_BLUE_GREEN"),
+				_TL("SG_COLORS_GREEN_RED_BLUE"),
+				_TL("SG_COLORS_RAINBOW"),
+				_TL("SG_COLORS_NEON"),
+				_TL("SG_COLORS_COUNT")
+			), 0
+		);
+
+		Parameters.Add_Value(
+			NULL, "COL_REVERT", _TL("Revert Palette"),
+			_TL(""),
+			PARAMETER_TYPE_Bool, false
+		);
+	}
 }
 
 //---------------------------------------------------------
@@ -141,8 +186,8 @@ bool CGrid_Export::On_Execute(void)
 	}
 	else if( !SG_UI_DataObject_asImage(pGrid, &Grid) )
 	{
-		int			nColors	= 100;
-		CSG_Colors	Colors(nColors, SG_COLORS_DEFAULT);
+		int			nColors	= Parameters("COL_COUNT")->asInt();
+		CSG_Colors	Colors(nColors, Parameters("COL_PALETTE")->asInt(), Parameters("COL_REVERT")->asBool());
 
 		Grid.Create(*Get_System(), GRID_TYPE_Int);
 
