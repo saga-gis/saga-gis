@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                 Anisotropic_Heating.cpp               //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -37,13 +37,13 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     conrad@geowiss.uni-hamburg.de          //
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
+//                Bundesstr. 55                          //
+//                20146 Hamburg                          //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -53,80 +53,94 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
-
-
-//---------------------------------------------------------
-const SG_Char * Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Terrain Analysis - Morphometry") );
-
-	case MLB_INFO_Author:
-		return( SG_T("Various Authors") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for (grid based) digital terrain analysis.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Terrain Analysis|Morphometry") );
-	}
-}
-
-
-//---------------------------------------------------------
-#include "Morphometry.h"
-#include "Convergence.h"
-#include "Convergence_Radius.h"
-#include "SurfaceSpecificPoints.h"
-#include "Curvature_Classification.h"
-#include "Hypsometry.h"
-#include "RealArea.h"
-#include "ProtectionIndex.h"
-#include "mrvbf.h"
-#include "distance_gradient.h"
-#include "mass_balance_index.h"
-#include "air_flow_height.h"
 #include "anisotropic_heating.h"
-#include "land_surface_temperature.h"
-#include "relative_heights.h"
-#include "wind_effect.h"
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Module *		Create_Module(int i)
+CAnisotropic_Heating::CAnisotropic_Heating(void)
 {
-	switch( i )
+	//-----------------------------------------------------
+	Set_Name	(_TL("Diurnal Anisotropic Heating"));
+
+	Set_Author	(SG_T("J.Boehner, O.Conrad (c) 2008"));
+
+	Set_Description(_TW(
+		""
+	));
+
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid(
+		NULL	, "DEM"			, _TL("Elevation"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "DAH"			, _TL("Diurnal Anisotropic Heating"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Value(
+		NULL	, "ALPHA_MAX"	, _TL("Alpha Max (Degree)"),
+		_TL(""),
+		PARAMETER_TYPE_Double	, 202.5, 0.0, true, 360.0, true
+	);
+}
+
+//---------------------------------------------------------
+CAnisotropic_Heating::~CAnisotropic_Heating(void)
+{}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CAnisotropic_Heating::On_Execute(void)
+{
+	double		alpha_max, alpha, slope;
+	CSG_Grid	*pDEM, *pDAH;
+
+	//-----------------------------------------------------
+	pDEM		= Parameters("DEM")			->asGrid();
+	pDAH		= Parameters("DAH")			->asGrid();
+
+	alpha_max	= Parameters("ALPHA_MAX")	->asDouble() * M_DEG_TO_RAD;
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-	case 0:		return( new CMorphometry );
-	case 1:		return( new CConvergence );
-	case 2:		return( new CConvergence_Radius );
-	case 3:		return( new CSurfaceSpecificPoints );
-	case 4:		return( new CCurvature_Classification );
-	case 5:		return( new CHypsometry );
-	case 6:		return( new CRealArea );
-	case 7:		return( new CProtectionIndex );
-	case 8:		return( new CMRVBF );
-	case 9:		return( new CDistance_Gradient );
-	case 10:	return( new CMass_Balance_Index );
-	case 11:	return( new CAir_Flow_Height );
-	case 12:	return( new CAnisotropic_Heating );
-	case 13:	return( new CLand_Surface_Temperature );
-	case 14:	return( new CRelative_Heights );
-	case 15:	return( new CWind_Effect );
+		for(int x=0; x<Get_NX(); x++)
+		{
+			if( pDEM->is_NoData(x, y) || !pDEM->Get_Gradient(x, y, slope, alpha) )
+			{
+				pDAH->Set_NoData(x, y);
+			}
+			else
+			{
+				pDAH->Set_Value(x, y, cos(alpha_max - alpha) * atan(slope));
+			}
+		}
 	}
 
-	return( NULL );
+	//-----------------------------------------------------
+	return( true );
 }
 
 
@@ -137,8 +151,3 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA

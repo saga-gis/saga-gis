@@ -412,6 +412,14 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath=".\air_flow_height.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\anisotropic_heating.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Convergence.cpp"
 				>
 				<FileConfiguration
@@ -610,6 +618,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\land_surface_temperature.cpp"
+				>
 			</File>
 			<File
 				RelativePath=".\mass_balance_index.cpp"
@@ -816,6 +828,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\relative_heights.cpp"
+				>
+			</File>
+			<File
 				RelativePath="SurfaceSpecificPoints.cpp"
 				>
 				<FileConfiguration
@@ -855,11 +871,23 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\wind_effect.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl"
 			>
+			<File
+				RelativePath=".\air_flow_height.h"
+				>
+			</File>
+			<File
+				RelativePath=".\anisotropic_heating.h"
+				>
+			</File>
 			<File
 				RelativePath="Convergence.h"
 				>
@@ -878,6 +906,10 @@
 			</File>
 			<File
 				RelativePath="Hypsometry.h"
+				>
+			</File>
+			<File
+				RelativePath=".\land_surface_temperature.h"
 				>
 			</File>
 			<File
@@ -905,7 +937,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\relative_heights.h"
+				>
+			</File>
+			<File
 				RelativePath="SurfaceSpecificPoints.h"
+				>
+			</File>
+			<File
+				RelativePath=".\wind_effect.h"
 				>
 			</File>
 		</Filter>

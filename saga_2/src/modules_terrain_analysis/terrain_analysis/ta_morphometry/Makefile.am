@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.7 2008-07-21 09:31:44 oconrad Exp $
+# $Id: Makefile.am,v 1.8 2009-04-28 16:31:58 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -25,6 +25,11 @@ RealArea.cpp\
 SurfaceSpecificPoints.cpp\
 mrvbf.cpp\
 distance_gradient.cpp\
+air_flow_height.cpp\
+anisotropic_heating.cpp\
+land_surface_temperature.cpp\
+relative_heights.cpp\
+wind_effect.cpp\
 Convergence.h\
 Convergence_Radius.h\
 Curvature_Classification.h\
@@ -36,7 +41,12 @@ ProtectionIndex.h\
 RealArea.h\
 SurfaceSpecificPoints.h\
 mrvbf.h\
-distance_gradient.h
+distance_gradient.h\
+air_flow_height.h\
+anisotropic_heating.h\
+land_surface_temperature.h\
+relative_heights.h\
+wind_effect.h
 
 libta_morphometry_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 

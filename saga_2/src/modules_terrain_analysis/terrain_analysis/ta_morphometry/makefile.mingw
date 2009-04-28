@@ -18,7 +18,8 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/Convergence.o $(MLB_TEMP)/Convergence_Radius.o $(MLB_TEMP)/Curvature_Classification.o $(MLB_TEMP)/Hypsometry.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/mass_balance_index.o $(MLB_TEMP)/Morphometry.o $(MLB_TEMP)/ProtectionIndex.o $(MLB_TEMP)/RealArea.o $(MLB_TEMP)/SurfaceSpecificPoints.o $(MLB_TEMP)/mrvbf.o $(MLB_TEMP)/distance_gradient.o
+OBJ      = $(MLB_TEMP)/Convergence.o $(MLB_TEMP)/Convergence_Radius.o $(MLB_TEMP)/Curvature_Classification.o $(MLB_TEMP)/Hypsometry.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/mass_balance_index.o $(MLB_TEMP)/Morphometry.o $(MLB_TEMP)/ProtectionIndex.o $(MLB_TEMP)/RealArea.o $(MLB_TEMP)/SurfaceSpecificPoints.o $(MLB_TEMP)/mrvbf.o $(MLB_TEMP)/distance_gradient.o $(MLB_TEMP)/air_flow_height.o $(MLB_TEMP)/anisotropic_heating.o $(MLB_TEMP)/land_surface_temperature.o $(MLB_TEMP)/relative_heights.o $(MLB_TEMP)/wind_effect.o
+
 
 CXXFLAGS = -I"$(MINGW)/include" -I"$(SAGA)/src/saga_core" -D$(PRJ_NAME)_EXPORTS -DBUILDING_DLL=1 -D_SAGA_MSW -D_SAGA_MINGW -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -fexpensive-optimizations -Os -O2 -O3 $(DEP_INCS) $(DEP_DEFS)
 
@@ -80,3 +81,18 @@ $(MLB_TEMP)/mrvbf.o: ./mrvbf.cpp
 
 $(MLB_TEMP)/distance_gradient.o: ./distance_gradient.cpp
 	$(CPP) -c ./distance_gradient.cpp -o $(MLB_TEMP)/distance_gradient.o $(CXXFLAGS)
+
+$(MLB_TEMP)/air_flow_height.o: ./air_flow_height.cpp
+	$(CPP) -c ./air_flow_height.cpp -o $(MLB_TEMP)/air_flow_height.o $(CXXFLAGS)
+
+$(MLB_TEMP)/anisotropic_heating.o: ./anisotropic_heating.cpp
+	$(CPP) -c ./anisotropic_heating.cpp -o $(MLB_TEMP)/anisotropic_heating.o $(CXXFLAGS)
+
+$(MLB_TEMP)/land_surface_temperature.o: ./land_surface_temperature.cpp
+	$(CPP) -c ./land_surface_temperature.cpp -o $(MLB_TEMP)/land_surface_temperature.o $(CXXFLAGS)
+
+$(MLB_TEMP)/relative_heights.o: ./relative_heights.cpp
+	$(CPP) -c ./relative_heights.cpp -o $(MLB_TEMP)/relative_heights.o $(CXXFLAGS)
+
+$(MLB_TEMP)/wind_effect.o: ./wind_effect.cpp
+	$(CPP) -c ./wind_effect.cpp -o $(MLB_TEMP)/wind_effect.o $(CXXFLAGS)

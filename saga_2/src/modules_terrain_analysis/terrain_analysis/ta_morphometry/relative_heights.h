@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                  Relative_Heights.h                   //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -37,13 +37,13 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     conrad@geowiss.uni-hamburg.de          //
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
+//                Bundesstr. 55                          //
+//                20146 Hamburg                          //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -53,81 +53,45 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifndef HEADER_INCLUDED__Relative_Heights_H
+#define HEADER_INCLUDED__Relative_Heights_H
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-const SG_Char * Get_Info(int i)
+class CRelative_Heights : public CSG_Module_Grid
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Terrain Analysis - Morphometry") );
-
-	case MLB_INFO_Author:
-		return( SG_T("Various Authors") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for (grid based) digital terrain analysis.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Terrain Analysis|Morphometry") );
-	}
-}
+public:
+	CRelative_Heights(void);
 
 
-//---------------------------------------------------------
-#include "Morphometry.h"
-#include "Convergence.h"
-#include "Convergence_Radius.h"
-#include "SurfaceSpecificPoints.h"
-#include "Curvature_Classification.h"
-#include "Hypsometry.h"
-#include "RealArea.h"
-#include "ProtectionIndex.h"
-#include "mrvbf.h"
-#include "distance_gradient.h"
-#include "mass_balance_index.h"
-#include "air_flow_height.h"
-#include "anisotropic_heating.h"
-#include "land_surface_temperature.h"
-#include "relative_heights.h"
-#include "wind_effect.h"
+protected:
+
+	virtual bool				On_Execute	(void);
 
 
-//---------------------------------------------------------
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case 0:		return( new CMorphometry );
-	case 1:		return( new CConvergence );
-	case 2:		return( new CConvergence_Radius );
-	case 3:		return( new CSurfaceSpecificPoints );
-	case 4:		return( new CCurvature_Classification );
-	case 5:		return( new CHypsometry );
-	case 6:		return( new CRealArea );
-	case 7:		return( new CProtectionIndex );
-	case 8:		return( new CMRVBF );
-	case 9:		return( new CDistance_Gradient );
-	case 10:	return( new CMass_Balance_Index );
-	case 11:	return( new CAir_Flow_Height );
-	case 12:	return( new CAnisotropic_Heating );
-	case 13:	return( new CLand_Surface_Temperature );
-	case 14:	return( new CRelative_Heights );
-	case 15:	return( new CWind_Effect );
-	}
+private:
 
-	return( NULL );
-}
+	bool						Get_Heights				(CSG_Grid *pDEM, CSG_Grid *pH, bool bInverse, double w, double t, double e);
+	bool						Get_Heights_Catchment	(CSG_Grid *pDEM, CSG_Grid *pH, double w);
+	bool						Get_Heights_Modified	(CSG_Grid *pDEM, CSG_Grid *pH, double t, double e);
+	double						Get_Local_Maximum		(CSG_Grid *pGrid, int x, int y);
+	bool						Get_Results				(CSG_Grid *pDEM, CSG_Grid *pHO, CSG_Grid *pHU, CSG_Grid *pNH, CSG_Grid *pSH);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -137,8 +101,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__Relative_Heights_H
