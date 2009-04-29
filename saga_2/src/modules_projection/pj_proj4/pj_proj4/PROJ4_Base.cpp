@@ -351,8 +351,13 @@ bool CPROJ4_Base::_Get_Projection(CSG_String &sPrj, CSG_Parameters &P)
 	sPrj	+= STR_ADD_FLT(SG_T("lon_0")	, P("LON_0")->asDouble());
 	sPrj	+= STR_ADD_FLT(SG_T("lat_0")	, P("LAT_0")->asDouble());
 
-	sPrj	+= STR_ADD_FLT(SG_T("x_0")	, P("X_0"  )->asDouble());
-	sPrj	+= STR_ADD_FLT(SG_T("y_0")	, P("Y_0"  )->asDouble());
+	sPrj	+= STR_ADD_FLT(SG_T("x_0")		, P("X_0"  )->asDouble());
+	sPrj	+= STR_ADD_FLT(SG_T("y_0")		, P("Y_0"  )->asDouble());
+
+	if( P("K_0")->asDouble() != 1.0 && P("K_0")->asDouble() > 0.0 )
+	{
+		sPrj	+= STR_ADD_FLT(SG_T("y_0")	, P("K_0"  )->asDouble());
+	}
 
 	sPrj	+= STR_ADD_STR(SG_T("units")	, SG_STR_MBTOSG(pj_units[P("UNIT")->asInt()].id));
 
@@ -683,6 +688,11 @@ bool CPROJ4_Base::_Init_Projection(CSG_Parameters &P)
 		PARAMETER_TYPE_Double, 0.0
 	);
 
+	P.Add_Value(
+		pNode_1, "K_0"			, _TL("Scale Factor"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 1.0, 0.0, true
+	);
 
 	//-----------------------------------------------------
 	sList.Clear();
@@ -891,7 +901,6 @@ bool CPROJ4_Base::_Init_Projection(const CSG_String &sID, const CSG_String &sNam
 	if(	!sID.CmpNoCase(SG_T("labrd")) )		// Laborde
 	{
 		PRM_ADD_FLT("azi"		, _TL("Azimuth"	)				, 19.0);
-		PRM_ADD_FLT("k_0"		, _TL("k_0")					, 0.9995);
 	}
 
 	if(	!sID.CmpNoCase(SG_T("lagrng")) )	// Lagrange
