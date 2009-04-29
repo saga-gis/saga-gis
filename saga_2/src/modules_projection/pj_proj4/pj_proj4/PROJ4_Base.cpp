@@ -356,7 +356,7 @@ bool CPROJ4_Base::_Get_Projection(CSG_String &sPrj, CSG_Parameters &P)
 
 	if( P("K_0")->asDouble() != 1.0 && P("K_0")->asDouble() > 0.0 )
 	{
-		sPrj	+= STR_ADD_FLT(SG_T("y_0")	, P("K_0"  )->asDouble());
+		sPrj	+= STR_ADD_FLT(SG_T("k_0")	, P("K_0"  )->asDouble());
 	}
 
 	sPrj	+= STR_ADD_STR(SG_T("units")	, SG_STR_MBTOSG(pj_units[P("UNIT")->asInt()].id));
