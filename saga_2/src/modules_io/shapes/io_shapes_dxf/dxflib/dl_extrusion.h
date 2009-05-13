@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: dl_extrusion.h,v 1.1 2007-10-08 15:31:19 oconrad Exp $
+** $Id: dl_extrusion.h,v 1.2 2009-05-13 15:26:31 oconrad Exp $
 **
 ** Copyright (C) 2001-2003 RibbonSoft. All rights reserved.
 **
@@ -142,4 +142,3 @@ private:
 
 #endif
 
-// EOF

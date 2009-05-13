@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: dl_creationadapter.h,v 1.1 2007-10-08 15:31:17 oconrad Exp $
+** $Id: dl_creationadapter.h,v 1.2 2009-05-13 15:26:31 oconrad Exp $
 **
 ** Copyright (C) 2001-2003 RibbonSoft. All rights reserved.
 **
@@ -74,12 +74,15 @@ public:
                               const DL_DimAngularData&) {}
     virtual void addDimAngular3P(const DL_DimensionData&,
                               const DL_DimAngular3PData&) {}
+    virtual void addDimOrdinate(const DL_DimensionData&,
+                             const DL_DimOrdinateData&) {}
     virtual void addLeader(const DL_LeaderData&) {}
     virtual void addLeaderVertex(const DL_LeaderVertexData&) {}
 	
     virtual void addHatch(const DL_HatchData&) {}
 
     virtual void addTrace(const DL_TraceData&) {}
+    virtual void add3dFace(const DL_3dFaceData&) {}
     virtual void addSolid(const DL_SolidData&) {}
 	
     virtual void addImage(const DL_ImageData&) {}
@@ -87,6 +90,7 @@ public:
     virtual void addHatchLoop(const DL_HatchLoopData&) {}
     virtual void addHatchEdge(const DL_HatchEdgeData&) {}
     virtual void endEntity() {}
+    virtual void addComment(const char* comment) {}
     virtual void setVariableVector(const char*, 
 	               double, double, double, int) {}
     virtual void setVariableString(const char*, const char*, int) {}
