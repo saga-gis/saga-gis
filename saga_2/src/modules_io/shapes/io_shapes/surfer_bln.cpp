@@ -156,13 +156,13 @@ bool CSurfer_BLN_Import::On_Execute(void)
 		if(	pShapes->Get_Type() != SHAPE_TYPE_Undefined
 		&&	pShapes->Get_Type() != Type )
 		{
-			pShapes	= SG_Create_Shapes(Type, SG_File_Get_Name(FileName, true));
+			pShapes	= SG_Create_Shapes(Type, SG_File_Get_Name(FileName, false));
 			Parameters("SHAPES")->Set_Value(pShapes);
 			DataObject_Add(pShapes);
 		}
 		else
 		{
-			pShapes->Create(Type, SG_File_Get_Name(FileName, true));
+			pShapes->Create(Type, SG_File_Get_Name(FileName, false));
 		}
 
 		if( Type == SHAPE_TYPE_Point )

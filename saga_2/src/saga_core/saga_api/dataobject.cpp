@@ -142,7 +142,7 @@ void CSG_Data_Object::Set_File_Name(const SG_Char *File_Name)
 	{
 		m_File_Name.Printf(File_Name);
 
-		m_Name	= SG_File_Get_Name(File_Name, true);
+		m_Name	= SG_File_Get_Name(File_Name, false);
 
 		m_bModified	= false;
 	}

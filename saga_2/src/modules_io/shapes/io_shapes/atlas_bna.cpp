@@ -113,15 +113,15 @@ bool CAtlas_BNA_Import::On_Execute(void)
 	//-----------------------------------------------------
 	if( (Stream = fopen(FileName.b_str(), "r")) != NULL )
 	{
-		pPoints		= SG_Create_Shapes(SHAPE_TYPE_Point  , SG_File_Get_Name(FileName, true));
+		pPoints		= SG_Create_Shapes(SHAPE_TYPE_Point  , SG_File_Get_Name(FileName, false));
 		pPoints		->Add_Field("NAME1"	, TABLE_FIELDTYPE_String);
 		pPoints		->Add_Field("NAME2"	, TABLE_FIELDTYPE_String);
 
-		pLines		= SG_Create_Shapes(SHAPE_TYPE_Line   , SG_File_Get_Name(FileName, true));
+		pLines		= SG_Create_Shapes(SHAPE_TYPE_Line   , SG_File_Get_Name(FileName, false));
 		pLines		->Add_Field("NAME1"	, TABLE_FIELDTYPE_String);
 		pLines		->Add_Field("NAME2"	, TABLE_FIELDTYPE_String);
 
-		pPolygons	= SG_Create_Shapes(SHAPE_TYPE_Polygon, SG_File_Get_Name(FileName, true));
+		pPolygons	= SG_Create_Shapes(SHAPE_TYPE_Polygon, SG_File_Get_Name(FileName, false));
 		pPolygons	->Add_Field("NAME1"	, TABLE_FIELDTYPE_String);
 		pPolygons	->Add_Field("NAME2"	, TABLE_FIELDTYPE_String);
 

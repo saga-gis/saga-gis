@@ -266,7 +266,7 @@ bool CWASP_MAP_Import::On_Execute(void)
 		nLength	= ftell(Stream);
 		fseek(Stream, 0, SEEK_SET);
 
-		pLines->Create(SHAPE_TYPE_Line, SG_File_Get_Name(fName, true));
+		pLines->Create(SHAPE_TYPE_Line, SG_File_Get_Name(fName, false));
 
 		switch( Method )
 		{

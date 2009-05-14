@@ -447,7 +447,7 @@ void CDXF_Import::addCircle(const DL_CircleData &data)
 
 	CSG_Shape	*pCircle	= m_pCircles->Add_Shape();
 
-	Add_Arc(pCircle, data.cx, data.cy, data.radius, 0.0, M_PI_360);
+	Add_Arc(pCircle, data.cx, data.cy, data.radius, 0.0, 360.0);
 }
 
 //---------------------------------------------------------

@@ -146,19 +146,15 @@ bool CWKSP_Base_Manager::Add_Item(CWKSP_Base_Item *pItem)
 //---------------------------------------------------------
 bool CWKSP_Base_Manager::Del_Item(int iItem)
 {
-	if( iItem >= 0 && iItem < m_nItems )
+	return( Del_Item(Get_Item(iItem)) );
+}
+
+bool CWKSP_Base_Manager::Del_Item(CWKSP_Base_Item *pItem)
+{
+	int		iItem;
+
+	if( pItem && (iItem = pItem->Get_Index()) >= 0 && iItem < m_nItems )
 	{
-		switch( Get_Type() )
-		{
-		default:
-			break;
-
-		case WKSP_ITEM_Data_Manager:
-			g_pData->Del_Manager(m_Items[iItem]);
-			break;
-		}
-
-		//-------------------------------------------------
 		m_nItems--;
 
 		for( ; iItem<m_nItems; iItem++)
@@ -174,6 +170,10 @@ bool CWKSP_Base_Manager::Del_Item(int iItem)
 		default:
 			break;
 
+		case WKSP_ITEM_Data_Manager:
+			g_pData->Del_Manager(pItem);
+			break;
+
 		case WKSP_ITEM_Table_Manager:
 		case WKSP_ITEM_Shapes_Type:
 		case WKSP_ITEM_TIN_Manager:
@@ -186,16 +186,10 @@ bool CWKSP_Base_Manager::Del_Item(int iItem)
 			break;
 		}
 
-		//-------------------------------------------------
 		return( true );
 	}
 
 	return( false );
-}
-
-bool CWKSP_Base_Manager::Del_Item(CWKSP_Base_Item *pItem)
-{
-	return( Del_Item(pItem->Get_Index()) );
 }
 
 

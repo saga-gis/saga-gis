@@ -139,11 +139,11 @@ bool CGDAL_Import::On_Execute(void)
 	}
 	else if( System.Get_Count() <= 0 )
 	{
-		return( Load_Sub(System, SG_File_Get_Name(File_Name, true)) );
+		return( Load_Sub(System, SG_File_Get_Name(File_Name, false)) );
 	}
 	else
     {
-		return( Load(System, SG_File_Get_Name(File_Name, true)) );
+		return( Load(System, SG_File_Get_Name(File_Name, false)) );
 	}
 
 	return( false );

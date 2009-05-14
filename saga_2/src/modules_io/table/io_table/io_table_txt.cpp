@@ -245,6 +245,7 @@ CTable_Text_Import::CTable_Text_Import(void)
 			_TL("tabulator"),
 			_TL(";"),
 			_TL(","),
+			_TL("space"),
 			_TL("other")
 		), 0
 	);
@@ -282,6 +283,7 @@ bool CTable_Text_Import::On_Execute(void)
 	case 0:		Separator	= "\t";	break;
 	case 1:		Separator	=  ";";	break;
 	case 2:		Separator	=  ",";	break;
+	case 3:		Separator	=  " ";	break;
 	default:	Separator	= Parameters("SEP_OTHER")->asString();	break;
 	}
 
@@ -400,7 +402,7 @@ bool CTable_Text_Import_Numbers::On_Execute(void)
 	else
 	{
 		pTable->Destroy();
-		pTable->Set_Name(SG_File_Get_Name(Parameters("FILENAME")->asString(), true));
+		pTable->Set_Name(SG_File_Get_Name(Parameters("FILENAME")->asString(), false));
 
 		sLine.Replace(Separator, SG_T(" "));
 		sHead	= sLine;

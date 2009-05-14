@@ -343,10 +343,11 @@ wxMenu * CWKSP_Data_Manager::Get_Menu(void)
 
 	pMenu	= new wxMenu(LNG("[CAP] Data"));
 
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
+//	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 
-	pMenu->AppendSeparator();
+//	pMenu->AppendSeparator();
 
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_NEW);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_OPEN);
 //	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_OPEN_ADD);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_SAVE);
@@ -398,6 +399,7 @@ bool CWKSP_Data_Manager::On_Command(int Cmd_ID)
 		return( CWKSP_Base_Manager::On_Command(Cmd_ID) );
 
 	//-----------------------------------------------------
+	case ID_CMD_DATA_PROJECT_NEW:		Close(false);					break;
 	case ID_CMD_DATA_PROJECT_OPEN:		m_pProject->Load(false);		break;
 	case ID_CMD_DATA_PROJECT_OPEN_ADD:	m_pProject->Load(true);			break;
 	case ID_CMD_DATA_PROJECT_SAVE:		m_pProject->Save(true);			break;
@@ -429,6 +431,10 @@ bool CWKSP_Data_Manager::On_Command_UI(wxUpdateUIEvent &event)
 	{
 	default:
 		return( CWKSP_Base_Manager::On_Command_UI(event) );
+
+	case ID_CMD_DATA_PROJECT_NEW:
+		event.Enable(Get_Count() > 0 && g_pModule == NULL);
+		break;
 
 	case ID_CMD_WKSP_ITEM_CLOSE:
 		event.Enable(Get_Count() > 0 && g_pModule == NULL);
@@ -836,6 +842,11 @@ void CWKSP_Data_Manager::Del_Manager(CWKSP_Base_Item *pItem)
 	else if( pItem == m_pTINs )
 	{
 		m_pTINs		= NULL;
+	}
+
+	if( Get_Count() == 0 )
+	{
+		m_pProject->Clr_File_Name();
 	}
 }
 

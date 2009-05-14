@@ -214,6 +214,7 @@ void CWKSP_Data_Menu_File::Update(wxMenu *pMenu)
 			return;
 
 		case DATAOBJECT_TYPE_Undefined:
+			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_NEW);
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_OPEN);
 //			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_OPEN_ADD);
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_SAVE);
