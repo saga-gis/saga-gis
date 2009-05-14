@@ -135,6 +135,12 @@ CGrid_Fill::CGrid_Fill(void)
 		_TL(""),
 		PARAMETER_TYPE_Double, -1.0
 	);
+
+	Parameters.Add_Value(
+		NULL	, "NODATA"		, _TL("Fill NoData"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	); 
 }
 
 //---------------------------------------------------------
@@ -166,6 +172,7 @@ bool CGrid_Fill::On_Execute(void)
 	m_zFixed			= Parameters("ZFIXED")	->asDouble();
 	m_zTolerance_Min	= Parameters("DZMIN")	->asDouble();
 	m_zTolerance_Max	= Parameters("DZMAX")	->asDouble();
+	m_bNoData			= Parameters("NODATA")	->asBool();
 
 	if( m_zTolerance_Min > m_zTolerance_Max )
 	{
@@ -173,6 +180,11 @@ bool CGrid_Fill::On_Execute(void)
 		m_zTolerance_Min	= m_zTolerance_Min;
 		m_zTolerance_Max	= z;
 	}
+
+	if (m_bNoData == true)
+		m_bNoData = false;
+	else
+		m_bNoData = true;
 
 	return( true );	
 }
@@ -234,7 +246,7 @@ bool CGrid_Fill::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_M
 		x	= Get_System()->Get_xWorld_to_Grid(ptWorld.Get_X());
 		y	= Get_System()->Get_yWorld_to_Grid(ptWorld.Get_Y());
 
-		if( m_pGrid && m_pGrid->is_InGrid(x, y) )
+		if( m_pGrid && m_pGrid->is_InGrid(x, y, m_bNoData) )
 		{
 			Message_Add(_TL("Starting flood fill..."));
 
@@ -263,7 +275,7 @@ bool CGrid_Fill::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_M
 					ix	= Get_xTo(i, x);
 					iy	= Get_yTo(i, y);
 
-					if(	m_pGrid->is_InGrid(ix, iy) )
+					if(	m_pGrid->is_InGrid(ix, iy, m_bNoData) )
 					{
 						z	= m_pGrid->asDouble(ix, iy);
 

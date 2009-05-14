@@ -101,6 +101,8 @@ private:
 
 	double					m_zFill, m_zFixed, m_zTolerance_Min, m_zTolerance_Max;
 
+	bool					m_bNoData;
+
 	CSG_Grid					*m_pGrid;
 
 	CSG_Points_Int			m_Stack;
