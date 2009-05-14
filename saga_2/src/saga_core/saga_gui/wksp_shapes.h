@@ -111,7 +111,7 @@ public:
 
 protected:
 
-	int							m_iColor, m_iLabel, m_iExtraInfo, m_Edit_iPart, m_Edit_iPoint, m_Chart_Type, m_Chart_sField, m_Chart_sType;
+	int							m_iColor, m_iLabel, m_iLabel_Size, m_iExtraInfo, m_Edit_iPart, m_Edit_iPoint, m_Chart_Type, m_Chart_sField, m_Chart_sType;
 
 	double						m_Chart_sSize, m_Chart_sRange;
 

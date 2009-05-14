@@ -208,6 +208,40 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 
 
 	//-----------------------------------------------------
+	// Label...
+
+	m_Parameters.Add_Value(
+		m_Parameters("NODE_LABEL")	, "LABEL_ANGLE"			, LNG("[CAP] Rotation (Degree)"),
+		LNG(""),
+		PARAMETER_TYPE_Double, 0.0, -360.0, true, 360.0, true
+	);
+
+	_AttributeList_Add(
+		m_Parameters("NODE_LABEL")	, "LABEL_ANGLE_ATTRIB"	, LNG("[CAP] Rotation by Attribute"),
+		LNG("")
+	);
+
+	m_Parameters.Add_Choice(
+		m_Parameters("NODE_LABEL")	, "LABEL_ALIGN_X"		, LNG("[CAP] Horizontal Align"),
+		LNG(""),
+		wxString::Format(wxT("%s|%s|%s|"),
+			LNG("left"),
+			LNG("center"),
+			LNG("right")
+		), 1
+	);
+
+	m_Parameters.Add_Choice(
+		m_Parameters("NODE_LABEL")	, "LABEL_ALIGN_Y"		, LNG("[CAP] Vertical Align"),
+		LNG(""),
+		wxString::Format(wxT("%s|%s|%s|"),
+			LNG("top"),
+			LNG("center"),
+			LNG("bottom")
+		), 0
+	);
+
+	//-----------------------------------------------------
 	// Edit...
 
 	m_Parameters.Add_Value(
@@ -229,7 +263,8 @@ void CWKSP_Shapes_Point::On_DataObject_Changed(void)
 {
 	CWKSP_Shapes::On_DataObject_Changed();
 
-	_AttributeList_Set(m_Parameters("SIZE_ATTRIB"), true);
+	_AttributeList_Set(m_Parameters("SIZE_ATTRIB")			, true);
+	_AttributeList_Set(m_Parameters("LABEL_ANGLE_ATTRIB")	, true);
 }
 
 //---------------------------------------------------------
@@ -259,6 +294,28 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 	{
 		m_Size		=  m_Parameters("SIZE_RANGE")->asRange()->Get_LoVal();
 		m_dSize		= (m_Parameters("SIZE_RANGE")->asRange()->Get_HiVal() - m_Size) / m_dSize;
+	}
+
+	//-----------------------------------------------------
+	m_Label_Angle	= m_Parameters("LABEL_ANGLE")->asDouble();
+
+	if( (m_iLabel_Angle	= m_Parameters("LABEL_ANGLE_ATTRIB")->asInt()) >= m_pShapes->Get_Field_Count() )
+	{
+		m_iLabel_Angle	= -1;
+	}
+
+	switch( m_Parameters("LABEL_ALIGN_X")->asInt() )
+	{
+	case 0:	m_Label_Align	 = TEXTALIGN_LEFT;		break;
+	case 1:	m_Label_Align	 = TEXTALIGN_XCENTER;	break;
+	case 2:	m_Label_Align	 = TEXTALIGN_RIGHT;		break;
+	}
+
+	switch( m_Parameters("LABEL_ALIGN_Y")->asInt() )
+	{
+	case 0:	m_Label_Align	|= TEXTALIGN_TOP;		break;
+	case 1:	m_Label_Align	|= TEXTALIGN_YCENTER;	break;
+	case 2:	m_Label_Align	|= TEXTALIGN_BOTTOM;	break;
 	}
 
 	//-----------------------------------------------------
@@ -427,7 +484,21 @@ void CWKSP_Shapes_Point::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 {
 	TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Point(0)));
 
-	Draw_Text(dc_Map.dc, TEXTALIGN_TOPCENTER, p.x, p.y, pShape->asString(m_iLabel, -2));
+	if( m_iLabel_Angle < 0 )
+	{
+		if( m_Label_Angle == 0.0 )
+		{
+			Draw_Text(dc_Map.dc, m_Label_Align, p.x, p.y, pShape->asString(m_iLabel, -2));
+		}
+		else
+		{
+			Draw_Text(dc_Map.dc, m_Label_Align, p.x, p.y, m_Label_Angle, pShape->asString(m_iLabel, -2));
+		}
+	}
+	else
+	{
+		Draw_Text(dc_Map.dc, m_Label_Align, p.x, p.y, pShape->asDouble(m_iLabel_Angle), pShape->asString(m_iLabel, -2));
+	}
 }
 
 

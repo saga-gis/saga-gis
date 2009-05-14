@@ -106,7 +106,7 @@ private:
 
 	CSG_Table				*m_pLayers, *m_pBlocks;
 
-	CSG_Shapes				*m_pPoints, *m_pLines, *m_pPolyLines, *m_pPolygons, *m_pCircles, *m_pTriangles;
+	CSG_Shapes				*m_pPoints, *m_pLines, *m_pPolyLines, *m_pPolygons, *m_pCircles, *m_pTriangles, *m_pText;
 
 
 	void					Check_Process	(void);
@@ -129,6 +129,7 @@ private:
 	virtual void			addCircle		(const DL_CircleData   &data);
 	virtual void			add3dFace		(const DL_3dFaceData   &data);
 
+	virtual void			addText			(const DL_TextData     &data);
 };
 
 

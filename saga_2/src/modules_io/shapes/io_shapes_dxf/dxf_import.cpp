@@ -123,6 +123,23 @@ enum
 	TBL_TRIANGLE_Z3
 };
 
+enum
+{
+	TBL_TEXT_LAYER		= 0,
+	TBL_TEXT_Z,
+	TBL_TEXT_TEXT,
+	TBL_TEXT_HEIGHT,
+	TBL_TEXT_ANGLE,
+	TBL_TEXT_APX,
+	TBL_TEXT_APY,
+	TBL_TEXT_APZ,
+	TBL_TEXT_SCALE,
+	TBL_TEXT_HJUST,
+	TBL_TEXT_VJUST,
+	TBL_TEXT_STYLE,
+	TBL_TEXT_FLAGS
+};
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -247,6 +264,21 @@ bool CDXF_Import::On_Execute(void)
 		m_pTriangles	->Add_Field("Z2"	, TABLE_FIELDTYPE_Double);
 		m_pTriangles	->Add_Field("Z3"	, TABLE_FIELDTYPE_Double);
 
+		m_pText			= SG_Create_Shapes(SHAPE_TYPE_Point		, CSG_String::Format(SG_T("%s [%s]"), SG_File_Get_Name(fName, false).c_str(), _TL("Text")));
+		m_pText			->Add_Field("LAYER"	, TABLE_FIELDTYPE_String);
+		m_pText			->Add_Field("Z"		, TABLE_FIELDTYPE_Double);
+		m_pText			->Add_Field("TEXT"	, TABLE_FIELDTYPE_String);
+		m_pText			->Add_Field("HEIGHT", TABLE_FIELDTYPE_Int);
+		m_pText			->Add_Field("ANGLE"	, TABLE_FIELDTYPE_Double);
+		m_pText			->Add_Field("APX"	, TABLE_FIELDTYPE_Double);
+		m_pText			->Add_Field("APY"	, TABLE_FIELDTYPE_Double);
+		m_pText			->Add_Field("APZ"	, TABLE_FIELDTYPE_Double);
+		m_pText			->Add_Field("SCALE"	, TABLE_FIELDTYPE_Double);
+		m_pText			->Add_Field("HJUST"	, TABLE_FIELDTYPE_Int);
+		m_pText			->Add_Field("VJUST"	, TABLE_FIELDTYPE_Int);
+		m_pText			->Add_Field("STYLE"	, TABLE_FIELDTYPE_String);
+		m_pText			->Add_Field("FLAGS"	, TABLE_FIELDTYPE_Int);
+
 		//-------------------------------------------------
 		m_Offset.x		= 0.0;
 		m_Offset.y		= 0.0;
@@ -269,6 +301,7 @@ bool CDXF_Import::On_Execute(void)
 		ADD_RESULT("SHAPES", m_pPolygons);
 		ADD_RESULT("SHAPES", m_pCircles);
 		ADD_RESULT("SHAPES", m_pTriangles);
+		ADD_RESULT("SHAPES", m_pText);
 	}
 
 	//-----------------------------------------------------
@@ -484,6 +517,31 @@ void CDXF_Import::add3dFace(const DL_3dFaceData &data)
 	pTriangle->Set_Value(TBL_TRIANGLE_Z1	, m_Offset.z + data.z[0]);
 	pTriangle->Set_Value(TBL_TRIANGLE_Z2	, m_Offset.z + data.z[1]);
 	pTriangle->Set_Value(TBL_TRIANGLE_Z3	, m_Offset.z + data.z[2]);
+}
+
+//---------------------------------------------------------
+void CDXF_Import::addText(const DL_TextData &data)
+{
+	if( !Check_Layer(attributes.getLayer().c_str()) )
+		return;
+
+	CSG_Shape	*pText	= m_pText->Add_Shape();
+
+	pText->Add_Point(m_Offset.x + data.ipx, m_Offset.y + data.ipy);
+
+	pText->Set_Value(TBL_TEXT_LAYER	, CSG_String(attributes.getLayer().c_str()));
+	pText->Set_Value(TBL_TEXT_Z		, m_Offset.z + data.ipz);
+	pText->Set_Value(TBL_TEXT_TEXT	, CSG_String(data.text.c_str()));
+	pText->Set_Value(TBL_TEXT_HEIGHT, data.height);
+	pText->Set_Value(TBL_TEXT_ANGLE	, data.angle * M_RAD_TO_DEG);
+	pText->Set_Value(TBL_TEXT_APX	, m_Offset.z + data.apx);
+	pText->Set_Value(TBL_TEXT_APY	, m_Offset.z + data.apy);
+	pText->Set_Value(TBL_TEXT_APZ	, m_Offset.z + data.apz);
+	pText->Set_Value(TBL_TEXT_SCALE	, data.xScaleFactor);
+	pText->Set_Value(TBL_TEXT_HJUST	, data.hJustification);
+	pText->Set_Value(TBL_TEXT_VJUST	, data.vJustification);
+	pText->Set_Value(TBL_TEXT_STYLE	, CSG_String(data.style.c_str()));
+	pText->Set_Value(TBL_TEXT_SCALE	, data.textGenerationFlags);
 }
 
 

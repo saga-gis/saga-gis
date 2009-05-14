@@ -338,10 +338,10 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	);
 
 
+#ifdef USE_HTMLINFO
 	//-----------------------------------------------------
 	// HTML Extra info
 
-#ifdef USE_HTMLINFO
 	m_Parameters.Add_Node(
 		NULL							, "NODE_EXTRAINFO"			, LNG("[CAP] Html Extra Info"),
 		LNG("")
@@ -352,6 +352,7 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 		LNG("")
 	);
 #endif
+
 
 	//-----------------------------------------------------
 	// Label...
@@ -384,6 +385,11 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 		m_Parameters("NODE_LABEL")		, "LABEL_ATTRIB_SIZE"		, LNG("[CAP] Default Size"),
 		LNG(""),
 		PARAMETER_TYPE_Double, 100.0, 0.0, true
+	);
+
+	_AttributeList_Add(
+		m_Parameters("NODE_LABEL")		, "LABEL_ATTRIB_SIZE_BY"	, LNG("[CAP] Size by Attribute"),
+		LNG("")
 	);
 
 
@@ -435,8 +441,9 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 //---------------------------------------------------------
 void CWKSP_Shapes::On_DataObject_Changed(void)
 {
-	_AttributeList_Set(m_Parameters("COLORS_ATTRIB")	, false);
-	_AttributeList_Set(m_Parameters("LABEL_ATTRIB")		, true);
+	_AttributeList_Set(m_Parameters("COLORS_ATTRIB")		, false);
+	_AttributeList_Set(m_Parameters("LABEL_ATTRIB")			, true);
+	_AttributeList_Set(m_Parameters("LABEL_ATTRIB_SIZE_BY")	, true);
 #ifdef USE_HTMLINFO
 	_AttributeList_Set(m_Parameters("EXTRAINFO_ATTRIB") , true);
 #endif
@@ -466,6 +473,11 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 	if( (m_iLabel = m_Parameters("LABEL_ATTRIB")->asInt()) >= m_pShapes->Get_Field_Count() )
 	{
 		m_iLabel	= -1;
+	}
+
+	if( (m_iLabel_Size = m_Parameters("LABEL_ATTRIB_SIZE_BY")->asInt()) >= m_pShapes->Get_Field_Count() )
+	{
+		m_iLabel_Size	= -1;
 	}
 
 	//-----------------------------------------------------
@@ -771,11 +783,12 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 		{
 			int		Size;
 			double	dSize;
+			wxFont	Font	= *m_Parameters("LABEL_ATTRIB_FONT")->asFont();
 
 			switch( m_Parameters("LABEL_ATTRIB_SIZE_TYPE")->asInt() )
 			{
 			case 0:	default:
-				dSize	= m_Parameters("LABEL_ATTRIB_FONT")->asFont()->GetPointSize();
+				dSize	= m_iLabel_Size < 0 ? m_Parameters("LABEL_ATTRIB_FONT")->asFont()->GetPointSize() : 1.0;
 				break;
 
 			case 1:
@@ -783,14 +796,12 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 				break;
 			}
 
-			if( (Size = (int)(0.5 + dSize)) > 0 )
+			dc.dc.SetTextForeground(m_Parameters("LABEL_ATTRIB_FONT")->asColor());
+
+			if( m_iLabel_Size < 0 && (Size = (int)(0.5 + dSize)) > 0 )
 			{
-				wxFont	Font	= *m_Parameters("LABEL_ATTRIB_FONT")->asFont();
-
 				Font.SetPointSize(Size);
-
 				dc.dc.SetFont(Font);
-				dc.dc.SetTextForeground(m_Parameters("LABEL_ATTRIB_FONT")->asColor());
 
 				for(iShape=0; iShape<m_pShapes->Get_Count(); iShape++)
 				{
@@ -798,6 +809,22 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 
 					if( dc.m_rWorld.Intersects(pShape->Get_Extent()) != INTERSECTION_None )
 					{
+						_Draw_Label(dc, pShape);
+					}
+				}
+			}
+			else
+			{
+				for(iShape=0; iShape<m_pShapes->Get_Count(); iShape++)
+				{
+					pShape	= m_pShapes->Get_Shape(iShape);
+
+					if( dc.m_rWorld.Intersects(pShape->Get_Extent()) != INTERSECTION_None
+					&&	(Size = (int)(0.5 + dSize * pShape->asDouble(m_iLabel_Size))) > 0 )
+					{
+						Font.SetPointSize(Size);
+						dc.dc.SetFont(Font);
+
 						_Draw_Label(dc, pShape);
 					}
 				}
