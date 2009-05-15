@@ -303,7 +303,7 @@ void CWKSP_Shapes_Line::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, boo
 	//-----------------------------------------------------
 	if( bSelection )
 	{
-		dc_Map.dc.SetPen(wxPen(wxColour(255, 0, 0), m_Size + (pShape == m_pShapes->Get_Selection(0) ? 2 : 0), m_Line_Style));
+		dc_Map.dc.SetPen(wxPen(m_Sel_Color, m_Size + (pShape == m_pShapes->Get_Selection(0) ? 2 : 0), m_Line_Style));
 	}
 	else if( m_iColor >= 0 || m_iSize >= 0 )
 	{

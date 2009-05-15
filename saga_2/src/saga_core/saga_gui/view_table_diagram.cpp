@@ -106,6 +106,8 @@ public:
 	bool							Update_Diagram		(void);
 
 	bool							Set_Size			(const wxSize &Size);
+	bool							Set_Size			(double Zoom, wxPoint Center);
+	bool							Fit_Size			(void);
 	bool							Inc_Size			(void);
 	bool							Dec_Size			(void);
 
@@ -116,9 +118,11 @@ public:
 
 private:
 
+	bool							m_bFitSize;
+
 	int								m_nFields, *m_Fields, m_xField;
 
-	double							m_zMin, m_zMax, m_xMin, m_xMax;
+	double							m_xMin, m_xMax, m_yMin, m_yMax;
 
 	CSG_Colors						m_Colors;
 
@@ -133,6 +137,7 @@ private:
 	wxImage							m_Image;
 
 
+	void							On_Size				(wxSizeEvent  &event);
 	void							On_Mouse_LDown		(wxMouseEvent &event);
 	void							On_Mouse_RDown		(wxMouseEvent &event);
 
@@ -162,6 +167,7 @@ IMPLEMENT_CLASS(CVIEW_Table_Diagram_Control, wxScrolledWindow);
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CVIEW_Table_Diagram_Control, wxScrolledWindow)
+	EVT_SIZE			(CVIEW_Table_Diagram_Control::On_Size)
 	EVT_LEFT_DOWN		(CVIEW_Table_Diagram_Control::On_Mouse_LDown)
 	EVT_RIGHT_DOWN		(CVIEW_Table_Diagram_Control::On_Mouse_RDown)
 END_EVENT_TABLE()
@@ -184,7 +190,9 @@ CVIEW_Table_Diagram_Control::CVIEW_Table_Diagram_Control(wxWindow *pParent, CWKS
 
 	m_pFont		= NULL;
 
-	Set_Size(pParent->GetClientSize());
+	m_bFitSize	= false;
+
+	Fit_Size();
 
 	_Initialize();
 
@@ -240,16 +248,75 @@ bool CVIEW_Table_Diagram_Control::Set_Size(const wxSize &Size)
 	return( false );
 }
 
+bool CVIEW_Table_Diagram_Control::Set_Size(double Zoom, wxPoint Center)
+{
+	if( Zoom > 0.0 )
+	{
+		int		x, y;
+
+		GetViewStart(&x, &y);
+
+		x	= (int)((Zoom * (x * SCROLL_RATE + Center.x) - GetClientSize().x / 2) / SCROLL_RATE);
+		y	= (int)((Zoom * (y * SCROLL_RATE + Center.y) - GetClientSize().y / 2) / SCROLL_RATE);
+
+		if( Set_Size(wxSize((int)(m_sDraw.x * Zoom), (int)(m_sDraw.y * Zoom))) )
+		{
+			Scroll(x, y);
+
+			return( true );
+		}
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CVIEW_Table_Diagram_Control::Fit_Size(void)
+{
+	wxSize	Size(GetParent()->GetClientSize());
+
+	Size.x	-= 2 * SCROLL_BAR_DX;
+	Size.y	-= 2 * SCROLL_BAR_DY;
+
+	return( Set_Size(Size) );
+}
+
 //---------------------------------------------------------
 bool CVIEW_Table_Diagram_Control::Inc_Size(void)
 {
-	return( Set_Size(wxSize((int)(m_sDraw.x * 1.2), (int)(m_sDraw.y * 1.2))) );
+	return( Set_Size(1.2, wxPoint(GetClientSize().x / 2, GetClientSize().y / 2)) );
 }
 
 //---------------------------------------------------------
 bool CVIEW_Table_Diagram_Control::Dec_Size(void)
 {
-	return( Set_Size(wxSize((int)(m_sDraw.x / 1.2), (int)(m_sDraw.y / 1.2))) );
+	return( Set_Size(1.0 / 1.2, wxPoint(GetClientSize().x / 2, GetClientSize().y / 2)) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Table_Diagram_Control::On_Size(wxSizeEvent &WXUNUSED(event))
+{
+	if( m_bFitSize )
+	{
+		Fit_Size();
+	}
+}
+
+//---------------------------------------------------------
+void CVIEW_Table_Diagram_Control::On_Mouse_LDown(wxMouseEvent &event)
+{
+	Set_Size(1.2, event.GetPosition());
+}
+
+//---------------------------------------------------------
+void CVIEW_Table_Diagram_Control::On_Mouse_RDown(wxMouseEvent &event)
+{
+	Set_Size(1.0 / 1.2, event.GetPosition());
 }
 
 
@@ -280,8 +347,10 @@ bool CVIEW_Table_Diagram_Control::_Create(void)
 		const wxChar	*sField;
 		int				iField;
 
-		iField		= m_Parameters("_DIAGRAM_XFIELD")->asInt();
-		sField		= m_Parameters("_DIAGRAM_XFIELD")->asChoice()->Get_Item(iField);
+		m_bFitSize	= m_Parameters("_DIAGRAM_FIT_SIZE")->asBool();
+
+		iField		= m_Parameters("_DIAGRAM_X_FIELD")->asInt();
+		sField		= m_Parameters("_DIAGRAM_X_FIELD")->asChoice()->Get_Item(iField);
 		m_xField	= -1;
 
 		for(iField=0; iField<m_pTable->Get_Field_Count(); iField++)
@@ -320,18 +389,28 @@ bool CVIEW_Table_Diagram_Control::_Create(void)
 
 				if( m_nFields == 1 )
 				{
-					m_zMin	= m_pTable->Get_MinValue(iField);
-					m_zMax	= m_pTable->Get_MaxValue(iField);
+					m_yMin	= m_pTable->Get_MinValue(iField);
+					m_yMax	= m_pTable->Get_MaxValue(iField);
 				}
 				else
 				{
-					if( m_zMin	> m_pTable->Get_MinValue(iField) )
-						m_zMin	= m_pTable->Get_MinValue(iField);
+					if( m_yMin	> m_pTable->Get_MinValue(iField) )
+						m_yMin	= m_pTable->Get_MinValue(iField);
 
-					if( m_zMax	< m_pTable->Get_MaxValue(iField) )
-						m_zMax	= m_pTable->Get_MaxValue(iField);
+					if( m_yMax	< m_pTable->Get_MaxValue(iField) )
+						m_yMax	= m_pTable->Get_MaxValue(iField);
 				}
 			}
+		}
+
+		if( m_Parameters("_DIAGRAM_Y_MIN_FIX")->asBool() )
+		{
+			m_yMin	= m_Parameters("_DIAGRAM_Y_MIN_VAL")->asDouble();
+		}
+
+		if( m_Parameters("_DIAGRAM_Y_MAX_FIX")->asBool() )
+		{
+			m_yMax	= m_Parameters("_DIAGRAM_Y_MAX_VAL")->asDouble();
 		}
 	}
 
@@ -384,6 +463,7 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 			sFields_All.Append(wxT("|"));
 		}
 
+		//-------------------------------------------------
 		pNode	= m_Parameters.Add_Node(
 			NULL, "GENERAL", LNG("[CAP] General"),
 			LNG("")
@@ -411,11 +491,23 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 			PARAMETER_TYPE_Bool, true
 		);
 
+		m_Parameters.Add_Value(
+			pNode, "_DIAGRAM_FIT_SIZE"	, LNG("[CAP] Fit Size to Window"),
+			LNG(""),
+			PARAMETER_TYPE_Bool, true
+		);
+
 		sFields_Num.Append(LNG("[CAP] [none]"));
 		sFields_Num.Append(wxT("|"));
 
+		//-------------------------------------------------
+		pNode	= m_Parameters.Add_Node(
+			m_Parameters("GENERAL"), "NODE_X", LNG("[CAP] X Axis"),
+			LNG("")
+		);
+
 		m_Parameters.Add_Choice(
-			pNode, "_DIAGRAM_XFIELD"	, LNG("[CAP] X Axis"),
+			pNode, "_DIAGRAM_X_FIELD"	, LNG("[CAP] Values"),
 			LNG(""),
 			sFields_Num, m_pTable->Get_Field_Count() + 1
 		);
@@ -424,32 +516,45 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 		sFields_All.Append(wxT("|"));
 
 		m_Parameters.Add_Choice(
-			pNode, "_DIAGRAM_LABEL"		, LNG("[CAP] X Label"),
+			pNode, "_DIAGRAM_X_LABEL"	, LNG("[CAP] Label"),
 			LNG(""),
 			sFields_All, m_pTable->Get_Field_Count() + 1
+		);
+
+		//-------------------------------------------------
+		pNode	= m_Parameters.Add_Node(
+			m_Parameters("GENERAL"), "NODE_Y", LNG("[CAP] Y Axis"),
+			LNG("")
+		);
+
+		m_Parameters.Add_Value(
+			pNode, "_DIAGRAM_Y_MIN_FIX"	, LNG("[CAP] Fixed Minimum"),
+			LNG(""),
+			PARAMETER_TYPE_Bool, false
+		);
+
+		m_Parameters.Add_Value(
+			pNode, "_DIAGRAM_Y_MIN_VAL"	, LNG("[CAP] Minimum Value"),
+			LNG(""),
+			PARAMETER_TYPE_Double, 0.0
+		);
+
+		m_Parameters.Add_Value(
+			pNode, "_DIAGRAM_Y_MAX_FIX"	, LNG("[CAP] Fixed Maximum"),
+			LNG(""),
+			PARAMETER_TYPE_Bool, false
+		);
+
+		m_Parameters.Add_Value(
+			pNode, "_DIAGRAM_Y_MAX_VAL"	, LNG("[CAP] Maximum Value"),
+			LNG(""),
+			PARAMETER_TYPE_Double, 1000.0
 		);
 
 		return( _Create() );
 	}
 
 	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CVIEW_Table_Diagram_Control::On_Mouse_LDown(wxMouseEvent &event)
-{
-	Inc_Size();
-}
-
-//---------------------------------------------------------
-void CVIEW_Table_Diagram_Control::On_Mouse_RDown(wxMouseEvent &event)
-{
-	Dec_Size();
 }
 
 
@@ -476,7 +581,7 @@ void CVIEW_Table_Diagram_Control::_Draw(wxDC &dc, wxRect rDC)
 		dc.SetFont(*m_pFont);
 	}
 
-	if( m_nFields > 0 && m_zMax > m_zMin )
+	if( m_nFields > 0 && m_yMax > m_yMin )
 	{
 		bool	bLegend	= m_Parameters("_DIAGRAM_LEGEND")->asBool();
 		int		iField;
@@ -492,7 +597,7 @@ void CVIEW_Table_Diagram_Control::_Draw(wxDC &dc, wxRect rDC)
 		dx	= m_xField < 0
 			? (double)r.GetWidth()	/ (double)m_pTable->Get_Record_Count()
 			: (double)r.GetWidth()	/ (m_xMax - m_xMin);
-		dy	= (double)r.GetHeight()	/ (m_zMax - m_zMin);
+		dy	= (double)r.GetHeight()	/ (m_yMax - m_yMin);
 
 		//-------------------------------------------------
 		if( dx > 0.0 && dy > 0.0 )
@@ -555,7 +660,7 @@ void CVIEW_Table_Diagram_Control::_Draw_Frame(wxDC &dc, wxRect r, double dx, dou
 
 	if( m_xField < 0 )
 	{
-		iLabel	= m_Parameters("_DIAGRAM_LABEL")->asInt();	if( iLabel >= m_pTable->Get_Field_Count() )	iLabel	= -1;
+		iLabel	= m_Parameters("_DIAGRAM_X_LABEL")->asInt();	if( iLabel >= m_pTable->Get_Field_Count() )	iLabel	= -1;
 		iStep	= dx > dyFont ? 1 : (int)(1 + (dyFont + 5) / dx);
 
 		for(iRecord=0; iRecord<m_pTable->Get_Record_Count(); iRecord+=iStep)
@@ -597,9 +702,9 @@ void CVIEW_Table_Diagram_Control::_Draw_Frame(wxDC &dc, wxRect r, double dx, dou
 	//-----------------------------------------------------
 	nSteps		= r.GetHeight()			/ (dyFont + 5);
 	dzStep		= (double)r.GetHeight()	/ nSteps;
-	dz			= (m_zMax - m_zMin)		/ nSteps;
+	dz			= (m_yMax - m_yMin)		/ nSteps;
 
-	for(iStep=0, z=m_zMin; iStep<=nSteps; iStep++, z+=dz)
+	for(iStep=0, z=m_yMin; iStep<=nSteps; iStep++, z+=dz)
 	{
 		ix		= r.GetBottom()	- (int)(dzStep * iStep);
 
@@ -674,7 +779,7 @@ void CVIEW_Table_Diagram_Control::_Draw_Line(wxDC &dc, wxRect r, double dx, doub
 		ix	= m_xField < 0
 			? r.GetLeft()	+ 0
 			: r.GetLeft()	+ (int)(dx * (m_pTable->Get_Record_byIndex(0)->asDouble(m_xField) - m_xMin));
-		iy	= r.GetBottom()	- (int)(dy * (m_pTable->Get_Record_byIndex(0)->asDouble(  iField) - m_zMin));
+		iy	= r.GetBottom()	- (int)(dy * (m_pTable->Get_Record_byIndex(0)->asDouble(  iField) - m_yMin));
 
 		for(iRecord=1; iRecord<m_pTable->Get_Record_Count(); iRecord++)
 		{
@@ -683,7 +788,7 @@ void CVIEW_Table_Diagram_Control::_Draw_Line(wxDC &dc, wxRect r, double dx, doub
 			ix	= m_xField < 0
 				? r.GetLeft()	+ (int)(dx * iRecord)
 				: r.GetLeft()	+ (int)(dx * (m_pTable->Get_Record_byIndex(iRecord)->asDouble(m_xField) - m_xMin));
-			iy	= r.GetBottom()	- (int)(dy * (m_pTable->Get_Record_byIndex(iRecord)->asDouble(  iField) - m_zMin));
+			iy	= r.GetBottom()	- (int)(dy * (m_pTable->Get_Record_byIndex(iRecord)->asDouble(  iField) - m_yMin));
 
 			dc.DrawLine(jx, jy, ix, iy);
 		}
@@ -696,7 +801,7 @@ void CVIEW_Table_Diagram_Control::_Draw_Line(wxDC &dc, wxRect r, double dx, doub
 			ix	= m_xField < 0
 				? r.GetLeft()	+ (int)(dx * iRecord)
 				: r.GetLeft()	+ (int)(dx * (m_pTable->Get_Record_byIndex(iRecord)->asDouble(m_xField) - m_xMin));
-			iy	= r.GetBottom()	- (int)(dy * (m_pTable->Get_Record_byIndex(iRecord)->asDouble(  iField) - m_zMin));
+			iy	= r.GetBottom()	- (int)(dy * (m_pTable->Get_Record_byIndex(iRecord)->asDouble(  iField) - m_yMin));
 
 			dc.DrawCircle(ix, iy, 2);
 		}
@@ -724,7 +829,7 @@ void CVIEW_Table_Diagram_Control::_Draw_Bars(wxDC &dc, wxRect r, double dx, doub
 			: (int)(dx * (m_pTable->Get_Record_byIndex(iRecord)->asDouble(m_xField) - m_xMin)));
 		xb	= dxb + xa;
 
-		y	= r.GetBottom()	- (int)(dy * (m_pTable->Get_Record_byIndex(iRecord)->asDouble(iField) - m_zMin));
+		y	= r.GetBottom()	- (int)(dy * (m_pTable->Get_Record_byIndex(iRecord)->asDouble(iField) - m_yMin));
 
 		for(x=xa; x<=xb; x++)
 		{
@@ -835,12 +940,7 @@ void CVIEW_Table_Diagram::On_Parameters(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Diagram::On_Size_Fit(wxCommandEvent &event)
 {
-	wxSize	Size(GetClientSize());
-
-	Size.x	-= 2 * SCROLL_BAR_DX;
-	Size.y	-= 2 * SCROLL_BAR_DY;
-
-	m_pControl->Set_Size(Size);
+	m_pControl->Fit_Size();
 }
 
 //---------------------------------------------------------
