@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//            grid_local_extremes_to_points.cpp          //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -53,116 +51,48 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
-#include "MLB_Interface.h"
-
-
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-
-const SG_Char * Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Shapes - Grid") );
-
-	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad (c) 2002") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools related to gridded and vector data (conversions, combinations, etc.).") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Shapes|Grid") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "Grid_Values_AddTo_Points.h"
-#include "Grid_Values_AddTo_Shapes.h"
-#include "Grid_Statistics_AddTo_Polygon.h"
-#include "Grid_To_Points.h"
-#include "Grid_To_Points_Random.h"
-#include "Grid_To_Contour.h"
-#include "Grid_Classes_To_Shapes.h"
-#include "Grid_Polygon_Clip.h"
-#include "Grid_To_Gradient.h"
 #include "grid_local_extremes_to_points.h"
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
+CGrid_Local_Extremes_to_Points::CGrid_Local_Extremes_to_Points(void)
 {
-	// Don't forget to continuously enumerate the case switches
-	// when adding new modules! Also bear in mind that the
-	// enumeration always has to start with [case 0:] and
-	// that [default:] must return NULL!...
+	Set_Name		(_TL("Local Extremes to Points"));
 
-	CSG_Module	*pModule;
+	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
-	switch( i )
-	{
-	case 0:
-		pModule	= new CGrid_Values_AddTo_Points;
-		break;
+	Set_Description	(_TW(
+		"Extracts local minima and maxima of grid values to vector points."
+	));
 
-	case 1:
-		pModule	= new CGrid_Values_AddTo_Shapes;
-		break;
+	Parameters.Add_Grid(
+		NULL, "GRID"	, _TL("Grid"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
 
-	case 2:
-		pModule	= new CGrid_Statistics_AddTo_Polygon;
-		break;
+	Parameters.Add_Shapes(
+		NULL, "MINIMA"	, _TL("Minima"),
+		_TL(""),
+		PARAMETER_OUTPUT, SHAPE_TYPE_Point
+	);
 
-	case 3:
-		pModule	= new CGrid_To_Points;
-		break;
-
-	case 4:
-		pModule	= new CGrid_To_Points_Random;
-		break;
-
-	case 5:
-		pModule	= new CGrid_To_Contour;
-		break;
-
-	case 6:
-		pModule	= new CGrid_Classes_To_Shapes;
-		break;
-
-	case 7:
-		pModule	= new CGrid_Polygon_Clip;
-		break;
-
-	case 8:
-		pModule	= new CGrid_To_Gradient;
-		break;
-
-	case 9:
-		pModule	= new CGrid_Local_Extremes_to_Points;
-		break;
-
-	default:
-		pModule	= NULL;
-		break;
-	}
-
-	return( pModule );
+	Parameters.Add_Shapes(
+		NULL, "MAXIMA"	, _TL("Maxima"),
+		_TL(""),
+		PARAMETER_OUTPUT, SHAPE_TYPE_Point
+	);
 }
 
 
@@ -173,8 +103,79 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+bool CGrid_Local_Extremes_to_Points::On_Execute(void)
+{
+	bool		bMinimum, bMaximum;
+	int			x, y, i, ix, iy;
+	double		z, iz;
+	CSG_Grid	*pGrid;
+	TSG_Point	p;
+	CSG_Shape	*pPoint;
+	CSG_Shapes	*pMinima, *pMaxima;
 
-	MLB_INTERFACE
+	pGrid		= Parameters("GRID")	->asGrid();
+	pMinima		= Parameters("MINIMA")	->asShapes();
+	pMaxima		= Parameters("MAXIMA")	->asShapes();
 
-//}}AFX_SAGA
+	pMinima->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("Local Minima")));
+	pMaxima->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("Local Maxima")));
+
+	pMinima->Add_Field(SG_T("GRID_X")	, TABLE_FIELDTYPE_Int);
+	pMinima->Add_Field(SG_T("GRID_Y")	, TABLE_FIELDTYPE_Int);
+	pMinima->Add_Field(SG_T("X")		, TABLE_FIELDTYPE_Double);
+	pMinima->Add_Field(SG_T("Y")		, TABLE_FIELDTYPE_Double);
+	pMinima->Add_Field(SG_T("Z")		, TABLE_FIELDTYPE_Double);
+
+	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(x=0; x<Get_NX(); x++)
+		{
+			z	= pGrid->asDouble(x, y);
+
+			for(i=0, bMinimum=true, bMaximum=true; i<8 && (bMinimum || bMaximum); i++)
+			{
+				if( !Get_System()->Get_Neighbor_Pos(i, x, y, ix, iy) || pGrid->is_NoData(ix, iy) )
+				{
+					bMinimum	= bMaximum	= false;
+				}
+				else
+				{
+					iz	= pGrid->asDouble(ix, iy);
+
+					if( iz <= z )
+					{
+						bMinimum	= false;
+					}
+					else if( iz >= z )
+					{
+						bMaximum	= false;
+					}
+				}
+			}
+
+			pPoint	= bMinimum ? pMinima->Add_Shape() : (bMaximum ? pMaxima->Add_Shape() : NULL);
+
+			if( pPoint )
+			{
+				p		= Get_System()->Get_Grid_to_World(x, y);
+				pPoint->Set_Point(p, 0);
+				pPoint->Set_Value(0, x);
+				pPoint->Set_Value(1, y);
+				pPoint->Set_Value(2, p.x);
+				pPoint->Set_Value(3, p.y);
+				pPoint->Set_Value(4, z);
+			}
+		}
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

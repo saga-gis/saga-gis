@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.5 2007-02-13 12:49:17 tschorr Exp $
+# $Id: Makefile.am,v 1.6 2009-05-27 17:30:18 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -14,6 +14,7 @@ AM_LDFLAGS         = -fPIC -shared
 pkglib_LTLIBRARIES = libgrid_calculus.la
 libgrid_calculus_la_SOURCES =\
 Grid_Calculator.cpp\
+grid_difference.cpp\
 Grid_Geometric_Figures.cpp\
 Grid_Normalise.cpp\
 Grid_Plotter.cpp\
@@ -22,6 +23,7 @@ Grid_Random_Terrain.cpp\
 Grid_Volume.cpp\
 MLB_Interface.cpp\
 Grid_Calculator.h\
+grid_difference.h\
 Grid_Geometric_Figures.h\
 Grid_Normalise.h\
 Grid_Plotter.h\

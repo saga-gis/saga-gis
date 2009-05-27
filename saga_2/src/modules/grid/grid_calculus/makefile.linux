@@ -19,7 +19,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/Grid_Calculator.o $(MLB_TEMP)/Grid_Geometric_Figures.o $(MLB_TEMP)/Grid_Normalise.o $(MLB_TEMP)/Grid_Plotter.o $(MLB_TEMP)/Grid_Random_Field.o $(MLB_TEMP)/Grid_Random_Terrain.o $(MLB_TEMP)/Grid_Volume.o $(MLB_TEMP)/MLB_Interface.o
+OBJ      = $(MLB_TEMP)/Grid_Calculator.o $(MLB_TEMP)/grid_difference.o $(MLB_TEMP)/Grid_Geometric_Figures.o $(MLB_TEMP)/Grid_Normalise.o $(MLB_TEMP)/Grid_Plotter.o $(MLB_TEMP)/Grid_Random_Field.o $(MLB_TEMP)/Grid_Random_Terrain.o $(MLB_TEMP)/Grid_Volume.o $(MLB_TEMP)/MLB_Interface.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS =
@@ -52,6 +52,9 @@ $(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
 
 $(MLB_TEMP)/Grid_Calculator.o: ./Grid_Calculator.cpp
 	$(CPP) -c ./Grid_Calculator.cpp -o $(MLB_TEMP)/Grid_Calculator.o $(CXXFLAGS)
+
+$(MLB_TEMP)/grid_difference.o: ./grid_difference.cpp
+	$(CPP) -c ./grid_difference.cpp -o $(MLB_TEMP)/grid_difference.o $(CXXFLAGS)
 
 $(MLB_TEMP)/Grid_Geometric_Figures.o: ./Grid_Geometric_Figures.cpp
 	$(CPP) -c ./Grid_Geometric_Figures.cpp -o $(MLB_TEMP)/Grid_Geometric_Figures.o $(CXXFLAGS)

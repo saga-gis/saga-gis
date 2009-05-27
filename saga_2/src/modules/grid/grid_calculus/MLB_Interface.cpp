@@ -94,7 +94,7 @@ const SG_Char * Get_Info(int i)
 #include "Grid_Normalise.h"
 #include "Grid_Calculator.h"
 #include "Grid_Volume.h"
-
+#include "grid_difference.h"
 #include "Grid_Plotter.h"
 #include "Grid_Geometric_Figures.h"
 #include "Grid_Random_Terrain.h"
@@ -106,49 +106,19 @@ const SG_Char * Get_Info(int i)
 
 CSG_Module *		Create_Module(int i)
 {
-	// Don't forget to continuously enumerate the case switches
-	// when adding new modules! Also bear in mind that the
-	// enumeration always has to start with [case 0:] and
-	// that [default:] must return NULL!...
-
-	CSG_Module	*pModule;
-
 	switch( i )
 	{
-	case 0:
-		pModule	= new CGrid_Normalise;
-		break;
-
-	case 1:
-		pModule	= new CGrid_Calculator;
-		break;
-
-	case 2:
-		pModule	= new CGrid_Volume;
-		break;
-
-	case 3:
-		pModule	= new CGrid_Plotter;
-		break;
-
-	case 4:
-		pModule	= new CGrid_Geometric_Figures;
-		break;
-
-	case 5:
-		pModule	= new CGrid_Random_Terrain;
-		break;
-
-	case 6:
-		pModule	= new CGrid_Random_Field;
-		break;
-
-	default:
-		pModule	= NULL;
-		break;
+	case 0:		return( new CGrid_Normalise );
+	case 1:		return( new CGrid_Calculator );
+	case 2:		return( new CGrid_Volume );
+	case 3:		return( new CGrid_Difference );
+	case 4:		return( new CGrid_Plotter );
+	case 5:		return( new CGrid_Geometric_Figures );
+	case 6:		return( new CGrid_Random_Terrain );
+	case 7:		return( new CGrid_Random_Field );
 	}
 
-	return( pModule );
+	return( NULL );
 }
 
 
