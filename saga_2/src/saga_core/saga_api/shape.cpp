@@ -190,9 +190,14 @@ int CSG_Shape::Intersects(TSG_Rect _Region)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Shape::Assign(CSG_Shape *pShape)
+{
+	return( Assign(pShape, true) );
+}
+
 bool CSG_Shape::Assign(CSG_Shape *pShape, bool bAssign_Attributes)
 {
-	if( pShape && On_Assign(pShape) )
+	if( pShape && Get_Type() == pShape->Get_Type() && On_Assign(pShape) )
 	{
 		if( bAssign_Attributes )
 		{

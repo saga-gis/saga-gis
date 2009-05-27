@@ -341,18 +341,18 @@ CSG_Table_Record * CSG_Shapes::_Get_New_Record(int Index)
 //---------------------------------------------------------
 CSG_Shape * CSG_Shapes::Add_Shape(CSG_Table_Record *pCopy, TSG_ADD_Shape_Copy_Mode mCopy)
 {
-	CSG_Shape	*pShape	= (CSG_Shape *)Add_Record(mCopy == SHAPE_COPY || mCopy == SHAPE_COPY_ATTR ? pCopy : NULL);
+	CSG_Shape	*pShape	= (CSG_Shape *)Add_Record();
 
-	if( pShape && pCopy && (mCopy == SHAPE_COPY || mCopy == SHAPE_COPY_GEOM)
-	&&	pCopy->Get_Table()->Get_ObjectType() == DATAOBJECT_TYPE_Shapes
-	&&	((CSG_Shape *)pCopy)->Get_Type() == Get_Type() )
+	if( pShape && pCopy )
 	{
-		for(int iPart=0; iPart<((CSG_Shape *)pCopy)->Get_Part_Count(); iPart++)
+		if( mCopy == SHAPE_COPY || mCopy == SHAPE_COPY_ATTR )
 		{
-			for(int iPoint=0; iPoint<((CSG_Shape *)pCopy)->Get_Point_Count(iPart); iPoint++)
-			{
-				pShape->Add_Point(((CSG_Shape *)pCopy)->Get_Point(iPoint, iPart), iPart);
-			}
+			((CSG_Table_Record *)pShape)->Assign(pCopy);
+		}
+
+		if( mCopy == SHAPE_COPY || mCopy == SHAPE_COPY_GEOM && pCopy->Get_Table()->Get_ObjectType() == DATAOBJECT_TYPE_Shapes )
+		{
+			pShape->Assign((CSG_Shape *)pCopy, false);
 		}
 	}
 

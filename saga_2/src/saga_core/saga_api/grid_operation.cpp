@@ -151,15 +151,20 @@ bool CSG_Grid::Assign(CSG_Grid *pGrid, TSG_Grid_Interpolation Interpolation)
 			case GRID_INTERPOLATION_InverseDistance:
 			case GRID_INTERPOLATION_BicubicSpline:
 			case GRID_INTERPOLATION_BSpline:
-
 				bResult	= _Assign_Interpolated	(pGrid, Interpolation);
+				break;
 
-			break;
-
-			default:
 			case GRID_INTERPOLATION_Mean_Nodes:
 			case GRID_INTERPOLATION_Mean_Cells:
+				bResult	= _Assign_MeanValue		(pGrid, Interpolation != GRID_INTERPOLATION_Mean_Nodes);
+				break;
 
+			case GRID_INTERPOLATION_Minimum:
+			case GRID_INTERPOLATION_Maximum:
+				bResult	= _Assign_ExtremeValue	(pGrid, Interpolation == GRID_INTERPOLATION_Maximum);
+				break;
+
+			default:
 				if( Get_Cellsize() < pGrid->Get_Cellsize() )	// Down-Scaling...
 				{
 					bResult	= _Assign_Interpolated	(pGrid, GRID_INTERPOLATION_BSpline);
@@ -168,8 +173,7 @@ bool CSG_Grid::Assign(CSG_Grid *pGrid, TSG_Grid_Interpolation Interpolation)
 				{
 					bResult	= _Assign_MeanValue		(pGrid, Interpolation != GRID_INTERPOLATION_Mean_Nodes);
 				}
-
-			break;
+				break;
 		}
 
 		//-------------------------------------------------
@@ -222,6 +226,59 @@ bool CSG_Grid::_Assign_Interpolated(CSG_Grid *pGrid, TSG_Grid_Interpolation Inte
 }
 
 //---------------------------------------------------------
+bool CSG_Grid::_Assign_ExtremeValue(CSG_Grid *pGrid, bool bMaximum)
+{
+	if( Get_Cellsize() < pGrid->Get_Cellsize() || is_Intersecting(pGrid->Get_Extent()) == INTERSECTION_None )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	int			x, y, ix, iy;
+	double		px, py, ax, ay, d, z;
+	CSG_Matrix	S(Get_NY(), Get_NX()), N(Get_NY(), Get_NX());
+
+	d	= pGrid->Get_Cellsize() / Get_Cellsize();
+
+	Set_NoData_Value(pGrid->Get_NoData_Value());
+
+	Assign_NoData();
+
+	//-----------------------------------------------------
+	ax	= 0.5 + (pGrid->Get_XMin() - Get_XMin()) / Get_Cellsize();
+	ay	= 0.5 + (pGrid->Get_YMin() - Get_YMin()) / Get_Cellsize();
+
+	for(y=0, py=ay; y<pGrid->Get_NY() && SG_UI_Process_Set_Progress(y, pGrid->Get_NY()); y++, py+=d)
+	{
+		if( (iy = (int)floor(py)) >= 0 && iy < Get_NY() )
+		{
+			for(x=0, px=ax; x<pGrid->Get_NX(); x++, px+=d)
+			{
+				if( !pGrid->is_NoData(x, y) && (ix = (int)floor(px)) >= 0 && ix < Get_NX() )
+				{
+					z	= pGrid->asDouble(x, y);
+
+					if( is_NoData(ix, iy)
+					||	(bMaximum == true  && z > asDouble(ix, iy))
+					||	(bMaximum == false && z < asDouble(ix, iy)) )
+					{
+						Set_Value(ix, iy, z);
+					}
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	Get_History().Assign(pGrid->Get_History());
+	Get_History().Add_Entry(LNG("[DAT] Resampling"), CSG_String::Format(SG_T("%f -> %f"), pGrid->Get_Cellsize(), Get_Cellsize()));
+
+	SG_UI_Process_Set_Ready();
+
+	return( true );
+}
+
+//---------------------------------------------------------
 bool CSG_Grid::_Assign_MeanValue(CSG_Grid *pGrid, bool bAreaProportional)
 {
 	if( Get_Cellsize() < pGrid->Get_Cellsize() || is_Intersecting(pGrid->Get_Extent()) == INTERSECTION_None )
@@ -235,6 +292,10 @@ bool CSG_Grid::_Assign_MeanValue(CSG_Grid *pGrid, bool bAreaProportional)
 	CSG_Matrix	S(Get_NY(), Get_NX()), N(Get_NY(), Get_NX());
 
 	d	= pGrid->Get_Cellsize() / Get_Cellsize();
+
+	Set_NoData_Value(pGrid->Get_NoData_Value());
+
+	Assign_NoData();
 
 	//-----------------------------------------------------
 	if( bAreaProportional == false )

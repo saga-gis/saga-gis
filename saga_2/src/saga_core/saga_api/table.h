@@ -186,7 +186,7 @@ public:
 
 	CSG_Table_Value &			operator []		(int           iField)	const	{	return( *m_Values[iField] );	}
 
-	void						Assign			(CSG_Table_Record *pValues);
+	virtual bool				Assign			(CSG_Table_Record *pRecord);
 
 	bool						is_Selected		(void)					const	{	return( m_bSelected );	}
 

@@ -63,6 +63,7 @@
 #include <string.h>
 
 #include "table.h"
+#include "shapes.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -611,7 +612,14 @@ CSG_Table_Record * CSG_Table::_Add_Record(CSG_Table_Record *pCopy)
 	{
 		if( pCopy )
 		{
-			pRecord->Assign(pCopy);
+			if( Get_ObjectType() == DATAOBJECT_TYPE_Shapes && pCopy->Get_Table()->Get_ObjectType() == DATAOBJECT_TYPE_Shapes )
+			{
+				((CSG_Shape *)pRecord)->Assign((CSG_Shape *)pCopy, true);
+			}
+			else
+			{
+				pRecord->Assign(pCopy);
+			}
 		}
 
 		if( is_Indexed() )

@@ -223,6 +223,8 @@ typedef enum ESG_Grid_Interpolation
 
 	GRID_INTERPOLATION_Mean_Nodes,
 	GRID_INTERPOLATION_Mean_Cells,
+	GRID_INTERPOLATION_Minimum,
+	GRID_INTERPOLATION_Maximum,
 
 	GRID_INTERPOLATION_Undefined
 }
@@ -902,6 +904,7 @@ private:	///////////////////////////////////////////////
 
 	bool						_Assign_Interpolated	(CSG_Grid *pSource, TSG_Grid_Interpolation Interpolation);
 	bool						_Assign_MeanValue		(CSG_Grid *pSource, bool bAreaProportional);
+	bool						_Assign_ExtremeValue	(CSG_Grid *pSource, bool bMaximum);
 
 };
 

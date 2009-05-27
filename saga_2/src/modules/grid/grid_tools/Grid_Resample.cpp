@@ -153,14 +153,17 @@ CGrid_Resample::CGrid_Resample(void)
 	pNode	= pParameters->Add_Choice(
 		NULL	, "METHOD"		, _TL("Interpolation Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
 			_TL("Nearest Neighbor"),
 			_TL("Bilinear Interpolation"),
 			_TL("Inverse Distance Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation"),
-			_TL("Mean Value")
-		), 5
+			_TL("Mean Value"),
+			_TL("Mean Value (cell area weighted)"),
+			_TL("Minimum Value"),
+			_TL("Maximum Value")
+		), 6
 	);
 
 	//-----------------------------------------------------
@@ -243,11 +246,11 @@ int CGrid_Resample::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 bool CGrid_Resample::On_Execute(void)
 {
-	bool				bResult;
-	double				Cellsize;
+	bool					bResult;
+	double					Cellsize;
 	TSG_Grid_Interpolation	Interpolation;
 	CSG_Grid				*pInput, *pOutput;
-	CSG_Grid_System		System;
+	CSG_Grid_System			System;
 	CSG_Parameters			*pParameters;
 
 	//-----------------------------------------------------
@@ -309,7 +312,10 @@ bool CGrid_Resample::On_Execute(void)
 				case 2:	Interpolation	= GRID_INTERPOLATION_InverseDistance;	break;
 				case 3:	Interpolation	= GRID_INTERPOLATION_BicubicSpline;		break;
 				case 4:	Interpolation	= GRID_INTERPOLATION_BSpline;			break;
-				case 5:	Interpolation	= GRID_INTERPOLATION_Undefined;			break;
+				case 5:	Interpolation	= GRID_INTERPOLATION_Mean_Nodes;		break;
+				case 6:	Interpolation	= GRID_INTERPOLATION_Mean_Cells;		break;
+				case 7:	Interpolation	= GRID_INTERPOLATION_Minimum;			break;
+				case 8:	Interpolation	= GRID_INTERPOLATION_Maximum;			break;
 				}
 
 				pParameters	= Get_Parameters("SCALE_UP");

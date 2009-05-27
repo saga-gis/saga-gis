@@ -378,12 +378,19 @@ double CSG_Table_Record::asDouble(const SG_Char *Field) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Table_Record::Assign(CSG_Table_Record *pSource)
+bool CSG_Table_Record::Assign(CSG_Table_Record *pRecord)
 {
-	for(int iField=0; iField<m_pTable->Get_Field_Count(); iField++)
+	if( pRecord )
 	{
-		Set_Value(iField, pSource->asString(iField) );
+		for(int iField=0; iField<m_pTable->Get_Field_Count(); iField++)
+		{
+			Set_Value(iField, pRecord->asString(iField));
+		}
+
+		return( true );
 	}
+
+	return( false );
 }
 
 

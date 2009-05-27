@@ -70,7 +70,7 @@ CShapes_Split_by_Attribute::CShapes_Split_by_Attribute(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name		(_TL("Split Shapes Layer by Attribute"));
+	Set_Name		(_TL("Split Table/Shapes by Attribute"));
 
 	Set_Author		(SG_T("O. Conrad (c) 2008"));
 
@@ -79,8 +79,8 @@ CShapes_Split_by_Attribute::CShapes_Split_by_Attribute(void)
 	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "SHAPES"		, _TL("Shapes"),
+	pNode	= Parameters.Add_Table(
+		NULL	, "TABLE"		, _TL("Table / Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
@@ -91,16 +91,12 @@ CShapes_Split_by_Attribute::CShapes_Split_by_Attribute(void)
 		false
 	);
 
-	Parameters.Add_Shapes_List(
+	Parameters.Add_Table_List(
 		NULL	, "CUTS"		, _TL("Cuts"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 }
-
-//---------------------------------------------------------
-CShapes_Split_by_Attribute::~CShapes_Split_by_Attribute(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
@@ -113,42 +109,42 @@ CShapes_Split_by_Attribute::~CShapes_Split_by_Attribute(void)
 bool CShapes_Split_by_Attribute::On_Execute(void)
 {
 	int			iField;
-	CSG_Shapes	*pShapes;
+	CSG_Table	*pTable;
 
 	//-----------------------------------------------------
-	pShapes	= Parameters("SHAPES")	->asShapes();
+	pTable	= Parameters("TABLE")	->asTable();
 	iField	= Parameters("FIELD")	->asInt();
 
-	Parameters("CUTS")->asShapesList()->Del_Items();
+	Parameters("CUTS")->asTableList()->Del_Items();
 
 	//-----------------------------------------------------
-	if( pShapes->is_Valid() && pShapes->Set_Index(iField, TABLE_INDEX_Ascending) )
+	if( pTable->is_Valid() && pTable->Set_Index(iField, TABLE_INDEX_Ascending) )
 	{
 		CSG_String	sValue;
-		CSG_Shapes	*pCut	= NULL;
+		CSG_Table	*pCut	= NULL;
 
-		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		for(int iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
 		{
-			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+			CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
 
-			if( !pCut || sValue.Cmp(pShape->asString(iField)) )
+			if( !pCut || sValue.Cmp(pRecord->asString(iField)) )
 			{
-				pCut	= SG_Create_Shapes(
-					pShapes->Get_Type(),
-					CSG_String::Format(SG_T("%s [%s = %s]"),
-						pShapes->Get_Name(),
-						pShapes->Get_Field_Name(iField),
-						pShape->asString(iField)
-					),
-					pShapes
-				);
+				pCut	= pTable->Get_ObjectType() == DATAOBJECT_TYPE_Shapes
+						? SG_Create_Shapes(((CSG_Shapes *)pTable)->Get_Type(), SG_T(""), pTable)
+						: SG_Create_Table(pTable);
 
-				Parameters("CUTS")->asShapesList()->Add_Item(pCut);
+				pCut->Set_Name(CSG_String::Format(SG_T("%s [%s = %s]"),
+					pTable->Get_Name(),
+					pTable->Get_Field_Name(iField),
+					pRecord->asString(iField)
+				));
 
-				sValue	= pShape->asString(iField);
+				Parameters("CUTS")->asTableList()->Add_Item(pCut);
+
+				sValue	= pRecord->asString(iField);
 			}
 
-			pCut->Add_Shape(pShape);
+			pCut->Add_Record(pRecord);
 		}
 
 		return( pCut != NULL );

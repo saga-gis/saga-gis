@@ -76,14 +76,30 @@ class CFilter_Multi_Dir_Lee : public CSG_Module_Grid
 {
 public:
 	CFilter_Multi_Dir_Lee(void);
-	virtual ~CFilter_Multi_Dir_Lee(void);
 
 
 protected:
 
-	virtual bool		On_Execute		(void);
+	virtual bool		On_Execute			(void);
 
+
+private:
+
+	CSG_Grid			*m_pInput, *m_pFiltered, *m_pStdDev, *m_pDirection;
+
+
+	bool				Get_Filter			(bool bWeighted, bool bAbsolute);
+
+	bool				Get_Filter_Ringeler	(void);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Filter_Multi_Dir_Lee_H

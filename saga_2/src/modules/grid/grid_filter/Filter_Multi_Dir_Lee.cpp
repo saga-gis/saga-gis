@@ -60,135 +60,115 @@
 #include "Filter_Multi_Dir_Lee.h"
 
 
-unsigned char Filter_Directions[16][9][9]=
+double Filter_Directions[16][9][9]	=
 {
 	{
-		{0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{1, 1, 1, 1, 1, 1, 1, 1, 1},
-		{2, 2, 2, 2, 2, 2, 2, 2, 2},
-		{1, 1, 1, 1, 1, 1, 1, 1, 1},
-		{0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0, 0, 0}
+		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+		{0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5},
+		{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0},
+		{0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5},
+		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
 	},
 		
 	{
-		{0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{1, 1, 0, 0, 0, 0, 0, 0, 0},
-		{2, 2, 1, 1, 1, 1, 0, 0, 0},
-		{1, 1, 2, 2, 2, 2, 2, 1, 1},
-		{0, 0, 0, 1, 1, 1, 1, 2, 2},
-		{0, 0, 0, 0, 0, 0, 0, 1, 1},
-		{0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0, 0, 0}
+		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+		{0.5, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+		{1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0},
+		{0.5, 0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5, 0.5},
+		{0.0, 0.0, 0.0, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0},
+		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5},
+		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
 	},
 		
 	{
-		{0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{1, 0, 0, 0, 0, 0, 0, 0, 0},
-		{2, 2, 1, 0, 0, 0, 0, 0, 0},
-		{1, 1, 2, 2, 1, 0, 0, 0, 0},
-		{0, 0, 1, 1, 2, 1, 1, 0, 0},
-		{0, 0, 0, 0, 1, 2, 2, 1, 1},
-		{0, 0, 0, 0, 0, 0, 1, 2, 2},
-		{0, 0, 0, 0, 0, 0, 0, 0, 1},
-		{0, 0, 0, 0, 0, 0, 0, 0, 0}
+		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+		{0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+		{1.0, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+		{0.5, 0.5, 1.0, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.5, 0.5, 1.0, 0.5, 0.5, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 0.5, 0.5},
+		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 1.0},
+		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5},
+		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
 	},
 		
 	{
-		{1, 0, 0, 0, 0, 0, 0, 0, 0},
-		{2, 1, 0, 0, 0, 0, 0, 0, 0},
-		{1, 2, 2, 1, 0, 0, 0, 0, 0},
-		{0, 1, 1, 2, 1, 0, 0, 0, 0},
-		{0, 0, 0, 1, 2, 1, 0, 0, 0},
-		{0, 0, 0, 0, 1, 2, 1, 1, 0},
-		{0, 0, 0, 0, 0, 1, 2, 2, 1},
-		{0, 0, 0, 0, 0, 0, 0, 1, 2},
-		{0, 0, 0, 0, 0, 0, 0, 0, 1}
+		{0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+		{1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+		{0.5, 1.0, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0},
+		{0.0, 0.5, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.5, 0.0},
+		{0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 0.5},
+		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0},
+		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5}
 	},
 		
 	{
-		{2, 1, 0, 0, 0, 0, 0, 0, 0},
-		{1, 2, 1, 0, 0, 0, 0, 0, 0},
-		{0, 1, 2, 1, 0, 0, 0, 0, 0},
-		{0, 0, 1, 2, 1, 0, 0, 0, 0},
-		{0, 0, 0, 1, 2, 1, 0, 0, 0},
-		{0, 0, 0, 0, 1, 2, 1, 0, 0},
-		{0, 0, 0, 0, 0, 1, 2, 1, 0},
-		{0, 0, 0, 0, 0, 0, 1, 2, 1},
-		{0, 0, 0, 0, 0, 0, 0, 1, 2}
+		{1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+		{0.5, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+		{0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0},
+		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 0.5},
+		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0}
 	},
 		
 	{
-		{1, 2, 1, 0, 0, 0, 0, 0, 0},
-		{0, 1, 2, 1, 0, 0, 0, 0, 0},
-		{0, 0, 1, 2, 0, 0, 0, 0, 0},
-		{0, 0, 1, 2, 1, 0, 0, 0, 0},
-		{0, 0, 0, 1, 2, 1, 0, 0, 0},
-		{0, 0, 0, 0, 1, 2, 1, 0, 0},
-		{0, 0, 0, 0, 0, 2, 1, 0, 0},
-		{0, 0, 0, 0, 0, 1, 2, 1, 0},
-		{0, 0, 0, 0, 0, 0, 1, 2, 1}
+		{0.5, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+		{0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.5, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.5, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0},
+		{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 0.5}
 	},
 		
 	{
-		{0, 1, 2, 1, 0, 0, 0, 0, 0},
-		{0, 0, 2, 1, 0, 0, 0, 0, 0},
-		{0, 0, 1, 2, 1, 0, 0, 0, 0},
-		{0, 0, 0, 2, 1, 0, 0, 0, 0},
-		{0, 0, 0, 1, 2, 1, 0, 0, 0},
-		{0, 0, 0, 0, 1, 2, 0, 0, 0},
-		{0, 0, 0, 0, 1, 2, 1, 0, 0},
-		{0, 0, 0, 0, 0, 1, 2, 0, 0},
-		{0, 0, 0, 0, 0, 1, 2, 1, 0}
+		{0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0}
 	},
 		
 	{
-		{0, 0, 1, 2, 1, 0, 0, 0, 0},
-		{0, 0, 1, 2, 1, 0, 0, 0, 0},
-		{0, 0, 0, 2, 1, 0, 0, 0, 0},
-		{0, 0, 0, 1, 2, 1, 0, 0, 0},
-		{0, 0, 0, 1, 2, 1, 0, 0, 0},
-		{0, 0, 0, 1, 2, 1, 0, 0, 0},
-		{0, 0, 0, 0, 1, 2, 0, 0, 0},
-		{0, 0, 0, 0, 1, 2, 1, 0, 0},
-		{0, 0, 0, 0, 1, 2, 1, 0, 0}
+		{0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0}
 	},
 		
 	{
-		{0, 0, 0, 1, 2, 1, 0, 0, 0},
-		{0, 0, 0, 1, 2, 1, 0, 0, 0},
-		{0, 0, 0, 1, 2, 1, 0, 0, 0},
-		{0, 0, 0, 1, 2, 1, 0, 0, 0},
-		{0, 0, 0, 1, 2, 1, 0, 0, 0},
-		{0, 0, 0, 1, 2, 1, 0, 0, 0},
-		{0, 0, 0, 1, 2, 1, 0, 0, 0},
-		{0, 0, 0, 1, 2, 1, 0, 0, 0},
-		{0, 0, 0, 1, 2, 1, 0, 0, 0},
+		{0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0},
+		{0.0, 0.0, 0.0, 0.5, 1.0, 0.5, 0.0, 0.0, 0.0}
 	}
-};
-
-double corr[16] =
-{
-		97694238.970824,
-		103389994.176977,
-		109699939.129502,
-		103392028.763373,
-		103392435.589500,
-		103392028.763371,
-		109699939.129499,
-		103389994.176979,
-		97694238.970826,
-		103389994.200091,
-		109699939.176253,
-		103392028.826671,
-		103392435.659830,
-		103392028.826669,
-		109699939.176251,
-		103389994.200092
 };
 
 
@@ -221,46 +201,63 @@ CFilter_Multi_Dir_Lee::CFilter_Multi_Dir_Lee(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL, "INPUT"	, _TL("Grid"),
+		NULL, "INPUT"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL, "RESULT"	, _TL("Filtered Grid"),
+		NULL, "RESULT"		, _TL("Filtered Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL, "DIR"		, _TL("Direction"),
-		_TL("Direction of the filter with minimum variance."),
+		NULL, "STDDEV"		, _TL("Minimum Standard Deviation"),
+		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL, "VAR"		, _TL("Minimum Variance"),
+		NULL, "DIR"			, _TL("Direction of Minimum Standard Deviation"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Value(
-		NULL, "NOISE"	, _TL("Noise Variance"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 1
-	); 
+		NULL, "NOISE_ABS"	, _TL("Estimated Noise (absolute)"),
+		_TL("Estimated noise in units of input data"),
+		PARAMETER_TYPE_Double, 1.0
+	);
 
+	Parameters.Add_Value(
+		NULL, "NOISE_REL"	, _TL("Estimated Noise (relative)"),
+		_TL("Estimated noise relative to mean standard deviation"),
+		PARAMETER_TYPE_Double, 1.0
+	);
+
+	Parameters.Add_Value(
+		NULL, "WEIGHTED"	, _TL("Weighted"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	);
+
+	Parameters.Add_Choice(
+		NULL, "METHOD"		, _TL("Method"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("noise variance given as absolute value"),
+			_TL("noise variance given relative to mean standard deviation"),
+			_TL("original calculation (Ringeler)")
+		), 1
+	);
 
 	//-----------------------------------------------------
-	// Mirror the last 8  filter directions
-
-	int		i, x, y;
-
-	for(i=1; i<8; i++)
+	for(int i=1; i<8; i++)	// Mirror the last 8  filter directions
 	{
-		for(y=0; y<9; y++)
+		for(int y=0; y<9; y++)
 		{
-			for(x=0; x<9; x++)
+			for(int x=0; x<9; x++)
 			{
 				Filter_Directions[i + 8][y][x] = Filter_Directions[i][y][8 - x];
 			}
@@ -268,106 +265,289 @@ CFilter_Multi_Dir_Lee::CFilter_Multi_Dir_Lee(void)
 	}
 }
 
-//---------------------------------------------------------
-CFilter_Multi_Dir_Lee::~CFilter_Multi_Dir_Lee(void)
-{}
 
-//---------------------------------------------------------
-#define SQR(x)	((x)*(x))
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CFilter_Multi_Dir_Lee::On_Execute(void)
 {
-	int		Best_Direction, Count;
-	int		i, k, x, y, to_x, to_y;		
-	
-	double	Min_Std_Dev, Mean, Std_Dev,	Best_Mean, Noise;
-	
-	double	Std_Dev_Sum[16], b, result;
-	
-	CSG_Grid	*pInput				=	 Parameters("INPUT")->asGrid();
-	CSG_Grid	*pResult			=	 Parameters("RESULT")->asGrid();
-	CSG_Grid	*pDirections		=	 Parameters("DIR")->asGrid();
-	CSG_Grid	*pVariance			=	 Parameters("VAR")->asGrid();
-	
-			Noise				=	 Parameters("NOISE")->asDouble();
-	
-	for (i = 0; i < 16; i++)
-		Std_Dev_Sum[i]	=	0;
-	
-	for (y = 0; y < pInput->Get_NY()  && Set_Progress(y, pInput->Get_NY()); y++)
+	bool	bResult	= false, bWeighted;
+
+	m_pInput		= Parameters("INPUT")		->asGrid();
+	m_pFiltered		= Parameters("RESULT")		->asGrid();
+	m_pStdDev		= Parameters("STDDEV")		->asGrid();
+	m_pDirection	= Parameters("DIR")			->asGrid();
+	bWeighted		= Parameters("WEIGHTED")	->asBool();
+
+	switch( Parameters("METHOD")->asInt() )
 	{
-		for (x = 0; x < pInput->Get_NX(); x++)
+	case 0:	bResult	= Get_Filter(bWeighted, true);	break;
+	case 1:	bResult	= Get_Filter(bWeighted, false);	break;
+	case 2:	bResult	= Get_Filter_Ringeler();		break;
+	}
+
+	m_pFiltered->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pInput->Get_Name(), _TL("Lee Filter")));
+
+	if( m_pStdDev )
+	{
+		m_pStdDev		->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pInput->Get_Name(), _TL("Lee Filter - Standard Deviation")));
+	}
+
+	if( m_pDirection )
+	{
+		m_pDirection	->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pInput->Get_Name(), _TL("Lee Filter - Direction")));
+	}
+
+	return( bResult );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CFilter_Multi_Dir_Lee::Get_Filter(bool bWeighted, bool bAbsolute)
+{
+	int		x, y, ix, iy, k, kx, ky, Best_Direction;
+	double	Count, Mean, StdDev, Variance, Best_Mean, Best_StdDev, Noise, Noise2;
+
+	if( bAbsolute )
+	{
+		Noise	= Parameters("NOISE_ABS")->asDouble();
+		Noise2	= Noise*Noise;
+	}
+	else if( m_pStdDev == NULL )
+	{
+		Parameters("STDDEV")->Set_Value(m_pStdDev = SG_Create_Grid(*Get_System(), GRID_TYPE_Float));
+	}
+
+	//-----------------------------------------------------
+	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(x=0; x<Get_NX(); x++)
 		{
-			Best_Mean		=	-99999.99;
-			Min_Std_Dev		=	 99999.99;
-			
-			Best_Direction	=	-1;
-			
-			for (k = 0; k < 16; k++)
+			if( m_pInput->is_NoData(x, y) )
 			{
-				Mean	=	Std_Dev = 0.0;
-				Count	=	0;
-				
-				for (to_y = -4; to_y <  5; to_y++)
+				m_pFiltered	->Set_NoData(x, y);
+				m_pStdDev	->Set_NoData(x, y);
+
+				if( m_pDirection )	m_pDirection	->Set_NoData(x, y);
+			}
+			else
+			{
+				//-----------------------------------------
+				for(k=0; k<16; k++)
 				{
-					for (to_x = -4; to_x <  5; to_x++)
+					Variance	= Mean	= Count	= 0;
+
+					for(ky=0, iy=y-4; ky<9; iy++, ky++)
 					{
-						if (Filter_Directions[k][to_y + 4][to_x + 4])
+						for(kx=0, ix=x-4; kx<9; ix++, kx++)
 						{
-							if (x + to_x >= 0 && y + to_y >= 0 && x + to_x < Get_NX() && y + to_y < Get_NY())
+							if( m_pInput->is_InGrid(ix, iy) && Filter_Directions[k][ky][kx] > 0.0 )
 							{
-								Mean += pInput->asDouble(x + to_x, y + to_y);
-								Count++;
-								
+								double	w	 = bWeighted ? Filter_Directions[k][ky][kx] : 1.0;
+								double	z	 = m_pInput->asDouble(ix, iy);
+								Mean		+= w * z;
+								Variance	+= w * z*z;
+								Count		+= w;
 							}
 						}
 					}
-				}	
 
-				Mean		/=	Count;
-				
-				for (to_y = -4; to_y <  5; to_y++)
-				{
-					for (to_x = -4; to_x <  5; to_x++)
+					Mean		= Mean     / Count;
+					Variance	= Variance / Count - Mean*Mean;
+					StdDev		= sqrt(Variance);
+
+					if( k == 0 || StdDev < Best_StdDev )
 					{
-						{
-							if (Filter_Directions[k][to_y + 4][to_x + 4])
-							{
-								if (x + to_x >= 0 && y + to_y >= 0 && x + to_x < Get_NX() && y + to_y < Get_NY())
-									Std_Dev+= SQR(Mean - pInput->asDouble(x + to_x, y + to_y));
-							}
-						}
+						Best_StdDev		= StdDev;
+						Best_Mean		= Mean;
+						Best_Direction	= k;
 					}
 				}
-				
-				Std_Dev	=109699939.0 * sqrt(Std_Dev) /(corr[k] * Count);
-				
-				Std_Dev_Sum[k] +=	Std_Dev;
-				
-				if (Std_Dev < Min_Std_Dev)
+
+				//-----------------------------------------
+				if( bAbsolute && Best_StdDev > Noise )
 				{
-					Min_Std_Dev	=	Std_Dev;
-					Best_Mean	=	Mean;
-					Best_Direction	=	k;
+					double	b	= Best_StdDev*Best_StdDev;
+
+					b	= (b - Noise2) / b;
+
+					m_pFiltered->Set_Value(x, y, m_pInput->asDouble(x, y) * b + (1.0 - b) * Best_Mean); 
+				}
+				else if( Best_StdDev > 0.0 )
+				{
+					m_pFiltered->Set_Value(x, y, Best_Mean);
+				}
+				else
+				{
+					m_pFiltered->Set_Value(x, y, m_pInput->asDouble(x, y));
+				}
+
+				if( m_pStdDev )		m_pStdDev		->Set_Value(x, y, Best_StdDev);
+				if( m_pDirection )	m_pDirection	->Set_Value(x, y, Best_Direction);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if( !bAbsolute )
+	{
+		Noise	= Parameters("NOISE_REL")->asDouble() * m_pStdDev->Get_ArithMean();
+		Noise2	= Noise*Noise;
+
+		for(y=0; y<Get_NY() && Set_Progress(y); y++)
+		{
+			for(x=0; x<Get_NX(); x++)
+			{
+				if( !m_pInput->is_NoData(x, y) && (Best_StdDev = m_pStdDev->asDouble(x, y)) > Noise )
+				{
+					double	b	= Best_StdDev*Best_StdDev;
+
+					b	= (b - Noise2) / b;
+
+					m_pFiltered->Set_Value(x, y, m_pInput->asDouble(x, y) * b + (1.0 - b) * m_pFiltered->asDouble(x, y));
 				}
 			}
-			
-			Min_Std_Dev	+=	0.000001;
-			
-			b	=(Min_Std_Dev*Min_Std_Dev - Noise*Noise)/(Min_Std_Dev*Min_Std_Dev);
-			if (b < 0)
-				b= 0;
-			
-			result	=	pInput->asDouble(x, y)*b +(1 - b)*Best_Mean;
-			
-			pResult->Set_Value(x, y, result); 
-			
-			if (pDirections)
-				pDirections->Set_Value(x, y, Best_Direction);
-			if (pVariance)
-				pVariance->Set_Value(x, y, Min_Std_Dev);
 		}
-	}		
-	return true;
+	}
+
+	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+const double corr_norm	= 109699939.0;
+
+const double corr[16]	=
+{
+	 97694238.970824,
+	103389994.176977,
+	109699939.129502,
+	103392028.763373,
+	103392435.589500,
+	103392028.763371,
+	109699939.129499,
+	103389994.176979,
+	 97694238.970826,
+	103389994.200091,
+	109699939.176253,
+	103392028.826671,
+	103392435.659830,
+	103392028.826669,
+	109699939.176251,
+	103389994.200092
+};
+
+//---------------------------------------------------------
+bool CFilter_Multi_Dir_Lee::Get_Filter_Ringeler(void)
+{
+	int			x, y, ix, iy, k, kx, ky, Count, Best_Direction;
+	double		Mean, StdDev, Variance, Best_Mean, Best_StdDev, Noise, Noise2;
+
+	Noise	= Parameters("NOISE_ABS")->asDouble();
+	Noise2	= Noise*Noise;
+
+	//-----------------------------------------------------
+	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(x=0; x<Get_NX(); x++)
+		{
+			if( m_pInput->is_NoData(x, y) )
+			{
+				m_pFiltered->Set_NoData(x, y);
+
+				if( m_pDirection )	m_pDirection	->Set_NoData(x, y);
+				if( m_pStdDev )		m_pStdDev		->Set_NoData(x, y);
+			}
+			else
+			{
+				//-----------------------------------------
+				for(k=0; k<16; k++)
+				{
+					Variance	= Mean	= Count	= 0;
+
+					for(ky=0, iy=y-4; ky<9; iy++, ky++)
+					{
+						for(kx=0, ix=x-4; kx<9; ix++, kx++)
+						{
+							if( m_pInput->is_InGrid(ix, iy) && Filter_Directions[k][ky][kx] > 0.0 )
+							{
+								Mean		+= m_pInput->asDouble(ix, iy);
+								Count		++;
+							}
+						}
+					}
+
+					Mean		= Mean     / Count;
+
+					for(ky=0, iy=y-4; ky<9; iy++, ky++)
+					{
+						for(kx=0, ix=x-4; kx<9; ix++, kx++)
+						{
+							if( m_pInput->is_InGrid(ix, iy) && Filter_Directions[k][ky][kx] > 0.0 )
+							{
+								Variance	+= M_SQR(Mean - m_pInput->asDouble(ix, iy));
+							}
+						}
+					}
+
+					StdDev		= corr_norm * sqrt(Variance) / (corr[k] * Count);
+
+					if( k == 0 || StdDev < Best_StdDev )
+					{
+						Best_StdDev		= StdDev;
+						Best_Mean		= Mean;
+						Best_Direction	= k;
+					}
+				}
+
+				//-----------------------------------------
+				if( Best_StdDev > Noise )
+				{
+					double	b	= Best_StdDev*Best_StdDev;
+
+					b	= (b - Noise2) / b;
+
+					m_pFiltered->Set_Value(x, y, m_pInput->asDouble(x, y) * b + (1.0 - b) * Best_Mean); 
+				}
+				else if( Best_StdDev > 0.0 )
+				{
+					m_pFiltered->Set_Value(x, y, Best_Mean);
+				}
+				else
+				{
+					m_pFiltered->Set_Value(x, y, m_pInput->asDouble(x, y));
+				}
+
+				if( m_pDirection )	m_pDirection	->Set_Value(x, y, Best_Direction);
+				if( m_pStdDev )		m_pStdDev		->Set_Value(x, y, Best_StdDev);
+			}
+		}
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

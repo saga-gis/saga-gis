@@ -110,7 +110,8 @@ public:
 	//-----------------------------------------------------
 	virtual void				Destroy				(void);
 
-	bool						Assign				(CSG_Shape *pShape, bool bAssign_Attributes = true);
+	virtual bool				Assign				(CSG_Shape *pShape);
+	virtual bool				Assign				(CSG_Shape *pShape, bool bAssign_Attributes);
 
 	TSG_Shape_Type				Get_Type			(void);
 
