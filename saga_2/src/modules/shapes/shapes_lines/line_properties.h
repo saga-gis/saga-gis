@@ -5,15 +5,15 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    User Interface                     //
-//                                                       //
-//                    Program: SAGA                      //
+//                    Module Library:                    //
+//                     shapes_lines                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 VIEW_Table_Diagram.h                  //
+//                   line_properties.h                   //
 //                                                       //
-//          Copyright (C) 2005 by Olaf Conrad            //
+//                 Copyright (C) 2009 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,15 +37,13 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
-//                Germany                                //
-//                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Hamburg                  //
+//                Germany                                //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -53,23 +51,13 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#ifndef _HEADER_INCLUDED__SAGA_GUI__VIEW_Table_Diagram_H
-#define _HEADER_INCLUDED__SAGA_GUI__VIEW_Table_Diagram_H
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "view_base.h"
+#ifndef HEADER_INCLUDED__line_properties_H
+#define HEADER_INCLUDED__line_properties_H
 
 
 ///////////////////////////////////////////////////////////
@@ -79,37 +67,28 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CVIEW_Table_Diagram : public CVIEW_Base
+#include "MLB_Interface.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CLine_Properties : public CSG_Module  
 {
 public:
-	CVIEW_Table_Diagram(class CWKSP_Table *pTable);
-	virtual ~CVIEW_Table_Diagram(void);
-
-	static class wxToolBarBase *		_Create_ToolBar		(void);
-	static class wxMenu *				_Create_Menu		(void);
-
-	bool								Update_Diagram		(void);
+	CLine_Properties(void);
 
 
-private:
+protected:
 
-	class CVIEW_Table_Diagram_Control	*m_pControl;
-
-	class CWKSP_Table					*m_pOwner;
-
-
-	void								On_Parameters		(wxCommandEvent &event);
-	void								On_Size_Fit			(wxCommandEvent &event);
-	void								On_Size_Inc			(wxCommandEvent &event);
-	void								On_Size_Dec			(wxCommandEvent &event);
-	void								On_SaveToClipboard	(wxCommandEvent &event);
-	void								On_Key_Down			(wxKeyEvent     &event);
+	virtual bool			On_Execute(void);
 
 
 private:
-
-	DECLARE_EVENT_TABLE()
-	DECLARE_CLASS(CVIEW_Table_Diagram)
 
 };
 
@@ -121,4 +100,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__VIEW_Table_Diagram_H
+#endif // #ifndef HEADER_INCLUDED__line_properties_H

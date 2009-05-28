@@ -67,6 +67,81 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool Cut_Shapes(CSG_Shapes *pPolygons, int Method, CSG_Shapes *pShapes, CSG_Shapes *pCut)
+{
+	if( pCut && pShapes && pShapes->is_Valid() && pPolygons && pPolygons->is_Valid() && pPolygons->Get_Extent().Intersects(pShapes->Get_Extent()) )
+	{
+		pCut->Create(
+			pShapes->Get_Type(),
+			CSG_String::Format(SG_T("%s [%s]"), pShapes->Get_Name(), _TL("Cut")),
+			pShapes
+		);
+
+		for(int iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		{
+			bool		bAdd;
+			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+
+			if( Method == 2 )		// center
+			{
+				bAdd	= false;
+
+				TSG_Point	Center;
+
+				if( pShapes->Get_Type() == SHAPE_TYPE_Polygon )
+					Center	= ((CSG_Shape_Polygon *)pShape)->Get_Centroid();
+				else
+					Center	= pShape->Get_Extent().Get_Center();
+
+				if( pPolygons->Select(Center) )
+				{
+					bAdd	= true;
+				}
+			}
+			else if( Method == 1 )	// intersects
+			{
+				bAdd	= false;
+
+				for(int iPart=0; iPart<pShape->Get_Part_Count() && !bAdd; iPart++)
+				{
+					for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart) && !bAdd; iPoint++)
+					{
+						if( pPolygons->Select(pShape->Get_Point(iPoint, iPart)) )
+						{
+							bAdd	= true;
+						}
+					}
+				}
+			}
+			else					// completely contained
+			{
+				bAdd	= true;
+
+				for(int iPart=0; iPart<pShape->Get_Part_Count() && bAdd; iPart++)
+				{
+					for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart) && bAdd; iPoint++)
+					{
+						if( pPolygons->Select(pShape->Get_Point(iPoint, iPart)) == false )
+						{
+							bAdd	= false;
+						}
+					}
+				}
+			}
+
+			if( bAdd )
+			{
+				pCut->Add_Shape(pShape);
+			}
+		}
+
+		return( pCut->Get_Count() > 0 );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 bool Cut_Shapes(CSG_Rect Extent, int Method, CSG_Shapes *pShapes, CSG_Shapes *pCut)
 {
 	if( pCut && pShapes && pShapes->is_Valid() && Extent.Intersects(pShapes->Get_Extent()) )
@@ -84,16 +159,9 @@ bool Cut_Shapes(CSG_Rect Extent, int Method, CSG_Shapes *pShapes, CSG_Shapes *pC
 
 			if( Method == 2 )	// center
 			{
-				switch( pShapes->Get_Type() )
-				{
-				default:
-					bAdd	= Extent.Contains(pShape->Get_Extent().Get_Center());
-					break;
-
-				case SHAPE_TYPE_Polygon:
-					bAdd	= Extent.Contains(((CSG_Shape_Polygon *)pShape)->Get_Centroid());
-					break;
-				}
+				bAdd	= pShapes->Get_Type() == SHAPE_TYPE_Polygon
+						? Extent.Contains(((CSG_Shape_Polygon *)pShape)->Get_Centroid())
+						: Extent.Contains(pShape->Get_Extent().Get_Center());
 			}
 			else				// completely contained, intersects
 			{
@@ -128,6 +196,20 @@ bool Cut_Shapes(CSG_Rect Extent, int Method, CSG_Shapes *pShapes, CSG_Shapes *pC
 }
 
 //---------------------------------------------------------
+CSG_Shapes * Cut_Shapes(CSG_Shapes *pPolygons, int Method, CSG_Shapes *pShapes)
+{
+	CSG_Shapes	*pCut	= SG_Create_Shapes();
+
+	if( Cut_Shapes(pPolygons, Method, pShapes, pCut) )
+	{
+		return( pCut );
+	}
+
+	delete(pCut);
+
+	return( NULL );
+}
+
 CSG_Shapes * Cut_Shapes(CSG_Rect Extent, int Method, CSG_Shapes *pShapes)
 {
 	CSG_Shapes	*pCut	= SG_Create_Shapes();
@@ -229,10 +311,11 @@ CShapes_Cut::CShapes_Cut(void)
 		NULL	, "TARGET"		, _TL("Extent"),
 		_TL(""),
 
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
 			_TL("user defined"),
 			_TL("grid project"),
-			_TL("shapes extent")
+			_TL("shapes layer extent"),
+			_TL("polygons")
 		), 0
 	);
 
@@ -276,11 +359,13 @@ CShapes_Cut::CShapes_Cut(void)
 	pParameters->Add_Shapes(
 		NULL, "SHAPES", _TL("Shapes")			, _TL(""), PARAMETER_INPUT
 	);
-}
 
-//---------------------------------------------------------
-CShapes_Cut::~CShapes_Cut(void)
-{}
+	pParameters	= Add_Parameters("POLYGONS", _TL("Polygons"), _TL(""));
+
+	pParameters->Add_Shapes(
+		NULL, "POLYGONS", _TL("Polygons")		, _TL(""), PARAMETER_INPUT, SHAPE_TYPE_Polygon
+	);
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -293,7 +378,7 @@ CShapes_Cut::~CShapes_Cut(void)
 bool CShapes_Cut::On_Execute(void)
 {
 	int							Method;
-	CSG_Shapes					*pExtent;
+	CSG_Shapes					*pExtent, *pCut;
 	CSG_Parameter_Shapes_List	*pShapes, *pCuts;
 
 	//-----------------------------------------------------
@@ -305,12 +390,12 @@ bool CShapes_Cut::On_Execute(void)
 	//-----------------------------------------------------
 	if( pShapes->Get_Count() > 0 )
 	{
-		int			i;
+		int			iLayer;
 		CSG_Rect	r(pShapes->asShapes(0)->Get_Extent());
 
-		for(i=1; i<pShapes->Get_Count(); i++)
+		for(iLayer=1; iLayer<pShapes->Get_Count(); iLayer++)
 		{
-			r.Union(pShapes->asShapes(i)->Get_Extent());
+			r.Union(pShapes->asShapes(iLayer)->Get_Extent());
 		}
 
 		if( Get_Extent(r) )
@@ -319,17 +404,21 @@ bool CShapes_Cut::On_Execute(void)
 
 			Cut_Set_Extent(r, pExtent, true);
 
-			for(i=0; i<pShapes->Get_Count(); i++)
+			for(iLayer=0; iLayer<pShapes->Get_Count(); iLayer++)
 			{
-				CSG_Shapes	*pCut	= SG_Create_Shapes();
-
-				if( Cut_Shapes(r, Method, pShapes->asShapes(i), pCut) )
+				if( m_pPolygons )
 				{
-					pCuts->Add_Item(pCut);
+					if( Cut_Shapes(m_pPolygons, Method, pShapes->asShapes(iLayer), pCut = SG_Create_Shapes()) )
+						pCuts->Add_Item(pCut);
+					else
+						delete(pCut);
 				}
 				else
 				{
-					delete(pCut);
+					if( Cut_Shapes(r, Method, pShapes->asShapes(iLayer), pCut = SG_Create_Shapes()) )
+						pCuts->Add_Item(pCut);
+					else
+						delete(pCut);
 				}
 			}
 
@@ -350,6 +439,8 @@ bool CShapes_Cut::On_Execute(void)
 //---------------------------------------------------------
 bool CShapes_Cut::Get_Extent(CSG_Rect &r)
 {
+	m_pPolygons	= NULL;
+
 	switch( Parameters("TARGET")->asInt() )
 	{
 	//-----------------------------------------------------
@@ -389,6 +480,18 @@ bool CShapes_Cut::Get_Extent(CSG_Rect &r)
 		if( Dlg_Parameters("SHAPES") )
 		{
 			r.Assign(Get_Parameters("SHAPES")->Get_Parameter("SHAPES")->asShapes()->Get_Extent());
+
+			return( true );
+		}
+		break;
+
+	//-----------------------------------------------------
+	case 3:	// polygons
+		if( Dlg_Parameters("POLYGONS") )
+		{
+			r.Assign(Get_Parameters("POLYGONS")->Get_Parameter("POLYGONS")->asShapes()->Get_Extent());
+
+			m_pPolygons	= Get_Parameters("POLYGONS")->Get_Parameter("POLYGONS")->asShapes();
 
 			return( true );
 		}

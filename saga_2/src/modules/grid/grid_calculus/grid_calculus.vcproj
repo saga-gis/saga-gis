@@ -452,6 +452,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\grid_difference.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Grid_Geometric_Figures.cpp"
 				>
 				<FileConfiguration
@@ -738,6 +742,10 @@
 			>
 			<File
 				RelativePath="Grid_Calculator.h"
+				>
+			</File>
+			<File
+				RelativePath=".\grid_difference.h"
 				>
 			</File>
 			<File

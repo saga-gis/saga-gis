@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.6 2007-02-13 12:49:19 tschorr Exp $
+# $Id: Makefile.am,v 1.7 2009-05-28 13:08:28 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -14,6 +14,7 @@ AM_LDFLAGS         = -fPIC -shared
 pkglib_LTLIBRARIES = libshapes_grid.la
 libshapes_grid_la_SOURCES =\
 Grid_Classes_To_Shapes.cpp\
+grid_local_extremes_to_points.cpp\
 Grid_Polygon_Clip.cpp\
 Grid_Statistics_AddTo_Polygon.cpp\
 Grid_To_Contour.cpp\
@@ -24,6 +25,7 @@ Grid_Values_AddTo_Points.cpp\
 Grid_Values_AddTo_Shapes.cpp\
 MLB_Interface.cpp\
 Grid_Classes_To_Shapes.h\
+grid_local_extremes_to_points.h\
 Grid_Polygon_Clip.h\
 Grid_Statistics_AddTo_Polygon.h\
 Grid_To_Contour.h\

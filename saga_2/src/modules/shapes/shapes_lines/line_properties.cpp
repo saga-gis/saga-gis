@@ -5,15 +5,15 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    User Interface                     //
-//                                                       //
-//                    Program: SAGA                      //
+//                    Module Library:                    //
+//                     shapes_lines                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 VIEW_Table_Diagram.h                  //
+//                  line_properties.cpp                  //
 //                                                       //
-//          Copyright (C) 2005 by Olaf Conrad            //
+//                 Copyright (C) 2009 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,15 +37,13 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
-//                Germany                                //
-//                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Hamburg                  //
+//                Germany                                //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -58,8 +56,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef _HEADER_INCLUDED__SAGA_GUI__VIEW_Table_Diagram_H
-#define _HEADER_INCLUDED__SAGA_GUI__VIEW_Table_Diagram_H
+#include "line_properties.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -69,49 +66,30 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "view_base.h"
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CVIEW_Table_Diagram : public CVIEW_Base
+CLine_Properties::CLine_Properties(void)
 {
-public:
-	CVIEW_Table_Diagram(class CWKSP_Table *pTable);
-	virtual ~CVIEW_Table_Diagram(void);
+	//-----------------------------------------------------
+	Set_Name		(_TL("Line Properties"));
 
-	static class wxToolBarBase *		_Create_ToolBar		(void);
-	static class wxMenu *				_Create_Menu		(void);
+	Set_Author		(SG_T("O. Conrad (c) 2009"));
 
-	bool								Update_Diagram		(void);
+	Set_Description	(_TW(
+		"Line properties: length, number of vertices."
+	));
 
+	//-----------------------------------------------------
+	Parameters.Add_Shapes(
+		NULL	, "LINES"		, _TL("Lines"),
+		_TL(""),
+		PARAMETER_INPUT, SHAPE_TYPE_Line
+	);
 
-private:
-
-	class CVIEW_Table_Diagram_Control	*m_pControl;
-
-	class CWKSP_Table					*m_pOwner;
-
-
-	void								On_Parameters		(wxCommandEvent &event);
-	void								On_Size_Fit			(wxCommandEvent &event);
-	void								On_Size_Inc			(wxCommandEvent &event);
-	void								On_Size_Dec			(wxCommandEvent &event);
-	void								On_SaveToClipboard	(wxCommandEvent &event);
-	void								On_Key_Down			(wxKeyEvent     &event);
-
-
-private:
-
-	DECLARE_EVENT_TABLE()
-	DECLARE_CLASS(CVIEW_Table_Diagram)
-
-};
+	Parameters.Add_Shapes(
+		NULL	, "OUTPUT"		, _TL("Lines with Property Attributes added"),
+		_TL("If not set property attributes will be added to the orignal lines layer."),
+		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Line
+	);
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -121,4 +99,44 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__VIEW_Table_Diagram_H
+bool CLine_Properties::On_Execute(void)
+{
+	CSG_Shapes	*pLines	= Parameters("LINES")->asShapes();
+
+	if(	pLines->is_Valid() && pLines->Get_Count() > 0 )
+	{
+		if( Parameters("OUTPUT")->asShapes() && Parameters("OUTPUT")->asShapes() != pLines )
+		{
+			pLines	= Parameters("OUTPUT")->asShapes();
+			pLines->Create(*Parameters("LINES")->asShapes());
+		}
+
+		//-------------------------------------------------
+		int		iOffset	= pLines->Get_Field_Count();
+
+		pLines->Add_Field(SG_T("N_VERTICES"), TABLE_FIELDTYPE_Int);
+		pLines->Add_Field(SG_T("LENGTH")	, TABLE_FIELDTYPE_Double);
+
+		//-------------------------------------------------
+		for(int iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
+		{
+			CSG_Shape	*pLine	= pLines->Get_Shape(iLine);
+
+			pLine->Set_Value(iOffset + 0, pLine->Get_Point_Count());
+			pLine->Set_Value(iOffset + 1, ((CSG_Shape_Line *)pLine)->Get_Length());
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

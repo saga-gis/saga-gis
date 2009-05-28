@@ -95,6 +95,30 @@ bool CSG_Shapes::Select(TSG_Rect Extent, bool bInvert)
 }
 
 //---------------------------------------------------------
+bool CSG_Shapes::Select(TSG_Point Point, bool bInvert)
+{
+	if( Get_Type() != SHAPE_TYPE_Polygon )
+	{
+		return( Select(CSG_Rect(Point, Point), bInvert) );
+	}
+
+	if( !bInvert )
+	{
+		CSG_Table::Select();
+	}
+
+	for(int i=0; i<Get_Count(); i++)
+	{
+		if( ((CSG_Shape_Polygon *)Get_Shape(i))->is_Containing(Point) )
+		{
+			CSG_Table::Select(i, true);
+		}
+	}
+
+	return( Get_Selection_Count() > 0 );
+}
+
+//---------------------------------------------------------
 const CSG_Rect & CSG_Shapes::Get_Selection_Extent(void)
 {
 	if( Get_Selection_Count() > 0 )

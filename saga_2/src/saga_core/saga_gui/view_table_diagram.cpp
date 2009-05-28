@@ -61,6 +61,7 @@
 #include <wx/wx.h>
 #include <wx/window.h>
 #include <wx/scrolwin.h>
+#include <wx/clipbrd.h>
 
 #include "res_commands.h"
 #include "res_controls.h"
@@ -113,6 +114,8 @@ public:
 
 	bool							Set_Parameters		(void);
 
+	void							SaveToClipboard		(void);
+
 	virtual void					OnDraw				(wxDC &dc);
 
 
@@ -133,8 +136,6 @@ private:
 	wxSize							m_sDraw;
 
 	wxFont							*m_pFont;
-
-	wxImage							m_Image;
 
 
 	void							On_Size				(wxSizeEvent  &event);
@@ -317,6 +318,34 @@ void CVIEW_Table_Diagram_Control::On_Mouse_LDown(wxMouseEvent &event)
 void CVIEW_Table_Diagram_Control::On_Mouse_RDown(wxMouseEvent &event)
 {
 	Set_Size(1.0 / 1.2, event.GetPosition());
+}
+
+//---------------------------------------------------------
+void CVIEW_Table_Diagram_Control::SaveToClipboard(void)
+{
+	Set_Buisy_Cursor(true);
+
+	wxBitmap	BMP;
+	wxMemoryDC	dc;
+
+	BMP.Create(m_sDraw.x, m_sDraw.y);
+	dc.SelectObject(BMP);
+	dc.SetBackground(*wxWHITE_BRUSH);
+	dc.Clear();
+
+	_Draw(dc, wxRect(0, 0, m_sDraw.x, m_sDraw.y));
+
+	dc.SelectObject(wxNullBitmap);
+
+	if( wxTheClipboard->Open() )
+	{
+		wxBitmapDataObject	*pBMP	= new wxBitmapDataObject;
+		pBMP->SetBitmap(BMP);
+		wxTheClipboard->SetData(pBMP);
+		wxTheClipboard->Close();
+	}
+
+	Set_Buisy_Cursor(false);
 }
 
 
@@ -850,10 +879,14 @@ IMPLEMENT_CLASS(CVIEW_Table_Diagram, CVIEW_Base);
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CVIEW_Table_Diagram, CVIEW_Base)
-	EVT_MENU			(ID_CMD_DIAGRAM_PARAMETERS	, CVIEW_Table_Diagram::On_Parameters)
-	EVT_MENU			(ID_CMD_DIAGRAM_SIZE_FIT	, CVIEW_Table_Diagram::On_Size_Fit)
-	EVT_MENU			(ID_CMD_DIAGRAM_SIZE_INC	, CVIEW_Table_Diagram::On_Size_Inc)
-	EVT_MENU			(ID_CMD_DIAGRAM_SIZE_DEC	, CVIEW_Table_Diagram::On_Size_Dec)
+	EVT_MENU			(ID_CMD_DIAGRAM_PARAMETERS		, CVIEW_Table_Diagram::On_Parameters)
+	EVT_MENU			(ID_CMD_DIAGRAM_SIZE_FIT		, CVIEW_Table_Diagram::On_Size_Fit)
+	EVT_MENU			(ID_CMD_DIAGRAM_SIZE_INC		, CVIEW_Table_Diagram::On_Size_Inc)
+	EVT_MENU			(ID_CMD_DIAGRAM_SIZE_DEC		, CVIEW_Table_Diagram::On_Size_Dec)
+
+	EVT_MENU			(ID_CMD_MAPS_SAVE_TO_CLIPBOARD	, CVIEW_Table_Diagram::On_SaveToClipboard)
+
+	EVT_KEY_DOWN		(CVIEW_Table_Diagram::On_Key_Down)
 END_EVENT_TABLE()
 
 
@@ -896,6 +929,7 @@ wxMenu * CVIEW_Table_Diagram::_Create_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DIAGRAM_SIZE_FIT);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DIAGRAM_SIZE_INC);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DIAGRAM_SIZE_DEC);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SAVE_TO_CLIPBOARD);
 
 	return( pMenu );
 }
@@ -953,6 +987,39 @@ void CVIEW_Table_Diagram::On_Size_Inc(wxCommandEvent &event)
 void CVIEW_Table_Diagram::On_Size_Dec(wxCommandEvent &event)
 {
 	m_pControl->Dec_Size();
+}
+
+//---------------------------------------------------------
+void CVIEW_Table_Diagram::On_SaveToClipboard(wxCommandEvent &event)
+{
+	m_pControl->SaveToClipboard();
+}
+
+//---------------------------------------------------------
+void CVIEW_Table_Diagram::On_Key_Down(wxKeyEvent &event)
+{
+
+	switch( event.GetKeyCode() )
+	{
+	default:
+		event.Skip();
+		break;
+
+	case WXK_UP:
+		m_pControl->Inc_Size();
+		break;
+
+	case WXK_DOWN:
+		m_pControl->Dec_Size();
+		break;
+
+	case 'C':
+		if( event.GetModifiers() == wxMOD_CONTROL )
+		{
+			m_pControl->SaveToClipboard();
+		}
+		break;
+	}
 }
 
 

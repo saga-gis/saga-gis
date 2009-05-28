@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.6 2008-06-26 13:18:11 oconrad Exp $
+# $Id: Makefile.am,v 1.7 2009-05-28 13:08:29 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -15,9 +15,11 @@ pkglib_LTLIBRARIES = libshapes_lines.la
 libshapes_lines_la_SOURCES =\
 Lines_From_Points.cpp\
 Lines_From_Polygons.cpp\
+line_properties.cpp\
 MLB_Interface.cpp\
 Lines_From_Points.h\
 Lines_From_Polygons.h\
+line_properties.h\
 MLB_Interface.h
 
 libshapes_lines_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la

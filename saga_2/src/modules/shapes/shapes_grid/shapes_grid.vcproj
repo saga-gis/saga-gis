@@ -452,6 +452,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\grid_local_extremes_to_points.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Grid_Polygon_Clip.cpp"
 				>
 				<FileConfiguration
@@ -818,6 +822,10 @@
 			>
 			<File
 				RelativePath="Grid_Classes_To_Shapes.h"
+				>
+			</File>
+			<File
+				RelativePath=".\grid_local_extremes_to_points.h"
 				>
 			</File>
 			<File

@@ -19,7 +19,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/Grid_Classes_To_Shapes.o $(MLB_TEMP)/Grid_Polygon_Clip.o $(MLB_TEMP)/Grid_Statistics_AddTo_Polygon.o $(MLB_TEMP)/Grid_To_Contour.o $(MLB_TEMP)/Grid_To_Gradient.o $(MLB_TEMP)/Grid_To_Points.o $(MLB_TEMP)/Grid_To_Points_Random.o $(MLB_TEMP)/Grid_Values_AddTo_Points.o $(MLB_TEMP)/Grid_Values_AddTo_Shapes.o $(MLB_TEMP)/MLB_Interface.o
+OBJ      = $(MLB_TEMP)/Grid_Classes_To_Shapes.o $(MLB_TEMP)/grid_local_extremes_to_points.o $(MLB_TEMP)/Grid_Polygon_Clip.o $(MLB_TEMP)/Grid_Statistics_AddTo_Polygon.o $(MLB_TEMP)/Grid_To_Contour.o $(MLB_TEMP)/Grid_To_Gradient.o $(MLB_TEMP)/Grid_To_Points.o $(MLB_TEMP)/Grid_To_Points_Random.o $(MLB_TEMP)/Grid_Values_AddTo_Points.o $(MLB_TEMP)/Grid_Values_AddTo_Shapes.o $(MLB_TEMP)/MLB_Interface.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS =
@@ -52,6 +52,9 @@ $(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
 
 $(MLB_TEMP)/Grid_Classes_To_Shapes.o: ./Grid_Classes_To_Shapes.cpp
 	$(CPP) -c ./Grid_Classes_To_Shapes.cpp -o $(MLB_TEMP)/Grid_Classes_To_Shapes.o $(CXXFLAGS)
+
+$(MLB_TEMP)/grid_local_extremes_to_points.o: ./grid_local_extremes_to_points.cpp
+	$(CPP) -c ./grid_local_extremes_to_points.cpp -o $(MLB_TEMP)/grid_local_extremes_to_points.o $(CXXFLAGS)
 
 $(MLB_TEMP)/Grid_Polygon_Clip.o: ./Grid_Polygon_Clip.cpp
 	$(CPP) -c ./Grid_Polygon_Clip.cpp -o $(MLB_TEMP)/Grid_Polygon_Clip.o $(CXXFLAGS)

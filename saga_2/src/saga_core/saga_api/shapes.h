@@ -123,15 +123,15 @@ public:
 	virtual int					Set_Point			(double x, double y, int iPoint, int iPart = 0)	= 0;
 	virtual int					Del_Point			(                    int iPoint, int iPart = 0)	= 0;
 
-	int							Add_Point			(TSG_Point Point,                int iPart = 0);
-	int							Ins_Point			(TSG_Point Point,    int iPoint, int iPart = 0);
-	int							Set_Point			(TSG_Point Point,    int iPoint, int iPart = 0);
+	virtual int					Add_Point			(TSG_Point Point,                int iPart = 0);
+	virtual int					Ins_Point			(TSG_Point Point,    int iPoint, int iPart = 0);
+	virtual int					Set_Point			(TSG_Point Point,    int iPoint, int iPart = 0);
 
 	virtual int					Del_Part			(int iPart)										= 0;
 	virtual int					Del_Parts			(void)											= 0;
 
 	virtual int					Get_Part_Count		(void)											= 0;
-	int							Get_Point_Count		(void);
+	virtual int					Get_Point_Count		(void);
 	virtual int					Get_Point_Count		(int iPart)										= 0;
 	virtual TSG_Point			Get_Point			(int iPoint, int iPart = 0)						= 0;
 
@@ -560,6 +560,7 @@ public:
 
 	virtual bool					Select					(CSG_Shape *pShape = NULL, bool bInvert = false);
 	virtual bool					Select					(TSG_Rect Extent         , bool bInvert = false);
+	virtual bool					Select					(TSG_Point Point         , bool bInvert = false);
 
 
 protected:

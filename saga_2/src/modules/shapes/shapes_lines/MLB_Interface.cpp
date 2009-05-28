@@ -93,6 +93,7 @@ const SG_Char * Get_Info(int i)
 
 #include "Lines_From_Polygons.h"
 #include "Lines_From_Points.h"
+#include "line_properties.h"
 
 
 //---------------------------------------------------------
@@ -104,6 +105,7 @@ CSG_Module *		Create_Module(int i)
 	{
 	case 0:		return( new CLines_From_Polygons );
 	case 1:		return( new CLines_From_Points );
+	case 2:		return( new CLine_Properties );
 	}
 
 	return( NULL );

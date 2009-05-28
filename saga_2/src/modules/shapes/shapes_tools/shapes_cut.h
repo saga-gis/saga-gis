@@ -69,8 +69,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Shapes *	Cut_Shapes		(CSG_Rect Extent, int Method, CSG_Shapes *pShapes);
-bool			Cut_Shapes		(CSG_Rect Extent, int Method, CSG_Shapes *pShapes, CSG_Shapes *pCut);
+CSG_Shapes *	Cut_Shapes		(CSG_Shapes *pPolygons, int Method, CSG_Shapes *pShapes);
+CSG_Shapes *	Cut_Shapes		(CSG_Rect    Extent   , int Method, CSG_Shapes *pShapes);
+bool			Cut_Shapes		(CSG_Shapes *pPolygons, int Method, CSG_Shapes *pShapes, CSG_Shapes *pCut);
+bool			Cut_Shapes		(CSG_Rect    Extent   , int Method, CSG_Shapes *pShapes, CSG_Shapes *pCut);
 
 CSG_String		Cut_Methods_Str	(void);
 
@@ -88,7 +90,6 @@ class CShapes_Cut : public CSG_Module
 {
 public:
 	CShapes_Cut(void);
-	virtual ~CShapes_Cut(void);
 
 	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("A:Shapes|Construction") );	}
 
@@ -101,6 +102,9 @@ protected:
 
 
 private:
+
+	CSG_Shapes					*m_pPolygons;
+
 
 	bool						Get_Extent				(CSG_Rect &r);
 
