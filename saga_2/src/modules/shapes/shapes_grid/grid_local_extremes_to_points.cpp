@@ -68,12 +68,12 @@
 //---------------------------------------------------------
 CGrid_Local_Extremes_to_Points::CGrid_Local_Extremes_to_Points(void)
 {
-	Set_Name		(_TL("Local Extremes to Points"));
+	Set_Name		(_TL("Local Minima and Maxima"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		(SG_T("(c) 2009 by O.Conrad"));
 
 	Set_Description	(_TW(
-		"Extracts local minima and maxima of grid values to vector points."
+		"Extracts local grid value minima and maxima of to vector points."
 	));
 
 	Parameters.Add_Grid(
@@ -118,13 +118,18 @@ bool CGrid_Local_Extremes_to_Points::On_Execute(void)
 	pMaxima		= Parameters("MAXIMA")	->asShapes();
 
 	pMinima->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("Local Minima")));
-	pMaxima->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("Local Maxima")));
-
 	pMinima->Add_Field(SG_T("GRID_X")	, TABLE_FIELDTYPE_Int);
 	pMinima->Add_Field(SG_T("GRID_Y")	, TABLE_FIELDTYPE_Int);
 	pMinima->Add_Field(SG_T("X")		, TABLE_FIELDTYPE_Double);
 	pMinima->Add_Field(SG_T("Y")		, TABLE_FIELDTYPE_Double);
 	pMinima->Add_Field(SG_T("Z")		, TABLE_FIELDTYPE_Double);
+
+	pMaxima->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("Local Maxima")));
+	pMaxima->Add_Field(SG_T("GRID_X")	, TABLE_FIELDTYPE_Int);
+	pMaxima->Add_Field(SG_T("GRID_Y")	, TABLE_FIELDTYPE_Int);
+	pMaxima->Add_Field(SG_T("X")		, TABLE_FIELDTYPE_Double);
+	pMaxima->Add_Field(SG_T("Y")		, TABLE_FIELDTYPE_Double);
+	pMaxima->Add_Field(SG_T("Z")		, TABLE_FIELDTYPE_Double);
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
