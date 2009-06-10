@@ -214,6 +214,7 @@ wxMenu * CWKSP_Grid::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_SCATTERPLOT);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_EQUALINTERVALS);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_SET_LUT);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
 
 	return( pMenu );
 }

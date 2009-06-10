@@ -127,26 +127,27 @@ public:
 	CWKSP_Base_Item(void);
 	virtual ~CWKSP_Base_Item(void);
 
-	virtual TWKSP_Item			Get_Type			(void)	= 0;
+	virtual TWKSP_Item				Get_Type			(void)	= 0;
 
-	virtual wxString			Get_Name			(void)	= 0;
-	virtual wxString			Get_Description		(void)	= 0;
+	virtual wxString				Get_Name			(void)	= 0;
+	virtual wxString				Get_Description		(void)	= 0;
 
-	virtual wxMenu *			Get_Menu			(void)	= 0;
+	virtual wxMenu *				Get_Menu			(void)	= 0;
 
-	virtual bool				On_Command			(int Cmd_ID);
-	virtual bool				On_Command_UI		(wxUpdateUIEvent &event);
+	virtual bool					On_Command			(int Cmd_ID);
+	virtual bool					On_Command_UI		(wxUpdateUIEvent &event);
 
 	virtual class CSG_Parameters *	Get_Parameters		(void)	{	return( NULL );			}
-	virtual void				Parameters_Changed	(void);
+	virtual void					Parameters_Changed	(void);
 
-	class CWKSP_Base_Control *	Get_Control			(void);
-	class CWKSP_Base_Manager *	Get_Manager			(void)	{	return( m_pManager );	}
+	class CWKSP_Base_Control *		Get_Control			(void);
+	class CWKSP_Base_Manager *		Get_Manager			(void)	{	return( m_pManager );	}
 
-	int							Get_ID				(void)	{	return( m_ID );			}
-	int							Get_Index			(void);
+	int								Get_ID				(void)	{	return( m_ID );			}
+	int								Get_Index			(void);
 
-	bool						is_Selected			(void);
+	bool							is_Manager			(void)	{	return( m_bManager );	}
+	bool							is_Selected			(void);
 
 
 protected:
@@ -154,11 +155,11 @@ protected:
 
 private:
 
-	bool						m_bManager;
+	bool							m_bManager;
 
-	int							m_ID;
+	int								m_ID;
 
-	class CWKSP_Base_Manager	*m_pManager;
+	class CWKSP_Base_Manager		*m_pManager;
 
 };
 

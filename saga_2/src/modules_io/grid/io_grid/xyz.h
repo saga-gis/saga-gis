@@ -62,24 +62,73 @@
 #define HEADER_INCLUDED__XYZ_H
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CXYZ_Export : public CSG_Module_Grid
 {
 public:
 	CXYZ_Export(void);
-	virtual ~CXYZ_Export(void);
 
-	virtual const SG_Char *	Get_MenuPath(void)				{	return( _TL("R:Export") );	}
+	virtual const SG_Char *	Get_MenuPath	(void)			{	return( _TL("R:Export") );	}
 
 
 protected:
 
-	virtual bool			On_Execute(void);
+	virtual bool			On_Execute		(void);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CXYZ_Import : public CSG_Module
+{
+public:
+	CXYZ_Import(void);
+
+	virtual const SG_Char *	Get_MenuPath	(void)			{	return( _TL("R:Import") );	}
+
+
+protected:
+
+	virtual bool			On_Execute		(void);
+
+
+private:
+
+	SG_Char					m_Separator;
+
+
+	bool					Read_Values		(CSG_File &Stream, double &x, double &y, double &z);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__XYZ_H

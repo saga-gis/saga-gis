@@ -108,69 +108,24 @@ const SG_Char * Get_Info(int i)
 
 CSG_Module *		Create_Module(int i)
 {
-	// Don't forget to continuously enumerate the case switches
-	// when adding new modules! Also bear in mind that the
-	// enumeration always has to start with [case 0:] and
-	// that [default:] must return NULL!...
-
-	CSG_Module	*pModule;
-
 	switch( i )
 	{
-	case 0:
-		pModule	= new CESRI_ArcInfo_Export;
-		break;
-
-	case 1:
-		pModule	= new CESRI_ArcInfo_Import;
-		break;
-
-	case 2:
-		pModule	= new CSurfer_Export;
-		break;
-
-	case 3:
-		pModule	= new CSurfer_Import;
-		break;
-
-	case 4:
-		pModule	= new CRaw_Import;
-		break;
-
-	case 5:
-		pModule	= new CXYZ_Export;
-		break;
-
-	case 6:
-		pModule	= new CUSGS_SRTM_Import;
-		break;
-
-	case 7:
-		pModule	= new CMOLA_Import;
-		break;
-
-	case 8:
-		pModule	= new CSRTM30_Import;
-		break;
-
-	case 9:
-		pModule	= new CBMP_Export;
-		break;
-
-	case 10:
-		pModule	= new CErdas_LAN_Import;
-		break;
-
-	case 11:
-		pModule	= new CGrid_Table_Import;
-		break;
-
-	default:
-		pModule	= NULL;
-		break;
+	case 0:		return( new CESRI_ArcInfo_Export );
+	case 1:		return( new CESRI_ArcInfo_Import );
+	case 2:		return( new CSurfer_Export );
+	case 3:		return( new CSurfer_Import );
+	case 4:		return( new CRaw_Import );
+	case 5:		return( new CXYZ_Export );
+	case 6:		return( new CXYZ_Import );
+	case 7:		return( new CUSGS_SRTM_Import );
+	case 8:		return( new CMOLA_Import );
+	case 9:		return( new CSRTM30_Import );
+	case 10:	return( new CBMP_Export );
+	case 11:	return( new CErdas_LAN_Import );
+	case 12:	return( new CGrid_Table_Import );
 	}
 
-	return( pModule );
+	return( NULL );
 }
 
 

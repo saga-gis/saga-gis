@@ -73,9 +73,9 @@ CXYZ_Export::CXYZ_Export(void)
 	//-----------------------------------------------------
 	// 1. Info...
 
-	Set_Name(_TL("Export Grid to XYZ"));
+	Set_Name		(_TL("Export Grid to XYZ"));
 
-	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
+	Set_Author		(SG_T("O. Conrad (c) 2003"));
 
 	Set_Description	(_TW(
 		"Export grid to a table (text format), that contains for each grid cell "
@@ -111,8 +111,51 @@ CXYZ_Export::CXYZ_Export(void)
 }
 
 //---------------------------------------------------------
-CXYZ_Export::~CXYZ_Export(void)
-{}
+bool CXYZ_Export::On_Execute(void)
+{
+	int						x, y, i;
+	TSG_Point				p;
+	CSG_File				Stream;
+	CSG_String				FileName;
+	CSG_Parameter_Grid_List	*pGrids;
+
+	pGrids		= Parameters("GRIDS")	->asGridList();
+	FileName	= Parameters("FILENAME")->asString();
+
+	if( pGrids->Get_Count() > 0 && Stream.Open(FileName, SG_FILE_W, false) )
+	{
+		if( Parameters("CAPTION")->asBool() )
+		{
+			Stream.Printf(SG_T("\"X\"\t\"Y\""));
+
+			for(i=0; i<pGrids->Get_Count(); i++)
+			{
+				Stream.Printf(SG_T("\t\"%s\""), pGrids->asGrid(i)->Get_Name());
+			}
+
+			Stream.Printf(SG_T("\n"));
+		}
+
+		for(y=0, p.y=Get_YMin(); y<Get_NY() && Set_Progress(y); y++, p.y+=Get_Cellsize())
+		{
+			for(x=0, p.x=Get_XMin(); x<Get_NX(); x++, p.x+=Get_Cellsize())
+			{
+				Stream.Printf(SG_T("%f\t%f"), p.x,  p.y);
+
+				for(i=0; i<pGrids->Get_Count(); i++)
+				{
+					Stream.Printf(SG_T("\t%f"), pGrids->asGrid(i)->asDouble(x, y));
+				}
+
+				Stream.Printf(SG_T("\n"));
+			}
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -122,52 +165,189 @@ CXYZ_Export::~CXYZ_Export(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CXYZ_Export::On_Execute(void)
+CXYZ_Import::CXYZ_Import(void)
 {
-	int						x, y, i;
-	double					xMin, yMin;
-	FILE					*aus;
-	CSG_String				FileName;
-	CSG_Parameter_Grid_List	*pGrids;
+	//-----------------------------------------------------
+	// 1. Info...
 
-	pGrids		= Parameters("GRIDS")	->asGridList();
+	Set_Name		(_TL("Import Grid from XYZ"));
+
+	Set_Author		(SG_T("O. Conrad (c) 2009"));
+
+	Set_Description	(_TW(
+		"Import grid from a table (text format), that contains for each grid cell "
+		"the x/y/z-coordinates and additional data from selected grids.\n"
+	));
+
+
+	//-----------------------------------------------------
+	// 2. Parameters...
+
+	Parameters.Add_Grid_Output(
+		NULL	, "GRID"		, _TL("Grid"),
+		_TL("")
+	);
+
+	Parameters.Add_Grid_Output(
+		NULL	, "COUNT"		, _TL("Count"),
+		_TL("")
+	);
+
+	Parameters.Add_FilePath(
+		NULL	, "FILENAME"	, _TL("File Name"),
+		_TL(""),
+		CSG_String::Format(
+			SG_T("%s|*.xyz|%s|*.txt|%s|*.*"),
+			_TL("XYZ files (*.xyz)"),
+			_TL("Text files (*.txt)"),
+			_TL("All Files")
+		), NULL, false
+	);
+
+	Parameters.Add_Value(
+		NULL	, "CAPTION"		, _TL("Has Field Names"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "CELLSIZE"	, _TL("Target Cellsize"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 1.0, 0.0, true
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "SEPARATOR"	, _TL("Separator"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|,|;|"),
+			_TL("space"),
+			_TL("tabulator")
+		), 1
+	);
+}
+
+//---------------------------------------------------------
+bool CXYZ_Import::On_Execute(void)
+{
+	int			nx, ny, nValues, fLength;
+	double		x, y, z, xMin, yMin, xMax, yMax, Cellsize;
+	CSG_File	Stream;
+	CSG_String	FileName, sLine;
+	CSG_Grid	*pGrid, *pCount;
+
 	FileName	= Parameters("FILENAME")->asString();
+	Cellsize	= Parameters("CELLSIZE")->asDouble();
 
-	if( pGrids->Get_Count() > 0 && (aus = fopen(FileName.b_str(), "w")) != NULL )
+	switch( Parameters("SEPARATOR")->asInt() )
 	{
-		xMin	= pGrids->asGrid(0)->Get_XMin();
-		yMin	= pGrids->asGrid(0)->Get_YMin();
+	case 0:	m_Separator	= SG_T(' ');	break;
+	case 1:	m_Separator	= SG_T('\t');	break;
+	case 2:	m_Separator	= SG_T(',');	break;
+	case 3:	m_Separator	= SG_T(';');	break;
+	}
 
+	if( Cellsize > 0.0 && Stream.Open(FileName, SG_FILE_R, false) )
+	{
 		if( Parameters("CAPTION")->asBool() )
 		{
-			fprintf(aus, "\"X\"\t\"Y\"");
-
-			for(i=0; i<pGrids->Get_Count(); i++)
-			{
-				fprintf(aus, "\t\"%s\"", pGrids->asGrid(i)->Get_Name());
-			}
-
-			fprintf(aus, "\n");
+			Stream.Read_Line(sLine);
 		}
 
-		for(y=0; y<Get_NY() && Set_Progress(y); y++)
-		{
-			for(x=0; x<Get_NX(); x++)
-			{
-				fprintf(aus, "%f\t%f", xMin + x * Get_Cellsize(),  yMin + y * Get_Cellsize());
+		fLength	= Stream.Length();
+		nValues	= 0;
 
-				for(i=0; i<pGrids->Get_Count(); i++)
+		while( Read_Values(Stream, x, y, z) && Set_Progress(Stream.Tell(), fLength) )
+		{
+			if( nValues == 0 )
+			{
+				xMin	= xMax	= x;
+				yMin	= yMax	= y;
+			}
+			else
+			{
+				if( xMin > x )	xMin	= x;	else if( xMax < x )	xMax	= x;
+				if( yMin > y )	yMin	= y;	else if( yMax < y )	yMax	= y;
+			}
+
+			nValues++;
+		}
+
+		//-------------------------------------------------
+		if( xMin < xMax && yMin < yMax )
+		{
+			nx		= 1 + (int)((xMax - xMin) / Cellsize);
+			ny		= 1 + (int)((yMax - yMin) / Cellsize);
+
+			Parameters("GRID" )->Set_Value(pGrid  = SG_Create_Grid(GRID_TYPE_Float, nx, ny, Cellsize, xMin, yMin));
+			Parameters("COUNT")->Set_Value(pCount = SG_Create_Grid(GRID_TYPE_Byte , nx, ny, Cellsize, xMin, yMin));
+
+			if( pGrid && pCount )
+			{
+				pGrid	->Set_Name(FileName = SG_File_Get_Name(FileName, false));
+				pCount	->Set_Name(CSG_String::Format(SG_T("%s [%s]"), FileName.c_str(), _TL("Count")));
+
+				Stream.Seek_Start();
+
+				if( Parameters("CAPTION")->asBool() )
 				{
-					fprintf(aus, "\t%f", pGrids->asGrid(i)->asDouble(x, y));
+					Stream.Read_Line(sLine);
 				}
 
-				fprintf(aus, "\n");
+				while( Read_Values(Stream, x, y, z) && Set_Progress(Stream.Tell(), fLength) )
+				{
+					if( pGrid->Get_System().Get_World_to_Grid(nx, ny, x, y) )
+					{
+						pGrid ->Add_Value(nx, ny, z);
+						pCount->Add_Value(nx, ny, 1.0);
+					}
+				}
+
+				for(ny=0; ny<pGrid->Get_NY() && Set_Progress(ny, pGrid->Get_NY()); ny++)
+				{
+					for(nx=0; nx<pGrid->Get_NX(); nx++)
+					{
+						nValues	= pCount->asInt(nx, ny);
+
+						if( nValues == 0 )
+						{
+							pGrid->Set_NoData(nx, ny);
+						}
+						else if( nValues > 1 )
+						{
+							pGrid->Mul_Value(nx, ny, 1.0 / nValues);
+						}
+					}
+				}
+
+				return( true );
 			}
 		}
+	}
 
-		fclose(aus);
+	return( false );
+}
 
-		return( true );
+//---------------------------------------------------------
+inline bool CXYZ_Import::Read_Values(CSG_File &Stream, double &x, double &y, double &z)
+{
+	CSG_String	sLine;
+
+	if( Stream.Read_Line(sLine) )
+	{
+		if( sLine.asDouble(x) )
+		{
+			sLine	= sLine.AfterFirst(m_Separator);
+
+			if( sLine.asDouble(y) )
+			{
+				sLine	= sLine.AfterFirst(m_Separator);
+
+				if( sLine.asDouble(z) )
+				{
+					return( true );
+				}
+			}
+		}
 	}
 
 	return( false );

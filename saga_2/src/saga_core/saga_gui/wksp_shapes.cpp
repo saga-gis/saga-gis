@@ -168,6 +168,7 @@ wxMenu * CWKSP_Shapes::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_SHOW);
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_SHAPES_HISTOGRAM);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_SET_LUT);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
 
 	pMenu->AppendSeparator();
 

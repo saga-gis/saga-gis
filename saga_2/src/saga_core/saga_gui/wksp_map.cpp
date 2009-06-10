@@ -483,6 +483,12 @@ void CWKSP_Map::_Create_Parameters(void)
 		PARAMETER_TYPE_Bool, 1
 	);
 
+	m_Img_Parms.Add_Value(
+		pNode_0	, "KML"	, LNG("[PRM] Save KML file"),
+		LNG(""),
+		PARAMETER_TYPE_Bool, 1
+	);
+
 	pNode_0	= m_Img_Parms.Add_Node(NULL, "NODE_LEGEND", LNG("[PRM] Legend"), LNG(""));
 
 	m_Img_Parms.Add_Value(
@@ -1196,6 +1202,44 @@ void CWKSP_Map::_Img_Save(wxString file, int type)
 				rWorld.Get_XMin() - Frame * d,
 				rWorld.Get_YMax() + Frame * d
 			);
+		}
+	}
+
+	if( m_Img_Parms("KML")->asBool() )
+	{
+		CSG_File	Stream;
+		wxFileName	fn(file);
+
+		fn.SetExt(wxT("kml"));
+
+		if( Stream.Open(fn.GetFullPath().c_str(), SG_FILE_W, false) )
+		{
+			CSG_Rect	rWorld(Get_World(r));
+			double		d	= rWorld.Get_XRange() / r.GetWidth();
+
+			fn.Assign(file);
+
+			Stream.Printf(SG_T("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"));
+			Stream.Printf(SG_T("<kml xmlns=\"http://www.opengis.net/kml/2.2\">\n"));
+			Stream.Printf(SG_T("  <Folder>\n"));
+			Stream.Printf(SG_T("    <name>Maps exported from SAGA</name>\n"));
+			Stream.Printf(SG_T("    <description>System for Automated Geoscientific Analyses - www.saga-gis.org</description>\n"));
+			Stream.Printf(SG_T("    <GroundOverlay>\n"));
+			Stream.Printf(SG_T("      <name>%s</name>\n")				, Get_Name());
+			Stream.Printf(SG_T("      <description>%s</description>\n")	, Get_Description());
+			Stream.Printf(SG_T("      <Icon>\n"));
+			Stream.Printf(SG_T("        <href>%s</href>\n")				, fn.GetFullName().c_str());
+			Stream.Printf(SG_T("      </Icon>\n"));
+			Stream.Printf(SG_T("      <LatLonBox>\n"));
+			Stream.Printf(SG_T("        <north>%f</north>\n")			, rWorld.Get_YMax() + Frame * d);
+			Stream.Printf(SG_T("        <south>%f</south>\n")			, rWorld.Get_YMin() - Frame * d);
+			Stream.Printf(SG_T("        <east>%f</east>\n")				, rWorld.Get_XMax() + Frame * d);
+			Stream.Printf(SG_T("        <west>%f</west>\n")				, rWorld.Get_XMin() - Frame * d);
+			Stream.Printf(SG_T("        <rotation>0.0</rotation>\n"));
+			Stream.Printf(SG_T("      </LatLonBox>\n"));
+			Stream.Printf(SG_T("    </GroundOverlay>\n"));
+			Stream.Printf(SG_T("  </Folder>\n"));
+			Stream.Printf(SG_T("</kml>\n"));
 		}
 	}
 
