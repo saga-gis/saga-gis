@@ -720,7 +720,7 @@ void	DLG_Copy_Settings(CSG_Table &List, CWKSP_Base_Item *pItem)
 		{
 			CSG_Table_Record	*pEntry	= List.Add_Record();
 
-			pEntry->Set_Value(0, pItem->Get_Name());
+			pEntry->Set_Value(0, CSG_String::Format(SG_T("[%s] %s"), pItem->Get_Manager()->Get_Name().c_str(), pItem->Get_Name().c_str()).c_str());
 			pEntry->Set_Value(1, (long)pItem->Get_Parameters());
 		}
 	}
@@ -733,7 +733,9 @@ CSG_Parameters *	DLG_Copy_Settings(void)
 	List.Add_Field(SG_T("NAME"), TABLE_FIELDTYPE_String);
 	List.Add_Field(SG_T("PRMS"), TABLE_FIELDTYPE_Int);
 
-	DLG_Copy_Settings(List, g_pData);
+	DLG_Copy_Settings(List, (CWKSP_Base_Item *)g_pData->Get_Grids());
+	DLG_Copy_Settings(List, (CWKSP_Base_Item *)g_pData->Get_Shapes());
+	DLG_Copy_Settings(List, (CWKSP_Base_Item *)g_pData->Get_TINs());
 
 	if( List.Get_Count() > 0 )
 	{
@@ -744,7 +746,7 @@ CSG_Parameters *	DLG_Copy_Settings(void)
 
 		for(i=0; i<List.Get_Count(); i++)
 		{
-			pItems[i]	= List[i][0];
+			pItems[i]	= List.Get_Record(i)->asString(0);
 		}
 
 		wxSingleChoiceDialog	dlg(MDI_Get_Top_Window(),
@@ -767,35 +769,53 @@ CSG_Parameters *	DLG_Copy_Settings(void)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Base_Control::_Copy_Settings(void)
+bool CWKSP_Base_Control::_Copy_Settings(CSG_Parameters *pParameters, CWKSP_Base_Item *pItem)
 {
-	CSG_Parameters	*pParameters;
-	CWKSP_Base_Item	*pItem;
-
-	if( Get_Selection_Count() > 0 && (pParameters = DLG_Copy_Settings()) != NULL )
+	if( pParameters && pItem && pParameters != pItem->Get_Parameters() )
 	{
-		if(	GetWindowStyle() & wxTR_MULTIPLE )
+		CSG_String	sName;
+
+		if( pParameters->Get_Parameter("OBJECT_NAME") && pItem->Get_Parameters()->Get_Parameter("OBJECT_NAME") )
 		{
-			wxArrayTreeItemIds	IDs;
-
-			if( GetSelections(IDs) > 0 )
-			{
-				for(size_t i=0; i<IDs.GetCount(); i++)
-				{
-					if( (pItem	= (CWKSP_Base_Item *)GetItemData(IDs[i])) != NULL && pItem->Get_Parameters() != NULL && pItem->Get_Parameters()->Assign_Values(pParameters) )
-					{
-						pItem->Parameters_Changed();
-					}
-				}
-
-				return( true );
-			}
+			sName	= pItem->Get_Parameters()->Get_Parameter("OBJECT_NAME")->asString();
 		}
-		else if( (pItem	= Get_Item_Selected()) != NULL && pItem->Get_Parameters() != NULL && pItem->Get_Parameters()->Assign_Values(pParameters) )
+
+		if( pItem->Get_Parameters()->Assign_Values(pParameters) )
 		{
+			if( sName.Length() > 0 && pItem->Get_Parameters()->Get_Parameter("OBJECT_NAME") )
+			{
+				pItem->Get_Parameters()->Get_Parameter("OBJECT_NAME")->Set_Value(sName);
+			}
+
 			pItem->Parameters_Changed();
 
 			return( true );
+		}
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Base_Control::_Copy_Settings(void)
+{
+	wxArrayTreeItemIds	IDs;
+	CSG_Parameters		*pParameters;
+
+	if( Get_Selection_Count() > 0 && (pParameters = DLG_Copy_Settings()) != NULL )
+	{
+		if(	(GetWindowStyle() & wxTR_MULTIPLE) && GetSelections(IDs) > 0 )
+		{
+			for(size_t i=0; i<IDs.GetCount(); i++)
+			{
+				_Copy_Settings(pParameters, (CWKSP_Base_Item *)GetItemData(IDs[i]));
+			}
+
+			return( true );
+		}
+		else
+		{
+			return( _Copy_Settings(pParameters, Get_Item_Selected()) );
 		}
 	}
 

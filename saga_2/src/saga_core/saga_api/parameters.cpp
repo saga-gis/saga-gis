@@ -920,10 +920,10 @@ bool CSG_Parameters::Set_Parameter(const SG_Char *Identifier, int Type, const SG
 //---------------------------------------------------------
 int CSG_Parameters::Assign(CSG_Parameters *pSource)
 {
-	int			i;
+	int				i;
 	CSG_Parameter	*pParameter;
 
-	if( pSource )
+	if( pSource && pSource != this )
 	{
 		Destroy();
 
@@ -966,14 +966,13 @@ int CSG_Parameters::Assign(CSG_Parameters *pSource)
 //---------------------------------------------------------
 int CSG_Parameters::Assign_Values(CSG_Parameters *pSource)
 {
-	int			i, n;
-	CSG_Parameter	*pParameter;
-
-	if( pSource )
+	if( pSource && pSource != this )
 	{
+		int		i, n;
+
 		for(i=0, n=0; i<pSource->Get_Count(); i++)
 		{
-			pParameter	= Get_Parameter(pSource->Get_Parameter(i)->Get_Identifier());
+			CSG_Parameter	*pParameter	= Get_Parameter(pSource->Get_Parameter(i)->Get_Identifier());
 
 			if( pParameter && pParameter->Get_Type() == pSource->Get_Parameter(i)->Get_Type() )
 			{

@@ -124,6 +124,7 @@ protected:
 	bool						_Load_Settings		(class CSG_File *pStream, class CWKSP_Base_Item *pItem);
 
 	bool						_Copy_Settings		(void);
+	bool						_Copy_Settings		(CSG_Parameters *pParameters, CWKSP_Base_Item *pItem);
 
 
 //---------------------------------------------------------

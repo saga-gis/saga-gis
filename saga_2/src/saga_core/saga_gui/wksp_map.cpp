@@ -1225,8 +1225,8 @@ void CWKSP_Map::_Img_Save(wxString file, int type)
 			Stream.Printf(SG_T("    <name>Maps exported from SAGA</name>\n"));
 			Stream.Printf(SG_T("    <description>System for Automated Geoscientific Analyses - www.saga-gis.org</description>\n"));
 			Stream.Printf(SG_T("    <GroundOverlay>\n"));
-			Stream.Printf(SG_T("      <name>%s</name>\n")				, Get_Name());
-			Stream.Printf(SG_T("      <description>%s</description>\n")	, Get_Description());
+			Stream.Printf(SG_T("      <name>%s</name>\n")				, Get_Name().c_str());
+			Stream.Printf(SG_T("      <description>%s</description>\n")	, Get_Description().c_str());
 			Stream.Printf(SG_T("      <Icon>\n"));
 			Stream.Printf(SG_T("        <href>%s</href>\n")				, fn.GetFullName().c_str());
 			Stream.Printf(SG_T("      </Icon>\n"));
