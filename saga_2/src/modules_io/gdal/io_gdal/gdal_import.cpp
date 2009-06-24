@@ -99,7 +99,7 @@ CGDAL_Import::CGDAL_Import(void)
 	Parameters.Add_Grid_List(
 		NULL, "GRIDS"	, _TL("Grids"),
 		_TL(""),
-		PARAMETER_OUTPUT, false
+		PARAMETER_OUTPUT_OPTIONAL, false
 	);
 
 	Parameters.Add_FilePath(
@@ -107,10 +107,6 @@ CGDAL_Import::CGDAL_Import(void)
 		_TL("")
 	);
 }
-
-//---------------------------------------------------------
-CGDAL_Import::~CGDAL_Import(void)
-{}
 
 
 ///////////////////////////////////////////////////////////

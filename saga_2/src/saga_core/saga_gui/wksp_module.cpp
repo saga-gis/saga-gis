@@ -404,9 +404,9 @@ void CWKSP_Module::_Save_Script(void)
 			Command	+= SG_T("    print saga_api.SAGA_API_Get_Version()\n");
 			Command	+= SG_T("\n");
 			Command	+= SG_T("    Library = saga_api.CSG_Module_Library()\n");
-			Command	+= SG_T("    if Library.Create('");
+			Command	+= SG_T("    if Library.Create(saga_api.CSG_String('");
 			Command	+= ((CWKSP_Module_Library *)Get_Manager())->Get_File_Name();
-			Command	+= SG_T("') == 0:\n");
+			Command	+= SG_T("')) == 0:\n");
 			Command	+= SG_T("        print 'unable to load SAGA module library'\n");
 			Command	+= SG_T("        return 0\n");
 			Command	+= SG_T("\n");
@@ -447,14 +447,14 @@ void CWKSP_Module::_Save_Script(void)
 			Command	+= SG_T("        print 'Usage: this_script.py <in: gridfile> <out: gridfile> <in: shapefile> <out: shapefile>'\n");
 			Command	+= SG_T("\n");
 			Command	+= SG_T("    else:\n");
-			Command	+= SG_T("        in__grid    = saga_api.SG_Create_Grid(sys.argv[1])\n");
+			Command	+= SG_T("        in__grid    = saga_api.SG_Create_Grid(saga_api.CSG_String(sys.argv[1]))\n");
 			Command	+= SG_T("        out_grid    = saga_api.SG_Create_Grid(grid_in.Get_System())\n");
-			Command	+= SG_T("        in__shapes  = saga_api.SG_Create_Shapes(sys.argv[3])\n");
+			Command	+= SG_T("        in__shapes  = saga_api.SG_Create_Shapes(saga_api.CSG_String(sys.argv[3]))\n");
 			Command	+= SG_T("        out_shapes  = saga_api.SG_Create_Shapes()\n");
 			Command	+= SG_T("\n");
 			Command	+= SG_T("        if Call_SAGA_Module(in__grid, out_grid, in__shapes, out_shapes) != 0:\n");
-			Command	+= SG_T("            grid_out  .Save(sys.argv[2])\n");
-			Command	+= SG_T("            shapes_out.Save(sys.argv[4])\n");
+			Command	+= SG_T("            grid_out  .Save(saga_api.CSG_String(sys.argv[2]))\n");
+			Command	+= SG_T("            shapes_out.Save(saga_api.CSG_String(sys.argv[4]))\n");
 		}
 
 		if( File.Open(FileName.c_str(), SG_FILE_W, false) && Command.Length() > 0 )
@@ -525,6 +525,7 @@ void CWKSP_Module::_Save_Script_CMD(CSG_String &Command, CSG_Parameters *pParame
 			}
 			break;
 
+		case PARAMETER_TYPE_DataObject_Output:
 		case PARAMETER_TYPE_Grid:
 		case PARAMETER_TYPE_Table:
 		case PARAMETER_TYPE_Shapes:

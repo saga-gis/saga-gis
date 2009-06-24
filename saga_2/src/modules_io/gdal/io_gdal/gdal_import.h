@@ -72,7 +72,6 @@ class CGDAL_Import : public CSG_Module
 {
 public:
 	CGDAL_Import(void);
-	virtual ~CGDAL_Import(void);
 
 
 protected:
