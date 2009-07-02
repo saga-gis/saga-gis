@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: dl_writer_ascii.cpp,v 1.2 2009-05-13 15:26:31 oconrad Exp $
+** $Id: dl_writer_ascii.cpp,v 1.3 2009-07-02 07:56:46 reklov_w Exp $
 **
 ** Copyright (C) 2001-2003 RibbonSoft. All rights reserved.
 ** Copyright (C) 2001 Robert J. Campbell Jr.
@@ -30,6 +30,7 @@
 #endif // _MSC_VER > 1000
 
 #include <stdio.h>
+#include <string.h>
 
 #include "dl_writer_ascii.h"
 #include "dl_exception.h"
