@@ -127,7 +127,7 @@ bool CImage_VI_Slope::On_Execute(void){
 			if (pCTVI){
 				pCTVI->Set_Value(x,y,getCTVI(dRed,dNIR));
 			}//if
-			if (pRatio){
+			if (pTTVI){
 				pTTVI->Set_Value(x,y,getTTVI(dRed,dNIR));
 			}//if
 			if (pNRatio){
