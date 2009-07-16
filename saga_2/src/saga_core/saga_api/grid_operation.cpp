@@ -102,8 +102,8 @@ bool CSG_Grid::Assign(double Value)
 		Get_History().Add_Entry(LNG("[HST] Value assigned to grid"), CSG_String::Format(SG_T("%f"), Value));
 
 		//-------------------------------------------------
-		m_ArithMean	= m_zMin	= m_zMax	= Value;
-		m_Variance	= 0.0;
+		m_zStats.Invalidate();
+		m_zStats.Add_Value(Value);
 
 		Set_Update_Flag(false);
 
@@ -824,10 +824,9 @@ void CSG_Grid::Normalise(void)
 	{
 		Update();
 
-		if( m_Variance > 0.0 )
+		if( m_zStats.Get_StdDev() > 0.0 )
 		{
 			int		x, y;
-			double	d;
 
 			if(	(Get_NoData_hiValue() > -NORMALISED_NODATA && Get_NoData_hiValue() < NORMALISED_NODATA)
 			||	(Get_NoData_Value  () > -NORMALISED_NODATA && Get_NoData_Value  () < NORMALISED_NODATA) )
@@ -846,22 +845,20 @@ void CSG_Grid::Normalise(void)
 				Set_NoData_Value(-NORMALISED_NODATA);
 			}
 
-			d	= sqrt(m_Variance);
-
 			for(y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 			{
 				for(x=0; x<Get_NX(); x++)
 				{
 					if( !is_NoData(x, y) )
 					{
-						Set_Value(x, y, (asDouble(x, y) - m_ArithMean) / d );
+						Set_Value(x, y, (asDouble(x, y) - m_zStats.Get_Mean()) / m_zStats.Get_StdDev() );
 					}
 				}
 			}
 
 			SG_UI_Process_Set_Ready();
 
-			Get_History().Add_Entry(LNG("[HST] Grid normalisation"), CSG_String::Format(SG_T("%f / %f"), m_ArithMean, m_Variance));
+			Get_History().Add_Entry(LNG("[HST] Grid normalisation"), CSG_String::Format(SG_T("%f / %f"), m_zStats.Get_Mean(), m_zStats.Get_StdDev()));
 		}
 	}
 }

@@ -500,7 +500,8 @@ public:		///////////////////////////////////////////////
 	double						Get_ZFactor		(void)	const;
 
 	double						Get_ArithMean	(bool bZFactor = false);
-	double						Get_Variance	(bool bZFactor = false);
+	double						Get_StdDev		(bool bZFactor = false);
+	double						Get_Variance	(void);
 
 	void						Set_NoData_Value		(double Value);
 	void						Set_NoData_Value_Range	(double loValue, double hiValue);
@@ -797,9 +798,9 @@ private:	///////////////////////////////////////////////
 
 	long						*m_Index, Cache_Offset;
 
-	double						m_zMin, m_zMax, m_zFactor,
-								m_ArithMean, m_Variance,
-								m_NoData_Value, m_NoData_hiValue;
+	double						m_zFactor, m_NoData_Value, m_NoData_hiValue;
+
+	CSG_Simple_Statistics		m_zStats;
 
 	CSG_File					Cache_Stream;
 

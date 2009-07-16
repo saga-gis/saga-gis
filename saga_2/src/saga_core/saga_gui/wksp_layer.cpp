@@ -430,6 +430,10 @@ bool CWKSP_Layer::Save(void)
 		bResult	= DLG_Save(File_Path, ID_DLG_SHAPES_SAVE);
 		break;
 
+	case WKSP_ITEM_PointCloud:
+		bResult	= DLG_Save(File_Path, ID_DLG_POINTCLOUD_SAVE);
+		break;
+
 	case WKSP_ITEM_Grid:
 		bResult	= DLG_Save(File_Path, ID_DLG_GRIDS_SAVE);
 		break;
@@ -637,13 +641,16 @@ CSG_Rect CWKSP_Layer::Get_Extent(void)
 		switch( m_pObject->Get_ObjectType() )
 		{
 		case DATAOBJECT_TYPE_Grid:
-			return( ((CSG_Grid   *)m_pObject)->Get_System().Get_Extent_Cells() );
+			return( ((CSG_Grid       *)m_pObject)->Get_System().Get_Extent_Cells() );
 
 		case DATAOBJECT_TYPE_Shapes:
-			return( ((CSG_Shapes *)m_pObject)->Get_Extent() );
+			return( ((CSG_Shapes     *)m_pObject)->Get_Extent() );
 
 		case DATAOBJECT_TYPE_TIN:
-			return( ((CSG_TIN    *)m_pObject)->Get_Extent() );
+			return( ((CSG_TIN        *)m_pObject)->Get_Extent() );
+
+		case DATAOBJECT_TYPE_PointCloud:
+			return( ((CSG_PointCloud *)m_pObject)->Get_Extent() );
 
 		default:
 			break;

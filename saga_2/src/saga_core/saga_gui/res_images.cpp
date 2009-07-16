@@ -319,6 +319,8 @@ char ** IMG_Get_XPM(int ID_IMG)
 	case ID_IMG_WKSP_TABLE_MANAGER:	return( wksp_table_manager_xpm );
 	case ID_IMG_WKSP_TIN:	return( wksp_tin_xpm );
 	case ID_IMG_WKSP_TIN_MANAGER:	return( wksp_tin_manager_xpm );
+	case ID_IMG_WKSP_POINTCLOUD:	return( wksp_shapes_points_xpm );
+	case ID_IMG_WKSP_POINTCLOUD_MANAGER:	return( wksp_shapes_points_xpm );
 	}
 }
 

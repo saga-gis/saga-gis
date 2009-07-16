@@ -82,6 +82,11 @@ CSTL_Import::CSTL_Import(void)
 	));
 
 	//-----------------------------------------------------
+	Parameters.Add_PointCloud_Output(
+		NULL	, "POINTS"		, _TL("Point Cloud"),
+		_TL("")
+	);
+
 	Parameters.Add_Shapes_Output(
 		NULL	, "SHAPES"		, _TL("Shapes"),
 		_TL("")
@@ -104,10 +109,11 @@ CSTL_Import::CSTL_Import(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Target"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("point cloud"),
 			_TL("points"),
 			_TL("raster")
-		), 1
+		), 2
 	);
 
 	Parameters.Add_Value(
@@ -193,6 +199,26 @@ bool CSTL_Import::On_Execute(void)
 
 	//-----------------------------------------------------
 	case 0:	{
+		CSG_PointCloud	*pPoints	= SG_Create_PointCloud();
+		pPoints->Set_Name(SG_File_Get_Name(sFile, false));
+		Parameters("POINTS")->Set_Value(pPoints);
+
+		for(iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
+		{
+			if( Read_Facette(Stream, p) )
+			{
+				pPoints->Add_Point(
+					(p[0].x + p[1].x + p[2].x) / 3.0,
+					(p[0].y + p[1].y + p[2].y) / 3.0,
+					(p[0].z + p[1].z + p[2].z) / 3.0
+				);
+			}
+		}
+
+	break;	}
+
+	//-----------------------------------------------------
+	case 1:	{
 		CSG_Shapes	*pPoints	= SG_Create_Shapes(SHAPE_TYPE_Point, SG_File_Get_Name(sFile, false));
 		pPoints->Add_Field(SG_T("Z"), TABLE_FIELDTYPE_Float);
 		Parameters("SHAPES")->Set_Value(pPoints);
@@ -217,7 +243,7 @@ bool CSTL_Import::On_Execute(void)
 	break;	}
 
 	//-----------------------------------------------------
-	case 1:	{
+	case 2:	{
 		float	xMin = 1, xMax = 0, yMin, yMax;
 
 		for(iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)

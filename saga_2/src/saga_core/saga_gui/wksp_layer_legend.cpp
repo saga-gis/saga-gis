@@ -209,11 +209,15 @@ void CWKSP_Layer_Legend::Draw(wxDC &dc, double Zoom, double Zoom_Map, wxPoint Po
 		break;
 
 	case WKSP_ITEM_TIN:
-		_Draw_TIN	(dc, (CWKSP_TIN  *)m_pLayer);
+		_Draw_TIN	(dc, (CWKSP_TIN        *)m_pLayer);
+		break;
+
+	case WKSP_ITEM_PointCloud:
+//		_Draw_TIN	(dc, (CWKSP_PointCloud *)m_pLayer);
 		break;
 
 	case WKSP_ITEM_Grid:
-		_Draw_Grid	(dc, (CWKSP_Grid *)m_pLayer);
+		_Draw_Grid	(dc, (CWKSP_Grid       *)m_pLayer);
 		break;
 
 	default:

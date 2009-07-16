@@ -150,6 +150,7 @@ bool CACTIVE_History::Set_Item(CWKSP_Base_Item *pItem)
 
 		case WKSP_ITEM_Shapes:
 		case WKSP_ITEM_TIN:
+		case WKSP_ITEM_PointCloud:
 		case WKSP_ITEM_Grid:
 			pObject	= ((CWKSP_Layer *)pItem)->Get_Object();
 			break;

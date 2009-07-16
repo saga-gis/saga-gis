@@ -101,8 +101,8 @@ bool CCreateChartLayer::On_Execute(void){
 
 		iType = Parameters("TYPE")->asInt();
 		pInput = Parameters("INPUT")->asShapes();
-		m_fMaxValue = pInput->Get_MaxValue(iSizeField);
-		m_fMinValue = pInput->Get_MinValue(iSizeField);
+		m_fMaxValue = pInput->Get_Maximum(iSizeField);
+		m_fMinValue = pInput->Get_Minimum(iSizeField);
 
 		if (iType == TYPE_PIE){		
 			m_pOutput = SG_Create_Shapes(SHAPE_TYPE_Polygon, _TL("Chart (sectors):"));				

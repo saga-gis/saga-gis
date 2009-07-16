@@ -137,6 +137,12 @@ void CWKSP_Data_Menu_File::_Create(void)
 		m_Recent_Group	= wxT("TIN");
 		break;
 
+	case DATAOBJECT_TYPE_PointCloud:
+		m_Recent_First	= ID_CMD_POINTCLOUD_RECENT_FIRST;
+		m_Recent_Count	= ID_CMD_POINTCLOUD_RECENT_LAST    - m_Recent_First + 1;
+		m_Recent_Group	= wxT("Point Cloud");
+		break;
+
 	case DATAOBJECT_TYPE_Grid:
 		m_Recent_First	= ID_CMD_GRIDS_RECENT_FIRST;
 		m_Recent_Count	= ID_CMD_GRIDS_RECENT_LAST  - m_Recent_First + 1;
@@ -231,6 +237,10 @@ void CWKSP_Data_Menu_File::Update(wxMenu *pMenu)
 
 		case DATAOBJECT_TYPE_TIN:
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_TIN_OPEN);
+			break;
+
+		case DATAOBJECT_TYPE_PointCloud:
+			CMD_Menu_Add_Item(pMenu, false, ID_CMD_POINTCLOUD_OPEN);
 			break;
 
 		case DATAOBJECT_TYPE_Grid:
@@ -349,6 +359,7 @@ bool CWKSP_Data_Menu_File::Open(int Cmd_ID)
 		case DATAOBJECT_TYPE_Table:
 		case DATAOBJECT_TYPE_Shapes:
 		case DATAOBJECT_TYPE_TIN:
+		case DATAOBJECT_TYPE_PointCloud:
 		case DATAOBJECT_TYPE_Grid:
 			g_pData->Open(m_DataType, m_Recent[Cmd_ID - m_Recent_First]);
 			break;

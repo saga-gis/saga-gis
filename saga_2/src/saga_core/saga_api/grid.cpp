@@ -335,7 +335,7 @@ void CSG_Grid::_Set_Properties(TSG_Grid_Type Type, int NX, int NY, double Cellsi
 
 	m_System.Assign(Cellsize > 0.0 ? Cellsize : 1.0, xMin, yMin, NX, NY);
 
-	m_zMin	= m_zMax	= 0.0;
+	m_zStats.Invalidate();
 
 	switch( m_Type )
 	{
@@ -1070,39 +1070,32 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 //---------------------------------------------------------
 double CSG_Grid::Get_ZMin(bool bZFactor)
 {
-	Update();
-
-	return( bZFactor ? m_zFactor * m_zMin : m_zMin );
+	Update();	return( (bZFactor ? m_zFactor : 1.0) * m_zStats.Get_Minimum() );
 }
 
-//---------------------------------------------------------
 double CSG_Grid::Get_ZMax(bool bZFactor)
 {
-	Update();
-
-	return( bZFactor ? m_zFactor * m_zMax : m_zMax );
+	Update();	return( (bZFactor ? m_zFactor : 1.0) * m_zStats.Get_Maximum() );
 }
 
-//---------------------------------------------------------
 double CSG_Grid::Get_ZRange(bool bZFactor)
 {
-	return( Get_ZMax(bZFactor) - Get_ZMin(bZFactor) );
+	Update();	return( (bZFactor ? m_zFactor : 1.0) * m_zStats.Get_Range() );
 }
 
-//---------------------------------------------------------
 double CSG_Grid::Get_ArithMean(bool bZFactor)
 {
-	Update();
-
-	return( bZFactor ? m_zFactor * m_ArithMean : m_ArithMean );
+	Update();	return( (bZFactor ? m_zFactor : 1.0) * m_zStats.Get_Mean() );
 }
 
-//---------------------------------------------------------
-double CSG_Grid::Get_Variance(bool bZFactor)
+double CSG_Grid::Get_StdDev(bool bZFactor)
 {
-	Update();
+	Update();	return( (bZFactor ? m_zFactor : 1.0) * m_zStats.Get_StdDev() );
+}
 
-	return( bZFactor ? m_zFactor * m_Variance : m_Variance);
+double CSG_Grid::Get_Variance(void)
+{
+	Update();	return( m_zStats.Get_Variance() );
 }
 
 //---------------------------------------------------------
@@ -1110,43 +1103,19 @@ bool CSG_Grid::On_Update(void)
 {
 	if( is_Valid() )
 	{
-		long	nValues;
-		double	z;
-
-		m_ArithMean	= 0.0;
-		m_Variance	= 0.0;
-		nValues		= 0;
+		m_zStats.Invalidate();
 
 		for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 		{
 			for(int x=0; x<Get_NX(); x++)
 			{
-				if( !is_NoData_Value(z = asDouble(x, y)) )
-				{
-					if( nValues == 0 )
-					{
-						m_zMin	= m_zMax	= z;
-					}
-					else if( m_zMin > z )
-					{
-						m_zMin	= z;
-					}
-					else if( m_zMax < z )
-					{
-						m_zMax	= z;
-					}
+				double	z	= asDouble(x, y);
 
-					m_ArithMean	+= z;
-					m_Variance	+= z * z;
-					nValues++;
+				if( !is_NoData_Value(z) )
+				{
+					m_zStats.Add_Value(z);
 				}
 			}
-		}
-
-		if( nValues > 0 )
-		{
-			m_ArithMean	/= (double)nValues;
-			m_Variance	= m_Variance / (double)nValues - m_ArithMean * m_ArithMean;
 		}
 
 		SG_UI_Process_Set_Ready();

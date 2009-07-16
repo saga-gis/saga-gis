@@ -106,10 +106,11 @@ public:
 	CWKSP_Base_Manager *			Get_Manager			(int i)		{	return( (CWKSP_Base_Manager *)Get_Item(i) );	}
 	void							Del_Manager			(class CWKSP_Base_Item *pItem);
 
-	class CWKSP_Table_Manager *		Get_Tables			(void)		{	return( m_pTables );	}
-	class CWKSP_Shapes_Manager *	Get_Shapes			(void)		{	return( m_pShapes );	}
-	class CWKSP_TIN_Manager *		Get_TINs			(void)		{	return( m_pTINs   );	}
-	class CWKSP_Grid_Manager *		Get_Grids			(void)		{	return( m_pGrids  );	}
+	class CWKSP_Table_Manager *		Get_Tables			(void)		{	return( m_pTables      );	}
+	class CWKSP_Shapes_Manager *	Get_Shapes			(void)		{	return( m_pShapes      );	}
+	class CWKSP_TIN_Manager *		Get_TINs			(void)		{	return( m_pTINs        );	}
+	class CWKSP_PointCloud_Manager *Get_PointClouds		(void)		{	return( m_pPointClouds );	}
+	class CWKSP_Grid_Manager *		Get_Grids			(void)		{	return( m_pGrids       );	}
 
 	bool							Get_DataObject_List	(CSG_Parameters *pParameters);
 
@@ -157,6 +158,8 @@ private:
 	class CWKSP_Shapes_Manager		*m_pShapes;
 
 	class CWKSP_TIN_Manager			*m_pTINs;
+
+	class CWKSP_PointCloud_Manager	*m_pPointClouds;
 
 	class CWKSP_Grid_Manager		*m_pGrids;
 

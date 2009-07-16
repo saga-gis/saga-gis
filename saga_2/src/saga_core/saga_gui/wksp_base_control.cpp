@@ -604,6 +604,7 @@ bool CWKSP_Base_Control::_Show_Active(void)
 				case WKSP_ITEM_Grid:
 				case WKSP_ITEM_Shapes:
 				case WKSP_ITEM_TIN:
+				case WKSP_ITEM_PointCloud:
 					iMap	= 1;
 					break;
 
@@ -630,6 +631,7 @@ bool CWKSP_Base_Control::_Show_Active(void)
 					case WKSP_ITEM_Grid:
 					case WKSP_ITEM_Shapes:
 					case WKSP_ITEM_TIN:
+					case WKSP_ITEM_PointCloud:
 						g_pMaps->Add((CWKSP_Layer *)pItem, g_pMaps->Get_Map(iMap));
 						break;
 

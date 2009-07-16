@@ -466,6 +466,14 @@ SOURCE=.\wksp_module_menu.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\wksp_pointcloud.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\wksp_pointcloud_manager.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\wksp_shapes.cpp
 # End Source File
 # Begin Source File
@@ -823,6 +831,14 @@ SOURCE=.\WKSP_Module_Manager.h
 # Begin Source File
 
 SOURCE=.\WKSP_Module_Menu.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\wksp_pointcloud.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\wksp_pointcloud_manager.h
 # End Source File
 # Begin Source File
 

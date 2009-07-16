@@ -240,6 +240,7 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 			pHTML		= m_pItem;
 #endif
 		case WKSP_ITEM_TIN:
+		case WKSP_ITEM_PointCloud:
 		case WKSP_ITEM_Grid:
 			pLegend		= pHistory	= m_pLayer	= (CWKSP_Layer *)m_pItem;
 			break;

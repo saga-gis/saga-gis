@@ -99,6 +99,9 @@ typedef enum
 	WKSP_ITEM_TIN_Manager,
 	WKSP_ITEM_TIN,
 
+	WKSP_ITEM_PointCloud_Manager,
+	WKSP_ITEM_PointCloud,
+
 	WKSP_ITEM_Grid_Manager,
 	WKSP_ITEM_Grid_System,
 	WKSP_ITEM_Grid,

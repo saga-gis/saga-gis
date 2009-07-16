@@ -523,6 +523,7 @@ bool CWKSP_Project::_Load_Map(CSG_File &Stream, const wxChar *ProjectDir)
 					if(	(pItem = _Get_byFileName(sLine.c_str())) != NULL
 					&&	(	pItem->Get_Type()	== WKSP_ITEM_Grid
 						||	pItem->Get_Type()	== WKSP_ITEM_TIN
+						||	pItem->Get_Type()	== WKSP_ITEM_PointCloud
 						||	pItem->Get_Type()	== WKSP_ITEM_Shapes) )
 					{
 						if( pMap == NULL )
@@ -736,6 +737,7 @@ bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *
 		case WKSP_ITEM_Shapes_Manager:
 		case WKSP_ITEM_Shapes_Type:
 		case WKSP_ITEM_TIN_Manager:
+		case WKSP_ITEM_PointCloud_Manager:
 		case WKSP_ITEM_Grid_Manager:
 		case WKSP_ITEM_Grid_System:
 			for(i=0; i<((CWKSP_Base_Manager *)pItem)->Get_Count(); i++)
@@ -754,6 +756,7 @@ bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *
 
 		case WKSP_ITEM_Shapes:
 		case WKSP_ITEM_TIN:
+		case WKSP_ITEM_PointCloud:
 		case WKSP_ITEM_Grid:
 			if( !bSelections || pItem->is_Selected() )
 			{
@@ -778,10 +781,11 @@ bool CWKSP_Project::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_Item *
 		{
 		//-------------------------------------------------
 		default:	return( false );
-		case WKSP_ITEM_Table:	sFilter	= DLG_Get_FILE_Filter(ID_DLG_TABLES_SAVE);	break;
-		case WKSP_ITEM_Shapes:	sFilter	= DLG_Get_FILE_Filter(ID_DLG_SHAPES_SAVE);	break;
-		case WKSP_ITEM_TIN:		sFilter	= DLG_Get_FILE_Filter(ID_DLG_TIN_SAVE);		break;
-		case WKSP_ITEM_Grid:	sFilter	= DLG_Get_FILE_Filter(ID_DLG_GRIDS_SAVE);	break;
+		case WKSP_ITEM_Table:		sFilter	= DLG_Get_FILE_Filter(ID_DLG_TABLES_SAVE);		break;
+		case WKSP_ITEM_Shapes:		sFilter	= DLG_Get_FILE_Filter(ID_DLG_SHAPES_SAVE);		break;
+		case WKSP_ITEM_TIN:			sFilter	= DLG_Get_FILE_Filter(ID_DLG_TIN_SAVE);			break;
+		case WKSP_ITEM_PointCloud:	sFilter	= DLG_Get_FILE_Filter(ID_DLG_POINTCLOUD_SAVE);	break;
+		case WKSP_ITEM_Grid:		sFilter	= DLG_Get_FILE_Filter(ID_DLG_GRIDS_SAVE);		break;
 		}
 
 		if( (pParent = pParameters->Get_Parameter(pItem->Get_Manager()->Get_Name())) == NULL )

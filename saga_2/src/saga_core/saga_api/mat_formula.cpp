@@ -184,6 +184,7 @@ static CSG_Formula::TSG_Formula_Item gSG_Functions[MAX_CTABLE]	=
 	{SG_T("int")	, (TSG_PFNC_Formula_1)	f_int	, 1, 0},	// 16
 	{SG_T("mod")	, (TSG_PFNC_Formula_1)	f_fmod	, 2, 0},	// 17
 	{SG_T("ifelse")	, (TSG_PFNC_Formula_1)	f_ifelse, 3, 0},	// 18
+	{SG_T("log")	,						log10	, 1, 0},	// 19
 	{NULL			,						NULL	, 0, 0}
 };
 
@@ -241,6 +242,7 @@ CSG_String CSG_Formula::Get_Help_Operators(void)
 		SG_T("abs(x)          - absolute value\n")
 		SG_T("sqrt(x)         - square root\n")
 		SG_T("ln(x)           - natural logarithm\n")
+		SG_T("log(x)          - base 10 logarithm\n")
 		SG_T("exp(x)          - exponential\n")
 		SG_T("sin(x)          - sine\n")
 		SG_T("cos(x)          - cosine\n")

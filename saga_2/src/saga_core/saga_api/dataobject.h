@@ -94,6 +94,7 @@
   * type checking at run time.
   * @see CSG_Data_Object
   * @see CSG_Table
+  * @see CSG_PointCloud
   * @see CSG_Shapes
   * @see CSG_TIN
   * @see CSG_Grid
@@ -105,6 +106,7 @@ typedef enum ESG_Data_Object_Type
 	DATAOBJECT_TYPE_Table,
 	DATAOBJECT_TYPE_Shapes,
 	DATAOBJECT_TYPE_TIN,
+	DATAOBJECT_TYPE_PointCloud,
 	DATAOBJECT_TYPE_Undefined
 }
 TSG_Data_Object_Type;
@@ -114,6 +116,7 @@ TSG_Data_Object_Type;
 #define HISTORY_EXT_TABLE		SG_T("htab")
 #define HISTORY_EXT_SHAPES		SG_T("hshp")
 #define HISTORY_EXT_TIN			SG_T("htin")
+#define HISTORY_EXT_POINTCLOUD	SG_T("hpts")
 
 //---------------------------------------------------------
 #define DATAOBJECT_NOTSET		((void *)NULL)
@@ -228,6 +231,7 @@ private:
   * @see CSG_Table
   * @see CSG_Shapes
   * @see CSG_TIN
+  * @see CSG_PointCloud
   * @see CSG_Grid
 */
 //---------------------------------------------------------
@@ -260,10 +264,11 @@ public:
 
 	CSG_History &					Get_History		(void)				{	return( m_History );	}
 
-	class CSG_Table *				asTable			(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Table  ? (class CSG_Table  *)this : NULL );	}
-	class CSG_Shapes *				asShapes		(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Shapes ? (class CSG_Shapes *)this : NULL );	}
-	class CSG_TIN *					asTIN			(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_TIN    ? (class CSG_TIN    *)this : NULL );	}
-	class CSG_Grid *				asGrid			(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Grid   ? (class CSG_Grid   *)this : NULL );	}
+	class CSG_Table *				asTable			(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Table      ? (class CSG_Table      *)this : NULL );	}
+	class CSG_Shapes *				asShapes		(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Shapes     ? (class CSG_Shapes     *)this : NULL );	}
+	class CSG_TIN *					asTIN			(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_TIN        ? (class CSG_TIN        *)this : NULL );	}
+	class CSG_PointCloud *			asPointCloud	(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_PointCloud ? (class CSG_PointCloud *)this : NULL );	}
+	class CSG_Grid *				asGrid			(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Grid       ? (class CSG_Grid       *)this : NULL );	}
 
 
 protected:

@@ -120,6 +120,7 @@ CSG_Parameter::CSG_Parameter(CSG_Parameters *pOwner, CSG_Parameter *pParent, con
 	case PARAMETER_TYPE_Table:				m_pData	= new CSG_Parameter_Table				(this, Constraint);	break;
 	case PARAMETER_TYPE_Shapes:				m_pData	= new CSG_Parameter_Shapes				(this, Constraint);	break;
 	case PARAMETER_TYPE_TIN:				m_pData	= new CSG_Parameter_TIN					(this, Constraint);	break;
+	case PARAMETER_TYPE_PointCloud:			m_pData	= new CSG_Parameter_PointCloud			(this, Constraint);	break;
 
 	case PARAMETER_TYPE_Grid_List:			m_pData	= new CSG_Parameter_Grid_List			(this, Constraint);	break;
 	case PARAMETER_TYPE_Table_List:			m_pData	= new CSG_Parameter_Table_List			(this, Constraint);	break;
@@ -244,6 +245,7 @@ bool CSG_Parameter::is_DataObject(void)
 	case PARAMETER_TYPE_Table:
 	case PARAMETER_TYPE_Shapes:
 	case PARAMETER_TYPE_TIN:
+	case PARAMETER_TYPE_PointCloud:
 
 		return( true );
 	}

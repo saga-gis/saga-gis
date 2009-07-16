@@ -274,8 +274,11 @@ public:
 
 	bool							Set_Field_Name		(int iField, const SG_Char *Name);
 
-	double							Get_MinValue		(int iField)	const	{	return( _Range_Update(iField) ? m_Field_Val_Min[iField] : 0.0 );	}
-	double							Get_MaxValue		(int iField)	const	{	return( _Range_Update(iField) ? m_Field_Val_Max[iField] : 0.0 );	}
+	double							Get_Minimum			(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_Minimum()  : 0.0 );	}
+	double							Get_Maximum			(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_Maximum()  : 0.0 );	}
+	double							Get_Range			(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_Range()    : 0.0 );	}
+	double							Get_StdDev			(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_StdDev()   : 0.0 );	}
+	double							Get_Variance		(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_Variance() : 0.0 );	}
 
 	//-----------------------------------------------------
 	CSG_Table_Record *				Add_Record			(             CSG_Table_Record *pCopy = NULL);
@@ -339,11 +342,11 @@ protected:
 
 	int								m_nFields, m_nRecords, m_nBuffer, m_nSelected, *m_Index, m_Index_Field[3];
 
-	double							*m_Field_Val_Min, *m_Field_Val_Max;
-
 	TSG_Table_Field_Type			*m_Field_Type;
 
 	TSG_Table_Index_Order			m_Index_Order[3];
+
+	CSG_Simple_Statistics			**m_Field_Stats;
 
 	CSG_Table_Record				**m_Records, **m_Selected;
 
@@ -373,9 +376,9 @@ protected:
 	bool							_Del_Record			(int iRecord);
 	bool							_Del_Records		(void);
 
-	bool							_Range_Invalidate	(void)			const;
-	bool							_Range_Invalidate	(int iField)	const;
-	bool							_Range_Update		(int iField)	const;
+	bool							_Stats_Invalidate	(void)			const;
+	bool							_Stats_Invalidate	(int iField)	const;
+	bool							_Stats_Update		(int iField)	const;
 
 	bool							_Load				(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char *Separator);
 	bool							_Load_Text			(const CSG_String &File_Name, bool bHeadline, const SG_Char *Separator);

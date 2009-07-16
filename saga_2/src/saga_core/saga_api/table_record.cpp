@@ -220,7 +220,7 @@ bool CSG_Table_Record::Set_Value(int iField, const SG_Char *Value)
 		{
 			m_pTable->Set_Modified();
 			m_pTable->Set_Update_Flag();
-			m_pTable->_Range_Invalidate(iField);
+			m_pTable->_Stats_Invalidate(iField);
 
 			return( true );
 		}
@@ -243,7 +243,7 @@ bool CSG_Table_Record::Set_Value(int iField, double Value)
 		{
 			m_pTable->Set_Modified();
 			m_pTable->Set_Update_Flag();
-			m_pTable->_Range_Invalidate(iField);
+			m_pTable->_Stats_Invalidate(iField);
 
 			return( true );
 		}
@@ -305,7 +305,7 @@ bool CSG_Table_Record::Set_NoData(int iField)
 		{
 			m_pTable->Set_Modified();
 			m_pTable->Set_Update_Flag();
-			m_pTable->_Range_Invalidate(iField);
+			m_pTable->_Stats_Invalidate(iField);
 
 			return( true );
 		}

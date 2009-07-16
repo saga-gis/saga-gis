@@ -174,6 +174,7 @@ void CACTIVE_Legend::OnDraw(wxDC &dc)
 		case WKSP_ITEM_Grid:
 		case WKSP_ITEM_Shapes:
 		case WKSP_ITEM_TIN:
+		case WKSP_ITEM_PointCloud:
 			((CWKSP_Layer *)m_pItem)->Get_Legend()->Draw(dc, m_Zoom, 1.0, p, &s, (m_Layout & LEGEND_LAYOUT_VERTICAL) != 0);
 			break;
 

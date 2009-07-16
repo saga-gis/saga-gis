@@ -159,6 +159,11 @@ const wxChar * CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_TIN_SAVEAS:				return( LNG("[CMD] Save TIN As...") );
 	case ID_CMD_TIN_SHOW:				return( LNG("[CMD] Show TIN") );
 
+	case ID_CMD_POINTCLOUD_OPEN:		return( LNG("[CMD] Load Point Cloud") );
+	case ID_CMD_POINTCLOUD_SAVE:		return( LNG("[CMD] Save Point Cloud") );
+	case ID_CMD_POINTCLOUD_SAVEAS:		return( LNG("[CMD] Save Point Cloud As...") );
+	case ID_CMD_POINTCLOUD_SHOW:		return( LNG("[CMD] Show Point Cloud") );
+
 	case ID_CMD_MAP_3D_SHOW:
 	case ID_CMD_MAPS_3D_SHOW:			return( LNG("[CMD] Show 3D-View") );
 	case ID_CMD_MAP_LAYOUT_SHOW:
@@ -293,6 +298,7 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_SHAPES_OPEN:			return( ID_IMG_TB_OPEN_SHAPES );
 	case ID_CMD_GRIDS_OPEN:				return( ID_IMG_TB_OPEN_GRID );
 	case ID_CMD_TIN_OPEN:				return( ID_IMG_TB_OPEN_TIN );
+	case ID_CMD_POINTCLOUD_OPEN:		return( ID_IMG_TB_OPEN_POINTCLOUD );
 
 	case ID_CMD_MAP_MODE_DISTANCE:		return( ID_IMG_TB_MAP_MODE_DISTANCE );
 	case ID_CMD_MAP_MODE_SELECT:		return( ID_IMG_TB_MAP_MODE_SELECT );

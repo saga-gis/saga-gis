@@ -158,6 +158,8 @@ CWKSP_Base_Control * CWKSP_Base_Item::Get_Control(void)
 	case WKSP_ITEM_Shapes:
 	case WKSP_ITEM_TIN_Manager:
 	case WKSP_ITEM_TIN:
+	case WKSP_ITEM_PointCloud_Manager:
+	case WKSP_ITEM_PointCloud:
 	case WKSP_ITEM_Grid_Manager:
 	case WKSP_ITEM_Grid_System:
 	case WKSP_ITEM_Grid:

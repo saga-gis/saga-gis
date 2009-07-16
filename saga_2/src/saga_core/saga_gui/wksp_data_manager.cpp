@@ -80,6 +80,7 @@
 #include "wksp_table_manager.h"
 #include "wksp_shapes_manager.h"
 #include "wksp_tin_manager.h"
+#include "wksp_pointcloud_manager.h"
 #include "wksp_grid_manager.h"
 
 #include "wksp_map_manager.h"
@@ -112,6 +113,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_pTables		= NULL;
 	m_pShapes		= NULL;
 	m_pTINs			= NULL;
+	m_pPointClouds	= NULL;
 	m_pGrids		= NULL;
 
 	m_pProject		= new CWKSP_Project;
@@ -326,6 +328,11 @@ wxString CWKSP_Data_Manager::Get_Description(void)
 			s.Append(wxString::Format(wxT("%s: %d<br>"), LNG("[CAP] TIN"), Get_TINs()->Get_Count()));
 		}
 
+		if( Get_PointClouds() )
+		{
+			s.Append(wxString::Format(wxT("%s: %d<br>"), LNG("[CAP] Point Clouds"), Get_PointClouds()->Get_Count()));
+		}
+
 		if( Get_Grids() )
 		{
 			s.Append(wxString::Format(wxT("%s: %d<br>"), LNG("[CAP] Grid Systems"), Get_Grids()->Get_Count()));
@@ -387,6 +394,11 @@ bool CWKSP_Data_Manager::On_Command(int Cmd_ID)
 		return( true );
 	}
 
+	if( m_pPointClouds && Cmd_ID >= ID_CMD_POINTCLOUD_FIRST && Cmd_ID <= ID_CMD_POINTCLOUD_LAST && m_pPointClouds->On_Command(Cmd_ID) )
+	{
+		return( true );
+	}
+
 	if( m_pGrids  && Cmd_ID >= ID_CMD_GRIDS_FIRST  && Cmd_ID <= ID_CMD_GRIDS_LAST  && m_pGrids ->On_Command(Cmd_ID) )
 	{
 		return( true );
@@ -399,17 +411,18 @@ bool CWKSP_Data_Manager::On_Command(int Cmd_ID)
 		return( CWKSP_Base_Manager::On_Command(Cmd_ID) );
 
 	//-----------------------------------------------------
-	case ID_CMD_DATA_PROJECT_NEW:		Close(false);					break;
-	case ID_CMD_DATA_PROJECT_OPEN:		m_pProject->Load(false);		break;
-	case ID_CMD_DATA_PROJECT_OPEN_ADD:	m_pProject->Load(true);			break;
-	case ID_CMD_DATA_PROJECT_SAVE:		m_pProject->Save(true);			break;
-	case ID_CMD_DATA_PROJECT_SAVE_AS:	m_pProject->Save();				break;
+	case ID_CMD_DATA_PROJECT_NEW:		Close(false);						break;
+	case ID_CMD_DATA_PROJECT_OPEN:		m_pProject->Load(false);			break;
+	case ID_CMD_DATA_PROJECT_OPEN_ADD:	m_pProject->Load(true);				break;
+	case ID_CMD_DATA_PROJECT_SAVE:		m_pProject->Save(true);				break;
+	case ID_CMD_DATA_PROJECT_SAVE_AS:	m_pProject->Save();					break;
 
 	//-----------------------------------------------------
-	case ID_CMD_TABLES_OPEN:			Open(DATAOBJECT_TYPE_Table);	break;
-	case ID_CMD_SHAPES_OPEN:			Open(DATAOBJECT_TYPE_Shapes);	break;
-	case ID_CMD_TIN_OPEN:				Open(DATAOBJECT_TYPE_TIN);		break;
-	case ID_CMD_GRIDS_OPEN:				Open(DATAOBJECT_TYPE_Grid);		break;
+	case ID_CMD_TABLES_OPEN:			Open(DATAOBJECT_TYPE_Table);		break;
+	case ID_CMD_SHAPES_OPEN:			Open(DATAOBJECT_TYPE_Shapes);		break;
+	case ID_CMD_TIN_OPEN:				Open(DATAOBJECT_TYPE_TIN);			break;
+	case ID_CMD_POINTCLOUD_OPEN:		Open(DATAOBJECT_TYPE_PointCloud);	break;
+	case ID_CMD_GRIDS_OPEN:				Open(DATAOBJECT_TYPE_Grid);			break;
 
 	//-----------------------------------------------------
 	case ID_CMD_WKSP_ITEM_RETURN:
@@ -503,15 +516,16 @@ bool CWKSP_Data_Manager::Check_Parameter(CSG_Parameter *pParameter)
 	{
 		switch( pParameter->Get_Type() )
 		{
-		default:							DataObject_Type	= -1;						break;
+		default:							DataObject_Type	= -1;							break;
 		case PARAMETER_TYPE_Grid:
-		case PARAMETER_TYPE_Grid_List:		DataObject_Type	= DATAOBJECT_TYPE_Grid;		break;
+		case PARAMETER_TYPE_Grid_List:		DataObject_Type	= DATAOBJECT_TYPE_Grid;			break;
 		case PARAMETER_TYPE_Table:
-		case PARAMETER_TYPE_Table_List:		DataObject_Type	= DATAOBJECT_TYPE_Table;	break;
+		case PARAMETER_TYPE_Table_List:		DataObject_Type	= DATAOBJECT_TYPE_Table;		break;
 		case PARAMETER_TYPE_Shapes:
-		case PARAMETER_TYPE_Shapes_List:	DataObject_Type	= DATAOBJECT_TYPE_Shapes;	break;
+		case PARAMETER_TYPE_Shapes_List:	DataObject_Type	= DATAOBJECT_TYPE_Shapes;		break;
 		case PARAMETER_TYPE_TIN:
-		case PARAMETER_TYPE_TIN_List:		DataObject_Type	= DATAOBJECT_TYPE_TIN;		break;
+		case PARAMETER_TYPE_TIN_List:		DataObject_Type	= DATAOBJECT_TYPE_TIN;			break;
+		case PARAMETER_TYPE_PointCloud:		DataObject_Type	= DATAOBJECT_TYPE_PointCloud;	break;
 		}
 
 		//-------------------------------------------------
@@ -532,6 +546,7 @@ bool CWKSP_Data_Manager::Check_Parameter(CSG_Parameter *pParameter)
 		case PARAMETER_TYPE_Table:
 		case PARAMETER_TYPE_Shapes:
 		case PARAMETER_TYPE_TIN:
+		case PARAMETER_TYPE_PointCloud:
 			if(	pParameter->asDataObject() != DATAOBJECT_NOTSET
 			&&	pParameter->asDataObject() != DATAOBJECT_CREATE
 			&&	!Exists(pParameter->asDataObject(), DataObject_Type) )
@@ -611,10 +626,11 @@ bool CWKSP_Data_Manager::Open(int DataType)
 	switch( DataType )
 	{
 	default:	return( false );
-	case DATAOBJECT_TYPE_Table:		ID	= ID_DLG_TABLES_OPEN;	break;
-	case DATAOBJECT_TYPE_Shapes:	ID	= ID_DLG_SHAPES_OPEN;	break;
-	case DATAOBJECT_TYPE_TIN:		ID	= ID_DLG_TIN_OPEN;		break;
-	case DATAOBJECT_TYPE_Grid:		ID	= ID_DLG_GRIDS_OPEN;	break;
+	case DATAOBJECT_TYPE_Table:			ID	= ID_DLG_TABLES_OPEN;		break;
+	case DATAOBJECT_TYPE_Shapes:		ID	= ID_DLG_SHAPES_OPEN;		break;
+	case DATAOBJECT_TYPE_TIN:			ID	= ID_DLG_TIN_OPEN;			break;
+	case DATAOBJECT_TYPE_PointCloud:	ID	= ID_DLG_POINTCLOUD_OPEN;	break;
+	case DATAOBJECT_TYPE_Grid:			ID	= ID_DLG_GRIDS_OPEN;		break;
 	}
 
 	if( DLG_Open(File_Paths, ID) )
@@ -645,19 +661,23 @@ CWKSP_Base_Item * CWKSP_Data_Manager::Open(int DataType, const wxChar *FileName)
 		break;
 
 	case DATAOBJECT_TYPE_Table:
-		pObject	= new CSG_Table (FileName);
+		pObject	= new CSG_Table		(FileName);
 		break;
 
 	case DATAOBJECT_TYPE_Shapes:
-		pObject	= new CSG_Shapes(FileName);
+		pObject	= new CSG_Shapes	(FileName);
 		break;
 
 	case DATAOBJECT_TYPE_TIN:
-		pObject	= new CSG_TIN   (FileName);
+		pObject	= new CSG_TIN		(FileName);
+		break;
+
+	case DATAOBJECT_TYPE_PointCloud:
+		pObject	= new CSG_PointCloud(FileName);
 		break;
 
 	case DATAOBJECT_TYPE_Grid:
-		pObject	= new CSG_Grid  (FileName);
+		pObject	= new CSG_Grid		(FileName);
 		break;
 	}
 
@@ -712,11 +732,15 @@ bool CWKSP_Data_Manager::Exists(CSG_Data_Object *pObject, int Type)
 
 	case DATAOBJECT_TYPE_TIN:
 		return( m_pTINs   && m_pTINs  ->Exists((CSG_TIN    *)pObject) );
+
+	case DATAOBJECT_TYPE_PointCloud:
+		return( m_pPointClouds && m_pPointClouds->Exists((CSG_PointCloud *)pObject) );
 	}
 
 	return(	Exists(pObject, DATAOBJECT_TYPE_Table)
 		||	Exists(pObject, DATAOBJECT_TYPE_Shapes)
 		||	Exists(pObject, DATAOBJECT_TYPE_TIN)
+		||	Exists(pObject, DATAOBJECT_TYPE_PointCloud)
 		||	Exists(pObject, DATAOBJECT_TYPE_Grid)
 	);
 }
@@ -737,6 +761,9 @@ CSG_Data_Object * CWKSP_Data_Manager::Get_byFileName(const wxChar *File_Name, in
 
 	case DATAOBJECT_TYPE_TIN:
 		return( !m_pTINs   ? NULL : m_pTINs  ->Get_byFileName(File_Name) );
+
+	case DATAOBJECT_TYPE_PointCloud:
+		return( !m_pPointClouds ? NULL : m_pPointClouds->Get_byFileName(File_Name) );
 	}
 
 	CSG_Data_Object	*pObject;
@@ -815,6 +842,9 @@ CWKSP_Base_Item * CWKSP_Data_Manager::Add(CSG_Data_Object *pObject)
 
 		case DATAOBJECT_TYPE_TIN:
 			return( (CWKSP_Base_Item *)m_pTINs  ->Add((CSG_TIN    *)pObject) );
+
+		case DATAOBJECT_TYPE_PointCloud:
+			return( (CWKSP_Base_Item *)m_pPointClouds->Add((CSG_PointCloud *)pObject) );
 			
 		default:
 			return( NULL );
@@ -842,6 +872,10 @@ void CWKSP_Data_Manager::Del_Manager(CWKSP_Base_Item *pItem)
 	else if( pItem == m_pTINs )
 	{
 		m_pTINs		= NULL;
+	}
+	else if( pItem == m_pPointClouds )
+	{
+		m_pPointClouds	= NULL;
 	}
 
 	if( Get_Count() == 0 )
@@ -889,6 +923,14 @@ bool CWKSP_Data_Manager::_Get_Manager(int DataType)
 		}
 
 		return( m_pTINs   != NULL );
+
+	case DATAOBJECT_TYPE_PointCloud:
+		if( !m_pPointClouds )
+		{
+			Add_Item(m_pPointClouds   = new CWKSP_PointCloud_Manager);
+		}
+
+		return( m_pPointClouds != NULL );
 	}
 }
 
@@ -918,6 +960,9 @@ bool CWKSP_Data_Manager::Update(CSG_Data_Object *pObject, CSG_Parameters *pParam
 		case DATAOBJECT_TYPE_TIN:
 			return( m_pTINs   && m_pTINs  ->Update((CSG_TIN    *)pObject, pParameters) );
 
+		case DATAOBJECT_TYPE_PointCloud:
+			return( m_pPointClouds && m_pPointClouds->Update((CSG_PointCloud *)pObject, pParameters) );
+
 		default:
 			break;
 		}
@@ -944,6 +989,9 @@ bool CWKSP_Data_Manager::Update_Views(CSG_Data_Object *pObject)
 
 		case DATAOBJECT_TYPE_TIN:
 			return( m_pTINs   && m_pTINs  ->Update_Views((CSG_TIN    *)pObject) );
+
+		case DATAOBJECT_TYPE_PointCloud:
+			return( m_pPointClouds && m_pPointClouds->Update_Views((CSG_PointCloud *)pObject) );
 
 		default:
 			break;
@@ -979,6 +1027,9 @@ bool CWKSP_Data_Manager::Show(CSG_Data_Object *pObject, int Map_Mode)
 		case DATAOBJECT_TYPE_TIN:
 			return( m_pTINs   && m_pTINs  ->Show((CSG_TIN    *)pObject, Map_Mode) );
 
+		case DATAOBJECT_TYPE_PointCloud:
+			return( m_pPointClouds && m_pPointClouds->Show((CSG_PointCloud *)pObject, Map_Mode) );
+
 		default:
 			break;
 		}
@@ -1002,6 +1053,9 @@ bool CWKSP_Data_Manager::asImage(CSG_Data_Object *pObject, CSG_Grid *pImage)
 
 		case DATAOBJECT_TYPE_TIN:
 			return( m_pTINs   && m_pTINs  ->asImage((CSG_TIN    *)pObject, pImage) );
+
+		case DATAOBJECT_TYPE_PointCloud:
+			return( m_pPointClouds && m_pPointClouds->asImage((CSG_PointCloud *)pObject, pImage) );
 
 		default:
 			break;
@@ -1027,6 +1081,9 @@ bool CWKSP_Data_Manager::Get_Colors(CSG_Data_Object *pObject, CSG_Colors *pColor
 		case DATAOBJECT_TYPE_TIN:
 			return( m_pTINs  ->Get_Colors((CSG_TIN    *)pObject, pColors) );
 
+		case DATAOBJECT_TYPE_PointCloud:
+			return( m_pPointClouds->Get_Colors((CSG_PointCloud *)pObject, pColors) );
+
 		default:
 			break;
 		}
@@ -1050,6 +1107,9 @@ bool CWKSP_Data_Manager::Set_Colors(CSG_Data_Object *pObject, CSG_Colors *pColor
 
 		case DATAOBJECT_TYPE_TIN:
 			return( m_pTINs  ->Set_Colors((CSG_TIN    *)pObject, pColors) );
+
+		case DATAOBJECT_TYPE_PointCloud:
+			return( m_pPointClouds->Set_Colors((CSG_PointCloud *)pObject, pColors) );
 
 		default:
 			break;
@@ -1078,6 +1138,10 @@ bool CWKSP_Data_Manager::Get_Parameters(CSG_Data_Object *pObject, CSG_Parameters
 
 		case DATAOBJECT_TYPE_TIN:
 			pItem	= (CWKSP_Base_Item *)m_pTINs  ->Get_TIN   ((CSG_TIN    *)pObject);
+			break;
+
+		case DATAOBJECT_TYPE_PointCloud:
+			pItem	= (CWKSP_Base_Item *)m_pPointClouds->Get_PointCloud((CSG_PointCloud *)pObject);
 			break;
 
 		case DATAOBJECT_TYPE_Table:
@@ -1119,6 +1183,10 @@ bool CWKSP_Data_Manager::Set_Parameters(CSG_Data_Object *pObject, CSG_Parameters
 			pItem	= (CWKSP_Base_Item *)m_pTINs  ->Get_TIN   ((CSG_TIN    *)pObject);
 			break;
 
+		case DATAOBJECT_TYPE_PointCloud:
+			pItem	= (CWKSP_Base_Item *)m_pPointClouds->Get_PointCloud((CSG_PointCloud *)pObject);
+			break;
+
 		case DATAOBJECT_TYPE_Table:
 			pItem	= (CWKSP_Base_Item *)m_pTables->Get_Table ((CSG_Table  *)pObject);
 			break;
@@ -1152,6 +1220,8 @@ bool CWKSP_Data_Manager::Set_Parameters(CSG_Data_Object *pObject, CSG_Parameters
 #include "wksp_grid.h"
 #include "wksp_shapes_type.h"
 #include "wksp_shapes.h"
+#include "wksp_tin.h"
+#include "wksp_pointcloud.h"
 #include "wksp_table.h"
 
 //---------------------------------------------------------
@@ -1169,17 +1239,24 @@ bool CWKSP_Data_Manager::Get_DataObject_List(CSG_Parameters *pParameters)
 		{
 			for(j=0; j<Get_Grids()->Get_System(i)->Get_Count(); j++)
 			{
-				s.Printf(wxT("GRID_%03_%03"), i, j);
+				s.Printf(wxT("GRID_%03d_%03d"), i, j);
 				pParameters->Add_Grid(NULL, s, s, LNG(""), PARAMETER_INPUT)
 					->Set_Value(Get_Grids()->Get_System(i)->Get_Grid(j)->Get_Grid());
 			}
+		}
+
+		for(i=0; i<Get_PointClouds()->Get_Count(); i++)
+		{
+			s.Printf(wxT("POINTCLOUD_%03d"), i);
+			pParameters->Add_PointCloud(NULL, s, s, LNG(""), PARAMETER_INPUT)
+				->Set_Value(Get_PointClouds()->Get_PointCloud(i)->Get_PointCloud());
 		}
 
 		if( (pShapes = Get_Shapes()->Get_Shapes_Type(SHAPE_TYPE_Point)) != NULL )
 		{
 			for(i=0; i<pShapes->Get_Count(); i++)
 			{
-				s.Printf(wxT("POINT_%03"), i);
+				s.Printf(wxT("POINT_%03d"), i);
 				pParameters->Add_Shapes(NULL, s, s, LNG(""), PARAMETER_INPUT)
 					->Set_Value(pShapes->Get_Shapes(i)->Get_Shapes());
 			}
@@ -1189,7 +1266,7 @@ bool CWKSP_Data_Manager::Get_DataObject_List(CSG_Parameters *pParameters)
 		{
 			for(i=0; i<pShapes->Get_Count(); i++)
 			{
-				s.Printf(wxT("POINTS_%03"), i);
+				s.Printf(wxT("POINTS_%03d"), i);
 				pParameters->Add_Shapes(NULL, s, s, LNG(""), PARAMETER_INPUT)
 					->Set_Value(pShapes->Get_Shapes(i)->Get_Shapes());
 			}
@@ -1199,7 +1276,7 @@ bool CWKSP_Data_Manager::Get_DataObject_List(CSG_Parameters *pParameters)
 		{
 			for(i=0; i<pShapes->Get_Count(); i++)
 			{
-				s.Printf(wxT("LINE_%03"), i);
+				s.Printf(wxT("LINE_%03d"), i);
 				pParameters->Add_Shapes(NULL, s, s, LNG(""), PARAMETER_INPUT)
 					->Set_Value(pShapes->Get_Shapes(i)->Get_Shapes());
 			}
@@ -1209,7 +1286,7 @@ bool CWKSP_Data_Manager::Get_DataObject_List(CSG_Parameters *pParameters)
 		{
 			for(i=0; i<pShapes->Get_Count(); i++)
 			{
-				s.Printf(wxT("POLYGON_%03"), i);
+				s.Printf(wxT("POLYGON_%03d"), i);
 				pParameters->Add_Shapes(NULL, s, s, LNG(""), PARAMETER_INPUT)
 					->Set_Value(pShapes->Get_Shapes(i)->Get_Shapes());
 			}
@@ -1217,7 +1294,7 @@ bool CWKSP_Data_Manager::Get_DataObject_List(CSG_Parameters *pParameters)
 
 		for(i=0; i<Get_Tables()->Get_Count(); i++)
 		{
-			s.Printf(wxT("TABLE_%03"), i);
+			s.Printf(wxT("TABLE_%03d"), i);
 			pParameters->Add_Table(NULL, s, s, LNG(""), PARAMETER_INPUT)
 				->Set_Value(Get_Tables()->Get_Table(i)->Get_Table());
 		}

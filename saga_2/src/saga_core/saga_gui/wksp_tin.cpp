@@ -318,8 +318,8 @@ int CWKSP_TIN::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 		int		zField	= pParameter->asInt();
 
 		pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(
-			m_pTIN->Get_MinValue(zField),
-			m_pTIN->Get_MaxValue(zField)
+			m_pTIN->Get_Minimum(zField),
+			m_pTIN->Get_Maximum(zField)
 		);
 	}
 
@@ -342,17 +342,7 @@ wxString CWKSP_TIN::Get_Value(CSG_Point ptWorld, double Epsilon)
 //---------------------------------------------------------
 double CWKSP_TIN::Get_Value_Range(void)
 {
-	if( m_Color_Field >= 0 )
-	{
-		return(
-			  m_pTIN->Get_MaxValue(m_Color_Field)
-			- m_pTIN->Get_MinValue(m_Color_Field)
-		);
-	}
-	else
-	{
-		return( 0.0 );
-	}
+	return( m_Color_Field >= 0 ? m_pTIN->Get_Range(m_Color_Field) : 0.0 );
 }
 
 

@@ -159,6 +159,9 @@ const wxChar * DLG_Get_FILE_Caption(int ID_DLG)
 	case ID_DLG_TIN_OPEN:			return( LNG("[CAP] Load TIN") );
 	case ID_DLG_TIN_SAVE:			return( LNG("[CAP] Save TIN") );
 
+	case ID_DLG_POINTCLOUD_OPEN:	return( LNG("[CAP] Load Point Cloud") );
+	case ID_DLG_POINTCLOUD_SAVE:	return( LNG("[CAP] Save Point Cloud") );
+
 	case ID_DLG_TEXT_OPEN:			return( LNG("[CAP] Load Text") );
 	case ID_DLG_TEXT_SAVE:			return( LNG("[CAP] Save Text") );
 
@@ -185,6 +188,7 @@ const wxString DLG_Get_FILE_Filter(int ID_DLG)
 			wxT("%s (*.sgrd)|*.sgrd;*.dgm;*.grd|")
 			wxT("%s (*.shp)|*.shp|")
 			wxT("%s (*.txt, *.dbf)|*.txt;*.dbf|")
+			wxT("%s (*.spc)|*.spc|")
 			wxT("%s|*.*"),
 			LNG("All Recognised Files"),
 			LNG("SAGA Project"),
@@ -192,6 +196,7 @@ const wxString DLG_Get_FILE_Filter(int ID_DLG)
 			LNG("Grids"),
 			LNG("ESRI Shape Files"),
 			LNG("Tables"),
+			LNG("Point Clouds"),
 			LNG("All Files")
 		));
 
@@ -264,6 +269,15 @@ const wxString DLG_Get_FILE_Filter(int ID_DLG)
 			LNG("All Files")
 		));
 
+	case ID_DLG_POINTCLOUD_OPEN:
+	case ID_DLG_POINTCLOUD_SAVE:
+		return( wxString::Format(
+			wxT("%s (*.spc)|*.spc|")
+			wxT("%s|*.*"),
+			LNG("SAGA Point Clouds"),
+			LNG("All Files")
+		));
+
 	case ID_DLG_TEXT_OPEN:
 	case ID_DLG_TEXT_SAVE:
 		return( wxString::Format(
@@ -318,6 +332,9 @@ const wxChar * DLG_Get_FILE_Config(int ID_DLG)
 
 	case ID_DLG_TIN_OPEN:			return( wxT("TIN_LOAD") );
 	case ID_DLG_TIN_SAVE:			return( wxT("TIN_SAVE") );
+
+	case ID_DLG_POINTCLOUD_OPEN:	return( wxT("PTS_LOAD") );
+	case ID_DLG_POINTCLOUD_SAVE:	return( wxT("PTS_SAVE") );
 
 	case ID_DLG_TEXT_OPEN:			return( wxT("TXT_LOAD") );
 	case ID_DLG_TEXT_SAVE:			return( wxT("TXT_SAVE") );

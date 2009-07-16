@@ -510,8 +510,8 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 		int		zField	= pParameters->Get_Parameter("COLORS_ATTRIB")->asInt();
 
 		pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(
-			m_pShapes->Get_MinValue(zField),
-			m_pShapes->Get_MaxValue(zField)
+			m_pShapes->Get_Minimum(zField),
+			m_pShapes->Get_Maximum(zField)
 		);
 	}
 
@@ -662,17 +662,7 @@ wxString CWKSP_Shapes::Get_Value(CSG_Point ptWorld, double Epsilon)
 //---------------------------------------------------------
 double CWKSP_Shapes::Get_Value_Range(void)
 {
-	if( m_iColor >= 0 )
-	{
-		return(
-			  m_pShapes->Get_MaxValue(m_iColor)
-			- m_pShapes->Get_MinValue(m_iColor)
-		);
-	}
-	else
-	{
-		return( 0.0 );
-	}
+	return( m_iColor >= 0 ? m_pShapes->Get_Range(m_iColor) : 0.0 );
 }
 
 
@@ -1131,10 +1121,12 @@ void CWKSP_Shapes::_Draw_Chart(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 
 		if( m_Chart_sField >= 0 )
 		{
-			double	range, min	= m_pShapes->Get_MinValue(m_Chart_sField);
+			double	range	= m_pShapes->Get_Range(m_Chart_sField);
 
-			if( (range = (m_pShapes->Get_MaxValue(m_Chart_sField) - min)) > 0.0 )
-				dSize	+= m_Chart_sRange * ((pShape->asDouble(m_Chart_sField) - min) / range);
+			if( range > 0.0 )
+			{
+				dSize	+= m_Chart_sRange * ((pShape->asDouble(m_Chart_sField) - m_pShapes->Get_Minimum(m_Chart_sField)) / range);
+			}
 		}
 
 		s	= (int)(dSize * (m_Chart_sType == 1 ? dc_Map.m_World2DC : dc_Map.m_Scale));

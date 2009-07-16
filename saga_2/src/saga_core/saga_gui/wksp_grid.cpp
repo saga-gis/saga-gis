@@ -163,7 +163,7 @@ wxString CWKSP_Grid::Get_Description(void)
 	));
 
 	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%f</td></tr>"),
-		LNG("[CAP] Standard Deviation")		, sqrt(m_pGrid->Get_Variance(true))
+		LNG("[CAP] Standard Deviation")		, m_pGrid->Get_StdDev(true)
 	));
 
 	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%fMB</td></tr>"),

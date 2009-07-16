@@ -98,6 +98,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <wchar.h>
 
 #endif	// #ifdef SWIG

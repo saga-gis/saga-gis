@@ -75,6 +75,7 @@
 #include "table.h"
 #include "shapes.h"
 #include "tin.h"
+#include "pointcloud.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -134,6 +135,7 @@ typedef enum ESG_Parameter_Type
 	PARAMETER_TYPE_Grid_System,
 	PARAMETER_TYPE_Table_Field,
 
+	PARAMETER_TYPE_PointCloud,
 	PARAMETER_TYPE_Grid,
 	PARAMETER_TYPE_Table,
 	PARAMETER_TYPE_Shapes,
@@ -691,6 +693,24 @@ protected:
 };
 
 //---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Parameter_PointCloud : public CSG_Parameter_Data_Object
+{
+public:
+	CSG_Parameter_PointCloud(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_PointCloud(void);
+
+	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_PointCloud );	}
+
+	virtual bool				Set_Value				(void *Value);
+
+
+protected:
+
+	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
+
+};
+
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Grid : public CSG_Parameter_Data_Object
 {
 public:
@@ -958,6 +978,7 @@ public:
 	CSG_Table *					asTable					(void)	{	return( (CSG_Table       *)m_pData->asPointer	() );	}
 	CSG_Shapes *				asShapes				(void)	{	return( (CSG_Shapes      *)m_pData->asPointer	() );	}
 	CSG_TIN *					asTIN					(void)	{	return( (CSG_TIN         *)m_pData->asPointer	() );	}
+	CSG_PointCloud *			asPointCloud			(void)	{	return( (CSG_PointCloud  *)m_pData->asPointer	() );	}
 
 	CSG_Parameter_Value *		asValue					(void)	{	return( (CSG_Parameter_Value       *)m_pData );		}
 	CSG_Parameter_Choice *		asChoice				(void)	{	return( (CSG_Parameter_Choice      *)m_pData );		}
@@ -1090,6 +1111,9 @@ public:
 	CSG_Parameter *				Add_TIN_Output			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description);
 	CSG_Parameter *				Add_TIN_List			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint);
 
+	CSG_Parameter *				Add_PointCloud			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint);
+	CSG_Parameter *				Add_PointCloud_Output	(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description);
+
 	CSG_Parameter *				Add_Parameters			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description);
 
 	//-----------------------------------------------------
@@ -1148,6 +1172,8 @@ public:
 	CSG_Parameter *				Add_TIN					(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint);
 	CSG_Parameter *				Add_TIN_Output			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description);
 	CSG_Parameter *				Add_TIN_List			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint);
+	CSG_Parameter *				Add_PointCloud			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint);
+	CSG_Parameter *				Add_PointCloud_Output	(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description);
 	CSG_Parameter *				Add_Parameters			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description);
 #endif
 

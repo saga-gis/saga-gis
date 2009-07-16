@@ -109,6 +109,9 @@ enum
 	IMG_TIN_MANAGER,
 	IMG_TIN,
 
+	IMG_POINTCLOUD_MANAGER,
+	IMG_POINTCLOUD,
+
 	IMG_GRID_MANAGER,
 	IMG_GRID_SYSTEM,
 	IMG_GRID
@@ -168,6 +171,9 @@ CWKSP_Data_Control::CWKSP_Data_Control(wxWindow *pParent)
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_TIN_MANAGER);
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_TIN);
 
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_POINTCLOUD_MANAGER);
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_POINTCLOUD);
+
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_GRID_MANAGER);
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_GRID_SYSTEM);
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_GRID);
@@ -201,10 +207,10 @@ inline int CWKSP_Data_Control::_Get_Image_ID(CWKSP_Base_Item *pItem)
 		default:
 			break;
 
-		case WKSP_ITEM_Data_Manager:	return( IMG_DATA_MANAGER );
-		case WKSP_ITEM_Table_Manager:	return( IMG_TABLE_MANAGER );
-		case WKSP_ITEM_Table:			return( IMG_TABLE );
-		case WKSP_ITEM_Shapes_Manager:	return( IMG_SHAPES_MANAGER );
+		case WKSP_ITEM_Data_Manager:		return( IMG_DATA_MANAGER );
+		case WKSP_ITEM_Table_Manager:		return( IMG_TABLE_MANAGER );
+		case WKSP_ITEM_Table:				return( IMG_TABLE );
+		case WKSP_ITEM_Shapes_Manager:		return( IMG_SHAPES_MANAGER );
 
 		case WKSP_ITEM_Shapes_Type:
 		case WKSP_ITEM_Shapes:
@@ -213,17 +219,19 @@ inline int CWKSP_Data_Control::_Get_Image_ID(CWKSP_Base_Item *pItem)
 				:	((CWKSP_Shapes_Type *)pItem)->Get_Shapes_Type() )
 			{
 			default:
-			case SHAPE_TYPE_Point:		return( IMG_SHAPES_POINT );
-			case SHAPE_TYPE_Points:		return( IMG_SHAPES_POINTS );
-			case SHAPE_TYPE_Line:		return( IMG_SHAPES_LINE );
-			case SHAPE_TYPE_Polygon:	return( IMG_SHAPES_POLYGON );
+			case SHAPE_TYPE_Point:			return( IMG_SHAPES_POINT );
+			case SHAPE_TYPE_Points:			return( IMG_SHAPES_POINTS );
+			case SHAPE_TYPE_Line:			return( IMG_SHAPES_LINE );
+			case SHAPE_TYPE_Polygon:		return( IMG_SHAPES_POLYGON );
 			}
 
-		case WKSP_ITEM_TIN_Manager:		return( IMG_TIN_MANAGER );
-		case WKSP_ITEM_TIN:				return( IMG_TIN );
-		case WKSP_ITEM_Grid_Manager:	return( IMG_GRID_MANAGER );
-		case WKSP_ITEM_Grid_System:		return( IMG_GRID_SYSTEM );
-		case WKSP_ITEM_Grid:			return( IMG_GRID );
+		case WKSP_ITEM_TIN_Manager:			return( IMG_TIN_MANAGER );
+		case WKSP_ITEM_TIN:					return( IMG_TIN );
+		case WKSP_ITEM_PointCloud_Manager:	return( IMG_POINTCLOUD_MANAGER );
+		case WKSP_ITEM_PointCloud:			return( IMG_POINTCLOUD );
+		case WKSP_ITEM_Grid_Manager:		return( IMG_GRID_MANAGER );
+		case WKSP_ITEM_Grid_System:			return( IMG_GRID_SYSTEM );
+		case WKSP_ITEM_Grid:				return( IMG_GRID );
 		}
 	}
 

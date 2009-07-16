@@ -78,16 +78,17 @@
 //---------------------------------------------------------
 CWKSP_Data_Menu_Files::CWKSP_Data_Menu_Files(void)
 {
-	m_pFMProjects	= new CWKSP_Data_Menu_File(DATAOBJECT_TYPE_Undefined);
-	m_pFMTables		= new CWKSP_Data_Menu_File(DATAOBJECT_TYPE_Table);
-	m_pFMShapes		= new CWKSP_Data_Menu_File(DATAOBJECT_TYPE_Shapes);
-	m_pFMTINs		= new CWKSP_Data_Menu_File(DATAOBJECT_TYPE_TIN);
-	m_pFMGrids		= new CWKSP_Data_Menu_File(DATAOBJECT_TYPE_Grid);
+	m_pFMProjects		= new CWKSP_Data_Menu_File(DATAOBJECT_TYPE_Undefined);
+	m_pFMTables			= new CWKSP_Data_Menu_File(DATAOBJECT_TYPE_Table);
+	m_pFMShapes			= new CWKSP_Data_Menu_File(DATAOBJECT_TYPE_Shapes);
+	m_pFMTINs			= new CWKSP_Data_Menu_File(DATAOBJECT_TYPE_TIN);
+	m_pFMPointClouds	= new CWKSP_Data_Menu_File(DATAOBJECT_TYPE_PointCloud);
+	m_pFMGrids			= new CWKSP_Data_Menu_File(DATAOBJECT_TYPE_Grid);
 
-	m_bUpdate		= true;
+	m_bUpdate			= true;
 
-	m_Menus			= NULL;
-	m_nMenus		= 0;
+	m_Menus				= NULL;
+	m_nMenus			= 0;
 }
 
 //---------------------------------------------------------
@@ -97,6 +98,7 @@ CWKSP_Data_Menu_Files::~CWKSP_Data_Menu_Files(void)
 	delete(m_pFMTables);
 	delete(m_pFMShapes);
 	delete(m_pFMTINs);
+	delete(m_pFMPointClouds);
 	delete(m_pFMGrids);
 
 	if( m_Menus )
@@ -115,13 +117,14 @@ CWKSP_Data_Menu_Files::~CWKSP_Data_Menu_Files(void)
 //---------------------------------------------------------
 void CWKSP_Data_Menu_Files::Add(wxMenu *pMenu)
 {
-	pMenu->Append(ID_CMD_DATA_FIRST  , LNG("[MNU] Project"), m_pFMProjects	->Create());
+	pMenu->Append(ID_CMD_DATA_FIRST      , LNG("[MNU] Project")    , m_pFMProjects   ->Create());
 
 	pMenu->AppendSeparator();
-	pMenu->Append(ID_CMD_TABLES_FIRST, LNG("[MNU] Table")  , m_pFMTables	->Create());
-	pMenu->Append(ID_CMD_SHAPES_FIRST, LNG("[MNU] Shapes") , m_pFMShapes	->Create());
-	pMenu->Append(ID_CMD_TIN_FIRST   , LNG("[MNU] TIN")    , m_pFMTINs		->Create());
-	pMenu->Append(ID_CMD_GRIDS_FIRST , LNG("[MNU] Grid")   , m_pFMGrids		->Create());
+	pMenu->Append(ID_CMD_TABLES_FIRST    , LNG("[MNU] Table")      , m_pFMTables     ->Create());
+	pMenu->Append(ID_CMD_SHAPES_FIRST    , LNG("[MNU] Shapes")     , m_pFMShapes     ->Create());
+	pMenu->Append(ID_CMD_TIN_FIRST       , LNG("[MNU] TIN")        , m_pFMTINs       ->Create());
+	pMenu->Append(ID_CMD_POINTCLOUD_FIRST, LNG("[MNU] Point Cloud"), m_pFMPointClouds->Create());
+	pMenu->Append(ID_CMD_GRIDS_FIRST     , LNG("[MNU] Grid")       , m_pFMGrids      ->Create());
 
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_FRAME_QUIT);
@@ -160,11 +163,12 @@ void CWKSP_Data_Menu_Files::Del(wxMenu *pMenu)
 //---------------------------------------------------------
 bool CWKSP_Data_Menu_Files::Recent_Open(int Cmd_ID)
 {
-	return(	m_pFMProjects->Open(Cmd_ID)
-		||	m_pFMTables  ->Open(Cmd_ID)
-		||	m_pFMShapes  ->Open(Cmd_ID)
-		||	m_pFMTINs    ->Open(Cmd_ID)
-		||	m_pFMGrids   ->Open(Cmd_ID)
+	return(	m_pFMProjects   ->Open(Cmd_ID)
+		||	m_pFMTables     ->Open(Cmd_ID)
+		||	m_pFMShapes     ->Open(Cmd_ID)
+		||	m_pFMTINs       ->Open(Cmd_ID)
+		||	m_pFMPointClouds->Open(Cmd_ID)
+		||	m_pFMGrids      ->Open(Cmd_ID)
 	);
 }
 
@@ -195,11 +199,12 @@ inline CWKSP_Data_Menu_File * CWKSP_Data_Menu_Files::_Get_Menu(int DataType)
 {
 	switch( DataType )
 	{
-	case DATAOBJECT_TYPE_Undefined:	return( m_pFMProjects );
-	case DATAOBJECT_TYPE_Table:		return( m_pFMTables );
-	case DATAOBJECT_TYPE_Shapes:	return( m_pFMShapes );
-	case DATAOBJECT_TYPE_TIN:		return( m_pFMTINs );
-	case DATAOBJECT_TYPE_Grid:		return( m_pFMGrids );
+	case DATAOBJECT_TYPE_Undefined:		return( m_pFMProjects );
+	case DATAOBJECT_TYPE_Table:			return( m_pFMTables );
+	case DATAOBJECT_TYPE_Shapes:		return( m_pFMShapes );
+	case DATAOBJECT_TYPE_TIN:			return( m_pFMTINs );
+	case DATAOBJECT_TYPE_PointCloud:	return( m_pFMPointClouds );
+	case DATAOBJECT_TYPE_Grid:			return( m_pFMGrids );
 	}
 
 	return( NULL );
@@ -224,11 +229,12 @@ void CWKSP_Data_Menu_Files::_Update(void)
 //---------------------------------------------------------
 void CWKSP_Data_Menu_Files::_Update(wxMenu *pMenu)
 {
-	m_pFMProjects	->Update(pMenu->FindItem(ID_CMD_DATA_FIRST  )->GetSubMenu());
-	m_pFMTables		->Update(pMenu->FindItem(ID_CMD_TABLES_FIRST)->GetSubMenu());
-	m_pFMShapes		->Update(pMenu->FindItem(ID_CMD_SHAPES_FIRST)->GetSubMenu());
-	m_pFMTINs		->Update(pMenu->FindItem(ID_CMD_TIN_FIRST   )->GetSubMenu());
-	m_pFMGrids		->Update(pMenu->FindItem(ID_CMD_GRIDS_FIRST )->GetSubMenu());
+	m_pFMProjects	->Update(pMenu->FindItem(ID_CMD_DATA_FIRST      )->GetSubMenu());
+	m_pFMTables		->Update(pMenu->FindItem(ID_CMD_TABLES_FIRST    )->GetSubMenu());
+	m_pFMShapes		->Update(pMenu->FindItem(ID_CMD_SHAPES_FIRST    )->GetSubMenu());
+	m_pFMTINs		->Update(pMenu->FindItem(ID_CMD_TIN_FIRST       )->GetSubMenu());
+	m_pFMPointClouds->Update(pMenu->FindItem(ID_CMD_POINTCLOUD_FIRST)->GetSubMenu());
+	m_pFMGrids		->Update(pMenu->FindItem(ID_CMD_GRIDS_FIRST     )->GetSubMenu());
 }
 
 

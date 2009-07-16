@@ -125,6 +125,7 @@ bool CWKSP_Base_Manager::Add_Item(CWKSP_Base_Item *pItem)
 		case WKSP_ITEM_Shapes_Manager:
 		case WKSP_ITEM_Shapes_Type:
 		case WKSP_ITEM_TIN_Manager:
+		case WKSP_ITEM_PointCloud_Manager:
 		case WKSP_ITEM_Grid_Manager:
 		case WKSP_ITEM_Grid_System:
 			g_pData_Ctrl->Add_Item(this, pItem);
@@ -177,6 +178,7 @@ bool CWKSP_Base_Manager::Del_Item(CWKSP_Base_Item *pItem)
 		case WKSP_ITEM_Table_Manager:
 		case WKSP_ITEM_Shapes_Type:
 		case WKSP_ITEM_TIN_Manager:
+		case WKSP_ITEM_PointCloud_Manager:
 		case WKSP_ITEM_Grid_Manager:
 		case WKSP_ITEM_Grid_System:
 			if( g_pACTIVE )

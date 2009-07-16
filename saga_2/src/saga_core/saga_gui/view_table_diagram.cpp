@@ -386,8 +386,8 @@ bool CVIEW_Table_Diagram_Control::_Create(void)
 		{
 			if( SG_STR_CMP(sField, m_pTable->Get_Field_Name(iField)) == 0 )
 			{
-				m_xMin	= m_pTable->Get_MinValue(iField);
-				m_xMax	= m_pTable->Get_MaxValue(iField);
+				m_xMin	= m_pTable->Get_Minimum(iField);
+				m_xMax	= m_pTable->Get_Maximum(iField);
 
 				if( m_xMin < m_xMax )
 				{
@@ -418,16 +418,16 @@ bool CVIEW_Table_Diagram_Control::_Create(void)
 
 				if( m_nFields == 1 )
 				{
-					m_yMin	= m_pTable->Get_MinValue(iField);
-					m_yMax	= m_pTable->Get_MaxValue(iField);
+					m_yMin	= m_pTable->Get_Minimum(iField);
+					m_yMax	= m_pTable->Get_Maximum(iField);
 				}
 				else
 				{
-					if( m_yMin	> m_pTable->Get_MinValue(iField) )
-						m_yMin	= m_pTable->Get_MinValue(iField);
+					if( m_yMin	> m_pTable->Get_Minimum(iField) )
+						m_yMin	= m_pTable->Get_Minimum(iField);
 
-					if( m_yMax	< m_pTable->Get_MaxValue(iField) )
-						m_yMax	= m_pTable->Get_MaxValue(iField);
+					if( m_yMax	< m_pTable->Get_Maximum(iField) )
+						m_yMax	= m_pTable->Get_Maximum(iField);
 				}
 			}
 		}

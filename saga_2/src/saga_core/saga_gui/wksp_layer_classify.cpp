@@ -119,6 +119,7 @@ bool CWKSP_Layer_Classify::Initialise(CWKSP_Layer *pLayer, CSG_Table *pLUT, CSG_
 		break;
 
 	case WKSP_ITEM_TIN:
+	case WKSP_ITEM_PointCloud:
 	case WKSP_ITEM_Grid:
 		m_pColors->Set_Count(100);
 		break;

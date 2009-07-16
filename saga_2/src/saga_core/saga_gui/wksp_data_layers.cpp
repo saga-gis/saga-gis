@@ -456,6 +456,7 @@ bool CWKSP_Data_Buttons::_Add_Items(CWKSP_Base_Item *pItem)
 
 		case WKSP_ITEM_Shapes:
 		case WKSP_ITEM_TIN:
+		case WKSP_ITEM_PointCloud:
 		case WKSP_ITEM_Grid:
 			return( _Add_Item((CWKSP_Layer *)pItem) );
 
@@ -467,6 +468,7 @@ bool CWKSP_Data_Buttons::_Add_Items(CWKSP_Base_Item *pItem)
 		case WKSP_ITEM_Grid_System:
 		case WKSP_ITEM_Shapes_Type:
 		case WKSP_ITEM_TIN_Manager:
+		case WKSP_ITEM_PointCloud_Manager:
 			if( m_bCategorised )
 			{
 				_Add_Item(pItem->Get_Name());

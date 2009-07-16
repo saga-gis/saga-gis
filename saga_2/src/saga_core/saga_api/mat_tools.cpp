@@ -83,3 +83,44 @@ double			SG_Get_Square(double x)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_Simple_Statistics::CSG_Simple_Statistics(void)
+{
+	Invalidate();
+}
+
+//---------------------------------------------------------
+void CSG_Simple_Statistics::Invalidate(void)
+{
+	m_bEvaluated	= false;
+	m_nValues		= 0;
+	m_Sum			= 0.0;
+	m_Sum2			= 0.0;
+
+	m_Minimum		= 0.0;
+	m_Maximum		= 0.0;
+	m_Range			= 0.0;
+	m_Mean			= 0.0;
+	m_Variance		= 0.0;
+	m_StdDev		= 0.0;
+}
+
+//---------------------------------------------------------
+void CSG_Simple_Statistics::_Evaluate(void)
+{
+	if( m_nValues > 0 )
+	{
+		m_Range		= m_Maximum - m_Minimum;
+		m_Mean		= m_Sum  / m_nValues;
+		m_Variance	= m_Sum2 / m_nValues - m_Mean*m_Mean;
+		m_StdDev	= sqrt(m_Variance);
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

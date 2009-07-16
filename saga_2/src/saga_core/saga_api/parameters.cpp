@@ -588,6 +588,35 @@ CSG_Parameter * CSG_Parameters::Add_TIN_List(CSG_Parameter *pParent, const SG_Ch
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_Parameter * CSG_Parameters::Add_PointCloud(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint)
+{
+	CSG_Parameter	*pParameter;
+
+	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_PointCloud, Constraint);
+
+	return( pParameter );
+}
+
+//---------------------------------------------------------
+CSG_Parameter * CSG_Parameters::Add_PointCloud_Output(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description)
+{
+	CSG_Parameter	*pParameter;
+
+	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_DataObject_Output, PARAMETER_OUTPUT_OPTIONAL);
+
+	((CSG_Parameter_Data_Object_Output *)pParameter->Get_Data())->Set_DataObject_Type(DATAOBJECT_TYPE_PointCloud);
+
+	return( pParameter );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CSG_Parameter * CSG_Parameters::Add_Parameters(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description)
 {
 	CSG_Parameter	*pParameter;
@@ -1507,6 +1536,12 @@ CSG_Parameter * CSG_Parameters::Add_TIN_Output			(CSG_Parameter *pParent, const 
 
 CSG_Parameter * CSG_Parameters::Add_TIN_List			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint)
 {	return( Add_TIN_List			(pParent, SG_STR_MBTOSG(Identifier), Name, Description, Constraint) );	}
+
+CSG_Parameter * CSG_Parameters::Add_PointCloud			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint)
+{	return( Add_TIN					(pParent, SG_STR_MBTOSG(Identifier), Name, Description, Constraint) );	}
+
+CSG_Parameter * CSG_Parameters::Add_PointCloud_Output	(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description)
+{	return( Add_TIN_Output			(pParent, SG_STR_MBTOSG(Identifier), Name, Description) );	}
 
 CSG_Parameter * CSG_Parameters::Add_Parameters			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description)
 {	return( Add_Parameters			(pParent, SG_STR_MBTOSG(Identifier), Name, Description) );	}

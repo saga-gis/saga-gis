@@ -94,6 +94,7 @@ enum
 	IMG_SHAPES_LINE,
 	IMG_SHAPES_POLYGON,
 	IMG_TIN,
+	IMG_POINTCLOUD,
 	IMG_GRID
 };
 
@@ -145,6 +146,7 @@ CWKSP_Map_Control::CWKSP_Map_Control(wxWindow *pParent)
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_SHAPES_LINE);
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_SHAPES_POLYGON);
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_TIN);
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_POINTCLOUD);
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_GRID);
 
 	//-----------------------------------------------------
@@ -210,6 +212,7 @@ inline int CWKSP_Map_Control::_Get_Image_ID(CWKSP_Base_Item *pItem)
 			}
 
 		case WKSP_ITEM_TIN:				return( IMG_TIN );
+		case WKSP_ITEM_PointCloud:		return( IMG_POINTCLOUD );
 		case WKSP_ITEM_Grid:			return( IMG_GRID );
 		}
 	}

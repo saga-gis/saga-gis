@@ -308,6 +308,10 @@ SOURCE=.\parameters.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\pointcloud.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\quadtree.cpp
 # End Source File
 # Begin Source File
@@ -433,6 +437,10 @@ SOURCE=.\module_library.h
 # Begin Source File
 
 SOURCE=.\Parameters.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\pointcloud.h
 # End Source File
 # Begin Source File
 

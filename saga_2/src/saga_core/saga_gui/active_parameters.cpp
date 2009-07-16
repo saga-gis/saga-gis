@@ -255,6 +255,7 @@ bool CACTIVE_Parameters::Set_Parameters(CWKSP_Base_Item *pItem)
 
 		case WKSP_ITEM_Shapes:
 		case WKSP_ITEM_TIN:
+		case WKSP_ITEM_PointCloud:
 		case WKSP_ITEM_Grid:
 			g_pMaps->Update((CWKSP_Layer *)m_pItem, false);
 			break;

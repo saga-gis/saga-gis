@@ -475,7 +475,7 @@ bool CSG_Table::_Load_DBase(const CSG_String &File_Name)
 
 			Set_Update_Flag();
 
-			_Range_Invalidate();
+			_Stats_Invalidate();
 		}
 
 		return( true );

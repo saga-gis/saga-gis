@@ -453,6 +453,76 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Simple_Statistics
+{
+public:
+	CSG_Simple_Statistics(void);
+
+	void						Invalidate			(void);
+
+	bool						is_Evaluated		(void)		{	return( m_bEvaluated );	}
+
+	int							Get_Count			(void)		{	return( m_nValues );	}
+
+	double						Get_Minimum			(void)		{	_Update();	return( m_Minimum	);	}
+	double						Get_Maximum			(void)		{	_Update();	return( m_Maximum	);	}
+	double						Get_Range			(void)		{	_Update();	return( m_Range		);	}
+	double						Get_Mean			(void)		{	_Update();	return( m_Mean		);	}
+	double						Get_Variance		(void)		{	_Update();	return( m_Variance	);	}
+	double						Get_StdDev			(void)		{	_Update();	return( m_StdDev	);	}
+
+	void						Add_Value			(double Value)
+	{
+		if( m_nValues == 0 )
+		{
+			m_Minimum	= m_Maximum	= Value;
+		}
+		else if( m_Minimum > Value )
+		{
+			m_Minimum	= Value;
+		}
+		else if( m_Maximum < Value )
+		{
+			m_Maximum	= Value;
+		}
+
+		m_nValues		++;
+		m_Sum			+= Value;
+		m_Sum2			+= Value * Value;
+
+		m_bEvaluated	= false;
+	}
+
+
+protected:
+
+	bool						m_bEvaluated;
+
+	int							m_nValues;
+
+	double						m_Sum, m_Sum2, m_Minimum, m_Maximum, m_Range, m_Mean, m_Variance, m_StdDev;
+
+
+	void						_Evaluate			(void);
+
+	void						_Update				(void)
+	{
+		if( !m_bEvaluated )
+		{
+			_Evaluate();
+		}
+	}
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Spline
 {
 public:

@@ -109,8 +109,8 @@ CVariogram_Diagram::CVariogram_Diagram(wxWindow *pParent, CSG_Trend *pVariogram,
 
 	//-----------------------------------------------------
 	m_xMin	= m_yMin	= 0.0;
-	m_xMax	= m_pVariances->Get_MaxValue(0);
-	m_yMax	= (1.0 + 0.02) * m_pVariances->Get_MaxValue(m_pVariances->Get_MaxValue(1) > m_pVariances->Get_MaxValue(2) ? 1 : 2);
+	m_xMax	= m_pVariances->Get_Maximum(0);
+	m_yMax	= (1.0 + 0.02) * m_pVariances->Get_Maximum(m_pVariances->Get_Maximum(1) > m_pVariances->Get_Maximum(2) ? 1 : 2);
 }
 
 //---------------------------------------------------------
@@ -242,7 +242,7 @@ CVariogram_Dialog::CVariogram_Dialog(CSG_Trend *pVariogram, CSG_Table *pVariance
 	m_pFormulas		= Add_Choice	(_TL("Predefined Functions"), Formulas, 0);
 
 	Add_Spacer();
-	m_pDistance		= Add_Slider	(_TL("Function Fitting Range"), pVariances->Get_MaxValue(0), 0.0, pVariances->Get_MaxValue(0));
+	m_pDistance		= Add_Slider	(_TL("Function Fitting Range"), pVariances->Get_Maximum(0), 0.0, pVariances->Get_Maximum(0));
 
 	Add_Spacer();
 	m_pParameters	= Add_TextCtrl	(_TL("Function Parameters"), wxTE_MULTILINE|wxTE_READONLY);

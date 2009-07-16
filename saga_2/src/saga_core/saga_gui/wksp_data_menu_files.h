@@ -93,7 +93,7 @@ private:
 
 	class wxMenu					**m_Menus;
 
-	class CWKSP_Data_Menu_File		*m_pFMProjects, *m_pFMTables, *m_pFMShapes, *m_pFMTINs, *m_pFMGrids;
+	class CWKSP_Data_Menu_File		*m_pFMProjects, *m_pFMTables, *m_pFMShapes, *m_pFMTINs, *m_pFMPointClouds, *m_pFMGrids;
 
 
 	class CWKSP_Data_Menu_File *	_Get_Menu		(int DataType);

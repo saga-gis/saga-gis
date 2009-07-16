@@ -152,8 +152,7 @@ void CSG_Table::_On_Construction(void)
 	m_nFields		= 0;
 	m_Field_Name	= NULL;
 	m_Field_Type	= NULL;
-	m_Field_Val_Min	= NULL;
-	m_Field_Val_Max	= NULL;
+	m_Field_Stats	= NULL;
 
 	m_Records		= NULL;
 	m_nRecords		= 0;
@@ -255,20 +254,19 @@ bool CSG_Table::_Destroy(void)
 	{
 		for(int i=0; i<m_nFields; i++)
 		{
-			delete(m_Field_Name[i]);
+			delete(m_Field_Name [i]);
+			delete(m_Field_Stats[i]);
 		}
 
 		m_nFields		= 0;
 
 		SG_Free(m_Field_Name);
 		SG_Free(m_Field_Type);
-		SG_Free(m_Field_Val_Min);
-		SG_Free(m_Field_Val_Max);
+		SG_Free(m_Field_Stats);
 
 		m_Field_Name	= NULL;
 		m_Field_Type	= NULL;
-		m_Field_Val_Min	= NULL;
-		m_Field_Val_Max	= NULL;
+		m_Field_Stats	= NULL;
 	}
 
 	CSG_Data_Object::Destroy();
@@ -421,25 +419,22 @@ void CSG_Table::Add_Field(const SG_Char *Name, TSG_Table_Field_Type Type, int ad
 	//-----------------------------------------------------
 	m_nFields++;
 
-	m_Field_Name	= (CSG_String          **)SG_Realloc(m_Field_Name		, m_nFields * sizeof(CSG_String *));
-	m_Field_Type	= (TSG_Table_Field_Type *)SG_Realloc(m_Field_Type		, m_nFields * sizeof(TSG_Table_Field_Type));
-	m_Field_Val_Min	= (double               *)SG_Realloc(m_Field_Val_Min	, m_nFields * sizeof(double));
-	m_Field_Val_Max	= (double               *)SG_Realloc(m_Field_Val_Max	, m_nFields * sizeof(double));
+	m_Field_Name	= (CSG_String            **)SG_Realloc(m_Field_Name , m_nFields * sizeof(CSG_String *));
+	m_Field_Type	= (TSG_Table_Field_Type   *)SG_Realloc(m_Field_Type , m_nFields * sizeof(TSG_Table_Field_Type));
+	m_Field_Stats	= (CSG_Simple_Statistics **)SG_Realloc(m_Field_Stats, m_nFields * sizeof(CSG_Simple_Statistics *));
 
 	//-----------------------------------------------------
 	for(iField=m_nFields-1; iField>add_Field; iField--)
 	{
-		m_Field_Name   [iField]	= m_Field_Name   [iField - 1];
-		m_Field_Type   [iField]	= m_Field_Type   [iField - 1];
-		m_Field_Val_Min[iField]	= m_Field_Val_Min[iField - 1];
-		m_Field_Val_Max[iField]	= m_Field_Val_Max[iField - 1];
+		m_Field_Name [iField]	= m_Field_Name [iField - 1];
+		m_Field_Type [iField]	= m_Field_Type [iField - 1];
+		m_Field_Stats[iField]	= m_Field_Stats[iField - 1];
 	}
 
 	//-----------------------------------------------------
-	m_Field_Name   [add_Field]	= new CSG_String(Name);
-	m_Field_Type   [add_Field]	= Type;
-	m_Field_Val_Min[add_Field]	= 0.0;
-	m_Field_Val_Max[add_Field]	= 0.0;
+	m_Field_Name [add_Field]	= new CSG_String(Name);
+	m_Field_Type [add_Field]	= Type;
+	m_Field_Stats[add_Field]	= new CSG_Simple_Statistics();
 
 	//-----------------------------------------------------
 	for(iRecord=0; iRecord<m_nRecords; iRecord++)
@@ -466,22 +461,21 @@ bool CSG_Table::Del_Field(int del_Field)
 		m_nFields--;
 
 		//-------------------------------------------------
-		delete(m_Field_Name[del_Field]);
+		delete(m_Field_Name [del_Field]);
+		delete(m_Field_Stats[del_Field]);
 
 		//-------------------------------------------------
 		for(iField=del_Field; iField<m_nFields; iField++)
 		{
-			m_Field_Name   [iField]	= m_Field_Name   [iField + 1];
-			m_Field_Type   [iField]	= m_Field_Type   [iField + 1];
-			m_Field_Val_Min[iField]	= m_Field_Val_Min[iField + 1];
-			m_Field_Val_Max[iField]	= m_Field_Val_Max[iField + 1];
+			m_Field_Name [iField]	= m_Field_Name [iField + 1];
+			m_Field_Type [iField]	= m_Field_Type [iField + 1];
+			m_Field_Stats[iField]	= m_Field_Stats[iField + 1];
 		}
 
 		//-------------------------------------------------
-		m_Field_Name	= (CSG_String          **)SG_Realloc(m_Field_Name		, m_nFields * sizeof(CSG_String *));
-		m_Field_Type	= (TSG_Table_Field_Type *)SG_Realloc(m_Field_Type		, m_nFields * sizeof(TSG_Table_Field_Type));
-		m_Field_Val_Min	= (double               *)SG_Realloc(m_Field_Val_Min	, m_nFields * sizeof(double));
-		m_Field_Val_Max	= (double               *)SG_Realloc(m_Field_Val_Max	, m_nFields * sizeof(double));
+		m_Field_Name	= (CSG_String            **)SG_Realloc(m_Field_Name , m_nFields * sizeof(CSG_String *));
+		m_Field_Type	= (TSG_Table_Field_Type   *)SG_Realloc(m_Field_Type , m_nFields * sizeof(TSG_Table_Field_Type));
+		m_Field_Stats	= (CSG_Simple_Statistics **)SG_Realloc(m_Field_Stats, m_nFields * sizeof(CSG_Simple_Statistics *));
 
 		//-------------------------------------------------
 		for(iRecord=0; iRecord<m_nRecords; iRecord++)
@@ -634,7 +628,7 @@ CSG_Table_Record * CSG_Table::_Add_Record(CSG_Table_Record *pCopy)
 
 		Set_Update_Flag();
 
-		_Range_Invalidate();
+		_Stats_Invalidate();
 
 		return( pRecord );
 	}
@@ -692,7 +686,7 @@ CSG_Table_Record * CSG_Table::_Ins_Record(int iRecord, CSG_Table_Record *pCopy)
 
 		Set_Update_Flag();
 
-		_Range_Invalidate();
+		_Stats_Invalidate();
 
 		return( pRecord );
 	}
@@ -750,7 +744,7 @@ bool CSG_Table::_Del_Record(int iRecord)
 
 		Set_Update_Flag();
 
-		_Range_Invalidate();
+		_Stats_Invalidate();
 
 		return( true );
 	}
@@ -857,25 +851,22 @@ bool CSG_Table::Get_Value(int iRecord, int iField, double      &Value) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Table::_Range_Invalidate(void) const
+bool CSG_Table::_Stats_Invalidate(void) const
 {
-	int		iField;
-
-	for(iField=0; iField<m_nFields; iField++)
+	for(int iField=0; iField<m_nFields; iField++)
 	{
-		_Range_Invalidate(iField);
+		m_Field_Stats[iField]->Invalidate();
 	}
 
 	return( true );
 }
 
 //---------------------------------------------------------
-bool CSG_Table::_Range_Invalidate(int iField) const
+bool CSG_Table::_Stats_Invalidate(int iField) const
 {
 	if( iField >= 0 && iField < m_nFields )
 	{
-		m_Field_Val_Min[iField]	=  0.0;
-		m_Field_Val_Max[iField]	= -1.0;
+		m_Field_Stats[iField]->Invalidate();
 
 		return( true );
 	}
@@ -884,31 +875,17 @@ bool CSG_Table::_Range_Invalidate(int iField) const
 }
 
 //---------------------------------------------------------
-bool CSG_Table::_Range_Update(int iField) const
+bool CSG_Table::_Stats_Update(int iField) const
 {
-	int				iRecord;
-	double			Value;
-	CSG_Table_Record	**ppRecord;
-
 	if( iField >= 0 && iField < m_nFields && m_nRecords > 0 )
 	{
-		if( m_Field_Val_Min[iField] > m_Field_Val_Max[iField] )
+		if( !m_Field_Stats[iField]->is_Evaluated() )
 		{
-			ppRecord	= m_Records;
-			m_Field_Val_Min[iField]	= m_Field_Val_Max[iField]	= (*ppRecord)->asDouble(iField);
+			CSG_Table_Record	**ppRecord	= m_Records;
 
-			for(iRecord=1, ppRecord++; iRecord<m_nRecords; iRecord++, ppRecord++)
+			for(int iRecord=0; iRecord<m_nRecords; iRecord++, ppRecord++)
 			{
-				Value	= (*ppRecord)->asDouble(iField);
-
-				if( m_Field_Val_Min[iField] > Value )
-				{
-					m_Field_Val_Min[iField]	= Value;
-				}
-				else if( m_Field_Val_Max[iField] < Value )
-				{
-					m_Field_Val_Max[iField]	= Value;
-				}
+				m_Field_Stats[iField]->Add_Value((*ppRecord)->asDouble(iField));
 			}
 		}
 

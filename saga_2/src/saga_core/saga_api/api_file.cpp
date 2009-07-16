@@ -258,7 +258,7 @@ size_t CSG_File::Read(CSG_String &Buffer, size_t Size) const
 {
 	if( m_pStream )
 	{
-		SG_Char	*b	= (SG_Char *)SG_Calloc(Size, sizeof(SG_Char));
+		SG_Char	*b	= (SG_Char *)SG_Calloc(Size + 1, sizeof(SG_Char));
 		int		i	= fread(b, sizeof(SG_Char), Size, m_pStream);
 		Buffer		= b;
 		SG_Free(b);
@@ -283,15 +283,15 @@ size_t CSG_File::Write(CSG_String &Buffer) const
 //---------------------------------------------------------
 bool CSG_File::Read_Line(CSG_String &sLine)
 {
-	SG_Char	c;
+	char	c;
 
 	if( m_pStream && !feof(m_pStream) )
 	{
 		sLine.Clear();
 
-		while( !feof(m_pStream) && (c = SG_FILE_GETC(m_pStream)) != 0x0A && c != 0x0D && c != EOF )
+		while( !feof(m_pStream) && (c = fgetc(m_pStream)) != 0x0A && c != 0x0D && c != EOF )
 		{
-			sLine.Append(c);
+			sLine.Append(SG_STR_MBTOSG(c));
 		}
 
 		return( true );

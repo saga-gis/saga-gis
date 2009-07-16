@@ -184,7 +184,7 @@ void CWKSP_Shapes_Line::On_Parameters_Changed(void)
 	m_Size_Type		= m_Parameters("SIZE_TYPE")->asInt();
 
 	if(	(m_iSize	= m_Parameters("SIZE_ATTRIB")->asInt()) >= m_pShapes->Get_Field_Count()
-	||	(m_dSize	= m_pShapes->Get_MaxValue(m_iSize) - (m_Size_Min = m_pShapes->Get_MinValue(m_iSize))) <= 0.0 )
+	||	(m_dSize	= m_pShapes->Get_Maximum(m_iSize) - (m_Size_Min = m_pShapes->Get_Minimum(m_iSize))) <= 0.0 )
 	{
 		m_iSize		= -1;
 		m_Size		= m_Parameters("SIZE_DEFAULT")->asInt();
@@ -249,7 +249,7 @@ bool CWKSP_Shapes_Line::Get_Style_Size(int &min_Size, int &max_Size, double &min
 	if( m_iSize >= 0 )
 	{
 		min_Size	= (int)(m_Size);
-		max_Size	= (int)(m_Size + ((m_pShapes->Get_MaxValue(m_iSize) - m_Size_Min) * m_dSize));
+		max_Size	= (int)(m_Size + ((m_pShapes->Get_Maximum(m_iSize) - m_Size_Min) * m_dSize));
 		min_Value	= m_Size_Min;
 		dValue		= m_dSize;
 
