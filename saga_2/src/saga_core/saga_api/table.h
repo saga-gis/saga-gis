@@ -235,8 +235,11 @@ public:
 									CSG_Table			(const CSG_Table &Table);
 	bool							Create				(const CSG_Table &Table);
 
-									CSG_Table			(const CSG_String &File_Name, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, const CSG_String &Separator = SG_T("\t"));
-	bool							Create				(const CSG_String &File_Name, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, const CSG_String &Separator = SG_T("\t"));
+									CSG_Table			(const CSG_String &File_Name, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined);
+	bool							Create				(const CSG_String &File_Name, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined);
+
+									CSG_Table			(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char *Separator);
+	bool							Create				(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char *Separator);
 
 									CSG_Table			(CSG_Table *pStructure);
 	bool							Create				(CSG_Table *pStructure);

@@ -71,6 +71,9 @@
 
 #define SVG_CODE_CLOSING	SG_T("</svg>")
 
+//---------------------------------------------------------
+const SG_Char *g_Unit	= SG_T("");
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -145,8 +148,7 @@ void CSG_Doc_SVG::Draw_Circle(double x,
 							 double Radius, 
 							 int Fill_Color, 
 							 int Line_Color, 
-							 double Line_Width, 
-							 const CSG_String &Unit)
+							 double Line_Width)
 {
 	
 	CSG_String sWidth;
@@ -156,7 +158,7 @@ void CSG_Doc_SVG::Draw_Circle(double x,
 	_AddAttribute(SG_T("cy"), y);
 	_AddAttribute(SG_T("r"), Radius);
 	sWidth.Append(SG_Get_String(Line_Width,2));
-	sWidth.Append(Unit);
+	sWidth.Append(g_Unit);
 	_AddAttribute(SG_T("stroke-width"), sWidth);
 	_AddAttribute(SG_T("stroke"), _Get_SVGColor(Line_Color));
 	_AddAttribute(SG_T("fill"), _Get_SVGColor(Fill_Color));
@@ -170,8 +172,7 @@ void CSG_Doc_SVG::Draw_LinkedCircle(double x,
 								 const SG_Char *Link,
 								 int Fill_Color, 
 								 int Line_Color, 
-								 double Line_Width, 
-								 const CSG_String &Unit)
+								 double Line_Width)
 {
 	
 	CSG_String sWidth;
@@ -182,7 +183,7 @@ void CSG_Doc_SVG::Draw_LinkedCircle(double x,
 	_AddAttribute(SG_T("cy"), y);
 	_AddAttribute(SG_T("r"), Radius);
 	sWidth.Append(SG_Get_String(Line_Width,2));
-	sWidth.Append(Unit);
+	sWidth.Append(g_Unit);
 	_AddAttribute(SG_T("stroke-width"), sWidth);
 	_AddAttribute(SG_T("stroke"), _Get_SVGColor(Line_Color));
 	_AddAttribute(SG_T("fill"), _Get_SVGColor(Fill_Color));
@@ -199,7 +200,6 @@ void CSG_Doc_SVG::Draw_Line(double xa,
 						   double xb, 
 						   double yb, 
 						   double Width, 
-						   const CSG_String &Unit, 
 						   int Color)
 {
 
@@ -211,7 +211,7 @@ void CSG_Doc_SVG::Draw_Line(double xa,
 	_AddAttribute(SG_T("y1"), ya);
 	_AddAttribute(SG_T("y2"), yb);
 	sWidth.Append(SG_Get_String(Width,2));
-	sWidth.Append(Unit);
+	sWidth.Append(g_Unit);
 	_AddAttribute(SG_T("stroke-width"), sWidth);	_AddAttribute(SG_T("stroke"), _Get_SVGColor(Color));
 	m_sSVGCode.Append(SG_T("/>\n"));
 
@@ -219,7 +219,6 @@ void CSG_Doc_SVG::Draw_Line(double xa,
 
 void CSG_Doc_SVG::Draw_Line(CSG_Points &Points, 
 						   double Width, 
-						   const CSG_String &Unit, 
 						   int Color)
 {
 	int i;
@@ -236,7 +235,7 @@ void CSG_Doc_SVG::Draw_Line(CSG_Points &Points,
 	m_sSVGCode.Append(SG_T("<polyline "));
 	_AddAttribute(SG_T("points"), sPoints);	
 	sWidth.Append(SG_Get_String(Width,2));
-	sWidth.Append(Unit);
+	sWidth.Append(g_Unit);
 	_AddAttribute(SG_T("stroke-width"), sWidth);
 	_AddAttribute(SG_T("stroke"), _Get_SVGColor(Color));
 	_AddAttribute(SG_T("fill"), SG_T("none"));
@@ -250,8 +249,7 @@ void CSG_Doc_SVG::Draw_Rectangle(double xa,
 								double yb, 
 								int Fill_Color, 
 								int Line_Color, 
-								double Line_Width, 
-								const CSG_String &Unit)
+								double Line_Width)
 {
 	CSG_Points	Points;
 
@@ -260,14 +258,13 @@ void CSG_Doc_SVG::Draw_Rectangle(double xa,
 	Points.Add(xb, yb);
 	Points.Add(xa, yb);
 
-	Draw_Polygon(Points, Fill_Color, Line_Color, Line_Width, Unit) ;
+	Draw_Polygon(Points, Fill_Color, Line_Color, Line_Width);
 }
 
 void CSG_Doc_SVG::Draw_Rectangle(const CSG_Rect &r, 
 								int Fill_Color, 
 								int Line_Color, 
-								double Line_Width, 
-								const CSG_String &Unit)
+								double Line_Width)
 {
 	Draw_Rectangle(r.Get_XMin(), r.Get_YMin(), r.Get_XMax(), r.Get_YMax(), Fill_Color, Line_Color, Line_Width) ;
 }
@@ -275,8 +272,7 @@ void CSG_Doc_SVG::Draw_Rectangle(const CSG_Rect &r,
 void CSG_Doc_SVG::Draw_Polygon(CSG_Points &Points, 
 							  int Fill_Color, 
 							  int Line_Color, 
-							  double Line_Width, 
-							  const CSG_String &Unit)
+							  double Line_Width)
 {
 	if( Points.Get_Count() > 2 )
 	{
@@ -294,7 +290,7 @@ void CSG_Doc_SVG::Draw_Polygon(CSG_Points &Points,
 		m_sSVGCode.Append(SG_T("<polygon "));
 		_AddAttribute(SG_T("points"), sPoints);
 		sWidth.Append(SG_Get_String(Line_Width,2));
-		sWidth.Append(Unit);
+		sWidth.Append(g_Unit);
 		_AddAttribute(SG_T("stroke-width"), sWidth);				
 		_AddAttribute(SG_T("stroke"), _Get_SVGColor(Line_Color));
 		_AddAttribute(SG_T("fill"), _Get_SVGColor(Fill_Color));
@@ -306,8 +302,7 @@ void CSG_Doc_SVG::Draw_LinkedPolygon(CSG_Points &Points,
 							  const SG_Char* Link,
 							  int Fill_Color, 
 							  int Line_Color, 
-							  double Line_Width, 
-							  const CSG_String &Unit)
+							  double Line_Width)
 {
 	if( Points.Get_Count() > 2 )
 	{
@@ -326,7 +321,7 @@ void CSG_Doc_SVG::Draw_LinkedPolygon(CSG_Points &Points,
 		m_sSVGCode.Append(SG_T("<polygon "));
 		_AddAttribute(SG_T("points"), sPoints);
 		sWidth.Append(SG_Get_String(Line_Width,2));
-		sWidth.Append(Unit);
+		sWidth.Append(g_Unit);
 		_AddAttribute(SG_T("stroke-width"), sWidth);				
 		_AddAttribute(SG_T("stroke"), _Get_SVGColor(Line_Color));
 		_AddAttribute(SG_T("fill"), _Get_SVGColor(Fill_Color));
@@ -344,7 +339,6 @@ void CSG_Doc_SVG::Draw_Text(double x,
 						 int Color, 
 						 const SG_Char* Font, 
 						 double dSize,
-						 const CSG_String &Unit,
 						 TSG_SVG_Alignment iAlignment)
 {
 
@@ -352,7 +346,7 @@ void CSG_Doc_SVG::Draw_Text(double x,
 	CSG_String sSize;
 	
 	sSize.Append(SG_Get_String(dSize,2));
-	sSize.Append(Unit);
+	sSize.Append(g_Unit);
 	
 	m_sSVGCode.Append(SG_T("<text "));
 	_AddAttribute(SG_T("x"), x);	

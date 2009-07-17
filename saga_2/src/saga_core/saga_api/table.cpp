@@ -119,13 +119,53 @@ CSG_Table::CSG_Table(const CSG_Table &Table)
 	Create(Table);
 }
 
+bool CSG_Table::Create(const CSG_Table &Table)
+{
+	return( is_Private() ? false : _Create(Table) );
+}
+
+bool CSG_Table::_Create(const CSG_Table &Table)
+{
+	if( Assign((CSG_Data_Object *)&Table) )
+	{
+		Set_Name(Table.Get_Name());
+
+		return( true );
+	}
+
+	return( false );
+}
+
 //---------------------------------------------------------
-CSG_Table::CSG_Table(const CSG_String &File_Name, TSG_Table_File_Type Format, const CSG_String &Separator)
+CSG_Table::CSG_Table(const CSG_String &File_Name, TSG_Table_File_Type Format)
+{
+	_On_Construction();
+
+	Create(File_Name, Format);
+}
+
+bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format)
+{
+	return( is_Private() ? false : _Create(File_Name, Format, SG_T("\t")) );
+}
+
+//---------------------------------------------------------
+CSG_Table::CSG_Table(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char *Separator)
 	: CSG_Data_Object()
 {
 	_On_Construction();
 
 	Create(File_Name, Format, Separator);
+}
+
+bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char *Separator)
+{
+	return( is_Private() ? false : _Create(File_Name, Format, Separator) );
+}
+
+bool CSG_Table::_Create(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char *Separator)
+{
+	return( _Load(File_Name, Format, !Separator || !Separator[0] ? SG_T("\t") : Separator) );
 }
 
 //---------------------------------------------------------
@@ -135,6 +175,28 @@ CSG_Table::CSG_Table(CSG_Table *pStructure)
 	_On_Construction();
 
 	Create(pStructure);
+}
+
+bool CSG_Table::Create(CSG_Table *pStructure)
+{
+	return( is_Private() ? false : _Create(pStructure) );
+}
+
+bool CSG_Table::_Create(CSG_Table *pStructure)
+{
+	_Destroy();
+
+	if( pStructure && pStructure->Get_Field_Count() > 0 )
+	{
+		for(int i=0; i<pStructure->Get_Field_Count(); i++)
+		{
+			Add_Field(pStructure->Get_Field_Name(i), pStructure->Get_Field_Type(i));
+		}
+
+		return( true );
+	}
+
+	return( false );
 }
 
 
@@ -164,65 +226,6 @@ void CSG_Table::_On_Construction(void)
 	m_Index			= NULL;
 
 	Set_Update_Flag();
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CSG_Table::Create(const CSG_Table &Table)
-{
-	return( is_Private() ? false : _Create(Table) );
-}
-
-bool CSG_Table::_Create(const CSG_Table &Table)
-{
-	if( Assign((CSG_Data_Object *)&Table) )
-	{
-		Set_Name(Table.Get_Name());
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format, const CSG_String &Separator)
-{
-	return( is_Private() ? false : _Create(File_Name, Format, Separator) );
-}
-
-bool CSG_Table::_Create(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char *Separator)
-{
-	return( _Load(File_Name, Format, Separator) );
-}
-
-//---------------------------------------------------------
-bool CSG_Table::Create(CSG_Table *pStructure)
-{
-	return( is_Private() ? false : _Create(pStructure) );
-}
-
-bool CSG_Table::_Create(CSG_Table *pStructure)
-{
-	_Destroy();
-
-	if( pStructure && pStructure->Get_Field_Count() > 0 )
-	{
-		for(int i=0; i<pStructure->Get_Field_Count(); i++)
-		{
-			Add_Field(pStructure->Get_Field_Name(i), pStructure->Get_Field_Type(i));
-		}
-
-		return( true );
-	}
-
-	return( false );
 }
 
 

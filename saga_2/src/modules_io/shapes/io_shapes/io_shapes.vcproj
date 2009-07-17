@@ -572,6 +572,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\pointcloud_from_file.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stl.cpp"
 				>
 			</File>
@@ -678,6 +682,10 @@
 			</File>
 			<File
 				RelativePath="MLB_Interface.h"
+				>
+			</File>
+			<File
+				RelativePath=".\pointcloud_from_file.h"
 				>
 			</File>
 			<File

@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9,00"
 	Name="io_shapes_las"
-	ProjectGUID="{A9EA0DE9-F8C2-493E-8F36-A2A191DDCF9B}"
+	ProjectGUID="{0744A39A-EDB3-4573-B4BE-1BEA00568C1F}"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
@@ -49,7 +49,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="$(SAGA)/src/saga_core"
+				AdditionalIncludeDirectories="$(SAGA)/src/saga_core,$(LIBLAS)/include"
 				PreprocessorDefinitions="NDEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -75,11 +75,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib liblas.lib"
 				OutputFile=".\./../../../../bin/saga_vc8_u/modules/io_shapes_las.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8_u"
+				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8_u,$(LIBLAS)/lib"
 				ProgramDatabaseFile=".\./../../../../bin/saga_vc8_u/modules/io_shapes_las.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
@@ -145,7 +145,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(SAGA)/src/saga_core"
+				AdditionalIncludeDirectories="$(SAGA)/src/saga_core,$(LIBLAS)/include"
 				PreprocessorDefinitions="_DEBUG;WIN32;_USRDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -171,11 +171,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib liblas.lib"
 				OutputFile=".\..\..\..\..\bin\saga_vc8_dbg\modules/io_shapes_las.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8_dbg"
+				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8_dbg,$(LIBLAS)/lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\..\..\..\..\bin\saga_vc8_dbg\modules/io_shapes_las.pdb"
 				SubSystem="2"
@@ -242,7 +242,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(SAGA)/src/saga_core"
+				AdditionalIncludeDirectories="$(SAGA)/src/saga_core,$(LIBLAS)/include"
 				PreprocessorDefinitions="_DEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -269,11 +269,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib liblas.lib"
 				OutputFile=".\./../../../../bin/saga_vc8_u_dbg/modules/io_shapes_las.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8_u_dbg"
+				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8_u_dbg,$(LIBLAS)/lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\./../../../../bin/saga_vc8_u_dbg/modules/io_shapes_las.pdb"
 				SubSystem="2"
@@ -341,7 +341,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="$(SAGA)/src/saga_core"
+				AdditionalIncludeDirectories="$(SAGA)/src/saga_core,$(LIBLAS)/include"
 				PreprocessorDefinitions="NDEBUG;WIN32;_USRDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -366,11 +366,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib liblas.lib"
 				OutputFile=".\..\..\..\..\bin\saga_vc8\modules/io_shapes_las.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8"
+				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8,$(LIBLAS)/lib"
 				ProgramDatabaseFile=".\..\..\..\..\bin\saga_vc8\modules/io_shapes_las.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
@@ -412,7 +412,7 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath=".\dxf_import.cpp"
+				RelativePath=".\las_import.cpp"
 				>
 			</File>
 			<File
@@ -461,7 +461,7 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
-				RelativePath=".\dxf_import.h"
+				RelativePath=".\las_import.h"
 				>
 			</File>
 			<File
@@ -514,58 +514,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\saga_core\saga_api\tin.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="dxflib"
-			>
-			<File
-				RelativePath=".\dxflib\dl_attributes.h"
-				>
-			</File>
-			<File
-				RelativePath=".\dxflib\dl_codes.h"
-				>
-			</File>
-			<File
-				RelativePath=".\dxflib\dl_creationadapter.h"
-				>
-			</File>
-			<File
-				RelativePath=".\dxflib\dl_creationinterface.h"
-				>
-			</File>
-			<File
-				RelativePath=".\dxflib\dl_dxf.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\dxflib\dl_dxf.h"
-				>
-			</File>
-			<File
-				RelativePath=".\dxflib\dl_entities.h"
-				>
-			</File>
-			<File
-				RelativePath=".\dxflib\dl_exception.h"
-				>
-			</File>
-			<File
-				RelativePath=".\dxflib\dl_extrusion.h"
-				>
-			</File>
-			<File
-				RelativePath=".\dxflib\dl_writer.h"
-				>
-			</File>
-			<File
-				RelativePath=".\dxflib\dl_writer_ascii.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\dxflib\dl_writer_ascii.h"
 				>
 			</File>
 		</Filter>

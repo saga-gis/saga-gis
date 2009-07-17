@@ -404,7 +404,7 @@ void CSG_Doc_HTML::AddCurve(const SG_Char *Filename,
         if (fY >= 0 && fY <= GRAPH_HEIGHT)
 		{
 			SVG.Draw_Line(OFFSET_X - 10, fY, GRAPH_WIDTH + OFFSET_X, fY);
-			SVG.Draw_Text(OFFSET_X - 10, fY, SG_Get_String(fMinLine + fStep * i, 1), 0, SG_T("Verdana"), 8, SG_T(""), SVG_ALIGNMENT_Right);
+			SVG.Draw_Text(OFFSET_X - 10, fY, SG_Get_String(fMinLine + fStep * i, 1), 0, SG_T("Verdana"), 8, SVG_ALIGNMENT_Right);
         }
     }
 
@@ -429,7 +429,7 @@ void CSG_Doc_HTML::AddCurve(const SG_Char *Filename,
 			fY = GRAPH_HEIGHT - fY;
 			Points.Add(fX, fY);
 	    }
-		SVG.Draw_Line(Points, 4, SG_T(""), 0x660000);
+		SVG.Draw_Line(Points, 4, 0x660000);
 	}
 
 	if (fMaxX != fMinX)
@@ -469,7 +469,7 @@ void CSG_Doc_HTML::AddCurve(const SG_Char *Filename,
 				{
 					sValue = SG_Get_String(fStep * i + fMinLine, 2, true);
 				}
-				SVG.Draw_Text(fX, GRAPH_HEIGHT + 10, sValue, 0, SG_T("Verdana"), 8, SG_T(""), SVG_ALIGNMENT_Center);
+				SVG.Draw_Text(fX, GRAPH_HEIGHT + 10, sValue, 0, SG_T("Verdana"), 8, SVG_ALIGNMENT_Center);
 				SVG.Draw_Line(fX, GRAPH_HEIGHT, fX, GRAPH_HEIGHT - 5);
 			}
 		}
@@ -640,7 +640,7 @@ bool CSG_Doc_HTML::_Draw_Shape(CSG_Doc_SVG &SVG, CSG_Shape *pShape, CSG_Rect Glo
 		dOffsetX = (MAP_WIDTH  - dWidth)  / 2.;
 		dOffsetY = (MAP_HEIGHT - dHeight) / 2.;
 
-		SVG.Draw_Rectangle(0,0,MAP_WIDTH,MAP_HEIGHT,SG_COLOR_NONE,SG_COLOR_BLACK,1,SG_T("%"));
+		SVG.Draw_Rectangle(0,0,MAP_WIDTH,MAP_HEIGHT,SG_COLOR_NONE,SG_COLOR_BLACK,1);
 
 		for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{
@@ -661,22 +661,22 @@ bool CSG_Doc_HTML::_Draw_Shape(CSG_Doc_SVG &SVG, CSG_Shape *pShape, CSG_Rect Glo
 			case SHAPE_TYPE_Points:
 				for(iPoint=0; iPoint<Points.Get_Count(); iPoint++)
 				{
-					SVG.Draw_Circle(Points[iPoint].x, Points[iPoint].y, Point_Width, Fill_Color, Line_Color, Line_Width, SG_T("%"));
+					SVG.Draw_Circle(Points[iPoint].x, Points[iPoint].y, Point_Width, Fill_Color, Line_Color, Line_Width);
 				}
 				break;
 
 			case SHAPE_TYPE_Line:
-				SVG.Draw_Line(Points, Line_Width, SG_T(""), Line_Color);
+				SVG.Draw_Line(Points, Line_Width, Line_Color);
 				break;
 
 			case SHAPE_TYPE_Polygon:
 				if( ((CSG_Shape_Polygon *)pShape)->is_Lake(iPart) )
 				{
-					SVG.Draw_Polygon(Points, SG_COLOR_WHITE, Line_Color, Line_Width, SG_T(""));
+					SVG.Draw_Polygon(Points, SG_COLOR_WHITE, Line_Color, Line_Width);
 				}
 				else
 				{
-					SVG.Draw_Polygon(Points, Fill_Color, Line_Color, Line_Width, SG_T(""));
+					SVG.Draw_Polygon(Points, Fill_Color, Line_Color, Line_Width);
 				}
 				break;
 			}

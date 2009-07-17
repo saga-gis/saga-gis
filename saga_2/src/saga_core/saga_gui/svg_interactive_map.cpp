@@ -514,7 +514,7 @@ void CSVG_Interactive_Map::_Add_Label(const wxChar* Label, CSG_Shape *pShape, do
 		for(iPoint=0; iPoint < pShape->Get_Point_Count(0); iPoint++)
 		{
 			Point = pShape->Get_Point(iPoint);
-			Draw_Text(100 * Point.x, -100 * Point.y, Label, 0, wxT("Verdana"), 100 * dSize, Unit);
+			Draw_Text(100 * Point.x, -100 * Point.y, Label, 0, wxT("Verdana"), 100 * dSize);
 		}
 		break;
 
@@ -529,7 +529,7 @@ void CSVG_Interactive_Map::_Add_Label(const wxChar* Label, CSG_Shape *pShape, do
 			if(! ((CSG_Shape_Polygon *)pShape)->is_Lake(iPart) )
 			{
 				Point = ((CSG_Shape_Polygon *)pShape)->Get_Centroid(iPart);
-				Draw_Text(100 * Point.x, -100 * Point.y, Label, 0, wxT("Verdana"), 100 * dSize, Unit);
+				Draw_Text(100 * Point.x, -100 * Point.y, Label, 0, wxT("Verdana"), 100 * dSize);
 			}
 		}
 		break;
@@ -562,22 +562,22 @@ bool CSVG_Interactive_Map::_Add_Shape(CSG_Shape *pShape, int Fill_Color, int Lin
 			case SHAPE_TYPE_Points:
 				for(iPoint=0; iPoint<Points.Get_Count(); iPoint++)
 				{
-					Draw_Circle(Points[iPoint].x, Points[iPoint].y, Point_Width, Fill_Color, 0, Line_Width, wxT(""));
+					Draw_Circle(Points[iPoint].x, Points[iPoint].y, Point_Width, Fill_Color, 0, Line_Width);
 				}
 				break;
 
 			case SHAPE_TYPE_Line:
-				Draw_Line(Points, Line_Width, wxT(""), Line_Color);
+				Draw_Line(Points, Line_Width, Line_Color);
 				break;
 
 			case SHAPE_TYPE_Polygon:
 				if( ((CSG_Shape_Polygon *)pShape)->is_Lake(iPart) )
 				{
-					Draw_Polygon(Points, -1, 0, 0.01, wxT("%"));
+					Draw_Polygon(Points, -1, 0, 0.01);
 				}
 				else
 				{
-					Draw_Polygon(Points, Fill_Color, 0, 0.01, wxT("%"));
+					Draw_Polygon(Points, Fill_Color, 0, 0.01);
 				}
 				break;
 			}

@@ -440,7 +440,7 @@ bool CSG_PointCloud::_Add_Field(const SG_Char *Name, TSG_PointCloud_Field_Type T
 //---------------------------------------------------------
 bool CSG_PointCloud::Add_Field(const SG_Char *Name, TSG_PointCloud_Field_Type Type)
 {
-	if( m_nPoints == 0 && Type != POINTCLOUD_FIELDTYPE_None )
+	if( m_nPoints == 0 )
 	{
 		if( m_nFields == 0 )
 		{
@@ -449,7 +449,10 @@ bool CSG_PointCloud::Add_Field(const SG_Char *Name, TSG_PointCloud_Field_Type Ty
 			_Add_Field(SG_T("Z"), m_bXYZPrecDbl ? POINTCLOUD_FIELDTYPE_Double : POINTCLOUD_FIELDTYPE_Float);
 		}
 
-		return( _Add_Field(Name, Type) );
+		if( Name && Type != POINTCLOUD_FIELDTYPE_None )
+		{
+			return( _Add_Field(Name, Type) );
+		}
 	}
 
 	return( false );
@@ -629,36 +632,41 @@ bool CSG_PointCloud::Del_Points(void)
 //---------------------------------------------------------
 bool CSG_PointCloud::_Inc_Array(void)
 {
-	if( (m_nPoints + 1) >= m_nBuffer )
+	if( m_nFields > 0 )
 	{
-		char	**pPoints	= (char **)SG_Realloc(m_Points, (m_nBuffer + GET_GROW_SIZE(m_nBuffer)) * sizeof(char *));
+		if( (m_nPoints + 1) >= m_nBuffer )
+		{
+			char	**pPoints	= (char **)SG_Realloc(m_Points, (m_nBuffer + GET_GROW_SIZE(m_nBuffer)) * sizeof(char *));
 
-		if( pPoints )
-		{
-			m_Points	= pPoints;
-			m_nBuffer	+= GET_GROW_SIZE(m_nBuffer);
+			if( pPoints )
+			{
+				m_Points	= pPoints;
+				m_nBuffer	+= GET_GROW_SIZE(m_nBuffer);
+			}
+			else
+			{
+				return( false );
+			}
 		}
-		else
-		{
-			return( false );
-		}
+
+		m_Cursor	= m_Points[m_nPoints]	= (char *)SG_Calloc(m_nPointBytes, sizeof(char));
+		m_nPoints	++;
+
+		return( true );
 	}
 
-	m_Cursor	= m_Points[m_nPoints]	= (char *)SG_Calloc(m_nPointBytes, sizeof(char));
-	m_nPoints	++;
-
-	return( true );
+	return( false );
 }
 
 //---------------------------------------------------------
 bool CSG_PointCloud::_Dec_Array(void)
 {
-	if( m_nPoints >= 0 && (m_nPoints - 1) < m_nBuffer - GET_GROW_SIZE(m_nBuffer) )
+	if( m_nPoints > 0 && (m_nPoints - 1) < m_nBuffer - GET_GROW_SIZE(m_nBuffer) )
 	{
-		for(int i=m_nPoints; i<m_nBuffer; i++)
-		{
-			SG_Free(m_Points[i]);
-		}
+		m_Cursor	= NULL;
+		m_nPoints	--;
+
+		SG_Free(m_Points[m_nPoints]);
 
 		char	**pPoints	= (char **)SG_Realloc(m_Points, (m_nBuffer + GET_GROW_SIZE(m_nBuffer)) * sizeof(char *));
 
@@ -673,9 +681,6 @@ bool CSG_PointCloud::_Dec_Array(void)
 		}
 	}
 
-	m_Cursor	= NULL;
-	m_nPoints	--;
-
 	return( true );
 }
 
@@ -689,13 +694,16 @@ bool CSG_PointCloud::_Dec_Array(void)
 //---------------------------------------------------------
 const CSG_Rect & CSG_PointCloud::Get_Extent(void)
 {
-	_Stats_Update(0);
-	_Stats_Update(1);
+	if( m_nFields >= 2 )
+	{
+		_Stats_Update(0);
+		_Stats_Update(1);
 
-	m_Extent.Assign(
-		m_Field_Stats[0]->Get_Minimum(), m_Field_Stats[1]->Get_Minimum(),
-		m_Field_Stats[0]->Get_Maximum(), m_Field_Stats[1]->Get_Maximum()
-	);
+		m_Extent.Assign(
+			m_Field_Stats[0]->Get_Minimum(), m_Field_Stats[1]->Get_Minimum(),
+			m_Field_Stats[0]->Get_Maximum(), m_Field_Stats[1]->Get_Maximum()
+		);
+	}
 
 	return( m_Extent );
 }

@@ -3437,6 +3437,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\wksp_pointcloud.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\wksp_pointcloud_manager.cpp"
+				>
+			</File>
+			<File
 				RelativePath="wksp_shapes.cpp"
 				>
 				<FileConfiguration
@@ -4227,6 +4235,14 @@
 			</File>
 			<File
 				RelativePath="WKSP_Module_Menu.h"
+				>
+			</File>
+			<File
+				RelativePath=".\wksp_pointcloud.h"
+				>
+			</File>
+			<File
+				RelativePath=".\wksp_pointcloud_manager.h"
 				>
 			</File>
 			<File

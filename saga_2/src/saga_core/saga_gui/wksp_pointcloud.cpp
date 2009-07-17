@@ -176,15 +176,7 @@ bool CWKSP_PointCloud::On_Command(int Cmd_ID)
 	default:
 		return( CWKSP_Layer::On_Command(Cmd_ID) );
 
-	case ID_CMD_POINTCLOUD_SAVE:
-		Save(m_pPointCloud->Get_File_Name());
-		break;
-
-	case ID_CMD_POINTCLOUD_SAVEAS:
-		Save();
-		break;
-
-	case ID_CMD_TABLES_DIAGRAM:
+	case ID_CMD_POINTCLOUD_LAST:
 		break;
 	}
 
@@ -194,10 +186,13 @@ bool CWKSP_PointCloud::On_Command(int Cmd_ID)
 //---------------------------------------------------------
 bool CWKSP_PointCloud::On_Command_UI(wxUpdateUIEvent &event)
 {
-//	switch( event.GetId() )
+	switch( event.GetId() )
 	{
-//	default:
+	default:
 		return( CWKSP_Layer::On_Command_UI(event) );
+
+	case ID_CMD_POINTCLOUD_LAST:
+		break;
 	}
 
 	return( true );

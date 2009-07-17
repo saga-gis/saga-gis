@@ -1930,6 +1930,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\pointcloud.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\quadtree.cpp"
 				>
 			</File>
@@ -2704,6 +2708,10 @@
 			</File>
 			<File
 				RelativePath="Parameters.h"
+				>
+			</File>
+			<File
+				RelativePath=".\pointcloud.h"
 				>
 			</File>
 			<File

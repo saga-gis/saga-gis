@@ -934,7 +934,8 @@ public:
 	const SG_Char *				Get_Identifier			(void);
 	const SG_Char *				Get_Name				(void);
 	const SG_Char *				Get_Description			(void);
-	CSG_String					Get_Description			(int Flags, const CSG_String &Separator = SG_T("\n"));
+	CSG_String					Get_Description			(int Flags);
+	CSG_String					Get_Description			(int Flags, const SG_Char *Separator);
 
 	bool						Set_Enabled				(bool bEnabled);
 	bool						is_Enabled				(void)	{	return( m_bEnabled );				}

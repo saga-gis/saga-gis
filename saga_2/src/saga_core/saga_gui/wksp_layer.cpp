@@ -69,6 +69,7 @@
 #include "wksp_base_control.h"
 
 #include "wksp_data_manager.h"
+#include "wksp_data_menu_files.h"
 
 #include "wksp_map_manager.h"
 #include "wksp_map.h"
@@ -207,12 +208,14 @@ bool CWKSP_Layer::On_Command(int Cmd_ID)
 	case ID_CMD_SHAPES_SAVE:
 	case ID_CMD_GRIDS_SAVE:
 	case ID_CMD_TIN_SAVE:
+	case ID_CMD_POINTCLOUD_SAVE:
 		Save(m_pObject->Get_File_Name());
 		break;
 
 	case ID_CMD_SHAPES_SAVEAS:
 	case ID_CMD_GRIDS_SAVEAS:
 	case ID_CMD_TIN_SAVEAS:
+	case ID_CMD_POINTCLOUD_SAVEAS:
 		Save();
 		break;
 
@@ -220,6 +223,7 @@ bool CWKSP_Layer::On_Command(int Cmd_ID)
 	case ID_CMD_SHAPES_SHOW:
 	case ID_CMD_GRIDS_SHOW:
 	case ID_CMD_TIN_SHOW:
+	case ID_CMD_POINTCLOUD_SHOW:
 		g_pMaps->Add(this);
 		break;
 	}
@@ -238,6 +242,7 @@ bool CWKSP_Layer::On_Command_UI(wxUpdateUIEvent &event)
 	case ID_CMD_TIN_SAVE:
 	case ID_CMD_GRIDS_SAVE:
 	case ID_CMD_SHAPES_SAVE:
+	case ID_CMD_POINTCLOUD_SAVE:
 		event.Enable(m_pObject->is_Modified() && m_pObject->Get_File_Name() && *(m_pObject->Get_File_Name()));
 		break;
 	}
@@ -452,11 +457,14 @@ bool CWKSP_Layer::Save(void)
 //---------------------------------------------------------
 bool CWKSP_Layer::Save(const wxChar *File_Path)
 {
-	bool	bResult;
-
 	if( File_Path && *File_Path )
 	{
-		bResult	= m_pObject->Save(File_Path);
+		bool	bResult	= m_pObject->Save(File_Path);
+
+		if( bResult )
+		{
+			g_pData->Get_FileMenus()->Recent_Add(m_pObject->Get_ObjectType(), m_pObject->Get_File_Name());
+		}
 
 		PROCESS_Set_Okay();
 

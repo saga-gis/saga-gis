@@ -238,6 +238,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_fire_spreading", "modul
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_table", "modules_io\table\io_table\io_table.vcproj", "{310D7E99-3A90-47E9-B796-5BD47D966B29}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_shapes_las", "modules_io\shapes\io_shapes_las\io_shapes_las.vcproj", "{0744A39A-EDB3-4573-B4BE-1BEA00568C1F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -646,6 +648,14 @@ Global
 		{310D7E99-3A90-47E9-B796-5BD47D966B29}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
 		{310D7E99-3A90-47E9-B796-5BD47D966B29}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
 		{310D7E99-3A90-47E9-B796-5BD47D966B29}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
+		{0744A39A-EDB3-4573-B4BE-1BEA00568C1F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0744A39A-EDB3-4573-B4BE-1BEA00568C1F}.Debug|Win32.Build.0 = Debug|Win32
+		{0744A39A-EDB3-4573-B4BE-1BEA00568C1F}.Release|Win32.ActiveCfg = Release|Win32
+		{0744A39A-EDB3-4573-B4BE-1BEA00568C1F}.Release|Win32.Build.0 = Release|Win32
+		{0744A39A-EDB3-4573-B4BE-1BEA00568C1F}.Unicode Debug|Win32.ActiveCfg = Unicode Debug|Win32
+		{0744A39A-EDB3-4573-B4BE-1BEA00568C1F}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
+		{0744A39A-EDB3-4573-B4BE-1BEA00568C1F}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
+		{0744A39A-EDB3-4573-B4BE-1BEA00568C1F}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
