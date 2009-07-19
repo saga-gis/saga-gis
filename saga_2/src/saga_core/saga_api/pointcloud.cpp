@@ -303,7 +303,7 @@ bool CSG_PointCloud::_Save(const CSG_String &File_Name)
 
 	if( Stream.Open(File_Name, SG_FILE_W, true) )
 	{
-		Stream.Write(POINTCLOUD_FILE_VERSION, 6);
+		Stream.Write((void *)POINTCLOUD_FILE_VERSION, 6);
 		Stream.Write(&m_nPointBytes	, sizeof(int));
 		Stream.Write(&m_nFields		, sizeof(int));
 
