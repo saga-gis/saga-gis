@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.14 2008-06-05 15:46:51 oconrad Exp $
+# $Id: Makefile.am,v 1.15 2009-07-19 12:39:40 reklov_w Exp $
 #
 INCS = -I.. -I.
 if DEBUG
@@ -96,6 +96,8 @@ wksp_module_control.cpp\
 wksp_module_library.cpp\
 wksp_module_manager.cpp\
 wksp_module_menu.cpp\
+wksp_pointcloud.cpp\
+wksp_pointcloud_manager.cpp\
 wksp_shapes.cpp\
 wksp_shapes_edit.cpp\
 wksp_shapes_line.cpp\
@@ -185,6 +187,8 @@ wksp_module_control.h\
 wksp_module_library.h\
 wksp_module_manager.h\
 wksp_module_menu.h\
+wksp_pointcloud.h\
+wksp_pointcloud_manager.h\
 wksp_shapes.h\
 wksp_shapes_line.h\
 wksp_shapes_manager.h\
