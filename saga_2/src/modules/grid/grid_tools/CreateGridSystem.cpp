@@ -181,6 +181,12 @@ CCreateGridSystem::CCreateGridSystem(void)
 		PARAMETER_TYPE_Double, 0.0
 	);
 
+    pNode_0 = Parameters.Add_Value(
+		NULL, "INIT", _TL("Initialization Value"),
+		_TL("Value which is assigned to the dummy grid."),
+		PARAMETER_TYPE_Double, 1.0
+	);
+
 	Parameters.Add_Shapes_List(
 		NULL, "SHAPESLIST", _TL("Shape(s)"),
 		_TL("Shape(s) to fit extent to"),
@@ -215,7 +221,7 @@ bool CCreateGridSystem::On_Execute(void)
 	CSG_Parameter_Grid_List		*pGridList;
 	CSG_Grid_System				System;
 
-	double		xMin, xMax, yMin, yMax, cellsize, offset_x, offset_y, xRange, yRange, n;
+	double		xMin, xMax, yMin, yMax, cellsize, offset_x, offset_y, xRange, yRange, n, initVal;
 	int			NX, NY, m_extent, m_adjust, i;
 	bool		useoff;
 
@@ -232,6 +238,7 @@ bool CCreateGridSystem::On_Execute(void)
 	useoff		= Parameters("USEOFF")->asBool();
 	m_extent	= Parameters("M_EXTENT")->asInt();
 	m_adjust	= Parameters("ADJUST")->asInt();
+    initVal     = Parameters("INIT")->asDouble();
 	pShapesList	= Parameters("SHAPESLIST")->asShapesList();
 	pGridList	= Parameters("GRIDLIST")->asGridList();
 
@@ -475,10 +482,9 @@ bool CCreateGridSystem::On_Execute(void)
 		break;
 	}
 		
-	pDummy = SG_Create_Grid(System, GRID_TYPE_Int);
-	pDummy->Assign(1.0);
-	pDummy->Set_Name(_TL("Grid"));
-	pDummy->Set_NoData_Value_Range(-99999.0, -9999.0);
+	pDummy = SG_Create_Grid(System, GRID_TYPE_Double);
+	pDummy->Assign(initVal);
+	pDummy->Set_Name(_TL("Dummy Grid"));
 	Parameters("GRID")->Set_Value(pDummy);
 
 	return (true);
