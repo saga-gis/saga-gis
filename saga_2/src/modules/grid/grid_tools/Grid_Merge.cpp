@@ -174,10 +174,12 @@ bool CGrid_Merge::On_Execute(void)
 {
 	bool					bMean;
 	int						x, y, i, ix, iy, ax, ay, Interpolation;
-	double					z;
+	double					z, Cellsize;
 	TSG_Point				p;
+    CSG_Rect		        Extent;
 	CSG_Parameter_Grid_List	*pGrids;
 	CSG_Grid				*pMerged, *pGrid;
+    CSG_Grid                *pCount = NULL;
 
 	//-----------------------------------------------------
 	pGrids			= Parameters("GRIDS")		->asGridList();
@@ -197,9 +199,7 @@ bool CGrid_Merge::On_Execute(void)
 		if( pMerged == NULL )
 		{
 			bool			bResampling;
-			double			Cellsize;
 			TSG_Grid_Type	Type;
-			CSG_Rect		Extent;
 
 			//---------------------------------------------
 			// Type...
@@ -305,7 +305,20 @@ bool CGrid_Merge::On_Execute(void)
 								}
 								else if( bMean )
 								{
-									pMerged->Set_Value(x, y, 0.5 * (pMerged->asDouble(x, y) + pGrid->asDouble(ix, iy)));
+                                    if (pCount == NULL)
+                                    {
+                                        pCount	= SG_Create_Grid(
+				                            GRID_TYPE_Int,
+				                            1 + (int)(0.5 + Extent.Get_XRange() / Cellsize),
+				                            1 + (int)(0.5 + Extent.Get_YRange() / Cellsize),
+				                            Cellsize,
+				                            Extent.Get_XMin(),
+				                            Extent.Get_YMin()
+			                            );
+                                        pCount->Assign(1.0);
+                                    }
+                                    pMerged->Set_Value(x, y, pMerged->asDouble(x, y) + pGrid->asDouble(ix, iy));
+                                    pCount->Set_Value(x, y, pCount->asInt(x, y) + 1);
 								}
 							}
 						}
@@ -336,7 +349,20 @@ bool CGrid_Merge::On_Execute(void)
 								}
 								else if( bMean )
 								{
-									pMerged->Set_Value(x, y, 0.5 * (pMerged->asDouble(x, y) + z));
+                                    if (pCount == NULL)
+                                    {
+                                        pCount	= SG_Create_Grid(
+				                            GRID_TYPE_Int,
+				                            1 + (int)(0.5 + Extent.Get_XRange() / Cellsize),
+				                            1 + (int)(0.5 + Extent.Get_YRange() / Cellsize),
+				                            Cellsize,
+				                            Extent.Get_XMin(),
+				                            Extent.Get_YMin()
+			                            );
+                                        pCount->Assign(1.0);
+                                    }
+                                    pMerged->Set_Value(x, y, pMerged->asDouble(x, y) + z);
+                                    pCount->Set_Value(x, y, pCount->asInt(x, y) + 1);
 								}
 							}
 						}
@@ -348,6 +374,18 @@ bool CGrid_Merge::On_Execute(void)
 
 		//-------------------------------------------------
 		DataObject_Update(pMerged);
+
+        if (bMean && pCount != NULL)
+        {
+            for (y=0; y<pMerged->Get_NY() && Set_Progress(y, pMerged->Get_NY()); y++)
+            {
+                for (x=0; x<pMerged->Get_NX(); x++)
+                {
+                    if (!pMerged->is_NoData(x, y))
+                        pMerged->Set_Value(x, y, pMerged->asDouble(x, y) / pCount->asInt(x, y));
+                }
+            }
+        }
 
 		return( true );
 	}
