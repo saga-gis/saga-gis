@@ -202,7 +202,7 @@ bool CSTL_Import::On_Execute(void)
 		CSG_PointCloud	*pPoints	= SG_Create_PointCloud();
 		Parameters("POINTS")->Set_Value(pPoints);
 		pPoints->Set_Name(SG_File_Get_Name(sFile, false));
-		pPoints->Add_Field(NULL, POINTCLOUD_FIELDTYPE_None);
+		pPoints->Add_Field((const char *)NULL, POINTCLOUD_FIELDTYPE_None);
 
 		for(iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
 		{
