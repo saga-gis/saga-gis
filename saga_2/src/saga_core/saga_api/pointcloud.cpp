@@ -241,7 +241,7 @@ bool CSG_PointCloud::_Load(const CSG_String &File_Name)
 
 	char		ID[6];
 	int			i, iBuffer, nPointBytes, nFields;
-	CSG_String	Name;
+	char		Name[1024];
 	CSG_File	Stream;
 
 	if( !Stream.Open(File_Name, SG_FILE_R, true) )
@@ -275,8 +275,9 @@ bool CSG_PointCloud::_Load(const CSG_String &File_Name)
 		{
 			return( false );
 		}
-
-		_Add_Field(Name, Type);
+		
+		Name[iBuffer]	= '\0';
+		_Add_Field(CSG_String((const char *)Name), Type);
 	}
 
 	if( m_nPointBytes != nPointBytes )
