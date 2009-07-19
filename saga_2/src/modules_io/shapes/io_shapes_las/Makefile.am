@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.1 2009-07-16 16:56:50 oconrad Exp $
+# $Id: Makefile.am,v 1.2 2009-07-19 12:29:46 reklov_w Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -11,24 +11,12 @@ DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS           = -I$(top_srcdir)/src/saga_core
 AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS)
 AM_LDFLAGS         = -fPIC -shared 
-pkglib_LTLIBRARIES = libio_shapes_dxf.la
-libio_shapes_dxf_la_SOURCES =\
-dxf_import.cpp\
+pkglib_LTLIBRARIES = libio_shapes_las.la
+libio_shapes_las_la_SOURCES =\
+las_import.cpp\
 MLB_Interface.cpp\
-./dxflib/dl_dxf.cpp\
-./dxflib/dl_writer_ascii.cpp\
-dxf_import.h\
+las_import.h\
 MLB_Interface.h\
-./dxflib/dl_attributes.h\
-./dxflib/dl_codes.h\
-./dxflib/dl_creationadapter.h\
-./dxflib/dl_creationinterface.h\
-./dxflib/dl_dxf.h\
-./dxflib/dl_entities.h\
-./dxflib/dl_exception.h\
-./dxflib/dl_extrusion.h\
-./dxflib/dl_writer.h\
-./dxflib/dl_writer_ascii.h
 
-libio_shapes_dxf_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(ADD_MLBS)
+libio_shapes_las_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(ADD_MLBS)
 
