@@ -76,7 +76,7 @@
 #include "module.h"
 #include "module_library.h"
 #include "parameters.h"
-#include "point_set.h"
+#include "pointcloud.h"
 #include "saga_api.h"
 #include "shapes.h"
 #include "table.h"
