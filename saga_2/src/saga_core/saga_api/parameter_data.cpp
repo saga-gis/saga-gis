@@ -127,7 +127,7 @@ const SG_Char * CSG_Parameter_Data::Get_Type_Name(void)
 	case PARAMETER_TYPE_Table:				return( LNG("[PRM] Table") );
 	case PARAMETER_TYPE_Shapes:				return( LNG("[PRM] Shapes") );
 	case PARAMETER_TYPE_TIN:				return( LNG("[PRM] TIN") );
-	case PARAMETER_TYPE_PointCloud:			return( LNG("[PRM] Point Set") );
+	case PARAMETER_TYPE_PointCloud:			return( LNG("[PRM] Point Cloud") );
 
 	case PARAMETER_TYPE_Grid_List:			return( LNG("[PRM] Grid list") );
 	case PARAMETER_TYPE_Table_List:			return( LNG("[PRM] Table list") );

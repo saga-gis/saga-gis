@@ -81,6 +81,9 @@
 #include "wksp_tin_manager.h"
 #include "wksp_tin.h"
 
+#include "wksp_pointcloud_manager.h"
+#include "wksp_pointcloud.h"
+
 #include "parameters_properties.h"
 
 
@@ -132,6 +135,7 @@ void CParameters_PG_Choice::_Create(void)
 		case PARAMETER_TYPE_Table:			m_index	= _Set_Table();			break;
 		case PARAMETER_TYPE_Shapes:			m_index	= _Set_Shapes();		break;
 		case PARAMETER_TYPE_TIN:			m_index	= _Set_TIN();			break;
+		case PARAMETER_TYPE_PointCloud:		m_index	= _Set_PointCloud();	break;
 		}
 	}
 }
@@ -302,6 +306,22 @@ int CParameters_PG_Choice::_Set_TIN(void)
 }
 
 //---------------------------------------------------------
+int CParameters_PG_Choice::_Set_PointCloud(void)
+{
+	CWKSP_PointCloud_Manager	*pManager;
+
+	if( (pManager = g_pData->Get_PointClouds()) != NULL )
+	{
+		for(int i=0; i<pManager->Get_Count(); i++)
+		{
+			_Append(pManager->Get_PointCloud(i)->Get_Name(), pManager->Get_PointCloud(i)->Get_PointCloud());
+		}
+	}
+
+	return( _DataObject_Init() );
+}
+
+//---------------------------------------------------------
 int CParameters_PG_Choice::_Set_Grid_System(void)
 {
 	int					i;
@@ -426,6 +446,7 @@ bool CParameters_PG_Choice::OnEvent(wxPropertyGrid *pPG, wxWindow *pPGCtrl, wxEv
 			case PARAMETER_TYPE_Table:
 			case PARAMETER_TYPE_Shapes:
 			case PARAMETER_TYPE_TIN:
+			case PARAMETER_TYPE_PointCloud:
 				m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(m_index)));
 				_Update_TableFields(pPG);
 				break;
