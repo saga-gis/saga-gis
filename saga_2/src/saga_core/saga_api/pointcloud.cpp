@@ -586,8 +586,6 @@ bool CSG_PointCloud::Del_Point(int iPoint)
 
 		_Dec_Array();
 
-		_Stats_Invalidate();
-
 		Set_Modified();
 
 		Set_Update_Flag();
@@ -662,23 +660,24 @@ bool CSG_PointCloud::_Inc_Array(void)
 //---------------------------------------------------------
 bool CSG_PointCloud::_Dec_Array(void)
 {
-	if( m_nPoints > 0 && (m_nPoints - 1) < m_nBuffer - GET_GROW_SIZE(m_nBuffer) )
+	if( m_nPoints > 0 )
 	{
+		_Stats_Invalidate();
+
 		m_Cursor	= NULL;
 		m_nPoints	--;
 
 		SG_Free(m_Points[m_nPoints]);
 
-		char	**pPoints	= (char **)SG_Realloc(m_Points, (m_nBuffer + GET_GROW_SIZE(m_nBuffer)) * sizeof(char *));
+		if( (m_nPoints - 1) < m_nBuffer - GET_GROW_SIZE(m_nBuffer) )
+		{
+			char	**pPoints	= (char **)SG_Realloc(m_Points, (m_nBuffer + GET_GROW_SIZE(m_nBuffer)) * sizeof(char *));
 
-		if( pPoints )
-		{
-			m_Points	= pPoints;
-			m_nBuffer	-= GET_GROW_SIZE(m_nBuffer);
-		}
-		else
-		{
-			return( false );
+			if( pPoints )
+			{
+				m_Points	= pPoints;
+				m_nBuffer	-= GET_GROW_SIZE(m_nBuffer);
+			}
 		}
 	}
 
