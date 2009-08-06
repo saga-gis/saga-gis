@@ -293,6 +293,13 @@ bool CSG_PointCloud::_Load(const CSG_String &File_Name)
 
 	_Dec_Array();
 
+	Set_File_Name(File_Name);
+
+	if( !Get_History().Load(File_Name, HISTORY_EXT_POINTCLOUD) )
+	{
+		Get_History().Add_Entry(LNG("[HST] Loaded from file"), File_Name);
+	}
+
 	return( m_nPoints > 0 );
 }
 
@@ -321,6 +328,12 @@ bool CSG_PointCloud::_Save(const CSG_String &File_Name)
 		{
 			Stream.Write(m_Points[i], m_nPointBytes);
 		}
+
+		Set_Modified(false);
+
+		Set_File_Name(SG_File_Make_Path(NULL, File_Name, SG_T("spc")));
+
+		Get_History().Save(File_Name, HISTORY_EXT_POINTCLOUD);
 
 		return( true );
 	}

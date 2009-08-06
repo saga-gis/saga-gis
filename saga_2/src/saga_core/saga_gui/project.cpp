@@ -81,6 +81,9 @@
 #include "wksp_tin_manager.h"
 #include "wksp_tin.h"
 
+#include "wksp_pointcloud_manager.h"
+#include "wksp_pointcloud.h"
+
 #include "wksp_grid_manager.h"
 #include "wksp_grid_system.h"
 #include "wksp_grid.h"
@@ -310,13 +313,14 @@ bool CWKSP_Project::_Load(const wxChar *FileName, bool bAdd, bool bUpdateMenu)
 //---------------------------------------------------------
 bool CWKSP_Project::_Save(const wxChar *FileName, bool bSaveModified, bool bUpdateMenu)
 {
-	int						i, j;
-	CSG_String				ProjectDir, oldFileName(m_File_Name);
-	CSG_File				Stream;
-	CWKSP_Table_Manager		*pTables;
-	CWKSP_Shapes_Manager	*pShapes;
-	CWKSP_TIN_Manager		*pTINs;
-	CWKSP_Grid_Manager		*pGrids;
+	int							i, j;
+	CSG_String					ProjectDir, oldFileName(m_File_Name);
+	CSG_File					Stream;
+	CWKSP_Table_Manager			*pTables;
+	CWKSP_Shapes_Manager		*pShapes;
+	CWKSP_TIN_Manager			*pTINs;
+	CWKSP_PointCloud_Manager	*pPointClouds;
+	CWKSP_Grid_Manager			*pGrids;
 
 	//-----------------------------------------------------
 	m_File_Name	= FileName;
@@ -367,6 +371,17 @@ bool CWKSP_Project::_Save(const wxChar *FileName, bool bSaveModified, bool bUpda
 				_Save_Data(Stream, ProjectDir,
 					pTINs->Get_TIN(i)->Get_TIN(),
 					pTINs->Get_TIN(i)->Get_Parameters()
+				);
+			}
+		}
+
+		if( (pPointClouds = g_pData->Get_PointClouds()) != NULL )
+		{
+			for(i=0; i<pPointClouds->Get_Count(); i++)
+			{
+				_Save_Data(Stream, ProjectDir,
+					pPointClouds->Get_PointCloud(i)->Get_PointCloud(),
+					pPointClouds->Get_PointCloud(i)->Get_Parameters()
 				);
 			}
 		}
@@ -597,11 +612,12 @@ bool CWKSP_Project::_Save_Map(CSG_File &Stream, const wxChar *ProjectDir, CWKSP_
 CWKSP_Base_Item * CWKSP_Project::_Get_byFileName(wxString FileName)
 {
 	const wxChar				*s;
-	int						i, j;
-	CWKSP_Table_Manager		*pTables;
-	CWKSP_Shapes_Manager	*pShapes;
-	CWKSP_TIN_Manager		*pTINs;
-	CWKSP_Grid_Manager		*pGrids;
+	int							i, j;
+	CWKSP_Table_Manager			*pTables;
+	CWKSP_Shapes_Manager		*pShapes;
+	CWKSP_TIN_Manager			*pTINs;
+	CWKSP_PointCloud_Manager	*pPointClouds;
+	CWKSP_Grid_Manager			*pGrids;
 
 	//-----------------------------------------------------
 	if( FileName.Length() > 0 )
@@ -638,6 +654,17 @@ CWKSP_Base_Item * CWKSP_Project::_Get_byFileName(wxString FileName)
 				if( (s = pTINs->Get_TIN(i)->Get_TIN()->Get_File_Name()) && !FileName.Cmp(s) )
 				{
 					return( pTINs->Get_TIN(i) );
+				}
+			}
+		}
+
+		if( (pPointClouds = g_pData->Get_PointClouds()) != NULL )
+		{
+			for(i=0; i<pPointClouds->Get_Count(); i++)
+			{
+				if( (s = pPointClouds->Get_PointCloud(i)->Get_PointCloud()->Get_File_Name()) && !FileName.Cmp(s) )
+				{
+					return( pPointClouds->Get_PointCloud(i) );
 				}
 			}
 		}
