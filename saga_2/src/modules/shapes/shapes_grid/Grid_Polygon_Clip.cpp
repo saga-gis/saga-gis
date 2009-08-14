@@ -87,7 +87,10 @@ CGrid_Polygon_Clip::CGrid_Polygon_Clip(void)
 	Set_Author		(_TL("copyrights (c) 2006 Stefan Liersch"));
 
 	Set_Description	(_TW(
-		"Clip Grid with Polygon"
+		"Clips the input grid with a polygon shapefile. Select "
+        "polygons from the shapefile prior to module execution "
+        "in case you like to use only a subset from the shapefile "
+        "for clipping."
 	));
 
 	//-----------------------------------------------------
@@ -242,10 +245,13 @@ bool CGrid_Polygon_Clip::Get_Extent(int &xMin, int &xMax, int &yMin, int &yMax, 
 // This function has been copied from Module: 'Grid_Statistics_AddTo_Polygon'
 // Function: Get_ShapeIDs(...)
 // copyright by Olaf Conrad
+//
+// added support to clip only with selected polygons (Volker Wichmann)
 //---------------------------------------------------------
 bool CGrid_Polygon_Clip::Get_Mask(CSG_Shapes *pShapes, CSG_Grid *pMask)
 {
 	bool		bFill, *bCrossing;
+    bool        bOnlySelected = false;
 	int			x, y, ix, xStart, xStop, iShape, iPart, iPoint;
 	double		yPos;
 	TSG_Point	pLeft, pRight, pa, pb, p;
@@ -257,9 +263,15 @@ bool CGrid_Polygon_Clip::Get_Mask(CSG_Shapes *pShapes, CSG_Grid *pMask)
 
 	bCrossing	= (bool *)SG_Malloc(pMask->Get_NX() * sizeof(bool));
 
+    if (pShapes->Get_Selection_Count() > 0)
+        bOnlySelected = true;
+
 	//-----------------------------------------------------
 	for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 	{
+        if (bOnlySelected && !pShapes->Get_Shape(iShape)->is_Selected())
+            continue;
+
 		pShape		= pShapes->Get_Shape(iShape);
 		Extent		= pShape->Get_Extent().m_rect;
 
