@@ -79,6 +79,7 @@
 
 #include "wksp_module.h"
 
+#include "wksp_data_manager.h"
 #include "wksp_data_layers.h"
 #include "wksp_map_buttons.h"
 
@@ -149,6 +150,7 @@ CACTIVE::CACTIVE(wxWindow *pParent)
 
 	m_pItem			= NULL;
 	m_pLayer		= NULL;
+	m_pObject		= NULL;
 
 	//-----------------------------------------------------
 	AssignImageList(new wxImageList(IMG_SIZE_NOTEBOOK, IMG_SIZE_NOTEBOOK, true, 0));
@@ -325,6 +327,22 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 	if( g_pMap_Buttons )
 	{
 		g_pMap_Buttons->Refresh(false);
+	}
+
+	//-----------------------------------------------------
+	if( m_pItem && g_pData->Exists(m_pObject) && m_pObject->Get_ObjectType() == DATAOBJECT_TYPE_Shapes && ((CSG_Shapes *)m_pObject)->Get_Selection_Count() > 0 )
+	{
+		g_pData->Update_Views(m_pObject);
+	}
+
+	if( m_pLayer )
+	{
+		m_pObject	= m_pLayer->Get_Object();
+
+		if( m_pItem && g_pData->Exists(m_pObject) && m_pObject->Get_ObjectType() == DATAOBJECT_TYPE_Shapes && ((CSG_Shapes *)m_pObject)->Get_Selection_Count() > 0 )
+		{
+			g_pData->Update_Views(m_pObject);
+		}
 	}
 
 	return( true );

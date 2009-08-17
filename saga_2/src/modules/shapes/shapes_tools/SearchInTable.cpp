@@ -16,100 +16,121 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
+
+//---------------------------------------------------------
+#include <vector>
+
 #include "SearchInTable.h"
-#include "ShapeSearchSelector.h"
 
-#define METHOD_NEW_SEL 0
-#define METHOD_ADD_TO_SEL 1
-#define METHOD_SELECT_FROM_SEL 2
+//---------------------------------------------------------
+#define METHOD_NEW_SEL			0
+#define METHOD_ADD_TO_SEL		1
+#define METHOD_SELECT_FROM_SEL	2
 
-CSearchInTable::CSearchInTable(void){
+//---------------------------------------------------------
+CSearchInTable::CSearchInTable(void)
+{
+	Set_Name		(_TL("Search in attributes table"));
 
-	Parameters.Set_Name(_TL("Search in attributes table"));
+	Set_Author		(SG_T("(c) 2004 by Victor Olaya"));
 
-	Parameters.Set_Description(_TW("(c) 2004 Victor Olaya. Searches for an expression in the attributes table and selects records where the expression is found"));
+	Set_Description	(_TW(
+		"(c) 2004 Victor Olaya. Searches for an expression in the attributes table and selects records where the expression is found"
+	));
 
-	Parameters.Add_Shapes(NULL,
-						"SHAPES",
-						_TL("Shapes"),
-						_TL(""),
-						PARAMETER_INPUT);
+	Parameters.Add_Shapes(
+		NULL, "SHAPES"		, _TL("Shapes"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
 
-	Parameters.Add_String(NULL, "EXPRESSION", _TL("Expression"), _TL(""), _TL(""));
+	Parameters.Add_String(
+		NULL, "EXPRESSION"	, _TL("Expression"),
+		_TL(""),
+		SG_T("")
+	);
 
-	Parameters.Add_Choice(NULL, 
-						"METHOD", 
-						_TL("Method"), 
-						_TL(""),
-						_TW(
-						"New selection|"
-						"Add to current selection|"
-						"Select from current selection|"),
-						0);
+	Parameters.Add_Choice(
+		NULL, "METHOD"		, _TL("Method"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("New selection"),
+			_TL("Add to current selection"),
+			_TL("Select from current selection")
+		), 0
+	);
+}
 
-}//constructor
+//---------------------------------------------------------
+bool CSearchInTable::On_Execute(void)
+{
+	bool		*WasSelected;
+	int			i, iMethod;
+	CSG_String	sExpression;
+	CSG_Shapes	*pShapes;
 
-CSearchInTable::~CSearchInTable(void){}
+	pShapes		= Parameters("SHAPES")		->asShapes();
+	sExpression	= Parameters("EXPRESSION")	->asString();
+	iMethod		= Parameters("METHOD")		->asInt();
 
-bool CSearchInTable::On_Execute(void){
+	//-----------------------------------------------------
+	if( iMethod == METHOD_SELECT_FROM_SEL )
+	{
+		WasSelected	= new bool[pShapes->Get_Count()];
 
-	CSG_String sExpression;
-	CSG_Shapes *pShapes;
-	CSG_Table *pTable;
-	CShapeSearchSelector *pSelector;	
-	bool *pRecordWasSelected;
-	int *pSelectedRecords;
-	int iNumSelectedRecords = 0;
-	int iMethod;
-	int iRecord;
-	int i;
-	
-	pShapes = Parameters("SHAPES")->asShapes();
-	pTable	= pShapes;	
-	sExpression = Parameters("EXPRESSION")->asString();
-	iMethod = Parameters("METHOD")->asInt();
+		for(i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
+		{
+			WasSelected[i]	= pShapes->Get_Record(i)->is_Selected();
+		}
+	}
 
-	pRecordWasSelected = new bool[pTable->Get_Record_Count()];
+	if( iMethod != METHOD_ADD_TO_SEL )
+	{
+		pShapes->Select();
+	}
 
-	if (iMethod == METHOD_SELECT_FROM_SEL){
-		for (i = 0; i < pTable->Get_Record_Count(); i++){
-			if (pTable->Get_Record(i)->is_Selected()){
-				pRecordWasSelected[i] = true;
-			}//if
-			else{
-				pRecordWasSelected[i] = false;
-			}//else
-		}//for
-	}//if
+	//-----------------------------------------------------
+	std::vector <int> m_Selection;
 
-	if (iMethod != METHOD_ADD_TO_SEL){
-		for (i = 0; i < pTable->Get_Record_Count(); i++){
-			if (pTable->Get_Record(i)->is_Selected()){
-				pTable->Select(i, true);
-			}//if
-		}//for
-	}//if
+	for(i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)
+	{
+		CSG_Shape	*pShape	= pShapes->Get_Shape(i);
 
-	pSelector = new CShapeSearchSelector(pShapes, sExpression);
-	pSelectedRecords = &pSelector->GetSelectedRecords();
-	iNumSelectedRecords = pSelector->GetSelectedRecordsCount();
+		for(int j=0; j<pShapes->Get_Field_Count(); j++)
+		{
+			CSG_String	sValue	= pShape->asString(j);
 
-	for (i = 0; i < iNumSelectedRecords; i++){
-		iRecord = pSelectedRecords[i];
-		if (!pTable->Get_Record(iRecord)->is_Selected()){
-			if (iMethod == METHOD_SELECT_FROM_SEL){
-				if (pRecordWasSelected[iRecord]){
-					pTable->Select(iRecord, true);
-				}//if
-			}//if
-			else{
-				pTable->Select(iRecord, true);
-			}//else
-		}//if
-	}//for
+			if( sValue.Find(sExpression) != -1 )
+			{
+				m_Selection.push_back(i);
+				break;
+			}
+		}
+	}
 
-	DataObject_Update(pShapes, false);
+	//-----------------------------------------------------
+	for(i=0; i<m_Selection.size() && Set_Progress(i, m_Selection.size()); i++)
+	{
+		int	iSelection = m_Selection[i];
 
-	return true;
-	
-}//method
+		if( !pShapes->Get_Record(iSelection)->is_Selected() )
+		{
+			if( iMethod != METHOD_SELECT_FROM_SEL || WasSelected[iSelection] )
+			{
+				((CSG_Table *)pShapes)->Select(iSelection, true);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if( iMethod == METHOD_SELECT_FROM_SEL )
+	{
+		delete(WasSelected);
+	}
+
+	Message_Add(CSG_String::Format(SG_T("%s: %d"), _TL("selected shapes"), m_Selection.size()));
+
+	DataObject_Update(pShapes);
+
+	return( true );
+}

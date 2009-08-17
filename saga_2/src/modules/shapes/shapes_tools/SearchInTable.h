@@ -23,14 +23,13 @@
 
 #include "MLB_Interface.h"
 
-class CSearchInTable : public CSG_Module{
-
+class CSearchInTable : public CSG_Module
+{
 public:
 	CSearchInTable(void);
-	virtual ~CSearchInTable(void);
-	virtual bool is_ProjectDependent(void) {return( false );}
 
 protected:
+
 	virtual bool On_Execute(void);
 
 };

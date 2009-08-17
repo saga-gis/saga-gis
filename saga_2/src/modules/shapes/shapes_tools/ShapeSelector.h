@@ -27,14 +27,15 @@
 class CShapeSelector  
 {
 public:
-	CShapeSelector(CSG_Shapes*,CSG_Shapes*,int);
-	virtual ~CShapeSelector();
-	int& GetSelectedRecords();
-	int GetSelectedRecordsCount();
+	CShapeSelector(CSG_Shapes *pShapes, CSG_Shapes *pShapes2, int iCondition, bool bFromSelection = false);
+
+	int		Get_Count				(void)	{	return( m_Selection.size() );	}
+	int		Get_Index				(int i)	{	return( m_Selection[i] );		}
+
 
 private:
 
-	std::vector <int> m_pSelectedRecords;
+	std::vector <int> m_Selection;
 
 };
 

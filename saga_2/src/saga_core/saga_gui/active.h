@@ -121,6 +121,8 @@ private:
 
 	class CWKSP_Layer				*m_pLayer;
 
+	class CSG_Data_Object			*m_pObject;
+
 
 	bool							_Add_Page				(int PageID);
 	bool							_Del_Page				(int PageID);

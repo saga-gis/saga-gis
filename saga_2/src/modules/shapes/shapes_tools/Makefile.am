@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.13 2009-03-17 12:32:30 reklov_w Exp $
+# $Id: Makefile.am,v 1.14 2009-08-17 13:01:53 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -29,8 +29,6 @@ Shapes_Assign_Table.cpp\
 Shapes_Create_Empty.cpp\
 Shapes_Merge.cpp\
 Shapes_Report.cpp\
-ShapeSearchSelector.cpp\
-ShapeSelector.cpp\
 Summarize.cpp\
 SummaryPDFDocEngine.cpp\
 TransformShapes.cpp\
@@ -57,8 +55,6 @@ Shapes_Assign_Table.h\
 Shapes_Create_Empty.h\
 Shapes_Merge.h\
 Shapes_Report.h\
-ShapeSearchSelector.h\
-ShapeSelector.h\
 Summarize.h\
 SummaryPDFDocEngine.h\
 TransformShapes.h\

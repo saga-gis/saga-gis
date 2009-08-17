@@ -69,6 +69,9 @@
 
 #include "wksp_data_manager.h"
 
+#include "wksp_shapes_manager.h"
+#include "wksp_shapes.h"
+
 #include "view_table_control.h"
 
 
@@ -277,6 +280,8 @@ bool CVIEW_Table_Control::_Set_Table(void)
 
 	//-----------------------------------------------------
 	EndBatch();
+
+	_Update_Views();
 
 	return( true );
 }
@@ -905,17 +910,19 @@ void CVIEW_Table_Control::On_LDClick_Label(wxGridEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_Select(wxGridRangeSelectEvent &event)
 {
+	BeginBatch();
+
 	for(int iRow=event.GetTopRow(); iRow<=event.GetBottomRow(); iRow++)
 	{
 		_Select(iRow, event.Selecting());
 	}
 
+	EndBatch();
+
+	_Update_Views();
+
 	event.Skip();
 }
-
-//---------------------------------------------------------
-#include "wksp_shapes_manager.h"
-#include "wksp_shapes.h"
 
 //---------------------------------------------------------
 inline void CVIEW_Table_Control::_Select(int iRow, bool bSelect)
@@ -926,20 +933,15 @@ inline void CVIEW_Table_Control::_Select(int iRow, bool bSelect)
 	{
 		m_pTable->Select(pRecord, true);
 
-		if( m_pTable->is_Private() )
-		{
-			g_pData->Update_Views(m_pTable->Get_Owner());
-		}
-		else if( m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Shapes )
-		{
-			g_pData->Get_Shapes()->Get_Shapes((CSG_Shapes *)m_pTable)->Update_Views(true);
-		}
+		_Update_Views();
 	}
 }
 
 //---------------------------------------------------------
 void CVIEW_Table_Control::Update_Selection(void)
 {
+	BeginBatch();
+
 	if( m_pTable->Get_Selection_Count() > 0 )
 	{
 		int		iRecord;
@@ -965,6 +967,33 @@ void CVIEW_Table_Control::Update_Selection(void)
 	else
 	{
 		ClearSelection();
+	}
+
+	EndBatch();
+
+	_Update_Views();
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Table_Control::_Update_Views(void)
+{
+	if( GetBatchCount() == 0 )
+	{
+		if( m_pTable->is_Private() )
+		{
+			g_pData->Update_Views(m_pTable->Get_Owner());
+		}
+		else if( m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Shapes )
+		{
+			g_pData->Get_Shapes()->Get_Shapes((CSG_Shapes *)m_pTable)->Update_Views(true);
+		}
 	}
 }
 

@@ -16,89 +16,74 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/ 
+
+//---------------------------------------------------------
 #include "ShapeSelector.h"
 #include "Polygon_Clipper.h"
 
+//---------------------------------------------------------
+CShapeSelector::CShapeSelector(CSG_Shapes *pShapes, CSG_Shapes *pShapes2, int iCondition, bool bFromSelection)
+{
+	CSG_Shapes			Intersect(SHAPE_TYPE_Polygon);
+	CSG_Shape_Polygon	*pIntersect	= (CSG_Shape_Polygon *)Intersect.Add_Shape();
 
-CShapeSelector::CShapeSelector(CSG_Shapes *pShapes,
-							   CSG_Shapes *pShapes2,
-							   int iCondition){
+	for(int i=0; i<pShapes->Get_Count(); i++)
+	{
+		CSG_Shape_Polygon	*pShape	= (CSG_Shape_Polygon *)pShapes->Get_Shape(i);
 
-	int i,j;
-	float fArea, fArea2;
-	CSG_Shape *pShape, *pShape2, *pIntersect;
-	bool bSelect;
-	TSG_Point Point;
-	CSG_Shapes	Intersect;
+		bool	bSelect	= false;
 
-	Intersect.Create(SHAPE_TYPE_Polygon);
-	pIntersect = Intersect.Add_Shape();
+		for(int j=0; !bSelect && j<pShapes2->Get_Count(); j++)
+		{
+			if( !bFromSelection || pShapes2->Get_Record(j)->is_Selected() )
+			{
+				CSG_Shape_Polygon	*pShape2 = (CSG_Shape_Polygon *)pShapes2->Get_Shape(j);
 
-	for (i = 0; i < pShapes->Get_Count(); i++){
-		pShape = pShapes->Get_Shape(i);
-		bSelect = false;
-		for (j = 0; j < pShapes2->Get_Count(); j++){
-			if (pShapes2->Get_Record(j)->is_Selected()){
-				pShape2 = pShapes2->Get_Shape(i);
-				switch (iCondition){
+				switch( iCondition )
+				{
 				case 0: //intersect
-					if (GPC_Intersection(pShape, pShape2, pIntersect)){
+					if( GPC_Intersection(pShape, pShape2, pIntersect) )
+					{
 						bSelect = true;
-						break;
-					}//if
+					}
+					break;
+
 				case 1: //are completely within
-					GPC_Intersection(pShape, pShape2, pIntersect);
-					fArea = ((CSG_Shape_Polygon*)pShape)->Get_Area();
-					fArea2 = ((CSG_Shape_Polygon*)pIntersect)->Get_Area();
-					if (fArea == fArea2){
+					if( GPC_Intersection(pShape, pShape2, pIntersect)
+					&&  pIntersect->Get_Area() == pShape->Get_Area() )
+					{
 						bSelect = true;
-					}//if
+					}
 					break;
+
 				case 2: //Completely contain
-					GPC_Intersection(pShape, pShape2, pIntersect);
-					fArea = ((CSG_Shape_Polygon*)pShape2)->Get_Area();
-					fArea2 = ((CSG_Shape_Polygon*)pIntersect)->Get_Area();
-					if (fArea == fArea2){
+					if( GPC_Intersection(pShape, pShape2, pIntersect)
+					&&	pIntersect->Get_Area() == pShape2->Get_Area() )
+					{
 						bSelect = true;
-					}//if
+					}
 					break;
+
 				case 3: //have their center in
-					Point = ((CSG_Shape_Polygon*)pShape)->Get_Centroid();
-					if (((CSG_Shape_Polygon*)pShape2)->is_Containing(Point)){
+					if( pShape2->is_Containing(pShape->Get_Centroid()) )
+					{
 						bSelect = true;
-					}//if
+					}
 					break;
+
 				case 4: //contain center of
-					Point = ((CSG_Shape_Polygon*)pShape2)->Get_Centroid();
-					if (((CSG_Shape_Polygon*)pShape)->is_Containing(Point)){
+					if( pShape->is_Containing(pShape2->Get_Centroid()) )
+					{
 						bSelect = true;
-					}//if
+					}
 					break;
-				}//switch
-				if (bSelect){
-					m_pSelectedRecords.push_back(i);
-					break;
-				}//if
-			}//if
-		}//for
-	}//for
+				}
 
-
-}//constructor
-
-CShapeSelector::~CShapeSelector(){
-
-}//destructor
-
-
-int& CShapeSelector::GetSelectedRecords(){
-
-	return m_pSelectedRecords[0];
-
-}//method
-
-int CShapeSelector::GetSelectedRecordsCount(){
-
-	return m_pSelectedRecords.size();
-
-}//method
+				if( bSelect )
+				{
+					m_Selection.push_back(i);
+				}
+			}
+		}
+	}
+}

@@ -156,6 +156,7 @@ private:
 	bool						_Set_Record			(int iRecord, class CSG_Table_Record *pRecord);
 
 	void						_Select				(int iRow, bool bSelect);
+	void						_Update_Views		(void);
 
 
 //---------------------------------------------------------

@@ -21,19 +21,26 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+//---------------------------------------------------------
+#include <vector>
+
 #include "MLB_Interface.h"
 
+//---------------------------------------------------------
 class CSelectByTheme : public CSG_Module  
 {
 public:
-
 	CSelectByTheme(void);
-	virtual ~CSelectByTheme(void);
 
 protected:
 
-	virtual bool			On_Execute(void);
+	virtual bool		On_Execute	(void);
 
 private:
+
+	std::vector <int>	m_Selection;
+
+
+	bool				Select		(CSG_Shapes *pShapes, CSG_Shapes *pShapes2, int iCondition, bool bFromSelection);
 
 };

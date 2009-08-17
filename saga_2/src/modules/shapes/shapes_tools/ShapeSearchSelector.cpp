@@ -19,32 +19,24 @@
 
 #include "ShapeSearchSelector.h"
 
-CShapeSearchSelector::CShapeSearchSelector(CSG_Shapes *pShapes,
-										   CSG_String sExpression){
+CShapeSearchSelector::CShapeSearchSelector(CSG_Shapes *pShapes, CSG_String sExpression)
+{
+	for(int i=0; i<pShapes->Get_Count(); i++)
+	{
+		CSG_Shape	*pShape	= pShapes->Get_Shape(i);
 
-	int i,j;
-	CSG_Table_Record *pRecord;
-	CSG_String sValue;
-	int iFields;
+		for(int j=0; j<pShapes->Get_Field_Count(); j++)
+		{
+			CSG_String	sValue	= pShape->asString(j);
 
-	iFields = pShapes->Get_Field_Count();
-
-	for (i = 0 ; i < pShapes->Get_Count(); i++){
-		pRecord = pShapes->Get_Shape(i);
-		for (j = 0; j < iFields; j++){
-			sValue = pRecord->asString(j);
-			if (sValue.Find(sExpression) != -1){
+			if( sValue.Find(sExpression) != -1 )
+			{
 				m_pSelectedRecords.push_back(i);
 				break;
-			}//if
-		}//for
-	}//for
-
-}//constructor
-
-CShapeSearchSelector::~CShapeSearchSelector(){
-}//destructor
-
+			}
+		}
+	}
+}
 
 int& CShapeSearchSelector::GetSelectedRecords(){
 
