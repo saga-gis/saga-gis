@@ -6,7 +6,8 @@ REM -----------------------------------
 
 REM SET MINGW=C:\dev-cpp
 
-PATH=%PATH%;%MINGW%\bin
+REM PATH=%PATH%;%MINGW%\bin
+PATH=%MINGW%\bin
 
 
 REM -----------------------------------

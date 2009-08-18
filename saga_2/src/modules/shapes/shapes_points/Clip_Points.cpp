@@ -194,7 +194,7 @@ bool CClip_Points::On_Execute(void)
 
 			if( pPolygon->is_Containing(pPoint->Get_Point(0)) )
 			{
-				pPoint	= pClip->Add_Shape(pPoint, SHAPE_COPY_ATTR);
+				pPoint	= pClip->Add_Shape(pPoint, SHAPE_COPY);
 
 				if( iField >= 0 )
 				{
