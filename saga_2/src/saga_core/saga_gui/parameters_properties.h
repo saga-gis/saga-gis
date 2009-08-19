@@ -75,6 +75,7 @@
 #include <wx/propgrid/propdev.h>
 #include <wx/propgrid/advprops.h>
 #include <wx/propgrid/manager.h>
+#include <wx/propgrid/extras.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -84,8 +85,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CParameters_PG_Choice : public wxEnumPropertyClass
+class CParameters_PG_Choice : public wxEnumProperty
 {
+//	WX_PG_DECLARE_PROPERTY_CLASS(CParameters_PG_Choice)
+//	DECLARE_DYNAMIC_CLASS(CParameters_PG_Choice)
+
 public:
 	CParameters_PG_Choice(class CSG_Parameter *pParameter);
 	virtual ~CParameters_PG_Choice(void);
@@ -134,7 +138,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CParameters_PG_GridSystem : public wxCustomPropertyClass
+class CParameters_PG_GridSystem : public wxCustomProperty
 {
 public:
 	CParameters_PG_GridSystem(class CSG_Parameter *pParameter);
@@ -168,78 +172,79 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CParameters_PG_DoublesValue
+class CParameters_PG_Parameter_Value
 {
 public:
-	CParameters_PG_DoublesValue(void);
-	CParameters_PG_DoublesValue(class CSG_Parameter *pParameter);
-	~CParameters_PG_DoublesValue(void);
+	CParameters_PG_Parameter_Value(void)							{	m_pParameter	= NULL;			}
+	CParameters_PG_Parameter_Value(CSG_Parameter *pParameter)		{	m_pParameter	= pParameter;	}
 
-	bool						operator ==			(const CParameters_PG_DoublesValue &r) const	{	return( false );	}
+	CSG_Parameter				*m_pParameter;
 
-	bool						Assign				(const CParameters_PG_DoublesValue &Value);
-
-	bool						Update_Parameter	(void);
-	bool						Update_Values		(void);
-
-	int							m_nValues;
-
-	double						*m_Values;
-
-	wxString					*m_Labels;
-
-
-protected:
-
-	class CSG_Parameter			*m_pParameter;
-
-
-	bool						_Create				(class CSG_Parameter *pParameter);
-	void						_Destroy			(void);
-
-};
-
-//---------------------------------------------------------
-WX_PG_DECLARE_VALUE_TYPE_VOIDP(CParameters_PG_DoublesValue)
-
-//---------------------------------------------------------
-WX_PG_DECLARE_PROPERTY(CParameters_PG_Doubles, const CParameters_PG_DoublesValue &, CParameters_PG_DoublesValue(NULL))
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CParameters_PG_DialogedValue
-{
-public:
-	CParameters_PG_DialogedValue(void)								{	m_pParameter	= NULL;			}
-	CParameters_PG_DialogedValue(class CSG_Parameter *pParameter)	{	m_pParameter	= pParameter;	}
-	virtual ~CParameters_PG_DialogedValue(void)						{}
-
-	bool						operator ==		(const CParameters_PG_DialogedValue &r) const	{	return( false );	}
-
-	bool						fromString		(wxString String);
-	wxString					asString		(void) const;
+	bool						from_String		(const wxString &String);
+	wxString					to_String		(void) const;
 	bool						Check			(void) const;
 	bool						Do_Dialog		(void);
 
+};
 
-	class CSG_Parameter			*m_pParameter;
+WX_PG_DECLARE_VARIANT_DATA(CParameters_PG_Parameter_Variant, CParameters_PG_Parameter_Value, wxEMPTY_PARAMETER_VALUE)
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CParameters_PG_Range : public wxPGProperty
+{
+	WX_PG_DECLARE_PROPERTY_CLASS(CParameters_PG_Range)
+
+public:
+	CParameters_PG_Range(const wxString &label = wxPG_LABEL, const wxString &name = wxPG_LABEL, CSG_Parameter *pParameter = NULL);
+
+	WX_PG_DECLARE_PARENTAL_METHODS()
 
 };
 
 //---------------------------------------------------------
-WX_PG_DECLARE_VALUE_TYPE_VOIDP(CParameters_PG_DialogedValue)
+class CParameters_PG_Degree : public wxPGProperty
+{
+	WX_PG_DECLARE_PROPERTY_CLASS(CParameters_PG_Degree)
+
+public:
+	CParameters_PG_Degree(const wxString &label = wxPG_LABEL, const wxString &name = wxPG_LABEL, CSG_Parameter *pParameter = NULL);
+
+	WX_PG_DECLARE_PARENTAL_METHODS()
+
+};
 
 //---------------------------------------------------------
-WX_PG_DECLARE_PROPERTY(CParameters_PG_Dialoged, const CParameters_PG_DialogedValue &, CParameters_PG_DialogedValue(NULL))
+class CParameters_PG_Dialog : public wxPGProperty
+{
+	WX_PG_DECLARE_PROPERTY_CLASS(CParameters_PG_Dialog)
+
+public:
+	CParameters_PG_Dialog(const wxString &label = wxPG_LABEL, const wxString &name = wxPG_LABEL, CSG_Parameter *pParameter = NULL);
+
+	virtual wxString			GetValueAsString	(int flags)	const;
+
+	WX_PG_DECLARE_EVENT_METHODS()
+
+};
 
 //---------------------------------------------------------
-WX_PG_DECLARE_PROPERTY(CParameters_PG_Colors  , const CParameters_PG_DialogedValue &, CParameters_PG_DialogedValue(NULL))
+class CParameters_PG_Colors : public CParameters_PG_Dialog
+{
+	WX_PG_DECLARE_PROPERTY_CLASS(CParameters_PG_Colors)
+
+public:
+	CParameters_PG_Colors(const wxString &label = wxPG_LABEL, const wxString &name = wxPG_LABEL, CSG_Parameter *pParameter = NULL);
+
+	WX_PG_DECLARE_CUSTOM_PAINT_METHODS()
+
+};
 
 
 ///////////////////////////////////////////////////////////

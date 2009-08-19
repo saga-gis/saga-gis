@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.15 2009-07-19 12:39:40 reklov_w Exp $
+# $Id: Makefile.am,v 1.16 2009-08-19 16:57:23 oconrad Exp $
 #
 INCS = -I.. -I.
 if DEBUG
@@ -202,6 +202,8 @@ wksp_tin.h\
 wksp_tin_manager.h\
 wx/propgrid/advprops.cpp\
 wx/propgrid/advprops.h\
+wx/propgrid/editors.cpp\
+wx/propgrid/editors.h\
 wx/propgrid/extras.cpp\
 wx/propgrid/extras.h\
 wx/propgrid/manager.cpp\
@@ -211,7 +213,8 @@ wx/propgrid/odcombo.h\
 wx/propgrid/propdev.h\
 wx/propgrid/propgrid.cpp\
 wx/propgrid/propgrid.h\
-wx/propgrid/props.cpp
+wx/propgrid/props.cpp\
+wx/propgrid/props.h
 
 saga_gui_LDADD = ../saga_api/libsaga_api.la
 

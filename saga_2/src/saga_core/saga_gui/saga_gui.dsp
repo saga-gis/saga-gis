@@ -1369,6 +1369,10 @@ SOURCE=.\wx\propgrid\advprops.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\wx\propgrid\editors.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\wx\propgrid\extras.cpp
 # End Source File
 # Begin Source File

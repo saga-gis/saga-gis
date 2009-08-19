@@ -12,7 +12,7 @@ EXE_NAME  = $(BIN_SAGA)/$(PRJ_NAME).exe
 CPP       = g++.exe
 WINDRES   = windres.exe
 
-OBJ       = $(TMP_SAGA)s01.o $(TMP_SAGA)s02.o $(TMP_SAGA)s03.o $(TMP_SAGA)s04.o $(TMP_SAGA)s05.o $(TMP_SAGA)s06.o $(TMP_SAGA)active_history.o $(TMP_SAGA)callback.o $(TMP_SAGA)dc_helper.o $(TMP_SAGA)dlg_about.o $(TMP_SAGA)dlg_about_logo.o $(TMP_SAGA)dlg_base.o $(TMP_SAGA)dlg_colors.o $(TMP_SAGA)dlg_colors_control.o $(TMP_SAGA)dlg_list_base.o $(TMP_SAGA)dlg_list_grid.o $(TMP_SAGA)dlg_list_shapes.o $(TMP_SAGA)dlg_list_table.o $(TMP_SAGA)dlg_list_tin.o $(TMP_SAGA)dlg_parameters.o $(TMP_SAGA)dlg_table.o $(TMP_SAGA)dlg_text.o $(TMP_SAGA)helper.o $(TMP_SAGA)info.o $(TMP_SAGA)info_messages.o $(TMP_SAGA)parameters_control.o $(TMP_SAGA)parameters_properties.o $(TMP_SAGA)project.o $(TMP_SAGA)res_commands.o $(TMP_SAGA)res_controls.o $(TMP_SAGA)res_dialogs.o $(TMP_SAGA)res_images.o $(TMP_SAGA)saga.o $(TMP_SAGA)saga_frame.o $(TMP_SAGA)saga_frame_droptarget.o $(TMP_SAGA)svg_interactive_map.o $(TMP_SAGA)view_base.o $(TMP_SAGA)view_histogram.o $(TMP_SAGA)view_layout.o $(TMP_SAGA)view_layout_control.o $(TMP_SAGA)view_layout_info.o $(TMP_SAGA)view_layout_printout.o $(TMP_SAGA)view_map.o $(TMP_SAGA)view_map_3d.o $(TMP_SAGA)view_map_3d_image.o $(TMP_SAGA)view_map_control.o $(TMP_SAGA)view_ruler.o $(TMP_SAGA)view_scatterplot.o $(TMP_SAGA)view_table.o $(TMP_SAGA)view_table_control.o $(TMP_SAGA)view_table_diagram.o $(TMP_SAGA)wksp.o $(TMP_SAGA)wksp_base_control.o $(TMP_SAGA)wksp_base_item.o $(TMP_SAGA)wksp_base_manager.o $(TMP_SAGA)wksp_data_control.o $(TMP_SAGA)wksp_data_layers.o $(TMP_SAGA)wksp_data_manager.o $(TMP_SAGA)wksp_data_menu_file.o $(TMP_SAGA)wksp_data_menu_files.o $(TMP_SAGA)wksp_grid.o $(TMP_SAGA)wksp_grid_manager.o $(TMP_SAGA)wksp_grid_system.o $(TMP_SAGA)wksp_layer.o $(TMP_SAGA)wksp_layer_classify.o $(TMP_SAGA)wksp_layer_legend.o $(TMP_SAGA)wksp_map.o $(TMP_SAGA)wksp_map_buttons.o $(TMP_SAGA)wksp_map_control.o $(TMP_SAGA)wksp_map_dc.o $(TMP_SAGA)wksp_map_layer.o $(TMP_SAGA)wksp_map_manager.o $(TMP_SAGA)wksp_module.o $(TMP_SAGA)wksp_module_control.o $(TMP_SAGA)wksp_module_library.o $(TMP_SAGA)wksp_module_manager.o $(TMP_SAGA)wksp_module_menu.o $(TMP_SAGA)wksp_pointcloud.o $(TMP_SAGA)wksp_pointcloud_manager.o $(TMP_SAGA)wksp_shapes.o $(TMP_SAGA)wksp_shapes_edit.o $(TMP_SAGA)wksp_shapes_line.o $(TMP_SAGA)wksp_shapes_manager.o $(TMP_SAGA)wksp_shapes_point.o $(TMP_SAGA)wksp_shapes_points.o $(TMP_SAGA)wksp_shapes_polygon.o $(TMP_SAGA)wksp_shapes_type.o $(TMP_SAGA)wksp_table.o $(TMP_SAGA)wksp_table_manager.o $(TMP_SAGA)wksp_tin.o $(TMP_SAGA)wksp_tin_manager.o $(RES_NAME) $(TMP_SAGA)pg1.o $(TMP_SAGA)pg2.o $(TMP_SAGA)pg3.o $(TMP_SAGA)pg4.o $(TMP_SAGA)pg5.o $(TMP_SAGA)pg6.o
+OBJ       = $(TMP_SAGA)s01.o $(TMP_SAGA)s02.o $(TMP_SAGA)s03.o $(TMP_SAGA)s04.o $(TMP_SAGA)s05.o $(TMP_SAGA)s06.o $(TMP_SAGA)active_history.o $(TMP_SAGA)callback.o $(TMP_SAGA)dc_helper.o $(TMP_SAGA)dlg_about.o $(TMP_SAGA)dlg_about_logo.o $(TMP_SAGA)dlg_base.o $(TMP_SAGA)dlg_colors.o $(TMP_SAGA)dlg_colors_control.o $(TMP_SAGA)dlg_list_base.o $(TMP_SAGA)dlg_list_grid.o $(TMP_SAGA)dlg_list_shapes.o $(TMP_SAGA)dlg_list_table.o $(TMP_SAGA)dlg_list_tin.o $(TMP_SAGA)dlg_parameters.o $(TMP_SAGA)dlg_table.o $(TMP_SAGA)dlg_text.o $(TMP_SAGA)helper.o $(TMP_SAGA)info.o $(TMP_SAGA)info_messages.o $(TMP_SAGA)parameters_control.o $(TMP_SAGA)parameters_properties.o $(TMP_SAGA)project.o $(TMP_SAGA)res_commands.o $(TMP_SAGA)res_controls.o $(TMP_SAGA)res_dialogs.o $(TMP_SAGA)res_images.o $(TMP_SAGA)saga.o $(TMP_SAGA)saga_frame.o $(TMP_SAGA)saga_frame_droptarget.o $(TMP_SAGA)svg_interactive_map.o $(TMP_SAGA)view_base.o $(TMP_SAGA)view_histogram.o $(TMP_SAGA)view_layout.o $(TMP_SAGA)view_layout_control.o $(TMP_SAGA)view_layout_info.o $(TMP_SAGA)view_layout_printout.o $(TMP_SAGA)view_map.o $(TMP_SAGA)view_map_3d.o $(TMP_SAGA)view_map_3d_image.o $(TMP_SAGA)view_map_control.o $(TMP_SAGA)view_ruler.o $(TMP_SAGA)view_scatterplot.o $(TMP_SAGA)view_table.o $(TMP_SAGA)view_table_control.o $(TMP_SAGA)view_table_diagram.o $(TMP_SAGA)wksp.o $(TMP_SAGA)wksp_base_control.o $(TMP_SAGA)wksp_base_item.o $(TMP_SAGA)wksp_base_manager.o $(TMP_SAGA)wksp_data_control.o $(TMP_SAGA)wksp_data_layers.o $(TMP_SAGA)wksp_data_manager.o $(TMP_SAGA)wksp_data_menu_file.o $(TMP_SAGA)wksp_data_menu_files.o $(TMP_SAGA)wksp_grid.o $(TMP_SAGA)wksp_grid_manager.o $(TMP_SAGA)wksp_grid_system.o $(TMP_SAGA)wksp_layer.o $(TMP_SAGA)wksp_layer_classify.o $(TMP_SAGA)wksp_layer_legend.o $(TMP_SAGA)wksp_map.o $(TMP_SAGA)wksp_map_buttons.o $(TMP_SAGA)wksp_map_control.o $(TMP_SAGA)wksp_map_dc.o $(TMP_SAGA)wksp_map_layer.o $(TMP_SAGA)wksp_map_manager.o $(TMP_SAGA)wksp_module.o $(TMP_SAGA)wksp_module_control.o $(TMP_SAGA)wksp_module_library.o $(TMP_SAGA)wksp_module_manager.o $(TMP_SAGA)wksp_module_menu.o $(TMP_SAGA)wksp_pointcloud.o $(TMP_SAGA)wksp_pointcloud_manager.o $(TMP_SAGA)wksp_shapes.o $(TMP_SAGA)wksp_shapes_edit.o $(TMP_SAGA)wksp_shapes_line.o $(TMP_SAGA)wksp_shapes_manager.o $(TMP_SAGA)wksp_shapes_point.o $(TMP_SAGA)wksp_shapes_points.o $(TMP_SAGA)wksp_shapes_polygon.o $(TMP_SAGA)wksp_shapes_type.o $(TMP_SAGA)wksp_table.o $(TMP_SAGA)wksp_table_manager.o $(TMP_SAGA)wksp_tin.o $(TMP_SAGA)wksp_tin_manager.o $(RES_NAME) $(TMP_SAGA)pg1.o $(TMP_SAGA)pg2.o $(TMP_SAGA)pg3.o $(TMP_SAGA)pg4.o $(TMP_SAGA)pg5.o $(TMP_SAGA)pg6.o $(TMP_SAGA)pg7.o
 
 DEF_SAGA  = -D_SAGA_MSW -D_SAGA_MINGW -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 DEF_WIN   = -D__WXMSW__ -DWXUSINGDLL -DNOPCH
@@ -316,17 +316,20 @@ $(RES_NAME): $(RC__NAME)
 $(TMP_SAGA)pg1.o: ./wx/propgrid/advprops.cpp
 	$(CPP) -c ./wx/propgrid/advprops.cpp -o $(TMP_SAGA)pg1.o $(CXXFLAGS)
 
-$(TMP_SAGA)pg2.o: ./wx/propgrid/extras.cpp
-	$(CPP) -c ./wx/propgrid/extras.cpp -o $(TMP_SAGA)pg2.o $(CXXFLAGS)
+$(TMP_SAGA)pg2.o: ./wx/propgrid/editors.cpp
+	$(CPP) -c ./wx/propgrid/editors.cpp -o $(TMP_SAGA)pg2.o $(CXXFLAGS)
 
-$(TMP_SAGA)pg3.o: ./wx/propgrid/manager.cpp
-	$(CPP) -c ./wx/propgrid/manager.cpp -o $(TMP_SAGA)pg3.o $(CXXFLAGS)
+$(TMP_SAGA)pg3.o: ./wx/propgrid/extras.cpp
+	$(CPP) -c ./wx/propgrid/extras.cpp -o $(TMP_SAGA)pg3.o $(CXXFLAGS)
 
-$(TMP_SAGA)pg4.o: ./wx/propgrid/odcombo.cpp
-	$(CPP) -c ./wx/propgrid/odcombo.cpp -o $(TMP_SAGA)pg4.o $(CXXFLAGS)
+$(TMP_SAGA)pg4.o: ./wx/propgrid/manager.cpp
+	$(CPP) -c ./wx/propgrid/manager.cpp -o $(TMP_SAGA)pg4.o $(CXXFLAGS)
 
-$(TMP_SAGA)pg5.o: ./wx/propgrid/propgrid.cpp
-	$(CPP) -c ./wx/propgrid/propgrid.cpp -o $(TMP_SAGA)pg5.o $(CXXFLAGS)
+$(TMP_SAGA)pg5.o: ./wx/propgrid/odcombo.cpp
+	$(CPP) -c ./wx/propgrid/odcombo.cpp -o $(TMP_SAGA)pg5.o $(CXXFLAGS)
 
-$(TMP_SAGA)pg6.o: ./wx/propgrid/props.cpp
-	$(CPP) -c ./wx/propgrid/props.cpp -o $(TMP_SAGA)pg6.o $(CXXFLAGS)
+$(TMP_SAGA)pg6.o: ./wx/propgrid/propgrid.cpp
+	$(CPP) -c ./wx/propgrid/propgrid.cpp -o $(TMP_SAGA)pg6.o $(CXXFLAGS)
+
+$(TMP_SAGA)pg7.o: ./wx/propgrid/props.cpp
+	$(CPP) -c ./wx/propgrid/props.cpp -o $(TMP_SAGA)pg7.o $(CXXFLAGS)

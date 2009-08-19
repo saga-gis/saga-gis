@@ -105,7 +105,7 @@
 
 //---------------------------------------------------------
 CParameters_PG_Choice::CParameters_PG_Choice(CSG_Parameter *pParameter)
-	: wxEnumPropertyClass(GET_DATAOBJECT_LABEL(pParameter), pParameter->Get_Identifier(), NULL)
+	: wxEnumProperty(GET_DATAOBJECT_LABEL(pParameter), pParameter->Get_Identifier(), NULL)
 {
 	m_pParameter	= pParameter;
 
@@ -127,15 +127,15 @@ void CParameters_PG_Choice::_Create(void)
 	{
 		switch( m_pParameter->Get_Type() )
 		{
-		default:							m_index	= 0;					break;
-		case PARAMETER_TYPE_Choice:			m_index	= _Set_Choice();		break;
-		case PARAMETER_TYPE_Grid_System:	m_index	= _Set_Grid_System();	break;
-		case PARAMETER_TYPE_Table_Field:	m_index	= _Set_Table_Field();	break;
-		case PARAMETER_TYPE_Grid:			m_index	= _Set_Grid();			break;
-		case PARAMETER_TYPE_Table:			m_index	= _Set_Table();			break;
-		case PARAMETER_TYPE_Shapes:			m_index	= _Set_Shapes();		break;
-		case PARAMETER_TYPE_TIN:			m_index	= _Set_TIN();			break;
-		case PARAMETER_TYPE_PointCloud:		m_index	= _Set_PointCloud();	break;
+		default:							SetIndex(0);					break;
+		case PARAMETER_TYPE_Choice:			SetIndex(_Set_Choice());		break;
+		case PARAMETER_TYPE_Grid_System:	SetIndex(_Set_Grid_System());	break;
+		case PARAMETER_TYPE_Table_Field:	SetIndex(_Set_Table_Field());	break;
+		case PARAMETER_TYPE_Grid:			SetIndex(_Set_Grid());			break;
+		case PARAMETER_TYPE_Table:			SetIndex(_Set_Table());			break;
+		case PARAMETER_TYPE_Shapes:			SetIndex(_Set_Shapes());		break;
+		case PARAMETER_TYPE_TIN:			SetIndex(_Set_TIN());			break;
+		case PARAMETER_TYPE_PointCloud:		SetIndex(_Set_PointCloud());	break;
 		}
 	}
 }
@@ -148,7 +148,7 @@ void CParameters_PG_Choice::_Destroy(void)
 	m_choices.Assign(choices);
 	m_choices_data.Clear();
 
-	m_index		= 0;
+	SetIndex(0);
 }
 
 //---------------------------------------------------------
@@ -422,7 +422,7 @@ bool CParameters_PG_Choice::OnEvent(wxPropertyGrid *pPG, wxWindow *pPGCtrl, wxEv
 {
 	if( event.GetEventType() == wxEVT_COMMAND_COMBOBOX_SELECTED )
 	{
-		if( m_pParameter && m_choices.IsOk() && m_index >= 0 && m_index < (int)m_choices.GetCount() )
+		if( m_pParameter && m_choices.IsOk() && GetIndex() >= 0 && GetIndex() < (int)m_choices.GetCount() )
 		{
 			switch( m_pParameter->Get_Type() )
 			{
@@ -431,15 +431,15 @@ bool CParameters_PG_Choice::OnEvent(wxPropertyGrid *pPG, wxWindow *pPGCtrl, wxEv
 
 			case PARAMETER_TYPE_Choice:
 			case PARAMETER_TYPE_Table_Field:
-				m_pParameter->Set_Value(m_index);
+				m_pParameter->Set_Value(GetIndex());
 				break;
 
 			case PARAMETER_TYPE_Grid:
-				m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(m_index)));
+				m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(GetIndex())));
 				break;
 
 			case PARAMETER_TYPE_Grid_System:
-				m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(m_index)));
+				m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(GetIndex())));
 				_Update_Grids(pPG);
 				break;
 
@@ -447,7 +447,7 @@ bool CParameters_PG_Choice::OnEvent(wxPropertyGrid *pPG, wxWindow *pPGCtrl, wxEv
 			case PARAMETER_TYPE_Shapes:
 			case PARAMETER_TYPE_TIN:
 			case PARAMETER_TYPE_PointCloud:
-				m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(m_index)));
+				m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(GetIndex())));
 				_Update_TableFields(pPG);
 				break;
 			}
@@ -460,15 +460,12 @@ bool CParameters_PG_Choice::OnEvent(wxPropertyGrid *pPG, wxWindow *pPGCtrl, wxEv
 //---------------------------------------------------------
 void CParameters_PG_Choice::_Update_Grids(wxPropertyGrid *pPG)
 {
-	int			i;
-	CSG_Parameter	*pChild;
-	wxPGId		Id;
-
 	if( m_pParameter && m_pParameter->Get_Type() == PARAMETER_TYPE_Grid_System )
 	{
-		for(i=0; i<m_pParameter->Get_Children_Count(); i++)
+		for(int i=0; i<m_pParameter->Get_Children_Count(); i++)
 		{
-			pChild	= m_pParameter->Get_Child(i);
+			wxPGProperty	*pProperty;
+			CSG_Parameter	*pChild	= m_pParameter->Get_Child(i);
 
 			switch( pChild->Get_Type() )
 			{
@@ -479,11 +476,9 @@ void CParameters_PG_Choice::_Update_Grids(wxPropertyGrid *pPG)
 				break;
 
 			case PARAMETER_TYPE_Grid:
-				Id	= pPG->GetPropertyByName(pChild->Get_Identifier());
-
-				if( Id.IsOk() )
+				if( (pProperty = pPG->GetPropertyByName(pChild->Get_Identifier())) != NULL )
 				{
-					((CParameters_PG_Choice *)Id.GetPropertyPtr())->Update();
+					((CParameters_PG_Choice *)pProperty)->Update();
 				}
 			}
 		}
@@ -493,23 +488,18 @@ void CParameters_PG_Choice::_Update_Grids(wxPropertyGrid *pPG)
 //---------------------------------------------------------
 void CParameters_PG_Choice::_Update_TableFields(wxPropertyGrid *pPG)
 {
-	int			i;
-	CSG_Parameter	*pChild;
-	wxPGId		Id;
-
 	if( m_pParameter )
 	{
-		for(i=0; i<m_pParameter->Get_Children_Count(); i++)
+		for(int i=0; i<m_pParameter->Get_Children_Count(); i++)
 		{
-			pChild	= m_pParameter->Get_Child(i);
+			wxPGProperty	*pProperty;
+			CSG_Parameter	*pChild	= m_pParameter->Get_Child(i);
 
 			if(	pChild->Get_Type() == PARAMETER_TYPE_Table_Field )
 			{
-				Id	= pPG->GetPropertyByName(pChild->Get_Identifier());
-
-				if( Id.IsOk() )
+				if( (pProperty = pPG->GetPropertyByName(pChild->Get_Identifier())) != NULL )
 				{
-					((CParameters_PG_Choice *)Id.GetPropertyPtr())->Update();
+					((CParameters_PG_Choice *)pProperty)->Update();
 				}
 			}
 		}
@@ -525,7 +515,7 @@ void CParameters_PG_Choice::_Update_TableFields(wxPropertyGrid *pPG)
 
 //---------------------------------------------------------
 CParameters_PG_GridSystem::CParameters_PG_GridSystem(CSG_Parameter *pParameter)
-	: wxCustomPropertyClass(pParameter->Get_Name(), pParameter->Get_Identifier())
+	: wxCustomProperty(pParameter->Get_Name(), pParameter->Get_Identifier())
 {
 	m_pParameter	= pParameter;
 
@@ -623,7 +613,7 @@ bool CParameters_PG_GridSystem::SetValueFromInt(long value, int arg_flags)
 	//-----------------------------------------------------
 	if( arg_flags & wxPG_FULL_VALUE )
 	{
-		return( SetValueFromInt(m_choices.IsOk() && m_choices.GetCount() > 0 ? m_choices.GetValues().Index(value) : 0) );
+		return( SetValueFromInt(m_choices.IsOk() && m_choices.GetCount() > 0 ? m_choices.Index(value) : 0) );
 	}
 
 	//-----------------------------------------------------
@@ -635,23 +625,21 @@ bool CParameters_PG_GridSystem::SetValueFromInt(long value, int arg_flags)
 		m_index		= value;
 		value		= m_choices.GetValue(m_index);
 
-		wxCustomPropertyClass::SetValueFromInt(value, arg_flags);
+		wxCustomProperty::SetValueFromInt(value, arg_flags);
 
 		//-------------------------------------------------
 		m_pParameter->Set_Value(m_choices_data.Item(value));
 
 		if( GetParent() && GetGrid() )
 		{
-			wxPGId	Id	= GetGrid()->GetFirstChild(GetId());
-
-			while( Id.IsOk() )
+			for(wxPropertyGridIterator Iterator=GetGrid()->GetIterator(); !Iterator.AtEnd(); Iterator++)
 			{
-				if( SG_STR_CMP( SG_T("CParameters_PG_Choice"), Id.GetPropertyPtr()->GetClassName() ) == 0 )
-				{
-					((CParameters_PG_Choice *)Id.GetPropertyPtr())->Update();
-				}
+				wxPGProperty	*pProperty	= *Iterator;
 
-				Id	= GetGrid()->GetNextProperty(Id);
+				if( SG_STR_CMP( SG_T("CParameters_PG_Choice"), pProperty->GetClassName() ) == 0 )
+				{
+					((CParameters_PG_Choice *)pProperty)->Update();
+				}
 			}
 		}
 	}
@@ -671,231 +659,10 @@ bool CParameters_PG_GridSystem::SetValueFromInt(long value, int arg_flags)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CParameters_PG_DoublesValue::CParameters_PG_DoublesValue(void)
-{
-	m_nValues		= 0;
-	m_Values		= NULL;
-	m_Labels		= NULL;
-	m_pParameter	= NULL;
-}
+WX_PG_IMPLEMENT_VARIANT_DATA(CParameters_PG_Parameter_Variant, CParameters_PG_Parameter_Value)
 
 //---------------------------------------------------------
-CParameters_PG_DoublesValue::CParameters_PG_DoublesValue(class CSG_Parameter *pParameter)
-{
-	m_nValues		= 0;
-	m_Values		= NULL;
-	m_Labels		= NULL;
-	m_pParameter	= NULL;
-
-	_Create( pParameter );
-}
-
-//---------------------------------------------------------
-CParameters_PG_DoublesValue::~CParameters_PG_DoublesValue(void)
-{
-	_Destroy();
-}
-
-//---------------------------------------------------------
-bool CParameters_PG_DoublesValue::_Create(CSG_Parameter *pParameter)
-{
-	if( pParameter )
-	{
-		_Destroy();
-
-		switch( pParameter->Get_Type() )
-		{
-		default:
-			return( false );
-
-		case PARAMETER_TYPE_Range:
-			m_nValues	= 2;
-			m_Values	= (double *)SG_Malloc(m_nValues * sizeof(double));
-			m_Labels	= new wxString[m_nValues];
-
-			m_Labels[0]	= _("Minimum");
-			m_Labels[1]	= _("Maximum");
-			break;
-
-		case PARAMETER_TYPE_Degree:
-			m_nValues	= 3;
-			m_Values	= (double *)SG_Malloc(m_nValues * sizeof(double));
-			m_Labels	= new wxString[m_nValues];
-
-			m_Labels[0]	= _("\xb0");
-			m_Labels[1]	= _("'");
-			m_Labels[2]	= _("''");
-			break;
-		}
-
-		m_pParameter	= pParameter;
-
-		Update_Values();
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-void CParameters_PG_DoublesValue::_Destroy(void)
-{
-	if( m_nValues > 0 )
-	{
-		SG_Free(m_Values);
-		delete[](m_Labels);
-
-		m_nValues		= 0;
-		m_Values		= NULL;
-		m_Labels		= NULL;
-	}
-
-	m_pParameter	= NULL;
-}
-
-//---------------------------------------------------------
-bool CParameters_PG_DoublesValue::Assign(const CParameters_PG_DoublesValue &Value)
-{
-	return( _Create(Value.m_pParameter) );
-}
-
-//---------------------------------------------------------
-bool CParameters_PG_DoublesValue::Update_Parameter(void)
-{
-	if( m_pParameter )
-	{
-		switch( m_pParameter->Get_Type() )
-		{
-		default:
-			break;
-
-		case PARAMETER_TYPE_Range:
-			m_pParameter->asRange()->Set_LoVal(m_Values[0]);
-			m_pParameter->asRange()->Set_HiVal(m_Values[1]);
-			break;
-
-		case PARAMETER_TYPE_Degree:
-			m_pParameter->Set_Value(Degree_To_Decimal(m_Values[0], m_Values[1], m_Values[2]));
-			break;
-		}
-	}
-
-	return( true );
-}
-
-//---------------------------------------------------------
-bool CParameters_PG_DoublesValue::Update_Values(void)
-{
-	if( m_pParameter )
-	{
-		switch( m_pParameter->Get_Type() )
-		{
-		default:
-			break;
-
-		case PARAMETER_TYPE_Range:
-			m_Values[0]	= m_pParameter->asRange()->Get_LoVal();
-			m_Values[1]	= m_pParameter->asRange()->Get_HiVal();
-			return( true );
-
-		case PARAMETER_TYPE_Degree:
-			Decimal_To_Degree(m_pParameter->asDouble(), m_Values[0], m_Values[1], m_Values[2]);
-			return( true );
-		}
-	}
-
-	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-WX_PG_IMPLEMENT_VALUE_TYPE_VOIDP(CParameters_PG_DoublesValue, CParameters_PG_Doubles, CParameters_PG_DoublesValue(NULL))
-
-//---------------------------------------------------------
-class CParameters_PG_DoublesClass : public wxPGPropertyWithChildren
-{
-    WX_PG_DECLARE_PROPERTY_CLASS()
-
-public:
-	CParameters_PG_DoublesClass(const wxString &label, const wxString &name, const CParameters_PG_DoublesValue &value);
-	virtual ~CParameters_PG_DoublesClass(void)	{}
-
-	WX_PG_DECLARE_PARENTAL_TYPE_METHODS()
-	WX_PG_DECLARE_PARENTAL_METHODS()
-
-	CParameters_PG_DoublesValue		m_value;
-
-};
-
-//---------------------------------------------------------
-WX_PG_IMPLEMENT_PROPERTY_CLASS(CParameters_PG_Doubles, wxBaseParentProperty, CParameters_PG_DoublesValue, const CParameters_PG_DoublesValue &, TextCtrl)
-
-//---------------------------------------------------------
-CParameters_PG_DoublesClass::CParameters_PG_DoublesClass(const wxString &Name, const wxString &Identifier, const CParameters_PG_DoublesValue &value)
-	: wxPGPropertyWithChildren(Name, Identifier)
-{
-	DoSetValue((void *)&value);
-
-	for(int i=0; i<m_value.m_nValues; i++)
-	{
-		AddChild(wxFloatProperty(m_value.m_Labels[i], wxString::Format(wxT("%s_%d"), Identifier.c_str(), i), m_value.m_Values[i]));
-	}
-}
-
-//---------------------------------------------------------
-void CParameters_PG_DoublesClass::DoSetValue(wxPGVariant value)
-{
-	m_value.Assign(*((CParameters_PG_DoublesValue *)wxPGVariantToVoidPtr(value)));
-
-	RefreshChildren();
-}
-
-//---------------------------------------------------------
-wxPGVariant CParameters_PG_DoublesClass::DoGetValue(void) const
-{
-	return( wxPGVariant((void *)&m_value) );
-}
-
-//---------------------------------------------------------
-void CParameters_PG_DoublesClass::RefreshChildren(void)
-{
-	if( (int)GetCount() == m_value.m_nValues )
-	{
-		for(int i=0; i<m_value.m_nValues; i++)
-		{
-			Item(i)->DoSetValue(m_value.m_Values[i]);
-		}
-	}
-}
-
-//---------------------------------------------------------
-void CParameters_PG_DoublesClass::ChildChanged(wxPGProperty *p)
-{
-	int		i	= p->GetIndexInParent();
-
-	if( i >= 0 && i < m_value.m_nValues )
-	{
-		m_value.m_Values[i]	= p->DoGetValue().GetDouble();
-		m_value.Update_Parameter();
-	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CParameters_PG_DialogedValue::fromString(wxString String)
+bool CParameters_PG_Parameter_Value::from_String(const wxString &String)
 {
 	switch( m_pParameter->Get_Type() )
 	{
@@ -910,7 +677,7 @@ bool CParameters_PG_DialogedValue::fromString(wxString String)
 }
 
 //---------------------------------------------------------
-wxString CParameters_PG_DialogedValue::asString(void) const
+wxString CParameters_PG_Parameter_Value::to_String(void) const
 {
 	wxString	s;
 
@@ -923,7 +690,7 @@ wxString CParameters_PG_DialogedValue::asString(void) const
 }
 
 //---------------------------------------------------------
-bool CParameters_PG_DialogedValue::Check(void) const
+bool CParameters_PG_Parameter_Value::Check(void) const
 {
 	if( m_pParameter )
 	{
@@ -956,7 +723,7 @@ bool CParameters_PG_DialogedValue::Check(void) const
 }
 
 //---------------------------------------------------------
-bool CParameters_PG_DialogedValue::Do_Dialog(void)
+bool CParameters_PG_Parameter_Value::Do_Dialog(void)
 {
 	bool		bModified	= false;
 	long		Color;
@@ -1086,68 +853,167 @@ bool CParameters_PG_DialogedValue::Do_Dialog(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-WX_PG_IMPLEMENT_VALUE_TYPE_VOIDP(CParameters_PG_DialogedValue, CParameters_PG_Dialoged, CParameters_PG_DialogedValue(NULL))
+WX_PG_IMPLEMENT_PROPERTY_CLASS(CParameters_PG_Range, wxPGProperty, CParameters_PG_Parameter_Value, const &CParameters_PG_Parameter_Value, TextCtrl)
 
 //---------------------------------------------------------
-class CParameters_PG_DialogedClass : public wxPGProperty
+CParameters_PG_Range::CParameters_PG_Range(const wxString &label, const wxString &name, CSG_Parameter *pParameter)
+	: wxPGProperty(label, name)
 {
-    WX_PG_DECLARE_PROPERTY_CLASS()
-
-public:
-	CParameters_PG_DialogedClass(const wxString &label, const wxString &name, const CParameters_PG_DialogedValue &value);
-	virtual ~CParameters_PG_DialogedClass(void)	{}
-
-	WX_PG_DECLARE_BASIC_TYPE_METHODS()
-	WX_PG_DECLARE_EVENT_METHODS()
-
-	CParameters_PG_DialogedValue		m_value;
-
-};
-
-//---------------------------------------------------------
-WX_PG_IMPLEMENT_PROPERTY_CLASS(CParameters_PG_Dialoged, wxBaseProperty, CParameters_PG_DialogedValue, const CParameters_PG_DialogedValue &, TextCtrlAndButton)
-
-//---------------------------------------------------------
-CParameters_PG_DialogedClass::CParameters_PG_DialogedClass(const wxString &Name, const wxString &Identifier, const CParameters_PG_DialogedValue &value)
-	: wxPGProperty(value.m_pParameter ? GET_DATAOBJECT_LABEL(value.m_pParameter) : Name, Identifier)
-{
-	m_value	= value;
-
-	DoSetValue((void *)&m_value);
-}
-
-//---------------------------------------------------------
-void CParameters_PG_DialogedClass::DoSetValue(wxPGVariant value)
-{
-	m_value	= *((CParameters_PG_DialogedValue *)wxPGVariantToVoidPtr(value));
-}
-
-//---------------------------------------------------------
-wxPGVariant CParameters_PG_DialogedClass::DoGetValue(void) const
-{
-	return( wxPGVariant((void *)&m_value) );
-}
-
-//---------------------------------------------------------
-bool CParameters_PG_DialogedClass::SetValueFromString(const wxString &text, int flags)
-{
-	return( m_value.fromString(text) );
-}
-
-//---------------------------------------------------------
-wxString CParameters_PG_DialogedClass::GetValueAsString(int flags) const
-{
-	return( m_value.asString() );
-}
-
-//---------------------------------------------------------
-bool CParameters_PG_DialogedClass::OnEvent(wxPropertyGrid *propgrid, wxWindow *primary, wxEvent &event)
-{
-	if( event.GetEventType() == wxEVT_COMMAND_BUTTON_CLICKED )
+	if( pParameter && pParameter->Get_Type() == PARAMETER_TYPE_Range )
 	{
-		if( m_value.Do_Dialog() )
+		m_value	= CParameters_PG_Parameter_ValueToVariant(CParameters_PG_Parameter_Value(pParameter));
+
+		AddPrivateChild( new wxFloatProperty(wxT("Minimum")	, wxPG_LABEL, pParameter->asRange()->Get_LoVal()) );
+		AddPrivateChild( new wxFloatProperty(wxT("Maximum")	, wxPG_LABEL, pParameter->asRange()->Get_HiVal()) );
+	}
+}
+
+//---------------------------------------------------------
+void CParameters_PG_Range::RefreshChildren(void)
+{
+	const CParameters_PG_Parameter_Value	&value	= CParameters_PG_Parameter_ValueFromVariant(m_value);
+
+	if( GetCount() == 2 && value.m_pParameter && value.m_pParameter->Get_Type() == PARAMETER_TYPE_Range )
+	{
+		Item(0)->SetValue( value.m_pParameter->asRange()->Get_LoVal() );
+		Item(1)->SetValue( value.m_pParameter->asRange()->Get_HiVal() );
+	}
+}
+
+//---------------------------------------------------------
+void CParameters_PG_Range::ChildChanged(wxVariant &thisValue, int childIndex, wxVariant &childValue) const
+{
+	CParameters_PG_Parameter_Value	&value	= CParameters_PG_Parameter_ValueFromVariant(thisValue);
+
+	if( GetCount() == 2 && value.m_pParameter && value.m_pParameter->Get_Type() == PARAMETER_TYPE_Range )
+	{
+		double	v;
+
+		if( wxPGVariantToDouble(childValue, &v) )
 		{
-			UpdateControl(primary);
+			switch( childIndex )
+			{
+				case 0:	value.m_pParameter->asRange()->Set_LoVal(v);	break;
+				case 1:	value.m_pParameter->asRange()->Set_HiVal(v);	break;
+			}
+		}
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+WX_PG_IMPLEMENT_PROPERTY_CLASS(CParameters_PG_Degree, wxPGProperty, CParameters_PG_Parameter_Value, const &CParameters_PG_Parameter_Value, TextCtrl)
+
+//---------------------------------------------------------
+CParameters_PG_Degree::CParameters_PG_Degree(const wxString &label, const wxString &name, CSG_Parameter *pParameter)
+	: wxPGProperty(label, name)
+{
+	if( pParameter && pParameter->Get_Type() == PARAMETER_TYPE_Degree )
+	{
+		m_value	= CParameters_PG_Parameter_ValueToVariant(CParameters_PG_Parameter_Value(pParameter));
+
+		double	d, m, s;
+
+		Decimal_To_Degree(pParameter->asDouble(), d, m, s);
+
+		AddPrivateChild( new wxIntProperty  (wxT("Degree")	, wxPG_LABEL, d) );
+		AddPrivateChild( new wxIntProperty  (wxT("Minute")	, wxPG_LABEL, m) );
+		AddPrivateChild( new wxFloatProperty(wxT("Second")	, wxPG_LABEL, s) );
+	}
+}
+
+//---------------------------------------------------------
+void CParameters_PG_Degree::RefreshChildren(void)
+{
+	const CParameters_PG_Parameter_Value	&value	= CParameters_PG_Parameter_ValueFromVariant(m_value);
+
+	if( GetCount() == 3 && value.m_pParameter && value.m_pParameter->Get_Type() == PARAMETER_TYPE_Degree )
+	{
+		double	d, m, s;
+
+		Decimal_To_Degree(value.m_pParameter->asDouble(), d, m, s);
+
+		Item(0)->SetValue(d);
+		Item(1)->SetValue(m);
+		Item(2)->SetValue(s);
+	}
+}
+
+//---------------------------------------------------------
+void CParameters_PG_Degree::ChildChanged(wxVariant &thisValue, int childIndex, wxVariant &childValue) const
+{
+	CParameters_PG_Parameter_Value	&value	= CParameters_PG_Parameter_ValueFromVariant(thisValue);
+
+	if( GetCount() == 3 && value.m_pParameter && value.m_pParameter->Get_Type() == PARAMETER_TYPE_Degree )
+	{
+		double	v, d, m, s;
+
+		if( wxPGVariantToDouble(childValue, &v) )
+		{
+			Decimal_To_Degree(value.m_pParameter->asDouble(), d, m, s);
+
+			switch( childIndex )
+			{
+				case 0:	d	= v;	break;
+				case 1:	m	= v;	break;
+				case 2:	s	= v;	break;
+			}
+
+			value.m_pParameter->Set_Value(Degree_To_Decimal(d, m, s));
+		}
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+WX_PG_IMPLEMENT_PROPERTY_CLASS(CParameters_PG_Dialog, wxPGProperty, CParameters_PG_Parameter_Value, const CParameters_PG_Parameter_Value &, TextCtrlAndButton)
+
+//---------------------------------------------------------
+CParameters_PG_Dialog::CParameters_PG_Dialog(const wxString &label, const wxString &name, CSG_Parameter *pParameter)
+	: wxPGProperty(pParameter ? GET_DATAOBJECT_LABEL(pParameter) : label, name)
+{
+	m_value	= CParameters_PG_Parameter_ValueToVariant(CParameters_PG_Parameter_Value(pParameter));
+}
+
+//---------------------------------------------------------
+wxString CParameters_PG_Dialog::GetValueAsString(int flags) const
+{
+	const CParameters_PG_Parameter_Value	&value	= CParameters_PG_Parameter_ValueFromVariant(m_value);
+
+	if( value.m_pParameter )
+	{
+		return( value.to_String() );
+	}
+
+	return( wxT("---") );
+}
+
+//---------------------------------------------------------
+bool CParameters_PG_Dialog::OnEvent(wxPropertyGrid *propgrid, wxWindow *primary, wxEvent &event)
+{
+	if( propgrid->IsMainButtonEvent(event) )
+	{
+		PrepareValueForDialogEditing(propgrid);
+
+		CParameters_PG_Parameter_Value	&value	= CParameters_PG_Parameter_ValueFromVariant(m_value);
+
+		if( value.m_pParameter && value.Do_Dialog() )
+		{
+			propgrid->EditorsValueWasModified();
+
+			SetValueInEvent(m_value);
 
 			return( true );
 		}
@@ -1164,38 +1030,24 @@ bool CParameters_PG_DialogedClass::OnEvent(wxPropertyGrid *propgrid, wxWindow *p
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CParameters_PG_ColorsClass : public CParameters_PG_DialogedClass
-{
-    WX_PG_DECLARE_PROPERTY_CLASS()
-
-public:
-	CParameters_PG_ColorsClass(const wxString &label, const wxString &name, const CParameters_PG_DialogedValue &value);
-
-	WX_PG_DECLARE_CUSTOM_PAINT_METHODS()
-
-};
-
+WX_PG_IMPLEMENT_PROPERTY_CLASS(CParameters_PG_Colors, wxPGProperty, CParameters_PG_Parameter_Value, const CParameters_PG_Parameter_Value &, TextCtrlAndButton)
 
 //---------------------------------------------------------
-WX_PG_IMPLEMENT_PROPERTY_CLASS(CParameters_PG_Colors, wxBaseProperty, CParameters_PG_DialogedValue, const CParameters_PG_DialogedValue &, TextCtrlAndButton)
+CParameters_PG_Colors::CParameters_PG_Colors(const wxString &label, const wxString &name, CSG_Parameter *pParameter)
+	: CParameters_PG_Dialog(label, name, pParameter)
+{}
 
 //---------------------------------------------------------
-CParameters_PG_ColorsClass::CParameters_PG_ColorsClass(const wxString &Name, const wxString &Identifier, const CParameters_PG_DialogedValue &value)
-	: CParameters_PG_DialogedClass(Name, Identifier, value)
+void CParameters_PG_Colors::OnCustomPaint(wxDC &dc, const wxRect &r, wxPGPaintData &pd)
 {
-}
+	const CParameters_PG_Parameter_Value	&value	= CParameters_PG_Parameter_ValueFromVariant(m_value);
 
-//---------------------------------------------------------
-void CParameters_PG_ColorsClass::OnCustomPaint(wxDC &dc, const wxRect &r, wxPGPaintData &pd)
-{
-	int		i, ax, bx;
-	double	dx;
-	CSG_Colors	*pColors;
-
-	if( m_value.m_pParameter && m_value.m_pParameter->Get_Type() == PARAMETER_TYPE_Colors )
+	if( value.m_pParameter && value.m_pParameter->Get_Type() == PARAMETER_TYPE_Colors )
 	{
-		pColors	= m_value.m_pParameter->asColors();
-		dx		= r.GetWidth() / (double)pColors->Get_Count();
+		int		i, ax, bx;
+
+		CSG_Colors	*pColors	= value.m_pParameter->asColors();
+		double		dx			= r.GetWidth() / (double)pColors->Get_Count();
 
 		for(i=0, bx=r.GetLeft(); i<pColors->Get_Count(); i++)
 		{
@@ -1208,9 +1060,9 @@ void CParameters_PG_ColorsClass::OnCustomPaint(wxDC &dc, const wxRect &r, wxPGPa
 }
 
 //---------------------------------------------------------
-wxSize CParameters_PG_ColorsClass::GetImageSize() const
+wxSize CParameters_PG_Colors::OnMeasureImage(int item = -1) const
 {
-	return( wxPG_FLEXIBLE_SIZE(164, 64) );
+	return( wxSize(-1, -1) );
 }
 
 

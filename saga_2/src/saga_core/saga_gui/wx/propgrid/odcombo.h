@@ -12,10 +12,7 @@
 #ifndef _WX_PROPGRID_ODCOMBO_H_
 #define _WX_PROPGRID_ODCOMBO_H_
 
-#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
-    #pragma interface "odcombo.h"
-#endif
-
+#ifndef DOXYGEN
 
 #include "wx/renderer.h"
 
@@ -29,13 +26,6 @@
     #define wxODCIndex  int
 #endif
 
-
-// wxRect: Inside(<=2.7.0) or Contains(>2.7.0)?
-#if !wxCHECK_VERSION(2,7,1)
-    #define wxPGRectContains    Inside
-#else
-    #define wxPGRectContains    Contains
-#endif
 
 class WXDLLEXPORT wxTextCtrl;
 class WXDLLEXPORT wxButton;
@@ -54,6 +44,8 @@ class WXDLLEXPORT wxButton;
     #define WXDLLEXPORT_PGODC
 #endif
 
+#define wxODComboBoxNameStr	wxT("wxOwnerDrawnComboBox")
+
 class WXDLLEXPORT_PGODC wxPGComboPopup;
 class WXDLLEXPORT_PGODC wxPGComboControlBase;
 class WXDLLEXPORT_PGODC wxPGOwnerDrawnComboBox;
@@ -71,7 +63,7 @@ enum
 
     // Use keyboard behaviour alternate to platform default:
     // Up an down keys will show popup instead of cycling value.
-    wxPGCC_ALT_KEYS                   = 0x0200,
+    wxPGCC_ALT_KEYS                   = 0x0200
 };
 
 #define wxPGCC_PROCESS_ENTER            0
@@ -212,6 +204,10 @@ public:
     // without errors.
     virtual wxString GetValue() const;
     virtual void SetValue(const wxString& value);
+    void SetText(const wxString& value)
+    {
+        SetValue(value);
+    }
     virtual void Copy();
     virtual void Cut();
     virtual void Paste();
@@ -362,14 +358,14 @@ public:
     // (wxPGOwnerDrawnComboBox uses these, obviously)
     // item: -1 means item is the combo control itself
     // flags: wxPGCC_PAINTING_CONTROL is set if painting to combo control instead of list
-    // return value: OnDrawListItem must return true if it did anything
-    virtual bool OnDrawListItem( wxDC& dc, const wxRect& rect, int item, int flags );
+    // return value: OnDrawItem must return true if it did anything
+    virtual bool OnDrawItem( wxDC& dc, const wxRect& rect, int item, int flags ) const;
 
     // Return item height, or -1 for text height (default)
-    virtual wxCoord OnMeasureListItem( int item );
+    virtual wxCoord OnMeasureItem( size_t item ) const;
 
     // Return item width, or -1 for calculating from text extent (default)
-    virtual wxCoord OnMeasureListItemWidth( int item );
+    virtual wxCoord OnMeasureItemWidth( size_t item ) const;
 
     // Returns true if can and should send focus event to the main control from
     // textctrl input handler.
@@ -458,7 +454,7 @@ protected:
 
     // Standard textctrl positioning routine. Just give it platform-dependant
     // textctrl coordinate adjustment.
-    void PositionTextCtrl( int textCtrlXAdjust, int textCtrlYAdjust );
+    virtual void PositionTextCtrl( int textCtrlXAdjust, int textCtrlYAdjust );
 
     // event handlers
     void OnSizeEvent(wxSizeEvent& event);
@@ -590,7 +586,7 @@ public:
                           const wxSize& size = wxDefaultSize,
                           long style = 0,
                           const wxValidator& validator = wxDefaultValidator,
-                          const wxString& name = wxComboBoxNameStr)
+                          const wxString& name = wxODComboBoxNameStr)
         : wxPGComboControlBase()
     {
         Init();
@@ -605,7 +601,7 @@ public:
                 const wxSize& size = wxDefaultSize,
                 long style = 0,
                 const wxValidator& validator = wxDefaultValidator,
-                const wxString& name = wxComboBoxNameStr);
+                const wxString& name = wxODComboBoxNameStr);
 
     virtual ~wxPGGenericComboControl();
 
@@ -645,7 +641,7 @@ public:
                           const wxSize& size = wxDefaultSize,
                           long style = 0,
                           const wxValidator& validator = wxDefaultValidator,
-                          const wxString& name = wxComboBoxNameStr)
+                          const wxString& name = wxODComboBoxNameStr)
         : wxPGComboControlBase()
     {
         Init();
@@ -660,7 +656,7 @@ public:
                 const wxSize& size = wxDefaultSize,
                 long style = 0,
                 const wxValidator& validator = wxDefaultValidator,
-                const wxString& name = wxComboBoxNameStr);
+                const wxString& name = wxODComboBoxNameStr);
 
     virtual ~wxPGComboControl();
 
@@ -703,7 +699,7 @@ public:
                           const wxSize& size = wxDefaultSize,
                           long style = 0,
                           const wxValidator& validator = wxDefaultValidator,
-                          const wxString& name = wxComboBoxNameStr)
+                          const wxString& name = wxODComboBoxNameStr)
         : wxPGGenericComboControl()
     {
         (void)Create(parent, id, value, pos, size, style, validator, name);
@@ -716,7 +712,7 @@ public:
                 const wxSize& size = wxDefaultSize,
                 long style = 0,
                 const wxValidator& validator = wxDefaultValidator,
-                const wxString& name = wxComboBoxNameStr)
+                const wxString& name = wxODComboBoxNameStr)
     {
         return wxPGGenericComboControl::Create(parent,id,value,pos,size,style,validator,name);
     }
@@ -846,7 +842,8 @@ enum
 {
     // when set, we are painting the selected item in control,
     // not in the popup
-    wxPGCC_PAINTING_CONTROL       = 0x0001
+    wxPGCC_PAINTING_CONTROL       = 0x0001,
+    wxPGCC_PAINTING_SELECTED      = 0x0002
 };
 
 //
@@ -928,9 +925,11 @@ public:
     // helpers
     inline int GetItemAtPosition( const wxPoint& pos ) { return HitTest(pos); }
     inline wxCoord GetTotalHeight() const { return EstimateTotalHeight(); }
-    inline wxCoord GetLineHeight(int line) const { return OnGetLineHeight(line); }
+    inline wxCoord GetLineHeight(int n) const { return OnMeasureItem(n); }
 
 protected:
+
+	virtual wxCoord OnGetRowHeight(size_t n) const { return OnMeasureItem(n); }
 
     // Called by OnComboDoubleClick and OnComboKeyEvent
     bool HandleKey( int keycode, bool saturate );
@@ -953,6 +952,10 @@ protected:
     void OnMouseWheel(wxMouseEvent& event);
     void OnKey(wxKeyEvent& event);
     void OnLeftClick(wxMouseEvent& event);
+
+#if wxCHECK_VERSION(2,8,0)
+    void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
+#endif
 
     wxArrayString           m_strings;
     wxArrayPtrVoid          m_clientDatas;
@@ -1004,7 +1007,7 @@ public:
                //wxComboPaintCallback callback,
                long style = 0,
                const wxValidator& validator = wxDefaultValidator,
-               const wxString& name = wxComboBoxNameStr)
+               const wxString& name = wxODComboBoxNameStr)
         : wxPGComboControl()
     {
         Init();
@@ -1020,7 +1023,7 @@ public:
                 const wxSize& size = wxDefaultSize,
                 long style = 0,
                 const wxValidator& validator = wxDefaultValidator,
-                const wxString& name = wxComboBoxNameStr);
+                const wxString& name = wxODComboBoxNameStr);
 
     wxPGOwnerDrawnComboBox(wxWindow *parent,
                wxWindowID id,
@@ -1030,7 +1033,7 @@ public:
                const wxArrayString& choices,
                long style = 0,
                const wxValidator& validator = wxDefaultValidator,
-               const wxString& name = wxComboBoxNameStr);
+               const wxString& name = wxODComboBoxNameStr);
 
     bool Create(wxWindow *parent,
                 wxWindowID id,
@@ -1041,7 +1044,7 @@ public:
                 const wxString choices[] = (const wxString *) NULL,
                 long style = 0,
                 const wxValidator& validator = wxDefaultValidator,
-                const wxString& name = wxComboBoxNameStr);
+                const wxString& name = wxODComboBoxNameStr);
 
     bool Create(wxWindow *parent,
                 wxWindowID id,
@@ -1051,7 +1054,7 @@ public:
                 const wxArrayString& choices,
                 long style = 0,
                 const wxValidator& validator = wxDefaultValidator,
-                const wxString& name = wxComboBoxNameStr);
+                const wxString& name = wxODComboBoxNameStr);
 
     virtual ~wxPGOwnerDrawnComboBox();
 
@@ -1080,6 +1083,15 @@ protected:
     virtual void DoSetItemClientObject(wxODCIndex n, wxClientData* clientData);
     virtual wxClientData* DoGetItemClientObject(wxODCIndex n) const;
 
+#if wxCHECK_VERSION(2,9,0)
+    virtual int DoInsertItems(const wxArrayStringsAdapter& items,
+                              unsigned int pos,
+                              void **clientData,
+                              wxClientDataType type);
+    virtual void DoClear() { Clear(); }
+    virtual void DoDeleteOneItem(unsigned int pos) { Delete(pos); }
+#endif
+
     // overload m_popupInterface member so we can access specific popup interface easier
     wxPGVListBoxComboPopup*     m_popupInterface;
 
@@ -1090,5 +1102,7 @@ private:
 
     DECLARE_DYNAMIC_CLASS(wxPGOwnerDrawnComboBox)
 };
+
+#endif  // !DOXYGEN
 
 #endif // _WX_PROPGRID_ODCOMBO_H_

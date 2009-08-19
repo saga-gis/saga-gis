@@ -294,7 +294,7 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 	}
 	else
 	{
-		m_pPG->Append(wxPropertyCategory(LNG("[TXT] No parameters available."), wxPG_LABEL));
+		m_pPG->Append(new wxPropertyCategory(LNG("[TXT] No parameters available."), wxPG_LABEL));
 	}
 
 	//-----------------------------------------------------
@@ -317,9 +317,9 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 #define CHECK_DATA_NODE(pNode, Name, ID)	if( !pNode )\
 	{\
-		pNode	= wxPropertyCategory(Name, ID);\
+		pNode	= new wxPropertyCategory(Name, ID);\
 		if( !pData )\
-			m_pPG->Append(pData = wxPropertyCategory(LNG("[PRM] Data Objects"), wxT("_DATAOBJECT_DATAOBJECTS")));\
+			m_pPG->Append(pData = new wxPropertyCategory(LNG("[PRM] Data Objects"), wxT("_DATAOBJECT_DATAOBJECTS")));\
 		_Add_Property(pNode, pData);\
 	}\
 	pRoot	= pNode;
@@ -389,8 +389,7 @@ void CParameters_Control::_Add_Properties(CSG_Parameters *pParameters)
 			default:
 				if( !pOptions )
 				{
-					pOptions	= wxPropertyCategory(LNG("[PRM] Options"), wxT("_DATAOBJECT_OPTIONS"));
-					m_pPG->Append(pOptions);
+					m_pPG->Append(pOptions = new wxPropertyCategory(LNG("[PRM] Options"), wxT("_DATAOBJECT_OPTIONS")));
 				}
 
 				pRoot	= pOptions;
@@ -408,18 +407,12 @@ void CParameters_Control::_Add_Properties(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 wxPGProperty * CParameters_Control::_Add_Property(wxPGProperty *pProperty, wxPGProperty *pParent)
 {
-	wxPGId	Id;
-
 	if( pParent )
 	{
-		Id	= m_pPG->Insert(pParent->GetId(), -1, pProperty);
-	}
-	else
-	{
-		Id	= m_pPG->Append(pProperty);
+		return( m_pPG->Insert(pParent, -1, pProperty) );
 	}
 
-	return( Id.GetPropertyPtr() );
+	return( m_pPG->Append(pProperty) );
 }
 
 //---------------------------------------------------------
@@ -440,11 +433,10 @@ void CParameters_Control::_Add_Property(CSG_Parameter *pParameter, wxPGProperty 
 		case PARAMETER_TYPE_Grid:
 		case PARAMETER_TYPE_Grid_List:
 			_Get_Property(pParameter, pParent);
-			pProperty	= wxPropertyCategory(wxString::Format(wxT("%s [%s]"), pParameter->Get_Name(), LNG("[CAP] Options")), wxString::Format(wxT("%s_PARENT"), pParameter->Get_Identifier()));
+			pProperty	= new wxPropertyCategory(wxString::Format(wxT("%s [%s]"), pParameter->Get_Name(), LNG("[CAP] Options")), wxString::Format(wxT("%s_PARENT"), pParameter->Get_Identifier()));
 			if( pParameter->Get_Parent() && pParameter->Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System )
 			{
-				wxPGId	Id	= m_pPG->GetPropertyByName(wxT("_DATAOBJECT_GRIDS"));
-				_Add_Property(pProperty, Id.GetPropertyPtr());
+				_Add_Property(pProperty, m_pPG->GetPropertyByName(wxT("_DATAOBJECT_GRIDS")));
 			}
 			else
 			{
@@ -454,7 +446,7 @@ void CParameters_Control::_Add_Property(CSG_Parameter *pParameter, wxPGProperty 
 
 		default:
 			_Get_Property(pParameter, pParent);
-			pProperty	= wxPropertyCategory(wxString::Format(wxT("%s [%s]"), pParameter->Get_Name(), LNG("[CAP] Options")), wxString::Format(wxT("%s_PARENT"), pParameter->Get_Identifier()));
+			pProperty	= new wxPropertyCategory(wxString::Format(wxT("%s [%s]"), pParameter->Get_Name(), LNG("[CAP] Options")), wxString::Format(wxT("%s_PARENT"), pParameter->Get_Identifier()));
 			_Add_Property(pProperty, pParent);
 			break;
 		}
@@ -491,7 +483,7 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 	switch( pParameter->Get_Type() )
 	{
 	default:
-		pProperty	= _Add_Property(wxStringProperty(
+		pProperty	= _Add_Property(new wxStringProperty(
 			pParameter->Get_Name(),
 			pParameter->Get_Identifier(),
 			pParameter->Get_Type_Name()
@@ -499,14 +491,14 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 		break;
 
 	case PARAMETER_TYPE_Node:
-		pProperty	= _Add_Property(wxPropertyCategory(
+		pProperty	= _Add_Property(new wxPropertyCategory(
 			pParameter->Get_Name(),
 			pParameter->Get_Identifier()
 		), pParent);
 		break;
 
 	case PARAMETER_TYPE_Bool:
-		pProperty	= _Add_Property(wxBoolProperty(
+		pProperty	= _Add_Property(new wxBoolProperty(
 			pParameter->Get_Name(),
 			pParameter->Get_Identifier(),
 			pParameter->asBool()
@@ -516,7 +508,7 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 		break;
 
 	case PARAMETER_TYPE_Int:
-		pProperty	= _Add_Property(wxIntProperty(
+		pProperty	= _Add_Property(new wxIntProperty(
 			pParameter->Get_Name(),
 			pParameter->Get_Identifier(),
 			pParameter->asInt()
@@ -524,7 +516,7 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 		break;
 
 	case PARAMETER_TYPE_Double:
-		pProperty	= _Add_Property(wxFloatProperty(
+		pProperty	= _Add_Property(new wxFloatProperty(
 			pParameter->Get_Name(),
 			pParameter->Get_Identifier(),
 			pParameter->asDouble()
@@ -534,16 +526,23 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 		break;
 
 	case PARAMETER_TYPE_Range:
-	case PARAMETER_TYPE_Degree:
-		pProperty	= _Add_Property(CParameters_PG_Doubles(
+		pProperty	= _Add_Property(new CParameters_PG_Range(
 			pParameter->Get_Name(),
 			pParameter->Get_Identifier(),
-			CParameters_PG_DoublesValue(pParameter)
+			pParameter
+		), pParent);
+		break;
+
+	case PARAMETER_TYPE_Degree:
+		pProperty	= _Add_Property(new CParameters_PG_Degree(
+			pParameter->Get_Name(),
+			pParameter->Get_Identifier(),
+			pParameter
 		), pParent);
 		break;
 
 	case PARAMETER_TYPE_String:
-		pProperty	= _Add_Property(wxStringProperty(
+		pProperty	= _Add_Property(new wxStringProperty(
 			pParameter->Get_Name(),
 			pParameter->Get_Identifier(),
 			pParameter->asString()
@@ -556,7 +555,7 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 		break;
 
 	case PARAMETER_TYPE_Color:
-		pProperty	= _Add_Property(wxColourProperty(
+		pProperty	= _Add_Property(new wxColourProperty(
 			pParameter->Get_Name(),
 			pParameter->Get_Identifier(),
 			Get_Color_asWX(pParameter->asColor())
@@ -566,10 +565,10 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 		break;
 
 	case PARAMETER_TYPE_Colors:
-		pProperty	= _Add_Property(CParameters_PG_Colors(
+		pProperty	= _Add_Property(new CParameters_PG_Colors(
 			pParameter->Get_Name(),
 			pParameter->Get_Identifier(),
-			CParameters_PG_DialogedValue(pParameter)
+			pParameter
 		), pParent);
 
 		m_pPG->LimitPropertyEditing(pProperty->GetId());
@@ -596,10 +595,10 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 		break;
 
 	case PARAMETER_TYPE_FilePath:
-		pProperty	= _Add_Property(CParameters_PG_Dialoged(
+		pProperty	= _Add_Property(new CParameters_PG_Dialog(
 			pParameter->Get_Name(),
 			pParameter->Get_Identifier(),
-			CParameters_PG_DialogedValue(pParameter)
+			pParameter
 		), pParent);
 		break;
 
@@ -616,10 +615,10 @@ wxPGProperty * CParameters_Control::_Get_Property(CSG_Parameter *pParameter, wxP
 	case PARAMETER_TYPE_Shapes_List:
 	case PARAMETER_TYPE_TIN_List:
 	case PARAMETER_TYPE_Parameters:
-		pProperty	= _Add_Property(CParameters_PG_Dialoged(
+		pProperty	= _Add_Property(new CParameters_PG_Dialog(
 			pParameter->Get_Name(),
 			pParameter->Get_Identifier(),
-			CParameters_PG_DialogedValue(pParameter)
+			pParameter
 		), pParent);
 
 		m_pPG->LimitPropertyEditing(pProperty->GetId());
@@ -659,11 +658,11 @@ void CParameters_Control::_Set_Parameter(const wxChar *Identifier)
 
 	if( (pParameter = m_pParameters->Get_Parameter(Identifier)) != NULL )
 	{
+		wxPGProperty	*pProperty	= m_pPG->GetPropertyByName(Identifier);
+
 		m_bModified	= true;
 
-		wxPGId	Id	= m_pPG->GetPropertyByName(Identifier);
-
-		if( Id.IsOk() )
+		if( pProperty )
 		{
 			switch( pParameter->Get_Type() )
 			{
@@ -672,26 +671,26 @@ void CParameters_Control::_Set_Parameter(const wxChar *Identifier)
 
 			case PARAMETER_TYPE_String:
 			case PARAMETER_TYPE_FilePath:
-				pParameter->Set_Value( ( m_pPG->GetPropertyValueAsString(Id).c_str() ) );
+				pParameter->Set_Value( ( m_pPG->GetPropertyValueAsString(pProperty).c_str() ) );
 				break;
 
 			case PARAMETER_TYPE_Bool:
-				pParameter->Set_Value(m_pPG->GetPropertyValueAsBool		(Id));
+				pParameter->Set_Value(m_pPG->GetPropertyValueAsBool		(pProperty));
 				break;
 
 			case PARAMETER_TYPE_Int:
-				pParameter->Set_Value(m_pPG->GetPropertyValueAsInt		(Id));
+				pParameter->Set_Value(m_pPG->GetPropertyValueAsInt		(pProperty));
 				break;
 
 			case PARAMETER_TYPE_Double:
-				pParameter->Set_Value(m_pPG->GetPropertyValueAsDouble	(Id));
+				pParameter->Set_Value(m_pPG->GetPropertyValueAsDouble	(pProperty));
 				break;
 
 			case PARAMETER_TYPE_Color:
-				wxASSERT(m_pPG->IsPropertyValueType(Id, CLASSINFO(wxColour)));
-				pParameter->Set_Value(Get_Color_asInt(*(wxDynamicCast(m_pPG->GetPropertyValueAsWxObjectPtr(Id), wxColour))));
-			//	wxASSERT(m_pPG->IsPropertyValueType(Id, CLASSINFO(wxColourPropertyValue)));
-			//	pParameter->Set_Value(Get_Color_asInt(wxDynamicCast(m_pPG->GetPropertyValueAsWxObjectPtr(Id), wxColourPropertyValue)->m_colour));
+			//	wxASSERT(m_pPG->IsPropertyValueType(pProperty, CLASSINFO(wxColour)));
+				pParameter->Set_Value(Get_Color_asInt(*(wxDynamicCast(m_pPG->GetPropertyValueAsWxObjectPtr(pProperty), wxColour))));
+			//	wxASSERT(m_pPG->IsPropertyValueType(pProperty, CLASSINFO(wxColourPropertyValue)));
+			//	pParameter->Set_Value(Get_Color_asInt(wxDynamicCast(m_pPG->GetPropertyValueAsWxObjectPtr(pProperty), wxColourPropertyValue)->m_colour));
 				break;
 			}
 		}
@@ -715,13 +714,13 @@ void CParameters_Control::_Update_Parameters(void)
 //---------------------------------------------------------
 void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
 {
-	wxPGId		Id	= m_pPG->GetPropertyByName(pParameter->Get_Identifier());
+	wxPGProperty	*pProperty	= m_pPG->GetPropertyByName(pParameter->Get_Identifier());
 
-	if( Id.IsOk()  )
+	if( pProperty )
 	{
 		CSG_String	s;
 
-		m_pPG->EnableProperty(Id, pParameter->is_Enabled());
+		m_pPG->EnableProperty(pProperty, pParameter->is_Enabled());
 
 		switch( pParameter->Get_Type() )
 		{
@@ -730,47 +729,47 @@ void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
 
 		case PARAMETER_TYPE_String:
 		case PARAMETER_TYPE_FilePath:
-			if( m_pPG->GetPropertyValueAsString	(Id).Cmp(pParameter->asString()) != 0 )
+			if( m_pPG->GetPropertyValueAsString	(pProperty).Cmp(pParameter->asString()) != 0 )
 			{
-				m_pPG->SetPropertyValue(Id, pParameter->asString());
+				m_pPG->SetPropertyValue(pProperty, pParameter->asString());
 			}
 			break;
 
 		case PARAMETER_TYPE_Bool:
-			if( m_pPG->GetPropertyValueAsBool	(Id) != pParameter->asBool() )
+			if( m_pPG->GetPropertyValueAsBool	(pProperty) != pParameter->asBool() )
 			{
-				m_pPG->SetPropertyValue(Id, pParameter->asBool());
+				m_pPG->SetPropertyValue(pProperty, pParameter->asBool());
 			}
 			break;
 
 		case PARAMETER_TYPE_Int:
-			if( m_pPG->GetPropertyValueAsInt	(Id) != pParameter->asInt() )
+			if( m_pPG->GetPropertyValueAsInt	(pProperty) != pParameter->asInt() )
 			{
-				m_pPG->SetPropertyValue(Id, pParameter->asInt());
+				m_pPG->SetPropertyValue(pProperty, pParameter->asInt());
 			}
 			break;
 
 		case PARAMETER_TYPE_Double:
-			if( m_pPG->GetPropertyValueAsDouble	(Id) != pParameter->asDouble() )
+			if( m_pPG->GetPropertyValueAsDouble	(pProperty) != pParameter->asDouble() )
 			{
-				m_pPG->SetPropertyValue(Id, pParameter->asDouble());
+				m_pPG->SetPropertyValue(pProperty, pParameter->asDouble());
 			}
 			break;
 
 		case PARAMETER_TYPE_Range:
 			s.Printf( SG_T("%f; %f"), pParameter->asRange()->Get_LoVal(), pParameter->asRange()->Get_HiVal());
-			m_pPG->SetPropertyValue(Id, s.c_str());
+			m_pPG->SetPropertyValue(pProperty, s.c_str());
 			break;
 
 		case PARAMETER_TYPE_Degree:
 			double	d[3];
 			Decimal_To_Degree(pParameter->asDouble(), d[0], d[1], d[2]);
 			s.Printf( SG_T("%f; %f; %f"), d[0], d[1], d[2]);
-			m_pPG->SetPropertyValue(Id, s.c_str());
+			m_pPG->SetPropertyValue(pProperty, s.c_str());
 			break;
 
 		case PARAMETER_TYPE_Choice:
-			((CParameters_PG_Choice *)Id.GetPropertyPtr())->Update();
+			((CParameters_PG_Choice *)pProperty)->Update();
 			break;
 		}
 	}
@@ -779,17 +778,14 @@ void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
 //---------------------------------------------------------
 bool CParameters_Control::Update_DataObjects(void)
 {
-	CSG_Parameter	*pParameter;
-	wxPGId			Id;
-
 	if( m_pParameters )
 	{
 		for(int i=0; i<m_pParameters->Get_Count(); i++)
 		{
-			pParameter	= m_pParameters->Get_Parameter(i);
-			Id			= m_pPG->GetPropertyByName(pParameter->Get_Identifier());
+			CSG_Parameter	*pParameter	= m_pParameters->Get_Parameter(i);
+			wxPGProperty	*pProperty	= m_pPG->GetPropertyByName(pParameter->Get_Identifier());
 
-			if( Id.IsOk()  )
+			if( pProperty  )
 			{
 				switch( pParameter->Get_Type() )
 				{
@@ -797,7 +793,7 @@ bool CParameters_Control::Update_DataObjects(void)
 					break;
 
 				case PARAMETER_TYPE_Grid_System:
-					((CParameters_PG_GridSystem *)Id.GetPropertyPtr())->Update();
+					((CParameters_PG_GridSystem *)pProperty)->Update();
 					break;
 
 				case PARAMETER_TYPE_Grid:
@@ -805,7 +801,7 @@ bool CParameters_Control::Update_DataObjects(void)
 				case PARAMETER_TYPE_Shapes:
 				case PARAMETER_TYPE_TIN:
 				case PARAMETER_TYPE_PointCloud:
-					((CParameters_PG_Choice *)Id.GetPropertyPtr())->Update();
+					((CParameters_PG_Choice *)pProperty)->Update();
 					break;
 
 				case PARAMETER_TYPE_Grid_List:
