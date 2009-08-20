@@ -23,7 +23,7 @@
 CCost_RectToPolar::CCost_RectToPolar(void){
 
 	Set_Name(_TL("Rect To Polar"));
-	Set_Author(_TL("Copyrights (c) 2004 by Victor Olaya"));
+	Set_Author(_TL("Copyrights (c) 2004-2009 by Victor Olaya, Volker Wichmann"));
 	Set_Description	(_TW(
 		"(c) 2004 by Victor Olaya. Rect to Polar conversion for paired Vector data."));
 
@@ -68,26 +68,34 @@ bool CCost_RectToPolar::On_Execute(void){
 	double PI = 3.141592;
 	
 	CSG_Grid* pAngle = Parameters("ANGLE")->asGrid(); 
-	CSG_Grid* pMagnitude = Parameters("MAGNITUD")->asGrid(); 
+	CSG_Grid* pMagnitude = Parameters("MAGNITUDE")->asGrid(); 
 	CSG_Grid* pX = Parameters("X")->asGrid(); 
 	CSG_Grid* pY = Parameters("Y")->asGrid(); 
 
-	pX->Assign(0.0);
-	pY->Assign(0.0);
+	pAngle->Assign(0.0);
+	pMagnitude->Assign(0.0);
 	
     for(int y=0; y<Get_NY() && Set_Progress(y); y++){		
 		for(int x=0; x<Get_NX(); x++){
 			dX = pX->asDouble(x,y);
 			dY = pY->asDouble(x,y);
+
+			if (dX == 0.0)
+			{
+				pMagnitude->Set_NoData(x, y);
+				pAngle->Set_NoData(x, y);
+				continue;
+			}
+
 			dMagnitude =sqrt(dX*dX+dY*dY);
-			dAngle = atan((double)y/x);	
-			if (x*y>0){
-				if (y<0 && x<0){
+			dAngle = atan((double)dY/dX);	
+			if (dX*dY>0){
+				if (dY<0 && dX<0){
 					dAngle+=PI;
 				}//if
 			}//if
 			else {
-				if (y<0){
+				if (dY<0){
 					dAngle = 2*PI-dAngle;
 				}//if
 				else{
