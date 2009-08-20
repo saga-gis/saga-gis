@@ -71,12 +71,16 @@ bool CCost_RectToPolar::On_Execute(void){
 	CSG_Grid* pMagnitude = Parameters("MAGNITUDE")->asGrid(); 
 	CSG_Grid* pX = Parameters("X")->asGrid(); 
 	CSG_Grid* pY = Parameters("Y")->asGrid(); 
-
-	pAngle->Assign(0.0);
-	pMagnitude->Assign(0.0);
 	
     for(int y=0; y<Get_NY() && Set_Progress(y); y++){		
 		for(int x=0; x<Get_NX(); x++){
+			if (pX->is_NoData(x, y) || pY->is_NoData(x, y))
+			{
+				pMagnitude->Set_NoData(x, y);
+				pAngle->Set_NoData(x, y);
+				continue;
+			}
+
 			dX = pX->asDouble(x,y);
 			dY = pY->asDouble(x,y);
 
