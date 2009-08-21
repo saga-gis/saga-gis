@@ -143,37 +143,23 @@ void CParameters_PG_Choice::_Create(void)
 //---------------------------------------------------------
 void CParameters_PG_Choice::_Destroy(void)
 {
-	wxPGChoices	choices;
-
-	m_choices.Assign(choices);
-	m_choices_data.Clear();
+	m_choices		.Clear();
+	m_choices_data	.Clear();
 
 	SetIndex(0);
 }
 
 //---------------------------------------------------------
-const wxChar * CParameters_PG_Choice::GetClassName(void) const
-{
-	return( wxT("CParameters_PG_Choice") );
-}
-
-//---------------------------------------------------------
 void CParameters_PG_Choice::_Append(const wxChar *Label, long Value)
 {
-	m_choices.Add(Label, Value);
-	m_choices_data.Add((void *)NULL);
+	m_choices		.Add(Label, Value);
+	m_choices_data	.Add((void *)NULL);
 }
 
 void CParameters_PG_Choice::_Append(const wxChar *Label, void *Value)
 {
-	m_choices.Add(Label, m_choices_data.Count());
-	m_choices_data.Add(Value);
-}
-
-void CParameters_PG_Choice::_Append(const wxChar *Label)
-{
-	m_choices.Add(Label, m_choices_data.Count());
-	m_choices_data.Add((void *)NULL);
+	m_choices		.Add(Label, m_choices_data.Count());
+	m_choices_data	.Add(Value);
 }
 
 //---------------------------------------------------------
@@ -223,13 +209,13 @@ int CParameters_PG_Choice::_Set_Table_Field(void)
 				_Append( LNG("[VAL] [not set]") );
 			}
 
-			return( m_pParameter->asInt() >= 0 ? m_pParameter->asInt() : m_choices.GetCount() - 1);
+			return( m_pParameter->asInt() >= 0 ? m_pParameter->asInt() : GetItemCount() - 1);
 		}
 	}
 
 	_Append( LNG("[VAL] [not set]") );
 
-	return( m_choices.GetCount() - 1 );
+	return( GetItemCount() - 1 );
 }
 
 //---------------------------------------------------------
@@ -324,54 +310,44 @@ int CParameters_PG_Choice::_Set_PointCloud(void)
 //---------------------------------------------------------
 int CParameters_PG_Choice::_Set_Grid_System(void)
 {
-	int					i;
-	CWKSP_Grid_Manager	*pSystems;
+	g_pData->Check_Parameter(m_pParameter);
 
-	if( (pSystems = g_pData->Get_Grids()) != NULL )
+	CWKSP_Grid_Manager	*pSystems	= g_pData->Get_Grids();
+
+	if( pSystems && pSystems->Get_Count() > 0 )
 	{
-		if( pSystems->Get_Count() > 0 )
+		int	index	= pSystems->Get_Count();
+
+		for(int i=0; i<pSystems->Get_Count(); i++)
 		{
-			for(i=0; i<pSystems->Get_Count(); i++)
+			_Append(pSystems->Get_System(i)->Get_Name(), pSystems->Get_System(i)->Get_System());
+
+			if( m_pParameter->asGrid_System()->is_Equal(*pSystems->Get_System(i)->Get_System()) )
 			{
-				_Append(pSystems->Get_System(i)->Get_Name(), pSystems->Get_System(i)->Get_System());
+				index	= i;
 			}
 		}
 
-		_Append( LNG("[VAL] [not set]"), (void *)NULL );
+		_Append(LNG("[VAL] [not set]"));
 
-		g_pData->Check_Parameter(m_pParameter);
-
-		for(i=0; i<(int)m_choices.GetCount()-1; i++)
-		{
-			if( m_pParameter->asGrid_System()->is_Equal(*((CSG_Grid_System *)m_choices_data.Item(m_choices.GetValue(i)))) )
-			{
-				return( i );
-			}
-		}
-
-		return( m_choices.GetCount() - 1 );
+		return( index );
 	}
 
-	_Append( LNG("[VAL] [no choice available]"), (void *)NULL );
+	_Append( LNG("[VAL] [no choice available]"));
 
-	return( m_choices.GetCount() - 1 );
+	return( 0 );
 }
 
 //---------------------------------------------------------
 int CParameters_PG_Choice::_Set_Grid(void)
 {
-	int					i;
-	CSG_Parameter			*pParent;
-	CWKSP_Grid_Manager	*pManager;
-	CWKSP_Grid_System	*pSystem;
-
-	pSystem		= NULL;
-	pManager	= g_pData->Get_Grids();
-	pParent		= m_pParameter->Get_Parent();
+	CSG_Parameter		*pParent	= m_pParameter->Get_Parent();
+	CWKSP_Grid_Manager	*pManager	= g_pData->Get_Grids();
+	CWKSP_Grid_System	*pSystem	= NULL;
 
 	if( pManager && pParent && pParent->Get_Type() == PARAMETER_TYPE_Grid_System && pParent->asGrid_System()->is_Valid() )
 	{
-		for(i=0; i<pManager->Get_Count() && !pSystem; i++)
+		for(int i=0; i<pManager->Get_Count() && !pSystem; i++)
 		{
 			if( pParent->asGrid_System()->is_Equal(*pManager->Get_System(i)->Get_System()) )
 			{
@@ -382,7 +358,7 @@ int CParameters_PG_Choice::_Set_Grid(void)
 
 	if( pSystem )
 	{
-		for(i=0; i<pSystem->Get_Count(); i++)
+		for(int i=0; i<pSystem->Get_Count(); i++)
 		{
 			_Append(pSystem->Get_Grid(i)->Get_Name(), pSystem->Get_Grid(i)->Get_Grid());
 		}
@@ -406,7 +382,7 @@ int CParameters_PG_Choice::_DataObject_Init(void)
 
 	g_pData->Check_Parameter(m_pParameter);
 
-	for(int i=0; i<(int)m_choices.GetCount(); i++)
+	for(int i=0; i<(int)GetItemCount(); i++)
 	{
 		if( m_pParameter->asDataObject() == (void *)m_choices_data.Item(m_choices.GetValue(i)) )
 		{
@@ -414,7 +390,7 @@ int CParameters_PG_Choice::_DataObject_Init(void)
 		}
 	}
 
-	return( m_choices.GetCount() - 1 );
+	return( GetItemCount() - 1 );
 }
 
 //---------------------------------------------------------
@@ -422,7 +398,7 @@ bool CParameters_PG_Choice::OnEvent(wxPropertyGrid *pPG, wxWindow *pPGCtrl, wxEv
 {
 	if( event.GetEventType() == wxEVT_COMMAND_COMBOBOX_SELECTED )
 	{
-		if( m_pParameter && m_choices.IsOk() && GetIndex() >= 0 && GetIndex() < (int)m_choices.GetCount() )
+		if( m_pParameter && m_choices.IsOk() && GetIndex() >= 0 && GetIndex() < (int)GetItemCount() )
 		{
 			switch( m_pParameter->Get_Type() )
 			{
@@ -434,13 +410,13 @@ bool CParameters_PG_Choice::OnEvent(wxPropertyGrid *pPG, wxWindow *pPGCtrl, wxEv
 				m_pParameter->Set_Value(GetIndex());
 				break;
 
-			case PARAMETER_TYPE_Grid:
-				m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(GetIndex())));
-				break;
-
 			case PARAMETER_TYPE_Grid_System:
 				m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(GetIndex())));
 				_Update_Grids(pPG);
+				break;
+
+			case PARAMETER_TYPE_Grid:
+				m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(GetIndex())));
 				break;
 
 			case PARAMETER_TYPE_Table:
@@ -451,10 +427,16 @@ bool CParameters_PG_Choice::OnEvent(wxPropertyGrid *pPG, wxWindow *pPGCtrl, wxEv
 				_Update_TableFields(pPG);
 				break;
 			}
+
+			pPG->EditorsValueWasModified();
+
+			return( true );
 		}
 	}
 
-	return( true );
+	event.Skip();
+
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -476,7 +458,7 @@ void CParameters_PG_Choice::_Update_Grids(wxPropertyGrid *pPG)
 				break;
 
 			case PARAMETER_TYPE_Grid:
-				if( (pProperty = pPG->GetPropertyByName(pChild->Get_Identifier())) != NULL )
+				if( (pProperty = pPG->GetProperty(wxString::Format(wxT("%s.%s"), m_pParameter->Get_Identifier(), pChild->Get_Identifier()))) != NULL )
 				{
 					((CParameters_PG_Choice *)pProperty)->Update();
 				}
@@ -504,151 +486,6 @@ void CParameters_PG_Choice::_Update_TableFields(wxPropertyGrid *pPG)
 			}
 		}
 	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CParameters_PG_GridSystem::CParameters_PG_GridSystem(CSG_Parameter *pParameter)
-	: wxCustomProperty(pParameter->Get_Name(), pParameter->Get_Identifier())
-{
-	m_pParameter	= pParameter;
-
-	SetEditor(wxPGEditor_Choice);
-
-	_Create();
-}
-
-//---------------------------------------------------------
-CParameters_PG_GridSystem::~CParameters_PG_GridSystem(void)
-{
-	_Destroy();
-}
-
-//---------------------------------------------------------
-void CParameters_PG_GridSystem::_Create(void)
-{
-	CWKSP_Grid_Manager	*pSystems;
-
-	_Destroy();
-
-	m_index	= -1;
-
-	if( m_pParameter && m_pParameter->Get_Type() == PARAMETER_TYPE_Grid_System )
-	{
-		g_pData->Check_Parameter(m_pParameter);
-
-		if( (pSystems = g_pData->Get_Grids()) != NULL )
-		{
-			if( pSystems->Get_Count() > 0 )
-			{
-				for(int i=0; i<pSystems->Get_Count(); i++)
-				{
-					m_choices.Add(pSystems->Get_System(i)->Get_Name().c_str(), m_choices_data.Count());
-					m_choices_data.Add(pSystems->Get_System(i)->Get_System());
-
-					if( pSystems->Get_System(i)->Get_System()->is_Equal(*m_pParameter->asGrid_System()) )
-					{
-						m_index	= i;
-					}
-				}
-			}
-
-			m_choices.Add(LNG("[VAL] [not set]"), m_choices_data.Count());
-			m_choices_data.Add(NULL);
-		}
-	}
-
-	if( !m_choices.IsOk() || m_choices.GetCount() == 0 )
-	{
-		m_choices.Add(LNG("[VAL] [no choice available]"), m_choices_data.Count());
-		m_choices_data.Add(NULL);
-	}
-
-	if( m_index < 0 )
-	{
-		m_index	= m_choices.GetCount() - 1;
-	}
-
-	SetValueFromInt(m_index);
-}
-
-//---------------------------------------------------------
-void CParameters_PG_GridSystem::_Destroy(void)
-{
-	wxPGChoices	choices;
-
-	m_choices.Assign(choices);
-
-	m_index		= 0;
-}
-
-//---------------------------------------------------------
-bool CParameters_PG_GridSystem::Update(void)
-{
-	_Create();
-
-	return( true );
-}
-
-//---------------------------------------------------------
-wxString CParameters_PG_GridSystem::GetValueAsString(int arg_flags) const
-{
-	if( m_choices.IsOk() && m_index >= 0 && m_index < (int)m_choices.GetCount() )
-	{
-		return( m_choices.GetLabel(m_index) );
-	}
-
-	return( _("<none>") );
-}
-
-//---------------------------------------------------------
-bool CParameters_PG_GridSystem::SetValueFromInt(long value, int arg_flags)
-{
-	//-----------------------------------------------------
-	if( arg_flags & wxPG_FULL_VALUE )
-	{
-		return( SetValueFromInt(m_choices.IsOk() && m_choices.GetCount() > 0 ? m_choices.Index(value) : 0) );
-	}
-
-	//-----------------------------------------------------
-	bool	bChanged;
-
-	if( m_choices.IsOk() && m_choices.GetCount() > 0 )
-	{
-		bChanged	= m_index != value;
-		m_index		= value;
-		value		= m_choices.GetValue(m_index);
-
-		wxCustomProperty::SetValueFromInt(value, arg_flags);
-
-		//-------------------------------------------------
-		m_pParameter->Set_Value(m_choices_data.Item(value));
-
-		if( GetParent() && GetGrid() )
-		{
-			for(wxPropertyGridIterator Iterator=GetGrid()->GetIterator(); !Iterator.AtEnd(); Iterator++)
-			{
-				wxPGProperty	*pProperty	= *Iterator;
-
-				if( SG_STR_CMP( SG_T("CParameters_PG_Choice"), pProperty->GetClassName() ) == 0 )
-				{
-					((CParameters_PG_Choice *)pProperty)->Update();
-				}
-			}
-		}
-	}
-	else
-	{
-		bChanged	= false;
-	}
-
-	return( bChanged );
 }
 
 
@@ -922,9 +759,9 @@ CParameters_PG_Degree::CParameters_PG_Degree(const wxString &label, const wxStri
 
 		Decimal_To_Degree(pParameter->asDouble(), d, m, s);
 
-		AddPrivateChild( new wxIntProperty  (wxT("Degree")	, wxPG_LABEL, d) );
-		AddPrivateChild( new wxIntProperty  (wxT("Minute")	, wxPG_LABEL, m) );
-		AddPrivateChild( new wxFloatProperty(wxT("Second")	, wxPG_LABEL, s) );
+		AddPrivateChild( new wxIntProperty  (wxT("Degree")	, wxPG_LABEL, (int)d) );
+		AddPrivateChild( new wxIntProperty  (wxT("Minute")	, wxPG_LABEL, (int)m) );
+		AddPrivateChild( new wxFloatProperty(wxT("Second")	, wxPG_LABEL,      s) );
 	}
 }
 
@@ -939,9 +776,9 @@ void CParameters_PG_Degree::RefreshChildren(void)
 
 		Decimal_To_Degree(value.m_pParameter->asDouble(), d, m, s);
 
-		Item(0)->SetValue(d);
-		Item(1)->SetValue(m);
-		Item(2)->SetValue(s);
+		Item(0)->SetValue((int)d);
+		Item(1)->SetValue((int)m);
+		Item(2)->SetValue(     s);
 	}
 }
 
@@ -960,9 +797,9 @@ void CParameters_PG_Degree::ChildChanged(wxVariant &thisValue, int childIndex, w
 
 			switch( childIndex )
 			{
-				case 0:	d	= v;	break;
-				case 1:	m	= v;	break;
-				case 2:	s	= v;	break;
+				case 0:	d	= (int)v;	break;
+				case 1:	m	= (int)v;	break;
+				case 2:	s	=      v;	break;
 			}
 
 			value.m_pParameter->Set_Value(Degree_To_Decimal(d, m, s));

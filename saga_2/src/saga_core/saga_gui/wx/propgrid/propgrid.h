@@ -218,7 +218,7 @@
 
 #ifndef wxPG_USING_WXOWNERDRAWNCOMBOBOX
     #if wxCHECK_VERSION(2,8,0)
-        #define wxPG_USING_WXOWNERDRAWNCOMBOBOX 1
+//        #define wxPG_USING_WXOWNERDRAWNCOMBOBOX 1		// O.C. > cb drop down on first mouse click
     #else
         #define wxPG_USING_WXOWNERDRAWNCOMBOBOX 0
     #endif

@@ -87,18 +87,13 @@
 //---------------------------------------------------------
 class CParameters_PG_Choice : public wxEnumProperty
 {
-//	WX_PG_DECLARE_PROPERTY_CLASS(CParameters_PG_Choice)
-//	DECLARE_DYNAMIC_CLASS(CParameters_PG_Choice)
-
 public:
-	CParameters_PG_Choice(class CSG_Parameter *pParameter);
+	CParameters_PG_Choice(CSG_Parameter *pParameter);
 	virtual ~CParameters_PG_Choice(void);
 
 	bool						Update				(void);
  
 	virtual bool				OnEvent				(wxPropertyGrid *pPG, wxWindow *pPGCtrl, wxEvent &event);
-
-	virtual const wxChar *		GetClassName		(void) const;
 
 
 protected:
@@ -110,9 +105,9 @@ protected:
 
 	void						_Create				(void);
 	void						_Destroy			(void);
+
 	void						_Append				(const wxChar *Label, long  Value);
-	void						_Append				(const wxChar *Label, void *Value);
-	void						_Append				(const wxChar *Label);
+	void						_Append				(const wxChar *Label, void *Value = NULL);
 
 	int							_Set_Choice			(void);
 	int							_Set_Table			(void);
@@ -127,40 +122,6 @@ protected:
 
 	void						_Update_Grids		(wxPropertyGrid *pPG);
 	void						_Update_TableFields	(wxPropertyGrid *pPG);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CParameters_PG_GridSystem : public wxCustomProperty
-{
-public:
-	CParameters_PG_GridSystem(class CSG_Parameter *pParameter);
-	virtual ~CParameters_PG_GridSystem(void);
-
-	bool						Update				(void);
- 
-	virtual wxString			GetValueAsString	(int arg_flags = 0) const;
-	virtual bool				SetValueFromInt		(long value, int arg_flags = 0);
-
-
-protected:
-
-	int							m_index;
-
-	class CSG_Parameter			*m_pParameter;
-
-	wxArrayPtrVoid				m_choices_data;
-
-
-	void						_Create				(void);
-	void						_Destroy			(void);
 
 };
 

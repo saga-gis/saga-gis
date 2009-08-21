@@ -122,11 +122,11 @@ private:
 
 
 	void						_Add_Properties		(class CSG_Parameters *pParameters);
-	class wxPGProperty *		_Add_Property		(class wxPGProperty *pProperty, class wxPGProperty *pParent);
-	void						_Add_Property		(class CSG_Parameter *pParameter, class wxPGProperty *pParent);
-	class wxPGProperty *		_Get_Property		(class CSG_Parameter *pParameter, class wxPGProperty *pParent);
+	class wxPGProperty *		_Add_Property		(class wxPGProperty *pParent, class wxPGProperty *pProperty);
+	void						_Add_Property		(class wxPGProperty *pParent, class CSG_Parameter *pParameter);
+	class wxPGProperty *		_Get_Property		(class wxPGProperty *pParent, class CSG_Parameter *pParameter);
 
-	void						_Set_Parameter		(const wxChar *Identifier);
+	void						_Set_Parameter		(const wxString &Identifier);
 	void						_Update_Parameters	(void);
 	void						_Update_Parameter	(class CSG_Parameter *pParameter);
 

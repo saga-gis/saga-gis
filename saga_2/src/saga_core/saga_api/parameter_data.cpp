@@ -1675,7 +1675,7 @@ bool CSG_Parameter_Grid::Set_Value(void *Value)
 
 	if( Value == DATAOBJECT_CREATE && !m_pOwner->is_Optional() )
 	{
-		Value	= DATAOBJECT_NOTSET;
+//		Value	= DATAOBJECT_NOTSET;
 	}
 
 	if( m_pDataObject != Value )
