@@ -4851,6 +4851,10 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath=".\wx\propgrid\editors.cpp"
+					>
+				</File>
+				<File
 					RelativePath="wx\propgrid\extras.cpp"
 					>
 					<FileConfiguration

@@ -737,6 +737,18 @@ void CParameters_PG_Range::ChildChanged(wxVariant &thisValue, int childIndex, wx
 	}
 }
 
+//---------------------------------------------------------
+bool CParameters_PG_Range::Update(void)
+{
+	SetValue(m_value);
+
+	return( true );
+
+//	s.Printf( SG_T("%f; %f"), pParameter->asRange()->Get_LoVal(), pParameter->asRange()->Get_HiVal());
+//	m_pPG->SetPropertyValue(pProperty, s.c_str());
+//	RefreshChildren();
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -807,6 +819,14 @@ void CParameters_PG_Degree::ChildChanged(wxVariant &thisValue, int childIndex, w
 	}
 }
 
+//---------------------------------------------------------
+bool CParameters_PG_Degree::Update(void)
+{
+	SetValue(m_value);
+
+	return( true );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -857,6 +877,14 @@ bool CParameters_PG_Dialog::OnEvent(wxPropertyGrid *propgrid, wxWindow *primary,
 	}
 
 	return( false );
+}
+
+//---------------------------------------------------------
+bool CParameters_PG_Dialog::Update(void)
+{
+	SetValue(m_value);
+
+	return( true );
 }
 
 

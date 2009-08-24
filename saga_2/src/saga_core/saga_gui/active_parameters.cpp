@@ -104,7 +104,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CACTIVE_Parameters::CACTIVE_Parameters(wxWindow *pParent)
-	: wxPanel(pParent, ID_WND_ACTIVE_PARAMETERS, wxDefaultPosition, wxSize(300, 0))//, wxSUNKEN_BORDER)
+	: wxPanel(pParent, ID_WND_ACTIVE_PARAMETERS, wxDefaultPosition, wxDefaultSize)//, wxSUNKEN_BORDER)
 {
 	m_pItem			= NULL;
 	m_pControl		= new CParameters_Control(this);
@@ -116,15 +116,22 @@ CACTIVE_Parameters::CACTIVE_Parameters(wxWindow *pParent)
 	m_Btn_Load		= new wxButton(this, ID_BTN_LOAD	, CTRL_Get_Name(ID_BTN_LOAD)	, wxPoint(0, 0));
 	m_Btn_Save		= new wxButton(this, ID_BTN_SAVE	, CTRL_Get_Name(ID_BTN_SAVE)	, wxPoint(0, 0));
 
+	m_Btn_Apply		->Show(false);
+	m_Btn_Restore	->Show(false);
+	m_Btn_Execute	->Show(false);
+	m_Btn_Load		->Show(false);
+	m_Btn_Save		->Show(false);
+
 	m_btn_height	= m_Btn_Apply->GetDefaultSize().y;
+
+	m_pControl->Set_Parameters(NULL);
 
 	Set_Parameters(NULL);
 }
 
 //---------------------------------------------------------
 CACTIVE_Parameters::~CACTIVE_Parameters(void)
-{
-}
+{}
 
 
 ///////////////////////////////////////////////////////////
@@ -149,7 +156,9 @@ void CACTIVE_Parameters::On_Size(wxSizeEvent &WXUNUSED(event))
 void CACTIVE_Parameters::_Set_Positions(void)
 {
 	int		nButtons;
-	wxRect	r(wxPoint(0, 0), GetSize());
+	wxSize	Size(GetSize());
+
+	SetSize(wxRect(wxPoint(0, 0), Size));
 
 	nButtons	= (m_Btn_Apply	->IsShown() ? 1 : 0)
 				+ (m_Btn_Restore->IsShown() ? 1 : 0)
@@ -159,8 +168,14 @@ void CACTIVE_Parameters::_Set_Positions(void)
 
 	if( nButtons > 0 )
 	{
-		r.SetHeight(r.GetHeight() - m_btn_height);
-		m_pControl->SetSize(r);
+		Size.y	-= m_btn_height;
+
+		if( m_pControl->GetSize() != Size )
+		{
+			m_pControl->SetSize(Size);
+		}
+
+		wxRect	r(wxPoint(0, 0), Size);
 
 		r.SetTop(r.GetHeight() + BUTTON_DIST);
 		r.SetHeight(m_btn_height - BUTTON_DIST);
@@ -173,9 +188,9 @@ void CACTIVE_Parameters::_Set_Positions(void)
 		SET_BTN_POS(m_Btn_Load);
 		SET_BTN_POS(m_Btn_Save);
 	}
-	else
+	else if( m_pControl->GetSize() != Size )
 	{
-		m_pControl->SetSize(r);
+		m_pControl->SetSize(Size);
 	}
 }
 
@@ -263,30 +278,36 @@ bool CACTIVE_Parameters::Set_Parameters(CWKSP_Base_Item *pItem)
 	}
 
 	//-----------------------------------------------------
-	m_pItem	= pItem;
-
-	if( m_pItem && m_pItem->Get_Parameters() )
+	if( m_pItem != pItem )
 	{
-		m_pControl->Set_Parameters(m_pItem->Get_Parameters());
+		m_pItem	= pItem;
 
-		m_Btn_Apply		->Show(true);
-		m_Btn_Restore	->Show(true);
-		m_Btn_Execute	->Show(m_pItem->Get_Type() == WKSP_ITEM_Module);
-		m_Btn_Load		->Show(true);
-		m_Btn_Save		->Show(true);
+		if( m_pItem && m_pItem->Get_Parameters() )
+		{
+			m_pControl->Set_Parameters(m_pItem->Get_Parameters());
+
+			m_Btn_Apply		->Show(true);
+			m_Btn_Restore	->Show(true);
+			m_Btn_Execute	->Show(m_pItem->Get_Type() == WKSP_ITEM_Module);
+			m_Btn_Load		->Show(true);
+			m_Btn_Save		->Show(true);
+		}
+		else
+		{
+			m_pControl->Set_Parameters(NULL);
+
+			m_Btn_Apply		->Show(false);
+			m_Btn_Restore	->Show(false);
+			m_Btn_Execute	->Show(false);
+			m_Btn_Load		->Show(false);
+			m_Btn_Save		->Show(false);
+		}
+
+		if( m_pItem )
+		{
+			_Set_Positions();
+		}
 	}
-	else
-	{
-		m_pControl->Set_Parameters(NULL);
-
-		m_Btn_Apply		->Show(false);
-		m_Btn_Restore	->Show(false);
-		m_Btn_Execute	->Show(false);
-		m_Btn_Load		->Show(false);
-		m_Btn_Save		->Show(false);
-	}
-
-	_Set_Positions();
 
 	return( true );
 }

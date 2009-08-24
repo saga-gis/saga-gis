@@ -92,7 +92,7 @@ public:
 	virtual ~CParameters_PG_Choice(void);
 
 	bool						Update				(void);
- 
+
 	virtual bool				OnEvent				(wxPropertyGrid *pPG, wxWindow *pPGCtrl, wxEvent &event);
 
 
@@ -141,10 +141,10 @@ public:
 
 	CSG_Parameter				*m_pParameter;
 
-	bool						from_String		(const wxString &String);
-	wxString					to_String		(void) const;
-	bool						Check			(void) const;
-	bool						Do_Dialog		(void);
+	bool						from_String			(const wxString &String);
+	wxString					to_String			(void) const;
+	bool						Check				(void) const;
+	bool						Do_Dialog			(void);
 
 };
 
@@ -167,6 +167,8 @@ public:
 
 	WX_PG_DECLARE_PARENTAL_METHODS()
 
+	bool						Update				(void);
+
 };
 
 //---------------------------------------------------------
@@ -178,6 +180,8 @@ public:
 	CParameters_PG_Degree(const wxString &label = wxPG_LABEL, const wxString &name = wxPG_LABEL, CSG_Parameter *pParameter = NULL);
 
 	WX_PG_DECLARE_PARENTAL_METHODS()
+
+	bool						Update				(void);
 
 };
 
@@ -192,6 +196,8 @@ public:
 	virtual wxString			GetValueAsString	(int flags)	const;
 
 	WX_PG_DECLARE_EVENT_METHODS()
+
+	bool						Update				(void);
 
 };
 

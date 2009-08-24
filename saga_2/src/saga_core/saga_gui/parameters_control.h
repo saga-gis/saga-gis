@@ -94,6 +94,7 @@ public:
 	virtual ~CParameters_Control(void);
 
 	void						On_Size				(wxSizeEvent &event);
+	void						On_PG_Selected		(wxPropertyGridEvent &event);
 	void						On_PG_Changed		(wxPropertyGridEvent &event);
 
 	bool						Update_DataObjects	(void);
