@@ -94,7 +94,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//#define ACTIVE_SHOW_ALL_PAGES
+// #define ACTIVE_SHOW_ALL_PAGES
 
 
 ///////////////////////////////////////////////////////////
@@ -110,8 +110,7 @@ enum
 	IMG_DESCRIPTION,
 	IMG_HISTORY,
 	IMG_ATTRIBUTES,
-	IMG_LEGEND,
-	IMG_HTMLEXTRAINFO
+	IMG_LEGEND
 };
 
 
@@ -160,27 +159,24 @@ CACTIVE::CACTIVE(wxWindow *pParent)
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_HISTORY);
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_ATTRIBUTES);
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_LEGEND);
-	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_HTMLEXTRAINFO);
 
 	//-----------------------------------------------------
-	m_pParameters		= NULL;
-	m_pDescription		= NULL;
-	m_pHistory			= NULL;
-	m_pLegend			= NULL;
-	m_pAttributes		= NULL;
-	m_pHTMLExtraInfo	= NULL;
+	m_pParameters		= new CACTIVE_Parameters	(this);	m_pParameters	->SetName(LNG("[CAP] Settings"));		m_pParameters	->Hide();
+	m_pDescription		= new CACTIVE_Description	(this);	m_pDescription	->SetName(LNG("[CAP] Description"));	m_pDescription	->Hide();
+	m_pHistory			= new CACTIVE_History		(this);	m_pHistory		->SetName(LNG("[CAP] History"));		m_pHistory		->Hide();
+	m_pLegend			= new CACTIVE_Legend		(this);	m_pLegend		->SetName(LNG("[CAP] Legend"));			m_pLegend		->Hide();
+	m_pAttributes		= new CACTIVE_Attributes	(this);	m_pAttributes	->SetName(LNG("[CAP] Attributes"));		m_pAttributes	->Hide();
 }
 
 //---------------------------------------------------------
 void CACTIVE::Add_Pages(void)
 {
-	_Add_Page(IMG_PARAMETERS);
-	_Add_Page(IMG_DESCRIPTION);
+	_Show_Page(m_pParameters);
+	_Show_Page(m_pDescription);
 #ifdef ACTIVE_SHOW_ALL_PAGES
-	_Add_Page(IMG_LEGEND);
-	_Add_Page(IMG_HISTORY);
-	_Add_Page(IMG_ATTRIBUTES);
-	_Add_Page(IMG_HTMLEXTRAINFO);
+	_Show_Page(m_pHistory);
+	_Show_Page(m_pLegend);
+	_Show_Page(m_pAttributes);
 #endif
 }
 
@@ -200,7 +196,7 @@ CACTIVE::~CACTIVE(void)
 //---------------------------------------------------------
 bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 {
-	if( pItem == m_pItem )
+	if( pItem == m_pItem || pItem == NULL )
 	{
 		return( true );
 	}
@@ -210,12 +206,11 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_Z);
 
 	//-----------------------------------------------------
-	CWKSP_Base_Item	*pLegend, *pHistory, *pHTML;
+	CWKSP_Base_Item	*pLegend, *pHistory;
 
 	m_pLayer	= NULL;
 	pLegend		= NULL;
 	pHistory	= NULL;
-	pHTML		= NULL;
 
 	//-----------------------------------------------------
 	if( (m_pItem = pItem) != NULL )
@@ -238,9 +233,6 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 			break;
 
 		case WKSP_ITEM_Shapes:
-#ifdef USE_HTMLINFO
-			pHTML		= m_pItem;
-#endif
 		case WKSP_ITEM_TIN:
 		case WKSP_ITEM_PointCloud:
 		case WKSP_ITEM_Grid:
@@ -257,65 +249,37 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 		m_pParameters->Set_Parameters(m_pItem);
 	}
 
-	if( pLegend  == NULL && m_pLegend			!= NULL )
+	if( pLegend )
 	{
-		m_pLegend->Set_Item(NULL);
+		m_pLegend->Set_Item(pLegend);
 
-#ifndef ACTIVE_SHOW_ALL_PAGES
-		_Del_Page(IMG_LEGEND);
-#endif
+		_Show_Page(m_pLegend);
 	}
-
-	if( pHistory  == NULL && m_pHistory			!= NULL )
+	else
 	{
-		m_pHistory->Set_Item(NULL);
-
-#ifndef ACTIVE_SHOW_ALL_PAGES
-		_Del_Page(IMG_HISTORY);
-#endif
-	}
-
-	if( m_pLayer == NULL && m_pAttributes		!= NULL )
-	{
-#ifndef ACTIVE_SHOW_ALL_PAGES
-		_Del_Page(IMG_ATTRIBUTES);
-#endif
-	}
-
-	if( pHTML    == NULL && m_pHTMLExtraInfo	!= NULL )
-	{
-#ifndef ACTIVE_SHOW_ALL_PAGES
-		_Del_Page(IMG_HTMLEXTRAINFO);
-#endif
-	}
-
-	//-----------------------------------------------------
-	if( m_pLayer != NULL )
-	{
-		_Add_Page(IMG_ATTRIBUTES);
-
-		m_pAttributes->Set_Layer(m_pLayer);
+		_Hide_Page(m_pLegend);
 	}
 
 	if( pHistory )
 	{
-		_Add_Page(IMG_HISTORY);
-
 		m_pHistory->Set_Item(pHistory);
+
+		_Show_Page(m_pHistory);
+	}
+	else
+	{
+		_Hide_Page(m_pHistory);
 	}
 
-	if( pLegend )
+	if( m_pLayer )
 	{
-		_Add_Page(IMG_LEGEND);
+		m_pAttributes->Set_Layer(m_pLayer);
 
-		m_pLegend->Set_Item(pLegend);
+		_Show_Page(m_pAttributes);
 	}
-
-	if( pHTML )
+	else
 	{
-		_Add_Page(IMG_HTMLEXTRAINFO);
-
-		m_pHTMLExtraInfo->SetPage(wxT(""));
+		_Hide_Page(m_pAttributes);
 	}
 
 	//-----------------------------------------------------
@@ -356,67 +320,29 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CACTIVE::_Add_Page(int PageID)
+bool CACTIVE::_Show_Page(wxWindow *pPage)
 {
-	wxString	Caption;
-	wxWindow	*pPage	= NULL;
+	int		Image_ID	= -1;
 
 	//-----------------------------------------------------
-	switch( PageID )
-	{
-	case IMG_PARAMETERS:
-		if( m_pParameters != NULL )
-			return( true );
-
-		pPage	= m_pParameters		= new CACTIVE_Parameters	(this);
-		Caption	= LNG("[CAP] Settings");
-		break;
-
-	case IMG_DESCRIPTION:
-		if( m_pDescription != NULL )
-			return( true );
-
-		pPage	= m_pDescription	= new CACTIVE_Description	(this);
-		Caption	= LNG("[CAP] Description");
-		break;
-
-	case IMG_HISTORY:
-		if( m_pHistory != NULL )
-			return( true );
-
-		pPage	= m_pHistory		= new CACTIVE_History		(this);
-		Caption	= LNG("[CAP] History");
-		break;
-
-	case IMG_ATTRIBUTES:
-		if( m_pAttributes != NULL )
-			return( true );
-
-		pPage	= m_pAttributes		= new CACTIVE_Attributes	(this);
-		Caption	= LNG("[CAP] Attributes");
-		break;
-
-	case IMG_LEGEND:
-		if( m_pLegend != NULL )
-			return( true );
-
-		pPage	= m_pLegend			= new CACTIVE_Legend	    (this);
-		Caption	= LNG("[CAP] Legend");
-		break;
-
-	case IMG_HTMLEXTRAINFO:
-		if( m_pHTMLExtraInfo != NULL )
-			return( true );
-
-		pPage	= m_pHTMLExtraInfo	= new CACTIVE_HTMLExtraInfo (this);
-		Caption	= LNG("[CAP] Info");
-		break;
-	}
+	if( pPage == m_pParameters )	Image_ID	= IMG_PARAMETERS;
+	if( pPage == m_pDescription )	Image_ID	= IMG_DESCRIPTION;
+	if( pPage == m_pHistory )		Image_ID	= IMG_HISTORY;
+	if( pPage == m_pLegend )		Image_ID	= IMG_LEGEND;
+	if( pPage == m_pAttributes )	Image_ID	= IMG_ATTRIBUTES;
 
 	//-----------------------------------------------------
 	if( pPage )
 	{
-		AddPage(pPage, Caption, false, PageID);
+		for(int i=0; i<(int)GetPageCount(); i++)
+		{
+			if( GetPage(i) == pPage )
+			{
+				return( true );
+			}
+		}
+
+		AddPage(pPage, pPage->GetName(), false, Image_ID);
 
 		return( true );
 	}
@@ -425,57 +351,24 @@ bool CACTIVE::_Add_Page(int PageID)
 }
 
 //---------------------------------------------------------
-bool CACTIVE::_Del_Page(int PageID)
+bool CACTIVE::_Hide_Page(wxWindow *pPage)
 {
-	wxWindow	*pPage	= NULL;
-
-	//-----------------------------------------------------
-	switch( PageID )
+#ifndef ACTIVE_SHOW_ALL_PAGES
+	for(int i=0; i<(int)GetPageCount(); i++)
 	{
-	case IMG_PARAMETERS:
-		pPage				= m_pParameters;
-		m_pParameters		= NULL;
-		break;
-
-	case IMG_DESCRIPTION:
-		pPage				= m_pDescription;
-		m_pDescription		= NULL;
-		break;
-
-	case IMG_HISTORY:
-		pPage				= m_pHistory;
-		m_pHistory			= NULL;
-		break;
-
-	case IMG_ATTRIBUTES:
-		pPage				= m_pAttributes;
-		m_pAttributes		= NULL;
-		break;
-
-	case IMG_LEGEND:
-		pPage				= m_pLegend;
-		m_pLegend			= NULL;
-		break;
-
-	case IMG_HTMLEXTRAINFO:
-		pPage				= m_pHTMLExtraInfo;
-		m_pHTMLExtraInfo	= NULL;
-		break;
-	}
-
-	//-----------------------------------------------------
-	if( pPage )
-	{
-		for(size_t i=0; i<GetPageCount(); i++)
+		if( GetPage(i) == pPage )
 		{
-			if( GetPage(i) == pPage )
-			{
-				DeletePage(i);
+			RemovePage(i);
 
-				return( true );
+			if( i == GetSelection() )
+			{
+				SetSelection(i - 1);
 			}
+
+			return( true );
 		}
 	}
+#endif
 
 	return( false );
 }

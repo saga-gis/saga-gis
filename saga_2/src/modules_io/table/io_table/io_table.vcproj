@@ -4,7 +4,7 @@
 	Version="9,00"
 	Name="io_table"
 	ProjectGUID="{310D7E99-3A90-47E9-B796-5BD47D966B29}"
-	TargetFrameworkVersion="0"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -14,200 +14,6 @@
 	<ToolFiles>
 	</ToolFiles>
 	<Configurations>
-		<Configuration
-			Name="Unicode Debug|Win32"
-			OutputDirectory=".\./../../../../bin/saga_vc8_u_dbg/modules"
-			IntermediateDirectory=".\./../../../../bin/tmp/saga_vc8_u_dbg/io_table"
-			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName=".\./../../../../bin/saga_vc8_u_dbg/modules/io_table.tlb"
-				HeaderFileName=""
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="$(SAGA)/src/saga_core"
-				PreprocessorDefinitions="_USRDLL;_MBCS;_SAGA_VC;_DEBUG;WIN32;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_UNICODE"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				PrecompiledHeaderFile=".\./../../../../bin/tmp/saga_vc8_u_dbg/io_table/io_table.pch"
-				AssemblerListingLocation=".\./../../../../bin/tmp/saga_vc8_u_dbg/io_table/"
-				ObjectFile=".\./../../../../bin/tmp/saga_vc8_u_dbg/io_table/"
-				ProgramDataBaseFileName=".\./../../../../bin/tmp/saga_vc8_u_dbg/io_table/"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				DebugInformationFormat="4"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1031"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib"
-				OutputFile=".\./../../../../bin/saga_vc8_u_dbg/modules/io_table.dll"
-				LinkIncremental="2"
-				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8_u_dbg"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\./../../../../bin/saga_vc8_u_dbg/modules/io_table.pdb"
-				SubSystem="2"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
-				ImportLibrary=".\./../../../../bin/saga_vc8_u_dbg/modules/io_table.lib"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-				SuppressStartupBanner="true"
-				OutputFile=".\./../../../../bin/saga_vc8_u_dbg/modules/io_table.bsc"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release|Win32"
-			OutputDirectory=".\..\..\..\..\bin\saga_vc8\modules"
-			IntermediateDirectory=".\..\..\..\..\bin\tmp\saga_vc8\io_table"
-			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName=".\..\..\..\..\bin\saga_vc8\modules/io_table.tlb"
-				HeaderFileName=""
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="2"
-				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="$(SAGA)/src/saga_core"
-				PreprocessorDefinitions="NDEBUG;WIN32;_USRDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC"
-				StringPooling="true"
-				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
-				PrecompiledHeaderFile=".\..\..\..\..\bin\tmp\saga_vc8\io_table/io_table.pch"
-				AssemblerListingLocation=".\..\..\..\..\bin\tmp\saga_vc8\io_table/"
-				ObjectFile=".\..\..\..\..\bin\tmp\saga_vc8\io_table/"
-				ProgramDataBaseFileName=".\..\..\..\..\bin\tmp\saga_vc8\io_table/"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1031"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib"
-				OutputFile=".\..\..\..\..\bin\saga_vc8\modules/io_table.dll"
-				LinkIncremental="1"
-				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8"
-				ProgramDatabaseFile=".\..\..\..\..\bin\saga_vc8\modules/io_table.pdb"
-				SubSystem="2"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
-				ImportLibrary=".\..\..\..\..\bin\saga_vc8\modules/io_table.lib"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-				SuppressStartupBanner="true"
-				OutputFile=".\..\..\..\..\bin\saga_vc8\modules/io_table.bsc"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="copy     *.lng.txt     ..\..\..\..\bin\saga_vc8\modules\"
-			/>
-		</Configuration>
 		<Configuration
 			Name="Unicode Release|Win32"
 			OutputDirectory=".\./../../../../bin/saga_vc8_u/modules"
@@ -244,10 +50,11 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="$(SAGA)/src/saga_core"
-				PreprocessorDefinitions="NDEBUG;_USRDLL;_MBCS;_SAGA_VC;WIN32;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_UNICODE"
+				PreprocessorDefinitions="NDEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
+				TreatWChar_tAsBuiltInType="false"
 				PrecompiledHeaderFile=".\./../../../../bin/tmp/saga_vc8_u/io_table/io_table.pch"
 				AssemblerListingLocation=".\./../../../../bin/tmp/saga_vc8_u/io_table/"
 				ObjectFile=".\./../../../../bin/tmp/saga_vc8_u/io_table/"
@@ -401,6 +208,201 @@
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
+		<Configuration
+			Name="Unicode Debug|Win32"
+			OutputDirectory=".\./../../../../bin/saga_vc8_u_dbg/modules"
+			IntermediateDirectory=".\./../../../../bin/tmp/saga_vc8_u_dbg/io_table"
+			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG"
+				MkTypLibCompatible="true"
+				SuppressStartupBanner="true"
+				TargetEnvironment="1"
+				TypeLibraryName=".\./../../../../bin/saga_vc8_u_dbg/modules/io_table.tlb"
+				HeaderFileName=""
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="$(SAGA)/src/saga_core"
+				PreprocessorDefinitions="_DEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				TreatWChar_tAsBuiltInType="false"
+				PrecompiledHeaderFile=".\./../../../../bin/tmp/saga_vc8_u_dbg/io_table/io_table.pch"
+				AssemblerListingLocation=".\./../../../../bin/tmp/saga_vc8_u_dbg/io_table/"
+				ObjectFile=".\./../../../../bin/tmp/saga_vc8_u_dbg/io_table/"
+				ProgramDataBaseFileName=".\./../../../../bin/tmp/saga_vc8_u_dbg/io_table/"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				DebugInformationFormat="4"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1031"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib"
+				OutputFile=".\./../../../../bin/saga_vc8_u_dbg/modules/io_table.dll"
+				LinkIncremental="2"
+				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8_u_dbg"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile=".\./../../../../bin/saga_vc8_u_dbg/modules/io_table.pdb"
+				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				ImportLibrary=".\./../../../../bin/saga_vc8_u_dbg/modules/io_table.lib"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+				SuppressStartupBanner="true"
+				OutputFile=".\./../../../../bin/saga_vc8_u_dbg/modules/io_table.bsc"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory=".\..\..\..\..\bin\saga_vc8\modules"
+			IntermediateDirectory=".\..\..\..\..\bin\tmp\saga_vc8\io_table"
+			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="true"
+				SuppressStartupBanner="true"
+				TargetEnvironment="1"
+				TypeLibraryName=".\..\..\..\..\bin\saga_vc8\modules/io_table.tlb"
+				HeaderFileName=""
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="$(SAGA)/src/saga_core"
+				PreprocessorDefinitions="NDEBUG;WIN32;_USRDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC"
+				StringPooling="true"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
+				PrecompiledHeaderFile=".\..\..\..\..\bin\tmp\saga_vc8\io_table/io_table.pch"
+				AssemblerListingLocation=".\..\..\..\..\bin\tmp\saga_vc8\io_table/"
+				ObjectFile=".\..\..\..\..\bin\tmp\saga_vc8\io_table/"
+				ProgramDataBaseFileName=".\..\..\..\..\bin\tmp\saga_vc8\io_table/"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1031"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib"
+				OutputFile=".\..\..\..\..\bin\saga_vc8\modules/io_table.dll"
+				LinkIncremental="1"
+				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8"
+				ProgramDatabaseFile=".\..\..\..\..\bin\saga_vc8\modules/io_table.pdb"
+				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				ImportLibrary=".\..\..\..\..\bin\saga_vc8\modules/io_table.lib"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+				SuppressStartupBanner="true"
+				OutputFile=".\..\..\..\..\bin\saga_vc8\modules/io_table.bsc"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="copy *.lng.txt ..\..\..\..\bin\saga_vc8\modules\"
+			/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -410,67 +412,13 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath="io_table_txt.cpp"
+				RelativePath=".\io_table_txt.cpp"
 				>
-				<FileConfiguration
-					Name="Unicode Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Unicode Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="MLB_Interface.cpp"
 				>
 				<FileConfiguration
-					Name="Unicode Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Unicode Release|Win32"
 					>
 					<Tool
@@ -481,6 +429,24 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Unicode Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -495,7 +461,7 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
-				RelativePath="io_table_txt.h"
+				RelativePath=".\io_table_txt.h"
 				>
 			</File>
 			<File
@@ -515,18 +481,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\saga_core\saga_api\doc_html.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\doc_pdf.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\doc_svg.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\saga_core\saga_api\geo_tools.h"
 				>
 			</File>
@@ -543,10 +497,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\saga_core\saga_api\module_library.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\saga_core\saga_api\parameters.h"
 				>
 			</File>
@@ -560,78 +510,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\saga_core\saga_api\table.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\table_value.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\tin.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="saga_api"
-			>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\api_core.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\dataobject.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\doc_html.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\doc_pdf.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\doc_svg.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\geo_tools.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\grid.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\mat_tools.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\module.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\module_library.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\parameters.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\saga_api.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\shapes.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\table.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\table_value.h"
 				>
 			</File>
 			<File

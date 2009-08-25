@@ -123,7 +123,6 @@ private:
 
 
 	void						_Add_Properties		(class CSG_Parameters *pParameters);
-	class wxPGProperty *		_Add_Property		(class wxPGProperty *pParent, class wxPGProperty *pProperty);
 	void						_Add_Property		(class wxPGProperty *pParent, class CSG_Parameter *pParameter);
 	class wxPGProperty *		_Get_Property		(class wxPGProperty *pParent, class CSG_Parameter *pParameter);
 

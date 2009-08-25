@@ -435,9 +435,22 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters)
 
 		case PARAMETER_TYPE_String:
 		case PARAMETER_TYPE_Text:
+			if( m_pCMD->Found(GET_ID1(pParameter), &s) )
+			{
+				pParameter->Set_Value(s.c_str());
+			}
+			break;
+
 		case PARAMETER_TYPE_FilePath:
 			if( m_pCMD->Found(GET_ID1(pParameter), &s) )
 			{
+				if( pParameter->asFilePath()->is_Multiple() )
+				{
+					s.Prepend(wxT("\""));
+					s.Replace(wxT(";"), wxT("\" \""));
+					s.Append (wxT("\""));
+				}
+
 				pParameter->Set_Value(s.c_str());
 			}
 			break;

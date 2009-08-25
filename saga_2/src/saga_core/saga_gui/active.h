@@ -92,7 +92,6 @@ public:
 	class CACTIVE_History *			Get_History				(void)	{	return( m_pHistory );	}
 	class CACTIVE_Attributes *		Get_Attributes			(void)	{	return( m_pAttributes );	}
 	class CACTIVE_Legend *			Get_Legend				(void)	{	return( m_pLegend );		}
-	class CACTIVE_HTMLExtraInfo *	Get_HTMLExtraInfo		(void)	{	return( m_pHTMLExtraInfo );	}
 
 	bool							Set_Active				(class CWKSP_Base_Item *pItem);
 	class CWKSP_Base_Item *			Get_Item				(void)	{	return( m_pItem );			}
@@ -115,8 +114,6 @@ private:
 
 	class CACTIVE_Legend			*m_pLegend;
 
-	class CACTIVE_HTMLExtraInfo		*m_pHTMLExtraInfo;
-
 	class CWKSP_Base_Item			*m_pItem;
 
 	class CWKSP_Layer				*m_pLayer;
@@ -124,8 +121,8 @@ private:
 	class CSG_Data_Object			*m_pObject;
 
 
-	bool							_Add_Page				(int PageID);
-	bool							_Del_Page				(int PageID);
+	bool							_Show_Page				(wxWindow *pPage);
+	bool							_Hide_Page				(wxWindow *pPage);
 
 
 //---------------------------------------------------------

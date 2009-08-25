@@ -157,6 +157,8 @@ bool CACTIVE_History::Set_Item(CWKSP_Base_Item *pItem)
 		}
 	}
 
+	Freeze();
+
 	DeleteAllItems();
 
 	if( pObject == NULL || pObject->Get_History().Get_Count() <= 0 )
@@ -169,6 +171,8 @@ bool CACTIVE_History::Set_Item(CWKSP_Base_Item *pItem)
 
 		Expand(GetRootItem());
 	}
+
+	Thaw();
 
 	return( true );
 }

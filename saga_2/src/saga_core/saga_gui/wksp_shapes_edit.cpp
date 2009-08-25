@@ -286,24 +286,6 @@ bool CWKSP_Shapes::On_Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, in
 
 		pRecord	= m_pShapes->Get_Selection();
 
-		if( g_pACTIVE->Get_HTMLExtraInfo() )
-		{
-			if( pRecord != NULL )
-			{
-				FileName.Assign( pRecord->asString(m_iExtraInfo) );
-
-				if( !FileName.FileExists() || !g_pACTIVE->Get_HTMLExtraInfo()->LoadPage(FileName.GetFullPath()) )
-				{
-					g_pACTIVE->Get_HTMLExtraInfo()->SetPage(LNG(""));
-				}
-				
-			}
-			else
-			{
-				g_pACTIVE->Get_HTMLExtraInfo()->SetPage(LNG(""));
-			}
-		}
-
 		Update_Views(true);
 
 		return( true );
