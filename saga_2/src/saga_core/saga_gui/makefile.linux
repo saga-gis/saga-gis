@@ -280,11 +280,11 @@ $(TMP_SAGA)/wksp_module_manager.o: wksp_module_manager.cpp
 $(TMP_SAGA)/wksp_module_menu.o: wksp_module_menu.cpp
 	$(CPP) -c wksp_module_menu.cpp -o $(TMP_SAGA)/wksp_module_menu.o $(CXXFLAGS)
 
-$(TMP_SAGA)wksp_pointcloud.o: wksp_pointcloud.cpp
-	$(CPP) -c wksp_pointcloud.cpp -o $(TMP_SAGA)wksp_pointcloud.o $(CXXFLAGS)
+$(TMP_SAGA)/wksp_pointcloud.o: wksp_pointcloud.cpp
+	$(CPP) -c wksp_pointcloud.cpp -o $(TMP_SAGA)/wksp_pointcloud.o $(CXXFLAGS)
 
-$(TMP_SAGA)wksp_pointcloud_manager.o: wksp_pointcloud_manager.cpp
-	$(CPP) -c wksp_pointcloud_manager.cpp -o $(TMP_SAGA)wksp_pointcloud_manager.o $(CXXFLAGS)
+$(TMP_SAGA)/wksp_pointcloud_manager.o: wksp_pointcloud_manager.cpp
+	$(CPP) -c wksp_pointcloud_manager.cpp -o $(TMP_SAGA)/wksp_pointcloud_manager.o $(CXXFLAGS)
 
 $(TMP_SAGA)/wksp_shapes.o: wksp_shapes.cpp
 	$(CPP) -c wksp_shapes.cpp -o $(TMP_SAGA)/wksp_shapes.o $(CXXFLAGS)

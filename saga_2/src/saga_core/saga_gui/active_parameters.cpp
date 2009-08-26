@@ -104,7 +104,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CACTIVE_Parameters::CACTIVE_Parameters(wxWindow *pParent)
-	: wxPanel(pParent, ID_WND_ACTIVE_PARAMETERS, wxDefaultPosition, wxDefaultSize)//, wxSUNKEN_BORDER)
+	: wxPanel(pParent, ID_WND_ACTIVE_PARAMETERS, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER)
 {
 	m_pItem			= NULL;
 	m_pControl		= new CParameters_Control(this);
@@ -156,9 +156,6 @@ void CACTIVE_Parameters::On_Size(wxSizeEvent &WXUNUSED(event))
 void CACTIVE_Parameters::_Set_Positions(void)
 {
 	int		nButtons;
-	wxSize	Size(GetSize());
-
-	SetSize(wxRect(wxPoint(0, 0), Size));
 
 	nButtons	= (m_Btn_Apply	->IsShown() ? 1 : 0)
 				+ (m_Btn_Restore->IsShown() ? 1 : 0)
@@ -168,12 +165,11 @@ void CACTIVE_Parameters::_Set_Positions(void)
 
 	if( nButtons > 0 )
 	{
+		wxSize	Size(GetClientSize());
+
 		Size.y	-= m_btn_height;
 
-		if( m_pControl->GetSize() != Size )
-		{
-			m_pControl->SetSize(Size);
-		}
+		m_pControl->SetSize(Size);
 
 		wxRect	r(wxPoint(0, 0), Size);
 
@@ -188,9 +184,9 @@ void CACTIVE_Parameters::_Set_Positions(void)
 		SET_BTN_POS(m_Btn_Load);
 		SET_BTN_POS(m_Btn_Save);
 	}
-	else if( m_pControl->GetSize() != Size )
+	else
 	{
-		m_pControl->SetSize(Size);
+		m_pControl->SetSize(GetClientSize());
 	}
 }
 

@@ -161,11 +161,19 @@ CACTIVE::CACTIVE(wxWindow *pParent)
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_LEGEND);
 
 	//-----------------------------------------------------
-	m_pParameters		= new CACTIVE_Parameters	(this);	m_pParameters	->SetName(LNG("[CAP] Settings"));		m_pParameters	->Hide();
-	m_pDescription		= new CACTIVE_Description	(this);	m_pDescription	->SetName(LNG("[CAP] Description"));	m_pDescription	->Hide();
-	m_pHistory			= new CACTIVE_History		(this);	m_pHistory		->SetName(LNG("[CAP] History"));		m_pHistory		->Hide();
-	m_pLegend			= new CACTIVE_Legend		(this);	m_pLegend		->SetName(LNG("[CAP] Legend"));			m_pLegend		->Hide();
-	m_pAttributes		= new CACTIVE_Attributes	(this);	m_pAttributes	->SetName(LNG("[CAP] Attributes"));		m_pAttributes	->Hide();
+	m_pParameters	= new CACTIVE_Parameters	(this);	m_pParameters	->SetName(LNG("[CAP] Settings"));
+	m_pDescription	= new CACTIVE_Description	(this);	m_pDescription	->SetName(LNG("[CAP] Description"));
+	m_pHistory		= new CACTIVE_History		(this);	m_pHistory		->SetName(LNG("[CAP] History"));
+	m_pLegend		= new CACTIVE_Legend		(this);	m_pLegend		->SetName(LNG("[CAP] Legend"));
+	m_pAttributes	= new CACTIVE_Attributes	(this);	m_pAttributes	->SetName(LNG("[CAP] Attributes"));
+
+#if defined(_SAGA_MSW)
+	m_pParameters	->Hide();
+	m_pDescription	->Hide();
+	m_pHistory		->Hide();
+	m_pLegend		->Hide();
+	m_pAttributes	->Hide();
+#endif
 }
 
 //---------------------------------------------------------
@@ -358,12 +366,12 @@ bool CACTIVE::_Hide_Page(wxWindow *pPage)
 	{
 		if( GetPage(i) == pPage )
 		{
-			RemovePage(i);
-
 			if( i == GetSelection() )
 			{
 				SetSelection(i - 1);
 			}
+
+			RemovePage(i);
 
 			return( true );
 		}

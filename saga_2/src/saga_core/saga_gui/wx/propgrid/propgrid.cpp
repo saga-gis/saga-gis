@@ -8448,7 +8448,7 @@ void wxPropertyGrid::OnIdle( wxIdleEvent& WXUNUSED(event) )
     wxWindow* tlp = ::wxGetTopLevelParent(this);
     if ( tlp != m_tlp )
     {
-        OnTLPChanging(tlp);
+//        OnTLPChanging(tlp);	// O.C. window docking sometimes produces crashes (wxauinotebook parent)
     }
 }
 

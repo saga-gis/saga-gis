@@ -130,7 +130,7 @@ CParameters_Control::CParameters_Control(wxWindow *pParent, bool bDialog)
 		|wxPG_DESCRIPTION
 	//	|wxPG_COMPACTOR
 	//	|wxBORDER_SUNKEN
-	//	|wxNO_BORDER
+		|wxBORDER_NONE
 	);
 
 	m_pPG	= m_pPGM->GetGrid();
@@ -150,7 +150,7 @@ CParameters_Control::CParameters_Control(wxWindow *pParent, bool bDialog)
 		|wxPG_DESCRIPTION
 	//	|wxPG_COMPACTOR
 	//	|wxBORDER_SUNKEN
-	//	|wxNO_BORDER
+		|wxBORDER_NONE
 	);
 
 	m_pPGM	= NULL;
