@@ -144,7 +144,7 @@ public:
 	void							Set_XYZ_Precision	(bool bDouble)			{	m_bXYZPrecDbl	= bDouble;	}
 
 	//-----------------------------------------------------
-	virtual bool					is_Valid			(void)	const			{	return( true );	}
+	virtual bool					is_Valid			(void)	const			{	return( m_nPoints > 0 );	}
 	bool							is_Compatible		(CSG_PointCloud *pPointCloud)	const;
 
 	//-----------------------------------------------------

@@ -400,16 +400,6 @@ bool		SG_UI_DataObject_Update(CSG_Data_Object *pDataObject, int Show, CSG_Parame
 
 	if( gSG_UI_Callback && pDataObject )
 	{
-		if( pDataObject->Get_ObjectType() == DATAOBJECT_TYPE_Grid && pParameters == NULL )
-		{
-			Parameters.Add_Range(NULL, SG_T("METRIC_ZRANGE"), SG_T(""), SG_T(""),
-				((CSG_Grid *)pDataObject)->Get_ZMin(true),
-				((CSG_Grid *)pDataObject)->Get_ZMax(true)
-			);
-
-			pParameters	= &Parameters;
-		}
-
 		if( gSG_UI_Callback(CALLBACK_DATAOBJECT_UPDATE, (long)pDataObject, (long)pParameters) != 0 )
 		{
 			if( Show != SG_UI_DATAOBJECT_UPDATE_ONLY )

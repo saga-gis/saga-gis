@@ -312,6 +312,7 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 
 	//-----------------------------------------------------
 	m_bModified	= false;
+	m_pPG->ClearModifiedStatus();
 
 //	m_pPG->Freeze();
 
@@ -453,9 +454,22 @@ void CParameters_Control::_Add_Property(wxPGProperty *pParent, CSG_Parameter *pP
 
 	if( pParameter->Get_Children_Count() > 0 )
 	{
-		for(int i=0; i<pParameter->Get_Children_Count(); i++)
+		int		i;
+
+		for(i=0; i<pParameter->Get_Children_Count(); i++)
 		{
-			_Add_Property(pProperty, pParameter->Get_Child(i));
+			if( pParameter->Get_Child(i)->Get_Children_Count() == 0 )
+			{
+				_Add_Property(pProperty, pParameter->Get_Child(i));
+			}
+		}
+
+		for(i=0; i<pParameter->Get_Children_Count(); i++)
+		{
+			if( pParameter->Get_Child(i)->Get_Children_Count() > 0 )
+			{
+				_Add_Property(pProperty, pParameter->Get_Child(i));
+			}
 		}
 
 		m_pPG->Expand(pProperty);
@@ -470,26 +484,15 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 
 	switch( pParameter->Get_Type() )
 	{
-	default:
-	case PARAMETER_TYPE_Node:
+	case PARAMETER_TYPE_Node:	default:
 		if( pParameter->Get_Parent() == NULL || pParameter->Get_Parent()->Get_Type() == PARAMETER_TYPE_Node )
-		{
 			pProperty	= new wxPropertyCategory	(Name, ID);
-		}
 		else
-		{
 			pProperty	= new wxStringProperty		(Name, ID, wxT(""));
-
-			m_pPG->LimitPropertyEditing(pProperty);
-		//	m_pPG->SetPropertyCell(pProperty, 0, Name   , wxNullBitmap, SYS_Get_Color(wxSYS_COLOUR_BTNTEXT), SYS_Get_Color(wxSYS_COLOUR_BTNFACE));
-		//	m_pPG->SetPropertyCell(pProperty, 1, wxT(""), wxNullBitmap, SYS_Get_Color(wxSYS_COLOUR_BTNTEXT), SYS_Get_Color(wxSYS_COLOUR_BTNFACE));
-		}
 		break;
 
 	case PARAMETER_TYPE_Bool:
 		pProperty	= new wxBoolProperty		(Name, ID, pParameter->asBool());
-
-		m_pPG->SetPropertyAttribute(pProperty, wxPG_BOOL_USE_CHECKBOX, (long)1);
 		break;
 
 	case PARAMETER_TYPE_Int:
@@ -498,8 +501,6 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 
 	case PARAMETER_TYPE_Double:
 		pProperty	= new wxFloatProperty		(Name, ID, pParameter->asDouble());
-
-		m_pPG->SetPropertyAttribute(pProperty, wxPG_FLOAT_PRECISION, (long)12);
 		break;
 
 	case PARAMETER_TYPE_Range:
@@ -512,34 +513,14 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 
 	case PARAMETER_TYPE_String:
 		pProperty	= new wxStringProperty		(Name, ID, pParameter->asString());
-
-		if( ((CSG_Parameter_String *)pParameter->Get_Data())->is_Password() )
-		{
-			m_pPG->SetPropertyAttribute(pProperty, wxPG_STRING_PASSWORD, (long)pParameter->asString());
-		}
 		break;
 
 	case PARAMETER_TYPE_Color:
 		pProperty	= new wxColourProperty		(Name, ID, Get_Color_asWX(pParameter->asColor()));
-
-		pProperty->SetEditor(wxPGEditor_Choice);
 		break;
 
 	case PARAMETER_TYPE_Colors:
 		pProperty	= new CParameters_PG_Colors	(Name, ID, pParameter);
-
-		m_pPG->LimitPropertyEditing(pProperty);
-		break;
-
-	case PARAMETER_TYPE_Choice:
-	case PARAMETER_TYPE_Table_Field:
-	case PARAMETER_TYPE_Grid_System:
-	case PARAMETER_TYPE_Grid:
-	case PARAMETER_TYPE_Table:
-	case PARAMETER_TYPE_Shapes:
-	case PARAMETER_TYPE_TIN:
-	case PARAMETER_TYPE_PointCloud:
-		pProperty	= new CParameters_PG_Choice	(pParameter);
 		break;
 
 	case PARAMETER_TYPE_Text:
@@ -551,11 +532,18 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 	case PARAMETER_TYPE_Shapes_List:
 	case PARAMETER_TYPE_TIN_List:
 	case PARAMETER_TYPE_Parameters:
-		pProperty	= new CParameters_PG_Dialog	(Name, ID,
-			pParameter
-		);
+		pProperty	= new CParameters_PG_Dialog	(Name, ID, pParameter);
+		break;
 
-		m_pPG->LimitPropertyEditing(pProperty);
+	case PARAMETER_TYPE_Choice:
+	case PARAMETER_TYPE_Table_Field:
+	case PARAMETER_TYPE_Grid_System:
+	case PARAMETER_TYPE_Grid:
+	case PARAMETER_TYPE_Table:
+	case PARAMETER_TYPE_Shapes:
+	case PARAMETER_TYPE_TIN:
+	case PARAMETER_TYPE_PointCloud:
+		pProperty	= new CParameters_PG_Choice	(pParameter);
 		break;
 	}
 
@@ -571,6 +559,7 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 			m_pPG->Append(pProperty);
 		}
 
+		//-------------------------------------------------
 		CSG_String	s, sDesc;
 
 		sDesc	= pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE);
@@ -582,6 +571,51 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 		if( s.Length() > 0 )	{	sDesc.Append(wxT("\n___\n"));	sDesc.Append(s);	}
 
 		m_pPG->SetPropertyHelpString(pProperty, sDesc.c_str());
+
+		//-------------------------------------------------
+		switch( pParameter->Get_Type() )
+		{
+		case PARAMETER_TYPE_Node:	default:
+			if( pParameter->Get_Parent() && pParameter->Get_Parent()->Get_Type() != PARAMETER_TYPE_Node )
+			{
+				m_pPG->LimitPropertyEditing(pProperty);
+			//	m_pPG->SetPropertyCell(pProperty, 0, Name   , wxNullBitmap, SYS_Get_Color(wxSYS_COLOUR_BTNTEXT), SYS_Get_Color(wxSYS_COLOUR_BTNFACE));
+			//	m_pPG->SetPropertyCell(pProperty, 1, wxT(""), wxNullBitmap, SYS_Get_Color(wxSYS_COLOUR_BTNTEXT), SYS_Get_Color(wxSYS_COLOUR_BTNFACE));
+			}
+			break;
+
+		case PARAMETER_TYPE_Bool:
+			pProperty->SetAttribute(wxPG_BOOL_USE_CHECKBOX	, (long)true);
+			break;
+
+		case PARAMETER_TYPE_Double:
+			pProperty->SetAttribute(wxPG_FLOAT_PRECISION	, (long)16);
+			break;
+
+		case PARAMETER_TYPE_String:
+			if( ((CSG_Parameter_String *)pParameter->Get_Data())->is_Password() )
+			{
+				pProperty->SetAttribute(wxPG_STRING_PASSWORD, (long)pParameter->asString());
+			}
+			break;
+
+		case PARAMETER_TYPE_Color:
+			pProperty->SetEditor(wxPGEditor_Choice);
+			break;
+
+		case PARAMETER_TYPE_Colors:
+		case PARAMETER_TYPE_Text:
+		case PARAMETER_TYPE_FilePath:
+		case PARAMETER_TYPE_Font:
+		case PARAMETER_TYPE_FixedTable:
+		case PARAMETER_TYPE_Grid_List:
+		case PARAMETER_TYPE_Table_List:
+		case PARAMETER_TYPE_Shapes_List:
+		case PARAMETER_TYPE_TIN_List:
+		case PARAMETER_TYPE_Parameters:
+			m_pPG->LimitPropertyEditing(pProperty);
+			break;
+		}
 	}
 
 	return( pProperty );

@@ -488,6 +488,22 @@ void CWKSP_Layer::DataObject_Changed(CSG_Parameters *pParameters)
 	{
 		m_Parameters.Assign_Values(pParameters);
 	}
+	else
+	{
+		double	m, s, min, max;
+
+		if( m_pObject->Get_ObjectType() == DATAOBJECT_TYPE_Grid )
+		{
+			CSG_Grid	*pGrid	= (CSG_Grid *)m_pObject;
+
+			m	= pGrid->Get_ArithMean(true);
+			s	= pGrid->Get_StdDev   (true) * 2.0;
+			min	= m - s;	if( min < pGrid->Get_ZMin(true) )	min	= pGrid->Get_ZMin(true);
+			max	= m + s;	if( max > pGrid->Get_ZMax(true) )	max	= pGrid->Get_ZMax(true);
+
+			m_Parameters("METRIC_ZRANGE")->asRange()->Set_Range(min, max);
+		}
+	}
 
 	DataObject_Changed();
 }

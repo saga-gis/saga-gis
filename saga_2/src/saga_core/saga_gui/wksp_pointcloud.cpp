@@ -212,16 +212,9 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 	// General...
 
 	m_Parameters.Add_Choice(
-		m_Parameters("NODE_METRIC")		, "COLORS_ATTRIB"			, LNG("[CAP] Attribute"),
+		m_Parameters("NODE_COLORS")		, "COLORS_ATTRIB"			, LNG("[CAP] Attribute"),
 		LNG(""),
 		LNG("")
-	);
-
-	//-----------------------------------------------------
-	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_POINTS"			, LNG("[CAP] Show Nodes"),
-		LNG(""),
-		PARAMETER_TYPE_Bool, false
 	);
 
 	//-----------------------------------------------------
@@ -229,13 +222,6 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_SIZE"			, LNG("[CAP] Point Size"),
 		LNG(""),
 		PARAMETER_TYPE_Int, 0, 0, true
-	);
-
-	//-----------------------------------------------------
-	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_TRIANGES"		, LNG("[CAP] Show Filled"),
-		LNG(""),
-		PARAMETER_TYPE_Bool, true
 	);
 
 	//-----------------------------------------------------
@@ -294,12 +280,16 @@ int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 {
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), wxT("COLORS_ATTRIB")) )
 	{
+		CSG_Parameters	Parameters;
+	
 		int		zField	= pParameter->asInt();
 
-		pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(
-			m_pPointCloud->Get_Minimum(zField),
-			m_pPointCloud->Get_Maximum(zField)
-		);
+		double	m	= m_pPointCloud->Get_Mean  (zField);
+		double	s	= m_pPointCloud->Get_StdDev(zField) * 2.0;
+		double	min	= m - s;	if( min < m_pPointCloud->Get_Minimum(zField) )	min	= m_pPointCloud->Get_Minimum(zField);
+		double	max	= m + s;	if( max > m_pPointCloud->Get_Maximum(zField) )	max	= m_pPointCloud->Get_Maximum(zField);
+
+		pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(min, max);
 	}
 
 	return( 1 );

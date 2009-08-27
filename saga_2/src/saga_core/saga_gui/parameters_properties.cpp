@@ -474,12 +474,13 @@ void CParameters_PG_Choice::_Update_TableFields(wxPropertyGrid *pPG)
 	{
 		for(int i=0; i<m_pParameter->Get_Children_Count(); i++)
 		{
-			wxPGProperty	*pProperty;
 			CSG_Parameter	*pChild	= m_pParameter->Get_Child(i);
 
 			if(	pChild->Get_Type() == PARAMETER_TYPE_Table_Field )
 			{
-				if( (pProperty = pPG->GetPropertyByName(pChild->Get_Identifier())) != NULL )
+				wxPGProperty	*pProperty	= pPG->GetProperty(wxString::Format(wxT("%s.%s"), m_pParameter->Get_Identifier(), pChild->Get_Identifier()));
+
+				if( pProperty )
 				{
 					((CParameters_PG_Choice *)pProperty)->Update();
 				}

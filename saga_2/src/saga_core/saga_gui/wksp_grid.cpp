@@ -403,12 +403,7 @@ void CWKSP_Grid::On_Create_Parameters(void)
 
 
 	//-----------------------------------------------------
-	CSG_Parameters	Parameters;
-
-	Parameters.Add_Range(NULL, "METRIC_ZRANGE"	, LNG(""), LNG(""), m_pGrid->Get_ZMin(true), m_pGrid->Get_ZMax(true));
-	PROCESS_Set_Okay(true);
-
-	DataObject_Changed(&Parameters);
+	DataObject_Changed((CSG_Parameters *)NULL);
 }
 
 //---------------------------------------------------------

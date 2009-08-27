@@ -204,59 +204,62 @@ CACTIVE::~CACTIVE(void)
 //---------------------------------------------------------
 bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 {
-	if( pItem == m_pItem || pItem == NULL )
+	if( pItem == m_pItem )
 	{
 		return( true );
 	}
+
+	//-----------------------------------------------------
+	CWKSP_Base_Item	*pLegend, *pHistory;
+
+	m_pItem		= pItem;
+	m_pLayer	= NULL;
+	pLegend		= NULL;
+	pHistory	= NULL;
 
 	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_X);
 	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_Y);
 	STATUSBAR_Set_Text(SG_T(""), STATUSBAR_VIEW_Z);
 
-	//-----------------------------------------------------
-	CWKSP_Base_Item	*pLegend, *pHistory;
-
-	m_pLayer	= NULL;
-	pLegend		= NULL;
-	pHistory	= NULL;
-
-	//-----------------------------------------------------
-	if( (m_pItem = pItem) != NULL )
-	{
-		switch( m_pItem->Get_Type() )
-		{
-		default:
-			break;
-
-		case WKSP_ITEM_Map:
-			pLegend		= m_pItem;
-			break;
-
-		case WKSP_ITEM_Map_Layer:
-			pLegend		= pHistory	= m_pLayer	= ((CWKSP_Map_Layer *)m_pItem)->Get_Layer();
-			break;
-
-		case WKSP_ITEM_Table:
-			pHistory	= m_pItem;
-			break;
-
-		case WKSP_ITEM_Shapes:
-		case WKSP_ITEM_TIN:
-		case WKSP_ITEM_PointCloud:
-		case WKSP_ITEM_Grid:
-			pLegend		= pHistory	= m_pLayer	= (CWKSP_Layer *)m_pItem;
-			break;
-		}
-	}
-
-	Update_Description();
-
-	//-----------------------------------------------------
 	if( m_pParameters )
 	{
 		m_pParameters->Set_Parameters(m_pItem);
 	}
 
+	Update_Description();
+
+	if( m_pItem == NULL )
+	{
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	switch( m_pItem->Get_Type() )
+	{
+	default:
+		break;
+
+	case WKSP_ITEM_Map:
+		pLegend		= m_pItem;
+		break;
+
+	case WKSP_ITEM_Map_Layer:
+		pLegend		= pHistory	= m_pLayer	= ((CWKSP_Map_Layer *)m_pItem)->Get_Layer();
+		break;
+
+	case WKSP_ITEM_Table:
+		pHistory	= m_pItem;
+		break;
+
+	case WKSP_ITEM_Shapes:
+	case WKSP_ITEM_TIN:
+	case WKSP_ITEM_PointCloud:
+	case WKSP_ITEM_Grid:
+		pLegend		= pHistory	= m_pLayer	= (CWKSP_Layer *)m_pItem;
+		break;
+	}
+
+	//-----------------------------------------------------
 	if( pLegend )
 	{
 		m_pLegend->Set_Item(pLegend);
@@ -302,16 +305,11 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 	}
 
 	//-----------------------------------------------------
-	if( m_pItem && g_pData->Exists(m_pObject) && m_pObject->Get_ObjectType() == DATAOBJECT_TYPE_Shapes && ((CSG_Shapes *)m_pObject)->Get_Selection_Count() > 0 )
-	{
-		g_pData->Update_Views(m_pObject);
-	}
-
 	if( m_pLayer )
 	{
 		m_pObject	= m_pLayer->Get_Object();
 
-		if( m_pItem && g_pData->Exists(m_pObject) && m_pObject->Get_ObjectType() == DATAOBJECT_TYPE_Shapes && ((CSG_Shapes *)m_pObject)->Get_Selection_Count() > 0 )
+		if( g_pData->Exists(m_pObject) && m_pObject->Get_ObjectType() == DATAOBJECT_TYPE_Shapes && ((CSG_Shapes *)m_pObject)->Get_Selection_Count() > 0 )
 		{
 			g_pData->Update_Views(m_pObject);
 		}
