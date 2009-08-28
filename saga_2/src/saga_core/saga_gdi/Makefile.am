@@ -18,9 +18,9 @@ sgdi_diagram.cpp\
 sgdi_dialog.cpp\
 sgdi_helper.cpp\
 saga_gdi.cpp\
-sgdi_diagram.cpp\
-sgdi_dialog.cpp\
-sgdi_helper.cpp\
+sgdi_diagram.h\
+sgdi_dialog.h\
+sgdi_helper.h\
 saga_gdi.h
 
 libsaga_gdi_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
