@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                       image_io                        //
+//                     SAGA_GUI_API                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  Variogram_Dialog.h                   //
+//                  points_view_extent.h                 //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -58,8 +58,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Variogram_Dialog_H
-#define HEADER_INCLUDED__Variogram_Dialog_H
+#ifndef HEADER_INCLUDED__points_view_extent_H
+#define HEADER_INCLUDED__points_view_extent_H
 
 
 ///////////////////////////////////////////////////////////
@@ -69,8 +69,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
-
 #include <saga_gdi/saga_gdi.h>
 
 
@@ -81,29 +79,47 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CVariogram_Dialog : public CSGDI_Dialog
+class CPoints_View_Extent : public wxPanel
 {
 public:
-	CVariogram_Dialog(CSG_Trend *pVariogram, CSG_Table *pVariances);
+	CPoints_View_Extent(wxWindow *pParent, CSG_PointCloud *pPoints, wxSize Size);
+
+	int							m_zField, m_cField, m_Bold;
+
+	CSG_Parameters				m_Settings;
+
+	void						Update_View				(void);
+
+	void						On_Size					(wxSizeEvent  &event);
+	void						On_EraseBackGround		(wxEraseEvent &event);
+	void						On_Paint				(wxPaintEvent &event);
+	void						On_Mouse_LDown			(wxMouseEvent &event);
+	void						On_Mouse_LUp			(wxMouseEvent &event);
+	void						On_Mouse_RDown			(wxMouseEvent &event);
+	void						On_Mouse_RUp			(wxMouseEvent &event);
+	void						On_Mouse_Motion			(wxMouseEvent &event);
+
+	TSG_Rect					Get_Extent				(void);
 
 
 private:
 
-	wxCheckBox					*m_pCumulative;
+	CSG_Rect					m_Extent;
 
-	wxChoice					*m_pFormulas;
+	CSG_Matrix					m_Image_Value, m_Image_Count;
 
-	wxTextCtrl					*m_pFormula, *m_pParameters;
+	CSG_PointCloud				*m_pPoints;
 
-	CSGDI_Slider				*m_pDistance;
+	wxPoint						m_Mouse_Down, m_Mouse_Move;
 
-	class CVariogram_Diagram	*m_pDiagram;
+	wxRect						m_Select;
+
+	wxImage						m_Image;
 
 
-	void						On_Update_Control		(wxCommandEvent &event);
-	void						On_Update_Choices		(wxCommandEvent &event);
-
-	void						Fit_Function			(void);
+	bool						_Draw_Image				(void);
+	void						_Draw_Pixel				(int x, int y, int color);
+	void						_Draw_Inverse			(wxPoint pa, wxPoint pb);
 
 
 	DECLARE_EVENT_TABLE()
@@ -118,7 +134,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Variogram_Dialog_H
+#endif // #ifndef HEADER_INCLUDED__points_view_extent_H
 
 
 ///////////////////////////////////////////////////////////

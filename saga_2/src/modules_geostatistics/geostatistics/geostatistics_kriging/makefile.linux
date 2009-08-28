@@ -17,9 +17,9 @@ LD       = g++
 DEP_INCS =
 DEP_DEFS = `wx-config --static=yes --cxxflags`
 DEP_LFLG = -fPIC -pthread
-DEP_LIBS = `wx-config --static=yes --libs` -L$(BIN_SAGA) -l_saga_api
+DEP_LIBS = `wx-config --static=yes --libs` -L$(BIN_SAGA) -l_saga_api -l_saga_gdi
 
-OBJ      = $(MLB_TEMP)/_kriging_base.o $(MLB_TEMP)/_kriging_ordinary.o $(MLB_TEMP)/_kriging_ordinary_global.o $(MLB_TEMP)/_kriging_universal.o $(MLB_TEMP)/_kriging_universal_global.o $(MLB_TEMP)/kriging_base.o $(MLB_TEMP)/kriging_ordinary.o $(MLB_TEMP)/kriging_ordinary_global.o $(MLB_TEMP)/kriging_universal.o $(MLB_TEMP)/kriging_universal_global.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/semivariogram.o $(MLB_TEMP)/sgui_diagram.o $(MLB_TEMP)/sgui_dialog.o $(MLB_TEMP)/sgui_helper.o $(MLB_TEMP)/variogram_dialog.o
+OBJ      = $(MLB_TEMP)/_kriging_base.o $(MLB_TEMP)/_kriging_ordinary.o $(MLB_TEMP)/_kriging_ordinary_global.o $(MLB_TEMP)/_kriging_universal.o $(MLB_TEMP)/_kriging_universal_global.o $(MLB_TEMP)/kriging_base.o $(MLB_TEMP)/kriging_ordinary.o $(MLB_TEMP)/kriging_ordinary_global.o $(MLB_TEMP)/kriging_universal.o $(MLB_TEMP)/kriging_universal_global.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/semivariogram.o $(MLB_TEMP)/variogram_dialog.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS =
@@ -85,15 +85,6 @@ $(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 
 $(MLB_TEMP)/semivariogram.o: ./semivariogram.cpp
 	$(CPP) -c ./semivariogram.cpp -o $(MLB_TEMP)/semivariogram.o $(CXXFLAGS)
-
-$(MLB_TEMP)/sgui_diagram.o: ./sgui_diagram.cpp
-	$(CPP) -c ./sgui_diagram.cpp -o $(MLB_TEMP)/sgui_diagram.o $(CXXFLAGS)
-
-$(MLB_TEMP)/sgui_dialog.o: ./sgui_dialog.cpp
-	$(CPP) -c ./sgui_dialog.cpp -o $(MLB_TEMP)/sgui_dialog.o $(CXXFLAGS)
-
-$(MLB_TEMP)/sgui_helper.o: ./sgui_helper.cpp
-	$(CPP) -c ./sgui_helper.cpp -o $(MLB_TEMP)/sgui_helper.o $(CXXFLAGS)
 
 $(MLB_TEMP)/variogram_dialog.o: ./variogram_dialog.cpp
 	$(CPP) -c ./variogram_dialog.cpp -o $(MLB_TEMP)/variogram_dialog.o $(CXXFLAGS)

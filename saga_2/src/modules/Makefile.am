@@ -1,1 +1,1 @@
-SUBDIRS = tin table shapes grid
+SUBDIRS = tin table shapes pointcloud grid

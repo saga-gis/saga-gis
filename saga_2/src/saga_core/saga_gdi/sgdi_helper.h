@@ -5,14 +5,15 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
-//                     SAGA_GUI_API                      //
+//           Application Programming Interface           //
+//                                                       //
+//                  Library: SAGA_GDI                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    sgui_diagram.cpp                   //
+//                    sgdi_helper.h                      //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -58,33 +59,49 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifndef HEADER_INCLUDED__SAGA_GDI_sgdi_helper_H
+#define HEADER_INCLUDED__SAGA_GDI_sgdi_helper_H
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#include <saga_api/saga_api.h>
+
+#ifdef _SAGA_GDI_EXPORTS
+	#define	SGDI_API_DLL_EXPORT		_SAGA_DLL_EXPORT
+#else
+ 	#define	SGDI_API_DLL_EXPORT		_SAGA_DLL_IMPORT
+#endif
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include <wx/wxprec.h>
 
 #ifdef __BORLANDC__
 	#pragma hdrstop
 #endif
 
-#include <wx/settings.h>
 #include <wx/dc.h>
-#include <wx/dcclient.h>
-
-#include <saga_api/saga_api.h>
-
-//---------------------------------------------------------
-#include "sgui_diagram.h"
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-BEGIN_EVENT_TABLE(CSGUI_Diagram, wxPanel)
-	EVT_PAINT				(CSGUI_Diagram::_On_Paint)
-	EVT_LEFT_DOWN			(CSGUI_Diagram::_On_Mouse_Click_Left)
-END_EVENT_TABLE()
+#include <wx/button.h>
+#include <wx/choice.h>
+#include <wx/checkbox.h>
+#include <wx/textctrl.h>
+#include <wx/slider.h>
+#include <wx/spinctrl.h>
+#include <wx/dialog.h>
+#include <wx/panel.h>
+#include <wx/image.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -94,19 +111,13 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSGUI_Diagram::CSGUI_Diagram(wxWindow *pParent)
-	: wxPanel(pParent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL|wxSUNKEN_BORDER)
-{
-	SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW));
+#define SGDI_CTRL_WIDTH				100
+#define SGDI_CTRL_SPACE				10
+#define SGDI_CTRL_SMALLSPACE		2
 
-	m_xName		= LNG("X");
-	m_yName		= LNG("Y");
-}
-
-//---------------------------------------------------------
-CSGUI_Diagram::~CSGUI_Diagram(void)
-{
-}
+#define SGDI_BTN_HEIGHT				25
+#define SGDI_BTN_WIDTH				SGDI_CTRL_WIDTH
+#define SGDI_BTN_SIZE				wxSize(SGDI_BTN_WIDTH, SGDI_BTN_HEIGHT)
 
 
 ///////////////////////////////////////////////////////////
@@ -116,18 +127,28 @@ CSGUI_Diagram::~CSGUI_Diagram(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSGUI_Diagram::_On_Mouse_Click_Left(wxMouseEvent &WXUNUSED(event))
-{
-//	wxMessageBox("Sonk", "Sonk");
-}
+#define TEXTALIGN_LEFT				0x01
+#define TEXTALIGN_XCENTER			0x02
+#define TEXTALIGN_RIGHT				0x04
+#define TEXTALIGN_TOP				0x08
+#define TEXTALIGN_YCENTER			0x10
+#define TEXTALIGN_BOTTOM			0x20
+
+#define TEXTALIGN_TOPLEFT			(TEXTALIGN_TOP    |TEXTALIGN_LEFT)
+#define TEXTALIGN_TOPCENTER			(TEXTALIGN_TOP    |TEXTALIGN_XCENTER)
+#define TEXTALIGN_TOPRIGHT			(TEXTALIGN_TOP    |TEXTALIGN_RIGHT)
+#define TEXTALIGN_CENTERLEFT		(TEXTALIGN_YCENTER|TEXTALIGN_LEFT)
+#define TEXTALIGN_CENTER			(TEXTALIGN_YCENTER|TEXTALIGN_XCENTER)
+#define TEXTALIGN_CENTERRIGHT		(TEXTALIGN_YCENTER|TEXTALIGN_RIGHT)
+#define TEXTALIGN_BOTTOMLEFT		(TEXTALIGN_BOTTOM |TEXTALIGN_LEFT)
+#define TEXTALIGN_BOTTOMCENTER		(TEXTALIGN_BOTTOM |TEXTALIGN_XCENTER)
+#define TEXTALIGN_BOTTOMRIGHT		(TEXTALIGN_BOTTOM |TEXTALIGN_RIGHT)
 
 //---------------------------------------------------------
-void CSGUI_Diagram::_On_Paint(wxPaintEvent &WXUNUSED(event))
-{
-	wxPaintDC	dc(this);
+SGDI_API_DLL_EXPORT void	Draw_Text	(wxDC &dc, int Align, int x, int y, const wxString &Text);
+SGDI_API_DLL_EXPORT void	Draw_Text	(wxDC &dc, int Align, int x, int y, double Angle, const wxString &Text);
 
-	_Draw(dc);
-}
+SGDI_API_DLL_EXPORT bool	Draw_Ruler	(wxDC &dc, const wxRect &r, bool bHorizontal, double zMin, double zMax, bool bAscendent = true, int FontSize = 7, const wxColour &Colour = wxColour(127, 127, 127));
 
 
 ///////////////////////////////////////////////////////////
@@ -137,109 +158,67 @@ void CSGUI_Diagram::_On_Paint(wxPaintEvent &WXUNUSED(event))
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define RULER_LABEL_HEIGHT	20
-
-//---------------------------------------------------------
-bool CSGUI_Diagram::_Draw(wxDC &dc)
+class SGDI_API_DLL_EXPORT CSGDI_Slider : public wxSlider
 {
-	if( m_xMin < m_xMax && m_yMin < m_yMax )
-	{
-		double	dx, dy;
+public:
+	CSGDI_Slider(wxWindow *pParent, int ID, double Value, double minValue, double maxValue, const wxPoint &Point = wxDefaultPosition, const wxSize &Size = wxDefaultSize, long Style = wxSL_HORIZONTAL);
+	virtual ~CSGDI_Slider(void);
 
-		m_rDiagram	= wxRect(RULER_LABEL_HEIGHT, 0, GetClientSize().x - RULER_LABEL_HEIGHT, GetClientSize().y - RULER_LABEL_HEIGHT);
+	bool				Set_Value			(double Value);
+	double				Get_Value			(void);
 
-		dc.SetTextForeground(wxColour(0, 0, 0));
-		dc.SetFont(wxFont((int)(0.5 * RULER_LABEL_HEIGHT), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+	double				Get_Min				(void)	{	return( m_Min );	}
+	double				Get_Max				(void)	{	return( m_Max );	}
+	double				Get_Range			(void)	{	return( m_Max - m_Min );	}
+	bool				Set_Range			(double minValue, double maxValue);
 
-		Draw_Text(dc, TEXTALIGN_TOPCENTER   , 0, m_rDiagram.GetY() + m_rDiagram.GetHeight() / 2, 90, m_yName);
-		Draw_Text(dc, TEXTALIGN_BOTTOMCENTER, m_rDiagram.GetX() + m_rDiagram.GetWidth() / 2, GetClientSize().y, m_xName);
 
-		Draw_Ruler(dc, m_rDiagram, true , m_xMin, m_xMax);
-		Draw_Ruler(dc, m_rDiagram, false, m_yMin, m_yMax);
+private:
 
-		//---------------------------------------------------------------------
-		dx	= m_rDiagram.GetWidth()  / (m_xMax - m_xMin);
-		dy	= m_rDiagram.GetHeight() / (m_yMax - m_yMin);
+	double				m_Min, m_Max;
 
-		On_Draw(dc, m_rDiagram);
+};
 
-		return( true );
-	}
 
-	dc.DrawLine(0, 0, GetClientSize().x, GetClientSize().y);
-	dc.DrawLine(0, GetClientSize().y, GetClientSize().x, 0);
-
-	return( false );
-}
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define DIAGRAM_BUFFER	100
-
-//---------------------------------------------------------
-int CSGUI_Diagram::Get_xToScreen(double x, bool bKeepInRange)
+class SGDI_API_DLL_EXPORT CSGDI_SpinCtrl : public wxSpinCtrl
 {
-	int		i	= m_rDiagram.GetX() + (int)(m_rDiagram.GetWidth () * (x - m_xMin) / (m_xMax - m_xMin));
+public:
+	CSGDI_SpinCtrl(wxWindow *pParent, int ID, double Value, double minValue, double maxValue, bool bPercent = false, const wxPoint &Point = wxDefaultPosition, const wxSize &Size = wxDefaultSize, long Style = wxSP_ARROW_KEYS);
+	virtual ~CSGDI_SpinCtrl(void);
 
-	if( bKeepInRange )
-	{
-		if( i		< m_rDiagram.GetLeft  () - DIAGRAM_BUFFER )
-			i		= m_rDiagram.GetLeft  () - DIAGRAM_BUFFER;
-		else if( i	> m_rDiagram.GetRight () + DIAGRAM_BUFFER )
-			i		= m_rDiagram.GetRight () + DIAGRAM_BUFFER;
-	}
+	bool				Set_Value			(double Value);
+	double				Get_Value			(void);
 
-	return( i );
-}
+	double				Get_Min				(void)	{	return( m_Min );	}
+	double				Get_Max				(void)	{	return( m_Max );	}
+	double				Get_Range			(void)	{	return( m_Max - m_Min );	}
+	bool				Set_Range			(double minValue, double maxValue);
+
+
+private:
+
+	bool				m_bPercent;
+
+	double				m_Min, m_Max;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSGUI_Diagram::Get_yToScreen(double y, bool bKeepInRange)
-{
-	int		i	= m_rDiagram.GetY() - (int)(m_rDiagram.GetHeight() * (y - m_yMin) / (m_yMax - m_yMin)) + m_rDiagram.GetHeight();
-
-	if( bKeepInRange )
-	{
-		if( i		< m_rDiagram.GetTop   () - DIAGRAM_BUFFER )
-			i		= m_rDiagram.GetTop   () - DIAGRAM_BUFFER;
-		else if( i	> m_rDiagram.GetBottom() + DIAGRAM_BUFFER )
-			i		= m_rDiagram.GetBottom() + DIAGRAM_BUFFER;
-	}
-
-	return( i );
-}
-
-//---------------------------------------------------------
-bool CSGUI_Diagram::Get_ToScreen(wxPoint &Point, double x, double y)
-{
-	bool	bResult	= true;
-
-	Point.x	= Get_xToScreen(x, false);
-
-	if( Point.x			< m_rDiagram.GetLeft  () - DIAGRAM_BUFFER )
-	{
-		Point.x			= m_rDiagram.GetLeft  () - DIAGRAM_BUFFER;
-		bResult			= false;
-	}
-	else if( Point.x	> m_rDiagram.GetRight () + DIAGRAM_BUFFER )
-	{
-		Point.x			= m_rDiagram.GetRight () + DIAGRAM_BUFFER;
-		bResult			= false;
-	}
-
-	Point.y	= Get_yToScreen(y, false);
-
-	if( Point.y			< m_rDiagram.GetTop   () - DIAGRAM_BUFFER )
-	{
-		Point.y			= m_rDiagram.GetTop   () - DIAGRAM_BUFFER;
-		bResult			= false;
-	}
-	else if( Point.y	> m_rDiagram.GetBottom() + DIAGRAM_BUFFER )
-	{
-		Point.y			= m_rDiagram.GetBottom() + DIAGRAM_BUFFER;
-		bResult			= false;
-	}
-
-	return( bResult );
-}
+#endif // #ifndef HEADER_INCLUDED__SAGA_GDI_sgdi_helper_H
 
 
 ///////////////////////////////////////////////////////////

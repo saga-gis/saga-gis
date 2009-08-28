@@ -1,7 +1,7 @@
 # Linux GCC Makefile
 # Created by O. Conrad
 
-PROJECTS = tin table shapes grid
+PROJECTS = tin table shapes pointcloud grid
 
 all:
 	@for i in $(PROJECTS); do (cd $$i && $(MAKE) -fmakefile.linux); done

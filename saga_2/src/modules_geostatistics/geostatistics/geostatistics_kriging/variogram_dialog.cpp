@@ -58,8 +58,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "sgui_diagram.h"
-
 #include "variogram_dialog.h"
 
 
@@ -70,7 +68,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CVariogram_Diagram : public CSGUI_Diagram
+class CVariogram_Diagram : public CSGDI_Diagram
 {
 public:
 	CVariogram_Diagram(wxWindow *pParent, CSG_Trend *pVariogram, CSG_Table *pVariances);
@@ -96,7 +94,7 @@ private:
 
 //---------------------------------------------------------
 CVariogram_Diagram::CVariogram_Diagram(wxWindow *pParent, CSG_Trend *pVariogram, CSG_Table *pVariances)
-	: CSGUI_Diagram(pParent)
+	: CSGDI_Diagram(pParent)
 {
 	m_xName			= _TL("Distance");
 	m_yName			= _TL("Semivariance");
@@ -204,7 +202,7 @@ void CVariogram_Diagram::On_Draw(wxDC &dc, wxRect rDraw)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-BEGIN_EVENT_TABLE(CVariogram_Dialog, CSGUI_Dialog)
+BEGIN_EVENT_TABLE(CVariogram_Dialog, CSGDI_Dialog)
 	EVT_CHECKBOX	(wxID_ANY	, CVariogram_Dialog::On_Update_Control)
 	EVT_TEXT_ENTER	(wxID_ANY	, CVariogram_Dialog::On_Update_Control)
 	EVT_SLIDER		(wxID_ANY	, CVariogram_Dialog::On_Update_Control)
@@ -213,7 +211,7 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------
 CVariogram_Dialog::CVariogram_Dialog(CSG_Trend *pVariogram, CSG_Table *pVariances)
-	: CSGUI_Dialog(_TL("Semi-Variogram"))
+	: CSGDI_Dialog(_TL("Semi-Variogram"))
 {
 	//-----------------------------------------------------
 	wxArrayString	Formulas;

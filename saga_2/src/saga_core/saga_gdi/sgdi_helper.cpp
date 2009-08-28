@@ -5,12 +5,13 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
-//                     SAGA_GUI_API                      //
+//           Application Programming Interface           //
+//                                                       //
+//                  Library: SAGA_GDI                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    sgui_helper.cpp                    //
+//                    sgdi_helper.cpp                    //
 //                                                       //
 //                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
@@ -67,7 +68,7 @@
 #include <wx/dc.h>
 
 //---------------------------------------------------------
-#include "sgui_helper.h"
+#include "sgdi_helper.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -254,7 +255,7 @@ bool		Draw_Ruler(wxDC &dc, const wxRect &r, bool bHorizontal, double zMin, doubl
 #define SLIDER_RANGE	100
 
 //---------------------------------------------------------
-CSGUI_Slider::CSGUI_Slider(wxWindow *pParent, int ID, double Value, double minValue, double maxValue, const wxPoint &Point, const wxSize &Size, long Style)
+CSGDI_Slider::CSGDI_Slider(wxWindow *pParent, int ID, double Value, double minValue, double maxValue, const wxPoint &Point, const wxSize &Size, long Style)
 	: wxSlider(pParent, ID, 0, 0, SLIDER_RANGE, Point, Size, Style)
 {
 	Set_Range(minValue, maxValue);
@@ -265,11 +266,11 @@ CSGUI_Slider::CSGUI_Slider(wxWindow *pParent, int ID, double Value, double minVa
 }
 
 //---------------------------------------------------------
-CSGUI_Slider::~CSGUI_Slider(void)
+CSGDI_Slider::~CSGDI_Slider(void)
 {}
 
 //---------------------------------------------------------
-bool CSGUI_Slider::Set_Value(double Value)
+bool CSGDI_Slider::Set_Value(double Value)
 {
 	int		Position	= (int)((double)SLIDER_RANGE * (Value - m_Min) / (m_Max - m_Min));
 
@@ -290,13 +291,13 @@ bool CSGUI_Slider::Set_Value(double Value)
 }
 
 //---------------------------------------------------------
-double CSGUI_Slider::Get_Value(void)
+double CSGDI_Slider::Get_Value(void)
 {
 	return( m_Min + GetValue() * (m_Max - m_Min) / (double)SLIDER_RANGE );
 }
 
 //---------------------------------------------------------
-bool CSGUI_Slider::Set_Range(double minValue, double maxValue)
+bool CSGDI_Slider::Set_Range(double minValue, double maxValue)
 {
 	if( maxValue == minValue )
 	{
@@ -318,7 +319,7 @@ bool CSGUI_Slider::Set_Range(double minValue, double maxValue)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSGUI_SpinCtrl::CSGUI_SpinCtrl(wxWindow *pParent, int ID, double Value, double minValue, double maxValue, bool bPercent, const wxPoint &Point, const wxSize &Size, long Style)
+CSGDI_SpinCtrl::CSGDI_SpinCtrl(wxWindow *pParent, int ID, double Value, double minValue, double maxValue, bool bPercent, const wxPoint &Point, const wxSize &Size, long Style)
 	: wxSpinCtrl(pParent, ID, wxEmptyString, Point, Size, Style, bPercent ? 0 : (int)minValue, bPercent ? 100 : (int)maxValue)
 {
 	m_bPercent	= bPercent;
@@ -329,11 +330,11 @@ CSGUI_SpinCtrl::CSGUI_SpinCtrl(wxWindow *pParent, int ID, double Value, double m
 }
 
 //---------------------------------------------------------
-CSGUI_SpinCtrl::~CSGUI_SpinCtrl(void)
+CSGDI_SpinCtrl::~CSGDI_SpinCtrl(void)
 {}
 
 //---------------------------------------------------------
-bool CSGUI_SpinCtrl::Set_Value(double Value)
+bool CSGDI_SpinCtrl::Set_Value(double Value)
 {
 	if( m_bPercent )
 	{
@@ -372,7 +373,7 @@ bool CSGUI_SpinCtrl::Set_Value(double Value)
 }
 
 //---------------------------------------------------------
-double CSGUI_SpinCtrl::Get_Value(void)
+double CSGDI_SpinCtrl::Get_Value(void)
 {
 	if( m_bPercent )
 	{
@@ -383,7 +384,7 @@ double CSGUI_SpinCtrl::Get_Value(void)
 }
 
 //---------------------------------------------------------
-bool CSGUI_SpinCtrl::Set_Range(double minValue, double maxValue)
+bool CSGDI_SpinCtrl::Set_Range(double minValue, double maxValue)
 {
 	if( maxValue == minValue )
 	{

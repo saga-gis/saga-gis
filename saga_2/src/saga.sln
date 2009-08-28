@@ -8,6 +8,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "geostatistics_grid", "modul
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "geostatistics_kriging", "modules_geostatistics\geostatistics\geostatistics_kriging\geostatistics_kriging.vcproj", "{CA7B8C54-FFAD-48C2-88F5-8E99B9815A60}"
 	ProjectSection(ProjectDependencies) = postProject
+		{5F5137D6-9979-4829-9C23-45D9726D8554} = {5F5137D6-9979-4829-9C23-45D9726D8554}
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
@@ -239,6 +240,17 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_table", "modules_io\table\io_table\io_table.vcproj", "{310D7E99-3A90-47E9-B796-5BD47D966B29}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_shapes_las", "modules_io\shapes\io_shapes_las\io_shapes_las.vcproj", "{0744A39A-EDB3-4573-B4BE-1BEA00568C1F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "saga_gdi", "saga_core\saga_gdi\saga_gdi.vcproj", "{5F5137D6-9979-4829-9C23-45D9726D8554}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pointcloud_viewer", "modules\pointcloud\pointcloud_viewer\pointcloud_viewer.vcproj", "{38F20CA5-B63D-4568-80CE-5A07C5805E33}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5F5137D6-9979-4829-9C23-45D9726D8554} = {5F5137D6-9979-4829-9C23-45D9726D8554}
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -656,6 +668,22 @@ Global
 		{0744A39A-EDB3-4573-B4BE-1BEA00568C1F}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
 		{0744A39A-EDB3-4573-B4BE-1BEA00568C1F}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
 		{0744A39A-EDB3-4573-B4BE-1BEA00568C1F}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
+		{5F5137D6-9979-4829-9C23-45D9726D8554}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5F5137D6-9979-4829-9C23-45D9726D8554}.Debug|Win32.Build.0 = Debug|Win32
+		{5F5137D6-9979-4829-9C23-45D9726D8554}.Release|Win32.ActiveCfg = Release|Win32
+		{5F5137D6-9979-4829-9C23-45D9726D8554}.Release|Win32.Build.0 = Release|Win32
+		{5F5137D6-9979-4829-9C23-45D9726D8554}.Unicode Debug|Win32.ActiveCfg = Unicode Debug|Win32
+		{5F5137D6-9979-4829-9C23-45D9726D8554}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
+		{5F5137D6-9979-4829-9C23-45D9726D8554}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
+		{5F5137D6-9979-4829-9C23-45D9726D8554}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
+		{38F20CA5-B63D-4568-80CE-5A07C5805E33}.Debug|Win32.ActiveCfg = Debug|Win32
+		{38F20CA5-B63D-4568-80CE-5A07C5805E33}.Debug|Win32.Build.0 = Debug|Win32
+		{38F20CA5-B63D-4568-80CE-5A07C5805E33}.Release|Win32.ActiveCfg = Release|Win32
+		{38F20CA5-B63D-4568-80CE-5A07C5805E33}.Release|Win32.Build.0 = Release|Win32
+		{38F20CA5-B63D-4568-80CE-5A07C5805E33}.Unicode Debug|Win32.ActiveCfg = Unicode Debug|Win32
+		{38F20CA5-B63D-4568-80CE-5A07C5805E33}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
+		{38F20CA5-B63D-4568-80CE-5A07C5805E33}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
+		{38F20CA5-B63D-4568-80CE-5A07C5805E33}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

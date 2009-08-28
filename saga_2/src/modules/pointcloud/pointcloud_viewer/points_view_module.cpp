@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                     SAGA_GUI_API                      //
+//                  points_view_module                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     sgui_dialog.h                     //
+//                 points_view_module.cpp                //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -39,11 +39,9 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    SAGA User Group Association            //
-//                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//    contact:    Olaf Conrad                            //
+//                Institute for Geography                //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -58,8 +56,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__SGUI_Dialog_H
-#define HEADER_INCLUDED__SGUI_Dialog_H
+#include "points_view_module.h"
+
+#include "points_view_dialog.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -69,47 +68,27 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "sgui_helper.h"
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class SGUI_API_DLL_EXPORT CSGUI_Dialog : public wxDialog
+CPoints_View_Module::CPoints_View_Module(void)
 {
-public:
-	CSGUI_Dialog(const wxString &Name);
-	virtual ~CSGUI_Dialog(void);
+	//-----------------------------------------------------
+	Set_Name		(_TL("Point Cloud Viewer"));
 
+	Set_Author		(SG_T("O. Conrad (c) 2009"));
 
-protected:
+	Set_Description	(_TW(
+		"Featured by "
+		"<a href=\"http://www.laserdata.at\">http://Laserdata GmbH, Austria</a>\n"
+		"and in cooperation with "
+		"<a href=\"http://www.alp-s.at\">http://alpS GmbH, Austria</a>\n"
+	));
 
-	void					Add_Spacer			(int Space = SGUI_CTRL_SPACE);
-	wxButton *				Add_Button			(const wxString &Name, int ID, const wxSize &Size = SGUI_BTN_SIZE);
-	wxChoice *				Add_Choice			(const wxString &Name, const wxArrayString &Choices, int iSelect = 0, int ID = wxID_ANY);
-	wxCheckBox *			Add_CheckBox		(const wxString &Name, bool bCheck, int ID = wxID_ANY);
-	wxTextCtrl *			Add_TextCtrl		(const wxString &Name, int Style = 0, const wxString &Text = wxT(""), int ID = wxID_ANY);
-	CSGUI_Slider *			Add_Slider			(const wxString &Name, double Value, double minValue, double maxValue, bool bValueAsPercent = false, int ID = wxID_ANY, int Width = SGUI_CTRL_WIDTH);
-	CSGUI_SpinCtrl *		Add_SpinCtrl		(const wxString &Name, double Value, double minValue, double maxValue, bool bValueAsPercent = false, int ID = wxID_ANY, int Width = SGUI_CTRL_WIDTH);
-
-	bool					Add_Output			(wxWindow *pOutput);
-	bool					Add_Output			(wxWindow *pOutput_A, wxWindow *pOutput_B, int Proportion_A = 1, int Proportion_B = 0);
-
-
-private:
-
-	wxColour				m_Ctrl_Color;
-
-	wxSizer					*m_pSizer_Ctrl, *m_pSizer_Output;
-
-
-	DECLARE_EVENT_TABLE()
-
-};
+	//-----------------------------------------------------
+	Parameters.Add_PointCloud(
+		NULL	, "POINTS"		, _TL("Points"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -119,7 +98,23 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__SGUI_Dialog_H
+bool CPoints_View_Module::On_Execute(void)
+{
+	CSG_PointCloud	*pPoints	= Parameters("POINTS")->asPointCloud();
+
+	if( SG_UI_Get_Window_Main() )
+	{
+		CPoints_View_Dialog	dlg(pPoints);
+
+	//	return( dlg.ShowModal() == wxID_OK );
+
+		dlg.ShowModal();
+
+		return( true );
+	}
+
+	return( false );
+}
 
 
 ///////////////////////////////////////////////////////////

@@ -44,6 +44,18 @@ MOVE %TMP_SAGA%*.o %OBJ_SAGA%
 POPD
 
 ECHO ###################################
+ECHO SAGA GDI
+ECHO -----------------------------------
+
+SET OBJ_SAGA=%SAGA%\bin\tmp\saga_mingw\saga_gdi\
+SET TMP_SAGA=%OBJ_SAGA%
+MD %OBJ_SAGA%
+
+PUSHD %SAGA%\src\saga_core\saga_gdi
+make -fmakefile.mingw
+POPD
+
+ECHO ###################################
 ECHO SAGA CMD
 ECHO -----------------------------------
 
@@ -273,6 +285,14 @@ ECHO pj_proj4
 ECHO -----------------------------------
 
 PUSHD .\modules_projection\pj_proj4\pj_proj4
+make -fmakefile.mingw
+POPD
+
+ECHO ###################################
+ECHO pointcloud_viewer
+ECHO -----------------------------------
+
+PUSHD .\modules\pointcloud\pointcloud_viewer
 make -fmakefile.mingw
 POPD
 

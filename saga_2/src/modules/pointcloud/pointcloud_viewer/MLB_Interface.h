@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                       image_io                        //
+//                   pointcloud_viewer                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  Variogram_Dialog.h                   //
+//                    MLB_Interface.h                    //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -39,11 +39,9 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    SAGA User Group Association            //
-//                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//    contact:    Olaf Conrad                            //
+//                Institute for Geography                //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -53,25 +51,23 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Variogram_Dialog_H
-#define HEADER_INCLUDED__Variogram_Dialog_H
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
+//				Include the SAGA-API here				 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#ifndef HEADER_INCLUDED__pointcloud_viewer_mlb_H
+#define HEADER_INCLUDED__pointcloud_viewer_mlb_H
 
-#include <saga_gdi/saga_gdi.h>
+//---------------------------------------------------------
+#include <saga_api/saga_api.h>
+
+//---------------------------------------------------------
+#ifdef pointcloud_viewer_EXPORTS
+	#define	pointcloud_viewer_EXPORT	_SAGA_DLL_EXPORT
+#else
+	#define	pointcloud_viewer_EXPORT	_SAGA_DLL_IMPORT
+#endif
 
 
 ///////////////////////////////////////////////////////////
@@ -81,50 +77,4 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CVariogram_Dialog : public CSGDI_Dialog
-{
-public:
-	CVariogram_Dialog(CSG_Trend *pVariogram, CSG_Table *pVariances);
-
-
-private:
-
-	wxCheckBox					*m_pCumulative;
-
-	wxChoice					*m_pFormulas;
-
-	wxTextCtrl					*m_pFormula, *m_pParameters;
-
-	CSGDI_Slider				*m_pDistance;
-
-	class CVariogram_Diagram	*m_pDiagram;
-
-
-	void						On_Update_Control		(wxCommandEvent &event);
-	void						On_Update_Choices		(wxCommandEvent &event);
-
-	void						Fit_Function			(void);
-
-
-	DECLARE_EVENT_TABLE()
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Variogram_Dialog_H
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__pointcloud_viewer_mlb_H

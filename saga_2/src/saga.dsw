@@ -59,6 +59,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name saga_api
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name saga_gdi
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -417,6 +420,24 @@ Package=<4>
 
 ###############################################################################
 
+Project: "pointcloud_viewer"=.\modules\pointcloud\pointcloud_viewer\pointcloud_viewer.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_gdi
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "recreations_fractals"=.\modules_recreations\recreations\recreations_fractals\recreations_fractals.dsp - Package Owner=<4>
 
 Package=<5>
@@ -460,6 +481,21 @@ Package=<4>
 ###############################################################################
 
 Project: "saga_cmd"=.\saga_core\saga_cmd\saga_cmd.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "saga_gdi"=.\saga_core\saga_gdi\saga_gdi.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

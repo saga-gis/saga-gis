@@ -5,14 +5,15 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
-//                       image_io                        //
+//           Application Programming Interface           //
+//                                                       //
+//                  Library: SAGA_GDI                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  Variogram_Dialog.h                   //
+//                    sgdi_diagram.h                     //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -39,11 +40,11 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    SAGA User Group Association            //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
+//                Bundesstr. 55                          //
+//                20146 Hamburg                          //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -58,8 +59,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Variogram_Dialog_H
-#define HEADER_INCLUDED__Variogram_Dialog_H
+#ifndef HEADER_INCLUDED__SAGA_GDI_sgdi_diagram_H
+#define HEADER_INCLUDED__SAGA_GDI_sgdi_diagram_H
 
 
 ///////////////////////////////////////////////////////////
@@ -69,9 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
-
-#include <saga_gdi/saga_gdi.h>
+#include "sgdi_helper.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -81,29 +80,38 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CVariogram_Dialog : public CSGDI_Dialog
+class SGDI_API_DLL_EXPORT CSGDI_Diagram : public wxPanel
 {
 public:
-	CVariogram_Dialog(CSG_Trend *pVariogram, CSG_Table *pVariances);
+	CSGDI_Diagram(wxWindow *pParent);
+	virtual ~CSGDI_Diagram(void);
+
+	wxString			m_xName, m_yName;
+
+	bool				Set_xScale				(double Minimum, double Maximum);
+	bool				Set_yScale				(double Minimum, double Maximum);
+
+
+protected:
+
+	double				m_xMin, m_xMax, m_yMin, m_yMax;
+
+	int					Get_xToScreen			(double x, bool bKeepInRange = true);
+	int					Get_yToScreen			(double y, bool bKeepInRange = true);
+	bool				Get_ToScreen			(wxPoint &Point, double x, double y);
+
+
+	virtual void		On_Draw					(wxDC &dc, wxRect rDraw)	{}
 
 
 private:
 
-	wxCheckBox					*m_pCumulative;
+	wxRect				m_rDiagram;
 
-	wxChoice					*m_pFormulas;
+	void				_On_Mouse_Click_Left	(wxMouseEvent	&event);
+	void				_On_Paint				(wxPaintEvent	&event);
 
-	wxTextCtrl					*m_pFormula, *m_pParameters;
-
-	CSGDI_Slider				*m_pDistance;
-
-	class CVariogram_Diagram	*m_pDiagram;
-
-
-	void						On_Update_Control		(wxCommandEvent &event);
-	void						On_Update_Choices		(wxCommandEvent &event);
-
-	void						Fit_Function			(void);
+	bool				_Draw					(wxDC &dc);
 
 
 	DECLARE_EVENT_TABLE()
@@ -118,7 +126,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Variogram_Dialog_H
+#endif // #ifndef HEADER_INCLUDED__SAGA_GDI_sgdi_diagram_H
 
 
 ///////////////////////////////////////////////////////////

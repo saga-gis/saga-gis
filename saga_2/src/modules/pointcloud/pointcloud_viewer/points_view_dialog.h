@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  Variogram_Dialog.h                   //
+//                 points_view_dialog.h                  //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -39,11 +39,11 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    SAGA User Group Association            //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
+//                Bundesstr. 55                          //
+//                20146 Hamburg                          //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -58,8 +58,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Variogram_Dialog_H
-#define HEADER_INCLUDED__Variogram_Dialog_H
+#ifndef HEADER_INCLUDED__points_view_dialog_H
+#define HEADER_INCLUDED__points_view_dialog_H
 
 
 ///////////////////////////////////////////////////////////
@@ -69,8 +69,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
-
 #include <saga_gdi/saga_gdi.h>
 
 
@@ -81,29 +79,37 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CVariogram_Dialog : public CSGDI_Dialog
+class CPoints_View_Dialog : public CSGDI_Dialog
 {
 public:
-	CVariogram_Dialog(CSG_Trend *pVariogram, CSG_Table *pVariances);
+	CPoints_View_Dialog(CSG_PointCloud *pPoints);
+
+	void						Update_Rotation			(void);
+	void						Update_Extent			(void);
 
 
 private:
 
-	wxCheckBox					*m_pCumulative;
+	wxButton					*m_pBtn_Prop;
 
-	wxChoice					*m_pFormulas;
+	wxCheckBox					*m_pCheck_Dist, *m_pCheck_Stereo, *m_pCheck_Bold;
+
+	wxChoice					*m_pField_Color, *m_pField_Z;
 
 	wxTextCtrl					*m_pFormula, *m_pParameters;
 
-	CSGDI_Slider				*m_pDistance;
+	CSGDI_Slider				*m_pSlide_xRotate, *m_pSlide_yRotate, *m_pSlide_zRotate, *m_pSlide_Dist, *m_pSlide_Detail;
 
-	class CVariogram_Diagram	*m_pDiagram;
+	class CPoints_View_Control	*m_pView;
+
+	class CPoints_View_Extent	*m_pExtent;
 
 
 	void						On_Update_Control		(wxCommandEvent &event);
 	void						On_Update_Choices		(wxCommandEvent &event);
+	void						On_Button				(wxCommandEvent &event);
 
-	void						Fit_Function			(void);
+	void						On_Key_Down				(wxKeyEvent     &event);
 
 
 	DECLARE_EVENT_TABLE()
@@ -118,7 +124,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Variogram_Dialog_H
+#endif // #ifndef HEADER_INCLUDED__points_view_dialog_H
 
 
 ///////////////////////////////////////////////////////////

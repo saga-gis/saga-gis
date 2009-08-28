@@ -12,8 +12,8 @@ DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS           = -I$(top_srcdir)/src/saga_core
 AM_CXXFLAGS        = $(CXX_INCS) $(DEF_SAGA) $(DEP_DEFS) $(DBGFLAGS)
 AM_LDFLAGS         = $(DEP_LFLG)
-pkglib_LTLIBRARIES = libgeostatistics_kriging_variogram.la
-libgeostatistics_kriging_variogram_la_SOURCES =\
+pkglib_LTLIBRARIES = libgeostatistics_kriging.la
+libgeostatistics_kriging_la_SOURCES =\
 _kriging_base.cpp\
 _kriging_ordinary.cpp\
 _kriging_ordinary_global.cpp\
@@ -26,9 +26,6 @@ kriging_universal.cpp\
 kriging_universal_global.cpp\
 MLB_Interface.cpp\
 semivariogram.cpp\
-sgui_diagram.cpp\
-sgui_dialog.cpp\
-sgui_helper.cpp\
 variogram_dialog.cpp\
 _kriging_base.h\
 _kriging_ordinary.h\
@@ -42,9 +39,6 @@ kriging_universal.h\
 kriging_universal_global.h\
 MLB_Interface.h\
 semivariogram.h\
-sgui_diagram.h\
-sgui_dialog.h\
-sgui_helper.h\
 variogram_dialog.h
 
-libgeostatistics_kriging_variogram_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(ADD_MLBS)
+libgeostatistics_kriging_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(top_srcdir)/src/saga_core/saga_api/libsaga_gdi.la $(ADD_MLBS)

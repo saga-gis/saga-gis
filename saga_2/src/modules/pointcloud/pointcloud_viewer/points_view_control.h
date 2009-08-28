@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                       image_io                        //
+//                     SAGA_GUI_API                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  Variogram_Dialog.h                   //
+//                 points_view_control.h                 //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -58,8 +58,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Variogram_Dialog_H
-#define HEADER_INCLUDED__Variogram_Dialog_H
+#ifndef HEADER_INCLUDED__points_view_control_H
+#define HEADER_INCLUDED__points_view_control_H
 
 
 ///////////////////////////////////////////////////////////
@@ -69,8 +69,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
-
 #include <saga_gdi/saga_gdi.h>
 
 
@@ -81,29 +79,79 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CVariogram_Dialog : public CSGDI_Dialog
+enum
+{
+	COLOR_MODE_RGB,
+	COLOR_MODE_RED,
+	COLOR_MODE_BLUE
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CPoints_View_Control : public wxPanel
 {
 public:
-	CVariogram_Dialog(CSG_Trend *pVariogram, CSG_Table *pVariances);
+	CPoints_View_Control(wxWindow *pParent, CSG_PointCloud *pPoints);
+	virtual ~CPoints_View_Control(void);
+
+	bool						m_bDist, m_bStereo;
+
+	int							m_zField, m_cField, m_Bold;
+
+	double						m_xRotate, m_yRotate, m_zRotate, m_xShift, m_yShift, m_zShift, m_Dist, m_Detail;
+
+	CSG_Parameters				m_Settings;
+
+	void						Update_View				(void);
+	void						Update_Extent			(CSG_Rect Extent);
+
+	void						On_Size					(wxSizeEvent  &event);
+	void						On_EraseBackGround		(wxEraseEvent &event);
+	void						On_Paint				(wxPaintEvent &event);
+	void						On_Key_Down				(wxKeyEvent   &event);
+	void						On_Mouse_LDown			(wxMouseEvent &event);
+	void						On_Mouse_LUp			(wxMouseEvent &event);
+	void						On_Mouse_RDown			(wxMouseEvent &event);
+	void						On_Mouse_RUp			(wxMouseEvent &event);
+	void						On_Mouse_Motion			(wxMouseEvent &event);
 
 
 private:
 
-	wxCheckBox					*m_pCumulative;
+	int							m_nSelection, *m_pSelection;
 
-	wxChoice					*m_pFormulas;
+	double						m_xDown, m_yDown, m_cMin, m_cScale;
 
-	wxTextCtrl					*m_pFormula, *m_pParameters;
+	double						r_sin_x, r_sin_y, r_sin_z, r_cos_x, r_cos_y, r_cos_z, r_xc, r_yc, r_zc, r_Scale, r_Scale_z;
 
-	CSGDI_Slider				*m_pDistance;
+	CSG_Rect					m_Extent;
 
-	class CVariogram_Diagram	*m_pDiagram;
+	CSG_Matrix					m_Image_zMax;
+
+	CSG_Colors					*m_pColors;
+
+	CSG_PointCloud				*m_pPoints;
+
+	wxPoint						m_Mouse_Down;
+
+	wxImage						m_Image;
 
 
-	void						On_Update_Control		(wxCommandEvent &event);
-	void						On_Update_Choices		(wxCommandEvent &event);
+	void						_Set_Size				(void);
 
-	void						Fit_Function			(void);
+	void						_Get_Point				(int iPoint, int &ix, int &iy, double &iz, int &iColor);
+	TSG_Point_3D				_Get_Projection			(TSG_Point_3D &p);
+
+	bool						_Draw_Image				(void);
+	void						_Draw_Point				(int x, int y, double z, int color, int Mode = COLOR_MODE_RGB);
+	void						_Draw_Pixel				(int x, int y, double z, int color, int Mode = COLOR_MODE_RGB);
+	void						_Draw_Background		(int color);
 
 
 	DECLARE_EVENT_TABLE()
@@ -118,7 +166,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Variogram_Dialog_H
+#endif // #ifndef HEADER_INCLUDED__points_view_control_H
 
 
 ///////////////////////////////////////////////////////////

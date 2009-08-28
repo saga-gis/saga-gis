@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                       image_io                        //
+//                  points_view_module                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  Variogram_Dialog.h                   //
+//                 points_view_module.h                  //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -39,11 +39,9 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    SAGA User Group Association            //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -53,26 +51,18 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Variogram_Dialog_H
-#define HEADER_INCLUDED__Variogram_Dialog_H
+#ifndef HEADER_INCLUDED__points_view_module_H
+#define HEADER_INCLUDED__points_view_module_H
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
-#include <saga_gdi/saga_gdi.h>
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -81,32 +71,16 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CVariogram_Dialog : public CSGDI_Dialog
+class CPoints_View_Module : public CSG_Module  
 {
 public:
-	CVariogram_Dialog(CSG_Trend *pVariogram, CSG_Table *pVariances);
+	CPoints_View_Module(void);
 
 
-private:
+protected:
 
-	wxCheckBox					*m_pCumulative;
+	virtual bool			On_Execute			(void);
 
-	wxChoice					*m_pFormulas;
-
-	wxTextCtrl					*m_pFormula, *m_pParameters;
-
-	CSGDI_Slider				*m_pDistance;
-
-	class CVariogram_Diagram	*m_pDiagram;
-
-
-	void						On_Update_Control		(wxCommandEvent &event);
-	void						On_Update_Choices		(wxCommandEvent &event);
-
-	void						Fit_Function			(void);
-
-
-	DECLARE_EVENT_TABLE()
 
 };
 
@@ -118,13 +92,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Variogram_Dialog_H
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__points_view_module_H

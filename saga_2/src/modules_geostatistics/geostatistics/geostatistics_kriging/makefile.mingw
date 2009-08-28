@@ -23,11 +23,11 @@ DEP_DEFS = -D__WXMSW__ -DWXUSINGDLL -DNOPCH
 DEP_LIBS = -L"$(WXWIN)/lib/gcc_dll" -lwxmsw28_core -lwxbase28 -lwxtiff -lwxjpeg -lwxpng -lwxzlib -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lwinmm -lshell32 -lcomctl32 -lole32 -loleaut32 -luuid -lrpcrt4
 
 
-OBJ      = $(MLB_TEMP)/_kriging_base.o $(MLB_TEMP)/_kriging_ordinary.o $(MLB_TEMP)/_kriging_ordinary_global.o $(MLB_TEMP)/_kriging_universal.o $(MLB_TEMP)/_kriging_universal_global.o $(MLB_TEMP)/kriging_base.o $(MLB_TEMP)/kriging_ordinary.o $(MLB_TEMP)/kriging_ordinary_global.o $(MLB_TEMP)/kriging_universal.o $(MLB_TEMP)/kriging_universal_global.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/semivariogram.o $(MLB_TEMP)/sgui_diagram.o $(MLB_TEMP)/sgui_dialog.o $(MLB_TEMP)/sgui_helper.o $(MLB_TEMP)/variogram_dialog.o
+OBJ      = $(MLB_TEMP)/_kriging_base.o $(MLB_TEMP)/_kriging_ordinary.o $(MLB_TEMP)/_kriging_ordinary_global.o $(MLB_TEMP)/_kriging_universal.o $(MLB_TEMP)/_kriging_universal_global.o $(MLB_TEMP)/kriging_base.o $(MLB_TEMP)/kriging_ordinary.o $(MLB_TEMP)/kriging_ordinary_global.o $(MLB_TEMP)/kriging_universal.o $(MLB_TEMP)/kriging_universal_global.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/semivariogram.o $(MLB_TEMP)/variogram_dialog.o
 
 CXXFLAGS = -I"$(MINGW)/include" -I"$(SAGA)/src/saga_core" -D$(PRJ_NAME)_EXPORTS -DBUILDING_DLL=1 -D_SAGA_MSW -D_SAGA_MINGW -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -fexpensive-optimizations -Os -O2 -O3 $(DEP_INCS) $(DEP_DEFS)
 
-LIBS     = -L"$(MINGW)/lib" -L"$(WXWIN)/lib/gcc_dll" $(DEP_LIBS) $(BIN_SAGA)/libsaga_api.a
+LIBS     = -L"$(MINGW)/lib" -L"$(WXWIN)/lib/gcc_dll" $(DEP_LIBS) $(BIN_SAGA)/libsaga_api.a $(BIN_SAGA)/libsaga_gdi.a
 LDFLAGS  = --no-export-all-symbols --add-stdcall-alias --driver-name c++ $(DEP_LFLG)
 
 .PHONY: all all-before all-after clean clean-custom
@@ -85,15 +85,6 @@ $(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 
 $(MLB_TEMP)/semivariogram.o: ./semivariogram.cpp
 	$(CPP) -c ./semivariogram.cpp -o $(MLB_TEMP)/semivariogram.o $(CXXFLAGS)
-
-$(MLB_TEMP)/sgui_diagram.o: ./sgui_diagram.cpp
-	$(CPP) -c ./sgui_diagram.cpp -o $(MLB_TEMP)/sgui_diagram.o $(CXXFLAGS)
-
-$(MLB_TEMP)/sgui_dialog.o: ./sgui_dialog.cpp
-	$(CPP) -c ./sgui_dialog.cpp -o $(MLB_TEMP)/sgui_dialog.o $(CXXFLAGS)
-
-$(MLB_TEMP)/sgui_helper.o: ./sgui_helper.cpp
-	$(CPP) -c ./sgui_helper.cpp -o $(MLB_TEMP)/sgui_helper.o $(CXXFLAGS)
 
 $(MLB_TEMP)/variogram_dialog.o: ./variogram_dialog.cpp
 	$(CPP) -c ./variogram_dialog.cpp -o $(MLB_TEMP)/variogram_dialog.o $(CXXFLAGS)

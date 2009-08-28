@@ -5,14 +5,15 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
-//                     SAGA_GUI_API                      //
+//           Application Programming Interface           //
+//                                                       //
+//                  Library: SAGA_GDI                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    sgui_diagram.h                     //
+//                     sgdi_dialog.h                     //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -39,11 +40,11 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    SAGA User Group Association            //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
+//                Bundesstr. 55                          //
+//                20146 Hamburg                          //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -58,8 +59,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__SGUI_Diagram_H
-#define HEADER_INCLUDED__SGUI_Diagram_H
+#ifndef HEADER_INCLUDED__SAGA_GDI_sgdi_dialog_H
+#define HEADER_INCLUDED__SAGA_GDI_sgdi_dialog_H
 
 
 ///////////////////////////////////////////////////////////
@@ -69,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "sgui_helper.h"
+#include "sgdi_helper.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -79,38 +80,44 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SGUI_API_DLL_EXPORT CSGUI_Diagram : public wxPanel
+#define SGDI_DLG_STYLE_CTRLS_RIGHT			0x01
+#define SGDI_DLG_STYLE_START_MAXIMISED		0x02
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SGDI_API_DLL_EXPORT CSGDI_Dialog : public wxDialog
 {
 public:
-	CSGUI_Diagram(wxWindow *pParent);
-	virtual ~CSGUI_Diagram(void);
-
-	wxString			m_xName, m_yName;
-
-	bool				Set_xScale				(double Minimum, double Maximum);
-	bool				Set_yScale				(double Minimum, double Maximum);
+	CSGDI_Dialog(const wxString &Name, int Style = 0);
+	virtual ~CSGDI_Dialog(void);
 
 
 protected:
 
-	double				m_xMin, m_xMax, m_yMin, m_yMax;
+	void					Add_Spacer			(int Space = SGDI_CTRL_SPACE);
+	wxButton *				Add_Button			(const wxString &Name, int ID, const wxSize &Size = SGDI_BTN_SIZE);
+	wxChoice *				Add_Choice			(const wxString &Name, const wxArrayString &Choices, int iSelect = 0, int ID = wxID_ANY);
+	wxCheckBox *			Add_CheckBox		(const wxString &Name, bool bCheck, int ID = wxID_ANY);
+	wxTextCtrl *			Add_TextCtrl		(const wxString &Name, int Style = 0, const wxString &Text = wxT(""), int ID = wxID_ANY);
+	CSGDI_Slider *			Add_Slider			(const wxString &Name, double Value, double minValue, double maxValue, bool bValueAsPercent = false, int ID = wxID_ANY, int Width = SGDI_CTRL_WIDTH);
+	CSGDI_SpinCtrl *		Add_SpinCtrl		(const wxString &Name, double Value, double minValue, double maxValue, bool bValueAsPercent = false, int ID = wxID_ANY, int Width = SGDI_CTRL_WIDTH);
+	void					Add_CustomCtrl		(const wxString &Name, wxWindow *pControl);
 
-	int					Get_xToScreen			(double x, bool bKeepInRange = true);
-	int					Get_yToScreen			(double y, bool bKeepInRange = true);
-	bool				Get_ToScreen			(wxPoint &Point, double x, double y);
-
-
-	virtual void		On_Draw					(wxDC &dc, wxRect rDraw)	{}
+	bool					Add_Output			(wxWindow *pOutput);
+	bool					Add_Output			(wxWindow *pOutput_A, wxWindow *pOutput_B, int Proportion_A = 1, int Proportion_B = 0);
 
 
 private:
 
-	wxRect				m_rDiagram;
+	wxColour				m_Ctrl_Color;
 
-	void				_On_Mouse_Click_Left	(wxMouseEvent	&event);
-	void				_On_Paint				(wxPaintEvent	&event);
-
-	bool				_Draw					(wxDC &dc);
+	wxSizer					*m_pSizer_Ctrl, *m_pSizer_Output;
 
 
 	DECLARE_EVENT_TABLE()
@@ -125,7 +132,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__SGUI_Diagram_H
+#endif // #ifndef HEADER_INCLUDED__SAGA_GDI_sgdi_dialog_H
 
 
 ///////////////////////////////////////////////////////////
