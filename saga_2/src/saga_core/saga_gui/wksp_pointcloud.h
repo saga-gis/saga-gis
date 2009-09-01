@@ -103,11 +103,13 @@ public:
 
 protected:
 
-	int							m_Color_Field, m_PointSize;
+	int							m_Color_Field, m_PointSize, m_Aggregation;
 
 	wxColour					m_Color_Pen;
 
 	CSG_PointCloud				*m_pPointCloud;
+
+	CSG_Grid					m_Z, m_N;
 
 
 	virtual void				On_Create_Parameters	(void);
@@ -122,6 +124,7 @@ protected:
 	virtual void				On_Draw					(CWKSP_Map_DC &dc_Map, bool bEdit);
 
 	void						_Draw_Points			(CWKSP_Map_DC &dc_Map);
+	void						_Draw_Point				(CWKSP_Map_DC &dc_Map, int x, int y, double z, int Color);
 
 };
 

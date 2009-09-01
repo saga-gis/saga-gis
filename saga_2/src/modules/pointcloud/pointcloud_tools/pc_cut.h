@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                     grid_analysis                     //
+//                   pointcloud_tools                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//               Fragmentation_Resampling.h              //
+//                       pc_cut.h                        //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -58,11 +56,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Fragmentation_Resampling_H
-#define HEADER_INCLUDED__Fragmentation_Resampling_H
+#ifndef HEADER_INCLUDED__PC_Cut_H
+#define HEADER_INCLUDED__PC_Cut_H
 
 //---------------------------------------------------------
-#include "fragmentation_base.h"
+#include "MLB_Interface.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -72,29 +70,25 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CFragmentation_Resampling : public CFragmentation_Base
+class CPC_Cut : public CSG_Module
 {
 public:
-	CFragmentation_Resampling(void);
-	virtual ~CFragmentation_Resampling(void);
+	CPC_Cut(void);
+
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Tools") );	}
+
+	static bool					Get_Cut					(CSG_PointCloud *pPoints, CSG_PointCloud *pCut, const CSG_Rect &Extent);
+	static bool					Get_Cut					(CSG_PointCloud *pPoints, CSG_PointCloud *pCut, CSG_Shapes *pPolygons);
 
 
 protected:
 
-	virtual bool			Initialise			(CSG_Grid *pClasses, int Class);
-	virtual bool			Finalise			(void);
-
-	virtual bool			Get_Fragmentation	(int x, int y, double &Density, double &Connectivity);
+	virtual bool				On_Execute				(void);
 
 
 private:
 
-	bool					m_bDensityMean;
-
-	CSG_Grid_Pyramid		m_Density, m_Connectivity;
-
-
-	bool					Get_Connectivity	(int x, int y, CSG_Grid *pClasses, int Class, double &Density, double &Connectivity);
+	static bool					Contains				(CSG_Shapes *pPolygons, double x, double y);
 
 };
 
@@ -106,4 +100,34 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Fragmentation_Resampling_H
+class CPC_Cut_Interactive : public CSG_Module_Interactive
+{
+public:
+	CPC_Cut_Interactive(void);
+
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Tools") );	}
+
+
+protected:
+
+	virtual bool				On_Execute				(void);
+	virtual bool				On_Execute_Position		(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
+
+
+private:
+
+	CSG_Point					m_ptDown;
+
+	CSG_PointCloud				*m_pPoints, *m_pCut;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__PC_Cut_H

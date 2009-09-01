@@ -252,6 +252,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pointcloud_viewer", "module
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pointcloud_tools", "modules\pointcloud\pointcloud_tools\pointcloud_tools.vcproj", "{56E4370E-B2ED-4614-98A2-C02B35DC84DA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -684,6 +686,14 @@ Global
 		{38F20CA5-B63D-4568-80CE-5A07C5805E33}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
 		{38F20CA5-B63D-4568-80CE-5A07C5805E33}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
 		{38F20CA5-B63D-4568-80CE-5A07C5805E33}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
+		{56E4370E-B2ED-4614-98A2-C02B35DC84DA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{56E4370E-B2ED-4614-98A2-C02B35DC84DA}.Debug|Win32.Build.0 = Debug|Win32
+		{56E4370E-B2ED-4614-98A2-C02B35DC84DA}.Release|Win32.ActiveCfg = Release|Win32
+		{56E4370E-B2ED-4614-98A2-C02B35DC84DA}.Release|Win32.Build.0 = Release|Win32
+		{56E4370E-B2ED-4614-98A2-C02B35DC84DA}.Unicode Debug|Win32.ActiveCfg = Unicode Debug|Win32
+		{56E4370E-B2ED-4614-98A2-C02B35DC84DA}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
+		{56E4370E-B2ED-4614-98A2-C02B35DC84DA}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
+		{56E4370E-B2ED-4614-98A2-C02B35DC84DA}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

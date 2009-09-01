@@ -5,15 +5,14 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//           Application Programming Interface           //
-//                                                       //
-//                  Library: SAGA_API                    //
+//                    Module Library:                    //
+//                   pointcloud_tools                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    grid_pyramids.h                    //
+//                    MLB_Interface.h                    //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -43,8 +42,6 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Hamburg                  //
-//                Bundesstr. 55                          //
-//                20146 Hamburg                          //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -54,33 +51,23 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#ifndef HEADER_INCLUDED__grid_pyramid_H
-#define HEADER_INCLUDED__grid_pyramid_H
-
-//---------------------------------------------------------
-#include "MLB_Interface.h"
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
+//				Include the SAGA-API here				 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_Grid_Pyramid_Generalisation
-{
-	GRID_PYRAMID_Mean	= 0,
-	GRID_PYRAMID_Max,
-	GRID_PYRAMID_Min,
-	GRID_PYRAMID_MaxCount
-}
-TSG_Grid_Pyramid_Generalisation;
+#ifndef HEADER_INCLUDED__pointcloud_tools_H
+#define HEADER_INCLUDED__pointcloud_tools_H
+
+//---------------------------------------------------------
+#include <saga_api/saga_api.h>
+
+//---------------------------------------------------------
+#ifdef pointcloud_tools_EXPORTS
+	#define	pointcloud_tools_EXPORT	_SAGA_DLL_EXPORT
+#else
+	#define	pointcloud_tools_EXPORT	_SAGA_DLL_IMPORT
+#endif
 
 
 ///////////////////////////////////////////////////////////
@@ -90,42 +77,4 @@ TSG_Grid_Pyramid_Generalisation;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSG_Grid_Pyramid
-{
-public:
-	CSG_Grid_Pyramid(void);
-	CSG_Grid_Pyramid(CSG_Grid *pGrid, double Grow = 2.0, TSG_Grid_Pyramid_Generalisation Generalisation = GRID_PYRAMID_Mean);
-	virtual ~CSG_Grid_Pyramid(void);
-
-	bool								Create			(CSG_Grid *pGrid, double Grow = 2.0, TSG_Grid_Pyramid_Generalisation Generalisation = GRID_PYRAMID_Mean);
-	bool								Destroy			(void);
-
-
-	int									Get_Count		(void)			{	return( m_nLevels );	}
-	CSG_Grid *							Get_Grid		(int iLevel)	{	return( iLevel >= 0 && iLevel < m_nLevels ? m_pLevels[iLevel] : m_pGrid );	}
-
-
-private:
-
-	int									m_nLevels;
-
-	double								m_Grow;
-
-	TSG_Grid_Pyramid_Generalisation		m_Generalisation;
-
-	CSG_Grid							**m_pLevels, *m_pGrid;
-
-
-	bool								_Get_Next_Level	(CSG_Grid *pGrid);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__grid_pyramid_H
+#endif // #ifndef HEADER_INCLUDED__pointcloud_tools_H

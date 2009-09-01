@@ -145,6 +145,7 @@ typedef enum ESG_Parameter_Type
 	PARAMETER_TYPE_Table_List,
 	PARAMETER_TYPE_Shapes_List,
 	PARAMETER_TYPE_TIN_List,
+	PARAMETER_TYPE_PointCloud_List,
 
 	PARAMETER_TYPE_DataObject_Output,
 
@@ -886,6 +887,19 @@ public:
 };
 
 //---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Parameter_PointCloud_List : public CSG_Parameter_List
+{
+public:
+	CSG_Parameter_PointCloud_List(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_PointCloud_List(void);
+
+	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_PointCloud_List );		}
+
+	CSG_PointCloud *			asPointCloud			(int Index)	{	return( (CSG_PointCloud *)asDataObject(Index) );	}
+
+};
+
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Parameters : public CSG_Parameter_Data
 {
 public:
@@ -991,6 +1005,7 @@ public:
 	CSG_Parameter_Table_List *	asTableList				(void)	{	return( (CSG_Parameter_Table_List  *)m_pData );		}
 	CSG_Parameter_Shapes_List *	asShapesList			(void)	{	return( (CSG_Parameter_Shapes_List *)m_pData );		}
 	CSG_Parameter_TIN_List *	asTINList				(void)	{	return( (CSG_Parameter_TIN_List    *)m_pData );		}
+	CSG_Parameter_PointCloud_List *	asPointCloudList	(void)	{	return( (CSG_Parameter_PointCloud_List *)m_pData );	}
 
 	CSG_Parameters *			asParameters			(void)	{	return( (CSG_Parameters *)m_pData->asPointer	() );	}
 
@@ -1114,6 +1129,7 @@ public:
 
 	CSG_Parameter *				Add_PointCloud			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint);
 	CSG_Parameter *				Add_PointCloud_Output	(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description);
+	CSG_Parameter *				Add_PointCloud_List		(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint);
 
 	CSG_Parameter *				Add_Parameters			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description);
 

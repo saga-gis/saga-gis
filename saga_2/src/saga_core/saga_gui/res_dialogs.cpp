@@ -80,6 +80,7 @@
 #include "dlg_list_table.h"
 #include "dlg_list_shapes.h"
 #include "dlg_list_tin.h"
+#include "dlg_list_pointcloud.h"
 #include "dlg_colors.h"
 
 #include "wksp_map_manager.h"
@@ -415,35 +416,30 @@ bool		DLG_Table(const wxChar *Caption, CSG_Table *pTable)
 }
 
 //---------------------------------------------------------
-bool		DLG_List_Grid(const wxChar *Caption, CSG_Parameter_Grid_List *pList)
+bool		DLG_List(const wxChar *Caption, CSG_Parameter_List *pList)
 {
-	CDLG_List_Grid		dlg(pList, Caption);
+	CDLG_List_Base	*pDialog;
 
-	return( dlg.ShowModal() == wxID_OK );
-}
+	switch( pList->Get_Type() )
+	{
+	default:								pDialog	= NULL;																break;
+	case PARAMETER_TYPE_Grid_List:			pDialog	= new CDLG_List_Grid      ((CSG_Parameter_Grid_List       *)pList, Caption);	break;
+	case PARAMETER_TYPE_Table_List:			pDialog	= new CDLG_List_Table     ((CSG_Parameter_Table_List      *)pList, Caption);	break;
+	case PARAMETER_TYPE_Shapes_List:		pDialog	= new CDLG_List_Shapes    ((CSG_Parameter_Shapes_List     *)pList, Caption);	break;
+	case PARAMETER_TYPE_TIN_List:			pDialog	= new CDLG_List_TIN       ((CSG_Parameter_TIN_List        *)pList, Caption);	break;
+	case PARAMETER_TYPE_PointCloud_List:	pDialog	= new CDLG_List_PointCloud((CSG_Parameter_PointCloud_List *)pList, Caption);	break;
+	}
 
-//---------------------------------------------------------
-bool		DLG_List_Table(const wxChar *Caption, CSG_Parameter_Table_List *pList)
-{
-	CDLG_List_Table		dlg(pList, Caption);
+	if( pDialog )
+	{
+		bool	bResult	= pDialog->ShowModal() == wxID_OK;
 
-	return( dlg.ShowModal() == wxID_OK );
-}
+		delete(pDialog);
 
-//---------------------------------------------------------
-bool		DLG_List_Shapes(const wxChar *Caption, CSG_Parameter_Shapes_List *pList)
-{
-	CDLG_List_Shapes	dlg(pList, Caption);
+		return( bResult );
+	}
 
-	return( dlg.ShowModal() == wxID_OK );
-}
-
-//---------------------------------------------------------
-bool		DLG_List_TIN(const wxChar *Caption, CSG_Parameter_TIN_List *pList)
-{
-	CDLG_List_TIN		dlg(pList, Caption);
-
-	return( dlg.ShowModal() == wxID_OK );
+	return( false );
 }
 
 //---------------------------------------------------------

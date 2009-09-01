@@ -415,10 +415,6 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath=".\grid_pyramid.cpp"
-				>
-			</File>
-			<File
 				RelativePath="HillShade.cpp"
 				>
 				<FileConfiguration
@@ -631,10 +627,6 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl"
 			>
-			<File
-				RelativePath=".\grid_pyramid.h"
-				>
-			</File>
 			<File
 				RelativePath="HillShade.h"
 				>

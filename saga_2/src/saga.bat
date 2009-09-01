@@ -289,6 +289,14 @@ make -fmakefile.mingw
 POPD
 
 ECHO ###################################
+ECHO pointcloud_tools
+ECHO -----------------------------------
+
+PUSHD .\modules\pointcloud\pointcloud_tools
+make -fmakefile.mingw
+POPD
+
+ECHO ###################################
 ECHO pointcloud_viewer
 ECHO -----------------------------------
 

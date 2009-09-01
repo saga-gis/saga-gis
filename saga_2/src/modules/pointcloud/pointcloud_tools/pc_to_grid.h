@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                    grid_multilevel                    //
+//                   pointcloud_tools                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    grid_pyramids.h                    //
+//                     pc_to_grid.h                      //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -58,8 +56,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__grid_pyramid_H
-#define HEADER_INCLUDED__grid_pyramid_H
+#ifndef HEADER_INCLUDED__PC_To_Grid_H
+#define HEADER_INCLUDED__PC_To_Grid_H
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
@@ -72,66 +70,27 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_Grid_Pyramid_Generalisation
-{
-	GRID_PYRAMID_Mean	= 0,
-	GRID_PYRAMID_Max,
-	GRID_PYRAMID_Min,
-	GRID_PYRAMID_MaxCount
-}
-TSG_Grid_Pyramid_Generalisation;
-
-//---------------------------------------------------------
-typedef enum ESG_Grid_Pyramid_Grow_Type
-{
-	GRID_PYRAMID_Arithmetic	= 0,
-	GRID_PYRAMID_Geometric
-}
-TSG_Grid_Pyramid_Grow_Type;
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CSG_Grid_Pyramid
+class CPC_To_Grid : public CSG_Module
 {
 public:
-	CSG_Grid_Pyramid(void);
+	CPC_To_Grid(void);
 
-	CSG_Grid_Pyramid									(CSG_Grid *pGrid, double Grow = 2.0, TSG_Grid_Pyramid_Generalisation Generalisation = GRID_PYRAMID_Mean, TSG_Grid_Pyramid_Grow_Type Grow_Type = GRID_PYRAMID_Geometric);
-	bool								Create			(CSG_Grid *pGrid, double Grow = 2.0, TSG_Grid_Pyramid_Generalisation Generalisation = GRID_PYRAMID_Mean, TSG_Grid_Pyramid_Grow_Type Grow_Type = GRID_PYRAMID_Geometric);
-
-	CSG_Grid_Pyramid									(CSG_Grid *pGrid, double Grow, double Start, int nMaxLevels, TSG_Grid_Pyramid_Generalisation Generalisation = GRID_PYRAMID_Mean, TSG_Grid_Pyramid_Grow_Type Grow_Type = GRID_PYRAMID_Geometric);
-	bool								Create			(CSG_Grid *pGrid, double Grow, double Start, int nMaxLevels, TSG_Grid_Pyramid_Generalisation Generalisation = GRID_PYRAMID_Mean, TSG_Grid_Pyramid_Grow_Type Grow_Type = GRID_PYRAMID_Geometric);
-
-	virtual ~CSG_Grid_Pyramid(void);
-
-	bool								Destroy			(void);
+	virtual const SG_Char *		Get_MenuPath	(void)	{	return( _TL("R:Conversion") );	}
 
 
-	int									Get_Count		(void)			{	return( m_nLevels );	}
-	CSG_Grid *							Get_Grid		(int iLevel)	{	return( iLevel >= 0 && iLevel < m_nLevels ? m_pLevels[iLevel] : m_pGrid );	}
+protected:
+
+	virtual bool				On_Execute		(void);
 
 
 private:
 
-	int									m_nLevels, m_nMaxLevels;
+	int							m_Aggregation;
 
-	double								m_Grow;
-
-	TSG_Grid_Pyramid_Generalisation		m_Generalisation;
-
-	TSG_Grid_Pyramid_Grow_Type			m_Grow_Type;
-
-	CSG_Grid							**m_pLevels, *m_pGrid;
+	CSG_Grid					*m_pGrid, *m_pCount;
 
 
-	bool								_Get_Next_Level	(CSG_Grid *pGrid);
-	bool								_Get_Next_Level	(CSG_Grid *pGrid, double Cellsize);
+	void						Set_Value		(int x, int y, double z, int Count, double value, CSG_Grid *pGrid);
 
 };
 
@@ -143,4 +102,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__grid_pyramid_H
+#endif // #ifndef HEADER_INCLUDED__PC_To_Grid_H

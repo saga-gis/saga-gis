@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                     grid_analysis                     //
+//                   pointcloud_tools                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//               Fragmentation_Resampling.h              //
+//                    pc_to_shapes.h                     //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -58,11 +56,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Fragmentation_Resampling_H
-#define HEADER_INCLUDED__Fragmentation_Resampling_H
+#ifndef HEADER_INCLUDED__PC_To_Shapes_H
+#define HEADER_INCLUDED__PC_To_Shapes_H
 
 //---------------------------------------------------------
-#include "fragmentation_base.h"
+#include "MLB_Interface.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -72,29 +70,17 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CFragmentation_Resampling : public CFragmentation_Base
+class CPC_To_Shapes : public CSG_Module
 {
 public:
-	CFragmentation_Resampling(void);
-	virtual ~CFragmentation_Resampling(void);
+	CPC_To_Shapes(void);
+
+	virtual const SG_Char *		Get_MenuPath	(void)	{	return( _TL("R:Conversion") );	}
 
 
 protected:
 
-	virtual bool			Initialise			(CSG_Grid *pClasses, int Class);
-	virtual bool			Finalise			(void);
-
-	virtual bool			Get_Fragmentation	(int x, int y, double &Density, double &Connectivity);
-
-
-private:
-
-	bool					m_bDensityMean;
-
-	CSG_Grid_Pyramid		m_Density, m_Connectivity;
-
-
-	bool					Get_Connectivity	(int x, int y, CSG_Grid *pClasses, int Class, double &Density, double &Connectivity);
+	virtual bool				On_Execute		(void);
 
 };
 
@@ -106,4 +92,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Fragmentation_Resampling_H
+#endif // #ifndef HEADER_INCLUDED__PC_To_Shapes_H

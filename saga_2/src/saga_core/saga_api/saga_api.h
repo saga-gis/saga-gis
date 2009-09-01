@@ -72,6 +72,7 @@
 #include "doc_svg.h"
 #include "geo_tools.h"
 #include "grid.h"
+#include "grid_pyramids.h"
 #include "mat_tools.h"
 #include "module.h"
 #include "module_library.h"

@@ -537,6 +537,7 @@ void CWKSP_Module::_Save_Script_CMD(CSG_String &Command, CSG_Parameters *pParame
 		case PARAMETER_TYPE_Table_List:
 		case PARAMETER_TYPE_Shapes_List:
 		case PARAMETER_TYPE_TIN_List:
+		case PARAMETER_TYPE_PointCloud_List:
 			if( p->is_Input() )
 			{
 				Command	+= CSG_String::Format(SG_T(" -%s="), GET_ID1(p));
@@ -641,6 +642,7 @@ void CWKSP_Module::_Save_Script_Python(CSG_String &Command, CSG_Parameters *pPar
 		case PARAMETER_TYPE_Table_List:
 		case PARAMETER_TYPE_Shapes_List:
 		case PARAMETER_TYPE_TIN_List:
+		case PARAMETER_TYPE_PointCloud_List:
 			if( p->is_Input() )
 			{
 				if( !p->is_Optional() )

@@ -133,6 +133,7 @@ const SG_Char * CSG_Parameter_Data::Get_Type_Name(void)
 	case PARAMETER_TYPE_Table_List:			return( LNG("[PRM] Table list") );
 	case PARAMETER_TYPE_Shapes_List:		return( LNG("[PRM] Shapes list") );
 	case PARAMETER_TYPE_TIN_List:			return( LNG("[PRM] TIN list") );
+	case PARAMETER_TYPE_PointCloud_List:	return( LNG("[PRM] Point Cloud list") );
 
 	case PARAMETER_TYPE_Parameters:			return( LNG("[PRM] Parameters") );
 	}
@@ -2146,6 +2147,22 @@ CSG_Parameter_TIN_List::CSG_Parameter_TIN_List(CSG_Parameter *pOwner, long Const
 {}
 
 CSG_Parameter_TIN_List::~CSG_Parameter_TIN_List(void)
+{}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//					PointCloud_List						 //
+//														 //
+///////////////////////////////////////////////////////////
+
+
+//---------------------------------------------------------
+CSG_Parameter_PointCloud_List::CSG_Parameter_PointCloud_List(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_List(pOwner, Constraint)
+{}
+
+CSG_Parameter_PointCloud_List::~CSG_Parameter_PointCloud_List(void)
 {}
 
 

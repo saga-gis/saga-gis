@@ -137,10 +137,7 @@ bool				DLG_Parameters			(class CSG_Parameters *pParameters);
 bool				DLG_Text				(const wxChar *Caption, class wxString &Text);
 bool				DLG_Table				(const wxChar *Caption, class CSG_Table *pTable);
 
-bool				DLG_List_Grid			(const wxChar *Caption, class CSG_Parameter_Grid_List   *pList);
-bool				DLG_List_Table			(const wxChar *Caption, class CSG_Parameter_Table_List  *pList);
-bool				DLG_List_Shapes			(const wxChar *Caption, class CSG_Parameter_Shapes_List *pList);
-bool				DLG_List_TIN			(const wxChar *Caption, class CSG_Parameter_TIN_List    *pList);
+bool				DLG_List				(const wxChar *Caption, class CSG_Parameter_List *pList);
 
 bool				DLG_Colors				(class CSG_Colors *pColors);
 bool				DLG_Colors				(int &Palette);

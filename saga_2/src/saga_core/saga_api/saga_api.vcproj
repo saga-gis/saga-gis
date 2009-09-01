@@ -1130,6 +1130,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\grid_pyramid.cpp"
+				>
+			</File>
+			<File
 				RelativePath="grid_system.cpp"
 				>
 				<FileConfiguration
@@ -2692,6 +2696,10 @@
 			</File>
 			<File
 				RelativePath="Grid.h"
+				>
+			</File>
+			<File
+				RelativePath=".\grid_pyramid.h"
 				>
 			</File>
 			<File

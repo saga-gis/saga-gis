@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.13 2009-07-19 12:41:57 reklov_w Exp $
+# $Id: Makefile.am,v 1.14 2009-09-01 14:12:30 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -32,6 +32,7 @@ grid.cpp\
 grid_io.cpp\
 grid_memory.cpp\
 grid_operation.cpp\
+grid_pyramid.cpp\
 grid_system.cpp\
 mat_formula.cpp\
 mat_grid_radius.cpp\
@@ -80,6 +81,7 @@ doc_pdf.h\
 doc_svg.h\
 geo_tools.h\
 grid.h\
+grid_pyramid.h\
 mat_tools.h\
 module.h\
 module_library.h\

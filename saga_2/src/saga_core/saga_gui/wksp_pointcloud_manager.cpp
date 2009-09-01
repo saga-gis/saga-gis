@@ -178,7 +178,7 @@ CWKSP_PointCloud * CWKSP_PointCloud_Manager::Add(CSG_PointCloud *pPointCloud)
 {
 	CWKSP_PointCloud	*pItem;
 
-	if( pPointCloud && pPointCloud->is_Valid() && !Exists(pPointCloud) && Add_Item(pItem = new CWKSP_PointCloud(pPointCloud)) )
+	if( pPointCloud && !Exists(pPointCloud) && Add_Item(pItem = new CWKSP_PointCloud(pPointCloud)) )
 	{
 		return( pItem );
 	}

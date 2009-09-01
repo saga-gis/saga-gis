@@ -988,10 +988,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\grid_pyramid.cpp"
-				>
-			</File>
-			<File
 				RelativePath="Image_VI_Distance.cpp"
 				>
 				<FileConfiguration
@@ -1310,10 +1306,6 @@
 			</File>
 			<File
 				RelativePath="Grid_Pattern.h"
-				>
-			</File>
-			<File
-				RelativePath=".\grid_pyramid.h"
 				>
 			</File>
 			<File

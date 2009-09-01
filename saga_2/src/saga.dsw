@@ -420,6 +420,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "pointcloud_tools"=.\modules\pointcloud\pointcloud_tools\pointcloud_tools.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "pointcloud_viewer"=.\modules\pointcloud\pointcloud_viewer\pointcloud_viewer.dsp - Package Owner=<4>
 
 Package=<5>

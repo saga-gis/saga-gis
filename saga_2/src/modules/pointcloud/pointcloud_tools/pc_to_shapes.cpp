@@ -5,15 +5,14 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//           Application Programming Interface           //
-//                                                       //
-//                  Library: SAGA_API                    //
+//                    Module Library:                    //
+//                   pointcloud_tools                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   grid_pyramids.cpp                   //
+//                    pc_to_shapes.cpp                   //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -43,8 +42,6 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Hamburg                  //
-//                Bundesstr. 55                          //
-//                20146 Hamburg                          //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -59,7 +56,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "grid_pyramid.h"
+#include "pc_to_shapes.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -69,29 +66,32 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Grid_Pyramid::CSG_Grid_Pyramid(void)
+CPC_To_Shapes::CPC_To_Shapes(void)
 {
-	m_nLevels	= 0;
-	m_pLevels	= NULL;
-	m_pGrid		= NULL;
+	//-----------------------------------------------------
+	Set_Name		(_TL("Point Cloud to Shapes"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2009"));
+
+	Set_Description	(_TW(
+		""
+	));
+
+
+	//-----------------------------------------------------
+	Parameters.Add_PointCloud(
+		NULL	, "POINTS"		, _TL("Points"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Shapes(
+		NULL	, "SHAPES"		, _TL("Shapes"),
+		_TL(""),
+		PARAMETER_OUTPUT, SHAPE_TYPE_Point
+	);
 }
 
-//---------------------------------------------------------
-CSG_Grid_Pyramid::CSG_Grid_Pyramid(CSG_Grid *pGrid, double Grow, TSG_Grid_Pyramid_Generalisation Generalisation)
-{
-	m_nLevels	= 0;
-	m_pLevels	= NULL;
-	m_pGrid		= NULL;
-
-	Create(pGrid, Grow, Generalisation);
-}
-
-//---------------------------------------------------------
-CSG_Grid_Pyramid::~CSG_Grid_Pyramid(void)
-{
-	Destroy();
-}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -100,80 +100,40 @@ CSG_Grid_Pyramid::~CSG_Grid_Pyramid(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid_Pyramid::Create(CSG_Grid *pGrid, double Grow, TSG_Grid_Pyramid_Generalisation Generalisation)
+bool CPC_To_Shapes::On_Execute(void)
 {
-	if( pGrid && pGrid->is_Valid() && Grow > 1.0 && (pGrid->Get_NX() > Grow || pGrid->Get_NY() > Grow) )
+	int				iField;
+	CSG_PointCloud	*pPoints;
+	CSG_Shapes		*pShapes;
+
+	pPoints	= Parameters("POINTS")	->asPointCloud();
+	pShapes	= Parameters("SHAPES")	->asShapes();
+
+	//-----------------------------------------------------
+	pShapes->Create(SHAPE_TYPE_Point, pPoints->Get_Name());
+
+	for(iField=2; iField<pPoints->Get_Field_Count(); iField++)
 	{
-		Destroy();
-
-		m_pGrid				= pGrid;
-		m_Grow				= Grow;
-		m_Generalisation	= Generalisation;
-
-		_Get_Next_Level(pGrid);
-
-		return( true );
+		pShapes->Add_Field(pPoints->Get_Field_Name(iField), TABLE_FIELDTYPE_Double);
 	}
 
-	return( false );	
-}
-
-//---------------------------------------------------------
-bool CSG_Grid_Pyramid::Destroy(void)
-{
-	if( m_pLevels )
+	//-----------------------------------------------------
+	for(int iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 	{
-		for(int i=0; i<m_nLevels; i++)
+		pPoints->Set_Cursor(iPoint);
+
+		CSG_Shape	*pShape	= pShapes->Add_Shape();
+
+		pShape->Add_Point(pPoints->Get_X(), pPoints->Get_Y());
+
+		for(iField=2; iField<pPoints->Get_Field_Count(); iField++)
 		{
-			delete(m_pLevels[i]);
+			pShape->Set_Value(iField - 2, pPoints->Get_Value(iField));
 		}
-
-		SG_Free(m_pLevels);
-
-		m_nLevels	= 0;
-		m_pLevels	= NULL;
-		m_pGrid		= NULL;
 	}
 
+	//-----------------------------------------------------
 	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CSG_Grid_Pyramid::_Get_Next_Level(CSG_Grid *pGrid)
-{
-	if( pGrid->Get_NX() > m_Grow || pGrid->Get_NY() > m_Grow )
-	{
-		int		nx, ny;
-		double	d;
-
-		d	= pGrid->Get_Cellsize() * m_Grow;
-		nx	= (int)(1.5 + m_pGrid->Get_XRange() / d);	if( nx < 1 )	nx	= 1;
-		ny	= (int)(1.5 + m_pGrid->Get_YRange() / d);	if( ny < 1 )	ny	= 1;
-
-		if( nx > 1 || ny > 1 )
-		{
-			CSG_Grid	*pNext	= SG_Create_Grid(GRID_TYPE_Float, nx, ny, d, pGrid->Get_XMin(), pGrid->Get_YMin());
-
-			pNext->Set_NoData_Value(pGrid->Get_NoData_Value());
-			pNext->Assign(pGrid);
-
-			m_pLevels	= (CSG_Grid **)SG_Realloc(m_pLevels, (m_nLevels + 1) * sizeof(CSG_Grid *));
-			m_pLevels[m_nLevels++]	= pNext;
-
-			_Get_Next_Level(pNext);
-
-			return( true );
-		}
-	}
-
-	return( false );
 }
 
 

@@ -217,6 +217,17 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 		LNG("")
 	);
 
+	m_Parameters.Add_Choice(
+		m_Parameters("NODE_COLORS")		, "COLORS_AGGREGATE"		, LNG("[CAP] Value Aggregation"),
+		LNG(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			LNG("first value"),
+			LNG("last value"),
+			LNG("lowest z"),
+			LNG("highest z")
+		), 1
+	);
+
 	//-----------------------------------------------------
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_SIZE"			, LNG("[CAP] Point Size"),
@@ -369,9 +380,11 @@ TSG_Rect CWKSP_PointCloud::On_Edit_Get_Extent(void)
 //---------------------------------------------------------
 void CWKSP_PointCloud::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 {
-	if( Get_Extent().Intersects(dc_Map.m_rWorld) != INTERSECTION_None )
+	if( Get_Extent().Intersects(dc_Map.m_rWorld) != INTERSECTION_None && dc_Map.IMG_Draw_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.0) )
 	{
 		_Draw_Points	(dc_Map);
+
+		dc_Map.IMG_Draw_End();
 	}
 }
 
@@ -383,30 +396,97 @@ void CWKSP_PointCloud::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+inline void CWKSP_PointCloud::_Draw_Point(CWKSP_Map_DC &dc_Map, int x, int y, double z, int Color)
+{
+	if( m_Z.is_InGrid(x, y) )
+	{
+		switch( m_Aggregation )
+		{
+		case 0:	// first value
+			if( m_N.asInt(x, y) == 0 )
+			{
+				dc_Map.IMG_Set_Pixel(x, y, Color);
+			}
+			break;
+
+		case 1:	// last value
+			dc_Map.IMG_Set_Pixel(x, y, Color);
+			break;
+
+		case 2:	// lowest z
+			if( m_N.asInt(x, y) == 0 || z < m_Z.asDouble(x, y) )
+			{
+				dc_Map.IMG_Set_Pixel(x, y, Color);
+				m_Z.Set_Value(x, y, z);
+			}
+			break;
+
+		case 3:	// highest z
+			if( m_N.asInt(x, y) == 0 || z > m_Z.asDouble(x, y) )
+			{
+				dc_Map.IMG_Set_Pixel(x, y, Color);
+				m_Z.Set_Value(x, y, z);
+			}
+			break;
+		}
+
+		m_N.Add_Value(x, y, 1);
+	}
+}
+
+//---------------------------------------------------------
 void CWKSP_PointCloud::_Draw_Points(CWKSP_Map_DC &dc_Map)
 {
-	if(	dc_Map.IMG_Draw_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.0) )
+	m_Aggregation	= m_Parameters("COLORS_AGGREGATE")->asInt();
+
+	if( m_Aggregation != 1 )
 	{
-		for(int i=0; i<m_pPointCloud->Get_Count(); i++)
+		m_Z.Create(GRID_TYPE_Double, dc_Map.m_rDC.GetWidth(), dc_Map.m_rDC.GetHeight());
+		m_N.Create(GRID_TYPE_Int   , dc_Map.m_rDC.GetWidth(), dc_Map.m_rDC.GetHeight());
+	}
+
+	//-----------------------------------------------------
+	for(int i=0; i<m_pPointCloud->Get_Count(); i++)
+	{
+		TSG_Point_3D	Point	= m_pPointCloud->Get_Point(i);
+
+		if( dc_Map.m_rWorld.Contains(Point.x, Point.y) )
 		{
-			int				Color;
-			TSG_Point_3D	p		= m_pPointCloud->Get_Point(i);
-			double			z		= m_pPointCloud->Get_Value(i, m_Color_Field);
-			TSG_Point_Int	Point	= dc_Map.World2DC(CSG_Point(p.x, p.y));
+			int		Color;
+			int		x	= (int)(0.5 + dc_Map.xWorld2DC(Point.x));
+			int		y	= (int)(0.5 + dc_Map.yWorld2DC(Point.y));
 
-			m_pClassify->Get_Class_Color_byValue(z, Color);
+			m_pClassify->Get_Class_Color_byValue(m_pPointCloud->Get_Value(i, m_Color_Field), Color);
 
-			if( m_PointSize > 0 )
+			if( m_Aggregation != 1 )
 			{
-				dc_Map.IMG_Set_Rect(Point.x - m_PointSize, Point.y - m_PointSize, Point.x + m_PointSize, Point.y + m_PointSize, Color);
+				if( m_PointSize <= 0 )
+				{
+					_Draw_Point(dc_Map, x, y, Point.z, Color);
+				}
+				else
+				{
+					for(int iy=y-m_PointSize; iy<=y+m_PointSize; iy++)
+					{
+						for(int ix=x-m_PointSize; ix<=x+m_PointSize; ix++)
+						{
+							_Draw_Point(dc_Map, ix, iy, Point.z, Color);
+						}
+					}
+				}
 			}
 			else
 			{
-				dc_Map.IMG_Set_Pixel(Point.x, Point.y, Color);
+				if( m_PointSize <= 0 )
+				{
+					dc_Map.IMG_Set_Pixel(x, y, Color);
+				}
+				else
+				{
+					dc_Map.IMG_Set_Rect(x - m_PointSize, y - m_PointSize, x + m_PointSize, y + m_PointSize, Color);
+				}
 			}
 		}
-
-		dc_Map.IMG_Draw_End();
 	}
 }
 

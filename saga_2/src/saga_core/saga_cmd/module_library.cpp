@@ -607,11 +607,12 @@ bool CModule_Library::_Create_DataObject_List(CSG_Parameter *pParameter, wxStrin
 
 			switch( pParameter->Get_Type() )
 			{
-			default:							pObject	= NULL;							break;
-			case PARAMETER_TYPE_Grid_List:		pObject	= new CSG_Grid  (s.c_str());	break;
-			case PARAMETER_TYPE_TIN_List:		pObject	= new CSG_TIN   (s.c_str());	break;
-			case PARAMETER_TYPE_Shapes_List:	pObject	= new CSG_Shapes(s.c_str());	break;
-			case PARAMETER_TYPE_Table_List:		pObject	= new CSG_Table (s.c_str());	break;
+			default:								pObject	= NULL;								break;
+			case PARAMETER_TYPE_Grid_List:			pObject	= new CSG_Grid      (s.c_str());	break;
+			case PARAMETER_TYPE_TIN_List:			pObject	= new CSG_TIN       (s.c_str());	break;
+			case PARAMETER_TYPE_PointCloud_List:	pObject	= new CSG_PointCloud(s.c_str());	break;
+			case PARAMETER_TYPE_Shapes_List:		pObject	= new CSG_Shapes    (s.c_str());	break;
+			case PARAMETER_TYPE_Table_List:			pObject	= new CSG_Table     (s.c_str());	break;
 			}
 
 			if( pObject && pObject->is_Valid() )

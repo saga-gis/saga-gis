@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                     grid_analysis                     //
+//                   pointcloud_tools                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//               Fragmentation_Resampling.h              //
+//                   MLB_Interface.cpp                   //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -53,50 +51,60 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Fragmentation_Resampling_H
-#define HEADER_INCLUDED__Fragmentation_Resampling_H
-
-//---------------------------------------------------------
-#include "fragmentation_base.h"
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
+//			The Module Link Library Interface			 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CFragmentation_Resampling : public CFragmentation_Base
+#include "MLB_Interface.h"
+
+
+//---------------------------------------------------------
+const SG_Char * Get_Info(int i)
 {
-public:
-	CFragmentation_Resampling(void);
-	virtual ~CFragmentation_Resampling(void);
+	switch( i )
+	{
+	case MLB_INFO_Name:	default:
+		return( _TL("Point Cloud - Tools") );
+
+	case MLB_INFO_Author:
+		return( _TL("O.Conrad (c) 2009") );
+
+	case MLB_INFO_Description:
+		return( _TL("Tools for point clouds.") );
+
+	case MLB_INFO_Version:
+		return( SG_T("1.0") );
+
+	case MLB_INFO_Menu_Path:
+		return( _TL("Point Cloud") );
+	}
+}
 
 
-protected:
-
-	virtual bool			Initialise			(CSG_Grid *pClasses, int Class);
-	virtual bool			Finalise			(void);
-
-	virtual bool			Get_Fragmentation	(int x, int y, double &Density, double &Connectivity);
-
-
-private:
-
-	bool					m_bDensityMean;
-
-	CSG_Grid_Pyramid		m_Density, m_Connectivity;
+//---------------------------------------------------------
+#include "pc_cut.h"
+#include "pc_from_grid.h"
+#include "pc_from_shapes.h"
+#include "pc_to_grid.h"
+#include "pc_to_shapes.h"
 
 
-	bool					Get_Connectivity	(int x, int y, CSG_Grid *pClasses, int Class, double &Density, double &Connectivity);
+//---------------------------------------------------------
+CSG_Module *		Create_Module(int i)
+{
+	switch( i )
+	{
+	case 0:		return( new CPC_Cut );
+	case 1:		return( new CPC_Cut_Interactive );
+	case 2:		return( new CPC_From_Grid );
+	case 3:		return( new CPC_From_Shapes );
+	case 4:		return( new CPC_To_Grid );
+	case 5:		return( new CPC_To_Shapes );
+	}
 
-};
+	return( NULL );
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -106,4 +114,8 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Fragmentation_Resampling_H
+//{{AFX_SAGA
+
+	MLB_INTERFACE
+
+//}}AFX_SAGA

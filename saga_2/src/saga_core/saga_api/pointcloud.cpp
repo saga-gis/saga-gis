@@ -115,6 +115,15 @@ CSG_PointCloud::CSG_PointCloud(void)
 	_On_Construction();
 }
 
+bool CSG_PointCloud::Create(void)
+{
+	Destroy();
+
+	Add_Field(SG_T(""), POINTCLOUD_FIELDTYPE_None);	// add x, y, z fields
+
+	return( true );
+}
+
 //---------------------------------------------------------
 CSG_PointCloud::CSG_PointCloud(const CSG_PointCloud &PointCloud)
 	: CSG_Data_Object()
@@ -167,7 +176,7 @@ bool CSG_PointCloud::Create(CSG_PointCloud *pStructure)
 	{
 		for(int i=0; i<pStructure->Get_Field_Count(); i++)
 		{
-			Add_Field(pStructure->Get_Field_Name(i), pStructure->Get_Field_Type(i));
+			_Add_Field(pStructure->Get_Field_Name(i), pStructure->Get_Field_Type(i));
 		}
 
 		return( true );
@@ -192,6 +201,7 @@ void CSG_PointCloud::_On_Construction(void)
 
 	m_Cursor		= NULL;
 	m_bXYZPrecDbl	= true;
+	m_NoData_Value	= -999999;
 
 	Set_Update_Flag();
 }
@@ -366,7 +376,7 @@ bool CSG_PointCloud::Assign(CSG_Data_Object *pObject)
 
 		for(int iField=0; iField<pPointCloud->m_nFields; iField++)
 		{
-			Add_Field(pPointCloud->m_Field_Name[iField]->c_str(), pPointCloud->m_Field_Type[iField]);
+			_Add_Field(pPointCloud->m_Field_Name[iField]->c_str(), pPointCloud->m_Field_Type[iField]);
 		}
 
 		for(int iPoint=0; iPoint<pPointCloud->m_nPoints; iPoint++)
@@ -533,6 +543,25 @@ double CSG_PointCloud::_Get_Field_Value(char *pPoint, int iField) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+TSG_Point_3D CSG_PointCloud::Get_Point(void)	const
+{
+	TSG_Point_3D	p;
+
+	if( m_Cursor )
+	{
+		p.x	= _Get_Field_Value(m_Cursor, 0);
+		p.y	= _Get_Field_Value(m_Cursor, 1);
+		p.z	= _Get_Field_Value(m_Cursor, 2);
+	}
+	else
+	{
+		p.x	= p.y	= p.z	= 0.0;
+	}
+
+	return( p );
+}
+
+//---------------------------------------------------------
 TSG_Point_3D CSG_PointCloud::Get_Point(int iPoint)	const
 {
 	TSG_Point_3D	p;
@@ -551,6 +580,22 @@ TSG_Point_3D CSG_PointCloud::Get_Point(int iPoint)	const
 	}
 
 	return( p );
+}
+
+//---------------------------------------------------------
+bool CSG_PointCloud::Set_NoData_Value(double NoData_Value)
+{
+	if( NoData_Value != m_NoData_Value )
+	{
+		for(int i=3; i<m_nFields; i++)
+		{
+			m_Field_Stats[i]->Invalidate();
+		}
+
+		return( true );
+	}
+
+	return( false );
 }
 
 
@@ -756,7 +801,12 @@ bool CSG_PointCloud::_Stats_Update(int iField) const
 
 			for(int iPoint=0; iPoint<m_nPoints; iPoint++, pPoint++)
 			{
-				m_Field_Stats[iField]->Add_Value(_Get_Field_Value(*pPoint, iField));
+				double	Value	= _Get_Field_Value(*pPoint, iField);
+
+				if( iField < 3 || Value != m_NoData_Value )
+				{
+					m_Field_Stats[iField]->Add_Value(Value);
+				}
 			}
 		}
 

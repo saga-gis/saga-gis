@@ -516,16 +516,17 @@ bool CWKSP_Data_Manager::Check_Parameter(CSG_Parameter *pParameter)
 	{
 		switch( pParameter->Get_Type() )
 		{
-		default:							DataObject_Type	= -1;							break;
+		default:								DataObject_Type	= -1;							break;
 		case PARAMETER_TYPE_Grid:
-		case PARAMETER_TYPE_Grid_List:		DataObject_Type	= DATAOBJECT_TYPE_Grid;			break;
+		case PARAMETER_TYPE_Grid_List:			DataObject_Type	= DATAOBJECT_TYPE_Grid;			break;
 		case PARAMETER_TYPE_Table:
-		case PARAMETER_TYPE_Table_List:		DataObject_Type	= DATAOBJECT_TYPE_Table;		break;
+		case PARAMETER_TYPE_Table_List:			DataObject_Type	= DATAOBJECT_TYPE_Table;		break;
 		case PARAMETER_TYPE_Shapes:
-		case PARAMETER_TYPE_Shapes_List:	DataObject_Type	= DATAOBJECT_TYPE_Shapes;		break;
+		case PARAMETER_TYPE_Shapes_List:		DataObject_Type	= DATAOBJECT_TYPE_Shapes;		break;
 		case PARAMETER_TYPE_TIN:
-		case PARAMETER_TYPE_TIN_List:		DataObject_Type	= DATAOBJECT_TYPE_TIN;			break;
-		case PARAMETER_TYPE_PointCloud:		DataObject_Type	= DATAOBJECT_TYPE_PointCloud;	break;
+		case PARAMETER_TYPE_TIN_List:			DataObject_Type	= DATAOBJECT_TYPE_TIN;			break;
+		case PARAMETER_TYPE_PointCloud:
+		case PARAMETER_TYPE_PointCloud_List:	DataObject_Type	= DATAOBJECT_TYPE_PointCloud;	break;
 		}
 
 		//-------------------------------------------------
@@ -560,6 +561,7 @@ bool CWKSP_Data_Manager::Check_Parameter(CSG_Parameter *pParameter)
 		case PARAMETER_TYPE_Table_List:
 		case PARAMETER_TYPE_Shapes_List:
 		case PARAMETER_TYPE_TIN_List:
+		case PARAMETER_TYPE_PointCloud_List:
 			for(i=pParameter->asList()->Get_Count()-1; i>=0; i--)
 			{
 				if( !Exists(pParameter->asList()->asDataObject(i), DataObject_Type) )

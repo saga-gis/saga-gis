@@ -609,6 +609,16 @@ CSG_Parameter * CSG_Parameters::Add_PointCloud_Output(CSG_Parameter *pParent, co
 	return( pParameter );
 }
 
+//---------------------------------------------------------
+CSG_Parameter * CSG_Parameters::Add_PointCloud_List(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint)
+{
+	CSG_Parameter	*pParameter;
+
+	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_PointCloud_List, Constraint);
+
+	return( pParameter );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -1200,6 +1210,7 @@ bool CSG_Parameters::DataObjects_Check(bool bSilent)
 		case PARAMETER_TYPE_Table_List:
 		case PARAMETER_TYPE_Shapes_List:
 		case PARAMETER_TYPE_TIN_List:
+		case PARAMETER_TYPE_PointCloud_List:
 			bInvalid	=  m_Parameters[i]->is_Input()				== true
 						&& m_Parameters[i]->is_Optional()			== false
 						&& m_Parameters[i]->asList()->Get_Count()	== 0;
@@ -1266,6 +1277,10 @@ bool CSG_Parameters::DataObjects_Create(void)
 
 				case PARAMETER_TYPE_Shapes:
 					pDataObject	= SG_Create_Shapes(((CSG_Parameter_Shapes *)p->Get_Data())->Get_Shape_Type());
+					break;
+
+				case PARAMETER_TYPE_PointCloud:
+					pDataObject	= SG_Create_PointCloud();
 					break;
 
 				case PARAMETER_TYPE_TIN:

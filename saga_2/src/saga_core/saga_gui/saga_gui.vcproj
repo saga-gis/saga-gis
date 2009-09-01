@@ -1033,6 +1033,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\dlg_list_pointcloud.cpp"
+				>
+			</File>
+			<File
 				RelativePath="dlg_list_shapes.cpp"
 				>
 				<FileConfiguration
@@ -3991,6 +3995,10 @@
 			</File>
 			<File
 				RelativePath="DLG_List_Grid.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dlg_list_pointcloud.h"
 				>
 			</File>
 			<File

@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                     grid_analysis                     //
+//                   pointcloud_tools                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//               Fragmentation_Resampling.h              //
+//                   pc_from_shapes.cpp                  //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -58,11 +56,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Fragmentation_Resampling_H
-#define HEADER_INCLUDED__Fragmentation_Resampling_H
-
-//---------------------------------------------------------
-#include "fragmentation_base.h"
+#include "pc_from_shapes.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -72,31 +66,45 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CFragmentation_Resampling : public CFragmentation_Base
+CPC_From_Shapes::CPC_From_Shapes(void)
 {
-public:
-	CFragmentation_Resampling(void);
-	virtual ~CFragmentation_Resampling(void);
+	//-----------------------------------------------------
+	Set_Name		(_TL("Point Cloud from Shapes"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2009"));
+
+	Set_Description	(_TW(
+		""
+	));
 
 
-protected:
+	//-----------------------------------------------------
+	CSG_Parameter	*pNode	= Parameters.Add_Shapes(
+		NULL	, "SHAPES"		, _TL("Shapes"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
 
-	virtual bool			Initialise			(CSG_Grid *pClasses, int Class);
-	virtual bool			Finalise			(void);
+	Parameters.Add_Table_Field(
+		pNode	, "ZFIELD"		, _TL("Z Value"),
+		_TL("")
+	);
 
-	virtual bool			Get_Fragmentation	(int x, int y, double &Density, double &Connectivity);
+	Parameters.Add_PointCloud(
+		NULL	, "POINTS"		, _TL("Points"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
 
-
-private:
-
-	bool					m_bDensityMean;
-
-	CSG_Grid_Pyramid		m_Density, m_Connectivity;
-
-
-	bool					Get_Connectivity	(int x, int y, CSG_Grid *pClasses, int Class, double &Density, double &Connectivity);
-
-};
+	Parameters.Add_Choice(
+		NULL	, "OUTPUT"		, _TL("Output"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("only z"),
+			_TL("all attributes")
+		), 0
+	);
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -106,4 +114,72 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Fragmentation_Resampling_H
+bool CPC_From_Shapes::On_Execute(void)
+{
+	int				zField, iField, nFields, *Fields;
+	CSG_PointCloud	*pPoints;
+	CSG_Shapes		*pShapes;
+
+	pShapes	= Parameters("SHAPES")	->asShapes();
+	pPoints	= Parameters("POINTS")	->asPointCloud();
+	zField	= Parameters("ZFIELD")	->asInt();
+
+	if( !pShapes->is_Valid() )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	pPoints->Create();
+	pPoints->Set_Name(pShapes->Get_Name());
+
+	nFields	= 0;
+	Fields	= new int[pShapes->Get_Field_Count()];
+
+	if( Parameters("OUTPUT")->asInt() == 1 )
+	{
+		for(iField=0, nFields=0; iField<pShapes->Get_Field_Count(); iField++)
+		{
+			if( iField != zField && pShapes->Get_Field_Type(iField) != TABLE_FIELDTYPE_String )
+			{
+				Fields[nFields++]	= iField;
+				pPoints->Add_Field(pShapes->Get_Field_Name(iField), POINTCLOUD_FIELDTYPE_Float);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	{
+		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+
+		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+		{
+			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+			{
+				TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
+
+				pPoints->Add_Point(p.x, p.y, pShape->asDouble(zField));
+
+				for(iField=0; iField<nFields; iField++)
+				{
+					pPoints->Set_Value(3 + iField, pShape->asDouble(Fields[iField]));
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	delete(Fields);
+
+	return( pPoints->Get_Count() > 0 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

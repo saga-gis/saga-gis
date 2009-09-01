@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.16 2009-08-19 16:57:23 oconrad Exp $
+# $Id: Makefile.am,v 1.17 2009-09-01 14:12:31 oconrad Exp $
 #
 INCS = -I.. -I.
 if DEBUG
@@ -35,6 +35,7 @@ dlg_colors.cpp\
 dlg_colors_control.cpp\
 dlg_list_base.cpp\
 dlg_list_grid.cpp\
+dlg_list_pointcloud.cpp\
 dlg_list_shapes.cpp\
 dlg_list_table.cpp\
 dlg_list_tin.cpp\
@@ -126,6 +127,7 @@ dlg_colors.h\
 dlg_colors_control.h\
 dlg_list_base.h\
 dlg_list_grid.h\
+dlg_list_pointcloud.h\
 dlg_list_shapes.h\
 dlg_list_table.h\
 dlg_list_tin.h\

@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.7 2008-06-26 13:18:09 oconrad Exp $
+# $Id: Makefile.am,v 1.8 2009-09-01 14:12:30 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -23,7 +23,6 @@ fragmentation_base.cpp\
 fragmentation_classify.cpp\
 fragmentation_resampling.cpp\
 fragmentation_standard.cpp\
-grid_pyramid.cpp\
 Fuzzify.cpp\
 FuzzyAND.cpp\
 FuzzyOR.cpp\
@@ -49,7 +48,6 @@ fragmentation_base.h\
 fragmentation_classify.h\
 fragmentation_resampling.h\
 fragmentation_standard.h\
-grid_pyramid.h\
 Fuzzify.h\
 FuzzyAND.h\
 FuzzyOR.h\

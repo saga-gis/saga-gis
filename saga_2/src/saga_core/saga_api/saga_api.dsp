@@ -228,6 +228,10 @@ SOURCE=.\grid_operation.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\grid_pyramid.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\grid_system.cpp
 # End Source File
 # Begin Source File
@@ -421,6 +425,10 @@ SOURCE=.\GEO_Tools.h
 # Begin Source File
 
 SOURCE=.\Grid.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\grid_pyramid.h
 # End Source File
 # Begin Source File
 

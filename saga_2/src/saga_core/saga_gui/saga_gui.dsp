@@ -222,6 +222,10 @@ SOURCE=.\dlg_list_grid.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\dlg_list_pointcloud.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\dlg_list_shapes.cpp
 # End Source File
 # Begin Source File
@@ -587,6 +591,10 @@ SOURCE=.\DLG_List_Base.h
 # Begin Source File
 
 SOURCE=.\DLG_List_Grid.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\dlg_list_pointcloud.h
 # End Source File
 # Begin Source File
 

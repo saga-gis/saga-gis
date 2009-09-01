@@ -41,4 +41,4 @@ MLB_Interface.h\
 semivariogram.h\
 variogram_dialog.h
 
-libgeostatistics_kriging_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(top_srcdir)/src/saga_core/saga_api/libsaga_gdi.la $(ADD_MLBS)
+libgeostatistics_kriging_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(top_srcdir)/src/saga_core/saga_gdi/libsaga_gdi.la $(ADD_MLBS)

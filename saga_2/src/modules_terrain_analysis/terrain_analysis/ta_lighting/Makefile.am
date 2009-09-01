@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.8 2008-11-24 10:36:12 oconrad Exp $
+# $Id: Makefile.am,v 1.9 2009-09-01 14:12:30 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -13,7 +13,6 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS)
 AM_LDFLAGS         = -fPIC -shared 
 pkglib_LTLIBRARIES = libta_lighting.la
 libta_lighting_la_SOURCES =\
-grid_pyramid.cpp\
 HillShade.cpp\
 MLB_Interface.cpp\
 SADO_SolarRadiation.cpp\
@@ -21,7 +20,6 @@ SolarRadiation.cpp\
 topographic_correction.cpp\
 view_shed.cpp\
 Visibility_Point.cpp\
-grid_pyramid.h\
 HillShade.h\
 MLB_Interface.h\
 SADO_SolarRadiation.h\

@@ -1,8 +1,8 @@
-# Project: ta_lighting
+# Project: pointcloud_tools
 # Linux GCC Makefile
 # Created by O. Conrad
 
-PRJ_NAME = ta_lighting
+PRJ_NAME = pointcloud_tools
 SAGA     = ./../../..
 BIN_SAGA = $(SAGA)/../bin/saga_gtk
 TMP_SAGA = $(SAGA)/../bin/tmp/saga_gtk
@@ -19,7 +19,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/HillShade.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/SADO_SolarRadiation.o $(MLB_TEMP)/SolarRadiation.o $(MLB_TEMP)/topographic_correction.o $(MLB_TEMP)/view_shed.o $(MLB_TEMP)/Visibility_Point.o
+OBJ      = $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/pc_cut.o $(MLB_TEMP)/pc_from_grid.o $(MLB_TEMP)/pc_from_shapes.o $(MLB_TEMP)/pc_to_grid.o $(MLB_TEMP)/pc_to_shapes.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS =
@@ -50,23 +50,20 @@ $(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
 	$(LD) $(LDFLAGS) -o $(MLB_NAME) $(OBJ) $(LIBS)
 
 
-$(MLB_TEMP)/HillShade.o: ./HillShade.cpp
-	$(CPP) -c ./HillShade.cpp -o $(MLB_TEMP)/HillShade.o $(CXXFLAGS)
-
 $(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
-$(MLB_TEMP)/SADO_SolarRadiation.o: ./SADO_SolarRadiation.cpp
-	$(CPP) -c ./SADO_SolarRadiation.cpp -o $(MLB_TEMP)/SADO_SolarRadiation.o $(CXXFLAGS)
+$(MLB_TEMP)/pc_cut.o: ./pc_cut.cpp
+	$(CPP) -c ./pc_cut.cpp -o $(MLB_TEMP)/pc_cut.o $(CXXFLAGS)
 
-$(MLB_TEMP)/SolarRadiation.o: ./SolarRadiation.cpp
-	$(CPP) -c ./SolarRadiation.cpp -o $(MLB_TEMP)/SolarRadiation.o $(CXXFLAGS)
+$(MLB_TEMP)/pc_from_grid.o: ./pc_from_grid.cpp
+	$(CPP) -c ./pc_from_grid.cpp -o $(MLB_TEMP)/pc_from_grid.o $(CXXFLAGS)
 
-$(MLB_TEMP)/topographic_correction.o: ./topographic_correction.cpp
-	$(CPP) -c ./topographic_correction.cpp -o $(MLB_TEMP)/topographic_correction.o $(CXXFLAGS)
+$(MLB_TEMP)/pc_from_shapes.o: ./pc_from_shapes.cpp
+	$(CPP) -c ./pc_from_shapes.cpp -o $(MLB_TEMP)/pc_from_shapes.o $(CXXFLAGS)
 
-$(MLB_TEMP)/view_shed.o: ./view_shed.cpp
-	$(CPP) -c ./view_shed.cpp -o $(MLB_TEMP)/view_shed.o $(CXXFLAGS)
+$(MLB_TEMP)/pc_to_grid.o: ./pc_to_grid.cpp
+	$(CPP) -c ./pc_to_grid.cpp -o $(MLB_TEMP)/pc_to_grid.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Visibility_Point.o: ./Visibility_Point.cpp
-	$(CPP) -c ./Visibility_Point.cpp -o $(MLB_TEMP)/Visibility_Point.o $(CXXFLAGS)
+$(MLB_TEMP)/pc_to_shapes.o: ./pc_to_shapes.cpp
+	$(CPP) -c ./pc_to_shapes.cpp -o $(MLB_TEMP)/pc_to_shapes.o $(CXXFLAGS)

@@ -425,6 +425,8 @@ void CParameters_Control::_Add_Properties(CSG_Parameters *pParameters)
 				CHECK_DATA_NODE(pTINs		, LNG("[PRM] TIN"), wxT("_DATAOBJECT_TINS"));
 				break;
 
+			case PARAMETER_TYPE_PointCloud_List:
+				CHECK_LIST_OUTPUT(pParameters->Get_Parameter(i));
 			case PARAMETER_TYPE_PointCloud:
 				CHECK_DATA_NODE(pPointClouds, LNG("[PRM] Point Clouds"), wxT("_DATAOBJECT_POINTCLOUDS"));
 				break;
@@ -531,6 +533,7 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 	case PARAMETER_TYPE_Table_List:
 	case PARAMETER_TYPE_Shapes_List:
 	case PARAMETER_TYPE_TIN_List:
+	case PARAMETER_TYPE_PointCloud_List:
 	case PARAMETER_TYPE_Parameters:
 		pProperty	= new CParameters_PG_Dialog	(Name, ID, pParameter);
 		break;
@@ -612,6 +615,7 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 		case PARAMETER_TYPE_Table_List:
 		case PARAMETER_TYPE_Shapes_List:
 		case PARAMETER_TYPE_TIN_List:
+		case PARAMETER_TYPE_PointCloud_List:
 		case PARAMETER_TYPE_Parameters:
 			m_pPG->LimitPropertyEditing(pProperty);
 			break;
@@ -758,6 +762,7 @@ void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
 		case PARAMETER_TYPE_Table_List:
 		case PARAMETER_TYPE_Shapes_List:
 		case PARAMETER_TYPE_TIN_List:
+		case PARAMETER_TYPE_PointCloud_List:
 		case PARAMETER_TYPE_Parameters:
 			((CParameters_PG_Dialog *)pProperty)->Update();
 			break;
@@ -795,6 +800,7 @@ bool CParameters_Control::Update_DataObjects(void)
 				case PARAMETER_TYPE_Table_List:
 				case PARAMETER_TYPE_Shapes_List:
 				case PARAMETER_TYPE_TIN_List:
+				case PARAMETER_TYPE_PointCloud_List:
 					if( g_pData->Check_Parameter(pParameter) == false )
 					{
 					}

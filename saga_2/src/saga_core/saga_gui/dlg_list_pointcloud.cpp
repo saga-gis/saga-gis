@@ -5,15 +5,15 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
-//                     grid_analysis                     //
+//                    User Interface                     //
+//                                                       //
+//                    Program: SAGA                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//               Fragmentation_Resampling.h              //
+//                DLG_List_PointCloud.cpp                //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
-//                      Olaf Conrad                      //
+//          Copyright (C) 2009 by Olaf Conrad            //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,14 +37,14 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
-//                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
+//                Bundesstrasse 55                       //
+//                20146 Hamburg                          //
 //                Germany                                //
+//                                                       //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -58,11 +58,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Fragmentation_Resampling_H
-#define HEADER_INCLUDED__Fragmentation_Resampling_H
+#include <saga_api/saga_api.h>
 
-//---------------------------------------------------------
-#include "fragmentation_base.h"
+#include "wksp_data_manager.h"
+#include "wksp_pointcloud_manager.h"
+#include "wksp_pointcloud.h"
+
+#include "dlg_list_pointcloud.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -72,31 +74,30 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CFragmentation_Resampling : public CFragmentation_Base
+IMPLEMENT_CLASS(CDLG_List_PointCloud, CDLG_List_Base)
+
+//---------------------------------------------------------
+BEGIN_EVENT_TABLE(CDLG_List_PointCloud, CDLG_List_Base)
+END_EVENT_TABLE()
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CDLG_List_PointCloud::CDLG_List_PointCloud(CSG_Parameter_PointCloud_List *pList, wxString Caption)
+	: CDLG_List_Base(pList, Caption)
 {
-public:
-	CFragmentation_Resampling(void);
-	virtual ~CFragmentation_Resampling(void);
+	_Set_Objects();
+}
 
-
-protected:
-
-	virtual bool			Initialise			(CSG_Grid *pClasses, int Class);
-	virtual bool			Finalise			(void);
-
-	virtual bool			Get_Fragmentation	(int x, int y, double &Density, double &Connectivity);
-
-
-private:
-
-	bool					m_bDensityMean;
-
-	CSG_Grid_Pyramid		m_Density, m_Connectivity;
-
-
-	bool					Get_Connectivity	(int x, int y, CSG_Grid *pClasses, int Class, double &Density, double &Connectivity);
-
-};
+//---------------------------------------------------------
+CDLG_List_PointCloud::~CDLG_List_PointCloud(void)
+{
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -106,4 +107,47 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Fragmentation_Resampling_H
+void CDLG_List_PointCloud::_Set_Objects(void)
+{
+	bool						bList;
+	int							i, j;
+	CWKSP_PointCloud_Manager	*pPointClouds;
+	CSG_PointCloud				*pPointCloud;
+
+	//-----------------------------------------------------
+	if( (pPointClouds = g_pData->Get_PointClouds()) != NULL )
+	{
+		for(i=0; i<m_pList->Get_Count(); i++)
+		{
+			m_pAdd->Append(m_pList->asDataObject(i)->Get_Name(), m_pList->asDataObject(i));
+		}
+
+		//-------------------------------------------------
+		for(i=0; i<pPointClouds->Get_Count(); i++)
+		{
+			pPointCloud	= pPointClouds->Get_PointCloud(i)->Get_PointCloud();
+
+			for(j=0, bList=true; j<(int)m_pAdd->GetCount() && bList; j++)
+			{
+				if( pPointCloud == m_pAdd->GetClientData(j) )
+				{
+					bList	= false;
+				}
+			}
+
+			if( bList )
+			{
+				m_pSelect->Append(pPointCloud->Get_Name(), pPointCloud);
+			}
+		}
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

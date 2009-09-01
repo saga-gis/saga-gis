@@ -540,6 +540,7 @@ bool CParameters_PG_Parameter_Value::Check(void) const
 		case PARAMETER_TYPE_Table_List:
 		case PARAMETER_TYPE_Shapes_List:
 		case PARAMETER_TYPE_TIN_List:
+		case PARAMETER_TYPE_PointCloud_List:
 		case PARAMETER_TYPE_Grid_List:
 			CSG_Parameter_List	*pList	= (CSG_Parameter_Grid_List *)m_pParameter->Get_Data();
 
@@ -650,19 +651,11 @@ bool CParameters_PG_Parameter_Value::Do_Dialog(void)
 			break;
 
 		case PARAMETER_TYPE_Grid_List:
-			bModified	= DLG_List_Grid		(m_pParameter->Get_Name(), m_pParameter->asGridList());
-			break;
-
 		case PARAMETER_TYPE_Table_List:
-			bModified	= DLG_List_Table	(m_pParameter->Get_Name(), m_pParameter->asTableList());
-			break;
-
 		case PARAMETER_TYPE_Shapes_List:
-			bModified	= DLG_List_Shapes	(m_pParameter->Get_Name(), m_pParameter->asShapesList());
-			break;
-
 		case PARAMETER_TYPE_TIN_List:
-			bModified	= DLG_List_TIN		(m_pParameter->Get_Name(), m_pParameter->asTINList());
+		case PARAMETER_TYPE_PointCloud_List:
+			bModified	= DLG_List			(m_pParameter->Get_Name(), m_pParameter->asList());
 			break;
 
 		case PARAMETER_TYPE_Colors:

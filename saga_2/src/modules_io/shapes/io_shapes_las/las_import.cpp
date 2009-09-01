@@ -58,6 +58,15 @@
 //---------------------------------------------------------
 #include "las_import.h"
 
+//---------------------------------------------------------
+#if defined(__int8_t_defined)
+	#define INT32_C
+#endif
+
+#if defined(__uint32_t_defined)
+	#define UINT32_C
+#endif
+
 #include <liblas/capi/liblas.h>
 
 
