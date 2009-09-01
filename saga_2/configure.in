@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.13 2009-08-28 15:13:10 oconrad Exp $
+# $Id: configure.in,v 1.14 2009-09-01 14:07:09 oconrad Exp $
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
@@ -78,6 +78,7 @@ AC_OUTPUT(Makefile \
 	src/modules/grid/grid_tools/Makefile \
 	src/modules/grid/grid_visualisation/Makefile \
 	src/modules/pointcloud/Makefile \
+	src/modules/pointcloud/pointcloud_tools/Makefile \
 	src/modules/pointcloud/pointcloud_viewer/Makefile \
 	src/modules/shapes/Makefile \
 	src/modules/shapes/shapes_grid/Makefile \
@@ -103,8 +104,8 @@ AC_OUTPUT(Makefile \
 	src/modules_io/esri_e00/io_esri_e00/Makefile \
 	src/modules_io/shapes/Makefile \
 	src/modules_io/shapes/io_shapes/Makefile \
-        src/modules_io/shapes/io_shapes_las/Makefile
 	src/modules_io/shapes/io_shapes_dxf/Makefile \
+        src/modules_io/shapes/io_shapes_las/Makefile
 	src/modules_io/grid/Makefile \
 	src/modules_io/grid/io_grid/Makefile \
 	src/modules_io/grid/io_grid_image/Makefile \
@@ -121,6 +122,8 @@ AC_OUTPUT(Makefile \
 	src/modules_projection/Makefile \
 	src/modules_projection/pj_georeference/Makefile \
 	src/modules_projection/pj_georeference/pj_georeference/Makefile \
+	src/modules_projection/pj_geotrans/Makefile \
+	src/modules_projection/pj_geotrans/pj_geotrans/Makefile \
 	src/modules_projection/pj_proj4/Makefile \
 	src/modules_projection/pj_proj4/pj_proj4/Makefile \
 	src/modules_recreations/Makefile \
