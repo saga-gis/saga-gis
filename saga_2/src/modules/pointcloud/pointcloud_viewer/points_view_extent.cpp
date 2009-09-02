@@ -82,6 +82,16 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define m_Settings	(*m_pSettings)
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 BEGIN_EVENT_TABLE(CPoints_View_Extent, wxPanel)
 	EVT_SIZE				(CPoints_View_Extent::On_Size)
 	EVT_ERASE_BACKGROUND	(CPoints_View_Extent::On_EraseBackGround)
@@ -101,31 +111,23 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CPoints_View_Extent::CPoints_View_Extent(wxWindow *pParent, CSG_PointCloud *pPoints, wxSize Size)
+CPoints_View_Extent::CPoints_View_Extent(wxWindow *pParent, CSG_PointCloud *pPoints, CSG_Parameters &Settings, wxSize Size)
 	: wxPanel(pParent, wxID_ANY, wxDefaultPosition, Size, wxTAB_TRAVERSAL|wxSUNKEN_BORDER|wxNO_FULL_REPAINT_ON_RESIZE)
 {
 	m_pPoints	= pPoints;
 
-	m_zField	= pPoints->Get_Field_Count() - 1;
-	m_cField	= pPoints->Get_Field_Count() - 1;
+	m_pSettings	= &Settings;
+
+	m_cField	= 2;
+
+	m_Select	= wxRect(0, 0, GetClientSize().x - 1, GetClientSize().y - 1);
 
 	//-----------------------------------------------------
-	m_Settings.Create(NULL, _TL("Point Cloud View Properties"), _TL(""));
+	CSG_Parameter	*pNode	= m_pSettings->Add_Node(NULL, "NODE_EXTENT", _TL("Zoom View"), _TL(""));
 
-	m_Settings.Add_Colors(
-		NULL	, "COLORS"			, _TL("Colors"),
+	m_pSettings->Add_Range(
+		pNode	, "EXT_C_RANGE"		, _TL("Colors Value Range"),
 		_TL("")
-	);
-
-	m_Settings.Add_Range(
-		NULL	, "C_RANGE"			, _TL("Colors Value Range"),
-		_TL("")
-	);
-
-	m_Settings.Add_Value(
-		NULL	, "BGCOLOR"			, _TL("Background Color"),
-		_TL(""),
-		PARAMETER_TYPE_Color, 0
 	);
 
 	//-----------------------------------------------------
@@ -295,7 +297,7 @@ TSG_Rect CPoints_View_Extent::Get_Extent(void)
 bool CPoints_View_Extent::_Draw_Image(void)
 {
 	if( m_pPoints->Get_Count() <= 0 || m_pPoints->Get_Extent().Get_XRange() <= 0.0 || m_pPoints->Get_Extent().Get_YRange() <= 0.0
-	||	m_zField < 0 || m_zField >= m_pPoints->Get_Field_Count() )
+	||	m_cField < 0 || m_cField >= m_pPoints->Get_Field_Count() )
 	{
 		return( false );
 	}
@@ -312,7 +314,6 @@ bool CPoints_View_Extent::_Draw_Image(void)
 
 	//-------------------------------------------------
 	m_Extent	= m_pPoints->Get_Extent();
-	m_Select	= wxRect(0, 0, Size.x, Size.y);
 
 	if( (dx = Size.y / (double)Size.x) < (m_Extent.Get_YRange() / m_Extent.Get_XRange()) )
 	{
@@ -333,7 +334,7 @@ bool CPoints_View_Extent::_Draw_Image(void)
 	//-------------------------------------------------
 	for(int i=0; i<m_pPoints->Get_Count(); i++)
 	{
-		TSG_Point_3D	p	= m_pPoints->Get_Point(i);	p.z	= m_pPoints->Get_Value(i, m_zField);
+		TSG_Point_3D	p	= m_pPoints->Get_Point(i);	p.z	= m_pPoints->Get_Value(i, m_cField);
 
 		int	ix	= (p.x - m_Extent.Get_XMin()) * dx;
 		int	iy	= (p.y - m_Extent.Get_YMin()) * dy;
@@ -346,8 +347,8 @@ bool CPoints_View_Extent::_Draw_Image(void)
 	}
 
 	//-------------------------------------------------
-	double	zMin	= m_pPoints->Get_Mean(m_zField) - 1.5 * m_pPoints->Get_StdDev(m_zField);
-	double	zRange	= m_pPoints->Get_Mean(m_zField) + 1.5 * m_pPoints->Get_StdDev(m_zField) - zMin;
+	double	zMin	= m_pPoints->Get_Mean(m_cField) - 1.5 * m_pPoints->Get_StdDev(m_cField);
+	double	zRange	= m_pPoints->Get_Mean(m_cField) + 1.5 * m_pPoints->Get_StdDev(m_cField) - zMin;
 
 	CSG_Colors	*pColors	= m_Settings("COLORS")->asColors();
 

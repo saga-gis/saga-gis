@@ -97,16 +97,14 @@ enum
 class CPoints_View_Control : public wxPanel
 {
 public:
-	CPoints_View_Control(wxWindow *pParent, CSG_PointCloud *pPoints);
+	CPoints_View_Control(wxWindow *pParent, CSG_PointCloud *pPoints, CSG_Parameters &Settings);
 	virtual ~CPoints_View_Control(void);
 
-	bool						m_bDist, m_bStereo;
+	bool						m_bCentral, m_bStereo, m_bScale;
 
-	int							m_zField, m_cField, m_Bold;
+	int							m_zField, m_cField;
 
-	double						m_xRotate, m_yRotate, m_zRotate, m_xShift, m_yShift, m_zShift, m_Dist, m_Detail;
-
-	CSG_Parameters				m_Settings;
+	double						m_xRotate, m_yRotate, m_zRotate, m_xShift, m_yShift, m_zShift, m_dCentral, m_Detail;
 
 	void						Update_View				(void);
 	void						Update_Extent			(CSG_Rect Extent);
@@ -124,15 +122,19 @@ public:
 
 private:
 
-	int							m_nSelection, *m_pSelection;
+	int							m_nSelection, *m_pSelection, m_Color_Mode, m_Size_Def;
 
-	double						m_xDown, m_yDown, m_cMin, m_cScale;
+	double						m_xDown, m_yDown, m_cMin, m_cScale, m_Size_Scale;
 
 	double						r_sin_x, r_sin_y, r_sin_z, r_cos_x, r_cos_y, r_cos_z, r_xc, r_yc, r_zc, r_Scale, r_Scale_z;
 
 	CSG_Rect					m_Extent;
 
 	CSG_Matrix					m_Image_zMax;
+
+	CSG_Simple_Statistics		m_zStats, m_cStats;
+
+	CSG_Parameters				*m_pSettings;
 
 	CSG_Colors					*m_pColors;
 
@@ -145,12 +147,13 @@ private:
 
 	void						_Set_Size				(void);
 
+	int							_Get_Size				(double zDistance);
 	void						_Get_Point				(int iPoint, int &ix, int &iy, double &iz, int &iColor);
 	TSG_Point_3D				_Get_Projection			(TSG_Point_3D &p);
 
 	bool						_Draw_Image				(void);
-	void						_Draw_Point				(int x, int y, double z, int color, int Mode = COLOR_MODE_RGB);
-	void						_Draw_Pixel				(int x, int y, double z, int color, int Mode = COLOR_MODE_RGB);
+	void						_Draw_Point				(int x, int y, double z, int color, int Size);
+	void						_Draw_Pixel				(int x, int y, double z, int color);
 	void						_Draw_Background		(int color);
 
 

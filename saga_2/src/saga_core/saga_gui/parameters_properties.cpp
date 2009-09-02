@@ -137,6 +137,11 @@ void CParameters_PG_Choice::_Create(void)
 		case PARAMETER_TYPE_TIN:			SetIndex(_Set_TIN());			break;
 		case PARAMETER_TYPE_PointCloud:		SetIndex(_Set_PointCloud());	break;
 		}
+
+		if( GetGrid() )
+		{
+			RecreateEditor();
+		}
 	}
 }
 

@@ -82,6 +82,16 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define m_Settings	(*m_pSettings)
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 BEGIN_EVENT_TABLE(CPoints_View_Control, wxPanel)
 	EVT_SIZE				(CPoints_View_Control::On_Size)
 	EVT_ERASE_BACKGROUND	(CPoints_View_Control::On_EraseBackGround)
@@ -102,63 +112,83 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CPoints_View_Control::CPoints_View_Control(wxWindow *pParent, CSG_PointCloud *pPoints)
+CPoints_View_Control::CPoints_View_Control(wxWindow *pParent, CSG_PointCloud *pPoints, CSG_Parameters &Settings)
 	: wxPanel(pParent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL|wxSUNKEN_BORDER|wxNO_FULL_REPAINT_ON_RESIZE)
 {
-	m_pPoints		= pPoints;
+	m_pPoints	= pPoints;
 
-	m_zField		= pPoints->Get_Field_Count() - 1;
-	m_cField		= pPoints->Get_Field_Count() - 1;
+	m_pSettings	= &Settings;
 
-	//-----------------------------------------------------
-	m_pSelection	= (int *)SG_Malloc(m_pPoints->Get_Count() * sizeof(int));
+	m_zField	= 2;
+	m_cField	= 2;
 
-	//-----------------------------------------------------
 	m_xRotate	= 0.0;
 	m_yRotate	= 0.0;
 	m_zRotate	= 0.0;
+
 	m_xShift	= 0.0;
 	m_yShift	= 0.0;
 	m_zShift	= 1000.0;
 
+	m_bCentral	= true;
+	m_bStereo	= false;
+	m_bScale	= false;
+
+	m_dCentral	= 500.0;
+	m_Detail	= 1.0;
+
 	//-----------------------------------------------------
-	m_Settings.Create(NULL, _TL("Point Cloud View Properties"), _TL(""));
+	CSG_Parameter	*pNode	= m_pSettings->Add_Node(NULL, "NODE_CONTROL", _TL("3D View"), _TL(""));
 
-	m_Settings.Add_Colors(
-		NULL	, "COLORS"			, _TL("Colors"),
+	m_pSettings->Add_Colors(
+		pNode	, "COLORS"			, _TL("Colors"),
 		_TL("")
 	);
 
-	m_Settings.Add_Range(
-		NULL	, "C_RANGE"			, _TL("Colors Value Range"),
-		_TL("")
-	);
-
-	m_Settings.Add_Value(
-		NULL	, "BGCOLOR"			, _TL("Background Color"),
+	m_pSettings->Add_Value(
+		pNode	, "BGCOLOR"			, _TL("Background Color"),
 		_TL(""),
 		PARAMETER_TYPE_Color, 0
 	);
 
-	m_Settings.Add_Value(
-		NULL	, "EXAGGERATION"	, _TL("Exaggeration"),
+	m_pSettings->Add_Range(
+		pNode	, "C_RANGE"			, _TL("Colors Value Range"),
+		_TL("")
+	);
+
+	m_pSettings->Add_Value(
+		pNode	, "SIZE_DEF"		, _TL("Point Size: Default"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 0, 0, true
+	);
+
+	m_pSettings->Add_Value(
+		pNode	, "SIZE_SCALE"		, _TL("Point Size: Scaling"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 250.0, 1.0, true
+	);
+
+	m_pSettings->Add_Value(
+		pNode	, "EXAGGERATION"	, _TL("Exaggeration"),
 		_TL(""),
 		PARAMETER_TYPE_Double, 1.0
 	);
 
-//	m_Settings.Add_Value(
-//		NULL	, "STEREO"			, _TL("Stereo Anaglyph"),
+//	m_pSettings->Add_Value(
+//		pNode	, "STEREO"			, _TL("Stereo Anaglyph"),
 //		_TL(""),
 //		PARAMETER_TYPE_Bool, false
 //	);
 
-	m_Settings.Add_Value(
-		NULL	, "STEREO_DIST"		, _TL("Stereo Eye Distance [Degree]"),
+	m_pSettings->Add_Value(
+		pNode	, "STEREO_DIST"		, _TL("Stereo Eye Distance [Degree]"),
 		_TL(""),
 		PARAMETER_TYPE_Double, 1.0, 0.0, true
 	);
 
 	//-----------------------------------------------------
+	m_pSelection	= (int *)SG_Malloc(m_pPoints->Get_Count() * sizeof(int));
+
 	Update_Extent(m_pPoints->Get_Extent());
 }
 
@@ -217,27 +247,31 @@ void CPoints_View_Control::Update_View(void)
 //---------------------------------------------------------
 void CPoints_View_Control::Update_Extent(CSG_Rect Extent)
 {
-	CSG_Simple_Statistics	s;
-
 	m_Extent.Assign(Extent);
+
+	m_zStats.Invalidate();
+	m_cStats.Invalidate();
 
 	m_nSelection	= 0;
 
 	for(int i=0; i<m_pPoints->Get_Count(); i++)
 	{
-		TSG_Point_3D	p	= m_pPoints->Get_Point(i);
+		m_pPoints->Set_Cursor(i);
+
+		TSG_Point_3D	p	= m_pPoints->Get_Point();
 
 		if( m_Extent.Contains(p.x, p.y) )
 		{
 			m_pSelection[m_nSelection++]	= i;
 
-			s.Add_Value(m_pPoints->Get_Value(m_cField));
+			m_zStats.Add_Value(m_pPoints->Get_Value(m_zField));
+			m_cStats.Add_Value(m_pPoints->Get_Value(m_cField));
 		}
 	}
 
 	m_Settings("C_RANGE")->asRange()->Set_Range(
-		s.Get_Mean() - 1.5 * s.Get_StdDev(),
-		s.Get_Mean() + 1.5 * s.Get_StdDev()
+		m_cStats.Get_Mean() - 1.5 * m_cStats.Get_StdDev(),
+		m_cStats.Get_Mean() + 1.5 * m_cStats.Get_StdDev()
 	);
 
 	Update_View();
@@ -369,38 +403,31 @@ void CPoints_View_Control::_Set_Size(void)
 //---------------------------------------------------------
 bool CPoints_View_Control::_Draw_Image(void)
 {
-	wxSize	Size	= GetClientSize();
+	wxSize	dcSize	= GetClientSize();
 
 	if( m_pPoints->Get_Count() <= 0
-	||	Size.x <= 0 || Size.y <= 0
+	||	dcSize.x <= 0 || dcSize.y <= 0
 	||	m_Extent.Get_XRange() <= 0.0 || m_Extent.Get_YRange() <= 0.0
 	||	m_zField < 0 || m_zField >= m_pPoints->Get_Field_Count()
-	||	m_cField < 0 || m_cField >= m_pPoints->Get_Field_Count() )
+	||	m_cField < 0 || m_cField >= m_pPoints->Get_Field_Count()
+	||	m_zStats.Get_Range() <= 0.0 )
 	{
 		return( false );
 	}
 
 	//-------------------------------------------------
-	if( !m_Image.IsOk() || Size.x != m_Image.GetWidth() || Size.y != m_Image.GetHeight() )
+	if( !m_Image.IsOk() || dcSize.x != m_Image.GetWidth() || dcSize.y != m_Image.GetHeight() )
 	{
-		m_Image		.Create(Size.x, Size.y);
-		m_Image_zMax.Create(Size.x, Size.y);
+		m_Image		.Create(dcSize.x, dcSize.y);
+		m_Image_zMax.Create(dcSize.x, dcSize.y);
 	}
 
 	//-------------------------------------------------
-	double	zMin	= m_pPoints->Get_Minimum(m_zField);
-	double	zRange	= m_pPoints->Get_Range  (m_zField);
-
-	if( zRange <= 0.0 )
-	{
-		return( false );
-	}
-
 	if( m_Settings("C_RANGE")->asRange()->Get_LoVal() >= m_Settings("C_RANGE")->asRange()->Get_HiVal() )
 	{
 		m_Settings("C_RANGE")->asRange()->Set_Range(
-			m_pPoints->Get_Mean(m_cField) - 1.5 * m_pPoints->Get_StdDev(m_cField),
-			m_pPoints->Get_Mean(m_cField) + 1.5 * m_pPoints->Get_StdDev(m_cField)
+			m_cStats.Get_Mean() - 1.5 * m_pPoints->Get_StdDev(m_cField),
+			m_cStats.Get_Mean() + 1.5 * m_pPoints->Get_StdDev(m_cField)
 		);
 	}
 
@@ -412,7 +439,7 @@ bool CPoints_View_Control::_Draw_Image(void)
 	m_Image_zMax.Assign(999999.0);
 
 	//-------------------------------------------------
-	if( (Size.x / (double)Size.y) > (m_Extent.Get_XRange() / m_Extent.Get_YRange()) )
+	if( (dcSize.x / (double)dcSize.y) > (m_Extent.Get_XRange() / m_Extent.Get_YRange()) )
 	{
 		r_Scale	= m_Image.GetWidth() / m_Extent.Get_XRange();
 	}
@@ -430,7 +457,7 @@ bool CPoints_View_Control::_Draw_Image(void)
 
 	r_xc	= m_Extent.Get_XCenter();
 	r_yc	= m_Extent.Get_YCenter();
-	r_zc	= zMin + 0.5 * zRange;
+	r_zc	= m_zStats.Get_Minimum() + 0.5 * m_zStats.Get_Range();
 
 	r_Scale_z	= r_Scale * m_Settings("EXAGGERATION")->asDouble();
 
@@ -438,16 +465,23 @@ bool CPoints_View_Control::_Draw_Image(void)
 	int		ix, iy, ic, nSkip, iSelection;
 	double	iz;
 
+	//-------------------------------------------------
+	m_Size_Def		= m_Settings("SIZE_DEF")->asInt();
+	m_Size_Scale	= 1.0 / m_Settings("SIZE_SCALE")->asDouble();
+
+	//-------------------------------------------------
 	nSkip	= 1 + (int)(0.001 * m_pPoints->Get_Count() * SG_Get_Square(1.0 - m_Detail));
 
 	if( m_bStereo == false )
 	{
 		_Draw_Background(m_Settings("BGCOLOR")->asColor());
 
+		m_Color_Mode	= COLOR_MODE_RGB;
+
 		for(iSelection=0; iSelection<m_nSelection; iSelection+=nSkip)
 		{
 			_Get_Point(m_pSelection[iSelection], ix, iy, iz, ic);
-			_Draw_Point(ix, iy, iz, ic);
+			_Draw_Point(ix, iy, iz, ic, _Get_Size(iz));
 		}
 	}
 	else
@@ -461,10 +495,12 @@ bool CPoints_View_Control::_Draw_Image(void)
 		r_sin_y	= sin(m_yRotate - d * M_DEG_TO_RAD);
 		r_cos_y	= cos(m_yRotate - d * M_DEG_TO_RAD);
 
+		m_Color_Mode	= COLOR_MODE_RED;
+
 		for(iSelection=0; iSelection<m_nSelection; iSelection+=nSkip)
 		{
 			_Get_Point(m_pSelection[iSelection], ix, iy, iz, ic);
-			_Draw_Point(ix, iy, iz, ic, COLOR_MODE_RED);
+			_Draw_Point(ix, iy, iz, ic, _Get_Size(iz));
 		}
 
 		m_Image_zMax.Assign(999999.0);
@@ -472,10 +508,12 @@ bool CPoints_View_Control::_Draw_Image(void)
 		r_sin_y	= sin(m_yRotate + d * M_DEG_TO_RAD);
 		r_cos_y	= cos(m_yRotate + d * M_DEG_TO_RAD);
 
+		m_Color_Mode	= COLOR_MODE_BLUE;
+
 		for(iSelection=0; iSelection<m_nSelection; iSelection+=nSkip)
 		{
 			_Get_Point(m_pSelection[iSelection], ix, iy, iz, ic);
-			_Draw_Point(ix, iy, iz, ic, COLOR_MODE_BLUE);
+			_Draw_Point(ix, iy, iz, ic, _Get_Size(iz));
 		}
 	}
 
@@ -488,6 +526,12 @@ bool CPoints_View_Control::_Draw_Image(void)
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+inline int CPoints_View_Control::_Get_Size(double zDistance)
+{
+	return( m_Size_Def + (!m_bScale ? 0 : (int)(20.0 * exp(-m_Size_Scale * zDistance))) );
+}
 
 //---------------------------------------------------------
 inline void CPoints_View_Control::_Get_Point(int iPoint, int &ix, int &iy, double &iz, int &iColor)
@@ -535,30 +579,39 @@ void CPoints_View_Control::_Draw_Background(int color)
 }
 
 //---------------------------------------------------------
-inline void CPoints_View_Control::_Draw_Point(int x, int y, double z, int color, int Mode)
+inline void CPoints_View_Control::_Draw_Point(int x, int y, double z, int color, int Size)
 {
 	if( z > 0.0 )
 	{
-		_Draw_Pixel(x, y, z, color, Mode);
+		_Draw_Pixel(x, y, z, color);
 
-		if( m_Bold )
+		if( Size > 0 && Size < 50 )
 		{
-			_Draw_Pixel(x - 1, y    , z, color, Mode);
-			_Draw_Pixel(x    , y - 1, z, color, Mode);
-			_Draw_Pixel(x + 1, y    , z, color, Mode);
-			_Draw_Pixel(x    , y + 1, z, color, Mode);
+			for(int iy=1; iy<=Size; iy++)
+			{
+				for(int ix=0; ix<=Size; ix++)
+				{
+					if( ix*ix + iy*iy <= Size*Size )
+					{
+						_Draw_Pixel(x + ix, y + iy, z, color);
+						_Draw_Pixel(x + iy, y - ix, z, color);
+						_Draw_Pixel(x - ix, y - iy, z, color);
+						_Draw_Pixel(x - iy, y + ix, z, color);
+					}
+				}
+			}
 		}
 	}
 }
 
 //---------------------------------------------------------
-inline void CPoints_View_Control::_Draw_Pixel(int x, int y, double z, int color, int Mode)
+inline void CPoints_View_Control::_Draw_Pixel(int x, int y, double z, int color)
 {
 	if( x >= 0 && x < m_Image.GetWidth() && y >= 0 && y < m_Image.GetHeight() && z < m_Image_zMax[y][x] )
 	{
 		BYTE	*pRGB	= m_Image.GetData() + 3 * (y * m_Image.GetWidth() + x);
 
-		switch( Mode )
+		switch( m_Color_Mode )
 		{
 		case COLOR_MODE_RGB:
 			*pRGB		= SG_GET_R(color);	pRGB++;
@@ -567,12 +620,12 @@ inline void CPoints_View_Control::_Draw_Pixel(int x, int y, double z, int color,
 			break;
 
 		case COLOR_MODE_RED:
-			*pRGB		= ((SG_GET_R(color) + SG_GET_R(color) + SG_GET_R(color)) / 3);
+			*pRGB		= ((SG_GET_R(color) + SG_GET_G(color) + SG_GET_B(color)) / 3);
 			break;
 
 		case COLOR_MODE_BLUE:
-			*(pRGB + 1)	= ((SG_GET_R(color) + SG_GET_R(color) + SG_GET_R(color)) / 3);
-			*(pRGB + 2)	= ((SG_GET_R(color) + SG_GET_R(color) + SG_GET_R(color)) / 3);
+			*(pRGB + 1)	= ((SG_GET_R(color) + SG_GET_G(color) + SG_GET_B(color)) / 3);
+			*(pRGB + 2)	= ((SG_GET_R(color) + SG_GET_G(color) + SG_GET_B(color)) / 3);
 			break;
 		}
 
@@ -600,14 +653,14 @@ inline TSG_Point_3D CPoints_View_Control::_Get_Projection(TSG_Point_3D &p)
 	q.y	+= m_yShift;
 	q.z	+= m_zShift;
 
-	if( m_bDist )
+	if( m_bCentral )
 	{
-		q.x	*= m_Dist / q.z;
-		q.y	*= m_Dist / q.z;
+		q.x	*= m_dCentral / q.z;
+		q.y	*= m_dCentral / q.z;
 	}
 	else
 	{
-		double	z	= m_Dist / m_zShift;
+		double	z	= m_dCentral / m_zShift;
 		q.x	*= z;
 		q.y	*= z;
 	//	q.z	 = -q.z;

@@ -82,11 +82,9 @@
 class CPoints_View_Extent : public wxPanel
 {
 public:
-	CPoints_View_Extent(wxWindow *pParent, CSG_PointCloud *pPoints, wxSize Size);
+	CPoints_View_Extent(wxWindow *pParent, CSG_PointCloud *pPoints, CSG_Parameters &Settings, wxSize Size);
 
-	int							m_zField, m_cField, m_Bold;
-
-	CSG_Parameters				m_Settings;
+	int							m_cField;
 
 	void						Update_View				(void);
 
@@ -109,6 +107,8 @@ private:
 	CSG_Matrix					m_Image_Value, m_Image_Count;
 
 	CSG_PointCloud				*m_pPoints;
+
+	CSG_Parameters				*m_pSettings;
 
 	wxPoint						m_Mouse_Down, m_Mouse_Move;
 

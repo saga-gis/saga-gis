@@ -87,11 +87,13 @@ CPoints_View_Dialog::CPoints_View_Dialog(CSG_PointCloud *pPoints)
 	SetWindowStyle(wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE);
 
 	//-----------------------------------------------------
+	m_Settings.Create(NULL, _TL("Point Cloud Viewer Settings"), _TL(""));
+
+	m_pView		= new CPoints_View_Control	(this, pPoints, m_Settings);
+	m_pExtent	= new CPoints_View_Extent	(this, pPoints, m_Settings, wxSize(200, 200));
 
 	//-----------------------------------------------------
 	wxArrayString	Attributes;
-
-	Attributes.Empty();
 
 	for(int i=0; i<pPoints->Get_Field_Count(); i++)
 	{
@@ -101,65 +103,49 @@ CPoints_View_Dialog::CPoints_View_Dialog(CSG_PointCloud *pPoints)
 	//-----------------------------------------------------
 	Add_Button(_TL("Close"), wxID_OK);
 
-	m_pBtn_Prop			= Add_Button(_TL("Properties"), wxID_ANY);
+	m_pBtn_Prop			= Add_Button	(_TL("Advanced Settings")	, wxID_ANY);
 
 	Add_Spacer();
-	m_pField_Color		= Add_Choice	(_TL("Color Attribute")	, Attributes, pPoints->Get_Field_Count() - 1);
-	m_pField_Z			= Add_Choice	(_TL("Z Attribute")		, Attributes, pPoints->Get_Field_Count() - 1);
+	m_pField_Z			= Add_Choice	(_TL("Z Attribute")			, Attributes, m_pView->m_zField);
+	m_pField_Color		= Add_Choice	(_TL("Color Attribute")		, Attributes, m_pView->m_cField);
 
 	Add_Spacer();
-	m_pCheck_Dist		= Add_CheckBox	(_TL("Central Projection")	, true);
-	m_pCheck_Stereo		= Add_CheckBox	(_TL("Anaglyph")			, false);
-	m_pCheck_Bold		= Add_CheckBox	(_TL("Bold Points")			, false);
+	m_pCheck_Central	= Add_CheckBox	(_TL("Central Projection")	, m_pView->m_bCentral);
+	m_pCheck_Stereo		= Add_CheckBox	(_TL("Anaglyph")			, m_pView->m_bStereo);
+	m_pCheck_Scale		= Add_CheckBox	(_TL("Scale Point Size")	, m_pView->m_bScale);
 
 	Add_Spacer();
-	m_pSlide_xRotate	= Add_Slider	(_TL("X-Rotation"), 0.0, -180.0, 180.0);
-	m_pSlide_yRotate	= Add_Slider	(_TL("Y-Rotation"), 0.0, -180.0, 180.0);
-	m_pSlide_zRotate	= Add_Slider	(_TL("Z-Rotation"), 0.0, -180.0, 180.0);
+	m_pSlide_xRotate	= Add_Slider	(_TL("X-Rotation")			, m_pView->m_xRotate * M_RAD_TO_DEG, -180.0, 180.0);
+	m_pSlide_yRotate	= Add_Slider	(_TL("Y-Rotation")			, m_pView->m_yRotate * M_RAD_TO_DEG, -180.0, 180.0);
+	m_pSlide_zRotate	= Add_Slider	(_TL("Z-Rotation")			, m_pView->m_zRotate * M_RAD_TO_DEG, -180.0, 180.0);
 
-	m_pSlide_Dist		= Add_Slider	(_TL("Eye Distance"), 500.0, 1.0, 1000.0);
+	m_pSlide_Central	= Add_Slider	(_TL("Eye Distance")		, m_pView->m_dCentral, 1.0, 2000.0);
 
-	m_pSlide_Detail		= Add_Slider	(_TL("Level of Detail"), 1.0, 0.0, 1.0);
-
-	Add_Spacer();
-	Add_CustomCtrl(_TL("Extent"), m_pExtent = new CPoints_View_Extent(this, pPoints, wxSize(200, 200)));
+	m_pSlide_Detail		= Add_Slider	(_TL("Level of Detail")		, m_pView->m_Detail, 0.0, 1.0);
 
 //	Add_Spacer();
 //	m_pParameters		= Add_TextCtrl	(_TL("Function Parameters"), wxTE_MULTILINE|wxTE_READONLY);
 
-	//-----------------------------------------------------
-	Add_Output(m_pView = new CPoints_View_Control(this, pPoints));
+	Add_Spacer();
+	Add_CustomCtrl(_TL("Extent"), m_pExtent);
 
-	//-----------------------------------------------------
-	m_pView->m_bDist		= m_pCheck_Dist		->GetValue() == 1 ? 1 : 0;
-	m_pView->m_bStereo		= m_pCheck_Stereo	->GetValue() == 1 ? 1 : 0;
-	m_pView->m_Bold			= m_pCheck_Bold		->GetValue() == 1 ? 1 : 0;
-
-	m_pView->m_xRotate		= m_pSlide_xRotate	->Get_Value() * M_DEG_TO_RAD;
-	m_pView->m_yRotate		= m_pSlide_yRotate	->Get_Value() * M_DEG_TO_RAD;
-	m_pView->m_zRotate		= m_pSlide_zRotate	->Get_Value() * M_DEG_TO_RAD;
-
-	m_pView->m_Dist			= m_pSlide_Dist		->Get_Value();
-	m_pView->m_Detail		= m_pSlide_Detail	->Get_Value();
-
-	m_pView->m_cField		= m_pField_Color	->GetSelection();
-	m_pView->m_zField		= m_pField_Z		->GetSelection();
+	Add_Output(m_pView);
 }
 
 //---------------------------------------------------------
 void CPoints_View_Dialog::On_Update_Control(wxCommandEvent &event)
 {
-	if( event.GetEventObject() == m_pCheck_Dist )
+	if( event.GetEventObject() == m_pCheck_Central )
 	{
-		m_pView->m_bDist		= m_pCheck_Dist->GetValue() == 1 ? 1 : 0;
+		m_pView->m_bCentral		= m_pCheck_Central	->GetValue() == 1 ? 1 : 0;
 	}
 	else if( event.GetEventObject() == m_pCheck_Stereo )
 	{	
-		m_pView->m_bStereo		= m_pCheck_Stereo->GetValue() == 1 ? 1 : 0;
+		m_pView->m_bStereo		= m_pCheck_Stereo	->GetValue() == 1 ? 1 : 0;
 	}
-	else if( event.GetEventObject() == m_pCheck_Bold )
+	else if( event.GetEventObject() == m_pCheck_Scale )
 	{	
-		m_pView->m_Bold			= m_pCheck_Bold->GetValue() == 1 ? 1 : 0;
+		m_pView->m_bScale		= m_pCheck_Scale	->GetValue() == 1 ? 1 : 0;
 	}
 	else if( event.GetEventObject() == m_pSlide_xRotate )
 	{	
@@ -173,9 +159,9 @@ void CPoints_View_Dialog::On_Update_Control(wxCommandEvent &event)
 	{	
 		m_pView->m_zRotate		= m_pSlide_zRotate	->Get_Value() * M_DEG_TO_RAD;
 	}
-	else if( event.GetEventObject() == m_pSlide_Dist )
+	else if( event.GetEventObject() == m_pSlide_Central )
 	{	
-		m_pView->m_Dist			= m_pSlide_Dist		->Get_Value();
+		m_pView->m_dCentral		= m_pSlide_Central	->Get_Value();
 	}
 	else if( event.GetEventObject() == m_pSlide_Detail )
 	{	
@@ -194,20 +180,25 @@ void CPoints_View_Dialog::On_Update_Choices(wxCommandEvent &event)
 {
 	if( event.GetEventObject() == m_pField_Z )
 	{
-		m_pView->m_zField		= m_pField_Z	->GetSelection();
+		m_pView		->m_zField	= m_pField_Z	->GetSelection();
+
+		m_pView		->Update_View();
 	}
+
 	else if( event.GetEventObject() == m_pField_Color )
 	{
-		m_pView->m_Settings("C_RANGE")->asRange()->Set_Range(0.0, 0.0);
+		m_Settings("C_RANGE")->asRange()->Set_Range(0.0, 0.0);
 
-		m_pView->m_cField		= m_pField_Color->GetSelection();
+		m_pExtent	->m_cField	= m_pField_Color->GetSelection();
+		m_pView		->m_cField	= m_pField_Color->GetSelection();
+
+		m_pExtent	->Update_View();
+		m_pView		->Update_View();
 	}
 	else
 	{
 		return;
 	}
-
-	m_pView->Update_View();
 }
 
 //---------------------------------------------------------
@@ -215,9 +206,10 @@ void CPoints_View_Dialog::On_Button(wxCommandEvent &event)
 {
 	if( event.GetEventObject() == m_pBtn_Prop )
 	{
-		if( SG_UI_Dlg_Parameters(&m_pView->m_Settings, m_pView->m_Settings.Get_Name()) )
+		if( SG_UI_Dlg_Parameters(&m_Settings, m_Settings.Get_Name()) )
 		{
-			m_pView->Update_View();
+			m_pExtent	->Update_View();
+			m_pView		->Update_View();
 		}
 	}
 	else

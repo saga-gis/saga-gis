@@ -92,17 +92,19 @@ private:
 
 	wxButton					*m_pBtn_Prop;
 
-	wxCheckBox					*m_pCheck_Dist, *m_pCheck_Stereo, *m_pCheck_Bold;
+	wxCheckBox					*m_pCheck_Central, *m_pCheck_Stereo, *m_pCheck_Scale;
 
 	wxChoice					*m_pField_Color, *m_pField_Z;
 
 	wxTextCtrl					*m_pFormula, *m_pParameters;
 
-	CSGDI_Slider				*m_pSlide_xRotate, *m_pSlide_yRotate, *m_pSlide_zRotate, *m_pSlide_Dist, *m_pSlide_Detail;
+	CSGDI_Slider				*m_pSlide_xRotate, *m_pSlide_yRotate, *m_pSlide_zRotate, *m_pSlide_Central, *m_pSlide_Detail;
 
 	class CPoints_View_Control	*m_pView;
 
 	class CPoints_View_Extent	*m_pExtent;
+
+	CSG_Parameters				m_Settings;
 
 
 	void						On_Update_Control		(wxCommandEvent &event);
