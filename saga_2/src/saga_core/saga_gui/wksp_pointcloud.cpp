@@ -479,8 +479,8 @@ void CWKSP_PointCloud::_Draw_Points(CWKSP_Map_DC &dc_Map)
 		if( dc_Map.m_rWorld.Contains(Point.x, Point.y) )
 		{
 			int		Color;
-			int		x	= (int)(0.5 + dc_Map.xWorld2DC(Point.x));
-			int		y	= (int)(0.5 + dc_Map.yWorld2DC(Point.y));
+			int		x	= (int)dc_Map.xWorld2DC(Point.x);
+			int		y	= (int)dc_Map.yWorld2DC(Point.y);
 
 			m_pClassify->Get_Class_Color_byValue(m_pPointCloud->Get_Value(i, m_Color_Field), Color);
 

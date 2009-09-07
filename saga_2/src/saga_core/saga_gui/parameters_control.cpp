@@ -606,9 +606,11 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 			pProperty->SetEditor(wxPGEditor_Choice);
 			break;
 
+		case PARAMETER_TYPE_FilePath:
+			break;
+
 		case PARAMETER_TYPE_Colors:
 		case PARAMETER_TYPE_Text:
-		case PARAMETER_TYPE_FilePath:
 		case PARAMETER_TYPE_Font:
 		case PARAMETER_TYPE_FixedTable:
 		case PARAMETER_TYPE_Grid_List:
