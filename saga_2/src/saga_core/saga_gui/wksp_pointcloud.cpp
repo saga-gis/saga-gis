@@ -84,12 +84,19 @@ CWKSP_PointCloud::CWKSP_PointCloud(CSG_PointCloud *pPointCloud)
 	m_Edit_Attributes.Add_Field(LNG("[CAP] Value"), TABLE_FIELDTYPE_String);
 
 	Create_Parameters();
+
+	//-----------------------------------------------------
+	m_Parameters("COLORS_TYPE")		->Set_Value(CLASSIFY_METRIC);
+	m_Parameters("COLORS_ATTRIB")	->Set_Value(2);
+
+	On_Parameter_Changed(&m_Parameters, m_Parameters("COLORS_ATTRIB"));
+
+	Parameters_Changed();
 }
 
 //---------------------------------------------------------
 CWKSP_PointCloud::~CWKSP_PointCloud(void)
-{
-}
+{}
 
 
 ///////////////////////////////////////////////////////////
@@ -241,7 +248,6 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 		LNG(""),
 		PARAMETER_TYPE_Double, 0.0, 0.0, true, 100.0, true
 	);
-
 }
 
 
@@ -398,7 +404,7 @@ void CWKSP_PointCloud::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 //---------------------------------------------------------
 inline void CWKSP_PointCloud::_Draw_Point(CWKSP_Map_DC &dc_Map, int x, int y, double z, int Color)
 {
-	if( m_Z.is_InGrid(x, y) )
+	if( m_Aggregation == 1 || m_Z.is_InGrid(x, y) )
 	{
 		switch( m_Aggregation )
 		{
@@ -435,6 +441,26 @@ inline void CWKSP_PointCloud::_Draw_Point(CWKSP_Map_DC &dc_Map, int x, int y, do
 }
 
 //---------------------------------------------------------
+void CWKSP_PointCloud::_Draw_Point(CWKSP_Map_DC &dc_Map, int x, int y, double z, int Color, int Radius)
+{
+	_Draw_Point(dc_Map, x, y, z, Color);
+
+	for(int iy=1; iy<=Radius; iy++)
+	{
+		for(int ix=0; ix<=Radius; ix++)
+		{
+			if( ix*ix + iy*iy <= Radius*Radius )
+			{
+				_Draw_Point(dc_Map, x + ix, y + iy, z, Color);
+				_Draw_Point(dc_Map, x + iy, y - ix, z, Color);
+				_Draw_Point(dc_Map, x - ix, y - iy, z, Color);
+				_Draw_Point(dc_Map, x - iy, y + ix, z, Color);
+			}
+		}
+	}
+}
+
+//---------------------------------------------------------
 void CWKSP_PointCloud::_Draw_Points(CWKSP_Map_DC &dc_Map)
 {
 	m_Aggregation	= m_Parameters("COLORS_AGGREGATE")->asInt();
@@ -458,34 +484,7 @@ void CWKSP_PointCloud::_Draw_Points(CWKSP_Map_DC &dc_Map)
 
 			m_pClassify->Get_Class_Color_byValue(m_pPointCloud->Get_Value(i, m_Color_Field), Color);
 
-			if( m_Aggregation != 1 )
-			{
-				if( m_PointSize <= 0 )
-				{
-					_Draw_Point(dc_Map, x, y, Point.z, Color);
-				}
-				else
-				{
-					for(int iy=y-m_PointSize; iy<=y+m_PointSize; iy++)
-					{
-						for(int ix=x-m_PointSize; ix<=x+m_PointSize; ix++)
-						{
-							_Draw_Point(dc_Map, ix, iy, Point.z, Color);
-						}
-					}
-				}
-			}
-			else
-			{
-				if( m_PointSize <= 0 )
-				{
-					dc_Map.IMG_Set_Pixel(x, y, Color);
-				}
-				else
-				{
-					dc_Map.IMG_Set_Rect(x - m_PointSize, y - m_PointSize, x + m_PointSize, y + m_PointSize, Color);
-				}
-			}
+			_Draw_Point(dc_Map, x, y, Point.z, Color, m_PointSize);
 		}
 	}
 }

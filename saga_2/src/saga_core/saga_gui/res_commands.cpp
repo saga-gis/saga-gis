@@ -131,6 +131,9 @@ const wxChar * CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_GRIDS_HISTOGRAM:		return( LNG("[CMD] Show Histogram") );
 	case ID_CMD_GRIDS_SCATTERPLOT:		return( LNG("[CMD] Show Scatterplot") );
 	case ID_CMD_GRIDS_EQUALINTERVALS:	return( LNG("[CMD] Create Normalised Classification") );
+	case ID_CMD_GRIDS_RANGE_MINMAX:		return( LNG("[CMD] Set Range to Minmum/Maximum") );
+	case ID_CMD_GRIDS_RANGE_STDDEV150:	return( LNG("[CMD] Set Range to Standard Deviation (1.5)") );
+	case ID_CMD_GRIDS_RANGE_STDDEV200:	return( LNG("[CMD] Set Range to Standard Deviation (2.0)") );
 	case ID_CMD_GRIDS_SET_LUT:			return( LNG("[CMD] Create Lookup Table") );
 
 	case ID_CMD_SHAPES_OPEN:			return( LNG("[CMD] Load Shapes") );

@@ -254,23 +254,38 @@ bool CSG_PointCloud::_Load(const CSG_String &File_Name)
 	char		Name[1024];
 	CSG_File	Stream;
 
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Load point cloud"), File_Name.c_str()), true);
+
+	//-----------------------------------------------------
 	if( !Stream.Open(File_Name, SG_FILE_R, true) )
 	{
+		SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
+		SG_UI_Msg_Add_Error(LNG("[ERR] file could not be opened."));
+
 		return( false );
 	}
 
 	if( !Stream.Read(ID, 6) || strncmp(ID, POINTCLOUD_FILE_VERSION, 6) != 0 )
 	{
+		SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
+		SG_UI_Msg_Add_Error(LNG("[ERR] incompatible file."));
+
 		return( false );
 	}
 
 	if( !Stream.Read(&nPointBytes, sizeof(int)) || nPointBytes < 3 * sizeof(float) )
 	{
+		SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
+		SG_UI_Msg_Add_Error(LNG("[ERR] incompatible file."));
+
 		return( false );
 	}
 
 	if( !Stream.Read(&nFields, sizeof(int)) || nFields < 3 )
 	{
+		SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
+		SG_UI_Msg_Add_Error(LNG("[ERR] incompatible file."));
+
 		return( false );
 	}
 
@@ -292,6 +307,9 @@ bool CSG_PointCloud::_Load(const CSG_String &File_Name)
 
 	if( m_nPointBytes != nPointBytes )
 	{
+		SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
+		SG_UI_Msg_Add_Error(LNG("[ERR] incompatible file."));
+
 		return( false );
 	}
 
@@ -310,45 +328,61 @@ bool CSG_PointCloud::_Load(const CSG_String &File_Name)
 		Get_History().Add_Entry(LNG("[HST] Loaded from file"), File_Name);
 	}
 
-	return( m_nPoints > 0 );
+	if( m_nPoints <= 0 )
+	{
+		SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
+		SG_UI_Msg_Add_Error(LNG("[ERR] no records in file."));
+
+		return( false );
+	}
+
+	SG_UI_Msg_Add(LNG("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 }
 
 //---------------------------------------------------------
 bool CSG_PointCloud::_Save(const CSG_String &File_Name)
 {
-	int			i, iBuffer;
 	CSG_File	Stream;
 
-	if( Stream.Open(File_Name, SG_FILE_W, true) )
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Save point cloud"), File_Name.c_str()), true);
+
+	if( Stream.Open(File_Name, SG_FILE_W, true) == false )
 	{
-		Stream.Write((void *)POINTCLOUD_FILE_VERSION, 6);
-		Stream.Write(&m_nPointBytes	, sizeof(int));
-		Stream.Write(&m_nFields		, sizeof(int));
+		SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
+		SG_UI_Msg_Add_Error(LNG("[ERR] unable to create file."));
 
-		for(i=0; i<m_nFields; i++)
-		{
-			Stream.Write(&m_Field_Type[i], sizeof(TSG_PointCloud_Field_Type));
-
-			iBuffer	= m_Field_Name[i]->Length();
-			Stream.Write(&iBuffer, sizeof(int));
-			Stream.Write(*m_Field_Name[i]);
-		}
-
-		for(i=0; i<m_nPoints && SG_UI_Process_Set_Progress(i, m_nPoints); i++)
-		{
-			Stream.Write(m_Points[i], m_nPointBytes);
-		}
-
-		Set_Modified(false);
-
-		Set_File_Name(SG_File_Make_Path(NULL, File_Name, SG_T("spc")));
-
-		Get_History().Save(File_Name, HISTORY_EXT_POINTCLOUD);
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	int		i, iBuffer;
+
+	Stream.Write((void *)POINTCLOUD_FILE_VERSION, 6);
+	Stream.Write(&m_nPointBytes	, sizeof(int));
+	Stream.Write(&m_nFields		, sizeof(int));
+
+	for(i=0; i<m_nFields; i++)
+	{
+		Stream.Write(&m_Field_Type[i], sizeof(TSG_PointCloud_Field_Type));
+
+		iBuffer	= m_Field_Name[i]->Length();
+		Stream.Write(&iBuffer, sizeof(int));
+		Stream.Write(*m_Field_Name[i]);
+	}
+
+	for(i=0; i<m_nPoints && SG_UI_Process_Set_Progress(i, m_nPoints); i++)
+	{
+		Stream.Write(m_Points[i], m_nPointBytes);
+	}
+
+	Set_Modified(false);
+
+	Set_File_Name(SG_File_Make_Path(NULL, File_Name, SG_T("spc")));
+
+	Get_History().Save(File_Name, HISTORY_EXT_POINTCLOUD);
+
+	SG_UI_Msg_Add(LNG("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+
+	return( true );
 }
 
 bool CSG_PointCloud::Save(const CSG_String &File_Name, int Format)

@@ -193,7 +193,7 @@ void CPoints_View_Dialog::On_Update_Choices(wxCommandEvent &event)
 		m_pView		->m_cField	= m_pField_Color->GetSelection();
 
 		m_pExtent	->Update_View();
-		m_pView		->Update_View();
+		m_pView		->Update_Extent(m_pExtent->Get_Extent());
 	}
 	else
 	{

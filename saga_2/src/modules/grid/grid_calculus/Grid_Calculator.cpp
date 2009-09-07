@@ -61,35 +61,17 @@ CGrid_Calculator::CGrid_Calculator(void)
 
 	Set_Author(_TL("Copyrights (c) 2003 by Andre Ringeler"));
 
-	Set_Description(_TW(
-		"The Grid Calculator calculates a new grid based on existing grids and a mathematical formula.\n\n"
+	CSG_String	s(_TW(
+		"The Grid Calculator calculates a new grid based on existing grids and a mathematical formula. "
+		"The grid variables are single characters a which correspond in alphabetical order to the grid list order "
+		"('a' = first grid, 'b' = second grid, ...)\n"
+		"Example with three grids: sin(a) * b + c\n\n"
 		"The following operators are available for the formula definition:\n"
-		"+ Addition\n"
-		"- Subtraction\n"
-		"* Multiplication\n"
-		"/ Division\n"
-		"^ power\n"
-		"sin(a)\n"
-		"cos(a)\n"
-		"tan(a)\n"
-		"asin(a)\n"
-		"acos(a)\n"
-		"atan(a)\n"
-		"atan2(a,b)\n"
-		"abs(a)\n"
-		"int(a)\n"
-		"sqrt(a)\n"
-		"int(a)\n"
-		"ln(a)\n"
-		"mod(a,b)\n"
-		"gt(a, b) returns 1 if a greater b\n"
-		"lt(a, b) returns 1 if a lower b\n"
-		"eq(a, b) returns 1 if a equal b\n"
-		"ifelse(switch, x,  y) returns x if switch equals 1 else y\n\n"
-		"The grid variables are single characters a which correspond in "
-		"alphabetical order with the grid list order ('a' = first grid, 'b' = second grid, ...)\n"
-		"Example with three grids: sin(a)*b+c\n")
-	);
+	));
+
+	s	+= CSG_Formula::Get_Help_Operators();
+
+	Set_Description(s);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List(

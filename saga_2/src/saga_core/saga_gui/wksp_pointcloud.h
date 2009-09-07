@@ -123,8 +123,9 @@ protected:
 
 	virtual void				On_Draw					(CWKSP_Map_DC &dc_Map, bool bEdit);
 
-	void						_Draw_Points			(CWKSP_Map_DC &dc_Map);
 	void						_Draw_Point				(CWKSP_Map_DC &dc_Map, int x, int y, double z, int Color);
+	void						_Draw_Point				(CWKSP_Map_DC &dc_Map, int x, int y, double z, int Color, int Radius);
+	void						_Draw_Points			(CWKSP_Map_DC &dc_Map);
 
 };
 

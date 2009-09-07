@@ -197,24 +197,29 @@ wxString CWKSP_Grid::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_Grid::Get_Menu(void)
 {
-	wxMenu	*pMenu;
+	wxMenu	*pMenu, *pSubMenu;
 
-	pMenu	= new wxMenu(m_pGrid->Get_Name());
+	pMenu		= new wxMenu(m_pGrid->Get_Name());
 
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_SAVE);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_SAVEAS);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_SAVEAS_IMAGE);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_SHOW);
+	CMD_Menu_Add_Item(pMenu		, false, ID_CMD_WKSP_ITEM_CLOSE);
+	CMD_Menu_Add_Item(pMenu		, false, ID_CMD_GRIDS_SAVE);
+	CMD_Menu_Add_Item(pMenu		, false, ID_CMD_GRIDS_SAVEAS);
+	CMD_Menu_Add_Item(pMenu		, false, ID_CMD_GRIDS_SAVEAS_IMAGE);
+	CMD_Menu_Add_Item(pMenu		, false, ID_CMD_GRIDS_SHOW);
 
 	pMenu->AppendSeparator();
 
-	CMD_Menu_Add_Item(pMenu, true , ID_CMD_GRIDS_HISTOGRAM);
+	CMD_Menu_Add_Item(pMenu		, true , ID_CMD_GRIDS_HISTOGRAM);
 
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_SCATTERPLOT);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_EQUALINTERVALS);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_SET_LUT);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
+	CMD_Menu_Add_Item(pMenu		, false, ID_CMD_GRIDS_SCATTERPLOT);
+	CMD_Menu_Add_Item(pMenu		, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
+
+	pSubMenu	= new wxMenu(LNG("[MNU] Classificaton"));
+	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_EQUALINTERVALS);
+	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_SET_LUT);
+	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_RANGE_MINMAX);
+	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_RANGE_STDDEV150);
+	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_GRIDS_RANGE_STDDEV200);
 
 	return( pMenu );
 }
@@ -229,8 +234,6 @@ wxMenu * CWKSP_Grid::Get_Menu(void)
 //---------------------------------------------------------
 bool CWKSP_Grid::On_Command(int Cmd_ID)
 {
-	wxString	File_Path;
-
 	switch( Cmd_ID )
 	{
 	default:
@@ -252,7 +255,28 @@ bool CWKSP_Grid::On_Command(int Cmd_ID)
 		m_pClassify->Metric2EqualElements();
 		break;
 
-	case ID_CMD_SHAPES_SET_LUT:
+	case ID_CMD_GRIDS_RANGE_MINMAX:
+		Set_Color_Range(
+			m_pGrid->Get_ZMin(true),
+			m_pGrid->Get_ZMax(true)
+		);
+		break;
+
+	case ID_CMD_GRIDS_RANGE_STDDEV150:
+		Set_Color_Range(
+			m_pGrid->Get_ArithMean(true) - 1.5 * m_pGrid->Get_StdDev(true),
+			m_pGrid->Get_ArithMean(true) + 1.5 * m_pGrid->Get_StdDev(true)
+		);
+		break;
+
+	case ID_CMD_GRIDS_RANGE_STDDEV200:
+		Set_Color_Range(
+			m_pGrid->Get_ArithMean(true) - 2.0 * m_pGrid->Get_StdDev(true),
+			m_pGrid->Get_ArithMean(true) + 2.0 * m_pGrid->Get_StdDev(true)
+		);
+		break;
+
+	case ID_CMD_GRIDS_SET_LUT:
 		_LUT_Create();
 		break;
 	}

@@ -128,7 +128,7 @@ CTable_Text_Export::CTable_Text_Export(void)
 //---------------------------------------------------------
 bool CTable_Text_Export::On_Execute(void)
 {
-	CSG_String	StrFormat, Separator, sLine;
+	CSG_String	StrFormat, Separator;
 	CSG_File	Stream;
 	CSG_Table	*pTable;
 
@@ -155,12 +155,10 @@ bool CTable_Text_Export::On_Execute(void)
 	{
 		if( Parameters("HEADLINE")->asBool() )
 		{
-			sLine.Clear();
-
 			for(int iField=0; iField<pTable->Get_Field_Count(); iField++)
 			{
-				sLine	+= pTable->Get_Field_Name(iField);
-				sLine	+= (iField < pTable->Get_Field_Count() - 1 ? Separator : SG_T("\n"));
+				Stream.Printf(StrFormat, pTable->Get_Field_Name(iField));
+				Stream.Printf(iField < pTable->Get_Field_Count() - 1 ? Separator.c_str() : SG_T("\n"));
 			}
 		}
 
@@ -168,8 +166,6 @@ bool CTable_Text_Export::On_Execute(void)
 		for(int iRecord=0; iRecord<pTable->Get_Record_Count() && Set_Progress(iRecord, pTable->Get_Record_Count()); iRecord++)
 		{
 			CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
-
-			sLine.Clear();
 
 			for(int iField=0; iField<pTable->Get_Field_Count(); iField++)
 			{
@@ -194,7 +190,7 @@ bool CTable_Text_Export::On_Execute(void)
 					break;
 				}
 
-				sLine	+= (iField < pTable->Get_Field_Count() - 1 ? Separator : SG_T('\n'));
+				Stream.Printf(iField < pTable->Get_Field_Count() - 1 ? Separator.c_str() : SG_T("\n"));
 			}
 		}
 
@@ -404,7 +400,7 @@ bool CTable_Text_Import_Numbers::On_Execute(void)
 		pTable->Destroy();
 		pTable->Set_Name(SG_File_Get_Name(Parameters("FILENAME")->asString(), false));
 
-		sLine.Replace(Separator, SG_T(" "));
+		sLine.Replace(Separator, SG_T("\t"));
 		sHead	= sLine;
 
 		do
@@ -416,7 +412,7 @@ bool CTable_Text_Import_Numbers::On_Execute(void)
 				pTable->Add_Field(CSG_String::Format(SG_T("%d"), 1 + pTable->Get_Field_Count()), TABLE_FIELDTYPE_Double);
 			}
 
-			sHead	= sHead.AfterFirst(' ');
+			sHead	= sHead.AfterFirst('\t');
 		}
 		while( sHead.Length() > 0 );
 
@@ -427,7 +423,7 @@ bool CTable_Text_Import_Numbers::On_Execute(void)
 
 			do
 			{
-				sLine.Replace(Separator, SG_T(" "));
+				sLine.Replace(Separator, SG_T("\t"));
 
 				CSG_Table_Record	*pRecord	= pTable->Add_Record();
 
@@ -437,7 +433,7 @@ bool CTable_Text_Import_Numbers::On_Execute(void)
 
 					pRecord->Set_Value(i, sLine.asDouble());
 
-					sLine	= sLine.AfterFirst(' ');
+					sLine	= sLine.AfterFirst('\t');
 				}
 			}
 			while( Stream.Read_Line(sLine) && sLine.Length() > 0 && Set_Progress(Stream.Tell(), fLength) );

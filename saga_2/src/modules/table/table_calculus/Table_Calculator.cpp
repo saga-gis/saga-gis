@@ -18,46 +18,56 @@
 *******************************************************************************/
 #include "Table_Calculator.h"
 
-CTableCalculator::CTableCalculator(void){
+//---------------------------------------------------------
+CTableCalculator::CTableCalculator(void)
+{
+	Set_Name(_TL("Table calculator"));
 
-	CSG_Parameter	*pNode_0;
+	Set_Author(SG_T("Victor Olaya"));
 
-	Parameters.Set_Name(_TL("Table calculator"));
+	CSG_String	s(_TW(
+		"The table calculator creates a new column based on existing columns and a mathematical formula. "
+		"The columns are addressed by single characters (a-z) which correspond in alphabetical order to the columns "
+		"('a' = first column, 'b' = second column, ...)\n"
+		"Example with three columns: sin(a) * b + c\n\n"
+		"The following operators are available for the formula definition:\n"
+	));
 
-	Parameters.Set_Description(_TW("Calculation of new values in tables."));
+	s	+= CSG_Formula::Get_Help_Operators();
 
-	pNode_0	= Parameters.Add_Table(	NULL,
-									"TABLE",
-									_TL("Table"),
-									_TL(""),
-									PARAMETER_INPUT);
+	Set_Description(s);
 
-	Parameters.Add_String(NULL, "FORMULA", _TL("Formula"), _TL(""), SG_T("a+b"));
-	
-	Parameters.Add_String(NULL, "NAME", _TL("Field Name"), _TL(""), SG_T("a+b"));
+	Parameters.Add_Table	(NULL, "TABLE"	, _TL("Table")		, _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Table	(NULL, "RESULT"	, _TL("Result")		, _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_String	(NULL, "FORMULA", _TL("Formula")	, _TL(""), SG_T("a+b"));
+	Parameters.Add_String	(NULL, "NAME"	, _TL("Field Name")	, _TL(""), SG_T("a+b"));
+}
 
-	Parameters.Add_Table(
-		NULL, "RESULT"	, _TL("Result"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
+//---------------------------------------------------------
+CTableCalculator::~CTableCalculator(void)
+{}
 
-}//constructor
+//---------------------------------------------------------
+bool CTableCalculator::On_Execute(void)
+{
+	int			nValues, Position;
+	double		*Values;
+	CSG_String	Message;
+	CSG_Formula	Formula;
+	CSG_Table	*pTable;
 
+	//-----------------------------------------------------
+	Formula.Set_Formula(Parameters("FORMULA")->asString());
 
-CTableCalculator::~CTableCalculator(void){}
+	if( Formula.Get_Error(&Position, &Message) )
+	{
+		Message_Add(Message);
+		Message_Add(CSG_String::Format(SG_T("%s: #%d [%s]"), _TL("syntax error, position"), Position, Formula.Get_Formula().c_str()));
 
-bool CTableCalculator::On_Execute(void){
+		return( false );
+	}
 
-	int iFields;
-	int i,j;	
-	double dValue;
-	double *pFieldValues;
-	CSG_Table *pTable;
-	CSG_Table_Record *pRecord;
-	const SG_Char *pFormula;
-	CSG_Formula Formula;
-
+	//-----------------------------------------------------
 	pTable	= Parameters("RESULT")->asTable();
 
 	if( Parameters("TABLE")->asTable() != pTable )
@@ -65,49 +75,28 @@ bool CTableCalculator::On_Execute(void){
 		pTable->Assign(Parameters("TABLE")->asTable());
 	}
 
-	iFields = pTable->Get_Field_Count();
-
+	pTable->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Parameters("TABLE")->asTable()->Get_Name(), Formula.Get_Formula().c_str()));
 	pTable->Add_Field(Parameters("NAME")->asString(), TABLE_FIELDTYPE_Double);
 
-	pFormula = Parameters("FORMULA")->asString();
+	//-----------------------------------------------------
+	nValues	= pTable->Get_Field_Count() - 1;
+	Values	= new double[nValues];
 
-	Formula.Set_Formula(pFormula);
-		
-	int Pos;
-	CSG_String Msg;
-	if (Formula.Get_Error(&Pos, &Msg)){
-		CSG_String msg;
-		msg.Printf(_TL("Syntax error at position #%d: \n%s\n"), Pos, pFormula);
-		
-		Message_Add(msg);
-		
-		msg.Printf(SG_T("\n%s\n"), Msg.c_str());
-		
-		Message_Add(msg);
-		
-		return false;
-	}//if
-		
-	pFieldValues= new double[iFields];
+	for(int iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
+	{
+		CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
 
-	for (i = 0; i < pTable->Get_Record_Count(); i++){
-				
-		pRecord = pTable->Get_Record(i);
+		for(int iValue=0; iValue<nValues; iValue++)
+		{
+			Values[iValue]	= pRecord->asDouble(iValue);
+		}
 
-		for (j = 0; j < iFields; j++){
-			pFieldValues[j] = pRecord->asDouble(j);
-		}//for
-		
-		dValue = Formula.Get_Value(pFieldValues, iFields);	
+		pRecord->Set_Value(nValues, Formula.Get_Value(Values, nValues));
+	}
 
-		pRecord->Set_Value(iFields, dValue);
-		
-	}//for
+	delete[](Values);
 
-	delete[] pFieldValues;	
-	return (true);
-
-	DataObject_Update(pTable, true);
-
-}//method
+	//-----------------------------------------------------
+	return( true );
+}
 

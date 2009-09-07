@@ -223,129 +223,123 @@ bool CSG_Table::Save(const CSG_String &File_Name, int Format, const SG_Char *Sep
 //---------------------------------------------------------
 bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG_Char *Separator)
 {
-	bool				bNumeric, bFloat;
-	int					i, iField, iRecord, fLength;
-	double				Value;
-	CSG_String			sLine, sField;
-	CSG_File			Stream;
-	CSG_Table_Record	*pRecord;
-	CSG_Table			newTable;
+	int			i, iField, fLength;
+	CSG_String	sLine, sField;
+	CSG_File	Stream;
+	CSG_Table	Table;
 
 	//-----------------------------------------------------
-	if( Stream.Open(File_Name, SG_FILE_R, false) )
+	if( Stream.Open(File_Name, SG_FILE_R, false) == false )
 	{
-		fLength	= Stream.Length();
+		return( false );
+	}
 
-		if( Stream.Read_Line(sLine) )
+	if( !Stream.Read_Line(sLine) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	sLine	+= Separator;
+
+	while( (i = sLine.Find(Separator)) >= 0 )
+	{
+		sField.Printf(bHeadline ? sLine.Left(i) : SG_T("FIELD_%02d"), Table.Get_Field_Count() + 1);
+
+		if( sField[0] == SG_T('\"') && sField[(int)(sField.Length() - 1)] == SG_T('\"') )	// remove quota
 		{
-			while( (i = sLine.Find(Separator)) >= 0 )
-			{
-				sField.Printf(bHeadline ? sLine.Left(i) : SG_T("FIELD_%02d"), newTable.Get_Field_Count() + 1);
+			sField	= sField.AfterFirst('\"').BeforeLast('\"');
+		}
 
-				newTable.Add_Field(sField, TABLE_FIELDTYPE_String);
+		Table.Add_Field(sField, TABLE_FIELDTYPE_String);
+
+		sLine.Remove(0, i + 1);
+	}
+
+	//-----------------------------------------------------
+	TSG_Table_Field_Type	*Type	= new TSG_Table_Field_Type[Table.Get_Field_Count()];
+
+	for(iField=0; iField<Table.Get_Field_Count(); iField++)
+	{
+		Type[iField]	= TABLE_FIELDTYPE_Int;
+	}
+
+	if( !bHeadline )
+	{
+		Stream.Seek_Start();
+	}
+
+	fLength	= Stream.Length();
+
+	while( Stream.Read_Line(sLine) && sLine.Length() > 0 && SG_UI_Process_Set_Progress(Stream.Tell(), fLength) )
+	{
+		CSG_Table_Record	*pRecord	= Table._Add_Record();
+
+		sLine	+= Separator;
+
+		for(iField=0; iField<Table.Get_Field_Count(); iField++)
+		{
+			if( (i = sLine.Find(Separator)) >= 0 )
+			{
+				sField.Printf(sLine.Left(i));
+
+				if( sField[0] == SG_T('\"') && sField[(int)(sField.Length() - 1)] == SG_T('\"') )	// remove quota
+				{
+					sField	= sField.AfterFirst('\"').BeforeLast('\"');
+				}
+
+				if( Type[iField] != TABLE_FIELDTYPE_String )
+				{
+					double	Value;
+
+					if( SG_SSCANF(sField, SG_T("%lf"), &Value) != 1 )
+					{
+						Type[iField]	= TABLE_FIELDTYPE_String;
+					}
+					else if( Type[iField] != TABLE_FIELDTYPE_Double && Value - (int)Value != 0.0 )
+					{
+						Type[iField]	= TABLE_FIELDTYPE_Double;
+					}
+				}
+
+				pRecord->Set_Value(iField, sField);
 
 				sLine.Remove(0, i + 1);
 			}
-
-			sField.Printf(bHeadline ? sLine : SG_T("FIELD_%02d"), newTable.Get_Field_Count() + 1);
-
-			newTable.Add_Field(sField, TABLE_FIELDTYPE_String);
-		}
-
-		//-------------------------------------------------
-		if( newTable.Get_Field_Count() > 0 )
-		{
-			if( !bHeadline )
+			else
 			{
-				Stream.Seek_Start();
-			}
-
-			while( Stream.Read_Line(sLine) && SG_UI_Process_Set_Progress(Stream.Tell(), fLength) )
-			{
-				if( sLine.Length() > 1 )
-				{
-					sLine.Append(Separator);
-
-					pRecord	= newTable._Add_Record();
-
-					for(iField=0; iField<newTable.Get_Field_Count(); iField++)
-					{
-						if( (i = sLine.Find(Separator)) >= 0 )
-						{
-							sField.Printf(sLine.Left(i));
-
-							pRecord->Set_Value(iField, sField);
-
-							sLine.Remove(0, i + 1);
-						}
-						else
-						{
-							break;
-						}
-					}
-				}
-			}
-
-			//---------------------------------------------
-			if( newTable.Get_Record_Count() > 0 )
-			{
-				for(iField=0; iField<newTable.Get_Field_Count(); iField++)
-				{
-					for(iRecord=0, bNumeric=true, bFloat=false; iRecord<newTable.Get_Record_Count() && bNumeric; iRecord++)
-					{
-						if( SG_SSCANF(newTable.Get_Record(iRecord)->asString(iField), SG_T("%lf"), &Value) != 1 )
-						{
-							bNumeric	= false;
-						}
-						else if( !bFloat && Value - (int)Value != 0.0 )
-						{
-							bFloat		= true;
-						}
-					}
-
-					if( !bNumeric )
-					{
-						Add_Field(newTable.Get_Field_Name(iField), TABLE_FIELDTYPE_String);
-					}
-					else if( !bFloat )
-					{
-						Add_Field(newTable.Get_Field_Name(iField), TABLE_FIELDTYPE_Int);
-					}
-					else
-					{
-						Add_Field(newTable.Get_Field_Name(iField), TABLE_FIELDTYPE_Double);
-					}
-				}
-
-				for(iRecord=0; iRecord<newTable.Get_Record_Count() && SG_UI_Process_Set_Progress(iRecord, newTable.Get_Record_Count()); iRecord++)
-				{
-					pRecord	= _Add_Record();
-
-					for(iField=0; iField<Get_Field_Count(); iField++)
-					{
-						CSG_String	sValue(newTable.Get_Record(iRecord)->asString(iField));
-
-						switch( Get_Field_Type(iField) )
-						{
-						default:
-							pRecord->Set_Value(iField, sValue);
-							break;
-
-						case TABLE_FIELDTYPE_Int:
-							pRecord->Set_Value(iField, sValue.asInt());
-							break;
-
-						case TABLE_FIELDTYPE_Double:
-							pRecord->Set_Value(iField, sValue.asDouble());
-							break;
-						}
-					}
-				}
+				break;
 			}
 		}
-
-		SG_UI_Process_Set_Ready();
 	}
+
+	//-----------------------------------------------------
+	if( Table.Get_Count() > 0 )
+	{
+		for(iField=0; iField<Table.Get_Field_Count(); iField++)
+		{
+			Add_Field(Table.Get_Field_Name(iField), Type[iField]);
+		}
+
+		for(int iRecord=0; iRecord<Table.Get_Count() && SG_UI_Process_Set_Progress(iRecord, Table.Get_Count()); iRecord++)
+		{
+			CSG_Table_Record	*pRecord	= _Add_Record();
+
+			for(iField=0; iField<Get_Field_Count(); iField++)
+			{
+				switch( Get_Field_Type(iField) )
+				{
+				default:						pRecord->Set_Value(iField, Table[iRecord].asString(iField));	break;
+				case TABLE_FIELDTYPE_Int:		pRecord->Set_Value(iField, Table[iRecord].asInt   (iField));	break;
+				case TABLE_FIELDTYPE_Double:	pRecord->Set_Value(iField, Table[iRecord].asDouble(iField));	break;
+				}
+			}
+		}
+	}
+
+	delete[](Type);
+
+	SG_UI_Process_Set_Ready();
 
 	return( Get_Field_Count() > 0 );
 }
