@@ -337,6 +337,8 @@ bool CSG_PointCloud::_Load(const CSG_String &File_Name)
 	}
 
 	SG_UI_Msg_Add(LNG("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+
+	return( true );
 }
 
 //---------------------------------------------------------

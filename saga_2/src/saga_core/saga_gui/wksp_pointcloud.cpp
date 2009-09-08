@@ -136,6 +136,32 @@ wxString CWKSP_PointCloud::Get_Description(void)
 	s.Append(wxT("</table>"));
 
 	//-----------------------------------------------------
+	s.Append(wxString::Format(wxT("<table border=\"1\"><tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th>"),
+		LNG("[CAP] Field"),
+		LNG("[CAP] Name"),
+		LNG("[CAP] Type"),
+		LNG("[CAP] Minimum"),
+		LNG("[CAP] Maximum"),
+		LNG("[CAP] Mean"),
+		LNG("[CAP] Standard Deviation")
+	));
+
+	for(int i=0; i<m_pPointCloud->Get_Field_Count(); i++)
+	{
+		s.Append(wxString::Format(wxT("<tr><td>%d</td><td>%s</td><td>%s</td><td>%f</td><td>%f</td><td>%f</td><td>%f</td></tr>"),
+			i + 1,
+			m_pPointCloud->Get_Field_Name(i),
+			gSG_PointCloud_Field_Type_Names[m_pPointCloud->Get_Field_Type(i)],
+			m_pPointCloud->Get_Minimum(i),
+			m_pPointCloud->Get_Maximum(i),
+			m_pPointCloud->Get_Mean(i),
+			m_pPointCloud->Get_StdDev(i)
+		));
+	}
+
+	s.Append(wxT("</table>"));
+
+	//-----------------------------------------------------
 //	s.Append(wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), LNG("[CAP] Data History")));
 //	s.Append(m_pPointCloud->Get_History().Get_HTML());
 //	s.Append(wxString::Format(wxT("</font")));

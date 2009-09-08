@@ -179,14 +179,26 @@ wxString		Get_TableInfo_asHTML(CSG_Table *pTable)
 
 	if( pTable && pTable->is_Valid() )
 	{
-		s.Append(wxString::Format(wxT("<table border=\"1\"><tr><th>%s</th><th>%s</th><th>%s</th>"),
-			LNG("[CAP] Field"), LNG("[CAP] Name"), LNG("[CAP] Type")
+		s.Append(wxString::Format(wxT("<table border=\"1\"><tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th>"),
+			LNG("[CAP] Field"),
+			LNG("[CAP] Name"),
+			LNG("[CAP] Type"),
+			LNG("[CAP] Minimum"),
+			LNG("[CAP] Maximum"),
+			LNG("[CAP] Mean"),
+			LNG("[CAP] Standard Deviation")
 		));
 
 		for(int i=0; i<pTable->Get_Field_Count(); i++)
 		{
-			s.Append(wxString::Format(wxT("<tr><td>%d</td><td>%s</td><td>%s</td></tr>"),
-				i + 1, pTable->Get_Field_Name(i), gSG_Table_Field_Type_Names[pTable->Get_Field_Type(i)]
+			s.Append(wxString::Format(wxT("<tr><td>%d</td><td>%s</td><td>%s</td><td>%f</td><td>%f</td><td>%f</td><td>%f</td></tr>"),
+				i + 1,
+				pTable->Get_Field_Name(i),
+				gSG_Table_Field_Type_Names[pTable->Get_Field_Type(i)],
+				pTable->Get_Minimum(i),
+				pTable->Get_Maximum(i),
+				pTable->Get_Mean(i),
+				pTable->Get_StdDev(i)
 			));
 		}
 
