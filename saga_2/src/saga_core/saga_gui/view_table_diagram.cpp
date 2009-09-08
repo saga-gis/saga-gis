@@ -149,7 +149,7 @@ private:
 	void							_Draw				(wxDC &dc, wxRect r);
 	void							_Draw_Frame			(wxDC &dc, wxRect r, double dx, double dy);
 	void							_Draw_Legend		(wxDC &dc, wxRect r);
-	void							_Draw_Line			(wxDC &dc, wxRect r, double dx, double dy, int iField, bool bLine, bool bPoint);
+	void							_Draw_Line			(wxDC &dc, wxRect r, double dx, double dy, int iField, bool bLine, int bPoint);
 	void							_Draw_Bars			(wxDC &dc, wxRect r, double dx, double dy, int iField);
 
 
@@ -501,11 +501,12 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 		m_Parameters.Add_Choice(
 			pNode, "_DIAGRAM_TYPE"		, LNG("[CAP] Display Type"),
 			LNG(""),
-			wxString::Format(wxT("%s|%s|%s|%s|"),
+			wxString::Format(wxT("%s|%s|%s|%s|%s|"),
 				LNG("Bars"),
 				LNG("Lines and Points"),
 				LNG("Lines"),
-				LNG("Points")
+				LNG("Points"),
+				LNG("Points with Colour Attribute")
 			), 1
 		);
 
@@ -528,6 +529,23 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 
 		sFields_Num.Append(LNG("[CAP] [none]"));
 		sFields_Num.Append(wxT("|"));
+
+		//-------------------------------------------------
+		pNode	= m_Parameters.Add_Node(
+			m_Parameters("GENERAL"), "NODE_COLOURS", LNG("[CAP] Points with Colour Attribute"),
+			LNG("")
+		);
+
+		m_Parameters.Add_Choice(
+			pNode, "_DIAGRAM_COLOUR_FIELD"	, LNG("[CAP] Attribute"),
+			LNG(""),
+			sFields_Num, 0
+		);
+
+		m_Parameters.Add_Colors(
+			pNode, "_DIAGRAM_COLOURS"		, LNG("[CAP] Colours"),
+			LNG("")
+		);
 
 		//-------------------------------------------------
 		pNode	= m_Parameters.Add_Node(
@@ -638,10 +656,11 @@ void CVIEW_Table_Diagram_Control::_Draw(wxDC &dc, wxRect rDC)
 				switch( m_Parameters("_DIAGRAM_TYPE")->asInt() )
 				{
 				default:
-				case 0:	_Draw_Bars(dc, r, dx, dy, iField);					break;
-				case 1:	_Draw_Line(dc, r, dx, dy, iField, true ,  true);	break;
-				case 2:	_Draw_Line(dc, r, dx, dy, iField, true , false);	break;
-				case 3:	_Draw_Line(dc, r, dx, dy, iField, false,  true);	break;
+				case 0:	_Draw_Bars(dc, r, dx, dy, iField);				break;	// Bars
+				case 1:	_Draw_Line(dc, r, dx, dy, iField, true , 1);	break;	// Lines and Points
+				case 2:	_Draw_Line(dc, r, dx, dy, iField, true , 0);	break;	// Lines
+				case 3:	_Draw_Line(dc, r, dx, dy, iField, false, 1);	break;	// Points
+				case 4:	_Draw_Line(dc, r, dx, dy, iField, false, 2);	break;	// Points with Colour Attribute
 				}
 			}
 
@@ -789,7 +808,7 @@ void CVIEW_Table_Diagram_Control::_Draw_Legend(wxDC &dc, wxRect r)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CVIEW_Table_Diagram_Control::_Draw_Line(wxDC &dc, wxRect r, double dx, double dy, int iField, bool bLine, bool bPoint)
+void CVIEW_Table_Diagram_Control::_Draw_Line(wxDC &dc, wxRect r, double dx, double dy, int iField, bool bLine, int bPoint)
 {
 	int		iRecord, ix, iy, jx, jy;
 	wxPen	Pen;
@@ -823,7 +842,7 @@ void CVIEW_Table_Diagram_Control::_Draw_Line(wxDC &dc, wxRect r, double dx, doub
 		}
 	}
 
-	if( bPoint )
+	if( bPoint == 1 )
 	{
 		for(iRecord=0; iRecord<m_pTable->Get_Record_Count(); iRecord++)
 		{
@@ -831,6 +850,32 @@ void CVIEW_Table_Diagram_Control::_Draw_Line(wxDC &dc, wxRect r, double dx, doub
 				? r.GetLeft()	+ (int)(dx * iRecord)
 				: r.GetLeft()	+ (int)(dx * (m_pTable->Get_Record_byIndex(iRecord)->asDouble(m_xField) - m_xMin));
 			iy	= r.GetBottom()	- (int)(dy * (m_pTable->Get_Record_byIndex(iRecord)->asDouble(  iField) - m_yMin));
+
+			dc.DrawCircle(ix, iy, 2);
+		}
+	}
+	else if( bPoint == 2 )
+	{
+		int			iz, zField;
+		double		zMin, dz;
+		CSG_Colors	*pColors;
+
+		zField	= m_Parameters("_DIAGRAM_COLOUR_FIELD")	->asInt();
+		pColors	= m_Parameters("_DIAGRAM_COLOURS")		->asColors();
+
+		zMin	= m_pTable->Get_Minimum(zField);
+		dz		= pColors->Get_Count() / m_pTable->Get_Range(zField);
+
+		for(iRecord=0; iRecord<m_pTable->Get_Record_Count(); iRecord++)
+		{
+			ix	= m_xField < 0
+				? r.GetLeft()	+ (int)(dx * iRecord)
+				: r.GetLeft()	+ (int)(dx * (m_pTable->Get_Record_byIndex(iRecord)->asDouble(m_xField) - m_xMin));
+			iy	= r.GetBottom()	- (int)(dy * (m_pTable->Get_Record_byIndex(iRecord)->asDouble(  iField) - m_yMin));
+
+			iz	= zMin			+ (int)(dz * (m_pTable->Get_Record_byIndex(iRecord)->asDouble(  zField) -   zMin));
+
+			dc.SetPen(wxPen(Get_Color_asWX(pColors->Get_Color(iz < 0 ? 0 : (iz >= 255 ? 255 : iz)))));
 
 			dc.DrawCircle(ix, iy, 2);
 		}
