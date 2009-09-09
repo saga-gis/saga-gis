@@ -157,6 +157,12 @@ CPoints_View_Control::CPoints_View_Control(wxWindow *pParent, CSG_PointCloud *pP
 	);
 
 	m_pSettings->Add_Value(
+		pNode	, "C_AS_RGB"		, _TL("Value as RGB Code"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
+
+	m_pSettings->Add_Value(
 		pNode	, "SIZE_DEF"		, _TL("Point Size: Default"),
 		_TL(""),
 		PARAMETER_TYPE_Int, 0, 0, true
@@ -173,12 +179,6 @@ CPoints_View_Control::CPoints_View_Control(wxWindow *pParent, CSG_PointCloud *pP
 		_TL(""),
 		PARAMETER_TYPE_Double, 1.0
 	);
-
-//	m_pSettings->Add_Value(
-//		pNode	, "STEREO"			, _TL("Stereo Anaglyph"),
-//		_TL(""),
-//		PARAMETER_TYPE_Bool, false
-//	);
 
 	m_pSettings->Add_Value(
 		pNode	, "STEREO_DIST"		, _TL("Stereo Eye Distance [Degree]"),
@@ -436,9 +436,6 @@ bool CPoints_View_Control::_Draw_Image(void)
 	m_cScale	= m_pColors->Get_Count() / (m_Settings("C_RANGE")->asRange()->Get_HiVal() - m_cMin);
 
 	//-------------------------------------------------
-	m_Image_zMax.Assign(999999.0);
-
-	//-------------------------------------------------
 	if( (dcSize.x / (double)dcSize.y) > (m_Extent.Get_XRange() / m_Extent.Get_YRange()) )
 	{
 		r_Scale	= m_Image.GetWidth() / m_Extent.Get_XRange();
@@ -448,49 +445,49 @@ bool CPoints_View_Control::_Draw_Image(void)
 		r_Scale	= m_Image.GetHeight() / m_Extent.Get_YRange();
 	}
 
-	r_sin_x	= sin(m_xRotate - M_PI_180);
-	r_cos_x	= cos(m_xRotate - M_PI_180);
-	r_sin_y	= sin(m_yRotate);
-	r_cos_y	= cos(m_yRotate);
-	r_sin_z	= sin(m_zRotate);
-	r_cos_z	= cos(m_zRotate);
+	r_sin_x		= sin(m_xRotate - M_PI_180);
+	r_cos_x		= cos(m_xRotate - M_PI_180);
+	r_sin_y		= sin(m_yRotate);
+	r_cos_y		= cos(m_yRotate);
+	r_sin_z		= sin(m_zRotate);
+	r_cos_z		= cos(m_zRotate);
 
-	r_xc	= m_Extent.Get_XCenter();
-	r_yc	= m_Extent.Get_YCenter();
-	r_zc	= m_zStats.Get_Minimum() + 0.5 * m_zStats.Get_Range();
+	r_xc		= m_Extent.Get_XCenter();
+	r_yc		= m_Extent.Get_YCenter();
+	r_zc		= m_zStats.Get_Minimum() + 0.5 * m_zStats.Get_Range();
 
 	r_Scale_z	= r_Scale * m_Settings("EXAGGERATION")->asDouble();
-
-	//-------------------------------------------------
-	int		ix, iy, ic, nSkip, iSelection;
-	double	iz;
 
 	//-------------------------------------------------
 	m_Size_Def		= m_Settings("SIZE_DEF")->asInt();
 	m_Size_Scale	= 1.0 / m_Settings("SIZE_SCALE")->asDouble();
 
-	//-------------------------------------------------
-	nSkip	= 1 + (int)(0.001 * m_pPoints->Get_Count() * SG_Get_Square(1.0 - m_Detail));
+	m_bColorAsRGB	= m_Settings("C_AS_RGB")->asBool();
 
+	int		iSelection;
+	int		nSkip	= 1 + (int)(0.001 * m_pPoints->Get_Count() * SG_Get_Square(1.0 - m_Detail));
+
+	_Draw_Background();
+
+	//-------------------------------------------------
 	if( m_bStereo == false )
 	{
-		_Draw_Background(m_Settings("BGCOLOR")->asColor());
+		m_Image_zMax.Assign(999999.0);
 
 		m_Color_Mode	= COLOR_MODE_RGB;
 
 		for(iSelection=0; iSelection<m_nSelection; iSelection+=nSkip)
 		{
-			_Get_Point(m_pSelection[iSelection], ix, iy, iz, ic);
-			_Draw_Point(ix, iy, iz, ic, _Get_Size(iz));
+			_Draw_Point(m_pSelection[iSelection]);
 		}
 	}
+
+	//-------------------------------------------------
 	else
 	{
-		ic	= m_Settings("BGCOLOR")->asColor();
-		ic	= (int)((SG_GET_R(ic) + SG_GET_G(ic) + SG_GET_B(ic)) / 3.0);
-		_Draw_Background(SG_GET_RGB(ic, ic, ic));
-
 		double	d	= m_Settings("STEREO_DIST")->asDouble() / 2.0;
+
+		m_Image_zMax.Assign(999999.0);
 
 		r_sin_y	= sin(m_yRotate - d * M_DEG_TO_RAD);
 		r_cos_y	= cos(m_yRotate - d * M_DEG_TO_RAD);
@@ -499,8 +496,7 @@ bool CPoints_View_Control::_Draw_Image(void)
 
 		for(iSelection=0; iSelection<m_nSelection; iSelection+=nSkip)
 		{
-			_Get_Point(m_pSelection[iSelection], ix, iy, iz, ic);
-			_Draw_Point(ix, iy, iz, ic, _Get_Size(iz));
+			_Draw_Point(m_pSelection[iSelection]);
 		}
 
 		m_Image_zMax.Assign(999999.0);
@@ -512,8 +508,7 @@ bool CPoints_View_Control::_Draw_Image(void)
 
 		for(iSelection=0; iSelection<m_nSelection; iSelection+=nSkip)
 		{
-			_Get_Point(m_pSelection[iSelection], ix, iy, iz, ic);
-			_Draw_Point(ix, iy, iz, ic, _Get_Size(iz));
+			_Draw_Point(m_pSelection[iSelection]);
 		}
 	}
 
@@ -528,41 +523,18 @@ bool CPoints_View_Control::_Draw_Image(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline int CPoints_View_Control::_Get_Size(double zDistance)
-{
-	return( m_Size_Def + (!m_bScale ? 0 : (int)(20.0 * exp(-m_Size_Scale * zDistance))) );
-}
-
-//---------------------------------------------------------
-inline void CPoints_View_Control::_Get_Point(int iPoint, int &ix, int &iy, double &iz, int &iColor)
-{
-	TSG_Point_3D	p;
-
-	p		= m_pPoints->Get_Point(iPoint);
-	p.z		= m_pPoints->Get_Value(iPoint, m_zField);
-
-	p		= _Get_Projection(p);
-
-	ix		= (int)p.x + 0.5 * m_Image.GetWidth();
-	iy		= (int)p.y + 0.5 * m_Image.GetHeight();
-	iz		= p.z;
-
-	iColor	= (int)(m_cScale * (m_pPoints->Get_Value(iPoint, m_cField) - m_cMin));
-	iColor	= m_pColors->Get_Color(iColor < 0 ? 0 : (iColor >= m_pColors->Get_Count() ? m_pColors->Get_Count() - 1 : iColor));
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CPoints_View_Control::_Draw_Background(int color)
+void CPoints_View_Control::_Draw_Background(void)
 {
 	BYTE	r, g, b, *pRGB;
-	int		i, n;
+	int		i, n, color;
+
+	color	= m_Settings("BGCOLOR")->asColor();
+
+	if( m_bStereo )
+	{
+		color	= (int)((SG_GET_R(color) + SG_GET_G(color) + SG_GET_B(color)) / 3.0);
+		color	= SG_GET_RGB(color, color, color);
+	}
 
 	r	= SG_GET_R(color);
 	g	= SG_GET_G(color);
@@ -576,6 +548,37 @@ void CPoints_View_Control::_Draw_Background(int color)
 		*pRGB	= g;	pRGB++;
 		*pRGB	= b;	pRGB++;
 	}
+}
+
+//---------------------------------------------------------
+inline void CPoints_View_Control::_Draw_Point(int iPoint)
+{
+	int				ix, iy, iColor;
+	double			iz;
+	TSG_Point_3D	p;
+
+	m_pPoints->Set_Cursor(iPoint);
+
+	p		= m_pPoints->Get_Point();
+	p.z		= m_pPoints->Get_Value(m_zField);
+
+	p		= _Get_Projection(p);
+
+	ix		= (int)p.x + 0.5 * m_Image.GetWidth();
+	iy		= (int)p.y + 0.5 * m_Image.GetHeight();
+	iz		= p.z;
+
+	if( !m_bColorAsRGB )
+	{
+		iColor	= (int)(m_cScale * (m_pPoints->Get_Value(m_cField) - m_cMin));
+		iColor	= m_pColors->Get_Color(iColor < 0 ? 0 : (iColor >= m_pColors->Get_Count() ? m_pColors->Get_Count() - 1 : iColor));
+	}
+	else
+	{
+		iColor	= (int)m_pPoints->Get_Value(m_cField);
+	}
+
+	_Draw_Point(ix, iy, iz, iColor, m_Size_Def + (!m_bScale ? 0 : (int)(20.0 * exp(-m_Size_Scale * iz))));
 }
 
 //---------------------------------------------------------

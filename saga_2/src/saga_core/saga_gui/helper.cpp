@@ -62,6 +62,7 @@
 #include <wx/cursor.h>
 #include <wx/utils.h>
 #include <wx/mimetype.h>
+#include <wx/filename.h>
 
 #include <saga_api/saga_api.h>
 
@@ -608,23 +609,45 @@ void		STATUSBAR_Set_Text(const wxChar *Text, int iPane)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		Open_WebBrowser(const wxChar *HRef)
+bool		Open_Application(const wxChar *Reference, const wxChar *Mime_Extension)
 {
-	bool		bResult	= false;
-	wxString	Command;
-	wxFileType	*pFileType;
+	bool		bResult		= false;
 
-	if( (pFileType = wxTheMimeTypesManager->GetFileTypeFromExtension(wxT("html"))) != NULL )
+	if( Reference && Reference[0] )
 	{
-		if( pFileType->GetOpenCommand(&Command, wxFileType::MessageParameters(HRef, wxT(""))) )
+		wxFileType	*pFileType;
+
+		if( Mime_Extension )
 		{
-			bResult	= wxExecute(Command) == 0;
+			pFileType	= wxTheMimeTypesManager->GetFileTypeFromExtension(Mime_Extension);
+		}
+		else
+		{
+			wxFileName	FileName(Reference);
+
+			pFileType	= wxTheMimeTypesManager->GetFileTypeFromExtension(FileName.GetExt());
 		}
 
-		delete(pFileType);
+		if( pFileType )
+		{
+			wxString	Command;
+
+			if( pFileType->GetOpenCommand(&Command, wxFileType::MessageParameters(Reference, wxT(""))) )
+			{
+				bResult	= wxExecute(Command) == 0;
+			}
+
+			delete(pFileType);
+		}
 	}
 
 	return( bResult );
+}
+
+//---------------------------------------------------------
+bool		Open_WebBrowser(const wxChar *Reference)
+{
+	return( Open_Application(Reference, wxT("html")) );
 }
 
 

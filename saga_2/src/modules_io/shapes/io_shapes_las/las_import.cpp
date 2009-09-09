@@ -166,7 +166,7 @@ CLAS_Import::CLAS_Import(void)
 	Parameters.Add_Value(pNode, "e", _TL("edge of flight line flag")		, _TL(""), PARAMETER_TYPE_Bool, false);
 	Parameters.Add_Value(pNode, "d", _TL("direction of scan flag")			, _TL(""), PARAMETER_TYPE_Bool, false);
 //	Parameters.Add_Value(pNode, "p", _TL("point source ID")					, _TL(""), PARAMETER_TYPE_Bool, false);
-//	Parameters.Add_Value(pNode, "C", _TL("colour")							, _TL(""), PARAMETER_TYPE_Bool, false);
+	Parameters.Add_Value(pNode, "C", _TL("color")							, _TL(""), PARAMETER_TYPE_Bool, false);
 }
 
 
@@ -221,14 +221,14 @@ bool CLAS_Import::On_Execute(void)
 	ADD_FIELD("r", VAR_r, _TL("number of the return")				, POINTCLOUD_FIELDTYPE_Int);
 	ADD_FIELD("c", VAR_c, _TL("classification")						, POINTCLOUD_FIELDTYPE_Int);
 	ADD_FIELD("u", VAR_u, _TL("user data")							, POINTCLOUD_FIELDTYPE_Double);
-	ADD_FIELD("n", VAR_n, _TL("number of returns of given pulse")	, POINTCLOUD_FIELDTYPE_Short);
+	ADD_FIELD("n", VAR_n, _TL("number of returns of given pulse")	, POINTCLOUD_FIELDTYPE_Int);
 	ADD_FIELD("R", VAR_R, _TL("red channel color")					, POINTCLOUD_FIELDTYPE_Short);
 	ADD_FIELD("G", VAR_G, _TL("green channel color")				, POINTCLOUD_FIELDTYPE_Short);
-	ADD_FIELD("B", VAR_B, _TL("blue channel color")					, POINTCLOUD_FIELDTYPE_Int);
+	ADD_FIELD("B", VAR_B, _TL("blue channel color")					, POINTCLOUD_FIELDTYPE_Short);
 	ADD_FIELD("e", VAR_e, _TL("edge of flight line flag")			, POINTCLOUD_FIELDTYPE_Char);
 	ADD_FIELD("d", VAR_d, _TL("direction of scan flag")				, POINTCLOUD_FIELDTYPE_Char);
 //	ADD_FIELD("p", VAR_p, _TL("point source ID")					, POINTCLOUD_FIELDTYPE_Int);
-	ADD_FIELD("C", VAR_C, _TL("color")								, POINTCLOUD_FIELDTYPE_Long);
+	ADD_FIELD("C", VAR_C, _TL("rgb color")							, POINTCLOUD_FIELDTYPE_Long);
 
 	//-----------------------------------------------------
 	int		iPoint	= 0, nPoints	= LASHeader_GetRecordsCount(header);

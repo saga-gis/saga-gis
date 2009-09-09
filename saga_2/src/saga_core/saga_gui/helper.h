@@ -162,7 +162,8 @@ bool				PROGRESSBAR_Set_Position		(int Position);
 bool				PROGRESSBAR_Set_Position		(double Position, double Range);
 
 //---------------------------------------------------------
-bool				Open_WebBrowser					(const wxChar *HRef);
+bool				Open_Application				(const wxChar *Reference, const wxChar *Mime_Extension = NULL);
+bool				Open_WebBrowser					(const wxChar *Reference);
 
 //---------------------------------------------------------
 enum

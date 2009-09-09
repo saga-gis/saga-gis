@@ -805,6 +805,13 @@ void CVIEW_Table_Control::On_LClick(wxGridEvent &event)
 			default:
 				break;
 
+			case TABLE_FIELDTYPE_String:
+				if( event.ControlDown() )
+				{
+					Open_Application(pRecord->asString(iField));
+				}
+				break;
+
 			case TABLE_FIELDTYPE_Color:
 				if( DLG_Color(lValue = pRecord->asInt(iField)) )
 				{

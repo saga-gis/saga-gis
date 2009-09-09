@@ -122,6 +122,8 @@ public:
 
 private:
 
+	bool						m_bColorAsRGB;
+
 	int							m_nSelection, *m_pSelection, m_Color_Mode, m_Size_Def;
 
 	double						m_xDown, m_yDown, m_cMin, m_cScale, m_Size_Scale;
@@ -147,14 +149,13 @@ private:
 
 	void						_Set_Size				(void);
 
-	int							_Get_Size				(double zDistance);
-	void						_Get_Point				(int iPoint, int &ix, int &iy, double &iz, int &iColor);
-	TSG_Point_3D				_Get_Projection			(TSG_Point_3D &p);
-
 	bool						_Draw_Image				(void);
+	void						_Draw_Background		(void);
+	void						_Draw_Point				(int iPoint);
 	void						_Draw_Point				(int x, int y, double z, int color, int Size);
 	void						_Draw_Pixel				(int x, int y, double z, int color);
-	void						_Draw_Background		(int color);
+
+	TSG_Point_3D				_Get_Projection			(TSG_Point_3D &p);
 
 
 	DECLARE_EVENT_TABLE()
