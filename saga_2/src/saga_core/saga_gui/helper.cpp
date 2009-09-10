@@ -615,25 +615,29 @@ bool		Open_Application(const wxChar *Reference, const wxChar *Mime_Extension)
 
 	if( Reference && Reference[0] )
 	{
+		wxString	Extension;
 		wxFileType	*pFileType;
 
-		if( Mime_Extension )
+		if( Mime_Extension && Mime_Extension[0] )
 		{
-			pFileType	= wxTheMimeTypesManager->GetFileTypeFromExtension(Mime_Extension);
+			Extension	= Mime_Extension;
 		}
 		else
 		{
 			wxFileName	FileName(Reference);
 
-			pFileType	= wxTheMimeTypesManager->GetFileTypeFromExtension(FileName.GetExt());
+			Extension	= FileName.GetExt();
 		}
 
-		if( pFileType )
+		if( Extension.Length() > 0 && (pFileType = wxTheMimeTypesManager->GetFileTypeFromExtension(Extension)) != NULL )
 		{
 			wxString	Command;
 
 			if( pFileType->GetOpenCommand(&Command, wxFileType::MessageParameters(Reference, wxT(""))) )
 			{
+				MSG_Execution_Add_Line();
+				MSG_Execution_Add(Command, true, true);
+
 				bResult	= wxExecute(Command) == 0;
 			}
 

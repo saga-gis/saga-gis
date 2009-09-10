@@ -145,7 +145,10 @@ BEGIN_EVENT_TABLE(CVIEW_Map_3D, CVIEW_Base)
 	EVT_LEFT_UP			(CVIEW_Map_3D::On_Mouse_LUp)
 	EVT_RIGHT_DOWN		(CVIEW_Map_3D::On_Mouse_RDown)
 	EVT_RIGHT_UP		(CVIEW_Map_3D::On_Mouse_RUp)
+	EVT_MIDDLE_DOWN		(CVIEW_Map_3D::On_Mouse_MDown)
+	EVT_MIDDLE_UP		(CVIEW_Map_3D::On_Mouse_MUp)
 	EVT_MOTION			(CVIEW_Map_3D::On_Mouse_Motion)
+	EVT_MOUSEWHEEL		(CVIEW_Map_3D::On_Mouse_Wheel)
 	EVT_MENU_RANGE		(ID_CMD_MAP3D_FIRST, ID_CMD_MAP3D_LAST, CVIEW_Map_3D::On_Command)
 	EVT_UPDATE_UI_RANGE	(ID_CMD_MAP3D_FIRST, ID_CMD_MAP3D_LAST, CVIEW_Map_3D::On_Command_UI)
 END_EVENT_TABLE()
@@ -415,7 +418,6 @@ void CVIEW_Map_3D::On_Mouse_LDown(wxMouseEvent &event)
 	CaptureMouse();
 }
 
-//---------------------------------------------------------
 void CVIEW_Map_3D::On_Mouse_LUp(wxMouseEvent &event)
 {
 	if( HasCapture() )
@@ -436,13 +438,12 @@ void CVIEW_Map_3D::On_Mouse_LUp(wxMouseEvent &event)
 void CVIEW_Map_3D::On_Mouse_RDown(wxMouseEvent &event)
 {
 	m_Mouse_Down	= event.GetPosition();
-	m_xDown			= m_pImage->m_yShift;
-	m_yDown			= m_pImage->m_zShift;
+	m_xDown			= m_pImage->m_xShift;
+	m_yDown			= m_pImage->m_yShift;
 
 	CaptureMouse();
 }
 
-//---------------------------------------------------------
 void CVIEW_Map_3D::On_Mouse_RUp(wxMouseEvent &event)
 {
 	if( HasCapture() )
@@ -452,7 +453,33 @@ void CVIEW_Map_3D::On_Mouse_RUp(wxMouseEvent &event)
 
 	if( m_Mouse_Down.x != event.GetX() || m_Mouse_Down.y != event.GetY() )
 	{
-		m_pImage->m_yShift	= m_xDown - GET_MOUSE_X_RELDIFF * 100.0;
+		m_pImage->m_xShift	= m_xDown - GET_MOUSE_X_RELDIFF * 100.0;
+		m_pImage->m_yShift	= m_yDown + GET_MOUSE_Y_RELDIFF * 100.0;
+
+		_Parms_Changed();
+	}
+}
+
+//---------------------------------------------------------
+void CVIEW_Map_3D::On_Mouse_MDown(wxMouseEvent &event)
+{
+	m_Mouse_Down	= event.GetPosition();
+	m_xDown			= m_pImage->m_yRotate;
+	m_yDown			= m_pImage->m_zShift;
+
+	CaptureMouse();
+}
+
+void CVIEW_Map_3D::On_Mouse_MUp(wxMouseEvent &event)
+{
+	if( HasCapture() )
+	{
+		ReleaseMouse();
+	}
+
+	if( m_Mouse_Down.x != event.GetX() || m_Mouse_Down.y != event.GetY() )
+	{
+		m_pImage->m_yRotate	= m_xDown + GET_MOUSE_X_RELDIFF * M_PI_180;
 		m_pImage->m_zShift	= m_yDown + GET_MOUSE_Y_RELDIFF * 100.0;
 
 		_Parms_Changed();
@@ -473,11 +500,29 @@ void CVIEW_Map_3D::On_Mouse_Motion(wxMouseEvent &event)
 		}
 		else if( event.RightIsDown() )
 		{
-			m_pImage->m_yShift	= m_xDown - GET_MOUSE_X_RELDIFF * 100.0;
+			m_pImage->m_xShift	= m_xDown - GET_MOUSE_X_RELDIFF * 100.0;
+			m_pImage->m_yShift	= m_yDown + GET_MOUSE_Y_RELDIFF * 100.0;
+
+			_Parms_Changed();
+		}
+		else if( event.MiddleIsDown() )
+		{
+			m_pImage->m_yRotate	= m_xDown + GET_MOUSE_X_RELDIFF * M_PI_180;
 			m_pImage->m_zShift	= m_yDown + GET_MOUSE_Y_RELDIFF * 100.0;
 
 			_Parms_Changed();
 		}
+	}
+}
+
+//---------------------------------------------------------
+void CVIEW_Map_3D::On_Mouse_Wheel(wxMouseEvent &event)
+{
+	if( event.GetWheelRotation() )
+	{
+		m_pImage->m_zShift	+= 0.25 * event.GetWheelRotation();
+
+		_Parms_Changed();
 	}
 }
 

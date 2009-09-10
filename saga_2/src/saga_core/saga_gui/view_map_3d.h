@@ -101,7 +101,10 @@ public:
 	void							On_Mouse_LUp			(wxMouseEvent &event);
 	void							On_Mouse_RDown			(wxMouseEvent &event);
 	void							On_Mouse_RUp			(wxMouseEvent &event);
+	void							On_Mouse_MDown			(wxMouseEvent &event);
+	void							On_Mouse_MUp			(wxMouseEvent &event);
 	void							On_Mouse_Motion			(wxMouseEvent &event);
+	void							On_Mouse_Wheel			(wxMouseEvent &event);
 
 	void							On_Command				(wxCommandEvent &event);
 	void							On_Command_UI			(wxUpdateUIEvent &event);

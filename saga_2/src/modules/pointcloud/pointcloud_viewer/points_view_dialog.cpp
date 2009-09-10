@@ -71,8 +71,8 @@
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CPoints_View_Dialog, CSGDI_Dialog)
+	EVT_MOUSEWHEEL	(CPoints_View_Dialog::On_Mouse_Wheel)
 	EVT_KEY_DOWN	(CPoints_View_Dialog::On_Key_Down)
-
 	EVT_BUTTON		(wxID_ANY	, CPoints_View_Dialog::On_Button)
 	EVT_CHECKBOX	(wxID_ANY	, CPoints_View_Dialog::On_Update_Control)
 	EVT_TEXT_ENTER	(wxID_ANY	, CPoints_View_Dialog::On_Update_Control)
@@ -130,6 +130,18 @@ CPoints_View_Dialog::CPoints_View_Dialog(CSG_PointCloud *pPoints)
 	Add_CustomCtrl(_TL("Extent"), m_pExtent);
 
 	Add_Output(m_pView);
+}
+
+//---------------------------------------------------------
+void CPoints_View_Dialog::On_Mouse_Wheel(wxMouseEvent &event)
+{
+	m_pView->On_Mouse_Wheel(event);
+}
+
+//---------------------------------------------------------
+void CPoints_View_Dialog::On_Key_Down(wxKeyEvent &event)
+{
+	event.Skip();
 }
 
 //---------------------------------------------------------
@@ -216,12 +228,6 @@ void CPoints_View_Dialog::On_Button(wxCommandEvent &event)
 	{
 		event.Skip();
 	}
-}
-
-//---------------------------------------------------------
-void CPoints_View_Dialog::On_Key_Down(wxKeyEvent &event)
-{
-	m_pView->On_Key_Down(event);
 }
 
 //---------------------------------------------------------

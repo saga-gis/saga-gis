@@ -874,6 +874,21 @@ bool CParameters_PG_Dialog::OnEvent(wxPropertyGrid *propgrid, wxWindow *primary,
 			return( true );
 		}
 	}
+	else if( event.GetEventType() == wxEVT_COMMAND_TEXT_ENTER && primary && propgrid->IsEditorsValueModified() )
+	{
+		CParameters_PG_Parameter_Value	&value	= CParameters_PG_Parameter_ValueFromVariant(m_value);
+
+		if( value.m_pParameter && value.m_pParameter->Get_Type() == PARAMETER_TYPE_FilePath )
+		{
+			value.m_pParameter->Set_Value(((wxTextCtrl *)primary)->GetValue().c_str());
+
+			propgrid->EditorsValueWasModified();
+
+			SetValueInEvent(m_value);
+
+			return( true );
+		}
+	}
 
 	return( false );
 }

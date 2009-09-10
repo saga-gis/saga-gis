@@ -94,14 +94,15 @@
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CPoints_View_Control, wxPanel)
 	EVT_SIZE				(CPoints_View_Control::On_Size)
-	EVT_ERASE_BACKGROUND	(CPoints_View_Control::On_EraseBackGround)
 	EVT_PAINT				(CPoints_View_Control::On_Paint)
-	EVT_KEY_DOWN			(CPoints_View_Control::On_Key_Down)
 	EVT_LEFT_DOWN			(CPoints_View_Control::On_Mouse_LDown)
 	EVT_LEFT_UP				(CPoints_View_Control::On_Mouse_LUp)
 	EVT_RIGHT_DOWN			(CPoints_View_Control::On_Mouse_RDown)
 	EVT_RIGHT_UP			(CPoints_View_Control::On_Mouse_RUp)
+	EVT_MIDDLE_DOWN			(CPoints_View_Control::On_Mouse_MDown)
+	EVT_MIDDLE_UP			(CPoints_View_Control::On_Mouse_MUp)
 	EVT_MOTION				(CPoints_View_Control::On_Mouse_Motion)
+	EVT_MOUSEWHEEL			(CPoints_View_Control::On_Mouse_Wheel)
 END_EVENT_TABLE()
 
 
@@ -217,12 +218,6 @@ void CPoints_View_Control::On_Size(wxSizeEvent &event)
 }
 
 //---------------------------------------------------------
-void CPoints_View_Control::On_EraseBackGround(wxEraseEvent &event)
-{
-//	event.Skip();
-}
-
-//---------------------------------------------------------
 void CPoints_View_Control::On_Paint(wxPaintEvent &WXUNUSED(event))
 {
 	if( m_Image.IsOk() && m_Image.GetWidth() > 0 && m_Image.GetHeight() > 0 )
@@ -285,21 +280,6 @@ void CPoints_View_Control::Update_Extent(CSG_Rect Extent)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CPoints_View_Control::On_Key_Down(wxKeyEvent &event)
-{
-	switch( event.GetKeyCode() )
-	{
-	default:
-		event.Skip();
-		break;
-
-	case WXK_F10:				break;
-	case WXK_UP:		m_Extent.Deflate(10.0);	Update_View();		break;
-	case WXK_DOWN:				break;
-	}
-}
-
-//---------------------------------------------------------
 #define GET_MOUSE_X_RELDIFF	((double)(m_Mouse_Down.x - event.GetX()) / (double)GetClientSize().x)
 #define GET_MOUSE_Y_RELDIFF	((double)(m_Mouse_Down.y - event.GetY()) / (double)GetClientSize().y)
 
@@ -313,7 +293,6 @@ void CPoints_View_Control::On_Mouse_LDown(wxMouseEvent &event)
 	CaptureMouse();
 }
 
-//---------------------------------------------------------
 void CPoints_View_Control::On_Mouse_LUp(wxMouseEvent &event)
 {
 	if( HasCapture() )
@@ -336,13 +315,12 @@ void CPoints_View_Control::On_Mouse_LUp(wxMouseEvent &event)
 void CPoints_View_Control::On_Mouse_RDown(wxMouseEvent &event)
 {
 	m_Mouse_Down	= event.GetPosition();
+	m_xDown			= m_xShift;
 	m_yDown			= m_yShift;
-	m_xDown			= m_zShift;
 
 	CaptureMouse();
 }
 
-//---------------------------------------------------------
 void CPoints_View_Control::On_Mouse_RUp(wxMouseEvent &event)
 {
 	if( HasCapture() )
@@ -352,8 +330,36 @@ void CPoints_View_Control::On_Mouse_RUp(wxMouseEvent &event)
 
 	if( m_Mouse_Down.x != event.GetX() || m_Mouse_Down.y != event.GetY() )
 	{
+		m_xShift	= m_xDown - GET_MOUSE_X_RELDIFF * 1000.0;
 		m_yShift	= m_yDown - GET_MOUSE_Y_RELDIFF * 1000.0;
-		m_zShift	= m_xDown + GET_MOUSE_X_RELDIFF * 1000.0;
+
+		Update_View();
+
+		((CPoints_View_Dialog *)GetParent())->Update_Rotation();
+	}
+}
+
+//---------------------------------------------------------
+void CPoints_View_Control::On_Mouse_MDown(wxMouseEvent &event)
+{
+	m_Mouse_Down	= event.GetPosition();
+	m_xDown			= m_yRotate;
+	m_yDown			= m_zShift;
+
+	CaptureMouse();
+}
+
+void CPoints_View_Control::On_Mouse_MUp(wxMouseEvent &event)
+{
+	if( HasCapture() )
+	{
+		ReleaseMouse();
+	}
+
+	if( m_Mouse_Down.x != event.GetX() || m_Mouse_Down.y != event.GetY() )
+	{
+		m_yRotate	= m_xDown + GET_MOUSE_X_RELDIFF * M_PI_180;
+		m_zShift	= m_yDown + GET_MOUSE_Y_RELDIFF * 1000.0;
 
 		Update_View();
 
@@ -373,8 +379,13 @@ void CPoints_View_Control::On_Mouse_Motion(wxMouseEvent &event)
 		}
 		else if( event.RightIsDown() )
 		{
+			m_xShift	= m_xDown - GET_MOUSE_X_RELDIFF * 1000.0;
 			m_yShift	= m_yDown - GET_MOUSE_Y_RELDIFF * 1000.0;
-			m_zShift	= m_xDown + GET_MOUSE_X_RELDIFF * 1000.0;
+		}
+		else if( event.MiddleIsDown() )
+		{
+			m_yRotate	= m_xDown + GET_MOUSE_X_RELDIFF * M_PI_180;
+			m_zShift	= m_yDown + GET_MOUSE_Y_RELDIFF * 1000.0;
 		}
 		else
 		{
@@ -384,6 +395,17 @@ void CPoints_View_Control::On_Mouse_Motion(wxMouseEvent &event)
 		Update_View();
 
 		((CPoints_View_Dialog *)GetParent())->Update_Rotation();
+	}
+}
+
+//---------------------------------------------------------
+void CPoints_View_Control::On_Mouse_Wheel(wxMouseEvent &event)
+{
+	if( event.GetWheelRotation() )
+	{
+		m_zShift	+= 0.5 * event.GetWheelRotation();
+
+		Update_View();
 	}
 }
 

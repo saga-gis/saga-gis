@@ -294,13 +294,16 @@ bool CSG_PointCloud::_Load(const CSG_String &File_Name)
 
 	for(i=0; i<nFields; i++)
 	{
-		if( !Stream.Read(&Type		, sizeof(TSG_PointCloud_Field_Type))
-		||	!Stream.Read(&iBuffer	, sizeof(int)) || iBuffer <= 0
+		if( !Stream.Read(&Type		, sizeof(TSG_PointCloud_Field_Type)) || _Get_Field_Bytes(Type) == 0
+		||	!Stream.Read(&iBuffer	, sizeof(int)) || !(iBuffer > 0 && iBuffer < 1024)
 		||	!Stream.Read(Name		, iBuffer) )
 		{
+			SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
+			SG_UI_Msg_Add_Error(LNG("[ERR] incompatible file."));
+
 			return( false );
 		}
-		
+
 		Name[iBuffer]	= '\0';
 		_Add_Field(CSG_String((const char *)Name), Type);
 	}
@@ -366,9 +369,9 @@ bool CSG_PointCloud::_Save(const CSG_String &File_Name)
 	{
 		Stream.Write(&m_Field_Type[i], sizeof(TSG_PointCloud_Field_Type));
 
-		iBuffer	= m_Field_Name[i]->Length();
+		iBuffer	= m_Field_Name[i]->Length();	if( iBuffer >= 1024 - 1 )	iBuffer	= 1024 - 1;
 		Stream.Write(&iBuffer, sizeof(int));
-		Stream.Write(*m_Field_Name[i]);
+		Stream.Write((void *)m_Field_Name[i]->b_str(), sizeof(char), iBuffer);
 	}
 
 	for(i=0; i<m_nPoints && SG_UI_Process_Set_Progress(i, m_nPoints); i++)

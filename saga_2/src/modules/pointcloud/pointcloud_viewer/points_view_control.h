@@ -110,14 +110,15 @@ public:
 	void						Update_Extent			(CSG_Rect Extent);
 
 	void						On_Size					(wxSizeEvent  &event);
-	void						On_EraseBackGround		(wxEraseEvent &event);
 	void						On_Paint				(wxPaintEvent &event);
-	void						On_Key_Down				(wxKeyEvent   &event);
 	void						On_Mouse_LDown			(wxMouseEvent &event);
 	void						On_Mouse_LUp			(wxMouseEvent &event);
 	void						On_Mouse_RDown			(wxMouseEvent &event);
 	void						On_Mouse_RUp			(wxMouseEvent &event);
+	void						On_Mouse_MDown			(wxMouseEvent &event);
+	void						On_Mouse_MUp			(wxMouseEvent &event);
 	void						On_Mouse_Motion			(wxMouseEvent &event);
+	void						On_Mouse_Wheel			(wxMouseEvent &event);
 
 
 private:

@@ -111,6 +111,7 @@ private:
 	void						On_Update_Choices		(wxCommandEvent &event);
 	void						On_Button				(wxCommandEvent &event);
 
+	void						On_Mouse_Wheel			(wxMouseEvent   &event);
 	void						On_Key_Down				(wxKeyEvent     &event);
 
 

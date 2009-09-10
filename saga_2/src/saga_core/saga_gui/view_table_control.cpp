@@ -790,43 +790,54 @@ void CVIEW_Table_Control::On_Autosize_Rows(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_LClick(wxGridEvent &event)
 {
-	CSG_Table_Record	*pRecord;
-
-	if( (pRecord = m_pTable->Get_Record_byIndex(event.GetRow())) != NULL )
+	if( event.ControlDown() )
 	{
-		int	iField	= m_Field_Offset + event.GetCol();
+		SelectRow	(event.GetRow(), true);
+	}
+	else if( event.ShiftDown() )
+	{
+		SelectBlock	(event.GetRow(), 0, GetGridCursorRow(), GetNumberCols(), false);
+	}
+	else
+	{
+		SelectRow	(event.GetRow(), false);
 
-		if( iField >= m_Field_Offset && iField < m_pTable->Get_Field_Count() )
+		CSG_Table_Record	*pRecord;
+
+		if( (pRecord = m_pTable->Get_Record_byIndex(event.GetRow())) != NULL )
 		{
-			long	lValue;
+			int	iField	= m_Field_Offset + event.GetCol();
 
-			switch( m_pTable->Get_Field_Type(iField) )
+			if( iField >= m_Field_Offset && iField < m_pTable->Get_Field_Count() )
 			{
-			default:
-				break;
+				long	lValue;
 
-			case TABLE_FIELDTYPE_String:
-				if( event.ControlDown() )
+				switch( m_pTable->Get_Field_Type(iField) )
 				{
-					Open_Application(pRecord->asString(iField));
+				default:
+					break;
+
+				case TABLE_FIELDTYPE_String:
+					if( event.AltDown() )
+					{
+						Open_Application(pRecord->asString(iField));
+					}
+					break;
+
+				case TABLE_FIELDTYPE_Color:
+					if( DLG_Color(lValue = pRecord->asInt(iField)) )
+					{
+						pRecord->Set_Value(iField, lValue);
+
+						SET_CELL_COLOR(event.GetRow(), event.GetCol(), lValue);
+
+						ForceRefresh();
+					}
+					return;
 				}
-				break;
-
-			case TABLE_FIELDTYPE_Color:
-				if( DLG_Color(lValue = pRecord->asInt(iField)) )
-				{
-					pRecord->Set_Value(iField, lValue);
-
-					SET_CELL_COLOR(event.GetRow(), event.GetCol(), lValue);
-
-					ForceRefresh();
-				}
-				return;
 			}
 		}
 	}
-
-	SelectRow(event.GetRow(), wxGetKeyState(WXK_CONTROL));
 
 	SetGridCursor(event.GetRow(), event.GetCol());
 
