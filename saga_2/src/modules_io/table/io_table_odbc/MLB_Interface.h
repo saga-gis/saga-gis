@@ -6,7 +6,7 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                      Table_ODBC                       //
+//                     io_table_odbc                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //

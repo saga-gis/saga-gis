@@ -92,18 +92,24 @@ public:
 	bool						Disconnect				(void);
 
 	bool						is_Connected			(void)	{	return( m_pDB != NULL );	}
-
-	CSG_String					Get_Server				(void);
+	bool						is_Postgres				(void);
 
 	CSG_String					Get_Servers				(void)	{	return( m_Servers );	}
+	CSG_String					Get_Server				(void);
+
 	CSG_String					Get_Tables				(void);
 
-	bool						Get_Table				(int iTable, const CSG_String &Table_Name, CSG_Table &Table);
+	bool						Execute					(const CSG_String &SQL, bool bCommit = false);
+	bool						Commit					(void);
+	bool						Rollback				(void);
 
-	bool						Get_Query				(const CSG_String &Fields, const CSG_String &Tables, const CSG_String &Where, const CSG_String &Order, CSG_Table &Table);
+	bool						Table_Exists			(const CSG_String &Table_Name);
+	bool						Table_Create			(const CSG_String &Table_Name, const CSG_Table &Table, bool bCommit = true);
+	bool						Table_Drop				(const CSG_String &Table_Name                        , bool bCommit = true);
+	bool						Table_Load				(CSG_Table &Table, const CSG_String &Table_Name);
+	bool						Table_Save				(const CSG_String &Table_Name, const CSG_Table &Table, bool bCommit = true);
 
-
-protected:
+	bool						Table_From_Query		(const CSG_String &Fields, const CSG_String &Tables, const CSG_String &Where, const CSG_String &Order, CSG_Table &Table);
 
 
 private:
@@ -114,6 +120,11 @@ private:
 
 	class wxDb					*m_pDB;
 
+
+	void						_Error_Message			(const SG_Char *Message, const SG_Char *Additional = NULL);
+
+	int							_Get_Type_To_SQL		(TSG_Table_Field_Type Type);
+	TSG_Table_Field_Type		_Get_Type_From_SQL		(int Type);
 
 };
 

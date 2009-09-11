@@ -6,7 +6,7 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                      Table_ODBC                       //
+//                     io_table_odbc                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -92,8 +92,10 @@ const SG_Char *	Get_Info(int i)
 // 3. Include the headers of your modules here...
 
 #include "Get_Connection.h"
-#include "Get_Table.h"
-#include "Get_SQLTable.h"
+#include "Table.h"
+#include "Shapes.h"
+
+#include "PGIS_Shapes.h"
 
 
 //---------------------------------------------------------
@@ -104,8 +106,15 @@ CSG_Module *		Create_Module(int i)
 	switch( i )
 	{
 	case 0:		return( new CGet_Connection );
-	case 1:		return( new CGet_Table );
-	case 2:		return( new CGet_SQLTable );
+	case 1:		return( new CTable_Load );
+	case 2:		return( new CTable_Save );
+	case 3:		return( new CTable_Drop );
+	case 4:		return( new CTable_Load_SQL );
+	case 5:		return( new CPoints_Load );
+	case 6:		return( new CPoints_Save );
+
+	case 7:		return( new CPGIS_Shapes_Load );
+	case 8:		return( new CPGIS_Shapes_Save );
 	}
 
 	return( NULL );

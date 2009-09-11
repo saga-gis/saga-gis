@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                      Table_ODBC                       //
+//                     io_table_odbc                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     Get_Table.h                       //
+//                       Shapes.h                        //
 //                                                       //
-//                 Copyright (C) 2005 by                 //
+//                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -58,8 +56,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Get_Table_H
-#define HEADER_INCLUDED__Get_Table_H
+#ifndef HEADER_INCLUDED__Shapes_H
+#define HEADER_INCLUDED__Shapes_H
 
 
 ///////////////////////////////////////////////////////////
@@ -79,10 +77,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGet_Table : public CSG_Module
+class CPoints_Load : public CSG_Module
 {
 public:
-	CGet_Table(void);
+	CPoints_Load(void);
 
 
 protected:
@@ -91,13 +89,27 @@ protected:
 
 	virtual bool				On_Execute				(void);
 
-
-private:
-
-
 };
 
-#endif // #ifndef HEADER_INCLUDED__Get_Table_H
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CPoints_Save : public CSG_Module
+{
+public:
+	CPoints_Save(void);
+
+
+protected:
+
+	virtual bool				On_Before_Execution		(void)		{	return( is_Connected() );	}
+
+	virtual bool				On_Execute				(void);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -107,3 +119,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__Shapes_H

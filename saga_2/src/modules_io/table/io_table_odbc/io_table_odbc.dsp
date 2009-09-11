@@ -59,7 +59,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy      *.lng.txt      ..\..\..\..\bin\saga_vc\modules\ 
+PostBuild_Cmds=copy         *.lng.txt         ..\..\..\..\bin\saga_vc\modules\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "io_table_odbc - Win32 Debug"
@@ -164,19 +164,23 @@ SOURCE=.\Get_Connection.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Get_SQLTable.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\Get_Table.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\MLB_Interface.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\odbc.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\PGIS_Shapes.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Shapes.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Table.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -188,19 +192,23 @@ SOURCE=.\Get_Connection.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Get_SQLTable.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\Get_Table.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\MLB_Interface.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\odbc.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\PGIS_Shapes.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Shapes.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Table.h
 # End Source File
 # End Group
 # Begin Group "Include"
@@ -236,6 +244,10 @@ SOURCE=..\..\..\saga_core\saga_api\grid.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\saga_core\saga_api\grid_pyramid.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\saga_core\saga_api\mat_tools.h
 # End Source File
 # Begin Source File
@@ -249,6 +261,10 @@ SOURCE=..\..\..\saga_core\saga_api\module_library.h
 # Begin Source File
 
 SOURCE=..\..\..\saga_core\saga_api\parameters.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\saga_core\saga_api\pointcloud.h
 # End Source File
 # Begin Source File
 

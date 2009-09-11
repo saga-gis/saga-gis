@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                      Table_ODBC                       //
+//                     io_table_odbc                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   Get_SQLTable.cpp                    //
+//                      Shapes.cpp                       //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -60,7 +58,7 @@
 //---------------------------------------------------------
 #include "Get_Connection.h"
 
-#include "Get_SQLTable.h"
+#include "Shapes.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -70,70 +68,58 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGet_SQLTable::CGet_SQLTable(void)
+CPoints_Load::CPoints_Load(void)
 {
-	Set_Name		(_TL("ODBC: Import a Table using SQL Query"));
+	Set_Name		(_TL("ODBC Points Import"));
 
-	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2009"));
 
 	Set_Description	(_TW(
-		"Import a table from Open Data Base Connection (ODBC) source using SQL (Structured Query Language)."
+		"Imports points from a database via ODBC."
 	));
 
-	Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Table"),
+	Parameters.Add_Shapes(
+		NULL	, "POINTS"		, _TL("Points"),
 		_TL(""),
-		PARAMETER_OUTPUT
+		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_String(
-		NULL	, "FIELDS"		, _TL("Fields"),
-		_TL(""),
-		SG_T("*")
-	);
-
-	Parameters.Add_String(
+	Parameters.Add_Choice(
 		NULL	, "TABLES"		, _TL("Tables"),
 		_TL(""),
-		SG_T("")
-	);
-
-	Parameters.Add_String(
-		NULL	, "WHERE"		, _TL("Where Clause"),
-		_TL(""),
-		SG_T("")
-	);
-
-	Parameters.Add_String(
-		NULL	, "ORDER"		, _TL("Order by"),
-		_TL(""),
-		SG_T("")
+		CSG_String::Format(SG_T("%s|"),
+			_TL("--- no table available ---")
+		)
 	);
 }
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-bool CGet_SQLTable::On_Before_Execution(void)
+bool CPoints_Load::On_Before_Execution(void)
 {
-	if( !g_Connection.is_Connected() )
+	if( !is_Connected() )
 	{
-		Message_Dlg(_TW(
-			"No database connection available!\n"
-			"Connect to an ODBC source using module \"Connect ODBC Source\" first."
-		));
-
 		return( false );
 	}
+
+	CSG_String	Table(Parameters("TABLES")->asString());
 
 	return( true );
 }
 
+//---------------------------------------------------------
+bool CPoints_Load::On_Execute(void)
+{
+	if( g_Connection.is_Connected() )
+	{
+		CSG_Parameter_Choice	*pTables	= Parameters("TABLES")	->asChoice();
+		CSG_Shapes				*pShapes	= Parameters("POINTS")	->asShapes();
+
+		return( g_Connection.Table_Load(*pShapes, pTables->asString()) );
+	}
+
+	return( false );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -142,17 +128,31 @@ bool CGet_SQLTable::On_Before_Execution(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGet_SQLTable::On_Execute(void)
+CPoints_Save::CPoints_Save(void)
+{
+	Set_Name		(_TL("ODBC Points Export"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2009"));
+
+	Set_Description	(_TW(
+		"Exports points to a database via ODBC."
+	));
+
+	Parameters.Add_Shapes(
+		NULL	, "POINTS"		, _TL("Points"),
+		_TL(""),
+		PARAMETER_INPUT, SHAPE_TYPE_Point
+	);
+}
+
+//---------------------------------------------------------
+bool CPoints_Save::On_Execute(void)
 {
 	if( g_Connection.is_Connected() )
 	{
-		CSG_Table	*pTable	= Parameters("TABLE")	->asTable();
-		CSG_String	Fields	= Parameters("FIELDS")	->asString();
-		CSG_String	Tables	= Parameters("TABLES")	->asString();
-		CSG_String	Where	= Parameters("WHERE")	->asString();
-		CSG_String	Order	= Parameters("ORDER")	->asString();
+		CSG_Shapes	*pShapes	= Parameters("POINTS")	->asShapes();
 
-		return( g_Connection.Get_Query(Fields, Tables, Where, Order, *pTable) );
+		return( g_Connection.Table_Save(pShapes->Get_Name(), *pShapes) );
 	}
 
 	return( false );

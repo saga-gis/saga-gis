@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                      Table_ODBC                       //
+//                     io_table_odbc                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     Get_Table.cpp                     //
+//                     PGIS_Shapes.h                     //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -58,9 +56,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "Get_Connection.h"
-
-#include "Get_Table.h"
+#ifndef HEADER_INCLUDED__PGIS_Shapes_H
+#define HEADER_INCLUDED__PGIS_Shapes_H
 
 
 ///////////////////////////////////////////////////////////
@@ -70,58 +67,67 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGet_Table::CGet_Table(void)
+#include "MLB_Interface.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool		is_PostGIS		(bool bDialogOnError = true);
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CPGIS_Shapes_Load : public CSG_Module
 {
-	Set_Name		(_TL("ODBC: Import a Table"));
+public:
+	CPGIS_Shapes_Load(void);
 
-	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
 
-	Set_Description	(_TW(
-		"Imports a table from a data base via ODBC."
-	));
+protected:
 
-	Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Table"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
+	virtual bool				On_Before_Execution		(void);
 
-	Parameters.Add_Choice(
-		NULL	, "TABLES"		, _TL("Tables"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|"),
-			_TL("--- no table available ---")
-		)
-	);
-}
+	virtual bool				On_Execute				(void);
+
+
+private:
+
+
+};
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGet_Table::On_Before_Execution(void)
+class CPGIS_Shapes_Save : public CSG_Module
 {
-	if( !g_Connection.is_Connected() )
-	{
-		Message_Dlg(_TW(
-			"No database connection available!\n"
-			"Connect to an ODBC source using module \"Connect ODBC Source\" first."
-		));
+public:
+	CPGIS_Shapes_Save(void);
 
-		return( false );
-	}
 
-	CSG_String	Table(Parameters("TABLES")->asString());
+protected:
 
-	Parameters("TABLES")->asChoice()->Set_Items(g_Connection.Get_Tables());
-	Parameters("TABLES")->Set_Value(Table);
+	virtual bool				On_Before_Execution		(void);
 
-	return( true );
-}
+	virtual bool				On_Execute				(void);
+
+
+private:
+
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -131,24 +137,4 @@ bool CGet_Table::On_Before_Execution(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGet_Table::On_Execute(void)
-{
-	if( g_Connection.is_Connected() )
-	{
-		CSG_Parameter_Choice	*pTables	= Parameters("TABLES")	->asChoice();
-		CSG_Table				*pTable		= Parameters("TABLE")	->asTable();
-
-		return( g_Connection.Get_Table(pTables->asInt(), pTables->asString(), *pTable) );
-	}
-
-	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__PGIS_Shapes_H

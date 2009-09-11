@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                      Table_ODBC                       //
+//                     io_table_odbc                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    Get_SQLTable.h                     //
+//                       Table.h                         //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2005 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -58,8 +58,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Get_SQLTable_H
-#define HEADER_INCLUDED__Get_SQLTable_H
+#ifndef HEADER_INCLUDED__Table_H
+#define HEADER_INCLUDED__Table_H
 
 
 ///////////////////////////////////////////////////////////
@@ -79,10 +79,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGet_SQLTable : public CSG_Module
+class CTable_Load : public CSG_Module
 {
 public:
-	CGet_SQLTable(void);
+	CTable_Load(void);
 
 
 protected:
@@ -91,13 +91,67 @@ protected:
 
 	virtual bool				On_Execute				(void);
 
+};
 
-private:
 
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CTable_Save : public CSG_Module
+{
+public:
+	CTable_Save(void);
+
+
+protected:
+
+	virtual bool				On_Before_Execution		(void)		{	return( is_Connected() );	}
+
+	virtual bool				On_Execute				(void);
 
 };
 
-#endif // #ifndef HEADER_INCLUDED__Get_SQLTable_H
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CTable_Drop : public CSG_Module
+{
+public:
+	CTable_Drop(void);
+
+
+protected:
+
+	virtual bool				On_Before_Execution		(void);
+
+	virtual bool				On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CTable_Load_SQL : public CSG_Module
+{
+public:
+	CTable_Load_SQL(void);
+
+
+protected:
+
+	virtual bool				On_Before_Execution		(void)		{	return( is_Connected() );	}
+
+	virtual bool				On_Execute				(void);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -107,3 +161,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__Table_H

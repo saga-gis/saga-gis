@@ -6,7 +6,7 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                      Table_ODBC                       //
+//                     io_table_odbc                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -81,7 +81,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-extern CSG_ODBC_Connection	g_Connection;
+extern CSG_ODBC_Connection		g_Connection;
+
+//---------------------------------------------------------
+bool		is_Connected		(bool bDialogOnError = true);
 
 
 ///////////////////////////////////////////////////////////
