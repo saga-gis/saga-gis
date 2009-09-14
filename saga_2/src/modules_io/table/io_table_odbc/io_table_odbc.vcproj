@@ -416,50 +416,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Get_SQLTable.cpp"
-				>
-			</File>
-			<File
-				RelativePath="Get_Table.cpp"
-				>
-				<FileConfiguration
-					Name="Unicode Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Unicode Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="MLB_Interface.cpp"
 				>
 				<FileConfiguration
@@ -503,6 +459,18 @@
 				RelativePath=".\odbc.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\PGIS_Shapes.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Shapes.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Table.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -513,19 +481,23 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Get_SQLTable.h"
-				>
-			</File>
-			<File
-				RelativePath="Get_Table.h"
-				>
-			</File>
-			<File
 				RelativePath="MLB_Interface.h"
 				>
 			</File>
 			<File
 				RelativePath=".\odbc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PGIS_Shapes.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Shapes.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Table.h"
 				>
 			</File>
 		</Filter>
