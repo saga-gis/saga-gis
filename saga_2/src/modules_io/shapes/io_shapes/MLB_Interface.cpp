@@ -98,6 +98,7 @@ const SG_Char * Get_Info(int i)
 #include "atlas_bna.h"
 #include "wasp_map.h"
 #include "stl.h"
+#include "gpx.h"
 #include "pointcloud_from_file.h"
 
 
@@ -120,7 +121,9 @@ CSG_Module *		Create_Module(int i)
 	case  9:	return( new CWASP_MAP_Export );
 	case 10:	return( new CWASP_MAP_Import );
 	case 11:	return( new CSTL_Import );
-	case 12:	return( new CPointCloud_From_File );
+	case 12:	return( new CGPX_Import );
+	case 13:	return( new CGPX_Export );
+	case 14:	return( new CPointCloud_From_File );
 	}
 
 	return( NULL );

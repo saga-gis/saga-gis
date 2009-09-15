@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.11 2009-08-26 15:14:51 oconrad Exp $
+# $Id: Makefile.am,v 1.12 2009-09-15 16:48:14 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -15,6 +15,7 @@ pkglib_LTLIBRARIES = libio_shapes.la
 libio_shapes_la_SOURCES =\
 atlas_bna.cpp\
 generate.cpp\
+gpx.cpp\
 gstat.cpp\
 MLB_Interface.cpp\
 pointcloud_from_file.cpp\
@@ -24,6 +25,7 @@ xyz.cpp\
 wasp_map.cpp\
 atlas_bna.h\
 generate.h\
+gpx.h\
 gstat.h\
 MLB_Interface.h\
 pointcloud_from_file.h\

@@ -76,7 +76,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxmsw28_core.lib wxbase28.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib libhpdf.lib"
+				AdditionalDependencies="wxmsw28_core.lib wxbase28.lib wxbase28_xml.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib libhpdf.lib"
 				OutputFile=".\./../../../bin/saga_vc8/saga_api.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -171,7 +171,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxmsw28d_core.lib wxbase28d.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib libhpdf.lib"
+				AdditionalDependencies="wxmsw28d_core.lib wxbase28d.lib wxbase28d_xml.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib libhpdf.lib"
 				OutputFile=".\./../../../bin/saga_vc8_dbg/saga_api.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -268,7 +268,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxmsw28ud_core.lib libhpdf.lib wxbase28ud.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib"
+				AdditionalDependencies="wxmsw28ud_core.lib libhpdf.lib wxbase28ud.lib wxbase28ud_xml.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib"
 				OutputFile=".\./../../../bin/saga_vc8_u_dbg/saga_api.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -366,7 +366,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxmsw28u_core.lib libhpdf.lib wxbase28u.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib"
+				AdditionalDependencies="wxmsw28u_core.lib libhpdf.lib wxbase28u.lib wxbase28u_xml.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib winmm.lib comctl32.lib rpcrt4.lib wsock32.lib oleacc.lib odbc32.lib"
 				OutputFile=".\./../../../bin/saga_vc8_u/saga_api.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -1532,6 +1532,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\metadata.cpp"
+				>
 			</File>
 			<File
 				RelativePath="module.cpp"
@@ -2704,6 +2708,10 @@
 			</File>
 			<File
 				RelativePath="MAT_Tools.h"
+				>
+			</File>
+			<File
+				RelativePath=".\metadata.h"
 				>
 			</File>
 			<File

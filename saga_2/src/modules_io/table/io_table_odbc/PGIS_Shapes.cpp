@@ -139,7 +139,21 @@ bool CPGIS_Shapes_Load::On_Before_Execution(void)
 		return( false );
 	}
 
-	Parameters("TABLES")->asChoice()->Set_Items(g_Connection.Get_Tables());
+	CSG_Table	Geo_Tables;
+
+	if( !g_Connection.Table_Load(Geo_Tables, SG_T("geometry_columns")) )
+	{
+		return( false );
+	}
+
+	CSG_String	s;
+
+	for(int i=0; i<Geo_Tables.Get_Count(); i++)
+	{
+		s	+= Geo_Tables[i].asString(SG_T("f_table_name")) + CSG_String("|");
+	}
+
+	Parameters("TABLES")->asChoice()->Set_Items(s);
 
 	return( true );
 }
@@ -147,11 +161,108 @@ bool CPGIS_Shapes_Load::On_Before_Execution(void)
 //---------------------------------------------------------
 bool CPGIS_Shapes_Load::On_Execute(void)
 {
-	CSG_Shapes	*pShapes	= Parameters("POINTS")	->asShapes();
+	CSG_String	SQL, Geo_Table, Geo_Type, Geo_Field;
+	CSG_Table	Geo_Tables;
+	CSG_Shapes	*pShapes;
 
-	if( g_Connection.Table_Load(*pShapes, pShapes->Get_Name()) )
+	pShapes		= Parameters("SHAPES")	->asShapes();
+	Geo_Table	= Parameters("TABLES")	->asString();
+
+	SQL.Printf(SG_T("SELECT * FROM geometry_columns WHERE f_table_name = '%s'"), Geo_Table.c_str());
+
+	if( !g_Connection.Table_From_Query(SG_T("*"), SG_T("geometry_columns"), CSG_String::Format(SG_T("f_table_name = '%s'"), Geo_Table.c_str()), SG_T(""), Geo_Tables) )
 	{
-		return( true );
+		return( false );
+	}
+
+	if( Geo_Tables.Get_Count() != 1 )
+	{
+		return( false );
+	}
+
+	Geo_Type	= Geo_Tables[0].asString(SG_T("type"));
+	Geo_Field	= Geo_Tables[0].asString(SG_T("f_geometry_column"));
+
+	//-----------------------------------------------------
+	     if( !Geo_Type.Cmp(SG_T("POINT")) )				pShapes->Create(SHAPE_TYPE_Point	, Geo_Table);
+	else if( !Geo_Type.Cmp(SG_T("MULTIPOINT")) )		pShapes->Create(SHAPE_TYPE_Points	, Geo_Table);
+	else if( !Geo_Type.Cmp(SG_T("LINESTRING")) )		pShapes->Create(SHAPE_TYPE_Line		, Geo_Table);
+	else if( !Geo_Type.Cmp(SG_T("MULTILINESTRING")) )	pShapes->Create(SHAPE_TYPE_Line		, Geo_Table);
+	else if( !Geo_Type.Cmp(SG_T("POLYGON")) )			pShapes->Create(SHAPE_TYPE_Polygon	, Geo_Table);
+	else if( !Geo_Type.Cmp(SG_T("MULTIPOLYGON")) )		pShapes->Create(SHAPE_TYPE_Polygon	, Geo_Table);
+	else
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( !g_Connection.Table_Load(*pShapes, Geo_Table) )
+	{
+		return( false );
+	}
+
+//	SQL.Printf(SG_T("SELECT AsText(%s) AS geom FROM %s"), Geo_Field.c_str(), Geo_Table.c_str());
+	SQL.Printf(SG_T("AsText(%s) AS geom"), Geo_Field.c_str());
+
+	if( !g_Connection.Table_From_Query(SQL, Geo_Table, SG_T(""), SG_T(""), Geo_Tables) )
+	{
+		return( false );
+	}
+
+	if( Geo_Tables.Get_Count() != pShapes->Get_Count() )
+	{
+		return( false );
+	}
+
+	for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	{
+		Get_WKT_to_Shape(Geo_Tables[iShape].asString(0), pShapes->Get_Shape(iShape));
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CPGIS_Shapes_Load::Get_WKT_to_Shape(const CSG_String &WKT, CSG_Shape *pShape)
+{
+	TSG_Point	p;
+	CSG_String	s;
+
+	switch( pShape->Get_Type() )
+	{
+	case SHAPE_TYPE_Point:
+		if( WKT.BeforeFirst(SG_T('(')).Cmp(SG_T("POINT")) == 0 )
+		{
+			s	= WKT.AfterFirst(SG_T('('));
+			s.asDouble(p.x);
+			s	= s.AfterFirst(SG_T(' '));
+			s.asDouble(p.y);
+
+			pShape->Set_Point(p, 0);
+
+			return( true );
+		}
+		break;
+
+	case SHAPE_TYPE_Points:
+		if( WKT.BeforeFirst(SG_T('(')).Cmp(SG_T("MULTIPOINT")) == 0 )
+		{
+		}
+		break;
+
+	case SHAPE_TYPE_Line:
+		if( WKT.BeforeFirst(SG_T('(')).Cmp(SG_T(     "LINESTRING")) == 0
+		||	WKT.BeforeFirst(SG_T('(')).Cmp(SG_T("MULTILINESTRING")) == 0 )
+		{
+		}
+		break;
+
+	case SHAPE_TYPE_Polygon:
+		if( WKT.BeforeFirst(SG_T('(')).Cmp(SG_T(     "POLYGON")) == 0
+		||	WKT.BeforeFirst(SG_T('(')).Cmp(SG_T("MULTIPOLYGON")) == 0 )
+		{
+		}
+		break;
 	}
 
 	return( false );
@@ -178,7 +289,7 @@ CPGIS_Shapes_Save::CPGIS_Shapes_Save(void)
 	Parameters.Add_Shapes(
 		NULL	, "SHAPES"		, _TL("Shapes"),
 		_TL(""),
-		PARAMETER_INPUT, SHAPE_TYPE_Point
+		PARAMETER_INPUT
 	);
 
 	Parameters.Add_String(
@@ -206,6 +317,9 @@ bool CPGIS_Shapes_Save::On_Before_Execution(void)
 		return( false );
 	}
 
+	if( Parameters("SRID")->asChoice()->Get_Count() > 1 )
+		return( true );
+
 	CSG_Table	SRIDs;
 
 	if( !g_Connection.Table_Load(SRIDs, SG_T("spatial_ref_sys")) || SRIDs.Get_Count() == 0 )
@@ -232,71 +346,130 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 {
 	int			SRID;
 	CSG_Shapes	*pShapes;
-	CSG_String	Name, sType, sql;
+	CSG_String	SQL, Geo_Table, Geo_Type, Geo_Field;
 
-	pShapes	= Parameters("SHAPES")	->asShapes();
-	Name	= Parameters("NAME")	->asString();	if( Name.Length() == 0 )	Name	= pShapes->Get_Name();
-	SRID	= Parameters("SRID")	->asInt();
+	pShapes		= Parameters("SHAPES")	->asShapes();
+	Geo_Table	= Parameters("NAME")	->asString();	if( Geo_Table.Length() == 0 )	Geo_Table	= pShapes->Get_Name();
+	SRID		= Parameters("SRID")	->asInt();
+
+	switch( pShapes->Get_Type() )
+	{
+	default:
+		Geo_Type	= SG_T("GEOMETRY");			// GEOMETRYCOLLECTION
+		Geo_Field	= SG_T("geometry");
+		break;
+
+	case SHAPE_TYPE_Point:
+		Geo_Type	= SG_T("POINT");
+		Geo_Field	= SG_T("geo_point");
+		break;
+
+	case SHAPE_TYPE_Points:
+		Geo_Type	= SG_T("MULTIPOINT");
+		Geo_Field	= SG_T("geo_points");
+		break;
+
+	case SHAPE_TYPE_Line:
+		Geo_Type	= SG_T("MULTILINESTRING");	// LINESTRING
+		Geo_Field	= SG_T("geo_line");
+		break;
+
+	case SHAPE_TYPE_Polygon:
+		Geo_Type	= SG_T("MULTIPOLYGON");		// POLYGON
+		Geo_Field	= SG_T("geo_polygon");
+		break;
+	}
 
 	//-----------------------------------------------------
-	if( !g_Connection.Table_Create(Name, *pShapes) )
+	if( !g_Connection.Table_Create(Geo_Table, *pShapes) )
 	{
 		return( false );
 	}
 
-	// SELECT AddGeometryColumn(<table_name>, <column_name>, <srid>, <type>, <dimension>)
-	sql.Printf(SG_T("SELECT AddGeometryColumn('%s', '%s', %d, '%s', 2)"),
-		Name.c_str(),
-		SG_T("GEOMETRY"),
-		SRID,
-		SG_T("GEOMETRY")
+	//-----------------------------------------------------
+	SQL.Printf(SG_T("SELECT AddGeometryColumn('%s', '%s', %d, '%s', %d)"),
+		Geo_Table.c_str(),	// <table_name>
+		Geo_Field.c_str(),	// <column_name>
+		SRID,				// <srid>
+		Geo_Type.c_str(),	// <type>
+		2					// <dimension>
 	);
 
-	if( !g_Connection.Execute(sql) )
+	if( !g_Connection.Execute(SQL) )
 	{
 		Message_Add(_TL("could not create geometry field"));
 
 		return( false );
 	}
 
-	g_Connection.Commit();
+	//-----------------------------------------------------
+	int			iShape, iField;
+	CSG_String	Insert, Fields, s;
 
-	if( 0 )
+	Fields	= Geo_Field;
+
+	for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
 	{
-		CSG_String	s;
+		Fields	+= CSG_String(", ") + pShapes->Get_Field_Name(iField);
+	}
 
-		if( g_Connection.Table_Exists(Name) )
-		{
-			s	 = SG_T("DROP TABLE ");
-			s	+= Name;
-			g_Connection.Execute(s);
-		}
+	Insert.Printf(SG_T("INSERT INTO %s (%s) VALUES(%%s)"), Geo_Table.c_str(), Fields.c_str());
 
-		if( 0 )
+	for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	{
+		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+
+		if( pShapes->Get_Type() == SHAPE_TYPE_Point )
 		{
-			s	 = SG_T("CREATE TABLE ");
-			s	+= Name;
-			s	+= SG_T("(");
-			s	+= SG_T(" feld01 VARCHAR,");
-			s	+= SG_T(" feld02 INTEGER,");
-			s	+= SG_T(" feld03 DOUBLE");
-			s	+= SG_T(")");
+			s.Printf(SG_T("%f %f"), pShape->Get_Point(0).x, pShape->Get_Point(0).y);
 		}
 		else
 		{
-			s	+= SG_T("CREATE TABLE ");
-			s	+= Name;
-			s	+= SG_T("(");
-			s	+= SG_T(" feld01 character varying(255),");
-			s	+= SG_T(" feld02 integer,");
-			s	+= SG_T(" feld03 numeric");
+			s	= SG_T("(");
+
+			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			{
+				if( iPart > 0 )	s	+= SG_T(",");
+
+				s	+= SG_T("(");
+
+				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				{
+					TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
+
+					if( iPoint > 0 )	s	+= SG_T(",");
+
+					s	+= CSG_String::Format(SG_T("%f %f"), p.x, p.y);
+				}
+
+				s	+= SG_T(")");
+			}
+
 			s	+= SG_T(")");
 		}
 
-		return( g_Connection.Execute(s) );
+		Fields.Printf(SG_T("GeomFromText('%s(%s)', %d)"), Geo_Type.c_str(), s.c_str(), SRID);
+
+		for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
+		{
+			if( pShapes->Get_Field_Type(iField) == TABLE_FIELDTYPE_String )
+				Fields	+= CSG_String(", '") + pShape->asString(iField) + SG_T("'");
+			else
+				Fields	+= CSG_String(", ")  + pShape->asString(iField);
+		}
+
+		SQL.Printf(Insert.c_str(), Fields.c_str());
+
+		if( !g_Connection.Execute(SQL) )
+		{
+			g_Connection.Rollback();
+
+			return( false );
+		}
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	return( g_Connection.Commit() );
 }
 
 

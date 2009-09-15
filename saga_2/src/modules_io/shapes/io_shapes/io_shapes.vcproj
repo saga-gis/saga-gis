@@ -492,6 +492,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\gpx.cpp"
+				>
+			</File>
+			<File
 				RelativePath="gstat.cpp"
 				>
 				<FileConfiguration
@@ -674,6 +678,10 @@
 			</File>
 			<File
 				RelativePath="Generate.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gpx.h"
 				>
 			</File>
 			<File

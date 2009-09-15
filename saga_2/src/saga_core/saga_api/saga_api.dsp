@@ -272,6 +272,10 @@ SOURCE=.\mat_trend.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\metadata.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\module.cpp
 # End Source File
 # Begin Source File
@@ -433,6 +437,10 @@ SOURCE=.\grid_pyramid.h
 # Begin Source File
 
 SOURCE=.\MAT_Tools.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\metadata.h
 # End Source File
 # Begin Source File
 

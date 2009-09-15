@@ -768,7 +768,7 @@ bool CSG_PointCloud::_Dec_Array(void)
 
 		if( (m_nPoints - 1) < m_nBuffer - GET_GROW_SIZE(m_nBuffer) )
 		{
-			char	**pPoints	= (char **)SG_Realloc(m_Points, (m_nBuffer + GET_GROW_SIZE(m_nBuffer)) * sizeof(char *));
+			char	**pPoints	= (char **)SG_Realloc(m_Points, (m_nBuffer - GET_GROW_SIZE(m_nBuffer)) * sizeof(char *));
 
 			if( pPoints )
 			{

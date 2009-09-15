@@ -74,6 +74,7 @@
 #include "grid.h"
 #include "grid_pyramid.h"
 #include "mat_tools.h"
+#include "metadata.h"
 #include "module.h"
 #include "module_library.h"
 #include "parameters.h"

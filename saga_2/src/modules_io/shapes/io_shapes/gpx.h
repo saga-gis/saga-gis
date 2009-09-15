@@ -6,11 +6,11 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                     io_table_odbc                     //
+//                       io_shapes                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     PGIS_Shapes.h                     //
+//                         gpx.h                         //
 //                                                       //
 //                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
@@ -56,8 +56,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__PGIS_Shapes_H
-#define HEADER_INCLUDED__PGIS_Shapes_H
+#ifndef HEADER_INCLUDED__GPX_H
+#define HEADER_INCLUDED__GPX_H
 
 
 ///////////////////////////////////////////////////////////
@@ -77,56 +77,31 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		is_PostGIS		(bool bDialogOnError = true);
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CPGIS_Shapes_Load : public CSG_Module
+class CGPX_Import : public CSG_Module
 {
 public:
-	CPGIS_Shapes_Load(void);
+	CGPX_Import(void);
+
+	virtual const SG_Char *		Get_MenuPath		(void)	{	return( _TL("R:Import") );	}
 
 
 protected:
 
-	virtual bool				On_Before_Execution		(void);
-
-	virtual bool				On_Execute				(void);
+	virtual bool				On_Execute			(void);
 
 
 private:
 
-	bool						Get_WKT_to_Shape		(const CSG_String &WKT, CSG_Shape *pShape);
+	CSG_String					m_Name;
 
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CPGIS_Shapes_Save : public CSG_Module
-{
-public:
-	CPGIS_Shapes_Save(void);
+	CSG_Parameter_Shapes_List	*m_pShapes;
 
 
-protected:
+	bool						Add_Route			(CSG_MetaData_Node *pNode);
+	bool						Add_Track			(CSG_MetaData_Node *pNode);
 
-	virtual bool				On_Before_Execution		(void);
-
-	virtual bool				On_Execute				(void);
-
-
-private:
-
+	bool						Add_Point			(CSG_MetaData_Node *pNode, CSG_Shapes *pPoints);
+	bool						Add_Fields			(CSG_MetaData_Node *pNode, CSG_Shapes *pPoints);
 
 };
 
@@ -138,4 +113,26 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__PGIS_Shapes_H
+class CGPX_Export : public CSG_Module
+{
+public:
+	CGPX_Export(void);
+
+	virtual const SG_Char *		Get_MenuPath		(void)	{	return( _TL("R:Export") );	}
+
+
+protected:
+
+	virtual bool				On_Execute			(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__GPX_H

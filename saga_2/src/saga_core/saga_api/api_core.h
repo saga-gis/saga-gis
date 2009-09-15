@@ -315,7 +315,7 @@ public:
 	bool							Add					(const CSG_String &String);
 
 	bool							Set_Count			(int nStrings);
-	int								Get_Count			(void)				{	return( m_nStrings );	}
+	int								Get_Count			(void)		const	{	return( m_nStrings );	}
 
 	CSG_String &					operator []			(int Index) const	{	return( *m_Strings[Index]   );	}
 	CSG_String &					Get_String			(int Index) const	{	return( *m_Strings[Index]   );	}
@@ -453,6 +453,7 @@ SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Name		(const SG_Char *full_Path, boo
 SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Path		(const SG_Char *full_Path);
 SAGA_API_DLL_EXPORT CSG_String		SG_File_Make_Path		(const SG_Char *Directory, const SG_Char *Name, const SG_Char *Extension = NULL);
 SAGA_API_DLL_EXPORT bool			SG_File_Cmp_Extension	(const SG_Char *File_Name, const SG_Char *Extension);
+SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Extension	(const SG_Char *File_Name);
 
 SAGA_API_DLL_EXPORT bool			SG_Read_Line			(FILE *Stream, CSG_String &Line);
 

@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.14 2009-09-01 14:12:30 oconrad Exp $
+# $Id: Makefile.am,v 1.15 2009-09-15 16:48:14 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -43,6 +43,7 @@ mat_regression_multiple.cpp\
 mat_spline.cpp\
 mat_tools.cpp\
 mat_trend.cpp\
+metadata.cpp\
 module.cpp\
 module_grid.cpp\
 module_grid_interactive.cpp\
@@ -83,6 +84,7 @@ geo_tools.h\
 grid.h\
 grid_pyramid.h\
 mat_tools.h\
+metadata.h\
 module.h\
 module_library.h\
 parameters.h\

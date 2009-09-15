@@ -233,31 +233,32 @@ bool CRelative_Heights::Get_Heights_Catchment(CSG_Grid *pDEM, CSG_Grid *pH, doub
 {
 	const double	MFD_Converge	= 1.1;
 
-	int		n, x, y, i, ix, iy;
-	double	z, d, dz[8], dzSum, c, w, h;
+	int			n, x, y, i, ix, iy;
+	double		z, d, dz[8], dzSum, c, w, h;
 	CSG_Grid	C, W;
 
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("Relative heights calculation..."));
 
-	C.Create(pDEM);
-	C.Assign(C.Get_Cellarea());
+	C.Create(*Get_System());
+	W.Create(*Get_System());
 
-	W.Create(pDEM);
-	W.Assign(0.0);
-
+	C.	Assign(Get_System()->Get_Cellarea());
+	W.	Assign(0.0);
 	pH->Assign(0.0);
+
+	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+	{
+		if( pDEM->is_NoData(n) )
+		{
+			pH->Set_NoData(n);
+		}
+	}
 
 	//-----------------------------------------------------
 	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
-		pDEM->Get_Sorted(n, x, y);
-
-		if( pDEM->is_NoData(x, y) )
-		{
-			pH->Set_NoData(x, y);
-		}
-		else
+		if( pDEM->Get_Sorted(n, x, y) )
 		{
 			z		= pDEM->asDouble(x, y);
 			c		= C    .asDouble(x, y);
@@ -271,7 +272,7 @@ bool CRelative_Heights::Get_Heights_Catchment(CSG_Grid *pDEM, CSG_Grid *pH, doub
 				ix		= Get_xTo(i, x);
 				iy		= Get_yTo(i, y);
 
-				if( is_InGrid(ix, iy) && !pDEM->is_NoData(ix, iy) && (d = z - pDEM->asDouble(ix, iy)) > 0.0 )
+				if( pDEM->is_InGrid(ix, iy) && (d = z - pDEM->asDouble(ix, iy)) > 0.0 )
 				{
 					dzSum	+= (dz[i] = pow(atan(d / Get_Length(i)), MFD_Converge));
 				}
@@ -320,9 +321,9 @@ bool CRelative_Heights::Get_Heights_Catchment(CSG_Grid *pDEM, CSG_Grid *pH, doub
 //---------------------------------------------------------
 bool CRelative_Heights::Get_Heights_Modified(CSG_Grid *pDEM, CSG_Grid *pH, double t, double e)
 {
-	bool	bRecalculate;
-	int		x, y, i, ix, iy, n;
-	double	z, d;
+	bool		bRecalculate;
+	int			x, y, i, ix, iy, n;
+	double		z, d;
 	CSG_Grid	H, H_Last, T;
 
 	//-----------------------------------------------------
@@ -334,10 +335,9 @@ bool CRelative_Heights::Get_Heights_Modified(CSG_Grid *pDEM, CSG_Grid *pH, doubl
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
-			if( !pDEM->is_NoData(x, y) && !pH->is_NoData(x, y) )
+			if( pDEM->Get_Gradient(x, y, z, d) && !pH->is_NoData(x, y) )
 			{
-				pH->Set_Value(x, y, pow(pH->asDouble(x, y), e));	// {X[p] = H[p]^e;}
-				pDEM->Get_Gradient(x, y, z, d);
+				pH->Set_Value(x, y, d = pow(pH->asDouble(x, y), e));	// {X[p] = H[p]^e;}
 				z	= pow(t, z);
 				z	= pow(1.0 / z, exp(z));
 				T.Set_Value(x, y, z);
@@ -349,10 +349,8 @@ bool CRelative_Heights::Get_Heights_Modified(CSG_Grid *pDEM, CSG_Grid *pH, doubl
 		}
 	}
 
-	H     .Create(pH);
-	H     .Assign(pH);
-	H_Last.Create(pH);
-	H_Last.Assign(pH);
+	H     .Create(*pH);
+	H_Last.Create(*pH);
 
 	//-----------------------------------------------------
 	for(i=0, n=1; n>0; i++)
@@ -444,21 +442,25 @@ bool CRelative_Heights::Get_Heights_Modified(CSG_Grid *pDEM, CSG_Grid *pH, doubl
 //---------------------------------------------------------
 double CRelative_Heights::Get_Local_Maximum(CSG_Grid *pGrid, int x, int y)
 {
-	int		i, ix, iy;
-	double	z	= pGrid->asDouble(x, y);
-
-	for(i=0; i<8; i++)
+	if( pGrid->is_InGrid(x, y) )
 	{
-		ix	= Get_xTo(i, x);
-		iy	= Get_yTo(i, y);
+		double	z	= pGrid->asDouble(x, y);
 
-		if( pGrid->is_InGrid(ix, iy) && pGrid->asDouble(ix, iy) > z )
+		for(int i=0; i<8; i++)
 		{
-			z	= pGrid->asDouble(ix, iy);
+			int	ix	= Get_xTo(i, x);
+			int	iy	= Get_yTo(i, y);
+
+			if( pGrid->is_InGrid(ix, iy) && pGrid->asDouble(ix, iy) > z )
+			{
+				z	= pGrid->asDouble(ix, iy);
+			}
 		}
+
+		return( z );
 	}
 
-	return( z );
+	return( 0.0 );
 }
 
 

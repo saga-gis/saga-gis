@@ -83,7 +83,7 @@ $(TMP_SAGA)dlg_list_base.o: dlg_list_base.cpp
 	$(CPP) -c dlg_list_base.cpp -o $(TMP_SAGA)dlg_list_base.o $(CXXFLAGS)
 
 $(TMP_SAGA)dlg_list_grid.o: dlg_list_grid.cpp
-	$(CPP) -c dlg_list_grid.cpp -o $(TMP_SAGA)dlg_list_grid.o $(CXXFLA
+	$(CPP) -c dlg_list_grid.cpp -o $(TMP_SAGA)dlg_list_grid.o $(CXXFLAGS)
 
 $(TMP_SAGA)dlg_list_pointcloud.o: dlg_list_pointcloud.cpp
 	$(CPP) -c dlg_list_pointcloud.cpp -o $(TMP_SAGA)dlg_list_pointcloud.o $(CXXFLAGS)

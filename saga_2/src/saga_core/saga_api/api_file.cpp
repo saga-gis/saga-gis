@@ -258,8 +258,8 @@ size_t CSG_File::Read(CSG_String &Buffer, size_t Size) const
 {
 	if( m_pStream )
 	{
-		SG_Char	*b	= (SG_Char *)SG_Calloc(Size + 1, sizeof(SG_Char));
-		int		i	= fread(b, sizeof(SG_Char), Size, m_pStream);
+		char	*b	= (char *)SG_Calloc(Size + 1, sizeof(char));
+		int		i	= fread(b, sizeof(char), Size, m_pStream);
 		Buffer		= b;
 		SG_Free(b);
 
@@ -272,12 +272,12 @@ size_t CSG_File::Read(CSG_String &Buffer, size_t Size) const
 //---------------------------------------------------------
 size_t CSG_File::Write(void *Buffer, size_t Size, size_t Count) const
 {
-	return( m_pStream ? fwrite(Buffer, Size, Count, m_pStream) : 0 );
+	return( m_pStream && Size > 0 && Count > 0 ? fwrite(Buffer, Size, Count, m_pStream) : 0 );
 }
 
 size_t CSG_File::Write(CSG_String &Buffer) const
 {
-	return( Write((void *)Buffer.c_str(), sizeof(SG_Char), Buffer.Length()) );
+	return( Write((void *)Buffer.b_str(), sizeof(char), strlen(Buffer.b_str())) );
 }
 
 //---------------------------------------------------------
@@ -457,6 +457,14 @@ bool			SG_File_Cmp_Extension(const SG_Char *File_Name, const SG_Char *Extension)
 	wxFileName	fn(File_Name);
 
 	return( fn.GetExt().CmpNoCase(Extension) == 0 );
+}
+
+//---------------------------------------------------------
+CSG_String		SG_File_Get_Extension(const SG_Char *File_Name)
+{
+	wxFileName	fn(File_Name);
+
+	return( fn.GetExt().c_str() );
 }
 
 
