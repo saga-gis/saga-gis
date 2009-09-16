@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.6 2008-07-18 13:11:17 oconrad Exp $
+# $Id: Makefile.am,v 1.7 2009-09-16 12:11:54 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -18,15 +18,17 @@ AM_LDFLAGS         = $(DEP_LFLG)
 pkglib_LTLIBRARIES = libio_table_odbc.la
 libio_table_odbc_la_SOURCES =\
 Get_Connection.cpp\
-Get_SQLTable.cpp\
-Get_Table.cpp\
-odbc.cpp\
 MLB_Interface.cpp\
+odbc.cpp\
+PGIS_Shapes.cpp\
+Shapes.cpp\
+Table.cpp\
 Get_Connection.h\
-Get_SQLTable.h\
-Get_Table.h\
+MLB_Interface.h\
 odbc.h\
-MLB_Interface.h
+PGIS_Shapes.h\
+Shapes.h\
+Table.h
 
 libio_table_odbc_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 

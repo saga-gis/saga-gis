@@ -19,7 +19,7 @@ DEP_DEFS = `wx-config --static=yes --cxxflags`
 DEP_LFLG = -fPIC -pthread
 DEP_LIBS = `wx-config --static=yes --libs` -L$(BIN_SAGA) -lsaga_api
 
-OBJ      = $(MLB_TEMP)/Get_Connection.o $(MLB_TEMP)/Get_SQLTable.o $(MLB_TEMP)/Get_Table.o $(MLB_TEMP)/odbc.o $(MLB_TEMP)/MLB_Interface.o
+OBJ      = $(MLB_TEMP)/Get_Connection.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/odbc.o $(MLB_TEMP)/PGIS_Shapes.o $(MLB_TEMP)/Shapes.o $(MLB_TEMP)/Table.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS =
@@ -53,14 +53,17 @@ $(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
 $(MLB_TEMP)/Get_Connection.o: ./Get_Connection.cpp
 	$(CPP) -c ./Get_Connection.cpp -o $(MLB_TEMP)/Get_Connection.o $(CXXFLAGS)
 
-$(MLB_TEMP)/Get_SQLTable.o: ./Get_SQLTable.cpp
-	$(CPP) -c ./Get_SQLTable.cpp -o $(MLB_TEMP)/Get_SQLTable.o $(CXXFLAGS)
-
-$(MLB_TEMP)/Get_Table.o: ./Get_Table.cpp
-	$(CPP) -c ./Get_Table.cpp -o $(MLB_TEMP)/Get_Table.o $(CXXFLAGS)
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
+	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
 
 $(MLB_TEMP)/odbc.o: ./odbc.cpp
 	$(CPP) -c ./odbc.cpp -o $(MLB_TEMP)/odbc.o $(CXXFLAGS)
 
-$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
-	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
+$(MLB_TEMP)/PGIS_Shapes.o: ./PGIS_Shapes.cpp
+	$(CPP) -c ./PGIS_Shapes.cpp -o $(MLB_TEMP)/PGIS_Shapes.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Shapes.o: ./Shapes.cpp
+	$(CPP) -c ./Shapes.cpp -o $(MLB_TEMP)/Shapes.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Table.o: ./Table.cpp
+	$(CPP) -c ./Table.cpp -o $(MLB_TEMP)/Table.o $(CXXFLAGS)
