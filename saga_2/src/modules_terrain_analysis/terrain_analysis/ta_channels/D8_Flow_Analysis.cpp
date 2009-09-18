@@ -135,8 +135,8 @@ bool CD8_Flow_Analysis::On_Execute(void)
 
 	m_pNet		= Parameters("NETWORK")		->asShapes();
 	m_pNet->Create(SHAPE_TYPE_Line, _TL("D8 Flow Network"));
-	m_pNet->Add_Field("ID"		, TABLE_FIELDTYPE_Int);
-	m_pNet->Add_Field(_TL("LENGTH")	, TABLE_FIELDTYPE_Double);
+	m_pNet->Add_Field("ID"		, SG_DATATYPE_Int);
+	m_pNet->Add_Field(_TL("LENGTH")	, SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
 	//Process_Set_Text("Channel Network: Pass 1");

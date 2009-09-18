@@ -389,9 +389,9 @@ void CVIEW_ScatterPlot::On_AsTable(wxCommandEvent &event)
 
 		pTable->Set_Name(wxString::Format(wxT("%s: [%s]-[%s]"), LNG("[CAP] Scatterplot"), m_sX.c_str(), m_sY.c_str()));
 
-		pTable->Add_Field(SG_T("ID"), TABLE_FIELDTYPE_Int);
-		pTable->Add_Field(m_sX		, TABLE_FIELDTYPE_Double);
-		pTable->Add_Field(m_sY		, TABLE_FIELDTYPE_Double);
+		pTable->Add_Field(SG_T("ID"), SG_DATATYPE_Int);
+		pTable->Add_Field(m_sX		, SG_DATATYPE_Double);
+		pTable->Add_Field(m_sY		, SG_DATATYPE_Double);
 
 		for(int i=0; i<m_Regression.Get_Count() && PROGRESSBAR_Set_Position(i, m_Regression.Get_Count()); i++)
 		{
@@ -585,7 +585,7 @@ void CVIEW_ScatterPlot::_Draw_Image(wxDC &dc, wxRect r, double dx, double dy)
 	//-----------------------------------------------------
 	Resolution	= m_Parameters("RESOLUTION")->asInt();
 
-	Count.Create(GRID_TYPE_Word, 1 + (r.GetWidth() / Resolution), 1 + (r.GetHeight() / Resolution));
+	Count.Create(SG_DATATYPE_Word, 1 + (r.GetWidth() / Resolution), 1 + (r.GetHeight() / Resolution));
 
 	dx	/= Resolution;
 	dy	/= Resolution;

@@ -217,7 +217,7 @@ wxString CWKSP_Module::Get_Description(void)
 
 	//-----------------------------------------------------
 	s.Append(wxString::Format(wxT("<hr><b>%s</b><br>"), LNG("Parameters")));
-	s.Append(wxString::Format(wxT("<table border=\"1\" width=\"100%%\" valign=\"top\"><tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>"),
+	s.Append(wxString::Format(wxT("<table border=\"1\" width=\"100%%\" valign=\"top\" cellpadding=\"5\" rules=\"all\"><tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>\n"),
 		LNG("Name"), LNG("Type"), LNG("Identifier"), LNG("Description"), LNG("Constraints")
 	));
 

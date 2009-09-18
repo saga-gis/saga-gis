@@ -122,7 +122,7 @@ CSG_Grid * CGrid_Random_Terrain::Get_Target_Grid(CSG_Parameters *pParameters )
 	iRows = pParameters->Get_Parameter("ROWS")->asInt();
 	iCols = pParameters->Get_Parameter("COLS")->asInt();
 	
-	return( SG_Create_Grid(GRID_TYPE_Float, iCols, iRows, iCellSize, 0, 0) );
+	return( SG_Create_Grid(SG_DATATYPE_Float, iCols, iRows, iCellSize, 0, 0) );
 }
 
 bool CGrid_Random_Terrain::On_Execute(void)

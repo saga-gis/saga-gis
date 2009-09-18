@@ -205,17 +205,17 @@ bool CGrid_Profile_From_Lines::Init_Profile(CSG_Shapes *pPoints, const SG_Char *
 	{
 		pPoints->Create(SHAPE_TYPE_Point, Name);
 
-		pPoints->Add_Field("LINE_ID"	, TABLE_FIELDTYPE_Int);
-		pPoints->Add_Field("ID"			, TABLE_FIELDTYPE_Int);
-		pPoints->Add_Field("DIST"		, TABLE_FIELDTYPE_Double);
-		pPoints->Add_Field("DIST_SURF"	, TABLE_FIELDTYPE_Double);
-		pPoints->Add_Field("X"			, TABLE_FIELDTYPE_Double);
-		pPoints->Add_Field("Y"			, TABLE_FIELDTYPE_Double);
-		pPoints->Add_Field("Z"			, TABLE_FIELDTYPE_Double);
+		pPoints->Add_Field("LINE_ID"	, SG_DATATYPE_Int);
+		pPoints->Add_Field("ID"			, SG_DATATYPE_Int);
+		pPoints->Add_Field("DIST"		, SG_DATATYPE_Double);
+		pPoints->Add_Field("DIST_SURF"	, SG_DATATYPE_Double);
+		pPoints->Add_Field("X"			, SG_DATATYPE_Double);
+		pPoints->Add_Field("Y"			, SG_DATATYPE_Double);
+		pPoints->Add_Field("Z"			, SG_DATATYPE_Double);
 
 		for(int i=0; i<m_pValues->Get_Count(); i++)
 		{
-			pPoints->Add_Field(m_pValues->asGrid(i)->Get_Name(), TABLE_FIELDTYPE_Double);
+			pPoints->Add_Field(m_pValues->asGrid(i)->Get_Name(), SG_DATATYPE_Double);
 		}
 
 		return( true );

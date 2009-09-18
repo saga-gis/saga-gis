@@ -220,7 +220,7 @@ bool CFilter_LoG::Initialise(int Method, int &Radius, double Sigma, bool bCircle
 	switch( Method )
 	{
 	case 0:
-		m_Kernel.Create(GRID_TYPE_Double, 3, 3);
+		m_Kernel.Create(SG_DATATYPE_Double, 3, 3);
 		m_Kernel.Set_Value(0, 0,  0);	m_Kernel.Set_Value(0, 1, -1);	m_Kernel.Set_Value(0, 2,  0);
 		m_Kernel.Set_Value(1, 0, -1);	m_Kernel.Set_Value(1, 1,  4);	m_Kernel.Set_Value(1, 2, -1);
 		m_Kernel.Set_Value(2, 0,  0);	m_Kernel.Set_Value(2, 1, -1);	m_Kernel.Set_Value(2, 2,  0);
@@ -228,7 +228,7 @@ bool CFilter_LoG::Initialise(int Method, int &Radius, double Sigma, bool bCircle
 		return( true );
 
 	case 1:
-		m_Kernel.Create(GRID_TYPE_Double, 3, 3);
+		m_Kernel.Create(SG_DATATYPE_Double, 3, 3);
 		m_Kernel.Set_Value(0, 0, -1);	m_Kernel.Set_Value(0, 1, -1);	m_Kernel.Set_Value(0, 2, -1);
 		m_Kernel.Set_Value(1, 0, -1);	m_Kernel.Set_Value(1, 1,  8);	m_Kernel.Set_Value(1, 2, -1);
 		m_Kernel.Set_Value(2, 0, -1);	m_Kernel.Set_Value(2, 1, -1);	m_Kernel.Set_Value(2, 2, -1);
@@ -238,7 +238,7 @@ bool CFilter_LoG::Initialise(int Method, int &Radius, double Sigma, bool bCircle
 	case 2:	default:
 		if( Sigma > 0.0 )
 		{
-			m_Kernel.Create(GRID_TYPE_Double, 1 + 2 * Radius, 1 + 2 * Radius);
+			m_Kernel.Create(SG_DATATYPE_Double, 1 + 2 * Radius, 1 + 2 * Radius);
 
 			Sigma	= SG_Get_Square(Radius * Sigma * 0.01);
 

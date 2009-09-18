@@ -142,7 +142,7 @@ bool CFragmentation_Standard::Initialise(CSG_Grid *pClasses, int Class)
 	m_bDiagonal		= Parameters("DIAGONAL")->asBool();
 
 	//-----------------------------------------------------
-	m_Grid.Create(*Get_System(), GRID_TYPE_Char);
+	m_Grid.Create(*Get_System(), SG_DATATYPE_Char);
 	m_Grid.Set_NoData_Value(VAL_NODATA);
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -154,7 +154,7 @@ bool CFragmentation_Standard::Initialise(CSG_Grid *pClasses, int Class)
 	}
 
 	//-----------------------------------------------------
-	m_Radius.Create(GRID_TYPE_Int, 1 + 2 * m_Radius_iMax, 1 + 2 * m_Radius_iMax);
+	m_Radius.Create(SG_DATATYPE_Int, 1 + 2 * m_Radius_iMax, 1 + 2 * m_Radius_iMax);
 
 	for(y=0; y<m_Radius.Get_NY(); y++)
 	{

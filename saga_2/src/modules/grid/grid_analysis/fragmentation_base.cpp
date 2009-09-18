@@ -102,11 +102,11 @@ CFragmentation_Base::CFragmentation_Base(void)
 	));
 
 	//-----------------------------------------------------
-	m_LUT.Add_Field(SG_T("COLOR")		, TABLE_FIELDTYPE_Color);
-	m_LUT.Add_Field(SG_T("NAME")		, TABLE_FIELDTYPE_String);
-	m_LUT.Add_Field(SG_T("DECRIPTION")	, TABLE_FIELDTYPE_String);
-	m_LUT.Add_Field(SG_T("MIN")			, TABLE_FIELDTYPE_Double);
-	m_LUT.Add_Field(SG_T("MAX")			, TABLE_FIELDTYPE_Double);
+	m_LUT.Add_Field(SG_T("COLOR")		, SG_DATATYPE_Color);
+	m_LUT.Add_Field(SG_T("NAME")		, SG_DATATYPE_String);
+	m_LUT.Add_Field(SG_T("DECRIPTION")	, SG_DATATYPE_String);
+	m_LUT.Add_Field(SG_T("MIN")			, SG_DATATYPE_Double);
+	m_LUT.Add_Field(SG_T("MAX")			, SG_DATATYPE_Double);
 
 	LUT_ADD(0, SG_GET_RGB(  0, 127,   0), CLASS_CORE		, _TL("Core"))
 	LUT_ADD(1, SG_GET_RGB( 34, 255,  34), CLASS_INTERIOR	, _TL("Interior"))
@@ -139,7 +139,7 @@ CFragmentation_Base::CFragmentation_Base(void)
 	Parameters.Add_Grid(
 		NULL	, "FRAGMENTATION"	, _TL("Fragmentation"),
 		_TL("Fragmentation Index"),
-		PARAMETER_OUTPUT, true, GRID_TYPE_Byte
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Byte
 	);
 
 	Parameters.Add_Table(
@@ -348,7 +348,7 @@ int CFragmentation_Base::Get_Classification(double Density, double Connectivity)
 void CFragmentation_Base::Add_Border(CSG_Grid *pFragmentation)
 {
 	int			x, y;
-	CSG_Grid	Tmp(pFragmentation, GRID_TYPE_Byte);
+	CSG_Grid	Tmp(pFragmentation, SG_DATATYPE_Byte);
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
@@ -424,11 +424,11 @@ void CFragmentation_Base::Get_Statistics(CSG_Grid *pFragmentation, CSG_Table &St
 		//-------------------------------------------------
 		Statistics.Destroy();
 
-		Statistics.Add_Field(SG_T("CLASS_ID")	, TABLE_FIELDTYPE_Int);
-		Statistics.Add_Field(SG_T("CLASS_NAME")	, TABLE_FIELDTYPE_String);
-		Statistics.Add_Field(SG_T("N_CELLS")	, TABLE_FIELDTYPE_Int);
-		Statistics.Add_Field(SG_T("AREA_ABS")	, TABLE_FIELDTYPE_Double);
-		Statistics.Add_Field(SG_T("AREA_REL")	, TABLE_FIELDTYPE_Double);
+		Statistics.Add_Field(SG_T("CLASS_ID")	, SG_DATATYPE_Int);
+		Statistics.Add_Field(SG_T("CLASS_NAME")	, SG_DATATYPE_String);
+		Statistics.Add_Field(SG_T("N_CELLS")	, SG_DATATYPE_Int);
+		Statistics.Add_Field(SG_T("AREA_ABS")	, SG_DATATYPE_Double);
+		Statistics.Add_Field(SG_T("AREA_REL")	, SG_DATATYPE_Double);
 
 		STATISTICS_ADD(0, CLASS_CORE		, _TL("Core"))
 		STATISTICS_ADD(1, CLASS_INTERIOR	, _TL("Interior"))

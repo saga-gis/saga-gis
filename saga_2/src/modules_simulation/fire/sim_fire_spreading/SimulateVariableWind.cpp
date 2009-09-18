@@ -299,12 +299,12 @@ bool CSimulateVariableWind::AssignParameters(){
 		}//for
 	}//for
 
-	m_pReactionIntensityGrid = SG_Create_Grid(m_pDEM, GRID_TYPE_Double);
-	m_pEffectiveWindGrid = SG_Create_Grid(m_pDEM, GRID_TYPE_Double);
-	m_pHeatPerUnitAreaGrid = SG_Create_Grid(m_pDEM, GRID_TYPE_Double);
+	m_pReactionIntensityGrid = SG_Create_Grid(m_pDEM, SG_DATATYPE_Double);
+	m_pEffectiveWindGrid = SG_Create_Grid(m_pDEM, SG_DATATYPE_Double);
+	m_pHeatPerUnitAreaGrid = SG_Create_Grid(m_pDEM, SG_DATATYPE_Double);
 
-	m_pSlopeGrid = SG_Create_Grid(m_pDEM, GRID_TYPE_Double);
-	m_pAspectGrid = SG_Create_Grid(m_pDEM, GRID_TYPE_Double);
+	m_pSlopeGrid = SG_Create_Grid(m_pDEM, SG_DATATYPE_Double);
+	m_pAspectGrid = SG_Create_Grid(m_pDEM, SG_DATATYPE_Double);
 
 	CMorphometry Morphometry;
 	if(	!Morphometry.Get_Parameters()->Set_Parameter("ELEVATION", PARAMETER_TYPE_Grid, m_pDEM)

@@ -183,16 +183,16 @@ bool CFlow_MassFlux::On_Execute(void)
 	{
 		CSG_Grid_System	System(0.5 * Get_Cellsize(), Get_XMin() - 0.25 * Get_Cellsize(), Get_YMin() - 0.25 * Get_Cellsize(), 2 * Get_NX(), 2 * Get_NY());
 
-		m_Area	.Create(System, GRID_TYPE_Float);
-		m_dir	.Create(System, GRID_TYPE_Byte);
-		m_dif	.Create(System, GRID_TYPE_Float);
+		m_Area	.Create(System, SG_DATATYPE_Float);
+		m_dir	.Create(System, SG_DATATYPE_Byte);
+		m_dif	.Create(System, SG_DATATYPE_Float);
 
 		m_dir	.Assign(-1.0);
 		m_Area	.Assign( 0.0);
 		m_Area	.Set_NoData_Value(0.0);
 
-		Parameters("G_SLOPE" )->Set_Value(m_pSlope  = !Parameters("B_SLOPE" )->asBool() ? NULL : SG_Create_Grid(System, GRID_TYPE_Float));
-		Parameters("G_ASPECT")->Set_Value(m_pAspect = !Parameters("B_ASPECT")->asBool() ? NULL : SG_Create_Grid(System, GRID_TYPE_Float));
+		Parameters("G_SLOPE" )->Set_Value(m_pSlope  = !Parameters("B_SLOPE" )->asBool() ? NULL : SG_Create_Grid(System, SG_DATATYPE_Float));
+		Parameters("G_ASPECT")->Set_Value(m_pAspect = !Parameters("B_ASPECT")->asBool() ? NULL : SG_Create_Grid(System, SG_DATATYPE_Float));
 		Parameters("G_FLOW"  )->Set_Value(m_pFlow   = !Parameters("B_FLOW"  )->asBool() ? NULL : SG_Create_Shapes(SHAPE_TYPE_Line, _TL("Flow Lines")));
 
 		//-------------------------------------------------

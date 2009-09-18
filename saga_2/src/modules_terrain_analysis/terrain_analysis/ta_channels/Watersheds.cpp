@@ -137,7 +137,7 @@ bool CWatersheds::On_Execute(void)
 	m_pBasins->Set_NoData_Value(NO_BASIN);
 	m_pBasins->Assign_NoData();
 
-	m_Direction.Create(m_pBasins, GRID_TYPE_Char);
+	m_Direction.Create(m_pBasins, SG_DATATYPE_Char);
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{

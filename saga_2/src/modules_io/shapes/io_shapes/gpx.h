@@ -97,11 +97,11 @@ private:
 	CSG_Parameter_Shapes_List	*m_pShapes;
 
 
-	bool						Add_Route			(CSG_MetaData_Node *pNode);
-	bool						Add_Track			(CSG_MetaData_Node *pNode);
+	bool						Add_Route			(CSG_MetaData *pNode);
+	bool						Add_Track			(CSG_MetaData *pNode);
 
-	bool						Add_Point			(CSG_MetaData_Node *pNode, CSG_Shapes *pPoints);
-	bool						Add_Fields			(CSG_MetaData_Node *pNode, CSG_Shapes *pPoints);
+	bool						Add_Point			(CSG_MetaData *pNode, CSG_Shapes *pPoints);
+	bool						Add_Fields			(CSG_MetaData *pNode, CSG_Shapes *pPoints);
 
 };
 

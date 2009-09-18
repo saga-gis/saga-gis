@@ -327,8 +327,8 @@ bool CShapes_Report::Add_Shape(CSG_Shape *pShape, const SG_Char *Title)
 
 			Table.Set_Name(_TL("Attributes"));
 
-			Table.Add_Field(_TL("Attribute"), TABLE_FIELDTYPE_String);
-			Table.Add_Field(_TL("Value")	, TABLE_FIELDTYPE_String);
+			Table.Add_Field(_TL("Attribute"), SG_DATATYPE_String);
+			Table.Add_Field(_TL("Value")	, SG_DATATYPE_String);
 
 			for(int iField=0; iField<pShape->Get_Table()->Get_Field_Count(); iField++)
 			{

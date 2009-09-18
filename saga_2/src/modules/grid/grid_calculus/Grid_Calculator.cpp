@@ -132,7 +132,7 @@ bool CGrid_Calculator::On_Execute(void)
 		}
 	}
 	
-	CSG_Grid MissingMap(Grids[0], GRID_TYPE_Byte);
+	CSG_Grid MissingMap(Grids[0], SG_DATATYPE_Byte);
 	
 	for (y = 0; y < Get_NY() && Set_Progress(y); y++)
 		for (x = 0; x < Get_NX(); x++)

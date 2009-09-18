@@ -488,7 +488,7 @@ CSG_Grid * CGEOTRANS_Grid::Get_Target_Userdef(CSG_Grid *pSource, bool bNearest)
 				size	= pParameters->Get_Parameter("SIZE")->asDouble();
 
 				pTarget	= SG_Create_Grid(
-					bNearest ? pSource->Get_Type() : GRID_TYPE_Float,
+					bNearest ? pSource->Get_Type() : SG_DATATYPE_Float,
 					pParameters->Get_Parameter("NX")->asInt(),
 					pParameters->Get_Parameter("NY")->asInt(),
 					size,
@@ -561,7 +561,7 @@ CSG_Grid * CGEOTRANS_Grid::Get_Target_Autofit(CSG_Grid *pSource, double Grid_Siz
 		if( is_Progress() && xMin < xMax && yMin < yMax )
 		{
 			pTarget	= SG_Create_Grid(
-				bNearest ? pSource->Get_Type() : GRID_TYPE_Float,
+				bNearest ? pSource->Get_Type() : SG_DATATYPE_Float,
 				1 + (int)((xMax - xMin) / Grid_Size),
 				1 + (int)((yMax - yMin) / Grid_Size),
 				Grid_Size,
@@ -599,12 +599,12 @@ bool CGEOTRANS_Grid::Set_Grid(CSG_Grid *pSource, CSG_Grid *pTarget, int Interpol
 
 		if( Parameters("CREATE_XY")->asBool() )
 		{
-			pX	= SG_Create_Grid(pTarget->Get_System(), GRID_TYPE_Float);
+			pX	= SG_Create_Grid(pTarget->Get_System(), SG_DATATYPE_Float);
 			pX->Assign_NoData();
 			pX->Set_Name(_TL("X-Coordinate"));
 			Parameters("OUT_X")->Set_Value(pX);
 
-			pY	= SG_Create_Grid(pTarget->Get_System(), GRID_TYPE_Float);
+			pY	= SG_Create_Grid(pTarget->Get_System(), SG_DATATYPE_Float);
 			pY->Assign_NoData();
 			pY->Set_Name(_TL("Y-Coordinate"));
 			Parameters("OUT_Y")->Set_Value(pY);
@@ -653,7 +653,7 @@ bool CGEOTRANS_Grid::Set_Shapes(CSG_Grid *pSource, CSG_Shapes *pTarget)
 	if( pSource && pTarget )
 	{
 		pTarget->Create(SHAPE_TYPE_Point, pSource->Get_Name());
-		pTarget->Add_Field("Z", TABLE_FIELDTYPE_Double);
+		pTarget->Add_Field("Z", SG_DATATYPE_Double);
 
 		for(y=0, Pt_Source.y=pSource->Get_YMin(); y<pSource->Get_NY() && Set_Progress(y, pSource->Get_NY()); y++, Pt_Source.y+=pSource->Get_Cellsize())
 		{

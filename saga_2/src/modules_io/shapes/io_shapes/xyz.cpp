@@ -207,7 +207,7 @@ bool CXYZ_Export::On_Execute(void)
 						{
 							switch( pShapes->Get_Field_Type(iField) )
 							{
-							case TABLE_FIELDTYPE_String:
+							case SG_DATATYPE_String:
 								fprintf(Stream, "\t\"%s\""	,pShape->asString(iField));
 								break;
 
@@ -221,7 +221,7 @@ bool CXYZ_Export::On_Execute(void)
 					{
 						switch( pShapes->Get_Field_Type(iField) )
 						{
-						case TABLE_FIELDTYPE_String:
+						case SG_DATATYPE_String:
 							fprintf(Stream, "\t\"%s\""	,pShape->asString(iField));
 							break;
 

@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid::_Load(const CSG_String &File_Name, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
+bool CSG_Grid::_Load(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type)
 {
 	bool	bResult;
 
@@ -100,12 +100,9 @@ bool CSG_Grid::_Load(const CSG_String &File_Name, TSG_Grid_Type Type, TSG_Grid_M
 
 		Set_File_Name(File_Name);
 
-		m_bCreated	= true;
+		Load_MetaData(File_Name);
 
-		if( !Get_History().Load(File_Name, HISTORY_EXT_GRID) )
-		{
-			Get_History().Add_Entry(LNG("[HST] Loaded from file"), File_Name);
-		}
+		m_bCreated	= true;
 
 		SG_UI_Msg_Add(LNG("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 	}
@@ -176,7 +173,7 @@ bool CSG_Grid::Save(const CSG_String &File_Name, int Format, int xA, int yA, int
 
 		Set_File_Name(sFile_Name);
 
-		Get_History().Save(File_Name, HISTORY_EXT_GRID);
+		Save_MetaData(File_Name);
 
 		SG_UI_Msg_Add(LNG("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 	}
@@ -213,7 +210,7 @@ void CSG_Grid::_Swap_Bytes(char *Bytes, int nBytes) const
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::_Load_Binary(CSG_File &Stream, TSG_Grid_Type File_Type, bool bFlip, bool bSwapBytes)
+bool CSG_Grid::_Load_Binary(CSG_File &Stream, TSG_Data_Type File_Type, bool bFlip, bool bSwapBytes)
 {
 	char	*Line, *pValue;
 	int		x, y, i, iy, dy, nxBytes, nValueBytes;
@@ -234,7 +231,7 @@ bool CSG_Grid::_Load_Binary(CSG_File &Stream, TSG_Grid_Type File_Type, bool bFli
 		}
 
 		//-------------------------------------------------
-		if( File_Type == GRID_TYPE_Bit )
+		if( File_Type == SG_DATATYPE_Bit )
 		{
 			nxBytes		= Get_NX() / 8 + 1;
 
@@ -269,7 +266,7 @@ bool CSG_Grid::_Load_Binary(CSG_File &Stream, TSG_Grid_Type File_Type, bool bFli
 		//-------------------------------------------------
 		else
 		{
-			nValueBytes	= gSG_Grid_Type_Sizes[File_Type];
+			nValueBytes	= SG_Data_Type_Get_Size(File_Type);
 			nxBytes		= Get_NX() * nValueBytes;
 
 			if( m_Type == File_Type && m_Memory_Type == GRID_MEMORY_Normal && !bSwapBytes )
@@ -297,14 +294,14 @@ bool CSG_Grid::_Load_Binary(CSG_File &Stream, TSG_Grid_Type File_Type, bool bFli
 						switch( File_Type )
 						{
 						default:													break;
-						case GRID_TYPE_Byte:	Set_Value(x, y, *(BYTE   *)pValue);	break;
-						case GRID_TYPE_Char:	Set_Value(x, y, *(char   *)pValue);	break;
-						case GRID_TYPE_Word:	Set_Value(x, y, *(WORD   *)pValue);	break;
-						case GRID_TYPE_Short:	Set_Value(x, y, *(short  *)pValue);	break;
-						case GRID_TYPE_DWord:	Set_Value(x, y, *(DWORD  *)pValue);	break;
-						case GRID_TYPE_Int:		Set_Value(x, y, *(int    *)pValue);	break;
-						case GRID_TYPE_Float:	Set_Value(x, y, *(float  *)pValue);	break;
-						case GRID_TYPE_Double:	Set_Value(x, y, *(double *)pValue);	break;
+						case SG_DATATYPE_Byte:	Set_Value(x, y, *(BYTE   *)pValue);	break;
+						case SG_DATATYPE_Char:	Set_Value(x, y, *(char   *)pValue);	break;
+						case SG_DATATYPE_Word:	Set_Value(x, y, *(WORD   *)pValue);	break;
+						case SG_DATATYPE_Short:	Set_Value(x, y, *(short  *)pValue);	break;
+						case SG_DATATYPE_DWord:	Set_Value(x, y, *(DWORD  *)pValue);	break;
+						case SG_DATATYPE_Int:		Set_Value(x, y, *(int    *)pValue);	break;
+						case SG_DATATYPE_Float:	Set_Value(x, y, *(float  *)pValue);	break;
+						case SG_DATATYPE_Double:	Set_Value(x, y, *(double *)pValue);	break;
 						}
 					}
 				}
@@ -323,13 +320,13 @@ bool CSG_Grid::_Load_Binary(CSG_File &Stream, TSG_Grid_Type File_Type, bool bFli
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::_Save_Binary(CSG_File &Stream, int xA, int yA, int xN, int yN, TSG_Grid_Type File_Type, bool bFlip, bool bSwapBytes)
+bool CSG_Grid::_Save_Binary(CSG_File &Stream, int xA, int yA, int xN, int yN, TSG_Data_Type File_Type, bool bFlip, bool bSwapBytes)
 {
 	char	*Line, *pValue;
 	int		x, y, i, ix, iy, dy, axBytes, nxBytes, nValueBytes;
 
 	//-----------------------------------------------------
-	if( Stream.is_Open() && m_System.is_Valid() && m_Type > 0 && m_Type < GRID_TYPE_Count )
+	if( Stream.is_Open() && m_System.is_Valid() && m_Type != SG_DATATYPE_Undefined )
 	{
 		Set_File_Type(GRID_FILE_FORMAT_Binary);
 
@@ -345,7 +342,7 @@ bool CSG_Grid::_Save_Binary(CSG_File &Stream, int xA, int yA, int xN, int yN, TS
 		}
 
 		//-------------------------------------------------
-		if( File_Type == GRID_TYPE_Bit )
+		if( File_Type == SG_DATATYPE_Bit )
 		{
 			nxBytes		= xN / 8 + 1;
 
@@ -382,7 +379,7 @@ bool CSG_Grid::_Save_Binary(CSG_File &Stream, int xA, int yA, int xN, int yN, TS
 		//-------------------------------------------------
 		else
 		{
-			nValueBytes	= gSG_Grid_Type_Sizes[File_Type];
+			nValueBytes	= SG_Data_Type_Get_Size(File_Type);
 			nxBytes		= xN * nValueBytes;
 
 			if( m_Type == File_Type && m_Memory_Type == GRID_MEMORY_Normal && !bSwapBytes )
@@ -405,14 +402,14 @@ bool CSG_Grid::_Save_Binary(CSG_File &Stream, int xA, int yA, int xN, int yN, TS
 						switch( File_Type )
 						{
 						default:														break;
-						case GRID_TYPE_Byte:	*(BYTE   *)pValue	= asChar	(x, y);	break;
-						case GRID_TYPE_Char:	*(char   *)pValue	= asChar	(x, y);	break;
-						case GRID_TYPE_Word:	*(WORD   *)pValue	= asShort	(x, y);	break;
-						case GRID_TYPE_Short:	*(short  *)pValue	= asShort	(x, y);	break;
-						case GRID_TYPE_DWord:	*(DWORD  *)pValue	= asInt		(x, y);	break;
-						case GRID_TYPE_Int:		*(int    *)pValue	= asInt		(x, y);	break;
-						case GRID_TYPE_Float:	*(float  *)pValue	= asFloat	(x, y);	break;
-						case GRID_TYPE_Double:	*(double *)pValue	= asDouble	(x, y);	break;
+						case SG_DATATYPE_Byte:	*(BYTE   *)pValue	= asChar	(x, y);	break;
+						case SG_DATATYPE_Char:	*(char   *)pValue	= asChar	(x, y);	break;
+						case SG_DATATYPE_Word:	*(WORD   *)pValue	= asShort	(x, y);	break;
+						case SG_DATATYPE_Short:	*(short  *)pValue	= asShort	(x, y);	break;
+						case SG_DATATYPE_DWord:	*(DWORD  *)pValue	= asInt		(x, y);	break;
+						case SG_DATATYPE_Int:		*(int    *)pValue	= asInt		(x, y);	break;
+						case SG_DATATYPE_Float:	*(float  *)pValue	= asFloat	(x, y);	break;
+						case SG_DATATYPE_Double:	*(double *)pValue	= asDouble	(x, y);	break;
 						}
 
 						if( bSwapBytes )
@@ -450,7 +447,7 @@ bool CSG_Grid::_Load_ASCII(CSG_File &Stream, TSG_Grid_Memory_Type Memory_Type, b
 	int		x, y, iy, dy;
 	double	Value;
 
-	if( Stream.is_Open() && m_System.is_Valid() && m_Type > 0 && m_Type < GRID_TYPE_Count && _Memory_Create(Memory_Type) )
+	if( Stream.is_Open() && m_System.is_Valid() && m_Type != SG_DATATYPE_Undefined && _Memory_Create(Memory_Type) )
 	{
 		Set_File_Type(GRID_FILE_FORMAT_ASCII);
 
@@ -595,7 +592,7 @@ bool CSG_Grid::_Load_Native(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 	int				iType, hdr_Offset, NX, NY;
 	double			Cellsize, xMin, yMin;
 	CSG_File		Stream;
-	TSG_Grid_Type	hdr_Type;
+	TSG_Data_Type	hdr_Type;
 	CSG_Grid_System	System;
 	CSG_String		File_Data, Value;
 
@@ -607,7 +604,7 @@ bool CSG_Grid::_Load_Native(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 		//-------------------------------------------------
 		// Load Header...
 
-		hdr_Type		= GRID_TYPE_Count;
+		hdr_Type		= SG_DATATYPE_Undefined;
 		hdr_Offset		= 0;
 		hdr_bFlip		= false;
 		hdr_bSwapBytes	= false;
@@ -650,11 +647,11 @@ bool CSG_Grid::_Load_Native(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 				break;
 
 			case GRID_FILE_KEY_DATAFORMAT:
-				for(iType=0; iType<GRID_TYPE_Count && hdr_Type == GRID_TYPE_Count; iType++)
+				for(iType=0; iType<SG_DATATYPE_Undefined && hdr_Type == SG_DATATYPE_Undefined; iType++)
 				{
-					if( Value.Find(gSG_Grid_Type_Names[iType]) >= 0 )
+					if( Value.Find(gSG_Data_Type_Names[iType]) >= 0 )
 					{
-						hdr_Type	= (TSG_Grid_Type)iType;
+						hdr_Type	= (TSG_Data_Type)iType;
 					}
 				}
 				break;
@@ -666,16 +663,16 @@ bool CSG_Grid::_Load_Native(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 		//-------------------------------------------------
 		// Load Data...
 
-		if( hdr_Type < GRID_TYPE_Count && m_System.Assign(Cellsize, xMin, yMin, NX, NY) )
+		if( hdr_Type < SG_DATATYPE_Undefined && m_System.Assign(Cellsize, xMin, yMin, NX, NY) )
 		{
 			//---------------------------------------------
 			// ASCII...
 
-			if( hdr_Type == GRID_TYPE_Undefined )
+			if( hdr_Type >= SG_DATATYPE_Undefined )
 			{
-				if( m_Type <= GRID_TYPE_Undefined || m_Type >= GRID_TYPE_Count )
+				if( m_Type >= SG_DATATYPE_Undefined )
 				{
-					m_Type	= GRID_TYPE_Float;
+					m_Type	= SG_DATATYPE_Float;
 				}
 
 				if(	Stream.Open(File_Data											, SG_FILE_R, false)
@@ -690,9 +687,9 @@ bool CSG_Grid::_Load_Native(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 			//---------------------------------------------
 			// Binary...
 
-			else if( hdr_Type > GRID_TYPE_Undefined )
+			else
 			{
-				if( m_Type <= GRID_TYPE_Undefined || m_Type >= GRID_TYPE_Count )
+				if( m_Type >= SG_DATATYPE_Undefined )
 				{
 					m_Type	= hdr_Type;
 				}
@@ -743,7 +740,7 @@ bool CSG_Grid::_Save_Native(const CSG_String &File_Name, int xA, int yA, int xN,
 		Stream.Printf(SG_T("%s\t= %s\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_DESCRIPTION	], Get_Description() );
 		Stream.Printf(SG_T("%s\t= %s\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_UNITNAME		], Get_Unit() );
 		Stream.Printf(SG_T("%s\t= %d\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_DATAFILE_OFFSET], 0 );
-		Stream.Printf(SG_T("%s\t= %s\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_DATAFORMAT		], gSG_Grid_Type_Names[bBinary ? Get_Type() : 0] );
+		Stream.Printf(SG_T("%s\t= %s\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_DATAFORMAT		], bBinary ? gSG_Data_Type_Names[Get_Type()] : SG_T("ASCII") );
 		Stream.Printf(SG_T("%s\t= %s\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_BYTEORDER_BIG	], GRID_FILE_KEY_FALSE );
 		Stream.Printf(SG_T("%s\t= %.10f\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_POSITION_XMIN	], Get_XMin() + Get_Cellsize() * xA );
 		Stream.Printf(SG_T("%s\t= %.10f\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_POSITION_YMIN	], Get_YMin() + Get_Cellsize() * yA );
@@ -852,7 +849,7 @@ bool CSG_Grid::_Load_Surfer(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 			Stream.Read(&dValue	, sizeof(double));	// ZMax...
 
 			//---------------------------------------------
-			if( !Stream.is_EOF() && Create(GRID_TYPE_Float, NX, NY, Cellsize, xMin, yMin, Memory_Type) )
+			if( !Stream.is_EOF() && Create(SG_DATATYPE_Float, NX, NY, Cellsize, xMin, yMin, Memory_Type) )
 			{
 				bResult	= true;
 
@@ -889,7 +886,7 @@ bool CSG_Grid::_Load_Surfer(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 			SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%lf %lf"), &dValue, &dValue);
 
 			//---------------------------------------------
-			if( !Stream.is_EOF() && Create(GRID_TYPE_Float, NX, NY, Cellsize, xMin, yMin, Memory_Type) )
+			if( !Stream.is_EOF() && Create(SG_DATATYPE_Float, NX, NY, Cellsize, xMin, yMin, Memory_Type) )
 			{
 				bResult	= true;
 

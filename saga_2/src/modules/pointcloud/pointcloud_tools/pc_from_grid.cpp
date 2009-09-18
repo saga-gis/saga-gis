@@ -124,7 +124,7 @@ bool CPC_From_Grid::On_Execute(void)
 
 	for(i=0; i<pGrids->Get_Count(); i++)
 	{
-		pPoints->Add_Field(pGrids->asGrid(i)->Get_Name(), POINTCLOUD_FIELDTYPE_Float);
+		pPoints->Add_Field(pGrids->asGrid(i)->Get_Name(), SG_DATATYPE_Float);
 	}
 
 	//-----------------------------------------------------

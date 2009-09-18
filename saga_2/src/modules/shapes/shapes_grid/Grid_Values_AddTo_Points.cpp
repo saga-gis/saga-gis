@@ -155,7 +155,7 @@ bool CGrid_Values_AddTo_Points::On_Execute(void)
 
 		for(iGrid=0; iGrid<pGrids->Get_Count(); iGrid++)
 		{
-			pShapes->Add_Field(pGrids->asGrid(iGrid)->Get_Name(), TABLE_FIELDTYPE_Double);
+			pShapes->Add_Field(pGrids->asGrid(iGrid)->Get_Name(), SG_DATATYPE_Double);
 		}
 
 		//-------------------------------------------------

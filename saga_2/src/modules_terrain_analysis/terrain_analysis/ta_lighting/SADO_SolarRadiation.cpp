@@ -395,7 +395,7 @@ bool CSADO_SolarRadiation::Initialise(void)
 
 		if( m_bUpdateDirect )
 		{
-			m_TmpDirect.Create(*Get_System(), GRID_TYPE_Float);
+			m_TmpDirect.Create(*Get_System(), SG_DATATYPE_Float);
 			DataObject_Update(m_pSumDirect, true);
 		}
 	}
@@ -408,7 +408,7 @@ bool CSADO_SolarRadiation::Initialise(void)
 
 		if( m_bUpdateDiffus )
 		{
-			m_TmpDiffus.Create(*Get_System(), GRID_TYPE_Float);
+			m_TmpDiffus.Create(*Get_System(), SG_DATATYPE_Float);
 			DataObject_Update(m_pSumDiffus, true);
 		}
 	}
@@ -421,7 +421,7 @@ bool CSADO_SolarRadiation::Initialise(void)
 
 		if( m_bUpdateTotal )
 		{
-			m_TmpTotal.Create(*Get_System(), GRID_TYPE_Float);
+			m_TmpTotal.Create(*Get_System(), SG_DATATYPE_Float);
 			DataObject_Update(m_pSumTotal , true);
 		}
 	}
@@ -429,9 +429,9 @@ bool CSADO_SolarRadiation::Initialise(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("initialising gradient..."));
 
-	m_Shade .Create(*Get_System(), GRID_TYPE_Byte);
-	m_Slope .Create(*Get_System(), GRID_TYPE_Float);
-	m_Aspect.Create(*Get_System(), GRID_TYPE_Float);
+	m_Shade .Create(*Get_System(), SG_DATATYPE_Byte);
+	m_Slope .Create(*Get_System(), SG_DATATYPE_Float);
+	m_Aspect.Create(*Get_System(), SG_DATATYPE_Float);
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
@@ -460,10 +460,10 @@ bool CSADO_SolarRadiation::Initialise(void)
 		CSG_Grid	*pLat	= Parameters("GRD_LAT")->asGrid(),
 				*pLon	= Parameters("GRD_LON")->asGrid();
 
-		m_Lat		.Create(*Get_System(), GRID_TYPE_Float);
-		m_Lon		.Create(*Get_System(), GRID_TYPE_Float);
-		m_Decline	.Create(*Get_System(), GRID_TYPE_Float);
-		m_Azimuth	.Create(*Get_System(), GRID_TYPE_Float);
+		m_Lat		.Create(*Get_System(), SG_DATATYPE_Float);
+		m_Lon		.Create(*Get_System(), SG_DATATYPE_Float);
+		m_Decline	.Create(*Get_System(), SG_DATATYPE_Float);
+		m_Azimuth	.Create(*Get_System(), SG_DATATYPE_Float);
 
 		if( pLat || pLon )
 		{

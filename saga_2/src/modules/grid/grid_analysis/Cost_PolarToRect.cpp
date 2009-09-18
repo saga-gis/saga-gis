@@ -45,7 +45,7 @@ CCost_PolarToRect::CCost_PolarToRect(void){
 						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
-						GRID_TYPE_Double);
+						SG_DATATYPE_Double);
 	
 	Parameters.Add_Grid(NULL, 
 						"Y", 
@@ -53,7 +53,7 @@ CCost_PolarToRect::CCost_PolarToRect(void){
 						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
-						GRID_TYPE_Double);
+						SG_DATATYPE_Double);
 
 }//constructor
 

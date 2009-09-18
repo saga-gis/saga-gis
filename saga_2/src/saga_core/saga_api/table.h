@@ -108,44 +108,6 @@ TSG_Table_Index_Order;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_Table_FieldType
-{
-	TABLE_FIELDTYPE_None		= 0,
-	TABLE_FIELDTYPE_Char,
-	TABLE_FIELDTYPE_Short,
-	TABLE_FIELDTYPE_Int,
-	TABLE_FIELDTYPE_Long,
-	TABLE_FIELDTYPE_Float,
-	TABLE_FIELDTYPE_Double,
-	TABLE_FIELDTYPE_String,
-	TABLE_FIELDTYPE_Color,
-	TABLE_FIELDTYPE_Date
-}
-TSG_Table_Field_Type;
-
-//---------------------------------------------------------
-const SG_Char	gSG_Table_Field_Type_Names[][32]	=
-{
-	SG_T("NONE"),
-	SG_T("CHARACTER"),
-	SG_T("SHORTINT"),
-	SG_T("INTEGER"),
-	SG_T("LONGINT"),
-	SG_T("FLOAT"),
-	SG_T("DOUBLE"),
-	SG_T("STRING"),
-	SG_T("COLOR"),
-	SG_T("DATE")
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Table_Record
 {
 	friend class CSG_Table;
@@ -206,7 +168,7 @@ protected:
 	class CSG_Table				*m_pTable;
 
 
-	class CSG_Table_Value *		_Create_Value	(TSG_Table_Field_Type Type);
+	class CSG_Table_Value *		_Create_Value	(TSG_Data_Type Type);
 
 	bool						_Add_Field		(int add_Field);
 	bool						_Del_Field		(int del_Field);
@@ -265,15 +227,15 @@ public:
 	bool							is_Compatible		(CSG_Table *pTable, bool bExactMatch = false)	const;
 
 	//-----------------------------------------------------
-	void							Add_Field			(const SG_Char *Name, TSG_Table_Field_Type Type, int iField = -1);
+	void							Add_Field			(const SG_Char *Name, TSG_Data_Type Type, int iField = -1);
 #ifdef _SAGA_UNICODE
-	void							Add_Field			(const char    *Name, TSG_Table_Field_Type Type, int iField = -1);
+	void							Add_Field			(const char    *Name, TSG_Data_Type Type, int iField = -1);
 #endif
 	bool							Del_Field			(int iField);
 
 	int								Get_Field_Count		(void)			const	{	return( m_nFields );	}
 	const SG_Char *					Get_Field_Name		(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Name[iField]->c_str() : NULL );			}
-	TSG_Table_Field_Type			Get_Field_Type		(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Type[iField] : TABLE_FIELDTYPE_None );	}
+	TSG_Data_Type					Get_Field_Type		(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Type[iField] : SG_DATATYPE_Undefined );	}
 
 	bool							Set_Field_Name		(int iField, const SG_Char *Name);
 
@@ -346,7 +308,7 @@ protected:
 
 	int								m_nFields, m_nRecords, m_nBuffer, m_nSelected, *m_Index, m_Index_Field[3];
 
-	TSG_Table_Field_Type			*m_Field_Type;
+	TSG_Data_Type			*m_Field_Type;
 
 	TSG_Table_Index_Order			m_Index_Order[3];
 

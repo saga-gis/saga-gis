@@ -182,7 +182,7 @@ bool CExercise_14::Initialise(int Threshold)
 	CSG_Colors	Colors;
 
 	//-----------------------------------------------------
-	m_pDir	= new CSG_Grid(m_pDTM, GRID_TYPE_Char);
+	m_pDir	= new CSG_Grid(m_pDTM, SG_DATATYPE_Char);
 
 	m_pChnl->Assign();
 
@@ -308,8 +308,8 @@ void CExercise_14::Vectorise(void)
 
 	m_pShapes->Create(SHAPE_TYPE_Line, _TL("Channels"));
 
-	m_pShapes->Add_Field("SEGMENT_ID"	, TABLE_FIELDTYPE_Int);
-	m_pShapes->Add_Field("LENGTH"		, TABLE_FIELDTYPE_Double);
+	m_pShapes->Add_Field("SEGMENT_ID"	, SG_DATATYPE_Int);
+	m_pShapes->Add_Field("LENGTH"		, SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
 	for(y=0, Segment_ID=0; y<Get_NY() && Set_Progress(y); y++)

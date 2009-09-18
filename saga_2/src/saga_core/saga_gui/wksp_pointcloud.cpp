@@ -80,8 +80,8 @@ CWKSP_PointCloud::CWKSP_PointCloud(CSG_PointCloud *pPointCloud)
 	m_pPointCloud	= pPointCloud;
 
 	m_Edit_Attributes.Destroy();
-	m_Edit_Attributes.Add_Field(LNG("[CAP] Name") , TABLE_FIELDTYPE_String);
-	m_Edit_Attributes.Add_Field(LNG("[CAP] Value"), TABLE_FIELDTYPE_String);
+	m_Edit_Attributes.Add_Field(LNG("[CAP] Name") , SG_DATATYPE_String);
+	m_Edit_Attributes.Add_Field(LNG("[CAP] Value"), SG_DATATYPE_String);
 
 	Create_Parameters();
 
@@ -151,7 +151,7 @@ wxString CWKSP_PointCloud::Get_Description(void)
 		s.Append(wxString::Format(wxT("<tr><td>%d</td><td>%s</td><td>%s</td><td>%f</td><td>%f</td><td>%f</td><td>%f</td></tr>"),
 			i + 1,
 			m_pPointCloud->Get_Field_Name(i),
-			gSG_PointCloud_Field_Type_Names[m_pPointCloud->Get_Field_Type(i)],
+			gSG_Data_Type_Names[m_pPointCloud->Get_Field_Type(i)],
 			m_pPointCloud->Get_Minimum(i),
 			m_pPointCloud->Get_Maximum(i),
 			m_pPointCloud->Get_Mean(i),
@@ -493,8 +493,8 @@ void CWKSP_PointCloud::_Draw_Points(CWKSP_Map_DC &dc_Map)
 
 	if( m_Aggregation != 1 )
 	{
-		m_Z.Create(GRID_TYPE_Double, dc_Map.m_rDC.GetWidth(), dc_Map.m_rDC.GetHeight());
-		m_N.Create(GRID_TYPE_Int   , dc_Map.m_rDC.GetWidth(), dc_Map.m_rDC.GetHeight());
+		m_Z.Create(SG_DATATYPE_Double, dc_Map.m_rDC.GetWidth(), dc_Map.m_rDC.GetHeight());
+		m_N.Create(SG_DATATYPE_Int   , dc_Map.m_rDC.GetWidth(), dc_Map.m_rDC.GetHeight());
 	}
 
 	//-----------------------------------------------------

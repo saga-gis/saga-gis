@@ -81,8 +81,8 @@ bool CProfileFromPoints::On_Execute(void){
 	
 	pProfileTable->Create((CSG_Table*)NULL);
 	pProfileTable->Set_Name(_TL("Profile"));
-	pProfileTable->Add_Field(_TL("Distance"), TABLE_FIELDTYPE_Double);
-	pProfileTable->Add_Field("Z", TABLE_FIELDTYPE_Double);
+	pProfileTable->Add_Field(_TL("Distance"), SG_DATATYPE_Double);
+	pProfileTable->Add_Field("Z", SG_DATATYPE_Double);
 
 	for (i = 0; i < pTable->Get_Record_Count()-1; i++){
 		

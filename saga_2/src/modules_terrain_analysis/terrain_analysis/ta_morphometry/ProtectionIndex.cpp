@@ -39,7 +39,7 @@ CProtectionIndex::CProtectionIndex(void){
 						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
-						GRID_TYPE_Float);
+						SG_DATATYPE_Float);
 
 	Parameters.Add_Value(NULL, 
 						"RADIUS", 

@@ -452,7 +452,7 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 
 		for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
 		{
-			if( pShapes->Get_Field_Type(iField) == TABLE_FIELDTYPE_String )
+			if( pShapes->Get_Field_Type(iField) == SG_DATATYPE_String )
 				Fields	+= CSG_String(", '") + pShape->asString(iField) + SG_T("'");
 			else
 				Fields	+= CSG_String(", ")  + pShape->asString(iField);

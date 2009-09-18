@@ -94,7 +94,7 @@ public:
 private:
 
 
-	bool				_Add_History			(wxTreeItemId Parent, CSG_History &History);
+	bool				_Add_History			(wxTreeItemId Parent, CSG_MetaData &History);
 
 
 //---------------------------------------------------------

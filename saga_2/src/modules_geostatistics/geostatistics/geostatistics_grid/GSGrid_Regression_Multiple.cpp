@@ -224,11 +224,11 @@ bool CGSGrid_Regression_Multiple::Get_Regression(CSG_Parameter_Grid_List *pGrids
 
 	//-----------------------------------------------------
 	Table.Destroy();
-	Table.Add_Field(pShapes->Get_Name(), TABLE_FIELDTYPE_Double);
+	Table.Add_Field(pShapes->Get_Name(), SG_DATATYPE_Double);
 
 	for(iGrid=0; iGrid<pGrids->Get_Count(); iGrid++)
 	{
-		Table.Add_Field(pGrids->asGrid(iGrid)->Get_Name(), TABLE_FIELDTYPE_Double);
+		Table.Add_Field(pGrids->asGrid(iGrid)->Get_Name(), SG_DATATYPE_Double);
 	}
 
 	//-----------------------------------------------------
@@ -314,9 +314,9 @@ bool CGSGrid_Regression_Multiple::Set_Residuals(CSG_Shapes *pShapes, int iAttrib
 	if( pResiduals )
 	{
 		pResiduals->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), pShapes->Get_Name(), _TL("Residuals")));
-		pResiduals->Add_Field(pShapes->Get_Field_Name(iAttribute), TABLE_FIELDTYPE_Double);
-		pResiduals->Add_Field("TREND"	, TABLE_FIELDTYPE_Double);
-		pResiduals->Add_Field("RESIDUAL", TABLE_FIELDTYPE_Double);
+		pResiduals->Add_Field(pShapes->Get_Field_Name(iAttribute), SG_DATATYPE_Double);
+		pResiduals->Add_Field("TREND"	, SG_DATATYPE_Double);
+		pResiduals->Add_Field("RESIDUAL", SG_DATATYPE_Double);
 
 		//-------------------------------------------------
 		for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)

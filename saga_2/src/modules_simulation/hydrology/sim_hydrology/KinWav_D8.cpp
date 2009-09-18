@@ -329,9 +329,9 @@ double CKinWav_D8::Get_Runoff(double q_Up, double q_Last, double alpha, double d
 //---------------------------------------------------------
 bool CKinWav_D8::Initialize(double Roughness)
 {
-	m_Flow_Last	.Create(*Get_System(), GRID_TYPE_Float);
-	m_Alpha		.Create(*Get_System(), GRID_TYPE_Float);
-	m_Direction	.Create(*Get_System(), GRID_TYPE_Char);
+	m_Flow_Last	.Create(*Get_System(), SG_DATATYPE_Float);
+	m_Alpha		.Create(*Get_System(), SG_DATATYPE_Float);
+	m_Direction	.Create(*Get_System(), SG_DATATYPE_Char);
 	m_Direction	.Set_NoData_Value(-1);
 
 	m_pFlow->Assign(0.0);
@@ -408,7 +408,7 @@ bool CKinWav_D8::Gauges_Initialise(void)
 
 			Parameters("GAUGES")->Set_Value(m_pGauges);
 
-			m_pGauges->Add_Field(_TL("ID"), TABLE_FIELDTYPE_Int);
+			m_pGauges->Add_Field(_TL("ID"), SG_DATATYPE_Int);
 
 			for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 			{
@@ -445,11 +445,11 @@ bool CKinWav_D8::Gauges_Initialise(void)
 
 		m_pGauges_Flow->Destroy();
 		m_pGauges_Flow->Set_Name(_TL("Outlet Hydrographs"));
-		m_pGauges_Flow->Add_Field("TIME", TABLE_FIELDTYPE_Double);
+		m_pGauges_Flow->Add_Field("TIME", SG_DATATYPE_Double);
 
 		for(int i=0; i<m_pGauges->Get_Count(); i++)
 		{
-			m_pGauges_Flow->Add_Field(CSG_String::Format(SG_T("GAUGE_%02d"), i + 1), TABLE_FIELDTYPE_Double);
+			m_pGauges_Flow->Add_Field(CSG_String::Format(SG_T("GAUGE_%02d"), i + 1), SG_DATATYPE_Double);
 		}
 
 		return( true );

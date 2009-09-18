@@ -118,18 +118,18 @@ bool CGrid_Local_Extremes_to_Points::On_Execute(void)
 	pMaxima		= Parameters("MAXIMA")	->asShapes();
 
 	pMinima->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("Local Minima")));
-	pMinima->Add_Field(SG_T("GRID_X")	, TABLE_FIELDTYPE_Int);
-	pMinima->Add_Field(SG_T("GRID_Y")	, TABLE_FIELDTYPE_Int);
-	pMinima->Add_Field(SG_T("X")		, TABLE_FIELDTYPE_Double);
-	pMinima->Add_Field(SG_T("Y")		, TABLE_FIELDTYPE_Double);
-	pMinima->Add_Field(SG_T("Z")		, TABLE_FIELDTYPE_Double);
+	pMinima->Add_Field(SG_T("GRID_X")	, SG_DATATYPE_Int);
+	pMinima->Add_Field(SG_T("GRID_Y")	, SG_DATATYPE_Int);
+	pMinima->Add_Field(SG_T("X")		, SG_DATATYPE_Double);
+	pMinima->Add_Field(SG_T("Y")		, SG_DATATYPE_Double);
+	pMinima->Add_Field(SG_T("Z")		, SG_DATATYPE_Double);
 
 	pMaxima->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("Local Maxima")));
-	pMaxima->Add_Field(SG_T("GRID_X")	, TABLE_FIELDTYPE_Int);
-	pMaxima->Add_Field(SG_T("GRID_Y")	, TABLE_FIELDTYPE_Int);
-	pMaxima->Add_Field(SG_T("X")		, TABLE_FIELDTYPE_Double);
-	pMaxima->Add_Field(SG_T("Y")		, TABLE_FIELDTYPE_Double);
-	pMaxima->Add_Field(SG_T("Z")		, TABLE_FIELDTYPE_Double);
+	pMaxima->Add_Field(SG_T("GRID_X")	, SG_DATATYPE_Int);
+	pMaxima->Add_Field(SG_T("GRID_Y")	, SG_DATATYPE_Int);
+	pMaxima->Add_Field(SG_T("X")		, SG_DATATYPE_Double);
+	pMaxima->Add_Field(SG_T("Y")		, SG_DATATYPE_Double);
+	pMaxima->Add_Field(SG_T("Z")		, SG_DATATYPE_Double);
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{

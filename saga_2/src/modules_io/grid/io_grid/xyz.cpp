@@ -278,8 +278,8 @@ bool CXYZ_Import::On_Execute(void)
 			nx		= 1 + (int)((xMax - xMin) / Cellsize);
 			ny		= 1 + (int)((yMax - yMin) / Cellsize);
 
-			Parameters("GRID" )->Set_Value(pGrid  = SG_Create_Grid(GRID_TYPE_Float, nx, ny, Cellsize, xMin, yMin));
-			Parameters("COUNT")->Set_Value(pCount = SG_Create_Grid(GRID_TYPE_Byte , nx, ny, Cellsize, xMin, yMin));
+			Parameters("GRID" )->Set_Value(pGrid  = SG_Create_Grid(SG_DATATYPE_Float, nx, ny, Cellsize, xMin, yMin));
+			Parameters("COUNT")->Set_Value(pCount = SG_Create_Grid(SG_DATATYPE_Byte , nx, ny, Cellsize, xMin, yMin));
 
 			if( pGrid && pCount )
 			{

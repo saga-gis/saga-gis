@@ -105,7 +105,7 @@ bool CTable_Rotate::On_Execute(void)
 {
 	bool				bCopy;
 	int					x, y;
-	TSG_Table_Field_Type	FieldType;
+	TSG_Data_Type	FieldType;
 	CSG_Table				*pInput, *pOutput;
 	CSG_Table_Record		*pRec_In, *pRec_Out;
 
@@ -129,10 +129,10 @@ bool CTable_Rotate::On_Execute(void)
 		pOutput->Destroy();
 		pOutput->Set_Name(CSG_String::Format(_TL("%s [rotated]"), pInput->Get_Name()));
 
-		FieldType	= TABLE_FIELDTYPE_String;
+		FieldType	= SG_DATATYPE_String;
 
 		//-------------------------------------------------
-		pOutput->Add_Field(pInput->Get_Field_Name(0), TABLE_FIELDTYPE_String);
+		pOutput->Add_Field(pInput->Get_Field_Name(0), SG_DATATYPE_String);
 
 		for(y=0; y<pInput->Get_Record_Count(); y++)
 		{
@@ -148,7 +148,7 @@ bool CTable_Rotate::On_Execute(void)
 			{
 				pRec_In		= pInput->Get_Record(x);
 
-				if( FieldType == TABLE_FIELDTYPE_String )
+				if( FieldType == SG_DATATYPE_String )
 				{
 					pRec_Out->Set_Value(x + 1, pRec_In->asString(y));
 				}

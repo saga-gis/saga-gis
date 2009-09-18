@@ -152,11 +152,11 @@ bool CGrid_CrossSections::On_Execute(void){
 	m_pSections->Create(SHAPE_TYPE_Line, _TL("Cross Sections"));
 	for (i = iNumPoints; i > 0; i--){
 		m_pSections->Add_Field(CSG_String::Format(SG_T("-%s"), SG_Get_String(fInterval * i, 2).c_str()),
-										TABLE_FIELDTYPE_Double);
+										SG_DATATYPE_Double);
 	}//for
-	m_pSections->Add_Field("0", TABLE_FIELDTYPE_Double);
+	m_pSections->Add_Field("0", SG_DATATYPE_Double);
 	for (i = 1; i < iNumPoints +1; i++){
-		m_pSections->Add_Field(SG_Get_String(fInterval * i).c_str(), TABLE_FIELDTYPE_Double);
+		m_pSections->Add_Field(SG_Get_String(fInterval * i).c_str(), SG_DATATYPE_Double);
 	}//for
 	for(i=0; i<pLines->Get_Count() && Set_Progress(i, pLines->Get_Count()); i++){
 		pShape = pLines->Get_Shape(i);

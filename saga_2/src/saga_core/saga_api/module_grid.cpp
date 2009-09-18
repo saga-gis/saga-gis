@@ -135,7 +135,7 @@ void CSG_Module_Grid::Lock_Create(void)
 			Lock_Destroy();
 
 			m_pLock	= new CSG_Grid(
-				GRID_TYPE_Char,
+				SG_DATATYPE_Char,
 				Get_System()->Get_NX(),
 				Get_System()->Get_NY(),
 				Get_System()->Get_Cellsize(),

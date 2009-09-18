@@ -127,7 +127,7 @@ public:
 
 protected:
 	double calcClassesDist(long class1, long class2);
-	CSG_Grid * copyGrid(CSG_Grid *fromGrid, TSG_Grid_Type gridType);
+	CSG_Grid * copyGrid(CSG_Grid *fromGrid, TSG_Data_Type gridType);
 
 	virtual bool		On_Execute(void);
 

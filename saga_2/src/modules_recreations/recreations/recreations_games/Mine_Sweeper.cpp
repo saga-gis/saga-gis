@@ -149,7 +149,7 @@ bool CMine_Sweeper::MakeBoard(int level)
 			break;
 	}
 
-	pInput	= SG_Create_Grid(GRID_TYPE_Int,SPRITE_SIZE*Mine_NX, SPRITE_SIZE*Mine_NY);
+	pInput	= SG_Create_Grid(SG_DATATYPE_Int,SPRITE_SIZE*Mine_NX, SPRITE_SIZE*Mine_NY);
 	pInput->Set_Name(_TL("Mine Sweeper"));
 	Parameters("GRID")->Set_Value(pInput);
 
@@ -176,8 +176,8 @@ bool CMine_Sweeper::On_Execute(void)
 {
 	MakeBoard(Parameters("LEVEL")->asInt());
 
-	GameBoard	= (CSG_Grid *) new CSG_Grid(GRID_TYPE_Int,Mine_NX,Mine_NY);
-	FlagBoard	= (CSG_Grid *) new CSG_Grid(GRID_TYPE_Int,Mine_NX,Mine_NY);
+	GameBoard	= (CSG_Grid *) new CSG_Grid(SG_DATATYPE_Int,Mine_NX,Mine_NY);
+	FlagBoard	= (CSG_Grid *) new CSG_Grid(SG_DATATYPE_Int,Mine_NX,Mine_NY);
 
 	First_Click	= true;
 	Time		= NULL;	

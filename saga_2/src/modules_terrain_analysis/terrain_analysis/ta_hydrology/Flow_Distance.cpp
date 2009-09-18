@@ -179,7 +179,7 @@ bool CFlow_Distance::On_Execute(void)
 	bSeeds		= Parameters("SEEDS_ONLY")	->asBool();
 	Method		= Parameters("METHOD")		->asInt();
 
-	m_pWeight	= SG_Create_Grid(m_pLength, GRID_TYPE_Float);
+	m_pWeight	= SG_Create_Grid(m_pLength, SG_DATATYPE_Float);
 	m_pWeight	->Assign(0.0);
 	m_pLength	->Assign(0.0);
 

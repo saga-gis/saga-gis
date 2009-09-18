@@ -94,11 +94,11 @@ CSG_Regression_Multiple::CSG_Regression_Multiple(void)
 {
 	m_pResult	= new CSG_Table;
 
-	m_pResult->Add_Field("Field"				, TABLE_FIELDTYPE_Int);
-	m_pResult->Add_Field("Variable"				, TABLE_FIELDTYPE_String);
-	m_pResult->Add_Field("Regression Coeff."	, TABLE_FIELDTYPE_Double);
-	m_pResult->Add_Field("Determination Coeff."	, TABLE_FIELDTYPE_Double);
-	m_pResult->Add_Field("Order"				, TABLE_FIELDTYPE_Int);
+	m_pResult->Add_Field("Field"				, SG_DATATYPE_Int);
+	m_pResult->Add_Field("Variable"				, SG_DATATYPE_String);
+	m_pResult->Add_Field("Regression Coeff."	, SG_DATATYPE_Double);
+	m_pResult->Add_Field("Determination Coeff."	, SG_DATATYPE_Double);
+	m_pResult->Add_Field("Order"				, SG_DATATYPE_Int);
 }
 
 //---------------------------------------------------------

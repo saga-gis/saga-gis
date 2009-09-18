@@ -355,7 +355,7 @@ bool CTA_Standard::On_Execute(void)
 	Process_Set_Text(_TL("Channel Network"));
 
 	double	d	= Parameters("CAREA")->asGrid()->Get_Percentile(Parameters("CHNL_INIT")->asDouble());
-	CSG_Grid	Grid(Parameters("ELEVATION")->asGrid(), GRID_TYPE_Byte);
+	CSG_Grid	Grid(Parameters("ELEVATION")->asGrid(), SG_DATATYPE_Byte);
 
 	CChannelNetwork	ChannelNetwork;
 

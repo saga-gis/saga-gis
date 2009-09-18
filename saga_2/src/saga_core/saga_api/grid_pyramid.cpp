@@ -205,7 +205,7 @@ bool CSG_Grid_Pyramid::_Get_Next_Level(CSG_Grid *pGrid)
 
 		if( nx > 1 || ny > 1 )
 		{
-			CSG_Grid	*pNext	= SG_Create_Grid(GRID_TYPE_Float, nx, ny, Cellsize, pGrid->Get_XMin(), pGrid->Get_YMin());
+			CSG_Grid	*pNext	= SG_Create_Grid(SG_DATATYPE_Float, nx, ny, Cellsize, pGrid->Get_XMin(), pGrid->Get_YMin());
 
 			pNext->Set_NoData_Value(pGrid->Get_NoData_Value());
 			pNext->Assign(pGrid);
@@ -234,7 +234,7 @@ bool CSG_Grid_Pyramid::_Get_Next_Level(CSG_Grid *pGrid, double Cellsize)
 
 		if( nx > 1 || ny > 1 )
 		{
-			CSG_Grid	*pNext	= SG_Create_Grid(GRID_TYPE_Float, nx, ny, Cellsize, pGrid->Get_XMin(), pGrid->Get_YMin());
+			CSG_Grid	*pNext	= SG_Create_Grid(SG_DATATYPE_Float, nx, ny, Cellsize, pGrid->Get_XMin(), pGrid->Get_YMin());
 
 			pNext->Set_NoData_Value(pGrid->Get_NoData_Value());
 			pNext->Assign(pGrid);

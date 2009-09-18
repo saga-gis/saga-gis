@@ -95,9 +95,9 @@ CFilter_3x3::CFilter_3x3(void)
 	//-----------------------------------------------------
 	CSG_Table	Filter;
 
-	Filter.Add_Field("1", TABLE_FIELDTYPE_Double);
-	Filter.Add_Field("2", TABLE_FIELDTYPE_Double);
-	Filter.Add_Field("3", TABLE_FIELDTYPE_Double);
+	Filter.Add_Field("1", SG_DATATYPE_Double);
+	Filter.Add_Field("2", SG_DATATYPE_Double);
+	Filter.Add_Field("3", SG_DATATYPE_Double);
 
 	Filter.Add_Record();
 	Filter[0][0]	= 0.25;

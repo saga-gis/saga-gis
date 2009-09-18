@@ -42,7 +42,7 @@ CFlowDepth::CFlowDepth(void){
 						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
-						GRID_TYPE_Float);
+						SG_DATATYPE_Float);
 
 	Parameters.Add_Value(NULL,
 						"THRESHOLD",
@@ -71,10 +71,10 @@ bool CFlowDepth::On_Execute(void){
 	m_dThreshold	= Parameters("THRESHOLD")	->asDouble();
 	m_dFlow			= Parameters("FLOW")		->asDouble();
 
-	m_pCatchArea	= SG_Create_Grid(m_pDEM, GRID_TYPE_Float);
-	m_pBasinGrid	= SG_Create_Grid(m_pDEM, GRID_TYPE_Int);
-	m_pSlope		= SG_Create_Grid(m_pDEM, GRID_TYPE_Float);
-	m_pAspect		= SG_Create_Grid(m_pDEM, GRID_TYPE_Float);
+	m_pCatchArea	= SG_Create_Grid(m_pDEM, SG_DATATYPE_Float);
+	m_pBasinGrid	= SG_Create_Grid(m_pDEM, SG_DATATYPE_Int);
+	m_pSlope		= SG_Create_Grid(m_pDEM, SG_DATATYPE_Float);
+	m_pAspect		= SG_Create_Grid(m_pDEM, SG_DATATYPE_Float);
 
 	m_pFlowDepth->Set_NoData_Value(0.);
 

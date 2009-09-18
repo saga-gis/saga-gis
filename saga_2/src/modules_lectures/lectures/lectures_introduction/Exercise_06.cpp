@@ -218,7 +218,7 @@ bool CExercise_06::Method_02(int Radius)
 	//-----------------------------------------------------
 	nMask	= 1 + 2 * Radius;
 
-	gMask.Create(GRID_TYPE_Byte, nMask, nMask);
+	gMask.Create(SG_DATATYPE_Byte, nMask, nMask);
 
 	for(iy=-Radius, yMask=0; yMask<nMask; iy++, yMask++)
 	{
@@ -275,7 +275,7 @@ bool CExercise_06::Method_03(int Radius)
 	//-----------------------------------------------------
 	nMask	= 1 + 2 * Radius;
 
-	gMask.Create(GRID_TYPE_Double, nMask, nMask);
+	gMask.Create(SG_DATATYPE_Double, nMask, nMask);
 
 	for(iy=-Radius, yMask=0; yMask<nMask; iy++, yMask++)
 	{

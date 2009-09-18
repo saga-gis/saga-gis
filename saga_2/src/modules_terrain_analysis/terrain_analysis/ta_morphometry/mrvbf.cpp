@@ -201,9 +201,9 @@ bool CMRVBF::On_Execute(void)
 
 		CSG_Grid	CF, VF, RF, DEM, Slopes, Percentiles;
 
-		VF.Create(*Get_System(), GRID_TYPE_Float);
-		RF.Create(*Get_System(), GRID_TYPE_Float);
-		CF.Create(*Get_System(), GRID_TYPE_Float);
+		VF.Create(*Get_System(), SG_DATATYPE_Float);
+		RF.Create(*Get_System(), SG_DATATYPE_Float);
+		CF.Create(*Get_System(), SG_DATATYPE_Float);
 		CF.Assign(1.0);
 
 		DEM.Create(*pDEM);
@@ -288,7 +288,7 @@ bool CMRVBF::Get_Smoothed(CSG_Grid *pDEM, CSG_Grid *pSmoothed, int Radius, doubl
 		int		x, y, ix, iy, jx, jy, kx, ky;
 		double	d, s;
 
-		CSG_Grid	Kernel(GRID_TYPE_Double, 1 + 2 * Radius, 1 + 2 * Radius);
+		CSG_Grid	Kernel(SG_DATATYPE_Double, 1 + 2 * Radius, 1 + 2 * Radius);
 
 		for(iy=-Radius, ky=0; iy<=Radius; iy++, ky++)
 		{
@@ -299,7 +299,7 @@ bool CMRVBF::Get_Smoothed(CSG_Grid *pDEM, CSG_Grid *pSmoothed, int Radius, doubl
 			}
 		}
 
-		pSmoothed->Create(pDEM, GRID_TYPE_Float);
+		pSmoothed->Create(pDEM, SG_DATATYPE_Float);
 
 		for(y=0; y<pDEM->Get_NY() && Set_Progress(y, pDEM->Get_NY()); y++)
 		{
@@ -348,7 +348,7 @@ bool CMRVBF::Get_Values(CSG_Grid *pDEM, CSG_Grid *pSlopes, CSG_Grid *pPercentile
 		nx	= 2 + (int)(pDEM->Get_XRange() / Resolution);
 		ny	= 2 + (int)(pDEM->Get_YRange() / Resolution);
 
-		pDEM->Create(GRID_TYPE_Float, nx, ny, Resolution, pDEM->Get_XMin(), pDEM->Get_YMin());
+		pDEM->Create(SG_DATATYPE_Float, nx, ny, Resolution, pDEM->Get_XMin(), pDEM->Get_YMin());
 		pDEM->Assign(&Smoothed, GRID_INTERPOLATION_NearestNeighbour);
 
 		Get_Percentiles(pDEM, pPercentiles, 6);
@@ -411,7 +411,7 @@ bool CMRVBF::Get_Percentiles(CSG_Grid *pDEM, CSG_Grid *pPercentiles, int Radius)
 {
 	if( pDEM && pDEM->is_Valid() )
 	{
-		pPercentiles->Create(pDEM->Get_System(), GRID_TYPE_Float);
+		pPercentiles->Create(pDEM->Get_System(), SG_DATATYPE_Float);
 
 		m_Radius.Create(Radius);
 
@@ -443,7 +443,7 @@ bool CMRVBF::Get_Slopes(CSG_Grid *pDEM, CSG_Grid *pSlopes)
 {
 	if( pDEM && pDEM->is_Valid() )
 	{
-		pSlopes->Create(pDEM->Get_System(), GRID_TYPE_Float);
+		pSlopes->Create(pDEM->Get_System(), SG_DATATYPE_Float);
 
 		for(int y=0; y<pDEM->Get_NY() && Set_Progress(y, pDEM->Get_NY()); y++)
 		{

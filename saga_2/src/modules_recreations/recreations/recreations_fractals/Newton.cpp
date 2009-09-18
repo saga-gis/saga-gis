@@ -137,11 +137,11 @@ bool CNewton::On_Execute(void)
 
 	method			= Parameters("METHOD")->asInt();
 
-	pResult			= SG_Create_Grid(GRID_TYPE_Double, x, y, dx, xMin, yMin);
+	pResult			= SG_Create_Grid(SG_DATATYPE_Double, x, y, dx, xMin, yMin);
 	pResult->Set_Name(_TL("Newton [A]"));
 	Parameters("RESULT")->Set_Value(pResult);
 
-	pShade			= SG_Create_Grid(GRID_TYPE_Double, x, y, dx, xMin, yMin);
+	pShade			= SG_Create_Grid(SG_DATATYPE_Double, x, y, dx, xMin, yMin);
 	pShade->Set_Name(_TL("Newton [B]"));
 	Parameters("SHADE")	->Set_Value(pShade);
 

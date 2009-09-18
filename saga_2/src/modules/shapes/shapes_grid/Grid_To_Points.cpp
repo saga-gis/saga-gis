@@ -144,13 +144,13 @@ bool CGrid_To_Points::On_Execute(void)
 	{
 		pPoints->Create(SHAPE_TYPE_Point, _TL("Points from Grid(s)"));
 
-		pPoints->Add_Field("ID"	, TABLE_FIELDTYPE_Int);
-		pPoints->Add_Field("X"	, TABLE_FIELDTYPE_Double);
-		pPoints->Add_Field("Y"	, TABLE_FIELDTYPE_Double);
+		pPoints->Add_Field("ID"	, SG_DATATYPE_Int);
+		pPoints->Add_Field("X"	, SG_DATATYPE_Double);
+		pPoints->Add_Field("Y"	, SG_DATATYPE_Double);
 
 		for(iGrid=0; iGrid<pGrids->Get_Count(); iGrid++)
 		{
-			pPoints->Add_Field(CSG_String::Format(SG_T("%s"),pGrids->asGrid(iGrid)->Get_Name()).BeforeFirst(SG_Char('.')).c_str(), TABLE_FIELDTYPE_Double);
+			pPoints->Add_Field(CSG_String::Format(SG_T("%s"),pGrids->asGrid(iGrid)->Get_Name()).BeforeFirst(SG_Char('.')).c_str(), SG_DATATYPE_Double);
 		}
 
 		//-------------------------------------------------

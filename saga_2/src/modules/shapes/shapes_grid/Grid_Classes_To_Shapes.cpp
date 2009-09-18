@@ -147,9 +147,9 @@ bool CGrid_Classes_To_Shapes::On_Execute(void)
 
 	//-----------------------------------------------------
 	pShapes->Create(SHAPE_TYPE_Polygon);
-	pShapes->Add_Field(m_pGrid->Get_Name()	, TABLE_FIELDTYPE_Double);
-	pShapes->Add_Field(_TL("ID")			, TABLE_FIELDTYPE_Int);
-	pShapes->Add_Field(_TL("Name")			, TABLE_FIELDTYPE_String);
+	pShapes->Add_Field(m_pGrid->Get_Name()	, SG_DATATYPE_Double);
+	pShapes->Add_Field(_TL("ID")			, SG_DATATYPE_Int);
+	pShapes->Add_Field(_TL("Name")			, SG_DATATYPE_String);
 
 	if(	DataObject_Get_Parameters(m_pGrid, gParms) && gParms("COLORS_TYPE") && gParms("LUT")
 	&&	DataObject_Get_Parameters(pShapes, sParms) && sParms("COLORS_TYPE") && sParms("LUT") && sParms("COLORS_ATTRIB") )
@@ -167,7 +167,7 @@ bool CGrid_Classes_To_Shapes::On_Execute(void)
 
 	Lock_Create();
 
-	m_Edge.Create(GRID_TYPE_Char, 2 * Get_NX() + 1, 2 * Get_NY() + 1, 0.5 * Get_Cellsize(), Get_XMin() - 0.5 * Get_Cellsize(), Get_YMin() - 0.5 * Get_Cellsize());
+	m_Edge.Create(SG_DATATYPE_Char, 2 * Get_NX() + 1, 2 * Get_NY() + 1, 0.5 * Get_Cellsize(), Get_XMin() - 0.5 * Get_Cellsize(), Get_YMin() - 0.5 * Get_Cellsize());
 
 	for(int y=0, nClasses=0; y<Get_NY() && Process_Get_Okay(false); y++)
 	{

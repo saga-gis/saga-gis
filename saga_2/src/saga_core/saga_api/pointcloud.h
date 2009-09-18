@@ -79,41 +79,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_PointCloud_FieldType
-{
-	POINTCLOUD_FIELDTYPE_None		= 0,
-	POINTCLOUD_FIELDTYPE_Char,
-	POINTCLOUD_FIELDTYPE_Short,
-	POINTCLOUD_FIELDTYPE_Int,
-	POINTCLOUD_FIELDTYPE_Long,
-	POINTCLOUD_FIELDTYPE_Float,
-	POINTCLOUD_FIELDTYPE_Double
-}
-TSG_PointCloud_Field_Type;
-
-//---------------------------------------------------------
-const SG_Char	gSG_PointCloud_Field_Type_Names[][32]	=
-{
-	SG_T("NONE"),
-	SG_T("CHARACTER"),
-	SG_T("SHORTINT"),
-	SG_T("INTEGER"),
-	SG_T("LONGINT"),
-	SG_T("FLOAT"),
-	SG_T("DOUBLE"),
-	SG_T("STRING"),
-	SG_T("COLOR"),
-	SG_T("DATE")
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_PointCloud : public CSG_Data_Object
 {
 public:
@@ -149,18 +114,18 @@ public:
 	bool							is_Compatible		(CSG_PointCloud *pPointCloud)	const;
 
 	//-----------------------------------------------------
-	bool							Add_Field			(const SG_Char *Name, TSG_PointCloud_Field_Type Type);
+	bool							Add_Field			(const SG_Char *Name, TSG_Data_Type Type);
 #ifdef _SAGA_UNICODE
-	bool							Add_Field			(const char    *Name, TSG_PointCloud_Field_Type Type);
+	bool							Add_Field			(const char    *Name, TSG_Data_Type Type);
 #endif
 
 	int								Get_Field_Count		(void)			const	{	return( m_nFields );	}
 	const SG_Char *					Get_Field_Name		(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Name[iField]->c_str() : NULL );				}
-	TSG_PointCloud_Field_Type		Get_Field_Type		(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Type[iField] : POINTCLOUD_FIELDTYPE_None );	}
+	TSG_Data_Type					Get_Field_Type		(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Type[iField] : SG_DATATYPE_Undefined );	}
 
 	int								Get_Attribute_Count	(void)			const	{	return( m_nFields );	}
 	const SG_Char *					Get_Attribute_Name	(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Name[iField]->c_str() : NULL );				}
-	TSG_PointCloud_Field_Type		Get_Attribute_Type	(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Type[iField] : POINTCLOUD_FIELDTYPE_None );	}
+	TSG_Data_Type					Get_Attribute_Type	(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Type[iField] : SG_DATATYPE_Undefined );	}
 
 	double							Get_Minimum			(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_Minimum()  : 0.0 );	}
 	double							Get_Maximum			(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_Maximum()  : 0.0 );	}
@@ -218,7 +183,7 @@ protected:
 
 	double							m_NoData_Value;
 
-	TSG_PointCloud_Field_Type		*m_Field_Type;
+	TSG_Data_Type					*m_Field_Type;
 
 	CSG_Simple_Statistics			**m_Field_Stats;
 
@@ -232,10 +197,10 @@ protected:
 	bool							_Load				(const CSG_String &File_Name);
 	bool							_Save				(const CSG_String &File_Name);
 
-	bool							_Add_Field			(const SG_Char *Name, TSG_PointCloud_Field_Type Type);
+	bool							_Add_Field			(const SG_Char *Name, TSG_Data_Type Type);
 	bool							_Set_Field_Value	(char *pPoint, int iField, double Value);
 	double							_Get_Field_Value	(char *pPoint, int iField)	const;
-	int								_Get_Field_Bytes	(TSG_PointCloud_Field_Type Type);
+	int								_Get_Field_Bytes	(TSG_Data_Type Type);
 
 	bool							_Inc_Array			(void);
 	bool							_Dec_Array			(void);

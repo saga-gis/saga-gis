@@ -68,7 +68,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define POINTCLOUD_FILE_VERSION	"SGPC00"
+#define POINTCLOUD_FILE_VERSION	"SGPC01"
 
 
 ///////////////////////////////////////////////////////////
@@ -119,7 +119,7 @@ bool CSG_PointCloud::Create(void)
 {
 	Destroy();
 
-	Add_Field(SG_T(""), POINTCLOUD_FIELDTYPE_None);	// add x, y, z fields
+	Add_Field(SG_T(""), SG_DATATYPE_Undefined);	// add x, y, z fields
 
 	return( true );
 }
@@ -247,7 +247,7 @@ bool CSG_PointCloud::Destroy(void)
 //---------------------------------------------------------
 bool CSG_PointCloud::_Load(const CSG_String &File_Name)
 {
-	TSG_PointCloud_Field_Type	Type;
+	TSG_Data_Type	Type;
 
 	char		ID[6];
 	int			i, iBuffer, nPointBytes, nFields;
@@ -265,7 +265,7 @@ bool CSG_PointCloud::_Load(const CSG_String &File_Name)
 		return( false );
 	}
 
-	if( !Stream.Read(ID, 6) || strncmp(ID, POINTCLOUD_FILE_VERSION, 6) != 0 )
+	if( !Stream.Read(ID, 6) || strncmp(ID, POINTCLOUD_FILE_VERSION, 5) != 0 )
 	{
 		SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
 		SG_UI_Msg_Add_Error(LNG("[ERR] incompatible file."));
@@ -294,7 +294,7 @@ bool CSG_PointCloud::_Load(const CSG_String &File_Name)
 
 	for(i=0; i<nFields; i++)
 	{
-		if( !Stream.Read(&Type		, sizeof(TSG_PointCloud_Field_Type)) || _Get_Field_Bytes(Type) == 0
+		if( !Stream.Read(&Type		, sizeof(TSG_Data_Type))
 		||	!Stream.Read(&iBuffer	, sizeof(int)) || !(iBuffer > 0 && iBuffer < 1024)
 		||	!Stream.Read(Name		, iBuffer) )
 		{
@@ -304,8 +304,29 @@ bool CSG_PointCloud::_Load(const CSG_String &File_Name)
 			return( false );
 		}
 
+		if( ID[5] == '0' )	// Data Type Definition changed!!!
+		{
+			switch( Type )
+			{
+			default:	Type	= SG_DATATYPE_Undefined;	break;
+			case 1:		Type	= SG_DATATYPE_Char;			break;
+			case 2:		Type	= SG_DATATYPE_Short;		break;
+			case 3:		Type	= SG_DATATYPE_Int;			break;
+			case 4:		Type	= SG_DATATYPE_Long;			break;
+			case 5:		Type	= SG_DATATYPE_Float;		break;
+			case 6:		Type	= SG_DATATYPE_Double;		break;
+			}
+		}
+
 		Name[iBuffer]	= '\0';
-		_Add_Field(CSG_String((const char *)Name), Type);
+
+		if( !_Add_Field(CSG_String((const char *)Name), Type) )
+		{
+			SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
+			SG_UI_Msg_Add_Error(LNG("[ERR] incompatible file."));
+
+			return( false );
+		}
 	}
 
 	if( m_nPointBytes != nPointBytes )
@@ -326,10 +347,7 @@ bool CSG_PointCloud::_Load(const CSG_String &File_Name)
 
 	Set_File_Name(File_Name);
 
-	if( !Get_History().Load(File_Name, HISTORY_EXT_POINTCLOUD) )
-	{
-		Get_History().Add_Entry(LNG("[HST] Loaded from file"), File_Name);
-	}
+	Load_MetaData(File_Name);
 
 	if( m_nPoints <= 0 )
 	{
@@ -367,7 +385,7 @@ bool CSG_PointCloud::_Save(const CSG_String &File_Name)
 
 	for(i=0; i<m_nFields; i++)
 	{
-		Stream.Write(&m_Field_Type[i], sizeof(TSG_PointCloud_Field_Type));
+		Stream.Write(&m_Field_Type[i], sizeof(TSG_Data_Type));
 
 		iBuffer	= m_Field_Name[i]->Length();	if( iBuffer >= 1024 - 1 )	iBuffer	= 1024 - 1;
 		Stream.Write(&iBuffer, sizeof(int));
@@ -383,7 +401,7 @@ bool CSG_PointCloud::_Save(const CSG_String &File_Name)
 
 	Set_File_Name(SG_File_Make_Path(NULL, File_Name, SG_T("spc")));
 
-	Get_History().Save(File_Name, HISTORY_EXT_POINTCLOUD);
+	Save_MetaData(File_Name);
 
 	SG_UI_Msg_Add(LNG("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 
@@ -411,7 +429,7 @@ bool CSG_PointCloud::Assign(CSG_Data_Object *pObject)
 
 		CSG_PointCloud	*pPointCloud	= (CSG_PointCloud *)pObject;
 
-		Get_History().Assign(pPointCloud->Get_History());
+		Get_History()	= pPointCloud->Get_History();
 
 		for(int iField=0; iField<pPointCloud->m_nFields; iField++)
 		{
@@ -466,53 +484,42 @@ bool CSG_PointCloud::is_Compatible(CSG_PointCloud *pPointCloud) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSG_PointCloud::_Get_Field_Bytes(TSG_PointCloud_Field_Type Type)
+bool CSG_PointCloud::_Add_Field(const SG_Char *Name, TSG_Data_Type Type)
 {
-	switch( Type )
+	if( SG_Data_Type_Get_Size(Type) <= 0 )
 	{
-	default:
-	case POINTCLOUD_FIELDTYPE_None:		return( 0 );
-	case POINTCLOUD_FIELDTYPE_Char:		return( sizeof(char) );
-	case POINTCLOUD_FIELDTYPE_Short:	return( sizeof(short) );
-	case POINTCLOUD_FIELDTYPE_Int:		return( sizeof(int) );
-	case POINTCLOUD_FIELDTYPE_Long:		return( sizeof(long) );
-	case POINTCLOUD_FIELDTYPE_Float:	return( sizeof(float) );
-	case POINTCLOUD_FIELDTYPE_Double:	return( sizeof(double) );
+		return( false );
 	}
-}
 
-//---------------------------------------------------------
-bool CSG_PointCloud::_Add_Field(const SG_Char *Name, TSG_PointCloud_Field_Type Type)
-{
-	m_Field_Name	= (CSG_String               **)SG_Realloc(m_Field_Name  , (m_nFields + 1) * sizeof(CSG_String *));
-	m_Field_Type	= (TSG_PointCloud_Field_Type *)SG_Realloc(m_Field_Type  , (m_nFields + 1) * sizeof(TSG_PointCloud_Field_Type));
-	m_Field_Stats	= (CSG_Simple_Statistics    **)SG_Realloc(m_Field_Stats , (m_nFields + 1) * sizeof(CSG_Simple_Statistics *));
-	m_Field_Offset	= (int                       *)SG_Realloc(m_Field_Offset, (m_nFields + 1) * sizeof(int));
+	m_Field_Name	= (CSG_String            **)SG_Realloc(m_Field_Name  , (m_nFields + 1) * sizeof(CSG_String *));
+	m_Field_Type	= (TSG_Data_Type          *)SG_Realloc(m_Field_Type  , (m_nFields + 1) * sizeof(TSG_Data_Type));
+	m_Field_Stats	= (CSG_Simple_Statistics **)SG_Realloc(m_Field_Stats , (m_nFields + 1) * sizeof(CSG_Simple_Statistics *));
+	m_Field_Offset	= (int                    *)SG_Realloc(m_Field_Offset, (m_nFields + 1) * sizeof(int));
 
 	m_Field_Name  [m_nFields]	= new CSG_String(Name);
 	m_Field_Type  [m_nFields]	= Type;
 	m_Field_Stats [m_nFields]	= new CSG_Simple_Statistics();
-	m_Field_Offset[m_nFields]	= m_nFields == 0 ? 0 : m_Field_Offset[m_nFields - 1] + _Get_Field_Bytes(m_Field_Type[m_nFields - 1]);
+	m_Field_Offset[m_nFields]	= m_nFields == 0 ? 0 : m_Field_Offset[m_nFields - 1] + SG_Data_Type_Get_Size(m_Field_Type[m_nFields - 1]);
 
-	m_nPointBytes	+= _Get_Field_Bytes(m_Field_Type[m_nFields]);
+	m_nPointBytes	+= SG_Data_Type_Get_Size(m_Field_Type[m_nFields]);
 	m_nFields		++;
 
 	return( true );
 }
 
 //---------------------------------------------------------
-bool CSG_PointCloud::Add_Field(const SG_Char *Name, TSG_PointCloud_Field_Type Type)
+bool CSG_PointCloud::Add_Field(const SG_Char *Name, TSG_Data_Type Type)
 {
 	if( m_nPoints == 0 )
 	{
 		if( m_nFields == 0 )
 		{
-			_Add_Field(SG_T("X"), m_bXYZPrecDbl ? POINTCLOUD_FIELDTYPE_Double : POINTCLOUD_FIELDTYPE_Float);
-			_Add_Field(SG_T("Y"), m_bXYZPrecDbl ? POINTCLOUD_FIELDTYPE_Double : POINTCLOUD_FIELDTYPE_Float);
-			_Add_Field(SG_T("Z"), m_bXYZPrecDbl ? POINTCLOUD_FIELDTYPE_Double : POINTCLOUD_FIELDTYPE_Float);
+			_Add_Field(SG_T("X"), m_bXYZPrecDbl ? SG_DATATYPE_Double : SG_DATATYPE_Float);
+			_Add_Field(SG_T("Y"), m_bXYZPrecDbl ? SG_DATATYPE_Double : SG_DATATYPE_Float);
+			_Add_Field(SG_T("Z"), m_bXYZPrecDbl ? SG_DATATYPE_Double : SG_DATATYPE_Float);
 		}
 
-		if( Name && Type != POINTCLOUD_FIELDTYPE_None )
+		if( Name && SG_Data_Type_Get_Size(Type) > 0 )
 		{
 			return( _Add_Field(Name, Type) );
 		}
@@ -523,7 +530,7 @@ bool CSG_PointCloud::Add_Field(const SG_Char *Name, TSG_PointCloud_Field_Type Ty
 
 //---------------------------------------------------------
 #ifdef _SAGA_UNICODE
-bool CSG_PointCloud::Add_Field(const char *Name, TSG_PointCloud_Field_Type Type)
+bool CSG_PointCloud::Add_Field(const char *Name, TSG_Data_Type Type)
 {	return( Add_Field(CSG_String(Name), Type) );	}
 #endif
 
@@ -537,13 +544,16 @@ bool CSG_PointCloud::_Set_Field_Value(char *pPoint, int iField, double Value)
 		switch( m_Field_Type[iField] )
 		{
 		default:
-		case POINTCLOUD_FIELDTYPE_None:		break;
-		case POINTCLOUD_FIELDTYPE_Char:		*((char   *)pPoint)	= (char  )Value;	break;
-		case POINTCLOUD_FIELDTYPE_Short:	*((short  *)pPoint)	= (short )Value;	break;
-		case POINTCLOUD_FIELDTYPE_Int:		*((int    *)pPoint)	= (int   )Value;	break;
-		case POINTCLOUD_FIELDTYPE_Long:		*((long   *)pPoint)	= (long  )Value;	break;
-		case POINTCLOUD_FIELDTYPE_Float:	*((float  *)pPoint)	= (float )Value;	break;
-		case POINTCLOUD_FIELDTYPE_Double:	*((double *)pPoint)	= (double)Value;	break;
+		case SG_DATATYPE_Undefined:	break;
+		case SG_DATATYPE_Byte:		*((BYTE   *)pPoint)	= (BYTE  )Value;	break;
+		case SG_DATATYPE_Char:		*((char   *)pPoint)	= (char  )Value;	break;
+		case SG_DATATYPE_Word:		*((WORD   *)pPoint)	= (WORD  )Value;	break;
+		case SG_DATATYPE_Short:		*((short  *)pPoint)	= (short )Value;	break;
+		case SG_DATATYPE_DWord:		*((DWORD  *)pPoint)	= (DWORD )Value;	break;
+		case SG_DATATYPE_Int:		*((int    *)pPoint)	= (int   )Value;	break;
+		case SG_DATATYPE_Long:		*((long   *)pPoint)	= (long  )Value;	break;
+		case SG_DATATYPE_Float:		*((float  *)pPoint)	= (float )Value;	break;
+		case SG_DATATYPE_Double:	*((double *)pPoint)	= (double)Value;	break;
 		}
 
 		return( true );
@@ -561,13 +571,16 @@ double CSG_PointCloud::_Get_Field_Value(char *pPoint, int iField) const
 
 		switch( m_Field_Type[iField] )
 		{
-		case POINTCLOUD_FIELDTYPE_None:		default:	break;
-		case POINTCLOUD_FIELDTYPE_Char:		return( *((char   *)pPoint) );
-		case POINTCLOUD_FIELDTYPE_Short:	return( *((short  *)pPoint) );
-		case POINTCLOUD_FIELDTYPE_Int:		return( *((int    *)pPoint) );
-		case POINTCLOUD_FIELDTYPE_Long:		return( *((long   *)pPoint) );
-		case POINTCLOUD_FIELDTYPE_Float:	return( *((float  *)pPoint) );
-		case POINTCLOUD_FIELDTYPE_Double:	return( *((double *)pPoint) );
+		case SG_DATATYPE_Undefined:		default:	break;
+		case SG_DATATYPE_Byte:			return( *((BYTE   *)pPoint) );
+		case SG_DATATYPE_Char:			return( *((char   *)pPoint) );
+		case SG_DATATYPE_Word:			return( *((WORD   *)pPoint) );
+		case SG_DATATYPE_Short:			return( *((short  *)pPoint) );
+		case SG_DATATYPE_DWord:			return( *((DWORD  *)pPoint) );
+		case SG_DATATYPE_Int:			return( *((int    *)pPoint) );
+		case SG_DATATYPE_Long:			return( *((long   *)pPoint) );
+		case SG_DATATYPE_Float:			return( *((float  *)pPoint) );
+		case SG_DATATYPE_Double:		return( *((double *)pPoint) );
 		}
 	}
 

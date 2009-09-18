@@ -158,7 +158,7 @@ void CFlow_RecursiveDown::On_Initialize(void)
 	DEMON_minDQV	= Parameters("MINDQV"	)->asDouble();
 	bFlowPathWeight	= Parameters("CORRECT"	)->asBool();
 
-	pLinear			= 1 ? SG_Create_Grid(pDTM, GRID_TYPE_Float) : NULL;
+	pLinear			= 1 ? SG_Create_Grid(pDTM, SG_DATATYPE_Float) : NULL;
 
 	//-----------------------------------------------------
 	Lock_Create();
@@ -176,8 +176,8 @@ void CFlow_RecursiveDown::On_Initialize(void)
 	//-----------------------------------------------------
 	case 1:	case 2:		// KRA, DEMON...
 
-		pDir		= SG_Create_Grid(pDTM, GRID_TYPE_Char);
-		pDif		= SG_Create_Grid(pDTM, GRID_TYPE_Float);
+		pDir		= SG_Create_Grid(pDTM, SG_DATATYPE_Char);
+		pDif		= SG_Create_Grid(pDTM, SG_DATATYPE_Float);
 
 		for(y=0; y<Get_NY() && Set_Progress(y); y++)
 		{

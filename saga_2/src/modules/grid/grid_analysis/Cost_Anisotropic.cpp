@@ -54,7 +54,7 @@ CCost_Anisotropic::CCost_Anisotropic(void)
 						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
-						GRID_TYPE_Double);
+						SG_DATATYPE_Double);
 
 	Parameters.Add_Value(NULL, 
 						"K", 

@@ -193,7 +193,7 @@ bool CSRTM30_Import::On_Execute(void)
 	rOut.yMax	= rOut.yMin + (int)((yMax - yMin) / dSize);
 
 	//-----------------------------------------------------
-	pOut		= SG_Create_Grid(GRID_TYPE_Short,
+	pOut		= SG_Create_Grid(SG_DATATYPE_Short,
 					(int)(rOut.xMax - rOut.xMin),
 					(int)(rOut.yMax - rOut.yMin),
 					dSize,

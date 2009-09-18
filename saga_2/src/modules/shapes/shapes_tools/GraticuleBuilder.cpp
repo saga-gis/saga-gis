@@ -117,7 +117,7 @@ bool CGraticuleBuilder::On_Execute(void){
 	
 	if (iType == 0){
 		pGraticule->Create(SHAPE_TYPE_Line, _TL("Graticule"));
-		pGraticule->Add_Field("ID", TABLE_FIELDTYPE_Int);
+		pGraticule->Add_Field("ID", SG_DATATYPE_Int);
 		for (x=dXMin; x<dXMax; x=x+dDistanceX){
 			pShape = pGraticule->Add_Shape();
 			pShape->Add_Point(x,dYMin);
@@ -133,7 +133,7 @@ bool CGraticuleBuilder::On_Execute(void){
 	}//if
 	else{
 		pGraticule->Create(SHAPE_TYPE_Polygon, _TL("Graticule"));
-		pGraticule->Add_Field("ID", TABLE_FIELDTYPE_Int);
+		pGraticule->Add_Field("ID", SG_DATATYPE_Int);
 		for (x=dXMin; x<dXMax-dDistanceX; x=x+dDistanceX){
 			for (y=dYMin; y<dYMax-dDistanceY; y=y+dDistanceY){
 				pShape = pGraticule->Add_Shape();

@@ -147,7 +147,7 @@ CSoil_Texture::CSoil_Texture(void)
 	Parameters.Add_Grid(
 		NULL, "TEXTURE"	, _TL("Soil Texture"),
 		_TL("Soil texture"),
-		PARAMETER_OUTPUT, true, GRID_TYPE_Byte
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Byte
 	);
 }
 

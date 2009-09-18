@@ -363,7 +363,7 @@ bool CGeoref_Grid::On_Execute(void)
 bool CGeoref_Grid::Get_Conversion(void)
 {
 	int				Interpolation;
-	TSG_Grid_Type	Type;
+	TSG_Data_Type	Type;
 	CSG_Grid		*pSource, *pGrid;
 	CSG_Shapes		*pShapes;
 
@@ -374,7 +374,7 @@ bool CGeoref_Grid::Get_Conversion(void)
 	pShapes			= NULL;
 
 	Interpolation	= Parameters("INTERPOLATION")->asInt();
-	Type			= Interpolation == 0 ? pSource->Get_Type() : GRID_TYPE_Float;
+	Type			= Interpolation == 0 ? pSource->Get_Type() : SG_DATATYPE_Float;
 
 	//-----------------------------------------------------
 	switch( Parameters("TARGET_TYPE")->asInt() )
@@ -451,7 +451,7 @@ bool CGeoref_Grid::Get_Conversion(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Grid * CGeoref_Grid::Get_Target_Userdef(CSG_Grid *pSource, TSG_Grid_Type Type)
+CSG_Grid * CGeoref_Grid::Get_Target_Userdef(CSG_Grid *pSource, TSG_Data_Type Type)
 {
 	int			x, y;
 	double		xMin, yMin, xMax, yMax, size;
@@ -519,7 +519,7 @@ CSG_Grid * CGeoref_Grid::Get_Target_Userdef(CSG_Grid *pSource, TSG_Grid_Type Typ
 }
 
 //---------------------------------------------------------
-CSG_Grid * CGeoref_Grid::Get_Target_Autofit(CSG_Grid *pSource, double Grid_Size, int AutoExtMode, TSG_Grid_Type Type)
+CSG_Grid * CGeoref_Grid::Get_Target_Autofit(CSG_Grid *pSource, double Grid_Size, int AutoExtMode, TSG_Data_Type Type)
 {
 	int			x, y;
 	double		xMin, yMin, xMax, yMax;
@@ -684,7 +684,7 @@ bool CGeoref_Grid::Set_Shapes(CSG_Grid *pSource, CSG_Shapes *pTarget)
 	if( pSource && pTarget )
 	{
 		pTarget->Create(SHAPE_TYPE_Point, pSource->Get_Name());
-		pTarget->Add_Field("Z", TABLE_FIELDTYPE_Double);
+		pTarget->Add_Field("Z", SG_DATATYPE_Double);
 
 		for(y=0, Pt_Source.y=0; y<pSource->Get_NY() && Set_Progress(y, pSource->Get_NY()); y++, Pt_Source.y+=1)
 		{

@@ -88,8 +88,8 @@ public:
 
 	static TSG_Shape_Type		Get_Type		(OGRwkbGeometryType   Type);
 	static OGRwkbGeometryType	Get_Type		(TSG_Shape_Type       Type);
-	static TSG_Table_Field_Type	Get_Type		(OGRFieldType         Type);
-	static OGRFieldType			Get_Type		(TSG_Table_Field_Type Type);
+	static TSG_Data_Type	Get_Type		(OGRFieldType         Type);
+	static OGRFieldType			Get_Type		(TSG_Data_Type Type);
 
 
 private:

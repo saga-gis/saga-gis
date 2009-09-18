@@ -124,7 +124,7 @@ CIsochronesVar::CIsochronesVar(void){
 						_TL(""),
 						PARAMETER_OUTPUT,
 						true,
-						GRID_TYPE_Double);
+						SG_DATATYPE_Double);
 
 	Parameters.Add_Grid(NULL,
 						"SPEED",
@@ -132,7 +132,7 @@ CIsochronesVar::CIsochronesVar(void){
 						_TL(""),
 						PARAMETER_OUTPUT,
 						true,
-						GRID_TYPE_Double);
+						SG_DATATYPE_Double);
 
 }//constructor
 

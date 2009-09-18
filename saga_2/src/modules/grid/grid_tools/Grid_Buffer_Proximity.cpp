@@ -90,7 +90,7 @@ CGrid_Proximity_Buffer::CGrid_Proximity_Buffer(void){
 						_TL("Grid with euclidian distance to nearest source cell [grid units]"), 
 						PARAMETER_OUTPUT, 
 						true, 
-						GRID_TYPE_Double);
+						SG_DATATYPE_Double);
 
 	Parameters.Add_Grid(NULL, 
 						"ALLOC", 
@@ -98,7 +98,7 @@ CGrid_Proximity_Buffer::CGrid_Proximity_Buffer(void){
 						_TL("Grid with category of nearest source cell [Category]"), 
 						PARAMETER_OUTPUT, 
 						true, 
-						GRID_TYPE_Int);
+						SG_DATATYPE_Int);
 
 	Parameters.Add_Grid(NULL, 
 						"BUFFER", 
@@ -106,7 +106,7 @@ CGrid_Proximity_Buffer::CGrid_Proximity_Buffer(void){
 						_TL("Reclassification of distance grid to buffer zones with a width equal to the equidistance value."), 
 						PARAMETER_OUTPUT, 
 						true, 
-						GRID_TYPE_Int);
+						SG_DATATYPE_Int);
 
 	Parameters.Add_Value(NULL, 
 						"DIST", 

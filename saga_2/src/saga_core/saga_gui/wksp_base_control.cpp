@@ -732,8 +732,8 @@ CSG_Parameters *	DLG_Copy_Settings(void)
 {
 	CSG_Table	List;
 
-	List.Add_Field(SG_T("NAME"), TABLE_FIELDTYPE_String);
-	List.Add_Field(SG_T("PRMS"), TABLE_FIELDTYPE_Int);
+	List.Add_Field(SG_T("NAME"), SG_DATATYPE_String);
+	List.Add_Field(SG_T("PRMS"), SG_DATATYPE_Int);
 
 	DLG_Copy_Settings(List, (CWKSP_Base_Item *)g_pData->Get_Grids());
 	DLG_Copy_Settings(List, (CWKSP_Base_Item *)g_pData->Get_Shapes());

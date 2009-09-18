@@ -76,11 +76,11 @@ bool CWaterRetentionCapacity::On_Execute(void){
 	m_pOutput = Parameters("OUTPUT")->asShapes();
 
 	m_pOutput->Assign(pShapes);
-	m_pOutput->Add_Field("CCC", TABLE_FIELDTYPE_Double);
-	m_pOutput->Add_Field("CIL", TABLE_FIELDTYPE_Double);
-	m_pOutput->Add_Field(_TL("Permeability"), TABLE_FIELDTYPE_Double);
-	m_pOutput->Add_Field(_TL("Equivalent Moisture"), TABLE_FIELDTYPE_Double);
-	m_pOutput->Add_Field(_TL("Water Retention Capacity"), TABLE_FIELDTYPE_Double);
+	m_pOutput->Add_Field("CCC", SG_DATATYPE_Double);
+	m_pOutput->Add_Field("CIL", SG_DATATYPE_Double);
+	m_pOutput->Add_Field(_TL("Permeability"), SG_DATATYPE_Double);
+	m_pOutput->Add_Field(_TL("Equivalent Moisture"), SG_DATATYPE_Double);
+	m_pOutput->Add_Field(_TL("Water Retention Capacity"), SG_DATATYPE_Double);
 
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++){		

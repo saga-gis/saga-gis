@@ -258,7 +258,7 @@ bool CChannelNetwork::On_Execute(void)
 
 	Process_Set_Text(_TL("Channel Network: Pass 2"));
 
-	pStart				= SG_Create_Grid(pDTM, GRID_TYPE_Char);
+	pStart				= SG_Create_Grid(pDTM, SG_DATATYPE_Char);
 	Init_pGrid			= Parameters("INIT_GRID")	->asGrid();
 	Init_Method			= Parameters("INIT_METHOD")	->asInt();
 	Init_Threshold		= Parameters("INIT_VALUE")	->asDouble();
@@ -344,9 +344,9 @@ bool CChannelNetwork::On_Execute(void)
 
 		pShapes->Create(SHAPE_TYPE_Line, _TL("Channel Network"));
 
-		pShapes->Add_Field("SegmentID"	,TABLE_FIELDTYPE_Int);
-		pShapes->Add_Field("Order"		,TABLE_FIELDTYPE_Int);
-		pShapes->Add_Field("Length"		,TABLE_FIELDTYPE_Double);
+		pShapes->Add_Field("SegmentID"	,SG_DATATYPE_Int);
+		pShapes->Add_Field("Order"		,SG_DATATYPE_Int);
+		pShapes->Add_Field("Length"		,SG_DATATYPE_Double);
 
 		Lock_Create();
 

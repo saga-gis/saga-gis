@@ -121,23 +121,27 @@ CSG_Table_Record::~CSG_Table_Record(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Table_Value * CSG_Table_Record::_Create_Value(TSG_Table_Field_Type Type)
+CSG_Table_Value * CSG_Table_Record::_Create_Value(TSG_Data_Type Type)
 {
 	switch( Type )
 	{
 	default:
-	case TABLE_FIELDTYPE_String:	return( new CSG_Table_Value_String() );
+	case SG_DATATYPE_String:	return( new CSG_Table_Value_String() );
 
-	case TABLE_FIELDTYPE_Date:		return( new CSG_Table_Value_Date() );
+	case SG_DATATYPE_Date:		return( new CSG_Table_Value_Date() );
 
-	case TABLE_FIELDTYPE_Color:
-	case TABLE_FIELDTYPE_Char:
-	case TABLE_FIELDTYPE_Short:
-	case TABLE_FIELDTYPE_Int:
-	case TABLE_FIELDTYPE_Long:		return( new CSG_Table_Value_Int() );
+	case SG_DATATYPE_Color:
+	case SG_DATATYPE_Byte:
+	case SG_DATATYPE_Char:
+	case SG_DATATYPE_Word:
+	case SG_DATATYPE_Short:
+	case SG_DATATYPE_DWord:
+	case SG_DATATYPE_Int:
+	case SG_DATATYPE_ULong:
+	case SG_DATATYPE_Long:		return( new CSG_Table_Value_Int() );
 
-	case TABLE_FIELDTYPE_Float:
-	case TABLE_FIELDTYPE_Double:	return( new CSG_Table_Value_Double() );
+	case SG_DATATYPE_Float:
+	case SG_DATATYPE_Double:	return( new CSG_Table_Value_Double() );
 	}
 }
 

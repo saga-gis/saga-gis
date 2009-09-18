@@ -39,7 +39,7 @@ CGrid_Pattern::CGrid_Pattern(void){
 						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
-						GRID_TYPE_Double);
+						SG_DATATYPE_Double);
 
 	Parameters.Add_Grid(NULL, 
 						"DIVERSITY", 
@@ -47,7 +47,7 @@ CGrid_Pattern::CGrid_Pattern(void){
 						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
-						GRID_TYPE_Double);
+						SG_DATATYPE_Double);
 
 	Parameters.Add_Grid(NULL, 
 						"DOMINANCE", 
@@ -55,7 +55,7 @@ CGrid_Pattern::CGrid_Pattern(void){
 						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
-						GRID_TYPE_Double);
+						SG_DATATYPE_Double);
 
 	Parameters.Add_Grid(NULL, 
 						"FRAGMENTATION", 
@@ -63,7 +63,7 @@ CGrid_Pattern::CGrid_Pattern(void){
 						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
-						GRID_TYPE_Double);
+						SG_DATATYPE_Double);
 
 	Parameters.Add_Grid(NULL, 
 						"NDC", 
@@ -71,7 +71,7 @@ CGrid_Pattern::CGrid_Pattern(void){
 						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
-						GRID_TYPE_Int);
+						SG_DATATYPE_Int);
 
 	Parameters.Add_Grid(NULL, 
 						"CVN", 
@@ -79,7 +79,7 @@ CGrid_Pattern::CGrid_Pattern(void){
 						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
-						GRID_TYPE_Int);
+						SG_DATATYPE_Int);
 
 	Parameters.Add_Choice(NULL, 
 						"WINSIZE", 

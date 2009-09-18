@@ -283,7 +283,7 @@ bool CFit::On_Execute(void)
 	int	xField		= Parameters("XFIELD")->asInt();
 	bool Use_X		= Parameters("USE_X")->asBool();
 	
-	pTable->Add_Field(_TL("Fit")				, TABLE_FIELDTYPE_Double);	
+	pTable->Add_Field(_TL("Fit")				, SG_DATATYPE_Double);	
 	
 	for (i = 0; i < Record_Count; i++)
 	{

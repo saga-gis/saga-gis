@@ -60,7 +60,7 @@ CImage_VI_Distance::CImage_VI_Distance(void){
 						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
-						GRID_TYPE_Double);
+						SG_DATATYPE_Double);
 	
 	Parameters.Add_Grid(NULL, 
 						"PVI1", 
@@ -68,7 +68,7 @@ CImage_VI_Distance::CImage_VI_Distance(void){
 						_TL(""), 
 						PARAMETER_OUTPUT_OPTIONAL, 
 						true, 
-						GRID_TYPE_Double);
+						SG_DATATYPE_Double);
 	
 	Parameters.Add_Grid(NULL, 
 						"PVI2", 
@@ -76,7 +76,7 @@ CImage_VI_Distance::CImage_VI_Distance(void){
 						_TL(""), 
 						PARAMETER_OUTPUT_OPTIONAL, 
 						true, 
-						GRID_TYPE_Double);
+						SG_DATATYPE_Double);
 	
 	Parameters.Add_Grid(NULL, 
 						"PVI3", 
@@ -84,7 +84,7 @@ CImage_VI_Distance::CImage_VI_Distance(void){
 						_TL(""), 
 						PARAMETER_OUTPUT_OPTIONAL, 
 						true, 
-						GRID_TYPE_Double);
+						SG_DATATYPE_Double);
 }//constructor
 
 

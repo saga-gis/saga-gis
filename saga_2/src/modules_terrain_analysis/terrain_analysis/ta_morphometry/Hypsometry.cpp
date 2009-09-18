@@ -178,10 +178,10 @@ bool CHypsometry::On_Execute(void)
 	
 	pTable->Destroy();
 	pTable->Set_Name(CSG_String::Format(SG_T("%s: %s"), _TL("Hypsometric Curve"), pDEM->Get_Name()));
-	pTable->Add_Field(_TL("Relative Height"), TABLE_FIELDTYPE_Double);
-	pTable->Add_Field(_TL("Relative Area")	, TABLE_FIELDTYPE_Double);
-	pTable->Add_Field(_TL("Absolute Height"), TABLE_FIELDTYPE_Double);
-	pTable->Add_Field(_TL("Absolute Area")	, TABLE_FIELDTYPE_Double);
+	pTable->Add_Field(_TL("Relative Height"), SG_DATATYPE_Double);
+	pTable->Add_Field(_TL("Relative Area")	, SG_DATATYPE_Double);
+	pTable->Add_Field(_TL("Absolute Height"), SG_DATATYPE_Double);
+	pTable->Add_Field(_TL("Absolute Area")	, SG_DATATYPE_Double);
 
 	switch( Parameters("METHOD")->asInt() )
 	{
@@ -330,10 +330,10 @@ bool CHypsometry::Calculate_B(CSG_Grid *pDEM, CSG_Table *pTable, bool bDown, int
 
 		pTable->Destroy();
 
-		pTable->Add_Field(_TL("Relative Height"), TABLE_FIELDTYPE_Double);
-		pTable->Add_Field(_TL("Relative Area")	, TABLE_FIELDTYPE_Double);
-		pTable->Add_Field(_TL("Absolute Height"), TABLE_FIELDTYPE_Double);
-		pTable->Add_Field(_TL("Absolute Area")	, TABLE_FIELDTYPE_Double);
+		pTable->Add_Field(_TL("Relative Height"), SG_DATATYPE_Double);
+		pTable->Add_Field(_TL("Relative Area")	, SG_DATATYPE_Double);
+		pTable->Add_Field(_TL("Absolute Height"), SG_DATATYPE_Double);
+		pTable->Add_Field(_TL("Absolute Area")	, SG_DATATYPE_Double);
 
 		pTable->Set_Name(CSG_String::Format(SG_T("%s: %s"), _TL("Hypsometric Curve"), pDEM->Get_Name()));
 

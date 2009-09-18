@@ -238,12 +238,18 @@ bool CVIEW_Table_Diagram_Control::Set_Size(const wxSize &Size)
 	{
 		if( Size.x != m_sDraw.x || Size.y != m_sDraw.y )
 		{
+			bool	bFitSize	= m_bFitSize;
+
+			m_bFitSize	= false;
+
 			m_sDraw.x	= Size.x;
 			m_sDraw.y	= Size.y;
 		
 			SetScrollbars(SCROLL_RATE, SCROLL_RATE, (m_sDraw.x + SCROLL_BAR_DX) / SCROLL_RATE, (m_sDraw.y + SCROLL_BAR_DY) / SCROLL_RATE);
 
 			Refresh();
+
+			m_bFitSize	= bFitSize;
 		}
 
 		return( true );
@@ -395,7 +401,7 @@ bool CVIEW_Table_Diagram_Control::_Create(void)
 		//-------------------------------------------------
 		for(int iField=0; iField<m_pTable->Get_Field_Count(); iField++)
 		{
-			if(	m_pTable->Get_Field_Type(iField) != TABLE_FIELDTYPE_String
+			if(	m_pTable->Get_Field_Type(iField) != SG_DATATYPE_String
 			&&	m_Parameters(wxString::Format(wxT("FIELD_%d"), iField))->asBool() )
 			{
 				m_Fields			= (int *)SG_Realloc(m_Fields, (m_nFields + 1) * sizeof(int));
@@ -459,7 +465,7 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 
 		for(int iField=0; iField<m_pTable->Get_Field_Count(); iField++)
 		{
-			if( m_pTable->Get_Field_Type(iField) != TABLE_FIELDTYPE_String )
+			if( m_pTable->Get_Field_Type(iField) != SG_DATATYPE_String )
 			{
 				pColors	= m_Parameters.Add_Value(
 					pFields, wxString::Format(wxT("FIELD_%d"), iField), m_pTable->Get_Field_Name(iField),

@@ -67,7 +67,7 @@ bool CTableCalculatorShapes::On_Execute(void){
 	pTable	= pShapes;
 	iFields = pTable->Get_Field_Count();
 
-	pTable->Add_Field(Parameters("NAME")->asString(), TABLE_FIELDTYPE_Double);
+	pTable->Add_Field(Parameters("NAME")->asString(), SG_DATATYPE_Double);
 
 	pFormula = Parameters("FORMULA")->asString();
 

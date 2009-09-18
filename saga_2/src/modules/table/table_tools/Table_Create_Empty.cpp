@@ -115,7 +115,7 @@ CTable_Create_Empty::~CTable_Create_Empty(void)
 bool CTable_Create_Empty::On_Execute(void)
 {
 	int						iField, nFields, iType;
-	TSG_Table_Field_Type	Type;
+	TSG_Data_Type	Type;
 	CSG_String				Name, Types, s;
 	CSG_Table				*pTable;
 	CSG_Parameters			P;
@@ -164,13 +164,13 @@ bool CTable_Create_Empty::On_Execute(void)
 			switch( iType )
 			{
 			default:
-			case 0:	Type	= TABLE_FIELDTYPE_String;	break;
-			case 1:	Type	= TABLE_FIELDTYPE_Char;		break;
-			case 2:	Type	= TABLE_FIELDTYPE_Short;	break;
-			case 3:	Type	= TABLE_FIELDTYPE_Int;		break;
-			case 4:	Type	= TABLE_FIELDTYPE_Float;	break;
-			case 5:	Type	= TABLE_FIELDTYPE_Double;	break;
-			case 6:	Type	= TABLE_FIELDTYPE_Color;	break;
+			case 0:	Type	= SG_DATATYPE_String;	break;
+			case 1:	Type	= SG_DATATYPE_Char;		break;
+			case 2:	Type	= SG_DATATYPE_Short;	break;
+			case 3:	Type	= SG_DATATYPE_Int;		break;
+			case 4:	Type	= SG_DATATYPE_Float;	break;
+			case 5:	Type	= SG_DATATYPE_Double;	break;
+			case 6:	Type	= SG_DATATYPE_Color;	break;
 			}
 
 			pTable->Add_Field(Name, Type);

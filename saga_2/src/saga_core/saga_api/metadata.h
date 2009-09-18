@@ -79,13 +79,34 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_MetaData_Node
+class SAGA_API_DLL_EXPORT CSG_MetaData
 {
 public:
-	CSG_MetaData_Node(void);
-	virtual ~CSG_MetaData_Node(void);
+								CSG_MetaData		(void);
+	bool						Create				(void);
 
+								CSG_MetaData		(const CSG_MetaData &MetaData);
+	bool						Create				(const CSG_MetaData &MetaData);
+
+								CSG_MetaData		(const CSG_String &File, const SG_Char *Extension = NULL);
+	bool						Create				(const CSG_String &File, const SG_Char *Extension = NULL);
+
+								CSG_MetaData		(CSG_File &File);
+	bool						Create				(CSG_File &File);
+
+	virtual						~CSG_MetaData		(void);
 	void						Destroy				(void);
+
+	bool						Load				(const CSG_String &File, const SG_Char *Extension = NULL);
+	bool						Save				(const CSG_String &File, const SG_Char *Extension = NULL)	const;
+
+	bool						Load				(CSG_File &Stream);
+	bool						Save				(CSG_File &Stream)			const;
+
+	bool						Assign				(const CSG_MetaData &MetaData, bool bAppend = false);
+	CSG_MetaData &				operator  =			(const CSG_MetaData &MetaData)		{	Assign(MetaData, false);	return( *this );	}
+	CSG_MetaData &				operator +=			(const CSG_MetaData &MetaData)		{	Assign(MetaData, true );	return( *this );	}
+
 
 	const CSG_String &			Get_Name			(void)						const	{	return( m_Name );		}
 	void						Set_Name			(const CSG_String &Name)			{	m_Name		= Name;		}
@@ -93,12 +114,12 @@ public:
 	void						Set_Content			(const CSG_String &Content)			{	m_Content	= Content;	}
 
 	int							Get_Children_Count	(void)						const	{	return( m_nChildren );	}
-	CSG_MetaData_Node *			Get_Child			(int Index)					const	{	return( Index >= 0 && Index < m_nChildren ? m_pChildren[Index] : NULL );	}
-	CSG_MetaData_Node *			Get_Child			(const CSG_String &Name)	const	{	return( Get_Child(_Get_Child(Name)) );	}
-	CSG_MetaData_Node *			Add_Child			(void);
-	CSG_MetaData_Node *			Add_Child			(const CSG_String &Name, const CSG_String &Content);
-	CSG_MetaData_Node *			Add_Child			(const CSG_String &Name, double            Content);
-	CSG_MetaData_Node *			Add_Child			(const CSG_String &Name, int               Content);
+	CSG_MetaData *				Get_Child			(int Index)					const	{	return( Index >= 0 && Index < m_nChildren ? m_pChildren[Index] : NULL );	}
+	CSG_MetaData *				Get_Child			(const CSG_String &Name)	const	{	return( Get_Child(_Get_Child(Name)) );	}
+	CSG_MetaData *				Add_Child			(void);
+	CSG_MetaData *				Add_Child			(const CSG_String &Name, const SG_Char *Content = NULL);
+	CSG_MetaData *				Add_Child			(const CSG_String &Name, double         Content);
+	CSG_MetaData *				Add_Child			(const CSG_String &Name, int            Content);
 	bool						Del_Child			(int Index);
 	bool						Del_Child			(const CSG_String &Name)			{	return( Del_Child(_Get_Child(Name)) );	}
 
@@ -119,12 +140,12 @@ public:
 
 private:
 
-	CSG_MetaData_Node(CSG_MetaData_Node *pParent);
+	CSG_MetaData(CSG_MetaData *pParent);
 
 
 	int							m_nChildren, m_nBuffer;
 
-	CSG_MetaData_Node			**m_pChildren, *m_pParent;
+	CSG_MetaData				**m_pChildren, *m_pParent;
 
 	CSG_String					m_Name, m_Content;
 
@@ -136,44 +157,8 @@ private:
 	int							_Get_Child			(const CSG_String &Name)	const;
 	int							_Get_Property		(const CSG_String &Name)	const;
 
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_MetaData
-{
-public:
-								CSG_MetaData		(void);
-	bool						Create				(void);
-
-								CSG_MetaData		(const CSG_String &File);
-	bool						Create				(const CSG_String &File);
-
-
-	virtual						~CSG_MetaData		(void);
-	void						Destroy				(void);
-
-	bool						Load				(const CSG_String &File);
-	bool						Save				(const CSG_String &File);
-
-	CSG_MetaData_Node &			Get_Root			(void)	{	return( m_Root );	}
-
-
-
-private:
-
-	CSG_MetaData_Node			m_Root;
-
-	void						_On_Construction	(void);
-
-	void						_Load				(CSG_MetaData_Node *pNode, class wxXmlNode *pXMLNode);
-	void						_Save				(CSG_MetaData_Node *pNode, class wxXmlNode *pXMLNode);
+	void						_Load				(class wxXmlNode *pNode);
+	void						_Save				(class wxXmlNode *pNode)	const;
 
 };
 

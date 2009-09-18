@@ -172,9 +172,9 @@ bool CHugget_01::On_Execute(void)
 	pTable	= Parameters("TABLE")		->asTable();
 	pTable->Destroy();
 	pTable->Set_Name(_TL("A Simple Litter System"));
-	pTable->Add_Field("STEP"	, TABLE_FIELDTYPE_Int);
-	pTable->Add_Field("TIME"	, TABLE_FIELDTYPE_Double);
-	pTable->Add_Field("CARBON"	, TABLE_FIELDTYPE_Double);
+	pTable->Add_Field("STEP"	, SG_DATATYPE_Int);
+	pTable->Add_Field("TIME"	, SG_DATATYPE_Double);
+	pTable->Add_Field("CARBON"	, SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
 	if( C_Loss <= 0.0 )

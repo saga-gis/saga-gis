@@ -172,20 +172,20 @@ bool CTable_Text_Export::On_Execute(void)
 				switch( pTable->Get_Field_Type(iField) )
 				{
 				default:
-				case TABLE_FIELDTYPE_Char:
-				case TABLE_FIELDTYPE_String:
-				case TABLE_FIELDTYPE_Date:
+				case SG_DATATYPE_Char:
+				case SG_DATATYPE_String:
+				case SG_DATATYPE_Date:
 					Stream.Printf(StrFormat		, pRecord->asString(iField));
 					break;
 
-				case TABLE_FIELDTYPE_Short:
-				case TABLE_FIELDTYPE_Int:
-				case TABLE_FIELDTYPE_Long:
-				case TABLE_FIELDTYPE_Color:
+				case SG_DATATYPE_Short:
+				case SG_DATATYPE_Int:
+				case SG_DATATYPE_Long:
+				case SG_DATATYPE_Color:
 					Stream.Printf(SG_T("%d")	, pRecord->asDouble(iField));
 
-				case TABLE_FIELDTYPE_Float:
-				case TABLE_FIELDTYPE_Double:
+				case SG_DATATYPE_Float:
+				case SG_DATATYPE_Double:
 					Stream.Printf(SG_T("%f")	, pRecord->asDouble(iField));
 					break;
 				}
@@ -409,7 +409,7 @@ bool CTable_Text_Import_Numbers::On_Execute(void)
 
 			if( sHead.asDouble(Value) )
 			{
-				pTable->Add_Field(CSG_String::Format(SG_T("%d"), 1 + pTable->Get_Field_Count()), TABLE_FIELDTYPE_Double);
+				pTable->Add_Field(CSG_String::Format(SG_T("%d"), 1 + pTable->Get_Field_Count()), SG_DATATYPE_Double);
 			}
 
 			sHead	= sHead.AfterFirst('\t');

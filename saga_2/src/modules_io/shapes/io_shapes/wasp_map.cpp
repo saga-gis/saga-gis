@@ -271,18 +271,18 @@ bool CWASP_MAP_Import::On_Execute(void)
 		switch( Method )
 		{
 		case 0:	// elevation
-			pLines->Add_Field("Z"		, TABLE_FIELDTYPE_Double);
+			pLines->Add_Field("Z"		, SG_DATATYPE_Double);
 			break;
 
 		case 1:	// roughness
-			pLines->Add_Field("RLEFT"	, TABLE_FIELDTYPE_Double);
-			pLines->Add_Field("RRIGHT"	, TABLE_FIELDTYPE_Double);
+			pLines->Add_Field("RLEFT"	, SG_DATATYPE_Double);
+			pLines->Add_Field("RRIGHT"	, SG_DATATYPE_Double);
 			break;
 
 		case 2:	// elevation and roughness
-			pLines->Add_Field("Z"		, TABLE_FIELDTYPE_Double);
-			pLines->Add_Field("RLEFT"	, TABLE_FIELDTYPE_Double);
-			pLines->Add_Field("RRIGHT"	, TABLE_FIELDTYPE_Double);
+			pLines->Add_Field("Z"		, SG_DATATYPE_Double);
+			pLines->Add_Field("RLEFT"	, SG_DATATYPE_Double);
+			pLines->Add_Field("RRIGHT"	, SG_DATATYPE_Double);
 			break;
 		}
 

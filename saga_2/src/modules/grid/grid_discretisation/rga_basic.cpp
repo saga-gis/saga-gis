@@ -371,14 +371,14 @@ bool CRGA_Basic::On_Execute(void)
 	//-----------------------------------------------------
 	m_pSeeds->Destroy();
 
-	m_pSeeds->Add_Field(_TL("ID")	, TABLE_FIELDTYPE_Int);
-	m_pSeeds->Add_Field(_TL("AREA")	, TABLE_FIELDTYPE_Double);
-	m_pSeeds->Add_Field(_TL("X")	, TABLE_FIELDTYPE_Double);
-	m_pSeeds->Add_Field(_TL("Y")	, TABLE_FIELDTYPE_Double);
+	m_pSeeds->Add_Field(_TL("ID")	, SG_DATATYPE_Int);
+	m_pSeeds->Add_Field(_TL("AREA")	, SG_DATATYPE_Double);
+	m_pSeeds->Add_Field(_TL("X")	, SG_DATATYPE_Double);
+	m_pSeeds->Add_Field(_TL("Y")	, SG_DATATYPE_Double);
 
 	for(i=0; i<m_pFeatures->Get_Count(); i++)
 	{
-		m_pSeeds->Add_Field(m_pFeatures->asGrid(i)->Get_Name(), TABLE_FIELDTYPE_Double);
+		m_pSeeds->Add_Field(m_pFeatures->asGrid(i)->Get_Name(), SG_DATATYPE_Double);
 	}
 
 	//-----------------------------------------------------

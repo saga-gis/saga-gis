@@ -92,25 +92,25 @@ CSG_Grid * SG_Create_Grid(const CSG_Grid &Grid)
 }
 
 //---------------------------------------------------------
-CSG_Grid * SG_Create_Grid(const CSG_String &File_Name, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
+CSG_Grid * SG_Create_Grid(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type)
 {
 	return( new CSG_Grid(File_Name, Type, Memory_Type) );
 }
 
 //---------------------------------------------------------
-CSG_Grid * SG_Create_Grid(CSG_Grid *pGrid, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
+CSG_Grid * SG_Create_Grid(CSG_Grid *pGrid, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type)
 {
 	return( new CSG_Grid(pGrid, Type, Memory_Type) );
 }
 
 //---------------------------------------------------------
-CSG_Grid * SG_Create_Grid(const CSG_Grid_System &System, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
+CSG_Grid * SG_Create_Grid(const CSG_Grid_System &System, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type)
 {
 	return( new CSG_Grid(System, Type, Memory_Type) );
 }
 
 //---------------------------------------------------------
-CSG_Grid * SG_Create_Grid(TSG_Grid_Type Type, int NX, int NY, double Cellsize, double xMin, double yMin, TSG_Grid_Memory_Type Memory_Type)
+CSG_Grid * SG_Create_Grid(TSG_Data_Type Type, int NX, int NY, double Cellsize, double xMin, double yMin, TSG_Grid_Memory_Type Memory_Type)
 {
 	return( new CSG_Grid(Type, NX, NY, Cellsize, xMin, yMin, Memory_Type) );
 }
@@ -151,7 +151,7 @@ CSG_Grid::CSG_Grid(const CSG_Grid &Grid)
   * Create a grid from file.
 */
 //---------------------------------------------------------
-CSG_Grid::CSG_Grid(const CSG_String &File_Name, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
+CSG_Grid::CSG_Grid(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type)
 	: CSG_Data_Object()
 {
 	_On_Construction();
@@ -164,7 +164,7 @@ CSG_Grid::CSG_Grid(const CSG_String &File_Name, TSG_Grid_Type Type, TSG_Grid_Mem
   * Create a grid similar to 'pGrid'.
 */
 //---------------------------------------------------------
-CSG_Grid::CSG_Grid(CSG_Grid *pGrid, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
+CSG_Grid::CSG_Grid(CSG_Grid *pGrid, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type)
 	: CSG_Data_Object()
 {
 	_On_Construction();
@@ -177,7 +177,7 @@ CSG_Grid::CSG_Grid(CSG_Grid *pGrid, TSG_Grid_Type Type, TSG_Grid_Memory_Type Mem
   * Create a grid using 'System'.
 */
 //---------------------------------------------------------
-CSG_Grid::CSG_Grid(const CSG_Grid_System &System, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
+CSG_Grid::CSG_Grid(const CSG_Grid_System &System, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type)
 	: CSG_Data_Object()
 {
 	_On_Construction();
@@ -193,7 +193,7 @@ CSG_Grid::CSG_Grid(const CSG_Grid_System &System, TSG_Grid_Type Type, TSG_Grid_M
   * lower left corner of the grid.
 */
 //---------------------------------------------------------
-CSG_Grid::CSG_Grid(TSG_Grid_Type Type, int NX, int NY, double Cellsize, double xMin, double yMin, TSG_Grid_Memory_Type Memory_Type)
+CSG_Grid::CSG_Grid(TSG_Data_Type Type, int NX, int NY, double Cellsize, double xMin, double yMin, TSG_Grid_Memory_Type Memory_Type)
 	: CSG_Data_Object()
 {
 	_On_Construction();
@@ -213,7 +213,7 @@ void CSG_Grid::_On_Construction(void)
 {
 	m_bCreated			= false;
 
-	m_Type				= GRID_TYPE_Undefined;
+	m_Type				= SG_DATATYPE_Undefined;
 	m_Memory_Type		= GRID_MEMORY_Normal;
 	m_Memory_bLock		= false;
 
@@ -251,25 +251,25 @@ bool CSG_Grid::Create(const CSG_Grid &Grid)
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::Create(CSG_Grid *pGrid, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
+bool CSG_Grid::Create(CSG_Grid *pGrid, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type)
 {
 	return( Create(Type, pGrid->Get_NX(), pGrid->Get_NY(), pGrid->Get_Cellsize(), pGrid->Get_XMin(), pGrid->Get_YMin(), Memory_Type) );
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::Create(const CSG_Grid_System &System, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
+bool CSG_Grid::Create(const CSG_Grid_System &System, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type)
 {
 	return( Create(Type, System.Get_NX(), System.Get_NY(), System.Get_Cellsize(), System.Get_XMin(), System.Get_YMin(), Memory_Type) );
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::Create(const CSG_String &File_Name, TSG_Grid_Type Type, TSG_Grid_Memory_Type Memory_Type)
+bool CSG_Grid::Create(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type)
 {
 	return( _Load(File_Name, Type, Memory_Type) );
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::Create(TSG_Grid_Type Type, int NX, int NY, double Cellsize, double xMin, double yMin, TSG_Grid_Memory_Type Memory_Type)
+bool CSG_Grid::Create(TSG_Data_Type Type, int NX, int NY, double Cellsize, double xMin, double yMin, TSG_Grid_Memory_Type Memory_Type)
 {
 	Destroy();
 
@@ -308,7 +308,7 @@ bool CSG_Grid::Destroy(void)
 
 	m_bCreated		= false;
 
-	m_Type			= GRID_TYPE_Undefined;
+	m_Type			= SG_DATATYPE_Undefined;
 	m_Memory_Type	= GRID_MEMORY_Normal;
 
 	m_zFactor		= 1.0;
@@ -329,51 +329,32 @@ bool CSG_Grid::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Grid::_Set_Properties(TSG_Grid_Type Type, int NX, int NY, double Cellsize, double xMin, double yMin)
+void CSG_Grid::_Set_Properties(TSG_Data_Type Type, int NX, int NY, double Cellsize, double xMin, double yMin)
 {
-	m_Type	= Type > GRID_TYPE_Undefined && Type < GRID_TYPE_Count ? Type : GRID_TYPE_Float;
+	m_Type	= Type;
+
+	switch( m_Type )
+	{
+	case SG_DATATYPE_Bit:		m_NoData_Value	= m_NoData_hiValue	=  0.0;				break;
+	case SG_DATATYPE_Byte:		m_NoData_Value	= m_NoData_hiValue	=  255.0;			break;
+	case SG_DATATYPE_Char:		m_NoData_Value	= m_NoData_hiValue	= -127.0;			break;
+	case SG_DATATYPE_Word:		m_NoData_Value	= m_NoData_hiValue	=  65535.0;			break;
+	case SG_DATATYPE_Short:		m_NoData_Value	= m_NoData_hiValue	= -32767.0;			break;
+	case SG_DATATYPE_DWord:		m_NoData_Value	= m_NoData_hiValue	=  4294967295.0;	break;
+	case SG_DATATYPE_Int:		m_NoData_Value	= m_NoData_hiValue	= -2147483647.0;	break;
+	case SG_DATATYPE_ULong:		m_NoData_Value	= m_NoData_hiValue	=  4294967295.0;	break;
+	case SG_DATATYPE_Long:		m_NoData_Value	= m_NoData_hiValue	= -2147483647.0;	break;
+	case SG_DATATYPE_Double:	m_NoData_Value	= m_NoData_hiValue	= -99999.0;			break;
+	case SG_DATATYPE_Color:		m_NoData_Value	= m_NoData_hiValue	=  4294967295.0;	break;
+
+	default:					m_Type	= SG_DATATYPE_Float;
+	case SG_DATATYPE_Float:		m_NoData_Value	= m_NoData_hiValue	= -99999.0;			break;
+	}
 
 	m_System.Assign(Cellsize > 0.0 ? Cellsize : 1.0, xMin, yMin, NX, NY);
 
 	m_zStats.Invalidate();
 
-	switch( m_Type )
-	{
-	case GRID_TYPE_Bit:
-		m_NoData_Value		= m_NoData_hiValue	= 0.0;
-		break;
-
-	case GRID_TYPE_Byte:
-		m_NoData_Value		= m_NoData_hiValue	= 255.0;
-		break;
-
-	case GRID_TYPE_Char:
-		m_NoData_Value		= m_NoData_hiValue	= -127.0;
-		break;
-
-	case GRID_TYPE_Word:
-		m_NoData_Value		= m_NoData_hiValue	= 65535.0;
-		break;
-
-	case GRID_TYPE_Short:
-		m_NoData_Value		= m_NoData_hiValue	= -32767.0;
-		break;
-
-	case GRID_TYPE_DWord:
-		m_NoData_Value		= m_NoData_hiValue	= 4294967295.0;
-		break;
-
-	case GRID_TYPE_Int:
-		m_NoData_Value		= m_NoData_hiValue	= -2147483647.0;
-		break;
-
-	default:
-	case GRID_TYPE_Float:
-	case GRID_TYPE_Double:
-		m_NoData_Value		= -99999.0;
-		m_NoData_hiValue	= -  999.0;
-		break;
-	}
 }
 
 //---------------------------------------------------------
@@ -453,7 +434,7 @@ void CSG_Grid::Set_NoData_Value_Range(double loValue, double hiValue)
 //---------------------------------------------------------
 bool CSG_Grid::is_Valid(void) const
 {
-	if(	m_System.is_Valid() && m_Type > 0 && m_Type < GRID_TYPE_Count )
+	if(	m_System.is_Valid() && m_Type != SG_DATATYPE_Undefined )
 	{
 		switch( m_Memory_Type )
 		{

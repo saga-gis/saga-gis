@@ -91,7 +91,7 @@ CExercise_10::CExercise_10(void)
 	Parameters.Add_Grid(
 		NULL, "RESULT"		, _TL("Life"),
 		_TL(""),
-		PARAMETER_OUTPUT, true, GRID_TYPE_Byte
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Byte
 	);
 
 	Parameters.Add_Value(
@@ -159,7 +159,7 @@ bool CExercise_10::On_Execute(void)
 	//-----------------------------------------------------
 	// Execution...
 
-	m_pTemp		= SG_Create_Grid(m_pLife, GRID_TYPE_Byte);
+	m_pTemp		= SG_Create_Grid(m_pLife, SG_DATATYPE_Byte);
 
 	for(i=1, bAlive=true; bAlive && Process_Get_Okay(true); i++)
 	{

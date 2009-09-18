@@ -40,7 +40,7 @@ CSinuosity::CSinuosity(void){
 						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
-						GRID_TYPE_Double);
+						SG_DATATYPE_Double);
 
 }//constructor
 

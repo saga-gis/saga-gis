@@ -140,7 +140,7 @@ bool CSeparate_by_Direction::On_Execute(void)
 	for(iSector=0; iSector<m_nSectors; iSector++)
 	{
 		pOutput->Add_Item(SG_Create_Shapes(SHAPE_TYPE_Point, CSG_String::Format(SG_T("Direction %.2f"), iSector * m_dSector * M_RAD_TO_DEG), pPoints));
-		pOutput->asShapes(iSector)->Add_Field(_TL("Direction"), TABLE_FIELDTYPE_Double);
+		pOutput->asShapes(iSector)->Add_Field(_TL("Direction"), SG_DATATYPE_Double);
 	}
 
 	//-----------------------------------------------------

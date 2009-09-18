@@ -149,7 +149,7 @@ bool CTIN_To_Shapes::On_Execute(void)
 	pShapes		= Parameters("POINTS")		->asShapes();
 	pShapes->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("%s [TIN]"), pTIN->Get_Name()));
 
-	pShapes->Add_Field("POINT_ID", TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("POINT_ID", SG_DATATYPE_Int);
 	for(j=0; j<pTIN->Get_Field_Count(); j++)
 	{
 		pShapes->Add_Field(pTIN->Get_Field_Name(j), pTIN->Get_Field_Type(j));
@@ -173,9 +173,9 @@ bool CTIN_To_Shapes::On_Execute(void)
 	pShapes		= Parameters("EDGES")	->asShapes();
 	pShapes->Create(SHAPE_TYPE_Line, CSG_String::Format(_TL("%s [TIN]"), pTIN->Get_Name()));
 
-	pShapes->Add_Field("ID"			, TABLE_FIELDTYPE_Int);
-	pShapes->Add_Field("POINT_ID_A"	, TABLE_FIELDTYPE_Int);
-	pShapes->Add_Field("POINT_ID_B"	, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("ID"			, SG_DATATYPE_Int);
+	pShapes->Add_Field("POINT_ID_A"	, SG_DATATYPE_Int);
+	pShapes->Add_Field("POINT_ID_B"	, SG_DATATYPE_Int);
 
 	for(i=0; i<pTIN->Get_Edge_Count() && Set_Progress(i, pTIN->Get_Edge_Count()); i++)
 	{
@@ -194,10 +194,10 @@ bool CTIN_To_Shapes::On_Execute(void)
 	pShapes		= Parameters("TRIANGLES")	->asShapes();
 	pShapes->Create(SHAPE_TYPE_Polygon, CSG_String::Format(_TL("%s [TIN]"), pTIN->Get_Name()));
 
-	pShapes->Add_Field("ID"			, TABLE_FIELDTYPE_Int);
-	pShapes->Add_Field("POINT_ID_A"	, TABLE_FIELDTYPE_Int);
-	pShapes->Add_Field("POINT_ID_B"	, TABLE_FIELDTYPE_Int);
-	pShapes->Add_Field("POINT_ID_C"	, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("ID"			, SG_DATATYPE_Int);
+	pShapes->Add_Field("POINT_ID_A"	, SG_DATATYPE_Int);
+	pShapes->Add_Field("POINT_ID_B"	, SG_DATATYPE_Int);
+	pShapes->Add_Field("POINT_ID_C"	, SG_DATATYPE_Int);
 
 	for(i=0; i<pTIN->Get_Triangle_Count() && Set_Progress(i, pTIN->Get_Triangle_Count()); i++)
 	{
@@ -218,10 +218,10 @@ bool CTIN_To_Shapes::On_Execute(void)
 	pShapes		= Parameters("CENTER")		->asShapes();
 	pShapes->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("%s [TIN]"), pTIN->Get_Name()));
 
-	pShapes->Add_Field("ID"			, TABLE_FIELDTYPE_Int);
-	pShapes->Add_Field("POINT_ID_A"	, TABLE_FIELDTYPE_Int);
-	pShapes->Add_Field("POINT_ID_B"	, TABLE_FIELDTYPE_Int);
-	pShapes->Add_Field("POINT_ID_C"	, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("ID"			, SG_DATATYPE_Int);
+	pShapes->Add_Field("POINT_ID_A"	, SG_DATATYPE_Int);
+	pShapes->Add_Field("POINT_ID_B"	, SG_DATATYPE_Int);
+	pShapes->Add_Field("POINT_ID_C"	, SG_DATATYPE_Int);
 
 	for(i=0; i<pTIN->Get_Triangle_Count() && Set_Progress(i, pTIN->Get_Triangle_Count()); i++)
 	{
@@ -242,7 +242,7 @@ bool CTIN_To_Shapes::On_Execute(void)
 	pShapes		= Parameters("POLYGONS")	->asShapes();
 	pShapes->Create(SHAPE_TYPE_Polygon, CSG_String::Format(_TL("%s [TIN]"), pTIN->Get_Name()));
 
-	pShapes->Add_Field("POINT_ID", TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("POINT_ID", SG_DATATYPE_Int);
 	for(j=0; j<pTIN->Get_Field_Count(); j++)
 	{
 		pShapes->Add_Field(pTIN->Get_Field_Name(j), pTIN->Get_Field_Type(j));

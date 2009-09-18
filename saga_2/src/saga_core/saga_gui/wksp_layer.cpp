@@ -355,11 +355,11 @@ void CWKSP_Layer::Create_Parameters(void)
 	);
 
 	CSG_Table	LUT;
-	LUT.Add_Field(LNG("COLOR")		, TABLE_FIELDTYPE_Color);
-	LUT.Add_Field(LNG("NAME")			, TABLE_FIELDTYPE_String);
-	LUT.Add_Field(LNG("DESCRIPTION")	, TABLE_FIELDTYPE_String);
-	LUT.Add_Field(LNG("MINIMUM")		, TABLE_FIELDTYPE_Double);
-	LUT.Add_Field(LNG("MAXIMUM")		, TABLE_FIELDTYPE_Double);
+	LUT.Add_Field(LNG("COLOR")		, SG_DATATYPE_Color);
+	LUT.Add_Field(LNG("NAME")			, SG_DATATYPE_String);
+	LUT.Add_Field(LNG("DESCRIPTION")	, SG_DATATYPE_String);
+	LUT.Add_Field(LNG("MINIMUM")		, SG_DATATYPE_Double);
+	LUT.Add_Field(LNG("MAXIMUM")		, SG_DATATYPE_Double);
 
 	m_Parameters.Add_FixedTable(
 		m_Parameters("NODE_LUT")		, "LUT"					, LNG("[CAP] Table"),

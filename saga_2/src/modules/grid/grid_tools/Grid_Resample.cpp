@@ -347,7 +347,7 @@ bool CGrid_Resample::On_Execute(void)
 		{
 			if( !pOutput )
 			{
-				pOutput	= SG_Create_Grid(System, Parameters("KEEP_TYPE")->asBool() || (Interpolation == GRID_INTERPOLATION_NearestNeighbour) ? pInput->Get_Type() : GRID_TYPE_Undefined);
+				pOutput	= SG_Create_Grid(System, Parameters("KEEP_TYPE")->asBool() || (Interpolation == GRID_INTERPOLATION_NearestNeighbour) ? pInput->Get_Type() : SG_DATATYPE_Undefined);
 			}
 
 			pOutput->Set_Name(pInput->Get_Name());

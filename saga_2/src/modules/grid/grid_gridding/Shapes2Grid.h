@@ -102,7 +102,7 @@ private:
 	CSG_Shapes				*m_pShapes;
 
 
-	TSG_Grid_Type			Get_Grid_Type		(int iType);
+	TSG_Data_Type			Get_Grid_Type		(int iType);
 	CSG_Grid *				Get_Target_Grid		(CSG_Parameters *pParameters, CSG_Shapes *pShapes);
 
 	void					Set_Value			(int x, int y);

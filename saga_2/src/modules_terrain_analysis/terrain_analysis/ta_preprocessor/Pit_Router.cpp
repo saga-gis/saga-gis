@@ -279,7 +279,7 @@ bool CPit_Router::Initialize(void)
 	{
 		m_pRoute->Assign();
 
-		m_pPits		= SG_Create_Grid(m_pDEM, GRID_TYPE_Int);
+		m_pPits		= SG_Create_Grid(m_pDEM, SG_DATATYPE_Int);
 		m_pPits->Assign();
 
 		m_Pit		= NULL;
@@ -919,7 +919,7 @@ void CPit_Router::Mark_Flat(int x, int y, TGEO_iRect *pFlat, int Flat_ID, int Pi
 	//-----------------------------------------------------
 	if( !m_pFlats )
 	{
-		m_pFlats		= SG_Create_Grid(m_pDEM, GRID_TYPE_Int);
+		m_pFlats		= SG_Create_Grid(m_pDEM, SG_DATATYPE_Int);
 		//m_pFlats->Set_Cache(false);
 	}
 
@@ -1024,7 +1024,7 @@ int CPit_Router::Process_Threshold(void)
 {
 	int		x, y, i, n;
 
-	m_Route.Create(*Get_System(), GRID_TYPE_Char);
+	m_Route.Create(*Get_System(), SG_DATATYPE_Char);
 
 	//-----------------------------------------------------
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)

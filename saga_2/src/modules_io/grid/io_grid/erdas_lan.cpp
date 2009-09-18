@@ -127,7 +127,7 @@ bool CErdas_LAN_Import::On_Execute(void)
 	float					area, dx, dy, xPos, yPos;
 	double					Cellsize, xMin, yMin, Value;
 	FILE					*Stream;
-	TSG_Grid_Type			gType;
+	TSG_Data_Type			gType;
 	CSG_Parameter_Grid_List	*Grids;
 	CSG_String				FileName;
 
@@ -196,17 +196,17 @@ bool CErdas_LAN_Import::On_Execute(void)
 			switch( vType )
 			{
 			case 0:	default:	//  8 bit
-				gType	= GRID_TYPE_Byte;
+				gType	= SG_DATATYPE_Byte;
 				nLine	= nx;
 				break;
 
 			case 1:				//  4 bit
-				gType	= GRID_TYPE_Byte;
+				gType	= SG_DATATYPE_Byte;
 				nLine	= nx / 2 + (nx % 2 ? 1 : 0);
 				break;
 
 			case 2:				// 16 bit
-				gType	= GRID_TYPE_Word;
+				gType	= SG_DATATYPE_Word;
 				nLine	= nx * 2;
 				break;
 			}

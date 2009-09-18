@@ -173,8 +173,8 @@ bool CSG_TIN::Create(const CSG_String &File_Name)
 
 	if( Create(&Shapes) )
 	{
-		Get_History().Add_Entry(LNG("[HST] Created from file"), File_Name);
-		Get_History().Assign(Shapes.Get_History(), true);
+		Get_History().Add_Child(LNG("[HST] Created from file"), File_Name);
+		Get_History()	+= Shapes.Get_History();
 
 		Set_File_Name(File_Name);
 		Set_Modified(false);
@@ -322,7 +322,7 @@ bool CSG_TIN::Assign(CSG_Data_Object *pObject)
 
 		Set_Name(pTIN->Get_Name());
 
-		Get_History().Assign(pTIN->Get_History());
+		Get_History()	= pTIN->Get_History();
 
 		//-------------------------------------------------
 		for(int iNode=0; iNode<pTIN->Get_Node_Count(); iNode++)

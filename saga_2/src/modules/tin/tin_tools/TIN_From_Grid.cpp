@@ -126,11 +126,11 @@ bool CTIN_From_Grid::On_Execute(void)
 	pValues	= Parameters("VALUES")	->asGridList();
 
 	Points.Create(SHAPE_TYPE_Point);
-	Points.Add_Field("VALUE", TABLE_FIELDTYPE_Double);
+	Points.Add_Field("VALUE", SG_DATATYPE_Double);
 
 	for(i=0; i<pValues->Get_Count(); i++)
 	{
-		Points.Add_Field(pValues->asGrid(i)->Get_Name(), TABLE_FIELDTYPE_Double);
+		Points.Add_Field(pValues->asGrid(i)->Get_Name(), SG_DATATYPE_Double);
 	}
 
 	//-----------------------------------------------------

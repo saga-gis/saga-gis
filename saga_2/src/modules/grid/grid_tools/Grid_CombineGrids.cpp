@@ -51,9 +51,9 @@ CCombineGrids::CCombineGrids(void){
 										_TL("LookUp Table"),
 										_TL(""))->asTable();
 
-	pLookup->Add_Field(_TL("Value in Grid 1"), TABLE_FIELDTYPE_Double);
-	pLookup->Add_Field(_TL("Value in Grid 2"), TABLE_FIELDTYPE_Double);
-	pLookup->Add_Field(_TL("Resulting Value"), TABLE_FIELDTYPE_Double);
+	pLookup->Add_Field(_TL("Value in Grid 1"), SG_DATATYPE_Double);
+	pLookup->Add_Field(_TL("Value in Grid 2"), SG_DATATYPE_Double);
+	pLookup->Add_Field(_TL("Resulting Value"), SG_DATATYPE_Double);
 
 	pRecord	= pLookup->Add_Record();	
 	pRecord->Set_Value(0, 0.0);	

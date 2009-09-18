@@ -311,7 +311,7 @@ bool CSG_Table::_Assign(CSG_Data_Object *pObject)
 			_Add_Record(pTable->m_Records[i]);
 		}
 
-		Get_History().Assign(pTable->Get_History());
+		Get_History()	= pTable->Get_History();
 
 		return( true );
 	}
@@ -379,15 +379,15 @@ bool CSG_Table::is_Compatible(CSG_Table *pTable, bool bExactMatch) const
 			}
 			else switch( Get_Field_Type(i) )
 			{
-			case TABLE_FIELDTYPE_String:
-//				if( pTable->Get_Field_Type(i) != TABLE_FIELDTYPE_String )
+			case SG_DATATYPE_String:
+//				if( pTable->Get_Field_Type(i) != SG_DATATYPE_String )
 //				{
 //					return( false );
 //				}
 				break;
 
 			default:
-				if( pTable->Get_Field_Type(i) == TABLE_FIELDTYPE_String )
+				if( pTable->Get_Field_Type(i) == SG_DATATYPE_String )
 				{
 					return( false );
 				}
@@ -409,7 +409,7 @@ bool CSG_Table::is_Compatible(CSG_Table *pTable, bool bExactMatch) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Table::Add_Field(const SG_Char *Name, TSG_Table_Field_Type Type, int add_Field)
+void CSG_Table::Add_Field(const SG_Char *Name, TSG_Data_Type Type, int add_Field)
 {
 	int		iField, iRecord;
 
@@ -423,7 +423,7 @@ void CSG_Table::Add_Field(const SG_Char *Name, TSG_Table_Field_Type Type, int ad
 	m_nFields++;
 
 	m_Field_Name	= (CSG_String            **)SG_Realloc(m_Field_Name , m_nFields * sizeof(CSG_String *));
-	m_Field_Type	= (TSG_Table_Field_Type   *)SG_Realloc(m_Field_Type , m_nFields * sizeof(TSG_Table_Field_Type));
+	m_Field_Type	= (TSG_Data_Type          *)SG_Realloc(m_Field_Type , m_nFields * sizeof(TSG_Data_Type));
 	m_Field_Stats	= (CSG_Simple_Statistics **)SG_Realloc(m_Field_Stats, m_nFields * sizeof(CSG_Simple_Statistics *));
 
 	//-----------------------------------------------------
@@ -450,7 +450,7 @@ void CSG_Table::Add_Field(const SG_Char *Name, TSG_Table_Field_Type Type, int ad
 
 //---------------------------------------------------------
 #ifdef _SAGA_UNICODE
-void CSG_Table::Add_Field(const char *Name, TSG_Table_Field_Type Type, int iField)
+void CSG_Table::Add_Field(const char *Name, TSG_Data_Type Type, int iField)
 {	Add_Field(CSG_String(Name), Type, iField);	}
 #endif
 
@@ -477,7 +477,7 @@ bool CSG_Table::Del_Field(int del_Field)
 
 		//-------------------------------------------------
 		m_Field_Name	= (CSG_String            **)SG_Realloc(m_Field_Name , m_nFields * sizeof(CSG_String *));
-		m_Field_Type	= (TSG_Table_Field_Type   *)SG_Realloc(m_Field_Type , m_nFields * sizeof(TSG_Table_Field_Type));
+		m_Field_Type	= (TSG_Data_Type          *)SG_Realloc(m_Field_Type , m_nFields * sizeof(TSG_Data_Type));
 		m_Field_Stats	= (CSG_Simple_Statistics **)SG_Realloc(m_Field_Stats, m_nFields * sizeof(CSG_Simple_Statistics *));
 
 		//-------------------------------------------------
@@ -1124,7 +1124,7 @@ inline int CSG_Table::_Index_Compare(int a, int b, int Field)
 
 	switch( m_Field_Type[m_Index_Field[Field]] )
 	{
-	case TABLE_FIELDTYPE_String:
+	case SG_DATATYPE_String:
 		Result	= SG_STR_CMP(
 					m_Records[a]->asString(m_Index_Field[Field]),
 					m_Records[b]->asString(m_Index_Field[Field])

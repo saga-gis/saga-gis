@@ -142,10 +142,10 @@ bool CTIN_Gradient::On_Execute(void)
 	//-----------------------------------------------------
 	pShapes->Create(SHAPE_TYPE_Polygon, CSG_String::Format(_TL("TIN_Gradient [%s], TIN [%s]"), pTIN->Get_Field_Name(zField), pTIN->Get_Name()));
 
-	pShapes->Add_Field(_TL("ID")		, TABLE_FIELDTYPE_Int);
-	pShapes->Add_Field(_TL("AREA")	, TABLE_FIELDTYPE_Double);
-	pShapes->Add_Field(_TL("DECLINE"), TABLE_FIELDTYPE_Double);
-	pShapes->Add_Field(_TL("AZIMUTH"), TABLE_FIELDTYPE_Double);
+	pShapes->Add_Field(_TL("ID")		, SG_DATATYPE_Int);
+	pShapes->Add_Field(_TL("AREA")	, SG_DATATYPE_Double);
+	pShapes->Add_Field(_TL("DECLINE"), SG_DATATYPE_Double);
+	pShapes->Add_Field(_TL("AZIMUTH"), SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
 	for(iTriangle=0; iTriangle<pTIN->Get_Triangle_Count() && Set_Progress(iTriangle, pTIN->Get_Triangle_Count()); iTriangle++)

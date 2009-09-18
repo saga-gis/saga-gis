@@ -292,14 +292,14 @@ bool CTOPMODEL::On_Execute(void)
 	pTable			= Parameters("TABLE")->asTable();
 	pTable->Destroy();
 	pTable->Set_Name(_TL("TOPMODEL - Simulation Output"));
-	pTable->Add_Field(_TL("Total flow (in watershed) [m\xc2\xb3/dt]")			, TABLE_FIELDTYPE_Double);
-	pTable->Add_Field(_TL("Total flow [m/dt]")							, TABLE_FIELDTYPE_Double);
-	pTable->Add_Field(_TL("Saturation overland flow [m/dt]")			, TABLE_FIELDTYPE_Double);
-	pTable->Add_Field(_TL("Subsurface flow [m/dt]")						, TABLE_FIELDTYPE_Double);
-	pTable->Add_Field(_TL("Vertical (drainage) flux [m/dt]")			, TABLE_FIELDTYPE_Double);
-	pTable->Add_Field(_TL("Mean saturation deficit (in watershed) [m]")	, TABLE_FIELDTYPE_Double);
-	pTable->Add_Field(_TL("Infiltration rate [m/dt]")					, TABLE_FIELDTYPE_Double);
-	pTable->Add_Field(_TL("Infiltration excess runoff [m/dt]")			, TABLE_FIELDTYPE_Double);
+	pTable->Add_Field(_TL("Total flow (in watershed) [m\xc2\xb3/dt]")			, SG_DATATYPE_Double);
+	pTable->Add_Field(_TL("Total flow [m/dt]")							, SG_DATATYPE_Double);
+	pTable->Add_Field(_TL("Saturation overland flow [m/dt]")			, SG_DATATYPE_Double);
+	pTable->Add_Field(_TL("Subsurface flow [m/dt]")						, SG_DATATYPE_Double);
+	pTable->Add_Field(_TL("Vertical (drainage) flux [m/dt]")			, SG_DATATYPE_Double);
+	pTable->Add_Field(_TL("Mean saturation deficit (in watershed) [m]")	, SG_DATATYPE_Double);
+	pTable->Add_Field(_TL("Infiltration rate [m/dt]")					, SG_DATATYPE_Double);
+	pTable->Add_Field(_TL("Infiltration excess runoff [m/dt]")			, SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
 	Vals.Create(dTime, nTimeSteps, &Parameters, pAtanB, nClasses, &gClass);

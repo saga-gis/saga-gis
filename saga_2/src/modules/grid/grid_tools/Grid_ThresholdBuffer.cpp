@@ -55,7 +55,7 @@ CThresholdBuffer::CThresholdBuffer(void){
 						_TL(""),
 						PARAMETER_OUTPUT,
 						true,
-						GRID_TYPE_Int);
+						SG_DATATYPE_Int);
 
 	pNode = Parameters.Add_Value(NULL,
 						"THRESHOLD",

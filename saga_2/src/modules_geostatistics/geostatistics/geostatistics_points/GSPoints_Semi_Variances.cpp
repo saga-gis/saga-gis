@@ -208,8 +208,8 @@ void CGSPoints_Semi_Variances::Get_Differences(CSG_Shapes *pShapes, CSG_Table *p
 
 	//-----------------------------------------------------
 	pTable->Destroy();
-	pTable->Add_Field(_TL("Distance")	, TABLE_FIELDTYPE_Double);	// DIF_FIELD_DISTANCE
-	pTable->Add_Field(_TL("Difference")	, TABLE_FIELDTYPE_Double);	// DIF_FIELD_DIFFERENCE
+	pTable->Add_Field(_TL("Distance")	, SG_DATATYPE_Double);	// DIF_FIELD_DISTANCE
+	pTable->Add_Field(_TL("Difference")	, SG_DATATYPE_Double);	// DIF_FIELD_DIFFERENCE
 
 	//-----------------------------------------------------
 	for(iPoint=0; iPoint<pShapes->Get_Count()-nSkip && Set_Progress(iPoint, pShapes->Get_Count()-nSkip); iPoint+=nSkip)
@@ -253,11 +253,11 @@ void CGSPoints_Semi_Variances::Get_Variances(CSG_Table *pTab_Var, CSG_Table *pTa
 	if( Process_Get_Okay(false) )
 	{
 		pTab_Var->Destroy();
-		pTab_Var->Add_Field(_TL("Distance")			, TABLE_FIELDTYPE_Double);	// VAR_FIELD_DISTANCE
-		pTab_Var->Add_Field(_TL("Variance")			, TABLE_FIELDTYPE_Double);	// VAR_FIELD_VARIANCE
-		pTab_Var->Add_Field(_TL("Std.Deviation")	, TABLE_FIELDTYPE_Double);	// VAR_FIELD_STDDEV
-		pTab_Var->Add_Field(_TL("Class Variance")	, TABLE_FIELDTYPE_Double);	// VAR_FIELD_CLASSVAR
-		pTab_Var->Add_Field(_TL("Class Count")		, TABLE_FIELDTYPE_Int);		// VAR_FIELD_COUNT
+		pTab_Var->Add_Field(_TL("Distance")			, SG_DATATYPE_Double);	// VAR_FIELD_DISTANCE
+		pTab_Var->Add_Field(_TL("Variance")			, SG_DATATYPE_Double);	// VAR_FIELD_VARIANCE
+		pTab_Var->Add_Field(_TL("Std.Deviation")	, SG_DATATYPE_Double);	// VAR_FIELD_STDDEV
+		pTab_Var->Add_Field(_TL("Class Variance")	, SG_DATATYPE_Double);	// VAR_FIELD_CLASSVAR
+		pTab_Var->Add_Field(_TL("Class Count")		, SG_DATATYPE_Int);		// VAR_FIELD_COUNT
 
 		pTab_Dif->Set_Index(DIF_FIELD_DISTANCE, TABLE_INDEX_Ascending);
 

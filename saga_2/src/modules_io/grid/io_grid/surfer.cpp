@@ -181,7 +181,7 @@ bool CSurfer_Import::On_Execute(void)
 					fread(&lValue, 1, sizeof(long)	, Stream);	// SectionSize...
 
 					//-------------------------------------
-					if( !feof(Stream) && (pGrid = SG_Create_Grid(GRID_TYPE_Double, NX, NY, DX, xMin, yMin)) != NULL )
+					if( !feof(Stream) && (pGrid = SG_Create_Grid(SG_DATATYPE_Double, NX, NY, DX, xMin, yMin)) != NULL )
 					{
 						dLine	= (double *)SG_Malloc(pGrid->Get_NX() * sizeof(double));
 
@@ -223,7 +223,7 @@ bool CSurfer_Import::On_Execute(void)
 			fread(&dValue	, 1, sizeof(double)	, Stream);	// ZMax...
 
 			//---------------------------------------------
-			if( !feof(Stream) && (pGrid = SG_Create_Grid(GRID_TYPE_Float, NX, NY, DX, xMin, yMin)) != NULL )
+			if( !feof(Stream) && (pGrid = SG_Create_Grid(SG_DATATYPE_Float, NX, NY, DX, xMin, yMin)) != NULL )
 			{
 				fLine	= (float *)SG_Malloc(pGrid->Get_NX() * sizeof(float));
 
@@ -257,7 +257,7 @@ bool CSurfer_Import::On_Execute(void)
 			fscanf(Stream, "%lf %lf", &dValue, &dValue);
 
 			//---------------------------------------------
-			if( !feof(Stream) && (pGrid = SG_Create_Grid(GRID_TYPE_Float, NX, NY, DX, xMin, yMin)) != NULL )
+			if( !feof(Stream) && (pGrid = SG_Create_Grid(SG_DATATYPE_Float, NX, NY, DX, xMin, yMin)) != NULL )
 			{
 				for(y=0; y<pGrid->Get_NY() && !feof(Stream) && Set_Progress(y, pGrid->Get_NY()); y++)
 				{

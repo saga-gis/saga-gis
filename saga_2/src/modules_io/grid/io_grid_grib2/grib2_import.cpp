@@ -113,7 +113,7 @@ bool SGGrib2Import::handle_latlon( void ) {
 #endif
 	
 	if ( ( nx == -1 ) || ( ny == -1 ) || 
-		( ( pGrid = SG_Create_Grid( GRID_TYPE_Float, nx, ny, cellsize, xmin, ymin ) ) == NULL ) )
+		( ( pGrid = SG_Create_Grid( SG_DATATYPE_Float, nx, ny, cellsize, xmin, ymin ) ) == NULL ) )
 		return false;
 	for ( x = 0; x < nx; x++ ) {
 		for ( y = 0; y < ny; y ++ )
@@ -137,7 +137,7 @@ bool SGGrib2Import::handle_polar_stereographic( void ) {
 #endif
 	
 	if ( ( nx == -1 ) || ( ny == -1 ) || 
-		( ( pGrid = SG_Create_Grid( GRID_TYPE_Float, nx, ny, cellsize, xmin, ymin ) ) == NULL ) )
+		( ( pGrid = SG_Create_Grid( SG_DATATYPE_Float, nx, ny, cellsize, xmin, ymin ) ) == NULL ) )
 		return false;
 	for ( x = 0; x < nx; x++ ) {
 		for ( y = 0; y < ny; y ++ )

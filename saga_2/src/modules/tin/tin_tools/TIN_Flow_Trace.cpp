@@ -127,16 +127,16 @@ bool CTIN_Flow_Trace::On_Execute(void)
 	m_pFlow->Create(*pDEM);
 
 	m_iDir		= m_pFlow->Get_Field_Count();
-	m_pFlow->Add_Field("DIRECTION"	, TABLE_FIELDTYPE_Double);
+	m_pFlow->Add_Field("DIRECTION"	, SG_DATATYPE_Double);
 
 	m_iArea		= m_pFlow->Get_Field_Count();
-	m_pFlow->Add_Field("AREA"		, TABLE_FIELDTYPE_Double);
+	m_pFlow->Add_Field("AREA"		, SG_DATATYPE_Double);
 
 	m_iFlow		= m_pFlow->Get_Field_Count();
-	m_pFlow->Add_Field("FLOW"		, TABLE_FIELDTYPE_Double);
+	m_pFlow->Add_Field("FLOW"		, SG_DATATYPE_Double);
 
 	m_iSpecific	= m_pFlow->Get_Field_Count();
-	m_pFlow->Add_Field("Specific"	, TABLE_FIELDTYPE_Double);
+	m_pFlow->Add_Field("Specific"	, SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
 	for(iPoint=0; iPoint<m_pFlow->Get_Node_Count(); iPoint++)

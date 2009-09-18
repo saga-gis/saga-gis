@@ -234,12 +234,12 @@ bool CGSGrid_Regression::Get_Regression(CSG_Grid *pGrid, CSG_Shapes *pShapes, CS
 	if( pResiduals )
 	{
 		pResiduals->Create(SHAPE_TYPE_Point, _TL("Residuals"));
-		pResiduals->Add_Field("ID"			, TABLE_FIELDTYPE_Int);
-		pResiduals->Add_Field("Y"			, TABLE_FIELDTYPE_Double);
-		pResiduals->Add_Field("X"			, TABLE_FIELDTYPE_Double);
-		pResiduals->Add_Field("Y_GUESS"		, TABLE_FIELDTYPE_Double);
-		pResiduals->Add_Field("Y_RESIDUAL"	, TABLE_FIELDTYPE_Double);
-		pResiduals->Add_Field("Y_RES_VAR"	, TABLE_FIELDTYPE_Double);
+		pResiduals->Add_Field("ID"			, SG_DATATYPE_Int);
+		pResiduals->Add_Field("Y"			, SG_DATATYPE_Double);
+		pResiduals->Add_Field("X"			, SG_DATATYPE_Double);
+		pResiduals->Add_Field("Y_GUESS"		, SG_DATATYPE_Double);
+		pResiduals->Add_Field("Y_RESIDUAL"	, SG_DATATYPE_Double);
+		pResiduals->Add_Field("Y_RES_VAR"	, SG_DATATYPE_Double);
 	}
 
 	m_Regression.Destroy();

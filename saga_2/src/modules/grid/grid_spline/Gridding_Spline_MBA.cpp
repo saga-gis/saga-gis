@@ -297,7 +297,7 @@ bool CGridding_Spline_MBA::_Set_MBA_Refinement(CSG_Grid *Psi_A, CSG_Grid *Psi_B)
 //---------------------------------------------------------
 bool CGridding_Spline_MBA::_Get_Phi(CSG_Grid &Phi, double dCell, int nCells)
 {
-	Phi.Create	(GRID_TYPE_Float, nCells + 4, nCells + 4, dCell, m_pGrid->Get_XMin(), m_pGrid->Get_YMin());
+	Phi.Create	(SG_DATATYPE_Float, nCells + 4, nCells + 4, dCell, m_pGrid->Get_XMin(), m_pGrid->Get_YMin());
 	BA_Get_Phi	(Phi);
 
 	return( _Get_Difference(Phi) );

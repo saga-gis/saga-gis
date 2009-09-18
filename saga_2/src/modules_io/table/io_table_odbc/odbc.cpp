@@ -240,41 +240,41 @@ void CSG_ODBC_Connection::_Error_Message(const SG_Char *Message, const SG_Char *
 }
 
 //---------------------------------------------------------
-int CSG_ODBC_Connection::_Get_Type_To_SQL(TSG_Table_Field_Type Type)
+int CSG_ODBC_Connection::_Get_Type_To_SQL(TSG_Data_Type Type)
 {
 	switch( Type )
 	{
-	case TABLE_FIELDTYPE_String:	return( DB_DATA_TYPE_VARCHAR );	// strings
+	case SG_DATATYPE_String:	return( DB_DATA_TYPE_VARCHAR );	// strings
 
-	case TABLE_FIELDTYPE_Color:
-	case TABLE_FIELDTYPE_Char:
-	case TABLE_FIELDTYPE_Short:
-	case TABLE_FIELDTYPE_Int:
-	case TABLE_FIELDTYPE_Long:		return( DB_DATA_TYPE_INTEGER );	// non-floating point numbers
+	case SG_DATATYPE_Color:
+	case SG_DATATYPE_Char:
+	case SG_DATATYPE_Short:
+	case SG_DATATYPE_Int:
+	case SG_DATATYPE_Long:		return( DB_DATA_TYPE_INTEGER );	// non-floating point numbers
 
-	case TABLE_FIELDTYPE_Float:
-	case TABLE_FIELDTYPE_Double:	return( DB_DATA_TYPE_FLOAT   );	// floating point numbers
+	case SG_DATATYPE_Float:
+	case SG_DATATYPE_Double:	return( DB_DATA_TYPE_FLOAT   );	// floating point numbers
 
-	case TABLE_FIELDTYPE_Date:		return( DB_DATA_TYPE_DATE    );	// dates
+	case SG_DATATYPE_Date:		return( DB_DATA_TYPE_DATE    );	// dates
 	}
 
 	return( DB_DATA_TYPE_VARCHAR );
 }
 
 //---------------------------------------------------------
-TSG_Table_Field_Type CSG_ODBC_Connection::_Get_Type_From_SQL(int Type)
+TSG_Data_Type CSG_ODBC_Connection::_Get_Type_From_SQL(int Type)
 {
 	switch( Type )
 	{
-	case DB_DATA_TYPE_BLOB:			return( TABLE_FIELDTYPE_String );
-	case DB_DATA_TYPE_MEMO:			return( TABLE_FIELDTYPE_String );
-	case DB_DATA_TYPE_DATE:			return( TABLE_FIELDTYPE_Date   );
-	case DB_DATA_TYPE_VARCHAR:		return( TABLE_FIELDTYPE_String );
-	case DB_DATA_TYPE_INTEGER:		return( TABLE_FIELDTYPE_Int    );
-	case DB_DATA_TYPE_FLOAT:		return( TABLE_FIELDTYPE_Double );
+	case DB_DATA_TYPE_BLOB:			return( SG_DATATYPE_String );
+	case DB_DATA_TYPE_MEMO:			return( SG_DATATYPE_String );
+	case DB_DATA_TYPE_DATE:			return( SG_DATATYPE_Date   );
+	case DB_DATA_TYPE_VARCHAR:		return( SG_DATATYPE_String );
+	case DB_DATA_TYPE_INTEGER:		return( SG_DATATYPE_Int    );
+	case DB_DATA_TYPE_FLOAT:		return( SG_DATATYPE_Double );
 	}
 
-	return( TABLE_FIELDTYPE_String );
+	return( SG_DATATYPE_String );
 }
 
 
@@ -574,27 +574,27 @@ bool CSG_ODBC_Connection::Table_Save(const CSG_String &Table_Name, const CSG_Tab
 
 		switch( Table.Get_Field_Type(iField) )
 		{
-		case TABLE_FIELDTYPE_String: default:
-		case TABLE_FIELDTYPE_Date:
+		case SG_DATATYPE_String: default:
+		case SG_DATATYPE_Date:
 			Type			= DB_DATA_TYPE_VARCHAR;	// strings
 			SQL_C			= SQL_C_WXCHAR;
 			Precision		= 255;
 			Values[iField]	= (SG_Char  *)SG_Calloc(Precision + 1, sizeof(SG_Char));
 			break;
 
-		case TABLE_FIELDTYPE_Color:
-		case TABLE_FIELDTYPE_Char:
-		case TABLE_FIELDTYPE_Short:
-		case TABLE_FIELDTYPE_Int:
-		case TABLE_FIELDTYPE_Long:
+		case SG_DATATYPE_Color:
+		case SG_DATATYPE_Char:
+		case SG_DATATYPE_Short:
+		case SG_DATATYPE_Int:
+		case SG_DATATYPE_Long:
 			Type			= DB_DATA_TYPE_INTEGER;	// non-floating point numbers
 			SQL_C			= SQL_C_LONG;
 			Precision		= sizeof(long);
 			Values[iField]	= (SG_Char  *)SG_Calloc(1, Precision);
 			break;
 
-		case TABLE_FIELDTYPE_Float:
-		case TABLE_FIELDTYPE_Double:
+		case SG_DATATYPE_Float:
+		case SG_DATATYPE_Double:
 			Type			= DB_DATA_TYPE_FLOAT;	// floating point numbers
 			SQL_C			= SQL_C_DOUBLE;
 			Precision		= sizeof(double);
@@ -622,21 +622,21 @@ bool CSG_ODBC_Connection::Table_Save(const CSG_String &Table_Name, const CSG_Tab
 			{
 				switch( Table.Get_Field_Type(iField) )
 				{
-				case TABLE_FIELDTYPE_String: default:
-				case TABLE_FIELDTYPE_Date:
+				case SG_DATATYPE_String: default:
+				case SG_DATATYPE_Date:
 					wxStrcpy(Values[iField], Table[iRecord].asString(iField));
 					break;
 
-				case TABLE_FIELDTYPE_Color:
-				case TABLE_FIELDTYPE_Char:
-				case TABLE_FIELDTYPE_Short:
-				case TABLE_FIELDTYPE_Int:
-				case TABLE_FIELDTYPE_Long:
+				case SG_DATATYPE_Color:
+				case SG_DATATYPE_Char:
+				case SG_DATATYPE_Short:
+				case SG_DATATYPE_Int:
+				case SG_DATATYPE_Long:
 					*((long   *)(Values[iField]))	= Table[iRecord].asInt   (iField);
 					break;
 
-				case TABLE_FIELDTYPE_Float:
-				case TABLE_FIELDTYPE_Double:
+				case SG_DATATYPE_Float:
+				case SG_DATATYPE_Double:
 					*((double *)(Values[iField]))	= Table[iRecord].asDouble(iField);
 					break;
 				}
@@ -711,9 +711,9 @@ bool CSG_ODBC_Connection::Table_From_Query(const CSG_String &FieldNames, const C
 				case DB_DATA_TYPE_BLOB:
 				case DB_DATA_TYPE_MEMO:
 				case DB_DATA_TYPE_DATE:
-				case DB_DATA_TYPE_VARCHAR:	Table.Add_Field(Fields[iField].colName, TABLE_FIELDTYPE_String);	break;
-				case DB_DATA_TYPE_INTEGER:	Table.Add_Field(Fields[iField].colName, TABLE_FIELDTYPE_Int);		break;
-				case DB_DATA_TYPE_FLOAT:	Table.Add_Field(Fields[iField].colName, TABLE_FIELDTYPE_Double);	break;
+				case DB_DATA_TYPE_VARCHAR:	Table.Add_Field(Fields[iField].colName, SG_DATATYPE_String);	break;
+				case DB_DATA_TYPE_INTEGER:	Table.Add_Field(Fields[iField].colName, SG_DATATYPE_Int);		break;
+				case DB_DATA_TYPE_FLOAT:	Table.Add_Field(Fields[iField].colName, SG_DATATYPE_Double);	break;
 				}
 			}
 

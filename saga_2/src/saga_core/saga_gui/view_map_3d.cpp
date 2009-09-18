@@ -173,15 +173,15 @@ CVIEW_Map_3D::CVIEW_Map_3D(CWKSP_Map *pMap)
 	//-----------------------------------------------------
 	m_Play_Mode	= PLAY_MODE_NONE;
 
-	m_Play.Add_Field(LNG("[FLD] Rotate X")			, TABLE_FIELDTYPE_Double);
-	m_Play.Add_Field(LNG("[FLD] Rotate Y")			, TABLE_FIELDTYPE_Double);
-	m_Play.Add_Field(LNG("[FLD] Rotate Z")			, TABLE_FIELDTYPE_Double);
-	m_Play.Add_Field(LNG("[FLD] Shift X")			, TABLE_FIELDTYPE_Double);
-	m_Play.Add_Field(LNG("[FLD] Shift Y")			, TABLE_FIELDTYPE_Double);
-	m_Play.Add_Field(LNG("[FLD] Shift Z")			, TABLE_FIELDTYPE_Double);
-	m_Play.Add_Field(LNG("[FLD] Exaggeration")		, TABLE_FIELDTYPE_Double);
-	m_Play.Add_Field(LNG("[FLD] Central Projection"), TABLE_FIELDTYPE_Double);
-	m_Play.Add_Field(LNG("[FLD] Steps to Next")		, TABLE_FIELDTYPE_Int);
+	m_Play.Add_Field(LNG("[FLD] Rotate X")			, SG_DATATYPE_Double);
+	m_Play.Add_Field(LNG("[FLD] Rotate Y")			, SG_DATATYPE_Double);
+	m_Play.Add_Field(LNG("[FLD] Rotate Z")			, SG_DATATYPE_Double);
+	m_Play.Add_Field(LNG("[FLD] Shift X")			, SG_DATATYPE_Double);
+	m_Play.Add_Field(LNG("[FLD] Shift Y")			, SG_DATATYPE_Double);
+	m_Play.Add_Field(LNG("[FLD] Shift Z")			, SG_DATATYPE_Double);
+	m_Play.Add_Field(LNG("[FLD] Exaggeration")		, SG_DATATYPE_Double);
+	m_Play.Add_Field(LNG("[FLD] Central Projection"), SG_DATATYPE_Double);
+	m_Play.Add_Field(LNG("[FLD] Steps to Next")		, SG_DATATYPE_Int);
 
 	//-----------------------------------------------------
 	_Parms_Create();

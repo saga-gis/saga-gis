@@ -182,7 +182,7 @@ bool CGrid_Swath_Profile::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Inte
 		{
 			m_bAdd	= true;
 			m_pLine->Create(SHAPE_TYPE_Line, CSG_String::Format(SG_T("Profile [%s]"), m_pDEM->Get_Name()));
-			m_pLine->Add_Field("ID"	, TABLE_FIELDTYPE_Int);
+			m_pLine->Add_Field("ID"	, SG_DATATYPE_Int);
 			m_pLine->Add_Shape()->Set_Value(0, 1);
 		}
 
@@ -218,25 +218,25 @@ bool CGrid_Swath_Profile::Set_Profile(void)
 	//-----------------------------------------------------
 	m_pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("Profile [%s]"), m_pDEM->Get_Name()));
 
-	m_pPoints->Add_Field("ID"			, TABLE_FIELDTYPE_Int);
-	m_pPoints->Add_Field("D"			, TABLE_FIELDTYPE_Double);
-	m_pPoints->Add_Field("X"			, TABLE_FIELDTYPE_Double);
-	m_pPoints->Add_Field("Y"			, TABLE_FIELDTYPE_Double);
-	m_pPoints->Add_Field("Z"			, TABLE_FIELDTYPE_Double);
-	m_pPoints->Add_Field(_TL("Z [mean]")		, TABLE_FIELDTYPE_Double);
-	m_pPoints->Add_Field(_TL("Z [min]")		, TABLE_FIELDTYPE_Double);
-	m_pPoints->Add_Field(_TL("Z [max]")		, TABLE_FIELDTYPE_Double);
-	m_pPoints->Add_Field(_TL("Z [min_sd]")	, TABLE_FIELDTYPE_Double);
-	m_pPoints->Add_Field(_TL("Z [max_sd]")	, TABLE_FIELDTYPE_Double);
+	m_pPoints->Add_Field("ID"			, SG_DATATYPE_Int);
+	m_pPoints->Add_Field("D"			, SG_DATATYPE_Double);
+	m_pPoints->Add_Field("X"			, SG_DATATYPE_Double);
+	m_pPoints->Add_Field("Y"			, SG_DATATYPE_Double);
+	m_pPoints->Add_Field("Z"			, SG_DATATYPE_Double);
+	m_pPoints->Add_Field(_TL("Z [mean]")		, SG_DATATYPE_Double);
+	m_pPoints->Add_Field(_TL("Z [min]")		, SG_DATATYPE_Double);
+	m_pPoints->Add_Field(_TL("Z [max]")		, SG_DATATYPE_Double);
+	m_pPoints->Add_Field(_TL("Z [min_sd]")	, SG_DATATYPE_Double);
+	m_pPoints->Add_Field(_TL("Z [max_sd]")	, SG_DATATYPE_Double);
 
 	for(i=0; i<m_pValues->Get_Count(); i++)
 	{
-		m_pPoints->Add_Field(m_pValues->asGrid(i)->Get_Name(), TABLE_FIELDTYPE_Double);
-		m_pPoints->Add_Field(CSG_String::Format(_TL("%s [mean]")	, m_pValues->asGrid(i)->Get_Name()), TABLE_FIELDTYPE_Double);
-		m_pPoints->Add_Field(CSG_String::Format(_TL("%s [min]"	)	, m_pValues->asGrid(i)->Get_Name()), TABLE_FIELDTYPE_Double);
-		m_pPoints->Add_Field(CSG_String::Format(_TL("%s [max]"	)	, m_pValues->asGrid(i)->Get_Name()), TABLE_FIELDTYPE_Double);
-		m_pPoints->Add_Field(CSG_String::Format(_TL("%s [min_sd]")	, m_pValues->asGrid(i)->Get_Name()), TABLE_FIELDTYPE_Double);
-		m_pPoints->Add_Field(CSG_String::Format(_TL("%s [max_sd]")	, m_pValues->asGrid(i)->Get_Name()), TABLE_FIELDTYPE_Double);
+		m_pPoints->Add_Field(m_pValues->asGrid(i)->Get_Name(), SG_DATATYPE_Double);
+		m_pPoints->Add_Field(CSG_String::Format(_TL("%s [mean]")	, m_pValues->asGrid(i)->Get_Name()), SG_DATATYPE_Double);
+		m_pPoints->Add_Field(CSG_String::Format(_TL("%s [min]"	)	, m_pValues->asGrid(i)->Get_Name()), SG_DATATYPE_Double);
+		m_pPoints->Add_Field(CSG_String::Format(_TL("%s [max]"	)	, m_pValues->asGrid(i)->Get_Name()), SG_DATATYPE_Double);
+		m_pPoints->Add_Field(CSG_String::Format(_TL("%s [min_sd]")	, m_pValues->asGrid(i)->Get_Name()), SG_DATATYPE_Double);
+		m_pPoints->Add_Field(CSG_String::Format(_TL("%s [max_sd]")	, m_pValues->asGrid(i)->Get_Name()), SG_DATATYPE_Double);
 	}
 
 	//-----------------------------------------------------

@@ -95,7 +95,7 @@ CGrid_Skeletonize::CGrid_Skeletonize(void)
 	Parameters.Add_Grid(
 		NULL, "RESULT"			, _TL("Skeleton"),
 		_TL(""),
-		PARAMETER_OUTPUT, true, GRID_TYPE_Char
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Char
 	);
 
 	Parameters.Add_Shapes(
@@ -289,7 +289,7 @@ int CGrid_Skeletonize::Vectorize(CSG_Shapes *pShapes)
 
 	//-----------------------------------------------------
 	pShapes->Create(SHAPE_TYPE_Line, _TL("Skeleton"));
-	pShapes->Add_Field("ID", TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("ID", SG_DATATYPE_Int);
 
 	Lock_Create();
 
@@ -615,7 +615,7 @@ void CGrid_Skeletonize::Hilditch_Execute(void)
 	//-----------------------------------------------------
 	pPrev		= pResult;
 	pNext		= SG_Create_Grid(pPrev);
-	pNC_Gaps	= SG_Create_Grid(pPrev, GRID_TYPE_Char);
+	pNC_Gaps	= SG_Create_Grid(pPrev, SG_DATATYPE_Char);
 
 	//-----------------------------------------------------
 	do

@@ -177,21 +177,21 @@ bool CSurfer_BLN_Import::On_Execute(void)
 				pTable->Destroy();
 			}
 
-			pTable->			 Add_Field("ID"		, TABLE_FIELDTYPE_Int);
-			pTable->			 Add_Field("FLAG"	, TABLE_FIELDTYPE_Int);
-			pTable->			 Add_Field("NAME"	, TABLE_FIELDTYPE_String);
-			pTable->			 Add_Field("DESC"	, TABLE_FIELDTYPE_String);
+			pTable->			 Add_Field("ID"		, SG_DATATYPE_Int);
+			pTable->			 Add_Field("FLAG"	, SG_DATATYPE_Int);
+			pTable->			 Add_Field("NAME"	, SG_DATATYPE_String);
+			pTable->			 Add_Field("DESC"	, SG_DATATYPE_String);
 
-			pShapes->Add_Field("ID"		, TABLE_FIELDTYPE_Int);
-			pShapes->Add_Field("ID_LUT"	, TABLE_FIELDTYPE_Int);
-			pShapes->Add_Field("Z"		, TABLE_FIELDTYPE_Double);
+			pShapes->Add_Field("ID"		, SG_DATATYPE_Int);
+			pShapes->Add_Field("ID_LUT"	, SG_DATATYPE_Int);
+			pShapes->Add_Field("Z"		, SG_DATATYPE_Double);
 		}
 		else
 		{
-			pShapes->Add_Field("ID"		, TABLE_FIELDTYPE_Int);
-			pShapes->Add_Field("FLAG"	, TABLE_FIELDTYPE_Int);
-			pShapes->Add_Field("NAME"	, TABLE_FIELDTYPE_String);
-			pShapes->Add_Field("DESC"	, TABLE_FIELDTYPE_String);
+			pShapes->Add_Field("ID"		, SG_DATATYPE_Int);
+			pShapes->Add_Field("FLAG"	, SG_DATATYPE_Int);
+			pShapes->Add_Field("NAME"	, SG_DATATYPE_String);
+			pShapes->Add_Field("DESC"	, SG_DATATYPE_String);
 		}
 
 		//-------------------------------------------------

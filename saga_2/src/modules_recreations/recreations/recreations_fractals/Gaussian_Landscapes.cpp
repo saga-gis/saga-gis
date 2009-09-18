@@ -160,7 +160,7 @@ bool CGaussian_Landscapes::On_Execute(void)
 	nx			= Parameters("NX")->asInt();
 	ny			= Parameters("NY")->asInt();
 
-	m_pGrid		= SG_Create_Grid(GRID_TYPE_Float, nx, ny, 1.0, 0.0, 0.0);
+	m_pGrid		= SG_Create_Grid(SG_DATATYPE_Float, nx, ny, 1.0, 0.0, 0.0);
 	m_pGrid->Set_Name(_TL("Gaussian Landscape"));
 	m_pGrid->Assign_NoData();
 	Parameters("GRID")->Set_Value(m_pGrid);

@@ -202,7 +202,7 @@ bool CSTL_Import::On_Execute(void)
 		CSG_PointCloud	*pPoints	= SG_Create_PointCloud();
 		Parameters("POINTS")->Set_Value(pPoints);
 		pPoints->Set_Name(SG_File_Get_Name(sFile, false));
-		pPoints->Add_Field((const char *)NULL, POINTCLOUD_FIELDTYPE_None);
+		pPoints->Add_Field((const char *)NULL, SG_DATATYPE_Undefined);
 
 		for(iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
 		{
@@ -221,7 +221,7 @@ bool CSTL_Import::On_Execute(void)
 	//-----------------------------------------------------
 	case 1:	{
 		CSG_Shapes	*pPoints	= SG_Create_Shapes(SHAPE_TYPE_Point, SG_File_Get_Name(sFile, false));
-		pPoints->Add_Field(SG_T("Z"), TABLE_FIELDTYPE_Float);
+		pPoints->Add_Field(SG_T("Z"), SG_DATATYPE_Float);
 		Parameters("SHAPES")->Set_Value(pPoints);
 
 		for(iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
@@ -277,7 +277,7 @@ bool CSTL_Import::On_Execute(void)
 			d		= (xMax - xMin) / nx;
 			ny		= 1 + (int)((yMax - yMin) / d);
 
-			m_pGrid	= SG_Create_Grid(GRID_TYPE_Float, nx, ny, d, xMin, yMin);
+			m_pGrid	= SG_Create_Grid(SG_DATATYPE_Float, nx, ny, d, xMin, yMin);
 			m_pGrid->Set_Name(SG_File_Get_Name(sFile, false));
 			m_pGrid->Set_NoData_Value(-99999);
 			m_pGrid->Assign_NoData();

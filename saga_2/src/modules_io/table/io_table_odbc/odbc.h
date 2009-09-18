@@ -123,8 +123,8 @@ private:
 
 	void						_Error_Message			(const SG_Char *Message, const SG_Char *Additional = NULL);
 
-	int							_Get_Type_To_SQL		(TSG_Table_Field_Type Type);
-	TSG_Table_Field_Type		_Get_Type_From_SQL		(int Type);
+	int							_Get_Type_To_SQL		(TSG_Data_Type Type);
+	TSG_Data_Type		_Get_Type_From_SQL		(int Type);
 
 };
 

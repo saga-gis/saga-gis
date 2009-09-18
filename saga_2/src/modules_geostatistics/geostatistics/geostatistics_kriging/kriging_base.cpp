@@ -209,9 +209,9 @@ CKriging_Base::CKriging_Base(void)
 	);
 
 	//-----------------------------------------------------
-	m_Variances.Add_Field(SG_T("DISTANCE")	, TABLE_FIELDTYPE_Double);
-	m_Variances.Add_Field(SG_T("VAR_CUM")	, TABLE_FIELDTYPE_Double);
-	m_Variances.Add_Field(SG_T("VAR_CLS")	, TABLE_FIELDTYPE_Double);
+	m_Variances.Add_Field(SG_T("DISTANCE")	, SG_DATATYPE_Double);
+	m_Variances.Add_Field(SG_T("VAR_CUM")	, SG_DATATYPE_Double);
+	m_Variances.Add_Field(SG_T("VAR_CLS")	, SG_DATATYPE_Double);
 }
 
 //---------------------------------------------------------
@@ -329,7 +329,7 @@ bool CKriging_Base::_Initialise_Grids(void)
 
 			if( nx > 1 && ny > 1 )
 			{
-				m_pGrid	= SG_Create_Grid(GRID_TYPE_Float, nx, ny, d, r.xMin, r.yMin);
+				m_pGrid	= SG_Create_Grid(SG_DATATYPE_Float, nx, ny, d, r.xMin, r.yMin);
 			}
 		}
 		break;
@@ -337,7 +337,7 @@ bool CKriging_Base::_Initialise_Grids(void)
 	case 1:	// grid system...
 		if( Dlg_Parameters("SYSTEM") )
 		{
-			m_pGrid		= SG_Create_Grid(*Get_Parameters("SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System(), GRID_TYPE_Float);
+			m_pGrid		= SG_Create_Grid(*Get_Parameters("SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System(), SG_DATATYPE_Float);
 		}
 		break;
 
@@ -355,7 +355,7 @@ bool CKriging_Base::_Initialise_Grids(void)
 	{
 		if( !m_pVariance && Parameters("BVARIANCE")->asBool() )
 		{
-			m_pVariance	= SG_Create_Grid(m_pGrid, GRID_TYPE_Float);
+			m_pVariance	= SG_Create_Grid(m_pGrid, SG_DATATYPE_Float);
 		}
 
 		m_pGrid->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_pPoints->Get_Name(), Get_Name()));

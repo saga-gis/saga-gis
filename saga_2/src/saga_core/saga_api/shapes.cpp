@@ -201,10 +201,7 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 
 		Set_File_Name(File_Name);
 
-		if( !Get_History().Load(File_Name, HISTORY_EXT_SHAPES) )
-		{
-			Get_History().Add_Entry(LNG("[HST] Loaded from file"), File_Name);
-		}
+		Load_MetaData(File_Name);
 
 		return( true );
 	}
@@ -278,7 +275,7 @@ bool CSG_Shapes::Assign(CSG_Data_Object *pObject)
 
 		Update();
 
-		Get_History().Assign(pObject->Get_History());
+		Get_History()	= pObject->Get_History();
 
 		return( true );
 	}
@@ -312,7 +309,7 @@ bool CSG_Shapes::Save(const CSG_String &File_Name, int Format)
 
 		Set_File_Name(sFile_Name);
 
-		Get_History().Save(File_Name, HISTORY_EXT_SHAPES);
+		Save_MetaData(File_Name);
 	}
 
 	return( bResult );

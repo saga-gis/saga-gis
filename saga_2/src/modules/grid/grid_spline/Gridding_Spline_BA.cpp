@@ -120,7 +120,7 @@ bool CGridding_Spline_BA::On_Execute(void)
 		d		= m_pGrid->Get_Cellsize() * Parameters("LEVEL")->asDouble();
 		nx		= (int)((m_pGrid->Get_XRange()) / d);
 		ny		= (int)((m_pGrid->Get_YRange()) / d);
-		Phi.Create(GRID_TYPE_Float, nx + 4, ny + 4, d, m_pGrid->Get_XMin(), m_pGrid->Get_YMin());
+		Phi.Create(SG_DATATYPE_Float, nx + 4, ny + 4, d, m_pGrid->Get_XMin(), m_pGrid->Get_YMin());
 
 		BA_Get_Phi	(Phi);
 		BA_Set_Grid	(Phi);

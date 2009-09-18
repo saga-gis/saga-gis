@@ -178,21 +178,21 @@ bool CGrid_Flow_Profile::Set_Profile(TSG_Point ptWorld)
 	{
 		m_pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format(_TL("Profile [%s]"), m_pDEM->Get_Name()));
 
-		m_pPoints->Add_Field("ID"				, TABLE_FIELDTYPE_Int);
-		m_pPoints->Add_Field(_TL("Distance")			, TABLE_FIELDTYPE_Double);
-		m_pPoints->Add_Field(_TL("Distance Overland"), TABLE_FIELDTYPE_Double);
-		m_pPoints->Add_Field("X"				, TABLE_FIELDTYPE_Double);
-		m_pPoints->Add_Field("Y"				, TABLE_FIELDTYPE_Double);
-		m_pPoints->Add_Field("Z"				, TABLE_FIELDTYPE_Double);
+		m_pPoints->Add_Field("ID"				, SG_DATATYPE_Int);
+		m_pPoints->Add_Field(_TL("Distance")			, SG_DATATYPE_Double);
+		m_pPoints->Add_Field(_TL("Distance Overland"), SG_DATATYPE_Double);
+		m_pPoints->Add_Field("X"				, SG_DATATYPE_Double);
+		m_pPoints->Add_Field("Y"				, SG_DATATYPE_Double);
+		m_pPoints->Add_Field("Z"				, SG_DATATYPE_Double);
 
 		for(i=0; i<m_pValues->Get_Count(); i++)
 		{
-			m_pPoints->Add_Field(m_pValues->asGrid(i)->Get_Name(), TABLE_FIELDTYPE_Double);
+			m_pPoints->Add_Field(m_pValues->asGrid(i)->Get_Name(), SG_DATATYPE_Double);
 		}
 
 		//-----------------------------------------------------
 		m_pLine->Create(SHAPE_TYPE_Line, CSG_String::Format(_TL("Profile [%s]"), m_pDEM->Get_Name()));
-		m_pLine->Add_Field("ID"	, TABLE_FIELDTYPE_Int);
+		m_pLine->Add_Field("ID"	, SG_DATATYPE_Int);
 		m_pLine->Add_Shape()->Set_Value(0, 1);
 
 		//-----------------------------------------------------

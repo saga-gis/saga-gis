@@ -159,7 +159,7 @@ bool CTIN_From_Grid_Specific_Points::On_Execute(void)
 
 	//-----------------------------------------------------
 	pGrid	= Parameters("GRID")->asGrid();
-	Grid.Create(pGrid, GRID_TYPE_Byte);
+	Grid.Create(pGrid, SG_DATATYPE_Byte);
 
 	//-----------------------------------------------------
 	switch( Parameters("METHOD")->asInt() )
@@ -200,11 +200,11 @@ bool CTIN_From_Grid_Specific_Points::On_Execute(void)
 		pValues	= Parameters("VALUES")->asGridList();
 
 		Points.Create(SHAPE_TYPE_Point);
-		Points.Add_Field(_TL("VALUE"), TABLE_FIELDTYPE_Double);
+		Points.Add_Field(_TL("VALUE"), SG_DATATYPE_Double);
 
 		for(i=0; i<pValues->Get_Count(); i++)
 		{
-			Points.Add_Field(pValues->asGrid(i)->Get_Name(), TABLE_FIELDTYPE_Double);
+			Points.Add_Field(pValues->asGrid(i)->Get_Name(), SG_DATATYPE_Double);
 		}
 
 		for(y=0; y<Get_NY() && Set_Progress(y, Get_NY()); y++)
@@ -256,8 +256,8 @@ bool CTIN_From_Grid_Specific_Points::Get_MarkHighestNB(CSG_Grid *pResult, CSG_Gr
 	double	lo, hi, z;
 	CSG_Grid	*clo, *chi;
 
-	clo		= SG_Create_Grid(pGrid, GRID_TYPE_Char);
-	chi		= SG_Create_Grid(pGrid, GRID_TYPE_Char);
+	clo		= SG_Create_Grid(pGrid, SG_DATATYPE_Char);
+	chi		= SG_Create_Grid(pGrid, SG_DATATYPE_Char);
 
 	// Pass 1: Auszaehlen...
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -336,8 +336,8 @@ bool CTIN_From_Grid_Specific_Points::Get_OppositeNB(CSG_Grid *pResult, CSG_Grid 
 	double	z, iz, jz;
 	CSG_Grid	*clo, *chi;
 
-	clo		= SG_Create_Grid(pGrid, GRID_TYPE_Char);
-	chi		= SG_Create_Grid(pGrid, GRID_TYPE_Char);
+	clo		= SG_Create_Grid(pGrid, SG_DATATYPE_Char);
+	chi		= SG_Create_Grid(pGrid, SG_DATATYPE_Char);
 
 	// Pass 1: Auszaehlen...
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)

@@ -151,8 +151,8 @@ bool CPythagoras_Tree::On_Execute(void)
 
 	pShapes		= Parameters("RESULT")	->asShapes();
 	pShapes->Create(Parameters("TYPE")->asInt() == 0 ? SHAPE_TYPE_Line : SHAPE_TYPE_Polygon, _TL("Pythagoras' Tree"));
-	pShapes->Add_Field(_TL("Iteration")	, TABLE_FIELDTYPE_Int);
-	pShapes->Add_Field(_TL("Size")		, TABLE_FIELDTYPE_Double);
+	pShapes->Add_Field(_TL("Iteration")	, SG_DATATYPE_Int);
+	pShapes->Add_Field(_TL("Size")		, SG_DATATYPE_Double);
 
 	Min_Size	= Parameters("MINSIZE")	->asDouble() / 100.0;
 

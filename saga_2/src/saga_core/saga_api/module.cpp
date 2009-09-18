@@ -644,10 +644,13 @@ bool CSG_Module::DataObject_Set_Parameters(CSG_Data_Object *pDataObject, CSG_Par
 //---------------------------------------------------------
 void CSG_Module::_Set_Output_History(void)
 {
-	CSG_History	History;
+	CSG_MetaData	History;
 
 	//-----------------------------------------------------
-	History.Add_Entry(LNG("[HST] Created with module"), Get_Name());
+	History.Set_Name(SG_META_HST);
+
+	History.Add_Child(SG_T("MODULE")	, Get_Name());
+//	History.Add_Child(SG_T("LIBRARY")	, Get_Library());
 
 	Parameters.Set_History(History);
 
@@ -658,7 +661,7 @@ void CSG_Module::_Set_Output_History(void)
 	{
 		CSG_Parameters	*pParameters	= j < 0 ? &Parameters : Get_Parameters(j);
 
-		for(int i=0; i<pParameters->Get_Count(); i++)	// set output history...
+		for(int i=0; i<pParameters->Get_Count(); i++)
 		{
 			CSG_Parameter	*p	= pParameters->Get_Parameter(i);
 

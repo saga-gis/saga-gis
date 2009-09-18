@@ -132,7 +132,7 @@ bool CLife::On_Execute(void)
 	int		x, y, i;
 
 	//-----------------------------------------------------
-	pLife	= SG_Create_Grid(GRID_TYPE_Byte, Parameters("NX")->asInt(), Parameters("NY")->asInt());
+	pLife	= SG_Create_Grid(SG_DATATYPE_Byte, Parameters("NX")->asInt(), Parameters("NY")->asInt());
 	pLife->Set_Name(_TL("Conway's Life"));
 	Parameters("GRID")->Set_Value(pLife);
 

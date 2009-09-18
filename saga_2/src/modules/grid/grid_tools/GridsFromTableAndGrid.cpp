@@ -76,7 +76,7 @@ bool CGridsFromTableAndGrid::On_Execute(void){
 		}//for
 		pValues = new float*[iMax+1];
 		for (i = 0; i < pTable->Get_Field_Count(); i++){
-			if (pTable->Get_Field_Type(i) == TABLE_FIELDTYPE_String || i == iField){
+			if (pTable->Get_Field_Type(i) == SG_DATATYPE_String || i == iField){
 			}//if
 			else{
 				iValidFields++;
@@ -85,7 +85,7 @@ bool CGridsFromTableAndGrid::On_Execute(void){
 		pValidFields = new int[iValidFields];
 		iValidFields = 0;
 		for (i = 0; i < pTable->Get_Field_Count(); i++){
-			if (pTable->Get_Field_Type(i) == TABLE_FIELDTYPE_String || i == iField){
+			if (pTable->Get_Field_Type(i) == SG_DATATYPE_String || i == iField){
 			}//if
 			else{
 				pValidFields[iValidFields] = i;

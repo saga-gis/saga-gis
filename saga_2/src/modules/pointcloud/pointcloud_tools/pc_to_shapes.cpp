@@ -114,7 +114,7 @@ bool CPC_To_Shapes::On_Execute(void)
 
 	for(iField=2; iField<pPoints->Get_Field_Count(); iField++)
 	{
-		pShapes->Add_Field(pPoints->Get_Field_Name(iField), TABLE_FIELDTYPE_Double);
+		pShapes->Add_Field(pPoints->Get_Field_Name(iField), SG_DATATYPE_Double);
 	}
 
 	//-----------------------------------------------------

@@ -45,7 +45,7 @@ CCost_RectToPolar::CCost_RectToPolar(void){
 						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
-						GRID_TYPE_Double);
+						SG_DATATYPE_Double);
 	
 	Parameters.Add_Grid(NULL, 
 						"MAGNITUDE", 
@@ -53,7 +53,7 @@ CCost_RectToPolar::CCost_RectToPolar(void){
 						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
-						GRID_TYPE_Double);
+						SG_DATATYPE_Double);
 
 }//constructor
 

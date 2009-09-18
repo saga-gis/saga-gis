@@ -52,7 +52,7 @@ bool CSlopeLength::On_Execute(void){
 
 	m_pSlopeLengthGrid->Assign(0.0);
 	
-	m_pSlopeGrid = SG_Create_Grid(m_pDEM, GRID_TYPE_Double);
+	m_pSlopeGrid = SG_Create_Grid(m_pDEM, SG_DATATYPE_Double);
 	
 	for(y=0; y<Get_NY() && Set_Progress(y); y++){		
 		for(x=0; x<Get_NX(); x++){

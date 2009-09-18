@@ -175,7 +175,7 @@ bool CDistance_Gradient::On_Execute(void)
 		}
 
 		//-------------------------------------------------
-		m_Dir.Create(m_pDEM, GRID_TYPE_Char);
+		m_Dir.Create(m_pDEM, SG_DATATYPE_Char);
 
 		for(y=0; y<Get_NY() && Set_Progress(y); y++)
 		{

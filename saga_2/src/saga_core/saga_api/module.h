@@ -170,7 +170,7 @@ protected:
 
 	CSG_Parameters				Parameters;
 
-	CSG_History					History_Supplement;
+	CSG_MetaData				History_Supplement;
 
 
 	//-----------------------------------------------------

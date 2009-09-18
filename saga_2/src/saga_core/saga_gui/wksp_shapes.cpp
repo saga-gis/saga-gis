@@ -88,8 +88,8 @@ CWKSP_Shapes::CWKSP_Shapes(CSG_Shapes *pShapes)
 	m_Edit_pShape	= NULL;
 
 	m_Edit_Attributes.Destroy();
-	m_Edit_Attributes.Add_Field(LNG("[FLD] Name") , TABLE_FIELDTYPE_String);
-	m_Edit_Attributes.Add_Field(LNG("[FLD] Value"), TABLE_FIELDTYPE_String);
+	m_Edit_Attributes.Add_Field(LNG("[FLD] Name") , SG_DATATYPE_String);
+	m_Edit_Attributes.Add_Field(LNG("[FLD] Value"), SG_DATATYPE_String);
 }
 
 //---------------------------------------------------------
@@ -560,9 +560,9 @@ void CWKSP_Shapes::_LUT_Create(void)
 		{
 			iField		= Parameters("FIELD")	->asInt();
 
-			if( pTable->Get_Field_Type(iField) == TABLE_FIELDTYPE_String )
+			if( pTable->Get_Field_Type(iField) == SG_DATATYPE_String )
 			{
-				pTable->Add_Field(CSG_String::Format(wxT("%s_LUT"), pTable->Get_Field_Name(iField)), TABLE_FIELDTYPE_Int);
+				pTable->Add_Field(CSG_String::Format(wxT("%s_LUT"), pTable->Get_Field_Name(iField)), SG_DATATYPE_Int);
 				iID		= pTable->Get_Field_Count() - 1;
 			}
 			else
@@ -991,7 +991,7 @@ bool CWKSP_Shapes::_Chart_Set_Options(void)
 
 		for(i=0, n=0; i<m_pShapes->Get_Field_Count(); i++)
 		{
-			if( m_pShapes->Get_Field_Type(i) != TABLE_FIELDTYPE_String )
+			if( m_pShapes->Get_Field_Type(i) != SG_DATATYPE_String )
 				n++;
 		}
 
@@ -1044,7 +1044,7 @@ bool CWKSP_Shapes::_Chart_Set_Options(void)
 
 			for(i=0, n=0; i<m_pShapes->Get_Field_Count(); i++)
 			{
-				if( m_pShapes->Get_Field_Type(i) != TABLE_FIELDTYPE_String )
+				if( m_pShapes->Get_Field_Type(i) != SG_DATATYPE_String )
 				{
 					sFields.Append(CSG_String::Format(wxT("%s|"), m_pShapes->Get_Field_Name(i)));
 

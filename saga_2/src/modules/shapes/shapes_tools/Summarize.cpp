@@ -228,8 +228,8 @@ void CSummarize::Summarize(){
 
 	m_pTable->Create((CSG_Table*)NULL);
 	m_pTable->Set_Name(_TL("Summary Table"));
-	m_pTable->Add_Field(_TL("Class"), TABLE_FIELDTYPE_String);
-	m_pTable->Add_Field(_TL("Count"), TABLE_FIELDTYPE_Int);
+	m_pTable->Add_Field(_TL("Class"), SG_DATATYPE_String);
+	m_pTable->Add_Field(_TL("Count"), SG_DATATYPE_Int);
 
 	m_pCount = new int[m_ClassesID.size()];
 	pSum = new float[m_ClassesID.size()];
@@ -258,7 +258,7 @@ void CSummarize::Summarize(){
 			iParam = i % 5;
 			sName = pShapesTable->Get_Field_Name(iField);
 			sName.Append(sParam[iParam]);
-			m_pTable->Add_Field(sName.c_str(), TABLE_FIELDTYPE_Double);
+			m_pTable->Add_Field(sName.c_str(), SG_DATATYPE_Double);
 			if (iField != iLastField){
 				for (j = 0; j < m_ClassesID.size(); j++){
 					pSum[j] = 0;

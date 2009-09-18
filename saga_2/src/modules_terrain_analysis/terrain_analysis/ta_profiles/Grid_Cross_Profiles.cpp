@@ -163,13 +163,13 @@ bool CGrid_Cross_Profiles::On_Execute(void)
 
 	//-----------------------------------------------------
 	pProfiles->Create(SHAPE_TYPE_Line, _TL("Profiles"));
-	pProfiles->Add_Field("ID"	, TABLE_FIELDTYPE_Int);
-	pProfiles->Add_Field("LINE"	, TABLE_FIELDTYPE_Int);
-	pProfiles->Add_Field("PART"	, TABLE_FIELDTYPE_Int);
+	pProfiles->Add_Field("ID"	, SG_DATATYPE_Int);
+	pProfiles->Add_Field("LINE"	, SG_DATATYPE_Int);
+	pProfiles->Add_Field("PART"	, SG_DATATYPE_Int);
 
 	for(iPoint=0; iPoint<nSamples; iPoint++)
 	{
-		pProfiles->Add_Field(CSG_String::Format(SG_T("X%03d"), iPoint), TABLE_FIELDTYPE_Double);
+		pProfiles->Add_Field(CSG_String::Format(SG_T("X%03d"), iPoint), SG_DATATYPE_Double);
 	}
 
 	//-----------------------------------------------------

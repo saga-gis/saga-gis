@@ -84,7 +84,101 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
+//						Data Types						 //
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+typedef enum ESG_Data_Type
+{
+	SG_DATATYPE_Bit			= 0,
+	SG_DATATYPE_Byte,
+	SG_DATATYPE_Char,
+	SG_DATATYPE_Word,
+	SG_DATATYPE_Short,
+	SG_DATATYPE_DWord,
+	SG_DATATYPE_Int,
+	SG_DATATYPE_ULong,
+	SG_DATATYPE_Long,
+	SG_DATATYPE_Float,
+	SG_DATATYPE_Double,
+	SG_DATATYPE_String,
+	SG_DATATYPE_Date,
+	SG_DATATYPE_Color,
+	SG_DATATYPE_Undefined
+}
+TSG_Data_Type;
+
+//---------------------------------------------------------
+const SG_Char	gSG_Data_Type_Names[][32]	=
+{
+	SG_T("BIT"),
+	SG_T("BYTE_UNSIGNED"),
+	SG_T("BYTE"),
+	SG_T("SHORTINT_UNSIGNED"),
+	SG_T("SHORTINT"),
+	SG_T("INTEGER_UNSIGNED"),
+	SG_T("INTEGER"),
+	SG_T("LONGINT_UNSIGNED"),
+	SG_T("LONGINT"),
+	SG_T("FLOAT"),
+	SG_T("DOUBLE"),
+	SG_T("STRING"),
+	SG_T("DATE"),
+	SG_T("COLOR"),
+	SG_T("UNDEFINED")
+};
+
+//---------------------------------------------------------
+SAGA_API_DLL_EXPORT inline size_t	SG_Data_Type_Get_Size	(TSG_Data_Type Type)
+{
+	switch( Type )
+	{
+	default:					return( 0 );
+	case SG_DATATYPE_Bit:		return( 0 );
+	case SG_DATATYPE_Byte:		return( sizeof(unsigned char) );
+	case SG_DATATYPE_Char:		return( sizeof(char) );
+	case SG_DATATYPE_Word:		return( sizeof(unsigned short int) );
+	case SG_DATATYPE_Short:		return( sizeof(short int) );
+	case SG_DATATYPE_DWord:		return( sizeof(unsigned int) );
+	case SG_DATATYPE_Int:		return( sizeof(int) );
+	case SG_DATATYPE_ULong:		return( sizeof(unsigned long) );
+	case SG_DATATYPE_Long:		return( sizeof(long) );
+	case SG_DATATYPE_Float:		return( sizeof(float) );
+	case SG_DATATYPE_Double:	return( sizeof(double) );
+	case SG_DATATYPE_String:	return( 0 );
+	case SG_DATATYPE_Date:		return( 0 );
+	case SG_DATATYPE_Color:		return( sizeof(unsigned int) );
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//						Meta-Data						 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define SG_META_EXT_GRID		SG_T("mgrd")
+#define SG_META_EXT_TABLE		SG_T("mtab")
+#define SG_META_EXT_SHAPES		SG_T("mshp")
+#define SG_META_EXT_TIN			SG_T("mtin")
+#define SG_META_EXT_POINTCLOUD	SG_T("mpts")
+
+//---------------------------------------------------------
+#define SG_META_SRC				SG_T("SOURCE")
+#define SG_META_SRC_FILE		SG_T("FILE")
+#define SG_META_SRC_DB			SG_T("DATABASE")
+#define SG_META_SRC_PROJ		SG_T("PROJECTION")
+
+#define SG_META_HST				SG_T("HISTORY")
+#define SG_META_HST_FILE		SG_T("FILE")
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//						Data Objects					 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -113,13 +207,6 @@ typedef enum ESG_Data_Object_Type
 TSG_Data_Object_Type;
 
 //---------------------------------------------------------
-#define HISTORY_EXT_GRID		SG_T("hgrd")
-#define HISTORY_EXT_TABLE		SG_T("htab")
-#define HISTORY_EXT_SHAPES		SG_T("hshp")
-#define HISTORY_EXT_TIN			SG_T("htin")
-#define HISTORY_EXT_POINTCLOUD	SG_T("hpts")
-
-//---------------------------------------------------------
 #define DATAOBJECT_NOTSET		((void *)NULL)
 #define DATAOBJECT_CREATE		((void *)1)
 
@@ -128,100 +215,6 @@ SAGA_API_DLL_EXPORT const SG_Char *	SG_Get_DataObject_Name	(TSG_Data_Object_Type
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//						History							 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-/**
-  * CSG_History_Entry represents a setting, which has been
-  * used to calculate a data set.
-  * @see CSG_History
-  * @see CSG_Data_Object
-*/
-//---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_History_Entry
-{
-	friend class CSG_History;
-
-public:
-
-	/// Returns the date, at which the entry has been created.
-	const SG_Char *				Get_Date		(void)	{	return( m_Date );		}
-
-	/// Returns the name of the entry.
-	const SG_Char *				Get_Name		(void)	{	return( m_Name );		}
-
-	/// Returns the content of the entry.
-	const SG_Char *				Get_Entry		(void)	{	return( m_Entry );		}
-
-	/// Returns the entry's subhistory, if it has one, or NULL.
-	class CSG_History *			Get_History		(void)	{	return( m_pHistory );	}
-
-
-private:
-
-	CSG_History_Entry(const SG_Char *Date, const SG_Char *Name, const SG_Char *Entry, class CSG_History *pHistory);
-	CSG_History_Entry(const CSG_History_Entry &Entry);
-	virtual ~CSG_History_Entry(void);
-
-	CSG_String					m_Date, m_Name, m_Entry;
-
-	class CSG_History			*m_pHistory;
-
-};
-
-//---------------------------------------------------------
-/**
-  * CSG_History manages a list of CSG_History_Entry objects.
-  * It is used by the CSG_Data_Object class. Entries to the
-  * history object of a data set are automatically added by
-  * the CSG_Module class, when it is executed. Therefore it
-  * it enables to see, how a data set has been calculated.
-  * @see CSG_History_Entry
-  * @see CSG_Data_Object
-  * @see CSG_Module
-*/
-//---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_History
-{
-public:
-	CSG_History(void);
-	CSG_History(const CSG_History &History);
-	virtual ~CSG_History(void);
-
-	void						Destroy			(void);
-	void						Assign			(const CSG_History &History, bool bAdd = false);
-
-	int							Get_Count		(void)			{	return( m_nEntries );	}
-	CSG_History_Entry &			Get_Entry		(int iEntry)	{	return( *m_pEntries[iEntry] );	}
-	void						Add_Entry		(const SG_Char *Name, const SG_Char *Entry, CSG_History *pHistory = NULL);
-
-	bool						Load			(const CSG_String &File_Name, const CSG_String &File_Extension);
-	bool						Save			(const CSG_String &File_Name, const CSG_String &File_Extension);
-
-	CSG_String					Get_HTML		(void);
-
-
-private:
-
-	int							m_nEntries;
-
-	CSG_History_Entry			**m_pEntries;
-
-
-	void						_Add_Entry		(CSG_History_Entry *pEntry);
-
-	bool						_Load			(CSG_File &Stream);
-	bool						_Save			(CSG_File &Stream);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//						Data Object						 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -263,7 +256,10 @@ public:
 	bool							is_Modified		(void)	const		{	return( m_bModified );	}
 	bool							Update			(void);
 
-	CSG_History &					Get_History		(void)				{	return( m_History );	}
+	const CSG_MetaData &			Get_MetaData	(void)	const		{	return( m_MetaData );		}
+	CSG_MetaData &					Get_Projection	(void)				{	return( *m_pProjection );	}
+	CSG_MetaData &					Get_Database	(void)				{	return( *m_pDatabase );	}
+	CSG_MetaData &					Get_History		(void)				{	return( *m_pHistory );		}
 
 	class CSG_Table *				asTable			(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Table      ? (class CSG_Table      *)this : NULL );	}
 	class CSG_Shapes *				asShapes		(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Shapes     ? (class CSG_Shapes     *)this : NULL );	}
@@ -274,11 +270,11 @@ public:
 
 protected:
 
-	CSG_History						m_History;
-
-
 	void							Set_File_Name	(const SG_Char *File_Name);
 	void							Set_File_Type	(int File_Type);
+
+	bool							Load_MetaData	(const SG_Char *File_Name);
+	bool							Save_MetaData	(const SG_Char *File_Name);
 
 	void							Set_Update_Flag	(bool bOn = true)	{	m_bUpdate	= bOn;		}
 	bool							Get_Update_Flag	(void)				{	return( m_bUpdate );	}
@@ -292,6 +288,8 @@ private:
 	int								m_File_Type;
 
 	CSG_String						m_File_Name, m_Name;
+
+	CSG_MetaData					m_MetaData, *m_pHistory, *m_pFile, *m_pDatabase, *m_pProjection;
 
 };
 

@@ -78,10 +78,10 @@ bool CAggregationIndex::On_Execute(void){
 
 	pTable->Create((CSG_Table*)NULL);
 	pTable->Set_Name(_TL("Aggregation Index"));
-	pTable->Add_Field(_TL("Class"), TABLE_FIELDTYPE_Int);
-	pTable->Add_Field(_TL("Area"), TABLE_FIELDTYPE_Double);
-	pTable->Add_Field(_TL("Area[%]"), TABLE_FIELDTYPE_Double);
-	pTable->Add_Field(_TL("Aggregation Index"), TABLE_FIELDTYPE_Double);
+	pTable->Add_Field(_TL("Class"), SG_DATATYPE_Int);
+	pTable->Add_Field(_TL("Area"), SG_DATATYPE_Double);
+	pTable->Add_Field(_TL("Area[%]"), SG_DATATYPE_Double);
+	pTable->Add_Field(_TL("Aggregation Index"), SG_DATATYPE_Double);
 
 	for(int y=1; y<Get_NY()-1 && Set_Progress(y); y++){
 		for(int x=1; x<Get_NX()-1; x++){

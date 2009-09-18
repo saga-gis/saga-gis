@@ -220,7 +220,7 @@ bool CGrid_Export::On_Execute(void)
 		int			nColors	= Parameters("COL_COUNT")->asInt();
 		CSG_Colors	Colors(nColors, Parameters("COL_PALETTE")->asInt(), Parameters("COL_REVERT")->asBool());
 
-		Grid.Create(*Get_System(), GRID_TYPE_Int);
+		Grid.Create(*Get_System(), SG_DATATYPE_Int);
 
 		for(y=0; y<Get_NY() && Set_Progress(y); y++)
 		{
@@ -245,7 +245,7 @@ bool CGrid_Export::On_Execute(void)
 		int			nColors	= 100;
 		CSG_Colors	Colors(nColors, SG_COLORS_BLACK_WHITE);
 
-		Shade.Create(*Get_System(), GRID_TYPE_Int);
+		Shade.Create(*Get_System(), SG_DATATYPE_Int);
 
 		for(y=0; y<Get_NY() && Set_Progress(y); y++)
 		{

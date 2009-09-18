@@ -61,7 +61,7 @@ bool CCreateWebContent::On_Execute(void)
 	m_iNameField = Parameters("NAME")->asInt();
 	m_sOutputPath = Parameters("OUTPUTPATH")->asString();
 
-	m_pShapes->Add_Field("HTML", TABLE_FIELDTYPE_String);
+	m_pShapes->Add_Field("HTML", SG_DATATYPE_String);
 	m_iField = m_pShapes->Get_Field_Count() - 1;
 	
 	m_Pictures = new std::vector<CSG_String> [m_pShapes->Get_Count()];

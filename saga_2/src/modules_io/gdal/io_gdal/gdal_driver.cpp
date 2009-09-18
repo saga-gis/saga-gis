@@ -93,56 +93,56 @@ CGDAL_Driver::~CGDAL_Driver(void)
 }
 
 //---------------------------------------------------------
-TSG_Grid_Type CGDAL_Driver::Get_Grid_Type(GDALDataType Type)
+TSG_Data_Type CGDAL_Driver::Get_Grid_Type(GDALDataType Type)
 {
 	switch( Type )
 	{
-	case GDT_Byte: 		return( GRID_TYPE_Byte );		// Eight bit unsigned integer
-	case GDT_UInt16:	return( GRID_TYPE_Word );		// Sixteen bit unsigned integer
-	case GDT_Int16:		return( GRID_TYPE_Short );		// Sixteen bit signed integer
-	case GDT_UInt32:	return( GRID_TYPE_DWord );		// Thirty two bit unsigned integer
-	case GDT_Int32: 	return( GRID_TYPE_Int );		// Thirty two bit signed integer
-	case GDT_Float32: 	return( GRID_TYPE_Float );		// Thirty two bit floating point
-	case GDT_Float64: 	return( GRID_TYPE_Double );		// Sixty four bit floating point
+	case GDT_Byte: 		return( SG_DATATYPE_Byte );			// Eight bit unsigned integer
+	case GDT_UInt16:	return( SG_DATATYPE_Word );			// Sixteen bit unsigned integer
+	case GDT_Int16:		return( SG_DATATYPE_Short );		// Sixteen bit signed integer
+	case GDT_UInt32:	return( SG_DATATYPE_DWord );		// Thirty two bit unsigned integer
+	case GDT_Int32: 	return( SG_DATATYPE_Int );			// Thirty two bit signed integer
+	case GDT_Float32: 	return( SG_DATATYPE_Float );		// Thirty two bit floating point
+	case GDT_Float64: 	return( SG_DATATYPE_Double );		// Sixty four bit floating point
 
-	case GDT_CInt16: 	return( GRID_TYPE_Undefined );	// Complex Int16
-	case GDT_CInt32: 	return( GRID_TYPE_Undefined );	// Complex Int32
-	case GDT_CFloat32: 	return( GRID_TYPE_Undefined );	// Complex Float32
-	case GDT_CFloat64: 	return( GRID_TYPE_Undefined );	// Complex Float64
+	case GDT_CInt16: 	return( SG_DATATYPE_Undefined );	// Complex Int16
+	case GDT_CInt32: 	return( SG_DATATYPE_Undefined );	// Complex Int32
+	case GDT_CFloat32: 	return( SG_DATATYPE_Undefined );	// Complex Float32
+	case GDT_CFloat64: 	return( SG_DATATYPE_Undefined );	// Complex Float64
 
-	default:			return( GRID_TYPE_Undefined );
+	default:			return( SG_DATATYPE_Undefined );
 	}
 }
 
 //---------------------------------------------------------
-GDALDataType CGDAL_Driver::Get_GDAL_Type(TSG_Grid_Type Type)
+GDALDataType CGDAL_Driver::Get_GDAL_Type(TSG_Data_Type Type)
 {
 	switch( Type )
 	{
-	case GRID_TYPE_Bit: 	return( GDT_Byte );			// Eight bit unsigned integer
-	case GRID_TYPE_Byte: 	return( GDT_Byte );			// Eight bit unsigned integer
-	case GRID_TYPE_Char: 	return( GDT_Byte );			// Eight bit unsigned integer
-	case GRID_TYPE_Word:	return( GDT_UInt16 );		// Sixteen bit unsigned integer
-	case GRID_TYPE_Short:	return( GDT_Int16 );		// Sixteen bit signed integer
-	case GRID_TYPE_DWord:	return( GDT_UInt32 );		// Thirty two bit unsigned integer
-	case GRID_TYPE_Int: 	return( GDT_Int32 );		// Thirty two bit signed integer
-	case GRID_TYPE_Float: 	return( GDT_Float32 );		// Thirty two bit floating point
-	case GRID_TYPE_Double: 	return( GDT_Float64 );		// Sixty four bit floating point
+	case SG_DATATYPE_Bit: 		return( GDT_Byte );			// Eight bit unsigned integer
+	case SG_DATATYPE_Byte: 		return( GDT_Byte );			// Eight bit unsigned integer
+	case SG_DATATYPE_Char: 		return( GDT_Byte );			// Eight bit unsigned integer
+	case SG_DATATYPE_Word:		return( GDT_UInt16 );		// Sixteen bit unsigned integer
+	case SG_DATATYPE_Short:		return( GDT_Int16 );		// Sixteen bit signed integer
+	case SG_DATATYPE_DWord:		return( GDT_UInt32 );		// Thirty two bit unsigned integer
+	case SG_DATATYPE_Int: 		return( GDT_Int32 );		// Thirty two bit signed integer
+	case SG_DATATYPE_Float: 	return( GDT_Float32 );		// Thirty two bit floating point
+	case SG_DATATYPE_Double: 	return( GDT_Float64 );		// Sixty four bit floating point
 
-	default:				return( GDT_Float64 );
+	default:					return( GDT_Float64 );
 	}
 }
 
 //---------------------------------------------------------
 GDALDataType CGDAL_Driver::Get_GDAL_Type(CSG_Parameter_Grid_List *pGrids)
 {
-	TSG_Grid_Type	Type	= GRID_TYPE_Byte;
+	TSG_Data_Type	Type	= SG_DATATYPE_Byte;
 
 	if( pGrids )
 	{
 		for(int i=0; i<pGrids->Get_Count(); i++)
 		{
-			if( gSG_Grid_Type_Sizes[Type] < gSG_Grid_Type_Sizes[pGrids->asGrid(i)->Get_Type()] )
+			if( SG_Data_Type_Get_Size(Type) <= SG_Data_Type_Get_Size(pGrids->asGrid(i)->Get_Type()) )
 			{
 				Type	= pGrids->asGrid(i)->Get_Type();
 			}

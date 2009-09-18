@@ -132,14 +132,14 @@ bool CCollect_Points::On_Execute(void)
 {
 	m_pSource	= Parameters("REF_SOURCE")	->asShapes();
 	m_pSource	->Create(SHAPE_TYPE_Point, _TL("Reference Points (Origin)"));
-	m_pSource	->Add_Field("X", TABLE_FIELDTYPE_Double);
-	m_pSource	->Add_Field("Y", TABLE_FIELDTYPE_Double);
+	m_pSource	->Add_Field("X", SG_DATATYPE_Double);
+	m_pSource	->Add_Field("Y", SG_DATATYPE_Double);
 
 	if( (m_pTarget = Parameters("REF_TARGET")->asShapes()) != NULL )
 	{
 		m_pTarget	->Create(SHAPE_TYPE_Point, _TL("Reference Points (Projection)"));
-		m_pTarget	->Add_Field("X", TABLE_FIELDTYPE_Double);
-		m_pTarget	->Add_Field("Y", TABLE_FIELDTYPE_Double);
+		m_pTarget	->Add_Field("X", SG_DATATYPE_Double);
+		m_pTarget	->Add_Field("Y", SG_DATATYPE_Double);
 	}
 
 	return( true );

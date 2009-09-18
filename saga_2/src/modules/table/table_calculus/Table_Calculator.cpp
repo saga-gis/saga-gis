@@ -76,7 +76,7 @@ bool CTableCalculator::On_Execute(void)
 	}
 
 	pTable->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Parameters("TABLE")->asTable()->Get_Name(), Formula.Get_Formula().c_str()));
-	pTable->Add_Field(Parameters("NAME")->asString(), TABLE_FIELDTYPE_Double);
+	pTable->Add_Field(Parameters("NAME")->asString(), SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
 	nValues	= pTable->Get_Field_Count() - 1;

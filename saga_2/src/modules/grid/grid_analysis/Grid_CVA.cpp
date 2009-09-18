@@ -57,7 +57,7 @@ CGrid_CVA::CGrid_CVA(void){
 						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
-						GRID_TYPE_Double);
+						SG_DATATYPE_Double);
 
 	Parameters.Add_Grid(NULL, 
 						"ANGLE", 
@@ -65,7 +65,7 @@ CGrid_CVA::CGrid_CVA(void){
 						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
-						GRID_TYPE_Double);
+						SG_DATATYPE_Double);
 
 
 }//constructor

@@ -211,24 +211,16 @@ CShapes2Grid::~CShapes2Grid(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-TSG_Grid_Type CShapes2Grid::Get_Grid_Type(int iType)
+TSG_Data_Type CShapes2Grid::Get_Grid_Type(int iType)
 {
 	switch( iType )
 	{
-	case 0:
-		return( GRID_TYPE_Byte );
-
-	case 1:
-		return( GRID_TYPE_Short );
-
-	case 2:
-		return( GRID_TYPE_Int );
-
-	case 3: default:
-		return( GRID_TYPE_Float );
-
-	case 4:
-		return( GRID_TYPE_Double );
+	case 0:		return( SG_DATATYPE_Byte );
+	case 1:		return( SG_DATATYPE_Short );
+	case 2:		return( SG_DATATYPE_Int );
+	default:
+	case 3:		return( SG_DATATYPE_Float );
+	case 4:		return( SG_DATATYPE_Double );
 	}
 }
 
@@ -315,7 +307,7 @@ bool CShapes2Grid::On_Execute(void)
 			iField			= Parameters("FIELD")		->asInt();
 
 			if( iField >= 0 && iField < m_pShapes->Get_Field_Count()
-			&&	m_pShapes->Get_Field_Type(iField) != TABLE_FIELDTYPE_String )
+			&&	m_pShapes->Get_Field_Type(iField) != SG_DATATYPE_String )
 			{
 				m_pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pShapes->Get_Name(), m_pShapes->Get_Field_Name(iField)));
 			}
@@ -331,7 +323,7 @@ bool CShapes2Grid::On_Execute(void)
 			Parameters("GRID")->Set_Value(m_pGrid);
 
 			m_pLock	= m_pShapes->Get_Type() == SHAPE_TYPE_Point ? NULL
-					: SG_Create_Grid(m_pGrid, GRID_TYPE_Byte);
+					: SG_Create_Grid(m_pGrid, SG_DATATYPE_Byte);
 
 			//---------------------------------------------
 			for(i=0, m_Lock_ID=1; i<m_pShapes->Get_Count() && Set_Progress(i, m_pShapes->Get_Count()); i++, m_Lock_ID++)

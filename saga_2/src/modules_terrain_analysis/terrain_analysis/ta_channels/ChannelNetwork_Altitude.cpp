@@ -166,7 +166,7 @@ bool CChannelNetwork_Altitude::On_Execute(void)
 	//-----------------------------------------------------
 	pResult->Assign_NoData();
 
-	pT_Chnl			= SG_Create_Grid(pResult, GRID_TYPE_Byte);
+	pT_Chnl			= SG_Create_Grid(pResult, SG_DATATYPE_Byte);
 	pT_Temp			= SG_Create_Grid(pResult);
 
 	for(nCells=nCells_Start, iStep=1; nCells>0; nCells/=2, iStep++)

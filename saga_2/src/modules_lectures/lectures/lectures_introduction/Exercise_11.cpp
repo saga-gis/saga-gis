@@ -199,12 +199,12 @@ bool CExercise_11::Initialize(CSG_Grid *pDEM)
 	double	z, dz, dzSum;
 
 	//-----------------------------------------------------
-	m_Next	.Create(pDEM, GRID_TYPE_Float);
-	m_dzSum	.Create(pDEM, GRID_TYPE_Float);
+	m_Next	.Create(pDEM, SG_DATATYPE_Float);
+	m_dzSum	.Create(pDEM, SG_DATATYPE_Float);
 
 	for(i=0; i<8; i++)
 	{
-		m_dz[i].Create(pDEM, GRID_TYPE_Float);
+		m_dz[i].Create(pDEM, SG_DATATYPE_Float);
 	}
 
 	//-----------------------------------------------------

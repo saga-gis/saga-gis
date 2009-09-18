@@ -111,8 +111,8 @@ bool CCreateChartLayer::On_Execute(void){
 			m_pOutput = SG_Create_Shapes(SHAPE_TYPE_Polygon, _TL("Chart (bars):"));
 		}//else
 
-		m_pOutput->Add_Field(_TL("Field (ID)"), TABLE_FIELDTYPE_Int);
-		m_pOutput->Add_Field(_TL("Field (Name)"), TABLE_FIELDTYPE_String);
+		m_pOutput->Add_Field(_TL("Field (ID)"), SG_DATATYPE_Int);
+		m_pOutput->Add_Field(_TL("Field (Name)"), SG_DATATYPE_String);
 
 
 		for (i = 0; i < pInput->Get_Count(); i++){

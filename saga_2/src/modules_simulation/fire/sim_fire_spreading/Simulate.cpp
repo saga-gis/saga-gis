@@ -205,8 +205,8 @@ bool CSimulate::AssignParameters(){
 	// calculate slope and aspect using CSG_Grid class'
 	// built-in function (after Zevenbergen & Thorne)...
 
-	m_pSlopeGrid	= SG_Create_Grid(m_pDEM, GRID_TYPE_Double);
-	m_pAspectGrid	= SG_Create_Grid(m_pDEM, GRID_TYPE_Double);
+	m_pSlopeGrid	= SG_Create_Grid(m_pDEM, SG_DATATYPE_Double);
+	m_pAspectGrid	= SG_Create_Grid(m_pDEM, SG_DATATYPE_Double);
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{		

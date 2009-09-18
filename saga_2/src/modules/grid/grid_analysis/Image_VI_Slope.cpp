@@ -46,7 +46,7 @@ CImage_VI_Slope::CImage_VI_Slope(void){
 						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
-						GRID_TYPE_Double);
+						SG_DATATYPE_Double);
 	
 	Parameters.Add_Grid(NULL, 
 						"RATIO", 
@@ -54,7 +54,7 @@ CImage_VI_Slope::CImage_VI_Slope(void){
 						_TL(""), 
 						PARAMETER_OUTPUT_OPTIONAL, 
 						true, 
-						GRID_TYPE_Double);
+						SG_DATATYPE_Double);
 
 	Parameters.Add_Grid(NULL, 
 						"TVI", 
@@ -62,7 +62,7 @@ CImage_VI_Slope::CImage_VI_Slope(void){
 						_TL(""), 
 						PARAMETER_OUTPUT_OPTIONAL, 
 						true, 
-						GRID_TYPE_Double);
+						SG_DATATYPE_Double);
 
 	Parameters.Add_Grid(NULL, 
 						"CTVI", 
@@ -70,7 +70,7 @@ CImage_VI_Slope::CImage_VI_Slope(void){
 						_TL(""), 
 						PARAMETER_OUTPUT_OPTIONAL, 
 						true, 
-						GRID_TYPE_Double);
+						SG_DATATYPE_Double);
 
 	Parameters.Add_Grid(NULL, 
 						"TTVI", 
@@ -78,7 +78,7 @@ CImage_VI_Slope::CImage_VI_Slope(void){
 						_TL(""), 
 						PARAMETER_OUTPUT_OPTIONAL, 
 						true, 
-						GRID_TYPE_Double);
+						SG_DATATYPE_Double);
 
 	Parameters.Add_Grid(NULL, 
 						"NRATIO", 
@@ -86,7 +86,7 @@ CImage_VI_Slope::CImage_VI_Slope(void){
 						_TL(""), 
 						PARAMETER_OUTPUT_OPTIONAL, 
 						true, 
-						GRID_TYPE_Double);
+						SG_DATATYPE_Double);
 
 }//constructor
 

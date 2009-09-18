@@ -222,7 +222,7 @@ CGrid_Color_Triangle::CGrid_Color_Triangle(void)
 	Parameters.Add_Grid(
 		NULL	, "GRID"		, _TL("Composite"),
 		_TL(""),
-		PARAMETER_OUTPUT, true, GRID_TYPE_Int
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Int
 	);
 }
 
@@ -269,7 +269,7 @@ bool CGrid_Color_Triangle::On_Execute(void)
 
 	//-----------------------------------------------------
 	pRGB	= Parameters("GRID")->asGrid();
-	pRGB->Create(pRGB->Get_System(), GRID_TYPE_Int);
+	pRGB->Create(pRGB->Get_System(), SG_DATATYPE_Int);
 	DataObject_Set_Colors(pRGB, 100, SG_COLORS_BLACK_WHITE);
 
 	CSG_Parameters	Parms;

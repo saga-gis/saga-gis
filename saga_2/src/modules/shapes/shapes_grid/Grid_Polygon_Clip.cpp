@@ -149,7 +149,7 @@ bool CGrid_Polygon_Clip::On_Execute(void)
 		// create temporary grid.
 		// Cells within the shapefile get the value +1
 		// Cells outside the shapefile get the value -1
-		Mask.Create(pGrid_in, GRID_TYPE_Byte);
+		Mask.Create(pGrid_in, SG_DATATYPE_Byte);
 
 		//-------------------------------------------------
 		// Get_Mask assignes +1 values to gridcells within the shapefile

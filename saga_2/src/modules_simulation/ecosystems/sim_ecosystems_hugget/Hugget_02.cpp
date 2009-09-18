@@ -258,15 +258,15 @@ bool CHugget_02::On_Execute(void)
 	pTable		= Parameters("TABLE")		->asTable();
 	pTable->Destroy();
 	pTable->Set_Name(_TL("Carbon Cycle Simulation"));
-	pTable->Add_Field("STEP"	, TABLE_FIELDTYPE_Int);
-	pTable->Add_Field("TIME"	, TABLE_FIELDTYPE_Double);
-	pTable->Add_Field("LEAVES"	, TABLE_FIELDTYPE_Double);
-	pTable->Add_Field("BRANCHES", TABLE_FIELDTYPE_Double);
-	pTable->Add_Field("STEMS"	, TABLE_FIELDTYPE_Double);
-	pTable->Add_Field("ROOTS"	, TABLE_FIELDTYPE_Double);
-	pTable->Add_Field("LITTER"	, TABLE_FIELDTYPE_Double);
-	pTable->Add_Field("HUMUS"	, TABLE_FIELDTYPE_Double);
-	pTable->Add_Field("CHARCOAL", TABLE_FIELDTYPE_Double);
+	pTable->Add_Field("STEP"	, SG_DATATYPE_Int);
+	pTable->Add_Field("TIME"	, SG_DATATYPE_Double);
+	pTable->Add_Field("LEAVES"	, SG_DATATYPE_Double);
+	pTable->Add_Field("BRANCHES", SG_DATATYPE_Double);
+	pTable->Add_Field("STEMS"	, SG_DATATYPE_Double);
+	pTable->Add_Field("ROOTS"	, SG_DATATYPE_Double);
+	pTable->Add_Field("LITTER"	, SG_DATATYPE_Double);
+	pTable->Add_Field("HUMUS"	, SG_DATATYPE_Double);
+	pTable->Add_Field("CHARCOAL", SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
 	C_Leav		= 0.0;

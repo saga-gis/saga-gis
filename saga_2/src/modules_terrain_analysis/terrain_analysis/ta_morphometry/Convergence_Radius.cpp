@@ -186,8 +186,8 @@ bool CConvergence_Radius::Initialize(CSG_Grid *pDTM, int Radius)
 		m_Radius	= Radius;
 		m_Diameter	= 1 + 2 * Radius;
 
-		m_Dir.Create(GRID_TYPE_Double, m_Diameter, m_Diameter);
-		m_Dst.Create(GRID_TYPE_Double, m_Diameter, m_Diameter);
+		m_Dir.Create(SG_DATATYPE_Double, m_Diameter, m_Diameter);
+		m_Dst.Create(SG_DATATYPE_Double, m_Diameter, m_Diameter);
 
 		for(iy=0, y=-m_Radius; iy<m_Diameter; iy++, y++)
 		{
@@ -209,8 +209,8 @@ bool CConvergence_Radius::Initialize(CSG_Grid *pDTM, int Radius)
 		}
 
 		//-------------------------------------------------
-		m_Slope	.Create(pDTM, GRID_TYPE_Float);
-		m_Aspect.Create(pDTM, GRID_TYPE_Float);
+		m_Slope	.Create(pDTM, SG_DATATYPE_Float);
+		m_Aspect.Create(pDTM, SG_DATATYPE_Float);
 
 		for(y=0; y<Get_NY() && Set_Progress(y); y++)
 		{

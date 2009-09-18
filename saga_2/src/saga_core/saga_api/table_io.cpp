@@ -128,10 +128,7 @@ bool CSG_Table::_Load(const CSG_String &File_Name, TSG_Table_File_Type Format, c
 
 		Set_File_Name(File_Name);
 
-		if( !Get_History().Load(File_Name, HISTORY_EXT_TABLE) )
-		{
-			Get_History().Add_Entry(LNG("[HST] Loaded from file"), File_Name);
-		}
+		Load_MetaData(File_Name);
 
 		SG_UI_Msg_Add(LNG("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 
@@ -201,7 +198,7 @@ bool CSG_Table::Save(const CSG_String &File_Name, int Format, const SG_Char *Sep
 
 		Set_File_Name(File_Name);
 
-		Get_History().Save(File_Name, HISTORY_EXT_TABLE);
+		Save_MetaData(File_Name);
 
 		SG_UI_Msg_Add(LNG("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 
@@ -251,17 +248,17 @@ bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG
 			sField	= sField.AfterFirst('\"').BeforeLast('\"');
 		}
 
-		Table.Add_Field(sField, TABLE_FIELDTYPE_String);
+		Table.Add_Field(sField, SG_DATATYPE_String);
 
 		sLine.Remove(0, i + 1);
 	}
 
 	//-----------------------------------------------------
-	TSG_Table_Field_Type	*Type	= new TSG_Table_Field_Type[Table.Get_Field_Count()];
+	TSG_Data_Type	*Type	= new TSG_Data_Type[Table.Get_Field_Count()];
 
 	for(iField=0; iField<Table.Get_Field_Count(); iField++)
 	{
-		Type[iField]	= TABLE_FIELDTYPE_Int;
+		Type[iField]	= SG_DATATYPE_Int;
 	}
 
 	if( !bHeadline )
@@ -288,17 +285,17 @@ bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG
 					sField	= sField.AfterFirst('\"').BeforeLast('\"');
 				}
 
-				if( Type[iField] != TABLE_FIELDTYPE_String )
+				if( Type[iField] != SG_DATATYPE_String )
 				{
 					double	Value;
 
 					if( SG_SSCANF(sField, SG_T("%lf"), &Value) != 1 )
 					{
-						Type[iField]	= TABLE_FIELDTYPE_String;
+						Type[iField]	= SG_DATATYPE_String;
 					}
-					else if( Type[iField] != TABLE_FIELDTYPE_Double && Value - (int)Value != 0.0 )
+					else if( Type[iField] != SG_DATATYPE_Double && Value - (int)Value != 0.0 )
 					{
-						Type[iField]	= TABLE_FIELDTYPE_Double;
+						Type[iField]	= SG_DATATYPE_Double;
 					}
 				}
 
@@ -330,8 +327,8 @@ bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG
 				switch( Get_Field_Type(iField) )
 				{
 				default:						pRecord->Set_Value(iField, Table[iRecord].asString(iField));	break;
-				case TABLE_FIELDTYPE_Int:		pRecord->Set_Value(iField, Table[iRecord].asInt   (iField));	break;
-				case TABLE_FIELDTYPE_Double:	pRecord->Set_Value(iField, Table[iRecord].asDouble(iField));	break;
+				case SG_DATATYPE_Int:		pRecord->Set_Value(iField, Table[iRecord].asInt   (iField));	break;
+				case SG_DATATYPE_Double:	pRecord->Set_Value(iField, Table[iRecord].asDouble(iField));	break;
 				}
 			}
 		}
@@ -398,26 +395,26 @@ bool CSG_Table::_Load_DBase(const CSG_String &File_Name)
 
 		for(iField=0; iField<dbf.Get_FieldCount(); iField++)
 		{
-			TSG_Table_Field_Type	Type;
+			TSG_Data_Type	Type;
 
 			switch( dbf.Get_FieldType(iField) )
 			{
 			case DBF_FT_LOGICAL:
-				Type	= TABLE_FIELDTYPE_Char;
+				Type	= SG_DATATYPE_Char;
 				break;
 
 			case DBF_FT_CHARACTER:	default:
-				Type	= TABLE_FIELDTYPE_String;
+				Type	= SG_DATATYPE_String;
 				break;
 
 			case DBF_FT_DATE:
-				Type	= TABLE_FIELDTYPE_Date;
+				Type	= SG_DATATYPE_Date;
 				break;
 
 			case DBF_FT_NUMERIC:
 				Type	= dbf.Get_FieldDecimals(iField) > 0
-						? TABLE_FIELDTYPE_Double
-						: TABLE_FIELDTYPE_Long;
+						? SG_DATATYPE_Double
+						: SG_DATATYPE_Long;
 				break;
 			}
 
@@ -438,23 +435,23 @@ bool CSG_Table::_Load_DBase(const CSG_String &File_Name)
 				{
 					switch( Get_Field_Type(iField) )
 					{
-					case TABLE_FIELDTYPE_Char:
+					case SG_DATATYPE_Char:
 						pRecord->Set_Value(iField, SG_STR_MBTOSG(dbf.asString(iField)) );
 						break;
 
-					case TABLE_FIELDTYPE_String:	default:
+					case SG_DATATYPE_String:	default:
 						pRecord->Set_Value(iField, SG_STR_MBTOSG(dbf.asString(iField)) );
 						break;
 
-					case TABLE_FIELDTYPE_Date:
+					case SG_DATATYPE_Date:
 						pRecord->Set_Value(iField, dbf.asDouble(iField) );
 						break;
 
-					case TABLE_FIELDTYPE_Long:
+					case SG_DATATYPE_Long:
 						pRecord->Set_Value(iField, dbf.asInt(iField) );
 						break;
 
-					case TABLE_FIELDTYPE_Double:
+					case SG_DATATYPE_Double:
 						pRecord->Set_Value(iField, dbf.asDouble(iField) );
 						break;
 					}
@@ -496,32 +493,32 @@ bool CSG_Table::_Save_DBase(const CSG_String &File_Name)
 		switch( Get_Field_Type(iField) )
 		{
 		default:
-		case TABLE_FIELDTYPE_String:
+		case SG_DATATYPE_String:
 			dbfFieldDesc[iField].Type		= DBF_FT_CHARACTER;
 			dbfFieldDesc[iField].Width		= (char)64;
 			break;
 
-		case TABLE_FIELDTYPE_Date:
+		case SG_DATATYPE_Date:
 			dbfFieldDesc[iField].Type		= DBF_FT_DATE;
 			dbfFieldDesc[iField].Width		= (char)8;
 			break;
 
-		case TABLE_FIELDTYPE_Char:
+		case SG_DATATYPE_Char:
 			dbfFieldDesc[iField].Type		= DBF_FT_CHARACTER;
 			dbfFieldDesc[iField].Width		= (char)1;
 			break;
 
-		case TABLE_FIELDTYPE_Short:
-		case TABLE_FIELDTYPE_Int:
-		case TABLE_FIELDTYPE_Long:
-		case TABLE_FIELDTYPE_Color:
+		case SG_DATATYPE_Short:
+		case SG_DATATYPE_Int:
+		case SG_DATATYPE_Long:
+		case SG_DATATYPE_Color:
 			dbfFieldDesc[iField].Type		= DBF_FT_NUMERIC;
 			dbfFieldDesc[iField].Width		= (char)16;
 			dbfFieldDesc[iField].Decimals	= (char)0;
 			break;
 
-		case TABLE_FIELDTYPE_Float:
-		case TABLE_FIELDTYPE_Double:
+		case SG_DATATYPE_Float:
+		case SG_DATATYPE_Double:
 			dbfFieldDesc[iField].Type		= DBF_FT_NUMERIC;
 			dbfFieldDesc[iField].Width		= (char)16;
 			dbfFieldDesc[iField].Decimals	= (char)8;
@@ -611,7 +608,7 @@ bool CSG_Table::Serialize(CSG_File &Stream, bool bSave)
 		{
 			if( Stream.Read_Line(sLine) && SG_SSCANF(sLine, SG_T("%d"), &FieldType) == 1 )
 			{
-				Add_Field(sLine.AfterFirst(SG_T('\"')).BeforeFirst(SG_T('\"')), (TSG_Table_Field_Type)FieldType);
+				Add_Field(sLine.AfterFirst(SG_T('\"')).BeforeFirst(SG_T('\"')), (TSG_Data_Type)FieldType);
 			}
 		}
 

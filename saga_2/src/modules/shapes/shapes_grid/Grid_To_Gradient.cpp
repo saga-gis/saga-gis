@@ -152,10 +152,10 @@ bool CGrid_To_Gradient::On_Execute(void)
 	dStep	= Step * Get_Cellsize();
 
 	pShapes->Create(SHAPE_TYPE_Line, CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("Gradient")));
-	pShapes->Add_Field("X"	, TABLE_FIELDTYPE_Double);
-	pShapes->Add_Field("Y"	, TABLE_FIELDTYPE_Double);
-	pShapes->Add_Field("S"	, TABLE_FIELDTYPE_Double);
-	pShapes->Add_Field("A"	, TABLE_FIELDTYPE_Double);
+	pShapes->Add_Field("X"	, SG_DATATYPE_Double);
+	pShapes->Add_Field("Y"	, SG_DATATYPE_Double);
+	pShapes->Add_Field("S"	, SG_DATATYPE_Double);
+	pShapes->Add_Field("A"	, SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
 	for(y=0, Min=0.0, Max=-1.0; y<Get_NY() && Set_Progress(y); y+=Step)

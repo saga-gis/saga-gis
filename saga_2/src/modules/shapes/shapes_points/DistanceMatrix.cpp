@@ -68,7 +68,7 @@ bool CDistanceMatrix::On_Execute(void){
 		}//for
 	}//for
 	for (i = 0; i < Points.Get_Count(); i++){
-		pTable->Add_Field(SG_Get_String(i).c_str(), TABLE_FIELDTYPE_Double);
+		pTable->Add_Field(SG_Get_String(i).c_str(), SG_DATATYPE_Double);
 	}//for
 	for (i = 0; i < Points.Get_Count(); i++){
 		pTable->Add_Record();

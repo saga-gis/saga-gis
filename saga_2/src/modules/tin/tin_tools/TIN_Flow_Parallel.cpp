@@ -135,13 +135,13 @@ bool CTIN_Flow_Parallel::On_Execute(void)
 	m_pFlow->Create(*pDEM);
 
 	m_iArea		= m_pFlow->Get_Field_Count();
-	m_pFlow->Add_Field(_TL("AREA")		, TABLE_FIELDTYPE_Double);
+	m_pFlow->Add_Field(_TL("AREA")		, SG_DATATYPE_Double);
 
 	m_iFlow		= m_pFlow->Get_Field_Count();
-	m_pFlow->Add_Field(_TL("FLOW")		, TABLE_FIELDTYPE_Double);
+	m_pFlow->Add_Field(_TL("FLOW")		, SG_DATATYPE_Double);
 
 	m_iSpecific	= m_pFlow->Get_Field_Count();
-	m_pFlow->Add_Field(_TL("SPECIFIC")	, TABLE_FIELDTYPE_Double);
+	m_pFlow->Add_Field(_TL("SPECIFIC")	, SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
 	m_pFlow->Set_Index(m_iHeight, TABLE_INDEX_Descending);

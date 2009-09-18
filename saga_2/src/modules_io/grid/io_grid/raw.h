@@ -95,7 +95,7 @@ protected:
 
 private:
 
-	CSG_Grid *					Load_Data		(FILE *Stream, TSG_Grid_Type data_type, int nx, int ny, double dxy, double xmin, double ymin, int data_head, int line_head, int line_tail, bool bDown, bool bBig);
+	CSG_Grid *					Load_Data		(FILE *Stream, TSG_Data_Type data_type, int nx, int ny, double dxy, double xmin, double ymin, int data_head, int line_head, int line_tail, bool bDown, bool bBig);
 
 };
 

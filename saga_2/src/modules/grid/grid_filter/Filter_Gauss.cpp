@@ -193,7 +193,7 @@ bool CFilter_Gauss::Initialise(int Radius, double Sigma, int Mode)
 	double	dx, dy, val, min, max;
 
 	//-----------------------------------------------------
-	m_Weights.Create(GRID_TYPE_Double, 1 + 2 * Radius, 1 + 2 * Radius);
+	m_Weights.Create(SG_DATATYPE_Double, 1 + 2 * Radius, 1 + 2 * Radius);
 
 	//-----------------------------------------------------
 	for(y=0, dy=-Radius, min=1.0, max=0.0; y<m_Weights.Get_NY(); y++, dy++)

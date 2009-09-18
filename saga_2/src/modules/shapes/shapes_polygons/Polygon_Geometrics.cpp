@@ -56,8 +56,8 @@ bool CPolygon_Geometrics::On_Execute(void){
 	pPolygs = Parameters("POLYG")->asShapes();
 	bSave	= Parameters("SAVE")->asBool();
 
-	pPolygs->Add_Field(_TL("Perimeter"), TABLE_FIELDTYPE_Double);
-	pPolygs->Add_Field(_TL("Area"), TABLE_FIELDTYPE_Double);
+	pPolygs->Add_Field(_TL("Perimeter"), SG_DATATYPE_Double);
+	pPolygs->Add_Field(_TL("Area"), SG_DATATYPE_Double);
 	
 	for(int i=0; i<pPolygs->Get_Count() && Set_Progress(i, pPolygs->Get_Count()); i++){			
 		pShape = pPolygs->Get_Shape(i);		

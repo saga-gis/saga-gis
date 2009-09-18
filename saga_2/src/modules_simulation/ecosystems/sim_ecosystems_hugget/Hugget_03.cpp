@@ -164,7 +164,7 @@ bool CHugget_03::On_Execute(void)
 
 	DataObject_Set_Colors(pN, 100, SG_COLORS_YELLOW_GREEN);
 
-	N_1.Create(pN, GRID_TYPE_Float);
+	N_1.Create(pN, SG_DATATYPE_Float);
 
 	Init_Slopes(pDEM, S);
 
@@ -200,7 +200,7 @@ bool CHugget_03::Init_Slopes(CSG_Grid *pDEM, CSG_Grid S[8])
 	//-----------------------------------------------------
 	for(i=0; i<8; i++)
 	{
-		S[i].Create(pDEM, GRID_TYPE_Float);
+		S[i].Create(pDEM, SG_DATATYPE_Float);
 	}
 
 	//-----------------------------------------------------

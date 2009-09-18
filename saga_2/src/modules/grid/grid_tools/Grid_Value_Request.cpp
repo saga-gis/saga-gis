@@ -157,8 +157,8 @@ bool CGrid_Value_Request::On_Execute(void)
 		switch( m_Method )
 		{
 		case 0: default:
-			m_pTable->Add_Field(_TL("NAME")		, TABLE_FIELDTYPE_String);
-			m_pTable->Add_Field(_TL("VALUE")	, TABLE_FIELDTYPE_Double);
+			m_pTable->Add_Field(_TL("NAME")		, SG_DATATYPE_String);
+			m_pTable->Add_Field(_TL("VALUE")	, SG_DATATYPE_Double);
 
 			m_pTable->Add_Record()->Set_Value(FIELD_NAME, _TL("X"));
 			m_pTable->Add_Record()->Set_Value(FIELD_NAME, _TL("Y"));
@@ -170,12 +170,12 @@ bool CGrid_Value_Request::On_Execute(void)
 			break;
 
 		case 1:
-			m_pTable->Add_Field(_TL("X")		, TABLE_FIELDTYPE_Double);
-			m_pTable->Add_Field(_TL("Y")		, TABLE_FIELDTYPE_Double);
+			m_pTable->Add_Field(_TL("X")		, SG_DATATYPE_Double);
+			m_pTable->Add_Field(_TL("Y")		, SG_DATATYPE_Double);
 
 			for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
 			{
-				m_pTable->Add_Field(m_pGrids->asGrid(iGrid)->Get_Name(), TABLE_FIELDTYPE_Double);
+				m_pTable->Add_Field(m_pGrids->asGrid(iGrid)->Get_Name(), SG_DATATYPE_Double);
 			}
 			break;
 		}

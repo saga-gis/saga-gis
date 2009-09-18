@@ -482,7 +482,7 @@ bool CCreateGridSystem::On_Execute(void)
 		break;
 	}
 		
-	pDummy = SG_Create_Grid(System, GRID_TYPE_Double);
+	pDummy = SG_Create_Grid(System, SG_DATATYPE_Double);
 	pDummy->Assign(initVal);
 	pDummy->Set_Name(_TL("Dummy Grid"));
 	Parameters("GRID")->Set_Value(pDummy);

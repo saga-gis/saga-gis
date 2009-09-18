@@ -189,11 +189,11 @@ bool CForecasting::AssignParameters(){
     Fire_FlameLengthTable(m_Catalog, 500, 0.1);
 
 	if (!m_pBaseProbabilityGrid){
-		m_pBaseProbabilityGrid = SG_Create_Grid(m_pDEM, GRID_TYPE_Double);
+		m_pBaseProbabilityGrid = SG_Create_Grid(m_pDEM, SG_DATATYPE_Double);
 		m_pBaseProbabilityGrid->Assign(1);
 	}//if
 	if (!m_pValueGrid){
-		m_pValueGrid = SG_Create_Grid(m_pDEM, GRID_TYPE_Double);
+		m_pValueGrid = SG_Create_Grid(m_pDEM, SG_DATATYPE_Double);
 		m_pValueGrid->Assign(1);
 	}//if
 
@@ -234,8 +234,8 @@ bool CForecasting::AssignParameters(){
 	// calculate slope and aspect using CSG_Grid class'
 	// built-in function (after Zevenbergen & Thorne)...
 
-	m_pSlopeGrid	= SG_Create_Grid(m_pDEM, GRID_TYPE_Double);
-	m_pAspectGrid	= SG_Create_Grid(m_pDEM, GRID_TYPE_Double);
+	m_pSlopeGrid	= SG_Create_Grid(m_pDEM, SG_DATATYPE_Double);
+	m_pAspectGrid	= SG_Create_Grid(m_pDEM, SG_DATATYPE_Double);
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{		
@@ -258,13 +258,13 @@ bool CForecasting::AssignParameters(){
 
 
 	//-----------------------------------------------------
-	m_pTimeGrid = SG_Create_Grid(m_pDEM, GRID_TYPE_Double);
+	m_pTimeGrid = SG_Create_Grid(m_pDEM, SG_DATATYPE_Double);
 
 	m_pTimeGrid->Assign((double)0);
 	m_pDangerGrid->Assign((double)0);
 	m_pCompoundProbabilityGrid->Assign((double)0);	
 	
-	//m_pPriorityIndexGrid = Get_SafeNew_Grid(m_pDEM, GRID_TYPE_Double);
+	//m_pPriorityIndexGrid = Get_SafeNew_Grid(m_pDEM, SG_DATATYPE_Double);
 
 	return true;
 
@@ -459,7 +459,7 @@ bool CForecasting::Gaps_Close(CSG_Grid *pInput)
 	do	{	iStep++;	}	while( pow(2.0, iStep + 1) < n );
 	iStart		= (int)pow(2.0, iStep);
 
-	pTension_Keep		= new CSG_Grid(pResult, GRID_TYPE_Byte);
+	pTension_Keep		= new CSG_Grid(pResult, SG_DATATYPE_Byte);
 	pTension_Temp		= new CSG_Grid(pResult);
 
 	pResult->Assign_NoData();

@@ -83,8 +83,8 @@ public:
 	GDALDriver *			Get_Driver		(const char *Name)	{	return( (GDALDriver *)GDALGetDriverByName(Name) );	}
 
 
-	static TSG_Grid_Type	Get_Grid_Type	(GDALDataType  Type);
-	static GDALDataType		Get_GDAL_Type	(TSG_Grid_Type Type);
+	static TSG_Data_Type	Get_Grid_Type	(GDALDataType  Type);
+	static GDALDataType		Get_GDAL_Type	(TSG_Data_Type Type);
 	static GDALDataType		Get_GDAL_Type	(CSG_Parameter_Grid_List *pGrids);
 	static bool				Set_Transform	(GDALDataset *pDataset, CSG_Grid_System *pSystem);
 

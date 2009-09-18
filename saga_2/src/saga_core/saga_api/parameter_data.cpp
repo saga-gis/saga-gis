@@ -1663,7 +1663,7 @@ bool CSG_Parameter_Data_Object_Output::Set_DataObject_Type(TSG_Data_Object_Type 
 CSG_Parameter_Grid::CSG_Parameter_Grid(CSG_Parameter *pOwner, long Constraint)
 	: CSG_Parameter_Data_Object(pOwner, Constraint)
 {
-	m_Type	= GRID_TYPE_Undefined;
+	m_Type	= SG_DATATYPE_Undefined;
 }
 
 CSG_Parameter_Grid::~CSG_Parameter_Grid(void)
@@ -1714,7 +1714,7 @@ CSG_Grid_System * CSG_Parameter_Grid::Get_System(void)
 }
 
 //---------------------------------------------------------
-void CSG_Parameter_Grid::Set_Preferred_Type(TSG_Grid_Type Type)
+void CSG_Parameter_Grid::Set_Preferred_Type(TSG_Data_Type Type)
 {
 	m_Type	= Type;
 }

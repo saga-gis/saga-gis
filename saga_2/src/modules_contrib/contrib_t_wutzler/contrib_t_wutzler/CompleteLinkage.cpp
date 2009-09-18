@@ -219,22 +219,22 @@ bool CCompleteLinkage::On_Execute(void){
 	pMinDistDir		= Parameters("MinDistDirGrid")->asGrid();
 
 	if( pMinDist == NULL ){
-		pMinDist = SG_Create_Grid(GRID_TYPE_Double, Get_NX(), Get_NY(), Get_Cellsize());
+		pMinDist = SG_Create_Grid(SG_DATATYPE_Double, Get_NX(), Get_NY(), Get_Cellsize());
 		pMinDist->Set_Name(_TL("MinDist"));
 	}
 	if( pMinDistDir == NULL ){
-		pMinDistDir = SG_Create_Grid( GRID_TYPE_Double, Get_NX(), Get_NY(), Get_Cellsize());
+		pMinDistDir = SG_Create_Grid( SG_DATATYPE_Double, Get_NX(), Get_NY(), Get_Cellsize());
 		pMinDistDir->Set_Name(_TL("MinDistDir"));
 	}
  
 	//-------------  Region Grids ---------------	
 	{int rnx = ceil( Get_NX() / (double) regionExtent ); // without (double) its an integer division
 	int rny = ceil( Get_NY() / (double) regionExtent );
-	pRegionMinDistGrid = SG_Create_Grid(GRID_TYPE_Double, rnx, rny, Get_Cellsize()*regionExtent);
+	pRegionMinDistGrid = SG_Create_Grid(SG_DATATYPE_Double, rnx, rny, Get_Cellsize()*regionExtent);
 	pRegionMinDistGrid->Set_Name(_TL("MinDist Region"));
-	pRegionMinPixelGrid = SG_Create_Grid(GRID_TYPE_Int, rnx, rny, Get_Cellsize()*regionExtent);
+	pRegionMinPixelGrid = SG_Create_Grid(SG_DATATYPE_Int, rnx, rny, Get_Cellsize()*regionExtent);
 	pRegionMinPixelGrid->Set_Name(_TL("Regions MinPixel"));
-	pRegionNdvCntGrid = SG_Create_Grid(GRID_TYPE_Int, rnx, rny, Get_Cellsize()*regionExtent);
+	pRegionNdvCntGrid = SG_Create_Grid(SG_DATATYPE_Int, rnx, rny, Get_Cellsize()*regionExtent);
 	pRegionNdvCntGrid->Set_Name(_TL("Regions Count of No-DataValue-Pixels"));
 	}
 
@@ -585,28 +585,28 @@ double CCompleteLinkage::calculateEucledianDistance(int x1, int y1, int x2, int 
 }
 
 // copies on grid to another grid, targetGrid is allocated
-CSG_Grid *CCompleteLinkage::copyGrid(CSG_Grid *fromGrid, TSG_Grid_Type gridType){
+CSG_Grid *CCompleteLinkage::copyGrid(CSG_Grid *fromGrid, TSG_Data_Type gridType){
 	int x,y;
 	CSG_Grid *targetGrid;
 	targetGrid = SG_Create_Grid(gridType, Get_NX(), Get_NY(), Get_Cellsize());
 	for(y=0; y<Get_NY();  y++){
 		for(x=0; x<Get_NX(); x++){
 			switch( gridType ) {
-				case GRID_TYPE_Byte:
+				case SG_DATATYPE_Byte:
 					targetGrid->Set_Value(x,y, fromGrid->asByte(x,y) );
 					break;
-				case GRID_TYPE_Char:
+				case SG_DATATYPE_Char:
 					targetGrid->Set_Value(x,y, fromGrid->asChar(x,y)  );
 					break;
-				case GRID_TYPE_Short:
+				case SG_DATATYPE_Short:
 					targetGrid->Set_Value(x,y, fromGrid->asShort(x,y)  );
 					break;
-				case GRID_TYPE_Int:
-				case GRID_TYPE_Word:
-				case GRID_TYPE_DWord:
+				case SG_DATATYPE_Int:
+				case SG_DATATYPE_Word:
+				case SG_DATATYPE_DWord:
 					targetGrid->Set_Value(x,y, fromGrid->asInt(x,y)  );
 					break;
-				case GRID_TYPE_Float:
+				case SG_DATATYPE_Float:
 					targetGrid->Set_Value(x,y, fromGrid->asFloat(x,y)  );
 				/*
 					*/
@@ -788,7 +788,7 @@ void CCompleteLinkage::removeOrphantClasses(
 	int x,y;
 	
 	// clear oprhants Grid
-	//pOrphantsGrid = SG_Create_Grid(GRID_TYPE_Double, Get_NX(), Get_NY(), Get_Cellsize()); input parameter
+	//pOrphantsGrid = SG_Create_Grid(SG_DATATYPE_Double, Get_NX(), Get_NY(), Get_Cellsize()); input parameter
 	if( pOrphantsGrid != NULL ){
 		double ndv = pOrphantsGrid->Get_NoData_Value();
 		for(y=0; y<Get_NY(); y++){

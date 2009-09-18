@@ -132,7 +132,7 @@ bool CTable_Enumerate::On_Execute(void)
 		}
 
 		//-------------------------------------------------
-		pTable->Add_Field(_TL("ENUM_ID"), TABLE_FIELDTYPE_Int);
+		pTable->Add_Field(_TL("ENUM_ID"), SG_DATATYPE_Int);
 		iField_ID	= pTable->Get_Field_Count() - 1;
 
 		old_Order	= pTable->Get_Index_Order(0);

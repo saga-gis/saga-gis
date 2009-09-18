@@ -189,7 +189,7 @@ bool CTable_Trend_Base::Get_Trend(CSG_Table *pTable)
 
 			if( Parameters("TREND")->asTable() == NULL )
 			{
-				pTable->Add_Field("TREND"	, TABLE_FIELDTYPE_Double);
+				pTable->Add_Field("TREND"	, SG_DATATYPE_Double);
 
 				for(i=0, j=pTable->Get_Field_Count()-1; i<m_Trend.Get_Data_Count(); i++)
 				{
@@ -203,9 +203,9 @@ bool CTable_Trend_Base::Get_Trend(CSG_Table *pTable)
 				pTable	= Parameters("TREND")->asTable();
 				pTable->Destroy();
 				pTable->Set_Name(Name);
-				pTable->Add_Field("X"		, TABLE_FIELDTYPE_Double);
-				pTable->Add_Field("Y"		, TABLE_FIELDTYPE_Double);
-				pTable->Add_Field("Y_TREND"	, TABLE_FIELDTYPE_Double);
+				pTable->Add_Field("X"		, SG_DATATYPE_Double);
+				pTable->Add_Field("Y"		, SG_DATATYPE_Double);
+				pTable->Add_Field("Y_TREND"	, SG_DATATYPE_Double);
 
 				for(i=0; i<m_Trend.Get_Data_Count(); i++)
 				{

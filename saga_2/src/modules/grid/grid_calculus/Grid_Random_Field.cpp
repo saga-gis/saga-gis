@@ -182,7 +182,7 @@ bool CGrid_Random_Field::On_Execute(void)
 
 	//-----------------------------------------------------
 	pGrid	= SG_Create_Grid(
-		GRID_TYPE_Float,
+		SG_DATATYPE_Float,
 		Parameters("NX")		->asInt(),
 		Parameters("NY")		->asInt(),
 		Parameters("CELLSIZE")	->asDouble(),

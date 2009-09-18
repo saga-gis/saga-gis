@@ -325,7 +325,7 @@ bool CFilter_Multi_Dir_Lee::Get_Filter(bool bWeighted, bool bAbsolute)
 	}
 	else if( m_pStdDev == NULL )
 	{
-		Parameters("STDDEV")->Set_Value(m_pStdDev = SG_Create_Grid(*Get_System(), GRID_TYPE_Float));
+		Parameters("STDDEV")->Set_Value(m_pStdDev = SG_Create_Grid(*Get_System(), SG_DATATYPE_Float));
 	}
 
 	//-----------------------------------------------------

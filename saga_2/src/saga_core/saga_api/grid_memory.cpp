@@ -150,7 +150,7 @@ double				SG_Grid_Cache_Get_Threshold_MB(void)
 //---------------------------------------------------------
 bool CSG_Grid::_Memory_Create(TSG_Grid_Memory_Type Memory_Type)
 {
-	if( m_System.is_Valid() && m_Type > 0 && m_Type < GRID_TYPE_Count )
+	if( m_System.is_Valid() && m_Type != SG_DATATYPE_Undefined )
 	{
 		_Memory_Destroy();
 
@@ -283,7 +283,7 @@ bool CSG_Grid::Set_Buffer_Size(int Size)
 {
 	int		i;
 
-	if( m_System.is_Valid() && m_Type > 0 && m_Type < GRID_TYPE_Count )
+	if( m_System.is_Valid() && m_Type != SG_DATATYPE_Undefined )
 	{
 		Size	/= _LineBuffer_Get_nBytes();
 
@@ -429,35 +429,35 @@ void CSG_Grid::_LineBuffer_Set_Value(int x, int y, double Value)
 		default:
 			break;
 
-		case GRID_TYPE_Byte:
+		case SG_DATATYPE_Byte:
 			((BYTE   *)pLine->Data)[x]	= (BYTE  )Value;
 			break;
 
-		case GRID_TYPE_Char:
+		case SG_DATATYPE_Char:
 			((char   *)pLine->Data)[x]	= (char  )Value;
 			break;
 
-		case GRID_TYPE_Word:
+		case SG_DATATYPE_Word:
 			((WORD   *)pLine->Data)[x]	= (WORD  )Value;
 			break;
 
-		case GRID_TYPE_Short:
+		case SG_DATATYPE_Short:
 			((short  *)pLine->Data)[x]	= (short )Value;
 			break;
 
-		case GRID_TYPE_DWord:
+		case SG_DATATYPE_DWord:
 			((DWORD  *)pLine->Data)[x]	= (DWORD )Value;
 			break;
 
-		case GRID_TYPE_Int:
+		case SG_DATATYPE_Int:
 			((int    *)pLine->Data)[x]	= (int   )Value;
 			break;
 
-		case GRID_TYPE_Float:
+		case SG_DATATYPE_Float:
 			((float  *)pLine->Data)[x]	= (float )Value;
 			break;
 
-		case GRID_TYPE_Double:
+		case SG_DATATYPE_Double:
 			((double *)pLine->Data)[x]	= (double)Value;
 			break;
 		}
@@ -478,28 +478,28 @@ double CSG_Grid::_LineBuffer_Get_Value(int x, int y) const
 		default:
 			break;
 
-		case GRID_TYPE_Byte:
+		case SG_DATATYPE_Byte:
 			return( ((BYTE   *)pLine->Data)[x] );
 
-		case GRID_TYPE_Char:
+		case SG_DATATYPE_Char:
 			return( ((char   *)pLine->Data)[x] );
 
-		case GRID_TYPE_Word:
+		case SG_DATATYPE_Word:
 			return( ((WORD   *)pLine->Data)[x] );
 
-		case GRID_TYPE_Short:
+		case SG_DATATYPE_Short:
 			return( ((short  *)pLine->Data)[x] );
 
-		case GRID_TYPE_DWord:
+		case SG_DATATYPE_DWord:
 			return( ((DWORD  *)pLine->Data)[x] );
 
-		case GRID_TYPE_Int:
+		case SG_DATATYPE_Int:
 			return( ((int    *)pLine->Data)[x] );
 
-		case GRID_TYPE_Float:
+		case SG_DATATYPE_Float:
 			return( ((float  *)pLine->Data)[x] );
 
-		case GRID_TYPE_Double:
+		case SG_DATATYPE_Double:
 			return( ((double *)pLine->Data)[x] );
 		}
 	}
@@ -517,7 +517,7 @@ double CSG_Grid::_LineBuffer_Get_Value(int x, int y) const
 //---------------------------------------------------------
 bool CSG_Grid::_Array_Create(void)
 {
-	if( m_System.is_Valid() && m_Type > 0 && m_Type < GRID_TYPE_Count )
+	if( m_System.is_Valid() && m_Type != SG_DATATYPE_Undefined )
 	{
 		_Array_Destroy();
 
@@ -580,9 +580,9 @@ bool CSG_Grid::is_Cached(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid::_Cache_Create(const SG_Char *FilePath, TSG_Grid_Type File_Type, long Offset, bool bSwap, bool bFlip)
+bool CSG_Grid::_Cache_Create(const SG_Char *FilePath, TSG_Data_Type File_Type, long Offset, bool bSwap, bool bFlip)
 {
-	if( m_System.is_Valid() && m_Type > 0 && m_Type < GRID_TYPE_Count && m_Memory_Type == GRID_MEMORY_Normal )
+	if( m_System.is_Valid() && m_Type != SG_DATATYPE_Undefined && m_Memory_Type == GRID_MEMORY_Normal )
 	{
 		Cache_Path.Printf(FilePath);
 
@@ -615,7 +615,7 @@ bool CSG_Grid::_Cache_Create(void)
 {
 	TSG_Grid_Line	Line;
 
-	if( m_System.is_Valid() && m_Type > 0 && m_Type < GRID_TYPE_Count && m_Memory_Type == GRID_MEMORY_Normal )
+	if( m_System.is_Valid() && m_Type != SG_DATATYPE_Undefined && m_Memory_Type == GRID_MEMORY_Normal )
 	{
 		Cache_Path	= SG_File_Get_TmpName(SG_T("sg_grd"), SG_Grid_Cache_Get_Directory());
 
@@ -731,7 +731,7 @@ void CSG_Grid::_Cache_LineBuffer_Save(TSG_Grid_Line *pLine) const
 			Line_Pos	= Cache_Offset + y * Line_Size;
 
 			//-------------------------------------------------
-			if( Cache_bSwap && m_Type != GRID_TYPE_Bit )
+			if( Cache_bSwap && m_Type != SG_DATATYPE_Bit )
 			{
 				for(x=0, pValue=pLine->Data; x<Get_NX(); x++, pValue+=Get_nValueBytes())
 				{
@@ -743,7 +743,7 @@ void CSG_Grid::_Cache_LineBuffer_Save(TSG_Grid_Line *pLine) const
 			Cache_Stream.Write(pLine->Data, sizeof(char), Line_Size);
 			Cache_Stream.Flush();
 
-			if( Cache_bSwap && m_Type != GRID_TYPE_Bit )
+			if( Cache_bSwap && m_Type != SG_DATATYPE_Bit )
 			{
 				for(x=0, pValue=pLine->Data; x<Get_NX(); x++, pValue+=Get_nValueBytes())
 				{
@@ -776,7 +776,7 @@ void CSG_Grid::_Cache_LineBuffer_Load(TSG_Grid_Line *pLine, int y) const
 			Cache_Stream.Seek(Line_Pos);
 			Cache_Stream.Read(pLine->Data, sizeof(char), Line_Size);
 
-			if( Cache_bSwap && m_Type != GRID_TYPE_Bit )
+			if( Cache_bSwap && m_Type != SG_DATATYPE_Bit )
 			{
 				for(x=0, pValue=pLine->Data; x<Get_NX(); x++, pValue+=Get_nValueBytes())
 				{
@@ -840,7 +840,7 @@ bool CSG_Grid::_Compr_Create(void)
 {
 	TSG_Grid_Line	Line;
 
-	if( m_System.is_Valid() && m_Type > 0 && m_Type < GRID_TYPE_Count && m_Memory_Type == GRID_MEMORY_Normal )
+	if( m_System.is_Valid() && m_Type != SG_DATATYPE_Undefined && m_Memory_Type == GRID_MEMORY_Normal )
 	{
 		m_Memory_bLock	= true;
 

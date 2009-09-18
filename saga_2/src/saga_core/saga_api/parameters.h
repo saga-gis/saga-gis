@@ -722,15 +722,15 @@ public:
 
 	virtual bool				Set_Value				(void *Value);
 
-	void						Set_Preferred_Type		(TSG_Grid_Type Type);
-	TSG_Grid_Type				Get_Preferred_Type		(void)		{	return( m_Type );	}
+	void						Set_Preferred_Type		(TSG_Data_Type Type);
+	TSG_Data_Type				Get_Preferred_Type		(void)		{	return( m_Type );	}
 
 	CSG_Grid_System *			Get_System				(void);
 
 
 protected:
 
-	TSG_Grid_Type				m_Type;
+	TSG_Data_Type				m_Type;
 
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
@@ -1110,7 +1110,7 @@ public:
 	CSG_Parameter *				Add_FixedTable			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, CSG_Table   *pTemplate = NULL);
 
 	CSG_Parameter *				Add_Grid_System			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, CSG_Grid_System *pInit = NULL);
-	CSG_Parameter *				Add_Grid				(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint, bool bSystem_Dependent = true, TSG_Grid_Type Preferred_Type = GRID_TYPE_Undefined);
+	CSG_Parameter *				Add_Grid				(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint, bool bSystem_Dependent = true, TSG_Data_Type Preferred_Type = SG_DATATYPE_Undefined);
 	CSG_Parameter *				Add_Grid_Output			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description);
 	CSG_Parameter *				Add_Grid_List			(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint, bool bSystem_Dependent = true);
 
@@ -1153,7 +1153,7 @@ public:
 	bool						Get_String				(CSG_String &String, bool bOptionsOnly);
 	bool						Msg_String				(bool bOptionsOnly);
 
-	bool						Set_History				(CSG_History &History, bool bOptions = true, bool bDataObjects = true);
+	bool						Set_History				(CSG_MetaData &History, bool bOptions = true, bool bDataObjects = true);
 
 	CSG_Grid_System *			Get_Grid_System			(void)	{	return( m_pGrid_System ? m_pGrid_System->asGrid_System() : NULL );	}
 
@@ -1176,7 +1176,7 @@ public:
 	CSG_Parameter *				Add_Colors				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, CSG_Colors      *pInit = NULL);
 	CSG_Parameter *				Add_FixedTable			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, CSG_Table   *pTemplate = NULL);
 	CSG_Parameter *				Add_Grid_System			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, CSG_Grid_System *pInit = NULL);
-	CSG_Parameter *				Add_Grid				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint, bool bSystem_Dependent = true, TSG_Grid_Type Preferred_Type = GRID_TYPE_Undefined);
+	CSG_Parameter *				Add_Grid				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint, bool bSystem_Dependent = true, TSG_Data_Type Preferred_Type = SG_DATATYPE_Undefined);
 	CSG_Parameter *				Add_Grid_Output			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description);
 	CSG_Parameter *				Add_Grid_List			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint, bool bSystem_Dependent = true);
 	CSG_Parameter *				Add_Table_Field			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, bool bAllowNone = false);

@@ -191,7 +191,7 @@ void CTOPMODEL_Values::Create(double dTime, int anTimeSteps, CSG_Parameters *pPa
 		dz			= zRange / (nClasses + 1);
 		nCells		= 0;
 
-		pClass->Create(pAtanB, GRID_TYPE_Short);
+		pClass->Create(pAtanB, SG_DATATYPE_Short);
 		pClass->Set_NoData_Value(-9999);
 
 		for(n=0; n<pAtanB->Get_NCells(); n++)

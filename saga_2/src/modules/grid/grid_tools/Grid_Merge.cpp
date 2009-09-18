@@ -199,22 +199,22 @@ bool CGrid_Merge::On_Execute(void)
 		if( pMerged == NULL )
 		{
 			bool			bResampling;
-			TSG_Grid_Type	Type;
+			TSG_Data_Type	Type;
 
 			//---------------------------------------------
 			// Type...
 
 			switch( Parameters("TYPE")->asInt() )
 			{
-			case 0:				Type	= GRID_TYPE_Bit;	break;
-			case 1:				Type	= GRID_TYPE_Byte;	break;
-			case 2:				Type	= GRID_TYPE_Char;	break;
-			case 3:				Type	= GRID_TYPE_Word;	break;
-			case 4:				Type	= GRID_TYPE_Short;	break;
-			case 5:				Type	= GRID_TYPE_DWord;	break;
-			case 6:				Type	= GRID_TYPE_Int;	break;
-			case 7: default:	Type	= GRID_TYPE_Float;	break;
-			case 8:				Type	= GRID_TYPE_Double;	break;
+			case 0:				Type	= SG_DATATYPE_Bit;		break;
+			case 1:				Type	= SG_DATATYPE_Byte;		break;
+			case 2:				Type	= SG_DATATYPE_Char;		break;
+			case 3:				Type	= SG_DATATYPE_Word;		break;
+			case 4:				Type	= SG_DATATYPE_Short;	break;
+			case 5:				Type	= SG_DATATYPE_DWord;	break;
+			case 6:				Type	= SG_DATATYPE_Int;		break;
+			case 7: default:	Type	= SG_DATATYPE_Float;	break;
+			case 8:				Type	= SG_DATATYPE_Double;	break;
 			}
 
 			//---------------------------------------------
@@ -308,7 +308,7 @@ bool CGrid_Merge::On_Execute(void)
                                     if (pCount == NULL)
                                     {
                                         pCount	= SG_Create_Grid(
-				                            GRID_TYPE_Int,
+				                            SG_DATATYPE_Int,
 				                            1 + (int)(0.5 + Extent.Get_XRange() / Cellsize),
 				                            1 + (int)(0.5 + Extent.Get_YRange() / Cellsize),
 				                            Cellsize,
@@ -352,7 +352,7 @@ bool CGrid_Merge::On_Execute(void)
                                     if (pCount == NULL)
                                     {
                                         pCount	= SG_Create_Grid(
-				                            GRID_TYPE_Int,
+				                            SG_DATATYPE_Int,
 				                            1 + (int)(0.5 + Extent.Get_XRange() / Cellsize),
 				                            1 + (int)(0.5 + Extent.Get_YRange() / Cellsize),
 				                            Cellsize,

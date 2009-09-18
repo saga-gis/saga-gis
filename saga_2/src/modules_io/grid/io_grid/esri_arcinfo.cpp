@@ -339,7 +339,7 @@ CSG_Grid * CESRI_ArcInfo_Import::Read_Header(FILE *Stream)
 			yMin	+= CellSize / 2.0;
 
 		//-------------------------------------------------
-		if( (pGrid = SG_Create_Grid(GRID_TYPE_Float, NX, NY, CellSize, xMin, yMin)) != NULL )
+		if( (pGrid = SG_Create_Grid(SG_DATATYPE_Float, NX, NY, CellSize, xMin, yMin)) != NULL )
 		{
 			pGrid->Set_NoData_Value(NoData);
 

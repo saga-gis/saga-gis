@@ -134,7 +134,7 @@ bool CGStat_Export::On_Execute(void)
 
 			for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
 			{
-				if( pShapes->Get_Field_Type(iField) == TABLE_FIELDTYPE_String )
+				if( pShapes->Get_Field_Type(iField) == SG_DATATYPE_String )
 				{
 					fprintf(Stream, "\n%%%s",	pShapes->Get_Field_Name(iField) );
 				}
@@ -157,7 +157,7 @@ bool CGStat_Export::On_Execute(void)
 
 						for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
 						{
-							if( pShapes->Get_Field_Type(iField) == TABLE_FIELDTYPE_String )
+							if( pShapes->Get_Field_Type(iField) == SG_DATATYPE_String )
 							{
 								fprintf(Stream, "\t\"%s\"",	pShape->asString(iField) );
 							}
@@ -318,11 +318,11 @@ bool CGStat_Import::On_Execute(void)
 					{
 						if( !s.CmpNoCase(SG_T("[ignore]")) || s[0] == '%' )
 						{
-							pShapes->Add_Field(s, TABLE_FIELDTYPE_String);
+							pShapes->Add_Field(s, SG_DATATYPE_String);
 						}
 						else
 						{
-							pShapes->Add_Field(s, TABLE_FIELDTYPE_Double);
+							pShapes->Add_Field(s, SG_DATATYPE_Double);
 						}
 					}
 				}
@@ -379,7 +379,7 @@ bool CGStat_Import::On_Execute(void)
 				if( !strncmp(c, "ARC", 3) )
 				{
 					pShapes->Create(SHAPE_TYPE_Line, Parameters("FILENAME")->asString());
-					pShapes->Add_Field("VALUE", TABLE_FIELDTYPE_Double);
+					pShapes->Add_Field("VALUE", SG_DATATYPE_Double);
 
 					//---------------------------------------------
 					while( !feof(Stream) && Set_Progress(ftell(Stream), fLength) )

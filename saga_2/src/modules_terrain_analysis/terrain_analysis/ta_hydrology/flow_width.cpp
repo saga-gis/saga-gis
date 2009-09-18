@@ -145,7 +145,7 @@ bool CFlow_Width::On_Execute(void)
 	{
 		if( pSCA == NULL )
 		{
-			Parameters("SCA")->Set_Value(pSCA = SG_Create_Grid(*Get_System(), GRID_TYPE_Float));
+			Parameters("SCA")->Set_Value(pSCA = SG_Create_Grid(*Get_System(), SG_DATATYPE_Float));
 		}
 
 		pSCA->Set_Name(_TL("Specific Catchment Area"));

@@ -175,8 +175,8 @@ void CSurfaceSpecificPoints::Do_MarkHighestNB(CSG_Grid *pGrid, CSG_Grid *pResult
 
 	CSG_Grid	*clo, *chi;
 
-	clo		= SG_Create_Grid(pGrid, GRID_TYPE_Char);
-	chi		= SG_Create_Grid(pGrid, GRID_TYPE_Char);
+	clo		= SG_Create_Grid(pGrid, SG_DATATYPE_Char);
+	chi		= SG_Create_Grid(pGrid, SG_DATATYPE_Char);
 
 	// Pass 1: Auszaehlen...
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -255,8 +255,8 @@ void CSurfaceSpecificPoints::Do_OppositeNB(CSG_Grid *pGrid, CSG_Grid *pResult)
 
 	CSG_Grid	*clo, *chi;
 
-	clo		= SG_Create_Grid(pGrid, GRID_TYPE_Char);
-	chi		= SG_Create_Grid(pGrid, GRID_TYPE_Char);
+	clo		= SG_Create_Grid(pGrid, SG_DATATYPE_Char);
+	chi		= SG_Create_Grid(pGrid, SG_DATATYPE_Char);
 
 	// Pass 1: Auszaehlen...
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)

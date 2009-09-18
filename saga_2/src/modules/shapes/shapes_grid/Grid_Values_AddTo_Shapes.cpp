@@ -153,7 +153,7 @@ bool CGrid_Values_AddTo_Shapes::On_Execute(void)
 		//-------------------------------------------------
 		for(iGrid=0; iGrid<pGrids->Get_Count(); iGrid++)
 		{
-			pResult->Add_Field(pGrids->asGrid(iGrid)->Get_Name(), TABLE_FIELDTYPE_Double);
+			pResult->Add_Field(pGrids->asGrid(iGrid)->Get_Name(), SG_DATATYPE_Double);
 		}
 
 		//-------------------------------------------------

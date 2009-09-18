@@ -138,7 +138,7 @@ void CPolygonStatisticsFromPoints::CalculateStatistics(){
 	pPointsTable = m_pPoints;
 
 	pPolygonsTable = m_pPolygons;	
-	pPolygonsTable->Add_Field("Count", TABLE_FIELDTYPE_Int);
+	pPolygonsTable->Add_Field("Count", SG_DATATYPE_Int);
 	m_pClasses = new int[pPointsTable->Get_Record_Count()];
 	m_pCount = new int[pPolygonsTable->Get_Record_Count()];
 	pSum = new float[pPolygonsTable->Get_Record_Count()];
@@ -180,7 +180,7 @@ void CPolygonStatisticsFromPoints::CalculateStatistics(){
 			iField = (int) (i / 5);
 			iParam = i % 5;
 			sName.Printf(SG_T("%s%s"), pPointsTable->Get_Field_Name(iField), SG_STR_MBTOSG(sParamName[iParam]));
-			pPolygonsTable->Add_Field(sName.c_str(), TABLE_FIELDTYPE_Double); 
+			pPolygonsTable->Add_Field(sName.c_str(), SG_DATATYPE_Double); 
 			if (iField != iLastField){					
 				for (j = 0; j < pPolygonsTable->Get_Record_Count(); j++){
 					pSum[j] = 0;

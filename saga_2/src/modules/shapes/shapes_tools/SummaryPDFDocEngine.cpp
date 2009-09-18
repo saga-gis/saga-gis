@@ -80,8 +80,8 @@ void CSummaryPDFDocEngine::AddClassSummaryPage(CSG_Shapes *pShapes,
 	Draw_Graticule(CanvasExtent, Extent);
 
 	pClassTable = SG_Create_Table();
-	pClassTable->Add_Field(_TL("Field"), TABLE_FIELDTYPE_String );
-	pClassTable->Add_Field(_TL("Value"), TABLE_FIELDTYPE_Double);
+	pClassTable->Add_Field(_TL("Field"), SG_DATATYPE_String );
+	pClassTable->Add_Field(_TL("Value"), SG_DATATYPE_Double);
 
 	for (i = 0; i < pTable->Get_Field_Count(); i++){
 		pRecord = pClassTable->Add_Record();

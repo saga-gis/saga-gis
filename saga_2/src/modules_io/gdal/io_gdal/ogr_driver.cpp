@@ -190,21 +190,21 @@ OGRwkbGeometryType COGR_Driver::Get_Type(TSG_Shape_Type Type)
 }
 
 //---------------------------------------------------------
-TSG_Table_Field_Type COGR_Driver::Get_Type(OGRFieldType Type)
+TSG_Data_Type COGR_Driver::Get_Type(OGRFieldType Type)
 {
 	switch( Type )
 	{
 	case OFTInteger:		// Simple 32bit integer
-		return( TABLE_FIELDTYPE_Int );
+		return( SG_DATATYPE_Int );
 
 	case OFTReal:			// Double Precision floating point
-		return( TABLE_FIELDTYPE_Double );
+		return( SG_DATATYPE_Double );
 
 	case OFTString:			// String of ASCII chars
-		return( TABLE_FIELDTYPE_String );
+		return( SG_DATATYPE_String );
 
 	case OFTDateTime:		// Date and Time 
-		return( TABLE_FIELDTYPE_Date );
+		return( SG_DATATYPE_Date );
 
 	default:
 	case OFTIntegerList:	// List of 32bit integers
@@ -215,29 +215,33 @@ TSG_Table_Field_Type COGR_Driver::Get_Type(OGRFieldType Type)
 	case OFTBinary:			// Raw Binary data
 	case OFTDate:			// Date
 	case OFTTime:			// Time
-		return( TABLE_FIELDTYPE_None );
+		return( SG_DATATYPE_Undefined );
 	}
 }
 
 //---------------------------------------------------------
-OGRFieldType COGR_Driver::Get_Type(TSG_Table_Field_Type Type)
+OGRFieldType COGR_Driver::Get_Type(TSG_Data_Type Type)
 {
 	switch( Type )
 	{
 	default:
-	case TABLE_FIELDTYPE_Char:
-	case TABLE_FIELDTYPE_String:
-	case TABLE_FIELDTYPE_Date:
+	case SG_DATATYPE_String:
+	case SG_DATATYPE_Date:
 		return( OFTString );
 
-	case TABLE_FIELDTYPE_Short:
-	case TABLE_FIELDTYPE_Int:
-	case TABLE_FIELDTYPE_Long:
-	case TABLE_FIELDTYPE_Color:
+	case SG_DATATYPE_Byte:
+	case SG_DATATYPE_Char:
+	case SG_DATATYPE_Word:
+	case SG_DATATYPE_Short:
+	case SG_DATATYPE_DWord:
+	case SG_DATATYPE_Int:
+	case SG_DATATYPE_ULong:
+	case SG_DATATYPE_Long:
+	case SG_DATATYPE_Color:
 		return( OFTInteger );
 
-	case TABLE_FIELDTYPE_Float:
-	case TABLE_FIELDTYPE_Double:
+	case SG_DATATYPE_Float:
+	case SG_DATATYPE_Double:
 		return( OFTReal );
 	}
 }
@@ -536,21 +540,21 @@ bool COGR_DataSource::Write_Shapes(CSG_Shapes *pShapes)
 				switch( pShapes->Get_Field_Type(iField) )
 				{
 				default:
-				case TABLE_FIELDTYPE_Char:
-				case TABLE_FIELDTYPE_String:
-				case TABLE_FIELDTYPE_Date:
+				case SG_DATATYPE_Char:
+				case SG_DATATYPE_String:
+				case SG_DATATYPE_Date:
 					pFeature->SetField(iField, SG_STR_SGTOMB(pShape->asString(iField)));
 					break;
 
-				case TABLE_FIELDTYPE_Short:
-				case TABLE_FIELDTYPE_Int:
-				case TABLE_FIELDTYPE_Long:
-				case TABLE_FIELDTYPE_Color:
+				case SG_DATATYPE_Short:
+				case SG_DATATYPE_Int:
+				case SG_DATATYPE_Long:
+				case SG_DATATYPE_Color:
 					pFeature->SetField(iField, pShape->asInt(iField));
 					break;
 
-				case TABLE_FIELDTYPE_Float:
-				case TABLE_FIELDTYPE_Double:
+				case SG_DATATYPE_Float:
+				case SG_DATATYPE_Double:
 					pFeature->SetField(iField, pShape->asDouble(iField));
 					break;
 				}

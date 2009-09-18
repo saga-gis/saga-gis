@@ -112,7 +112,7 @@ bool CGPX_Import::On_Execute(void)
 	m_pShapes	= Parameters("SHAPES")	->asShapesList();
 
 	//-----------------------------------------------------
-	if( !GPX.Create(m_Name) || GPX.Get_Root().Get_Name().CmpNoCase(SG_T("gpx")) )
+	if( !GPX.Create(m_Name) || GPX.Get_Name().CmpNoCase(SG_T("gpx")) )
 	{
 		return( false );
 	}
@@ -125,9 +125,9 @@ bool CGPX_Import::On_Execute(void)
 	m_pShapes->Del_Items();
 
 	//-----------------------------------------------------
-	for(int i=0; i<GPX.Get_Root().Get_Children_Count(); i++)
+	for(int i=0; i<GPX.Get_Children_Count(); i++)
 	{
-		CSG_MetaData_Node	*pChild	= GPX.Get_Root().Get_Child(i);
+		CSG_MetaData	*pChild	= GPX.Get_Child(i);
 
 		     if( pChild->Get_Name().CmpNoCase(SG_T("wpt")) == 0 )
 		{
@@ -165,7 +165,7 @@ bool CGPX_Import::On_Execute(void)
 #define GET_CONTENT(node, child, default)	(node->Get_Child(SG_T(child)) ? node->Get_Child(SG_T(child))->Get_Content() : SG_T(default))
 
 //---------------------------------------------------------
-bool CGPX_Import::Add_Route(CSG_MetaData_Node *pRoute)
+bool CGPX_Import::Add_Route(CSG_MetaData *pRoute)
 {
 	// <name>	xsd:string
 	// <cmt>	xsd:string
@@ -183,7 +183,7 @@ bool CGPX_Import::Add_Route(CSG_MetaData_Node *pRoute)
 
 	for(int i=0; i<pRoute->Get_Children_Count(); i++)
 	{
-		CSG_MetaData_Node	*pChild	= pRoute->Get_Child(i);
+		CSG_MetaData	*pChild	= pRoute->Get_Child(i);
 
 		if( pChild->Get_Name().CmpNoCase(SG_T("rtept")) == 0 )
 		{
@@ -195,7 +195,7 @@ bool CGPX_Import::Add_Route(CSG_MetaData_Node *pRoute)
 }
 
 //---------------------------------------------------------
-bool CGPX_Import::Add_Track(CSG_MetaData_Node *pTrack)
+bool CGPX_Import::Add_Track(CSG_MetaData *pTrack)
 {
 	// <name>	xsd:string
 	// <cmt>	xsd:string
@@ -205,7 +205,7 @@ bool CGPX_Import::Add_Track(CSG_MetaData_Node *pTrack)
 	// <number> xsd:nonNegativeInteger
 	// <type>	xsd:string
 
-	CSG_MetaData_Node	*pSegment	= pTrack->Get_Child(SG_T("trkseg"));
+	CSG_MetaData	*pSegment	= pTrack->Get_Child(SG_T("trkseg"));
 
 	if( pSegment )
 	{
@@ -217,7 +217,7 @@ bool CGPX_Import::Add_Track(CSG_MetaData_Node *pTrack)
 
 		for(int i=0; i<pSegment->Get_Children_Count(); i++)
 		{
-			CSG_MetaData_Node	*pChild	= pSegment->Get_Child(i);
+			CSG_MetaData	*pChild	= pSegment->Get_Child(i);
 
 			if( pChild->Get_Name().CmpNoCase(SG_T("trkpt")) == 0 )
 			{
@@ -239,35 +239,35 @@ bool CGPX_Import::Add_Track(CSG_MetaData_Node *pTrack)
 //---------------------------------------------------------
 #define ADD_FIELD(key, type)	if( pNode->Get_Child(SG_T(key)) )	{	pPoints->Add_Field(SG_T(key), type);	}
 
-bool CGPX_Import::Add_Fields(CSG_MetaData_Node *pNode, CSG_Shapes *pPoints)
+bool CGPX_Import::Add_Fields(CSG_MetaData *pNode, CSG_Shapes *pPoints)
 {
 	if( pPoints->Get_Field_Count() == 0 )
 	{
-		ADD_FIELD("ele"				, TABLE_FIELDTYPE_Double);	// <ele>			xsd:decimal				(Höhe)
-		ADD_FIELD("time"			, TABLE_FIELDTYPE_String);	// <time>			xsd:dateTime			(Datum und Zeit)
-		ADD_FIELD("magvar"			, TABLE_FIELDTYPE_Double);	// <magvar>			degreesType				(lokale magn. Missweisung)
-		ADD_FIELD("geoidheight"		, TABLE_FIELDTYPE_Double);	// <geoidheight>	xsd:decimal				(Höhe bezogen auf Geoid)
-		ADD_FIELD("name"			, TABLE_FIELDTYPE_String);	// <name>			xsd:string				(Beschreibung)
-		ADD_FIELD("cmt"				, TABLE_FIELDTYPE_String);	// <cmt>			xsd:string				(Kommentar)
-		ADD_FIELD("desc"			, TABLE_FIELDTYPE_String);	// <desc>			xsd:string				(Elementbeschreibung)
-		ADD_FIELD("src"				, TABLE_FIELDTYPE_String);	// <src>			xsd:string				(Quelle)
-		ADD_FIELD("link"			, TABLE_FIELDTYPE_String);	// <link>			linkType				(Link)
-		ADD_FIELD("sym"				, TABLE_FIELDTYPE_String);	// <sym>			xsd:string				(Darstellungssymbol)
-		ADD_FIELD("type"			, TABLE_FIELDTYPE_String);	// <type>			xsd:string				(Klassifikation)
-		ADD_FIELD("fix"				, TABLE_FIELDTYPE_Double);	// <fix>			fixType
-		ADD_FIELD("sat"				, TABLE_FIELDTYPE_Int   );	// <sat>			xsd:nonNegativeInteger	(Anzahl der empfangenen Satelliten)
-		ADD_FIELD("hdop"			, TABLE_FIELDTYPE_Double);	// <hdop>			xsd:decimal				(hDOP)
-		ADD_FIELD("vdop"			, TABLE_FIELDTYPE_Double);	// <vdop>			xsd:decimal				(vDOP)
-		ADD_FIELD("pdop"			, TABLE_FIELDTYPE_Double);	// <pdop>			xsd:decimal				(3D DOP)
-		ADD_FIELD("ageofdgpsdata"	, TABLE_FIELDTYPE_Double);	// <ageofdgpsdata>	xsd:decimal				(Letzter DGPS update)
-		ADD_FIELD("dgpsid"			, TABLE_FIELDTYPE_Int   );	// <dgpsid>			dgpsStationType			(DGPS ID)
+		ADD_FIELD("ele"				, SG_DATATYPE_Double);	// <ele>			xsd:decimal				(Höhe)
+		ADD_FIELD("time"			, SG_DATATYPE_String);	// <time>			xsd:dateTime			(Datum und Zeit)
+		ADD_FIELD("magvar"			, SG_DATATYPE_Double);	// <magvar>			degreesType				(lokale magn. Missweisung)
+		ADD_FIELD("geoidheight"		, SG_DATATYPE_Double);	// <geoidheight>	xsd:decimal				(Höhe bezogen auf Geoid)
+		ADD_FIELD("name"			, SG_DATATYPE_String);	// <name>			xsd:string				(Beschreibung)
+		ADD_FIELD("cmt"				, SG_DATATYPE_String);	// <cmt>			xsd:string				(Kommentar)
+		ADD_FIELD("desc"			, SG_DATATYPE_String);	// <desc>			xsd:string				(Elementbeschreibung)
+		ADD_FIELD("src"				, SG_DATATYPE_String);	// <src>			xsd:string				(Quelle)
+		ADD_FIELD("link"			, SG_DATATYPE_String);	// <link>			linkType				(Link)
+		ADD_FIELD("sym"				, SG_DATATYPE_String);	// <sym>			xsd:string				(Darstellungssymbol)
+		ADD_FIELD("type"			, SG_DATATYPE_String);	// <type>			xsd:string				(Klassifikation)
+		ADD_FIELD("fix"				, SG_DATATYPE_Double);	// <fix>			fixType
+		ADD_FIELD("sat"				, SG_DATATYPE_Int   );	// <sat>			xsd:nonNegativeInteger	(Anzahl der empfangenen Satelliten)
+		ADD_FIELD("hdop"			, SG_DATATYPE_Double);	// <hdop>			xsd:decimal				(hDOP)
+		ADD_FIELD("vdop"			, SG_DATATYPE_Double);	// <vdop>			xsd:decimal				(vDOP)
+		ADD_FIELD("pdop"			, SG_DATATYPE_Double);	// <pdop>			xsd:decimal				(3D DOP)
+		ADD_FIELD("ageofdgpsdata"	, SG_DATATYPE_Double);	// <ageofdgpsdata>	xsd:decimal				(Letzter DGPS update)
+		ADD_FIELD("dgpsid"			, SG_DATATYPE_Int   );	// <dgpsid>			dgpsStationType			(DGPS ID)
 	}
 
 	return( pPoints->Get_Field_Count() > 0 );
 }
 
 //---------------------------------------------------------
-bool CGPX_Import::Add_Point(CSG_MetaData_Node *pNode, CSG_Shapes *pPoints)
+bool CGPX_Import::Add_Point(CSG_MetaData *pNode, CSG_Shapes *pPoints)
 {
 	const SG_Char	*cString;
 	TSG_Point		Point;
@@ -282,7 +282,7 @@ bool CGPX_Import::Add_Point(CSG_MetaData_Node *pNode, CSG_Shapes *pPoints)
 
 		for(int i=0; i<pNode->Get_Children_Count(); i++)
 		{
-			CSG_MetaData_Node	*pChild	= pNode->Get_Child(i);
+			CSG_MetaData	*pChild	= pNode->Get_Child(i);
 
 			pPoint->Set_Value(pChild->Get_Name(), pChild->Get_Content());
 		}
@@ -378,12 +378,12 @@ bool CGPX_Export::On_Execute(void)
 	iDesc		= Parameters("DESC")	->asInt();	if( iDesc >= pShapes->Get_Field_Count() )	iDesc	= -1;
 
 	//-----------------------------------------------------
-	GPX.Get_Root().Set_Name(SG_T("gpx"));
-	GPX.Get_Root().Add_Property(SG_T("version")				, SG_T("1.0"));
-	GPX.Get_Root().Add_Property(SG_T("creator")				, SG_T("SAGA - System for Automated Geoscientific Analyses - http://www.saga-gis.org"));
-	GPX.Get_Root().Add_Property(SG_T("xmlns:xsi")			, SG_T("http://www.w3.org/2001/XMLSchema-instance"));
-	GPX.Get_Root().Add_Property(SG_T("xmlns")				, SG_T("http://www.topografix.com/GPX/1/0"));
-	GPX.Get_Root().Add_Property(SG_T("xsi:schemaLocation")	, SG_T("http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd"));
+	GPX.Set_Name(SG_T("gpx"));
+	GPX.Add_Property(SG_T("version")			, SG_T("1.0"));
+	GPX.Add_Property(SG_T("creator")			, SG_T("SAGA - System for Automated Geoscientific Analyses - http://www.saga-gis.org"));
+	GPX.Add_Property(SG_T("xmlns:xsi")			, SG_T("http://www.w3.org/2001/XMLSchema-instance"));
+	GPX.Add_Property(SG_T("xmlns")				, SG_T("http://www.topografix.com/GPX/1/0"));
+	GPX.Add_Property(SG_T("xsi:schemaLocation")	, SG_T("http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd"));
 
 	for(int iShape=0; iShape<pShapes->Get_Count(); iShape++)
 	{
@@ -393,7 +393,7 @@ bool CGPX_Export::On_Execute(void)
 		{
 			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 			{
-				CSG_MetaData_Node	*pPoint	= GPX.Get_Root().Add_Child(SG_T("wpt"), "");
+				CSG_MetaData	*pPoint	= GPX.Add_Child(SG_T("wpt"), "");
 
 				pPoint->Add_Property(SG_T("lon"), pShape->Get_Point(iPoint, iPart).x);
 				pPoint->Add_Property(SG_T("lat"), pShape->Get_Point(iPoint, iPart).y);

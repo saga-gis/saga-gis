@@ -537,7 +537,7 @@ CSG_Grid * CESRI_E00_Import::getraster(int prec, double scale)
 
 	//-----------------------------------------------------
 	case 1:
-		pGrid	= SG_Create_Grid(GRID_TYPE_Int, cols, rows, xres, xmin, ymin);
+		pGrid	= SG_Create_Grid(SG_DATATYPE_Int, cols, rows, xres, xmin, ymin);
 		pGrid->Set_NoData_Value(nul_val);
 
 		for(y=0; y<rows && line && Set_Progress(y, rows); y++)
@@ -559,7 +559,7 @@ CSG_Grid * CESRI_E00_Import::getraster(int prec, double scale)
 
 	//-----------------------------------------------------
 	case 2:
-		pGrid	= SG_Create_Grid(GRID_TYPE_Float, cols, rows, xres, xmin, ymin);
+		pGrid	= SG_Create_Grid(SG_DATATYPE_Float, cols, rows, xres, xmin, ymin);
 		pGrid->Set_NoData_Value(nul_val);
 
 		for(y=0; y<rows && line && Set_Progress(y, rows); y++)
@@ -581,7 +581,7 @@ CSG_Grid * CESRI_E00_Import::getraster(int prec, double scale)
 
 	//-----------------------------------------------------
 	case 3:
-		pGrid	= SG_Create_Grid(GRID_TYPE_Double, cols, rows, xres, xmin, ymin);
+		pGrid	= SG_Create_Grid(SG_DATATYPE_Double, cols, rows, xres, xmin, ymin);
 		pGrid->Set_NoData_Value(nul_val);
 
 		for(y=0; y<rows && line && Set_Progress(y, rows); y++)
@@ -633,12 +633,12 @@ CSG_Shapes * CESRI_E00_Import::getarcs(int prec, double scale, TSG_Shape_Type &s
 
 	//-----------------------------------------------------
 	pShapes	= SG_Create_Shapes(shape_type);
-	pShapes->Add_Field("ID"	, TABLE_FIELDTYPE_Int);
-	pShapes->Add_Field("ID#"	, TABLE_FIELDTYPE_Int);
-	pShapes->Add_Field("FNODE"	, TABLE_FIELDTYPE_Int);
-	pShapes->Add_Field("TNODE"	, TABLE_FIELDTYPE_Int);
-	pShapes->Add_Field("LPOL"	, TABLE_FIELDTYPE_Int);
-	pShapes->Add_Field("RPOL"	, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("ID"	, SG_DATATYPE_Int);
+	pShapes->Add_Field("ID#"	, SG_DATATYPE_Int);
+	pShapes->Add_Field("FNODE"	, SG_DATATYPE_Int);
+	pShapes->Add_Field("TNODE"	, SG_DATATYPE_Int);
+	pShapes->Add_Field("LPOL"	, SG_DATATYPE_Int);
+	pShapes->Add_Field("RPOL"	, SG_DATATYPE_Int);
 
 	Set_Progress(0, 100);
 
@@ -733,7 +733,7 @@ CSG_Shapes * CESRI_E00_Import::Arcs2Polygons(CSG_Shapes *pArcs)
 	Process_Set_Text(_TL("Arcs to polygons"));
 
 	pPolygons	= SG_Create_Shapes(SHAPE_TYPE_Polygon);
-	pPolygons->Add_Field("ID", TABLE_FIELDTYPE_Int);
+	pPolygons->Add_Field("ID", SG_DATATYPE_Int);
 
 	nArcs		= pArcs->Get_Count();
 
@@ -777,8 +777,8 @@ void CESRI_E00_Import::Arcs2Polygon(CSG_Shapes *pArcs, CSG_Shapes *pPolygons, in
 
 	//-----------------------------------------------------
 	Arcs.Create(SHAPE_TYPE_Line);
-	Arcs.Add_Field("FROM_NODE", TABLE_FIELDTYPE_Int);
-	Arcs.Add_Field("TO___NODE", TABLE_FIELDTYPE_Int);
+	Arcs.Add_Field("FROM_NODE", SG_DATATYPE_Int);
+	Arcs.Add_Field("TO___NODE", SG_DATATYPE_Int);
 
 	//-----------------------------------------------------
 	for(iShape=pArcs->Get_Count()-1; iShape>=0; iShape--)
@@ -882,8 +882,8 @@ CSG_Shapes * CESRI_E00_Import::getlabels(int prec, double scale)	// shape_type: 
 
 	pShapes	= SG_Create_Shapes(SHAPE_TYPE_Point);
 
-	pShapes->Add_Field("ID#"	, TABLE_FIELDTYPE_Int);
-	pShapes->Add_Field("ID"	, TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("ID#"	, SG_DATATYPE_Int);
+	pShapes->Add_Field("ID"	, SG_DATATYPE_Int);
 
 	while( (line = E00ReadNextLine(hReadPtr)) != NULL )
 	{
@@ -939,7 +939,7 @@ CSG_Shapes * CESRI_E00_Import::getsites(int prec, double scale)
 	CSG_Shapes	*pShapes;
 
 	pShapes	= SG_Create_Shapes(SHAPE_TYPE_Point);
-	pShapes->Add_Field("ID", TABLE_FIELDTYPE_Int);
+	pShapes->Add_Field("ID", SG_DATATYPE_Int);
 
 	while( (line = E00ReadNextLine(hReadPtr)) != NULL )
 	{
@@ -1157,10 +1157,10 @@ int CESRI_E00_Import::info_Get_Tables(void)
 			if     ( !s.CmpNoCase(SG_T("bnd")) )	// coverage boundaries
 			{
 				pBND	= SG_Create_Shapes(SHAPE_TYPE_Polygon, SG_T("Boundary"));
-				pBND->Add_Field("XMIN", TABLE_FIELDTYPE_Double);
-				pBND->Add_Field("YMIN", TABLE_FIELDTYPE_Double);
-				pBND->Add_Field("XMAX", TABLE_FIELDTYPE_Double);
-				pBND->Add_Field("YMAX", TABLE_FIELDTYPE_Double);
+				pBND->Add_Field("XMIN", SG_DATATYPE_Double);
+				pBND->Add_Field("YMIN", SG_DATATYPE_Double);
+				pBND->Add_Field("XMAX", SG_DATATYPE_Double);
+				pBND->Add_Field("YMAX", SG_DATATYPE_Double);
 				pRecord	= pTable->Get_Record(0);
 				pShape	= pBND->Add_Shape();
 				pShape->Set_Value(0, pRecord->asDouble(0));
@@ -1177,9 +1177,9 @@ int CESRI_E00_Import::info_Get_Tables(void)
 			else if( !s.CmpNoCase(SG_T("tic")) )	// tick marks
 			{
 				pTIC	= SG_Create_Shapes(SHAPE_TYPE_Point, SG_T("Tick Points"));
-				pTIC->Add_Field("ID", TABLE_FIELDTYPE_Int);
-				pTIC->Add_Field("X" , TABLE_FIELDTYPE_Double);
-				pTIC->Add_Field("Y" , TABLE_FIELDTYPE_Double);
+				pTIC->Add_Field("ID", SG_DATATYPE_Int);
+				pTIC->Add_Field("X" , SG_DATATYPE_Double);
+				pTIC->Add_Field("Y" , SG_DATATYPE_Double);
 				for(i=0; i<pTable->Get_Record_Count(); i++)
 				{
 					pRecord	= pTable->Get_Record(i);
@@ -1227,23 +1227,23 @@ CSG_Table * CESRI_E00_Import::info_Get_Table(struct info_Table info)
 		switch( info.Field[iField].Type )
 		{
 		case 60:	// float / double
-			pTable->Add_Field(info.Field[iField].Name, TABLE_FIELDTYPE_Double);
+			pTable->Add_Field(info.Field[iField].Name, SG_DATATYPE_Double);
 			break;
 
 		case 50:	// short / long
-			pTable->Add_Field(info.Field[iField].Name, TABLE_FIELDTYPE_Int);
+			pTable->Add_Field(info.Field[iField].Name, SG_DATATYPE_Int);
 			break;
 
 		case 40:	// float
-			pTable->Add_Field(info.Field[iField].Name, TABLE_FIELDTYPE_Double);
+			pTable->Add_Field(info.Field[iField].Name, SG_DATATYPE_Double);
 			break;
 
 		case 10:	// short
-			pTable->Add_Field(info.Field[iField].Name, TABLE_FIELDTYPE_Int);
+			pTable->Add_Field(info.Field[iField].Name, SG_DATATYPE_Int);
 			break;
 
 		default:	// string
-			pTable->Add_Field(info.Field[iField].Name, TABLE_FIELDTYPE_String);
+			pTable->Add_Field(info.Field[iField].Name, SG_DATATYPE_String);
 			break;
 		}
 	}
@@ -1266,11 +1266,11 @@ CSG_Table * CESRI_E00_Import::info_Get_Table(struct info_Table info)
 				pRecord->Set_Value(iField, atof(buffer_item));
 				break;
 
-			case TABLE_FIELDTYPE_Int:
+			case SG_DATATYPE_Int:
 				pRecord->Set_Value(iField, atoi(buffer_item));
 				break;
 
-			case TABLE_FIELDTYPE_String:
+			case SG_DATATYPE_String:
 				pRecord->Set_Value(iField, CSG_String(buffer_item));
 				break;
 			}
@@ -1394,7 +1394,7 @@ bool CESRI_E00_Import::Assign_Attributes(CSG_Shapes *pShapes)
 					{
 						switch( pPAT->Get_Field_Type(iField) )
 						{
-						case TABLE_FIELDTYPE_String:
+						case SG_DATATYPE_String:
 							pShape->Set_Value(oField + iField, pRec->asString(iField));
 							break;
 

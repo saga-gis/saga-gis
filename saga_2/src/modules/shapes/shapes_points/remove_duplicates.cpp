@@ -221,9 +221,9 @@ void CRemove_Duplicates::Set_Attributes(CSG_Table_Record *pTarget, CSG_Table_Rec
 		{
 			switch( pTable->Get_Field_Type(iField) )
 			{
-			case TABLE_FIELDTYPE_String:
-			case TABLE_FIELDTYPE_Color:
-			case TABLE_FIELDTYPE_Date:
+			case SG_DATATYPE_String:
+			case SG_DATATYPE_Color:
+			case SG_DATATYPE_Date:
 				if( m_Method_Str == 1 )
 				{
 					pTarget->Set_Value(iField, pSource->asString(iField));

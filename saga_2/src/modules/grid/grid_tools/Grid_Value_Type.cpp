@@ -127,8 +127,8 @@ CGrid_Value_Type::~CGrid_Value_Type(void)
 //---------------------------------------------------------
 bool CGrid_Value_Type::On_Execute(void)
 {
-	bool		bCopy;
-	TSG_Grid_Type	Type;
+	bool			bCopy;
+	TSG_Data_Type	Type;
 	CSG_Grid		*pInput, *pOutput;
 
 	//-----------------------------------------------------
@@ -157,15 +157,15 @@ bool CGrid_Value_Type::On_Execute(void)
 	switch( Parameters("TYPE")->asInt() )
 	{
 	default:
-	case 0:	Type	= GRID_TYPE_Bit;	break;
-	case 1:	Type	= GRID_TYPE_Byte;	break;
-	case 2:	Type	= GRID_TYPE_Char;	break;
-	case 3:	Type	= GRID_TYPE_Word;	break;
-	case 4:	Type	= GRID_TYPE_Short;	break;
-	case 5:	Type	= GRID_TYPE_DWord;	break;
-	case 6:	Type	= GRID_TYPE_Int;	break;
-	case 7:	Type	= GRID_TYPE_Float;	break;
-	case 8:	Type	= GRID_TYPE_Double;	break;
+	case 0:	Type	= SG_DATATYPE_Bit;		break;
+	case 1:	Type	= SG_DATATYPE_Byte;		break;
+	case 2:	Type	= SG_DATATYPE_Char;		break;
+	case 3:	Type	= SG_DATATYPE_Word;		break;
+	case 4:	Type	= SG_DATATYPE_Short;	break;
+	case 5:	Type	= SG_DATATYPE_DWord;	break;
+	case 6:	Type	= SG_DATATYPE_Int;		break;
+	case 7:	Type	= SG_DATATYPE_Float;	break;
+	case 8:	Type	= SG_DATATYPE_Double;	break;
 	}
 
 	//-----------------------------------------------------

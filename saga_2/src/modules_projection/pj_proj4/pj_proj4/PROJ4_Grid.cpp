@@ -283,7 +283,7 @@ bool CPROJ4_Grid::On_Execute_Conversion(void)
 		default:	// create new grid...
 			if( Get_Target_System(pSource->Get_System(), System) )
 			{
-				Parameters("TARGET")->Set_Value(pTarget	= SG_Create_Grid(System, m_Interpolation == 0 ? pSource->Get_Type() : GRID_TYPE_Float));
+				Parameters("TARGET")->Set_Value(pTarget	= SG_Create_Grid(System, m_Interpolation == 0 ? pSource->Get_Type() : SG_DATATYPE_Float));
 
 				return( Set_Grid(pSource, pTarget) );
 			}
@@ -422,7 +422,7 @@ bool CPROJ4_Grid::Set_Shapes(CSG_Grid *pSource, CSG_Shapes *pTarget)
 	if( pSource && pTarget )
 	{
 		pTarget->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), pSource->Get_Name(), Get_Proj_Name().c_str()));
-		pTarget->Add_Field("Z", TABLE_FIELDTYPE_Double);
+		pTarget->Add_Field("Z", SG_DATATYPE_Double);
 
 		for(y=0, Pt_Source.y=pSource->Get_YMin(); y<pSource->Get_NY() && Set_Progress(y, pSource->Get_NY()); y++, Pt_Source.y+=pSource->Get_Cellsize())
 		{
@@ -460,11 +460,11 @@ bool CPROJ4_Grid::Init_XY(const CSG_Grid_System &System, CSG_Grid **ppX, CSG_Gri
 {
 	if( Parameters("CREATE_XY")->asBool() )
 	{
-		Parameters("OUT_X")->Set_Value(*ppX	= SG_Create_Grid(System, GRID_TYPE_Float));
+		Parameters("OUT_X")->Set_Value(*ppX	= SG_Create_Grid(System, SG_DATATYPE_Float));
 		(*ppX)->Assign_NoData();
 		(*ppX)->Set_Name(_TL("X-Coordinate"));
 
-		Parameters("OUT_Y")->Set_Value(*ppY	= SG_Create_Grid(System, GRID_TYPE_Float));
+		Parameters("OUT_Y")->Set_Value(*ppY	= SG_Create_Grid(System, SG_DATATYPE_Float));
 		(*ppY)->Assign_NoData();
 		(*ppY)->Set_Name(_TL("Y-Coordinate"));
 

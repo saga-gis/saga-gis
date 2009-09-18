@@ -79,8 +79,8 @@ bool CShapes_Merge::On_Execute(void){
 		pOutput->Add_Field(pTable->Get_Field_Name(i), pTable->Get_Field_Type(i));
 	}//for
 
-	pOutput->Add_Field(SG_T("LAYER_ID")	, TABLE_FIELDTYPE_Int);
-	pOutput->Add_Field(SG_T("LAYER")	, TABLE_FIELDTYPE_String);
+	pOutput->Add_Field(SG_T("LAYER_ID")	, SG_DATATYPE_Int);
+	pOutput->Add_Field(SG_T("LAYER")	, SG_DATATYPE_String);
 	
 	//copy main layer into destination
 	for(i=0; i<pMainShapes->Get_Count(); i++)
@@ -92,7 +92,7 @@ bool CShapes_Merge::On_Execute(void){
 
 		for	(iField = 0; iField<nFields; iField++)
 		{
-			if (pTable->Get_Field_Type(iField) == TABLE_FIELDTYPE_String)
+			if (pTable->Get_Field_Type(iField) == SG_DATATYPE_String)
 			{
 				pShape2->Set_Value(iField, pShape->asString(iField));
 			}//if
@@ -145,7 +145,7 @@ bool CShapes_Merge::On_Execute(void){
 							iFieldMain			= FieldsMain.at(j);
 							iFieldAdditional	= FieldsAdditional.at(j);
 
-							if (pTable->Get_Field_Type(iFieldMain) == TABLE_FIELDTYPE_String)
+							if (pTable->Get_Field_Type(iFieldMain) == SG_DATATYPE_String)
 							{
 								pShape2->Set_Value(iFieldMain, pShape->asString(iFieldAdditional));
 							}//if

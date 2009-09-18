@@ -328,7 +328,7 @@ TGEO_iRect;
 #define CParameter_Value				CSG_Parameter_Value
 
 #define TDataObject_Type				TSG_Data_Object_Type
-#define TGrid_Type						TSG_Grid_Type
+#define TGrid_Type						TSG_Data_Type
 #define TGrid_Memory_Type				TSG_Grid_Memory_Type
 #define TGrid_File_Format				TSG_Grid_File_Format
 #define TGrid_File_Key					TSG_Grid_File_Key
@@ -336,7 +336,7 @@ TGEO_iRect;
 #define TGrid_Operation					TSG_Grid_Operation
 #define TShape_Type						TSG_Shape_Type
 #define TSVG_Alignment					TSG_SVG_Alignment
-#define TTable_FieldType				TSG_Table_Field_Type
+#define TTable_FieldType				TSG_Data_Type
 #define TTable_FileType					TSG_Table_File_Type
 #define TTable_Index_Order				TSG_Table_Index_Order
 #define TPDF_Font_Type					TSG_PDF_Font_Type

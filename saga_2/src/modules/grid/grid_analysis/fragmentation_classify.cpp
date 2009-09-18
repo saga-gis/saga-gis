@@ -109,7 +109,7 @@ CFragmentation_Classify::CFragmentation_Classify(void)
 	Parameters.Add_Grid(
 		NULL	, "FRAGMENTATION"	, _TL("Fragmentation"),
 		_TL("Fragmentation Index"),
-		PARAMETER_OUTPUT, true, GRID_TYPE_Byte
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Byte
 	);
 
 	Parameters.Add_Value(

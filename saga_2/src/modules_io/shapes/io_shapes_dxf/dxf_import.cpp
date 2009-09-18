@@ -225,59 +225,59 @@ bool CDXF_Import::On_Execute(void)
 	{
 		m_pLayers		= SG_Create_Table();
 		m_pLayers		->Set_Name(CSG_String::Format(SG_T("%s [%s]"), SG_File_Get_Name(fName, false).c_str(), _TL("Layers")));
-		m_pLayers		->Add_Field("LAYER"	, TABLE_FIELDTYPE_String);
-		m_pLayers		->Add_Field("FLAGS"	, TABLE_FIELDTYPE_Int);
+		m_pLayers		->Add_Field("LAYER"	, SG_DATATYPE_String);
+		m_pLayers		->Add_Field("FLAGS"	, SG_DATATYPE_Int);
 
 		m_pBlocks		= SG_Create_Table();
 		m_pBlocks		->Set_Name(CSG_String::Format(SG_T("%s [%s]"), SG_File_Get_Name(fName, false).c_str(), _TL("Blocks")));
-		m_pBlocks		->Add_Field("BLOCK"	, TABLE_FIELDTYPE_String);
-		m_pBlocks		->Add_Field("FLAGS"	, TABLE_FIELDTYPE_Int);
-		m_pBlocks		->Add_Field("X"		, TABLE_FIELDTYPE_Double);
-		m_pBlocks		->Add_Field("Y"		, TABLE_FIELDTYPE_Double);
-		m_pBlocks		->Add_Field("Z"		, TABLE_FIELDTYPE_Double);
+		m_pBlocks		->Add_Field("BLOCK"	, SG_DATATYPE_String);
+		m_pBlocks		->Add_Field("FLAGS"	, SG_DATATYPE_Int);
+		m_pBlocks		->Add_Field("X"		, SG_DATATYPE_Double);
+		m_pBlocks		->Add_Field("Y"		, SG_DATATYPE_Double);
+		m_pBlocks		->Add_Field("Z"		, SG_DATATYPE_Double);
 
 		m_pPoints		= SG_Create_Shapes(SHAPE_TYPE_Point		, CSG_String::Format(SG_T("%s [%s]"), SG_File_Get_Name(fName, false).c_str(), _TL("Points")));
-		m_pPoints		->Add_Field("LAYER"	, TABLE_FIELDTYPE_String);
-		m_pPoints		->Add_Field("Z"		, TABLE_FIELDTYPE_Double);
+		m_pPoints		->Add_Field("LAYER"	, SG_DATATYPE_String);
+		m_pPoints		->Add_Field("Z"		, SG_DATATYPE_Double);
 
 		m_pLines		= SG_Create_Shapes(SHAPE_TYPE_Line		, CSG_String::Format(SG_T("%s [%s]"), SG_File_Get_Name(fName, false).c_str(), _TL("Lines")));
-		m_pLines		->Add_Field("LAYER"	, TABLE_FIELDTYPE_String);
-		m_pLines		->Add_Field("Z1"	, TABLE_FIELDTYPE_Double);
-		m_pLines		->Add_Field("Z2"	, TABLE_FIELDTYPE_Double);
+		m_pLines		->Add_Field("LAYER"	, SG_DATATYPE_String);
+		m_pLines		->Add_Field("Z1"	, SG_DATATYPE_Double);
+		m_pLines		->Add_Field("Z2"	, SG_DATATYPE_Double);
 
 		m_pPolyLines	= SG_Create_Shapes(SHAPE_TYPE_Line		, CSG_String::Format(SG_T("%s [%s]"), SG_File_Get_Name(fName, false).c_str(), _TL("Polylines")));
-		m_pPolyLines	->Add_Field("LAYER"	, TABLE_FIELDTYPE_String);
-		m_pPolyLines	->Add_Field("FLAGS"	, TABLE_FIELDTYPE_Int);
+		m_pPolyLines	->Add_Field("LAYER"	, SG_DATATYPE_String);
+		m_pPolyLines	->Add_Field("FLAGS"	, SG_DATATYPE_Int);
 
 		m_pPolygons		= SG_Create_Shapes(SHAPE_TYPE_Polygon	, CSG_String::Format(SG_T("%s [%s]"), SG_File_Get_Name(fName, false).c_str(), _TL("Polygons")));
-		m_pPolygons		->Add_Field("LAYER"	, TABLE_FIELDTYPE_String);
-		m_pPolygons		->Add_Field("FLAGS"	, TABLE_FIELDTYPE_Int);
+		m_pPolygons		->Add_Field("LAYER"	, SG_DATATYPE_String);
+		m_pPolygons		->Add_Field("FLAGS"	, SG_DATATYPE_Int);
 
 		m_pCircles		= SG_Create_Shapes(SHAPE_TYPE_Line		, CSG_String::Format(SG_T("%s [%s]"), SG_File_Get_Name(fName, false).c_str(), _TL("Circles")));
-		m_pCircles		->Add_Field("LAYER"	, TABLE_FIELDTYPE_String);
-		m_pCircles		->Add_Field("FLAGS"	, TABLE_FIELDTYPE_Int);
+		m_pCircles		->Add_Field("LAYER"	, SG_DATATYPE_String);
+		m_pCircles		->Add_Field("FLAGS"	, SG_DATATYPE_Int);
 
 		m_pTriangles	= SG_Create_Shapes(SHAPE_TYPE_Polygon	, CSG_String::Format(SG_T("%s [%s]"), SG_File_Get_Name(fName, false).c_str(), _TL("Triangles")));
-		m_pTriangles	->Add_Field("LAYER"	, TABLE_FIELDTYPE_String);
-		m_pTriangles	->Add_Field("THICK"	, TABLE_FIELDTYPE_Int);
-		m_pTriangles	->Add_Field("Z1"	, TABLE_FIELDTYPE_Double);
-		m_pTriangles	->Add_Field("Z2"	, TABLE_FIELDTYPE_Double);
-		m_pTriangles	->Add_Field("Z3"	, TABLE_FIELDTYPE_Double);
+		m_pTriangles	->Add_Field("LAYER"	, SG_DATATYPE_String);
+		m_pTriangles	->Add_Field("THICK"	, SG_DATATYPE_Int);
+		m_pTriangles	->Add_Field("Z1"	, SG_DATATYPE_Double);
+		m_pTriangles	->Add_Field("Z2"	, SG_DATATYPE_Double);
+		m_pTriangles	->Add_Field("Z3"	, SG_DATATYPE_Double);
 
 		m_pText			= SG_Create_Shapes(SHAPE_TYPE_Point		, CSG_String::Format(SG_T("%s [%s]"), SG_File_Get_Name(fName, false).c_str(), _TL("Text")));
-		m_pText			->Add_Field("LAYER"	, TABLE_FIELDTYPE_String);
-		m_pText			->Add_Field("Z"		, TABLE_FIELDTYPE_Double);
-		m_pText			->Add_Field("TEXT"	, TABLE_FIELDTYPE_String);
-		m_pText			->Add_Field("HEIGHT", TABLE_FIELDTYPE_Int);
-		m_pText			->Add_Field("ANGLE"	, TABLE_FIELDTYPE_Double);
-		m_pText			->Add_Field("APX"	, TABLE_FIELDTYPE_Double);
-		m_pText			->Add_Field("APY"	, TABLE_FIELDTYPE_Double);
-		m_pText			->Add_Field("APZ"	, TABLE_FIELDTYPE_Double);
-		m_pText			->Add_Field("SCALE"	, TABLE_FIELDTYPE_Double);
-		m_pText			->Add_Field("HJUST"	, TABLE_FIELDTYPE_Int);
-		m_pText			->Add_Field("VJUST"	, TABLE_FIELDTYPE_Int);
-		m_pText			->Add_Field("STYLE"	, TABLE_FIELDTYPE_String);
-		m_pText			->Add_Field("FLAGS"	, TABLE_FIELDTYPE_Int);
+		m_pText			->Add_Field("LAYER"	, SG_DATATYPE_String);
+		m_pText			->Add_Field("Z"		, SG_DATATYPE_Double);
+		m_pText			->Add_Field("TEXT"	, SG_DATATYPE_String);
+		m_pText			->Add_Field("HEIGHT", SG_DATATYPE_Int);
+		m_pText			->Add_Field("ANGLE"	, SG_DATATYPE_Double);
+		m_pText			->Add_Field("APX"	, SG_DATATYPE_Double);
+		m_pText			->Add_Field("APY"	, SG_DATATYPE_Double);
+		m_pText			->Add_Field("APZ"	, SG_DATATYPE_Double);
+		m_pText			->Add_Field("SCALE"	, SG_DATATYPE_Double);
+		m_pText			->Add_Field("HJUST"	, SG_DATATYPE_Int);
+		m_pText			->Add_Field("VJUST"	, SG_DATATYPE_Int);
+		m_pText			->Add_Field("STYLE"	, SG_DATATYPE_String);
+		m_pText			->Add_Field("FLAGS"	, SG_DATATYPE_Int);
 
 		//-------------------------------------------------
 		m_Offset.x		= 0.0;

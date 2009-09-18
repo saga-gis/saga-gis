@@ -138,7 +138,7 @@ bool CTable_Running_Average::On_Execute(void)
 		double	sValues;
 
 		iAverage	= pTable->Get_Field_Count();
-		pTable->Add_Field(CSG_String::Format(SG_T("%s [%s]"), pTable->Get_Field_Name(iValue), _TL("Average")), TABLE_FIELDTYPE_Double);
+		pTable->Add_Field(CSG_String::Format(SG_T("%s [%s]"), pTable->Get_Field_Name(iValue), _TL("Average")), SG_DATATYPE_Double);
 
 		nRange	= nValues / 2;
 		sValues	= 0.0;

@@ -184,8 +184,8 @@ bool CPolygon_Intersection::On_Execute(void)
 	else
 	{
 		m_pShapes_AB->Create(SHAPE_TYPE_Polygon);
-		m_pShapes_AB->Add_Field("ID"	, TABLE_FIELDTYPE_Int);
-		m_pShapes_AB->Add_Field("ID_A"	, TABLE_FIELDTYPE_Int);
+		m_pShapes_AB->Add_Field("ID"	, SG_DATATYPE_Int);
+		m_pShapes_AB->Add_Field("ID_A"	, SG_DATATYPE_Int);
 
 		Intersect(pList->asShapes(0), pList->asShapes(1));
 
@@ -281,10 +281,10 @@ bool CPolygon_Intersection::On_Execute(void)
 	&&	m_pShapes_B->Get_Type() == SHAPE_TYPE_Polygon && m_pShapes_B->is_Valid() )
 	{
 		m_pShapes_AB->Create(SHAPE_TYPE_Polygon);
-		m_pShapes_AB->Add_Field("ID"	, TABLE_FIELDTYPE_Int);
-		m_pShapes_AB->Add_Field("ID_A"	, TABLE_FIELDTYPE_Int);
-		m_pShapes_AB->Add_Field("ID_B"	, TABLE_FIELDTYPE_Int);
-		m_pShapes_AB->Add_Field("ID_AB"	, TABLE_FIELDTYPE_Int);
+		m_pShapes_AB->Add_Field("ID"	, SG_DATATYPE_Int);
+		m_pShapes_AB->Add_Field("ID_A"	, SG_DATATYPE_Int);
+		m_pShapes_AB->Add_Field("ID_B"	, SG_DATATYPE_Int);
+		m_pShapes_AB->Add_Field("ID_AB"	, SG_DATATYPE_Int);
 
 		if( m_iField_A >= 0 )
 		{

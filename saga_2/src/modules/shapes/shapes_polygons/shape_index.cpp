@@ -137,14 +137,14 @@ bool CShape_Index::On_Execute(void)
 			pIndex->Create(SHAPE_TYPE_Polygon, _TL("Shape Index"), pShapes);
 		}
 
-		pIndex->Add_Field(_TL("Area")			, TABLE_FIELDTYPE_Double);
-		pIndex->Add_Field(_TL("Perimenter")		, TABLE_FIELDTYPE_Double);
-		pIndex->Add_Field(_TL("P/A")			, TABLE_FIELDTYPE_Double);
-		pIndex->Add_Field(_TL("P/sqrt(A)")		, TABLE_FIELDTYPE_Double);
-		pIndex->Add_Field(_TL("Max.Distance")	, TABLE_FIELDTYPE_Double);
-		pIndex->Add_Field(_TL("D/A")			, TABLE_FIELDTYPE_Double);
-		pIndex->Add_Field(_TL("D/sqrt(A)")		, TABLE_FIELDTYPE_Double);
-		pIndex->Add_Field(_TL("Shape Index")	, TABLE_FIELDTYPE_Double);
+		pIndex->Add_Field(_TL("Area")			, SG_DATATYPE_Double);
+		pIndex->Add_Field(_TL("Perimenter")		, SG_DATATYPE_Double);
+		pIndex->Add_Field(_TL("P/A")			, SG_DATATYPE_Double);
+		pIndex->Add_Field(_TL("P/sqrt(A)")		, SG_DATATYPE_Double);
+		pIndex->Add_Field(_TL("Max.Distance")	, SG_DATATYPE_Double);
+		pIndex->Add_Field(_TL("D/A")			, SG_DATATYPE_Double);
+		pIndex->Add_Field(_TL("D/sqrt(A)")		, SG_DATATYPE_Double);
+		pIndex->Add_Field(_TL("Shape Index")	, SG_DATATYPE_Double);
 
 		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{

@@ -87,8 +87,8 @@ bool CFitNPointsToShape::On_Execute(void){
 	}//else
 
 	pPoints->Create(SHAPE_TYPE_Point, _TL("Point Grid"));
-	pPoints->Add_Field("X", TABLE_FIELDTYPE_Double);
-	pPoints->Add_Field("Y", TABLE_FIELDTYPE_Double);
+	pPoints->Add_Field("X", SG_DATATYPE_Double);
+	pPoints->Add_Field("Y", SG_DATATYPE_Double);
 
 	for (i = 0; i < pShapes->Get_Selection_Count(); i++){
 		iRep = 0;

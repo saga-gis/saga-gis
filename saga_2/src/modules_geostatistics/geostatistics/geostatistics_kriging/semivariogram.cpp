@@ -148,9 +148,9 @@ CSemiVariogram::CSemiVariogram(void)
 	);
 
 	//-----------------------------------------------------
-	m_Variances.Add_Field(SG_T("DISTANCE")	, TABLE_FIELDTYPE_Double);
-	m_Variances.Add_Field(SG_T("VAR_CUM")	, TABLE_FIELDTYPE_Double);
-	m_Variances.Add_Field(SG_T("VAR_CLS")	, TABLE_FIELDTYPE_Double);
+	m_Variances.Add_Field(SG_T("DISTANCE")	, SG_DATATYPE_Double);
+	m_Variances.Add_Field(SG_T("VAR_CUM")	, SG_DATATYPE_Double);
+	m_Variances.Add_Field(SG_T("VAR_CLS")	, SG_DATATYPE_Double);
 }
 
 
@@ -278,12 +278,12 @@ bool CSemiVariogram::Get_Variances(CSG_Table *pTable, CSG_Shapes *pPoints, int A
 	//-----------------------------------------------------
 	pTable->Destroy();
 	pTable->Set_Name(CSG_String::Format(SG_T("%s [%s]"), _TL("Semivariogram"), pPoints->Get_Name()));
-	pTable->Add_Field(_TL("Class")		, TABLE_FIELDTYPE_Int);		// FIELD_CLASSNR
-	pTable->Add_Field(_TL("Distance")	, TABLE_FIELDTYPE_Double);	// FIELD_DISTANCE
-	pTable->Add_Field(_TL("Count")		, TABLE_FIELDTYPE_Int);		// FIELD_COUNT
-	pTable->Add_Field(_TL("Variance")	, TABLE_FIELDTYPE_Double);	// FIELD_VARIANCE
-	pTable->Add_Field(_TL("Cum.Var.")	, TABLE_FIELDTYPE_Double);	// FIELD_VARCUMUL
-	pTable->Add_Field(_TL("Model")		, TABLE_FIELDTYPE_Double);	// FIELD_MODEL
+	pTable->Add_Field(_TL("Class")		, SG_DATATYPE_Int);		// FIELD_CLASSNR
+	pTable->Add_Field(_TL("Distance")	, SG_DATATYPE_Double);	// FIELD_DISTANCE
+	pTable->Add_Field(_TL("Count")		, SG_DATATYPE_Int);		// FIELD_COUNT
+	pTable->Add_Field(_TL("Variance")	, SG_DATATYPE_Double);	// FIELD_VARIANCE
+	pTable->Add_Field(_TL("Cum.Var.")	, SG_DATATYPE_Double);	// FIELD_VARCUMUL
+	pTable->Add_Field(_TL("Model")		, SG_DATATYPE_Double);	// FIELD_MODEL
 
 	pRecord	= pTable->Add_Record();
 	pRecord->Set_Value(FIELD_CLASSNR	, 0.0);

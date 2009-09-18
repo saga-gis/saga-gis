@@ -562,10 +562,10 @@ void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
 
 		pTable->Set_Name(wxString::Format(wxT("%s: %s"), LNG("[CAP] Histogram"), m_pLayer->Get_Name().c_str()));
 
-		pTable->Add_Field(LNG("CLASS")	, TABLE_FIELDTYPE_Int);
-		pTable->Add_Field(LNG("COUNT")	, TABLE_FIELDTYPE_Int);
-		pTable->Add_Field(LNG("AREA")	, TABLE_FIELDTYPE_Double);
-		pTable->Add_Field(LNG("NAME")	, TABLE_FIELDTYPE_String);
+		pTable->Add_Field(LNG("CLASS")	, SG_DATATYPE_Int);
+		pTable->Add_Field(LNG("COUNT")	, SG_DATATYPE_Int);
+		pTable->Add_Field(LNG("AREA")	, SG_DATATYPE_Double);
+		pTable->Add_Field(LNG("NAME")	, SG_DATATYPE_String);
 
 		for(i=0; i<n; i++)
 		{

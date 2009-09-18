@@ -46,7 +46,7 @@ CSudoku::CSudoku(void)
 	)->asTable();
 
 	for (i = 0; i < 9; i++){
-		pBoard->Add_Field(_TL(""), TABLE_FIELDTYPE_Int);
+		pBoard->Add_Field(_TL(""), SG_DATATYPE_Int);
 	}
 
 	for (i = 0; i < 9; i++){
@@ -72,7 +72,7 @@ bool CSudoku::On_Execute(void)
 		m_pFixedCells[i]	= new bool[9];
 	}
 
-	m_pBoard = SG_Create_Grid(GRID_TYPE_Int, BOARD_SIZE, BOARD_SIZE, 1);
+	m_pBoard = SG_Create_Grid(SG_DATATYPE_Int, BOARD_SIZE, BOARD_SIZE, 1);
 	m_pBoard->Set_Name(_TL("Sudoku"));
 	Parameters("GRID")->Set_Value(m_pBoard);
 

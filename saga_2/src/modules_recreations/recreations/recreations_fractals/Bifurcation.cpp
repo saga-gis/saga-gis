@@ -116,11 +116,11 @@ bool CBifurcation::On_Execute(void)
 	pTable->Destroy();
 	pTable->Set_Name(_TL("Feigenbaum's Bifurcation"));
 
-	pTable->Add_Field("Growth"	, TABLE_FIELDTYPE_Double);
+	pTable->Add_Field("Growth"	, SG_DATATYPE_Double);
 
 	for(i=0; i<nValues; i++)
 	{
-		pTable->Add_Field(CSG_String::Format(SG_T("VALUE_%d"), i + 1), TABLE_FIELDTYPE_Double);
+		pTable->Add_Field(CSG_String::Format(SG_T("VALUE_%d"), i + 1), SG_DATATYPE_Double);
 	}
 
 	for(r=min; r<=max; r+=dr)

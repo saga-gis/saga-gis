@@ -86,8 +86,8 @@ CWKSP_TIN::CWKSP_TIN(CSG_TIN *pTIN)
 	m_pTable	= new CWKSP_Table(m_pTIN, this);
 
 	m_Edit_Attributes.Destroy();
-	m_Edit_Attributes.Add_Field(LNG("[CAP] Name") , TABLE_FIELDTYPE_String);
-	m_Edit_Attributes.Add_Field(LNG("[CAP] Value"), TABLE_FIELDTYPE_String);
+	m_Edit_Attributes.Add_Field(LNG("[CAP] Name") , SG_DATATYPE_String);
+	m_Edit_Attributes.Add_Field(LNG("[CAP] Value"), SG_DATATYPE_String);
 
 	Create_Parameters();
 }

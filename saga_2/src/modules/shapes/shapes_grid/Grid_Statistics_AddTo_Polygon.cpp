@@ -163,7 +163,7 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 	if(	pShapes->Get_Type() == SHAPE_TYPE_Polygon && pShapes->Get_Count() > 0
 	&&	pGrid->is_Intersecting(pShapes->Get_Extent()) )
 	{
-		ShapeIDs.Create(pGrid, GRID_TYPE_Int);
+		ShapeIDs.Create(pGrid, SG_DATATYPE_Int);
 		ShapeIDs.Assign(-1.0);
 
 		//-------------------------------------------------
@@ -200,13 +200,13 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 			pShapes->Assign(Parameters("POLY")->asShapes());
 
 			field_CELLS	= pShapes->Get_Field_Count();
-			pShapes->Add_Field(_TL("CELLS")		, TABLE_FIELDTYPE_Int);
+			pShapes->Add_Field(_TL("CELLS")		, SG_DATATYPE_Int);
 
 			field_MEAN	= pShapes->Get_Field_Count();
-			pShapes->Add_Field(_TL("MEAN")		, TABLE_FIELDTYPE_Double);
+			pShapes->Add_Field(_TL("MEAN")		, SG_DATATYPE_Double);
 
 			field_VARI	= pShapes->Get_Field_Count();
-			pShapes->Add_Field(_TL("VARIANCE")	, TABLE_FIELDTYPE_Double);
+			pShapes->Add_Field(_TL("VARIANCE")	, SG_DATATYPE_Double);
 
 			if( bQuantiles )
 			{
@@ -214,7 +214,7 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 
 				for(int i=quantile_step; i<100; i+=quantile_step)
 				{
-					pShapes->Add_Field(CSG_String::Format(SG_T("Q%d"), i).c_str(), TABLE_FIELDTYPE_Double);
+					pShapes->Add_Field(CSG_String::Format(SG_T("Q%d"), i).c_str(), SG_DATATYPE_Double);
 				}
 			}
 

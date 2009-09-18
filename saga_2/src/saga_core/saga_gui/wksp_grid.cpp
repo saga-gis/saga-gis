@@ -151,7 +151,7 @@ wxString CWKSP_Grid::Get_Description(void)
 	));
 
 	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
-		LNG("[CAP] Value Type")				, gSG_Grid_Type_Names[m_pGrid->Get_Type()]
+		LNG("[CAP] Value Type")				, gSG_Data_Type_Names[m_pGrid->Get_Type()]
 	));
 
 	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>[%f] - [%f] = [%f]</td></tr>"),
@@ -617,17 +617,17 @@ wxString CWKSP_Grid::Get_Value(CSG_Point ptWorld, double Epsilon)
 		case CLASSIFY_SHADE:
 			switch( m_pGrid->Get_Type() )
 			{
-			case GRID_TYPE_Byte:	default:
-			case GRID_TYPE_Char:
-			case GRID_TYPE_Word:
-			case GRID_TYPE_Short:
-			case GRID_TYPE_DWord:
-			case GRID_TYPE_Int:
+			case SG_DATATYPE_Byte:
+			case SG_DATATYPE_Char:
+			case SG_DATATYPE_Word:
+			case SG_DATATYPE_Short:
+			case SG_DATATYPE_DWord:
+			case SG_DATATYPE_Int:
 				s.Printf(wxT("%d%s"), (int)Value, m_pGrid->Get_Unit());
 				break;
 
-			case GRID_TYPE_Float:
-			case GRID_TYPE_Double:
+			case SG_DATATYPE_Float:	default:
+			case SG_DATATYPE_Double:
 				s.Printf(wxT("%f%s"), Value, m_pGrid->Get_Unit());
 				break;
 			}
@@ -716,7 +716,7 @@ bool CWKSP_Grid::On_Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int 
 
 		for(x=0; x<m_Sel_xN; x++)
 		{
-			m_Edit_Attributes.Add_Field(wxString::Format(wxT("%d"), x + 1), TABLE_FIELDTYPE_Double);
+			m_Edit_Attributes.Add_Field(wxString::Format(wxT("%d"), x + 1), SG_DATATYPE_Double);
 		}
 
 		for(y=0; y<m_Sel_yN; y++)
@@ -878,7 +878,7 @@ bool CWKSP_Grid::asImage(CSG_Grid *pImage)
 	{
 		wxImage	IMG(BMP.ConvertToImage());
 
-		pImage->Create(m_pGrid, GRID_TYPE_Int);
+		pImage->Create(m_pGrid, SG_DATATYPE_Int);
 
 		for(y=0; y<pImage->Get_NY() && PROGRESSBAR_Set_Position(y, pImage->Get_NY()); y++)
 		{

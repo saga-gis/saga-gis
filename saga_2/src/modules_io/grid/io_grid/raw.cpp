@@ -217,7 +217,7 @@ bool CRaw_Import::On_Execute(void)
 	int			nx, ny, data_head, line_head, line_tail;
 	double		dxy, xmin, ymin, zFactor, zNoData;
 	FILE		*Stream;
-	TSG_Grid_Type	data_type;
+	TSG_Data_Type	data_type;
 	CSG_String	FileName, Unit;
 	CSG_Grid		*pGrid;
 
@@ -241,19 +241,19 @@ bool CRaw_Import::On_Execute(void)
 
 	switch( Parameters("DATA_TYPE")->asInt() )
 	{
-	default:	data_type	= GRID_TYPE_Undefined;	break;	// not handled
-	case 0:		data_type	= GRID_TYPE_Byte;		break;	// 1 Byte Integer (unsigned)
-	case 1:		data_type	= GRID_TYPE_Char;		break;	// 1 Byte Integer (signed)
-	case 2:		data_type	= GRID_TYPE_Word;		break;	// 2 Byte Integer (unsigned)
-	case 3:		data_type	= GRID_TYPE_Short;		break;	// 2 Byte Integer (signed)
-	case 4:		data_type	= GRID_TYPE_DWord;		break;	// 4 Byte Integer (unsigned)
-	case 5:		data_type	= GRID_TYPE_Int;		break;	// 4 Byte Integer (signed)
-	case 6:		data_type	= GRID_TYPE_Float;		break;	// 4 Byte Floating Point
-	case 7:		data_type	= GRID_TYPE_Double;		break;	// 8 Byte Floating Point
+	default:	data_type	= SG_DATATYPE_Undefined;	break;	// not handled
+	case 0:		data_type	= SG_DATATYPE_Byte;			break;	// 1 Byte Integer (unsigned)
+	case 1:		data_type	= SG_DATATYPE_Char;			break;	// 1 Byte Integer (signed)
+	case 2:		data_type	= SG_DATATYPE_Word;			break;	// 2 Byte Integer (unsigned)
+	case 3:		data_type	= SG_DATATYPE_Short;		break;	// 2 Byte Integer (signed)
+	case 4:		data_type	= SG_DATATYPE_DWord;		break;	// 4 Byte Integer (unsigned)
+	case 5:		data_type	= SG_DATATYPE_Int;			break;	// 4 Byte Integer (signed)
+	case 6:		data_type	= SG_DATATYPE_Float;		break;	// 4 Byte Floating Point
+	case 7:		data_type	= SG_DATATYPE_Double;		break;	// 8 Byte Floating Point
 	}
 
 	//-----------------------------------------------------
-	if( data_type != GRID_TYPE_Undefined && (Stream = fopen(FileName.b_str(), "rb")) != NULL )
+	if( data_type != SG_DATATYPE_Undefined && (Stream = fopen(FileName.b_str(), "rb")) != NULL )
 	{
 		if( (pGrid = Load_Data(Stream, data_type, nx, ny, dxy, xmin, ymin, data_head, line_head, line_tail, bDown, bBig)) != NULL )
 		{
@@ -280,7 +280,7 @@ bool CRaw_Import::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Grid * CRaw_Import::Load_Data(FILE *Stream, TSG_Grid_Type data_type, int nx, int ny, double dxy, double xmin, double ymin, int data_head, int line_head, int line_tail, bool bDown, bool bBig)
+CSG_Grid * CRaw_Import::Load_Data(FILE *Stream, TSG_Data_Type data_type, int nx, int ny, double dxy, double xmin, double ymin, int data_head, int line_head, int line_tail, bool bDown, bool bBig)
 {
 	char	*pLine, *pValue;
 	int		x, y, nBytes_Value, nBytes_Line;
@@ -288,7 +288,7 @@ CSG_Grid * CRaw_Import::Load_Data(FILE *Stream, TSG_Grid_Type data_type, int nx,
 	CSG_Grid	*pGrid	= NULL;
 
 	//-----------------------------------------------------
-	if( Stream && data_type != GRID_TYPE_Undefined )
+	if( Stream && data_type != SG_DATATYPE_Undefined )
 	{
 		for(x=0; x<data_head && !feof(Stream); x++)
 		{
@@ -299,7 +299,7 @@ CSG_Grid * CRaw_Import::Load_Data(FILE *Stream, TSG_Grid_Type data_type, int nx,
 		if( !feof(Stream) )
 		{
 			pGrid			= SG_Create_Grid(data_type, nx, ny, dxy, xmin, ymin);
-			nBytes_Value	= gSG_Grid_Type_Sizes[data_type];
+			nBytes_Value	= SG_Data_Type_Get_Size(data_type);
 			nBytes_Line		= nBytes_Value * nx;
 			pLine			= (char *)SG_Malloc(nBytes_Line);
 
@@ -322,14 +322,14 @@ CSG_Grid * CRaw_Import::Load_Data(FILE *Stream, TSG_Grid_Type data_type, int nx,
 
 					switch( data_type )
 					{
-					case GRID_TYPE_Byte:	pGrid->Set_Value(x, y, *(unsigned char  *)pValue);	break;	// 1 Byte Integer (unsigned)
-					case GRID_TYPE_Char:	pGrid->Set_Value(x, y, *(signed char    *)pValue);	break;	// 1 Byte Integer (signed)
-					case GRID_TYPE_Word:	pGrid->Set_Value(x, y, *(unsigned short *)pValue);	break;	// 2 Byte Integer (unsigned)
-					case GRID_TYPE_Short:	pGrid->Set_Value(x, y, *(signed short   *)pValue);	break;	// 2 Byte Integer (signed)
-					case GRID_TYPE_DWord:	pGrid->Set_Value(x, y, *(unsigned int   *)pValue);	break;	// 4 Byte Integer (unsigned)
-					case GRID_TYPE_Int:		pGrid->Set_Value(x, y, *(signed int     *)pValue);	break;	// 4 Byte Integer (signed)
-					case GRID_TYPE_Float:	pGrid->Set_Value(x, y, *(float          *)pValue);	break;	// 4 Byte Floating Point
-					case GRID_TYPE_Double:	pGrid->Set_Value(x, y, *(double         *)pValue);	break;	// 8 Byte Floating Point
+					case SG_DATATYPE_Byte:		pGrid->Set_Value(x, y, *(unsigned char  *)pValue);	break;	// 1 Byte Integer (unsigned)
+					case SG_DATATYPE_Char:		pGrid->Set_Value(x, y, *(signed char    *)pValue);	break;	// 1 Byte Integer (signed)
+					case SG_DATATYPE_Word:		pGrid->Set_Value(x, y, *(unsigned short *)pValue);	break;	// 2 Byte Integer (unsigned)
+					case SG_DATATYPE_Short:		pGrid->Set_Value(x, y, *(signed short   *)pValue);	break;	// 2 Byte Integer (signed)
+					case SG_DATATYPE_DWord:		pGrid->Set_Value(x, y, *(unsigned int   *)pValue);	break;	// 4 Byte Integer (unsigned)
+					case SG_DATATYPE_Int:		pGrid->Set_Value(x, y, *(signed int     *)pValue);	break;	// 4 Byte Integer (signed)
+					case SG_DATATYPE_Float:		pGrid->Set_Value(x, y, *(float          *)pValue);	break;	// 4 Byte Floating Point
+					case SG_DATATYPE_Double:	pGrid->Set_Value(x, y, *(double         *)pValue);	break;	// 8 Byte Floating Point
 					}
 				}
 

@@ -395,7 +395,7 @@ CSG_Parameter * CSG_Parameters::Add_Grid_System(CSG_Parameter *pParent, const SG
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_Grid(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint, bool bSystem_Dependent, TSG_Grid_Type Preferred_Type)
+CSG_Parameter * CSG_Parameters::Add_Grid(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint, bool bSystem_Dependent, TSG_Data_Type Preferred_Type)
 {
 	CSG_Parameter	*pParameter;
 
@@ -1403,22 +1403,25 @@ bool CSG_Parameters::Msg_String(bool bOptionsOnly)
 }
 
 //---------------------------------------------------------
-bool CSG_Parameters::Set_History(CSG_History &History, bool bOptions, bool bDataObjects)
+bool CSG_Parameters::Set_History(CSG_MetaData &History, bool bOptions, bool bDataObjects)
 {
-	int				i, j;
+	CSG_MetaData	*pEntry;
 	CSG_Data_Object	*pObject;
-	CSG_Parameter	*p;
 
 	//-----------------------------------------------------
 	if( bOptions )
 	{
-		for(i=0; i<Get_Count(); i++)	// get options...
+		for(int i=0; i<Get_Count(); i++)	// get options...
 		{
-			p	= m_Parameters[i];
+			CSG_Parameter	*p	= m_Parameters[i];
 
 			if(	p->is_Option() && !p->is_Information() && !(p->Get_Type() == PARAMETER_TYPE_String && ((CSG_Parameter_String *)p->Get_Data())->is_Password()) )
 			{
-				History.Add_Entry(p->Get_Name(), p->asString());
+				pEntry	= History.Add_Child(SG_T("OPTION"), p->asString());
+
+				pEntry->Add_Property(SG_T("name"), p->Get_Name());
+				pEntry->Add_Property(SG_T("id")  , p->Get_Identifier());
+				pEntry->Add_Property(SG_T("type"), p->Get_Type_Name());
 			}
 
 			if( p->is_Parameters() )
@@ -1431,23 +1434,36 @@ bool CSG_Parameters::Set_History(CSG_History &History, bool bOptions, bool bData
 	//-----------------------------------------------------
 	if( bDataObjects )
 	{
-		for(i=0; i<Get_Count(); i++)	// get input with history...
+		for(int i=0; i<Get_Count(); i++)	// get input with history...
 		{
-			p	= m_Parameters[i];
+			CSG_Parameter	*p	= m_Parameters[i];
 
 			if( p->is_Input() && p->is_DataObject() && (pObject = p->asDataObject()) != NULL )
 			{
-				History.Add_Entry(p->Get_Name(), pObject->Get_Name(), &pObject->Get_History());
+				pEntry	= History.Add_Child(SG_T("DATA"));
+
+				pEntry->Add_Property(SG_T("name"), p->Get_Name());
+				pEntry->Add_Property(SG_T("id")  , p->Get_Identifier());
+				pEntry->Add_Property(SG_T("type"), p->Get_Type_Name());
+
+				pEntry->Assign(pObject->Get_History(), true);
 			}
 
 			if( p->is_Input() && p->is_DataObject_List() )
 			{
-				History.Add_Entry(p->Get_Name(), p->asString());
+				History.Add_Child(p->Get_Name(), p->asString());
 
-				for(j=0; j<p->asList()->Get_Count(); j++)
+				for(int j=0; j<p->asList()->Get_Count(); j++)
 				{
 					pObject	= p->asList()->asDataObject(j);
-					History.Add_Entry(p->Get_Name(), pObject->Get_Name(), &pObject->Get_History());
+
+					pEntry	= History.Add_Child(SG_T("DATA"));
+
+					pEntry->Add_Property(SG_T("name"), p->Get_Name());
+					pEntry->Add_Property(SG_T("id")  , p->Get_Identifier());
+					pEntry->Add_Property(SG_T("type"), p->Get_Type_Name());
+
+					pEntry->Assign(pObject->Get_History(), true);
 				}
 			}
 
@@ -1513,7 +1529,7 @@ CSG_Parameter * CSG_Parameters::Add_FixedTable			(CSG_Parameter *pParent, const 
 CSG_Parameter * CSG_Parameters::Add_Grid_System			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, CSG_Grid_System *pInit)
 {	return( Add_Grid_System			(pParent, SG_STR_MBTOSG(Identifier), Name, Description, pInit) );	}
 
-CSG_Parameter * CSG_Parameters::Add_Grid				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint, bool bSystem_Dependent, TSG_Grid_Type Preferred_Type)
+CSG_Parameter * CSG_Parameters::Add_Grid				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, int Constraint, bool bSystem_Dependent, TSG_Data_Type Preferred_Type)
 {	return( Add_Grid				(pParent, SG_STR_MBTOSG(Identifier), Name, Description, Constraint, bSystem_Dependent, Preferred_Type) );	}
 
 CSG_Parameter * CSG_Parameters::Add_Grid_Output			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description)

@@ -201,9 +201,9 @@ bool CGrid_Import::On_Execute(void)
 		//-------------------------------------------------
 		if( Method == 1 )
 		{
-			ADD_GRID(pR, CSG_String::Format(SG_T("%s [R]"), fName.GetName().c_str()), GRID_TYPE_Byte);
-			ADD_GRID(pG, CSG_String::Format(SG_T("%s [G]"), fName.GetName().c_str()), GRID_TYPE_Byte);
-			ADD_GRID(pB, CSG_String::Format(SG_T("%s [B]"), fName.GetName().c_str()), GRID_TYPE_Byte);
+			ADD_GRID(pR, CSG_String::Format(SG_T("%s [R]"), fName.GetName().c_str()), SG_DATATYPE_Byte);
+			ADD_GRID(pG, CSG_String::Format(SG_T("%s [G]"), fName.GetName().c_str()), SG_DATATYPE_Byte);
+			ADD_GRID(pB, CSG_String::Format(SG_T("%s [B]"), fName.GetName().c_str()), SG_DATATYPE_Byte);
 
 			for(y=0, yy=pR->Get_NY()-1; y<pR->Get_NY() && Set_Progress(y, pR->Get_NY()); y++, yy--)
 			{
@@ -235,7 +235,7 @@ bool CGrid_Import::On_Execute(void)
 				Colors.Set_Color(i->second.index, SG_GET_R(i->first), SG_GET_G(i->first), SG_GET_B(i->first));
 			}
 
-			ADD_GRID(pR, CSG_String( fName.GetName() ), yy <= 2 ? GRID_TYPE_Bit : GRID_TYPE_Byte);
+			ADD_GRID(pR, CSG_String( fName.GetName() ), yy <= 2 ? SG_DATATYPE_Bit : SG_DATATYPE_Byte);
 
 			for(y=0, yy=pR->Get_NY()-1; y<pR->Get_NY() && Set_Progress(y, pR->Get_NY()); y++, yy--)
 			{
@@ -255,7 +255,7 @@ bool CGrid_Import::On_Execute(void)
 		{
 			hst.clear();
 
-			ADD_GRID(pR, CSG_String( fName.GetName() ).c_str(), GRID_TYPE_Int);
+			ADD_GRID(pR, CSG_String( fName.GetName() ).c_str(), SG_DATATYPE_Int);
 
 			for(y=0, yy=pR->Get_NY()-1; y<pR->Get_NY() && Set_Progress(y, pR->Get_NY()); y++, yy--)
 			{

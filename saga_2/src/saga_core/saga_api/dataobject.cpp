@@ -95,6 +95,18 @@ const SG_Char *	SG_Get_DataObject_Name(TSG_Data_Object_Type Type)
 //---------------------------------------------------------
 CSG_Data_Object::CSG_Data_Object(void)
 {
+	CSG_MetaData	*pSource;
+
+	m_MetaData.Set_Name(SG_T("SAGA_METADATA"));
+
+	m_pHistory		= m_MetaData.	Add_Child(SG_META_HST);
+
+	pSource			= m_MetaData.	Add_Child(SG_META_SRC);
+	m_pFile			= pSource->		Add_Child(SG_META_SRC_FILE);
+	m_pDatabase		= pSource->		Add_Child(SG_META_SRC_DB);
+	m_pProjection	= pSource->		Add_Child(SG_META_SRC_PROJ);
+
+	//-----------------------------------------------------
 	m_File_Type		= 0;
 	m_bModified		= true;
 
@@ -113,7 +125,7 @@ CSG_Data_Object::~CSG_Data_Object(void)
 //---------------------------------------------------------
 bool CSG_Data_Object::Destroy(void)
 {
-	m_History.Destroy();
+	m_pHistory		->Destroy();
 
 	return( true );
 }
@@ -153,6 +165,8 @@ void CSG_Data_Object::Set_File_Name(const SG_Char *File_Name)
 
 		Set_Name(NULL);
 	}
+
+	m_pFile->Set_Content(m_File_Name);
 }
 
 const SG_Char * CSG_Data_Object::Get_File_Name(bool bNullAsString)	const
@@ -172,6 +186,66 @@ void CSG_Data_Object::Set_File_Type(int File_Type)
 int CSG_Data_Object::Get_File_Type(void) const
 {
 	return( m_File_Type );
+}
+
+//---------------------------------------------------------
+bool CSG_Data_Object::Load_MetaData(const SG_Char *File_Name)
+{
+	CSG_MetaData	m, *p;
+
+	switch( Get_ObjectType() )
+	{
+	default:							return( false );;
+	case DATAOBJECT_TYPE_Grid:			m.Load(File_Name, SG_META_EXT_GRID);		break;
+	case DATAOBJECT_TYPE_Table:			m.Load(File_Name, SG_META_EXT_TABLE);		break;
+	case DATAOBJECT_TYPE_Shapes:		m.Load(File_Name, SG_META_EXT_SHAPES);		break;
+	case DATAOBJECT_TYPE_TIN:			m.Load(File_Name, SG_META_EXT_TIN);			break;
+	case DATAOBJECT_TYPE_PointCloud:	m.Load(File_Name, SG_META_EXT_POINTCLOUD);	break;
+	}
+
+	if( (p = m.Get_Child(SG_META_SRC)) != NULL )
+	{
+		m_pDatabase->Destroy();
+
+		if( p->Get_Child(SG_META_SRC_DB) )
+		{
+			m_pDatabase->Assign(*p->Get_Child(SG_META_SRC_DB));
+		}
+
+		m_pProjection->Destroy();
+
+		if( p->Get_Child(SG_META_SRC_PROJ) )
+		{
+			m_pProjection->Assign(*p->Get_Child(SG_META_SRC_PROJ));
+		}
+	}
+
+	m_pHistory->Destroy();
+
+	if( (p = m.Get_Child(SG_META_HST)) != NULL )
+	{
+		m_pHistory->Assign(*m.Get_Child(SG_META_HST));
+	}
+	else
+	{
+		m_pHistory->Add_Child(SG_META_SRC_FILE, File_Name);
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Data_Object::Save_MetaData(const SG_Char *File_Name)
+{
+	switch( Get_ObjectType() )
+	{
+	default:							return( m_MetaData.Save(File_Name) );
+	case DATAOBJECT_TYPE_Grid:			return( m_MetaData.Save(File_Name, SG_META_EXT_GRID) );
+	case DATAOBJECT_TYPE_Table:			return( m_MetaData.Save(File_Name, SG_META_EXT_TABLE) );
+	case DATAOBJECT_TYPE_Shapes:		return( m_MetaData.Save(File_Name, SG_META_EXT_SHAPES) );
+	case DATAOBJECT_TYPE_TIN:			return( m_MetaData.Save(File_Name, SG_META_EXT_TIN) );
+	case DATAOBJECT_TYPE_PointCloud:	return( m_MetaData.Save(File_Name, SG_META_EXT_POINTCLOUD) );
+	}
 }
 
 //---------------------------------------------------------

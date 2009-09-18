@@ -114,8 +114,8 @@ bool CLine_Properties::On_Execute(void)
 		//-------------------------------------------------
 		int		iOffset	= pLines->Get_Field_Count();
 
-		pLines->Add_Field(SG_T("N_VERTICES"), TABLE_FIELDTYPE_Int);
-		pLines->Add_Field(SG_T("LENGTH")	, TABLE_FIELDTYPE_Double);
+		pLines->Add_Field(SG_T("N_VERTICES"), SG_DATATYPE_Int);
+		pLines->Add_Field(SG_T("LENGTH")	, SG_DATATYPE_Double);
 
 		//-------------------------------------------------
 		for(int iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)

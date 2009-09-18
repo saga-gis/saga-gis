@@ -242,7 +242,7 @@ bool Cut_Set_Extent(CSG_Rect Extent, CSG_Shapes *pExtent, bool bClear)
 		if( bClear )
 		{
 			pExtent->Create(SHAPE_TYPE_Polygon, _TL("Extent [Cut]"));
-			pExtent->Add_Field("ID", TABLE_FIELDTYPE_Int);
+			pExtent->Add_Field("ID", SG_DATATYPE_Int);
 		}
 
 		if( pExtent->Get_Type() == SHAPE_TYPE_Polygon )

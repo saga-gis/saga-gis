@@ -143,7 +143,7 @@ bool CPointCloud_From_File::Read_Shapefile(const CSG_String &fName)
 
 	for(iField=0; iField<Shapes.Get_Field_Count(); iField++)
 	{
-		pPoints->Add_Field(Shapes.Get_Field_Name(iField), POINTCLOUD_FIELDTYPE_Double);
+		pPoints->Add_Field(Shapes.Get_Field_Name(iField), SG_DATATYPE_Double);
 	}
 
 	for(iPoint=0; iPoint<Shapes.Get_Count(); iPoint++)

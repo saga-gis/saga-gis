@@ -174,15 +174,15 @@ CGrid_3D_Image::CGrid_3D_Image(void)
 	Parameters.Add_Grid(
 		NULL	, "RGB"				, _TL("3D Image"),
 		_TL(""),
-//		PARAMETER_OUTPUT_OPTIONAL, false, GRID_TYPE_Int
-		PARAMETER_OUTPUT_OPTIONAL, true, GRID_TYPE_Int
+//		PARAMETER_OUTPUT_OPTIONAL, false, SG_DATATYPE_Int
+		PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Int
 	);
 
 	Parameters.Add_Grid(
 		NULL	, "RGB_Z"			, _TL("Projected Height"),
 		_TL(""),
-//		PARAMETER_OUTPUT_OPTIONAL, false, GRID_TYPE_Float
-		PARAMETER_OUTPUT_OPTIONAL, true, GRID_TYPE_Float
+//		PARAMETER_OUTPUT_OPTIONAL, false, SG_DATATYPE_Float
+		PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Float
 	);
 }
 
@@ -225,12 +225,12 @@ bool CGrid_3D_Image::On_Execute(void)
 		nx			= Parameters("NX")->asInt();
 		ny			= Parameters("NY")->asInt();
 
-		m_pRGB		= SG_Create_Grid(GRID_TYPE_Int		, nx, ny, 1.0);
+		m_pRGB		= SG_Create_Grid(SG_DATATYPE_Int		, nx, ny, 1.0);
 	}
 
 	if( !m_pRGB_Z || !m_pRGB_Z->is_Compatible(m_pRGB->Get_System()) )
 	{
-		m_pRGB_Z	= SG_Create_Grid(m_pRGB, GRID_TYPE_Float);
+		m_pRGB_Z	= SG_Create_Grid(m_pRGB, SG_DATATYPE_Float);
 	}
 
 	m_pRGB			->Set_Name(_TL("3D Image"));

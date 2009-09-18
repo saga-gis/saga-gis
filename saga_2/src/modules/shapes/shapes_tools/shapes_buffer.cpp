@@ -174,8 +174,8 @@ bool CShapes_Buffer::On_Execute(void)
 			CSG_Shapes	Buffers;
 
 			pBuffers->Create(SHAPE_TYPE_Polygon);
-			pBuffers->Add_Field(_TL("ID")	, TABLE_FIELDTYPE_Int);
-			pBuffers->Add_Field(_TL("ZONE")	, TABLE_FIELDTYPE_Double);
+			pBuffers->Add_Field(_TL("ID")	, SG_DATATYPE_Int);
+			pBuffers->Add_Field(_TL("ZONE")	, SG_DATATYPE_Double);
 
 			for(int iZone=0; iZone<nZones; iZone++)
 			{
@@ -216,7 +216,7 @@ bool CShapes_Buffer::Get_Buffers(CSG_Shapes *pBuffers, double dZone)
 	if( pBuffers )
 	{
 		pBuffers	->Create(SHAPE_TYPE_Polygon);
-		pBuffers	->Add_Field(_TL("ID"), TABLE_FIELDTYPE_Int);
+		pBuffers	->Add_Field(_TL("ID"), SG_DATATYPE_Int);
 		m_pBuffer	= pBuffers->Add_Shape();
 		m_pBuffer	->Set_Value(0, 1);
 

@@ -161,7 +161,7 @@ bool CACTIVE_History::Set_Item(CWKSP_Base_Item *pItem)
 
 	DeleteAllItems();
 
-	if( pObject == NULL || pObject->Get_History().Get_Count() <= 0 )
+	if( pObject == NULL || pObject->Get_History().Get_Children_Count() <= 0 )
 	{
 		AddRoot(LNG("No history available"), IMG_DATA);
 	}
@@ -178,30 +178,59 @@ bool CACTIVE_History::Set_Item(CWKSP_Base_Item *pItem)
 }
 
 //---------------------------------------------------------
-bool CACTIVE_History::_Add_History(wxTreeItemId Parent, CSG_History &History)
+bool CACTIVE_History::_Add_History(wxTreeItemId Parent, CSG_MetaData &History)
 {
-	if( Parent.IsOk() && History.Get_Count() > 0 )
+	if( Parent.IsOk() && History.Get_Children_Count() > 0 )
 	{
-		wxTreeItemId	Name, Entry;
+		CSG_MetaData	*pEntry;
 
-		AppendItem(Parent, History.Get_Entry(0).Get_Date() , IMG_DATE);
-
-		for(int i=0; i<History.Get_Count(); i++)
+		if( (pEntry = History.Get_Child("MODULE")) != NULL )
 		{
-			if( History.Get_Entry(i).Get_History() )
-			{
-				Entry	= AppendItem(Parent, History.Get_Entry(i).Get_Name() , IMG_ENTRY_DATA);
-				Name	= AppendItem(Entry , History.Get_Entry(i).Get_Entry(), IMG_DATA);
+			AppendItem(Parent, pEntry->Get_Content().c_str(), IMG_NAME);
+		}
 
-				_Add_History(Name, *History.Get_Entry(i).Get_History());
+		for(int i=0; i<History.Get_Children_Count(); i++)
+		{
+			wxTreeItemId	Entry;
+			wxString		s;
+			CSG_String		Name, Type;
+
+			pEntry	= History.Get_Child(i);
+
+			if( !pEntry->Get_Name().Cmp(SG_T("MODULE")) )
+			{
+				// nop
+			}
+			else if( !pEntry->Get_Name().Cmp(SG_T("OPTION")) )
+			{
+				if( !pEntry->Get_Property(SG_T("name"), Name) )	Name	= LNG("Option");
+
+				Entry	= AppendItem(Parent, wxString::Format(wxT("%s [%s]"), Name.c_str(), pEntry->Get_Content().c_str()), IMG_ENTRY);
+			}
+			else if( !pEntry->Get_Name().Cmp(SG_T("DATA")) )
+			{
+				if( !pEntry->Get_Property(SG_T("name"), Name) )	Name	= LNG("Data");
+				if( !pEntry->Get_Property(SG_T("type"), Type) )	Type	= LNG("unknown type");
+
+				Entry	= AppendItem(Parent, wxString::Format(wxT("%s [%s]"), Name.c_str(), Type.c_str()), IMG_ENTRY_DATA);
+
+				_Add_History(Entry, *pEntry);
+			}
+			else if( pEntry->Get_Children_Count() )
+			{
+				Entry	= AppendItem(Parent, wxString::Format(wxT("%s"), pEntry->Get_Name().c_str()), IMG_NAME);
+
+				_Add_History(Entry, *pEntry);
 			}
 			else
 			{
-				Entry	= AppendItem(Parent, History.Get_Entry(i).Get_Name() , IMG_NAME);
-				Name	= AppendItem(Entry , History.Get_Entry(i).Get_Entry(), IMG_ENTRY);
+				Entry	= AppendItem(Parent, wxString::Format(wxT("%s [%s]"), pEntry->Get_Name().c_str(), pEntry->Get_Content().c_str()), IMG_ENTRY_DATA);
 			}
 
-			Expand(Entry);
+			if( Entry.IsOk() )
+			{
+				Expand(Entry);
+			}
 		}
 
 		return( true );

@@ -111,8 +111,8 @@ bool CGrid_To_Points_Random::On_Execute(void)
 	pShapes		= Parameters("POINTS")->asShapes();
 
 	pShapes->Create(SHAPE_TYPE_Point, pGrid->Get_Name());
-	pShapes->Add_Field("ID"		, TABLE_FIELDTYPE_Int);
-	pShapes->Add_Field("VALUE"	, TABLE_FIELDTYPE_Double);
+	pShapes->Add_Field("ID"		, SG_DATATYPE_Int);
+	pShapes->Add_Field("VALUE"	, SG_DATATYPE_Double);
 
 	srand((unsigned)time(NULL));
 

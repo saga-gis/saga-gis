@@ -118,9 +118,9 @@ CGrid_Value_Replace::CGrid_Value_Replace(void)
 		_TL("")
 	)->asTable();
 
-	pLookup->Add_Field(_TL("Low Value")		, TABLE_FIELDTYPE_Double);
-	pLookup->Add_Field(_TL("High Value")		, TABLE_FIELDTYPE_Double);
-	pLookup->Add_Field(_TL("Replace with")	, TABLE_FIELDTYPE_Double);
+	pLookup->Add_Field(_TL("Low Value")		, SG_DATATYPE_Double);
+	pLookup->Add_Field(_TL("High Value")		, SG_DATATYPE_Double);
+	pLookup->Add_Field(_TL("Replace with")	, SG_DATATYPE_Double);
 
 	pRecord	= pLookup->Add_Record();	pRecord->Set_Value(0, 0.0);	pRecord->Set_Value(1, 0.0);	pRecord->Set_Value(2, 10.0);
 	pRecord	= pLookup->Add_Record();	pRecord->Set_Value(0, 1.0);	pRecord->Set_Value(1, 4.0);	pRecord->Set_Value(2, 11.0);

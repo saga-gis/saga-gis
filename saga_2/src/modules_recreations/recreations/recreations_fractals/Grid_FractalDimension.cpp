@@ -120,12 +120,12 @@ bool CGrid_FractalDimension::On_Execute(void)
 		pTable->Destroy();
 		pTable->Set_Name(_TL("Fractal Dimension"));
 
-		pTable->Add_Field(_TL("Class")		, TABLE_FIELDTYPE_Int);
-		pTable->Add_Field(_TL("Scale")		, TABLE_FIELDTYPE_Double);
-		pTable->Add_Field(_TL("Area")		, TABLE_FIELDTYPE_Double);
-		pTable->Add_Field(_TL("Ln(Area)")	, TABLE_FIELDTYPE_Double);
-		pTable->Add_Field(_TL("Dim01")		, TABLE_FIELDTYPE_Double);
-		pTable->Add_Field(_TL("Dim02")		, TABLE_FIELDTYPE_Double);
+		pTable->Add_Field(_TL("Class")		, SG_DATATYPE_Int);
+		pTable->Add_Field(_TL("Scale")		, SG_DATATYPE_Double);
+		pTable->Add_Field(_TL("Area")		, SG_DATATYPE_Double);
+		pTable->Add_Field(_TL("Ln(Area)")	, SG_DATATYPE_Double);
+		pTable->Add_Field(_TL("Dim01")		, SG_DATATYPE_Double);
+		pTable->Add_Field(_TL("Dim02")		, SG_DATATYPE_Double);
 
 		for(i=0; i<dimCount-1; i++)
 		{

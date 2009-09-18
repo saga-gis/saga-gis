@@ -254,22 +254,22 @@ bool CVIEW_Table_Control::_Set_Table(void)
 
 		switch( m_pTable->Get_Field_Type(iField) )
 		{
-		case TABLE_FIELDTYPE_Char:
-		case TABLE_FIELDTYPE_String: default:
+		case SG_DATATYPE_Char:
+		case SG_DATATYPE_String: default:
 			break;
 
-		case TABLE_FIELDTYPE_Short:
-		case TABLE_FIELDTYPE_Int:
-		case TABLE_FIELDTYPE_Long:
+		case SG_DATATYPE_Short:
+		case SG_DATATYPE_Int:
+		case SG_DATATYPE_Long:
 			SetColFormatNumber(iCol);
 			break;
 
-		case TABLE_FIELDTYPE_Float:
-		case TABLE_FIELDTYPE_Double:
+		case SG_DATATYPE_Float:
+		case SG_DATATYPE_Double:
 			SetColFormatFloat(iCol);
 			break;
 
-		case TABLE_FIELDTYPE_Color:
+		case SG_DATATYPE_Color:
 			SetColFormatNumber(iCol);
 			break;
 		}
@@ -323,7 +323,7 @@ bool CVIEW_Table_Control::_Set_Record(int iRecord, CSG_Table_Record *pRecord)
 				SET_CELL_VALUE(iRecord, iCol, pRecord->asString	(iField));
 				break;
 
-			case TABLE_FIELDTYPE_Color:
+			case SG_DATATYPE_Color:
 				SET_CELL_COLOR(iRecord, iCol, pRecord->asInt	(iField));
 				break;
 			}
@@ -559,20 +559,20 @@ void CVIEW_Table_Control::On_Field_Add(wxCommandEvent &event)
 	//-----------------------------------------------------
 	if( DLG_Parameters(&P) )
 	{
-		int					Position;
-		TSG_Table_Field_Type	Type;
+		int				Position;
+		TSG_Data_Type	Type;
 
 		switch( P("TYPE")->asInt() )
 		{
 		default:
-		case 0:	Type	= TABLE_FIELDTYPE_String;	break;
-		case 1:	Type	= TABLE_FIELDTYPE_Char;		break;
-		case 2:	Type	= TABLE_FIELDTYPE_Short;	break;
-		case 3:	Type	= TABLE_FIELDTYPE_Int;		break;
-		case 4:	Type	= TABLE_FIELDTYPE_Float;	break;
-		case 5:	Type	= TABLE_FIELDTYPE_Double;	break;
-		case 6:	Type	= TABLE_FIELDTYPE_Date;		break;
-		case 7:	Type	= TABLE_FIELDTYPE_Color;	break;
+		case 0:	Type	= SG_DATATYPE_String;	break;
+		case 1:	Type	= SG_DATATYPE_Char;		break;
+		case 2:	Type	= SG_DATATYPE_Short;	break;
+		case 3:	Type	= SG_DATATYPE_Int;		break;
+		case 4:	Type	= SG_DATATYPE_Float;	break;
+		case 5:	Type	= SG_DATATYPE_Double;	break;
+		case 6:	Type	= SG_DATATYPE_Date;		break;
+		case 7:	Type	= SG_DATATYPE_Color;	break;
 		}
 
 		Position	= P("FIELD")->asInt() + P("INSERT")->asInt();
@@ -817,14 +817,14 @@ void CVIEW_Table_Control::On_LClick(wxGridEvent &event)
 				default:
 					break;
 
-				case TABLE_FIELDTYPE_String:
+				case SG_DATATYPE_String:
 					if( event.AltDown() )
 					{
 						Open_Application(pRecord->asString(iField));
 					}
 					break;
 
-				case TABLE_FIELDTYPE_Color:
+				case SG_DATATYPE_Color:
 					if( DLG_Color(lValue = pRecord->asInt(iField)) )
 					{
 						pRecord->Set_Value(iField, lValue);

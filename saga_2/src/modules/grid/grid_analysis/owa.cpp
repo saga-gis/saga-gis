@@ -47,7 +47,7 @@ COWA::COWA(void){
 
 	pWeights->Set_Name(_TL("Weights"));
 
-	pWeights->Add_Field(_TL("Weight")	, TABLE_FIELDTYPE_Double);
+	pWeights->Add_Field(_TL("Weight")	, SG_DATATYPE_Double);
 
 	pRecord	= pWeights->Add_Record();
 	pRecord->Set_Value(0, 1);

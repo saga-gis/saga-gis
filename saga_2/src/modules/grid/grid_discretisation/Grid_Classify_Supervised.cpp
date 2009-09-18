@@ -137,7 +137,7 @@ CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 	Parameters.Add_Grid(
 		NULL	, "RESULT"			, _TL("Classification"),
 		_TL(""),
-		PARAMETER_OUTPUT, true, GRID_TYPE_Char
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Char
 	);
 
 	Parameters.Add_Grid(
@@ -243,14 +243,14 @@ bool CGrid_Classify_Supervised::Initialise(void)
 		m_pClasses->Destroy();
 		m_pClasses->Set_Name(_TL("Class Information"));
 
-		m_pClasses->Add_Field(_TL("NR")			, TABLE_FIELDTYPE_Int);
-		m_pClasses->Add_Field(_TL("IDENTIFIER")	, TABLE_FIELDTYPE_String);
-		m_pClasses->Add_Field(_TL("ELEMENTS")	, TABLE_FIELDTYPE_Int);
+		m_pClasses->Add_Field(_TL("NR")			, SG_DATATYPE_Int);
+		m_pClasses->Add_Field(_TL("IDENTIFIER")	, SG_DATATYPE_String);
+		m_pClasses->Add_Field(_TL("ELEMENTS")	, SG_DATATYPE_Int);
 
 		for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
 		{
-			m_pClasses->Add_Field(CSG_String::Format(_TL("MEAN_%02d")  , iGrid + 1), TABLE_FIELDTYPE_Double);
-			m_pClasses->Add_Field(CSG_String::Format(_TL("STDDEV_%02d"), iGrid + 1), TABLE_FIELDTYPE_Double);
+			m_pClasses->Add_Field(CSG_String::Format(_TL("MEAN_%02d")  , iGrid + 1), SG_DATATYPE_Double);
+			m_pClasses->Add_Field(CSG_String::Format(_TL("STDDEV_%02d"), iGrid + 1), SG_DATATYPE_Double);
 		}
 
 		//-------------------------------------------------

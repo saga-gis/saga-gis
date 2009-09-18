@@ -124,7 +124,7 @@ bool CCurvature_Classification::On_Execute(void)
 
 	pClass		= Parameters("CLASS")->asGrid();
 
-	pClass->Create(pPlan, GRID_TYPE_Char);
+	pClass->Create(pPlan, SG_DATATYPE_Char);
 	pClass->Set_NoData_Value(-1);
 
 	if( 1 )

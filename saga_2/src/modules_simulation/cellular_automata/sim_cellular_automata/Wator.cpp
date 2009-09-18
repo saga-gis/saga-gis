@@ -114,7 +114,7 @@ CWator::CWator(void)
 	pNode_0	= Parameters.Add_Grid(
 		NULL	, "RESULT"			, _TL("Wa-Tor"),
 		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL	, true, GRID_TYPE_Byte
+		PARAMETER_OUTPUT_OPTIONAL	, true, SG_DATATYPE_Byte
 	);
 
 	pNode_1	= Parameters.Add_Value(
@@ -185,7 +185,7 @@ bool CWator::On_Execute(void)
 	if( (pWator = Parameters("RESULT")->asGrid()) == NULL )
 	{
 		bRefresh	= true;
-		pWator		= SG_Create_Grid(GRID_TYPE_Byte, Parameters("NX")->asInt(), Parameters("NY")->asInt());
+		pWator		= SG_Create_Grid(SG_DATATYPE_Byte, Parameters("NX")->asInt(), Parameters("NY")->asInt());
 		Parameters("GRID")->Set_Value(pWator);
 	}
 	else
@@ -210,13 +210,13 @@ bool CWator::On_Execute(void)
 	pTable			= Parameters("TABLE")		->asTable();
 	pTable->Destroy();
 	pTable->Set_Name(_TL("Wa-Tor"));
-	pTable->Add_Field("Cycle"	, TABLE_FIELDTYPE_Int);
-	pTable->Add_Field("Fishes"	, TABLE_FIELDTYPE_Int);
-	pTable->Add_Field("Sharks"	, TABLE_FIELDTYPE_Int);
+	pTable->Add_Field("Cycle"	, SG_DATATYPE_Int);
+	pTable->Add_Field("Fishes"	, SG_DATATYPE_Int);
+	pTable->Add_Field("Sharks"	, SG_DATATYPE_Int);
 
-	pNext			= SG_Create_Grid(pWator, GRID_TYPE_Byte);
-	pAge			= SG_Create_Grid(pWator, GRID_TYPE_Byte);
-	pStarve			= SG_Create_Grid(pWator, GRID_TYPE_Byte);
+	pNext			= SG_Create_Grid(pWator, SG_DATATYPE_Byte);
+	pAge			= SG_Create_Grid(pWator, SG_DATATYPE_Byte);
+	pStarve			= SG_Create_Grid(pWator, SG_DATATYPE_Byte);
 
 	srand((unsigned)time(NULL));
 

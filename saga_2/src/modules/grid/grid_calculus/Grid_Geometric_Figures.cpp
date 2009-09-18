@@ -135,7 +135,7 @@ bool CGrid_Geometric_Figures::On_Execute(void)
 	DXY		= Parameters("CELL_SIZE")	->asDouble();
 
 	Parameters("RESULT")->asGridList()->Add_Item(
-		pGrid	= SG_Create_Grid(GRID_TYPE_Float, NXY, NXY, DXY)
+		pGrid	= SG_Create_Grid(SG_DATATYPE_Float, NXY, NXY, DXY)
 	);
 
 	//-----------------------------------------------------

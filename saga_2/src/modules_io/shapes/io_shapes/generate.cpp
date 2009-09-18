@@ -126,7 +126,7 @@ bool CGenerate_Export::On_Execute(void)
 			{
 				iField	= Parameters("FIELD")->asInt();
 
-				if( pLayer->Get_Field_Type(iField) == TABLE_FIELDTYPE_String )
+				if( pLayer->Get_Field_Type(iField) == SG_DATATYPE_String )
 				{
 					iField	= -1;
 				}

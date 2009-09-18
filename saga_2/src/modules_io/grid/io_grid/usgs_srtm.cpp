@@ -202,7 +202,7 @@ CSG_Grid * CUSGS_SRTM_Import::Load(CSG_String File, int N, double D)
 		//-------------------------------------------------
 		if( (Stream = fopen(File.b_str(), "rb")) != NULL )
 		{
-			if( (pGrid = SG_Create_Grid(GRID_TYPE_Float, N, N, D, xMin, yMin)) != NULL )
+			if( (pGrid = SG_Create_Grid(SG_DATATYPE_Float, N, N, D, xMin, yMin)) != NULL )
 			{
 				pGrid->Set_Name			(fName);
 				pGrid->Set_NoData_Value	(-32768);

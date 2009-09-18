@@ -116,15 +116,15 @@ bool CPolygon_To_Points::On_Execute(void)
 	if( pShapes->is_Valid() )
 	{
 		pPoints->Create(SHAPE_TYPE_Point, pShapes->Get_Name());
-		pPoints->Add_Field(SG_T("ID")		, TABLE_FIELDTYPE_String);
-		pPoints->Add_Field(SG_T("ID_SHAPE")	, TABLE_FIELDTYPE_Int);
-		pPoints->Add_Field(SG_T("ID_PART")	, TABLE_FIELDTYPE_Int);
-		pPoints->Add_Field(SG_T("ID_POINT")	, TABLE_FIELDTYPE_Int);
+		pPoints->Add_Field(SG_T("ID")		, SG_DATATYPE_String);
+		pPoints->Add_Field(SG_T("ID_SHAPE")	, SG_DATATYPE_Int);
+		pPoints->Add_Field(SG_T("ID_PART")	, SG_DATATYPE_Int);
+		pPoints->Add_Field(SG_T("ID_POINT")	, SG_DATATYPE_Int);
 
 		if( pShapes->Get_Type() == SHAPE_TYPE_Polygon )
 		{
-			pPoints->Add_Field(SG_T("CLOCKWISE"), TABLE_FIELDTYPE_String);
-			pPoints->Add_Field(SG_T("LAKE")		, TABLE_FIELDTYPE_String);
+			pPoints->Add_Field(SG_T("CLOCKWISE"), SG_DATATYPE_String);
+			pPoints->Add_Field(SG_T("LAKE")		, SG_DATATYPE_String);
 		}
 
 		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)

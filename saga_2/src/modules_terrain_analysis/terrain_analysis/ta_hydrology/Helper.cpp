@@ -255,7 +255,7 @@ float DrainageDensity(CSG_Shapes *pHeaders,
 	int iX, iY;
 	int iNextX, iNextY;
 
-	pChannelsGrid = new CSG_Grid(pDEM, GRID_TYPE_Byte);
+	pChannelsGrid = new CSG_Grid(pDEM, SG_DATATYPE_Byte);
 	pChannelsGrid->Assign(0);
 		
 	for (int i = 0; i < pHeaders->Get_Count(); i++) {

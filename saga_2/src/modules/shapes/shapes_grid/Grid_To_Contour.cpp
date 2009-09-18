@@ -149,8 +149,8 @@ bool CGrid_To_Contour::On_Execute(void)
 
 		pLayer->Create(SHAPE_TYPE_Line, pGrid->Get_Name());
 
-		pLayer->Add_Field("ID", TABLE_FIELDTYPE_Int);
-		pLayer->Add_Field(CSG_String::Format(SG_T("%s"),pGrid->Get_Name()).BeforeFirst(SG_Char('.')), TABLE_FIELDTYPE_Double);
+		pLayer->Add_Field("ID", SG_DATATYPE_Int);
+		pLayer->Add_Field(CSG_String::Format(SG_T("%s"),pGrid->Get_Name()).BeforeFirst(SG_Char('.')), SG_DATATYPE_Double);
 
 		Contour_Create(zMin, zMax, zStep);
 

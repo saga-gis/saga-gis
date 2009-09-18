@@ -195,7 +195,7 @@ wxString		Get_TableInfo_asHTML(CSG_Table *pTable)
 			s.Append(wxString::Format(wxT("<tr><td>%d</td><td>%s</td><td>%s</td><td>%f</td><td>%f</td><td>%f</td><td>%f</td></tr>"),
 				i + 1,
 				pTable->Get_Field_Name(i),
-				gSG_Table_Field_Type_Names[pTable->Get_Field_Type(i)],
+				gSG_Data_Type_Names[pTable->Get_Field_Type(i)],
 				pTable->Get_Minimum(i),
 				pTable->Get_Maximum(i),
 				pTable->Get_Mean(i),

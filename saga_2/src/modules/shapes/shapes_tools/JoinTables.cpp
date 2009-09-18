@@ -113,7 +113,7 @@ bool CJoinTables::On_Execute(void){
 					for (int iField=0; iField<pTable->Get_Field_Count();iField++){
 						iFieldOut = pShapesTable->Get_Field_Count();
 						if (iField!=id_Table){
-							if (pTable->Get_Field_Type(iField)==TABLE_FIELDTYPE_String ){
+							if (pTable->Get_Field_Type(iField)==SG_DATATYPE_String ){
 								pShape_Out->Get_Record()->Set_Value(iFieldOut, pRecord->asString(iField));
 							}//if
 							else{

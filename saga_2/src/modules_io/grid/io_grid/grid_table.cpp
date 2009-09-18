@@ -174,7 +174,7 @@ bool CGrid_Table_Import::On_Execute(void)
 	bool			bDown;
 	int				x, y, nx, ny;
 	double			dxy, xmin, ymin, zFactor, zNoData;
-	TSG_Grid_Type		data_type;
+	TSG_Data_Type		data_type;
 	CSG_String		FileName, Unit;
 	CSG_Grid			*pGrid;
 	CSG_Table			Table;
@@ -192,15 +192,15 @@ bool CGrid_Table_Import::On_Execute(void)
 
 	switch( Parameters("DATA_TYPE")->asInt() )
 	{
-	default:	data_type	= GRID_TYPE_Undefined;	break;	// not handled
-	case 0:		data_type	= GRID_TYPE_Byte;		break;	// 1 Byte Integer (unsigned)
-	case 1:		data_type	= GRID_TYPE_Char;		break;	// 1 Byte Integer (signed)
-	case 2:		data_type	= GRID_TYPE_Word;		break;	// 2 Byte Integer (unsigned)
-	case 3:		data_type	= GRID_TYPE_Short;		break;	// 2 Byte Integer (signed)
-	case 4:		data_type	= GRID_TYPE_DWord;		break;	// 4 Byte Integer (unsigned)
-	case 5:		data_type	= GRID_TYPE_Int;		break;	// 4 Byte Integer (signed)
-	case 6:		data_type	= GRID_TYPE_Float;		break;	// 4 Byte Floating Point
-	case 7:		data_type	= GRID_TYPE_Double;		break;	// 8 Byte Floating Point
+	default:	data_type	= SG_DATATYPE_Undefined;	break;	// not handled
+	case 0:		data_type	= SG_DATATYPE_Byte;			break;	// 1 Byte Integer (unsigned)
+	case 1:		data_type	= SG_DATATYPE_Char;			break;	// 1 Byte Integer (signed)
+	case 2:		data_type	= SG_DATATYPE_Word;			break;	// 2 Byte Integer (unsigned)
+	case 3:		data_type	= SG_DATATYPE_Short;		break;	// 2 Byte Integer (signed)
+	case 4:		data_type	= SG_DATATYPE_DWord;		break;	// 4 Byte Integer (unsigned)
+	case 5:		data_type	= SG_DATATYPE_Int;			break;	// 4 Byte Integer (signed)
+	case 6:		data_type	= SG_DATATYPE_Float;		break;	// 4 Byte Floating Point
+	case 7:		data_type	= SG_DATATYPE_Double;		break;	// 8 Byte Floating Point
 	}
 
 	//-----------------------------------------------------

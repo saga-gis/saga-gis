@@ -155,7 +155,7 @@ bool CFillSinks_WL::On_Execute(void)
 		preserve = false;
 
 
-	pSeed	= (CSG_Grid *) new CSG_Grid(GRID_TYPE_Bit, pElev->Get_NX(), pElev->Get_NY(), pElev->Get_Cellsize(), pElev->Get_XMin(), pElev->Get_YMin());
+	pSeed	= (CSG_Grid *) new CSG_Grid(SG_DATATYPE_Bit, pElev->Get_NX(), pElev->Get_NY(), pElev->Get_Cellsize(), pElev->Get_XMin(), pElev->Get_YMin());
 	
 	pFilled->Assign_NoData();
 	pWshed->Assign_NoData();

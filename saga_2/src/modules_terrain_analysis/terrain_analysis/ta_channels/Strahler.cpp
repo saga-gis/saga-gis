@@ -38,7 +38,7 @@ CStrahler::CStrahler(void){
 	Parameters.Add_Grid(
 		NULL	, "STRAHLER"	, _TL("Strahler Order"), 
 		_TL(""), 
-		PARAMETER_OUTPUT, true, GRID_TYPE_Short
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Short
 	);
 }
 

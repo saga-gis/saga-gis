@@ -199,7 +199,7 @@ bool CExercise_07::On_Execute(void)
 		break;
 
 	case 1:				// Needs more memory, but is quicker...
-		m_pDir	= new CSG_Grid(m_pDTM, GRID_TYPE_Char);
+		m_pDir	= new CSG_Grid(m_pDTM, SG_DATATYPE_Char);
 
 		for(y=0; y<Get_NY() && Set_Progress(y); y+=Step)
 		{

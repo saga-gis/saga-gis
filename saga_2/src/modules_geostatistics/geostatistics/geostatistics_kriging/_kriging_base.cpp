@@ -445,7 +445,7 @@ bool C_Kriging_Base::_Get_Grid(void)
 	case 1:	// grid system...
 		if( Dlg_Parameters("SYSTEM") )
 		{
-			m_pGrid		= SG_Create_Grid(*Get_Parameters("SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System(), GRID_TYPE_Float);
+			m_pGrid		= SG_Create_Grid(*Get_Parameters("SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System(), SG_DATATYPE_Float);
 		}
 		break;
 
@@ -463,7 +463,7 @@ bool C_Kriging_Base::_Get_Grid(void)
 	{
 		if( !m_pVariance && Parameters("BVARIANCE")->asBool() )
 		{
-			m_pVariance	= SG_Create_Grid(m_pGrid, GRID_TYPE_Float);
+			m_pVariance	= SG_Create_Grid(m_pGrid, SG_DATATYPE_Float);
 		}
 
 		m_pGrid->Set_Name(CSG_String::Format(SG_T("%s (%s)"), pShapes->Get_Name(), Get_Name()));
@@ -503,7 +503,7 @@ CSG_Grid * C_Kriging_Base::_Get_Grid(TSG_Rect Extent)
 	int		nx	= 1 + (int)((Extent.xMax - Extent.xMin) / d);
 	int		ny	= 1 + (int)((Extent.yMax - Extent.yMin) / d);
 
-	return( nx > 1 && ny > 1 ? SG_Create_Grid(GRID_TYPE_Float, nx, ny, d, Extent.xMin, Extent.yMin) : NULL );
+	return( nx > 1 && ny > 1 ? SG_Create_Grid(SG_DATATYPE_Float, nx, ny, d, Extent.xMin, Extent.yMin) : NULL );
 }
 
 

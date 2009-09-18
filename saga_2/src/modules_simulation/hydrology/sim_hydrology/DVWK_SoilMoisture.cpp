@@ -148,9 +148,9 @@ CDVWK_SoilMoisture::CDVWK_SoilMoisture(void)
 
 	pClimate	= pNode->asTable();
 	pClimate->Set_Name(_TL("Climate Data"));
-	pClimate->Add_Field(_TL("Precipitation [mm]")	, TABLE_FIELDTYPE_Double);
-	pClimate->Add_Field(_TL("Temperature (2pm) [DegreeC]"), TABLE_FIELDTYPE_Double);
-	pClimate->Add_Field(_TL("Air Humidity (2pm) [%%]"), TABLE_FIELDTYPE_Double);
+	pClimate->Add_Field(_TL("Precipitation [mm]")	, SG_DATATYPE_Double);
+	pClimate->Add_Field(_TL("Temperature (2pm) [DegreeC]"), SG_DATATYPE_Double);
+	pClimate->Add_Field(_TL("Air Humidity (2pm) [%%]"), SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_FixedTable(
@@ -160,20 +160,20 @@ CDVWK_SoilMoisture::CDVWK_SoilMoisture(void)
 
 	pCropCoeff	= pNode->asTable();
 	pCropCoeff->Set_Name(_TL("Crop Coefficients"));
-	pCropCoeff->Add_Field(_TL("Land Use ID")	, TABLE_FIELDTYPE_Int);
-	pCropCoeff->Add_Field(_TL("Name")		, TABLE_FIELDTYPE_String);
-	pCropCoeff->Add_Field(_TL("January")		, TABLE_FIELDTYPE_Double);
-	pCropCoeff->Add_Field(_TL("February")	, TABLE_FIELDTYPE_Double);
-	pCropCoeff->Add_Field(_TL("March")		, TABLE_FIELDTYPE_Double);
-	pCropCoeff->Add_Field(_TL("April")		, TABLE_FIELDTYPE_Double);
-	pCropCoeff->Add_Field(_TL("May")			, TABLE_FIELDTYPE_Double);
-	pCropCoeff->Add_Field(_TL("June")		, TABLE_FIELDTYPE_Double);
-	pCropCoeff->Add_Field(_TL("July")		, TABLE_FIELDTYPE_Double);
-	pCropCoeff->Add_Field(_TL("August")		, TABLE_FIELDTYPE_Double);
-	pCropCoeff->Add_Field(_TL("September")	, TABLE_FIELDTYPE_Double);
-	pCropCoeff->Add_Field(_TL("October")		, TABLE_FIELDTYPE_Double);
-	pCropCoeff->Add_Field(_TL("November")	, TABLE_FIELDTYPE_Double);
-	pCropCoeff->Add_Field(_TL("December")	, TABLE_FIELDTYPE_Double);
+	pCropCoeff->Add_Field(_TL("Land Use ID")	, SG_DATATYPE_Int);
+	pCropCoeff->Add_Field(_TL("Name")		, SG_DATATYPE_String);
+	pCropCoeff->Add_Field(_TL("January")		, SG_DATATYPE_Double);
+	pCropCoeff->Add_Field(_TL("February")	, SG_DATATYPE_Double);
+	pCropCoeff->Add_Field(_TL("March")		, SG_DATATYPE_Double);
+	pCropCoeff->Add_Field(_TL("April")		, SG_DATATYPE_Double);
+	pCropCoeff->Add_Field(_TL("May")			, SG_DATATYPE_Double);
+	pCropCoeff->Add_Field(_TL("June")		, SG_DATATYPE_Double);
+	pCropCoeff->Add_Field(_TL("July")		, SG_DATATYPE_Double);
+	pCropCoeff->Add_Field(_TL("August")		, SG_DATATYPE_Double);
+	pCropCoeff->Add_Field(_TL("September")	, SG_DATATYPE_Double);
+	pCropCoeff->Add_Field(_TL("October")		, SG_DATATYPE_Double);
+	pCropCoeff->Add_Field(_TL("November")	, SG_DATATYPE_Double);
+	pCropCoeff->Add_Field(_TL("December")	, SG_DATATYPE_Double);
 
 	CSG_Table_Record	*pRec;
 
@@ -227,7 +227,7 @@ bool CDVWK_SoilMoisture::On_Execute(void)
 		DataObject_Set_Colors(pWi_mm, 100, SG_COLORS_YELLOW_BLUE);
 
 		//-------------------------------------------------
-		pLandUse	= SG_Create_Grid(pWi_mm, pCropCoeff->Get_Record_Count() < 127 ? GRID_TYPE_Char : GRID_TYPE_Int);
+		pLandUse	= SG_Create_Grid(pWi_mm, pCropCoeff->Get_Record_Count() < 127 ? SG_DATATYPE_Char : SG_DATATYPE_Int);
 		pLandUse->Assign(Parameters("LANDUSE_DEF")->asInt());
 
 		if( (pGrid = Parameters("LANDUSE")->asGrid()) != NULL )

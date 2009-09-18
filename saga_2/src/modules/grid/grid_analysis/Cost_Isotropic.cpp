@@ -47,7 +47,7 @@ CCost_Isotropic::CCost_Isotropic(void)
 						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
-						GRID_TYPE_Double);
+						SG_DATATYPE_Double);
 
 	Parameters.Add_Grid(NULL, 
 						"CLOSESTPT", 
@@ -55,7 +55,7 @@ CCost_Isotropic::CCost_Isotropic(void)
 						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
-						GRID_TYPE_Int);
+						SG_DATATYPE_Int);
 
 	Parameters.Add_Value(NULL,
 						"THRESHOLD",

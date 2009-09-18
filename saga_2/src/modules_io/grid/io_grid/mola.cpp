@@ -125,7 +125,7 @@ bool CMOLA_Import::On_Execute(void)
 	short			*sLine;
 	double			D, xMin, yMin;
 	CSG_File		Stream;
-	TSG_Grid_Type	Type;
+	TSG_Data_Type	Type;
 	CSG_Grid		*pGrid;
 	CSG_String		fName, sName;
 
@@ -134,8 +134,8 @@ bool CMOLA_Import::On_Execute(void)
 
 	switch( Parameters("TYPE")->asInt() )
 	{
-	case 0:				Type	= GRID_TYPE_Short;	break;
-	case 1: default:	Type	= GRID_TYPE_Float;	break;
+	case 0:				Type	= SG_DATATYPE_Short;	break;
+	case 1: default:	Type	= SG_DATATYPE_Float;	break;
 	}
 
 	bDown	= Parameters("ORIENT")->asInt() == 1;

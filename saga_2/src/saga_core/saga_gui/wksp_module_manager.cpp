@@ -141,9 +141,9 @@ bool CWKSP_Module_Manager::Initialise(void)
 	if( Get_Count() == 0 )
 	{
 #if defined(_SAGA_LINUX)
-	if( _Open_Directory( wxT( MODULE_LIBRARY_PATH ) ) == 0 )
+	if( _Open_Directory(wxT(MODULE_LIBRARY_PATH)) == 0 )
 #endif
-		_Open_Directory(g_pSAGA->Get_App_Path());
+		_Open_Directory(g_pSAGA->Get_App_Path(), true);
 	}
 
 	return( true );
@@ -353,7 +353,7 @@ void CWKSP_Module_Manager::_Config_Write(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CWKSP_Module_Manager::_Open_Directory(const wxChar *sDirectory)
+int CWKSP_Module_Manager::_Open_Directory(const wxChar *sDirectory, bool bOnlySubDirectories)
 {
 	int			nOpened	= 0;
 	wxDir		Dir;
@@ -361,10 +361,10 @@ int CWKSP_Module_Manager::_Open_Directory(const wxChar *sDirectory)
 
 	if( Dir.Open(sDirectory) )
 	{
-		if( Dir.GetFirst(&FileName, wxEmptyString, wxDIR_FILES) )
+		if( !bOnlySubDirectories && Dir.GetFirst(&FileName, wxEmptyString, wxDIR_FILES) )
 		{
 			do
-			{	if( FileName.Find(wxT("saga_api")) < 0 && FileName.Find(wxT("wx")) < 0 && FileName.Find(wxT("mingw")) < 0 )
+			{	if( FileName.Find(wxT("saga_api")) < 0 && FileName.Find(wxT("saga_gdi")) < 0 && FileName.Find(wxT("wx")) < 0 && FileName.Find(wxT("mingw")) < 0 )
 				if( Open(SG_File_Make_Path(Dir.GetName(), FileName, NULL)) )
 				{
 					nOpened++;
@@ -502,56 +502,103 @@ CWKSP_Module * CWKSP_Module_Manager::Get_Module_byID(int CMD_ID)
 //---------------------------------------------------------
 void CWKSP_Module_Manager::_Make_HTML_Docs(void)
 {
-	int			i, j;
-	CSG_File	Stream, Stream_Lib, Stream_Libs;
-	wxString	LibName;
-	wxFileName	FileName;
+	CSG_Parameters	Options(NULL, LNG("Create HTML Documentation"), LNG(""));
+
+	Options.Add_FilePath(NULL, "DIR", LNG("Choose Documentation Folder"), LNG(""), NULL, NULL, true, true);
+
+	if( !DLG_Parameters(&Options) )
+	{
+		return;
+	}
+
+	//-----------------------------------------------------
+	bool			bDirectory;
+	CSG_File		Stream_Module, Stream_Lib, Stream_Libs, Stream_List;
+	wxString		LibName, Directory, Main, s;
+	wxFileName		FileName;
 
 	MSG_General_Add(wxString::Format(wxT("%s..."), LNG("Creating module documentation files")), true, true);
 
-	FileName.Assign		(g_pSAGA->Get_App_Path());
-	FileName.SetName	(wxT("modules"));
+	bDirectory	= wxDirExists(Options("DIR")->asString());
+	Directory	= bDirectory ? Options("DIR")->asString() : SG_File_Get_Path(g_pSAGA->Get_App_Path());
+
+	//-----------------------------------------------------
+	FileName.AssignDir	(Directory);
 	FileName.SetExt		(wxT("html"));
+	FileName.SetName	(wxT("index"));
 
-	if( Stream_Libs.Open(FileName.GetFullPath().c_str(), SG_FILE_W, false) )
-	{
-		Stream_Libs.Printf(wxT("<h1>%s</h1>\n<ul>\n"), LNG("SAGA Module Library Descriptions"));
-	}
+	Stream_Libs.Open(FileName.GetFullPath().c_str(), SG_FILE_W, false);
+	Stream_Libs.Printf(wxT("<h1>%s</h1>\n<ul>\n"), LNG("SAGA Module Library Descriptions"));
 
-	for(i=0; i<Get_Count() && PROGRESSBAR_Set_Position(i, Get_Count()); i++)
+	Main		= FileName.GetFullPath();
+
+	//-----------------------------------------------------
+	for(int i=0; i<Get_Count() && PROGRESSBAR_Set_Position(i, Get_Count()); i++)
 	{
-		FileName.Assign		(Get_Library(i)->Get_File_Name());
-		LibName				= FileName.GetName();
+		LibName				= SG_File_Get_Name(Get_Library(i)->Get_File_Name(), false).c_str();
+		FileName.AssignDir	(bDirectory ? Directory.c_str() : SG_File_Get_Path(Get_Library(i)->Get_File_Name()).c_str());
 		FileName.AppendDir	(LibName);
 		FileName.SetExt		(wxT("html"));
 
-		if( (wxDirExists(FileName.GetPath()) || wxMkdir(FileName.GetPath())) && Stream_Lib.Open(FileName.GetFullPath().c_str(), SG_FILE_W, false) )
+		if( wxDirExists(FileName.GetPath()) || wxMkdir(FileName.GetPath()) )
 		{
-			if( Stream_Libs.is_Open() )
+			//---------------------------------------------
+			// create a frame
+
+			FileName.SetName(wxT("index"));
+
+			if( Stream_Lib.Open(FileName.GetFullPath().c_str(), SG_FILE_W, false) )
 			{
-				Stream_Libs.Printf(wxT("<li><a href=\"%s\">%s</a></li>\n"), Get_FilePath_Relative(g_pSAGA->Get_App_Path(), FileName.GetFullPath()).c_str(), Get_Library(i)->Get_Name().c_str());
+				if( Stream_Libs.is_Open() )
+				{
+					s	= Get_FilePath_Relative(Directory.c_str(), FileName.GetFullPath().c_str()).c_str();	if( s[0] == '\\' )	s	= s.AfterFirst('\\');
+					Stream_Libs.Printf(wxT("<li><a href=\"%s\">%s</a></li>\n"), s.c_str(), Get_Library(i)->Get_Name().c_str());
+				}
+
+				Stream_Lib.Printf(SG_T("<html><head><title>SAGA - System for Automated Geoscientific Analyses</title></head>"));
+				Stream_Lib.Printf(SG_T("<frameset cols=\"200,*\" frameborder=\"0\" framespacing=\"0\" border=\"0\">"));
+				Stream_Lib.Printf(SG_T("  <frame frameborder=\"0\" noresize src=\"modules.html\" name=\"MODULES\">"));
+				Stream_Lib.Printf(SG_T("  <frame frameborder=\"0\" noresize src=\"%s.html\" name=\"CONTENT\">")   , LibName.c_str());
+				Stream_Lib.Printf(SG_T("</frameset></html>"));
 			}
 
-			Stream_Lib.Printf(wxT("%s<hr>"), Get_Library(i)->Get_Description().c_str());
+			//---------------------------------------------
+			// write the modules
 
-			for(j=0; j<Get_Library(i)->Get_Count(); j++)
+			if( bDirectory )
+				s	= wxT("./../index");
+			else
+				s	= Get_FilePath_Relative(Main.c_str(), FileName.GetFullPath().c_str()).c_str();	if( s[0] == '\\' )	s	= s.AfterFirst('\\');
+
+			FileName.SetName(wxT("modules"));
+			Stream_List.Open(FileName.GetFullPath().c_str(), SG_FILE_W, false);
+			Stream_List.Printf(SG_T("<body bgcolor=\"#CCCCCC\">"));
+			Stream_List.Printf(SG_T("<b><a target=\"_top\"    href=\"%s.html\">%s</a></b><hr>"), s.c_str(), LNG("Library Overview"));
+			Stream_List.Printf(SG_T("<b><a target=\"CONTENT\" href=\"%s.html\">%s</a></b><hr><ul>"), LibName.c_str(), Get_Library(i)->Get_Name().c_str());
+
+			FileName.SetName(LibName);
+
+			if( Stream_Lib.Open(FileName.GetFullPath().c_str(), SG_FILE_W, false) )
 			{
-				FileName.SetName(wxString::Format(wxT("%s_%02d"), LibName.c_str(), Get_Library(i)->Get_Module(j)->Get_Index()));
+				Stream_Lib.Printf(wxT("%s<hr><ul>"), Get_Library(i)->Get_Description().c_str());
 
-				Stream_Lib.Printf(wxT("<a href=\"%s\">%s</a><br>"), FileName.GetFullName().c_str(), Get_Library(i)->Get_Module(j)->Get_Name().c_str());
-
-				if( Stream.Open(FileName.GetFullPath().c_str(), SG_FILE_W, false) )
+				for(int j=0; j<Get_Library(i)->Get_Count(); j++)
 				{
-					Stream.Printf(wxT("%s"), Get_Library(i)->Get_Module(j)->Get_Description().c_str());
+					FileName.SetName(wxString::Format(wxT("%s_%02d"), LibName.c_str(), Get_Library(i)->Get_Module(j)->Get_Index()));
 
-					Stream.Close();
+					if( Stream_Module.Open(FileName.GetFullPath().c_str(), SG_FILE_W, false) )
+					{
+						Stream_Module.Printf(wxT("%s"), Get_Library(i)->Get_Module(j)->Get_Description().c_str());
+
+						Stream_Lib .Printf(wxT("<li><a target=\"CONTENT\" href=\"%s\">%s</a></li>"), FileName.GetFullName().c_str(), Get_Library(i)->Get_Module(j)->Get_Name().c_str());
+						Stream_List.Printf(wxT("<li><a target=\"CONTENT\" href=\"%s\">%s</a></li>"), FileName.GetFullName().c_str(), Get_Library(i)->Get_Module(j)->Get_Name().c_str());
+					}
 				}
 			}
-
-			Stream_Lib.Close();
 		}
 	}
 
+	//-----------------------------------------------------
 	if( Stream_Libs.is_Open() )
 	{
 		Stream_Libs.Printf(wxT("</ul>"));

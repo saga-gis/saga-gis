@@ -252,9 +252,9 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 
 	pLookup	= Parameters("RETAB")->asTable();
 
-	pLookup->Add_Field(_TL("minimum")	, TABLE_FIELDTYPE_Double);
-	pLookup->Add_Field(_TL("maximum")	, TABLE_FIELDTYPE_Double);
-	pLookup->Add_Field(_TL("new")		, TABLE_FIELDTYPE_Double);
+	pLookup->Add_Field(_TL("minimum")	, SG_DATATYPE_Double);
+	pLookup->Add_Field(_TL("maximum")	, SG_DATATYPE_Double);
+	pLookup->Add_Field(_TL("new")		, SG_DATATYPE_Double);
 
 	pRecord	= pLookup->Add_Record();	pRecord->Set_Value(0,  0.0);	pRecord->Set_Value(1, 10.0);	pRecord->Set_Value(2, 1.0);
 	pRecord	= pLookup->Add_Record();	pRecord->Set_Value(0, 10.0);	pRecord->Set_Value(1, 20.0);	pRecord->Set_Value(2, 2.0);
@@ -319,7 +319,7 @@ bool CGrid_Value_Reclassify::ReclassRange(void)
 
 	noDataValue = pInput->Get_NoData_Value();
 
-	if( (pInput->Get_Type() == GRID_TYPE_Double) || (pInput->Get_Type() == GRID_TYPE_Float) )
+	if( (pInput->Get_Type() == SG_DATATYPE_Double) || (pInput->Get_Type() == SG_DATATYPE_Float) )
 		floating = true;
 	else
 		floating = false;
@@ -380,7 +380,7 @@ bool CGrid_Value_Reclassify::ReclassSingle(void)
 
 	noDataValue = pInput->Get_NoData_Value();
 
-	if( (pInput->Get_Type() == GRID_TYPE_Double) || (pInput->Get_Type() == GRID_TYPE_Float) )
+	if( (pInput->Get_Type() == SG_DATATYPE_Double) || (pInput->Get_Type() == SG_DATATYPE_Float) )
 		floating = true;
 	else
 		floating = false;

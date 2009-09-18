@@ -223,7 +223,7 @@ void CWatersheds_ext::CalculateBasin() {
 	m_fHeightDif = new float[Crossings.Get_Count()+1];
 	m_fHeightDif[0] = fHeightDif;
 
-	m_pDistanceGrid = SG_Create_Grid(m_pDEM,GRID_TYPE_Float);
+	m_pDistanceGrid = SG_Create_Grid(m_pDEM,SG_DATATYPE_Float);
 	m_pDistanceGrid->Assign((double)0);
 
 	m_iNumBasins = 1;
@@ -285,7 +285,7 @@ void CWatersheds_ext::CreateShapesLayer(){ //first shape (0) is the whole basin.
 		
 	m_pHeaders->Create(SHAPE_TYPE_Point, _TL("Headers"));
 	pTable=m_pHeaders;
-	pTable->Add_Field("Header", TABLE_FIELDTYPE_Int);
+	pTable->Add_Field("Header", SG_DATATYPE_Int);
 	for (i = 0; i < m_Headers.Get_Count(); i++){
 		m_pHeaders->Add_Shape()->Add_Point(m_Headers.Get_Point(i).x * m_pDEM->Get_Cellsize() + m_pDEM->Get_XMin(), 
 											m_Headers.Get_Point(i).y * m_pDEM->Get_Cellsize() + m_pDEM->Get_YMin());
@@ -296,7 +296,7 @@ void CWatersheds_ext::CreateShapesLayer(){ //first shape (0) is the whole basin.
 
 	m_pBasins->Create(SHAPE_TYPE_Polygon, _TL("Subbasins"));
 	pTable = m_pBasins;
-	pTable->Add_Field(_TL("Basin Code"), TABLE_FIELDTYPE_Int);
+	pTable->Add_Field(_TL("Basin Code"), SG_DATATYPE_Int);
 
 	pSubbasin = m_pBasins->Add_Shape();		
 
@@ -383,23 +383,23 @@ out2:
 	    
 	}// for
 
-	pTable->Add_Field(_TL("Closing Pt. X"), TABLE_FIELDTYPE_Double); //1
-	pTable->Add_Field(_TL("Closing Pt. Y"), TABLE_FIELDTYPE_Double); //2
-	pTable->Add_Field(_TL("Perimeter (m)"), TABLE_FIELDTYPE_Double); //3
-	pTable->Add_Field(_TL("Area (ha)"), TABLE_FIELDTYPE_Double); //4
-	pTable->Add_Field(_TL("Avg. Curve Number"), TABLE_FIELDTYPE_Double); //5
-	pTable->Add_Field(_TL("Soil losses (t/ha\xc2\xb7year)"), TABLE_FIELDTYPE_Double); //6
-	pTable->Add_Field(_TL("Concentration time (h)"), TABLE_FIELDTYPE_Double); //7 
-	pTable->Add_Field(_TL("Upslope Basins"), TABLE_FIELDTYPE_String); //8
-	pTable->Add_Field(_TL("Downslope basins"), TABLE_FIELDTYPE_Int); //9 
-	pTable->Add_Field(_TL("Basin Type (Gravelius)"), TABLE_FIELDTYPE_String); //10
-	pTable->Add_Field(_TL("Equivalente Rectangle (Side 1)(m)"), TABLE_FIELDTYPE_Double); //11
-	pTable->Add_Field(_TL("Equivalente Rectangle (Side 2)(m)"), TABLE_FIELDTYPE_Double); //12
-	pTable->Add_Field(_TL("Orographic coef."), TABLE_FIELDTYPE_Double); //13
-	pTable->Add_Field(_TL("Massivity coef."), TABLE_FIELDTYPE_Double); //14
-	pTable->Add_Field(_TL("Centroid X"), TABLE_FIELDTYPE_Double); //15
-	pTable->Add_Field(_TL("Centroid Y"), TABLE_FIELDTYPE_Double); //16
-	pTable->Add_Field(_TL("Maximum flow distance(m)"), TABLE_FIELDTYPE_Double); //17
+	pTable->Add_Field(_TL("Closing Pt. X"), SG_DATATYPE_Double); //1
+	pTable->Add_Field(_TL("Closing Pt. Y"), SG_DATATYPE_Double); //2
+	pTable->Add_Field(_TL("Perimeter (m)"), SG_DATATYPE_Double); //3
+	pTable->Add_Field(_TL("Area (ha)"), SG_DATATYPE_Double); //4
+	pTable->Add_Field(_TL("Avg. Curve Number"), SG_DATATYPE_Double); //5
+	pTable->Add_Field(_TL("Soil losses (t/ha\xc2\xb7year)"), SG_DATATYPE_Double); //6
+	pTable->Add_Field(_TL("Concentration time (h)"), SG_DATATYPE_Double); //7 
+	pTable->Add_Field(_TL("Upslope Basins"), SG_DATATYPE_String); //8
+	pTable->Add_Field(_TL("Downslope basins"), SG_DATATYPE_Int); //9 
+	pTable->Add_Field(_TL("Basin Type (Gravelius)"), SG_DATATYPE_String); //10
+	pTable->Add_Field(_TL("Equivalente Rectangle (Side 1)(m)"), SG_DATATYPE_Double); //11
+	pTable->Add_Field(_TL("Equivalente Rectangle (Side 2)(m)"), SG_DATATYPE_Double); //12
+	pTable->Add_Field(_TL("Orographic coef."), SG_DATATYPE_Double); //13
+	pTable->Add_Field(_TL("Massivity coef."), SG_DATATYPE_Double); //14
+	pTable->Add_Field(_TL("Centroid X"), SG_DATATYPE_Double); //15
+	pTable->Add_Field(_TL("Centroid Y"), SG_DATATYPE_Double); //16
+	pTable->Add_Field(_TL("Maximum flow distance(m)"), SG_DATATYPE_Double); //17
 
 	for (i = 0; i < m_pBasins->Get_Count(); i++) {								            
         pSubbasin = m_pBasins->Get_Shape(i);

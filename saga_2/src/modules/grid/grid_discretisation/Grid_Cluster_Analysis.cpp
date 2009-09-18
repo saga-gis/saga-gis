@@ -104,7 +104,7 @@ CGrid_Cluster_Analysis::CGrid_Cluster_Analysis(void)
 	Parameters.Add_Grid(
 		NULL	, "RESULT"		, _TL("Clusters"),
 		_TL(""),
-		PARAMETER_OUTPUT, true, GRID_TYPE_Int
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Int
 	);
 
 	Parameters.Add_Table(
@@ -181,7 +181,7 @@ bool CGrid_Cluster_Analysis::On_Execute(void)
 		{
 			for(i=0; i<nGrids; i++)
 			{
-				Grids[i]	= SG_Create_Grid(pGrids->asGrid(i), GRID_TYPE_Float);
+				Grids[i]	= SG_Create_Grid(pGrids->asGrid(i), SG_DATATYPE_Float);
 				Grids[i]->Assign(pGrids->asGrid(i));
 				Grids[i]->Normalise();
 			}
@@ -316,9 +316,9 @@ void CGrid_Cluster_Analysis::Write_Result(CSG_Table *pTable, long nElements, int
 	pTable->Destroy();
 	pTable->Set_Name(_TL("Cluster Analysis"));
 
-	pTable->Add_Field(_TL("ClusterID")	, TABLE_FIELDTYPE_Int);
-	pTable->Add_Field(_TL("Elements")	, TABLE_FIELDTYPE_Int);
-	pTable->Add_Field(_TL("Variance")	, TABLE_FIELDTYPE_Double);
+	pTable->Add_Field(_TL("ClusterID")	, SG_DATATYPE_Int);
+	pTable->Add_Field(_TL("Elements")	, SG_DATATYPE_Int);
+	pTable->Add_Field(_TL("Variance")	, SG_DATATYPE_Double);
 
 	s.Printf(SG_T("\n%s:\t%ld \n%s:\t%d \n%s:\t%d \n%s:\t%f"),
 		_TL("Number of Elements")			, nElements,
@@ -332,7 +332,7 @@ void CGrid_Cluster_Analysis::Write_Result(CSG_Table *pTable, long nElements, int
 	for(j=0; j<nGrids; j++)
 	{
 		s.Append(CSG_String::Format(SG_T("\t%02d_%s"), j + 1, Grids[j]->Get_Name()));
-		pTable->Add_Field(Grids[j]->Get_Name(), TABLE_FIELDTYPE_Double);
+		pTable->Add_Field(Grids[j]->Get_Name(), SG_DATATYPE_Double);
 	}
 
 	Message_Add(s);
