@@ -13,7 +13,7 @@
 //                     las_import.cpp                    //
 //                                                       //
 //                 Copyright (C) 2009 by                 //
-//                      Olaf Conrad                      //
+//              Olaf Conrad, Volker Wichmann             //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -58,16 +58,10 @@
 //---------------------------------------------------------
 #include "las_import.h"
 
-//---------------------------------------------------------
-#if defined(__int8_t_defined)
-	#define INT32_C
-#endif
-
-#if defined(__uint32_t_defined)
-	#define UINT32_C
-#endif
-
-#include <liblas/capi/liblas.h>
+#include <liblas/laspoint.hpp>
+#include <liblas/lasreader.hpp>
+#include <fstream>
+#include <iostream>
 
 
 ///////////////////////////////////////////////////////////
@@ -91,16 +85,13 @@ enum
 	VAR_B,			// blue channel color
 	VAR_e,			// edge of flight line flag
 	VAR_d,			// direction of scan flag
-//	VAR_p,			// point source ID
-	VAR_C,			// colour
+	VAR_p,			// point source ID
+	VAR_C,			// color
 	VAR_Count
 };
 
 //---------------------------------------------------------
-#define	ADD_FIELD(id, var, name, type)	if( Parameters(id)->asBool() )\
-{	iField[var]	= pPoints->Get_Field_Count(); pPoints->Add_Field(name, type);	}\
-else\
-{	iField[var] = -1;	}
+#define	ADD_FIELD(id, var, name, type)	if( Parameters(id)->asBool() ) { iField[var] = nFields++; pPoints->Add_Field(name, type); } else { iField[var] = -1; }
 
 
 ///////////////////////////////////////////////////////////
@@ -119,16 +110,19 @@ CLAS_Import::CLAS_Import(void)
 
 	Set_Name		(_TL("Import LAS Files"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2009"));
+	Set_Author		(SG_T("O. Conrad, V. Wichmann (c) 2009"));
 
 	Set_Description	(_TW(
-		"This module imports LAS files using the free \"libLAS\" library. "
+		"This module imports ASPRS LAS files (versions 1.0, 1.1 and 1.2) as Point Cloud "
+		"using the \"libLAS\" library. "
 		"Get more information about this library at "
 		"<a href=\"http://liblas.org\">http://liblas.org</a>\n"
 		"\n"
-		"Featured by "
+		"Besides the x,y,z coordinates, the user can decide upon which attributes "
+		"should be imported from the LAS file.\n\n"
+		"Module development was supported by "
 		"<a href=\"http://www.laserdata.at\">http://Laserdata GmbH, Austria</a>\n"
-		"and in cooperation with "
+		"and "
 		"<a href=\"http://www.alp-s.at\">http://alpS GmbH, Austria</a>\n"
 	));
 
@@ -136,20 +130,19 @@ CLAS_Import::CLAS_Import(void)
 	//-----------------------------------------------------
 	// 2. Parameters...
 
-	Parameters.Add_PointCloud(
+	Parameters.Add_PointCloud_Output(
 		NULL	, "POINTS"		, _TL("Point Cloud"),
-		_TL(""),
-		PARAMETER_OUTPUT
+		_TL("")
 	);
 
 	Parameters.Add_FilePath(
-		NULL	, "FILE"		, _TL("File"),
+		NULL	, "FILE"		, _TL("Input File"),
 		_TL(""),
 		_TL("LAS Files (*.las)|*.las|All Files|*.*")
 	);
 
 	pNode	= Parameters.Add_Node(
-		NULL	, "NODE_VARS"	, _TL("Select Data"),
+		NULL	, "NODE_VARS"	, _TL("Attributes to import besides x,y,z ..."),
 		_TL("")
 	);
 
@@ -165,8 +158,8 @@ CLAS_Import::CLAS_Import(void)
 	Parameters.Add_Value(pNode, "B", _TL("blue channel color")				, _TL(""), PARAMETER_TYPE_Bool, false);
 	Parameters.Add_Value(pNode, "e", _TL("edge of flight line flag")		, _TL(""), PARAMETER_TYPE_Bool, false);
 	Parameters.Add_Value(pNode, "d", _TL("direction of scan flag")			, _TL(""), PARAMETER_TYPE_Bool, false);
-//	Parameters.Add_Value(pNode, "p", _TL("point source ID")					, _TL(""), PARAMETER_TYPE_Bool, false);
-	Parameters.Add_Value(pNode, "C", _TL("color")							, _TL(""), PARAMETER_TYPE_Bool, false);
+	Parameters.Add_Value(pNode, "p", _TL("point source ID")					, _TL(""), PARAMETER_TYPE_Bool, false);
+	Parameters.Add_Value(pNode, "C", _TL("rgb color")						, _TL(""), PARAMETER_TYPE_Bool, false);
 }
 
 
@@ -179,41 +172,32 @@ CLAS_Import::CLAS_Import(void)
 //---------------------------------------------------------
 bool CLAS_Import::On_Execute(void)
 {
+    std::ifstream   ifs;
+    int             classification;
+
 	CSG_String	fName	= Parameters("FILE")->asString();
 
-	//-----------------------------------------------------
-	if( !SG_File_Exists(fName) )
-	{
-		return( false );
-	}
+    ifs.open(fName.b_str(), std::ios::in | std::ios::binary);
+    if (!ifs)
+    {
+        SG_UI_Msg_Add_Error(CSG_String::Format(_TL("Unable to open LAS file!")));
+        return (false);
+    }
+
+    liblas::LASReader reader(ifs);
+
+    liblas::LASHeader const& header = reader.GetHeader();
+
 
 	//-----------------------------------------------------
-	LASReaderH	reader	= NULL;
-	LASHeaderH	header	= NULL;
-	LASPointH	point	= NULL;
+	int		nFields, iField[VAR_Count];
 
-	if( (reader = LASReader_Create(fName.b_str())) == NULL )
-	{
-		Error_Set(_TL("Unable to read file"));
-
-		return( false );
-	}
-
-	if( (header = LASReader_GetHeader(reader)) == NULL )
-	{
-		LASReader_Destroy(reader);
-
-		Error_Set(_TL("Unable to fetch header for file"));
-
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	int		iField[VAR_Count];
-
-	CSG_PointCloud	*pPoints	= Parameters("POINTS")->asPointCloud();
-	pPoints->Create();
+	CSG_PointCloud	*pPoints	= SG_Create_PointCloud();
 	pPoints->Set_Name(SG_File_Get_Name(fName, false));
+	Parameters("POINTS")->Set_Value(pPoints);
+	pPoints->Create();
+
+	nFields		= 3;
 
 	ADD_FIELD("T", VAR_T, _TL("gps-time")							, POINTCLOUD_FIELDTYPE_Long);
 	ADD_FIELD("i", VAR_i, _TL("intensity")							, POINTCLOUD_FIELDTYPE_Float);
@@ -227,41 +211,85 @@ bool CLAS_Import::On_Execute(void)
 	ADD_FIELD("B", VAR_B, _TL("blue channel color")					, POINTCLOUD_FIELDTYPE_Short);
 	ADD_FIELD("e", VAR_e, _TL("edge of flight line flag")			, POINTCLOUD_FIELDTYPE_Char);
 	ADD_FIELD("d", VAR_d, _TL("direction of scan flag")				, POINTCLOUD_FIELDTYPE_Char);
-//	ADD_FIELD("p", VAR_p, _TL("point source ID")					, POINTCLOUD_FIELDTYPE_Int);
+	ADD_FIELD("p", VAR_p, _TL("point source ID")					, POINTCLOUD_FIELDTYPE_Int);
 	ADD_FIELD("C", VAR_C, _TL("rgb color")							, POINTCLOUD_FIELDTYPE_Long);
 
 	//-----------------------------------------------------
-	int		iPoint	= 0, nPoints	= LASHeader_GetRecordsCount(header);
+	int		iPoint	= 0;
 
-	while( (point = LASReader_GetNextPoint(reader)) != NULL && Set_Progress(iPoint++, nPoints) )
-	{
-		if( LASPoint_IsValid(point) )
-		{
-			LASColorH color	= LASPoint_GetColor(point);
+    while (reader.ReadNextPoint())
+    {
+        if (iPoint%10000 == 0)
+            SG_UI_Process_Set_Progress((double)iPoint, header.GetPointRecordsCount());
 
-			pPoints->Add_Point(LASPoint_GetX(point), LASPoint_GetY(point), LASPoint_GetZ(point));
+        liblas::LASPoint const& point = reader.GetPoint();
 
-			if( iField[VAR_T] > 0 )	pPoints->Set_Value(iField[VAR_T], LASPoint_GetTime(point));
-			if( iField[VAR_i] > 0 )	pPoints->Set_Value(iField[VAR_i], LASPoint_GetIntensity(point));
-			if( iField[VAR_a] > 0 )	pPoints->Set_Value(iField[VAR_a], LASPoint_GetScanAngleRank(point));
-			if( iField[VAR_r] > 0 )	pPoints->Set_Value(iField[VAR_r], LASPoint_GetReturnNumber(point));
-			if( iField[VAR_c] > 0 )	pPoints->Set_Value(iField[VAR_c], LASPoint_GetClassification(point));
-			if( iField[VAR_u] > 0 )	pPoints->Set_Value(iField[VAR_u], LASPoint_GetUserData(point));
-			if( iField[VAR_n] > 0 )	pPoints->Set_Value(iField[VAR_n], LASPoint_GetNumberOfReturns(point));
-			if( iField[VAR_R] > 0 )	pPoints->Set_Value(iField[VAR_R], LASColor_GetRed  (color) / 255);
-			if( iField[VAR_G] > 0 )	pPoints->Set_Value(iField[VAR_G], LASColor_GetGreen(color) / 255);
-			if( iField[VAR_B] > 0 )	pPoints->Set_Value(iField[VAR_B], LASColor_GetBlue (color) / 255);
-			if( iField[VAR_e] > 0 )	pPoints->Set_Value(iField[VAR_e], LASPoint_GetFlightLineEdge(point));
-			if( iField[VAR_d] > 0 )	pPoints->Set_Value(iField[VAR_d], LASPoint_GetScanDirection(point));
-//			if( iField[VAR_p] > 0 )	pPoints->Set_Value(iField[VAR_p], reader->point.point_source_ID);
-			if( iField[VAR_C] > 0 )	pPoints->Set_Value(iField[VAR_C], SG_GET_RGB(LASColor_GetRed(color) / 255, LASColor_GetGreen(color) / 255, LASColor_GetBlue(color) / 255));
+        if (point.IsValid())
+        {
+            liblas::LASClassification::bitset_type clsflags(point.GetClassification());
+			classification = static_cast<liblas::uint8_t>(clsflags.to_ulong());
 
-			LASColor_Destroy(color);
+			pPoints->Add_Point(point.GetX(), point.GetY(), point.GetZ());
+
+            if( iField[VAR_T] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_T], point.GetTime());
+			if( iField[VAR_i] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_i], point.GetIntensity());
+			if( iField[VAR_a] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_a], point.GetScanAngleRank());
+			if( iField[VAR_r] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_r], point.GetReturnNumber());
+			if( iField[VAR_c] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_c], classification);
+			if( iField[VAR_u] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_u], point.GetUserData());
+			if( iField[VAR_n] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_n], point.GetNumberOfReturns());
+			if( iField[VAR_R] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_R], point.GetColor().GetRed());
+			if( iField[VAR_G] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_G], point.GetColor().GetGreen());
+			if( iField[VAR_B] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_B], point.GetColor().GetBlue());
+			if( iField[VAR_e] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_e], point.GetFlightLineEdge());
+			if( iField[VAR_d] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_d], point.GetScanDirection());
+			if( iField[VAR_p] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_p], point.GetPointSourceID());
+			if( iField[VAR_C] > 0 )
+			{
+				double	r, g, b;
+				r = point.GetColor().GetRed();
+				g = point.GetColor().GetGreen();
+				b = point.GetColor().GetBlue();
+				
+				if (r > 65025)
+					r = 65025;
+				else if (r < 0)
+					r = 0;
+
+				if (g > 65025)
+					g = 65025;
+				else if (g < 0)
+					g = 0;
+
+				if (b > 65025)
+					b = 65025;
+				else if (b < 0)
+					b = 0;
+
+				pPoints->Set_Value(iPoint, iField[VAR_C], SG_GET_RGB(r / 255, g / 255, b / 255));
+			}
+
+			iPoint++;
 		}
 	}
 
-	LASReader_Destroy(reader);
-	LASHeader_Destroy(header);
+	ifs.close();
+
+	//-----------------------------------------------------
+	CSG_Parameters		sParms;
+	DataObject_Get_Parameters(pPoints, sParms);
+
+	if (sParms("COLORS_ATTRIB")	&& sParms("COLORS_TYPE") && sParms("METRIC_COLORS")
+		&& sParms("METRIC_ZRANGE") && sParms("COLORS_AGGREGATE"))
+	{
+		sParms("COLORS_AGGREGATE")->Set_Value(3);				// highest z
+		sParms("COLORS_TYPE")->Set_Value(2);                    // graduated color
+		sParms("METRIC_COLORS")->asColors()->Set_Count(255);    // number of colors
+		sParms("COLORS_ATTRIB")->Set_Value(2);					// z attrib
+		sParms("METRIC_ZRANGE")->asRange()->Set_Range(pPoints->Get_Minimum(2),pPoints->Get_Maximum(2));
+	}
+	DataObject_Set_Parameters(pPoints, sParms);
+	DataObject_Update(pPoints);
 
 	//-----------------------------------------------------
 	return( true );
