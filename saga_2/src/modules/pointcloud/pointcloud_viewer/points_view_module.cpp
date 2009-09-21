@@ -76,9 +76,14 @@ CPoints_View_Module::CPoints_View_Module(void)
 	Set_Author		(SG_T("O. Conrad (c) 2009"));
 
 	Set_Description	(_TW(
-		"Featured by "
+		"This module is a 3D viewer for SAGA Point Clouds. Amongst others, "
+		"the viewer supports attribute based coloring, a map view to control "
+		"the area-of-interest, point size scaling based on distance, level "
+		"of detail control and an anaglyph modus (to use with red/blue or "
+		"red/green glasses).\n\n"
+		"Module development was supported by "
 		"<a href=\"http://www.laserdata.at\">http://Laserdata GmbH, Austria</a>\n"
-		"and in cooperation with "
+		"and "
 		"<a href=\"http://www.alp-s.at\">http://alpS GmbH, Austria</a>\n"
 	));
 
