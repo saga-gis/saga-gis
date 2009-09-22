@@ -87,8 +87,6 @@ CSG_ODBC_Connection::~CSG_ODBC_Connection(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -740,6 +738,155 @@ bool CSG_ODBC_Connection::Table_From_Query(const CSG_String &FieldNames, const C
 		}
 	}
 
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_ODBC_Connections::CSG_ODBC_Connections(void)
+{
+	m_nConnections	= 0;
+	m_pConnections	= NULL;
+
+	Create();
+}
+
+//---------------------------------------------------------
+CSG_ODBC_Connections::~CSG_ODBC_Connections(void)
+{
+	Destroy();
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_ODBC_Connections::Create(void)
+{
+	Destroy();
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_ODBC_Connections::Destroy(void)
+{
+	if( m_pConnections )
+	{
+		for(int i=0; i<m_nConnections; i++)
+		{
+			delete(m_pConnections[i]);
+		}
+
+		SG_Free(m_pConnections);
+
+		m_nConnections	= 0;
+		m_pConnections	= NULL;
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Strings CSG_ODBC_Connections::Get_Servers(void)
+{
+	CSG_Strings		Servers;
+	wxDbConnectInf	*pDBCInf;
+
+	if( (pDBCInf = new wxDbConnectInf(NULL, SG_T(""), SG_T(""), SG_T(""), SG_T(""))) != NULL )
+	{
+		wxChar	DSName[1 + SQL_MAX_DSN_LENGTH], DSDesc[256];
+
+		while( wxDbGetDataSource(pDBCInf->GetHenv(), DSName, 1 + SQL_MAX_DSN_LENGTH, DSDesc, 255) )
+		{
+			Servers.Add(DSName);
+		}
+
+		pDBCInf->FreeHenv();
+
+		delete(pDBCInf);
+	}
+
+	return( Servers );
+}
+
+//---------------------------------------------------------
+int CSG_ODBC_Connections::Get_Servers(CSG_String &Servers)
+{
+	CSG_Strings		s	= Get_Servers();
+
+	for(int i=0; i<s.Get_Count(); i++)
+	{
+		Servers	+= CSG_String::Format(SG_T("%s|"), s[i].c_str());
+	}
+
+	return( s.Get_Count() );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Strings CSG_ODBC_Connections::Get_Connections(void)
+{
+	CSG_Strings		Connections;
+
+	for(int i=0; i<m_nConnections; i++)
+	{
+		Connections.Add(m_pConnections[i]->Get_Server());
+	}
+
+	return( Connections );
+}
+
+//---------------------------------------------------------
+int CSG_ODBC_Connections::Get_Connections(CSG_String &Connections)
+{
+	CSG_Strings		s	= Get_Connections();
+
+	for(int i=0; i<s.Get_Count(); i++)
+	{
+		Connections	+= CSG_String::Format(SG_T("%s|"), s[i].c_str());
+	}
+
+	return( s.Get_Count() );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_ODBC_Connection * CSG_ODBC_Connections::Add_Connection(const CSG_String &Server)
+{
+	return( NULL );
+}
+
+//---------------------------------------------------------
+bool CSG_ODBC_Connections::Del_Connection(const CSG_String &Server)
+{
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_ODBC_Connections::Del_Connection(CSG_ODBC_Connection *Connection)
+{
 	return( false );
 }
 

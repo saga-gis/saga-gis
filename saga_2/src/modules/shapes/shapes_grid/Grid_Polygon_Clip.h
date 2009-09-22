@@ -72,8 +72,6 @@ class CGrid_Polygon_Clip : public CSG_Module_Grid
 public:
 	// constructor
 	CGrid_Polygon_Clip(void);
-	// destructor
-	virtual ~CGrid_Polygon_Clip(void);
 
 protected:
 	// execute module

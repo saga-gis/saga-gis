@@ -124,11 +124,9 @@ private:
 	void						_Error_Message			(const SG_Char *Message, const SG_Char *Additional = NULL);
 
 	int							_Get_Type_To_SQL		(TSG_Data_Type Type);
-	TSG_Data_Type		_Get_Type_From_SQL		(int Type);
+	TSG_Data_Type				_Get_Type_From_SQL		(int Type);
 
 };
-
-#endif // #ifndef HEADER_INCLUDED__SAGA_API_DB_ODBC_H
 
 
 ///////////////////////////////////////////////////////////
@@ -138,3 +136,43 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class CSG_ODBC_Connections
+{
+public:
+	CSG_ODBC_Connections(void);
+	virtual ~CSG_ODBC_Connections(void);
+
+	bool						Create					(void);
+	bool						Destroy					(void);
+
+	int							Get_Servers				(CSG_String &Servers);
+	CSG_Strings					Get_Servers				(void);
+
+	int							Get_Connections			(CSG_String &Connections);
+	CSG_Strings					Get_Connections			(void);
+
+	int							Get_Count				(void)		{	return( m_nConnections );	}
+	CSG_ODBC_Connection *		Get_Connection			(int Index)	{	return( Index >= 0 && Index < m_nConnections ? m_pConnections[Index] : NULL );	}
+	CSG_ODBC_Connection *		Add_Connection			(const CSG_String &Server);
+	bool						Del_Connection			(const CSG_String &Server);
+	bool						Del_Connection			(CSG_ODBC_Connection *Connection);
+
+
+private:
+
+	int							m_nConnections;
+
+	CSG_ODBC_Connection			**m_pConnections;
+
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__SAGA_API_DB_ODBC_H

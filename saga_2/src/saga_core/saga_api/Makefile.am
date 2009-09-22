@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.15 2009-09-15 16:48:14 oconrad Exp $
+# $Id: Makefile.am,v 1.16 2009-09-22 16:19:37 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -18,7 +18,6 @@ api_callback.cpp\
 api_colors.cpp\
 api_core.cpp\
 api_file.cpp\
-api_history.cpp\
 api_memory.cpp\
 api_string.cpp\
 api_translator.cpp\

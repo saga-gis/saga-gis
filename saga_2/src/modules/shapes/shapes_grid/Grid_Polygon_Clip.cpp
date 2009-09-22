@@ -53,8 +53,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <memory.h>
-
 #include "Grid_Polygon_Clip.h"
 
 
@@ -96,30 +94,24 @@ CGrid_Polygon_Clip::CGrid_Polygon_Clip(void)
 	//-----------------------------------------------------
 	// Parameters list...
 
-	Parameters.Add_Grid_Output(
-		NULL, "GRIDout"	, _TL("Output"),
-		_TL("")
+	Parameters.Add_Grid_List(
+		NULL, "OUTPUT"		, _TL("Output"),
+		_TL(""),
+		PARAMETER_OUTPUT, false
 	);
 
-	Parameters.Add_Grid(
-		NULL, "GRID"	, _TL("Input"),
+	Parameters.Add_Grid_List(
+		NULL, "INPUT"		, _TL("Input"),
 		_TL("This must be your input data of type grid."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
-		NULL, "POLY"	, _TL("Polygons"),
+		NULL, "POLYGONS"	, _TL("Polygons"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
-}
-
-//---------------------------------------------------------
-// destructor
-//---------------------------------------------------------
-CGrid_Polygon_Clip::~CGrid_Polygon_Clip(void)
-{
 }
 
 
@@ -134,22 +126,24 @@ CGrid_Polygon_Clip::~CGrid_Polygon_Clip(void)
 //---------------------------------------------------------
 bool CGrid_Polygon_Clip::On_Execute(void)
 {
-	int		x, y, ix, iy, ax, ay, nx, ny;
-	CSG_Grid	*pGrid_in, *pGrid_out, Mask;
-	CSG_Shapes	*pShapes;
-	
+	int						x, y, ix, iy, ax, ay, nx, ny;
+	CSG_Parameter_Grid_List	*pGrids_in, *pGrids_out;
+	CSG_Grid				*pGrid_in, *pGrid_out, Mask;
+	CSG_Shapes				*pShapes;
+
 	//-----------------------------------------------------
-	pGrid_in	= Parameters("GRID")->asGrid();
-	pShapes		= Parameters("POLY")->asShapes();
-	
+	pGrids_in	= Parameters("INPUT")	->asGridList();
+	pGrids_out	= Parameters("OUTPUT")	->asGridList();
+	pShapes		= Parameters("POLYGONS")->asShapes();
+
 	//-----------------------------------------------------
 	if(	pShapes->Get_Type() == SHAPE_TYPE_Polygon && pShapes->Get_Count() > 0
-	&&	pGrid_in->is_Intersecting(pShapes->Get_Extent()) )
+	&&	Get_System()->Get_Extent().Intersects(pShapes->Get_Extent()) )
 	{
 		// create temporary grid.
 		// Cells within the shapefile get the value +1
 		// Cells outside the shapefile get the value -1
-		Mask.Create(pGrid_in, SG_DATATYPE_Byte);
+		Mask.Create(*Get_System(), SG_DATATYPE_Byte);
 
 		//-------------------------------------------------
 		// Get_Mask assignes +1 values to gridcells within the shapefile
@@ -159,29 +153,33 @@ bool CGrid_Polygon_Clip::On_Execute(void)
 		// calculate GridSystem parameters pGrid_out	
 		if( Get_Mask(pShapes, &Mask) && Get_Extent(ax, nx, ay, ny, &Mask) )
 		{
-			pGrid_out	= SG_Create_Grid(					// creating the output grid GridSystem
-				pGrid_in->Get_Type(), nx, ny, pGrid_in->Get_Cellsize(),
-				pGrid_in->Get_XMin() + ax * pGrid_in->Get_Cellsize(),
-				pGrid_in->Get_YMin() + ay * pGrid_in->Get_Cellsize()
-			);
-
-			pGrid_out->Set_Name(pGrid_in->Get_Name());
-			Parameters("GRIDout")->Set_Value(pGrid_out);	// adding the grid in workspace "Data"
-
-			// Assign valid values from input grid to the cells of the
-			// output grid that are within the borders of the shapefile
-			// Assign NoData values to the cells outside the shapefile borders
-			for(y=0, iy=ay; y<ny && Set_Progress(y, ny); y++, iy++)
+			for(int iGrid=0; iGrid<pGrids_in->Get_Count(); iGrid++)
 			{
-				for(x=0, ix=ax; x<nx; x++, ix++)
+				pGrid_in	= pGrids_in->asGrid(iGrid);
+				pGrid_out	= SG_Create_Grid(					// creating the output grid GridSystem
+					pGrid_in->Get_Type(), nx, ny, Get_Cellsize(),
+					Get_XMin() + ax * Get_Cellsize(),
+					Get_YMin() + ay * Get_Cellsize()
+				);
+
+				pGrid_out->Set_Name(pGrid_in->Get_Name());
+				pGrids_out->Add_Item(pGrid_out);
+
+				// Assign valid values from input grid to the cells of the
+				// output grid that are within the borders of the shapefile
+				// Assign NoData values to the cells outside the shapefile borders
+				for(y=0, iy=ay; y<ny && Set_Progress(y, ny); y++, iy++)
 				{
-					if( Mask.asDouble(ix, iy) == MASK_ON )	// -1 = NoData_Value
+					for(x=0, ix=ax; x<nx; x++, ix++)
 					{
-						pGrid_out->Set_Value(x, y, pGrid_in->asDouble(ix, iy));
-					}
-					else
-					{
-						pGrid_out->Set_NoData(x, y);
+						if( Mask.asDouble(ix, iy) == MASK_ON )	// -1 = NoData_Value
+						{
+							pGrid_out->Set_Value(x, y, pGrid_in->asDouble(ix, iy));
+						}
+						else
+						{
+							pGrid_out->Set_NoData(x, y);
+						}
 					}
 				}
 			}

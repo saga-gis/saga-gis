@@ -140,10 +140,10 @@ bool CPC_From_Shapes::On_Execute(void)
 	{
 		for(iField=0, nFields=0; iField<pShapes->Get_Field_Count(); iField++)
 		{
-			if( iField != zField && pShapes->Get_Field_Type(iField) != SG_DATATYPE_String )
+			if( iField != zField && SG_Data_Type_Get_Size(pShapes->Get_Field_Type(iField)) > 0 )
 			{
 				Fields[nFields++]	= iField;
-				pPoints->Add_Field(pShapes->Get_Field_Name(iField), SG_DATATYPE_Float);
+				pPoints->Add_Field(pShapes->Get_Field_Name(iField), pShapes->Get_Field_Type(iField));
 			}
 		}
 	}
