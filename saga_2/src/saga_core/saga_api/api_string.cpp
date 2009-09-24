@@ -584,7 +584,7 @@ CSG_Strings::CSG_Strings(int nStrings, const SG_Char **Strings)
 	m_nStrings	= 0;
 	m_Strings	= NULL;
 
-	for(int i=0; i<m_nStrings; i++)
+	for(int i=0; i<nStrings; i++)
 	{
 		Add(Strings[i]);
 	}
@@ -599,18 +599,18 @@ CSG_Strings::~CSG_Strings(void)
 //---------------------------------------------------------
 void CSG_Strings::Clear(void)
 {
-	for(int i=0; i<m_nStrings; i++)
-	{
-		delete(m_Strings[i]);
-	}
-
 	if( m_Strings )
 	{
-		SG_Free(m_Strings);
-	}
+		for(int i=0; i<m_nStrings; i++)
+		{
+			delete(m_Strings[i]);
+		}
 
-	m_nStrings	= 0;
-	m_Strings	= NULL;
+		SG_Free(m_Strings);
+
+		m_nStrings	= 0;
+		m_Strings	= NULL;
+	}
 }
 
 //---------------------------------------------------------
@@ -618,7 +618,7 @@ bool CSG_Strings::Assign(const CSG_Strings &Strings)
 {
 	Clear();
 
-	for(int i=0; i<m_nStrings; i++)
+	for(int i=0; i<Strings.m_nStrings; i++)
 	{
 		Add(Strings[i]);
 	}
@@ -638,10 +638,17 @@ CSG_Strings & CSG_Strings::operator  = (const CSG_Strings &Strings)
 bool CSG_Strings::Add(const CSG_String &String)
 {
 	m_Strings	= (CSG_String **)SG_Realloc(m_Strings, (m_nStrings + 1) * sizeof(CSG_String *));
-	m_Strings[m_nStrings]	= new CSG_String(String);
-	m_nStrings++;
+	m_Strings[m_nStrings++]	= new CSG_String(String);
 
 	return( true );
+}
+
+//---------------------------------------------------------
+CSG_Strings & CSG_Strings::operator  += (const CSG_String &String)
+{
+	Add(String);
+
+	return( *this );
 }
 
 //---------------------------------------------------------
@@ -649,7 +656,7 @@ bool CSG_Strings::Set_Count(int nStrings)
 {
 	Clear();
 
-	for(int i=0; i<m_nStrings; i++)
+	for(int i=0; i<nStrings; i++)
 	{
 		Add(SG_T(""));
 	}
@@ -716,6 +723,33 @@ CSG_String		SG_Get_CurrentTimeStr(bool bWithDate)
 	s.Append(t.FormatISOTime());
 
 	return( s );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_String		SG_UTF8_To_String(const SG_Char *String)
+{
+#ifdef _SAGA_UNICODE
+	return( !String && !String[0] ? SG_T("") : String );
+#else
+	return( !String && !String[0] ? SG_T("") : wxString::FromUTF8(String).c_str() );
+#endif
+}
+
+//---------------------------------------------------------
+CSG_String		SG_String_To_UTF8(const SG_Char *String)
+{
+#ifdef _SAGA_UNICODE
+	return( !String && !String[0] ? SG_T("") : wxString(String, wxConvUTF8).c_str() );
+#else
+	return( !String && !String[0] ? SG_T("") : wxString(wxString(String).ToUTF8()).c_str() );
+#endif
 }
 
 

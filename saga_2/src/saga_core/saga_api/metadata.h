@@ -112,6 +112,8 @@ public:
 	void						Set_Name			(const CSG_String &Name)			{	m_Name		= Name;		}
 	const CSG_String &			Get_Content			(void)						const	{	return( m_Content );	}
 	void						Set_Content			(const CSG_String &Content)			{	m_Content	= Content;	}
+	void						Set_Content			(const SG_Char *Format, ...);
+	bool						Cmp_Content			(const CSG_String &String, bool bNoCase = false)	const;
 
 	int							Get_Children_Count	(void)						const	{	return( m_nChildren );	}
 	CSG_MetaData *				Get_Child			(int Index)					const	{	return( Index >= 0 && Index < m_nChildren ? m_pChildren[Index] : NULL );	}
@@ -136,6 +138,7 @@ public:
 	bool						Set_Property		(const CSG_String &Name, const CSG_String &Value, bool bAddIfNotExists = true);
 	bool						Set_Property		(const CSG_String &Name, double            Value, bool bAddIfNotExists = true);
 	bool						Set_Property		(const CSG_String &Name, int               Value, bool bAddIfNotExists = true);
+	bool						Cmp_Property		(const CSG_String &Name, const CSG_String &String, bool bNoCase = false)	const;
 
 
 private:

@@ -98,11 +98,11 @@ private:
 	bool					_Load				(const wxChar *FileName, bool bAdd, bool bUpdateMenu);
 	bool					_Save				(const wxChar *FileName, bool bSaveModified, bool bUpdateMenu);
 
-	bool					_Load_Data			(CSG_File &Stream, const wxChar *ProjectDir);
-	bool					_Save_Data			(CSG_File &Stream, const wxChar *ProjectDir, class CSG_Data_Object *pDataObject, class CSG_Parameters *pParameters);
+	bool					_Load_Data			(CSG_MetaData &Entry, const wxChar *ProjectDir);
+	bool					_Save_Data			(CSG_MetaData &Entry, const wxChar *ProjectDir, class CSG_Data_Object *pDataObject, class CSG_Parameters *pParameters);
 
-	bool					_Load_Map			(CSG_File &Stream, const wxChar *ProjectDir);
-	bool					_Save_Map			(CSG_File &Stream, const wxChar *ProjectDir, class CWKSP_Map *pMap);
+	bool					_Load_Map			(CSG_MetaData &Entry, const wxChar *ProjectDir);
+	bool					_Save_Map			(CSG_MetaData &Entry, const wxChar *ProjectDir, class CWKSP_Map *pMap);
 
 	class CWKSP_Base_Item *	_Get_byFileName		(wxString FileName);
 
@@ -110,6 +110,13 @@ private:
 	bool					_Modified_Get		(class CSG_Parameters *pParameters, class CWKSP_Base_Item *pItem, bool bSelections);
 	bool					_Modified_Get		(class CSG_Parameters *pParameters, class CWKSP_Base_Item *pItem, class CSG_Data_Object *pObject);
 	bool					_Modified_Save		(class CSG_Parameters *pParameters);
+
+
+	//-----------------------------------------------------
+	bool	_Compatibility_Load_Data	(const CSG_String &FileName, bool bUpdateMenu);
+	bool	_Compatibility_Load_Data	(CSG_File &Stream, const wxChar *ProjectDir);
+	bool	_Compatibility_Load_Map		(CSG_File &Stream, const wxChar *ProjectDir);
+	//-----------------------------------------------------
 
 };
 

@@ -84,96 +84,25 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//						Data Types						 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-typedef enum ESG_Data_Type
-{
-	SG_DATATYPE_Bit			= 0,
-	SG_DATATYPE_Byte,
-	SG_DATATYPE_Char,
-	SG_DATATYPE_Word,
-	SG_DATATYPE_Short,
-	SG_DATATYPE_DWord,
-	SG_DATATYPE_Int,
-	SG_DATATYPE_ULong,
-	SG_DATATYPE_Long,
-	SG_DATATYPE_Float,
-	SG_DATATYPE_Double,
-	SG_DATATYPE_String,
-	SG_DATATYPE_Date,
-	SG_DATATYPE_Color,
-	SG_DATATYPE_Undefined
-}
-TSG_Data_Type;
-
-//---------------------------------------------------------
-const SG_Char	gSG_Data_Type_Names[][32]	=
-{
-	SG_T("BIT"),
-	SG_T("BYTE_UNSIGNED"),
-	SG_T("BYTE"),
-	SG_T("SHORTINT_UNSIGNED"),
-	SG_T("SHORTINT"),
-	SG_T("INTEGER_UNSIGNED"),
-	SG_T("INTEGER"),
-	SG_T("LONGINT_UNSIGNED"),
-	SG_T("LONGINT"),
-	SG_T("FLOAT"),
-	SG_T("DOUBLE"),
-	SG_T("STRING"),
-	SG_T("DATE"),
-	SG_T("COLOR"),
-	SG_T("UNDEFINED")
-};
-
-//---------------------------------------------------------
-SAGA_API_DLL_EXPORT inline size_t	SG_Data_Type_Get_Size	(TSG_Data_Type Type)
-{
-	switch( Type )
-	{
-	default:					return( 0 );
-	case SG_DATATYPE_Bit:		return( 0 );
-	case SG_DATATYPE_Byte:		return( sizeof(unsigned char) );
-	case SG_DATATYPE_Char:		return( sizeof(char) );
-	case SG_DATATYPE_Word:		return( sizeof(unsigned short int) );
-	case SG_DATATYPE_Short:		return( sizeof(short int) );
-	case SG_DATATYPE_DWord:		return( sizeof(unsigned int) );
-	case SG_DATATYPE_Int:		return( sizeof(int) );
-	case SG_DATATYPE_ULong:		return( sizeof(unsigned long) );
-	case SG_DATATYPE_Long:		return( sizeof(long) );
-	case SG_DATATYPE_Float:		return( sizeof(float) );
-	case SG_DATATYPE_Double:	return( sizeof(double) );
-	case SG_DATATYPE_String:	return( 0 );
-	case SG_DATATYPE_Date:		return( 0 );
-	case SG_DATATYPE_Color:		return( sizeof(unsigned int) );
-	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
 //						Meta-Data						 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SG_META_EXT_GRID		SG_T("mgrd")
-#define SG_META_EXT_TABLE		SG_T("mtab")
-#define SG_META_EXT_SHAPES		SG_T("mshp")
+#define SG_META_EXT_GRID			SG_T("mgrd")
+#define SG_META_EXT_TABLE			SG_T("mtab")
+#define SG_META_EXT_SHAPES			SG_T("mshp")
 #define SG_META_EXT_TIN			SG_T("mtin")
-#define SG_META_EXT_POINTCLOUD	SG_T("mpts")
+#define SG_META_EXT_POINTCLOUD		SG_T("mpts")
 
 //---------------------------------------------------------
 #define SG_META_SRC				SG_T("SOURCE")
-#define SG_META_SRC_FILE		SG_T("FILE")
-#define SG_META_SRC_DB			SG_T("DATABASE")
-#define SG_META_SRC_PROJ		SG_T("PROJECTION")
+#define SG_META_SRC_FILE			SG_T("FILE")
+#define SG_META_SRC_DB				SG_T("DATABASE")
+#define SG_META_SRC_PROJ			SG_T("PROJECTION")
 
 #define SG_META_HST				SG_T("HISTORY")
-#define SG_META_HST_FILE		SG_T("FILE")
+#define SG_META_HST_FILE			SG_T("FILE")
 
 
 ///////////////////////////////////////////////////////////
@@ -211,7 +140,8 @@ TSG_Data_Object_Type;
 #define DATAOBJECT_CREATE		((void *)1)
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT const SG_Char *	SG_Get_DataObject_Name	(TSG_Data_Object_Type Type);
+SAGA_API_DLL_EXPORT const SG_Char *	SG_Get_DataObject_Identifier	(TSG_Data_Object_Type Type);
+SAGA_API_DLL_EXPORT const SG_Char *	SG_Get_DataObject_Name			(TSG_Data_Object_Type Type);
 
 
 ///////////////////////////////////////////////////////////

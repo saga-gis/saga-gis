@@ -138,9 +138,9 @@
 #ifdef _TYPEDEF_WORD
 	typedef unsigned short	WORD;
 	#if (SIZEOF_LONG == 4)
-	typedef unsigned long           DWORD;
+		typedef unsigned long	DWORD;
 	#else
-	typedef unsigned int            DWORD;
+		typedef unsigned int	DWORD;
 	#endif
 #endif	// _TYPEDEF_WORD
 
@@ -313,6 +313,7 @@ public:
 	bool							Assign				(const CSG_Strings &Strings);
 
 	bool							Add					(const CSG_String &String);
+	CSG_Strings &					operator +=			(const CSG_String &String);
 
 	bool							Set_Count			(int nStrings);
 	int								Get_Count			(void)		const	{	return( m_nStrings );	}
@@ -335,6 +336,9 @@ SAGA_API_DLL_EXPORT int				SG_Sscanf						(const SG_Char *Buffer, const SG_Char 
 
 SAGA_API_DLL_EXPORT CSG_String		SG_Get_CurrentTimeStr			(bool bWithDate = true);
 
+SAGA_API_DLL_EXPORT CSG_String		SG_UTF8_To_String				(const SG_Char *String);
+SAGA_API_DLL_EXPORT CSG_String		SG_String_To_UTF8				(const SG_Char *String);
+
 SAGA_API_DLL_EXPORT double			SG_Degree_To_Double				(const SG_Char *String);
 SAGA_API_DLL_EXPORT CSG_String		SG_Double_To_Degree				(double Value);
 
@@ -346,6 +350,80 @@ SAGA_API_DLL_EXPORT int				SG_Get_Significant_Decimals		(double Value, int maxDe
 SAGA_API_DLL_EXPORT void			SG_Flip_Decimal_Separators		(CSG_String &String);
 
 SAGA_API_DLL_EXPORT CSG_String		SG_Get_String					(double Value, int Precision = 2, bool bScientific = false);
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//						Data Types						 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+typedef enum ESG_Data_Type
+{
+	SG_DATATYPE_Bit			= 0,
+	SG_DATATYPE_Byte,
+	SG_DATATYPE_Char,
+	SG_DATATYPE_Word,
+	SG_DATATYPE_Short,
+	SG_DATATYPE_DWord,
+	SG_DATATYPE_Int,
+	SG_DATATYPE_ULong,
+	SG_DATATYPE_Long,
+	SG_DATATYPE_Float,
+	SG_DATATYPE_Double,
+	SG_DATATYPE_String,
+	SG_DATATYPE_Date,
+	SG_DATATYPE_Color,
+	SG_DATATYPE_Undefined
+}
+TSG_Data_Type;
+
+//---------------------------------------------------------
+const SG_Char	gSG_Data_Type_Identifier[][32]	=
+{
+	SG_T("BIT"),
+	SG_T("BYTE_UNSIGNED"),
+	SG_T("BYTE"),
+	SG_T("SHORTINT_UNSIGNED"),
+	SG_T("SHORTINT"),
+	SG_T("INTEGER_UNSIGNED"),
+	SG_T("INTEGER"),
+	SG_T("LONGINT_UNSIGNED"),
+	SG_T("LONGINT"),
+	SG_T("FLOAT"),
+	SG_T("DOUBLE"),
+	SG_T("STRING"),
+	SG_T("DATE"),
+	SG_T("COLOR"),
+	SG_T("UNDEFINED")
+};
+
+//---------------------------------------------------------
+inline size_t	SG_Data_Type_Get_Size	(TSG_Data_Type Type)
+{
+	switch( Type )
+	{
+	default:					return( 0 );
+	case SG_DATATYPE_Bit:		return( 0 );
+	case SG_DATATYPE_Byte:		return( sizeof(unsigned char) );
+	case SG_DATATYPE_Char:		return( sizeof(char) );
+	case SG_DATATYPE_Word:		return( sizeof(unsigned short int) );
+	case SG_DATATYPE_Short:		return( sizeof(short int) );
+	case SG_DATATYPE_DWord:		return( sizeof(unsigned int) );
+	case SG_DATATYPE_Int:		return( sizeof(int) );
+	case SG_DATATYPE_ULong:		return( sizeof(unsigned long) );
+	case SG_DATATYPE_Long:		return( sizeof(long) );
+	case SG_DATATYPE_Float:		return( sizeof(float) );
+	case SG_DATATYPE_Double:	return( sizeof(double) );
+	case SG_DATATYPE_String:	return( 0 );
+	case SG_DATATYPE_Date:		return( 0 );
+	case SG_DATATYPE_Color:		return( sizeof(unsigned int) );
+	}
+}
+
+//---------------------------------------------------------
+SAGA_API_DLL_EXPORT const SG_Char *	SG_Data_Type_Get_Name	(TSG_Data_Type Type);
 
 
 ///////////////////////////////////////////////////////////

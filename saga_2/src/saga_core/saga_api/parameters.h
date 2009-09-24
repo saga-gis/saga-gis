@@ -163,6 +163,17 @@ TSG_Parameter_Type;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+SAGA_API_DLL_EXPORT const SG_Char *		SG_Parameter_Type_Get_Identifier	(TSG_Parameter_Type Type);
+SAGA_API_DLL_EXPORT const SG_Char *		SG_Parameter_Type_Get_Name			(TSG_Parameter_Type Type);
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CSG_Parameters;
 class CSG_Parameter;
 
@@ -188,9 +199,10 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_Data
 {
 public:
 	CSG_Parameter_Data(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Data(void);
+	virtual ~CSG_Parameter_Data(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)			= 0;
+	virtual const SG_Char *		Get_Type_Identifier		(void);
 	virtual const SG_Char *		Get_Type_Name			(void);
 
 	long						Get_Constraint			(void)	{	return( m_Constraint );	}
@@ -198,7 +210,7 @@ public:
 	virtual bool				is_Valid				(void)	{	return( true );			}
 
 	bool						Assign					(CSG_Parameter_Data *pSource);
-	bool						Serialize				(CSG_File &Stream, bool bSave);
+	bool						Serialize				(CSG_MetaData &Entry, bool bSave);
 
 	virtual bool				Set_Value				(int Value);
 	virtual bool				Set_Value				(double Value);
@@ -221,7 +233,7 @@ protected:
 
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
 
 };
 
@@ -230,7 +242,7 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_Node : public CSG_Parameter_Data
 {
 public:
 	CSG_Parameter_Node(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Node(void);
+	virtual ~CSG_Parameter_Node(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Node );	}
 
@@ -241,7 +253,7 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_Bool : public CSG_Parameter_Data
 {
 public:
 	CSG_Parameter_Bool(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Bool(void);
+	virtual ~CSG_Parameter_Bool(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Bool );	}
 
@@ -259,7 +271,7 @@ protected:
 
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
 
 };
 
@@ -268,7 +280,7 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_Value : public CSG_Parameter_Data
 {
 public:
 	CSG_Parameter_Value(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Value(void);
+	virtual ~CSG_Parameter_Value(void)	{}
 
 	bool						Set_Range				(double Minimum, double Maximum);
 
@@ -297,7 +309,7 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_Int : public CSG_Parameter_Value
 {
 public:
 	CSG_Parameter_Int(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Int(void);
+	virtual ~CSG_Parameter_Int(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Int );		}
 
@@ -315,7 +327,7 @@ protected:
 	int							m_Value;
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
 
 };
 
@@ -324,7 +336,7 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_Double : public CSG_Parameter_Value
 {
 public:
 	CSG_Parameter_Double(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Double(void);
+	virtual ~CSG_Parameter_Double(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Double );	}
 
@@ -342,7 +354,7 @@ protected:
 	double						m_Value;
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
 
 };
 
@@ -351,7 +363,7 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_Degree : public CSG_Parameter_Double
 {
 public:
 	CSG_Parameter_Degree(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Degree(void);
+	virtual ~CSG_Parameter_Degree(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Degree );	}
 
@@ -392,7 +404,7 @@ protected:
 
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
 
 };
 
@@ -401,7 +413,7 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_Choice : public CSG_Parameter_Int
 {
 public:
 	CSG_Parameter_Choice(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Choice(void);
+	virtual ~CSG_Parameter_Choice(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Choice );	}
 
@@ -413,41 +425,15 @@ public:
 
 	const SG_Char *				Get_Item				(int Index);
 
-	int							Get_Count				(void)	{	return( nItems );	}
+	int							Get_Count				(void)	{	return( Items.Get_Count() );	}
 
 
 protected:
 
-	CSG_String					**Items;
+	CSG_Strings					Items;
 
-	int							nItems;
-
-
-	void						Del_Items				(void);
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-
-};
-
-//---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Parameter_Table_Field : public CSG_Parameter_Int
-{
-public:
-	CSG_Parameter_Table_Field(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Table_Field(void);
-
-	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Table_Field );	}
-
-	virtual const SG_Char *		asString				(void);
-
-	virtual bool				Set_Value				(int Value);
-
-	CSG_Table *					Get_Table				(void);
-
-
-protected:
-
-	bool						m_bAllowNone;
 
 };
 
@@ -456,7 +442,7 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_String : public CSG_Parameter_Data
 {
 public:
 	CSG_Parameter_String(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_String(void);
+	virtual ~CSG_Parameter_String(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_String );	}
 
@@ -476,7 +462,7 @@ protected:
 
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
 
 };
 
@@ -485,14 +471,9 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_Text : public CSG_Parameter_String
 {
 public:
 	CSG_Parameter_Text(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Text(void);
+	virtual ~CSG_Parameter_Text(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Text );		}
-
-
-protected:
-
-	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
 
 };
 
@@ -501,7 +482,7 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_File_Name : public CSG_Parameter_String
 {
 public:
 	CSG_Parameter_File_Name(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_File_Name(void);
+	virtual ~CSG_Parameter_File_Name(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_FilePath );	}
 
@@ -557,7 +538,7 @@ protected:
 
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
 
 };
 
@@ -566,7 +547,7 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_Color : public CSG_Parameter_Int
 {
 public:
 	CSG_Parameter_Color(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Color(void);
+	virtual ~CSG_Parameter_Color(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Color );		}
 
@@ -577,7 +558,7 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_Colors : public CSG_Parameter_Data
 {
 public:
 	CSG_Parameter_Colors(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Colors(void);
+	virtual ~CSG_Parameter_Colors(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Colors );	}
 
@@ -592,7 +573,7 @@ protected:
 
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
 
 };
 
@@ -601,7 +582,7 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_Fixed_Table : public CSG_Parameter_Data
 {
 public:
 	CSG_Parameter_Fixed_Table(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Fixed_Table(void);
+	virtual ~CSG_Parameter_Fixed_Table(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_FixedTable );	}
 
@@ -615,7 +596,7 @@ protected:
 	CSG_Table					m_Table;
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
 
 };
 
@@ -624,7 +605,7 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_Grid_System : public CSG_Parameter_Data
 {
 public:
 	CSG_Parameter_Grid_System(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Grid_System(void);
+	virtual ~CSG_Parameter_Grid_System(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Grid_System );	}
 
@@ -641,7 +622,29 @@ protected:
 
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
+
+};
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Parameter_Table_Field : public CSG_Parameter_Int
+{
+public:
+	CSG_Parameter_Table_Field(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Table_Field(void)	{}
+
+	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Table_Field );	}
+
+	virtual const SG_Char *		asString				(void);
+
+	virtual bool				Set_Value				(int Value);
+
+	CSG_Table *					Get_Table				(void);
+
+
+protected:
+
+	bool						m_bAllowNone;
 
 };
 
@@ -650,7 +653,7 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_Data_Object : public CSG_Parameter_Data
 {
 public:
 	CSG_Parameter_Data_Object(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Data_Object(void);
+	virtual ~CSG_Parameter_Data_Object(void)	{}
 
 	virtual bool				is_Valid				(void);
 
@@ -668,7 +671,7 @@ protected:
 
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
 
 };
 
@@ -677,7 +680,7 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_Data_Object_Output : public CSG_Paramete
 {
 public:
 	CSG_Parameter_Data_Object_Output(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Data_Object_Output(void);
+	virtual ~CSG_Parameter_Data_Object_Output(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_DataObject_Output );	}
 
@@ -694,29 +697,11 @@ protected:
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Parameter_PointCloud : public CSG_Parameter_Data_Object
-{
-public:
-	CSG_Parameter_PointCloud(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_PointCloud(void);
-
-	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_PointCloud );	}
-
-	virtual bool				Set_Value				(void *Value);
-
-
-protected:
-
-	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-
-};
-
-//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameter_Grid : public CSG_Parameter_Data_Object
 {
 public:
 	CSG_Parameter_Grid(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Grid(void);
+	virtual ~CSG_Parameter_Grid(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_Grid );	}
 
@@ -742,7 +727,7 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_Table : public CSG_Parameter_Data_Object
 {
 public:
 	CSG_Parameter_Table(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Table(void);
+	virtual ~CSG_Parameter_Table(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_Table );		}
 
@@ -755,7 +740,7 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_Shapes : public CSG_Parameter_Data_Objec
 {
 public:
 	CSG_Parameter_Shapes(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Shapes(void);
+	virtual ~CSG_Parameter_Shapes(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_Shapes );	}
 
@@ -779,11 +764,29 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_TIN : public CSG_Parameter_Data_Object
 {
 public:
 	CSG_Parameter_TIN(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_TIN(void);
+	virtual ~CSG_Parameter_TIN(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_TIN );		}
 
 	virtual bool				Set_Value				(void *Value);
+
+};
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Parameter_PointCloud : public CSG_Parameter_Data_Object
+{
+public:
+	CSG_Parameter_PointCloud(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_PointCloud(void)	{}
+
+	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_PointCloud );	}
+
+	virtual bool				Set_Value				(void *Value);
+
+
+protected:
+
+	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
 
 };
 
@@ -810,7 +813,7 @@ public:
 protected:
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
 
 
 private:
@@ -826,7 +829,7 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_Grid_List : public CSG_Parameter_List
 {
 public:
 	CSG_Parameter_Grid_List(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Grid_List(void);
+	virtual ~CSG_Parameter_Grid_List(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_Grid_List );		}
 
@@ -841,7 +844,7 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_Table_List : public CSG_Parameter_List
 {
 public:
 	CSG_Parameter_Table_List(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Table_List(void);
+	virtual ~CSG_Parameter_Table_List(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_Table_List );		}
 
@@ -854,7 +857,7 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_Shapes_List : public CSG_Parameter_List
 {
 public:
 	CSG_Parameter_Shapes_List(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Shapes_List(void);
+	virtual ~CSG_Parameter_Shapes_List(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_Shapes_List );		}
 
@@ -878,7 +881,7 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_TIN_List : public CSG_Parameter_List
 {
 public:
 	CSG_Parameter_TIN_List(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_TIN_List(void);
+	virtual ~CSG_Parameter_TIN_List(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_TIN_List );		}
 
@@ -891,7 +894,7 @@ class SAGA_API_DLL_EXPORT CSG_Parameter_PointCloud_List : public CSG_Parameter_L
 {
 public:
 	CSG_Parameter_PointCloud_List(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_PointCloud_List(void);
+	virtual ~CSG_Parameter_PointCloud_List(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)		{	return( PARAMETER_TYPE_PointCloud_List );		}
 
@@ -915,7 +918,7 @@ public:
 protected:
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_File &Stream, bool bSave);
+	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
 
 
 private:
@@ -939,11 +942,12 @@ class SAGA_API_DLL_EXPORT CSG_Parameter
 public:
 
 	//-----------------------------------------------------
-	CSG_Parameters *			Get_Owner				(void)	{	return( m_pOwner );					}
-	CSG_Parameter *				Get_Parent				(void)	{	return( m_pParent );				}
-	TSG_Parameter_Type			Get_Type				(void)	{	return( m_pData->Get_Type() );		}
-	const SG_Char *				Get_Type_Name			(void)	{	return( m_pData->Get_Type_Name() );	}
-	CSG_Parameter_Data *		Get_Data				(void)	{	return( m_pData );					}
+	CSG_Parameters *			Get_Owner				(void)	{	return( m_pOwner );							}
+	CSG_Parameter *				Get_Parent				(void)	{	return( m_pParent );						}
+	TSG_Parameter_Type			Get_Type				(void)	{	return( m_pData->Get_Type() );				}
+	const SG_Char *				Get_Type_Identifier		(void)	{	return( m_pData->Get_Type_Identifier() );	}
+	const SG_Char *				Get_Type_Name			(void)	{	return( m_pData->Get_Type_Name() );			}
+	CSG_Parameter_Data *		Get_Data				(void)	{	return( m_pData );							}
 
 	const SG_Char *				Get_Identifier			(void);
 	const SG_Char *				Get_Name				(void);
@@ -969,9 +973,9 @@ public:
 	CSG_Parameter *				Get_Child				(int iChild)	{	return( iChild >= 0 && iChild < m_nChildren ? m_Children[iChild] : NULL );	}
 
 	//-----------------------------------------------------
-	bool						Set_Value				(int         Value);
-	bool						Set_Value				(double      Value);
-	bool						Set_Value				(void       *Value);
+	bool						Set_Value				(int            Value);
+	bool						Set_Value				(double         Value);
+	bool						Set_Value				(void          *Value);
 	bool						Set_Value				(const SG_Char *Value);
 
 	bool						has_Changed				(void);
@@ -1011,7 +1015,8 @@ public:
 
 	//-----------------------------------------------------
 	bool						Assign					(CSG_Parameter *pSource);
-	bool						Serialize				(CSG_File &Stream, bool bSave);
+
+	CSG_MetaData *				Serialize				(CSG_MetaData &MetaData, bool bSave);
 
 
 private:
@@ -1144,7 +1149,8 @@ public:
 	int							Assign_Values			(CSG_Parameters *pSource);
 
 	bool						Serialize				(const CSG_String &File_Name, bool bSave);
-	bool						Serialize				(CSG_File &Stream			, bool bSave);
+	bool						Serialize				(CSG_MetaData &Entry        , bool bSave);
+	bool						Serialize_Compatibility	(CSG_File &Stream);
 
 	//-----------------------------------------------------
 	bool						DataObjects_Check		(bool bSilent = false);

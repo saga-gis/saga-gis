@@ -660,10 +660,10 @@ bool CWKSP_Base_Control::_Show_Active(void)
 //---------------------------------------------------------
 bool CWKSP_Base_Control::_Load_Settings(void)
 {
-	wxString	File_Path;
-	CSG_File	Stream;
+	wxString		File_Path;
+	CSG_MetaData	Data;
 
-	if( Get_Selection_Count() > 0 && DLG_Open(File_Path, ID_DLG_PARAMETERS_OPEN) && Stream.Open(CSG_String( File_Path.mb_str()), SG_FILE_R, true) )
+	if( Get_Selection_Count() > 0 && DLG_Open(File_Path, ID_DLG_PARAMETERS_OPEN) && Data.Load(File_Path.c_str()) )
 	{
 		if(	GetWindowStyle() & wxTR_MULTIPLE )
 		{
@@ -673,29 +673,27 @@ bool CWKSP_Base_Control::_Load_Settings(void)
 			{
 				for(size_t i=0; i<IDs.GetCount(); i++)
 				{
-					Stream.Seek_Start();
-
-					_Load_Settings(&Stream, (CWKSP_Base_Item *)GetItemData(IDs[i]));
+					_Load_Settings(&Data, (CWKSP_Base_Item *)GetItemData(IDs[i]));
 				}
-
-				return( true );
 			}
 		}
 		else
 		{
-			return( _Load_Settings(&Stream, Get_Item_Selected()) );
+			_Load_Settings(&Data, Get_Item_Selected());
 		}
+
+		return( true );
 	}
 
 	return( false );
 }
 
 //---------------------------------------------------------
-bool CWKSP_Base_Control::_Load_Settings(CSG_File *pStream, CWKSP_Base_Item *pItem)
+bool CWKSP_Base_Control::_Load_Settings(CSG_MetaData *pData, CWKSP_Base_Item *pItem)
 {
-	if( pItem && pItem->Get_Parameters() )
+	if( pData && pItem && pItem->Get_Parameters() )
 	{
-		if( pItem->Get_Parameters()->Serialize(*pStream, false) )
+		if( pItem->Get_Parameters()->Serialize(*pData, false) )
 		{
 			pItem->Parameters_Changed();
 		}

@@ -243,13 +243,11 @@ bool CParameters_Control::Restore(void)
 //---------------------------------------------------------
 bool CParameters_Control::Load(void)
 {
-	bool		bResult	= false;
-	CSG_File	Stream;
 	wxString	File_Path;
 
-	if( DLG_Open(File_Path, ID_DLG_PARAMETERS_OPEN) && Stream.Open( CSG_String( File_Path.mb_str() ), SG_FILE_R, true) )
+	if( DLG_Open(File_Path, ID_DLG_PARAMETERS_OPEN) )
 	{
-		if( m_pParameters->Serialize(Stream, false) )
+		if( m_pParameters->Serialize(File_Path.c_str(), false) )
 		{
 		//	m_pPG->Freeze();
 			m_pPG->Clear();
@@ -260,37 +258,32 @@ bool CParameters_Control::Load(void)
 			m_pPG->Refresh();
 
 			m_bModified	= true;
-			bResult		= true;
+		
+			return( true );
 		}
-		else
-		{
-			DLG_Message_Show(LNG("Parameters file could not be imported."), LNG("Load Parameters"));
-		}
+
+		DLG_Message_Show(LNG("Parameters file could not be imported."), LNG("Load Parameters"));
 	}
 
-	return( bResult );
+	return( false );
 }
 
 //---------------------------------------------------------
 bool CParameters_Control::Save(void)
 {
-	bool		bResult	= false;
-	CSG_File	Stream;
 	wxString	File_Path;
 
-	if( DLG_Save(File_Path, ID_DLG_PARAMETERS_SAVE) && Stream.Open( CSG_String( File_Path.mb_str() ), SG_FILE_W, true) )
+	if( DLG_Save(File_Path, ID_DLG_PARAMETERS_SAVE) )
 	{
-		if( m_pParameters->Serialize(Stream, true) )
+		if( m_pParameters->Serialize(File_Path.c_str(), true) )
 		{
-			bResult		= true;
+			return( true );
 		}
-		else
-		{
-			DLG_Message_Show(LNG("Parameters file could not be exported."), LNG("Save Parameters"));
-		}
+
+		DLG_Message_Show(LNG("Parameters file could not be exported."), LNG("Save Parameters"));
 	}
 
-	return( bResult );
+	return( false );
 }
 
 

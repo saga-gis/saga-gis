@@ -94,6 +94,12 @@ CGPX_Import::CGPX_Import(void)
 			_TL("All Files")					, SG_T("*.*")
 		), NULL, false
  	);
+
+	Parameters.Add_Value(
+		NULL	, "TIME"			, _TL("Time Stamp without date"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+ 	);
 }
 
 
@@ -110,6 +116,7 @@ bool CGPX_Import::On_Execute(void)
 	//-----------------------------------------------------
 	m_Name		= Parameters("FILE")	->asString();
 	m_pShapes	= Parameters("SHAPES")	->asShapesList();
+	m_bTime		= Parameters("TIME")	->asBool();
 
 	//-----------------------------------------------------
 	if( !GPX.Create(m_Name) || GPX.Get_Name().CmpNoCase(SG_T("gpx")) )
@@ -239,7 +246,7 @@ bool CGPX_Import::Add_Track(CSG_MetaData *pTrack)
 //---------------------------------------------------------
 #define ADD_FIELD(key, type)	if( pNode->Get_Child(SG_T(key)) )	{	pPoints->Add_Field(SG_T(key), type);	}
 
-bool CGPX_Import::Add_Fields(CSG_MetaData *pNode, CSG_Shapes *pPoints)
+inline bool CGPX_Import::Add_Fields(CSG_MetaData *pNode, CSG_Shapes *pPoints)
 {
 	if( pPoints->Get_Field_Count() == 0 )
 	{
@@ -261,6 +268,15 @@ bool CGPX_Import::Add_Fields(CSG_MetaData *pNode, CSG_Shapes *pPoints)
 		ADD_FIELD("pdop"			, SG_DATATYPE_Double);	// <pdop>			xsd:decimal				(3D DOP)
 		ADD_FIELD("ageofdgpsdata"	, SG_DATATYPE_Double);	// <ageofdgpsdata>	xsd:decimal				(Letzter DGPS update)
 		ADD_FIELD("dgpsid"			, SG_DATATYPE_Int   );	// <dgpsid>			dgpsStationType			(DGPS ID)
+
+		if( m_bTime && pNode->Get_Child(SG_T("time")) )
+		{
+			pPoints->Add_Field(SG_T("dtime"), SG_DATATYPE_Double);
+		}
+		else
+		{
+			m_bTime	= false;
+		}
 	}
 
 	return( pPoints->Get_Field_Count() > 0 );
@@ -285,6 +301,15 @@ bool CGPX_Import::Add_Point(CSG_MetaData *pNode, CSG_Shapes *pPoints)
 			CSG_MetaData	*pChild	= pNode->Get_Child(i);
 
 			pPoint->Set_Value(pChild->Get_Name(), pChild->Get_Content());
+		}
+
+		if( m_bTime )
+		{
+			double		h	= CSG_String(pPoint->asString(SG_T("time"))).AfterFirst(SG_T('T')).asDouble();
+			double		m	= CSG_String(pPoint->asString(SG_T("time"))).AfterFirst(SG_T(':')).asDouble();
+			double		s	= CSG_String(pPoint->asString(SG_T("time"))).AfterLast (SG_T(':')).asDouble();
+
+			pPoint->Set_Value(SG_T("dtime"), h + m / 60.0 + s / 3600.0);
 		}
 
 		return( true );
@@ -393,7 +418,7 @@ bool CGPX_Export::On_Execute(void)
 		{
 			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 			{
-				CSG_MetaData	*pPoint	= GPX.Add_Child(SG_T("wpt"), "");
+				CSG_MetaData	*pPoint	= GPX.Add_Child(SG_T("wpt"));
 
 				pPoint->Add_Property(SG_T("lon"), pShape->Get_Point(iPoint, iPart).x);
 				pPoint->Add_Property(SG_T("lat"), pShape->Get_Point(iPoint, iPart).y);

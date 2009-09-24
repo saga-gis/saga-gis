@@ -427,7 +427,7 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)
 
 			for(i=0; i<asTable()->Get_Field_Count(); i++)
 			{
-				s.Append(CSG_String::Format(SG_T("- %d. [%s] %s%s"), i + 1, gSG_Data_Type_Names[asTable()->Get_Field_Type(i)], asTable()->Get_Field_Name(i), Separator));
+				s.Append(CSG_String::Format(SG_T("- %d. [%s] %s%s"), i + 1, SG_Data_Type_Get_Name(asTable()->Get_Field_Type(i)), asTable()->Get_Field_Name(i), Separator));
 			}
 			break;
 
@@ -532,22 +532,38 @@ bool CSG_Parameter::Assign(CSG_Parameter *pSource)
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter::Serialize(CSG_File &Stream, bool bSave)
+CSG_MetaData * CSG_Parameter::Serialize(CSG_MetaData &Entry, bool bSave)
 {
-	CSG_String	sLine;
-
 	if( bSave )
 	{
-		Stream.Printf(SG_T("%d\n"), Get_Type());
+		if( !is_Information() && Get_Type() != PARAMETER_TYPE_Node && Get_Type() != PARAMETER_TYPE_Undefined )
+		{
+			CSG_MetaData	*pEntry	= Entry.Add_Child(
+				is_Option()          ? SG_T("OPTION")    :
+				is_DataObject()      ? SG_T("DATA")      :
+				is_DataObject_List() ? SG_T("DATA_LIST") :
+				                       SG_T("PARAMETER")
+			);
 
-		return( m_pData->Serialize(Stream, bSave) );
+			pEntry->Add_Property(SG_T("type"), Get_Type_Name());
+			pEntry->Add_Property(SG_T("id")  , Get_Identifier());
+			pEntry->Add_Property(SG_T("name"), Get_Name());
+
+			m_pData->Serialize(*pEntry, bSave);
+
+			return( pEntry );
+		}
 	}
-	else if( Stream.Read_Line(sLine) && sLine.asInt() == Get_Type() )
+	else
 	{
-		return( m_pData->Serialize(Stream, bSave) );
+		if(	Entry.Cmp_Property(SG_T("type"), Get_Type_Name ())
+		&&	Entry.Cmp_Property(SG_T("id")  , Get_Identifier()) )
+		{
+			return( m_pData->Serialize(Entry, bSave) ? &Entry : NULL );
+		}
 	}
 
-	return( false );
+	return( NULL );
 }
 
 

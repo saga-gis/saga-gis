@@ -520,7 +520,7 @@ void CWKSP_Module_Manager::_Make_HTML_Docs(void)
 	MSG_General_Add(wxString::Format(wxT("%s..."), LNG("Creating module documentation files")), true, true);
 
 	bDirectory	= wxDirExists(Options("DIR")->asString());
-	Directory	= bDirectory ? Options("DIR")->asString() : SG_File_Get_Path(g_pSAGA->Get_App_Path());
+	Directory	= bDirectory ? Options("DIR")->asString() : SG_File_Get_Path(g_pSAGA->Get_App_Path()).c_str();
 
 	//-----------------------------------------------------
 	FileName.AssignDir	(Directory);
@@ -528,7 +528,7 @@ void CWKSP_Module_Manager::_Make_HTML_Docs(void)
 	FileName.SetName	(wxT("index"));
 
 	Stream_Libs.Open(FileName.GetFullPath().c_str(), SG_FILE_W, false);
-	Stream_Libs.Printf(wxT("<h1>%s</h1>\n<ul>\n"), LNG("SAGA Module Library Descriptions"));
+	Stream_Libs.Printf(SG_T("<h1>%s</h1>\n<ul>\n"), LNG("SAGA Module Library Descriptions"));
 
 	Main		= FileName.GetFullPath();
 

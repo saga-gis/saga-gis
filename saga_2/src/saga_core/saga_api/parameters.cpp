@@ -1279,11 +1279,7 @@ bool CSG_Parameters::Set_History(CSG_MetaData &MetaData, bool bOptions, bool bDa
 
 			if(	p->is_Option() && !p->is_Information() && !(p->Get_Type() == PARAMETER_TYPE_String && ((CSG_Parameter_String *)p->Get_Data())->is_Password()) )
 			{
-				pEntry	= MetaData.Add_Child(SG_T("OPTION"), p->asString());
-
-				pEntry->Add_Property(SG_T("name"), p->Get_Name());
-				pEntry->Add_Property(SG_T("id")  , p->Get_Identifier());
-				pEntry->Add_Property(SG_T("type"), p->Get_Type_Name());
+				p->Serialize(MetaData, true);
 			}
 
 			if( p->is_Parameters() )
@@ -1302,29 +1298,18 @@ bool CSG_Parameters::Set_History(CSG_MetaData &MetaData, bool bOptions, bool bDa
 
 			if( p->is_Input() && p->is_DataObject() && (pObject = p->asDataObject()) != NULL )
 			{
-				pEntry	= MetaData.Add_Child(SG_T("DATA"));
-
-				pEntry->Add_Property(SG_T("name"), p->Get_Name());
-				pEntry->Add_Property(SG_T("id")  , p->Get_Identifier());
-				pEntry->Add_Property(SG_T("type"), p->Get_Type_Name());
-
+				pEntry	= p->Serialize(MetaData, true);
 				pEntry->Assign(pObject->Get_History(), true);
 			}
 
-			if( p->is_Input() && p->is_DataObject_List() )
+			if( p->is_Input() && p->is_DataObject_List() && p->asList()->Get_Count() > 0 )
 			{
 				MetaData.Add_Child(p->Get_Name(), p->asString());
 
 				for(int j=0; j<p->asList()->Get_Count(); j++)
 				{
 					pObject	= p->asList()->asDataObject(j);
-
-					pEntry	= MetaData.Add_Child(SG_T("DATA"));
-
-					pEntry->Add_Property(SG_T("name"), p->Get_Name());
-					pEntry->Add_Property(SG_T("id")  , p->Get_Identifier());
-					pEntry->Add_Property(SG_T("type"), p->Get_Type_Name());
-
+					pEntry	= p->Serialize(MetaData, true);
 					pEntry->Assign(pObject->Get_History(), true);
 				}
 			}
@@ -1347,234 +1332,193 @@ bool CSG_Parameters::Set_History(CSG_MetaData &MetaData, bool bOptions, bool bDa
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define PARAMETER_ENTRIES_BEGIN		SG_T("[PARAMETER_ENTRIES_BEGIN]")
-#define PARAMETER_ENTRIES_END		SG_T("[PARAMETER_ENTRIES_END]")
-#define PARAMETER_ENTRY_BEGIN		SG_T("[PARAMETER_ENTRY_BEGIN]")
-#define PARAMETER_ENTRY_END			SG_T("[PARAMETER_ENTRY_END]")
-#define ENTRY_TEXT_END				SG_T("[TEXT_ENTRY_END]")
-#define ENTRY_DATAOBJECT_CREATE		SG_T("[ENTRY_DATAOBJECT_CREATE]")
-#define ENTRY_DATAOBJECTLIST_END	SG_T("[ENTRY_DATAOBJECTLIST_END]")
-
-//---------------------------------------------------------
 bool CSG_Parameters::Serialize(const CSG_String &File_Name, bool bSave)
 {
-	CSG_File	Stream;
+	CSG_MetaData	MetaData;
 
-	if( Stream.Open(File_Name, bSave ? SG_FILE_W : SG_FILE_R, true) )
+	if( bSave )
 	{
-		return( Serialize(Stream, bSave) );
+		return( Serialize(MetaData, true) && MetaData.Save(File_Name) );
 	}
-
-	return( false );
+	else
+	{
+		return( MetaData.Load(File_Name) && Serialize(MetaData, false) );
+	}
 }
 
 //---------------------------------------------------------
-bool CSG_Parameters::Serialize(CSG_File &Stream, bool bSave)
+bool CSG_Parameters::Serialize(CSG_MetaData &MetaData, bool bSave)
 {
+	if( bSave )
+	{
+		MetaData.Destroy();
+
+		MetaData.Set_Name    (SG_T("PARAMETERS"));
+		MetaData.Set_Property(SG_T("name"), Get_Name());
+
+		for(int i=0; i<Get_Count(); i++)
+		{
+			m_Parameters[i]->Serialize(MetaData, true);
+		}
+	}
+	else
+	{
+		if( MetaData.Get_Name().Cmp(SG_T("PARAMETERS")) )
+		{
+			return( false );
+		}
+
+		MetaData.Get_Property(SG_T("name"), m_Name);
+
+		for(int i=0; i<MetaData.Get_Children_Count(); i++)
+		{
+			CSG_String		Identifier;
+			CSG_Parameter	*pParameter;
+
+			if(	MetaData.Get_Child(i)->Get_Property(SG_T("id"), Identifier)
+			&&	(pParameter	= Get_Parameter(Identifier)) != NULL )
+			{
+				pParameter->Serialize(*MetaData.Get_Child(i), false);
+			}
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+// SAGA 2.0 compatibility...
+bool CSG_Parameters::Serialize_Compatibility(CSG_File &Stream)
+{
+	CSG_Parameter	*pParameter;
+	CSG_String		sLine;
+
 	if( !Stream.is_Open() )
 	{
 		return( false );
 	}
 
-	//-------------------------------------------------
-	if( bSave )
+	//-----------------------------------------------------
+	while( Stream.Read_Line(sLine) && sLine.Cmp(SG_T("[PARAMETER_ENTRIES_BEGIN]")) );
+
+	if( sLine.Cmp(SG_T("[PARAMETER_ENTRIES_BEGIN]")) )
 	{
-		Stream.Printf(SG_T("\n%s\n"), PARAMETER_ENTRIES_BEGIN);
-
-		for(int i=0; i<m_nParameters; i++)
-		{
-			if(	m_Parameters[i]->is_Serializable() )
-			{
-				Stream.Printf(SG_T("%s\n"), PARAMETER_ENTRY_BEGIN);
-				Stream.Printf(SG_T("%s\n"), m_Parameters[i]->m_Identifier.c_str());
-
-				m_Parameters[i]->Serialize(Stream, true);
-
-				Stream.Printf(SG_T("%s\n"), PARAMETER_ENTRY_END);
-			}
-		}
-
-		Stream.Printf(SG_T("%s\n"), PARAMETER_ENTRIES_END);
-
-		return( true );
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pParameter;
-	CSG_String		sLine;
-
-	//-----------------------------------------------------
-	// SAGA 2.0 compatibility...
-
-	while( Stream.Read_Line(sLine) && sLine.Cmp(PARAMETER_ENTRIES_BEGIN) );
-
-	if( !sLine.Cmp(PARAMETER_ENTRIES_BEGIN) )
+	while( Stream.Read_Line(sLine) && sLine.Cmp(SG_T("[PARAMETER_ENTRIES_END]")) )
 	{
-		while( Stream.Read_Line(sLine) && sLine.Cmp(PARAMETER_ENTRIES_END) )
+		if( !sLine.Cmp(SG_T("[PARAMETER_ENTRY_BEGIN]"))
+		&&	Stream.Read_Line(sLine) && (pParameter = Get_Parameter(sLine)) != NULL
+		&&	Stream.Read_Line(sLine) &&  pParameter ->Get_Type() == sLine.asInt() )
 		{
-			if( !sLine.Cmp(PARAMETER_ENTRY_BEGIN)
-			&&	Stream.Read_Line(sLine) && (pParameter = Get_Parameter(sLine)) != NULL
-			&&	Stream.Read_Line(sLine) &&  pParameter ->Get_Type() == sLine.asInt() )
+			int			i;
+			double		d, e;
+			TSG_Rect	r;
+			CSG_String	s;
+			CSG_Table	t;
+
+			switch( sLine.asInt() )
 			{
-				int			i;
-				double		d, e;
-				TSG_Rect	r;
-				CSG_String	s;
+			case  1: // PARAMETER_TYPE_Bool:
+			case  2: // PARAMETER_TYPE_Int:
+			case  6: // PARAMETER_TYPE_Choice:
+			case 11: // PARAMETER_TYPE_Color:
+			case 15: // PARAMETER_TYPE_Table_Field:
+				SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%d"), &i);
+				pParameter->Set_Value(i);
+				break;
 
-				switch( sLine.asInt() )
+			case  3: // PARAMETER_TYPE_Double:
+			case  4: // PARAMETER_TYPE_Degree:
+				SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%lf"), &d);
+				pParameter->Set_Value(d);
+				break;
+
+			case  5: // PARAMETER_TYPE_Range:
+				SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%lf %lf"), &d, &e);
+				pParameter->asRange()->Set_Range(d, e);
+				break;
+
+			case  7: // PARAMETER_TYPE_String:
+			case  9: // PARAMETER_TYPE_FilePath:
+				Stream.Read_Line(sLine);
+				pParameter->Set_Value(sLine);
+				break;
+
+			case  8: // PARAMETER_TYPE_Text:
+				s.Clear();
+				while( Stream.Read_Line(sLine) && sLine.Cmp(SG_T("[TEXT_ENTRY_END]")) )
 				{
-				case  1: // PARAMETER_TYPE_Bool:
-				case  2: // PARAMETER_TYPE_Int:
-				case  6: // PARAMETER_TYPE_Choice:
-				case 11: // PARAMETER_TYPE_Color:
-				case 15: // PARAMETER_TYPE_Table_Field:
-					SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%d"), &i);
-					pParameter->Set_Value(i);
-					break;
-
-				case  3: // PARAMETER_TYPE_Double:
-				case  4: // PARAMETER_TYPE_Degree:
-					SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%lf"), &d);
-					pParameter->Set_Value(d);
-					break;
-
-				case  5: // PARAMETER_TYPE_Range:
-					SG_FILE_SCANF(Stream.Get_Stream(), SG_T("%lf %lf"), &d, &e);
-					pParameter->asRange()->Set_Range(d, e);
-					break;
-
-				case  7: // PARAMETER_TYPE_String:
-				case  9: // PARAMETER_TYPE_FilePath:
-					Stream.Read_Line(sLine);
-					pParameter->Set_Value(sLine);
-					break;
-
-				case  8: // PARAMETER_TYPE_Text:
-					s.Clear();
-					while( Stream.Read_Line(sLine) && sLine.Cmp(ENTRY_TEXT_END) )
-					{
-						s	+= sLine + SG_T("\n");
-					}
-					pParameter->Set_Value(s);
-					break;
-
-				case 10: // PARAMETER_TYPE_Font:
-					Stream.Read(&i, sizeof(i));
-					pParameter->Set_Value(i);
-					break;
-
-				case 12: // PARAMETER_TYPE_Colors:
-					pParameter->asColors()->Serialize(Stream, false, false);
-					break;
-
-				case 13: // PARAMETER_TYPE_FixedTable:
-					pParameter->asTable()->Serialize(Stream, false);
-					break;
-
-				case 14: // PARAMETER_TYPE_Grid_System:
-					Stream.Read(&d, sizeof(d));
-					Stream.Read(&r, sizeof(r));
-					pParameter->asGrid_System()->Assign(d, r);
-					break;
-
-				case 16: // PARAMETER_TYPE_Grid:
-				case 17: // PARAMETER_TYPE_Table:
-				case 18: // PARAMETER_TYPE_Shapes:
-				case 19: // PARAMETER_TYPE_TIN:
-				case 24: // PARAMETER_TYPE_DataObject_Output:
-					if( Stream.Read_Line(sLine) )
-					{
-						if( !sLine.Cmp(ENTRY_DATAOBJECT_CREATE) )
-						{
-							pParameter->Set_Value(DATAOBJECT_CREATE);
-						}
-						else
-						{
-							pParameter->Set_Value(SG_UI_DataObject_Find(sLine, -1));
-						}
-					}
-					break;
-
-				case 20: // PARAMETER_TYPE_Grid_List:
-				case 21: // PARAMETER_TYPE_Table_List:
-				case 22: // PARAMETER_TYPE_Shapes_List:
-				case 23: // PARAMETER_TYPE_TIN_List:
-					while( Stream.Read_Line(sLine) && sLine.Cmp(ENTRY_DATAOBJECTLIST_END) )
-					{
-						CSG_Data_Object	*pObject	= SG_UI_DataObject_Find(sLine, -1);
-
-						if( pObject )
-						{
-							pParameter->asList()->Add_Item(pObject);
-						}
-					}
-					break;
-
-				case 25: // PARAMETER_TYPE_Parameters:
-					pParameter->asParameters()->Serialize(Stream, false);
-					break;
+					s	+= sLine + SG_T("\n");
 				}
+				pParameter->Set_Value(s);
+				break;
+
+			case 10: // PARAMETER_TYPE_Font:
+				Stream.Read(&i, sizeof(i));
+				pParameter->Set_Value(i);
+				break;
+
+			case 12: // PARAMETER_TYPE_Colors:
+				pParameter->asColors()->Serialize(Stream, false, false);
+				break;
+
+			case 13: // PARAMETER_TYPE_FixedTable:
+				if( t.Serialize(Stream, false) )
+				{
+					pParameter->asTable()->Assign_Values(&t);
+				}
+				break;
+
+			case 14: // PARAMETER_TYPE_Grid_System:
+				Stream.Read(&d, sizeof(d));
+				Stream.Read(&r, sizeof(r));
+				pParameter->asGrid_System()->Assign(d, r);
+				break;
+
+			case 16: // PARAMETER_TYPE_Grid:
+			case 17: // PARAMETER_TYPE_Table:
+			case 18: // PARAMETER_TYPE_Shapes:
+			case 19: // PARAMETER_TYPE_TIN:
+			case 24: // PARAMETER_TYPE_DataObject_Output:
+				if( Stream.Read_Line(sLine) )
+				{
+					if( !sLine.Cmp(SG_T("[ENTRY_DATAOBJECT_CREATE]")) )
+					{
+						pParameter->Set_Value(DATAOBJECT_CREATE);
+					}
+					else
+					{
+						pParameter->Set_Value(SG_UI_DataObject_Find(sLine, -1));
+					}
+				}
+				break;
+
+			case 20: // PARAMETER_TYPE_Grid_List:
+			case 21: // PARAMETER_TYPE_Table_List:
+			case 22: // PARAMETER_TYPE_Shapes_List:
+			case 23: // PARAMETER_TYPE_TIN_List:
+				while( Stream.Read_Line(sLine) && sLine.Cmp(SG_T("[ENTRY_DATAOBJECTLIST_END]")) )
+				{
+					CSG_Data_Object	*pObject	= SG_UI_DataObject_Find(sLine, -1);
+
+					if( pObject )
+					{
+						pParameter->asList()->Add_Item(pObject);
+					}
+				}
+				break;
+
+			case 25: // PARAMETER_TYPE_Parameters:
+				pParameter->asParameters()->Serialize_Compatibility(Stream);
+				break;
 			}
 		}
-
-		return( true );
 	}
 
-	//-----------------------------------------------------
-	// SAGA 1.x compatibility...
-
-	Stream.Seek_Start();
-
-	while( Stream.Read_Line(sLine) && sLine.Cmp(SG_T("SERIALIZE_PARAMETERS_VERSION_0.101")) );
-
-	if( !sLine.Cmp(SG_T("SERIALIZE_PARAMETERS_VERSION_0.101")) )
-	{
-		while( Stream.Read_Line(sLine) )
-		{
-			if( !sLine.Cmp(SG_T("SERIALIZE_PARAMETER_BEGIN"))
-			&&	Stream.Read_Line(sLine) && (pParameter = Get_Parameter(sLine)) != NULL && Stream.Read_Line(sLine) )
-			{
-				bool	bOkay	= false;
-
-				switch( sLine.asInt() )
-				{
-				case 1:		bOkay	= pParameter->Get_Type() == PARAMETER_TYPE_Bool;		break;
-				case 2:		bOkay	= pParameter->Get_Type() == PARAMETER_TYPE_Int;			break;
-				case 3:		bOkay	= pParameter->Get_Type() == PARAMETER_TYPE_Int;			break;
-				case 4:		bOkay	= pParameter->Get_Type() == PARAMETER_TYPE_Double;		break;
-				case 5:		bOkay	= pParameter->Get_Type() == PARAMETER_TYPE_Degree;		break;
-				case 7:		bOkay	= pParameter->Get_Type() == PARAMETER_TYPE_Choice;		break;
-				case 8:		bOkay	= pParameter->Get_Type() == PARAMETER_TYPE_String;		break;
-				case 10:	bOkay	= pParameter->Get_Type() == PARAMETER_TYPE_FilePath;	break;
-				case 12:	bOkay	= pParameter->Get_Type() == PARAMETER_TYPE_Color;		break;
-
-				case 6:
-					if( pParameter->Get_Type() == PARAMETER_TYPE_Range )
-					{
-						double	min, max;
-
-						Stream.Read_Line(sLine);	// empty
-						Stream.Read_Line(sLine);	Stream.Read_Line(sLine);	min	= sLine.asDouble();
-						Stream.Read_Line(sLine);	Stream.Read_Line(sLine);	max	= sLine.asDouble();
-
-						pParameter->asRange()->Set_Range(min, max);
-					}
-					break;
-				}
-
-				if( bOkay )
-				{
-					pParameter->Get_Data()->Serialize(Stream, false);
-				}
-			}
-
-			while( Stream.Read_Line(sLine) && sLine.Cmp(SG_T("SERIALIZE_PARAMETER_END")) );
-		}
-
-		return( true );
-	}
-
-	return( false );
+	return( true );
 }
 
 

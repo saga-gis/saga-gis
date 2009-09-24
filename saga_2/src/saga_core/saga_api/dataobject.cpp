@@ -70,18 +70,32 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+const SG_Char *	SG_Get_DataObject_Identifier(TSG_Data_Object_Type Type)
+{
+	switch( Type )
+	{
+	default:
+	case DATAOBJECT_TYPE_Undefined:		return( SG_T("UNDEFINED") );
+	case DATAOBJECT_TYPE_Grid:			return( SG_T("GRID") );
+	case DATAOBJECT_TYPE_Table:			return( SG_T("TABLE") );
+	case DATAOBJECT_TYPE_Shapes:		return( SG_T("SHAPES") );
+	case DATAOBJECT_TYPE_TIN:			return( SG_T("TIN") );
+	case DATAOBJECT_TYPE_PointCloud:	return( SG_T("POINTS") );
+	}
+}
+
+//---------------------------------------------------------
 const SG_Char *	SG_Get_DataObject_Name(TSG_Data_Object_Type Type)
 {
 	switch( Type )
 	{
-	case DATAOBJECT_TYPE_Grid:			return( LNG("[DAT] Grid"       ) );
-	case DATAOBJECT_TYPE_Table:			return( LNG("[DAT] Table"      ) );
-	case DATAOBJECT_TYPE_Shapes:		return( LNG("[DAT] Shapes"     ) );
-	case DATAOBJECT_TYPE_TIN:			return( LNG("[DAT] TIN"        ) );
-	case DATAOBJECT_TYPE_PointCloud:	return( LNG("[DAT] Point Cloud") );
-
 	default:
-	case DATAOBJECT_TYPE_Undefined:	return( LNG("[DAT] Undefined") );
+	case DATAOBJECT_TYPE_Undefined:		return( LNG("[DAT] Undefined") );
+	case DATAOBJECT_TYPE_Grid:			return( LNG("[DAT] Grid") );
+	case DATAOBJECT_TYPE_Table:			return( LNG("[DAT] Table") );
+	case DATAOBJECT_TYPE_Shapes:		return( LNG("[DAT] Shapes") );
+	case DATAOBJECT_TYPE_TIN:			return( LNG("[DAT] TIN") );
+	case DATAOBJECT_TYPE_PointCloud:	return( LNG("[DAT] Point Cloud") );
 	}
 }
 

@@ -649,7 +649,7 @@ bool CSG_Grid::_Load_Native(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 			case GRID_FILE_KEY_DATAFORMAT:
 				for(iType=0; iType<SG_DATATYPE_Undefined && hdr_Type == SG_DATATYPE_Undefined; iType++)
 				{
-					if( Value.Find(gSG_Data_Type_Names[iType]) >= 0 )
+					if( Value.Find(gSG_Data_Type_Identifier[iType]) >= 0 )
 					{
 						hdr_Type	= (TSG_Data_Type)iType;
 					}
@@ -740,7 +740,7 @@ bool CSG_Grid::_Save_Native(const CSG_String &File_Name, int xA, int yA, int xN,
 		Stream.Printf(SG_T("%s\t= %s\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_DESCRIPTION	], Get_Description() );
 		Stream.Printf(SG_T("%s\t= %s\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_UNITNAME		], Get_Unit() );
 		Stream.Printf(SG_T("%s\t= %d\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_DATAFILE_OFFSET], 0 );
-		Stream.Printf(SG_T("%s\t= %s\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_DATAFORMAT		], bBinary ? gSG_Data_Type_Names[Get_Type()] : SG_T("ASCII") );
+		Stream.Printf(SG_T("%s\t= %s\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_DATAFORMAT		], bBinary ? gSG_Data_Type_Identifier[Get_Type()] : SG_T("ASCII") );
 		Stream.Printf(SG_T("%s\t= %s\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_BYTEORDER_BIG	], GRID_FILE_KEY_FALSE );
 		Stream.Printf(SG_T("%s\t= %.10f\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_POSITION_XMIN	], Get_XMin() + Get_Cellsize() * xA );
 		Stream.Printf(SG_T("%s\t= %.10f\n")	, gSG_Grid_File_Key_Names[ GRID_FILE_KEY_POSITION_YMIN	], Get_YMin() + Get_Cellsize() * yA );

@@ -254,6 +254,37 @@ int CSG_MetaData::_Get_Child(const CSG_String &Name) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CSG_MetaData::Set_Content(const SG_Char *Format, ...)
+{
+	wxString	s;
+	va_list		argptr;
+
+	va_start(argptr, Format);
+
+	if( s.PrintfV(Format, argptr) > 0 )
+	{
+		m_Content	= s.c_str();
+	}
+	else
+	{
+		m_Content.Clear();
+	}
+
+	va_end(argptr);
+}
+
+//---------------------------------------------------------
+bool CSG_MetaData::Cmp_Content(const CSG_String &String, bool bNoCase) const
+{
+	return( bNoCase ? !m_Content.CmpNoCase(String) : !m_Content.Cmp(String) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_MetaData::Add_Property(const CSG_String &Name, const CSG_String &Value)
 {
 	if( _Get_Property(Name) < 0 )
@@ -339,6 +370,14 @@ bool CSG_MetaData::Get_Property(const CSG_String &Name, int &Value)	const
 }
 
 //---------------------------------------------------------
+bool CSG_MetaData::Cmp_Property(const CSG_String &Name, const CSG_String &String, bool bNoCase) const
+{
+	CSG_String	s;
+
+	return( Get_Property(Name, s) && (bNoCase ? !s.CmpNoCase(String) : !s.Cmp(String)) );
+}
+
+//---------------------------------------------------------
 int CSG_MetaData::_Get_Property(const CSG_String &Name) const
 {
 	for(int i=0; i<m_Prop_Names.Get_Count(); i++)
@@ -391,56 +430,20 @@ bool CSG_MetaData::Assign(const CSG_MetaData &MetaData, bool bAppend)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String	_XML_To_SpecChars(const SG_Char *String)
-{
-	CSG_String	s;
-
-	if( String && String[0] )
-	{
-		s	= String;
-
-		s.Replace(SG_T("&auml") , SG_T("ä"));
-		s.Replace(SG_T("&ouml") , SG_T("ö"));
-		s.Replace(SG_T("&uuml") , SG_T("ü"));
-		s.Replace(SG_T("&Auml") , SG_T("Ä"));
-		s.Replace(SG_T("&Ouml") , SG_T("Ö"));
-		s.Replace(SG_T("&Uuml") , SG_T("Ü"));
-		s.Replace(SG_T("&szlig"), SG_T("ß"));
-	}
-
-	return( s );
-}
-
-//---------------------------------------------------------
-CSG_String	_SpecChars_To_XML(const SG_Char *String)
-{
-	CSG_String	s;
-
-	if( String && String[0] )
-	{
-		s	= String;
-
-		s.Replace(SG_T("ä"), SG_T("&auml"));
-		s.Replace(SG_T("ö"), SG_T("&ouml"));
-		s.Replace(SG_T("ü"), SG_T("&uuml"));
-		s.Replace(SG_T("Ä"), SG_T("&Auml"));
-		s.Replace(SG_T("Ö"), SG_T("&Ouml"));
-		s.Replace(SG_T("Ü"), SG_T("&Uuml"));
-		s.Replace(SG_T("ß"), SG_T("&szlig"));
-	}
-
-	return( s );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 bool CSG_MetaData::Load(const CSG_String &File, const SG_Char *Extension)
 {
-	return( Load(CSG_File(SG_File_Make_Path(NULL, File, Extension), SG_FILE_R, false)) );
+	Destroy();
+
+	wxXmlDocument	XML;
+
+	if( SG_File_Exists(SG_File_Make_Path(NULL, File, Extension)) && XML.Load(SG_File_Make_Path(NULL, File, Extension).c_str()) )
+	{
+		_Load(XML.GetRoot());
+
+		return( true );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -465,15 +468,15 @@ bool CSG_MetaData::Load(CSG_File &File)
 //---------------------------------------------------------
 void CSG_MetaData::_Load(wxXmlNode *pNode)
 {
-	Set_Name	(_XML_To_SpecChars(pNode->GetName       ()).c_str());
-	Set_Content	(_XML_To_SpecChars(pNode->GetNodeContent()).c_str());
+	Set_Name	(SG_UTF8_To_String(pNode->GetName       ()).c_str());
+	Set_Content	(SG_UTF8_To_String(pNode->GetNodeContent()).c_str());
 
 	//-----------------------------------------------------
 	wxXmlProperty	*pProperty	= pNode->GetProperties();
 
 	while( pProperty )
 	{
-		Add_Property(_XML_To_SpecChars(pProperty->GetName()).c_str(), _XML_To_SpecChars(pProperty->GetValue()).c_str());
+		Add_Property(SG_UTF8_To_String(pProperty->GetName()).c_str(), SG_UTF8_To_String(pProperty->GetValue()).c_str());
 
 		pProperty	= pProperty->GetNext();
 	}
@@ -500,7 +503,20 @@ void CSG_MetaData::_Load(wxXmlNode *pNode)
 //---------------------------------------------------------
 bool CSG_MetaData::Save(const CSG_String &File, const SG_Char *Extension) const
 {
-	return( Save(CSG_File(SG_File_Make_Path(NULL, File, Extension), SG_FILE_W, false)) );
+	wxXmlDocument	XML;
+
+	wxXmlNode	*pRoot	= new wxXmlNode(NULL, wxXML_ELEMENT_NODE, Get_Name().c_str());
+
+	XML.SetRoot(pRoot);
+
+	_Save(pRoot);
+
+	if( XML.Save(SG_File_Make_Path(NULL, File, Extension).c_str()) )
+	{
+		return( true );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -529,20 +545,20 @@ void CSG_MetaData::_Save(wxXmlNode *pNode) const
 {
 	int		i;
 
-	pNode->SetName	 (Get_Name().Length() ? _SpecChars_To_XML(Get_Name()).c_str() : SG_T("NODE"));
-	pNode->SetContent(_SpecChars_To_XML(Get_Content()).c_str());
+	pNode->SetName	 (Get_Name().Length() ? SG_String_To_UTF8(Get_Name()).c_str() : SG_T("NODE"));
+	pNode->SetContent(SG_String_To_UTF8(Get_Content()).c_str());
 
 	if( Get_Content().Length() > 0 )
 	{
-		wxXmlNode	*pChild	= new wxXmlNode(pNode, wxXML_TEXT_NODE, SG_T("TEXT"));// _SpecChars_To_XML(Get_Name()).c_str());
+		wxXmlNode	*pChild	= new wxXmlNode(pNode, wxXML_TEXT_NODE, SG_T("TEXT"));// SG_String_To_UTF8(Get_Name()).c_str());
 
-		pChild->SetContent(_SpecChars_To_XML(Get_Content()).c_str());
+		pChild->SetContent(SG_String_To_UTF8(Get_Content()).c_str());
 	}
 
 	//-----------------------------------------------------
 	for(i=0; i<Get_Property_Count(); i++)
 	{
-		pNode->AddProperty(_SpecChars_To_XML(Get_Property_Name(i)).c_str(), _SpecChars_To_XML(Get_Property(i)).c_str());
+		pNode->AddProperty(SG_String_To_UTF8(Get_Property_Name(i)).c_str(), SG_String_To_UTF8(Get_Property(i)).c_str());
 	}
 
 	//-----------------------------------------------------
@@ -550,7 +566,7 @@ void CSG_MetaData::_Save(wxXmlNode *pNode) const
 	{
 		if( Get_Child(i)->Get_Content().Length() > 0 || Get_Child(i)->Get_Children_Count() > 0 )
 		{
-			wxXmlNode	*pChild	= new wxXmlNode(pNode, wxXML_ELEMENT_NODE, _SpecChars_To_XML(Get_Child(i)->Get_Name()).c_str());
+			wxXmlNode	*pChild	= new wxXmlNode(pNode, wxXML_ELEMENT_NODE, SG_String_To_UTF8(Get_Child(i)->Get_Name()).c_str());
 
 			Get_Child(i)->_Save(pChild);
 		}

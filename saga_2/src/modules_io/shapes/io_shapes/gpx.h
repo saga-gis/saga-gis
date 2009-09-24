@@ -92,6 +92,8 @@ protected:
 
 private:
 
+	bool						m_bTime;
+
 	CSG_String					m_Name;
 
 	CSG_Parameter_Shapes_List	*m_pShapes;
