@@ -1277,7 +1277,9 @@ bool CSG_Parameters::Set_History(CSG_MetaData &MetaData, bool bOptions, bool bDa
 		{
 			CSG_Parameter	*p	= m_Parameters[i];
 
-			if(	p->is_Option() && !p->is_Information() && !(p->Get_Type() == PARAMETER_TYPE_String && ((CSG_Parameter_String *)p->Get_Data())->is_Password()) )
+			if(	p->is_Option() && !p->is_Information()
+			&&	!(p->Get_Type() == PARAMETER_TYPE_String && ((CSG_Parameter_String *)p->Get_Data())->is_Password())
+			&&	!(p->Get_Type() == PARAMETER_TYPE_Grid_System && p->Get_Children_Count() > 0) )
 			{
 				p->Serialize(MetaData, true);
 			}
@@ -1296,21 +1298,43 @@ bool CSG_Parameters::Set_History(CSG_MetaData &MetaData, bool bOptions, bool bDa
 		{
 			CSG_Parameter	*p	= m_Parameters[i];
 
-			if( p->is_Input() && p->is_DataObject() && (pObject = p->asDataObject()) != NULL )
+			if(	p->Get_Type() == PARAMETER_TYPE_Grid_System && p->Get_Children_Count() > 0 )
 			{
-				pEntry	= p->Serialize(MetaData, true);
-				pEntry->Assign(pObject->Get_History(), true);
-			}
+				CSG_MetaData	*pGrids	= NULL;
 
-			if( p->is_Input() && p->is_DataObject_List() && p->asList()->Get_Count() > 0 )
-			{
-				MetaData.Add_Child(p->Get_Name(), p->asString());
-
-				for(int j=0; j<p->asList()->Get_Count(); j++)
+				for(int j=0; j<p->Get_Children_Count(); j++)
 				{
-					pObject	= p->asList()->asDataObject(j);
+					CSG_Parameter	*pj	= p->Get_Child(j);
+
+					if( pj->is_Input() && pj->is_DataObject() && (pObject = pj->asDataObject()) != NULL )
+					{
+						if( pGrids == NULL )
+						{
+							pGrids	= p->Serialize(MetaData, true);
+						}
+
+						pEntry	= pj->Serialize(*pGrids, true);
+						pEntry->Assign(pObject->Get_History(), true);
+					}
+				}
+			}
+			else if( p->is_Input() )
+			{
+				if( p->is_DataObject() && (pObject = p->asDataObject()) != NULL  )
+				{
 					pEntry	= p->Serialize(MetaData, true);
 					pEntry->Assign(pObject->Get_History(), true);
+				}
+
+				if( p->is_DataObject_List() && p->asList()->Get_Count() > 0 )
+				{
+					MetaData.Add_Child(p->Get_Name(), p->asString());
+
+					for(int j=0; j<p->asList()->Get_Count(); j++)
+					{
+						pEntry	= p->Serialize(MetaData, true);
+						pEntry->Assign(p->asList()->asDataObject(j)->Get_History(), true);
+					}
 				}
 			}
 

@@ -231,16 +231,6 @@ bool CWKSP_Project::Save(const wxChar *FileName, bool bSaveModified)
 //---------------------------------------------------------
 bool CWKSP_Project::_Load(const wxChar *FileName, bool bAdd, bool bUpdateMenu)
 {
-	MSG_General_Add_Line();
-	MSG_General_Add(wxString::Format(wxT("%s: %s"), LNG("[MSG] Load project"), FileName), true, true);
-
-	if( !wxFileExists(FileName) )
-	{
-		MSG_General_Add(LNG("[MSG] Could not load project."), true, true, SG_UI_MSG_STYLE_FAILURE);
-
-		return( false );
-	}
-
 	if( !bAdd && g_pData->Get_Count() > 0 )
 	{
 		switch( DLG_Message_YesNoCancel(LNG("[TXT] Close all data sets"), LNG("[CAP] Load Project")) )
@@ -250,32 +240,39 @@ bool CWKSP_Project::_Load(const wxChar *FileName, bool bAdd, bool bUpdateMenu)
 				return( false );
 			break;
 
-		case 2:	return( false );
+		case 2:
+			return( false );
 		}
 	}
 
 	//-------------------------------------------------
-	if( _Compatibility_Load_Data(FileName, bUpdateMenu) )
-	{
-		return( true );
-	}
+	MSG_General_Add_Line();
+	MSG_General_Add(wxString::Format(wxT("%s: %s"), LNG("[MSG] Load project"), FileName), true, true);
 
 	//-------------------------------------------------
 	bool			bSuccess	= false;
 
 	CSG_MetaData	Project, *pNode;
 
-	if( !Project.Load(FileName) )
+	if( _Compatibility_Load_Data(FileName) )
 	{
-		MSG_Error_Add(LNG("[MSG] could not read project file."), true, true, SG_UI_MSG_STYLE_FAILURE);
+		bSuccess	= true;
+	}
+	else if( !wxFileExists(FileName) )
+	{
+		MSG_Error_Add(LNG("[MSG] file does not exist.")				, true, true, SG_UI_MSG_STYLE_FAILURE);
+	}
+	else if( !Project.Load(FileName) )
+	{
+		MSG_Error_Add(LNG("[MSG] could not read project file.")		, true, true, SG_UI_MSG_STYLE_FAILURE);
 	}
 	else if( Project.Get_Name().Cmp(SG_T("SAGA_PROJECT")) )
 	{
-		MSG_Error_Add(LNG("[MSG] invalid project file."), true, true, SG_UI_MSG_STYLE_FAILURE);
+		MSG_Error_Add(LNG("[MSG] invalid project file.")			, true, true, SG_UI_MSG_STYLE_FAILURE);
 	}
 	else if( (pNode = Project.Get_Child(SG_T("DATA"))) == NULL || pNode->Get_Children_Count() <= 0 )
 	{
-		MSG_Error_Add(LNG("[MSG] no data entries in project file."), true, true, SG_UI_MSG_STYLE_FAILURE);
+		MSG_Error_Add(LNG("[MSG] no data entries in project file.")	, true, true, SG_UI_MSG_STYLE_FAILURE);
 	}
 	else
 	{
@@ -930,7 +927,7 @@ bool CWKSP_Project::_Modified_Save(CSG_Parameters *pParameters)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Project::_Compatibility_Load_Data(const CSG_String &FileName, bool bUpdateMenu)
+bool CWKSP_Project::_Compatibility_Load_Data(const CSG_String &FileName)
 {
 	CSG_String	sLine;
 	CSG_File	Stream;
@@ -943,21 +940,14 @@ bool CWKSP_Project::_Compatibility_Load_Data(const CSG_String &FileName, bool bU
 	//-------------------------------------------------
 	while( Stream.Read_Line(sLine) && sLine.Cmp(DATA_ENTRIES_BEGIN) );
 
-	if( !sLine.Cmp(DATA_ENTRIES_BEGIN) )
+	if( sLine.Cmp(DATA_ENTRIES_BEGIN) )
 	{
-		g_pData->Get_FileMenus()->Set_Update(false);
-		while( _Compatibility_Load_Data(Stream, SG_File_Get_Path(FileName)) );
-		g_pData->Get_FileMenus()->Set_Update(true);
-	}
-	else
-	{
-		if( bUpdateMenu )
-		{
-			g_pData->Get_FileMenus()->Recent_Del(DATAOBJECT_TYPE_Undefined, FileName);
-		}
-
 		return( false );
 	}
+
+	g_pData->Get_FileMenus()->Set_Update(false);
+	while( _Compatibility_Load_Data(Stream, SG_File_Get_Path(FileName)) );
+	g_pData->Get_FileMenus()->Set_Update(true);
 
 	//-------------------------------------------------
 	while( Stream.Read_Line(sLine) && sLine.Cmp(MAP_ENTRIES_BEGIN) );
@@ -966,16 +956,6 @@ bool CWKSP_Project::_Compatibility_Load_Data(const CSG_String &FileName, bool bU
 	{
 		while( _Compatibility_Load_Map(Stream, SG_File_Get_Path(FileName)) );
 	}
-
-	//-----------------------------------------------------
-	if( bUpdateMenu )
-	{
-		g_pData->Get_FileMenus()->Recent_Add(DATAOBJECT_TYPE_Undefined, FileName);
-	}
-
-	MSG_General_Add(LNG("[MSG] Project has been successfully imported from version 2.0."), true, true, SG_UI_MSG_STYLE_SUCCESS);
-
-	Clr_File_Name();
 
 	return( true );
 }

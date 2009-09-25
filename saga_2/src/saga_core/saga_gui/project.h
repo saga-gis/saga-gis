@@ -113,7 +113,7 @@ private:
 
 
 	//-----------------------------------------------------
-	bool	_Compatibility_Load_Data	(const CSG_String &FileName, bool bUpdateMenu);
+	bool	_Compatibility_Load_Data	(const CSG_String &FileName);
 	bool	_Compatibility_Load_Data	(CSG_File &Stream, const wxChar *ProjectDir);
 	bool	_Compatibility_Load_Map		(CSG_File &Stream, const wxChar *ProjectDir);
 	//-----------------------------------------------------

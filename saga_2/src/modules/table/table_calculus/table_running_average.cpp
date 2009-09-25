@@ -96,7 +96,7 @@ CTable_Running_Average::CTable_Running_Average(void)
 	Parameters.Add_Table(
 		NULL	, "OUTPUT"		, _TL("Output"),
 		_TL(""),
-		PARAMETER_OUTPUT
+		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Value(

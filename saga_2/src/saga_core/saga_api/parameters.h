@@ -551,6 +551,11 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	{	return( PARAMETER_TYPE_Color );		}
 
+
+protected:
+
+	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
+
 };
 
 //---------------------------------------------------------

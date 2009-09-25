@@ -545,7 +545,7 @@ CSG_MetaData * CSG_Parameter::Serialize(CSG_MetaData &Entry, bool bSave)
 				                       SG_T("PARAMETER")
 			);
 
-			pEntry->Add_Property(SG_T("type"), Get_Type_Name());
+			pEntry->Add_Property(SG_T("type"), Get_Type_Identifier());
 			pEntry->Add_Property(SG_T("id")  , Get_Identifier());
 			pEntry->Add_Property(SG_T("name"), Get_Name());
 
@@ -556,7 +556,7 @@ CSG_MetaData * CSG_Parameter::Serialize(CSG_MetaData &Entry, bool bSave)
 	}
 	else
 	{
-		if(	Entry.Cmp_Property(SG_T("type"), Get_Type_Name ())
+		if(	Entry.Cmp_Property(SG_T("type"), Get_Type_Identifier())
 		&&	Entry.Cmp_Property(SG_T("id")  , Get_Identifier()) )
 		{
 			return( m_pData->Serialize(Entry, bSave) ? &Entry : NULL );

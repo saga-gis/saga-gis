@@ -324,18 +324,11 @@ bool CSG_Parameter_Bool::On_Serialize(CSG_MetaData &Entry, bool bSave)
 {
 	if( bSave )
 	{
-		Entry.Set_Content(CSG_String::Format(SG_T("%d"), m_Value));
+		Entry.Set_Content(m_Value ? SG_T("TRUE") : SG_T("FALSE"));
 	}
 	else
 	{
-		int		i;
-
-		if( !Entry.Get_Content().asInt(i) )
-		{
-			return( false );
-		}
-
-		m_Value	= i != 0;
+		m_Value	= Entry.Cmp_Content(SG_T("TRUE"), true);
 	}
 
 	return( true );
@@ -471,16 +464,11 @@ bool CSG_Parameter_Int::Set_Value(double Value)
 
 bool CSG_Parameter_Int::Set_Value(void *Value)
 {
-	int		val;
+	int		i;
 
-	if( Value )
+	if( Value && CSG_String((SG_Char *)Value).asInt(i) )
 	{
-		m_String.Printf((SG_Char *)Value);
-
-		if( m_String.asInt(val) )
-		{
-			return( Set_Value(val) );
-		}
+		return( Set_Value(i) );
 	}
 
 	return( false );
@@ -561,16 +549,11 @@ bool CSG_Parameter_Double::Set_Value(double Value)
 
 bool CSG_Parameter_Double::Set_Value(void *Value)
 {
-	double	val;
+	double	d;
 
-	if( Value )
+	if( Value && CSG_String((SG_Char *)Value).asDouble(d) )
 	{
-		m_String.Printf((SG_Char *)Value);
-
-		if( m_String.asDouble(val) )
-		{
-			return( Set_Value(val) );
-		}
+		return( Set_Value(d) );
 	}
 
 	return( false );
@@ -579,7 +562,7 @@ bool CSG_Parameter_Double::Set_Value(void *Value)
 //---------------------------------------------------------
 const SG_Char * CSG_Parameter_Double::asString(void)
 {
-	m_String.Printf(SG_T("%lf"), m_Value);
+	m_String.Printf(SG_T("%f"), m_Value);
 
 	return( m_String );
 }
@@ -666,7 +649,7 @@ CSG_Parameter_Range::~CSG_Parameter_Range(void)
 //---------------------------------------------------------
 const SG_Char * CSG_Parameter_Range::asString(void)
 {
-	m_String.Printf(SG_T("[%lf] - [%lf]"),
+	m_String.Printf(SG_T("[%f] - [%f]"),
 		Get_LoParm()->asDouble(),
 		Get_HiParm()->asDouble()
 	);
@@ -733,9 +716,10 @@ bool CSG_Parameter_Range::On_Serialize(CSG_MetaData &Entry, bool bSave)
 	}
 	else
 	{
-		double	loVal, hiVal;
+		double		loVal, hiVal;
+		CSG_String	s(Entry.Get_Content());
 
-		if( Entry.Get_Content().asDouble(loVal) && Entry.Get_Content().AfterFirst(SG_T(';')).asDouble(hiVal) )
+		if( s.BeforeFirst(SG_T(';')).asDouble(loVal) && s.AfterFirst(SG_T(';')).asDouble(hiVal) )
 		{
 			return( Set_Range(loVal, hiVal) );
 		}
@@ -1035,7 +1019,7 @@ CSG_Parameter_Font::CSG_Parameter_Font(CSG_Parameter *pOwner, long Constraint)
 	: CSG_Parameter_Data(pOwner, Constraint)
 {
 	m_pFont		= new wxFont(10, wxSWISS, wxNORMAL, wxNORMAL);
-	m_Color		= 0;
+	m_Color		= SG_GET_RGB(0, 0, 0);
 }
 
 CSG_Parameter_Font::~CSG_Parameter_Font(void)
@@ -1088,7 +1072,7 @@ bool CSG_Parameter_Font::On_Serialize(CSG_MetaData &Entry, bool bSave)
 {
 	if( bSave )
 	{
-		Entry.Add_Child(SG_T("COLOR")		, CSG_String::Format(SG_T("%d"), m_Color));
+		Entry.Add_Child(SG_T("COLOR")		, CSG_String::Format(SG_T("R%03d G%03d B%03d"), SG_GET_R(m_Color), SG_GET_G(m_Color), SG_GET_B(m_Color)));
 		Entry.Add_Child(SG_T("POINTSIZE")	, CSG_String::Format(SG_T("%d"), m_pFont->GetPointSize()));
 		Entry.Add_Child(SG_T("FACENAME")	, m_pFont->GetFaceName().c_str());
 		Entry.Add_Child(SG_T("UNDERLINED")	, m_pFont->GetUnderlined() ? SG_T("TRUE") : SG_T("FALSE"));
@@ -1126,9 +1110,13 @@ bool CSG_Parameter_Font::On_Serialize(CSG_MetaData &Entry, bool bSave)
 		int				i;
 		CSG_MetaData	*pEntry;
 
-		if( (pEntry = Entry.Get_Child(SG_T("COLOR"))) != NULL && pEntry->Get_Content().asInt(i) )
+		if( (pEntry = Entry.Get_Child(SG_T("COLOR"))) != NULL )
 		{
-			m_Color	= i;
+			m_Color	= SG_GET_RGB(
+				Entry.Get_Content().AfterFirst(SG_T('R')).asInt(),
+				Entry.Get_Content().AfterFirst(SG_T('G')).asInt(),
+				Entry.Get_Content().AfterFirst(SG_T('B')).asInt()
+			);
 		}
 
 		if( (pEntry = Entry.Get_Child(SG_T("POINTSIZE"))) != NULL && pEntry->Get_Content().asInt(i) )
@@ -1190,6 +1178,25 @@ CSG_Parameter_Color::CSG_Parameter_Color(CSG_Parameter *pOwner, long Constraint)
 	: CSG_Parameter_Int(pOwner, Constraint)
 {}
 
+//---------------------------------------------------------
+bool CSG_Parameter_Color::On_Serialize(CSG_MetaData &Entry, bool bSave)
+{
+	if( bSave )
+	{
+		Entry.Set_Content(SG_T("R%03d G%03d B%03d"), SG_GET_R(m_Value), SG_GET_G(m_Value), SG_GET_B(m_Value));
+	}
+	else
+	{
+		m_Value	= SG_GET_RGB(
+			Entry.Get_Content().AfterFirst(SG_T('R')).asInt(),
+			Entry.Get_Content().AfterFirst(SG_T('G')).asInt(),
+			Entry.Get_Content().AfterFirst(SG_T('B')).asInt()
+		);
+	}
+
+	return( true );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -1242,7 +1249,6 @@ bool CSG_Parameter_Colors::On_Serialize(CSG_MetaData &Entry, bool bSave)
 			m_Colors.Set_Red  (i, s.AfterFirst(SG_T('R')).asInt());
 			m_Colors.Set_Green(i, s.AfterFirst(SG_T('G')).asInt());
 			m_Colors.Set_Blue (i, s.AfterFirst(SG_T('B')).asInt());
-
 		}
 	}
 
@@ -1290,7 +1296,7 @@ bool CSG_Parameter_Fixed_Table::On_Serialize(CSG_MetaData &Entry, bool bSave)
 		for(iField=0; iField<m_Table.Get_Field_Count(); iField++)
 		{
 			pEntry	= pNode->Add_Child	(SG_T("FIELD")	, m_Table.Get_Field_Name(iField));
-			pEntry	->Set_Property		(SG_T("type")	, m_Table.Get_Field_Type(iField));
+			pEntry	->Set_Property		(SG_T("type")	, gSG_Data_Type_Identifier[m_Table.Get_Field_Type(iField)]);
 		}
 
 		pNode	= Entry.Add_Child(SG_T("RECORDS"));
@@ -1307,7 +1313,6 @@ bool CSG_Parameter_Fixed_Table::On_Serialize(CSG_MetaData &Entry, bool bSave)
 	}
 	else
 	{
-		int			i;
 		CSG_Table	t;
 
 		if( (pNode = Entry.Get_Child(SG_T("FIELDS"))) == NULL )
@@ -1317,12 +1322,28 @@ bool CSG_Parameter_Fixed_Table::On_Serialize(CSG_MetaData &Entry, bool bSave)
 
 		for(iField=0; iField<pNode->Get_Children_Count(); iField++)
 		{
-			if( !pNode->Get_Child(iField)->Get_Property(SG_T("type"), i) )
+			CSG_String		s;
+			TSG_Data_Type	type	= SG_DATATYPE_String;
+
+			if( pNode->Get_Child(iField)->Get_Property(SG_T("type"), s) )
 			{
-				i	= SG_DATATYPE_String;
+				     if( !s.Cmp(gSG_Data_Type_Identifier[SG_DATATYPE_Bit   ]) )	type	= SG_DATATYPE_Bit;
+				else if( !s.Cmp(gSG_Data_Type_Identifier[SG_DATATYPE_Byte  ]) )	type	= SG_DATATYPE_Byte;
+				else if( !s.Cmp(gSG_Data_Type_Identifier[SG_DATATYPE_Char  ]) )	type	= SG_DATATYPE_Char;
+				else if( !s.Cmp(gSG_Data_Type_Identifier[SG_DATATYPE_Word  ]) )	type	= SG_DATATYPE_Word;
+				else if( !s.Cmp(gSG_Data_Type_Identifier[SG_DATATYPE_Short ]) )	type	= SG_DATATYPE_Short;
+				else if( !s.Cmp(gSG_Data_Type_Identifier[SG_DATATYPE_DWord ]) )	type	= SG_DATATYPE_DWord;
+				else if( !s.Cmp(gSG_Data_Type_Identifier[SG_DATATYPE_Int   ]) )	type	= SG_DATATYPE_Int;
+				else if( !s.Cmp(gSG_Data_Type_Identifier[SG_DATATYPE_ULong ]) )	type	= SG_DATATYPE_ULong;
+				else if( !s.Cmp(gSG_Data_Type_Identifier[SG_DATATYPE_Long  ]) )	type	= SG_DATATYPE_Long;
+				else if( !s.Cmp(gSG_Data_Type_Identifier[SG_DATATYPE_Float ]) )	type	= SG_DATATYPE_Float;
+				else if( !s.Cmp(gSG_Data_Type_Identifier[SG_DATATYPE_Double]) )	type	= SG_DATATYPE_Double;
+				else if( !s.Cmp(gSG_Data_Type_Identifier[SG_DATATYPE_String]) )	type	= SG_DATATYPE_String;
+				else if( !s.Cmp(gSG_Data_Type_Identifier[SG_DATATYPE_Date  ]) )	type	= SG_DATATYPE_Date;
+				else if( !s.Cmp(gSG_Data_Type_Identifier[SG_DATATYPE_Color ]) )	type	= SG_DATATYPE_Color;
 			}
 
-			t.Add_Field(pNode->Get_Child(iField)->Get_Content(), (TSG_Data_Type)i);
+			t.Add_Field(pNode->Get_Child(iField)->Get_Content(), type);
 		}
 
 		if( (pNode = Entry.Get_Child(SG_T("RECORDS"))) == NULL )
