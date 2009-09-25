@@ -81,20 +81,13 @@
 //---------------------------------------------------------
 class CSG_ODBC_Connection
 {
+	friend class CSG_ODBC_Connections;
+
 public:
-	CSG_ODBC_Connection(void);
-	virtual ~CSG_ODBC_Connection(void);
-
-	bool						Create					(void);
-	bool						Destroy					(void);
-
-	bool						Connect					(const CSG_String &Server, const CSG_String &User, const CSG_String &Password, const CSG_String &Directory = SG_T(""));
-	bool						Disconnect				(void);
 
 	bool						is_Connected			(void)	{	return( m_pDB != NULL );	}
 	bool						is_Postgres				(void);
 
-	CSG_String					Get_Servers				(void)	{	return( m_Servers );	}
 	CSG_String					Get_Server				(void);
 
 	CSG_String					Get_Tables				(void);
@@ -114,7 +107,8 @@ public:
 
 private:
 
-	CSG_String					m_Servers;
+	CSG_ODBC_Connection(const CSG_String &Server, const CSG_String &User, const CSG_String &Password, const CSG_String &Directory);
+	virtual ~CSG_ODBC_Connection(void);
 
 	class wxDbConnectInf		*m_pDBCInf;
 
@@ -153,9 +147,11 @@ public:
 
 	int							Get_Count				(void)		{	return( m_nConnections );	}
 	CSG_ODBC_Connection *		Get_Connection			(int Index)	{	return( Index >= 0 && Index < m_nConnections ? m_pConnections[Index] : NULL );	}
-	CSG_ODBC_Connection *		Add_Connection			(const CSG_String &Server);
-	bool						Del_Connection			(const CSG_String &Server);
-	bool						Del_Connection			(CSG_ODBC_Connection *Connection);
+	CSG_ODBC_Connection *		Get_Connection			(const CSG_String &Server);
+	CSG_ODBC_Connection *		Add_Connection			(const CSG_String &Server, const CSG_String &User, const CSG_String &Password, const CSG_String &Directory = SG_T(""));
+	bool						Del_Connection			(int Index                       , bool bCommit);
+	bool						Del_Connection			(const CSG_String &Server        , bool bCommit);
+	bool						Del_Connection			(CSG_ODBC_Connection *pConnection, bool bCommit);
 
 
 private:
@@ -166,6 +162,49 @@ private:
 
 
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CSG_ODBC_Module : public CSG_Module
+{
+public:
+	CSG_ODBC_Module(void);
+
+
+protected:
+
+	virtual bool				On_Before_Execution		(void);
+
+	CSG_ODBC_Connection *		Get_Connection			(void)	{	return( m_pConnection );	}
+
+
+private:
+
+	CSG_ODBC_Connection			*m_pConnection;
+
+	CSG_Parameters				m_Connection_Choice;
+
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_ODBC_Connections &	SG_ODBC_Get_Connection_Manager	(void);
+
+//---------------------------------------------------------
+bool					SG_ODBC_is_Supported			(void);
 
 
 ///////////////////////////////////////////////////////////

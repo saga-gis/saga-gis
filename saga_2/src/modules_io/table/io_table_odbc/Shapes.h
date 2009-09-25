@@ -77,7 +77,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPoints_Load : public CSG_Module
+class CPoints_Load : public CSG_ODBC_Module
 {
 public:
 	CPoints_Load(void);
@@ -97,15 +97,13 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPoints_Save : public CSG_Module
+class CPoints_Save : public CSG_ODBC_Module
 {
 public:
 	CPoints_Save(void);
 
 
 protected:
-
-	virtual bool				On_Before_Execution		(void)		{	return( is_Connected() );	}
 
 	virtual bool				On_Execute				(void);
 

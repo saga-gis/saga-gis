@@ -67,7 +67,7 @@
 //														 //
 ///////////////////////////////////////////////////////////
 
-//---------------------------------------------------------
+/*/---------------------------------------------------------
 bool		is_PostGIS		(bool bDialogOnError)
 {
 	if( !is_Connected(bDialogOnError) )
@@ -75,7 +75,7 @@ bool		is_PostGIS		(bool bDialogOnError)
 		return( false );
 	}
 
-	if( !g_Connection.is_Postgres() )
+	if( !Get_Connection()->is_Postgres() )
 	{
 		if( bDialogOnError )
 		{
@@ -85,7 +85,7 @@ bool		is_PostGIS		(bool bDialogOnError)
 		return( false );
 	}
 
-	if( !g_Connection.Table_Exists(SG_T("spatial_ref_sys")) || !g_Connection.Table_Exists(SG_T("geometry_columns")) )
+	if( !Get_Connection()->Table_Exists(SG_T("spatial_ref_sys")) || !Get_Connection()->Table_Exists(SG_T("geometry_columns")) )
 	{
 		if( bDialogOnError )
 		{
@@ -96,7 +96,7 @@ bool		is_PostGIS		(bool bDialogOnError)
 	}
 
 	return( true );
-}
+}/**/
 
 
 ///////////////////////////////////////////////////////////
@@ -134,14 +134,28 @@ CPGIS_Shapes_Load::CPGIS_Shapes_Load(void)
 //---------------------------------------------------------
 bool CPGIS_Shapes_Load::On_Before_Execution(void)
 {
-	if( !is_PostGIS() )
+	if( !CSG_ODBC_Module::On_Before_Execution() )
 	{
+		return( false );
+	}
+
+	if( !Get_Connection()->is_Postgres() )
+	{
+		SG_UI_Dlg_Message(_TL("Not a PostgreSQL database!"), _TL("Database Connection Error"));
+
+		return( false );
+	}
+
+	if( !Get_Connection()->Table_Exists(SG_T("spatial_ref_sys")) || !Get_Connection()->Table_Exists(SG_T("geometry_columns")) )
+	{
+		SG_UI_Dlg_Message(_TL("Not a valid PostGIS database!"), _TL("Database Connection Error"));
+
 		return( false );
 	}
 
 	CSG_Table	Geo_Tables;
 
-	if( !g_Connection.Table_Load(Geo_Tables, SG_T("geometry_columns")) )
+	if( !Get_Connection()->Table_Load(Geo_Tables, SG_T("geometry_columns")) )
 	{
 		return( false );
 	}
@@ -170,7 +184,7 @@ bool CPGIS_Shapes_Load::On_Execute(void)
 
 	SQL.Printf(SG_T("SELECT * FROM geometry_columns WHERE f_table_name = '%s'"), Geo_Table.c_str());
 
-	if( !g_Connection.Table_From_Query(SG_T("*"), SG_T("geometry_columns"), CSG_String::Format(SG_T("f_table_name = '%s'"), Geo_Table.c_str()), SG_T(""), Geo_Tables) )
+	if( !Get_Connection()->Table_From_Query(SG_T("*"), SG_T("geometry_columns"), CSG_String::Format(SG_T("f_table_name = '%s'"), Geo_Table.c_str()), SG_T(""), Geo_Tables) )
 	{
 		return( false );
 	}
@@ -196,7 +210,7 @@ bool CPGIS_Shapes_Load::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( !g_Connection.Table_Load(*pShapes, Geo_Table) )
+	if( !Get_Connection()->Table_Load(*pShapes, Geo_Table) )
 	{
 		return( false );
 	}
@@ -204,7 +218,7 @@ bool CPGIS_Shapes_Load::On_Execute(void)
 //	SQL.Printf(SG_T("SELECT AsText(%s) AS geom FROM %s"), Geo_Field.c_str(), Geo_Table.c_str());
 	SQL.Printf(SG_T("AsText(%s) AS geom"), Geo_Field.c_str());
 
-	if( !g_Connection.Table_From_Query(SQL, Geo_Table, SG_T(""), SG_T(""), Geo_Tables) )
+	if( !Get_Connection()->Table_From_Query(SQL, Geo_Table, SG_T(""), SG_T(""), Geo_Tables) )
 	{
 		return( false );
 	}
@@ -310,9 +324,21 @@ CPGIS_Shapes_Save::CPGIS_Shapes_Save(void)
 //---------------------------------------------------------
 bool CPGIS_Shapes_Save::On_Before_Execution(void)
 {
-	if( !is_PostGIS() )
+	if( !CSG_ODBC_Module::On_Before_Execution() )
 	{
-		Message_Add(_TL("no spatial reference systems defined"));
+		return( false );
+	}
+
+	if( !Get_Connection()->is_Postgres() )
+	{
+		SG_UI_Dlg_Message(_TL("Not a PostgreSQL database!"), _TL("Database Connection Error"));
+
+		return( false );
+	}
+
+	if( !Get_Connection()->Table_Exists(SG_T("spatial_ref_sys")) || !Get_Connection()->Table_Exists(SG_T("geometry_columns")) )
+	{
+		SG_UI_Dlg_Message(_TL("Not a valid PostGIS database!"), _TL("Database Connection Error"));
 
 		return( false );
 	}
@@ -322,7 +348,7 @@ bool CPGIS_Shapes_Save::On_Before_Execution(void)
 
 	CSG_Table	SRIDs;
 
-	if( !g_Connection.Table_Load(SRIDs, SG_T("spatial_ref_sys")) || SRIDs.Get_Count() == 0 )
+	if( !Get_Connection()->Table_Load(SRIDs, SG_T("spatial_ref_sys")) || SRIDs.Get_Count() == 0 )
 	{
 		return( false );
 	}
@@ -381,7 +407,7 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( !g_Connection.Table_Create(Geo_Table, *pShapes) )
+	if( !Get_Connection()->Table_Create(Geo_Table, *pShapes) )
 	{
 		return( false );
 	}
@@ -395,7 +421,7 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 		2					// <dimension>
 	);
 
-	if( !g_Connection.Execute(SQL) )
+	if( !Get_Connection()->Execute(SQL) )
 	{
 		Message_Add(_TL("could not create geometry field"));
 
@@ -460,16 +486,16 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 
 		SQL.Printf(Insert.c_str(), Fields.c_str());
 
-		if( !g_Connection.Execute(SQL) )
+		if( !Get_Connection()->Execute(SQL) )
 		{
-			g_Connection.Rollback();
+			Get_Connection()->Rollback();
 
 			return( false );
 		}
 	}
 
 	//-----------------------------------------------------
-	return( g_Connection.Commit() );
+	return( Get_Connection()->Commit() );
 }
 
 

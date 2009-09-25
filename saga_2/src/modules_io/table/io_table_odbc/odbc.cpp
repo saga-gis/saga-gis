@@ -70,106 +70,61 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_ODBC_Connection::CSG_ODBC_Connection(void)
-{
-	m_pDBCInf	= NULL;
-	m_pDB		= NULL;
+CSG_ODBC_Connections	g_Connections;
 
-	Create();
+//---------------------------------------------------------
+CSG_ODBC_Connections &	SG_ODBC_Get_Connection_Manager	(void)
+{
+	return( g_Connections );
 }
 
 //---------------------------------------------------------
-CSG_ODBC_Connection::~CSG_ODBC_Connection(void)
+bool SG_ODBC_is_Supported	(void)
 {
-	Destroy();
+	return( wxUSE_ODBC != 0 );
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
+//														 //
+//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_ODBC_Connection::Create(void)
+CSG_ODBC_Connection::CSG_ODBC_Connection(const CSG_String &Server, const CSG_String &User, const CSG_String &Password, const CSG_String &Directory)
 {
-	Destroy();
-
 	if( (m_pDBCInf = new wxDbConnectInf(NULL, SG_T(""), SG_T(""), SG_T(""), SG_T(""))) != NULL )
 	{
-		wxChar	DSName[1 + SQL_MAX_DSN_LENGTH], DSDesc[256];
-
-		while( wxDbGetDataSource(m_pDBCInf->GetHenv(), DSName, 1 + SQL_MAX_DSN_LENGTH, DSDesc, 255) )
-		{
-			m_Servers	+= CSG_String::Format(SG_T("%s|"), DSName);
-		}
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CSG_ODBC_Connection::Destroy(void)
-{
-	if( m_pDBCInf )
-	{
-		Disconnect();
-
-		m_pDBCInf->FreeHenv();
-
-		delete(m_pDBCInf);
-
-		m_pDBCInf	= NULL;
-
-		m_Servers.Clear();
-	}
-
-	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CSG_ODBC_Connection::Connect(const CSG_String &Server, const CSG_String &User, const CSG_String &Password, const CSG_String &Directory)
-{
-	if( m_pDBCInf )
-	{
-		Disconnect();
-
 		m_pDBCInf->SetDsn		(Server		.c_str());
 		m_pDBCInf->SetUserID	(User		.c_str());	
 		m_pDBCInf->SetPassword	(Password	.c_str());
 		m_pDBCInf->SetDefaultDir(Directory	.c_str());
 
-		if( (m_pDB = wxDbGetConnection(m_pDBCInf)) != NULL )
-		{
-			return( true );
-		}
+		m_pDB	= wxDbGetConnection(m_pDBCInf);
 	}
-
-	return( false );
 }
 
 //---------------------------------------------------------
-bool CSG_ODBC_Connection::Disconnect(void)
+CSG_ODBC_Connection::~CSG_ODBC_Connection(void)
 {
-	if( m_pDBCInf && m_pDB )
+	if( m_pDBCInf )
 	{
-		wxDbFreeConnection(m_pDB);
+		if( m_pDB )
+		{
+			wxDbFreeConnection(m_pDB);
+		}
 
-		m_pDB		= NULL;
+		m_pDBCInf->FreeHenv();
 
-		return( true );
+		delete(m_pDBCInf);
 	}
-
-	return( false );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CSG_String CSG_ODBC_Connection::Get_Server(void)
@@ -801,6 +756,96 @@ bool CSG_ODBC_Connections::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_ODBC_Connection * CSG_ODBC_Connections::Add_Connection(const CSG_String &Server, const CSG_String &User, const CSG_String &Password, const CSG_String &Directory)
+{
+	CSG_ODBC_Connection	*pConnection	= new CSG_ODBC_Connection(Server, User, Password, Directory);
+
+	if( pConnection )
+	{
+		if( pConnection->is_Connected() )
+		{
+			m_pConnections	= (CSG_ODBC_Connection **)SG_Realloc(m_pConnections, (m_nConnections + 1) * sizeof(CSG_ODBC_Connection *));
+
+			m_pConnections[m_nConnections++]	= pConnection;
+		}
+		else
+		{
+			delete(pConnection);
+
+			pConnection	= NULL;
+		}
+	}
+
+	return( pConnection );
+}
+
+//---------------------------------------------------------
+CSG_ODBC_Connection *  CSG_ODBC_Connections::Get_Connection(const CSG_String &Server)
+{
+	for(int i=0; i<m_nConnections; i++)
+	{
+		if( m_pConnections[i]->Get_Server().Cmp(Server) == 0 )
+		{
+			return( m_pConnections[i] );
+		}
+	}
+
+	return( NULL );
+}
+
+//---------------------------------------------------------
+bool CSG_ODBC_Connections::Del_Connection(int Index, bool bCommit)
+{
+	if( Index >= 0 && Index < m_nConnections )
+	{
+		if( bCommit )
+		{
+			m_pConnections[Index]->Commit();
+		}
+		else
+		{
+			m_pConnections[Index]->Rollback();
+		}
+
+		delete(m_pConnections[Index]);
+
+		for(m_nConnections--; Index<m_nConnections; Index++)
+		{
+			m_pConnections[Index]	= m_pConnections[Index + 1];
+		}
+
+		m_pConnections	= (CSG_ODBC_Connection **)SG_Realloc(m_pConnections, m_nConnections * sizeof(CSG_ODBC_Connection *));
+
+		return( true );
+	}
+
+	return( false );
+}
+
+bool CSG_ODBC_Connections::Del_Connection(const CSG_String &Server, bool bCommit)
+{
+	for(int i=0; i<m_nConnections; i++)
+	{
+		if( m_pConnections[i]->Get_Server().Cmp(Server) == 0 )
+		{
+			return( Del_Connection(i, bCommit) );
+		}
+	}
+
+	return( false );
+}
+
+bool CSG_ODBC_Connections::Del_Connection(CSG_ODBC_Connection *pConnection, bool bCommit)
+{
+	return( !pConnection ? false : Del_Connection(pConnection->Get_Server(), bCommit) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CSG_Strings CSG_ODBC_Connections::Get_Servers(void)
 {
 	CSG_Strings		Servers;
@@ -859,6 +904,8 @@ int CSG_ODBC_Connections::Get_Connections(CSG_String &Connections)
 {
 	CSG_Strings		s	= Get_Connections();
 
+	Connections.Clear();
+
 	for(int i=0; i<s.Get_Count(); i++)
 	{
 		Connections	+= CSG_String::Format(SG_T("%s|"), s[i].c_str());
@@ -870,24 +917,44 @@ int CSG_ODBC_Connections::Get_Connections(CSG_String &Connections)
 
 ///////////////////////////////////////////////////////////
 //														 //
+//														 //
+//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_ODBC_Connection * CSG_ODBC_Connections::Add_Connection(const CSG_String &Server)
+CSG_ODBC_Module::CSG_ODBC_Module(void)
 {
-	return( NULL );
+	m_Connection_Choice.Create(SG_T("CONNECTIONS"), _TL("Choose ODBC Connection"), _TL(""));
+
+	m_Connection_Choice.Add_Choice(
+		NULL	, "CONNECTIONS", _TL("Available Connections"),
+		_TL(""),
+		SG_T("")
+	);
 }
 
 //---------------------------------------------------------
-bool CSG_ODBC_Connections::Del_Connection(const CSG_String &Server)
+bool CSG_ODBC_Module::On_Before_Execution(void)
 {
-	return( false );
-}
+	CSG_String	s;
 
-//---------------------------------------------------------
-bool CSG_ODBC_Connections::Del_Connection(CSG_ODBC_Connection *Connection)
-{
-	return( false );
+	m_pConnection	= NULL;
+
+	if( SG_ODBC_Get_Connection_Manager().Get_Connections(s) > 1 )
+	{
+		m_Connection_Choice("CONNECTIONS")->asChoice()->Set_Items(s);
+
+		if( SG_UI_Dlg_Parameters(&m_Connection_Choice, _TL("Choose ODBC Connection")) )
+		{
+			m_pConnection	= SG_ODBC_Get_Connection_Manager().Get_Connection(m_Connection_Choice("CONNECTIONS")->asString());
+		}
+	}
+	else if( s.Length() )
+	{
+		m_pConnection	= SG_ODBC_Get_Connection_Manager().Get_Connection(0);
+	}
+
+	return( m_pConnection != NULL );
 }
 
 

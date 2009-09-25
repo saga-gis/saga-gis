@@ -96,7 +96,7 @@ CPoints_Load::CPoints_Load(void)
 //---------------------------------------------------------
 bool CPoints_Load::On_Before_Execution(void)
 {
-	if( !is_Connected() )
+	if( !CSG_ODBC_Module::On_Before_Execution() )
 	{
 		return( false );
 	}
@@ -109,12 +109,12 @@ bool CPoints_Load::On_Before_Execution(void)
 //---------------------------------------------------------
 bool CPoints_Load::On_Execute(void)
 {
-	if( g_Connection.is_Connected() )
+	if( Get_Connection()->is_Connected() )
 	{
 		CSG_Parameter_Choice	*pTables	= Parameters("TABLES")	->asChoice();
 		CSG_Shapes				*pShapes	= Parameters("POINTS")	->asShapes();
 
-		return( g_Connection.Table_Load(*pShapes, pTables->asString()) );
+		return( Get_Connection()->Table_Load(*pShapes, pTables->asString()) );
 	}
 
 	return( false );
@@ -148,11 +148,11 @@ CPoints_Save::CPoints_Save(void)
 //---------------------------------------------------------
 bool CPoints_Save::On_Execute(void)
 {
-	if( g_Connection.is_Connected() )
+	if( Get_Connection()->is_Connected() )
 	{
 		CSG_Shapes	*pShapes	= Parameters("POINTS")	->asShapes();
 
-		return( g_Connection.Table_Save(pShapes->Get_Name(), *pShapes) );
+		return( Get_Connection()->Table_Save(pShapes->Get_Name(), *pShapes) );
 	}
 
 	return( false );

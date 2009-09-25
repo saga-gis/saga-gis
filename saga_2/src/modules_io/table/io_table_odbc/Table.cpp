@@ -98,14 +98,14 @@ CTable_Load::CTable_Load(void)
 //---------------------------------------------------------
 bool CTable_Load::On_Before_Execution(void)
 {
-	if( !is_Connected() )
+	if( !CSG_ODBC_Module::On_Before_Execution() )
 	{
 		return( false );
 	}
 
 	CSG_String	Table(Parameters("TABLES")->asString());
 
-	Parameters("TABLES")->asChoice()->Set_Items(g_Connection.Get_Tables());
+	Parameters("TABLES")->asChoice()->Set_Items(Get_Connection()->Get_Tables());
 	Parameters("TABLES")->Set_Value(Table);
 
 	return( true );
@@ -114,7 +114,7 @@ bool CTable_Load::On_Before_Execution(void)
 //---------------------------------------------------------
 bool CTable_Load::On_Execute(void)
 {
-	if( !is_Connected() )
+	if( !Get_Connection() )
 	{
 		return( false );
 	}
@@ -122,7 +122,7 @@ bool CTable_Load::On_Execute(void)
 	CSG_Parameter_Choice	*pTables	= Parameters("TABLES")	->asChoice();
 	CSG_Table				*pTable		= Parameters("TABLE")	->asTable();
 
-	return( g_Connection.Table_Load(*pTable, pTables->asString()) );
+	return( Get_Connection()->Table_Load(*pTable, pTables->asString()) );
 }
 
 
@@ -169,7 +169,7 @@ CTable_Save::CTable_Save(void)
 //---------------------------------------------------------
 bool CTable_Save::On_Execute(void)
 {
-	if( !is_Connected() )
+	if( !Get_Connection() )
 	{
 		return( false );
 	}
@@ -177,7 +177,7 @@ bool CTable_Save::On_Execute(void)
 	CSG_Table	*pTable	= Parameters("TABLE")	->asTable();
 	CSG_String	Name	= Parameters("NAME")	->asString();	if( Name.Length() == 0 )	Name	= pTable->Get_Name();
 
-	if( g_Connection.Table_Exists(Name) )
+	if( Get_Connection()->Table_Exists(Name) )
 	{
 		Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("table already exists"), Name.c_str()));
 
@@ -189,14 +189,14 @@ bool CTable_Save::On_Execute(void)
 		case 1:	// replace existing table
 			Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("trying to drop table"), Name.c_str()));
 
-			if( !g_Connection.Table_Drop(Name, false) )
+			if( !Get_Connection()->Table_Drop(Name, false) )
 			{
 				Message_Add(CSG_String::Format(SG_T(" ...%s!"), _TL("failed")));
 
 				return( false );
 			}
 
-			return( g_Connection.Table_Save(Name, *pTable) );
+			return( Get_Connection()->Table_Save(Name, *pTable) );
 
 		case 2:	// append records, if table structure allows
 			break;
@@ -204,7 +204,7 @@ bool CTable_Save::On_Execute(void)
 	}
 	else
 	{
-		return( g_Connection.Table_Save(Name, *pTable) );
+		return( Get_Connection()->Table_Save(Name, *pTable) );
 	}
 
 	return( false );
@@ -240,14 +240,14 @@ CTable_Drop::CTable_Drop(void)
 //---------------------------------------------------------
 bool CTable_Drop::On_Before_Execution(void)
 {
-	if( !is_Connected() )
+	if( !CSG_ODBC_Module::On_Before_Execution() )
 	{
 		return( false );
 	}
 
 	CSG_String	Table(Parameters("TABLES")->asString());
 
-	Parameters("TABLES")->asChoice()->Set_Items(g_Connection.Get_Tables());
+	Parameters("TABLES")->asChoice()->Set_Items(Get_Connection()->Get_Tables());
 
 	if( Parameters("TABLES")->asChoice()->Get_Count() == 0 )
 	{
@@ -262,12 +262,12 @@ bool CTable_Drop::On_Before_Execution(void)
 //---------------------------------------------------------
 bool CTable_Drop::On_Execute(void)
 {
-	if( !is_Connected() )
+	if( !Get_Connection() )
 	{
 		return( false );
 	}
 
-	return( g_Connection.Table_Drop(Parameters("TABLES")->asChoice()->asString()) );
+	return( Get_Connection()->Table_Drop(Parameters("TABLES")->asChoice()->asString()) );
 }
 
 
@@ -322,7 +322,7 @@ CTable_Load_SQL::CTable_Load_SQL(void)
 //---------------------------------------------------------
 bool CTable_Load_SQL::On_Execute(void)
 {
-	if( !is_Connected() )
+	if( !Get_Connection() )
 	{
 		return( false );
 	}
@@ -333,7 +333,7 @@ bool CTable_Load_SQL::On_Execute(void)
 	CSG_String	Where	= Parameters("WHERE")	->asString();
 	CSG_String	Order	= Parameters("ORDER")	->asString();
 
-	return( g_Connection.Table_From_Query(Fields, Tables, Where, Order, *pTable) );
+	return( Get_Connection()->Table_From_Query(Fields, Tables, Where, Order, *pTable) );
 }
 
 

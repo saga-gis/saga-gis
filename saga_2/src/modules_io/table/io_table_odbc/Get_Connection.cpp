@@ -68,60 +68,20 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_ODBC_Connection	g_Connection;
-
-//---------------------------------------------------------
-bool		is_Connected		(bool bDialogOnError)
-{
-	if( !g_Connection.is_Connected() )
-	{
-		if( bDialogOnError )
-		{
-			SG_UI_Dlg_Message(
-				_TW("No database connection available!\n"
-					"Connect to an ODBC source using module \"Connect ODBC Source\" first."),
-				_TL("Database Connection Error")
-			);
-		}
-
-		return( false );
-	}
-
-	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#define STR_DISCONNTECT	_TL("--- DISCONNECT ---")
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 CGet_Connection::CGet_Connection(void)
 {
-	Set_Name		(_TL("ODBC Connect/Disconnect"));
+	Set_Name		(_TL("ODBC Connect"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2008"));
 
 	Set_Description	(_TW(
-		"Connect/disconnect ODBC source."
+		"Connect to ODBC source."
 	));
 
 	Parameters.Add_Choice(
 		NULL	, "SERVERS"		, _TL("Server"),
 		_TL(""),
-		g_Connection.Get_Servers()
+		_TL("")
 	);
 
 	Parameters.Add_String(
@@ -146,30 +106,31 @@ CGet_Connection::CGet_Connection(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGet_Connection::On_Before_Execution(void)
 {
-	CSG_String	Servers(g_Connection.Get_Servers());
+	CSG_String	Servers;
 
-	if( g_Connection.is_Connected() )
+	if( SG_ODBC_Get_Connection_Manager().Get_Servers(Servers) > 0 )
 	{
-		Servers	+= CSG_String::Format(SG_T("%s|"), STR_DISCONNTECT);
+		Parameters("SERVERS")->asChoice()->Set_Items(Servers);
+
+		return( true );
 	}
 
-	Parameters("SERVERS")->asChoice()->Set_Items(Servers);
-	Parameters("SERVERS")->Set_Value(g_Connection.Get_Server());
+	Message_Dlg(
+		_TW("No ODBC server available!\n"
+			"Set up an ODBC server first."),
+		_TL("ODBC Database Connection Error")
+	);
 
-	return( true );
+	return( false );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -183,24 +144,203 @@ bool CGet_Connection::On_Execute(void)
 	Password	= Parameters("PASSWORD")	->asString();
 	Directory	= Parameters("DIRPATH")		->asString();
 
-	if( Server.Cmp(STR_DISCONNTECT) == 0 )
-	{
-		g_Connection.Disconnect();
-
-		return( true );
-	}
-	else if( g_Connection.Connect(Server, User, Password, Directory) )
+	if( SG_ODBC_Get_Connection_Manager().Add_Connection(Server, User, Password, Directory) )
 	{
 		Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("ODBC source connected")));
 
 		return( true );
 	}
-	else
-	{
-		Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("could not connect ODBC source")));
 
+	Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("could not connect ODBC source")));
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CDel_Connection::CDel_Connection(void)
+{
+	Set_Name		(_TL("ODBC Disconnect"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2008"));
+
+	Set_Description	(_TW(
+		"Disconnect ODBC source."
+	));
+
+	Parameters.Add_Choice(
+		NULL	, "SERVERS"		, _TL("Server"),
+		_TL(""),
+		_TL("")
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "TRANSACT"	, _TL("Transactions"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("rollback"),
+			_TL("commit")
+		), 1
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CDel_Connection::On_Before_Execution(void)
+{
+	CSG_String	Servers;
+
+	if( SG_ODBC_Get_Connection_Manager().Get_Connections(Servers) > 0 )
+	{
+		Parameters("SERVERS")->asChoice()->Set_Items(Servers);
+
+		return( true );
+	}
+
+	Message_Dlg(
+		_TL("No ODBC connection available!"),
+		_TL("ODBC Database Connection Error")
+	);
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CDel_Connection::On_Execute(void)
+{
+	bool		bCommit;
+	CSG_String	Server;
+
+	Server	= Parameters("SERVERS") ->asString();
+	bCommit	= Parameters("TRANSACT")->asInt() == 1;
+
+	if( SG_ODBC_Get_Connection_Manager().Del_Connection(Server, bCommit) )
+	{
+		Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("ODBC source connected")));
+
+		return( true );
+	}
+
+	Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("could not connect ODBC source")));
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CTransaction::CTransaction(void)
+{
+	Set_Name		(_TL("ODBC Commit/Rollback Transaction"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2008"));
+
+	Set_Description	(_TW(
+		"Execute a commit or rollback on open transactions with ODBC source."
+	));
+
+	Parameters.Add_Choice(
+		NULL	, "SERVERS"		, _TL("Server"),
+		_TL(""),
+		_TL("")
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "TRANSACT"	, _TL("Transactions"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("rollback"),
+			_TL("commit")
+		), 1
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CTransaction::On_Before_Execution(void)
+{
+	CSG_String	Servers;
+
+	if( SG_ODBC_Get_Connection_Manager().Get_Connections(Servers) > 0 )
+	{
+		Parameters("SERVERS")->asChoice()->Set_Items(Servers);
+
+		return( true );
+	}
+
+	Message_Dlg(
+		_TL("No ODBC connection available!"),
+		_TL("ODBC Database Connection Error")
+	);
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CTransaction::On_Execute(void)
+{
+	CSG_String	Server;
+
+	Server	= Parameters("SERVERS") ->asString();
+
+	CSG_ODBC_Connection	*pConnection	= SG_ODBC_Get_Connection_Manager().Get_Connection(Server);
+
+	if( !pConnection )
+	{
 		return( false );
 	}
+
+	if( Parameters("TRANSACT")->asInt() == 1 )
+	{
+		if( pConnection->Commit() )
+		{
+			Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("open transactions committed")));
+
+			return( true );
+		}
+	}
+	else
+	{
+		if( pConnection->Rollback() )
+		{
+			Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("open transactions rollbacked")));
+
+			return( true );
+		}
+	}
+
+	Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("could not commit/rollback transactions.")));
+
+	return( false );
 }
 
 

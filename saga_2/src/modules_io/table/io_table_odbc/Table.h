@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Load : public CSG_Module
+class CTable_Load : public CSG_ODBC_Module
 {
 public:
 	CTable_Load(void);
@@ -99,15 +99,13 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Save : public CSG_Module
+class CTable_Save : public CSG_ODBC_Module
 {
 public:
 	CTable_Save(void);
 
 
 protected:
-
-	virtual bool				On_Before_Execution		(void)		{	return( is_Connected() );	}
 
 	virtual bool				On_Execute				(void);
 
@@ -119,7 +117,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Drop : public CSG_Module
+class CTable_Drop : public CSG_ODBC_Module
 {
 public:
 	CTable_Drop(void);
@@ -139,15 +137,13 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Load_SQL : public CSG_Module
+class CTable_Load_SQL : public CSG_ODBC_Module
 {
 public:
 	CTable_Load_SQL(void);
 
 
 protected:
-
-	virtual bool				On_Before_Execution		(void)		{	return( is_Connected() );	}
 
 	virtual bool				On_Execute				(void);
 

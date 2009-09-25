@@ -87,7 +87,7 @@ bool		is_PostGIS		(bool bDialogOnError = true);
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPGIS_Shapes_Load : public CSG_Module
+class CPGIS_Shapes_Load : public CSG_ODBC_Module
 {
 public:
 	CPGIS_Shapes_Load(void);
@@ -112,7 +112,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPGIS_Shapes_Save : public CSG_Module
+class CPGIS_Shapes_Save : public CSG_ODBC_Module
 {
 public:
 	CPGIS_Shapes_Save(void);

@@ -81,19 +81,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-extern CSG_ODBC_Connection		g_Connection;
-
-//---------------------------------------------------------
-bool		is_Connected		(bool bDialogOnError = true);
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 class CGet_Connection : public CSG_Module
 {
 public:
@@ -106,12 +93,7 @@ protected:
 
 	virtual bool				On_Execute				(void);
 
-
-private:
-
 };
-
-#endif // #ifndef HEADER_INCLUDED__Get_Connection_H
 
 
 ///////////////////////////////////////////////////////////
@@ -121,3 +103,48 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class CDel_Connection : public CSG_Module
+{
+public:
+	CDel_Connection(void);
+
+
+protected:
+
+	virtual bool				On_Before_Execution		(void);
+
+	virtual bool				On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CTransaction : public CSG_ODBC_Module
+{
+public:
+	CTransaction(void);
+
+
+protected:
+
+	virtual bool				On_Before_Execution		(void);
+
+	virtual bool				On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__Get_Connection_H
