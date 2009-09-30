@@ -77,13 +77,13 @@ const SG_Char *	Get_Info(int i)
 		return( _TL("O.Conrad (c) 2004") );
 
 	case MLB_INFO_Description:
-		return( _TL("Database access through the Open Data Base Connection (ODBC) interface.") );
+		return( _TL("Database access via Open Data Base Connection (ODBC) interface.") );
 
 	case MLB_INFO_Version:
 		return( _TL("1.0") );
 
 	case MLB_INFO_Menu_Path:
-		return( _TL("Database|ODBC") );
+		return( _TL("Database") );
 	}
 }
 

@@ -149,8 +149,6 @@ CSTL_Import::CSTL_Import(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -313,8 +311,6 @@ bool CSTL_Import::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -358,8 +354,6 @@ inline void CSTL_Import::Rotate(TSTL_Point &p)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -495,6 +489,174 @@ inline void CSTL_Import::Set_Triangle_Point(int x, int y, double z)
 	{
 		m_pGrid->Set_Value(x, y, z);
 	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSTL_Export::CSTL_Export(void)
+{
+	CSG_Parameter	*pNode;
+
+	//-----------------------------------------------------
+	Set_Name		(_TL("Export TIN to Stereo Lithography File (STL)"));
+
+	Set_Author		(_TL("Navaladi, Schoeller, Conrad (c) 2009"));
+
+	Set_Description	(_TW(
+		"<a href=\"http://www.ennex.com/~fabbers/StL.asp\">The StL Format</a>"
+	));
+
+	//-----------------------------------------------------
+	pNode	= Parameters.Add_TIN(
+		NULL	, "TIN"			, _TL("TIN"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Table_Field(
+		pNode	, "ZFIELD"		, _TL("Z Attribute"),
+		_TL("")
+	);
+
+	Parameters.Add_FilePath(
+		NULL	, "FILE"		, _TL("File"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s"),
+			_TL("STL Files")	, SG_T("*.stl"),
+			_TL("All Files")	, SG_T("*.*")
+		), NULL, true
+	);
+
+	Parameters.Add_Choice(
+		pNode	, "BINARY"		, _TL("Output Type"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("ASCII"),
+			_TL("binary")
+		), 1
+	);
+}
+
+//---------------------------------------------------------
+bool CSTL_Export::On_Execute(void)
+{
+	bool		bBinary;
+	int			zField;
+	float		v[3];
+	CSG_String	File;
+	CSG_File	Stream;
+	CSG_TIN		*pTIN;
+
+	pTIN	= Parameters("TIN")		->asTIN();
+	File	= Parameters("FILE")	->asString();
+	zField	= Parameters("ZFIELD")	->asInt(); 
+	bBinary	= Parameters("BINARY")	->asInt() == 1; 
+
+	if( !Stream.Open(File, SG_FILE_W, bBinary) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( bBinary )
+	{
+		char	*sHeader	= (char *)SG_Calloc(80, sizeof(char));
+		DWORD	nFacets		= pTIN->Get_Triangle_Count();
+		WORD	nBytes		= 0;
+
+		Stream.Write(sHeader , sizeof(char), 80);
+		Stream.Write(&nFacets, sizeof(DWORD));
+
+		SG_Free(sHeader);
+
+		//-------------------------------------------------
+		for(int iTriangle=0; iTriangle<pTIN->Get_Triangle_Count(); iTriangle++)
+		{
+			CSG_TIN_Triangle	*pTriangle	= pTIN->Get_Triangle(iTriangle);
+
+			Get_Normal(pTriangle, zField, v);
+
+			Stream.Write(v, sizeof(float), 3);	// facet normal
+
+			for(int iNode=0; iNode<3; iNode++)
+			{
+				CSG_TIN_Node	*pNode	= pTriangle->Get_Node(iNode);
+
+				v[0]	= (float)pNode->Get_X();
+				v[1]	= (float)pNode->Get_Y();
+				v[2]	= (float)pNode->asDouble(zField);
+
+				Stream.Write(v, sizeof(float), 3);
+			}
+
+			Stream.Write(&nBytes, sizeof(WORD));
+		}
+	}
+
+	//-----------------------------------------------------
+	else	// ASCII
+	{
+		Stream.Printf(SG_T("solid %s\n"), SG_File_Get_Name(File, false).c_str());
+
+		for(int iTriangle=0; iTriangle<pTIN->Get_Triangle_Count(); iTriangle++)
+		{
+			CSG_TIN_Triangle	*pTriangle	= pTIN->Get_Triangle(iTriangle);
+
+			Get_Normal(pTriangle, zField, v);
+
+			Stream.Printf(SG_T(" facet normal %.4f %.4f %.4f\n"), v[0], v[1], v[2]);
+			Stream.Printf(SG_T("  outer loop\n"));
+
+			for(int iNode=0; iNode<3; iNode++)
+			{
+				CSG_TIN_Node	*pNode	= pTriangle->Get_Node(iNode);
+
+				v[0]	= (float)pNode->Get_X();
+				v[1]	= (float)pNode->Get_Y();
+				v[2]	= (float)pNode->asDouble(zField);
+
+				Stream.Printf(SG_T("   vertex %.4f %.4f %.4f\n"), v[0], v[1], v[2]);
+			}
+
+			Stream.Printf(SG_T("  endloop\n"));
+			Stream.Printf(SG_T(" endfacet\n"));		
+		}
+
+		Stream.Printf(SG_T("endsolid %s\n"), SG_File_Get_Name(File, false).c_str());
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+inline bool CSTL_Export::Get_Normal(CSG_TIN_Triangle *pTriangle, int zField, float Normal[3])
+{
+	double			u[3], v[3];
+	CSG_TIN_Node	*pA, *pB;
+
+	pA			= pTriangle->Get_Node(0);
+
+	pB			= pTriangle->Get_Node(1);
+	u[0]		= pB->Get_X()          - pA->Get_X();
+	u[1]		= pB->Get_Y()          - pA->Get_Y();
+	u[2]		= pB->asDouble(zField) - pA->asDouble(zField);
+
+	pB			= pTriangle->Get_Node(2);
+	v[0]		= pB->Get_X()          - pA->Get_X();
+	v[1]		= pB->Get_Y()          - pA->Get_Y();
+	v[2]		= pB->asDouble(zField) - pA->asDouble(zField);
+
+	Normal[0]	= (float)(u[1] * v[2] - u[2] * v[2]);
+	Normal[1]	= (float)(u[2] * v[0] - u[0] * v[1]);
+	Normal[2]	= (float)(u[0] * v[1] - u[1] * v[0]);
+
+	return( true );
 }
 
 

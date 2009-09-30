@@ -479,9 +479,40 @@ bool CSG_Table::_Load_DBase(const CSG_String &File_Name)
 bool CSG_Table::_Save_DBase(const CSG_String &File_Name)
 {
 	int							iField, iRecord;
+	size_t						*nStringBytes;
 	CSG_Table_Record			*pRecord;
 	CSG_Table_DBase				dbf;
 	CSG_Table_DBase::TFieldDesc	*dbfFieldDesc;
+
+	//-----------------------------------------------------
+	for(iField=0, nStringBytes=NULL; iField<Get_Field_Count(); iField++)
+	{
+		if( Get_Field_Type(iField) == SG_DATATYPE_String )
+		{
+			if( nStringBytes == NULL )
+			{
+				nStringBytes	= new size_t[Get_Field_Count()];
+			}
+
+			nStringBytes[iField]	= 8;
+		}
+	}
+
+	if( nStringBytes )
+	{
+		for(iRecord=0; iRecord<Get_Record_Count() && SG_UI_Process_Set_Progress(iRecord, Get_Record_Count()); iRecord++)
+		{
+			pRecord	= Get_Record(iRecord);
+
+			for(iField=0; iField<Get_Field_Count(); iField++)
+			{
+				if( Get_Field_Type(iField) == SG_DATATYPE_String && SG_STR_LEN(pRecord->asString(iField)) > nStringBytes[iField] )
+				{
+					nStringBytes[iField]	= SG_STR_LEN(pRecord->asString(iField));
+				}
+			}
+		}
+	}
 
 	//-----------------------------------------------------
 	dbfFieldDesc	= (CSG_Table_DBase::TFieldDesc *)SG_Calloc(Get_Field_Count(), sizeof(CSG_Table_DBase::TFieldDesc));
@@ -493,9 +524,13 @@ bool CSG_Table::_Save_DBase(const CSG_String &File_Name)
 		switch( Get_Field_Type(iField) )
 		{
 		default:
-		case SG_DATATYPE_String:
 			dbfFieldDesc[iField].Type		= DBF_FT_CHARACTER;
 			dbfFieldDesc[iField].Width		= (char)64;
+			break;
+
+		case SG_DATATYPE_String:
+			dbfFieldDesc[iField].Type		= DBF_FT_CHARACTER;
+			dbfFieldDesc[iField].Width		= (char)nStringBytes[iField];
 			break;
 
 		case SG_DATATYPE_Date:
@@ -529,6 +564,11 @@ bool CSG_Table::_Save_DBase(const CSG_String &File_Name)
 	dbf.Open(File_Name, Get_Field_Count(), dbfFieldDesc);
 
 	SG_Free(dbfFieldDesc);
+
+	if( nStringBytes )
+	{
+		delete[](nStringBytes);
+	}
 
 	//-----------------------------------------------------
 	for(iRecord=0; iRecord<Get_Record_Count() && SG_UI_Process_Set_Progress(iRecord, Get_Record_Count()); iRecord++)

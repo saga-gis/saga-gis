@@ -64,6 +64,9 @@
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
+#include "odbc.h"
+#include "shapes_ogis.h"
+
 //---------------------------------------------------------
 #ifdef io_table_odbc_EXPORTS
 	#define	io_table_odbc_EXPORT	_SAGA_DLL_EXPORT

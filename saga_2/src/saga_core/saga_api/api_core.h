@@ -716,7 +716,7 @@ private:
 };
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT CSG_Translator *	SG_Get_Translator	(void);
+SAGA_API_DLL_EXPORT CSG_Translator &	SG_Get_Translator	(void);
 
 SAGA_API_DLL_EXPORT const SG_Char *		SG_Translate		(const SG_Char *Text);
 

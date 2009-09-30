@@ -6,11 +6,11 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                     io_table_odbc                     //
+//                       saga_api                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     PGIS_Shapes.h                     //
+//                     shapes_ogis.h                     //
 //                                                       //
 //                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
@@ -56,8 +56,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__PGIS_Shapes_H
-#define HEADER_INCLUDED__PGIS_Shapes_H
+#ifndef HEADER_INCLUDED__SAGA_API_shapes_ogis_H
+#define HEADER_INCLUDED__SAGA_API_shapes_ogis_H
 
 
 ///////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -77,41 +77,62 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPGIS_Shapes_Load : public CSG_ODBC_Module
+class CSG_Bytes
 {
 public:
-	CPGIS_Shapes_Load(void);
+							CSG_Bytes		(void);
+	bool					Create			(void);
 
+							CSG_Bytes		(const CSG_Bytes &Bytes);
+	bool					Create			(const CSG_Bytes &Bytes);
 
-protected:
+							CSG_Bytes		(const char *Bytes, int nBytes);
+	bool					Create			(const char *Bytes, int nBytes);
 
-	virtual bool				On_Before_Execution		(void);
+	virtual ~CSG_Bytes(void);
 
-	virtual bool				On_Execute				(void);
+	bool					Destroy			(void);
 
-};
+	int						Get_Count		(void)		const	{	return( m_nBytes );	}
+	char *					Get_Bytes		(void)		const	{	return( m_Bytes );	}
+	char *					Get_Bytes		(int i)		const	{	return( i >= 0 && i < m_nBytes ? m_Bytes + i : NULL );	}
+	char					Get_Byte		(int i)		const	{	return( i >= 0 && i < m_nBytes ? m_Bytes[i]  : 0 );		}
+	char					operator []		(int i)		const	{	return( Get_Byte(i) );	}
 
+	bool					Assign			(const CSG_Bytes &Bytes);
+	CSG_Bytes &				operator =		(const CSG_Bytes &Bytes)	{	Assign(Bytes);	return( *this );	}
 
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
+	bool					Add				(const CSG_Bytes &Bytes);
+	CSG_Bytes &				operator +=		(const CSG_Bytes &Bytes)	{	Add(Bytes);		return( *this );	}
 
-//---------------------------------------------------------
-class CPGIS_Shapes_Save : public CSG_ODBC_Module
-{
-public:
-	CPGIS_Shapes_Save(void);
+	bool					Add				(void *Bytes, int nBytes, bool bSwapBytes);
 
+	bool					Add				(char   Value)							{	return( Add(&Value, sizeof(Value), false) );	}
+	CSG_Bytes &				operator +=		(char   Value)							{	Add(Value);		return( *this );	}
+	bool					Add				(short  Value, bool bSwapBytes = false)	{	return( Add(&Value, sizeof(Value), bSwapBytes) );	}
+	CSG_Bytes &				operator +=		(short  Value)							{	Add(Value);		return( *this );	}
+	bool					Add				(int    Value, bool bSwapBytes = false)	{	return( Add(&Value, sizeof(Value), bSwapBytes) );	}
+	CSG_Bytes &				operator +=		(int    Value)							{	Add(Value);		return( *this );	}
+	bool					Add				(float  Value, bool bSwapBytes = false)	{	return( Add(&Value, sizeof(Value), bSwapBytes) );	}
+	CSG_Bytes &				operator +=		(float  Value)							{	Add(Value);		return( *this );	}
+	bool					Add				(double Value, bool bSwapBytes = false)	{	return( Add(&Value, sizeof(Value), bSwapBytes) );	}
+	CSG_Bytes &				operator +=		(double Value)							{	Add(Value);		return( *this );	}
 
-protected:
-
-	virtual bool				On_Before_Execution		(void);
-
-	virtual bool				On_Execute				(void);
+	char					asChar			(int i)	const;
+	short					asShort			(int i)	const;
+	int						asInt			(int i)	const;
+	float					asFloat			(int i)	const;
+	double					asDouble		(int i)	const;
 
 
 private:
 
+	int						m_nBytes;
+
+	char					*m_Bytes;
+
+
+	bool					_Inc_Array		(int nBytes);
 
 };
 
@@ -123,4 +144,37 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__PGIS_Shapes_H
+class CSG_OGIS_Shapes_Converter
+{
+public:
+	CSG_OGIS_Shapes_Converter(void);
+
+	static bool				from_WKText			(const CSG_String &Text, CSG_Shape *pShape);
+	static bool				to_WKText			(CSG_Shape *pShape, CSG_String &Text);
+
+	static bool				from_WKBinary		(const CSG_Bytes &Bytes, CSG_Shape *pShape);
+	static bool				to_WKBinary			(CSG_Shape *pShape, CSG_Bytes &Bytes);
+
+
+private:
+
+	static bool				_Read_Point			(const CSG_String &Text, TSG_Point &Point);
+	static bool				_Read_Points		(const CSG_String &Text, CSG_Shape *pShape);
+	static bool				_Read_Parts			(const CSG_String &Text, CSG_Shape *pShape);
+	static bool				_Read_Polygon		(const CSG_String &Text, CSG_Shape *pShape);
+	static bool				_Write_Point		(CSG_String &Text, const TSG_Point &Point);
+	static bool				_Write_Points		(CSG_String &Text, CSG_Shape *pShape, int iPart);
+	static bool				_Write_Parts		(CSG_String &Text, CSG_Shape *pShape);
+	static bool				_Write_Polygon		(CSG_String &Text, CSG_Shape *pShape);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__SAGA_API_shapes_ogis_H

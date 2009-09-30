@@ -11,9 +11,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  api_translator.cpp                   //
+//                    projections.cpp                    //
 //                                                       //
-//          Copyright (C) 2005 by Olaf Conrad            //
+//          Copyright (C) 2009 by Olaf Conrad            //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -60,7 +58,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "api_core.h"
+#include "geo_tools.h"
 
 #include "table.h"
 
@@ -72,12 +70,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Translator		gSG_Translator;
+CSG_Projections		gSG_Projections;
 
 //---------------------------------------------------------
-CSG_Translator &	SG_Get_Translator(void)
+CSG_Projections &	SG_Get_Projections(void)
 {
-	return( gSG_Translator );
+	return( gSG_Projections );
 }
 
 
@@ -88,10 +86,16 @@ CSG_Translator &	SG_Get_Translator(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const SG_Char *	SG_Translate(const SG_Char *Text)
+enum
 {
-	return( gSG_Translator.Get_Translation(Text) );
-}
+	PRJ_FIELD_SRID	= 0,
+	PRJ_FIELD_AUTH_NAME,
+	PRJ_FIELD_AUTH_SRID,
+	PRJ_FIELD_SRTEXT,
+	PRJ_FIELD_PROJ4TEXT,
+	PRJ_FIELD_NAME,
+	PRJ_FIELD_TYPE
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -101,86 +105,92 @@ const SG_Char *	SG_Translate(const SG_Char *Text)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Translator::CSG_Translator(void)
+CSG_Projections::CSG_Projections(void)
 {
-	m_nTranslations	= 0;
-	m_Translations	= NULL;
+	_On_Construction();
 }
 
 //---------------------------------------------------------
-CSG_Translator::CSG_Translator(const CSG_String &File_Name, bool bSetExtension)
+CSG_Projections::CSG_Projections(const CSG_String &File_Name)
 {
-	m_nTranslations	= 0;
-	m_Translations	= NULL;
+	_On_Construction();
 
-	Create(File_Name, bSetExtension);
+	Create(File_Name);
+}
+
+bool CSG_Projections::Create(const CSG_String &File_Name)
+{
+	CSG_Table	Projections(File_Name);
+
+	return( Create(&Projections) );
 }
 
 //---------------------------------------------------------
-CSG_Translator::~CSG_Translator(void)
+CSG_Projections::CSG_Projections(CSG_Table *pProjections)
 {
-	Destroy();
+	_On_Construction();
+
+	Create(pProjections);
 }
 
-//---------------------------------------------------------
-void CSG_Translator::Destroy(void)
-{
-	if( m_Translations )
-	{
-		for(int i=0; i<m_nTranslations; i++)
-		{
-			delete(m_Translations[i]);
-		}
-
-		SG_Free(m_Translations);
-
-		m_nTranslations	= 0;
-		m_Translations	= NULL;
-	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CSG_Translator::Create(const CSG_String &File_Name, bool bSetExtension)
+bool CSG_Projections::Create(CSG_Table *pProjections)
 {
 	Destroy();
 
-	CSG_Table	Translations;
-	CSG_String	fName(bSetExtension ? SG_File_Make_Path(NULL, File_Name, SG_T("lng")) : File_Name);
-
-	SG_UI_Msg_Lock(true);
-
-	if( SG_File_Exists(fName) && Translations.Create(fName) && Translations.Get_Field_Count() == 2 && Translations.Get_Record_Count() > 0 )
+	if( !pProjections )
 	{
-		m_Translations	= (CSG_Translation **)SG_Malloc(Translations.Get_Record_Count() * sizeof(CSG_Translation *));
+		return( false );
+	}
 
-		Translations.Set_Index(0, TABLE_INDEX_Ascending);
+	for(int iRecord=0; iRecord<pProjections->Get_Count() && SG_UI_Process_Set_Progress(iRecord, pProjections->Get_Count()); iRecord++)
+	{
+		CSG_Table_Record	*pRecord	= pProjections->Get_Record(iRecord);
 
-		for(int i=0; i<Translations.Get_Record_Count(); i++)
+		if( pRecord->asInt(SG_T("srid")) > 0 )
 		{
-			CSG_Table_Record	*pRecord	= Translations.Get_Record_byIndex(i);
+			CSG_Table_Record	*pProjection	= m_pProjections->Add_Record();
 
-			if( *pRecord->asString(0) && *pRecord->asString(1) )
-			{
-				m_Translations[m_nTranslations++]	= new CSG_Translation(pRecord->asString(0), pRecord->asString(1));
-			}
-		}
+			CSG_String	s(pRecord->asString(SG_T("srtext")));
 
-		if( m_nTranslations < Translations.Get_Record_Count() )
-		{
-			m_Translations	= (CSG_Translation **)SG_Realloc(m_Translations, m_nTranslations * sizeof(CSG_Translation *));
+			pProjection->Set_Value(PRJ_FIELD_SRID		, pRecord->asInt   (SG_T("srid")));
+			pProjection->Set_Value(PRJ_FIELD_AUTH_NAME	, pRecord->asString(SG_T("auth_name")));
+			pProjection->Set_Value(PRJ_FIELD_AUTH_SRID	, pRecord->asInt   (SG_T("auth_srid")));
+			pProjection->Set_Value(PRJ_FIELD_SRTEXT		, pRecord->asString(s));
+			pProjection->Set_Value(PRJ_FIELD_PROJ4TEXT	, pRecord->asString(SG_T("proj4text")));
+			pProjection->Set_Value(PRJ_FIELD_NAME		, s.AfterFirst('\"').BeforeFirst('\"'));
+			pProjection->Set_Value(PRJ_FIELD_TYPE		, s.BeforeFirst('['));
 		}
 	}
 
-	SG_UI_Msg_Lock(false);
+	return( Get_Count() > 0 );
+}
 
-	return( m_nTranslations > 0 );
+//---------------------------------------------------------
+void CSG_Projections::_On_Construction(void)
+{
+	m_pProjections	= new CSG_Table;
+
+	m_pProjections->Set_Name(SG_T("PROJECTIONS"));
+
+	m_pProjections->Add_Field(SG_T("SRID")		, SG_DATATYPE_Int);
+	m_pProjections->Add_Field(SG_T("AUTH_NAME")	, SG_DATATYPE_String);
+	m_pProjections->Add_Field(SG_T("AUTH_SRID")	, SG_DATATYPE_Int);
+	m_pProjections->Add_Field(SG_T("SRTEXT")	, SG_DATATYPE_String);
+	m_pProjections->Add_Field(SG_T("PROJ4TEXT")	, SG_DATATYPE_String);
+	m_pProjections->Add_Field(SG_T("NAME")		, SG_DATATYPE_String);
+	m_pProjections->Add_Field(SG_T("TYPE")		, SG_DATATYPE_String);
+}
+
+//---------------------------------------------------------
+CSG_Projections::~CSG_Projections(void)
+{
+	delete(m_pProjections);
+}
+
+//---------------------------------------------------------
+void CSG_Projections::Destroy(void)
+{
+	m_pProjections->Del_Records();
 }
 
 
@@ -191,111 +201,42 @@ bool CSG_Translator::Create(const CSG_String &File_Name, bool bSetExtension)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSG_Translator::_Get_Index(const SG_Char *Text)
+int CSG_Projections::Get_Count(void)
 {
-	int		a, b, i, c;
-
-	if( m_nTranslations == 1 )
-	{
-		c	= m_Translations[0]->m_Text.Cmp(Text);
-
-		return( c >= 0 ? 0 : 1 );
-	}
-
-	if( m_nTranslations > 1 )
-	{
-		for(a=0, b=m_nTranslations-1; b - a > 1; )
-		{
-			i	= a + (b - a) / 2;
-			c	= m_Translations[i]->m_Text.Cmp(Text);
-
-			if( c > 0 )
-			{
-				b	= i;
-			}
-			else if( c < 0 )
-			{
-				a	= i;
-			}
-			else
-			{
-				return( i );
-			}
-		}
-
-		if( m_Translations[a]->m_Text.Cmp(Text) < 0 )
-		{
-			if( m_Translations[b]->m_Text.Cmp(Text) < 0 )
-			{
-				return( m_nTranslations );
-			}
-
-			return( b );
-		}
-
-		if( m_Translations[b]->m_Text.Cmp(Text) > 0 )
-		{
-			return( a );
-		}
-	}
-
-	return( m_nTranslations );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-const SG_Char * CSG_Translator::Get_Text(int Index)
-{
-	return( Index >= 0 && Index < m_nTranslations ? m_Translations[Index]->m_Text : SG_T("") );
+	return( m_pProjections->Get_Count() );
 }
 
 //---------------------------------------------------------
-const SG_Char * CSG_Translator::Get_Translation(int Index)
+CSG_String CSG_Projections::Get_Names_List(void)
 {
-	return( Index >= 0 && Index < m_nTranslations ? m_Translations[Index]->m_Translation : SG_T("") );
+	CSG_String	s;
+
+	m_pProjections->Set_Index(PRJ_FIELD_TYPE, TABLE_INDEX_Ascending, PRJ_FIELD_NAME, TABLE_INDEX_Ascending);
+
+	for(int i=0; i<m_pProjections->Get_Count(); i++)
+	{
+		CSG_Table_Record	*pProjection	= m_pProjections->Get_Record_byIndex(i);
+
+		s	+= CSG_String::Format(SG_T("[%s] %s|"),
+				pProjection->asString(PRJ_FIELD_TYPE),
+				pProjection->asString(PRJ_FIELD_NAME)
+			);
+	}
+
+	return( s );
 }
 
 //---------------------------------------------------------
-const SG_Char * CSG_Translator::Get_Translation(const SG_Char *Text)
+int CSG_Projections::Get_SRID_byNameIndex(int Index)
 {
-	if( Text )
+	if( Index >= 0 && Index < Get_Count() )
 	{
-		if( m_nTranslations > 0 )
-		{
-			int			i;
-			CSG_String	s(Text);
+	//	m_pProjections->Set_Index(PRJ_FIELD_TYPE, TABLE_INDEX_Ascending, PRJ_FIELD_NAME, TABLE_INDEX_Ascending);
 
-			if( *Text == '{' )
-			{
-				s	= s.AfterFirst('{').BeforeFirst('}');
-			}
-
-			if(	(i = _Get_Index(s)) < m_nTranslations && !m_Translations[i]->m_Text.Cmp(s) )
-			{
-				return( m_Translations[i]->m_Translation );
-			}
-		}
-
-		if( *Text == '{' )
-		{
-			do	{	Text++;	}	while( *Text != '}' && *Text != '\0' );
-			do	{	Text++;	}	while( *Text == ' ' && *Text != '\0' );
-		}
-
-		if( *Text == '[' )
-		{
-			do	{	Text++;	}	while( *Text != ']' && *Text != '\0' );
-			do	{	Text++;	}	while( *Text == ' ' && *Text != '\0' );
-		}
+		return( m_pProjections->Get_Record_byIndex(Index)->asInt(PRJ_FIELD_SRID) );
 	}
 
-	return( Text );
+	return( -1 );
 }
 
 

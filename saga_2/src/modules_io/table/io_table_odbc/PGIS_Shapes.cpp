@@ -56,47 +56,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "Get_Connection.h"
-
 #include "PGIS_Shapes.h"
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-/*/---------------------------------------------------------
-bool		is_PostGIS		(bool bDialogOnError)
-{
-	if( !is_Connected(bDialogOnError) )
-	{
-		return( false );
-	}
-
-	if( !Get_Connection()->is_Postgres() )
-	{
-		if( bDialogOnError )
-		{
-			SG_UI_Dlg_Message(_TL("Not a PostgreSQL database!"), _TL("Database Connection Error"));
-		}
-
-		return( false );
-	}
-
-	if( !Get_Connection()->Table_Exists(SG_T("spatial_ref_sys")) || !Get_Connection()->Table_Exists(SG_T("geometry_columns")) )
-	{
-		if( bDialogOnError )
-		{
-			SG_UI_Dlg_Message(_TL("Not a valid PostGIS database!"), _TL("Database Connection Error"));
-		}
-
-		return( false );
-	}
-
-	return( true );
-}/**/
 
 
 ///////////////////////////////////////////////////////////
@@ -230,56 +190,10 @@ bool CPGIS_Shapes_Load::On_Execute(void)
 
 	for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 	{
-		Get_WKT_to_Shape(Geo_Tables[iShape].asString(0), pShapes->Get_Shape(iShape));
+		CSG_OGIS_Shapes_Converter::from_WKText(Geo_Tables[iShape].asString(0), pShapes->Get_Shape(iShape));
 	}
 
 	return( true );
-}
-
-//---------------------------------------------------------
-bool CPGIS_Shapes_Load::Get_WKT_to_Shape(const CSG_String &WKT, CSG_Shape *pShape)
-{
-	TSG_Point	p;
-	CSG_String	s;
-
-	switch( pShape->Get_Type() )
-	{
-	case SHAPE_TYPE_Point:
-		if( WKT.BeforeFirst(SG_T('(')).Cmp(SG_T("POINT")) == 0 )
-		{
-			s	= WKT.AfterFirst(SG_T('('));
-			s.asDouble(p.x);
-			s	= s.AfterFirst(SG_T(' '));
-			s.asDouble(p.y);
-
-			pShape->Set_Point(p, 0);
-
-			return( true );
-		}
-		break;
-
-	case SHAPE_TYPE_Points:
-		if( WKT.BeforeFirst(SG_T('(')).Cmp(SG_T("MULTIPOINT")) == 0 )
-		{
-		}
-		break;
-
-	case SHAPE_TYPE_Line:
-		if( WKT.BeforeFirst(SG_T('(')).Cmp(SG_T(     "LINESTRING")) == 0
-		||	WKT.BeforeFirst(SG_T('(')).Cmp(SG_T("MULTILINESTRING")) == 0 )
-		{
-		}
-		break;
-
-	case SHAPE_TYPE_Polygon:
-		if( WKT.BeforeFirst(SG_T('(')).Cmp(SG_T(     "POLYGON")) == 0
-		||	WKT.BeforeFirst(SG_T('(')).Cmp(SG_T("MULTIPOLYGON")) == 0 )
-		{
-		}
-		break;
-	}
-
-	return( false );
 }
 
 
@@ -343,7 +257,9 @@ bool CPGIS_Shapes_Save::On_Before_Execution(void)
 		return( false );
 	}
 
-	if( Parameters("SRID")->asChoice()->Get_Count() > 1 )
+	Parameters("SRID")->asChoice()->Set_Items(SG_Get_Projections().Get_Names_List());
+
+/*	if( Parameters("SRID")->asChoice()->Get_Count() > 1 )
 		return( true );
 
 	CSG_Table	SRIDs;
@@ -363,7 +279,7 @@ bool CPGIS_Shapes_Save::On_Before_Execution(void)
 	}
 
 	Parameters("SRID")->asChoice()->Set_Items(s);
-
+/**/
 	return( true );
 }
 
@@ -377,6 +293,7 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 	pShapes		= Parameters("SHAPES")	->asShapes();
 	Geo_Table	= Parameters("NAME")	->asString();	if( Geo_Table.Length() == 0 )	Geo_Table	= pShapes->Get_Name();
 	SRID		= Parameters("SRID")	->asInt();
+	SRID		= SG_Get_Projections().Get_SRID_byNameIndex(SRID);
 
 	switch( pShapes->Get_Type() )
 	{
@@ -439,49 +356,27 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 		Fields	+= CSG_String(", ") + pShapes->Get_Field_Name(iField);
 	}
 
-	Insert.Printf(SG_T("INSERT INTO %s (%s) VALUES(%%s)"), Geo_Table.c_str(), Fields.c_str());
+	Insert.Printf(SG_T("INSERT INTO %s (%s) VALUES (%%s)"), Geo_Table.c_str(), Fields.c_str());
 
 	for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 	{
 		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
 
-		if( pShapes->Get_Type() == SHAPE_TYPE_Point )
-		{
-			s.Printf(SG_T("%f %f"), pShape->Get_Point(0).x, pShape->Get_Point(0).y);
-		}
-		else
-		{
-			s	= SG_T("(");
+		CSG_OGIS_Shapes_Converter::to_WKText(pShape, s);
 
-			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
-			{
-				if( iPart > 0 )	s	+= SG_T(",");
-
-				s	+= SG_T("(");
-
-				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
-				{
-					TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
-
-					if( iPoint > 0 )	s	+= SG_T(",");
-
-					s	+= CSG_String::Format(SG_T("%f %f"), p.x, p.y);
-				}
-
-				s	+= SG_T(")");
-			}
-
-			s	+= SG_T(")");
-		}
-
-		Fields.Printf(SG_T("GeomFromText('%s(%s)', %d)"), Geo_Type.c_str(), s.c_str(), SRID);
+		Fields.Printf(SG_T("GeomFromText('%s', %d)"), s.c_str(), SRID);
 
 		for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
 		{
+			s	= pShape->asString(iField);
+
 			if( pShapes->Get_Field_Type(iField) == SG_DATATYPE_String )
-				Fields	+= CSG_String(", '") + pShape->asString(iField) + SG_T("'");
-			else
-				Fields	+= CSG_String(", ")  + pShape->asString(iField);
+			{
+				s.Replace(SG_T("'"), SG_T("\""));
+				s	= SG_T("'") + s + SG_T("'");
+			}
+
+			Fields	+= SG_T(", ")  + s;
 		}
 
 		SQL.Printf(Insert.c_str(), Fields.c_str());
@@ -489,6 +384,8 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 		if( !Get_Connection()->Execute(SQL) )
 		{
 			Get_Connection()->Rollback();
+
+			Get_Connection()->Table_Drop(Geo_Table);
 
 			return( false );
 		}

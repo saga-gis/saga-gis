@@ -217,17 +217,15 @@ bool CLAS_Import::On_Execute(void)
 	//-----------------------------------------------------
 	int		iPoint	= 0;
 
-    while (reader.ReadNextPoint())
+    while( reader.ReadNextPoint() && (iPoint % 10000 || SG_UI_Process_Set_Progress((double)iPoint, header.GetPointRecordsCount())) )
     {
-        if (iPoint%10000 == 0)
-            SG_UI_Process_Set_Progress((double)iPoint, header.GetPointRecordsCount());
-
         liblas::LASPoint const& point = reader.GetPoint();
 
         if (point.IsValid())
         {
-            liblas::LASClassification::bitset_type clsflags(point.GetClassification());
-			classification = static_cast<liblas::uint8_t>(clsflags.to_ulong());
+		//	liblas::LASClassification::bitset_type clsflags(point.GetClassification());
+		//	classification = static_cast<liblas::uint8_t>(clsflags.to_ulong());
+			classification	= point.GetClassification();
 
 			pPoints->Add_Point(point.GetX(), point.GetY(), point.GetZ());
 

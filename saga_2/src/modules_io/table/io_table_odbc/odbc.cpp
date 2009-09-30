@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                     saga_api_db                       //
+//                       saga_api                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
 //                       odbc.cpp                        //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -61,6 +59,16 @@
 #include "odbc.h"
 
 #include <wx/dbtable.h>
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define VCHAR_BUFLEN	65536
 
 
 ///////////////////////////////////////////////////////////
@@ -354,7 +362,7 @@ bool CSG_ODBC_Connection::Table_Create(const CSG_String &Table_Name, const CSG_T
 
 	for(int iField=0; iField<Table.Get_Field_Count(); iField++)
 	{
-		DbTable.SetColDefs(iField, Table.Get_Field_Name(iField), _Get_Type_To_SQL(Table.Get_Field_Type(iField)), NULL, SQL_C_WXCHAR, 255, true, true);
+		DbTable.SetColDefs(iField, Table.Get_Field_Name(iField), _Get_Type_To_SQL(Table.Get_Field_Type(iField)), NULL, SQL_C_WXCHAR, VCHAR_BUFLEN, true, true);
 	}
 
 	//-----------------------------------------------------
@@ -435,16 +443,16 @@ bool CSG_ODBC_Connection::Table_Load(CSG_Table &Table, const CSG_String &Table_N
 	wxDbTable	DBTable(m_pDB, Table_Name.c_str(), nFields);
 
 	Values		= (SG_Char **)SG_Malloc(nFields * sizeof(SG_Char *));
-	Values[0]	= (SG_Char  *)SG_Calloc(nFields,  sizeof(SG_Char) * 256);
+	Values[0]	= (SG_Char  *)SG_Calloc(nFields,  sizeof(SG_Char) * VCHAR_BUFLEN);
 
 	Table.Destroy();
 	Table.Set_Name(Table_Name);
 
 	for(iField=0; iField<nFields; iField++)
 	{
-		Values[iField]	= Values[0] + iField * 256 * sizeof(SG_Char);
+		Values[iField]	= Values[0] + iField * VCHAR_BUFLEN * sizeof(SG_Char);
 
-		DBTable.SetColDefs(iField, Fields[iField].colName, Fields[iField].dbDataType, Values[iField], SQL_C_WXCHAR, 255, true, true);
+		DBTable.SetColDefs(iField, Fields[iField].colName, Fields[iField].dbDataType, Values[iField], SQL_C_WXCHAR, VCHAR_BUFLEN, true, true);
 
 		Table.Add_Field(Fields[iField].colName, _Get_Type_From_SQL(Fields[iField].dbDataType));
 	}
@@ -531,7 +539,7 @@ bool CSG_ODBC_Connection::Table_Save(const CSG_String &Table_Name, const CSG_Tab
 		case SG_DATATYPE_Date:
 			Type			= DB_DATA_TYPE_VARCHAR;	// strings
 			SQL_C			= SQL_C_WXCHAR;
-			Precision		= 255;
+			Precision		= VCHAR_BUFLEN;
 			Values[iField]	= (SG_Char  *)SG_Calloc(Precision + 1, sizeof(SG_Char));
 			break;
 
@@ -661,9 +669,9 @@ bool CSG_ODBC_Connection::Table_From_Query(const CSG_String &FieldNames, const C
 				switch( Fields[iField].dbDataType )
 				{
 				default:
-				case DB_DATA_TYPE_BLOB:
-				case DB_DATA_TYPE_MEMO:
-				case DB_DATA_TYPE_DATE:
+				case DB_DATA_TYPE_BLOB:		Table.Add_Field(Fields[iField].colName, SG_DATATYPE_String);	break;
+				case DB_DATA_TYPE_MEMO:		Table.Add_Field(Fields[iField].colName, SG_DATATYPE_String);	break;
+				case DB_DATA_TYPE_DATE:		Table.Add_Field(Fields[iField].colName, SG_DATATYPE_String);	break;
 				case DB_DATA_TYPE_VARCHAR:	Table.Add_Field(Fields[iField].colName, SG_DATATYPE_String);	break;
 				case DB_DATA_TYPE_INTEGER:	Table.Add_Field(Fields[iField].colName, SG_DATATYPE_Int);		break;
 				case DB_DATA_TYPE_FLOAT:	Table.Add_Field(Fields[iField].colName, SG_DATATYPE_Double);	break;
@@ -673,7 +681,7 @@ bool CSG_ODBC_Connection::Table_From_Query(const CSG_String &FieldNames, const C
 			delete[](Fields);
 
 			//---------------------------------------------
-			SG_Char	Value[256];
+			SG_Char	Value[VCHAR_BUFLEN];
 			SDWORD	cb;
 
 			while( m_pDB->GetNext() && SG_UI_Process_Get_Okay(false) )
@@ -682,7 +690,7 @@ bool CSG_ODBC_Connection::Table_From_Query(const CSG_String &FieldNames, const C
 
 				for(iField=0; iField<nFields; iField++)
 				{
-					if( m_pDB->GetData(iField + 1, SQL_C_WXCHAR, Value, 255, &cb) && cb != SQL_NULL_DATA )
+					if( m_pDB->GetData(iField + 1, SQL_C_WXCHAR, Value, VCHAR_BUFLEN, &cb) && cb != SQL_NULL_DATA )
 					{
 						pRecord->Set_Value(iField, Value);
 					}
@@ -855,7 +863,7 @@ CSG_Strings CSG_ODBC_Connections::Get_Servers(void)
 	{
 		wxChar	DSName[1 + SQL_MAX_DSN_LENGTH], DSDesc[256];
 
-		while( wxDbGetDataSource(pDBCInf->GetHenv(), DSName, 1 + SQL_MAX_DSN_LENGTH, DSDesc, 255) )
+		while( wxDbGetDataSource(pDBCInf->GetHenv(), DSName, 1 + SQL_MAX_DSN_LENGTH, DSDesc, 256 - 1) )
 		{
 			Servers.Add(DSName);
 		}

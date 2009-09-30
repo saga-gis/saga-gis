@@ -141,7 +141,9 @@ _try
 		Print_Logo(MLB_Path);
 
 		SG_Set_UI_Callback(Get_Callback());
-		SG_Get_Translator()->Create(SG_File_Make_Path(wxGetCwd(), SG_T("saga"), SG_T("lng")), false);
+
+		SG_Get_Translator() .Create(SG_File_Make_Path(wxGetCwd(), wxT("saga"), wxT("lng")), false);
+		SG_Get_Projections().Create(SG_File_Make_Path(wxGetCwd(), wxT("saga"), wxT("srs")));
 
 		//-------------------------------------------------
 		switch( argc )

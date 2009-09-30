@@ -121,9 +121,10 @@ CSG_Module *		Create_Module(int i)
 	case  9:	return( new CWASP_MAP_Export );
 	case 10:	return( new CWASP_MAP_Import );
 	case 11:	return( new CSTL_Import );
-	case 12:	return( new CGPX_Import );
-	case 13:	return( new CGPX_Export );
-	case 14:	return( new CPointCloud_From_File );
+	case 12:	return( new CSTL_Export );
+	case 13:	return( new CGPX_Import );
+	case 14:	return( new CGPX_Export );
+	case 15:	return( new CPointCloud_From_File );
 	}
 
 	return( NULL );

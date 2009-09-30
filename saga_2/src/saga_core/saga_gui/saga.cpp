@@ -101,8 +101,8 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SAGA_GUI_VERSION		wxT("2.0.3")
-#define SAGA_GUI_BUILD			wxT("20080717")
+#define SAGA_GUI_VERSION		wxT("2.0.4")
+#define SAGA_GUI_BUILD			wxT("20090929")
 
 //---------------------------------------------------------
 const wxChar *	SAGA_GUI_Get_Version(void)
@@ -178,7 +178,8 @@ bool CSAGA::OnInit(void)
 	wxYield();
 
 	//-----------------------------------------------------
-	SG_Get_Translator()->Create(SG_File_Make_Path(Get_App_Path(), wxT("saga"), wxT("lng")), false);
+	SG_Get_Translator() .Create(SG_File_Make_Path(Get_App_Path(), wxT("saga"), wxT("lng")), false);
+	SG_Get_Projections().Create(SG_File_Make_Path(Get_App_Path(), wxT("saga"), wxT("srs")));
 
 	SetTopWindow(new CSAGA_Frame());
 

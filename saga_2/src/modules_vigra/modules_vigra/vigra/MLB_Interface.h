@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                       io_shapes                       //
+//                        VIGRA                          //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                         stl.h                         //
+//                    MLB_Interface.h                    //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -53,68 +51,16 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#ifndef HEADER_INCLUDED__stl_H
-#define HEADER_INCLUDED__stl_H
-
-//---------------------------------------------------------
-#include "MLB_Interface.h"
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
+//				Include the SAGA-API here				 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSTL_Import : public CSG_Module
-{
-public:
-	CSTL_Import(void);
+#ifndef HEADER_INCLUDED__MLB_VIGRA_H
+#define HEADER_INCLUDED__MLB_VIGRA_H
 
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Import") );	}
-
-
-protected:
-
-	virtual bool			On_Execute			(void);
-
-
-private:
-
-	typedef struct
-	{
-		float				x, y, z;
-	}
-	TSTL_Point;
-
-	typedef struct
-	{
-		int					x, y;
-
-		double				z;
-	}
-	TGRD_Point;
-
-
-	double					r_sin_x, r_cos_x, r_sin_y, r_cos_y, r_sin_z, r_cos_z;
-
-	CSG_Grid				*m_pGrid;
-
-
-	bool					Read_Facette		(CSG_File &Stream, TSTL_Point p[3]);
-	void					Rotate				(TSTL_Point &p);
-
-	void					Set_Triangle		(TGRD_Point p[3]);
-	void					Set_Triangle_Line	(int xa, int xb, int y, double za, double zb);
-	void					Set_Triangle_Point	(int x, int y, double z);
-
-};
+//---------------------------------------------------------
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -124,31 +70,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSTL_Export : public CSG_Module
-{
-public:
-	CSTL_Export(void);
-
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Export") );	}
-
-
-protected:
-
-	virtual bool			On_Execute			(void);
-
-
-private:
-
-	bool					Get_Normal			(CSG_TIN_Triangle *pTriangle, int zField, float Normal[3]);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__stl_H
+#endif // #ifndef HEADER_INCLUDED__MLB_VIGRA_H

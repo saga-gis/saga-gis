@@ -1902,6 +1902,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\projections.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\quadtree.cpp"
 				>
 			</File>

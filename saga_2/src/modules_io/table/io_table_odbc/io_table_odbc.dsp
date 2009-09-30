@@ -59,7 +59,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy         *.lng.txt         ..\..\..\..\bin\saga_vc\modules\ 
+PostBuild_Cmds=copy          *.lng.txt          ..\..\..\..\bin\saga_vc\modules\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "io_table_odbc - Win32 Debug"
@@ -180,6 +180,10 @@ SOURCE=.\Shapes.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\shapes_ogis.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Table.cpp
 # End Source File
 # End Group
@@ -205,6 +209,10 @@ SOURCE=.\PGIS_Shapes.h
 # Begin Source File
 
 SOURCE=.\Shapes.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\shapes_ogis.h
 # End Source File
 # Begin Source File
 

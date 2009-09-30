@@ -398,6 +398,45 @@ private:
 
 ///////////////////////////////////////////////////////////
 //														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Projections
+{
+public:
+	CSG_Projections(void);
+	virtual ~CSG_Projections(void);
+
+									CSG_Projections			(const CSG_String &File_Name);
+	bool							Create					(const CSG_String &File_Name);
+
+									CSG_Projections			(class CSG_Table *pProjections);
+	bool							Create					(class CSG_Table *pProjections);
+
+	void							Destroy					(void);
+
+	int								Get_Count				(void);
+	CSG_String						Get_Names_List			(void);
+	int								Get_SRID_byNameIndex	(int Index);
+
+
+private:
+
+	class CSG_Table					*m_pProjections;
+
+
+	void							_On_Construction		(void);
+
+};
+
+//---------------------------------------------------------
+SAGA_API_DLL_EXPORT CSG_Projections &	SG_Get_Projections	(void);
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //						Functions						 //
 //														 //
 ///////////////////////////////////////////////////////////

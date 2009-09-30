@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                       io_shapes                       //
+//                        VIGRA                          //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                         stl.h                         //
+//                   MLB_Interface.cpp                   //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -53,95 +51,71 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//			The Module Link Library Interface			 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__stl_H
-#define HEADER_INCLUDED__stl_H
+// 1. Include the appropriate SAGA-API header...
 
-//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-class CSTL_Import : public CSG_Module
+// 2. Place general module library informations here...
+
+const SG_Char * Get_Info(int i)
 {
-public:
-	CSTL_Import(void);
-
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Import") );	}
-
-
-protected:
-
-	virtual bool			On_Execute			(void);
-
-
-private:
-
-	typedef struct
+	switch( i )
 	{
-		float				x, y, z;
+	case MLB_INFO_Name:	default:
+		return( _TL("ViGrA - Image Processing Tools") );
+
+	case MLB_INFO_Author:
+		return( _TL("O. Conrad (c) 2009") );
+
+	case MLB_INFO_Description:
+		return( _TW(
+			"ViGrA stands for \"Vision with Generic Algorithms\". "
+			"It's a novel computer vision library that puts its main "
+			"emphasize on customizable algorithms and data structures. "
+			"By using template techniques similar to those in the C++ "
+			"Standard Template Library, you can easily adapt any VIGRA "
+			"component to the needs of your application, without thereby "
+			"giving up execution speed.\n"
+			"Find out more at the ViGrA - Vision with Generic Algorithms - homepage:\n"
+			"<a target=\"_blank\" href=\"http://hci.iwr.uni-heidelberg.de/vigra\">"
+			"http://hci.iwr.uni-heidelberg.de</a>"
+		));
+
+	case MLB_INFO_Version:
+		return( SG_T("1.0") );
+
+	case MLB_INFO_Menu_Path:
+		return( _TL("ViGrA") );
 	}
-	TSTL_Point;
+}
 
-	typedef struct
-	{
-		int					x, y;
-
-		double				z;
-	}
-	TGRD_Point;
-
-
-	double					r_sin_x, r_cos_x, r_sin_y, r_cos_y, r_sin_z, r_cos_z;
-
-	CSG_Grid				*m_pGrid;
-
-
-	bool					Read_Facette		(CSG_File &Stream, TSTL_Point p[3]);
-	void					Rotate				(TSTL_Point &p);
-
-	void					Set_Triangle		(TGRD_Point p[3]);
-	void					Set_Triangle_Line	(int xa, int xb, int y, double za, double zb);
-	void					Set_Triangle_Point	(int x, int y, double z);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSTL_Export : public CSG_Module
+// 3. Include the headers of your modules here...
+
+#include "vigra.h"
+
+
+//---------------------------------------------------------
+// 4. Allow your modules to be created here...
+
+CSG_Module *		Create_Module(int i)
 {
-public:
-	CSTL_Export(void);
+	switch( i )
+	{
+	case  0:	return( new CViGrA_Smoothing );
+	case  1:	return( new CViGrA_Distance );
+	}
 
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Export") );	}
-
-
-protected:
-
-	virtual bool			On_Execute			(void);
-
-
-private:
-
-	bool					Get_Normal			(CSG_TIN_Triangle *pTriangle, int zField, float Normal[3]);
-
-};
+	return( NULL );
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -151,4 +125,8 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__stl_H
+//{{AFX_SAGA
+
+	MLB_INTERFACE
+
+//}}AFX_SAGA
