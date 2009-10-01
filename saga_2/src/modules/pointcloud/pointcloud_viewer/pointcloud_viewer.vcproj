@@ -431,6 +431,54 @@
 				RelativePath=".\points_view_module.cpp"
 				>
 			</File>
+			<Filter
+				Name="Include"
+				>
+				<File
+					RelativePath="..\..\..\saga_core\saga_api\api_core.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\saga_core\saga_api\dataobject.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\saga_core\saga_api\geo_tools.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\saga_core\saga_api\grid.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\saga_core\saga_api\mat_tools.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\saga_core\saga_api\module.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\saga_core\saga_api\parameters.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\saga_core\saga_api\saga_api.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\saga_core\saga_api\shapes.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\saga_core\saga_api\table.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\saga_core\saga_api\tin.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -454,54 +502,6 @@
 			</File>
 			<File
 				RelativePath=".\points_view_module.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Include"
-			>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\api_core.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\dataobject.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\geo_tools.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\grid.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\mat_tools.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\module.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\parameters.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\saga_api.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\shapes.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\table.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\saga_core\saga_api\tin.h"
 				>
 			</File>
 		</Filter>

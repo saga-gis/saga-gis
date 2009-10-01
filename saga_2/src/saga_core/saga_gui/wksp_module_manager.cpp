@@ -528,7 +528,9 @@ void CWKSP_Module_Manager::_Make_HTML_Docs(void)
 	FileName.SetName	(wxT("index"));
 
 	Stream_Libs.Open(FileName.GetFullPath().c_str(), SG_FILE_W, false);
-	Stream_Libs.Printf(SG_T("<h1>%s</h1>\n<ul>\n"), LNG("SAGA Module Library Descriptions"));
+	Stream_Libs.Printf(SG_T("<html><head><title>SAGA - System for Automated Geoscientific Analyses</title></head><body>"));
+	Stream_Libs.Printf(SG_T("<h1><a href=\"http://www.saga-gis.org\">SAGA - System for Automated Geoscientific Analyses</a></h1>"));
+	Stream_Libs.Printf(SG_T("<h2>%s</h2>\n<ul>\n"), LNG("Module Library Descriptions"));
 
 	Main		= FileName.GetFullPath();
 
@@ -573,6 +575,7 @@ void CWKSP_Module_Manager::_Make_HTML_Docs(void)
 			FileName.SetName(wxT("modules"));
 			Stream_List.Open(FileName.GetFullPath().c_str(), SG_FILE_W, false);
 			Stream_List.Printf(SG_T("<body bgcolor=\"#CCCCCC\">"));
+			Stream_List.Printf(SG_T("<b><a target=\"_top\"    href=\"http://www.saga-gis.org\">SAGA</a></b><hr>"));
 			Stream_List.Printf(SG_T("<b><a target=\"_top\"    href=\"%s.html\">%s</a></b><hr>"), s.c_str(), LNG("Library Overview"));
 			Stream_List.Printf(SG_T("<b><a target=\"CONTENT\" href=\"%s.html\">%s</a></b><hr><ul>"), LibName.c_str(), Get_Library(i)->Get_Name().c_str());
 

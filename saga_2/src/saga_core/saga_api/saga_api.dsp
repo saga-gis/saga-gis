@@ -316,6 +316,10 @@ SOURCE=.\pointcloud.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\projections.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\quadtree.cpp
 # End Source File
 # Begin Source File

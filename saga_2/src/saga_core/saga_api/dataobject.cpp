@@ -117,7 +117,7 @@ CSG_Data_Object::CSG_Data_Object(void)
 
 	pSource			= m_MetaData.	Add_Child(SG_META_SRC);
 	m_pFile			= pSource->		Add_Child(SG_META_SRC_FILE);
-	m_pDatabase		= pSource->		Add_Child(SG_META_SRC_DB);
+	m_pMetaData_DB	= pSource->		Add_Child(SG_META_SRC_DB);
 	m_pProjection	= pSource->		Add_Child(SG_META_SRC_PROJ);
 
 	//-----------------------------------------------------
@@ -219,11 +219,11 @@ bool CSG_Data_Object::Load_MetaData(const SG_Char *File_Name)
 
 	if( (p = m.Get_Child(SG_META_SRC)) != NULL )
 	{
-		m_pDatabase->Destroy();
+		m_pMetaData_DB->Destroy();
 
 		if( p->Get_Child(SG_META_SRC_DB) )
 		{
-			m_pDatabase->Assign(*p->Get_Child(SG_META_SRC_DB));
+			m_pMetaData_DB->Assign(*p->Get_Child(SG_META_SRC_DB));
 		}
 
 		m_pProjection->Destroy();

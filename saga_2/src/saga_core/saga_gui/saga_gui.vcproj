@@ -113,7 +113,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy res\saga_eng.txt ..\..\..\bin\saga_vc8\saga.eng&#x0D;&#x0A;copy res\saga_ger.txt ..\..\..\bin\saga_vc8\saga.ger&#x0D;&#x0A;copy res\saga_tip.txt ..\..\..\bin\saga_vc8\saga_gui.tip&#x0D;&#x0A;"
+				CommandLine="copy res\saga.lng.txt ..\..\..\bin\saga_vc8_u\saga.lng&#x0D;&#x0A;copy res\saga.ger.txt ..\..\..\bin\saga_vc8_u\saga.ger&#x0D;&#x0A;copy res\saga_tip.txt ..\..\..\bin\saga_vc8_u\saga_gui.tip&#x0D;&#x0A;copy res\saga_srs.txt ..\..\..\bin\saga_vc8_u\saga.srs&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -214,7 +214,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy res\saga_eng.txt ..\..\..\bin\saga_vc8_dbg\saga.eng&#x0D;&#x0A;copy res\saga_ger.txt ..\..\..\bin\saga_vc8_dbg\saga.ger&#x0D;&#x0A;copy res\saga_tip.txt ..\..\..\bin\saga_vc8_dbg\saga_gui.tip&#x0D;&#x0A;"
+				CommandLine="copy res\saga.lng.txt ..\..\..\bin\saga_vc8_dbg\saga.lng&#x0D;&#x0A;copy res\saga.ger.txt ..\..\..\bin\saga_vc8_dbg\saga.ger&#x0D;&#x0A;copy res\saga_tip.txt ..\..\..\bin\saga_vc8_dbg\saga_gui.tip&#x0D;&#x0A;copy res\saga_srs.txt ..\..\..\bin\saga_vc8_dbg\saga.srs&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -317,7 +317,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy res\saga_eng.txt ..\..\..\bin\saga_vc8_dbg\saga.eng&#x0D;&#x0A;copy res\saga_ger.txt ..\..\..\bin\saga_vc8_dbg\saga.ger&#x0D;&#x0A;copy res\saga_tip.txt ..\..\..\bin\saga_vc8_dbg\saga_gui.tip&#x0D;&#x0A;"
+				CommandLine="copy res\saga.lng.txt ..\..\..\bin\saga_vc8_u_dbg\saga.lng&#x0D;&#x0A;copy res\saga.ger.txt ..\..\..\bin\saga_vc8_u_dbg\saga.ger&#x0D;&#x0A;copy res\saga_tip.txt ..\..\..\bin\saga_vc8_u_dbg\saga_gui.tip&#x0D;&#x0A;copy res\saga_srs.txt ..\..\..\bin\saga_vc8_u_dbg\saga.srs&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -417,7 +417,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy res\saga.lng.txt ..\..\..\bin\saga_vc8\saga.lng&#x0D;&#x0A;copy res\saga.ger.txt ..\..\..\bin\saga_vc8\saga.ger&#x0D;&#x0A;copy res\saga_tip.txt ..\..\..\bin\saga_vc8\saga_gui.tip&#x0D;&#x0A;"
+				CommandLine="copy res\saga.lng.txt ..\..\..\bin\saga_vc8\saga.lng&#x0D;&#x0A;copy res\saga.ger.txt ..\..\..\bin\saga_vc8\saga.ger&#x0D;&#x0A;copy res\saga_tip.txt ..\..\..\bin\saga_vc8\saga_gui.tip&#x0D;&#x0A;copy res\saga_srs.txt ..\..\..\bin\saga_vc8\saga.srs&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>

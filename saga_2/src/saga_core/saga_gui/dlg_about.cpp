@@ -220,7 +220,7 @@ wxString CDLG_About::_Get_Version(void)
 	s.Append(wxString::Format(
 		wxT("SAGA API\n%s\n")
 		wxT("\n")
-		wxT("Copyrights (c) 2002-2008 by Olaf Conrad\n")
+		wxT("Copyrights (c) 2002-2009 by Olaf Conrad\n")
 		wxT("Portions (c) 2002 by Andre Ringeler\n")	// " (mat_formula.cpp)\n")
 		wxT("Portions (c) 2005-2006 by Victor Olaya\n")
 		wxT("\n")

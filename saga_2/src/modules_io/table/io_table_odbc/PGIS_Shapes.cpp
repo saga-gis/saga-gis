@@ -257,7 +257,7 @@ bool CPGIS_Shapes_Save::On_Before_Execution(void)
 		return( false );
 	}
 
-	Parameters("SRID")->asChoice()->Set_Items(SG_Get_Projections().Get_Names_List());
+	Parameters("SRID")->asChoice()->Set_Items(SG_Get_Projections().Get_Names());
 
 /*	if( Parameters("SRID")->asChoice()->Get_Count() > 1 )
 		return( true );
@@ -293,7 +293,7 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 	pShapes		= Parameters("SHAPES")	->asShapes();
 	Geo_Table	= Parameters("NAME")	->asString();	if( Geo_Table.Length() == 0 )	Geo_Table	= pShapes->Get_Name();
 	SRID		= Parameters("SRID")	->asInt();
-	SRID		= SG_Get_Projections().Get_SRID_byNameIndex(SRID);
+	SRID		= SG_Get_Projections().Get_SRID_byNamesIndex(SRID);
 
 	switch( pShapes->Get_Type() )
 	{
@@ -324,8 +324,10 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( !Get_Connection()->Table_Create(Geo_Table, *pShapes) )
+	if( !Get_Connection()->Table_Create(Geo_Table, *pShapes, false) )
 	{
+		Get_Connection()->Rollback();
+
 		return( false );
 	}
 
@@ -340,13 +342,15 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 
 	if( !Get_Connection()->Execute(SQL) )
 	{
+		Get_Connection()->Rollback();
+
 		Message_Add(_TL("could not create geometry field"));
 
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	int			iShape, iField;
+	int			iShape, iField, nAdded;
 	CSG_String	Insert, Fields, s;
 
 	Fields	= Geo_Field;
@@ -358,40 +362,48 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 
 	Insert.Printf(SG_T("INSERT INTO %s (%s) VALUES (%%s)"), Geo_Table.c_str(), Fields.c_str());
 
-	for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	for(iShape=0, nAdded=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 	{
 		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
 
-		CSG_OGIS_Shapes_Converter::to_WKText(pShape, s);
-
-		Fields.Printf(SG_T("GeomFromText('%s', %d)"), s.c_str(), SRID);
-
-		for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
+		if( pShape->is_Valid() )
 		{
-			s	= pShape->asString(iField);
+			CSG_OGIS_Shapes_Converter::to_WKText(pShape, s);
 
-			if( pShapes->Get_Field_Type(iField) == SG_DATATYPE_String )
+			Fields.Printf(SG_T("GeomFromText('%s', %d)"), s.c_str(), SRID);
+
+			for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
 			{
-				s.Replace(SG_T("'"), SG_T("\""));
-				s	= SG_T("'") + s + SG_T("'");
+				s	= pShape->asString(iField);
+
+				if( pShapes->Get_Field_Type(iField) == SG_DATATYPE_String )
+				{
+					s.Replace(SG_T("'"), SG_T("\""));
+					s	= SG_T("'") + s + SG_T("'");
+				}
+
+				Fields	+= SG_T(", ")  + s;
 			}
 
-			Fields	+= SG_T(", ")  + s;
-		}
+			SQL.Printf(Insert.c_str(), Fields.c_str());
 
-		SQL.Printf(Insert.c_str(), Fields.c_str());
-
-		if( !Get_Connection()->Execute(SQL) )
-		{
-			Get_Connection()->Rollback();
-
-			Get_Connection()->Table_Drop(Geo_Table);
-
-			return( false );
+			if( Get_Connection()->Execute(SQL) )
+			{
+				nAdded++;
+			}
 		}
 	}
 
 	//-----------------------------------------------------
+	if( nAdded == 0 )
+	{
+		Get_Connection()->Rollback();
+
+		Get_Connection()->Table_Drop(Geo_Table);
+
+		return( false );
+	}
+
 	return( Get_Connection()->Commit() );
 }
 

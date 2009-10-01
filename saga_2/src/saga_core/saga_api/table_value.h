@@ -81,7 +81,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define NODATA_STRING	SG_T("__NO_DATA__")
+#define NODATA_STRING	SG_T("[NO DATA]")
 #define NODATA_INT		-2147483647
 #define NODATA_DOUBLE	2.2204460492503131e-016
 

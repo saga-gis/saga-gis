@@ -89,20 +89,20 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SG_META_EXT_GRID			SG_T("mgrd")
-#define SG_META_EXT_TABLE			SG_T("mtab")
-#define SG_META_EXT_SHAPES			SG_T("mshp")
+#define SG_META_EXT_GRID		SG_T("mgrd")
+#define SG_META_EXT_TABLE		SG_T("mtab")
+#define SG_META_EXT_SHAPES		SG_T("mshp")
 #define SG_META_EXT_TIN			SG_T("mtin")
-#define SG_META_EXT_POINTCLOUD		SG_T("mpts")
+#define SG_META_EXT_POINTCLOUD	SG_T("mpts")
 
 //---------------------------------------------------------
 #define SG_META_SRC				SG_T("SOURCE")
-#define SG_META_SRC_FILE			SG_T("FILE")
-#define SG_META_SRC_DB				SG_T("DATABASE")
-#define SG_META_SRC_PROJ			SG_T("PROJECTION")
+#define SG_META_SRC_FILE		SG_T("FILE")
+#define SG_META_SRC_DB			SG_T("DATABASE")
+#define SG_META_SRC_PROJ		SG_T("PROJECTION")
 
 #define SG_META_HST				SG_T("HISTORY")
-#define SG_META_HST_FILE			SG_T("FILE")
+#define SG_META_HST_FILE		SG_T("FILE")
 
 
 ///////////////////////////////////////////////////////////
@@ -168,9 +168,9 @@ public:
 	virtual bool					Destroy			(void);
 
 	/// Returns the object type as defined by TSG_Data_Object_Type. Used for run time type checking.
-	virtual TSG_Data_Object_Type	Get_ObjectType	(void)	const								= 0;
+	virtual TSG_Data_Object_Type	Get_ObjectType	(void)	const									= 0;
 
-	virtual bool					is_Valid		(void)	const								= 0;
+	virtual bool					is_Valid		(void)	const									= 0;
 
 	virtual bool					Save			(const CSG_String &File_Name, int Format = 0)	= 0;
 
@@ -182,14 +182,15 @@ public:
 	void							Set_Name		(const SG_Char *Name);
 	const SG_Char *					Get_Name		(void)	const;
 
-	virtual void					Set_Modified	(bool bOn = true)	{	m_bModified	= bOn;		}
-	bool							is_Modified		(void)	const		{	return( m_bModified );	}
+	virtual void					Set_Modified	(bool bOn = true)	{	m_bModified	= bOn;			}
+	bool							is_Modified		(void)	const		{	return( m_bModified );		}
 	bool							Update			(void);
 
-	const CSG_MetaData &			Get_MetaData	(void)	const		{	return( m_MetaData );		}
-	CSG_MetaData &					Get_Projection	(void)				{	return( *m_pProjection );	}
-	CSG_MetaData &					Get_Database	(void)				{	return( *m_pDatabase );	}
+	CSG_MetaData &					Get_MetaData	(void)	const		{	return( *m_pMetaData );		}
+	CSG_MetaData &					Get_MetaData_DB	(void)				{	return( *m_pMetaData_DB );	}
 	CSG_MetaData &					Get_History		(void)				{	return( *m_pHistory );		}
+
+	CSG_Projection &				Get_Projection	(void)				{	return( m_Projection );		}
 
 	class CSG_Table *				asTable			(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Table      ? (class CSG_Table      *)this : NULL );	}
 	class CSG_Shapes *				asShapes		(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Shapes     ? (class CSG_Shapes     *)this : NULL );	}
@@ -219,7 +220,9 @@ private:
 
 	CSG_String						m_File_Name, m_Name;
 
-	CSG_MetaData					m_MetaData, *m_pHistory, *m_pFile, *m_pDatabase, *m_pProjection;
+	CSG_MetaData					m_MetaData, *m_pMetaData, *m_pHistory, *m_pFile, *m_pProjection, *m_pMetaData_DB;
+
+	CSG_Projection					m_Projection;
 
 };
 

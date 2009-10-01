@@ -403,6 +403,79 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+typedef enum ESG_Projection_Type
+{
+	SG_PROJ_TYPE_CS_Undefined	= 0,
+	SG_PROJ_TYPE_CS_Projected,
+	SG_PROJ_TYPE_CS_Geographic,
+	SG_PROJ_TYPE_CS_Geocentric
+}
+TSG_Projection_Type;
+
+//---------------------------------------------------------
+const SG_Char	gSG_Projection_Type_Identifier[][32]	=
+{
+	SG_T("Undefined"),
+	SG_T("PROJCS"),
+	SG_T("GEOGCS"),
+	SG_T("GEOCCS")
+};
+
+//---------------------------------------------------------
+SAGA_API_DLL_EXPORT CSG_String	SG_Get_Projection_Type_Name	(TSG_Projection_Type Type);
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Projection
+{
+public:
+	CSG_Projection(void);
+	virtual ~CSG_Projection(void);
+
+									CSG_Projection			(const CSG_Projection &Projection);
+	bool							Create					(const CSG_Projection &Projection);
+
+									CSG_Projection			(int SRID, const SG_Char *Authority, const SG_Char *OpenGIS, const SG_Char *Proj4);
+	bool							Create					(int SRID, const SG_Char *Authority, const SG_Char *OpenGIS, const SG_Char *Proj4);
+
+	bool							Assign					(int SRID, const SG_Char *Authority, const SG_Char *OpenGIS, const SG_Char *Proj4);
+	bool							Assign					(const CSG_Projection &Projection);
+	CSG_Projection &				operator =				(const CSG_Projection &Projection)			{	Assign(Projection);	return( *this );	}
+
+	bool							is_Equal				(const CSG_Projection &Projection)	const;
+	bool							operator ==				(const CSG_Projection &Projection)	const	{	return( is_Equal(Projection) );	}
+
+	int								Get_SRID				(void)	const	{	return( m_SRID );			}
+	TSG_Projection_Type				Get_Type				(void)	const	{	return( m_Type );			}
+	const CSG_String &				Get_Name				(void)	const	{	return( m_Name );			}
+	const CSG_String &				Get_OpenGIS				(void)	const	{	return( m_OpenGIS );		}
+	const CSG_String &				Get_Proj4				(void)	const	{	return( m_Proj4 );			}
+	const CSG_String &				Get_Authority			(void)	const	{	return( m_Authority );		}
+	CSG_String						Get_Type_Name			(void)	const	{	return( gSG_Projection_Type_Identifier[m_Type] );	}
+	CSG_String						Get_Type_Identifier		(void)	const	{	return( SG_Get_Projection_Type_Name(m_Type) );	}
+
+	CSG_String						asString				(void)	const;
+
+	bool							from_ESRI				(const CSG_String &ESRI_PRJ);
+	bool							to_ESRI					(CSG_String &ESRI_PRJ)	const;
+
+
+private:
+
+	int								m_SRID;
+
+	TSG_Projection_Type				m_Type;
+
+	CSG_String						m_Name, m_Authority, m_OpenGIS, m_Proj4;
+
+
+	void							_Reset					(void);
+
+	bool							_Get_OpenGIS_from_Proj4	(const SG_Char *Text);
+	bool							_Get_Proj4_from_OpenGIS	(const SG_Char *Text);
+
+};
+
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Projections
 {
 public:
@@ -417,17 +490,36 @@ public:
 
 	void							Destroy					(void);
 
-	int								Get_Count				(void);
-	CSG_String						Get_Names_List			(void);
-	int								Get_SRID_byNameIndex	(int Index);
+	bool							Load					(const CSG_String &File_Name);
+	bool							Save					(const CSG_String &File_Name);
+
+	bool							Add						(const CSG_Projection &Projection);
+	bool							Add						(int SRID, const SG_Char *Authority, const SG_Char *OpenGIS, const SG_Char *Proj4);
+
+	int								Get_Count				(void)	const	{	return( m_nProjections );	}
+	const CSG_Projection &			Get_Projection			(int i)	const	{	return( i >= 0 && i < m_nProjections ? *(m_pProjections[i]) : m_Undefined );	}
+	const CSG_Projection &			operator []				(int i) const	{	return( i >= 0 && i < m_nProjections ? *(m_pProjections[i]) : m_Undefined );	}
+
+	CSG_String						Get_Names				(void)	const;
+	int								Get_SRID_byNamesIndex	(int i)	const;
 
 
 private:
 
-	class CSG_Table					*m_pProjections;
+	int								m_nProjections, m_nBuffer;
+
+	CSG_Projection					**m_pProjections, m_Undefined;
+
+	static CSG_Projections			*s_pProjections;
+
+	class CSG_Index					*m_pIdx_Names, *m_pIdx_SRIDs;
 
 
 	void							_On_Construction		(void);
+	CSG_Projection *				_Add					(void);
+
+	static int						_Cmp_Names				(const int iElement_1, const int iElement_2);
+	static int						_Cmp_SRIDs				(const int iElement_1, const int iElement_2);
 
 };
 

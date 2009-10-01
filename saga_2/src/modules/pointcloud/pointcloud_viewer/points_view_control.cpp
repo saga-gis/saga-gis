@@ -586,8 +586,8 @@ inline void CPoints_View_Control::_Draw_Point(int iPoint)
 
 	p		= _Get_Projection(p);
 
-	ix		= (int)p.x + 0.5 * m_Image.GetWidth();
-	iy		= (int)p.y + 0.5 * m_Image.GetHeight();
+	ix		= (int)(p.x + 0.5 * m_Image.GetWidth());
+	iy		= (int)(p.y + 0.5 * m_Image.GetHeight());
 	iz		= p.z;
 
 	if( !m_bColorAsRGB )
