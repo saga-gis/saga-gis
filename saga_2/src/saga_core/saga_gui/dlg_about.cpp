@@ -342,6 +342,7 @@ wxString CDLG_About::_Get_Acknowledgements(void)
 		"Olaf Conrad\n"
 		"Frank Haselein\n"
 		"Tobias Heckmann\n"
+		"Philipp J. Hess\n"
 		"Ruediger Koethe\n"
 		"Angela Kreikemeyer\n"
 		"Stefan Liersch\n"
