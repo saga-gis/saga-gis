@@ -72,7 +72,6 @@
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CPoints_View_Dialog, CSGDI_Dialog)
 	EVT_MOUSEWHEEL	(CPoints_View_Dialog::On_Mouse_Wheel)
-	EVT_KEY_DOWN	(CPoints_View_Dialog::On_Key_Down)
 	EVT_BUTTON		(wxID_ANY	, CPoints_View_Dialog::On_Button)
 	EVT_CHECKBOX	(wxID_ANY	, CPoints_View_Dialog::On_Update_Control)
 	EVT_TEXT_ENTER	(wxID_ANY	, CPoints_View_Dialog::On_Update_Control)
@@ -136,12 +135,6 @@ CPoints_View_Dialog::CPoints_View_Dialog(CSG_PointCloud *pPoints)
 void CPoints_View_Dialog::On_Mouse_Wheel(wxMouseEvent &event)
 {
 	m_pView->On_Mouse_Wheel(event);
-}
-
-//---------------------------------------------------------
-void CPoints_View_Dialog::On_Key_Down(wxKeyEvent &event)
-{
-	event.Skip();
 }
 
 //---------------------------------------------------------
@@ -249,6 +242,9 @@ void CPoints_View_Dialog::Update_Rotation(void)
 
 	d	= fmod(M_RAD_TO_DEG * m_pView->m_zRotate, 360.0);	if( d < -180.0 )	d	+= 360.0;	else if( d > 180.0 )	d	-= 360.0;
 	m_pSlide_zRotate->Set_Value(d);
+
+	m_pCheck_Scale	->SetValue(m_pView->m_bScale);
+	m_pCheck_Stereo	->SetValue(m_pView->m_bStereo);
 }
 
 

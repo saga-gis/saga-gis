@@ -95,6 +95,7 @@
 BEGIN_EVENT_TABLE(CPoints_View_Control, wxPanel)
 	EVT_SIZE				(CPoints_View_Control::On_Size)
 	EVT_PAINT				(CPoints_View_Control::On_Paint)
+	EVT_KEY_DOWN			(CPoints_View_Control::On_Key_Down)
 	EVT_LEFT_DOWN			(CPoints_View_Control::On_Mouse_LDown)
 	EVT_LEFT_UP				(CPoints_View_Control::On_Mouse_LUp)
 	EVT_RIGHT_DOWN			(CPoints_View_Control::On_Mouse_RDown)
@@ -280,12 +281,65 @@ void CPoints_View_Control::Update_Extent(CSG_Rect Extent)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CPoints_View_Control::On_Key_Down(wxKeyEvent &event)
+{
+	switch( event.GetKeyCode() )
+	{
+	default:
+		event.Skip();
+		return;
+
+	case WXK_NUMPAD_ADD:
+	case WXK_ADD:		m_xRotate	-= 4.0 * M_DEG_TO_RAD;	break;
+	case WXK_NUMPAD_SUBTRACT:
+	case WXK_SUBTRACT:	m_xRotate	+= 4.0 * M_DEG_TO_RAD;	break;
+
+	case WXK_F3:		m_yRotate	-= 4.0 * M_DEG_TO_RAD;	break;
+	case WXK_F4:		m_yRotate	+= 4.0 * M_DEG_TO_RAD;	break;
+
+	case WXK_NUMPAD_MULTIPLY:
+	case WXK_MULTIPLY:	m_zRotate	-= 4.0 * M_DEG_TO_RAD;	break;
+	case WXK_NUMPAD_DIVIDE:
+	case WXK_DIVIDE:	m_zRotate	+= 4.0 * M_DEG_TO_RAD;	break;
+
+	case WXK_INSERT:	m_xShift	-= 10.0;				break;
+	case WXK_DELETE:	m_xShift	+= 10.0;				break;
+
+	case WXK_HOME:		m_yShift	-= 10.0;				break;
+	case WXK_END:		m_yShift	+= 10.0;				break;
+
+	case WXK_PRIOR:		m_zShift	-= 10.0;				break;
+	case WXK_NEXT:		m_zShift	+= 10.0;				break;
+
+	case 'A':			m_bStereo	= !m_bStereo;			break;
+	case 'S':			m_bScale	= !m_bScale;			break;
+
+	case 'C':			m_Settings("C_AS_RGB")    ->Set_Value(m_Settings("C_AS_RGB")->asBool() ? 0.0 : 1.0);	break;
+
+	case WXK_F1:		m_Settings("EXAGGERATION")->Set_Value(m_Settings("EXAGGERATION")->asDouble() + 0.5);	break;
+	case WXK_F2:		m_Settings("EXAGGERATION")->Set_Value(m_Settings("EXAGGERATION")->asDouble() - 0.5);	break;
+
+	case WXK_F5:		m_Settings("SIZE_DEF")    ->Set_Value(m_Settings("SIZE_DEF")    ->asDouble() - 1.0);	break;
+	case WXK_F6:		m_Settings("SIZE_DEF")    ->Set_Value(m_Settings("SIZE_DEF")    ->asDouble() + 1.0);	break;
+
+	case WXK_F7:		m_Settings("SIZE_SCALE")  ->Set_Value(m_Settings("SIZE_SCALE")  ->asDouble() - 10.0);	break;
+	case WXK_F8:		m_Settings("SIZE_SCALE")  ->Set_Value(m_Settings("SIZE_SCALE")  ->asDouble() + 10.0);	break;
+	}
+
+	Update_View();
+
+	((CPoints_View_Dialog *)GetParent())->Update_Rotation();
+}
+
+//---------------------------------------------------------
 #define GET_MOUSE_X_RELDIFF	((double)(m_Mouse_Down.x - event.GetX()) / (double)GetClientSize().x)
 #define GET_MOUSE_Y_RELDIFF	((double)(m_Mouse_Down.y - event.GetY()) / (double)GetClientSize().y)
 
 //---------------------------------------------------------
 void CPoints_View_Control::On_Mouse_LDown(wxMouseEvent &event)
 {
+	SetFocus();
+
 	m_Mouse_Down	= event.GetPosition();
 	m_xDown			= m_zRotate;
 	m_yDown			= m_xRotate;
@@ -314,6 +368,8 @@ void CPoints_View_Control::On_Mouse_LUp(wxMouseEvent &event)
 //---------------------------------------------------------
 void CPoints_View_Control::On_Mouse_RDown(wxMouseEvent &event)
 {
+	SetFocus();
+
 	m_Mouse_Down	= event.GetPosition();
 	m_xDown			= m_xShift;
 	m_yDown			= m_yShift;
@@ -342,6 +398,8 @@ void CPoints_View_Control::On_Mouse_RUp(wxMouseEvent &event)
 //---------------------------------------------------------
 void CPoints_View_Control::On_Mouse_MDown(wxMouseEvent &event)
 {
+	SetFocus();
+
 	m_Mouse_Down	= event.GetPosition();
 	m_xDown			= m_yRotate;
 	m_yDown			= m_zShift;
