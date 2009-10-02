@@ -107,6 +107,19 @@ bool CSG_MetaData::Create(const CSG_String &File, const SG_Char *Extension)
 }
 
 //---------------------------------------------------------
+CSG_MetaData::CSG_MetaData(CSG_File &Stream)
+{
+	_On_Construction();
+
+	Create(Stream);
+}
+
+bool CSG_MetaData::Create(CSG_File &Stream)
+{
+	return( Load(Stream) );
+}
+
+//---------------------------------------------------------
 CSG_MetaData::CSG_MetaData(CSG_MetaData *pParent)
 {
 	_On_Construction();
