@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9,00"
 	Name="vigra"
-	ProjectGUID="{2B65A17B-79A6-4FCE-99BA-D313185EDECA}"
+	ProjectGUID="{30183561-A0E0-4B89-A901-F168C1F8C575}"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>

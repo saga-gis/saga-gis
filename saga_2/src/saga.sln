@@ -254,6 +254,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pointcloud_viewer", "module
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pointcloud_tools", "modules\pointcloud\pointcloud_tools\pointcloud_tools.vcproj", "{56E4370E-B2ED-4614-98A2-C02B35DC84DA}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vigra", "modules_vigra\modules_vigra\vigra\vigra.vcproj", "{30183561-A0E0-4B89-A901-F168C1F8C575}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -694,6 +696,14 @@ Global
 		{56E4370E-B2ED-4614-98A2-C02B35DC84DA}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
 		{56E4370E-B2ED-4614-98A2-C02B35DC84DA}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
 		{56E4370E-B2ED-4614-98A2-C02B35DC84DA}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
+		{30183561-A0E0-4B89-A901-F168C1F8C575}.Debug|Win32.ActiveCfg = Debug|Win32
+		{30183561-A0E0-4B89-A901-F168C1F8C575}.Debug|Win32.Build.0 = Debug|Win32
+		{30183561-A0E0-4B89-A901-F168C1F8C575}.Release|Win32.ActiveCfg = Release|Win32
+		{30183561-A0E0-4B89-A901-F168C1F8C575}.Release|Win32.Build.0 = Release|Win32
+		{30183561-A0E0-4B89-A901-F168C1F8C575}.Unicode Debug|Win32.ActiveCfg = Unicode Debug|Win32
+		{30183561-A0E0-4B89-A901-F168C1F8C575}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
+		{30183561-A0E0-4B89-A901-F168C1F8C575}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
+		{30183561-A0E0-4B89-A901-F168C1F8C575}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
