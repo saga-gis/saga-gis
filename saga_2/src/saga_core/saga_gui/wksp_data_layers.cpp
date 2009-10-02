@@ -229,7 +229,7 @@ void CWKSP_Data_Button::On_Mouse_RDown(wxMouseEvent &event)
 
 	if( pMenu )
 	{
-		PopupMenu(pMenu, event.GetPosition());
+		GetParent()->PopupMenu(pMenu, GetParent()->ScreenToClient(ClientToScreen(event.GetPosition())));
 
 		delete(pMenu);
 

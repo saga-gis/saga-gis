@@ -221,7 +221,8 @@ void CWKSP_Map_Button::On_Mouse_RDown(wxMouseEvent &event)
 
 		if( (pMenu = m_pMap->Get_Menu()) != NULL )
 		{
-			PopupMenu(pMenu, event.GetPosition());
+			GetParent()->PopupMenu(pMenu, GetParent()->ScreenToClient(ClientToScreen(event.GetPosition())));
+
 			delete(pMenu);
 
 			return;
