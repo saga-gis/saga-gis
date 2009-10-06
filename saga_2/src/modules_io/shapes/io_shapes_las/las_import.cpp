@@ -60,6 +60,7 @@
 
 #include <liblas/laspoint.hpp>
 #include <liblas/lasreader.hpp>
+#include <liblas/capi/las_version.h>
 #include <fstream>
 #include <iostream>
 
@@ -112,7 +113,7 @@ CLAS_Import::CLAS_Import(void)
 
 	Set_Author		(SG_T("O. Conrad, V. Wichmann (c) 2009"));
 
-	Set_Description	(_TW(
+	CSG_String		Description(_TW(
 		"This module imports ASPRS LAS files (versions 1.0, 1.1 and 1.2) as Point Cloud "
 		"using the \"libLAS\" library. "
 		"Get more information about this library at "
@@ -124,8 +125,12 @@ CLAS_Import::CLAS_Import(void)
 		"<a href=\"http://www.laserdata.at\">http://Laserdata GmbH, Austria</a>\n"
 		"and "
 		"<a href=\"http://www.alp-s.at\">http://alpS GmbH, Austria</a>\n"
+		"\nliblas version: "
 	));
 
+	Description	+= CSG_String(LIBLAS_RELEASE_NAME);
+
+	Set_Description	(Description);
 
 	//-----------------------------------------------------
 	// 2. Parameters...

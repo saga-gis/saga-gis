@@ -984,10 +984,10 @@ bool CWKSP_Shapes::_Chart_Set_Options(void)
 
 	if( 1 )
 	{
-		int			i, n;
+		int				i, n;
 		CSG_Colors		Colors;
-		CSG_String	sFields;
-		CSG_Parameter	*pFields, *pColors;
+		CSG_String		sFields;
+		CSG_Parameter	*pFields, *pField;
 
 		for(i=0, n=0; i<m_pShapes->Get_Field_Count(); i++)
 		{
@@ -1037,8 +1037,7 @@ bool CWKSP_Shapes::_Chart_Set_Options(void)
 				5, 25, 0, true
 			);
 
-			pFields	= pChart->Add_Node(NULL, "NODE_FIELDS"	, LNG("Fields")			, LNG(""));
-			pColors	= pChart->Add_Node(NULL, "NODE_COLORS"	, LNG("Field Colors")	, LNG(""));
+			pFields	= pChart->Add_Node(NULL, "NODE_FIELDS", LNG("Fields"), LNG(""));
 
 			Colors.Set_Count(n);
 
@@ -1048,14 +1047,14 @@ bool CWKSP_Shapes::_Chart_Set_Options(void)
 				{
 					sFields.Append(CSG_String::Format(wxT("%s|"), m_pShapes->Get_Field_Name(i)));
 
-					pChart->Add_Value(
+					pField	= pChart->Add_Value(
 						pFields	, wxString::Format(wxT("FIELD_%d"), i), m_pShapes->Get_Field_Name(i),
 						LNG(""),
 						PARAMETER_TYPE_Bool , false
 					);
 
 					pChart->Add_Value(
-						pColors	, wxString::Format(wxT("COLOR_%d"), i), m_pShapes->Get_Field_Name(i),
+						pField	, wxString::Format(wxT("COLOR_%d"), i), SG_T(""),
 						LNG(""),
 						PARAMETER_TYPE_Color, Colors.Get_Color(n++)
 					);

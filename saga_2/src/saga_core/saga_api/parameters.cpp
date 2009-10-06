@@ -1435,7 +1435,7 @@ bool CSG_Parameters::Serialize_Compatibility(CSG_File &Stream)
 	{
 		if( !sLine.Cmp(SG_T("[PARAMETER_ENTRY_BEGIN]"))
 		&&	Stream.Read_Line(sLine) && (pParameter = Get_Parameter(sLine)) != NULL
-		&&	Stream.Read_Line(sLine) &&  pParameter ->Get_Type() == sLine.asInt() )
+		&&	Stream.Read_Line(sLine) )
 		{
 			int			i;
 			double		d, e;

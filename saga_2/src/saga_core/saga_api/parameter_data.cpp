@@ -2255,7 +2255,7 @@ bool CSG_Parameter_Parameters::On_Serialize(CSG_MetaData &Entry, bool bSave)
 		if( bSave )
 		{
 			Entry.Set_Property(SG_T("id")  , m_pOwner->Get_Identifier());
-			Entry.Set_Property(SG_T("type"), m_pOwner->Get_Type_Name());
+			Entry.Set_Property(SG_T("type"), m_pOwner->Get_Type_Identifier());
 		}
 
 		return( true );

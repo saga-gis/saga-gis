@@ -314,7 +314,7 @@ void CSG_Table_DBase::Header_Write(void)
 		// Bytes 32-n: Field Descriptor Array...
 		for(iField=0; iField<nFields; iField++)
 		{
-			FieldDesc[iField].Name[11]	= '\0';
+			FieldDesc[iField].Name[10]	= '\0';
 			_strupr(FieldDesc[iField].Name);
 
 			fwrite( FieldDesc[iField].Name			, sizeof(char), 11, hFile);	// 00-10	Field Name ASCII padded with 0x00
@@ -379,7 +379,6 @@ bool CSG_Table_DBase::Header_Read(void)
 		while(	ftell(hFile) < (long)nHeaderBytes - 1 && !feof(hFile) )
 		{
 			FieldDesc	= (TFieldDesc *)SG_Realloc(FieldDesc, (nFields + 1) * sizeof(TFieldDesc));
-			FieldDesc[nFields].Name[12]	= '\0';
 
 			fread( FieldDesc[nFields].Name			, sizeof(char), 11, hFile);	// 0-10		Field Name ASCII padded with 0x00
 			fread(&FieldDesc[nFields].Type			, sizeof(char),  1, hFile);	// 11		Field Type Identifier (see table)
@@ -390,6 +389,8 @@ bool CSG_Table_DBase::Header_Read(void)
 			fread(&FieldDesc[nFields].WorkAreaID	, sizeof(char),  1, hFile);	// 20		dBaseIV work area ID
 			fread( buf								, sizeof(char), 10, hFile);	// 21-30	Reserved
 			fread(&FieldDesc[nFields].ProductionIdx	, sizeof(char),  1, hFile);	// 31	 	Field is part of production index - 0x01 else 0x00
+
+			FieldDesc[nFields].Name[11]	= '\0';
 
 			nFields++;
 		}
