@@ -10,7 +10,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                       vigra.h                         //
+//                  vigra_distance.cpp                   //
 //                                                       //
 //                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
@@ -51,23 +51,15 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#ifndef HEADER_INCLUDED__vigra_H
-#define HEADER_INCLUDED__vigra_H
-
-
-///////////////////////////////////////////////////////////
-//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include "vigra_distance.h"
+
+//---------------------------------------------------------
+#include <vigra/distancetransform.hxx>
 
 
 ///////////////////////////////////////////////////////////
@@ -77,69 +69,75 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <vigra/stdimage.hxx>
-
-//---------------------------------------------------------
-using namespace vigra;
-
-//---------------------------------------------------------
-template <class VIGRA_Image>
-bool	Copy_Grid_SAGA_to_VIGRA		(CSG_Grid &Grid, VIGRA_Image &Image, bool bCreate)
+CViGrA_Distance::CViGrA_Distance(void)
 {
-	if( bCreate )
-	{
-		Image.resize(Grid.Get_NX(), Grid.Get_NY());
-	}
+	Set_Name		(_TL("ViGrA - Distance"));
 
-	if( Grid.Get_NX() != Image.width() || Grid.Get_NY() != Image.height() )
-	{
-		return( false );
-	}
+	Set_Author		(SG_T("O.Conrad (c) 2009"));
 
-	for(int y=0; y<Grid.Get_NY() && SG_UI_Process_Set_Progress(y, Grid.Get_NY()); y++)
-	{
-		for(int x=0; x<Grid.Get_NX(); x++)
-		{
-			Image(x, y)	= Grid.asDouble(x, y);
-		}
-	}
+	Set_Description	(_TW(
+		"References:\n"
+		"ViGrA - Vision with Generic Algorithms\n"
+		"<a target=\"_blank\" href=\"http://hci.iwr.uni-heidelberg.de/vigra\">http://hci.iwr.uni-heidelberg.de</a>"
+	));
 
-	SG_UI_Process_Set_Progress(0.0, 1.0);
+	Parameters.Add_Grid(
+		NULL	, "INPUT"	, _TL("Features"),
+		_TL("Features are all pixels different not representing no-data."),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "OUTPUT"	, _TL("Distance"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "NORM"	, _TL("Type of distance calculation"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("Chessboard"),
+			_TL("Manhattan"),
+			_TL("Euclidean")
+		)
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CViGrA_Distance::On_Execute(void)
+{
+	int			Norm;
+	CSG_Grid	*pInput, *pOutput;
+
+	pInput	= Parameters("INPUT")	->asGrid();
+	pOutput	= Parameters("OUTPUT")	->asGrid();
+	Norm	= Parameters("NORM")	->asInt();
+
+	//-----------------------------------------------------
+	vigra::FImage	Input, Output(Get_NX(), Get_NY());
+
+	Copy_Grid_SAGA_to_VIGRA(*pInput, Input, true);
+
+	distanceTransform(srcImageRange(Input), destImage(Output), pInput->Get_NoData_Value(), Norm);
+
+	Copy_Grid_VIGRA_to_SAGA(*pOutput, Output, false);
+
+	//-----------------------------------------------------
+	pOutput->Multiply(pOutput->Get_Cellsize());
+
+	pOutput->Set_Name(CSG_String::Format(SG_T("%s [%s - %s]"), pInput->Get_Name(), Get_Name(), Parameters("NORM")->asString()));
 
 	return( true );
 }
 
-//---------------------------------------------------------
-template <class VIGRA_Image>
-bool	Copy_Grid_VIGRA_to_SAGA		(CSG_Grid &Grid, VIGRA_Image &Image, bool bCreate)
-{
-	if( bCreate )
-	{
-		Grid.Create(Grid.Get_Type(), Image.width(), Image.height());
-	}
-
-	if( Grid.Get_NX() != Image.width() || Grid.Get_NY() != Image.height() )
-	{
-		return( false );
-	}
-
-	for(int y=0; y<Grid.Get_NY() && SG_UI_Process_Set_Progress(y, Grid.Get_NY()); y++)
-	{
-		for(int x=0; x<Grid.Get_NX(); x++)
-		{
-			Grid.Set_Value(x, y, Image(x, y));
-		}
-	}
-
-	SG_UI_Process_Set_Progress(0.0, 1.0);
-
-	return( true );
-}
-
-//---------------------------------------------------------
-bool	Copy_RGBGrid_SAGA_to_VIGRA	(CSG_Grid &Grid, BRGBImage &Image, bool bCreate);
-bool	Copy_RGBGrid_VIGRA_to_SAGA	(CSG_Grid &Grid, BRGBImage &Image, bool bCreate);
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -148,4 +146,3 @@ bool	Copy_RGBGrid_VIGRA_to_SAGA	(CSG_Grid &Grid, BRGBImage &Image, bool bCreate)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__vigra_H

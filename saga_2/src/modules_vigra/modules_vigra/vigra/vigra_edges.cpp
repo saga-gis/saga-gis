@@ -10,7 +10,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                       vigra.h                         //
+//                    vigra_edges.cpp                    //
 //                                                       //
 //                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
@@ -51,23 +51,15 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#ifndef HEADER_INCLUDED__vigra_H
-#define HEADER_INCLUDED__vigra_H
-
-
-///////////////////////////////////////////////////////////
-//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include "vigra_edges.h"
+
+//---------------------------------------------------------
+#include <vigra/edgedetection.hxx>
 
 
 ///////////////////////////////////////////////////////////
@@ -77,69 +69,102 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <vigra/stdimage.hxx>
-
-//---------------------------------------------------------
-using namespace vigra;
-
-//---------------------------------------------------------
-template <class VIGRA_Image>
-bool	Copy_Grid_SAGA_to_VIGRA		(CSG_Grid &Grid, VIGRA_Image &Image, bool bCreate)
+CViGrA_Edges::CViGrA_Edges(void)
 {
-	if( bCreate )
+	Set_Name		(_TL("ViGrA - Edge Detection"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2009"));
+
+	Set_Description	(_TW(
+		"References:\n"
+		"ViGrA - Vision with Generic Algorithms\n"
+		"<a target=\"_blank\" href=\"http://hci.iwr.uni-heidelberg.de/vigra\">http://hci.iwr.uni-heidelberg.de</a>"
+	));
+
+	Parameters.Add_Grid(
+		NULL	, "INPUT"		, _TL("Input"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "OUTPUT"		, _TL("Edges"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "TYPE"		, _TL("Detector type"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("Canny"),
+			_TL("Shen-Castan")
+		)
+	);
+
+	Parameters.Add_Value(
+		NULL	, "SCALE"		, _TL("Operator scale"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 1.0, 0.0, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "THRESHOLD"	, _TL("Gradient threshold"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 1.0, 0.0, true
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CViGrA_Edges::On_Execute(void)
+{
+	int			Type;
+	double		Scale, Threshold;
+	CSG_Grid	*pInput, *pOutput;
+
+	pInput		= Parameters("INPUT")		->asGrid();
+	pOutput		= Parameters("OUTPUT")		->asGrid();
+	Type		= Parameters("TYPE")		->asInt();
+	Scale		= Parameters("SCALE")		->asDouble();
+	Threshold	= Parameters("THRESHOLD")	->asDouble();
+
+	//-----------------------------------------------------
+	vigra::FImage	Input;
+	vigra::BImage	Output(Get_NX(), Get_NY());
+
+	Copy_Grid_SAGA_to_VIGRA(*pInput, Input, true);
+
+	Output	= 0;
+    
+	switch( Type )
 	{
-		Image.resize(Grid.Get_NX(), Grid.Get_NY());
+	default:
+	case 0:	// Canny
+		cannyEdgeImage					(srcImageRange(Input), destImage(Output), Scale, Threshold, 1);
+		break;
+
+	case 1:	// Shen-Castan
+		differenceOfExponentialEdgeImage(srcImageRange(Input), destImage(Output), Scale, Threshold, 1);
+		break;
 	}
 
-	if( Grid.Get_NX() != Image.width() || Grid.Get_NY() != Image.height() )
-	{
-		return( false );
-	}
+	//-----------------------------------------------------
+	Copy_Grid_VIGRA_to_SAGA(*pOutput, Output, false);
 
-	for(int y=0; y<Grid.Get_NY() && SG_UI_Process_Set_Progress(y, Grid.Get_NY()); y++)
-	{
-		for(int x=0; x<Grid.Get_NX(); x++)
-		{
-			Image(x, y)	= Grid.asDouble(x, y);
-		}
-	}
+	pOutput->Set_NoData_Value(0);
 
-	SG_UI_Process_Set_Progress(0.0, 1.0);
+	pOutput->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pInput->Get_Name(), Get_Name()));
 
 	return( true );
 }
 
-//---------------------------------------------------------
-template <class VIGRA_Image>
-bool	Copy_Grid_VIGRA_to_SAGA		(CSG_Grid &Grid, VIGRA_Image &Image, bool bCreate)
-{
-	if( bCreate )
-	{
-		Grid.Create(Grid.Get_Type(), Image.width(), Image.height());
-	}
-
-	if( Grid.Get_NX() != Image.width() || Grid.Get_NY() != Image.height() )
-	{
-		return( false );
-	}
-
-	for(int y=0; y<Grid.Get_NY() && SG_UI_Process_Set_Progress(y, Grid.Get_NY()); y++)
-	{
-		for(int x=0; x<Grid.Get_NX(); x++)
-		{
-			Grid.Set_Value(x, y, Image(x, y));
-		}
-	}
-
-	SG_UI_Process_Set_Progress(0.0, 1.0);
-
-	return( true );
-}
-
-//---------------------------------------------------------
-bool	Copy_RGBGrid_SAGA_to_VIGRA	(CSG_Grid &Grid, BRGBImage &Image, bool bCreate);
-bool	Copy_RGBGrid_VIGRA_to_SAGA	(CSG_Grid &Grid, BRGBImage &Image, bool bCreate);
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -148,4 +173,3 @@ bool	Copy_RGBGrid_VIGRA_to_SAGA	(CSG_Grid &Grid, BRGBImage &Image, bool bCreate)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__vigra_H

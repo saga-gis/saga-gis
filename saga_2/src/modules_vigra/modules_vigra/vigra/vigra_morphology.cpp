@@ -10,7 +10,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                       vigra.h                         //
+//                  vigra_morphology.cpp                 //
 //                                                       //
 //                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
@@ -51,23 +51,15 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#ifndef HEADER_INCLUDED__vigra_H
-#define HEADER_INCLUDED__vigra_H
-
-
-///////////////////////////////////////////////////////////
-//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include "vigra_morphology.h"
+
+//---------------------------------------------------------
+#include <vigra/flatmorphology.hxx>
 
 
 ///////////////////////////////////////////////////////////
@@ -77,69 +69,127 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <vigra/stdimage.hxx>
-
-//---------------------------------------------------------
-using namespace vigra;
-
-//---------------------------------------------------------
-template <class VIGRA_Image>
-bool	Copy_Grid_SAGA_to_VIGRA		(CSG_Grid &Grid, VIGRA_Image &Image, bool bCreate)
+CViGrA_Morphology::CViGrA_Morphology(void)
 {
-	if( bCreate )
-	{
-		Image.resize(Grid.Get_NX(), Grid.Get_NY());
-	}
+	Set_Name		(_TL("ViGrA - Basic Morphological Operations"));
 
-	if( Grid.Get_NX() != Image.width() || Grid.Get_NY() != Image.height() )
-	{
-		return( false );
-	}
+	Set_Author		(SG_T("O.Conrad (c) 2009"));
 
-	for(int y=0; y<Grid.Get_NY() && SG_UI_Process_Set_Progress(y, Grid.Get_NY()); y++)
+	Set_Description	(_TW(
+		"References:\n"
+		"ViGrA - Vision with Generic Algorithms\n"
+		"<a target=\"_blank\" href=\"http://hci.iwr.uni-heidelberg.de/vigra\">http://hci.iwr.uni-heidelberg.de</a>"
+	));
+
+	Parameters.Add_Grid(
+		NULL	, "INPUT"		, _TL("Input"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "OUTPUT"		, _TL("Output"),
+		_TL(""),
+		PARAMETER_OUTPUT, SG_DATATYPE_Byte
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "TYPE"		, _TL("Operation"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("Dilation"),
+			_TL("Erosion"),
+			_TL("Median"),
+			_TL("User defined rank")
+		)
+	);
+
+	Parameters.Add_Value(
+		NULL	, "RADIUS"		, _TL("Radius (cells)"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 1.0, 0.0, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "RANK"		, _TL("User defined rank"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 0.5, 0.0, true, 1.0, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "RESCALE"		, _TL("Rescale Values (0-255)"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CViGrA_Morphology::On_Execute(void)
+{
+	bool		bRescale;
+	int			Type, Radius;
+	double		Rank;
+	CSG_Grid	*pInput, *pOutput, Rescaled;
+
+	pInput		= Parameters("INPUT")	->asGrid();
+	pOutput		= Parameters("OUTPUT")	->asGrid();
+	Type		= Parameters("TYPE")	->asInt();
+	Radius		= Parameters("RADIUS")	->asInt();
+	Rank		= Parameters("RANK")	->asDouble();
+	bRescale	= Parameters("RESCALE")	->asBool();
+
+	//-----------------------------------------------------
+	if( bRescale )
 	{
-		for(int x=0; x<Grid.Get_NX(); x++)
+		Rescaled.Create(*Get_System(), SG_DATATYPE_Byte);
+
+		for(int i=0; i<Get_NCells() && Set_Progress_NCells(i); i++)
 		{
-			Image(x, y)	= Grid.asDouble(x, y);
+			Rescaled.Set_Value(i, 0.5 + (pInput->asDouble(i) - pInput->Get_ZMin()) * 255.0 / pInput->Get_ZRange());
 		}
+
+		pInput	= &Rescaled;
 	}
 
-	SG_UI_Process_Set_Progress(0.0, 1.0);
+	//-----------------------------------------------------
+	vigra::BImage	Input, Output(Get_NX(), Get_NY());
+
+	Copy_Grid_SAGA_to_VIGRA(*pInput, Input, true);
+
+	switch( Type )
+	{
+	case 0:	// Dilation
+		discDilation		(srcImageRange(Input), destImage(Output), Radius);
+		break;
+
+	case 1:	// Erosion
+		discErosion			(srcImageRange(Input), destImage(Output), Radius);
+		break;
+
+	case 2:	// Median
+		discMedian			(srcImageRange(Input), destImage(Output), Radius);
+		break;
+
+	case 3:	// User defined rank
+		discRankOrderFilter	(srcImageRange(Input), destImage(Output), Radius, Rank);
+		break;
+	}
+
+	//-----------------------------------------------------
+	Copy_Grid_VIGRA_to_SAGA(*pOutput, Output, false);
+
+	pOutput->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pInput->Get_Name(), Get_Name()));
 
 	return( true );
 }
 
-//---------------------------------------------------------
-template <class VIGRA_Image>
-bool	Copy_Grid_VIGRA_to_SAGA		(CSG_Grid &Grid, VIGRA_Image &Image, bool bCreate)
-{
-	if( bCreate )
-	{
-		Grid.Create(Grid.Get_Type(), Image.width(), Image.height());
-	}
-
-	if( Grid.Get_NX() != Image.width() || Grid.Get_NY() != Image.height() )
-	{
-		return( false );
-	}
-
-	for(int y=0; y<Grid.Get_NY() && SG_UI_Process_Set_Progress(y, Grid.Get_NY()); y++)
-	{
-		for(int x=0; x<Grid.Get_NX(); x++)
-		{
-			Grid.Set_Value(x, y, Image(x, y));
-		}
-	}
-
-	SG_UI_Process_Set_Progress(0.0, 1.0);
-
-	return( true );
-}
-
-//---------------------------------------------------------
-bool	Copy_RGBGrid_SAGA_to_VIGRA	(CSG_Grid &Grid, BRGBImage &Image, bool bCreate);
-bool	Copy_RGBGrid_VIGRA_to_SAGA	(CSG_Grid &Grid, BRGBImage &Image, bool bCreate);
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -148,4 +198,3 @@ bool	Copy_RGBGrid_VIGRA_to_SAGA	(CSG_Grid &Grid, BRGBImage &Image, bool bCreate)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__vigra_H

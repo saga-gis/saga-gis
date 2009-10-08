@@ -48,7 +48,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SAGA)/src/saga_core&quot;;&quot;$(VIGRA)/include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SAGA)/src/saga_core&quot;;&quot;$(VIGRA)/include&quot;;&quot;$(VIGRA)/include/external&quot;"
 				PreprocessorDefinitions="_DEBUG;WIN32;_USRDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_CRT_SECURE_NO_DEPRECATE;_SECURE_SCL=0"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="0"
@@ -74,7 +74,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib vigraimpex.dll.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib vigraimpex.dll.lib libfftw3-3.lib"
 				OutputFile=".\..\..\..\..\bin\saga_vc8_dbg\modules/vigra.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -145,7 +145,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SAGA)/src/saga_core&quot;;&quot;$(VIGRA)/include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SAGA)/src/saga_core&quot;;&quot;$(VIGRA)/include&quot;;&quot;$(VIGRA)/include/external&quot;"
 				PreprocessorDefinitions="_DEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -172,7 +172,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib vigraimpex.dll.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib vigraimpex.dll.lib libfftw3-3.lib"
 				OutputFile=".\./../../../../bin/saga_vc8_u_dbg/modules/vigra.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -244,7 +244,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="&quot;$(SAGA)/src/saga_core&quot;;&quot;$(VIGRA)/include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SAGA)/src/saga_core&quot;;&quot;$(VIGRA)/include&quot;;&quot;$(VIGRA)/include/external&quot;"
 				PreprocessorDefinitions="NDEBUG;WIN32;_USRDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -269,7 +269,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib vigraimpex.dll.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib vigraimpex.dll.lib libfftw3-3.lib"
 				OutputFile=".\..\..\..\..\bin\saga_vc8\modules/vigra.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -341,7 +341,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="&quot;$(SAGA)/src/saga_core&quot;;&quot;$(VIGRA)/include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SAGA)/src/saga_core&quot;;&quot;$(VIGRA)/include&quot;;&quot;$(VIGRA)/include/external&quot;"
 				PreprocessorDefinitions="NDEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -367,7 +367,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib vigraimpex.dll.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib vigraimpex.dll.lib libfftw3-3.lib"
 				OutputFile=".\./../../../../bin/saga_vc8_u/modules/vigra.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -419,6 +419,30 @@
 				RelativePath=".\vigra.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\vigra_distance.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\vigra_edges.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\vigra_fft.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\vigra_morphology.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\vigra_smoothing.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\vigra_watershed.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -430,6 +454,30 @@
 			</File>
 			<File
 				RelativePath=".\vigra.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vigra_distance.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vigra_edges.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vigra_fft.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vigra_morphology.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vigra_smoothing.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vigra_watershed.h"
 				>
 			</File>
 		</Filter>

@@ -10,7 +10,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                       vigra.h                         //
+//                  vigra_morphology.h                   //
 //                                                       //
 //                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
@@ -56,8 +56,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__vigra_H
-#define HEADER_INCLUDED__vigra_H
+#ifndef HEADER_INCLUDED__vigra_morphology_H
+#define HEADER_INCLUDED__vigra_morphology_H
 
 
 ///////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include "vigra.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -77,68 +77,18 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <vigra/stdimage.hxx>
-
-//---------------------------------------------------------
-using namespace vigra;
-
-//---------------------------------------------------------
-template <class VIGRA_Image>
-bool	Copy_Grid_SAGA_to_VIGRA		(CSG_Grid &Grid, VIGRA_Image &Image, bool bCreate)
+class CViGrA_Morphology : public CSG_Module_Grid
 {
-	if( bCreate )
-	{
-		Image.resize(Grid.Get_NX(), Grid.Get_NY());
-	}
+public:
+	CViGrA_Morphology(void);
 
-	if( Grid.Get_NX() != Image.width() || Grid.Get_NY() != Image.height() )
-	{
-		return( false );
-	}
 
-	for(int y=0; y<Grid.Get_NY() && SG_UI_Process_Set_Progress(y, Grid.Get_NY()); y++)
-	{
-		for(int x=0; x<Grid.Get_NX(); x++)
-		{
-			Image(x, y)	= Grid.asDouble(x, y);
-		}
-	}
+protected:
 
-	SG_UI_Process_Set_Progress(0.0, 1.0);
+	virtual bool			On_Execute			(void);
 
-	return( true );
-}
 
-//---------------------------------------------------------
-template <class VIGRA_Image>
-bool	Copy_Grid_VIGRA_to_SAGA		(CSG_Grid &Grid, VIGRA_Image &Image, bool bCreate)
-{
-	if( bCreate )
-	{
-		Grid.Create(Grid.Get_Type(), Image.width(), Image.height());
-	}
-
-	if( Grid.Get_NX() != Image.width() || Grid.Get_NY() != Image.height() )
-	{
-		return( false );
-	}
-
-	for(int y=0; y<Grid.Get_NY() && SG_UI_Process_Set_Progress(y, Grid.Get_NY()); y++)
-	{
-		for(int x=0; x<Grid.Get_NX(); x++)
-		{
-			Grid.Set_Value(x, y, Image(x, y));
-		}
-	}
-
-	SG_UI_Process_Set_Progress(0.0, 1.0);
-
-	return( true );
-}
-
-//---------------------------------------------------------
-bool	Copy_RGBGrid_SAGA_to_VIGRA	(CSG_Grid &Grid, BRGBImage &Image, bool bCreate);
-bool	Copy_RGBGrid_VIGRA_to_SAGA	(CSG_Grid &Grid, BRGBImage &Image, bool bCreate);
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -148,4 +98,4 @@ bool	Copy_RGBGrid_VIGRA_to_SAGA	(CSG_Grid &Grid, BRGBImage &Image, bool bCreate)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__vigra_H
+#endif // #ifndef HEADER_INCLUDED__vigra_morphology_H

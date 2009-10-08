@@ -1187,6 +1187,8 @@ void CWKSP_Shapes::_Draw_Chart_Bar(CWKSP_Map_DC &dc_Map, CSG_Table_Record *pReco
 	int		i;
 	double	d, dx, dy, max, ix;
 
+	y	+= sy / 2;
+
 	for(i=1, max=fabs(pRecord->asDouble(m_Chart[0].x)); i<m_Chart.Get_Count(); i++)
 	{
 		if( (d = fabs(pRecord->asDouble(m_Chart[i].x))) > max )

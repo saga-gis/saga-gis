@@ -100,7 +100,12 @@ const SG_Char * Get_Info(int i)
 //---------------------------------------------------------
 // 3. Include the headers of your modules here...
 
-#include "vigra.h"
+#include "vigra_smoothing.h"
+#include "vigra_edges.h"
+#include "vigra_morphology.h"
+#include "vigra_distance.h"
+#include "vigra_fft.h"
+#include "vigra_watershed.h"
 
 
 //---------------------------------------------------------
@@ -111,7 +116,14 @@ CSG_Module *		Create_Module(int i)
 	switch( i )
 	{
 	case  0:	return( new CViGrA_Smoothing );
-	case  1:	return( new CViGrA_Distance );
+	case  1:	return( new CViGrA_Edges );
+	case  2:	return( new CViGrA_Morphology );
+	case  3:	return( new CViGrA_Distance );
+	case  4:	return( new CViGrA_Watershed );
+	case  5:	return( new CViGrA_FFT );
+	case  6:	return( new CViGrA_FFT_Inverse );
+	case  7:	return( new CViGrA_FFT_Real );
+	case  8:	return( new CViGrA_FFT_Filter );
 	}
 
 	return( NULL );
