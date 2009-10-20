@@ -1,7 +1,7 @@
 # Linux GCC Makefile
 # Created by O. Conrad
 
-PROJECTS = contrib_a_perego contrib_s_liersch
+PROJECTS = opencv
 
 all:
 	@for i in $(PROJECTS); do (cd $$i && $(MAKE) -fmakefile.linux); done

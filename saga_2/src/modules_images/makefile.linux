@@ -1,7 +1,7 @@
 # Linux GCC Makefile
 # Created by O. Conrad
 
-PROJECTS = modules_vigra
+PROJECTS = modules_vigra modules_opencv
 
 all:
 	@for i in $(PROJECTS); do (cd $$i && $(MAKE) -fmakefile.linux); done

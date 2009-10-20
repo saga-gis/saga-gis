@@ -202,7 +202,7 @@ int CParameters_PG_Choice::_Set_Table_Field(void)
 		case PARAMETER_TYPE_TIN:	pTable	= pParent->asTIN();		break;
 		}
 
-		if( pTable )
+		if( pTable && pTable != DATAOBJECT_CREATE )
 		{
 			for(int i=0; i<pTable->Get_Field_Count(); i++)
 			{

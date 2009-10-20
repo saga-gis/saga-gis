@@ -201,6 +201,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "ihacres"=.\modules_contrib\contrib_s_liersch\ihacres\ihacres.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "io_esri_e00"=.\modules_io\esri_e00\io_esri_e00\io_esri_e00.dsp - Package Owner=<4>
 
 Package=<5>
@@ -371,6 +383,18 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name saga_api
     End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "opencv"=.\modules_images\modules_opencv\opencv\opencv.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
 }}}
 
 ###############################################################################

@@ -136,7 +136,7 @@ bool	Copy_ComplexGrid_VIGRA_to_SAGA	(CSG_Grid &Real, CSG_Grid &Imag, FFTWComplex
 //---------------------------------------------------------
 CViGrA_FFT::CViGrA_FFT(void)
 {
-	Set_Name		(_TL("ViGrA - FFT"));
+	Set_Name		(_TL("ViGrA - Fourier Transform"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2009"));
 
@@ -206,7 +206,7 @@ bool CViGrA_FFT::On_Execute(void)
 //---------------------------------------------------------
 CViGrA_FFT_Inverse::CViGrA_FFT_Inverse(void)
 {
-	Set_Name		(_TL("ViGrA - FFT Inverse"));
+	Set_Name		(_TL("ViGrA - Fourier Transform Inverse"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2009"));
 
@@ -260,6 +260,8 @@ bool CViGrA_FFT_Inverse::On_Execute(void)
 	Copy_ComplexGrid_SAGA_to_VIGRA(*pReal, *pImag, Input, true);
 
 	fourierTransformInverse(srcImageRange(Input), destImage(Output));
+ 
+	transformImage(srcImageRange(Output), destImage(Output), std::bind1st(std::multiplies<FFTWComplex>(), 1.0 / Get_NX() / Get_NY()));
 
 	//-----------------------------------------------------
 	pReal	= Parameters("REAL_OUT")->asGrid();
@@ -283,7 +285,7 @@ bool CViGrA_FFT_Inverse::On_Execute(void)
 //---------------------------------------------------------
 CViGrA_FFT_Real::CViGrA_FFT_Real(void)
 {
-	Set_Name		(_TL("ViGrA - FFT Real"));
+	Set_Name		(_TL("ViGrA - Fourier Transform (Real)"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2009"));
 
@@ -363,7 +365,7 @@ bool CViGrA_FFT_Real::On_Execute(void)
 //---------------------------------------------------------
 CViGrA_FFT_Filter::CViGrA_FFT_Filter(void)
 {
-	Set_Name		(_TL("ViGrA - FFT Filter"));
+	Set_Name		(_TL("ViGrA - Fourier Filter"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2009"));
 
@@ -392,9 +394,32 @@ CViGrA_FFT_Filter::CViGrA_FFT_Filter(void)
 	);
 
 	Parameters.Add_Value(
-		NULL	, "SCALE"	, _TL("Size of smoothing filter"),
+		NULL	, "SCALE"		, _TL("Size of smoothing filter"),
 		_TL(""),
 		PARAMETER_TYPE_Double, 2.0, 0.0, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "POWER"		, _TL("Power"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 0.5
+	);
+
+	Parameters.Add_Range(
+		NULL	, "RANGE"		, _TL("Range"),
+		_TL(""),
+		0.1, 0.9, 0.0, true
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "FILTER"		, _TL("Filter"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("gaussian"),
+			_TL("power of distance"),
+			_TL("include range"),
+			_TL("exclude range")
+		)
 	);
 }
 
@@ -406,20 +431,24 @@ CViGrA_FFT_Filter::CViGrA_FFT_Filter(void)
 //---------------------------------------------------------
 bool CViGrA_FFT_Filter::On_Execute(void)
 {
-	double		Scale;
+	int			Filter;
+	double		Scale, Power, Range_Min, Range_Max;
 	CSG_Grid	*pInput, *pReal, *pImag;
 
-	pInput	= Parameters("INPUT")	->asGrid();
-	pReal	= Parameters("REAL")	->asGrid();
-	pImag	= Parameters("IMAG")	->asGrid();
-	Scale	= Parameters("SCALE")	->asDouble();
+	pInput		= Parameters("INPUT")	->asGrid();
+	pReal		= Parameters("REAL")	->asGrid();
+	pImag		= Parameters("IMAG")	->asGrid();
+	Scale		= Parameters("SCALE")	->asDouble();
+	Power		= Parameters("POWER")	->asDouble();
+	Filter		= Parameters("FILTER")	->asInt();
+	Range_Min	= Parameters("RANGE")	->asRange()->Get_LoVal();
+	Range_Max	= Parameters("RANGE")	->asRange()->Get_HiVal();
 
 	//-----------------------------------------------------
-	vigra::FImage			Input, Filter_Gauss(Get_NX(), Get_NY()), Filter(Get_NX(), Get_NY());
+	vigra::FImage			Input, Filter_Raw(Get_NX(), Get_NY()), Filter_(Get_NX(), Get_NY());
 	vigra::FFTWComplexImage	Output(Get_NX(), Get_NY());
 
-	Copy_Grid_SAGA_to_VIGRA(*pInput, Input, true);
-
+	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
 		for(int x=0; x<Get_NX(); x++)
@@ -427,13 +456,35 @@ bool CViGrA_FFT_Filter::On_Execute(void)
 			double	xx	= (x - Get_NX() / 2.0) / Get_NX();
 			double	yy	= (y - Get_NY() / 2.0) / Get_NY();
 
-			Filter_Gauss(x, y)	= std::exp(-(xx*xx + yy*yy) / 2.0 * Scale);
+			switch( Filter )
+			{
+			case 0:
+				Filter_Raw(x, y)	= exp(-(xx*xx + yy*yy) / 2.0 * Scale);
+				break;
+
+			case 1:
+				Filter_Raw(x, y)	= pow(sqrt(xx*xx + yy*yy), Power);
+				break;
+
+			case 2:
+				Filter_Raw(x, y)	= (xx = sqrt(xx*xx + yy*yy)) < Range_Min || xx > Range_Max ? 0.0 : 1.0;
+				break;
+
+			case 3:
+				Filter_Raw(x, y)	= (xx = sqrt(xx*xx + yy*yy)) < Range_Min || xx > Range_Max ? 1.0 : 0.0;
+				break;
+			}
 		}
 	}
 
-	moveDCToUpperLeft(srcImageRange(Filter_Gauss), destImage(Filter));    // applyFourierFilter() expects the filter's DC in the upper left
+	//-----------------------------------------------------
+	moveDCToUpperLeft(srcImageRange(Filter_Raw), destImage(Filter_));    // applyFourierFilter() expects the filter's DC in the upper left
 
-	vigra::applyFourierFilter(srcImageRange(Input), srcImage(Filter), destImage(Output));
+	Copy_Grid_SAGA_to_VIGRA(*pInput, Input, true);
+
+	vigra::applyFourierFilter(srcImageRange(Input), srcImage(Filter_), destImage(Output));
+ 
+	transformImage(srcImageRange(Output), destImage(Output), std::bind1st(std::multiplies<FFTWComplex>(), 1.0 / Get_NX() / Get_NY()));
 
 	//-----------------------------------------------------
 	Copy_ComplexGrid_VIGRA_to_SAGA(*pReal, *pImag, Output, false);

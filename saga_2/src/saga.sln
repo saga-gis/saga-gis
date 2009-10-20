@@ -254,7 +254,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pointcloud_viewer", "module
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pointcloud_tools", "modules\pointcloud\pointcloud_tools\pointcloud_tools.vcproj", "{56E4370E-B2ED-4614-98A2-C02B35DC84DA}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vigra", "modules_vigra\modules_vigra\vigra\vigra.vcproj", "{30183561-A0E0-4B89-A901-F168C1F8C575}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ihacres", "modules_contrib\contrib_s_liersch\ihacres\ihacres.vcproj", "{605032F8-0499-49B2-BADC-7A29E7F91FFF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vigra", "modules_images\modules_vigra\vigra\vigra.vcproj", "{30183561-A0E0-4B89-A901-F168C1F8C575}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "opencv", "modules_images\modules_opencv\opencv\opencv.vcproj", "{78592E2D-FD78-4ECA-B601-6ECADA4249CD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -696,6 +700,14 @@ Global
 		{56E4370E-B2ED-4614-98A2-C02B35DC84DA}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
 		{56E4370E-B2ED-4614-98A2-C02B35DC84DA}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
 		{56E4370E-B2ED-4614-98A2-C02B35DC84DA}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
+		{605032F8-0499-49B2-BADC-7A29E7F91FFF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{605032F8-0499-49B2-BADC-7A29E7F91FFF}.Debug|Win32.Build.0 = Debug|Win32
+		{605032F8-0499-49B2-BADC-7A29E7F91FFF}.Release|Win32.ActiveCfg = Release|Win32
+		{605032F8-0499-49B2-BADC-7A29E7F91FFF}.Release|Win32.Build.0 = Release|Win32
+		{605032F8-0499-49B2-BADC-7A29E7F91FFF}.Unicode Debug|Win32.ActiveCfg = Unicode Debug|Win32
+		{605032F8-0499-49B2-BADC-7A29E7F91FFF}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
+		{605032F8-0499-49B2-BADC-7A29E7F91FFF}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
+		{605032F8-0499-49B2-BADC-7A29E7F91FFF}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
 		{30183561-A0E0-4B89-A901-F168C1F8C575}.Debug|Win32.ActiveCfg = Debug|Win32
 		{30183561-A0E0-4B89-A901-F168C1F8C575}.Debug|Win32.Build.0 = Debug|Win32
 		{30183561-A0E0-4B89-A901-F168C1F8C575}.Release|Win32.ActiveCfg = Release|Win32
@@ -704,6 +716,14 @@ Global
 		{30183561-A0E0-4B89-A901-F168C1F8C575}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
 		{30183561-A0E0-4B89-A901-F168C1F8C575}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
 		{30183561-A0E0-4B89-A901-F168C1F8C575}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
+		{78592E2D-FD78-4ECA-B601-6ECADA4249CD}.Debug|Win32.ActiveCfg = Debug|Win32
+		{78592E2D-FD78-4ECA-B601-6ECADA4249CD}.Debug|Win32.Build.0 = Debug|Win32
+		{78592E2D-FD78-4ECA-B601-6ECADA4249CD}.Release|Win32.ActiveCfg = Release|Win32
+		{78592E2D-FD78-4ECA-B601-6ECADA4249CD}.Release|Win32.Build.0 = Release|Win32
+		{78592E2D-FD78-4ECA-B601-6ECADA4249CD}.Unicode Debug|Win32.ActiveCfg = Unicode Debug|Win32
+		{78592E2D-FD78-4ECA-B601-6ECADA4249CD}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
+		{78592E2D-FD78-4ECA-B601-6ECADA4249CD}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
+		{78592E2D-FD78-4ECA-B601-6ECADA4249CD}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

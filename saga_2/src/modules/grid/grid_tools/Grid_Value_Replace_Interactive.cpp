@@ -75,7 +75,7 @@ bool CGrid_Value_Replace_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG
 
 	m_pGrid->Set_Value(iX,iY,m_dNewValue);
 
-	DataObject_Update(m_pGrid, true);
+	DataObject_Update(m_pGrid, SG_UI_DATAOBJECT_UPDATE_ONLY);
 
 	return (true);
 

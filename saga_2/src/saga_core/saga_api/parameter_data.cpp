@@ -1580,7 +1580,7 @@ CSG_Table * CSG_Parameter_Table_Field::Get_Table(void)
 		}
 	}
 
-	return( pTable && pTable->Get_Field_Count() > 0 ? pTable : NULL );
+	return( pTable && pTable != DATAOBJECT_CREATE && pTable->Get_Field_Count() > 0 ? pTable : NULL );
 }
 
 
@@ -1652,20 +1652,24 @@ bool CSG_Parameter_Data_Object::On_Serialize(CSG_MetaData &Entry, bool bSave)
 		{
 			Entry.Set_Content(SG_T("CREATE"));
 		}
-		else if( m_pDataObject != DATAOBJECT_NOTSET && m_pDataObject->Get_File_Name() )
+		else if( m_pDataObject == DATAOBJECT_NOTSET || !m_pDataObject->Get_File_Name() )
 		{
-			Entry.Set_Content(m_pDataObject->Get_File_Name());
+			Entry.Set_Content(SG_T("NOT SET"));
 		}
 		else
 		{
-			Entry.Set_Content(SG_T("NOT SET"));
+			Entry.Set_Content(m_pDataObject->Get_File_Name());
 		}
 	}
 	else
 	{
-		if( !Entry.Cmp_Content(SG_T("CREATE")) )
+		if( Entry.Cmp_Content(SG_T("CREATE")) )
 		{
 			Set_Value(DATAOBJECT_CREATE);
+		}
+		else if( Entry.Cmp_Content(SG_T("NOT SET")) )
+		{
+			Set_Value(DATAOBJECT_NOTSET);
 		}
 		else
 		{

@@ -6,14 +6,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                        VIGRA                          //
+//                        IHACRES                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                      vigra_fft.h                      //
+//                    MLB_Interface.h                    //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
-//                      Olaf Conrad                      //
+//                 Copyright (C) 2003 by                 //
+//                        Author                         //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,37 +37,28 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     author@email.de                        //
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Hamburg                  //
-//                Germany                                //
+//    contact:    Author                                 //
+//                Sesame Street. 7                       //
+//                12345 Metropolis                       //
+//                Nirvana                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
+/* $Log: not supported by cvs2svn $
+/* Revision 1.1.1.1  2005/08/31 14:00:48  oconrad
+/* no message
+/*
+/* Revision 1.1.1.1  2005/08/17 08:25:03  oconrad
+/* no message
+/*
+/* Revision 1.1.1.1  2005/08/15 13:35:24  oconrad
+/* no message
+/*
+ */
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__vigra_fft_H
-#define HEADER_INCLUDED__vigra_fft_H
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#include "vigra.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -77,75 +68,18 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CViGrA_FFT : public CSG_Module_Grid
-{
-public:
-	CViGrA_FFT(void);
-
-
-protected:
-
-	virtual bool			On_Execute			(void);
-
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
+#ifndef HEADER_INCLUDED__ihacres_H
+#define HEADER_INCLUDED__ihacres_H
 
 //---------------------------------------------------------
-class CViGrA_FFT_Inverse : public CSG_Module_Grid
-{
-public:
-	CViGrA_FFT_Inverse(void);
-
-
-protected:
-
-	virtual bool			On_Execute			(void);
-
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
+#include <SAGA_API/saga_api.h>
 
 //---------------------------------------------------------
-class CViGrA_FFT_Real : public CSG_Module_Grid
-{
-public:
-	CViGrA_FFT_Real(void);
-
-
-protected:
-
-	virtual bool			On_Execute			(void);
-
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CViGrA_FFT_Filter : public CSG_Module_Grid
-{
-public:
-	CViGrA_FFT_Filter(void);
-
-
-protected:
-
-	virtual bool			On_Execute			(void);
-
-
-};
+#ifdef ihacres_noDB_EXPORTS
+	#define	ihacres_noDB_EXPORT	_SAGA_DLL_EXPORT
+#else
+	#define	ihacres_noDB_EXPORT	_SAGA_DLL_IMPORT
+#endif
 
 
 ///////////////////////////////////////////////////////////
@@ -155,4 +89,4 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__vigra_fft_H
+#endif // #ifndef HEADER_INCLUDED__ihacres_H
