@@ -250,6 +250,12 @@ bool CWKSP_Data_Manager::Finalise(void)
 	wxFileName	fProject(sHome.c_str(), wxT("saga_gui"), wxT("cfg"));
 #else
 	wxFileName	fProject(g_pSAGA->Get_App_Path(), wxT("saga_gui"), wxT("cfg"));
+
+	if(	( fProject.FileExists() && (!fProject.IsFileReadable() || !fProject.IsFileWritable()))
+	||	(!fProject.FileExists() && (!fProject.IsDirReadable () || !fProject.IsDirWritable ())) )
+	{
+		fProject.Assign(wxGetHomeDir(), wxT("saga_gui"), wxT("cfg"));
+	}
 #endif
 
 	CONFIG_Write(wxT("/DATA")		, wxT("PROJECT_START")	, (long)m_Parameters("PROJECT_START")	->asInt());

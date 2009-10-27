@@ -232,7 +232,8 @@ void CSAGA::_Init_Config(void)
 	if(	( fConfig.FileExists() && (!fConfig.IsFileReadable() || !fConfig.IsFileWritable()))
 	||	(!fConfig.FileExists() && (!fConfig.IsDirReadable () || !fConfig.IsDirWritable ())) )
 	{
-		fConfig.Assign(wxFileName::GetTempDir(), wxT("saga_gui"), wxT("ini"));
+		fConfig.Assign(wxGetHomeDir(), wxT("saga_gui"), wxT("ini"));
+		//fConfig.Assign(wxFileName::GetTempDir(), wxT("saga_gui"), wxT("ini"));
 	}
 
 	pConfig = new wxFileConfig(wxEmptyString, wxEmptyString, fConfig.GetFullPath(), fConfig.GetFullPath(), wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_GLOBAL_FILE|wxCONFIG_USE_RELATIVE_PATH);
