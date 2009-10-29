@@ -4,6 +4,9 @@
 #include <iostream>
 #include <string>
 #include <sstream>			// function StringToDouble
+#ifdef _SAGA_LINUX
+	#include <cstdio>
+#endif
 
 using std::string;
 using std::istringstream;	// function StringToDouble

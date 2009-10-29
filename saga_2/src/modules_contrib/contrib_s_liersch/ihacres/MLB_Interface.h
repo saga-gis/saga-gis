@@ -48,6 +48,9 @@
 
 //---------------------------------------------------------
 /* $Log: not supported by cvs2svn $
+/* Revision 1.1  2009/10/20 07:40:39  oconrad
+/* no message
+/*
 /* Revision 1.1.1.1  2005/08/31 14:00:48  oconrad
 /* no message
 /*
@@ -72,7 +75,7 @@
 #define HEADER_INCLUDED__ihacres_H
 
 //---------------------------------------------------------
-#include <SAGA_API/saga_api.h>
+#include <saga_api/saga_api.h>
 
 //---------------------------------------------------------
 #ifdef ihacres_noDB_EXPORTS

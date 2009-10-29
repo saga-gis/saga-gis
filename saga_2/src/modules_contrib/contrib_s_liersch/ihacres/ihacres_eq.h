@@ -64,10 +64,12 @@
 #define HEADER_INCLUDED__ihacres_eq_H
 //---------------------------------------------------------
 
-#include <SAGA_API/saga_api.h>	// CSG_Table
+#include <saga_api/saga_api.h>	// CSG_Table
 
 #include <vector>   // used for storing date string values in array
 					// and double arrays (streamflow, pcp, tmp ...)
+#include <string>
+
 using namespace std;
 
 #include "snow_module.h"
