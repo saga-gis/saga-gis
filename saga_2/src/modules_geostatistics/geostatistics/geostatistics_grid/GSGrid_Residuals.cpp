@@ -225,6 +225,7 @@ int CGSGrid_Residuals::Get_Value(int x, int y)
 		}
 
 		StdDev		/= (double)(nPoints - 1.0);
+		StdDev		= sqrt(StdDev);
 
 		pMean		->Set_Value(x, y, Mean);
 		pDiff		->Set_Value(x, y, zValue - Mean);
@@ -233,7 +234,7 @@ int CGSGrid_Residuals::Get_Value(int x, int y)
 		pMin		->Set_Value(x, y, zMin);
 		pMax		->Set_Value(x, y, zMax);
 		pDevMean	->Set_Value(x, y, (zValue - Mean) / StdDev);
-		pPercentile	->Set_Value(x, y, 100.0 * (double)nLower / (double)(nPoints - 1.0));
+		pPercentile	->Set_Value(x, y, 100.0 * (double)nLower / (double)(nPoints));
 	}
 
 	return( nPoints );
