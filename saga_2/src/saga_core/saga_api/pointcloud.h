@@ -123,9 +123,9 @@ public:
 	const SG_Char *					Get_Field_Name		(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Name[iField]->c_str() : NULL );				}
 	TSG_Data_Type					Get_Field_Type		(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Type[iField] : SG_DATATYPE_Undefined );	}
 
-	int								Get_Attribute_Count	(void)			const	{	return( m_nFields );	}
-	const SG_Char *					Get_Attribute_Name	(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Name[iField]->c_str() : NULL );				}
-	TSG_Data_Type					Get_Attribute_Type	(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Type[iField] : SG_DATATYPE_Undefined );	}
+	int								Get_Attribute_Count	(void)			const	{	return( m_nFields - 3 );	}
+	const SG_Char *					Get_Attribute_Name	(int iField)	const	{	return( iField >= 0 && iField < (m_nFields - 3) ? m_Field_Name[iField + 3]->c_str() : NULL );				}
+	TSG_Data_Type					Get_Attribute_Type	(int iField)	const	{	return( iField >= 0 && iField < (m_nFields - 3) ? m_Field_Type[iField + 3] : SG_DATATYPE_Undefined );	}
 
 	double							Get_Minimum			(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_Minimum()  : 0.0 );	}
 	double							Get_Maximum			(int iField)	const	{	return( _Stats_Update(iField) ? m_Field_Stats[iField]->Get_Maximum()  : 0.0 );	}
