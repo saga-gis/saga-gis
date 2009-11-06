@@ -114,29 +114,26 @@ CGSGrid_Residuals::CGSGrid_Residuals(void)
 //---------------------------------------------------------
 bool CGSGrid_Residuals::On_Execute(void)
 {
-	pInput		= Parameters("INPUT")		->asGrid();
+	m_pInput		= Parameters("INPUT")		->asGrid();
+	m_pMean			= Parameters("MEAN")		->asGrid();
+	m_pDiff			= Parameters("DIFF")		->asGrid();
+	m_pStdDev		= Parameters("STDDEV")		->asGrid();
+	m_pRange		= Parameters("RANGE")		->asGrid();
+	m_pMin			= Parameters("MIN")			->asGrid();
+	m_pMax			= Parameters("MAX")			->asGrid();
+	m_pDevMean		= Parameters("DEVMEAN")		->asGrid();
+	m_pPercentile	= Parameters("PERCENTILE")	->asGrid();
 
-	pMean		= Parameters("MEAN")		->asGrid();
-	pDiff		= Parameters("DIFF")		->asGrid();
-	pStdDev		= Parameters("STDDEV")		->asGrid();
-	pRange		= Parameters("RANGE")		->asGrid();
-	pMin		= Parameters("MIN")			->asGrid();
-	pMax		= Parameters("MAX")			->asGrid();
-	pDevMean	= Parameters("DEVMEAN")		->asGrid();
-	pPercentile	= Parameters("PERCENTILE")	->asGrid();
-
-	DataObject_Set_Colors(pDiff			, 100, SG_COLORS_RED_GREY_BLUE, true);
-	DataObject_Set_Colors(pStdDev		, 100, SG_COLORS_RED_GREY_BLUE, true);
-	DataObject_Set_Colors(pRange		, 100, SG_COLORS_RED_GREY_BLUE, true);
-	DataObject_Set_Colors(pMin			, 100, SG_COLORS_RED_GREY_BLUE, true);
-	DataObject_Set_Colors(pMax			, 100, SG_COLORS_RED_GREY_BLUE, true);
-	DataObject_Set_Colors(pDevMean		, 100, SG_COLORS_RED_GREY_BLUE, true);
-	DataObject_Set_Colors(pPercentile	, 100, SG_COLORS_RED_GREY_BLUE, true);
+	DataObject_Set_Colors(m_pDiff		, 100, SG_COLORS_RED_GREY_BLUE, true);
+	DataObject_Set_Colors(m_pStdDev		, 100, SG_COLORS_RED_GREY_BLUE, true);
+	DataObject_Set_Colors(m_pRange		, 100, SG_COLORS_RED_GREY_BLUE, true);
+	DataObject_Set_Colors(m_pMin		, 100, SG_COLORS_RED_GREY_BLUE, true);
+	DataObject_Set_Colors(m_pMax		, 100, SG_COLORS_RED_GREY_BLUE, true);
+	DataObject_Set_Colors(m_pDevMean	, 100, SG_COLORS_RED_GREY_BLUE, true);
+	DataObject_Set_Colors(m_pPercentile	, 100, SG_COLORS_RED_GREY_BLUE, true);
 
 	//-----------------------------------------------------
-	m_Radius.Create(Parameters("RADIUS")->asInt() + 1);
-
-	Values		= (double *)malloc(m_Radius.Get_nPoints() * sizeof(double));
+	m_Radius.Create(Parameters("RADIUS")->asInt());
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -150,33 +147,42 @@ bool CGSGrid_Residuals::On_Execute(void)
 	//-----------------------------------------------------
 	m_Radius.Destroy();
 
-	free(Values);
-
 	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 int CGSGrid_Residuals::Get_Value(int x, int y)
 {
-	int		iPoint, ix, iy, nPoints, nLower;
-	double	Value, zValue, zMin, zMax, Mean, StdDev;
-
 	//-----------------------------------------------------
-	nPoints	= 0;
-
-	if( pInput->is_InGrid(x, y) )
+	if( m_pInput->is_InGrid(x, y) )
 	{
+		int		ix, iy, nPoints, nLower;
+		double	Value, zValue, zMin, zMax, Mean, StdDev;
+
+		nPoints	= 0;
 		nLower	= 0;
 		Mean	= 0.0;
-		zValue	= pInput->asDouble(x, y);
+		StdDev	= 0.0;
+		zValue	= m_pInput->asDouble(x, y);
 
-		for(iPoint=0; iPoint<m_Radius.Get_nPoints(); iPoint++)
+		//-------------------------------------------------
+		for(int iPoint=0; iPoint<m_Radius.Get_nPoints(); iPoint++)
 		{
 			m_Radius.Get_Point(iPoint, x, y, ix, iy);
 
-			if( pInput->is_InGrid(ix, iy) )
+			if( m_pInput->is_InGrid(ix, iy) )
 			{
-				Mean	+= (Values[nPoints++]	= Value	= pInput->asDouble(ix, iy));
+				Value	 = m_pInput->asDouble(ix, iy);
+				Mean	+= Value;
+				StdDev	+= Value * Value;
+				nPoints	++;
 
 				if( nPoints <= 1 )
 				{
@@ -197,45 +203,44 @@ int CGSGrid_Residuals::Get_Value(int x, int y)
 				}
 			}
 		}
+
+		//-------------------------------------------------
+		if( nPoints > 1 )
+		{
+			Mean	= Mean / nPoints;
+			StdDev	= sqrt(StdDev / (nPoints - 1.0) - Mean * Mean);
+
+			m_pMean			->Set_Value(x, y, Mean);
+			m_pDiff			->Set_Value(x, y, zValue - Mean);
+			m_pStdDev		->Set_Value(x, y, StdDev);
+			m_pRange		->Set_Value(x, y, zMax - zMin);
+			m_pMin			->Set_Value(x, y, zMin);
+			m_pMax			->Set_Value(x, y, zMax);
+			m_pDevMean		->Set_Value(x, y, (zValue - Mean) / StdDev);
+			m_pPercentile	->Set_Value(x, y, 100.0 * (double)nLower / (double)(nPoints));
+
+			return( true );
+		}
 	}
 
 	//-----------------------------------------------------
-	if( nPoints <= 1 )
-	{
-		pMean		->Set_NoData(x, y);
-		pDiff		->Set_NoData(x, y);
-		pStdDev		->Set_NoData(x, y);
-		pRange		->Set_NoData(x, y);
-		pMin		->Set_NoData(x, y);
-		pMax		->Set_NoData(x, y);
-		pDevMean	->Set_NoData(x, y);
-		pPercentile	->Set_NoData(x, y);
-	}
-	else
-	{
-		Mean		/= (double)nPoints;
+	m_pMean			->Set_NoData(x, y);
+	m_pDiff			->Set_NoData(x, y);
+	m_pStdDev		->Set_NoData(x, y);
+	m_pRange		->Set_NoData(x, y);
+	m_pMin			->Set_NoData(x, y);
+	m_pMax			->Set_NoData(x, y);
+	m_pDevMean		->Set_NoData(x, y);
+	m_pPercentile	->Set_NoData(x, y);
 
-		StdDev		= 0.0;
-
-		for(iPoint=0; iPoint<nPoints; iPoint++)
-		{
-			Value	= Values[iPoint] - Mean;
-
-			StdDev	+= Value * Value;
-		}
-
-		StdDev		/= (double)(nPoints - 1.0);
-		StdDev		= sqrt(StdDev);
-
-		pMean		->Set_Value(x, y, Mean);
-		pDiff		->Set_Value(x, y, zValue - Mean);
-		pStdDev		->Set_Value(x, y, StdDev);
-		pRange		->Set_Value(x, y, zMax - zMin);
-		pMin		->Set_Value(x, y, zMin);
-		pMax		->Set_Value(x, y, zMax);
-		pDevMean	->Set_Value(x, y, (zValue - Mean) / StdDev);
-		pPercentile	->Set_Value(x, y, 100.0 * (double)nLower / (double)(nPoints));
-	}
-
-	return( nPoints );
+	return( false );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

@@ -94,11 +94,9 @@ protected:
 
 private:
 
-	double					*Values;
-
 	CSG_Grid_Radius			m_Radius;
 
-	CSG_Grid				*pInput, *pMean, *pDiff, *pStdDev, *pRange, *pMin, *pMax, *pDevMean, *pPercentile;
+	CSG_Grid				*m_pInput, *m_pMean, *m_pDiff, *m_pStdDev, *m_pRange, *m_pMin, *m_pMax, *m_pDevMean, *m_pPercentile;
 
 
 	int						Get_Value		(int x, int y);
