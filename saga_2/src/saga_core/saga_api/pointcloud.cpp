@@ -110,7 +110,7 @@ CSG_PointCloud * SG_Create_PointCloud(CSG_PointCloud *pStructure)
 
 //---------------------------------------------------------
 CSG_PointCloud::CSG_PointCloud(void)
-	: CSG_Data_Object()
+	: CSG_Shapes()
 {
 	_On_Construction();
 }
@@ -126,7 +126,7 @@ bool CSG_PointCloud::Create(void)
 
 //---------------------------------------------------------
 CSG_PointCloud::CSG_PointCloud(const CSG_PointCloud &PointCloud)
-	: CSG_Data_Object()
+	: CSG_Shapes()
 {
 	_On_Construction();
 
@@ -147,7 +147,7 @@ bool CSG_PointCloud::Create(const CSG_PointCloud &PointCloud)
 
 //---------------------------------------------------------
 CSG_PointCloud::CSG_PointCloud(const CSG_String &File_Name)
-	: CSG_Data_Object()
+	: CSG_Shapes()
 {
 	_On_Construction();
 
@@ -161,7 +161,7 @@ bool CSG_PointCloud::Create(const CSG_String &File_Name)
 
 //---------------------------------------------------------
 CSG_PointCloud::CSG_PointCloud(CSG_PointCloud *pStructure)
-	: CSG_Data_Object()
+	: CSG_Shapes()
 {
 	_On_Construction();
 
@@ -188,6 +188,8 @@ bool CSG_PointCloud::Create(CSG_PointCloud *pStructure)
 //---------------------------------------------------------
 void CSG_PointCloud::_On_Construction(void)
 {
+	m_Type			= SHAPE_TYPE_Point;
+
 	m_nFields		= 0;
 	m_Field_Name	= NULL;
 	m_Field_Type	= NULL;
@@ -195,7 +197,7 @@ void CSG_PointCloud::_On_Construction(void)
 	m_Field_Offset	= NULL;
 
 	m_Points		= NULL;
-	m_nPoints		= 0;
+	m_nRecords		= 0;
 	m_nBuffer		= 0;
 	m_nPointBytes	= 0;
 
@@ -204,6 +206,9 @@ void CSG_PointCloud::_On_Construction(void)
 	m_NoData_Value	= -999999;
 
 	Set_Update_Flag();
+
+	m_Shapes.Create(SHAPE_TYPE_Point);
+	m_Shapes.Add_Shape();
 }
 
 //---------------------------------------------------------
@@ -349,7 +354,7 @@ bool CSG_PointCloud::_Load(const CSG_String &File_Name)
 
 	Load_MetaData(File_Name);
 
-	if( m_nPoints <= 0 )
+	if( 0 > Get_Count() )
 	{
 		SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
 		SG_UI_Msg_Add_Error(LNG("[ERR] no records in file."));
@@ -392,7 +397,7 @@ bool CSG_PointCloud::_Save(const CSG_String &File_Name)
 		Stream.Write((void *)m_Field_Name[i]->b_str(), sizeof(char), iBuffer);
 	}
 
-	for(i=0; i<m_nPoints && SG_UI_Process_Set_Progress(i, m_nPoints); i++)
+	for(i=0; i<Get_Count() && SG_UI_Process_Set_Progress(i, Get_Count()); i++)
 	{
 		Stream.Write(m_Points[i], m_nPointBytes);
 	}
@@ -436,7 +441,7 @@ bool CSG_PointCloud::Assign(CSG_Data_Object *pObject)
 			_Add_Field(pPointCloud->m_Field_Name[iField]->c_str(), pPointCloud->m_Field_Type[iField]);
 		}
 
-		for(int iPoint=0; iPoint<pPointCloud->m_nPoints; iPoint++)
+		for(int iPoint=0; iPoint<pPointCloud->Get_Count(); iPoint++)
 		{
 			if( _Inc_Array() )
 			{
@@ -504,13 +509,15 @@ bool CSG_PointCloud::_Add_Field(const SG_Char *Name, TSG_Data_Type Type)
 	m_nPointBytes	+= SG_Data_Type_Get_Size(m_Field_Type[m_nFields]);
 	m_nFields		++;
 
+	m_Shapes.Add_Field(Name, Type);
+
 	return( true );
 }
 
 //---------------------------------------------------------
 bool CSG_PointCloud::Add_Field(const SG_Char *Name, TSG_Data_Type Type)
 {
-	if( m_nPoints == 0 )
+	if( Get_Count() == 0 )
 	{
 		if( m_nFields == 0 )
 		{
@@ -618,7 +625,7 @@ TSG_Point_3D CSG_PointCloud::Get_Point(int iPoint)	const
 {
 	TSG_Point_3D	p;
 
-	if( iPoint >= 0 && iPoint < m_nPoints )
+	if( iPoint >= 0 && iPoint < Get_Count() )
 	{
 		char	*pPoint	= m_Points[iPoint];
 
@@ -681,15 +688,15 @@ bool CSG_PointCloud::Add_Point(double x, double y, double z)
 //---------------------------------------------------------
 bool CSG_PointCloud::Del_Point(int iPoint)
 {
-	if( iPoint >= 0 && iPoint < m_nPoints )
+	if( iPoint >= 0 && iPoint < Get_Count() )
 	{
 		m_Cursor	= NULL;
 
 		delete(m_Points[iPoint]);
 
-		m_nPoints--;
+		m_nRecords--;
 
-		for(int i=iPoint, j=iPoint+1; i<m_nPoints; i++, j++)
+		for(int i=iPoint, j=iPoint+1; i<Get_Count(); i++, j++)
 		{
 			m_Points[i]	= m_Points[i + 1];
 		}
@@ -711,14 +718,14 @@ bool CSG_PointCloud::Del_Points(void)
 {
 	if( m_nBuffer > 0 )
 	{
-		for(int iPoint=0; iPoint<m_nPoints; iPoint++)
+		for(int iPoint=0; iPoint<Get_Count(); iPoint++)
 		{
 			SG_Free(m_Points[iPoint]);
 		}
 
 		SG_Free(m_Points);
 		m_Points	= NULL;
-		m_nPoints	= 0;
+		m_nRecords	= 0;
 		m_nBuffer	= 0;
 		m_Cursor	= NULL;
 
@@ -743,7 +750,7 @@ bool CSG_PointCloud::_Inc_Array(void)
 {
 	if( m_nFields > 0 )
 	{
-		if( (m_nPoints + 1) >= m_nBuffer )
+		if( (Get_Count() + 1) >= m_nBuffer )
 		{
 			char	**pPoints	= (char **)SG_Realloc(m_Points, (m_nBuffer + GET_GROW_SIZE(m_nBuffer)) * sizeof(char *));
 
@@ -758,8 +765,8 @@ bool CSG_PointCloud::_Inc_Array(void)
 			}
 		}
 
-		m_Cursor	= m_Points[m_nPoints]	= (char *)SG_Calloc(m_nPointBytes, sizeof(char));
-		m_nPoints	++;
+		m_Cursor	= m_Points[Get_Count()]	= (char *)SG_Calloc(m_nPointBytes, sizeof(char));
+		m_nRecords	++;
 
 		return( true );
 	}
@@ -770,16 +777,16 @@ bool CSG_PointCloud::_Inc_Array(void)
 //---------------------------------------------------------
 bool CSG_PointCloud::_Dec_Array(void)
 {
-	if( m_nPoints > 0 )
+	if( Get_Count() > 0 )
 	{
 		_Stats_Invalidate();
 
 		m_Cursor	= NULL;
-		m_nPoints	--;
+		m_nRecords	--;
 
-		SG_Free(m_Points[m_nPoints]);
+		SG_Free(m_Points[Get_Count()]);
 
-		if( (m_nPoints - 1) < m_nBuffer - GET_GROW_SIZE(m_nBuffer) )
+		if( (Get_Count() - 1) < m_nBuffer - GET_GROW_SIZE(m_nBuffer) )
 		{
 			char	**pPoints	= (char **)SG_Realloc(m_Points, (m_nBuffer - GET_GROW_SIZE(m_nBuffer)) * sizeof(char *));
 
@@ -802,7 +809,7 @@ bool CSG_PointCloud::_Dec_Array(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const CSG_Rect & CSG_PointCloud::Get_Extent(void)
+bool CSG_PointCloud::On_Update(void)
 {
 	if( m_nFields >= 2 )
 	{
@@ -815,43 +822,19 @@ const CSG_Rect & CSG_PointCloud::Get_Extent(void)
 		);
 	}
 
-	return( m_Extent );
-}
-
-//---------------------------------------------------------
-bool CSG_PointCloud::_Stats_Invalidate(void) const
-{
-	for(int iField=0; iField<m_nFields; iField++)
-	{
-		_Stats_Invalidate(iField);
-	}
-
 	return( true );
-}
-
-//---------------------------------------------------------
-bool CSG_PointCloud::_Stats_Invalidate(int iField) const
-{
-	if( iField >= 0 && iField < m_nFields )
-	{
-		m_Field_Stats[iField]->Invalidate();
-
-		return( true );
-	}
-
-	return( false );
 }
 
 //---------------------------------------------------------
 bool CSG_PointCloud::_Stats_Update(int iField) const
 {
-	if( iField >= 0 && iField < m_nFields && m_nPoints > 0 )
+	if( iField >= 0 && iField < m_nFields && Get_Count() > 0 )
 	{
 		if( !m_Field_Stats[iField]->is_Evaluated() )
 		{
 			char	**pPoint	= m_Points;
 
-			for(int iPoint=0; iPoint<m_nPoints; iPoint++, pPoint++)
+			for(int iPoint=0; iPoint<Get_Count(); iPoint++, pPoint++)
 			{
 				double	Value	= _Get_Field_Value(*pPoint, iField);
 
@@ -866,6 +849,33 @@ bool CSG_PointCloud::_Stats_Update(int iField) const
 	}
 
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Table_Record * CSG_PointCloud::Get_Record(int iRecord)	const
+{
+	if( iRecord >= 0 && iRecord < Get_Count() )
+	{
+		CSG_Shape	*pShape	= m_Shapes.Get_Shape(0);
+
+		pShape->Set_Point(Get_X(iRecord), Get_Y(iRecord), 0, 0);
+
+		for(int iField=0; iField<m_nFields; iField++)
+		{
+			pShape->Set_Value(iField, Get_Value(iRecord, iField));
+		}
+
+		return( pShape );
+	}
+
+	return( NULL );
 }
 
 

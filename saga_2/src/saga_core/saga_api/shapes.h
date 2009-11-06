@@ -540,23 +540,23 @@ public:
 
 	virtual bool					is_Valid				(void)	const			{	return( m_Type != SHAPE_TYPE_Undefined && Get_Count() >= 0 );		}
 
-	TSG_Shape_Type					Get_Type				(void)	const			{	return( m_Type );		}
+	virtual TSG_Shape_Type			Get_Type				(void)	const			{	return( m_Type );		}
 
 	const CSG_Rect &				Get_Extent				(void)					{	Update();	return( m_Extent );	}
 
 	//-----------------------------------------------------
-	CSG_Shape *						Add_Shape				(CSG_Table_Record *pCopy = NULL, TSG_ADD_Shape_Copy_Mode mCopy = SHAPE_COPY);
-	bool							Del_Shape				(int iShape);
-	bool							Del_Shape				(CSG_Shape *pShape);
-	bool							Del_Shapes				(void)					{	return( Del_Records() );	}
+	virtual CSG_Shape *				Add_Shape				(CSG_Table_Record *pCopy = NULL, TSG_ADD_Shape_Copy_Mode mCopy = SHAPE_COPY);
+	virtual bool					Del_Shape				(int iShape);
+	virtual bool					Del_Shape				(CSG_Shape *pShape);
+	virtual bool					Del_Shapes				(void)					{	return( Del_Records() );	}
 
-	CSG_Shape *						Get_Shape				(TSG_Point Point, double Epsilon = 0.0);
-	CSG_Shape *						Get_Shape				(int iShape)	const	{	return( (CSG_Shape *)Get_Record(iShape) );	}
-	CSG_Shape *						Get_Shape_byIndex		(int Index)		const	{	return( (CSG_Shape *)Get_Record_byIndex(Index) );	}
+	virtual CSG_Shape *				Get_Shape				(TSG_Point Point, double Epsilon = 0.0);
+	virtual CSG_Shape *				Get_Shape				(int iShape)	const	{	return( (CSG_Shape *)Get_Record(iShape) );	}
+	virtual CSG_Shape *				Get_Shape_byIndex		(int Index)		const	{	return( (CSG_Shape *)Get_Record_byIndex(Index) );	}
 
 	//-----------------------------------------------------
 	virtual CSG_Shape *				Get_Selection			(int Index = 0)			{	return( (CSG_Shape *)CSG_Table::Get_Selection(Index) );	};
-	const CSG_Rect &				Get_Selection_Extent	(void);
+	virtual const CSG_Rect &		Get_Selection_Extent	(void);
 
 	virtual bool					Select					(CSG_Shape *pShape = NULL, bool bInvert = false);
 	virtual bool					Select					(TSG_Rect Extent         , bool bInvert = false);
@@ -570,11 +570,14 @@ protected:
 	CSG_Rect						m_Extent, m_Extent_Selected;
 
 
+	virtual bool					On_Update				(void);
+
 	virtual void					_On_Construction		(void);
 
 	virtual CSG_Table_Record *		_Get_New_Record			(int Index);
 
-	virtual bool					On_Update				(void);
+
+private:
 
 	bool							_Load_ESRI				(const CSG_String &File_Name);
 	bool							_Save_ESRI				(const CSG_String &File_Name);

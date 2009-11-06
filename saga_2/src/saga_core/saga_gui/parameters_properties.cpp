@@ -277,6 +277,13 @@ int CParameters_PG_Choice::_Set_Shapes(void)
 		}
 	}
 
+	if(	m_pParameter->is_Input()
+	&&	(	((CSG_Parameter_Shapes *)m_pParameter->Get_Data())->Get_Shape_Type() == SHAPE_TYPE_Point
+		||	((CSG_Parameter_Shapes *)m_pParameter->Get_Data())->Get_Shape_Type() == SHAPE_TYPE_Undefined ) )
+	{
+		return( _Set_PointCloud() );
+	}
+
 	return( _DataObject_Init() );
 }
 

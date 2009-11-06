@@ -727,19 +727,22 @@ bool CWKSP_Data_Manager::Exists(CSG_Data_Object *pObject, int Type)
 	switch( Type )
 	{
 	case DATAOBJECT_TYPE_Grid:
-		return( m_pGrids  && m_pGrids ->Exists((CSG_Grid   *)pObject) );
+		return( m_pGrids       && m_pGrids      ->Exists((CSG_Grid       *)pObject) );
 
 	case DATAOBJECT_TYPE_Table:
 		return(
-			(	m_pTables && m_pTables->Exists((CSG_Table  *)pObject)	)
-		||	(	m_pShapes && m_pShapes->Exists((CSG_Shapes *)pObject)	)
+			(	m_pTables      && m_pTables     ->Exists((CSG_Table      *)pObject)	)
+		||	(	m_pShapes      && m_pShapes     ->Exists((CSG_Shapes     *)pObject)	)
 		);
 
 	case DATAOBJECT_TYPE_Shapes:
-		return( m_pShapes && m_pShapes->Exists((CSG_Shapes *)pObject) );
+		return(
+			(	m_pShapes      && m_pShapes     ->Exists((CSG_Shapes     *)pObject) )
+		||	(	m_pPointClouds && m_pPointClouds->Exists((CSG_PointCloud *)pObject) )
+		);
 
 	case DATAOBJECT_TYPE_TIN:
-		return( m_pTINs   && m_pTINs  ->Exists((CSG_TIN    *)pObject) );
+		return( m_pTINs        && m_pTINs       ->Exists((CSG_TIN        *)pObject) );
 
 	case DATAOBJECT_TYPE_PointCloud:
 		return( m_pPointClouds && m_pPointClouds->Exists((CSG_PointCloud *)pObject) );

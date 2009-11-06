@@ -228,9 +228,14 @@ bool CSG_Data_Object::Load_MetaData(const SG_Char *File_Name)
 
 		m_pProjection->Destroy();
 
-		if( p->Get_Child(SG_META_SRC_PROJ) )
+		if( p->Get_Child(SG_META_SRC_PROJ) && m_pProjection->Assign(*p->Get_Child(SG_META_SRC_PROJ)) )
 		{
-			m_pProjection->Assign(*p->Get_Child(SG_META_SRC_PROJ));
+			m_Projection.Create(
+				m_pProjection->Get_Child(SG_T("SRID"))		? m_pProjection->Get_Child(SG_T("SRID"))		->Get_Content().asInt()	: -1,
+				m_pProjection->Get_Child(SG_T("AUTHORITY"))	? m_pProjection->Get_Child(SG_T("AUTHORITY"))	->Get_Content()			: SG_T(""),
+				m_pProjection->Get_Child(SG_T("OGC"))		? m_pProjection->Get_Child(SG_T("OGC"))			->Get_Content()			: SG_T(""),
+				m_pProjection->Get_Child(SG_T("PROJ4"))		? m_pProjection->Get_Child(SG_T("PROJ4"))		->Get_Content()			: SG_T("")
+			);
 		}
 	}
 
@@ -251,6 +256,20 @@ bool CSG_Data_Object::Load_MetaData(const SG_Char *File_Name)
 //---------------------------------------------------------
 bool CSG_Data_Object::Save_MetaData(const SG_Char *File_Name)
 {
+	if( m_Projection.Get_Type() == SG_PROJ_TYPE_CS_Undefined )
+	{
+		m_pProjection->Destroy();
+	}
+	else
+	{
+		m_pProjection->Set_Name(SG_META_SRC_PROJ);
+		m_pProjection->Add_Child(SG_T("NAME")		, m_Projection.Get_Name());
+		m_pProjection->Add_Child(SG_T("SRID")		, m_Projection.Get_SRID());
+		m_pProjection->Add_Child(SG_T("AUTHORITY")	, m_Projection.Get_Authority());
+		m_pProjection->Add_Child(SG_T("OGC")		, m_Projection.Get_OpenGIS());
+		m_pProjection->Add_Child(SG_T("PROJ4")		, m_Projection.Get_Proj4());
+	}
+
 	switch( Get_ObjectType() )
 	{
 	default:							return( m_MetaData.Save(File_Name) );

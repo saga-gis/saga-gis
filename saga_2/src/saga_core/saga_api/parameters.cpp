@@ -1284,7 +1284,8 @@ bool CSG_Parameters::Set_History(CSG_MetaData &MetaData, bool bOptions, bool bDa
 				p->Serialize(MetaData, true);
 			}
 
-			if( p->is_Parameters() )
+			//---------------------------------------------
+			else if( p->is_Parameters() )
 			{
 				p->asParameters()->Set_History(MetaData, true, false);
 			}
@@ -1298,26 +1299,30 @@ bool CSG_Parameters::Set_History(CSG_MetaData &MetaData, bool bOptions, bool bDa
 		{
 			CSG_Parameter	*p	= m_Parameters[i];
 
+			//---------------------------------------------
 			if(	p->Get_Type() == PARAMETER_TYPE_Grid_System && p->Get_Children_Count() > 0 )
 			{
-				CSG_MetaData	*pGrids	= NULL;
+				CSG_Parameter	*pSystem	= p;
+				CSG_MetaData	*pGrids		= NULL;
 
-				for(int j=0; j<p->Get_Children_Count(); j++)
+				for(int j=0; j<pSystem->Get_Children_Count(); j++)
 				{
-					CSG_Parameter	*pj	= p->Get_Child(j);
+					p	= pSystem->Get_Child(j);
 
-					if( pj->is_Input() && pj->is_DataObject() && (pObject = pj->asDataObject()) != NULL )
+					if( p->is_Input() && p->is_DataObject() && (pObject = p->asDataObject()) != NULL )
 					{
 						if( pGrids == NULL )
 						{
-							pGrids	= p->Serialize(MetaData, true);
+							pGrids	= pSystem->Serialize(MetaData, true);
 						}
 
-						pEntry	= pj->Serialize(*pGrids, true);
+						pEntry	= p->Serialize(*pGrids, true);
 						pEntry->Assign(pObject->Get_History(), true);
 					}
 				}
 			}
+
+			//---------------------------------------------
 			else if( p->is_Input() )
 			{
 				if( p->is_DataObject() && (pObject = p->asDataObject()) != NULL  )
@@ -1326,19 +1331,23 @@ bool CSG_Parameters::Set_History(CSG_MetaData &MetaData, bool bOptions, bool bDa
 					pEntry->Assign(pObject->Get_History(), true);
 				}
 
-				if( p->is_DataObject_List() && p->asList()->Get_Count() > 0 )
+				else if( p->is_DataObject_List() && p->asList()->Get_Count() > 0 )
 				{
-					MetaData.Add_Child(p->Get_Name(), p->asString());
+					CSG_MetaData	*pList	= MetaData.Add_Child(SG_T("DATA_LIST"));
+					pList->Add_Property(SG_T("type"), p->Get_Type_Identifier());
+					pList->Add_Property(SG_T("id")  , p->Get_Identifier());
+					pList->Add_Property(SG_T("name"), p->Get_Name());
 
 					for(int j=0; j<p->asList()->Get_Count(); j++)
 					{
-						pEntry	= p->Serialize(MetaData, true);
+						pEntry	= pList->Add_Child(SG_T("DATA"));
 						pEntry->Assign(p->asList()->asDataObject(j)->Get_History(), true);
 					}
 				}
 			}
 
-			if( p->is_Parameters() )
+			//---------------------------------------------
+			else if( p->is_Parameters() )
 			{
 				p->asParameters()->Set_History(MetaData, false, true);
 			}

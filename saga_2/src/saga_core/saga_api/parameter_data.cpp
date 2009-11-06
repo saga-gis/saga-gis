@@ -1572,10 +1572,8 @@ CSG_Table * CSG_Parameter_Table_Field::Get_Table(void)
 		case PARAMETER_TYPE_Table:
 		case PARAMETER_TYPE_Shapes:
 		case PARAMETER_TYPE_TIN:
-			pTable	= pParent->asTable();
-			break;
-
 		case PARAMETER_TYPE_PointCloud:
+			pTable	= pParent->asTable();
 			break;
 		}
 	}

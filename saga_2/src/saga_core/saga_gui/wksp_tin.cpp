@@ -129,6 +129,10 @@ wxString CWKSP_TIN::Get_Description(void)
 		LNG("[CAP] File")					, m_pTIN->Get_File_Name()
 	));
 
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
+		LNG("[CAP] Projection")				, m_pTIN->Get_Projection().Get_Name().c_str()
+	));
+
 	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%d</td></tr>"),
 		LNG("[CAP] Points")					, m_pTIN->Get_Node_Count()
 	));

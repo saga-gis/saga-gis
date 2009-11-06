@@ -130,6 +130,10 @@ wxString CWKSP_Shapes::Get_Description(void)
 	));
 
 	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
+		LNG("[CAP] Projection")				, m_pShapes->Get_Projection().Get_Name().c_str()
+	));
+
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
 		LNG("[CAP] Modified")				, m_pShapes->is_Modified() ? LNG("[VAL] yes") : LNG("[VAL] no")
 	));
 

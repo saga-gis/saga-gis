@@ -75,6 +75,11 @@
 //---------------------------------------------------------
 bool CSG_Table::_Load(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char *Separator)
 {
+	if( !::SG_File_Exists(File_Name) )
+	{
+		return( false );
+	}
+
 	bool		bResult;
 	CSG_String	fName, sSeparator(Separator);
 

@@ -129,6 +129,10 @@ wxString CWKSP_PointCloud::Get_Description(void)
 		LNG("[CAP] File")					, m_pPointCloud->Get_File_Name()
 	));
 
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
+		LNG("[CAP] Projection")				, m_pPointCloud->Get_Projection().Get_Name().c_str()
+	));
+
 	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%d</td></tr>"),
 		LNG("[CAP] Number of Points")		, m_pPointCloud->Get_Count()
 	));

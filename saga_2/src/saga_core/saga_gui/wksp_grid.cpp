@@ -134,6 +134,10 @@ wxString CWKSP_Grid::Get_Description(void)
 		LNG("[CAP] File")					, m_pGrid->Get_File_Name()
 	));
 
+	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
+		LNG("[CAP] Projection")				, m_pGrid->Get_Projection().Get_Name().c_str()
+	));
+
 	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%d (x) * %d (y) = %ld</td></tr>"),
 		LNG("[CAP] Number of cells")		, m_pGrid->Get_NX(), m_pGrid->Get_NY(), m_pGrid->Get_NCells()
 	));
