@@ -69,7 +69,7 @@ const SG_Char * Get_Info(int i)
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return( _TL("ViGrA - Image Processing Tools") );
+		return( _TL("Imagery - ViGrA") );
 
 	case MLB_INFO_Author:
 		return( _TL("O. Conrad (c) 2009") );
@@ -92,7 +92,7 @@ const SG_Char * Get_Info(int i)
 		return( SG_T("1.0") );
 
 	case MLB_INFO_Menu_Path:
-		return( _TL("Image Processing and Analysis|ViGrA") );
+		return( _TL("Imagery|ViGrA") );
 	}
 }
 

@@ -19,47 +19,59 @@
 
 #include "AddCoordinates.h"
 
+//---------------------------------------------------------
+CAddCoordinates::CAddCoordinates(void)
+{	
+	Set_Name		(_TL("Add Coordinates to points"));
 
+	Set_Author		(SG_T("Victor Olaya (c) 2004"));
 
-CAddCoordinates::CAddCoordinates(void){
+	Set_Description	(_TW(
+		"(c) 2004 by Victor Olaya."
+	));
 
-	
-	Parameters.Set_Name(_TL("Add Coordinates to points"));
-	Parameters.Set_Description(_TW(
-		"(c) 2004 by Victor Olaya."));
+	Parameters.Add_Shapes(
+		NULL, "INPUT"	, _TL("Points"),
+		_TL(""),
+		PARAMETER_INPUT
+	);	
 
-	Parameters.Add_Shapes(NULL, 
-						"POINTS", 
-						_TL("Points"), 
-						_TL(""), 
-						PARAMETER_INPUT);
-	
-}//constructor
+	Parameters.Add_Shapes(
+		NULL, "OUTPUT"	, _TL("Output"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
+	);	
+}
 
+//---------------------------------------------------------
+bool CAddCoordinates::On_Execute(void)
+{
+	CSG_Shapes	*pShapes	= Parameters("INPUT")->asShapes();
 
-CAddCoordinates::~CAddCoordinates(void)
-{}
+	if( pShapes )
+	{
+		pShapes->Assign(Parameters("POINTS")->asShapes());
+	}
+	else
+	{
+		pShapes	= Parameters("POINTS")->asShapes();
+	}
 
-bool CAddCoordinates::On_Execute(void){
+	//-----------------------------------------------------
+	int	xField	= pShapes->Get_Field_Count();
+	pShapes->Add_Field("X", SG_DATATYPE_Double);
 
-	int i;
-	int iXField, iYField;
-//	double dDist;
-	CSG_Shape *pShape;
-	CSG_Shapes *pShapes = Parameters("POINTS")->asShapes();
-	CSG_Table *pTable = pShapes;
+	int	yField	= pShapes->Get_Field_Count();
+	pShapes->Add_Field("Y", SG_DATATYPE_Double);
 
-	pTable->Add_Field("X", SG_DATATYPE_Double);
-	iXField = pTable->Get_Field_Count() - 1;
-	pTable->Add_Field("Y", SG_DATATYPE_Double);
-	iYField = pTable->Get_Field_Count() - 1;
+	//-----------------------------------------------------
+	for(int i=0; i<pShapes->Get_Count(); i++)
+	{
+		CSG_Shape	*pShape	= pShapes->Get_Shape(i);
 
-	for(i = 0; i < pShapes->Get_Count(); i++){			
-		pShape = pShapes->Get_Shape(i);					
-		pTable->Get_Record(i)->Set_Value(iXField, pShape->Get_Point(0).x);
-		pTable->Get_Record(i)->Set_Value(iYField, pShape->Get_Point(0).y);		
-	}//for
+		pShape->Set_Value(xField, pShape->Get_Point(0).x);
+		pShape->Set_Value(yField, pShape->Get_Point(0).y);
+	}
 
-	return true;
-
-}//method
+	return( true );
+}

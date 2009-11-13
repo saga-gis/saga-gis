@@ -490,16 +490,31 @@ void CWKSP_Layer::DataObject_Changed(CSG_Parameters *pParameters)
 	}
 	else
 	{
-		double	m, s, min, max;
-
 		if( m_pObject->Get_ObjectType() == DATAOBJECT_TYPE_Grid )
 		{
+			double		m, s, min, max;
 			CSG_Grid	*pGrid	= (CSG_Grid *)m_pObject;
 
-			m	= pGrid->Get_ArithMean(true);
-			s	= pGrid->Get_StdDev   (true) * 2.0;
-			min	= m - s;	if( min < pGrid->Get_ZMin(true) )	min	= pGrid->Get_ZMin(true);
-			max	= m + s;	if( max > pGrid->Get_ZMax(true) )	max	= pGrid->Get_ZMax(true);
+			switch( g_pData->Get_Parameters()->Get_Parameter("GRID_DISPLAY_RANGEFIT")->asInt() )
+			{
+			case 0:
+				min	= pGrid->Get_ZMin(true);
+				max	= pGrid->Get_ZMax(true);
+				break;
+
+			case 1:
+				m	= pGrid->Get_ArithMean(true);
+				s	= pGrid->Get_StdDev   (true) * 1.5;
+				min	= m - s;	if( min < pGrid->Get_ZMin(true) )	min	= pGrid->Get_ZMin(true);
+				max	= m + s;	if( max > pGrid->Get_ZMax(true) )	max	= pGrid->Get_ZMax(true);
+				break;
+
+			case 2:
+				m	= pGrid->Get_ArithMean(true);
+				s	= pGrid->Get_StdDev   (true) * 2.0;
+				min	= m - s;	if( min < pGrid->Get_ZMin(true) )	min	= pGrid->Get_ZMin(true);
+				max	= m + s;	if( max > pGrid->Get_ZMax(true) )	max	= pGrid->Get_ZMax(true);
+			}
 
 			m_Parameters("METRIC_ZRANGE")->asRange()->Set_Range(min, max);
 		}

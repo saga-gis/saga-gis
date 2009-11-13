@@ -183,6 +183,24 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	);
 
 	//-----------------------------------------------------
+	pNode	= m_Parameters.Add_Node(NULL, "NODE_GRID_DISPLAY", LNG("Grid Display Defaults"), LNG(""));
+
+	if( CONFIG_Read(wxT("/DATA/GRIDS"), wxT("DISPLAY_RANGEFIT")	, lValue) == false )
+	{
+		lValue	= 2;
+	}
+
+	m_Parameters.Add_Choice(
+		pNode	, "GRID_DISPLAY_RANGEFIT"	, LNG("Display Range"),
+		LNG(""),
+		wxString::Format(wxT("%s|%s|%s|"),
+			LNG("Minimum/Maximum"),
+			LNG("1.5 * Standard Deviation"),
+			LNG("2.0 * Standard Deviation")
+		), lValue
+	);
+
+	//-----------------------------------------------------
 	pNode	= m_Parameters.Add_Node(NULL, "NODE_GENERAL", LNG("General"), LNG(""));
 
 	if( CONFIG_Read(wxT("/DATA"), wxT("PROJECT_START")			, lValue) == false )
@@ -238,12 +256,6 @@ bool CWKSP_Data_Manager::Initialise(void)
 bool CWKSP_Data_Manager::Finalise(void)
 {
 	//-----------------------------------------------------
-	CONFIG_Write(wxT("/DATA/GRIDS")	, wxT("CACHE_TMP_DIR")	,		SG_Grid_Cache_Get_Directory());
-	CONFIG_Write(wxT("/DATA/GRIDS")	, wxT("CACHE_AUTO")		,		SG_Grid_Cache_Get_Automatic());
-	CONFIG_Write(wxT("/DATA/GRIDS")	, wxT("CACHE_THRESHOLD"), (long)SG_Grid_Cache_Get_Threshold());
-	CONFIG_Write(wxT("/DATA/GRIDS")	, wxT("CACHE_CONFIRM")	, (long)SG_Grid_Cache_Get_Confirm  ());
-
-	//-----------------------------------------------------
 #ifdef _SAGA_LINUX
 //	wxFileName	fProject(wxString(getenv( "HOME"), wxConvFile ), wxT("saga_gui"), wxT("cfg"));
 	CSG_String	sHome(getenv("HOME"));
@@ -258,7 +270,15 @@ bool CWKSP_Data_Manager::Finalise(void)
 	}
 #endif
 
-	CONFIG_Write(wxT("/DATA")		, wxT("PROJECT_START")	, (long)m_Parameters("PROJECT_START")	->asInt());
+	//-----------------------------------------------------
+	CONFIG_Write(wxT("/DATA/GRIDS")	, wxT("CACHE_TMP_DIR")		,		SG_Grid_Cache_Get_Directory());
+	CONFIG_Write(wxT("/DATA/GRIDS")	, wxT("CACHE_AUTO")			,		SG_Grid_Cache_Get_Automatic());
+	CONFIG_Write(wxT("/DATA/GRIDS")	, wxT("CACHE_THRESHOLD")	, (long)SG_Grid_Cache_Get_Threshold());
+	CONFIG_Write(wxT("/DATA/GRIDS")	, wxT("CACHE_CONFIRM")		, (long)SG_Grid_Cache_Get_Confirm  ());
+
+	CONFIG_Write(wxT("/DATA/GRIDS")	, wxT("DISPLAY_RANGEFIT")	, (long)m_Parameters("GRID_DISPLAY_RANGEFIT")->asInt());
+
+	CONFIG_Write(wxT("/DATA")		, wxT("PROJECT_START")		, (long)m_Parameters("PROJECT_START")->asInt());
 
 	if( Get_Count() == 0 )
 	{
