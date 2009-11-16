@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.12 2009-09-15 16:48:14 oconrad Exp $
+# $Id: Makefile.am,v 1.13 2009-11-16 11:22:10 reklov_w Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -19,6 +19,7 @@ gpx.cpp\
 gstat.cpp\
 MLB_Interface.cpp\
 pointcloud_from_file.cpp\
+pointcloud_from_text_file.cpp\
 stl.cpp\
 surfer_bln.cpp\
 xyz.cpp\
@@ -29,6 +30,7 @@ gpx.h\
 gstat.h\
 MLB_Interface.h\
 pointcloud_from_file.h\
+pointcloud_from_text_file.h\
 stl.h\
 surfer_bln.h\
 wasp_map.h\

@@ -4,6 +4,7 @@
 	Version="9,00"
 	Name="io_shapes"
 	ProjectGUID="{34EC207E-3AE9-47BC-B7A4-E16946BD2671}"
+	RootNamespace="io_shapes"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
@@ -580,6 +581,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\pointcloud_from_text_file.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stl.cpp"
 				>
 			</File>
@@ -694,6 +699,10 @@
 			</File>
 			<File
 				RelativePath=".\pointcloud_from_file.h"
+				>
+			</File>
+			<File
+				RelativePath=".\pointcloud_from_text_file.h"
 				>
 			</File>
 			<File
