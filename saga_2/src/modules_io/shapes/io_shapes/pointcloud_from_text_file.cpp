@@ -101,10 +101,7 @@ CPointCloud_From_Text_File::CPointCloud_From_Text_File(void)
 
 	Parameters.Add_FilePath(
 		NULL	, "FILE"		, _TL("Text File"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|"),
-			_TL("All Files")		, SG_T("*.*")
-		)
+		_TL("")
 	);
 
 	Parameters.Add_Value(
