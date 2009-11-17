@@ -536,7 +536,10 @@ bool CESRI_ArcInfo_Export::On_Execute(void)
 						}
 						else if( Precision == 0 )
 						{
-							s.Printf(SG_T("%d")		, (int)(0.5 + pGrid->asFloat(x, y)));
+							if( pGrid->asFloat(x, y) > 0 )
+								s.Printf(SG_T("%d")		, (int)(0.5 + pGrid->asFloat(x, y)));
+							else
+								s.Printf(SG_T("%d")		, (int)(pGrid->asFloat(x, y) - 0.5));
 						}
 						else
 						{
@@ -576,13 +579,13 @@ bool CESRI_ArcInfo_Export::Write_Header(FILE *Stream, CSG_Grid *pGrid, bool bCom
 
 		if( Parameters("GEOREF")->asInt() == 0 )
 		{
-			s	+= CSG_String::Format(SG_T("%s %f\n")	, HDR_X_CORNER	, pGrid->Get_XMin() - 0.5 * pGrid->Get_Cellsize());
-			s	+= CSG_String::Format(SG_T("%s %f\n")	, HDR_Y_CORNER	, pGrid->Get_YMin() - 0.5 * pGrid->Get_Cellsize());
+			s	+= CSG_String::Format(SG_T("%s %.10f\n")	, HDR_X_CORNER	, pGrid->Get_XMin() - 0.5 * pGrid->Get_Cellsize());
+			s	+= CSG_String::Format(SG_T("%s %.10f\n")	, HDR_Y_CORNER	, pGrid->Get_YMin() - 0.5 * pGrid->Get_Cellsize());
 		}
 		else
 		{
-			s	+= CSG_String::Format(SG_T("%s %f\n")	, HDR_X_CENTER	, pGrid->Get_XMin());
-			s	+= CSG_String::Format(SG_T("%s %f\n")	, HDR_Y_CENTER	, pGrid->Get_YMin());
+			s	+= CSG_String::Format(SG_T("%s %.10f\n")	, HDR_X_CENTER	, pGrid->Get_XMin());
+			s	+= CSG_String::Format(SG_T("%s %.10f\n")	, HDR_Y_CENTER	, pGrid->Get_YMin());
 		}
 
 		s	+= CSG_String::Format(SG_T("%s %f\n")		, HDR_CELLSIZE	, (float)pGrid->Get_Cellsize());
