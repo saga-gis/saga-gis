@@ -179,14 +179,11 @@ bool CSG_Grid::Assign(CSG_Grid *pGrid, TSG_Grid_Interpolation Interpolation)
 		//-------------------------------------------------
 		if( bResult )
 		{
-			m_zFactor			= pGrid->m_zFactor;
-
-			m_NoData_Value		= pGrid->m_NoData_Value;
-			m_NoData_hiValue	= pGrid->m_NoData_hiValue;
-
-//			Set_Name			(pGrid->Get_Name());
-			Set_Description		(pGrid->Get_Description());
-			Set_Unit			(pGrid->Get_Unit());
+//			Set_Name				(pGrid->Get_Name());
+			Set_Description			(pGrid->Get_Description());
+			Set_Unit				(pGrid->Get_Unit());
+			Set_ZFactor				(pGrid->Get_ZFactor());
+			Set_NoData_Value_Range	(pGrid->Get_NoData_Value(), pGrid->Get_NoData_hiValue());
 		}
 	}
 

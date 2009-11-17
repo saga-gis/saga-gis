@@ -62,27 +62,43 @@
 #define HEADER_INCLUDED__Grid_Value_Type_H
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CGrid_Value_Type : public CSG_Module_Grid  
 {
 public:
 	CGrid_Value_Type(void);
-	virtual ~CGrid_Value_Type(void);
 
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Values") );	}
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Values") );	}
 
 
 protected:
 
-	virtual bool			On_Execute(void);
-
-
-private:
+	virtual bool			On_Execute		(void);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Grid_Value_Type_H

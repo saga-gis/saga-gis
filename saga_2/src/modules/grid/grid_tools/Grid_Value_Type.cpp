@@ -70,12 +70,10 @@
 //---------------------------------------------------------
 CGrid_Value_Type::CGrid_Value_Type(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name(_TL("Convert Data Storage Type"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2003"));
 
 	Set_Description	(_TW(
 		"Changes the storage data type of a grid "
@@ -84,38 +82,34 @@ CGrid_Value_Type::CGrid_Value_Type(void)
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Grid(
+	Parameters.Add_Grid(
 		NULL	, "INPUT"	, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	pNode	= Parameters.Add_Grid(
+	Parameters.Add_Grid(
 		NULL	, "OUTPUT"	, _TL("Converted Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	pNode	= Parameters.Add_Choice(
+	Parameters.Add_Choice(
 		NULL	, "TYPE"	, _TL("Data storage type"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
-			_TL("1 bit"),
-			_TL("1 byte unsigned"),
-			_TL("1 byte signed"),
-			_TL("2 byte unsigned"),
-			_TL("2 byte signed"),
-			_TL("4 byte unsigned"),
-			_TL("4 byte signed"),
-			_TL("4 byte floating point"),
-			_TL("8 byte floating point")
+			SG_Data_Type_Get_Name(SG_DATATYPE_Bit),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Byte),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Char),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Word),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Short),
+			SG_Data_Type_Get_Name(SG_DATATYPE_DWord),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Int),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Float),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Double)
 		)
 	);
 }
-
-//---------------------------------------------------------
-CGrid_Value_Type::~CGrid_Value_Type(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
@@ -127,53 +121,36 @@ CGrid_Value_Type::~CGrid_Value_Type(void)
 //---------------------------------------------------------
 bool CGrid_Value_Type::On_Execute(void)
 {
-	bool			bCopy;
-	TSG_Data_Type	Type;
-	CSG_Grid		*pInput, *pOutput;
-
 	//-----------------------------------------------------
-	pOutput	= Parameters("OUTPUT")->asGrid();
+	CSG_Grid	*pOutput	= Parameters("OUTPUT")	->asGrid();
+	CSG_Grid	*pInput		= Parameters("INPUT")	->asGrid();
 
-	if( pOutput == NULL || pOutput == Parameters("INPUT")->asGrid() )
+	if( pOutput == NULL || pOutput == pInput )
 	{
-		bCopy	= true;
-
-		pInput	= new CSG_Grid(Parameters("INPUT")->asGrid());
-		pInput->Assign(Parameters("INPUT")->asGrid());
-
-		if( pOutput == NULL )
-		{
-			pOutput	= Parameters("INPUT")->asGrid();
-		}
-	}
-	else
-	{
-		bCopy	= false;
-
-		pInput	= Parameters("INPUT")->asGrid();
+		pOutput	= pInput;
+		pInput	= new CSG_Grid(*pOutput);
 	}
 
 	//-----------------------------------------------------
 	switch( Parameters("TYPE")->asInt() )
 	{
 	default:
-	case 0:	Type	= SG_DATATYPE_Bit;		break;
-	case 1:	Type	= SG_DATATYPE_Byte;		break;
-	case 2:	Type	= SG_DATATYPE_Char;		break;
-	case 3:	Type	= SG_DATATYPE_Word;		break;
-	case 4:	Type	= SG_DATATYPE_Short;	break;
-	case 5:	Type	= SG_DATATYPE_DWord;	break;
-	case 6:	Type	= SG_DATATYPE_Int;		break;
-	case 7:	Type	= SG_DATATYPE_Float;	break;
-	case 8:	Type	= SG_DATATYPE_Double;	break;
+	case 0:	pOutput->Create(*Get_System(), SG_DATATYPE_Bit   );	break;
+	case 1:	pOutput->Create(*Get_System(), SG_DATATYPE_Byte  );	break;
+	case 2:	pOutput->Create(*Get_System(), SG_DATATYPE_Char  );	break;
+	case 3:	pOutput->Create(*Get_System(), SG_DATATYPE_Word  );	break;
+	case 4:	pOutput->Create(*Get_System(), SG_DATATYPE_Short );	break;
+	case 5:	pOutput->Create(*Get_System(), SG_DATATYPE_DWord );	break;
+	case 6:	pOutput->Create(*Get_System(), SG_DATATYPE_Int   );	break;
+	case 7:	pOutput->Create(*Get_System(), SG_DATATYPE_Float );	break;
+	case 8:	pOutput->Create(*Get_System(), SG_DATATYPE_Double);	break;
 	}
 
 	//-----------------------------------------------------
-	pOutput->Create(pInput, Type);
 	pOutput->Assign(pInput);
 
 	//-----------------------------------------------------
-	if( bCopy )
+	if( pInput != Parameters("INPUT")->asGrid() )
 	{
 		delete(pInput);
 	}

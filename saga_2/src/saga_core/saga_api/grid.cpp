@@ -404,13 +404,47 @@ void CSG_Grid::Set_NoData_Value(double Value)
 	Set_NoData_Value_Range(Value, Value);
 }
 
+//---------------------------------------------------------
+bool SG_DataType_Range_Check(double &Value, TSG_Data_Type Type)
+{
+	double	min, max;
+
+	switch( Type )
+	{
+		default:
+		case SG_DATATYPE_Double:	Value	= (double)Value;	return( true );
+		case SG_DATATYPE_Float:		Value	= (float )Value;	return( true );
+
+		case SG_DATATYPE_Bit:		min	=           0.0;	max =          1.0;	break;
+		case SG_DATATYPE_Byte:		min	=           0.0;	max =        255.0; break;
+		case SG_DATATYPE_Char:		min	=        -128.0;	max =        127.0;	break;
+		case SG_DATATYPE_Word:		min	=           0.0;	max =      65535.0;	break;
+		case SG_DATATYPE_Short:		min	=      -32768.0;	max =      32767.0;	break;
+		case SG_DATATYPE_DWord:		min	=           0.0;	max = 4294967295.0;	break;
+		case SG_DATATYPE_Int:		min	= -2147483648.0;	max = 2147483647.0;	break;
+	}
+
+	if( Value < min )
+	{
+		Value	= min;
+	}
+	else if( Value > max )
+	{
+		Value	= max;
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
 void CSG_Grid::Set_NoData_Value_Range(double loValue, double hiValue)
 {
-	double	d;
+	SG_DataType_Range_Check(loValue, m_Type);
+	SG_DataType_Range_Check(hiValue, m_Type);
 
 	if( loValue > hiValue )
 	{
-		d			= loValue;
+		double	d	= loValue;
 		loValue		= hiValue;
 		hiValue		= d;
 	}
