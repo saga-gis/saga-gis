@@ -65,25 +65,31 @@
 #include "MLB_Interface.h"
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CGrid_Calculator : public CSG_Module_Grid
 {
 public:
 	CGrid_Calculator(void);
-	virtual ~CGrid_Calculator(void);
 
 
 protected:
 
-	virtual bool			On_Execute(void);
+	virtual bool	On_Execute	(void);
 
-
-private:
-
-	int						nGrids;
-
-	CSG_Grid					**Grids, *pResult;
-
-	
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Grid_Calculator_H

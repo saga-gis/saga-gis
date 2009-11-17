@@ -273,7 +273,7 @@ CSG_String CSG_Formula::Get_Help_Usage(void)
 //---------------------------------------------------------
 bool CSG_Formula::Get_Error(int *pPosition, CSG_String *pMessage)
 {
-	if( m_Formula.code )
+	if( m_bError )
 	{
 		if( pPosition )
 		{

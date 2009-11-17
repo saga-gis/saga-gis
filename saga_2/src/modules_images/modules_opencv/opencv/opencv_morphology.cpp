@@ -93,11 +93,14 @@ COpenCV_Morphology::COpenCV_Morphology(void)
 	Parameters.Add_Choice(
 		NULL	, "TYPE"		, _TL("Operation"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
-			_TL("Dilation"),
-			_TL("Erosion"),
-			_TL("Median"),
-			_TL("User defined rank")
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|"),
+			_TL("dilation"),
+			_TL("erosion"),
+			_TL("opening"),
+			_TL("closing"),
+ 			_TL("morpological gradient"),
+			_TL("top hat"),
+			_TL("black hat")
 		)
 	);
 
@@ -118,15 +121,9 @@ COpenCV_Morphology::COpenCV_Morphology(void)
 	);
 
 	Parameters.Add_Value(
-		NULL	, "RANK"		, _TL("User defined rank"),
+		NULL	, "ITERATIONS"	, _TL("Iterations"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.5, 0.0, true, 1.0, true
-	);
-
-	Parameters.Add_Value(
-		NULL	, "RESCALE"		, _TL("Rescale Values (0-255)"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		PARAMETER_TYPE_Int, 1.0, 1.0, true
 	);
 }
 
@@ -141,17 +138,16 @@ COpenCV_Morphology::COpenCV_Morphology(void)
 bool COpenCV_Morphology::On_Execute(void)
 {
 	bool		bRescale;
-	int			Type, Shape, Radius;
+	int			Type, Shape, Radius, Iterations;
 	double		Rank;
 	CSG_Grid	*pInput, *pOutput;
 
-	pInput		= Parameters("INPUT")	->asGrid();
-	pOutput		= Parameters("OUTPUT")	->asGrid();
-	Type		= Parameters("TYPE")	->asInt();
-	Shape		= Parameters("SHAPE")	->asInt();
-	Radius		= Parameters("RADIUS")	->asInt();
-	Rank		= Parameters("RANK")	->asDouble();
-	bRescale	= Parameters("RESCALE")	->asBool();
+	pInput		= Parameters("INPUT")		->asGrid();
+	pOutput		= Parameters("OUTPUT")		->asGrid();
+	Type		= Parameters("TYPE")		->asInt();
+	Shape		= Parameters("SHAPE")		->asInt();
+	Radius		= Parameters("RADIUS")		->asInt();
+	Iterations	= Parameters("ITERATIONS")	->asInt();
 
 	//-----------------------------------------------------
 	switch( Shape )
@@ -164,19 +160,50 @@ bool COpenCV_Morphology::On_Execute(void)
 
 	//-----------------------------------------------------
 	IplImage	*cv_pInput	= Get_CVImage(pInput);
-	IplImage	*cv_pOutput	= Get_CVImage(Get_NX(), Get_NY(), SG_DATATYPE_Float);
+	IplImage	*cv_pOutput	= Get_CVImage(Get_NX(), Get_NY(), pInput->Get_Type());
+	IplImage	*cv_pTmp	= NULL;
 
 	//-----------------------------------------------------
 	IplConvKernel	*cv_pElement	= cvCreateStructuringElementEx(Radius * 2 + 1, Radius * 2 + 1, Radius, Radius, Shape, 0);
 
 	switch( Type )
 	{
-	case 0:	// Dilation
-		cvDilate(cv_pInput, cv_pOutput, cv_pElement, 1);
+	case 0:	// dilation
+		cvDilate		(cv_pInput, cv_pOutput, cv_pElement, Iterations);
 		break;
 
-	case 1:	// Erosion
-		cvErode (cv_pInput, cv_pOutput, cv_pElement, 1);
+	case 1:	// erosion
+		cvErode			(cv_pInput, cv_pOutput, cv_pElement, Iterations);
+		break;
+
+	case 2:	// opening
+		cvMorphologyEx	(cv_pInput, cv_pOutput, cv_pTmp,
+			cv_pElement, CV_MOP_OPEN    , Iterations
+		);
+		break;
+
+	case 3:	// closing
+		cvMorphologyEx	(cv_pInput, cv_pOutput, cv_pTmp,
+			cv_pElement, CV_MOP_CLOSE   , Iterations
+		);
+		break;
+
+	case 4:	// morpological gradient
+		cvMorphologyEx	(cv_pInput, cv_pOutput, cv_pTmp	= Get_CVImage(Get_NX(), Get_NY(), pInput->Get_Type()),
+			cv_pElement, CV_MOP_GRADIENT, Iterations
+		);
+		break;
+
+	case 5:	// top hat
+		cvMorphologyEx	(cv_pInput, cv_pOutput, cv_pTmp	= Get_CVImage(Get_NX(), Get_NY(), pInput->Get_Type()),
+			cv_pElement, CV_MOP_TOPHAT  , Iterations
+		);
+		break;
+
+	case 6:	// black hat
+		cvMorphologyEx	(cv_pInput, cv_pOutput, cv_pTmp	= Get_CVImage(Get_NX(), Get_NY(), pInput->Get_Type()),
+			cv_pElement, CV_MOP_BLACKHAT, Iterations
+		);
 		break;
 	}
 
@@ -187,6 +214,11 @@ bool COpenCV_Morphology::On_Execute(void)
 
     cvReleaseImage(&cv_pInput);
     cvReleaseImage(&cv_pOutput);
+
+	if( cv_pTmp )
+	{
+		cvReleaseImage(&cv_pTmp);
+	}
 
 	pOutput->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pInput->Get_Name(), Get_Name()));
 
