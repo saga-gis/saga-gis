@@ -12,7 +12,7 @@
 //                                                       //
 //              GSGrid_Zonal_Statistics.cpp              //
 //                                                       //
-//                 Copyright (C) 2005 by                 //
+//                Copyright (C) 2005-9 by                //
 //                    Volker Wichmann                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -71,10 +71,12 @@ CGSGrid_Zonal_Statistics::CGSGrid_Zonal_Statistics(void)
 	Set_Author		(_TL("Copyrights (c) 2005 by Volker Wichmann"));
 
 	Set_Description	(_TW("{STATZONAL_DESC} "
+		"The module calculates zonal statistics and reports these in a table. "
 		"The module can be used to create a contingency table of unique condition units (UCUs). These "
 		"units are delineated from a zonal grid (e.g. sub catchments) and optional categorial grids (e.g. "
 		"landcover, soil, ...). It is possible to calculate simple statistics (min, max, mean, standard "
-		"deviation and sum) for each UCU from optional grids with continious data (e.g. slope). The number "
+		"deviation and sum) for each UCU from optional grids with continious data (e.g. slope; aspect must be "
+		"handled specially, please use the \"Aspect\" input parameter for such a grid). The number "
 		"of input grids is only limited by available memory. The module has four different modes of "
 		"application: (1) only a zonal grid is used as input. This results in a simple contingency table with "
 		"the number of grid cells in each zone. (2) a zonal grid and additional categorial grids are used as "
@@ -114,8 +116,14 @@ CGSGrid_Zonal_Statistics::CGSGrid_Zonal_Statistics(void)
 		PARAMETER_INPUT_OPTIONAL
 	);
 
+	Parameters.Add_Grid(
+		NULL, "ASPECT"		, _TL("Aspect"),
+		_TL("Aspect grid, in radians."),
+		PARAMETER_INPUT_OPTIONAL
+	);
+
 	Parameters.Add_Table(
-		NULL, "OUTTAB"		, _TL("Result Table"),
+		NULL, "OUTTAB"		, _TL("Zonal Statistics"),
 		_TL("Summary table."),
 		PARAMETER_OUTPUT
 	);
@@ -138,7 +146,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 	int						x, y, nCatGrids, nStatGrids, iGrid, zoneID, catID, NDcount, catLevel, NDcountStat;
 	double					statID;
 
-	CSG_Grid				*pZones, *pGrid;
+	CSG_Grid				*pZones, *pGrid, *pAspect;
 	CSG_Parameter_Grid_List	*pCatList;
 	CSG_Parameter_Grid_List	*pStatList;
 
@@ -152,6 +160,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 	pZones		= Parameters("ZONES")		->asGrid();
 	pCatList	= Parameters("CATLIST")		->asGridList();
 	pStatList	= Parameters("STATLIST")	->asGridList();
+	pAspect		= Parameters("ASPECT")		->asGrid();
 	pOutTab		= Parameters("OUTTAB")		->asTable();
 
 	nCatGrids	= pCatList	->Get_Count();
@@ -315,7 +324,53 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 				else
 					NDcountStat += 1;
 			}
-				
+			
+			if( pAspect != NULL )
+			{
+				for( int i=0; i<2; i++ )
+				{
+					if( nStatGrids == 0 && i == 0 )
+					{
+						if( runList->stats == NULL )
+							runList->stats = new CList_Stat();
+							
+						runStats = runList->stats;
+					}
+					else
+					{
+						if( runStats->next == NULL )
+							runStats->next = new CList_Stat();
+
+						runStats = runStats->next;
+					}
+					if( !pAspect->is_NoData(x, y) )
+					{
+						statID	= pAspect->asDouble(x, y);
+
+						if( i == 0 )
+						{
+							if( runStats->dummy == true )
+							{
+								runStats->min = statID;
+								runStats->max = statID;
+								runStats->dummy = false;
+							}
+							if( runStats->min > statID )	
+								runStats->min = statID;
+							if( runStats->max < statID )
+								runStats->max = statID;
+
+							statID	= sin(statID);
+						}
+						else
+							statID	= cos(statID);
+
+						runStats->sum += statID;
+					}
+					else
+						NDcountStat += 1;
+				}
+			}
 
 			runList->count += 1;											// sum up unique condition area
 		}
@@ -338,7 +393,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 
 	pOutTab->Add_Field("Count", SG_DATATYPE_Int);
 	
-	for(iGrid=0; iGrid<nStatGrids; iGrid++)
+	for( iGrid=0; iGrid<nStatGrids; iGrid++ )
 	{
 		tmpName		= CSG_String::Format(SG_T("%s"),pStatList->asGrid(iGrid)->Get_Name()).BeforeFirst(SG_Char('.'));
 		fieldName	= tmpName;
@@ -358,6 +413,20 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 		if (fieldName.Length()+3 > 10)
 			fieldName.Remove(7, fieldName.Length()-7);
 		pOutTab->Add_Field(CSG_String::Format(SG_T("%sSUM")   , fieldName.c_str()), SG_DATATYPE_Double);
+	}
+
+	if( pAspect != NULL )
+	{
+		tmpName		= CSG_String::Format(SG_T("%s"),pAspect->Get_Name()).BeforeFirst(SG_Char('.'));
+		fieldName	= tmpName;
+		if (fieldName.Length()+3 > 10)
+			fieldName.Remove(7, fieldName.Length()-7);
+		pOutTab->Add_Field(CSG_String::Format(SG_T("%sMIN")   , fieldName.c_str()), SG_DATATYPE_Double);
+		pOutTab->Add_Field(CSG_String::Format(SG_T("%sMAX")   , fieldName.c_str()), SG_DATATYPE_Double);
+		fieldName	= tmpName;
+		if (fieldName.Length()+4 > 10)
+			fieldName.Remove(6, fieldName.Length()-6);
+		pOutTab->Add_Field(CSG_String::Format(SG_T("%sMEAN")  , fieldName.c_str()), SG_DATATYPE_Double);
 	}
 
 	while( startList != NULL )												// scan zone layer list and write cat values in table
@@ -388,7 +457,40 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 				pRecord->Set_Value(catLevel+5+iGrid*5, sqrt((runStats->dev - runSub->count*pow(runStats->sum/runSub->count, 2)) / (runSub->count - 1))); // sample
 				//pRecord->Set_Value(catLevel+5+iGrid*5, sqrt((runStats->dev - pow(runStats->sum/runSub->count, 2)) / runSub->count)); // population
 				pRecord->Set_Value(catLevel+6+iGrid*5, runStats->sum);
-			}			
+			}
+
+			if( pAspect != NULL )
+			{
+				iGrid		= nStatGrids * 5;
+
+				if( runSub->cat == pAspect->Get_NoData_Value() )
+				{
+					for( int i=2; i<5; i++ )
+						pRecord->Set_Value(catLevel+i+iGrid, 0.0);
+				}
+				else
+				{
+					double		min, max, sumYcomp, sumXcomp, val, valYcomp, valXcomp;
+
+					if( nStatGrids == 0 )
+						runStats	= runSub->stats;
+					else
+						runStats	= runStats->next;
+					min			= runStats->min;
+					max			= runStats->max;
+					sumYcomp	= runStats->sum;
+
+					runStats	= runStats->next;
+					sumXcomp	= runStats->sum;
+
+					pRecord		->Set_Value(catLevel+2+iGrid, min*M_RAD_TO_DEG);
+					pRecord		->Set_Value(catLevel+3+iGrid, max*M_RAD_TO_DEG);
+					valYcomp	= sumYcomp / runSub->count;
+					valXcomp	= sumXcomp / runSub->count;
+					val			= valYcomp ? fmod(M_PI_270 + atan2(valXcomp, valYcomp), M_PI_360) : (valXcomp > 0 ? M_PI_270 : (valXcomp < 0 ? M_PI_090 : -1));
+					pRecord		->Set_Value(catLevel+4+iGrid, val*M_RAD_TO_DEG);
+				}
+			}
 			
 			while( runSub != NULL )											// read/write categories
 			{
@@ -434,7 +536,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 
 	if( NDcountStat > 0 )
 	{
-		Message_Add(CSG_String::Format(SG_T("\n\n\n%s: %d %s\n\n\n"), _TL("WARNING"), NDcountStat, _TL("no-data value(s) in statistic grid(s)!")));
+		Message_Add(CSG_String::Format(SG_T("\n\n\n%s: %d %s\n\n\n"), _TL("WARNING"), NDcountStat, _TL("NoData value(s) in statistic grid(s)!")));
 	}
 
 	return (true);

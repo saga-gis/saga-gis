@@ -12,7 +12,7 @@
 //                                                       //
 //              GSGrid_Zonal_Statistics.h                //
 //                                                       //
-//                 Copyright (C) 2005 by                 //
+//                Copyright (C) 2005-9 by                //
 //                    Volker Wichmann                    //
 //                                                       //
 //-------------------------------------------------------//
