@@ -745,7 +745,10 @@ bool CSAGA_Frame::ProgressBar_Set_Position(int Position)
 		Position	= 100;
 	}
 
-	m_pProgressBar->SetValue(Position);
+	if( m_pProgressBar->GetValue() != Position )
+	{
+		m_pProgressBar->SetValue(Position);
+	}
 
 	return( Process_Get_Okay(false) );
 }

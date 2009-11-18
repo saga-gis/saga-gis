@@ -96,24 +96,30 @@ public:
 	CSAGA(void);
 	virtual ~CSAGA(void);
 
-	bool						OnInit				(void);
-	int							OnExit				(void);
+	bool						OnInit					(void);
+	int							OnExit					(void);
 
-	wxString					Get_App_Path		(void);
+	wxString					Get_App_Path			(void);
 
-	void						On_Key_Down			(wxKeyEvent &event);
+	bool						Process_Wait			(bool bEnforce = false);
 
-	bool						Process_Wait		(void);
-	bool						Process_Set_Okay	(bool bOkay);
-	bool						Process_Get_Okay	(void);
+	bool						Process_Set_Okay		(bool bOkay);
+	bool						Process_Get_Okay		(void);
+
+	int							Process_Get_Frequency	(void)				{	return( m_Process_Frequency );		}
+	void						Process_Set_Frequency	(int Milliseconds)	{	m_Process_Frequency	= Milliseconds;	}
 
 
 private:
 
 	bool						m_Process_bContinue;
 
+	int							m_Process_Frequency;
 
-	void						_Init_Config		(void);
+
+	void						_Init_Config			(void);
+
+	void						On_Key_Down				(wxKeyEvent &event);
 
 
 //---------------------------------------------------------

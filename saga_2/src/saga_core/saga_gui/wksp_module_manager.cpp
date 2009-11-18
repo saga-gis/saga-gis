@@ -116,6 +116,12 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 			LNG("until user closes it")
 		), 1
 	);
+
+	m_Parameters.Add_Value(
+		NULL	, "PROC_FREQ"	, LNG("Process Update Frequency [milliseconds]"),
+		LNG(""),
+		PARAMETER_TYPE_Int	, 0, 0, true
+	);
 }
 
 //---------------------------------------------------------
@@ -290,6 +296,14 @@ void CWKSP_Module_Manager::On_Execute_UI(wxUpdateUIEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CWKSP_Module_Manager::Parameters_Changed(void)
+{
+	g_pSAGA->Process_Set_Frequency(m_Parameters("PROC_FREQ")->asInt());
+
+	CWKSP_Base_Item::Parameters_Changed();
+}
+
+//---------------------------------------------------------
 bool CWKSP_Module_Manager::Do_Beep(void)
 {
 	return( m_Parameters("BEEP")->asBool() );
@@ -323,6 +337,11 @@ void CWKSP_Module_Manager::_Config_Read(void)
 		m_Parameters("START_LOGO")	->Set_Value((int)lValue);
 	}
 
+	if( CONFIG_Read(wxT("/MODULES"), wxT("PROC_FREQ")	, lValue) )
+	{
+		m_Parameters("PROC_FREQ")	->Set_Value(lValue);
+	}
+
 	for(int i=0; CONFIG_Read(CFG_LIBS, wxString::Format(CFG_LIBF, i), sValue); i++)
 	{
 		Open(sValue);
@@ -336,6 +355,7 @@ void CWKSP_Module_Manager::_Config_Write(void)
 {
 	CONFIG_Write(wxT("/MODULES")	, wxT("BEEP")		,		m_Parameters("BEEP")		->asBool());
 	CONFIG_Write(wxT("/MODULES")	, wxT("START_LOGO")	, (long)m_Parameters("START_LOGO")	->asInt());
+	CONFIG_Write(wxT("/MODULES")	, wxT("PROC_FREQ")	, (long)m_Parameters("PROC_FREQ")	->asInt());
 
 	CONFIG_Delete(CFG_LIBS);
 

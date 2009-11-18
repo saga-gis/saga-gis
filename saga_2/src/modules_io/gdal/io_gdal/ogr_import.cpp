@@ -106,15 +106,15 @@ COGR_Import::COGR_Import(void)
 	);
 
 	Parameters.Add_FilePath(
-		NULL, "FILE"	, _TL("File"),
-		_TL("")
+		NULL, "FILES"	, _TL("Files"),
+		_TL(""),
+		NULL, NULL, false, false, true
 	);
 }
 
 //---------------------------------------------------------
 COGR_Import::~COGR_Import(void)
 {}
-
 
 
 ///////////////////////////////////////////////////////////
@@ -126,33 +126,41 @@ COGR_Import::~COGR_Import(void)
 //---------------------------------------------------------
 bool COGR_Import::On_Execute(void)
 {
+	CSG_Strings		Files;
 	COGR_DataSource	ds;
 
 	//-----------------------------------------------------
-	if( !ds.Create(Parameters("FILE")->asString()) )
+	if( !Parameters("FILES")->asFilePath()->Get_FilePaths(Files) )
 	{
-		Message_Add(_TL("could not open data source"));
-
-		return( false );
-	}
-
-	if( ds.Get_Count() <= 0 )
-	{
-		Message_Add(_TL("no layers in data source"));
-
 		return( false );
 	}
 
 	//-----------------------------------------------------
 	Parameters("SHAPES")->asShapesList()->Del_Items();
 
-	for(int iLayer=0; iLayer<ds.Get_Count(); iLayer++)
+	for(int i=0; i<Files.Get_Count(); i++)
 	{
-		CSG_Shapes	*pShapes	= ds.Read_Shapes(iLayer);
+		Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("loading"), Files[i].c_str()));
 
-		if( pShapes )
+		if( !ds.Create(Files[i]) )
 		{
-			Parameters("SHAPES")->asShapesList()->Add_Item(pShapes);
+			Message_Add(_TL("could not open data source"));
+		}
+		else if( ds.Get_Count() <= 0 )
+		{
+			Message_Add(_TL("no layers in data source"));
+		}
+		else
+		{
+			for(int iLayer=0; iLayer<ds.Get_Count(); iLayer++)
+			{
+				CSG_Shapes	*pShapes	= ds.Read_Shapes(iLayer);
+
+				if( pShapes )
+				{
+					Parameters("SHAPES")->asShapesList()->Add_Item(pShapes);
+				}
+			}
 		}
 	}
 

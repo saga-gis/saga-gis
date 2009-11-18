@@ -103,8 +103,9 @@ CGDAL_Import::CGDAL_Import(void)
 	);
 
 	Parameters.Add_FilePath(
-		NULL, "FILE"	, _TL("File"),
-		_TL("")
+		NULL, "FILES"	, _TL("Files"),
+		_TL(""),
+		NULL, NULL, false, false, true
 	);
 }
 
@@ -118,31 +119,41 @@ CGDAL_Import::CGDAL_Import(void)
 //---------------------------------------------------------
 bool CGDAL_Import::On_Execute(void)
 {
-	CSG_String		File_Name;
+	CSG_Strings		Files;
 	CGDAL_System	System;
 
 	//-----------------------------------------------------
-	File_Name	= Parameters("FILE")	->asString();
-
-	m_pGrids	= Parameters("GRIDS")	->asGridList();
-
-	m_pGrids	->Del_Items();
+	if( !Parameters("FILES")->asFilePath()->Get_FilePaths(Files) )
+	{
+		return( false );
+	}
 
 	//-----------------------------------------------------
-	if( System.Create(File_Name, IO_READ) == false )
+	m_pGrids	= Parameters("GRIDS")	->asGridList();
+	m_pGrids	->Del_Items();
+
+	for(int i=0; i<Files.Get_Count(); i++)
 	{
-		Message_Add(_TL("could not find suitable import driver"));
-	}
-	else if( System.Get_Count() <= 0 )
-	{
-		return( Load_Sub(System, SG_File_Get_Name(File_Name, false)) );
-	}
-	else
-    {
-		return( Load(System, SG_File_Get_Name(File_Name, false)) );
+		Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("loading"), Files[i].c_str()));
+
+		if( System.Create(Files[i], IO_READ) == false )
+		{
+			Message_Add(_TL("failed: could not find a suitable import driver"));
+		}
+		else
+		{
+			if( System.Get_Count() <= 0 )
+			{
+				Load_Sub(System, SG_File_Get_Name(Files[i], false));
+			}
+			else
+			{
+				Load(System, SG_File_Get_Name(Files[i], false));
+			}
+		}
 	}
 
-	return( false );
+	return( m_pGrids->Get_Count() > 0 );
 }
 
 
@@ -237,20 +248,39 @@ bool CGDAL_Import::Load(CGDAL_System &System, const CSG_String &Name)
 			_TL("Transformation")	, System.Get_Transform(3), System.Get_Transform(4), System.Get_Transform(5)
 		), false);
 
-		if( System.Get_Projection() != NULL )
+		if( System.Get_Projection() && System.Get_Projection()[0] )
 		{
-			CSG_String	s(System.Get_Projection());
+			CSG_String	s(System.Get_Projection()), t;
 
-			s.Replace(SG_T("[")  , SG_T("\t"));
-			s.Replace(SG_T("]],"), SG_T("\n"));
-			s.Replace(SG_T("]]") , SG_T("\n"));
-			s.Replace(SG_T("],") , SG_T("\n"));
-			s.Replace(SG_T(",")  , SG_T("\t"));
+			for(int is=0, nt=0; is<(int)s.Length(); is++)
+			{
+				bool	bNewLine	= false, bPrevious	= true;
+
+				switch( s[is] )
+				{
+				case '[':	bNewLine	= true;	nt++;	break;
+				case ',':	bNewLine	= true;			break;
+				case ']':	nt--;	bPrevious	= false;	break;
+				}
+
+				if( bPrevious )
+					t	+= s[is];
+
+				if( bNewLine )
+				{
+					t	+= '\n';
+					for(int it=0; it<nt; it++)
+						t	+= '\t';
+				}
+
+				if( !bPrevious )
+					t	+= s[is];
+			}
 
 			Message_Add(CSG_String::Format(
 				SG_T("\n%s:\n%s"),
 				_TL("Projection"),
-				s.c_str()
+				t.c_str()
 			), false);
 		}
 
@@ -269,6 +299,7 @@ bool CGDAL_Import::Load(CGDAL_System &System, const CSG_String &Name)
 					: Name.c_str()
 				);
 
+			//	pGrid->Get_Projection().Create(System.Get_Projection());
 				m_pGrids->Add_Item(pGrid);
 
 				DataObject_Add			(pGrid);

@@ -147,11 +147,15 @@ bool CSAGA::OnInit(void)
 
 	g_pSAGA				= this;
 
-	m_Process_bContinue	= true;
+	wxInitAllImageHandlers();
 
 	_Init_Config();
 
-	wxInitAllImageHandlers();
+	//-----------------------------------------------------
+	long			lValue;
+
+	m_Process_bContinue	= true;
+	m_Process_Frequency	= CONFIG_Read(wxT("/MODULES"), wxT("PROC_FREQ"), lValue) ? lValue : 0;
 
 	//-----------------------------------------------------
 	long			iLogo;
@@ -299,11 +303,25 @@ void CSAGA::On_Key_Down(wxKeyEvent &event)
 }
 
 //---------------------------------------------------------
-bool CSAGA::Process_Wait(void)
+bool CSAGA::Process_Wait(bool bEnforce)
 {
-	while( Pending() )
+	static bool			bYield	= false;
+	static wxDateTime	tYield	= wxDateTime::UNow();
+
+	if( !bYield && (bEnforce || m_Process_Frequency <= 0 || (wxDateTime::Now() - tYield).GetMilliseconds() > m_Process_Frequency) )
 	{
-		Dispatch();
+		bYield	= true;
+
+		//	Yield();
+		//	wxSafeYield(g_pSAGA_Frame);
+
+		while( Pending() )
+		{
+			Dispatch();
+		}
+
+		bYield	= false;
+		tYield	= wxDateTime::UNow();
 	}
 
 	return( true );
@@ -320,18 +338,7 @@ bool CSAGA::Process_Set_Okay(bool bOkay)
 //---------------------------------------------------------
 bool CSAGA::Process_Get_Okay(void)
 {
-	static bool	bYield	= false;
-
-	if( !bYield )
-	{
-		bYield	= true;
-
-	//	Yield();
-	//	wxSafeYield(g_pSAGA_Frame);
-		Process_Wait();
-
-		bYield	= false;
-	}
+	Process_Wait();
 
 	return( m_Process_bContinue );
 }
