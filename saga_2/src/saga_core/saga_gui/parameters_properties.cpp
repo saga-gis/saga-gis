@@ -196,10 +196,11 @@ int CParameters_PG_Choice::_Set_Table_Field(void)
 	{
 		switch( pParent->Get_Type() )
 		{
-	    default:					pTable	= NULL;					break;
-		case PARAMETER_TYPE_Table:	pTable	= pParent->asTable();	break;
-		case PARAMETER_TYPE_Shapes:	pTable	= pParent->asShapes();	break;
-		case PARAMETER_TYPE_TIN:	pTable	= pParent->asTIN();		break;
+	    default:						pTable	= NULL;						break;
+		case PARAMETER_TYPE_Table:		pTable	= pParent->asTable();		break;
+		case PARAMETER_TYPE_Shapes:		pTable	= pParent->asShapes();		break;
+		case PARAMETER_TYPE_TIN:		pTable	= pParent->asTIN();			break;
+		case PARAMETER_TYPE_PointCloud:	pTable	= pParent->asPointCloud();	break;
 		}
 
 		if( pTable && pTable != DATAOBJECT_CREATE )
