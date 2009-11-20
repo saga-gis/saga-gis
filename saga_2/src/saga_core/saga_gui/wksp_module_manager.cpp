@@ -339,7 +339,7 @@ void CWKSP_Module_Manager::_Config_Read(void)
 
 	if( CONFIG_Read(wxT("/MODULES"), wxT("PROC_FREQ")	, lValue) )
 	{
-		m_Parameters("PROC_FREQ")	->Set_Value(lValue);
+		m_Parameters("PROC_FREQ")	->Set_Value((int)lValue);
 	}
 
 	for(int i=0; CONFIG_Read(CFG_LIBS, wxString::Format(CFG_LIBF, i), sValue); i++)
