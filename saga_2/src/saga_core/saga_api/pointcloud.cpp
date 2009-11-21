@@ -886,3 +886,40 @@ CSG_Table_Record * CSG_PointCloud::Get_Record(int iRecord)	const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_Shape * CSG_PointCloud::Get_Shape(TSG_Point Point, double Epsilon)
+{
+	int			iRecord;
+
+	CSG_Rect	r(Point.x - Epsilon, Point.y - Epsilon, Point.x + Epsilon, Point.y + Epsilon);
+
+	if( r.Intersects(Get_Extent()) != INTERSECTION_None )
+	{
+		for(iRecord=0; iRecord<Get_Count(); iRecord++)
+		{
+			CSG_Shape	*pShape	= m_Shapes.Get_Shape(0);
+
+			pShape->Set_Point(Get_X(iRecord), Get_Y(iRecord), 0, 0);
+
+			if( pShape->Intersects(r) )
+			{
+				for(int iField=0; iField<m_nFields; iField++)
+				{
+					pShape->Set_Value(iField, Get_Value(iRecord, iField));
+				}
+				
+				return( pShape );
+			}
+		}
+	}
+
+	return( NULL );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

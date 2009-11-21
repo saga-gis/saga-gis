@@ -166,7 +166,7 @@ public:
 
 	virtual CSG_Table_Record *		Get_Record			(int iRecord)	const;
 
-	virtual CSG_Shape *				Get_Shape			(TSG_Point Point, double Epsilon = 0.0)		{	return( NULL );	}
+	virtual CSG_Shape *				Get_Shape			(TSG_Point Point, double Epsilon = 0.0);
 
 	virtual bool					Del_Record			(int iRecord)	{	return( Del_Point(iRecord) );	}
 	virtual bool					Del_Shape			(int iShape)	{	return( Del_Point(iShape) );	}
