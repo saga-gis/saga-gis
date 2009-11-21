@@ -352,6 +352,27 @@ int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 //---------------------------------------------------------
 wxString CWKSP_PointCloud::Get_Value(CSG_Point ptWorld, double Epsilon)
 {
+	CSG_Shape		*pShape;
+
+	if( (pShape = m_pPointCloud->Get_Shape(ptWorld, Epsilon)) != NULL )
+	{
+		if( m_Color_Field >= 0 )
+		{
+			switch( m_pClassify->Get_Mode() )
+			{
+			case CLASSIFY_LUT:
+				return( m_pClassify->Get_Class_Name_byValue(pShape->asDouble(m_Color_Field)) );
+
+			case CLASSIFY_METRIC:	default:
+				return( pShape->asString(m_Color_Field) );
+			}
+		}
+		else
+		{
+			return( wxString::Format(wxT("%s: %d"), LNG("[CAP] Index"), pShape->Get_Index() + 1) );
+		}
+	}
+	
 	return( LNG("") );
 }
 
