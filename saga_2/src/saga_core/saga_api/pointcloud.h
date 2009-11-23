@@ -152,8 +152,8 @@ public:
 	bool							Set_NoData			(int iPoint, int iField)				{	return( Set_Attribute(iPoint, iField, m_NoData_Value) );	}
 	bool							is_NoData			(int iPoint, int iField)	const		{	return( Get_Attribute(iPoint, iField) == m_NoData_Value );	}
 
-	TSG_Point_3D					Get_Point			(void)			const;
-	TSG_Point_3D					Get_Point			(int iPoint)	const;
+	TSG_Point_Z						Get_Point			(void)			const;
+	TSG_Point_Z						Get_Point			(int iPoint)	const;
 
 	double							Get_NoData_Value	(void)			const		{	return( m_NoData_Value );	}
 	bool							Set_NoData_Value	(double NoData_Value);

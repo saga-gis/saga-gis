@@ -72,19 +72,18 @@
 //---------------------------------------------------------
 CSG_Module_Interactive_Base::CSG_Module_Interactive_Base(void)
 {
-	m_pModule			= NULL;
+	m_pModule		= NULL;
 
-	m_Keys				= 0;
-	m_Drag_Mode			= MODULE_INTERACTIVE_DRAG_BOX;
+	m_Keys			= 0;
+	m_Drag_Mode		= MODULE_INTERACTIVE_DRAG_BOX;
 
-	m_Point.m_point.x	= m_Point_Last.m_point.x	= 0.0;
-	m_Point.m_point.y	= m_Point_Last.m_point.y	= 0.0;
+	m_Point			.Assign(0.0, 0.0);
+	m_Point_Last	.Assign(0.0, 0.0);
 }
 
 //---------------------------------------------------------
 CSG_Module_Interactive_Base::~CSG_Module_Interactive_Base(void)
-{
-}
+{}
 
 
 ///////////////////////////////////////////////////////////

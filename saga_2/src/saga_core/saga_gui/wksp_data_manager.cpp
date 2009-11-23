@@ -630,6 +630,11 @@ bool CWKSP_Data_Manager::Open(const wxChar *File_Name)
 		return( Open(DATAOBJECT_TYPE_Shapes, File_Name) != NULL );
 	}
 
+	if( SG_File_Cmp_Extension(File_Name, wxT("spc")) )
+	{
+		return( Open(DATAOBJECT_TYPE_PointCloud, File_Name) != NULL );
+	}
+
 	if(	SG_File_Cmp_Extension(File_Name, wxT("sgrd"))
 	||	SG_File_Cmp_Extension(File_Name, wxT("dgm"))
 	||	SG_File_Cmp_Extension(File_Name, wxT("grd")) )

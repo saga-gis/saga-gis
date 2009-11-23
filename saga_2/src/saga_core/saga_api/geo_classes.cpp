@@ -93,77 +93,145 @@ CSG_Point::CSG_Point(double x, double y)
 }
 
 //---------------------------------------------------------
-CSG_Point::~CSG_Point(void)
+void CSG_Point::Add(const CSG_Point &Point)
 {
+	m_x	+= Point.m_x;
+	m_y	+= Point.m_y;
 }
 
-//---------------------------------------------------------
-bool CSG_Point::operator == (const CSG_Point &Point) const
+void CSG_Point::Subtract(const CSG_Point &Point)
 {
-	return( is_Equal(Point) );
-}
-
-bool CSG_Point::operator != (const CSG_Point &Point) const
-{
-	return( !is_Equal(Point) );
-}
-
-CSG_Point & CSG_Point::operator = (const CSG_Point &Point)
-{
-	Assign(Point);
-
-	return( *this );
-}
-
-void CSG_Point::operator += (const CSG_Point &Point)
-{
-	m_point.x	+= Point.Get_X();
-	m_point.y	+= Point.Get_Y();
-}
-
-void CSG_Point::operator -= (const CSG_Point &Point)
-{
-	m_point.x	-= Point.Get_X();
-	m_point.y	-= Point.Get_Y();
-}
-
-CSG_Point CSG_Point::operator + (const CSG_Point &Point) const
-{
-	return( CSG_Point(
-		m_point.x + Point.Get_X(),
-		m_point.y + Point.Get_Y())
-	);
-}
-
-CSG_Point CSG_Point::operator - (const CSG_Point &Point) const
-{
-	return( CSG_Point(
-		m_point.x - Point.Get_X(),
-		m_point.y - Point.Get_Y())
-	);
+	m_x	-= Point.Get_X();
+	m_y	-= Point.Get_Y();
 }
 
 //---------------------------------------------------------
 void CSG_Point::Assign(double x, double y)
 {
-	m_point.x	= x;
-	m_point.y	= y;
+	m_x	= x;
+	m_y	= y;
 }
 
 void CSG_Point::Assign(const CSG_Point &Point)
 {
-	m_point		= Point.m_point;
+	m_x	= Point.m_x;
+	m_y	= Point.m_y;
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Point_Z::CSG_Point_Z(void)
+{
+	Assign(0.0, 0.0, 0.0);
+}
+
+CSG_Point_Z::CSG_Point_Z(const CSG_Point_Z &Point)
+{
+	Assign(Point);
+}
+
+CSG_Point_Z::CSG_Point_Z(const TSG_Point_Z &Point)
+{
+	Assign(Point.x, Point.y, Point.z);
+}
+
+CSG_Point_Z::CSG_Point_Z(double x, double y, double z)
+{
+	Assign(x, y, z);
 }
 
 //---------------------------------------------------------
-bool CSG_Point::is_Equal(double x, double y) const
+void CSG_Point_Z::Add(const CSG_Point_Z &Point)
 {
-	return(	m_point.x == x && m_point.y == y );
+	m_x	+= Point.m_x;
+	m_y	+= Point.m_y;
+	m_z	+= Point.m_z;
 }
 
-bool CSG_Point::is_Equal(const CSG_Point &Point) const
+void CSG_Point_Z::Subtract(const CSG_Point_Z &Point)
 {
-	return(	is_Equal(Point.Get_X(), Point.Get_Y()) );
+	m_x	-= Point.m_x;
+	m_y	-= Point.m_y;
+	m_z	-= Point.m_z;
+}
+
+//---------------------------------------------------------
+void CSG_Point_Z::Assign(double x, double y, double z)
+{
+	m_x	= x;
+	m_y	= y;
+	m_z	= z;
+}
+
+void CSG_Point_Z::Assign(const CSG_Point_Z &Point)
+{
+	m_x	= Point.m_x;
+	m_y	= Point.m_y;
+	m_z	= Point.m_z;
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Point_ZM::CSG_Point_ZM(void)
+{
+	Assign(0.0, 0.0, 0.0, 0.0);
+}
+
+CSG_Point_ZM::CSG_Point_ZM(const CSG_Point_ZM &Point)
+{
+	Assign(Point);
+}
+
+CSG_Point_ZM::CSG_Point_ZM(const TSG_Point_ZM &Point)
+{
+	Assign(Point.x, Point.y, Point.z, Point.m);
+}
+
+CSG_Point_ZM::CSG_Point_ZM(double x, double y, double z, double m)
+{
+	Assign(x, y, z, m);
+}
+
+//---------------------------------------------------------
+void CSG_Point_ZM::Add(const CSG_Point_ZM &Point)
+{
+	m_x	+= Point.m_x;
+	m_y	+= Point.m_y;
+	m_z	+= Point.m_z;
+	m_m	+= Point.m_m;
+}
+
+void CSG_Point_ZM::Subtract(const CSG_Point_ZM &Point)
+{
+	m_x	-= Point.m_x;
+	m_y	-= Point.m_y;
+	m_z	-= Point.m_z;
+	m_m	-= Point.m_m;
+}
+
+//---------------------------------------------------------
+void CSG_Point_ZM::Assign(double x, double y, double z, double m)
+{
+	m_x	= x;
+	m_y	= y;
+	m_z	= z;
+	m_m	= m;
+}
+
+void CSG_Point_ZM::Assign(const CSG_Point_ZM &Point)
+{
+	m_x	= Point.m_x;
+	m_y	= Point.m_y;
+	m_z	= Point.m_z;
+	m_m	= Point.m_m;
 }
 
 
@@ -386,20 +454,20 @@ bool CSG_Points_Int::Del(int Index)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Points_3D::CSG_Points_3D(void)
+CSG_Points_Z::CSG_Points_Z(void)
 {
 	m_nPoints	= 0;
 	m_Points	= NULL;
 }
 
 //---------------------------------------------------------
-CSG_Points_3D::~CSG_Points_3D(void)
+CSG_Points_Z::~CSG_Points_Z(void)
 {
 	Clear();
 }
 
 //---------------------------------------------------------
-void CSG_Points_3D::Clear(void)
+void CSG_Points_Z::Clear(void)
 {
 	if( m_Points )
 	{
@@ -411,20 +479,20 @@ void CSG_Points_3D::Clear(void)
 }
 
 //---------------------------------------------------------
-bool CSG_Points_3D::Assign(const CSG_Points_3D &Points)
+bool CSG_Points_Z::Assign(const CSG_Points_Z &Points)
 {
 	Set_Count(Points.m_nPoints);
 
 	if( m_nPoints > 0 )
 	{
-		memcpy(m_Points, Points.m_Points, m_nPoints * sizeof(TSG_Point_3D));
+		memcpy(m_Points, Points.m_Points, m_nPoints * sizeof(TSG_Point_Z));
 	}
 
 	return( true );
 }
 
 //---------------------------------------------------------
-CSG_Points_3D & CSG_Points_3D::operator  = (const CSG_Points_3D &Points)
+CSG_Points_Z & CSG_Points_Z::operator  = (const CSG_Points_Z &Points)
 {
 	Assign(Points);
 
@@ -432,18 +500,18 @@ CSG_Points_3D & CSG_Points_3D::operator  = (const CSG_Points_3D &Points)
 }
 
 //---------------------------------------------------------
-bool CSG_Points_3D::Set_Count(int nPoints)
+bool CSG_Points_Z::Set_Count(int nPoints)
 {
 	m_nPoints	= nPoints;
-	m_Points	= (TSG_Point_3D *)SG_Realloc(m_Points, m_nPoints * sizeof(TSG_Point_3D));
+	m_Points	= (TSG_Point_Z *)SG_Realloc(m_Points, m_nPoints * sizeof(TSG_Point_Z));
 
 	return( true );
 }
 
 //---------------------------------------------------------
-bool CSG_Points_3D::Add(double x, double y, double z)
+bool CSG_Points_Z::Add(double x, double y, double z)
 {
-	m_Points	= (TSG_Point_3D *)SG_Realloc(m_Points, (m_nPoints + 1) * sizeof(TSG_Point_3D));
+	m_Points	= (TSG_Point_Z *)SG_Realloc(m_Points, (m_nPoints + 1) * sizeof(TSG_Point_Z));
 	m_Points[m_nPoints].x	= x;
 	m_Points[m_nPoints].y	= y;
 	m_Points[m_nPoints].z	= z;
@@ -453,13 +521,13 @@ bool CSG_Points_3D::Add(double x, double y, double z)
 }
 
 //---------------------------------------------------------
-bool CSG_Points_3D::Add(const TSG_Point_3D &Point)
+bool CSG_Points_Z::Add(const TSG_Point_Z &Point)
 {
 	return( Add(Point.x, Point.y, Point.z) );
 }
 
 //---------------------------------------------------------
-bool CSG_Points_3D::Del(int Index)
+bool CSG_Points_Z::Del(int Index)
 {
 	if( Index >= 0 && Index < m_nPoints )
 	{
@@ -467,12 +535,12 @@ bool CSG_Points_3D::Del(int Index)
 
 		if( m_nPoints > 0 )
 		{
-			for(TSG_Point_3D *A=m_Points+Index, *B=m_Points+Index+1; Index<m_nPoints; Index++, A++, B++)
+			for(TSG_Point_Z *A=m_Points+Index, *B=m_Points+Index+1; Index<m_nPoints; Index++, A++, B++)
 			{
 				*A	= *B;
 			}
 
-			m_Points	= (TSG_Point_3D *)SG_Realloc(m_Points, m_nPoints * sizeof(TSG_Point_3D));
+			m_Points	= (TSG_Point_Z *)SG_Realloc(m_Points, m_nPoints * sizeof(TSG_Point_Z));
 		}
 		else
 		{

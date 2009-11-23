@@ -602,9 +602,9 @@ double CSG_PointCloud::_Get_Field_Value(char *pPoint, int iField) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-TSG_Point_3D CSG_PointCloud::Get_Point(void)	const
+TSG_Point_Z CSG_PointCloud::Get_Point(void)	const
 {
-	TSG_Point_3D	p;
+	TSG_Point_Z	p;
 
 	if( m_Cursor )
 	{
@@ -621,9 +621,9 @@ TSG_Point_3D CSG_PointCloud::Get_Point(void)	const
 }
 
 //---------------------------------------------------------
-TSG_Point_3D CSG_PointCloud::Get_Point(int iPoint)	const
+TSG_Point_Z CSG_PointCloud::Get_Point(int iPoint)	const
 {
-	TSG_Point_3D	p;
+	TSG_Point_Z	p;
 
 	if( iPoint >= 0 && iPoint < Get_Count() )
 	{
@@ -888,27 +888,30 @@ CSG_Table_Record * CSG_PointCloud::Get_Record(int iRecord)	const
 //---------------------------------------------------------
 CSG_Shape * CSG_PointCloud::Get_Shape(TSG_Point Point, double Epsilon)
 {
-	int			iRecord;
-
 	CSG_Rect	r(Point.x - Epsilon, Point.y - Epsilon, Point.x + Epsilon, Point.y + Epsilon);
 
 	if( r.Intersects(Get_Extent()) != INTERSECTION_None )
 	{
-		for(iRecord=0; iRecord<Get_Count(); iRecord++)
+		int		iPoint	= -1;
+		double	iDistance;
+
+		for(int iRecord=0; iRecord<Get_Count(); iRecord++)
 		{
-			CSG_Shape	*pShape	= m_Shapes.Get_Shape(0);
+			Set_Cursor(iRecord);
 
-			pShape->Set_Point(Get_X(iRecord), Get_Y(iRecord), 0, 0);
-
-			if( pShape->Intersects(r) )
+			if( r.Contains(Get_X(), Get_Y()) )
 			{
-				for(int iField=0; iField<m_nFields; iField++)
+				if( iPoint < 0 || iDistance > SG_Get_Distance(Point.x, Point.y, Get_X(), Get_Y()) )
 				{
-					pShape->Set_Value(iField, Get_Value(iRecord, iField));
+					iPoint		= iRecord;
+					iDistance	= SG_Get_Distance(Point.x, Point.y, Get_X(), Get_Y());
 				}
-				
-				return( pShape );
 			}
+		}
+
+		if( iPoint >= 0 )
+		{
+			return( CSG_Shapes::Get_Shape(iPoint) );
 		}
 	}
 

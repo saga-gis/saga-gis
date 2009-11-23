@@ -372,7 +372,7 @@ wxString CWKSP_PointCloud::Get_Value(CSG_Point ptWorld, double Epsilon)
 			return( wxString::Format(wxT("%s: %d"), LNG("[CAP] Index"), pShape->Get_Index() + 1) );
 		}
 	}
-	
+
 	return( LNG("") );
 }
 
@@ -525,7 +525,7 @@ void CWKSP_PointCloud::_Draw_Points(CWKSP_Map_DC &dc_Map)
 	//-----------------------------------------------------
 	for(int i=0; i<m_pPointCloud->Get_Count(); i++)
 	{
-		TSG_Point_3D	Point	= m_pPointCloud->Get_Point(i);
+		TSG_Point_Z	Point	= m_pPointCloud->Get_Point(i);
 
 		if( dc_Map.m_rWorld.Contains(Point.x, Point.y) )
 		{

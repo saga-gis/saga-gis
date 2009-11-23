@@ -549,7 +549,7 @@ protected:
 
 	int							m_nValues, m_nBuffer;
 
-	TSG_Point_3D				*m_Values;
+	TSG_Point_Z				*m_Values;
 
 
 	bool						_Create				(double yA, double yB);

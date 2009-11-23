@@ -140,7 +140,7 @@ void CSG_Spline::Add(double x, double y)
 	if( m_nValues >= m_nBuffer )
 	{
 		m_nBuffer	+= 64;
-		m_Values	 = (TSG_Point_3D *)SG_Realloc(m_Values, m_nValues * sizeof(TSG_Point_3D));
+		m_Values	 = (TSG_Point_Z *)SG_Realloc(m_Values, m_nValues * sizeof(TSG_Point_Z));
 	}
 
 	m_nValues++;

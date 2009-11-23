@@ -384,13 +384,13 @@ protected:
 	virtual bool				On_Execute_Keyboard		(int Character);
 	virtual bool				On_Execute_Finish		(void);
 
-	CSG_Point &					Get_Position			(void)	{	return( m_Point );					}
-	double						Get_xPosition			(void)	{	return( m_Point.m_point.x );		}
-	double						Get_yPosition			(void)	{	return( m_Point.m_point.y );		}
+	CSG_Point &					Get_Position			(void)	{	return( m_Point );				}
+	double						Get_xPosition			(void)	{	return( m_Point.Get_X() );		}
+	double						Get_yPosition			(void)	{	return( m_Point.Get_Y() );		}
 
-	CSG_Point &					Get_Position_Last		(void)	{	return( m_Point_Last );				}
-	double						Get_xPosition_Last		(void)	{	return( m_Point_Last.m_point.x );	}
-	double						Get_yPosition_Last		(void)	{	return( m_Point_Last.m_point.y );	}
+	CSG_Point &					Get_Position_Last		(void)	{	return( m_Point_Last );			}
+	double						Get_xPosition_Last		(void)	{	return( m_Point_Last.Get_X() );	}
+	double						Get_yPosition_Last		(void)	{	return( m_Point_Last.Get_Y() );	}
 
 	bool						is_Shift				(void)	{	return( (m_Keys & MODULE_INTERACTIVE_KEY_SHIFT) != 0 );	}
 	bool						is_Alt					(void)	{	return( (m_Keys & MODULE_INTERACTIVE_KEY_ALT)   != 0 );	}

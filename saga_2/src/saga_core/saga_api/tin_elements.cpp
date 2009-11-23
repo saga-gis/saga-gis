@@ -175,8 +175,8 @@ double CSG_TIN_Node::Get_Gradient(int iNeighbor, int iField)
 //---------------------------------------------------------
 int SG_TIN_Compare_Triangle_Center(const void *pz1, const void *pz2)
 {
-	double	z1	= ((TSG_Point_3D *)pz1)->z,
-			z2	= ((TSG_Point_3D *)pz2)->z;
+	double	z1	= ((TSG_Point_Z *)pz1)->z,
+			z2	= ((TSG_Point_Z *)pz2)->z;
 
 	if( z1 < z2 )
 	{
@@ -201,7 +201,7 @@ bool CSG_TIN_Node::Get_Polygon(CSG_Points &Points)
 	{
 		int				i;
 		TSG_Point		c;
-		CSG_Points_3D	p;
+		CSG_Points_Z	p;
 
 		for(i=0; i<m_nTriangles; i++)
 		{
@@ -210,7 +210,7 @@ bool CSG_TIN_Node::Get_Polygon(CSG_Points &Points)
 			p.Add(c.x, c.y, M_GET_DIRECTION(m_Point, c));
 		}
 
-		qsort(&(p[0]), p.Get_Count(), sizeof(TSG_Point_3D), SG_TIN_Compare_Triangle_Center);
+		qsort(&(p[0]), p.Get_Count(), sizeof(TSG_Point_Z), SG_TIN_Compare_Triangle_Center);
 
 		Points.Clear();
 
