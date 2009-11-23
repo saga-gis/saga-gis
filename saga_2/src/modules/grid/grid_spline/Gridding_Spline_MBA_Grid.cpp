@@ -310,7 +310,7 @@ bool CGridding_Spline_MBA_Grid::_Get_Difference(CSG_Grid &Phi)
 {
 	int				xPoint, yPoint, nErrors;
 	double			x, y, z, zMax, zMean;
-	TSG_Point_3D	p;
+	TSG_Point_Z	p;
 	CSG_String		s;
 
 	//-----------------------------------------------------

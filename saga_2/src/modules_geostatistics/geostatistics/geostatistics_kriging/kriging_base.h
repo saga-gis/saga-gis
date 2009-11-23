@@ -96,7 +96,7 @@ protected:
 
 	double					m_Block;
 
-	CSG_Points_3D			m_Points;
+	CSG_Points_Z			m_Points;
 
 	CSG_Vector				m_G;
 

@@ -169,7 +169,7 @@ CGridding_Spline_Base::~CGridding_Spline_Base(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGridding_Spline_Base::_Get_Points(CSG_Points_3D &Points, bool bInGridOnly)
+bool CGridding_Spline_Base::_Get_Points(CSG_Points_Z &Points, bool bInGridOnly)
 {
 	Points.Clear();
 
@@ -314,7 +314,7 @@ bool CGridding_Spline_Base::Initialise(void)
 }
 
 //---------------------------------------------------------
-bool CGridding_Spline_Base::Initialise(CSG_Points_3D &Points, bool bInGridOnly)
+bool CGridding_Spline_Base::Initialise(CSG_Points_Z &Points, bool bInGridOnly)
 {
 	return( Initialise() && _Get_Points(Points, bInGridOnly) );
 }

@@ -100,7 +100,7 @@ private:
 
 	double					m_dArc;
 
-	TSG_Point_3D			m_Offset;
+	TSG_Point_Z			m_Offset;
 
 	CSG_Shape				*m_pPolyLine;
 

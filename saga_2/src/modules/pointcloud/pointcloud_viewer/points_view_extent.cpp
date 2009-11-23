@@ -336,7 +336,7 @@ bool CPoints_View_Extent::_Draw_Image(void)
 
 	for(int i=0; i<m_pPoints->Get_Count(); i++)
 	{
-		TSG_Point_3D	p	= m_pPoints->Get_Point(i);	p.z	= m_pPoints->Get_Value(i, m_cField);
+		TSG_Point_Z	p	= m_pPoints->Get_Point(i);	p.z	= m_pPoints->Get_Value(i, m_cField);
 
 		int	ix	= (p.x - m_Extent.Get_XMin()) * dx;
 		int	iy	= (p.y - m_Extent.Get_YMin()) * dy;

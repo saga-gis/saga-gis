@@ -89,7 +89,7 @@ public:
 
 	void					Add_Point			(double x, double y, double z);
 	void					Add_Point			(const TSG_Point &p, double z);
-	CSG_Points_3D &			Get_Points			(void)	{	return( m_Points );		}
+	CSG_Points_Z &			Get_Points			(void)	{	return( m_Points );		}
 
 	bool					Create				(double Regularization = 0.0, bool bSilent = true);
 
@@ -100,14 +100,14 @@ public:
 
 private:
 
-	CSG_Points_3D			m_Points;
+	CSG_Points_Z			m_Points;
 
 	CSG_Vector				m_V;
 
 
-	double					_Get_hDistance		(TSG_Point_3D A, TSG_Point_3D B);
+	double					_Get_hDistance		(TSG_Point_Z A, TSG_Point_Z B);
 	double					_Get_Base_Funtion	(double x);
-	double					_Get_Base_Funtion	(TSG_Point_3D A, double x, double y);
+	double					_Get_Base_Funtion	(TSG_Point_Z A, double x, double y);
 
 };
 

@@ -99,7 +99,7 @@ private:
 
 	double					m_Epsilon, m_Resolution;
 
-	CSG_Points_3D			m_Points;
+	CSG_Points_Z			m_Points;
 
 
 	bool					_Set_MBA			(double dCell);

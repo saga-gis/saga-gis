@@ -90,7 +90,7 @@ private:
 
 	double					m_MaxRadius;
 
-	CSG_Points_3D			m_Direction;
+	CSG_Points_Z			m_Direction;
 
 	CSG_Vector				m_Angles;
 

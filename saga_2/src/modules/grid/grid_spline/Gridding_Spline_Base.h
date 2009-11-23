@@ -94,7 +94,7 @@ protected:
 
 
 	bool					Initialise		(void);
-	bool					Initialise		(CSG_Points_3D &Points, bool bInGridOnly = false);
+	bool					Initialise		(CSG_Points_Z &Points, bool bInGridOnly = false);
 
 	virtual bool			On_Initialise	(void)	{	return( true );	}
 
@@ -104,7 +104,7 @@ private:
 	bool					m_bGridPoints;
 
 
-	bool					_Get_Points		(CSG_Points_3D &Points, bool bInGridOnly);
+	bool					_Get_Points		(CSG_Points_Z &Points, bool bInGridOnly);
 	bool					_Get_Grid		(void);
 	CSG_Grid *				_Get_Grid		(TSG_Rect Extent);
 

@@ -187,8 +187,8 @@ bool CMandelbrot::On_Execute(void)
 						m_Extent.Get_XMin() + m_Extent.Get_XRange() * (ptWorld.Get_X() - m_pGrid->Get_XMin()) / m_pGrid->Get_XRange(),\
 						m_Extent.Get_YMin() + m_Extent.Get_YRange() * (ptWorld.Get_Y() - m_pGrid->Get_YMin()) / m_pGrid->Get_YRange());
 
-#define SET_POS(a, b)	if( a.Get_X() > b.Get_X() )	{	d	= a.m_point.x; a.m_point.x	= b.m_point.x; b.m_point.x	= d;	}\
-						if( a.Get_Y() > b.Get_Y() )	{	d	= a.m_point.y; a.m_point.y	= b.m_point.y; b.m_point.y	= d;	}
+#define SET_POS(a, b)	if( a.Get_X() > b.Get_X() )	{	d	= a.Get_X(); a.Set_X(b.Get_X()); b.Set_X(d);	}\
+						if( a.Get_Y() > b.Get_Y() )	{	d	= a.Get_Y(); a.Set_Y(b.Get_Y()); b.Set_Y(d);	}
 
 //---------------------------------------------------------
 bool CMandelbrot::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)

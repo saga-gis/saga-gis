@@ -93,7 +93,7 @@ protected:
 
 private:
 
-	CSG_Points_3D			m_Points;
+	CSG_Points_Z			m_Points;
 
 
 	void					BA_Set_Grid		(CSG_Grid &Phi, bool bAdd = false);

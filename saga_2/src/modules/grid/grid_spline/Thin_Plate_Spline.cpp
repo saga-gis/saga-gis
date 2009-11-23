@@ -140,7 +140,7 @@ void CThin_Plate_Spline::Add_Point(const TSG_Point &p, double z)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CThin_Plate_Spline::_Get_hDistance(TSG_Point_3D A, TSG_Point_3D B)
+double CThin_Plate_Spline::_Get_hDistance(TSG_Point_Z A, TSG_Point_Z B)
 {
 	A.x	-= B.x;
 	A.y	-= B.y;
@@ -155,7 +155,7 @@ double CThin_Plate_Spline::_Get_Base_Funtion(double x)
 }
 
 //---------------------------------------------------------
-double CThin_Plate_Spline::_Get_Base_Funtion(TSG_Point_3D A, double x, double y)
+double CThin_Plate_Spline::_Get_Base_Funtion(TSG_Point_Z A, double x, double y)
 {
 	x	-= A.x;
 	y	-= A.y;
@@ -185,7 +185,7 @@ bool CThin_Plate_Spline::Create(double Regularization, bool bSilent)
 	{
 		int				i, j;
 		double			a, b;
-		TSG_Point_3D	Point;
+		TSG_Point_Z	Point;
 		CSG_Matrix		M;
 
 		//-------------------------------------------------

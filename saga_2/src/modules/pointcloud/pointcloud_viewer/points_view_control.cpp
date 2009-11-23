@@ -254,7 +254,7 @@ void CPoints_View_Control::Update_Extent(CSG_Rect Extent)
 	{
 		m_pPoints->Set_Cursor(i);
 
-		TSG_Point_3D	p	= m_pPoints->Get_Point();
+		TSG_Point_Z	p	= m_pPoints->Get_Point();
 
 		if( m_Extent.Contains(p.x, p.y) )
 		{
@@ -635,7 +635,7 @@ inline void CPoints_View_Control::_Draw_Point(int iPoint)
 {
 	int				ix, iy, iColor;
 	double			iz;
-	TSG_Point_3D	p;
+	TSG_Point_Z	p;
 
 	m_pPoints->Set_Cursor(iPoint);
 
@@ -717,9 +717,9 @@ inline void CPoints_View_Control::_Draw_Pixel(int x, int y, double z, int color)
 }
 
 //---------------------------------------------------------
-inline TSG_Point_3D CPoints_View_Control::_Get_Projection(TSG_Point_3D &p)
+inline TSG_Point_Z CPoints_View_Control::_Get_Projection(TSG_Point_Z &p)
 {
-	TSG_Point_3D	q;
+	TSG_Point_Z	q;
 
 	p.x	= (p.x - r_xc) * r_Scale;
 	p.y	= (p.y - r_yc) * r_Scale;

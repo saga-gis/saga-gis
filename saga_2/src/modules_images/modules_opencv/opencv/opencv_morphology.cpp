@@ -137,9 +137,7 @@ COpenCV_Morphology::COpenCV_Morphology(void)
 //---------------------------------------------------------
 bool COpenCV_Morphology::On_Execute(void)
 {
-	bool		bRescale;
 	int			Type, Shape, Radius, Iterations;
-	double		Rank;
 	CSG_Grid	*pInput, *pOutput;
 
 	pInput		= Parameters("INPUT")		->asGrid();
