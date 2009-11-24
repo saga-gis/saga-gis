@@ -1095,7 +1095,7 @@ bool CVIEW_Map_3D::_Play(void)
 
 				if( m_Play_Mode == PLAY_MODE_RUN_SAVE )
 				{
-					m_pImage->Save(wxString::Format(wxT("%s_%03d"), file.c_str(), iFrame++), type);
+					m_pImage->Save(wxString::Format(wxT("%s_%04d.%s"), file.BeforeLast('.').c_str(), iFrame++, file.AfterLast('.').c_str()), type);
 				}
 
 				PROCESS_Wait();
