@@ -69,19 +69,19 @@ const SG_Char * Get_Info(int i)
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return( _TL("Point Cloud - Viewer") );
+		return( _TL("Shapes - Point Clouds Viewer") );
 
 	case MLB_INFO_Author:
 		return( SG_T("O.Conrad (c) 2009") );
 
 	case MLB_INFO_Description:
-		return( _TL("Point cloud viewer." ));
+		return( _TL("Point clouds viewer." ));
 
 	case MLB_INFO_Version:
 		return( SG_T("1.0") );
 
 	case MLB_INFO_Menu_Path:
-		return( _TL("Point Cloud|Visualisation" ));
+		return( _TL("Shapes|Point Clouds|Visualisation" ));
 	}
 }
 

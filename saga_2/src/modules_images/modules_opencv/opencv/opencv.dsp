@@ -58,7 +58,7 @@ LINK32=link.exe
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib cxcore.lib cv.lib cvaux.lib /nologo /subsystem:windows /dll /machine:I386 /libpath:"$(SAGA)/bin/saga_vc" /libpath:"$(OPENCV)/lib"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy     *.lng.txt     ..\..\..\..\bin\saga_vc\modules\ 
+PostBuild_Cmds=copy      *.lng.txt      ..\..\..\..\bin\saga_vc\modules\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "opencv - Win32 Debug"
@@ -165,7 +165,15 @@ SOURCE=.\opencv.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\opencv_fourier.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\opencv_morphology.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\opencv_svd.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -181,7 +189,15 @@ SOURCE=.\opencv.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\opencv_fourier.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\opencv_morphology.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\opencv_svd.h
 # End Source File
 # End Group
 # Begin Group "Include"

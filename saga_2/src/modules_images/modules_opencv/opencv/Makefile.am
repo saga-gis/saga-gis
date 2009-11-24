@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.1 2009-10-20 07:40:39 oconrad Exp $
+# $Id: Makefile.am,v 1.2 2009-11-24 14:04:13 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -15,8 +15,14 @@ pkglib_LTLIBRARIES = libopencv.la
 libopencv_la_SOURCES =\
 MLB_Interface.cpp\
 opencv.cpp\
+opencv_fourier.cpp\
+opencv_morphology.cpp\
+opencv_svd.cpp\
 MLB_Interface.h\
-opencv.h
+opencv.h\
+opencv_fourier.h\
+opencv_morphology.h\
+opencv_svd.h
 
 libopencv_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 

@@ -19,7 +19,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/opencv.o
+OBJ      = $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/opencv.o $(MLB_TEMP)/opencv_fourier.o $(MLB_TEMP)/opencv_morphology.o $(MLB_TEMP)/opencv_svd.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS =
@@ -55,3 +55,12 @@ $(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 
 $(MLB_TEMP)/opencv.o: ./opencv.cpp
 	$(CPP) -c ./opencv.cpp -o $(MLB_TEMP)/opencv.o $(CXXFLAGS)
+
+$(MLB_TEMP)/opencv_fourier.o: ./opencv_fourier.cpp
+	$(CPP) -c ./opencv_fourier.cpp -o $(MLB_TEMP)/opencv_fourier.o $(CXXFLAGS)
+
+$(MLB_TEMP)/opencv_morphology.o: ./opencv_morphology.cpp
+	$(CPP) -c ./opencv_morphology.cpp -o $(MLB_TEMP)/opencv_morphology.o $(CXXFLAGS)
+
+$(MLB_TEMP)/opencv_svd.o: ./opencv_svd.cpp
+	$(CPP) -c ./opencv_svd.cpp -o $(MLB_TEMP)/opencv_svd.o $(CXXFLAGS)

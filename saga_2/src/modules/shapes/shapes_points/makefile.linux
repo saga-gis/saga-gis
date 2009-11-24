@@ -19,7 +19,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/AddCoordinates.o $(MLB_TEMP)/Clip_Points.o $(MLB_TEMP)/CountPoints.o $(MLB_TEMP)/CreatePointGrid.o $(MLB_TEMP)/DistanceMatrix.o $(MLB_TEMP)/FitNPointsToShape.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/Points_From_Lines.o $(MLB_TEMP)/Points_From_Table.o $(MLB_TEMP)/remove_duplicates.o $(MLB_TEMP)/separate_by_direction.o
+OBJ      = $(MLB_TEMP)/add_polygon_attributes.o $(MLB_TEMP)/AddCoordinates.o $(MLB_TEMP)/Clip_Points.o $(MLB_TEMP)/CountPoints.o $(MLB_TEMP)/CreatePointGrid.o $(MLB_TEMP)/DistanceMatrix.o $(MLB_TEMP)/FitNPointsToShape.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/Points_From_Lines.o $(MLB_TEMP)/Points_From_Table.o $(MLB_TEMP)/remove_duplicates.o $(MLB_TEMP)/separate_by_direction.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS =
@@ -49,6 +49,9 @@ $(MLB_PATH):
 $(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
 	$(LD) $(LDFLAGS) -o $(MLB_NAME) $(OBJ) $(LIBS)
 
+
+$(MLB_TEMP)/add_polygon_attributes.o: ./add_polygon_attributes.cpp
+	$(CPP) -c ./add_polygon_attributes.cpp -o $(MLB_TEMP)/add_polygon_attributes.o $(CXXFLAGS)
 
 $(MLB_TEMP)/AddCoordinates.o: ./AddCoordinates.cpp
 	$(CPP) -c ./AddCoordinates.cpp -o $(MLB_TEMP)/AddCoordinates.o $(CXXFLAGS)

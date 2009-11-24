@@ -69,7 +69,7 @@ const SG_Char * Get_Info(int i)
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return( _TL("IHACRES") );
+		return( _TL("Simulation - Hydrology: IHACRES") );
 
 	case MLB_INFO_Author:
 		return( SG_T("Stefan Liersch (c) 2008") );
@@ -117,7 +117,7 @@ const SG_Char * Get_Info(int i)
 		return( SG_T("1.0") );
 
 	case MLB_INFO_Menu_Path:
-		return( _TL("Hydrology|IHACRES") );
+		return( _TL("Simulation|Hydrology|IHACRES") );
 	}
 }
 

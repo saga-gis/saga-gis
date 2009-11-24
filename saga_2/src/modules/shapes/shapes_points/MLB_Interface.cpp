@@ -98,6 +98,7 @@ const SG_Char * Get_Info(int i)
 #include "remove_duplicates.h"
 #include "Clip_Points.h"
 #include "separate_by_direction.h"
+#include "add_polygon_attributes.h"
 
 
 //---------------------------------------------------------
@@ -107,16 +108,17 @@ CSG_Module *		Create_Module(int i)
 {
 	switch( i )
 	{
-	case 0:		return( new CPoints_From_Table );
-	case 1:		return( new CCountPoints );
-	case 2:		return( new CCreatePointGrid );
-	case 3:		return( new CDistanceMatrix );
-	case 4:		return( new CFitNPointsToShape );
-	case 5:		return( new CPoints_From_Lines );
-	case 6:		return( new CAddCoordinates );
-	case 7:		return( new CRemove_Duplicates );
-	case 8:		return( new CClip_Points );
-	case 9:		return( new CSeparate_by_Direction );
+	case  0:	return( new CPoints_From_Table );
+	case  1:	return( new CCountPoints );
+	case  2:	return( new CCreatePointGrid );
+	case  3:	return( new CDistanceMatrix );
+	case  4:	return( new CFitNPointsToShape );
+	case  5:	return( new CPoints_From_Lines );
+	case  6:	return( new CAddCoordinates );
+	case  7:	return( new CRemove_Duplicates );
+	case  8:	return( new CClip_Points );
+	case  9:	return( new CSeparate_by_Direction );
+	case 10:	return( new CAdd_Polygon_Attributes );
 	}
 
 	return( NULL );

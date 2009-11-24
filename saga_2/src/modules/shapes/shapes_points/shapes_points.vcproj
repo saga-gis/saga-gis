@@ -412,6 +412,10 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath=".\add_polygon_attributes.cpp"
+				>
+			</File>
+			<File
 				RelativePath="AddCoordinates.cpp"
 				>
 				<FileConfiguration
@@ -748,6 +752,10 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl"
 			>
+			<File
+				RelativePath=".\add_polygon_attributes.h"
+				>
+			</File>
 			<File
 				RelativePath="AddCoordinates.h"
 				>

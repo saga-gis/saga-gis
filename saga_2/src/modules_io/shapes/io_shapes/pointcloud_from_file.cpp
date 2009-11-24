@@ -56,7 +56,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-	#include "pointcloud_from_file.h"
+#include "pointcloud_from_file.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@
 CPointCloud_From_File::CPointCloud_From_File(void)
 {
 	//-----------------------------------------------------
-	Set_Name		(_TL("Point Cloud from File"));
+	Set_Name		(_TL("Import Point Cloud from File"));
 
 	Set_Author		(_TL("O. Conrad (c) 2009"));
 

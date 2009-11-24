@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.8 2008-09-26 08:53:19 oconrad Exp $
+# $Id: Makefile.am,v 1.9 2009-11-24 14:04:12 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -13,6 +13,7 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS)
 AM_LDFLAGS         = -fPIC -shared
 pkglib_LTLIBRARIES = libshapes_points.la
 libshapes_points_la_SOURCES =\
+add_polygon_attributes.cpp\
 AddCoordinates.cpp\
 Clip_Points.cpp\
 CountPoints.cpp\
@@ -24,6 +25,7 @@ Points_From_Lines.cpp\
 Points_From_Table.cpp\
 remove_duplicates.cpp\
 separate_by_direction.cpp\
+add_polygon_attributes.h\
 AddCoordinates.h\
 CountPoints.h\
 Clip_Points.h\

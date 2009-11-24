@@ -72,7 +72,7 @@
 CPointCloud_From_Text_File::CPointCloud_From_Text_File(void)
 {
 	//-----------------------------------------------------
-	Set_Name		(_TL("Point Cloud From Text File"));
+	Set_Name		(_TL("Import Point Cloud from Text File"));
 
 	Set_Author		(SG_T("V. Wichmann, LASERDATA GmbH (c) 2009"));
 
@@ -256,8 +256,8 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 		Parameters("POINTS")->Set_Value(pPoints);
 	}
 
-	max_iField = std::max(xField, yField);
-    max_iField = std::max(max_iField, zField);
+	max_iField = M_GET_MAX(xField, yField);
+    max_iField = M_GET_MAX(max_iField, zField);
 	for( unsigned int i=0; i<vCol.size(); i++ )
 	{
 		if( max_iField < vCol.at(i) )
