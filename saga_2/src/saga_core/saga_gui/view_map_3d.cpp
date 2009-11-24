@@ -256,9 +256,9 @@ wxMenu * CVIEW_Map_3D::_Create_Menu(void)
 	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SEQ_POS_DEL_ALL);
 	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SEQ_POS_EDIT);
 	pMenu_Sub->AppendSeparator();
-	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SEQ_PLAY);
-	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SEQ_PLAY_LOOP);
-	CMD_Menu_Add_Item(pMenu_Sub, false, ID_CMD_MAP3D_SEQ_SAVE);
+	CMD_Menu_Add_Item(pMenu_Sub,  true, ID_CMD_MAP3D_SEQ_PLAY);
+	CMD_Menu_Add_Item(pMenu_Sub,  true, ID_CMD_MAP3D_SEQ_PLAY_LOOP);
+	CMD_Menu_Add_Item(pMenu_Sub,  true, ID_CMD_MAP3D_SEQ_SAVE);
 	pMenu->Append(ID_CMD_MAP3D_FIRST, LNG("[MNU] Sequencer"), pMenu_Sub);
 
 	return( pMenu );
@@ -554,6 +554,18 @@ void CVIEW_Map_3D::On_Command_UI(wxUpdateUIEvent &event)
 
 	case ID_CMD_MAP3D_STEREO:
 		event.Check(m_pImage->m_bStereo);
+		break;
+
+	case ID_CMD_MAP3D_SEQ_PLAY:
+		event.Check(m_Play_Mode == PLAY_MODE_RUN_ONCE);
+		break;
+
+	case ID_CMD_MAP3D_SEQ_PLAY_LOOP:
+		event.Check(m_Play_Mode == PLAY_MODE_RUN_LOOP);
+		break;
+
+	case ID_CMD_MAP3D_SEQ_SAVE:
+		event.Check(m_Play_Mode == PLAY_MODE_RUN_SAVE);
 		break;
 	}
 }
