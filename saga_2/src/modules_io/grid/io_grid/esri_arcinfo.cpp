@@ -133,9 +133,10 @@ bool CESRI_ArcInfo_Import::On_Execute(void)
 {
 	bool		bResult;
 	int			x, y, iy;
-	float		Value, *Line;
+	float		*Line;
 	FILE		*Stream;
-	CSG_String	fName;
+	CSG_String	fName, Value;
+	char		cVal[80];
 	CSG_Grid	*pGrid;
 
 	//-----------------------------------------------------
@@ -195,9 +196,11 @@ bool CESRI_ArcInfo_Import::On_Execute(void)
 					{
 						for(x=0; x<pGrid->Get_NX(); x++)
 						{
-							fscanf(Stream, "%f", &Value);
+							fscanf(Stream, "%s", cVal);
+							Value = CSG_String::Format(SG_T("%s"), cVal);
+							Value.Replace(SG_T(","), SG_T("."));
 
-							pGrid->Set_Value(x, y, Value);
+							pGrid->Set_Value(x, y, atof(Value));
 						}
 					}
 				}
