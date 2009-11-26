@@ -12,7 +12,7 @@ DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS           = -I$(top_srcdir)/src/saga_core
 AM_CXXFLAGS        = $(CXX_INCS) $(DEF_SAGA) $(DEP_DEFS) $(DBGFLAGS)
 AM_LDFLAGS         = $(DEP_LFLG)
-pkglib_LTLIBRARIES = libsaga_gdi.la
+lib_LTLIBRARIES    = libsaga_gdi.la
 libsaga_gdi_la_SOURCES =\
 sgdi_diagram.cpp\
 sgdi_dialog.cpp\
