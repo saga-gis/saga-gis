@@ -200,7 +200,7 @@ bool CESRI_ArcInfo_Import::On_Execute(void)
 							Value = CSG_String::Format(SG_T("%s"), cVal);
 							Value.Replace(SG_T(","), SG_T("."));
 
-							pGrid->Set_Value(x, y, atof(Value));
+							pGrid->Set_Value(x, y, atof(SG_STR_SGTOMB(Value)));
 						}
 					}
 				}
