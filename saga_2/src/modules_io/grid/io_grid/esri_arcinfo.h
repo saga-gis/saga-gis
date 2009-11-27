@@ -76,22 +76,23 @@ class CESRI_ArcInfo_Import : public CSG_Module
 {
 public:
 	CESRI_ArcInfo_Import(void);
-	virtual ~CESRI_ArcInfo_Import(void);
 
-	virtual const SG_Char *	Get_MenuPath(void)				{	return( _TL("R:Import") );	}
+	virtual const SG_Char *	Get_MenuPath		(void)		{	return( _TL("R:Import") );	}
 
 
 protected:
 
-	virtual bool			On_Execute(void);
+	virtual bool			On_Execute			(void);
 
 
 private:
 
-	bool					Read_Line		(FILE *Stream, CSG_String &sLine);
-	bool					Read_Value		(const CSG_String &sKey, CSG_String &sLine, int    &Value);
-	bool					Read_Value		(const CSG_String &sKey, CSG_String &sLine, double &Value);
-	CSG_Grid *				Read_Header		(FILE *Stream);
+	double					Read_Value			(CSG_File &Stream);
+
+	bool					Read_Header_Value	(const CSG_String &sKey, CSG_String &sLine, int    &Value);
+	bool					Read_Header_Value	(const CSG_String &sKey, CSG_String &sLine, double &Value);
+	bool					Read_Header_Line	(CSG_File &Stream, CSG_String &sLine);
+	CSG_Grid *				Read_Header			(CSG_File &Stream);
 
 };
 
@@ -107,19 +108,18 @@ class CESRI_ArcInfo_Export : public CSG_Module_Grid
 {
 public:
 	CESRI_ArcInfo_Export(void);
-	virtual ~CESRI_ArcInfo_Export(void);
 
-	virtual const SG_Char *	Get_MenuPath(void)				{	return( _TL("R:Export") );	}
+	virtual const SG_Char *	Get_MenuPath		(void)		{	return( _TL("R:Export") );	}
 
 
 protected:
 
-	virtual bool			On_Execute(void);
+	virtual bool			On_Execute			(void);
 
 
 private:
 
-	bool					Write_Header	(FILE *Stream, CSG_Grid *pGrid, bool bComma);
+	bool					Write_Header		(CSG_File &Stream, CSG_Grid *pGrid, bool bComma);
 
 };
 

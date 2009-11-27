@@ -174,6 +174,9 @@ public: ///////////////////////////////////////////////////
 	}
 
 	//-----------------------------------------------------
+	double						Get_Class_Value_Minimum	(int iClass);
+	double						Get_Class_Value_Center	(int iClass);
+	double						Get_Class_Value_Maximum	(int iClass);
 	wxString					Get_Class_Name			(int iClass);
 	wxString					Get_Class_Name_byValue	(double Value);
 

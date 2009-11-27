@@ -473,15 +473,17 @@ class SAGA_API_DLL_EXPORT CSG_File
 public:
 
 	CSG_File(void);
-	CSG_File(const CSG_String &File_Name, int Mode = SG_FILE_R, bool bBinary = true);
+	CSG_File(const CSG_String &File_Name, int Mode = SG_FILE_R, bool bBinary = true, bool bUnicode = false);
 
 	virtual ~CSG_File(void);
 
 	bool							Attach				(FILE *Stream);
 	bool							Detach				(void);
 	FILE *							Get_Stream			(void)	const	{	return( m_pStream );	}
+	bool							Get_UnicodeFlag		(void)	const	{	return( m_bUnicode );	}
+	bool							Set_UnicodeFlag		(bool bOn);
 
-	bool							Open				(const CSG_String &FileName, int Mode = SG_FILE_R, bool bBinary = true);
+	bool							Open				(const CSG_String &FileName, int Mode = SG_FILE_R, bool bBinary = true, bool bUnicode = false);
 	bool							Close				(void);
 
 	bool							is_Open				(void)	const	{	return( m_pStream != NULL );	}
@@ -500,20 +502,28 @@ public:
 	int								Printf				(const SG_Char *Format, ...);
 	int								Scanf				(const SG_Char *Format, ...)	const;
 
+	int								Get_Character		(void)	const;
+
 	size_t							Read				(void       *Buffer, size_t Size, size_t Count = 1)	const;
 	size_t							Write				(void       *Buffer, size_t Size, size_t Count = 1)	const;
 	size_t							Read				(CSG_String &Buffer, size_t Size)	const;
 	size_t							Write				(CSG_String &Buffer)				const;
 
-	bool							Read_Line			(CSG_String &sLine);
+	bool							Read_Line			(CSG_String &sLine)	const;
 
-	int								Read_Int			(				bool bByteOrderBig);
+	int								Read_Int			(				bool bByteOrderBig)	const;
 	bool							Write_Int			(int    Value,	bool bByteOrderBig);
-	double							Read_Double			(				bool bByteOrderBig);
+	double							Read_Double			(				bool bByteOrderBig)	const;
 	bool							Write_Double		(double Value,	bool bByteOrderBig);
 
+	int								Scan_Int			(void)	const;
+	double							Scan_Double			(void)	const;
+	CSG_String						Scan_String			(SG_Char Separator)	const;
 
-protected:
+
+private:
+
+	bool							m_bUnicode;
 
 	FILE							*m_pStream;
 

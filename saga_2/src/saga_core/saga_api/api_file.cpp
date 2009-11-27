@@ -76,14 +76,15 @@
 CSG_File::CSG_File(void)
 {
 	m_pStream	= NULL;
+	m_bUnicode	= false;
 }
 
 //---------------------------------------------------------
-CSG_File::CSG_File(const CSG_String &FileName, int Mode, bool bBinary)
+CSG_File::CSG_File(const CSG_String &FileName, int Mode, bool bBinary, bool bUnicode)
 {
 	m_pStream	= NULL;
 
-	Open(FileName, Mode, bBinary);
+	Open(FileName, Mode, bBinary, bUnicode);
 }
 
 //---------------------------------------------------------
@@ -111,9 +112,11 @@ bool CSG_File::Detach(void)
 }
 
 //---------------------------------------------------------
-bool CSG_File::Open(const CSG_String &File_Name, int Mode, bool bBinary)
+bool CSG_File::Open(const CSG_String &File_Name, int Mode, bool bBinary, bool bUnicode)
 {
 	Close();
+
+	m_bUnicode	= bUnicode;
 
 	const SG_Char *sMode;
 
@@ -249,6 +252,17 @@ int CSG_File::Scanf(const SG_Char *Format, ...) const
 }
 
 //---------------------------------------------------------
+int CSG_File::Get_Character(void) const
+{
+	if( m_pStream )
+	{
+		return( getc(m_pStream) );
+	}
+
+	return( 0 );
+}
+
+//---------------------------------------------------------
 size_t CSG_File::Read(void *Buffer, size_t Size, size_t Count) const
 {
 	return( m_pStream ? fread(Buffer, Size, Count, m_pStream) : 0 );
@@ -281,9 +295,9 @@ size_t CSG_File::Write(CSG_String &Buffer) const
 }
 
 //---------------------------------------------------------
-bool CSG_File::Read_Line(CSG_String &sLine)
+bool CSG_File::Read_Line(CSG_String &sLine)	const
 {
-	char	c;
+	int		c;
 
 	if( m_pStream && !feof(m_pStream) )
 	{
@@ -301,7 +315,7 @@ bool CSG_File::Read_Line(CSG_String &sLine)
 }
 
 //---------------------------------------------------------
-int CSG_File::Read_Int(bool bByteOrderBig)
+int CSG_File::Read_Int(bool bByteOrderBig) const
 {
 	int		Value	= 0;
 
@@ -327,7 +341,7 @@ bool CSG_File::Write_Int(int Value, bool bByteOrderBig)
 }
 
 //---------------------------------------------------------
-double CSG_File::Read_Double(bool bByteOrderBig)
+double CSG_File::Read_Double(bool bByteOrderBig) const
 {
 	double	Value	= 0;
 
@@ -350,6 +364,54 @@ bool CSG_File::Write_Double(double Value, bool bByteOrderBig)
 	}
 
 	return( Write(&Value, sizeof(Value)) == sizeof(Value) );
+}
+
+//---------------------------------------------------------
+int CSG_File::Scan_Int(void)	const
+{
+	if( m_pStream )
+	{
+		int		Value;
+
+		if( fscanf(m_pStream, "%d", &Value) == 1 )
+		{
+			return( Value );
+		}
+	}
+
+	return( 0 );
+}
+
+double CSG_File::Scan_Double(void)	const
+{
+	if( m_pStream )
+	{
+		double	Value;
+
+		if( fscanf(m_pStream, "%f", &Value) == 1 )
+		{
+			return( Value );
+		}
+	}
+
+	return( 0.0 );
+}
+
+CSG_String CSG_File::Scan_String(SG_Char Separator)	const
+{
+	int			c;
+	CSG_String	s;
+
+	if( m_pStream && !feof(m_pStream) )
+	{
+		while( !feof(m_pStream) && (c = fgetc(m_pStream)) != Separator && c != EOF )
+		{
+			s	+= c;
+		}
+
+	}
+
+	return( s );
 }
 
 
