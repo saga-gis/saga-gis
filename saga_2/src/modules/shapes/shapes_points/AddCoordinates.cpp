@@ -46,15 +46,15 @@ CAddCoordinates::CAddCoordinates(void)
 //---------------------------------------------------------
 bool CAddCoordinates::On_Execute(void)
 {
-	CSG_Shapes	*pShapes	= Parameters("INPUT")->asShapes();
+	CSG_Shapes	*pShapes	= Parameters("OUTPUT")->asShapes();
 
 	if( pShapes )
 	{
-		pShapes->Assign(Parameters("POINTS")->asShapes());
+		pShapes->Assign(Parameters("INPUT")->asShapes());
 	}
 	else
 	{
-		pShapes	= Parameters("POINTS")->asShapes();
+		pShapes	= Parameters("INPUT")->asShapes();
 	}
 
 	//-----------------------------------------------------
