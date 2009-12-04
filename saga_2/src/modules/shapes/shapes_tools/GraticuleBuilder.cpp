@@ -115,33 +115,51 @@ bool CGraticuleBuilder::On_Execute(void){
 
 	CSG_Shapes *pGraticule = Parameters("LINES")->asShapes();
 	
-	if (iType == 0){
+	if (iType == 0)
+	{
 		pGraticule->Create(SHAPE_TYPE_Line, _TL("Graticule"));
 		pGraticule->Add_Field("ID", SG_DATATYPE_Int);
-		for (x=dXMin; x<dXMax; x=x+dDistanceX){
+
+		for (x=dXMin; x<=dXMax; x=x+dDistanceX)
+		{
 			pShape = pGraticule->Add_Shape();
-			pShape->Add_Point(x,dYMin);
-			pShape->Add_Point(x,dYMax);
 			pShape->Set_Value(0,iElement++);
+
+			for (y=dYMin; y<=dYMax; y=y+dDistanceY)
+			{
+				pShape->Add_Point(x,y);
+				pShape->Add_Point(x,y);
+			}
 		}//for
-		for (y=dYMin; y<dYMax; y=y+dDistanceY){
+
+		for (y=dYMin; y<=dYMax; y=y+dDistanceY)
+		{
 			pShape = pGraticule->Add_Shape();
-			pShape->Add_Point(dXMin,y);
-			pShape->Add_Point(dXMax,y);		
 			pShape->Set_Value(0,iElement++);
+
+			for (x=dXMin; x<=dXMax; x=x+dDistanceX)
+			{
+				pShape->Add_Point(x,y);
+				pShape->Add_Point(x,y);
+			}
 		}//for
 	}//if
-	else{
+	else
+	{
 		pGraticule->Create(SHAPE_TYPE_Polygon, _TL("Graticule"));
 		pGraticule->Add_Field("ID", SG_DATATYPE_Int);
-		for (x=dXMin; x<dXMax-dDistanceX; x=x+dDistanceX){
-			for (y=dYMin; y<dYMax-dDistanceY; y=y+dDistanceY){
+
+		for (x=dXMin; x<=dXMax-dDistanceX; x=x+dDistanceX)
+		{
+			for (y=dYMin; y<=dYMax-dDistanceY; y=y+dDistanceY)
+			{
 				pShape = pGraticule->Add_Shape();
+				pShape->Set_Value(0,iElement++);
+
 				pShape->Add_Point(x,y);
 				pShape->Add_Point(x,y+dDistanceY);		
 				pShape->Add_Point(x+dDistanceX,y+dDistanceY);
 				pShape->Add_Point(x+dDistanceX,y);		
-				pShape->Set_Value(0,iElement++);
 			}//for
 		}//for		
 	}//else

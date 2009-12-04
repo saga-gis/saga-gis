@@ -213,6 +213,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "imagery_segmentation"=.\modules_images\modules_imagery\imagery_segmentation\imagery_segmentation.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "io_esri_e00"=.\modules_io\esri_e00\io_esri_e00\io_esri_e00.dsp - Package Owner=<4>
 
 Package=<5>

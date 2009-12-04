@@ -77,16 +77,14 @@ CUSGS_SRTM_Import::CUSGS_SRTM_Import(void)
 
 	Set_Name		(_TL("Import USGS SRTM Grid"));
 
-	Set_Author		(SG_T("(c) 2004 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2004"));
 
 	Set_Description	(_TW(
 		"Import grid from USGS SRTM (Shuttle Radar Topography Mission) data.\n"
 
 		"You find data and further information at:\n"
-		"  <a target=\"_blank\" href=\"ftp://e0srp01u.ecs.nasa.gov/srtm/\">"
-		"  ftp://e0srp01u.ecs.nasa.gov/srtm/</a>\n"
-		"  <a target=\"_blank\" href=\"http://seamless.usgs.gov/\">"
-		"  http://seamless.usgs.gov/</a>\n"
+		"  <a target=\"_blank\" href=\"http://dds.cr.usgs.gov/srtm/\">"
+		"  http://dds.cr.usgs.gov/srtm/</a>\n"
 		"  <a target=\"_blank\" href=\"http://www.jpl.nasa.gov/srtm/\">"
 		"  http://www.jpl.nasa.gov/srtm/</a>\n"
 
