@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.17 2009-12-04 15:55:07 oconrad Exp $
+# $Id: configure.in,v 1.18 2009-12-11 13:54:39 oconrad Exp $
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
@@ -71,6 +71,7 @@ AC_OUTPUT(Makefile \
 	src/modules/grid/Makefile \
 	src/modules/grid/grid_analysis/Makefile \
 	src/modules/grid/grid_calculus/Makefile \
+	src/modules/grid/grid_calculus_bsl/Makefile \
 	src/modules/grid/grid_discretisation/Makefile \
 	src/modules/grid/grid_filter/Makefile \
 	src/modules/grid/grid_gridding/Makefile \
