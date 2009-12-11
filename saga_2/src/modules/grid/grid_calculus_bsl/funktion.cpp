@@ -11,7 +11,6 @@
 
 #include "funktion_numerisch.h"
 #include "funktion_statistisch.h"
-#include "funktionen_tools.h"
 
 #include "bsl_interpreter.h"
 
