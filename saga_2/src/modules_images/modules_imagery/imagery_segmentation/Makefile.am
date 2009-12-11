@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.1 2009-12-04 15:57:20 oconrad Exp $
+# $Id: Makefile.am,v 1.2 2009-12-11 14:12:22 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -14,10 +14,10 @@ AM_LDFLAGS         = -fPIC -shared
 pkglib_LTLIBRARIES = libimagery_segmentation.la
 libimagery_segmentation_la_SOURCES =\
 fast_region_growing.cpp\
-fast_representativeness.cpp\
+rga_basic.cpp\
 MLB_Interface.cpp\
 fast_region_growing.h\
-fast_representativeness.h\
+rga_basic.h\
 MLB_Interface.h
 
 libimagery_segmentation_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la

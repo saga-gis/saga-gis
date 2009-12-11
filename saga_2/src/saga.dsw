@@ -111,6 +111,21 @@ Package=<4>
 
 ###############################################################################
 
+Project: "grid_calculus_bsl"=.\modules\grid\grid_calculus_bsl\grid_calculus_bsl.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "grid_discretisation"=.\modules\grid\grid_discretisation\grid_discretisation.dsp - Package Owner=<4>
 
 Package=<5>
@@ -221,6 +236,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
 }}}
 
 ###############################################################################

@@ -537,10 +537,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\funktionen_tools.h"
-				>
-			</File>
-			<File
 				RelativePath=".\gr_def.h"
 				>
 			</File>

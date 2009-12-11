@@ -91,6 +91,7 @@ const SG_Char * Get_Info(int i)
 //---------------------------------------------------------
 // 3. Include the headers of your modules here...
 
+#include "fast_representativeness.h"
 #include "GSGrid_Residuals.h"
 #include "GSGrid_Variance.h"
 #include "GSGrid_Variance_Radius.h"
@@ -105,49 +106,19 @@ const SG_Char * Get_Info(int i)
 
 CSG_Module *		Create_Module(int i)
 {
-	// Don't forget to continuously enumerate the case switches
-	// when adding new modules! Also bear in mind that the
-	// enumeration always has to start with [case 0:] and
-	// that [default:] must return NULL!...
-
-	CSG_Module	*pModule;
-
 	switch( i )
 	{
-	case 0:
-		pModule	= new CGSGrid_Residuals;
-		break;
-
-	case 1:
-		pModule	= new CGSGrid_Variance;
-		break;
-
-	case 2:
-		pModule	= new CGSGrid_Variance_Radius;
-		break;
-
-	case 3:
-		pModule	= new CGSGrid_Regression;
-		break;
-
-	case 4:
-		pModule	= new CGSGrid_Regression_Multiple;
-		break;
-
-	case 5:
-		pModule	= new CGSGrid_Statistics;
-		break;
-
-	case 6:
-		pModule	= new CGSGrid_Zonal_Statistics;
-		break;
-
-	default:
-		pModule	= NULL;
-		break;
+	case  0:	return( new CFast_Representativeness );
+	case  1:	return( new CGSGrid_Residuals );
+	case  2:	return( new CGSGrid_Variance );
+	case  3:	return( new CGSGrid_Variance_Radius );
+	case  4:	return( new CGSGrid_Regression );
+	case  5:	return( new CGSGrid_Regression_Multiple );
+	case  6:	return( new CGSGrid_Statistics );
+	case  7:	return( new CGSGrid_Zonal_Statistics );
 	}
 
-	return( pModule );
+	return( NULL );
 }
 
 

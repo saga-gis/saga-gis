@@ -377,20 +377,28 @@ void CParameters_Control::_Add_Properties(CSG_Parameters *pParameters)
 	{
 		if(	pParameters->Get_Parameter(i)->Get_Parent() == NULL )
 		{
+			pRoot	= NULL;
+
 			switch( pParameters->Get_Parameter(i)->Get_Type() )
 			{
 			case PARAMETER_TYPE_DataObject_Output:
-				pRoot	= NULL;
 				break;
 
 			case PARAMETER_TYPE_Grid_System:
-				if(1|| pParameters->Get_Parameter(i)->Get_Children_Count() > 0 )
+				if( pParameters->Get_Parameter(i)->Get_Children_Count() == 0 )
 				{
 					CHECK_DATA_NODE( pGrids	, LNG("[PRM] Grids"), wxT("_DATAOBJECT_GRIDS") );
 				}
 				else
 				{
-					pRoot	= NULL;
+					for(int j=0; j<pParameters->Get_Parameter(i)->Get_Children_Count() && !pRoot; j++)
+					{
+						if(	pParameters->Get_Parameter(i)->Get_Child(j)->Get_Type() != PARAMETER_TYPE_Grid_List
+						||	pParameters->Get_Parameter(i)->Get_Child(j)->is_Input() )
+						{
+							CHECK_DATA_NODE( pGrids	, LNG("[PRM] Grids"), wxT("_DATAOBJECT_GRIDS") );
+						}
+					}
 				}
 				break;
 

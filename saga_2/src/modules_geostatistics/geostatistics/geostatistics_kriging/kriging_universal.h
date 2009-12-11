@@ -99,6 +99,8 @@ private:
 
 	double					m_Radius;
 
+	CSG_Grid				m_Mask;
+
 
 	int						Get_Weights		(double x, double y);
 

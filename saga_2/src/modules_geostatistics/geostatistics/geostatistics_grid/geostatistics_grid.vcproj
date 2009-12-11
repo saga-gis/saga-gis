@@ -412,6 +412,10 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath=".\fast_representativeness.cpp"
+				>
+			</File>
+			<File
 				RelativePath="GSGrid_Regression.cpp"
 				>
 				<FileConfiguration
@@ -736,6 +740,10 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl"
 			>
+			<File
+				RelativePath=".\fast_representativeness.h"
+				>
+			</File>
 			<File
 				RelativePath="GSGrid_Regression.h"
 				>

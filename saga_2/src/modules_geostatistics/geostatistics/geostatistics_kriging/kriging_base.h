@@ -119,6 +119,8 @@ protected:
 
 private:
 
+	bool					m_bStdDev;
+
 	CSG_Table				m_Variances;
 
 	CSG_Trend				m_Variogram;

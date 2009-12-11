@@ -94,14 +94,18 @@ CKriging_Base::CKriging_Base(void)
 	);
 
 	Parameters.Add_Grid_Output(
-		NULL	, "VARIANCE"	, _TL("Variance"),
+		NULL	, "VARIANCE"	, _TL("Quality Measure"),
 		_TL("")
 	);
 
-	Parameters.Add_Value(
-		NULL	, "BVARIANCE"	, _TL("Create Variance Grid"),
+	Parameters.Add_Choice(
+		NULL	, "TQUALITY"	, _TL("Type of Quality Measure"),
 		_TL(""),
-		PARAMETER_TYPE_Bool		, true
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("none"),
+			_TL("standard deviation"),
+			_TL("variance")
+		), 1
 	);
 
 	Parameters.Add_Choice(
@@ -278,6 +282,7 @@ bool CKriging_Base::_Initialise(void)
 	//-----------------------------------------------------
 	m_Block		= Parameters("DBLOCK")	->asDouble() / 2.0;
 	m_bBlock	= Parameters("BLOCK")	->asBool() && m_Block > 0.0;
+	m_bStdDev	= Parameters("TQUALITY")->asInt() == 1;
 
 	//-----------------------------------------------------
 	m_pPoints	= Parameters("POINTS")	->asShapes();
@@ -353,7 +358,7 @@ bool CKriging_Base::_Initialise_Grids(void)
 	//-----------------------------------------------------
 	if( m_pGrid )
 	{
-		if( !m_pVariance && Parameters("BVARIANCE")->asBool() )
+		if( !m_pVariance && Parameters("TQUALITY")->asInt() )
 		{
 			m_pVariance	= SG_Create_Grid(m_pGrid, SG_DATATYPE_Float);
 		}
@@ -363,7 +368,7 @@ bool CKriging_Base::_Initialise_Grids(void)
 
 		if( m_pVariance )
 		{
-			m_pVariance->Set_Name(CSG_String::Format(SG_T("%s (%s - %s)"), m_pPoints->Get_Name(), Get_Name(), _TL("Variance")));
+			m_pVariance->Set_Name(CSG_String::Format(SG_T("%s (%s - %s)"), m_pPoints->Get_Name(), Get_Name(), m_bStdDev ? _TL("Standard Deviation") : _TL("Variance")));
 			Parameters("VARIANCE")->Set_Value(m_pVariance);
 		}
 
@@ -416,7 +421,7 @@ bool CKriging_Base::_Interpolate(void)
 
 					if( m_pVariance )
 					{
-						m_pVariance->Set_Value(ix, iy, v);
+						m_pVariance->Set_Value(ix, iy, m_bStdDev ? sqrt(v) : v);
 					}
 				}
 				else

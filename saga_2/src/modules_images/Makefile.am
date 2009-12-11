@@ -1,1 +1,1 @@
-SUBDIRS = modules_vigra modules_opencv
+SUBDIRS = modules_imagery

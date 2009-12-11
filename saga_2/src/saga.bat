@@ -145,6 +145,14 @@ make -fmakefile.mingw
 POPD
 
 ECHO ###################################
+ECHO grid_calculus_bsl
+ECHO -----------------------------------
+
+PUSHD .\modules\grid\grid_calculus_bsl
+make -fmakefile.mingw
+POPD
+
+ECHO ###################################
 ECHO grid_discretisation
 ECHO -----------------------------------
 
@@ -189,6 +197,14 @@ ECHO grid_visualisation
 ECHO -----------------------------------
 
 PUSHD .\modules\grid\grid_visualisation
+make -fmakefile.mingw
+POPD
+
+ECHO ###################################
+ECHO image_segmentation
+ECHO -----------------------------------
+
+PUSHD .\modules_images\modules_imagery\imagery_segmentation
 make -fmakefile.mingw
 POPD
 

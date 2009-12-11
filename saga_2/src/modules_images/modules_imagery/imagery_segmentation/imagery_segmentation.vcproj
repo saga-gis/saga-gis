@@ -416,10 +416,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\fast_representativeness.cpp"
-				>
-			</File>
-			<File
 				RelativePath="MLB_Interface.cpp"
 				>
 				<FileConfiguration
@@ -459,6 +455,10 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\rga_basic.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -469,11 +469,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\fast_representativeness.h"
+				RelativePath="MLB_Interface.h"
 				>
 			</File>
 			<File
-				RelativePath="MLB_Interface.h"
+				RelativePath=".\rga_basic.h"
 				>
 			</File>
 		</Filter>

@@ -87,8 +87,8 @@ const SG_Char * Get_Info(int i)
 //---------------------------------------------------------
 // 3. Include the headers of your modules here...
 
-#include "fast_representativeness.h"
 #include "fast_region_growing.h"
+#include "rga_basic.h"
 
 
 //---------------------------------------------------------
@@ -98,8 +98,8 @@ CSG_Module *		Create_Module(int i)
 {
 	switch( i )
 	{
-	case  0:	return( new CFast_Representativeness );
-	case  1:	return( new CFast_Region_Growing );
+	case  0:	return( new CFast_Region_Growing );
+	case  1:	return( new CRGA_Basic );
 	}
 
 	return( NULL );

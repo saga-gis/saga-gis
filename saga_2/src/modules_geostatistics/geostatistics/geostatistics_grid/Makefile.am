@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.5 2007-02-13 12:49:24 tschorr Exp $
+# $Id: Makefile.am,v 1.6 2009-12-11 14:12:22 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -13,6 +13,7 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS)
 AM_LDFLAGS         = -fPIC -shared 
 pkglib_LTLIBRARIES = libgeostatistics_grid.la
 libgeostatistics_grid_la_SOURCES =\
+fast_representativeness.cpp\
 GSGrid_Regression.cpp\
 GSGrid_Regression_Multiple.cpp\
 GSGrid_Residuals.cpp\
@@ -21,6 +22,7 @@ GSGrid_Variance.cpp\
 GSGrid_Variance_Radius.cpp\
 GSGrid_Zonal_Statistics.cpp\
 MLB_Interface.cpp\
+fast_representativeness.h\
 GSGrid_Regression.h\
 GSGrid_Regression_Multiple.h\
 GSGrid_Residuals.h\

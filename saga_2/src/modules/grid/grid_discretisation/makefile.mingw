@@ -18,7 +18,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/Grid_Classify_Supervised.o $(MLB_TEMP)/Grid_Cluster_Analysis.o $(MLB_TEMP)/Grid_FastSegments.o $(MLB_TEMP)/Grid_Segmentation.o $(MLB_TEMP)/Grid_Skeletonize.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/rga_basic.o
+OBJ      = $(MLB_TEMP)/Grid_Classify_Supervised.o $(MLB_TEMP)/Grid_Cluster_Analysis.o $(MLB_TEMP)/Grid_FastSegments.o $(MLB_TEMP)/Grid_Segmentation.o $(MLB_TEMP)/Grid_Skeletonize.o $(MLB_TEMP)/MLB_Interface.o
 
 CXXFLAGS = -I"$(MINGW)/include" -I"$(SAGA)/src/saga_core" -D$(PRJ_NAME)_EXPORTS -DBUILDING_DLL=1 -D_SAGA_MSW -D_SAGA_MINGW -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -fexpensive-optimizations -Os -O2 -O3 $(DEP_INCS) $(DEP_DEFS)
 
@@ -62,6 +62,3 @@ $(MLB_TEMP)/Grid_Skeletonize.o: ./Grid_Skeletonize.cpp
 
 $(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
-
-$(MLB_TEMP)/rga_basic.o: ./rga_basic.cpp
-	$(CPP) -c ./rga_basic.cpp -o $(MLB_TEMP)/rga_basic.o $(CXXFLAGS)

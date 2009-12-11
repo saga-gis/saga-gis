@@ -89,7 +89,7 @@ class SListNode {
 		Prev=Next=NULL;
 	};	
 	
-	~SListNode()
+	virtual ~SListNode()
 	{
 		if (Prev || Next) Remove();
 	}; 
@@ -141,7 +141,7 @@ public:
 		BottomNode = NULL; Parent = NULL;
 	}
 	
-	~QTopNode()
+	virtual ~QTopNode()
 	{ 
 		if (Prev || Next || Parent || Child) Remove();
 	}
@@ -478,7 +478,7 @@ template <class T> class SortList
 	public:
 
 		SortList(bool autodelete=true);
-		~SortList();
+		virtual ~SortList();
 		
 		bool	InsertSorted( T * node);
 		

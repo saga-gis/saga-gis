@@ -88,6 +88,8 @@ public:
 
 protected:
 
+	bool					m_bCoords;
+
 	int						m_Interpolation;
 
 	CSG_Parameter_Grid_List	*m_pGrids;

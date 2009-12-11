@@ -70,31 +70,42 @@ bool CPolygonStatisticsFromPoints::On_Execute(void){
 	pExtraParameter = new CSG_Parameter* [pTable->Get_Field_Count() * 5];
 
 	for (i = 0; i < pTable->Get_Field_Count(); i++){
-		for (j = 0; j < 5; j++){
-			if (pTable->Get_Field_Type(i) > 1 && pTable->Get_Field_Type(i) < 7){ //is numeric field
-				sName.Printf(SG_T("%s%s"),
-					pTable->Get_Field_Name(i),
-					SG_STR_MBTOSG(sParamName[j])
-				);
+		for (j = 0; j < 5; j++)
+		{
+			switch( pTable->Get_Field_Type(i) )
+			{
+			case SG_DATATYPE_String:
+			case SG_DATATYPE_Date:
+				break;
+
+			default:	// is numeric field
+				sName.Printf(SG_T("%s%s"), pTable->Get_Field_Name(i), sParamName[j].c_str());
 
 				pExtraParameter[i * 5 + j] = m_pExtraParameters->Add_Value(
 					NULL,
-					SG_Get_String(i * 5 + j,0).c_str(), 
+					SG_Get_String(i * 5 + j, 0).c_str(), 
 					sName.c_str(),
 					_TL(""),
 					PARAMETER_TYPE_Bool, 
 					false
 				);
-			}//if
+				break;
+			}
 		}//for
 	}//for
-	if(Dlg_Parameters("EXTRA")){
-		for (i = 0; i < pTable->Get_Field_Count() * 5; i++){
+
+	if( Dlg_Parameters("EXTRA") )
+	{
+		for (i = 0; i < pTable->Get_Field_Count() * 5; i++)
+		{
 			sName = SG_Get_String(i);
-			try{
+
+			try
+			{
 				m_bIncludeParam[i] = Get_Parameters("EXTRA")->Get_Parameter(sName.c_str())->asBool();
 			}//try
-			catch(...){
+			catch(...)
+			{
 				m_bIncludeParam[i] = false;
 			}//catch
 		}//for
@@ -179,7 +190,7 @@ void CPolygonStatisticsFromPoints::CalculateStatistics(){
 		if (m_bIncludeParam[i]){
 			iField = (int) (i / 5);
 			iParam = i % 5;
-			sName.Printf(SG_T("%s%s"), pPointsTable->Get_Field_Name(iField), SG_STR_MBTOSG(sParamName[iParam]));
+			sName.Printf(SG_T("%s%s"), pPointsTable->Get_Field_Name(iField), sParamName[iParam].c_str());
 			pPolygonsTable->Add_Field(sName.c_str(), SG_DATATYPE_Double); 
 			if (iField != iLastField){					
 				for (j = 0; j < pPolygonsTable->Get_Record_Count(); j++){

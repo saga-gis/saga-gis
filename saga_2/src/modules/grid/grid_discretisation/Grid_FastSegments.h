@@ -85,6 +85,8 @@ public:
 	CGrid_FastSegments(void);
 	virtual ~CGrid_FastSegments(void);
 
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Segmentation") );	}
+
 
 protected:
 
@@ -99,7 +101,7 @@ private:
 
 	double				*m_Values;
 
-	CSG_Grid				*m_pGrid, *m_pSegments, *m_pObjects;
+	CSG_Grid			*m_pGrid, *m_pSegments, *m_pObjects;
 
 
 	void				Set_Cell		(int x, int y);

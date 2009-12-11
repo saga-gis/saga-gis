@@ -205,11 +205,21 @@ bool C_Kriging_Universal_Global::Get_Weights(void)
 			{
 				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
-					m_Points.Add(
-						pShape->Get_Point(iPoint, iPart).x,
-						pShape->Get_Point(iPoint, iPart).y,
-						pShape->asDouble(m_zField)
-					);
+					bool		bAdd;
+					CSG_Point	p(pShape->Get_Point(iPoint, iPart));
+
+					for(j=0, bAdd=true; j<nGrids && bAdd; j++)
+					{
+						if( !m_pGrids->asGrid(j)->is_InGrid_byPos(p) )
+						{
+							bAdd	= false;
+						}
+					}
+
+					if( bAdd )
+					{
+						m_Points.Add(p.Get_X(), p.Get_Y(), pShape->asDouble(m_zField));
+					}
 				}
 			}
 		}

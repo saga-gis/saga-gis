@@ -1,0 +1,102 @@
+# Project: grid_calculus_bsl
+# Linux GCC Makefile
+# Created by O. Conrad
+
+PRJ_NAME = grid_calculus_bsl
+SAGA     = ./../../..
+BIN_SAGA = $(SAGA)/../bin/saga_gtk
+TMP_SAGA = $(SAGA)/../bin/tmp/saga_gtk
+INC_SAGA = $(SAGA)/saga_core
+MLB_TEMP = $(TMP_SAGA)/$(PRJ_NAME)
+MLB_PATH = $(BIN_SAGA)/modules
+MLB_NAME = $(MLB_PATH)/$(PRJ_NAME).so
+
+CPP      = g++
+LD       = g++
+
+DEP_INCS = 
+DEP_DEFS = 
+DEP_LIBS = 
+DEP_LFLG = 
+
+OBJ      = $(MLB_TEMP)/ausdruck.o $(MLB_TEMP)/auswert_anweisung.o $(MLB_TEMP)/auswert_foreach.o $(MLB_TEMP)/auswert_if.o $(MLB_TEMP)/auswert_zuweisung.o $(MLB_TEMP)/basistypen.o $(MLB_TEMP)/bedingung.o $(MLB_TEMP)/diverses.o $(MLB_TEMP)/foreach.o $(MLB_TEMP)/funktion.o $(MLB_TEMP)/grid_bsl.o $(MLB_TEMP)/interpolation.o $(MLB_TEMP)/bsl_interpreter.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/pars_all.o $(MLB_TEMP)/vector.o $(MLB_TEMP)/zuweisung.o
+
+DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
+CXX_INCS =
+CXX_DEFS =
+CXX_FLGS = -O2
+CXXFLAGS = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEP_INCS) $(DEP_DEFS) -I$(INC_SAGA) $(DEF_SAGA)
+
+LDFLAGS  = -shared $(DEP_LFLG)
+LIBS     = $(DEP_LIBS)
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before $(MLB_NAME) all-after
+
+clean: clean-custom
+	rm -f $(OBJ) $(MLB_NAME)
+
+$(TMP_SAGA):
+	-mkdir $(TMP_SAGA)
+
+$(MLB_TEMP): $(TMP_SAGA)
+	-mkdir $(MLB_TEMP)
+
+$(MLB_PATH):
+	-mkdir $(MLB_PATH)
+
+$(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
+	$(LD) $(LDFLAGS) -o $(MLB_NAME) $(OBJ) $(LIBS)
+
+
+$(MLB_TEMP)/ausdruck.o: ./ausdruck.cpp
+	$(CPP) -c ./ausdruck.cpp -o $(MLB_TEMP)/ausdruck.o $(CXXFLAGS)
+
+$(MLB_TEMP)/auswert_anweisung.o: ./auswert_anweisung.cpp
+	$(CPP) -c ./auswert_anweisung.cpp -o $(MLB_TEMP)/auswert_anweisung.o $(CXXFLAGS)
+
+$(MLB_TEMP)/auswert_foreach.o: ./auswert_foreach.cpp
+	$(CPP) -c ./auswert_foreach.cpp -o $(MLB_TEMP)/auswert_foreach.o $(CXXFLAGS)
+
+$(MLB_TEMP)/auswert_if.o: ./auswert_if.cpp
+	$(CPP) -c ./auswert_if.cpp -o $(MLB_TEMP)/auswert_if.o $(CXXFLAGS)
+
+$(MLB_TEMP)/auswert_zuweisung.o: ./auswert_zuweisung.cpp
+	$(CPP) -c ./auswert_zuweisung.cpp -o $(MLB_TEMP)/auswert_zuweisung.o $(CXXFLAGS)
+
+$(MLB_TEMP)/basistypen.o: ./basistypen.cpp
+	$(CPP) -c ./basistypen.cpp -o $(MLB_TEMP)/basistypen.o $(CXXFLAGS)
+
+$(MLB_TEMP)/bedingung.o: ./bedingung.cpp
+	$(CPP) -c ./bedingung.cpp -o $(MLB_TEMP)/bedingung.o $(CXXFLAGS)
+
+$(MLB_TEMP)/diverses.o: ./diverses.cpp
+	$(CPP) -c ./diverses.cpp -o $(MLB_TEMP)/diverses.o $(CXXFLAGS)
+
+$(MLB_TEMP)/foreach.o: ./foreach.cpp
+	$(CPP) -c ./foreach.cpp -o $(MLB_TEMP)/foreach.o $(CXXFLAGS)
+
+$(MLB_TEMP)/funktion.o: ./funktion.cpp
+	$(CPP) -c ./funktion.cpp -o $(MLB_TEMP)/funktion.o $(CXXFLAGS)
+
+$(MLB_TEMP)/grid_bsl.o: ./grid_bsl.cpp
+	$(CPP) -c ./grid_bsl.cpp -o $(MLB_TEMP)/grid_bsl.o $(CXXFLAGS)
+
+$(MLB_TEMP)/interpolation.o: ./interpolation.cpp
+	$(CPP) -c ./interpolation.cpp -o $(MLB_TEMP)/interpolation.o $(CXXFLAGS)
+
+$(MLB_TEMP)/bsl_interpreter.o: ./bsl_interpreter.cpp
+	$(CPP) -c ./bsl_interpreter.cpp -o $(MLB_TEMP)/bsl_interpreter.o $(CXXFLAGS)
+
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
+	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
+
+$(MLB_TEMP)/pars_all.o: ./pars_all.cpp
+	$(CPP) -c ./pars_all.cpp -o $(MLB_TEMP)/pars_all.o $(CXXFLAGS)
+
+$(MLB_TEMP)/vector.o: ./vector.cpp
+	$(CPP) -c ./vector.cpp -o $(MLB_TEMP)/vector.o $(CXXFLAGS)
+
+$(MLB_TEMP)/zuweisung.o: ./zuweisung.cpp
+	$(CPP) -c ./zuweisung.cpp -o $(MLB_TEMP)/zuweisung.o $(CXXFLAGS)

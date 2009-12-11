@@ -109,6 +109,8 @@ public:
 	CGrid_Segmentation(void);
 	virtual ~CGrid_Segmentation(void);
 
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Segmentation") );	}
+
 
 protected:
 

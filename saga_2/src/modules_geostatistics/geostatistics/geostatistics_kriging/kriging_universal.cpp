@@ -126,7 +126,28 @@ bool CKriging_Universal::On_Initialise(void)
 	m_Mode			= Parameters("MODE")		->asInt();
 
 	//-----------------------------------------------------
-	if( !m_Search.Create(m_pPoints, m_zField) )
+	m_Search.Create(m_pPoints->Get_Extent());
+
+	for(int iPoint=0; iPoint<m_pPoints->Get_Count() && Set_Progress(iPoint, m_pPoints->Get_Count()); iPoint++)
+	{
+		CSG_Shape	*pPoint	= m_pPoints->Get_Shape(iPoint);
+		bool		bAdd	= true;
+
+		for(int iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
+		{
+			if( !m_pGrids->asGrid(iGrid)->is_InGrid_byPos(pPoint->Get_Point(0)) )
+			{
+				bAdd	= false;
+			}
+		}
+
+		if( bAdd )
+		{
+			m_Search.Add_Point(pPoint->Get_Point(0).x, pPoint->Get_Point(0).y, pPoint->asDouble(m_zField));
+		}
+	}
+
+	if( !m_Search.is_Okay() )
 	{
 		SG_UI_Msg_Add(_TL("could not initialize point search engine"), true);
 
@@ -143,8 +164,9 @@ bool CKriging_Universal::On_Initialise(void)
 	}
 
 	m_Points.Set_Count	(nPoints_Max);
-	m_G		.Create		(nPoints_Max + 1 + m_pGrids->Get_Count());
-	m_W		.Create		(nPoints_Max + 1 + m_pGrids->Get_Count(), nPoints_Max + 1 + m_pGrids->Get_Count());
+	m_G		.Create		(nPoints_Max + 1 + m_pGrids->Get_Count() + (m_bCoords ? 2 : 0));
+	m_W		.Create		(nPoints_Max + 1 + m_pGrids->Get_Count() + (m_bCoords ? 2 : 0),
+						 nPoints_Max + 1 + m_pGrids->Get_Count() + (m_bCoords ? 2 : 0));
 
 	return( true );
 }
@@ -159,12 +181,15 @@ bool CKriging_Universal::On_Initialise(void)
 //---------------------------------------------------------
 bool CKriging_Universal::Get_Value(double x, double y, double &z, double &v)
 {
-	int		i, j, n, nGrids;
+	int		i, j, n, nGrids, nCoords;
 	double	Lambda;
 
 	//-----------------------------------------------------
-	if(	(n = Get_Weights(x, y)) > 0 && (nGrids = m_pGrids->Get_Count()) > 0 )
+	if(	(n = Get_Weights(x, y)) > 1 )
 	{
+		nCoords	= m_bCoords ? 2 : 0;
+		nGrids	= m_pGrids->Get_Count();
+
 		for(i=0; i<n; i++)
 		{
 			if( !m_bBlock )
@@ -191,10 +216,15 @@ bool CKriging_Universal::Get_Value(double x, double y, double &z, double &v)
 			}
 		}
 
+		for(i=0, j=n+1+nGrids; i<nCoords; i++, j++)
+		{
+			m_G[j]	= i == 0 ? x : y;
+		}
+
 		//-------------------------------------------------
 		for(i=0, z=0.0, v=0.0; i<n; i++)
 		{
-			for(j=0, Lambda=0.0; j<=n+nGrids; j++)
+			for(j=0, Lambda=0.0; j<=n+nGrids+nCoords; j++)
 			{
 				Lambda	+= m_W[i][j] * m_G[j];
 			}
@@ -220,7 +250,7 @@ bool CKriging_Universal::Get_Value(double x, double y, double &z, double &v)
 //---------------------------------------------------------
 int CKriging_Universal::Get_Weights(double x, double y)
 {
-	int		i, j, n, iGrid, nGrids	= m_pGrids->Get_Count();
+	int		i, j, k, n, nGrids, nCoords;
 
 	//-----------------------------------------------------
 	switch( m_Mode )
@@ -232,6 +262,9 @@ int CKriging_Universal::Get_Weights(double x, double y)
 	//-----------------------------------------------------
 	if( n >= m_nPoints_Min )
 	{
+		nCoords	= m_bCoords ? 2 : 0;
+		nGrids	= m_pGrids->Get_Count();
+
 		for(i=0; i<n; i++)
 		{
 			m_Search.Get_Selected_Point(i, m_Points[i].x, m_Points[i].y, m_Points[i].z);
@@ -251,23 +284,28 @@ int CKriging_Universal::Get_Weights(double x, double y)
 				);
 			}
 
-			for(iGrid=0, j=n+1; iGrid<nGrids; iGrid++, j++)
+			for(k=0, j=n+1; k<nGrids; k++, j++)
 			{
-				m_W[i][j]	= m_W[j][i]	= m_pGrids->asGrid(iGrid)->Get_Value(
+				m_W[i][j]	= m_W[j][i]	= m_pGrids->asGrid(k)->Get_Value(
 					m_Points[i].x, m_Points[i].y, m_Interpolation
 				);
 			}
+
+			for(k=0, j=n+nGrids+1; k<nCoords; k++, j++)
+			{
+				m_W[i][j]	= m_W[j][i]	= k == 0 ? m_Points[i].x : m_Points[i].y;
+			}
 		}
 
-		for(i=n; i<=n+nGrids; i++)
+		for(i=n; i<=n+nGrids+nCoords; i++)
 		{
-			for(j=n; j<=n+nGrids; j++)
+			for(j=n; j<=n+nGrids+nCoords; j++)
 			{
 				m_W[i][j]	= 0.0;
 			}
 		}
 
-		if( m_W.Set_Inverse(true, n + 1 + nGrids) )
+		if( m_W.Set_Inverse(true, n + 1 + nGrids + nCoords) )
 		{
 			return( n );
 		}
