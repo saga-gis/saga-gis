@@ -36,7 +36,13 @@ const SG_Char * Get_Info(int i)
 //---------------------------------------------------------
 CSG_Module *		Create_Module(int i)
 {
-	return( i == 0 ? new CBSL_Interpreter : NULL );
+	switch( i )
+	{
+	case 0:	return( new CBSL_Interpreter(false) );
+	case 1:	return( new CBSL_Interpreter(true) );
+	}
+	
+	return( NULL );
 }
 
 

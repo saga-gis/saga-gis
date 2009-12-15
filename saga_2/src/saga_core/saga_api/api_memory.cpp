@@ -239,3 +239,101 @@ void			SG_Mem_Set_Double(char *Buffer, double Value, bool bSwapBytes)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_Buffer::CSG_Buffer(void)
+{
+	m_pData	= NULL;
+	m_Size	= 0;
+}
+
+bool CSG_Buffer::Create(void)
+{
+	Destroy();
+
+	return( true );
+}
+
+//---------------------------------------------------------
+CSG_Buffer::CSG_Buffer(const CSG_Buffer &Buffer)
+{
+	m_pData	= NULL;
+	m_Size	= 0;
+
+	Create(Buffer);
+}
+
+bool CSG_Buffer::Create(const CSG_Buffer &Buffer)
+{
+	return( Set_Data(Buffer.m_pData, Buffer.m_Size) );
+}
+
+//---------------------------------------------------------
+CSG_Buffer::CSG_Buffer(size_t Size)
+{
+	m_pData	= NULL;
+	m_Size	= 0;
+
+	Create(Size);
+}
+
+bool CSG_Buffer::Create(size_t Size)
+{
+	return( Set_Size(Size) );
+}
+
+//---------------------------------------------------------
+CSG_Buffer::~CSG_Buffer(void)
+{
+	Destroy();
+}
+
+void CSG_Buffer::Destroy(void)
+{
+	if( m_pData )
+	{
+		SG_Free(m_pData);
+	}
+
+	m_pData	= NULL;
+	m_Size	= 0;
+}
+
+//---------------------------------------------------------
+bool CSG_Buffer::Set_Size(size_t Size, bool bShrink)
+{
+	if( Size > m_Size || (Size < m_Size && bShrink) )
+	{
+		char	*pData	= (char *)SG_Realloc(m_pData, Size * sizeof(char));
+
+		if( !pData )
+		{
+			return( false );
+		}
+
+		m_pData	= pData;
+		m_Size	= Size;
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Buffer::Set_Data(const char *Buffer, size_t Size, bool bShrink)
+{
+	if( !Buffer || !Size || !Set_Size(Size, bShrink) )
+	{
+		return( false );
+	}
+
+	memcpy(m_pData, Buffer, m_Size);
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

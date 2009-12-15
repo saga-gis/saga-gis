@@ -319,7 +319,7 @@ int CSG_File::Read_Int(bool bByteOrderBig) const
 {
 	int		Value	= 0;
 
-	if( Read(&Value, sizeof(Value)) == sizeof(Value) )
+	if( Read(&Value, sizeof(Value)) == 1 )
 	{
 		if( bByteOrderBig )
 		{
@@ -345,7 +345,7 @@ double CSG_File::Read_Double(bool bByteOrderBig) const
 {
 	double	Value	= 0;
 
-	if( Read(&Value, sizeof(Value)) == sizeof(Value) )
+	if( Read(&Value, sizeof(Value)) == 1 )
 	{
 		if( bByteOrderBig )
 		{

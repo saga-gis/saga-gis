@@ -110,9 +110,9 @@ CSG_Shapes *		SG_Create_Shapes(const CSG_String &File_Name)
 }
 
 //---------------------------------------------------------
-CSG_Shapes *		SG_Create_Shapes(TSG_Shape_Type Type, const SG_Char *Name, CSG_Table *pStructure)
+CSG_Shapes *		SG_Create_Shapes(TSG_Shape_Type Type, const SG_Char *Name, CSG_Table *pStructure, TSG_Vertex_Type Vertex_Type)
 {
-	return( new CSG_Shapes(Type, Name, pStructure) );
+	return( new CSG_Shapes(Type, Name, pStructure, Vertex_Type) );
 }
 
 
@@ -148,12 +148,12 @@ CSG_Shapes::CSG_Shapes(const CSG_String &File_Name)
 }
 
 //---------------------------------------------------------
-CSG_Shapes::CSG_Shapes(TSG_Shape_Type Type, const SG_Char *Name, CSG_Table *pStructure)
+CSG_Shapes::CSG_Shapes(TSG_Shape_Type Type, const SG_Char *Name, CSG_Table *pStructure, TSG_Vertex_Type Vertex_Type)
 	: CSG_Table()
 {
 	_On_Construction();
 
-	Create(Type, Name, pStructure);
+	Create(Type, Name, pStructure, Vertex_Type);
 }
 
 
@@ -168,7 +168,8 @@ void CSG_Shapes::_On_Construction(void)
 {
 	CSG_Table::_On_Construction();
 
-	m_Type	= SHAPE_TYPE_Undefined;
+	m_Type			= SHAPE_TYPE_Undefined;
+	m_Vertex_Type	= SG_VERTEX_TYPE_XY;
 }
 
 
@@ -189,6 +190,8 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 {
 	Destroy();
 
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Load shapes"), File_Name.c_str()), true);
+
 	if( _Load_ESRI(File_Name) )
 	{
 		for(int iShape=Get_Count()-1; iShape >= 0; iShape--)
@@ -203,16 +206,20 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 
 		Load_MetaData(File_Name);
 
+		SG_UI_Msg_Add(LNG("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+
 		return( true );
 	}
 
 	Destroy();	// loading failure...
 
+	SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
+
 	return( false );
 }
 
 //---------------------------------------------------------
-bool CSG_Shapes::Create(TSG_Shape_Type Type, const SG_Char *Name, CSG_Table *pStructure)
+bool CSG_Shapes::Create(TSG_Shape_Type Type, const SG_Char *Name, CSG_Table *pStructure, TSG_Vertex_Type Vertex_Type)
 {
 	Destroy();
 
@@ -220,7 +227,8 @@ bool CSG_Shapes::Create(TSG_Shape_Type Type, const SG_Char *Name, CSG_Table *pSt
 
 	Set_Name(Name);
 
-	m_Type	= Type;
+	m_Type			= Type;
+	m_Vertex_Type	= Vertex_Type;
 
 	return( true );
 }
@@ -293,26 +301,24 @@ bool CSG_Shapes::Assign(CSG_Data_Object *pObject)
 //---------------------------------------------------------
 bool CSG_Shapes::Save(const CSG_String &File_Name, int Format)
 {
-	bool		bResult		= false;
-	CSG_String	sFile_Name	= SG_File_Make_Path(NULL, File_Name, SG_T("shp"));
+	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), LNG("[MSG] Save shapes"), File_Name.c_str()), true);
 
-	switch( Format )
-	{
-	case 0: default:
-		bResult	= _Save_ESRI(sFile_Name);
-		break;
-	}
-
-	if( bResult )
+	if( _Save_ESRI(File_Name) )
 	{
 		Set_Modified(false);
 
-		Set_File_Name(sFile_Name);
+		Set_File_Name(File_Name);
 
 		Save_MetaData(File_Name);
+
+		SG_UI_Msg_Add(LNG("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+
+		return( true );
 	}
 
-	return( bResult );
+	SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
+
+	return( false );
 }
 
 
@@ -327,11 +333,30 @@ CSG_Table_Record * CSG_Shapes::_Get_New_Record(int Index)
 {
 	switch( m_Type )
 	{
-	case SHAPE_TYPE_Point:		return( new CSG_Shape_Point		(this, Index) );
-	case SHAPE_TYPE_Points:		return( new CSG_Shape_Points	(this, Index) );
-	case SHAPE_TYPE_Line:		return( new CSG_Shape_Line		(this, Index) );
-	case SHAPE_TYPE_Polygon:	return( new CSG_Shape_Polygon	(this, Index) );
-	default:					return( NULL );
+	case SHAPE_TYPE_Point:
+		switch( m_Vertex_Type )
+		{
+		case SG_VERTEX_TYPE_XY:	default:
+			return( new CSG_Shape_Point		(this, Index) );
+
+		case SG_VERTEX_TYPE_XYZ:
+			return( new CSG_Shape_Point_Z	(this, Index) );
+
+		case SG_VERTEX_TYPE_XYZM:
+			return( new CSG_Shape_Point_ZM	(this, Index) );
+		}
+
+	case SHAPE_TYPE_Points:
+		return( new CSG_Shape_Points	(this, Index) );
+
+	case SHAPE_TYPE_Line:
+		return( new CSG_Shape_Line		(this, Index) );
+
+	case SHAPE_TYPE_Polygon:
+		return( new CSG_Shape_Polygon	(this, Index) );
+
+	default:
+		return( NULL );
 	}
 }
 
@@ -379,11 +404,31 @@ bool CSG_Shapes::On_Update(void)
 {
 	if( Get_Count() > 0 )
 	{
-		m_Extent	= Get_Shape(0)->Get_Extent();
+		CSG_Shape	*pShape	= Get_Shape(0);
+
+		m_Extent	= pShape->Get_Extent();
+		m_ZMin		= pShape->Get_ZMin();
+		m_ZMax		= pShape->Get_ZMax();
+		m_MMin		= pShape->Get_MMin();
+		m_MMax		= pShape->Get_MMax();
 
 		for(int i=1; i<Get_Count(); i++)
 		{
-			m_Extent.Union(Get_Shape(i)->Get_Extent());
+			pShape	= Get_Shape(i);
+
+			m_Extent.Union(pShape->Get_Extent());
+
+			switch( m_Vertex_Type )
+			{
+			case SG_VERTEX_TYPE_XYZM:
+				if( m_MMin > pShape->Get_MMin() )	m_MMin	= pShape->Get_MMin();
+				if( m_MMax < pShape->Get_MMax() )	m_MMax	= pShape->Get_MMax();
+
+			case SG_VERTEX_TYPE_XYZ:
+				if( m_ZMin > pShape->Get_ZMin() )	m_ZMin	= pShape->Get_ZMin();
+				if( m_ZMax < pShape->Get_ZMax() )	m_ZMax	= pShape->Get_ZMax();
+				break;
+			}
 		}
 	}
 	else
@@ -441,6 +486,59 @@ CSG_Shape * CSG_Shapes::Get_Shape(TSG_Point Point, double Epsilon)
 	}
 
 	return( pNearest );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Shapes::Make_Clean(void)
+{
+	if( m_Type != SHAPE_TYPE_Polygon )
+	{
+		return( true );
+	}
+
+	for(int iShape=0; iShape<Get_Count() && SG_UI_Process_Set_Progress(iShape, Get_Count()); iShape++)
+	{
+		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)Get_Shape(iShape);
+
+		for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
+		{
+			//--------------------------------------------
+			// last point == first point !
+
+			if( !CSG_Point(pPolygon->Get_Point(0, iPart)).is_Equal(pPolygon->Get_Point(pPolygon->Get_Point_Count(iPart) - 1, iPart)) )
+			{
+				((CSG_Shape *)pPolygon)->Add_Point(pPolygon->Get_Point(0, iPart), iPart);
+			}
+
+			//--------------------------------------------
+			// ring direction !
+
+			if( (pPolygon->is_Lake(iPart) == false && pPolygon->is_Clockwise(iPart) == false)
+			||	(pPolygon->is_Lake(iPart) ==  true && pPolygon->is_Clockwise(iPart) ==  true) )
+			{
+				for(int i=0, j=pPolygon->Get_Point_Count(iPart)-1; i<j; i++, j--)
+				{
+					TSG_Point	iPoint	= pPolygon->Get_Point(i, iPart);
+					TSG_Point	jPoint	= pPolygon->Get_Point(j, iPart);
+					pPolygon->Set_Point(iPoint.x, iPoint.y, j, iPart);
+					pPolygon->Set_Point(jPoint.x, jPoint.y, i, iPart);
+				}
+			}
+
+			//--------------------------------------------
+			// no self intersection !
+
+		}
+	}
+
+	return( true );
 }
 
 

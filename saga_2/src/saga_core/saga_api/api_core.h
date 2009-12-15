@@ -175,14 +175,76 @@ SAGA_API_DLL_EXPORT void			SG_Mem_Set_Double	(char *Buffer, double Value	, bool 
 
 ///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Buffer
+{
+public:
+
+						CSG_Buffer		(void);
+	bool				Create			(void);
+
+						CSG_Buffer		(const CSG_Buffer &Buffer);
+	bool				Create			(const CSG_Buffer &Buffer);
+
+						CSG_Buffer		(size_t Size);
+	bool				Create			(size_t Size);
+
+	virtual				~CSG_Buffer		(void);
+	void				Destroy			(void);
+
+	bool				Set_Size		(size_t Size, bool bShrink = true);
+	bool				Inc_Size		(size_t Size)				{	return( Set_Size(m_Size + Size) );	}
+	size_t				Get_Size		(void)				const	{	return( m_Size );	}
+
+	bool				Set_Data		(const char *Buffer, size_t Size, bool bShrink = true);
+	char *				Get_Data		(int Offset = 0)	const	{	return( m_pData + Offset );		}
+	char				operator []		(int Position)		const	{	return( m_pData[Position] );	}
+
+	void				Add_Value		(char   Value, bool bBigEndian = false)	{	if( Inc_Size(sizeof(Value)) ) Set_Value(m_Size - sizeof(Value), Value, bBigEndian);	}
+	void				Add_Value		(short  Value, bool bBigEndian = false)	{	if( Inc_Size(sizeof(Value)) ) Set_Value(m_Size - sizeof(Value), Value, bBigEndian);	}
+	void				Add_Value		(int    Value, bool bBigEndian = false)	{	if( Inc_Size(sizeof(Value)) ) Set_Value(m_Size - sizeof(Value), Value, bBigEndian);	}
+	void				Add_Value		(float  Value, bool bBigEndian = false)	{	if( Inc_Size(sizeof(Value)) ) Set_Value(m_Size - sizeof(Value), Value, bBigEndian);	}
+	void				Add_Value		(double Value, bool bBigEndian = false)	{	if( Inc_Size(sizeof(Value)) ) Set_Value(m_Size - sizeof(Value), Value, bBigEndian);	}
+
+	CSG_Buffer &		operator +=		(char   Value)				{	Add_Value(Value);	return( *this );	}
+	CSG_Buffer &		operator +=		(short  Value)				{	Add_Value(Value);	return( *this );	}
+	CSG_Buffer &		operator +=		(int    Value)				{	Add_Value(Value);	return( *this );	}
+	CSG_Buffer &		operator +=		(float  Value)				{	Add_Value(Value);	return( *this );	}
+	CSG_Buffer &		operator +=		(double Value)				{	Add_Value(Value);	return( *this );	}
+
+	void				Set_Value		(int Offset, char   Value, bool bBigEndian = false)	{	m_pData[Offset]	= Value;	}
+	void				Set_Value		(int Offset, short  Value, bool bBigEndian = false)	{	if( bBigEndian ) SG_Swap_Bytes(&Value, sizeof(Value)); *(short  *)(m_pData + Offset) = Value;	}
+	void				Set_Value		(int Offset, int    Value, bool bBigEndian = false)	{	if( bBigEndian ) SG_Swap_Bytes(&Value, sizeof(Value)); *(int    *)(m_pData + Offset) = Value;	}
+	void				Set_Value		(int Offset, float  Value, bool bBigEndian = false)	{	if( bBigEndian ) SG_Swap_Bytes(&Value, sizeof(Value)); *(float  *)(m_pData + Offset) = Value;	}
+	void				Set_Value		(int Offset, double Value, bool bBigEndian = false)	{	if( bBigEndian ) SG_Swap_Bytes(&Value, sizeof(Value)); *(double *)(m_pData + Offset) = Value;	}
+
+	short				asShort			(int Offset, bool bBigEndian = false) const	{	short  Value = *(short  *)(m_pData + Offset); if( bBigEndian ) SG_Swap_Bytes(&Value, sizeof(Value)); return( Value );	}
+	int					asInt			(int Offset, bool bBigEndian = false) const	{	int    Value = *(int    *)(m_pData + Offset); if( bBigEndian ) SG_Swap_Bytes(&Value, sizeof(Value)); return( Value );	}
+	float				asFloat			(int Offset, bool bBigEndian = false) const	{	float  Value = *(float  *)(m_pData + Offset); if( bBigEndian ) SG_Swap_Bytes(&Value, sizeof(Value)); return( Value );	}
+	double				asDouble		(int Offset, bool bBigEndian = false) const	{	double Value = *(double *)(m_pData + Offset); if( bBigEndian ) SG_Swap_Bytes(&Value, sizeof(Value)); return( Value );	}
+
+
+private:
+
+	char				*m_pData;
+
+	size_t				m_Size;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //						String							 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #ifndef _SAGA_UNICODE
-	#define SG_Char				char
-	#define SG_T(s)				s
+	#define SG_Char			char
+	#define SG_T(s)			s
 	#define SG_PRINTF			printf
 	#define SG_SSCANF			sscanf
 	#define SG_STR_CMP			strcmp
@@ -192,8 +254,8 @@ SAGA_API_DLL_EXPORT void			SG_Mem_Set_Double	(char *Buffer, double Value	, bool 
 	#define SG_STR_SGTOMB(s)	s
 	#define SG_STR_MBTOSG(s)	s
 #else
-	#define SG_Char				wchar_t
-	#define SG_T(s)				L ## s
+	#define SG_Char			wchar_t
+	#define SG_T(s)			L ## s
 	#define SG_PRINTF			SG_Printf
 	#define SG_SSCANF			swscanf
 	#define SG_STR_CMP			wcscmp
@@ -511,10 +573,10 @@ public:
 
 	bool							Read_Line			(CSG_String &sLine)	const;
 
-	int								Read_Int			(				bool bByteOrderBig)	const;
-	bool							Write_Int			(int    Value,	bool bByteOrderBig);
-	double							Read_Double			(				bool bByteOrderBig)	const;
-	bool							Write_Double		(double Value,	bool bByteOrderBig);
+	int								Read_Int			(				bool bBigEndian = false)	const;
+	bool							Write_Int			(int    Value,	bool bBigEndian = false);
+	double							Read_Double			(				bool bBigEndian = false)	const;
+	bool							Write_Double		(double Value,	bool bBigEndian = false);
 
 	int								Scan_Int			(void)	const;
 	double							Scan_Double			(void)	const;
@@ -553,8 +615,8 @@ SAGA_API_DLL_EXPORT bool			SG_Read_Line			(FILE *Stream, CSG_String &Line);
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SG_GET_RGB(r, g, b)			((DWORD) (((BYTE)(r) | ((WORD)(g) << 8)) | (((DWORD)(BYTE)(b)) << 16)))
-#define SG_GET_RGBA(r, g, b, a)		((DWORD) (((BYTE)(r) | ((WORD)(g) << 8)) | (((DWORD)(BYTE)(b)) << 16) | (((DWORD)(BYTE)(a)) << 24)))
+#define SG_GET_RGB(r, g, b)		((DWORD) (((BYTE)(r) | ((WORD)(g) << 8)) | (((DWORD)(BYTE)(b)) << 16)))
+#define SG_GET_RGBA(r, g, b, a)	((DWORD) (((BYTE)(r) | ((WORD)(g) << 8)) | (((DWORD)(BYTE)(b)) << 16) | (((DWORD)(BYTE)(a)) << 24)))
 
 #define SG_GET_R(rgb)				((BYTE) ((rgb)      ))
 #define SG_GET_G(rgb)				((BYTE) ((rgb) >>  8))
@@ -564,23 +626,23 @@ SAGA_API_DLL_EXPORT bool			SG_Read_Line			(FILE *Stream, CSG_String &Line);
 //---------------------------------------------------------
 #define SG_COLOR_BLACK				SG_GET_RGB(  0,   0,   0)
 #define SG_COLOR_GREY				SG_GET_RGB(128, 128, 128)
-#define SG_COLOR_GREY_LIGHT			SG_GET_RGB(192, 192, 192)
+#define SG_COLOR_GREY_LIGHT		SG_GET_RGB(192, 192, 192)
 #define SG_COLOR_WHITE				SG_GET_RGB(255, 255, 255)
 #define SG_COLOR_RED				SG_GET_RGB(255,   0,   0)
 #define SG_COLOR_RED_DARK			SG_GET_RGB(128,   0,   0)
-#define SG_COLOR_YELLOW				SG_GET_RGB(255, 255,   0)
+#define SG_COLOR_YELLOW			SG_GET_RGB(255, 255,   0)
 #define SG_COLOR_YELLOW_DARK		SG_GET_RGB(128, 128,   0)
 #define SG_COLOR_GREEN				SG_GET_RGB(  0, 255,   0)
-#define SG_COLOR_GREEN_DARK			SG_GET_RGB(  0, 128,   0)
+#define SG_COLOR_GREEN_DARK		SG_GET_RGB(  0, 128,   0)
 #define SG_COLOR_GREEN_LIGHT		SG_GET_RGB(  0, 255,   0)
 #define SG_COLOR_BLUE				SG_GET_RGB(  0,   0, 255)
 #define SG_COLOR_BLUE_DARK			SG_GET_RGB(  0,   0, 128)
-#define SG_COLOR_BLUE_LIGHT			SG_GET_RGB(  0, 255, 255)
-#define SG_COLOR_BLUE_GREEN			SG_GET_RGB(  0, 128, 128)
-#define SG_COLOR_PURPLE				SG_GET_RGB(128,   0, 128)
+#define SG_COLOR_BLUE_LIGHT		SG_GET_RGB(  0, 255, 255)
+#define SG_COLOR_BLUE_GREEN		SG_GET_RGB(  0, 128, 128)
+#define SG_COLOR_PURPLE			SG_GET_RGB(128,   0, 128)
 #define SG_COLOR_PINK				SG_GET_RGB(255,   0, 255)
 #define SG_COLOR_NONE				-1
-#define SG_COLOR_RANDOM				-2
+#define SG_COLOR_RANDOM			-2
 
 //---------------------------------------------------------
 enum ESG_Colors

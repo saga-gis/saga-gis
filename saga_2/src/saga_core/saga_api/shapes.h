@@ -80,9 +80,18 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+typedef enum ESG_Vertex_Type
+{
+	SG_VERTEX_TYPE_XY		= 0,
+	SG_VERTEX_TYPE_XYZ,
+	SG_VERTEX_TYPE_XYZM
+}
+TSG_Vertex_Type;
+
+//---------------------------------------------------------
 typedef enum ESG_Shape_Type
 {
-	SHAPE_TYPE_Undefined		= 0,
+	SHAPE_TYPE_Undefined	= 0,
 	SHAPE_TYPE_Point,
 	SHAPE_TYPE_Points,
 	SHAPE_TYPE_Line,
@@ -135,6 +144,15 @@ public:
 	virtual int					Get_Point_Count		(int iPart)										= 0;
 	virtual TSG_Point			Get_Point			(int iPoint, int iPart = 0)						= 0;
 
+	virtual void				Set_Z				(double z, int iPoint, int iPart = 0)	{		}
+	virtual double				Get_Z				(int iPoint, int iPart = 0)	{	return( 0.0 );	}
+	virtual double				Get_ZMin			(void)						{	return( 0.0 );	}
+	virtual double				Get_ZMax			(void)						{	return( 0.0 );	}
+
+	virtual void				Set_M				(double m, int iPoint, int iPart = 0)	{		}
+	virtual double				Get_M				(int iPoint, int iPart = 0)	{	return( 0.0 );	}
+	virtual double				Get_MMin			(void)						{	return( 0.0 );	}
+	virtual double				Get_MMax			(void)						{	return( 0.0 );	}
 
 	//-----------------------------------------------------
 	virtual const CSG_Rect &	Get_Extent			(void)											= 0;
@@ -210,6 +228,48 @@ protected:
 
 };
 
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Shape_Point_Z : public CSG_Shape_Point
+{
+	friend class CSG_Shapes;
+
+public:
+
+	CSG_Shape_Point_Z(class CSG_Shapes *pOwner, int Index) : CSG_Shape_Point(pOwner, Index)		{	m_Z	= 0.0;	}
+
+	virtual void				Set_Z				(double z, int iPoint, int iPart = 0)		{	m_Z	= z;	_Invalidate();	}
+	virtual double				Get_Z				(int iPoint, int iPart = 0)					{	return( m_Z );	}
+	virtual double				Get_ZMin			(void)										{	return( m_Z );	}
+	virtual double				Get_ZMax			(void)										{	return( m_Z );	}
+
+
+private:
+
+	double						m_Z;
+
+};
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Shape_Point_ZM : public CSG_Shape_Point_Z
+{
+	friend class CSG_Shapes;
+
+public:
+
+	CSG_Shape_Point_ZM(class CSG_Shapes *pOwner, int Index) : CSG_Shape_Point_Z(pOwner, Index)	{	m_M	= 0.0;	}
+
+	virtual void				Set_M				(double m, int iPoint, int iPart = 0)		{	m_M	= m;	_Invalidate();	}
+	virtual double				Get_M				(int iPoint, int iPart = 0)					{	return( m_M );	}
+	virtual double				Get_MMin			(void)										{	return( m_M );	}
+	virtual double				Get_MMax			(void)										{	return( m_M );	}
+
+
+private:
+
+	double						m_M;
+
+};
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -226,9 +286,10 @@ class SAGA_API_DLL_EXPORT CSG_Shape_Part
 
 public:
 
-	bool						Destroy				(void);
+	CSG_Shape_Points *			Get_Owner			(void)	{	return( m_pOwner );	}
 
-	bool						Assign				(CSG_Shape_Part *pPart);
+	virtual bool				Destroy				(void);
+	virtual bool				Assign				(CSG_Shape_Part *pPart);
 
 	const CSG_Rect &			Get_Extent			(void)	{	_Update_Extent();	return( m_Extent );	}
 
@@ -253,6 +314,16 @@ public:
 	int							Set_Point			(double x, double y, int iPoint);
 	int							Del_Point			(                    int iPoint);
 
+	virtual void				Set_Z				(double z, int iPoint)	{			}
+	virtual double				Get_Z				(int iPoint)	{	return( 0.0 );	}
+	virtual double				Get_ZMin			(void)			{	return( 0.0 );	}
+	virtual double				Get_ZMax			(void)			{	return( 0.0 );	}
+
+	virtual void				Set_M				(double m, int iPoint)	{			}
+	virtual double				Get_M				(int iPoint)	{	return( 0.0 );	}
+	virtual double				Get_MMin			(void)			{	return( 0.0 );	}
+	virtual double				Get_MMax			(void)			{	return( 0.0 );	}
+
 
 protected:
 
@@ -271,10 +342,72 @@ protected:
 	CSG_Shape_Points			*m_pOwner;
 
 
-	bool						_Alloc_Memory		(int nPoints);
-
+	virtual bool				_Alloc_Memory		(int nPoints);
 	virtual void				_Invalidate			(void);
+	virtual void				_Update_Extent		(void);
 
+};
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Shape_Part_Z : public CSG_Shape_Part
+{
+	friend class CSG_Shape_Points;
+	friend class CSG_Shape_Line;
+	friend class CSG_Shape_Polygon;
+
+public:
+
+	virtual bool				Destroy				(void);
+	virtual bool				Assign				(CSG_Shape_Part *pPart);
+
+	virtual void				Set_Z				(double z, int iPoint)	{	if( iPoint >= 0 && iPoint < m_nPoints )	{	m_Z[iPoint]	= z; _Invalidate();	}	}
+	virtual double				Get_Z				(int iPoint)			{	return( iPoint >= 0 && iPoint < m_nPoints ?	m_Z[iPoint]	: 0.0 );	}
+	virtual double				Get_ZMin			(void)					{	_Update_Extent(); return( m_ZMin );	}
+	virtual double				Get_ZMax			(void)					{	_Update_Extent(); return( m_ZMax );	}
+
+
+protected:
+
+	CSG_Shape_Part_Z(class CSG_Shape_Points *pOwner);
+	virtual ~CSG_Shape_Part_Z(void);
+
+
+	double						*m_Z, m_ZMin, m_ZMax;
+
+
+	virtual bool				_Alloc_Memory		(int nPoints);
+	virtual void				_Update_Extent		(void);
+
+};
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Shape_Part_ZM : public CSG_Shape_Part_Z
+{
+	friend class CSG_Shape_Points;
+	friend class CSG_Shape_Line;
+	friend class CSG_Shape_Polygon;
+
+public:
+
+	virtual bool				Destroy				(void);
+	virtual bool				Assign				(CSG_Shape_Part *pPart);
+
+	virtual void				Set_M				(double m, int iPoint)	{	if( iPoint >= 0 && iPoint < m_nPoints ) {	m_M[iPoint]	= m; _Invalidate();	}	}
+	virtual double				Get_M				(int iPoint)			{	return( iPoint >= 0 && iPoint < m_nPoints ?	m_M[iPoint]	: 0.0 );	}
+	virtual double				Get_MMin			(void)					{	_Update_Extent(); return( m_MMin );	}
+	virtual double				Get_MMax			(void)					{	_Update_Extent(); return( m_MMax );	}
+
+
+protected:
+
+	CSG_Shape_Part_ZM(class CSG_Shape_Points *pOwner);
+	virtual ~CSG_Shape_Part_ZM(void);
+
+
+	double						*m_M, m_MMin, m_MMax;
+
+
+	virtual bool				_Alloc_Memory		(int nPoints);
 	virtual void				_Update_Extent		(void);
 
 };
@@ -312,13 +445,23 @@ public:
 
 	virtual TSG_Point			Get_Point			(int iPoint, int iPart = 0)
 	{
-		if( iPart >= 0 && iPart < m_nParts && iPoint >= 0 && iPoint < m_pParts[iPart]->Get_Count() )
+		if( iPart >= 0 && iPart < m_nParts )
 		{
 			return( m_pParts[iPart]->Get_Point(iPoint) );
 		}
 
 		return( CSG_Point(0.0, 0.0) );
 	}
+
+	virtual void				Set_Z				(double z, int iPoint, int iPart = 0)	{	if( iPart >= 0 && iPart < m_nParts ) m_pParts[iPart]->Set_Z(z, iPoint);	}
+	virtual double				Get_Z				(          int iPoint, int iPart = 0)	{	return( iPart >= 0 && iPart < m_nParts ? m_pParts[iPart]->Get_Z(iPoint) : 0.0 );	}
+	virtual double				Get_ZMin			(void)		{	_Update_Extent();	return( m_ZMin );	}
+	virtual double				Get_ZMax			(void)		{	_Update_Extent();	return( m_ZMax );	}
+
+	virtual void				Set_M				(double m, int iPoint, int iPart = 0)	{	if( iPart >= 0 && iPart < m_nParts ) m_pParts[iPart]->Set_M(m, iPoint);	}
+	virtual double				Get_M				(          int iPoint, int iPart = 0)	{	return( iPart >= 0 && iPart < m_nParts ? m_pParts[iPart]->Get_M(iPoint) : 0.0 );	}
+	virtual double				Get_MMin			(void)		{	_Update_Extent();	return( m_MMin );	}
+	virtual double				Get_MMax			(void)		{	_Update_Extent();	return( m_MMax );	}
 
 	virtual const CSG_Rect &	Get_Extent			(void)		{	_Update_Extent();	return( m_Extent );	}
 
@@ -338,6 +481,8 @@ protected:
 
 	int							m_nParts;
 
+	double						m_ZMin, m_ZMax, m_MMin, m_MMax;
+
 	CSG_Rect					m_Extent;
 
 	CSG_Shape_Part				**m_pParts;
@@ -345,7 +490,7 @@ protected:
 
 	int							_Add_Part			(void);
 
-	virtual CSG_Shape_Part *	_Get_Part			(void)	{	return( new CSG_Shape_Part(this) );	}
+	virtual CSG_Shape_Part *	_Get_Part			(void);
 
 	virtual void				_Invalidate			(void)
 	{
@@ -525,8 +670,8 @@ public:
 									CSG_Shapes	(const CSG_String &File_Name);
 	bool							Create		(const CSG_String &File_Name);
 
-									CSG_Shapes	(TSG_Shape_Type Type, const SG_Char *Name = NULL, CSG_Table *pStructure = NULL);
-	bool							Create		(TSG_Shape_Type Type, const SG_Char *Name = NULL, CSG_Table *pStructure = NULL);
+									CSG_Shapes	(TSG_Shape_Type Type, const SG_Char *Name = NULL, CSG_Table *pStructure = NULL, TSG_Vertex_Type Vertex_Type = SG_VERTEX_TYPE_XY);
+	bool							Create		(TSG_Shape_Type Type, const SG_Char *Name = NULL, CSG_Table *pStructure = NULL, TSG_Vertex_Type Vertex_Type = SG_VERTEX_TYPE_XY);
 
 	virtual ~CSG_Shapes(void);
 
@@ -542,7 +687,14 @@ public:
 
 	virtual TSG_Shape_Type			Get_Type				(void)	const			{	return( m_Type );		}
 
+	TSG_Vertex_Type					Get_Vertex_Type			(void)	const			{	return( m_Vertex_Type );	}
+
 	const CSG_Rect &				Get_Extent				(void)					{	Update();	return( m_Extent );	}
+
+	double							Get_ZMin				(void)					{	Update();	return( m_ZMin );	}
+	double							Get_ZMax				(void)					{	Update();	return( m_ZMax );	}
+	double							Get_MMin				(void)					{	Update();	return( m_MMin );	}
+	double							Get_MMax				(void)					{	Update();	return( m_MMax );	}
 
 	//-----------------------------------------------------
 	virtual CSG_Shape *				Add_Shape				(CSG_Table_Record *pCopy = NULL, TSG_ADD_Shape_Copy_Mode mCopy = SHAPE_COPY);
@@ -555,6 +707,9 @@ public:
 	virtual CSG_Shape *				Get_Shape_byIndex		(int Index)		const	{	return( (CSG_Shape *)Get_Record_byIndex(Index) );	}
 
 	//-----------------------------------------------------
+	bool							Make_Clean				(void);
+
+	//-----------------------------------------------------
 	virtual CSG_Shape *				Get_Selection			(int Index = 0)			{	return( (CSG_Shape *)CSG_Table::Get_Selection(Index) );	};
 	virtual const CSG_Rect &		Get_Selection_Extent	(void);
 
@@ -565,7 +720,11 @@ public:
 
 protected:
 
+	double							m_ZMin, m_ZMax, m_MMin, m_MMax;
+
 	TSG_Shape_Type					m_Type;
+
+	TSG_Vertex_Type					m_Vertex_Type;
 
 	CSG_Rect						m_Extent, m_Extent_Selected;
 
@@ -602,7 +761,7 @@ SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(const CSG_Shapes &Shapes);
 SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(const CSG_String &File_Name);
 
 /** Safe shapes construction */
-SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(TSG_Shape_Type Type, const SG_Char *Name = NULL, CSG_Table *pStructure = NULL);
+SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(TSG_Shape_Type Type, const SG_Char *Name = NULL, CSG_Table *pStructure = NULL, TSG_Vertex_Type Vertex_Type = SG_VERTEX_TYPE_XY);
 
 
 ///////////////////////////////////////////////////////////

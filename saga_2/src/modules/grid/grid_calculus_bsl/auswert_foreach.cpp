@@ -1,9 +1,7 @@
 
-//#include <..\stdafx.h>
-
 #include "auswert_foreach.h"
 
-#include  <saga_api/saga_api.h>
+#include  "bsl_interpreter.h"
 
 
 void ausfuehren_foreach(BBForEach& f)
@@ -16,7 +14,7 @@ void ausfuehren_foreach(BBForEach& f)
 		// foreach p in M do
 		for (f.P->v.y=0; f.P->v.y<y; (f.P->v.y)++)
 		{
-			if( SG_UI_Process_Set_Progress(f.P->v.y, y) == false )
+			if( g_Set_Progress(f.P->v.y, y) == false )
 			{
 				throw BBFehlerUserbreak("User Break");
 			}

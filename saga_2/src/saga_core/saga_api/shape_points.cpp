@@ -142,6 +142,19 @@ int CSG_Shape_Points::_Add_Part(void)
 }
 
 //---------------------------------------------------------
+CSG_Shape_Part * CSG_Shape_Points::_Get_Part(void)
+{
+	switch( ((CSG_Shapes *)Get_Table())->Get_Vertex_Type() )
+	{
+	default:
+	case SG_VERTEX_TYPE_XY:		return( new CSG_Shape_Part   (this) );
+	case SG_VERTEX_TYPE_XYZ:	return( new CSG_Shape_Part_Z (this) );
+	case SG_VERTEX_TYPE_XYZM:	return( new CSG_Shape_Part_ZM(this) );
+	}
+}
+
+
+//---------------------------------------------------------
 int CSG_Shape_Points::Del_Part(int del_Part)
 {
 	if( del_Part >= 0 && del_Part < m_nParts )
@@ -233,20 +246,36 @@ void CSG_Shape_Points::_Update_Extent(void)
 {
 	if( m_bUpdate )
 	{
-		bool	bOkay	= false;
+		bool	bFirst;
+		int		iPart;
 
-		for(int iPart=0; iPart<m_nParts; iPart++)
+		for(iPart=0, bFirst=true; iPart<m_nParts; iPart++)
 		{
-			if( m_pParts[iPart]->Get_Count() > 0 )
+			CSG_Shape_Part	*pPart	= m_pParts[iPart];
+
+			if( pPart->Get_Count() > 0 )
 			{
-				if( !bOkay )
+				if( bFirst )
 				{
-					bOkay		= true;
-					m_Extent	= m_pParts[iPart]->Get_Extent();
+					bFirst		= false;
+
+					m_Extent	= pPart->Get_Extent();
+
+					m_ZMin		= pPart->Get_ZMin();
+					m_ZMax		= pPart->Get_ZMax();
+
+					m_MMin		= pPart->Get_MMin();
+					m_MMax		= pPart->Get_MMax();
 				}
 				else
 				{
-					m_Extent.Union(m_pParts[iPart]->Get_Extent());
+					m_Extent.Union(pPart->Get_Extent());
+
+					if( m_ZMin > pPart->Get_ZMin() )	m_ZMin	= pPart->Get_ZMin();
+					if( m_ZMax < pPart->Get_ZMax() )	m_ZMax	= pPart->Get_ZMax();
+
+					if( m_MMin > pPart->Get_MMin() )	m_MMin	= pPart->Get_MMin();
+					if( m_MMax < pPart->Get_MMax() )	m_MMax	= pPart->Get_MMax();
 				}
 			}
 		}

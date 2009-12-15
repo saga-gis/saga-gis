@@ -23,7 +23,7 @@
 class CBSL_Interpreter : public CSG_Module_Grid
 {
 public:
-	CBSL_Interpreter(void);
+	CBSL_Interpreter(bool bFile);
 	virtual ~CBSL_Interpreter(void);
 
 
@@ -34,6 +34,11 @@ protected:
 
 private:
 
+	bool				m_bFile;
+
+	CSG_String			m_BSL;
+
+
 	bool				Parse_Vars		(bool bFlag);
 
 
@@ -41,6 +46,7 @@ private:
 
 //---------------------------------------------------------
 void	g_Add_Grid		(CSG_Grid *pGrid);
+bool	g_Set_Progress	(int i, int n);
 
 
 ///////////////////////////////////////////////////////////

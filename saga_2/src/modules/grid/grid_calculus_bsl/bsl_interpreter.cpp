@@ -21,8 +21,7 @@
 //---------------------------------------------------------
 CBSL_Interpreter	*g_pInterpreter	= NULL;
 
-//---------------------------------------------------------
-void	g_Add_Grid	(CSG_Grid *pGrid)
+void	g_Add_Grid		(CSG_Grid *pGrid)
 {
 	if( g_pInterpreter )
 	{
@@ -34,6 +33,14 @@ void	g_Add_Grid	(CSG_Grid *pGrid)
 	}
 }
 
+//---------------------------------------------------------
+bool				g_bProgress		= true;
+
+bool	g_Set_Progress	(int i, int n)
+{
+	return( g_bProgress ? SG_UI_Process_Set_Progress(i, n) : SG_UI_Process_Get_Okay() );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -42,9 +49,12 @@ void	g_Add_Grid	(CSG_Grid *pGrid)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CBSL_Interpreter::CBSL_Interpreter(void)
+CBSL_Interpreter::CBSL_Interpreter(bool bFile)
 {
-	Set_Name		(_TL("BSL"));
+	m_bFile			= bFile;
+
+	//-----------------------------------------------------
+	Set_Name		(m_bFile ? _TL("BSL from File") : _TL("BSL"));
 
 	Set_Author		(SG_T("SAGA User Group Associaton (c) 2009"));
 
@@ -66,29 +76,47 @@ CBSL_Interpreter::CBSL_Interpreter(void)
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_String(
-		NULL, "BSL"		, _TL("BSL Script"),
-		_TL(""),
-		_TW(
-			"Matrix R(), NIR(), NDVI, RANGE;\n"
-			"Point p;\n"
-			"\n"
-			"NDVI  = R;\n"
-			"RANGE = R;\n"
-			"\n"
-			"foreach p in R do\n"
-			"{\n"
-			"  NDVI[p]  = (NIR[p] - R[p]) / (NIR[p] + R[p]);\n"
-			"  RANGE[p] = max8(p, R) - min8(p, R);\n"
-			"}\n"
-			"\n"
-			"showMatrix(NDVI);\n"
-			"showMatrix(RANGE);\n"
-		), true
-	);
+	if( m_bFile )
+	{
+		Parameters.Add_FilePath(
+			NULL, "BSL"		, _TL("BSL Script"),
+			_TL(""),
+			CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s"),
+				_TL("BSL Files (*.bsl)")	, SG_T("*.bsl"),
+				_TL("Text Files (*.txt)")	, SG_T("*.txt"),
+				_TL("All Files")			, SG_T("*.*")
+			)
+		);
+	}
+	else
+	{
+		Parameters.Add_String(
+			NULL, "BSL"		, _TL("BSL Script"),
+			_TL(""),
+			_TW(
+				"Matrix R(), NIR(), NDVI, RANGE;\n"
+				"Point p;\n"
+				"\n"
+				"NDVI  = R;\n"
+				"RANGE = R;\n"
+				"\n"
+				"foreach p in R do\n"
+				"{\n"
+				"  NDVI[p]  = (NIR[p] - R[p]) / (NIR[p] + R[p]);\n"
+				"  RANGE[p] = max8(p, R) - min8(p, R);\n"
+				"}\n"
+				"\n"
+				"showMatrix(NDVI);\n"
+				"showMatrix(RANGE);\n"
+			), true
+		);
+	}
 
-	//-----------------------------------------------------
-	g_pInterpreter	= this;
+	Parameters.Add_Value(
+		NULL, "PROGRESS"	, _TL("Show Progress"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	);
 }
 
 //---------------------------------------------------------
@@ -109,6 +137,24 @@ bool CBSL_Interpreter::On_Execute(void)
 {
 	//-----------------------------------------------------
 	Parameters("OUTPUT")->asGridList()->Del_Items();
+
+	g_bProgress	= Parameters("PROGRESS")->asBool();
+
+	if( m_bFile )
+	{
+		CSG_File	Stream;
+		
+		if( !Stream.Open(Parameters("BSL")->asString(), SG_FILE_R, false) )
+		{
+			return( false );
+		}
+
+		Stream.Read(m_BSL, Stream.Length());
+	}
+	else
+	{
+		m_BSL	= Parameters("BSL")->asString();
+	}
 
 	//-----------------------------------------------------
 	if( !Parse_Vars(false) )
@@ -143,6 +189,8 @@ bool CBSL_Interpreter::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	g_pInterpreter	= this;
+
 	if( GetMemoryGrids(&Input) )
 	{
 		try
@@ -165,6 +213,8 @@ bool CBSL_Interpreter::On_Execute(void)
 		}
 	}
 
+	g_pInterpreter	= NULL;
+
 	DeleteVarList();
 	DeleteAnweisungList(AnweisungList);
 
@@ -183,7 +233,7 @@ bool CBSL_Interpreter::Parse_Vars(bool bFlag)
 {
 	InputText.clear();
 
-	CSG_String	s	= Parameters("BSL")->asString();
+	CSG_String	s(m_BSL);
 
 	while( s.Length() > 0 )
 	{
