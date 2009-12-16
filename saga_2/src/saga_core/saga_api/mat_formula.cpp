@@ -1177,7 +1177,7 @@ SG_Char *CSG_Formula::i_trans(SG_Char *function, SG_Char *begin, SG_Char *end)
 	{	/*function with parameters*/
 		tempch = *(end - 1);
 		*(end - 1) = SG_T('\0');
-		par_buf =(SG_Char *) SG_Malloc(SG_STR_LEN(endf + 1) + 1);
+		par_buf =(SG_Char *) SG_Malloc(sizeof(SG_Char) * (SG_STR_LEN(endf + 1) + 1));
 
 		if (!par_buf)
 		{    
