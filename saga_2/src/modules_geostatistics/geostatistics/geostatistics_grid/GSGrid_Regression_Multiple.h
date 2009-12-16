@@ -76,7 +76,6 @@ class CGSGrid_Regression_Multiple : public CSG_Module_Grid
 {
 public:
 	CGSGrid_Regression_Multiple(void);
-	virtual ~CGSGrid_Regression_Multiple(void);
 
 	virtual const SG_Char *		Get_MenuPath		(void)	{	return( _TL("R:Regression Analysis") );	}
 
@@ -87,6 +86,8 @@ protected:
 
 
 private:
+
+	bool						m_bCoords;
 
 	int							m_Interpolation;
 

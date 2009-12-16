@@ -135,6 +135,12 @@ CGSGrid_Regression_Multiple::CGSGrid_Regression_Multiple(void)
 		PARAMETER_OUTPUT
 	);
 
+	Parameters.Add_Value(
+		NULL	, "COORDS"		, _TL("Include Coordinates"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
+
 	Parameters.Add_Choice(
 		NULL	,"INTERPOL"		, _TL("Grid Interpolation"),
 		_TL(""),
@@ -148,10 +154,6 @@ CGSGrid_Regression_Multiple::CGSGrid_Regression_Multiple(void)
 	);
 }
 
-//---------------------------------------------------------
-CGSGrid_Regression_Multiple::~CGSGrid_Regression_Multiple(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -163,9 +165,9 @@ CGSGrid_Regression_Multiple::~CGSGrid_Regression_Multiple(void)
 bool CGSGrid_Regression_Multiple::On_Execute(void)
 {
 	int						iAttribute;
-	CSG_Table					*pTable;
-	CSG_Shapes					*pShapes, *pResiduals;
-	CSG_Grid					*pRegression;
+	CSG_Table				*pTable;
+	CSG_Shapes				*pShapes, *pResiduals;
+	CSG_Grid				*pRegression;
 	CSG_Parameter_Grid_List	*pGrids;
 
 	//-----------------------------------------------------
@@ -175,6 +177,7 @@ bool CGSGrid_Regression_Multiple::On_Execute(void)
 	pShapes			= Parameters("SHAPES")		->asShapes();
 	pResiduals		= Parameters("RESIDUAL")	->asShapes();
 	iAttribute		= Parameters("ATTRIBUTE")	->asInt();
+	m_bCoords		= Parameters("COORDS")		->asBool();
 	m_Interpolation	= Parameters("INTERPOL")	->asInt();
 
 	//-----------------------------------------------------
@@ -191,6 +194,7 @@ bool CGSGrid_Regression_Multiple::On_Execute(void)
 		if( pTable )
 		{
 			pTable->Assign(m_Regression.Get_Result());
+
 			pTable->Set_Name(_TL("Multiple Regression Analysis"));
 		}
 
@@ -215,15 +219,11 @@ bool CGSGrid_Regression_Multiple::On_Execute(void)
 //---------------------------------------------------------
 bool CGSGrid_Regression_Multiple::Get_Regression(CSG_Parameter_Grid_List *pGrids, CSG_Shapes *pShapes, int iAttribute)
 {
-	int				iShape, iPart, iPoint, iGrid;
-	double			zShape, zGrid;
-	TSG_Point		Point;
-	CSG_Table			Table;
-	CSG_Table_Record	*pRecord;
-	CSG_Shape			*pShape;
+	int			iGrid;
+	double		zGrid;
+	CSG_Table	Table;
 
 	//-----------------------------------------------------
-	Table.Destroy();
 	Table.Add_Field(pShapes->Get_Name(), SG_DATATYPE_Double);
 
 	for(iGrid=0; iGrid<pGrids->Get_Count(); iGrid++)
@@ -231,18 +231,25 @@ bool CGSGrid_Regression_Multiple::Get_Regression(CSG_Parameter_Grid_List *pGrids
 		Table.Add_Field(pGrids->asGrid(iGrid)->Get_Name(), SG_DATATYPE_Double);
 	}
 
-	//-----------------------------------------------------
-	for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	if( m_bCoords )
 	{
-		pShape	= pShapes->Get_Shape(iShape);
-		zShape	= pShape->asDouble(iAttribute);
+		Table.Add_Field(SG_T("X"), SG_DATATYPE_Double);
+		Table.Add_Field(SG_T("Y"), SG_DATATYPE_Double);
+	}
 
-		for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+	//-----------------------------------------------------
+	for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	{
+		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+		double		zShape	= pShape->asDouble(iAttribute);
+
+		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{
-			for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 			{
-				Point	= pShape->Get_Point(iPoint, iPart);
-				pRecord	= Table.Add_Record();
+				TSG_Point			Point		= pShape->Get_Point(iPoint, iPart);
+				CSG_Table_Record	*pRecord	= Table.Add_Record();
+
 				pRecord->Set_Value(0, zShape);
 
 				for(iGrid=0; iGrid<pGrids->Get_Count() && pRecord; iGrid++)
@@ -253,9 +260,16 @@ bool CGSGrid_Regression_Multiple::Get_Regression(CSG_Parameter_Grid_List *pGrids
 					}
 					else
 					{
-						pRecord	= NULL;
 						Table.Del_Record(Table.Get_Record_Count() - 1);
+
+						pRecord	= NULL;
 					}
+				}
+
+				if( m_bCoords && pRecord )
+				{
+					pRecord->Set_Value(pGrids->Get_Count() + 1, Point.x);
+					pRecord->Set_Value(pGrids->Get_Count() + 2, Point.y);
 				}
 			}
 		}
@@ -268,37 +282,39 @@ bool CGSGrid_Regression_Multiple::Get_Regression(CSG_Parameter_Grid_List *pGrids
 //---------------------------------------------------------
 bool CGSGrid_Regression_Multiple::Set_Regression(CSG_Parameter_Grid_List *pGrids, CSG_Grid *pRegression)
 {
-	bool	bOk;
-	int		x, y, i;
-	double	z;
-
-	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
-			z	= m_Regression.Get_RConst();
+			int		i, n;
+			double	z	= m_Regression.Get_RConst();
 
-			for(i=0, bOk=true; i<pGrids->Get_Count() && bOk; i++)
+			for(i=0, n=0; i==n && i<pGrids->Get_Count(); i++)
 			{
-				if( (bOk = !pGrids->asGrid(i)->is_NoData(x, y)) == true )
+				if( !pGrids->asGrid(i)->is_NoData(x, y) )
 				{
 					z	+= m_Regression.Get_RCoeff(i) * pGrids->asGrid(i)->asDouble(x, y);
+					n	++;
 				}
 			}
 
-			if( bOk )
+			if( n != pGrids->Get_Count() )
 			{
-				pRegression->Set_Value (x, y, z);
+				pRegression->Set_NoData(x, y);
 			}
 			else
 			{
-				pRegression->Set_NoData(x, y);
+				if( m_bCoords )
+				{
+					z	+= m_Regression.Get_RCoeff(n + 0) * Get_System()->Get_xGrid_to_World(x);
+					z	+= m_Regression.Get_RCoeff(n + 1) * Get_System()->Get_yGrid_to_World(y);
+				}
+
+				pRegression->Set_Value (x, y, z);
 			}
 		}
 	}
 
-	//-----------------------------------------------------
 	return( true );
 }
 
