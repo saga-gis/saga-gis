@@ -542,10 +542,10 @@ bool CESRI_ArcInfo_Export::On_Execute(void)
 				else
 					s.Replace(SG_T(","), SG_T("."));
 
-				Stream.Printf(SG_T("%s "), s.c_str());
+				fprintf(Stream.Get_Stream(), s.b_str());
 			}
 
-			Stream.Printf(SG_T("\n"));
+			fprintf(Stream.Get_Stream(), "\n");
 		}
 
 		return( true );
