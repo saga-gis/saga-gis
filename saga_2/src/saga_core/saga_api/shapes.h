@@ -286,7 +286,7 @@ class SAGA_API_DLL_EXPORT CSG_Shape_Part
 
 public:
 
-	CSG_Shape_Points *			Get_Owner			(void)	{	return( m_pOwner );	}
+	class CSG_Shape_Points *	Get_Owner			(void)	{	return( m_pOwner );	}
 
 	virtual bool				Destroy				(void);
 	virtual bool				Assign				(CSG_Shape_Part *pPart);
@@ -339,7 +339,7 @@ protected:
 
 	CSG_Rect					m_Extent;
 
-	CSG_Shape_Points			*m_pOwner;
+	class CSG_Shape_Points		*m_pOwner;
 
 
 	virtual bool				_Alloc_Memory		(int nPoints);
