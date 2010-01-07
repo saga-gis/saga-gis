@@ -12,14 +12,18 @@ pkglib_LTLIBRARIES = libpointcloud_tools.la
 libpointcloud_tools_la_SOURCES =\
 MLB_Interface.cpp\
 pc_cut.cpp\
+pc_drop_attribute.cpp\
 pc_from_grid.cpp\
 pc_from_shapes.cpp\
+pc_reclass_extract.cpp\
 pc_to_grid.cpp\
 pc_to_shapes.cpp\
 MLB_Interface.h\
 pc_cut.h\
+pc_drop_attribute.h\
 pc_from_grid.h\
 pc_from_shapes.h\
+pc_reclass_extract.h\
 pc_to_grid.h\
 pc_to_shapes.h
 

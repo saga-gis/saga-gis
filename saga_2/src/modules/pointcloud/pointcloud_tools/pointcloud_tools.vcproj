@@ -420,11 +420,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\pc_drop_attribute.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\pc_from_grid.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\pc_from_shapes.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\pc_reclass_extract.cpp"
 				>
 			</File>
 			<File
@@ -449,11 +457,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\pc_drop_attribute.h"
+				>
+			</File>
+			<File
 				RelativePath=".\pc_from_grid.h"
 				>
 			</File>
 			<File
 				RelativePath=".\pc_from_shapes.h"
+				>
+			</File>
+			<File
+				RelativePath=".\pc_reclass_extract.h"
 				>
 			</File>
 			<File

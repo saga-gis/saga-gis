@@ -10,10 +10,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                 pc_drop_attribute.cpp                 //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
-//                      Olaf Conrad                      //
+//                 Copyright (C) 2010 by                 //
+//                    Volker Wichmann                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,12 +37,13 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     wichmann@laserdata                     //
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Hamburg                  //
-//                Germany                                //
+//    contact:    Volker Wichmann                        //
+//                LASERDATA GmbH                         //
+//                Management and analysis of             //
+//                laserscanning data                     //
+//                Innsbruck, Austria                     //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -51,63 +52,107 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
-
-
-//---------------------------------------------------------
-const SG_Char * Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Shapes - Point Clouds") );
-
-	case MLB_INFO_Author:
-		return( _TL("O.Conrad, Volker Wichmann (c) 2009-10") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for point clouds.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Shapes|Point Clouds") );
-	}
-}
-
-
-//---------------------------------------------------------
-#include "pc_cut.h"
-#include "pc_from_grid.h"
-#include "pc_from_shapes.h"
-#include "pc_to_grid.h"
-#include "pc_to_shapes.h"
-#include "pc_reclass_extract.h"
 #include "pc_drop_attribute.h"
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//				Construction/Destruction				 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-CSG_Module *		Create_Module(int i)
+CPC_Drop_Attribute::CPC_Drop_Attribute(void)
 {
-	switch( i )
+
+	Set_Name(_TL("Drop Point Cloud Attribute"));
+
+	Set_Author(_TL("Volker Wichmann (c) 2010, LASERDATA GmbH"));
+
+	Set_Description	(_TW(
+		"The module can be used to drop an attribute from a point cloud.\n\n")
+	);
+
+
+	//-----------------------------------------------------
+	Parameters.Add_PointCloud(
+		NULL	, "INPUT"		,_TL("Input"),
+		_TL("Point Cloud to drop attribute from."),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Table_Field(
+		Parameters("INPUT"), "ATTRIB", _TL("Attribute to drop"),
+		_TL("Attribute to drop."),
+		false
+	);
+
+	Parameters.Add_PointCloud(
+		NULL	, "RESULT"		, _TL("Result"),
+		_TL("Resulting Point Cloud."),
+		PARAMETER_OUTPUT
+	);
+}
+
+//---------------------------------------------------------
+CPC_Drop_Attribute::~CPC_Drop_Attribute(void)
+{}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CPC_Drop_Attribute::On_Execute(void)
+{
+	CSG_PointCloud		*pInput, *pResult;
+	int					AttrField;
+
+	pInput				= Parameters("INPUT")->asPointCloud();
+	pResult				= Parameters("RESULT")->asPointCloud();
+	AttrField			= Parameters("ATTRIB")->asInt() - 3;
+
+	if (AttrField < 0)
 	{
-	case 0:		return( new CPC_Cut );
-	case 1:		return( new CPC_Cut_Interactive );
-	case 2:		return( new CPC_From_Grid );
-	case 3:		return( new CPC_From_Shapes );
-	case 4:		return( new CPC_To_Grid );
-	case 5:		return( new CPC_To_Shapes );
-	case 6:		return( new CPC_Reclass_Extract );
-	case 7:		return( new CPC_Drop_Attribute );
+		SG_UI_Msg_Add_Error(CSG_String::Format(_TL("We must keep the coordinates, please choose another field than x,y,z!")));
+		return (false);
 	}
 
-	return( NULL );
+	pResult->Create(pInput);
+	pResult->Set_Name(CSG_String::Format(SG_T("%s_drop_%s"), pInput->Get_Name(), pInput->Get_Attribute_Name(AttrField)));
+
+	pResult->Del_Field(AttrField + 3);
+
+	for (int i=0; i<pInput->Get_Point_Count(); i++)
+	{
+		pResult->Add_Point(pInput->Get_X(i), pInput->Get_Y(i), pInput->Get_Z(i));
+
+		int	offset = 0;
+		for (int j=0; j<pInput->Get_Attribute_Count(); j++)
+		{
+			if (j == AttrField)
+			{
+				offset = -1;
+				continue;
+			}
+
+			pResult->Set_Attribute(j + offset, pInput->Get_Attribute(i, j));
+		}
+	}
+
+	//pResult->Del_Field(AttrField + 3);
+
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 
@@ -118,8 +163,3 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
