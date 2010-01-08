@@ -542,6 +542,12 @@ bool CSG_PointCloud::Add_Field(const char *Name, TSG_Data_Type Type)
 #endif
 
 //---------------------------------------------------------
+bool CSG_PointCloud::Del_Field(int iField)
+{
+	return( Get_Count() == 0 ? CSG_Shapes::Del_Field(iField) : false );
+}
+
+//---------------------------------------------------------
 bool CSG_PointCloud::_Set_Field_Value(char *pPoint, int iField, double Value)
 {
 	if( pPoint && iField >= 0 && iField < m_nFields )

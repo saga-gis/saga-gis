@@ -431,6 +431,10 @@ void CVIEW_ScatterPlot::On_Size(wxSizeEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define GET_DC_X(x)	(r.GetLeft()   + (int)(dx * ((x) - m_Regression.Get_xMin())))
+#define GET_DC_Y(y)	(r.GetBottom() - (int)(dy * ((y) - m_Regression.Get_yMin())))
+
+//---------------------------------------------------------
 void CVIEW_ScatterPlot::On_Paint(wxPaintEvent &event)
 {
 	wxPaintDC	dc(this);
@@ -509,44 +513,34 @@ void CVIEW_ScatterPlot::_Draw_Regression(wxDC &dc, wxRect r, double dx, double d
 	b	= m_Regression.Get_Coefficient();
 
 	//-----------------------------------------------------
-	if( m_Regression.Get_Type() == REGRESSION_Linear )
-	{
-		dc.DrawCircle(	// Mittelwert...
-			r.GetLeft()   + (int)(dx * (m_Regression.Get_xMean() - m_Regression.Get_xMin())),
-			r.GetBottom() - (int)(dy * (m_Regression.Get_yMean() - m_Regression.Get_yMin())),
-			2
-		);
+	dc.DrawCircle(
+		GET_DC_X(m_Regression.Get_xMean()),
+		GET_DC_Y(m_Regression.Get_yMean()), 2
+	);
 
-		dc.DrawLine(	// Regressions- u. Std.Abw.-Geraden...
-			r.GetLeft() , r.GetBottom()	- (int)(dy * ((a + b * m_Regression.Get_xMin())  - m_Regression.Get_yMin())),
-			r.GetRight(), r.GetBottom()	- (int)(dy * ((a + b * m_Regression.Get_xMax())  - m_Regression.Get_yMin()))
-		);
-	}
-	else
-	{
-		ex	= (m_Regression.Get_xMax() - m_Regression.Get_xMin()) / (double)r.GetWidth();
-		x	= m_Regression.Get_xMin();
-		by	= 0;
+	ex	= (m_Regression.Get_xMax() - m_Regression.Get_xMin()) / (double)r.GetWidth();
+	x	= m_Regression.Get_xMin();
+	by	= 0;
 
-		for(ix=0; ix<r.GetWidth(); ix++, x+=ex)
+	for(ix=0; ix<r.GetWidth(); ix++, x+=ex)
+	{
+		switch( m_Regression.Get_Type() )
 		{
-			switch( m_Regression.Get_Type() )
-			{
-			default:				y	= 0.0;				break;
-			case REGRESSION_Rez_X:	y	= a + b / x;		break;
-			case REGRESSION_Rez_Y:	y	= a / (b - x);		break;
-			case REGRESSION_Pow:	y	= a * pow(x, b);	break;
-			case REGRESSION_Exp:	y	= a * exp(b * x);	break;
-			case REGRESSION_Log:	y	= a + b * log(x);	break;
-			}
+		default:				y	= 0.0;				break;
+		case REGRESSION_Linear:	y	= a + b * x;		break;
+		case REGRESSION_Rez_X:	y	= a + b / x;		break;
+		case REGRESSION_Rez_Y:	y	= a / (b - x);		break;
+		case REGRESSION_Pow:	y	= a * pow(x, b);	break;
+		case REGRESSION_Exp:	y	= a * exp(b * x);	break;
+		case REGRESSION_Log:	y	= a + b * log(x);	break;
+		}
 
-			ay	= by;
-			by	= r.GetBottom() - (int)(dy * (y - m_Regression.Get_yMin()));
+		ay	= by;
+		by	= r.GetBottom() - (int)(dy * (y - m_Regression.Get_yMin()));
 
-			if( ix > 0 )
-			{
-				dc.DrawLine(r.GetLeft() + ix - 1, ay, r.GetLeft() + ix, by);
-			}
+		if( ix > 0 && r.GetTop() < ay && ay < r.GetBottom() && r.GetTop() < by && by < r.GetBottom() )
+		{
+			dc.DrawLine(r.GetLeft() + ix - 1, ay, r.GetLeft() + ix, by);
 		}
 	}
 
@@ -650,9 +644,8 @@ void CVIEW_ScatterPlot::_Draw_Points(wxDC &dc, wxRect r, double dx, double dy)
 	for(int i=0; i<m_Regression.Get_Count(); i++)
 	{
 		dc.DrawCircle(
-			r.GetLeft()   + (int)(dx * (m_Regression.Get_xValue(i) - m_Regression.Get_xMin())),
-			r.GetBottom() - (int)(dy * (m_Regression.Get_yValue(i) - m_Regression.Get_yMin())),
-			2
+			GET_DC_X(m_Regression.Get_xValue(i)),
+			GET_DC_Y(m_Regression.Get_yValue(i)), 2
 		);
 	}
 }

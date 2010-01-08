@@ -116,6 +116,7 @@ public:
 #ifdef _SAGA_UNICODE
 	virtual bool					Add_Field			(const char    *Name, TSG_Data_Type Type);
 #endif
+	virtual bool					Del_Field			(int iField);
 
 	//-----------------------------------------------------
 	int								Get_Attribute_Count	(void)			const	{	return( m_nFields - 3 );	}
