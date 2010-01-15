@@ -79,40 +79,81 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class CClass_Info
+{
+public:
+	CClass_Info(void);
+	virtual ~CClass_Info(void);
+
+	void						Create						(int nFeatures);
+	void						Destroy						(void);
+
+	int							Get_Feature_Count			(void)		{	return( m_nFeatures );			}
+
+	int							Get_Count					(void)		{	return( m_IDs.Get_Count() );	}
+	const CSG_String &			Get_ID						(int Index)	{	return( m_IDs[Index] );			}
+
+	CSG_Simple_Statistics *		Get_Statistics				(const CSG_String &ID);
+	CSG_Simple_Statistics *		Get_Statistics				(int Index)	{	return( m_Statistics[Index] );	}
+	CSG_Simple_Statistics *		operator []					(int Index)	{	return( m_Statistics[Index] );	}
+
+	int							Get_Element_Count			(int Index)	{	return( m_nElements[Index] );	}
+	void						Inc_Element_Count			(int Index)	{	m_nElements[Index]++;			}
+
+
+private:
+
+	int							m_nFeatures, *m_nElements;
+
+	CSG_Strings					m_IDs;
+
+	CSG_Simple_Statistics		**m_Statistics;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CGrid_Classify_Supervised : public CSG_Module_Grid
 {
 public:
 	CGrid_Classify_Supervised(void);
-	virtual ~CGrid_Classify_Supervised(void);
 
-	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Classification") );	}
+	virtual const SG_Char *		Get_MenuPath				(void)	{	return( _TL("R:Classification") );	}
 
 
 protected:
 
-	virtual bool				On_Execute				(void);
+	virtual bool				On_Execute					(void);
 
 
 private:
 
 	bool						m_bNormalise;
 
-	double						m_ML_Threshold;
+	CClass_Info					m_Class_Info;
 
-	CSG_Table					*m_pClasses;
+	CSG_String					m_Name_Method, m_Name_Quality;
 
-	CSG_Grid					*m_pResult, *m_pProbability;
+	CSG_Grid					*m_pClasses, *m_pQuality;
 
 	CSG_Parameter_Grid_List		*m_pGrids;
 
 
-	bool						Initialise				(void);
-	bool						Finalise				(void);
+	bool						Initialise					(void);
+	bool						Finalise					(void);
 
-	CSG_Table_Record *			Get_Class				(const SG_Char *Identifier);
+	double						Get_Value					(int x, int y, int iGrid);
+	bool						Set_Class					(int x, int y, int iClass, double Quality);
 
-	bool						Set_Minimum_Distance	(void);
-	bool						Set_Maximum_Likelihood	(void);
+	bool						Set_Parallel_Epiped			(void);
+	bool						Set_Minimum_Distance		(void);
+	bool						Set_Mahalanobis_Distance	(void);
+	bool						Set_Maximum_Likelihood		(void);
+	bool						Set_Spectral_Angle_Mapping	(void);
 
 };
 

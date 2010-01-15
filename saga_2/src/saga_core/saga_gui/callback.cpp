@@ -61,6 +61,8 @@
 
 #include "helper.h"
 
+#include "saga.h"
+
 #include "wksp_data_manager.h"
 
 #include "callback.h"
@@ -321,6 +323,13 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	case CALLBACK_GUI_GET_WINDOW:
 
 		Result	= (long)MDI_Get_Frame();
+
+		break;
+
+	//-----------------------------------------------------
+	case CALLBACK_GET_APP_PATH:
+
+		Result	= (long)g_pSAGA->Get_App_Path().c_str();
 
 		break;
 	}

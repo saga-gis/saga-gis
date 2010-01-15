@@ -99,14 +99,14 @@ public:
 	bool						OnInit					(void);
 	int							OnExit					(void);
 
-	wxString					Get_App_Path			(void);
+	const wxString &			Get_App_Path			(void)	const		{	return( m_App_Path );	}
 
 	bool						Process_Wait			(bool bEnforce = false);
 
 	bool						Process_Set_Okay		(bool bOkay);
 	bool						Process_Get_Okay		(void);
 
-	int							Process_Get_Frequency	(void)				{	return( m_Process_Frequency );		}
+	int							Process_Get_Frequency	(void)	const		{	return( m_Process_Frequency );		}
 	void						Process_Set_Frequency	(int Milliseconds)	{	m_Process_Frequency	= Milliseconds;	}
 
 
@@ -115,6 +115,8 @@ private:
 	bool						m_Process_bContinue;
 
 	int							m_Process_Frequency;
+
+	wxString					m_App_Path;
 
 
 	void						_Init_Config			(void);

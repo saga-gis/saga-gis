@@ -414,6 +414,7 @@ public:		///////////////////////////////////////////////
 	TSG_Data_Type				Get_Type		(void)	const	{	return( m_Type );					}
 
 	int							Get_nValueBytes	(void)	const	{	return( SG_Data_Type_Get_Size(m_Type) );	}
+	int							Get_nLineBytes	(void)	const	{	return( m_Type != SG_DATATYPE_Bit ? SG_Data_Type_Get_Size(m_Type) * Get_NX() : 1 + Get_NX() / 8 );	}
 
 	void						Set_Description	(const SG_Char *String);
 	const SG_Char *				Get_Description	(void)	const;
@@ -481,7 +482,7 @@ public:		///////////////////////////////////////////////
 	//-----------------------------------------------------
 	// Memory...
 
-	int							Get_Buffer_Size				(void)					{	return( LineBuffer_Count * _LineBuffer_Get_nBytes() );	}
+	int							Get_Buffer_Size				(void)					{	return( LineBuffer_Count * Get_nLineBytes() );	}
 	bool						Set_Buffer_Size				(int Size);
 
 	bool						Set_Cache					(bool bOn);
@@ -654,14 +655,14 @@ public:		///////////////////////////////////////////////
 		{
 			switch( m_Type )
 			{
-				default:				Result	= 0.0;							break;
-				case SG_DATATYPE_Byte:	Result	= ((BYTE   **)m_Values)[y][x];	break;
-				case SG_DATATYPE_Char:	Result	= ((char   **)m_Values)[y][x];	break;
-				case SG_DATATYPE_Word:	Result	= ((WORD   **)m_Values)[y][x];	break;
-				case SG_DATATYPE_Short:	Result	= ((short  **)m_Values)[y][x];	break;
-				case SG_DATATYPE_DWord:	Result	= ((DWORD  **)m_Values)[y][x];	break;
+				default:					Result	= 0.0;							break;
+				case SG_DATATYPE_Byte:		Result	= ((BYTE   **)m_Values)[y][x];	break;
+				case SG_DATATYPE_Char:		Result	= ((char   **)m_Values)[y][x];	break;
+				case SG_DATATYPE_Word:		Result	= ((WORD   **)m_Values)[y][x];	break;
+				case SG_DATATYPE_Short:		Result	= ((short  **)m_Values)[y][x];	break;
+				case SG_DATATYPE_DWord:		Result	= ((DWORD  **)m_Values)[y][x];	break;
 				case SG_DATATYPE_Int:		Result	= ((int    **)m_Values)[y][x];	break;
-				case SG_DATATYPE_Float:	Result	= ((float  **)m_Values)[y][x];	break;
+				case SG_DATATYPE_Float:		Result	= ((float  **)m_Values)[y][x];	break;
 				case SG_DATATYPE_Double:	Result	= ((double **)m_Values)[y][x];	break;
 				case SG_DATATYPE_Bit:		Result	=(((BYTE   **)m_Values)[y][x / 8] & m_Bitmask[x % 8]) == 0 ? 0.0 : 1.0;	break;
 			}
@@ -702,13 +703,13 @@ public:		///////////////////////////////////////////////
 			switch( m_Type )
 			{
 			    default:																break;
-				case SG_DATATYPE_Byte:	((BYTE   **)m_Values)[y][x]	= (BYTE  )Value;	break;
-				case SG_DATATYPE_Char:	((char   **)m_Values)[y][x]	= (char  )Value;	break;
-				case SG_DATATYPE_Word:	((WORD   **)m_Values)[y][x]	= (WORD  )Value;	break;
-				case SG_DATATYPE_Short:	((short  **)m_Values)[y][x]	= (short )Value;	break;
-				case SG_DATATYPE_DWord:	((DWORD  **)m_Values)[y][x]	= (DWORD )Value;	break;
+				case SG_DATATYPE_Byte:		((BYTE   **)m_Values)[y][x]	= (BYTE  )Value;	break;
+				case SG_DATATYPE_Char:		((char   **)m_Values)[y][x]	= (char  )Value;	break;
+				case SG_DATATYPE_Word:		((WORD   **)m_Values)[y][x]	= (WORD  )Value;	break;
+				case SG_DATATYPE_Short:		((short  **)m_Values)[y][x]	= (short )Value;	break;
+				case SG_DATATYPE_DWord:		((DWORD  **)m_Values)[y][x]	= (DWORD )Value;	break;
 				case SG_DATATYPE_Int:		((int    **)m_Values)[y][x]	= (int   )Value;	break;
-				case SG_DATATYPE_Float:	((float  **)m_Values)[y][x]	= (float )Value;	break;
+				case SG_DATATYPE_Float:		((float  **)m_Values)[y][x]	= (float )Value;	break;
 				case SG_DATATYPE_Double:	((double **)m_Values)[y][x]	= (double)Value;	break;
 				case SG_DATATYPE_Bit:		((BYTE   **)m_Values)[y][x / 8]	= Value != 0.0
 						? ((BYTE  **)m_Values)[y][x / 8] |   m_Bitmask[x % 8]
@@ -794,7 +795,6 @@ private:	///////////////////////////////////////////////
 
 	void						_LineBuffer_Create		(void);
 	void						_LineBuffer_Destroy		(void);
-	int							_LineBuffer_Get_nBytes	(void) const	{	return( SG_Data_Type_Get_Size(m_Type) * Get_NX() );	}
 	void						_LineBuffer_Flush		(void);
 	TSG_Grid_Line *				_LineBuffer_Get_Line	(int y)							const;
 	void						_LineBuffer_Set_Value	(int x, int y, double Value);

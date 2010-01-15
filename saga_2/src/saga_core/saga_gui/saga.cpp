@@ -147,6 +147,8 @@ bool CSAGA::OnInit(void)
 
 	g_pSAGA				= this;
 
+	m_App_Path			= SG_File_Get_Path(argv[0]).c_str();
+
 	wxInitAllImageHandlers();
 
 	_Init_Config();
@@ -265,19 +267,6 @@ void CSAGA::_Init_Config(void)
 
 		CONFIG_Write(wxT("Version"), wxT("Build"), SAGA_GUI_Get_Build());
 	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-wxString CSAGA::Get_App_Path(void)
-{
-	return( SG_File_Get_Path(argv[0]).c_str() );
 }
 
 

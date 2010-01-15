@@ -253,7 +253,7 @@ void CSG_Grid::_LineBuffer_Create(void)
 
 	for(int i=0; i<LineBuffer_Count; i++)
 	{
-		LineBuffer[i].Data		= (char *)SG_Malloc(_LineBuffer_Get_nBytes());
+		LineBuffer[i].Data		= (char *)SG_Malloc(Get_nLineBytes());
 		LineBuffer[i].y			= -1;
 		LineBuffer[i].bModified	= false;
 	}
@@ -285,7 +285,7 @@ bool CSG_Grid::Set_Buffer_Size(int Size)
 
 	if( m_System.is_Valid() && m_Type != SG_DATATYPE_Undefined )
 	{
-		Size	/= _LineBuffer_Get_nBytes();
+		Size	/= Get_nLineBytes();
 
 		if( Size < 1 )
 		{
@@ -306,7 +306,7 @@ bool CSG_Grid::Set_Buffer_Size(int Size)
 
 					for(i=LineBuffer_Count; i<Size; i++)
 					{
-						LineBuffer[i].Data		= (char *)SG_Malloc(_LineBuffer_Get_nBytes());
+						LineBuffer[i].Data		= (char *)SG_Malloc(Get_nLineBytes());
 						LineBuffer[i].y			= -1;
 						LineBuffer[i].bModified	= false;
 					}
@@ -633,12 +633,12 @@ bool CSG_Grid::_Cache_Create(void)
 
 			if( m_Values )
 			{
-				Line.Data	= (char *)SG_Malloc(_LineBuffer_Get_nBytes());
+				Line.Data	= (char *)SG_Malloc(Get_nLineBytes());
 
 				for(Line.y=0; Line.y<Get_NY() && SG_UI_Process_Set_Progress(Line.y, Get_NY()); Line.y++)
 				{
 					Line.bModified	= true;
-					memcpy(Line.Data, m_Values[Line.y], _LineBuffer_Get_nBytes());
+					memcpy(Line.Data, m_Values[Line.y], Get_nLineBytes());
 					_Cache_LineBuffer_Save(&Line);
 					SG_Free(m_Values[Line.y]);
 				}
@@ -680,7 +680,7 @@ bool CSG_Grid::_Cache_Destroy(bool bMemory_Restore)
 			{
 				if( (pLine = _LineBuffer_Get_Line(y)) != NULL )
 				{
-					memcpy(m_Values[y], pLine->Data, _LineBuffer_Get_nBytes());
+					memcpy(m_Values[y], pLine->Data, Get_nLineBytes());
 				}
 			}
 
@@ -727,7 +727,7 @@ void CSG_Grid::_Cache_LineBuffer_Save(TSG_Grid_Line *pLine) const
 		{
 			y			= Cache_bFlip ? Get_NY() - 1 - pLine->y : pLine->y;
 
-			Line_Size	= _LineBuffer_Get_nBytes();
+			Line_Size	= Get_nLineBytes();
 			Line_Pos	= Cache_Offset + y * Line_Size;
 
 			//-------------------------------------------------
@@ -769,7 +769,7 @@ void CSG_Grid::_Cache_LineBuffer_Load(TSG_Grid_Line *pLine, int y) const
 		{
 			y			= Cache_bFlip ? Get_NY() - 1 - pLine->y : pLine->y;
 
-			Line_Size	= _LineBuffer_Get_nBytes();
+			Line_Size	= Get_nLineBytes();
 			Line_Pos	= Cache_Offset + y * Line_Size;
 
 			//-------------------------------------------------
@@ -850,7 +850,7 @@ bool CSG_Grid::_Compr_Create(void)
 		{
 			for(Line.y=0; Line.y<Get_NY() && SG_UI_Process_Set_Progress(Line.y, Get_NY()); Line.y++)
 			{
-				memcpy(Line.Data, m_Values[Line.y], _LineBuffer_Get_nBytes());
+				memcpy(Line.Data, m_Values[Line.y], Get_nLineBytes());
 				Line.bModified	= true;
 				_Compr_LineBuffer_Save(&Line);
 			}
@@ -861,7 +861,7 @@ bool CSG_Grid::_Compr_Create(void)
 
 			for(Line.y=0; Line.y<Get_NY() && SG_UI_Process_Set_Progress(Line.y, Get_NY()); Line.y++)
 			{
-				m_Values[Line.y]	= (void *)SG_Calloc(1, _LineBuffer_Get_nBytes());
+				m_Values[Line.y]	= (void *)SG_Calloc(1, Get_nLineBytes());
 				Line.bModified	= true;
 				_Compr_LineBuffer_Save(&Line);
 			}
@@ -899,7 +899,7 @@ bool CSG_Grid::_Compr_Destroy(bool bMemory_Restore)
 			{
 				_Compr_LineBuffer_Load(&Line, y);
 				m_Values[y]	= (void *)SG_Realloc(m_Values[y], _Get_nLineBytes());
-				memcpy(m_Values[y], Line.Data, _LineBuffer_Get_nBytes());
+				memcpy(m_Values[y], Line.Data, Get_nLineBytes());
 			}
 
 			SG_Free(Line.Data);

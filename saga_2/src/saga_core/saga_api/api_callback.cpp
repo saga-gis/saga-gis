@@ -509,6 +509,19 @@ void *		SG_UI_Get_Window_Main(void)
 	return( NULL );
 }
 
+//---------------------------------------------------------
+CSG_String	SG_UI_Get_Application_Path(void)
+{
+	CSG_String	s;
+
+	if( gSG_UI_Callback && gSG_UI_Callback(CALLBACK_GET_APP_PATH, 0, 0) )
+	{
+		s	= (const SG_Char *)gSG_UI_Callback(CALLBACK_GET_APP_PATH, 0, 0);
+	}
+
+	return( s );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

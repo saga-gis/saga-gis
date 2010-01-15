@@ -864,7 +864,8 @@ typedef enum ESG_UI_Callback_ID
 
 	CALLBACK_DATAOBJECT_GET_ALL,
 
-	CALLBACK_GUI_GET_WINDOW
+	CALLBACK_GUI_GET_WINDOW,
+	CALLBACK_GET_APP_PATH
 }
 TSG_UI_Callback_ID;
 
@@ -908,6 +909,7 @@ SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Params_Set	(class CSG_Data_Object 
 SAGA_API_DLL_EXPORT bool					SG_UI_DataObject_Get_All	(class CSG_Parameters *pParameters);
 
 SAGA_API_DLL_EXPORT void *					SG_UI_Get_Window_Main		(void);
+SAGA_API_DLL_EXPORT CSG_String				SG_UI_Get_Application_Path	(void);
 
 
 ///////////////////////////////////////////////////////////
