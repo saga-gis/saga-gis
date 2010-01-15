@@ -77,8 +77,8 @@ public:
 
 	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Tools") );	}
 
-	static bool					Get_Cut					(CSG_PointCloud *pPoints, CSG_PointCloud *pCut, const CSG_Rect &Extent);
-	static bool					Get_Cut					(CSG_PointCloud *pPoints, CSG_PointCloud *pCut, CSG_Shapes *pPolygons);
+	static bool					Get_Cut					(CSG_PointCloud *pPoints, CSG_PointCloud *pCut, const CSG_Rect &Extent, bool bInverse);
+	static bool					Get_Cut					(CSG_PointCloud *pPoints, CSG_PointCloud *pCut, CSG_Shapes *pPolygons, bool bInverse);
 
 
 protected:
@@ -119,6 +119,10 @@ private:
 	CSG_Point					m_ptDown;
 
 	CSG_PointCloud				*m_pPoints, *m_pCut;
+
+	CSG_Shapes					*m_pAOI;
+
+	bool						m_bAOIBox, m_bAdd, m_bInverse;
 
 };
 
