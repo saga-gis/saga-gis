@@ -443,6 +443,10 @@
 				RelativePath=".\pc_to_shapes.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\pc_transform.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -478,6 +482,10 @@
 			</File>
 			<File
 				RelativePath=".\pc_to_shapes.h"
+				>
+			</File>
+			<File
+				RelativePath=".\pc_transform.h"
 				>
 			</File>
 		</Filter>

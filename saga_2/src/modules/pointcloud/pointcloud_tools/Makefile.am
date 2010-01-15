@@ -18,6 +18,7 @@ pc_from_shapes.cpp\
 pc_reclass_extract.cpp\
 pc_to_grid.cpp\
 pc_to_shapes.cpp\
+pc_transform.cpp\
 MLB_Interface.h\
 pc_cut.h\
 pc_drop_attribute.h\
@@ -25,7 +26,8 @@ pc_from_grid.h\
 pc_from_shapes.h\
 pc_reclass_extract.h\
 pc_to_grid.h\
-pc_to_shapes.h
+pc_to_shapes.h\
+pc_transform.h
 
 libpointcloud_tools_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 
