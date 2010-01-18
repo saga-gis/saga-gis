@@ -246,8 +246,8 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 
 				switch( m_Vertex_Type )	// reak Z + M
 				{
-				case SG_VERTEX_TYPE_XYZ:	pShape->Set_Z(Content.asDouble(20), 0);
 				case SG_VERTEX_TYPE_XYZM:	pShape->Set_M(Content.asDouble(28), 0);
+				case SG_VERTEX_TYPE_XYZ:	pShape->Set_Z(Content.asDouble(20), 0);
 				}
 
 				break;
@@ -266,7 +266,7 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 
 				case SG_VERTEX_TYPE_XYZM:
 					pZ	= (double *)Content.Get_Data(40 + nPoints * 16 + 16);
-					pM	= pZ + nPoints * 8 + 16;
+					pM	= pZ + nPoints + 2;
 					break;
 				}
 
@@ -277,8 +277,8 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 
 					switch( m_Vertex_Type )	// reak Z + M
 					{
-					case SG_VERTEX_TYPE_XYZ:	pShape->Set_Z(*pZ, iPoint);	pZ++;
 					case SG_VERTEX_TYPE_XYZM:	pShape->Set_M(*pM, iPoint);	pM++;
+					case SG_VERTEX_TYPE_XYZ:	pShape->Set_Z(*pZ, iPoint);	pZ++;
 					}
 				}
 
@@ -293,7 +293,7 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 				Parts	= (int       *)Content.Get_Data(44);
 				pPoint	= (TSG_Point *)Content.Get_Data(44 + 4 * nParts);
 
-				switch( m_Vertex_Type )	// reak Z + M
+				switch( m_Vertex_Type )	// read Z + M
 				{
 				case SG_VERTEX_TYPE_XYZ:
 					pZ	= (double *)Content.Get_Data(40 + nPoints * 16 + 16);
@@ -301,7 +301,7 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 
 				case SG_VERTEX_TYPE_XYZM:
 					pZ	= (double *)Content.Get_Data(40 + nPoints * 16 + 16);
-					pM	= pZ + nPoints * 8 + 16;
+					pM	= pZ + nPoints + 2;
 					break;
 				}
 
@@ -316,10 +316,10 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 
 					pShape->Add_Point(pPoint->x, pPoint->y, iPart);
 
-					switch( m_Vertex_Type )	// reak Z + M
+					switch( m_Vertex_Type )	// read Z + M
 					{
-					case SG_VERTEX_TYPE_XYZ:	pShape->Set_Z(*pZ, iPoint, iPart);	pZ++;
 					case SG_VERTEX_TYPE_XYZM:	pShape->Set_M(*pM, iPoint, iPart);	pM++;
+					case SG_VERTEX_TYPE_XYZ:	pShape->Set_Z(*pZ, iPoint, iPart);	pZ++;
 					}
 				}
 
