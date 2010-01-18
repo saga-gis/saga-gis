@@ -1113,6 +1113,11 @@ double CSG_Grid::Get_Variance(void)
 	Update();	return( m_zStats.Get_Variance() );
 }
 
+int CSG_Grid::Get_NoData_Count(void)
+{
+	Update();	return( Get_NCells() - m_zStats.Get_Count() );
+}
+
 //---------------------------------------------------------
 bool CSG_Grid::On_Update(void)
 {
@@ -1242,7 +1247,7 @@ double CSG_Grid::Get_Percentile(double Percent, bool bZFactor)
 //---------------------------------------------------------
 bool CSG_Grid::Set_Index(bool bOn)
 {
-	if( bOn && !m_bIndexed )
+	if( bOn && !m_bIndexed && Get_NoData_Count() < Get_NCells() )
 	{
 		m_bIndexed	= true;
 
@@ -1253,7 +1258,7 @@ bool CSG_Grid::Set_Index(bool bOn)
 			return( false );
 		}
 	}
-	else if( !bOn )
+	else if( !bOn || Get_NoData_Count() >= Get_NCells() )
 	{
 		m_bIndexed	= false;
 

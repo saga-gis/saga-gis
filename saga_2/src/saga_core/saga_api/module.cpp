@@ -634,6 +634,23 @@ bool CSG_Module::DataObject_Set_Parameters(CSG_Data_Object *pDataObject, CSG_Par
 	return( SG_UI_DataObject_Params_Set(pDataObject, &Parameters) );
 }
 
+//---------------------------------------------------------
+CSG_Parameter * CSG_Module::DataObject_Get_Parameter(CSG_Data_Object *pDataObject, const CSG_String &ID)
+{
+	static CSG_Parameters	sParameters;
+
+	return( DataObject_Get_Parameters(pDataObject, sParameters) ? sParameters(ID) : NULL );
+}
+
+bool CSG_Module::DataObject_Set_Parameter(CSG_Data_Object *pDataObject, CSG_Parameter *pParameter)
+{
+	CSG_Parameters	P;
+
+	P._Add(pParameter);
+
+	return( DataObject_Set_Parameters(pDataObject, P) );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

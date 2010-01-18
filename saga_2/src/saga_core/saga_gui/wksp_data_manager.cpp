@@ -1160,32 +1160,31 @@ bool CWKSP_Data_Manager::Get_Parameters(CSG_Data_Object *pObject, CSG_Parameters
 {
 	if( pObject && pParameters )
 	{
-		CWKSP_Base_Item	*pItem;
+		CWKSP_Base_Item	*pItem	= NULL;
 
 		switch( pObject->Get_ObjectType() )
 		{
 		case DATAOBJECT_TYPE_Grid:
-			pItem	= (CWKSP_Base_Item *)m_pGrids ->Get_Grid  ((CSG_Grid   *)pObject);
+			if( m_pGrids )			pItem	= (CWKSP_Base_Item *)m_pGrids      ->Get_Grid      ((CSG_Grid       *)pObject);
 			break;
 
 		case DATAOBJECT_TYPE_Shapes:
-			pItem	= (CWKSP_Base_Item *)m_pShapes->Get_Shapes((CSG_Shapes *)pObject);
+			if( m_pShapes )			pItem	= (CWKSP_Base_Item *)m_pShapes     ->Get_Shapes    ((CSG_Shapes     *)pObject);
 			break;
 
 		case DATAOBJECT_TYPE_TIN:
-			pItem	= (CWKSP_Base_Item *)m_pTINs  ->Get_TIN   ((CSG_TIN    *)pObject);
+			if( m_pTINs )			pItem	= (CWKSP_Base_Item *)m_pTINs       ->Get_TIN       ((CSG_TIN        *)pObject);
 			break;
 
 		case DATAOBJECT_TYPE_PointCloud:
-			pItem	= (CWKSP_Base_Item *)m_pPointClouds->Get_PointCloud((CSG_PointCloud *)pObject);
+			if( m_pPointClouds )	pItem	= (CWKSP_Base_Item *)m_pPointClouds->Get_PointCloud((CSG_PointCloud *)pObject);
 			break;
 
 		case DATAOBJECT_TYPE_Table:
-			pItem	= (CWKSP_Base_Item *)m_pTables->Get_Table ((CSG_Table  *)pObject);
+			if( m_pTables )			pItem	= (CWKSP_Base_Item *)m_pTables     ->Get_Table     ((CSG_Table      *)pObject);
 			break;
 
 		default:
-			pItem	= NULL;
 			break;
 		}
 

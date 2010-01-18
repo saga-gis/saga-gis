@@ -456,6 +456,7 @@ public:		///////////////////////////////////////////////
 	void						Set_NoData_Value_Range	(double loValue, double hiValue);
 	double						Get_NoData_Value		(void)	const	{	return( m_NoData_Value );			}
 	double						Get_NoData_hiValue		(void)	const	{	return( m_NoData_hiValue );			}
+	int							Get_NoData_Count		(void);
 
 	virtual bool				Save	(const CSG_String &File_Name, int Format = GRID_FILE_FORMAT_Binary);
 	virtual bool				Save	(const CSG_String &File_Name, int Format, int xA, int yA, int xN, int yN);
