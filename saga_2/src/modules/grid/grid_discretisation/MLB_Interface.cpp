@@ -96,6 +96,7 @@ const SG_Char * Get_Info(int i)
 #include "Grid_Segmentation.h"
 #include "Grid_FastSegments.h"
 #include "Grid_Skeletonize.h"
+#include "rga_basic.h"
 
 
 //---------------------------------------------------------
@@ -110,6 +111,7 @@ CSG_Module *		Create_Module(int i)
 	case  2:	return( new CGrid_Segmentation );
 	case  3:	return( new CGrid_FastSegments );
 	case  4:	return( new CGrid_Skeletonize );
+	case  5:	return( new CRGA_Basic );
 	}
 
 	return( NULL );

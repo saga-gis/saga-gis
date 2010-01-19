@@ -366,7 +366,7 @@ bool CPC_Cut_Interactive::On_Execute(void)
 			m_pAOI = SG_Create_Shapes(SHAPE_TYPE_Polygon, CSG_String::Format(SG_T("AOI_%s"), m_pPoints->Get_Name()));
 			m_pAOI->Add_Field("ID", SG_DATATYPE_Int);
 			Parameters("AOISHAPE")->Set_Value(m_pAOI);
-			DataObject_Update(m_pAOI);
+			DataObject_Add(m_pAOI, true);
 		}
 		else if( m_pAOI->Get_Field_Count() < 1)
 			m_pAOI->Add_Field("ID", SG_DATATYPE_Int);

@@ -651,6 +651,10 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\rga_basic.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -678,6 +682,10 @@
 			</File>
 			<File
 				RelativePath="MLB_Interface.h"
+				>
+			</File>
+			<File
+				RelativePath=".\rga_basic.h"
 				>
 			</File>
 		</Filter>

@@ -69,12 +69,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define	SEEDFIELD_X		2
-#define	SEEDFIELD_Y		(SEEDFIELD_X + 1)
-#define	SEEDFIELD_Z		(SEEDFIELD_X + 2)
+#define SEEDFIELD_X		2
+#define SEEDFIELD_Y		(SEEDFIELD_X + 1)
+#define SEEDFIELD_Z		(SEEDFIELD_X + 2)
 
-#define NO_SEGMENT		-1
-#define NO_SIMILARITY	-1.0
+#define NO_SEGMENT			-1
+#define NO_SIMILARITY		-1.0
 
 
 ///////////////////////////////////////////////////////////
@@ -116,7 +116,6 @@ void CCandidates::Destroy(void)
 	m_Candidates	= NULL;
 }
 
-#include <string.h>
 //---------------------------------------------------------
 void CCandidates::Add(int x, int y, int Segment, double Similarity)
 {

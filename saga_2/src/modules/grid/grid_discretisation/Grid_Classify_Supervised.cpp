@@ -355,16 +355,6 @@ bool CGrid_Classify_Supervised::On_Execute(void)
 bool CGrid_Classify_Supervised::Initialise(void)
 {
 	//-----------------------------------------------------
-	m_pClasses->Set_Name(CSG_String::Format(SG_T("%s [%s]"), _TL("Classification"), m_Name_Method.c_str()));
-
-	if( m_pQuality )
-	{
-		m_pQuality->Set_Name(CSG_String::Format(SG_T("%s [%s]"), _TL("Classification Quality"), m_Name_Quality.c_str()));
-
-		DataObject_Set_Colors(m_pQuality, 100, SG_COLORS_WHITE_GREEN);
-	}
-
-	//-----------------------------------------------------
 	int			x, y, iGrid;
 	TSG_Point	p;
 
@@ -511,6 +501,16 @@ bool CGrid_Classify_Supervised::Finalise(void)
 		P("COLORS_TYPE")->Set_Value(1);	// Color Classification Type: Lookup Table
 
 		DataObject_Set_Parameters(m_pClasses, P);
+	}
+
+	//-----------------------------------------------------
+	m_pClasses->Set_Name(CSG_String::Format(SG_T("%s [%s]"), _TL("Classification"), m_Name_Method.c_str()));
+
+	if( m_pQuality )
+	{
+		m_pQuality->Set_Name(CSG_String::Format(SG_T("%s [%s]"), _TL("Classification Quality"), m_Name_Quality.c_str()));
+
+		DataObject_Set_Colors(m_pQuality, 100, SG_COLORS_WHITE_GREEN);
 	}
 
 	//-----------------------------------------------------

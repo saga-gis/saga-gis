@@ -572,6 +572,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Filter_Majority.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Filter_Multi_Dir_Lee.cpp"
 				>
 				<FileConfiguration
@@ -710,6 +714,10 @@
 			</File>
 			<File
 				RelativePath="Filter_LoG.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Filter_Majority.h"
 				>
 			</File>
 			<File

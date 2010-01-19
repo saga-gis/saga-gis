@@ -19,7 +19,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/Filter.o $(MLB_TEMP)/Filter_3x3.o $(MLB_TEMP)/Filter_Gauss.o $(MLB_TEMP)/Filter_LoG.o $(MLB_TEMP)/Filter_Multi_Dir_Lee.o $(MLB_TEMP)/FilterClumps.o $(MLB_TEMP)/MLB_Interface.o
+OBJ      = $(MLB_TEMP)/Filter.o $(MLB_TEMP)/Filter_3x3.o $(MLB_TEMP)/Filter_Gauss.o $(MLB_TEMP)/Filter_LoG.o $(MLB_TEMP)/Filter_Majority.o $(MLB_TEMP)/Filter_Multi_Dir_Lee.o $(MLB_TEMP)/FilterClumps.o $(MLB_TEMP)/MLB_Interface.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS =
@@ -61,6 +61,9 @@ $(MLB_TEMP)/Filter_Gauss.o: ./Filter_Gauss.cpp
 
 $(MLB_TEMP)/Filter_LoG.o: ./Filter_LoG.cpp
 	$(CPP) -c ./Filter_LoG.cpp -o $(MLB_TEMP)/Filter_LoG.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Filter_Majority.o: ./Filter_Majority.cpp
+	$(CPP) -c ./Filter_Majority.cpp -o $(MLB_TEMP)/Filter_Majority.o $(CXXFLAGS)
 
 $(MLB_TEMP)/Filter_Multi_Dir_Lee.o: ./Filter_Multi_Dir_Lee.cpp
 	$(CPP) -c ./Filter_Multi_Dir_Lee.cpp -o $(MLB_TEMP)/Filter_Multi_Dir_Lee.o $(CXXFLAGS)

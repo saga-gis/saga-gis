@@ -10,10 +10,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   Filter_Majority.h                   //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//               SAGA User Group Associaton              //
+//                 Copyright (C) 2010 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -39,11 +39,9 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    SAGA User Group Associaton             //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -53,82 +51,92 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__Filter_Majority_H
+#define HEADER_INCLUDED__Filter_Majority_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-
-const SG_Char * Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Grid - Filter") );
-
-	case MLB_INFO_Author:
-		return( _TL("SAGA User Group Associaton (c) 2002") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for the manipulation of gridded data.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Grid|Filter") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "Filter.h"
-#include "Filter_Gauss.h"
-#include "Filter_LoG.h"
-#include "Filter_Multi_Dir_Lee.h"
-#include "Filter_3x3.h"
-#include "FilterClumps.h"
-#include "Filter_Majority.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CFilter );
-	case  1:	return( new CFilter_Gauss );
-	case  2:	return( new CFilter_LoG );
-	case  3:	return( new CFilter_Multi_Dir_Lee );
-	case  4:	return( new CFilter_3x3 );
-	case  5:	return( new CFilterClumps );
-	case  6:	return( new CFilter_Majority );
-	}
-
-	return( NULL );
-}
-
-
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CMajority
+{
+public:
+	CMajority(void)		{	m_nBuffer	= 0;	}
+	~CMajority(void)	{	Destroy();	}
 
-	MLB_INTERFACE
+	void			Create					(int nBuffer);
+	void			Destroy					(void);
 
-//}}AFX_SAGA
+	void			Reset					(void)	{	m_nValues	= 0;	}
+
+	void			Add_Value				(double Value);
+
+	bool			Get_Majority			(int &Count, double &Value);
+
+
+private:
+
+	int				m_nValues, m_nBuffer, *m_Count;
+
+	double			*m_Values;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CFilter_Majority : public CSG_Module_Grid
+{
+public:
+	CFilter_Majority(void);
+
+
+protected:
+
+	virtual bool			On_Execute		(void);
+
+
+private:
+
+	int						m_Radius, m_Threshold;
+
+	CSG_Grid				m_Kernel, *m_pInput;
+
+	CMajority				m_Majority;
+
+
+	double					Get_Majority	(int x, int y);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__Filter_Majority_H
