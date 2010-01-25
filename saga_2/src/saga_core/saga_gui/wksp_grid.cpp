@@ -76,6 +76,9 @@
 
 #include "wksp_layer_classify.h"
 #include "wksp_layer_legend.h"
+
+#include "wksp_data_manager.h"
+#include "wksp_grid_manager.h"
 #include "wksp_grid.h"
 
 #include "view_scatterplot.h"
@@ -91,9 +94,12 @@
 CWKSP_Grid::CWKSP_Grid(CSG_Grid *pGrid)
 	: CWKSP_Layer(pGrid)
 {
-	m_pGrid		= pGrid;
+	m_pGrid			= pGrid;
 
-	m_Sel_xN	= -1;
+	m_pOverlay[0]	= NULL;
+	m_pOverlay[1]	= NULL;
+
+	m_Sel_xN		= -1;
 
 	Create_Parameters();
 }
@@ -388,16 +394,69 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	// Classification...
 
 	((CSG_Parameter_Choice *)m_Parameters("COLORS_TYPE")->Get_Data())->Set_Items(
-		wxString::Format(wxT("%s|%s|%s|%s|%s|"),
+		wxString::Format(wxT("%s|%s|%s|%s|%s|%s|"),
 			LNG("[VAL] Unique Symbol"),
 			LNG("[VAL] Lookup Table"),
 			LNG("[VAL] Graduated Color"),
 			LNG("[VAL] RGB"),
-			LNG("[VAL] Shade")
+			LNG("[VAL] Shade"),
+			LNG("[VAL] RGB Overlay")
 		)
 	);
 
 	m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_METRIC);
+
+	//-----------------------------------------------------
+	m_Parameters.Add_Node(
+		m_Parameters("NODE_COLORS")		, "NODE_SHADE"		, LNG("[CAP] Shade"),
+		LNG("")
+	);
+
+	m_Parameters.Add_Choice(
+		m_Parameters("NODE_SHADE")		, "SHADE_MODE"		, LNG("[CAP] Coloring"),
+		LNG(""),
+		wxString::Format(wxT("%s|%s|%s|%s|%s|%s|%s|%s|"),
+			LNG("bright - dark"),
+			LNG("dark - bright"),
+			LNG("white - cyan"),
+			LNG("cyan - white"),
+			LNG("white - magenta"),
+			LNG("magenta - white"),
+			LNG("white - yellow"),
+			LNG("yellow - white")
+		), 0
+	);
+
+	//-----------------------------------------------------
+	m_Parameters.Add_Node(
+		m_Parameters("NODE_COLORS")		, "NODE_OVERLAY"	, LNG("[CAP] RGB Overlay"),
+		LNG("")
+	);
+
+	m_Parameters.Add_Choice(
+		m_Parameters("NODE_OVERLAY")	, "OVERLAY_MODE"	, LNG("[CAP] Coloring"),
+		LNG(""),
+		wxString::Format(wxT("%s|%s|%s|%s|%s|%s|"),
+			LNG("red=this, green=1, blue=2"),
+			LNG("red=this, green=2, blue=1"),
+			LNG("red=1, green=this, blue=2"),
+			LNG("red=2, green=this, blue=1"),
+			LNG("red=1, green=2, blue=this"),
+			LNG("red=2, green=1, blue=this")
+		), 0
+	);
+
+	m_Parameters.Add_Grid(
+		m_Parameters("NODE_OVERLAY")	, "OVERLAY_1"		, LNG("[CAP] Overlay 1"),
+		LNG(""),
+		PARAMETER_INPUT_OPTIONAL, false
+	);
+
+	m_Parameters.Add_Grid(
+		m_Parameters("NODE_OVERLAY")	, "OVERLAY_2"		, LNG("[CAP] Overlay 2"),
+		LNG(""),
+		PARAMETER_INPUT_OPTIONAL, false
+	);
 
 
 	//-----------------------------------------------------
@@ -469,6 +528,13 @@ void CWKSP_Grid::On_Parameters_Changed(void)
 		m_Parameters("GENERAL_Z_NODATA")->asRange()->Get_LoVal(),
 		m_Parameters("GENERAL_Z_NODATA")->asRange()->Get_HiVal()
 	);
+
+	//-----------------------------------------------------
+	m_pOverlay[0]	= g_pData->Get_Grids()->Get_Grid(m_Parameters("OVERLAY_1")->asGrid());
+	m_pOverlay[1]	= g_pData->Get_Grids()->Get_Grid(m_Parameters("OVERLAY_2")->asGrid());
+	m_bOverlay		= m_Parameters("COLORS_TYPE")->asInt() == 5;
+
+	m_pClassify->Set_Shade_Mode(m_Parameters("SHADE_MODE")->asInt());
 
 	//-----------------------------------------------------
 	switch( m_Parameters("MEMORY_MODE")->asInt() )
@@ -678,9 +744,9 @@ bool CWKSP_Grid::On_Edit_On_Key_Down(int KeyCode)
 //---------------------------------------------------------
 bool CWKSP_Grid::On_Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key)
 {
-	int				x, y;
+	int					x, y;
 	CSG_Table_Record	*pRecord;
-	CSG_Rect		rWorld(m_Edit_Mouse_Down, Point);
+	CSG_Rect			rWorld(m_Edit_Mouse_Down, Point);
 
 	m_Sel_xOff	= m_pGrid->Get_System().Get_xWorld_to_Grid(rWorld.Get_XMin());
 	if( m_Sel_xOff < 0 )
@@ -1053,6 +1119,8 @@ void CWKSP_Grid::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 		case CLASSIFY_RGB:		Transparency	= m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.0;	if( Transparency <= 0.0 )	Transparency	= 3.0;	break;
 		}
 
+		m_pClassify->Set_Shade_Mode(m_Parameters("SHADE_MODE")->asInt());
+
 		if( dc_Map.IMG_Draw_Begin(Transparency) )
 		{
 			Interpolation	= m_pClassify->Get_Mode() == CLASSIFY_LUT
@@ -1060,7 +1128,7 @@ void CWKSP_Grid::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 							: m_Parameters("DISPLAY_INTERPOLATION")->asInt();
 
 			if(	dc_Map.m_DC2World >= m_pGrid->Get_Cellsize()
-			||	Interpolation != GRID_INTERPOLATION_NearestNeighbour )
+			||	Interpolation != GRID_INTERPOLATION_NearestNeighbour || m_bOverlay )
 			{
 				_Draw_Grid_Points	(dc_Map, Interpolation);
 			}
@@ -1085,9 +1153,23 @@ void CWKSP_Grid::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 void CWKSP_Grid::_Draw_Grid_Points(CWKSP_Map_DC &dc_Map, int Interpolation)
 {
 	bool		bByteWise	= m_pClassify->Get_Mode() == CLASSIFY_RGB;
-	int			xDC, yDC, axDC, ayDC, bxDC, byDC, Color;
+	int			xDC, yDC, axDC, ayDC, bxDC, byDC, Color, r, g, b;
 	double		x, y, z;
 	CSG_Rect	rGrid(m_pGrid->Get_Extent());
+
+	switch( m_Parameters("OVERLAY_MODE")->asInt() )
+	{
+	default:
+	case 0:	r = 0; g = 1; b = 2;	break;
+	case 1:	r = 0; g = 2; b = 1;	break;
+	case 2:	r = 1; g = 0; b = 2;	break;
+	case 3:	r = 2; g = 0; b = 1;	break;
+	case 4:	r = 1; g = 2; b = 0;	break;
+	case 5:	r = 2; g = 1; b = 0;	break;
+	}
+
+	m_pOverlay[0]	= g_pData->Get_Grids()->Get_Grid(m_Parameters("OVERLAY_1")->asGrid());
+	m_pOverlay[1]	= g_pData->Get_Grids()->Get_Grid(m_Parameters("OVERLAY_2")->asGrid());
 
 	rGrid.Inflate(m_pGrid->Get_Cellsize() / 2.0, false);
 	rGrid.Intersect(dc_Map.m_rWorld);
@@ -1101,9 +1183,33 @@ void CWKSP_Grid::_Draw_Grid_Points(CWKSP_Map_DC &dc_Map, int Interpolation)
 	{
 		for(x=rGrid.Get_XMin(), xDC=axDC; xDC<bxDC; x+=dc_Map.m_DC2World, xDC++)
 		{
-			if( m_pGrid->Get_Value(x, y, z, Interpolation, false, bByteWise, true) && m_pClassify->Get_Class_Color_byValue(z, Color) )
+			if( m_pGrid->Get_Value(x, y, z, Interpolation, false, bByteWise, true) )
 			{
-				dc_Map.IMG_Set_Pixel(xDC, yDC, Color);
+				if( m_bOverlay == false )
+				{
+					if( m_pClassify->Get_Class_Color_byValue(z, Color) )
+					{
+						dc_Map.IMG_Set_Pixel(xDC, yDC, Color);
+					}
+				}
+				else
+				{
+					int		c[3];
+
+					c[0]	= (int)(255.0 * m_pClassify->Get_MetricToRelative(z));
+
+					c[1]	= m_pOverlay[0] && m_pOverlay[0]->Get_Grid()->Get_Value(x, y, z, Interpolation, false, false, true)
+							? (int)(255.0 * m_pOverlay[0]->m_pClassify->Get_MetricToRelative(z)) : 255;
+
+					c[2]	= m_pOverlay[1] && m_pOverlay[1]->Get_Grid()->Get_Value(x, y, z, Interpolation, false, false, true)
+							? (int)(255.0 * m_pOverlay[1]->m_pClassify->Get_MetricToRelative(z)) : 255;
+
+					dc_Map.IMG_Set_Pixel(xDC, yDC, SG_GET_RGB(
+						c[r] < 0 ? 0 : c[r] > 255 ? 255 : c[r],
+						c[g] < 0 ? 0 : c[g] > 255 ? 255 : c[g],
+						c[b] < 0 ? 0 : c[b] > 255 ? 255 : c[b]
+					));
+				}
 			}
 		}
 	}

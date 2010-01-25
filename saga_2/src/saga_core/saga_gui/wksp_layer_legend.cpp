@@ -623,6 +623,7 @@ void CWKSP_Layer_Legend::_Draw_Grid(wxDC &dc, CWKSP_Grid *pLayer)
 		break;
 
 	case CLASSIFY_RGB:
+	case CLASSIFY_OVERLAY:
 		_Draw_Box_Image(dc, m_Position.y, pLayer->Get_Grid());
 		break;
 	}

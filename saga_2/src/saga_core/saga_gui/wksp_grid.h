@@ -107,6 +107,8 @@ public:
 
 	bool						asImage					(CSG_Grid *pImage);
 
+	virtual bool				Update					(CWKSP_Layer *pChanged)	{	return( pChanged == this || pChanged == m_pOverlay[0] || pChanged == m_pOverlay[1] );	}
+
 
 protected:
 
@@ -127,9 +129,13 @@ protected:
 
 private:
 
-	int							m_Interpolation, m_Sel_xOff, m_Sel_xN, m_Sel_yOff, m_Sel_yN;
+	bool						m_bOverlay;
+
+	int							m_Sel_xOff, m_Sel_xN, m_Sel_yOff, m_Sel_yN;
 
 	CSG_Grid					*m_pGrid;
+	
+	CWKSP_Grid					*m_pOverlay[2];
 
 
 	void						_LUT_Create				(void);

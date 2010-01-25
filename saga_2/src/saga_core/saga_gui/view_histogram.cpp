@@ -215,9 +215,14 @@ void CVIEW_Histogram_Control::On_Mouse_Motion(wxMouseEvent &event)
 //---------------------------------------------------------
 void CVIEW_Histogram_Control::On_Mouse_LDown(wxMouseEvent &event)
 {
-	if(	m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_METRIC
-	||	m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_SHADE )
+	switch( m_pLayer->Get_Classifier()->Get_Mode() )
 	{
+	default:
+		break;
+
+	case CLASSIFY_METRIC:
+	case CLASSIFY_SHADE:
+	case CLASSIFY_OVERLAY:
 		m_bMouse_Down	= true;
 		m_Mouse_Move	= m_Mouse_Down	= event.GetPosition();
 
@@ -250,9 +255,14 @@ void CVIEW_Histogram_Control::On_Mouse_LUp(wxMouseEvent &event)
 //---------------------------------------------------------
 void CVIEW_Histogram_Control::On_Mouse_RDown(wxMouseEvent &event)
 {
-	if(	m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_METRIC
-	||	m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_SHADE )
+	switch( m_pLayer->Get_Classifier()->Get_Mode() )
 	{
+	default:
+		break;
+
+	case CLASSIFY_METRIC:
+	case CLASSIFY_SHADE:
+	case CLASSIFY_OVERLAY:
 		switch( m_pLayer->Get_Type() )
 		{
 		default:

@@ -515,34 +515,16 @@ bool CESRI_ArcInfo_Export::On_Execute(void)
 
 	else if( Stream.Open(fName, SG_FILE_W, false) && Write_Header(Stream, pGrid, bComma) )
 	{
-		CSG_String	s;
-
 		for(iy=0, y=pGrid->Get_NY()-1; iy<pGrid->Get_NY() && Set_Progress(iy, pGrid->Get_NY()); iy++, y--)
 		{
 			for(x=0; x<pGrid->Get_NX(); x++)
 			{
-				if( Precision < 0 )
+				if( x > 0 )
 				{
-					s.Printf(SG_T("%f")		, pGrid->asFloat(x, y));
-				}
-				else if( Precision == 0 )
-				{
-					if( pGrid->asFloat(x, y) > 0 )
-						s.Printf(SG_T("%d")		, (int)(0.5 + pGrid->asFloat(x, y)));
-					else
-						s.Printf(SG_T("%d")		, (int)(pGrid->asFloat(x, y) - 0.5));
-				}
-				else
-				{
-					s.Printf(SG_T("%.*f")	, Precision, pGrid->asFloat(x, y));
+					fprintf(Stream.Get_Stream(), " ");
 				}
 
-				if( bComma )
-					s.Replace(SG_T("."), SG_T(","));
-				else
-					s.Replace(SG_T(","), SG_T("."));
-
-				fprintf(Stream.Get_Stream(), s.b_str());
+				fprintf(Stream.Get_Stream(), Write_Value(pGrid->asFloat(x, y), Precision, bComma).b_str());
 			}
 
 			fprintf(Stream.Get_Stream(), "\n");
@@ -553,6 +535,36 @@ bool CESRI_ArcInfo_Export::On_Execute(void)
 
 	//-----------------------------------------------------
 	return( false );
+}
+
+//---------------------------------------------------------
+inline CSG_String CESRI_ArcInfo_Export::Write_Value(double Value, int Precision, bool bComma)
+{
+	CSG_String	s;
+
+	if( Precision < 0 )
+	{
+		s.Printf(SG_T("%f")  , Value);
+	}
+	else if( Precision > 0 )
+	{
+		s.Printf(SG_T("%.*f"), Precision, Value);
+	}
+	else
+	{
+		s.Printf(SG_T("%d")  , (int)(Value > 0.0 ? Value + 0.5 : Value - 0.5));
+	}
+
+	if( bComma )
+	{
+		s.Replace(SG_T("."), SG_T(","));
+	}
+	else
+	{
+		s.Replace(SG_T(","), SG_T("."));
+	}
+
+	return( s );
 }
 
 //---------------------------------------------------------
@@ -567,27 +579,22 @@ bool CESRI_ArcInfo_Export::Write_Header(CSG_File &Stream, CSG_Grid *pGrid, bool 
 
 		if( Parameters("GEOREF")->asInt() == 0 )
 		{
-			s	+= CSG_String::Format(SG_T("%s %.10f\n"), HDR_X_CORNER	, pGrid->Get_XMin() - 0.5 * pGrid->Get_Cellsize());
-			s	+= CSG_String::Format(SG_T("%s %.10f\n"), HDR_Y_CORNER	, pGrid->Get_YMin() - 0.5 * pGrid->Get_Cellsize());
+			s	+= CSG_String::Format(SG_T("%s %s\n")	, HDR_X_CORNER	, Write_Value(pGrid->Get_XMin() - 0.5 * pGrid->Get_Cellsize(), 10, bComma).c_str());
+			s	+= CSG_String::Format(SG_T("%s %s\n")	, HDR_Y_CORNER	, Write_Value(pGrid->Get_YMin() - 0.5 * pGrid->Get_Cellsize(), 10, bComma).c_str());
 		}
 		else
 		{
-			s	+= CSG_String::Format(SG_T("%s %.10f\n"), HDR_X_CENTER	, pGrid->Get_XMin());
-			s	+= CSG_String::Format(SG_T("%s %.10f\n"), HDR_Y_CENTER	, pGrid->Get_YMin());
+			s	+= CSG_String::Format(SG_T("%s %s\n")	, HDR_X_CENTER	, Write_Value(pGrid->Get_XMin(), 10, bComma).c_str());
+			s	+= CSG_String::Format(SG_T("%s %s\n")	, HDR_Y_CENTER	, Write_Value(pGrid->Get_YMin(), 10, bComma).c_str());
 		}
 
-		s	+= CSG_String::Format(SG_T("%s %f\n")		, HDR_CELLSIZE	, (float)pGrid->Get_Cellsize());
-		s	+= CSG_String::Format(SG_T("%s %f\n")		, HDR_NODATA	, (float)pGrid->Get_NoData_Value());
+		s	+= CSG_String::Format(SG_T("%s %s\n")		, HDR_CELLSIZE	, Write_Value(pGrid->Get_Cellsize(), -1, bComma).c_str());
+		s	+= CSG_String::Format(SG_T("%s %s\n")		, HDR_NODATA	, Write_Value(pGrid->Get_NoData_Value(), Parameters("PREC")->asInt(), bComma).c_str());
 
 		if( Parameters("FORMAT")->asInt() == 0 )	// binary
 		{	if( Parameters("BYTEORD") )
 			s	+= CSG_String::Format(SG_T("%s %s\n")	, HDR_BYTEORDER	, Parameters("BYTEORD")->asInt() == 1 ? HDR_BYTEORDER_LO : HDR_BYTEORDER_HI);
 		}
-
-		if( bComma )
-			s.Replace(SG_T("."), SG_T(","));
-		else
-			s.Replace(SG_T(","), SG_T("."));
 
 		fprintf(Stream.Get_Stream(), s.b_str());
 

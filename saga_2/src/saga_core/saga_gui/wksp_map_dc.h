@@ -151,10 +151,9 @@ public:
 				break;
 
 			case IMG_MODE_SHADING:
-				d					= (r + g + b) / 3.0 / 256.0;
-				m_img_rgb[n + 0]	= (Color = (int)(d * m_img_dc_rgb[n + 0])) > 255 ? 255 : Color;
-				m_img_rgb[n + 1]	= (Color = (int)(d * m_img_dc_rgb[n + 1])) > 255 ? 255 : Color;
-				m_img_rgb[n + 2]	= (Color = (int)(d * m_img_dc_rgb[n + 2])) > 255 ? 255 : Color;
+				m_img_rgb[n + 0]	= (int)(r / 255.0 * m_img_dc_rgb[n + 0]);
+				m_img_rgb[n + 1]	= (int)(g / 255.0 * m_img_dc_rgb[n + 1]);
+				m_img_rgb[n + 2]	= (int)(b / 255.0 * m_img_dc_rgb[n + 2]);
 				break;
 
 			case IMG_MODE_TRANSPARENT:

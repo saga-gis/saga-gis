@@ -75,13 +75,14 @@
 //---------------------------------------------------------
 CWKSP_Layer_Classify::CWKSP_Layer_Classify(void)
 {
-	m_Mode		= CLASSIFY_UNIQUE;
+	m_Mode			= CLASSIFY_UNIQUE;
+	m_Shade_Mode	= SHADE_MODE_DSC_GREY;
 
-	m_pLayer	= NULL;
-	m_pColors	= NULL;
-	m_pLUT		= NULL;
+	m_pLayer		= NULL;
+	m_pColors		= NULL;
+	m_pLUT			= NULL;
 
-	m_HST_Count	= NULL;
+	m_HST_Count		= NULL;
 }
 
 //---------------------------------------------------------
@@ -156,19 +157,6 @@ bool CWKSP_Layer_Classify::Initialise(CWKSP_Layer *pLayer, CSG_Table *pLUT, CSG_
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Layer_Classify::Set_Mode(int Mode)
-{
-	m_Mode		= Mode;
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 double CWKSP_Layer_Classify::Get_Class_Value_Minimum(int iClass)
 {
 	switch( m_Mode )
@@ -185,6 +173,7 @@ double CWKSP_Layer_Classify::Get_Class_Value_Minimum(int iClass)
 
 	case CLASSIFY_METRIC:
 	case CLASSIFY_SHADE:
+	case CLASSIFY_OVERLAY:
 		if( m_zRange > 0.0 )
 		{
 			return( Get_RelativeToMetric(iClass / (double)Get_Class_Count()) );
@@ -211,6 +200,7 @@ double CWKSP_Layer_Classify::Get_Class_Value_Maximum(int iClass)
 
 	case CLASSIFY_METRIC:
 	case CLASSIFY_SHADE:
+	case CLASSIFY_OVERLAY:
 		if( m_zRange > 0.0 )
 		{
 			return( Get_RelativeToMetric((1.0 + iClass) / (double)Get_Class_Count()) );
@@ -237,6 +227,7 @@ double CWKSP_Layer_Classify::Get_Class_Value_Center(int iClass)
 
 	case CLASSIFY_METRIC:
 	case CLASSIFY_SHADE:
+	case CLASSIFY_OVERLAY:
 		if( m_zRange > 0.0 )
 		{
 			return( Get_RelativeToMetric((0.5 + iClass) / (double)Get_Class_Count()) );
@@ -266,6 +257,7 @@ wxString CWKSP_Layer_Classify::Get_Class_Name(int iClass)
 
 	case CLASSIFY_METRIC:
 	case CLASSIFY_SHADE:
+	case CLASSIFY_OVERLAY:
 		s	= SG_Get_String(Get_Class_Value_Minimum(iClass), -2) + SG_T(" < ")
 			+ SG_Get_String(Get_Class_Value_Maximum(iClass), -2);
 		break;

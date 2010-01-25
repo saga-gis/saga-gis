@@ -121,6 +121,8 @@ public:
 	bool							do_Legend				(void);
 	bool							do_Show					(CSG_Rect const &rMap);
 
+	virtual bool					Update					(CWKSP_Layer *pChanged)	{	return( pChanged == this );	}
+
 	void							Update_Views			(bool bMapsOnly);
 	void							View_Closes				(class wxMDIChildFrame *pView);
 

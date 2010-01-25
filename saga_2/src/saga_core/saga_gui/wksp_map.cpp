@@ -629,15 +629,23 @@ CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 //---------------------------------------------------------
 bool CWKSP_Map::Update(CWKSP_Layer *pLayer, bool bMapOnly)
 {
-	int		iLayer;
-	
-	if( (iLayer = Get_Layer(pLayer)) >= 0 )
-	{
-		if( !bMapOnly )
-		{
-			Get_Layer(iLayer)->Parameters_Changed();
-		}
+	bool	bRefresh	= false;
 
+	for(int i=0; i<Get_Count(); i++)
+	{
+		if( Get_Layer(i)->Get_Layer()->Update(pLayer) )
+		{
+			bRefresh	= true;
+
+			if( !bMapOnly )
+			{
+				Get_Layer(i)->Parameters_Changed();
+			}
+		}
+	}
+
+	if( bRefresh )
+	{
 		if( m_pView )
 		{
 			View_Refresh(bMapOnly);

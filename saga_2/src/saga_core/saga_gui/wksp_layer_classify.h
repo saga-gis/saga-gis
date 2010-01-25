@@ -87,7 +87,8 @@ enum
 	CLASSIFY_LUT,
 	CLASSIFY_METRIC,
 	CLASSIFY_RGB,
-	CLASSIFY_SHADE
+	CLASSIFY_SHADE,
+	CLASSIFY_OVERLAY
 };
 
 //---------------------------------------------------------
@@ -108,6 +109,19 @@ enum
 	METRIC_MODE_LOGDOWN
 };
 
+//---------------------------------------------------------
+enum
+{
+	SHADE_MODE_DSC_GREY	= 0,
+	SHADE_MODE_ASC_GREY,
+	SHADE_MODE_DSC_CYAN,
+	SHADE_MODE_ASC_CYAN,
+	SHADE_MODE_DSC_MAGENTA,
+	SHADE_MODE_ASC_MAGENTA,
+	SHADE_MODE_DSC_YELLOW,
+	SHADE_MODE_ASC_YELLOW
+};
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -124,8 +138,11 @@ public: ///////////////////////////////////////////////////
 
 	bool						Initialise				(class CWKSP_Layer *pLayer, CSG_Table *pLUT, CSG_Colors *pColors);
 
-	void						Set_Mode				(int Mode);
+	void						Set_Mode				(int Mode)	{	m_Mode			= Mode;	}
 	int							Get_Mode				(void)		{	return( m_Mode );		}
+
+	void						Set_Shade_Mode			(int Mode)	{	m_Shade_Mode	= Mode;	}
+	int							Get_Shade_Mode			(void)		{	return( m_Shade_Mode );	}
 
 	void						Set_Unique_Color		(int Color);
 	int							Get_Unique_Color		(void)		{	return( m_UNI_Color );	}
@@ -152,6 +169,7 @@ public: ///////////////////////////////////////////////////
 
 		case CLASSIFY_METRIC:
 		case CLASSIFY_SHADE:
+		case CLASSIFY_OVERLAY:
 			return( m_pColors->Get_Count() );
 		}
 	}
@@ -169,6 +187,7 @@ public: ///////////////////////////////////////////////////
 
 		case CLASSIFY_METRIC:
 		case CLASSIFY_SHADE:
+		case CLASSIFY_OVERLAY:
 			return( _METRIC_Get_Class(Value) );
 		}
 	}
@@ -204,31 +223,13 @@ public: ///////////////////////////////////////////////////
 			return( false );
 
 		case CLASSIFY_METRIC:
-			if( iClass < 0 )
-			{
-				iClass	= 0;
-			}
-			else if( iClass >= m_pColors->Get_Count() )
-			{
-				iClass	= m_pColors->Get_Count() - 1;
-			}
-
-			Color	= m_pColors->Get_Color(iClass);
+			Color	= m_pColors->Get_Color(iClass < 0 ? 0 : iClass >= m_pColors->Get_Count() ? m_pColors->Get_Count() - 1 : iClass);
 
 			return( true );
 
 		case CLASSIFY_SHADE:
-			if( iClass < 0 )
-			{
-				iClass	= 0;
-			}
-			else if( iClass >= m_pColors->Get_Count() )
-			{
-				iClass	= m_pColors->Get_Count() - 1;
-			}
-
-			Color	= m_pColors->Get_Brightness(iClass);
-			Color	= SG_GET_RGB(Color, Color, Color);
+		case CLASSIFY_OVERLAY:
+			Get_Class_Color_byValue(Get_RelativeToMetric(iClass / (double)m_pColors->Get_Count()), Color);
 
 			return( true );
 		}
@@ -258,9 +259,35 @@ public: ///////////////////////////////////////////////////
 			break;
 
 		case CLASSIFY_METRIC:
-		case CLASSIFY_SHADE:
 			iClass	= _METRIC_Get_Class(Value);
 			break;
+
+		case CLASSIFY_SHADE:
+			iClass	= (int)(255.0 * Get_MetricToRelative(Value));
+			if( iClass < 0 )	iClass	= 0; else if( iClass > 255 )	iClass	= 255;
+
+			switch( m_Shade_Mode )
+			{
+			default:
+			case SHADE_MODE_DSC_GREY:		Color	= SG_GET_RGB(255 - iClass, 255 - iClass, 255 - iClass);	break;
+			case SHADE_MODE_DSC_CYAN:		Color	= SG_GET_RGB(255 - iClass, 255         , 255         );	break;
+			case SHADE_MODE_DSC_MAGENTA:	Color	= SG_GET_RGB(255         , 255 - iClass, 255         );	break;
+			case SHADE_MODE_DSC_YELLOW:		Color	= SG_GET_RGB(255         , 255         , 255 - iClass);	break;
+			case SHADE_MODE_ASC_GREY:		Color	= SG_GET_RGB(      iClass,       iClass,       iClass);	break;
+			case SHADE_MODE_ASC_CYAN:		Color	= SG_GET_RGB(      iClass, 255         , 255         );	break;
+			case SHADE_MODE_ASC_MAGENTA:	Color	= SG_GET_RGB(255         ,       iClass, 255         );	break;
+			case SHADE_MODE_ASC_YELLOW:		Color	= SG_GET_RGB(255         , 255         ,       iClass);	break;
+			}
+
+			return( true );
+
+		case CLASSIFY_OVERLAY:
+			iClass	= (int)(255.0 * Get_MetricToRelative(Value));
+			if( iClass < 0 )	iClass	= 0; else if( iClass > 255 )	iClass	= 255;
+
+			Color	= SG_GET_RGB(iClass, iClass, iClass);
+
+			return( true );
 
 		case CLASSIFY_RGB:
 			Color	= (int)Value;
@@ -354,7 +381,7 @@ public: ///////////////////////////////////////////////////
 
 protected: ////////////////////////////////////////////////
 
-	int							m_Mode, m_zMode,
+	int							m_Mode, m_zMode, m_Shade_Mode,
 								m_UNI_Color,
 								*m_HST_Count, *m_HST_Cumul, m_HST_Maximum, m_HST_Total;
 

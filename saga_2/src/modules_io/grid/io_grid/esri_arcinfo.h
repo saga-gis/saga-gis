@@ -119,6 +119,8 @@ protected:
 
 private:
 
+	CSG_String				Write_Value			(double Value, int Precision, bool bComma);
+
 	bool					Write_Header		(CSG_File &Stream, CSG_Grid *pGrid, bool bComma);
 
 };
