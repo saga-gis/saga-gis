@@ -113,6 +113,8 @@ BEGIN_EVENT_TABLE(CVIEW_Map_Control, wxPanel)
 	EVT_RIGHT_DOWN		(CVIEW_Map_Control::On_Mouse_RDown)
 	EVT_RIGHT_UP		(CVIEW_Map_Control::On_Mouse_RUp)
 	EVT_RIGHT_DCLICK	(CVIEW_Map_Control::On_Mouse_RDClick)
+	EVT_MIDDLE_DOWN		(CVIEW_Map_Control::On_Mouse_MDown)
+	EVT_MIDDLE_UP		(CVIEW_Map_Control::On_Mouse_MUp)
 END_EVENT_TABLE()
 
 
@@ -865,6 +867,92 @@ void CVIEW_Map_Control::On_Mouse_RDClick(wxMouseEvent &event)
 
 	//-----------------------------------------------------
 	case MAP_MODE_PAN_DOWN:
+		break;
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Map_Control::On_Mouse_MDown(wxMouseEvent &event)
+{
+	bool	bCaptureMouse	= true;
+
+	m_Mouse_Down	= m_Mouse_Move	= event.GetPosition();
+
+	switch( m_Mode )
+	{
+	//-----------------------------------------------------
+	case MAP_MODE_SELECT:
+		break;
+
+	//-----------------------------------------------------
+	case MAP_MODE_DISTANCE:
+		break;
+
+	//-----------------------------------------------------
+	case MAP_MODE_ZOOM:
+		m_Drag_Mode		= MODULE_INTERACTIVE_DRAG_NONE;
+		Set_Mode(MAP_MODE_PAN_DOWN);
+		break;
+
+	//-----------------------------------------------------
+	case MAP_MODE_PAN:
+		break;
+
+	//-----------------------------------------------------
+	case MAP_MODE_PAN_DOWN:
+		m_Drag_Mode		= MODULE_INTERACTIVE_DRAG_NONE;
+		break;
+	}
+
+	//-----------------------------------------------------
+	if( bCaptureMouse )
+	{
+		CaptureMouse();
+	}
+
+	event.Skip();
+}
+
+//---------------------------------------------------------
+void CVIEW_Map_Control::On_Mouse_MUp(wxMouseEvent &event)
+{
+	if( HasCapture() )
+	{
+		ReleaseMouse();
+	}
+
+	_Draw_Inverse(m_Mouse_Down, event.GetPosition());
+	m_Drag_Mode	= MODULE_INTERACTIVE_DRAG_NONE;
+
+	switch( m_Mode )
+	{
+	//-----------------------------------------------------
+	case MAP_MODE_SELECT:
+		break;
+
+	//-----------------------------------------------------
+	case MAP_MODE_DISTANCE:
+		break;
+
+	//-----------------------------------------------------
+	case MAP_MODE_ZOOM:
+		break;
+
+	//-----------------------------------------------------
+	case MAP_MODE_PAN:
+		break;
+
+	//-----------------------------------------------------
+	case MAP_MODE_PAN_DOWN:
+		Set_Mode(MAP_MODE_ZOOM);
+		_Move(m_Mouse_Down, event.GetPosition());
 		break;
 	}
 }

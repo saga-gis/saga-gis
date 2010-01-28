@@ -411,6 +411,8 @@ void CVIEW_Map_3D::On_Key_Down(wxKeyEvent &event)
 //---------------------------------------------------------
 void CVIEW_Map_3D::On_Mouse_LDown(wxMouseEvent &event)
 {
+	SetFocus();
+
 	m_Mouse_Down	= event.GetPosition();
 	m_xDown			= m_pImage->m_zRotate;
 	m_yDown			= m_pImage->m_xRotate;
@@ -437,6 +439,8 @@ void CVIEW_Map_3D::On_Mouse_LUp(wxMouseEvent &event)
 //---------------------------------------------------------
 void CVIEW_Map_3D::On_Mouse_RDown(wxMouseEvent &event)
 {
+	SetFocus();
+
 	m_Mouse_Down	= event.GetPosition();
 	m_xDown			= m_pImage->m_xShift;
 	m_yDown			= m_pImage->m_yShift;
@@ -463,6 +467,8 @@ void CVIEW_Map_3D::On_Mouse_RUp(wxMouseEvent &event)
 //---------------------------------------------------------
 void CVIEW_Map_3D::On_Mouse_MDown(wxMouseEvent &event)
 {
+	SetFocus();
+
 	m_Mouse_Down	= event.GetPosition();
 	m_xDown			= m_pImage->m_yRotate;
 	m_yDown			= m_pImage->m_zShift;

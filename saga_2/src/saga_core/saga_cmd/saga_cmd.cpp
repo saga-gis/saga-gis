@@ -123,6 +123,8 @@ _try
 
 	bool	bResult	= false;
 
+	Set_App_Path(SG_File_Get_Path(CSG_String(argv[0])));
+
 	if( wxInitialize() )
 	{
 		wxString	MLB_Path, ENV_Path;
@@ -136,6 +138,11 @@ _try
 		else
 		{
 			wxSetEnv(SYS_ENV_PATH, MLB_Path);
+		}
+
+		if( argc > 3 && !SG_STR_CMP(OPT_SILENT, SG_STR_MBTOSG(argv[3])) )
+		{
+			Set_Silent(true);
 		}
 
 		Print_Logo(MLB_Path);
@@ -202,7 +209,6 @@ _except(1)
 bool		Execute(const SG_Char *MLB_Path, const SG_Char *FileName, const SG_Char *ModuleName, int argc, char *argv[])
 {
 	bool			bResult	= false;
-	int				i;
 	CModule_Library	Library;
 
 	if( !Library.Create(FileName, MLB_Path) )
@@ -229,16 +235,7 @@ bool		Execute(const SG_Char *MLB_Path, const SG_Char *FileName, const SG_Char *M
 	{
 		Print_Execution(MLB_Path, FileName, Library.Get_Selected()->Get_Name(), Library.Get_Selected()->Get_Author());
 
-		if( argc > 3 && !SG_STR_CMP(OPT_SILENT, SG_STR_MBTOSG(argv[3])) )
-		{
-			i	= 3;
-
-			Set_Silent(true);
-		}
-		else
-		{
-			i	= 2;
-		}
+		int		i	= argc > 3 && !SG_STR_CMP(OPT_SILENT, SG_STR_MBTOSG(argv[3])) ? 3 : 2;
 
 		Set_Library(&Library);
 		bResult	= Library.Execute(argc - i, argv + i);
@@ -356,6 +353,9 @@ void		Error_Module	(const SG_Char *MLB_Path, const SG_Char *FileName)
 //---------------------------------------------------------
 void		Print_Logo		(const SG_Char *MLB_Path)
 {
+	if( Get_Silent() )
+		return;
+
 	SG_PRINTF(SG_T("_____________________________________________\n"));
 	SG_PRINTF(SG_T("  #####   ##   #####    ##\n"));
 	SG_PRINTF(SG_T(" ###     ###  ##       ###\n"));
@@ -370,6 +370,9 @@ void		Print_Logo		(const SG_Char *MLB_Path)
 //---------------------------------------------------------
 void		Print_Execution	(const SG_Char *MLB_Path, const SG_Char *FileName, const SG_Char *ModuleName, const SG_Char *Author)
 {
+	if( Get_Silent() )
+		return;
+
 	SG_PRINTF(SG_T("%s:\t%s\n"), LNG("library path"), MLB_Path);
 	SG_PRINTF(SG_T("%s:\t%s\n"), LNG("library name"), FileName);
 	SG_PRINTF(SG_T("%s:\t%s\n"), LNG("module name "), ModuleName);
@@ -377,6 +380,13 @@ void		Print_Execution	(const SG_Char *MLB_Path, const SG_Char *FileName, const S
 	SG_PRINTF(SG_T("_____________________________________________\n"));
 	SG_PRINTF(SG_T("go...\n"));
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void		Print_Help		(void)
@@ -420,13 +430,6 @@ void		Print_Help		(void)
 		SG_T("computer.\n")
 	);
 }
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void		Create_Example	(void)

@@ -118,6 +118,8 @@ public:
 	void						On_Mouse_RDown		(wxMouseEvent &event);
 	void						On_Mouse_RUp		(wxMouseEvent &event);
 	void						On_Mouse_RDClick	(wxMouseEvent &event);
+	void						On_Mouse_MDown		(wxMouseEvent &event);
+	void						On_Mouse_MUp		(wxMouseEvent &event);
 
 	bool						Set_Mode			(int Mode);
 	int							Get_Mode			(void)	{	return( m_Mode );	}

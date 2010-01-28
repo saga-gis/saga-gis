@@ -556,6 +556,59 @@ protected:
 
 };
 
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Thin_Plate_Spline
+{
+public:
+	CSG_Thin_Plate_Spline(void);
+	virtual ~CSG_Thin_Plate_Spline(void);
+
+	bool					Destroy				(void);
+
+	bool					Set_Point_Count		(int Count)	{	return( m_Points.Set_Count(Count) );	}
+	int						Get_Point_Count		(void)		{	return( m_Points.Get_Count() );			}
+
+	CSG_Points_Z &			Get_Points			(void)		{	return( m_Points );	}
+
+	bool					Add_Point			(double x, double y, double z)	{	return( m_Points.Add(  x,   y, z) );	}
+	bool					Add_Point			(const TSG_Point &p, double z)	{	return( m_Points.Add(p.x, p.y, z) );	}
+
+	bool					Set_Point			(int Index, double x, double y, double z)
+	{
+		if( Index >= 0 && Index < m_Points.Get_Count() )
+		{
+			m_Points[Index].x	= x;
+			m_Points[Index].y	= y;
+			m_Points[Index].z	= z;
+
+			return( true );
+		}
+
+		return( false );
+	}
+
+	bool					Set_Point			(int Index, const TSG_Point &p, double z)	{	return( Set_Point(Index, p.x, p.y, z) );	}
+
+	bool					Create				(double Regularization = 0.0, bool bSilent = true);
+
+	bool					is_Okay				(void)	{	return( m_V.Get_N() > 0 );		}
+
+	double					Get_Value			(double x, double y);
+
+
+private:
+
+	CSG_Points_Z			m_Points;
+
+	CSG_Vector				m_V;
+
+
+	double					_Get_hDistance		(TSG_Point_Z A, TSG_Point_Z B);
+	double					_Get_Base_Funtion	(double x);
+	double					_Get_Base_Funtion	(TSG_Point_Z A, double x, double y);
+
+};
+
 
 ///////////////////////////////////////////////////////////
 //														 //

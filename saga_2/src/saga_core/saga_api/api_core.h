@@ -246,6 +246,7 @@ private:
 	#define SG_Char			char
 	#define SG_T(s)			s
 	#define SG_PRINTF			printf
+	#define SG_FPRINTF			fprintf
 	#define SG_SSCANF			sscanf
 	#define SG_STR_CMP			strcmp
 	#define SG_STR_CPY			strcpy
@@ -254,9 +255,10 @@ private:
 	#define SG_STR_SGTOMB(s)	s
 	#define SG_STR_MBTOSG(s)	s
 #else
-	#define SG_Char			wchar_t
-	#define SG_T(s)			L ## s
+	#define SG_Char				wchar_t
+	#define SG_T(s)				L ## s
 	#define SG_PRINTF			SG_Printf
+	#define SG_FPRINTF			fwprintf
 	#define SG_SSCANF			swscanf
 	#define SG_STR_CMP			wcscmp
 	#define SG_STR_CPY			wcscpy
