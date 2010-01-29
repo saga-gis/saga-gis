@@ -63,6 +63,7 @@
 #include <wx/image.h>
 #include <wx/splash.h>
 #include <wx/filename.h>
+#include <wx/stdpaths.h>
 
 #include <saga_api/saga_api.h>
 
@@ -147,7 +148,7 @@ bool CSAGA::OnInit(void)
 
 	g_pSAGA				= this;
 
-	m_App_Path			= SG_File_Get_Path(argv[0]).c_str();
+	m_App_Path			= SG_File_Get_Path(wxStandardPaths::Get().GetExecutablePath().c_str()).c_str();
 
 	wxInitAllImageHandlers();
 

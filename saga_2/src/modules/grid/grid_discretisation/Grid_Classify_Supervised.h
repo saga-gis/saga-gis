@@ -136,8 +136,6 @@ private:
 
 	CClass_Info					m_Class_Info;
 
-	CSG_String					m_Name_Method, m_Name_Quality;
-
 	CSG_Grid					*m_pClasses, *m_pQuality;
 
 	CSG_Parameter_Grid_List		*m_pGrids;

@@ -227,9 +227,10 @@ CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"			, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("parallelepiped"),
 			_TL("minimum distance"),
+			_TL("mahalanobis distance"),
 			_TL("maximum likelihood"),
 			_TL("spectral angle mapping")
 		), 0
@@ -243,7 +244,7 @@ CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 
 	Parameters.Add_Value(
 		NULL	, "THRESHOLD_MD"	, _TL("Distance Threshold"),
-		_TL("Let pixel stay unclassified, if minimum distance probability is greater than threshold."),
+		_TL("Let pixel stay unclassified, if minimum or mahalanobis distance is greater than threshold."),
 		PARAMETER_TYPE_Double, 0.0, 0.0, true
 	);
 
@@ -285,29 +286,6 @@ bool CGrid_Classify_Supervised::On_Execute(void)
 	m_bNormalise	= Parameters("NORMALISE")	->asBool();
 	m_pQuality		= Parameters("QUALITY")		->asGrid();
 
-	switch( Parameters("METHOD")->asInt() )
-	{
-	case 0:
-		m_Name_Method	= _TL("Parallelepiped");
-		m_Name_Quality	= _TL("Memberships");
-		break;
-
-	case 1:
-		m_Name_Method	= _TL("Minimum Distance");
-		m_Name_Quality	= _TL("Distance");
-		break;
-
-	case 2:
-		m_Name_Method	= _TL("Maximum Likelihood");
-		m_Name_Quality	= _TL("Proximity");
-		break;
-
-	case 3:
-		m_Name_Method	= _TL("Spectral Angle Mapping");
-		m_Name_Quality	= _TL("Angle");
-		break;
-	}
-
 	//-----------------------------------------------------
 	for(int iGrid=m_pGrids->Get_Count()-1; iGrid>=0; iGrid--)
 	{
@@ -337,8 +315,9 @@ bool CGrid_Classify_Supervised::On_Execute(void)
 	{
 	case 0:	return( Set_Parallel_Epiped       () );
 	case 1:	return( Set_Minimum_Distance      () );
-	case 2:	return( Set_Maximum_Likelihood    () );
-	case 3:	return( Set_Spectral_Angle_Mapping() );
+	case 2:	return( Set_Mahalanobis_Distance  () );
+	case 3:	return( Set_Maximum_Likelihood    () );
+	case 4:	return( Set_Spectral_Angle_Mapping() );
 	}
 
 	return( false );
@@ -423,13 +402,43 @@ bool CGrid_Classify_Supervised::Initialise(void)
 bool CGrid_Classify_Supervised::Finalise(void)
 {
 	int			iClass, iGrid, iOffset, nClasses;
+	CSG_String	Name_Method, Name_Quality;
 	CSG_Table	*pTable;
+
+	//-----------------------------------------------------
+	switch( Parameters("METHOD")->asInt() )
+	{
+	case 0:
+		Name_Method	= _TL("Parallelepiped");
+		Name_Quality	= _TL("Memberships");
+		break;
+
+	case 1:
+		Name_Method	= _TL("Minimum Distance");
+		Name_Quality	= _TL("Distance");
+		break;
+
+	case 2:
+		Name_Method	= _TL("Minimum Distance");
+		Name_Quality	= _TL("Distance");
+		break;
+
+	case 3:
+		Name_Method	= _TL("Maximum Likelihood");
+		Name_Quality	= _TL("Proximity");
+		break;
+
+	case 4:
+		Name_Method	= _TL("Spectral Angle Mapping");
+		Name_Quality	= _TL("Angle");
+		break;
+	}
 
 	//-----------------------------------------------------
 	pTable	= Parameters("CLASS_INFO")->asTable();
 
 	pTable->Destroy();
-	pTable->Set_Name(CSG_String::Format(SG_T("%s [%s]"), _TL("Class Information"), m_Name_Method.c_str()));
+	pTable->Set_Name(CSG_String::Format(SG_T("%s [%s]"), _TL("Class Information"), Name_Method.c_str()));
 
 	pTable->Add_Field(_TL("NR")   , SG_DATATYPE_Int);		// CLASS_NR
 	pTable->Add_Field(_TL("ID")   , SG_DATATYPE_String);	// CLASS_ID
@@ -504,11 +513,11 @@ bool CGrid_Classify_Supervised::Finalise(void)
 	}
 
 	//-----------------------------------------------------
-	m_pClasses->Set_Name(CSG_String::Format(SG_T("%s [%s]"), _TL("Classification"), m_Name_Method.c_str()));
+	m_pClasses->Set_Name(CSG_String::Format(SG_T("%s [%s]"), _TL("Classification"), Name_Method.c_str()));
 
 	if( m_pQuality )
 	{
-		m_pQuality->Set_Name(CSG_String::Format(SG_T("%s [%s]"), _TL("Classification Quality"), m_Name_Quality.c_str()));
+		m_pQuality->Set_Name(CSG_String::Format(SG_T("%s [%s]"), _TL("Classification Quality"), Name_Quality.c_str()));
 
 		DataObject_Set_Colors(m_pQuality, 100, SG_COLORS_WHITE_GREEN);
 	}
@@ -646,6 +655,68 @@ bool CGrid_Classify_Supervised::Set_Minimum_Distance(void)
 		}
 	}
 
+	return( Finalise() );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Classify_Supervised::Set_Mahalanobis_Distance(void)
+{
+	int			iClass;
+
+	//-----------------------------------------------------
+	CSG_Matrix	b(m_Class_Info.Get_Feature_Count(), m_Class_Info.Get_Count());
+	CSG_Matrix	m(m_Class_Info.Get_Feature_Count(), m_Class_Info.Get_Count());
+
+	for(iClass=0; iClass<m_Class_Info.Get_Count(); iClass++)
+	{
+		for(int iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
+		{
+			b[iClass][iGrid]	= 1.0 / (m_Class_Info[iClass][iGrid].Get_Variance());
+			m[iClass][iGrid]	= m_Class_Info[iClass][iGrid].Get_Mean();
+		}
+	}
+
+	//-----------------------------------------------------
+	double	Threshold	= Parameters("THRESHOLD_MD")->asDouble() / 100.0;
+
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
+		{
+			if( !m_pClasses->is_NoData(x, y) )
+			{
+				int		iMember	= -1;
+				double	dMember	= 0.0, dSum	= 0.0;
+
+				for(iClass=0; iClass<m_Class_Info.Get_Count(); iClass++)
+				{
+					double	d	= 1.0;
+
+					for(int iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
+					{
+						d	*= b[iClass][iGrid] * SG_Get_Square(Get_Value(x, y, iGrid) - m[iClass][iGrid]);
+					}
+
+					d	= pow(d, 1.0 / m_pGrids->Get_Count());
+
+					if( dMember > d || iMember < 0 )
+					{
+						dMember	= d;
+						iMember	= iClass;
+					}
+				}
+
+				Set_Class(x, y, Threshold <= 0.0 || dMember <= Threshold ? iMember : -1, sqrt(dMember));
+			}
+		}
+	}
+
+	//-----------------------------------------------------
 	return( Finalise() );
 }
 

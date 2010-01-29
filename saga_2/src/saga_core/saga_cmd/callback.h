@@ -81,8 +81,7 @@
 //---------------------------------------------------------
 void					Set_Library		(class CModule_Library *pLibrary);
 
-void					Set_App_Path	(const CSG_String &sApp_Path);
-
+//---------------------------------------------------------
 void					Set_Silent		(bool bOn);
 bool					Get_Silent		(void);
 

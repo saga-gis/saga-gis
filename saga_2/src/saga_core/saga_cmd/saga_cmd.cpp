@@ -123,8 +123,6 @@ _try
 
 	bool	bResult	= false;
 
-	Set_App_Path(SG_File_Get_Path(CSG_String(argv[0])));
-
 	if( wxInitialize() )
 	{
 		wxString	MLB_Path, ENV_Path;
