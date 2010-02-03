@@ -227,9 +227,9 @@ public:
 	bool							is_Compatible		(CSG_Table *pTable, bool bExactMatch = false)	const;
 
 	//-----------------------------------------------------
-	virtual void					Add_Field			(const SG_Char *Name, TSG_Data_Type Type, int iField = -1);
+	virtual bool					Add_Field			(const SG_Char *Name, TSG_Data_Type Type, int iField = -1);
 #ifdef _SAGA_UNICODE
-	virtual void					Add_Field			(const char    *Name, TSG_Data_Type Type, int iField = -1);
+	virtual bool					Add_Field			(const char    *Name, TSG_Data_Type Type, int iField = -1);
 #endif
 	virtual bool					Del_Field			(int iField);
 

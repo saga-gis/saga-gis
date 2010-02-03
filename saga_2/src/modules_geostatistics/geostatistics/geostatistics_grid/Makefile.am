@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.6 2009-12-11 14:12:22 oconrad Exp $
+# $Id: Makefile.am,v 1.7 2010-02-03 18:07:13 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -18,6 +18,7 @@ GSGrid_Regression.cpp\
 GSGrid_Regression_Multiple.cpp\
 GSGrid_Residuals.cpp\
 GSGrid_Statistics.cpp\
+GSGrid_Trend_Surface.cpp\
 GSGrid_Variance.cpp\
 GSGrid_Variance_Radius.cpp\
 GSGrid_Zonal_Statistics.cpp\
@@ -27,6 +28,7 @@ GSGrid_Regression.h\
 GSGrid_Regression_Multiple.h\
 GSGrid_Residuals.h\
 GSGrid_Statistics.h\
+GSGrid_Trend_Surface.h\
 GSGrid_Variance.h\
 GSGrid_Variance_Radius.h\
 GSGrid_Zonal_Statistics.h\

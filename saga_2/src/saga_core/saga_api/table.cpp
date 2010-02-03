@@ -409,7 +409,7 @@ bool CSG_Table::is_Compatible(CSG_Table *pTable, bool bExactMatch) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Table::Add_Field(const SG_Char *Name, TSG_Data_Type Type, int add_Field)
+bool CSG_Table::Add_Field(const SG_Char *Name, TSG_Data_Type Type, int add_Field)
 {
 	int		iField, iRecord;
 
@@ -446,12 +446,14 @@ void CSG_Table::Add_Field(const SG_Char *Name, TSG_Data_Type Type, int add_Field
 	}
 
 	Set_Modified();
+
+	return( true );
 }
 
 //---------------------------------------------------------
 #ifdef _SAGA_UNICODE
-void CSG_Table::Add_Field(const char *Name, TSG_Data_Type Type, int iField)
-{	Add_Field(CSG_String(Name), Type, iField);	}
+bool CSG_Table::Add_Field(const char *Name, TSG_Data_Type Type, int iField)
+{	return( Add_Field(CSG_String(Name), Type, iField) );	}
 #endif
 
 //---------------------------------------------------------

@@ -104,9 +104,9 @@ CFillSinks_WL::CFillSinks_WL(void)
 	);
 
 	Parameters.Add_Value(
-		NULL, "MINSLOPE", _TL("Minimum Slope"),
+		NULL, "MINSLOPE", _TL("Minimum Slope [Degree]"),
 		_TL("Minimum slope gradient to preserve from cell to cell; with a value of zero sinks are filled up to the spill elevation (which results in flat areas). Unit [Degree]"),
-		PARAMETER_TYPE_Double, 0.0, 0.0, true
+		PARAMETER_TYPE_Double, 0.1, 0.0, true
 	);
 
 }
@@ -141,7 +141,7 @@ bool CFillSinks_WL::On_Execute(void)
 	pFilled		= Parameters("FILLED")->asGrid();
 	pFdir		= Parameters("FDIR")->asGrid();
 	pWshed		= Parameters("WSHED")->asGrid();
-	minslope	= Parameters("MINSLOPE")->asDouble();		
+	minslope	= Parameters("MINSLOPE")->asDouble();
 
 
 	if( minslope > 0.0 )

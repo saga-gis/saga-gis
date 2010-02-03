@@ -85,7 +85,7 @@ public:
 	CGSGrid_Variance_Radius(void);
 	virtual ~CGSGrid_Variance_Radius(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Neighborhoods") );	}
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Grids") );	}
 
 
 protected:

@@ -412,6 +412,10 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath=".\GSPoints_Distances.cpp"
+				>
+			</File>
+			<File
 				RelativePath="GSPoints_Semi_Variances.cpp"
 				>
 				<FileConfiguration
@@ -496,6 +500,10 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl"
 			>
+			<File
+				RelativePath=".\GSPoints_Distances.h"
+				>
+			</File>
 			<File
 				RelativePath="GSPoints_Semi_Variances.h"
 				>

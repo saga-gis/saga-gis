@@ -74,16 +74,16 @@ const SG_Char * Get_Info(int i)
 		return( _TL("Geostatistics - Grids") );
 
 	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad, Volker Wichmann (c) 2002-5" ));
+		return( _TL("O.Conrad, V.Wichmann (c) 2002-10" ));
 
 	case MLB_INFO_Description:
-		return( _TL("Tools for (geo)statistical analyses of grids.") );
+		return( _TL("Tools for (geo)statistical analyses.") );
 
 	case MLB_INFO_Version:
 		return( SG_T("1.0") );
 
 	case MLB_INFO_Menu_Path:
-		return( _TL("Geostatistics|Grid") );
+		return( _TL("Geostatistics") );
 	}
 }
 
@@ -99,6 +99,7 @@ const SG_Char * Get_Info(int i)
 #include "GSGrid_Regression_Multiple.h"
 #include "GSGrid_Statistics.h"
 #include "GSGrid_Zonal_Statistics.h"
+#include "GSGrid_Trend_Surface.h"
 
 
 //---------------------------------------------------------
@@ -116,6 +117,7 @@ CSG_Module *		Create_Module(int i)
 	case  5:	return( new CGSGrid_Regression_Multiple );
 	case  6:	return( new CGSGrid_Statistics );
 	case  7:	return( new CGSGrid_Zonal_Statistics );
+	case  8:	return( new CGSGrid_Trend_Surface );
 	}
 
 	return( NULL );

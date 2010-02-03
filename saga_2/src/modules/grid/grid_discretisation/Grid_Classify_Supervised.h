@@ -100,6 +100,13 @@ public:
 	int							Get_Element_Count			(int Index)	{	return( m_nElements[Index] );	}
 	void						Inc_Element_Count			(int Index)	{	m_nElements[Index]++;			}
 
+	double						Get_BE_m					(int Index)					{	_Update();	return( m_BE_m[Index] );			}
+	bool						Get_BE_s					(int Index, int Feature)	{	_Update();	return( m_BE_s[Index][Feature] != 0.0 );	}
+	double						Get_SAM_l					(int Index)					{	_Update();	return( m_SAM_l[Index] );			}
+	double						Get_ML_s					(int Index)					{	_Update();	return( m_ML_s[Index] );			}
+	double						Get_ML_a					(int Index, int Feature)	{	_Update();	return( m_ML_a[Index][Feature] );	}
+	double						Get_ML_b					(int Index, int Feature)	{	_Update();	return( m_ML_b[Index][Feature] );	}
+
 
 private:
 
@@ -108,6 +115,13 @@ private:
 	CSG_Strings					m_IDs;
 
 	CSG_Simple_Statistics		**m_Statistics;
+
+	CSG_Vector					m_ML_s, m_SAM_l, m_BE_m;
+
+	CSG_Matrix					m_ML_a, m_ML_b, m_BE_s;
+
+
+	void						_Update						(void);
 
 };
 
@@ -132,7 +146,11 @@ protected:
 
 private:
 
-	bool						m_bNormalise;
+	bool						m_bNormalise, m_bRelative;
+
+	int							m_Method;
+
+	double						m_Threshold_Dist, m_Threshold_Prob, m_Threshold_Angle;
 
 	CClass_Info					m_Class_Info;
 
@@ -147,11 +165,13 @@ private:
 	double						Get_Value					(int x, int y, int iGrid);
 	bool						Set_Class					(int x, int y, int iClass, double Quality);
 
-	bool						Set_Parallel_Epiped			(void);
-	bool						Set_Minimum_Distance		(void);
-	bool						Set_Mahalanobis_Distance	(void);
-	bool						Set_Maximum_Likelihood		(void);
-	bool						Set_Spectral_Angle_Mapping	(void);
+	void						Set_Parallel_Epiped			(int x, int y);
+	void						Set_Minimum_Distance		(int x, int y);
+	void						Set_Mahalanobis_Distance	(int x, int y);
+	void						Set_Maximum_Likelihood		(int x, int y);
+	void						Set_Spectral_Angle_Mapping	(int x, int y);
+	void						Set_Spectral_Divergence		(int x, int y);
+	void						Set_Binary_Encoding			(int x, int y);
 
 };
 

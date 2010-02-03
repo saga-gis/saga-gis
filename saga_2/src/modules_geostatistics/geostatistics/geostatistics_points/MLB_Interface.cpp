@@ -74,7 +74,7 @@ const SG_Char * Get_Info(int i)
 		return( _TL("Geostatistics - Points") );
 
 	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad (c) 2002") );
+		return( _TL("O.Conrad (c) 2002") );
 
 	case MLB_INFO_Description:
 		return( _TL("Geostatistical analyses for point data.") );
@@ -92,6 +92,7 @@ const SG_Char * Get_Info(int i)
 // 3. Include the headers of your modules here...
 
 #include "GSPoints_Semi_Variances.h"
+#include "GSPoints_Distances.h"
 
 
 //---------------------------------------------------------
@@ -99,25 +100,13 @@ const SG_Char * Get_Info(int i)
 
 CSG_Module *		Create_Module(int i)
 {
-	// Don't forget to continuously enumerate the case switches
-	// when adding new modules! Also bear in mind that the
-	// enumeration always has to start with [case 0:] and
-	// that [default:] must return NULL!...
-
-	CSG_Module	*pModule;
-
 	switch( i )
 	{
-	case 0:
-		pModule	= new CGSPoints_Semi_Variances;
-		break;
-
-	default:
-		pModule	= NULL;
-		break;
+	case  0:	return( new CGSPoints_Semi_Variances );
+	case  1:	return( new CGSPoints_Distances );
 	}
 
-	return( pModule );
+	return( NULL );
 }
 
 

@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                  Geostatistics_Grid                   //
+//                 Geostatistics_Points                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   GSGrid_Variance.h                   //
+//                  GSPoints_Distances.h                 //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2010 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -58,15 +56,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__GSGrid_Variance_H
-#define HEADER_INCLUDED__GSGrid_Variance_H
+#ifndef HEADER_INCLUDED__GSPoints_Distances_H
+#define HEADER_INCLUDED__GSPoints_Distances_H
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
@@ -79,48 +71,27 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGSGrid_Variance : public CSG_Module_Grid
+class CGSPoints_Distances : public CSG_Module  
 {
 public:
-	CGSGrid_Variance(void);
-	virtual ~CGSGrid_Variance(void);
-
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Grids" ));	}
+	CGSPoints_Distances(void);
 
 
 protected:
 
-	virtual bool			On_Execute			(void);
+	virtual bool		On_Execute		(void);
 
 
 private:
-
-	int						maxRadius,
-							*Z, *x_diff, *y_diff, *rLength;
-
-	double					Exponent,	// Exponent fuer "inverse distance" Gewichte (calc_Steigung).
-							*V, *m, *g;
-
-	CSG_Grid				*pInput, *pOutput, *pRadius;
-
-
-	void					Initialize			(void);
-	void					Finalize			(void);
-
-	void					Init_Radius			(void);
-
-	double					Get_Laenge			(int x, int y);
-	double					Get_GSGrid_Variance	(int x, int y, int iRadius, int &Count);
-	double					Get_Steigung		(void);
 
 };
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//                                                       //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__GSGrid_Variance_H
+#endif // #ifndef HEADER_INCLUDED__GSPoints_Distances_H

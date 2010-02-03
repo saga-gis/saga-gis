@@ -576,6 +576,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\GSGrid_Trend_Surface.cpp"
+				>
+			</File>
+			<File
 				RelativePath="GSGrid_Variance.cpp"
 				>
 				<FileConfiguration
@@ -758,6 +762,10 @@
 			</File>
 			<File
 				RelativePath="GSGrid_Statistics.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GSGrid_Trend_Surface.h"
 				>
 			</File>
 			<File

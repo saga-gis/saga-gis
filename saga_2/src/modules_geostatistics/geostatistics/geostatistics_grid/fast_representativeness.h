@@ -69,7 +69,7 @@ class CFast_Representativeness : public CSG_Module_Grid
 public:
 	CFast_Representativeness(void);
 
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Neighborhoods") );	}
+	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Grids") );	}
 
 
 protected:

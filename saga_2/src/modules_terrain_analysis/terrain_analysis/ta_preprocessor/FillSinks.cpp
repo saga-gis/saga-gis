@@ -91,9 +91,9 @@ CFillSinks::CFillSinks(void)
 	);
 
 	Parameters.Add_Value(
-		NULL, "MINSLOPE", _TL("Slope"),
+		NULL, "MINSLOPE", _TL("Minimum Slope [Degree]"),
 		_TL("minimum slope angle preserved from one cell to the next, zero results in flat areas [Degree]"),
-		PARAMETER_TYPE_Double, 0.01
+		PARAMETER_TYPE_Double, 0.01, 0.0, true
 	);
 }
 

@@ -545,6 +545,10 @@ bool CModule_Library::_Create_DataObjects(CSG_Parameters *pParameters)
 							pParameter->Set_Value(pObject = new CSG_TIN   (s.c_str()));
 							break;
 
+						case PARAMETER_TYPE_PointCloud:
+							pParameter->Set_Value(pObject = new CSG_PointCloud(s.c_str()));
+							break;
+
 						case PARAMETER_TYPE_Shapes:
 							pParameter->Set_Value(pObject = new CSG_Shapes(s.c_str()));
 							break;

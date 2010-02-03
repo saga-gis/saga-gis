@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                  Geostatistics_Grid                   //
+//                 Geostatistics_Points                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   GSGrid_Variance.h                   //
+//                 GSPoints_Distances.cpp                //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2010 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -53,23 +51,12 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//                                                       //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__GSGrid_Variance_H
-#define HEADER_INCLUDED__GSGrid_Variance_H
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#include "MLB_Interface.h"
+#include "GSPoints_Distances.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -79,48 +66,98 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGSGrid_Variance : public CSG_Module_Grid
+CGSPoints_Distances::CGSPoints_Distances(void)
 {
-public:
-	CGSGrid_Variance(void);
-	virtual ~CGSGrid_Variance(void);
+	CSG_Parameter	*pNode;
 
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Grids" ));	}
+	//-----------------------------------------------------
+	Set_Name		(_TL("Minimum Distance Analysis"));
 
+	Set_Author		(SG_T("O.Conrad (c) 2010"));
 
-protected:
+	Set_Description(
+		_TL("")
+	);
 
-	virtual bool			On_Execute			(void);
+	//-----------------------------------------------------
+	pNode	= Parameters.Add_Shapes(
+		NULL	, "POINTS"		, _TL("Points"),
+		_TL(""),
+		PARAMETER_INPUT, SHAPE_TYPE_Point
+	);
 
-
-private:
-
-	int						maxRadius,
-							*Z, *x_diff, *y_diff, *rLength;
-
-	double					Exponent,	// Exponent fuer "inverse distance" Gewichte (calc_Steigung).
-							*V, *m, *g;
-
-	CSG_Grid				*pInput, *pOutput, *pRadius;
-
-
-	void					Initialize			(void);
-	void					Finalize			(void);
-
-	void					Init_Radius			(void);
-
-	double					Get_Laenge			(int x, int y);
-	double					Get_GSGrid_Variance	(int x, int y, int iRadius, int &Count);
-	double					Get_Steigung		(void);
-
-};
+	Parameters.Add_Table(
+		NULL	, "TABLE"		, _TL("Minimum Distance Analysis"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+}
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//                                                       //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__GSGrid_Variance_H
+#define SET_VALUE(s, v)	{ pRecord = pTable->Add_Record(); pRecord->Set_Value(0, s); pRecord->Set_Value(1, v); }
+
+//---------------------------------------------------------
+bool CGSPoints_Distances::On_Execute(void)
+{
+	//-----------------------------------------------------
+	CSG_Shapes	*pPoints	= Parameters("POINTS")	->asShapes();
+	CSG_Table	*pTable		= Parameters("TABLE")	->asTable();
+
+	//-----------------------------------------------------
+	CSG_PRQuadTree			QT(pPoints, 0);
+	CSG_Simple_Statistics	s;
+
+	double	x, y, z;
+
+	for(int iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
+	{
+		TSG_Point	p	= pPoints->Get_Shape(iPoint)->Get_Point(0);
+
+		if( QT.Select_Nearest_Points(p.x, p.y, 2) && QT.Get_Selected_Point(1, x, y, z) && x != p.x && y != p.y )
+		{
+			s.Add_Value(SG_Get_Distance(x, y, p.x, p.y));
+		}
+	}
+
+	//-----------------------------------------------------
+	if( s.Get_Count() > 0 )
+	{
+		CSG_Table_Record	*pRecord;
+
+		pTable->Destroy();
+		pTable->Set_Name(CSG_String::Format(SG_T("%s [%s]"), _TL("Minimum Distance Analysis"), pPoints->Get_Name()));
+
+		pTable->Add_Field(SG_T("NAME")	, SG_DATATYPE_String);
+		pTable->Add_Field(SG_T("VALUE")	, SG_DATATYPE_Double);
+
+		SET_VALUE(_TL("Mean Average")		, s.Get_Mean());
+		SET_VALUE(_TL("Minimum")			, s.Get_Minimum());
+		SET_VALUE(_TL("Maximum")			, s.Get_Maximum());
+		SET_VALUE(_TL("Standard Deviation")	, s.Get_StdDev());
+		SET_VALUE(_TL("Duplicates")			, pPoints->Get_Count() - s.Get_Count());
+
+		DataObject_Update(pTable, SG_UI_DATAOBJECT_SHOW);
+
+		return( true );
+	}
+
+	Message_Dlg(_TL("not enough observations"));
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

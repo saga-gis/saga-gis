@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.5 2007-02-13 12:49:25 tschorr Exp $
+# $Id: Makefile.am,v 1.6 2010-02-03 18:07:14 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -13,8 +13,10 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS)
 AM_LDFLAGS         = -fPIC -shared
 pkglib_LTLIBRARIES = libgeostatistics_points.la
 libgeostatistics_points_la_SOURCES =\
+GSPoints_Distances.cpp\
 GSPoints_Semi_Variances.cpp\
 MLB_Interface.cpp\
+GSPoints_Distances.h\
 GSPoints_Semi_Variances.h\
 MLB_Interface.h
 
