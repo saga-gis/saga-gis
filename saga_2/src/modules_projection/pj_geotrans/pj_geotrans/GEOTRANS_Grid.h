@@ -61,6 +61,13 @@
 #ifndef HEADER_INCLUDED__GEOTRANS_Grid_H
 #define HEADER_INCLUDED__GEOTRANS_Grid_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #include "GEOTRANS_Base.h"
 
@@ -76,27 +83,37 @@ class pj_geotrans_EXPORT CGEOTRANS_Grid : public CGEOTRANS_Base
 {
 public:
 	CGEOTRANS_Grid(void);
-	virtual ~CGEOTRANS_Grid(void);
 
-	virtual const SG_Char *	Get_MenuPath			(void)	{	return( _TL("R:Grid") );	}
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Grid") );	}
 
 
 protected:
 
-	virtual bool			On_Execute_Conversion	(void);
+	virtual bool				On_Execute_Conversion	(void);
 
-	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
 private:
 
-	void					Get_MinMax				(double &xMin, double &xMax, double &yMin, double &yMax, TSG_Point Point);
-	CSG_Grid *					Get_Target_Userdef		(CSG_Grid *pSource, bool bNearest);
-	CSG_Grid *					Get_Target_Autofit		(CSG_Grid *pSource, double Grid_Size, int AutoExtMode, bool bNearest);
+	CSG_Parameters_Grid_Target	m_Grid_Target;
 
-	bool					Set_Grid				(CSG_Grid *pSource, CSG_Grid   *pTarget, int Interpol);
-	bool					Set_Shapes				(CSG_Grid *pSource, CSG_Shapes *pTarget);
+
+	void						Get_MinMax				(TSG_Rect &r, double x, double y);
+	bool						Get_Target_Extent		(CSG_Grid *pSource, TSG_Rect &Extent, bool bEdge);
+	CSG_Grid *					Get_Target_Autofit		(CSG_Grid *pSource, TSG_Data_Type Type);
+
+	bool						Set_Grid				(CSG_Grid *pSource, CSG_Grid   *pTarget, int Interpol);
+	bool						Set_Shapes				(CSG_Grid *pSource, CSG_Shapes *pTarget);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__GEOTRANS_Grid_H

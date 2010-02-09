@@ -88,19 +88,23 @@
 //---------------------------------------------------------
 void		Add_ScatterPlot(CSG_Grid *pGrid)
 {
-	CSG_Parameter	*pNode;
-	CSG_Grid		*pGrid_Y;
-	CSG_Shapes		*pShapes;
-
 	//-----------------------------------------------------
 	CSG_Parameters	Parameters(NULL, wxString::Format(wxT("%s: %s"), LNG("[CAP] Scatterplot"), pGrid->Get_Name()), LNG(""), NULL, true);
+
+	Parameters.Add_Choice(
+		NULL	, "TYPE"	, LNG("Compare with..."), LNG(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			LNG("another grid"),
+			LNG("shapes")
+		)
+	);
 
 	Parameters.Add_Grid(
 		NULL	, "GRID"	, LNG("[CAP] Grid")		, LNG(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	pNode	= Parameters.Add_Shapes(
+	CSG_Parameter	*pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES"	, LNG("[CAP] Shapes")	, LNG(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
@@ -110,15 +114,40 @@ void		Add_ScatterPlot(CSG_Grid *pGrid)
 	);
 
 	//-----------------------------------------------------
-	if( DLG_Parameters(&Parameters) )
+	for( ;; )
 	{
-		if( (pGrid_Y = Parameters("GRID")->asGrid()) != NULL )
+		if( DLG_Parameters(&Parameters) == false )
 		{
-			new CVIEW_ScatterPlot(pGrid, pGrid_Y);
+			return;
 		}
-		else if( (pShapes = Parameters("SHAPES")->asShapes()) != NULL )
+
+		switch( Parameters("TYPE")->asInt() )
 		{
-			new CVIEW_ScatterPlot(pGrid, pShapes, Parameters("FIELD")->asInt());
+		case 0:
+			if( Parameters("GRID")->asGrid() )
+			{
+				new CVIEW_ScatterPlot(pGrid, Parameters("GRID")->asGrid());
+
+				return;
+			}
+			else
+			{
+				DLG_Message_Show(LNG("You have to choose a grid for comparison"), LNG("Scatterplot"));
+			}
+			break;
+
+		case 1:
+			if( Parameters("SHAPES")->asShapes() )
+			{
+				new CVIEW_ScatterPlot(pGrid, Parameters("SHAPES")->asShapes(), Parameters("FIELD")->asInt());
+
+				return;
+			}
+			else
+			{
+				DLG_Message_Show(LNG("You have to choose a shapes layer for comparison"), LNG("Scatterplot"));
+			}
+			break;
 		}
 	}
 }

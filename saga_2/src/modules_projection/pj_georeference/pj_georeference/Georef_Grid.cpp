@@ -142,23 +142,8 @@ CGeoref_Grid::CGeoref_Grid(void)
 	);
 
 	Parameters.Add_Choice(
-		Parameters("TARGET_NODE"),
-		"TARGET_TYPE"	, _TL("Target"),
-		_TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("User defined"),
-			_TL("Automatic fit"),
-			_TL("Grid Project"),
-			_TL("Grid"),
-			_TL("Shapes")
-		), 0
-	);
-
-	Parameters.Add_Choice(
 		Parameters("TARGET_NODE")	, "INTERPOLATION"	, _TL("Grid Interpolation"),
 		_TL(""),
-
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("Nearest Neigbhor"),
 			_TL("Bilinear Interpolation"),
@@ -168,6 +153,23 @@ CGeoref_Grid::CGeoref_Grid(void)
 		), 4
 	);
 
+
+	//-----------------------------------------------------
+	Parameters.Add_Choice(
+		Parameters("TARGET_NODE"),
+		"TARGET_TYPE"	, _TL("Target"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("user defined"),
+			_TL("automatic fit"),
+			_TL("grid"),
+			_TL("shapes")
+		), 0
+	);
+
+	//-----------------------------------------------------
+	m_Grid_Target.Add_Parameters_User(Add_Parameters("GET_USER", _TL("User Defined Grid")	, _TL("")));
+	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GET_GRID", _TL("Choose Grid")			, _TL("")));
 
 	//-----------------------------------------------------
 	pParameters	= Add_Parameters("GET_AUTOFIT"	, _TL("Automatic fit")	, _TL(""));
@@ -181,51 +183,8 @@ CGeoref_Grid::CGeoref_Grid(void)
 
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Extent only (fast)"),
-			_TL("Check each point")
+			_TL("Check each point|")
 		), 0
-	);
-
-
-	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_USER"		, _TL("User defined")		, _TL(""));
-
-	pParameters->Add_Value(
-		NULL, "XMIN"		, _TL("Left")		, _TL(""), PARAMETER_TYPE_Double
-	);
-	pParameters->Add_Value(
-		NULL, "XMAX"		, _TL("Right")		, _TL(""), PARAMETER_TYPE_Double
-	);
-	pParameters->Add_Value(
-		NULL, "YMIN"		, _TL("Bottom")		, _TL(""), PARAMETER_TYPE_Double
-	);
-	pParameters->Add_Value(
-		NULL, "YMAX"		, _TL("Top")		, _TL(""), PARAMETER_TYPE_Double
-	);
-
-	pParameters->Add_Value(
-		NULL, "SIZE"		, _TL("Grid Size")	, _TL(""), PARAMETER_TYPE_Double, 10000.0, 0.0, true
-	);
-
-	pParameters->Add_Info_Value(
-		NULL, "NX"			, _TL("Columns")	, _TL(""), PARAMETER_TYPE_Int
-	);
-	pParameters->Add_Info_Value(
-		NULL, "NY"			, _TL("Rows")		, _TL(""), PARAMETER_TYPE_Int
-	);
-
-
-	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_SYSTEM"	, _TL("Choose Grid Project"), _TL(""));
-
-	pParameters->Add_Grid_System(
-		NULL, "SYSTEM"		, _TL("System")		, _TL("")
-	);
-
-	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_GRID"		, _TL("Choose Grid")		, _TL(""));
-
-	pParameters->Add_Grid(
-		NULL, "GRID"		, _TL("Grid")		, _TL(""), PARAMETER_INPUT	, false
 	);
 
 
@@ -237,10 +196,6 @@ CGeoref_Grid::CGeoref_Grid(void)
 	);
 }
 
-//---------------------------------------------------------
-CGeoref_Grid::~CGeoref_Grid(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -251,72 +206,7 @@ CGeoref_Grid::~CGeoref_Grid(void)
 //---------------------------------------------------------
 int CGeoref_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	double	xMin, xMax, yMin, yMax, size;
-
-	if( !SG_STR_CMP(pParameters->Get_Identifier(), SG_T("GET_USER")) )
-	{
-		xMin	= pParameters->Get_Parameter("XMIN")->asDouble();
-		xMax	= pParameters->Get_Parameter("XMAX")->asDouble();
-		yMin	= pParameters->Get_Parameter("YMIN")->asDouble();
-		yMax	= pParameters->Get_Parameter("YMAX")->asDouble();
-		size	= pParameters->Get_Parameter("SIZE")->asDouble();
-
-		if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SIZE")) )
-		{
-			pParameters->Get_Parameter("XMAX")->Set_Value((xMax = xMin + ((int)((xMax - xMin) / size)) * size));
-			pParameters->Get_Parameter("YMAX")->Set_Value((yMax = yMin + ((int)((yMax - yMin) / size)) * size));
-		}
-		else 
-		{
-			if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("XMIN")) )
-			{
-				if( xMin >= xMax )
-				{
-					xMin	= xMax - pParameters->Get_Parameter("NX")->asInt() * size;
-					pParameter->Set_Value(xMin);
-				}
-
-				pParameters->Get_Parameter("XMAX")->Set_Value(xMin + ((int)((xMax - xMin) / size)) * size);
-			}
-			else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("XMAX")) )
-			{
-				if( xMin >= xMax )
-				{
-					xMax	= xMin + pParameters->Get_Parameter("NX")->asInt() * size;
-					pParameter->Set_Value(xMax);
-				}
-
-				pParameters->Get_Parameter("XMIN")->Set_Value(xMax - ((int)((xMax - xMin) / size)) * size);
-			}
-			else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("YMIN")) )
-			{
-				if( yMin >= yMax )
-				{
-					yMin	= yMax - pParameters->Get_Parameter("NY")->asInt() * size;
-					pParameter->Set_Value(yMin);
-				}
-
-				pParameters->Get_Parameter("YMAX")->Set_Value(yMin + ((int)((yMax - yMin) / size)) * size);
-			}
-			else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("YMAX")) )
-			{
-				if( yMin >= yMax )
-				{
-					yMax	= yMin + pParameters->Get_Parameter("NY")->asInt() * size;
-					pParameter->Set_Value(yMax);
-				}
-
-				pParameters->Get_Parameter("YMIN")->Set_Value(yMax - ((int)((yMax - yMin) / size)) * size);
-			}
-		}
-
-		pParameters->Get_Parameter("NX")->Set_Value(1 + (int)((xMax - xMin) / size));
-		pParameters->Get_Parameter("NY")->Set_Value(1 + (int)((yMax - yMin) / size));
-
-		return( true );
-	}
-
-	return( false );
+	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
 }
 
 
@@ -364,6 +254,7 @@ bool CGeoref_Grid::Get_Conversion(void)
 {
 	int				Interpolation;
 	TSG_Data_Type	Type;
+	TSG_Rect		Extent;
 	CSG_Grid		*pSource, *pGrid;
 	CSG_Shapes		*pShapes;
 
@@ -380,63 +271,52 @@ bool CGeoref_Grid::Get_Conversion(void)
 	switch( Parameters("TARGET_TYPE")->asInt() )
 	{
 	case 0:	// create new user defined grid...
-		pGrid	= Get_Target_Userdef(pSource, Type);
+		if( Get_Target_Extent(pSource, Extent, true) && m_Grid_Target.Init_User(Extent, pSource->Get_NY()) && Dlg_Parameters("GET_USER") )
+		{
+			pGrid	= m_Grid_Target.Get_User(Type);
+		}
 		break;
 
 	case 1:	// create new with chosen grid size and fitted extent...
 		if( Dlg_Parameters("GET_AUTOFIT") )
 		{
-			pGrid	= Get_Target_Autofit(
-						pSource,
-						Get_Parameters("GET_AUTOFIT")->Get_Parameter("GRIDSIZE")		->asDouble(),
-						Get_Parameters("GET_AUTOFIT")->Get_Parameter("AUTOEXTMODE")	->asInt(),
-						Type
-					);
+			pGrid	= Get_Target_Autofit(pSource, Type);
 		}
 		break;
 
-	case 2:	// select grid project...
-		if( Dlg_Parameters("GET_SYSTEM") )
-		{
-			pGrid	= SG_Create_Grid(
-						*Get_Parameters("GET_SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System()
-					);
-		}
-		break;
-
-	case 3:	// select grid...
+	case 2:	// select grid...
 		if( Dlg_Parameters("GET_GRID") )
 		{
-			pGrid	= Get_Parameters("GET_GRID")->Get_Parameter("GRID")->asGrid();
+			pGrid	= m_Grid_Target.Get_Grid(Type);
 		}
 		break;
 
-	case 4:	// shapes...
+	case 3:	// shapes...
 		if( Dlg_Parameters("GET_SHAPES") )
 		{
 			pShapes	= Get_Parameters("GET_SHAPES")->Get_Parameter("SHAPES")->asShapes();
+
+			if( pShapes == DATAOBJECT_NOTSET || pShapes == DATAOBJECT_CREATE )
+			{
+				Get_Parameters("GET_SHAPES")->Get_Parameter("SHAPES")->Set_Value(pShapes = SG_Create_Shapes());
+			}
 		}
 		break;
-
-	default:
-		return( false );
 	}
 
 	//-----------------------------------------------------
 	if( pShapes )
 	{
-		Set_Shapes	(pSource, pShapes);
+		Parameters("SHAPES")->Set_Value(pShapes);
 
-		Parameters("SHAPES")	->Set_Value(pShapes);
+		Set_Shapes(pSource, pShapes);
 	}
 
-
-	//-----------------------------------------------------
 	if( pGrid )
 	{
-		Set_Grid	(pSource, pGrid, Interpolation);
+		Parameters("GRID")  ->Set_Value(pGrid);
 
-		Parameters("GRID")		->Set_Value(pGrid);
+		Set_Grid(pSource, pGrid, Interpolation);
 	}
 
 	//-----------------------------------------------------
@@ -451,175 +331,105 @@ bool CGeoref_Grid::Get_Conversion(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Grid * CGeoref_Grid::Get_Target_Userdef(CSG_Grid *pSource, TSG_Data_Type Type)
+inline void CGeoref_Grid::Get_MinMax(TSG_Rect &r, double x, double y)
 {
-	int			x, y;
-	double		xMin, yMin, xMax, yMax, size;
-	TSG_Point	Pt_Source;
-	CSG_Grid		*pTarget;
-	CSG_Parameters	*pParameters;
-
-	pTarget	= NULL;
-
-	if( pSource )
+	if( m_Engine.Get_Converted(x, y) )
 	{
-		//-------------------------------------------------
-		xMin	= yMin	= 1.0;
-		xMax	= yMax	= 0.0;
-
-		for(y=0, Pt_Source.y=0; y<pSource->Get_NY(); y++, Pt_Source.y+=1)
+		if( r.xMin > r.xMax )
 		{
-			Pt_Source.x	= 0;
-			Get_MinMax(xMin, xMax, yMin, yMax, Pt_Source);
-
-			Pt_Source.x	= pSource->Get_NX();
-			Get_MinMax(xMin, xMax, yMin, yMax, Pt_Source);
+			r.xMin	= r.xMax	= x;
+		}
+		else if( r.xMin > x )
+		{
+			r.xMin	= x;
+		}
+		else if( r.xMax < x )
+		{
+			r.xMax	= x;
 		}
 
-		for(x=0, Pt_Source.x=0; x<pSource->Get_NX(); x++, Pt_Source.x+=1)
+		if( r.yMin > r.yMax )
 		{
-			Pt_Source.y	= 0;
-			Get_MinMax(xMin, xMax, yMin, yMax, Pt_Source);
-
-			Pt_Source.y	= pSource->Get_NY();
-			Get_MinMax(xMin, xMax, yMin, yMax, Pt_Source);
+			r.yMin	= r.yMax	= y;
 		}
-
-		//-------------------------------------------------
-		if( xMin < xMax && yMin < yMax )
+		else if( r.yMin > y )
 		{
-			pParameters	= Get_Parameters("GET_USER");
-
-			pParameters->Get_Parameter("XMIN")->Set_Value(xMin);
-			pParameters->Get_Parameter("XMAX")->Set_Value(xMax);
-			pParameters->Get_Parameter("YMIN")->Set_Value(yMin);
-			pParameters->Get_Parameter("YMAX")->Set_Value(yMax);
-			size	= (yMax - yMin) / pSource->Get_NY();
-			pParameters->Get_Parameter("SIZE")->Set_Value(size);
-			pParameters->Get_Parameter("NX")->Set_Value(1 + (int)((xMax - xMin) / size));
-			pParameters->Get_Parameter("NY")->Set_Value(1 + (int)((yMax - yMin) / size));
-
-			if( Dlg_Parameters("GET_USER") )
-			{
-				size	= pParameters->Get_Parameter("SIZE")->asDouble();
-
-				pTarget	= SG_Create_Grid(
-					Type,
-					pParameters->Get_Parameter("NX")->asInt(),
-					pParameters->Get_Parameter("NY")->asInt(),
-					size,
-					pParameters->Get_Parameter("XMIN")->asDouble(),
-					pParameters->Get_Parameter("YMIN")->asDouble()
-				);
-			}
+			r.yMin	= y;
+		}
+		else if( r.yMax < y )
+		{
+			r.yMax	= y;
 		}
 	}
-
-	return( pTarget );
 }
 
 //---------------------------------------------------------
-CSG_Grid * CGeoref_Grid::Get_Target_Autofit(CSG_Grid *pSource, double Grid_Size, int AutoExtMode, TSG_Data_Type Type)
+bool CGeoref_Grid::Get_Target_Extent(CSG_Grid *pSource, TSG_Rect &Extent, bool bEdge)
 {
-	int			x, y;
-	double		xMin, yMin, xMax, yMax;
-	TSG_Point	Pt_Source;
-	CSG_Grid		*pTarget;
-
-	pTarget	= NULL;
-
-	if( pSource )
+	if( !pSource )
 	{
-		xMin	= yMin	= 1.0;
-		xMax	= yMax	= 0.0;
+		return( false );
+	}
 
-		//---------------------------------------------
-		switch( AutoExtMode )
+	int			x, y;
+
+	Extent.xMin	= Extent.yMin	= 1.0;
+	Extent.xMax	= Extent.yMax	= 0.0;
+
+	if( bEdge )
+	{
+		double		d;
+
+		for(y=0, d=pSource->Get_YMin(); y<pSource->Get_NY(); y++, d+=pSource->Get_Cellsize())
 		{
-		case 0:	default:
-			for(y=0, Pt_Source.y=0; y<pSource->Get_NY(); y++, Pt_Source.y+=1)
+			Get_MinMax(Extent, pSource->Get_XMin(), d);
+			Get_MinMax(Extent, pSource->Get_XMax(), d);
+		}
+
+		for(x=0, d=pSource->Get_XMin(); x<pSource->Get_NX(); x++, d+=pSource->Get_Cellsize())
+		{
+			Get_MinMax(Extent, d, pSource->Get_YMin());
+			Get_MinMax(Extent, d, pSource->Get_YMax());
+		}
+	}
+	else
+	{
+		TSG_Point	p;
+
+		for(y=0, p.y=pSource->Get_YMin(); y<pSource->Get_NY() && Set_Progress(y, pSource->Get_NY()); y++, p.y+=pSource->Get_Cellsize())
+		{
+			for(x=0, p.x=pSource->Get_XMin(); x<pSource->Get_NX(); x++, p.x+=pSource->Get_Cellsize())
 			{
-				Pt_Source.x	= 0;
-				Get_MinMax(xMin, xMax, yMin, yMax, Pt_Source);
-
-				Pt_Source.x	= pSource->Get_NX();
-				Get_MinMax(xMin, xMax, yMin, yMax, Pt_Source);
-			}
-
-			for(x=0, Pt_Source.x=0; x<pSource->Get_NX(); x++, Pt_Source.x+=1)
-			{
-				Pt_Source.y	= 0;
-				Get_MinMax(xMin, xMax, yMin, yMax, Pt_Source);
-
-				Pt_Source.y	= pSource->Get_NY();
-				Get_MinMax(xMin, xMax, yMin, yMax, Pt_Source);
-			}
-
-			break;
-
-		//---------------------------------------------
-		case 1:
-			for(y=0, Pt_Source.y=0; y<pSource->Get_NY() && Set_Progress(y, pSource->Get_NY()); y++, Pt_Source.y+=1)
-			{
-				for(x=0, Pt_Source.x=0; x<pSource->Get_NX(); x++, Pt_Source.x+=1)
+				if( !pSource->is_NoData(x, y) )
 				{
-					if( !pSource->is_NoData(x, y) )
-					{
-						Get_MinMax(xMin, xMax, yMin, yMax, Pt_Source);
-					}
+					Get_MinMax(Extent, p.x, p.y);
 				}
 			}
-
-			break;
-		}
-
-		//---------------------------------------------
-		if( is_Progress() && xMin < xMax && yMin < yMax )
-		{
-			pTarget	= SG_Create_Grid(
-				Type,
-				1 + (int)((xMax - xMin) / Grid_Size),
-				1 + (int)((yMax - yMin) / Grid_Size),
-				Grid_Size,
-				xMin, yMin
-			);
 		}
 	}
 
-	return( pTarget );
+	return( is_Progress() && Extent.xMin < Extent.xMax && Extent.yMin < Extent.yMax );
 }
 
 //---------------------------------------------------------
-inline void CGeoref_Grid::Get_MinMax(double &xMin, double &xMax, double &yMin, double &yMax, TSG_Point Point)
+CSG_Grid * CGeoref_Grid::Get_Target_Autofit(CSG_Grid *pSource, TSG_Data_Type Type)
 {
-	if( m_Engine.Get_Converted(Point) )
-	{
-		if( xMin > xMax )
-		{
-			xMin	= xMax	= Point.x;
-		}
-		else if( xMin > Point.x )
-		{
-			xMin	= Point.x;
-		}
-		else if( xMax < Point.x )
-		{
-			xMax	= Point.x;
-		}
+	bool		bEdge		= Get_Parameters("GET_AUTOFIT")->Get_Parameter("AUTOEXTMODE")	->asInt() == 0;
+	double		Cellsize	= Get_Parameters("GET_AUTOFIT")->Get_Parameter("GRIDSIZE")		->asDouble();
+	TSG_Rect	Extent;
 
-		if( yMin > yMax )
-		{
-			yMin	= yMax	= Point.y;
-		}
-		else if( yMin > Point.y )
-		{
-			yMin	= Point.y;
-		}
-		else if( yMax < Point.y )
-		{
-			yMax	= Point.y;
-		}
+	if( Get_Target_Extent(pSource, Extent, bEdge) )
+	{
+		return( SG_Create_Grid(Type,
+			1 + (int)((Extent.xMax - Extent.xMin) / Cellsize),
+			1 + (int)((Extent.yMax - Extent.yMin) / Cellsize),
+			Cellsize,
+			Extent.xMin,
+			Extent.yMin
+		));
 	}
+
+	return( NULL );
 }
 
 

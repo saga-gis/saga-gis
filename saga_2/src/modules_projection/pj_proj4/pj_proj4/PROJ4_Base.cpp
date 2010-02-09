@@ -267,11 +267,13 @@ bool CPROJ4_Base::Set_Inverse(bool bOn)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CPROJ4_Base::Get_Proj_Name(void)
+CSG_String CPROJ4_Base::Get_Proj_Name(bool bDestination)
 {
-	if( m_pPrjDst )
+	PJ	*pProjection	= bDestination ? m_pPrjDst : m_pPrjSrc;
+
+	if( pProjection )
 	{
-		return( CSG_String(m_pPrjDst->descr).BeforeFirst('\n') );
+		return( CSG_String(pProjection->descr).BeforeFirst('\n') );
 	}
 
 	return( _TL("") );
@@ -348,11 +350,11 @@ bool CPROJ4_Base::_Get_Projection(CSG_String &sPrj, CSG_Parameters &P)
 
 	sPrj	+= STR_ADD_STR(SG_T("proj")	, SG_STR_MBTOSG(pj_list[P("PROJ_TYPE")->asInt()].id));
 
-	sPrj	+= STR_ADD_FLT(SG_T("lon_0")	, P("LON_0")->asDouble());
-	sPrj	+= STR_ADD_FLT(SG_T("lat_0")	, P("LAT_0")->asDouble());
+	if( P("LON_0")->asDouble() )	sPrj	+= STR_ADD_FLT(SG_T("lon_0")	, P("LON_0")->asDouble());
+	if( P("LAT_0")->asDouble() )	sPrj	+= STR_ADD_FLT(SG_T("lat_0")	, P("LAT_0")->asDouble());
 
-	sPrj	+= STR_ADD_FLT(SG_T("x_0")		, P("X_0"  )->asDouble());
-	sPrj	+= STR_ADD_FLT(SG_T("y_0")		, P("Y_0"  )->asDouble());
+	if( P("X_0"  )->asDouble() )	sPrj	+= STR_ADD_FLT(SG_T("x_0")		, P("X_0"  )->asDouble());
+	if( P("Y_0"  )->asDouble() )	sPrj	+= STR_ADD_FLT(SG_T("y_0")		, P("Y_0"  )->asDouble());
 
 	if( P("K_0")->asDouble() != 1.0 && P("K_0")->asDouble() > 0.0 )
 	{
@@ -362,14 +364,17 @@ bool CPROJ4_Base::_Get_Projection(CSG_String &sPrj, CSG_Parameters &P)
 	sPrj	+= STR_ADD_STR(SG_T("units")	, SG_STR_MBTOSG(pj_units[P("UNIT")->asInt()].id));
 
 	//-----------------------------------------------------
-	if( P("DATUM_DEF")->asInt() == 0 )	// predefined datum
+	switch( P("DATUM_DEF")->asInt() )
 	{
+	case 0:	// predefined datum
+
 		sPrj	+= STR_ADD_STR(SG_T("datum")	, SG_STR_MBTOSG(pj_datums[P("DATUM")->asInt()].id));
-	}
+
+		break;
 
 	//-----------------------------------------------------
-	else								// user defined datum
-	{
+	case 1:	// user defined datum
+
 		switch( P("ELLIPSOID")->asInt() )
 		{
 		case 0:	// Predefined Ellipsoid
@@ -424,6 +429,14 @@ bool CPROJ4_Base::_Get_Projection(CSG_String &sPrj, CSG_Parameters &P)
 			);
 			break;
 		}
+
+		break;
+	}
+
+	// datum shift grid...
+	if( SG_File_Exists(P("DATUM_GRID")->asString()) )
+	{
+		sPrj	+= STR_ADD_STR(SG_T("nadgrids"), P("DATUM_GRID")->asString());
 	}
 
 	//-----------------------------------------------------
@@ -508,6 +521,8 @@ bool CPROJ4_Base::_Init_Projection(CSG_Parameters &P)
 	);
 
 	//-----------------------------------------------------
+	// Predefined datum...
+
 	sList.Clear();
 
 	for(struct PJ_DATUMS *pDatum=pj_datums; pDatum->id; ++pDatum)
@@ -526,6 +541,19 @@ bool CPROJ4_Base::_Init_Projection(CSG_Parameters &P)
 	{
 		pNode_2	= P.Add_Choice(pNode_1, "DATUM", _TL("Predefined Datum"), _TL(""), sList);
 	}
+
+
+	//-----------------------------------------------------
+	// Datum shift grid(s)...
+
+	P.Add_FilePath(
+		pNode_1, "DATUM_GRID"		, _TL("Datum Shift Grid File"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s"),
+			_TL("NTv2 Grid Shift Binary (*.gsb)")	, SG_T("*.gsb"),
+			_TL("All Files")						, SG_T("*.*")
+		), NULL, false, false, false
+	);
 
 
 	//-----------------------------------------------------
@@ -605,10 +633,11 @@ bool CPROJ4_Base::_Init_Projection(CSG_Parameters &P)
 	pNode_3	= P.Add_Choice(
 		pNode_2, "DATUM_SHIFT"	, _TL("Datum Shift"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
 			_TL("none"),
 			_TL("3 parameters (translation only)"),
-			_TL("7 parameters")
+			_TL("7 parameters"),
+			_TL("Datum Shift Grid")
 		)
 	);
 

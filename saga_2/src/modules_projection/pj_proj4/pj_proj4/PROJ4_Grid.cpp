@@ -121,13 +121,13 @@ CPROJ4_Grid::CPROJ4_Grid(int Interface, bool bInputList)
 			"TARGET"		, _TL("Target"),
 			_TL("")
 		);
-
-		Parameters.Add_Shapes_Output(
-			NULL,
-			"SHAPES"		, _TL("Shapes"),
-			_TL("")
-		);
 	}
+
+	Parameters.Add_Shapes_Output(
+		NULL,
+		"SHAPES"		, _TL("Shapes"),
+		_TL("")
+	);
 
 
 	//-----------------------------------------------------
@@ -151,19 +151,6 @@ CPROJ4_Grid::CPROJ4_Grid(int Interface, bool bInputList)
 	);
 
 	Parameters.Add_Choice(
-		Parameters("TARGET_NODE"),
-		"TARGET_TYPE"	, _TL("Target"),
-		_TL(""),
-		CSG_String::Format(m_bInputList ? SG_T("%s|%s|%s|") : SG_T("%s|%s|%s|%s|%s|"),
-			_TL("user defined"),
-			_TL("automatic fit"),
-			_TL("grid system"),
-			_TL("grid"),
-			_TL("shapes")
-		), 0
-	);
-
-	Parameters.Add_Choice(
 		Parameters("TARGET_NODE")	, "INTERPOLATION"	, _TL("Interpolation"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
@@ -175,6 +162,23 @@ CPROJ4_Grid::CPROJ4_Grid(int Interface, bool bInputList)
 		), 4
 	);
 
+
+	//-----------------------------------------------------
+	Parameters.Add_Choice(
+		Parameters("TARGET_NODE"),
+		"TARGET_TYPE"	, _TL("Target"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("user defined"),
+			_TL("automatic fit"),
+			_TL("grid"),
+			_TL("shapes")
+		), 0
+	);
+
+	//-----------------------------------------------------
+	m_Grid_Target.Add_Parameters_User(Add_Parameters("GET_USER", _TL("User Defined Grid")	, _TL("")));
+	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GET_GRID", _TL("Choose Grid")			, _TL("")));
 
 	//-----------------------------------------------------
 	pParameters	= Add_Parameters("GET_AUTOFIT"	, _TL("Automatic fit")	, _TL(""));
@@ -192,50 +196,12 @@ CPROJ4_Grid::CPROJ4_Grid(int Interface, bool bInputList)
 		), 0
 	);
 
-
-	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_USER"		, _TL("User defined")		, _TL(""));
-
-	pParameters->Add_Value(
-		NULL, "XMIN"		, _TL("Left")		, _TL(""), PARAMETER_TYPE_Double
-	);
-	pParameters->Add_Value(
-		NULL, "XMAX"		, _TL("Right")		, _TL(""), PARAMETER_TYPE_Double
-	);
-	pParameters->Add_Value(
-		NULL, "YMIN"		, _TL("Bottom")		, _TL(""), PARAMETER_TYPE_Double
-	);
-	pParameters->Add_Value(
-		NULL, "YMAX"		, _TL("Top")		, _TL(""), PARAMETER_TYPE_Double
-	);
-
-	pParameters->Add_Value(
-		NULL, "SIZE"		, _TL("Grid Size")	, _TL(""), PARAMETER_TYPE_Double, 10000.0, 0.0, true
-	);
-
-	pParameters->Add_Info_Value(
-		NULL, "NX"			, _TL("Columns")	, _TL(""), PARAMETER_TYPE_Int
-	);
-	pParameters->Add_Info_Value(
-		NULL, "NY"			, _TL("Rows")		, _TL(""), PARAMETER_TYPE_Int
-	);
-
-
 	//-----------------------------------------------------
 	pParameters	= Add_Parameters("GET_SYSTEM"	, _TL("Choose Grid Project"), _TL(""));
 
 	pParameters->Add_Grid_System(
 		NULL, "SYSTEM"		, _TL("System")		, _TL("")
 	);
-
-
-	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_GRID"		, _TL("Choose Grid")		, _TL(""));
-
-	pParameters->Add_Grid(
-		NULL, "GRID"		, _TL("Grid")		, _TL(""), PARAMETER_INPUT	, false
-	);
-
 
 	//-----------------------------------------------------
 	pParameters	= Add_Parameters("GET_SHAPES"	, _TL("Choose Shapes")		, _TL(""));
@@ -253,9 +219,25 @@ CPROJ4_Grid::CPROJ4_Grid(int Interface, bool bInputList)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CPROJ4_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CPROJ4_Grid::On_Execute_Conversion(void)
 {
-	CSG_Grid_System	System;
+	TSG_Data_Type	Type;
+	TSG_Rect		Extent;
+	CSG_Grid		*pSource, *pGrid;
+	CSG_Shapes		*pShapes;
 
 	m_Interpolation	= Parameters("INTERPOLATION")->asInt();
 
@@ -265,49 +247,136 @@ bool CPROJ4_Grid::On_Execute_Conversion(void)
 		CSG_Parameter_Grid_List	*pSources	= Parameters("SOURCE")->asGridList();
 		CSG_Parameter_Grid_List	*pTargets	= Parameters("TARGET")->asGridList();
 
-		if( pSources->Get_Count() > 0 && Get_Target_System(pSources->asGrid(0)->Get_System(), System) )
+		if( pSources->Get_Count() < 1 )
 		{
-			return( Set_Grids(System, pSources, pTargets) );
+			return( false );
+		}
+
+		pSource			= pSources->asGrid(0);
+		pGrid			= NULL;
+		pShapes			= NULL;
+		Type			= m_Interpolation == 0 ? pSource->Get_Type() : SG_DATATYPE_Float;
+
+		switch( Parameters("TARGET_TYPE")->asInt() )
+		{
+		case 0:	// create new user defined grid...
+			if( Get_Target_Extent(pSource, Extent, true) && m_Grid_Target.Init_User(Extent, pSource->Get_NY()) && Dlg_Parameters("GET_USER") )
+			{
+				pGrid	= m_Grid_Target.Get_User(Type);
+			}
+			break;
+
+		case 1:	// create new with chosen grid size and fitted extent...
+			if( Dlg_Parameters("GET_AUTOFIT") )
+			{
+				pGrid	= Get_Target_Autofit(pSource, Type);
+			}
+			break;
+
+		case 2:	// select grid system...
+			if( Dlg_Parameters("GET_SYSTEM") && Get_Parameters("GET_SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System()->is_Valid() )
+			{
+				pGrid	= SG_Create_Grid(*Get_Parameters("GET_SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System(), Type);
+			}
+			break;
+
+		case 3:	// shapes...
+			if( Dlg_Parameters("GET_SHAPES") )
+			{
+				pShapes	= Get_Parameters("GET_SHAPES")->Get_Parameter("SHAPES")->asShapes();
+
+				if( pShapes == DATAOBJECT_NOTSET || pShapes == DATAOBJECT_CREATE )
+				{
+					Get_Parameters("GET_SHAPES")->Get_Parameter("SHAPES")->Set_Value(pShapes = SG_Create_Shapes());
+				}
+			}
+			break;
+		}
+
+		//-------------------------------------------------
+		if( pShapes )
+		{
+			Parameters("SHAPES")->Set_Value(pShapes);
+
+			return( Set_Shapes(pSources, pShapes) );
+		}
+
+		if( pGrid )
+		{
+			pTargets->Del_Items();
+
+			pTargets->Add_Item(pGrid);
+
+			Init_Target(pSource, pGrid);
+
+			for(int i=1; i<pSources->Get_Count(); i++)
+			{
+				pTargets->Add_Item(SG_Create_Grid(pGrid->Get_System(), m_Interpolation == 0 ? pSources->asGrid(i)->Get_Type() : SG_DATATYPE_Float));
+
+				Init_Target(pSources->asGrid(i), pTargets->asGrid(i));
+			}
+
+			return( Set_Grids(pSources, pTargets) );
 		}
 	}
 
 	//-----------------------------------------------------
 	else
 	{
-		CSG_Grid	*pSource, *pTarget;
-
-		pSource		= Parameters("SOURCE")->asGrid();
+		pSource			= Parameters("SOURCE")->asGrid();
+		pGrid			= NULL;
+		pShapes			= NULL;
+		Type			= m_Interpolation == 0 ? pSource->Get_Type() : SG_DATATYPE_Float;
 
 		switch( Parameters("TARGET_TYPE")->asInt() )
 		{
-		default:	// create new grid...
-			if( Get_Target_System(pSource->Get_System(), System) )
+		case 0:	// create new user defined grid...
+			if( Get_Target_Extent(pSource, Extent, true) && m_Grid_Target.Init_User(Extent, pSource->Get_NY()) && Dlg_Parameters("GET_USER") )
 			{
-				Parameters("TARGET")->Set_Value(pTarget	= SG_Create_Grid(System, m_Interpolation == 0 ? pSource->Get_Type() : SG_DATATYPE_Float));
-
-				return( Set_Grid(pSource, pTarget) );
+				pGrid	= m_Grid_Target.Get_User(Type);
 			}
 			break;
 
-		case 3:		// select existing grid...
+		case 1:	// create new with chosen grid size and fitted extent...
+			if( Dlg_Parameters("GET_AUTOFIT") )
+			{
+				pGrid	= Get_Target_Autofit(pSource, Type);
+			}
+			break;
+
+		case 2:	// select grid...
 			if( Dlg_Parameters("GET_GRID") )
 			{
-				Parameters("TARGET")->Set_Value(pTarget	= Get_Parameters("GET_GRID")->Get_Parameter("GRID")->asGrid());
-
-				return( Set_Grid(pSource, pTarget) );
+				pGrid	= m_Grid_Target.Get_Grid(Type);
 			}
 			break;
 
-		case 4:		// create grid points as shapes...
+		case 3:	// shapes...
 			if( Dlg_Parameters("GET_SHAPES") )
 			{
-				CSG_Shapes	*pShapes;
+				pShapes	= Get_Parameters("GET_SHAPES")->Get_Parameter("SHAPES")->asShapes();
 
-				Parameters("SHAPES")->Set_Value(pShapes	= Get_Parameters("GET_SHAPES")->Get_Parameter("SHAPES")->asShapes());
-
-				return( Set_Shapes(pSource, pShapes) );
+				if( pShapes == DATAOBJECT_NOTSET || pShapes == DATAOBJECT_CREATE )
+				{
+					Get_Parameters("GET_SHAPES")->Get_Parameter("SHAPES")->Set_Value(pShapes = SG_Create_Shapes());
+				}
 			}
 			break;
+		}
+
+		//-------------------------------------------------
+		if( pShapes )
+		{
+			Parameters("SHAPES")->Set_Value(pShapes);
+
+			return( Set_Shapes(pSource, pShapes) );
+		}
+
+		if( pGrid )
+		{
+			Parameters("TARGET")->Set_Value(pGrid);
+
+			return( Set_Grid(pSource, pGrid) );
 		}
 	}
 
@@ -323,43 +392,93 @@ bool CPROJ4_Grid::On_Execute_Conversion(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPROJ4_Grid::Set_Grids(const CSG_Grid_System &System, CSG_Parameter_Grid_List *pSources, CSG_Parameter_Grid_List *pTargets)
+bool CPROJ4_Grid::Set_Grids(CSG_Parameter_Grid_List *pSources, CSG_Parameter_Grid_List *pTargets)
 {
-	if( pSources && pSources->Get_Count() > 0 && pTargets && System.is_Valid() && Set_Inverse() )
+	if( !pSources || pSources->Get_Count() < 1 || !pTargets || pTargets->Get_Count() != pSources->Get_Count() || !Set_Inverse() )
 	{
-		int			x, y, i;
-		double		z;
-		TSG_Point	Pt_Source, Pt_Target;
-		CSG_Grid	*pX, *pY;
+		return( false );
+	}
 
-		Init_XY(System, &pX, &pY);
+	//-------------------------------------------------
+	int				x, y, i;
+	double			z;
+	TSG_Point		Pt_Source, Pt_Target;
+	CSG_Grid_System	System;
+	CSG_Grid		*pX, *pY;
 
-		pTargets->Del_Items();
+	System	= pTargets->asGrid(0)->Get_System();
+
+	Init_XY(System, &pX, &pY);
+
+	//-------------------------------------------------
+	for(y=0, Pt_Target.y=System.Get_YMin(); y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y++, Pt_Target.y+=System.Get_Cellsize())
+	{
+		for(x=0, Pt_Target.x=System.Get_XMin(); x<System.Get_NX(); x++, Pt_Target.x+=System.Get_Cellsize())
+		{
+			Pt_Source	= Pt_Target;
+
+			if( Get_Converted(Pt_Source) )
+			{
+				if( pX )	pX->Set_Value(x, y, Pt_Source.x);
+				if( pY )	pY->Set_Value(x, y, Pt_Source.y);
+
+				for(i=0; i<pSources->Get_Count(); i++)
+				{
+					if( pSources->asGrid(i)->Get_Value(Pt_Source, z, m_Interpolation) )
+					{
+						pTargets->asGrid(i)->Set_Value(x, y, z);
+					}
+				}
+			}
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CPROJ4_Grid::Set_Shapes(CSG_Parameter_Grid_List *pSources, CSG_Shapes *pTarget)
+{
+	int			x, y, i;
+	double		z;
+	TSG_Point	Pt_Source, Pt_Target;
+	CSG_Grid	*pSource;
+	CSG_Shape	*pShape;
+
+	if( pSources && pSources->Get_Count() > 0 && pTarget )
+	{
+		pSource	= pSources->asGrid(0);
+
+		pTarget->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), pSource->Get_Name(), Get_Proj_Name().c_str()));
 
 		for(i=0; i<pSources->Get_Count(); i++)
 		{
-			pTargets->Add_Item(SG_Create_Grid(System, pSources->asGrid(i)->Get_Type()));
-
-			Init_Target(pSources->asGrid(i), pTargets->asGrid(i));
+			pTarget->Add_Field(pSources->asGrid(i)->Get_Name(), pSources->asGrid(i)->Get_Type());
 		}
 
-		//-------------------------------------------------
-		for(y=0, Pt_Target.y=System.Get_YMin(); y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y++, Pt_Target.y+=System.Get_Cellsize())
+		for(y=0, Pt_Source.y=pSource->Get_YMin(); y<pSource->Get_NY() && Set_Progress(y, pSource->Get_NY()); y++, Pt_Source.y+=pSource->Get_Cellsize())
 		{
-			for(x=0, Pt_Target.x=System.Get_XMin(); x<System.Get_NX(); x++, Pt_Target.x+=System.Get_Cellsize())
+			for(x=0, Pt_Source.x=pSource->Get_XMin(); x<pSource->Get_NX(); x++, Pt_Source.x+=pSource->Get_Cellsize())
 			{
-				Pt_Source	= Pt_Target;
-
-				if( Get_Converted(Pt_Source) )
+				if( !pSource->is_NoData(x, y) )
 				{
-					if( pX )	pX->Set_Value(x, y, Pt_Source.x);
-					if( pY )	pY->Set_Value(x, y, Pt_Source.y);
+					Pt_Target	= Pt_Source;
 
-					for(i=0; i<pSources->Get_Count(); i++)
+					if( Get_Converted(Pt_Target) )
 					{
-						if( pSources->asGrid(i)->Get_Value(Pt_Source, z, m_Interpolation) )
+						pShape	= pTarget->Add_Shape();
+						pShape->Add_Point(Pt_Target);
+
+						for(i=0; i<pSources->Get_Count(); i++)
 						{
-							pTargets->asGrid(i)->Set_Value(x, y, z);
+							if( pSources->asGrid(i)->Get_Value(Pt_Source, z, m_Interpolation) )
+							{
+								pShape->Set_Value(i, z);
+							}
+							else
+							{
+								pShape->Set_NoData(i);
+							}
 						}
 					}
 				}
@@ -371,6 +490,11 @@ bool CPROJ4_Grid::Set_Grids(const CSG_Grid_System &System, CSG_Parameter_Grid_Li
 
 	return( false );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CPROJ4_Grid::Set_Grid(CSG_Grid *pSource, CSG_Grid *pTarget)
@@ -483,7 +607,7 @@ bool CPROJ4_Grid::Init_Target(CSG_Grid *pSource, CSG_Grid *pTarget)
 	{
 		pTarget->Set_NoData_Value_Range(pSource->Get_NoData_Value(), pSource->Get_NoData_hiValue());
 		pTarget->Set_ZFactor(pSource->Get_ZFactor());
-		pTarget->Set_Name	(CSG_String::Format(SG_T("%s [%s]"), pSource->Get_Name(), Get_Proj_Name().c_str()));
+		pTarget->Set_Name	(CSG_String::Format(SG_T("%s [%s]"), pSource->Get_Name(), Get_Proj_Name(false).c_str()));
 		pTarget->Set_Unit	(pSource->Get_Unit());
 		pTarget->Assign_NoData();
 
@@ -501,255 +625,105 @@ bool CPROJ4_Grid::Init_Target(CSG_Grid *pSource, CSG_Grid *pTarget)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline bool CPROJ4_Grid::Get_MinMax(TSG_Rect &r, TSG_Point p)
+inline void CPROJ4_Grid::Get_MinMax(TSG_Rect &r, double x, double y)
 {
-	if( Get_Converted(p) )
+	if( Get_Converted(x, y) )
 	{
 		if( r.xMin > r.xMax )
 		{
-			r.xMin	= r.xMax	= p.x;
+			r.xMin	= r.xMax	= x;
 		}
-		else if( r.xMin > p.x )
+		else if( r.xMin > x )
 		{
-			r.xMin	= p.x;
+			r.xMin	= x;
 		}
-		else if( r.xMax < p.x )
+		else if( r.xMax < x )
 		{
-			r.xMax	= p.x;
+			r.xMax	= x;
 		}
 
 		if( r.yMin > r.yMax )
 		{
-			r.yMin	= r.yMax	= p.y;
+			r.yMin	= r.yMax	= y;
 		}
-		else if( r.yMin > p.y )
+		else if( r.yMin > y )
 		{
-			r.yMin	= p.y;
+			r.yMin	= y;
 		}
-		else if( r.yMax < p.y )
+		else if( r.yMax < y )
 		{
-			r.yMax	= p.y;
+			r.yMax	= y;
 		}
-
-		return( true );
 	}
-
-	return( false );
 }
 
 //---------------------------------------------------------
-bool CPROJ4_Grid::Get_Target_System(const CSG_Grid_System &Source, CSG_Grid_System &Target)
+bool CPROJ4_Grid::Get_Target_Extent(CSG_Grid *pSource, TSG_Rect &Extent, bool bEdge)
 {
-	switch( Parameters("TARGET_TYPE")->asInt() )
+	if( !pSource )
 	{
-	case 0:	// create new user defined grid...
-		return( Get_Target_Userdef(Source, Target) );
-
-	case 1:	// create new with chosen cell size and fitted extent...
-		return( Get_Target_Autofit(Source, Target) );
-
-	case 2:	// select grid system...
-		if( Dlg_Parameters("GET_SYSTEM") )
-		{
-			Target	= *Get_Parameters("GET_SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System();
-
-			return( true );
-		}
-		break;
+		return( false );
 	}
 
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CPROJ4_Grid::Get_Target_Userdef(const CSG_Grid_System &Source, CSG_Grid_System &Target)
-{
 	int			x, y;
-	TSG_Point	p;
-	TSG_Rect	r;
 
-	r.xMin	= r.yMin	= 1.0;	r.xMax	= r.yMax	= 0.0;
+	Extent.xMin	= Extent.yMin	= 1.0;
+	Extent.xMax	= Extent.yMax	= 0.0;
 
-	//-------------------------------------------------
-	for(y=0, p.y=Source.Get_YMin(); y<Source.Get_NY(); y++, p.y+=Source.Get_Cellsize())
+	if( bEdge )
 	{
-		p.x	= Source.Get_XMin();	Get_MinMax(r, p);
-		p.x	= Source.Get_XMax();	Get_MinMax(r, p);
-	}
+		double		d;
 
-	for(x=0, p.x=Source.Get_XMin(); x<Source.Get_NX(); x++, p.x+=Source.Get_Cellsize())
-	{
-		p.y	= Source.Get_YMin();	Get_MinMax(r, p);
-		p.y	= Source.Get_YMax();	Get_MinMax(r, p);
-	}
-
-	//-------------------------------------------------
-	if( r.xMin < r.xMax && r.yMin < r.yMax )
-	{
-		CSG_Parameters	*pParameters	= Get_Parameters("GET_USER");
-		double			Cellsize		= (r.yMax - r.yMin) / Source.Get_NY();
-
-		pParameters->Get_Parameter("XMIN")	->Set_Value(r.xMin);
-		pParameters->Get_Parameter("XMAX")	->Set_Value(r.xMax);
-		pParameters->Get_Parameter("YMIN")	->Set_Value(r.yMin);
-		pParameters->Get_Parameter("YMAX")	->Set_Value(r.yMax);
-		pParameters->Get_Parameter("SIZE")	->Set_Value(Cellsize);
-		pParameters->Get_Parameter("NX")	->Set_Value(1 + (int)((r.xMax - r.xMin) / Cellsize));
-		pParameters->Get_Parameter("NY")	->Set_Value(1 + (int)((r.yMax - r.yMin) / Cellsize));
-
-		if( Dlg_Parameters("GET_USER") )
+		for(y=0, d=pSource->Get_YMin(); y<pSource->Get_NY(); y++, d+=pSource->Get_Cellsize())
 		{
-			Target.Assign(
-				pParameters->Get_Parameter("SIZE")	->asDouble(),
-				pParameters->Get_Parameter("XMIN")	->asDouble(),
-				pParameters->Get_Parameter("YMIN")	->asDouble(),
-				pParameters->Get_Parameter("NX")	->asInt(),
-				pParameters->Get_Parameter("NY")	->asInt()
-			);
-
-			return( true );
-		}
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CPROJ4_Grid::Get_Target_Autofit(const CSG_Grid_System &Source, CSG_Grid_System &Target)
-{
-	int			x, y;
-	TSG_Point	p;
-	TSG_Rect	r;
-
-	double	Cellsize	= Get_Parameters("GET_AUTOFIT")->Get_Parameter("GRIDSIZE")		->asDouble();
-	int		AutoExtMode	= Get_Parameters("GET_AUTOFIT")->Get_Parameter("AUTOEXTMODE")	->asInt();
-
-	r.xMin	= r.yMin	= 1.0;	r.xMax	= r.yMax	= 0.0;
-
-	//---------------------------------------------
-	switch( AutoExtMode )
-	{
-	case 0:	default:
-		for(y=0, p.y=Source.Get_YMin(); y<Source.Get_NY(); y++, p.y+=Source.Get_Cellsize())
-		{
-			p.x	= Source.Get_XMin();	Get_MinMax(r, p);
-			p.x	= Source.Get_XMax();	Get_MinMax(r, p);
+			Get_MinMax(Extent, pSource->Get_XMin(), d);
+			Get_MinMax(Extent, pSource->Get_XMax(), d);
 		}
 
-		for(x=0, p.x=Source.Get_XMin(); x<Source.Get_NX(); x++, p.x+=Source.Get_Cellsize())
+		for(x=0, d=pSource->Get_XMin(); x<pSource->Get_NX(); x++, d+=pSource->Get_Cellsize())
 		{
-			p.y	= Source.Get_YMin();	Get_MinMax(r, p);
-			p.y	= Source.Get_YMax();	Get_MinMax(r, p);
+			Get_MinMax(Extent, d, pSource->Get_YMin());
+			Get_MinMax(Extent, d, pSource->Get_YMax());
 		}
+	}
+	else
+	{
+		TSG_Point	p;
 
-		break;
-
-	//---------------------------------------------
-	case 1:
-		for(y=0, p.y=Source.Get_YMin(); y<Source.Get_NY() && Set_Progress(y, Source.Get_NY()); y++, p.y+=Source.Get_Cellsize())
+		for(y=0, p.y=pSource->Get_YMin(); y<pSource->Get_NY() && Set_Progress(y, pSource->Get_NY()); y++, p.y+=pSource->Get_Cellsize())
 		{
-			for(x=0, p.x=Source.Get_XMin(); x<Source.Get_NX(); x++, p.x+=Source.Get_Cellsize())
+			for(x=0, p.x=pSource->Get_XMin(); x<pSource->Get_NX(); x++, p.x+=pSource->Get_Cellsize())
 			{
-				Get_MinMax(r, p);
+				if( !pSource->is_NoData(x, y) )
+				{
+					Get_MinMax(Extent, p.x, p.y);
+				}
 			}
 		}
-
-		break;
 	}
 
-	//---------------------------------------------
-	if( is_Progress() && r.xMin < r.xMax && r.yMin < r.yMax )
+	return( is_Progress() && Extent.xMin < Extent.xMax && Extent.yMin < Extent.yMax );
+}
+
+//---------------------------------------------------------
+CSG_Grid * CPROJ4_Grid::Get_Target_Autofit(CSG_Grid *pSource, TSG_Data_Type Type)
+{
+	bool		bEdge		= Get_Parameters("GET_AUTOFIT")->Get_Parameter("AUTOEXTMODE")	->asInt() == 0;
+	double		Cellsize	= Get_Parameters("GET_AUTOFIT")->Get_Parameter("GRIDSIZE")		->asDouble();
+	TSG_Rect	Extent;
+
+	if( Get_Target_Extent(pSource, Extent, bEdge) )
 	{
-		Target.Assign(
+		return( SG_Create_Grid(Type,
+			1 + (int)((Extent.xMax - Extent.xMin) / Cellsize),
+			1 + (int)((Extent.yMax - Extent.yMin) / Cellsize),
 			Cellsize,
-			r.xMin, r.yMin,
-			1 + (int)((r.xMax - r.xMin) / Cellsize),
-			1 + (int)((r.yMax - r.yMin) / Cellsize)
-		);
+			Extent.xMin,
+			Extent.yMin
+		));
 	}
 
-	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#include <string.h>
-
-//---------------------------------------------------------
-int CPROJ4_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
-{
-	double	xMin, xMax, yMin, yMax, Cellsize;
-
-	if( !SG_STR_CMP(pParameters->Get_Identifier(), SG_T("GET_USER")) )
-	{
-		xMin		= pParameters->Get_Parameter("XMIN")->asDouble();
-		xMax		= pParameters->Get_Parameter("XMAX")->asDouble();
-		yMin		= pParameters->Get_Parameter("YMIN")->asDouble();
-		yMax		= pParameters->Get_Parameter("YMAX")->asDouble();
-		Cellsize	= pParameters->Get_Parameter("SIZE")->asDouble();
-
-		if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SIZE")) )
-		{
-			pParameters->Get_Parameter("XMAX")->Set_Value((xMax = xMin + ((int)((xMax - xMin) / Cellsize)) * Cellsize));
-			pParameters->Get_Parameter("YMAX")->Set_Value((yMax = yMin + ((int)((yMax - yMin) / Cellsize)) * Cellsize));
-		}
-		else 
-		{
-			if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("XMIN")) )
-			{
-				if( xMin >= xMax )
-				{
-					xMin	= xMax - pParameters->Get_Parameter("NX")->asInt() * Cellsize;
-					pParameter->Set_Value(xMin);
-				}
-
-				pParameters->Get_Parameter("XMAX")->Set_Value(xMin + ((int)((xMax - xMin) / Cellsize)) * Cellsize);
-			}
-			else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("XMAX")) )
-			{
-				if( xMin >= xMax )
-				{
-					xMax	= xMin + pParameters->Get_Parameter("NX")->asInt() * Cellsize;
-					pParameter->Set_Value(xMax);
-				}
-
-				pParameters->Get_Parameter("XMIN")->Set_Value(xMax - ((int)((xMax - xMin) / Cellsize)) * Cellsize);
-			}
-			else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("YMIN")) )
-			{
-				if( yMin >= yMax )
-				{
-					yMin	= yMax - pParameters->Get_Parameter("NY")->asInt() * Cellsize;
-					pParameter->Set_Value(yMin);
-				}
-
-				pParameters->Get_Parameter("YMAX")->Set_Value(yMin + ((int)((yMax - yMin) / Cellsize)) * Cellsize);
-			}
-			else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("YMAX")) )
-			{
-				if( yMin >= yMax )
-				{
-					yMax	= yMin + pParameters->Get_Parameter("NY")->asInt() * Cellsize;
-					pParameter->Set_Value(yMax);
-				}
-
-				pParameters->Get_Parameter("YMIN")->Set_Value(yMax - ((int)((yMax - yMin) / Cellsize)) * Cellsize);
-			}
-		}
-
-		pParameters->Get_Parameter("NX")->Set_Value(1 + (int)((xMax - xMin) / Cellsize));
-		pParameters->Get_Parameter("NY")->Set_Value(1 + (int)((yMax - yMin) / Cellsize));
-
-		return( true );
-	}
-
-	return( false );
+	return( NULL );
 }
 
 

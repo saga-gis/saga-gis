@@ -83,30 +83,32 @@ class grid_spline_EXPORT CGridding_Spline_Base : public CSG_Module
 {
 public:
 	CGridding_Spline_Base(bool bGridPoints = false);
-	virtual ~CGridding_Spline_Base(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Spline Interpolation") );	}
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Spline Interpolation") );	}
 
 
 protected:
 
-	CSG_Grid				*m_pGrid;
+	CSG_Grid					*m_pGrid;
+
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
-	bool					Initialise		(void);
-	bool					Initialise		(CSG_Points_Z &Points, bool bInGridOnly = false);
+	bool						Initialise				(void);
+	bool						Initialise				(CSG_Points_Z &Points, bool bInGridOnly = false);
 
-	virtual bool			On_Initialise	(void)	{	return( true );	}
+	virtual bool				On_Initialise			(void)	{	return( true );	}
 
 
 private:
 
-	bool					m_bGridPoints;
+	bool						m_bGridPoints;
+
+	CSG_Parameters_Grid_Target	m_Grid_Target;
 
 
-	bool					_Get_Points		(CSG_Points_Z &Points, bool bInGridOnly);
-	bool					_Get_Grid		(void);
-	CSG_Grid *				_Get_Grid		(TSG_Rect Extent);
+	bool						_Get_Grid				(void);
+	bool						_Get_Points				(CSG_Points_Z &Points, bool bInGridOnly);
 
 };
 

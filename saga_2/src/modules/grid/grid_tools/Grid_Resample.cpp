@@ -58,8 +58,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <string.h>
-
 #include "Grid_Resample.h"
 
 
@@ -78,11 +76,11 @@ CGrid_Resample::CGrid_Resample(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Resampling"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2003"));
 
 	Set_Description	(_TW(
-		"Resampling of grids.")
-	);
+		"Resampling of grids."
+	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
@@ -96,55 +94,10 @@ CGrid_Resample::CGrid_Resample(void)
 		_TL("")
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Target Grid"),
-		_TL(""),
-
-		_TL("Specify dimensions|Create new grid in existing project|Overwrite existing grid|")
-	);
-
 	Parameters.Add_Value(
 		NULL	, "KEEP_TYPE"	, _TL("Preserve Data Type"),
 		_TL(""),
 		PARAMETER_TYPE_Bool		, false
-	);
-
-	//-----------------------------------------------------
-	pParameters	= Add_Parameters("DIMENSIONS"	, _TL("Target Grid Dimensions")	, _TL(""));
-
-	pParameters->Add_Value(
-		NULL	, "CELLSIZE"	, _TL("Cell Size"),
-		_TL(""),
-		PARAMETER_TYPE_Double	, 1.0, 0.0, true
-	);
-
-	pParameters->Add_Value(
-		NULL	, "CELLS_NX"	, _TL("Cell Count: Columns"),
-		_TL(""),
-		PARAMETER_TYPE_Int		, 2, 2, true
-	);
-
-	pParameters->Add_Value(
-		NULL	, "CELLS_NY"	, _TL("Cell Count: Rows"),
-		_TL(""),
-		PARAMETER_TYPE_Int		, 2, 2, true
-	);
-
-	//-----------------------------------------------------
-	pParameters	= Add_Parameters("SYSTEM"	, _TL("Choose Grid System")	, _TL(""));
-
-	pParameters->Add_Grid_System(
-		NULL	, "SYSTEM"		, _TL("Grid System"),
-		_TL("")
-	);
-
-	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GRID"		, _TL("Target Grid")				, _TL(""));
-
-	pNode	= pParameters->Add_Grid(
-		NULL	, "GRID"		, _TL("Target Grid"),
-		_TL(""),
-		PARAMETER_INPUT			, false
 	);
 
 	//-----------------------------------------------------
@@ -180,11 +133,20 @@ CGrid_Resample::CGrid_Resample(void)
 			_TL("B-Spline Interpolation")
 		), 4
 	);
-}
 
-//---------------------------------------------------------
-CGrid_Resample::~CGrid_Resample(void)
-{}
+	//-----------------------------------------------------
+	Parameters.Add_Choice(
+		NULL	, "TARGET"		, _TL("Target Grid"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("user defined"),
+			_TL("grid")
+		), 0
+	);
+
+	m_Grid_Target.Add_Parameters_User(Add_Parameters("USER", _TL("User Defined Grid")	, _TL("")));
+	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GRID", _TL("Choose Grid")			, _TL("")));
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -196,44 +158,7 @@ CGrid_Resample::~CGrid_Resample(void)
 //---------------------------------------------------------
 int CGrid_Resample::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	int		nx, ny;
-	double	cellsize;
-	CSG_Grid	*pGrid;
-
-	if( !SG_STR_CMP(pParameters->Get_Identifier(), SG_T("DIMENSIONS")) )
-	{
-		pGrid		=  Parameters               ("INPUT")   ->asGrid();
-		cellsize	= pParameters->Get_Parameter("CELLSIZE")->asDouble();
-		nx			= pParameters->Get_Parameter("CELLS_NX")->asInt();
-		ny			= pParameters->Get_Parameter("CELLS_NY")->asInt();
-
-		if( pGrid && cellsize > 0.0 )
-		{
-			if(      !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CELLSIZE")) )
-			{
-				nx			= 1 + (int)(pGrid->Get_XRange() / cellsize);
-				ny			= 1 + (int)(pGrid->Get_YRange() / cellsize);
-			}
-			else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CELLS_NX")) )
-			{
-				cellsize	= pGrid->Get_XRange() / (nx - 1);
-				ny			= 1 + (int)(pGrid->Get_YRange() / cellsize);
-			}
-			else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CELLS_NY")) )
-			{
-				cellsize	= pGrid->Get_YRange() / (ny - 1);
-				nx			= 1 + (int)(pGrid->Get_XRange() / cellsize);
-			}
-
-			pParameters->Get_Parameter("CELLSIZE")->Set_Value(cellsize);
-			pParameters->Get_Parameter("CELLS_NX")->Set_Value(nx);
-			pParameters->Get_Parameter("CELLS_NY")->Set_Value(ny);
-
-			return( true );
-		}
-	}
-
-	return( false );
+	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
 }
 
 
@@ -247,117 +172,97 @@ int CGrid_Resample::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parame
 bool CGrid_Resample::On_Execute(void)
 {
 	bool					bResult;
-	double					Cellsize;
 	TSG_Grid_Interpolation	Interpolation;
 	CSG_Grid				*pInput, *pOutput;
-	CSG_Grid_System			System;
 	CSG_Parameters			*pParameters;
 
 	//-----------------------------------------------------
 	bResult	= false;
 
 	pInput	= Parameters("INPUT")->asGrid();
-	pOutput	= NULL;
 
 	//-----------------------------------------------------
-	switch( Parameters("METHOD")->asInt() )
+	pOutput	= NULL;
+
+	switch( Parameters("TARGET")->asInt() )
 	{
-	case 0:	// Target Dimensions...
-		Get_Parameters("DIMENSIONS")->Get_Parameter("CELLSIZE")->Set_Value(pInput->Get_Cellsize());
-		Get_Parameters("DIMENSIONS")->Get_Parameter("CELLS_NX")->Set_Value(pInput->Get_NX());
-		Get_Parameters("DIMENSIONS")->Get_Parameter("CELLS_NY")->Set_Value(pInput->Get_NY());
-
-		if(	Dlg_Parameters("DIMENSIONS") && (Cellsize = Get_Parameters("DIMENSIONS")->Get_Parameter("CELLSIZE")->asDouble()) > 0.0 )
+	case 0:	// user defined...
+		if( m_Grid_Target.Init_User(pInput->Get_Extent()) && Dlg_Parameters("USER") )
 		{
-			System.Assign(Cellsize, pInput->Get_XMin(), pInput->Get_YMin(),
-				1 + (int)(pInput->Get_XRange() / Cellsize),
-				1 + (int)(pInput->Get_YRange() / Cellsize)
-			);
+			pOutput	= m_Grid_Target.Get_User(Parameters("KEEP_TYPE")->asBool() ? pInput->Get_Type() : SG_DATATYPE_Undefined);
 		}
 		break;
 
-	case 1:	// Target Project...
-		if( Dlg_Parameters("SYSTEM") )
-		{
-			System.Assign(*Get_Parameters("SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System());
-		}
-		break;
-
-	case 2:	// Target Grid...
+	case 1:	// grid...
 		if( Dlg_Parameters("GRID") )
 		{
-			System.Assign(Get_Parameters("GRID")->Get_Parameter("GRID")->asGrid()->Get_System());
-
-			pOutput	= Get_Parameters("GRID")->Get_Parameter("GRID")->asGrid();
+			pOutput	= m_Grid_Target.Get_Grid(Parameters("KEEP_TYPE")->asBool() ? pInput->Get_Type() : SG_DATATYPE_Undefined);
 		}
 		break;
 	}
 
 	//-----------------------------------------------------
-	if( System.is_Valid() && pInput->is_Intersecting(System.Get_Extent()) )
+	if( !pOutput || !pInput->is_Intersecting(pOutput->Get_Extent()) )
 	{
-		pParameters	= NULL;
+		return( false );
+	}
 
-		//-------------------------------------------------
-		// Up-Scaling...
+	pParameters	= NULL;
 
-		if( pInput->Get_Cellsize() < System.Get_Cellsize() )
+	//-------------------------------------------------
+	// Up-Scaling...
+
+	if( pInput->Get_Cellsize() < pOutput->Get_Cellsize() )
+	{
+		if( Dlg_Parameters("SCALE_UP") )
 		{
-			if( Dlg_Parameters("SCALE_UP") )
+			switch( Get_Parameters("SCALE_UP")->Get_Parameter("METHOD")->asInt() )
 			{
-				switch( Get_Parameters("SCALE_UP")->Get_Parameter("METHOD")->asInt() )
-				{
-				case 0:	Interpolation	= GRID_INTERPOLATION_NearestNeighbour;	break;
-				case 1:	Interpolation	= GRID_INTERPOLATION_Bilinear;			break;
-				case 2:	Interpolation	= GRID_INTERPOLATION_InverseDistance;	break;
-				case 3:	Interpolation	= GRID_INTERPOLATION_BicubicSpline;		break;
-				case 4:	Interpolation	= GRID_INTERPOLATION_BSpline;			break;
-				case 5:	Interpolation	= GRID_INTERPOLATION_Mean_Nodes;		break;
-				case 6:	Interpolation	= GRID_INTERPOLATION_Mean_Cells;		break;
-				case 7:	Interpolation	= GRID_INTERPOLATION_Minimum;			break;
-				case 8:	Interpolation	= GRID_INTERPOLATION_Maximum;			break;
-				}
-
-				pParameters	= Get_Parameters("SCALE_UP");
-			}
-		}
-
-		//-------------------------------------------------
-		// Down-Scaling...
-
-		else
-		{
-			if( Dlg_Parameters("SCALE_DOWN") )
-			{
-				switch( Get_Parameters("SCALE_DOWN")->Get_Parameter("METHOD")->asInt() )
-				{
-				case 0:	Interpolation	= GRID_INTERPOLATION_NearestNeighbour;	break;
-				case 1:	Interpolation	= GRID_INTERPOLATION_Bilinear;			break;
-				case 2:	Interpolation	= GRID_INTERPOLATION_InverseDistance;	break;
-				case 3:	Interpolation	= GRID_INTERPOLATION_BicubicSpline;		break;
-				case 4:	Interpolation	= GRID_INTERPOLATION_BSpline;			break;
-				}
-
-				pParameters	= Get_Parameters("SCALE_DOWN");
-			}
-		}
-
-		//-------------------------------------------------
-		if( pParameters )
-		{
-			if( !pOutput )
-			{
-				pOutput	= SG_Create_Grid(System, Parameters("KEEP_TYPE")->asBool() || (Interpolation == GRID_INTERPOLATION_NearestNeighbour) ? pInput->Get_Type() : SG_DATATYPE_Undefined);
+			case 0:	Interpolation	= GRID_INTERPOLATION_NearestNeighbour;	break;
+			case 1:	Interpolation	= GRID_INTERPOLATION_Bilinear;			break;
+			case 2:	Interpolation	= GRID_INTERPOLATION_InverseDistance;	break;
+			case 3:	Interpolation	= GRID_INTERPOLATION_BicubicSpline;		break;
+			case 4:	Interpolation	= GRID_INTERPOLATION_BSpline;			break;
+			case 5:	Interpolation	= GRID_INTERPOLATION_Mean_Nodes;		break;
+			case 6:	Interpolation	= GRID_INTERPOLATION_Mean_Cells;		break;
+			case 7:	Interpolation	= GRID_INTERPOLATION_Minimum;			break;
+			case 8:	Interpolation	= GRID_INTERPOLATION_Maximum;			break;
 			}
 
-			pOutput->Set_Name(pInput->Get_Name());
-
-			pOutput->Assign(pInput, Interpolation);
-
-			Parameters("GRID")->Set_Value(pOutput);
-
-			return( true );
+			pParameters	= Get_Parameters("SCALE_UP");
 		}
+	}
+
+	//-------------------------------------------------
+	// Down-Scaling...
+
+	else
+	{
+		if( Dlg_Parameters("SCALE_DOWN") )
+		{
+			switch( Get_Parameters("SCALE_DOWN")->Get_Parameter("METHOD")->asInt() )
+			{
+			case 0:	Interpolation	= GRID_INTERPOLATION_NearestNeighbour;	break;
+			case 1:	Interpolation	= GRID_INTERPOLATION_Bilinear;			break;
+			case 2:	Interpolation	= GRID_INTERPOLATION_InverseDistance;	break;
+			case 3:	Interpolation	= GRID_INTERPOLATION_BicubicSpline;		break;
+			case 4:	Interpolation	= GRID_INTERPOLATION_BSpline;			break;
+			}
+
+			pParameters	= Get_Parameters("SCALE_DOWN");
+		}
+	}
+
+	//-------------------------------------------------
+	if( pParameters )
+	{
+		pOutput->Set_Name(pInput->Get_Name());
+
+		pOutput->Assign(pInput, Interpolation);
+
+		Parameters("GRID")->Set_Value(pOutput);
+
+		return( true );
 	}
 
 	return( false );

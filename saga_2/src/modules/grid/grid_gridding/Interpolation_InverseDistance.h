@@ -94,9 +94,12 @@ protected:
 
 private:
 
-	int						m_nPoints_Max, m_Mode;
+	int						m_Weighting, m_nPoints_Max, m_Mode;
 
-	double					m_Power, m_Radius;
+	double					m_Power, m_Bandwidth, m_Radius;
+
+
+	double					Get_Weight			(double Distance);
 
 
 };

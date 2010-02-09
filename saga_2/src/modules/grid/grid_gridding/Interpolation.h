@@ -84,38 +84,39 @@ class CInterpolation : public CSG_Module
 public:
 	CInterpolation(void);
 
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Interpolation from Points") );	}
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Interpolation from Points") );	}
 
 
 protected:
 
-	virtual bool			On_Execute			(void);
+	virtual bool				On_Execute				(void);
+
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
-	int						m_zField;
+	int							m_zField;
 
-	CSG_PRQuadTree			m_Search;
+	CSG_PRQuadTree				m_Search;
 
-	CSG_Grid				*m_pGrid;
+	CSG_Grid					*m_pGrid;
 
-	CSG_Shapes				*m_pShapes;
+	CSG_Shapes					*m_pShapes;
 
 
-	virtual bool			Interpolate			(void);
+	virtual bool				Interpolate				(void);
 
-	virtual bool			On_Initialize		(void)							{	return( true );	}
-	virtual bool			On_Finalize			(void)							{	return( true );	}
+	virtual bool				On_Initialize			(void)							{	return( true );	}
+	virtual bool				On_Finalize				(void)							{	return( true );	}
 
-	virtual bool			Get_Value			(double x, double y, double &z)	{	return( true );	}
+	virtual bool				Get_Value				(double x, double y, double &z)	{	return( true );	}
 
-	CSG_Shapes *			Get_Points			(void);
-	bool					Set_Search_Engine	(void);
+	CSG_Shapes *				Get_Points				(void);
+	bool						Set_Search_Engine		(void);
 
 
 private:
 
-	bool					_Get_Grid			(void);
-	CSG_Grid *				_Get_Grid			(TSG_Rect Extent);
+	CSG_Parameters_Grid_Target	m_Grid_Target;
 
 };
 

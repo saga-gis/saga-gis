@@ -75,23 +75,27 @@ class CGSGrid_Trend_Surface : public CSG_Module
 public:
 	CGSGrid_Trend_Surface(void);
 
-	virtual const SG_Char *		Get_MenuPath		(void)	{	return( _TL("R:Regression Analysis") );	}
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Regression Analysis") );	}
 
 
 protected:
 
-	virtual bool				On_Execute			(void);
+	virtual bool				On_Execute				(void);
+
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
 private:
 
+	CSG_Parameters_Grid_Target	m_Grid_Target;
+
 	CSG_Regression_Multiple		m_Regression;
 
 
-	bool						Get_Regression		(CSG_Shapes *pPoints, int iAttribute, int Type);
-	bool						Set_Regression		(CSG_Grid *pRegression, int Type);
-	bool						Set_Residuals		(CSG_Shapes *pPoints, int iAttribute, CSG_Shapes *pResiduals, CSG_Grid *pRegression);
-	void						Set_Message			(int Type);
+	bool						Get_Regression			(CSG_Shapes *pPoints, int iAttribute, int Type);
+	bool						Set_Regression			(CSG_Grid *pRegression, int Type);
+	bool						Set_Residuals			(CSG_Shapes *pPoints, int iAttribute, CSG_Shapes *pResiduals, CSG_Grid *pRegression);
+	void						Set_Message				(int Type);
 
 };
 

@@ -58,8 +58,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <string.h>
-
 #include "GEOTRANS_Grid.h"
 
 
@@ -77,7 +75,7 @@ CGEOTRANS_Grid::CGEOTRANS_Grid(void)
 	//-----------------------------------------------------
 	Set_Name	(_TL("GeoTrans (Grid)"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2003"));
 
 	Set_Description	(_TW(
 		"Coordinate Transformation for Grids. "
@@ -127,23 +125,8 @@ CGEOTRANS_Grid::CGEOTRANS_Grid(void)
 	);
 
 	Parameters.Add_Choice(
-		Parameters("TARGET_NODE"),
-		"TARGET_TYPE"	, _TL("Target"),
-		_TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("user defined"),
-			_TL("automatic fit"),
-			_TL("grid system"),
-			_TL("grid"),
-			_TL("shapes")
-		), 0
-	);
-
-	Parameters.Add_Choice(
 		Parameters("TARGET_NODE")	, "INTERPOLATION"	, _TL("Grid Interpolation"),
 		_TL(""),
-
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("Nearest Neigbhor"),
 			_TL("Bilinear Interpolation"),
@@ -153,6 +136,23 @@ CGEOTRANS_Grid::CGEOTRANS_Grid(void)
 		), 4
 	);
 
+
+	//-----------------------------------------------------
+	Parameters.Add_Choice(
+		Parameters("TARGET_NODE"),
+		"TARGET_TYPE"	, _TL("Target"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("user defined"),
+			_TL("automatic fit"),
+			_TL("grid"),
+			_TL("shapes")
+		), 0
+	);
+
+	//-----------------------------------------------------
+	m_Grid_Target.Add_Parameters_User(Add_Parameters("GET_USER", _TL("User Defined Grid")	, _TL("")));
+	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GET_GRID", _TL("Choose Grid")			, _TL("")));
 
 	//-----------------------------------------------------
 	pParameters	= Add_Parameters("GET_AUTOFIT"	, _TL("Automatic fit")	, _TL(""));
@@ -172,148 +172,11 @@ CGEOTRANS_Grid::CGEOTRANS_Grid(void)
 
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_USER"		, _TL("User defined")		, _TL(""));
-
-	pParameters->Add_Value(
-		NULL, "XMIN"		, _TL("Left")		, _TL(""), PARAMETER_TYPE_Double
-	);
-	pParameters->Add_Value(
-		NULL, "XMAX"		, _TL("Right")		, _TL(""), PARAMETER_TYPE_Double
-	);
-	pParameters->Add_Value(
-		NULL, "YMIN"		, _TL("Bottom")		, _TL(""), PARAMETER_TYPE_Double
-	);
-	pParameters->Add_Value(
-		NULL, "YMAX"		, _TL("Top"	)		, _TL(""), PARAMETER_TYPE_Double
-	);
-
-	pParameters->Add_Value(
-		NULL, "SIZE"		, _TL("Grid Size")	, _TL(""), PARAMETER_TYPE_Double, 10000.0, 0.0, true
-	);
-
-	pParameters->Add_Info_Value(
-		NULL, "NX"			, _TL("Columns"	)	, _TL(""), PARAMETER_TYPE_Int
-	);
-	pParameters->Add_Info_Value(
-		NULL, "NY"			, _TL("Rows")		, _TL(""), PARAMETER_TYPE_Int
-	);
-
-
-	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_SYSTEM"	, _TL("Choose Grid Project")	, _TL(""));
-
-	pParameters->Add_Grid_System(
-		NULL, "SYSTEM"		, _TL("System")		, _TL("")
-	);
-
-
-	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_GRID"		, _TL("Choose Grid")			, _TL(""));
-
-	pParameters->Add_Grid(
-		NULL, "GRID"		, _TL("Grid")		, _TL(""), PARAMETER_INPUT	, false
-	);
-
-
-	//-----------------------------------------------------
 	pParameters	= Add_Parameters("GET_SHAPES"	, _TL("Choose Shapes")		, _TL(""));
 
 	pParameters->Add_Shapes(
 		NULL, "SHAPES"		, _TL("Shapes")		, _TL(""), PARAMETER_OUTPUT	, SHAPE_TYPE_Point
 	);
-}
-
-//---------------------------------------------------------
-CGEOTRANS_Grid::~CGEOTRANS_Grid(void)
-{}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CGEOTRANS_Grid::On_Execute_Conversion(void)
-{
-	int		Interpol;
-	CSG_Grid	*pSource, *pGrid;
-	CSG_Shapes	*pShapes;
-
-	//-----------------------------------------------------
-	pSource		= Parameters("SOURCE")->asGrid();
-
-	pGrid		= NULL;
-	pShapes		= NULL;
-
-	Interpol	= Parameters("INTERPOLATION")->asInt();
-
-	//-----------------------------------------------------
-	switch( Parameters("TARGET_TYPE")->asInt() )
-	{
-	case 0:	// create new user defined grid...
-		pGrid	= Get_Target_Userdef(pSource, Interpol == 0);
-		break;
-
-	case 1:	// create new with chosen grid size and fitted extent...
-		if( Dlg_Parameters("GET_AUTOFIT") )
-		{
-			pGrid	= Get_Target_Autofit(
-						pSource,
-						Get_Parameters("GET_AUTOFIT")->Get_Parameter("GRIDSIZE")		->asDouble(),
-						Get_Parameters("GET_AUTOFIT")->Get_Parameter("AUTOEXTMODE")	->asInt(),
-						Interpol == 0
-					);
-		}
-		break;
-
-	case 2:	// select grid system...
-		if( Dlg_Parameters("GET_SYSTEM") )
-		{
-			pGrid	= SG_Create_Grid(
-						*Get_Parameters("GET_SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System()
-					);
-		}
-		break;
-
-	case 3:	// select grid...
-		if( Dlg_Parameters("GET_GRID") )
-		{
-			pGrid	= Get_Parameters("GET_GRID")->Get_Parameter("GRID")->asGrid();
-		}
-		break;
-
-	case 4:	// shapes...
-		if( Dlg_Parameters("GET_SHAPES") )
-		{
-			pShapes	= Get_Parameters("GET_SHAPES")->Get_Parameter("SHAPES")->asShapes();
-		}
-		break;
-
-	default:
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	if( pShapes )
-	{
-		Set_Shapes	(pSource, pShapes);
-
-		Parameters("OUT_SHAPES")	->Set_Value(pShapes);
-	}
-
-
-	//-----------------------------------------------------
-	if( pGrid )
-	{
-		Set_Grid	(pSource, pGrid, Interpol);
-
-		Parameters("OUT_GRID")		->Set_Value(pGrid);
-	}
-
-	//-----------------------------------------------------
-	return( true );
 }
 
 
@@ -326,69 +189,84 @@ bool CGEOTRANS_Grid::On_Execute_Conversion(void)
 //---------------------------------------------------------
 int CGEOTRANS_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	double	xMin, xMax, yMin, yMax, size;
+	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
+}
 
-	if( !SG_STR_CMP(pParameters->Get_Identifier(), SG_T("GET_USER")) )
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGEOTRANS_Grid::On_Execute_Conversion(void)
+{
+	int				Interpolation;
+	TSG_Data_Type	Type;
+	TSG_Rect		Extent;
+	CSG_Grid		*pSource, *pGrid;
+	CSG_Shapes		*pShapes;
+
+	//-----------------------------------------------------
+	pSource			= Parameters("SOURCE")			->asGrid();
+	Interpolation	= Parameters("INTERPOLATION")	->asInt();
+
+	Type			= Interpolation == 0 ? pSource->Get_Type() : SG_DATATYPE_Float;
+
+	pGrid			= NULL;
+	pShapes			= NULL;
+
+	//-----------------------------------------------------
+	switch( Parameters("TARGET_TYPE")->asInt() )
 	{
-		xMin	= pParameters->Get_Parameter("XMIN")->asDouble();
-		xMax	= pParameters->Get_Parameter("XMAX")->asDouble();
-		yMin	= pParameters->Get_Parameter("YMIN")->asDouble();
-		yMax	= pParameters->Get_Parameter("YMAX")->asDouble();
-		size	= pParameters->Get_Parameter("SIZE")->asDouble();
-
-		if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SIZE")) )
+	case 0:	// create new user defined grid...
+		if( Get_Target_Extent(pSource, Extent, true) && m_Grid_Target.Init_User(Extent, pSource->Get_NY()) && Dlg_Parameters("GET_USER") )
 		{
-			pParameters->Get_Parameter("XMAX")->Set_Value((xMax = xMin + ((int)((xMax - xMin) / size)) * size));
-			pParameters->Get_Parameter("YMAX")->Set_Value((yMax = yMin + ((int)((yMax - yMin) / size)) * size));
+			pGrid	= m_Grid_Target.Get_User(Type);
 		}
-		else 
+		break;
+
+	case 1:	// create new with chosen grid size and fitted extent...
+		if( Dlg_Parameters("GET_AUTOFIT") )
 		{
-			if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("XMIN")) )
-			{
-				if( xMin >= xMax )
-				{
-					xMin	= xMax - pParameters->Get_Parameter("NX")->asInt() * size;
-					pParameter->Set_Value(xMin);
-				}
+			pGrid	= Get_Target_Autofit(pSource, Type);
+		}
+		break;
 
-				pParameters->Get_Parameter("XMAX")->Set_Value(xMin + ((int)((xMax - xMin) / size)) * size);
-			}
-			else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("XMAX")) )
-			{
-				if( xMin >= xMax )
-				{
-					xMax	= xMin + pParameters->Get_Parameter("NX")->asInt() * size;
-					pParameter->Set_Value(xMax);
-				}
+	case 2:	// select grid...
+		if( Dlg_Parameters("GET_GRID") )
+		{
+			pGrid	= m_Grid_Target.Get_Grid(Type);
+		}
+		break;
 
-				pParameters->Get_Parameter("XMIN")->Set_Value(xMax - ((int)((xMax - xMin) / size)) * size);
-			}
-			else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("YMIN")) )
-			{
-				if( yMin >= yMax )
-				{
-					yMin	= yMax - pParameters->Get_Parameter("NY")->asInt() * size;
-					pParameter->Set_Value(yMin);
-				}
+	case 3:	// shapes...
+		if( Dlg_Parameters("GET_SHAPES") )
+		{
+			pShapes	= Get_Parameters("GET_SHAPES")->Get_Parameter("SHAPES")->asShapes();
 
-				pParameters->Get_Parameter("YMAX")->Set_Value(yMin + ((int)((yMax - yMin) / size)) * size);
-			}
-			else if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("YMAX")) )
+			if( pShapes == DATAOBJECT_NOTSET || pShapes == DATAOBJECT_CREATE )
 			{
-				if( yMin >= yMax )
-				{
-					yMax	= yMin + pParameters->Get_Parameter("NY")->asInt() * size;
-					pParameter->Set_Value(yMax);
-				}
-
-				pParameters->Get_Parameter("YMIN")->Set_Value(yMax - ((int)((yMax - yMin) / size)) * size);
+				Get_Parameters("GET_SHAPES")->Get_Parameter("SHAPES")->Set_Value(pShapes = SG_Create_Shapes());
 			}
 		}
+		break;
+	}
 
-		pParameters->Get_Parameter("NX")->Set_Value(1 + (int)((xMax - xMin) / size));
-		pParameters->Get_Parameter("NY")->Set_Value(1 + (int)((yMax - yMin) / size));
+	//--------------------------------------------------------
+	if( pShapes )
+	{
+		Parameters("OUT_SHAPES")->Set_Value(pShapes);
 
-		return( true );
+		return( Set_Shapes(pSource, pShapes) );
+	}
+
+	if( pGrid )
+	{
+		Parameters("OUT_GRID")->Set_Value(pGrid);
+
+		return( Set_Grid(pSource, pGrid, Interpolation) );
 	}
 
 	return( false );
@@ -402,175 +280,105 @@ int CGEOTRANS_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parame
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline void CGEOTRANS_Grid::Get_MinMax(double &xMin, double &xMax, double &yMin, double &yMax, TSG_Point Point)
+inline void CGEOTRANS_Grid::Get_MinMax(TSG_Rect &r, double x, double y)
 {
-	if( Get_Converted(Point) )
+	if( Get_Converted(x, y) )
 	{
-		if( xMin > xMax )
+		if( r.xMin > r.xMax )
 		{
-			xMin	= xMax	= Point.x;
+			r.xMin	= r.xMax	= x;
 		}
-		else if( xMin > Point.x )
+		else if( r.xMin > x )
 		{
-			xMin	= Point.x;
+			r.xMin	= x;
 		}
-		else if( xMax < Point.x )
+		else if( r.xMax < x )
 		{
-			xMax	= Point.x;
+			r.xMax	= x;
 		}
 
-		if( yMin > yMax )
+		if( r.yMin > r.yMax )
 		{
-			yMin	= yMax	= Point.y;
+			r.yMin	= r.yMax	= y;
 		}
-		else if( yMin > Point.y )
+		else if( r.yMin > y )
 		{
-			yMin	= Point.y;
+			r.yMin	= y;
 		}
-		else if( yMax < Point.y )
+		else if( r.yMax < y )
 		{
-			yMax	= Point.y;
+			r.yMax	= y;
 		}
 	}
 }
 
 //---------------------------------------------------------
-CSG_Grid * CGEOTRANS_Grid::Get_Target_Userdef(CSG_Grid *pSource, bool bNearest)
+bool CGEOTRANS_Grid::Get_Target_Extent(CSG_Grid *pSource, TSG_Rect &Extent, bool bEdge)
 {
-	int			x, y;
-	double		xMin, yMin, xMax, yMax, size;
-	TSG_Point	Pt_Source;
-	CSG_Grid		*pTarget;
-	CSG_Parameters	*pParameters;
-
-	pTarget	= NULL;
-
-	if( pSource )
+	if( !pSource )
 	{
-		//-------------------------------------------------
-		xMin	= yMin	= 1.0;
-		xMax	= yMax	= 0.0;
-
-		for(y=0, Pt_Source.y=pSource->Get_YMin(); y<pSource->Get_NY(); y++, Pt_Source.y+=pSource->Get_Cellsize())
-		{
-			Pt_Source.x	= pSource->Get_XMin();
-			Get_MinMax(xMin, xMax, yMin, yMax, Pt_Source);
-
-			Pt_Source.x	= pSource->Get_XMax();
-			Get_MinMax(xMin, xMax, yMin, yMax, Pt_Source);
-		}
-
-		for(x=0, Pt_Source.x=pSource->Get_XMin(); x<pSource->Get_NX(); x++, Pt_Source.x+=pSource->Get_Cellsize())
-		{
-			Pt_Source.y	= pSource->Get_YMin();
-			Get_MinMax(xMin, xMax, yMin, yMax, Pt_Source);
-
-			Pt_Source.y	= pSource->Get_YMax();
-			Get_MinMax(xMin, xMax, yMin, yMax, Pt_Source);
-		}
-
-		//-------------------------------------------------
-		if( xMin < xMax && yMin < yMax )
-		{
-			pParameters	= Get_Parameters("GET_USER");
-
-			pParameters->Get_Parameter("XMIN")->Set_Value(xMin);
-			pParameters->Get_Parameter("XMAX")->Set_Value(xMax);
-			pParameters->Get_Parameter("YMIN")->Set_Value(yMin);
-			pParameters->Get_Parameter("YMAX")->Set_Value(yMax);
-			size	= (yMax - yMin) / pSource->Get_NY();
-			pParameters->Get_Parameter("SIZE")->Set_Value(size);
-			pParameters->Get_Parameter("NX")->Set_Value(1 + (int)((xMax - xMin) / size));
-			pParameters->Get_Parameter("NY")->Set_Value(1 + (int)((yMax - yMin) / size));
-
-			if( Dlg_Parameters("GET_USER") )
-			{
-				size	= pParameters->Get_Parameter("SIZE")->asDouble();
-
-				pTarget	= SG_Create_Grid(
-					bNearest ? pSource->Get_Type() : SG_DATATYPE_Float,
-					pParameters->Get_Parameter("NX")->asInt(),
-					pParameters->Get_Parameter("NY")->asInt(),
-					size,
-					pParameters->Get_Parameter("XMIN")->asDouble(),
-					pParameters->Get_Parameter("YMIN")->asDouble()
-				);
-			}
-		}
+		return( false );
 	}
 
-	return( pTarget );
-}
-
-//---------------------------------------------------------
-CSG_Grid * CGEOTRANS_Grid::Get_Target_Autofit(CSG_Grid *pSource, double Grid_Size, int AutoExtMode, bool bNearest)
-{
 	int			x, y;
-	double		xMin, yMin, xMax, yMax;
-	TSG_Point	Pt_Source;
-	CSG_Grid		*pTarget;
 
-	pTarget	= NULL;
+	Extent.xMin	= Extent.yMin	= 1.0;
+	Extent.xMax	= Extent.yMax	= 0.0;
 
-	if( pSource )
+	if( bEdge )
 	{
-		xMin	= yMin	= 1.0;
-		xMax	= yMax	= 0.0;
+		double		d;
 
-		//---------------------------------------------
-		switch( AutoExtMode )
+		for(y=0, d=pSource->Get_YMin(); y<pSource->Get_NY(); y++, d+=pSource->Get_Cellsize())
 		{
-		case 0:	default:
-			for(y=0, Pt_Source.y=pSource->Get_YMin(); y<pSource->Get_NY(); y++, Pt_Source.y+=pSource->Get_Cellsize())
+			Get_MinMax(Extent, pSource->Get_XMin(), d);
+			Get_MinMax(Extent, pSource->Get_XMax(), d);
+		}
+
+		for(x=0, d=pSource->Get_XMin(); x<pSource->Get_NX(); x++, d+=pSource->Get_Cellsize())
+		{
+			Get_MinMax(Extent, d, pSource->Get_YMin());
+			Get_MinMax(Extent, d, pSource->Get_YMax());
+		}
+	}
+	else
+	{
+		TSG_Point	p;
+
+		for(y=0, p.y=pSource->Get_YMin(); y<pSource->Get_NY() && Set_Progress(y, pSource->Get_NY()); y++, p.y+=pSource->Get_Cellsize())
+		{
+			for(x=0, p.x=pSource->Get_XMin(); x<pSource->Get_NX(); x++, p.x+=pSource->Get_Cellsize())
 			{
-				Pt_Source.x	= pSource->Get_XMin();
-				Get_MinMax(xMin, xMax, yMin, yMax, Pt_Source);
-
-				Pt_Source.x	= pSource->Get_XMax();
-				Get_MinMax(xMin, xMax, yMin, yMax, Pt_Source);
-			}
-
-			for(x=0, Pt_Source.x=pSource->Get_XMin(); x<pSource->Get_NX(); x++, Pt_Source.x+=pSource->Get_Cellsize())
-			{
-				Pt_Source.y	= pSource->Get_YMin();
-				Get_MinMax(xMin, xMax, yMin, yMax, Pt_Source);
-
-				Pt_Source.y	= pSource->Get_YMax();
-				Get_MinMax(xMin, xMax, yMin, yMax, Pt_Source);
-			}
-
-			break;
-
-		//---------------------------------------------
-		case 1:
-			for(y=0, Pt_Source.y=pSource->Get_YMin(); y<pSource->Get_NY() && Set_Progress(y, pSource->Get_NY()); y++, Pt_Source.y+=pSource->Get_Cellsize())
-			{
-				for(x=0, Pt_Source.x=pSource->Get_XMin(); x<pSource->Get_NX(); x++, Pt_Source.x+=pSource->Get_Cellsize())
+				if( !pSource->is_NoData(x, y) )
 				{
-					if( !pSource->is_NoData(x, y) )
-					{
-						Get_MinMax(xMin, xMax, yMin, yMax, Pt_Source);
-					}
+					Get_MinMax(Extent, p.x, p.y);
 				}
 			}
-
-			break;
-		}
-
-		//---------------------------------------------
-		if( is_Progress() && xMin < xMax && yMin < yMax )
-		{
-			pTarget	= SG_Create_Grid(
-				bNearest ? pSource->Get_Type() : SG_DATATYPE_Float,
-				1 + (int)((xMax - xMin) / Grid_Size),
-				1 + (int)((yMax - yMin) / Grid_Size),
-				Grid_Size,
-				xMin, yMin
-			);
 		}
 	}
 
-	return( pTarget );
+	return( is_Progress() && Extent.xMin < Extent.xMax && Extent.yMin < Extent.yMax );
+}
+
+//---------------------------------------------------------
+CSG_Grid * CGEOTRANS_Grid::Get_Target_Autofit(CSG_Grid *pSource, TSG_Data_Type Type)
+{
+	bool		bEdge		= Get_Parameters("GET_AUTOFIT")->Get_Parameter("AUTOEXTMODE")	->asInt() == 0;
+	double		Cellsize	= Get_Parameters("GET_AUTOFIT")->Get_Parameter("GRIDSIZE")		->asDouble();
+	TSG_Rect	Extent;
+
+	if( Get_Target_Extent(pSource, Extent, bEdge) )
+	{
+		return( SG_Create_Grid(Type,
+			1 + (int)((Extent.xMax - Extent.xMin) / Cellsize),
+			1 + (int)((Extent.yMax - Extent.yMin) / Cellsize),
+			Cellsize,
+			Extent.xMin,
+			Extent.yMin
+		));
+	}
+
+	return( NULL );
 }
 
 
@@ -586,7 +394,7 @@ bool CGEOTRANS_Grid::Set_Grid(CSG_Grid *pSource, CSG_Grid *pTarget, int Interpol
 	int			x, y;
 	double		z;
 	TSG_Point	Pt_Source, Pt_Target;
-	CSG_Grid		*pX, *pY;
+	CSG_Grid	*pX, *pY;
 
 	if( pSource && pTarget && Set_Transformation_Inverse() )
 	{
@@ -678,3 +486,12 @@ bool CGEOTRANS_Grid::Set_Shapes(CSG_Grid *pSource, CSG_Shapes *pTarget)
 
 	return( false );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

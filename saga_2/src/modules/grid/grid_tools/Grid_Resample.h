@@ -62,28 +62,50 @@
 #define HEADER_INCLUDED__Grid_Resample_H
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #include "MLB_Interface.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CGrid_Resample : public CSG_Module_Grid  
 {
 public:
 	CGrid_Resample(void);
-	virtual ~CGrid_Resample(void);
 
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("A:Grid|Construction") );	}
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("A:Grid|Construction") );	}
 
 
 protected:
 
-	virtual bool			On_Execute			(void);
+	virtual bool				On_Execute				(void);
 
-	virtual int				On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
 private:
 
+	CSG_Parameters_Grid_Target	m_Grid_Target;
+
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Grid_Resample_H

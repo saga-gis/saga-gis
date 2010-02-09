@@ -104,7 +104,7 @@ protected:
 
 	bool				Set_Inverse					(bool bOn = true);
 
-	CSG_String			Get_Proj_Name				(void);
+	CSG_String			Get_Proj_Name				(bool bDestination = true);
 
 	bool				Get_Converted				(double &x, double &y);
 	bool				Get_Converted				(TSG_Point &Point);

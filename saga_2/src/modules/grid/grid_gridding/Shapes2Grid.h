@@ -83,37 +83,39 @@ class CShapes2Grid : public CSG_Module
 {
 public:
 	CShapes2Grid(void);
-	virtual ~CShapes2Grid(void);
 
 
 protected:
 
-	virtual bool			On_Execute			(void);
+	virtual bool				On_Execute				(void);
+
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
 private:
 
-	int						m_Lock_ID, m_Method_Lines;
+	int							m_Lock_ID, m_Method_Lines;
 
-	double					m_Value;
+	double						m_Value;
 
-	CSG_Grid				*m_pGrid, *m_pLock;
+	CSG_Parameters_Grid_Target	m_Grid_Target;
 
-	CSG_Shapes				*m_pShapes;
+	CSG_Grid					*m_pGrid, *m_pLock;
+
+	CSG_Shapes					*m_pShapes;
 
 
-	TSG_Data_Type			Get_Grid_Type		(int iType);
-	CSG_Grid *				Get_Target_Grid		(CSG_Parameters *pParameters, CSG_Shapes *pShapes);
+	TSG_Data_Type				Get_Grid_Type			(int iType);
 
-	void					Set_Value			(int x, int y);
+	void						Set_Value				(int x, int y);
 
-	void					Set_Points			(CSG_Shape *pShape);
+	void						Set_Points				(CSG_Shape *pShape);
 
-	void					Set_Line			(CSG_Shape *pShape);
-	void					Set_Line_A			(TSG_Point a, TSG_Point b);
-	void					Set_Line_B			(TSG_Point a, TSG_Point b);
+	void						Set_Line				(CSG_Shape *pShape);
+	void						Set_Line_A				(TSG_Point a, TSG_Point b);
+	void						Set_Line_B				(TSG_Point a, TSG_Point b);
 
-	void					Set_Polygon			(CSG_Shape *pShape);
+	void						Set_Polygon				(CSG_Shape *pShape);
 
 };
 

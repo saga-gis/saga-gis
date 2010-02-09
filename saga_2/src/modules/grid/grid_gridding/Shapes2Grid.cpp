@@ -58,7 +58,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <string.h>
 #include "Shapes2Grid.h"
 
 
@@ -88,7 +87,7 @@ CShapes2Grid::CShapes2Grid(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Shapes to Grid"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2003"));
 
 	Set_Description	(_TW(
 		"Gridding of a shapes layer. If some shapes are selected, only these will be gridded."
@@ -113,17 +112,6 @@ CShapes2Grid::CShapes2Grid(void)
 	);
 
 	pNode_0	= Parameters.Add_Choice(
-		NULL	, "TARGET_TYPE"	, _TL("Target Dimensions"),
-		_TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("User defined"),
-			_TL("Grid Project"),
-			_TL("Grid")
-		), 0
-	);
-
-	pNode_0	= Parameters.Add_Choice(
 		NULL	, "LINE_TYPE"	, _TL("Method for Lines"),
 		_TL(""),
 
@@ -133,33 +121,8 @@ CShapes2Grid::CShapes2Grid(void)
 		), 1
 	);
 
-	//-----------------------------------------------------
-	pParameters	= Add_Parameters("USER", _TL("User defined grid"), _TL(""));
-
-	pNode_0	= pParameters->Add_Value(
-		NULL	, "CELL_SIZE"	, _TL("Grid Size"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 100.0, 0.0, true
-	);
-
-	pNode_0	= pParameters->Add_Value(
-		NULL	, "FIT_EXTENT"	, _TL("Fit Extent"),
-		_TL("Automatically fits the grid to the shapes layers extent."),
-		PARAMETER_TYPE_Bool		, true
-	);
-
-	pNode_1	= pParameters->Add_Range(
-		pNode_0	, "X_EXTENT"	, _TL("X-Extent"),
-		_TL("")
-	);
-
-	pNode_1	= pParameters->Add_Range(
-		pNode_0	, "Y_EXTENT"	, _TL("Y-Extent"),
-		_TL("")
-	);
-
-	pNode_0	= pParameters->Add_Choice(
-		NULL	, "GRID_TYPE"	, _TL("Target Grid Type"),
+	pNode_0	= Parameters.Add_Choice(
+		NULL	, "GRID_TYPE"	, _TL("Preferred Target Grid Type"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
 			_TL("Integer (1 byte)"),
@@ -171,37 +134,31 @@ CShapes2Grid::CShapes2Grid(void)
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_SYSTEM"	, _TL("Choose Grid Project"), _TL(""));
-
-	pNode_0	= pParameters->Add_Grid_System(
-		NULL, "SYSTEM"		, _TL("System")		, _TL("")
-	);
-
-	pNode_0	= pParameters->Add_Choice(
-		NULL	, "GRID_TYPE"	, _TL("Target Grid Type"),
+	Parameters.Add_Choice(
+		NULL	, "TARGET"		, _TL("Target Grid"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("Integer (1 byte)"),
-			_TL("Integer (2 byte)"),
-			_TL("Integer (4 byte)"),
-			_TL("Floating Point (4 byte)"),
-			_TL("Floating Point (8 byte)")
-		), 3
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("user defined"),
+			_TL("grid")
+		), 0
 	);
 
-	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GRID"			, _TL("Choose Grid")		, _TL(""));
-
-	pNode_0	= pParameters->Add_Grid(
-		NULL	, "GRID"		, _TL("Grid"),
-		_TL(""),
-		PARAMETER_INPUT	, false
-	);
+	m_Grid_Target.Add_Parameters_User(Add_Parameters("USER", _TL("User Defined Grid")	, _TL("")));
+	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GRID", _TL("Choose Grid")			, _TL("")));
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-CShapes2Grid::~CShapes2Grid(void)
-{}
+int CShapes2Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -215,42 +172,14 @@ TSG_Data_Type CShapes2Grid::Get_Grid_Type(int iType)
 {
 	switch( iType )
 	{
-	case 0:		return( SG_DATATYPE_Byte );
-	case 1:		return( SG_DATATYPE_Short );
-	case 2:		return( SG_DATATYPE_Int );
-	default:
-	case 3:		return( SG_DATATYPE_Float );
-	case 4:		return( SG_DATATYPE_Double );
-	}
-}
-
-//---------------------------------------------------------
-CSG_Grid * CShapes2Grid::Get_Target_Grid(CSG_Parameters *pParameters, CSG_Shapes *m_pShapes)
-{
-	int			nx, ny;
-	double		Cell_Size, xMin, yMin, xMax, yMax;
-
-	if( pParameters->Get_Parameter("FIT_EXTENT")->asBool() )
-	{
-		xMin	= m_pShapes->Get_Extent().m_rect.xMin;
-		yMin	= m_pShapes->Get_Extent().m_rect.yMin;
-		xMax	= m_pShapes->Get_Extent().m_rect.xMax;
-		yMax	= m_pShapes->Get_Extent().m_rect.yMax;
-	}
-	else
-	{
-		xMin	= pParameters->Get_Parameter("X_EXTENT")->asRange()->Get_LoVal();
-		yMin	= pParameters->Get_Parameter("Y_EXTENT")->asRange()->Get_LoVal();
-		xMax	= pParameters->Get_Parameter("X_EXTENT")->asRange()->Get_HiVal();
-		yMax	= pParameters->Get_Parameter("Y_EXTENT")->asRange()->Get_HiVal();
+	case 0:	return( SG_DATATYPE_Byte   );
+	case 1:	return( SG_DATATYPE_Short  );
+	case 2:	return( SG_DATATYPE_Int    );
+	case 3:	return( SG_DATATYPE_Float  );
+	case 4:	return( SG_DATATYPE_Double );
 	}
 
-	Cell_Size	= pParameters->Get_Parameter("CELL_SIZE")->asDouble();
-
-	nx			= 1 + (int)((xMax - xMin) / Cell_Size);
-	ny			= 1 + (int)((yMax - yMin) / Cell_Size);
-
-	return( SG_Create_Grid(Get_Grid_Type(pParameters->Get_Parameter("GRID_TYPE")->asInt()), nx, ny, Cell_Size, xMin, yMin) );
+	return( SG_DATATYPE_Float );
 }
 
 
@@ -263,102 +192,82 @@ CSG_Grid * CShapes2Grid::Get_Target_Grid(CSG_Parameters *pParameters, CSG_Shapes
 //---------------------------------------------------------
 bool CShapes2Grid::On_Execute(void)
 {
-	m_pGrid		= NULL;
-	m_pShapes	= Parameters("INPUT")->asShapes();
+	int		iField, iShape, iType;
 
 	//-----------------------------------------------------
-	if( m_pShapes->Get_Field_Count() > 0 )
+	m_pShapes		= Parameters("INPUT")		->asShapes();
+	m_Method_Lines	= Parameters("LINE_TYPE")	->asInt();
+	iField			= Parameters("FIELD")		->asInt();
+	iType			= Parameters("GRID_TYPE")	->asInt();
+
+	if( iField < 0 || iField >= m_pShapes->Get_Field_Count() || m_pShapes->Get_Field_Type(iField) == SG_DATATYPE_String )
 	{
-		switch( Parameters("TARGET_TYPE")->asInt() )
-		{
-		case 0:	// User defined...
-			if( Dlg_Parameters("USER") )
-			{
-				m_pGrid	= Get_Target_Grid(Get_Parameters("USER"), m_pShapes);
-			}
-			break;
+		iField		= -1;
 
-		case 1:	// Grid Project...
-			if( Dlg_Parameters("GET_SYSTEM") )
-			{
-				m_pGrid	= SG_Create_Grid(
-							*Get_Parameters("GET_SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System(),
-							Get_Grid_Type(Get_Parameters("GET_SYSTEM")->Get_Parameter("GRID_TYPE")->asInt())
-						);
-			}
-			break;
-
-		case 2:	// Grid...
-			if( Dlg_Parameters("GRID") )
-			{
-				m_pGrid	= Get_Parameters("GRID")->Get_Parameter("GRID")->asGrid();
-			}
-			break;
-		}
-
-		//-------------------------------------------------
-		if( m_pGrid )
-		{
-			int			i, iField;
-			CSG_Shape	*pShape;
-
-			//---------------------------------------------
-			m_Method_Lines	= Parameters("LINE_TYPE")	->asInt();
-			iField			= Parameters("FIELD")		->asInt();
-
-			if( iField >= 0 && iField < m_pShapes->Get_Field_Count()
-			&&	m_pShapes->Get_Field_Type(iField) != SG_DATATYPE_String )
-			{
-				m_pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pShapes->Get_Name(), m_pShapes->Get_Field_Name(iField)));
-			}
-			else
-			{
-				m_pGrid->Set_Name(m_pShapes->Get_Name());
-				iField	= -1;
-				Message_Add( _TL("WARNING: The selected attribute is of field type string, generating unique identifiers instead.\n"));
-			}
-
-			//---------------------------------------------
-			m_pGrid->Assign_NoData();
-			Parameters("GRID")->Set_Value(m_pGrid);
-
-			m_pLock	= m_pShapes->Get_Type() == SHAPE_TYPE_Point ? NULL
-					: SG_Create_Grid(m_pGrid, SG_DATATYPE_Byte);
-
-			//---------------------------------------------
-			for(i=0, m_Lock_ID=1; i<m_pShapes->Get_Count() && Set_Progress(i, m_pShapes->Get_Count()); i++, m_Lock_ID++)
-			{
-				pShape	= m_pShapes->Get_Shape(i);
-				if (m_pShapes->Get_Selection_Count() > 0)
-				{
-					if (!pShape->is_Selected())
-						continue;
-				}
-				m_Value	= iField < 0 ? i + 1 : pShape->asDouble(iField);
-
-				if( pShape->Intersects(m_pGrid->Get_Extent().m_rect) )
-				{
-					switch( m_pShapes->Get_Type() )
-					{
-					case SHAPE_TYPE_Point:
-					case SHAPE_TYPE_Points:		Set_Points	(pShape);	break;
-					case SHAPE_TYPE_Line:		Set_Line	(pShape);	break;
-					case SHAPE_TYPE_Polygon:	Set_Polygon	(pShape);	break;
-					}
-				}
-			}
-
-			//---------------------------------------------
-			if( m_pLock )
-			{
-				delete(m_pLock);
-			}
-		}
-
-		return( true );
+		Message_Add(_TL("WARNING: selected attribute is not numeric; generating unique identifiers instead."));
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	m_pGrid		= NULL;
+
+	switch( Parameters("TARGET")->asInt() )
+	{
+	case 0:	// user defined...
+		if( m_Grid_Target.Init_User(m_pShapes->Get_Extent()) && Dlg_Parameters("USER") )
+		{
+			m_pGrid	= m_Grid_Target.Get_User(Get_Grid_Type(iType));
+		}
+		break;
+
+	case 1:	// grid...
+		if( Dlg_Parameters("GRID") )
+		{
+			m_pGrid	= m_Grid_Target.Get_Grid(Get_Grid_Type(iType));
+		}
+		break;
+	}
+
+	if( m_pGrid == NULL )
+	{
+		return( false );
+	}
+
+	//-------------------------------------------------
+	m_pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pShapes->Get_Name(), iField < 0 ? _TL("ID") : m_pShapes->Get_Field_Name(iField)));
+	m_pGrid->Assign_NoData();
+	Parameters("GRID")->Set_Value(m_pGrid);
+
+	m_pLock	= m_pShapes->Get_Type() == SHAPE_TYPE_Point ? NULL : SG_Create_Grid(m_pGrid, SG_DATATYPE_Byte);
+
+	//-----------------------------------------------------
+	for(iShape=0, m_Lock_ID=1; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++, m_Lock_ID++)
+	{
+		CSG_Shape	*pShape	= m_pShapes->Get_Shape(iShape);
+
+		if( m_pShapes->Get_Selection_Count() <= 0 || pShape->is_Selected() )
+		{
+			m_Value	= iField < 0 ? iShape + 1 : pShape->asDouble(iField);
+
+			if( pShape->Intersects(m_pGrid->Get_Extent().m_rect) )
+			{
+				switch( m_pShapes->Get_Type() )
+				{
+				case SHAPE_TYPE_Point:
+				case SHAPE_TYPE_Points:		Set_Points	(pShape);	break;
+				case SHAPE_TYPE_Line:		Set_Line	(pShape);	break;
+				case SHAPE_TYPE_Polygon:	Set_Polygon	(pShape);	break;
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if( m_pLock )
+	{
+		delete(m_pLock);
+	}
+
+	return( true );
 }
 
 

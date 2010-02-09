@@ -85,28 +85,30 @@ class CGeoref_Grid : public CSG_Module
 {
 public:
 	CGeoref_Grid(void);
-	virtual ~CGeoref_Grid(void);
 
 
 protected:
 
-	virtual int				On_Parameter_Changed		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual bool				On_Execute				(void);
 
-	virtual bool			On_Execute					(void);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
 
 private:
 
-	CGeoref_Engine			m_Engine;
+	CSG_Parameters_Grid_Target	m_Grid_Target;
+
+	CGeoref_Engine				m_Engine;
 
 
-	bool					Get_Conversion				(void);
+	bool						Get_Conversion			(void);
 
-	void					Get_MinMax					(double &xMin, double &xMax, double &yMin, double &yMax, TSG_Point Point);
-	CSG_Grid *					Get_Target_Userdef			(CSG_Grid *pSource, TSG_Data_Type Type);
-	CSG_Grid *					Get_Target_Autofit			(CSG_Grid *pSource, double Grid_Size, int AutoExtMode, TSG_Data_Type Type);
+	void						Get_MinMax				(TSG_Rect &r, double x, double y);
+	bool						Get_Target_Extent		(CSG_Grid *pSource, TSG_Rect &Extent, bool bEdge);
+	CSG_Grid *					Get_Target_Autofit		(CSG_Grid *pSource, TSG_Data_Type Type);
 
-	bool					Set_Grid					(CSG_Grid *pSource, CSG_Grid   *pTarget, int Interpolation);
-	bool					Set_Shapes					(CSG_Grid *pSource, CSG_Shapes *pTarget);
+	bool						Set_Grid				(CSG_Grid *pSource, CSG_Grid   *pTarget, int Interpolation);
+	bool						Set_Shapes				(CSG_Grid *pSource, CSG_Shapes *pTarget);
 
 };
 

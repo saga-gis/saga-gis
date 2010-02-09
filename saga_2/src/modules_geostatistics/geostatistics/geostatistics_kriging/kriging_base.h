@@ -83,62 +83,61 @@ class geostatistics_kriging_EXPORT CKriging_Base : public CSG_Module
 {
 public:
 	CKriging_Base(void);
-	virtual ~CKriging_Base(void);
-
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Kriging with Variogram Fit") );	}
 
 
 protected:
 
-	bool					m_bBlock;
+	bool						m_bBlock;
 
-	int						m_zField;
+	int							m_zField;
 
-	double					m_Block;
+	double						m_Block;
 
-	CSG_Points_Z			m_Points;
+	CSG_Points_Z				m_Points;
 
-	CSG_Vector				m_G;
+	CSG_Vector					m_G;
 
-	CSG_Matrix				m_W;
+	CSG_Matrix					m_W;
 
-	CSG_PRQuadTree			m_Search;
+	CSG_PRQuadTree				m_Search;
 
-	CSG_Shapes				*m_pPoints;
+	CSG_Shapes					*m_pPoints;
 
 
-	virtual bool			On_Execute				(void);
+	virtual bool				On_Execute				(void);
 
-	virtual bool			On_Initialise			(void)					{	return( true );	}
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool			Get_Value				(double x, double y, double &z, double &Variance)	= 0;
+	virtual bool				On_Initialise			(void)					{	return( true );	}
 
-	double					Get_Weight				(double d)				{	return( m_Variogram.Get_Value(d) );	}
-	double					Get_Weight				(double dx, double dy)	{	return( m_Variogram.Get_Value(sqrt(dx*dx + dy*dy)) );	}
+	virtual bool				Get_Value				(double x, double y, double &z, double &Variance)	= 0;
+
+	double						Get_Weight				(double d)				{	return( m_Variogram.Get_Value(d) );	}
+	double						Get_Weight				(double dx, double dy)	{	return( m_Variogram.Get_Value(sqrt(dx*dx + dy*dy)) );	}
 
 
 private:
 
-	bool					m_bStdDev;
+	bool						m_bStdDev;
 
-	CSG_Table				m_Variances;
+	CSG_Parameters_Grid_Target	m_Grid_Target;
 
-	CSG_Trend				m_Variogram;
+	CSG_Table					m_Variances;
 
-	CSG_Grid				*m_pGrid, *m_pVariance;
+	CSG_Trend					m_Variogram;
+
+	CSG_Grid					*m_pGrid, *m_pVariance;
 
 
-	bool					_Initialise				(void);
-	bool					_Initialise_Grids		(void);
-	bool					_Finalise				(void);
+	bool						_Initialise				(void);
+	bool						_Initialise_Grids		(void);
+	bool						_Finalise				(void);
 
-	bool					_Interpolate			(void);
+	bool						_Interpolate			(void);
 
-	bool					_Get_Variances			(void);
+	bool						_Get_Variances			(void);
 
 };
-
-#endif // #ifndef HEADER_INCLUDED__kriging_base_H
 
 
 ///////////////////////////////////////////////////////////
@@ -148,3 +147,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__kriging_base_H

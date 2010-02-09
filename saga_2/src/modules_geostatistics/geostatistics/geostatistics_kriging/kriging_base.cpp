@@ -101,21 +101,9 @@ CKriging_Base::CKriging_Base(void)
 	Parameters.Add_Choice(
 		NULL	, "TQUALITY"	, _TL("Type of Quality Measure"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("none"),
+		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("standard deviation"),
 			_TL("variance")
-		), 1
-	);
-
-	Parameters.Add_Choice(
-		NULL	, "TARGET"		, _TL("Target Grid"),
-		_TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("user defined"),
-			_TL("grid system"),
-			_TL("grid")
 		), 0
 	);
 
@@ -157,53 +145,6 @@ CKriging_Base::CKriging_Base(void)
 	);
 
 	//-----------------------------------------------------
-	pParameters	= Add_Parameters(SG_T("USER")	, _TL("User defined grid")	, _TL(""));
-
-	pParameters->Add_Value(
-		NULL	, "CELL_SIZE"	, _TL("Grid Size"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 100.0, 0.0, true
-	);
-
-	pParameters->Add_Range(
-		pNode	, "X_EXTENT"	, _TL("X-Extent"),
-		_TL("")
-	);
-
-	pParameters->Add_Range(
-		pNode	, "Y_EXTENT"	, _TL("Y-Extent"),
-		_TL("")
-	);
-
-	//-----------------------------------------------------
-	pParameters	= Add_Parameters(SG_T("SYSTEM")	, _TL("Choose Grid System")	, _TL(""));
-
-	pParameters->Add_Grid_System(
-		NULL	, "SYSTEM"		, _TL("Grid System"),
-		_TL("")
-	);
-
-	//-----------------------------------------------------
-	pParameters	= Add_Parameters(SG_T("GRID")	, _TL("Choose Grid")		, _TL(""));
-
-	pNode	= pParameters->Add_Grid_System(
-		NULL	, "SYSTEM"		, _TL("Grid System"),
-		_TL("")
-	);
-
-	pParameters->Add_Grid(
-		pNode	, "GRID"		, _TL("Grid"),
-		_TL(""),
-		PARAMETER_OUTPUT, false
-	);
-
-	pParameters->Add_Grid(
-		pNode	, "VARIANCE"	, _TL("Variance"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL, false
-	);
-
-	//-----------------------------------------------------
 	pParameters	= Add_Parameters(SG_T("FORMULA"), _TL("Formula"), _TL(""));
 
 	pParameters->Add_String(
@@ -216,11 +157,49 @@ CKriging_Base::CKriging_Base(void)
 	m_Variances.Add_Field(SG_T("DISTANCE")	, SG_DATATYPE_Double);
 	m_Variances.Add_Field(SG_T("VAR_CUM")	, SG_DATATYPE_Double);
 	m_Variances.Add_Field(SG_T("VAR_CLS")	, SG_DATATYPE_Double);
+
+	///////////////////////////////////////////////////////
+	//-----------------------------------------------------
+	Parameters.Add_Choice(
+		NULL	, "TARGET"		, _TL("Trend Surface"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("user defined"),
+			_TL("grid")
+		), 0
+	);
+
+	//-----------------------------------------------------
+	pParameters = Add_Parameters("USER", _TL("User Defined Grid")	, _TL(""));
+
+	pParameters->Add_Value(
+		NULL	, "VARIANCE"	, _TL("Create Variance Grid"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	);
+
+	m_Grid_Target.Add_Parameters_User(pParameters);
+
+	//-----------------------------------------------------
+	pParameters = Add_Parameters("GRID", _TL("Choose Grid")			, _TL(""));
+
+	m_Grid_Target.Add_Parameters_Grid(pParameters);
+
+	m_Grid_Target.Add_Grid_Parameter(SG_T("VARIANCE"), _TL("Variance"), true);
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-CKriging_Base::~CKriging_Base(void)
-{}
+int CKriging_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -282,7 +261,7 @@ bool CKriging_Base::_Initialise(void)
 	//-----------------------------------------------------
 	m_Block		= Parameters("DBLOCK")	->asDouble() / 2.0;
 	m_bBlock	= Parameters("BLOCK")	->asBool() && m_Block > 0.0;
-	m_bStdDev	= Parameters("TQUALITY")->asInt() == 1;
+	m_bStdDev	= Parameters("TQUALITY")->asInt() == 0;
 
 	//-----------------------------------------------------
 	m_pPoints	= Parameters("POINTS")	->asShapes();
@@ -302,85 +281,51 @@ bool CKriging_Base::_Initialise(void)
 //---------------------------------------------------------
 bool CKriging_Base::_Initialise_Grids(void)
 {
-	TSG_Rect		r;
-	CSG_Parameters	*P;
-
 	//-----------------------------------------------------
 	m_pGrid		= NULL;
 	m_pVariance	= NULL;
 
-	//-----------------------------------------------------
 	switch( Parameters("TARGET")->asInt() )
 	{
 	case 0:	// user defined...
-		r	= m_pPoints->Get_Extent();
-		P	= Get_Parameters("USER");
-
-		P->Get_Parameter("X_EXTENT")->asRange()->Set_LoVal(r.xMin);
-		P->Get_Parameter("Y_EXTENT")->asRange()->Set_LoVal(r.yMin);
-		P->Get_Parameter("X_EXTENT")->asRange()->Set_HiVal(r.xMax);
-		P->Get_Parameter("Y_EXTENT")->asRange()->Set_HiVal(r.yMax);
-
-		if( Dlg_Parameters("USER") )
+		if( m_Grid_Target.Init_User(m_pPoints->Get_Extent()) && Dlg_Parameters("USER") )
 		{
-			r.xMin	= P->Get_Parameter("X_EXTENT")->asRange()->Get_LoVal();
-			r.yMin	= P->Get_Parameter("Y_EXTENT")->asRange()->Get_LoVal();
-			r.xMax	= P->Get_Parameter("X_EXTENT")->asRange()->Get_HiVal();
-			r.yMax	= P->Get_Parameter("Y_EXTENT")->asRange()->Get_HiVal();
+			m_pGrid	= m_Grid_Target.Get_User();
 
-			double	d	= P->Get_Parameter("CELL_SIZE")->asDouble();
-			int		nx	= 1 + (int)((r.xMax - r.xMin) / d);
-			int		ny	= 1 + (int)((r.yMax - r.yMin) / d);
-
-			if( nx > 1 && ny > 1 )
+			if( Get_Parameters("USER")->Get_Parameter("VARIANCE")->asBool() )
 			{
-				m_pGrid	= SG_Create_Grid(SG_DATATYPE_Float, nx, ny, d, r.xMin, r.yMin);
+				m_pVariance	= SG_Create_Grid(m_pGrid->Get_System());
 			}
 		}
 		break;
 
-	case 1:	// grid system...
-		if( Dlg_Parameters("SYSTEM") )
-		{
-			m_pGrid		= SG_Create_Grid(*Get_Parameters("SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System(), SG_DATATYPE_Float);
-		}
-		break;
-
-	case 2:	// grid...
+	case 1:	// grid...
 		if( Dlg_Parameters("GRID") )
 		{
-			m_pGrid		= Get_Parameters("GRID")->Get_Parameter("GRID")		->asGrid();
-			m_pVariance	= Get_Parameters("GRID")->Get_Parameter("VARIANCE")	->asGrid();
+			m_pGrid		= m_Grid_Target.Get_Grid();
+			m_pVariance	= m_Grid_Target.Get_Grid(SG_T("VARIANCE"));
 		}
 		break;
+	}
+
+	if( !m_pGrid )
+	{
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	if( m_pGrid )
+	m_pGrid->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_pPoints->Get_Name(), Get_Name()));
+
+	Parameters("GRID")->Set_Value(m_pGrid);
+
+	if( m_pVariance )
 	{
-		if( !m_pVariance && Parameters("TQUALITY")->asInt() )
-		{
-			m_pVariance	= SG_Create_Grid(m_pGrid, SG_DATATYPE_Float);
-		}
+		m_pVariance->Set_Name(CSG_String::Format(SG_T("%s (%s - %s)"), m_pPoints->Get_Name(), Get_Name(), m_bStdDev ? _TL("Standard Deviation") : _TL("Variance")));
 
-		m_pGrid->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_pPoints->Get_Name(), Get_Name()));
-		Parameters("GRID")->Set_Value(m_pGrid);
-
-		if( m_pVariance )
-		{
-			m_pVariance->Set_Name(CSG_String::Format(SG_T("%s (%s - %s)"), m_pPoints->Get_Name(), Get_Name(), m_bStdDev ? _TL("Standard Deviation") : _TL("Variance")));
-			Parameters("VARIANCE")->Set_Value(m_pVariance);
-		}
-
-		if( Parameters("TARGET")->asInt() == 2 )
-		{
-			Get_Parameters("GRID")->Get_Parameter("VARIANCE")->Set_Value(m_pVariance);
-		}
-
-		return( true );
+		Parameters("VARIANCE")->Set_Value(m_pVariance);
 	}
 
-	return( false );
+	return( true );
 }
 
 //---------------------------------------------------------

@@ -77,32 +77,35 @@ class pj_proj4_EXPORT CPROJ4_Grid : public CPROJ4_Base
 public:
 	CPROJ4_Grid(int Interface, bool bInputList);
 
-	virtual const SG_Char *	Get_MenuPath			(void)	{	return( _TL("R:Grid") );	}
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Grid") );	}
 
 
 protected:
 
-	virtual bool			On_Execute_Conversion	(void);
+	virtual bool				On_Execute_Conversion	(void);
 
-	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
 private:
 
-	int						m_Interpolation;
+	int							m_Interpolation;
+
+	CSG_Parameters_Grid_Target	m_Grid_Target;
 
 
-	bool					Set_Grids				(const CSG_Grid_System &System, CSG_Parameter_Grid_List *pSources, CSG_Parameter_Grid_List *pTargets);
-	bool					Set_Grid				(CSG_Grid *pSource, CSG_Grid   *pTarget);
-	bool					Set_Shapes				(CSG_Grid *pSource, CSG_Shapes *pTarget);
+	bool						Set_Grids				(CSG_Parameter_Grid_List *pSources, CSG_Parameter_Grid_List *pTargets);
+	bool						Set_Shapes				(CSG_Parameter_Grid_List *pSources, CSG_Shapes              *pTarget );
+	bool						Set_Grid				(CSG_Grid *pSource, CSG_Grid   *pTarget);
+	bool						Set_Shapes				(CSG_Grid *pSource, CSG_Shapes *pTarget);
 
-	bool					Init_XY					(const CSG_Grid_System &System, CSG_Grid **ppX, CSG_Grid **ppY);
-	bool					Init_Target				(CSG_Grid *pSource, CSG_Grid *pTarget);
+	bool						Init_XY					(const CSG_Grid_System &System, CSG_Grid **ppX, CSG_Grid **ppY);
+	bool						Init_Target				(CSG_Grid *pSource, CSG_Grid *pTarget);
 
-	bool					Get_MinMax				(TSG_Rect &r, TSG_Point p);
-	bool					Get_Target_System		(const CSG_Grid_System &Source, CSG_Grid_System &Target);
-	bool					Get_Target_Userdef		(const CSG_Grid_System &Source, CSG_Grid_System &Target);
-	bool					Get_Target_Autofit		(const CSG_Grid_System &Source, CSG_Grid_System &Target);
+	void						Get_MinMax				(TSG_Rect &r, double x, double y);
+	bool						Get_Target_Extent		(CSG_Grid *pSource, TSG_Rect &Extent, bool bEdge);
+
+	CSG_Grid *					Get_Target_Autofit		(CSG_Grid *pSource, TSG_Data_Type Type);
 
 };
 

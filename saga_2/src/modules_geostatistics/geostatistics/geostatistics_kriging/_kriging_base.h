@@ -78,7 +78,7 @@ public:
 	C_Kriging_Base(void);
 	virtual ~C_Kriging_Base(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Kriging") );	}
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Without Variogram Fit") );	}
 
 
 protected:

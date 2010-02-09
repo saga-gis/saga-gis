@@ -58,7 +58,7 @@ LINK32=link.exe
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib /nologo /subsystem:windows /dll /machine:I386 /libpath:"$(SAGA)/bin/saga_vc"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy     *.lng.txt     ..\..\..\..\bin\saga_vc\modules\ 
+PostBuild_Cmds=copy      *.lng.txt      ..\..\..\..\bin\saga_vc\modules\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "grid_spline - Win32 Debug"
@@ -195,10 +195,6 @@ SOURCE=.\Gridding_Spline_TPS_TIN.cpp
 
 SOURCE=.\MLB_Interface.cpp
 # End Source File
-# Begin Source File
-
-SOURCE=.\Thin_Plate_Spline.cpp
-# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -243,10 +239,6 @@ SOURCE=.\Gridding_Spline_TPS_TIN.h
 
 SOURCE=.\MLB_Interface.h
 # End Source File
-# Begin Source File
-
-SOURCE=.\Thin_Plate_Spline.h
-# End Source File
 # End Group
 # Begin Group "Include"
 
@@ -281,7 +273,15 @@ SOURCE=..\..\..\..\..\saga_2\src\saga_core\saga_api\grid.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\saga_core\saga_api\grid_pyramid.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\..\..\saga_2\src\saga_core\saga_api\mat_tools.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\saga_core\saga_api\metadata.h
 # End Source File
 # Begin Source File
 
@@ -294,6 +294,10 @@ SOURCE=..\..\..\saga_core\saga_api\module_library.h
 # Begin Source File
 
 SOURCE=..\..\..\..\..\saga_2\src\saga_core\saga_api\parameters.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\saga_core\saga_api\pointcloud.h
 # End Source File
 # Begin Source File
 

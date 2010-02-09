@@ -70,7 +70,6 @@
 
 //---------------------------------------------------------
 #include "Gridding_Spline_Base.h"
-#include "Thin_Plate_Spline.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -100,7 +99,7 @@ protected:
 
 	CSG_Shapes				*m_pShapes;
 
-	CThin_Plate_Spline		m_Spline;
+	CSG_Thin_Plate_Spline	m_Spline;
 
 
 private:

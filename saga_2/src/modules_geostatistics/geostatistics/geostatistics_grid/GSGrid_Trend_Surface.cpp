@@ -81,6 +81,11 @@ CGSGrid_Trend_Surface::CGSGrid_Trend_Surface(void)
 	));
 
 	//-----------------------------------------------------
+	Parameters.Add_Grid_Output(
+		NULL	, "REGRESSION"	, _TL("Trend Surface"),
+		_TL("")
+	);
+
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "POINTS"		, _TL("Points"),
 		_TL(""),
@@ -104,18 +109,6 @@ CGSGrid_Trend_Surface::CGSGrid_Trend_Surface(void)
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
-	pNode	= Parameters.Add_Grid(
-		NULL	, "REGRESSION"	, _TL("Regression"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
-
-	Parameters.Add_Value(
-		pNode	, "CELLSIZE"	, _TL("Cellsize"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true
-	);
-
 	Parameters.Add_Choice(
 		NULL	, "TYPE"		, _TL("Trend Surface Type"),
 		_TL(""),
@@ -124,6 +117,32 @@ CGSGrid_Trend_Surface::CGSGrid_Trend_Surface(void)
 			_TL("second order polynom")
 		), 0
 	);
+
+	//-----------------------------------------------------
+	Parameters.Add_Choice(
+		NULL	, "TARGET"		, _TL("Trend Surface"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("user defined"),
+			_TL("grid")
+		), 0
+	);
+
+	m_Grid_Target.Add_Parameters_User(Add_Parameters("USER", _TL("User Defined Grid")	, _TL("")));
+	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GRID", _TL("Choose Grid")			, _TL("")));
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGSGrid_Trend_Surface::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
 }
 
 
@@ -137,62 +156,69 @@ CGSGrid_Trend_Surface::CGSGrid_Trend_Surface(void)
 bool CGSGrid_Trend_Surface::On_Execute(void)
 {
 	int			iAttribute, Type;
-	double		Cellsize;
 	CSG_Table	*pTable;
 	CSG_Shapes	*pPoints, *pResiduals;
 	CSG_Grid	*pRegression;
 
 	//-----------------------------------------------------
-	pRegression		= Parameters("REGRESSION")	->asGrid();
-	pTable			= Parameters("TABLE")		->asTable();
-	pPoints			= Parameters("POINTS")		->asShapes();
-	pResiduals		= Parameters("RESIDUALS")	->asShapes();
-	iAttribute		= Parameters("ATTRIBUTE")	->asInt();
-	Type			= Parameters("TYPE")		->asInt();
-	Cellsize		= Parameters("CELLSIZE")	->asDouble();
+	pTable		= Parameters("TABLE")		->asTable();
+	pPoints		= Parameters("POINTS")		->asShapes();
+	pResiduals	= Parameters("RESIDUALS")	->asShapes();
+	iAttribute	= Parameters("ATTRIBUTE")	->asInt();
+	Type		= Parameters("TYPE")		->asInt();
 
 	//-----------------------------------------------------
-	if( Get_Regression(pPoints, iAttribute, Type) )
+	if( !Get_Regression(pPoints, iAttribute, Type) )
 	{
-		Set_Message(Type);
+		return( false );
+	}
 
-		if( pRegression == NULL )
+	Set_Message(Type);
+
+	//-----------------------------------------------------
+	pRegression		= NULL;
+
+	switch( Parameters("TARGET")->asInt() )
+	{
+	case 0:	// user defined...
+		if( m_Grid_Target.Init_User(pPoints->Get_Extent()) && Dlg_Parameters("USER") )
 		{
-			pRegression	= SG_Create_Grid(SG_DATATYPE_Float,
-				1 + (int)(pPoints->Get_Extent().Get_XRange() / Cellsize),
-				1 + (int)(pPoints->Get_Extent().Get_XRange() / Cellsize),
-				Cellsize,
-				pPoints->Get_Extent().Get_XMin(),
-				pPoints->Get_Extent().Get_YMin()
-			);
-
-			DataObject_Add(pRegression);
-
-			Parameters("REGRESSION")->Set_Value(pRegression);
+			pRegression	= m_Grid_Target.Get_User();
 		}
+		break;
 
-		pRegression->Set_Name(CSG_String::Format(SG_T("%s (%s)"), pPoints->Get_Name(), Get_Name()));
-
-		Set_Regression(pRegression, Type);
-
-		Set_Residuals(pPoints, iAttribute, pResiduals, pRegression);
-
-		if( pTable )
+	case 1:	// grid...
+		if( Dlg_Parameters("GRID") )
 		{
-			pTable->Assign(m_Regression.Get_Result());
-
-			pTable->Set_Name(_TL("Trend Surface Analysis"));
+			pRegression	= m_Grid_Target.Get_Grid();
 		}
+		break;
+	}
 
-		m_Regression.Destroy();
-
-		return( true );
+	if( pRegression == NULL )
+	{
+		return( false );
 	}
 
 	//-----------------------------------------------------
+	pRegression->Set_Name(CSG_String::Format(SG_T("%s (%s)"), pPoints->Get_Name(), Get_Name()));
+
+	Parameters("REGRESSION")->Set_Value(pRegression);
+
+	Set_Regression(pRegression, Type);
+
+	Set_Residuals(pPoints, iAttribute, pResiduals, pRegression);
+
+	if( pTable )
+	{
+		pTable->Assign(m_Regression.Get_Result());
+
+		pTable->Set_Name(_TL("Trend Surface Analysis"));
+	}
+
 	m_Regression.Destroy();
 
-	return( false );
+	return( true );
 }
 
 

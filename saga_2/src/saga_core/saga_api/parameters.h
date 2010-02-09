@@ -935,6 +935,41 @@ private:
 
 ///////////////////////////////////////////////////////////
 //														 //
+//				Grid Target Selector					 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Parameters_Grid_Target
+{
+public:
+	CSG_Parameters_Grid_Target(void);
+
+	void						Create					(void);
+
+	bool						Add_Parameters_User		(CSG_Parameters *pParameters);
+	bool						Add_Parameters_Grid		(CSG_Parameters *pParameters);
+
+	bool						Add_Grid_Parameter		(const CSG_String &Identifier, const CSG_String &Name, bool bOptional);
+
+	bool						On_User_Changed			(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	bool						Init_User				(const TSG_Rect &Extent, int Rows = 100);
+
+	CSG_Grid *					Get_User				(TSG_Data_Type Type = SG_DATATYPE_Float);
+	CSG_Grid *					Get_Grid				(TSG_Data_Type Type = SG_DATATYPE_Float);
+	CSG_Grid *					Get_Grid				(const CSG_String &Identifier, TSG_Data_Type Type = SG_DATATYPE_Float);
+
+
+private:
+
+	CSG_Parameters				*m_pUser, *m_pGrid;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //					CSG_Parameter						 //
 //														 //
 ///////////////////////////////////////////////////////////

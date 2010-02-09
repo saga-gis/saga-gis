@@ -382,26 +382,11 @@ bool CVIEW_Table_Control::Del_Record(void)
 {
 	if( !FIXED_ROWS && (!m_pTable->is_Private() || (m_pTable->Get_Owner() && m_pTable->Get_Owner()->Get_ObjectType() == DATAOBJECT_TYPE_Shapes)) )
 	{
-		wxArrayInt	Records	= GetSelectedRows();
+		m_pTable->Del_Selection();
 
-		if( Records.GetCount() > 0 )
-		{
-			do
-			{
-				DeleteRows(Records[0]);
-				Records	= GetSelectedRows();
-			}
-			while( Records.GetCount() > 0 );
+		g_pData->Update_Views(m_pTable);
 
-			if( !m_pTable->is_Private() )
-			{
-				m_pTable->Del_Selection();
-
-				g_pData->Update_Views(m_pTable);
-			}
-
-			return( true );
-		}
+		return( true );
 	}
 
 	return( false );

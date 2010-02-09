@@ -70,39 +70,75 @@
 //---------------------------------------------------------
 CInterpolation_InverseDistance::CInterpolation_InverseDistance(void)
 {
-	Set_Name		(_TL("Inverse Distance"));
+	CSG_Parameter	*pNode;
 
-	Set_Author		(SG_T("O. Conrad (c) 2003"));
+	Set_Name		(_TL("Inverse Distance Weighted"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2003"));
 
 	Set_Description	(_TW(
-		"Inverse distance to a power method for grid interpolation from irregular distributed points."
+		"Inverse distance grid interpolation from irregular distributed points."
 	));
 
-	Parameters.Add_Value(
-		NULL	, "POWER"		, _TL("Inverse Distance: Power"),
+	pNode	= Parameters.Add_Choice(
+		NULL	, "WEIGHTING"	, _TL("Distance Weighting"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 1.0
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("inverse distance to a power"),
+			_TL("exponential weighting scheme"),
+			_TL("gaussian weighting scheme")
+		)
 	);
 
 	Parameters.Add_Value(
-		NULL	, "RADIUS"		, _TL("Search Radius"),
+		pNode	, "POWER"		, _TL("Inverse Distance Power"),
+		_TL(""),
+		PARAMETER_TYPE_Double	, 2.0
+	);
+
+	Parameters.Add_Value(
+		pNode	, "BANDWIDTH"	, _TL("Exponential and Gaussian Weighting Bandwidth"),
+		_TL(""),
+		PARAMETER_TYPE_Double	, 1.0, 0.0, true
+	);
+
+	pNode	= Parameters.Add_Choice(
+		NULL	, "RANGE"		, _TL("Search Range"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("search radius (local)"),
+			_TL("no search radius (global)")
+		)
+	);
+
+	Parameters.Add_Value(
+		pNode	, "RADIUS"		, _TL("Search Radius"),
 		_TL(""),
 		PARAMETER_TYPE_Double	, 100.0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NPOINTS"		, _TL("Maximum Points"),
-		_TL(""),
-		PARAMETER_TYPE_Int		, 10.0
-	);
-
 	Parameters.Add_Choice(
-		NULL	, "MODE"		, _TL("Search Mode"),
+		pNode	, "MODE"		, _TL("Search Mode"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("all directions"),
 			_TL("quadrants")
 		)
+	);
+
+	pNode	= Parameters.Add_Choice(
+		NULL	, "POINTS"		, _TL("Number of Points"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("maximum number of points"),
+			_TL("all points")
+		)
+	);
+
+	Parameters.Add_Value(
+		pNode	, "NPOINTS"		, _TL("Maximum Number of Points"),
+		_TL(""),
+		PARAMETER_TYPE_Int		, 10.0
 	);
 }
 
@@ -116,46 +152,92 @@ CInterpolation_InverseDistance::CInterpolation_InverseDistance(void)
 //---------------------------------------------------------
 bool CInterpolation_InverseDistance::On_Initialize(void)
 {
-	m_Power			= Parameters("POWER")	->asDouble();
-	m_Radius		= Parameters("RADIUS")	->asDouble();
-	m_nPoints_Max	= Parameters("NPOINTS")	->asInt();
-	m_Mode			= Parameters("MODE")	->asInt();
+	m_Weighting		= Parameters("WEIGHTING")	->asInt();
+	m_Power			= Parameters("POWER")		->asDouble();
+	m_Bandwidth		= Parameters("BANDWIDTH")	->asDouble();
+	m_Mode			= Parameters("MODE")		->asInt();
+	m_nPoints_Max	= Parameters("POINTS")		->asInt() == 0 ? Parameters("NPOINTS")->asInt()    : 0;
+	m_Radius		= Parameters("RANGE")		->asInt() == 0 ? Parameters("RADIUS") ->asDouble() : 0.0;
 
-	return( Set_Search_Engine() );
+	return( (m_nPoints_Max == 0 && m_Radius == 0.0) || Set_Search_Engine() );
+}
+
+//---------------------------------------------------------
+inline double CInterpolation_InverseDistance::Get_Weight(double Distance)
+{
+	switch( m_Weighting )
+	{
+	default:	return( pow(Distance, -m_Power) );
+	case 1:		return( exp(-Distance / m_Bandwidth) );
+	case 2:		return( exp(-0.5 * SG_Get_Square(Distance / m_Bandwidth)) );
+	}
 }
 
 //---------------------------------------------------------
 bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &z)
 {
-	int			i, n;
-	double		ix, iy, iz, d, w;
+	double	w, ix, iy, iz;
 
-	switch( m_Mode )
-	{
-	case 0:	n	= m_Search.Select_Nearest_Points(x, y, m_nPoints_Max, m_Radius);	break;
-	case 1:	n	= m_Search.Select_Nearest_Points(x, y, m_nPoints_Max, m_Radius, 4);	break;
-	}
+	z	= 0.0;
+	w	= 0.0;
 
-	for(i=0, z=0.0, w=0.0; i<n; i++)
+	//-----------------------------------------------------
+	if( m_nPoints_Max > 0 || m_Radius > 0.0 )	// using search engine
 	{
-		if( m_Search.Get_Selected_Point(i, ix, iy, iz) )
+		int		nPoints	= m_Search.Select_Nearest_Points(x, y, m_nPoints_Max, m_Radius, m_Mode == 0 ? -1 : 4);
+
+		for(int iPoint=0; iPoint<nPoints; iPoint++)
 		{
-			d	= SG_Get_Distance(x, y, ix, iy);
-
-			if( d <= 0.0 )
+			if( m_Search.Get_Selected_Point(iPoint, ix, iy, iz) )
 			{
-				z	= iz;
+				double	d	= SG_Get_Distance(x, y, ix, iy);
 
-				return( true );
+				if( d <= 0.0 )
+				{
+					z	= iz;
+
+					return( true );
+				}
+
+				d	= Get_Weight(d);
+
+				z	+= d * iz;
+				w	+= d;
 			}
-
-			d	= pow(d, -m_Power);
-
-			z	+= d * iz;
-			w	+= d;
 		}
 	}
 
+	//-----------------------------------------------------
+	else										// without search engine
+	{
+		for(int iShape=0; iShape<m_pShapes->Get_Count() && Process_Get_Okay(); iShape++)
+		{
+			CSG_Shape	*pShape	= m_pShapes->Get_Shape(iShape);
+
+			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			{
+				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				{
+					TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
+					double		d	= SG_Get_Distance(x, y, p.x, p.y);
+
+					if( d <= 0.0 )
+					{
+						z	= pShape->asDouble(m_zField);
+
+						return( true );
+					}
+
+					d	= Get_Weight(d);
+
+					z	+= d * pShape->asDouble(m_zField);
+					w	+= d;
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
 	if( w > 0.0 )
 	{
 		z	/= w;

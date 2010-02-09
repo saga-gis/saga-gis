@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.8 2008-09-26 08:53:19 oconrad Exp $
+# $Id: Makefile.am,v 1.9 2010-02-09 17:01:50 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -23,7 +23,6 @@ Gridding_Spline_TPS_Global.cpp\
 Gridding_Spline_TPS_Local.cpp\
 Gridding_Spline_TPS_TIN.cpp\
 MLB_Interface.cpp\
-Thin_Plate_Spline.cpp\
 csa.h\
 Gridding_Spline_BA.h\
 Gridding_Spline_Base.h\
@@ -33,8 +32,7 @@ Gridding_Spline_MBA_Grid.h\
 Gridding_Spline_TPS_Global.h\
 Gridding_Spline_TPS_Local.h\
 Gridding_Spline_TPS_TIN.h\
-MLB_Interface.h\
-Thin_Plate_Spline.h
+MLB_Interface.h
 
 libgrid_spline_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(ADD_MLBS)
 
