@@ -356,7 +356,7 @@ int CPit_Router::Find_Pits(void)
 
 	for(n=0; n<Get_NCells() && SG_UI_Process_Set_Progress(n, Get_NCells()); n++)
 	{
-		m_pDEM->Get_Sorted(n,x,y,false,false);	// von tief nach hoch...
+		m_pDEM->Get_Sorted(n,x,y,false);	// von tief nach hoch...
 
 		if(	x > 0 && x < Get_NX() - 1 && y > 0 && y < Get_NY() - 1	// Randzellen und Missing Values sind
 		&&	!m_pDEM->is_NoData(x, y)									// per Definition drainiert (:= 0)...
@@ -433,7 +433,9 @@ int CPit_Router::Find_Outlets(int nPits)
 		//-------------------------------------------------
 		for(n=0; n<Get_NCells() && SG_UI_Process_Set_Progress(n, Get_NCells()); n++)
 		{
-			if(	m_pDEM->Get_Sorted(n, x, y, false) && m_pPits->asInt(x,y) == 0	)
+			m_pDEM->Get_Sorted(n, x, y, false);	// von tief nach hoch...
+
+			if(	m_pPits->asInt(x,y) == 0	)
 			{
 				z			= m_pDEM->asDouble(x,y);
 				iMin		= -1;

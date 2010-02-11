@@ -220,6 +220,7 @@ bool CSG_PRQuadTree::Create(CSG_Shapes *pShapes, int Attribute)
 		for(int iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
 			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+			double		z		= Attribute < 0 ? iShape : pShape->asDouble(Attribute);
 
 			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
@@ -227,7 +228,7 @@ bool CSG_PRQuadTree::Create(CSG_Shapes *pShapes, int Attribute)
 				{
 					TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
 
-					Add_Point(p.x, p.y, pShape->asDouble(Attribute));
+					Add_Point(p.x, p.y, z);
 				}
 			}
 		}

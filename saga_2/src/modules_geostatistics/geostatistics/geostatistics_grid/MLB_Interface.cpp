@@ -100,6 +100,7 @@ const SG_Char * Get_Info(int i)
 #include "GSGrid_Statistics.h"
 #include "GSGrid_Zonal_Statistics.h"
 #include "GSGrid_Trend_Surface.h"
+#include "gw_regression.h"
 
 
 //---------------------------------------------------------
@@ -118,6 +119,7 @@ CSG_Module *		Create_Module(int i)
 	case  6:	return( new CGSGrid_Statistics );
 	case  7:	return( new CGSGrid_Zonal_Statistics );
 	case  8:	return( new CGSGrid_Trend_Surface );
+	case  9:	return( new CGW_Regression );
 	}
 
 	return( NULL );

@@ -948,7 +948,7 @@ public:
 	void						Create					(void);
 
 	bool						Add_Parameters_User		(CSG_Parameters *pParameters);
-	bool						Add_Parameters_Grid		(CSG_Parameters *pParameters);
+	bool						Add_Parameters_Grid		(CSG_Parameters *pParameters, bool bAddDefaultGrid = true);
 
 	bool						Add_Grid_Parameter		(const CSG_String &Identifier, const CSG_String &Name, bool bOptional);
 

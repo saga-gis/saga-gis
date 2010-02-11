@@ -700,6 +700,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\gw_regression.cpp"
+				>
+			</File>
+			<File
 				RelativePath="MLB_Interface.cpp"
 				>
 				<FileConfiguration
@@ -778,6 +782,10 @@
 			</File>
 			<File
 				RelativePath="GSGrid_Zonal_Statistics.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gw_regression.h"
 				>
 			</File>
 			<File

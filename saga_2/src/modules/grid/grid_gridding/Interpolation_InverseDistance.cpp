@@ -167,7 +167,7 @@ inline double CInterpolation_InverseDistance::Get_Weight(double Distance)
 {
 	switch( m_Weighting )
 	{
-	default:	return( pow(Distance, -m_Power) );
+	default:	return( Distance > 0.0 ? pow(Distance, -m_Power) : -1.0 );
 	case 1:		return( exp(-Distance / m_Bandwidth) );
 	case 2:		return( exp(-0.5 * SG_Get_Square(Distance / m_Bandwidth)) );
 	}
@@ -190,7 +190,7 @@ bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &z)
 		{
 			if( m_Search.Get_Selected_Point(iPoint, ix, iy, iz) )
 			{
-				double	d	= SG_Get_Distance(x, y, ix, iy);
+				double	d	= Get_Weight(SG_Get_Distance(x, y, ix, iy));
 
 				if( d <= 0.0 )
 				{
@@ -198,8 +198,6 @@ bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &z)
 
 					return( true );
 				}
-
-				d	= Get_Weight(d);
 
 				z	+= d * iz;
 				w	+= d;
@@ -219,16 +217,14 @@ bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &z)
 				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
 					TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
-					double		d	= SG_Get_Distance(x, y, p.x, p.y);
+					double		d	= Get_Weight(SG_Get_Distance(x, y, p.x, p.y));
 
-					if( d <= 0.0 )
+					if( d < 0.0 )
 					{
 						z	= pShape->asDouble(m_zField);
 
 						return( true );
 					}
-
-					d	= Get_Weight(d);
 
 					z	+= d * pShape->asDouble(m_zField);
 					w	+= d;

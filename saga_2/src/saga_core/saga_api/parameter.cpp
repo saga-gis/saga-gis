@@ -748,7 +748,7 @@ CSG_Grid * CSG_Parameters_Grid_Target::Get_User(TSG_Data_Type Type)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Parameters_Grid_Target::Add_Parameters_Grid(CSG_Parameters *pParameters)
+bool CSG_Parameters_Grid_Target::Add_Parameters_Grid(CSG_Parameters *pParameters, bool bAddDefaultGrid)
 {
 	if( pParameters == NULL )
 	{
@@ -757,9 +757,12 @@ bool CSG_Parameters_Grid_Target::Add_Parameters_Grid(CSG_Parameters *pParameters
 
 	m_pGrid	= pParameters;
 
-	pParameters->Add_Grid(
-		NULL	, "GRID"	, LNG("Grid")		, LNG(""), PARAMETER_OUTPUT, false
-	);
+	if( bAddDefaultGrid )
+	{
+		pParameters->Add_Grid(
+			NULL	, "GRID"	, LNG("Grid")		, LNG(""), PARAMETER_OUTPUT, false
+		);
+	}
 
 	return( true );
 }
@@ -772,7 +775,15 @@ bool CSG_Parameters_Grid_Target::Add_Grid_Parameter(const CSG_String &Identifier
 		return( false );
 	}
 
-	CSG_Parameter	*pSystem	= m_pGrid->Get_Parameter("GRID") ? m_pGrid->Get_Parameter("GRID")->Get_Parent() : NULL;
+	CSG_Parameter	*pSystem	= NULL;
+	
+	for(int i=0; i<m_pGrid->Get_Count() && !pSystem; i++)
+	{
+		if( m_pGrid->Get_Parameter(i)->Get_Type() == PARAMETER_TYPE_Grid_System )
+		{
+			pSystem	= m_pGrid->Get_Parameter(i);
+		}
+	}
 
 	m_pGrid->Add_Grid(pSystem, Identifier, Name, LNG(""), bOptional ? PARAMETER_OUTPUT_OPTIONAL : PARAMETER_OUTPUT, false);
 
