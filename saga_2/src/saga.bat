@@ -129,6 +129,14 @@ make -fmakefile.mingw
 POPD
 
 ECHO ###################################
+ECHO geostatistics_regression
+ECHO -----------------------------------
+
+PUSHD .\modules_geostatistics\geostatistics\geostatistics_regression
+make -fmakefile.mingw
+POPD
+
+ECHO ###################################
 ECHO grid_analysis
 ECHO -----------------------------------
 

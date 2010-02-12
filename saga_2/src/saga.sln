@@ -264,6 +264,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_segmentation", "mod
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grid_calculus_bsl", "modules\grid\grid_calculus_bsl\grid_calculus_bsl.vcproj", "{768659E7-E338-409F-A6EA-A9082D902933}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "geostatistics_regression", "modules_geostatistics\geostatistics\geostatistics_regression\geostatistics_regression.vcproj", "{BD4DF3B2-3426-45DC-B67E-661D703F3049}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -744,6 +746,14 @@ Global
 		{768659E7-E338-409F-A6EA-A9082D902933}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
 		{768659E7-E338-409F-A6EA-A9082D902933}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
 		{768659E7-E338-409F-A6EA-A9082D902933}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
+		{BD4DF3B2-3426-45DC-B67E-661D703F3049}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BD4DF3B2-3426-45DC-B67E-661D703F3049}.Debug|Win32.Build.0 = Debug|Win32
+		{BD4DF3B2-3426-45DC-B67E-661D703F3049}.Release|Win32.ActiveCfg = Release|Win32
+		{BD4DF3B2-3426-45DC-B67E-661D703F3049}.Release|Win32.Build.0 = Release|Win32
+		{BD4DF3B2-3426-45DC-B67E-661D703F3049}.Unicode Debug|Win32.ActiveCfg = Unicode Debug|Win32
+		{BD4DF3B2-3426-45DC-B67E-661D703F3049}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
+		{BD4DF3B2-3426-45DC-B67E-661D703F3049}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
+		{BD4DF3B2-3426-45DC-B67E-661D703F3049}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

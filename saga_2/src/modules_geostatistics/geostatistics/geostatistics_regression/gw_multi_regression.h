@@ -6,11 +6,11 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                  Geostatistics_Grid                   //
+//               geostatistics_regression                //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 GSGrid_Trend_Surface.h                //
+//                 gw_multi_regression.h                 //
 //                                                       //
 //                 Copyright (C) 2010 by                 //
 //                      Olaf Conrad                      //
@@ -56,8 +56,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__GSGrid_Trend_Surface_H
-#define HEADER_INCLUDED__GSGrid_Trend_Surface_H
+#ifndef HEADER_INCLUDED__gw_multi_regression_H
+#define HEADER_INCLUDED__gw_multi_regression_H
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
@@ -70,12 +70,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGSGrid_Trend_Surface : public CSG_Module
+class CGW_Multi_Regression : public CSG_Module
 {
 public:
-	CGSGrid_Trend_Surface(void);
-
-	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Regression Analysis") );	}
+	CGW_Multi_Regression(void);
 
 
 protected:
@@ -87,15 +85,32 @@ protected:
 
 private:
 
+	int							m_iDependent, *m_iPredictor, m_nPredictors, m_Weighting, m_nPoints_Min, m_nPoints_Max, m_Mode;
+
+	double						m_Power, m_Bandwidth, m_Radius;
+
 	CSG_Parameters_Grid_Target	m_Grid_Target;
 
-	CSG_Regression_Multiple		m_Regression;
+	CSG_PRQuadTree				m_Search;
+
+	CSG_Vector					m_z, m_w;
+
+	CSG_Matrix					m_y;
+
+	CSG_Shapes					*m_pPoints;
+
+	CSG_Grid					*m_pIntercept, *m_pSlope, *m_pQuality;
 
 
-	bool						Get_Regression			(CSG_Shapes *pPoints, int iAttribute, int Type);
-	bool						Set_Regression			(CSG_Grid *pRegression, int Type);
-	bool						Set_Residuals			(CSG_Shapes *pPoints, int iAttribute, CSG_Shapes *pResiduals, CSG_Grid *pRegression);
-	void						Set_Message				(int Type);
+	bool						Get_Predictors			(void);
+
+	double						Get_Weight				(double Distance);
+
+	int							Set_Variables			(int x, int y);
+
+	bool						Get_Regression			(int x, int y);
+
+	bool						Set_Residuals			(void);
 
 };
 
@@ -107,4 +122,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__GSGrid_Trend_Surface_H
+#endif // #ifndef HEADER_INCLUDED__gw_multi_regression_H

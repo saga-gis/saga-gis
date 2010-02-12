@@ -6,11 +6,11 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                  Geostatistics_Grid                   //
+//               geostatistics_regression                //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                GSGrid_Trend_Surface.cpp               //
+//                point_trend_surface.cpp                //
 //                                                       //
 //                 Copyright (C) 2010 by                 //
 //                      Olaf Conrad                      //
@@ -56,7 +56,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "GSGrid_Trend_Surface.h"
+#include "point_trend_surface.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGSGrid_Trend_Surface::CGSGrid_Trend_Surface(void)
+CPoint_Trend_Surface::CPoint_Trend_Surface(void)
 {
 	CSG_Parameter	*pNode;
 
@@ -140,7 +140,7 @@ CGSGrid_Trend_Surface::CGSGrid_Trend_Surface(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CGSGrid_Trend_Surface::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CPoint_Trend_Surface::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
 }
@@ -153,7 +153,7 @@ int CGSGrid_Trend_Surface::On_Parameter_Changed(CSG_Parameters *pParameters, CSG
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGSGrid_Trend_Surface::On_Execute(void)
+bool CPoint_Trend_Surface::On_Execute(void)
 {
 	int			iAttribute, Type;
 	CSG_Table	*pTable;
@@ -229,7 +229,7 @@ bool CGSGrid_Trend_Surface::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGSGrid_Trend_Surface::Get_Regression(CSG_Shapes *pPoints, int iAttribute, int Type)
+bool CPoint_Trend_Surface::Get_Regression(CSG_Shapes *pPoints, int iAttribute, int Type)
 {
 	//-----------------------------------------------------
 	CSG_Table	Table;
@@ -279,7 +279,7 @@ bool CGSGrid_Trend_Surface::Get_Regression(CSG_Shapes *pPoints, int iAttribute, 
 }
 
 //---------------------------------------------------------
-bool CGSGrid_Trend_Surface::Set_Regression(CSG_Grid *pRegression, int Type)
+bool CPoint_Trend_Surface::Set_Regression(CSG_Grid *pRegression, int Type)
 {
 	int			x, y;
 	double		z;
@@ -311,7 +311,7 @@ bool CGSGrid_Trend_Surface::Set_Regression(CSG_Grid *pRegression, int Type)
 }
 
 //---------------------------------------------------------
-bool CGSGrid_Trend_Surface::Set_Residuals(CSG_Shapes *pPoints, int iAttribute, CSG_Shapes *pResiduals, CSG_Grid *pRegression)
+bool CPoint_Trend_Surface::Set_Residuals(CSG_Shapes *pPoints, int iAttribute, CSG_Shapes *pResiduals, CSG_Grid *pRegression)
 {
 	int			iPoint, iPart, iShape;
 	double		zShape, zGrid;
@@ -356,7 +356,7 @@ bool CGSGrid_Trend_Surface::Set_Residuals(CSG_Shapes *pPoints, int iAttribute, C
 }
 
 //---------------------------------------------------------
-void CGSGrid_Trend_Surface::Set_Message(int Type)
+void CPoint_Trend_Surface::Set_Message(int Type)
 {
 	CSG_String	s;
 

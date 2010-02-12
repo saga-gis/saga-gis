@@ -6,11 +6,11 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                  Geostatistics_Grid                   //
+//               geostatistics_regression                //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   gw_regression.cpp                   //
+//                gw_multi_regression.cpp                //
 //                                                       //
 //                 Copyright (C) 2010 by                 //
 //                      Olaf Conrad                      //
@@ -56,7 +56,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "gw_regression.h"
+#include "gw_multi_regression.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -66,7 +66,17 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGW_Regression::CGW_Regression(void)
+#define DELETE_ARRAY(A)	if( A ) { delete[](A); A = NULL; }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CGW_Multi_Regression::CGW_Multi_Regression(void)
 {
 	CSG_Parameter	*pNode;
 
@@ -137,7 +147,7 @@ CGW_Regression::CGW_Regression(void)
 			_TL("exponential weighting scheme"),
 			_TL("gaussian weighting scheme"),
 			_TL("none (moving window regression)")
-		)
+		), 2
 	);
 
 	Parameters.Add_Value(
@@ -196,6 +206,10 @@ CGW_Regression::CGW_Regression(void)
 		_TL(""),
 		PARAMETER_TYPE_Int		,  4, 2, true
 	);
+
+	Add_Parameters("PREDICTORS", _TL("Predictors"), _TL(""));
+
+	m_iPredictor	= NULL;
 }
 
 
@@ -206,11 +220,71 @@ CGW_Regression::CGW_Regression(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CGW_Regression::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CGW_Multi_Regression::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
 }
 
+//---------------------------------------------------------
+bool CGW_Multi_Regression::Get_Predictors(void)
+{
+	int				i;
+	CSG_Parameters	*pParameters;
+	CSG_Shapes		*pPoints;
+
+	m_nPredictors	= 0;
+	pPoints			= Parameters("POINTS")->asShapes();
+	pParameters		= Get_Parameters("PREDICTORS");
+
+	pParameters->Create(this, _TL("Predictors"), _TL(""), "PREDICTORS");
+
+	for(i=0; i<pPoints->Get_Field_Count(); i++)
+	{
+		switch( pPoints->Get_Field_Type(i) )
+		{
+		default:	// not numeric
+			break;
+
+		case SG_DATATYPE_Byte:
+		case SG_DATATYPE_Char:
+		case SG_DATATYPE_Word:
+		case SG_DATATYPE_Short:
+		case SG_DATATYPE_DWord:
+		case SG_DATATYPE_Int:
+		case SG_DATATYPE_ULong:
+		case SG_DATATYPE_Long:
+		case SG_DATATYPE_Float:
+		case SG_DATATYPE_Double:
+			pParameters->Add_Value(
+				NULL, SG_Get_String(i, 0), pPoints->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false
+			);
+			break;
+		}
+	}
+
+	if( Dlg_Parameters("PREDICTORS") )
+	{
+		m_iPredictor	= new int[pPoints->Get_Field_Count()];
+
+		for(i=0; i<pPoints->Get_Field_Count(); i++)
+		{
+			if( pParameters->Get_Parameter(i)->asBool() )
+			{
+				m_iPredictor[m_nPredictors++]	= i;
+			}
+		}
+	}
+
+	if( m_nPredictors > 0 )
+	{
+		return( true );
+	}
+
+	DELETE_ARRAY(m_iPredictor);
+
+	return( false );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -219,12 +293,11 @@ int CGW_Regression::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parame
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGW_Regression::On_Execute(void)
+bool CGW_Multi_Regression::On_Execute(void)
 {
 	//-----------------------------------------------------
 	m_pPoints		= Parameters("POINTS")		->asShapes();
 	m_iDependent	= Parameters("DEPENDENT")	->asInt();
-	m_iPredictor	= Parameters("PREDICTOR")	->asInt();
 	m_Weighting		= Parameters("WEIGHTING")	->asInt();
 	m_Power			= Parameters("POWER")		->asDouble();
 	m_Bandwidth		= Parameters("BANDWIDTH")	->asDouble();
@@ -234,6 +307,11 @@ bool CGW_Regression::On_Execute(void)
 	m_nPoints_Min	= Parameters("MINPOINTS")	->asInt();
 
 	//-----------------------------------------------------
+	if( !Get_Predictors() )
+	{
+		return( false );
+	}
+
 	if( (m_nPoints_Max > 0 || m_Radius > 0.0) && !m_Search.Create(m_pPoints, -1) )
 	{
 		return( false );
@@ -250,8 +328,8 @@ bool CGW_Regression::On_Execute(void)
 		if( m_Grid_Target.Init_User(m_pPoints->Get_Extent()) && Dlg_Parameters("USER") )
 		{
 			m_pIntercept	= m_Grid_Target.Get_User();
-			m_pSlope		= SG_Create_Grid(m_pIntercept->Get_System());
-			m_pQuality		= SG_Create_Grid(m_pIntercept->Get_System());
+			m_pSlope		= m_Grid_Target.Get_User();
+			m_pQuality		= m_Grid_Target.Get_User();
 		}
 		break;
 
@@ -267,6 +345,8 @@ bool CGW_Regression::On_Execute(void)
 
 	if( m_pIntercept == NULL )
 	{
+		DELETE_ARRAY(m_iPredictor);
+
 		m_Search.Destroy();
 
 		return( false );
@@ -283,7 +363,7 @@ bool CGW_Regression::On_Execute(void)
 	//-----------------------------------------------------
 	int	nPoints_Max	= m_nPoints_Max > 0 ? m_nPoints_Max : m_pPoints->Get_Count();
 
-	m_y.Create(nPoints_Max);
+	m_y.Create(1 + m_nPredictors, nPoints_Max);
 	m_z.Create(nPoints_Max);
 	m_w.Create(nPoints_Max);
 
@@ -306,6 +386,8 @@ bool CGW_Regression::On_Execute(void)
 	m_z.Destroy();
 	m_w.Destroy();
 
+	DELETE_ARRAY(m_iPredictor);
+
 	m_Search.Destroy();
 
 	DataObject_Update(m_pIntercept);
@@ -323,7 +405,7 @@ bool CGW_Regression::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline double CGW_Regression::Get_Weight(double Distance)
+inline double CGW_Multi_Regression::Get_Weight(double Distance)
 {
 	switch( m_Weighting )
 	{
@@ -335,7 +417,7 @@ inline double CGW_Regression::Get_Weight(double Distance)
 }
 
 //---------------------------------------------------------
-int CGW_Regression::Set_Variables(int x, int y)
+int CGW_Multi_Regression::Set_Variables(int x, int y)
 {
 	int			nPoints;
 	TSG_Point	Point;
@@ -360,15 +442,17 @@ int CGW_Regression::Set_Variables(int x, int y)
 		}
 
 		m_z[iPoint]	= pPoint->asDouble(m_iDependent);
-		m_y[iPoint]	= pPoint->asDouble(m_iPredictor);
 		m_w[iPoint]	= Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point(0)));
+
+//		for(int i
+//		m_y[iPoint]	= pPoint->asDouble(m_iPredictor);
 	}
 
 	return( nPoints );
 }
 
 //---------------------------------------------------------
-bool CGW_Regression::Get_Regression(int x, int y)
+bool CGW_Multi_Regression::Get_Regression(int x, int y)
 {
 	int		nPoints	= Set_Variables(x, y);
 
@@ -391,9 +475,9 @@ bool CGW_Regression::Get_Regression(int x, int y)
 	for(i=0, zMean=0.0; i<nPoints; i++)
 	{
 		Y  [i][0]	= 1.0;
-		Y  [i][1]	= m_y[i];
+//		Y  [i][1]	= m_y[i];
 		YtW[0][i]	= m_w[i];
-		YtW[1][i]	= m_w[i] * m_y[i];
+//		YtW[1][i]	= m_w[i] * m_y[i];
 
 		zMean		+= (z[i] = m_z[i]);
 	}
@@ -405,8 +489,8 @@ bool CGW_Regression::Get_Regression(int x, int y)
 
 	for(i=0, rss=0.0, tss=0.0; i<nPoints; i++)
 	{
-		rss	+= m_w[i] * SG_Get_Square(m_z[i] - (b[0] + b[1] * m_y[i]));
-		tss	+= m_w[i] * SG_Get_Square(m_z[i] - zMean);
+//		rss	+= m_w[i] * SG_Get_Square(m_z[i] - (b[0] + b[1] * m_y[i]));
+//		tss	+= m_w[i] * SG_Get_Square(m_z[i] - zMean);
 	}
 
 	m_pIntercept->Set_Value(x, y, b[0]);
@@ -433,7 +517,7 @@ bool CGW_Regression::Get_Regression(int x, int y)
 //**/
 
 //---------------------------------------------------------
-bool CGW_Regression::Set_Residuals(void)
+bool CGW_Multi_Regression::Set_Residuals(void)
 {
 	CSG_Shapes	*pResiduals	= Parameters("RESIDUALS")->asShapes();
 

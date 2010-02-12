@@ -83,11 +83,12 @@ CInterpolation_InverseDistance::CInterpolation_InverseDistance(void)
 	pNode	= Parameters.Add_Choice(
 		NULL	, "WEIGHTING"	, _TL("Distance Weighting"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
 			_TL("inverse distance to a power"),
+			_TL("linearly decreasing within search radius"),
 			_TL("exponential weighting scheme"),
 			_TL("gaussian weighting scheme")
-		)
+		), 0
 	);
 
 	Parameters.Add_Value(
@@ -168,8 +169,9 @@ inline double CInterpolation_InverseDistance::Get_Weight(double Distance)
 	switch( m_Weighting )
 	{
 	default:	return( Distance > 0.0 ? pow(Distance, -m_Power) : -1.0 );
-	case 1:		return( exp(-Distance / m_Bandwidth) );
-	case 2:		return( exp(-0.5 * SG_Get_Square(Distance / m_Bandwidth)) );
+	case 1:		return( Distance < m_Radius ? (1.0 - Distance / m_Radius) : 0.0 );
+	case 2:		return( exp(-Distance / m_Bandwidth) );
+	case 3:		return( exp(-0.5 * SG_Get_Square(Distance / m_Bandwidth)) );
 	}
 }
 

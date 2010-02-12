@@ -1,26 +1,26 @@
-# Microsoft Developer Studio Project File - Name="geostatistics_grid" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="geostatistics_regression" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Dynamic-Link Library" 0x0102
 
-CFG=geostatistics_grid - Win32 Unicode Debug
+CFG=geostatistics_regression - Win32 Unicode Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "geostatistics_grid.mak".
+!MESSAGE NMAKE /f "geostatistics_regression.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "geostatistics_grid.mak" CFG="geostatistics_grid - Win32 Unicode Debug"
+!MESSAGE NMAKE /f "geostatistics_regression.mak" CFG="geostatistics_regression - Win32 Unicode Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "geostatistics_grid - Win32 Release" (based on "Win32 (x86) Dynamic-Link Library")
-!MESSAGE "geostatistics_grid - Win32 Debug" (based on "Win32 (x86) Dynamic-Link Library")
-!MESSAGE "geostatistics_grid - Win32 Unicode Debug" (based on "Win32 (x86) Dynamic-Link Library")
-!MESSAGE "geostatistics_grid - Win32 Unicode Release" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "geostatistics_regression - Win32 Release" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "geostatistics_regression - Win32 Debug" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "geostatistics_regression - Win32 Unicode Debug" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "geostatistics_regression - Win32 Unicode Release" (based on "Win32 (x86) Dynamic-Link Library")
 !MESSAGE 
 
 # Begin Project
@@ -31,7 +31,7 @@ CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "geostatistics_grid - Win32 Release"
+!IF  "$(CFG)" == "geostatistics_regression - Win32 Release"
 
 # PROP BASE Use_MFC 2
 # PROP BASE Use_Debug_Libraries 0
@@ -41,7 +41,7 @@ RSC=rc.exe
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
 # PROP Output_Dir ".\..\..\..\..\bin\saga_vc\modules"
-# PROP Intermediate_Dir ".\..\..\..\..\bin\tmp\saga_vc\geostatistics_grid"
+# PROP Intermediate_Dir ".\..\..\..\..\bin\tmp\saga_vc\geostatistics_regression"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_WINDLL" /D "_AFXDLL" /YX /FD /c
@@ -61,7 +61,7 @@ SOURCE="$(InputPath)"
 PostBuild_Cmds=copy      *.lng.txt      ..\..\..\..\bin\saga_vc\modules\ 
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "geostatistics_grid - Win32 Debug"
+!ELSEIF  "$(CFG)" == "geostatistics_regression - Win32 Debug"
 
 # PROP BASE Use_MFC 2
 # PROP BASE Use_Debug_Libraries 1
@@ -71,7 +71,7 @@ PostBuild_Cmds=copy      *.lng.txt      ..\..\..\..\bin\saga_vc\modules\
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
 # PROP Output_Dir ".\..\..\..\..\bin\saga_vc_dbg\modules"
-# PROP Intermediate_Dir ".\..\..\..\..\bin\tmp\saga_vc_dbg\geostatistics_grid"
+# PROP Intermediate_Dir ".\..\..\..\..\bin\tmp\saga_vc_dbg\geostatistics_regression"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_WINDLL" /D "_AFXDLL" /YX /FD /GZ /c
@@ -88,18 +88,18 @@ LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /dll /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib /nologo /subsystem:windows /dll /debug /machine:I386 /pdbtype:sept /libpath:"$(SAGA)/bin/saga_vc_dbg"
 
-!ELSEIF  "$(CFG)" == "geostatistics_grid - Win32 Unicode Debug"
+!ELSEIF  "$(CFG)" == "geostatistics_regression - Win32 Unicode Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
-# PROP BASE Output_Dir "geostatistics_grid___Win32_Unicode_Debug"
-# PROP BASE Intermediate_Dir "geostatistics_grid___Win32_Unicode_Debug"
+# PROP BASE Output_Dir "geostatistics_regression___Win32_Unicode_Debug"
+# PROP BASE Intermediate_Dir "geostatistics_regression___Win32_Unicode_Debug"
 # PROP BASE Ignore_Export_Lib 0
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
 # PROP Output_Dir "./../../../../bin/saga_vc_u_dbg/modules"
-# PROP Intermediate_Dir "./../../../../bin/tmp/saga_vc_u_dbg/geostatistics_grid"
+# PROP Intermediate_Dir "./../../../../bin/tmp/saga_vc_u_dbg/geostatistics_regression"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "$(SAGA)/src/saga_core" /D "_DEBUG" /D "WIN32" /D "_USRDLL" /D "_MBCS" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_VC" /YX /FD /GZ /c
@@ -117,18 +117,18 @@ LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib /nologo /subsystem:windows /dll /debug /machine:I386 /pdbtype:sept /libpath:"$(SAGA)/bin/saga_vc_dbg"
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib /nologo /subsystem:windows /dll /debug /machine:I386 /pdbtype:sept /libpath:"$(SAGA)/bin/saga_vc_u_dbg"
 
-!ELSEIF  "$(CFG)" == "geostatistics_grid - Win32 Unicode Release"
+!ELSEIF  "$(CFG)" == "geostatistics_regression - Win32 Unicode Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
-# PROP BASE Output_Dir "geostatistics_grid___Win32_Unicode_Release"
-# PROP BASE Intermediate_Dir "geostatistics_grid___Win32_Unicode_Release"
+# PROP BASE Output_Dir "geostatistics_regression___Win32_Unicode_Release"
+# PROP BASE Intermediate_Dir "geostatistics_regression___Win32_Unicode_Release"
 # PROP BASE Ignore_Export_Lib 0
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
 # PROP Output_Dir "./../../../../bin/saga_vc_u/modules"
-# PROP Intermediate_Dir "./../../../../bin/tmp/saga_vc_u/geostatistics_grid"
+# PROP Intermediate_Dir "./../../../../bin/tmp/saga_vc_u/geostatistics_regression"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /GX /O2 /I "$(SAGA)/src/saga_core" /D "NDEBUG" /D "WIN32" /D "_USRDLL" /D "_MBCS" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_VC" /YX /FD /c
@@ -148,40 +148,32 @@ LINK32=link.exe
 
 # Begin Target
 
-# Name "geostatistics_grid - Win32 Release"
-# Name "geostatistics_grid - Win32 Debug"
-# Name "geostatistics_grid - Win32 Unicode Debug"
-# Name "geostatistics_grid - Win32 Unicode Release"
+# Name "geostatistics_regression - Win32 Release"
+# Name "geostatistics_regression - Win32 Debug"
+# Name "geostatistics_regression - Win32 Unicode Debug"
+# Name "geostatistics_regression - Win32 Unicode Release"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\fast_representativeness.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\GSGrid_Residuals.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\GSGrid_Statistics.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\GSGrid_Variance.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\GSGrid_Variance_Radius.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\GSGrid_Zonal_Statistics.cpp
+SOURCE=.\gw_regression.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\MLB_Interface.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\point_grid_regression.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\point_multi_grid_regression.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\point_trend_surface.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -189,31 +181,23 @@ SOURCE=.\MLB_Interface.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\fast_representativeness.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\GSGrid_Residuals.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\GSGrid_Statistics.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\GSGrid_Variance.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\GSGrid_Variance_Radius.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\GSGrid_Zonal_Statistics.h
+SOURCE=.\gw_regression.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\MLB_Interface.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\point_grid_regression.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\point_multi_grid_regression.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\point_trend_surface.h
 # End Source File
 # End Group
 # Begin Group "Include"

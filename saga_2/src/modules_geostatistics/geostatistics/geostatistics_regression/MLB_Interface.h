@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                  Geostatistics_Grid                   //
+//               geostatistics_regression                //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//              GSGrid_Regression_Multiple.h             //
+//                    MLB_Interface.h                    //
 //                                                       //
-//                 Copyright (C) 2004 by                 //
+//                 Copyright (C) 2003 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -53,53 +53,23 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#ifndef HEADER_INCLUDED__GSGrid_Regression_Multiple_H
-#define HEADER_INCLUDED__GSGrid_Regression_Multiple_H
-
-//---------------------------------------------------------
-#include "MLB_Interface.h"
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
+//				Include the SAGA-API here				 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGSGrid_Regression_Multiple : public CSG_Module_Grid
-{
-public:
-	CGSGrid_Regression_Multiple(void);
+#ifndef HEADER_INCLUDED__geostatistics_regression_H
+#define HEADER_INCLUDED__geostatistics_regression_H
 
-	virtual const SG_Char *		Get_MenuPath		(void)	{	return( _TL("R:Regression Analysis") );	}
+//---------------------------------------------------------
+#include <saga_api/saga_api.h>
 
-
-protected:
-
-	virtual bool				On_Execute			(void);
-
-
-private:
-
-	bool						m_bCoords;
-
-	int							m_Interpolation;
-
-	CSG_Regression_Multiple		m_Regression;
-
-
-	bool						Get_Regression		(CSG_Parameter_Grid_List *pGrids, CSG_Shapes *pShapes, int iAttribute);
-	bool						Set_Regression		(CSG_Parameter_Grid_List *pGrids, CSG_Grid *pRegression);
-	bool						Set_Residuals		(CSG_Shapes *pShapes, int iAttribute, CSG_Shapes *pResiduals, CSG_Grid *pRegression);
-	void						Set_Message			(CSG_Parameter_Grid_List *pGrids);
-
-};
+//---------------------------------------------------------
+#ifdef geostatistics_regression_EXPORTS
+	#define	geostatistics_regression_EXPORT	_SAGA_DLL_EXPORT
+#else
+	#define	geostatistics_regression_EXPORT	_SAGA_DLL_IMPORT
+#endif
 
 
 ///////////////////////////////////////////////////////////
@@ -109,4 +79,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__GSGrid_Regression_Multiple_H
+#endif // #ifndef HEADER_INCLUDED__geostatistics_regression_H

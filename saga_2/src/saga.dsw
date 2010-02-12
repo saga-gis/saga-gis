@@ -81,6 +81,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "geostatistics_regression"=.\modules_geostatistics\geostatistics\geostatistics_regression\geostatistics_regression.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "grid_analysis"=.\modules\grid\grid_analysis\grid_analysis.dsp - Package Owner=<4>
 
 Package=<5>

@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                  Geostatistics_Grid                   //
+//               geostatistics_regression                //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  GSGrid_Regression.h                  //
+//                   MLB_Interface.cpp                   //
 //                                                       //
-//                 Copyright (C) 2004 by                 //
+//                 Copyright (C) 2010 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -53,51 +51,67 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//			The Module Link Library Interface			 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__GSGrid_Regression_H
-#define HEADER_INCLUDED__GSGrid_Regression_H
+// 1. Include the appropriate SAGA-API header...
 
-//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-class CGSGrid_Regression : public CSG_Module_Grid
+// 2. Place general module library informations here...
+
+const SG_Char * Get_Info(int i)
 {
-public:
-	CGSGrid_Regression(void);
-	virtual ~CGSGrid_Regression(void);
+	switch( i )
+	{
+	case MLB_INFO_Name:	default:
+		return( _TL("Geostatistics - Regression") );
 
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Regression Analysis") );	}
+	case MLB_INFO_Author:
+		return( _TL("O.Conrad (c) 2010" ));
+
+	case MLB_INFO_Description:
+		return( _TL("Tools for (geo)statistical analyses.") );
+
+	case MLB_INFO_Version:
+		return( SG_T("1.0") );
+
+	case MLB_INFO_Menu_Path:
+		return( _TL("Geostatistics|Regression") );
+	}
+}
 
 
-protected:
+//---------------------------------------------------------
+// 3. Include the headers of your modules here...
 
-	virtual bool			On_Execute			(void);
-
-
-private:
-
-	int						m_Interpolation;
-
-	CSG_Regression			m_Regression;
+#include "point_grid_regression.h"
+#include "point_multi_grid_regression.h"
+#include "point_trend_surface.h"
+#include "gw_regression.h"
+//#include "gw_multi_regression.h"
 
 
-	bool					Get_Regression		(CSG_Grid *pGrid, CSG_Shapes *pShapes, CSG_Shapes *pResiduals, int iAttribute, TSG_Regression_Type Type);
-	bool					Set_Regression		(CSG_Grid *pGrid, CSG_Grid *pRegression);
-	bool					Set_Residuals		(CSG_Shapes *pResiduals);
+//---------------------------------------------------------
+// 4. Allow your modules to be created here...
 
-};
+CSG_Module *		Create_Module(int i)
+{
+	switch( i )
+	{
+	case  0:	return( new CPoint_Grid_Regression );
+	case  1:	return( new CPoint_Multi_Grid_Regression );
+	case  2:	return( new CPoint_Trend_Surface );
+	case  3:	return( new CGW_Regression );
+//	case  4:	return( new CGW_Multi_Regression );
+	}
+
+	return( NULL );
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -107,4 +121,8 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__GSGrid_Regression_H
+//{{AFX_SAGA
+
+	MLB_INTERFACE
+
+//}}AFX_SAGA

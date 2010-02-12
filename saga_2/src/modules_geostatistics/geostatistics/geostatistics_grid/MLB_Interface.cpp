@@ -83,7 +83,7 @@ const SG_Char * Get_Info(int i)
 		return( SG_T("1.0") );
 
 	case MLB_INFO_Menu_Path:
-		return( _TL("Geostatistics") );
+		return( _TL("Geostatistics|Grids") );
 	}
 }
 
@@ -95,12 +95,8 @@ const SG_Char * Get_Info(int i)
 #include "GSGrid_Residuals.h"
 #include "GSGrid_Variance.h"
 #include "GSGrid_Variance_Radius.h"
-#include "GSGrid_Regression.h"
-#include "GSGrid_Regression_Multiple.h"
 #include "GSGrid_Statistics.h"
 #include "GSGrid_Zonal_Statistics.h"
-#include "GSGrid_Trend_Surface.h"
-#include "gw_regression.h"
 
 
 //---------------------------------------------------------
@@ -114,12 +110,8 @@ CSG_Module *		Create_Module(int i)
 	case  1:	return( new CGSGrid_Residuals );
 	case  2:	return( new CGSGrid_Variance );
 	case  3:	return( new CGSGrid_Variance_Radius );
-	case  4:	return( new CGSGrid_Regression );
-	case  5:	return( new CGSGrid_Regression_Multiple );
-	case  6:	return( new CGSGrid_Statistics );
-	case  7:	return( new CGSGrid_Zonal_Statistics );
-	case  8:	return( new CGSGrid_Trend_Surface );
-	case  9:	return( new CGW_Regression );
+	case  4:	return( new CGSGrid_Statistics );
+	case  5:	return( new CGSGrid_Zonal_Statistics );
 	}
 
 	return( NULL );

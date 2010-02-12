@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                  Geostatistics_Grid                   //
+//               geostatistics_regression                //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                GSGrid_Variance_Radius.h               //
+//                 point_trend_surface.h                 //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2010 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -58,15 +56,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__GSGrid_Variance_Radius_H
-#define HEADER_INCLUDED__GSGrid_Variance_Radius_H
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
+#ifndef HEADER_INCLUDED__point_trend_surface_H
+#define HEADER_INCLUDED__point_trend_surface_H
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
@@ -79,33 +70,30 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGSGrid_Variance_Radius : public CSG_Module_Grid
+class CPoint_Trend_Surface : public CSG_Module
 {
 public:
-	CGSGrid_Variance_Radius(void);
-	virtual ~CGSGrid_Variance_Radius(void);
+	CPoint_Trend_Surface(void);
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual bool				On_Execute				(void);
+
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
 private:
 
-	bool					bWriteGridsize;
+	CSG_Parameters_Grid_Target	m_Grid_Target;
 
-	int						**Check, maxRadius;
-
-	double					stopVariance;
-
-	CSG_Grid				*pGrid, *pResult, *pInput, *pInputQ;
+	CSG_Regression_Multiple		m_Regression;
 
 
-	void					Initialize		(void);
-	void					Finalize		(void);
-
-	double					Get_Radius		(int xPoint, int yPoint);
+	bool						Get_Regression			(CSG_Shapes *pPoints, int iAttribute, int Type);
+	bool						Set_Regression			(CSG_Grid *pRegression, int Type);
+	bool						Set_Residuals			(CSG_Shapes *pPoints, int iAttribute, CSG_Shapes *pResiduals, CSG_Grid *pRegression);
+	void						Set_Message				(int Type);
 
 };
 
@@ -117,4 +105,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__GSGrid_Variance_Radius_H
+#endif // #ifndef HEADER_INCLUDED__point_trend_surface_H

@@ -1,7 +1,7 @@
 # Linux GCC Makefile
 # Created by O. Conrad
 
-PROJECTS = geostatistics_points geostatistics_kriging geostatistics_grid
+PROJECTS = geostatistics_points geostatistics_kriging geostatistics_grid geostatistics_regression
 
 all:
 	@for i in $(PROJECTS); do (cd $$i && $(MAKE) -fmakefile.linux); done

@@ -85,8 +85,6 @@ public:
 	CGSGrid_Variance(void);
 	virtual ~CGSGrid_Variance(void);
 
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Grids" ));	}
-
 
 protected:
 

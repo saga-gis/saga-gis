@@ -616,6 +616,13 @@ CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 			Set_Extent(pLayer->Get_Extent());
 		}
 
+		if( Get_Count() == 0 )
+		{
+			m_Parameters("NAME")->Set_Value(pLayer->Get_Name());
+
+			Parameters_Changed();
+		}
+
 		Add_Item(pItem = new CWKSP_Map_Layer(pLayer));
 
 		Move_Top(pItem);

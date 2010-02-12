@@ -682,7 +682,7 @@ bool CSG_ODBC_Connection::Table_From_Query(const CSG_String &FieldNames, const C
 
 			//---------------------------------------------
 			SG_Char	Value[VCHAR_BUFLEN];
-			SDWORD	cb;
+			SQLLEN	cb;
 
 			while( m_pDB->GetNext() && SG_UI_Process_Get_Okay(false) )
 			{

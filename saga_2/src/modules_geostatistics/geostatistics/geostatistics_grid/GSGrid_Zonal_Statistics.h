@@ -153,8 +153,6 @@ public:
 	CGSGrid_Zonal_Statistics(void);
 	virtual ~CGSGrid_Zonal_Statistics(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Grids" ));	}
-
 
 protected:
 

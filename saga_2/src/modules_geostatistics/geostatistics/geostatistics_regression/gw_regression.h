@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                GSGrid_Variance_Radius.h               //
+//                    gw_regression.h                    //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2010 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -58,15 +56,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__GSGrid_Variance_Radius_H
-#define HEADER_INCLUDED__GSGrid_Variance_Radius_H
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
+#ifndef HEADER_INCLUDED__GW_Regression_H
+#define HEADER_INCLUDED__GW_Regression_H
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
@@ -79,33 +70,43 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGSGrid_Variance_Radius : public CSG_Module_Grid
+class CGW_Regression : public CSG_Module
 {
 public:
-	CGSGrid_Variance_Radius(void);
-	virtual ~CGSGrid_Variance_Radius(void);
+	CGW_Regression(void);
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual bool				On_Execute				(void);
+
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
 private:
 
-	bool					bWriteGridsize;
+	int							m_iDependent, m_iPredictor, m_Weighting, m_nPoints_Min, m_nPoints_Max, m_Mode;
 
-	int						**Check, maxRadius;
+	double						m_Power, m_Bandwidth, m_Radius;
 
-	double					stopVariance;
+	CSG_Parameters_Grid_Target	m_Grid_Target;
 
-	CSG_Grid				*pGrid, *pResult, *pInput, *pInputQ;
+	CSG_PRQuadTree				m_Search;
+
+	CSG_Vector					m_y, m_z, m_w;
+
+	CSG_Shapes					*m_pPoints;
+
+	CSG_Grid					*m_pIntercept, *m_pSlope, *m_pQuality;
 
 
-	void					Initialize		(void);
-	void					Finalize		(void);
+	double						Get_Weight				(double Distance);
 
-	double					Get_Radius		(int xPoint, int yPoint);
+	int							Set_Variables			(int x, int y);
+
+	bool						Get_Regression			(int x, int y);
+
+	bool						Set_Residuals			(void);
 
 };
 
@@ -117,4 +118,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__GSGrid_Variance_Radius_H
+#endif // #ifndef HEADER_INCLUDED__GW_Regression_H

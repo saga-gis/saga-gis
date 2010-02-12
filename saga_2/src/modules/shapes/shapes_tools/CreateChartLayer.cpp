@@ -151,19 +151,35 @@ bool CCreateChartLayer::GetExtraParameters(){
 
 	pInput = Parameters("INPUT")->asShapes();
 
+	m_pExtraParameters->Create(this, _TL("Fields for diagram"), _TL(""), "EXTRA");
+
 	pShapesTable = pInput;
 	m_bIncludeParam = new bool [pShapesTable->Get_Field_Count() ];
 
-	for (i = 0; i < pShapesTable->Get_Field_Count(); i++){		
-		if (pShapesTable->Get_Field_Type(i) > 1 && pShapesTable->Get_Field_Type(i) < 7){ //is numeric field
-			m_pExtraParameters->Add_Value(NULL,
-											SG_Get_String(i,0).c_str(),
-											pShapesTable->Get_Field_Name(i),
-											_TL(""),
-											PARAMETER_TYPE_Bool,
-											false);
-		}//if
+	for (i = 0; i < pShapesTable->Get_Field_Count(); i++)
+	{
+		switch( pShapesTable->Get_Field_Type(i) )
+		{
+		default:
+			break;
+
+		case SG_DATATYPE_Byte:
+		case SG_DATATYPE_Char:
+		case SG_DATATYPE_Word:
+		case SG_DATATYPE_Short:
+		case SG_DATATYPE_DWord:
+		case SG_DATATYPE_Int:
+		case SG_DATATYPE_ULong:
+		case SG_DATATYPE_Long:
+		case SG_DATATYPE_Float:
+		case SG_DATATYPE_Double:	// is numeric field
+			m_pExtraParameters->Add_Value(
+				NULL, SG_Get_String(i,0).c_str(), pShapesTable->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false
+			);
+			break;
+		}
 	}//for
+
 	if(Dlg_Parameters("EXTRA")){
 		for (i = 0; i < pShapesTable->Get_Field_Count(); i++){
 			sName = SG_Get_String(i,0);

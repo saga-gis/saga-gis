@@ -351,7 +351,7 @@ bool CSG_Module::Dlg_Parameters(const SG_Char *Identifier)
 //---------------------------------------------------------
 bool CSG_Module::Dlg_Parameters(CSG_Parameters *pParameters, const SG_Char *Caption)
 {
-	return( SG_UI_Dlg_Parameters(pParameters, Caption) );
+	return( pParameters ? SG_UI_Dlg_Parameters(pParameters, Caption) : false );
 }
 
 //---------------------------------------------------------

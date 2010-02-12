@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                  Geostatistics_Grid                   //
+//               geostatistics_regression                //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    gw_regression.h                    //
+//              point_multi_grid_regression.h            //
 //                                                       //
-//                 Copyright (C) 2010 by                 //
+//                 Copyright (C) 2004 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,7 +41,9 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Hamburg                  //
+//                University of Goettingen               //
+//                Goldschmidtstr. 5                      //
+//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,8 +58,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__GW_Regression_H
-#define HEADER_INCLUDED__GW_Regression_H
+#ifndef HEADER_INCLUDED__point_multi_grid_regression_H
+#define HEADER_INCLUDED__point_multi_grid_regression_H
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
@@ -70,45 +72,30 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGW_Regression : public CSG_Module
+class CPoint_Multi_Grid_Regression : public CSG_Module_Grid
 {
 public:
-	CGW_Regression(void);
-
-	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Regression Analysis") );	}
+	CPoint_Multi_Grid_Regression(void);
 
 
 protected:
 
-	virtual bool				On_Execute				(void);
-
-	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual bool				On_Execute			(void);
 
 
 private:
 
-	int							m_iDependent, m_iPredictor, m_Weighting, m_nPoints_Min, m_nPoints_Max, m_Mode;
+	bool						m_bCoords;
 
-	double						m_Power, m_Bandwidth, m_Radius;
+	int							m_Interpolation;
 
-	CSG_Parameters_Grid_Target	m_Grid_Target;
-
-	CSG_PRQuadTree				m_Search;
-
-	CSG_Vector					m_y, m_z, m_w;
-
-	CSG_Shapes					*m_pPoints;
-
-	CSG_Grid					*m_pIntercept, *m_pSlope, *m_pQuality;
+	CSG_Regression_Multiple		m_Regression;
 
 
-	double						Get_Weight				(double Distance);
-
-	int							Set_Variables			(int x, int y);
-
-	bool						Get_Regression			(int x, int y);
-
-	bool						Set_Residuals			(void);
+	bool						Get_Regression		(CSG_Parameter_Grid_List *pGrids, CSG_Shapes *pShapes, int iAttribute);
+	bool						Set_Regression		(CSG_Parameter_Grid_List *pGrids, CSG_Grid *pRegression);
+	bool						Set_Residuals		(CSG_Shapes *pShapes, int iAttribute, CSG_Shapes *pResiduals, CSG_Grid *pRegression);
+	void						Set_Message			(CSG_Parameter_Grid_List *pGrids);
 
 };
 
@@ -120,4 +107,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__GW_Regression_H
+#endif // #ifndef HEADER_INCLUDED__point_multi_grid_regression_H

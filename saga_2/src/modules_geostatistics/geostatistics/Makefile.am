@@ -1,1 +1,1 @@
-SUBDIRS = geostatistics_points geostatistics_kriging geostatistics_grid
+SUBDIRS = geostatistics_points geostatistics_kriging geostatistics_grid geostatistics_regression

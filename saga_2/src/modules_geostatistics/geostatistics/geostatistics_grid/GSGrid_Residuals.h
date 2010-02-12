@@ -84,8 +84,6 @@ class CGSGrid_Residuals : public CSG_Module_Grid
 public:
 	CGSGrid_Residuals(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Grids" ));	}
-
 
 protected:
 

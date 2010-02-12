@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                GSGrid_Variance_Radius.h               //
+//                point_grid_regression.h                //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2004 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -58,15 +58,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__GSGrid_Variance_Radius_H
-#define HEADER_INCLUDED__GSGrid_Variance_Radius_H
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
+#ifndef HEADER_INCLUDED__point_grid_regression_H
+#define HEADER_INCLUDED__point_grid_regression_H
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
@@ -79,33 +72,27 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGSGrid_Variance_Radius : public CSG_Module_Grid
+class CPoint_Grid_Regression : public CSG_Module_Grid
 {
 public:
-	CGSGrid_Variance_Radius(void);
-	virtual ~CGSGrid_Variance_Radius(void);
+	CPoint_Grid_Regression(void);
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual bool			On_Execute			(void);
 
 
 private:
 
-	bool					bWriteGridsize;
+	int						m_Interpolation;
 
-	int						**Check, maxRadius;
-
-	double					stopVariance;
-
-	CSG_Grid				*pGrid, *pResult, *pInput, *pInputQ;
+	CSG_Regression			m_Regression;
 
 
-	void					Initialize		(void);
-	void					Finalize		(void);
-
-	double					Get_Radius		(int xPoint, int yPoint);
+	bool					Get_Regression		(CSG_Grid *pGrid, CSG_Shapes *pShapes, CSG_Shapes *pResiduals, int iAttribute, TSG_Regression_Type Type);
+	bool					Set_Regression		(CSG_Grid *pGrid, CSG_Grid *pRegression);
+	bool					Set_Residuals		(CSG_Shapes *pResiduals);
 
 };
 
@@ -117,4 +104,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__GSGrid_Variance_Radius_H
+#endif // #ifndef HEADER_INCLUDED__point_grid_regression_H
