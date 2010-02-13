@@ -616,6 +616,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Filter_Terrain_SlopeBased.cpp"
+				>
+			</File>
+			<File
 				RelativePath="FilterClumps.cpp"
 				>
 				<FileConfiguration
@@ -722,6 +726,10 @@
 			</File>
 			<File
 				RelativePath="Filter_Multi_Dir_Lee.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Filter_Terrain_SlopeBased.h"
 				>
 			</File>
 			<File

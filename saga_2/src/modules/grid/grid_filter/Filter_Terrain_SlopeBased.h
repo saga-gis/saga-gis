@@ -10,10 +10,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//               Filter_Terrain_SlopeBased.h             //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//               SAGA User Group Associaton              //
+//                 Copyright (C) 2010 by                 //
+//                    Volker Wichmann                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,14 +37,13 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     wichmann@laserdata                     //
 //                                                       //
-//    contact:    SAGA User Group Associaton             //
-//                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
-//                Germany                                //
+//    contact:    Volker Wichmann                        //
+//                LASERDATA GmbH                         //
+//                Management and analysis of             //
+//                laserscanning data                     //
+//                Innsbruck, Austria                     //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -53,72 +52,48 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__Filter_Terrain_SlopeBased_H
+#define HEADER_INCLUDED__Filter_Terrain_SlopeBased_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#include <vector>
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-const SG_Char * Get_Info(int i)
+//---------------------------------------------------------
+class CFilter_Terrain_SlopeBased : public CSG_Module_Grid
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Grid - Filter") );
-
-	case MLB_INFO_Author:
-		return( _TL("SAGA User Group Associaton (c) 2002-2010") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for the manipulation of gridded data.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Grid|Filter") );
-	}
-}
+public:
+	CFilter_Terrain_SlopeBased(void);
+	virtual ~CFilter_Terrain_SlopeBased(void);
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "Filter.h"
-#include "Filter_Gauss.h"
-#include "Filter_LoG.h"
-#include "Filter_Multi_Dir_Lee.h"
-#include "Filter_3x3.h"
-#include "FilterClumps.h"
-#include "Filter_Majority.h"
-#include "Filter_Terrain_SlopeBased.h"
+	virtual bool				On_Execute				(void);
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CFilter );
-	case  1:	return( new CFilter_Gauss );
-	case  2:	return( new CFilter_LoG );
-	case  3:	return( new CFilter_Multi_Dir_Lee );
-	case  4:	return( new CFilter_3x3 );
-	case  5:	return( new CFilterClumps );
-	case  6:	return( new CFilter_Majority );
-	case  7:	return( new CFilter_Terrain_SlopeBased );
-	}
+private:
 
-	return( NULL );
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -128,8 +103,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__Filter_Terrain_SlopeBased_H

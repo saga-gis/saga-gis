@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.6 2010-01-19 14:49:26 oconrad Exp $
+# $Id: Makefile.am,v 1.7 2010-02-13 22:38:44 reklov_w Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -19,6 +19,7 @@ Filter_Gauss.cpp\
 Filter_LoG.cpp\
 Filter_Majority.cpp\
 Filter_Multi_Dir_Lee.cpp\
+Filter_Terrain_SlopeBased.cpp\
 FilterClumps.cpp\
 MLB_Interface.cpp\
 Filter.h\
@@ -27,6 +28,7 @@ Filter_Gauss.h\
 Filter_LoG.h\
 Filter_Majority.h\
 Filter_Multi_Dir_Lee.h\
+Filter_Terrain_SlopeBased.h\
 FilterClumps.h\
 MLB_Interface.h
 
