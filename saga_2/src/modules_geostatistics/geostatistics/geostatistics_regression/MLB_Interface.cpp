@@ -93,7 +93,9 @@ const SG_Char * Get_Info(int i)
 #include "point_multi_grid_regression.h"
 #include "point_trend_surface.h"
 #include "gw_regression.h"
-//#include "gw_multi_regression.h"
+#include "gw_regression_grid.h"
+#include "gw_multi_regression.h"
+#include "gw_multi_regression_grid.h"
 
 
 //---------------------------------------------------------
@@ -107,7 +109,9 @@ CSG_Module *		Create_Module(int i)
 	case  1:	return( new CPoint_Multi_Grid_Regression );
 	case  2:	return( new CPoint_Trend_Surface );
 	case  3:	return( new CGW_Regression );
-//	case  4:	return( new CGW_Multi_Regression );
+	case  4:	return( new CGW_Regression_Grid );
+	case  5:	return( new CGW_Multi_Regression );
+	case  6:	return( new CGW_Multi_Regression_Grid );
 	}
 
 	return( NULL );

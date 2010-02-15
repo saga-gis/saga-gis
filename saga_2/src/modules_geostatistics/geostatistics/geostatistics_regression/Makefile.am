@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.1 2010-02-12 16:39:25 oconrad Exp $
+# $Id: Makefile.am,v 1.2 2010-02-15 16:51:07 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -13,12 +13,18 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS)
 AM_LDFLAGS         = -fPIC -shared 
 pkglib_LTLIBRARIES = libgeostatistics_regression.la
 libgeostatistics_regression_la_SOURCES =\
+gw_multi_regression.cpp\
+gw_multi_regression_grid.cpp\
 gw_regression.cpp\
+gw_regression_grid.cpp\
 MLB_Interface.cpp\
 point_grid_regression.cpp\
 point_multi_grid_regression.cpp\
 point_trend_surface.cpp\
+gw_multi_regression.h\
+gw_multi_regression_grid.h\
 gw_regression.h\
+gw_regression_grid.h\
 MLB_Interface.h\
 point_grid_regression.h\
 point_multi_grid_regression.h\

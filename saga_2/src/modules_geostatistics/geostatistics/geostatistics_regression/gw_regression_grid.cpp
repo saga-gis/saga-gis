@@ -10,7 +10,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   gw_regression.cpp                   //
+//                 gw_regression_grid.cpp                //
 //                                                       //
 //                 Copyright (C) 2010 by                 //
 //                      Olaf Conrad                      //
@@ -56,7 +56,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "gw_regression.h"
+#include "gw_regression_grid.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -66,12 +66,24 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGW_Regression::CGW_Regression(void)
+#define GRID_INIT(g, s)			if( g ) { g->Set_Name(CSG_String::Format(SG_T("%s (%s - %s)"), m_pPoints->Get_Name(), s, m_pPredictor->Get_Name())); }
+#define GRID_SET_NODATA(g, x, y)	if( g ) { g->Set_NoData(x, y); }
+#define GRID_SET_VALUE(g, x, y, z)	if( g ) { g->Set_Value(x, y, z); }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CGW_Regression_Grid::CGW_Regression_Grid(void)
 {
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name		(_TL("Geographically Weighted Regression"));
+	Set_Name		(_TL("Geographically Weighted Regression (Points/Grid)"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2010"));
 
@@ -81,19 +93,34 @@ CGW_Regression::CGW_Regression(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_Output(
-		NULL	, "INTERCEPT"	, _TL("Intercept"),
-		_TL("")
+	Parameters.Add_Grid(
+		NULL	, "PREDICTOR"	, _TL("Predictor"),
+		_TL(""),
+		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_Output(
-		NULL	, "SLOPE"		, _TL("Slope"),
-		_TL("")
+	Parameters.Add_Grid(
+		NULL	, "REGRESSION"	, _TL("Regression"),
+		_TL(""),
+		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid_Output(
+	Parameters.Add_Grid(
 		NULL	, "QUALITY"		, _TL("Coefficient of Determination"),
-		_TL("")
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "INTERCEPT"	, _TL("Intercept"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "SLOPE"		, _TL("Slope"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	pNode	= Parameters.Add_Shapes(
@@ -107,26 +134,11 @@ CGW_Regression::CGW_Regression(void)
 		_TL("")
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "PREDICTOR"	, _TL("Predictor"),
-		_TL("")
-	);
-
-	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		NULL	, "TARGET"		, _TL("Target Grids"),
+	Parameters.Add_Shapes(
+		NULL	, "RESIDUALS"	, _TL("Residuals"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("user defined"),
-			_TL("grid")
-		), 0
+		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
-
-	m_Grid_Target.Add_Parameters_User(Add_Parameters("USER", _TL("User Defined Grid")	, _TL("")));
-	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GRID", _TL("Choose Grid")			, _TL("")), false);
-	m_Grid_Target.Add_Grid_Parameter(SG_T("QUALITY")   , _TL("Quality")  , false);
-	m_Grid_Target.Add_Grid_Parameter(SG_T("INTERCEPT") , _TL("Intercept"), false);
-	m_Grid_Target.Add_Grid_Parameter(SG_T("SLOPE")     , _TL("Slope")    , false);
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Choice(
@@ -206,25 +218,16 @@ CGW_Regression::CGW_Regression(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CGW_Regression::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
-{
-	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CGW_Regression::On_Execute(void)
+bool CGW_Regression_Grid::On_Execute(void)
 {
 	//-----------------------------------------------------
+	m_pPredictor	= Parameters("PREDICTOR")	->asGrid();
+	m_pRegression	= Parameters("REGRESSION")	->asGrid();
+	m_pQuality		= Parameters("QUALITY")		->asGrid();
+	m_pIntercept	= Parameters("INTERCEPT")	->asGrid();
+	m_pSlope		= Parameters("SLOPE")		->asGrid();
 	m_pPoints		= Parameters("POINTS")		->asShapes();
 	m_iDependent	= Parameters("DEPENDENT")	->asInt();
-	m_iPredictor	= Parameters("PREDICTOR")	->asInt();
 	m_Weighting		= Parameters("WEIGHTING")	->asInt();
 	m_Power			= Parameters("POWER")		->asDouble();
 	m_Bandwidth		= Parameters("BANDWIDTH")	->asDouble();
@@ -240,45 +243,10 @@ bool CGW_Regression::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_pIntercept	= NULL;
-	m_pSlope		= NULL;
-	m_pQuality		= NULL;
-
-	switch( Parameters("TARGET")->asInt() )
-	{
-	case 0:	// user defined...
-		if( m_Grid_Target.Init_User(m_pPoints->Get_Extent()) && Dlg_Parameters("USER") )
-		{
-			m_pIntercept	= m_Grid_Target.Get_User();
-			m_pSlope		= m_Grid_Target.Get_User();
-			m_pQuality		= m_Grid_Target.Get_User();
-		}
-		break;
-
-	case 1:	// grid...
-		if( Dlg_Parameters("GRID") )
-		{
-			m_pIntercept	= m_Grid_Target.Get_Grid(SG_T("INTERCEPT"));
-			m_pSlope		= m_Grid_Target.Get_Grid(SG_T("SLOPE"));
-			m_pQuality		= m_Grid_Target.Get_Grid(SG_T("QUALITY"));
-		}
-		break;
-	}
-
-	if( m_pIntercept == NULL )
-	{
-		m_Search.Destroy();
-
-		return( false );
-	}
-
-	m_pIntercept->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_pPoints->Get_Name(), _TL("GWR Intercept")));
-	m_pSlope    ->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_pPoints->Get_Name(), _TL("GWR Slope")));
-	m_pQuality  ->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_pPoints->Get_Name(), _TL("GWR Quality")));
-
-	Parameters("INTERCEPT")->Set_Value(m_pIntercept);
-	Parameters("SLOPE")    ->Set_Value(m_pSlope);
-	Parameters("QUALITY")  ->Set_Value(m_pQuality);
+	GRID_INIT(m_pRegression, _TL("GWR Regression"));
+	GRID_INIT(m_pQuality   , _TL("GWR Quality"));
+	GRID_INIT(m_pIntercept , _TL("GWR Intercept"));
+	GRID_INIT(m_pSlope     , _TL("GWR Slope"));
 
 	//-----------------------------------------------------
 	int	nPoints_Max	= m_nPoints_Max > 0 ? m_nPoints_Max : m_pPoints->Get_Count();
@@ -288,20 +256,23 @@ bool CGW_Regression::On_Execute(void)
 	m_w.Create(nPoints_Max);
 
 	//-----------------------------------------------------
-	for(int y=0; y<m_pIntercept->Get_NY() && Set_Progress(y, m_pIntercept->Get_NY()); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(int x=0; x<m_pIntercept->Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
-			if( !Get_Regression(x, y) )
+			if( m_pPredictor->is_NoData(x, y) || !Get_Regression(x, y) )
 			{
-				m_pIntercept->Set_NoData(x, y);
-				m_pSlope    ->Set_NoData(x, y);
-				m_pQuality  ->Set_NoData(x, y);
+				GRID_SET_NODATA(m_pRegression , x, y);
+				GRID_SET_NODATA(m_pIntercept  , x, y);
+				GRID_SET_NODATA(m_pSlope      , x, y);
+				GRID_SET_NODATA(m_pQuality    , x, y);
 			}
 		}
 	}
 
 	//-----------------------------------------------------
+	Set_Residuals();
+
 	m_y.Destroy();
 	m_z.Destroy();
 	m_w.Destroy();
@@ -323,7 +294,7 @@ bool CGW_Regression::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline double CGW_Regression::Get_Weight(double Distance)
+inline double CGW_Regression_Grid::Get_Weight(double Distance)
 {
 	switch( m_Weighting )
 	{
@@ -335,14 +306,16 @@ inline double CGW_Regression::Get_Weight(double Distance)
 }
 
 //---------------------------------------------------------
-int CGW_Regression::Set_Variables(int x, int y)
+int CGW_Regression_Grid::Set_Variables(int x, int y)
 {
-	int			nPoints;
+	int			nPoints, nTotal;
+	double		z;
 	TSG_Point	Point;
 	CSG_Shape	*pPoint;
 
-	Point	= m_pIntercept->Get_System().Get_Grid_to_World(x, y);
+	Point	= Get_System()->Get_Grid_to_World(x, y);
 	nPoints	= m_Search.is_Okay() ? m_Search.Select_Nearest_Points(Point.x, Point.y, m_nPoints_Max, m_Radius, m_Mode == 0 ? -1 : 4) : m_pPoints->Get_Count();
+	nTotal	= 0;
 
 	for(int iPoint=0; iPoint<nPoints; iPoint++)
 	{
@@ -359,16 +332,21 @@ int CGW_Regression::Set_Variables(int x, int y)
 			pPoint	= m_pPoints->Get_Shape(iPoint);
 		}
 
-		m_z[iPoint]	= pPoint->asDouble(m_iDependent);
-		m_y[iPoint]	= pPoint->asDouble(m_iPredictor);
-		m_w[iPoint]	= Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point(0)));
+		if( m_pPredictor->Get_Value(pPoint->Get_Point(0), z) )
+		{
+			m_w[nTotal]	= Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point(0)));
+			m_z[nTotal]	= pPoint->asDouble(m_iDependent);
+			m_y[nTotal]	= z;
+
+			nTotal++;
+		}
 	}
 
-	return( nPoints );
+	return( nTotal );
 }
 
 //---------------------------------------------------------
-bool CGW_Regression::Get_Regression(int x, int y)
+bool CGW_Regression_Grid::Get_Regression(int x, int y)
 {
 	int		nPoints	= Set_Variables(x, y);
 
@@ -409,9 +387,64 @@ bool CGW_Regression::Get_Regression(int x, int y)
 		tss	+= m_w[i] * SG_Get_Square(m_z[i] - zMean);
 	}
 
-	m_pIntercept->Set_Value(x, y, b[0]);
-	m_pSlope    ->Set_Value(x, y, b[1]);
-	m_pQuality  ->Set_Value(x, y, (tss - rss) / tss);
+	GRID_SET_VALUE(m_pRegression, x, y, b[0] + b[1] * m_pPredictor->asDouble(x, y));
+	GRID_SET_VALUE(m_pIntercept , x, y, b[0]);
+	GRID_SET_VALUE(m_pSlope     , x, y, b[1]);
+	GRID_SET_VALUE(m_pQuality   , x, y, (tss - rss) / tss);
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGW_Regression_Grid::Set_Residuals(void)
+{
+	CSG_Shapes	*pResiduals	= Parameters("RESIDUALS")->asShapes();
+
+	if( !pResiduals || !m_pPoints || !m_pRegression )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	pResiduals->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), m_pPoints->Get_Name(), _TL("Residuals")));
+	pResiduals->Add_Field(m_pPoints->Get_Field_Name(m_iDependent), SG_DATATYPE_Double);
+	pResiduals->Add_Field("TREND"	, SG_DATATYPE_Double);
+	pResiduals->Add_Field("RESIDUAL", SG_DATATYPE_Double);
+
+	//-------------------------------------------------
+	for(int iShape=0; iShape<m_pPoints->Get_Count() && Set_Progress(iShape, m_pPoints->Get_Count()); iShape++)
+	{
+		CSG_Shape	*pShape	= m_pPoints->Get_Shape(iShape);
+		double		 zShape	= pShape->asDouble(m_iDependent);
+
+		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+		{
+			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+			{
+				double	zRegression;
+
+				TSG_Point	Point	= pShape->Get_Point(iPoint, iPart);
+
+				if( m_pRegression->Get_Value(Point, zRegression) )
+				{
+					CSG_Shape	*pResidual	= pResiduals->Add_Shape();
+
+					pResidual->Add_Point(Point);
+					pResidual->Set_Value(0, zShape);
+					pResidual->Set_Value(1, zRegression);
+					pResidual->Set_Value(2, zShape - zRegression);
+				}
+			}
+		}
+	}
 
 	//-----------------------------------------------------
 	return( true );

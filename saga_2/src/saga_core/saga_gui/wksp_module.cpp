@@ -748,6 +748,11 @@ bool CWKSP_Module::Execute(bool bDialog)
 
 			g_pData->Check_Parameters(m_pModule->Get_Parameters());
 
+			for(int i=0; i<m_pModule->Get_Parameters_Count(); i++)
+			{
+				g_pData->Check_Parameters(m_pModule->Get_Parameters(i));
+			}
+
 			MSG_General_Add_Line();
 			MSG_Execution_Add_Line();
 			MSG_ADD(wxString::Format(wxT("%s: %s"), LNG("[MSG] Executing module"), m_pModule->Get_Name()));

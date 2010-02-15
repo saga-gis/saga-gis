@@ -10,7 +10,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 gw_multi_regression.h                 //
+//              gw_multi_regression_grid.h               //
 //                                                       //
 //                 Copyright (C) 2010 by                 //
 //                      Olaf Conrad                      //
@@ -56,8 +56,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__gw_multi_regression_H
-#define HEADER_INCLUDED__gw_multi_regression_H
+#ifndef HEADER_INCLUDED__gw_multi_regression_grid_H
+#define HEADER_INCLUDED__gw_multi_regression_grid_H
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
@@ -70,26 +70,22 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGW_Multi_Regression : public CSG_Module
+class CGW_Multi_Regression_Grid : public CSG_Module_Grid
 {
 public:
-	CGW_Multi_Regression(void);
+	CGW_Multi_Regression_Grid(void);
 
 
 protected:
 
 	virtual bool				On_Execute				(void);
 
-	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
 
 private:
 
-	int							m_iDependent, *m_iPredictor, m_nPredictors, m_Weighting, m_nPoints_Min, m_nPoints_Max, m_Mode;
+	int							m_Weighting, m_nPoints_Min, m_nPoints_Max, m_Mode;
 
 	double						m_Power, m_Bandwidth, m_Radius;
-
-	CSG_Parameters_Grid_Target	m_Grid_Target;
 
 	CSG_PRQuadTree				m_Search;
 
@@ -97,14 +93,15 @@ private:
 
 	CSG_Matrix					m_y;
 
-	CSG_Shapes					*m_pPoints;
+	CSG_Shapes					m_Points;
 
-	CSG_Grid					*m_pQuality, *m_pIntercept, **m_pSlopes;
+	CSG_Grid					*m_pRegression, *m_pQuality;
+	
+	CSG_Parameter_Grid_List		*m_pPredictors, *m_pSlopes;
 
 
+	bool						Initialize				(void);
 	void						Finalize				(void);
-
-	bool						Get_Predictors			(void);
 
 	double						Get_Weight				(double Distance);
 
@@ -124,4 +121,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__gw_multi_regression_H
+#endif // #ifndef HEADER_INCLUDED__gw_multi_regression_grid_H

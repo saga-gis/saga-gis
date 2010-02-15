@@ -143,7 +143,6 @@ bool CCreateChartLayer::On_Execute(void){
 bool CCreateChartLayer::GetExtraParameters(){
 
 	int i;
-	CSG_Table *pShapesTable;
 	CSG_Shapes *pInput;
 	CSG_Parameter *pParam;
 	CSG_String sName;
@@ -151,14 +150,13 @@ bool CCreateChartLayer::GetExtraParameters(){
 
 	pInput = Parameters("INPUT")->asShapes();
 
-	m_pExtraParameters->Create(this, _TL("Fields for diagram"), _TL(""), "EXTRA");
+	m_pExtraParameters->Create(this, _TL("Fields for diagram"), _TL(""), SG_T("EXTRA"));
 
-	pShapesTable = pInput;
-	m_bIncludeParam = new bool [pShapesTable->Get_Field_Count() ];
+	m_bIncludeParam = new bool [pInput->Get_Field_Count() ];
 
-	for (i = 0; i < pShapesTable->Get_Field_Count(); i++)
+	for (i = 0; i < pInput->Get_Field_Count(); i++)
 	{
-		switch( pShapesTable->Get_Field_Type(i) )
+		switch( pInput->Get_Field_Type(i) )
 		{
 		default:
 			break;
@@ -174,14 +172,14 @@ bool CCreateChartLayer::GetExtraParameters(){
 		case SG_DATATYPE_Float:
 		case SG_DATATYPE_Double:	// is numeric field
 			m_pExtraParameters->Add_Value(
-				NULL, SG_Get_String(i,0).c_str(), pShapesTable->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false
+				NULL, SG_Get_String(i,0).c_str(), pInput->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false
 			);
 			break;
 		}
 	}//for
 
 	if(Dlg_Parameters("EXTRA")){
-		for (i = 0; i < pShapesTable->Get_Field_Count(); i++){
+		for (i = 0; i < pInput->Get_Field_Count(); i++){
 			sName = SG_Get_String(i,0);
 			if (pParam = Get_Parameters("EXTRA")->Get_Parameter(sName.c_str())){
 				m_bIncludeParam[i] = pParam->asBool();

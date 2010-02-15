@@ -416,7 +416,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gw_multi_regression_grid.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\gw_regression.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\gw_regression_grid.cpp"
 				>
 			</File>
 			<File
@@ -481,7 +489,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gw_multi_regression_grid.h"
+				>
+			</File>
+			<File
 				RelativePath=".\gw_regression.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gw_regression_grid.h"
 				>
 			</File>
 			<File

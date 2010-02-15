@@ -202,6 +202,11 @@ bool CSG_Module::Execute(void)
 
 		if( Parameters.DataObjects_Check() )
 		{
+			for(int i=0; i<m_npParameters; i++)
+			{
+				m_pParameters[i]->DataObjects_Check();
+			}
+
 			Destroy();
 
 			Parameters.DataObjects_Create();
