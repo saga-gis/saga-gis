@@ -820,6 +820,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Grid_Gaps_Spline_Fill.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Grid_InvertNoData.cpp"
 				>
 				<FileConfiguration
@@ -858,6 +862,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\Grid_Mask.cpp"
+				>
 			</File>
 			<File
 				RelativePath="Grid_Merge.cpp"
@@ -1393,7 +1401,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Grid_Gaps_Spline_Fill.h"
+				>
+			</File>
+			<File
 				RelativePath="Grid_InvertNoData.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Grid_Mask.h"
 				>
 			</File>
 			<File

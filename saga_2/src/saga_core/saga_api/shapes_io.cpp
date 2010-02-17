@@ -382,6 +382,7 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 {
 	int				Type, fSHP_Size, fSHX_Size, iField, iPart, iPoint, nPoints;
+	TSG_Point		Point;
 	CSG_Buffer		File_Header(100), Record_Header(8), Content;
 	CSG_File		fSHP, fSHX;
 	CSG_Table_DBase	fDBF;
@@ -601,7 +602,7 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 		//-------------------------------------------------
 		case SHAPE_TYPE_Point:		///////////////////////
 
-			fSHP.Write(&pShape->Get_Point(0), sizeof(TSG_Point));
+			fSHP.Write(&(Point = pShape->Get_Point(0)), sizeof(TSG_Point));
 
 			//---------------------------------------------
 			if( m_Vertex_Type != SG_VERTEX_TYPE_XY )
@@ -625,7 +626,7 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 			{
 				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
-					fSHP.Write(&pShape->Get_Point(iPoint, iPart), sizeof(TSG_Point));
+					fSHP.Write(&(Point = pShape->Get_Point(iPoint, iPart)), sizeof(TSG_Point));
 				}
 			}
 

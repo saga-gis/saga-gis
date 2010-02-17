@@ -67,6 +67,16 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define BUFFER_SIZE_GROW(size)		(size < 1024 ? 32 : 1024)
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //						CSG_Point						 //
 //														 //
 ///////////////////////////////////////////////////////////
@@ -244,6 +254,7 @@ void CSG_Point_ZM::Assign(const CSG_Point_ZM &Point)
 //---------------------------------------------------------
 CSG_Points::CSG_Points(void)
 {
+	m_nBuffer	= 0;
 	m_nPoints	= 0;
 	m_Points	= NULL;
 }
@@ -262,6 +273,7 @@ void CSG_Points::Clear(void)
 		SG_Free(m_Points);
 	}
 
+	m_nBuffer	= 0;
 	m_nPoints	= 0;
 	m_Points	= NULL;
 }
@@ -290,16 +302,48 @@ CSG_Points & CSG_Points::operator  = (const CSG_Points &Points)
 //---------------------------------------------------------
 bool CSG_Points::Set_Count(int nPoints)
 {
-	m_nPoints	= nPoints;
-	m_Points	= (TSG_Point *)SG_Realloc(m_Points, m_nPoints * sizeof(TSG_Point));
+	if( m_nPoints == nPoints )
+	{
+		return( true );
+	}
 
-	return( true );
+	if( nPoints <= 0 )
+	{
+		Clear();
+
+		return( true );
+	}
+
+	TSG_Point	*Points	= (TSG_Point *)SG_Realloc(m_Points, nPoints * sizeof(TSG_Point));
+
+	if( Points )
+	{
+		m_Points	= Points;
+		m_nPoints	= nPoints;
+		m_nBuffer	= nPoints;
+
+		return( true );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
 bool CSG_Points::Add(double x, double y)
 {
-	m_Points	= (TSG_Point *)SG_Realloc(m_Points, (m_nPoints + 1) * sizeof(TSG_Point));
+	if( m_nPoints >= m_nBuffer - 1 )
+	{
+		TSG_Point	*Points	= (TSG_Point *)SG_Realloc(m_Points, (m_nBuffer + BUFFER_SIZE_GROW(m_nBuffer)) * sizeof(TSG_Point));
+
+		if( Points == NULL )
+		{
+			return( false );
+		}
+
+		m_Points	 = Points;
+		m_nBuffer	+= BUFFER_SIZE_GROW(m_nBuffer);
+	}
+
 	m_Points[m_nPoints].x	= x;
 	m_Points[m_nPoints].y	= y;
 	m_nPoints++;
@@ -350,6 +394,7 @@ bool CSG_Points::Del(int Index)
 //---------------------------------------------------------
 CSG_Points_Int::CSG_Points_Int(void)
 {
+	m_nBuffer	= 0;
 	m_nPoints	= 0;
 	m_Points	= NULL;
 }
@@ -368,6 +413,7 @@ void CSG_Points_Int::Clear(void)
 		SG_Free(m_Points);
 	}
 
+	m_nBuffer	= 0;
 	m_nPoints	= 0;
 	m_Points	= NULL;
 }
@@ -396,16 +442,48 @@ CSG_Points_Int & CSG_Points_Int::operator  = (const CSG_Points_Int &Points)
 //---------------------------------------------------------
 bool CSG_Points_Int::Set_Count(int nPoints)
 {
-	m_nPoints	= nPoints;
-	m_Points	= (TSG_Point_Int *)SG_Realloc(m_Points, m_nPoints * sizeof(TSG_Point_Int));
+	if( m_nPoints == nPoints )
+	{
+		return( true );
+	}
 
-	return( true );
+	if( nPoints <= 0 )
+	{
+		Clear();
+
+		return( true );
+	}
+
+	TSG_Point_Int	*Points	= (TSG_Point_Int *)SG_Realloc(m_Points, nPoints * sizeof(TSG_Point_Int));
+
+	if( Points )
+	{
+		m_Points	= Points;
+		m_nPoints	= nPoints;
+		m_nBuffer	= nPoints;
+
+		return( true );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
 bool CSG_Points_Int::Add(int x, int y)
 {
-	m_Points	= (TSG_Point_Int *)SG_Realloc(m_Points, (m_nPoints + 1) * sizeof(TSG_Point_Int));
+	if( m_nPoints >= m_nBuffer - 1 )
+	{
+		TSG_Point_Int	*Points	= (TSG_Point_Int *)SG_Realloc(m_Points, (m_nBuffer + BUFFER_SIZE_GROW(m_nBuffer)) * sizeof(TSG_Point_Int));
+
+		if( Points == NULL )
+		{
+			return( false );
+		}
+
+		m_Points	 = Points;
+		m_nBuffer	+= BUFFER_SIZE_GROW(m_nBuffer);
+	}
+
 	m_Points[m_nPoints].x	= x;
 	m_Points[m_nPoints].y	= y;
 	m_nPoints++;
@@ -456,6 +534,7 @@ bool CSG_Points_Int::Del(int Index)
 //---------------------------------------------------------
 CSG_Points_Z::CSG_Points_Z(void)
 {
+	m_nBuffer	= 0;
 	m_nPoints	= 0;
 	m_Points	= NULL;
 }
@@ -474,6 +553,7 @@ void CSG_Points_Z::Clear(void)
 		SG_Free(m_Points);
 	}
 
+	m_nBuffer	= 0;
 	m_nPoints	= 0;
 	m_Points	= NULL;
 }
@@ -502,16 +582,48 @@ CSG_Points_Z & CSG_Points_Z::operator  = (const CSG_Points_Z &Points)
 //---------------------------------------------------------
 bool CSG_Points_Z::Set_Count(int nPoints)
 {
-	m_nPoints	= nPoints;
-	m_Points	= (TSG_Point_Z *)SG_Realloc(m_Points, m_nPoints * sizeof(TSG_Point_Z));
+	if( m_nPoints == nPoints )
+	{
+		return( true );
+	}
 
-	return( true );
+	if( nPoints <= 0 )
+	{
+		Clear();
+
+		return( true );
+	}
+
+	TSG_Point_Z	*Points	= (TSG_Point_Z *)SG_Realloc(m_Points, nPoints * sizeof(TSG_Point_Z));
+
+	if( Points )
+	{
+		m_Points	= Points;
+		m_nPoints	= nPoints;
+		m_nBuffer	= nPoints;
+
+		return( true );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
 bool CSG_Points_Z::Add(double x, double y, double z)
 {
-	m_Points	= (TSG_Point_Z *)SG_Realloc(m_Points, (m_nPoints + 1) * sizeof(TSG_Point_Z));
+	if( m_nPoints >= m_nBuffer - 1 )
+	{
+		TSG_Point_Z	*Points	= (TSG_Point_Z *)SG_Realloc(m_Points, (m_nBuffer + BUFFER_SIZE_GROW(m_nBuffer)) * sizeof(TSG_Point_Z));
+
+		if( Points == NULL )
+		{
+			return( false );
+		}
+
+		m_Points	 = Points;
+		m_nBuffer	+= BUFFER_SIZE_GROW(m_nBuffer);
+	}
+
 	m_Points[m_nPoints].x	= x;
 	m_Points[m_nPoints].y	= y;
 	m_Points[m_nPoints].z	= z;

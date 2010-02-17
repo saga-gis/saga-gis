@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.7 2007-07-30 07:29:24 oconrad Exp $
+# $Id: Makefile.am,v 1.8 2010-02-17 13:27:30 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -25,7 +25,9 @@ Grid_Cut.cpp\
 Grid_Fill.cpp\
 Grid_Gaps.cpp\
 Grid_Gaps_OneCell.cpp\
+Grid_Gaps_Spline_Fill.cpp\
 Grid_InvertNoData.cpp\
+Grid_Mask.cpp\
 Grid_Merge.cpp\
 Grid_Orientation.cpp\
 Grid_Resample.cpp\
@@ -50,7 +52,9 @@ Grid_Cut.h\
 Grid_Fill.h\
 Grid_Gaps.h\
 Grid_Gaps_OneCell.h\
+Grid_Gaps_Spline_Fill.h\
 Grid_InvertNoData.h\
+Grid_Mask.h\
 Grid_Merge.h\
 Grid_Orientation.h\
 Grid_Resample.h\

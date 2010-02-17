@@ -325,7 +325,7 @@ public:
 
 private:
 
-	int							m_nPoints;
+	int							m_nPoints, m_nBuffer;
 
 	TSG_Point					*m_Points;
 
@@ -358,7 +358,7 @@ public:
 
 private:
 
-	int							m_nPoints;
+	int							m_nPoints, m_nBuffer;
 
 	TSG_Point_Int				*m_Points;
 
@@ -392,7 +392,7 @@ public:
 
 private:
 
-	int							m_nPoints;
+	int							m_nPoints, m_nBuffer;
 
 	TSG_Point_Z					*m_Points;
 
