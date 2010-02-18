@@ -397,6 +397,8 @@ bool CGrid_Classes_To_Shapes::Get_Polygons(void)
 void CGrid_Classes_To_Shapes::Get_Polygon(int x, int y, int iPart)
 {
 	int		i, iLast;
+	int     first_x		= x;
+	int		first_y		= y;
 
 	iLast	= -1;
 
@@ -423,6 +425,8 @@ void CGrid_Classes_To_Shapes::Get_Polygon(int x, int y, int iPart)
 		x	= Get_xTo(i, x);
 		y	= Get_yTo(i, y);
 	}
+
+	m_pShape->Add_Point(m_Edge.Get_System().Get_Grid_to_World(first_x, first_y), iPart);
 }
 
 
