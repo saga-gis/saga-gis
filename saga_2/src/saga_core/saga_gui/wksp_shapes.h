@@ -134,6 +134,8 @@ protected:
 
 	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
+	virtual void				On_Update_Views			(void);
+
 	virtual void				On_Draw					(CWKSP_Map_DC &dc_Map, bool bEdit);
 
 	CSG_Parameter *				_AttributeList_Add		(CSG_Parameter *pNode, const char *Identifier, const wxChar *Name, const wxChar *Description);

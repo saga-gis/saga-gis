@@ -74,10 +74,10 @@ const SG_Char * Get_Info(int i)
 		return( _TL("Geostatistics - Points") );
 
 	case MLB_INFO_Author:
-		return( _TL("O.Conrad (c) 2002") );
+		return( _TL("O.Conrad (c) 2002-10") );
 
 	case MLB_INFO_Description:
-		return( _TL("Geostatistical analyses for point data.") );
+		return( _TL("Spatial and geostatistical analyses of point data.") );
 
 	case MLB_INFO_Version:
 		return( SG_T("1.0") );
@@ -92,6 +92,8 @@ const SG_Char * Get_Info(int i)
 // 3. Include the headers of your modules here...
 
 #include "GSPoints_Semi_Variances.h"
+#include "GSPoints_Variogram_Cloud.h"
+#include "GSPoints_Variogram_Surface.h"
 #include "GSPoints_Distances.h"
 
 
@@ -103,7 +105,9 @@ CSG_Module *		Create_Module(int i)
 	switch( i )
 	{
 	case  0:	return( new CGSPoints_Semi_Variances );
-	case  1:	return( new CGSPoints_Distances );
+	case  1:	return( new CGSPoints_Variogram_Cloud );
+	case  2:	return( new CGSPoints_Variogram_Surface );
+	case  3:	return( new CGSPoints_Distances );
 	}
 
 	return( NULL );

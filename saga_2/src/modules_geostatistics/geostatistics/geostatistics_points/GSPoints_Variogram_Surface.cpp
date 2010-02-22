@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//              GSPoints_Semi_Variances.cpp              //
+//             GSPoints_Variogram_Surface.cpp            //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2010 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -58,7 +56,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "GSPoints_Semi_Variances.h"
+#include "GSPoints_Variogram_Surface.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -68,33 +66,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-enum
-{
-	FIELD_CLASSNR	= 0,
-	FIELD_DISTANCE,
-	FIELD_COUNT,
-	FIELD_VARIANCE,
-	FIELD_VARCUMUL,
-	FIELD_COVARIANCE,
-	FIELD_COVARCUMUL
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CGSPoints_Semi_Variances::CGSPoints_Semi_Variances(void)
+CGSPoints_Variogram_Surface::CGSPoints_Variogram_Surface(void)
 {
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Name		(_TL("Variogram"));
+	Set_Name		(_TL("Variogram Surface"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2003"));
+	Set_Author		(SG_T("O.Conrad (c) 2010"));
 
 	Set_Description(
 		_TL("")
@@ -113,22 +92,25 @@ CGSPoints_Semi_Variances::CGSPoints_Semi_Variances(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Table(
-		NULL	, "RESULT"		, _TL("Sample Variogram"),
-		_TL(""),
-		PARAMETER_OUTPUT
+	Parameters.Add_Grid_Output(
+		NULL	, "COUNT"		, _TL("Number of Pairs"),
+		_TL("")
+	);
+
+	Parameters.Add_Grid_Output(
+		NULL	, "VARIANCE"	, _TL("Variogram Surface"),
+		_TL("")
+	);
+
+	Parameters.Add_Grid_Output(
+		NULL	, "COVARIANCE"	, _TL("Covariance Surface"),
+		_TL("")
 	);
 
 	Parameters.Add_Value(
-		NULL	, "DISTCOUNT"	, _TL("Initial Number of Distance Classes"),
+		NULL	, "DISTCOUNT"	, _TL("Number of Distance Classes"),
 		_TL(""),
-		PARAMETER_TYPE_Int		, 100, 1, true
-	);
-
-	Parameters.Add_Value(
-		NULL	, "DISTMAX"		, _TL("Maximum Distance"),
-		_TL(""),
-		PARAMETER_TYPE_Double	, 0.0, 0.0, true
+		PARAMETER_TYPE_Int		, 10, 1, true
 	);
 
 	Parameters.Add_Value(
@@ -146,37 +128,36 @@ CGSPoints_Semi_Variances::CGSPoints_Semi_Variances(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGSPoints_Semi_Variances::On_Execute(void)
+bool CGSPoints_Variogram_Surface::On_Execute(void)
 {
-	int					i, j, k, n, nDistances, nSkip, Attribute;
-	double				zi, zj, zMean, v, c, maxDistance, lagDistance;
+	int					i, j, x, y, n, nx, ny, nSkip, Attribute, nDistances;
+	double				zi, zj, zMean, v, c, lagDistance;
 	TSG_Point			Pt_i, Pt_j;
-	CSG_Vector			Count, Variance, Covariance;
-	CSG_Table_Record	*pRecord;
-	CSG_Table			*pTable;
 	CSG_Shape			*pPoint;
 	CSG_Shapes			*pPoints;
+	CSG_Grid			*pVariance, *pCovariance, *pCount;
 
 	//-----------------------------------------------------
 	pPoints		= Parameters("POINTS")		->asShapes();
-	pTable		= Parameters("RESULT")		->asTable();
 	Attribute	= Parameters("FIELD")		->asInt();
 	nSkip		= Parameters("NSKIP")		->asInt();
-	maxDistance	= Parameters("DISTMAX")		->asDouble();
 	nDistances	= Parameters("DISTCOUNT")	->asInt();
 
-	if( maxDistance <= 0.0 )
-	{
-		maxDistance	= SG_Get_Length(pPoints->Get_Extent().Get_XRange(), pPoints->Get_Extent().Get_YRange());
-	}
+	lagDistance	= pPoints->Get_Extent().Get_XRange() < pPoints->Get_Extent().Get_YRange()
+				? pPoints->Get_Extent().Get_XRange() / nDistances
+				: pPoints->Get_Extent().Get_YRange() / nDistances;
 
-	lagDistance	= maxDistance / nDistances;
-
+	nx			= 1 + (int)(pPoints->Get_Extent().Get_XRange() / lagDistance);
+	ny			= 1 + (int)(pPoints->Get_Extent().Get_YRange() / lagDistance);
 	zMean		= pPoints->Get_Mean(Attribute);
 
-	Count		.Create(nDistances);
-	Variance	.Create(nDistances);
-	Covariance	.Create(nDistances);
+	pCount		= SG_Create_Grid(SG_DATATYPE_Int  , 1 + 2 * nx, 1 + 2 * ny, lagDistance, -nx * lagDistance, -ny * lagDistance);
+	pVariance	= SG_Create_Grid(SG_DATATYPE_Float, 1 + 2 * nx, 1 + 2 * ny, lagDistance, -nx * lagDistance, -ny * lagDistance);
+	pCovariance	= SG_Create_Grid(SG_DATATYPE_Float, 1 + 2 * nx, 1 + 2 * ny, lagDistance, -nx * lagDistance, -ny * lagDistance);
+
+	pCount		->Set_Name(CSG_String::Format(SG_T("%s [%s]")    , pPoints->Get_Name(), _TL("Count")));
+	pVariance	->Set_Name(CSG_String::Format(SG_T("%s [%s: %s]"), pPoints->Get_Name(), _TL("Variogram Surface") , pPoints->Get_Field_Name(Attribute)));
+	pCovariance	->Set_Name(CSG_String::Format(SG_T("%s [%s: %s]"), pPoints->Get_Name(), _TL("Covariance Surface"), pPoints->Get_Field_Name(Attribute)));
 
 	//-----------------------------------------------------
 	for(i=0, n=0; i<pPoints->Get_Count() && Set_Progress(n, SG_Get_Square(pPoints->Get_Count()/nSkip)/2); i+=nSkip)
@@ -189,52 +170,47 @@ bool CGSPoints_Semi_Variances::On_Execute(void)
 		{
 			pPoint	= pPoints->Get_Shape(j);
 			Pt_j	= pPoint->Get_Point(0);
-			k		= (int)(SG_Get_Distance(Pt_i, Pt_j) / lagDistance);
 
-			if( k < nDistances )
-			{
-				zj	= pPoint->asDouble(Attribute);
+			zj	= pPoint->asDouble(Attribute);
 
-				v	= SG_Get_Square(zi - zj);
-				c	= (zi - zMean) * (zj - zMean);
+			v	= SG_Get_Square(zi - zj);
+			c	= (zi - zMean) * (zj - zMean);
 
-				Count	  [k]	++;
-				Variance  [k]	+= v;
-				Covariance[k]	+= c;
-			}
+			Pt_j.x	= (Pt_i.x - Pt_j.x) / lagDistance;
+			Pt_j.y	= (Pt_i.y - Pt_j.y) / lagDistance;
+
+			x	= (int)(Pt_j.x + (Pt_j.x > 0.0 ? 0.5 : -0.5));
+			y	= (int)(Pt_j.y + (Pt_j.y > 0.0 ? 0.5 : -0.5));
+
+			pCount     ->Add_Value(nx + x, ny + y, 1);
+			pCount     ->Add_Value(nx - x, ny - y, 1);
+			pVariance  ->Add_Value(nx + x, ny + y, v);
+			pVariance  ->Add_Value(nx - x, ny - y, v);
+			pCovariance->Add_Value(nx + x, ny + y, c);
+			pCovariance->Add_Value(nx - x, ny - y, c);
 		}
 	}
 
 	//-----------------------------------------------------
-	pTable->Destroy();
-	pTable->Set_Name(CSG_String::Format(SG_T("%s [%s: %s]"), pPoints->Get_Name(), _TL("Variogram"), pPoints->Get_Field_Name(Attribute)));
-	pTable->Add_Field(_TL("Class")		, SG_DATATYPE_Int);		// FIELD_CLASSNR
-	pTable->Add_Field(_TL("Distance")	, SG_DATATYPE_Double);	// FIELD_DISTANCE
-	pTable->Add_Field(_TL("Count")		, SG_DATATYPE_Int);		// FIELD_COUNT
-	pTable->Add_Field(_TL("Variance")	, SG_DATATYPE_Double);	// FIELD_VARIANCE
-	pTable->Add_Field(_TL("Cum.Var.")	, SG_DATATYPE_Double);	// FIELD_VARCUMUL
-	pTable->Add_Field(_TL("Covariance")	, SG_DATATYPE_Double);	// FIELD_COVARIANCE
-	pTable->Add_Field(_TL("Cum.Covar.")	, SG_DATATYPE_Double);	// FIELD_COVARCUMUL
-
-	for(i=0, v=0.0, c=0.0, n=0; i<nDistances; i++)
+	for(i=0; i<pCount->Get_NCells(); i++)
 	{
-		if( Count[i] > 0 )
+		if( pCount->asInt(i) > 0 )
 		{
-			n	+= (int)Count[i];
-			v	+= Variance  [i];
-			c	+= Covariance[i];
-
-			pRecord	= pTable->Add_Record();
-			pRecord->Set_Value(FIELD_CLASSNR	, (i + 1));
-			pRecord->Set_Value(FIELD_DISTANCE	, (i + 1) * lagDistance);
-			pRecord->Set_Value(FIELD_COUNT		, Count[i]);
-			pRecord->Set_Value(FIELD_VARIANCE	, 0.5 * Variance  [i] / Count[i]);
-			pRecord->Set_Value(FIELD_VARCUMUL	, 0.5 * v / n);
-			pRecord->Set_Value(FIELD_COVARIANCE	, 1.0 * Covariance[i] / Count[i]);
-			pRecord->Set_Value(FIELD_COVARCUMUL	, 1.0 * c / n);
+			pVariance  ->Mul_Value(i, 0.5 / pCount->asInt(i));
+			pCovariance->Mul_Value(i, 1.0 / pCount->asInt(i));
+		}
+		else
+		{
+			pVariance  ->Set_NoData(i);
+			pCovariance->Set_NoData(i);
 		}
 	}
 
+	DataObject_Add(pCount);
+	DataObject_Add(pVariance);
+	DataObject_Add(pCovariance);
+
+	//-----------------------------------------------------
 	return( true );
 }
 

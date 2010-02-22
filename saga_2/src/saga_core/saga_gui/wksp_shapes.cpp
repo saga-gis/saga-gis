@@ -523,6 +523,12 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 	return( 1 );
 }
 
+//---------------------------------------------------------
+void CWKSP_Shapes::On_Update_Views(void)
+{
+	m_pTable->Update_Views();
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

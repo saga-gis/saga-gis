@@ -95,7 +95,7 @@ private:
 
 	int						m_nGaps, m_nGapCells, m_iStack, m_nPoints_Max, m_nPoints_Local, m_nGapCells_Max, m_Neighbours;
 
-	double					m_Relaxation;
+	double					m_Relaxation, m_Radius;
 
 	CSG_Points_Int			m_GapCells, m_Stack;
 

@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//               GSPoints_Semi_Variances.h               //
+//               GSPoints_Variogram_Cloud.h              //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2010 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -58,8 +56,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__GSPoints_Semi_Variances_H
-#define HEADER_INCLUDED__GSPoints_Semi_Variances_H
+#ifndef HEADER_INCLUDED__GSPoints_Variogram_Cloud_H
+#define HEADER_INCLUDED__GSPoints_Variogram_Cloud_H
 
 
 ///////////////////////////////////////////////////////////
@@ -79,10 +77,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGSPoints_Semi_Variances : public CSG_Module  
+class CGSPoints_Variogram_Cloud : public CSG_Module  
 {
 public:
-	CGSPoints_Semi_Variances(void);
+	CGSPoints_Variogram_Cloud(void);
 
 
 protected:
@@ -99,4 +97,4 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__GSPoints_Semi_Variances_H
+#endif // #ifndef HEADER_INCLUDED__GSPoints_Variogram_Cloud_H

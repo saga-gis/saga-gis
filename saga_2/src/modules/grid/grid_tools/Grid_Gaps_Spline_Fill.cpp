@@ -128,6 +128,12 @@ CGrid_Gaps_Spline_Fill::CGrid_Gaps_Spline_Fill(void)
 	);
 
 	Parameters.Add_Value(
+		NULL, "RADIUS"		, _TL("Radius (Cells)"),
+		_TL(""),
+		PARAMETER_TYPE_Int	, 0.0, 0.0, true
+	);
+
+	Parameters.Add_Value(
 		NULL, "RELAXATION"	, _TL("Relaxation"),
 		_TL(""),
 		PARAMETER_TYPE_Double, 0.0, 0.0, true
@@ -152,6 +158,7 @@ bool CGrid_Gaps_Spline_Fill::On_Execute(void)
 	m_nPoints_Local	= Parameters("LOCALPOINTS")	->asInt();
 	m_bExtended		= Parameters("EXTENDED")	->asBool();
 	m_Neighbours	= Parameters("NEIGHBOURS")	->asInt() == 0 ? 2 : 1;
+	m_Radius		= Parameters("RADIUS")		->asDouble();
 	m_Relaxation	= Parameters("RELAXATION")	->asDouble();
 
 	if( m_pGrid == NULL )
@@ -298,9 +305,9 @@ void CGrid_Gaps_Spline_Fill::Close_Gap(int x, int y)
 
 	m_Spline.Destroy();
 
-	Push(x, y);
+	Set_Gap_Cell(x, y);
 
-	while( m_iStack > 0 && m_nGapCells < m_nGapCells_Max && Process_Get_Okay() )
+	while( m_iStack > 0 && m_nGapCells <= m_nGapCells_Max && Process_Get_Okay() )
 	{
 		Pop(x, y);
 
@@ -311,7 +318,7 @@ void CGrid_Gaps_Spline_Fill::Close_Gap(int x, int y)
 	}
 
 	//-----------------------------------------------------
-	if( m_nGapCells < m_nGapCells_Max )
+	if( m_nGapCells <= m_nGapCells_Max )
 	{
 		if( m_nPoints_Max == 0 || m_Spline.Get_Point_Count() <= m_nPoints_Max )
 		{
@@ -356,7 +363,33 @@ void CGrid_Gaps_Spline_Fill::Close_Gap(void)
 	{
 		TSG_Point_Int	p	= m_GapCells[i];
 
-		if( Search.Select_Nearest_Points(p.x, p.y, m_nPoints_Local, 0.0, 4) > 2 )
+		m_Spline.Destroy();
+
+		for(j=0; j<4; j++)
+		{
+			Search.Select_Nearest_Points(p.x, p.y, m_nPoints_Local, m_Radius, j);
+
+			for(int k=0; k<Search.Get_Selected_Count(); k++)
+			{
+				double	x, y, z;
+
+				Search.Get_Selected_Point(k, x, y, z);
+
+				m_Spline.Add_Point(x, y, z);
+			}
+		}
+
+		if( m_Spline.Create(m_Relaxation, true) )
+		{
+			m_pGrid->Set_Value(p.x, p.y, m_Spline.Get_Value(p.x, p.y));
+		}
+	}
+
+/*	for(i=0; i<m_nGapCells && Process_Get_Okay(); i++)
+	{
+		TSG_Point_Int	p	= m_GapCells[i];
+
+		if( Search.Select_Nearest_Points(p.x, p.y, m_nPoints_Local, m_Radius, m_Radius > 0 ? -1 : 4) > 2 )
 		{
 			m_Spline.Set_Point_Count(Search.Get_Selected_Count());
 
@@ -374,7 +407,7 @@ void CGrid_Gaps_Spline_Fill::Close_Gap(void)
 				m_pGrid->Set_Value(p.x, p.y, m_Spline.Get_Value(p.x, p.y));
 			}
 		}
-	}
+	}/**/
 
 /*	m_Spline.Set_Point_Count(m_nPoints_Local);
 

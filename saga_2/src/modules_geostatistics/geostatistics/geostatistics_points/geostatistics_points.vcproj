@@ -456,6 +456,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\GSPoints_Variogram_Cloud.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GSPoints_Variogram_Surface.cpp"
+				>
+			</File>
+			<File
 				RelativePath="MLB_Interface.cpp"
 				>
 				<FileConfiguration
@@ -506,6 +514,14 @@
 			</File>
 			<File
 				RelativePath="GSPoints_Semi_Variances.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GSPoints_Variogram_Cloud.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GSPoints_Variogram_Surface.h"
 				>
 			</File>
 			<File

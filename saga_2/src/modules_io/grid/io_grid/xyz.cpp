@@ -334,9 +334,13 @@ inline bool CXYZ_Import::Read_Values(CSG_File &Stream, double &x, double &y, dou
 
 	if( Stream.Read_Line(sLine) )
 	{
+		sLine.Trim();
+
 		if( sLine.asDouble(x) )
 		{
 			sLine	= sLine.AfterFirst(m_Separator);
+
+			sLine.Trim();
 
 			if( sLine.asDouble(y) )
 			{
