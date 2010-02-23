@@ -118,6 +118,9 @@ public:
 	void						On_Record_Clr		(wxCommandEvent  &event);
 	void						On_Record_Clr_UI	(wxUpdateUIEvent &event);
 
+	void						On_Sel_To_Top		(wxCommandEvent  &event);
+	void						On_Sel_To_Top_UI	(wxUpdateUIEvent &event);
+
 	void						On_Autosize_Cols	(wxCommandEvent  &event);
 	void						On_Autosize_Rows	(wxCommandEvent  &event);
 
@@ -145,17 +148,20 @@ public:
 
 private:
 
+	bool						m_bUpdating;
+
 	int							m_Constraint, m_Field_Offset;
+
+	class CSG_Table_Record		**m_pRecords;
 
 	class CSG_Table				*m_pTable;
 
 
 	bool						_Set_Table			(void);
 
-	bool						_Set_Records		(void);
+	bool						_Set_Records		(bool bSelection_To_Top = false);
 	bool						_Set_Record			(int iRecord, class CSG_Table_Record *pRecord);
 
-	void						_Select				(int iRow, bool bSelect);
 	void						_Update_Views		(void);
 
 

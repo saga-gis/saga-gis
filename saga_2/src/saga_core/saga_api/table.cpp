@@ -511,6 +511,32 @@ bool CSG_Table::Set_Field_Name(int iField, const SG_Char *Name)
 	return( false );
 }
 
+//---------------------------------------------------------
+int CSG_Table::Get_Field_Length(int iField)	const
+{
+	int		Length	= 0;
+
+	if( iField >= 0 && iField < m_nFields && m_Field_Type[iField] == SG_DATATYPE_String )
+	{
+		for(int i=0; i<m_nRecords; i++)
+		{
+			const SG_Char	*s	= m_Records[i]->asString(iField);
+
+			if( s && s[0] )
+			{
+				int		n	= SG_STR_LEN(s);
+
+				if( Length < n )
+				{
+					Length	= n;
+				}
+			}
+		}
+	}
+
+	return( Length );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

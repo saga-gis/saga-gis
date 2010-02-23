@@ -99,6 +99,15 @@ CKriging_Base::CKriging_Base(void)
 	);
 
 	Parameters.Add_Choice(
+		NULL	, "TARGET"		, _TL("Target Grid"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("user defined"),
+			_TL("grid")
+		), 0
+	);
+
+	Parameters.Add_Choice(
 		NULL	, "TQUALITY"	, _TL("Type of Quality Measure"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
@@ -109,7 +118,7 @@ CKriging_Base::CKriging_Base(void)
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_Node(
-		NULL	, "VARIOGRAM"	, _TL("Semi-Variogram"),
+		NULL	, "VARIOGRAM"	, _TL("Variogram"),
 		_TL("")
 	);
 
@@ -132,18 +141,19 @@ CKriging_Base::CKriging_Base(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Value(
+	pNode	= Parameters.Add_Value(
 		NULL	, "BLOCK"		, _TL("Block Kriging"),
 		_TL(""),
 		PARAMETER_TYPE_Bool		, false
 	);
 
 	Parameters.Add_Value(
-		NULL	, "DBLOCK"		, _TL("Block Size"),
+		pNode	, "DBLOCK"		, _TL("Block Size"),
 		_TL(""),
 		PARAMETER_TYPE_Double	, 100.0, 0.0, true
 	);
 
+	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
 	pParameters	= Add_Parameters(SG_T("FORMULA"), _TL("Formula"), _TL(""));
 
@@ -153,22 +163,7 @@ CKriging_Base::CKriging_Base(void)
 		SG_T("a + b * x")
 	);
 
-	//-----------------------------------------------------
-	m_Variances.Add_Field(SG_T("DISTANCE")	, SG_DATATYPE_Double);
-	m_Variances.Add_Field(SG_T("VAR_CUM")	, SG_DATATYPE_Double);
-	m_Variances.Add_Field(SG_T("VAR_CLS")	, SG_DATATYPE_Double);
-
 	///////////////////////////////////////////////////////
-	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		NULL	, "TARGET"		, _TL("Trend Surface"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("user defined"),
-			_TL("grid")
-		), 0
-	);
-
 	//-----------------------------------------------------
 	pParameters = Add_Parameters("USER", _TL("User Defined Grid")	, _TL(""));
 
@@ -186,6 +181,12 @@ CKriging_Base::CKriging_Base(void)
 	m_Grid_Target.Add_Parameters_Grid(pParameters);
 
 	m_Grid_Target.Add_Grid_Parameter(SG_T("VARIANCE"), _TL("Variance"), true);
+
+	///////////////////////////////////////////////////////
+	//-----------------------------------------------------
+	m_Variances.Add_Field(SG_T("DISTANCE")	, SG_DATATYPE_Double);
+	m_Variances.Add_Field(SG_T("VAR_CUM")	, SG_DATATYPE_Double);
+	m_Variances.Add_Field(SG_T("VAR_CLS")	, SG_DATATYPE_Double);
 }
 
 
@@ -318,11 +319,15 @@ bool CKriging_Base::_Initialise_Grids(void)
 
 	Parameters("GRID")->Set_Value(m_pGrid);
 
+	DataObject_Add(m_pGrid, true);
+
 	if( m_pVariance )
 	{
 		m_pVariance->Set_Name(CSG_String::Format(SG_T("%s (%s - %s)"), m_pPoints->Get_Name(), Get_Name(), m_bStdDev ? _TL("Standard Deviation") : _TL("Variance")));
 
 		Parameters("VARIANCE")->Set_Value(m_pVariance);
+
+		DataObject_Add(m_pVariance, true);
 	}
 
 	return( true );

@@ -381,7 +381,7 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 //---------------------------------------------------------
 bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 {
-	int				Type, fSHP_Size, fSHX_Size, iField, iPart, iPoint, nPoints;
+	int				Type, fSHP_Size, fSHX_Size, iField, iPart, iPoint, nPoints, nBytes;
 	TSG_Point		Point;
 	CSG_Buffer		File_Header(100), Record_Header(8), Content;
 	CSG_File		fSHP, fSHX;
@@ -418,9 +418,9 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 
 		switch( Get_Field_Type(iField) )
 		{
-		case SG_DATATYPE_String:	default:
+		case SG_DATATYPE_String: default:
 			dbfFields[iField].Type		= DBF_FT_CHARACTER;
-			dbfFields[iField].Width		= (BYTE)255;
+			dbfFields[iField].Width		= (BYTE)((nBytes = Get_Field_Length(iField)) > 255 ? 255 : nBytes);
 			break;
 
 		case SG_DATATYPE_Date:

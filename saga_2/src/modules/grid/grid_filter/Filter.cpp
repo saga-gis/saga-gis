@@ -168,7 +168,11 @@ bool CFilter::On_Execute(void)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
-			if( m_pInput->is_InGrid(x, y) )
+			if( !m_pInput->is_InGrid(x, y) )
+			{
+				pResult->Set_NoData(x, y);
+			}
+			else
 			{
 				switch( Mode )
 				{

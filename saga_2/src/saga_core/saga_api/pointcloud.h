@@ -112,9 +112,9 @@ public:
 	bool							is_Compatible		(CSG_PointCloud *pPointCloud)	const;
 
 	//-----------------------------------------------------
-	virtual bool					Add_Field			(const SG_Char *Name, TSG_Data_Type Type);
+	virtual bool					Add_Field			(const SG_Char *Name, TSG_Data_Type Type, int iField = -1);
 #ifdef _SAGA_UNICODE
-	virtual bool					Add_Field			(const char    *Name, TSG_Data_Type Type);
+	virtual bool					Add_Field			(const char    *Name, TSG_Data_Type Type, int iField = -1);
 #endif
 	virtual bool					Del_Field			(int iField);
 
@@ -215,7 +215,7 @@ private:
 	bool							_Load				(const CSG_String &File_Name);
 	bool							_Save				(const CSG_String &File_Name);
 
-	bool							_Add_Field			(const SG_Char *Name, TSG_Data_Type Type);
+	bool							_Add_Field			(const SG_Char *Name, TSG_Data_Type Type, int iField = -1);
 	bool							_Set_Field_Value	(char *pPoint, int iField, double Value);
 	double							_Get_Field_Value	(char *pPoint, int iField)	const;
 	int								_Get_Field_Bytes	(TSG_Data_Type Type);

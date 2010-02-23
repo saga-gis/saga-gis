@@ -633,11 +633,17 @@ bool		DLG_Save(wxString &File_Path, const wxChar *Caption, const wxChar *def_Dir
 
 bool		DLG_Save(wxString &File_Path, int ID_DLG)
 {
-	wxString	def_Dir;
+	wxString	def_Dir, def_Name;
 
-	CONFIG_Read(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(ID_DLG), def_Dir);
+	def_Name	= SG_File_Get_Name(File_Path, true).c_str();
+	def_Dir		= SG_File_Get_Path(File_Path);
 
-	if( DLG_Save(File_Path, DLG_Get_FILE_Caption(ID_DLG), def_Dir, wxT(""), DLG_Get_FILE_Filter(ID_DLG)) )
+	if( !SG_Dir_Exists(def_Dir) )
+	{
+		CONFIG_Read(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(ID_DLG), def_Dir);
+	}
+
+	if( DLG_Save(File_Path, DLG_Get_FILE_Caption(ID_DLG), def_Dir, def_Name, DLG_Get_FILE_Filter(ID_DLG)) )
 	{
 		CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(ID_DLG), SG_File_Get_Path(File_Path));
 

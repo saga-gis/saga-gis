@@ -483,102 +483,66 @@ bool CSG_Table::_Load_DBase(const CSG_String &File_Name)
 //---------------------------------------------------------
 bool CSG_Table::_Save_DBase(const CSG_String &File_Name)
 {
-	int							iField, iRecord;
-	size_t						*nStringBytes;
-	CSG_Table_Record			*pRecord;
-	CSG_Table_DBase				dbf;
-	CSG_Table_DBase::TFieldDesc	*dbfFieldDesc;
+	int				iField, iRecord, nBytes;
+	CSG_Table_DBase	dbf;
 
 	//-----------------------------------------------------
-	for(iField=0, nStringBytes=NULL; iField<Get_Field_Count(); iField++)
-	{
-		if( Get_Field_Type(iField) == SG_DATATYPE_String )
-		{
-			if( nStringBytes == NULL )
-			{
-				nStringBytes	= new size_t[Get_Field_Count()];
-			}
-
-			nStringBytes[iField]	= 8;
-		}
-	}
-
-	if( nStringBytes )
-	{
-		for(iRecord=0; iRecord<Get_Record_Count() && SG_UI_Process_Set_Progress(iRecord, Get_Record_Count()); iRecord++)
-		{
-			pRecord	= Get_Record(iRecord);
-
-			for(iField=0; iField<Get_Field_Count(); iField++)
-			{
-				if( Get_Field_Type(iField) == SG_DATATYPE_String && SG_STR_LEN(pRecord->asString(iField)) > nStringBytes[iField] )
-				{
-					nStringBytes[iField]	= SG_STR_LEN(pRecord->asString(iField));
-				}
-			}
-		}
-	}
-
-	//-----------------------------------------------------
-	dbfFieldDesc	= (CSG_Table_DBase::TFieldDesc *)SG_Calloc(Get_Field_Count(), sizeof(CSG_Table_DBase::TFieldDesc));
+	CSG_Table_DBase::TFieldDesc	*dbfFields	= new CSG_Table_DBase::TFieldDesc[Get_Field_Count()];
 
 	for(iField=0; iField<Get_Field_Count(); iField++)
 	{
-		strncpy(dbfFieldDesc[iField].Name, SG_STR_SGTOMB(Get_Field_Name(iField)), 11);
+		strncpy(dbfFields[iField].Name, SG_STR_SGTOMB(Get_Field_Name(iField)), 11);
 
 		switch( Get_Field_Type(iField) )
 		{
-		default:
-			dbfFieldDesc[iField].Type		= DBF_FT_CHARACTER;
-			dbfFieldDesc[iField].Width		= (char)64;
-			break;
-
-		case SG_DATATYPE_String:
-			dbfFieldDesc[iField].Type		= DBF_FT_CHARACTER;
-			dbfFieldDesc[iField].Width		= (char)nStringBytes[iField];
+		case SG_DATATYPE_String: default:
+			dbfFields[iField].Type		= DBF_FT_CHARACTER;
+			dbfFields[iField].Width		= (BYTE)((nBytes = Get_Field_Length(iField)) > 255 ? 255 : nBytes);
 			break;
 
 		case SG_DATATYPE_Date:
-			dbfFieldDesc[iField].Type		= DBF_FT_DATE;
-			dbfFieldDesc[iField].Width		= (char)8;
+			dbfFields[iField].Type		= DBF_FT_DATE;
+			dbfFields[iField].Width		= (BYTE)8;
 			break;
 
 		case SG_DATATYPE_Char:
-			dbfFieldDesc[iField].Type		= DBF_FT_CHARACTER;
-			dbfFieldDesc[iField].Width		= (char)1;
+			dbfFields[iField].Type		= DBF_FT_CHARACTER;
+			dbfFields[iField].Width		= (BYTE)1;
 			break;
 
 		case SG_DATATYPE_Short:
 		case SG_DATATYPE_Int:
 		case SG_DATATYPE_Long:
 		case SG_DATATYPE_Color:
-			dbfFieldDesc[iField].Type		= DBF_FT_NUMERIC;
-			dbfFieldDesc[iField].Width		= (char)16;
-			dbfFieldDesc[iField].Decimals	= (char)0;
+			dbfFields[iField].Type		= DBF_FT_NUMERIC;
+			dbfFields[iField].Width		= (BYTE)16;
+			dbfFields[iField].Decimals	= (BYTE)0;
 			break;
 
 		case SG_DATATYPE_Float:
 		case SG_DATATYPE_Double:
-			dbfFieldDesc[iField].Type		= DBF_FT_NUMERIC;
-			dbfFieldDesc[iField].Width		= (char)16;
-			dbfFieldDesc[iField].Decimals	= (char)8;
+			dbfFields[iField].Type		= DBF_FT_NUMERIC;
+			dbfFields[iField].Width		= (BYTE)16;
+			dbfFields[iField].Decimals	= (BYTE)8;
 			break;
 		}
 	}
 
-	dbf.Open(File_Name, Get_Field_Count(), dbfFieldDesc);
-
-	SG_Free(dbfFieldDesc);
-
-	if( nStringBytes )
+	if( !dbf.Open(File_Name, Get_Field_Count(), dbfFields) )
 	{
-		delete[](nStringBytes);
+		delete[](dbfFields);
+
+		SG_UI_Msg_Add_Error(LNG("[ERR] dbase file could not be opened"));
+
+		return( false );
 	}
+
+	delete[](dbfFields);
 
 	//-----------------------------------------------------
 	for(iRecord=0; iRecord<Get_Record_Count() && SG_UI_Process_Set_Progress(iRecord, Get_Record_Count()); iRecord++)
 	{
-		pRecord	= Get_Record(iRecord);
+		CSG_Table_Record	*pRecord	= Get_Record(iRecord);
 
 		dbf.Add_Record();
 
@@ -586,12 +550,9 @@ bool CSG_Table::_Save_DBase(const CSG_String &File_Name)
 		{
 			switch( dbf.Get_FieldType(iField) )
 			{
+			case DBF_FT_DATE:
 			case DBF_FT_CHARACTER:
 				dbf.Set_Value(iField, SG_STR_SGTOMB(pRecord->asString(iField)));
-				break;
-
-			case DBF_FT_DATE:
-				dbf.Set_Value(iField, pRecord->asDouble(iField));
 				break;
 
 			case DBF_FT_NUMERIC:

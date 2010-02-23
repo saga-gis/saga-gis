@@ -489,7 +489,7 @@ bool CSG_PointCloud::is_Compatible(CSG_PointCloud *pPointCloud) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_PointCloud::_Add_Field(const SG_Char *Name, TSG_Data_Type Type)
+bool CSG_PointCloud::_Add_Field(const SG_Char *Name, TSG_Data_Type Type, int iField)
 {
 	if( SG_Data_Type_Get_Size(Type) <= 0 )
 	{
@@ -515,7 +515,7 @@ bool CSG_PointCloud::_Add_Field(const SG_Char *Name, TSG_Data_Type Type)
 }
 
 //---------------------------------------------------------
-bool CSG_PointCloud::Add_Field(const SG_Char *Name, TSG_Data_Type Type)
+bool CSG_PointCloud::Add_Field(const SG_Char *Name, TSG_Data_Type Type, int iField)
 {
 	if( Get_Count() == 0 )
 	{
@@ -528,7 +528,7 @@ bool CSG_PointCloud::Add_Field(const SG_Char *Name, TSG_Data_Type Type)
 
 		if( Name && SG_Data_Type_Get_Size(Type) > 0 )
 		{
-			return( _Add_Field(Name, Type) );
+			return( _Add_Field(Name, Type, iField) );
 		}
 	}
 
@@ -537,8 +537,8 @@ bool CSG_PointCloud::Add_Field(const SG_Char *Name, TSG_Data_Type Type)
 
 //---------------------------------------------------------
 #ifdef _SAGA_UNICODE
-bool CSG_PointCloud::Add_Field(const char *Name, TSG_Data_Type Type)
-{	return( Add_Field(CSG_String(Name), Type) );	}
+bool CSG_PointCloud::Add_Field(const char *Name, TSG_Data_Type Type, int iField)
+{	return( Add_Field(CSG_String(Name), Type, iField) );	}
 #endif
 
 //---------------------------------------------------------
