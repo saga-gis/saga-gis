@@ -454,6 +454,12 @@ void CWKSP_Map::_Create_Parameters(void)
 		PARAMETER_TYPE_Int, 7, 5, true
 	);
 
+	m_Parameters.Add_Value(
+		pNode_0	, "PRINT_SCALE_SHOW"	, LNG("[CAP] Show Scale"),
+		LNG(""),
+		PARAMETER_TYPE_Bool, true
+	);
+
 	//-----------------------------------------------------
 	m_Img_Parms.Set_Name(LNG("[CAP] Save Map as Image..."));
 

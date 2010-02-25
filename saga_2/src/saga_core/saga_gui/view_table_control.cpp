@@ -382,11 +382,11 @@ bool CVIEW_Table_Control::Add_Record(void)
 {
 	if( !FIXED_ROWS && !m_pTable->is_Private() && m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Table )
 	{
-		m_pRecords	= (CSG_Table_Record **)SG_Realloc(m_pRecords, (m_pTable->Get_Count() + 1) * sizeof(CSG_Table_Record *));
-
 		AppendRows();
 
-		_Set_Record(m_pTable->Get_Record_Count(), m_pTable->Add_Record());
+		m_pRecords	= (CSG_Table_Record **)SG_Realloc(m_pRecords, GetNumberRows() * sizeof(CSG_Table_Record *));
+
+		_Set_Record(GetNumberRows() - 1, m_pTable->Add_Record());
 
 		return( true );
 	}
@@ -403,14 +403,14 @@ bool CVIEW_Table_Control::Ins_Record(void)
 
 		if( iRecord >= 0 && iRecord < GetNumberRows() )
 		{
-			m_pRecords	= (CSG_Table_Record **)SG_Realloc(m_pRecords, (m_pTable->Get_Count() + 1) * sizeof(CSG_Table_Record *));
-
-			for(int i=iRecord, j=iRecord+1; j<m_pTable->Get_Count(); i++)
-			{
-				m_pRecords[j]	= m_pRecords[i];
-			}
-
 			InsertRows(iRecord);
+
+			m_pRecords	= (CSG_Table_Record **)SG_Realloc(m_pRecords, GetNumberRows() * sizeof(CSG_Table_Record *));
+
+			for(int i=GetNumberRows()-1; i>iRecord; i--)
+			{
+				m_pRecords[i]	= m_pRecords[i - 1];
+			}
 
 			_Set_Record(iRecord, m_pTable->Ins_Record(iRecord));
 
@@ -429,6 +429,8 @@ bool CVIEW_Table_Control::Del_Record(void)
 		m_pTable->Del_Selection();
 
 		g_pData->Update_Views(m_pTable);
+
+		Update_Table();
 
 		return( true );
 	}
@@ -459,23 +461,20 @@ bool CVIEW_Table_Control::Del_Records(void)
 //---------------------------------------------------------
 bool CVIEW_Table_Control::Load(const wxChar *File_Name)
 {
-	bool	bResult	= false;
 	CSG_Table	Table;
 
-	if(	Table.Create(File_Name)
-	&&	Table.Get_Record_Count() > 0
-	&&	Table.Get_Field_Count() == m_pTable->Get_Field_Count() )
+	if(	Table.Create(File_Name) && Table.Get_Count() > 0 && Table.Get_Field_Count() == m_pTable->Get_Field_Count() )
 	{
 		m_pTable->Assign_Values(&Table);
 
 		_Set_Table();
 
-		bResult	= true;
+		return( true );
 	}
 
 	PROCESS_Set_Okay();
 
-	return( bResult );
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -750,7 +749,7 @@ void CVIEW_Table_Control::On_Record_Add(wxCommandEvent &event)
 
 void CVIEW_Table_Control::On_Record_Add_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(!FIXED_ROWS && !m_pTable->is_Private());
+	event.Enable(!FIXED_ROWS && !m_pTable->is_Private() && m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Table);
 }
 
 //---------------------------------------------------------
@@ -761,7 +760,7 @@ void CVIEW_Table_Control::On_Record_Ins(wxCommandEvent &event)
 
 void CVIEW_Table_Control::On_Record_Ins_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(!FIXED_ROWS && !m_pTable->is_Private());
+	event.Enable(!FIXED_ROWS && !m_pTable->is_Private() && m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Table);
 }
 
 //---------------------------------------------------------
@@ -772,7 +771,7 @@ void CVIEW_Table_Control::On_Record_Del(wxCommandEvent &event)
 
 void CVIEW_Table_Control::On_Record_Del_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(!FIXED_ROWS && m_pTable->Get_Selection_Count() > 0);
+	event.Enable(!FIXED_ROWS && !m_pTable->is_Private() && m_pTable->Get_Selection_Count() > 0);
 }
 
 //---------------------------------------------------------
@@ -783,7 +782,7 @@ void CVIEW_Table_Control::On_Record_Clr(wxCommandEvent &event)
 
 void CVIEW_Table_Control::On_Record_Clr_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(!FIXED_ROWS && !m_pTable->is_Private());
+	event.Enable(!FIXED_ROWS && !m_pTable->is_Private() && !m_pTable->is_Private());
 }
 
 

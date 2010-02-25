@@ -278,24 +278,25 @@ int CVIEW_Layout_Info::Get_Page_Count(void)
 //---------------------------------------------------------
 void CVIEW_Layout_Info::Fit_Scale(void)
 {
-	int			fMap;
-	double		zMap, zLegend, Scale, dx, dy;
-	wxRect		rMap, rLegend;
+	int			dc_MapFrame;
+	double		dPaperToDC, zLegend, Scale, dDCToMeter, dx, dy;
+	wxRect		dc_rMap, dc_rLegend;
 	CSG_Rect	rWorld;
 
-	if( _Get_Layout(Get_PaperSize(), zMap, fMap, rMap, zLegend, rLegend) )
+	if( _Get_Layout(Get_PaperSize(), dPaperToDC, dc_MapFrame, dc_rMap, zLegend, dc_rLegend) )
 	{
-		rWorld	= m_pMap->Get_World(rMap);
-		Scale	= 100.0 * zMap * rWorld.Get_XRange() / (double)rMap.GetWidth();
+		dDCToMeter	= 0.001 / dPaperToDC;
+		rWorld		= m_pMap->Get_World(dc_rMap);
+		Scale		= rWorld.Get_XRange() / (dDCToMeter * dc_rMap.GetWidth());
 
 		if( DLG_Get_Number(Scale, LNG("[CAP] Fit Map Scale"), LNG("[DLG] Scale 1 : ")) )
 		{
-			dx	= Scale * (double)rMap.GetWidth () / zMap / 100.0 / 2.0;
-			dy	= Scale * (double)rMap.GetHeight() / zMap / 100.0 / 2.0;
+			dx	= Scale * dDCToMeter * dc_rMap.GetWidth ();
+			dy	= Scale * dDCToMeter * dc_rMap.GetHeight();
 
 			rWorld.Assign(
-				rWorld.Get_XCenter() - dx, rWorld.Get_YCenter() - dy,
-				rWorld.Get_XCenter() + dx, rWorld.Get_YCenter() + dy
+				rWorld.Get_XCenter() - 0.5 * dx, rWorld.Get_YCenter() - 0.5 * dy,
+				rWorld.Get_XCenter() + 0.5 * dx, rWorld.Get_YCenter() + 0.5 * dy
 			);
 
 			m_pMap->Set_Extent(rWorld);
@@ -311,46 +312,54 @@ void CVIEW_Layout_Info::Fit_Scale(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CVIEW_Layout_Info::_Get_Layout(wxSize sClient, double &zMap, int &fMap, wxRect &rMap, double &zLegend, wxRect &rLegend)
+bool CVIEW_Layout_Info::_Get_Layout(wxSize sDC, double &dPaperToDC, int &dc_MapFrame, wxRect &dc_rMap, double &zLegend, wxRect &dc_rLegend)
 {
-	int		Space;
+	int		dc_Space;
 	wxSize	sLegend;
-	wxRect	rFrame(Get_Margins());
+	wxRect	dc_rMargins;
 
 	//-----------------------------------------------------
-	zMap	= sClient.GetWidth() / (double)Get_PaperSize().GetWidth();
-	rFrame	= wxRect(
-				(int)(zMap * rFrame.GetLeft  ()),
-				(int)(zMap * rFrame.GetTop   ()),
-				(int)(zMap * rFrame.GetWidth ()),
-				(int)(zMap * rFrame.GetHeight())
-			);
+	dPaperToDC	= sDC.GetWidth() / (double)Get_PaperSize().GetWidth();
 
-	Space	= (int)(10.0 * zMap);
+	dc_MapFrame	= (int)(dPaperToDC * m_pMap->Get_Print_Frame());
+
+	dc_Space	= (int)(10.0 * dPaperToDC);
+
+	dc_rMargins	= wxRect(
+		(int)(dPaperToDC * Get_Margins().GetLeft  ()),
+		(int)(dPaperToDC * Get_Margins().GetTop   ()),
+		(int)(dPaperToDC * Get_Margins().GetWidth ()),
+		(int)(dPaperToDC * Get_Margins().GetHeight())
+	);
+
+	dc_rMap		= dc_rMargins;
 
 	//-----------------------------------------------------
-	if( m_pMap->Get_Print_Legend() && m_pMap->Get_Legend_Size(sLegend, zMap) )
+	if( m_pMap->Get_Print_Legend() && m_pMap->Get_Legend_Size(sLegend, dPaperToDC) )
 	{
-		zLegend	= (double)rFrame.GetHeight() / (double)sLegend.y;
+		zLegend	= dc_rMargins.GetHeight() / (double)sLegend.y;
 
-		if( zLegend * sLegend.x > 0.2 * (double)rFrame.GetWidth() )
+		if( zLegend * sLegend.x > 0.2 * (double)dc_rMargins.GetWidth() )
 		{
-			zLegend	= 0.2 * (double)rFrame.GetWidth() / (double)sLegend.x;
+			zLegend	= 0.2 * (double)dc_rMargins.GetWidth() / (double)sLegend.x;
 		}
 
-		rFrame.SetWidth (rFrame.GetWidth() - (int)(zLegend * sLegend.x + Space));
+		dc_rMap.SetWidth(dc_rMap.GetWidth() - (int)(zLegend * sLegend.x + dc_Space));
 
-		rLegend	= wxRect(rFrame.GetRight() + Space, rFrame.GetTop(), (int)(zLegend * sLegend.x), (int)(zLegend * sLegend.y));
+		dc_rLegend	= wxRect(
+			dc_rMap.GetRight() + dc_Space,
+			dc_rMap.GetTop(),
+			(int)(zLegend * sLegend.x),
+			(int)(zLegend * sLegend.y)
+		);
 	}
 	else
 	{
-		rLegend	= wxRect(0, 0, 0, 0);
+		dc_rLegend	= wxRect(0, 0, 0, 0);
 	}
 
 	//-----------------------------------------------------
-	fMap	= (int)(m_pMap->Get_Print_Frame() * zMap);
-	rMap	= rFrame;
-	rMap.Deflate(fMap);
+	dc_rMap.Deflate(dc_MapFrame);
 
 	return( true );
 }
@@ -365,33 +374,46 @@ bool CVIEW_Layout_Info::_Get_Layout(wxSize sClient, double &zMap, int &fMap, wxR
 //---------------------------------------------------------
 bool CVIEW_Layout_Info::Draw(wxDC &dc)
 {
-	int		fMap;
-	double	zMap, zLegend, Scale;
-	wxRect	rMap, rLegend;
+	int		dc_MapFrame;
+	double	dPaperToDC, zLegend;
+	wxRect	dc_rMap, dc_rLegend;
 
-	if( _Get_Layout(dc.GetSize(), zMap, fMap, rMap, zLegend, rLegend) )
+	if( _Get_Layout(dc.GetSize(), dPaperToDC, dc_MapFrame, dc_rMap, zLegend, dc_rLegend) )
 	{
 		//-------------------------------------------------
-		if( rLegend.GetWidth() > 0 )
+		if( dc_rLegend.GetWidth() > 0 )
 		{
-			m_pMap->Draw_Legend(dc, zMap, zLegend, wxPoint(rLegend.GetX(), rLegend.GetY()));
+			m_pMap->Draw_Legend(dc, dPaperToDC, zLegend, wxPoint(dc_rLegend.GetX(), dc_rLegend.GetY()));
 
-			Draw_Edge(dc, EDGE_STYLE_SIMPLE, rLegend.GetLeft()  - (int)(5 * zMap), rLegend.GetTop(), rLegend.GetRight(), rLegend.GetBottom());
+			Draw_Edge(dc, EDGE_STYLE_SIMPLE,
+				dc_rLegend.GetLeft  () - (int)(5 * dPaperToDC),
+				dc_rLegend.GetTop   (),
+				dc_rLegend.GetRight (),
+				dc_rLegend.GetBottom()
+			);
 		}
 
 		//-------------------------------------------------
-		if( rMap.GetWidth() > 0 )
+		if( dc_rMap.GetWidth() > 0 )
 		{
-			m_pMap->Draw_Map(dc, zMap, rMap, false);
+			m_pMap->Draw_Map(dc, dPaperToDC, dc_rMap, false);
 
-			if( fMap > 0 )
+			if( dc_MapFrame > 0 )
 			{
-				m_pMap->Draw_Frame(dc, rMap, fMap);
+				m_pMap->Draw_Frame(dc, dc_rMap, dc_MapFrame);
 			}
 
 			//---------------------------------------------
-			Scale	= 100.0 * zMap * m_pMap->Get_World(rMap).Get_XRange() / (double)rMap.GetWidth();
-			dc.DrawText(wxString::Format(wxT("%s 1:%s"), LNG("[CAP] Map Scale"), Get_SignificantDecimals_String(Scale).c_str()), rMap.GetLeft(), rMap.GetBottom() + fMap);
+			if( m_pMap->Get_Parameters()->Get_Parameter("PRINT_SCALE_SHOW")->asBool() )
+			{
+				double	Scale	= m_pMap->Get_World(dc_rMap).Get_XRange() / (dc_rMap.GetWidth() * 0.001 / dPaperToDC);
+
+				dc.DrawText(wxString::Format(wxT("%s 1:%s"), LNG("[CAP] Map Scale"),
+					Get_SignificantDecimals_String(Scale).c_str()),
+					dc_rMap.GetLeft(),
+					dc_rMap.GetBottom() + dc_MapFrame
+				);
+			}
 		}
 	}
 
