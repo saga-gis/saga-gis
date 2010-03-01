@@ -696,9 +696,23 @@ void CWKSP_Map::_Set_Extent(const CSG_Rect &Extent)
 //---------------------------------------------------------
 void CWKSP_Map::Set_Extent(const CSG_Rect &Extent, bool bReset)
 {
-	if( m_Extents.Add_Extent(Extent, bReset) )
+	CSG_Rect	r(Extent);
+
+	if( r.Get_XRange() == 0.0 )
 	{
-		_Set_Extent(Extent);
+		r.m_rect.xMin	-= 1.0;
+		r.m_rect.xMax	+= 1.0;
+	}
+
+	if( r.Get_YRange() == 0.0 )
+	{
+		r.m_rect.yMin	-= 1.0;
+		r.m_rect.yMax	+= 1.0;
+	}
+
+	if( m_Extents.Add_Extent(r, bReset) )
+	{
+		_Set_Extent(r);
 	}
 }
 

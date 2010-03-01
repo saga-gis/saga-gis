@@ -79,6 +79,19 @@ CWKSP_Map_DC::CWKSP_Map_DC(const CSG_Rect &rWorld, const wxRect &rDC, double Sca
 	m_Scale			= Scale;
 
 	//-----------------------------------------------------
+	if( m_rWorld.Get_XRange() == 0.0 )
+	{
+		m_rWorld.m_rect.xMin	-= 1.0;
+		m_rWorld.m_rect.xMax	+= 1.0;
+	}
+
+	if( m_rWorld.Get_YRange() == 0.0 )
+	{
+		m_rWorld.m_rect.yMin	-= 1.0;
+		m_rWorld.m_rect.yMax	+= 1.0;
+	}
+
+	//-----------------------------------------------------
 	double	d		= (double)m_rDC.GetWidth() / (double)m_rDC.GetHeight();
 
 	if( d > m_rWorld.Get_XRange() / m_rWorld.Get_YRange() )
