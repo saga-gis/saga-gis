@@ -683,7 +683,13 @@ void CSAGA_Frame::Show_Tips(bool bShow)
 {
 	bool			bTip;
 	long			iTip;
-	wxFileName		fTip(g_pSAGA->Get_App_Path(), wxT("saga_gui"), wxT("tip"));
+
+#ifdef SHARE_PATH
+        wxFileName      fTip(wxT(SHARE_PATH), wxT("saga_tip.txt"));
+#else
+        wxFileName      fTip(g_pSAGA->Get_App_Path(), wxT("saga_gui"), wxT("tip"));
+#endif
+
 	wxTipProvider	*pTip;
 
 	bTip	= CONFIG_Read(wxT("/TIPS"), wxT("ATSTART"), bTip) ? bTip : true;

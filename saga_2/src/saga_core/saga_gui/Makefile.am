@@ -1,13 +1,14 @@
 #
-# $Id: Makefile.am,v 1.17 2009-09-01 14:12:31 oconrad Exp $
+# $Id: Makefile.am,v 1.18 2010-03-02 10:07:21 johanvdw Exp $
 #
 INCS = -I.. -I.
 if DEBUG
 DBGFLAGS = -g -DDEBUG
 endif
 MLIBPATH = "MODULE_LIBRARY_PATH=\"$(prefix)/lib/saga\""
+MSHAREPATH = "SHARE_PATH=\"$(prefix)/share/saga\""
 
-BASEFLAGS = -fPIC -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_DONOTUSE_HARU -D$(MLIBPATH) $(DBGFLAGS) $(INCS)
+BASEFLAGS = -fPIC -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_DONOTUSE_HARU -D$(MLIBPATH) -D$(MSHAREPATH) $(DBGFLAGS) $(INCS)
 if SAGA_UNICODE
 AM_CXXFLAGS = $(BASEFLAGS) `wx-config --unicode=yes --cxxflags` -D_SAGA_UNICODE
 AM_LDFLAGS = -fPIC `wx-config --unicode=yes --libs` -lm 
