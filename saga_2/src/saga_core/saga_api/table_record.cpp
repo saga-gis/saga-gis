@@ -142,6 +142,8 @@ CSG_Table_Value * CSG_Table_Record::_Create_Value(TSG_Data_Type Type)
 
 	case SG_DATATYPE_Float:
 	case SG_DATATYPE_Double:	return( new CSG_Table_Value_Double() );
+
+	case SG_DATATYPE_Binary:	return( new CSG_Table_Value_Binary() );
 	}
 }
 
@@ -214,6 +216,29 @@ int CSG_Table_Record::_Get_Field(const SG_Char *Field) const
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Table_Record::Set_Value		(int           iField, const CSG_Bytes &Value)
+{
+	if( iField >= 0 && iField < m_pTable->Get_Field_Count() )
+	{
+		if( m_Values[iField]->Set_Value(Value) )
+		{
+			m_pTable->Set_Modified();
+			m_pTable->Set_Update_Flag();
+			m_pTable->_Stats_Invalidate(iField);
+
+			return( true );
+		}
+	}
+
+	return( false );
+}
+
+bool CSG_Table_Record::Set_Value		(const SG_Char *Field, const CSG_Bytes &Value)
+{
+	return( Set_Value(_Get_Field(Field), Value) );
+}
 
 //---------------------------------------------------------
 bool CSG_Table_Record::Set_Value(int iField, const SG_Char *Value)
@@ -386,9 +411,12 @@ bool CSG_Table_Record::Assign(CSG_Table_Record *pRecord)
 {
 	if( pRecord )
 	{
-		for(int iField=0; iField<m_pTable->Get_Field_Count(); iField++)
+		int		nFields	= m_pTable->Get_Field_Count() < pRecord->m_pTable->Get_Field_Count()
+						? m_pTable->Get_Field_Count() : pRecord->m_pTable->Get_Field_Count();
+
+		for(int iField=0; iField<nFields; iField++)
 		{
-			Set_Value(iField, pRecord->asString(iField));
+			m_Values[iField]	= pRecord->m_Values[iField];
 		}
 
 		return( true );

@@ -5,39 +5,39 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//           Application Programming Interface           //
-//                                                       //
-//                  Library: SAGA_API                    //
+//                    Module Library:                    //
+//                     io_table_odbc                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     api_core.cpp                      //
+//                   Get_Connection.h                    //
 //                                                       //
-//          Copyright (C) 2005 by Olaf Conrad            //
+//                 Copyright (C) 2008 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
 // This file is part of 'SAGA - System for Automated     //
-// Geoscientific Analyses'.                              //
+// Geoscientific Analyses'. SAGA is free software; you   //
+// can redistribute it and/or modify it under the terms  //
+// of the GNU General Public License as published by the //
+// Free Software Foundation; version 2 of the License.   //
 //                                                       //
-// This library is free software; you can redistribute   //
-// it and/or modify it under the terms of the GNU Lesser //
-// General Public License as published by the Free       //
-// Software Foundation, version 2.1 of the License.      //
-//                                                       //
-// This library is distributed in the hope that it will  //
-// be useful, but WITHOUT ANY WARRANTY; without even the //
+// SAGA is distributed in the hope that it will be       //
+// useful, but WITHOUT ANY WARRANTY; without even the    //
 // implied warranty of MERCHANTABILITY or FITNESS FOR A  //
-// PARTICULAR PURPOSE. See the GNU Lesser General Public //
+// PARTICULAR PURPOSE. See the GNU General Public        //
 // License for more details.                             //
 //                                                       //
-// You should have received a copy of the GNU Lesser     //
-// General Public License along with this program; if    //
-// not, write to the Free Software Foundation, Inc.,     //
+// You should have received a copy of the GNU General    //
+// Public License along with this program; if not,       //
+// write to the Free Software Foundation, Inc.,          //
 // 59 Temple Place - Suite 330, Boston, MA 02111-1307,   //
 // USA.                                                  //
 //                                                       //
 //-------------------------------------------------------//
+//                                                       //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
@@ -46,8 +46,6 @@
 //                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
-//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -60,7 +58,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "api_core.h"
+#ifndef HEADER_INCLUDED__Get_Connection_H
+#define HEADER_INCLUDED__Get_Connection_H
 
 
 ///////////////////////////////////////////////////////////
@@ -70,27 +69,30 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const SG_Char *	SG_Data_Type_Get_Name	(TSG_Data_Type Type)
+#include "MLB_Interface.h"
+
+#include "odbc.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGet_Connection : public CSG_Module
 {
-	switch( Type )
-	{
-	default:					return( LNG("undefined") );
-	case SG_DATATYPE_Bit:		return( LNG("bit") );
-	case SG_DATATYPE_Byte:		return( LNG("unsigned 1 byte integer") );
-	case SG_DATATYPE_Char:		return( LNG("signed 1 byte integer") );
-	case SG_DATATYPE_Word:		return( LNG("unsigned 2 byte integer") );
-	case SG_DATATYPE_Short:		return( LNG("signed 2 byte integer") );
-	case SG_DATATYPE_DWord:		return( LNG("unsigned 4 byte integer") );
-	case SG_DATATYPE_Int:		return( LNG("signed 4 byte integer") );
-	case SG_DATATYPE_ULong:		return( LNG("unsigned 8 byte integer") );
-	case SG_DATATYPE_Long:		return( LNG("signed 8 byte integer") );
-	case SG_DATATYPE_Float:		return( LNG("4 byte floating point number") );
-	case SG_DATATYPE_Double:	return( LNG("8 byte floating point number") );
-	case SG_DATATYPE_String:	return( LNG("string") );
-	case SG_DATATYPE_Date:		return( LNG("date") );
-	case SG_DATATYPE_Color:		return( LNG("color") );
-	case SG_DATATYPE_Binary:	return( LNG("binary") );
-	}
+public:
+	CGet_Connection(void);
+
+
+protected:
+
+	virtual bool				On_Before_Execution		(void);
+
+	virtual bool				On_Execute				(void);
+
 };
 
 
@@ -101,3 +103,48 @@ const SG_Char *	SG_Data_Type_Get_Name	(TSG_Data_Type Type)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class CDel_Connection : public CSG_Module
+{
+public:
+	CDel_Connection(void);
+
+
+protected:
+
+	virtual bool				On_Before_Execution		(void);
+
+	virtual bool				On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CTransaction : public CSG_ODBC_Module
+{
+public:
+	CTransaction(void);
+
+
+protected:
+
+	virtual bool				On_Before_Execution		(void);
+
+	virtual bool				On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__Get_Connection_H

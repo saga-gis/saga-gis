@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.17 2009-10-01 14:01:19 oconrad Exp $
+# $Id: Makefile.am,v 1.18 2010-03-03 19:09:54 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -65,6 +65,7 @@ shape_points.cpp\
 shape_polygon.cpp\
 shapes.cpp\
 shapes_io.cpp\
+shapes_ogis.cpp\
 shapes_search.cpp\
 shapes_selection.cpp\
 table.cpp\

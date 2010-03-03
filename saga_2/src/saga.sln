@@ -87,11 +87,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_shapes", "modules_io\sha
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_table_odbc", "modules_io\table\io_table_odbc\io_table_odbc.vcproj", "{E546C741-8CEA-4855-9F99-79D94CEE59F6}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lectures_introduction", "modules_lectures\lectures\lectures_introduction\lectures_introduction.vcproj", "{53174FE6-3C06-4E61-AA55-F5AFB1113206}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
@@ -266,6 +261,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grid_calculus_bsl", "module
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "geostatistics_regression", "modules_geostatistics\geostatistics\geostatistics_regression\geostatistics_regression.vcproj", "{BD4DF3B2-3426-45DC-B67E-661D703F3049}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_odbc_otl", "modules_io\db\io_db_otl\io_odbc_otl.vcproj", "{FCF51728-263F-4FAE-825B-3EEEC782F335}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -410,14 +407,6 @@ Global
 		{34EC207E-3AE9-47BC-B7A4-E16946BD2671}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
 		{34EC207E-3AE9-47BC-B7A4-E16946BD2671}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
 		{34EC207E-3AE9-47BC-B7A4-E16946BD2671}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
-		{E546C741-8CEA-4855-9F99-79D94CEE59F6}.Debug|Win32.ActiveCfg = Debug|Win32
-		{E546C741-8CEA-4855-9F99-79D94CEE59F6}.Debug|Win32.Build.0 = Debug|Win32
-		{E546C741-8CEA-4855-9F99-79D94CEE59F6}.Release|Win32.ActiveCfg = Release|Win32
-		{E546C741-8CEA-4855-9F99-79D94CEE59F6}.Release|Win32.Build.0 = Release|Win32
-		{E546C741-8CEA-4855-9F99-79D94CEE59F6}.Unicode Debug|Win32.ActiveCfg = Unicode Debug|Win32
-		{E546C741-8CEA-4855-9F99-79D94CEE59F6}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
-		{E546C741-8CEA-4855-9F99-79D94CEE59F6}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
-		{E546C741-8CEA-4855-9F99-79D94CEE59F6}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
 		{53174FE6-3C06-4E61-AA55-F5AFB1113206}.Debug|Win32.ActiveCfg = Debug|Win32
 		{53174FE6-3C06-4E61-AA55-F5AFB1113206}.Debug|Win32.Build.0 = Debug|Win32
 		{53174FE6-3C06-4E61-AA55-F5AFB1113206}.Release|Win32.ActiveCfg = Release|Win32
@@ -754,6 +743,14 @@ Global
 		{BD4DF3B2-3426-45DC-B67E-661D703F3049}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
 		{BD4DF3B2-3426-45DC-B67E-661D703F3049}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
 		{BD4DF3B2-3426-45DC-B67E-661D703F3049}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
+		{FCF51728-263F-4FAE-825B-3EEEC782F335}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FCF51728-263F-4FAE-825B-3EEEC782F335}.Debug|Win32.Build.0 = Debug|Win32
+		{FCF51728-263F-4FAE-825B-3EEEC782F335}.Release|Win32.ActiveCfg = Release|Win32
+		{FCF51728-263F-4FAE-825B-3EEEC782F335}.Release|Win32.Build.0 = Release|Win32
+		{FCF51728-263F-4FAE-825B-3EEEC782F335}.Unicode Debug|Win32.ActiveCfg = Unicode Debug|Win32
+		{FCF51728-263F-4FAE-825B-3EEEC782F335}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
+		{FCF51728-263F-4FAE-825B-3EEEC782F335}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
+		{FCF51728-263F-4FAE-825B-3EEEC782F335}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

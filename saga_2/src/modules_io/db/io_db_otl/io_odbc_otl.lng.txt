@@ -1,0 +1,17 @@
+ORIGINAL	TRANSLATION
+1.0	
+Database access through the Open Data Base Connection (ODBC) interface.	
+Directory Path	
+File|Table	
+Get table from ODBC source.\n	
+Import Table via ODBC	
+Import/Export - Tables using ODBC	
+NONE	
+O.Conrad (c) 2004	
+ODBC Source	
+Password	
+R:Import	
+Select a Table	
+Table	
+Tables	
+User Name	

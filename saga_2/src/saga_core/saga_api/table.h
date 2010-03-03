@@ -117,14 +117,16 @@ public:
 	class CSG_Table *			Get_Table		(void)				{	return( m_pTable );	}
 	int							Get_Index		(void)	const		{	return( m_Index );	}
 
-	bool						Set_Value		(int           iField, const SG_Char *Value);
-	bool						Set_Value		(const SG_Char *Field, const SG_Char *Value);
-	bool						Set_Value		(int           iField, double         Value);
-	bool						Set_Value		(const SG_Char *Field, double         Value);
-	bool						Add_Value		(int           iField, double         Value);
-	bool						Add_Value		(const SG_Char *Field, double         Value);
-	bool						Mul_Value		(int           iField, double         Value);
-	bool						Mul_Value		(const SG_Char *Field, double         Value);
+	bool						Set_Value		(int           iField, const CSG_Bytes &Value);
+	bool						Set_Value		(const SG_Char *Field, const CSG_Bytes &Value);
+	bool						Set_Value		(int           iField, const SG_Char   *Value);
+	bool						Set_Value		(const SG_Char *Field, const SG_Char   *Value);
+	bool						Set_Value		(int           iField, double           Value);
+	bool						Set_Value		(const SG_Char *Field, double           Value);
+	bool						Add_Value		(int           iField, double           Value);
+	bool						Add_Value		(const SG_Char *Field, double           Value);
+	bool						Mul_Value		(int           iField, double           Value);
+	bool						Mul_Value		(const SG_Char *Field, double           Value);
 
 	bool						Set_NoData		(int           iField);
 	bool						Set_NoData		(const SG_Char *Field);
@@ -146,6 +148,7 @@ public:
 	double						asDouble		(int           iField)	const;
 	double						asDouble		(const SG_Char *Field)	const;
 
+	CSG_Table_Value &			Get_Value		(int           iField)			{	return( *m_Values[iField] );	}
 	CSG_Table_Value &			operator []		(int           iField)	const	{	return( *m_Values[iField] );	}
 
 	virtual bool				Assign			(CSG_Table_Record *pRecord);

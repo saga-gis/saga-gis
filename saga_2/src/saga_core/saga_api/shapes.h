@@ -998,6 +998,124 @@ protected:
 
 ///////////////////////////////////////////////////////////
 //														 //
+//						OpenGIS							 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+enum ESG_OGIS_ByteOrder
+{
+	SG_OGIS_BYTEORDER_XDR				= 0,	// Big Endian
+	SG_OGIS_BYTEORDER_NDR				= 1		// Little Endian
+};
+
+//---------------------------------------------------------
+enum ESG_SG_OGIS_Type_Geometry
+{
+	SG_OGIS_TYPE_Point					=    1,
+	SG_OGIS_TYPE_LineString				=    2,
+	SG_OGIS_TYPE_Polygon				=    3,
+	SG_OGIS_TYPE_MultiPoint				=    4,
+	SG_OGIS_TYPE_MultiLineString		=    5,
+	SG_OGIS_TYPE_MultiPolygon			=    6,
+	SG_OGIS_TYPE_GeometryCollection		=    7,
+	SG_OGIS_TYPE_PolyhedralSurface		=   15,
+	SG_OGIS_TYPE_TIN					=   16,
+	SG_OGIS_TYPE_Triangle				=   17,
+
+	SG_OGIS_TYPE_PointZ					= 1001,
+	SG_OGIS_TYPE_LineStringZ			= 1002,
+	SG_OGIS_TYPE_PolygonZ				= 1003,
+	SG_OGIS_TYPE_MultiPointZ			= 1004,
+	SG_OGIS_TYPE_MultiLineStringZ		= 1005,
+	SG_OGIS_TYPE_MultiPolygonZ			= 1006,
+	SG_OGIS_TYPE_GeometryCollectionZ	= 1007,
+	SG_OGIS_TYPE_PolyhedralSurfaceZ		= 1015,
+	SG_OGIS_TYPE_TINZ					= 1016,
+	SG_OGIS_TYPE_Trianglez				= 1017,
+
+	SG_OGIS_TYPE_PointM					= 2001,
+	SG_OGIS_TYPE_LineStringM			= 2002,
+	SG_OGIS_TYPE_PolygonM				= 2003,
+	SG_OGIS_TYPE_MultiPointM			= 2004,
+	SG_OGIS_TYPE_MultiLineStringM		= 2005,
+	SG_OGIS_TYPE_MultiPolygonM			= 2006,
+	SG_OGIS_TYPE_GeometryCollectionM	= 2007,
+	SG_OGIS_TYPE_PolyhedralSurfaceM		= 2015,
+	SG_OGIS_TYPE_TINM					= 2016,
+	SG_OGIS_TYPE_TriangleM				= 2017,
+
+	SG_OGIS_TYPE_PointZM				= 3001,
+	SG_OGIS_TYPE_LineStringZM			= 3002,
+	SG_OGIS_TYPE_PolygonZM				= 3003,
+	SG_OGIS_TYPE_MultiPointZM			= 3004,
+	SG_OGIS_TYPE_MultiLineStringZM		= 3005,
+	SG_OGIS_TYPE_MultiPolygonZM			= 3006,
+	SG_OGIS_TYPE_GeometryCollectionZM	= 3007,
+	SG_OGIS_TYPE_PolyhedralSurfaceZM	= 3015,
+	SG_OGIS_TYPE_TinZM					= 3016,
+	SG_OGIS_TYPE_TriangleZM				= 3017
+};
+
+//---------------------------------------------------------
+#define SG_OGIS_TYPE_STR_Point					SG_T("Poing")
+#define SG_OGIS_TYPE_STR_Line					SG_T("LineString")
+#define SG_OGIS_TYPE_STR_Polygon				SG_T("Polygon")
+#define SG_OGIS_TYPE_STR_MultiPoint			SG_T("MultiPoint")
+#define SG_OGIS_TYPE_STR_MultiLine				SG_T("MultiLineString")
+#define SG_OGIS_TYPE_STR_MultiPolygon			SG_T("MultiPolygon")
+#define SG_OGIS_TYPE_STR_GeometryCollection	SG_T("GeometryCollection")
+#define SG_OGIS_TYPE_STR_PolyhedralSurface		SG_T("PolyhedralSurface")
+#define SG_OGIS_TYPE_STR_TIN					SG_T("TIN")
+#define SG_OGIS_TYPE_STR_Triangle				SG_T("Triangle")
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Shapes_OGIS_Converter
+{
+public:
+	CSG_Shapes_OGIS_Converter(void)	{}
+
+	static bool				from_WKText				(const CSG_String &Text, CSG_Shape *pShape);
+	static bool				to_WKText				(CSG_Shape *pShape, CSG_String &Text);
+
+	static bool				from_WKBinary			(CSG_Bytes &Bytes, CSG_Shape *pShape);
+	static bool				to_WKBinary				(CSG_Shape *pShape, CSG_Bytes &Bytes);
+
+
+private:
+
+	static bool				_WKT_Read_Point			(const CSG_String &Text, TSG_Point &Point);
+	static bool				_WKT_Read_Points		(const CSG_String &Text, CSG_Shape *pShape);
+	static bool				_WKT_Read_Parts			(const CSG_String &Text, CSG_Shape *pShape);
+	static bool				_WKT_Read_Polygon		(const CSG_String &Text, CSG_Shape *pShape);
+
+	static bool				_WKT_Write_Point		(CSG_String &Text, const TSG_Point &Point);
+	static bool				_WKT_Write_Points		(CSG_String &Text, CSG_Shape *pShape, int iPart);
+	static bool				_WKT_Write_Parts		(CSG_String &Text, CSG_Shape *pShape);
+	static bool				_WKT_Write_Polygon		(CSG_String &Text, CSG_Shape *pShape);
+
+	static bool				_WKB_Read_Point			(CSG_Bytes &Bytes, TSG_Point &Point , bool bSwapBytes);
+	static bool				_WKB_Read_Points		(CSG_Bytes &Bytes, CSG_Shape *pShape, bool bSwapBytes);
+	static bool				_WKB_Read_Parts			(CSG_Bytes &Bytes, CSG_Shape *pShape, bool bSwapBytes);
+	static bool				_WKB_Read_MultiLine		(CSG_Bytes &Bytes, CSG_Shape *pShape, bool bSwapBytes);
+	static bool				_WKB_Read_MultiPolygon	(CSG_Bytes &Bytes, CSG_Shape *pShape, bool bSwapBytes);
+
+	static bool				_WKB_Write_Point		(CSG_Bytes &Bytes, const TSG_Point &Point);
+	static bool				_WKB_Write_Points		(CSG_Bytes &Bytes, CSG_Shape *pShape, int iPart);
+	static bool				_WKB_Write_Parts		(CSG_Bytes &Bytes, CSG_Shape *pShape);
+	static bool				_WKB_Write_MultiLine	(CSG_Bytes &Bytes, CSG_Shape *pShape);
+	static bool				_WKB_Write_MultiPolygon	(CSG_Bytes &Bytes, CSG_Shape *pShape);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////

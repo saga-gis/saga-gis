@@ -1,0 +1,69 @@
+# Project: io_db_odbc
+# Linux GCC Makefile
+# Created by O. Conrad
+
+PRJ_NAME = io_db_odbc
+SAGA     = ./../../..
+BIN_SAGA = $(SAGA)/../bin/saga_gtk
+TMP_SAGA = $(SAGA)/../bin/tmp/saga_gtk
+INC_SAGA = $(SAGA)/saga_core
+MLB_TEMP = $(TMP_SAGA)/$(PRJ_NAME)
+MLB_PATH = $(BIN_SAGA)/modules
+MLB_NAME = $(MLB_PATH)/$(PRJ_NAME).so
+
+CPP      = g++
+LD       = g++
+
+DEP_INCS = 
+DEP_DEFS = `wx-config --static=yes --cxxflags`
+DEP_LFLG = -fPIC -pthread
+DEP_LIBS = `wx-config --static=yes --libs` -L$(BIN_SAGA) -lsaga_api
+
+OBJ      = $(MLB_TEMP)/get_connection.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/odbc.o $(MLB_TEMP)/pgis_shapes.o $(MLB_TEMP)/shapes.o $(MLB_TEMP)/table.o
+
+DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
+CXX_INCS =
+CXX_DEFS =
+CXX_FLGS = -O2
+CXXFLAGS = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEP_INCS) $(DEP_DEFS) -I$(INC_SAGA) $(DEF_SAGA)
+
+LDFLAGS  = $(DEP_LFLG) -shared
+LIBS     = $(DEP_LIBS)
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before $(MLB_NAME) all-after
+
+clean: clean-custom
+	rm -f $(OBJ) $(MLB_NAME)
+
+$(TMP_SAGA):
+	-mkdir $(TMP_SAGA)
+
+$(MLB_TEMP): $(TMP_SAGA)
+	-mkdir $(MLB_TEMP)
+
+$(MLB_PATH):
+	-mkdir $(MLB_PATH)
+
+$(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
+	$(LD) $(LDFLAGS) -o $(MLB_NAME) $(OBJ) $(LIBS)
+
+
+$(MLB_TEMP)/get_connection.o: ./get_connection.cpp
+	$(CPP) -c ./get_connection.cpp -o $(MLB_TEMP)/get_connection.o $(CXXFLAGS)
+
+$(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
+	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
+
+$(MLB_TEMP)/odbc.o: ./odbc.cpp
+	$(CPP) -c ./odbc.cpp -o $(MLB_TEMP)/odbc.o $(CXXFLAGS)
+
+$(MLB_TEMP)/pgis_shapes.o: ./pgis_shapes.cpp
+	$(CPP) -c ./pgis_shapes.cpp -o $(MLB_TEMP)/pgis_shapes.o $(CXXFLAGS)
+
+$(MLB_TEMP)/shapes.o: ./shapes.cpp
+	$(CPP) -c ./shapes.cpp -o $(MLB_TEMP)/shapes.o $(CXXFLAGS)
+
+$(MLB_TEMP)/table.o: ./table.cpp
+	$(CPP) -c ./table.cpp -o $(MLB_TEMP)/table.o $(CXXFLAGS)

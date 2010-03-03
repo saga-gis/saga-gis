@@ -2234,6 +2234,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\shapes_ogis.cpp"
+				>
+			</File>
+			<File
 				RelativePath="shapes_search.cpp"
 				>
 				<FileConfiguration

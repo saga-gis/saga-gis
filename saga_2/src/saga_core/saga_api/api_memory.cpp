@@ -337,3 +337,320 @@ bool CSG_Buffer::Set_Data(const char *Buffer, size_t Size, bool bShrink)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_Bytes::CSG_Bytes(void)
+{
+	m_Bytes		= NULL;
+	m_nBytes	= 0;
+	m_nBuffer	= 0;
+	m_Cursor	= 0;
+}
+
+//---------------------------------------------------------
+bool CSG_Bytes::Create(void)
+{
+	return( Destroy() );
+}
+
+//---------------------------------------------------------
+CSG_Bytes::CSG_Bytes(const CSG_Bytes &Bytes)
+{
+	m_Bytes		= NULL;
+	m_nBytes	= 0;
+	m_nBuffer	= 0;
+	m_Cursor	= 0;
+
+	Create(Bytes);
+}
+
+bool CSG_Bytes::Create(const CSG_Bytes &Bytes)
+{
+	return( Assign(Bytes) );
+}
+
+//---------------------------------------------------------
+CSG_Bytes::CSG_Bytes(const BYTE *Bytes, int nBytes)
+{
+	m_Bytes		= NULL;
+	m_nBytes	= 0;
+	m_nBuffer	= 0;
+	m_Cursor	= 0;
+
+	Create(Bytes, nBytes);
+}
+
+bool CSG_Bytes::Create(const BYTE *Bytes, int nBytes)
+{
+	Destroy();
+
+	return( Add((void *)Bytes, nBytes, false) );
+}
+
+//---------------------------------------------------------
+CSG_Bytes::CSG_Bytes(const SG_Char *Bytes)
+{
+	m_Bytes		= NULL;
+	m_nBytes	= 0;
+	m_nBuffer	= 0;
+	m_Cursor	= 0;
+
+	Create(Bytes);
+}
+
+bool CSG_Bytes::Create(const SG_Char *Bytes)
+{
+	Destroy();
+
+	if( Bytes == NULL )	// Reset
+	{
+		return( true );
+	}
+
+#ifndef _SAGA_UNICODE
+	int	nBytes	= SG_STR_LEN(Bytes);
+#else
+	int	nBytes	= SG_STR_LEN(Bytes) * 2;
+#endif
+
+	return( Add((void *)Bytes, nBytes, false) );
+}
+
+//---------------------------------------------------------
+CSG_Bytes::~CSG_Bytes(void)
+{
+	Destroy();
+}
+
+bool CSG_Bytes::Destroy(void)
+{
+	if( m_Bytes )
+	{
+		SG_Free(m_Bytes);
+	}
+
+	m_Bytes		= NULL;
+	m_nBytes	= 0;
+	m_nBuffer	= 0;
+	m_Cursor	= 0;
+
+	return( true );
+}
+
+bool CSG_Bytes::Clear(void)
+{
+	m_nBytes	= 0;
+	m_Cursor	= 0;
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Bytes::_Inc_Array(int nBytes)
+{
+	if( m_nBuffer < m_nBytes + nBytes )
+	{
+		int		nBuffer	= m_nBuffer + nBytes + 1024;
+		BYTE	*Bytes	= (BYTE *)SG_Realloc(m_Bytes, nBuffer * sizeof(BYTE));
+
+		if( !Bytes )
+		{
+			return( false );
+		}
+
+		m_Bytes		= Bytes;
+		m_nBuffer	= nBuffer;
+	}
+
+	m_nBytes	+= nBytes;
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Bytes::Assign(const CSG_Bytes &Bytes)
+{
+	Destroy();
+
+	if( _Inc_Array(Bytes.m_nBytes) )
+	{
+		memcpy(m_Bytes, Bytes.m_Bytes, m_nBytes);
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Bytes::Add(const CSG_Bytes &Bytes)
+{
+	return( Add(Bytes.m_Bytes, Bytes.m_nBytes, false) );
+}
+
+//---------------------------------------------------------
+bool CSG_Bytes::Add(void *Bytes, int nBytes, bool bSwapBytes)
+{
+	int		Offset	= m_nBytes;
+
+	if( _Inc_Array(nBytes) )
+	{
+		memcpy(m_Bytes + Offset, Bytes, nBytes);
+
+		if( bSwapBytes )
+		{
+			SG_Swap_Bytes(m_Bytes + Offset, nBytes);
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+BYTE	SG_Hex_to_Byte	(const SG_Char Hex)
+{
+	switch( Hex )
+	{
+	case '1':				return(  1 );
+	case '2':				return(  2 );
+	case '3':				return(  3 );
+	case '4':				return(  4 );
+	case '5':				return(  5 );
+	case '6':				return(  6 );
+	case '7':				return(  7 );
+	case '8':				return(  8 );
+	case '9':				return(  9 );
+	case 'a':	case 'A':	return( 10 );
+	case 'b':	case 'B':	return( 11 );
+	case 'c':	case 'C':	return( 12 );
+	case 'd':	case 'D':	return( 13 );
+	case 'e':	case 'E':	return( 14 );
+	case 'f':	case 'F':	return( 15 );
+	}
+
+	return( 0 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_String CSG_Bytes::toHexString(void) const
+{
+	static CSG_String	HexString;
+
+	HexString.Clear();
+
+	for(int i=0; i<m_nBytes; i++)
+	{
+		HexString	+= CSG_String::Format(SG_T("%02X"), m_Bytes[i]);
+	}
+
+	return( HexString );
+}
+
+//---------------------------------------------------------
+bool CSG_Bytes::fromHexString(const CSG_String &HexString)
+{
+	Destroy();
+
+	const SG_Char	*s	= HexString.c_str();
+
+	for(size_t i=0; i<HexString.Length(); i+=2)
+	{
+		Add(SG_Hex_to_Byte(*(s++)) + 16 * SG_Hex_to_Byte(*(s++)));
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Bytes_Array::CSG_Bytes_Array(void)
+{
+	m_pBytes	= NULL;
+	m_nBytes	= 0;
+	m_nBuffer	= 0;
+}
+
+//---------------------------------------------------------
+CSG_Bytes_Array::~CSG_Bytes_Array(void)
+{
+	Destroy();
+}
+
+//---------------------------------------------------------
+bool CSG_Bytes_Array::Destroy(void)
+{
+	if( m_pBytes )
+	{
+		for(int i=0; i<m_nBytes; i++)
+		{
+			delete(m_pBytes[i]);
+		}
+
+		SG_Free(m_pBytes);
+	}
+
+	m_pBytes	= NULL;
+	m_nBytes	= 0;
+	m_nBuffer	= 0;
+
+	return( true );
+}
+
+//---------------------------------------------------------
+CSG_Bytes * CSG_Bytes_Array::Add(void)
+{
+	if( m_nBytes >= m_nBuffer )
+	{
+		CSG_Bytes	**pBytes	= (CSG_Bytes **)SG_Realloc(m_pBytes, (m_nBuffer + 256) * sizeof(CSG_Bytes *));
+
+		if( !pBytes )
+		{
+			return( NULL );
+		}
+
+		m_pBytes	 = pBytes;
+		m_nBuffer	+= 256;
+	}
+
+	return( m_pBytes[m_nBytes++] = new CSG_Bytes );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
