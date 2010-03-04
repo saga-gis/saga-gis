@@ -157,7 +157,7 @@ CSG_ODBC_Connection::CSG_ODBC_Connection(const CSG_String &Server, const CSG_Str
 
 	if( !m_Connection.connected )
 	{
-		delete(m_pConnection);
+		delete(((otl_connect *)m_pConnection));
 
 		m_pConnection	= NULL;
 	}
@@ -1170,7 +1170,7 @@ int CSG_ODBC_Connections::Get_Connections(CSG_String &Connections)
 //---------------------------------------------------------
 CSG_ODBC_Module::CSG_ODBC_Module(void)
 {
-	m_Connection_Choice.Create(SG_T("CONNECTIONS"), _TL("Choose ODBC Connection"), _TL(""));
+	m_Connection_Choice.Create(this, _TL("Choose ODBC Connection"), _TL(""), SG_T("CONNECTIONS"));
 
 	m_Connection_Choice.Add_Choice(
 		NULL	, "CONNECTIONS", _TL("Available Connections"),

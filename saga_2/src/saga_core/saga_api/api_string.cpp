@@ -818,7 +818,12 @@ double			SG_Degree_To_Double(const SG_Char *String)
 }
 
 //---------------------------------------------------------
-CSG_String		SG_Double_To_Date(double Value)
+CSG_String		SG_Number_To_Date(int Value)
+{
+	return( SG_Number_To_Date((double)Value) );
+}
+
+CSG_String		SG_Number_To_Date(double Value)
 {
 	int		y, m, d;
 
@@ -830,22 +835,20 @@ CSG_String		SG_Double_To_Date(double Value)
 }
 
 //---------------------------------------------------------
-double			SG_Date_To_Double(const SG_Char *String)
+int				SG_Date_To_Number(const SG_Char *String)
 {
-	int			d, m, y;
-
-	if( String )
+	if( String && String[0] )
 	{
 		CSG_String	s(String), sValue;
 
 		sValue	= s.AfterLast	('.');
-		y		= sValue.asInt();
+		int	y	= sValue.asInt();
 		sValue	= s.BeforeLast	('.');	s		= sValue;
 
 		sValue	= s.AfterLast	('.');
-		m		= sValue.asInt();
+		int	m	= sValue.asInt();
 		sValue	= s.BeforeLast	('.');	s		= sValue;
-		d		= sValue.asInt();
+		int	d	= sValue.asInt();
 
 		if( d < 1 )	d	= 1;	else if( d > 31 )	d	= 31;
 		if( m < 1 )	m	= 1;	else if( m > 12 )	m	= 12;

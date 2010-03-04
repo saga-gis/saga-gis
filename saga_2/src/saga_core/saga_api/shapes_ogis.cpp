@@ -68,23 +68,57 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline bool CSG_Shapes_OGIS_Converter::_WKT_Read_Point(const CSG_String &Text, TSG_Point &Point)
+inline bool CSG_Shapes_OGIS_Converter::_WKT_Read_Point(const CSG_String &Text, CSG_Shape *pShape, int iPart)
 {
-	return( Text.asDouble(Point.x) && Text.AfterFirst(SG_T(' ')).asDouble(Point.y) );
+	double		x, y, z, m;
+
+	switch( ((CSG_Shapes *)pShape->Get_Table())->Get_Vertex_Type() )
+	{
+	case SG_VERTEX_TYPE_XY:
+		if( SG_SSCANF(Text.c_str(), SG_T("%f %f"), &x, &y) == 2 )
+		{
+			pShape->Add_Point(x, y, iPart);
+			
+			return( true );
+		}
+		break;
+
+	case SG_VERTEX_TYPE_XYZ:
+		if( SG_SSCANF(Text.c_str(), SG_T("%f %f %f"), &x, &y, &z) == 3 )
+		{
+			pShape->Add_Point(x, y, iPart);
+			pShape->Set_Z    (z, pShape->Get_Point_Count(iPart) - 1, iPart);
+			
+			return( true );
+		}
+		break;
+
+	case SG_VERTEX_TYPE_XYZM:
+		if( SG_SSCANF(Text.c_str(), SG_T("%f %f %f %f"), &x, &y, &z, &m) == 4 )
+		{
+			pShape->Add_Point(x, y, iPart);
+			pShape->Set_Z    (z, pShape->Get_Point_Count(iPart) - 1, iPart);
+			pShape->Set_M    (m, pShape->Get_Point_Count(iPart) - 1, iPart);
+			
+			return( true );
+		}
+		break;
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
 bool CSG_Shapes_OGIS_Converter::_WKT_Read_Points(const CSG_String &Text, CSG_Shape *pShape)
 {
 	int			iPart	= pShape->Get_Part_Count();
-	TSG_Point	Point;
 	CSG_String	s(Text.AfterFirst('(').BeforeFirst(')'));
 
 	while( s.Length() > 0 )
 	{
-		if( _WKT_Read_Point(s, Point) )
+		if( !_WKT_Read_Point(s, pShape, iPart) )
 		{
-			pShape->Add_Point(Point, iPart);
+			return( false );
 		}
 
 		s	= s.AfterFirst(',');
@@ -150,48 +184,43 @@ bool CSG_Shapes_OGIS_Converter::from_WKText(const CSG_String &Text, CSG_Shape *p
 	case SHAPE_TYPE_Point:
 		if( !Text.BeforeFirst('(').Cmp(SG_OGIS_TYPE_STR_Point) )
 		{
-			TSG_Point	Point;
-
-			if( _WKT_Read_Point(Text.AfterFirst('(').BeforeFirst(')'), Point) )
-			{
-				pShape->Add_Point(Point);
-			}
+			return( _WKT_Read_Point(Text.AfterFirst('(').BeforeFirst(')'), pShape, 0) );
 		}
 		break;
 
 	case SHAPE_TYPE_Points:
 		if( !Text.BeforeFirst('(').Cmp(SG_OGIS_TYPE_STR_MultiPoint) )
 		{
-			_WKT_Read_Parts(Text, pShape);
+			return( _WKT_Read_Parts(Text, pShape) );
 		}
 		break;
 
 	case SHAPE_TYPE_Line:
 		if( !Text.BeforeFirst('(').Cmp(SG_OGIS_TYPE_STR_Line) )
 		{
-			_WKT_Read_Points(Text, pShape);
+			return( _WKT_Read_Points(Text, pShape) );
 		}
 
 		if( !Text.BeforeFirst('(').Cmp(SG_OGIS_TYPE_STR_MultiLine) )
 		{
-			_WKT_Read_Parts(Text, pShape);
+			return( _WKT_Read_Parts(Text, pShape) );
 		}
 		break;
 
 	case SHAPE_TYPE_Polygon:
 		if( !Text.BeforeFirst('(').Cmp(SG_OGIS_TYPE_STR_Polygon) )
 		{
-			_WKT_Read_Parts(Text, pShape);
+			return( _WKT_Read_Parts(Text, pShape) );
 		}
 
 		if( !Text.BeforeFirst('(').Cmp(SG_OGIS_TYPE_STR_MultiPolygon) )
 		{
-			_WKT_Read_Polygon(Text, pShape);
+			return( _WKT_Read_Polygon(Text, pShape) );
 		}
 		break;
 	}
 
-	return( pShape->Get_Part_Count() > 0 );
+	return( false );
 }
 
 
@@ -200,11 +229,26 @@ bool CSG_Shapes_OGIS_Converter::from_WKText(const CSG_String &Text, CSG_Shape *p
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline bool CSG_Shapes_OGIS_Converter::_WKT_Write_Point(CSG_String &Text, const TSG_Point &Point)
+inline bool CSG_Shapes_OGIS_Converter::_WKT_Write_Point(CSG_String &Text, CSG_Shape *pShape, int iPoint, int iPart)
 {
-	Text	+= CSG_String::Format(SG_T("%f %f"), Point.x, Point.y);
+	TSG_Point	Point	= pShape->Get_Point(iPoint, iPart);
 
-	return( true );
+	switch( ((CSG_Shapes *)pShape->Get_Table())->Get_Vertex_Type() )
+	{
+	case SG_VERTEX_TYPE_XY:
+		Text	+= CSG_String::Format(SG_T("%f %f")      , Point.x, Point.y);
+		break;
+
+	case SG_VERTEX_TYPE_XYZ:
+		Text	+= CSG_String::Format(SG_T("%f %f %f")   , Point.x, Point.y, pShape->Get_Z(iPoint, iPart));
+		break;
+
+	case SG_VERTEX_TYPE_XYZM:
+		Text	+= CSG_String::Format(SG_T("%f %f %f %f"), Point.x, Point.y, pShape->Get_Z(iPoint, iPart), pShape->Get_M(iPoint, iPart));
+		break;
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -219,14 +263,14 @@ inline bool CSG_Shapes_OGIS_Converter::_WKT_Write_Points(CSG_String &Text, CSG_S
 			Text	+= SG_T(", ");
 		}
 
-		_WKT_Write_Point(Text, pShape->Get_Point(iPoint, iPart));
+		_WKT_Write_Point(Text, pShape, iPoint, iPart);
 	}
 
 	if( pShape->Get_Type() == SHAPE_TYPE_Polygon && CSG_Point(pShape->Get_Point(0, iPart)) != pShape->Get_Point(pShape->Get_Point_Count(iPart) -1, iPart) )
 	{
 		Text	+= SG_T(", ");
 
-		_WKT_Write_Point(Text, pShape->Get_Point(0, iPart));
+		_WKT_Write_Point(Text, pShape, 0, iPart);
 	}
 
 	Text	+= SG_T(")");
@@ -329,52 +373,63 @@ bool CSG_Shapes_OGIS_Converter::to_WKText(CSG_Shape *pShape, CSG_String &Text)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline bool CSG_Shapes_OGIS_Converter::_WKB_Read_Point(CSG_Bytes &Bytes, TSG_Point &Point, bool bSwapBytes)
+inline bool CSG_Shapes_OGIS_Converter::_WKB_Read_Point(CSG_Bytes &Bytes, bool bSwapBytes, CSG_Shape *pShape, int iPart)
 {
-	if( !Bytes.is_EOF() )
+	if( Bytes.is_EOF() )
 	{
-		Point.x	= Bytes.Read_Double(bSwapBytes);
-
-		if( !Bytes.is_EOF() )
-		{
-			Point.y	= Bytes.Read_Double(bSwapBytes);
-
-			return( true );
-		}
+		return( false );
 	}
 
-	return( false );
+	double	x, y;
+
+	x	= Bytes.Read_Double(bSwapBytes);
+	y	= Bytes.Read_Double(bSwapBytes);
+
+	pShape->Add_Point(x, y, iPart);
+
+	switch( ((CSG_Shapes *)pShape->Get_Table())->Get_Vertex_Type() )
+	{
+	case SG_VERTEX_TYPE_XY:
+		break;
+
+	case SG_VERTEX_TYPE_XYZ:
+		pShape->Set_Z(Bytes.Read_Double(bSwapBytes), pShape->Get_Point_Count(iPart) - 1, iPart);
+		break;
+
+	case SG_VERTEX_TYPE_XYZM:
+		pShape->Set_Z(Bytes.Read_Double(bSwapBytes), pShape->Get_Point_Count(iPart) - 1, iPart);
+		pShape->Set_M(Bytes.Read_Double(bSwapBytes), pShape->Get_Point_Count(iPart) - 1, iPart);
+		break;
+	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
-bool CSG_Shapes_OGIS_Converter::_WKB_Read_Points(CSG_Bytes &Bytes, CSG_Shape *pShape, bool bSwapBytes)
+bool CSG_Shapes_OGIS_Converter::_WKB_Read_Points(CSG_Bytes &Bytes, bool bSwapBytes, CSG_Shape *pShape)
 {
-	TSG_Point	Point;
-
 	DWORD	iPart	= pShape->Get_Part_Count();
 	DWORD	nPoints	= Bytes.Read_DWord(bSwapBytes);
 
 	for(DWORD iPoint=0; iPoint<nPoints; iPoint++)
 	{
-		if( !_WKB_Read_Point(Bytes, Point, bSwapBytes) )
+		if( !_WKB_Read_Point(Bytes, bSwapBytes, pShape, iPart) )
 		{
 			return( false );
 		}
-
-		pShape->Add_Point(Point, iPart);
 	}
 
 	return( pShape->Get_Point_Count(iPart) > 0 );
 }
 
 //---------------------------------------------------------
-bool CSG_Shapes_OGIS_Converter::_WKB_Read_Parts(CSG_Bytes &Bytes, CSG_Shape *pShape, bool bSwapBytes)
+bool CSG_Shapes_OGIS_Converter::_WKB_Read_Parts(CSG_Bytes &Bytes, bool bSwapBytes, CSG_Shape *pShape)
 {
 	DWORD	iPart, nParts	= Bytes.Read_DWord(bSwapBytes);
 
 	for(iPart=0; iPart<nParts; iPart++)
 	{
-		if( !_WKB_Read_Points(Bytes, pShape, bSwapBytes) )
+		if( !_WKB_Read_Points(Bytes, bSwapBytes, pShape) )
 		{
 			return( false );
 		}
@@ -384,7 +439,7 @@ bool CSG_Shapes_OGIS_Converter::_WKB_Read_Parts(CSG_Bytes &Bytes, CSG_Shape *pSh
 }
 
 //---------------------------------------------------------
-bool CSG_Shapes_OGIS_Converter::_WKB_Read_MultiLine(CSG_Bytes &Bytes, CSG_Shape *pShape, bool bSwapBytes)
+bool CSG_Shapes_OGIS_Converter::_WKB_Read_MultiLine(CSG_Bytes &Bytes, bool bSwapBytes, CSG_Shape *pShape)
 {
 	DWORD	nLines	= Bytes.Read_DWord(bSwapBytes);
 
@@ -392,7 +447,7 @@ bool CSG_Shapes_OGIS_Converter::_WKB_Read_MultiLine(CSG_Bytes &Bytes, CSG_Shape 
 	{
 		bSwapBytes	= Bytes.Read_Byte() != SG_OGIS_BYTEORDER_NDR;
 
-		if( Bytes.Read_DWord(bSwapBytes) != SG_OGIS_TYPE_LineString || !_WKB_Read_Points(Bytes, pShape, bSwapBytes) )
+		if( Bytes.Read_DWord(bSwapBytes) != SG_OGIS_TYPE_LineString || !_WKB_Read_Points(Bytes, bSwapBytes, pShape) )
 		{
 			return( false );
 		}
@@ -402,7 +457,7 @@ bool CSG_Shapes_OGIS_Converter::_WKB_Read_MultiLine(CSG_Bytes &Bytes, CSG_Shape 
 }
 
 //---------------------------------------------------------
-bool CSG_Shapes_OGIS_Converter::_WKB_Read_MultiPolygon(CSG_Bytes &Bytes, CSG_Shape *pShape, bool bSwapBytes)
+bool CSG_Shapes_OGIS_Converter::_WKB_Read_MultiPolygon(CSG_Bytes &Bytes, bool bSwapBytes, CSG_Shape *pShape)
 {
 	DWORD	nPolygons	= Bytes.Read_DWord(bSwapBytes);
 
@@ -410,7 +465,7 @@ bool CSG_Shapes_OGIS_Converter::_WKB_Read_MultiPolygon(CSG_Bytes &Bytes, CSG_Sha
 	{
 		bSwapBytes	= Bytes.Read_Byte() != SG_OGIS_BYTEORDER_NDR;
 
-		if( Bytes.Read_DWord(bSwapBytes) != SG_OGIS_TYPE_Polygon || !_WKB_Read_Parts(Bytes, pShape, bSwapBytes) )
+		if( Bytes.Read_DWord(bSwapBytes) != SG_OGIS_TYPE_Polygon || !_WKB_Read_Parts(Bytes, bSwapBytes, pShape) )
 		{
 			return( false );
 		}
@@ -433,21 +488,14 @@ bool CSG_Shapes_OGIS_Converter::from_WKBinary(CSG_Bytes &Bytes, CSG_Shape *pShap
 	case SHAPE_TYPE_Point:
 		if( Bytes.Read_DWord() == SG_OGIS_TYPE_Point )
 		{
-			TSG_Point	Point;
-
-			if( _WKB_Read_Point(Bytes, Point, bSwapBytes) )
-			{
-				pShape->Add_Point(Point);
-
-				return( true );
-			}
+			return( _WKB_Read_Point(Bytes, bSwapBytes, pShape, 0) );
 		}
 		break;
 
 	case SHAPE_TYPE_Points:
 		if( Bytes.Read_DWord() == SG_OGIS_TYPE_MultiPoint )
 		{
-			return( _WKB_Read_Parts(Bytes, pShape, bSwapBytes) );
+			return( _WKB_Read_Parts(Bytes, bSwapBytes, pShape) );
 		}
 		break;
 
@@ -455,10 +503,10 @@ bool CSG_Shapes_OGIS_Converter::from_WKBinary(CSG_Bytes &Bytes, CSG_Shape *pShap
 		switch( Bytes.Read_DWord() )
 		{
 		case SG_OGIS_TYPE_LineString:
-			return( _WKB_Read_Points		(Bytes, pShape, bSwapBytes) );
+			return( _WKB_Read_Points		(Bytes, bSwapBytes, pShape) );
 
 		case SG_OGIS_TYPE_MultiLineString:
-			return( _WKB_Read_MultiLine		(Bytes, pShape, bSwapBytes) );
+			return( _WKB_Read_MultiLine		(Bytes, bSwapBytes, pShape) );
 		}
 		break;
 
@@ -466,10 +514,10 @@ bool CSG_Shapes_OGIS_Converter::from_WKBinary(CSG_Bytes &Bytes, CSG_Shape *pShap
 		switch( Bytes.Read_DWord() )
 		{
 		case SG_OGIS_TYPE_Polygon:
-			return( _WKB_Read_Parts			(Bytes, pShape, bSwapBytes) );
+			return( _WKB_Read_Parts			(Bytes, bSwapBytes, pShape) );
 
 		case SG_OGIS_TYPE_MultiPolygon:
-			return( _WKB_Read_MultiPolygon	(Bytes, pShape, bSwapBytes) );
+			return( _WKB_Read_MultiPolygon	(Bytes, bSwapBytes, pShape) );
 		}
 		break;
 	}
@@ -483,10 +531,27 @@ bool CSG_Shapes_OGIS_Converter::from_WKBinary(CSG_Bytes &Bytes, CSG_Shape *pShap
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Shapes_OGIS_Converter::_WKB_Write_Point(CSG_Bytes &Bytes, const TSG_Point &Point)
+inline bool CSG_Shapes_OGIS_Converter::_WKB_Write_Point(CSG_Bytes &Bytes, CSG_Shape *pShape, int iPoint, int iPart)
 {
+	TSG_Point	Point	= pShape->Get_Point(iPoint, iPart);
+
 	Bytes	+= Point.x;
 	Bytes	+= Point.y;
+
+	switch( ((CSG_Shapes *)pShape->Get_Table())->Get_Vertex_Type() )
+	{
+	case SG_VERTEX_TYPE_XY:
+		break;
+
+	case SG_VERTEX_TYPE_XYZ:
+		Bytes	+= pShape->Get_Z(iPoint, iPart);
+		break;
+
+	case SG_VERTEX_TYPE_XYZM:
+		Bytes	+= pShape->Get_Z(iPoint, iPart);
+		Bytes	+= pShape->Get_M(iPoint, iPart);
+		break;
+	}
 
 	return( true );
 }
@@ -500,12 +565,12 @@ bool CSG_Shapes_OGIS_Converter::_WKB_Write_Points(CSG_Bytes &Bytes, CSG_Shape *p
 
 	for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 	{
-		_WKB_Write_Point(Bytes, pShape->Get_Point(iPoint, iPart));
+		_WKB_Write_Point(Bytes, pShape, iPoint, iPart);
 	}
 
 	if( bFirstTwice )
 	{
-		_WKB_Write_Point(Bytes, pShape->Get_Point(0, iPart));
+		_WKB_Write_Point(Bytes, pShape, 0, iPart);
 	}
 
 	return( true );
@@ -619,7 +684,7 @@ bool CSG_Shapes_OGIS_Converter::to_WKBinary(CSG_Shape *pShape, CSG_Bytes &Bytes)
 
 	case SHAPE_TYPE_Point:
 		Bytes	+= (BYTE)SG_OGIS_TYPE_Point;
-		return( _WKB_Write_Point(Bytes, pShape->Get_Point(0)) );
+		return( _WKB_Write_Point(Bytes, pShape, 0, 0) );
 
 	case SHAPE_TYPE_Points:
 		Bytes	+= (BYTE)SG_OGIS_TYPE_MultiPoint;

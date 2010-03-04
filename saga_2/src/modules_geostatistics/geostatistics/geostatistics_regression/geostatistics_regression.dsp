@@ -58,7 +58,7 @@ LINK32=link.exe
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib /nologo /subsystem:windows /dll /machine:I386 /libpath:"$(SAGA)/bin/saga_vc"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy      *.lng.txt      ..\..\..\..\bin\saga_vc\modules\ 
+PostBuild_Cmds=copy       *.lng.txt       ..\..\..\..\bin\saga_vc\modules\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "geostatistics_regression - Win32 Debug"
@@ -157,7 +157,19 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\gw_multi_regression.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\gw_multi_regression_grid.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\gw_regression.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\gw_regression_grid.cpp
 # End Source File
 # Begin Source File
 
@@ -181,7 +193,19 @@ SOURCE=.\point_trend_surface.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=.\gw_multi_regression.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\gw_multi_regression_grid.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\gw_regression.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\gw_regression_grid.h
 # End Source File
 # Begin Source File
 

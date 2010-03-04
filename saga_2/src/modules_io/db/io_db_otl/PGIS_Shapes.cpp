@@ -135,9 +135,11 @@ bool CPGIS_Shapes_Load::On_Before_Execution(void)
 //---------------------------------------------------------
 bool CPGIS_Shapes_Load::On_Execute(void)
 {
-	CSG_String	Select, Geo_Table, Geo_Type, Geo_Field;
-	CSG_Table	Geo_Tables;
-	CSG_Shapes	*pShapes;
+	TSG_Vertex_Type	tVertex;
+	TSG_Shape_Type	tShape;
+	CSG_String		Select, Geo_Table, Geo_Type, Geo_Field;
+	CSG_Table		Geo_Tables;
+	CSG_Shapes		*pShapes;
 
 	pShapes		= Parameters("SHAPES")	->asShapes();
 	Geo_Table	= Parameters("TABLES")	->asString();
@@ -158,15 +160,48 @@ bool CPGIS_Shapes_Load::On_Execute(void)
 	Geo_Field	= Geo_Tables[0].asString(SG_T("f_geometry_column"));
 
 	//-----------------------------------------------------
-	     if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_Point) )			pShapes->Create(SHAPE_TYPE_Point	, Geo_Table);
-	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiPoint) )		pShapes->Create(SHAPE_TYPE_Points	, Geo_Table);
-	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_Line) )			pShapes->Create(SHAPE_TYPE_Line		, Geo_Table);
-	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiLine) )		pShapes->Create(SHAPE_TYPE_Line		, Geo_Table);
-	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_Polygon) )		pShapes->Create(SHAPE_TYPE_Polygon	, Geo_Table);
-	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiPolygon) )	pShapes->Create(SHAPE_TYPE_Polygon	, Geo_Table);
+	     if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_Point           ) )	{	tShape	= SHAPE_TYPE_Point;		tVertex	= SG_VERTEX_TYPE_XY;	}
+	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiPoint      ) )	{	tShape	= SHAPE_TYPE_Points;	tVertex	= SG_VERTEX_TYPE_XY;	}
+	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_Line            ) )	{	tShape	= SHAPE_TYPE_Line;		tVertex	= SG_VERTEX_TYPE_XY;	}
+	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiLine       ) )	{	tShape	= SHAPE_TYPE_Line;		tVertex	= SG_VERTEX_TYPE_XY;	}
+	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_Polygon         ) )	{	tShape	= SHAPE_TYPE_Polygon;	tVertex	= SG_VERTEX_TYPE_XY;	}
+	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiPolygon    ) )	{	tShape	= SHAPE_TYPE_Polygon;	tVertex	= SG_VERTEX_TYPE_XY;	}
+
+	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_Point_Z         ) )	{	tShape	= SHAPE_TYPE_Point;		tVertex	= SG_VERTEX_TYPE_XYZ;	}
+	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiPoint_Z    ) )	{	tShape	= SHAPE_TYPE_Points;	tVertex	= SG_VERTEX_TYPE_XYZ;	}
+	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_Line_Z          ) )	{	tShape	= SHAPE_TYPE_Line;		tVertex	= SG_VERTEX_TYPE_XYZ;	}
+	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiLine_Z     ) )	{	tShape	= SHAPE_TYPE_Line;		tVertex	= SG_VERTEX_TYPE_XYZ;	}
+	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_Polygon_Z       ) )	{	tShape	= SHAPE_TYPE_Polygon;	tVertex	= SG_VERTEX_TYPE_XYZ;	}
+	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiPolygon_Z  ) )	{	tShape	= SHAPE_TYPE_Polygon;	tVertex	= SG_VERTEX_TYPE_XYZ;	}
+
+	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_Point_M         ) )	{	tShape	= SHAPE_TYPE_Point;		tVertex	= SG_VERTEX_TYPE_XYZ;	}
+	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiPoint_M    ) )	{	tShape	= SHAPE_TYPE_Points;	tVertex	= SG_VERTEX_TYPE_XYZ;	}
+	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_Line_M          ) )	{	tShape	= SHAPE_TYPE_Line;		tVertex	= SG_VERTEX_TYPE_XYZ;	}
+	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiLine_M     ) )	{	tShape	= SHAPE_TYPE_Line;		tVertex	= SG_VERTEX_TYPE_XYZ;	}
+	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_Polygon_M       ) )	{	tShape	= SHAPE_TYPE_Polygon;	tVertex	= SG_VERTEX_TYPE_XYZ;	}
+	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiPolygon_M  ) )	{	tShape	= SHAPE_TYPE_Polygon;	tVertex	= SG_VERTEX_TYPE_XYZ;	}
+
+	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_Point_ZM        ) )	{	tShape	= SHAPE_TYPE_Point;		tVertex	= SG_VERTEX_TYPE_XYZM;	}
+	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiPoint_ZM   ) )	{	tShape	= SHAPE_TYPE_Points;	tVertex	= SG_VERTEX_TYPE_XYZM;	}
+	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_Line_ZM         ) )	{	tShape	= SHAPE_TYPE_Line;		tVertex	= SG_VERTEX_TYPE_XYZM;	}
+	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiLine_ZM    ) )	{	tShape	= SHAPE_TYPE_Line;		tVertex	= SG_VERTEX_TYPE_XYZM;	}
+	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_Polygon_ZM      ) )	{	tShape	= SHAPE_TYPE_Polygon;	tVertex	= SG_VERTEX_TYPE_XYZM;	}
+	else if( !Geo_Type.CmpNoCase(SG_OGIS_TYPE_STR_MultiPolygon_ZM ) )	{	tShape	= SHAPE_TYPE_Polygon;	tVertex	= SG_VERTEX_TYPE_XYZM;	}
+
 	else
 	{
 		return( false );
+	}
+
+	if( pShapes->Get_Type() != SHAPE_TYPE_Undefined && pShapes->Get_Type() != tShape )
+	{
+		pShapes	= SG_Create_Shapes(tShape, Geo_Table, NULL, tVertex);
+
+		Parameters("SHAPES")->Set_Value(pShapes);
+	}
+	else
+	{
+		pShapes->Create(tShape, Geo_Table, NULL, tVertex);
 	}
 
 	//-----------------------------------------------------
@@ -176,45 +211,51 @@ bool CPGIS_Shapes_Load::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Bytes_Array	BLOBs;
-
-	Select.Printf(SG_T("AsBinary(%s) AS geom"), Geo_Field.c_str());
-
-	if( !Get_Connection()->Table_Load_BLOBs(BLOBs, Geo_Table, Select, SG_T(""), SG_T("")) )
+	if( 1 )	// WKBinary
 	{
-		return( false );
+		CSG_Bytes_Array	BLOBs;
+
+		Select.Printf(SG_T("AsBinary(%s) AS geom"), Geo_Field.c_str());
+
+		if( !Get_Connection()->Table_Load_BLOBs(BLOBs, Geo_Table, Select, SG_T(""), SG_T("")) )
+		{
+			return( false );
+		}
+
+		if( BLOBs.Get_Count() != pShapes->Get_Count() )
+		{
+			return( false );
+		}
+
+		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		{
+			CSG_Shapes_OGIS_Converter::from_WKBinary(BLOBs[iShape], pShapes->Get_Shape(iShape));
+		}
 	}
 
-	if( BLOBs.Get_Count() != pShapes->Get_Count() )
+	//-----------------------------------------------------
+	else	// WKText
 	{
-		return( false );
+		CSG_Table	Shapes;
+
+		Select.Printf(SG_T("AsText(%s) AS geom"), Geo_Field.c_str());
+
+		if( !Get_Connection()->Table_Load(Shapes, Geo_Table, Select, SG_T(""), SG_T("")) )
+		{
+			return( false );
+		}
+
+		if( Shapes.Get_Count() != pShapes->Get_Count() )
+		{
+			return( false );
+		}
+
+		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		{
+			CSG_Shapes_OGIS_Converter::from_WKText(Shapes[iShape].asString(0), pShapes->Get_Shape(iShape));
+		}
 	}
 
-	for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
-	{
-		CSG_Shapes_OGIS_Converter::from_WKBinary(BLOBs[iShape], pShapes->Get_Shape(iShape));
-	}
-
-	/*/-----------------------------------------------------
-	CSG_Table	Shapes;
-
-	Select.Printf(SG_T("AsText(%s) AS geom"), Geo_Field.c_str());
-
-	if( !Get_Connection()->Table_Load(Shapes, Geo_Table, Select, SG_T(""), SG_T("")) )
-	{
-		return( false );
-	}
-
-	if( Shapes.Get_Count() != pShapes->Get_Count() )
-	{
-		return( false );
-	}
-
-	for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
-	{
-		CSG_Shapes_OGIS_Converter::from_WKText(Shapes[iShape].asString(0), pShapes->Get_Shape(iShape));
-	}
-/**/
 	return( true );
 }
 
@@ -255,6 +296,34 @@ CPGIS_Shapes_Save::CPGIS_Shapes_Save(void)
 			_TL("--- not available ---")
 		)
 	);
+
+	Parameters.Add_Choice(
+		NULL	, "EXISTS"		, _TL("If table exists..."),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s"),
+			_TL("abort export"),
+			_TL("replace existing table"),
+			_TL("append records, if table structure allows")
+		), 0
+	);
+}
+
+//---------------------------------------------------------
+int CPGIS_Shapes_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SHAPES")) )
+	{
+		if( pParameter->asShapes() )
+		{
+			pParameters->Get_Parameter("NAME")->Set_Value(pParameter->asShapes()->Get_Name());
+		}
+		else
+		{
+			pParameters->Get_Parameter("NAME")->Set_Value(SG_T(""));
+		}
+	}
+
+	return( 0 );
 }
 
 //---------------------------------------------------------
@@ -310,43 +379,78 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 {
 	int			SRID;
 	CSG_Shapes	*pShapes;
-	CSG_String	SQL, Geo_Table, Geo_Type, Geo_Field;
+	CSG_String	SQL, Geo_Table, Geo_Type, Geo_Field, sSRID;
 
 	pShapes		= Parameters("SHAPES")	->asShapes();
 	Geo_Table	= Parameters("NAME")	->asString();	if( Geo_Table.Length() == 0 )	Geo_Table	= pShapes->Get_Name();
 	SRID		= Parameters("SRID")	->asInt();
 	SRID		= SG_Get_Projections().Get_SRID_byNamesIndex(SRID);
 
-	switch( pShapes->Get_Type() )
+	sSRID.Printf(SG_T("%d"), SRID);
+
+	//-----------------------------------------------------
+	switch( pShapes->Get_Vertex_Type() )
 	{
-	default:
-		Geo_Type	= SG_T("GEOMETRY");			// GEOMETRYCOLLECTION
-		Geo_Field	= SG_T("geometry");
+	case SG_VERTEX_TYPE_XY:
+		switch( pShapes->Get_Type() )
+		{	default:	return( false );
+		case SHAPE_TYPE_Point:		Geo_Type	= SG_OGIS_TYPE_STR_Point;			Geo_Field	= SG_T("geo_point");		break;
+		case SHAPE_TYPE_Points:		Geo_Type	= SG_OGIS_TYPE_STR_MultiPoint;		Geo_Field	= SG_T("geo_points");		break;
+		case SHAPE_TYPE_Line:		Geo_Type	= SG_OGIS_TYPE_STR_MultiLine;		Geo_Field	= SG_T("geo_line");			break;
+		case SHAPE_TYPE_Polygon:	Geo_Type	= SG_OGIS_TYPE_STR_MultiPolygon;	Geo_Field	= SG_T("geo_polygon");		break;
+		}
 		break;
 
-	case SHAPE_TYPE_Point:
-		Geo_Type	= SG_T("POINT");
-		Geo_Field	= SG_T("geo_point");
+	case SG_VERTEX_TYPE_XYZ:
+		switch( pShapes->Get_Type() )
+		{	default:	return( false );
+		case SHAPE_TYPE_Point:		Geo_Type	= SG_OGIS_TYPE_STR_Point_Z;			Geo_Field	= SG_T("geo_point_z");		break;
+		case SHAPE_TYPE_Points:		Geo_Type	= SG_OGIS_TYPE_STR_MultiPoint_Z;	Geo_Field	= SG_T("geo_points_z");		break;
+		case SHAPE_TYPE_Line:		Geo_Type	= SG_OGIS_TYPE_STR_MultiLine_Z;		Geo_Field	= SG_T("geo_line_z");		break;
+		case SHAPE_TYPE_Polygon:	Geo_Type	= SG_OGIS_TYPE_STR_MultiPolygon_Z;	Geo_Field	= SG_T("geo_polygon_z");	break;
+		}
 		break;
 
-	case SHAPE_TYPE_Points:
-		Geo_Type	= SG_T("MULTIPOINT");
-		Geo_Field	= SG_T("geo_points");
-		break;
-
-	case SHAPE_TYPE_Line:
-		Geo_Type	= SG_T("MULTILINESTRING");	// LINESTRING
-		Geo_Field	= SG_T("geo_line");
-		break;
-
-	case SHAPE_TYPE_Polygon:
-		Geo_Type	= SG_T("MULTIPOLYGON");		// POLYGON
-		Geo_Field	= SG_T("geo_polygon");
+	case SG_VERTEX_TYPE_XYZM:
+		switch( pShapes->Get_Type() )
+		{	default:	return( false );
+		case SHAPE_TYPE_Point:		Geo_Type	= SG_OGIS_TYPE_STR_Point_ZM;		Geo_Field	= SG_T("geo_point_zm");		break;
+		case SHAPE_TYPE_Points:		Geo_Type	= SG_OGIS_TYPE_STR_MultiPoint_ZM;	Geo_Field	= SG_T("geo_points_zm");	break;
+		case SHAPE_TYPE_Line:		Geo_Type	= SG_OGIS_TYPE_STR_MultiLine_ZM;	Geo_Field	= SG_T("geo_line_zm");		break;
+		case SHAPE_TYPE_Polygon:	Geo_Type	= SG_OGIS_TYPE_STR_MultiPolygon_ZM;	Geo_Field	= SG_T("geo_polygon_zm");	break;
+		}
 		break;
 	}
 
 	//-----------------------------------------------------
-	if( !Get_Connection()->Table_Create(Geo_Table, *pShapes, false) )
+	if( Get_Connection()->Table_Exists(Geo_Table) )
+	{
+		Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("table already exists"), Geo_Table.c_str()));
+
+		switch( Parameters("EXISTS")->asInt() )
+		{
+		case 0:	// abort export
+			return( false );
+
+		case 1:	// replace existing table
+			Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("trying to drop table"), Geo_Table.c_str()));
+
+			if( !Get_Connection()->Table_Drop(Geo_Table, false) )
+			{
+				Message_Add(CSG_String::Format(SG_T(" ...%s!"), _TL("failed")));
+
+				return( false );
+			}
+
+			break;
+
+		case 2:	// append records, if table structure allows
+			break;
+		}
+	}
+
+	//-----------------------------------------------------
+	if( !Get_Connection()->Table_Exists(Geo_Table) && !Get_Connection()->Table_Create(Geo_Table, *pShapes, false) )
 	{
 		Get_Connection()->Rollback();
 
@@ -373,7 +477,7 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 
 	//-----------------------------------------------------
 	int			iShape, iField, nAdded;
-	CSG_String	Insert, Fields, s;
+	CSG_String	Insert, Fields, sWKT;
 
 	Fields	= Geo_Field;
 
@@ -392,15 +496,13 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 		{
 			SQL	= Insert;
 
-			CSG_Shapes_OGIS_Converter::to_WKText(pShape, s);
+			CSG_Shapes_OGIS_Converter::to_WKText(pShape, sWKT);
 
-			Fields.Printf(SG_T("GeomFromText('%s', %d)"), s.c_str(), SRID);
-
-			SQL	+= Fields;
+			SQL	+= SG_T("GeomFromText('") + sWKT + SG_T("', ") + sSRID + SG_T(")");
 
 			for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
 			{
-				s	= pShape->asString(iField);
+				CSG_String	s = pShape->asString(iField);
 
 				if( pShapes->Get_Field_Type(iField) == SG_DATATYPE_String )
 				{

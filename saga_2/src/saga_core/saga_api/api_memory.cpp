@@ -559,9 +559,7 @@ BYTE	SG_Hex_to_Byte	(const SG_Char Hex)
 //---------------------------------------------------------
 CSG_String CSG_Bytes::toHexString(void) const
 {
-	static CSG_String	HexString;
-
-	HexString.Clear();
+	CSG_String	HexString;
 
 	for(int i=0; i<m_nBytes; i++)
 	{

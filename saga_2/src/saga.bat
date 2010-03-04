@@ -273,10 +273,10 @@ make -fmakefile.mingw
 POPD
 
 ECHO ###################################
-ECHO io_table_odbc
+ECHO io_db_otl
 ECHO -----------------------------------
 
-PUSHD .\modules_io\table\io_table_odbc
+PUSHD .\modules_io\db\io_db_otl
 make -fmakefile.mingw
 POPD
 

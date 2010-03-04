@@ -416,7 +416,7 @@ bool CSG_Table_Record::Assign(CSG_Table_Record *pRecord)
 
 		for(int iField=0; iField<nFields; iField++)
 		{
-			m_Values[iField]	= pRecord->m_Values[iField];
+			*(m_Values[iField])	= *(pRecord->m_Values[iField]);
 		}
 
 		return( true );

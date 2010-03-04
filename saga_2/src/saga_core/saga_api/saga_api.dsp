@@ -360,6 +360,10 @@ SOURCE=.\shapes_io.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\shapes_ogis.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\shapes_search.cpp
 # End Source File
 # Begin Source File

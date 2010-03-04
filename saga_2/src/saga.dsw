@@ -345,6 +345,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "io_odbc_otl"=.\modules_io\db\io_db_otl\io_odbc_otl.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "io_shapes"=.\modules_io\shapes\io_shapes\io_shapes.dsp - Package Owner=<4>
 
 Package=<5>
@@ -385,21 +397,6 @@ Package=<4>
 ###############################################################################
 
 Project: "io_table"=.\modules_io\table\io_table\io_table.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name saga_api
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "io_table_odbc"=.\modules_io\table\io_table_odbc\io_table_odbc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

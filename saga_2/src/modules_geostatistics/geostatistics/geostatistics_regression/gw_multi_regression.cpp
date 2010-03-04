@@ -412,7 +412,7 @@ bool CGW_Multi_Regression::On_Execute(void)
 
 	Parameters("SLOPES")->asGridList()->Del_Items();
 
-	for(int i=0; i<m_nPredictors; i++)
+	for(i=0; i<m_nPredictors; i++)
 	{
 		m_pSlopes[i]->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_pPoints->Get_Name(), m_pPoints->Get_Field_Name(m_iPredictor[i])));
 		Parameters("SLOPES")->asGridList()->Add_Item(m_pSlopes[i]);

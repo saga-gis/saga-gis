@@ -148,7 +148,7 @@ public:
 	double						asDouble		(int           iField)	const;
 	double						asDouble		(const SG_Char *Field)	const;
 
-	CSG_Table_Value &			Get_Value		(int           iField)			{	return( *m_Values[iField] );	}
+	CSG_Table_Value *			Get_Value		(int           iField)			{	return(  m_Values[iField] );	}
 	CSG_Table_Value &			operator []		(int           iField)	const	{	return( *m_Values[iField] );	}
 
 	virtual bool				Assign			(CSG_Table_Record *pRecord);

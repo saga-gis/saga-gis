@@ -344,8 +344,9 @@ SAGA_API_DLL_EXPORT CSG_String		SG_String_To_UTF8				(const SG_Char *String);
 SAGA_API_DLL_EXPORT double			SG_Degree_To_Double				(const SG_Char *String);
 SAGA_API_DLL_EXPORT CSG_String		SG_Double_To_Degree				(double Value);
 
-SAGA_API_DLL_EXPORT double			SG_Date_To_Double				(const SG_Char *String);
-SAGA_API_DLL_EXPORT CSG_String		SG_Double_To_Date				(double Value);
+SAGA_API_DLL_EXPORT int				SG_Date_To_Number				(const SG_Char *Value);
+SAGA_API_DLL_EXPORT CSG_String		SG_Number_To_Date				(int            Value);
+SAGA_API_DLL_EXPORT CSG_String		SG_Number_To_Date				(double         Value);
 
 SAGA_API_DLL_EXPORT int				SG_Get_Significant_Decimals		(double Value, int maxDecimals = 6);
 
