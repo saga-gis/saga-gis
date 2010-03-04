@@ -459,11 +459,11 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 
 	//-----------------------------------------------------
 	SQL.Printf(SG_T("SELECT AddGeometryColumn('%s', '%s', %d, '%s', %d)"),
-		Geo_Table.c_str(),	// <table_name>
-		Geo_Field.c_str(),	// <column_name>
-		SRID,				// <srid>
-		Geo_Type.c_str(),	// <type>
-		2					// <dimension>
+		Geo_Table.c_str(),				// <table_name>
+		Geo_Field.c_str(),				// <column_name>
+		SRID,							// <srid>
+		Geo_Type.Make_Upper().c_str(),	// <type>
+		2								// <dimension>
 	);
 
 	if( !Get_Connection()->Execute(SQL) )
