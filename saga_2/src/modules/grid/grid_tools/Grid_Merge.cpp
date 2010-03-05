@@ -386,7 +386,7 @@ bool CGrid_Merge::On_Execute(void)
                 }
             }
         }
-
+	pCount->Destroy();
 		return( true );
 	}
 
