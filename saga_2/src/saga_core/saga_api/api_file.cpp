@@ -152,6 +152,19 @@ bool CSG_File::Close(void)
 }
 
 //---------------------------------------------------------
+bool CSG_File::Set_UnicodeFlag(bool bOn)
+{
+	if( m_bUnicode != bOn )
+	{
+		m_bUnicode	= bOn;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 int CSG_File::Length(void)	const
 {
 	if( m_pStream )
