@@ -90,8 +90,8 @@ protected:
 
 	virtual void			On_Initialize	(void);
 
-	virtual void			Calculate		(void);
-	virtual void			Calculate		(int x, int y);
+	virtual bool			Calculate		(void);
+	virtual bool			Calculate		(int x, int y);
 
 
 private:

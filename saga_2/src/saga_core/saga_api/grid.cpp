@@ -1291,6 +1291,8 @@ bool CSG_Grid::_Set_Index(void)
 
 		if( m_Index == NULL )
 		{
+			SG_UI_Msg_Add_Error(LNG("could not create index: insufficient memory"));
+
 			SG_UI_Process_Set_Ready();
 
 			return( false );

@@ -91,8 +91,8 @@ protected:
 	virtual void			On_Initialize	(void);
 	virtual void			On_Finalize		(void);
 
-	virtual void			Calculate		(void);
-	virtual void			Calculate		(int x, int y);
+	virtual bool			Calculate		(void);
+	virtual bool			Calculate		(int x, int y);
 
 
 private:
@@ -103,7 +103,7 @@ private:
 
 	double					Src_Height, Src_Slope, DEMON_minDQV;
 
-	CSG_Grid					*pLinear, *pDir, *pDif;
+	CSG_Grid				*pLinear, *pDir, *pDif;
 
 
 	void					Add_Flow		(int x, int y, double qFlow);

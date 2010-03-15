@@ -90,8 +90,8 @@ protected:
 
 	virtual void			On_Initialize	(void);
 
-	virtual void			Calculate		(void);
-	virtual void			Calculate		(int x, int y);
+	virtual bool			Calculate		(void);
+	virtual bool			Calculate		(int x, int y);
 
 
 private:
@@ -101,7 +101,7 @@ private:
 	double					TH_LinearFlow, BRM_sinus[361], BRM_cosin[361];
 
 
-	void					Set_Flow		(void);
+	bool					Set_Flow		(void);
 	void					Check_Route		(int x, int y);
 
 	void					Set_D8			(int x, int y);

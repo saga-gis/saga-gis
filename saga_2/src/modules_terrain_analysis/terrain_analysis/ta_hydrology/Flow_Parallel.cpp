@@ -206,27 +206,25 @@ void CFlow_Parallel::On_Initialize(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CFlow_Parallel::Calculate(void)
+bool CFlow_Parallel::Calculate(void)
 {
-	int		x, y;
-
-	for(y=0; y<Get_NY() && Set_Progress(y); y+=Step)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y+=Step)
 	{
-		for(x=0; x<Get_NX(); x+=Step)
+		for(int x=0; x<Get_NX(); x+=Step)
 		{
 			Init_Cell(x, y);
 		}
 	}
 
-	Set_Flow();
+	return( Set_Flow() );
 }
 
 //---------------------------------------------------------
-void CFlow_Parallel::Calculate(int x, int y)
+bool CFlow_Parallel::Calculate(int x, int y)
 {
 	Init_Cell(x, y);
 
-	Set_Flow();
+	return( Set_Flow() );
 }
 
 
@@ -237,14 +235,18 @@ void CFlow_Parallel::Calculate(int x, int y)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CFlow_Parallel::Set_Flow(void)
+bool CFlow_Parallel::Set_Flow(void)
 {
-	int		Method, x, y;
-
-	long	n;
+	int		n, x, y;
 
 	//-----------------------------------------------------
-	Method	= Parameters("Method")->asInt();
+	if( !pDTM->Get_Sorted(0, x, y, true, false) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	int	Method	= Parameters("Method")->asInt();
 
 	if( Method == 2 )
 	{
@@ -254,17 +256,13 @@ void CFlow_Parallel::Set_Flow(void)
 	//-----------------------------------------------------
 	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
-		pDTM->Get_Sorted(n,x,y, true, false);
-
-		//if( !(n%(4*Get_NX())) )DataObject_Update(pFlow);
-
-		if( TH_LinearFlow > 0.0 && pCatch->asDouble(x, y) >= TH_LinearFlow )
-		{
-			Set_D8(x, y);
-		}
-		else
-		{
-			switch( Method )
+		if( pDTM->Get_Sorted(n, x, y, true, false) )
+		{	//if( !(n%(4*Get_NX())) )DataObject_Update(pFlow);
+			if( TH_LinearFlow > 0.0 && pCatch->asDouble(x, y) >= TH_LinearFlow )
+			{
+				Set_D8(x, y);
+			}
+			else switch( Method )
 			{
 			case 0:		Set_D8		(x, y);		break;
 			case 1:		Set_Rho8	(x, y);		break;
@@ -287,6 +285,9 @@ void CFlow_Parallel::Set_Flow(void)
 			}
 		}
 	}
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 //---------------------------------------------------------

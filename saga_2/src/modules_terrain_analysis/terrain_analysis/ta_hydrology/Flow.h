@@ -131,8 +131,8 @@ protected:
 	virtual void			On_Initialize	(void)			= 0;
 	virtual void			On_Finalize		(void)			{}
 
-	virtual void			Calculate		(void)			= 0;
-	virtual void			Calculate		(int x, int y)	= 0;
+	virtual bool			Calculate		(void)			= 0;
+	virtual bool			Calculate		(int x, int y)	= 0;
 
 	void					Init_Cell		(int x, int y);
 

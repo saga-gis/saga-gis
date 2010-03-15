@@ -276,16 +276,15 @@ void CFlow_RecursiveUp::On_Initialize(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CFlow_RecursiveUp::Calculate(void)
+bool CFlow_RecursiveUp::Calculate(void)
 {
-	int		x, y;
 	CSG_Grid	*pTargets	= Parameters("TARGETS")->asGrid();
 
 	On_Create();
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
 			if( !pTargets || !pTargets->is_NoData(x, y) )
 			{
@@ -295,16 +294,20 @@ void CFlow_RecursiveUp::Calculate(void)
 	}
 
 	On_Destroy();
+
+	return( true );
 }
 
 //---------------------------------------------------------
-void CFlow_RecursiveUp::Calculate(int x, int y)
+bool CFlow_RecursiveUp::Calculate(int x, int y)
 {
 	On_Create();
 
 	Get_Flow(x,y);
 
 	On_Destroy();
+
+	return( true );
 }
 
 

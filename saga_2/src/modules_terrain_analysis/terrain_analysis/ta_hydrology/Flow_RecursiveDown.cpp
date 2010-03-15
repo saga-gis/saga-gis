@@ -258,23 +258,21 @@ void CFlow_RecursiveDown::On_Finalize(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CFlow_RecursiveDown::Calculate(void)
+bool CFlow_RecursiveDown::Calculate(void)
 {
-	int		x, y;
-
-	for(y=0; y<Get_NY() && Set_Progress(y); y+=Step)
-	{
-		//if( !(y%2) )DataObject_Update(pFlow);
-
-		for(x=0; x<Get_NX(); x+=Step)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y+=Step)
+	{	//if( !(y%2) )DataObject_Update(pFlow);
+		for(int x=0; x<Get_NX(); x+=Step)
 		{
 			Calculate(x, y);
 		}
 	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
-void CFlow_RecursiveDown::Calculate(int x, int y)
+bool CFlow_RecursiveDown::Calculate(int x, int y)
 {
 	double 	Slope, Aspect, qFlow;
 
@@ -306,6 +304,8 @@ void CFlow_RecursiveDown::Calculate(int x, int y)
 
 		Lock_Set(x, y, 0);
 	}
+
+	return( true );
 }
 
 
