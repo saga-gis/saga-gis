@@ -277,6 +277,18 @@ void CSG_Table_DBase::Header_Write(void)
 
 		for(iField=0; iField<nFields; iField++)
 		{
+			if( FieldDesc[iField].Type == DBF_FT_CHARACTER )
+			{
+				if( FieldDesc[iField].Width < 1 )
+				{
+					FieldDesc[iField].Width	= 1;
+				}
+				else if( FieldDesc[iField].Width > 255 )
+				{
+					FieldDesc[iField].Width	= 255;
+				}
+			}
+
 			nRecordBytes	+= FieldDesc[iField].Width;
 		}
 
@@ -314,14 +326,6 @@ void CSG_Table_DBase::Header_Write(void)
 		// Bytes 32-n: Field Descriptor Array...
 		for(iField=0; iField<nFields; iField++)
 		{
-			if( FieldDesc[iField].Type == DBF_FT_CHARACTER )
-			{
-				if( FieldDesc[iField].Width == 0 )
-				{
-					FieldDesc[iField].Width	= 255;
-				}
-			}
-
 			FieldDesc[iField].Name[10]	= '\0';
 			_strupr(FieldDesc[iField].Name);
 
