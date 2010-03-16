@@ -19,7 +19,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/CreateGridSystem.o $(MLB_TEMP)/Grid_Aggregate.o $(MLB_TEMP)/Grid_Buffer.o $(MLB_TEMP)/Grid_Buffer_Proximity.o $(MLB_TEMP)/Grid_CombineGrids.o $(MLB_TEMP)/Grid_Completion.o $(MLB_TEMP)/Grid_ConstantGrid.o $(MLB_TEMP)/Grid_CropToData.o $(MLB_TEMP)/Grid_Cut.o $(MLB_TEMP)/Grid_Fill.o $(MLB_TEMP)/Grid_Gaps.o $(MLB_TEMP)/Grid_Gaps_OneCell.o $(MLB_TEMP)/Grid_Gaps_Spline_Fill.o $(MLB_TEMP)/Grid_InvertNoData.o $(MLB_TEMP)/Grid_Mask.o $(MLB_TEMP)/Grid_Merge.o $(MLB_TEMP)/Grid_Orientation.o $(MLB_TEMP)/Grid_Resample.o $(MLB_TEMP)/Grid_SortRaster.o $(MLB_TEMP)/Grid_ThresholdBuffer.o $(MLB_TEMP)/Grid_Value_Reclassify.o $(MLB_TEMP)/Grid_Value_Replace.o $(MLB_TEMP)/Grid_Value_Replace_Interactive.o $(MLB_TEMP)/Grid_Value_Request.o $(MLB_TEMP)/Grid_Value_Type.o $(MLB_TEMP)/GridsFromTableAndGrid.o $(MLB_TEMP)/MLB_Interface.o
+OBJ      = $(MLB_TEMP)/CreateGridSystem.o $(MLB_TEMP)/Grid_Aggregate.o $(MLB_TEMP)/Grid_Buffer.o $(MLB_TEMP)/Grid_Buffer_Proximity.o $(MLB_TEMP)/Grid_CombineGrids.o $(MLB_TEMP)/Grid_Completion.o $(MLB_TEMP)/Grid_ConstantGrid.o $(MLB_TEMP)/Grid_CropToData.o $(MLB_TEMP)/Grid_Cut.o $(MLB_TEMP)/Grid_Fill.o $(MLB_TEMP)/Grid_Gaps.o $(MLB_TEMP)/Grid_Gaps_OneCell.o $(MLB_TEMP)/Grid_Gaps_Spline_Fill.o $(MLB_TEMP)/Grid_InvertNoData.o $(MLB_TEMP)/Grid_Mask.o $(MLB_TEMP)/Grid_Merge.o $(MLB_TEMP)/Grid_Orientation.o $(MLB_TEMP)/Grid_Proximity.o $(MLB_TEMP)/Grid_Resample.o $(MLB_TEMP)/Grid_SortRaster.o $(MLB_TEMP)/Grid_ThresholdBuffer.o $(MLB_TEMP)/Grid_Value_Reclassify.o $(MLB_TEMP)/Grid_Value_Replace.o $(MLB_TEMP)/Grid_Value_Replace_Interactive.o $(MLB_TEMP)/Grid_Value_Request.o $(MLB_TEMP)/Grid_Value_Type.o $(MLB_TEMP)/GridsFromTableAndGrid.o $(MLB_TEMP)/MLB_Interface.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS =
@@ -100,6 +100,9 @@ $(MLB_TEMP)/Grid_Merge.o: ./Grid_Merge.cpp
 
 $(MLB_TEMP)/Grid_Orientation.o: ./Grid_Orientation.cpp
 	$(CPP) -c ./Grid_Orientation.cpp -o $(MLB_TEMP)/Grid_Orientation.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Grid_Proximity.o: ./Grid_Proximity.cpp
+	$(CPP) -c ./Grid_Proximity.cpp -o $(MLB_TEMP)/Grid_Proximity.o $(CXXFLAGS)
 
 $(MLB_TEMP)/Grid_Resample.o: ./Grid_Resample.cpp
 	$(CPP) -c ./Grid_Resample.cpp -o $(MLB_TEMP)/Grid_Resample.o $(CXXFLAGS)

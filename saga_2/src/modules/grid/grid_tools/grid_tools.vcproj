@@ -1808,6 +1808,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Grid_Proximity.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Grid_Resample.cpp"
 				>
 				<FileConfiguration
@@ -2638,6 +2642,10 @@
 			</File>
 			<File
 				RelativePath="Grid_Orientation.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Grid_Proximity.h"
 				>
 			</File>
 			<File
