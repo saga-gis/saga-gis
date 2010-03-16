@@ -53,21 +53,21 @@ CQueryBuilder::~CQueryBuilder(void){}
 
 bool CQueryBuilder::On_Execute(void){
 
-	CSG_Shapes* pShapes;
-	CSG_Table *pTable;
-	CSG_String sExpression;
-	CQueryParser *pParser;	
-	bool *pRecordWasSelected;
-	int *pSelectedRecords;
-	int iNumSelectedRecords = 0;
-	int iMethod;
-	int iRecord;
-	int i;
+	CSG_Shapes		*pShapes;
+	CSG_Table		*pTable;
+	CSG_String		sExpression;
+	CQueryParser	*pParser;	
+	bool			*pRecordWasSelected;
+	int				*pSelectedRecords;
+	int				iNumSelectedRecords = 0;
+	int				iMethod;
+	int				iRecord;
+	int				i;
 
-	pShapes = Parameters("SHAPES")->asShapes();
-	pTable	= pShapes;
+	pShapes		= Parameters("SHAPES")->asShapes();
+	pTable		= Parameters("SHAPES")->asTable();
 	sExpression = Parameters("QUERY")->asString();
-	iMethod = Parameters("METHOD")->asInt();
+	iMethod		= Parameters("METHOD")->asInt();
 
 	pRecordWasSelected = new bool[pTable->Get_Record_Count()];
 
@@ -91,26 +91,43 @@ bool CQueryBuilder::On_Execute(void){
 	}//if
 
 	pParser = new CQueryParser(pShapes, sExpression);
-	pSelectedRecords = &pParser->GetSelectedRecords();
-	iNumSelectedRecords = pParser->GetSelectedRecordsCount();
+	if( pParser->is_Initialized() )
+	{
+		iNumSelectedRecords = pParser->GetSelectedRecordsCount();
 
-	for (i = 0; i < iNumSelectedRecords; i++){
-		iRecord = pSelectedRecords[i];
-		if (!pTable->Get_Record(iRecord)->is_Selected()){
-			if (iMethod == METHOD_SELECT_FROM_SEL){
-				if (pRecordWasSelected[iRecord]){
-					pTable->Select(iRecord, true);
+		if( iNumSelectedRecords <= 0 )
+		{
+			SG_UI_Msg_Add(_TL("No records selected."), true);
+			delete (pRecordWasSelected);
+			return (true);
+		}
+
+		pSelectedRecords = &pParser->GetSelectedRecords();
+
+		for (i = 0; i < iNumSelectedRecords; i++){
+			iRecord = pSelectedRecords[i];
+			if (!pTable->Get_Record(iRecord)->is_Selected()){
+				if (iMethod == METHOD_SELECT_FROM_SEL){
+					if (pRecordWasSelected[iRecord]){
+						pTable->Select(iRecord, true);
+					}//if
 				}//if
+				else{
+					pTable->Select(iRecord, true);
+				}//else
 			}//if
-			else{
-				pTable->Select(iRecord, true);
-			}//else
-		}//if
-	}//for
+		}//for
 
-	DataObject_Update(pShapes, true);
-	//DataObject_Update(pTable, false);
-
-	return true;
+		pTable = NULL;
+		DataObject_Update(pShapes, true);
+		
+		delete (pRecordWasSelected);
+		return (true);
+	}
+	else
+	{
+		delete (pRecordWasSelected);
+		return (false);
+	}
 	
 }//method

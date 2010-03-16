@@ -32,10 +32,12 @@ public:
 	virtual ~CQueryParser();
 	int& GetSelectedRecords();
 	int GetSelectedRecordsCount();
+	bool	is_Initialized();
 
 private:
 
-	std::vector <int> m_pSelectedRecords;
+	std::vector<int>	m_pSelectedRecords;
+	bool				m_bInit;
 
 };
 
