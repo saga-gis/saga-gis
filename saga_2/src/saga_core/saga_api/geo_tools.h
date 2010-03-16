@@ -72,6 +72,7 @@
 
 //---------------------------------------------------------
 #include "api_core.h"
+#include "metadata.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -513,6 +514,17 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+typedef enum ESG_Projection_Format
+{
+	SG_PROJ_FMT_Undefined	= 0,
+	SG_PROJ_FMT_Proj4,
+	SG_PROJ_FMT_EPSG,
+	SG_PROJ_FMT_WKT,
+	SG_PROJ_FMT_ESRI
+}
+TSG_Projection_Format;
+
+//---------------------------------------------------------
 typedef enum ESG_Projection_Type
 {
 	SG_PROJ_TYPE_CS_Undefined	= 0,
@@ -543,48 +555,62 @@ public:
 
 									CSG_Projection			(const CSG_Projection &Projection);
 	bool							Create					(const CSG_Projection &Projection);
-
-									CSG_Projection			(int SRID, const SG_Char *Authority, const SG_Char *OpenGIS, const SG_Char *Proj4);
-	bool							Create					(int SRID, const SG_Char *Authority, const SG_Char *OpenGIS, const SG_Char *Proj4);
-
-	bool							Assign					(int SRID, const SG_Char *Authority, const SG_Char *OpenGIS, const SG_Char *Proj4);
 	bool							Assign					(const CSG_Projection &Projection);
-	CSG_Projection &				operator =				(const CSG_Projection &Projection)			{	Assign(Projection);	return( *this );	}
+	CSG_Projection &				operator =				(const CSG_Projection &Projection)	{	Assign(Projection);	return( *this );	}
 
+									CSG_Projection			(int EPSG_SRID);
+	bool							Create					(int EPSG_SRID);
+	bool							Assign					(int EPSG_SRID);
+	CSG_Projection &				operator =				(int EPSG_SRID)						{	Assign(EPSG_SRID);	return( *this );	}
+
+									CSG_Projection			(const CSG_String &Projection, TSG_Projection_Format Format = SG_PROJ_FMT_Proj4);
+	bool							Create					(const CSG_String &Projection, TSG_Projection_Format Format = SG_PROJ_FMT_Proj4);
+	bool							Assign					(const CSG_String &Projection, TSG_Projection_Format Format = SG_PROJ_FMT_Proj4);
+	CSG_Projection &				operator =				(const CSG_String &Projection)		{	Assign(Projection);	return( *this );	}
+
+	bool							is_Okay					(void)	const	{	return( m_Type != SG_PROJ_TYPE_CS_Undefined );	}
 	bool							is_Equal				(const CSG_Projection &Projection)	const;
 	bool							operator ==				(const CSG_Projection &Projection)	const	{	return( is_Equal(Projection) );	}
 
-	int								Get_SRID				(void)	const	{	return( m_SRID );			}
-	TSG_Projection_Type				Get_Type				(void)	const	{	return( m_Type );			}
-	const CSG_String &				Get_Name				(void)	const	{	return( m_Name );			}
-	const CSG_String &				Get_OpenGIS				(void)	const	{	return( m_OpenGIS );		}
-	const CSG_String &				Get_Proj4				(void)	const	{	return( m_Proj4 );			}
-	const CSG_String &				Get_Authority			(void)	const	{	return( m_Authority );		}
+	bool							Load					(const CSG_String &File_Name, TSG_Projection_Format Format);
+	bool							Save					(const CSG_String &File_Name, TSG_Projection_Format Format)	const;
+
+	bool							Load					(const CSG_MetaData &Projection);
+	bool							Save					(CSG_MetaData &Projection)			const;
+
+
+	const CSG_String &				Get_Name				(void)	const	{	return( m_Name );				}
+	TSG_Projection_Format			Get_Original_Format		(void)	const	{	return( m_Original_Format );	}
+	const CSG_String &				Get_Original			(void)	const	{	return( m_Original );			}
+
+	const CSG_String &				Get_Proj4				(void)	const	{	return( m_Proj4 );				}
+
+	int								Get_EPSG				(void)	const;
+	CSG_String						Get_WKT					(void)	const;
+	CSG_String						Get_ESRI				(void)	const;
+
+	TSG_Projection_Type				Get_Type				(void)	const	{	return( m_Type );				}
 	CSG_String						Get_Type_Name			(void)	const	{	return( gSG_Projection_Type_Identifier[m_Type] );	}
-	CSG_String						Get_Type_Identifier		(void)	const	{	return( SG_Get_Projection_Type_Name(m_Type) );	}
-
-	CSG_String						asString				(void)	const;
-
-	bool							from_ESRI				(const CSG_String &ESRI_PRJ);
-	bool							to_ESRI					(CSG_String &ESRI_PRJ)	const;
+	CSG_String						Get_Type_Identifier		(void)	const	{	return( SG_Get_Projection_Type_Name(m_Type) );		}
 
 
 private:
 
-	int								m_SRID;
+	TSG_Projection_Format			m_Original_Format;
 
 	TSG_Projection_Type				m_Type;
 
-	CSG_String						m_Name, m_Authority, m_OpenGIS, m_Proj4;
+	CSG_String						m_Name, m_Original, m_Proj4;
 
 
 	void							_Reset					(void);
 
-	bool							_Get_OpenGIS_from_Proj4	(const SG_Char *Text);
-	bool							_Get_Proj4_from_OpenGIS	(const SG_Char *Text);
-
 };
 
+//---------------------------------------------------------
+/** CSG_Projections is a projections dictionary and translator
+  * for EPSG codes, OpenGIS Well-Known-Text, ESRI and Proj.4.
+*/
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Projections
 {
@@ -604,32 +630,25 @@ public:
 	bool							Save					(const CSG_String &File_Name);
 
 	bool							Add						(const CSG_Projection &Projection);
-	bool							Add						(int SRID, const SG_Char *Authority, const SG_Char *OpenGIS, const SG_Char *Proj4);
+	bool							Add						(int SRID, const SG_Char *Authority, const SG_Char *WKT, const SG_Char *Proj4);
 
-	int								Get_Count				(void)	const	{	return( m_nProjections );	}
-	const CSG_Projection &			Get_Projection			(int i)	const	{	return( i >= 0 && i < m_nProjections ? *(m_pProjections[i]) : m_Undefined );	}
-	const CSG_Projection &			operator []				(int i) const	{	return( i >= 0 && i < m_nProjections ? *(m_pProjections[i]) : m_Undefined );	}
+	int								Get_Count				(void)	const;
+	const CSG_Projection &			Get_Projection			(int i)	const;
+	const CSG_Projection &			operator []				(int i) const;
 
 	CSG_String						Get_Names				(void)	const;
 	int								Get_SRID_byNamesIndex	(int i)	const;
 
+	static bool						to_Proj4				(CSG_String &Proj4, const CSG_String &Projection, TSG_Projection_Format Format);
+	static bool						from_Proj4				(CSG_String &Projection, const CSG_String &Proj4, TSG_Projection_Format Format);
+
 
 private:
 
-	int								m_nProjections, m_nBuffer;
-
-	CSG_Projection					**m_pProjections, m_Undefined;
-
-	static CSG_Projections			*s_pProjections;
-
-	class CSG_Index					*m_pIdx_Names, *m_pIdx_SRIDs;
+	class CSG_Table					*m_pProjections;
 
 
 	void							_On_Construction		(void);
-	CSG_Projection *				_Add					(void);
-
-	static int						_Cmp_Names				(const int iElement_1, const int iElement_2);
-	static int						_Cmp_SRIDs				(const int iElement_1, const int iElement_2);
 
 };
 

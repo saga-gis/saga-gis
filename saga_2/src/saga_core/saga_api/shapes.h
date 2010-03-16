@@ -882,16 +882,17 @@ public:
 	void						Destroy					(void);
 
 	bool						Add_Point				(double x, double y, double z);
+	int							Get_Point_Count			(void)	const	{	return( m_nPoints );		}
 
-	const CSG_PRQuadTree_Node &	Get_Root				(void) const	{	return( *m_pRoot );			}
+	const CSG_PRQuadTree_Node &	Get_Root				(void)	const	{	return( *m_pRoot );			}
 
-	bool						is_Okay					(void) const	{	return( m_pRoot != NULL );	}
+	bool						is_Okay					(void)	const	{	return( m_pRoot != NULL );	}
 
 	bool						Get_Nearest_Point		(double x, double y, TSG_Point &Point, double &Value, double &Distance);
 
 	int							Select_Nearest_Points	(double x, double y, int maxPoints, double Radius = 0.0, int iQuadrant = -1);
 
-	int							Get_Selected_Count		(void) const	{	return( m_nSelected );		}
+	int							Get_Selected_Count		(void)	const	{	return( m_nSelected );		}
 
 	bool						Get_Selected_Point		(int i, double &x, double &y, double &z) const
 	{

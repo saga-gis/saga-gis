@@ -656,6 +656,54 @@ bool CSG_Module::DataObject_Set_Parameter(CSG_Data_Object *pDataObject, CSG_Para
 	return( DataObject_Set_Parameters(pDataObject, P) );
 }
 
+bool CSG_Module::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, int            Value)
+{
+	CSG_Parameters	Parameters;
+
+	if( DataObject_Get_Parameters(pDataObject, Parameters) && Parameters(ID) )
+	{
+		return( Parameters(ID)->Set_Value(Value) && DataObject_Set_Parameters(pDataObject, Parameters) );
+	}
+
+	return( false );
+}
+
+bool CSG_Module::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, double         Value)
+{
+	CSG_Parameters	Parameters;
+
+	if( DataObject_Get_Parameters(pDataObject, Parameters) && Parameters(ID) )
+	{
+		return( Parameters(ID)->Set_Value(Value) && DataObject_Set_Parameters(pDataObject, Parameters) );
+	}
+
+	return( false );
+}
+
+bool CSG_Module::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, void          *Value)
+{
+	CSG_Parameters	Parameters;
+
+	if( DataObject_Get_Parameters(pDataObject, Parameters) && Parameters(ID) )
+	{
+		return( Parameters(ID)->Set_Value(Value) && DataObject_Set_Parameters(pDataObject, Parameters) );
+	}
+
+	return( false );
+}
+
+bool CSG_Module::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, const SG_Char *Value)
+{
+	CSG_Parameters	Parameters;
+
+	if( DataObject_Get_Parameters(pDataObject, Parameters) && Parameters(ID) )
+	{
+		return( Parameters(ID)->Set_Value(Value) && DataObject_Set_Parameters(pDataObject, Parameters) );
+	}
+
+	return( false );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

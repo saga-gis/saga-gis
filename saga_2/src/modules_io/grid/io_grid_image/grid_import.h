@@ -83,18 +83,18 @@ class io_grid_image_EXPORT CGrid_Import : public CSG_Module
 {
 public:
 	CGrid_Import(void);
-	virtual ~CGrid_Import(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Import") );	}
+	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Import") );	}
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual bool			On_Execute			(void);
 
 
 private:
 
+	void					Set_Transformation	(CSG_Grid **ppImage, double ax, double ay, double dx, double dy, double rx, double ry);
 
 };
 

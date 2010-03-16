@@ -360,6 +360,8 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 	//-----------------------------------------------------
 	SG_UI_Process_Set_Ready();
 
+	Get_Projection().Load(File_Name, SG_PROJ_FMT_ESRI);
+
 	return( true );
 }
 
@@ -694,6 +696,8 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 
 	//-----------------------------------------------------
 	SG_UI_Process_Set_Ready();
+
+	Get_Projection().Save(File_Name, SG_PROJ_FMT_ESRI);
 
 	return( true );
 }
