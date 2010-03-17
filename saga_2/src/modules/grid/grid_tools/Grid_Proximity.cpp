@@ -131,7 +131,7 @@ bool CGrid_Proximity::On_Execute(void)
 	pAllocation	= Parameters("ALLOCATION")	->asGrid();
 
 	//-----------------------------------------------------
-	Process_Set_Text(_TL("preparing..."));
+	Process_Set_Text(_TL("preparing distance calculation..."));
 
 	Search.Create(CSG_Rect(-1, -1, Get_NX(), Get_NY()));
 
@@ -139,14 +139,47 @@ bool CGrid_Proximity::On_Execute(void)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
-			if( !pFeatures->is_NoData(x, y) )
+			if( pFeatures->is_NoData(x, y) )
 			{
-				Search.Add_Point(x, y, pFeatures->asDouble(x, y));
+				pDistance->Set_Value(x, y, -1.0);
+			}
+			else
+			{
+				pDistance->Set_Value(x, y,  0.0);
+
+				if( pDirection )
+				{
+					pDirection->Set_NoData(x, y);
+				}
+
+				if( pAllocation )
+				{
+					pAllocation->Set_Value(x, y, pFeatures->asDouble(x, y));
+				}
+
+				//-----------------------------------------
+				bool	bBorder	= false;
+
+				for(int i=0; i<8 && !bBorder; i++)
+				{
+					int	ix	= Get_xTo(i, x);
+					int	iy	= Get_yTo(i, y);
+
+					if( is_InGrid(ix, iy) && pFeatures->is_NoData(ix, iy) )
+					{
+						bBorder	= true;
+					}
+				}
+
+				if( bBorder )
+				{
+					Search.Add_Point(x, y, pFeatures->asDouble(x, y));
+				}
 			}
 		}
 	}
 
-	if( !Search.is_Okay() )
+	if( !Search.is_Okay() || Search.Get_Point_Count() <= 0 || Search.Get_Point_Count() >= Get_NCells() )
 	{
 		Message_Add(_TL("no features to buffer."));
 
@@ -154,13 +187,13 @@ bool CGrid_Proximity::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Process_Set_Text(_TL("distance calculation..."));
+	Process_Set_Text(_TL("performing distance calculation..."));
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
-			if( Search.Get_Nearest_Point(x, y, p, z, d) )
+			if( pDistance->asDouble(x, y) < 0.0 && Search.Get_Nearest_Point(x, y, p, z, d) )
 			{
 				pDistance->Set_Value(x, y, d * Get_Cellsize());
 
@@ -179,20 +212,6 @@ bool CGrid_Proximity::On_Execute(void)
 				if( pAllocation )
 				{
 					pAllocation->Set_Value(x, y, z);
-				}
-			}
-			else
-			{
-				pDistance->Set_NoData(x, y);
-
-				if( pDirection )
-				{
-					pDirection->Set_NoData(x, y);
-				}
-
-				if( pAllocation )
-				{
-					pAllocation->Set_NoData(x, y);
 				}
 			}
 		}

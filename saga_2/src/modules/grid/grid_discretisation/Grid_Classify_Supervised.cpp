@@ -855,7 +855,7 @@ void CGrid_Classify_Supervised::Set_Binary_Encoding(int x, int y)
 
 		for(int iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
 		{
-			if(	Get_Value(x, y, iGrid) > m_Class_Info.Get_BE_m(iClass) != m_Class_Info.Get_BE_s(iClass, iGrid) )
+			if(	Get_Value(x, y, iGrid) < m_Class_Info.Get_BE_m(iClass) != m_Class_Info.Get_BE_s(iClass, iGrid) )
 			{
 				d	++;
 			}
