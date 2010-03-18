@@ -217,8 +217,10 @@ bool CGrid_Import::On_Execute(void)
 
 		pImage	= SG_Create_Grid(yy <= 2 ? SG_DATATYPE_Bit : SG_DATATYPE_Byte, Image.GetWidth(), Image.GetHeight(), Cellsize, xMin, yMin);
 
-		for(y=0, yy=pImage->Get_NY()-1; y<pImage->Get_NY() && Set_Progress(y, pImage->Get_NY()); y++, yy--)
+		for(y=0; y<pImage->Get_NY() && Set_Progress(y, pImage->Get_NY()); y++)
 		{
+			yy	= bTransform ? y : pImage->Get_NY() - 1 - y;
+
 			for(x=0; x<pImage->Get_NX(); x++)
 			{
 				pImage->Set_Value(x, y, Histogram[SG_GET_RGB(Image.GetRed(x, yy), Image.GetGreen(x, yy), Image.GetBlue(x, yy))].index);
@@ -242,8 +244,10 @@ bool CGrid_Import::On_Execute(void)
 		pImage	= SG_Create_Grid(SG_DATATYPE_Int, Image.GetWidth(), Image.GetHeight(), Cellsize, xMin, yMin);
 		pImage	->Set_Name(Name);
 
-		for(y=0, yy=pImage->Get_NY()-1; y<pImage->Get_NY() && Set_Progress(y, pImage->Get_NY()); y++, yy--)
+		for(y=0; y<pImage->Get_NY() && Set_Progress(y, pImage->Get_NY()); y++)
 		{
+			yy	= bTransform ? y : pImage->Get_NY() - 1 - y;
+
 			for(x=0; x<pImage->Get_NX(); x++)
 			{
 				pImage->Set_Value(x, y, SG_GET_RGB(Image.GetRed(x, yy), Image.GetGreen(x, yy), Image.GetBlue(x, yy)));
@@ -258,6 +262,7 @@ bool CGrid_Import::On_Execute(void)
 		//-------------------------------------------------
 		if( Method != 1 )	// true color...
 		{
+			pImage->Get_Projection().Load(fImage, SG_PROJ_FMT_ESRI);
 			pImage->Set_Name(Name);
 			Parameters("OUT_GRID")->Set_Value(pImage);
 			DataObject_Set_Colors(pImage, 100, SG_COLORS_BLACK_WHITE);
@@ -282,6 +287,10 @@ bool CGrid_Import::On_Execute(void)
 					pB->Set_Value(x, y, SG_GET_B(pImage->asInt(x, y)));
 				}
 			}
+
+			pR->Get_Projection().Load(fImage, SG_PROJ_FMT_ESRI);
+			pG->Get_Projection().Load(fImage, SG_PROJ_FMT_ESRI);
+			pB->Get_Projection().Load(fImage, SG_PROJ_FMT_ESRI);
 
 			pR->Set_Name(CSG_String::Format(SG_T("%s [R]"), Name.c_str()));
 			pG->Set_Name(CSG_String::Format(SG_T("%s [G]"), Name.c_str()));
@@ -311,7 +320,7 @@ bool CGrid_Import::On_Execute(void)
 //---------------------------------------------------------
 void CGrid_Import::Set_Transformation(CSG_Grid **ppImage, double ax, double ay, double dx, double dy, double rx, double ry)
 {
-	int			x, y, yy;
+	int			x, y;
 	double		z;
 	TSG_Rect	r;
 	CSG_Vector	A(2), XSrc(2), XTgt(2);
@@ -343,14 +352,14 @@ void CGrid_Import::Set_Transformation(CSG_Grid **ppImage, double ax, double ay, 
 	if( r.xMin > XTgt[0] )	r.xMin	= XTgt[0];	else if( r.xMax < XTgt[0] )	r.xMax	= XTgt[0];
 	if( r.yMin > XTgt[1] )	r.yMin	= XTgt[1];	else if( r.yMax < XTgt[1] )	r.yMax	= XTgt[1];
 
-	z	= fabs(dx) < fabs(dy) ? fabs(dx) : fabs(dy);
-	x	= (int)((r.xMax - r.xMin) / z);
-	y	= (int)((r.yMax - r.yMin) / z);
+	z	= fabs(dx) < fabs(dy) ? fabs(dx) : fabs(dy);	// guess a suitable cellsize; could be improved...
+	x	= 1 + (int)((r.xMax - r.xMin) / z);
+	y	= 1 + (int)((r.yMax - r.yMin) / z);
 
 	//-----------------------------------------------------
 	pTarget		= *ppImage	= SG_Create_Grid(pSource->Get_Type(), x, y, z, r.xMin, r.yMin);
 
-	for(y=0, yy=pTarget->Get_NY()-1, XTgt[1]=pTarget->Get_YMin(); y<pTarget->Get_NY() && Set_Progress(y, pTarget->Get_NY()); y++, yy--, XTgt[1]+=pTarget->Get_Cellsize())
+	for(y=0, XTgt[1]=pTarget->Get_YMin(); y<pTarget->Get_NY() && Set_Progress(y, pTarget->Get_NY()); y++, XTgt[1]+=pTarget->Get_Cellsize())
 	{
 		for(x=0, XTgt[0]=pTarget->Get_XMin(); x<pTarget->Get_NX(); x++, XTgt[0]+=pTarget->Get_Cellsize())
 		{
@@ -358,11 +367,11 @@ void CGrid_Import::Set_Transformation(CSG_Grid **ppImage, double ax, double ay, 
 
 			if( pSource->Get_Value(XSrc[0], XSrc[1], z, GRID_INTERPOLATION_NearestNeighbour, false, true) )
 			{
-				pTarget->Set_Value(x, yy, z);
+				pTarget->Set_Value(x, y, z);
 			}
 			else
 			{
-				pTarget->Set_NoData(x, yy);
+				pTarget->Set_NoData(x, y);
 			}
 		}
 	}

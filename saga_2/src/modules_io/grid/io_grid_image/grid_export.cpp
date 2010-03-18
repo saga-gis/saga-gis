@@ -122,31 +122,30 @@ CGrid_Export::CGrid_Export(void)
 		Parameters.Add_Choice(
 			NULL	, "COL_PALETTE"	, _TL("Color Palette"),
 			_TL(""),
-			CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
-				_TL("SG_COLORS_DEFAULT"),
-				_TL("SG_COLORS_DEFAULT_BRIGHT"),
-				_TL("SG_COLORS_BLACK_WHITE"),
-				_TL("SG_COLORS_BLACK_RED"),
-				_TL("SG_COLORS_BLACK_GREEN"),
-				_TL("SG_COLORS_BLACK_BLUE"),
-				_TL("SG_COLORS_WHITE_RED"),
-				_TL("SG_COLORS_WHITE_GREEN"),
-				_TL("SG_COLORS_WHITE_BLUE"),
-				_TL("SG_COLORS_YELLOW_RED"),
-				_TL("SG_COLORS_YELLOW_GREEN"),
-				_TL("SG_COLORS_YELLOW_BLUE"),
-				_TL("SG_COLORS_RED_GREEN"),
-				_TL("SG_COLORS_RED_BLUE"),
-				_TL("SG_COLORS_GREEN_BLUE"),
-				_TL("SG_COLORS_RED_GREY_BLUE"),
-				_TL("SG_COLORS_RED_GREY_GREEN"),
-				_TL("SG_COLORS_GREEN_GREY_BLUE"),
-				_TL("SG_COLORS_RED_GREEN_BLUE"),
-				_TL("SG_COLORS_RED_BLUE_GREEN"),
-				_TL("SG_COLORS_GREEN_RED_BLUE"),
-				_TL("SG_COLORS_RAINBOW"),
-				_TL("SG_COLORS_NEON"),
-				_TL("SG_COLORS_COUNT")
+			CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
+				_TL("DEFAULT"),
+				_TL("DEFAULT_BRIGHT"),
+				_TL("BLACK_WHITE"),
+				_TL("BLACK_RED"),
+				_TL("BLACK_GREEN"),
+				_TL("BLACK_BLUE"),
+				_TL("WHITE_RED"),
+				_TL("WHITE_GREEN"),
+				_TL("WHITE_BLUE"),
+				_TL("YELLOW_RED"),
+				_TL("YELLOW_GREEN"),
+				_TL("YELLOW_BLUE"),
+				_TL("RED_GREEN"),
+				_TL("RED_BLUE"),
+				_TL("GREEN_BLUE"),
+				_TL("RED_GREY_BLUE"),
+				_TL("RED_GREY_GREEN"),
+				_TL("GREEN_GREY_BLUE"),
+				_TL("RED_GREEN_BLUE"),
+				_TL("RED_BLUE_GREEN"),
+				_TL("GREEN_RED_BLUE"),
+				_TL("RAINBOW"),
+				_TL("NEON")
 			), 0
 		);
 
@@ -292,6 +291,8 @@ bool CGrid_Export::On_Execute(void)
 	//-------------------------------------------------
 	if( img.SaveFile(fName.c_str()) )
 	{
+		pGrid->Get_Projection().Save(fName, SG_PROJ_FMT_ESRI);
+
 		if( Stream.Open(SG_File_Make_Path(NULL, fName, fExt), SG_FILE_W, false) )
 		{
 			Stream.Printf(SG_T("%f\n%f\n%f\n%f\n%f\n%f\n"),

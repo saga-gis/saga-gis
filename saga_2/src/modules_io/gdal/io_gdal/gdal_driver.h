@@ -97,7 +97,7 @@ private:
 
 //---------------------------------------------------------
 #define IO_CLOSED		0x00
-#define IO_READ			0x01
+#define IO_READ		0x01
 #define IO_WRITE		0x02
 #define IO_READWRITE	(IO_READ|IO_WRITE)
 
@@ -112,22 +112,23 @@ public:
 	bool					Create			(const CSG_String &File_Name, int ioAccess = IO_READ);
 	bool					Destroy			(void);
 
-	bool					is_Okay			(void)	{	return( m_pDataSet != NULL );	}
-	bool					is_Reading		(void)	{	return( m_pDataSet != NULL && m_Access & IO_READ );	 }
-	bool					is_Writing		(void)	{	return( m_pDataSet != NULL && m_Access & IO_WRITE );	}
+	bool					is_Okay			(void)	const	{	return( m_pDataSet != NULL );	}
+	bool					is_Reading		(void)	const	{	return( m_pDataSet != NULL && m_Access & IO_READ );	 }
+	bool					is_Writing		(void)	const	{	return( m_pDataSet != NULL && m_Access & IO_WRITE );	}
 
-	int						Get_NX			(void)	{	return( m_NX );		}
-	int						Get_NY			(void)	{	return( m_NY );		}
-	double					Get_xMin		(void)	{	return( m_xMin );	}
-	double					Get_yMin		(void)	{	return( m_yMin );	}
-	double					Get_DX			(void)	{	return( m_DX );		}
-	double					Get_DY			(void)	{	return( m_DY );		}
-	double					Get_Transform	(int i)	{	return( m_Transform[i] );	}
+	int						Get_NX			(void)	const	{	return( m_NX );			}
+	int						Get_NY			(void)	const	{	return( m_NY );			}
+	double					Get_xMin		(void)	const	{	return( m_xMin );		}
+	double					Get_yMin		(void)	const	{	return( m_yMin );		}
+	double					Get_Cellsize	(void)	const	{	return( m_Cellsize );	}
 
-	GDALDriver *			Get_Driver		(void)	{	return( m_pDataSet ? m_pDataSet->GetDriver     () : NULL );	}
-	const char *			Get_Projection	(void)	{	return( m_pDataSet && m_pDataSet->GetProjectionRef() ? m_pDataSet->GetProjectionRef() : NULL );	}
+	bool					Needs_Transform	(void)	const	{	return( m_bTransform );	}
+	void					Get_Transform	(CSG_Vector &A, CSG_Matrix &B)	const	{	A	= m_TF_A;	B	= m_TF_B;	}
 
-	int						Get_Count		(void)	{	return( m_pDataSet ? m_pDataSet->GetRasterCount() : 0    );	}
+	GDALDriver *			Get_Driver		(void)	const	{	return( m_pDataSet ? m_pDataSet->GetDriver() : NULL );	}
+	const char *			Get_Projection	(void)	const	{	return( m_pDataSet && m_pDataSet->GetProjectionRef() ? m_pDataSet->GetProjectionRef() : "" );	}
+
+	int						Get_Count		(void)	const	{	return( m_pDataSet ? m_pDataSet->GetRasterCount() : 0    );	}
 	CSG_Grid *				Read_Band		(int i);
 
 	GDALDataset *			Get_DataSet		(void)	{	return( m_pDataSet );	}
@@ -135,9 +136,15 @@ public:
 
 private:
 
+	bool					m_bTransform;
+
 	int						m_Access, m_NX, m_NY;
 
-	double					m_xMin, m_yMin, m_DX, m_DY, m_Transform[6];
+	double					m_xMin, m_yMin, m_Cellsize;
+
+	CSG_Vector				m_TF_A;
+
+	CSG_Matrix				m_TF_B, m_TF_BInv;
 
 	GDALDataset				*m_pDataSet;
 
@@ -148,8 +155,8 @@ public:
 	{
 		if( m_pDataSet )
 		{
-			xWorld	= m_Transform[0] + x * m_Transform[1] + y * m_Transform[2];
-			yWorld	= m_Transform[3] + y * m_Transform[4] + y * m_Transform[5];
+			xWorld	= m_TF_A[0] + x * m_TF_B[0][1] + y * m_TF_B[0][1];
+			yWorld	= m_TF_A[1] + x * m_TF_B[1][0] + y * m_TF_B[1][1];
 
 			return( true );
 		}
@@ -157,18 +164,17 @@ public:
 		return( false );
 	}
 
-	bool					to_Grid			(int x, int y, CSG_Grid *pGrid, int &xGrid, int &yGrid)
+	bool					from_World		(double xWorld, double yWorld, double &x, double &y)
 	{
-		if( m_pDataSet && pGrid )
+		if( m_pDataSet )
 		{
-			double	xWorld, yWorld;
+			xWorld	-= m_TF_A[0];
+			yWorld	-= m_TF_A[1];
 
-			to_World(x, y, xWorld, yWorld);
+			x	= xWorld * m_TF_BInv[0][0] + yWorld * m_TF_BInv[0][1];
+			y	= xWorld * m_TF_BInv[1][0] + yWorld * m_TF_BInv[1][1];
 
-			xGrid	= (int)(0.5 + (xWorld - pGrid->Get_XMin()) / pGrid->Get_Cellsize());
-			yGrid	= (int)(0.5 + (yWorld - pGrid->Get_YMin()) / pGrid->Get_Cellsize());
-
-			return( pGrid->is_InGrid(xGrid, yGrid, false) );
+			return( true );
 		}
 
 		return( false );

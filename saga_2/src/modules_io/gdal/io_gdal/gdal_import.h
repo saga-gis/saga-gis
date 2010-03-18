@@ -76,7 +76,7 @@ public:
 
 protected:
 
-	virtual bool				On_Execute		(void);
+	virtual bool				On_Execute			(void);
 
 
 private:
@@ -84,8 +84,10 @@ private:
 	CSG_Parameter_Grid_List		*m_pGrids;
 
 
-	bool						Load_Sub		(CGDAL_System &System, const CSG_String &Name);
-	bool						Load			(CGDAL_System &System, const CSG_String &Name);
+	bool						Load_Sub			(CGDAL_System &System, const CSG_String &Name);
+	bool						Load				(CGDAL_System &System, const CSG_String &Name);
+
+	void						Set_Transformation	(CSG_Grid **ppGrid, const CSG_Vector &A, const CSG_Matrix &B);
 
 };
 
