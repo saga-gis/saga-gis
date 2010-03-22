@@ -196,7 +196,7 @@ SAGA_API_DLL_EXPORT void			SG_Mem_Set_Double	(char *Buffer, double Value	, bool 
 	#define SG_Char				wchar_t
 	#define SG_T(s)				L ## s
 	#define SG_PRINTF			SG_Printf
-	#define SG_FPRINTF			fwprintf
+	#define SG_FPRINTF			SG_FPrintf
 	#define SG_SSCANF			swscanf
 	#define SG_STR_CMP			wcscmp
 	#define SG_STR_CPY			wcscpy
@@ -334,6 +334,7 @@ protected:
 
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT int				SG_Printf						(const SG_Char *Format, ...);
+SAGA_API_DLL_EXPORT int				SG_FPrintf						(FILE* stream,const SG_Char *Format, ...);
 SAGA_API_DLL_EXPORT int				SG_Sscanf						(const SG_Char *Buffer, const SG_Char *Format, ...);
 
 SAGA_API_DLL_EXPORT CSG_String		SG_Get_CurrentTimeStr			(bool bWithDate = true);

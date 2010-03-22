@@ -686,6 +686,20 @@ int				SG_Printf(const SG_Char *Format, ...)
 }
 
 //---------------------------------------------------------
+int				SG_FPrintf(FILE* stream,const SG_Char *Format, ...)
+{
+	va_list	argptr;
+
+	va_start(argptr, Format);
+
+	int		ret	= wxVfprintf(stream, Format, argptr);
+
+	va_end(argptr);
+
+	return( ret );
+}
+
+//---------------------------------------------------------
 int				SG_Sscanf(const SG_Char *Buffer, const SG_Char *Format, ...)
 {
 	va_list	argptr;
