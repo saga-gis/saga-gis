@@ -19,7 +19,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/FillSinks.o $(MLB_TEMP)/FillSinks_WL.o $(MLB_TEMP)/FillSinks_WL_XXL.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/Pit_Eliminator.o $(MLB_TEMP)/Pit_Router.o
+OBJ      = $(MLB_TEMP)/FillSinks.o $(MLB_TEMP)/FillSinks_WL.o $(MLB_TEMP)/FillSinks_WL_XXL.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/Flat_Detection.o $(MLB_TEMP)/Pit_Eliminator.o $(MLB_TEMP)/Pit_Router.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS =
@@ -61,6 +61,9 @@ $(MLB_TEMP)/FillSinks_WL_XXL.o: ./FillSinks_WL_XXL.cpp
 
 $(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Flat_Detection.o: ./Flat_Detection.cpp
+	$(CPP) -c ./Flat_Detection.cpp -o $(MLB_TEMP)/Flat_Detection.o $(CXXFLAGS)
 
 $(MLB_TEMP)/Pit_Eliminator.o: ./Pit_Eliminator.cpp
 	$(CPP) -c ./Pit_Eliminator.cpp -o $(MLB_TEMP)/Pit_Eliminator.o $(CXXFLAGS)

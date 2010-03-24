@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   Flat_Detection.h                    //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2010 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -53,7 +51,17 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifndef HEADER_INCLUDED__Flat_Detection_H
+#define HEADER_INCLUDED__Flat_Detection_H
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -61,65 +69,133 @@
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-const SG_Char * Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Terrain Analysis - Preprocessing" ));
-
-	case MLB_INFO_Author:
-		return( _TL("Olaf Conrad (c) 2001, Volker Wichmann (c) 2003") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for the preprocessing of digital terrain models." ));
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Terrain Analysis|Preprocessing" ));
-	}
-}
-
-
-//---------------------------------------------------------
-#include "Flat_Detection.h"
-#include "Pit_Router.h"
-#include "Pit_Eliminator.h"
-
-#include "FillSinks.h"
-#include "FillSinks_WL.h"
-
-
-//---------------------------------------------------------
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CFlat_Detection );
-	case  1:	return( new CPit_Router );
-	case  2:	return( new CPit_Eliminator );
-
-	case  3:	return( new CFillSinks );
-	case  4:	return( new CFillSinks_WL );
-	case  5:	return( new CFillSinks_WL_XXL );
-	}
-
-	return( NULL );
-}
-
-
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CSG_Grid_Stack
+{
+public:
+	CSG_Grid_Stack(void) : m_Size(0), m_Buffer(0), m_Stack(NULL)	{}
+	virtual ~CSG_Grid_Stack(void)					{	Destroy();			}
 
-	MLB_INTERFACE
+	int						Get_Size		(void)	{	return( m_Size );	}
+	void					Clear			(void)	{	m_Size	= 0;		}
 
-//}}AFX_SAGA
+	//-----------------------------------------------------
+	void					Destroy			(void)
+	{
+		if( m_Stack )
+		{
+			SG_Free(m_Stack);
+		}
+
+		m_Size		= 0;
+		m_Buffer	= 0;
+		m_Stack		= NULL;
+	}
+
+	//-----------------------------------------------------
+	void					Push			(int  x, int  y)
+	{
+		if( m_Size < m_Buffer || _Grow() )
+		{
+			m_Stack[m_Size].x	= x;
+			m_Stack[m_Size].y	= y;
+
+			m_Size++;
+		}
+	}
+
+	//-----------------------------------------------------
+	void					Pop				(int &x, int &y)
+	{
+		if( m_Size > 0 )
+		{
+			m_Size--;
+
+			x	= m_Stack[m_Size].x;
+			y	= m_Stack[m_Size].y;
+		}
+	}
+
+
+private:
+
+	typedef struct 
+	{
+		int					x, y;
+	}
+	TPoint;
+
+
+	int						m_Size, m_Buffer;
+
+	TPoint					*m_Stack;
+
+
+	//-----------------------------------------------------
+	bool					_Grow			(void)
+	{
+		TPoint	*Stack	= (TPoint *)SG_Realloc(m_Stack, (m_Buffer + 256) * sizeof(TPoint));
+
+		if( Stack )
+		{
+			m_Stack		= Stack;
+			m_Buffer	+= 256;
+		}
+
+		return( false );
+	}
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CFlat_Detection : public CSG_Module_Grid  
+{
+public:
+	CFlat_Detection(void);
+
+
+protected:
+
+	virtual bool			On_Execute		(void);
+
+
+private:
+
+	int						m_Flat_Output, m_nFlats;
+
+	double					m_zFlat;
+
+	CSG_Grid_Stack			m_Stack;
+
+	CSG_Grid				*m_pDEM, *m_pNoFlats, *m_pFlats, m_Flats;
+
+
+	bool					is_Flat			(int x, int y);
+
+	void					Set_Flat_Cell	(int x, int y);
+	void					Set_Flat		(int x, int y);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__Flat_Detection_H

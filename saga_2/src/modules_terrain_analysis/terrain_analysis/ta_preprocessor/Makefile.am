@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.6 2007-07-30 07:29:24 oconrad Exp $
+# $Id: Makefile.am,v 1.7 2010-03-24 08:18:43 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -17,11 +17,13 @@ FillSinks.cpp\
 FillSinks_WL.cpp\
 FillSinks_WL_XXL.cpp\
 MLB_Interface.cpp\
+Flat_Detection.cpp\
 Pit_Eliminator.cpp\
 Pit_Router.cpp\
 FillSinks.h\
 FillSinks_WL.h\
 MLB_Interface.h\
+Flat_Detection.h\
 Pit_Eliminator.h\
 Pit_Router.h
 
