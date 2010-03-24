@@ -84,7 +84,7 @@ void				SG_Grid_Cache_Set_Directory(const SG_Char *Directory)
 {
 	if( SG_Dir_Exists(Directory) )
 	{
-		gSG_Grid_Cache_Directory.Printf(Directory);
+		gSG_Grid_Cache_Directory	= Directory;
 	}
 }
 
@@ -584,7 +584,7 @@ bool CSG_Grid::_Cache_Create(const SG_Char *FilePath, TSG_Data_Type File_Type, l
 {
 	if( m_System.is_Valid() && m_Type != SG_DATATYPE_Undefined && m_Memory_Type == GRID_MEMORY_Normal )
 	{
-		Cache_Path.Printf(FilePath);
+		Cache_Path	= FilePath;
 
 		if( m_Type == File_Type
 		&&	(	Cache_Stream.Open(Cache_Path, SG_FILE_RWA, true)

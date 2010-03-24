@@ -246,7 +246,7 @@ bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG
 
 	while( (i = sLine.Find(Separator)) >= 0 )
 	{
-		sField.Printf(bHeadline ? sLine.Left(i) : SG_T("FIELD_%02d"), Table.Get_Field_Count() + 1);
+		sField	= bHeadline ? sLine.Left(i) : CSG_String::Format(SG_T("FIELD_%02d"), Table.Get_Field_Count() + 1);
 
 		if( sField[0] == SG_T('\"') && sField[(int)(sField.Length() - 1)] == SG_T('\"') )	// remove quota
 		{
@@ -283,7 +283,7 @@ bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG
 		{
 			if( (i = sLine.Find(Separator)) >= 0 )
 			{
-				sField.Printf(sLine.Left(i));
+				sField	= sLine.Left(i);
 
 				if( sField[0] == SG_T('\"') && sField[(int)(sField.Length() - 1)] == SG_T('\"') )	// remove quota
 				{

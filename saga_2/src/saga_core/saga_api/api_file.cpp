@@ -493,7 +493,7 @@ CSG_String		SG_File_Get_Name(const SG_Char *full_Path, bool bExtension)
 	wxFileName	fn(full_Path);
 	CSG_String	s;
 
-	s.Printf(bExtension ? fn.GetFullName().c_str() : fn.GetName().c_str());
+	s	= bExtension ? fn.GetFullName().c_str() : fn.GetName().c_str();
 
 	return( s );
 }

@@ -360,7 +360,7 @@ void CSG_Grid::_Set_Properties(TSG_Data_Type Type, int NX, int NY, double Cellsi
 //---------------------------------------------------------
 void CSG_Grid::Set_Description(const SG_Char *String)
 {
-	m_Description.Printf(String ? String : SG_T(""));
+	m_Description	= String ? String : SG_T("");
 }
 
 const SG_Char * CSG_Grid::Get_Description(void) const
@@ -371,7 +371,7 @@ const SG_Char * CSG_Grid::Get_Description(void) const
 //---------------------------------------------------------
 void CSG_Grid::Set_Unit(const SG_Char *String)
 {
-	m_Unit.Printf(String ? String : SG_T(""));
+	m_Unit	= String ? String : SG_T("");
 }
 
 const SG_Char * CSG_Grid::Get_Unit(void) const
@@ -1269,7 +1269,7 @@ bool CSG_Grid::Set_Index(bool bOn)
 		}
 	}
 
-	return( true );
+	return( m_bIndexed );
 }
 
 //---------------------------------------------------------

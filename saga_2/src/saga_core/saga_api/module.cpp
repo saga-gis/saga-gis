@@ -160,7 +160,7 @@ void CSG_Module::Set_Author(const SG_Char *String)
 {
 	if( String )
 	{
-		m_Author.Printf(String);
+		m_Author	= String;
 	}
 	else
 	{

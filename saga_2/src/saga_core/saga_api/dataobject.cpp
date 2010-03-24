@@ -154,7 +154,7 @@ bool CSG_Data_Object::Destroy(void)
 //---------------------------------------------------------
 void CSG_Data_Object::Set_Name(const SG_Char *Name)
 {
-	m_Name.Printf(Name ? CSG_String(Name).c_str() : LNG("[DAT] new") );
+	m_Name	= Name ? CSG_String(Name).c_str() : LNG("[DAT] new");
 }
 
 const SG_Char * CSG_Data_Object::Get_Name(void) const
@@ -167,9 +167,9 @@ void CSG_Data_Object::Set_File_Name(const SG_Char *File_Name)
 {
 	if( File_Name )
 	{
-		m_File_Name.Printf(File_Name);
+		m_File_Name	= File_Name;
 
-		m_Name	= SG_File_Get_Name(File_Name, false);
+		m_Name		= SG_File_Get_Name(File_Name, false);
 
 		m_bModified	= false;
 	}
