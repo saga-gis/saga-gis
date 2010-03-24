@@ -127,6 +127,12 @@ CGSGrid_Zonal_Statistics::CGSGrid_Zonal_Statistics(void)
 		_TL("Summary table."),
 		PARAMETER_OUTPUT
 	);
+
+	Parameters.Add_Value(
+		NULL, "SHORTNAMES"	, _TL("Short Field Names"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	);
 }
 
 //---------------------------------------------------------
@@ -143,6 +149,7 @@ CGSGrid_Zonal_Statistics::~CGSGrid_Zonal_Statistics(void)
 //---------------------------------------------------------
 bool CGSGrid_Zonal_Statistics::On_Execute(void)
 {
+	bool					bShortNames;
 	int						x, y, nCatGrids, nStatGrids, iGrid, zoneID, catID, NDcount, catLevel, NDcountStat;
 	double					statID;
 
@@ -162,6 +169,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 	pStatList	= Parameters("STATLIST")	->asGridList();
 	pAspect		= Parameters("ASPECT")		->asGrid();
 	pOutTab		= Parameters("OUTTAB")		->asTable();
+	bShortNames	= Parameters("SHORTNAMES")	->asBool();
 
 	nCatGrids	= pCatList	->Get_Count();
 	nStatGrids	= pStatList	->Get_Count();
@@ -379,14 +387,14 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 
 	// Create fields in output table (1st = Zone, 2nd = Catgrid1, 3rd = Catgrid 2, ...)
 	fieldName = CSG_String::Format(SG_T("%s"),pZones->Get_Name()).BeforeFirst(SG_Char('.'));
-	if (fieldName.Length() > 10)
+	if (bShortNames && fieldName.Length() > 10)
 		fieldName.Remove(10, fieldName.Length()-10);
 	pOutTab->Add_Field(fieldName, SG_DATATYPE_Int);
 
 	for(iGrid=0; iGrid<nCatGrids; iGrid++)
 	{
 		fieldName = CSG_String::Format(SG_T("%s"),pCatList->asGrid(iGrid)->Get_Name()).BeforeFirst(SG_Char('.'));
-		if (fieldName.Length() > 10)
+		if (bShortNames && fieldName.Length() > 10)
 			fieldName.Remove(10, fieldName.Length()-10);
 		pOutTab->Add_Field(fieldName, SG_DATATYPE_Int);
 	}
@@ -397,20 +405,20 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 	{
 		tmpName		= CSG_String::Format(SG_T("%s"),pStatList->asGrid(iGrid)->Get_Name()).BeforeFirst(SG_Char('.'));
 		fieldName	= tmpName;
-		if (fieldName.Length()+3 > 10)
+		if (bShortNames && fieldName.Length()+3 > 10)
 			fieldName.Remove(7, fieldName.Length()-7);
 		pOutTab->Add_Field(CSG_String::Format(SG_T("%sMIN")   , fieldName.c_str()), SG_DATATYPE_Double);
 		pOutTab->Add_Field(CSG_String::Format(SG_T("%sMAX")   , fieldName.c_str()), SG_DATATYPE_Double);
 		fieldName	= tmpName;
-		if (fieldName.Length()+4 > 10)
+		if (bShortNames && fieldName.Length()+4 > 10)
 			fieldName.Remove(6, fieldName.Length()-6);
 		pOutTab->Add_Field(CSG_String::Format(SG_T("%sMEAN")  , fieldName.c_str()), SG_DATATYPE_Double);
 		fieldName	= tmpName;
-		if (fieldName.Length()+6 > 10)
+		if (bShortNames && fieldName.Length()+6 > 10)
 			fieldName.Remove(4, fieldName.Length()-4);
 		pOutTab->Add_Field(CSG_String::Format(SG_T("%sSTDDEV"), fieldName.c_str()), SG_DATATYPE_Double);
 		fieldName	= tmpName;
-		if (fieldName.Length()+3 > 10)
+		if (bShortNames && fieldName.Length()+3 > 10)
 			fieldName.Remove(7, fieldName.Length()-7);
 		pOutTab->Add_Field(CSG_String::Format(SG_T("%sSUM")   , fieldName.c_str()), SG_DATATYPE_Double);
 	}
@@ -419,12 +427,12 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 	{
 		tmpName		= CSG_String::Format(SG_T("%s"),pAspect->Get_Name()).BeforeFirst(SG_Char('.'));
 		fieldName	= tmpName;
-		if (fieldName.Length()+3 > 10)
+		if (bShortNames && fieldName.Length()+3 > 10)
 			fieldName.Remove(7, fieldName.Length()-7);
 		pOutTab->Add_Field(CSG_String::Format(SG_T("%sMIN")   , fieldName.c_str()), SG_DATATYPE_Double);
 		pOutTab->Add_Field(CSG_String::Format(SG_T("%sMAX")   , fieldName.c_str()), SG_DATATYPE_Double);
 		fieldName	= tmpName;
-		if (fieldName.Length()+4 > 10)
+		if (bShortNames && fieldName.Length()+4 > 10)
 			fieldName.Remove(6, fieldName.Length()-6);
 		pOutTab->Add_Field(CSG_String::Format(SG_T("%sMEAN")  , fieldName.c_str()), SG_DATATYPE_Double);
 	}

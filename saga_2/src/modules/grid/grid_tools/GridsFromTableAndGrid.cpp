@@ -17,117 +17,173 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/ 
 
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "GridsFromTableAndGrid.h"
-#include <string.h>
 
-CGridsFromTableAndGrid::CGridsFromTableAndGrid(){
 
-	CSG_Parameter	*pNode_0, *pNode_1;
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
 
-	Parameters.Set_Name(_TL("Grids from classified grid and table"));
+//---------------------------------------------------------
+CGridsFromTableAndGrid::CGridsFromTableAndGrid(void)
+{
+	CSG_Parameter	*pNode;
 
-	Parameters.Set_Description(_TW("Creates several grids using a classified grid and a table with data values for each class."));
+	Set_Name		(_TL("Grids from classified grid and table"));
 
-	pNode_0	= Parameters.Add_Table(	NULL, 
-									"TABLE", 
-									_TL("Table"),
-									_TL(""),	
-									PARAMETER_INPUT);
+	Set_Description	(_TW(
+		"Creates several grids using a classified grid and a table with data values for each class."
+	));
 
-	pNode_1	= Parameters.Add_Table_Field(pNode_0, 
-									"TABLE_ID", 
-									_TL("Field"),
-									_TL(""));
-	
-	Parameters.Add_Grid(NULL, 
-						"CLASSES",
-						_TL("Classified Grid"), 						
-						_TL(""), 
-						PARAMETER_INPUT);
-	
-}//constructor
+	pNode	= Parameters.Add_Table(
+		NULL	, "TABLE"		, _TL("Table"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
 
-CGridsFromTableAndGrid::~CGridsFromTableAndGrid(void){}
+	Parameters.Add_Table_Field(
+		pNode	, "ID_FIELD"	, _TL("Attribute"),
+		_TL("")
+	);
 
-bool CGridsFromTableAndGrid::On_Execute(void){
+	Parameters.Add_Grid(
+		NULL	, "CLASSES"		, _TL("Classes"), 						
+		_TL(""),
+		PARAMETER_INPUT
+	);
 
-	int i,j;
-	int x,y;
-	CSG_Grid* pClassifiedGrid = Parameters("CLASSES")->asGrid();
-	CSG_Table* pTable = Parameters("TABLE")->asTable();
-	int iField = Parameters("TABLE_ID")->asInt();
-	CSG_Table_Record* pRecord;
-	int iMax;
-	int iValue;
-	float **pValues;
-	int *pValidFields;
-	int iValidFields = 0;
-	CSG_Grid **pGrid;
+	Parameters.Add_Grid_List(
+		NULL	, "GRIDS"		, _TL("Grids"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+}
 
-	if (pTable->Get_Record_Count()){
-		pRecord = pTable->Get_Record(0);
-		iMax = pRecord->asInt(iField);
-		for (i = 0; i < pTable->Get_Record_Count(); i++){
-			pRecord = pTable->Get_Record(i);
-			iValue = pRecord->asInt(iField);
-			if (iValue > iMax){
-				iMax = iValue;
-			}//if				
-		}//for
-		pValues = new float*[iMax+1];
-		for (i = 0; i < pTable->Get_Field_Count(); i++){
-			if (pTable->Get_Field_Type(i) == SG_DATATYPE_String || i == iField){
-			}//if
-			else{
-				iValidFields++;
-			}//else			
-		}//for
-		pValidFields = new int[iValidFields];
-		iValidFields = 0;
-		for (i = 0; i < pTable->Get_Field_Count(); i++){
-			if (pTable->Get_Field_Type(i) == SG_DATATYPE_String || i == iField){
-			}//if
-			else{
-				pValidFields[iValidFields] = i;
-				iValidFields++;
-			}//else			
-		}//for
-		for (i = 0; i < iMax+1; i++){
-			pValues[i] = new float[iValidFields];				
-		}//for
-		for (i = 0; i < pTable->Get_Record_Count(); i++){
-			pRecord = pTable->Get_Record(i);
-			iValue = pRecord->asInt(iField);
-			for (j = 0; j < iValidFields; j++){
-				pValues[iValue][j] = pRecord->asFloat(pValidFields[j]);
-			}//for			
-		}//for
 
-		pGrid = new CSG_Grid*[iValidFields];
-		for (i = 0; i < iValidFields; i++){
-			pGrid[i] = new CSG_Grid(pClassifiedGrid);
-		}//if
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
 
-		for(y=0; y<Get_NY() && Set_Progress(y); y++){		
-			for(x=0; x<Get_NX(); x++){	
-				iValue = pClassifiedGrid->asInt(x,y);
-				if (iValue > 0 && iValue < iMax + 1){
-					for (i = 0; i < iValidFields; i++){
-						pGrid[i]->Set_Value(x, y, pValues[iValue][i]);
-					}//for
-				}//if
-			}//for
-		}//for		
-	
-		for (i = 0; i < iValidFields; i++){
-			DataObject_Add(pGrid[i], true);
-		}//for
-	}//if
-	else{
-		Message_Add(_TL("Selected table contains no valid records"));
-	}//else
+//---------------------------------------------------------
+bool CGridsFromTableAndGrid::On_Execute(void)
+{
+	int						iField, iRecord, iAttribute, nAttributes, *Attribute;
+	long					iCell, jCell;
+	CSG_Parameter_Grid_List	*pGrids;
+	CSG_Grid				*pClasses;
+	CSG_Table				*pTable;
+
+	//-----------------------------------------------------
+	pClasses	= Parameters("CLASSES")		->asGrid();
+	pGrids		= Parameters("GRIDS")		->asGridList();
+	pTable		= Parameters("TABLE")		->asTable();
+	iField		= Parameters("ID_FIELD")	->asInt();
+
+	pGrids->Del_Items();
+
+	//-----------------------------------------------------
+	if( pTable->Get_Field_Count() == 0 || pTable->Get_Count() == 0 )
+	{
+		Message_Add(_TL("selected table contains no valid records"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( !pTable->Set_Index(iField, TABLE_INDEX_Ascending) )
+	{
+		Message_Add(_TL("failed to create index for table"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( !pClasses->Get_Sorted(0, iCell, false, true) )
+	{
+		Message_Add(_TL("failed to create index for grid"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	Attribute	= new int[pTable->Get_Field_Count()];
+
+	for(iAttribute=0, nAttributes=0; iAttribute<pTable->Get_Field_Count(); iAttribute++)
+	{
+		if( iAttribute != iField && pTable->Get_Field_Type(iAttribute) != SG_DATATYPE_String )
+		{
+			Attribute[nAttributes++]	= iAttribute;
+
+			CSG_Grid	*pGrid	= SG_Create_Grid(*Get_System());
+
+			pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pClasses->Get_Name(), pTable->Get_Field_Name(iAttribute)));
+
+			pGrids->Add_Item(pGrid);
+		}
+	}
+
+	if( nAttributes == 0 )
+	{
+		delete[](Attribute);
+
+		Message_Add(_TL("selected table does not have numeric attributes"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Table_Record	*pRecord	= pTable->Get_Record_byIndex(0);
+
+	for(iCell=0, iRecord=0; iCell<Get_NCells() && pRecord && Set_Progress_NCells(iCell); iCell++)
+	{
+		if( pClasses->Get_Sorted(iCell, jCell, false, true) )
+		{
+			double	valClass	= pClasses->asDouble(jCell);
+
+			while( pRecord && pRecord->asDouble(iField) < valClass )
+			{
+				pRecord	= pTable->Get_Record_byIndex(++iRecord);
+			}
+
+			if( !pRecord || pRecord->asDouble(iField) > valClass )
+			{
+				for(iAttribute=0; iAttribute<nAttributes; iAttribute++)
+				{
+					pGrids->asGrid(iAttribute)->Set_NoData(jCell);
+				}
+			}
+			else
+			{
+				for(iAttribute=0; iAttribute<nAttributes; iAttribute++)
+				{
+					pGrids->asGrid(iAttribute)->Set_Value(jCell, pRecord->asDouble(Attribute[iAttribute]));
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	delete[](Attribute);
 
 	return true;
+}
 
 
-}//method
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

@@ -110,7 +110,7 @@ CExercise_01::CExercise_01(void)
 		_TL("Choose a method"),
 
 		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
-			_TL("Addition|"),
+			_TL("Addition"),
 			_TL("Subtraction"),
 			_TL("Multiplication"),
 			_TL("Division")

@@ -17,20 +17,42 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/ 
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CGridsFromTableAndGrid : public CSG_Module_Grid 
 {
 public:
 	CGridsFromTableAndGrid(void);
-	virtual ~CGridsFromTableAndGrid(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("A:Grid|Construction") );	}
+	virtual const SG_Char *		Get_MenuPath	(void)	{	return( _TL("A:Grid|Construction") );	}
+
 
 protected:
 
-	virtual bool On_Execute(void);
-
-private:
+	virtual bool				On_Execute		(void);
 
 };
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

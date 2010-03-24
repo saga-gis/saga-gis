@@ -338,8 +338,18 @@ void		Draw_Scale(wxDC &dc, wxRect r, double zMin, double zMax, bool bHorizontal,
 
 		//-------------------------------------------------
 		z			= dz * floor(zMin / dz);
-		if( Style != 0 && z < zMin )	z	+= dz;
 
+		if( Style != 0 && z < zMin )
+		{
+			z	+= dz;
+		}
+
+		if( z == z + dz )
+		{
+			return;
+		}
+
+		//-------------------------------------------------
 		for(; z<=zMax; z+=dz)
 		{
 			s.Printf(wxT("%.*f"), Decimals, z);
