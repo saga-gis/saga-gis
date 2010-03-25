@@ -1,11 +1,11 @@
-# $Id: configure.in,v 1.19 2010-02-12 16:37:52 oconrad Exp $
+# $Id: configure.in,v 1.20 2010-03-25 09:20:18 johanvdw Exp $
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
 AC_INIT(saga, 2.0, BUG-REPORT-ADDRESS)
 AC_CONFIG_SRCDIR([src/saga_core/saga_gui/wksp_data_menu_files.cpp])
-AC_CONFIG_HEADER([config.h])
+#AC_CONFIG_HEADER([config.h])
 #AM_INIT_AUTOMAKE(saga, 2.0beta)
 AM_INIT_AUTOMAKE(tar-ustar)
 
@@ -87,6 +87,7 @@ AC_OUTPUT(Makefile \
 	src/modules/shapes/shapes_points/Makefile \
 	src/modules/shapes/shapes_polygons/Makefile \
 	src/modules/shapes/shapes_tools/Makefile \
+    src/modules/shapes/shapes_transect/Makefile \
 	src/modules/table/Makefile \
 	src/modules/table/table_calculus/Makefile \
 	src/modules/table/table_tools/Makefile \
@@ -150,4 +151,5 @@ AC_OUTPUT(Makefile \
 	src/modules_terrain_analysis/terrain_analysis/ta_lighting/Makefile \
 	src/modules_terrain_analysis/terrain_analysis/ta_morphometry/Makefile \
 	src/modules_terrain_analysis/terrain_analysis/ta_preprocessor/Makefile \
-	src/modules_terrain_analysis/terrain_analysis/ta_profiles/Makefile)
+	src/modules_terrain_analysis/terrain_analysis/ta_profiles/Makefile \
+)
