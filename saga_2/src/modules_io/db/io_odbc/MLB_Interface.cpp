@@ -6,14 +6,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                     io_table_odbc                     //
+//                        io_odbc                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                       Table.h                         //
+//                   MLB_Interface.cpp                   //
 //                                                       //
-//                 Copyright (C) 2005 by                 //
-//                      Olaf Conrad                      //
+//                 Copyright (C) 2004 by                 //
+//                     Olaf Conrad                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -53,103 +53,76 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Table_H
-#define HEADER_INCLUDED__Table_H
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
+//			The Module Link Library Interface			 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+// 1. Include the appropriate SAGA-API header...
+
 #include "MLB_Interface.h"
 
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-class CTable_Load : public CSG_ODBC_Module
+// 2. Place general module library informations here...
+
+const SG_Char *	Get_Info(int i)
 {
-public:
-	CTable_Load(void);
+	switch( i )
+	{
+	case MLB_INFO_Name:	default:
+		return( _TL("Import/Export - ODBC/OTL") );
 
+	case MLB_INFO_Author:
+		return( _TL("O.Conrad (c) 2010") );
 
-protected:
+	case MLB_INFO_Description:
+		return( _TW(
+			"Database access via Open Data Base Connection (ODBC) interface. "
+			"Based on the OTL (Oracle, Odbc and DB2-CLI Template Library), Version 4.0: "
+			"<a target=\"_blank\" href=\"http://otl.sourceforge.net/\">http://otl.sourceforge.net/</a>"
+		));
 
-	virtual bool				On_Before_Execution		(void);
+	case MLB_INFO_Version:
+		return( _TL("1.0") );
 
-	virtual bool				On_Execute				(void);
+	case MLB_INFO_Menu_Path:
+		return( _TL("Database (ODBC)") );
+	}
+}
 
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Save : public CSG_ODBC_Module
+// 3. Include the headers of your modules here...
+
+#include "get_connection.h"
+#include "table.h"
+#include "shapes.h"
+#include "pgis_shapes.h"
+
+
+//---------------------------------------------------------
+// 4. Allow your modules to be created here...
+
+CSG_Module *		Create_Module(int i)
 {
-public:
-	CTable_Save(void);
+	switch( i )
+	{
+	case  0:	return( new CGet_Connection );
+	case  1:	return( new CDel_Connection );
+	case  2:	return( new CTransaction );
+	case  3:	return( new CTable_Load );
+	case  4:	return( new CTable_Save );
+	case  5:	return( new CTable_Drop );
+	case  6:	return( new CTable_Load_SQL );
+	case  7:	return( new CPoints_Load );
+	case  8:	return( new CPoints_Save );
+	case  9:	return( new CPGIS_Shapes_Load );
+	case 10:	return( new CPGIS_Shapes_Save );
+	}
 
-
-protected:
-
-	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
-	virtual bool				On_Execute				(void);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CTable_Drop : public CSG_ODBC_Module
-{
-public:
-	CTable_Drop(void);
-
-
-protected:
-
-	virtual bool				On_Before_Execution		(void);
-
-	virtual bool				On_Execute				(void);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CTable_Load_SQL : public CSG_ODBC_Module
-{
-public:
-	CTable_Load_SQL(void);
-
-
-protected:
-
-	virtual bool				On_Execute				(void);
-
-};
+	return( NULL );
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -159,4 +132,8 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Table_H
+//{{AFX_SAGA
+
+	MLB_INTERFACE
+
+//}}AFX_SAGA

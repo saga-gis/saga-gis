@@ -6,7 +6,7 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                     io_table_odbc                     //
+//                        io_odbc                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -58,19 +58,17 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__io_table_odbc_H
-#define HEADER_INCLUDED__io_table_odbc_H
+#ifndef HEADER_INCLUDED__io_odbc_H
+#define HEADER_INCLUDED__io_odbc_H
 
 //---------------------------------------------------------
-#include <saga_api/saga_api.h>
-
-#include "odbc.h"
+#include <saga_odbc/saga_odbc.h>
 
 //---------------------------------------------------------
-#ifdef io_table_odbc_EXPORTS
-	#define	io_table_odbc_EXPORT	_SAGA_DLL_EXPORT
+#ifdef io_odbc_EXPORTS
+	#define	io_odbc_EXPORT	_SAGA_DLL_EXPORT
 #else
-	#define	io_table_odbc_EXPORT	_SAGA_DLL_IMPORT
+	#define	io_odbc_EXPORT	_SAGA_DLL_IMPORT
 #endif
 
 
@@ -81,4 +79,4 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__io_table_odbc_H
+#endif // #ifndef HEADER_INCLUDED__io_odbc_H

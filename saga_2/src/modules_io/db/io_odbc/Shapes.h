@@ -6,11 +6,11 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                     io_table_odbc                     //
+//                        io_odbc                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                      Shapes.cpp                       //
+//                       Shapes.h                        //
 //                                                       //
 //                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
@@ -56,9 +56,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "get_connection.h"
-
-#include "shapes.h"
+#ifndef HEADER_INCLUDED__Shapes_H
+#define HEADER_INCLUDED__Shapes_H
 
 
 ///////////////////////////////////////////////////////////
@@ -68,57 +67,47 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CPoints_Load::CPoints_Load(void)
+#include "MLB_Interface.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CPoints_Load : public CSG_ODBC_Module
 {
-	Set_Name		(_TL("ODBC Points Import"));
+public:
+	CPoints_Load(void);
 
-	Set_Author		(SG_T("O.Conrad (c) 2009"));
 
-	Set_Description	(_TW(
-		"Imports points from a database via ODBC."
-	));
+protected:
 
-	Parameters.Add_Shapes(
-		NULL	, "POINTS"		, _TL("Points"),
-		_TL(""),
-		PARAMETER_OUTPUT, SHAPE_TYPE_Point
-	);
+	virtual bool				On_Before_Execution		(void);
 
-	Parameters.Add_Choice(
-		NULL	, "TABLES"		, _TL("Tables"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|"),
-			_TL("--- no table available ---")
-		)
-	);
-}
+	virtual bool				On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPoints_Load::On_Before_Execution(void)
+class CPoints_Save : public CSG_ODBC_Module
 {
-	if( !CSG_ODBC_Module::On_Before_Execution() )
-	{
-		return( false );
-	}
+public:
+	CPoints_Save(void);
 
-	CSG_String	Table(Parameters("TABLES")->asString());
 
-	return( true );
-}
+protected:
 
-//---------------------------------------------------------
-bool CPoints_Load::On_Execute(void)
-{
-	if( Get_Connection()->is_Connected() )
-	{
-		CSG_Parameter_Choice	*pTables	= Parameters("TABLES")	->asChoice();
-		CSG_Shapes				*pShapes	= Parameters("POINTS")	->asShapes();
+	virtual bool				On_Execute				(void);
 
-		return( Get_Connection()->Table_Load(*pShapes, pTables->asString()) );
-	}
-
-	return( false );
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -128,41 +117,4 @@ bool CPoints_Load::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CPoints_Save::CPoints_Save(void)
-{
-	Set_Name		(_TL("ODBC Points Export"));
-
-	Set_Author		(SG_T("O.Conrad (c) 2009"));
-
-	Set_Description	(_TW(
-		"Exports points to a database via ODBC."
-	));
-
-	Parameters.Add_Shapes(
-		NULL	, "POINTS"		, _TL("Points"),
-		_TL(""),
-		PARAMETER_INPUT, SHAPE_TYPE_Point
-	);
-}
-
-//---------------------------------------------------------
-bool CPoints_Save::On_Execute(void)
-{
-	if( Get_Connection()->is_Connected() )
-	{
-		CSG_Shapes	*pShapes	= Parameters("POINTS")	->asShapes();
-
-		return( Get_Connection()->Table_Save(pShapes->Get_Name(), *pShapes) );
-	}
-
-	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__Shapes_H

@@ -1,8 +1,8 @@
-# Project: io_db_odbc
+# Project: io_odbc
 # Linux GCC Makefile
 # Created by O. Conrad
 
-PRJ_NAME = io_db_odbc
+PRJ_NAME = io_odbc
 SAGA     = ./../../..
 BIN_SAGA = $(SAGA)/../bin/saga_gtk
 TMP_SAGA = $(SAGA)/../bin/tmp/saga_gtk
@@ -17,9 +17,9 @@ LD       = g++
 DEP_INCS = 
 DEP_DEFS = `wx-config --static=yes --cxxflags`
 DEP_LFLG = -fPIC -pthread
-DEP_LIBS = `wx-config --static=yes --libs` -L$(BIN_SAGA) -lsaga_api
+DEP_LIBS = `wx-config --static=yes --libs` -L$(BIN_SAGA) -lsaga_api -lsaga_odbc
 
-OBJ      = $(MLB_TEMP)/get_connection.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/odbc.o $(MLB_TEMP)/pgis_shapes.o $(MLB_TEMP)/shapes.o $(MLB_TEMP)/table.o
+OBJ      = $(MLB_TEMP)/get_connection.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/pgis_shapes.o $(MLB_TEMP)/shapes.o $(MLB_TEMP)/table.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS =
@@ -55,9 +55,6 @@ $(MLB_TEMP)/get_connection.o: ./get_connection.cpp
 
 $(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
-
-$(MLB_TEMP)/odbc.o: ./odbc.cpp
-	$(CPP) -c ./odbc.cpp -o $(MLB_TEMP)/odbc.o $(CXXFLAGS)
 
 $(MLB_TEMP)/pgis_shapes.o: ./pgis_shapes.cpp
 	$(CPP) -c ./pgis_shapes.cpp -o $(MLB_TEMP)/pgis_shapes.o $(CXXFLAGS)

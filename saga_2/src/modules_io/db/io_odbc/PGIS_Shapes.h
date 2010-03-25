@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                     io_table_odbc                     //
+//                        io_odbc                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   Get_Connection.h                    //
+//                     PGIS_Shapes.h                     //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
+//                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -58,8 +56,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Get_Connection_H
-#define HEADER_INCLUDED__Get_Connection_H
+#ifndef HEADER_INCLUDED__PGIS_Shapes_H
+#define HEADER_INCLUDED__PGIS_Shapes_H
 
 
 ///////////////////////////////////////////////////////////
@@ -71,8 +69,6 @@
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
-#include "odbc.h"
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -81,10 +77,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGet_Connection : public CSG_Module
+class CPGIS_Shapes_Load : public CSG_ODBC_Module
 {
 public:
-	CGet_Connection(void);
+	CPGIS_Shapes_Load(void);
+
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( SG_T("R:PostGIS") );	}
 
 
 protected:
@@ -98,22 +96,28 @@ protected:
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CDel_Connection : public CSG_Module
+class CPGIS_Shapes_Save : public CSG_ODBC_Module
 {
 public:
-	CDel_Connection(void);
+	CPGIS_Shapes_Save(void);
+
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( SG_T("R:PostGIS") );	}
 
 
 protected:
 
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
 	virtual bool				On_Before_Execution		(void);
 
 	virtual bool				On_Execute				(void);
+
+
+private:
+
 
 };
 
@@ -125,26 +129,4 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTransaction : public CSG_ODBC_Module
-{
-public:
-	CTransaction(void);
-
-
-protected:
-
-	virtual bool				On_Before_Execution		(void);
-
-	virtual bool				On_Execute				(void);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Get_Connection_H
+#endif // #ifndef HEADER_INCLUDED__PGIS_Shapes_H

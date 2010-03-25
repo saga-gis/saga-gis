@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                     io_table_odbc                     //
+//                        io_odbc                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                       Shapes.h                        //
+//                   Get_Connection.h                    //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
+//                 Copyright (C) 2008 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,7 +41,9 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Hamburg                  //
+//                University of Goettingen               //
+//                Goldschmidtstr. 5                      //
+//                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,8 +58,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Shapes_H
-#define HEADER_INCLUDED__Shapes_H
+#ifndef HEADER_INCLUDED__Get_Connection_H
+#define HEADER_INCLUDED__Get_Connection_H
 
 
 ///////////////////////////////////////////////////////////
@@ -77,10 +79,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPoints_Load : public CSG_ODBC_Module
+class CGet_Connection : public CSG_Module
 {
 public:
-	CPoints_Load(void);
+	CGet_Connection(void);
 
 
 protected:
@@ -94,16 +96,20 @@ protected:
 
 ///////////////////////////////////////////////////////////
 //														 //
+//														 //
+//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPoints_Save : public CSG_ODBC_Module
+class CDel_Connection : public CSG_Module
 {
 public:
-	CPoints_Save(void);
+	CDel_Connection(void);
 
 
 protected:
+
+	virtual bool				On_Before_Execution		(void);
 
 	virtual bool				On_Execute				(void);
 
@@ -117,4 +123,26 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Shapes_H
+class CTransaction : public CSG_ODBC_Module
+{
+public:
+	CTransaction(void);
+
+
+protected:
+
+	virtual bool				On_Before_Execution		(void);
+
+	virtual bool				On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__Get_Connection_H

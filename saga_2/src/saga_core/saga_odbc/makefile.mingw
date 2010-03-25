@@ -1,0 +1,60 @@
+# Project: saga_odbc
+# Makefile for MinGW, created by O.Conrad
+
+TOP_SAGA  = $(SAGA)/bin
+BIN_SAGA  = $(TOP_SAGA)/saga_mingw
+OBJ_SAGA  = $(TOP_SAGA)/tmp/saga_mingw/saga_odbc
+
+LIB_GCC   = $(MINGW)/lib
+INC_GCC   = $(MINGW)/include
+DLL_NAME  = $(BIN_SAGA)/saga_odbc.dll
+LIB_NAME  = $(BIN_SAGA)/libsaga_odbc.a
+
+CPP       = g++.exe
+LD        = dllwrap.exe
+
+OBJ       = $(TMP_SAGA)saga_odbc.o
+
+DEP_INCS  =
+DEP_DEFS  = -DNOPCH
+DEP_LIBS  = -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lwinmm -lshell32 -lcomctl32 -lole32 -loleaut32 -luuid -lrpcrt4 -lodbc32
+DEP_LFLG = 
+
+CXXFLAGS = -I"$(MINGW)/include" -I"$(SAGA)/src/saga_core" -D_SAGA_ODBC_EXPORTS -DBUILDING_DLL=1 -D_SAGA_MSW -D_SAGA_MINGW -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -fexpensive-optimizations -Os -O2 -O3 $(DEP_INCS) $(DEP_DEFS)
+
+LIBS     = -L"$(MINGW)/lib" $(DEP_LIBS) $(BIN_SAGA)/libsaga_api.a
+LDFLAGS   = --export-all --driver-name c++ -mthreads -mwindows
+
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before $(DLL_NAME) all-after
+
+clean: clean-custom
+	rm -f $(OBJ) $(DLL_NAME) $(LIB_NAME)
+
+$(TOP_SAGA):
+	if not exist $(TOP_SAGA) mkdir $(TOP_SAGA)
+
+$(BIN_SAGA): $(TOP_SAGA)
+	if not exist $(BIN_SAGA) mkdir $(BIN_SAGA)
+
+$(TOP_SAGA)/tmp: $(TOP_SAGA)
+	if not exist $(TOP_SAGA)/tmp mkdir $(TOP_SAGA)/tmp
+
+$(TOP_SAGA)/tmp/saga_mingw: $(TOP_SAGA)/tmp
+	if not exist $(TOP_SAGA)/tmp/saga_mingw mkdir $(TOP_SAGA)/tmp/saga_mingw
+
+$(OBJ_SAGA): $(TOP_SAGA)/tmp/saga_mingw
+	if not exist $(OBJ_SAGA) mkdir $(OBJ_SAGA)
+
+$(TMP_SAGA): $(OBJ_SAGA)
+	if not exist $(TMP_SAGA) mkdir $(TMP_SAGA)
+
+#$(DLL_NAME): $(TMP_SAGA) $(BIN_SAGA) $(OBJ)
+$(DLL_NAME): $(OBJ)
+	$(LD) $(LDFLAGS) --implib "$(LIB_NAME)" $(OBJ) $(LIBS) -o "$(DLL_NAME)"
+
+
+$(TMP_SAGA)saga_odbc.o: saga_odbc.cpp
+	$(CPP) -c saga_odbc.cpp -o $(TMP_SAGA)saga_odbc.o $(CXXFLAGS)

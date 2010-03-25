@@ -1,8 +1,8 @@
-# Project: io_db_odbc
+# Project: io_odbc
 # MinGW Makefile
 # Created by O. Conrad
 
-PRJ_NAME = io_db_odbc
+PRJ_NAME = io_odbc
 BIN_SAGA = $(SAGA)\bin\saga_mingw
 TMP_SAGA = $(SAGA)\bin\tmp\saga_mingw
 MLB_TEMP = $(TMP_SAGA)\$(PRJ_NAME)
@@ -19,11 +19,11 @@ DEP_LIBS = -L"$(WXWIN)/lib/gcc_dll" -lwxbase28_odbc -lwxbase28 -lwxtiff -lwxjpeg
 DEP_LFLG = 
 
 
-OBJ      = $(MLB_TEMP)/get_connection.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/odbc.o $(MLB_TEMP)/pgis_shapes.o $(MLB_TEMP)/shapes.o $(MLB_TEMP)/table.o
+OBJ      = $(MLB_TEMP)/get_connection.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/pgis_shapes.o $(MLB_TEMP)/shapes.o $(MLB_TEMP)/table.o
 
 CXXFLAGS = -I"$(MINGW)/include" -I"$(SAGA)/src/saga_core" -D$(PRJ_NAME)_EXPORTS -DBUILDING_DLL=1 -D_SAGA_MSW -D_SAGA_MINGW -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -fexpensive-optimizations -Os -O2 -O3 $(DEP_INCS) $(DEP_DEFS)
 
-LIBS     = -L"$(MINGW)/lib" -L"$(WXWIN)/lib/gcc_dll" $(DEP_LIBS) $(BIN_SAGA)/libsaga_api.a
+LIBS     = -L"$(MINGW)/lib" -L"$(WXWIN)/lib/gcc_dll" $(DEP_LIBS) $(BIN_SAGA)/libsaga_api.a $(BIN_SAGA)/libsaga_odbc.a
 LDFLAGS  = --no-export-all-symbols --add-stdcall-alias --driver-name c++ $(DEP_LFLG)
 
 .PHONY: all all-before all-after clean clean-custom
@@ -51,9 +51,6 @@ $(MLB_TEMP)/get_connection.o: ./get_connection.cpp
 
 $(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
-
-$(MLB_TEMP)/odbc.o: ./odbc.cpp
-	$(CPP) -c ./odbc.cpp -o $(MLB_TEMP)/odbc.o $(CXXFLAGS)
 
 $(MLB_TEMP)/pgis_shapes.o: ./pgis_shapes.cpp
 	$(CPP) -c ./pgis_shapes.cpp -o $(MLB_TEMP)/pgis_shapes.o $(CXXFLAGS)

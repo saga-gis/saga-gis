@@ -55,7 +55,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "odbc.h"
+#include "saga_odbc.h"
 
 //---------------------------------------------------------
 #define OTL_ODBC_MULTI_MODE
@@ -66,6 +66,10 @@
 
 #ifdef _SAGA_UNICODE
 //#define OTL_UNICODE
+#endif
+
+#ifdef _SAGA_LINUX
+#define OTL_ODBC_UNIX
 #endif
 
 #include "otlv4.h"				// include the OTL 4 header file
@@ -422,7 +426,7 @@ bool CSG_ODBC_Connection::Execute(const CSG_String &SQL, bool bCommit)
 {
 	if( !is_Connected() )
 	{
-		_Error_Message(_TL("no database connection"));
+		_Error_Message(LNG("no database connection"));
 
 		return( false );
 	}
@@ -434,7 +438,7 @@ bool CSG_ODBC_Connection::Execute(const CSG_String &SQL, bool bCommit)
 			return( bCommit ? Commit() : true );
 		}
 
-		_Error_Message(_TL("sql excution error"), SQL);
+		_Error_Message(LNG("sql excution error"), SQL);
 	}
 	catch( otl_exception &e )
 	{
@@ -449,7 +453,7 @@ bool CSG_ODBC_Connection::Commit(void)
 {
 	if( !is_Connected() )
 	{
-		_Error_Message(_TL("no database connection"));
+		_Error_Message(LNG("no database connection"));
 
 		return( false );
 	}
@@ -473,7 +477,7 @@ bool CSG_ODBC_Connection::Rollback(void)
 {
 	if( !is_Connected() )
 	{
-		_Error_Message(_TL("no database connection"));
+		_Error_Message(LNG("no database connection"));
 
 		return( false );
 	}
@@ -502,7 +506,7 @@ bool CSG_ODBC_Connection::Table_Create(const CSG_String &Table_Name, const CSG_T
 {
 	if( Table.Get_Field_Count() <= 0 )
 	{
-		_Error_Message(_TL("no attributes in table"));
+		_Error_Message(LNG("no attributes in table"));
 
 		return( false );
 	}
@@ -549,7 +553,7 @@ bool CSG_ODBC_Connection::Table_Drop(const CSG_String &Table_Name, bool bCommit)
 {
 	if( !Table_Exists(Table_Name) )
 	{
-		_Error_Message(_TL("database table does not exist"));
+		_Error_Message(LNG("database table does not exist"));
 
 		return( false );
 	}
@@ -568,7 +572,7 @@ bool CSG_ODBC_Connection::_Table_Load(CSG_Table &Table, const CSG_String &Select
 	//-----------------------------------------------------
 	if( !is_Connected() )
 	{
-		_Error_Message(_TL("no database connection"));
+		_Error_Message(LNG("no database connection"));
 
 		return( false );
 	}
@@ -594,7 +598,7 @@ bool CSG_ODBC_Connection::_Table_Load(CSG_Table &Table, const CSG_String &Select
 
 		if( Fields == NULL || nFields <= 0 )
 		{
-			_Error_Message(_TL("no fields in selection"));
+			_Error_Message(LNG("no fields in selection"));
 
 			return( false );
 		}
@@ -700,7 +704,7 @@ bool CSG_ODBC_Connection::Table_Load_BLOBs(CSG_Bytes_Array &BLOBs, const CSG_Str
 	//-----------------------------------------------------
 	if( !is_Connected() )
 	{
-		_Error_Message(_TL("no database connection"));
+		_Error_Message(LNG("no database connection"));
 
 		return( false );
 	}
@@ -736,21 +740,21 @@ bool CSG_ODBC_Connection::Table_Load_BLOBs(CSG_Bytes_Array &BLOBs, const CSG_Str
 
 		if( Fields == NULL || nFields <= 0 )
 		{
-			_Error_Message(_TL("no fields in selection"));
+			_Error_Message(LNG("no fields in selection"));
 
 			return( false );
 		}
 
 		if( nFields != 1 )
 		{
-			_Error_Message(_TL("more than one field in selection"));
+			_Error_Message(LNG("more than one field in selection"));
 
 			return( false );
 		}
 
 		if( _Get_Type_From_SQL(Fields[0].otl_var_dbtype) != SG_DATATYPE_Binary )//|| _Get_Type_From_SQL(Fields[0].otl_var_dbtype) != SG_DATATYPE_String )
 		{
-			_Error_Message(_TL("field cannot be mapped to binary object"));
+			_Error_Message(LNG("field cannot be mapped to binary object"));
 
 			return( false );
 		}
@@ -795,7 +799,7 @@ bool CSG_ODBC_Connection::Table_Save(const CSG_String &Table_Name, const CSG_Tab
 	//-----------------------------------------------------
 	if( !is_Connected() )
 	{
-		_Error_Message(_TL("no database connection"));
+		_Error_Message(LNG("no database connection"));
 
 		return( false );
 	}
@@ -1168,13 +1172,16 @@ int CSG_ODBC_Connections::Get_Connections(CSG_String &Connections)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_Module_Library_Interface	MLB_Interface;
+
+//---------------------------------------------------------
 CSG_ODBC_Module::CSG_ODBC_Module(void)
 {
-	m_Connection_Choice.Create(this, _TL("Choose ODBC Connection"), _TL(""), SG_T("CONNECTIONS"));
+	m_Connection_Choice.Create(this, LNG("Choose ODBC Connection"), LNG(""), SG_T("CONNECTIONS"));
 
 	m_Connection_Choice.Add_Choice(
-		NULL	, "CONNECTIONS", _TL("Available Connections"),
-		_TL(""),
+		NULL	, "CONNECTIONS", LNG("Available Connections"),
+		LNG(""),
 		SG_T("")
 	);
 }
@@ -1190,7 +1197,7 @@ bool CSG_ODBC_Module::On_Before_Execution(void)
 	{
 		m_Connection_Choice("CONNECTIONS")->asChoice()->Set_Items(s);
 
-		if( SG_UI_Dlg_Parameters(&m_Connection_Choice, _TL("Choose ODBC Connection")) )
+		if( SG_UI_Dlg_Parameters(&m_Connection_Choice, LNG("Choose ODBC Connection")) )
 		{
 			m_pConnection	= SG_ODBC_Get_Connection_Manager().Get_Connection(m_Connection_Choice("CONNECTIONS")->asString());
 		}
@@ -1202,8 +1209,8 @@ bool CSG_ODBC_Module::On_Before_Execution(void)
 	else
 	{
 		Message_Dlg(
-			_TL("No ODBC connection available!"),
-			_TL("ODBC Database Connection Error")
+			LNG("No ODBC connection available!"),
+			LNG("ODBC Database Connection Error")
 		);
 	}
 
