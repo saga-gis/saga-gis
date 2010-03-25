@@ -711,6 +711,21 @@ Package=<4>
 
 ###############################################################################
 
+Project: "shapes_transect"=.\modules\shapes\shapes_transect\shapes_transect.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "sim_cellular_automata"=.\modules_simulation\cellular_automata\sim_cellular_automata\sim_cellular_automata.dsp - Package Owner=<4>
 
 Package=<5>
