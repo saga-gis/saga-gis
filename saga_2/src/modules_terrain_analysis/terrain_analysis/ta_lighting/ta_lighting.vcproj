@@ -211,7 +211,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ta_lighting.ger ..\..\..\..\bin\saga_vc8_dbg\modules\ta_lighting.lng"
+				CommandLine="copy *.lng.txt ..\..\..\..\bin\saga_vc8_u_dbg\modules\"
 			/>
 		</Configuration>
 		<Configuration
@@ -406,7 +406,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy *.lng.txt ..\..\..\..\bin\saga_vc8\modules\"
+				CommandLine="copy ta_lighting.ger.txt ..\..\..\..\bin\saga_vc8_dbg\modules\ta_lighting.lng"
 			/>
 		</Configuration>
 		<Configuration

@@ -97,7 +97,7 @@ private:
 
 	double				m_SolarConstant, m_Transmittance, m_Pressure, m_Water, m_Dust;
 
-	CSG_Grid				*m_pDTM, *m_pSum, *m_pRadiation, *m_pDuration;
+	CSG_Grid			*m_pDTM, *m_pSum, *m_pRadiation, *m_pDuration, *m_pSunrise, *m_pSunset;
 
 
 	void				Execute_DailySum		(double Latitude_RAD, double Hour_Step, double Hour_Start, double Hour_Stop, int Day);

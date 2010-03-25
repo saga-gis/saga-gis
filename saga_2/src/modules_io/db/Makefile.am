@@ -1,1 +1,1 @@
-SUBDIRS = io_db_odbc
+SUBDIRS = io_odbc

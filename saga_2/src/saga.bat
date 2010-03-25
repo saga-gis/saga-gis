@@ -56,6 +56,18 @@ make -fmakefile.mingw
 POPD
 
 ECHO ###################################
+ECHO SAGA ODBC
+ECHO -----------------------------------
+
+SET OBJ_SAGA=%SAGA%\bin\tmp\saga_mingw\saga_odbc\
+SET TMP_SAGA=%OBJ_SAGA%
+MD %OBJ_SAGA%
+
+PUSHD %SAGA%\src\saga_core\saga_odbc
+make -fmakefile.mingw
+POPD
+
+ECHO ###################################
 ECHO SAGA CMD
 ECHO -----------------------------------
 
@@ -253,6 +265,14 @@ ECHO io_grid_image
 ECHO -----------------------------------
 
 PUSHD .\modules_io\grid\io_grid_image
+make -fmakefile.mingw
+POPD
+
+ECHO ###################################
+ECHO io_odbc
+ECHO -----------------------------------
+
+PUSHD .\modules_io\db\io_odbc
 make -fmakefile.mingw
 POPD
 

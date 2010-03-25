@@ -102,12 +102,6 @@ CSolarRadiation::CSolarRadiation(void)
 		PARAMETER_OUTPUT
 	);
 
-	pNode_0	= Parameters.Add_Grid(
-		NULL	, "DURATION"	, _TL("Duration of Insolation"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
 	pNode_1	= Parameters.Add_Value(
 		pNode_0	, "UPDATE"		, _TL("Update View"),
 		_TL("Show each time step during calculation."),
@@ -122,6 +116,24 @@ CSolarRadiation::CSolarRadiation(void)
 			_TL("kWh/m\xc2\xb2"),
 			_TL("J/m\xc2\xb2")
 		), 0
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "DURATION"	, _TL("Duration of Insolation"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "SUNRISE"		, _TL("Sunrise"),
+		_TL("time of sunrise/sunset is only calculated if time span is set to single day"),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "SUNSET"		, _TL("Sunset"),
+		_TL("time of sunrise/sunset is only calculated if time span is set to single day"),
+		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 
@@ -311,6 +323,8 @@ bool CSolarRadiation::On_Execute(void)
 	m_pDTM			= Parameters("ELEVATION")	->asGrid();
 	m_pRadiation	= Parameters("INSOLAT")		->asGrid();
 	m_pDuration		= Parameters("DURATION")	->asGrid();
+	m_pSunrise		= Parameters("SUNRISE")		->asGrid();
+	m_pSunset		= Parameters("SUNSET")		->asGrid();
 
 	m_SolarConstant	= Parameters("SOLCONST")	->asDouble() / 1000.0;	// [kW / m²]
 
@@ -336,6 +350,9 @@ bool CSolarRadiation::On_Execute(void)
 	case 0:	// single day...
 		Day_Start		= Parameters("SINGLE_DAY_MONTH")->asInt();
 		Day_Start		= Parameters("SINGLE_DAY_DAY")	->asInt() + (Day_Start >= 0 && Day_Start < 12 ? Month2Day[Day_Start] : 0);
+
+		if( m_pSunrise )	{	m_pSunrise->Assign_NoData();	DataObject_Set_Colors(m_pSunrise, 100, SG_COLORS_YELLOW_RED, false);	}
+		if( m_pSunset  )	{	m_pSunset ->Assign_NoData();	DataObject_Set_Colors(m_pSunset , 100, SG_COLORS_YELLOW_RED, true );	}
 
 		Execute_DailySum (Latitude, Hour_Step, Hour_Start, Hour_Stop, Day_Start);
 		break;
@@ -533,6 +550,23 @@ void CSolarRadiation::Get_DailySum(double Latitude_RAD, double Hour_Step, double
 
 						m_pSum		->Add_Value(n, d);
 						m_pDuration	->Add_Value(n, Hour_Step);
+
+						if( m_pSunrise && m_pSunrise->is_NoData(n) )
+						{
+							m_pSunrise->Set_Value(n, time);
+						}
+
+						if( m_pSunset && !m_pSunset->is_NoData(n) )
+						{
+							m_pSunset->Set_NoData(n);
+						}
+					}
+					else
+					{
+						if( m_pSunset && m_pSunset->is_NoData(n) && m_pSum->asDouble(n) > 0.0 )
+						{
+							m_pSunset->Set_Value(n, time);
+						}
 					}
 				}
 			}
@@ -553,6 +587,17 @@ void CSolarRadiation::Get_DailySum(double Latitude_RAD, double Hour_Step, double
 				m_pRadiation->Assign(M_PI_090);
 
 				DataObject_Update(m_pRadiation, 0, 90.0 * M_DEG_TO_RAD, true);
+			}
+
+			if( m_pSunset )
+			{
+				for(int n=0; n<Get_NCells(); n++)
+				{
+					if( m_pSunset->is_NoData(n) && m_pSum->asDouble(n) > 0.0 )
+					{
+						m_pSunset->Set_Value(n, time);
+					}
+				}
 			}
 		}
 	}

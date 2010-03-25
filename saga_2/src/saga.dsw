@@ -345,7 +345,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "io_odbc_otl"=.\modules_io\db\io_db_otl\io_odbc_otl.dsp - Package Owner=<4>
+Project: "io_odbc"=.\modules_io\db\io_odbc\io_odbc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -353,6 +353,12 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name saga_odbc
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -586,6 +592,21 @@ Package=<4>
 ###############################################################################
 
 Project: "saga_gui"=.\saga_core\saga_gui\saga_gui.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name saga_api
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "saga_odbc"=.\saga_core\saga_odbc\saga_odbc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

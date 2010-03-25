@@ -457,22 +457,9 @@ void CParameters_Control::_Add_Property(wxPGProperty *pParent, CSG_Parameter *pP
 
 	if( pParameter->Get_Children_Count() > 0 )
 	{
-		int		i;
-
-		for(i=0; i<pParameter->Get_Children_Count(); i++)
+		for(int i=0; i<pParameter->Get_Children_Count(); i++)
 		{
-			if( pParameter->Get_Child(i)->Get_Children_Count() == 0 )
-			{
-				_Add_Property(pProperty, pParameter->Get_Child(i));
-			}
-		}
-
-		for(i=0; i<pParameter->Get_Children_Count(); i++)
-		{
-			if( pParameter->Get_Child(i)->Get_Children_Count() > 0 )
-			{
-				_Add_Property(pProperty, pParameter->Get_Child(i));
-			}
+			_Add_Property(pProperty, pParameter->Get_Child(i));
 		}
 
 		m_pPG->Expand(pProperty);
@@ -530,13 +517,19 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 	case PARAMETER_TYPE_FilePath:
 	case PARAMETER_TYPE_Font:
 	case PARAMETER_TYPE_FixedTable:
+	case PARAMETER_TYPE_Parameters:
+		pProperty	= new CParameters_PG_Dialog	(Name, ID, pParameter);
+		break;
+
 	case PARAMETER_TYPE_Grid_List:
 	case PARAMETER_TYPE_Table_List:
 	case PARAMETER_TYPE_Shapes_List:
 	case PARAMETER_TYPE_TIN_List:
 	case PARAMETER_TYPE_PointCloud_List:
-	case PARAMETER_TYPE_Parameters:
-		pProperty	= new CParameters_PG_Dialog	(Name, ID, pParameter);
+		if( !pParameter->is_Output() )
+		{
+			pProperty	= new CParameters_PG_Dialog	(Name, ID, pParameter);
+		}
 		break;
 
 	case PARAMETER_TYPE_Choice:

@@ -42,9 +42,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -385,7 +383,7 @@ bool CRGA_Basic::On_Execute(void)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
-			if( pSeeds->asInt(x, y) != 0 )
+			if( !pSeeds->is_NoData(x, y) )
 			{
 				CSG_Table_Record	*pRec	= m_pSeeds->Add_Record();
 
