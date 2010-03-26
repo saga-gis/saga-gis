@@ -790,13 +790,13 @@ bool CSG_PointCloud::_Dec_Array(void)
 		m_Cursor	= NULL;
 		m_nRecords	--;
 
-		SG_Free(m_Points[Get_Count()]);
+		SG_Free(m_Points[m_nRecords]);
 
-		if( (Get_Count() - 1) < m_nBuffer - GET_GROW_SIZE(m_nBuffer) )
+		if( (m_nRecords - 1) < m_nBuffer - GET_GROW_SIZE(m_nBuffer) )
 		{
 			char	**pPoints	= (char **)SG_Realloc(m_Points, (m_nBuffer - GET_GROW_SIZE(m_nBuffer)) * sizeof(char *));
 
-			if( pPoints )
+			if( pPoints || m_nRecords == 0 )
 			{
 				m_Points	= pPoints;
 				m_nBuffer	-= GET_GROW_SIZE(m_nBuffer);

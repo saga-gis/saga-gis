@@ -455,7 +455,11 @@ void CWKSP_PointCloud::On_Draw(CWKSP_Map_DC &dc_Map, bool bEdit)
 //---------------------------------------------------------
 inline void CWKSP_PointCloud::_Draw_Point(CWKSP_Map_DC &dc_Map, int x, int y, double z, int Color)
 {
-	if( m_Aggregation == 1 || m_Z.is_InGrid(x, y) )
+	if( m_Aggregation == 1 )	// last value
+	{
+		dc_Map.IMG_Set_Pixel(x, y, Color);
+	}
+	else if( m_Z.is_InGrid(x, y) )
 	{
 		switch( m_Aggregation )
 		{
@@ -464,10 +468,6 @@ inline void CWKSP_PointCloud::_Draw_Point(CWKSP_Map_DC &dc_Map, int x, int y, do
 			{
 				dc_Map.IMG_Set_Pixel(x, y, Color);
 			}
-			break;
-
-		case 1:	// last value
-			dc_Map.IMG_Set_Pixel(x, y, Color);
 			break;
 
 		case 2:	// lowest z

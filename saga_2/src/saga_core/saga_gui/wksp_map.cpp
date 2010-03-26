@@ -617,7 +617,7 @@ CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 			Set_Extent(pLayer->Get_Extent());
 		}
 
-		if( Get_Count() == 0 || m_Parameters("GOTO_NEWLAYER")->asBool() )
+		if( Get_Count() == 0 || (m_Parameters("GOTO_NEWLAYER")->asBool() && pLayer->Get_Extent().Get_XRange() > 0.0 && pLayer->Get_Extent().Get_YRange() > 0.0) )
 		{
 			Set_Extent(pLayer->Get_Extent());
 		}

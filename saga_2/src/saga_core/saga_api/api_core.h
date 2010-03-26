@@ -540,6 +540,86 @@ private:
 
 ///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CSG_Stack
+{
+public:
+	CSG_Stack(size_t RecordSize) : m_RecordSize(RecordSize), m_Size(0), m_Buffer(0), m_Stack(NULL)	{}
+	virtual ~CSG_Stack(void)						{	Destroy();				}
+
+	size_t					Get_RecordSize	(void)	{	return( m_RecordSize );	}
+	size_t					Get_Size		(void)	{	return( m_Size );		}
+	void					Clear			(void)	{	m_Size	= 0;			}
+
+	void					Destroy			(void)
+	{
+		if( m_Stack )
+		{
+			SG_Free(m_Stack);
+		}
+
+		m_Size		= 0;
+		m_Buffer	= 0;
+		m_Stack		= NULL;
+	}
+
+
+protected:
+
+	void *					Get_Record_Push	(void)
+	{
+		if( m_Size < m_Buffer || _Grow() )
+		{
+			m_Size++;
+
+			return( (void *)(((char *)m_Stack) + m_RecordSize * (m_Size - 1)) );
+		}
+
+		return( NULL );
+	}
+
+	void *					Get_Record_Pop	(void)
+	{
+		if( m_Size > 0 )
+		{
+			m_Size--;
+
+			return( (void *)(((char *)m_Stack) + m_RecordSize * (m_Size)) );
+		}
+
+		return( NULL );
+	}
+
+
+private:
+
+	size_t					m_Size, m_Buffer, m_RecordSize;
+
+	void					*m_Stack;
+
+
+	virtual bool			_Grow			(void)
+	{
+		void	*Stack	= SG_Realloc(m_Stack, (m_Buffer + 256) * m_RecordSize);
+
+		if( Stack )
+		{
+			m_Stack		= Stack;
+			m_Buffer	+= 256;
+
+			return( true );
+		}
+
+		return( false );
+	}
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //						Data Types						 //
 //														 //
 ///////////////////////////////////////////////////////////
@@ -730,6 +810,7 @@ SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Name		(const SG_Char *full_Path, boo
 SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Path		(const SG_Char *full_Path);
 SAGA_API_DLL_EXPORT CSG_String		SG_File_Make_Path		(const SG_Char *Directory, const SG_Char *Name, const SG_Char *Extension = NULL);
 SAGA_API_DLL_EXPORT bool			SG_File_Cmp_Extension	(const SG_Char *File_Name, const SG_Char *Extension);
+SAGA_API_DLL_EXPORT bool			SG_File_Set_Extension	(const SG_Char *File_Name, const SG_Char *Extension);
 SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Extension	(const SG_Char *File_Name);
 
 SAGA_API_DLL_EXPORT bool			SG_Read_Line			(FILE *Stream, CSG_String &Line);

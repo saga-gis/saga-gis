@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.20 2010-03-25 09:20:18 johanvdw Exp $
+# $Id: configure.in,v 1.21 2010-03-26 12:09:50 oconrad Exp $
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
@@ -65,6 +65,7 @@ AC_OUTPUT(Makefile \
 	src/saga_core/Makefile \
 	src/saga_core/saga_api/Makefile \
 	src/saga_core/saga_gdi/Makefile \
+	src/saga_core/saga_odbc/Makefile \
 	src/saga_core/saga_cmd/Makefile \
 	src/saga_core/saga_gui/Makefile \
 	src/modules/Makefile \
@@ -87,7 +88,7 @@ AC_OUTPUT(Makefile \
 	src/modules/shapes/shapes_points/Makefile \
 	src/modules/shapes/shapes_polygons/Makefile \
 	src/modules/shapes/shapes_tools/Makefile \
-    src/modules/shapes/shapes_transect/Makefile \
+        src/modules/shapes/shapes_transect/Makefile \
 	src/modules/table/Makefile \
 	src/modules/table/table_calculus/Makefile \
 	src/modules/table/table_tools/Makefile \
@@ -110,19 +111,21 @@ AC_OUTPUT(Makefile \
 	src/modules_io/Makefile \
 	src/modules_io/esri_e00/Makefile \
 	src/modules_io/esri_e00/io_esri_e00/Makefile \
-	src/modules_io/shapes/Makefile \
-	src/modules_io/shapes/io_shapes/Makefile \
-	src/modules_io/shapes/io_shapes_dxf/Makefile \
+	src/modules_io/db/Makefile \
+	src/modules_io/db/io_odbc/Makefile \
+	src/modules_io/gdal/Makefile \
+	src/modules_io/gdal/io_gdal/Makefile \
 	src/modules_io/grid/Makefile \
 	src/modules_io/grid/io_grid/Makefile \
 	src/modules_io/grid/io_grid_image/Makefile \
 	src/modules_io/grid/io_grid_grib2/Makefile \
 	src/modules_io/gps/Makefile \
 	src/modules_io/gps/io_gps/Makefile \
+	src/modules_io/shapes/Makefile \
+	src/modules_io/shapes/io_shapes/Makefile \
+	src/modules_io/shapes/io_shapes_dxf/Makefile \
 	src/modules_io/table/Makefile \
 	src/modules_io/table/io_table/Makefile \
-	src/modules_io/gdal/Makefile \
-	src/modules_io/gdal/io_gdal/Makefile \
 	src/modules_lectures/Makefile \
 	src/modules_lectures/lectures/Makefile \
 	src/modules_lectures/lectures/lectures_introduction/Makefile \

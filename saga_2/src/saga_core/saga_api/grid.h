@@ -905,6 +905,45 @@ SAGA_API_DLL_EXPORT double			SG_Grid_Cache_Get_Threshold_MB	(void);
 
 ///////////////////////////////////////////////////////////
 //														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CSG_Grid_Stack : public CSG_Stack
+{
+public:
+	CSG_Grid_Stack(void) : CSG_Stack(sizeof(TSG_Point_Int))	{}
+
+	//-----------------------------------------------------
+	virtual void			Push			(int  x, int  y)
+	{
+		TSG_Point_Int	*pPoint	= (TSG_Point_Int *)Get_Record_Push();
+
+		if( pPoint )
+		{
+			pPoint->x	= x;
+			pPoint->y	= y;
+		}
+	}
+
+	//-----------------------------------------------------
+	virtual void			Pop				(int &x, int &y)
+	{
+		TSG_Point_Int	*pPoint	= (TSG_Point_Int *)Get_Record_Pop();
+
+		if( pPoint )
+		{
+			x	= pPoint->x;
+			y	= pPoint->y;
+		}
+	}
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////

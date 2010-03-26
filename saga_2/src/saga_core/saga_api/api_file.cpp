@@ -535,6 +535,21 @@ bool			SG_File_Cmp_Extension(const SG_Char *File_Name, const SG_Char *Extension)
 }
 
 //---------------------------------------------------------
+bool			SG_File_Set_Extension(const SG_Char *File_Name, const SG_Char *Extension)
+{
+	if( File_Name && *File_Name && Extension && *Extension )
+	{
+		wxFileName	fn(File_Name);
+
+		fn.SetExt(Extension);
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 CSG_String		SG_File_Get_Extension(const SG_Char *File_Name)
 {
 	wxFileName	fn(File_Name);

@@ -105,20 +105,25 @@ CPoints_View_Module::CPoints_View_Module(void)
 //---------------------------------------------------------
 bool CPoints_View_Module::On_Execute(void)
 {
-	CSG_PointCloud	*pPoints	= Parameters("POINTS")->asPointCloud();
-
-	if( SG_UI_Get_Window_Main() )
+	if( !SG_UI_Get_Window_Main() )
 	{
-		CPoints_View_Dialog	dlg(pPoints);
+		Message_Add(_TL("point cloud viewer can only be run from graphical user interface"));
 
-	//	return( dlg.ShowModal() == wxID_OK );
-
-		dlg.ShowModal();
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	CSG_PointCloud	*pPoints	= Parameters("POINTS")->asPointCloud();
+
+	if( pPoints->Get_Count() <= 0 )
+	{
+		Message_Add(_TL("point cloud viewer will not be started, because point cloud has no points"));
+
+		return( false );
+	}
+
+	CPoints_View_Dialog	dlg(pPoints);
+
+	dlg.ShowModal();
 }
 
 
