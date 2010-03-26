@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.1 2010-03-25 16:36:25 oconrad Exp $
+# $Id: Makefile.am,v 1.2 2010-03-26 11:43:08 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -24,5 +24,5 @@ pgis_shapes.h\
 shapes.h\
 table.h
 
-libio_odbc_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(top_srcdir)/src/saga_core/saga_api/libsaga_odbc.la
+libio_odbc_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(top_srcdir)/src/saga_core/saga_odbc/libsaga_odbc.la
 
