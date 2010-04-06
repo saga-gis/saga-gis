@@ -486,16 +486,17 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 						runStats	= runStats->next;
 					min			= runStats->min;
 					max			= runStats->max;
-					sumYcomp	= runStats->sum;
+					sumXcomp	= runStats->sum;
 
 					runStats	= runStats->next;
-					sumXcomp	= runStats->sum;
+					sumYcomp	= runStats->sum;
 
 					pRecord		->Set_Value(catLevel+2+iGrid, min*M_RAD_TO_DEG);
 					pRecord		->Set_Value(catLevel+3+iGrid, max*M_RAD_TO_DEG);
-					valYcomp	= sumYcomp / runSub->count;
 					valXcomp	= sumXcomp / runSub->count;
-					val			= valYcomp ? fmod(M_PI_270 + atan2(valXcomp, valYcomp), M_PI_360) : (valXcomp > 0 ? M_PI_270 : (valXcomp < 0 ? M_PI_090 : -1));
+					valYcomp	= sumYcomp / runSub->count;
+					val			= valXcomp ? fmod(M_PI_270 + atan2(valYcomp, valXcomp), M_PI_360) : (valYcomp > 0 ? M_PI_270 : (valYcomp < 0 ? M_PI_090 : -1));
+					val			= fmod(M_PI_360 - val, M_PI_360);
 					pRecord		->Set_Value(catLevel+4+iGrid, val*M_RAD_TO_DEG);
 				}
 			}
