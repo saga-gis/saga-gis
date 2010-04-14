@@ -523,6 +523,9 @@ CSG_Grid * CESRI_E00_Import::getraster(int prec, double scale)
 	xres	= xres * scale;
 	yres	= yres * scale;
 
+	xmin	+= xres / 2.0;	// SAGA treats xmin/ymin as "pixel-as-point" and not as "pixel-as-area"
+	ymin	+= yres / 2.0;
+
 	if( depth == 2 && prec )
 	{
 		depth	= 3;
