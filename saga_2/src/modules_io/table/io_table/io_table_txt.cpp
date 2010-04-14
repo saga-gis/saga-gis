@@ -223,7 +223,7 @@ CTable_Text_Import::CTable_Text_Import(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Points"),
+		NULL	, "TABLE"		, _TL("Table"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -443,6 +443,239 @@ bool CTable_Text_Import_Numbers::On_Execute(void)
 	}
 
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CTable_Text_Import_Fixed_Cols::CTable_Text_Import_Fixed_Cols(void)
+{
+	Set_Name		(_TL("Import Text Table (Fixed Column Sizes)"));
+
+	Set_Author		(SG_T("O. Conrad (c) 2010"));
+
+	Set_Description	(_TW(
+		""
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Table(
+		NULL	, "TABLE"		, _TL("Table"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Value(
+		NULL	, "HEADLINE"	, _TL("File contains headline"),
+		_TL(""),
+		PARAMETER_TYPE_Bool		, true
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "FIELDDEF"	, _TL("Field Definition"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("mark breaks in first line"),
+			_TL("specify fields with type")
+		), 0
+	);
+
+	Parameters.Add_Value(
+		NULL	, "NFIELDS"		, _TL("Numver of Fields"),
+		_TL(""),
+		PARAMETER_TYPE_Int		, 1, 1, true
+	);
+
+	Parameters.Add_FilePath(
+		NULL	, "FILENAME"	, _TL("File"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s"),
+			_TL("Text Files (*.txt)")	, SG_T("*.txt"),
+			_TL("All Files")			, SG_T("*.*")
+		), NULL, false
+	);
+
+	Add_Parameters("BREAKS", _TL("Breaks"), _TL(""));
+	Add_Parameters("FIELDS", _TL("Fields"), _TL(""));
+}
+
+//---------------------------------------------------------
+bool CTable_Text_Import_Fixed_Cols::On_Execute(void)
+{
+	bool			bHeader;
+	int				i, nChars, iField, nFields, *iFirst, *iLength;
+	CSG_String		sLine;
+	CSG_File		Stream;
+	CSG_Table		*pTable;
+
+	//-----------------------------------------------------
+	pTable	= Parameters("TABLE")		->asTable();
+	bHeader	= Parameters("HEADLINE")	->asBool();
+
+	//-----------------------------------------------------
+	if( !Stream.Open(Parameters("FILENAME")->asString(), SG_FILE_R, true) )
+	{
+		Message_Add(_TL("file could not be opened"));
+
+		return( false );
+	}
+
+	if( !Stream.Read_Line(sLine) || (nChars = sLine.Length()) <= 0 )
+	{
+		Message_Add(_TL("empty or corrupted file"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	pTable->Destroy();
+	pTable->Set_Name(SG_File_Get_Name(Parameters("FILENAME")->asString(), false));
+
+	//-----------------------------------------------------
+	if( Parameters("FIELDDEF")->asInt() == 0 )
+	{
+		CSG_Parameters	*pBreaks	= Get_Parameters("BREAKS");
+
+		pBreaks->Del_Parameters();
+
+		for(i=0; i<nChars; i++)
+		{
+			pBreaks->Add_Value(NULL,
+				CSG_String::Format(SG_T("%03d"), i),
+				CSG_String::Format(SG_T("%03d %c"), i + 1, sLine[i]),
+				_TL(""), PARAMETER_TYPE_Bool, false
+			);
+		}
+
+		if( !Dlg_Parameters("BREAKS") )
+		{
+			return( false );
+		}
+
+		//-------------------------------------------------
+		for(i=0, nFields=1; i<pBreaks->Get_Count(); i++)
+		{
+			if( pBreaks->Get_Parameter(i)->asBool() )
+			{
+				nFields++;
+			}
+		}
+
+		//-------------------------------------------------
+		iFirst		= new int[nFields];
+		iLength		= new int[nFields];
+
+		iFirst[0]	= 0;
+
+		for(i=0, iField=1; i<pBreaks->Get_Count() && iField<nFields; i++)
+		{
+			if( pBreaks->Get_Parameter(i)->asBool() )
+			{
+				iFirst[iField++]	= i + 1;
+			}
+		}
+
+		//-------------------------------------------------
+		for(iField=0; iField<nFields; iField++)
+		{
+			iLength[iField]	= (iField < nFields - 1 ? iFirst[iField + 1] : sLine.Length()) - iFirst[iField];
+
+			pTable->Add_Field(bHeader ? sLine.Mid(iFirst[iField], iLength[iField]) : CSG_String::Format(SG_T("FIELD%03d"), iField + 1), SG_DATATYPE_String);
+		}
+	}
+
+	//-----------------------------------------------------
+	else
+	{
+		CSG_Parameters	*pFields	= Get_Parameters("FIELDS");
+
+		pFields->Del_Parameters();
+
+		nFields	= Parameters("NFIELDS")->asInt();
+
+		for(iField=0; iField<nFields; iField++)
+		{
+			CSG_String		s		= CSG_String::Format(SG_T("%03d"), iField);
+			CSG_Parameter	*pNode	= pFields->Add_Node(NULL, SG_T("NODE") + s, _TL("Field") + s, _TL(""));
+			pFields->Add_Value	(pNode, SG_T("LENGTH") + s, _TL("Length"), _TL(""), PARAMETER_TYPE_Int, 1, 1, true);
+		//	pFields->Add_Value	(pNode, SG_T("IMPORT") + s, _TL("Import"), _TL(""), PARAMETER_TYPE_Bool, true);
+			pFields->Add_Choice	(pNode, SG_T("TYPE")   + s, _TL("Type")  , _TL(""), CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+				_TL("text"),
+				_TL("2 byte integer"),
+				_TL("4 byte integer"),
+				_TL("4 byte float"),
+				_TL("8 byte float"))
+			);
+		}
+
+		if( !Dlg_Parameters("FIELDS") )
+		{
+			return( false );
+		}
+
+		//-------------------------------------------------
+		iFirst		= new int[nFields];
+		iLength		= new int[nFields];
+
+		iFirst[0]	= 0;
+
+		for(iField=0, i=0; iField<nFields && i<nChars; iField++)
+		{
+			CSG_String		s		= CSG_String::Format(SG_T("%03d"), iField);
+
+			iFirst [iField]	= i;
+			iLength[iField]	= pFields->Get_Parameter(SG_T("LENGTH") + s)->asInt();
+
+			i	+= iLength[iField];
+
+			CSG_String		Name	= bHeader ? sLine.Mid(iFirst[iField], iLength[iField]) : CSG_String::Format(SG_T("FIELD%03d"), iField + 1);
+
+			switch( pFields->Get_Parameter(SG_T("TYPE") + s)->asInt() )
+			{
+			default:
+			case 0:	pTable->Add_Field(Name, SG_DATATYPE_String);	break;
+			case 1:	pTable->Add_Field(Name, SG_DATATYPE_Short);		break;
+			case 2:	pTable->Add_Field(Name, SG_DATATYPE_Int);		break;
+			case 3:	pTable->Add_Field(Name, SG_DATATYPE_Float);		break;
+			case 4:	pTable->Add_Field(Name, SG_DATATYPE_Double);	break;
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if( bHeader )
+	{
+		Stream.Read_Line(sLine);
+	}
+
+	//-----------------------------------------------------
+	int		fLength	= Stream.Length();
+
+	do
+	{
+		if( sLine.Length() == nChars )
+		{
+			CSG_Table_Record	*pRecord	= pTable->Add_Record();
+
+			for(iField=0; iField<nFields; iField++)
+			{
+				pRecord->Set_Value(iField, sLine.Mid(iFirst[iField], iLength[iField]));
+			}
+		}
+	}
+	while( Stream.Read_Line(sLine) && Set_Progress(Stream.Tell(), fLength) );
+
+	//-----------------------------------------------------
+	delete[](iFirst);
+	delete[](iLength);
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 

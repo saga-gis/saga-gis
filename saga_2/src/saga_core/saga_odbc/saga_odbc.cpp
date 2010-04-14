@@ -433,12 +433,16 @@ bool CSG_ODBC_Connection::Execute(const CSG_String &SQL, bool bCommit)
 
 	try
 	{
-		if( m_Connection.direct_exec(SG_STR_SGTOMB(SQL)) >= 0 )
-		{
-			return( bCommit ? Commit() : true );
-		}
+		m_Connection.direct_exec(SG_STR_SGTOMB(SQL));
 
-		_Error_Message(LNG("sql excution error"), SQL);
+		return( bCommit ? Commit() : true );
+
+	//	if( m_Connection.direct_exec(SG_STR_SGTOMB(SQL)) >= 0 )
+	//	{
+	//		return( bCommit ? Commit() : true );
+	//	}
+
+	//	_Error_Message(LNG("sql excution error"), SQL);
 	}
 	catch( otl_exception &e )
 	{
@@ -530,7 +534,7 @@ bool CSG_ODBC_Connection::Table_Create(const CSG_String &Table_Name, const CSG_T
 		case SG_DATATYPE_Color:		s.Printf(SG_T("%s INT")			, Table.Get_Field_Name(iField));	break;
 		case SG_DATATYPE_Long:		s.Printf(SG_T("%s INT")			, Table.Get_Field_Name(iField));	break;
 		case SG_DATATYPE_Float:		s.Printf(SG_T("%s FLOAT")		, Table.Get_Field_Name(iField));	break;
-		case SG_DATATYPE_Double:	s.Printf(SG_T("%s REAL")		, Table.Get_Field_Name(iField));	break;
+		case SG_DATATYPE_Double:	s.Printf(SG_T("%s DOUBLE")		, Table.Get_Field_Name(iField));	break;
 		case SG_DATATYPE_Binary:	s.Printf(SG_T("%s VARBINARY")	, Table.Get_Field_Name(iField));	break;
 		}
 
@@ -616,7 +620,7 @@ bool CSG_ODBC_Connection::_Table_Load(CSG_Table &Table, const CSG_String &Select
 
 			Table.Add_Field(Fields[iField].name, _Get_Type_From_SQL(Fields[iField].otl_var_dbtype));
 		}
-		const SG_Char *s = Select.c_str();
+
 		//-------------------------------------------------
 		while( !Stream.eof() && SG_UI_Process_Get_Okay() )	// while not end-of-data
 		{
@@ -840,7 +844,7 @@ bool CSG_ODBC_Connection::Table_Save(const CSG_String &Table_Name, const CSG_Tab
 			default:
 			case SG_DATATYPE_String:	Insert	+= SG_T("<varchar>");	break;
 			case SG_DATATYPE_Date:		Insert	+= SG_T("<char[12]>");	break;
-			case SG_DATATYPE_Char:		Insert	+= SG_T("<float>");		break;
+			case SG_DATATYPE_Char:		Insert	+= SG_T("<char>");		break;
 			case SG_DATATYPE_Short:		Insert	+= SG_T("<short>");		break;
 			case SG_DATATYPE_Int:		Insert	+= SG_T("<int>");		break;
 			case SG_DATATYPE_Color:		Insert	+= SG_T("<long>");		break;
@@ -854,7 +858,8 @@ bool CSG_ODBC_Connection::Table_Save(const CSG_String &Table_Name, const CSG_Tab
 
 		Stream.set_all_column_types(otl_all_date2str);
 		Stream.set_lob_stream_mode(bLOB);
-		Stream.open(bLOB ? 1 : m_Size_Buffer, SG_STR_SGTOMB(Insert), m_Connection);
+		Stream.open(1, SG_STR_SGTOMB(Insert), m_Connection);
+//		Stream.open(bLOB ? 1 : m_Size_Buffer, SG_STR_SGTOMB(Insert), m_Connection);
 
 		string	valString;
 
@@ -869,18 +874,18 @@ bool CSG_ODBC_Connection::Table_Save(const CSG_String &Table_Name, const CSG_Tab
 				{
 				default:
 				case SG_DATATYPE_String:
+				case SG_DATATYPE_Date:
 					valString	= SG_STR_SGTOMB(pRecord->asString(iField));
 					Stream << valString;
 					break;
 
-				case SG_DATATYPE_Date:		Stream << SG_STR_SGTOMB(pRecord->asString(iField));	break;
-				case SG_DATATYPE_Char:
-				case SG_DATATYPE_Short:		Stream << pRecord->asShort (iField);	break;
-				case SG_DATATYPE_Int:
+				case SG_DATATYPE_Char:		Stream << (char)pRecord->asChar  (iField);	break;
+				case SG_DATATYPE_Short:		Stream <<       pRecord->asShort (iField);	break;
+				case SG_DATATYPE_Int:		Stream <<       pRecord->asInt   (iField);	break;
 				case SG_DATATYPE_Color:
-				case SG_DATATYPE_Long:		Stream << pRecord->asInt   (iField);	break;
-				case SG_DATATYPE_Float:		Stream << pRecord->asFloat (iField);	break;
-				case SG_DATATYPE_Double:	Stream << pRecord->asDouble(iField);	break;
+				case SG_DATATYPE_Long:		Stream << (long)pRecord->asInt   (iField);	break;
+				case SG_DATATYPE_Float:		Stream <<       pRecord->asFloat (iField);	break;
+				case SG_DATATYPE_Double:	Stream <<       pRecord->asDouble(iField);	break;
 				}
 			}
 		}

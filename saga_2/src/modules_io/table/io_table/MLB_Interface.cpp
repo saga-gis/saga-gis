@@ -104,6 +104,7 @@ CSG_Module *		Create_Module(int i)
 	case  0:	return( new CTable_Text_Export );
 	case  1:	return( new CTable_Text_Import );
 	case  2:	return( new CTable_Text_Import_Numbers );
+	case  3:	return( new CTable_Text_Import_Fixed_Cols );
 	}
 
 	return( NULL );

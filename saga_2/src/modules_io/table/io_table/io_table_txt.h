@@ -123,6 +123,21 @@ protected:
 
 };
 
+//---------------------------------------------------------
+class CTable_Text_Import_Fixed_Cols : public CSG_Module  
+{
+public:
+	CTable_Text_Import_Fixed_Cols(void);
+
+	virtual const SG_Char *	Get_MenuPath(void)		{	return( _TL("R:Import") );	}
+
+
+protected:
+
+	virtual bool			On_Execute(void);
+
+};
+
 
 ///////////////////////////////////////////////////////////
 //														 //

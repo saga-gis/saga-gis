@@ -700,11 +700,9 @@ bool CSG_PointCloud::Del_Point(int iPoint)
 
 		delete(m_Points[iPoint]);
 
-		m_nRecords--;
-
-		for(int i=iPoint, j=iPoint+1; i<Get_Count(); i++, j++)
+		for(int i=iPoint, j=iPoint+1; j<Get_Count(); i++, j++)
 		{
-			m_Points[i]	= m_Points[i + 1];
+			m_Points[i]	= m_Points[j];
 		}
 
 		_Dec_Array();

@@ -139,18 +139,7 @@ void CSG_Parameters::Destroy(void)
 	m_pOwner		= NULL;
 	m_pGrid_System	= NULL;
 
-	if( m_nParameters > 0 )
-	{
-		for(int i=0; i<m_nParameters; i++)
-		{
-			delete(m_Parameters[i]);
-		}
-
-		SG_Free(m_Parameters);
-
-		m_Parameters	= NULL;
-		m_nParameters	= 0;
-	}
+	Del_Parameters();
 }
 
 
@@ -796,13 +785,22 @@ CSG_Parameter * CSG_Parameters::_Add(CSG_Parameter *pSource)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_Parameter * CSG_Parameters::Get_Parameter(int iParameter)
+{
+	if( m_Parameters && iParameter >= 0 && iParameter < m_nParameters )
+	{
+		return( m_Parameters[iParameter] );
+	}
+
+	return( NULL );
+}
+
+//---------------------------------------------------------
 CSG_Parameter * CSG_Parameters::Get_Parameter(const SG_Char *Identifier)
 {
-	int		i;
-
 	if( m_Parameters && Identifier )
 	{
-		for(i=0; i<m_nParameters; i++)
+		for(int i=0; i<m_nParameters; i++)
 		{
 			if( !m_Parameters[i]->m_Identifier.Cmp(Identifier) )
 			{
@@ -815,14 +813,61 @@ CSG_Parameter * CSG_Parameters::Get_Parameter(const SG_Char *Identifier)
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Get_Parameter(int iParameter)
+bool CSG_Parameters::Del_Parameter(int iParameter)
 {
 	if( m_Parameters && iParameter >= 0 && iParameter < m_nParameters )
 	{
-		return( m_Parameters[iParameter] );
+		delete(m_Parameters[iParameter]);
+
+		m_nParameters--;
+
+		for(; iParameter<m_nParameters; iParameter++)
+		{
+			m_Parameters[iParameter]	= m_Parameters[iParameter + 1];
+		}
+
+		m_Parameters	= (CSG_Parameter **)SG_Realloc(m_Parameters, m_nParameters * sizeof(CSG_Parameter *));
+
+		return( true );
 	}
 
-	return( NULL );
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameters::Del_Parameter(const SG_Char *Identifier)
+{
+	if( m_Parameters && Identifier )
+	{
+		for(int i=0; i<m_nParameters; i++)
+		{
+			if( !m_Parameters[i]->m_Identifier.Cmp(Identifier) )
+			{
+				return( Del_Parameter(i) );
+			}
+		}
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameters::Del_Parameters(void)
+{
+	if( m_nParameters > 0 )
+	{
+		for(int i=0; i<m_nParameters; i++)
+		{
+			delete(m_Parameters[i]);
+		}
+
+		SG_Free(m_Parameters);
+
+		m_Parameters	= NULL;
+		m_nParameters	= 0;
+	}
+
+	return( true );
 }
 
 
@@ -1567,6 +1612,9 @@ bool CSG_Parameters::Serialize_Compatibility(CSG_File &Stream)
 
 CSG_Parameter * CSG_Parameters::Get_Parameter(const char *Identifier)
 {	return( Get_Parameter(SG_STR_MBTOSG(Identifier)) );	}
+
+bool CSG_Parameters::Del_Parameter(const char *Identifier)
+{	return( Del_Parameter(SG_STR_MBTOSG(Identifier)) );	}
 
 CSG_Parameter * CSG_Parameters::Add_Node				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description)
 {	return( Add_Node				(pParent, SG_STR_MBTOSG(Identifier), Name, Description) );	}

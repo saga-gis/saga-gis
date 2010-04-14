@@ -527,3 +527,25 @@ bool CSG_Projections::from_Proj4(CSG_String &Projection, const CSG_String &Proj4
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+// obsolete: to be removed...
+
+const CSG_Projection & CSG_Projections::Get_Projection(int i)	const
+{
+	static CSG_Projection	p;
+
+	return( p );
+}
+
+const CSG_Projection & CSG_Projections::operator []	(int i) const
+{
+	return( Get_Projection(i) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

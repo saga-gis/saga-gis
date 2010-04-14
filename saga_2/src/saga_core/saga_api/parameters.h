@@ -1129,10 +1129,16 @@ public:
 
 	//-----------------------------------------------------
 	CSG_Parameter *				Get_Parameter			(int iParameter);
-	CSG_Parameter *				operator()				(int iParameter)			{	return( Get_Parameter(iParameter) );	}
-
 	CSG_Parameter *				Get_Parameter			(const SG_Char *Identifier);
+
+	CSG_Parameter *				operator()				(int iParameter)			{	return( Get_Parameter(iParameter) );	}
 	CSG_Parameter *				operator()				(const SG_Char *Identifier)	{	return( Get_Parameter(Identifier) );	}
+
+	//-----------------------------------------------------
+	bool						Del_Parameter			(int iParameter);
+	bool						Del_Parameter			(const SG_Char *Identifier);
+
+	bool						Del_Parameters			(void);
 
 	//-----------------------------------------------------
 	CSG_Parameter *				Add_Node				(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description);
@@ -1209,6 +1215,7 @@ public:
 #ifdef _SAGA_UNICODE
 	CSG_Parameter *				Get_Parameter			(const char *Identifier);
 	CSG_Parameter *				operator()				(const char *Identifier)	{	return( Get_Parameter(Identifier) );	}
+	bool						Del_Parameter			(const char *Identifier);
 	CSG_Parameter *				Add_Node				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description);
 	CSG_Parameter *				Add_Value				(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, TSG_Parameter_Type Type, double Value = 0.0, double Minimum = 0.0, bool bMinimum = false, double Maximum = 0.0, bool bMaximum = false);
 	CSG_Parameter *				Add_Info_Value			(CSG_Parameter *pParent, const char *Identifier, const SG_Char *Name, const SG_Char *Description, TSG_Parameter_Type Type, double Value = 0.0);
