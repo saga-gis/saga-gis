@@ -663,12 +663,12 @@ bool CSG_Grid::_Load_Native(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 		//-------------------------------------------------
 		// Load Data...
 
-		if( hdr_Type < SG_DATATYPE_Undefined && m_System.Assign(Cellsize, xMin, yMin, NX, NY) )
+		if( m_System.Assign(Cellsize, xMin, yMin, NX, NY) )
 		{
 			//---------------------------------------------
 			// ASCII...
 
-			if( hdr_Type >= SG_DATATYPE_Undefined )
+			if( !SG_Data_Type_is_Numeric(hdr_Type) )
 			{
 				if( m_Type >= SG_DATATYPE_Undefined )
 				{
@@ -680,7 +680,7 @@ bool CSG_Grid::_Load_Native(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 				||	Stream.Open(SG_File_Make_Path(NULL, File_Name, SG_T("sdat"))	, SG_FILE_R, false) )
 				{
 					Stream.Seek(hdr_Offset);
-					bResult	= _Load_ASCII(Stream, Memory_Type);
+					bResult	= _Load_ASCII(Stream, Memory_Type, hdr_bFlip);
 				}
 			}
 

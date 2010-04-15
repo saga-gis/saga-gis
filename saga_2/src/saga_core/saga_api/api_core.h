@@ -693,6 +693,7 @@ inline size_t	SG_Data_Type_Get_Size	(TSG_Data_Type Type)
 
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT const SG_Char *	SG_Data_Type_Get_Name	(TSG_Data_Type Type);
+SAGA_API_DLL_EXPORT bool			SG_Data_Type_is_Numeric	(TSG_Data_Type Type);
 
 
 ///////////////////////////////////////////////////////////

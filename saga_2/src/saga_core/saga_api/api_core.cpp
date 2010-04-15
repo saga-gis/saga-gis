@@ -94,6 +94,34 @@ const SG_Char *	SG_Data_Type_Get_Name	(TSG_Data_Type Type)
 };
 
 
+//---------------------------------------------------------
+bool SG_Data_Type_is_Numeric(TSG_Data_Type Type)
+{
+	switch( Type )
+	{
+	case SG_DATATYPE_Bit:
+	case SG_DATATYPE_Byte:
+	case SG_DATATYPE_Char:
+	case SG_DATATYPE_Word:
+	case SG_DATATYPE_Short:
+	case SG_DATATYPE_DWord:
+	case SG_DATATYPE_Int:
+	case SG_DATATYPE_ULong:
+	case SG_DATATYPE_Long:
+	case SG_DATATYPE_Float:
+	case SG_DATATYPE_Double:
+		return( true );
+
+	default:
+	case SG_DATATYPE_String:
+	case SG_DATATYPE_Date:
+	case SG_DATATYPE_Color:
+	case SG_DATATYPE_Binary:
+		return( false );
+	}
+}
+
+
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
