@@ -112,20 +112,25 @@ void CDLG_List_PointCloud::_Set_Objects(void)
 	bool						bList;
 	int							i, j;
 	CWKSP_PointCloud_Manager	*pPointClouds;
-	CSG_PointCloud				*pPointCloud;
+	CWKSP_PointCloud			*pPointCloud;
 
 	//-----------------------------------------------------
 	if( (pPointClouds = g_pData->Get_PointClouds()) != NULL )
 	{
 		for(i=0; i<m_pList->Get_Count(); i++)
 		{
-			m_pAdd->Append(m_pList->asDataObject(i)->Get_Name(), m_pList->asDataObject(i));
+			CWKSP_Base_Item	*pItem	= g_pData->Get_PointClouds()->Get_PointCloud(m_pList->asDataObject(i)->asPointCloud());
+
+			if( pItem )
+			{
+				m_pAdd->Append(pItem->Get_Name(), (void *)pItem);
+			}
 		}
 
 		//-------------------------------------------------
 		for(i=0; i<pPointClouds->Get_Count(); i++)
 		{
-			pPointCloud	= pPointClouds->Get_PointCloud(i)->Get_PointCloud();
+			pPointCloud	= pPointClouds->Get_PointCloud(i);
 
 			for(j=0, bList=true; j<(int)m_pAdd->GetCount() && bList; j++)
 			{
@@ -137,7 +142,7 @@ void CDLG_List_PointCloud::_Set_Objects(void)
 
 			if( bList )
 			{
-				m_pSelect->Append(pPointCloud->Get_Name(), pPointCloud);
+				m_pSelect->Append(pPointCloud->Get_Name(), (void *)pPointCloud);
 			}
 		}
 	}

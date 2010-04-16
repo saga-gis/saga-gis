@@ -63,6 +63,11 @@
 #include "res_controls.h"
 
 #include "wksp_data_manager.h"
+#include "wksp_grid.h"
+#include "wksp_table.h"
+#include "wksp_shapes.h"
+#include "wksp_tin.h"
+#include "wksp_pointcloud.h"
 
 #include "dlg_list_base.h"
 
@@ -115,9 +120,11 @@ CDLG_List_Base::CDLG_List_Base(CSG_Parameter_List *pList, wxString Caption)
 
 	switch( m_pList->Get_Type() )
 	{
-	case PARAMETER_TYPE_Grid_List:		Type	= DATAOBJECT_TYPE_Grid;		break;
-	case PARAMETER_TYPE_Table_List:		Type	= DATAOBJECT_TYPE_Table;	break;
-	case PARAMETER_TYPE_Shapes_List:	Type	= DATAOBJECT_TYPE_Shapes;	break;
+	case PARAMETER_TYPE_Grid_List:			Type	= DATAOBJECT_TYPE_Grid;			break;
+	case PARAMETER_TYPE_Table_List:			Type	= DATAOBJECT_TYPE_Table;		break;
+	case PARAMETER_TYPE_Shapes_List:		Type	= DATAOBJECT_TYPE_Shapes;		break;
+	case PARAMETER_TYPE_TIN_List:			Type	= DATAOBJECT_TYPE_TIN;			break;
+	case PARAMETER_TYPE_PointCloud_List:	Type	= DATAOBJECT_TYPE_PointCloud;	break;
 	default:	return;
 	}
 
@@ -179,7 +186,15 @@ void CDLG_List_Base::Save_Changes(void)
 
 	for(unsigned int i=0; i<m_pAdd->GetCount(); i++)
 	{
-		m_pList->Add_Item((CSG_Data_Object *)m_pAdd->GetClientData(i));
+		switch( m_pList->Get_Type() )
+		{
+		case PARAMETER_TYPE_Grid_List:			m_pList->Add_Item(((CWKSP_Grid       *)m_pAdd->GetClientData(i))->Get_Grid      ());	break;
+		case PARAMETER_TYPE_Table_List:			m_pList->Add_Item(((CWKSP_Table      *)m_pAdd->GetClientData(i))->Get_Table     ());	break;
+		case PARAMETER_TYPE_Shapes_List:		m_pList->Add_Item(((CWKSP_Shapes     *)m_pAdd->GetClientData(i))->Get_Shapes    ());	break;
+		case PARAMETER_TYPE_TIN_List:			m_pList->Add_Item(((CWKSP_TIN        *)m_pAdd->GetClientData(i))->Get_TIN       ());	break;
+		case PARAMETER_TYPE_PointCloud_List:	m_pList->Add_Item(((CWKSP_PointCloud *)m_pAdd->GetClientData(i))->Get_PointCloud());	break;
+		default:	return;
+		}
 	}
 }
 

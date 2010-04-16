@@ -110,6 +110,8 @@ private:
 	bool					Read_Facette		(CSG_File &Stream, TSTL_Point p[3]);
 	void					Rotate				(TSTL_Point &p);
 
+	bool					Get_Extent			(CSG_File &Stream, CSG_Rect &Extent, int nFacettes);
+
 	void					Set_Triangle		(TGRD_Point p[3]);
 	void					Set_Triangle_Line	(int xa, int xb, int y, double za, double zb);
 	void					Set_Triangle_Point	(int x, int y, double z);

@@ -130,25 +130,25 @@ void CSG_Regression_Multiple::Destroy(void)
 //---------------------------------------------------------
 bool CSG_Regression_Multiple::Calculate(const CSG_Table &Values)
 {
-	int				i, nVariables, nValues;
-	CSG_Table_Record	*pRecord;
-
-	//-----------------------------------------------------
 	Destroy();
+
+	int		nVariables,	nValues;
 
 	if(	(nVariables = Values.Get_Field_Count() - 1) > 0
 	&&	(nValues    = Values.Get_Record_Count()) > nVariables )
 	{
-		for(i=0; i<=nVariables; i++)
+		for(int i=0; i<=nVariables; i++)
 		{
-			pRecord	= m_pResult->Add_Record();
+			CSG_Table_Record	*pRecord	= m_pResult->Add_Record();
+
 			pRecord->Set_Value(MRFIELD_NR	, i);
 			pRecord->Set_Value(MRFIELD_NAME	, Values.Get_Field_Name(i));
 		}
 
-		//-------------------------------------------------
 		_Get_Regression (Values);
 		_Get_Correlation(Values);
+
+		m_pResult->Set_Index(MRFIELD_ORDER, TABLE_INDEX_Ascending);
 
 		return( true );
 	}
@@ -353,14 +353,28 @@ bool CSG_Regression_Multiple::_Eliminate(int nValues, double *X, double *Y)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSG_Regression_Multiple::Get_Ordered(int iOrder)
+int CSG_Regression_Multiple::Get_Count(void)
 {
-	for(int i=0; i<m_pResult->Get_Record_Count(); i++)
+	return( m_pResult->Get_Count() - 1 );
+}
+
+//---------------------------------------------------------
+double CSG_Regression_Multiple::Get_RConst(void)
+{
+	if( Get_Count() > 0 )
 	{
-		if( iOrder == m_pResult->Get_Record(i)->asInt(MRFIELD_ORDER) )
-		{
-			return( i - 1 );
-		}
+		return( m_pResult->Get_Record(0)->asDouble(MRFIELD_RCOEFF) );
+	}
+
+	return( -1.0 );
+}
+
+//---------------------------------------------------------
+int CSG_Regression_Multiple::Get_Index(int iVariable)
+{
+	if( iVariable >= 0 && iVariable < Get_Count() )
+	{
+		return( m_pResult->Get_Record_byIndex(1 + iVariable)->asInt(MRFIELD_NR) );
 	}
 
 	return( -1 );
@@ -369,63 +383,74 @@ int CSG_Regression_Multiple::Get_Ordered(int iOrder)
 //---------------------------------------------------------
 int CSG_Regression_Multiple::Get_Order(int iVariable)
 {
-	if( ++iVariable > 0 && iVariable < m_pResult->Get_Record_Count() )
+	if( iVariable >= 0 && iVariable < Get_Count() )
 	{
-		return( m_pResult->Get_Record(iVariable)->asInt(MRFIELD_ORDER) );
+		return( m_pResult->Get_Record(1 + iVariable)->asInt(MRFIELD_ORDER) );
 	}
 
 	return( -1 );
 }
 
 //---------------------------------------------------------
-double CSG_Regression_Multiple::Get_R2(int iVariable)
+double CSG_Regression_Multiple::Get_RCoeff(int iVariable, bool bOrdered)
 {
-	if( ++iVariable > 0 && iVariable < m_pResult->Get_Record_Count() )
+	if( iVariable >= 0 && iVariable < Get_Count() )
 	{
-		return( m_pResult->Get_Record(iVariable)->asDouble(MRFIELD_DCOEFF) );
-	}
+		iVariable	= bOrdered ? Get_Index(iVariable) : iVariable + 1;
 
-	return( 0.0 );
-}
-
-//---------------------------------------------------------
-double CSG_Regression_Multiple::Get_R2_Change(int iVariable)
-{
-	int		iOrder	= Get_Order(iVariable);
-
-	if( iOrder > 0 )
-	{
-		return( Get_R2(iVariable) - Get_R2(Get_Ordered(iOrder - 1)) );
-	}
-
-	if( iOrder == 0 )
-	{
-		return( Get_R2(iVariable) );
-	}
-
-	return( 0.0 );
-}
-
-//---------------------------------------------------------
-double CSG_Regression_Multiple::Get_RConst(void)
-{
-	if( m_pResult->Get_Record_Count() > 1 )
-	{
-		return( m_pResult->Get_Record(0)->asDouble(MRFIELD_RCOEFF) );
-	}
-
-	return( 0.0 );
-}
-
-//---------------------------------------------------------
-double CSG_Regression_Multiple::Get_RCoeff(int iVariable)
-{
-	if( ++iVariable > 0 && iVariable < m_pResult->Get_Record_Count() )
-	{
 		return( m_pResult->Get_Record(iVariable)->asDouble(MRFIELD_RCOEFF) );
 	}
 
-	return( 0.0 );
+	return( -1.0 );
+}
+
+//---------------------------------------------------------
+double CSG_Regression_Multiple::Get_R2(int iVariable, bool bOrdered)
+{
+	if( iVariable >= 0 && iVariable < Get_Count() )
+	{
+		iVariable	= bOrdered ? Get_Index(iVariable) : iVariable + 1;
+
+		return( m_pResult->Get_Record(iVariable)->asDouble(MRFIELD_DCOEFF) );
+	}
+
+	return( -1.0 );
+}
+
+//---------------------------------------------------------
+double CSG_Regression_Multiple::Get_R2_Change(int iVariable, bool bOrdered)
+{
+	if( iVariable >= 0 && iVariable < Get_Count() )
+	{
+		if( !bOrdered )
+		{
+			iVariable	= Get_Order(iVariable);
+		}
+
+		if( iVariable == 0 )
+		{
+			return( Get_R2(iVariable, true) );
+		}
+		else if( iVariable > 0 )
+		{
+			return( Get_R2(iVariable, true) - Get_R2(iVariable - 1, true) );
+		}
+	}
+
+	return( -1.0 );
+}
+
+//---------------------------------------------------------
+const SG_Char * CSG_Regression_Multiple::Get_Name(int iVariable, bool bOrdered)
+{
+	if( iVariable >= 0 && iVariable < Get_Count() )
+	{
+		iVariable	= bOrdered ? Get_Index(iVariable) : iVariable + 1;
+
+		return( m_pResult->Get_Record(iVariable)->asString(MRFIELD_NAME) );
+	}
+
+	return( SG_T("") );
 }
 
 

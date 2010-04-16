@@ -474,7 +474,7 @@ bool CSG_Module::Error_Set(const SG_Char *Error_Text)
 //---------------------------------------------------------
 bool CSG_Module::_Garbage_Add_Item(CSG_Data_Object *pDataObject)
 {
-	if( pDataObject )
+	if( pDataObject && !SG_UI_DataObject_Check(pDataObject, DATAOBJECT_TYPE_Undefined) )
 	{
 		for(int i=0; i<m_nGarbage; i++)
 		{

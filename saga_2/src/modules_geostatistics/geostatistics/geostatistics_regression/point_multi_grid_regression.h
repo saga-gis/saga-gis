@@ -95,7 +95,7 @@ private:
 	bool						Get_Regression		(CSG_Parameter_Grid_List *pGrids, CSG_Shapes *pShapes, int iAttribute);
 	bool						Set_Regression		(CSG_Parameter_Grid_List *pGrids, CSG_Grid *pRegression);
 	bool						Set_Residuals		(CSG_Shapes *pShapes, int iAttribute, CSG_Shapes *pResiduals, CSG_Grid *pRegression);
-	void						Set_Message			(CSG_Parameter_Grid_List *pGrids);
+	void						Set_Message			(void);
 
 };
 

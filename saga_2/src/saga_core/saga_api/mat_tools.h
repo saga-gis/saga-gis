@@ -715,12 +715,16 @@ public:
 
 	class CSG_Table *			Get_Result			(void)	{	return( m_pResult );	}
 
-	int							Get_Ordered			(int iOrder);
+	int							Get_Count			(void);
+
+	int							Get_Index			(int iOrder);
 	int							Get_Order			(int iVariable);
-	double						Get_R2				(int iVariable);
-	double						Get_R2_Change		(int iVariable);
+
 	double						Get_RConst			(void);
-	double						Get_RCoeff			(int iVariable);
+	double						Get_RCoeff			(int iVariable, bool bOrdered = false);
+	double						Get_R2				(int iVariable, bool bOrdered = false);
+	double						Get_R2_Change		(int iVariable, bool bOrdered = false);
+	const SG_Char *				Get_Name			(int iVariable, bool bOrdered = false);
 
 
 protected:

@@ -109,11 +109,12 @@ CSTL_Import::CSTL_Import(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Target"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
 			_TL("point cloud"),
+			_TL("point cloud (centered)"),
 			_TL("points"),
 			_TL("raster")
-		), 2
+		), 3
 	);
 
 	Parameters.Add_Value(
@@ -196,7 +197,36 @@ bool CSTL_Import::On_Execute(void)
 	{
 
 	//-----------------------------------------------------
-	case 0:	{
+	case 0:	{	// Point Cloud
+		CSG_Rect	Extent;
+
+		if( Get_Extent(Stream, Extent, nFacettes) )
+		{
+			CSG_PRQuadTree	Points(Extent);
+			CSG_PointCloud	*pPoints	= SG_Create_PointCloud();
+			Parameters("POINTS")->Set_Value(pPoints);
+			pPoints->Set_Name(SG_File_Get_Name(sFile, false));
+			pPoints->Add_Field((const char *)NULL, SG_DATATYPE_Undefined);
+
+			for(iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
+			{
+				if( Read_Facette(Stream, p) )
+				{
+					for(int i=0; i<3; i++)
+					{
+						if( Points.Add_Point(p[i].x, p[i].y, p[i].z) )
+						{
+							pPoints->Add_Point(p[i].x, p[i].y, p[i].z);
+						}
+					}
+				}
+			}
+		}
+
+	break;	}
+
+	//-----------------------------------------------------
+	case 1:	{	// Point Cloud (centered)
 		CSG_PointCloud	*pPoints	= SG_Create_PointCloud();
 		Parameters("POINTS")->Set_Value(pPoints);
 		pPoints->Set_Name(SG_File_Get_Name(sFile, false));
@@ -217,7 +247,7 @@ bool CSTL_Import::On_Execute(void)
 	break;	}
 
 	//-----------------------------------------------------
-	case 1:	{
+	case 2:	{	// Points
 		CSG_Shapes	*pPoints	= SG_Create_Shapes(SHAPE_TYPE_Point, SG_File_Get_Name(sFile, false));
 		pPoints->Add_Field(SG_T("Z"), SG_DATATYPE_Float);
 		Parameters("SHAPES")->Set_Value(pPoints);
@@ -242,40 +272,19 @@ bool CSTL_Import::On_Execute(void)
 	break;	}
 
 	//-----------------------------------------------------
-	case 2:	{
-		float	xMin = 1, xMax = 0, yMin, yMax;
+	case 3:	{	// Raster
+		CSG_Rect	Extent;
 
-		for(iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
-		{
-			TSTL_Point	p[3];
-
-			if( Read_Facette(Stream, p) )
-			{
-				if( iFacette == 0 )
-				{
-					xMin	= xMax	= p[0].x;
-					yMin	= yMax	= p[0].y;
-				}
-
-				for(int i=0; i<3; i++)
-				{
-					if( xMin > p[i].x )	{	xMin	= p[i].x;	}	else if( xMax < p[i].x )	{	xMax	= p[i].x;	}
-					if( yMin > p[i].y )	{	yMin	= p[i].y;	}	else if( yMax < p[i].y )	{	yMax	= p[i].y;	}
-				}
-			}
-		}
-
-		//-------------------------------------------------
-		if( xMin < xMax && yMin < yMax && Stream.Seek(80 + sizeof(nFacettes)) )
+		if( Get_Extent(Stream, Extent, nFacettes) )
 		{
 			int		nx, ny;
 			double	d;
 
 			nx		= Parameters("GRID_RES")->asInt();
-			d		= (xMax - xMin) / nx;
-			ny		= 1 + (int)((yMax - yMin) / d);
+			d		= Extent.Get_XRange() / nx;
+			ny		= 1 + (int)(Extent.Get_YRange() / d);
 
-			m_pGrid	= SG_Create_Grid(SG_DATATYPE_Float, nx, ny, d, xMin, yMin);
+			m_pGrid	= SG_Create_Grid(SG_DATATYPE_Float, nx, ny, d, Extent.Get_XMin(), Extent.Get_YMin());
 			m_pGrid->Set_Name(SG_File_Get_Name(sFile, false));
 			m_pGrid->Set_NoData_Value(-99999);
 			m_pGrid->Assign_NoData();
@@ -350,6 +359,41 @@ inline void CSTL_Import::Rotate(TSTL_Point &p)
 	d	= (float)(r_cos_x * p.z - r_sin_x * p.y);
 	p.y	= (float)(r_sin_x * p.z + r_cos_x * p.y);
 	p.z	= d;
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSTL_Import::Get_Extent(CSG_File &Stream, CSG_Rect &Extent, int nFacettes)
+{
+	float	xMin = 1, xMax = 0, yMin, yMax;
+
+	for(int iFacette=0; iFacette<nFacettes && !Stream.is_EOF() && Set_Progress(iFacette, nFacettes); iFacette++)
+	{
+		TSTL_Point	p[3];
+
+		if( Read_Facette(Stream, p) )
+		{
+			if( iFacette == 0 )
+			{
+				xMin	= xMax	= p[0].x;
+				yMin	= yMax	= p[0].y;
+			}
+
+			for(int i=0; i<3; i++)
+			{
+				if( xMin > p[i].x )	{	xMin	= p[i].x;	}	else if( xMax < p[i].x )	{	xMax	= p[i].x;	}
+				if( yMin > p[i].y )	{	yMin	= p[i].y;	}	else if( yMax < p[i].y )	{	yMax	= p[i].y;	}
+			}
+		}
+	}
+
+	Extent.Assign(xMin, yMin, xMax, yMax);
+
+	return( xMin < xMax && yMin < yMax && Stream.Seek(80 + sizeof(nFacettes)) );
 }
 
 

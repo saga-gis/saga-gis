@@ -112,20 +112,25 @@ void CDLG_List_TIN::_Set_Objects(void)
 	bool				bList;
 	int					i, j;
 	CWKSP_TIN_Manager	*pTINs;
-	CSG_TIN				*pTIN;
+	CWKSP_TIN			*pTIN;
 
 	//-----------------------------------------------------
 	if( (pTINs = g_pData->Get_TINs()) != NULL )
 	{
 		for(i=0; i<m_pList->Get_Count(); i++)
 		{
-			m_pAdd->Append(m_pList->asDataObject(i)->Get_Name(), m_pList->asDataObject(i));
+			CWKSP_Base_Item	*pItem	= g_pData->Get_TINs()->Get_TIN(m_pList->asDataObject(i)->asTIN());
+
+			if( pItem )
+			{
+				m_pAdd->Append(pItem->Get_Name(), (void *)pItem);
+			}
 		}
 
 		//-------------------------------------------------
 		for(i=0; i<pTINs->Get_Count(); i++)
 		{
-			pTIN	= pTINs->Get_TIN(i)->Get_TIN();
+			pTIN	= pTINs->Get_TIN(i);
 
 			for(j=0, bList=true; j<(int)m_pAdd->GetCount() && bList; j++)
 			{
@@ -137,7 +142,7 @@ void CDLG_List_TIN::_Set_Objects(void)
 
 			if( bList )
 			{
-				m_pSelect->Append(pTIN->Get_Name(), pTIN);
+				m_pSelect->Append(pTIN->Get_Name(), (void *)pTIN);
 			}
 		}
 	}

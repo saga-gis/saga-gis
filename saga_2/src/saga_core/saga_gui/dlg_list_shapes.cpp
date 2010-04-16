@@ -120,7 +120,12 @@ void CDLG_List_Shapes::_Set_Objects(void)
 	{
 		for(i=0; i<m_pList->Get_Count(); i++)
 		{
-			m_pAdd->Append(m_pList->asDataObject(i)->Get_Name(), m_pList->asDataObject(i));
+			CWKSP_Base_Item	*pItem	= g_pData->Get_Shapes()->Get_Shapes(m_pList->asDataObject(i)->asShapes());
+
+			if( pItem )
+			{
+				m_pAdd->Append(pItem->Get_Name(), (void *)pItem);
+			}
 		}
 
 		//-------------------------------------------------
@@ -141,17 +146,14 @@ void CDLG_List_Shapes::_Set_Objects(void)
 //---------------------------------------------------------
 void CDLG_List_Shapes::_Set_Shapes(CWKSP_Shapes_Type *pType)
 {
-	bool		bList;
-	int			i, j;
-	CSG_Shapes	*pShapes;
-
 	if( pType )
 	{
-		for(i=0; i<pType->Get_Count(); i++)
+		for(int i=0; i<pType->Get_Count(); i++)
 		{
-			pShapes	= pType->Get_Shapes(i)->Get_Shapes();
+			bool			bList		= true;
+			CWKSP_Shapes	*pShapes	= pType->Get_Shapes(i);
 
-			for(j=0, bList=true; j<(int)m_pAdd->GetCount() && bList; j++)
+			for(int j=0; j<(int)m_pAdd->GetCount() && bList; j++)
 			{
 				if( pShapes == m_pAdd->GetClientData(j) )
 				{
@@ -161,7 +163,7 @@ void CDLG_List_Shapes::_Set_Shapes(CWKSP_Shapes_Type *pType)
 
 			if( bList )
 			{
-				m_pSelect->Append(pShapes->Get_Name(), pShapes);
+				m_pSelect->Append(pShapes->Get_Name(), (void *)pShapes);
 			}
 		}
 	}

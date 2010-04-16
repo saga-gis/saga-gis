@@ -163,6 +163,12 @@ CViGrA_FFT::CViGrA_FFT(void)
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
+
+	Parameters.Add_Value(
+		NULL	, "CENTER"		, _TL("Centered"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	);
 }
 
 
@@ -185,7 +191,17 @@ bool CViGrA_FFT::On_Execute(void)
 
 	Copy_Grid_SAGA_to_VIGRA(*pInput, Input, true);
 
-	fourierTransform(srcImageRange(Input), destImage(Output));
+	if( !Parameters("CENTER")->asBool() )
+	{
+		fourierTransform(srcImageRange(Input) , destImage(Output));
+	}
+	else
+	{
+		vigra::FFTWComplexImage	tmp(Get_NX(), Get_NY());
+
+		fourierTransform(srcImageRange(Input) , destImage(tmp));
+		moveDCToCenter  (srcImageRange(tmp)   , destImage(Output));
+	}
 
 	//-----------------------------------------------------
 	Copy_ComplexGrid_VIGRA_to_SAGA(*pReal, *pImag, Output, false);
@@ -239,6 +255,12 @@ CViGrA_FFT_Inverse::CViGrA_FFT_Inverse(void)
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
+
+	Parameters.Add_Value(
+		NULL	, "CENTER"		, _TL("Centered"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	);
 }
 
 
@@ -259,7 +281,17 @@ bool CViGrA_FFT_Inverse::On_Execute(void)
 
 	Copy_ComplexGrid_SAGA_to_VIGRA(*pReal, *pImag, Input, true);
 
-	fourierTransformInverse(srcImageRange(Input), destImage(Output));
+	if( !Parameters("CENTER")->asBool() )
+	{
+		fourierTransformInverse(srcImageRange(Input), destImage(Output));
+	}
+	else
+	{
+		vigra::FFTWComplexImage	tmp(Get_NX(), Get_NY());
+
+		moveDCToUpperLeft      (srcImageRange(Input), destImage(tmp));
+		fourierTransformInverse(srcImageRange(tmp)  , destImage(Output));
+	}
  
 	transformImage(srcImageRange(Output), destImage(Output), std::bind1st(std::multiplies<FFTWComplex>(), 1.0 / Get_NX() / Get_NY()));
 

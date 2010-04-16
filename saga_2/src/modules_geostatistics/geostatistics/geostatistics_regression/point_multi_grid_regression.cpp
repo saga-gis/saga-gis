@@ -189,7 +189,7 @@ bool CPoint_Multi_Grid_Regression::On_Execute(void)
 
 		Set_Residuals(pShapes, iAttribute, pResiduals, pRegression);
 
-		Set_Message(pGrids);
+		Set_Message();
 
 		if( pTable )
 		{
@@ -364,34 +364,31 @@ bool CPoint_Multi_Grid_Regression::Set_Residuals(CSG_Shapes *pShapes, int iAttri
 }
 
 //---------------------------------------------------------
-void CPoint_Multi_Grid_Regression::Set_Message(CSG_Parameter_Grid_List *pGrids)
+void CPoint_Multi_Grid_Regression::Set_Message(void)
 {
-	int		i, j;
+	int			i;
+	CSG_String	s;
 
-	Message_Add(SG_T("\n"), false);
-	Message_Add(CSG_String::Format(SG_T("\n%s:"), _TL("Regression")), false);
-	Message_Add(CSG_String::Format(SG_T("\n Y = %f"), m_Regression.Get_RConst()), false);
+	s	+= CSG_String::Format(SG_T("\n\n%s:\n Y\t= %f"), _TL("Regression"), m_Regression.Get_RConst());
 
-	for(i=0; i<pGrids->Get_Count(); i++)
+	for(i=0; i<m_Regression.Get_Count(); i++)
 	{
-		if( (j = m_Regression.Get_Ordered(i)) >= 0 && j < pGrids->Get_Count() )
-		{
-			Message_Add(CSG_String::Format(SG_T(" %+f*[%s]"), m_Regression.Get_RCoeff(j), pGrids->asGrid(j)->Get_Name()), false);
-		}
+		s	+= CSG_String::Format(SG_T("\n\t %+f\t* [%s]"), m_Regression.Get_RCoeff(i, true), m_Regression.Get_Name(i, true));
 	}
 
-	Message_Add(SG_T("\n"), false);
-	Message_Add(CSG_String::Format(SG_T("\n%s:"), _TL("Correlation")), false);
+	s	+= CSG_String::Format(SG_T("\n\n%s:\n"), _TL("Correlation"));
 
-	for(i=0; i<pGrids->Get_Count(); i++)
+	for(i=0; i<m_Regression.Get_Count(); i++)
 	{
-		if( (j = m_Regression.Get_Ordered(i)) >= 0 && j < pGrids->Get_Count() )
-		{
-			Message_Add(CSG_String::Format(SG_T("\n%d: R\xc2\xb2 = %f%% [%f%%] -> %s"), i + 1, 100.0 * m_Regression.Get_R2(j), 100.0 * m_Regression.Get_R2_Change(j), pGrids->asGrid(j)->Get_Name()), false);
-		}
+		s	+= CSG_String::Format(SG_T("%d: R2 = %f%% [%f%%] -> %s\n"),
+			i + 1,
+			m_Regression.Get_R2       (i, true) * 100.0,
+			m_Regression.Get_R2_Change(i, true) * 100.0,
+			m_Regression.Get_Name     (i, true)
+		);
 	}
 
-	Message_Add(SG_T("\n"), false);
+	Message_Add(s, false);
 }
 
 

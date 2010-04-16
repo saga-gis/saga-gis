@@ -123,7 +123,7 @@ CWKSP_Table::~CWKSP_Table(void)
 //---------------------------------------------------------
 wxString CWKSP_Table::Get_Name(void)
 {
-	return( m_pTable->Get_Name() );
+	return( wxString::Format(wxT("%02d. %s"), 1 + Get_ID(), m_pTable->Get_Name()) );
 }
 
 //---------------------------------------------------------

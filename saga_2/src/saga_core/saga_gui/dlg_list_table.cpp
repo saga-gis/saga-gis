@@ -112,20 +112,25 @@ void CDLG_List_Table::_Set_Objects(void)
 	bool				bList;
 	int					i, j;
 	CWKSP_Table_Manager	*pTables;
-	CSG_Table			*pTable;
+	CWKSP_Table			*pTable;
 
 	//-----------------------------------------------------
 	if( (pTables = g_pData->Get_Tables()) != NULL )
 	{
 		for(i=0; i<m_pList->Get_Count(); i++)
 		{
-			m_pAdd->Append(m_pList->asDataObject(i)->Get_Name(), m_pList->asDataObject(i));
+			CWKSP_Base_Item	*pItem	= g_pData->Get_Tables()->Get_Table(m_pList->asDataObject(i)->asTable());
+
+			if( pItem )
+			{
+				m_pAdd->Append(pItem->Get_Name(), (void *)pItem);
+			}
 		}
 
 		//-------------------------------------------------
 		for(i=0; i<pTables->Get_Count(); i++)
 		{
-			pTable	= pTables->Get_Table(i)->Get_Table();
+			pTable	= pTables->Get_Table(i);
 
 			for(j=0, bList=true; j<(int)m_pAdd->GetCount() && bList; j++)
 			{
@@ -137,7 +142,7 @@ void CDLG_List_Table::_Set_Objects(void)
 
 			if( bList )
 			{
-				m_pSelect->Append(pTable->Get_Name(), pTable);
+				m_pSelect->Append(pTable->Get_Name(), (void *)pTable);
 			}
 		}
 	}

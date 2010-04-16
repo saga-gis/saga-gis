@@ -1177,9 +1177,6 @@ int CSG_ODBC_Connections::Get_Connections(CSG_String &Connections)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Module_Library_Interface	MLB_Interface;
-
-//---------------------------------------------------------
 CSG_ODBC_Module::CSG_ODBC_Module(void)
 {
 	m_Connection_Choice.Create(this, LNG("Choose ODBC Connection"), LNG(""), SG_T("CONNECTIONS"));
@@ -1189,6 +1186,33 @@ CSG_ODBC_Module::CSG_ODBC_Module(void)
 		LNG(""),
 		SG_T("")
 	);
+
+	if( !SG_UI_Get_Window_Main() )
+	{
+		Parameters.Add_String(
+			NULL	, "ODBC_DSN"	, LNG("DSN"),
+			LNG("Data Source Name"),
+			SG_T("")
+		);
+
+		Parameters.Add_String(
+			NULL	, "ODBC_USR"	, LNG("User"),
+			LNG("User Name"),
+			SG_T("")
+		);
+
+		Parameters.Add_String(
+			NULL	, "ODBC_PWD"	, LNG("Password"),
+			LNG("Password"),
+			SG_T("")
+		);
+
+		Parameters.Add_String(
+			NULL	, "ODBC_DIR"	, LNG("Directory"),
+			LNG("Directory (DBase, Excel)"),
+			SG_T("")
+		);
+	}
 }
 
 //---------------------------------------------------------
@@ -1198,20 +1222,33 @@ bool CSG_ODBC_Module::On_Before_Execution(void)
 
 	m_pConnection	= NULL;
 
-	if( SG_ODBC_Get_Connection_Manager().Get_Connections(s) > 1 )
+	if( !SG_UI_Get_Window_Main() )
 	{
-		m_Connection_Choice("CONNECTIONS")->asChoice()->Set_Items(s);
-
-		if( SG_UI_Dlg_Parameters(&m_Connection_Choice, LNG("Choose ODBC Connection")) )
-		{
-			m_pConnection	= SG_ODBC_Get_Connection_Manager().Get_Connection(m_Connection_Choice("CONNECTIONS")->asString());
-		}
-	}
-	else if( s.Length() )
-	{
-		m_pConnection	= SG_ODBC_Get_Connection_Manager().Get_Connection(0);
+		m_pConnection	= SG_ODBC_Get_Connection_Manager().Add_Connection(
+			Parameters("ODBC_DSN")->asString(),
+			Parameters("ODBC_USR")->asString(),
+			Parameters("ODBC_PWD")->asString(),
+			Parameters("ODBC_DIR")->asString()
+		);
 	}
 	else
+	{
+		if( SG_ODBC_Get_Connection_Manager().Get_Connections(s) > 1 )
+		{
+			m_Connection_Choice("CONNECTIONS")->asChoice()->Set_Items(s);
+
+			if( SG_UI_Dlg_Parameters(&m_Connection_Choice, LNG("Choose ODBC Connection")) )
+			{
+				m_pConnection	= SG_ODBC_Get_Connection_Manager().Get_Connection(m_Connection_Choice("CONNECTIONS")->asString());
+			}
+		}
+		else if( s.Length() )
+		{
+			m_pConnection	= SG_ODBC_Get_Connection_Manager().Get_Connection(0);
+		}
+	}
+
+	if( m_pConnection == NULL )
 	{
 		Message_Dlg(
 			LNG("No ODBC connection available!"),

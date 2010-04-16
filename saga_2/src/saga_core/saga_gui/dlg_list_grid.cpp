@@ -181,7 +181,12 @@ void CDLG_List_Grid::_Set_Objects(void)
 	//-----------------------------------------------------
 	for(int i=0; i<m_pList->Get_Count(); i++)
 	{
-		m_pAdd->Append(m_pList->asDataObject(i)->Get_Name(), m_pList->asDataObject(i));
+		CWKSP_Base_Item	*pItem	= g_pData->Get_Grids()->Get_Grid(m_pList->asDataObject(i)->asGrid());
+
+		if( pItem )
+		{
+			m_pAdd->Append(pItem->Get_Name(), (void *)pItem);
+		}
 	}
 
 	//-----------------------------------------------------
@@ -223,17 +228,14 @@ void CDLG_List_Grid::_Set_Grids(void)
 //---------------------------------------------------------
 void CDLG_List_Grid::_Set_Grids(CWKSP_Grid_System *pSystem)
 {
-	bool		bList;
-	int			i, j;
-	CSG_Grid	*pGrid;
-
 	if( pSystem )
 	{
-		for(i=0; i<pSystem->Get_Count(); i++)
+		for(int i=0; i<pSystem->Get_Count(); i++)
 		{
-			pGrid	= pSystem->Get_Grid(i)->Get_Grid();
+			bool		bList	= true;
+			CWKSP_Grid	*pGrid	= pSystem->Get_Grid(i);
 
-			for(j=0, bList=true; j<(int)m_pAdd->GetCount() && bList; j++)
+			for(int j=0; j<(int)m_pAdd->GetCount() && bList; j++)
 			{
 				if( pGrid == m_pAdd->GetClientData(j) )
 				{
@@ -243,7 +245,7 @@ void CDLG_List_Grid::_Set_Grids(CWKSP_Grid_System *pSystem)
 
 			if( bList )
 			{
-				m_pSelect->Append(pGrid->Get_Name(), pGrid);
+				m_pSelect->Append(pGrid->Get_Name(), (void *)pGrid);
 			}
 		}
 	}
