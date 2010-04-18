@@ -698,12 +698,12 @@ bool CSG_PointCloud::Del_Point(int iPoint)
 	{
 		m_Cursor	= NULL;
 
-		delete(m_Points[iPoint]);
-
 		for(int i=iPoint, j=iPoint+1; j<Get_Count(); i++, j++)
 		{
 			m_Points[i]	= m_Points[j];
 		}
+
+		m_Points[Get_Count()-1]	= NULL;
 
 		_Dec_Array();
 
