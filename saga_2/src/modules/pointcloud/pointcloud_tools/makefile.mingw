@@ -18,7 +18,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/pc_cut.o $(MLB_TEMP)/pc_drop_attribute.o $(MLB_TEMP)/pc_from_grid.o $(MLB_TEMP)/pc_from_shapes.o $(MLB_TEMP)/pc_reclass_extract.o $(MLB_TEMP)/pc_to_grid.o $(MLB_TEMP)/pc_to_shapes.o $(MLB_TEMP)/pc_transform.o
+OBJ      = $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/pc_cut.o $(MLB_TEMP)/pc_drop_attribute.o $(MLB_TEMP)/pc_from_grid.o $(MLB_TEMP)/pc_from_shapes.o $(MLB_TEMP)/pc_reclass_extract.o $(MLB_TEMP)/pc_thinning_simple.o $(MLB_TEMP)/pc_to_grid.o $(MLB_TEMP)/pc_to_shapes.o $(MLB_TEMP)/pc_transform.o
 
 CXXFLAGS = -I"$(MINGW)/include" -I"$(SAGA)/src/saga_core" -D$(PRJ_NAME)_EXPORTS -DBUILDING_DLL=1 -D_SAGA_MSW -D_SAGA_MINGW -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -fexpensive-optimizations -Os -O2 -O3 $(DEP_INCS) $(DEP_DEFS)
 
@@ -63,6 +63,9 @@ $(MLB_TEMP)/pc_from_shapes.o: ./pc_from_shapes.cpp
 $(MLB_TEMP)/pc_reclass_extract.o: ./pc_reclass_extract.cpp
 	$(CPP) -c ./pc_reclass_extract.cpp -o $(MLB_TEMP)/pc_reclass_extract.o $(CXXFLAGS)
 
+$(MLB_TEMP)/pc_thinning_simple.o: ./pc_thinning_simple.cpp
+	$(CPP) -c ./pc_thinning_simple.cpp -o $(MLB_TEMP)/pc_thinning_simple.o $(CXXFLAGS)
+	
 $(MLB_TEMP)/pc_to_grid.o: ./pc_to_grid.cpp
 	$(CPP) -c ./pc_to_grid.cpp -o $(MLB_TEMP)/pc_to_grid.o $(CXXFLAGS)
 

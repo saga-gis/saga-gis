@@ -16,6 +16,7 @@ pc_drop_attribute.cpp\
 pc_from_grid.cpp\
 pc_from_shapes.cpp\
 pc_reclass_extract.cpp\
+pc_thinning_simple.cpp\
 pc_to_grid.cpp\
 pc_to_shapes.cpp\
 pc_transform.cpp\
@@ -25,6 +26,7 @@ pc_drop_attribute.h\
 pc_from_grid.h\
 pc_from_shapes.h\
 pc_reclass_extract.h\
+pc_thinning_simple.h\
 pc_to_grid.h\
 pc_to_shapes.h\
 pc_transform.h

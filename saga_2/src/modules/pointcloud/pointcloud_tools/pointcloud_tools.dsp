@@ -181,6 +181,10 @@ SOURCE=.\pc_reclass_extract.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\pc_thinning_simple.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\pc_to_grid.cpp
 # End Source File
 # Begin Source File
