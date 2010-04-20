@@ -704,6 +704,18 @@ bool CSG_Module::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const C
 	return( false );
 }
 
+bool CSG_Module::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, double loVal, double hiVal)	// Range Parameter
+{
+	CSG_Parameters	Parameters;
+
+	if( DataObject_Get_Parameters(pDataObject, Parameters) && Parameters(ID) && Parameters(ID)->Get_Type() == PARAMETER_TYPE_Range )
+	{
+		return( Parameters(ID)->asRange()->Set_Range(loVal, hiVal) && DataObject_Set_Parameters(pDataObject, Parameters) );
+	}
+
+	return( false );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

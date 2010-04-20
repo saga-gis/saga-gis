@@ -122,6 +122,7 @@ bool CSG_File::Open(const CSG_String &File_Name, int Mode, bool bBinary, bool bU
 
 	switch( Mode )
 	{
+	default:	return( false );
 	case SG_FILE_R:		sMode	= bBinary ? SG_T("rb" ) : SG_T("r" );	break;
 	case SG_FILE_W:		sMode	= bBinary ? SG_T("wb" ) : SG_T("w" );	break;
 	case SG_FILE_RW:	sMode	= bBinary ? SG_T("wb+") : SG_T("w+");	break;
@@ -401,7 +402,7 @@ double CSG_File::Scan_Double(void)	const
 	{
 		double	Value;
 
-		if( fscanf(m_pStream, "%f", &Value) == 1 )
+		if( fscanf(m_pStream, "%lf", &Value) == 1 )
 		{
 			return( Value );
 		}

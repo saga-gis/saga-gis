@@ -229,6 +229,7 @@ protected:
 	bool						DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, double         Value);
 	bool						DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, void          *Value);
 	bool						DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, const SG_Char *Value);
+	bool						DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, double loVal, double hiVal);	// Range Parameter
 
 
 private:

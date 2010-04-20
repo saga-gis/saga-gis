@@ -546,7 +546,7 @@ private:
 class CSG_Stack
 {
 public:
-	CSG_Stack(size_t RecordSize) : m_RecordSize(RecordSize), m_Size(0), m_Buffer(0), m_Stack(NULL)	{}
+	CSG_Stack(size_t RecordSize) : m_Size(0), m_Buffer(0), m_RecordSize(RecordSize), m_Stack(NULL)	{}
 	virtual ~CSG_Stack(void)						{	Destroy();				}
 
 	size_t					Get_RecordSize	(void)	{	return( m_RecordSize );	}

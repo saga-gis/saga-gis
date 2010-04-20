@@ -278,7 +278,7 @@ bool CSG_PointCloud::_Load(const CSG_String &File_Name)
 		return( false );
 	}
 
-	if( !Stream.Read(&nPointBytes, sizeof(int)) || nPointBytes < 3 * sizeof(float) )
+	if( !Stream.Read(&nPointBytes, sizeof(int)) || nPointBytes < (int)(3 * sizeof(float)) )
 	{
 		SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
 		SG_UI_Msg_Add_Error(LNG("[ERR] incompatible file."));
@@ -896,8 +896,8 @@ CSG_Shape * CSG_PointCloud::Get_Shape(TSG_Point Point, double Epsilon)
 
 	if( r.Intersects(Get_Extent()) != INTERSECTION_None )
 	{
-		int		iPoint	= -1;
-		double	iDistance;
+		int		iPoint		= -1;
+		double	iDistance	= -1.0;
 
 		for(int iRecord=0; iRecord<Get_Count(); iRecord++)
 		{

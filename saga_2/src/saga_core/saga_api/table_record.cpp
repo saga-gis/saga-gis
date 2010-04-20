@@ -60,8 +60,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <string.h>
-
 #include "table.h"
 #include "table_value.h"
 
@@ -77,7 +75,7 @@ CSG_Table_Record::CSG_Table_Record(CSG_Table *pTable, int Index)
 {
 	m_pTable	= pTable;
 	m_Index		= Index;
-	m_bSelected	= false;
+	m_Flags		= 0;
 
 	if( m_pTable && m_pTable->Get_Field_Count() > 0 )
 	{
@@ -97,7 +95,7 @@ CSG_Table_Record::CSG_Table_Record(CSG_Table *pTable, int Index)
 //---------------------------------------------------------
 CSG_Table_Record::~CSG_Table_Record(void)
 {
-	if( m_bSelected )
+	if( is_Selected() )
 	{
 		m_pTable->Select(m_Index, true);
 	}
@@ -218,13 +216,55 @@ int CSG_Table_Record::_Get_Field(const SG_Char *Field) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CSG_Table_Record::Set_Selected(bool bOn)
+{
+	if( bOn != is_Selected() )
+	{
+		if( bOn )
+		{
+			m_Flags	|=  SG_TABLE_REC_FLAG_Selected;
+		}
+		else
+		{
+			m_Flags	&= ~SG_TABLE_REC_FLAG_Selected;
+		}
+	}
+}
+
+//---------------------------------------------------------
+void CSG_Table_Record::Set_Modified(bool bOn)
+{
+	if( bOn != is_Modified() )
+	{
+		if( bOn )
+		{
+			m_Flags	|=  SG_TABLE_REC_FLAG_Modified;
+
+			m_pTable->Set_Modified();
+		}
+		else
+		{
+			m_Flags	&= ~SG_TABLE_REC_FLAG_Modified;
+		}
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_Table_Record::Set_Value		(int           iField, const CSG_Bytes &Value)
 {
 	if( iField >= 0 && iField < m_pTable->Get_Field_Count() )
 	{
 		if( m_Values[iField]->Set_Value(Value) )
 		{
-			m_pTable->Set_Modified();
+			Set_Modified(true);
+
 			m_pTable->Set_Update_Flag();
 			m_pTable->_Stats_Invalidate(iField);
 
@@ -247,7 +287,8 @@ bool CSG_Table_Record::Set_Value(int iField, const SG_Char *Value)
 	{
 		if( m_Values[iField]->Set_Value(Value) )
 		{
-			m_pTable->Set_Modified();
+			Set_Modified(true);
+
 			m_pTable->Set_Update_Flag();
 			m_pTable->_Stats_Invalidate(iField);
 
@@ -270,7 +311,8 @@ bool CSG_Table_Record::Set_Value(int iField, double Value)
 	{
 		if( m_Values[iField]->Set_Value(Value) )
 		{
-			m_pTable->Set_Modified();
+			Set_Modified(true);
+
 			m_pTable->Set_Update_Flag();
 			m_pTable->_Stats_Invalidate(iField);
 
@@ -332,7 +374,8 @@ bool CSG_Table_Record::Set_NoData(int iField)
 	{
 		if( m_Values[iField]->Set_NoData() )
 		{
-			m_pTable->Set_Modified();
+			Set_Modified(true);
+
 			m_pTable->Set_Update_Flag();
 			m_pTable->_Stats_Invalidate(iField);
 

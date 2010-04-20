@@ -108,6 +108,17 @@ TSG_Table_Index_Order;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define SG_TABLE_REC_FLAG_Modified		0x01
+#define SG_TABLE_REC_FLAG_Selected		0x02
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Table_Record
 {
 	friend class CSG_Table;
@@ -153,7 +164,8 @@ public:
 
 	virtual bool				Assign			(CSG_Table_Record *pRecord);
 
-	bool						is_Selected		(void)					const	{	return( m_bSelected );	}
+	bool						is_Selected		(void)					const	{	return( (m_Flags & SG_TABLE_REC_FLAG_Selected) != 0 );	}
+	bool						is_Modified		(void)					const	{	return( (m_Flags & SG_TABLE_REC_FLAG_Modified) != 0 );	}
 
 
 protected:
@@ -162,13 +174,17 @@ protected:
 	virtual ~CSG_Table_Record(void);
 
 
-	bool						m_bSelected;
+	char						m_Flags;
 
 	int							m_Index;
 
 	class CSG_Table_Value		**m_Values;
 
 	class CSG_Table				*m_pTable;
+
+
+	void						Set_Selected	(bool bOn = true);
+	void						Set_Modified	(bool bOn = true);
 
 
 	class CSG_Table_Value *		_Create_Value	(TSG_Data_Type Type);
@@ -285,7 +301,7 @@ public:
 	virtual bool					Get_Value			(int iRecord, int iField, CSG_String     &Value)	const;
 	virtual bool					Get_Value			(int iRecord, int iField, double         &Value)	const;
 
-	virtual void					Set_Modified		(bool bModified = true)	{	CSG_Data_Object::Set_Modified(bModified);	if( m_pOwner )	m_pOwner->Set_Modified(bModified);	}
+	virtual void					Set_Modified		(bool bModified = true);
 
 	//-----------------------------------------------------
 	int								Get_Selection_Count	(void)			const	{	return( m_nSelected );	}

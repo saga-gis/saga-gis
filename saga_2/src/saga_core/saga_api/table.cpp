@@ -819,6 +819,28 @@ bool CSG_Table::_Del_Records(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CSG_Table::Set_Modified(bool bModified)
+{
+	if( bModified != is_Modified() )
+	{
+		CSG_Data_Object::Set_Modified(bModified);
+
+		if( m_pOwner )
+		{
+			m_pOwner->Set_Modified(bModified);
+		}
+
+		if( bModified == false )
+		{
+			for(int iRecord=0; iRecord<Get_Count() && SG_UI_Process_Set_Progress(iRecord, Get_Count()); iRecord++)
+			{
+				Get_Record(iRecord)->Set_Modified(false);
+			}
+		}
+	}
+}
+
+//---------------------------------------------------------
 bool CSG_Table::Set_Value(int iRecord, int iField, const SG_Char  *Value)
 {
 	CSG_Table_Record	*pRecord;
