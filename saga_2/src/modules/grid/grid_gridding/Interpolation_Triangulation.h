@@ -76,7 +76,6 @@ class CInterpolation_Triangulation : public CInterpolation
 {
 public:
 	CInterpolation_Triangulation(void);
-	virtual ~CInterpolation_Triangulation(void);
 
 
 protected:
@@ -86,17 +85,8 @@ protected:
 
 private:
 
-	typedef struct
-	{
-		int						x, y;
-
-		double					z;
-	}
-	TPoint;
-
-
-	void						Set_Triangle				(TPoint p[3]);
-	void						Set_Triangle_Line			(int xa, int xb, int y, double za, double zb);
+	void						Set_Triangle				(TSG_Point_Z p[3]);
+	void						Set_Triangle_Line			(int y, double xa, double za, double xb, double zb);
 
 };
 

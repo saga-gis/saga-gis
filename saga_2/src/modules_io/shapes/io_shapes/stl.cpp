@@ -296,13 +296,13 @@ bool CSTL_Import::On_Execute(void)
 			{
 				if( Read_Facette(Stream, p) )
 				{
-					TGRD_Point	Point[3];
+					TSG_Point_Z	Point[3];
 
 					for(int i=0; i<3; i++)
 					{
-						Point[i].x	= m_pGrid->Get_System().Get_xWorld_to_Grid(p[i].x);
-						Point[i].y	= m_pGrid->Get_System().Get_yWorld_to_Grid(p[i].y);
-						Point[i].z	= p[i].z;
+						Point[i].x	= (p[i].x - m_pGrid->Get_XMin()) / m_pGrid->Get_Cellsize();
+						Point[i].y	= (p[i].y - m_pGrid->Get_YMin()) / m_pGrid->Get_Cellsize();
+						Point[i].z	=  p[i].z;
 					}
 
 					Set_Triangle(Point);
@@ -402,136 +402,106 @@ bool CSTL_Import::Get_Extent(CSG_File &Stream, CSG_Rect &Extent, int nFacettes)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SORT_POINTS_Y(a, b)	if( p[a].y < p[b].y ) {	pp = p[a]; p[a] = p[b]; p[b] = pp;	}
-#define SORT_POINTS_X(a, b)	if( p[a].x < p[b].x ) {	pp = p[a]; p[a] = p[b]; p[b] = pp;	}
-
-//---------------------------------------------------------
-void CSTL_Import::Set_Triangle(TGRD_Point p[3])
+void CSTL_Import::Set_Triangle(TSG_Point_Z p[3])
 {
-	int		i, j, y, y_j;
-	double	x, x_a, dx, dx_a, dy, z, z_a, dz, dz_a;
-	TGRD_Point	pp;
+	//-----------------------------------------------------
+	if( p[1].y < p[0].y ) {	TSG_Point_Z pp = p[1]; p[1] = p[0]; p[0] = pp;	}
+	if( p[2].y < p[0].y ) {	TSG_Point_Z pp = p[2]; p[2] = p[0]; p[0] = pp;	}
+	if( p[2].y < p[1].y ) {	TSG_Point_Z pp = p[2]; p[2] = p[1]; p[1] = pp;	}
 
 	//-----------------------------------------------------
-	SORT_POINTS_Y(1, 0);
-	SORT_POINTS_Y(2, 0);
-	SORT_POINTS_Y(2, 1);
+	TSG_Rect	r;
 
-	//-----------------------------------------------------
-	if( p[2].y == p[0].y )
+	r.yMin	= p[0].y;
+	r.yMax	= p[2].y;
+	r.xMin	= p[0].x < p[1].x ? (p[0].x < p[2].x ? p[0].x : p[2].x) : (p[1].x < p[2].x ? p[1].x : p[2].x);
+	r.xMax	= p[0].x > p[1].x ? (p[0].x > p[2].x ? p[0].x : p[2].x) : (p[1].x > p[2].x ? p[1].x : p[2].x);
+
+	if( r.yMin >= r.yMax || r.xMin >= r.xMax )
 	{
-		if( p[0].y >= 0 && p[0].y < m_pGrid->Get_NY() )
-		{
-			SORT_POINTS_X(1, 0);
-			SORT_POINTS_X(2, 0);
-			SORT_POINTS_X(2, 1);
+		return;	// no area
+	}
 
-			//---------------------------------------------
-			if( p[2].x == p[0].x )
-			{
-				if(	p[0].x >= 0 && p[0].x < m_pGrid->Get_NX() )
-				{
-					Set_Triangle_Point(p[0].x, p[0].y, p[0].z > p[1].z
-						? (p[0].z > p[2].z ? p[0].z : p[2].z)
-						: (p[1].z > p[2].z ? p[1].z : p[2].z)
-					);
-				}
-			}
-
-			//---------------------------------------------
-			else
-			{
-				Set_Triangle_Line(p[0].x, p[1].x, p[0].y, p[0].z, p[1].z);
-				Set_Triangle_Line(p[1].x, p[2].x, p[0].y, p[1].z, p[2].z);
-			}
-		}
+	if( (r.yMin < 0.0 && r.yMax < 0.0) || (r.yMin >= m_pGrid->Get_NY() && r.yMax >= m_pGrid->Get_NY())
+	||	(r.xMin < 0.0 && r.xMax < 0.0) || (r.xMin >= m_pGrid->Get_NX() && r.xMax >= m_pGrid->Get_NX()) )
+	{
+		return;	// completely outside grid
 	}
 
 	//-----------------------------------------------------
-	else if( !((p[0].y < 0 && p[2].y < 0) || (p[0].y >= m_pGrid->Get_NY() && p[2].y >= m_pGrid->Get_NY())) )
+	TSG_Point_Z	d[3];
+
+	if( (d[0].y	= p[2].y - p[0].y) != 0.0 )
 	{
-		dy		=  p[2].y - p[0].y;
-		dx_a	= (p[2].x - p[0].x) / dy;
-		dz_a	= (p[2].z - p[0].z) / dy;
-		x_a		=  p[0].x;
-		z_a		=  p[0].z;
+		d[0].x	= (p[2].x - p[0].x) / d[0].y;
+		d[0].z	= (p[2].z - p[0].z) / d[0].y;
+	}
 
-		for(i=0, j=1; i<2; i++, j++)
+	if( (d[1].y	= p[1].y - p[0].y) != 0.0 )
+	{
+		d[1].x	= (p[1].x - p[0].x) / d[1].y;
+		d[1].z	= (p[1].z - p[0].z) / d[1].y;
+	}
+
+	if( (d[2].y	= p[2].y - p[1].y) != 0.0 )
+	{
+		d[2].x	= (p[2].x - p[1].x) / d[2].y;
+		d[2].z	= (p[2].z - p[1].z) / d[2].y;
+	}
+
+	//-----------------------------------------------------
+	int	ay	= (int)r.yMin;	if( ay < 0 )	ay	= 0;	if( ay < r.yMin )	ay++;
+	int	by	= (int)r.yMax;	if( by >= m_pGrid->Get_NY() )	by	= m_pGrid->Get_NY() - 1;
+
+	for(int y=ay; y<=by; y++)
+	{
+		if( y <= p[1].y && d[1].y > 0.0 )
 		{
-			if( (dy	=  p[j].y - p[i].y) > 0.0 )
-			{
-				dx		= (p[j].x - p[i].x) / dy;
-				dz		= (p[j].z - p[i].z) / dy;
-				x		=  p[i].x;
-				z		=  p[i].z;
-
-				if( (y = p[i].y) < 0 )
-				{
-					x		-= y * dx;
-					z		-= y * dz;
-					y		 = 0;
-					x_a		 = p[0].x - p[0].y * dx_a;
-					z_a		 = p[0].z - p[0].y * dz_a;
-				}
-
-				if( (y_j = p[j].y) > m_pGrid->Get_NY() )
-				{
-					y_j		= m_pGrid->Get_NY();
-				}
-
-				for( ; y<y_j; y++, x+=dx, z+=dz, x_a+=dx_a, z_a+=dz_a)
-				{
-					if( x < x_a )
-					{
-						Set_Triangle_Line((int)x, (int)x_a, y, z, z_a);
-					}
-					else
-					{
-						Set_Triangle_Line((int)x_a, (int)x, y, z_a, z);
-					}
-				}
-			}
+			Set_Triangle_Line(y,
+				p[0].x + (y - p[0].y) * d[0].x,
+				p[0].z + (y - p[0].y) * d[0].z,
+				p[0].x + (y - p[0].y) * d[1].x,
+				p[0].z + (y - p[0].y) * d[1].z
+			);
+		}
+		else if( d[2].y > 0.0 )
+		{
+			Set_Triangle_Line(y,
+				p[0].x + (y - p[0].y) * d[0].x,
+				p[0].z + (y - p[0].y) * d[0].z,
+				p[1].x + (y - p[1].y) * d[2].x,
+				p[1].z + (y - p[1].y) * d[2].z
+			);
 		}
 	}
 }
 
 //---------------------------------------------------------
-inline void CSTL_Import::Set_Triangle_Line(int xa, int xb, int y, double za, double zb)
+inline void CSTL_Import::Set_Triangle_Line(int y, double xa, double za, double xb, double zb)
 {
-	double	dz;
-
-	if( (dz = xb - xa) > 0.0 )
+	if( xb < xa )
 	{
-		dz	= (zb - za) / dz;
+		double	d;
 
-		if( xa < 0 )
-		{
-			za	-= dz * xa;
-			xa	 = 0;
-		}
-
-		if( xb >= m_pGrid->Get_NX() )
-		{
-			xb	= m_pGrid->Get_NX() - 1;
-		}
-
-		for(int x=xa; x<=xb; x++, za+=dz)
-		{
-			Set_Triangle_Point(x, y, za);
-		}
+		d	= xa;	xa	= xb;	xb	= d;
+		d	= za;	za	= zb;	zb	= d;
 	}
-	else if( xa >= 0 && xa < m_pGrid->Get_NX() )
-	{
-		Set_Triangle_Point(xa, y, za);
-	}
-}
 
-//---------------------------------------------------------
-inline void CSTL_Import::Set_Triangle_Point(int x, int y, double z)
-{
-	if( m_pGrid->is_NoData(x, y) || m_pGrid->asDouble(x, y) < z )
+	if( xb > xa )
 	{
-		m_pGrid->Set_Value(x, y, z);
+		double	dz	= (zb - za) / (xb - xa);
+		int		ax	= (int)xa;	if( ax < 0 )	ax	= 0;	if( ax < xa )	ax++;
+		int		bx	= (int)xb;	if( bx >= m_pGrid->Get_NX() )	bx	= m_pGrid->Get_NX() - 1;
+
+		for(int x=ax; x<=bx; x++)
+		{
+			double	z	= za + dz * (x - xa);
+
+			if( m_pGrid->is_NoData(x, y) || m_pGrid->asDouble(x, y) < z )
+			{
+				m_pGrid->Set_Value(x, y, z);
+			}
+		}
 	}
 }
 
