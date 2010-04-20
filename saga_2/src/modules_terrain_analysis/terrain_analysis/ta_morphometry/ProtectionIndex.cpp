@@ -23,9 +23,11 @@
 
 CProtectionIndex::CProtectionIndex(void){
 
-	Parameters.Set_Name(_TL("Morphometric Protection Index"));
-	Parameters.Set_Description(_TW(
-		"(c) 2005 by Victor Olaya."));
+	Set_Name(_TL("Morphometric Protection Index"));
+    Set_Author(_TL("(c) 2005 by Victor Olaya"));
+	Set_Description(_TW(
+        "This algorithm analyses the immediate surrounding of each cell up to an given distance and evaluates how the relief protects it.\n"
+         "It is equivalent to the positive openness described in: Visualizing Topography by Openness: A New Application of Image Processing to Digital Elevation Models, Photogrammetric Engineering and Remote Sensing(68), No. 3, March 2002, pp. 257-266."));
 
 	Parameters.Add_Grid(NULL, 
 						"DEM",
