@@ -257,12 +257,15 @@ bool CModule_Library::Execute(int argc, char *argv[])
 		if( argc == 1 )
 		{
 			m_pCMD->Usage();
+
 			return( true );
 		}
 
-		if( _Get_CMD(m_pSelected->Get_Parameters()) )
+		if( _Get_CMD(m_pSelected->Get_Parameters()) && m_pSelected->On_Before_Execution() )
 		{
 			bResult	= m_pSelected->Execute();
+
+			m_pSelected->On_After_Execution();
 
 			_Destroy_DataObjects(bResult);
 		}

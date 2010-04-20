@@ -161,13 +161,19 @@ CWKSP_Module_Library::CWKSP_Module_Library(const wxChar *FileName)
 //---------------------------------------------------------
 CWKSP_Module_Library::~CWKSP_Module_Library(void)
 {
-	CWKSP_Module	*pItem;
+	TSG_PFNC_MLB_Finalize	MLB_Finalize;
+	CWKSP_Module			*pItem;
 
 	if( m_Library.IsLoaded() )
 	{
 		if( is_Valid() )
 		{
 			MSG_General_Add(wxString::Format(wxT("%s: %s..."), LNG("[MSG] Close Library"), m_File_Name.c_str()), true, true);
+
+			if(	(MLB_Finalize = (TSG_PFNC_MLB_Finalize)m_Library.GetSymbol(SYMBOL_MLB_Finalize)) != NULL )
+			{
+				MLB_Finalize();
+			}
 
 			while( (pItem = Get_Module(0)) != NULL )
 			{

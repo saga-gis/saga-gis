@@ -205,6 +205,7 @@ public:
 protected:
 
 	virtual bool				On_Before_Execution		(void);
+	virtual bool				On_After_Execution		(void);
 
 	CSG_ODBC_Connection *		Get_Connection			(void)	{	return( m_pConnection );	}
 

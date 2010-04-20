@@ -1213,6 +1213,8 @@ CSG_ODBC_Module::CSG_ODBC_Module(void)
 			SG_T("")
 		);
 	}
+
+	m_pConnection	= NULL;
 }
 
 //---------------------------------------------------------
@@ -1257,6 +1259,17 @@ bool CSG_ODBC_Module::On_Before_Execution(void)
 	}
 
 	return( m_pConnection != NULL );
+}
+
+//---------------------------------------------------------
+bool CSG_ODBC_Module::On_After_Execution(void)
+{
+	if( !SG_UI_Get_Window_Main() )
+	{
+		SG_ODBC_Get_Connection_Manager().Del_Connection(m_pConnection, true);
+	}
+
+	return( true );
 }
 
 

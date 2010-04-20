@@ -197,6 +197,13 @@ bool CSG_Module_Library::Destroy(void)
 {
 	if( m_pLibrary->IsLoaded() )
 	{
+		TSG_PFNC_MLB_Finalize	MLB_Finalize	= (TSG_PFNC_MLB_Finalize)m_pLibrary->GetSymbol(SYMBOL_MLB_Finalize);
+
+		if(	MLB_Finalize )
+		{
+			MLB_Finalize();
+		}
+
 		m_pLibrary->Unload();
 	}
 

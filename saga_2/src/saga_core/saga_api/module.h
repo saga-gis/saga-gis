@@ -162,6 +162,7 @@ public:
 	void						Set_Show_Progress			(bool bOn = true);
 
 	virtual bool				On_Before_Execution			(void)	{	return( true );	}
+	virtual bool				On_After_Execution			(void)	{	return( true );	}
 
 	bool						Execute						(void);
 
@@ -531,14 +532,27 @@ private:
 #define SYMBOL_MLB_Initialize			SG_T("MLB_Initialize")
 typedef bool							(* TSG_PFNC_MLB_Initialize)		(const SG_Char *);
 
-//---------------------------------------------------------
+#define SYMBOL_MLB_Finalize			SG_T("MLB_Finalize")
+typedef bool							(* TSG_PFNC_MLB_Finalize)		(void);
+
 #define SYMBOL_MLB_Get_Interface		SG_T("MLB_Get_Interface")
 typedef CSG_Module_Library_Interface *	(* TSG_PFNC_MLB_Get_Interface)	(void);
 
 //---------------------------------------------------------
-#define MLB_INTERFACE	CSG_Module_Library_Interface		MLB_Interface;\
+#define MLB_INTERFACE_CORE	CSG_Module_Library_Interface	MLB_Interface;\
 \
-extern "C" _SAGA_DLL_EXPORT bool							MLB_Initialize		(const SG_Char *File_Name)\
+extern "C" _SAGA_DLL_EXPORT CSG_Module_Library_Interface *	MLB_Get_Interface   (void)\
+{\
+	return( &MLB_Interface );\
+}\
+\
+extern "C" _SAGA_DLL_EXPORT const SG_Char *					Get_API_Version		(void)\
+{\
+	return( SAGA_API_VERSION );\
+}\
+
+//---------------------------------------------------------
+#define MLB_INTERFACE_INITIALIZE	extern "C" _SAGA_DLL_EXPORT bool MLB_Initialize	(const SG_Char *File_Name)\
 {\
 	MLB_Interface.Set_File_Name(File_Name);\
 \
@@ -553,16 +567,15 @@ extern "C" _SAGA_DLL_EXPORT bool							MLB_Initialize		(const SG_Char *File_Name
 \
 	return( MLB_Interface.Get_Count() > 0 );\
 }\
-\
-extern "C" _SAGA_DLL_EXPORT CSG_Module_Library_Interface *	MLB_Get_Interface   (void)\
+
+//---------------------------------------------------------
+#define MLB_INTERFACE_FINALIZE		extern "C" _SAGA_DLL_EXPORT bool MLB_Finalize	(void)\
 {\
-	return( &MLB_Interface );\
+	return( true );\
 }\
-\
-extern "C" _SAGA_DLL_EXPORT const SG_Char *					Get_API_Version		(void)\
-{\
-	return( SAGA_API_VERSION );\
-}\
+
+//---------------------------------------------------------
+#define MLB_INTERFACE	MLB_INTERFACE_CORE MLB_INTERFACE_INITIALIZE MLB_INTERFACE_FINALIZE
 
 //---------------------------------------------------------
 #ifndef SWIG
