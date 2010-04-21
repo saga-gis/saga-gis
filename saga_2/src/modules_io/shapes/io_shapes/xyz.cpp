@@ -134,7 +134,7 @@ CXYZ_Export::~CXYZ_Export(void)
 //---------------------------------------------------------
 bool CXYZ_Export::On_Execute(void)
 {
-	bool		bAll, bHeader;
+	bool		bAll, bHeader, bPCloud;
 	int			iShape, iPart, iPoint, iField, Separate;
 	FILE		*Stream;
 	TSG_Point	Point;
@@ -156,6 +156,11 @@ bool CXYZ_Export::On_Execute(void)
 		return( false );
 	}
 
+	if( pShapes->Get_ObjectType() == DATAOBJECT_TYPE_PointCloud )
+		bPCloud = true;
+	else
+		bPCloud = false;
+
 	//-----------------------------------------------------
 	if( (Stream = fopen(fName.b_str(), "w")) != NULL )
 	{
@@ -165,7 +170,12 @@ bool CXYZ_Export::On_Execute(void)
 
 			if( bAll )
 			{
-				for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
+				if (bPCloud)
+					iField = 2;
+				else
+					iField = 0;
+
+				for(iField; iField<pShapes->Get_Field_Count(); iField++)
 				{
 					fprintf(Stream, "\t%s", pShapes->Get_Field_Name(iField));
 				}
@@ -203,7 +213,12 @@ bool CXYZ_Export::On_Execute(void)
 
 					if( bAll )
 					{
-						for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
+						if (bPCloud)
+							iField = 2;
+						else
+							iField = 0;
+
+						for(iField; iField<pShapes->Get_Field_Count(); iField++)
 						{
 							switch( pShapes->Get_Field_Type(iField) )
 							{
