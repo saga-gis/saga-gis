@@ -205,18 +205,18 @@ bool CLAS_Import::On_Execute(void)
 	nFields		= 3;
 
 	ADD_FIELD("T", VAR_T, _TL("gps-time")							, SG_DATATYPE_Long);
-	ADD_FIELD("i", VAR_i, _TL("intensity")							, SG_DATATYPE_Float);
-	ADD_FIELD("a", VAR_a, _TL("scan angle")							, SG_DATATYPE_Float);
+	ADD_FIELD("i", VAR_i, _TL("intensity")							, SG_DATATYPE_Float);	// SG_DATATYPE_Word
+	ADD_FIELD("a", VAR_a, _TL("scan angle")							, SG_DATATYPE_Float);	// SG_DATATYPE_Byte
 	ADD_FIELD("r", VAR_r, _TL("number of the return")				, SG_DATATYPE_Int);
-	ADD_FIELD("c", VAR_c, _TL("classification")						, SG_DATATYPE_Int);
-	ADD_FIELD("u", VAR_u, _TL("user data")							, SG_DATATYPE_Double);
+	ADD_FIELD("c", VAR_c, _TL("classification")						, SG_DATATYPE_Int);		// SG_DATATYPE_Byte
+	ADD_FIELD("u", VAR_u, _TL("user data")							, SG_DATATYPE_Double);	// SG_DATATYPE_Byte
 	ADD_FIELD("n", VAR_n, _TL("number of returns of given pulse")	, SG_DATATYPE_Int);
-	ADD_FIELD("R", VAR_R, _TL("red channel color")					, SG_DATATYPE_Short);
-	ADD_FIELD("G", VAR_G, _TL("green channel color")				, SG_DATATYPE_Short);
-	ADD_FIELD("B", VAR_B, _TL("blue channel color")					, SG_DATATYPE_Short);
+	ADD_FIELD("R", VAR_R, _TL("red channel color")					, SG_DATATYPE_Int);	// SG_DATATYPE_Word
+	ADD_FIELD("G", VAR_G, _TL("green channel color")				, SG_DATATYPE_Int);
+	ADD_FIELD("B", VAR_B, _TL("blue channel color")					, SG_DATATYPE_Int);
 	ADD_FIELD("e", VAR_e, _TL("edge of flight line flag")			, SG_DATATYPE_Char);
 	ADD_FIELD("d", VAR_d, _TL("direction of scan flag")				, SG_DATATYPE_Char);
-	ADD_FIELD("p", VAR_p, _TL("point source ID")					, SG_DATATYPE_Int);
+	ADD_FIELD("p", VAR_p, _TL("point source ID")					, SG_DATATYPE_Int);		// SG_DATATYPE_Word
 	ADD_FIELD("C", VAR_C, _TL("rgb color")							, SG_DATATYPE_Long);
 
 	//-----------------------------------------------------
@@ -228,8 +228,8 @@ bool CLAS_Import::On_Execute(void)
 
         if (point.IsValid())
         {
-		//	liblas::LASClassification::bitset_type clsflags(point.GetClassification());
-		//	classification = static_cast<liblas::uint8_t>(clsflags.to_ulong());
+			//liblas::LASClassification::bitset_type clsflags(point.GetClassification());
+			//classification = static_cast<liblas::uint8_t>(clsflags.to_ulong());
 			classification	= point.GetClassification();
 
 			pPoints->Add_Point(point.GetX(), point.GetY(), point.GetZ());
