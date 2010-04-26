@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+# Visual C++ Express 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "geostatistics_grid", "modules_geostatistics\geostatistics\geostatistics_grid\geostatistics_grid.vcproj", "{97988762-27EE-42B2-9135-F0B640A57F1B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
@@ -126,6 +126,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "saga_cmd", "saga_core\saga_
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "saga_gui", "saga_core\saga_gui\saga_gui.vcproj", "{160C7E9B-CD3D-44D7-A20B-AABA043CE290}"
 	ProjectSection(ProjectDependencies) = postProject
+		{9E4C619C-B279-4532-8F60-6C64FE0A2091} = {9E4C619C-B279-4532-8F60-6C64FE0A2091}
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
