@@ -1,7 +1,7 @@
 # Linux GCC Makefile
 # Created by O. Conrad
 
-PROJECTS = esri_e00 gps gdal grid shapes table
+PROJECTS = db esri_e00 gps gdal grid shapes table
 
 all:
 	@for i in $(PROJECTS); do (cd $$i && $(MAKE) -fmakefile.linux); done

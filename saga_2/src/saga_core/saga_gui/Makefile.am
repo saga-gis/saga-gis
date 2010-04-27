@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.18 2010-03-02 10:07:21 johanvdw Exp $
+# $Id: Makefile.am,v 1.19 2010-04-27 08:51:01 reklov_w Exp $
 #
 INCS = -I.. -I.
 if DEBUG
@@ -219,7 +219,7 @@ wx/propgrid/propgrid.h\
 wx/propgrid/props.cpp\
 wx/propgrid/props.h
 
-saga_gui_LDADD = ../saga_api/libsaga_api.la
+saga_gui_LDADD = ../saga_api/libsaga_api.la ../saga_odbc/libsaga_odbc.la
 
 dist-hook:
 	 mkdir $(distdir)/res

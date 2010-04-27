@@ -20,7 +20,7 @@ CXX_FLGS  = `wx-config --static=yes --cxxflags`
 CXXFLAGS  = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS) $(DEF_SAGA)
 
 LDFLAGS   = -fPIC -pthread
-LIBS      = `wx-config --static=yes --libs` -L$(BIN_SAGA) -lsaga_api
+LIBS      = `wx-config --static=yes --libs` -L$(BIN_SAGA) -lsaga_api -lsaga_odbc
 
 .PHONY: all all-before all-after clean clean-custom
 

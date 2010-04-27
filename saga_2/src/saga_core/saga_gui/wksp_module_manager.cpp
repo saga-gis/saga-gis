@@ -160,9 +160,7 @@ bool CWKSP_Module_Manager::Initialise(void)
 //---------------------------------------------------------
 bool CWKSP_Module_Manager::Finalise(void)
 {
-#if !defined(_SAGA_LINUX)
 	SG_ODBC_Get_Connection_Manager().Destroy();
-#endif
 
 	_Config_Write();
 

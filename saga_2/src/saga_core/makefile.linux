@@ -1,7 +1,7 @@
 # Linux GCC Makefile
 # Created by O. Conrad
 
-PROJECTS = saga_api saga_gdi saga_cmd saga_gui
+PROJECTS = saga_api saga_gdi saga_odbc saga_cmd saga_gui
 
 all:
 	@for i in $(PROJECTS); do (cd $$i && $(MAKE) -fmakefile.linux); done
