@@ -278,6 +278,24 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 		LNG(""),
 		PARAMETER_TYPE_Double, 0.0, 0.0, true, 100.0, true
 	);
+
+	//-----------------------------------------------------
+	// Classification...
+
+	((CSG_Parameter_Choice *)m_Parameters("COLORS_TYPE")->Get_Data())->Set_Items(
+		wxString::Format(wxT("%s|%s|%s|%s|"),
+			LNG("[VAL] Unique Symbol"),
+			LNG("[VAL] Lookup Table"),
+			LNG("[VAL] Graduated Color"),
+			LNG("[VAL] RGB")
+		)
+	);
+
+	m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_METRIC);
+
+
+	//-----------------------------------------------------
+	DataObject_Changed((CSG_Parameters *)NULL);
 }
 
 
@@ -365,6 +383,10 @@ wxString CWKSP_PointCloud::Get_Value(CSG_Point ptWorld, double Epsilon)
 
 			case CLASSIFY_METRIC:	default:
 				return( pShape->asString(m_Color_Field) );
+
+			case CLASSIFY_RGB:
+				double	Value = pShape->asDouble(m_Color_Field);
+				return( wxString::Format(wxT("R%03d G%03d B%03d"), SG_GET_R((int)Value), SG_GET_G((int)Value), SG_GET_B((int)Value)) );
 			}
 		}
 		else
