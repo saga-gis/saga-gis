@@ -177,7 +177,7 @@ wxString CWKSP_PointCloud::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_PointCloud::Get_Menu(void)
 {
-	wxMenu	*pMenu;
+	wxMenu	*pMenu, *pSubMenu;
 
 	pMenu	= new wxMenu(m_pPointCloud->Get_Name());
 
@@ -187,7 +187,15 @@ wxMenu * CWKSP_PointCloud::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_POINTCLOUD_SAVEAS);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
 
-//	pMenu->AppendSeparator();
+	pMenu->AppendSeparator();
+
+	pSubMenu	= new wxMenu(LNG("[MNU] Classificaton"));
+	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_POINTCLOUD_RANGE_MINMAX);
+	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_POINTCLOUD_RANGE_STDDEV150);
+	CMD_Menu_Add_Item(pSubMenu	, false, ID_CMD_POINTCLOUD_RANGE_STDDEV200);
+
+	pMenu->Append(ID_CMD_WKSP_FIRST, LNG("[MNU] Classification"), pSubMenu);
+
 
 //	wxMenu	*pTable	= new wxMenu(LNG("[MNU] Table"));
 //	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLES_SHOW);
@@ -214,6 +222,27 @@ bool CWKSP_PointCloud::On_Command(int Cmd_ID)
 		return( CWKSP_Layer::On_Command(Cmd_ID) );
 
 	case ID_CMD_POINTCLOUD_LAST:
+		break;
+
+	case ID_CMD_POINTCLOUD_RANGE_MINMAX:
+		Set_Color_Range(
+			m_pPointCloud->Get_Minimum(m_Color_Field),
+			m_pPointCloud->Get_Maximum(m_Color_Field)
+		);
+		break;
+
+	case ID_CMD_POINTCLOUD_RANGE_STDDEV150:
+		Set_Color_Range(
+			m_pPointCloud->Get_Mean(m_Color_Field) - 1.5 * m_pPointCloud->Get_StdDev(m_Color_Field),
+			m_pPointCloud->Get_Mean(m_Color_Field) + 1.5 * m_pPointCloud->Get_StdDev(m_Color_Field)
+		);
+		break;
+
+	case ID_CMD_POINTCLOUD_RANGE_STDDEV200:
+		Set_Color_Range(
+			m_pPointCloud->Get_Mean(m_Color_Field) - 2.0 * m_pPointCloud->Get_StdDev(m_Color_Field),
+			m_pPointCloud->Get_Mean(m_Color_Field) + 2.0 * m_pPointCloud->Get_StdDev(m_Color_Field)
+		);
 		break;
 	}
 

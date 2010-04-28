@@ -166,6 +166,9 @@ const wxChar * CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_POINTCLOUD_SAVE:		return( LNG("[CMD] Save Point Cloud") );
 	case ID_CMD_POINTCLOUD_SAVEAS:		return( LNG("[CMD] Save Point Cloud As...") );
 	case ID_CMD_POINTCLOUD_SHOW:		return( LNG("[CMD] Show Point Cloud") );
+	case ID_CMD_POINTCLOUD_RANGE_MINMAX:		return( LNG("[CMD] Set Range to Minmum/Maximum") );
+	case ID_CMD_POINTCLOUD_RANGE_STDDEV150:		return( LNG("[CMD] Set Range to Standard Deviation (1.5)") );
+	case ID_CMD_POINTCLOUD_RANGE_STDDEV200:		return( LNG("[CMD] Set Range to Standard Deviation (2.0)") );
 
 	case ID_CMD_MAP_3D_SHOW:
 	case ID_CMD_MAPS_3D_SHOW:			return( LNG("[CMD] Show 3D-View") );
