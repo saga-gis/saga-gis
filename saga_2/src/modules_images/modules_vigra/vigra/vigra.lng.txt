@@ -1,62 +1,62 @@
 ORIGINAL	TRANSLATION
-Angle [Degree]	
-Area	
-Bifurcation	
-Class	
-Constant Variation Range [Degree]	
-Constant variation range	
-Copyrights (c) 2003 by Andre Ringeler	
-Dim01	
-Dim02	
-Equation	
-Feigenbaum's Bifurcation	
-Fixed angle	
-Flattening	
-Fractal Dimension	
-Fractal Dimension of Grid Surface	
-Fractal Type	
-Fractals	
-Gaussian Landscape	
-Gaussian Landscapes	
-Grid	
-Height (Cells)	
-High variation for low sizes	
+Canny	
+Centered	
+Chessboard	
+Detector type	
+Dilation	
+Distance	
+Edge threshold for nonlinear smoothing	
+Edges	
+Erosion	
+Euclidean	
+Features	
+Features are all pixels different not representing no-data.	
+Filter	
+Gradient threshold	
+Imagery - ViGrA	
+Imagery|ViGrA	
+Imaginary	
 Input	
-Iteration	
-Julia	
-Julia - X	
-Julia - Y	
-Julia Set	
-Lines	
-Ln(Area)	
-Low variation for low sizes	
-Mandelbrot	
-Mandelbrot Set	
-Max Iterations	
-Maximum Iterations	
-Method	
-Minimum Size [%]	
-Newton [A]	
-Newton [B]	
-Newton-Raphson	
-Number of Steps	
-Number of the last x Iteration to be plotted.	
-Olaf Conrad (c) 2002	
+Manhattan	
+Median	
+O. Conrad (c) 2009	
+Operation	
+Operator scale	
 Output	
-Polygons	
-Pythagoras' Tree	
+Output (imaginary)	
+Output (real)	
+Power	
+R:Fourier Analysis	
+RGB coded data	
+Radius (cells)	
 Range	
-Recreations - Fractals	
-Recreations|Fractals	
-Result	
-Roughness/Smoothness	
-Scale	
-Seed Value	
-Shade	
-Shape Type	
-Simple	
-Size	
-Value Count	
-Width (Cells)	
-X-Range	
-Y-Range	
+Real	
+Rescale Values (0-255)	
+Segmentation	
+Shen-Castan	
+Size of smoothing filter	
+Type of distance calculation	
+Type of smoothing	
+User defined rank	
+ViGrA - Basic Morphological Operations	
+ViGrA - Distance	
+ViGrA - Edge Detection	
+ViGrA - Fourier Filter	
+ViGrA - Fourier Transform	
+ViGrA - Fourier Transform (Real)	
+ViGrA - Fourier Transform Inverse	
+ViGrA - Smoothing	
+ViGrA - Watershed Segmentation	
+Width of gradient filter	
+calculate averages	
+calculate gradient magnitude	
+calculate gradients	
+exclude range	
+exponential	
+find local minima	
+gaussian	
+include range	
+label minima	
+nonlinear	
+perform region growing	
+power of distance	

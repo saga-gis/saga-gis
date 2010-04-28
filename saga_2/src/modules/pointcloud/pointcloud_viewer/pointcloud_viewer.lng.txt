@@ -1,2 +1,33 @@
 ORIGINAL	TRANSLATION
-Grid	Raster
+3D View	
+Advanced Settings	
+Anaglyph	
+Background Color	
+Central Projection	
+Close	
+Color Attribute	
+Colors	
+Colors Value Range	
+Exaggeration	
+Extent	
+Eye Distance	
+Function Parameters	
+Level of Detail	
+Point Cloud Viewer	
+Point Cloud Viewer Settings	
+Point Size: Default	
+Point Size: Scaling	
+Point clouds viewer.	
+Points	
+Scale Point Size	
+Shapes - Point Clouds Viewer	
+Shapes|Point Clouds|Visualisation	
+Stereo Eye Distance [Degree]	
+Value as RGB Code	
+X-Rotation	
+Y-Rotation	
+Z Attribute	
+Z-Rotation	
+Zoom View	
+point cloud viewer can only be run from graphical user interface	
+point cloud viewer will not be started, because point cloud has no points	

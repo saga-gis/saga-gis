@@ -1,68 +1,62 @@
 ORIGINAL	TRANSLATION
 Arithmetic Mean	
-Attribute	
-B-Spline Interpolation	
-Bicubic Spline Interpolation	
-Bilinear Interpolation	
+Aspect	
+Aspect grid, in radians.	
 Categorial Grids	
 Cells	
+Clear Fast Representativeness	
+Clear Generalisation	
 Copyrights (c) 2005 by Volker Wichmann	
-Correlation	
-Details	
 Deviation from Mean Value	
 Difference from Mean Value	
 Exponent	
+Fast Representativeness	
+Generalisation	
 Geostatistics - Grids	
-Geostatistics|Grid	
+Geostatistics|Grids	
 Grid	
-Grid Interpolation	
 Grid defining the zones to analyse. This grid also acts as a mask. Coding: no-data / categorial values.	
 Grids	
 Grids to analyse	
 Grids used to delineate the UCUs. Coding: no-data / categorial values.	
 Grids with continuous data, statistics are calculated for each grid. Coding: no-data / continuous values.	
-Inverse Distance Interpolation	
+Init Fast Representativeness	
+Init Generalisation	
+Input	
+Input for module calculations.	
+Level of Generalisation	
 Map Units	
 Maximum	
 Maximum Search Radius (cells)	
+Maximum Value	
 Mean Value	
 Mean less Standard Deviation	
 Mean plus Standard Deviation	
 Minimum	
-Multiple Regression Analysis	
-Multiple Regression Analysis (Grids/Points)	
-Nearest Neighbor	
-Olaf Conrad, Volker Wichmann (c) 2002-5	
+Minimum Value	
+NoData value(s) in statistic grid(s)!	
+O.Conrad, V.Wichmann (c) 2002-10	
+Output	
+Output Lod	
+Output Seeds	
+Output of module calculations.	
 Percentile	
-R:Neighborhoods	
-R:Regression Analysis	
 Radius (Cells)	
 Radius of Variance (Grid)	
 Radius with Variance >= %f	
-Regression	
-Regression Analysis (Grid/Points)	
-Regression Function	
 Representativeness	
 Representativeness (Grid)	
 Residual Analysis (Grid)	
-Residuals	
-Result Table	
-Shapes	
+Short Field Names	
 Standard Deviation	
 Statistics for Grids	
 Summary table.	
-Tools for (geo)statistical analyses of grids.	
+Tools for (geo)statistical analyses.	
 Type of Output	
 Value Range	
 Variance	
 Variance Radius	
 WARNING	
-Y = a * X^b (power)	
-Y = a + b * X (linear)	
-Y = a + b * ln(X) (logarithmic)	
-Y = a + b / X	
-Y = a / (b - X)	
-Y = a e^(b * X) (exponential)	
+Zonal Statistics	
 Zone Grid	
-no-data value(s) in statistic grid(s)!	
 {STATZONAL_NAME} Zonal Grid Statistics	

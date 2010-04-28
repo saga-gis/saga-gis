@@ -1,17 +1,72 @@
 ORIGINAL	TRANSLATION
+--- no table available ---	
+--- not available ---	
 1.0	
-Database access through the Open Data Base Connection (ODBC) interface.	
-Directory Path	
-File|Table	
-Get table from ODBC source.\n	
-Import Table via ODBC	
+Available Connections	
+Choose ODBC Connection	
+Database	
+Database Connection Error	
+Database access via Open Data Base Connection (ODBC) interface.	
+Directory	
+Fields	
+If table exists...	
 Import/Export - Tables using ODBC	
-NONE	
+No ODBC connection available!	
+No tables available in database!	
+Not a PostgreSQL database!	
+Not a valid PostGIS database!	
 O.Conrad (c) 2004	
-ODBC Source	
+ODBC Commit/Rollback Transaction	
+ODBC Connect	
+ODBC Database Connection Error	
+ODBC Disconnect	
+ODBC Points Export	
+ODBC Points Import	
+ODBC Table Deletion	
+ODBC Table Export	
+ODBC Table Import	
+ODBC Table Import using SQL Query	
+ODBC source connected	
+ODBC/PostGIS Shapes Export	
+ODBC/PostGIS Shapes Import	
+Order by	
 Password	
-R:Import	
-Select a Table	
+Points	
+Server	
+Shapes	
+Spatial Reference	
 Table	
+Table Name	
 Tables	
-User Name	
+Transactions	
+User	
+Where Clause	
+abort export	
+append records, if table structure allows	
+commit	
+could not commit transactions	
+could not commit/rollback transactions.	
+could not connect ODBC source	
+could not create geometry field	
+could not drop database table	
+could not execute query	
+could not open database table	
+could not retrieve column information	
+database table does not exist	
+failed	
+failed to create database table	
+failed to open database table	
+if empty shapes layers's name is used as table name	
+insertion error	
+no attributes in table	
+no database connection	
+no records in database table	
+open transactions committed	
+open transactions rollbacked	
+password	
+replace existing table	
+rollback	
+sql excution error	
+table already exists	
+trying to drop table	
+user id	

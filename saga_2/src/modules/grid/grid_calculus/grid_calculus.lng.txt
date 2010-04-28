@@ -1,8 +1,10 @@
 ORIGINAL	TRANSLATION
 (0.0 < x < 1.0)	
 1.0	
+A	
 Add Volumes Below Base Level	
 Arithmetic Mean	
+B	
 Base Level	
 Calculate the volume under the grid's surface. This is mainly useful for Digital Elevation Models (DEM).	
 Cell Count	
@@ -21,8 +23,10 @@ Count Only Above Base Level
 Count Only Below Base Level	
 Create a grid with pseudo-random numbers as grid cell values. 	
 DEM	
+Difference A - B	
 Direction of Plane [Degree]	
 Error at character #%d of the function: \n%s\n	
+Error in formula	
 Figure	
 Formula	
 Function	
@@ -31,6 +35,7 @@ Geometric Figures
 Grid	
 Grid - Calculus	
 Grid Calculator	
+Grid Difference	
 Grid Normalisation	
 Grid Project	
 Grid Properties	
@@ -43,11 +48,12 @@ Grid|Calculus
 Height (Cells)	
 Iterations	
 Method	
-No grid in list - Cannot execute calculator	
+No grid in list	
 Normalised Grid	
 O. Conrad, A. Ringeler, V. Olaya (c) 2001-4	
 Plane	
 Plane (%.2fDegree)	
+Position	
 R:Grid Generation	
 Radius (cells)	
 Random Field	

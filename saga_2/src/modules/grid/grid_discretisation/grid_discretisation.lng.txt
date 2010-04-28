@@ -1,6 +1,14 @@
 ORIGINAL	TRANSLATION
-Automatically normalise grids before classifying. Useful for minimum distance classification.	
+%02d_ROI_M	
+%02d_ROI_MAX	
+%02d_ROI_MIN	
+%02d_ROI_S	
+4 (von Neumann)	
+8 (Moore)	
+AREA	
+Angle	
 Automatically normalise grids by standard deviation before clustering.	
+Binary Encoding	
 Borders	
 Channel Skeleton	
 Choose if you want to segmentate either on minima or on maxima.	
@@ -8,68 +16,107 @@ Class
 Class Identifier	
 Class Information	
 Classification	
+Classification Quality	
+Classification and segmentation tools for metric gridded data.	
 Cluster	
 Cluster Analysis	
 Cluster Analysis for Grids	
 ClusterID	
 Clusters	
+Colour and Space Options	
 Combined Minimum Distance / Hillclimbing	
 Convergence	
-Dependent on chosen method, these are the calculated minimum distances or the maximum probabilities.	
-Distance/Probability	
-ELEMENTS	
+Dependent on chosen method, these are distances or probabilities.	
+Difference	
+Distance	
+Distance Threshold	
+Divergence	
 Elements	
 Features	
 Greater than	
 Grid	
-Grid - Discretisation	
 Grid Segmentation	
 Grid Segmentation (b)	
 Grid Skeletonization	
 Grids	
-Grid|Discretisation	
 Hilditch's Algorithm	
 Hill-Climbing (Rubin 1967)	
-IDENTIFIER	
+ID	
+Imagery	
+Imagery - Classification	
 Initialisation	
 Iterative Minimum Distance (Forgy 1965)	
 Keep the borders between segments as special values.	
 Less than	
 Let pixel stay unclassified, if maximum likelihood probability is less than threshold.	
-MEAN_%02d	
+Let pixel stay unclassified, if minimum or mahalanobis distance is greater than threshold.	
+Let pixel stay unclassified, if spectral angle distance is greater than threshold.	
+Mahalanobis Distance	
 Maxima	
 Maximum Likelihood	
+Memberships	
 Method	
 Minima	
 Minimum Distance	
 NR	
+Neighbourhood	
 Normalise	
 Number of Elements	
 Number of clusters	
-O. Conrad (c) 2002, Goettingen	
+O. Conrad (c) 2002-9	
 Output	
+Parallelepiped	
+Probability Reference	
 Probability Threshold (Percent)	
+Proximity	
+Quality	
 R:Classification	
-STDDEV_%02d	
+R:Segmentation	
+ROI_N	
+Refresh	
 Seed Value	
+Seeds	
 Segment ID	
 Segments	
+Similarity	
+Simple Region Growing	
 Skeleton	
 Specify a threshold value as minimum difference between neighboured segments.	
+Spectral Angle Mapping	
+Spectral Angle Threshold (Degree)	
+Spectral Information Divergence	
 Standard	
 Statistics	
 Supervised Classification	
+TOT_N	
 The values of the resultant grid can be either the seed value (e.g. the local maximum) or the enumerated segment id.	
 Threshold	
 Threshold (Init.)	
-Tools for the discretisation/classification of metric gridded data.	
+Threshold - similarity	
 Training Areas	
 Update View	
 Update cluster view while clustering.	
 Variance	
+Variance in colour space	
+Variance in position space	
+X	
+Y	
 \nNumber of Clusters	
 \nNumber of Variables	
 \nValue of Target Function	
+absolute	
+analysing training areas	
+binary encoding	
 change	
+colour	
+colour and position	
+mahalanobis distance	
+maximum likelihood	
+minimum distance	
+parallelepiped	
 pass	
+relative	
+running classification	
 segments identified	
+spectral angle mapping	
+spectral information divergence	

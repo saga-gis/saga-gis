@@ -1,73 +1,15 @@
 ORIGINAL	TRANSLATION
-(0.0 < x < 1.0)	
-1.0	
-Add Volumes Below Base Level	
-Arithmetic Mean	
-Base Level	
-Calculate the volume under the grid's surface. This is mainly useful for Digital Elevation Models (DEM).	
-Cell Count	
-Cell Size	
-Cellsize	
-Choose Grid	
-Choose Grid Project	
-Cols	
-Cone (Down)	
-Cone (Up)	
-Cone (down)	
-Cone (up)	
-Copyrights (c) 2003 by Andre Ringeler	
-Copyrights (c) 2004 by Victor Olaya	
-Count Only Above Base Level	
-Count Only Below Base Level	
-Create a grid with pseudo-random numbers as grid cell values. 	
-DEM	
-Direction of Plane [Degree]	
-Error at character #%d of the function: \n%s\n	
-Figure	
-Formula	
-Function	
-Gaussian	
-Geometric Figures	
-Grid	
-Grid - Calculus	
-Grid Calculator	
-Grid Normalisation	
-Grid Project	
-Grid Properties	
-Grid Size	
-Grid Volume	
-Grid based or related calculations.	
-Grid_Normalised	
-Grids	
+All Files	
+BSL	
+BSL Files (*.bsl)	
+BSL Script	
+BSL from File	
+Boehner's Simple Language (BSL) is a macro script language for grid based calculations.	
+Grid - Calculus BSL	
 Grid|Calculus	
-Height (Cells)	
-Iterations	
-Method	
-No grid in list - Cannot execute calculator	
-Normalised Grid	
-O. Conrad, A. Ringeler, V. Olaya (c) 2001-4	
-Plane	
-Plane (%.2fDegree)	
-R:Grid Generation	
-Radius (cells)	
-Random Field	
-Random Terrain Generation	
-Range	
-Result	
-Rows	
-South	
-Standard Deviation	
-Subtract Volumes Below Base Level	
-System	
-Target Dimensions	
-Uniform	
-User defined	
-User defined grid	
-Volume: %f	
-West	
-Width (Cells)	
-sin(x*x + y*y)	
-xmax	
-xmin	
-ymax	
-ymin	
+Input	
+Output	
+Show Progress	
+Text Files (*.txt)	
+unknown error: execution	
+unknown error: user break	

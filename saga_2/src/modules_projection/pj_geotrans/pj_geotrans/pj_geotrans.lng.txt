@@ -9,14 +9,11 @@ B-Spline Interpolation
 Bicubic Spline Interpolation	
 Bilinear Interpolation	
 Bonne	
-Bottom	
 Cassini	
 Central Meridian	
 Check each point|	
 Choose Grid	
-Choose Grid Project	
 Choose Shapes	
-Columns	
 Coordinate Transformations based on the GeoTRANS-Engine of the National Imagery and Mapping Agency (NIMA).	
 Create X/Y Grids	
 Cylindrical Equal Area	
@@ -47,7 +44,6 @@ Lambert Conformal Conic (2 parallel)
 Lat. of True Scale	
 Latitude 1	
 Latitude 2	
-Left	
 Local Cartesian	
 Lon. Down	
 Longitude 1	
@@ -79,8 +75,6 @@ Projection_GeoTRANS_Ellipsoid.dat,\n
 Projection_GeoTRANS_Geoid_EGM96.dat,\n	
 R:Grid	
 R:Shapes	
-Right	
-Rows	
 Scale Factor	
 Shapes	
 Sinusoidal	
@@ -95,7 +89,6 @@ Source Projection
 Source Projection Error	
 Standard Parallel	
 Stereographic	
-System	
 Target	
 Target Coordinate System Error	
 Target Coordinate System Type Error	
@@ -106,11 +99,10 @@ Target Parameters
 Target Projection	
 Target Projection Error	
 The GeoTRANS engine could not be initialized !!\n\n	
-Top	
 Transverse Cylindrical Equal Area	
 Transverse Mercator	
 Universal Transvers Mercator (UTM)	
-User defined	
+User Defined Grid	
 Van der Grinten	
 X Coordinates	
 X-Coordinate	
@@ -121,6 +113,5 @@ Zone
 are in the specified directory.\n	
 automatic fit	
 grid	
-grid system	
 shapes	
 user defined	

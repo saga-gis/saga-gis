@@ -1,4 +1,6 @@
 ORIGINAL	TRANSLATION
+Attribute	
+Average	
 CFit\n(created by SAGA Wizard).	
 Correlation Matrix of the Fit Parameters:\n	
 Cubic: a + b * x + c * x^2 + d * x^3	
@@ -9,6 +11,7 @@ Field Name
 Fit	
 Formula	
 Function Fit	
+Input	
 Iterationen	
 Linear: a + b * x	
 Logarithmic: a + b * ln(x)	
@@ -16,9 +19,13 @@ Matrix signular\n
 Max Lamda	
 Model Parameters:	
 No|Yes|	
+Number of Records	
+Output	
 Power: a + b * x^c	
 Pre-defined Formulas	
 Quadric: a + b * x + c * x^2	
+Result	
+Running Average	
 SAGA User Group Associaton (c) 2002	
 Shapes	
 Source	
@@ -41,5 +48,6 @@ Y Values
 a + b * (1 - exp(-(x / c)^2))	
 a + b * (1 - exp(-x / c))	
 a + b / x	
+syntax error, position	
 x - Values	
 y - Values	

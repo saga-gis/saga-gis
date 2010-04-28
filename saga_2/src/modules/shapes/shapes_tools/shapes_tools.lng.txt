@@ -1,17 +1,21 @@
 ORIGINAL	TRANSLATION
 (Selected)	
+(c) 2004 by Victor Olaya	
 (c) 2005 by Victor Olaya	
+(c) 2008 by O. Conrad	
 A3 Landscape	
 A3 Portrait	
 A4 Landscape	
 A4 Portrait	
+A:Shapes|Construction	
 A:Shapes|Reports	
 Add Link to Files	
+Add to current selection	
 Additional Layers	
 Anchor Point	
 Angle	
 Angle in degrees, counting clockwise from north	
-Assign a Table to Shapes	
+Are completely within	
 Attribute	
 Attribute Table	
 Attributes	
@@ -29,23 +33,28 @@ Chart (sectors):
 Circle Point Distance [Degree]	
 Class	
 Columns	
+Completely contain	
 Condition	
+Contain the center of	
 Copy Rule	
 Copyrights (c) 2004 by Victor Olaya	
 Count	
 Create Chart Layer (bars/sectors)	
-Create Empty Shapes Layer	
+Create New Shapes Layer	
 Create PDF Docs	
 Create PDF Report for Shapes Layer	
 Create Web Content	
 Create graticule	
 Cut	
 Cut Shapes Layer	
+Cuts	
 Distance X	
 Distance Y	
+Error in formula	
 Expression	
 Extent	
 Extent [Cut]	
+Extents	
 Field	
 Field (ID)	
 Field (Name)	
@@ -56,20 +65,24 @@ File Naming
 Files	
 Fill Color	
 Folder	
+Get Shapes Extents	
 Graticule	
 Graticule type	
 Grid Project	
 Group A	
 Group B	
+Have their center in	
 Height	
 Horizontal Range	
 ID	
 Identifier	
 Images|*.bmp;*.jpg;*.png;*.tif|HTML Files|*.htm|All Files|*.*	
 Input	
+Intersect	
 Invalid Buffer Distance	
 Invalid Shapes	
 Join Table	
+Join a Table	
 Layers to merge with main layer	
 Layout	
 Left	
@@ -87,24 +100,33 @@ Move
 Multipoint	
 Name	
 Name Field	
+New Shapes Layer	
 New layer from selected shapes	
-New shapes layer	
+New selection	
+No records selected.	
 No shapes in selection	
+Number of Attributes	
+Number of Buffer Zones	
 Number of atttribute table columns.	
 Number of horizontal tiles	
 Number of vertical tiles	
-Olaf Conrad, Victor Olaya (c) 2002-2006	
+Olaf Conrad, Victor Olaya (c) 2002-2009	
 Output	
 Overview	
 PDF Docs	
 PDF File	
 PDF Files (*.pdf)|*.pdf|All Files|*.*	
 Paper Format	
+Parts	
 Path for HTML Files	
 Point	
 Polygon	
+Polygons	
+Position	
+QuadTree - Lines	
+QuadTree - Squares	
+QuadTree Structure to Shapes	
 Query builder for shapes	
-R:Construction	
 Relation B / A	
 Resulting Shapes	
 Resulting shapes	
@@ -117,6 +139,7 @@ Scaling Factor for Attribute Value
 Search in attributes table	
 Select by theme	
 Select features in Shapes 1 that fulfil this condition	
+Select from current selection	
 Separate Shapes	
 Shape Type	
 Shapes	
@@ -128,17 +151,19 @@ Shapes|Tools
 Size field	
 Split Shapes Layer	
 Split Shapes Layer Randomly	
+Split Table/Shapes by Attribute	
 Statistics	
 Subtitle	
 Summary	
 Summary Table	
 Summary_	
 Table	
+Table / Shapes	
 Tiles	
 Tools for the manipulation of vector data.	
 Top	
 Transform Shapes	
-Transformed Shapes	
+Transformed	
 Type	
 Use field content	
 Value	
@@ -146,6 +171,7 @@ Vertical Range
 Width	
 X	
 Y	
+ZONE	
 \n\n ** Error : Could not close PDF engine ** \n\n	
 \n\n ** Error : Could not save PDF file ** \n\n	
 all shapes	
@@ -163,8 +189,13 @@ fixed cell height
 grid project	
 horizontal	
 intersects	
+invalid input	
+no 'get extents' support for single point layers	
 only shapes with table entry	
+polygons	
 replace	
+selected shapes	
+shapes layer extent	
 shp files folder	
 user defined	
 vertical	

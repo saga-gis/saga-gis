@@ -1,17 +1,11 @@
 ORIGINAL	TRANSLATION
 1 bit	
-1 byte signed	
 1 byte signed integer	
-1 byte unsigned	
 1 byte unsigned integer	
-2 byte signed	
 2 byte signed integer	
-2 byte unsigned	
 2 byte unsigned integer	
 4 byte floating point	
-4 byte signed	
 4 byte signed integer	
-4 byte unsigned	
 4 byte unsigned integer	
 8 byte floating point	
 <	
@@ -19,15 +13,18 @@ ORIGINAL	TRANSLATION
 =	
 >	
 >=	
+A:Grid|Construction	
 Absolute	
 Additional Cuts	
 Additional Grids	
 Adjust	
 Aggregate	
 Aggregation Size	
+Allocation	
 Allocation Grid	
 Apply offset?	
 At the moment the reclass table is limited to 128 categories!\n	
+Attribute	
 B-Spline Interpolation	
 Base Grid	
 Bicubic Spline Interpolation	
@@ -37,8 +34,6 @@ Buffer Distance
 Buffer Grid	
 Buffer distance	
 Buffer distance (grid units).	
-Cell Count: Columns	
-Cell Count: Rows	
 Cell Size	
 Cell Size Specification	
 CellSize to S-N Extent	
@@ -48,11 +43,13 @@ Change Cell Values
 Change Grid Values	
 Change Grid Values - Flood Fill	
 Changed Grid	
-Choose Grid System	
+Choose Grid	
 Choose method how to adjust input values.	
-Classified Grid	
+Classes	
 Close Gaps	
+Close Gaps with Spline	
 Close One Cell Gaps	
+Closed Gaps Grid	
 Collect values	
 Columns	
 Combine Grids	
@@ -73,6 +70,7 @@ Cut
 Cutting	
 Data completion...	
 Data storage type	
+Direction	
 Distance	
 Distance (Grid Units).	
 Distance Grid	
@@ -80,9 +78,11 @@ Down sort
 Down-Scaling	
 Dummy Grid	
 Equidistance	
+Extended Neighourhood	
 Extent to CellSize	
+Features	
 Features Grid	
-Field	
+Fill NoData	
 Fill Value	
 Fixed value to be replaced	
 Fixed|Cell value|	
@@ -92,9 +92,9 @@ Grid - Tools
 Grid 1	
 Grid 2	
 Grid Buffer	
+Grid Masking	
 Grid Orientation	
 Grid Proximity Buffer	
-Grid System	
 Grid Value Request	
 Grid Values	
 Grid to reclassify	
@@ -104,11 +104,13 @@ Grid with euclidian distance to nearest source cell [grid units]
 Grid with features to be buffered [Category/NoData]	
 Grid(s)	
 Grid(s) to fit extent to	
+Grids	
 Grids from classified grid and table	
 Grids to Merge	
 Grids to request	
 Grid|Tools	
 High Value	
+Initialization Value	
 Input Grid	
 Input Grids	
 Interpolation	
@@ -125,8 +127,13 @@ Low Value
 Low value < grid value < high value	
 Low value <= grid value < high value	
 Lower Tolerance	
+Mask	
+Masked Grid	
+Maximum Points	
+Maximum Value	
 Maximum value of the range to be reclassified.	
 Mean Value	
+Mean Value (cell area weighted)	
 Merged Grid	
 Merging	
 Method	
@@ -134,17 +141,23 @@ Method range
 Method simple table	
 Method single	
 Method user supplied table	
+Minimum Value	
 Minimum value of the range to be reclassified.	
 Mirror	
+Moore	
 NAME	
 NX	
 NY	
 Nearest Neighbor	
+Neighbourhood	
+Neumann	
 New Value	
 New value.	
 No grids selected	
 Nothing to do: there is no intersection with additonal grid.	
-Olaf Conrad, Victor Olaya, Volker Wichmann (c) 2002-5	
+Number of Points for Local Interpolation	
+Olaf Conrad, Victor Olaya, Volker Wichmann (c) 2002-10	
+Only Process Gaps with Less Cells	
 Overlapping Cells	
 Parameter settings for No-Data and all other values.	
 Parameter settings for method range.	
@@ -158,15 +171,17 @@ Positive values result in a shift in E direction.
 Positive values result in a shift in N direction.	
 Preferred data storage type	
 Preserve Data Type	
+Proximity Grid	
 R:Buffers	
-R:Construction	
 R:Values	
+Radius (Cells)	
 Reclassifed grid.	
 Reclassification of distance grid to buffer zones with a width equal to the equidistance value.	
 Reclassified Grid	
 Reclassify Grid Values	
 Reclassify buffer distance to intervals of euqidistance ...	
 Relative from cell value	
+Relaxation	
 Replace Condition	
 Replace with	
 Resampled Grid	
@@ -179,7 +194,6 @@ Select operator: eg. min < value < max.
 Select the desired method: 1. a single value or a range defined by a single value is reclassified, 2. a range of values is reclassified, 3. the lookup table is used to reclassify the grid.	
 Select the desired operator (<;.;=; >;.); it is possible to define a range above or below the old value.	
 Select the desired operator (min < value < max; min . value < max; min .value . max; min < value . max).	
-Selected table contains no valid records	
 Set extent by	
 Shape(s)	
 Shape(s) to fit extent to	
@@ -188,12 +202,10 @@ Sort Grid
 Sorted Grid	
 Source Grid	
 Special cases	
-Specify dimensions|Create new grid in existing project|Overwrite existing grid|	
 Starting flood fill...	
 Sum|Min|Max|	
 Table	
 Target Grid	
-Target Grid Dimensions	
 Tension Threshold	
 There is no grid to request.	
 There is nothing to merge, because less than 2 grids have been selected.	
@@ -209,6 +221,7 @@ Upper Tolerance
 Use Offset	
 Use this option to reclassify No-Data values independently of the method settings.	
 Use this option to reclassify all other values that are not specified in the options above.	
+User Defined Grid	
 VALUE	
 Value	
 Value Grid	
@@ -216,6 +229,7 @@ Value in Grid 1
 Value in Grid 2	
 Value to be replaced	
 Value to reclassify.	
+Value which is assigned to the dummy grid.	
 Values	
 X	
 X offset	
@@ -226,9 +240,15 @@ You must specify a reclass table with a minimium of one record!\n
 \nError: Please verify your xMin, yMin, xMax, yMax settings!\n	
 \nError: the method Extent by Grid(s) requires grid(s) as input!\n	
 \nError: the method Extent by Shape(s) requires shape(s) as input!\n	
+failed to create index for grid	
+failed to create index for table	
 first value in order of grid list	
 fixed value	
+grid	
 interpolating grid: 	
+is ignored if set to zero	
+masking...	
+max. change	
 maximum	
 maximum value	
 maximum x value	
@@ -247,16 +267,24 @@ new
 new value	
 no data values	
 no data values >> value	
+no features to buffer.	
+no gaps	
+no intersection with mask grid.	
 number of cells in S-N direction	
 number of cells in W-E direction	
 old value	
 operator	
 other values	
 other values >> value	
+performing distance calculation...	
+preparing distance calculation...	
 ready	
 replacements	
+selected table contains no valid records	
+selected table does not have numeric attributes	
 single|range|simple table|user supplied table|	
 tolerance as absolute values	
+user defined	
 value at mouse position	
 xMax	
 xMin	

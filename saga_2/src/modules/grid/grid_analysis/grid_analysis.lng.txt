@@ -7,6 +7,7 @@ Accumulated Cost
 Accumulated Cost (Anisotropic)	
 Accumulated Cost (Isotropic)	
 Accumulated cost	
+Add Border	
 Aggregation Index	
 Analytical Hierarchy Process	
 Angle	
@@ -16,16 +17,23 @@ Area[%]
 Center Versus Neighbours	
 Change Vector Analysis	
 Class	
+Class Identifier	
+Classification	
 Clay	
 Clay-Loam	
 Closest Point	
+Connectivity Index (Pff).	
+Connectivity Weighting	
+Connectivity [Percent]	
 Control Point A	
 Control Point B	
 Control Point C	
 Control Point D	
 Copyrights (c) 2004 by Antonio Boggia and Gianluca Massei	
 Copyrights (c) 2004 by Victor Olaya	
+Copyrights (c) 2004-2009 by Victor Olaya, Volker Wichmann	
 Copyrights (c) 2007 by Gianluca Massei	
+Core	
 Corrected Transformed Vegetation Index	
 Cost Grid	
 Covered Distance	
@@ -33,16 +41,24 @@ Cross-Classification Grid
 Cross-Classification and Tabulation	
 Cross-Tabulation	
 Cross-Tabulation Table	
+Density Index (Pf).	
+Density [Percent]	
+Density from Neighbourhood	
 Destination Points	
 Direction of max cost	
 Direction of max cost for each cell. In degrees	
 Distance	
 Diversity	
 Dominance	
+Edge	
 Efective friction = stated friction ^f , where f = cos(DifAngle)^k.	
 Error : Wrong table. Check table dimensions	
 Error : Wrong weights table. Check table dimensions	
 Fragmentation	
+Fragmentation (Alternative)	
+Fragmentation (Standard)	
+Fragmentation Classes from Density and Connectivity	
+Fragmentation Index	
 Fuzzified	
 Fuzzify	
 Fuzzy intersection grid	
@@ -55,14 +71,17 @@ Grid B. Init
 Grids	
 Grid|Analysis	
 Hello by G. Massei	
+Include diagonal neighbour relations	
 Input Grid	
 Input Grid 1	
 Input Grid 2	
 Input Grids	
 Intercept of the soil line	
+Interior	
 Intersection	
 Layer of extreme value	
 Least Cost Path	
+Level Aggregation	
 Linear	
 Loam	
 Loamy Sand	
@@ -74,7 +93,13 @@ Maximum number of classes in the entire grid.
 Membership function type	
 Method	
 Minimum	
+Minimum Density [Percent]	
+Minimum Density for Interior Forest [Percent]	
+Moving window size = 1 + 2 * Neighborhood.	
 Near Infrared Band	
+Neighborhood	
+Neighborhood Type	
+None	
 Normalized Difference Vegetation Index	
 Normalized Ratio Vegetation Index	
 Number of Different Classes	
@@ -85,12 +110,15 @@ PVI (Qi, et al)
 PVI (Richardson and Wiegand)	
 PVI (Walther & Shabaani)	
 Pairwise Comparisons Table 	
+Patch	
 Pattern Analysis	
+Perforated	
 Polar To Rect	
 Profile (lines)	
 Profile (points)	
 Profile [%s]	
 R:Cost Analysis	
+R:Fragmentation Analysis	
 R:Fuzzy Logic	
 R:Image Analysis	
 R:Soil Analysis	
@@ -103,6 +131,8 @@ Sand
 Sandy Clay	
 Sandy Clay-Loam	
 Sandy Loam	
+Scale	
+Search Distance Increment	
 Sigmoidal	
 Silt	
 Silt-Loam	
@@ -114,21 +144,29 @@ Soil Texture
 Soil Texture Classification	
 Soil texture	
 Some Grid Analysis Tools.	
+Summary	
 Thiam's Transformed Vegetation Index	
 Threshold for different route	
 Total	
 Transformed Vegetation Index	
+Transitional	
+Undetermined	
 Union	
 Values	
+Various authors.	
 Vegetation Index[distance based]	
 Vegetation Index[slope based]	
-Victor Olaya (c) 2004	
 Weight	
 Weight for grid 	
 Weights	
 X Component	
 Y Component	
+average	
+circle	
 clay content	
+if less than 100, it is distinguished between interior and core forest	
 j-shaped	
 k factor	
+multiplicative	
 sand content	
+square	

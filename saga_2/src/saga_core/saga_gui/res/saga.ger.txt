@@ -1,68 +1,105 @@
 ORIGINAL	TRANSLATION
 1 byte integer	1 Byte Ganzzahl
+1.5 * Standard Deviation	
 2 byte integer	2 Byte Ganzzahl
+2.0 * Standard Deviation	
 20 seconds	20 Sekunden
 4 byte floating point	4 Byte Fließkommazahl
+4 byte floating point number	
 4 byte integer	4 Byte Ganzzahl
 8 byte floating point	8 Byte Fließkommazahl
+8 byte floating point number	
 A3 Landscape	
 A3 Portrait	
 A4 Landscape	
 A4 Portrait	
+AREA	
 About SAGA	Über SAGA
 Acknowledgements	Danksagungen
 Activate Grid File Cache?	Dateipuffer für Raster aktivieren?
 Activate file caching automatically, if memory size exceeds the threshold value.	Dateipuffer für Raster automatisch aktivieren, wenn Speicherbedarf Schwellenwert überschreitet.
 Add Field	Feld hinzufügen
+Addition	
 All Files	Alle Dateien
 All Recognised Files	Alle erkannten Dateitypen
 Area	Fläche
+Assign	
 Attribute	Attribut
 Automatic mode	Automatisch
 Available Choices	Auswahlmöglichkeiten
+Available Connections	
+Backward diagonal hatch	
 Bars	Balken
+Bottom	
 Buffer Size [MB]	Puffergröße
+CENTER	
 CLASS	KLASSE
 COLOR	FARBE
 COUNT	ANZAHL
+Cellsize	
 Chart Type	Diagrammtyp
 Choose Attribute	Wähle Attribut
+Choose Documentation Folder	
+Choose ODBC Connection	
 Class 1	Klasse 1
 Class 2	Klasse 2
 Clear	Löschen
+Colors	
 Colors file could not be exported.	Farbdatei konnte nicht erstellt werden.
 Colors file could not be imported.	Farbdatei konnte nicht geladen werden.
+Columns	
+Compare with...	
 CompuServe Graphics Interchange	
 Confirm file caching	Dateipufferaktivierung jedesmal bestätigen
 Constraints	Einschränkungen
 Copy	Kopieren
+Copy Settings from...	
+Create HTML Documentation	
 Create Lookup Table	Nachschlagetabelle erstellen
 Create index	Index erstellen
 Creating module documentation files	Dateien zur Moduldokumentation erstellen
+Cross hatch	
+Cross-diagonal hatch	
 Currently no help files exist for SAGA.\nIt depends on your support, if you will find any help at this place in future!\nThanks a lot...	Zur Zeit existiert keine Programmhilfe für SAGA\nEs hängt auch von Deiner/Ihrer Unterstützung ab, ob hier in Zukunft eine Hilfe zur Verfügung stehen wird.\nVielen Dank im voraus...
 DBase	
 DESCRIPTION	BESCHREIBUNG
+DSN	
+Data	
+Data Source Name	
 Data Table	Datentabelle
 Delete Fields	Felder löschen
+Denormalisation	
 Description	Beschreibung
 Descriptive name for the grid system	Anschaulicher Name für das Rastersystem
 Direction	Richtung
+Directory	
+Directory (DBase, Excel)	
 Directory, where temporary cache files shall be saved.	Verzeichnis, in dem temporäre Dateipuffer gespeichert werden sollen.
+Display Range	
+Division	
+Dot and dash style	
+Dotted style	
 ESRI Shape Files	
 Error	Fehler
 Error in Trend Calculation	Fehler in Trendberechnung
 Error in formula	Fehler in Formel
 Exit SAGA	SAGA beenden
 Field	Feld
-Field Colors	Farbe für Attribut
 Field Type	Datentyp
 Fields	Felder
 First Class	Erste Klasse
+Forward diagonal hatch	
 Function failed because no attributes are available	Funktion schlug fehl, weil keine Attribute verfügbar sind.
 General	Allgemein
+Geocentric Coordinate System	
+Geographic Coordinate System	
+Grid	
+Grid Display Defaults	
 Grid File Caching	Dateipufferung für Raster
 Grids	Raster
 Height	Höhe
+Horizontal hatch	
+Horizontally mirrored	
 I1: unrecognizable operator	
 I2: too many parameters	
 I3: corrupted buffer	
@@ -74,29 +111,44 @@ In/Out	Eingabe/Ausgabe
 Input	Eingabe
 Insert Method	Einfügemethode
 Insert Position	Einfügeposition
+Inversion	
 JPEG - JFIF Compliant	
 JPG Files	JPG Dateien
 Layers	Schichten
+Left	
 Left/Right	Links/Rechts
 Legend: Save	Legende: Speichern
 Legend: Zoom	Legende: Vergrößerung
 Length	Länge
+Library Overview	
 Lines	Linien
 Lines and Points	Linien und Punkte
 Load Colors	Lade Farben
 Load Parameters	Lade Parameter
 Logo	
+Long dashed style	
+MAX	
 MAXIMUM	
+MIN	
 MINIMUM	
 Map	Karte
 Maps	Karten
 Maximum	
 Menu	Menü
 Minimum	
+Minimum/Maximum	
 Module	Modul
+Module Library Descriptions	
+Multiplication	
 NAME	
 Name	
 Neon	
+No ODBC connection available!	
+No history available	
+No pen is used	
+Normalisation	
+ODBC Database Connection Error	
+Option	
 Options	Optionen
 Options for Data Thumbnails	Optionen für Daten-Vorschaubilder
 Options for Map Thumbnails	Optionen für Karten-Vorschaubilder
@@ -107,19 +159,26 @@ Parameters	Parameterliste
 Parameters file could not be exported.	Parameterdatei konnte nicht erstellt werden.
 Parameters file could not be imported.	Parameterdatei konnte nicht geladen werden.
 Parts	Teile
+Password	
 Perimeter	Umfang
 Please stop module execution before exiting SAGA.	Um SAGA zu beenden, muß erst das laufende Modul angehalten werden.
+Point Clouds	
 Points	Punkte
 Portable Network Graphics	
 Position	
+Process Update Frequency [milliseconds]	
+Projected Coordinate System	
 Rainbow	Regenbogen
+Rename Fields	
+Resampling	
 Resolution	Auflösung
-Row	Reihe
+Right	
+Rows	
 SAGA Colors	SAGA Farben
 SAGA Help	SAGA Hilfe
 SAGA Module Libraries	
-SAGA Module Library Descriptions	
 SAGA Parameter Files	
+SAGA Point Clouds	
 SAGA Project	
 SAGA Projects	
 SAGA: Print Map	
@@ -130,37 +189,54 @@ Save Georeference
 Save Parameters	
 Save all	
 Scale	
+Scatterplot	
 Second Class	
 Selection Color	
 Shall I activate file caching for new grid.	
+Short dashed style	
 Show Categories	
 Show Logo at Start Up	
+Solid style	
 Sort Table	
-Sort by	
+Sort first by	
+Sort second by	
+Sort third by	
 South-North	
 Start Project	
+Subtraction	
 Table	
 Tables	
 Tagged Image File Format	
 Temporary files	
 Text	
 Text Files	
+Thin Plate Spline: solving matrix	
 This is a Test!!!	
 Threshold for automatic mode [MB]	
 Thumbnail Size	
 Thumbnails	
+Top	
 Total memory size	
 Tree	
 Type	
+Undefined Coordinate System	
 Up/Down	
+Use the stipple bitmap	
+Use the user dashes	
+User	
+User Name	
 Value Range	
 Version	
+Vertical hatch	
+Vertically mirrored	
 West-East	
 Width	Breite
 Windows or OS/2 Bitmap	
 X	
 X11 Pixel Map	
 Y	
+You have to choose a grid for comparison	
+You have to choose a shapes layer for comparison	
 Z	
 Zsoft Paintbrush	
 [BTN] Add	Hinzufügen
@@ -200,9 +276,12 @@ Zsoft Paintbrush
 [CAP] Chart Properties	
 [CAP] Choose Directory	
 [CAP] Circles	Kreise
+[CAP] Clipboard	
 [CAP] Close	
 [CAP] Close and save modified data sets...	
 [CAP] Color	Farbe
+[CAP] Color by Attribute	
+[CAP] Coloring	
 [CAP] Colors	Farben
 [CAP] Create Script Command File	
 [CAP] Data	Daten
@@ -234,29 +313,42 @@ Zsoft Paintbrush
 [CAP] Figure	
 [CAP] File	Datei
 [CAP] File cache activated	
+[CAP] Fill Color	
 [CAP] Fill Style	Füllstil
 [CAP] Fit Map Scale	Maßstab anpassen
+[CAP] Fit Size to Window	
+[CAP] Fixed Maximum	
+[CAP] Fixed Minimum	
 [CAP] Font	Schriftart
 [CAP] Frame	
+[CAP] Frame Width	
 [CAP] General	Allgemein
 [CAP] Graduated Color	Abgestufte Farben
 [CAP] Grid	Raster
 [CAP] Grid System	Raster System
 [CAP] Grid Systems	Raster Systeme
 [CAP] Grids	Raster
+[CAP] Height	
 [CAP] Histogram	Histogramm
+[CAP] History	
+[CAP] Horizontal Align	
 [CAP] Html Extra Info	
 [CAP] Index	
-[CAP] Info	
 [CAP] Input	Eingabe
 [CAP] Interpolated	Interpoliert
 [CAP] Interpolation	
+[CAP] Label	
 [CAP] Layers	
 [CAP] Legend	
+[CAP] Legend Border Colour	
+[CAP] Legend Frame Width	
+[CAP] Legend Scale	
+[CAP] Line Style	
 [CAP] Load	
 [CAP] Load Colors	Lade Farben
 [CAP] Load Grid	Lade Raster
 [CAP] Load Module Library	Lade Modulbibliothek
+[CAP] Load Point Cloud	
 [CAP] Load Project	Lade Projekt
 [CAP] Load Settings	
 [CAP] Load Shapes	Lade Vektordaten
@@ -271,11 +363,16 @@ Zsoft Paintbrush
 [CAP] Map Selection	Kartenauswahl
 [CAP] Map-Layout	
 [CAP] Maps	Karten
+[CAP] Maximum	
+[CAP] Maximum Value	
+[CAP] Mean	
 [CAP] Memory	Speicher
 [CAP] Memory Compression	
 [CAP] Memory Handling	Speicherverwaltung
 [CAP] Memory Size	Speicherbedarf
 [CAP] Messages	Nachrichten
+[CAP] Minimum	
+[CAP] Minimum Value	
 [CAP] Mode	Modus
 [CAP] Modified	Modifiziert
 [CAP] Module Execution	Modulausführung
@@ -287,6 +384,7 @@ Zsoft Paintbrush
 [CAP] Number Of Cells	Anzahl der Zellen
 [CAP] Number Of Grids	Anzahl der Rasterdatensätze
 [CAP] Number Of Shapes	Anzahl der Vektordatensätze
+[CAP] Number of Points	
 [CAP] Number of cells	Anzahl der Zellen
 [CAP] Object Properties	
 [CAP] Open	
@@ -294,8 +392,14 @@ Zsoft Paintbrush
 [CAP] Outline	Umrandung
 [CAP] Outline Color	
 [CAP] Outline Size	
+[CAP] Overlay 1	
+[CAP] Overlay 2	
 [CAP] Parameters	Parameter
 [CAP] Perspectivic Distance	Perspektivischer Abstand
+[CAP] Point Cloud	
+[CAP] Point Clouds	
+[CAP] Point Size	
+[CAP] PointCloud	
 [CAP] Points	Punkte
 [CAP] Preset Selection	
 [CAP] Print Layout	
@@ -303,10 +407,13 @@ Zsoft Paintbrush
 [CAP] Project File	
 [CAP] Projection	Projektion
 [CAP] Properties	Eigenschaften
+[CAP] RGB Overlay	
 [CAP] Records	
 [CAP] Regression Details	Regressionsdetails
 [CAP] Regression Formula	Regressionsformel
 [CAP] Rotation	
+[CAP] Rotation (Degree)	
+[CAP] Rotation by Attribute	
 [CAP] Save	
 [CAP] Save As Image	Als Bild speichern...
 [CAP] Save As Interactive SVG	
@@ -314,6 +421,7 @@ Zsoft Paintbrush
 [CAP] Save Grid	Raster speichern
 [CAP] Save Grid as Image...	
 [CAP] Save Map as Image...	
+[CAP] Save Point Cloud	
 [CAP] Save Project	Projekt speichern
 [CAP] Save Settings	
 [CAP] Save Shapes	Vektordaten speichern
@@ -324,19 +432,24 @@ Zsoft Paintbrush
 [CAP] Scale Dependent	
 [CAP] Scatterplot	
 [CAP] Select File	Datei wählen
+[CAP] Selection	
 [CAP] Settings	
+[CAP] Shade	
 [CAP] Shapes	Vektordaten
 [CAP] Shift	
 [CAP] Show	Anzeigen
 [CAP] Show Always	
+[CAP] Show Centroid	
 [CAP] Show Edges	Kanten anzeigen
 [CAP] Show Filled	
 [CAP] Show Legend	Legende anzeigen
 [CAP] Show Nodes	
 [CAP] Show Regression Curve	Regressionskurve anzeigen
+[CAP] Show Scale	
 [CAP] Show Vertices	
 [CAP] Size	
 [CAP] Size Range	Größenspanne
+[CAP] Size by Attribute	
 [CAP] Size relates to...	
 [CAP] Snap Distance	
 [CAP] Snap to...	
@@ -355,15 +468,18 @@ Zsoft Paintbrush
 [CAP] Unique Symbol	Einheitliches Symbol
 [CAP] Unit	Einheit
 [CAP] Value	Wert
+[CAP] Value Aggregation	
 [CAP] Value Range	Wertebereich
 [CAP] Value Type	
+[CAP] Values	
 [CAP] Version	
+[CAP] Vertical Align	
 [CAP] Weight	
 [CAP] West-East	
 [CAP] Width	
 [CAP] Workspace	Arbeitsumgebung
 [CAP] X Axis	
-[CAP] X Label	
+[CAP] Y Axis	
 [CAP] Z-Factor	Z-Faktor
 [CAP] Zoom to added layer	
 [CAP] [no items]	[keine Objekte]
@@ -386,11 +502,13 @@ Zsoft Paintbrush
 [CMD] Close All	Alle schliessen
 [CMD] Convert To Table	In Tabelle umwandeln
 [CMD] Copy	Kopieren
+[CMD] Copy Settings from other Layer	
 [CMD] Create HTML Documentation	
 [CMD] Create Lookup Table	Nachschlagetabelle erstellen
 [CMD] Create Normalised Classification	Normalisierte Klassifikation erstellen
 [CMD] Create Script Command File	
 [CMD] Cumulative	Kumulativ
+[CMD] Decrease Diagram Size	
 [CMD] Decrease Exaggeration [F1]	Überhöhung verringern [F1]
 [CMD] Decrease Eye Distance	
 [CMD] Decrease Perspectivic Distance [F5]	
@@ -398,9 +516,9 @@ Zsoft Paintbrush
 [CMD] Delete All Records	
 [CMD] Delete Fields	
 [CMD] Delete Last Position [D]	Letzte Position löschen [D]
-[CMD] Delete Record	
 [CMD] Delete Selected Part	Ausgewähltes Segment löschen
 [CMD] Delete Selected Point	Ausgewählten Punkt löschen
+[CMD] Delete Selected Record(s)	
 [CMD] Delete Selected Shape(s)	
 [CMD] Down	Ab
 [CMD] Edit Positions	Positionen editieren
@@ -409,11 +527,13 @@ Zsoft Paintbrush
 [CMD] Exit	Beenden
 [CMD] Exit SAGA	SAGA beenden
 [CMD] Fit Column Sizes	
+[CMD] Fit Diagram to Window	
 [CMD] Fit Grid Colors To Map Extent	Rasterfarben an Ausschnitt anpassen
 [CMD] Fit Row Sizes	
 [CMD] Fit Scale...	Maßstab anpassen...
 [CMD] Forward	Vorwärts
 [CMD] Help	Hilfe
+[CMD] Increase Diagram Size	
 [CMD] Increase Exaggeration [F2]	Überhöhung verstärken [F2]
 [CMD] Increase Eye Distance	
 [CMD] Increase Perspectivic Distance [F6]	
@@ -425,7 +545,9 @@ Zsoft Paintbrush
 [CMD] Load	
 [CMD] Load Grid	Lade Raster
 [CMD] Load Module Library	Lade Modulbibliothek
+[CMD] Load Point Cloud	
 [CMD] Load Project	Lade Projekt
+[CMD] Load Settings	
 [CMD] Load Shapes	Lade Vektordaten
 [CMD] Load TIN	
 [CMD] Load Table	Lade Tabelle
@@ -434,6 +556,7 @@ Zsoft Paintbrush
 [CMD] Move To Bottom	Ganz nach unten
 [CMD] Move To Top	Ganz nach oben
 [CMD] Move Up	
+[CMD] New Project	
 [CMD] Next	Nächstes
 [CMD] Page Setup	Seite einrichten
 [CMD] Pan	Verschieben
@@ -445,6 +568,7 @@ Zsoft Paintbrush
 [CMD] Print Preview	Druckvorschau
 [CMD] Print Setup	Drucker einrichten
 [CMD] Properties	Eigenschaften
+[CMD] Rename Fields	
 [CMD] Right	Rechts
 [CMD] Right [F4]	
 [CMD] Save As Image when changed	
@@ -453,6 +577,9 @@ Zsoft Paintbrush
 [CMD] Save Grid	Raster speichern
 [CMD] Save Grid As Image...	Raster als Bilddatei speichern...
 [CMD] Save Grid As...	Raster speichern unter...
+[CMD] Save Legend to Clipboard [Ctrl+L]	
+[CMD] Save Point Cloud	
+[CMD] Save Point Cloud As...	
 [CMD] Save Project	Projekt speichern
 [CMD] Save Project As...	Projekt speichern unter
 [CMD] Save Shapes	Vektordaten speichern
@@ -462,6 +589,11 @@ Zsoft Paintbrush
 [CMD] Save Table	Tabelle speichern
 [CMD] Save Table As...	Tabelle speichern unter...
 [CMD] Save as Interactive SVG	Als interaktive Scalable Vector Graphic Dateien speichern
+[CMD] Save to Clipboard [Ctrl+C]	
+[CMD] Set Range to Minmum/Maximum	
+[CMD] Set Range to Standard Deviation (1.5)	
+[CMD] Set Range to Standard Deviation (2.0)	
+[CMD] Show	
 [CMD] Show 3D-View	3D-Ansicht anzeigen
 [CMD] Show Diagram	Diagramm anzeigen
 [CMD] Show Grid	Raster anzeigen
@@ -471,6 +603,7 @@ Zsoft Paintbrush
 [CMD] Show Map	Karte anzeigen
 [CMD] Show Message Window	Nachrichten anzeigen
 [CMD] Show Object Properties	Objekteigenschaften anzeigen
+[CMD] Show Point Cloud	
 [CMD] Show Print Layout	Kartenlayout anzeigen
 [CMD] Show Scatterplot	Scatterplot anzeigen
 [CMD] Show Shapes	Vektordaten anzeigen
@@ -480,6 +613,7 @@ Zsoft Paintbrush
 [CMD] Show Vertical Legend	Legende vertikal anzeigen
 [CMD] Show Workspace	Arbeitsumgebung anzeigen
 [CMD] Sort Fields	Felder sortieren
+[CMD] Sort Selection to Top	
 [CMD] Synchronise Map Extents	Kartenausschnitte synchronisieren
 [CMD] Tile Horizontally	Horizontal anordnen
 [CMD] Tile Vertically	Vertikal anordnen
@@ -500,10 +634,9 @@ Zsoft Paintbrush
 [DAT] Lower left corner	Linke untere Ecke
 [DAT] Number of cells	Anzahl der Zellen
 [DAT] Point	Punkt
+[DAT] Point Cloud	
 [DAT] Points	Punkte
 [DAT] Polygon	
-[DAT] Resampling	
-[DAT] Save shapes	Vektordaten speichern
 [DAT] Shapes	Vektordaten
 [DAT] TIN	
 [DAT] Table	Tabelle
@@ -516,16 +649,17 @@ Zsoft Paintbrush
 [DLG] Please enter a numeric value:	Bitte geben Sie einen Zahlenwert ein:
 [DLG] Save changes?	Änderungen speichern?
 [DLG] Scale 1 : 	Maßstab 1 : 
+[DLG] Select a layer to copy settings from it.	
 [DLG] Set selected values to no data.	Auswahl als \'Keine Daten\' markieren.
-[ERR] Access Violation	Speicher-Zugriffsverletzung
 [ERR] Calculation Error	
 [ERR] Can't execute a module while another runs	Modul kann nicht ausgeführt werden, während ein anderes läuft
-[ERR] Corrupted shape file.	
 [ERR] Could not save PDF file.	
-[ERR] DBase file could not be opened or it did not contain any records.	
+[ERR] DBase file could not be opened.	
+[ERR] DBase file does not contain any records.	
 [ERR] Error: Continue anyway ?	
 [ERR] Grid file could not be opened.	Rasterdatei konnte nicht geöffnet werden
 [ERR] Grid file could not be saved.	Raster konnte nicht gespeichert werden
+[ERR] Internal system error	
 [ERR] Invalid data set!	Ungültiger Datensatz!
 [ERR] Invalid data!	Ungültige Daten!
 [ERR] Invalid display size!	Ungültiger Ausgabebereich!
@@ -533,13 +667,25 @@ Zsoft Paintbrush
 [ERR] Library could not be loaded	Bibliothek konnte nicht geöffnet werden
 [ERR] Library does not contain any modules	Bibliothek enthält keine Module
 [ERR] Library has already been loaded	Bibliothek wurde bereits geladen
+[ERR] Module caused access violation!	
 [ERR] Shape file could not be opened.	Vektordatei konnte nicht geöffnet werden
-[ERR] Shape file invalid or of unsupported type.	
-[ERR] Shape file is corrupted.	Vektordatei ist korrumpiert
-[ERR] Shape index file could not be opened.	Vektor-Indexdatei konnte nicht geöffnet werden
 [ERR] There was a problem printing.\nPerhaps your current printer is not set correctly?	Es gab ein Druckproblem.\nVielleicht ist Ihr Drucker nicht korrekt eingestellt?
 [ERR] Unknown Error	
 [ERR] You canceled printing	Sie haben den Druckvorgang abgebrochen
+[ERR] corrupted file header	
+[ERR] corrupted record header	
+[ERR] corrupted shapefile.	
+[ERR] dbase file could not be opened	
+[ERR] file could not be opened.	
+[ERR] incompatible file.	
+[ERR] index file could not be opened	
+[ERR] invalid file code	
+[ERR] memory allocation error.	
+[ERR] no records in file.	
+[ERR] shape file could not be opened.	
+[ERR] unable to create file.	
+[ERR] unsupported file version	
+[ERR] unsupported shape type.	
 [FLD] Attribute	
 [FLD] Central Projection	Zentralprojektion
 [FLD] Exaggeration	Überhöhung
@@ -563,28 +709,15 @@ Zsoft Paintbrush
 [FLD] Value	Wert
 [HLP] Execute Module	Modul ausführen
 [HST] Created from file	Von Datei geladen
-[HST] Created with module	Von Modul erstellt
-[HST] Grid addition	Raster Addition
-[HST] Grid denormalisation	Raster Denormalisierung
-[HST] Grid division	Raster Division
-[HST] Grid multiplication	Raster Multiplikation
-[HST] Grid normalisation	Raster Normalisierung
-[HST] Grid operation	Raster Operation
-[HST] Grid subtraction	Raster Subtraktion
-[HST] Horizontally mirrored	Horizontale Spiegelung
-[HST] Inversion	Invertierung
-[HST] Loaded from file	Von Datei geladen
-[HST] Value addition	Addition eines Wertes
-[HST] Value assigned to grid	Zuweisung eines Wertes
-[HST] Value division	Division durch einen Wert
-[HST] Value multiplication	Multiplikation eines Wertes
-[HST] Value subtraction	Subtraktion eines Wertes
-[HST] Vertically mirrored	Vertikale Spiegelung
 [MNU] ?	
+[MNU] Attributes	
+[MNU] Classification	
+[MNU] Classificaton	
 [MNU] Edit	Editieren
 [MNU] File	Datei
 [MNU] Grid	Rasterdaten
 [MNU] Modules	Module
+[MNU] Point Cloud	
 [MNU] Project	Projekt
 [MNU] Rotation	
 [MNU] Sequencer	Sequenzer
@@ -607,6 +740,7 @@ Zsoft Paintbrush
 [MSG] Interactive module execution has been stopped	Ausführung des interaktiven Moduls wurde beendet
 [MSG] Load grid	Lade Rasterdaten
 [MSG] Load library	Lade Bibliothek
+[MSG] Load point cloud	
 [MSG] Load project	Lade Projekt
 [MSG] Load shapes	Lade Vektordaten
 [MSG] Load table	Lade Tabelle
@@ -616,12 +750,17 @@ Zsoft Paintbrush
 [MSG] Project has been successfully loaded.	Projekt wurde erfolgreich geladen
 [MSG] Save as Interactive SVG	
 [MSG] Save grid	Rasterdaten speichern
+[MSG] Save point cloud	
 [MSG] Save shapes	Vektordaten speichern
 [MSG] Save table	Tabelle speichern
 [MSG] Save to PDF	Als PDF speichern
 [MSG] Shall execution be stopped?	Soll die Ausführung abgebrochen werden?
+[MSG] could not read project file.	
 [MSG] failed	fehlgeschlagen
+[MSG] file does not exist.	
 [MSG] has already been loaded	bereits geladen
+[MSG] invalid project file.	
+[MSG] no data entries in project file.	
 [MSG] okay	erfolgreich
 [PRM] Boolean	Wahrheitswert
 [PRM] Choice	Auswahl
@@ -647,8 +786,12 @@ Zsoft Paintbrush
 [PRM] Options	Optionen
 [PRM] Parameter	
 [PRM] Parameters	Parameterliste
+[PRM] Point Cloud	
+[PRM] Point Cloud list	
+[PRM] Point Clouds	
 [PRM] Save	Speichern
 [PRM] Save Georeference (world file)	Georeferenz speichern
+[PRM] Save KML file	
 [PRM] Shapes	Vektordaten
 [PRM] Shapes list	Liste von Vektordaten
 [PRM] Static table	Statische Tabelle
@@ -696,6 +839,7 @@ Zsoft Paintbrush
 [VAL] Normal	
 [VAL] Opaque	Undurchsichtig
 [VAL] RGB	
+[VAL] RGB Overlay	
 [VAL] RTL Compression	RTL Komprimierung
 [VAL] Screen	Bildschirm
 [VAL] Shade	Schummerung
@@ -718,6 +862,7 @@ Zsoft Paintbrush
 [VAL] yes	ja
 access violation	Fehlerhafter Speicherzugriff
 after	nach
+another grid	
 ascending	aufsteigend
 author      	Autor
 automatically save and load	automatisch speichern und laden
@@ -727,11 +872,16 @@ ball	Ball
 bar	Balken
 bar (not outlined)	Balken (nicht umrandet)
 before	vor
+binary	
+bit	
 black > blue	schwarz > blau
 black > green	schwarz > grün
 black > red	schwarz > rot
+bottom	
+bright - dark	
 buffer size	Größe des Puffers
 cannot execute interactive module	interaktives Modul kann nicht ausgeführt werden
+center	
 central	zentral
 character string	Zeichenkette
 circle	Kreis
@@ -743,14 +893,20 @@ circle with rhombus	Kreis mit Rhombus
 circle with square	Kreis mit Quadrat
 circle with triangle (down)	Kreis mit Dreieck (Spitze abwärts)
 circle with triangle (up)	Kreis mit Dreieck (Spitze aufwärts)
+color	
 color (rgb)	Farbe (RGB)
 colors	Farben
 columns	Spalten
 confirm	Bestätige
 confirm with options	Bestätige mit Optionen
 continue	fortsetzen
+could not create index: insufficient memory	
 creating batch file example	
+cyan - white	
 cylinder	Zylinder
+dark - bright	
+database table does not exist	
+date	
 date (dd.mm.yyyy)	Datum (dd.mm.yyyy)
 default	Standard
 default (same brightness)	Standard (gleiche Helligkeit)
@@ -763,12 +919,15 @@ empty input list
 error	Fehler
 executing module	Modulausführung
 failed	fehlgeschlagen
+field cannot be mapped to binary object	
+first value	
 function not found	Funktion nicht gefunden
 function table full	
 green > blue	
 green > grey > blue	
 green > red > blue	
 greyscale	Graustufen
+highest z	
 image	Bild
 improper function syntax	
 index out of bounds	
@@ -779,15 +938,24 @@ interactive execution	interaktive Ausführung
 invalid module libraries path	
 invalid number of parameters	
 last opened	zuletzt geöffnet
+last value	
+left	
 library name	
 library path	
+lowest z	
+magenta - white	
 missing operand	
 module	Modul
 module library	Modulbibliothek
 module library not found	Modulbibliothek nicht gefunden
 module name 	Modulname
 module not found	Modul nicht gefunden
+more than one field in selection	
 no	nein
+no attributes in table	
+no database connection	
+no fields in selection	
+no histogram for unclassified data	
 no memory	kein Speicher
 no valid module library found in path	
 okay	
@@ -811,23 +979,48 @@ red > green
 red > green > blue	
 red > grey > blue	
 red > grey > green	
+red=1, green=2, blue=this	
+red=1, green=this, blue=2	
+red=2, green=1, blue=this	
+red=2, green=this, blue=1	
+red=this, green=1, blue=2	
+red=this, green=2, blue=1	
 rhombus	Rhombus
+right	
 rows	Reihen
+shapes	
+signed 1 byte integer	
+signed 2 byte integer	
+signed 4 byte integer	
+signed 8 byte integer	
+sql excution error	
 square	Quadrat
+string	
 syntax error	Syntaxfehler
 too few parameters	Zu wenige Parameter
 too many constants	Zu wenige Konstanten
 too many parameters	Zu viele Parameter
+top	
 triangle (down)	Dreieck (Spitze abwärts)
 triangle (up)	Dreieck (Spitze aufwärts)
 type -h or --help for further information	
 undeclared parameter	
+undefined	
+unknown type	
 unmatched parentheses	
+unsigned 1 byte integer	
+unsigned 2 byte integer	
+unsigned 4 byte integer	
+unsigned 8 byte integer	
 unsorted	unsortiert
 until user closes it	bis Mausklick
+white - cyan	
+white - magenta	
+white - yellow	
 white > blue	
 white > green	
 white > red	
+yellow - white	
 yellow > blue	
 yellow > green	
 yellow > red	

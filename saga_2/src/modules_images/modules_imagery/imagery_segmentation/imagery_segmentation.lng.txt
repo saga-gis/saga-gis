@@ -1,62 +1,13 @@
 ORIGINAL	TRANSLATION
-Angle [Degree]	
-Area	
-Bifurcation	
-Class	
-Constant Variation Range [Degree]	
-Constant variation range	
-Copyrights (c) 2003 by Andre Ringeler	
-Dim01	
-Dim02	
-Equation	
-Feigenbaum's Bifurcation	
-Fixed angle	
-Flattening	
-Fractal Dimension	
-Fractal Dimension of Grid Surface	
-Fractal Type	
-Fractals	
-Gaussian Landscape	
-Gaussian Landscapes	
-Grid	
-Height (Cells)	
-High variation for low sizes	
-Input	
-Iteration	
-Julia	
-Julia - X	
-Julia - Y	
-Julia Set	
-Lines	
-Ln(Area)	
-Low variation for low sizes	
-Mandelbrot	
-Mandelbrot Set	
-Max Iterations	
-Maximum Iterations	
-Method	
-Minimum Size [%]	
-Newton [A]	
-Newton [B]	
-Newton-Raphson	
-Number of Steps	
-Number of the last x Iteration to be plotted.	
-Olaf Conrad (c) 2002	
-Output	
-Polygons	
-Pythagoras' Tree	
-Range	
-Recreations - Fractals	
-Recreations|Fractals	
-Result	
-Roughness/Smoothness	
-Scale	
-Seed Value	
-Shade	
-Shape Type	
-Simple	
-Size	
-Value Count	
-Width (Cells)	
-X-Range	
-Y-Range	
+Clear RGA	
+Fast Region Growing Algorithm	
+Image segmentation algorithms.	
+Imagery - Segmentation	
+Imagery|Segmentation	
+Init RGA	
+Input Grids	
+Mean	
+RGA	
+Seeds Grid	
+Segmente	
+Smooth Rep	

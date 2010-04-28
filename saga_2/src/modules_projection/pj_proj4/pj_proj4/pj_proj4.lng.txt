@@ -1,34 +1,40 @@
 ORIGINAL	TRANSLATION
-1.0	
+2.0	
+3 parameters (translation only)	
+7 parameters	
+All Files	
 Automatic fit	
 Available Projections:	
 Azimuth	
 B-Spline Interpolation	
 Bicubic Spline Interpolation	
 Bilinear Interpolation	
-Bottom	
 Central Meridian	
 Central Parallel	
 Check each point|	
 Choose Grid	
 Choose Grid Project	
 Choose Shapes	
-Columns	
-Coordinate Transformations based on the Proj4-Engine.	
+Command Line Arguments	
 Create X/Y Grids	
-Direction	
+Datum Definition	
+Datum Shift	
+Datum Shift Grid	
+Datum Shift Grid File	
+Dialog	
 Eccentricity (e)	
-Ellipsoid	
+Ellipsoid Definition	
 Extent only (fast)	
 False Easting	
 False Northing	
 Fit Size	
 Flattening (f)	
-Geodetic to Projection	
+General Settings	
 Grid	
-Grid Interpolation	
 Grid Size	
 Height of view point	
+Interpolation	
+Inverse	
 Inverse Distance Interpolation	
 Inverse transformation not available for selected projection type.	
 Landsat	
@@ -37,33 +43,36 @@ Latitude 2
 Latitude 3	
 Latitude B	
 Latitude Pole	
-Left	
+List of Grids	
+List of Shapes Layers	
 Longitude 1	
 Longitude 2	
 Longitude 3	
 Longitude Pole	
 Lotsa	
 M	
+NTv2 Grid Shift Binary (*.gsb)	
 Nearest Neigbhor	
 No Cut	
-Olaf Conrad (c) 2004	
 Path	
+Predefined Datum	
 Predefined Standard Ellipsoids	
-Proj4 (Grid)	
-Proj4 (Shapes)	
+Processing	
+Proj.4	
 Projection	
-Projection - Proj4	
+Projection - Proj.4	
 Projection Type	
-Projection initialization failure\ncause: 	
-Projection to Geodetic	
 R:Grid	
 R:Shapes	
 Reciprocal Flattening (rf)	
-Right	
-Rows	
+Rotation X	
+Rotation Y	
+Rotation Z	
+Scale Factor	
+Scaling	
 Semimajor Axis (a)	
 Semimajor Axis and Eccentricity	
-Semimajor Axis and Eccentricity Squared|	
+Semimajor Axis and Eccentricity Squared	
 Semimajor Axis and Flattening	
 Semimajor Axis and Reciprocal Flattening	
 Semimajor Axis and Semiminor Axis	
@@ -73,16 +82,21 @@ Semiminor axis or polar radius.
 Shapes	
 Source	
 Source Parameters	
+Source Projection Parameters	
 South	
 Squared Eccentricity (es)	
 System	
 Target	
 Target Parameters	
+Target Projection Parameters	
 Tilt	
-Top	
+Translation X	
+Translation Y	
+Translation Z	
 True Scale Latitude	
 Unit	
-User defined	
+User Defined Datum	
+User Defined Grid	
 W	
 X Coordinates	
 X-Coordinate	
@@ -91,12 +105,12 @@ Y-Coordinate
 Zone	
 automatic fit	
 grid	
-grid system	
 guam	
 h	
-k_0	
 m	
 n	
+none	
+projection initialization failure	
 shapes	
 shapes have been dropped	
 theta	

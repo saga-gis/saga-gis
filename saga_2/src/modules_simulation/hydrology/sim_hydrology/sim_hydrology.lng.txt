@@ -17,9 +17,12 @@ Equivalent Moisture
 February	
 Field Capacity [mm]	
 Final Parameters	
+Flow at Gauges	
+Gauges	
 Green-Ampt Infiltration	
 Hafer	
 Homogenous	
+ID	
 Infiltration excess runoff [m/dt]	
 Infiltration rate [m/dt]	
 Initial root zone storage deficit [m]	
@@ -50,7 +53,6 @@ Number of Classes
 October	
 Olaf Conrad (c) 2001	
 Outlet Hydrographs	
-Outlets	
 Overland Flow - Kinematic Wave D8	
 Permanent Wilting Point [mm]	
 Permeability	
@@ -62,9 +64,9 @@ Saturation overland flow [m/dt]
 September	
 Simulation - Hydrology	
 Simulation Output	
+Simulation Time	
 Simulation Time Step [h]	
 Simulation Time [h]	
-Simulation Time [h]: %f / %f	
 Simulation|Hydrology	
 Soil Moisture	
 Soil Moisture Content	

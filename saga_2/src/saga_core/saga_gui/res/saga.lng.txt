@@ -1,68 +1,105 @@
 ORIGINAL	TRANSLATION
 1 byte integer	
+1.5 * Standard Deviation	
 2 byte integer	
+2.0 * Standard Deviation	
 20 seconds	
 4 byte floating point	
+4 byte floating point number	
 4 byte integer	
 8 byte floating point	
+8 byte floating point number	
 A3 Landscape	
 A3 Portrait	
 A4 Landscape	
 A4 Portrait	
+AREA	
 About SAGA	
 Acknowledgements	
 Activate Grid File Cache?	
 Activate file caching automatically, if memory size exceeds the threshold value.	
 Add Field	
+Addition	
 All Files	
 All Recognised Files	
 Area	
+Assign	
 Attribute	
 Automatic mode	
 Available Choices	
+Available Connections	
+Backward diagonal hatch	
 Bars	
+Bottom	
 Buffer Size [MB]	
+CENTER	
 CLASS	
 COLOR	
 COUNT	
+Cellsize	
 Chart Type	
 Choose Attribute	
+Choose Documentation Folder	
+Choose ODBC Connection	
 Class 1	
 Class 2	
 Clear	
+Colors	
 Colors file could not be exported.	
 Colors file could not be imported.	
+Columns	
+Compare with...	
 CompuServe Graphics Interchange	
 Confirm file caching	
 Constraints	
 Copy	
+Copy Settings from...	
+Create HTML Documentation	
 Create Lookup Table	
 Create index	
 Creating module documentation files	
+Cross hatch	
+Cross-diagonal hatch	
 Currently no help files exist for SAGA.\nIt depends on your support, if you will find any help at this place in future!\nThanks a lot...	
 DBase	
 DESCRIPTION	
+DSN	
+Data	
+Data Source Name	
 Data Table	
 Delete Fields	
+Denormalisation	
 Description	
 Descriptive name for the grid system	
 Direction	
+Directory	
+Directory (DBase, Excel)	
 Directory, where temporary cache files shall be saved.	
+Display Range	
+Division	
+Dot and dash style	
+Dotted style	
 ESRI Shape Files	
 Error	
 Error in Trend Calculation	
 Error in formula	
 Exit SAGA	
 Field	
-Field Colors	
 Field Type	
 Fields	
 First Class	
+Forward diagonal hatch	
 Function failed because no attributes are available	
 General	
+Geocentric Coordinate System	
+Geographic Coordinate System	
+Grid	
+Grid Display Defaults	
 Grid File Caching	
 Grids	
 Height	
+Horizontal hatch	
+Horizontally mirrored	
 I1: unrecognizable operator	
 I2: too many parameters	
 I3: corrupted buffer	
@@ -74,29 +111,44 @@ In/Out
 Input	
 Insert Method	
 Insert Position	
+Inversion	
 JPEG - JFIF Compliant	
 JPG Files	
 Layers	
+Left	
 Left/Right	
 Legend: Save	
 Legend: Zoom	
 Length	
+Library Overview	
 Lines	
 Lines and Points	
 Load Colors	
 Load Parameters	
 Logo	
+Long dashed style	
+MAX	
 MAXIMUM	
+MIN	
 MINIMUM	
 Map	
 Maps	
 Maximum	
 Menu	
 Minimum	
+Minimum/Maximum	
 Module	
+Module Library Descriptions	
+Multiplication	
 NAME	
 Name	
 Neon	
+No ODBC connection available!	
+No history available	
+No pen is used	
+Normalisation	
+ODBC Database Connection Error	
+Option	
 Options	
 Options for Data Thumbnails	
 Options for Map Thumbnails	
@@ -107,19 +159,26 @@ Parameters
 Parameters file could not be exported.	
 Parameters file could not be imported.	
 Parts	
+Password	
 Perimeter	
 Please stop module execution before exiting SAGA.	
+Point Clouds	
 Points	
 Portable Network Graphics	
 Position	
+Process Update Frequency [milliseconds]	
+Projected Coordinate System	
 Rainbow	
+Rename Fields	
+Resampling	
 Resolution	
-Row	
+Right	
+Rows	
 SAGA Colors	
 SAGA Help	
 SAGA Module Libraries	
-SAGA Module Library Descriptions	
 SAGA Parameter Files	
+SAGA Point Clouds	
 SAGA Project	
 SAGA Projects	
 SAGA: Print Map	
@@ -130,37 +189,54 @@ Save Georeference
 Save Parameters	
 Save all	
 Scale	
+Scatterplot	
 Second Class	
 Selection Color	
 Shall I activate file caching for new grid.	
+Short dashed style	
 Show Categories	
 Show Logo at Start Up	
+Solid style	
 Sort Table	
-Sort by	
+Sort first by	
+Sort second by	
+Sort third by	
 South-North	
 Start Project	
+Subtraction	
 Table	
 Tables	
 Tagged Image File Format	
 Temporary files	
 Text	
 Text Files	
+Thin Plate Spline: solving matrix	
 This is a Test!!!	
 Threshold for automatic mode [MB]	
 Thumbnail Size	
 Thumbnails	
+Top	
 Total memory size	
 Tree	
 Type	
+Undefined Coordinate System	
 Up/Down	
+Use the stipple bitmap	
+Use the user dashes	
+User	
+User Name	
 Value Range	
 Version	
+Vertical hatch	
+Vertically mirrored	
 West-East	
 Width	
 Windows or OS/2 Bitmap	
 X	
 X11 Pixel Map	
 Y	
+You have to choose a grid for comparison	
+You have to choose a shapes layer for comparison	
 Z	
 Zsoft Paintbrush	
 [BTN] Add	
@@ -200,9 +276,12 @@ Zsoft Paintbrush
 [CAP] Chart Properties	
 [CAP] Choose Directory	
 [CAP] Circles	
+[CAP] Clipboard	
 [CAP] Close	
 [CAP] Close and save modified data sets...	
 [CAP] Color	
+[CAP] Color by Attribute	
+[CAP] Coloring	
 [CAP] Colors	
 [CAP] Create Script Command File	
 [CAP] Data	
@@ -234,29 +313,42 @@ Zsoft Paintbrush
 [CAP] Figure	
 [CAP] File	
 [CAP] File cache activated	
+[CAP] Fill Color	
 [CAP] Fill Style	
 [CAP] Fit Map Scale	
+[CAP] Fit Size to Window	
+[CAP] Fixed Maximum	
+[CAP] Fixed Minimum	
 [CAP] Font	
 [CAP] Frame	
+[CAP] Frame Width	
 [CAP] General	
 [CAP] Graduated Color	
 [CAP] Grid	
 [CAP] Grid System	
 [CAP] Grid Systems	
 [CAP] Grids	
+[CAP] Height	
 [CAP] Histogram	
+[CAP] History	
+[CAP] Horizontal Align	
 [CAP] Html Extra Info	
 [CAP] Index	
-[CAP] Info	
 [CAP] Input	
 [CAP] Interpolated	
 [CAP] Interpolation	
+[CAP] Label	
 [CAP] Layers	
 [CAP] Legend	
+[CAP] Legend Border Colour	
+[CAP] Legend Frame Width	
+[CAP] Legend Scale	
+[CAP] Line Style	
 [CAP] Load	
 [CAP] Load Colors	
 [CAP] Load Grid	
 [CAP] Load Module Library	
+[CAP] Load Point Cloud	
 [CAP] Load Project	
 [CAP] Load Settings	
 [CAP] Load Shapes	
@@ -271,11 +363,16 @@ Zsoft Paintbrush
 [CAP] Map Selection	
 [CAP] Map-Layout	
 [CAP] Maps	
+[CAP] Maximum	
+[CAP] Maximum Value	
+[CAP] Mean	
 [CAP] Memory	
 [CAP] Memory Compression	
 [CAP] Memory Handling	
 [CAP] Memory Size	
 [CAP] Messages	
+[CAP] Minimum	
+[CAP] Minimum Value	
 [CAP] Mode	
 [CAP] Modified	
 [CAP] Module Execution	
@@ -287,6 +384,7 @@ Zsoft Paintbrush
 [CAP] Number Of Cells	
 [CAP] Number Of Grids	
 [CAP] Number Of Shapes	
+[CAP] Number of Points	
 [CAP] Number of cells	
 [CAP] Object Properties	
 [CAP] Open	
@@ -294,8 +392,14 @@ Zsoft Paintbrush
 [CAP] Outline	
 [CAP] Outline Color	
 [CAP] Outline Size	
+[CAP] Overlay 1	
+[CAP] Overlay 2	
 [CAP] Parameters	
 [CAP] Perspectivic Distance	
+[CAP] Point Cloud	
+[CAP] Point Clouds	
+[CAP] Point Size	
+[CAP] PointCloud	
 [CAP] Points	
 [CAP] Preset Selection	
 [CAP] Print Layout	
@@ -303,10 +407,13 @@ Zsoft Paintbrush
 [CAP] Project File	
 [CAP] Projection	
 [CAP] Properties	
+[CAP] RGB Overlay	
 [CAP] Records	
 [CAP] Regression Details	
 [CAP] Regression Formula	
 [CAP] Rotation	
+[CAP] Rotation (Degree)	
+[CAP] Rotation by Attribute	
 [CAP] Save	
 [CAP] Save As Image	
 [CAP] Save As Interactive SVG	
@@ -314,6 +421,7 @@ Zsoft Paintbrush
 [CAP] Save Grid	
 [CAP] Save Grid as Image...	
 [CAP] Save Map as Image...	
+[CAP] Save Point Cloud	
 [CAP] Save Project	
 [CAP] Save Settings	
 [CAP] Save Shapes	
@@ -324,19 +432,24 @@ Zsoft Paintbrush
 [CAP] Scale Dependent	
 [CAP] Scatterplot	
 [CAP] Select File	
+[CAP] Selection	
 [CAP] Settings	
+[CAP] Shade	
 [CAP] Shapes	
 [CAP] Shift	
 [CAP] Show	
 [CAP] Show Always	
+[CAP] Show Centroid	
 [CAP] Show Edges	
 [CAP] Show Filled	
 [CAP] Show Legend	
 [CAP] Show Nodes	
 [CAP] Show Regression Curve	
+[CAP] Show Scale	
 [CAP] Show Vertices	
 [CAP] Size	
 [CAP] Size Range	
+[CAP] Size by Attribute	
 [CAP] Size relates to...	
 [CAP] Snap Distance	
 [CAP] Snap to...	
@@ -355,15 +468,18 @@ Zsoft Paintbrush
 [CAP] Unique Symbol	
 [CAP] Unit	
 [CAP] Value	
+[CAP] Value Aggregation	
 [CAP] Value Range	
 [CAP] Value Type	
+[CAP] Values	
 [CAP] Version	
+[CAP] Vertical Align	
 [CAP] Weight	
 [CAP] West-East	
 [CAP] Width	
 [CAP] Workspace	
 [CAP] X Axis	
-[CAP] X Label	
+[CAP] Y Axis	
 [CAP] Z-Factor	
 [CAP] Zoom to added layer	
 [CAP] [no items]	
@@ -386,11 +502,13 @@ Zsoft Paintbrush
 [CMD] Close All	
 [CMD] Convert To Table	
 [CMD] Copy	
+[CMD] Copy Settings from other Layer	
 [CMD] Create HTML Documentation	
 [CMD] Create Lookup Table	
 [CMD] Create Normalised Classification	
 [CMD] Create Script Command File	
 [CMD] Cumulative	
+[CMD] Decrease Diagram Size	
 [CMD] Decrease Exaggeration [F1]	
 [CMD] Decrease Eye Distance	
 [CMD] Decrease Perspectivic Distance [F5]	
@@ -398,9 +516,9 @@ Zsoft Paintbrush
 [CMD] Delete All Records	
 [CMD] Delete Fields	
 [CMD] Delete Last Position [D]	
-[CMD] Delete Record	
 [CMD] Delete Selected Part	
 [CMD] Delete Selected Point	
+[CMD] Delete Selected Record(s)	
 [CMD] Delete Selected Shape(s)	
 [CMD] Down	
 [CMD] Edit Positions	
@@ -409,11 +527,13 @@ Zsoft Paintbrush
 [CMD] Exit	
 [CMD] Exit SAGA	
 [CMD] Fit Column Sizes	
+[CMD] Fit Diagram to Window	
 [CMD] Fit Grid Colors To Map Extent	
 [CMD] Fit Row Sizes	
 [CMD] Fit Scale...	
 [CMD] Forward	
 [CMD] Help	
+[CMD] Increase Diagram Size	
 [CMD] Increase Exaggeration [F2]	
 [CMD] Increase Eye Distance	
 [CMD] Increase Perspectivic Distance [F6]	
@@ -425,7 +545,9 @@ Zsoft Paintbrush
 [CMD] Load	
 [CMD] Load Grid	
 [CMD] Load Module Library	
+[CMD] Load Point Cloud	
 [CMD] Load Project	
+[CMD] Load Settings	
 [CMD] Load Shapes	
 [CMD] Load TIN	
 [CMD] Load Table	
@@ -434,6 +556,7 @@ Zsoft Paintbrush
 [CMD] Move To Bottom	
 [CMD] Move To Top	
 [CMD] Move Up	
+[CMD] New Project	
 [CMD] Next	
 [CMD] Page Setup	
 [CMD] Pan	
@@ -445,6 +568,7 @@ Zsoft Paintbrush
 [CMD] Print Preview	
 [CMD] Print Setup	
 [CMD] Properties	
+[CMD] Rename Fields	
 [CMD] Right	
 [CMD] Right [F4]	
 [CMD] Save As Image when changed	
@@ -453,6 +577,9 @@ Zsoft Paintbrush
 [CMD] Save Grid	
 [CMD] Save Grid As Image...	
 [CMD] Save Grid As...	
+[CMD] Save Legend to Clipboard [Ctrl+L]	
+[CMD] Save Point Cloud	
+[CMD] Save Point Cloud As...	
 [CMD] Save Project	
 [CMD] Save Project As...	
 [CMD] Save Shapes	
@@ -462,6 +589,11 @@ Zsoft Paintbrush
 [CMD] Save Table	
 [CMD] Save Table As...	
 [CMD] Save as Interactive SVG	
+[CMD] Save to Clipboard [Ctrl+C]	
+[CMD] Set Range to Minmum/Maximum	
+[CMD] Set Range to Standard Deviation (1.5)	
+[CMD] Set Range to Standard Deviation (2.0)	
+[CMD] Show	
 [CMD] Show 3D-View	
 [CMD] Show Diagram	
 [CMD] Show Grid	
@@ -471,6 +603,7 @@ Zsoft Paintbrush
 [CMD] Show Map	
 [CMD] Show Message Window	
 [CMD] Show Object Properties	
+[CMD] Show Point Cloud	
 [CMD] Show Print Layout	
 [CMD] Show Scatterplot	
 [CMD] Show Shapes	
@@ -480,6 +613,7 @@ Zsoft Paintbrush
 [CMD] Show Vertical Legend	
 [CMD] Show Workspace	
 [CMD] Sort Fields	
+[CMD] Sort Selection to Top	
 [CMD] Synchronise Map Extents	
 [CMD] Tile Horizontally	
 [CMD] Tile Vertically	
@@ -500,10 +634,9 @@ Zsoft Paintbrush
 [DAT] Lower left corner	
 [DAT] Number of cells	
 [DAT] Point	
+[DAT] Point Cloud	
 [DAT] Points	
 [DAT] Polygon	
-[DAT] Resampling	
-[DAT] Save shapes	
 [DAT] Shapes	
 [DAT] TIN	
 [DAT] Table	
@@ -516,16 +649,17 @@ Zsoft Paintbrush
 [DLG] Please enter a numeric value:	
 [DLG] Save changes?	
 [DLG] Scale 1 : 	
+[DLG] Select a layer to copy settings from it.	
 [DLG] Set selected values to no data.	
-[ERR] Access Violation	
 [ERR] Calculation Error	
 [ERR] Can't execute a module while another runs	
-[ERR] Corrupted shape file.	
 [ERR] Could not save PDF file.	
-[ERR] DBase file could not be opened or it did not contain any records.	
+[ERR] DBase file could not be opened.	
+[ERR] DBase file does not contain any records.	
 [ERR] Error: Continue anyway ?	
 [ERR] Grid file could not be opened.	
 [ERR] Grid file could not be saved.	
+[ERR] Internal system error	
 [ERR] Invalid data set!	
 [ERR] Invalid data!	
 [ERR] Invalid display size!	
@@ -533,13 +667,25 @@ Zsoft Paintbrush
 [ERR] Library could not be loaded	
 [ERR] Library does not contain any modules	
 [ERR] Library has already been loaded	
+[ERR] Module caused access violation!	
 [ERR] Shape file could not be opened.	
-[ERR] Shape file invalid or of unsupported type.	
-[ERR] Shape file is corrupted.	
-[ERR] Shape index file could not be opened.	
 [ERR] There was a problem printing.\nPerhaps your current printer is not set correctly?	
 [ERR] Unknown Error	
 [ERR] You canceled printing	
+[ERR] corrupted file header	
+[ERR] corrupted record header	
+[ERR] corrupted shapefile.	
+[ERR] dbase file could not be opened	
+[ERR] file could not be opened.	
+[ERR] incompatible file.	
+[ERR] index file could not be opened	
+[ERR] invalid file code	
+[ERR] memory allocation error.	
+[ERR] no records in file.	
+[ERR] shape file could not be opened.	
+[ERR] unable to create file.	
+[ERR] unsupported file version	
+[ERR] unsupported shape type.	
 [FLD] Attribute	
 [FLD] Central Projection	
 [FLD] Exaggeration	
@@ -563,28 +709,15 @@ Zsoft Paintbrush
 [FLD] Value	
 [HLP] Execute Module	
 [HST] Created from file	
-[HST] Created with module	
-[HST] Grid addition	
-[HST] Grid denormalisation	
-[HST] Grid division	
-[HST] Grid multiplication	
-[HST] Grid normalisation	
-[HST] Grid operation	
-[HST] Grid subtraction	
-[HST] Horizontally mirrored	
-[HST] Inversion	
-[HST] Loaded from file	
-[HST] Value addition	
-[HST] Value assigned to grid	
-[HST] Value division	
-[HST] Value multiplication	
-[HST] Value subtraction	
-[HST] Vertically mirrored	
 [MNU] ?	
+[MNU] Attributes	
+[MNU] Classification	
+[MNU] Classificaton	
 [MNU] Edit	
 [MNU] File	
 [MNU] Grid	
 [MNU] Modules	
+[MNU] Point Cloud	
 [MNU] Project	
 [MNU] Rotation	
 [MNU] Sequencer	
@@ -607,6 +740,7 @@ Zsoft Paintbrush
 [MSG] Interactive module execution has been stopped	
 [MSG] Load grid	
 [MSG] Load library	
+[MSG] Load point cloud	
 [MSG] Load project	
 [MSG] Load shapes	
 [MSG] Load table	
@@ -616,12 +750,17 @@ Zsoft Paintbrush
 [MSG] Project has been successfully loaded.	
 [MSG] Save as Interactive SVG	
 [MSG] Save grid	
+[MSG] Save point cloud	
 [MSG] Save shapes	
 [MSG] Save table	
 [MSG] Save to PDF	
 [MSG] Shall execution be stopped?	
+[MSG] could not read project file.	
 [MSG] failed	
+[MSG] file does not exist.	
 [MSG] has already been loaded	
+[MSG] invalid project file.	
+[MSG] no data entries in project file.	
 [MSG] okay	
 [PRM] Boolean	
 [PRM] Choice	
@@ -647,8 +786,12 @@ Zsoft Paintbrush
 [PRM] Options	
 [PRM] Parameter	
 [PRM] Parameters	
+[PRM] Point Cloud	
+[PRM] Point Cloud list	
+[PRM] Point Clouds	
 [PRM] Save	
 [PRM] Save Georeference (world file)	
+[PRM] Save KML file	
 [PRM] Shapes	
 [PRM] Shapes list	
 [PRM] Static table	
@@ -696,6 +839,7 @@ Zsoft Paintbrush
 [VAL] Normal	
 [VAL] Opaque	
 [VAL] RGB	
+[VAL] RGB Overlay	
 [VAL] RTL Compression	
 [VAL] Screen	
 [VAL] Shade	
@@ -718,6 +862,7 @@ Zsoft Paintbrush
 [VAL] yes	
 access violation	
 after	
+another grid	
 ascending	
 author      	
 automatically save and load	
@@ -727,11 +872,16 @@ ball
 bar	
 bar (not outlined)	
 before	
+binary	
+bit	
 black > blue	
 black > green	
 black > red	
+bottom	
+bright - dark	
 buffer size	
 cannot execute interactive module	
+center	
 central	
 character string	
 circle	
@@ -743,14 +893,20 @@ circle with rhombus
 circle with square	
 circle with triangle (down)	
 circle with triangle (up)	
+color	
 color (rgb)	
 colors	
 columns	
 confirm	
 confirm with options	
 continue	
+could not create index: insufficient memory	
 creating batch file example	
+cyan - white	
 cylinder	
+dark - bright	
+database table does not exist	
+date	
 date (dd.mm.yyyy)	
 default	
 default (same brightness)	
@@ -763,12 +919,15 @@ empty input list
 error	
 executing module	
 failed	
+field cannot be mapped to binary object	
+first value	
 function not found	
 function table full	
 green > blue	
 green > grey > blue	
 green > red > blue	
 greyscale	
+highest z	
 image	
 improper function syntax	
 index out of bounds	
@@ -779,15 +938,24 @@ interactive execution
 invalid module libraries path	
 invalid number of parameters	
 last opened	
+last value	
+left	
 library name	
 library path	
+lowest z	
+magenta - white	
 missing operand	
 module	
 module library	
 module library not found	
 module name 	
 module not found	
+more than one field in selection	
 no	
+no attributes in table	
+no database connection	
+no fields in selection	
+no histogram for unclassified data	
 no memory	
 no valid module library found in path	
 okay	
@@ -811,23 +979,48 @@ red > green
 red > green > blue	
 red > grey > blue	
 red > grey > green	
+red=1, green=2, blue=this	
+red=1, green=this, blue=2	
+red=2, green=1, blue=this	
+red=2, green=this, blue=1	
+red=this, green=1, blue=2	
+red=this, green=2, blue=1	
 rhombus	
+right	
 rows	
+shapes	
+signed 1 byte integer	
+signed 2 byte integer	
+signed 4 byte integer	
+signed 8 byte integer	
+sql excution error	
 square	
+string	
 syntax error	
 too few parameters	
 too many constants	
 too many parameters	
+top	
 triangle (down)	
 triangle (up)	
 type -h or --help for further information	
 undeclared parameter	
+undefined	
+unknown type	
 unmatched parentheses	
+unsigned 1 byte integer	
+unsigned 2 byte integer	
+unsigned 4 byte integer	
+unsigned 8 byte integer	
 unsorted	
 until user closes it	
+white - cyan	
+white - magenta	
+white - yellow	
 white > blue	
 white > green	
 white > red	
+yellow - white	
 yellow > blue	
 yellow > green	
 yellow > red	

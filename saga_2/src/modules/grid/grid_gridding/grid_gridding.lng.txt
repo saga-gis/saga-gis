@@ -1,48 +1,57 @@
 ORIGINAL	TRANSLATION
 Attribute	
-Automatically fits the grid to the shapes layers extent.	
 Choose Grid	
-Choose Grid Project	
-Choose Grid System	
 Copyrights (c) 2003 by Andre Ringeler	
-Fit Extent	
+Distance Weighting	
+Exponential and Gaussian Weighting Bandwidth	
 Floating Point (4 byte)	
 Floating Point (8 byte)	
 Grid	
 Grid - Gridding	
-Grid Project	
-Grid Size	
-Grid System	
 Grid|Gridding	
+ID	
 Integer (1 byte)	
 Integer (2 byte)	
 Integer (4 byte)	
-Inverse Distance	
-Inverse Distance: Power	
-Maximum Points	
+Inverse Distance Power	
+Inverse Distance Weighted	
+Maximum Number of Points	
 Method for Lines	
 Modifed Quadratic Shepard	
+Natural Neighbour	
 Nearest Neighbour	
-Olaf Conrad (c) 2002	
+Number of Points	
+O. Conrad (c) 2002-8	
 Points	
+Preferred Target Grid Type	
 Quadratic Neighbors	
 R:Interpolation from Points	
+Search Mode	
 Search Radius	
+Search Range	
 Shapes	
 Shapes to Grid	
-System	
-Target Dimensions	
+Sibson	
 Target Grid	
-Target Grid Type	
 Tools for the gridding of points and other vector data.	
 Triangulation	
-User defined	
-User defined grid	
+User Defined Grid	
+WARNING: selected attribute is not numeric; generating unique identifiers instead.	
 Weighting Neighbors	
-X-Extent	
-Y-Extent	
+all directions	
+all points	
+creating interpolator	
+exponential weighting scheme	
+gaussian weighting scheme	
 grid	
-grid system	
+interpolating	
+inverse distance to a power	
+linearly decreasing within search radius	
+maximum number of points	
+no search radius (global)	
+quadrants	
+search radius (local)	
 thick	
 thin	
+triangulating	
 user defined	

@@ -1,4 +1,5 @@
 ORIGINAL	TRANSLATION
+%d pits above threshold level.	
 %d sinks have been processed.	
 Computed flow directions, 0=N, 1=NE, 2=E, ... 7=NW	
 Copyrights (c) 2003 by Volker Wichmann	
@@ -18,13 +19,18 @@ Filled DEM
 Finalize	
 Find Outlets	
 Find Pits	
+Flat Area Values	
+Flat Areas	
+Flat Detection	
+Flats	
 Flow Directions	
 I'm diggin'...	
 I'm fillin'...	
 Initializing direction matrix...	
 Method	
-Minimum Slope	
+Minimum Slope [Degree]	
 Minimum slope gradient to preserve from cell to cell; with a value of zero sinks are filled up to the spill elevation (which results in flat areas). Unit [Degree]	
+No Flats	
 No sinks have been detected.	
 Olaf Conrad (c) 2001, Volker Wichmann (c) 2003	
 Preprocessed DEM	
@@ -34,7 +40,6 @@ Routing Error
 Sink Drainage Route Detection	
 Sink Removal	
 Sink Route	
-Slope	
 Terrain Analysis - Preprocessing	
 Terrain Analysis|Preprocessing	
 Threshold	
@@ -42,5 +47,7 @@ Threshold Height
 Tools for the preprocessing of digital terrain models.	
 Watershed Basins	
 digital elevation model [m]	
+elevation	
+enumeration	
 minimum slope angle preserved from one cell to the next, zero results in flat areas [Degree]	
 processed DEM	

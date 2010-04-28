@@ -15,6 +15,7 @@ Byte order when writing floating point values in binary format
 Cell Count (X)	
 Cell Count (Y)	
 Cell Size	
+Count	
 Data Offset (Bytes)	
 Data Type	
 ERDAS files other than version 7.4 are not supported.	
@@ -38,11 +39,13 @@ Geo-Reference
 Grid	
 Grid Type	
 Grids	
+Has Field Names	
 Image Grid	
 Import Binary Raw Data	
 Import ESRI Arc/Info Grid	
 Import Erdas LAN/GIS	
 Import Grid from Table	
+Import Grid from XYZ	
 Import MOLA Grid (MEGDR)	
 Import SRTM30 DEM	
 Import Surfer Grid	
@@ -70,10 +73,12 @@ Resolution
 SAGA User Group Associaton (c) 2002	
 SRTM30 DEM Tiles (*.dem)|*.dem|All Files|*.*	
 Select file	
+Separator	
 South []	
 Surfer Grid (*.grd)|*.grd|All Files|*.*	
 Surfer's No Data Value	
 Table	
+Target Cellsize	
 Text files (*.txt)	
 The grids geo-reference must be related either to the center or the corner of its lower left grid cell.	
 Tools for the import and export of gridded data.	
@@ -95,3 +100,5 @@ least significant first
 most significant first	
 normal|down under|	
 point (.)	
+space	
+tabulator	

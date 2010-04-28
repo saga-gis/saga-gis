@@ -4,6 +4,7 @@ ORIGINAL	TRANSLATION
 1 / cell size (specific catchment area)	
 Acc. Area	
 Area to Length Conversion	
+Aspect	
 Avg. Curve Number	
 Avg. Manning's N	
 Avg. Rainfall Intensity (mm/h)	
@@ -30,6 +31,7 @@ Convergence factor for the \'Multiple Flow Direction\' algorithm (after Freeman 
 Copyrights (c) 2004 by Victor Olaya	
 Copyrights (c) 2005 by Volker Wichmann	
 Copyrights (c) 2005-6 by Volker Wichmann	
+Create Output of Quarter Cell Grids	
 Curve Number	
 DEM	
 DEMON	
@@ -46,13 +48,18 @@ Downslope Area
 Edge Contamination	
 Elevation	
 Elevation Grid	
+Flow Accumulation	
+Flow Accumulation, Mass-Flux Method	
 Flow Correction	
 Flow Depth	
 Flow Depth Grid (m)	
+Flow Lines	
 Flow Path Length	
 Flow Routing Algorithm	
 Flow Sinuosity	
+Flow Split Method	
 Flow Tracing	
+Flow Width	
 Interactive version (left mouse clicks will trigger the calculation for the selected cell).	
 Isochrones Constant Speed	
 Isochrones Variable Speed	
@@ -74,6 +81,7 @@ Modify: pre-processing...
 Moore et al. 1991	
 Multiple Flow Direction	
 Multiple Flow Direction (FD8)	
+Multiple Flow Direction (Quinn et al. 1991)	
 Multiple Triangular Flow Directon	
 Olaf Conrad, Victor Olaya (c) 2001-4	
 Parallel Processing	
@@ -92,6 +100,8 @@ Sink Routes
 Sinuosity	
 Slope	
 Slope Length	
+Specific Catchment Area	
+Specific Catchment Area (SCA)	
 Speed (m/s)	
 Stability	
 Standard	
@@ -110,6 +120,7 @@ Tools for digital terrain analysis.
 Topgraphic Wetness Index	
 Topographic Indices	
 Topographic Wetness Index	
+Total Catchment Area (TCA)	
 Transmissivity	
 Upslope Area	
 Use D8 if catchment area becomes higher than specified threshold (Cells).	
@@ -119,11 +130,14 @@ Water Depth
 Weight	
 Wetness index	
 Wetness index calculation...	
+cell area	
 digital elevation model [m]	
 extent of lake, coded with local water depth [m]	
 extent of lake, coded with water depth [m]	
+flow width (original)	
 instable (thawing)	
 m2	
+no conversion (areas already given as specific catchment area)	
 ready	
 seed cell coded with local water depth [m], all other cells NoData	
 square root (catchment length)	

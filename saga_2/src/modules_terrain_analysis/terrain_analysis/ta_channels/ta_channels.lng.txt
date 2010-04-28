@@ -33,7 +33,6 @@ Divergence
 Downslope basins	
 Drainage Network	
 Elevation	
-Elevation Grid	
 Equals	
 Equivalente Rectangle (Side 1)(m)	
 Equivalente Rectangle (Side 2)(m)	
@@ -47,6 +46,7 @@ Horizontal Overland Flow Distance
 Initiation Grid	
 Initiation Threshold	
 Initiation Type	
+Keep Base Level below Surface	
 LENGTH	
 Less than	
 MFD	

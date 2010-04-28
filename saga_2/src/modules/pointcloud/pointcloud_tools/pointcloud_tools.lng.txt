@@ -1,2 +1,134 @@
 ORIGINAL	TRANSLATION
+<	
+<=	
+=	
+>	
+>=	
+AOI Shape	
+Additional Values	
+Aggregation	
+Anchor Point	
+Angle	
+Angle in degrees, counting clockwise from north	
+At the moment the reclass table is limited to 128 categories!\n	
+Attribute	
+Attribute to drop	
+Attribute to drop.	
+Attribute to process.	
+Attributes	
+Bottom	
+Cellsize	
+Choose Cut from ...	
+Choose whether to reclassify a Point Cloud or to extract a subset from a Point Cloud.	
+Cut	
+Define AOI by ...	
+Drop Point Cloud Attribute	
+Grid System	
+Grid System Extent	
+Input	
+Inverse	
+Invert selection.	
+Left	
+Lookup Table	
+Lookup table used in method \"table\"	
+Lookup table used in method \"user supplied table\"	
+Maximum value of the range to be reclassified.	
+Method	
+Method range	
+Method simple table	
+Method single	
+Method user supplied table	
+Minimum value of the range to be reclassified.	
+Mode of operation	
+Move	
+New value.	
+Number of Points in Cell	
+O.Conrad, Volker Wichmann (c) 2009-10	
+Output	
+Parameter settings for No-Data and all other values.	
+Parameter settings for method range.	
+Parameter settings for method simple table.	
+Parameter settings for method single.	
+Parameter settings for method user supplied table.	
 Point Cloud	
+Point Cloud Cutter	
+Point Cloud Reclassifier / Subset Extractor	
+Point Cloud Thinning (simple)	
+Point Cloud from Grid Points	
+Point Cloud from Shapes	
+Point Cloud to Grid	
+Point Cloud to Shapes	
+Point Cloud to drop attribute from.	
+Point Cloud to reclassify/extract	
+Points	
+Points per Cell	
+Polygons	
+R:Conversion	
+R:Tools	
+Reclassifed or extracted Point Cloud.	
+Reclassify|Extract Subset|	
+Remove every i-th point.	
+Result	
+Resulting Point Cloud.	
+Right	
+Rotate	
+Scale	
+Scale Factor X	
+Scale Factor Y	
+Select operator: eg. min < value < max.	
+Select the desired method: 1. a single value or a range defined by a single value is reclassified, 2. a range of values is reclassified, 3. the lookup table is used to reclassify the grid.	
+Select the desired operator (<;.;=; >;.); it is possible to define a range above or below the old value.	
+Select the desired operator (min < value < max; min . value < max; min .value . max; min < value . max).	
+Shapes	
+Shapes - Point Clouds	
+Shapes Extent	
+Shapes|Point Clouds	
+Special cases	
+Stepwidth	
+The inverse selection is not implemented for input shapefiles with more than one polygon!	
+Tools for point clouds.	
+Top	
+Transform Point Cloud	
+Transformed	
+Use this option to reclassify No-Data values independently of the method settings.	
+Use this option to reclassify all other values that are not specified in the options above.	
+User Defined Extent	
+Value to reclassify.	
+Volker Wichmann (c) 2009, LASERDATA GmbH	
+Volker Wichmann (c) 2010, LASERDATA GmbH	
+We must keep the coordinates, please choose another field than x,y,z!	
+X	
+Y	
+You must specify a reclass table with a minimium (field 1), a maximum (field 2) and a code value (field 3)!\n	
+You must specify a reclass table with a minimium of one record!\n	
+Z Value	
+all attributes	
+dX	
+dX (Map Units)	
+dY	
+dY (Map Units)	
+digitzing a polygon	
+dragging a box	
+first value	
+highest z	
+last value	
+lowest z	
+maximum	
+maximum value	
+mean value	
+min < value < max	
+min < value <= max	
+min <= value < max	
+min <= value <= max	
+minimum	
+minimum value	
+new	
+new value	
+no data values	
+no data values >> value	
+old value	
+only z	
+operator	
+other values	
+other values >> value	
+single|range|simple table|user supplied table|	

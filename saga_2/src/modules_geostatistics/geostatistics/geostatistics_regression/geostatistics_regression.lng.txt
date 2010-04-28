@@ -1,68 +1,78 @@
 ORIGINAL	TRANSLATION
-Arithmetic Mean	
 Attribute	
 B-Spline Interpolation	
 Bicubic Spline Interpolation	
 Bilinear Interpolation	
-Categorial Grids	
-Cells	
-Copyrights (c) 2005 by Volker Wichmann	
+Choose Grid	
+Coefficient of Determination	
 Correlation	
+Dependent Variable	
 Details	
-Deviation from Mean Value	
-Difference from Mean Value	
-Exponent	
-Geostatistics - Grids	
-Geostatistics|Grid	
+Distance Weighting	
+Exponential and Gaussian Weighting Bandwidth	
+GWR Intercept	
+GWR Quality	
+GWR Regression	
+GWR Slope	
+Geographically Weighted Multiple Regression	
+Geographically Weighted Multiple Regression (Points/Grids)	
+Geographically Weighted Regression	
+Geographically Weighted Regression (Points/Grid)	
+Geostatistics - Regression	
+Geostatistics|Regression	
 Grid	
 Grid Interpolation	
-Grid defining the zones to analyse. This grid also acts as a mask. Coding: no-data / categorial values.	
 Grids	
-Grids to analyse	
-Grids used to delineate the UCUs. Coding: no-data / categorial values.	
-Grids with continuous data, statistics are calculated for each grid. Coding: no-data / continuous values.	
+Include Coordinates	
+Intercept	
 Inverse Distance Interpolation	
-Map Units	
-Maximum	
-Maximum Search Radius (cells)	
-Mean Value	
-Mean less Standard Deviation	
-Mean plus Standard Deviation	
-Minimum	
+Inverse Distance Power	
+Maximum Number of Observations	
+Minimum Number of Observations	
 Multiple Regression Analysis	
-Multiple Regression Analysis (Grids/Points)	
+Multiple Regression Analysis (Points/Grids)	
 Nearest Neighbor	
-Olaf Conrad, Volker Wichmann (c) 2002-5	
-Percentile	
-R:Neighborhoods	
-R:Regression Analysis	
-Radius (Cells)	
-Radius of Variance (Grid)	
-Radius with Variance >= %f	
+Number of Points	
+O.Conrad (c) 2010	
+Output of Regression Parameters	
+Points	
+Predictor	
+Predictors	
+Quality	
 Regression	
-Regression Analysis (Grid/Points)	
+Regression Analysis (Points/Grid)	
 Regression Function	
-Representativeness	
-Representativeness (Grid)	
-Residual Analysis (Grid)	
+Regression Parameters	
 Residuals	
-Result Table	
+Search Mode	
+Search Radius	
+Search Range	
 Shapes	
-Standard Deviation	
-Statistics for Grids	
-Summary table.	
-Tools for (geo)statistical analyses of grids.	
-Type of Output	
-Value Range	
-Variance	
-Variance Radius	
-WARNING	
+Slope	
+Slopes	
+Target Grids	
+Tools for (geo)statistical analyses.	
+Trend Surface	
+Trend Surface Analysis	
+Trend Surface Type	
+User Defined Grid	
 Y = a * X^b (power)	
 Y = a + b * X (linear)	
 Y = a + b * ln(X) (logarithmic)	
 Y = a + b / X	
 Y = a / (b - X)	
 Y = a e^(b * X) (exponential)	
-Zone Grid	
-no-data value(s) in statistic grid(s)!	
-{STATZONAL_NAME} Zonal Grid Statistics	
+all directions	
+all points	
+exponential weighting scheme	
+first order polynom	
+gaussian weighting scheme	
+grid	
+inverse distance to a power	
+maximum number of observations	
+no search radius (global)	
+none (moving window regression)	
+quadrants	
+search radius (local)	
+second order polynom	
+user defined	

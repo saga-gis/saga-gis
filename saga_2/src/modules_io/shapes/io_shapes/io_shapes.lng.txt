@@ -1,32 +1,57 @@
 ORIGINAL	TRANSLATION
+%d points sucessfully imported.	
 *	
+1 byte integer	
+2 byte integer	
+4 byte floating point	
+4 byte integer	
+8 byte floating point	
+ASCII	
 All Files	
 Atlas Boundary Files (*.bna)|*.bna|All Files|*.*	
 Attribute	
+Attribute Field Properties	
+Attribute is Column ...	
+Comment	
 Contour Lines	
 Description	
+ESRI Shapefiles	
+Elevation	
 Export Atlas Boundary File	
+Export GPX	
 Export GStat Shapes	
 Export Shapes to Generate	
 Export Shapes to XYZ	
 Export Surfer Blanking File	
+Export TIN to Stereo Lithography File (STL)	
 Export WASP terrain map file	
 Export descriptions	
 Export names	
 Export z values	
+Field	
+Field Properties	
+Field Separator	
 File	
 File Name	
 File|Shapes	
+GPS Exchange Format (*.gpx)	
+GPX Import	
 GStat Files (*.gstat)	
 GStat shapes format export.	
 GStat shapes format import.	
+Grid	
 Ignores specified attribute ('Save Attribute') and saves all attributes.	
 Import Atlas Boundary File	
+Import GPX	
 Import GStat Shapes	
+Import Point Cloud from File	
+Import Point Cloud from Text File	
 Import Shapes from XYZ	
+Import Stereo Lithography File (STL)	
 Import Surfer Blanking Files	
 Import WASP terrain map file	
 Import/Export - Shapes	
+Importing data ...	
 Input Specification	
 Invalid File Format.	
 Invalid X/Y fields.	
@@ -34,35 +59,73 @@ Loading GSTAT-File
 Look up table (Points)	
 Map File	
 Name	
+Navaladi, Schoeller, Conrad (c) 2009	
+Number of Attributes	
+Number of Facettes	
+Number of additional attributes to import.	
+O. Conrad (c) 2008	
+O. Conrad (c) 2009	
+Output Type	
+Point Cloud	
 Point shapes import from text formated XYZ-table.	
 Points	
 Primary Name	
 R:Export	
 R:Import	
+Raster Resolution (Pixels X)	
+Rotation	
 SAGA User Group Associaton (c) 2002	
+STL Files	
 Save All Attributes	
 Save Table Header	
 Secondary Name	
 Separate Line/Polygon Points	
 Shape Type	
 Shapes	
+Skip first line	
+Skip first line as it contains column names.	
 Surfer Blanking Files (*.bln)|*.bln|All Files|*.*	
+TIN	
 Table could not be opened.	
 Table does not contain any data.	
+Target	
+Text File	
 Text Files (*.txt)	
+The column holding the X-coordinate.	
+The column holding the Y-coordinate.	
+The column holding the Z-coordinate.	
+Time Stamp without date	
 Tools for the import and export of vector data.	
+Type	
+Unable to open input file!	
+WARNING: Skipped %d invalid points!	
+WARNING: Skipping misformatted line (%.0f)!	
 WASP Map Files (*.map)	
+X Axis	
 X Column	
+X is Column ...	
 XYZ Files (*.xyz)	
 XYZ export filter for shapes. 	
+Y Axis	
 Y Column	
+Y is Column ...	
+Z Attribute	
+Z Axis	
+Z is Column ...	
+binary	
+comma	
 elevation	
 elevation and roughness	
 lines	
 none	
 number of points	
+point cloud	
+point cloud (centered)	
 points	
 polygons	
+raster	
 roughness	
 shape in process	
+space	
+tabulator	
 z values	

@@ -1,10 +1,21 @@
 ORIGINAL	TRANSLATION
 All Files	
 All Recognized File Types	
+BLACK_BLUE	
+BLACK_GREEN	
+BLACK_RED	
+BLACK_WHITE	
+Color Palette	
 CompuServe Graphics Interchange (*.gif)	
+Create KML File	
+DEFAULT	
+DEFAULT_BRIGHT	
 Enforce True Color	
 Export Image (bmp, jpg, png)	
 File|Grid	
+GREEN_BLUE	
+GREEN_GREY_BLUE	
+GREEN_RED_BLUE	
 Grid	
 Image	
 Image (Blue Channel)	
@@ -15,14 +26,30 @@ Image Import/Export.
 Import Image (bmp, jpg, png, tif, gif, pnm, xpm)	
 Import/Export - Images	
 JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)	
+NEON	
+Number of Colors	
 Olaf Conrad (c) 2005	
 Options	
 Portable Network Graphics (*.png)	
 R:Export	
 R:Import	
+RAINBOW	
+RED_BLUE	
+RED_BLUE_GREEN	
+RED_GREEN	
+RED_GREEN_BLUE	
+RED_GREY_BLUE	
+RED_GREY_GREEN	
+Revert Palette	
 Shade	
 Split Channels	
 Standard	
 Tagged Image File Format (*.tif, *.tiff)	
+WHITE_BLUE	
+WHITE_GREEN	
+WHITE_RED	
 Windows or OS/2 Bitmap (*.bmp)	
+YELLOW_BLUE	
+YELLOW_GREEN	
+YELLOW_RED	
 Zsoft Paintbrush (*.pcx)	

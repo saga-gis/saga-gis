@@ -5,12 +5,9 @@ Automatic fit
 B-Spline Interpolation	
 Bicubic Spline Interpolation	
 Bilinear Interpolation	
-Bottom	
-Check each point	
+Check each point|	
 Choose Grid	
-Choose Grid Project	
 Choose Shapes	
-Columns	
 Create Reference Points	
 Error: invalid source and target references.	
 Error: not enough reference points. The transformation requires at least 3 reference points.	
@@ -22,11 +19,9 @@ Georeferencing - Move Grid
 Georeferencing - Shapes	
 Grid	
 Grid Interpolation	
-Grid Project	
 Grid Size	
 Input	
 Inverse Distance Interpolation	
-Left	
 Move Grid	
 Nearest Neigbhor	
 No translation set by user	
@@ -36,17 +31,17 @@ Projection - Georeferencing
 Projection|Georeferencing	
 Reference Points (Origin)	
 Reference Points (Projection)	
-Right	
-Rows	
 Shapes	
 Source	
-System	
 Target	
 Tools for the georeferencing of spatial data (grids/shapes).	
-Top	
-User defined	
+User Defined Grid	
+automatic fit	
 function evaluations	
 function norm	
 fvec	
+grid	
+shapes	
+user defined	
 x Position	
 y Position	

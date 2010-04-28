@@ -10,26 +10,43 @@ All Files
 Band	
 Bands	
 Cells	
-Cellsize	
+Could not create data source.	
 Could not create dataset.	
 Data Type	
 Driver	
 Driver does not support file creation.	
 Driver not found.	
-Export Raster to GeoTIFF via GDAL	
-Export Raster via GDAL	
 File	
-File|Grid|GDAL|	
+Files	
+File|GDAL/OGR	
 Format	
+GDAL: Export Raster	
+GDAL: Export Raster to GeoTIFF	
+GDAL: Import Raster	
 GeoTIFF driver not found.	
 Grid(s)	
 Grids	
-Import Raster via GDAL	
-Import/Export - Grids via GDAL	
-Offset	
+Import/Export - GDAL/OGR	
+OGR: Export Vector Data	
+OGR: Import Vector Data	
 Projection	
-SAGA User Group Associaton (c) 2007	
+SAGA User Group Associaton (c) 2008	
 SAGA interface to Frank Warmerdam's Geospatial Data Abstraction Library (GDAL).	
+Select from Subdatasets...	
+Shapes	
 TIFF files (*.tif)	
-Unable to find appropriate import drivers.	
+Transformation	
+could not open data source	
+create data source	
+create layer	
+delete data source	
+delete feature	
+delete layer	
+failed: could not find a suitable import driver	
+loading	
 match input data	
+no description available	
+no layers in data source	
+random read	
+random write	
+sequential write	

@@ -1,18 +1,34 @@
 ORIGINAL	TRANSLATION
 Attribute	
-Class Count	
-Class Variance	
+Class	
+Count	
+Covariance	
+Covariance Surface	
+Cum.Covar.	
+Cum.Var.	
 Difference	
+Direction	
 Distance	
-Distance Increment	
-Geostatistical analyses for point data.	
+Duplicates	
 Geostatistics - Points	
 Geostatistics|Points	
+Initial Number of Distance Classes	
+Maximum	
 Maximum Distance	
-Olaf Conrad (c) 2002	
+Mean Average	
+Minimum	
+Minimum Distance Analysis	
+Number of Distance Classes	
+Number of Pairs	
+O.Conrad (c) 2002-10	
 Points	
-Semi-Variances	
-Semi-Variogram	
+Sample Variogram	
+Semivariance	
 Skip Number	
-Std.Deviation	
+Spatial and geostatistical analyses of point data.	
+Standard Deviation	
 Variance	
+Variogram	
+Variogram Cloud	
+Variogram Surface	
+not enough observations	

@@ -1,8 +1,11 @@
 ORIGINAL	TRANSLATION
+(c) 2005 by Victor Olaya	
 Absolute Area	
 Absolute Height	
 Algorithm for the detection of Surface Specific Points	
+Alpha Max (Degree)	
 Aspect	
+C Factor	
 Classification Constant	
 Classify	
 Convergence Index	
@@ -15,8 +18,13 @@ Difference
 Difference to local gradient.	
 Distance Weighted (Inverse)	
 Distance Weighted (Linear)	
+Diurnal Anisotropic Heating	
 Downslope Distance Gradient	
+Effective Air Flow Heights	
 Elevation	
+Elevation [m]	
+Elevation at Reference Station [m]	
+Final processing...	
 Fit 2.Degree Polynom (Bauer, Rohdenburg, Bork 1985)	
 Fit 2.Degree Polynom (Heerdegen & Beran 1982)	
 Fit 2.Degree Polynom (Zevenbergen & Thorne 1987)	
@@ -28,39 +36,63 @@ Gradient Difference
 Hypsometric Curve	
 Hypsometry	
 Initial Threshold for Slope	
+Land Surface Temperature	
+Land Surface Temperature [Deg.Celsius]	
+Leaf Area Index	
 Least Squares Fitted Plane (Horn 1981, Costa-Cabral & Burgess 1996)	
+Lee Factor	
 Local Morphometry	
+Luv Factor	
 MRRTF	
 MRVBF	
 Mark Highest Neighbour	
+Mass Balance Index	
+Max. Distance [km]	
+Maximum Distance (km)	
 Maximum Resolution (Percentage)	
 Maximum Slope (Travis et al. 1975)	
 Maximum Triangle Slope (Tarboton 1997)	
 Maximum resolution as percentage of the diameter of the DEM.	
 Method	
+Mid-Slope Positon	
+Modify: post-processing...	
+Modify: pre-processing...	
 Morphometric Protection Index	
 Multiresolution Index of Valley Bottom Flatness (MRVBF)	
+Normalized Height	
 Number of Classes	
-Olaf Conrad, Goettingen (c) 2001	
 Opposite Neighbours	
 Output	
+Pass 1	
+Pass 2	
 Peucker & Douglas	
 Plan Curvature	
 Profile Curvature	
 Protection Index	
 R:Classification	
+R:Indices	
 Radius	
 Real Area Calculation	
 Real Area Grid	
 Relative Area	
 Relative Height	
+Relative Heights and Slope Positions	
+Relative heights calculation...	
 Result	
 Shape Parameter for Elevation Percentile	
 Shape Parameter for Slope	
+Short Wave Radiation [kW/m2]	
 Slope	
+Slope Height	
 Sort	
 Standard	
+Standardized Height	
 Surface Specific Points	
+T Curvature	
+T Slope	
+T Vertical Distance to Channel Network	
+Temperature Gradient [Deg.Celsius/km]	
+Temperature at Reference Station [Deg.Celsius]	
 Terrain Analysis - Morphometry	
 Terrain Analysis|Morphometry	
 Threshold	
@@ -71,7 +103,13 @@ Threshold for plane
 Tools for (grid based) digital terrain analysis.	
 Update Views	
 Use Z-Range	
+Valley Depth	
 Vertical Distance	
+Vertical Distance to Channel Network	
+Wind Direction	
+Wind Direction (Degree)	
+Wind Effect	
+Wind Effect (Windward/Leeward Index)	
 Z-Range	
 \xc2\xb0	
 area	
@@ -79,11 +117,14 @@ center cell's aspect direcion
 direction to the center cell	
 distance	
 down	
+e	
 gradient (degree)	
 gradient (tangens)	
 height	
 m	
 resolution	
 step	
+t	
 threshold slope	
 up	
+w	

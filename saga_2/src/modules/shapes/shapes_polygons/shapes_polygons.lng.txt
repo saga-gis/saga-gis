@@ -1,28 +1,52 @@
 ORIGINAL	TRANSLATION
+(c) 2008 by O. Conrad	
 Area	
+At least two polygons have to be given for intersection	
+Attribute	
+Attribute A	
+Attribute B	
 Centroids	
 Centroids for each part	
 Complete Intersection	
 Convert Lines to Polygons	
+Convert Polygon/Line Vertices to Points	
 Copyrights (c) 2004 by Victor Olaya	
+D/A	
+D/sqrt(A)	
 Difference	
 Difference (A - B)	
+Difference (B - A)	
 Fields to add	
 Geometrical Properties of Polygons	
 Intersection	
 Layer A	
 Layer B	
 Lines	
+Max.Distance	
 Method	
 Olaf Conrad, Victor Olaya (c) 2002-5	
+P/A	
+P/sqrt(A)	
+Perimenter	
 Perimeter	
 Points	
 Polygon Centroids	
 Polygon Intersection	
+Polygon Layers	
+Polygon Shape Indices	
+Polygon Union	
 Polygon statistics from points	
 Polygons	
+Save Shapefile	
+Save the results to the input shapefile.	
 Set true if you want multipart polygons to become separate polygons.	
+Shape Index	
+Shapes	
 Shapes - Polygons	
 Shapes|Polygons	
 Split Parts	
 Tools for polygons.	
+Union	
+Union of	
+all polygons	
+polygons with same attribute value	
