@@ -210,6 +210,24 @@ void		SG_UI_Process_Set_Text(const SG_Char *Text)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool		SG_UI_Stop_Execution(void)
+{
+	if( gSG_UI_Callback )
+	{
+		return( gSG_UI_Callback(CALLBACK_STOP_EXECUTION, 0, 0) != 0 );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 void		SG_UI_Dlg_Message(const SG_Char *Message, const SG_Char *Caption)
 {
 	if( gSG_UI_Callback )

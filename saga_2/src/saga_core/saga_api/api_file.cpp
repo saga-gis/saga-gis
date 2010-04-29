@@ -317,9 +317,12 @@ bool CSG_File::Read_Line(CSG_String &sLine)	const
 	{
 		sLine.Clear();
 
-		while( !feof(m_pStream) && (c = fgetc(m_pStream)) != 0x0A && c != 0x0D && c != EOF )
+		while( !feof(m_pStream) && (c = fgetc(m_pStream)) != 0x0A && c != EOF )
 		{
-			sLine.Append(SG_STR_MBTOSG(c));
+			if( c != 0x0D )
+			{
+				sLine.Append(SG_STR_MBTOSG(c));
+			}
 		}
 
 		return( true );
@@ -381,51 +384,57 @@ bool CSG_File::Write_Double(double Value, bool bByteOrderBig)
 }
 
 //---------------------------------------------------------
-int CSG_File::Scan_Int(void)	const
+bool CSG_File::Scan(int &Value) const
 {
-	if( m_pStream )
-	{
-		int		Value;
-
-		if( fscanf(m_pStream, "%d", &Value) == 1 )
-		{
-			return( Value );
-		}
-	}
-
-	return( 0 );
+	return( m_pStream && fscanf(m_pStream, "%d" , &Value) == 1 );
 }
 
-double CSG_File::Scan_Double(void)	const
+bool CSG_File::Scan(double &Value) const
 {
-	if( m_pStream )
-	{
-		double	Value;
-
-		if( fscanf(m_pStream, "%lf", &Value) == 1 )
-		{
-			return( Value );
-		}
-	}
-
-	return( 0.0 );
+	return( m_pStream && fscanf(m_pStream, "%lf", &Value) == 1 );
 }
 
-CSG_String CSG_File::Scan_String(SG_Char Separator)	const
+bool CSG_File::Scan(CSG_String &Value, SG_Char Separator) const
 {
-	int			c;
-	CSG_String	s;
-
 	if( m_pStream && !feof(m_pStream) )
 	{
+		int		c;
+
+		Value.Clear();
+
 		while( !feof(m_pStream) && (c = fgetc(m_pStream)) != Separator && c != EOF )
 		{
-			s	+= c;
+			Value	+= c;
 		}
 
+		return( true );
 	}
 
-	return( s );
+	return( false );
+}
+
+//---------------------------------------------------------
+int CSG_File::Scan_Int(void) const
+{
+	int		Value;
+
+	return( Scan(Value) ? Value : 0 );
+}
+
+double CSG_File::Scan_Double(void) const
+{
+	double	Value;
+
+	return( Scan(Value) ? Value : 0.0 );
+}
+
+CSG_String CSG_File::Scan_String(SG_Char Separator) const
+{
+	CSG_String	Value;
+
+	Scan(Value, Separator);
+
+	return( Value );
 }
 
 

@@ -404,6 +404,12 @@ bool CSG_Module::Set_Progress(double Position, double Range)
 	return( m_bShow_Progress ? SG_UI_Process_Set_Progress(Position, Range) : Process_Get_Okay(false) );
 }
 
+//---------------------------------------------------------
+bool CSG_Module::Stop_Execution(void)
+{
+	return( SG_UI_Stop_Execution() );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

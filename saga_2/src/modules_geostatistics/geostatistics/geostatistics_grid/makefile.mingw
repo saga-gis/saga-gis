@@ -18,7 +18,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/fast_representativeness.o $(MLB_TEMP)/GSGrid_Residuals.o $(MLB_TEMP)/GSGrid_Statistics.o $(MLB_TEMP)/GSGrid_Variance.o $(MLB_TEMP)/GSGrid_Variance_Radius.o $(MLB_TEMP)/GSGrid_Zonal_Statistics.o $(MLB_TEMP)/MLB_Interface.o
+OBJ      = $(MLB_TEMP)/fast_representativeness.o $(MLB_TEMP)/GSGrid_Residuals.o $(MLB_TEMP)/GSGrid_Directional_Statistics.o $(MLB_TEMP)/GSGrid_Statistics.o $(MLB_TEMP)/GSGrid_Variance.o $(MLB_TEMP)/GSGrid_Variance_Radius.o $(MLB_TEMP)/GSGrid_Zonal_Statistics.o $(MLB_TEMP)/MLB_Interface.o
 
 CXXFLAGS = -I"$(MINGW)/include" -I"$(SAGA)/src/saga_core" -D$(PRJ_NAME)_EXPORTS -DBUILDING_DLL=1 -D_SAGA_MSW -D_SAGA_MINGW -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -fexpensive-optimizations -Os -O2 -O3 $(DEP_INCS) $(DEP_DEFS)
 
@@ -47,6 +47,9 @@ $(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 
 $(MLB_TEMP)/fast_representativeness.o: ./fast_representativeness.cpp
 	$(CPP) -c ./fast_representativeness.cpp -o $(MLB_TEMP)/fast_representativeness.o $(CXXFLAGS)
+
+$(MLB_TEMP)/GSGrid_Directional_Statistics.o: ./GSGrid_Directional_Statistics.cpp
+	$(CPP) -c ./GSGrid_Directional_Statistics.cpp -o $(MLB_TEMP)/GSGrid_Directional_Statistics.o $(CXXFLAGS)
 
 $(MLB_TEMP)/GSGrid_Residuals.o: ./GSGrid_Residuals.cpp
 	$(CPP) -c ./GSGrid_Residuals.cpp -o $(MLB_TEMP)/GSGrid_Residuals.o $(CXXFLAGS)

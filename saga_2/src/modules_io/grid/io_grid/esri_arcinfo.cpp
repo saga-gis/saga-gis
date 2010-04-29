@@ -250,9 +250,12 @@ bool CESRI_ArcInfo_Import::Read_Header_Line(CSG_File &Stream, CSG_String &sLine)
 
 	sLine.Clear();
 
-	while( !Stream.is_EOF() && (c = Stream.Get_Character()) != 0x0A && c != 0x0D )
+	while( !Stream.is_EOF() && (c = Stream.Get_Character()) != 0x0A )
 	{
-		sLine	+= c;
+		if( c != 0x0D )
+		{
+			sLine	+= c;
+		}
 	}
 
 	sLine.Make_Upper();

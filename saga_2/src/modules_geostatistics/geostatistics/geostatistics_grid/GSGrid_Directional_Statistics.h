@@ -10,7 +10,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//            GSGrid_Directional_Statistics.h            //
 //                                                       //
 //                 Copyright (C) 2003 by                 //
 //                      Olaf Conrad                      //
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -53,71 +51,59 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__GSGrid_Directional_Statistics_H
+#define HEADER_INCLUDED__GSGrid_Directional_Statistics_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-const SG_Char * Get_Info(int i)
+//---------------------------------------------------------
+class CGSGrid_Directional_Statistics : public CSG_Module_Grid
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Geostatistics - Grids") );
-
-	case MLB_INFO_Author:
-		return( _TL("O.Conrad, V.Wichmann (c) 2002-10" ));
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for (geo)statistical analyses.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Geostatistics|Grids") );
-	}
-}
+public:
+	CGSGrid_Directional_Statistics(void);
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "fast_representativeness.h"
-#include "GSGrid_Residuals.h"
-#include "GSGrid_Variance.h"
-#include "GSGrid_Variance_Radius.h"
-#include "GSGrid_Statistics.h"
-#include "GSGrid_Zonal_Statistics.h"
-#include "GSGrid_Directional_Statistics.h"
+	virtual bool			On_Execute			(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+private:
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CFast_Representativeness );
-	case  1:	return( new CGSGrid_Residuals );
-	case  2:	return( new CGSGrid_Variance );
-	case  3:	return( new CGSGrid_Variance_Radius );
-	case  4:	return( new CGSGrid_Statistics );
-	case  5:	return( new CGSGrid_Zonal_Statistics );
-	case  6:	return( new CGSGrid_Directional_Statistics );
-	}
+	CSG_Simple_Statistics	m_Statistics;
 
-	return( NULL );
-}
+	CSG_Table				m_Cells;
+
+	CSG_Grid				*m_pGrid;
+
+
+	bool					Get_Statistics		(int x, int y);
+
+	bool					Get_Cell			(int Index, int xOffset, int yOffset, int &x, int &y, double &d, double &w);
+
+	bool					Set_Cells			(void);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -127,8 +113,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__GSGrid_Directional_Statistics_H

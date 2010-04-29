@@ -367,12 +367,12 @@ CSG_Shape * CSG_Shapes::Add_Shape(CSG_Table_Record *pCopy, TSG_ADD_Shape_Copy_Mo
 
 	if( pShape && pCopy )
 	{
-		if( mCopy == SHAPE_COPY || mCopy == SHAPE_COPY_ATTR )
+		if( (mCopy == SHAPE_COPY || mCopy == SHAPE_COPY_ATTR) )
 		{
 			((CSG_Table_Record *)pShape)->Assign(pCopy);
 		}
 
-		if( mCopy == SHAPE_COPY || mCopy == SHAPE_COPY_GEOM && pCopy->Get_Table()->Get_ObjectType() == DATAOBJECT_TYPE_Shapes )
+		if( (mCopy == SHAPE_COPY || mCopy == SHAPE_COPY_GEOM) && pCopy->Get_Table()->Get_ObjectType() == DATAOBJECT_TYPE_Shapes )
 		{
 			pShape->Assign((CSG_Shape *)pCopy, false);
 		}

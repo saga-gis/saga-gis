@@ -62,6 +62,7 @@
 #include "helper.h"
 
 #include "wksp_data_manager.h"
+#include "wksp_module.h"
 
 #include "callback.h"
 
@@ -130,6 +131,23 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	case CALLBACK_PROCESS_SET_TEXT:
 
 		STATUSBAR_Set_Text((wxChar *)Param_1);
+
+		break;
+
+
+	///////////////////////////////////////////////////////
+	//                                                   //
+	//                                                   //
+	//                                                   //
+	///////////////////////////////////////////////////////
+
+	//-----------------------------------------------------
+	case CALLBACK_STOP_EXECUTION:
+
+		if( g_pModule && g_pModule->is_Executing() )
+		{
+			Result	= g_pModule->Execute(false) ? 1 : 0;
+		}
 
 		break;
 

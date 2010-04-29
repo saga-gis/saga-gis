@@ -202,6 +202,8 @@ protected:
 	virtual bool				Set_Progress				(int Position);
 	virtual bool				Set_Progress				(double Position, double Range);
 
+	bool						Stop_Execution				(void);
+
 	void						Message_Add					(const SG_Char *Text, bool bNewLine = true);
 	void						Message_Dlg					(const SG_Char *Text, const SG_Char *Caption = NULL);
 	bool						Message_Dlg_Confirm			(const SG_Char *Text, const SG_Char *Caption = NULL);

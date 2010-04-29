@@ -786,8 +786,12 @@ public:
 	double							Read_Double			(				bool bBigEndian = false)	const;
 	bool							Write_Double		(double Value,	bool bBigEndian = false);
 
-	int								Scan_Int			(void)	const;
-	double							Scan_Double			(void)	const;
+	bool							Scan				(int        &Value)	const;
+	bool							Scan				(double     &Value)	const;
+	bool							Scan				(CSG_String &Value, SG_Char Separator)	const;
+
+	int								Scan_Int			(void)				const;
+	double							Scan_Double			(void)				const;
 	CSG_String						Scan_String			(SG_Char Separator)	const;
 
 
@@ -1049,6 +1053,8 @@ typedef enum ESG_UI_Callback_ID
 	CALLBACK_PROCESS_SET_READY,
 	CALLBACK_PROCESS_SET_TEXT,
 
+	CALLBACK_STOP_EXECUTION,
+
 	CALLBACK_DLG_MESSAGE,
 	CALLBACK_DLG_CONTINUE,
 	CALLBACK_DLG_ERROR,
@@ -1092,6 +1098,8 @@ SAGA_API_DLL_EXPORT bool					SG_UI_Process_Set_Okay		(bool bOkay = true);
 SAGA_API_DLL_EXPORT bool					SG_UI_Process_Set_Progress	(double Position, double Range);
 SAGA_API_DLL_EXPORT bool					SG_UI_Process_Set_Ready		(void);
 SAGA_API_DLL_EXPORT void					SG_UI_Process_Set_Text		(const SG_Char *Text);
+
+SAGA_API_DLL_EXPORT bool					SG_UI_Stop_Execution		(void);
 
 SAGA_API_DLL_EXPORT void					SG_UI_Dlg_Message			(const SG_Char *Message, const SG_Char *Caption);
 SAGA_API_DLL_EXPORT bool					SG_UI_Dlg_Continue			(const SG_Char *Message, const SG_Char *Caption);

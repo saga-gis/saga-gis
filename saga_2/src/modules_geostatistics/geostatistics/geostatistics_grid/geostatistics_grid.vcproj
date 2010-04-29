@@ -808,6 +808,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GSGrid_Directional_Statistics.cpp"
+				>
+			</File>
+			<File
 				RelativePath="GSGrid_Residuals.cpp"
 				>
 				<FileConfiguration
@@ -1270,6 +1274,10 @@
 			>
 			<File
 				RelativePath=".\fast_representativeness.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GSGrid_Directional_Statistics.h"
 				>
 			</File>
 			<File
