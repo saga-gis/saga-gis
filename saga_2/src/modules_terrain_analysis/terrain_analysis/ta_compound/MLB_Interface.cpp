@@ -73,7 +73,7 @@ const SG_Char * Get_Info(int i)
 		return( SG_T("Olaf Conrad, Goettingen (c) 2005") );
 
 	case MLB_INFO_Description:
-		return(_TW(
+		return(_TL(
 			"Terrain Analysis: Compound Analyses.\n"
 			"This library depends on the following SAGA module libraries:\n"
 			"- ta_channels\n"
