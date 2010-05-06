@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.21 2010-03-26 12:09:50 oconrad Exp $
+# $Id: configure.in,v 1.22 2010-05-06 07:47:52 reklov_w Exp $
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
@@ -150,6 +150,7 @@ AC_OUTPUT(Makefile \
 	src/modules_terrain_analysis/Makefile \
 	src/modules_terrain_analysis/terrain_analysis/Makefile \
 	src/modules_terrain_analysis/terrain_analysis/ta_channels/Makefile \
+	src/modules_terrain_analysis/terrain_analysis/ta_compound/Makefile \
 	src/modules_terrain_analysis/terrain_analysis/ta_hydrology/Makefile \
 	src/modules_terrain_analysis/terrain_analysis/ta_lighting/Makefile \
 	src/modules_terrain_analysis/terrain_analysis/ta_morphometry/Makefile \
