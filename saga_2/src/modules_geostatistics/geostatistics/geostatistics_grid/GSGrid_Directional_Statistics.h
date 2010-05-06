@@ -90,18 +90,12 @@ protected:
 
 private:
 
-	CSG_Simple_Statistics	m_Statistics;
+	CSG_Grid_Cell_Addressor	m_Cells;
 
-	CSG_Table				m_Cells;
-
-	CSG_Grid				*m_pGrid;
+	CSG_Grid				*m_pGrid, *m_pMean, *m_pDifMean, *m_pMin, *m_pMax, *m_pRange, *m_pVar, *m_pStdDev, *m_pStdDevLo, *m_pStdDevHi, *m_pDevMean, *m_pPercent;
 
 
 	bool					Get_Statistics		(int x, int y);
-
-	bool					Get_Cell			(int Index, int xOffset, int yOffset, int &x, int &y, double &d, double &w);
-
-	bool					Set_Cells			(void);
 
 };
 

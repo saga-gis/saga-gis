@@ -186,6 +186,7 @@ public:
 	bool							is_Modified		(void)	const		{	return( m_bModified );		}
 	bool							Update			(void);
 
+
 	CSG_MetaData &					Get_MetaData	(void)	const		{	return( *m_pMetaData );		}
 	CSG_MetaData &					Get_MetaData_DB	(void)				{	return( *m_pMetaData_DB );	}
 	CSG_MetaData &					Get_History		(void)				{	return( *m_pHistory );		}
@@ -197,6 +198,16 @@ public:
 	class CSG_TIN *					asTIN			(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_TIN        ? (class CSG_TIN        *)this : NULL );	}
 	class CSG_PointCloud *			asPointCloud	(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_PointCloud ? (class CSG_PointCloud *)this : NULL );	}
 	class CSG_Grid *				asGrid			(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Grid       ? (class CSG_Grid       *)this : NULL );	}
+
+	void							Set_NoData_Value		(double Value);
+	void							Set_NoData_Value_Range	(double loValue, double hiValue);
+	double							Get_NoData_Value		(void)	const	{	return( m_NoData_Value );	}
+	double							Get_NoData_hiValue		(void)	const	{	return( m_NoData_hiValue );	}
+
+	bool							is_NoData_Value			(double Value)	const
+	{
+		return( m_NoData_Value < m_NoData_hiValue ? m_NoData_Value <= Value && Value <= m_NoData_hiValue : Value == m_NoData_Value );
+	}
 
 
 protected:
@@ -217,6 +228,8 @@ private:
 	bool							m_bModified, m_bUpdate;
 
 	int								m_File_Type;
+
+	double							m_NoData_Value, m_NoData_hiValue;
 
 	CSG_String						m_File_Name, m_Name;
 

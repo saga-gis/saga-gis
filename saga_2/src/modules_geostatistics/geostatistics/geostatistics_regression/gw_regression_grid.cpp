@@ -141,28 +141,10 @@ CGW_Regression_Grid::CGW_Regression_Grid(void)
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Choice(
-		NULL	, "WEIGHTING"	, _TL("Distance Weighting"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
-			_TL("inverse distance to a power"),
-			_TL("exponential weighting scheme"),
-			_TL("gaussian weighting scheme"),
-			_TL("none (moving window regression)")
-		), 2
-	);
-
-	Parameters.Add_Value(
-		pNode	, "POWER"		, _TL("Inverse Distance Power"),
-		_TL(""),
-		PARAMETER_TYPE_Double	, 2.0
-	);
-
-	Parameters.Add_Value(
-		pNode	, "BANDWIDTH"	, _TL("Exponential and Gaussian Weighting Bandwidth"),
-		_TL(""),
-		PARAMETER_TYPE_Double	, 1.0, 0.0, true
-	);
+	Parameters.Add_Parameters(
+		NULL	, "WEIGHTING"	, _TL("Weighting"),
+		_TL("")
+	)->asParameters()->Assign(m_Weighting.Get_Parameters());
 
 	pNode	= Parameters.Add_Choice(
 		NULL	, "RANGE"		, _TL("Search Range"),
@@ -228,13 +210,12 @@ bool CGW_Regression_Grid::On_Execute(void)
 	m_pSlope		= Parameters("SLOPE")		->asGrid();
 	m_pPoints		= Parameters("POINTS")		->asShapes();
 	m_iDependent	= Parameters("DEPENDENT")	->asInt();
-	m_Weighting		= Parameters("WEIGHTING")	->asInt();
-	m_Power			= Parameters("POWER")		->asDouble();
-	m_Bandwidth		= Parameters("BANDWIDTH")	->asDouble();
 	m_Radius		= Parameters("RANGE")		->asInt() == 0 ? Parameters("RADIUS")   ->asDouble() : 0.0;
 	m_Mode			= Parameters("MODE")		->asInt();
 	m_nPoints_Max	= Parameters("NPOINTS")		->asInt() == 0 ? Parameters("MAXPOINTS")->asInt()    : 0;
 	m_nPoints_Min	= Parameters("MINPOINTS")	->asInt();
+
+	m_Weighting.Set_Parameters(Parameters("WEIGHTING")->asParameters());
 
 	//-----------------------------------------------------
 	if( (m_nPoints_Max > 0 || m_Radius > 0.0) && !m_Search.Create(m_pPoints, -1) )
@@ -294,18 +275,6 @@ bool CGW_Regression_Grid::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline double CGW_Regression_Grid::Get_Weight(double Distance)
-{
-	switch( m_Weighting )
-	{
-	default:	return( pow(1.0 + Distance, -m_Power) );
-	case 1:		return( exp(-Distance / m_Bandwidth) );
-	case 2:		return( exp(-0.5 * SG_Get_Square(Distance / m_Bandwidth)) );
-	case 3:		return( 1.0 );
-	}
-}
-
-//---------------------------------------------------------
 int CGW_Regression_Grid::Set_Variables(int x, int y)
 {
 	int			nPoints, nTotal;
@@ -334,7 +303,7 @@ int CGW_Regression_Grid::Set_Variables(int x, int y)
 
 		if( m_pPredictor->Get_Value(pPoint->Get_Point(0), z) )
 		{
-			m_w[nTotal]	= Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point(0)));
+			m_w[nTotal]	= m_Weighting.Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point(0)));
 			m_z[nTotal]	= pPoint->asDouble(m_iDependent);
 			m_y[nTotal]	= z;
 

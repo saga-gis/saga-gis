@@ -146,9 +146,12 @@ int CWKSP_Shapes_Points::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_P
 //---------------------------------------------------------
 void CWKSP_Shapes_Points::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, bool bSelection)
 {
-	int		Size;
+	if( (m_iSize >= 0 && pShape->is_NoData(m_iSize)) || (m_iColor >= 0 && pShape->is_NoData(m_iColor)) )
+		return;
 
 	//-----------------------------------------------------
+	int		Size;
+
 	if( CWKSP_Shapes_Point::_Draw_Initialize(dc_Map, Size, pShape, bSelection) )
 	{
 		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)

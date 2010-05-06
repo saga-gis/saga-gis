@@ -83,9 +83,11 @@ protected:
 
 private:
 
-	int							m_iDependent, m_Weighting, m_nPoints_Min, m_nPoints_Max, m_Mode;
+	int							m_iDependent, m_nPoints_Min, m_nPoints_Max, m_Mode;
 
-	double						m_Power, m_Bandwidth, m_Radius;
+	double						m_Radius;
+
+	CSG_Distance_Weighting		m_Weighting;
 
 	CSG_PRQuadTree				m_Search;
 
@@ -95,8 +97,6 @@ private:
 
 	CSG_Grid					*m_pPredictor, *m_pRegression, *m_pQuality, *m_pIntercept, *m_pSlope;
 
-
-	double						Get_Weight				(double Distance);
 
 	int							Set_Variables			(int x, int y);
 

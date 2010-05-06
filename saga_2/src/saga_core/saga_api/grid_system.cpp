@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                Universit??? G???tingen                  //
-//                Goldschmidtstr. 5                      //
-//                37077 G???tingen                        //
+//                University Hamburg                     //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -61,6 +59,7 @@
 
 //---------------------------------------------------------
 #include "grid.h"
+#include "shapes.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -267,6 +266,139 @@ bool CSG_Grid_System::is_Equal(const CSG_Grid_System &System) const
 bool CSG_Grid_System::is_Equal(double Cellsize, const TSG_Rect &Extent) const
 {
 	return( m_Cellsize == Cellsize && m_Extent == Extent );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Grid_Cell_Addressor::CSG_Grid_Cell_Addressor(void)
+{
+	m_Cells.Add_Field(SG_T("X"), SG_DATATYPE_Int);
+	m_Cells.Add_Field(SG_T("Y"), SG_DATATYPE_Int);
+	m_Cells.Add_Field(SG_T("D"), SG_DATATYPE_Double);
+	m_Cells.Add_Field(SG_T("W"), SG_DATATYPE_Double);
+}
+
+//---------------------------------------------------------
+bool CSG_Grid_Cell_Addressor::Destroy(void)
+{
+	m_Cells.Del_Records();
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Grid_Cell_Addressor::Set_Radius(int Radius)
+{
+	Destroy();
+
+	//-----------------------------------------------------
+	for(int y=-Radius; y<=Radius; y++)
+	{
+		for(int x=-Radius; x<=Radius; x++)
+		{
+			double	d	= SG_Get_Length(x, y);
+
+			if( d <= Radius )
+			{
+				CSG_Table_Record	*pRecord	= m_Cells.Add_Record();
+
+				pRecord->Set_Value(0, x);
+				pRecord->Set_Value(1, y);
+				pRecord->Set_Value(2, d);
+				pRecord->Set_Value(3, m_Weighting.Get_Weight(d));
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if( m_Cells.Get_Count() > 0 )
+	{
+		m_Cells.Set_Index(2, TABLE_INDEX_Ascending);
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Grid_Cell_Addressor::Set_Sector(int Radius, double Direction, double Tolerance)
+{
+	Destroy();
+
+	//-----------------------------------------------------
+	TSG_Point			a, b;
+	CSG_Shapes			Polygons(SHAPE_TYPE_Polygon);	// Polygons.Add_Field(SG_T("ID"), SG_DATATYPE_Int);
+	CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)Polygons.Add_Shape();
+
+	Direction	= fmod(Direction, M_PI_360);	if( Direction < 0.0 )	Direction	+= M_PI_360;
+
+	if( Direction < M_PI_090 )
+	{
+		a.x	= -0.5;	b.x	=  0.5;
+		a.y	=  0.5;	b.y	= -0.5;
+	}
+	else if( Direction < M_PI_180 )
+	{
+		a.x	=  0.5;	b.x	= -0.5;
+		a.y	=  0.5;	b.y	= -0.5;
+	}
+	else if( Direction < M_PI_270 )
+	{
+		a.x	=  0.5;	b.x	= -0.5;
+		a.y	= -0.5;	b.y	=  0.5;
+	}
+	else // if( Direction < M_PI_360 )
+	{
+		a.x	= -0.5;	b.x	=  0.5;
+		a.y	= -0.5;	b.y	=  0.5;
+	}
+
+	double	d	= 10.0 * SG_Get_Length(Radius, Radius);
+
+	pPolygon->Add_Point(b.x, b.y);
+	pPolygon->Add_Point(a.x, a.y);
+	pPolygon->Add_Point(a.x + d * sin(Direction - Tolerance), a.y + d * cos(Direction - Tolerance));
+	pPolygon->Add_Point(      d * sin(Direction)            ,       d * cos(Direction));
+	pPolygon->Add_Point(b.x + d * sin(Direction + Tolerance), a.y + d * cos(Direction + Tolerance));
+
+	//-----------------------------------------------------
+	for(int y=-Radius; y<=Radius; y++)
+	{
+		for(int x=-Radius; x<=Radius; x++)
+		{
+			if( (d = SG_Get_Length(x, y)) <= Radius && pPolygon->is_Containing(x, y) )
+			{
+				CSG_Table_Record	*pRecord	= m_Cells.Add_Record();
+
+				pRecord->Set_Value(0, x);
+				pRecord->Set_Value(1, y);
+				pRecord->Set_Value(2, d);
+				pRecord->Set_Value(3, m_Weighting.Get_Weight(d));
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if( m_Cells.Get_Count() > 0 )
+	{
+		m_Cells.Set_Index(2, TABLE_INDEX_Ascending);
+
+		return( true );
+	}
+
+	return( false );
 }
 
 

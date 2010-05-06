@@ -514,6 +514,91 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+typedef enum ESG_Distance_Weighting
+{
+	SG_DISTWGHT_None	= 0,
+	SG_DISTWGHT_IDW,
+	SG_DISTWGHT_EXP,
+	SG_DISTWGHT_GAUSS
+}
+TSG_Distance_Weighting;
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Distance_Weighting
+{
+public:
+	CSG_Distance_Weighting(void);
+	virtual ~CSG_Distance_Weighting(void);
+
+	class CSG_Parameters *	Get_Parameters		(void)	const						{	return( m_pParameters );	}
+	bool					Set_Parameters		(class CSG_Parameters *pParameters);
+
+	TSG_Distance_Weighting	Get_Weighting		(void)	const						{	return( m_Weighting );		}
+	void					Set_Weighting		(TSG_Distance_Weighting Weighting)	{	m_Weighting	= Weighting;	}
+
+	double					Get_IDW_Power		(void)	const		{	return( m_IDW_Power );	}
+	bool					Set_IDW_Power		(double Value)		{	if( Value <= 0.0 )	return( false ); m_IDW_Power = Value; return( true );	}
+
+	bool					Get_IDW_Offset		(void)	const		{	return( m_IDW_bOffset );	}
+	void					Set_IDW_Offset		(bool bOn = true)	{	m_IDW_bOffset = bOn;		}
+
+	double					Get_BandWidth		(void)	const		{	return( m_Bandwidth );	}
+	bool					Set_BandWidth		(double Value)		{	if( Value <= 0.0 )	return( false ); m_Bandwidth = Value; return( true );	}
+
+	//-----------------------------------------------------
+	double					Get_Weight			(double Distance)	const
+	{
+		if( Distance < 0.0 )
+		{
+			return( 0.0 );
+		}
+
+		switch( m_Weighting )
+		{
+		case SG_DISTWGHT_None: default:
+			return( 1.0 );
+
+		case SG_DISTWGHT_IDW:
+			if( m_IDW_bOffset )
+				return( pow(1.0 + Distance, -m_IDW_Power) );
+			else
+				return( Distance > 0.0 ? pow(Distance, -m_IDW_Power) : 0.0 );
+
+		case SG_DISTWGHT_EXP:
+			return( exp(-Distance / m_Bandwidth) );
+
+		case SG_DISTWGHT_GAUSS:
+			Distance	/= m_Bandwidth;
+			return( exp(-0.5 * Distance*Distance) );
+		}
+	}
+
+
+private:
+
+	bool					m_IDW_bOffset;
+
+	double					m_IDW_Power, m_Bandwidth;
+
+	TSG_Distance_Weighting	m_Weighting;
+
+	class CSG_Parameters	*m_pParameters;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 typedef enum ESG_Projection_Format
 {
 	SG_PROJ_FMT_Undefined	= 0,

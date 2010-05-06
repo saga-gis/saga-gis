@@ -281,6 +281,12 @@ void CWKSP_Layer::Create_Parameters(void)
 		PARAMETER_TYPE_Bool, true
 	);
 
+	m_Parameters.Add_Range(
+		m_Parameters("NODE_GENERAL")	, "GENERAL_NODATA"		, LNG("[CAP] No Data"),
+		LNG("")
+	);
+
+
 	//-----------------------------------------------------
 	m_Parameters.Add_Node(
 		NULL							, "NODE_DISPLAY"		, LNG("[CAP] Display"),
@@ -542,6 +548,11 @@ void CWKSP_Layer::DataObject_Changed(void)
 
 	m_Parameters("OBJECT_NAME")->Set_Value(m_pObject->Get_Name());
 
+	m_Parameters("GENERAL_NODATA")->asRange()->Set_Range(
+		m_pObject->Get_NoData_Value(),
+		m_pObject->Get_NoData_hiValue()
+	);
+
 	//-----------------------------------------------------
 	On_DataObject_Changed();
 
@@ -561,6 +572,11 @@ void CWKSP_Layer::Parameters_Changed(void)
 		bUpdates	= true;
 
 		m_pObject->Set_Name(m_Parameters("OBJECT_NAME")->asString());
+
+		m_pObject->Set_NoData_Value_Range(
+			m_Parameters("GENERAL_NODATA")->asRange()->Get_LoVal(),
+			m_Parameters("GENERAL_NODATA")->asRange()->Get_HiVal()
+		);
 
 		//-----------------------------------------------------
 		m_pClassify->Set_Mode(m_Parameters("COLORS_TYPE")->asInt());

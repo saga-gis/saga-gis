@@ -223,8 +223,6 @@ void CSG_Grid::_On_Construction(void)
 	LineBuffer_Count	= 5;
 
 	m_zFactor			= 1.0;
-	m_NoData_Value		= -99999.0;
-	m_NoData_hiValue	= -999.0;
 
 	m_bIndexed			= false;
 	m_Index				= NULL;
@@ -335,20 +333,21 @@ void CSG_Grid::_Set_Properties(TSG_Data_Type Type, int NX, int NY, double Cellsi
 
 	switch( m_Type )
 	{
-	case SG_DATATYPE_Bit:		m_NoData_Value	= m_NoData_hiValue	=  0.0;				break;
-	case SG_DATATYPE_Byte:		m_NoData_Value	= m_NoData_hiValue	=  255.0;			break;
-	case SG_DATATYPE_Char:		m_NoData_Value	= m_NoData_hiValue	= -127.0;			break;
-	case SG_DATATYPE_Word:		m_NoData_Value	= m_NoData_hiValue	=  65535.0;			break;
-	case SG_DATATYPE_Short:		m_NoData_Value	= m_NoData_hiValue	= -32767.0;			break;
-	case SG_DATATYPE_DWord:		m_NoData_Value	= m_NoData_hiValue	=  4294967295.0;	break;
-	case SG_DATATYPE_Int:		m_NoData_Value	= m_NoData_hiValue	= -2147483647.0;	break;
-	case SG_DATATYPE_ULong:		m_NoData_Value	= m_NoData_hiValue	=  4294967295.0;	break;
-	case SG_DATATYPE_Long:		m_NoData_Value	= m_NoData_hiValue	= -2147483647.0;	break;
-	case SG_DATATYPE_Double:	m_NoData_Value	= m_NoData_hiValue	= -99999.0;			break;
-	case SG_DATATYPE_Color:		m_NoData_Value	= m_NoData_hiValue	=  4294967295.0;	break;
+	case SG_DATATYPE_Bit:		Set_NoData_Value(          0.0);	break;
+	case SG_DATATYPE_Byte:		Set_NoData_Value(        255.0);	break;
+	case SG_DATATYPE_Char:		Set_NoData_Value(       -127.0);	break;
+	case SG_DATATYPE_Word:		Set_NoData_Value(      65535.0);	break;
+	case SG_DATATYPE_Short:		Set_NoData_Value(     -32767.0);	break;
+	case SG_DATATYPE_DWord:		Set_NoData_Value( 4294967295.0);	break;
+	case SG_DATATYPE_Int:		Set_NoData_Value(-2147483647.0);	break;
+	case SG_DATATYPE_ULong:		Set_NoData_Value( 4294967295.0);	break;
+	case SG_DATATYPE_Long:		Set_NoData_Value(-2147483647.0);	break;
+	case SG_DATATYPE_Float:		Set_NoData_Value(     -99999.0);	break;
+	case SG_DATATYPE_Double:	Set_NoData_Value(     -99999.0);	break;
+	case SG_DATATYPE_Color:		Set_NoData_Value( 4294967295.0);	break;
 
-	default:					m_Type	= SG_DATATYPE_Float;
-	case SG_DATATYPE_Float:		m_NoData_Value	= m_NoData_hiValue	= -99999.0;			break;
+	default:
+	m_Type = SG_DATATYPE_Float;	Set_NoData_Value(      -99999.0);	break;
 	}
 
 	m_System.Assign(Cellsize > 0.0 ? Cellsize : 1.0, xMin, yMin, NX, NY);
@@ -389,73 +388,6 @@ void CSG_Grid::Set_ZFactor(double Value)
 double CSG_Grid::Get_ZFactor(void) const
 {
 	return( m_zFactor );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//					No Data Values						 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CSG_Grid::Set_NoData_Value(double Value)
-{
-	Set_NoData_Value_Range(Value, Value);
-}
-
-//---------------------------------------------------------
-bool SG_DataType_Range_Check(double &Value, TSG_Data_Type Type)
-{
-	double	min, max;
-
-	switch( Type )
-	{
-		default:
-		case SG_DATATYPE_Double:	Value	= (double)Value;	return( true );
-		case SG_DATATYPE_Float:		Value	= (float )Value;	return( true );
-
-		case SG_DATATYPE_Bit:		min	=           0.0;	max =          1.0;	break;
-		case SG_DATATYPE_Byte:		min	=           0.0;	max =        255.0; break;
-		case SG_DATATYPE_Char:		min	=        -128.0;	max =        127.0;	break;
-		case SG_DATATYPE_Word:		min	=           0.0;	max =      65535.0;	break;
-		case SG_DATATYPE_Short:		min	=      -32768.0;	max =      32767.0;	break;
-		case SG_DATATYPE_DWord:		min	=           0.0;	max = 4294967295.0;	break;
-		case SG_DATATYPE_Int:		min	= -2147483648.0;	max = 2147483647.0;	break;
-	}
-
-	if( Value < min )
-	{
-		Value	= min;
-	}
-	else if( Value > max )
-	{
-		Value	= max;
-	}
-
-	return( true );
-}
-
-//---------------------------------------------------------
-void CSG_Grid::Set_NoData_Value_Range(double loValue, double hiValue)
-{
-	SG_DataType_Range_Check(loValue, m_Type);
-	SG_DataType_Range_Check(hiValue, m_Type);
-
-	if( loValue > hiValue )
-	{
-		double	d	= loValue;
-		loValue		= hiValue;
-		hiValue		= d;
-	}
-
-	if( !Get_Update_Flag() && (loValue != m_NoData_Value || hiValue != m_NoData_hiValue) )
-	{
-		Set_Update_Flag();
-	}
-
-	m_NoData_Value		= loValue;
-	m_NoData_hiValue	= hiValue;
 }
 
 
@@ -527,14 +459,14 @@ double CSG_Grid::Get_Value(TSG_Point Position, int Interpolation, bool bZFactor,
 {
 	double	Value;
 
-	return( Get_Value(Position.x, Position.y, Value, Interpolation, bZFactor, bByteWise, bOnlyValidCells) ? Value : m_NoData_Value );
+	return( Get_Value(Position.x, Position.y, Value, Interpolation, bZFactor, bByteWise, bOnlyValidCells) ? Value : Get_NoData_Value() );
 }
 
 double CSG_Grid::Get_Value(double xPosition, double yPosition, int Interpolation, bool bZFactor, bool bByteWise, bool bOnlyValidCells) const
 {
 	double	Value;
 
-	return( Get_Value(xPosition, yPosition, Value, Interpolation, bZFactor, bByteWise, bOnlyValidCells) ? Value : m_NoData_Value );
+	return( Get_Value(xPosition, yPosition, Value, Interpolation, bZFactor, bByteWise, bOnlyValidCells) ? Value : Get_NoData_Value() );
 }
 
 bool CSG_Grid::Get_Value(TSG_Point Position, double &Value, int Interpolation, bool bZFactor, bool bByteWise, bool bOnlyValidCells) const
@@ -579,7 +511,7 @@ bool CSG_Grid::Get_Value(double xPosition, double yPosition, double &Value, int 
 				break;
 			}
 
-			if( Value != m_NoData_Value )
+			if( !is_NoData_Value(Value) )
 			{
 				if( bZFactor )
 				{
@@ -605,7 +537,7 @@ inline double CSG_Grid::_Get_ValAtPos_NearestNeighbour(int x, int y, double dx, 
 		return( asDouble(x, y) );
 	}
 
-	return( m_NoData_Value );
+	return( Get_NoData_Value() );
 }
 
 //---------------------------------------------------------
@@ -657,7 +589,7 @@ inline double CSG_Grid::_Get_ValAtPos_BiLinear(int x, int y, double dx, double d
 		}
 	}
 
-	return( m_NoData_Value );
+	return( Get_NoData_Value() );
 }
 
 //---------------------------------------------------------
@@ -716,7 +648,7 @@ inline double CSG_Grid::_Get_ValAtPos_InverseDistance(int x, int y, double dx, d
 		return( asDouble(x, y) );
 	}
 
-	return( m_NoData_Value );
+	return( Get_NoData_Value() );
 }
 
 //---------------------------------------------------------
@@ -774,7 +706,7 @@ inline double CSG_Grid::_Get_ValAtPos_BiCubicSpline(int x, int y, double dx, dou
 		}
 	}
 
-	return( m_NoData_Value );
+	return( Get_NoData_Value() );
 }
 
 //---------------------------------------------------------
@@ -846,7 +778,7 @@ inline double CSG_Grid::_Get_ValAtPos_BSpline(int x, int y, double dx, double dy
 		}
 	}
 
-	return( m_NoData_Value );
+	return( Get_NoData_Value() );
 }
 
 //---------------------------------------------------------
@@ -864,7 +796,7 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 			}
 			else
 			{
-				z_xy[ix][iy]	= m_NoData_Value;
+				z_xy[ix][iy]	= Get_NoData_Value();
 
 				nNoData++;
 			}
@@ -895,7 +827,7 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 			{
 				for(ix=0; ix<4; ix++)
 				{
-					if( z_xy[ix][iy] == m_NoData_Value )
+					if( is_NoData_Value(z_xy[ix][iy]) )
 					{
 						int		n	= 0;
 
@@ -905,7 +837,7 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 							{
 								for(jx=ix-1; jx<=ix+1; jx++)
 								{
-									if( jx >= 0 && jx < 4 && !(jx == ix && jy == iy) && z_xy[jx][jy] != m_NoData_Value )
+									if( jx >= 0 && jx < 4 && !(jx == ix && jy == iy) && !is_NoData_Value(z_xy[jx][jy]) )
 									{
 										if( n == 0 )
 										{
@@ -972,7 +904,7 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 			}
 			else
 			{
-				z_xy[0][ix][iy]	= m_NoData_Value;
+				z_xy[0][ix][iy]	= Get_NoData_Value();
 
 				nNoData++;
 			}
@@ -1006,7 +938,7 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 			{
 				for(ix=0; ix<4; ix++)
 				{
-					if( z_xy[0][ix][iy] == m_NoData_Value )
+					if( is_NoData_Value(z_xy[0][ix][iy]) )
 					{
 						int		n	= 0;
 
@@ -1016,7 +948,7 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 							{
 								for(jx=ix-1; jx<=ix+1; jx++)
 								{
-									if( jx >= 0 && jx < 4 && !(jx == ix && jy == iy) && z_xy[0][jx][jy] != m_NoData_Value )
+									if( jx >= 0 && jx < 4 && !(jx == ix && jy == iy) && !is_NoData_Value(z_xy[0][jx][jy]) )
 									{
 										if( n == 0 )
 										{

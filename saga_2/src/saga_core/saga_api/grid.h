@@ -72,7 +72,7 @@
 
 //---------------------------------------------------------
 #include "dataobject.h"
-
+#include "table.h"
 #include "grid_pyramid.h"
 
 
@@ -452,10 +452,6 @@ public:		///////////////////////////////////////////////
 	double						Get_StdDev		(bool bZFactor = false);
 	double						Get_Variance	(void);
 
-	void						Set_NoData_Value		(double Value);
-	void						Set_NoData_Value_Range	(double loValue, double hiValue);
-	double						Get_NoData_Value		(void)	const	{	return( m_NoData_Value );			}
-	double						Get_NoData_hiValue		(void)	const	{	return( m_NoData_hiValue );			}
 	int							Get_NoData_Count		(void);
 
 	virtual bool				Save	(const CSG_String &File_Name, int Format = GRID_FILE_FORMAT_Binary);
@@ -574,16 +570,11 @@ public:		///////////////////////////////////////////////
 	//-----------------------------------------------------
 	// No Data Value...
 
-	virtual bool				is_NoData_Value	(double Value)	const
-	{
-		return( m_NoData_Value < m_NoData_hiValue ? m_NoData_Value <= Value && Value <= m_NoData_hiValue : Value == m_NoData_Value );
-	}
-
 	virtual bool				is_NoData		(int x, int y)	const	{	return( is_NoData_Value(asDouble(x, y)) );	}
 	virtual bool				is_NoData		(long n)		const	{	return( is_NoData_Value(asDouble(   n)) );	}
 
-	virtual void				Set_NoData		(int x, int y)	{	Set_Value(x, y, m_NoData_Value );	}
-	virtual void				Set_NoData		(long n)		{	Set_Value(   n, m_NoData_Value );	}
+	virtual void				Set_NoData		(int x, int y)	{	Set_Value(x, y, Get_NoData_Value() );	}
+	virtual void				Set_NoData		(long n)		{	Set_Value(   n, Get_NoData_Value() );	}
 
 
 	//-----------------------------------------------------
@@ -748,7 +739,7 @@ private:	///////////////////////////////////////////////
 
 	long						*m_Index, Cache_Offset;
 
-	double						m_zFactor, m_NoData_Value, m_NoData_hiValue;
+	double						m_zFactor;
 
 	CSG_Simple_Statistics		m_zStats;
 
@@ -938,6 +929,69 @@ public:
 			y	= pPoint->y;
 		}
 	}
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Grid_Cell_Addressor
+{
+public:
+	CSG_Grid_Cell_Addressor(void);
+
+	bool						Destroy				(void);
+
+	CSG_Distance_Weighting &	Get_Weighting		(void)								{	return( m_Weighting );		}
+
+	bool						Set_Radius			(int Radius);
+	bool						Set_Sector			(int Radius, double Direction, double Tolerance);
+
+	int							Get_Count			(void)	const						{	return( m_Cells.Get_Count() );	}
+
+	int							Get_X				(int Index, int Offset = 0)	const	{	return( Offset + (Index >= 0 && Index < Get_Count() ? m_Cells.Get_Record_byIndex(Index)->asInt(0) : 0) );	}
+	int							Get_Y				(int Index, int Offset = 0)	const	{	return( Offset + (Index >= 0 && Index < Get_Count() ? m_Cells.Get_Record_byIndex(Index)->asInt(1) : 0) );	}
+
+	double						Get_Distance		(int Index)	const					{	return( Index >= 0 && Index < Get_Count() ? m_Cells.Get_Record_byIndex(Index)->asDouble(2) : -1.0 );	}
+	double						Get_Weight			(int Index)	const					{	return( Index >= 0 && Index < Get_Count() ? m_Cells.Get_Record_byIndex(Index)->asDouble(3) : -1.0 );	}
+
+	bool						Get_Values			(int Index, int &x, int &y, double &Distance, double &Weight, bool bOffset = false)	const
+	{
+		if( Index >= 0 && Index < Get_Count() )
+		{
+			CSG_Table_Record	*pCell	= m_Cells.Get_Record_byIndex(Index);
+
+			if( bOffset )
+			{
+				x	+= pCell->asInt(0);
+				y	+= pCell->asInt(1);
+			}
+			else
+			{
+				x	 = pCell->asInt(0);
+				y	 = pCell->asInt(1);
+			}
+
+			Distance	= pCell->asDouble(2);
+			Weight		= pCell->asDouble(3);
+
+			return( true );
+		}
+
+		return( false );
+	}
+
+
+private:
+
+	CSG_Distance_Weighting		m_Weighting;
+
+	CSG_Table					m_Cells;
 
 };
 

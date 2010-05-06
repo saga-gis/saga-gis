@@ -95,6 +95,11 @@ CWKSP_Table::CWKSP_Table(CSG_Table *pTable, CWKSP_Base_Item *pOwner)
 		LNG(""),
 		m_pTable->Get_Name()
 	);
+
+	m_Parameters.Add_Range(
+		m_Parameters("NODE_GENERAL")	, "GENERAL_NODATA"	, LNG("[CAP] No Data"),
+		LNG("")
+	);
 }
 
 //---------------------------------------------------------
@@ -274,6 +279,11 @@ void CWKSP_Table::Parameters_Changed(void)
 {
 	m_pTable->Set_Name(m_Parameters("NAME")->asString());
 
+	m_pTable->Set_NoData_Value_Range(
+		m_Parameters("GENERAL_NODATA")->asRange()->Get_LoVal(),
+		m_Parameters("GENERAL_NODATA")->asRange()->Get_HiVal()
+	);
+
 	Update_Views();
 
 	CWKSP_Base_Item::Parameters_Changed();
@@ -351,6 +361,11 @@ bool CWKSP_Table::DataObject_Changed(CSG_Parameters *pParameters)
 	m_Parameters.Set_Name(wxString::Format(wxT("%02d. %s"), 1 + Get_ID(), m_pTable->Get_Name()));
 
 	m_Parameters("NAME")->Set_Value(m_pTable->Get_Name());
+
+	m_Parameters("GENERAL_NODATA")->asRange()->Set_Range(
+		m_pTable->Get_NoData_Value(),
+		m_pTable->Get_NoData_hiValue()
+	);
 
 	//-----------------------------------------------------
 //	g_pACTIVE->Update(this, false);

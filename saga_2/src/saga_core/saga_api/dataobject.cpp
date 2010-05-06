@@ -113,21 +113,24 @@ CSG_Data_Object::CSG_Data_Object(void)
 
 	m_MetaData.Set_Name(SG_T("SAGA_METADATA"));
 
-	m_pHistory		= m_MetaData.	Add_Child(SG_META_HST);
+	m_pHistory			= m_MetaData.	Add_Child(SG_META_HST);
 
-	pSource			= m_MetaData.	Add_Child(SG_META_SRC);
-	m_pFile			= pSource->		Add_Child(SG_META_SRC_FILE);
-	m_pMetaData_DB	= pSource->		Add_Child(SG_META_SRC_DB);
-	m_pProjection	= pSource->		Add_Child(SG_META_SRC_PROJ);
+	pSource				= m_MetaData.	Add_Child(SG_META_SRC);
+	m_pFile				= pSource->		Add_Child(SG_META_SRC_FILE);
+	m_pMetaData_DB		= pSource->		Add_Child(SG_META_SRC_DB);
+	m_pProjection		= pSource->		Add_Child(SG_META_SRC_PROJ);
 
 	//-----------------------------------------------------
-	m_File_Type		= 0;
-	m_bModified		= true;
+	m_File_Type			= 0;
+	m_bModified			= true;
 
-	Set_Name		(NULL);
-	Set_File_Name	(NULL);
+	m_NoData_Value		= -99999.0;
+	m_NoData_hiValue	= -999.0;
 
-	m_bUpdate		= false;
+	Set_Name			(NULL);
+	Set_File_Name		(NULL);
+
+	m_bUpdate			= false;
 }
 
 //---------------------------------------------------------
@@ -201,6 +204,48 @@ int CSG_Data_Object::Get_File_Type(void) const
 {
 	return( m_File_Type );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CSG_Data_Object::Set_NoData_Value(double Value)
+{
+	Set_NoData_Value_Range(Value, Value);
+}
+
+//---------------------------------------------------------
+void CSG_Data_Object::Set_NoData_Value_Range(double loValue, double hiValue)
+{
+	if( loValue > hiValue )
+	{
+		double	d	= loValue;
+		loValue		= hiValue;
+		hiValue		= d;
+	}
+
+	if( loValue != m_NoData_Value || hiValue != m_NoData_hiValue )
+	{
+		if( !Get_Update_Flag() )
+		{
+			Set_Update_Flag();
+		}
+
+		m_NoData_Value		= loValue;
+		m_NoData_hiValue	= hiValue;
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSG_Data_Object::Load_MetaData(const SG_Char *File_Name)

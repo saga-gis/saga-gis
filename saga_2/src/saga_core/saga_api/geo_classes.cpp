@@ -60,7 +60,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <memory.h>
+#include "parameters.h"
 
 #include "geo_tools.h"
 
@@ -1026,6 +1026,80 @@ bool CSG_Rects::Add(const CSG_Rect &Rect)
 	m_Rects				= (CSG_Rect **)SG_Realloc(m_Rects, (m_nRects + 1) * sizeof(CSG_Rect *));
 	m_Rects[m_nRects]	= new CSG_Rect(Rect);
 	m_nRects++;
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Distance_Weighting::CSG_Distance_Weighting(void)
+{
+	m_Weighting		= SG_DISTWGHT_None;
+	m_IDW_Power		= 1.0;
+	m_IDW_bOffset	= true;
+	m_Bandwidth		= 1.0;
+
+	m_pParameters	= new CSG_Parameters(NULL, LNG("Distance Weighting"), LNG(""), SG_T("DISTANCE_WEIGHTING"));
+
+	m_pParameters->Add_Choice(
+		NULL, "WEIGHTING"	, LNG("Distance Weighting"),
+		LNG(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			LNG("no distance weighting"),
+			LNG("inverse distance to a power"),
+			LNG("exponential"),
+			LNG("gaussian weighting")
+		), m_Weighting
+	);
+
+	m_pParameters->Add_Value(
+		NULL, "IDW_POWER"	, LNG("Inverse Distance Weighting Power"),
+		LNG(""),
+		PARAMETER_TYPE_Double, m_IDW_Power, 0.0, true
+	);
+
+	m_pParameters->Add_Value(
+		NULL, "IDW_OFFSET"	, LNG("Inverse Distance Offset"),
+		LNG("Calculates weights for distance plus one, avoiding division by zero for zero distances"),
+		PARAMETER_TYPE_Bool, m_IDW_bOffset
+	);
+
+	m_pParameters->Add_Value(
+		NULL, "BANDWIDTH"	, LNG("Gaussian and Exponential Weighting Bandwidth"),
+		LNG(""),
+		PARAMETER_TYPE_Double, m_Bandwidth, 0.0, true
+	);
+}
+
+//---------------------------------------------------------
+CSG_Distance_Weighting::~CSG_Distance_Weighting(void)
+{
+	delete(m_pParameters);
+}
+
+//---------------------------------------------------------
+bool CSG_Distance_Weighting::Set_Parameters(CSG_Parameters *pParameters)
+{
+	m_pParameters->Assign_Values(pParameters);
+
+	switch( m_pParameters->Get_Parameter("WEIGHTING")->asInt() )
+	{
+	default:
+	case 0:	Set_Weighting(SG_DISTWGHT_None);	break;
+	case 1:	Set_Weighting(SG_DISTWGHT_IDW);		break;
+	case 3:	Set_Weighting(SG_DISTWGHT_EXP);		break;
+	case 4:	Set_Weighting(SG_DISTWGHT_GAUSS);	break;
+	}
+
+	Set_IDW_Offset	(m_pParameters->Get_Parameter("IDW_OFFSET")	->asBool());
+	Set_IDW_Power	(m_pParameters->Get_Parameter("IDW_POWER")	->asDouble());
+	Set_BandWidth	(m_pParameters->Get_Parameter("BANDWIDTH")	->asDouble());
 
 	return( true );
 }

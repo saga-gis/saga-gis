@@ -78,53 +78,19 @@ CGSGrid_Directional_Statistics::CGSGrid_Directional_Statistics(void)
 	));
 
 
-	Parameters.Add_Grid(
-		NULL, "GRID"		, _TL("Grid"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
+	Parameters.Add_Grid(NULL, "GRID"		, _TL("Grid")								, _TL(""), PARAMETER_INPUT);
 
-	Parameters.Add_Grid(
-		NULL, "MEAN"		, _TL("Arithmetic Mean"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
-
-	Parameters.Add_Grid(
-		NULL, "MIN"			, _TL("Minimum"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
-
-	Parameters.Add_Grid(
-		NULL, "MAX"			, _TL("Maximum"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
-
-	Parameters.Add_Grid(
-		NULL, "VAR"			, _TL("Variance"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
-
-	Parameters.Add_Grid(
-		NULL, "STDDEV"		, _TL("Standard Deviation"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
-
-	Parameters.Add_Grid(
-		NULL, "STDDEVLO"	, _TL("Mean less Standard Deviation"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
-
-	Parameters.Add_Grid(
-		NULL, "STDDEVHI"	, _TL("Mean plus Standard Deviation"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
+	Parameters.Add_Grid(NULL, "MEAN"		, _TL("Arithmetic Mean")					, _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid(NULL, "DIFMEAN"		, _TL("Difference from Arithmetic Mean")	, _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid(NULL, "MIN"			, _TL("Minimum")							, _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid(NULL, "MAX"			, _TL("Maximum")							, _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid(NULL, "RANGE"		, _TL("Range")								, _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid(NULL, "VAR"			, _TL("Variance")							, _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid(NULL, "STDDEV"		, _TL("Standard Deviation")					, _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid(NULL, "STDDEVLO"	, _TL("Mean less Standard Deviation")		, _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid(NULL, "STDDEVHI"	, _TL("Mean plus Standard Deviation")		, _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid(NULL, "DEVMEAN"		, _TL("Deviation from Arithmetic Mean")		, _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid(NULL, "PERCENT"		, _TL("Percentile")							, _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 
 	Parameters.Add_Value(
 		NULL, "DIRECTION"	, _TL("Direction [Degree]"),
@@ -139,26 +105,15 @@ CGSGrid_Directional_Statistics::CGSGrid_Directional_Statistics(void)
 	);
 
 	Parameters.Add_Value(
-		NULL, "MAXDISTANCE"	, _TL("Maximum Distance [Cellsize]"),
+		NULL, "MAXDISTANCE"	, _TL("Maximum Distance [Cells]"),
 		_TL("Maximum distance parameter is ignored if set to zero (default)."),
-		PARAMETER_TYPE_Double, 0.0, 0.0, true
+		PARAMETER_TYPE_Int, 0.0, 0.0, true
 	);
 
-	Parameters.Add_Choice(
-		NULL, "WEIGHTING"	, _TL("Distance Weighting"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("no distance weighting"),
-			_TL("inverse distance to a power"),
-			_TL("exponential")
-		), 1
-	);
-
-	Parameters.Add_Value(
-		NULL, "IDW_POWER"	, _TL("Inverse Distance Weighting Power"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true
-	);
+	Parameters.Add_Parameters(
+		NULL, "WEIGHTING"	, _TL("Weighting"),
+		_TL("")
+	)->asParameters()->Assign(m_Cells.Get_Weighting().Get_Parameters());
 }
 
 
@@ -171,27 +126,46 @@ CGSGrid_Directional_Statistics::CGSGrid_Directional_Statistics(void)
 //---------------------------------------------------------
 bool CGSGrid_Directional_Statistics::On_Execute(void)
 {
-	CSG_Grid	*pMean, *pMin, *pMax, *pVar, *pStdDev, *pStdDevLo, *pStdDevHi;
+	int			Radius;
+	double		Direction, Tolerance;
 
 	//-----------------------------------------------------
 	m_pGrid		= Parameters("GRID")		->asGrid();
 
-	pMean		= Parameters("MEAN")		->asGrid();
-	pMin		= Parameters("MIN")			->asGrid();
-	pMax		= Parameters("MAX")			->asGrid();
-	pVar		= Parameters("VAR")			->asGrid();
-	pStdDev		= Parameters("STDDEV")		->asGrid();
-	pStdDevLo	= Parameters("STDDEVLO")	->asGrid();
-	pStdDevHi	= Parameters("STDDEVHI")	->asGrid();
+	m_pMean		= Parameters("MEAN")		->asGrid();
+	m_pDifMean	= Parameters("DIFMEAN")		->asGrid();
+	m_pMin		= Parameters("MIN")			->asGrid();
+	m_pMax		= Parameters("MAX")			->asGrid();
+	m_pRange	= Parameters("RANGE")		->asGrid();
+	m_pVar		= Parameters("VAR")			->asGrid();
+	m_pStdDev	= Parameters("STDDEV")		->asGrid();
+	m_pStdDevLo	= Parameters("STDDEVLO")	->asGrid();
+	m_pStdDevHi	= Parameters("STDDEVHI")	->asGrid();
+	m_pDevMean	= Parameters("DEVMEAN")		->asGrid();
+	m_pPercent	= Parameters("PERCENT")		->asGrid();
 
 	//-----------------------------------------------------
-	if( !m_pGrid || (!pMean && !pMin && !pMax && !pVar && !pStdDev && !pStdDevLo && !pStdDevHi) )
+	if( !m_pGrid || (!m_pMean && !m_pDifMean && !m_pMin && !m_pMax && !m_pRange && !m_pVar && !m_pStdDev && !m_pStdDevLo && !m_pStdDevHi && !m_pPercent) )
 	{
+		Message_Dlg(_TL("no target grids specified"));
+
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	if( !Set_Cells() )
+	Direction	= Parameters("DIRECTION")	->asDouble() * M_DEG_TO_RAD;
+	Tolerance	= Parameters("TOLERANCE")	->asDouble() * M_DEG_TO_RAD;
+
+	Radius		= Parameters("MAXDISTANCE")	->asInt();
+
+	if( Radius <= 0 )
+	{
+		Radius	= 1 + (int)SG_Get_Length(Get_NX(), Get_NY());
+	}
+
+	m_Cells.Get_Weighting().Set_Parameters(Parameters("WEIGHTING")->asParameters());
+
+	if( !m_Cells.Set_Sector(Radius, Direction, Tolerance) )
 	{
 		return( false );
 	}
@@ -201,26 +175,7 @@ bool CGSGrid_Directional_Statistics::On_Execute(void)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
-			if( Get_Statistics(x, y) )
-			{
-				if( pMean     )	pMean		->Set_Value(x, y, m_Statistics.Get_Mean());
-				if( pMin      )	pMin		->Set_Value(x, y, m_Statistics.Get_Minimum());
-				if( pMax      )	pMax		->Set_Value(x, y, m_Statistics.Get_Maximum());
-				if( pVar      )	pVar		->Set_Value(x, y, m_Statistics.Get_Variance());
-				if( pStdDev   )	pStdDev		->Set_Value(x, y, m_Statistics.Get_StdDev());
-				if( pStdDevLo )	pStdDevLo	->Set_Value(x, y, m_Statistics.Get_Mean() - m_Statistics.Get_StdDev());
-				if( pStdDevHi )	pStdDevHi	->Set_Value(x, y, m_Statistics.Get_Mean() + m_Statistics.Get_StdDev());
-			}
-			else
-			{
-				if( pMean     )	pMean		->Set_NoData(x, y);
-				if( pMin      )	pMin		->Set_NoData(x, y);
-				if( pMax      )	pMax		->Set_NoData(x, y);
-				if( pVar      )	pVar		->Set_NoData(x, y);
-				if( pStdDev   )	pStdDev		->Set_NoData(x, y);
-				if( pStdDevLo )	pStdDevLo	->Set_NoData(x, y);
-				if( pStdDevHi )	pStdDevHi	->Set_NoData(x, y);
-			}
+			Get_Statistics(x, y);
 		}
 	}
 
@@ -240,149 +195,57 @@ bool CGSGrid_Directional_Statistics::On_Execute(void)
 //---------------------------------------------------------
 bool CGSGrid_Directional_Statistics::Get_Statistics(int x, int y)
 {
-	if( m_pGrid->is_NoData(x, y) )
+	if( m_pGrid->is_InGrid(x, y) )
 	{
-		return( false );
-	}
+		int		i, ix, iy, nLower;
+		double	z, iz, id, iw;
 
-	int		i, ix, iy;
-	double	d, w;
+		CSG_Simple_Statistics	Statistics;
 
-	m_Statistics.Invalidate();
-
-	for(i=0; i<m_Cells.Get_Count(); i++)
-	{
-		if( Get_Cell(i, x, y, ix, iy, d, w) )
+		for(i=0, nLower=0, z=m_pGrid->asDouble(x, y); i<m_Cells.Get_Count(); i++)
 		{
-			m_Statistics.Add_Value(m_pGrid->asDouble(ix, iy), w);
-		}
-	}
-
-	return( m_Statistics.Get_Weights() > 0.0 );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-inline bool CGSGrid_Directional_Statistics::Get_Cell(int Index, int xOffset, int yOffset, int &x, int &y, double &d, double &w)
-{
-	if( Index >= 0 && Index < m_Cells.Get_Count() )
-	{
-		CSG_Table_Record	*pRecord	= m_Cells.Get_Record_byIndex(Index);
-
-		x	= xOffset + pRecord->asInt(0);
-		y	= yOffset + pRecord->asInt(1);
-
-		d	= pRecord->asDouble(2);
-		w	= pRecord->asDouble(3);
-
-		return( m_pGrid->is_InGrid(x, y) );
-	}
-
-	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CGSGrid_Directional_Statistics::Set_Cells(void)
-{
-	int			Weighting;
-	double		Direction, Tolerance, maxDistance, IDW_Power;
-
-	Weighting	= Parameters("WEIGHTING")	->asInt();
-	IDW_Power	= Parameters("IDW_POWER")	->asDouble();
-	maxDistance	= Parameters("MAXDISTANCE")	->asDouble();
-	Direction	= Parameters("DIRECTION")	->asDouble() * M_DEG_TO_RAD;
-	Tolerance	= Parameters("TOLERANCE")	->asDouble() * M_DEG_TO_RAD;
-
-	Direction	= fmod(Direction, M_PI_360);	if( Direction < 0.0 )	Direction	+= M_PI_360;
-
-	//-----------------------------------------------------
-	m_Cells.Destroy();
-	m_Cells.Add_Field(SG_T("X")	, SG_DATATYPE_Int);
-	m_Cells.Add_Field(SG_T("Y")	, SG_DATATYPE_Int);
-	m_Cells.Add_Field(SG_T("D")	, SG_DATATYPE_Double);
-	m_Cells.Add_Field(SG_T("W")	, SG_DATATYPE_Double);
-
-	//-----------------------------------------------------
-	TSG_Point			a, b;
-	CSG_Shapes			Polygons(SHAPE_TYPE_Polygon);	Polygons.Add_Field(SG_T("ID"), SG_DATATYPE_Int);
-	CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)Polygons.Add_Shape();
-
-	if( Direction < M_PI_090 )
-	{
-		a.x	= -0.5;	b.x	=  0.5;
-		a.y	=  0.5;	b.y	= -0.5;
-	}
-	else if( Direction < M_PI_180 )
-	{
-		a.x	=  0.5;	b.x	= -0.5;
-		a.y	=  0.5;	b.y	= -0.5;
-	}
-	else if( Direction < M_PI_270 )
-	{
-		a.x	=  0.5;	b.x	= -0.5;
-		a.y	= -0.5;	b.y	=  0.5;
-	}
-	else // if( Direction < M_PI_360 )
-	{
-		a.x	= -0.5;	b.x	=  0.5;
-		a.y	= -0.5;	b.y	=  0.5;
-	}
-
-	double	d	= 2.0 * SG_Get_Length(Get_NX(), Get_NY());
-
-	pPolygon->Add_Point(b.x, b.y);
-	pPolygon->Add_Point(a.x, a.y);
-	pPolygon->Add_Point(a.x + d * sin(Direction - Tolerance), a.y + d * cos(Direction - Tolerance));
-	pPolygon->Add_Point(      d * sin(Direction)            ,       d * cos(Direction));
-	pPolygon->Add_Point(b.x + d * sin(Direction + Tolerance), a.y + d * cos(Direction + Tolerance));
-
-	//-----------------------------------------------------
-	for(int y=-Get_NY(); y<Get_NY(); y++)
-	{
-		for(int x=-Get_NX(); x<Get_NX(); x++)
-		{
-			if( (x || y) && ((d = SG_Get_Length(x, y)) < maxDistance || maxDistance <= 0.0)  && pPolygon->is_Containing(x, y) )
+			if( m_Cells.Get_Values(i, ix = x, iy = y, id, iw, true) && id > 0.0 && m_pGrid->is_InGrid(ix, iy) )
 			{
-				CSG_Table_Record	*pRecord	= m_Cells.Add_Record();
+				Statistics.Add_Value(iz = m_pGrid->asDouble(ix, iy), iw);
 
-				pRecord->Set_Value(0, x);
-				pRecord->Set_Value(1, y);
-				pRecord->Set_Value(2, d);
-
-				switch( Weighting )
+				if( z > iz )
 				{
-				case 0:	default:	// no weighting
-					pRecord->Set_Value(3, 1.0);
-					break;
-
-				case 1:				// inverse distance to a power
-					pRecord->Set_Value(3, pow(d, -IDW_Power));
-					break;
-
-				case 2:				// exponential
-					pRecord->Set_Value(3, exp(-d));
-					break;
+					nLower++;
 				}
 			}
 		}
+
+		//-------------------------------------------------
+		if( Statistics.Get_Weights() > 0.0 )
+		{
+			if( m_pMean     )	m_pMean		->Set_Value(x, y, Statistics.Get_Mean());
+			if( m_pDifMean  )	m_pDifMean	->Set_Value(x, y, m_pGrid->asDouble(x, y) - Statistics.Get_Mean());
+			if( m_pMin      )	m_pMin		->Set_Value(x, y, Statistics.Get_Minimum());
+			if( m_pMax      )	m_pMax		->Set_Value(x, y, Statistics.Get_Maximum());
+			if( m_pRange    )	m_pRange	->Set_Value(x, y, Statistics.Get_Range());
+			if( m_pVar      )	m_pVar		->Set_Value(x, y, Statistics.Get_Variance());
+			if( m_pStdDev   )	m_pStdDev	->Set_Value(x, y, Statistics.Get_StdDev());
+			if( m_pStdDevLo )	m_pStdDevLo	->Set_Value(x, y, Statistics.Get_Mean() - Statistics.Get_StdDev());
+			if( m_pStdDevHi )	m_pStdDevHi	->Set_Value(x, y, Statistics.Get_Mean() + Statistics.Get_StdDev());
+			if( m_pDevMean  )	m_pDevMean	->Set_Value(x, y, Statistics.Get_StdDev() ? (z - Statistics.Get_Mean()) / Statistics.Get_StdDev() : 0.0);
+			if( m_pPercent  )	m_pPercent	->Set_Value(x, y, 100.0 * nLower / (double)Statistics.Get_Count());
+
+			return( true );
+		}
 	}
 
 	//-----------------------------------------------------
-	if( m_Cells.Get_Count() > 0 )
-	{
-		m_Cells.Set_Index(2, TABLE_INDEX_Ascending);
-
-		return( true );
-	}
+	if( m_pMean     )	m_pMean		->Set_NoData(x, y);
+	if( m_pDifMean  )	m_pDifMean	->Set_NoData(x, y);
+	if( m_pMin      )	m_pMin		->Set_NoData(x, y);
+	if( m_pMax      )	m_pMax		->Set_NoData(x, y);
+	if( m_pRange    )	m_pRange	->Set_NoData(x, y);
+	if( m_pVar      )	m_pVar		->Set_NoData(x, y);
+	if( m_pStdDev   )	m_pStdDev	->Set_NoData(x, y);
+	if( m_pStdDevLo )	m_pStdDevLo	->Set_NoData(x, y);
+	if( m_pStdDevHi )	m_pStdDevHi	->Set_NoData(x, y);
+	if( m_pDevMean  )	m_pDevMean	->Set_NoData(x, y);
+	if( m_pPercent  )	m_pPercent	->Set_NoData(x, y);
 
 	return( false );
 }

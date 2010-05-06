@@ -81,18 +81,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define NODATA_STRING	SG_T("[NO DATA]")
-#define NODATA_INT		-2147483647
-#define NODATA_DOUBLE	2.2204460492503131e-016
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 class CSG_Table_Value
 {
 public:
@@ -104,10 +92,6 @@ public:
 	virtual bool				Set_Value		(const SG_Char   *Value)	= 0;
 	virtual bool				Set_Value		(int              Value)	= 0;
 	virtual bool				Set_Value		(double           Value)	= 0;
-
-	//-----------------------------------------------------
-	virtual bool				Set_NoData		(void)						= 0;
-	virtual bool				is_NoData		(void)				const	= 0;
 
 	//-----------------------------------------------------
 	virtual CSG_Bytes			asBinary		(void)				const	= 0;
@@ -226,10 +210,6 @@ public:
 	}
 
 	//-----------------------------------------------------
-	virtual bool				Set_NoData		(void)						{	return( Set_Value(NODATA_STRING) );			}
-	virtual bool				is_NoData		(void)				const	{	return( m_Value.Cmp(NODATA_STRING) == 0 );	}
-
-	//-----------------------------------------------------
 	virtual CSG_Bytes			asBinary		(void)				const	{	return( CSG_Bytes(m_Value.c_str()) );		}
 	virtual const SG_Char *		asString		(int Decimals = -1)	const	{	return( m_Value );							}
 	virtual int					asInt			(void)				const	{	return( m_Value.asInt() );					}
@@ -287,10 +267,6 @@ public:
 	{
 		return( Set_Value((int)Value) );
 	}
-
-	//-----------------------------------------------------
-	virtual bool				Set_NoData		(void)						{	return( Set_Value(NODATA_INT) );	}
-	virtual bool				is_NoData		(void)				const	{	return( m_Value == NODATA_INT );	}
 
 	//-----------------------------------------------------
 	virtual CSG_Bytes			asBinary		(void)				const	{	return( CSG_Bytes(asString()) );	}
@@ -353,10 +329,6 @@ public:
 	{
 		return( Set_Value((int)Value) );
 	}
-
-	//-----------------------------------------------------
-	virtual bool				Set_NoData		(void)						{	return( Set_Value(NODATA_INT) );	}
-	virtual bool				is_NoData		(void)				const	{	return( m_Value == NODATA_INT );	}
 
 	//-----------------------------------------------------
 	virtual const SG_Char *		asString		(int Decimals = -1)	const
@@ -425,10 +397,6 @@ public:
 
 		return( false );
 	}
-
-	//-----------------------------------------------------
-	virtual bool				Set_NoData		(void)						{	return( Set_Value(NODATA_DOUBLE) );	}
-	virtual bool				is_NoData		(void)				const	{	return( m_Value == NODATA_DOUBLE );	}
 
 	//-----------------------------------------------------
 	virtual const SG_Char *		asString		(int Decimals = -1)	const

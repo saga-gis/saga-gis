@@ -337,11 +337,6 @@ void CWKSP_Grid::On_Create_Parameters(void)
 		PARAMETER_TYPE_Double
 	);
 
-	m_Parameters.Add_Range(
-		m_Parameters("NODE_GENERAL")	, "GENERAL_Z_NODATA"		, LNG("[CAP] No Data"),
-		LNG("")
-	);
-
 
 	//-----------------------------------------------------
 	// Memory...
@@ -502,11 +497,6 @@ void CWKSP_Grid::On_DataObject_Changed(void)
 	m_Parameters("GENERAL_Z_UNIT")			->Set_Value((void *)m_pGrid->Get_Unit());
 	m_Parameters("GENERAL_Z_FACTOR")		->Set_Value(m_pGrid->Get_ZFactor());
 
-	m_Parameters("GENERAL_Z_NODATA")->asRange()->Set_Range(
-		m_pGrid->Get_NoData_Value(),
-		m_pGrid->Get_NoData_hiValue()
-	);
-
 	//-----------------------------------------------------
 	m_Parameters("MEMORY_MODE")				->Set_Value(
 		m_pGrid->is_Compressed() ? 1 : (m_pGrid->is_Cached() ? 2 : 0)
@@ -523,11 +513,6 @@ void CWKSP_Grid::On_Parameters_Changed(void)
 	//-----------------------------------------------------
 	m_pGrid->Set_Unit		(m_Parameters("GENERAL_Z_UNIT")		->asString());
 	m_pGrid->Set_ZFactor	(m_Parameters("GENERAL_Z_FACTOR")	->asDouble());
-
-	m_pGrid->Set_NoData_Value_Range(
-		m_Parameters("GENERAL_Z_NODATA")->asRange()->Get_LoVal(),
-		m_Parameters("GENERAL_Z_NODATA")->asRange()->Get_HiVal()
-	);
 
 	//-----------------------------------------------------
 	m_pOverlay[0]	= g_pData->Get_Grids()->Get_Grid(m_Parameters("OVERLAY_1")->asGrid());

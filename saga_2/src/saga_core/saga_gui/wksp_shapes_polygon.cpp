@@ -241,20 +241,23 @@ void CWKSP_Shapes_Polygon::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, 
 		dc_Map.dc.SetBrush(m_Brush);
 		dc_Map.dc.SetPen(m_Pen);
 	}
-	else if( m_iColor >= 0 )
+	else if( m_iColor >= 0 && (m_pClassify->Get_Mode() != CLASSIFY_METRIC || !pShape->is_NoData(m_iColor)) )
 	{
-		int		Color	= m_pClassify->Get_Class_Color_byValue(pShape->asDouble(m_iColor));
+		int		Color;
 
-		m_Brush.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
-		dc_Map.dc.SetBrush(m_Brush);
-
-		if( !m_bOutline )
+		if( m_pClassify->Get_Class_Color_byValue(pShape->asDouble(m_iColor), Color) )
 		{
-			m_Pen.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
-			dc_Map.dc.SetPen(m_Pen);
-		}
+			m_Brush.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
+			dc_Map.dc.SetBrush(m_Brush);
 
-		dc_Map.Draw_Polygon((CSG_Shape_Polygon *)pShape);
+			if( !m_bOutline )
+			{
+				m_Pen.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
+				dc_Map.dc.SetPen(m_Pen);
+			}
+
+			dc_Map.Draw_Polygon((CSG_Shape_Polygon *)pShape);
+		}
 	}
 
 	if( m_bCentroid )

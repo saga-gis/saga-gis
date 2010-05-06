@@ -71,13 +71,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef SWIG
-
-#include <math.h>
-
-#endif	// #ifdef SWIG
-
-//---------------------------------------------------------
 #include "geo_tools.h"
 
 
@@ -468,6 +461,7 @@ public:
 	double						Get_Minimum			(void)		{	_Update();	return( m_Minimum	);	}
 	double						Get_Maximum			(void)		{	_Update();	return( m_Maximum	);	}
 	double						Get_Range			(void)		{	_Update();	return( m_Range		);	}
+	double						Get_Sum				(void)		{	_Update();	return( m_Sum		);	}
 	double						Get_Mean			(void)		{	_Update();	return( m_Mean		);	}
 	double						Get_Variance		(void)		{	_Update();	return( m_Variance	);	}
 	double						Get_StdDev			(void)		{	_Update();	return( m_StdDev	);	}

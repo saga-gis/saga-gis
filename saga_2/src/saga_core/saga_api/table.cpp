@@ -60,8 +60,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <string.h>
-
 #include "table.h"
 #include "shapes.h"
 
@@ -938,7 +936,10 @@ bool CSG_Table::_Stats_Update(int iField) const
 
 			for(int iRecord=0; iRecord<m_nRecords; iRecord++, ppRecord++)
 			{
-				m_Field_Stats[iField]->Add_Value((*ppRecord)->asDouble(iField));
+				if( !(*ppRecord)->is_NoData(iField) )
+				{
+					m_Field_Stats[iField]->Add_Value((*ppRecord)->asDouble(iField));
+				}
 			}
 		}
 

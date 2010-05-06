@@ -17,32 +17,50 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
 
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifndef HEADER_INCLUDED__PolygonStatisticsFromPoints_H
+#define HEADER_INCLUDED__PolygonStatisticsFromPoints_H
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
-class CPolygonStatisticsFromPoints : public CSG_Module {
 
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CPolygonStatisticsFromPoints : public CSG_Module
+{
 public:
 	CPolygonStatisticsFromPoints(void);
-	virtual ~CPolygonStatisticsFromPoints(void);
-	virtual bool is_ProjectDependent(void) {return( false );}
+
 
 protected:
-	virtual bool On_Execute(void);
+
+	virtual bool	On_Execute		(void);
+
 
 private:
 
-	bool *m_bIncludeParam;
-	int *m_pClasses;
-	int *m_pCount;
-	CSG_Shapes *m_pPolygons, *m_pPoints;
-	CSG_Parameters *m_pExtraParameters;
-
-	void AddPointDataToPolygon(CSG_Shape*, CSG_Shape*);
-	void CalculateStatistics();
 
 };
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__PolygonStatisticsFromPoints_H

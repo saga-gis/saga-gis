@@ -372,15 +372,41 @@ bool CSG_Table_Record::Set_NoData(int iField)
 {
 	if( iField >= 0 && iField < m_pTable->Get_Field_Count() )
 	{
-		if( m_Values[iField]->Set_NoData() )
+		switch( m_pTable->Get_Field_Type(iField) )
 		{
-			Set_Modified(true);
+		default:
+		case SG_DATATYPE_String:
+			if( !m_Values[iField]->Set_Value(SG_T("")) )
+				return( false );
+			break;
 
-			m_pTable->Set_Update_Flag();
-			m_pTable->_Stats_Invalidate(iField);
+		case SG_DATATYPE_Date:
+		case SG_DATATYPE_Color:
+		case SG_DATATYPE_Byte:
+		case SG_DATATYPE_Char:
+		case SG_DATATYPE_Word:
+		case SG_DATATYPE_Short:
+		case SG_DATATYPE_DWord:
+		case SG_DATATYPE_Int:
+		case SG_DATATYPE_ULong:
+		case SG_DATATYPE_Long:
+		case SG_DATATYPE_Float:
+		case SG_DATATYPE_Double:
+			if( !m_Values[iField]->Set_Value(m_pTable->Get_NoData_Value()) )
+				return( false );
+			break;
 
-			return( true );
+		case SG_DATATYPE_Binary:
+			m_Values[iField]->asBinary().Destroy();
+			break;
 		}
+
+		Set_Modified(true);
+
+		m_pTable->Set_Update_Flag();
+		m_pTable->_Stats_Invalidate(iField);
+
+		return( true );
 	}
 
 	return( false );
@@ -394,7 +420,36 @@ bool CSG_Table_Record::Set_NoData(const SG_Char *Field)
 //---------------------------------------------------------
 bool CSG_Table_Record::is_NoData(int iField) const
 {
-	return( iField >= 0 && iField < m_pTable->Get_Field_Count() ? m_Values[iField]->is_NoData() : true );
+	if( iField >= 0 && iField < m_pTable->Get_Field_Count() )
+	{
+		switch( m_pTable->Get_Field_Type(iField) )
+		{
+		default:
+		case SG_DATATYPE_String:
+			return( m_Values[iField]->asString() == NULL );
+
+		case SG_DATATYPE_Date:
+		case SG_DATATYPE_Color:
+		case SG_DATATYPE_Byte:
+		case SG_DATATYPE_Char:
+		case SG_DATATYPE_Word:
+		case SG_DATATYPE_Short:
+		case SG_DATATYPE_DWord:
+		case SG_DATATYPE_Int:
+		case SG_DATATYPE_ULong:
+		case SG_DATATYPE_Long:
+			return( m_pTable->is_NoData_Value(m_Values[iField]->asInt()) );
+
+		case SG_DATATYPE_Float:
+		case SG_DATATYPE_Double:
+			return( m_pTable->is_NoData_Value(m_Values[iField]->asDouble()) );
+
+		case SG_DATATYPE_Binary:
+			return( m_Values[iField]->asBinary().Get_Count() == 0 );
+		}
+	}
+
+	return( true );
 }
 
 bool CSG_Table_Record::is_NoData(const SG_Char *Field) const

@@ -92,12 +92,12 @@ protected:
 
 private:
 
-	CSG_Grid_Radius			m_Radius;
+	CSG_Grid_Cell_Addressor	m_Cells;
 
-	CSG_Grid				*m_pInput, *m_pMean, *m_pDiff, *m_pStdDev, *m_pRange, *m_pMin, *m_pMax, *m_pDevMean, *m_pPercentile;
+	CSG_Grid				*m_pGrid, *m_pMean, *m_pDiff, *m_pStdDev, *m_pRange, *m_pMin, *m_pMax, *m_pDevMean, *m_pPercent;
 
 
-	int						Get_Value		(int x, int y);
+	bool					Get_Statistics	(int x, int y);
 
 };
 

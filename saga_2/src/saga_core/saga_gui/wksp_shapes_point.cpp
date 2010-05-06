@@ -462,9 +462,12 @@ inline bool CWKSP_Shapes_Point::_Draw_Initialize(CWKSP_Map_DC &dc_Map, int &Size
 //---------------------------------------------------------
 void CWKSP_Shapes_Point::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, bool bSelection)
 {
-	int		Size;
+	if( (m_iSize >= 0 && pShape->is_NoData(m_iSize)) || (m_iColor >= 0 && pShape->is_NoData(m_iColor)) )
+		return;
 
 	//-----------------------------------------------------
+	int		Size;
+
 	if( _Draw_Initialize(dc_Map, Size, pShape, bSelection) )
 	{
 		TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Point(0)));

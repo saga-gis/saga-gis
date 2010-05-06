@@ -83,9 +83,11 @@ protected:
 
 private:
 
-	int							m_Weighting, m_nPoints_Min, m_nPoints_Max, m_Mode;
+	int							m_nPoints_Min, m_nPoints_Max, m_Mode;
 
-	double						m_Power, m_Bandwidth, m_Radius;
+	double						m_Radius;
+
+	CSG_Distance_Weighting		m_Weighting;
 
 	CSG_PRQuadTree				m_Search;
 
@@ -102,8 +104,6 @@ private:
 
 	bool						Initialize				(void);
 	void						Finalize				(void);
-
-	double						Get_Weight				(double Distance);
 
 	int							Set_Variables			(int x, int y);
 

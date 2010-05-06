@@ -85,11 +85,13 @@ protected:
 
 private:
 
-	int							m_iDependent, *m_iPredictor, m_nPredictors, m_Weighting, m_nPoints_Min, m_nPoints_Max, m_Mode;
+	int							m_iDependent, *m_iPredictor, m_nPredictors, m_nPoints_Min, m_nPoints_Max, m_Mode;
 
-	double						m_Power, m_Bandwidth, m_Radius;
+	double						m_Radius;
 
 	CSG_Parameters_Grid_Target	m_Grid_Target;
+
+	CSG_Distance_Weighting		m_Weighting;
 
 	CSG_PRQuadTree				m_Search;
 
@@ -105,8 +107,6 @@ private:
 	void						Finalize				(void);
 
 	bool						Get_Predictors			(void);
-
-	double						Get_Weight				(double Distance);
 
 	int							Set_Variables			(int x, int y);
 
