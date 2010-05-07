@@ -401,7 +401,10 @@ int CWKSP_Module_Manager::_Open_Directory(const wxChar *sDirectory, bool bOnlySu
 		{
 			do
 			{
-				nOpened	+= _Open_Directory(SG_File_Make_Path(Dir.GetName(), FileName, NULL));
+				if( FileName.CmpNoCase(wxT("dll")) )
+				{
+					nOpened	+= _Open_Directory(SG_File_Make_Path(Dir.GetName(), FileName, NULL));
+				}
 			}
 			while( Dir.GetNext(&FileName) );
 		}
@@ -441,9 +444,9 @@ bool CWKSP_Module_Manager::Open(const wxChar *File_Name)
 	CWKSP_Module_Library	*pLibrary;
 
 	//-----------------------------------------------------
-	if( SG_File_Cmp_Extension(File_Name, SG_T("mlb"))
+	if( SG_File_Cmp_Extension(File_Name, wxT("mlb"))
 	||	SG_File_Cmp_Extension(File_Name, wxT("dll"))
-	||	SG_File_Cmp_Extension(File_Name, wxT("so")) )
+	||	SG_File_Cmp_Extension(File_Name, wxT("so" )) )
 	{
 		MSG_General_Add(wxString::Format(wxT("%s: %s..."), LNG("[MSG] Load library"), File_Name), true, true);
 

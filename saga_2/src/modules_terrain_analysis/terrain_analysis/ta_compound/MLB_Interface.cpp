@@ -73,16 +73,7 @@ const SG_Char * Get_Info(int i)
 		return( SG_T("Olaf Conrad, Goettingen (c) 2005") );
 
 	case MLB_INFO_Description:
-		return(_TL(
-			"Terrain Analysis: Compound Analyses.\n"
-			"This library depends on the following SAGA module libraries:\n"
-			"- ta_channels\n"
-			"- ta_flow\n"
-			"- ta_indices\n"
-			"- ta_lighting\n"
-			"- ta_morphometry\n"
-			"- ta_preproc\n")
-		);
+		return( _TL("Terrain Analysis: Compound Analyses.\nThis library depends on the following SAGA module libraries:\n- ta_channels\n- ta_flow\n- ta_indices\n- ta_lighting\n- ta_morphometry\n- ta_preproc\n") );
 
 	case MLB_INFO_Version:
 		return( SG_T("1.0") );

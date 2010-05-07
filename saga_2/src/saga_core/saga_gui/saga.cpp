@@ -143,14 +143,14 @@ CSAGA::~CSAGA(void)
 bool CSAGA::OnInit(void)
 {
 	//-----------------------------------------------------
+	g_pSAGA				= this;
+
 	SetVendorName		(wxT("SAGA-GIS.org"));
 	SetAppName			(wxT("SAGA"));
 
-	g_pSAGA				= this;
-
-	m_App_Path			= SG_File_Get_Path(wxStandardPaths::Get().GetExecutablePath().c_str()).c_str();
-
 	wxInitAllImageHandlers();
+
+	m_App_Path			= wxFileName(argv[0]).GetPath();
 
 	_Init_Config();
 
@@ -183,6 +183,20 @@ bool CSAGA::OnInit(void)
 	}
 
 	wxYield();
+
+	//-----------------------------------------------------
+#if defined(_SAGA_MSW)
+	wxString	Path;
+
+	if( wxGetEnv(wxT("PATH"), &Path) && Path.Length() > 0 )
+	{
+		wxSetEnv(wxT("PATH"), wxString::Format(wxT("%s;%s\\dll"), Path.c_str(), Get_App_Path().c_str()));
+	}
+	else
+	{
+		wxSetEnv(wxT("PATH"), wxString::Format(wxT("%s\\dll"), Get_App_Path().c_str()));
+	}
+#endif // defined(_SAGA_MSW)
 
 	//-----------------------------------------------------
 	SG_Get_Translator() .Create(SG_File_Make_Path(Get_App_Path(), wxT("saga"), wxT("lng")), false);

@@ -358,6 +358,8 @@ CSAGA_Frame::CSAGA_Frame(void)
 	{
 		Refresh(false);
 	}
+
+	ProgressBar_Set_Position(0);
 }
 
 //---------------------------------------------------------
