@@ -227,7 +227,7 @@ bool CGSGrid_Directional_Statistics::Get_Statistics(int x, int y)
 			if( m_pStdDev   )	m_pStdDev	->Set_Value(x, y, Statistics.Get_StdDev());
 			if( m_pStdDevLo )	m_pStdDevLo	->Set_Value(x, y, Statistics.Get_Mean() - Statistics.Get_StdDev());
 			if( m_pStdDevHi )	m_pStdDevHi	->Set_Value(x, y, Statistics.Get_Mean() + Statistics.Get_StdDev());
-			if( m_pDevMean  )	m_pDevMean	->Set_Value(x, y, Statistics.Get_StdDev() ? (z - Statistics.Get_Mean()) / Statistics.Get_StdDev() : 0.0);
+			if( m_pDevMean  )	m_pDevMean	->Set_Value(x, y, Statistics.Get_StdDev() > 0.0 ? ((z - Statistics.Get_Mean()) / Statistics.Get_StdDev()) : 0.0);
 			if( m_pPercent  )	m_pPercent	->Set_Value(x, y, 100.0 * nLower / (double)Statistics.Get_Count());
 
 			return( true );

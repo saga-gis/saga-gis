@@ -129,6 +129,8 @@ CGW_Regression::CGW_Regression(void)
 	m_Grid_Target.Add_Grid_Parameter(SG_T("SLOPE")     , _TL("Slope")    , false);
 
 	//-----------------------------------------------------
+	m_Weighting.Set_Weighting(SG_DISTWGHT_GAUSS);
+
 	Parameters.Add_Parameters(
 		NULL	, "WEIGHTING"	, _TL("Weighting"),
 		_TL("")

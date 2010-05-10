@@ -200,7 +200,7 @@ bool CGSGrid_Residuals::Get_Statistics(int x, int y)
 			m_pRange	->Set_Value(x, y, Statistics.Get_Range());
 			m_pMin		->Set_Value(x, y, Statistics.Get_Minimum());
 			m_pMax		->Set_Value(x, y, Statistics.Get_Maximum());
-			m_pDevMean	->Set_Value(x, y, (z - Statistics.Get_Mean()) / Statistics.Get_StdDev());
+			m_pDevMean	->Set_Value(x, y, Statistics.Get_StdDev() > 0.0 ? ((z - Statistics.Get_Mean()) / Statistics.Get_StdDev()) : 0.0);
 			m_pPercent	->Set_Value(x, y, 100.0 * nLower / (double)Statistics.Get_Count());
 
 			return( true );

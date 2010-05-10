@@ -140,6 +140,8 @@ CGW_Multi_Regression_Grid::CGW_Multi_Regression_Grid(void)
 	);
 
 	//-----------------------------------------------------
+	m_Weighting.Set_Weighting(SG_DISTWGHT_GAUSS);
+
 	Parameters.Add_Parameters(
 		NULL	, "WEIGHTING"	, _TL("Weighting"),
 		_TL("")

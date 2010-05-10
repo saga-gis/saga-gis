@@ -458,13 +458,13 @@ public:
 	int							Get_Count			(void)		{	return( m_nValues );	}
 	double						Get_Weights			(void)		{	return( m_Weights );	}
 
-	double						Get_Minimum			(void)		{	_Update();	return( m_Minimum	);	}
-	double						Get_Maximum			(void)		{	_Update();	return( m_Maximum	);	}
-	double						Get_Range			(void)		{	_Update();	return( m_Range		);	}
-	double						Get_Sum				(void)		{	_Update();	return( m_Sum		);	}
-	double						Get_Mean			(void)		{	_Update();	return( m_Mean		);	}
-	double						Get_Variance		(void)		{	_Update();	return( m_Variance	);	}
-	double						Get_StdDev			(void)		{	_Update();	return( m_StdDev	);	}
+	double						Get_Minimum			(void)		{	if( !m_bEvaluated )	_Evaluate(); return( m_Minimum	);	}
+	double						Get_Maximum			(void)		{	if( !m_bEvaluated )	_Evaluate(); return( m_Maximum	);	}
+	double						Get_Range			(void)		{	if( !m_bEvaluated )	_Evaluate(); return( m_Range	);	}
+	double						Get_Sum				(void)		{	if( !m_bEvaluated )	_Evaluate(); return( m_Sum		);	}
+	double						Get_Mean			(void)		{	if( !m_bEvaluated )	_Evaluate(); return( m_Mean		);	}
+	double						Get_Variance		(void)		{	if( !m_bEvaluated )	_Evaluate(); return( m_Variance	);	}
+	double						Get_StdDev			(void)		{	if( !m_bEvaluated )	_Evaluate(); return( m_StdDev	);	}
 
 	void						Add_Value			(double Value, double Weight = 1.0);
 
@@ -479,14 +479,6 @@ protected:
 
 
 	void						_Evaluate			(void);
-
-	void						_Update				(void)
-	{
-		if( !m_bEvaluated )
-		{
-			_Evaluate();
-		}
-	}
 
 };
 

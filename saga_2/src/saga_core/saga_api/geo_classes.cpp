@@ -1112,3 +1112,52 @@ bool CSG_Distance_Weighting::Set_Parameters(CSG_Parameters *pParameters)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Distance_Weighting::Set_Weighting(TSG_Distance_Weighting Weighting)
+{
+	m_pParameters->Get_Parameter("WEIGHTING")->Set_Value((int)(m_Weighting	= Weighting));
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Distance_Weighting::Set_IDW_Power(double Value)
+{
+	if( Value <= 0.0 )
+	{
+		return( false );
+	}
+
+	m_pParameters->Get_Parameter("IDW_POWER")->Set_Value((int)(m_IDW_Power = Value));
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Distance_Weighting::Set_IDW_Offset(bool bOn)
+{
+	m_pParameters->Get_Parameter("IDW_OFFSET")->Set_Value((int)(m_IDW_bOffset = bOn));
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Distance_Weighting::Set_BandWidth(double Value)
+{
+	if( Value <= 0.0 )
+	{
+		return( false );
+	}
+
+	m_pParameters->Get_Parameter("BANDWIDTH")->Set_Value(m_Bandwidth = Value);
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

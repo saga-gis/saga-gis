@@ -140,6 +140,8 @@ CGW_Multi_Regression::CGW_Multi_Regression(void)
 	m_Grid_Target.Add_Grid_Parameter(SG_T("INTERCEPT") , _TL("Intercept"), false);
 
 	//-----------------------------------------------------
+	m_Weighting.Set_Weighting(SG_DISTWGHT_GAUSS);
+
 	Parameters.Add_Parameters(
 		NULL	, "WEIGHTING"	, _TL("Weighting"),
 		_TL("")

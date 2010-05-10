@@ -138,10 +138,12 @@ void CSG_Simple_Statistics::_Evaluate(void)
 {
 	if( m_Weights > 0.0 )
 	{
-		m_Range		= m_Maximum - m_Minimum;
-		m_Mean		= m_Sum  / m_Weights;
-		m_Variance	= m_Sum2 / m_Weights - m_Mean*m_Mean;
-		m_StdDev	= sqrt(m_Variance);
+		m_Range			= m_Maximum - m_Minimum;
+		m_Mean			= m_Sum  / m_Weights;
+		m_Variance		= m_Sum2 / m_Weights - m_Mean*m_Mean;
+		m_StdDev		= m_Variance > 0.0 ? sqrt(m_Variance) : 0.0;
+
+		m_bEvaluated	= true;
 	}
 }
 

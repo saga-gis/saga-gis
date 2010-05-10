@@ -23,7 +23,7 @@ CXXFLAGS  = $(CXXINCS) $(DEF_WIN) $(DEF_SAGA) -mthreads -O3 -Wno-ctor-dtor-priva
 LIBS_WX   = -L"$(WXWIN)/lib/gcc_dll" -lwxbase28_xml -lwxmsw28_aui -lwxmsw28_html -lwxmsw28_core -lwxbase28 -lwxtiff -lwxjpeg -lwxpng -lwxzlib -lwxregex -lwxexpat -lwxmsw28_adv
 
 #LIBS     = $(LIBS_WX) -L"$(LIB_GCC)" -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lwinspool -lwinmm -lshell32 -lcomctl32 -lole32 -loleaut32 -luuid -lrpcrt4 -ladvapi32 -lwsock32 -lodbc32 $(BIN_SAGA)/libsaga_api.a
-LIBS      = $(LIBS_WX) -L"$(LIB_GCC)" -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lwinspool -lwinmm -lshell32 -lcomctl32 -lole32 -loleaut32 -luuid -lrpcrt4 -ladvapi32 -lwsock32 "$(BIN_SAGA)/libsaga_api.a"
+LIBS      = $(LIBS_WX) -L"$(LIB_GCC)" -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lwinspool -lwinmm -lshell32 -lcomctl32 -lole32 -loleaut32 -luuid -lrpcrt4 -ladvapi32 -lwsock32 "$(BIN_SAGA)/libsaga_api.a" "$(BIN_SAGA)/libsaga_odbc.a"
 
 LDFLAGS   = -mthreads -mwindows
 

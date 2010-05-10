@@ -535,20 +535,20 @@ public:
 	CSG_Distance_Weighting(void);
 	virtual ~CSG_Distance_Weighting(void);
 
-	class CSG_Parameters *	Get_Parameters		(void)	const						{	return( m_pParameters );	}
+	class CSG_Parameters *	Get_Parameters		(void)	const		{	return( m_pParameters );	}
 	bool					Set_Parameters		(class CSG_Parameters *pParameters);
 
-	TSG_Distance_Weighting	Get_Weighting		(void)	const						{	return( m_Weighting );		}
-	void					Set_Weighting		(TSG_Distance_Weighting Weighting)	{	m_Weighting	= Weighting;	}
+	TSG_Distance_Weighting	Get_Weighting		(void)	const		{	return( m_Weighting );		}
+	bool					Set_Weighting		(TSG_Distance_Weighting Weighting);
 
-	double					Get_IDW_Power		(void)	const		{	return( m_IDW_Power );	}
-	bool					Set_IDW_Power		(double Value)		{	if( Value <= 0.0 )	return( false ); m_IDW_Power = Value; return( true );	}
+	double					Get_IDW_Power		(void)	const		{	return( m_IDW_Power );		}
+	bool					Set_IDW_Power		(double Value);
 
 	bool					Get_IDW_Offset		(void)	const		{	return( m_IDW_bOffset );	}
-	void					Set_IDW_Offset		(bool bOn = true)	{	m_IDW_bOffset = bOn;		}
+	bool					Set_IDW_Offset		(bool bOn = true);
 
-	double					Get_BandWidth		(void)	const		{	return( m_Bandwidth );	}
-	bool					Set_BandWidth		(double Value)		{	if( Value <= 0.0 )	return( false ); m_Bandwidth = Value; return( true );	}
+	double					Get_BandWidth		(void)	const		{	return( m_Bandwidth );		}
+	bool					Set_BandWidth		(double Value);
 
 	//-----------------------------------------------------
 	double					Get_Weight			(double Distance)	const
