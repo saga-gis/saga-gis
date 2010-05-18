@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.6 2008-02-15 14:30:50 oconrad Exp $
+# $Id: Makefile.am,v 1.7 2010-05-18 11:31:30 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -18,6 +18,7 @@ Grid_Color_Blend.cpp\
 Grid_Color_Triangle.cpp\
 Grid_Color_Rotate.cpp\
 Grid_Colors_Fit.cpp\
+Grid_Histogram_Surface.cpp\
 Grid_RGB_Composite.cpp\
 MLB_Interface.cpp\
 Grid_3D_Image.h\
@@ -25,6 +26,7 @@ Grid_Color_Blend.h\
 Grid_Color_Rotate.h\
 Grid_Color_Triangle.h\
 Grid_Colors_Fit.h\
+Grid_Histogram_Surface.h\
 Grid_RGB_Composite.h\
 MLB_Interface.h
 

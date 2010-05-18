@@ -57,7 +57,7 @@
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
-				TreatWChar_tAsBuiltInType="false"
+				TreatWChar_tAsBuiltInType="true"
 				PrecompiledHeaderFile=".\./../../../../bin/tmp/saga_vc8_u/grid_visualisation/grid_visualisation.pch"
 				AssemblerListingLocation=".\./../../../../bin/tmp/saga_vc8_u/grid_visualisation/"
 				ObjectFile=".\./../../../../bin/tmp/saga_vc8_u/grid_visualisation/"
@@ -153,7 +153,7 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				TreatWChar_tAsBuiltInType="false"
+				TreatWChar_tAsBuiltInType="true"
 				PrecompiledHeaderFile=".\./../../../../bin/tmp/saga_vc8_u_dbg/grid_visualisation/grid_visualisation.pch"
 				AssemblerListingLocation=".\./../../../../bin/tmp/saga_vc8_u_dbg/grid_visualisation/"
 				ObjectFile=".\./../../../../bin/tmp/saga_vc8_u_dbg/grid_visualisation/"
@@ -1112,6 +1112,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Grid_Histogram_Surface.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Grid_RGB_Composite.cpp"
 				>
 				<FileConfiguration
@@ -1286,6 +1290,10 @@
 			</File>
 			<File
 				RelativePath="Grid_Colors_Fit.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Grid_Histogram_Surface.h"
 				>
 			</File>
 			<File

@@ -97,6 +97,7 @@ const SG_Char * Get_Info(int i)
 #include "Grid_RGB_Composite.h"
 #include "Grid_3D_Image.h"
 #include "Grid_Color_Triangle.h"
+#include "Grid_Histogram_Surface.h"
 
 
 //---------------------------------------------------------
@@ -112,6 +113,7 @@ CSG_Module *		Create_Module(int i)
 	case 3:		return( new CGrid_RGB_Composite );
 	case 4:		return( new CGrid_3D_Image );
 	case 5:		return( new CGrid_Color_Triangle );
+	case 6:		return( new CGrid_Histogram_Surface );
 	}
 
 	return( NULL );
