@@ -943,7 +943,7 @@ inline void CSADO_SolarRadiation::Get_Shade_Params(double Decline, double Azimut
 //---------------------------------------------------------
 inline bool CSADO_SolarRadiation::Get_Solar_Position(int Day, double Hour, double LAT, double LON, double &Declination, double &Azimuth)
 {
-	static const int	Day2Month[13]	= {	0, 31, 49, 80, 109, 140, 170, 201, 232, 272, 303, 333, 366 };
+	static const int	Day2Month[13]	= {	0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 366 };
 
 	static const double	ECLIPTIC_OBL	= M_DEG_TO_RAD * 23.43999;	// obliquity of ecliptic
 
