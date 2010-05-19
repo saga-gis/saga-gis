@@ -336,8 +336,7 @@ bool CFilter_Multi_Dir_Lee::Get_Filter(bool bWeighted, bool bAbsolute)
 			if( m_pInput->is_NoData(x, y) )
 			{
 				m_pFiltered	->Set_NoData(x, y);
-				m_pStdDev	->Set_NoData(x, y);
-
+				if( m_pStdDev )		m_pStdDev		->Set_NoData(x, y);
 				if( m_pDirection )	m_pDirection	->Set_NoData(x, y);
 			}
 			else
