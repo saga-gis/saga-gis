@@ -815,7 +815,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-enum
+enum ESG_Trend_String
 {
 	SG_TREND_STRING_Formula	= 0,
 	SG_TREND_STRING_Function,

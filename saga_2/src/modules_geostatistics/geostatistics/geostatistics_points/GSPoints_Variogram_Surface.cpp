@@ -163,31 +163,39 @@ bool CGSPoints_Variogram_Surface::On_Execute(void)
 	for(i=0, n=0; i<pPoints->Get_Count() && Set_Progress(n, SG_Get_Square(pPoints->Get_Count()/nSkip)/2); i+=nSkip)
 	{
 		pPoint	= pPoints->Get_Shape(i);
-		Pt_i	= pPoint->Get_Point(0);
-		zi		= pPoint->asDouble(Attribute);
 
-		for(j=i+nSkip; j<pPoints->Get_Count(); j+=nSkip, n++)
+		if( !pPoint->is_NoData(Attribute) )
 		{
-			pPoint	= pPoints->Get_Shape(j);
-			Pt_j	= pPoint->Get_Point(0);
+			Pt_i	= pPoint->Get_Point(0);
+			zi		= pPoint->asDouble(Attribute);
 
-			zj	= pPoint->asDouble(Attribute);
+			for(j=i+nSkip; j<pPoints->Get_Count(); j+=nSkip, n++)
+			{
+				pPoint	= pPoints->Get_Shape(j);
 
-			v	= SG_Get_Square(zi - zj);
-			c	= (zi - zMean) * (zj - zMean);
+				if( !pPoint->is_NoData(Attribute) )
+				{
+					Pt_j	= pPoint->Get_Point(0);
 
-			Pt_j.x	= (Pt_i.x - Pt_j.x) / lagDistance;
-			Pt_j.y	= (Pt_i.y - Pt_j.y) / lagDistance;
+					zj	= pPoint->asDouble(Attribute);
 
-			x	= (int)(Pt_j.x + (Pt_j.x > 0.0 ? 0.5 : -0.5));
-			y	= (int)(Pt_j.y + (Pt_j.y > 0.0 ? 0.5 : -0.5));
+					v	= SG_Get_Square(zi - zj);
+					c	= (zi - zMean) * (zj - zMean);
 
-			pCount     ->Add_Value(nx + x, ny + y, 1);
-			pCount     ->Add_Value(nx - x, ny - y, 1);
-			pVariance  ->Add_Value(nx + x, ny + y, v);
-			pVariance  ->Add_Value(nx - x, ny - y, v);
-			pCovariance->Add_Value(nx + x, ny + y, c);
-			pCovariance->Add_Value(nx - x, ny - y, c);
+					Pt_j.x	= (Pt_i.x - Pt_j.x) / lagDistance;
+					Pt_j.y	= (Pt_i.y - Pt_j.y) / lagDistance;
+
+					x	= (int)(Pt_j.x + (Pt_j.x > 0.0 ? 0.5 : -0.5));
+					y	= (int)(Pt_j.y + (Pt_j.y > 0.0 ? 0.5 : -0.5));
+
+					pCount     ->Add_Value(nx + x, ny + y, 1);
+					pCount     ->Add_Value(nx - x, ny - y, 1);
+					pVariance  ->Add_Value(nx + x, ny + y, v);
+					pVariance  ->Add_Value(nx - x, ny - y, v);
+					pCovariance->Add_Value(nx + x, ny + y, c);
+					pCovariance->Add_Value(nx - x, ny - y, c);
+				}
+			}
 		}
 	}
 

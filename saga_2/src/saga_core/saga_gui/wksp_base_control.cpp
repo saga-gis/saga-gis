@@ -224,6 +224,14 @@ void CWKSP_Base_Control::On_Command(wxCommandEvent &event)
 	}
 
 	//-----------------------------------------------------
+	if( event.GetId() == ID_CMD_WKSP_ITEM_SEARCH )
+	{
+		_Search_Item();
+
+		return;
+	}
+
+	//-----------------------------------------------------
 	if( m_pManager->On_Command(event.GetId()) )
 	{
 		return;
@@ -820,6 +828,105 @@ bool CWKSP_Base_Control::_Copy_Settings(void)
 	}
 
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Base_Control::_Search_Get_List(CSG_Table *pList, CWKSP_Base_Item *pItem, const wxChar *String, bool bName, bool bDesc)
+{
+	if( pItem == NULL )
+	{
+		return( false );
+	}
+
+	if(	(bName && pItem->Get_Name()			.Find(String) >= 0)
+	||	(bDesc && pItem->Get_Description()	.Find(String) >= 0) )
+	{
+		CSG_Table_Record	*pRecord	= pList->Add_Record();
+
+		pRecord->Set_Value(0, pItem->Get_Name().c_str());
+		pRecord->Set_Value(1, pItem->Get_Type_Name(pItem->Get_Type()).c_str());
+		pRecord->Set_Value(2, (long)pItem);
+	}
+
+	if( pItem->is_Manager() )
+	{
+		for(int i=0; i<((CWKSP_Base_Manager *)pItem)->Get_Count(); i++)
+		{
+			_Search_Get_List(pList, ((CWKSP_Base_Manager *)pItem)->Get_Item(i), String, bName, bDesc);
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Base_Control::_Search_Item(void)
+{
+	CSG_Parameters	Search(NULL, LNG("Search for..."), LNG(""));
+
+	Search.Add_String	(NULL, "STRING"	, LNG("Search for...")	, LNG(""), SG_T(""));
+	Search.Add_Value	(NULL, "NAME"	, LNG("Name")			, LNG(""), PARAMETER_TYPE_Bool, true);
+	Search.Add_Value	(NULL, "DESC"	, LNG("Description")	, LNG(""), PARAMETER_TYPE_Bool, false);
+
+	if( !DLG_Parameters(&Search) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Table	List;
+
+	List.Add_Field(LNG("NAME")	, SG_DATATYPE_String);
+	List.Add_Field(LNG("TYPE")	, SG_DATATYPE_String);
+	List.Add_Field(LNG("ADDR")	, SG_DATATYPE_Long);
+
+	_Search_Get_List(&List, m_pManager, Search("STRING")->asString(), Search("NAME")->asBool(), Search("DESC")->asBool());
+
+	if( List.Get_Count() <= 0 )
+	{
+		wxMessageBox(LNG("Search text not found"), LNG("Search for..."), wxOK|wxICON_EXCLAMATION);
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	wxString	*pItems	= new wxString[List.Get_Count()];
+
+	for(int i=0; i<List.Get_Count(); i++)
+	{
+		pItems[i].Printf(wxT("[%s] %s"), List[i].asString(1), List[i].asString(0));
+	}
+
+	wxSingleChoiceDialog	dlg(MDI_Get_Top_Window(),
+		LNG("Locate..."),
+		wxString::Format(wxT("%s: %s"), LNG("Search Text"), Search("STRING")->asString()),
+		List.Get_Count(), pItems
+	);
+
+	if( dlg.ShowModal() != wxID_OK )
+	{
+		delete[](pItems);
+
+		return( false );
+	}
+
+	delete[](pItems);
+
+	//-----------------------------------------------------
+	CWKSP_Base_Item	*pItem	= (CWKSP_Base_Item *)List.Get_Record(dlg.GetSelection())->asInt(2);
+
+	EnsureVisible	(pItem->GetId());
+	SelectItem		(pItem->GetId());
+	ScrollTo		(pItem->GetId());
+
+	return( true );
 }
 
 

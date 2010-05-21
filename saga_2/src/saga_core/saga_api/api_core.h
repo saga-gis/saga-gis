@@ -723,7 +723,7 @@ SAGA_API_DLL_EXPORT bool			SG_DataType_Range_Check	(TSG_Data_Type Type, double &
 #endif
 
 //---------------------------------------------------------
-enum
+enum ESG_File_Flags_Open
 {
 	SG_FILE_R,
 	SG_FILE_W,
@@ -733,7 +733,7 @@ enum
 };
 
 //---------------------------------------------------------
-enum
+enum ESG_File_Flags_Seek
 {
 	SG_FILE_START,
 	SG_FILE_CURRENT,

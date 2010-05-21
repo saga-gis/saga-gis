@@ -115,39 +115,49 @@ CInterpolation_Shepard::~CInterpolation_Shepard(void)
 //---------------------------------------------------------
 bool CInterpolation_Shepard::On_Initialize(void)
 {
-	Quadratic_Neighbors	= Parameters("QUADRATIC_NEIGHBORS")	->asInt();
-	Weighting_Neighbors	= Parameters("WEIGHTING_NEIGHBORS")	->asInt();
+	m_Quadratic_Neighbors	= Parameters("QUADRATIC_NEIGHBORS")	->asInt();
+	m_Weighting_Neighbors	= Parameters("WEIGHTING_NEIGHBORS")	->asInt();
 
-	m_pShapes			= Get_Points();
-	MaxPoints			= m_pShapes->Get_Count();
+	m_pShapes	= Get_Points();
+	m_MaxPoints	= 0;
 
-	if( MaxPoints > 1 )
+	if( m_pShapes->Get_Count() > 1 )
 	{
-		x_vals		= (double *)malloc(MaxPoints*sizeof(double));
-		y_vals		= (double *)malloc(MaxPoints*sizeof(double));
-		f_vals		= (double *)malloc(MaxPoints*sizeof(double));
+		x_vals		= (double *)malloc(m_pShapes->Get_Count() * sizeof(double));
+		y_vals		= (double *)malloc(m_pShapes->Get_Count() * sizeof(double));
+		f_vals		= (double *)malloc(m_pShapes->Get_Count() * sizeof(double));
 
-		for(int iPoint=0; iPoint<MaxPoints; iPoint++)
+		for(int iPoint=0; iPoint<m_pShapes->Get_Count(); iPoint++)
 		{
-			x_vals[iPoint]	= m_pShapes->Get_Shape(iPoint)->Get_Point(0).x;
-			y_vals[iPoint]	= m_pShapes->Get_Shape(iPoint)->Get_Point(0).y;
-			f_vals[iPoint]	= m_pShapes->Get_Shape(iPoint)->asDouble(m_zField);
+			CSG_Shape	*pShape	= m_pShapes->Get_Shape(iPoint);
+
+			if( !pShape->is_NoData(m_zField) )
+			{
+				x_vals[m_MaxPoints]	= pShape->Get_Point(0).x;
+				y_vals[m_MaxPoints]	= pShape->Get_Point(0).y;
+				f_vals[m_MaxPoints]	= pShape->asDouble(m_zField);
+
+				m_MaxPoints++;
+			}
 		}
 
 		Remove_Duplicate();
 
-		Interpolator.Interpolate(x_vals, y_vals, f_vals, MaxPoints - 1, Quadratic_Neighbors, Weighting_Neighbors);
+		Interpolator.Interpolate(x_vals, y_vals, f_vals, m_MaxPoints - 1, m_Quadratic_Neighbors, m_Weighting_Neighbors);
 	}
 
-	return( MaxPoints > 1 );
+	return( m_MaxPoints > 1 );
 }
 
 //---------------------------------------------------------
 bool CInterpolation_Shepard::On_Finalize(void)
 {
-	free(x_vals);
-	free(y_vals);
-	free(f_vals);
+	if( m_pShapes->Get_Count() > 1 )
+	{
+		free(x_vals);
+		free(y_vals);
+		free(f_vals);
+	}
 
 	return( true );
 }
@@ -208,42 +218,44 @@ void CInterpolation_Shepard::Remove_Duplicate()
 	Data_Point * Data;
 	int i,j;
 
-	Data = (Data_Point * ) malloc (MaxPoints * sizeof(Data_Point) );
+	Data = (Data_Point * ) malloc (m_MaxPoints * sizeof(Data_Point) );
 
-	for (i = 0; i < MaxPoints; i++)
+	for (i = 0; i < m_MaxPoints; i++)
 	{
 		Data[i].x	=	x_vals[i];
 		Data[i].y	=	y_vals[i];
 		Data[i].val	=	f_vals[i];
 	}
 
-	qsort((void *)Data, MaxPoints, sizeof(Data_Point), Comp_Func);
+	qsort((void *)Data, m_MaxPoints, sizeof(Data_Point), Comp_Func);
 
 	bool durty = true;
 	
 	while (durty)
 	{
 		durty = false;
-		for (i = 0; i < MaxPoints -1; ++i)
+
+		for (i = 0; i < m_MaxPoints -1; ++i)
 		{
-			if (fabs(Data[i].y - Data[i + 1].y) < eps)
-				if (fabs(Data[i].x - Data[i + 1].x) < eps)
+			if( fabs(Data[i].y - Data[i + 1].y) < eps
+			&&	fabs(Data[i].x - Data[i + 1].x) < eps )
+			{
+				for (j = i; j < m_MaxPoints -1; j++)
 				{
-					for (j = i; j < MaxPoints -1; j++)
-					{
-						Data[j].x	=	Data[j + 1].x;
-						Data[j].y	=	Data[j + 1].y;
-						Data[j].val	=	Data[j + 1].val;
-					}
-					
-					MaxPoints--;
-					durty	=	true;
+					Data[j].x	=	Data[j + 1].x;
+					Data[j].y	=	Data[j + 1].y;
+					Data[j].val	=	Data[j + 1].val;
 				}
-		}			
-		qsort((void *)Data, MaxPoints, sizeof(Data_Point), Comp_Func);
+				
+				m_MaxPoints--;
+				durty	=	true;
+			}
+		}
+
+		qsort((void *)Data, m_MaxPoints, sizeof(Data_Point), Comp_Func);
 	}
 
-	for (i = 0; i < MaxPoints; i++)
+	for (i = 0; i < m_MaxPoints; i++)
 	{
 		x_vals[i]	=	Data[i].x;
 		y_vals[i]	=	Data[i].y;

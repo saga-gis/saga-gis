@@ -206,6 +206,8 @@ wxMenu * CWKSP_Module_Manager::Get_Menu(void)
 	{
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MODULES_SAVE_HTML);
+		pMenu->AppendSeparator();
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SEARCH);
 	}
 
 	return( pMenu );

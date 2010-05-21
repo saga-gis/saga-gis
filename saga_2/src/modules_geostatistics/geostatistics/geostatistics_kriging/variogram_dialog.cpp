@@ -288,7 +288,7 @@ void CVariogram_Dialog::Fit_Function(void)
 		s	+= m_pDiagram->m_pVariogram->Get_Formula(SG_TREND_STRING_Function).c_str();
 		s	+= wxString::Format(wxT("\n%s: %.*f")	, _TL("Fitting range")		, SG_Get_Significant_Decimals(m_pDistance->Get_Value()), m_pDistance->Get_Value());
 		s	+= wxString::Format(wxT("\n%s: %d")		, _TL("Samples in range")	, m_pDiagram->m_pVariogram->Get_Data_Count());
-		s	+= wxString::Format(wxT("\n%s: %.2f%")	, _TL("R2")					, m_pDiagram->m_pVariogram->Get_R2() * 100.0);
+		s	+= wxString::Format(wxT("\n%s: %.2f%%")	, _TL("R2")					, m_pDiagram->m_pVariogram->Get_R2() * 100.0);
 	}
 
 	m_pParameters->SetValue(s);

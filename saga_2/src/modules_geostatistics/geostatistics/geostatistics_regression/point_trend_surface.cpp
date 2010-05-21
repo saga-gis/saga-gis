@@ -250,25 +250,29 @@ bool CPoint_Trend_Surface::Get_Regression(CSG_Shapes *pPoints, int iAttribute, i
 	for(int iShape=0; iShape<pPoints->Get_Count() && Set_Progress(iShape, pPoints->Get_Count()); iShape++)
 	{
 		CSG_Shape	*pShape	= pPoints->Get_Shape(iShape);
-		double		zShape	= pShape->asDouble(iAttribute);
 
-		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+		if( !pShape->is_NoData(iAttribute) )
 		{
-			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+			double	zShape	= pShape->asDouble(iAttribute);
+
+			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
-				TSG_Point			Point		= pShape->Get_Point(iPoint, iPart);
-				CSG_Table_Record	*pRecord	= Table.Add_Record();
-
-				pRecord->Set_Value(0, zShape);
-
-				pRecord->Set_Value(1, Point.x);
-				pRecord->Set_Value(2, Point.y);
-
-				if( Type == 1 )
+				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
-					pRecord->Set_Value(3, Point.x * Point.y);
-					pRecord->Set_Value(4, Point.x * Point.x);
-					pRecord->Set_Value(5, Point.y * Point.y);
+					TSG_Point			Point		= pShape->Get_Point(iPoint, iPart);
+					CSG_Table_Record	*pRecord	= Table.Add_Record();
+
+					pRecord->Set_Value(0, zShape);
+
+					pRecord->Set_Value(1, Point.x);
+					pRecord->Set_Value(2, Point.y);
+
+					if( Type == 1 )
+					{
+						pRecord->Set_Value(3, Point.x * Point.y);
+						pRecord->Set_Value(4, Point.x * Point.x);
+						pRecord->Set_Value(5, Point.y * Point.y);
+					}
 				}
 			}
 		}
@@ -330,21 +334,25 @@ bool CPoint_Trend_Surface::Set_Residuals(CSG_Shapes *pPoints, int iAttribute, CS
 		for(iShape=0; iShape<pPoints->Get_Count() && Set_Progress(iShape, pPoints->Get_Count()); iShape++)
 		{
 			pShape	= pPoints->Get_Shape(iShape);
-			zShape	= pShape->asDouble(iAttribute);
 
-			for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			if( !pShape->is_NoData(iAttribute) )
 			{
-				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
-				{
-					Point	= pShape->Get_Point(iPoint, iPart);
+				zShape	= pShape->asDouble(iAttribute);
 
-					if( pRegression->Get_Value(Point, zGrid) )
+				for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+				{
+					for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 					{
-						pResidual	= pResiduals->Add_Shape();
-						pResidual->Add_Point(Point);
-						pResidual->Set_Value(0, zShape);
-						pResidual->Set_Value(1, zGrid);
-						pResidual->Set_Value(2, zShape - zGrid);
+						Point	= pShape->Get_Point(iPoint, iPart);
+
+						if( pRegression->Get_Value(Point, zGrid) )
+						{
+							pResidual	= pResiduals->Add_Shape();
+							pResidual->Add_Point(Point);
+							pResidual->Set_Value(0, zShape);
+							pResidual->Set_Value(1, zGrid);
+							pResidual->Set_Value(2, zShape - zGrid);
+						}
 					}
 				}
 			}

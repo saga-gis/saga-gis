@@ -111,14 +111,15 @@ CSG_Module *		Create_Module(int i)
 	case  0:	return( new CGet_Connection );
 	case  1:	return( new CDel_Connection );
 	case  2:	return( new CTransaction );
-	case  3:	return( new CTable_Load );
-	case  4:	return( new CTable_Save );
-	case  5:	return( new CTable_Drop );
-	case  6:	return( new CTable_Load_SQL );
-	case  7:	return( new CPoints_Load );
-	case  8:	return( new CPoints_Save );
-	case  9:	return( new CPGIS_Shapes_Load );
-	case 10:	return( new CPGIS_Shapes_Save );
+	case  3:	return( new CTable_Info );
+	case  4:	return( new CTable_Load );
+	case  5:	return( new CTable_Save );
+	case  6:	return( new CTable_Drop );
+	case  7:	return( new CTable_Query );
+	case  8:	return( new CPoints_Load );
+	case  9:	return( new CPoints_Save );
+	case 10:	return( new CPGIS_Shapes_Load );
+	case 11:	return( new CPGIS_Shapes_Save );
 	}
 
 	return( NULL );

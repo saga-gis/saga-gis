@@ -70,9 +70,74 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CTable_Info::CTable_Info(void)
+{
+	Set_Name		(_TL("Table Field Description"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2010"));
+
+	Set_Description	(_TW(
+		"Loads table information from ODBC data source."
+	));
+
+	Parameters.Add_Table(
+		NULL	, "TABLE"		, _TL("Field Description"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Choice(
+		NULL	, "TABLES"		, _TL("Tables"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|"),
+			_TL("--- no table available ---")
+		)
+	);
+}
+
+//---------------------------------------------------------
+bool CTable_Info::On_Before_Execution(void)
+{
+	if( !CSG_ODBC_Module::On_Before_Execution() )
+	{
+		return( false );
+	}
+
+	CSG_String	Table(Parameters("TABLES")->asString());
+
+	Parameters("TABLES")->asChoice()->Set_Items(Get_Connection()->Get_Tables());
+	Parameters("TABLES")->Set_Value(Table);
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CTable_Info::On_Execute(void)
+{
+	if( !Get_Connection() )
+	{
+		return( false );
+	}
+
+	CSG_Parameter_Choice	*pTables	= Parameters("TABLES")	->asChoice();
+	CSG_Table				*pTable		= Parameters("TABLE")	->asTable();
+
+	pTable->Assign(&Get_Connection()->Get_Field_Desc(pTables->asString()));
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CTable_Load::CTable_Load(void)
 {
-	Set_Name		(_TL("ODBC Table Import"));
+	Set_Name		(_TL("Table Import"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2008"));
 
@@ -135,7 +200,7 @@ bool CTable_Load::On_Execute(void)
 //---------------------------------------------------------
 CTable_Save::CTable_Save(void)
 {
-	Set_Name		(_TL("ODBC Table Export"));
+	Set_Name		(_TL("Table Export"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2008"));
 
@@ -205,7 +270,7 @@ bool CTable_Save::On_Execute(void)
 			break;
 
 		case 1:	// replace existing table
-			Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("trying to drop table"), Name.c_str()));
+			Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("dropping table"), Name.c_str()));
 
 			if( !Get_Connection()->Table_Drop(Name, false) )
 			{
@@ -217,7 +282,16 @@ bool CTable_Save::On_Execute(void)
 			return( Get_Connection()->Table_Save(Name, *pTable) );
 
 		case 2:	// append records, if table structure allows
-			break;
+			Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("appending to existing table"), Name.c_str()));
+
+			if( !Get_Connection()->Table_Insert(Name, *pTable) )
+			{
+				Message_Add(CSG_String::Format(SG_T(" ...%s!"), _TL("failed")));
+
+				return( false );
+			}
+
+			return( true );
 		}
 	}
 	else
@@ -238,7 +312,7 @@ bool CTable_Save::On_Execute(void)
 //---------------------------------------------------------
 CTable_Drop::CTable_Drop(void)
 {
-	Set_Name		(_TL("ODBC Table Deletion"));
+	Set_Name		(_TL("Table Deletion"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2008"));
 
@@ -296,9 +370,9 @@ bool CTable_Drop::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTable_Load_SQL::CTable_Load_SQL(void)
+CTable_Query::CTable_Query(void)
 {
-	Set_Name		(_TL("ODBC Table Import using SQL Query"));
+	Set_Name		(_TL("Table from Query"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2008"));
 
@@ -338,7 +412,7 @@ CTable_Load_SQL::CTable_Load_SQL(void)
 }
 
 //---------------------------------------------------------
-bool CTable_Load_SQL::On_Execute(void)
+bool CTable_Query::On_Execute(void)
 {
 	if( !Get_Connection() )
 	{

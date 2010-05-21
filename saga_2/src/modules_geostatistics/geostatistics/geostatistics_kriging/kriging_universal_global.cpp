@@ -221,19 +221,23 @@ bool CKriging_Universal_Global::Get_Weights(void)
 	for(i=0; i<m_pPoints->Get_Count(); i++)
 	{
 		CSG_Shape	*pPoint	= m_pPoints->Get_Shape(i);
-		bool		bAdd;
 
-		for(j=0, bAdd=true; j<nGrids && bAdd; j++)
+		if( !pPoint->is_NoData(m_zField) )
 		{
-			if( !m_pGrids->asGrid(j)->is_InGrid_byPos(pPoint->Get_Point(0)) )
+			bool		bAdd;
+
+			for(j=0, bAdd=true; j<nGrids && bAdd; j++)
 			{
-				bAdd	= false;
+				if( !m_pGrids->asGrid(j)->is_InGrid_byPos(pPoint->Get_Point(0)) )
+				{
+					bAdd	= false;
+				}
 			}
-		}
 
-		if( bAdd )
-		{
-			m_Points.Add(pPoint->Get_Point(0).x, pPoint->Get_Point(0).y, pPoint->asDouble(m_zField));
+			if( bAdd )
+			{
+				m_Points.Add(pPoint->Get_Point(0).x, pPoint->Get_Point(0).y, pPoint->asDouble(m_zField));
+			}
 		}
 	}
 

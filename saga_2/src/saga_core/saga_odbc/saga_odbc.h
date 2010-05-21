@@ -84,6 +84,22 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+typedef enum ESG_ODBC_DBMS
+{
+	SG_ODBC_DBMS_PostgreSQL,
+	SG_ODBC_DBMS_Access,
+	SG_ODBC_DBMS_Unknown
+}
+TSG_ODBC_DBMS;
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class SG_ODBC_API_DLL_EXPORT CSG_ODBC_Connection
 {
 	friend class CSG_ODBC_Connections;
@@ -99,12 +115,16 @@ public:
 	bool						Set_Size_LOB_Max		(int Size);
 
 	CSG_String					Get_DBMS_Name			(void)	const;
-	bool						is_Postgres				(void)	const;
+	TSG_ODBC_DBMS				Get_DBMS				(void)	const	{	return( m_DBMS );	}
+
+	bool						is_Postgres				(void)	const	{	return( m_DBMS == SG_ODBC_DBMS_PostgreSQL );	}
+	bool						is_Access				(void)	const	{	return( m_DBMS == SG_ODBC_DBMS_Access );		}
 
 	CSG_String					Get_Server				(void)	const	{	return( m_DSN );	}
 
 	CSG_String					Get_Tables				(void)	const;
-	CSG_String					Get_Columns				(const CSG_String &Table)	const;
+	CSG_String					Get_Field_Names			(const CSG_String &Table_Name)	const;
+	CSG_Table					Get_Field_Desc			(const CSG_String &Table_Name)	const;
 
 	bool						Execute					(const CSG_String &SQL, bool bCommit = false);
 	bool						Commit					(void);
@@ -114,13 +134,13 @@ public:
 
 	bool						Table_Create			(const CSG_String &Table_Name, const CSG_Table &Table, bool bCommit = true);
 	bool						Table_Drop				(const CSG_String &Table_Name                        , bool bCommit = true);
-
-	bool						Table_Load				(CSG_Table &Table, const CSG_String &Table_Name, bool bLOB = false);
-	bool						Table_Load				(CSG_Table &Table, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where = SG_T(""), const CSG_String &Order = SG_T(""), bool bLOB = false);
-
-	bool						Table_Load_BLOBs		(CSG_Bytes_Array &BLOBs, const CSG_String &Table, const CSG_String &Field, const CSG_String &Where = SG_T(""), const CSG_String &Order = SG_T(""));
-
+	bool						Table_Insert			(const CSG_String &Table_Name, const CSG_Table &Table, bool bCommit = true);
 	bool						Table_Save				(const CSG_String &Table_Name, const CSG_Table &Table, bool bCommit = true);
+
+	bool						Table_Load				(CSG_Table &Table      , const CSG_String &Table_Name , bool bLOB = false);
+	bool						Table_Load				(CSG_Table &Table      , const CSG_String &Table_Names, const CSG_String &Fields, const CSG_String &Where = SG_T(""), const CSG_String &Order = SG_T(""), bool bLOB = false);
+	bool						Table_Load_BLOBs		(CSG_Bytes_Array &BLOBs, const CSG_String &Table_Name , const CSG_String &Field , const CSG_String &Where = SG_T(""), const CSG_String &Order = SG_T(""));
+
 
 
 private:
@@ -128,6 +148,8 @@ private:
 	CSG_ODBC_Connection(const CSG_String &Server, const CSG_String &User, const CSG_String &Password, const CSG_String &Directory);
 	virtual ~CSG_ODBC_Connection(void);
 
+
+	TSG_ODBC_DBMS				m_DBMS;
 
 	int							m_Size_Buffer;
 

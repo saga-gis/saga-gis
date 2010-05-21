@@ -126,6 +126,9 @@ protected:
 	bool						_Copy_Settings		(void);
 	bool						_Copy_Settings		(class CSG_Parameters *pParameters, class CWKSP_Base_Item *pItem);
 
+	bool						_Search_Item		(void);
+	bool						_Search_Get_List	(class CSG_Table *pList, class CWKSP_Base_Item *pItem, const wxChar *String, bool bName, bool bDesc);
+
 
 //---------------------------------------------------------
 DECLARE_EVENT_TABLE()

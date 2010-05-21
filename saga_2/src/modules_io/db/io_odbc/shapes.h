@@ -82,6 +82,8 @@ class CPoints_Load : public CSG_ODBC_Module
 public:
 	CPoints_Load(void);
 
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( SG_T("R:Shapes") );	}
+
 
 protected:
 
@@ -101,6 +103,8 @@ class CPoints_Save : public CSG_ODBC_Module
 {
 public:
 	CPoints_Save(void);
+
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( SG_T("R:Shapes") );	}
 
 
 protected:

@@ -236,6 +236,8 @@ wxMenu * CWKSP_Map_Manager::Get_Menu(void)
 	if( Get_Count() > 0 )
 	{
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
+		pMenu->AppendSeparator();
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SEARCH);
 	}
 
 	return( pMenu );

@@ -408,12 +408,15 @@ bool C_Kriging_Base::_Get_Points(void)
 		{
 			pShape	= m_pShapes->Get_Shape(iShape);
 
-			for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			if( !pShape->is_NoData(m_zField) )
 			{
-				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 				{
-					pPoint	= pPoints->Add_Shape(pShape, SHAPE_COPY_ATTR);
-					pPoint->Add_Point(pShape->Get_Point(iPoint, iPart));
+					for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+					{
+						pPoint	= pPoints->Add_Shape(pShape, SHAPE_COPY_ATTR);
+						pPoint->Add_Point(pShape->Get_Point(iPoint, iPart));
+					}
 				}
 			}
 		}

@@ -98,7 +98,7 @@ private:
 	bool					_Load				(const wxChar *FileName, bool bAdd, bool bUpdateMenu);
 	bool					_Save				(const wxChar *FileName, bool bSaveModified, bool bUpdateMenu);
 
-	bool					_Load_Data			(CSG_MetaData &Entry, const wxChar *ProjectDir);
+	bool					_Load_Data			(CSG_MetaData &Entry, const wxChar *ProjectDir, bool bLoad);
 	bool					_Save_Data			(CSG_MetaData &Entry, const wxChar *ProjectDir, class CSG_Data_Object *pDataObject, class CSG_Parameters *pParameters);
 
 	bool					_Load_Map			(CSG_MetaData &Entry, const wxChar *ProjectDir);

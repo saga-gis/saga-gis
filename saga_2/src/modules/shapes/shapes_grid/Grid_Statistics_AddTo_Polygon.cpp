@@ -256,9 +256,9 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 				}
 				else
 				{
-					pRecord->Set_Value(field_CELLS	, 0.0);
-					pRecord->Set_Value(field_MEAN	, 0.0);
-					pRecord->Set_Value(field_VARI	, 0.0);
+					pRecord->Set_NoData(field_CELLS);
+					pRecord->Set_NoData(field_MEAN);
+					pRecord->Set_NoData(field_VARI);
 				}
 			}
 

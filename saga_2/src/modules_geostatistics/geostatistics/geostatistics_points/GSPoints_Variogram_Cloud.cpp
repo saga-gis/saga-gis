@@ -174,26 +174,34 @@ bool CGSPoints_Variogram_Cloud::On_Execute(void)
 	for(int i=0; i<pPoints->Get_Count()-nSkip && Set_Progress(i, pPoints->Get_Count()-nSkip); i+=nSkip)
 	{
 		pPoint	= pPoints->Get_Shape(i);
-		Pt_i	= pPoint->Get_Point(0);
-		zi		= pPoint->asDouble(Attribute);
 
-		for(int j=i; j<pPoints->Get_Count() && Process_Get_Okay(); j+=nSkip)
+		if( !pPoint->is_NoData(Attribute) )
 		{
-			pPoint	= pPoints->Get_Shape(j);
-			Pt_j	= pPoint->Get_Point(0);
+			Pt_i	= pPoint->Get_Point(0);
+			zi		= pPoint->asDouble(Attribute);
 
-			if( (d = SG_Get_Distance(Pt_i, Pt_j)) <= maxDistance )
+			for(int j=i; j<pPoints->Get_Count() && Process_Get_Okay(); j+=nSkip)
 			{
-				CSG_Table_Record	*pRecord	= pTable->Add_Record();
+				pPoint	= pPoints->Get_Shape(j);
 
-				zj	= pPoint->asDouble(Attribute);
+				if( !pPoint->is_NoData(Attribute) )
+				{
+					Pt_j	= pPoint->Get_Point(0);
 
-				pRecord->Set_Value(DIF_FIELD_DISTANCE		, d);
-				pRecord->Set_Value(DIF_FIELD_DIRECTION		, SG_Get_Angle_Of_Direction(Pt_i, Pt_j) * M_RAD_TO_DEG);
-				pRecord->Set_Value(DIF_FIELD_DIFFERENCE		, fabs(d = zi - zj));
-				pRecord->Set_Value(DIF_FIELD_VARIANCE		, d = d*d);
-				pRecord->Set_Value(DIF_FIELD_SEMIVARIANCE	, 0.5*d);
-				pRecord->Set_Value(DIF_FIELD_COVARIANCE		, (zi - zMean) * (zj - zMean));
+					if( (d = SG_Get_Distance(Pt_i, Pt_j)) <= maxDistance )
+					{
+						CSG_Table_Record	*pRecord	= pTable->Add_Record();
+
+						zj	= pPoint->asDouble(Attribute);
+
+						pRecord->Set_Value(DIF_FIELD_DISTANCE		, d);
+						pRecord->Set_Value(DIF_FIELD_DIRECTION		, SG_Get_Angle_Of_Direction(Pt_i, Pt_j) * M_RAD_TO_DEG);
+						pRecord->Set_Value(DIF_FIELD_DIFFERENCE		, fabs(d = zi - zj));
+						pRecord->Set_Value(DIF_FIELD_VARIANCE		, d = d*d);
+						pRecord->Set_Value(DIF_FIELD_SEMIVARIANCE	, 0.5*d);
+						pRecord->Set_Value(DIF_FIELD_COVARIANCE		, (zi - zMean) * (zj - zMean));
+					}
+				}
 			}
 		}
 	}

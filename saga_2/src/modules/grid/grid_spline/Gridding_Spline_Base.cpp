@@ -228,17 +228,21 @@ bool CGridding_Spline_Base::_Get_Points(CSG_Points_Z &Points, bool bInGridOnly)
 		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
 			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
-			double		zValue	= pShape->asDouble(zField);
 
-			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			if( !pShape->is_NoData(zField) )
 			{
-				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
-				{
-					TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
+				double		zValue	= pShape->asDouble(zField);
 
-					if( !bInGridOnly || m_pGrid->is_InGrid_byPos(p) )
+				for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+				{
+					for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 					{
-						Points.Add(p.x, p.y, zValue);
+						TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
+
+						if( !bInGridOnly || m_pGrid->is_InGrid_byPos(p) )
+						{
+							Points.Add(p.x, p.y, zValue);
+						}
 					}
 				}
 			}

@@ -205,6 +205,9 @@ void CSG_PointCloud::_On_Construction(void)
 	m_bXYZPrecDbl	= true;
 	m_NoData_Value	= -999999;
 
+	m_Selected		= NULL;
+	m_nSelected		= 0;
+
 	Set_Update_Flag();
 
 	m_Shapes.Create(SHAPE_TYPE_Point);
@@ -233,6 +236,11 @@ bool CSG_PointCloud::Destroy(void)
 		SG_Free(m_Field_Type);
 		SG_Free(m_Field_Stats);
 		SG_Free(m_Field_Offset);
+
+		if( m_Selected )
+		{
+			SG_Free(m_Selected);
+		}
 
 		_On_Construction();
 	}
@@ -504,7 +512,12 @@ bool CSG_PointCloud::_Add_Field(const SG_Char *Name, TSG_Data_Type Type, int iFi
 	m_Field_Name  [m_nFields]	= new CSG_String(Name);
 	m_Field_Type  [m_nFields]	= Type;
 	m_Field_Stats [m_nFields]	= new CSG_Simple_Statistics();
-	m_Field_Offset[m_nFields]	= m_nFields == 0 ? 0 : m_Field_Offset[m_nFields - 1] + SG_Data_Type_Get_Size(m_Field_Type[m_nFields - 1]);
+	m_Field_Offset[m_nFields]	= m_nFields == 0 ? 1 : m_Field_Offset[m_nFields - 1] + SG_Data_Type_Get_Size(m_Field_Type[m_nFields - 1]);
+
+	if( m_nFields == 0 )
+	{
+		m_nPointBytes	= 1;
+	}
 
 	m_nPointBytes	+= SG_Data_Type_Get_Size(m_Field_Type[m_nFields]);
 	m_nFields		++;
@@ -696,16 +709,21 @@ bool CSG_PointCloud::Del_Point(int iPoint)
 {
 	if( iPoint >= 0 && iPoint < Get_Count() )
 	{
-		m_Cursor	= NULL;
+		if( is_Selected(iPoint) )
+		{
+			Select(iPoint, true);
+		}
 
-		char	*p	= m_Points[iPoint];
+		m_Cursor	= m_Points[iPoint];
 
 		for(int i=iPoint, j=iPoint+1; j<Get_Count(); i++, j++)
 		{
 			m_Points[i]	= m_Points[j];
 		}
 
-		m_Points[Get_Count() - 1]	= p;
+		m_Points[Get_Count() - 1]	= m_Cursor;
+
+		m_Cursor	= NULL;
 
 		_Dec_Array();
 
@@ -922,6 +940,228 @@ CSG_Shape * CSG_PointCloud::Get_Shape(TSG_Point Point, double Epsilon)
 	}
 
 	return( NULL );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_PointCloud::Select(int iRecord, bool bInvert)
+{
+	if( !bInvert )
+	{
+		for(int i=0; i<m_nSelected; i++)
+		{
+			m_Selected[i][0]	&= ~SG_TABLE_REC_FLAG_Selected;
+		}
+
+		SG_Free(m_Selected);
+		m_Selected	= NULL;
+		m_nSelected	= 0;
+	}
+
+	if( Set_Cursor(iRecord) )
+	{
+		if( (m_Cursor[0] & SG_TABLE_REC_FLAG_Selected) == 0 )	// select
+		{
+			m_Cursor[0]	|= SG_TABLE_REC_FLAG_Selected;
+
+			m_Selected	= (char **)SG_Realloc(m_Selected, (m_nSelected + 1) * sizeof(char *));
+
+			m_Selected[m_nSelected++]	= m_Cursor;
+		}
+		else															// deselect
+		{
+			m_Cursor[0]	&= ~SG_TABLE_REC_FLAG_Selected;
+
+			m_nSelected--;
+
+			for(int i=0; i<m_nSelected; i++)
+			{
+				if( m_Points[iRecord] == m_Selected[i] )
+				{
+					for(; i<m_nSelected; i++)
+					{
+						m_Selected[i]	= m_Selected[i + 1];
+					}
+				}
+			}
+
+			m_Selected	= (char **)SG_Realloc(m_Selected, m_nSelected * sizeof(char *));
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_PointCloud::Select(CSG_Shape *pShape, bool bInvert)
+{
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_PointCloud::Select(TSG_Rect Extent, bool bInvert)
+{
+	if( !bInvert )	// clear selection
+	{
+		Select(-1, false);
+	}
+
+	if( Get_Extent().Intersects(Extent) != INTERSECTION_None )
+	{
+		for(int i=0; i<Get_Count(); i++)
+		{
+			Set_Cursor(i);
+
+			if(	Extent.xMin <= Get_X() && Get_X() <= Extent.xMax
+			&&	Extent.yMin <= Get_Y() && Get_Y() <= Extent.yMax )
+			{
+				Select(i, true);
+			}
+		}
+	}
+
+	return( Get_Selection_Count() > 0 );
+}
+
+//---------------------------------------------------------
+bool CSG_PointCloud::Select(TSG_Point Point, bool bInvert)
+{
+	CSG_Rect	r(Point.x, Point.y, Point.x, Point.y);
+
+	return( Select(r.m_rect, bInvert) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_PointCloud::is_Selected(int iRecord)	const
+{
+	return( iRecord >= 0 && iRecord < Get_Count() && (m_Points[iRecord][0] & SG_TABLE_REC_FLAG_Selected) != 0 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Shape * CSG_PointCloud::Get_Selection(int Index)
+{
+	if( Index >= 0 && Index < Get_Selection_Count() )
+	{
+		m_Cursor	= m_Selected[Index];
+
+		CSG_Shape	*pShape	= m_Shapes.Get_Shape(0);
+
+		pShape->Set_Point(Get_X(), Get_Y(), 0, 0);
+
+		for(int iField=0; iField<m_nFields; iField++)
+		{
+			pShape->Set_Value(iField, Get_Value(iField));
+		}
+
+		return( pShape );
+	}
+
+	return( NULL );
+}
+
+//---------------------------------------------------------
+const CSG_Rect & CSG_PointCloud::Get_Selection_Extent(void)
+{
+	if( Get_Selection_Count() > 0 )
+	{
+		TSG_Rect	r;
+
+		m_Cursor	= m_Selected[0];
+
+		r.xMin	= r.xMax	= Get_X();
+		r.yMin	= r.yMax	= Get_Y();
+
+		for(int i=1; i<Get_Selection_Count(); i++)
+		{
+			Set_Cursor(i);
+
+			if( Get_X() < r.xMin )	r.xMin	= Get_X();	else if( Get_X() > r.xMax )	r.xMax	= Get_X();
+			if( Get_Y() < r.yMin )	r.yMin	= Get_Y();	else if( Get_Y() > r.yMax )	r.yMax	= Get_Y();
+		}
+
+		m_Extent_Selected.Assign(r);
+	}
+	else
+	{
+		m_Extent_Selected.Assign(0.0, 0.0, 0.0, 0.0);
+	}
+
+	return( m_Extent_Selected );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CSG_PointCloud::Del_Selection(void)
+{
+	int		n	= 0;
+
+	if( m_nSelected > 0 )
+	{
+		for(int i=Get_Count()-1; i>=0; i--)
+		{
+			if( is_Selected(i) )
+			{
+				Del_Record(i);
+
+				n++;
+			}
+		}
+
+		SG_Free(m_Selected);
+		m_Selected	= NULL;
+		m_nSelected	= 0;
+	}
+
+	return( n );
+}
+
+//---------------------------------------------------------
+int CSG_PointCloud::Inv_Selection(void)
+{
+/*	CSG_Table_Record	**pRecord	= m_Records + 0;
+
+	if( Get_Record_Count() > 0 )
+	{
+		m_nSelected	= m_nRecords - m_nSelected;
+		m_Selected	= (CSG_Table_Record **)SG_Realloc(m_Selected, m_nSelected * sizeof(CSG_Table_Record *));
+
+		for(int i=0, j=0; i<m_nRecords; i++, pRecord++)
+		{
+			if( (*pRecord)->is_Selected() )
+			{
+				(*pRecord)->Set_Selected(false);
+			}
+			else
+			{
+				(*pRecord)->Set_Selected(true);
+				m_Selected[j++]			= (*pRecord);
+			}
+		}
+	}
+/**/
+	return( Get_Selection_Count() );
 }
 
 

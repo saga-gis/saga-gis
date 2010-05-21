@@ -91,7 +91,7 @@ bool CInterpolation_Triangulation::Interpolate(void)
 {
 	CSG_TIN	TIN;
 
-	if( TIN.Create(m_pShapes) )
+	if( TIN.Create(Get_Points()) )
 	{
 		m_pGrid->Assign_NoData();
 

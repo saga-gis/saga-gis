@@ -113,7 +113,7 @@ protected:
 
 private:
 
-	int						MaxPoints, Quadratic_Neighbors, Weighting_Neighbors;
+	int						m_MaxPoints, m_Quadratic_Neighbors, m_Weighting_Neighbors;
 
 	double					*x_vals, *y_vals, *f_vals;
 

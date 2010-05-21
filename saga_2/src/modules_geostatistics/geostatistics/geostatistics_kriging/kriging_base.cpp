@@ -437,24 +437,32 @@ bool CKriging_Base::_Get_Variances(void)
 	for(i=0, n=0; i<m_pPoints->Get_Count()-nSkip && Set_Progress(n, SG_Get_Square(m_pPoints->Get_Count()/nSkip)/2); i+=nSkip)
 	{
 		pPoint	= m_pPoints->Get_Shape(i);
-		Pt_i	= pPoint->Get_Point(0);
-		z		= pPoint->asDouble(m_zField);
 
-		for(j=i+nSkip; j<m_pPoints->Get_Count(); j+=nSkip, n++)
+		if( !pPoint->is_NoData(m_zField) )
 		{
-			pPoint	= m_pPoints->Get_Shape(j);
-			Pt_j	= pPoint->Get_Point(0);
-			dx		= Pt_j.x - Pt_i.x;
-			dy		= Pt_j.y - Pt_i.y;
-			d		= sqrt(dx*dx + dy*dy);
-			k		= (int)(d / lagDistance);
+			Pt_i	= pPoint->Get_Point(0);
+			z		= pPoint->asDouble(m_zField);
 
-			if( k < nDistances )
+			for(j=i+nSkip; j<m_pPoints->Get_Count(); j+=nSkip, n++)
 			{
-				d	= pPoint->asDouble(m_zField) - z;
+				pPoint	= m_pPoints->Get_Shape(j);
 
-				Count	[k]	++;
-				Variance[k]	+= d * d;
+				if( !pPoint->is_NoData(m_zField) )
+				{
+					Pt_j	= pPoint->Get_Point(0);
+					dx		= Pt_j.x - Pt_i.x;
+					dy		= Pt_j.y - Pt_i.y;
+					d		= sqrt(dx*dx + dy*dy);
+					k		= (int)(d / lagDistance);
+
+					if( k < nDistances )
+					{
+						d	= pPoint->asDouble(m_zField) - z;
+
+						Count	[k]	++;
+						Variance[k]	+= d * d;
+					}
+				}
 			}
 		}
 	}

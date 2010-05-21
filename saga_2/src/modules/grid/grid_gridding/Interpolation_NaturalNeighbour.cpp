@@ -97,7 +97,7 @@ CInterpolation_NaturalNeighbour::CInterpolation_NaturalNeighbour(void)
 //---------------------------------------------------------
 bool CInterpolation_NaturalNeighbour::Interpolate(void)
 {
-	int			i, x, y;
+	int			i, n, x, y;
 	double		zMin, zMax;
 	TSG_Point	p;
 
@@ -107,24 +107,29 @@ bool CInterpolation_NaturalNeighbour::Interpolate(void)
 	point	*pSrc	= (point  *)SG_Malloc(m_pShapes->Get_Count() * sizeof(point));
 	double	*zSrc	= (double *)SG_Malloc(m_pShapes->Get_Count() * sizeof(double));
 
-	for(i=0; i<m_pShapes->Get_Count() && Set_Progress(i, m_pShapes->Get_Count()); i++)
+	for(i=0, n=0; i<m_pShapes->Get_Count() && Set_Progress(i, m_pShapes->Get_Count()); i++)
 	{
 		CSG_Shape	*pShape	= m_pShapes->Get_Shape(i);
 
-		pSrc[i].x	= pShape->Get_Point(0).x;
-		pSrc[i].y	= pShape->Get_Point(0).y;
-		pSrc[i].z	= zSrc[i]	= pShape->asDouble(m_zField);
+		if( !pShape->is_NoData(m_zField) )
+		{
+			pSrc[n].x	= pShape->Get_Point(0).x;
+			pSrc[n].y	= pShape->Get_Point(0).y;
+			pSrc[n].z	= zSrc[n]	= pShape->asDouble(m_zField);
 
-		if( i == 0 )
-			zMin	= zMax	= pSrc[i].z;
-		else if( zMin > pSrc[i].z )
-			zMin	= pSrc[i].z;
-		else if( zMax < pSrc[i].z )
-			zMax	= pSrc[i].z;
+			if( n == 0 )
+				zMin	= zMax	= pSrc[n].z;
+			else if( zMin > pSrc[n].z )
+				zMin	= pSrc[n].z;
+			else if( zMax < pSrc[n].z )
+				zMax	= pSrc[n].z;
+
+			n++;
+		}
 	}
 
 	Process_Set_Text(_TL("triangulating"));
-	delaunay	*pTIN	= delaunay_build(m_pShapes->Get_Count(), pSrc, 0, NULL, 0, NULL);
+	delaunay	*pTIN	= delaunay_build(n, pSrc, 0, NULL, 0, NULL);
 
 	//-----------------------------------------------------
 	double	*xDst	= (double *)SG_Malloc(m_pGrid->Get_NCells() * sizeof(double));

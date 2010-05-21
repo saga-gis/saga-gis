@@ -169,15 +169,18 @@ bool C_Kriging_Ordinary_Global::Get_Weights(void)
 	{
 		CSG_Shape	*pShape	= m_pShapes->Get_Shape(iShape);
 
-		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+		if( !pShape->is_NoData(m_zField) )
 		{
-			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
-				m_Points.Add(
-					pShape->Get_Point(iPoint, iPart).x,
-					pShape->Get_Point(iPoint, iPart).y,
-					pShape->asDouble(m_zField)
-				);
+				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				{
+					m_Points.Add(
+						pShape->Get_Point(iPoint, iPart).x,
+						pShape->Get_Point(iPoint, iPart).y,
+						pShape->asDouble(m_zField)
+					);
+				}
 			}
 		}
 	}

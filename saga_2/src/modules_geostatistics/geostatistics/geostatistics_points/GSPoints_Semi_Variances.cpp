@@ -182,25 +182,33 @@ bool CGSPoints_Semi_Variances::On_Execute(void)
 	for(i=0, n=0; i<pPoints->Get_Count() && Set_Progress(n, SG_Get_Square(pPoints->Get_Count()/nSkip)/2); i+=nSkip)
 	{
 		pPoint	= pPoints->Get_Shape(i);
-		Pt_i	= pPoint->Get_Point(0);
-		zi		= pPoint->asDouble(Attribute);
 
-		for(j=i+nSkip; j<pPoints->Get_Count(); j+=nSkip, n++)
+		if( !pPoint->is_NoData(Attribute) )
 		{
-			pPoint	= pPoints->Get_Shape(j);
-			Pt_j	= pPoint->Get_Point(0);
-			k		= (int)(SG_Get_Distance(Pt_i, Pt_j) / lagDistance);
+			Pt_i	= pPoint->Get_Point(0);
+			zi		= pPoint->asDouble(Attribute);
 
-			if( k < nDistances )
+			for(j=i+nSkip; j<pPoints->Get_Count(); j+=nSkip, n++)
 			{
-				zj	= pPoint->asDouble(Attribute);
+				pPoint	= pPoints->Get_Shape(j);
 
-				v	= SG_Get_Square(zi - zj);
-				c	= (zi - zMean) * (zj - zMean);
+				if( !pPoint->is_NoData(Attribute) )
+				{
+					Pt_j	= pPoint->Get_Point(0);
+					k		= (int)(SG_Get_Distance(Pt_i, Pt_j) / lagDistance);
 
-				Count	  [k]	++;
-				Variance  [k]	+= v;
-				Covariance[k]	+= c;
+					if( k < nDistances )
+					{
+						zj	= pPoint->asDouble(Attribute);
+
+						v	= SG_Get_Square(zi - zj);
+						c	= (zi - zMean) * (zj - zMean);
+
+						Count	  [k]	++;
+						Variance  [k]	+= v;
+						Covariance[k]	+= c;
+					}
+				}
 			}
 		}
 	}

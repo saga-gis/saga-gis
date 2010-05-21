@@ -68,7 +68,7 @@
 //---------------------------------------------------------
 CPGIS_Shapes_Load::CPGIS_Shapes_Load(void)
 {
-	Set_Name		(_TL("ODBC/PostGIS: Shapes Import"));
+	Set_Name		(_TL("PostGIS Shapes Import"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2009"));
 
@@ -269,7 +269,7 @@ bool CPGIS_Shapes_Load::On_Execute(void)
 //---------------------------------------------------------
 CPGIS_Shapes_Save::CPGIS_Shapes_Save(void)
 {
-	Set_Name		(_TL("ODBC/PostGIS: Shapes Export"));
+	Set_Name		(_TL("PostGIS Shapes Export"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2009"));
 

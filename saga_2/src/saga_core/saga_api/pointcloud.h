@@ -129,7 +129,6 @@ public:
 	bool							Del_Points			(void);
 
 	int								Get_Point_Count		(void)			const	{	return( m_nRecords );	}
-	int								Get_Count			(void)			const	{	return( m_nRecords );	}
 
 	//-----------------------------------------------------
 	bool							Set_Cursor			(int iPoint)				{	return( (m_Cursor = iPoint >= 0 && iPoint < m_nRecords ? m_Points[iPoint] : NULL) != NULL );	}
@@ -182,12 +181,17 @@ public:
 	virtual CSG_Shape *				Add_Shape			(             CSG_Table_Record *pCopy = NULL, TSG_ADD_Shape_Copy_Mode mCopy = SHAPE_COPY)	{	return( NULL );	}
 	virtual bool					Del_Shape			(CSG_Shape *pShape)	{	return( false );	}
 
-//	virtual CSG_Shape *				Get_Selection			(int Index = 0)			{	return( (CSG_Shape *)CSG_Table::Get_Selection(Index) );	};
-//	virtual const CSG_Rect &		Get_Selection_Extent	(void);
+	virtual bool					Select				(int iRecord             , bool bInvert = false);
+	virtual bool					Select				(CSG_Shape *pShape = NULL, bool bInvert = false);
+	virtual bool					Select				(TSG_Rect Extent         , bool bInvert = false);
+	virtual bool					Select				(TSG_Point Point         , bool bInvert = false);
 
-	virtual bool					Select				(CSG_Shape *pShape = NULL, bool bInvert = false)	{	return( false );	}
-	virtual bool					Select				(TSG_Rect Extent         , bool bInvert = false)	{	return( false );	}
-	virtual bool					Select				(TSG_Point Point         , bool bInvert = false)	{	return( false );	}
+	virtual bool					is_Selected			(int iRecord)	const;
+
+	virtual int						Del_Selection		(void);
+	virtual int						Inv_Selection		(void);
+	virtual CSG_Shape *				Get_Selection		(int Index = 0);
+	virtual const CSG_Rect &		Get_Selection_Extent(void);
 
 
 protected:
@@ -203,7 +207,7 @@ private:
 
 	bool							m_bXYZPrecDbl;
 
-	char							**m_Points, *m_Cursor;
+	char							**m_Points, **m_Selected, *m_Cursor;
 
 	int								m_nPointBytes, *m_Field_Offset;
 

@@ -107,6 +107,7 @@ const wxChar * CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_WKSP_ITEM_SHOW:			return( LNG("[CMD] Show") );
 	case ID_CMD_WKSP_ITEM_SETTINGS_LOAD:return( LNG("[CMD] Load Settings") );
 	case ID_CMD_WKSP_ITEM_SETTINGS_COPY:return( LNG("[CMD] Copy Settings from other Layer") );
+	case ID_CMD_WKSP_ITEM_SEARCH:		return( LNG("[CMD] Search for...") );
 
 	case ID_CMD_WKSP_OPEN:				return( LNG("[CMD] Load") );
 

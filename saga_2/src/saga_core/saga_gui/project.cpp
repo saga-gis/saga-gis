@@ -279,11 +279,18 @@ bool CWKSP_Project::_Load(const wxChar *FileName, bool bAdd, bool bUpdateMenu)
 		bSuccess	= true;
 
 		//-------------------------------------------------
+		int		i;
+
 		g_pData->Get_FileMenus()->Set_Update(false);
 
-		for(int i=0; i<pNode->Get_Children_Count(); i++)
+		for(i=0; i<pNode->Get_Children_Count(); i++)
 		{
-			_Load_Data(*pNode->Get_Child(i), SG_File_Get_Path(FileName));
+			_Load_Data(*pNode->Get_Child(i), SG_File_Get_Path(FileName), true);
+		}
+
+		for(i=0; i<pNode->Get_Children_Count(); i++)
+		{
+			_Load_Data(*pNode->Get_Child(i), SG_File_Get_Path(FileName), false);
 		}
 
 		g_pData->Get_FileMenus()->Set_Update(true);
@@ -460,7 +467,7 @@ bool CWKSP_Project::_Save(const wxChar *FileName, bool bSaveModified, bool bUpda
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxChar *ProjectDir)
+bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxChar *ProjectDir, bool bLoad)
 {
 	int				Type;
 	wxString		File;
@@ -495,7 +502,9 @@ bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxChar *ProjectDir)
 		return( false );
 	}
 
-	if(	(pItem = g_pData->Open(Type, File)) == NULL )
+	pItem	= bLoad ? g_pData->Open(Type, File) : _Get_byFileName(File);
+
+	if(	!pItem )
 	{
 		return( false );
 	}

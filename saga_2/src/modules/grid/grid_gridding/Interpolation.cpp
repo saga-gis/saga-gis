@@ -216,29 +216,38 @@ bool CInterpolation::Interpolate(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Shapes * CInterpolation::Get_Points(void)
+CSG_Shapes * CInterpolation::Get_Points(bool bOnlyNonPoints)
 {
 	m_pShapes	= Parameters("SHAPES")	->asShapes();
 
-	if( m_pShapes->Get_Type() != SHAPE_TYPE_Point )
+	if( !bOnlyNonPoints || m_pShapes->Get_Type() != SHAPE_TYPE_Point )
 	{
-		CSG_Shapes	*pPoints	= SG_Create_Shapes(SHAPE_TYPE_Point, _TL(""), m_pShapes);
+		CSG_Shapes	*pPoints	= SG_Create_Shapes(SHAPE_TYPE_Point);
+
+		pPoints->Set_NoData_Value_Range(m_pShapes->Get_NoData_Value(), m_pShapes->Get_NoData_hiValue());
+		pPoints->Add_Field(SG_T("Z"), SG_DATATYPE_Double);
 
 		for(int iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
 		{
 			CSG_Shape	*pShape	= m_pShapes->Get_Shape(iShape);
 
-			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			if( !pShape->is_NoData(m_zField) )
 			{
-				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 				{
-					CSG_Shape	*pPoint	= pPoints->Add_Shape(pShape, SHAPE_COPY_ATTR);
+					for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+					{
+						CSG_Shape	*pPoint	= pPoints->Add_Shape();
 
-					pPoint->Add_Point(pShape->Get_Point(iPoint, iPart));
+						pPoint->Add_Point(pShape->Get_Point(iPoint, iPart));
+
+						pPoint->Set_Value(0, pShape->asDouble(m_zField));
+					}
 				}
 			}
 		}
 
+		m_zField	= 0;
 		m_pShapes	= pPoints;
 	}
 

@@ -169,11 +169,14 @@ bool CKriging_Ordinary_Global::Get_Weights(void)
 	{
 		CSG_Shape	*pPoint	= m_pPoints->Get_Shape(i);
 
-		m_Points.Add(
-			pPoint->Get_Point(0).x,
-			pPoint->Get_Point(0).y,
-			pPoint->asDouble(m_zField)
-		);
+		if( !pPoint->is_NoData(m_zField) )
+		{
+			m_Points.Add(
+				pPoint->Get_Point(0).x,
+				pPoint->Get_Point(0).y,
+				pPoint->asDouble(m_zField)
+			);
+		}
 	}
 
 	//-----------------------------------------------------

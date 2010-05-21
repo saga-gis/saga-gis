@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CPoints_Load::CPoints_Load(void)
 {
-	Set_Name		(_TL("ODBC Points Import"));
+	Set_Name		(_TL("Points Import"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2009"));
 
@@ -130,7 +130,7 @@ bool CPoints_Load::On_Execute(void)
 //---------------------------------------------------------
 CPoints_Save::CPoints_Save(void)
 {
-	Set_Name		(_TL("ODBC Points Export"));
+	Set_Name		(_TL("Points Export"));
 
 	Set_Author		(SG_T("O.Conrad (c) 2009"));
 

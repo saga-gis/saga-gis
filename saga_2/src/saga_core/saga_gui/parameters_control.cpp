@@ -247,7 +247,8 @@ bool CParameters_Control::Load(void)
 
 	if( DLG_Open(File_Path, ID_DLG_PARAMETERS_OPEN) )
 	{
-		if( m_pParameters->Serialize(File_Path.c_str(), false) )
+		if(	m_pParameters->Serialize_Compatibility(CSG_File(File_Path.c_str()))
+		||	m_pParameters->Serialize(File_Path.c_str(), false) )
 		{
 		//	m_pPG->Freeze();
 			m_pPG->Clear();

@@ -82,7 +82,6 @@
 CShapes2Grid::CShapes2Grid(void)
 {
 	CSG_Parameter	*pNode_0, *pNode_1;
-	CSG_Parameters	*pParameters;
 
 	//-----------------------------------------------------
 	Set_Name		(_TL("Shapes to Grid"));
@@ -246,16 +245,19 @@ bool CShapes2Grid::On_Execute(void)
 
 		if( m_pShapes->Get_Selection_Count() <= 0 || pShape->is_Selected() )
 		{
-			m_Value	= iField < 0 ? iShape + 1 : pShape->asDouble(iField);
-
-			if( pShape->Intersects(m_pGrid->Get_Extent().m_rect) )
+			if( iField < 0 || !pShape->is_NoData(iField) )
 			{
-				switch( m_pShapes->Get_Type() )
+				m_Value	= iField < 0 ? iShape + 1 : pShape->asDouble(iField);
+
+				if( pShape->Intersects(m_pGrid->Get_Extent().m_rect) )
 				{
-				case SHAPE_TYPE_Point:
-				case SHAPE_TYPE_Points:		Set_Points	(pShape);	break;
-				case SHAPE_TYPE_Line:		Set_Line	(pShape);	break;
-				case SHAPE_TYPE_Polygon:	Set_Polygon	(pShape);	break;
+					switch( m_pShapes->Get_Type() )
+					{
+					case SHAPE_TYPE_Point:
+					case SHAPE_TYPE_Points:		Set_Points	(pShape);	break;
+					case SHAPE_TYPE_Line:		Set_Line	(pShape);	break;
+					case SHAPE_TYPE_Polygon:	Set_Polygon	(pShape);	break;
+					}
 				}
 			}
 		}

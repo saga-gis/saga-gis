@@ -95,7 +95,7 @@ protected:
 
 	bool						m_bOutline;
 
-	int							m_iSize, m_Size_Type, m_Symbol_Type, m_iLabel_Angle, m_Label_Align;
+	int							m_iSize, m_Size_Type, m_Size_Scale, m_Symbol_Type, m_iLabel_Angle, m_Label_Align;
 
 	double						m_Size, m_dSize, m_Size_Min, m_Label_Angle;
 

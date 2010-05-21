@@ -186,6 +186,21 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	);
 
 	m_Parameters.Add_Choice(
+		m_Parameters("SIZE_ATTRIB")	, "SIZE_SCALE"		, LNG("[CAP] Attribute Values"),
+		LNG(""),
+		wxString::Format(wxT("%s|%s|"),
+			LNG("[VAL] no scaling"),
+			LNG("[VAL] scale to size range")
+		), 1
+	);
+
+	m_Parameters.Add_Range(
+		m_Parameters("SIZE_ATTRIB")	, "SIZE_RANGE"		, LNG("[CAP] Size Range"),
+		LNG(""),
+		2, 10, 0, true
+	);
+
+	m_Parameters.Add_Choice(
 		m_Parameters("NODE_SIZE")	, "SIZE_TYPE"		, LNG("[CAP] Size relates to..."),
 		LNG(""),
 		wxString::Format(wxT("%s|%s|"),
@@ -198,12 +213,6 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 		m_Parameters("NODE_SIZE")	, "SIZE_DEFAULT"	, LNG("[CAP] Default Size"),
 		LNG(""),
 		PARAMETER_TYPE_Double, 5, 0, true
-	);
-
-	m_Parameters.Add_Range(
-		m_Parameters("NODE_SIZE")	, "SIZE_RANGE"		, LNG("[CAP] Size Range"),
-		LNG(""),
-		2, 10, 0, true
 	);
 
 
@@ -282,7 +291,8 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 	}
 
 	//-----------------------------------------------------
-	m_Size_Type		= m_Parameters("SIZE_TYPE")->asInt();
+	m_Size_Type		= m_Parameters("SIZE_TYPE") ->asInt();
+	m_Size_Scale	= m_Parameters("SIZE_SCALE")->asInt();
 
 	if(	(m_iSize	= m_Parameters("SIZE_ATTRIB")->asInt()) >= m_pShapes->Get_Field_Count()
 	||	(m_dSize	= m_pShapes->Get_Maximum(m_iSize) - (m_Size_Min = m_pShapes->Get_Minimum(m_iSize))) <= 0.0 )
@@ -418,7 +428,23 @@ inline void CWKSP_Shapes_Point::_Draw_Initialize(CWKSP_Map_DC &dc_Map)
 inline bool CWKSP_Shapes_Point::_Draw_Initialize(CWKSP_Map_DC &dc_Map, int &Size, CSG_Shape *pShape, bool bSelection)
 {
 	//-----------------------------------------------------
-	double	dSize	= m_iSize < 0 ? m_Size : m_Size + (pShape->asDouble(m_iSize) - m_Size_Min) * m_dSize;
+	double	dSize;
+
+	if( m_iSize < 0 )	// default size
+	{
+		dSize	= m_Size;
+	}
+	else				// size by attribute
+	{
+		if( m_Size_Scale == 0 )	// take value as is
+		{
+			dSize	= pShape->asDouble(m_iSize);
+		}
+		else					// scale to size range
+		{
+			dSize	= (pShape->asDouble(m_iSize) - m_Size_Min) * m_dSize + m_Size;
+		}
+	}
 
 	switch( m_Size_Type )
 	{

@@ -131,19 +131,23 @@ bool CKriging_Universal::On_Initialise(void)
 	for(int iPoint=0; iPoint<m_pPoints->Get_Count() && Set_Progress(iPoint, m_pPoints->Get_Count()); iPoint++)
 	{
 		CSG_Shape	*pPoint	= m_pPoints->Get_Shape(iPoint);
-		bool		bAdd	= true;
 
-		for(int iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
+		if( !pPoint->is_NoData(m_zField) )
 		{
-			if( !m_pGrids->asGrid(iGrid)->is_InGrid_byPos(pPoint->Get_Point(0)) )
+			bool		bAdd	= true;
+
+			for(int iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
 			{
-				bAdd	= false;
+				if( !m_pGrids->asGrid(iGrid)->is_InGrid_byPos(pPoint->Get_Point(0)) )
+				{
+					bAdd	= false;
+				}
 			}
-		}
 
-		if( bAdd )
-		{
-			m_Search.Add_Point(pPoint->Get_Point(0).x, pPoint->Get_Point(0).y, pPoint->asDouble(m_zField));
+			if( bAdd )
+			{
+				m_Search.Add_Point(pPoint->Get_Point(0).x, pPoint->Get_Point(0).y, pPoint->asDouble(m_zField));
+			}
 		}
 	}
 

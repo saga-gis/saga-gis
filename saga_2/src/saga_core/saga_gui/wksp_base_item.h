@@ -152,6 +152,8 @@ public:
 	bool							is_Manager			(void)	{	return( m_bManager );	}
 	bool							is_Selected			(void);
 
+	static wxString					Get_Type_Name		(TWKSP_Item Type);
+
 
 protected:
 

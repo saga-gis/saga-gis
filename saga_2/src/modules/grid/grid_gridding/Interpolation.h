@@ -110,7 +110,7 @@ protected:
 
 	virtual bool				Get_Value				(double x, double y, double &z)	{	return( true );	}
 
-	CSG_Shapes *				Get_Points				(void);
+	CSG_Shapes *				Get_Points				(bool bOnlyNonPoints = false);
 	bool						Set_Search_Engine		(void);
 
 

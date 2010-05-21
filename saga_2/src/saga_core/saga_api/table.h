@@ -307,11 +307,13 @@ public:
 	int								Get_Selection_Count	(void)			const	{	return( m_nSelected );	}
 	virtual CSG_Table_Record *		Get_Selection		(int Index = 0)	const	{	return( Index >= 0 && Index < m_nSelected ? m_Selected[Index] : NULL );	}
 
+	virtual bool					is_Selected			(int iRecord)	const	{	return( iRecord >= 0 && iRecord < m_nRecords ? m_Records[iRecord]->is_Selected() : false );	}
+
 	virtual bool					Select				(int iRecord						, bool bInvert = false);
 	virtual bool					Select				(CSG_Table_Record *pRecord = NULL	, bool bInvert = false);
 
-	int								Del_Selection		(void);
-	int								Inv_Selection		(void);
+	virtual int						Del_Selection		(void);
+	virtual int						Inv_Selection		(void);
 
 	//-----------------------------------------------------
 	bool							Set_Index			(int Field_1, TSG_Table_Index_Order Order_1, int Field_2 = -1, TSG_Table_Index_Order Order_2 = TABLE_INDEX_None, int Field_3 = -1, TSG_Table_Index_Order Order_3 = TABLE_INDEX_None);
