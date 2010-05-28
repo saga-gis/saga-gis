@@ -733,6 +733,8 @@ CSG_Grid * CSG_Parameters_Grid_Target::Get_User(TSG_Data_Type Type)
 		return( NULL );
 	}
 
+	On_User_Changed(m_pUser, m_pUser->Get_Parameter("SIZE"));
+
 	return( SG_Create_Grid(Type,
 		m_pUser->Get_Parameter("COLS")->asInt(),
 		m_pUser->Get_Parameter("ROWS")->asInt(),

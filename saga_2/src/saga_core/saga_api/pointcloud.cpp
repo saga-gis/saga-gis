@@ -342,7 +342,7 @@ bool CSG_PointCloud::_Load(const CSG_String &File_Name)
 		}
 	}
 
-	if( m_nPointBytes != nPointBytes )
+	if( m_nPointBytes != nPointBytes + 1 )
 	{
 		SG_UI_Msg_Add(LNG("[MSG] failed"), false, SG_UI_MSG_STYLE_FAILURE);
 		SG_UI_Msg_Add_Error(LNG("[ERR] incompatible file."));
@@ -353,7 +353,7 @@ bool CSG_PointCloud::_Load(const CSG_String &File_Name)
 	//-----------------------------------------------------
 	int		fLength	= Stream.Length();
 
-	while( _Inc_Array() && Stream.Read(m_Cursor, m_nPointBytes) && SG_UI_Process_Set_Progress(Stream.Tell(), fLength) )
+	while( _Inc_Array() && Stream.Read(m_Cursor + 1, nPointBytes) && SG_UI_Process_Set_Progress(Stream.Tell(), fLength) )
 	{}
 
 	_Dec_Array();
@@ -390,10 +390,10 @@ bool CSG_PointCloud::_Save(const CSG_String &File_Name)
 		return( false );
 	}
 
-	int		i, iBuffer;
+	int		i, iBuffer, nPointBytes	= m_nPointBytes - 1;
 
 	Stream.Write((void *)POINTCLOUD_FILE_VERSION, 6);
-	Stream.Write(&m_nPointBytes	, sizeof(int));
+	Stream.Write(&nPointBytes	, sizeof(int));
 	Stream.Write(&m_nFields		, sizeof(int));
 
 	for(i=0; i<m_nFields; i++)
@@ -407,7 +407,7 @@ bool CSG_PointCloud::_Save(const CSG_String &File_Name)
 
 	for(i=0; i<Get_Count() && SG_UI_Process_Set_Progress(i, Get_Count()); i++)
 	{
-		Stream.Write(m_Points[i], m_nPointBytes);
+		Stream.Write(m_Points[i] + 1, nPointBytes);
 	}
 
 	Set_Modified(false);
@@ -453,7 +453,7 @@ bool CSG_PointCloud::Assign(CSG_Data_Object *pObject)
 		{
 			if( _Inc_Array() )
 			{
-				memcpy(m_Points[iPoint], pPointCloud->m_Points[iPoint], m_nPointBytes);
+				memcpy(m_Points[iPoint] + 1, pPointCloud->m_Points[iPoint] + 1, m_nPointBytes - 1);
 			}
 		}
 
@@ -974,7 +974,7 @@ bool CSG_PointCloud::Select(int iRecord, bool bInvert)
 
 			m_Selected[m_nSelected++]	= m_Cursor;
 		}
-		else															// deselect
+		else													// deselect
 		{
 			m_Cursor[0]	&= ~SG_TABLE_REC_FLAG_Selected;
 
@@ -1115,23 +1115,43 @@ const CSG_Rect & CSG_PointCloud::Get_Selection_Extent(void)
 //---------------------------------------------------------
 int CSG_PointCloud::Del_Selection(void)
 {
-	int		n	= 0;
-
-	if( m_nSelected > 0 )
+	if( m_nSelected <= 0 )
 	{
-		for(int i=Get_Count()-1; i>=0; i--)
-		{
-			if( is_Selected(i) )
-			{
-				Del_Record(i);
+		return( 0 );
+	}
 
-				n++;
+	SG_Free(m_Selected);
+	m_Selected	= NULL;
+	m_nSelected	= 0;
+
+	//-----------------------------------------------------
+	char	**pPoint, **pLast, *Point;
+	int		i, n;
+
+	for(n=0, pPoint=m_Points, pLast=m_Points+Get_Count()-1; pPoint<pLast; pPoint++)
+	{
+		if( (**pPoint & SG_TABLE_REC_FLAG_Selected) != 0 )	// selected
+		{
+			while( (**pLast & SG_TABLE_REC_FLAG_Selected) != 0 && pPoint < pLast )
+			{
+				n		++;
+				pLast	--;
+			}
+
+			if( pPoint < pLast )
+			{
+				n		++;
+
+				Point	= *pPoint;
+				*pPoint	= *pLast;
+				*pLast	= Point;
 			}
 		}
+	}
 
-		SG_Free(m_Selected);
-		m_Selected	= NULL;
-		m_nSelected	= 0;
+	for(i=0; i<n; i++)
+	{
+		_Dec_Array();		
 	}
 
 	return( n );

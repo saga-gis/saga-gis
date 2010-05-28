@@ -398,92 +398,95 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters)
 
 		CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
 
-		switch( pParameter->Get_Type() )
+		if( !pParameter->is_Information() || pParameter->is_DataObject() )
 		{
-		default:
-			break;
-
-		case PARAMETER_TYPE_Bool:
-			pParameter->Set_Value(m_pCMD->Found(GET_ID1(pParameter)) ? 1 : 0);
-			break;
-
-		case PARAMETER_TYPE_Int:
-		case PARAMETER_TYPE_Choice:
-		case PARAMETER_TYPE_Table_Field:
-			if( m_pCMD->Found(GET_ID1(pParameter), &l) )
+			switch( pParameter->Get_Type() )
 			{
-				pParameter->Set_Value((int)l);
-			}
-			break;
+			default:
+				break;
 
-		case PARAMETER_TYPE_Double:
-		case PARAMETER_TYPE_Degree:
-			if( m_pCMD->Found(GET_ID1(pParameter), &s) && s.ToDouble(&d) )
-			{
-				pParameter->Set_Value(d);
-			}
-			break;
+			case PARAMETER_TYPE_Bool:
+				pParameter->Set_Value(m_pCMD->Found(GET_ID1(pParameter)) ? 1 : 0);
+				break;
 
-		case PARAMETER_TYPE_Range:
-			if( m_pCMD->Found(GET_ID2(pParameter, wxT("MIN")), &s) && s.ToDouble(&d) )
-			{
-				pParameter->asRange()->Set_LoVal(d);
-			}
-
-			if( m_pCMD->Found(GET_ID2(pParameter, wxT("MAX")), &s) && s.ToDouble(&d) )
-			{
-				pParameter->asRange()->Set_HiVal(d);
-			}
-			break;
-
-		case PARAMETER_TYPE_String:
-		case PARAMETER_TYPE_Text:
-			if( m_pCMD->Found(GET_ID1(pParameter), &s) )
-			{
-				pParameter->Set_Value(s.c_str());
-			}
-			break;
-
-		case PARAMETER_TYPE_FilePath:
-			if( m_pCMD->Found(GET_ID1(pParameter), &s) )
-			{
-				if( pParameter->asFilePath()->is_Multiple() )
+			case PARAMETER_TYPE_Int:
+			case PARAMETER_TYPE_Choice:
+			case PARAMETER_TYPE_Table_Field:
+				if( m_pCMD->Found(GET_ID1(pParameter), &l) )
 				{
-					s.Prepend(wxT("\""));
-					s.Replace(wxT(";"), wxT("\" \""));
-					s.Append (wxT("\""));
+					pParameter->Set_Value((int)l);
+				}
+				break;
+
+			case PARAMETER_TYPE_Double:
+			case PARAMETER_TYPE_Degree:
+				if( m_pCMD->Found(GET_ID1(pParameter), &s) && s.ToDouble(&d) )
+				{
+					pParameter->Set_Value(d);
+				}
+				break;
+
+			case PARAMETER_TYPE_Range:
+				if( m_pCMD->Found(GET_ID2(pParameter, wxT("MIN")), &s) && s.ToDouble(&d) )
+				{
+					pParameter->asRange()->Set_LoVal(d);
 				}
 
-				pParameter->Set_Value(s.c_str());
-			}
-			break;
-
-		case PARAMETER_TYPE_FixedTable:
-			if( m_pCMD->Found(GET_ID1(pParameter), &s) )
-			{
-				CSG_Table	Table(s.c_str());
-				pParameter->asTable()->Assign_Values(&Table);
-			}
-			break;
-
-		case PARAMETER_TYPE_Grid_System:
-			if( pParameter->Get_Children_Count() == 0 )
-			{
-				long	nx, ny;
-				double	d, x, y;
-
-				if(	!m_pCMD->Found(GET_ID2(pParameter, wxT("NX")), &nx)
-				||	!m_pCMD->Found(GET_ID2(pParameter, wxT("NY")), &ny)
-				||	!m_pCMD->Found(GET_ID2(pParameter, wxT( "X")), &s) || !s.ToDouble(&x)
-				||	!m_pCMD->Found(GET_ID2(pParameter, wxT( "Y")), &s) || !s.ToDouble(&y)
-				||	!m_pCMD->Found(GET_ID2(pParameter, wxT( "D")), &s) || !s.ToDouble(&d) )
+				if( m_pCMD->Found(GET_ID2(pParameter, wxT("MAX")), &s) && s.ToDouble(&d) )
 				{
-					d	= -1.0;
+					pParameter->asRange()->Set_HiVal(d);
 				}
+				break;
 
-				pParameter->asGrid_System()->Assign(d, x, y, (int)nx, (int)ny);
+			case PARAMETER_TYPE_String:
+			case PARAMETER_TYPE_Text:
+				if( m_pCMD->Found(GET_ID1(pParameter), &s) )
+				{
+					pParameter->Set_Value(s.c_str());
+				}
+				break;
+
+			case PARAMETER_TYPE_FilePath:
+				if( m_pCMD->Found(GET_ID1(pParameter), &s) )
+				{
+					if( pParameter->asFilePath()->is_Multiple() )
+					{
+						s.Prepend(wxT("\""));
+						s.Replace(wxT(";"), wxT("\" \""));
+						s.Append (wxT("\""));
+					}
+
+					pParameter->Set_Value(s.c_str());
+				}
+				break;
+
+			case PARAMETER_TYPE_FixedTable:
+				if( m_pCMD->Found(GET_ID1(pParameter), &s) )
+				{
+					CSG_Table	Table(s.c_str());
+					pParameter->asTable()->Assign_Values(&Table);
+				}
+				break;
+
+			case PARAMETER_TYPE_Grid_System:
+				if( pParameter->Get_Children_Count() == 0 )
+				{
+					long	nx, ny;
+					double	d, x, y;
+
+					if(	!m_pCMD->Found(GET_ID2(pParameter, wxT("NX")), &nx)
+					||	!m_pCMD->Found(GET_ID2(pParameter, wxT("NY")), &ny)
+					||	!m_pCMD->Found(GET_ID2(pParameter, wxT( "X")), &s) || !s.ToDouble(&x)
+					||	!m_pCMD->Found(GET_ID2(pParameter, wxT( "Y")), &s) || !s.ToDouble(&y)
+					||	!m_pCMD->Found(GET_ID2(pParameter, wxT( "D")), &s) || !s.ToDouble(&d) )
+					{
+						d	= -1.0;
+					}
+
+					pParameter->asGrid_System()->Assign(d, x, y, (int)nx, (int)ny);
+				}
+				break;
 			}
-			break;
 		}
 	}
 
@@ -733,7 +736,7 @@ bool CModule_Library::_Destroy_DataObjects(bool bSave, CSG_Parameters *pParamete
 			{
 				if( pParameter->asDataObject() )
 				{
-					delete(pParameter->asDataObject());
+				//	delete(pParameter->asDataObject());
 					pParameter->Set_Value(DATAOBJECT_NOTSET);
 				}
 			}

@@ -237,25 +237,29 @@ bool CGW_Multi_Regression_Grid::Initialize(void)
 	for(iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 	{
 		pPoint	= pPoints->Get_Shape(iPoint);
-		Point	= pPoint->Get_Point(0);
-		z[0]	= pPoint->asDouble(iDependent);
 
-		for(iPredictor=0, bAdd=true; bAdd && iPredictor<m_pPredictors->Get_Count(); iPredictor++)
+		if( !pPoint->is_NoData(iDependent) )
 		{
-			if( !m_pPredictors->asGrid(iPredictor)->Get_Value(Point, z[iPredictor + 1], Interpolation) )
+			Point	= pPoint->Get_Point(0);
+			z[0]	= pPoint->asDouble(iDependent);
+
+			for(iPredictor=0, bAdd=true; bAdd && iPredictor<m_pPredictors->Get_Count(); iPredictor++)
 			{
-				bAdd	= false;
+				if( !m_pPredictors->asGrid(iPredictor)->Get_Value(Point, z[iPredictor + 1], Interpolation) )
+				{
+					bAdd	= false;
+				}
 			}
-		}
 
-		if( bAdd )
-		{
-			pPoint	= m_Points.Add_Shape();
-			pPoint->Add_Point(Point);
-
-			for(iPredictor=0; iPredictor<=m_pPredictors->Get_Count(); iPredictor++)
+			if( bAdd )
 			{
-				pPoint->Set_Value(iPredictor, z[iPredictor]);
+				pPoint	= m_Points.Add_Shape();
+				pPoint->Add_Point(Point);
+
+				for(iPredictor=0; iPredictor<=m_pPredictors->Get_Count(); iPredictor++)
+				{
+					pPoint->Set_Value(iPredictor, z[iPredictor]);
+				}
 			}
 		}
 	}

@@ -90,19 +90,18 @@ void			Set_Library		(CModule_Library *pLibrary)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-static bool				g_bSilent	= false;
+static bool		g_bSilent		= false;
+
+void			Set_Silent		(bool bOn)	{	g_bSilent		= bOn;		}
+
+bool			Get_Silent		(void)		{	return( g_bSilent );		}
 
 //---------------------------------------------------------
-void			Set_Silent		(bool bOn)
-{
-	g_bSilent	= bOn;
-}
+static bool		g_bInteractive	= false;
 
-//---------------------------------------------------------
-bool			Get_Silent		(void)
-{
-	return( g_bSilent );
-}
+void			Set_Interactive	(bool bOn)	{	g_bInteractive	= bOn;		}
+
+bool			Get_Interactive	(void)		{	return( g_bInteractive );	}
 
 
 ///////////////////////////////////////////////////////////
@@ -142,7 +141,7 @@ void			Print_Error		(const SG_Char *Error, const SG_Char *Info)
 //---------------------------------------------------------
 void			Get_Pause		(void)
 {
-	if( !g_bSilent )
+	if( g_bInteractive )
 	{
 		SG_PRINTF(SG_T("\n%s..."), LNG("press any key"));
 
@@ -155,7 +154,7 @@ void			Get_Pause		(void)
 //---------------------------------------------------------
 bool			Get_YesNo		(const SG_Char *caption, const SG_Char *message)
 {
-	if( !g_bSilent )
+	if( g_bInteractive )
 	{
 #ifdef _SAGA_MSW
 		CSG_String	sKey, sYes(SG_T("y")), sNo(SG_T("n"));

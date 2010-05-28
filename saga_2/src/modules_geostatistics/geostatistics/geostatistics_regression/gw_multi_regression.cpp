@@ -442,14 +442,14 @@ bool CGW_Multi_Regression::On_Execute(void)
 //---------------------------------------------------------
 int CGW_Multi_Regression::Set_Variables(int x, int y)
 {
-	int			nPoints;
+	int			iPoint, jPoint, nPoints, iPredictor;
 	TSG_Point	Point;
 	CSG_Shape	*pPoint;
 
 	Point	= m_pIntercept->Get_System().Get_Grid_to_World(x, y);
 	nPoints	= m_Search.is_Okay() ? m_Search.Select_Nearest_Points(Point.x, Point.y, m_nPoints_Max, m_Radius, m_Mode == 0 ? -1 : 4) : m_pPoints->Get_Count();
 
-	for(int iPoint=0; iPoint<nPoints; iPoint++)
+	for(iPoint=0, jPoint=0; iPoint<nPoints; iPoint++)
 	{
 		if( m_Search.is_Okay() )
 		{
@@ -467,13 +467,25 @@ int CGW_Multi_Regression::Set_Variables(int x, int y)
 		m_z[iPoint]	= pPoint->asDouble(m_iDependent);
 		m_w[iPoint]	= m_Weighting.Get_Weight(SG_Get_Distance(Point, pPoint->Get_Point(0)));
 
-		for(int iPredictor=0; iPredictor<m_nPredictors; iPredictor++)
+		for(iPredictor=0; iPredictor<m_nPredictors; iPredictor++)
 		{
-			m_y[iPoint][iPredictor]	= pPoint->asDouble(m_iPredictor[iPredictor]);
+			if( !pPoint->is_NoData(m_iPredictor[iPredictor]) )
+			{
+				m_y[jPoint][iPredictor]	= pPoint->asDouble(m_iPredictor[iPredictor]);
+			}
+			else
+			{
+				iPredictor	= m_nPredictors + 1;
+			}
+		}
+
+		if( iPredictor == m_nPredictors )
+		{
+			jPoint++;
 		}
 	}
 
-	return( nPoints );
+	return( jPoint );
 }
 
 //---------------------------------------------------------

@@ -511,9 +511,14 @@ CSG_String		SG_File_Get_Name(const SG_Char *full_Path, bool bExtension)
 //---------------------------------------------------------
 CSG_String		SG_File_Get_Path(const SG_Char *full_Path)
 {
-	wxFileName	fn(full_Path);
+	if( full_Path && *full_Path )
+	{
+		wxFileName	fn(full_Path);
 
-	return( fn.GetPath(wxPATH_GET_VOLUME|wxPATH_GET_SEPARATOR).c_str() );
+		return( fn.GetPath(wxPATH_GET_VOLUME|wxPATH_GET_SEPARATOR).c_str() );
+	}
+
+	return( SG_T("") );
 }
 
 //---------------------------------------------------------
@@ -521,7 +526,7 @@ CSG_String		SG_File_Make_Path(const SG_Char *Directory, const SG_Char *Name, con
 {
 	wxFileName	fn;
 
-	fn.AssignDir(SG_Dir_Exists(Directory) ? Directory : SG_File_Get_Path(Name).c_str());
+	fn.AssignDir(Directory && *Directory ? Directory : SG_File_Get_Path(Name).c_str());
 
 	if( Extension && *Extension )
 	{
