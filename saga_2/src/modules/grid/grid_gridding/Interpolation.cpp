@@ -70,11 +70,6 @@
 //---------------------------------------------------------
 CInterpolation::CInterpolation(void)
 {
-	Parameters.Add_Grid_Output(
-		NULL	, "GRID"		, _TL("Grid"),
-		_TL("")
-	);
-
 	CSG_Parameter	*pNode	= Parameters.Add_Shapes(
 		NULL	, "SHAPES"		, _TL("Points"),
 		_TL(""),
@@ -153,8 +148,6 @@ bool CInterpolation::On_Execute(void)
 	if( m_pGrid )
 	{
 		m_pGrid->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_pShapes->Get_Name(), Get_Name()));
-
-		Parameters("GRID")->Set_Value(m_pGrid);
 
 		bResult	= Interpolate();
 	}

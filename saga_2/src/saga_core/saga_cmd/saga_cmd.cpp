@@ -82,7 +82,7 @@
 #define SYS_ENV_PATH		SG_T("PATH")
 
 #define FLAG_SILENT		SG_T("s")
-#define FLAG_IGNORE		SG_T("i")
+#define FLAG_INTERACT		SG_T("i")
 #define FLAG_PROJ			SG_T("p")
 #define FLAG_LANGUAGE		SG_T("l")
 
@@ -178,8 +178,8 @@ _try
 	//-----------------------------------------------------
 	SG_Set_UI_Callback(Get_Callback());
 
-	Set_Silent		(Flags.Find(FLAG_SILENT) >= 0 ? true  : false);
-	Set_Interactive	(Flags.Find(FLAG_IGNORE) >= 0 ? false : true );
+	Set_Silent		(Flags.Find(FLAG_SILENT  ) >= 0 ? true : false);
+	Set_Interactive	(Flags.Find(FLAG_INTERACT) >= 0 ? true : false);
 
 	Print_Logo();
 
@@ -225,6 +225,7 @@ _try
 
 //---------------------------------------------------------
 #ifdef _DEBUG
+	Set_Interactive(true);
 	Get_Pause();
 #endif
 
@@ -315,26 +316,32 @@ void		Error_Library	(const SG_Char *MLB_Path)
 	{
 		Print_Error(LNG("module library"));
 
-		SG_PRINTF(SG_T("\n%s:\n"), LNG("available module libraries"));
-
-		nLibraries	= 0;
-
-		do
+		if( !Get_Silent() )
 		{
-			if( Library.Create(FileName, Dir.GetName()) )
-			{
-				SG_PRINTF(SG_T("- %s\n"), FileName.c_str());
-				nLibraries++;
-			}
-		}
-		while( Dir.GetNext(&FileName) );
+			SG_PRINTF(SG_T("\n%s:\n"), LNG("available module libraries"));
 
-		SG_PRINTF(SG_T("\n%d %s\n"), nLibraries, LNG("SAGA Module Libraries"));
+			nLibraries	= 0;
+
+			do
+			{
+				if( Library.Create(FileName, Dir.GetName()) )
+				{
+					SG_PRINTF(SG_T("- %s\n"), FileName.c_str());
+					nLibraries++;
+				}
+			}
+			while( Dir.GetNext(&FileName) );
+
+			SG_PRINTF(SG_T("\n%d %s\n"), nLibraries, LNG("SAGA Module Libraries"));
+		}
 	}
 
-	SG_PRINTF(SG_T("\n"));
-	SG_PRINTF(LNG("type -h or --help for further information"));
-	SG_PRINTF(SG_T("\n"));
+	if( !Get_Silent() )
+	{
+		SG_PRINTF(SG_T("\n"));
+		SG_PRINTF(LNG("type -h or --help for further information"));
+		SG_PRINTF(SG_T("\n"));
+	}
 }
 
 //---------------------------------------------------------
@@ -355,23 +362,26 @@ void		Error_Module	(const SG_Char *MLB_Path, const SG_Char *FileName)
 
 	Print_Error(LNG("module"));
 
-	SG_PRINTF(SG_T("\n%s:\n"), LNG("available modules"));
-
-	for(int i=0; i<Library.Get_Count(); i++)
+	if( !Get_Silent() )
 	{
-		if( Library.Get_Module(i)->is_Interactive() )
-		{
-			SG_PRINTF(SG_T("[%d]\t- [%s] %s\n"), i, LNG("interactive"), Library.Get_Module(i)->Get_Name());
-		}
-		else
-		{
-			SG_PRINTF(SG_T(" %d\t- %s\n"), i, Library.Get_Module(i)->Get_Name());
-		}
-	}
+		SG_PRINTF(SG_T("\n%s:\n"), LNG("available modules"));
 
-	SG_PRINTF(SG_T("\n"));
-	SG_PRINTF(LNG("type -h or --help for further information"));
-	SG_PRINTF(SG_T("\n"));
+		for(int i=0; i<Library.Get_Count(); i++)
+		{
+			if( Library.Get_Module(i)->is_Interactive() )
+			{
+				SG_PRINTF(SG_T("[%d]\t- [%s] %s\n"), i, LNG("interactive"), Library.Get_Module(i)->Get_Name());
+			}
+			else
+			{
+				SG_PRINTF(SG_T(" %d\t- %s\n"), i, Library.Get_Module(i)->Get_Name());
+			}
+		}
+
+		SG_PRINTF(SG_T("\n"));
+		SG_PRINTF(LNG("type -h or --help for further information"));
+		SG_PRINTF(SG_T("\n"));
+	}
 }
 
 
@@ -426,13 +436,13 @@ void		Print_Help		(void)
 		SG_T("\n")
 		SG_T("saga_cmd [-h, --help]\n")
 		SG_T("saga_cmd [-b, --batch]\n")
-		SG_T("saga_cmd [-f, --flags[=slp]] <LIBRARY> <MODULE> <module specific options...>\n")
+		SG_T("saga_cmd [-f, --flags][=silp] <LIBRARY> <MODULE> <module specific options...>\n")
 		SG_T("\n")
 		SG_T("[-h], [--help ]: help on usage\n")
 		SG_T("[-b], [--batch]: create a batch file example\n")
 		SG_T("[-f], [--flags]: various flags for general usage\n")
 		SG_T("  s: silent mode\n")
-		SG_T("  i: no user interaction\n")
+		SG_T("  i: allow user interaction\n")
 		SG_T("  l: load translation dictionary\n")
 		SG_T("  p: load projections dictionary\n")
 		SG_T("<LIBRARY>\t")	SG_T(": file name of the library\n")

@@ -195,6 +195,7 @@ void CSG_Module::Set_Translation(CSG_Translator &Translator)
 bool CSG_Module::Execute(void)
 {
 	bool	bResult	= false;
+	int		i;
 
 	if( m_bExecutes == false )
 	{
@@ -202,7 +203,7 @@ bool CSG_Module::Execute(void)
 
 		if( Parameters.DataObjects_Check() )
 		{
-			for(int i=0; i<m_npParameters; i++)
+			for(i=0; i<m_npParameters; i++)
 			{
 				m_pParameters[i]->DataObjects_Check();
 			}
@@ -245,6 +246,11 @@ __except(1)
 			Destroy();
 
 			Parameters.DataObjects_Synchronize();
+
+			for(i=0; i<m_npParameters; i++)
+			{
+				m_pParameters[i]->DataObjects_Synchronize();
+			}
 		}
 
 		m_bExecutes		= false;

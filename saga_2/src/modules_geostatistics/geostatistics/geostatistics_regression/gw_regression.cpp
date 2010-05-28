@@ -81,21 +81,6 @@ CGW_Regression::CGW_Regression(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_Output(
-		NULL	, "INTERCEPT"	, _TL("Intercept"),
-		_TL("")
-	);
-
-	Parameters.Add_Grid_Output(
-		NULL	, "SLOPE"		, _TL("Slope"),
-		_TL("")
-	);
-
-	Parameters.Add_Grid_Output(
-		NULL	, "QUALITY"		, _TL("Coefficient of Determination"),
-		_TL("")
-	);
-
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "POINTS"		, _TL("Points"),
 		_TL(""),
@@ -124,6 +109,7 @@ CGW_Regression::CGW_Regression(void)
 
 	m_Grid_Target.Add_Parameters_User(Add_Parameters("USER", _TL("User Defined Grid")	, _TL("")));
 	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GRID", _TL("Choose Grid")			, _TL("")), false);
+
 	m_Grid_Target.Add_Grid_Parameter(SG_T("QUALITY")   , _TL("Quality")  , false);
 	m_Grid_Target.Add_Grid_Parameter(SG_T("INTERCEPT") , _TL("Intercept"), false);
 	m_Grid_Target.Add_Grid_Parameter(SG_T("SLOPE")     , _TL("Slope")    , false);
@@ -232,9 +218,9 @@ bool CGW_Regression::On_Execute(void)
 	case 0:	// user defined...
 		if( m_Grid_Target.Init_User(m_pPoints->Get_Extent()) && Dlg_Parameters("USER") )
 		{
-			m_pIntercept	= m_Grid_Target.Get_User();
-			m_pSlope		= m_Grid_Target.Get_User();
-			m_pQuality		= m_Grid_Target.Get_User();
+			m_pIntercept	= m_Grid_Target.Get_User(SG_T("INTERCEPT"));
+			m_pSlope		= m_Grid_Target.Get_User(SG_T("SLOPE"));
+			m_pQuality		= m_Grid_Target.Get_User(SG_T("QUALITY"));
 		}
 		break;
 
@@ -258,10 +244,6 @@ bool CGW_Regression::On_Execute(void)
 	m_pIntercept->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_pPoints->Get_Name(), _TL("GWR Intercept")));
 	m_pSlope    ->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_pPoints->Get_Name(), _TL("GWR Slope")));
 	m_pQuality  ->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_pPoints->Get_Name(), _TL("GWR Quality")));
-
-	Parameters("INTERCEPT")->Set_Value(m_pIntercept);
-	Parameters("SLOPE")    ->Set_Value(m_pSlope);
-	Parameters("QUALITY")  ->Set_Value(m_pQuality);
 
 	//-----------------------------------------------------
 	int	nPoints_Max	= m_nPoints_Max > 0 ? m_nPoints_Max : m_pPoints->Get_Count();

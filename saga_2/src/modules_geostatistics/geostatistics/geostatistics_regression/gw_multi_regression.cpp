@@ -92,22 +92,6 @@ CGW_Multi_Regression::CGW_Multi_Regression(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_Output(
-		NULL	, "INTERCEPT"	, _TL("Intercept"),
-		_TL("")
-	);
-
-	Parameters.Add_Grid_List(
-		NULL	, "SLOPES"		, _TL("Slopes"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL, false
-	);
-
-	Parameters.Add_Grid_Output(
-		NULL	, "QUALITY"		, _TL("Coefficient of Determination"),
-		_TL("")
-	);
-
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "POINTS"		, _TL("Points"),
 		_TL(""),
@@ -134,8 +118,9 @@ CGW_Multi_Regression::CGW_Multi_Regression(void)
 		), 0
 	);
 
-	m_Grid_Target.Add_Parameters_User(Add_Parameters("USER", _TL("User Defined Grid")	, _TL("")));
+	m_Grid_Target.Add_Parameters_User(Add_Parameters("USER", _TL("User Defined Grid")	, _TL("")), false);
 	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GRID", _TL("Choose Grid")			, _TL("")), false);
+
 	m_Grid_Target.Add_Grid_Parameter(SG_T("QUALITY")   , _TL("Quality")  , false);
 	m_Grid_Target.Add_Grid_Parameter(SG_T("INTERCEPT") , _TL("Intercept"), false);
 
@@ -356,12 +341,12 @@ bool CGW_Multi_Regression::On_Execute(void)
 	case 0:	// user defined...
 		if( m_Grid_Target.Init_User(m_pPoints->Get_Extent()) && Dlg_Parameters("USER") )
 		{
-			m_pQuality		= m_Grid_Target.Get_User();
-			m_pIntercept	= m_Grid_Target.Get_User();
+			m_pQuality		= m_Grid_Target.Get_User(SG_T("QUALITY"  ));
+			m_pIntercept	= m_Grid_Target.Get_User(SG_T("INTERCEPT"));
 
 			for(i=0; i<m_nPredictors; i++)
 			{
-				m_pSlopes[i]	= m_Grid_Target.Get_User();
+				m_pSlopes[i]	= m_Grid_Target.Get_User(SG_Get_String(i, 0));
 			}
 		}
 		break;
@@ -369,7 +354,7 @@ bool CGW_Multi_Regression::On_Execute(void)
 	case 1:	// grid...
 		if( Dlg_Parameters("GRID") )
 		{
-			m_pQuality		= m_Grid_Target.Get_Grid(SG_T("QUALITY"));
+			m_pQuality		= m_Grid_Target.Get_Grid(SG_T("QUALITY"  ));
 			m_pIntercept	= m_Grid_Target.Get_Grid(SG_T("INTERCEPT"));
 
 			for(i=0; i<m_nPredictors; i++)
@@ -388,17 +373,11 @@ bool CGW_Multi_Regression::On_Execute(void)
 	}
 
 	m_pQuality  ->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_pPoints->Get_Name(), _TL("GWR Quality")));
-	Parameters("QUALITY")  ->Set_Value(m_pQuality);
-
 	m_pIntercept->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_pPoints->Get_Name(), _TL("GWR Intercept")));
-	Parameters("INTERCEPT")->Set_Value(m_pIntercept);
-
-	Parameters("SLOPES")->asGridList()->Del_Items();
 
 	for(i=0; i<m_nPredictors; i++)
 	{
 		m_pSlopes[i]->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_pPoints->Get_Name(), m_pPoints->Get_Field_Name(m_iPredictor[i])));
-		Parameters("SLOPES")->asGridList()->Add_Item(m_pSlopes[i]);
 	}
 
 	//-----------------------------------------------------

@@ -105,8 +105,6 @@ private:
 	void						Get_MinMax				(TSG_Rect &r, double x, double y);
 	bool						Get_Target_Extent		(CSG_Grid *pSource, TSG_Rect &Extent, bool bEdge);
 
-	CSG_Grid *					Get_Target_Autofit		(CSG_Grid *pSource, TSG_Data_Type Type);
-
 };
 
 

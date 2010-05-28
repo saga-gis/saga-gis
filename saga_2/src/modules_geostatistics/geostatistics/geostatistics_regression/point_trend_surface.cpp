@@ -81,11 +81,6 @@ CPoint_Trend_Surface::CPoint_Trend_Surface(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_Output(
-		NULL	, "REGRESSION"	, _TL("Trend Surface"),
-		_TL("")
-	);
-
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "POINTS"		, _TL("Points"),
 		_TL(""),
@@ -202,8 +197,6 @@ bool CPoint_Trend_Surface::On_Execute(void)
 
 	//-----------------------------------------------------
 	pRegression->Set_Name(CSG_String::Format(SG_T("%s (%s)"), pPoints->Get_Name(), Get_Name()));
-
-	Parameters("REGRESSION")->Set_Value(pRegression);
 
 	Set_Regression(pRegression, Type);
 

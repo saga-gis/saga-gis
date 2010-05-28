@@ -94,11 +94,6 @@ CShapes2Grid::CShapes2Grid(void)
 
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_Output(
-		NULL	, "GRID"		, _TL("Grid"),
-		_TL("")
-	);
-
 	pNode_0	= Parameters.Add_Shapes(
 		NULL	, "INPUT"		, _TL("Shapes"),
 		_TL(""),
@@ -234,7 +229,6 @@ bool CShapes2Grid::On_Execute(void)
 	//-------------------------------------------------
 	m_pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pShapes->Get_Name(), iField < 0 ? _TL("ID") : m_pShapes->Get_Field_Name(iField)));
 	m_pGrid->Assign_NoData();
-	Parameters("GRID")->Set_Value(m_pGrid);
 
 	m_pLock	= m_pShapes->Get_Type() == SHAPE_TYPE_Point ? NULL : SG_Create_Grid(m_pGrid, SG_DATATYPE_Byte);
 

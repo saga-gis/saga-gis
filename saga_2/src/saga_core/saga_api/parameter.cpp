@@ -592,7 +592,7 @@ void CSG_Parameters_Grid_Target::Create(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Parameters_Grid_Target::Add_Parameters_User(CSG_Parameters *pParameters)
+bool CSG_Parameters_Grid_Target::Add_Parameters_User(CSG_Parameters *pParameters, bool bAddDefaultGrid)
 {
 	if( pParameters == NULL )
 	{
@@ -628,6 +628,13 @@ bool CSG_Parameters_Grid_Target::Add_Parameters_User(CSG_Parameters *pParameters
 	pParameters->Add_Info_Value(
 		NULL, "ROWS"		, LNG("Rows")		, LNG(""), PARAMETER_TYPE_Int
 	);
+
+	if( bAddDefaultGrid )
+	{
+		pParameters->Add_Grid_Output(
+			NULL, "GRID"		, LNG("Grid")		, LNG("")
+		);
+	}
 
 	return( true );
 }
@@ -725,23 +732,74 @@ bool CSG_Parameters_Grid_Target::Init_User(const TSG_Rect &Extent, int Rows)
 //---------------------------------------------------------
 CSG_Grid * CSG_Parameters_Grid_Target::Get_User(TSG_Data_Type Type)
 {
-	if( m_pUser == NULL
-	||	m_pUser->Get_Parameter("SIZE")->asDouble() <= 0.0
-	||	m_pUser->Get_Parameter("COLS")->asInt()    <  1
-	||	m_pUser->Get_Parameter("ROWS")->asInt()    <  1	)
+	return( Get_User(SG_T("GRID"), Type) );
+}
+
+//---------------------------------------------------------
+CSG_Grid * CSG_Parameters_Grid_Target::Get_User(const CSG_String &Identifier, TSG_Data_Type Type)
+{
+	CSG_Grid	*pGrid	= NULL;
+
+	if( m_pUser )
 	{
-		return( NULL );
+		if( m_pUser->Get_Parameter("SIZE")->asDouble() > 0.0
+		&&	m_pUser->Get_Parameter("COLS")->asInt()    > 0
+		&&	m_pUser->Get_Parameter("ROWS")->asInt()    > 0	)
+		{
+			On_User_Changed(m_pUser, m_pUser->Get_Parameter("SIZE"));
+
+			pGrid	= SG_Create_Grid(Type,
+				m_pUser->Get_Parameter("COLS")->asInt(),
+				m_pUser->Get_Parameter("ROWS")->asInt(),
+				m_pUser->Get_Parameter("SIZE")->asDouble(),
+				m_pUser->Get_Parameter("XMIN")->asDouble(),
+				m_pUser->Get_Parameter("YMIN")->asDouble()
+			);
+		}
+
+		if( Identifier.Length() > 0 && m_pUser->Get_Parameter(Identifier) )
+		{
+			m_pUser->Get_Parameter(Identifier)->Set_Value(pGrid);
+		}
 	}
 
-	On_User_Changed(m_pUser, m_pUser->Get_Parameter("SIZE"));
+	return( pGrid );
+}
 
-	return( SG_Create_Grid(Type,
-		m_pUser->Get_Parameter("COLS")->asInt(),
-		m_pUser->Get_Parameter("ROWS")->asInt(),
-		m_pUser->Get_Parameter("SIZE")->asDouble(),
-		m_pUser->Get_Parameter("XMIN")->asDouble(),
-		m_pUser->Get_Parameter("YMIN")->asDouble()
-	));
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Parameters_Grid_Target::Add_Grid_Parameter(const CSG_String &Identifier, const CSG_String &Name, bool bOptional)
+{
+	if( Identifier.Length() == 0 )
+	{
+		return( false );
+	}
+
+	if( m_pUser && m_pUser->Get_Parameter(Identifier) == NULL )
+	{
+		m_pUser->Add_Grid_Output(NULL, Identifier, Name, LNG(""));
+	}
+
+	if( m_pGrid && m_pGrid->Get_Parameter(Identifier) == NULL )
+	{
+		CSG_Parameter	*pSystem	= NULL;
+
+		for(int i=0; i<m_pGrid->Get_Count() && !pSystem; i++)
+		{
+			if( m_pGrid->Get_Parameter(i)->Get_Type() == PARAMETER_TYPE_Grid_System )
+			{
+				pSystem	= m_pGrid->Get_Parameter(i);
+			}
+		}
+
+		m_pGrid->Add_Grid(pSystem, Identifier, Name, LNG(""), bOptional ? PARAMETER_OUTPUT_OPTIONAL : PARAMETER_OUTPUT, false);
+	}
+
+	return( true );
 }
 
 
@@ -765,29 +823,6 @@ bool CSG_Parameters_Grid_Target::Add_Parameters_Grid(CSG_Parameters *pParameters
 			NULL	, "GRID"	, LNG("Grid")		, LNG(""), PARAMETER_OUTPUT, false
 		);
 	}
-
-	return( true );
-}
-
-//---------------------------------------------------------
-bool CSG_Parameters_Grid_Target::Add_Grid_Parameter(const CSG_String &Identifier, const CSG_String &Name, bool bOptional)
-{
-	if( !m_pGrid || Identifier.Length() == 0 || m_pGrid->Get_Parameter(Identifier) != NULL )
-	{
-		return( false );
-	}
-
-	CSG_Parameter	*pSystem	= NULL;
-	
-	for(int i=0; i<m_pGrid->Get_Count() && !pSystem; i++)
-	{
-		if( m_pGrid->Get_Parameter(i)->Get_Type() == PARAMETER_TYPE_Grid_System )
-		{
-			pSystem	= m_pGrid->Get_Parameter(i);
-		}
-	}
-
-	m_pGrid->Add_Grid(pSystem, Identifier, Name, LNG(""), bOptional ? PARAMETER_OUTPUT_OPTIONAL : PARAMETER_OUTPUT, false);
 
 	return( true );
 }

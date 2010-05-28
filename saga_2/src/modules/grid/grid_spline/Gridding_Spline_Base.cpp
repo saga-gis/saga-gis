@@ -73,11 +73,6 @@ CGridding_Spline_Base::CGridding_Spline_Base(bool bGridPoints)
 	m_bGridPoints	= bGridPoints;
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_Output(
-		NULL	, "GRID"		, _TL("Grid"),
-		_TL("")
-	);
-
 	if( m_bGridPoints )
 	{
 		Parameters.Add_Grid(
@@ -184,7 +179,6 @@ bool CGridding_Spline_Base::_Get_Grid(void)
 	{
 		m_pGrid->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_bGridPoints ? pGrid->Get_Name() : pShapes->Get_Name(), Get_Name()));
 		m_pGrid->Assign_NoData();
-		Parameters("GRID")->Set_Value(m_pGrid);
 	}
 
 	//-----------------------------------------------------

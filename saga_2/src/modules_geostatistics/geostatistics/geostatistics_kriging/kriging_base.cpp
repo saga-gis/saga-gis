@@ -88,16 +88,6 @@ CKriging_Base::CKriging_Base(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_Output(
-		NULL	, "GRID"		, _TL("Grid"),
-		_TL("")
-	);
-
-	Parameters.Add_Grid_Output(
-		NULL	, "VARIANCE"	, _TL("Quality Measure"),
-		_TL("")
-	);
-
 	Parameters.Add_Choice(
 		NULL	, "TARGET"		, _TL("Target Grid"),
 		_TL(""),
@@ -168,7 +158,7 @@ CKriging_Base::CKriging_Base(void)
 	pParameters = Add_Parameters("USER", _TL("User Defined Grid")	, _TL(""));
 
 	pParameters->Add_Value(
-		NULL	, "VARIANCE"	, _TL("Create Variance Grid"),
+		NULL	, "BVARIANCE"	, _TL("Create Quality Grid"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, true
 	);
@@ -180,7 +170,8 @@ CKriging_Base::CKriging_Base(void)
 
 	m_Grid_Target.Add_Parameters_Grid(pParameters);
 
-	m_Grid_Target.Add_Grid_Parameter(SG_T("VARIANCE"), _TL("Variance"), true);
+	//-----------------------------------------------------
+	m_Grid_Target.Add_Grid_Parameter(SG_T("VARIANCE"), _TL("Quality Measure"), true);
 
 	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
@@ -291,11 +282,11 @@ bool CKriging_Base::_Initialise_Grids(void)
 	case 0:	// user defined...
 		if( m_Grid_Target.Init_User(m_pPoints->Get_Extent()) && Dlg_Parameters("USER") )
 		{
-			m_pGrid	= m_Grid_Target.Get_User();
+			m_pGrid		= m_Grid_Target.Get_User();
 
-			if( Get_Parameters("USER")->Get_Parameter("VARIANCE")->asBool() )
+			if( Get_Parameters("USER")->Get_Parameter("BVARIANCE")->asBool() )
 			{
-				m_pVariance	= SG_Create_Grid(m_pGrid->Get_System());
+				m_pVariance	= m_Grid_Target.Get_User(SG_T("VARIANCE"));
 			}
 		}
 		break;

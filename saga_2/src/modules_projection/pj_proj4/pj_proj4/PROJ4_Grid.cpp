@@ -168,9 +168,8 @@ CPROJ4_Grid::CPROJ4_Grid(int Interface, bool bInputList)
 		Parameters("TARGET_NODE"),
 		"TARGET_TYPE"	, _TL("Target"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("user defined"),
-			_TL("automatic fit"),
 			_TL("grid"),
 			_TL("shapes")
 		), 0
@@ -179,22 +178,6 @@ CPROJ4_Grid::CPROJ4_Grid(int Interface, bool bInputList)
 	//-----------------------------------------------------
 	m_Grid_Target.Add_Parameters_User(Add_Parameters("GET_USER", _TL("User Defined Grid")	, _TL("")));
 	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GET_GRID", _TL("Choose Grid")			, _TL("")));
-
-	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_AUTOFIT"	, _TL("Automatic fit")	, _TL(""));
-
-	pParameters->Add_Value(
-		NULL, "GRIDSIZE"	, _TL("Grid Size")	, _TL(""), PARAMETER_TYPE_Double, 10000.0, 0.0, true
-	);
-
-	pParameters->Add_Choice(
-		NULL, "AUTOEXTMODE"	, _TL("Fit Size")	, _TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("Extent only (fast)"),
-			_TL("Check each point|")
-		), 0
-	);
 
 	//-----------------------------------------------------
 	pParameters	= Add_Parameters("GET_SYSTEM"	, _TL("Choose Grid Project"), _TL(""));
@@ -266,21 +249,14 @@ bool CPROJ4_Grid::On_Execute_Conversion(void)
 			}
 			break;
 
-		case 1:	// create new with chosen grid size and fitted extent...
-			if( Dlg_Parameters("GET_AUTOFIT") )
-			{
-				pGrid	= Get_Target_Autofit(pSource, Type);
-			}
-			break;
-
-		case 2:	// select grid system...
+		case 1:	// select grid system...
 			if( Dlg_Parameters("GET_SYSTEM") && Get_Parameters("GET_SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System()->is_Valid() )
 			{
 				pGrid	= SG_Create_Grid(*Get_Parameters("GET_SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System(), Type);
 			}
 			break;
 
-		case 3:	// shapes...
+		case 2:	// shapes...
 			if( Dlg_Parameters("GET_SHAPES") )
 			{
 				pShapes	= Get_Parameters("GET_SHAPES")->Get_Parameter("SHAPES")->asShapes();
@@ -337,21 +313,14 @@ bool CPROJ4_Grid::On_Execute_Conversion(void)
 			}
 			break;
 
-		case 1:	// create new with chosen grid size and fitted extent...
-			if( Dlg_Parameters("GET_AUTOFIT") )
-			{
-				pGrid	= Get_Target_Autofit(pSource, Type);
-			}
-			break;
-
-		case 2:	// select grid...
+		case 1:	// select grid...
 			if( Dlg_Parameters("GET_GRID") )
 			{
 				pGrid	= m_Grid_Target.Get_Grid(Type);
 			}
 			break;
 
-		case 3:	// shapes...
+		case 2:	// shapes...
 			if( Dlg_Parameters("GET_SHAPES") )
 			{
 				pShapes	= Get_Parameters("GET_SHAPES")->Get_Parameter("SHAPES")->asShapes();
@@ -703,27 +672,6 @@ bool CPROJ4_Grid::Get_Target_Extent(CSG_Grid *pSource, TSG_Rect &Extent, bool bE
 	}
 
 	return( is_Progress() && Extent.xMin < Extent.xMax && Extent.yMin < Extent.yMax );
-}
-
-//---------------------------------------------------------
-CSG_Grid * CPROJ4_Grid::Get_Target_Autofit(CSG_Grid *pSource, TSG_Data_Type Type)
-{
-	bool		bEdge		= Get_Parameters("GET_AUTOFIT")->Get_Parameter("AUTOEXTMODE")	->asInt() == 0;
-	double		Cellsize	= Get_Parameters("GET_AUTOFIT")->Get_Parameter("GRIDSIZE")		->asDouble();
-	TSG_Rect	Extent;
-
-	if( Get_Target_Extent(pSource, Extent, bEdge) )
-	{
-		return( SG_Create_Grid(Type,
-			1 + (int)((Extent.xMax - Extent.xMin) / Cellsize),
-			1 + (int)((Extent.yMax - Extent.yMin) / Cellsize),
-			Cellsize,
-			Extent.xMin,
-			Extent.yMin
-		));
-	}
-
-	return( NULL );
 }
 
 

@@ -89,11 +89,6 @@ CGrid_Resample::CGrid_Resample(void)
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_Output(
-		NULL	, "GRID"		, _TL("Resampled Grid"),
-		_TL("")
-	);
-
 	Parameters.Add_Value(
 		NULL	, "KEEP_TYPE"	, _TL("Preserve Data Type"),
 		_TL(""),
@@ -259,8 +254,6 @@ bool CGrid_Resample::On_Execute(void)
 		pOutput->Set_Name(pInput->Get_Name());
 
 		pOutput->Assign(pInput, Interpolation);
-
-		Parameters("GRID")->Set_Value(pOutput);
 
 		return( true );
 	}

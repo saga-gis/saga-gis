@@ -79,6 +79,33 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class CData_Objects
+{
+public:
+	CData_Objects(void);
+	virtual ~CData_Objects(void);
+
+	void						Clear					(bool bDelete = true);
+
+	void						Add						(class CSG_Data_Object *pObject);
+
+
+private:
+
+	int							m_nObjects;
+
+	class CSG_Data_Object		**m_pObjects;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CModule_Library  
 {
 public:
@@ -116,11 +143,14 @@ private:
 
 	class wxCmdLineParser		*m_pCMD;
 
+	CData_Objects				m_Data_Objects;
+
 
 	void						_Set_CMD				(class CSG_Parameters *pParameters, bool bExtra);
 	bool						_Get_CMD				(class CSG_Parameters *pParameters);
 
 	bool						_Create_DataObjects		(class CSG_Parameters *pParameters);
+	bool						_Create_DataObject		(class CSG_Parameter *pParameter, const wxChar *FileName);
 	bool						_Create_DataObject_List	(class CSG_Parameter *pParameter, wxString sList);
 
 	bool						_Destroy_DataObjects	(bool bSave);

@@ -947,7 +947,7 @@ public:
 
 	void						Create					(void);
 
-	bool						Add_Parameters_User		(CSG_Parameters *pParameters);
+	bool						Add_Parameters_User		(CSG_Parameters *pParameters, bool bAddDefaultGrid = true);
 	bool						Add_Parameters_Grid		(CSG_Parameters *pParameters, bool bAddDefaultGrid = true);
 
 	bool						Add_Grid_Parameter		(const CSG_String &Identifier, const CSG_String &Name, bool bOptional);
@@ -956,8 +956,9 @@ public:
 
 	bool						Init_User				(const TSG_Rect &Extent, int Rows = 100);
 
-	CSG_Grid *					Get_User				(TSG_Data_Type Type = SG_DATATYPE_Float);
-	CSG_Grid *					Get_Grid				(TSG_Data_Type Type = SG_DATATYPE_Float);
+	CSG_Grid *					Get_User				(                              TSG_Data_Type Type = SG_DATATYPE_Float);
+	CSG_Grid *					Get_User				(const CSG_String &Identifier, TSG_Data_Type Type = SG_DATATYPE_Float);
+	CSG_Grid *					Get_Grid				(                              TSG_Data_Type Type = SG_DATATYPE_Float);
 	CSG_Grid *					Get_Grid				(const CSG_String &Identifier, TSG_Data_Type Type = SG_DATATYPE_Float);
 
 
