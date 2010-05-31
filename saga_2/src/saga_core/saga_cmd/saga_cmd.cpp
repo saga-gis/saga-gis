@@ -164,7 +164,11 @@ _try
 
 	//-----------------------------------------------------
 	CMD_Path	= SG_File_Get_Path(SG_UI_Get_Application_Path()).c_str();
-	MLB_Path	= SG_File_Make_Path(CMD_Path, SG_T("modules"))  .c_str();
+
+	if( !wxGetEnv(SG_T("SAGA_MLB"), &MLB_Path) || MLB_Path.Length() == 0 )
+	{
+		MLB_Path	= SG_File_Make_Path(CMD_Path, SG_T("modules"))  .c_str();
+	}
 
 	if( wxGetEnv(SYS_ENV_PATH, &ENV_Path) && ENV_Path.Length() > 0 )
 	{
@@ -460,6 +464,8 @@ void		Print_Help		(void)
 		SG_T("Module libraries are expected to be in the SAGA installation\n")
 		SG_T("directory or its \'modules\' subdirectory. If this is not found\n")
 		SG_T("the current working directory will be searched for instead.\n")
+		SG_T("Alternatively you can add the environment variable \'SAGA_MLB\'\n")
+		SG_T("and let it point to the desired directory\n")
 		SG_T("\n")
 		SG_T("SAGA CMD is particularly useful for the automated\n")
 		SG_T("execution of a series of analysis steps, because it\n")
