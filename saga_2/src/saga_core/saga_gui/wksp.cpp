@@ -258,10 +258,18 @@ void CWKSP::On_Page_Changed(wxNotebookEvent &event)
 //---------------------------------------------------------
 void CWKSP::On_Command(wxCommandEvent &event)
 {
-	switch( event.GetId() )
+	if(	(event.GetId() >= ID_CMD_TABLES_RECENT_FIRST     && event.GetId() <= ID_CMD_TABLES_RECENT_LAST)
+	||	(event.GetId() >= ID_CMD_SHAPES_RECENT_FIRST     && event.GetId() <= ID_CMD_SHAPES_RECENT_LAST)
+	||	(event.GetId() >= ID_CMD_POINTCLOUD_RECENT_FIRST && event.GetId() <= ID_CMD_POINTCLOUD_RECENT_LAST)
+	||	(event.GetId() >= ID_CMD_TIN_RECENT_FIRST        && event.GetId() <= ID_CMD_TIN_RECENT_LAST)
+	||	(event.GetId() >= ID_CMD_GRIDS_RECENT_FIRST      && event.GetId() <= ID_CMD_GRIDS_RECENT_LAST) )
+	{
+		m_pData   ->On_Command(event);
+	}
+	else switch( event.GetId() )
 	{
 	default:
-		if(	!g_pACTIVE->Get_Item() || !g_pACTIVE->Get_Item()->On_Command(event.GetId()) )
+		if( !g_pACTIVE->Get_Item() || !g_pACTIVE->Get_Item()->On_Command(event.GetId()) )
 		{
 			if( GetCurrentPage() )
 			{

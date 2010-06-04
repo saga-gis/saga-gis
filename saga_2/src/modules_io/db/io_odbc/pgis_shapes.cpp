@@ -99,7 +99,7 @@ bool CPGIS_Shapes_Load::On_Before_Execution(void)
 		return( false );
 	}
 
-	if( !Get_Connection()->is_Postgres() )
+	if( !Get_Connection()->is_PostgreSQL() )
 	{
 		SG_UI_Dlg_Message(_TL("Not a PostgreSQL database!"), _TL("Database Connection Error"));
 
@@ -297,6 +297,11 @@ CPGIS_Shapes_Save::CPGIS_Shapes_Save(void)
 		)
 	);
 
+	Parameters.Add_Parameters(
+		NULL	, "FLAGS"		, _TL("Constraints"),
+		_TL("")
+	);
+
 	Parameters.Add_Choice(
 		NULL	, "EXISTS"		, _TL("If table exists..."),
 		_TL(""),
@@ -313,14 +318,9 @@ int CPGIS_Shapes_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SHAPES")) )
 	{
-		if( pParameter->asShapes() )
-		{
-			pParameters->Get_Parameter("NAME")->Set_Value(pParameter->asShapes()->Get_Name());
-		}
-		else
-		{
-			pParameters->Get_Parameter("NAME")->Set_Value(SG_T(""));
-		}
+		pParameters->Get_Parameter("NAME")->Set_Value(pParameter->asShapes() ? pParameter->asShapes()->Get_Name() : SG_T(""));
+
+		Set_Constraints(pParameters->Get_Parameter("FLAGS")->asParameters(), pParameter->asShapes());
 	}
 
 	return( 0 );
@@ -334,7 +334,7 @@ bool CPGIS_Shapes_Save::On_Before_Execution(void)
 		return( false );
 	}
 
-	if( !Get_Connection()->is_Postgres() )
+	if( !Get_Connection()->is_PostgreSQL() )
 	{
 		SG_UI_Dlg_Message(_TL("Not a PostgreSQL database!"), _TL("Database Connection Error"));
 
@@ -450,7 +450,7 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( !Get_Connection()->Table_Exists(Geo_Table) && !Get_Connection()->Table_Create(Geo_Table, *pShapes, false) )
+	if( !Get_Connection()->Table_Exists(Geo_Table) && !Get_Connection()->Table_Create(Geo_Table, *pShapes, Get_Constraints(Parameters("FLAGS")->asParameters(), pShapes), false) )
 	{
 		Get_Connection()->Rollback();
 

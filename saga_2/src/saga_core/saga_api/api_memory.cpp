@@ -239,6 +239,142 @@ void			SG_Mem_Set_Double(char *Buffer, double Value, bool bSwapBytes)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_Array::CSG_Array(void)
+{
+	m_Value_Size	= sizeof(char);
+	m_Growth		= SG_ARRAY_GROWTH_0;
+
+	m_nBuffer		= 0;
+	m_nValues		= 0;
+	m_Values		= NULL;
+}
+
+//---------------------------------------------------------
+CSG_Array::CSG_Array(size_t Value_Size, size_t nValues, TSG_Array_Growth Growth)
+{
+	Create(Value_Size, nValues, Growth);
+}
+
+void * CSG_Array::Create(size_t Value_Size, size_t nValues, TSG_Array_Growth Growth)
+{
+	m_Value_Size	= Value_Size;
+	m_Growth		= Growth;
+
+	m_nBuffer		= 0;
+	m_nValues		= 0;
+	m_Values		= NULL;
+
+	return( Get_Array(nValues) );
+}
+
+//---------------------------------------------------------
+CSG_Array::~CSG_Array(void)
+{
+	Destroy();
+}
+
+void CSG_Array::Destroy(void)
+{
+	if( m_Values )
+	{
+		SG_Free(m_Values);
+	}
+
+	m_nBuffer		= 0;
+	m_nValues		= 0;
+	m_Values		= NULL;
+}
+
+//---------------------------------------------------------
+bool CSG_Array::Set_Growth(TSG_Array_Growth Growth)
+{
+	m_Growth		= Growth;
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Array::Set_Array(size_t nValues)
+{
+	if( nValues >= m_nValues && nValues <= m_nBuffer )
+	{
+		m_nValues	= nValues;
+
+		return( true );
+	}
+
+	if( nValues == 0 )
+	{
+		Destroy();
+
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	size_t	nBuffer;
+
+	switch( m_Growth )
+	{
+	default:
+	case SG_ARRAY_GROWTH_0:
+		nBuffer	= nValues;
+		break;
+
+	case SG_ARRAY_GROWTH_1:
+	case SG_ARRAY_GROWTH_2:
+	case SG_ARRAY_GROWTH_3:
+		nBuffer	= nValues <  256 ? nValues
+				: nValues < 8192 ? (1 + nValues /  256) *  256
+				:                  (1 + nValues / 1024) * 1024;
+		break;
+	}
+
+	//-----------------------------------------------------
+	if( nBuffer == m_nBuffer )
+	{
+		m_nValues	= nValues;
+
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	void	*Values	= SG_Realloc(m_Values, nBuffer * m_Value_Size);
+
+	if( Values )
+	{
+		m_nBuffer	= nBuffer;
+		m_nValues	= nValues;
+		m_Values	= Values;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Array::Set_Array(size_t nValues, void **pArray)
+{
+	if( Set_Array(nValues) )
+	{
+		*pArray	= m_Values;
+
+		return( true );
+	}
+
+	*pArray	= m_Values;
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CSG_Buffer::CSG_Buffer(void)
 {
 	m_pData	= NULL;

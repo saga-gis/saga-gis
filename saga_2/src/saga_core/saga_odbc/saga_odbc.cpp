@@ -136,12 +136,13 @@ void _Error_Message(const CSG_String &Message, const CSG_String &Additional = SG
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_ODBC_Connection::CSG_ODBC_Connection(const CSG_String &Server, const CSG_String &User, const CSG_String &Password, const CSG_String &Directory)
+CSG_ODBC_Connection::CSG_ODBC_Connection(const CSG_String &Server, const CSG_String &User, const CSG_String &Password, bool bAutoCommit)
 {
 	CSG_String	s;
 
 	m_DBMS			= SG_ODBC_DBMS_Unknown;
 	m_Size_Buffer	= 1;
+	m_bAutoCommit	= bAutoCommit;
 
 	if( User.Length() > 0 )
 	{
@@ -155,13 +156,14 @@ CSG_ODBC_Connection::CSG_ODBC_Connection(const CSG_String &Server, const CSG_Str
 
 	try
 	{
-		m_Connection.rlogon(SG_STR_SGTOMB(s));
+		m_Connection.rlogon(SG_STR_SGTOMB(s), m_bAutoCommit ? 1 : 0);
 	}
 	catch( otl_exception &e )
 	{
 		_Error_Message((const char *)e.msg, CSG_String::Format(SG_T("%s [%s]"), e.stm_text, e.var_info));
 	}
 
+	//-----------------------------------------------------
 	if( !m_Connection.connected )
 	{
 		delete(((otl_connect *)m_pConnection));
@@ -172,17 +174,31 @@ CSG_ODBC_Connection::CSG_ODBC_Connection(const CSG_String &Server, const CSG_Str
 	{
 		m_DSN	= Server;
 
+		//-------------------------------------------------
 		s		= Get_DBMS_Name();
 
-		     if( !s.Cmp(SG_T("PostgreSQL")) )
+		if(      !s.CmpNoCase(SG_T("PostgreSQL")) )
 		{
 			m_DBMS	= SG_ODBC_DBMS_PostgreSQL;
 		}
-		else if( !s.Cmp(SG_T("ACCESS")) )
+		else if( !s.CmpNoCase(SG_T("MySQL")) )
+		{
+			m_DBMS	= SG_ODBC_DBMS_MySQL;
+		}
+		else if( !s.CmpNoCase(SG_T("Oracle")) )
+		{
+			m_DBMS	= SG_ODBC_DBMS_Oracle;
+		}
+		else if( !s.CmpNoCase(SG_T("MSQL")) )
+		{
+			m_DBMS	= SG_ODBC_DBMS_MSSQLServer;
+		}
+		else if( !s.CmpNoCase(SG_T("ACCESS")) )
 		{
 			m_DBMS	= SG_ODBC_DBMS_Access;
 		}
 
+		//-------------------------------------------------
 		Set_Size_Buffer(is_Access() ? 1 : 50);
 
 		Set_Size_LOB_Max(4 * 32767);
@@ -264,6 +280,12 @@ CSG_String CSG_ODBC_Connection::_Get_DBMS_Info(int What) const
 CSG_String CSG_ODBC_Connection::Get_DBMS_Name(void) const
 {
 	return( _Get_DBMS_Info(SQL_DBMS_NAME) );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_ODBC_Connection::Get_DBMS_Version(void) const
+{
+	return( _Get_DBMS_Info(SQL_DBMS_VER) );
 }
 
 
@@ -491,6 +513,24 @@ bool CSG_ODBC_Connection::Execute(const CSG_String &SQL, bool bCommit)
 }
 
 //---------------------------------------------------------
+void CSG_ODBC_Connection::Set_Auto_Commit(bool bOn)
+{
+	if( is_Connected() && m_bAutoCommit != bOn )
+	{
+		m_bAutoCommit	= bOn;
+
+		if( bOn )
+		{
+			m_Connection.auto_commit_on();
+		}
+		else
+		{
+			m_Connection.auto_commit_off();
+		}
+	}
+}
+
+//---------------------------------------------------------
 bool CSG_ODBC_Connection::Commit(void)
 {
 	if( !is_Connected() )
@@ -544,7 +584,7 @@ bool CSG_ODBC_Connection::Rollback(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_ODBC_Connection::Table_Create(const CSG_String &Table_Name, const CSG_Table &Table, bool bCommit)
+bool CSG_ODBC_Connection::Table_Create(const CSG_String &Table_Name, const CSG_Table &Table, const CSG_Buffer &Flags, bool bCommit)
 {
 	if( Table.Get_Field_Count() <= 0 )
 	{
@@ -554,11 +594,12 @@ bool CSG_ODBC_Connection::Table_Create(const CSG_String &Table_Name, const CSG_T
 	}
 
 	//-----------------------------------------------------
+	int			iField;
 	CSG_String	SQL;
 
 	SQL.Printf(SG_T("CREATE TABLE \"%s\"("), Table_Name.c_str());
 
-	for(int iField=0; iField<Table.Get_Field_Count(); iField++)
+	for(iField=0; iField<Table.Get_Field_Count(); iField++)
 	{
 		CSG_String	s;
 
@@ -594,7 +635,7 @@ bool CSG_ODBC_Connection::Table_Create(const CSG_String &Table_Name, const CSG_T
 			break;
 
 		case SG_DATATYPE_Double:
-			s	= is_Postgres()
+			s	= is_PostgreSQL()
 				? SG_T("DOUBLE PRECISION")
 				: SG_T("DOUBLE");
 			break;
@@ -604,6 +645,23 @@ bool CSG_ODBC_Connection::Table_Create(const CSG_String &Table_Name, const CSG_T
 			break;
 		}
 
+		//-------------------------------------------------
+		char	Flag	= (int)Flags.Get_Size() == Table.Get_Field_Count() ? Flags[iField] : 0;
+
+		if( (Flag & SG_ODBC_PRIMARY_KEY) == 0 )
+		{
+			if( (Flag & SG_ODBC_UNIQUE) != 0 )
+			{
+				s	+= SG_T(" UNIQUE");
+			}
+
+			if( (Flag & SG_ODBC_NOT_NULL) != 0 )
+			{
+				s	+= SG_T(" NOT NULL");
+			}
+		}
+
+		//-------------------------------------------------
 		if( iField > 0 )
 		{
 			SQL	+= SG_T(", ");
@@ -612,6 +670,27 @@ bool CSG_ODBC_Connection::Table_Create(const CSG_String &Table_Name, const CSG_T
 		SQL	+= CSG_String::Format(SG_T("%s %s"), Table.Get_Field_Name(iField), s.c_str());
 	}
 
+	//-----------------------------------------------------
+	if( (int)Flags.Get_Size() == Table.Get_Field_Count() )
+	{
+		CSG_String	s;
+
+		for(iField=0; iField<Table.Get_Field_Count(); iField++)
+		{
+			if( (Flags[iField] & SG_ODBC_PRIMARY_KEY) != 0 )
+			{
+				s	+= s.Length() == 0 ? SG_T(", PRIMARY KEY(") : SG_T(", ");
+				s	+= Table.Get_Field_Name(iField);
+			}
+		}
+
+		if( s.Length() > 0 )
+		{
+			SQL	+= s + SG_T(")");
+		}
+	}
+
+	//-----------------------------------------------------
 	SQL	+= SG_T(")");
 
 	//-----------------------------------------------------
@@ -710,7 +789,11 @@ bool CSG_ODBC_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_T
 
 			for(iField=0; iField<Table.Get_Field_Count(); iField++)
 			{
-				switch( Table.Get_Field_Type(iField) )
+				if( pRecord->is_NoData(iField) )
+				{
+					Stream << otl_null();
+				}
+				else switch( Table.Get_Field_Type(iField) )
 				{
 				default:
 				case SG_DATATYPE_String:
@@ -747,7 +830,7 @@ bool CSG_ODBC_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_T
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_ODBC_Connection::Table_Save(const CSG_String &Table_Name, const CSG_Table &Table, bool bCommit)
+bool CSG_ODBC_Connection::Table_Save(const CSG_String &Table_Name, const CSG_Table &Table, const CSG_Buffer &Flags, bool bCommit)
 {
 	//-----------------------------------------------------
 	if( !is_Connected() )
@@ -762,7 +845,7 @@ bool CSG_ODBC_Connection::Table_Save(const CSG_String &Table_Name, const CSG_Tab
 		return( false );
 	}
 
-	if( !Table_Create(Table_Name, Table, bCommit) )
+	if( !Table_Create(Table_Name, Table, Flags, bCommit) )
 	{
 		return( false );
 	}
@@ -889,15 +972,25 @@ bool CSG_ODBC_Connection::Table_Load(CSG_Table &Table, const CSG_String &Table_N
 }
 
 //---------------------------------------------------------
-bool CSG_ODBC_Connection::Table_Load(CSG_Table &Table, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where, const CSG_String &Order, bool bLOB)
+bool CSG_ODBC_Connection::Table_Load(CSG_Table &Table, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where, const CSG_String &Group, const CSG_String &Having, const CSG_String &Order, bool bDistinct, bool bLOB)
 {
 	CSG_String	Select;
 
-	Select.Printf(SG_T("SELECT %s FROM %s"), Fields.c_str(), Tables.c_str());
+	Select.Printf(SG_T("SELECT %s %s FROM %s"), bDistinct ? SG_T("DISTINCT") : SG_T("ALL"), Fields.c_str(), Tables.c_str());
 
 	if( Where.Length() )
 	{
 		Select	+= SG_T(" WHERE ") + Where;
+	}
+
+	if( Group.Length() )
+	{
+		Select	+= SG_T(" GROUP BY ") + Group;
+
+		if( Having.Length() )
+		{
+			Select	+= SG_T(" HAVING ") + Having;
+		}
 	}
 
 	if( Order.Length() )
@@ -1100,9 +1193,9 @@ bool CSG_ODBC_Connections::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_ODBC_Connection * CSG_ODBC_Connections::Add_Connection(const CSG_String &Server, const CSG_String &User, const CSG_String &Password, const CSG_String &Directory)
+CSG_ODBC_Connection * CSG_ODBC_Connections::Add_Connection(const CSG_String &Server, const CSG_String &User, const CSG_String &Password)
 {
-	CSG_ODBC_Connection	*pConnection	= new CSG_ODBC_Connection(Server, User, Password, Directory);
+	CSG_ODBC_Connection	*pConnection	= new CSG_ODBC_Connection(Server, User, Password);
 
 	if( pConnection )
 	{
@@ -1308,12 +1401,6 @@ CSG_ODBC_Module::CSG_ODBC_Module(void)
 			LNG("Password"),
 			SG_T("")
 		);
-
-		Parameters.Add_String(
-			NULL	, "ODBC_DIR"	, LNG("Directory"),
-			LNG("Directory (DBase, Excel)"),
-			SG_T("")
-		);
 	}
 
 	m_pConnection	= NULL;
@@ -1331,8 +1418,7 @@ bool CSG_ODBC_Module::On_Before_Execution(void)
 		m_pConnection	= SG_ODBC_Get_Connection_Manager().Add_Connection(
 			Parameters("ODBC_DSN")->asString(),
 			Parameters("ODBC_USR")->asString(),
-			Parameters("ODBC_PWD")->asString(),
-			Parameters("ODBC_DIR")->asString()
+			Parameters("ODBC_PWD")->asString()
 		);
 	}
 	else
@@ -1372,6 +1458,76 @@ bool CSG_ODBC_Module::On_After_Execution(void)
 	}
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_ODBC_Module::Set_Constraints(CSG_Parameters *pParameters, CSG_Table *pTable)
+{
+	if( !pParameters || !pTable )
+	{
+		return( false );
+	}
+
+	pParameters->Del_Parameters();
+
+	if( pTable )
+	{
+		CSG_Parameter	*pP	= pParameters->Add_Node(NULL, "P", LNG("Primary key)")	, LNG(""));
+		CSG_Parameter	*pN	= pParameters->Add_Node(NULL, "N", LNG("Not Null")		, LNG(""));
+		CSG_Parameter	*pU	= pParameters->Add_Node(NULL, "U", LNG("Unique")		, LNG(""));
+
+		for(int i=0; i<pTable->Get_Field_Count(); i++)
+		{
+			pParameters->Add_Value(pP, CSG_String::Format(SG_T("P%d"), i), pTable->Get_Field_Name(i), LNG(""), PARAMETER_TYPE_Bool, false);
+			pParameters->Add_Value(pN, CSG_String::Format(SG_T("N%d"), i), pTable->Get_Field_Name(i), LNG(""), PARAMETER_TYPE_Bool, false);
+			pParameters->Add_Value(pU, CSG_String::Format(SG_T("U%d"), i), pTable->Get_Field_Name(i), LNG(""), PARAMETER_TYPE_Bool, false);
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+CSG_Buffer CSG_ODBC_Module::Get_Constraints(CSG_Parameters *pParameters, CSG_Table *pTable)
+{
+	CSG_Buffer	Flags;
+
+	if( pParameters )
+	{
+		int		nFields	= pTable ? pTable->Get_Field_Count() : (pParameters->Get_Count() - 3) / 3;
+
+		if( nFields * 3 + 3 == pParameters->Get_Count() )
+		{
+			for(int i=0; i<nFields; i++)
+			{
+				char	Flag	= 0;
+
+				if( pParameters->Get_Parameter(CSG_String::Format(SG_T("P%d"), i))->asBool() )
+				{
+					Flag	|= SG_ODBC_PRIMARY_KEY;
+				}
+
+				if( pParameters->Get_Parameter(CSG_String::Format(SG_T("N%d"), i))->asBool() )
+				{
+					Flag	|= SG_ODBC_NOT_NULL;
+				}
+
+				if( pParameters->Get_Parameter(CSG_String::Format(SG_T("U%d"), i))->asBool() )
+				{
+					Flag	|= SG_ODBC_UNIQUE;
+				}
+
+				Flags	+= Flag;
+			}
+		}
+	}
+
+	return( Flags );
 }
 
 

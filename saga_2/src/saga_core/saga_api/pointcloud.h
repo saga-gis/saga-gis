@@ -213,6 +213,8 @@ private:
 
 	double							m_NoData_Value;
 
+	CSG_Array						m_Array_Points, m_Array_Selected;
+
 	CSG_Shapes						m_Shapes;
 
 

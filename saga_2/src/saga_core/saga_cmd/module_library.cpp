@@ -447,10 +447,29 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters)
 				break;
 
 			case PARAMETER_TYPE_String:
-			case PARAMETER_TYPE_Text:
 				if( m_pCMD->Found(GET_ID1(pParameter), &s) )
 				{
 					pParameter->Set_Value(s.c_str());
+				}
+				break;
+
+			case PARAMETER_TYPE_Text:
+				if( m_pCMD->Found(GET_ID1(pParameter), &s) )
+				{
+					CSG_File	Stream;
+
+					if( Stream.Open(s.c_str()) )
+					{
+						CSG_String	t;
+
+						Stream.Read(t, Stream.Length());
+
+						pParameter->Set_Value(t.c_str());
+					}
+					else
+					{
+						pParameter->Set_Value(s.c_str());
+					}
 				}
 				break;
 

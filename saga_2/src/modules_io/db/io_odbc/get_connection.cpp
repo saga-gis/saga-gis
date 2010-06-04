@@ -95,12 +95,6 @@ CGet_Connection::CGet_Connection(void)
 		_TL(""),
 		SG_T(""), false, true
 	);
-
-	Parameters.Add_FilePath(
-		NULL	, "DIRPATH"		, _TL("Directory"),
-		_TL(""),
-		NULL, NULL, false, true
-	);
 }
 
 
@@ -137,14 +131,13 @@ bool CGet_Connection::On_Before_Execution(void)
 //---------------------------------------------------------
 bool CGet_Connection::On_Execute(void)
 {
-	CSG_String	Server, User, Password, Directory;
+	CSG_String	Server, User, Password;
 
 	Server		= Parameters("SERVERS")		->asString();
 	User		= Parameters("USERNAME")	->asString();
 	Password	= Parameters("PASSWORD")	->asString();
-	Directory	= Parameters("DIRPATH")		->asString();
 
-	if( SG_ODBC_Get_Connection_Manager().Add_Connection(Server, User, Password, Directory) )
+	if( SG_ODBC_Get_Connection_Manager().Add_Connection(Server, User, Password) )
 	{
 		Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("ODBC source connected")));
 
@@ -341,6 +334,112 @@ bool CTransaction::On_Execute(void)
 	Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("could not commit/rollback transactions.")));
 
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CExecute_SQL::CExecute_SQL(void)
+{
+	Set_Name		(_TL("ODBC Execute SQL"));
+
+	Set_Author		(SG_T("O.Conrad (c) 2010"));
+
+	Set_Description	(_TW(
+		"Execute SQL commands on a connected ODBC source. "
+		"Separate different commands with a semicolon (\';\'). "
+	));
+
+	Parameters.Add_String(
+		NULL	, "SQL"			, _TL("SQL Statment"),
+		_TL(""),
+		SG_T("CREATE TABLE myTable1 (Col1 VARCHAR(255) PRIMARY KEY, Col2 INTEGER);\n")
+		SG_T("INSERT INTO myTable1 (Col1, Col2) VALUES(\'First Value\', 1);\n")
+		SG_T("DROP TABLE myTable1;\n"),
+		true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "COMMIT"		, _TL("Commit"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "STOP"		, _TL("Stop on Error"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CExecute_SQL::On_Execute(void)
+{
+	if( !Get_Connection() )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	bool		bCommit	= Parameters("COMMIT")	->asBool  ();
+	bool		bStop	= Parameters("STOP")	->asBool  ();
+	CSG_String	SQL		= Parameters("SQL")		->asString();
+
+	//-----------------------------------------------------
+	if( SQL.Find(SG_T(';')) < 0 )
+	{
+		return( Get_Connection()->Execute(SQL, bCommit) );
+	}
+
+	//-----------------------------------------------------
+	int		nSuccess = 0, nErrors = 0;
+
+	SQL	+= SG_T(';');
+
+	do
+	{
+		CSG_String	s	= SQL.BeforeFirst(SG_T(';'));
+
+		s.Trim();
+
+		if( s.Length() > 0 )
+		{
+			Message_Add(s);
+
+			if( Get_Connection()->Execute(s, bCommit) )
+			{
+				nSuccess++;
+
+				Message_Add(CSG_String::Format(SG_T("...%s!"), _TL("okay")), false);
+			}
+			else
+			{
+				nErrors++;
+
+				Message_Add(CSG_String::Format(SG_T("...%s!"), _TL("failed")));
+
+				if( bStop )
+				{
+					return( false );
+				}
+			}
+		}
+
+		SQL	= SQL.AfterFirst(SG_T(';'));
+	}
+	while( SQL.Length() > 0 );
+
+	return( nErrors == 0 );
 }
 
 

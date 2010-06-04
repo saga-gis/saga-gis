@@ -198,7 +198,6 @@ void CSG_PointCloud::_On_Construction(void)
 
 	m_Points		= NULL;
 	m_nRecords		= 0;
-	m_nBuffer		= 0;
 	m_nPointBytes	= 0;
 
 	m_Cursor		= NULL;
@@ -212,6 +211,9 @@ void CSG_PointCloud::_On_Construction(void)
 
 	m_Shapes.Create(SHAPE_TYPE_Point);
 	m_Shapes.Add_Shape();
+
+	m_Array_Points  .Create(sizeof(char *), 0, SG_ARRAY_GROWTH_2);
+	m_Array_Selected.Create(sizeof(char *), 0, SG_ARRAY_GROWTH_3);
 }
 
 //---------------------------------------------------------
@@ -236,11 +238,6 @@ bool CSG_PointCloud::Destroy(void)
 		SG_Free(m_Field_Type);
 		SG_Free(m_Field_Stats);
 		SG_Free(m_Field_Offset);
-
-		if( m_Selected )
-		{
-			SG_Free(m_Selected);
-		}
 
 		_On_Construction();
 	}
@@ -499,7 +496,7 @@ bool CSG_PointCloud::is_Compatible(CSG_PointCloud *pPointCloud) const
 //---------------------------------------------------------
 bool CSG_PointCloud::_Add_Field(const SG_Char *Name, TSG_Data_Type Type, int iField)
 {
-	if( SG_Data_Type_Get_Size(Type) <= 0 )
+	if( !Name || SG_Data_Type_Get_Size(Type) <= 0 )
 	{
 		return( false );
 	}
@@ -524,28 +521,27 @@ bool CSG_PointCloud::_Add_Field(const SG_Char *Name, TSG_Data_Type Type, int iFi
 
 	m_Shapes.Add_Field(Name, Type);
 
+	for(int i=0; i<Get_Count(); i++)
+	{
+		m_Points[i]	= (char *)SG_Realloc(m_Points[i], m_nPointBytes * sizeof(char));
+	}
+
+	Set_Modified();
+
 	return( true );
 }
 
 //---------------------------------------------------------
 bool CSG_PointCloud::Add_Field(const SG_Char *Name, TSG_Data_Type Type, int iField)
 {
-	if( Get_Count() == 0 )
+	if( m_nFields == 0 )
 	{
-		if( m_nFields == 0 )
-		{
-			_Add_Field(SG_T("X"), m_bXYZPrecDbl ? SG_DATATYPE_Double : SG_DATATYPE_Float);
-			_Add_Field(SG_T("Y"), m_bXYZPrecDbl ? SG_DATATYPE_Double : SG_DATATYPE_Float);
-			_Add_Field(SG_T("Z"), m_bXYZPrecDbl ? SG_DATATYPE_Double : SG_DATATYPE_Float);
-		}
-
-		if( Name && SG_Data_Type_Get_Size(Type) > 0 )
-		{
-			return( _Add_Field(Name, Type, iField) );
-		}
+		_Add_Field(SG_T("X"), m_bXYZPrecDbl ? SG_DATATYPE_Double : SG_DATATYPE_Float);
+		_Add_Field(SG_T("Y"), m_bXYZPrecDbl ? SG_DATATYPE_Double : SG_DATATYPE_Float);
+		_Add_Field(SG_T("Z"), m_bXYZPrecDbl ? SG_DATATYPE_Double : SG_DATATYPE_Float);
 	}
 
-	return( false );
+	return( _Add_Field(Name, Type, iField) );
 }
 
 //---------------------------------------------------------
@@ -557,7 +553,56 @@ bool CSG_PointCloud::Add_Field(const char *Name, TSG_Data_Type Type, int iField)
 //---------------------------------------------------------
 bool CSG_PointCloud::Del_Field(int iField)
 {
-	return( Get_Count() == 0 ? CSG_Shapes::Del_Field(iField) : false );
+	int		i;
+
+	if( iField < 3 || iField >= m_nFields )
+	{
+		return( false );
+	}
+
+	if( m_nFields == 1 )
+	{
+		return( Destroy() );
+	}
+
+	//-----------------------------------------------------
+	m_nFields		--;
+	m_nPointBytes	-= SG_Data_Type_Get_Size(m_Field_Type[iField]);
+
+	for(i=0; i<m_nRecords; i++)
+	{
+		if( iField < m_nFields )
+		{
+			memmove(
+				m_Points[i] + m_Field_Offset[iField],
+				m_Points[i] + m_Field_Offset[iField + 1],
+				m_Field_Offset[iField + 1] - m_Field_Offset[iField]
+			);
+		}
+
+		m_Points[i]	= (char *)SG_Realloc(m_Points[i], m_nPointBytes * sizeof(char));
+	}
+
+	//-----------------------------------------------------
+	delete(m_Field_Name [iField]);
+	delete(m_Field_Stats[iField]);
+
+	for(i=iField; i<m_nFields; i++)
+	{
+		m_Field_Name  [i]	= m_Field_Name  [i + 1];
+		m_Field_Type  [i]	= m_Field_Type  [i + 1];
+		m_Field_Stats [i]	= m_Field_Stats [i + 1];
+		m_Field_Offset[i]	= m_Field_Offset[i - 1] + SG_Data_Type_Get_Size(m_Field_Type[i - 1]);
+	}
+
+	m_Field_Name	= (CSG_String            **)SG_Realloc(m_Field_Name  , m_nFields * sizeof(CSG_String *));
+	m_Field_Type	= (TSG_Data_Type          *)SG_Realloc(m_Field_Type  , m_nFields * sizeof(TSG_Data_Type));
+	m_Field_Stats	= (CSG_Simple_Statistics **)SG_Realloc(m_Field_Stats , m_nFields * sizeof(CSG_Simple_Statistics *));
+	m_Field_Offset	= (int                    *)SG_Realloc(m_Field_Offset, m_nFields * sizeof(int));
+
+	Set_Modified();
+
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -693,9 +738,7 @@ bool CSG_PointCloud::Add_Point(double x, double y, double z)
 		_Set_Field_Value(m_Cursor, 2, z);
 
 		Set_Modified();
-
 		Set_Update_Flag();
-
 		_Stats_Invalidate();
 
 		return( true );
@@ -728,8 +771,8 @@ bool CSG_PointCloud::Del_Point(int iPoint)
 		_Dec_Array();
 
 		Set_Modified();
-
 		Set_Update_Flag();
+		_Stats_Invalidate();
 
 		return( true );
 	}
@@ -740,23 +783,22 @@ bool CSG_PointCloud::Del_Point(int iPoint)
 //---------------------------------------------------------
 bool CSG_PointCloud::Del_Points(void)
 {
-	if( m_nBuffer > 0 )
+	for(int iPoint=0; iPoint<m_nRecords; iPoint++)
 	{
-		for(int iPoint=0; iPoint<Get_Count(); iPoint++)
-		{
-			SG_Free(m_Points[iPoint]);
-		}
-
-		SG_Free(m_Points);
-		m_Points	= NULL;
-		m_nRecords	= 0;
-		m_nBuffer	= 0;
-		m_Cursor	= NULL;
-
-		return( true );
+		SG_Free(m_Points[iPoint]);
 	}
 
-	return( false );
+	m_Array_Points  .Destroy();
+	m_Array_Selected.Destroy();
+
+	m_nRecords	= 0;
+	m_Points	= NULL;
+	m_Cursor	= NULL;
+
+	m_nSelected	= 0;
+	m_Selected	= NULL;
+
+	return( true );
 }
 
 
@@ -767,30 +809,12 @@ bool CSG_PointCloud::Del_Points(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_GROW_SIZE(n)	(n < 256 ? 1 : (n < 8192 ? 128 : 1024))
-
-//---------------------------------------------------------
 bool CSG_PointCloud::_Inc_Array(void)
 {
-	if( m_nFields > 0 )
+	if( m_nFields > 0 && m_Array_Points.Set_Array(m_nRecords + 1) )
 	{
-		if( (Get_Count() + 1) >= m_nBuffer )
-		{
-			char	**pPoints	= (char **)SG_Realloc(m_Points, (m_nBuffer + GET_GROW_SIZE(m_nBuffer)) * sizeof(char *));
-
-			if( pPoints )
-			{
-				m_Points	= pPoints;
-				m_nBuffer	+= GET_GROW_SIZE(m_nBuffer);
-			}
-			else
-			{
-				return( false );
-			}
-		}
-
-		m_Cursor	= m_Points[Get_Count()]	= (char *)SG_Calloc(m_nPointBytes, sizeof(char));
-		m_nRecords	++;
+		m_Points	= (char **)m_Array_Points.Get_Array();
+		m_Points[m_nRecords++]	= m_Cursor	= (char *)SG_Calloc(m_nPointBytes, sizeof(char));
 
 		return( true );
 	}
@@ -801,24 +825,17 @@ bool CSG_PointCloud::_Inc_Array(void)
 //---------------------------------------------------------
 bool CSG_PointCloud::_Dec_Array(void)
 {
-	if( Get_Count() > 0 )
+	if( m_nRecords > 0 )
 	{
-		_Stats_Invalidate();
+		m_nRecords	--;
 
 		m_Cursor	= NULL;
-		m_nRecords	--;
 
 		SG_Free(m_Points[m_nRecords]);
 
-		if( (m_nRecords - 1) < m_nBuffer - GET_GROW_SIZE(m_nBuffer) )
+		if( m_Array_Points.Set_Array(m_nRecords) )
 		{
-			char	**pPoints	= (char **)SG_Realloc(m_Points, (m_nBuffer - GET_GROW_SIZE(m_nBuffer)) * sizeof(char *));
-
-			if( pPoints || m_nRecords == 0 )
-			{
-				m_Points	= pPoints;
-				m_nBuffer	-= GET_GROW_SIZE(m_nBuffer);
-			}
+			m_Points	= (char **)m_Array_Points.Get_Array();
 		}
 	}
 
@@ -968,11 +985,16 @@ bool CSG_PointCloud::Select(int iRecord, bool bInvert)
 	{
 		if( (m_Cursor[0] & SG_TABLE_REC_FLAG_Selected) == 0 )	// select
 		{
-			m_Cursor[0]	|= SG_TABLE_REC_FLAG_Selected;
+			if( m_Array_Selected.Set_Array(m_nSelected + 1) )
+			{
+				m_Cursor[0]	|= SG_TABLE_REC_FLAG_Selected;
 
-			m_Selected	= (char **)SG_Realloc(m_Selected, (m_nSelected + 1) * sizeof(char *));
+				m_Selected	= (char **)m_Array_Selected.Get_Array();
 
-			m_Selected[m_nSelected++]	= m_Cursor;
+				m_Selected[m_nSelected++]	= m_Cursor;
+
+				return( true );
+			}
 		}
 		else													// deselect
 		{
@@ -991,10 +1013,13 @@ bool CSG_PointCloud::Select(int iRecord, bool bInvert)
 				}
 			}
 
-			m_Selected	= (char **)SG_Realloc(m_Selected, m_nSelected * sizeof(char *));
-		}
+			if( m_Array_Selected.Set_Array(m_nSelected) )
+			{
+				m_Selected	= (char **)m_Array_Selected.Get_Array();
+			}
 
-		return( true );
+			return( true );
+		}
 	}
 
 	return( false );
@@ -1120,7 +1145,7 @@ int CSG_PointCloud::Del_Selection(void)
 		return( 0 );
 	}
 
-	SG_Free(m_Selected);
+	m_Array_Selected.Set_Array(0);
 	m_Selected	= NULL;
 	m_nSelected	= 0;
 

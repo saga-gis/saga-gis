@@ -363,6 +363,55 @@ SAGA_API_DLL_EXPORT CSG_String		SG_Get_String					(double Value, int Precision =
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+typedef enum ESG_Array_Growth
+{
+	SG_ARRAY_GROWTH_0	= 0,
+	SG_ARRAY_GROWTH_1,
+	SG_ARRAY_GROWTH_2,
+	SG_ARRAY_GROWTH_3
+}
+TSG_Array_Growth;
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Array
+{
+public:
+	CSG_Array(void);
+	~CSG_Array(void);
+
+						CSG_Array		(size_t Value_Size, size_t nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0);
+	void *				Create			(size_t Value_Size, size_t nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0);
+
+	void				Destroy			(void);
+
+	bool				Set_Growth		(TSG_Array_Growth Growth);
+	int					Get_Growth		(void)	const		{	return( m_Growth );		}
+
+	size_t				Get_Size		(void)	const		{	return( m_nValues );	}
+
+	void *				Get_Array		(void)	const		{	return( m_Values );		}
+	void *				Get_Array		(size_t nValues)	{	Set_Array(nValues);	return( m_Values );	}
+
+	bool				Set_Array		(size_t nValues);
+	bool				Set_Array		(size_t nValues, void **pArray);
+
+
+private:
+
+	TSG_Array_Growth	m_Growth;
+
+	size_t				m_nValues, m_nBuffer, m_Value_Size;
+
+	void				*m_Values;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Buffer
 {
 public:
