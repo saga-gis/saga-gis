@@ -9,6 +9,7 @@ CXX_INCS           = -I$(top_srcdir)/src/saga_core
 AM_CXXFLAGS        = $(CXX_INCS) $(DEF_SAGA) $(DEP_DEFS) $(DBGFLAGS)
 AM_LDFLAGS         = $(DEP_LFLG) -lodbc
 lib_LTLIBRARIES    = libsaga_odbc.la
+libsaga_odbc_la_LDFLAGS =$(AM_LDFLAGS) -release $(VERSION)
 libsaga_odbc_la_SOURCES =\
 saga_odbc.cpp\
 saga_odbc.h\

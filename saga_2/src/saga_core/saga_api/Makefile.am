@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.18 2010-03-03 19:09:54 oconrad Exp $
+# $Id: Makefile.am,v 1.19 2010-06-08 15:04:34 johanvdw Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -11,6 +11,7 @@ else
 AM_CXXFLAGS = -fPIC -Wall `wx-config --unicode=no --cxxflags` -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_API_EXPORTS -D_SAGA_DONOTUSE_HARU $(DBGFLAGS)
 AM_LDFLAGS = -fPIC -shared -Wall `wx-config --unicode=no --libs`
 endif
+libsaga_api_la_LDFLAGS =$(AM_LDFLAGS) -release $(VERSION)
 
 lib_LTLIBRARIES = libsaga_api.la
 libsaga_api_la_SOURCES =\
