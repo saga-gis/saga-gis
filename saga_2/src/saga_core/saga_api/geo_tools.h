@@ -601,11 +601,10 @@ private:
 //---------------------------------------------------------
 typedef enum ESG_Projection_Format
 {
-	SG_PROJ_FMT_Undefined	= 0,
+	SG_PROJ_FMT_WKT,
 	SG_PROJ_FMT_Proj4,
 	SG_PROJ_FMT_EPSG,
-	SG_PROJ_FMT_WKT,
-	SG_PROJ_FMT_ESRI
+	SG_PROJ_FMT_Undefined
 }
 TSG_Projection_Format;
 
@@ -648,9 +647,9 @@ public:
 	bool							Assign					(int EPSG_SRID);
 	CSG_Projection &				operator =				(int EPSG_SRID)						{	Assign(EPSG_SRID);	return( *this );	}
 
-									CSG_Projection			(const CSG_String &Projection, TSG_Projection_Format Format = SG_PROJ_FMT_Proj4);
-	bool							Create					(const CSG_String &Projection, TSG_Projection_Format Format = SG_PROJ_FMT_Proj4);
-	bool							Assign					(const CSG_String &Projection, TSG_Projection_Format Format = SG_PROJ_FMT_Proj4);
+									CSG_Projection			(const CSG_String &Projection, TSG_Projection_Format Format = SG_PROJ_FMT_WKT);
+	bool							Create					(const CSG_String &Projection, TSG_Projection_Format Format = SG_PROJ_FMT_WKT);
+	bool							Assign					(const CSG_String &Projection, TSG_Projection_Format Format = SG_PROJ_FMT_WKT);
 	CSG_Projection &				operator =				(const CSG_String &Projection)		{	Assign(Projection);	return( *this );	}
 
 	bool							is_Okay					(void)	const	{	return( m_Type != SG_PROJ_TYPE_CS_Undefined );	}
@@ -661,31 +660,25 @@ public:
 	bool							Save					(const CSG_String &File_Name, TSG_Projection_Format Format)	const;
 
 	bool							Load					(const CSG_MetaData &Projection);
-	bool							Save					(CSG_MetaData &Projection)			const;
+	bool							Save					(      CSG_MetaData &Projection)	const;
 
+	const CSG_String &				Get_Name				(void)	const	{	return( m_Name  );	}
+	const CSG_String &				Get_WKT					(void)	const	{	return( m_WKT   );	}
+	const CSG_String &				Get_Proj4				(void)	const	{	return( m_Proj4 );	}
+	int								Get_EPSG				(void)	const	{	return( m_EPSG  );	}
 
-	const CSG_String &				Get_Name				(void)	const	{	return( m_Name );				}
-	TSG_Projection_Format			Get_Original_Format		(void)	const	{	return( m_Original_Format );	}
-	const CSG_String &				Get_Original			(void)	const	{	return( m_Original );			}
-
-	const CSG_String &				Get_Proj4				(void)	const	{	return( m_Proj4 );				}
-
-	int								Get_EPSG				(void)	const;
-	CSG_String						Get_WKT					(void)	const;
-	CSG_String						Get_ESRI				(void)	const;
-
-	TSG_Projection_Type				Get_Type				(void)	const	{	return( m_Type );				}
+	TSG_Projection_Type				Get_Type				(void)	const	{	return( m_Type  );	}
 	CSG_String						Get_Type_Name			(void)	const	{	return( gSG_Projection_Type_Identifier[m_Type] );	}
 	CSG_String						Get_Type_Identifier		(void)	const	{	return( SG_Get_Projection_Type_Name(m_Type) );		}
 
 
 private:
 
-	TSG_Projection_Format			m_Original_Format;
+	int								m_EPSG;
 
 	TSG_Projection_Type				m_Type;
 
-	CSG_String						m_Name, m_Original, m_Proj4;
+	CSG_String						m_Name, m_WKT, m_Proj4;
 
 
 	void							_Reset					(void);
@@ -721,11 +714,13 @@ public:
 	const CSG_Projection &			Get_Projection			(int i)	const;
 	const CSG_Projection &			operator []				(int i) const;
 
+	bool							Get_Projection			(int EPSG, CSG_Projection &Projection)	const;
+
 	CSG_String						Get_Names				(void)	const;
 	int								Get_SRID_byNamesIndex	(int i)	const;
 
-	static bool						to_Proj4				(CSG_String &Proj4, const CSG_String &Projection, TSG_Projection_Format Format);
-	static bool						from_Proj4				(CSG_String &Projection, const CSG_String &Proj4, TSG_Projection_Format Format);
+	static bool						WKT_to_Proj4			(CSG_String &Proj4, const CSG_String &WKT  );
+	static bool						WKT_from_Proj4			(CSG_String &WKT  , const CSG_String &Proj4);
 
 
 private:

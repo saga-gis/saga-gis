@@ -262,7 +262,7 @@ bool CGrid_Import::On_Execute(void)
 		//-------------------------------------------------
 		if( Method != 1 )	// true color...
 		{
-			pImage->Get_Projection().Load(fImage, SG_PROJ_FMT_ESRI);
+			pImage->Get_Projection().Load(fImage, SG_PROJ_FMT_WKT);
 			pImage->Set_Name(Name);
 			Parameters("OUT_GRID")->Set_Value(pImage);
 			DataObject_Set_Colors(pImage, 100, SG_COLORS_BLACK_WHITE);
@@ -288,9 +288,9 @@ bool CGrid_Import::On_Execute(void)
 				}
 			}
 
-			pR->Get_Projection().Load(fImage, SG_PROJ_FMT_ESRI);
-			pG->Get_Projection().Load(fImage, SG_PROJ_FMT_ESRI);
-			pB->Get_Projection().Load(fImage, SG_PROJ_FMT_ESRI);
+			pR->Get_Projection().Load(fImage, SG_PROJ_FMT_WKT);
+			pG->Get_Projection().Load(fImage, SG_PROJ_FMT_WKT);
+			pB->Get_Projection().Load(fImage, SG_PROJ_FMT_WKT);
 
 			pR->Set_Name(CSG_String::Format(SG_T("%s [R]"), Name.c_str()));
 			pG->Set_Name(CSG_String::Format(SG_T("%s [G]"), Name.c_str()));

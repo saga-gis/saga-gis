@@ -152,6 +152,9 @@ public:
 	bool							Set_NoData			(int iPoint, int iField)				{	return( Set_Attribute(iPoint, iField, m_NoData_Value) );	}
 	bool							is_NoData			(int iPoint, int iField)	const		{	return( Get_Attribute(iPoint, iField) == m_NoData_Value );	}
 
+	virtual bool					Set_Value			(int iPoint, int iField, const SG_Char *Value);
+	virtual bool					Get_Value			(int iPoint, int iField, CSG_String    &Value)	const;
+
 	TSG_Point_Z						Get_Point			(void)			const;
 	TSG_Point_Z						Get_Point			(int iPoint)	const;
 
@@ -172,9 +175,6 @@ public:
 	virtual bool					Del_Shape			(int iShape)	{	return( Del_Point(iShape) );	}
 	virtual bool					Del_Records			(void)			{	return( Del_Points() );			}
 	virtual bool					Del_Shapes			(void)			{	return( Del_Points() );			}
-
-	virtual bool					Set_Value			(int iRecord, int iField, const SG_Char  *Value)			{	return( false );	}
-	virtual bool					Get_Value			(int iRecord, int iField, CSG_String     &Value)	const	{	return( false );	}
 
 	virtual CSG_Table_Record *		Ins_Record			(int iRecord, CSG_Table_Record *pCopy = NULL)	{	return( NULL );	}
 	virtual CSG_Table_Record *		Add_Record			(             CSG_Table_Record *pCopy = NULL)	{	return( NULL );	}
@@ -207,9 +207,9 @@ private:
 
 	bool							m_bXYZPrecDbl;
 
-	char							**m_Points, **m_Selected, *m_Cursor;
+	char							**m_Points, *m_Cursor;
 
-	int								m_nPointBytes, *m_Field_Offset;
+	int								m_nPointBytes, *m_Field_Offset, m_Shapes_Index, *m_Selected;
 
 	double							m_NoData_Value;
 
@@ -228,6 +228,8 @@ private:
 
 	bool							_Inc_Array			(void);
 	bool							_Dec_Array			(void);
+
+	CSG_Shape *						_Set_Shape			(int iPoint);
 
 };
 

@@ -360,7 +360,7 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 	//-----------------------------------------------------
 	SG_UI_Process_Set_Ready();
 
-	Get_Projection().Load(File_Name, SG_PROJ_FMT_ESRI);
+	Get_Projection().Load(SG_File_Make_Path(NULL, File_Name, SG_T("prj")), SG_PROJ_FMT_WKT);
 
 	return( true );
 }
@@ -697,7 +697,7 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 	//-----------------------------------------------------
 	SG_UI_Process_Set_Ready();
 
-	Get_Projection().Save(File_Name, SG_PROJ_FMT_ESRI);
+	Get_Projection().Save(SG_File_Make_Path(NULL, File_Name, SG_T("prj")), SG_PROJ_FMT_WKT);
 
 	return( true );
 }

@@ -204,6 +204,8 @@ CPROJ4_Grid::CPROJ4_Grid(int Interface, bool bInputList)
 //---------------------------------------------------------
 int CPROJ4_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	CPROJ4_Base::On_Parameter_Changed(pParameters, pParameter);
+
 	return( m_Grid_Target.On_User_Changed(pParameters, pParameter) ? 1 : 0 );
 }
 

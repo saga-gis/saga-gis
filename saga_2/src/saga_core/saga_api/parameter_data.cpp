@@ -1113,9 +1113,9 @@ bool CSG_Parameter_Font::On_Serialize(CSG_MetaData &Entry, bool bSave)
 		if( (pEntry = Entry.Get_Child(SG_T("COLOR"))) != NULL )
 		{
 			m_Color	= SG_GET_RGB(
-				Entry.Get_Content().AfterFirst(SG_T('R')).asInt(),
-				Entry.Get_Content().AfterFirst(SG_T('G')).asInt(),
-				Entry.Get_Content().AfterFirst(SG_T('B')).asInt()
+				pEntry->Get_Content().AfterFirst(SG_T('R')).asInt(),
+				pEntry->Get_Content().AfterFirst(SG_T('G')).asInt(),
+				pEntry->Get_Content().AfterFirst(SG_T('B')).asInt()
 			);
 		}
 

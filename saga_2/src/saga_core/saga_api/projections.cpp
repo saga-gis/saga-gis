@@ -122,11 +122,11 @@ bool CSG_Projection::Create(const CSG_Projection &Projection)
 
 bool CSG_Projection::Assign(const CSG_Projection &Projection)
 {
-	m_Name				= Projection.m_Name;
-	m_Type				= Projection.m_Type;
-	m_Original_Format	= Projection.m_Original_Format;
-	m_Original			= Projection.m_Original;
-	m_Proj4				= Projection.m_Proj4;
+	m_Name		= Projection.m_Name;
+	m_Type		= Projection.m_Type;
+	m_WKT		= Projection.m_WKT;
+	m_Proj4		= Projection.m_Proj4;
+	m_EPSG		= Projection.m_EPSG;
 
 	return( true );
 }
@@ -166,25 +166,52 @@ bool CSG_Projection::Assign(const CSG_String &Projection, TSG_Projection_Format 
 {
 	_Reset();
 
-	if( !gSG_Projections.to_Proj4(m_Proj4, Projection, Format) )
+	switch( Format )
 	{
+	default:
 		return( false );
+
+	case SG_PROJ_FMT_WKT:
+		if( !gSG_Projections.WKT_to_Proj4(m_Proj4, Projection) )
+		{
+			return( false );
+		}
+
+		m_WKT	= Projection;
+
+		break;
+
+	case SG_PROJ_FMT_Proj4:
+		if( !gSG_Projections.WKT_to_Proj4(m_WKT  , Projection) )
+		{
+			return( false );
+		}
+
+		m_Proj4	= Projection;
+
+		break;
+
+	case SG_PROJ_FMT_EPSG:
+		if( !Projection.asInt(m_EPSG) || !gSG_Projections.Get_Projection(m_EPSG, *this) )
+		{
+			return( false );
+		}
+		break;
 	}
 
-	m_Original			= Projection;
-	m_Original_Format	= Format;
+	m_Name	= m_WKT.AfterFirst(SG_T('\"')).BeforeFirst(SG_T('\"'));
 
-	if( m_Proj4.Find(SG_T("+proj=longlat")) )
+	if(      m_WKT.Make_Upper().Find(SG_T("GEOGCS")) >= 0 )
 	{
 		m_Type	= SG_PROJ_TYPE_CS_Geographic;
 	}
-	else if( m_Proj4.Find(SG_T("+proj=geocent")) )
+	else if( m_WKT.Make_Upper().Find(SG_T("PROJCS")) >= 0 )
 	{
-		m_Type	= SG_PROJ_TYPE_CS_Geocentric;
+		m_Type	= SG_PROJ_TYPE_CS_Projected;
 	}
 	else
 	{
-		m_Type	= SG_PROJ_TYPE_CS_Projected;
+		m_Type	= SG_PROJ_TYPE_CS_Geocentric;
 	}
 
 	return( true );
@@ -193,11 +220,11 @@ bool CSG_Projection::Assign(const CSG_String &Projection, TSG_Projection_Format 
 //---------------------------------------------------------
 void CSG_Projection::_Reset(void)
 {
-	m_Name				= LNG("undefined");
-	m_Type				= SG_PROJ_TYPE_CS_Undefined;
-	m_Original_Format	= SG_PROJ_FMT_Undefined;
-	m_Original			.Clear();
-	m_Proj4				.Clear();
+	m_Name		= LNG("undefined");
+	m_Type		= SG_PROJ_TYPE_CS_Undefined;
+	m_WKT		.Clear();
+	m_Proj4		.Clear();
+	m_EPSG		= -1;
 }
 
 
@@ -208,25 +235,82 @@ void CSG_Projection::_Reset(void)
 //---------------------------------------------------------
 bool CSG_Projection::Load(const CSG_String &File_Name, TSG_Projection_Format Format)
 {
-	return( false );
-}
+	CSG_File	Stream;
+	CSG_String	s;
 
-//---------------------------------------------------------
-bool CSG_Projection::Load(const CSG_MetaData &Projection)
-{
+	if( Stream.Open(File_Name, SG_FILE_R, false) )
+	{
+		Stream.Read(s, Stream.Length());
+
+		return( Assign(s, Format) );
+	}
+
 	return( false );
 }
 
 //---------------------------------------------------------
 bool CSG_Projection::Save(const CSG_String &File_Name, TSG_Projection_Format Format) const
 {
+	if( is_Okay() )
+	{
+		CSG_File	Stream;
+
+		switch( Format )
+		{
+		default:
+			break;
+
+		case SG_PROJ_FMT_WKT:
+			if( Stream.Open(File_Name, SG_FILE_W, false) )
+			{
+				Stream.Write((void *)m_WKT.c_str(), m_WKT.Length());
+
+				return( true );
+			}
+			break;
+
+		case SG_PROJ_FMT_Proj4:
+			if( Stream.Open(File_Name, SG_FILE_W, false) )
+			{
+				Stream.Write((void *)m_Proj4.c_str(), m_Proj4.Length());
+
+				return( true );
+			}
+			break;
+		}
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Projection::Load(const CSG_MetaData &Projection)
+{
+	CSG_MetaData	*pEntry;
+
+	if( (pEntry = Projection.Get_Child(SG_T("OGC_WKT"))) != NULL )
+	{
+		Assign(pEntry->Get_Content(), SG_PROJ_FMT_WKT);
+
+		if( (pEntry = Projection.Get_Child(SG_T("PROJ4"))) != NULL )
+		{
+			m_Proj4	= pEntry->Get_Content();
+		}
+
+		return( true );
+	}
+
 	return( false );
 }
 
 //---------------------------------------------------------
 bool CSG_Projection::Save(CSG_MetaData &Projection) const
 {
-	return( false );
+	Projection.Add_Child(SG_T("OGC_WKT"), m_WKT  );
+	Projection.Add_Child(SG_T("PROJ4")  , m_Proj4);
+	Projection.Add_Child(SG_T("EPSG")   , m_EPSG );
+
+	return( true );
 }
 
 
@@ -238,56 +322,6 @@ bool CSG_Projection::Save(CSG_MetaData &Projection) const
 bool CSG_Projection::is_Equal(const CSG_Projection &Projection)	const
 {
 	return(	m_Proj4 == Projection.m_Proj4 );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-int CSG_Projection::Get_EPSG(void) const
-{
-	if( m_Original_Format == SG_PROJ_FMT_EPSG )
-	{
-		return( m_Original.asInt() );
-	}
-
-	return( -1 );
-}
-
-//---------------------------------------------------------
-CSG_String CSG_Projection::Get_WKT(void) const
-{
-	CSG_String	s;
-
-	if( m_Original_Format == SG_PROJ_FMT_WKT )
-	{
-		s	= m_Original;
-	}
-	else
-	{
-		gSG_Projections.from_Proj4(s, m_Proj4, SG_PROJ_FMT_WKT);
-	}
-
-	return( s );
-}
-
-//---------------------------------------------------------
-CSG_String CSG_Projection::Get_ESRI(void) const
-{
-	CSG_String	s;
-
-	if( m_Original_Format == SG_PROJ_FMT_ESRI )
-	{
-		s	= m_Original;
-	}
-	else
-	{
-		gSG_Projections.from_Proj4(s, m_Proj4, SG_PROJ_FMT_ESRI);
-	}
-
-	return( s );
 }
 
 
@@ -508,13 +542,13 @@ int CSG_Projections::Get_SRID_byNamesIndex(int i) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Projections::to_Proj4(CSG_String &Proj4, const CSG_String &Projection, TSG_Projection_Format Format)
+bool CSG_Projections::WKT_to_Proj4(CSG_String &Proj4, const CSG_String &WKT)
 {
-	return( false );
+	return( true );
 }
 
 //---------------------------------------------------------
-bool CSG_Projections::from_Proj4(CSG_String &Projection, const CSG_String &Proj4, TSG_Projection_Format Format)
+bool CSG_Projections::WKT_from_Proj4(CSG_String &Projection, const CSG_String &Proj4)
 {
 	return( false );
 }
@@ -539,6 +573,12 @@ const CSG_Projection & CSG_Projections::Get_Projection(int i)	const
 const CSG_Projection & CSG_Projections::operator []	(int i) const
 {
 	return( Get_Projection(i) );
+}
+
+//---------------------------------------------------------
+bool CSG_Projections::Get_Projection(int EPSG, CSG_Projection &Projection)	const
+{
+	return( false );
 }
 
 
