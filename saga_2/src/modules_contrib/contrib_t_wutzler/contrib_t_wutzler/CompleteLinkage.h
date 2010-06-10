@@ -74,6 +74,9 @@
 #include<set>
 #include<deque>
 #include"Profiler.h"
+#include<limits>
+const int DBL_MAX= numeric_limits<double>::max();
+
 //#include <boost/shared_ptr.hpp>
 
 using std::map;
@@ -115,7 +118,7 @@ using std::set;
 
 	typedef std::set<long> RegionSetT;
 
-	const byte MAX_SINGLE_PIXEL_ARR = 2;
+	const BYTE MAX_SINGLE_PIXEL_ARR = 2;
 
 
 class CCompleteLinkage : public CSG_Module_Grid
@@ -185,7 +188,7 @@ private:
 	void recalcRegionMins(RegionSetT& affectedRegionSet);
 
 	void setInitDist( int x, int y, double minDist, int dir, long& ndvCnt );
-	pair<pixelSetPtrT,classPixelSetMapT::iterator> getPixelSetItForClass(long cl, byte tmpStorageNumber);
+	pair<pixelSetPtrT,classPixelSetMapT::iterator> getPixelSetItForClass(long cl, BYTE tmpStorageNumber);
 	long initClassesGrid();
 	void renameClasses();
 	void removeOrphantClasses(

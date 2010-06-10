@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.5 2007-02-13 12:49:24 tschorr Exp $
+# $Id: Makefile.am,v 1.6 2010-06-10 18:59:17 johanvdw Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -18,7 +18,6 @@ DebugStream.cpp\
 GridCalcError.cpp\
 MLB_Interface.cpp\
 NoDataValueError.cpp\
-Profiler.cpp\
 rgbOverlay.cpp\
 tomaschTool.cpp\
 CompleteLinkage.h\
@@ -26,7 +25,6 @@ DebugStream.h\
 GridCalcError.h\
 MLB_Interface.h\
 NoDataValueError.h\
-Profiler.h\
 rgbOverlay.h\
 tomaschTool.h
 

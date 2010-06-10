@@ -56,7 +56,7 @@
 
 #include "CompleteLinkage.h"
 #include <math.h>
-#include<LIMITS> 
+#include<limits> 
 #include<list>
 #include<set>
 #include<iostream>
@@ -251,7 +251,7 @@ bool CCompleteLinkage::On_Execute(void){
 		// number of steps until output
 		nPi = Get_NCells()-ndvCnt;
 		nAll = (long) ( nPi * genFactor); // number of originial classes to remove
-		nAll = min(nAll,30000);
+		nAll = min(nAll,(long)30000);
 		outputStep[0] = Parameters("GenFactor1")->asDouble() * nPi;
 		//pOutputGridAdd[0]->Set_Name( string("Classes ").assign( ToString( Parameters("GenFactor1")->asDouble())).c_str() );
 		outputStep[1] = Parameters("GenFactor2")->asDouble() * nPi;
@@ -1265,7 +1265,7 @@ void CCompleteLinkage::setInitDist(int x, int y, double minDist, int dir, long& 
 
 // returns the pixelSet for given class
 // and the Iterator to class in classPixelMap or end() if constructed from single pixel 
-pair<pixelSetPtrT,classPixelSetMapT::iterator> CCompleteLinkage::getPixelSetItForClass(long cl, byte tmpStorageNumber){
+pair<pixelSetPtrT,classPixelSetMapT::iterator> CCompleteLinkage::getPixelSetItForClass(long cl, BYTE tmpStorageNumber){
 	classPixelSetMapT::iterator it;
 	pixelSetPtrT pPixSet;
 	if( cl < Get_NCells() ){

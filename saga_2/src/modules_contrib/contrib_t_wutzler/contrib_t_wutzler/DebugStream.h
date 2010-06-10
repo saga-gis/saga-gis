@@ -7,8 +7,8 @@
 #endif // _MSC_VER > 1000
 
 
-#include <strstream>
-#include <windows.h>
+#include <sstream>
+//#include <windows.h>
 
 // copyright 1999, James M. Curran
 #if defined (_DEBUG)
@@ -16,7 +16,7 @@
  class DebugStream : public ostream
  {
  private:
-  class DebugStreamBuf : public std::strstreambuf
+  class DebugStreamBuf : public std::basic_sstreambuf
   {
   protected:
    virtual int sync()
@@ -51,7 +51,7 @@
   inline const DebugStream& operator<<(T) const
     {return(*this);}
 
-  typedef std::basic_ostream<char>& (__cdecl *
+  typedef std::basic_ostream<char>& ( *
 endl_type)(std::basic_ostream<char>&);
 
   inline const DebugStream& operator<<(const endl_type T) const
