@@ -543,16 +543,12 @@ double CSG_String::asDouble(void) const
 
 bool CSG_String::asDouble(double &Value) const
 {
-	double	dValue	= 0.0;
+	const wxChar	*start = m_pString->c_str();
+	wxChar			*end;
 
-	if( m_pString->ToDouble(&dValue) || dValue != 0.0 )
-	{
-		Value	= dValue;
+	Value	= wxStrtod(start, &end);
 
-		return( true );
-	}
-
-	return( false );
+	return( end > start );
 }
 
 

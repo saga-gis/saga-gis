@@ -255,6 +255,8 @@ bool CXYZ_Import::On_Execute(void)
 
 		fLength	= Stream.Length();
 		nValues	= 0;
+		xMin	= xMax	= 0;
+		yMin	= yMax	= 0;
 
 		while( Read_Values(Stream, x, y, z) && Set_Progress(Stream.Tell(), fLength) )
 		{
@@ -273,7 +275,7 @@ bool CXYZ_Import::On_Execute(void)
 		}
 
 		//-------------------------------------------------
-		if( xMin < xMax && yMin < yMax )
+		if( Process_Get_Okay() && xMin < xMax && yMin < yMax )
 		{
 			nx		= 1 + (int)((xMax - xMin) / Cellsize);
 			ny		= 1 + (int)((yMax - yMin) / Cellsize);
