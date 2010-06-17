@@ -105,8 +105,8 @@ CDLG_List_Base::CDLG_List_Base(CSG_Parameter_List *pList, wxString Caption)
 {
 	m_pList			= pList;
 
-	m_pSelect		= new wxListBox	(this, ID_LISTBOX_SELECT, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE|wxLB_NEEDED_SB|wxLB_SORT);	// |wxLB_EXTENDED
-	m_pAdd			= new wxListBox	(this, ID_LISTBOX_ADD   , wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE|wxLB_NEEDED_SB);
+	m_pSelect		= new wxListBox	(this, ID_LISTBOX_SELECT, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_EXTENDED|wxLB_NEEDED_SB|wxLB_SORT);	// |wxLB_EXTENDED
+	m_pAdd			= new wxListBox	(this, ID_LISTBOX_ADD   , wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_EXTENDED|wxLB_NEEDED_SB);
 
 	m_pBtn_Add		= new wxButton	(this, ID_BTN_ADD   , wxT(">>"));
 	m_pBtn_Del		= new wxButton	(this, ID_BTN_DELETE, wxT("<<"));
@@ -278,7 +278,7 @@ void CDLG_List_Base::_Add(void)
 		{
 			j	= Selections.Item(i);
 
-			m_pAdd->Append(m_pSelect->GetString(j), m_pSelect->GetClientData(j));
+			m_pAdd->Insert(m_pSelect->GetString(j), 0, m_pSelect->GetClientData(j));
 			m_pSelect->Delete(j);
 		}
 	}

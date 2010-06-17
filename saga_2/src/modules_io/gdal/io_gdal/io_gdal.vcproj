@@ -150,7 +150,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="$(GDAL)/port,$(GDAL)/gcore,$(GDAL)/ogr,$(GDAL)/ogr/ogrsf_frmts,$(SAGA)/src/saga_core"
+				AdditionalIncludeDirectories="&quot;$(GDAL)/include&quot;;&quot;$(GDAL)/port&quot;;&quot;$(GDAL)/gcore&quot;;&quot;$(GDAL)/ogr&quot;;&quot;$(GDAL)/ogr/ogrsf_frmts&quot;;&quot;$(SAGA)/src/saga_core&quot;"
 				PreprocessorDefinitions="NDEBUG;WIN32;_USRDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC"
 				StringPooling="true"
 				RuntimeLibrary="2"

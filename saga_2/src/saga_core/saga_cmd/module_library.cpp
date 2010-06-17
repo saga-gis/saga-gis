@@ -300,7 +300,7 @@ bool CModule_Library::Get_Parameters(CSG_Parameters *pParameters)
 void CModule_Library::_Set_CMD(CSG_Parameters *pParameters, bool bExtra)
 {
 	CSG_Parameter	*pParameter;
-	wxString	Description;
+	wxString		Description;
 
 	//-----------------------------------------------------
 	if( m_pCMD && pParameters )
@@ -334,9 +334,12 @@ void CModule_Library::_Set_CMD(CSG_Parameters *pParameters, bool bExtra)
 					break;
 
 				case PARAMETER_TYPE_Int:
+					m_pCMD->AddOption(GET_ID1(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
+					break;
+
 				case PARAMETER_TYPE_Choice:
 				case PARAMETER_TYPE_Table_Field:
-					m_pCMD->AddOption(GET_ID1(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
+					m_pCMD->AddOption(GET_ID1(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
 					break;
 
 				case PARAMETER_TYPE_Double:
@@ -418,11 +421,24 @@ bool CModule_Library::_Get_CMD(CSG_Parameters *pParameters)
 				break;
 
 			case PARAMETER_TYPE_Int:
-			case PARAMETER_TYPE_Choice:
-			case PARAMETER_TYPE_Table_Field:
 				if( m_pCMD->Found(GET_ID1(pParameter), &l) )
 				{
 					pParameter->Set_Value((int)l);
+				}
+				break;
+
+			case PARAMETER_TYPE_Choice:
+			case PARAMETER_TYPE_Table_Field:
+				if( m_pCMD->Found(GET_ID1(pParameter), &s) )
+				{
+					if( s.ToLong(&l) )
+					{
+						pParameter->Set_Value((int)l);
+					}
+					else
+					{
+						pParameter->Set_Value(s.c_str());
+					}
 				}
 				break;
 

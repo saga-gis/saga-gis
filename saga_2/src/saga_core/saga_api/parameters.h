@@ -642,7 +642,8 @@ public:
 
 	virtual const SG_Char *		asString				(void);
 
-	virtual bool				Set_Value				(int Value);
+	virtual bool				Set_Value				(int   Value);
+	virtual bool				Set_Value				(void *Value);
 
 	CSG_Table *					Get_Table				(void);
 

@@ -1555,6 +1555,29 @@ bool CSG_Parameter_Table_Field::Set_Value(int Value)
 }
 
 //---------------------------------------------------------
+bool CSG_Parameter_Table_Field::Set_Value(void *Value)
+{
+	CSG_Table	*pTable;
+
+	if( Value && *((SG_Char *)Value) && (pTable = Get_Table()) != NULL )
+	{
+		CSG_String	s((SG_Char *)Value);
+
+		for(int i=0; i<pTable->Get_Field_Count(); i++)
+		{
+			if( s.CmpNoCase(pTable->Get_Field_Name(i)) == 0 )
+			{
+				m_Value	= i;
+
+				return( true );
+			}
+		}
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 CSG_Table * CSG_Parameter_Table_Field::Get_Table(void)
 {
 	CSG_Table		*pTable;

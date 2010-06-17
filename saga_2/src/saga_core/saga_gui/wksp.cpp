@@ -258,11 +258,12 @@ void CWKSP::On_Page_Changed(wxNotebookEvent &event)
 //---------------------------------------------------------
 void CWKSP::On_Command(wxCommandEvent &event)
 {
-	if(	(event.GetId() >= ID_CMD_TABLES_RECENT_FIRST     && event.GetId() <= ID_CMD_TABLES_RECENT_LAST)
-	||	(event.GetId() >= ID_CMD_SHAPES_RECENT_FIRST     && event.GetId() <= ID_CMD_SHAPES_RECENT_LAST)
-	||	(event.GetId() >= ID_CMD_POINTCLOUD_RECENT_FIRST && event.GetId() <= ID_CMD_POINTCLOUD_RECENT_LAST)
-	||	(event.GetId() >= ID_CMD_TIN_RECENT_FIRST        && event.GetId() <= ID_CMD_TIN_RECENT_LAST)
-	||	(event.GetId() >= ID_CMD_GRIDS_RECENT_FIRST      && event.GetId() <= ID_CMD_GRIDS_RECENT_LAST) )
+	if(	(event.GetId() >= ID_CMD_TABLES_RECENT_FIRST       && event.GetId() <= ID_CMD_TABLES_RECENT_LAST)
+	||	(event.GetId() >= ID_CMD_SHAPES_RECENT_FIRST       && event.GetId() <= ID_CMD_SHAPES_RECENT_LAST)
+	||	(event.GetId() >= ID_CMD_POINTCLOUD_RECENT_FIRST   && event.GetId() <= ID_CMD_POINTCLOUD_RECENT_LAST)
+	||	(event.GetId() >= ID_CMD_TIN_RECENT_FIRST          && event.GetId() <= ID_CMD_TIN_RECENT_LAST)
+	||	(event.GetId() >= ID_CMD_GRIDS_RECENT_FIRST        && event.GetId() <= ID_CMD_GRIDS_RECENT_LAST)
+	||	(event.GetId() >= ID_CMD_DATA_PROJECT_RECENT_FIRST && event.GetId() <= ID_CMD_DATA_PROJECT_RECENT_LAST) )
 	{
 		m_pData   ->On_Command(event);
 	}
