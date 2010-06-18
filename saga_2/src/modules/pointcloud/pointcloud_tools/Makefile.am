@@ -11,6 +11,7 @@ AM_LDFLAGS         = -fPIC -shared
 pkglib_LTLIBRARIES = libpointcloud_tools.la
 libpointcloud_tools_la_SOURCES =\
 MLB_Interface.cpp\
+pc_attribute_calculator.cpp\
 pc_cut.cpp\
 pc_drop_attribute.cpp\
 pc_from_grid.cpp\
@@ -21,6 +22,7 @@ pc_to_grid.cpp\
 pc_to_shapes.cpp\
 pc_transform.cpp\
 MLB_Interface.h\
+pc_attribute_calculator\
 pc_cut.h\
 pc_drop_attribute.h\
 pc_from_grid.h\

@@ -19,7 +19,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/pc_cut.o $(MLB_TEMP)/pc_drop_attribute.o $(MLB_TEMP)/pc_from_grid.o $(MLB_TEMP)/pc_from_shapes.o $(MLB_TEMP)/pc_reclass_extract.o $(MLB_TEMP)/pc_thinning_simple.o $(MLB_TEMP)/pc_to_grid.o $(MLB_TEMP)/pc_to_shapes.o $(MLB_TEMP)/pc_transform.o
+OBJ      = $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/pc_attribute_calculator.o $(MLB_TEMP)/pc_cut.o $(MLB_TEMP)/pc_drop_attribute.o $(MLB_TEMP)/pc_from_grid.o $(MLB_TEMP)/pc_from_shapes.o $(MLB_TEMP)/pc_reclass_extract.o $(MLB_TEMP)/pc_thinning_simple.o $(MLB_TEMP)/pc_to_grid.o $(MLB_TEMP)/pc_to_shapes.o $(MLB_TEMP)/pc_transform.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS =
@@ -49,9 +49,11 @@ $(MLB_PATH):
 $(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
 	$(LD) $(LDFLAGS) -o $(MLB_NAME) $(OBJ) $(LIBS)
 
-
 $(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)
+
+$(MLB_TEMP)/pc_attribute_calculator.o: ./pc_attribute_calculator.cpp
+	$(CPP) -c ./pc_attribute_calculator.cpp -o $(MLB_TEMP)/pc_attribute_calculator.o $(CXXFLAGS)
 
 $(MLB_TEMP)/pc_cut.o: ./pc_cut.cpp
 	$(CPP) -c ./pc_cut.cpp -o $(MLB_TEMP)/pc_cut.o $(CXXFLAGS)
