@@ -10,10 +10,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//               pc_attribute_calculator.h               //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
-//                      Olaf Conrad                      //
+//                 Copyright (C) 2010 by                 //
+//                    Volker Wichmann                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,12 +37,13 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     wichmann@laserdata                     //
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Hamburg                  //
-//                Germany                                //
+//    contact:    Volker Wichmann                        //
+//                LASERDATA GmbH                         //
+//                Management and analysis of             //
+//                laserscanning data                     //
+//                Innsbruck, Austria                     //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -51,7 +52,18 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifndef HEADER_INCLUDED__PC_Attribute_Calculator_H
+#define HEADER_INCLUDED__PC_Attribute_Calculator_H
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -59,62 +71,32 @@
 #include "MLB_Interface.h"
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-const SG_Char * Get_Info(int i)
+class CPC_Attribute_Calculator : public CSG_Module
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Shapes - Point Clouds") );
+public:
+	CPC_Attribute_Calculator(void);
+	virtual ~CPC_Attribute_Calculator(void);
 
-	case MLB_INFO_Author:
-		return( _TL("O.Conrad, Volker Wichmann (c) 2009-10") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for point clouds.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Shapes|Point Clouds") );
-	}
-}
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Tools") );	}
 
 
-//---------------------------------------------------------
-#include "pc_attribute_calculator.h"
-#include "pc_cut.h"
-#include "pc_drop_attribute.h"
-#include "pc_from_grid.h"
-#include "pc_from_shapes.h"
-#include "pc_reclass_extract.h"
-#include "pc_thinning_simple.h"
-#include "pc_to_grid.h"
-#include "pc_to_shapes.h"
-#include "pc_transform.h"
+protected:
+
+	virtual bool				On_Execute				(void);
+	virtual int					On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
-//---------------------------------------------------------
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case 0:		return( new CPC_Cut );
-	case 1:		return( new CPC_Cut_Interactive );
-	case 2:		return( new CPC_From_Grid );
-	case 3:		return( new CPC_From_Shapes );
-	case 4:		return( new CPC_To_Grid );
-	case 5:		return( new CPC_To_Shapes );
-	case 6:		return( new CPC_Reclass_Extract );
-	case 7:		return( new CPC_Drop_Attribute );
-	case 8:		return( new CPC_Transform );
-	case 9:		return( new CPC_Thinning_Simple );
-	case 10:	return( new CPC_Attribute_Calculator );
-	}
+private:
 
-	return( NULL );
-}
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -124,8 +106,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__PC_Attribute_Calculator_H
