@@ -10,9 +10,14 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                 pc_cluster_analysis.h                 //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
+//                 Copyright (C) 2010 by                 //
+//                    Volker Wichmann                    //
+//                                                       //
+//  This module is a port of the Grid_Cluster_Analysis   //
+//  module from the Grid_Discretisation module library,  //
+//                 Copyright (C) 2003 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -37,12 +42,13 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     wichmann@laserdata                     //
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Hamburg                  //
-//                Germany                                //
+//    contact:    Volker Wichmann                        //
+//                LASERDATA GmbH                         //
+//                Management and analysis of             //
+//                laserscanning data                     //
+//                Innsbruck, Austria                     //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -51,74 +57,21 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifndef HEADER_INCLUDED__PC_Cluster_Analysis_H
+#define HEADER_INCLUDED__PC_Cluster_Analysis_H
+
+//---------------------------------------------------------
+#include <vector>
+#include <wx/tokenzr.h>
+
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-const SG_Char * Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Shapes - Point Clouds") );
-
-	case MLB_INFO_Author:
-		return( _TL("O.Conrad, Volker Wichmann (c) 2009-10") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for point clouds.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Shapes|Point Clouds") );
-	}
-}
-
-
-//---------------------------------------------------------
-#include "pc_attribute_calculator.h"
-#include "pc_cluster_analysis.h"
-#include "pc_cut.h"
-#include "pc_drop_attribute.h"
-#include "pc_from_grid.h"
-#include "pc_from_shapes.h"
-#include "pc_reclass_extract.h"
-#include "pc_thinning_simple.h"
-#include "pc_to_grid.h"
-#include "pc_to_shapes.h"
-#include "pc_transform.h"
-
-
-//---------------------------------------------------------
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case 0:		return( new CPC_Cut );
-	case 1:		return( new CPC_Cut_Interactive );
-	case 2:		return( new CPC_From_Grid );
-	case 3:		return( new CPC_From_Shapes );
-	case 4:		return( new CPC_To_Grid );
-	case 5:		return( new CPC_To_Shapes );
-	case 6:		return( new CPC_Reclass_Extract );
-	case 7:		return( new CPC_Drop_Attribute );
-	case 8:		return( new CPC_Transform );
-	case 9:		return( new CPC_Thinning_Simple );
-	case 10:	return( new CPC_Attribute_Calculator );
-	case 11:	return( new CPC_Cluster_Analysis );
-	}
-
-	return( NULL );
-}
-
-
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
@@ -126,8 +79,36 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CPC_Cluster_Analysis : public CSG_Module
+{
+public:
+	CPC_Cluster_Analysis(void);
+	virtual ~CPC_Cluster_Analysis(void);
 
-	MLB_INTERFACE
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Classification") );	}
 
-//}}AFX_SAGA
+
+protected:
+
+	virtual bool			On_Execute		(void);
+
+
+private:
+
+	int						nFields, clustField, *nMembers;
+
+	double					**Centroids, *Variances;
+
+	CSG_PointCloud			*pInput, *pResult;
+
+	std::vector<bool>					vFields;
+	std::vector< std::vector<double> >	vValues;	
+
+	void					Write_Result	(CSG_Table *pTable, long nElements, int nCluster, double SP);
+
+	double					MinimumDistance	(long &nElements, int nCluster);
+	double					HillClimbing	(long &nElements, int nCluster);
+
+};
+
+#endif // #ifndef HEADER_INCLUDED__PC_Cluster_Analysis_H

@@ -51,8 +51,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(SAGA)/src/saga_core"
-				PreprocessorDefinitions="_DEBUG;WIN32;_USRDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC"
+				AdditionalIncludeDirectories="$(SAGA)/src/saga_core,$(WXWIN)/include,$(WXWIN)/lib/vc_dll/mswd"
+				PreprocessorDefinitions="_DEBUG;WIN32;__WXMSW__;WXUSINGDLL;__WXDEBUG_;_USRDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -77,11 +77,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib wxbase28d.lib"
 				OutputFile=".\..\..\..\..\bin\saga_vc8_dbg\modules/pointcloud_tools.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8_dbg"
+				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8_dbg,$(WXWIN)/lib/vc_dll"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\..\..\..\..\bin\saga_vc8_dbg\modules/pointcloud_tools.pdb"
 				SubSystem="2"
@@ -148,8 +148,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(SAGA)/src/saga_core"
-				PreprocessorDefinitions="_DEBUG;WIN32;_USRDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC"
+				AdditionalIncludeDirectories="$(SAGA)/src/saga_core,$(WXWIN)/include,$(WXWIN)/lib/vc_dll/mswd"
+				PreprocessorDefinitions="_DEBUG;WIN32;__WXMSW__;WXUSINGDLL;__WXDEBUG_;_USRDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -174,11 +174,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib wxbase28d.lib"
 				OutputFile=".\..\..\..\..\bin\saga_vc8_dbg\modules/pointcloud_tools.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8_dbg"
+				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8_dbg,$(WXWIN)/lib/vc_dll"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\..\..\..\..\bin\saga_vc8_dbg\modules/pointcloud_tools.pdb"
 				SubSystem="2"
@@ -246,8 +246,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="$(SAGA)/src/saga_core"
-				PreprocessorDefinitions="NDEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE"
+				AdditionalIncludeDirectories="$(SAGA)/src/saga_core,$(WXWIN)/include,$(WXWIN)/lib/vc_dll/mswu"
+				PreprocessorDefinitions="NDEBUG;WIN32;__WXMSW__;WXUSINGDLL;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -272,11 +272,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib wxbase28u.lib"
 				OutputFile=".\./../../../../bin/saga_vc8_u/modules/pointcloud_tools.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8_u"
+				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8_u,$(WXWIN)/lib/vc_dll"
 				ProgramDatabaseFile=".\./../../../../bin/saga_vc8_u/modules/pointcloud_tools.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
@@ -343,8 +343,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="$(SAGA)/src/saga_core"
-				PreprocessorDefinitions="NDEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE"
+				AdditionalIncludeDirectories="$(SAGA)/src/saga_core,$(WXWIN)/include,$(WXWIN)/lib/vc_dll/mswu"
+				PreprocessorDefinitions="NDEBUG;WIN32;__WXMSW__;WXUSINGDLL;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -369,11 +369,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib wxbase28u.lib"
 				OutputFile=".\./../../../../bin/saga_vc8_u/modules/pointcloud_tools.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8_u"
+				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8_u,$(WXWIN)/lib/vc_dll"
 				ProgramDatabaseFile=".\./../../../../bin/saga_vc8_u/modules/pointcloud_tools.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
@@ -440,8 +440,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="$(SAGA)/src/saga_core"
-				PreprocessorDefinitions="NDEBUG;WIN32;_USRDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC"
+				AdditionalIncludeDirectories="$(SAGA)/src/saga_core,$(WXWIN)/include,$(WXWIN)/lib/vc_dll/msw"
+				PreprocessorDefinitions="NDEBUG;WIN32;__WXMSW__;WXUSINGDLL;_USRDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -465,11 +465,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib wxbase28.lib"
 				OutputFile=".\..\..\..\..\bin\saga_vc8\modules/pointcloud_tools.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8"
+				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8,$(WXWIN)/lib/vc_dll"
 				ProgramDatabaseFile=".\..\..\..\..\bin\saga_vc8\modules/pointcloud_tools.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
@@ -537,8 +537,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="$(SAGA)/src/saga_core"
-				PreprocessorDefinitions="NDEBUG;WIN32;_USRDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC"
+				AdditionalIncludeDirectories="$(SAGA)/src/saga_core,$(WXWIN)/include,$(WXWIN)/lib/vc_dll/msw"
+				PreprocessorDefinitions="NDEBUG;WIN32;__WXMSW__;WXUSINGDLL;_USRDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -562,11 +562,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib wxbase28.lib"
 				OutputFile=".\..\..\..\..\bin\saga_vc8\modules/pointcloud_tools.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8"
+				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8,$(WXWIN)/lib/vc_dll"
 				ProgramDatabaseFile=".\..\..\..\..\bin\saga_vc8\modules/pointcloud_tools.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
@@ -633,8 +633,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(SAGA)/src/saga_core"
-				PreprocessorDefinitions="_DEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE"
+				AdditionalIncludeDirectories="$(SAGA)/src/saga_core,$(WXWIN)/include,$(WXWIN)/lib/vc_dll/mswud"
+				PreprocessorDefinitions="_DEBUG;WIN32;__WXMSW__;WXUSINGDLL;__WXDEBUG_;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -660,11 +660,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib wxbase28ud.lib"
 				OutputFile=".\./../../../../bin/saga_vc8_u_dbg/modules/pointcloud_tools.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8_u_dbg"
+				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8_u_dbg,$(WXWIN)/lib/vc_dll"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\./../../../../bin/saga_vc8_u_dbg/modules/pointcloud_tools.pdb"
 				SubSystem="2"
@@ -731,8 +731,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(SAGA)/src/saga_core"
-				PreprocessorDefinitions="_DEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE"
+				AdditionalIncludeDirectories="$(SAGA)/src/saga_core,$(WXWIN)/include,$(WXWIN)/lib/vc_dll/mswud"
+				PreprocessorDefinitions="_DEBUG;WIN32;__WXMSW__;WXUSINGDLL;__WXDEBUG_;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -758,11 +758,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib"
+				AdditionalDependencies="odbc32.lib odbccp32.lib saga_api.lib wxbase28ud.lib"
 				OutputFile=".\./../../../../bin/saga_vc8_u_dbg/modules/pointcloud_tools.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8_u_dbg"
+				AdditionalLibraryDirectories="$(SAGA)/bin/saga_vc8_u_dbg,$(WXWIN)/lib/vc_dll"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\./../../../../bin/saga_vc8_u_dbg/modules/pointcloud_tools.pdb"
 				SubSystem="2"
@@ -812,6 +812,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\pc_cluster_analysis.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\pc_cut.cpp"
 				>
 			</File>
@@ -858,6 +862,10 @@
 			</File>
 			<File
 				RelativePath=".\pc_attribute_calculator.h"
+				>
+			</File>
+			<File
+				RelativePath=".\pc_cluster_analysis.h"
 				>
 			</File>
 			<File
