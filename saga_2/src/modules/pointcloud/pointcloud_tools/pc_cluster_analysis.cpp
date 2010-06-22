@@ -398,7 +398,7 @@ bool CPC_Cluster_Analysis::On_Execute(void)
 
 				pClass->Set_Value(1, CSG_String::Format(SG_T("%s %d"), _TL("Class"), i + 1));
 				pClass->Set_Value(2, CSG_String::Format(SG_T("%s %d"), _TL("Class"), i + 1));
-				pClass->Set_Value(3, i + 1);
+				pClass->Set_Value(3, i);
 				pClass->Set_Value(4, i + 1);
 			}
 
@@ -422,6 +422,9 @@ bool CPC_Cluster_Analysis::On_Execute(void)
 		SG_Free(Centroids);
 		SG_Free(Variances);
 		SG_Free(nMembers);
+
+		vFields.clear();
+		vValues.clear();
 
 		return( true );
 	}
