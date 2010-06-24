@@ -765,6 +765,7 @@ CSG_Parameters *	DLG_Copy_Settings(void)
 	DLG_Copy_Settings(List, (CWKSP_Base_Item *)g_pData->Get_Grids());
 	DLG_Copy_Settings(List, (CWKSP_Base_Item *)g_pData->Get_Shapes());
 	DLG_Copy_Settings(List, (CWKSP_Base_Item *)g_pData->Get_TINs());
+	DLG_Copy_Settings(List, (CWKSP_Base_Item *)g_pData->Get_PointClouds());
 
 	if( List.Get_Count() > 0 )
 	{

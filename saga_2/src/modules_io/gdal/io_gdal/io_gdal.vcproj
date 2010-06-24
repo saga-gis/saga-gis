@@ -51,7 +51,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(GDAL)/port,$(GDAL)/gcore,$(GDAL)/ogr,$(GDAL)/ogr/ogrsf_frmts,$(SAGA)/src/saga_core"
+				AdditionalIncludeDirectories="$(GDAL)/include,$(GDAL)/port,$(GDAL)/gcore,$(GDAL)/ogr,$(GDAL)/ogr/ogrsf_frmts,$(SAGA)/src/saga_core"
 				PreprocessorDefinitions="_DEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -247,7 +247,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="&quot;$(GDAL)/port&quot;;&quot;$(GDAL)/gcore&quot;;&quot;$(GDAL)/ogr&quot;;&quot;$(GDAL)/ogr/ogrsf_frmts&quot;;&quot;$(SAGA)/src/saga_core&quot;"
+				AdditionalIncludeDirectories="&quot;$(GDAL)/include,&quot;;&quot;$(GDAL)/port&quot;;&quot;$(GDAL)/gcore&quot;;&quot;$(GDAL)/ogr&quot;;&quot;$(GDAL)/ogr/ogrsf_frmts&quot;;&quot;$(SAGA)/src/saga_core&quot;"
 				PreprocessorDefinitions="NDEBUG;WIN32;_USRDLL;_MBCS;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC;_SAGA_UNICODE"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -343,7 +343,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(GDAL)/port,$(GDAL)/gcore,$(GDAL)/ogr,$(GDAL)/ogr/ogrsf_frmts,$(SAGA)/src/saga_core"
+				AdditionalIncludeDirectories="$(GDAL)/include,$(GDAL)/port,$(GDAL)/gcore,$(GDAL)/ogr,$(GDAL)/ogr/ogrsf_frmts,$(SAGA)/src/saga_core"
 				PreprocessorDefinitions="_DEBUG;WIN32;_USRDLL;_TYPEDEF_BYTE;_TYPEDEF_WORD;_SAGA_MSW;_SAGA_VC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"

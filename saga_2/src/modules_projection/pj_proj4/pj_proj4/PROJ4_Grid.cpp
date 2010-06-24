@@ -106,6 +106,14 @@ CPROJ4_Grid::CPROJ4_Grid(int Interface, bool bInputList)
 			_TL(""),
 			PARAMETER_OUTPUT_OPTIONAL
 		);
+
+		m_Grid_Target.Add_Parameters_User(Add_Parameters("GET_USER", _TL("User Defined Grid")	, _TL("")), false);
+
+		pParameters	= Add_Parameters("GET_SYSTEM"	, _TL("Choose Grid Project"), _TL(""));
+
+		pParameters->Add_Grid_System(
+			NULL, "SYSTEM"		, _TL("System")		, _TL("")
+		);
 	}
 	else
 	{
@@ -116,11 +124,8 @@ CPROJ4_Grid::CPROJ4_Grid(int Interface, bool bInputList)
 			PARAMETER_INPUT
 		);
 
-		Parameters.Add_Grid_Output(
-			NULL,
-			"TARGET"		, _TL("Target"),
-			_TL("")
-		);
+		m_Grid_Target.Add_Parameters_User(Add_Parameters("GET_USER", _TL("User Defined Grid")	, _TL("")));
+		m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GET_GRID", _TL("Choose Grid")			, _TL("")));
 	}
 
 	Parameters.Add_Shapes_Output(
@@ -131,25 +136,24 @@ CPROJ4_Grid::CPROJ4_Grid(int Interface, bool bInputList)
 
 
 	//-----------------------------------------------------
+	Parameters.Add_Value(
+		Parameters("TARGET_NODE")	, "CREATE_XY"		, _TL("Create X/Y Grids"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
+
 	Parameters.Add_Grid_Output(
-		NULL	, "OUT_X"		, _TL("X Coordinates"),
+		NULL	, "OUT_X"	, _TL("X Coordinates"),
 		_TL("")
 	);
 
 	Parameters.Add_Grid_Output(
-		NULL	, "OUT_Y"		, _TL("Y Coordinates"),
+		NULL	, "OUT_Y"	, _TL("Y Coordinates"),
 		_TL("")
 	);
 
 
 	//-----------------------------------------------------
-	Parameters.Add_Value(
-		Parameters("TARGET_NODE"),
-		"CREATE_XY"		, _TL("Create X/Y Grids"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, false
-	);
-
 	Parameters.Add_Choice(
 		Parameters("TARGET_NODE")	, "INTERPOLATION"	, _TL("Interpolation"),
 		_TL(""),
@@ -165,8 +169,7 @@ CPROJ4_Grid::CPROJ4_Grid(int Interface, bool bInputList)
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice(
-		Parameters("TARGET_NODE"),
-		"TARGET_TYPE"	, _TL("Target"),
+		Parameters("TARGET_NODE")	, "TARGET_TYPE"		, _TL("Target"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("user defined"),
@@ -175,22 +178,12 @@ CPROJ4_Grid::CPROJ4_Grid(int Interface, bool bInputList)
 		), 0
 	);
 
-	//-----------------------------------------------------
-	m_Grid_Target.Add_Parameters_User(Add_Parameters("GET_USER", _TL("User Defined Grid")	, _TL("")));
-	m_Grid_Target.Add_Parameters_Grid(Add_Parameters("GET_GRID", _TL("Choose Grid")			, _TL("")));
-
-	//-----------------------------------------------------
-	pParameters	= Add_Parameters("GET_SYSTEM"	, _TL("Choose Grid Project"), _TL(""));
-
-	pParameters->Add_Grid_System(
-		NULL, "SYSTEM"		, _TL("System")		, _TL("")
-	);
 
 	//-----------------------------------------------------
 	pParameters	= Add_Parameters("GET_SHAPES"	, _TL("Choose Shapes")		, _TL(""));
 
 	pParameters->Add_Shapes(
-		NULL, "SHAPES"		,_TL("Shapes")		, _TL(""), PARAMETER_OUTPUT	, SHAPE_TYPE_Point
+		NULL, "SHAPES"		, _TL("Shapes")		, _TL(""), PARAMETER_OUTPUT	, SHAPE_TYPE_Point
 	);
 }
 
@@ -345,8 +338,6 @@ bool CPROJ4_Grid::On_Execute_Conversion(void)
 
 		if( pGrid )
 		{
-			Parameters("TARGET")->Set_Value(pGrid);
-
 			return( Set_Grid(pSource, pGrid) );
 		}
 	}
