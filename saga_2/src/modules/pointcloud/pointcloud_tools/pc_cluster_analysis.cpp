@@ -396,10 +396,10 @@ bool CPC_Cluster_Analysis::On_Execute(void)
 					pClass->Set_Value(0, SG_GET_RGB(rand() * 255.0 / RAND_MAX, rand() * 255.0 / RAND_MAX, rand() * 255.0 / RAND_MAX));
 				}
 
-				pClass->Set_Value(1, CSG_String::Format(SG_T("%s %d"), _TL("Class"), i + 1));
-				pClass->Set_Value(2, CSG_String::Format(SG_T("%s %d"), _TL("Class"), i + 1));
+				pClass->Set_Value(1, CSG_String::Format(SG_T("%s %d"), _TL("Class"), i));
+				pClass->Set_Value(2, CSG_String::Format(SG_T("%s %d"), _TL("Class"), i));
 				pClass->Set_Value(3, i);
-				pClass->Set_Value(4, i + 1);
+				pClass->Set_Value(4, i);
 			}
 
 			while( pLUT->Get_Record_Count() > nCluster )
