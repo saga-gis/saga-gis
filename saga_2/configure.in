@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.23 2010-06-08 15:04:34 johanvdw Exp $
+# $Id: configure.in,v 1.24 2010-06-28 23:17:02 johanvdw Exp $
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
@@ -99,6 +99,8 @@ AC_OUTPUT(Makefile \
 	src/modules_contrib/contrib_a_perego/contrib_a_perego/Makefile \
 	src/modules_contrib/contrib_s_liersch/Makefile \
 	src/modules_contrib/contrib_s_liersch/ihacres/Makefile \
+    src/modules_contrib/contrib_t_wutzler/Makefile \
+    src/modules_contrib/contrib_t_wutzler/contrib_t_wutzler/Makefile \
 	src/modules_geostatistics/Makefile \
 	src/modules_geostatistics/geostatistics/Makefile \
 	src/modules_geostatistics/geostatistics/geostatistics_points/Makefile \

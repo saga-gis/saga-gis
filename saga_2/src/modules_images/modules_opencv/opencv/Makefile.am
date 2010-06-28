@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.2 2009-11-24 14:04:13 oconrad Exp $
+# $Id: Makefile.am,v 1.3 2010-06-28 23:17:03 johanvdw Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -8,9 +8,9 @@ if SAGA_UNICODE
 UC_DEFS = -D_SAGA_UNICODE
 endif
 DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
-CXX_INCS           = -I$(top_srcdir)/src/saga_core
+CXX_INCS           = -I$(top_srcdir)/src/saga_core -I/usr/include/opencv
 AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS)
-AM_LDFLAGS         = -fPIC -shared
+AM_LDFLAGS         = -fPIC -shared -lcv
 pkglib_LTLIBRARIES = libopencv.la
 libopencv_la_SOURCES =\
 MLB_Interface.cpp\
