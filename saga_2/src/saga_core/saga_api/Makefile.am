@@ -1,15 +1,15 @@
 #
-# $Id: Makefile.am,v 1.19 2010-06-08 15:04:34 johanvdw Exp $
+# $Id: Makefile.am,v 1.20 2010-06-28 23:22:27 johanvdw Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
 endif
 if SAGA_UNICODE
-AM_CXXFLAGS = -fPIC -Wall `wx-config --unicode=yes --cxxflags` -D_SAGA_LINUX -D_SAGA_UNICODE -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_API_EXPORTS -D_SAGA_DONOTUSE_HARU $(DBGFLAGS)
-AM_LDFLAGS = -fPIC -shared -Wall `wx-config --unicode=yes --libs`
+AM_CXXFLAGS = -fPIC -Wall `wx-config --unicode=yes --cxxflags` -D_SAGA_LINUX -D_SAGA_UNICODE -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_API_EXPORTS $(DISABLELIBHARU) $(DBGFLAGS)
+AM_LDFLAGS = -fPIC -shared -Wall `wx-config --unicode=yes --libs` $(HARU_LIB)
 else
-AM_CXXFLAGS = -fPIC -Wall `wx-config --unicode=no --cxxflags` -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_API_EXPORTS -D_SAGA_DONOTUSE_HARU $(DBGFLAGS)
-AM_LDFLAGS = -fPIC -shared -Wall `wx-config --unicode=no --libs`
+AM_CXXFLAGS = -fPIC -Wall `wx-config --unicode=no --cxxflags` -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_API_EXPORTS $(DISABLELIBHARU) $(DBGFLAGS)
+AM_LDFLAGS = -fPIC -shared -Wall `wx-config --unicode=no --libs` $(HARU_LIB)
 endif
 libsaga_api_la_LDFLAGS =$(AM_LDFLAGS) -release $(VERSION)
 
