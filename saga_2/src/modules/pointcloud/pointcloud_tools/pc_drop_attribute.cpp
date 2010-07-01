@@ -131,7 +131,7 @@ bool CPC_Drop_Attribute::On_Execute(void)
 
 	pResult->Del_Field(AttrField + 3);
 
-	for (int i=0; i<pInput->Get_Point_Count(); i++)
+	for (int i=0; i<pInput->Get_Point_Count() && SG_UI_Process_Set_Progress(i, pInput->Get_Count()); i++)
 	{
 		pResult->Add_Point(pInput->Get_X(i), pInput->Get_Y(i), pInput->Get_Z(i));
 
