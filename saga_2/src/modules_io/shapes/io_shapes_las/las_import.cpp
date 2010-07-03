@@ -165,6 +165,24 @@ CLAS_Import::CLAS_Import(void)
 	Parameters.Add_Value(pNode, "d", _TL("direction of scan flag")			, _TL(""), PARAMETER_TYPE_Bool, false);
 	Parameters.Add_Value(pNode, "p", _TL("point source ID")					, _TL(""), PARAMETER_TYPE_Bool, false);
 	Parameters.Add_Value(pNode, "C", _TL("rgb color")						, _TL(""), PARAMETER_TYPE_Bool, false);
+
+	Parameters.Add_Value(
+		NULL	, "OFFSET"	, _TL("Apply Offset (X Y Z)"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "SCALE"	, _TL("Apply Scale	(X Y Z)"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "VALID"	, _TL("Check Point Validity"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
 }
 
 
@@ -177,10 +195,19 @@ CLAS_Import::CLAS_Import(void)
 //---------------------------------------------------------
 bool CLAS_Import::On_Execute(void)
 {
+	bool			bOffset, bScale, bValidity;
+	CSG_String		fName;
     std::ifstream   ifs;
-    int             classification;
+	double			x, y, z;
+	double			off_X, off_Y, off_Z;
+	double			scale_X, scale_Y, scale_Z;
+	int				cntInvalid = 0;
 
-	CSG_String	fName	= Parameters("FILE")->asString();
+
+	bOffset			= Parameters("OFFSET")->asBool();
+	bScale			= Parameters("SCALE")->asBool();
+	bValidity		= Parameters("VALID")->asBool();
+	fName			= Parameters("FILE")->asString();
 
     ifs.open(fName.b_str(), std::ios::in | std::ios::binary);
     if (!ifs)
@@ -193,6 +220,13 @@ bool CLAS_Import::On_Execute(void)
 
     liblas::LASHeader const& header = reader.GetHeader();
 
+	off_X	= header.GetOffsetX();
+	off_Y	= header.GetOffsetY();
+	off_Z	= header.GetOffsetZ();
+
+	scale_X	= header.GetScaleX();
+	scale_Y	= header.GetScaleY();
+	scale_Z	= header.GetScaleZ();
 
 	//-----------------------------------------------------
 	int		nFields, iField[VAR_Count];
@@ -204,14 +238,14 @@ bool CLAS_Import::On_Execute(void)
 
 	nFields		= 3;
 
-	ADD_FIELD("T", VAR_T, _TL("gps-time")							, SG_DATATYPE_Long);
+	ADD_FIELD("T", VAR_T, _TL("gps-time")							, SG_DATATYPE_Double);	// SG_DATATYPE_Long
 	ADD_FIELD("i", VAR_i, _TL("intensity")							, SG_DATATYPE_Float);	// SG_DATATYPE_Word
 	ADD_FIELD("a", VAR_a, _TL("scan angle")							, SG_DATATYPE_Float);	// SG_DATATYPE_Byte
 	ADD_FIELD("r", VAR_r, _TL("number of the return")				, SG_DATATYPE_Int);
 	ADD_FIELD("c", VAR_c, _TL("classification")						, SG_DATATYPE_Int);		// SG_DATATYPE_Byte
 	ADD_FIELD("u", VAR_u, _TL("user data")							, SG_DATATYPE_Double);	// SG_DATATYPE_Byte
 	ADD_FIELD("n", VAR_n, _TL("number of returns of given pulse")	, SG_DATATYPE_Int);
-	ADD_FIELD("R", VAR_R, _TL("red channel color")					, SG_DATATYPE_Int);	// SG_DATATYPE_Word
+	ADD_FIELD("R", VAR_R, _TL("red channel color")					, SG_DATATYPE_Int);		// SG_DATATYPE_Word
 	ADD_FIELD("G", VAR_G, _TL("green channel color")				, SG_DATATYPE_Int);
 	ADD_FIELD("B", VAR_B, _TL("blue channel color")					, SG_DATATYPE_Int);
 	ADD_FIELD("e", VAR_e, _TL("edge of flight line flag")			, SG_DATATYPE_Char);
@@ -226,54 +260,73 @@ bool CLAS_Import::On_Execute(void)
     {
         liblas::LASPoint const& point = reader.GetPoint();
 
-        if (point.IsValid())
-        {
-			//liblas::LASClassification::bitset_type clsflags(point.GetClassification());
-			//classification = static_cast<liblas::uint8_t>(clsflags.to_ulong());
-			classification	= point.GetClassification();
-
-			pPoints->Add_Point(point.GetX(), point.GetY(), point.GetZ());
-
-            if( iField[VAR_T] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_T], point.GetTime());
-			if( iField[VAR_i] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_i], point.GetIntensity());
-			if( iField[VAR_a] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_a], point.GetScanAngleRank());
-			if( iField[VAR_r] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_r], point.GetReturnNumber());
-			if( iField[VAR_c] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_c], classification);
-			if( iField[VAR_u] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_u], point.GetUserData());
-			if( iField[VAR_n] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_n], point.GetNumberOfReturns());
-			if( iField[VAR_R] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_R], point.GetColor().GetRed());
-			if( iField[VAR_G] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_G], point.GetColor().GetGreen());
-			if( iField[VAR_B] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_B], point.GetColor().GetBlue());
-			if( iField[VAR_e] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_e], point.GetFlightLineEdge());
-			if( iField[VAR_d] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_d], point.GetScanDirection());
-			if( iField[VAR_p] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_p], point.GetPointSourceID());
-			if( iField[VAR_C] > 0 )
+		if( bValidity )
+		{
+			if( !point.IsValid() )
 			{
-				double	r, g, b;
-				r = point.GetColor().GetRed();
-				g = point.GetColor().GetGreen();
-				b = point.GetColor().GetBlue();
-				
-				if (r > 65025)
-					r = 65025;
-				else if (r < 0)
-					r = 0;
-
-				if (g > 65025)
-					g = 65025;
-				else if (g < 0)
-					g = 0;
-
-				if (b > 65025)
-					b = 65025;
-				else if (b < 0)
-					b = 0;
-
-				pPoints->Set_Value(iPoint, iField[VAR_C], SG_GET_RGB(r / 255, g / 255, b / 255));
+				cntInvalid++;
+				continue;
 			}
-
-			iPoint++;
 		}
+		x	= point.GetX();
+		y	= point.GetY();
+		z	= point.GetZ();
+
+		if( bScale )
+		{
+			x	*= scale_X;
+			y	*= scale_Y;
+			z	*= scale_Z;
+		}
+
+		if( bOffset )
+		{
+			x	+= off_X;
+			y	+= off_Y;
+			z	+= off_Z;
+		}
+
+		pPoints->Add_Point(x, y, z);
+
+        if( iField[VAR_T] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_T], point.GetTime());
+		if( iField[VAR_i] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_i], point.GetIntensity());
+		if( iField[VAR_a] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_a], point.GetScanAngleRank());
+		if( iField[VAR_r] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_r], point.GetReturnNumber());
+		if( iField[VAR_c] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_c], point.GetClassification());
+		if( iField[VAR_u] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_u], point.GetUserData());
+		if( iField[VAR_n] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_n], point.GetNumberOfReturns());
+		if( iField[VAR_R] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_R], point.GetColor().GetRed());
+		if( iField[VAR_G] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_G], point.GetColor().GetGreen());
+		if( iField[VAR_B] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_B], point.GetColor().GetBlue());
+		if( iField[VAR_e] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_e], point.GetFlightLineEdge());
+		if( iField[VAR_d] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_d], point.GetScanDirection());
+		if( iField[VAR_p] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_p], point.GetPointSourceID());
+		if( iField[VAR_C] > 0 )
+		{
+			double	r, g, b;
+			r = point.GetColor().GetRed();
+			g = point.GetColor().GetGreen();
+			b = point.GetColor().GetBlue();
+			
+			if (r > 65025)
+				r = 65025;
+			else if (r < 0)
+				r = 0;
+
+			if (g > 65025)
+				g = 65025;
+			else if (g < 0)
+				g = 0;
+
+			if (b > 65025)
+				b = 65025;
+			else if (b < 0)
+				b = 0;
+
+			pPoints->Set_Value(iPoint, iField[VAR_C], SG_GET_RGB(r / 255, g / 255, b / 255));
+		}
+
+		iPoint++;
 	}
 
 	ifs.close();
@@ -295,6 +348,9 @@ bool CLAS_Import::On_Execute(void)
 	DataObject_Update(pPoints);
 
 	//-----------------------------------------------------
+	if( bValidity && cntInvalid > 0 )
+		SG_UI_Msg_Add(CSG_String::Format(_TL("WARNING: %d invalid points skipped!"), cntInvalid), true);
+
 	return( true );
 }
 

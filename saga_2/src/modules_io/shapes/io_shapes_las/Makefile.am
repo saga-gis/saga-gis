@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.4 2009-10-29 20:22:52 reklov_w Exp $
+# $Id: Makefile.am,v 1.5 2010-07-03 21:11:00 reklov_w Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -14,8 +14,10 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS)
 AM_LDFLAGS         = -fPIC -shared $(DEP_LIBS)
 pkglib_LTLIBRARIES = libio_shapes_las.la
 libio_shapes_las_la_SOURCES =\
+las_export.cpp\
 las_import.cpp\
 MLB_Interface.cpp\
+las_import.h\
 las_import.h\
 MLB_Interface.h
 

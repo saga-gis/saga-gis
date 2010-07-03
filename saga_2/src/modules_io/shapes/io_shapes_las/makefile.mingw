@@ -45,6 +45,9 @@ $(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
 
+$(MLB_TEMP)/las_export.o: ./las_export.cpp
+	$(CPP) -c ./las_export.cpp -o $(MLB_TEMP)/las_export.o $(CXXFLAGS)
+
 $(MLB_TEMP)/las_import.o: ./las_import.cpp
 	$(CPP) -c ./las_import.cpp -o $(MLB_TEMP)/las_import.o $(CXXFLAGS)
 
