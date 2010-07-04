@@ -167,18 +167,6 @@ CLAS_Import::CLAS_Import(void)
 	Parameters.Add_Value(pNode, "C", _TL("rgb color")						, _TL(""), PARAMETER_TYPE_Bool, false);
 
 	Parameters.Add_Value(
-		NULL	, "OFFSET"	, _TL("Apply Offset (X Y Z)"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, true
-	);
-
-	Parameters.Add_Value(
-		NULL	, "SCALE"	, _TL("Apply Scale	(X Y Z)"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, true
-	);
-
-	Parameters.Add_Value(
 		NULL	, "VALID"	, _TL("Check Point Validity"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, false
@@ -195,17 +183,12 @@ CLAS_Import::CLAS_Import(void)
 //---------------------------------------------------------
 bool CLAS_Import::On_Execute(void)
 {
-	bool			bOffset, bScale, bValidity;
+	bool			bValidity;
 	CSG_String		fName;
     std::ifstream   ifs;
-	double			x, y, z;
-	double			off_X, off_Y, off_Z;
-	double			scale_X, scale_Y, scale_Z;
 	int				cntInvalid = 0;
 
 
-	bOffset			= Parameters("OFFSET")->asBool();
-	bScale			= Parameters("SCALE")->asBool();
 	bValidity		= Parameters("VALID")->asBool();
 	fName			= Parameters("FILE")->asString();
 
@@ -220,13 +203,6 @@ bool CLAS_Import::On_Execute(void)
 
     liblas::LASHeader const& header = reader.GetHeader();
 
-	off_X	= header.GetOffsetX();
-	off_Y	= header.GetOffsetY();
-	off_Z	= header.GetOffsetZ();
-
-	scale_X	= header.GetScaleX();
-	scale_Y	= header.GetScaleY();
-	scale_Z	= header.GetScaleZ();
 
 	//-----------------------------------------------------
 	int		nFields, iField[VAR_Count];
@@ -268,25 +244,8 @@ bool CLAS_Import::On_Execute(void)
 				continue;
 			}
 		}
-		x	= point.GetX();
-		y	= point.GetY();
-		z	= point.GetZ();
 
-		if( bScale )
-		{
-			x	*= scale_X;
-			y	*= scale_Y;
-			z	*= scale_Z;
-		}
-
-		if( bOffset )
-		{
-			x	+= off_X;
-			y	+= off_Y;
-			z	+= off_Z;
-		}
-
-		pPoints->Add_Point(x, y, z);
+		pPoints->Add_Point(point.GetX(), point.GetY(), point.GetZ());
 
         if( iField[VAR_T] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_T], point.GetTime());
 		if( iField[VAR_i] > 0 )	pPoints->Set_Value(iPoint, iField[VAR_i], point.GetIntensity());

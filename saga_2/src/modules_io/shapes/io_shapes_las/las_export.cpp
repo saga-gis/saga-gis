@@ -297,7 +297,7 @@ bool CLAS_Export::On_Execute(void)
 	header.SetOffset(off_X, off_Y, off_Z);
 	header.SetScale(scale_X, scale_Y, scale_Z);
 
-	// Get_ZMin() and Get_ZMax() do not work:
+	// Get_ZMin() and Get_ZMax() do currently not work:
 	/*header.SetMin(	(pPoints->Get_Extent().Get_XMin() - off_X) / scale_X,
 					(pPoints->Get_Extent().Get_YMin() - off_Y) / scale_Y,
 					(pPoints->Get_ZMin() - off_Z) / scale_Z);
@@ -337,7 +337,7 @@ bool CLAS_Export::On_Execute(void)
 		z < zmin ? zmin = z : NULL;
 		z > zmax ? zmax = z : NULL;
 
-		point.SetCoordinates((x - off_X) / scale_X, (y - off_Y) / scale_Y, (z - off_Z) / scale_Z);
+		point.SetCoordinates(x, y, z);
 
 		if( i_T > -1 )
 			point.SetTime(pPoints->Get_Value(i, i_T));
@@ -386,17 +386,25 @@ bool CLAS_Export::On_Execute(void)
 			cntWrite++;
 	}
 
-	header.SetMin((xmin - off_X) / scale_X, (ymin - off_Y) / scale_Y, (zmin - off_Z) / scale_Z);
-	header.SetMax((xmax - off_X) / scale_X, (ymax - off_Y) / scale_Y, (zmax - off_Z) / scale_Z);
 
-	SG_UI_Msg_Add(_TL("Summary:"), true);
+	header.SetMin(xmin, ymin, zmin);
+	header.SetMax(xmax, ymax, zmax);
 
-	for( int i=0; i<MAX_NUM_RETURN; i++ )
+	SG_UI_Msg_Add(_TL("Summary:\n"), true);
+
+	if( i_r > -1 )
 	{
-		header.SetPointRecordsByReturnCount(i, binPulse[i]);
-		SG_UI_Msg_Add(CSG_String::Format(_TL("Return %d: \t\t%d points"), i+1, binPulse[i]), true);
+		SG_UI_Msg_Add(_TL("Number of points per return:"), true);
+		for( int i=0; i<MAX_NUM_RETURN; i++ )
+		{
+			header.SetPointRecordsByReturnCount(i, binPulse[i]);
+			SG_UI_Msg_Add(CSG_String::Format(_TL("Return %d: \t\t%d points"), i+1, binPulse[i]), true);
+		}
+
+		header.SetPointRecordsCount(cntWrite);
+		SG_UI_Msg_Add(_TL(""), true);
 	}
-	header.SetPointRecordsCount(cntWrite);
+
 	writer.WriteHeader(header);
 
 	//-----------------------------------------------------
