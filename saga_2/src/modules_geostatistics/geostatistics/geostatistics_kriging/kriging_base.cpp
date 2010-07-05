@@ -308,13 +308,9 @@ bool CKriging_Base::_Initialise_Grids(void)
 	//-----------------------------------------------------
 	m_pGrid->Set_Name(CSG_String::Format(SG_T("%s (%s)"), m_pPoints->Get_Name(), Get_Name()));
 
-	Parameters("GRID")->Set_Value(m_pGrid);
-
 	if( m_pVariance )
 	{
 		m_pVariance->Set_Name(CSG_String::Format(SG_T("%s (%s - %s)"), m_pPoints->Get_Name(), Get_Name(), m_bStdDev ? _TL("Standard Deviation") : _TL("Variance")));
-
-		Parameters("VARIANCE")->Set_Value(m_pVariance);
 	}
 
 	return( true );

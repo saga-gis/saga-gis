@@ -1584,6 +1584,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ruggedness.cpp"
+				>
+			</File>
+			<File
 				RelativePath="SurfaceSpecificPoints.cpp"
 				>
 				<FileConfiguration
@@ -1726,6 +1730,10 @@
 			</File>
 			<File
 				RelativePath=".\relative_heights.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ruggedness.h"
 				>
 			</File>
 			<File

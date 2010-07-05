@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                     ruggedness.h                      //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2010 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,96 +41,55 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//			The Module Link Library Interface			 //
-//														 //
-///////////////////////////////////////////////////////////
+#ifndef HEADER_INCLUDED__Ruggedness_H
+#define HEADER_INCLUDED__Ruggedness_H
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-const SG_Char * Get_Info(int i)
+class CRuggedness_TRI : public CSG_Module_Grid
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Terrain Analysis - Morphometry") );
+public:
+	CRuggedness_TRI(void);
 
-	case MLB_INFO_Author:
-		return( SG_T("Various Authors") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for (grid based) digital terrain analysis.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Terrain Analysis|Morphometry") );
-	}
-}
+//	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Indices" ));	}
 
 
-//---------------------------------------------------------
-#include "Morphometry.h"
-#include "Convergence.h"
-#include "Convergence_Radius.h"
-#include "SurfaceSpecificPoints.h"
-#include "Curvature_Classification.h"
-#include "Hypsometry.h"
-#include "RealArea.h"
-#include "ProtectionIndex.h"
-#include "mrvbf.h"
-#include "distance_gradient.h"
-#include "mass_balance_index.h"
-#include "air_flow_height.h"
-#include "anisotropic_heating.h"
-#include "land_surface_temperature.h"
-#include "relative_heights.h"
-#include "wind_effect.h"
-#include "ruggedness.h"
+protected:
+
+	virtual bool				On_Execute				(void);
 
 
-//---------------------------------------------------------
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case 0:		return( new CMorphometry );
-	case 1:		return( new CConvergence );
-	case 2:		return( new CConvergence_Radius );
-	case 3:		return( new CSurfaceSpecificPoints );
-	case 4:		return( new CCurvature_Classification );
-	case 5:		return( new CHypsometry );
-	case 6:		return( new CRealArea );
-	case 7:		return( new CProtectionIndex );
-	case 8:		return( new CMRVBF );
-	case 9:		return( new CDistance_Gradient );
-	case 10:	return( new CMass_Balance_Index );
-	case 11:	return( new CAir_Flow_Height );
-	case 12:	return( new CAnisotropic_Heating );
-	case 13:	return( new CLand_Surface_Temperature );
-	case 14:	return( new CRelative_Heights );
-	case 15:	return( new CWind_Effect );
-	case 16:	return( new CRuggedness_TRI );
-	case 17:	return( new CRuggedness_VRM );
-	}
+private:
 
-	return( NULL );
-}
+	CSG_Grid					*m_pDEM, *m_pTRI;
+
+	CSG_Grid_Cell_Addressor		m_Cells;
+
+
+	bool						Set_Index				(int x, int y);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -140,8 +99,36 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CRuggedness_VRM : public CSG_Module_Grid
+{
+public:
+	CRuggedness_VRM(void);
 
-	MLB_INTERFACE
+//	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Indices" ));	}
 
-//}}AFX_SAGA
+
+protected:
+
+	virtual bool				On_Execute				(void);
+
+
+private:
+
+	CSG_Grid					*m_pDEM, *m_pVRM, m_X, m_Y, m_Z;
+
+	CSG_Grid_Cell_Addressor		m_Cells;
+
+
+	bool						Set_Index				(int x, int y);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__Ruggedness_H

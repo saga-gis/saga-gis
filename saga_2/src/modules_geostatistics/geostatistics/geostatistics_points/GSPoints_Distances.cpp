@@ -120,7 +120,7 @@ bool CGSPoints_Distances::On_Execute(void)
 	{
 		TSG_Point	p	= pPoints->Get_Shape(iPoint)->Get_Point(0);
 
-		if( QT.Select_Nearest_Points(p.x, p.y, 2) && QT.Get_Selected_Point(1, x, y, z) && x != p.x && y != p.y )
+		if( QT.Select_Nearest_Points(p.x, p.y, 2) && QT.Get_Selected_Point(1, x, y, z) && (x != p.x || y != p.y) )
 		{
 			s.Add_Value(SG_Get_Distance(x, y, p.x, p.y));
 		}
