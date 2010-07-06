@@ -45,7 +45,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_WINDLL" /D "_AFXDLL" /YX /FD /c
-# ADD CPP /nologo /G5 /MD /W3 /GX /O2 /I "$(GDAL)/include" /I "$(GDAL)/gcore" /I "$(GDAL)/ogr" /I "$(GDAL)/ogr/ogrsf_frmts" /I "$(SAGA)/src/saga_core" /D "NDEBUG" /D "WIN32" /D "_USRDLL" /D "_MBCS" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_VC" /YX /FD /c
+# ADD CPP /nologo /G5 /MD /W3 /GX /O2 /I "$(GDAL)/include" /I "$(GDAL)/gcore" /I "$(GDAL)/port" /I "$(GDAL)/ogr" /I "$(GDAL)/ogr/ogrsf_frmts" /I "$(SAGA)/src/saga_core" /D "NDEBUG" /D "WIN32" /D "_USRDLL" /D "_MBCS" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_VC" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x407 /d "NDEBUG" /d "_AFXDLL"
@@ -58,7 +58,7 @@ LINK32=link.exe
 # ADD LINK32 gdal_i.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib /nologo /subsystem:windows /dll /machine:I386 /libpath:"$(SAGA)/bin/saga_vc" /libpath:"$(GDAL)"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy           *.lng.txt           ..\..\..\..\bin\saga_vc\modules\ 
+PostBuild_Cmds=copy            *.lng.txt            ..\..\..\..\bin\saga_vc\modules\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "io_gdal - Win32 Debug"

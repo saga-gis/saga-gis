@@ -55,11 +55,11 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /dll /machine:I386
-# ADD LINK32 comctl32.lib rpcrt4.lib wsock32.lib wxzlib.lib wxjpeg.lib wxpng.lib wxtiff.lib wxbase28.lib wxmsw28_core.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib /nologo /subsystem:windows /dll /machine:I386 /libpath:"$(SAGA)/bin/saga_vc" /libpath:"$(WXWIN)/lib/vc_dll"
+# ADD LINK32 comctl32.lib rpcrt4.lib wsock32.lib wxzlib.lib wxjpeg.lib wxpng.lib wxtiff.lib wxbase28.lib wxmsw28_core.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib /nologo /subsystem:windows /dll /machine:I386 /libpath:"$(SAGA)/bin/saga_vc" /libpath:"$(WXWIN)/lib/vc6_dll"
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy   *.lng.txt   ..\..\..\..\bin\saga_vc\modules\ 
+PostBuild_Cmds=copy    *.lng.txt    ..\..\..\..\bin\saga_vc\modules\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "io_grid_image - Win32 Debug"
@@ -87,7 +87,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 comctl32.lib rpcrt4.lib wsock32.lib wxzlibd.lib wxjpegd.lib wxpngd.lib wxtiffd.lib wxbase28d.lib wxmsw28d_core.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib /nologo /subsystem:windows /dll /debug /machine:I386 /pdbtype:sept /libpath:"$(SAGA)/bin/saga_vc_dbg" /libpath:"$(WXWIN)/lib/vc_dll"
+# ADD LINK32 comctl32.lib rpcrt4.lib wsock32.lib wxzlibd.lib wxjpegd.lib wxpngd.lib wxtiffd.lib wxbase28d.lib wxmsw28d_core.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib /nologo /subsystem:windows /dll /debug /machine:I386 /pdbtype:sept /libpath:"$(SAGA)/bin/saga_vc_dbg" /libpath:"$(WXWIN)/lib/vc6_dll"
 
 !ELSEIF  "$(CFG)" == "io_grid_image - Win32 Unicode Debug"
 
@@ -116,7 +116,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 comctl32.lib rpcrt4.lib wsock32.lib wxzlibd.lib wxjpegd.lib wxpngd.lib wxtiffd.lib wxbase28d.lib wxmsw28d_core.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib /nologo /subsystem:windows /dll /debug /machine:I386 /pdbtype:sept /libpath:"$(WXWIN)/lib/vc_lib" /libpath:"$(SAGA)/bin/saga_vc_dbg"
-# ADD LINK32 comctl32.lib rpcrt4.lib wsock32.lib wxzlibd.lib wxjpegd.lib wxpngd.lib wxtiffd.lib wxbase28ud.lib wxmsw28ud_core.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib /nologo /subsystem:windows /dll /debug /machine:I386 /pdbtype:sept /libpath:"$(SAGA)/bin/saga_vc_u_dbg" /libpath:"$(WXWIN)/lib/vc_dll"
+# ADD LINK32 comctl32.lib rpcrt4.lib wsock32.lib wxzlibd.lib wxjpegd.lib wxpngd.lib wxtiffd.lib wxbase28ud.lib wxmsw28ud_core.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib /nologo /subsystem:windows /dll /debug /machine:I386 /pdbtype:sept /libpath:"$(SAGA)/bin/saga_vc_u_dbg" /libpath:"$(WXWIN)/lib/vc6_dll"
 
 !ELSEIF  "$(CFG)" == "io_grid_image - Win32 Unicode Release"
 
@@ -144,7 +144,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 comctl32.lib rpcrt4.lib wsock32.lib wxzlib.lib wxjpeg.lib wxpng.lib wxtiff.lib wxbase28.lib wxmsw28_core.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib /nologo /subsystem:windows /dll /machine:I386 /libpath:"$(WXWIN)/lib/vc_lib" /libpath:"$(SAGA)/bin/saga_vc"
 # SUBTRACT BASE LINK32 /pdb:none
-# ADD LINK32 comctl32.lib rpcrt4.lib wsock32.lib wxzlib.lib wxjpeg.lib wxpng.lib wxtiff.lib wxbase28u.lib wxmsw28u_core.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib /nologo /subsystem:windows /dll /machine:I386 /libpath:"$(SAGA)/bin/saga_vc_u" /libpath:"$(WXWIN)/lib/vc_dll"
+# ADD LINK32 comctl32.lib rpcrt4.lib wsock32.lib wxzlib.lib wxjpeg.lib wxpng.lib wxtiff.lib wxbase28u.lib wxmsw28u_core.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib /nologo /subsystem:windows /dll /machine:I386 /libpath:"$(SAGA)/bin/saga_vc_u" /libpath:"$(WXWIN)/lib/vc6_dll"
 # SUBTRACT LINK32 /pdb:none
 
 !ENDIF 

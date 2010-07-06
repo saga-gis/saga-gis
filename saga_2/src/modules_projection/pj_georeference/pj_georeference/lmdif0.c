@@ -1,6 +1,9 @@
 /* lmdif0.c -- driver for lmdif */
 #include <math.h>
+#if !defined(__APPLE__)
 #include <malloc.h>
+#endif
+#include <stdlib.h>
 #include "cminpak.h"
 
 int lmdif0(void fcn(int,int,double [],double [],int *),int m, int n,double x[],int msk[],

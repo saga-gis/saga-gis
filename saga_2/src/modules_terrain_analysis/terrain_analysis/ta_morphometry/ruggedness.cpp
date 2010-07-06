@@ -76,7 +76,7 @@ CRuggedness_TRI::CRuggedness_TRI(void)
 		"Riley, S.J., De Gloria, S.D., Elliot, R. (1999): "
 		"A Terrain Ruggedness that Quantifies Topographic Heterogeneity. "
 		"Intermountain Journal of Science, Vol.5, No.1-4, pp.23-27. "
-		"<a href=\"http://www..\">pdf</a>.\n"
+		"<a href=\"http://www.fw.msu.edu/~rileysh2/Terrain%20Ruggedness%20Index.pdf\">pdf</a>.\n"
 		"\n"
 	));
 
@@ -201,7 +201,7 @@ CRuggedness_VRM::CRuggedness_VRM(void)
 		"Sappington, J.M., Longshore, K.M., Thompson, D.B. (2007): "
 		"Quantifying Landscape Ruggedness for Animal Habitat Analysis: A Case Study Using Bighorn Sheep in the Mojave Desert. "
 		"Journal of Wildlife Management 71(5):1419–1426.\n"
-		"<a href=\"http://www..\">pdf</a>.\n"
+		"<a href=\"http://www.wildlifejournals.org/perlserv/?request=get-toc&issn=0022-541X&volume=71&issue=5\">pdf</a>.\n"
 		"\n"
 	));
 

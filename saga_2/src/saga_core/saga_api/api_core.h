@@ -96,6 +96,10 @@
 //---------------------------------------------------------
 #ifndef SWIG
 
+#if !defined(__APPLE__)
+#include <malloc.h>
+#endif
+
 #include <math.h>
 #include <memory.h>
 #include <stdlib.h>
