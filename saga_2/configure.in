@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.25 2010-06-28 23:22:27 johanvdw Exp $
+# $Id: configure.in,v 1.26 2010-07-08 15:06:55 johanvdw Exp $
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
@@ -80,7 +80,9 @@ AC_OUTPUT(Makefile \
 	src/saga_core/saga_gdi/Makefile \
 	src/saga_core/saga_odbc/Makefile \
 	src/saga_core/saga_cmd/Makefile \
+	src/saga_core/saga_cmd/man/Makefile \
 	src/saga_core/saga_gui/Makefile \
+	src/saga_core/saga_gui/man/Makefile \
 	src/modules/Makefile \
 	src/modules/grid/Makefile \
 	src/modules/grid/grid_analysis/Makefile \
