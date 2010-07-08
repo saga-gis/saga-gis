@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.9 2010-07-08 14:11:51 johanvdw Exp $
+# $Id: Makefile.am,v 1.10 2010-07-08 14:18:53 johanvdw Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -22,6 +22,7 @@ mass_balance_index.cpp\
 Morphometry.cpp\
 ProtectionIndex.cpp\
 RealArea.cpp\
+ruggedness.cpp\
 SurfaceSpecificPoints.cpp\
 mrvbf.cpp\
 distance_gradient.cpp\
@@ -39,6 +40,7 @@ mass_balance_index.h\
 Morphometry.h\
 ProtectionIndex.h\
 RealArea.h\
+ruggedness.h\
 SurfaceSpecificPoints.h\
 mrvbf.h\
 distance_gradient.h\
