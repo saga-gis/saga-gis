@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.5 2007-02-13 12:49:27 tschorr Exp $
+# $Id: Makefile.am,v 1.6 2010-07-08 14:11:50 johanvdw Exp $
 #
 DEP_LIBS = -lproj
 if DEBUG
@@ -11,7 +11,7 @@ endif
 DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS           = -I$(top_srcdir)/src/saga_core
 AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(DEP_DEFS) $(DBGFLAGS)
-AM_LDFLAGS         = -fPIC -shared $(DEP_LIBS)
+AM_LDFLAGS         = -fPIC -shared -avoid-version $(DEP_LIBS)
 pkglib_LTLIBRARIES = libpj_proj4.la
 libpj_proj4_la_SOURCES =\
 MLB_Interface.cpp\

@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.2 2007-10-23 11:12:17 oconrad Exp $
+# $Id: Makefile.am,v 1.3 2010-07-08 14:11:48 johanvdw Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -10,8 +10,8 @@ endif
 DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -DUSE_JPEG2000 -DUSE_PNG
 CXX_INCS           = -I$(top_srcdir)/src/saga_core
 AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS)
-#AM_LDFLAGS         = -fPIC -shared -lpq -ljasper
-AM_LDFLAGS         = -fPIC -shared -ljasper
+#AM_LDFLAGS         = -fPIC -shared -avoid-version -lpq -ljasper
+AM_LDFLAGS         = -fPIC -shared -avoid-version -ljasper
 pkglib_LTLIBRARIES = libio_grid_grib2.la
 libio_grid_grib2_la_SOURCES =\
 ./g2clib-1.0.4/cmplxpack.c\

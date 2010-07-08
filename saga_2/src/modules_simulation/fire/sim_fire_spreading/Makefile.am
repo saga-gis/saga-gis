@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.1 2008-03-07 14:33:39 oconrad Exp $
+# $Id: Makefile.am,v 1.2 2010-07-08 14:11:49 johanvdw Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -10,7 +10,7 @@ endif
 DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS           = -I$(top_srcdir)/src/saga_core -I$(top_srcdir)/src/modules/grid/grid_tools
 AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS)
-AM_LDFLAGS         = -fPIC -shared
+AM_LDFLAGS         = -fPIC -shared -avoid-version
 pkglib_LTLIBRARIES = libsim_fire_spreading.la
 libsim_fire_spreading_la_SOURCES =\
 fireLib.c\

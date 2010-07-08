@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.2 2010-02-15 16:51:07 oconrad Exp $
+# $Id: Makefile.am,v 1.3 2010-07-08 14:11:48 johanvdw Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -10,7 +10,7 @@ endif
 DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS           = -I$(top_srcdir)/src/saga_core
 AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(UC_DEFS) $(DBGFLAGS)
-AM_LDFLAGS         = -fPIC -shared 
+AM_LDFLAGS         = -fPIC -shared -avoid-version 
 pkglib_LTLIBRARIES = libgeostatistics_regression.la
 libgeostatistics_regression_la_SOURCES =\
 gw_multi_regression.cpp\
