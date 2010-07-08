@@ -71,7 +71,7 @@ const SG_Char * Get_Info(int i)
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return( _TL("Transects" ));
+		return( _TL("Shapes - Transects" ));
 
 	case MLB_INFO_Author:
 		return( _TL("Johan Van de Wauw (c) 2009" ));
