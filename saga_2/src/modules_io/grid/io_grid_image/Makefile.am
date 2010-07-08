@@ -11,7 +11,7 @@ endif
 DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS           = -I$(top_srcdir)/src/saga_core
 AM_CXXFLAGS        = $(CXX_INCS) $(DEF_SAGA) $(DEP_DEFS) $(DBGFLAGS)
-AM_LDFLAGS         = $(DEP_LFLG)
+AM_LDFLAGS         = $(DEP_LFLG) -avoid-version
 pkglib_LTLIBRARIES = libio_grid_image.la
 libio_grid_image_la_SOURCES =\
 grid_export.cpp\

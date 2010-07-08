@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.2 2010-03-26 11:43:08 oconrad Exp $
+# $Id: Makefile.am,v 1.3 2010-07-08 15:08:36 johanvdw Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -10,7 +10,7 @@ endif
 DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS           = -I$(top_srcdir)/src/saga_core
 AM_CXXFLAGS        = $(CXX_INCS) $(DEF_SAGA) $(DEP_DEFS) $(DBGFLAGS)
-AM_LDFLAGS         = $(DEP_LFLG) $(DEP_LIBS)
+AM_LDFLAGS         = $(DEP_LFLG) $(DEP_LIBS) -avoid-version
 pkglib_LTLIBRARIES = libio_odbc.la
 libio_odbc_la_SOURCES =\
 get_connection.cpp\
