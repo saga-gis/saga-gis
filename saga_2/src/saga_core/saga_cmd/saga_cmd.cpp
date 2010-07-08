@@ -168,7 +168,11 @@ _try
 	if( !wxGetEnv(SG_T("SAGA_MLB"), &MLB_Path) || MLB_Path.Length() == 0 )
 	{
 		MLB_Path	= SG_File_Make_Path(CMD_Path, SG_T("modules"))  .c_str();
+    #if defined( _SAGA_LINUX)
+        MLB_Path = wxT(MODULE_LIBRARY_PATH);
+    #endif
 	}
+
 
 	if( wxGetEnv(SYS_ENV_PATH, &ENV_Path) && ENV_Path.Length() > 0 )
 	{
