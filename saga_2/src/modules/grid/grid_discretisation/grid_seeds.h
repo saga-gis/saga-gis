@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                  Grid_Discretisation                  //
+//                  grid_discretisation                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                     grid_seeds.h                      //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2010 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -53,71 +51,54 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__grid_seeds_H
+#define HEADER_INCLUDED__grid_seeds_H
 
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-const SG_Char * Get_Info(int i)
+//---------------------------------------------------------
+class CGrid_Seeds : public CSG_Module_Grid
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Imagery - Classification") );
+public:
+	CGrid_Seeds(void);
 
-	case MLB_INFO_Author:
-		return( _TL("O. Conrad (c) 2002-9") );
-
-	case MLB_INFO_Description:
-		return( _TL("Classification and segmentation tools for metric gridded data.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Imagery") );
-	}
-}
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Segmentation") );	}
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "Grid_Classify_Supervised.h"
-#include "Grid_Cluster_Analysis.h"
-#include "Grid_Segmentation.h"
-#include "Grid_FastSegments.h"
-#include "Grid_Skeletonize.h"
-#include "rga_basic.h"
-#include "grid_seeds.h"
+	virtual bool			On_Execute		(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+private:
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CGrid_Classify_Supervised );
-	case  1:	return( new CGrid_Cluster_Analysis );
-	case  2:	return( new CGrid_Segmentation );
-	case  3:	return( new CGrid_FastSegments );
-	case  4:	return( new CGrid_Skeletonize );
-	case  5:	return( new CRGA_Basic );
-	case  6:	return( new CGrid_Seeds );
-	}
+	int						m_Method;
 
-	return( NULL );
-}
+	CSG_Points_Z			m_Direction;
+
+	CSG_Grid				m_Smooth;
+
+	CSG_Parameter_Grid_List	*m_pGrids;
+
+
+	bool					Get_Surface		(CSG_Grid *pFeature, CSG_Grid *pSurface, bool bNormalize);
+	bool					Add_Surface		(CSG_Grid *pSurface, CSG_Grid *pAdd, int Method);
+	bool					Get_Seeds		(CSG_Grid *pSurface, CSG_Shapes *pShapes, CSG_Grid *pGrid, int Method);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -127,8 +108,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__grid_seeds_H

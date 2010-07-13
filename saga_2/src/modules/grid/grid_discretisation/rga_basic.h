@@ -85,9 +85,11 @@ class CCandidates
 {
 public:
 	CCandidates(void);
+	CCandidates(int nMax);
 	~CCandidates(void);
 
 	void					Create			(void);
+	void					Create			(int nMax);
 	void					Destroy			(void);
 
 	void					Add				(int x, int y, int Segment, double Similarity);
@@ -95,12 +97,17 @@ public:
 
 	int						Get_Count		(void)	{	return( m_nCandidates );	}
 
+	double					Get_Minimum		(void);
+	double					Get_Maximum		(void);
+
 
 private:
 
-	int						m_nCandidates, m_nBuffer;
+	int						m_nCandidates, m_nMax;
 
 	TCandidate				*m_Candidates;
+
+	CCandidates				*m_pLow, *m_pHigh;
 
 
 	int						_Find			(double Similarity);
@@ -120,7 +127,7 @@ class CRGA_Basic : public CSG_Module_Grid
 public:
 	CRGA_Basic(void);
 
-	virtual const SG_Char *		Get_MenuPath	(void)	{	return( _TL("R:Segmentation") );	}
+	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Segmentation") );	}
 
 
 protected:

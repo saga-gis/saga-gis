@@ -1032,6 +1032,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\grid_seeds.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Grid_Segmentation.cpp"
 				>
 				<FileConfiguration
@@ -1278,6 +1282,10 @@
 			</File>
 			<File
 				RelativePath="Grid_FastSegments.h"
+				>
+			</File>
+			<File
+				RelativePath=".\grid_seeds.h"
 				>
 			</File>
 			<File

@@ -67,26 +67,27 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SEEDFIELD_X		2
-#define SEEDFIELD_Y		(SEEDFIELD_X + 1)
-#define SEEDFIELD_Z		(SEEDFIELD_X + 2)
-
-#define NO_SEGMENT			-1
-#define NO_SIMILARITY		-1.0
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 CCandidates::CCandidates(void)
 {
 	m_Candidates	= NULL;
+	m_nCandidates	= 0;
+	m_pLow			= NULL;
+	m_pHigh			= NULL;
+	m_nMax			= 256;
 
-	Create();
+	Create(m_nMax);
+}
+
+//---------------------------------------------------------
+CCandidates::CCandidates(int nMax)
+{
+	m_Candidates	= NULL;
+	m_nCandidates	= 0;
+	m_pLow			= NULL;
+	m_pHigh			= NULL;
+	m_nMax			= nMax;
+
+	Create(m_nMax);
 }
 
 //---------------------------------------------------------
@@ -98,45 +99,134 @@ CCandidates::~CCandidates(void)
 //---------------------------------------------------------
 void CCandidates::Create(void)
 {
+	Create(m_nMax);
+}
+
+//---------------------------------------------------------
+void CCandidates::Create(int nMax)
+{
+	if( nMax <= 1 )
+	{
+		Create();
+
+		return;
+	}
+
 	Destroy();
+
+	m_nMax			= nMax;
+
+	m_Candidates	= (TCandidate *)SG_Malloc(m_nMax * sizeof(TCandidate));
 }
 
 //---------------------------------------------------------
 void CCandidates::Destroy(void)
 {
+	m_nCandidates	= 0;
+
 	if( m_Candidates )
 	{
 		SG_Free(m_Candidates);
+
+		m_Candidates	= NULL;
 	}
 
-	m_nBuffer		= 0;
-	m_nCandidates	= 0;
-	m_Candidates	= NULL;
+	if( m_pLow )
+	{
+		delete(m_pLow);
+
+		m_pLow		= NULL;
+	}
+
+	if( m_pHigh )
+	{
+		delete(m_pHigh);
+
+		m_pHigh		= NULL;
+	}
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CCandidates::Add(int x, int y, int Segment, double Similarity)
 {
-	int		iInsert	= _Find(Similarity);
-
-	if( m_nCandidates >= m_nBuffer )
+	if( m_Candidates && m_nCandidates < m_nMax )
 	{
-		m_nBuffer		+= 32;
-		m_Candidates	= (TCandidate *)SG_Realloc(m_Candidates, m_nBuffer * sizeof(TCandidate));
+		int	iInsert	= _Find(Similarity);
+
+		memmove(m_Candidates + iInsert + 1, m_Candidates + iInsert, sizeof(TCandidate) * (m_nCandidates - iInsert));
+
+		m_Candidates[iInsert].x				= x;
+		m_Candidates[iInsert].y				= y;
+		m_Candidates[iInsert].Segment		= Segment;
+		m_Candidates[iInsert].Similarity	= Similarity;
+	}
+	else
+	{
+		if( !m_pLow )
+		{
+			int	iDivide	= m_nMax / 2;
+
+			m_pLow	= new CCandidates(m_nMax);
+			m_pHigh	= new CCandidates(m_nMax);
+
+			m_pLow ->m_nCandidates	= iDivide;
+			m_pHigh->m_nCandidates	= m_nMax - iDivide;
+
+			memcpy(m_pLow ->m_Candidates, m_Candidates                        , m_pLow ->m_nCandidates * sizeof(TCandidate));
+			memcpy(m_pHigh->m_Candidates, m_Candidates + m_pLow->m_nCandidates, m_pHigh->m_nCandidates * sizeof(TCandidate));
+
+			SG_Free(m_Candidates);
+			m_Candidates	= NULL;
+		}
+
+		if( Similarity > m_pHigh->Get_Minimum() )
+		{
+			m_pHigh->Add(x, y, Segment, Similarity);
+		}
+		else
+		{
+			m_pLow ->Add(x, y, Segment, Similarity);
+		}
 	}
 
-	memmove(m_Candidates + iInsert + 1, m_Candidates + iInsert, sizeof(TCandidate) * (m_nCandidates - iInsert));
-//	for(int i=m_nCandidates; i>iInsert; i--)
-//	{
-//		m_Candidates[i]	= m_Candidates[i - 1];
-//	}
-
 	m_nCandidates++;
+}
 
-	m_Candidates[iInsert].x				= x;
-	m_Candidates[iInsert].y				= y;
-	m_Candidates[iInsert].Segment		= Segment;
-	m_Candidates[iInsert].Similarity	= Similarity;
+//---------------------------------------------------------
+double CCandidates::Get_Minimum(void)
+{
+	if( m_nCandidates > 0 )
+	{
+		if( m_pLow )
+		{
+			return( m_pLow->Get_Minimum() );
+		}
+
+		return( m_Candidates[0].Similarity );
+	}
+
+	return( 0.0 );
+}
+
+//---------------------------------------------------------
+double CCandidates::Get_Maximum(void)
+{
+	if( m_nCandidates > 0 )
+	{
+		if( m_pHigh )
+		{
+			return( m_pHigh->Get_Maximum() );
+		}
+
+		return( m_Candidates[m_nCandidates - 1].Similarity );
+	}
+
+	return( 0.0 );
 }
 
 //---------------------------------------------------------
@@ -187,19 +277,6 @@ int CCandidates::_Find(double Similarity)
 	return( b );
 }
 
-/*int CCandidates::_Find(double Similarity)
-{
-	for(int i=0; i<m_nCandidates; i++)
-	{
-		if( Similarity < m_Candidates[i].Similarity )
-		{
-			return( i );
-		}
-	}
-
-	return( m_nCandidates );
-}/**/
-
 //---------------------------------------------------------
 bool CCandidates::Get(int &x, int &y, int &Segment)
 {
@@ -207,15 +284,54 @@ bool CCandidates::Get(int &x, int &y, int &Segment)
 	{
 		m_nCandidates--;
 
-		x		= m_Candidates[m_nCandidates].x;
-		y		= m_Candidates[m_nCandidates].y;
-		Segment	= m_Candidates[m_nCandidates].Segment;
+		if( m_Candidates )
+		{
+			x		= m_Candidates[m_nCandidates].x;
+			y		= m_Candidates[m_nCandidates].y;
+			Segment	= m_Candidates[m_nCandidates].Segment;
+		}
+		else // if( m_pLow )
+		{
+			m_pHigh->Get(x, y, Segment);
+
+			if( m_pHigh->m_nCandidates == 0 )
+			{
+				delete(m_pHigh);
+
+				CCandidates	*pLow	= m_pLow;
+
+			//	m_nCandidates	= pLow->m_nCandidates;
+				m_Candidates	= pLow->m_Candidates;
+				m_pLow			= pLow->m_pLow;
+				m_pHigh			= pLow->m_pHigh;
+
+				pLow->m_Candidates	= NULL;
+				pLow->m_pLow		= NULL;
+				pLow->m_pHigh		= NULL;
+				delete(pLow);
+			}
+		}
 
 		return( true );
 	}
 
 	return( false );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define SEEDFIELD_X		2
+#define SEEDFIELD_Y		(SEEDFIELD_X + 1)
+#define SEEDFIELD_Z		(SEEDFIELD_X + 2)
+
+#define NO_SEGMENT			-1
+#define NO_SIMILARITY		-1.0
 
 
 ///////////////////////////////////////////////////////////
@@ -235,7 +351,6 @@ CRGA_Basic::CRGA_Basic(void)
 	Set_Author		(SG_T("B. Bechtel, O. Conrad (c) 2008"));
 
 	Set_Description	(_TW(
-		"!!!UNDER DEVELOPMENT!!!\n"
 		"\n"
 		"References\n"
 		"Bechtel, B., Ringeler, A., Boehner, J. (2008): "
@@ -281,8 +396,8 @@ CRGA_Basic::CRGA_Basic(void)
 		NULL	, "METHOD"		, _TL("Method"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("colour and position"),
-			_TL("colour")
+			_TL("feature space and position"),
+			_TL("feature space")
 		), 0
 	);
 
@@ -296,24 +411,24 @@ CRGA_Basic::CRGA_Basic(void)
 	);
 
 	pNode	= Parameters.Add_Node(
-		NULL	, "NODE_COLSPACE"	, _TL("Colour and Space Options"),
+		NULL	, "NODE_COLSPACE"	, _TL("Feature Space Options"),
 		_TL("")
 	);
 
 	Parameters.Add_Value(
-		pNode	, "SIG_1"			, _TL("Variance in colour space"),
+		pNode	, "SIG_1"			, _TL("Variance in Feature Space"),
 		_TL(""),
 		PARAMETER_TYPE_Double		, 1.0, 0.0, true	// 0.36
 	);
 
 	Parameters.Add_Value(
-		pNode	, "SIG_2"			, _TL("Variance in position space"),
+		pNode	, "SIG_2"			, _TL("Variance in Position Space"),
 		_TL(""),
 		PARAMETER_TYPE_Double		, 1.0, 0.0, true	// 8.2141
 	);
 
 	Parameters.Add_Value(
-		pNode	, "THRESHOLD"		, _TL("Threshold - similarity"),
+		pNode	, "THRESHOLD"		, _TL("Threshold - Similarity"),
 		_TL(""),
 		PARAMETER_TYPE_Double		, 0.0, 0.0, true	// 0.15
 	);
@@ -322,6 +437,12 @@ CRGA_Basic::CRGA_Basic(void)
 		pNode	, "REFRESH"			, _TL("Refresh"),
 		_TL(""),
 		PARAMETER_TYPE_Bool			, false
+	);
+
+	Parameters.Add_Value(
+		pNode	, "LEAFSIZE"		, _TL("Leaf Size (for Speed Optimisation)"),
+		_TL(""),
+		PARAMETER_TYPE_Int			, 256, 2, true
 	);
 }
 
@@ -377,6 +498,8 @@ bool CRGA_Basic::On_Execute(void)
 	{
 		m_pSeeds->Add_Field(m_pFeatures->asGrid(i)->Get_Name(), SG_DATATYPE_Double);
 	}
+
+	m_Candidates.Create(Parameters("LEAFSIZE")->asInt());
 
 	//-----------------------------------------------------
 	for(y=0, n=0; y<Get_NY() && Set_Progress(y); y++)
@@ -496,7 +619,7 @@ double CRGA_Basic::Get_Similarity(int x, int y, int Segment)
 		switch( m_Method )
 		{
 		//-------------------------------------------------
-		case 0:	// Colour and position
+		case 0:	// feature space and position
 			for(i=0, a=0.0; i<m_nFeatures; i++)
 			{
 				a	+= SG_Get_Square(m_pFeatures->asGrid(i)->asDouble(x, y) - pSeed->asDouble(SEEDFIELD_Z + i));
@@ -510,7 +633,7 @@ double CRGA_Basic::Get_Similarity(int x, int y, int Segment)
 			break;
 
 		//-------------------------------------------------
-		case 1:	// Colour
+		case 1:	// feature space
 			for(i=0, a=0.0; i<m_nFeatures; i++)
 			{
 				a	+= SG_Get_Square(m_pFeatures->asGrid(i)->asDouble(x, y) - pSeed->asDouble(SEEDFIELD_Z + i));
