@@ -390,18 +390,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "io_shapes_las"=.\modules_io\shapes\io_shapes_las\io_shapes_las.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
 Project: "io_table"=.\modules_io\table\io_table\io_table.dsp - Package Owner=<4>
 
 Package=<5>

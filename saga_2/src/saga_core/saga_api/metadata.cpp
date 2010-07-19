@@ -594,3 +594,32 @@ void CSG_MetaData::_Save(wxXmlNode *pNode) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_MetaData::Load_WKT(const CSG_String &WKT)
+{
+	return( false );
+}
+
+bool CSG_MetaData::_Load_WKT(const CSG_String &WKT)
+{
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_MetaData::Save_WKT(CSG_String &WKT) const
+{
+	return( false );
+}
+
+bool CSG_MetaData::_Save_WKT(CSG_String &WKT) const
+{
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

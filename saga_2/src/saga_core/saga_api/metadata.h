@@ -103,6 +103,9 @@ public:
 	bool						Load				(CSG_File &Stream);
 	bool						Save				(CSG_File &Stream)			const;
 
+	bool						Load_WKT			(const CSG_String &WKT);
+	bool						Save_WKT			(      CSG_String &WKT)		const;
+
 	bool						Assign				(const CSG_MetaData &MetaData, bool bAppend = false);
 	CSG_MetaData &				operator  =			(const CSG_MetaData &MetaData)		{	Assign(MetaData, false);	return( *this );	}
 	CSG_MetaData &				operator +=			(const CSG_MetaData &MetaData)		{	Assign(MetaData, true );	return( *this );	}
@@ -162,6 +165,9 @@ private:
 
 	void						_Load				(class wxXmlNode *pNode);
 	void						_Save				(class wxXmlNode *pNode)	const;
+
+	bool						_Load_WKT			(const CSG_String &WKT);
+	bool						_Save_WKT			(      CSG_String &WKT)		const;
 
 };
 
