@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.19 2010-04-27 08:51:01 reklov_w Exp $
+# $Id: Makefile.am,v 1.20 2010-07-22 12:47:13 johanvdw Exp $
 #
 INCS = -I.. -I.
 if DEBUG
@@ -224,3 +224,5 @@ saga_gui_LDADD = ../saga_api/libsaga_api.la ../saga_odbc/libsaga_odbc.la
 dist-hook:
 	 mkdir $(distdir)/res
 	 cp -Rp $(srcdir)/res/* $(distdir)/res/
+
+SUBDIRS=man 

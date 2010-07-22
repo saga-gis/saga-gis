@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.26 2010-07-08 15:06:55 johanvdw Exp $
+# $Id: configure.in,v 1.27 2010-07-22 12:47:12 johanvdw Exp $
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
@@ -114,17 +114,12 @@ AC_OUTPUT(Makefile \
 	src/modules_contrib/contrib_a_perego/contrib_a_perego/Makefile \
 	src/modules_contrib/contrib_s_liersch/Makefile \
 	src/modules_contrib/contrib_s_liersch/ihacres/Makefile \
-    src/modules_contrib/contrib_t_wutzler/Makefile \
-    src/modules_contrib/contrib_t_wutzler/contrib_t_wutzler/Makefile \
 	src/modules_geostatistics/Makefile \
 	src/modules_geostatistics/geostatistics/Makefile \
 	src/modules_geostatistics/geostatistics/geostatistics_points/Makefile \
 	src/modules_geostatistics/geostatistics/geostatistics_grid/Makefile \
 	src/modules_geostatistics/geostatistics/geostatistics_kriging/Makefile \
 	src/modules_geostatistics/geostatistics/geostatistics_regression/Makefile \
-	src/modules_images/Makefile \
-	src/modules_images/modules_imagery/Makefile \
-	src/modules_images/modules_imagery/imagery_segmentation/Makefile \
 	src/modules_io/Makefile \
 	src/modules_io/esri_e00/Makefile \
 	src/modules_io/esri_e00/io_esri_e00/Makefile \

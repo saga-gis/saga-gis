@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.9 2010-07-08 14:53:11 johanvdw Exp $
+# $Id: Makefile.am,v 1.10 2010-07-22 12:47:12 johanvdw Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -24,4 +24,4 @@ saga_cmd.cpp\
 callback.h\
 module_library.h
 
-
+SUBDIRS = man
