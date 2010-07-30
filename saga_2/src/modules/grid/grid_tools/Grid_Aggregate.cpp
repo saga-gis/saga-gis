@@ -77,7 +77,10 @@ CGrid_Aggregate::CGrid_Aggregate(void)
 
 	Set_Author(_TL("Copyrights (c) 2005 by Victor Olaya"));
 
-	Set_Description	(_TW("Aggregate")
+	Set_Description	(_TW("Resamples a raster layer to a lower resolution, aggregating" 
+     "the values of a group of cells. This should be used in any case in which and a normal"
+     "resampling will result in wrong values in the resulting layer, such as, for instance,"
+     "the number of elements of a given class in each cell.")
 	);
 
 	//-----------------------------------------------------
