@@ -79,7 +79,9 @@ CXYZ_Export::CXYZ_Export(void)
 
 	Set_Description	(_TW(
 		"Export grid to a table (text format), that contains for each grid cell "
-		"the x/y-coordinates and additionally data from selected grids.\n")
+		"the x/y-coordinates and additionally data from selected grids.\n"
+		"Optionally, it is possible to skip NoData cells from the output. In this "
+		"case, the first input grid will perform like a mask.\n\n")
 	);
 
 
@@ -108,11 +110,18 @@ CXYZ_Export::CXYZ_Export(void)
 		_TL(""),
 		PARAMETER_TYPE_Bool, true
 	);
+
+	Parameters.Add_Value(
+		NULL	, "EX_NODATA"	, _TL("Exclude NoData Cells"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
 }
 
 //---------------------------------------------------------
 bool CXYZ_Export::On_Execute(void)
 {
+	bool					bExNoData;
 	int						x, y, i;
 	TSG_Point				p;
 	CSG_File				Stream;
@@ -121,6 +130,7 @@ bool CXYZ_Export::On_Execute(void)
 
 	pGrids		= Parameters("GRIDS")	->asGridList();
 	FileName	= Parameters("FILENAME")->asString();
+	bExNoData	= Parameters("EX_NODATA")->asBool();
 
 	if( pGrids->Get_Count() > 0 && Stream.Open(FileName, SG_FILE_W, false) )
 	{
@@ -140,14 +150,17 @@ bool CXYZ_Export::On_Execute(void)
 		{
 			for(x=0, p.x=Get_XMin(); x<Get_NX(); x++, p.x+=Get_Cellsize())
 			{
-				Stream.Printf(SG_T("%f\t%f"), p.x,  p.y);
-
-				for(i=0; i<pGrids->Get_Count(); i++)
+				if( !bExNoData || (bExNoData && !pGrids->asGrid(0)->is_NoData(x, y)) )
 				{
-					Stream.Printf(SG_T("\t%f"), pGrids->asGrid(i)->asDouble(x, y));
-				}
+					Stream.Printf(SG_T("%f\t%f"), p.x,  p.y);
 
-				Stream.Printf(SG_T("\n"));
+					for(i=0; i<pGrids->Get_Count(); i++)
+					{
+						Stream.Printf(SG_T("\t%f"), pGrids->asGrid(i)->asDouble(x, y));
+					}
+
+					Stream.Printf(SG_T("\n"));
+				}
 			}
 		}
 
