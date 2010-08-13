@@ -316,7 +316,8 @@ void		Error_Library	(const SG_Char *MLB_Path)
 		Print_Error(LNG("invalid module libraries path"), MLB_Path);
 	}
 	else if(	!Dir.GetFirst(&FileName, wxT("*.dll"), wxDIR_FILES|wxDIR_HIDDEN)
-			&&	!Dir.GetFirst(&FileName, wxT("*.so" ), wxDIR_FILES|wxDIR_HIDDEN) )
+			&&	!Dir.GetFirst(&FileName, wxT("*.so" ), wxDIR_FILES|wxDIR_HIDDEN) 
+			&&	!Dir.GetFirst(&FileName, wxT("*.dylib" ), wxDIR_FILES|wxDIR_HIDDEN))
 	{
 		Print_Error(LNG("no valid module library found in path"), MLB_Path);
 	}
