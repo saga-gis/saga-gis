@@ -205,8 +205,7 @@ bool CFilter_Terrain_SlopeBased::On_Execute(void)
 
 		for( iPoint=0; iPoint<gridRadius.Get_nPoints(); iPoint++ )
 		{
-			gridRadius.Get_Point(iPoint, x, y, ix, iy);
-			dz = sqrt( pow((x - ix)*pInput->Get_Cellsize(), 2) + pow((y - iy)*pInput->Get_Cellsize(), 2) ) * tslope;
+			dz = gridRadius.Get_Point(iPoint, x, y, ix, iy) * tslope;
 			dzKernel.push_back(dz);
 		}
 		
@@ -222,18 +221,15 @@ bool CFilter_Terrain_SlopeBased::On_Execute(void)
 						sum	= sumsq	= 0.0;
 						n	= 0;
 
-						for( iPoint=0; iPoint<gridRadius.Get_nPoints(); iPoint++ )
+						for( iPoint=1; iPoint<gridRadius.Get_nPoints(); iPoint++ )
 						{
 							gridRadius.Get_Point(iPoint, x, y, ix, iy);
 
 							if( pGround->is_InGrid(ix, iy, true) )
 							{
-								if( x != ix && y != iy )
-								{
-									n++;
-									sum		+= pGround->asDouble(ix, iy);
-									sumsq	+= pGround->asDouble(ix, iy) * pGround->asDouble(ix, iy);
-								}
+								n++;
+								sum		+= pGround->asDouble(ix, iy);
+								sumsq	+= pGround->asDouble(ix, iy) * pGround->asDouble(ix, iy);
 							}
 						}
 						
@@ -249,19 +245,16 @@ bool CFilter_Terrain_SlopeBased::On_Execute(void)
 					// calc erosion
 					min_z	= 999999.0;
 
-					for( iPoint=0; iPoint<gridRadius.Get_nPoints(); iPoint++ )
+					for( iPoint=1; iPoint<gridRadius.Get_nPoints(); iPoint++ )
 					{
 						gridRadius.Get_Point(iPoint, x, y, ix, iy);
 
 						if( pGround->is_InGrid(ix, iy, true) )
 						{
-							if( x != ix && y != iy )
-							{
-								ie = pGround->asDouble(ix, iy) + dzKernel[iPoint] + confInter;
+							ie = pGround->asDouble(ix, iy) + dzKernel[iPoint] + confInter;
 
-								if( ie < min_z )
-									min_z = ie;
-							}
+							if( ie < min_z )
+								min_z = ie;
 						}
 					}
 
