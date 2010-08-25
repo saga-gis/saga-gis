@@ -162,11 +162,6 @@ void CSG_Parameters::Set_Identifier(const SG_Char *String)
 	}
 }
 
-const SG_Char * CSG_Parameters::Get_Identifier(void)
-{
-	return( m_Identifier );
-}
-
 //---------------------------------------------------------
 void CSG_Parameters::Set_Name(const SG_Char *String)
 {
@@ -180,11 +175,6 @@ void CSG_Parameters::Set_Name(const SG_Char *String)
 	}
 }
 
-const SG_Char * CSG_Parameters::Get_Name(void)
-{
-	return( m_Name );
-}
-
 //---------------------------------------------------------
 void CSG_Parameters::Set_Description(const SG_Char *String)
 {
@@ -196,11 +186,6 @@ void CSG_Parameters::Set_Description(const SG_Char *String)
 	{
 		m_Description.Clear();
 	}
-}
-
-const SG_Char * CSG_Parameters::Get_Description(void)
-{
-	return( m_Description );
 }
 
 //---------------------------------------------------------
@@ -1102,6 +1087,7 @@ bool CSG_Parameters::DataObjects_Check(bool bSilent)
 		case PARAMETER_TYPE_Table:
 		case PARAMETER_TYPE_Shapes:
 		case PARAMETER_TYPE_TIN:
+		case PARAMETER_TYPE_PointCloud:
 			bInvalid	=  m_Parameters[i]->is_Input()				== true
 						&& m_Parameters[i]->is_Optional()			== false
 						&& m_Parameters[i]->asDataObject()			== NULL;
@@ -1254,6 +1240,113 @@ bool CSG_Parameters::DataObjects_Synchronize(void)
 							SG_UI_DataObject_Add	(p->asList()->asDataObject(j), false);
 							SG_UI_DataObject_Update	(p->asList()->asDataObject(j), false, NULL);
 						}
+					}
+				}
+			}
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameters::DataObjects_Get_Projection(CSG_Projection &Projection)	const
+{
+	for(int i=0; i<Get_Count(); i++)
+	{
+		CSG_Parameter	*p	= m_Parameters[i];
+
+		if( !p->ignore_Projection() )
+		{
+			CSG_Projection	P;
+
+			if( p->Get_Type() == PARAMETER_TYPE_Parameters )
+			{
+				if( !p->asParameters()->DataObjects_Get_Projection(P) )
+				{
+					return( false );
+				}
+
+				if( P.is_Okay() )
+				{
+					if( !Projection.is_Okay() )
+					{
+						Projection	= P;
+					}
+					else if( Projection != P )
+					{
+						return( false );
+					}
+				}
+			}
+			else if( p->is_Input() )
+			{
+				if( p->is_DataObject() && p->asDataObject() )
+				{
+					P	= p->asDataObject()->Get_Projection();
+
+					if( P.is_Okay() )
+					{
+						if( !Projection.is_Okay() )
+						{
+							Projection	= P;
+						}
+						else if( Projection != P )
+						{
+							return( false );
+						}
+					}
+				}
+				else if( p->is_DataObject_List() )
+				{
+					for(int j=0; j<p->asList()->Get_Count(); j++)
+					{
+						P	= p->asList()->asDataObject(j)->Get_Projection();
+
+						if( P.is_Okay() )
+						{
+							if( !Projection.is_Okay() )
+							{
+								Projection	= P;
+							}
+							else if( Projection != P )
+							{
+								return( false );
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameters::DataObjects_Set_Projection(const CSG_Projection &Projection)
+{
+	for(int i=0; i<Get_Count(); i++)
+	{
+		CSG_Parameter	*p	= m_Parameters[i];
+
+		if( !p->ignore_Projection() )
+		{
+			if( p->Get_Type() == PARAMETER_TYPE_Parameters )
+			{
+				p->asParameters()->DataObjects_Set_Projection(Projection);
+			}
+			else if( p->is_Output() )
+			{
+				if( p->is_DataObject() && p->asDataObject() )
+				{
+					p->asDataObject()->Get_Projection()	= Projection;
+				}
+				else if( p->is_DataObject_List() )
+				{
+					for(int j=0; j<p->asList()->Get_Count(); j++)
+					{
+						p->asList()->asDataObject(j)->Get_Projection()	= Projection;
 					}
 				}
 			}

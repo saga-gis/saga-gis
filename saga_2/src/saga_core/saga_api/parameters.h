@@ -85,10 +85,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define PARAMETER_INPUT						0x01
+#define PARAMETER_INPUT					0x01
 #define PARAMETER_OUTPUT					0x02
 #define PARAMETER_OPTIONAL					0x04
 #define PARAMETER_INFORMATION				0x08
+#define PARAMETER_IGNORE_PROJECTION		0x10
 
 #define PARAMETER_INPUT_OPTIONAL			(PARAMETER_INPUT  | PARAMETER_OPTIONAL)
 #define PARAMETER_OUTPUT_OPTIONAL			(PARAMETER_OUTPUT | PARAMETER_OPTIONAL)
@@ -1000,11 +1001,13 @@ public:
 	bool						Set_Enabled				(bool bEnabled);
 	bool						is_Enabled				(void)	{	return( m_bEnabled );				}
 
+	bool						ignore_Projection		(void)	{	return( !!(m_pData->Get_Constraint() & PARAMETER_IGNORE_PROJECTION) );	}
+
 	bool						is_Valid				(void)	{	return( m_pData->is_Valid() );		}
-	bool						is_Input				(void)	{	return( !!(m_pData->Get_Constraint() & PARAMETER_INPUT)	      );	}
-	bool						is_Output				(void)	{	return( !!(m_pData->Get_Constraint() & PARAMETER_OUTPUT)      );	}
-	bool						is_Optional				(void)	{	return( !!(m_pData->Get_Constraint() & PARAMETER_OPTIONAL)    );	}
-	bool						is_Information			(void)	{	return( !!(m_pData->Get_Constraint() & PARAMETER_INFORMATION) );	}
+	bool						is_Input				(void)	{	return( !!(m_pData->Get_Constraint() & PARAMETER_INPUT)	        );	}
+	bool						is_Output				(void)	{	return( !!(m_pData->Get_Constraint() & PARAMETER_OUTPUT)        );	}
+	bool						is_Optional				(void)	{	return( !!(m_pData->Get_Constraint() & PARAMETER_OPTIONAL)      );	}
+	bool						is_Information			(void)	{	return( !!(m_pData->Get_Constraint() & PARAMETER_INFORMATION)   );	}
 	bool						is_Option				(void);
 	bool						is_DataObject			(void);
 	bool						is_DataObject_List		(void);
@@ -1109,17 +1112,17 @@ public:
 	void						Destroy					(void);
 
 	//-----------------------------------------------------
-	void *						Get_Owner				(void)	{	return( m_pOwner );			}
-	int							Get_Count				(void)	{	return( m_nParameters );	}
+	void *						Get_Owner				(void)	const	{	return( m_pOwner );			}
+	int							Get_Count				(void)	const	{	return( m_nParameters );	}
 
 	void						Set_Identifier			(const SG_Char *String);
-	const SG_Char *				Get_Identifier			(void);
+	const SG_Char *				Get_Identifier			(void)	const	{	return( m_Identifier );		}
 
 	void						Set_Name				(const SG_Char *String);
-	const SG_Char *				Get_Name				(void);
+	const SG_Char *				Get_Name				(void)	const	{	return( m_Name );			}
 
 	void						Set_Description			(const SG_Char *String);
-	const SG_Char *				Get_Description			(void);
+	const SG_Char *				Get_Description			(void)	const	{	return( m_Description );	}
 
 	void						Set_Translation			(CSG_Translator &Translator);
 
@@ -1277,8 +1280,10 @@ private:
 	CSG_Parameter *				_Add					(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, TSG_Parameter_Type Type, int Constraint);
 	CSG_Parameter *				_Add					(CSG_Parameter *pSource);
 
-	bool						DataObjects_Create		(void);
-	bool						DataObjects_Synchronize	(void);
+	bool						DataObjects_Create			(void);
+	bool						DataObjects_Synchronize		(void);
+	bool						DataObjects_Get_Projection	(CSG_Projection &Projection)		const;
+	bool						DataObjects_Set_Projection	(const CSG_Projection &Projection);
 
 };
 

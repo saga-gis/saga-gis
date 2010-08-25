@@ -82,13 +82,24 @@ CFilter_LoG::CFilter_LoG(void)
 		 "\n"
 		 "Standard kernel 1 (3x3):\n"
 		 " 0 | -1 |  0\n"
+		 "-- + -- + --\n"
 		 "-1 |  4 | -1\n"
+		 "-- + -- + --\n"
 		 " 0 | -1 |  0\n"
 		 "\n"
 		 "Standard kernel 2 (3x3):\n"
 		 "-1 | -1 | -1\n"
+		 "-- + -- + --\n"
 		 "-1 |  8 | -1\n"
-		 " 0 | -1 |  0\n"
+		 "-- + -- + --\n"
+		 "-1 | -1 | -1\n"
+		 "\n"
+		 "Standard kernel 3 (3x3):\n"
+		 "-1 | -2 | -1\n"
+		 "-- + -- + --\n"
+		 "-2 | 12 | -2\n"
+		 "-- + -- + --\n"
+		 "-1 | -2 | -1\n"
 		 "\n"
 	));
 
@@ -111,14 +122,15 @@ CFilter_LoG::CFilter_LoG(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("Standard Kernel 1"),
-			_TL("Standard Kernel 2"),
-			_TL("User defined")
-		), 2
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("standard kernel 1"),
+			_TL("standard kernel 2"),
+			_TL("Standard kernel 3"),
+			_TL("user defined kernel")
+		), 3
 	);
 
-	CSG_Parameter	*pNode	= Parameters.Add_Node(NULL, "NODE_USER", _TL("User defined"), _TL(""));
+	CSG_Parameter	*pNode	= Parameters.Add_Node(NULL, "NODE_USER", _TL("User Defined Kernel"), _TL(""));
 
 	Parameters.Add_Value(
 		pNode	, "SIGMA"		, _TL("Standard Deviation (Percent of Radius)"),
@@ -136,15 +148,11 @@ CFilter_LoG::CFilter_LoG(void)
 		pNode	, "MODE"		, _TL("Search Mode"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("Square"),
-			_TL("Circle")
+			_TL("square"),
+			_TL("circle")
 		), 1
 	);
 }
-
-//---------------------------------------------------------
-CFilter_LoG::~CFilter_LoG(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
@@ -156,16 +164,14 @@ CFilter_LoG::~CFilter_LoG(void)
 //---------------------------------------------------------
 bool CFilter_LoG::On_Execute(void)
 {
-	int			Radius;
 	CSG_Grid	*pResult;
 
 	//-----------------------------------------------------
 	m_pInput	= Parameters("INPUT")	->asGrid();
 	pResult		= Parameters("RESULT")	->asGrid();
-	Radius		= Parameters("RADIUS")	->asInt();
 
 	//-----------------------------------------------------
-	if( Initialise(Parameters("METHOD")->asInt(), Radius, Parameters("SIGMA")->asDouble(), Parameters("MODE")->asInt() == 1) )
+	if( Initialise() )
 	{
 		if( !pResult || pResult == m_pInput )
 		{
@@ -181,7 +187,7 @@ bool CFilter_LoG::On_Execute(void)
 			{
 				if( m_pInput->is_InGrid(x, y) )
 				{
-					pResult->Set_Value(x, y, Get_Mean(x, y, Radius));
+					pResult->Set_Value(x, y, Get_Value(x, y));
 				}
 				else
 				{
@@ -215,73 +221,73 @@ bool CFilter_LoG::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CFilter_LoG::Initialise(int Method, int &Radius, double Sigma, bool bCircle)
+bool CFilter_LoG::Initialise(void)
 {
+	int		Method		= Parameters("METHOD")	->asInt();
+	bool	bCircle		= Parameters("MODE")	->asInt() == 1;
+	double	Sigma		= Parameters("SIGMA")	->asDouble();
+
 	switch( Method )
 	{
 	case 0:
+		m_Radius	= 1;
 		m_Kernel.Create(SG_DATATYPE_Double, 3, 3);
 		m_Kernel.Set_Value(0, 0,  0);	m_Kernel.Set_Value(0, 1, -1);	m_Kernel.Set_Value(0, 2,  0);
 		m_Kernel.Set_Value(1, 0, -1);	m_Kernel.Set_Value(1, 1,  4);	m_Kernel.Set_Value(1, 2, -1);
 		m_Kernel.Set_Value(2, 0,  0);	m_Kernel.Set_Value(2, 1, -1);	m_Kernel.Set_Value(2, 2,  0);
-		Radius	= 1;
-		return( true );
+		break;
 
 	case 1:
+		m_Radius	= 1;
 		m_Kernel.Create(SG_DATATYPE_Double, 3, 3);
 		m_Kernel.Set_Value(0, 0, -1);	m_Kernel.Set_Value(0, 1, -1);	m_Kernel.Set_Value(0, 2, -1);
 		m_Kernel.Set_Value(1, 0, -1);	m_Kernel.Set_Value(1, 1,  8);	m_Kernel.Set_Value(1, 2, -1);
 		m_Kernel.Set_Value(2, 0, -1);	m_Kernel.Set_Value(2, 1, -1);	m_Kernel.Set_Value(2, 2, -1);
-		Radius	= 1;
-		return( true );
+		break;
 
-	case 2:	default:
-		if( Sigma > 0.0 )
+	case 2:
+		m_Radius	= 1;
+		m_Kernel.Create(SG_DATATYPE_Double, 3, 3);
+		m_Kernel.Set_Value(0, 0, -1);	m_Kernel.Set_Value(0, 1, -2);	m_Kernel.Set_Value(0, 2, -1);
+		m_Kernel.Set_Value(1, 0, -2);	m_Kernel.Set_Value(1, 1, 12);	m_Kernel.Set_Value(1, 2, -2);
+		m_Kernel.Set_Value(2, 0, -1);	m_Kernel.Set_Value(2, 1, -2);	m_Kernel.Set_Value(2, 2, -1);
+		break;
+
+	case 3:	default:
+		m_Radius	= Parameters("RADIUS")->asInt();
+
+		if( Sigma <= 0.0 )
 		{
-			m_Kernel.Create(SG_DATATYPE_Double, 1 + 2 * Radius, 1 + 2 * Radius);
+			return( false );
+		}
 
-			Sigma	= SG_Get_Square(Radius * Sigma * 0.01);
+		m_Kernel.Create(SG_DATATYPE_Double, 1 + 2 * m_Radius, 1 + 2 * m_Radius);
 
-		//	double	min		= 999999;
-		//	double	max		= 0;
+		Sigma	= SG_Get_Square(m_Radius * Sigma * 0.01);
 
-			for(int y=-Radius, iy=0; y<=Radius; y++, iy++)
+		for(int y=-m_Radius, iy=0; y<=m_Radius; y++, iy++)
+		{
+			for(int x=-m_Radius, ix=0; x<=m_Radius; x++, ix++)
 			{
-				for(int x=-Radius, ix=0; x<=Radius; x++, ix++)
+				double	d	= x * x + y * y;
+
+				if( bCircle && d > m_Radius*m_Radius )
 				{
-					double	d	= x * x + y * y;
-
-					if( bCircle && d > Radius*Radius )
-					{
-						d	= 0.0;
-					}
-					else
-					{
-						d	= 1.0 / (M_PI * Sigma*Sigma) * (1.0 - d / (2.0 * Sigma)) * exp(-d / (2.0 * Sigma));
-					}
-
-					m_Kernel.Set_Value(ix, iy, d);
-
-		//			if( min > k )	min	= k;
-		//			if( max < k )	max	= k;
+					m_Kernel.Set_NoData(ix, iy);
+				}
+				else
+				{
+					m_Kernel.Set_Value(ix, iy, 1.0 / (M_PI * Sigma*Sigma) * (1.0 - d / (2.0 * Sigma)) * exp(-d / (2.0 * Sigma)));
 				}
 			}
-
-		//	this->DataObject_Add(SG_Create_Grid(m_Kernel));
-
-			m_Kernel	+= -m_Kernel.Get_ArithMean();
-
-		//	if( min / max > 0.367 / 2.0 )
-		//	{
-		//		Message_Add("Warning: Radius is to small for your Standard Deviation");
-		//		return( false );
-		//	}
-
-			return( true );
 		}
+
+		m_Kernel	+= -m_Kernel.Get_ArithMean();
+
+		break;
 	}
 
-	return( false );
+	return( true );
 }
 
 
@@ -292,29 +298,24 @@ bool CFilter_LoG::Initialise(int Method, int &Radius, double Sigma, bool bCircle
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CFilter_LoG::Get_Mean(int x, int y, int Radius)
+double CFilter_LoG::Get_Value(int x, int y)
 {
-	double	s, n, k;
+	double	s	= 0.0;
 
 	//-----------------------------------------------------
-	s	= 0.0;
-	n	= 0.0;
-
-	//-----------------------------------------------------
-	for(int ky=0, iy=y-Radius; ky<m_Kernel.Get_NY(); ky++, iy++)
-	{
-		for(int kx=0, ix=x-Radius; kx<m_Kernel.Get_NX(); kx++, ix++)
+	for(int ky=0, iy=y-m_Radius; ky<m_Kernel.Get_NY(); ky++, iy++)
+ 	{
+		for(int kx=0, ix=x-m_Radius; kx<m_Kernel.Get_NX(); kx++, ix++)
 		{
-			if( m_pInput->is_InGrid(ix, iy) && (k = m_Kernel.asDouble(kx, ky)) != 0.0 )
+			if( !m_Kernel.is_NoData(kx, ky) )
 			{
-				s	+= k * m_pInput->asDouble(ix, iy);
-				n	+= fabs(k);
+				s	+= m_Kernel.asDouble(kx, ky) * (m_pInput->is_InGrid(ix, iy) ? m_pInput->asDouble(ix, iy) : m_pInput->asDouble(x, y));
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	return( n > 0.0 ? s / n : 0.0 );
+	return( s );
 }
 
 

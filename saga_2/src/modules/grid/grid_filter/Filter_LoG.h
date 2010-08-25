@@ -83,7 +83,6 @@ class CFilter_LoG : public CSG_Module_Grid
 {
 public:
 	CFilter_LoG(void);
-	virtual ~CFilter_LoG(void);
 	
 
 protected:
@@ -93,12 +92,14 @@ protected:
 
 private:
 
+	int					m_Radius;
+
 	CSG_Grid			*m_pInput, m_Kernel;
 
 
-	bool				Initialise		(int Method, int &Radius, double Sigma, bool bCircle);
-	
-	double				Get_Mean		(int x, int y, int Radius);
+	bool				Initialise		(void);
+
+	double				Get_Value		(int x, int y);
 
 };
 

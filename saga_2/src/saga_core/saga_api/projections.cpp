@@ -101,7 +101,7 @@ CSG_String			SG_Get_Projection_Type_Name(TSG_Projection_Type Type)
 //---------------------------------------------------------
 CSG_Projection::CSG_Projection(void)
 {
-	_Reset();
+	Destroy();
 }
 
 CSG_Projection::~CSG_Projection(void)
@@ -110,7 +110,7 @@ CSG_Projection::~CSG_Projection(void)
 //---------------------------------------------------------
 CSG_Projection::CSG_Projection(const CSG_Projection &Projection)
 {
-	_Reset();
+	Destroy();
 
 	Create(Projection);
 }
@@ -134,7 +134,7 @@ bool CSG_Projection::Assign(const CSG_Projection &Projection)
 //---------------------------------------------------------
 CSG_Projection::CSG_Projection(int EPSG_SRID)
 {
-	_Reset();
+	Destroy();
 
 	Create(EPSG_SRID);
 }
@@ -152,7 +152,7 @@ bool CSG_Projection::Assign(int EPSG_SRID)
 //---------------------------------------------------------
 CSG_Projection::CSG_Projection(const CSG_String &Projection, TSG_Projection_Format Format)
 {
-	_Reset();
+	Destroy();
 
 	Create(Projection, Format);
 }
@@ -164,7 +164,7 @@ bool CSG_Projection::Create(const CSG_String &Projection, TSG_Projection_Format 
 
 bool CSG_Projection::Assign(const CSG_String &Projection, TSG_Projection_Format Format)
 {
-	_Reset();
+	Destroy();
 
 	switch( Format )
 	{
@@ -218,7 +218,7 @@ bool CSG_Projection::Assign(const CSG_String &Projection, TSG_Projection_Format 
 }
 
 //---------------------------------------------------------
-void CSG_Projection::_Reset(void)
+void CSG_Projection::Destroy(void)
 {
 	m_Name		= LNG("undefined");
 	m_Type		= SG_PROJ_TYPE_CS_Undefined;

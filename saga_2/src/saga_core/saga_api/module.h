@@ -153,6 +153,8 @@ public:
 	CSG_Data_Object *			Garbage_Del_Item			(int i, bool bFromListOnly = true);
 	void						Garbage_Clear				(void);
 
+	virtual bool				do_Sync_Projections			(void)	{	return( true  );	}
+
 	virtual bool				is_Interactive				(void)	{	return( false );	}
 	bool						is_Progress					(void)	{	return( SG_UI_Process_Get_Okay(false) );	}
 	bool						is_Executing				(void)	{	return( m_bExecutes );	}
@@ -234,6 +236,8 @@ protected:
 	bool						DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, const SG_Char *Value);
 	bool						DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, double loVal, double hiVal);	// Range Parameter
 
+	bool						Get_Projection				(CSG_Projection &Projection)	const;
+
 
 private:
 
@@ -249,6 +253,8 @@ private:
 
 
 	bool						_Garbage_Add_Item			(CSG_Data_Object *pDataObject);
+
+	bool						_Synchronize_DataObjects	(void);
 
 	void						_Set_Output_History			(void);
 
@@ -319,7 +325,7 @@ protected:
 
 private:
 
-	CSG_Grid						*m_pLock;
+	CSG_Grid					*m_pLock;
 
 };
 

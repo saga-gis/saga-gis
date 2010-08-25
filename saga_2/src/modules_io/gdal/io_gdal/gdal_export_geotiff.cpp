@@ -117,6 +117,7 @@ bool CGDAL_Export_GeoTIFF::On_Execute(void)
 	int						x, y, n;
 	double					*zLine;
 	CSG_String				File_Name;
+	CSG_Projection			Projection;
 	CSG_Parameter_Grid_List	*pGrids;
 	CSG_Grid				*pGrid;
 	GDALDataType			gdal_Type;
@@ -147,6 +148,11 @@ bool CGDAL_Export_GeoTIFF::On_Execute(void)
 	else
 	{
 		g_GDAL_Driver.Set_Transform(pDataset, Get_System());
+
+		if( Get_Projection(Projection) )
+		{
+			pDataset->SetProjection(SG_STR_SGTOMB(Projection.Get_WKT()));
+		}
 
 		zLine	= (double *)SG_Malloc(Get_NX() * sizeof(double));
 

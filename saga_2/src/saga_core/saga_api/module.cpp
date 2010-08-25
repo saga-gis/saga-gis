@@ -195,7 +195,6 @@ void CSG_Module::Set_Translation(CSG_Translator &Translator)
 bool CSG_Module::Execute(void)
 {
 	bool	bResult	= false;
-	int		i;
 
 	if( m_bExecutes == false )
 	{
@@ -203,7 +202,7 @@ bool CSG_Module::Execute(void)
 
 		if( Parameters.DataObjects_Check() )
 		{
-			for(i=0; i<m_npParameters; i++)
+			for(int i=0; i<m_npParameters; i++)
 			{
 				m_pParameters[i]->DataObjects_Check();
 			}
@@ -245,18 +244,82 @@ __except(1)
 
 			Destroy();
 
-			Parameters.DataObjects_Synchronize();
-
-			for(i=0; i<m_npParameters; i++)
-			{
-				m_pParameters[i]->DataObjects_Synchronize();
-			}
+			_Synchronize_DataObjects();
 		}
 
 		m_bExecutes		= false;
 	}
 
 	return( bResult );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Module::_Synchronize_DataObjects(void)
+{
+	int				i;
+	CSG_Projection	Projection;
+
+	Parameters.DataObjects_Synchronize();
+
+	for(i=0; i<m_npParameters; i++)
+	{
+		m_pParameters[i]->DataObjects_Synchronize();
+	}
+
+	if( do_Sync_Projections() && Get_Projection(Projection) )
+	{
+		Parameters.DataObjects_Set_Projection(Projection);
+
+		for(i=0; i<m_npParameters; i++)
+		{
+			m_pParameters[i]->DataObjects_Set_Projection(Projection);
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Module::Get_Projection(CSG_Projection &Projection)	const
+{
+	Projection.Destroy();
+
+	if( !Parameters.DataObjects_Get_Projection(Projection) )
+	{
+		return( false );
+	}
+
+	for(int i=0; i<m_npParameters; i++)
+	{
+		CSG_Projection	P;
+
+		if( !m_pParameters[i]->DataObjects_Get_Projection(P) )
+		{
+			return( false );
+		}
+		else if( P.is_Okay() )
+		{
+			if( !Projection.is_Okay() )
+			{
+				Projection	= P;
+			}
+			else if( Projection != P )
+			{
+				return( false );
+			}
+		}
+	}
+
+	return( Projection.is_Okay() );
 }
 
 

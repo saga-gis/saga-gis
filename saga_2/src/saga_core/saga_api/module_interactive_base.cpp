@@ -113,6 +113,8 @@ bool CSG_Module_Interactive_Base::Execute_Position(CSG_Point ptWorld, TSG_Module
 
 		m_Keys						= 0;
 
+		m_pModule->_Synchronize_DataObjects();
+
 		m_pModule->m_bExecutes		= false;
 	}
 
@@ -142,6 +144,8 @@ bool CSG_Module_Interactive_Base::Execute_Keyboard(int Character, int Keys)
 
 		m_Keys						= 0;
 
+		m_pModule->_Synchronize_DataObjects();
+
 		m_pModule->m_bExecutes		= false;
 	}
 
@@ -166,6 +170,8 @@ bool CSG_Module_Interactive_Base::Execute_Finish(void)
 		m_pModule->m_bError_Ignore	= false;
 
 		bResult						= On_Execute_Finish();
+
+		m_pModule->_Synchronize_DataObjects();
 
 		m_pModule->m_bExecutes		= false;
 	}

@@ -637,6 +637,8 @@ public:
 	CSG_Projection(void);
 	virtual ~CSG_Projection(void);
 
+	void							Destroy					(void);
+
 									CSG_Projection			(const CSG_Projection &Projection);
 	bool							Create					(const CSG_Projection &Projection);
 	bool							Assign					(const CSG_Projection &Projection);
@@ -654,7 +656,8 @@ public:
 
 	bool							is_Okay					(void)	const	{	return( m_Type != SG_PROJ_TYPE_CS_Undefined );	}
 	bool							is_Equal				(const CSG_Projection &Projection)	const;
-	bool							operator ==				(const CSG_Projection &Projection)	const	{	return( is_Equal(Projection) );	}
+	bool							operator ==				(const CSG_Projection &Projection)	const	{	return( is_Equal(Projection) == true  );	}
+	bool							operator !=				(const CSG_Projection &Projection)	const	{	return( is_Equal(Projection) == false );	}
 
 	bool							Load					(const CSG_String &File_Name, TSG_Projection_Format Format);
 	bool							Save					(const CSG_String &File_Name, TSG_Projection_Format Format)	const;
@@ -680,8 +683,6 @@ private:
 
 	CSG_String						m_Name, m_WKT, m_Proj4;
 
-
-	void							_Reset					(void);
 
 };
 
