@@ -84,7 +84,9 @@ IMPLEMENT_CLASS(CDLG_List_Base, CDLG_Base)
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CDLG_List_Base, CDLG_Base)
 	EVT_BUTTON			(ID_BTN_ADD			, CDLG_List_Base::On_Add)
+	EVT_BUTTON			(ID_BTN_ADD_ALL		, CDLG_List_Base::On_Add_All)
 	EVT_BUTTON			(ID_BTN_DELETE		, CDLG_List_Base::On_Del)
+	EVT_BUTTON			(ID_BTN_DELETE_ALL	, CDLG_List_Base::On_Del_All)
 	EVT_BUTTON			(ID_BTN_UP			, CDLG_List_Base::On_Up)
 	EVT_BUTTON			(ID_BTN_DOWN		, CDLG_List_Base::On_Down)
 
@@ -108,10 +110,12 @@ CDLG_List_Base::CDLG_List_Base(CSG_Parameter_List *pList, wxString Caption)
 	m_pSelect		= new wxListBox	(this, ID_LISTBOX_SELECT, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_EXTENDED|wxLB_NEEDED_SB|wxLB_SORT);	// |wxLB_EXTENDED
 	m_pAdd			= new wxListBox	(this, ID_LISTBOX_ADD   , wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_EXTENDED|wxLB_NEEDED_SB);
 
-	m_pBtn_Add		= new wxButton	(this, ID_BTN_ADD   , wxT(">>"));
-	m_pBtn_Del		= new wxButton	(this, ID_BTN_DELETE, wxT("<<"));
-	m_pBtn_Up		= new wxButton	(this, ID_BTN_UP    , CTRL_Get_Name(ID_BTN_UP));
-	m_pBtn_Down		= new wxButton	(this, ID_BTN_DOWN  , CTRL_Get_Name(ID_BTN_DOWN));
+	m_pBtn_Add_All	= new wxButton	(this, ID_BTN_ADD_ALL   , wxT(">>"));
+	m_pBtn_Add		= new wxButton	(this, ID_BTN_ADD       , wxT(">"));
+	m_pBtn_Del		= new wxButton	(this, ID_BTN_DELETE    , wxT("<"));
+	m_pBtn_Del_All	= new wxButton	(this, ID_BTN_DELETE_ALL, wxT("<<"));
+	m_pBtn_Up		= new wxButton	(this, ID_BTN_UP        , CTRL_Get_Name(ID_BTN_UP));
+	m_pBtn_Down		= new wxButton	(this, ID_BTN_DOWN      , CTRL_Get_Name(ID_BTN_DOWN));
 
 	m_btn_height	= m_pBtn_Add->GetDefaultSize().y;
 
@@ -167,10 +171,16 @@ void CDLG_List_Base::Set_Position(wxRect r)
 	m_pAdd->SetSize(r);
 
 	r		= wxRect(Center - DLG_LIST_BTN_WIDTH / 2, r.GetTop(), DLG_LIST_BTN_WIDTH, m_btn_height);
-	m_pBtn_Add->SetSize(r);
+	m_pBtn_Add_All->SetSize(r);
 
 	r.SetTop(r.GetBottom() + DLG_LIST_BTN_DIST);
+	m_pBtn_Add->SetSize(r);
+
+	r.SetTop(r.GetBottom() + DLG_LIST_BTN_DIST * 2);
 	m_pBtn_Del->SetSize(r);
+
+	r.SetTop(r.GetBottom() + DLG_LIST_BTN_DIST);
+	m_pBtn_Del_All->SetSize(r);
 
 	r.SetTop(r.GetBottom() + DLG_LIST_BTN_DIST * 2);
 	m_pBtn_Up->SetSize(r);
@@ -225,12 +235,12 @@ int ArrayInt_CMP_Down(int *first, int *second)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CDLG_List_Base::On_Del(wxCommandEvent &event)
+void CDLG_List_Base::On_DClick_Del(wxCommandEvent &event)
 {
 	_Del();
 }
 
-void CDLG_List_Base::On_DClick_Del(wxCommandEvent &event)
+void CDLG_List_Base::On_Del(wxCommandEvent &event)
 {
 	_Del();
 }
@@ -254,34 +264,54 @@ void CDLG_List_Base::_Del(void)
 	}
 }
 
+void CDLG_List_Base::On_Del_All(wxCommandEvent &event)
+{
+	for(unsigned int i=0; i<m_pAdd->GetCount(); i++)
+	{
+		m_pSelect->Append(m_pAdd->GetString(i), m_pAdd->GetClientData(i));
+	}
+
+	m_pAdd->Clear();
+}
+
 //---------------------------------------------------------
-void CDLG_List_Base::On_Add(wxCommandEvent &event)
+void CDLG_List_Base::On_DClick_Add(wxCommandEvent &event)
 {
 	_Add();
 }
 
-void CDLG_List_Base::On_DClick_Add(wxCommandEvent &event)
+void CDLG_List_Base::On_Add(wxCommandEvent &event)
 {
 	_Add();
 }
 
 void CDLG_List_Base::_Add(void)
 {
-	int			i, j, n;
+	int			i, j, n, m;
 	wxArrayInt	Selections;
 
 	if( (n = m_pSelect->GetSelections(Selections)) > 0 )
 	{
 		Selections.Sort(ArrayInt_CMP_Down);
 
-		for(i=0; i<n; i++)
+		for(i=0, m=m_pAdd->GetCount(); i<n; i++)
 		{
 			j	= Selections.Item(i);
 
-			m_pAdd->Insert(m_pSelect->GetString(j), 0, m_pSelect->GetClientData(j));
+			m_pAdd->Insert(m_pSelect->GetString(j), m, m_pSelect->GetClientData(j));
 			m_pSelect->Delete(j);
 		}
 	}
+}
+
+void CDLG_List_Base::On_Add_All(wxCommandEvent &event)
+{
+	for(unsigned int i=0; i<m_pSelect->GetCount(); i++)
+	{
+		m_pAdd->Append(m_pSelect->GetString(i), m_pSelect->GetClientData(i));
+	}
+
+	m_pSelect->Clear();
 }
 
 

@@ -88,6 +88,7 @@ const wxChar * CTRL_Get_Name(int ID_CTRL)
 	case ID_BTN_SAVE:					return( LNG("[BTN] Save") );
 
 	case ID_BTN_ADD:					return( LNG("[BTN] Add") );
+	case ID_BTN_ADD_ALL:				return( LNG("[BTN] Add All") );
 	case ID_BTN_INSERT:					return( LNG("[BTN] Insert") );
 	case ID_BTN_DELETE:					return( LNG("[BTN] Delete") );
 	case ID_BTN_DELETE_ALL:				return( LNG("[BTN] Clear") );
