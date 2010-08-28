@@ -213,7 +213,7 @@ void CSG_PointCloud::_On_Construction(void)
 	m_Shapes.Add_Shape();
 	m_Shapes_Index	= -1;
 
-	m_Array_Points  .Create(sizeof(char *), 0, SG_ARRAY_GROWTH_2);
+	m_Array_Points  .Create(sizeof(char *), 0, SG_ARRAY_GROWTH_3);
 	m_Array_Selected.Create(sizeof(int   ), 0, SG_ARRAY_GROWTH_3);
 }
 
