@@ -292,6 +292,8 @@ bool CLAS_Import::On_Execute(void)
 
 	//-----------------------------------------------------
 	CSG_Parameters		sParms;
+
+	DataObject_Update(pPoints);
 	DataObject_Get_Parameters(pPoints, sParms);
 
 	if (sParms("COLORS_ATTRIB")	&& sParms("COLORS_TYPE") && sParms("METRIC_COLORS")
