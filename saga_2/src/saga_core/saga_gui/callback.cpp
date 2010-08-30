@@ -146,7 +146,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 
 		if( g_pModule && g_pModule->is_Executing() )
 		{
-			Result	= g_pModule->Execute(false) ? 1 : 0;
+			Result	= g_pModule->Execute(Param_1 == 1) ? 1 : 0;
 		}
 
 		break;

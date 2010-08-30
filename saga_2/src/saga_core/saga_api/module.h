@@ -204,7 +204,7 @@ protected:
 	virtual bool				Set_Progress				(int Position);
 	virtual bool				Set_Progress				(double Position, double Range);
 
-	bool						Stop_Execution				(void);
+	bool						Stop_Execution				(bool bDialog = true);
 
 	void						Message_Add					(const SG_Char *Text, bool bNewLine = true);
 	void						Message_Dlg					(const SG_Char *Text, const SG_Char *Caption = NULL);

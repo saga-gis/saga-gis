@@ -1155,7 +1155,7 @@ SAGA_API_DLL_EXPORT bool					SG_UI_Process_Set_Progress	(double Position, double
 SAGA_API_DLL_EXPORT bool					SG_UI_Process_Set_Ready		(void);
 SAGA_API_DLL_EXPORT void					SG_UI_Process_Set_Text		(const SG_Char *Text);
 
-SAGA_API_DLL_EXPORT bool					SG_UI_Stop_Execution		(void);
+SAGA_API_DLL_EXPORT bool					SG_UI_Stop_Execution		(bool bDialog);
 
 SAGA_API_DLL_EXPORT void					SG_UI_Dlg_Message			(const SG_Char *Message, const SG_Char *Caption);
 SAGA_API_DLL_EXPORT bool					SG_UI_Dlg_Continue			(const SG_Char *Message, const SG_Char *Caption);

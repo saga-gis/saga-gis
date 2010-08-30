@@ -210,11 +210,11 @@ void		SG_UI_Process_Set_Text(const SG_Char *Text)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		SG_UI_Stop_Execution(void)
+bool		SG_UI_Stop_Execution(bool bDialog)
 {
 	if( gSG_UI_Callback )
 	{
-		return( gSG_UI_Callback(CALLBACK_STOP_EXECUTION, 0, 0) != 0 );
+		return( gSG_UI_Callback(CALLBACK_STOP_EXECUTION, bDialog ? 1 : 0, 0) != 0 );
 	}
 
 	return( false );

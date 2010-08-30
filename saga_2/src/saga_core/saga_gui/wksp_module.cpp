@@ -699,7 +699,7 @@ bool CWKSP_Module::is_Executing(void)
 							MSG_Execution_Add(s, true, true);
 
 #define MSG_ADD2(b, s1, s2)	MSG_General_Add  (b ? s1 : s2, true, true, b ? SG_UI_MSG_STYLE_SUCCESS : SG_UI_MSG_STYLE_FAILURE);\
-							MSG_Execution_Add(b ? s1 : s2, true, true, b ? SG_UI_MSG_STYLE_SUCCESS : SG_UI_MSG_STYLE_FAILURE);
+								MSG_Execution_Add(b ? s1 : s2, true, true, b ? SG_UI_MSG_STYLE_SUCCESS : SG_UI_MSG_STYLE_FAILURE);
 
 //---------------------------------------------------------
 bool CWKSP_Module::Execute(bool bDialog)
@@ -713,7 +713,7 @@ bool CWKSP_Module::Execute(bool bDialog)
 		{
 			if( g_pModule->is_Executing() )
 			{
-				if( DLG_Message_Confirm(LNG("[MSG] Shall execution be stopped?"), LNG("[CAP] Module Execution")) )
+				if( !bDialog || DLG_Message_Confirm(LNG("[MSG] Shall execution be stopped?"), LNG("[CAP] Module Execution")) )
 				{
 					PROCESS_Set_Okay(false);
 				}
