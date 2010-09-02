@@ -104,7 +104,7 @@ CShapes_Buffer::CShapes_Buffer(void)
 		NULL	, "BUF_TYPE"	, _TL("Buffer Distance"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("fix value"),
+			_TL("fixed value"),
 			_TL("attribute field")
 		), 0
 	);
