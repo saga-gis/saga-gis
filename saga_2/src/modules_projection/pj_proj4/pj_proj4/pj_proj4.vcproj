@@ -804,6 +804,14 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath=".\crs_assign.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\crs_transform.cpp"
+				>
+			</File>
+			<File
 				RelativePath="MLB_Interface.cpp"
 				>
 				<FileConfiguration
@@ -1112,6 +1120,14 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl"
 			>
+			<File
+				RelativePath=".\crs_assign.h"
+				>
+			</File>
+			<File
+				RelativePath=".\crs_transform.h"
+				>
+			</File>
 			<File
 				RelativePath="MLB_Interface.h"
 				>

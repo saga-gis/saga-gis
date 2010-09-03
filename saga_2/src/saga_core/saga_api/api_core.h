@@ -235,32 +235,33 @@ public:
 	const char *					b_str				(void);
 #endif
 
-	size_t							Length				(void)	const;
+	size_t							Length				(void)								const;
 
 	void							Clear				(void);
 	static CSG_String				Format				(const SG_Char *Format, ...);
 	int								Printf				(const SG_Char *Format, ...);
 	int								Scanf				(const SG_Char *Format, ...);
 
-	CSG_String &					Append				(const SG_Char *String);
+	CSG_String &					Append				(const SG_Char    *String);
 	CSG_String &					Append				(SG_Char Character);
 
 	CSG_String &					operator =			(const CSG_String &String);
-	CSG_String &					operator =			(const SG_Char *String);
+	CSG_String &					operator =			(const SG_Char    *String);
 	CSG_String &					operator =			(SG_Char Character);
 
-	CSG_String						operator +			(const CSG_String &String)		const;
-	CSG_String						operator +			(const SG_Char *String)			const;
-	CSG_String						operator +			(SG_Char Character)				const;
+	CSG_String						operator +			(const CSG_String &String)			const;
+	CSG_String						operator +			(const SG_Char    *String)			const;
+	CSG_String						operator +			(SG_Char Character)					const;
 
 	void							operator +=			(const CSG_String &String);
-	void							operator +=			(const SG_Char *String);
+	void							operator +=			(const SG_Char    *String);
 	void							operator +=			(SG_Char Character);
 
 	SG_Char &						operator []			(int i);
+	SG_Char							operator []			(int i)								const;
 
-	int								Cmp					(const SG_Char *String)			const;
-	int								CmpNoCase			(const SG_Char *String)			const;
+	int								Cmp					(const CSG_String &String)			const;
+	int								CmpNoCase			(const CSG_String &String)			const;
 
 	CSG_String &					Make_Lower			(void);
 	CSG_String &					Make_Upper			(void);
@@ -272,23 +273,23 @@ public:
 
 	int								Trim				(bool fromRight = false);
 
-	int								Find				(SG_Char Character, bool fromEnd = false);
-	int								Find				(const SG_Char *String);
-	bool							Contains			(const SG_Char *String);
+	int								Find				(SG_Char Character, bool fromEnd = false)	const;
+	int								Find				(const SG_Char *String)				const;
+	bool							Contains			(const SG_Char *String)				const;
 
-	CSG_String						AfterFirst			(SG_Char Character)				const;
-	CSG_String						AfterLast			(SG_Char Character)				const;
-	CSG_String						BeforeFirst			(SG_Char Character)				const;
-	CSG_String						BeforeLast			(SG_Char Character)				const;
+	CSG_String						AfterFirst			(SG_Char Character)					const;
+	CSG_String						AfterLast			(SG_Char Character)					const;
+	CSG_String						BeforeFirst			(SG_Char Character)					const;
+	CSG_String						BeforeLast			(SG_Char Character)					const;
 
-	CSG_String						Right				(size_t count)					const;
-	CSG_String						Mid					(size_t first, size_t count = 0)const;
-	CSG_String						Left				(size_t count) const;
+	CSG_String						Right				(size_t count)						const;
+	CSG_String						Mid					(size_t first, size_t count = 0)	const;
+	CSG_String						Left				(size_t count)						const;
 
-	int								asInt				(void)							const;
-	bool							asInt				(int &Value)					const;
-	double							asDouble			(void)							const;
-	bool							asDouble			(double &Value)					const;
+	int								asInt				(void)								const;
+	bool							asInt				(int    &Value)						const;
+	double							asDouble			(void)								const;
+	bool							asDouble			(double &Value)						const;
 
 
 protected:
@@ -871,8 +872,8 @@ SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Name		(const SG_Char *full_Path, boo
 SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Path		(const SG_Char *full_Path);
 SAGA_API_DLL_EXPORT CSG_String		SG_File_Make_Path		(const SG_Char *Directory, const SG_Char *Name, const SG_Char *Extension = NULL);
 SAGA_API_DLL_EXPORT bool			SG_File_Cmp_Extension	(const SG_Char *File_Name, const SG_Char *Extension);
-SAGA_API_DLL_EXPORT bool			SG_File_Set_Extension	(const SG_Char *File_Name, const SG_Char *Extension);
 SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Extension	(const SG_Char *File_Name);
+SAGA_API_DLL_EXPORT bool			SG_File_Set_Extension	(CSG_String    &File_Name, const SG_Char *Extension);
 
 SAGA_API_DLL_EXPORT bool			SG_Read_Line			(FILE *Stream, CSG_String &Line);
 
@@ -1015,19 +1016,21 @@ class SAGA_API_DLL_EXPORT CSG_Translator
 {
 public:
 	CSG_Translator(void);
-	CSG_Translator(const CSG_String &File_Name, bool bSetExtension = true);
+	CSG_Translator(const CSG_String &File_Name, bool bSetExtension = true, int iText = 0, int iTranslation = 1, bool m_bCmpNoCase = false);
 
 	virtual ~CSG_Translator(void);
 
-	bool							Create					(const CSG_String &File_Name, bool bSetExtension = true);
+	bool							Create					(const CSG_String &File_Name, bool bSetExtension = true, int iText = 0, int iTranslation = 1, bool m_bCmpNoCase = false);
 	void							Destroy					(void);
 
-	int								Get_Count				(void)	{	return( m_nTranslations );	}
+	bool							is_CaseSensitive		(void)		const	{	return( !m_bCmpNoCase );	}
 
-	const SG_Char *					Get_Text				(int Index);
-	const SG_Char *					Get_Translation			(int Index);
+	int								Get_Count				(void)		const	{	return( m_nTranslations );	}
+	const SG_Char *					Get_Text				(int i)		const	{	return( i >= 0 && i < m_nTranslations ? m_Translations[i]->m_Text        : SG_T("") );	}
+	const SG_Char *					Get_Translation			(int i)		const	{	return( i >= 0 && i < m_nTranslations ? m_Translations[i]->m_Translation : SG_T("") );	}
 
-	const SG_Char *					Get_Translation			(const SG_Char *Text);
+	const SG_Char *					Get_Translation			(const SG_Char *Text, bool bReturnNullOnNotFound = false)	const;
+	bool							Get_Translation			(const SG_Char *Text, CSG_String &Translation)				const;
 
 
 private:
@@ -1047,12 +1050,14 @@ private:
 
 private:
 
+	bool							m_bCmpNoCase;
+
 	int								m_nTranslations;
 
 	CSG_Translation					**m_Translations;
 
 
-	int								_Get_Index				(const SG_Char *Text);
+	int								_Get_Index				(const SG_Char *Text)	const;
 
 };
 

@@ -5,15 +5,15 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    User Interface                     //
-//                                                       //
-//                    Program: SAGA                      //
+//                    Module Library:                    //
+//                   Projection_Proj4                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  WKSP_Shapes_Line.h                   //
+//                     crs_assign.h                      //
 //                                                       //
-//          Copyright (C) 2005 by Olaf Conrad            //
+//                 Copyright (C) 2010 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,15 +37,13 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
-//                Germany                                //
-//                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Hamburg                  //
+//                Germany                                //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -58,8 +56,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Shapes_Line_H
-#define _HEADER_INCLUDED__SAGA_GUI__WKSP_Shapes_Line_H
+#ifndef HEADER_INCLUDED__crs_assign_H
+#define HEADER_INCLUDED__crs_assign_H
+
+//---------------------------------------------------------
+#include "MLB_Interface.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -69,51 +70,24 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "wksp_shapes.h"
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CWKSP_Shapes_Line : public CWKSP_Shapes
+class pj_proj4_EXPORT CCRS_Assign : public CSG_Module
 {
 public:
-	CWKSP_Shapes_Line(CSG_Shapes *pShapes);
-	virtual ~CWKSP_Shapes_Line(void);
+	CCRS_Assign(void);
 
-	bool						Get_Style				(wxPen &Pen, wxString *pName = NULL);
-	bool						Get_Style_Size			(int &min_Size, int &max_Size, double &min_Value, double &dValue, wxString *pName);
+	virtual bool		do_Sync_Projections			(void)	{	return( false  );	}
 
 
 protected:
 
-	bool						m_bPoints;
+	virtual int			On_Parameter_Changed		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	int							m_iSize, m_Size_Type, m_Line_Style, m_Label_Freq;
-
-	double						m_Size, m_dSize, m_Size_Min;
-
-	wxPen						m_Pen;
+	virtual bool		On_Execute					(void);
 
 
-	virtual void				On_Create_Parameters	(void);
-	virtual void				On_DataObject_Changed	(void);
-	virtual void				On_Parameters_Changed	(void);
+private:
 
-	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
-	virtual void				_Draw_Initialize		(CWKSP_Map_DC &dc_Map);
-	virtual void				_Draw_Shape				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, bool bSelection);
-	virtual void				_Draw_Label				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape);
-
-	virtual void				_Edit_Shape_Draw_Move	(wxDC &dc, CSG_Rect rWorld, double ClientToWorld, wxPoint Point);
-	virtual void				_Edit_Shape_Draw		(CWKSP_Map_DC &dc_Map);
-	virtual int					_Edit_Shape_HitTest		(CSG_Point Point, double max_Dist, int &iPart, int &iPoint);
-	virtual void				_Edit_Snap_Point_ToLine (CSG_Point Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shape *pShape);
+	int					Set_Projections				(const CSG_Projection &Projection, CSG_Parameter_List *pList, int &nProjected, int &nFailed);
 
 };
 
@@ -125,4 +99,4 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Shapes_Line_H
+#endif // #ifndef HEADER_INCLUDED__crs_assign_H

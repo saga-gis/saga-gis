@@ -180,7 +180,9 @@ wxString		Get_TableInfo_asHTML(CSG_Table *pTable)
 
 	if( pTable && pTable->is_Valid() )
 	{
-		s.Append(wxString::Format(wxT("<table border=\"1\"><tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th>"),
+		s	+= wxString::Format(wxT("<hr><b>%s</b>"), LNG("[CAP] Table Description"));
+
+		s	+= wxString::Format(wxT("<table border=\"1\"><tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th>"),
 			LNG("[CAP] Field"),
 			LNG("[CAP] Name"),
 			LNG("[CAP] Type"),
@@ -188,11 +190,11 @@ wxString		Get_TableInfo_asHTML(CSG_Table *pTable)
 			LNG("[CAP] Maximum"),
 			LNG("[CAP] Mean"),
 			LNG("[CAP] Standard Deviation")
-		));
+		);
 
 		for(int i=0; i<pTable->Get_Field_Count(); i++)
 		{
-			s.Append(wxString::Format(wxT("<tr><td>%d</td><td>%s</td><td>%s</td><td>%f</td><td>%f</td><td>%f</td><td>%f</td></tr>"),
+			s	+= wxString::Format(wxT("<tr><td>%d</td><td>%s</td><td>%s</td><td>%f</td><td>%f</td><td>%f</td><td>%f</td></tr>"),
 				i + 1,
 				pTable->Get_Field_Name(i),
 				SG_Data_Type_Get_Name(pTable->Get_Field_Type(i)),
@@ -200,10 +202,10 @@ wxString		Get_TableInfo_asHTML(CSG_Table *pTable)
 				pTable->Get_Maximum(i),
 				pTable->Get_Mean(i),
 				pTable->Get_StdDev(i)
-			));
+			);
 		}
 
-		s.Append(wxT("</table>"));
+		s	+= wxT("</table>");
 	}
 
 	return( s );

@@ -337,6 +337,11 @@ SG_Char & CSG_String::operator [] (int i)
 	return( m_pString->GetWritableChar(i) );
 }
 
+SG_Char CSG_String::operator [] (int i) const
+{
+	return( m_pString->GetChar(i) );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -345,15 +350,15 @@ SG_Char & CSG_String::operator [] (int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSG_String::Cmp(const SG_Char *String)	const
+int CSG_String::Cmp(const CSG_String &String)	const
 {
-	return( m_pString->Cmp(String) );
+	return( m_pString->Cmp(String.c_str()) );
 }
 
 //---------------------------------------------------------
-int CSG_String::CmpNoCase(const SG_Char *String) const
+int CSG_String::CmpNoCase(const CSG_String &String) const
 {
-	return( m_pString->CmpNoCase(String) );
+	return( m_pString->CmpNoCase(String.c_str()) );
 }
 
 //---------------------------------------------------------
@@ -425,19 +430,19 @@ int CSG_String::Trim(bool fromRight)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSG_String::Find(SG_Char Character, bool fromEnd)
+int CSG_String::Find(SG_Char Character, bool fromEnd) const
 {
 	return( m_pString->Find(Character, fromEnd) );
 }
 
 //---------------------------------------------------------
-int CSG_String::Find(const SG_Char *String)
+int CSG_String::Find(const SG_Char *String) const
 {
 	return( m_pString->Find(String) );
 }
 
 //---------------------------------------------------------
-bool CSG_String::Contains(const SG_Char *String)
+bool CSG_String::Contains(const SG_Char *String) const
 {
 	return( m_pString->Contains(String) );
 }

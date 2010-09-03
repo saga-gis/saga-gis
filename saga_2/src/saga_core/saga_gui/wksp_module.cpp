@@ -300,8 +300,6 @@ wxString CWKSP_Module::Get_Description(void)
 		s.Append(wxString::Format(wxT("(*) <i>%s</i>"), LNG("optional")));
 	}
 
-	s.Replace(wxT("\n"), wxT("<br>"));
-
 	return( s );
 }
 

@@ -264,7 +264,8 @@ CSG_Parameter * CSG_Parameters::Add_Choice(CSG_Parameter *pParent, const SG_Char
 	m_pData		= (CSG_Parameter_Choice *)pParameter->m_pData;
 	m_pData->Set_Items(Items);
 
-	pParameter->Set_Value(Default);
+	pParameter->Set_Value  (Default);
+	pParameter->Set_Default(Default);
 
 	return( pParameter );
 }
@@ -294,7 +295,8 @@ CSG_Parameter * CSG_Parameters::Add_FilePath(CSG_Parameter *pParent, const SG_Ch
 	m_pData->Set_Flag_Multiple	(bMultiple);
 	m_pData->Set_Flag_Directory	(bDirectory);
 
-	pParameter->Set_Value((void *)Default);
+	pParameter->Set_Value  ((void *)Default);
+	pParameter->Set_Default(Default);
 
 	return( pParameter );
 }
@@ -623,8 +625,8 @@ CSG_Parameter * CSG_Parameters::Add_Parameters(CSG_Parameter *pParent, const SG_
 //---------------------------------------------------------
 CSG_Parameter * CSG_Parameters::_Add_Value(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, bool bInformation, TSG_Parameter_Type Type, double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum)
 {
-	CSG_Parameter			*pParameter;
-	CSG_Parameter_Value	*m_pData;
+	CSG_Parameter		*pParameter;
+	CSG_Parameter_Value	*pData;
 
 	switch( Type )	// Check if Type is valid...
 	{
@@ -652,14 +654,15 @@ CSG_Parameter * CSG_Parameters::_Add_Value(CSG_Parameter *pParent, const SG_Char
 		case PARAMETER_TYPE_Int:
 		case PARAMETER_TYPE_Double:
 		case PARAMETER_TYPE_Degree:
-			m_pData		= (CSG_Parameter_Value *)pParameter->m_pData;
-			m_pData->Set_Minimum(Minimum, bMinimum);
-			m_pData->Set_Maximum(Maximum, bMaximum);
+			pData		= (CSG_Parameter_Value *)pParameter->m_pData;
+			pData->Set_Minimum(Minimum, bMinimum);
+			pData->Set_Maximum(Maximum, bMaximum);
 			break;
 		}
 	}
 
-	pParameter->Set_Value(Value);
+	pParameter->Set_Value  (Value);
+	pParameter->Set_Default(Value);
 
 	return( pParameter );
 }
@@ -668,8 +671,8 @@ CSG_Parameter * CSG_Parameters::_Add_Value(CSG_Parameter *pParent, const SG_Char
 CSG_Parameter * CSG_Parameters::_Add_Range(CSG_Parameter *pParent, const SG_Char *Identifier, const SG_Char *Name, const SG_Char *Description, bool bInformation, double Default_Min, double Default_Max, double Minimum, bool bMinimum, double Maximum, bool bMaximum)
 {
 	double				d;
-	CSG_Parameter			*pParameter;
-	CSG_Parameter_Range	*m_pData;
+	CSG_Parameter		*pParameter;
+	CSG_Parameter_Range	*pData;
 
 	//-----------------------------------------------------
 	if( Default_Min > Default_Max )
@@ -682,15 +685,18 @@ CSG_Parameter * CSG_Parameters::_Add_Range(CSG_Parameter *pParent, const SG_Char
 	//-----------------------------------------------------
 	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_Range, bInformation ? PARAMETER_INFORMATION : 0);
 
-	m_pData		= pParameter->asRange();
+	pData		= pParameter->asRange();
 
-	m_pData->Get_LoParm()->asValue()->Set_Minimum(Minimum, bMinimum);
-	m_pData->Get_LoParm()->asValue()->Set_Maximum(Maximum, bMaximum);
-	m_pData->Get_HiParm()->asValue()->Set_Minimum(Minimum, bMinimum);
-	m_pData->Get_HiParm()->asValue()->Set_Maximum(Maximum, bMaximum);
+	pData->Get_LoParm()->asValue()->Set_Minimum(Minimum, bMinimum);
+	pData->Get_LoParm()->asValue()->Set_Maximum(Maximum, bMaximum);
+	pData->Get_HiParm()->asValue()->Set_Minimum(Minimum, bMinimum);
+	pData->Get_HiParm()->asValue()->Set_Maximum(Maximum, bMaximum);
 
-	m_pData->Set_LoVal(Default_Min);
-	m_pData->Set_HiVal(Default_Max);
+	pData->Set_LoVal(Default_Min);
+	pData->Set_HiVal(Default_Max);
+
+	pData->Get_LoParm()->asValue()->Set_Default(Default_Min);
+	pData->Get_HiParm()->asValue()->Set_Default(Default_Max);
 
 	return( pParameter );
 }
@@ -702,7 +708,8 @@ CSG_Parameter * CSG_Parameters::_Add_String(CSG_Parameter *pParent, const SG_Cha
 
 	pParameter	= _Add(pParent, Identifier, Name, Description, bLongText ? PARAMETER_TYPE_Text : PARAMETER_TYPE_String, bInformation ? PARAMETER_INFORMATION : 0);
 
-	pParameter->Set_Value((void *)String);
+	pParameter->Set_Value  ((void *)String);
+	pParameter->Set_Default(String);
 
 	((CSG_Parameter_String *)pParameter->Get_Data())->Set_Password(bPassword);
 

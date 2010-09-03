@@ -368,6 +368,8 @@ bool CSG_PointCloud::_Load(const CSG_String &File_Name)
 		return( false );
 	}
 
+	Get_Projection().Load(SG_File_Make_Path(NULL, File_Name, SG_T("prj")), SG_PROJ_FMT_WKT);
+
 	SG_UI_Msg_Add(LNG("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 
 	return( true );
@@ -415,6 +417,8 @@ bool CSG_PointCloud::_Save(const CSG_String &File_Name)
 	Set_File_Name(SG_File_Make_Path(NULL, File_Name, SG_T("spc")));
 
 	Save_MetaData(File_Name);
+
+	Get_Projection().Save(SG_File_Make_Path(NULL, File_Name, SG_T("prj")), SG_PROJ_FMT_WKT);
 
 	SG_UI_Msg_Add(LNG("[MSG] okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 

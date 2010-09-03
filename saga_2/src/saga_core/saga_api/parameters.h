@@ -213,9 +213,9 @@ public:
 	bool						Assign					(CSG_Parameter_Data *pSource);
 	bool						Serialize				(CSG_MetaData &Entry, bool bSave);
 
-	virtual bool				Set_Value				(int Value);
+	virtual bool				Set_Value				(int    Value);
 	virtual bool				Set_Value				(double Value);
-	virtual bool				Set_Value				(void *Value);
+	virtual bool				Set_Value				(void  *Value);
 
 	virtual int					asInt					(void);
 	virtual double				asDouble				(void);
@@ -223,12 +223,17 @@ public:
 
 	virtual const SG_Char *		asString				(void);
 
+	CSG_String					Get_Default				(void)	{	return( m_Default );	}
+	void						Set_Default				(int            Value);
+	void						Set_Default				(double         Value);
+	void						Set_Default				(const SG_Char *Value);
+
 
 protected:
 
 	int							m_Constraint;
 
-	CSG_String					m_String;
+	CSG_String					m_String, m_Default;
 
 	CSG_Parameter				*m_pOwner;
 
@@ -261,7 +266,7 @@ public:
 	virtual bool				Set_Value				(int Value);
 	virtual bool				Set_Value				(double Value);
 
-	virtual int					asInt					(void)	{	return( m_Value );	}
+	virtual int					asInt					(void)	{	return( m_Value );		}
 
 	virtual const SG_Char *		asString				(void);
 
@@ -425,6 +430,10 @@ public:
 	void						Set_Items				(const SG_Char *String);
 
 	const SG_Char *				Get_Item				(int Index);
+
+	bool						Get_Data				(int        &Value);
+	bool						Get_Data				(double     &Value);
+	bool						Get_Data				(CSG_String &Value);
 
 	int							Get_Count				(void)	{	return( Items.Get_Count() );	}
 
@@ -1022,6 +1031,10 @@ public:
 	bool						Set_Value				(double         Value);
 	bool						Set_Value				(void          *Value);
 	bool						Set_Value				(const SG_Char *Value);
+
+	void						Set_Default				(int            Value)	{	m_pData->Set_Default(Value);	}
+	void						Set_Default				(double         Value)	{	m_pData->Set_Default(Value);	}
+	void						Set_Default				(const SG_Char *Value)	{	m_pData->Set_Default(Value);	}
 
 	bool						has_Changed				(void);
 

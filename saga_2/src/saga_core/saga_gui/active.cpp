@@ -230,8 +230,12 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 
 	if( m_pItem == NULL )
 	{
+		STATUSBAR_Set_Text(wxT(""), STATUSBAR_ACTIVE);
+
 		return( true );
 	}
+
+	STATUSBAR_Set_Text(m_pItem->Get_Name(), STATUSBAR_ACTIVE);
 
 	//-----------------------------------------------------
 	switch( m_pItem->Get_Type() )
@@ -389,54 +393,58 @@ bool CACTIVE::_Hide_Page(wxWindow *pPage)
 //---------------------------------------------------------
 bool CACTIVE::Update_Description(void)
 {
-	if( m_pItem != NULL )
+	if( m_pDescription == NULL )
 	{
-		STATUSBAR_Set_Text(m_pItem->Get_Name(), STATUSBAR_ACTIVE);
+		return( false );
+	}
 
-		//-------------------------------------------------
-		if( m_pDescription )
+	wxString	Description;
+
+	//-----------------------------------------------------
+	if( m_pItem == NULL )
+	{
+		Description	= LNG("[TXT] No description available");
+	}
+	else switch( m_pItem->Get_Type() )
+	{
+	default:
+		Description	= m_pItem->Get_Description();
+		break;
+
+	case WKSP_ITEM_Module:
 		{
-			switch( m_pItem->Get_Type() )
+			wxFileName	FileName;
+
+			FileName.Assign		(((CWKSP_Module *)m_pItem)->Get_File_Name());
+			FileName.AppendDir	(FileName.GetName());
+			FileName.SetName	(wxString::Format(wxT("%s_%02d"), FileName.GetName().c_str(), m_pItem->Get_Index()));
+
+			FileName.SetExt		(wxT("html"));
+
+			if( FileName.FileExists() && m_pDescription->LoadPage(FileName.GetFullPath()) )
 			{
-			default:
-				m_pDescription->SetPage(m_pItem->Get_Description());
-				break;
-
-			case WKSP_ITEM_Module:
-				{
-					wxFileName	FileName;
-
-					FileName.Assign		(((CWKSP_Module *)m_pItem)->Get_File_Name());
-					FileName.AppendDir	(FileName.GetName());
-					FileName.SetName	(wxString::Format(wxT("%s_%02d"), FileName.GetName().c_str(), m_pItem->Get_Index()));
-
-					FileName.SetExt		(wxT("html"));
-
-					if( !FileName.FileExists() || !m_pDescription->LoadPage(FileName.GetFullPath()) )
-					{
-						FileName.SetExt		(wxT("htm"));
-
-						if( !FileName.FileExists() || !m_pDescription->LoadPage(FileName.GetFullPath()) )
-						{
-							m_pDescription->SetPage(m_pItem->Get_Description());
-						}
-					}
-				}
-				break;
+				return( true );
 			}
+
+			FileName.SetExt		(wxT("htm"));
+
+			if( FileName.FileExists() && m_pDescription->LoadPage(FileName.GetFullPath()) )
+			{
+				return( true );
+			}
+
+			Description	= m_pItem->Get_Description();
 		}
+		break;
 	}
 
 	//-----------------------------------------------------
-	else
+	if( Description.Length() <= 8192 )
 	{
-		STATUSBAR_Set_Text(wxT(""), STATUSBAR_ACTIVE);
-
-		if( m_pDescription )
-		{
-			m_pDescription->SetPage(LNG("[TXT] No description available"));
-		}
+		Description.Replace(wxT("\n"), wxT("<br>"));
 	}
+
+	m_pDescription->SetPage(Description);
 
 	return( true );
 }

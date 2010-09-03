@@ -113,12 +113,6 @@ CPROJ4_Base::CPROJ4_Base(int Interface, bool bInputList)
 		_TL("")
 	);
 
-	Parameters.Add_Value(
-		pNode	, "INVERSE"		, _TL("Inverse"),
-		_TL(""),
-		PARAMETER_TYPE_Bool		, false
-	);
-
 	//-----------------------------------------------------
 	switch( m_Interface )
 	{
@@ -172,7 +166,7 @@ int CPROJ4_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 {
 	if( !m_bInputList && m_Interface == PROJ4_INTERFACE_SIMPLE
 	&&	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SOURCE"))
-	&&	pParameter->asDataObject()->Get_Projection().Get_Proj4().Length() > 0 )
+	&&	pParameter->asDataObject() && pParameter->asDataObject()->Get_Projection().Get_Proj4().Length() > 0 )
 	{
 		pParameters->Get_Parameter("SOURCE_PROJ")->Set_Value(pParameter->asDataObject()->Get_Projection().Get_Proj4());
 	}
@@ -213,13 +207,6 @@ bool CPROJ4_Base::On_Execute(void)
 		//-------------------------------------------------
 		if(	m_pPrjSrc && m_pPrjDst )
 		{
-			if( Parameters("INVERSE")->asBool() )
-			{
-				PJ	*tmp	= m_pPrjSrc;
-				m_pPrjSrc	= m_pPrjDst;
-				m_pPrjDst	= tmp;
-			}
-
 			if( m_pPrjSrc->inv == NULL )
 			{
 				Error_Set(_TL("Inverse transformation not available for selected projection type."));

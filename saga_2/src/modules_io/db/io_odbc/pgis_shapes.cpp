@@ -348,7 +348,7 @@ bool CPGIS_Shapes_Save::On_Before_Execution(void)
 		return( false );
 	}
 
-	Parameters("SRID")->asChoice()->Set_Items(SG_Get_Projections().Get_Names());
+	Parameters("SRID")->asChoice()->Set_Items(SG_Get_Projections().Get_Names_List());
 
 /*	if( Parameters("SRID")->asChoice()->Get_Count() > 1 )
 		return( true );
@@ -383,8 +383,11 @@ bool CPGIS_Shapes_Save::On_Execute(void)
 
 	pShapes		= Parameters("SHAPES")	->asShapes();
 	Geo_Table	= Parameters("NAME")	->asString();	if( Geo_Table.Length() == 0 )	Geo_Table	= pShapes->Get_Name();
-	SRID		= Parameters("SRID")	->asInt();
-	SRID		= SG_Get_Projections().Get_SRID_byNamesIndex(SRID);
+
+	if( !Parameters("SRID")->asChoice()->Get_Data(SRID) )
+	{
+		SRID	= -1;
+	}
 
 	sSRID.Printf(SG_T("%d"), SRID);
 

@@ -517,16 +517,16 @@ void CWKSP_Shapes_Point::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 	{
 		if( m_Label_Angle == 0.0 )
 		{
-			Draw_Text(dc_Map.dc, m_Label_Align, p.x, p.y, pShape->asString(m_iLabel, -2));
+			Draw_Text(dc_Map.dc, m_Label_Align, p.x, p.y, pShape->asString(m_iLabel, m_Label_Prec));
 		}
 		else
 		{
-			Draw_Text(dc_Map.dc, m_Label_Align, p.x, p.y, m_Label_Angle, pShape->asString(m_iLabel, -2));
+			Draw_Text(dc_Map.dc, m_Label_Align, p.x, p.y, m_Label_Angle, pShape->asString(m_iLabel, m_Label_Prec));
 		}
 	}
 	else
 	{
-		Draw_Text(dc_Map.dc, m_Label_Align, p.x, p.y, pShape->asDouble(m_iLabel_Angle), pShape->asString(m_iLabel, -2));
+		Draw_Text(dc_Map.dc, m_Label_Align, p.x, p.y, pShape->asDouble(m_iLabel_Angle), pShape->asString(m_iLabel, m_Label_Prec));
 	}
 }
 

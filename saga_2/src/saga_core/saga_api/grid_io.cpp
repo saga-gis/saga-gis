@@ -722,6 +722,11 @@ bool CSG_Grid::_Load_Native(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 		}
 	}
 
+	if( bResult )
+	{
+		Get_Projection().Load(SG_File_Make_Path(NULL, File_Name, SG_T("prj")), SG_PROJ_FMT_WKT);
+	}
+
 	return( bResult );
 }
 
@@ -766,6 +771,8 @@ bool CSG_Grid::_Save_Native(const CSG_String &File_Name, int xA, int yA, int xN,
 				bResult		= _Save_ASCII	(Stream, xA, yA, xN, yN);
 			}
 		}
+
+		Get_Projection().Save(SG_File_Make_Path(NULL, File_Name, SG_T("prj")), SG_PROJ_FMT_WKT);
 	}
 
 	return( bResult );

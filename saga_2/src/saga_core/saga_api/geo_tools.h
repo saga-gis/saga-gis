@@ -633,6 +633,8 @@ SAGA_API_DLL_EXPORT CSG_String	SG_Get_Projection_Type_Name	(TSG_Projection_Type 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Projection
 {
+	friend class CSG_Projections;
+
 public:
 	CSG_Projection(void);
 	virtual ~CSG_Projection(void);
@@ -659,8 +661,8 @@ public:
 	bool							operator ==				(const CSG_Projection &Projection)	const	{	return( is_Equal(Projection) == true  );	}
 	bool							operator !=				(const CSG_Projection &Projection)	const	{	return( is_Equal(Projection) == false );	}
 
-	bool							Load					(const CSG_String &File_Name, TSG_Projection_Format Format);
-	bool							Save					(const CSG_String &File_Name, TSG_Projection_Format Format)	const;
+	bool							Load					(const CSG_String &File_Name, TSG_Projection_Format Format = SG_PROJ_FMT_WKT);
+	bool							Save					(const CSG_String &File_Name, TSG_Projection_Format Format = SG_PROJ_FMT_WKT)	const;
 
 	bool							Load					(const CSG_MetaData &Projection);
 	bool							Save					(      CSG_MetaData &Projection)	const;
@@ -669,6 +671,8 @@ public:
 	const CSG_String &				Get_WKT					(void)	const	{	return( m_WKT   );	}
 	const CSG_String &				Get_Proj4				(void)	const	{	return( m_Proj4 );	}
 	int								Get_EPSG				(void)	const	{	return( m_EPSG  );	}
+
+	CSG_String						Get_Description			(void)	const;
 
 	TSG_Projection_Type				Get_Type				(void)	const	{	return( m_Type  );	}
 	CSG_String						Get_Type_Name			(void)	const	{	return( gSG_Projection_Type_Identifier[m_Type] );	}
@@ -688,7 +692,7 @@ private:
 
 //---------------------------------------------------------
 /** CSG_Projections is a projections dictionary and translator
-  * for EPSG codes, OpenGIS Well-Known-Text, ESRI and Proj.4.
+  * for EPSG codes, OGc Well-Known-Text, and Proj.4.
 */
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Projections
@@ -700,36 +704,48 @@ public:
 									CSG_Projections			(const CSG_String &File_Name);
 	bool							Create					(const CSG_String &File_Name);
 
-									CSG_Projections			(class CSG_Table *pProjections);
-	bool							Create					(class CSG_Table *pProjections);
-
 	void							Destroy					(void);
 
 	bool							Load					(const CSG_String &File_Name);
 	bool							Save					(const CSG_String &File_Name);
 
+	int								Get_Count				(void)	const;
+
 	bool							Add						(const CSG_Projection &Projection);
 	bool							Add						(int SRID, const SG_Char *Authority, const SG_Char *WKT, const SG_Char *Proj4);
 
-	int								Get_Count				(void)	const;
-	const CSG_Projection &			Get_Projection			(int i)	const;
-	const CSG_Projection &			operator []				(int i) const;
+	CSG_Projection					Get_Projection			(int Index)	const;
+	CSG_Projection					operator []				(int Index) const	{	return( Get_Projection(Index) );	}
 
-	bool							Get_Projection			(int EPSG, CSG_Projection &Projection)	const;
+	bool							Get_Projection			(CSG_Projection &Projection, int EPSG_Code)	const;
 
-	CSG_String						Get_Names				(void)	const;
-	int								Get_SRID_byNamesIndex	(int i)	const;
+	CSG_String						Get_Names_List			(TSG_Projection_Type Type = SG_PROJ_TYPE_CS_Undefined)	const;
 
-	static bool						WKT_to_Proj4			(CSG_String &Proj4, const CSG_String &WKT  );
-	static bool						WKT_from_Proj4			(CSG_String &WKT  , const CSG_String &Proj4);
+	static CSG_MetaData				WKT_to_MetaData			(const CSG_String &WKT);
+
+	bool							WKT_to_Proj4			(CSG_String &Proj4, const CSG_String &WKT  )	const;
+	bool							WKT_from_Proj4			(CSG_String &WKT  , const CSG_String &Proj4)	const;
+
+	bool							EPSG_to_Proj4			(CSG_String &Proj4, int EPSG_Code)				const;
+	bool							EPSG_to_WKT				(CSG_String &WKT  , int EPSG_Code)				const;
 
 
 private:
+
+	CSG_Translator					m_WKT_to_Proj4, m_Proj4_to_WKT, m_EPSG_to_Idx;
 
 	class CSG_Table					*m_pProjections;
 
 
 	void							_On_Construction		(void);
+
+	static bool						_WKT_to_MetaData		(CSG_MetaData &MetaData, const CSG_String &WKT);
+
+	bool							_Proj4_Read_Parameter		(CSG_String &Value, const CSG_String &Proj4, const CSG_String &Key)	const;
+	bool							_Proj4_Get_Ellipsoid		(CSG_String &Value, const CSG_String &Proj4)	const;
+	bool							_Proj4_Get_Datum			(CSG_String &Value, const CSG_String &Proj4)	const;
+	bool							_Proj4_Get_Prime_Meridian	(CSG_String &Value, const CSG_String &Proj4)	const;
+	bool							_Proj4_Get_Unit				(CSG_String &Value, const CSG_String &Proj4)	const;
 
 };
 

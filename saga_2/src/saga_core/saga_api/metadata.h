@@ -110,7 +110,6 @@ public:
 	CSG_MetaData &				operator  =			(const CSG_MetaData &MetaData)		{	Assign(MetaData, false);	return( *this );	}
 	CSG_MetaData &				operator +=			(const CSG_MetaData &MetaData)		{	Assign(MetaData, true );	return( *this );	}
 
-
 	const CSG_String &			Get_Name			(void)						const	{	return( m_Name );		}
 	void						Set_Name			(const CSG_String &Name)			{	m_Name		= Name;		}
 	const CSG_String &			Get_Content			(void)						const	{	return( m_Content );	}
@@ -127,6 +126,11 @@ public:
 	CSG_MetaData *				Add_Child			(const CSG_String &Name, int            Content);
 	bool						Del_Child			(int Index);
 	bool						Del_Child			(const CSG_String &Name)			{	return( Del_Child(_Get_Child(Name)) );	}
+
+	const CSG_MetaData &		operator []			(int Index)					const	{	CSG_MetaData	*pData	= Index >= 0 && Index < m_nChildren ? m_pChildren[Index] : NULL;	return( *pData );	}
+	const CSG_MetaData &		operator []			(const CSG_String &Name)	const	{	return( *Get_Child(_Get_Child(Name)) );	}
+
+	bool						is_Valid			(void)						const	{	return( this != NULL );					}
 
 	int							Get_Property_Count	(void)						const	{	return( m_Prop_Names.Get_Count() );	}
 	const CSG_String &			Get_Property_Name	(int i)						const	{	return( m_Prop_Names [i] );			}
@@ -151,7 +155,7 @@ private:
 
 	int							m_nChildren, m_nBuffer;
 
-	CSG_MetaData				**m_pChildren, *m_pParent;
+	CSG_MetaData				**m_pChildren, *m_pParent, *m_pDummy;
 
 	CSG_String					m_Name, m_Content;
 

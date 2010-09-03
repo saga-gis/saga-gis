@@ -319,19 +319,26 @@ bool CSG_Array::Set_Array(size_t nValues)
 		break;
 
 	case SG_ARRAY_GROWTH_1:
-		nBuffer	= nValues < 32 ? 1 : nValues < 1024 ? 32 : 256;
+		nBuffer	= nValues <    100 ?      nValues
+				: nValues <   1000 ? (1 + nValues /    10) *    10
+				: nValues <  10000 ? (1 + nValues /   100) *   100
+				: nValues < 100000 ? (1 + nValues /  1000) *  1000
+				:                    (1 + nValues / 10000) * 10000;
 		break;
 
 	case SG_ARRAY_GROWTH_2:
-		nBuffer	= nValues <  256 ? nValues
-				: nValues < 8192 ? (1 + nValues /  256) *  256
-				:                  (1 + nValues / 1024) * 1024;
+		nBuffer	= nValues <     10 ?      nValues
+				: nValues <    100 ? (1 + nValues /    10) *    10
+				: nValues <   1000 ? (1 + nValues /   100) *   100
+				: nValues <  10000 ? (1 + nValues /  1000) *  1000
+				:                    (1 + nValues / 10000) * 10000;
 		break;
 
 	case SG_ARRAY_GROWTH_3:
-		nBuffer	= nValues <  256 ? nValues
-				: nValues < 16192 ? (1 + nValues /  1024) *  1024
-				:                   (1 + nValues / 10240) * 10240;
+		nBuffer	= nValues <    1000 ? (1 + nValues /    1000) *    1000
+				: nValues <   10000 ? (1 + nValues /   10000) *   10000
+				: nValues <  100000 ? (1 + nValues /  100000) *  100000
+				:                     (1 + nValues / 1000000) * 1000000;
 		break;
 	}
 

@@ -112,41 +112,32 @@ wxString CWKSP_TIN::Get_Name(void)
 }
 
 //---------------------------------------------------------
+#define DESC_ADD_STR(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%s</td></tr>"), label, value))
+#define DESC_ADD_INT(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%d</td></tr>"), label, value))
+
+//---------------------------------------------------------
 wxString CWKSP_TIN::Get_Description(void)
 {
 	wxString	s;
 
 	//-----------------------------------------------------
-	s.Append(wxString::Format(wxT("<b>%s</b><table border=\"0\">"),
-		LNG("[CAP] TIN")
-	));
+	s	+= wxString::Format(wxT("<b>%s</b><table border=\"0\">"), LNG("[CAP] TIN"));
 
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
-		LNG("[CAP] Name")					, m_pTIN->Get_Name()
-	));
+	s	+= wxT("<table border=\"0\">");
 
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
-		LNG("[CAP] File")					, m_pTIN->Get_File_Name()
-	));
+	DESC_ADD_STR(LNG("[CAP] Name")			, m_pTIN->Get_Name());
+	DESC_ADD_STR(LNG("[CAP] File")			, m_pTIN->Get_File_Name());
+	DESC_ADD_STR(LNG("[CAP] Projection")	, m_pTIN->Get_Projection().Get_Description().c_str());
+	DESC_ADD_INT(LNG("[CAP] Points")		, m_pTIN->Get_Node_Count());
 
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
-		LNG("[CAP] Projection")				, m_pTIN->Get_Projection().Get_Name().c_str()
-	));
+	s	+= wxT("</table>");
 
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%d</td></tr>"),
-		LNG("[CAP] Points")					, m_pTIN->Get_Node_Count()
-	));
-
-	s.Append(wxT("</table>"));
+	s	+= Get_TableInfo_asHTML(m_pTIN);
 
 	//-----------------------------------------------------
-	s.Append(wxString::Format(wxT("<hr><b>%s</b>"), LNG("[CAP] Table Description")));
-	s.Append(Get_TableInfo_asHTML(m_pTIN));
-
-	//-----------------------------------------------------
-//	s.Append(wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), LNG("[CAP] Data History")));
-//	s.Append(m_pTIN->Get_History().Get_HTML());
-//	s.Append(wxString::Format(wxT("</font")));
+//	s	+= wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), LNG("[CAP] Data History"));
+//	s	+= m_pTIN->Get_History().Get_HTML();
+//	s	+= wxString::Format(wxT("</font"));
 
 	//-----------------------------------------------------
 	return( s );

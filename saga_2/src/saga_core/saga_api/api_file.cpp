@@ -550,13 +550,15 @@ bool			SG_File_Cmp_Extension(const SG_Char *File_Name, const SG_Char *Extension)
 }
 
 //---------------------------------------------------------
-bool			SG_File_Set_Extension(const SG_Char *File_Name, const SG_Char *Extension)
+bool			SG_File_Set_Extension(CSG_String &File_Name, const SG_Char *Extension)
 {
 	if( File_Name && *File_Name && Extension && *Extension )
 	{
-		wxFileName	fn(File_Name);
+		wxFileName	fn(File_Name.c_str());
 
 		fn.SetExt(Extension);
+
+		File_Name	= fn.GetFullPath().c_str();
 
 		return( true );
 	}

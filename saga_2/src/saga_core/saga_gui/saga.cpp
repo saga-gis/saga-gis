@@ -199,8 +199,8 @@ bool CSAGA::OnInit(void)
 #endif // defined(_SAGA_MSW)
 
 	//-----------------------------------------------------
-	SG_Get_Translator() .Create(SG_File_Make_Path(Get_App_Path(), wxT("saga"), wxT("lng")), false);
-	SG_Get_Projections().Create(SG_File_Make_Path(Get_App_Path(), wxT("saga"), wxT("srs")));
+	SG_Get_Translator() .Create(SG_File_Make_Path(Get_App_Path(), wxT("saga"    ), wxT("lng")), false);
+	SG_Get_Projections().Create(SG_File_Make_Path(Get_App_Path(), wxT("saga_prj"), wxT("srs")));
 
 	SetTopWindow(new CSAGA_Frame());
 

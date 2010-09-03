@@ -384,15 +384,14 @@ void CWKSP_Shapes_Line::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, boo
 //---------------------------------------------------------
 void CWKSP_Shapes_Line::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 {
-	const int	m_Label_Freq	= 10,
-				m_Label_Prec	= 2;
-
 	bool			bLabel;
 	int				iPart, iPoint;
 	double			d;
 	TSG_Point_Int	A, B;
 	wxCoord			sx, sy;
 	wxString		s(pShape->asString(m_iLabel, m_Label_Prec));
+
+	m_Label_Freq	= 10;
 
 	dc_Map.dc.GetTextExtent(s, &sx, &sy);
 

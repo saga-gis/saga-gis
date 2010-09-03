@@ -112,49 +112,34 @@ wxString CWKSP_Shapes::Get_Name(void)
 }
 
 //---------------------------------------------------------
+#define DESC_ADD_STR(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%s</td></tr>"), label, value))
+#define DESC_ADD_INT(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%d</td></tr>"), label, value))
+
+//---------------------------------------------------------
 wxString CWKSP_Shapes::Get_Description(void)
 {
 	wxString	s;
 
 	//-----------------------------------------------------
-	s.Append(wxString::Format(wxT("<b>%s</b><table border=\"0\">"),
-		LNG("[CAP] Shapes")
-	));
+	s	+= wxString::Format(wxT("<b>%s</b>"), LNG("[CAP] Shapes"));
 
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
-		LNG("[CAP] Name")					, m_pShapes->Get_Name()
-	));
+	s	+= wxT("<table border=\"0\">");
 
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
-		LNG("[CAP] File")					, m_pShapes->Get_File_Name()
-	));
+	DESC_ADD_STR(LNG("[CAP] Name")				, m_pShapes->Get_Name());
+	DESC_ADD_STR(LNG("[CAP] File")				, m_pShapes->Get_File_Name());
+	DESC_ADD_STR(LNG("[CAP] Projection")		, m_pShapes->Get_Projection().Get_Description().c_str());
+	DESC_ADD_STR(LNG("[CAP] Modified")			, m_pShapes->is_Modified() ? LNG("[VAL] yes") : LNG("[VAL] no"));
+	DESC_ADD_STR(LNG("[CAP] Type")				, SG_Get_ShapeType_Name(m_pShapes->Get_Type()));
+	DESC_ADD_INT(LNG("[CAP] Number Of Shapes")	, m_pShapes->Get_Count());
 
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
-		LNG("[CAP] Projection")				, m_pShapes->Get_Projection().Get_Name().c_str()
-	));
+	s	+= wxT("</table>");
 
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
-		LNG("[CAP] Modified")				, m_pShapes->is_Modified() ? LNG("[VAL] yes") : LNG("[VAL] no")
-	));
-
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
-		LNG("[CAP] Type")					, SG_Get_ShapeType_Name(m_pShapes->Get_Type())
-	));
-
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%d</td></tr>"),
-		LNG("[CAP] Number Of Shapes")		, m_pShapes->Get_Count()
-	));
-
-	s.Append(wxT("</table>"));
+	s	+= Get_TableInfo_asHTML(m_pShapes);
 
 	//-----------------------------------------------------
-	s.Append(wxString::Format(wxT("<hr><b>%s</b>"), LNG("[CAP] Table Description")));
-	s.Append(Get_TableInfo_asHTML(m_pShapes));
-
-	//-----------------------------------------------------
-//	s.Append(wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), LNG("[CAP] Data History")));
-//	s.Append(m_pShapes->Get_History().Get_HTML());
-//	s.Append(wxString::Format(wxT("</font")));
+//	s	+= wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), LNG("[CAP] Data History"));
+//	s	+= m_pShapes->Get_History().Get_HTML();
+//	s	+= wxString::Format(wxT("</font"));
 
 	return( s );
 }
@@ -386,6 +371,16 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 		), 0
 	);
 
+	m_Parameters.Add_Choice(
+		m_Parameters("NODE_LABEL")		, "LABEL_ATTRIB_PREC"		, LNG("[CAP] Numerical Precision"),
+		LNG(""),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			LNG("fit to value"),
+			LNG("standard"),
+			SG_T("0|0.1|0.12|0.123|0.1234|0.12345|0.1234567|0.12345678|0.123456789|0.1234567890|0.12345678901|0.123456789012|0.1234567890123|0.12345678901234|0.123456789012345|0.1234567890123456|0.12345678901234567|0.123456789012345678|0.1234567890123456789|0.12345678901234567890")
+		), 0
+	);
+
 	m_Parameters.Add_Value(
 		m_Parameters("NODE_LABEL")		, "LABEL_ATTRIB_SIZE"		, LNG("[CAP] Default Size"),
 		LNG(""),
@@ -484,6 +479,8 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 	{
 		m_iLabel_Size	= -1;
 	}
+
+	m_Label_Prec	= m_Parameters("LABEL_ATTRIB_PREC")->asInt() - 2;
 
 	//-----------------------------------------------------
 #ifdef USE_HTMLINFO

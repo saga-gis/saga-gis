@@ -286,7 +286,7 @@ void CWKSP_Shapes_Polygon::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 		p.x	= dc_Map.xWorld2DC(p.x);
 		p.y	= dc_Map.yWorld2DC(p.y);
 
-		Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, (int)p.x, (int)p.y, pShape->asString(m_iLabel, -2));
+		Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, (int)p.x, (int)p.y, pShape->asString(m_iLabel, m_Label_Prec));
 	}
 	else
 	{
@@ -298,7 +298,7 @@ void CWKSP_Shapes_Polygon::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape)
 				p.x	= dc_Map.xWorld2DC(p.x);
 				p.y	= dc_Map.yWorld2DC(p.y);
 
-				Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, (int)p.x, (int)p.y, pShape->asString(m_iLabel, -2));
+				Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, (int)p.x, (int)p.y, pShape->asString(m_iLabel, m_Label_Prec));
 			}
 		}
 	}

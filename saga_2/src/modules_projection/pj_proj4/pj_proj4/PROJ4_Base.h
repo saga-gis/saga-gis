@@ -93,6 +93,8 @@ class pj_proj4_EXPORT CPROJ4_Base : public CSG_Module
 public:
 	CPROJ4_Base(int Interface, bool bInputList);
 
+	virtual bool		do_Sync_Projections			(void)	{	return( false  );	}
+
 
 protected:
 

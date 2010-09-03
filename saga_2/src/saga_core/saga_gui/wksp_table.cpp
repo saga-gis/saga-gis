@@ -132,41 +132,32 @@ wxString CWKSP_Table::Get_Name(void)
 }
 
 //---------------------------------------------------------
+#define DESC_ADD_STR(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%s</td></tr>"), label, value))
+#define DESC_ADD_INT(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%d</td></tr>"), label, value))
+
+//---------------------------------------------------------
 wxString CWKSP_Table::Get_Description(void)
 {
 	wxString	s;
 
 	//-----------------------------------------------------
-	s.Append(wxString::Format(wxT("<b>%s</b><table border=\"0\">"),
-		LNG("[CAP] Shapes")
-	));
+	s	+= wxString::Format(wxT("<b>%s</b>"), LNG("[CAP] Table"));
 
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
-		LNG("[CAP] Name")					, m_pTable->Get_Name()
-	));
+	s	+= wxT("<table border=\"0\">");
 
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
-		LNG("[CAP] File")					, m_pTable->Get_File_Name()
-	));
+	DESC_ADD_STR(LNG("[CAP] Name")		, m_pTable->Get_Name());
+	DESC_ADD_STR(LNG("[CAP] File")		, m_pTable->Get_File_Name());
+	DESC_ADD_INT(LNG("[CAP] Fields")	, m_pTable->Get_Field_Count());
+	DESC_ADD_INT(LNG("[CAP] Records")	, m_pTable->Get_Record_Count());
 
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%d</td></tr>"),
-		LNG("[CAP] Fields")					, m_pTable->Get_Field_Count()
-	));
+	s	+= wxT("</table>");
 
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%d</td></tr>"),
-		LNG("[CAP] Records")				, m_pTable->Get_Record_Count()
-	));
-
-	s.Append(wxT("</table>"));
+	s	+= Get_TableInfo_asHTML(m_pTable);
 
 	//-----------------------------------------------------
-	s.Append(wxString::Format(wxT("<hr><b>%s</b>"), LNG("[CAP] Table Description")));
-	s.Append(Get_TableInfo_asHTML(m_pTable));
-
-	//-----------------------------------------------------
-//	s.Append(wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), LNG("[CAP] Data History")));
-//	s.Append(m_pTable->Get_History().Get_HTML());
-//	s.Append(wxString::Format(wxT("</font")));
+//	s	+= wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), LNG("[CAP] Data History"));
+//	s	+= m_pTable->Get_History().Get_HTML();
+//	s	+= wxString::Format(wxT("</font"));
 
 	//-----------------------------------------------------
 	return( s );

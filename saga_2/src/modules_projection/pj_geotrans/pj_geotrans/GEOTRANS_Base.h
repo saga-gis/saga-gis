@@ -82,6 +82,8 @@ public:
 
 	bool				Initialize					(void);
 
+	virtual bool		do_Sync_Projections			(void)	{	return( false  );	}
+
 
 protected:
 

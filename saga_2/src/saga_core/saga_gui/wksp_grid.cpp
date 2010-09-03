@@ -123,78 +123,53 @@ wxString CWKSP_Grid::Get_Name(void)
 }
 
 //---------------------------------------------------------
+#define DESC_ADD_STR(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%s</td></tr>"), label, value))
+#define DESC_ADD_INT(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%d</td></tr>"), label, value))
+#define DESC_ADD_FLT(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%s</td></tr>"), label, SG_Get_String(value, -2).c_str()))
+
+//---------------------------------------------------------
 wxString CWKSP_Grid::Get_Description(void)
 {
 	wxString	s;
 
 	//-----------------------------------------------------
-	s.Append(wxString::Format(wxT("<b>%s</b><table border=\"0\">"),
-		LNG("[CAP] Grid")
-	));
+	s	+= wxString::Format(wxT("<b>%s</b>"), LNG("[CAP] Grid"));
 
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
-		LNG("[CAP] Name")					, m_pGrid->Get_Name()
-	));
+	s	+= wxT("<table border=\"0\">");
 
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
-		LNG("[CAP] File")					, m_pGrid->Get_File_Name()
-	));
-
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
-		LNG("[CAP] Projection")				, m_pGrid->Get_Projection().Get_Name().c_str()
-	));
-
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%d (x) * %d (y) = %ld</td></tr>"),
-		LNG("[CAP] Number of cells")		, m_pGrid->Get_NX(), m_pGrid->Get_NY(), m_pGrid->Get_NCells()
-	));
-
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%f</td></tr>"),
-		LNG("[CAP] Cell size")				, m_pGrid->Get_Cellsize()
-	));
-
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>[%f] - [%f] = [%f]</td></tr>"),
-		LNG("[CAP] West-East")				, m_pGrid->Get_XMin(), m_pGrid->Get_XMax(), m_pGrid->Get_XRange()
-	));
-
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>[%f] - [%f] = [%f]</td></tr>"),
-		LNG("[CAP] South-North")			, m_pGrid->Get_YMin(), m_pGrid->Get_YMax(), m_pGrid->Get_YRange()
-	));
-
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s</td></tr>"),
-		LNG("[CAP] Value Type")				, SG_Data_Type_Get_Name(m_pGrid->Get_Type())
-	));
-
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>[%f] - [%f] = [%f]</td></tr>"),
-		LNG("[CAP] Value Range")			, m_pGrid->Get_ZMin(), m_pGrid->Get_ZMax(), m_pGrid->Get_ZRange()
-	));
-
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%f</td></tr>"),
-		LNG("[CAP] Arithmetic Mean")		, m_pGrid->Get_ArithMean(true)
-	));
-
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%f</td></tr>"),
-		LNG("[CAP] Standard Deviation")		, m_pGrid->Get_StdDev(true)
-	));
-
-	s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%fMB</td></tr>"),
-		LNG("[CAP] Memory Size")			, (double)(m_pGrid->Get_NCells() * m_pGrid->Get_nValueBytes()) / N_MEGABYTE_BYTES
-	));
+	DESC_ADD_STR(LNG("[CAP] Name")					, m_pGrid->Get_Name());
+	DESC_ADD_STR(LNG("[CAP] File")					, m_pGrid->Get_File_Name());
+	DESC_ADD_STR(LNG("[CAP] Projection")			, m_pGrid->Get_Projection().Get_Description().c_str());
+	DESC_ADD_FLT(LNG("[CAP] West")					, m_pGrid->Get_XMin());
+	DESC_ADD_FLT(LNG("[CAP] East")					, m_pGrid->Get_XMax());
+	DESC_ADD_FLT(LNG("[CAP] West-East")				, m_pGrid->Get_XRange());
+	DESC_ADD_FLT(LNG("[CAP] South")					, m_pGrid->Get_YMin());
+	DESC_ADD_FLT(LNG("[CAP] North")					, m_pGrid->Get_YMax());
+	DESC_ADD_FLT(LNG("[CAP] South-North")			, m_pGrid->Get_YRange());
+	DESC_ADD_INT(LNG("[CAP] Cell Size")				, m_pGrid->Get_Cellsize());
+	DESC_ADD_INT(LNG("[CAP] Number of Columns")		, m_pGrid->Get_NX());
+	DESC_ADD_INT(LNG("[CAP] Number of Rows")		, m_pGrid->Get_NY());
+	DESC_ADD_INT(LNG("[CAP] Number of Cells")		, m_pGrid->Get_NCells());
+	DESC_ADD_INT(LNG("[CAP] No Data Cells")			, m_pGrid->Get_NoData_Count());
+	DESC_ADD_STR(LNG("[CAP] Value Type")			, SG_Data_Type_Get_Name(m_pGrid->Get_Type()));
+	DESC_ADD_FLT(LNG("[CAP] Value Minimum")			, m_pGrid->Get_ZMin());
+	DESC_ADD_FLT(LNG("[CAP] Value Maximum")			, m_pGrid->Get_ZMax());
+	DESC_ADD_FLT(LNG("[CAP] Value Range")			, m_pGrid->Get_ZRange());
+	DESC_ADD_FLT(LNG("[CAP] Arithmetic Mean")		, m_pGrid->Get_ArithMean(true));
+	DESC_ADD_FLT(LNG("[CAP] Standard Deviation")	, m_pGrid->Get_StdDev(true));
+	DESC_ADD_FLT(LNG("[CAP] Memory Size [MB]")		, (double)(m_pGrid->Get_NCells() * m_pGrid->Get_nValueBytes()) / N_MEGABYTE_BYTES);
 
 	if( m_pGrid->is_Compressed() )
 	{
-		s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%f%%</td></tr>"),
-			LNG("[CAP] Memory Compression")	, 100.0 * m_pGrid->Get_Compression_Ratio()
-		));
+		DESC_ADD_FLT(LNG("[CAP] Memory Compression")	, 100.0 * m_pGrid->Get_Compression_Ratio());
 	}
 
 	if( m_pGrid->is_Cached() )
 	{
-		s.Append(wxString::Format(wxT("<tr><td>%s</td><td>%s = %fmb</td></tr>"),
-			LNG("[CAP] File cache activated")	, LNG("buffer size"), m_pGrid->Get_Buffer_Size() / (double)N_MEGABYTE_BYTES
-		));
+		DESC_ADD_FLT(LNG("[CAP] File Cache [MB]")		, m_pGrid->Get_Buffer_Size() / (double)N_MEGABYTE_BYTES);
 	}
 
-	s.Append(wxT("</table>"));
+	s	+= wxT("</table>");
 
 	//-----------------------------------------------------
 //	s.Append(wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), LNG("[CAP] Data History")));
