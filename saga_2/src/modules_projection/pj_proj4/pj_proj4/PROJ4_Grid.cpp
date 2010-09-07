@@ -245,7 +245,7 @@ bool CPROJ4_Grid::On_Execute_Conversion(void)
 			break;
 
 		case 1:	// select grid system...
-			if( Dlg_Parameters("GET_SYSTEM") && Get_Parameters("GET_SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System()->is_Valid() )
+			if( Dlg_Parameters("<") && Get_Parameters("GET_SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System()->is_Valid() )
 			{
 				pGrid	= SG_Create_Grid(*Get_Parameters("GET_SYSTEM")->Get_Parameter("SYSTEM")->asGrid_System(), Type);
 			}

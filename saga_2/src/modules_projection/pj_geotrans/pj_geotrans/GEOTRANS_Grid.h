@@ -84,7 +84,7 @@ class pj_geotrans_EXPORT CGEOTRANS_Grid : public CGEOTRANS_Base
 public:
 	CGEOTRANS_Grid(void);
 
-	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Grid") );	}
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Alternatives") );	}
 
 
 protected:

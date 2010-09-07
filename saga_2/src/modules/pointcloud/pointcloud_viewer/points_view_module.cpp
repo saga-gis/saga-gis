@@ -124,6 +124,8 @@ bool CPoints_View_Module::On_Execute(void)
 	CPoints_View_Dialog	dlg(pPoints);
 
 	dlg.ShowModal();
+
+	return( true );
 }
 
 

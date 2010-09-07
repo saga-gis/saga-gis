@@ -10,7 +10,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   crs_transform.cpp                   //
+//                crs_transform_shapes.cpp               //
 //                                                       //
 //                 Copyright (C) 2010 by                 //
 //                      Olaf Conrad                      //
@@ -56,9 +56,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "crs_transform.h"
-
-#include <projects.h>
+#include "crs_transform_shapes.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -68,52 +66,56 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define PROJ4_FREE(p)	if( p )	{	pj_free((PJ *)p);	p	= NULL;	}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CCRS_Transform::CCRS_Transform(void)
+CCRS_Transform_Shapes::CCRS_Transform_Shapes(bool bList)
 {
-	m_Proj4_pSource	= NULL;
-	m_Proj4_pTarget	= NULL;
-}
+	m_bList	= bList;
 
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CCRS_Transform::On_Execute(void)
-{
 	//-----------------------------------------------------
-	if( !Get_Projection(m_Target) )
-	{
-		return( false );
-	}
+	Set_Name		(m_bList
+		? _TL("Coordinate Transformation (Shapes List)")
+		: _TL("Coordinate Transformation (Shapes)")
+	);
 
-	if(	!_Set_Projection(m_Target, &m_Proj4_pTarget, false) )
+	Set_Author		(SG_T("O. Conrad (c) 2010"));
+
+	Set_Description	(_TW(
+		"Coordinate transformation for shapes.\n"
+		"Based on the PROJ.4 Cartographic Projections library originally written by Gerald Evenden "
+		"and later continued by the United States Department of the Interior, Geological Survey (USGS).\n"
+		"<a target=\"_blank\" href=\"http://trac.osgeo.org/proj/\">Proj.4 Homepage</a>\n"
+	));
+
+	//-----------------------------------------------------
+	if( m_bList )
 	{
-		return( false );
+		Parameters.Add_Shapes_List(
+			NULL	, "SOURCE"	, _TL("Source"),
+			_TL(""),
+			PARAMETER_INPUT
+		);
+
+		Parameters.Add_Shapes_List(
+			NULL	, "TARGET"	, _TL("Target"),
+			_TL(""),
+			PARAMETER_OUTPUT_OPTIONAL
+		);
 	}
 
 	//-----------------------------------------------------
-	m_bInverse	= false;
+	else
+	{
+		Parameters.Add_Shapes(
+			NULL	, "SOURCE"	, _TL("Source"),
+			_TL(""),
+			PARAMETER_INPUT
+		);
 
-	bool	bResult	= On_Execute_Transformation();
-
-	//-------------------------------------------------
-	PROJ4_FREE(m_Proj4_pSource);
-	PROJ4_FREE(m_Proj4_pTarget);
-
-	//-----------------------------------------------------
-	return( bResult );
+		Parameters.Add_Shapes(
+			NULL	, "TARGET"	, _TL("Target"),
+			_TL(""),
+			PARAMETER_OUTPUT
+		);
+	}
 }
 
 
@@ -122,90 +124,120 @@ bool CCRS_Transform::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CCRS_Transform::_Set_Projection(const CSG_Projection &Projection, void **ppProj4, bool bInverse)
+bool CCRS_Transform_Shapes::On_Execute_Transformation(void)
 {
-	PROJ4_FREE(*ppProj4);
-
-	//-------------------------------------------------
-	if( (*ppProj4 = pj_init_plus(SG_STR_SGTOMB(Projection.Get_Proj4()))) == NULL )
+	if( m_bList )
 	{
-		Error_Set(CSG_String::Format(SG_T("Proj4 [%s]: %s"), _TL("initialization"), SG_STR_MBTOSG(pj_strerrno(pj_errno))));
+		CSG_Parameter_Shapes_List	*pSources, *pTargets;
 
-		return( false );
-	}
+		pSources	= Parameters("SOURCE")->asShapesList();
+		pTargets	= Parameters("TARGET")->asShapesList();
 
-	//-------------------------------------------------
-	if( bInverse && ((PJ *)(*ppProj4))->inv == NULL )
-	{
-		Error_Set(CSG_String::Format(SG_T("Proj4 [%s]: %s"), _TL("initialization"), _TL("inverse transformation not available")));
+		pTargets->Del_Items();
 
-		return( false );
-	}
-
-	return( true );
-}
-
-//---------------------------------------------------------
-bool CCRS_Transform::Set_Source(const CSG_Projection &Projection)
-{
-	return( _Set_Projection(Projection, &m_Proj4_pSource, true) );
-}
-
-//---------------------------------------------------------
-bool CCRS_Transform::Set_Inverse(bool bOn)
-{
-	if( m_bInverse == bOn )
-	{
-		return( true );
-	}
-
-	if( m_Proj4_pTarget && ((PJ *)m_Proj4_pTarget)->inv )
-	{
-		m_bInverse	= bOn;
-
-		void	*pTMP	= m_Proj4_pSource;
-		m_Proj4_pSource	= m_Proj4_pTarget;
-		m_Proj4_pTarget	= pTMP;
-
-		return( true );
-	}
-
-	Error_Set(CSG_String::Format(SG_T("Proj4 [%s]: %s"), _TL("initialization"), _TL("inverse transformation not available")));
-
-	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CCRS_Transform::Get_Transformation(double &x, double &y)
-{
-	if( m_Proj4_pSource && m_Proj4_pTarget )
-	{
-		double	z	= 0.0;
-
-		if( pj_is_latlong((PJ *)m_Proj4_pSource) )
+		for(int i=0; i<pSources->Get_Count() && Process_Get_Okay(false); i++)
 		{
-			x	*= DEG_TO_RAD;
-			y	*= DEG_TO_RAD;
-		}
+			CSG_Shapes	*pSource	= pSources->asShapes(i);
+			CSG_Shapes	*pTarget	= SG_Create_Shapes();
 
-		if( pj_transform((PJ *)m_Proj4_pSource, (PJ *)m_Proj4_pTarget, 1, 0, &x, &y, &z) == 0 )
-		{
-			if( pj_is_latlong((PJ *)m_Proj4_pTarget) )
+			if( Transform(pSource, pTarget) )
 			{
-				x	*= RAD_TO_DEG;
-				y	*= RAD_TO_DEG;
+				pTargets->Add_Item(pTarget);
 			}
+			else
+			{
+				delete(pTarget);
+			}
+		}
 
-			return( true );
+		return( pTargets->Get_Count() > 0 );
+	}
+	else
+	{
+		CSG_Shapes	*pSource	= Parameters("SOURCE")->asShapes();
+		CSG_Shapes	*pTarget	= Parameters("TARGET")->asShapes();
+
+		if( pSource == pTarget )
+		{
+			pTarget	= SG_Create_Shapes();
+
+			if( Transform(pSource, pTarget) )
+			{
+				pSource->Assign(pTarget);
+
+				return( true );
+			}
+			else
+			{
+				delete(pTarget);
+
+				return( false );
+			}
+		}
+
+		return( Transform(pSource, pTarget) );
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pSource, CSG_Shapes *pTarget)
+{
+	if( !pTarget || !pSource || !pSource->is_Valid() )
+	{
+		return( false );
+	}
+
+	if( !Set_Source(pSource->Get_Projection()) )
+	{
+		return( false );
+	}
+
+	int		nDropped	= 0;
+
+	Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), _TL("Processing"), pSource->Get_Name()));
+
+	pTarget->Create(pSource->Get_Type(), pSource->Get_Name(), pSource);
+
+	for(int iShape=0; iShape<pSource->Get_Count() && Set_Progress(iShape, pSource->Get_Count()); iShape++)
+	{
+		CSG_Shape	*pShape_Source	= pSource->Get_Shape(iShape);
+		CSG_Shape	*pShape_Target	= pTarget->Add_Shape(pShape_Source, SHAPE_COPY_ATTR);
+
+		for(int iPart=0; iPart<pShape_Source->Get_Part_Count() && pShape_Target; iPart++)
+		{
+			for(int iPoint=0; iPoint<pShape_Source->Get_Point_Count(iPart) && pShape_Target; iPoint++)
+			{
+				TSG_Point	Point	= pShape_Source->Get_Point(iPoint, iPart);
+
+				if( Get_Transformation(Point.x, Point.y) )
+				{
+					pShape_Target->Add_Point(Point.x, Point.y, iPart);
+				}
+				else
+				{
+					nDropped++;
+
+					pTarget->Del_Shape(pShape_Target);
+
+					pShape_Target	= NULL;
+				}
+			}
 		}
 	}
 
-	return( false );
+	if( nDropped > 0 )
+	{
+		Message_Add(CSG_String::Format(SG_T("%s: %d %s"), pTarget->Get_Name(), nDropped, _TL("shapes have been dropped")));
+	}
+
+	pTarget->Get_Projection() = Get_Target();
+
+	return( pTarget->Get_Count() > 0 );
 }
 
 

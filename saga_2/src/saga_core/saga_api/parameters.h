@@ -960,6 +960,7 @@ public:
 
 	bool						Add_Parameters_User		(CSG_Parameters *pParameters, bool bAddDefaultGrid = true);
 	bool						Add_Parameters_Grid		(CSG_Parameters *pParameters, bool bAddDefaultGrid = true);
+	bool						Add_Parameters_System	(CSG_Parameters *pParameters);
 
 	bool						Add_Grid_Parameter		(const CSG_String &Identifier, const CSG_String &Name, bool bOptional);
 
@@ -972,10 +973,13 @@ public:
 	CSG_Grid *					Get_Grid				(                              TSG_Data_Type Type = SG_DATATYPE_Float);
 	CSG_Grid *					Get_Grid				(const CSG_String &Identifier, TSG_Data_Type Type = SG_DATATYPE_Float);
 
+	bool						Get_System_User			(CSG_Grid_System &System);
+	bool						Get_System				(CSG_Grid_System &System);
+
 
 private:
 
-	CSG_Parameters				*m_pUser, *m_pGrid;
+	CSG_Parameters				*m_pUser, *m_pGrid, *m_pSystem;
 
 };
 

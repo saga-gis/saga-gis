@@ -19,7 +19,7 @@ DEP_DEFS =
 DEP_LIBS = -lproj
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/PROJ4_Base.o $(MLB_TEMP)/PROJ4_Grid.o $(MLB_TEMP)/PROJ4_Shapes.o
+OBJ      = $(MLB_TEMP)/crs_assign.o $(MLB_TEMP)/crs_base.o $(MLB_TEMP)/crs_transform.o $(MLB_TEMP)/crs_transform_grid.o $(MLB_TEMP)/crs_transform_shapes.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/PROJ4_Base.o $(MLB_TEMP)/PROJ4_Grid.o $(MLB_TEMP)/PROJ4_Shapes.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS =
@@ -49,6 +49,21 @@ $(MLB_PATH):
 $(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
 	$(LD) $(LDFLAGS) -o $(MLB_NAME) $(OBJ) $(LIBS)
 
+
+$(MLB_TEMP)/crs_assign.o: ./crs_assign.cpp
+	$(CPP) -c ./crs_assign.cpp -o $(MLB_TEMP)/crs_assign.o $(CXXFLAGS)
+
+$(MLB_TEMP)/crs_base.o: ./crs_base.cpp
+	$(CPP) -c ./crs_base.cpp -o $(MLB_TEMP)/crs_base.o $(CXXFLAGS)
+
+$(MLB_TEMP)/crs_transform.o: ./crs_transform.cpp
+	$(CPP) -c ./crs_transform.cpp -o $(MLB_TEMP)/crs_transform.o $(CXXFLAGS)
+
+$(MLB_TEMP)/crs_transform_grid.o: ./crs_transform_grid.cpp
+	$(CPP) -c ./crs_transform_grid.cpp -o $(MLB_TEMP)/crs_transform_grid.o $(CXXFLAGS)
+
+$(MLB_TEMP)/crs_transform_shapes.o: ./crs_transform_shapes.cpp
+	$(CPP) -c ./crs_transform_shapes.cpp -o $(MLB_TEMP)/crs_transform_shapes.o $(CXXFLAGS)
 
 $(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)

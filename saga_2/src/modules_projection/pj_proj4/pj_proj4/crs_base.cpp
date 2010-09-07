@@ -1,0 +1,782 @@
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                         SAGA                          //
+//                                                       //
+//      System for Automated Geoscientific Analyses      //
+//                                                       //
+//                    Module Library:                    //
+//                   Projection_Proj4                    //
+//                                                       //
+//-------------------------------------------------------//
+//                                                       //
+//                     crs_base.cpp                      //
+//                                                       //
+//                 Copyright (C) 2010 by                 //
+//                      Olaf Conrad                      //
+//                                                       //
+//-------------------------------------------------------//
+//                                                       //
+// This file is part of 'SAGA - System for Automated     //
+// Geoscientific Analyses'. SAGA is free software; you   //
+// can redistribute it and/or modify it under the terms  //
+// of the GNU General Public License as published by the //
+// Free Software Foundation; version 2 of the License.   //
+//                                                       //
+// SAGA is distributed in the hope that it will be       //
+// useful, but WITHOUT ANY WARRANTY; without even the    //
+// implied warranty of MERCHANTABILITY or FITNESS FOR A  //
+// PARTICULAR PURPOSE. See the GNU General Public        //
+// License for more details.                             //
+//                                                       //
+// You should have received a copy of the GNU General    //
+// Public License along with this program; if not,       //
+// write to the Free Software Foundation, Inc.,          //
+// 59 Temple Place - Suite 330, Boston, MA 02111-1307,   //
+// USA.                                                  //
+//                                                       //
+//-------------------------------------------------------//
+//                                                       //
+//    e-mail:     oconrad@saga-gis.org                   //
+//                                                       //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Hamburg                  //
+//                Germany                                //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#include "crs_base.h"
+
+#include <projects.h>
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CCRS_Base::CCRS_Base(void)
+{
+	CSG_Parameter	*pNode;
+
+	//-----------------------------------------------------
+	Parameters.Add_Choice(
+		NULL	, "CRS_METHOD"		, _TL("Get CRS Definition from..."),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("EPSG Code"),
+			_TL("Well Known Text File"),
+			_TL("Proj4 Parameters"),
+			_TL("Loaded Data Set")
+		), 0
+	);
+
+	//-----------------------------------------------------
+	pNode	= Parameters.Add_Value(
+		NULL	, "CRS_EPSG"	, _TL("EPSG Code"),
+		_TL(""),
+		PARAMETER_TYPE_Int, 4326, 2000, true, 32766, true
+	);
+
+	if( SG_UI_Get_Window_Main() )
+	{
+		Parameters.Add_Choice(
+			pNode	, "CRS_EPSG_GEOGCS"	, _TL("Geographic Coordinate Systems"),
+			_TL(""),
+			SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Geographic)
+		);
+
+		Parameters.Add_Choice(
+			pNode	, "CRS_EPSG_PROJCS"	, _TL("Projected Coordinate Systems"),
+			_TL(""),
+			SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Projected)
+		);
+	}
+
+	//-----------------------------------------------------
+	Parameters.Add_FilePath(
+		NULL	, "CRS_FILE"		, _TL("Well Known Text File"),
+		_TL(""),
+		CSG_String::Format(
+			SG_T("%s|*.prj;*.wkt;*.txt|%s|*.prj|%s|*.wkt|%s|*.txt|%s|*.*"),
+			_TL("All Recognized Files"),
+			_TL("ESRI WKT Files (*.prj)"),
+			_TL("WKT Files (*.wkt)"),
+			_TL("Text Files (*.txt)"),
+			_TL("All Files")
+		)
+	);
+
+	//-----------------------------------------------------
+	Parameters.Add_String(
+		NULL	, "CRS_PROJ4"		, _TL("Proj4 Parameters"),
+		_TL(""),
+		SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"), true
+	);
+
+	if( SG_UI_Get_Window_Main() )
+	{
+		Parameters.Add_Parameters(
+			NULL	, "CRS_USER"		, _TL("User Defined"),
+			_TL("")
+		);
+
+		Set_User_Parameters(Parameters("CRS_USER")->asParameters());
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	int				EPSG;
+	CSG_Projection	Projection;
+
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_EPSG_GEOGCS"))
+	||	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_EPSG_PROJCS")) )
+	{
+		if( pParameter->asChoice()->Get_Data(EPSG) )
+		{
+			pParameters->Get_Parameter("CRS_EPSG")->Set_Value(EPSG);
+
+			On_Parameter_Changed(pParameters, pParameters->Get_Parameter("CRS_EPSG"));
+		}
+	}
+
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_EPSG")) )
+	{
+		if( Projection.Create(pParameter->asInt()) )
+		{
+			pParameters->Get_Parameter("CRS_PROJ4")->Set_Value(Projection.Get_Proj4().c_str());
+		}
+	}
+
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_FILE")) )
+	{
+		if( Projection.Load(pParameters->Get_Parameter("CRS_FILE")->asString()) )
+		{
+			pParameters->Get_Parameter("CRS_PROJ4")->Set_Value(Projection.Get_Proj4().c_str());
+
+			if( Projection.Get_EPSG() > 0 )
+			{
+				pParameters->Get_Parameter("CRS_EPSG")->Set_Value(Projection.Get_EPSG());
+			}
+		}
+	}
+
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_USER")) )
+	{
+		pParameters->Get_Parameter("CRS_PROJ4")->Set_Value(Get_User_Definition(*pParameter->asParameters()));
+	}
+
+	if(	!SG_STR_CMP(pParameters->Get_Identifier(), SG_T("CRS_USER")) )
+	{		
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("PROJ_TYPE")) )
+		{
+			pParameters->Get_Parameter("OPTIONS")->asParameters()->Assign(Get_Parameters(SG_STR_MBTOSG(pj_list[pParameter->asInt()].id)));
+		}
+	}
+
+	return( 0 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CCRS_Base::Get_Projection(CSG_Projection &Projection)
+{
+	switch( Parameters("CRS_METHOD")->asInt() )
+	{
+	case 0:	default:	// EPSG Code
+		Projection.Create	(Parameters("CRS_EPSG")->asInt());
+		break;
+
+	case 1:				// Well Known Text File"),
+		Projection.Load		(Parameters("CRS_FILE")->asString());
+		break;
+
+	case 2:				// Proj4 Parameters"),
+		Projection.Create	(Parameters("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+		break;
+
+	case 3:				// loaded data set")
+		break;
+	}
+
+	return( Projection.is_Okay() );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define WGS84_ELLPS_A	6378137.000
+#define WGS84_ELLPS_B	6356752.314
+
+//---------------------------------------------------------
+bool CCRS_Base::Set_User_Parameters(CSG_Parameters *pParameters)
+{
+	CSG_Parameter	*pNode_0 = NULL, *pNode_1, *pNode_2;
+	CSG_String		sProjections, sName, sDescription, sArguments, sDatums, sEllipsoids, sUnits;
+
+	///////////////////////////////////////////////////////
+
+	// Projection -----------------------------------------
+	sDescription	= _TL("Available Projections:");
+
+	for(struct PJ_LIST *pProjection=pj_list; pProjection->id; ++pProjection)
+	{
+		sArguments		= *pProjection->descr;
+		sName			= sArguments.BeforeFirst('\n');
+		sArguments		= sArguments.AfterFirst ('\n').AfterFirst('\n').AfterFirst('\t');
+
+		sProjections	+= CSG_String::Format(SG_T("{%s}%s|")       , SG_STR_MBTOSG(pProjection->id), sName.c_str());
+		sDescription	+= CSG_String::Format(SG_T("\n[%s] %s (%s)"), SG_STR_MBTOSG(pProjection->id), sName.c_str(), sArguments.c_str());
+
+		Add_User_Projection(pProjection->id, sName, sArguments);
+	}
+
+	// Datums ---------------------------------------------
+	for(struct PJ_DATUMS *pDatum=pj_datums; pDatum->id; ++pDatum)
+	{
+		sDatums	+= CSG_String::Format(SG_T("[%s]"), SG_STR_MBTOSG(pDatum->id));
+
+		if( SG_STR_MBTOSG(pDatum->comments) != NULL && SG_STR_MBTOSG(*pDatum->comments) != NULL )
+		{
+			sDatums	+= CSG_String::Format(SG_T(" %s"), SG_STR_MBTOSG(pDatum->comments));
+		}
+
+		sDatums	+= '|';
+	}
+
+	// Ellipsoids -----------------------------------------
+	for(struct PJ_ELLPS *pEllipse=pj_ellps; pEllipse->id; ++pEllipse)
+	{
+		sEllipsoids	+= CSG_String::Format(SG_T("[%s] %s (%s, %s)|"), SG_STR_MBTOSG(pEllipse->id), SG_STR_MBTOSG(pEllipse->name), SG_STR_MBTOSG(pEllipse->major), SG_STR_MBTOSG(pEllipse->ell));
+	}
+
+	// Units ----------------------------------------------
+	for(struct PJ_UNITS *pUnit=pj_units; pUnit->id; ++pUnit)
+	{
+		sUnits	+= CSG_String::Format(SG_T("%s (%s)|"), SG_STR_MBTOSG(pUnit->name), SG_STR_MBTOSG(pUnit->to_meter));
+	}
+
+
+	///////////////////////////////////////////////////////
+
+	//-----------------------------------------------------
+	// Projection...
+
+	if( sProjections.Length() == 0 )
+	{
+		return( false );
+	}
+
+	pParameters->Add_Choice	(pNode_0, "PROJ_TYPE"	, _TL("Projection Type")			, sDescription, sProjections);
+
+
+	//-----------------------------------------------------
+	// Datum...
+
+	pNode_1	= pParameters->Add_Choice(
+		pNode_0, "DATUM_DEF"		, _TL("Datum Definition"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("Predefined Datum"),
+			_TL("User Defined Datum")
+		)
+	);
+
+
+	//-----------------------------------------------------
+	// Predefined Datum...
+
+	pParameters->Add_Choice	(pNode_1, "DATUM"		, _TL("Predefined Datum")			, _TL(""), sDatums);
+
+
+	//-----------------------------------------------------
+	// Ellipsoid...
+
+	pNode_2	= pParameters->Add_Choice(
+		pNode_1, "ELLIPSOID"		, _TL("Ellipsoid Definition"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|"),
+			_TL("Predefined Ellipsoids"),
+			_TL("Semimajor Axis and Semiminor Axis"),
+			_TL("Semimajor Axis and Flattening"),
+			_TL("Semimajor Axis and Reciprocal Flattening"),
+			_TL("Semimajor Axis and Eccentricity"),
+			_TL("Semimajor Axis and Eccentricity Squared")
+		)
+	);
+
+	pParameters->Add_Choice	(pNode_2, "ELLPS_DEF"	, _TL("Predefined Ellipsoids")		, _TL(""), sEllipsoids);
+
+	pParameters->Add_Value	(pNode_2, "ELLPS_A"		, _TL("Semimajor Axis (a)")			, _TL(""), PARAMETER_TYPE_Double, WGS84_ELLPS_A);
+	pParameters->Add_Value	(pNode_2, "ELLPS_B"		, _TL("Semiminor Axis (b)")			, _TL(""), PARAMETER_TYPE_Double, WGS84_ELLPS_B);
+	pParameters->Add_Value	(pNode_2, "ELLPS_F"		, _TL("Flattening (f)")				, _TL(""), PARAMETER_TYPE_Double, (WGS84_ELLPS_A - WGS84_ELLPS_B) / WGS84_ELLPS_A);
+	pParameters->Add_Value	(pNode_2, "ELLPS_RF"	, _TL("Reciprocal Flattening (rf)")	, _TL(""), PARAMETER_TYPE_Double, WGS84_ELLPS_A / (WGS84_ELLPS_A - WGS84_ELLPS_B));
+	pParameters->Add_Value	(pNode_2, "ELLPS_E"		, _TL("Eccentricity (e)")			, _TL(""), PARAMETER_TYPE_Double, sqrt(WGS84_ELLPS_A*WGS84_ELLPS_A + WGS84_ELLPS_B*WGS84_ELLPS_B));
+	pParameters->Add_Value	(pNode_2, "ELLPS_ES"	, _TL("Squared Eccentricity (es)")	, _TL(""), PARAMETER_TYPE_Double, WGS84_ELLPS_A*WGS84_ELLPS_A + WGS84_ELLPS_B*WGS84_ELLPS_B);
+
+
+	//-----------------------------------------------------
+	// Datum Shift...
+
+	pNode_2	= pParameters->Add_Choice(
+		pNode_1, "DATUM_SHIFT"	, _TL("Datum Shift"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("none"),
+			_TL("3 parameters (translation only)"),
+			_TL("7 parameters"),
+			_TL("Datum Shift Grid")
+		)
+	);
+
+	pParameters->Add_Value	(pNode_2, "DS_DX"		, _TL("Translation X")				, _TL(""), PARAMETER_TYPE_Double, 0.0);
+	pParameters->Add_Value	(pNode_2, "DS_DY"		, _TL("Translation Y")				, _TL(""), PARAMETER_TYPE_Double, 0.0);
+	pParameters->Add_Value	(pNode_2, "DS_DZ"		, _TL("Translation Z")				, _TL(""), PARAMETER_TYPE_Double, 0.0);
+	pParameters->Add_Value	(pNode_2, "DS_RX"		, _TL("Rotation X")					, _TL(""), PARAMETER_TYPE_Double, 0.0);
+	pParameters->Add_Value	(pNode_2, "DS_RY"		, _TL("Rotation Y")					, _TL(""), PARAMETER_TYPE_Double, 0.0);
+	pParameters->Add_Value	(pNode_2, "DS_RZ"		, _TL("Rotation Z")					, _TL(""), PARAMETER_TYPE_Double, 0.0);
+	pParameters->Add_Value	(pNode_2, "DS_SC"		, _TL("Scaling")					, _TL(""), PARAMETER_TYPE_Double, 1.0);
+
+	pParameters->Add_FilePath(
+		pNode_2, "DATUM_GRID"	, _TL("Datum Shift Grid File"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|%s|%s"),
+			_TL("NTv2 Grid Shift Binary (*.gsb)")	, SG_T("*.gsb"),
+			_TL("All Files")						, SG_T("*.*")
+		), NULL, false, false, false
+	);
+
+
+	//-----------------------------------------------------
+	// General Settings...
+
+	pNode_1	= pParameters->Add_Node(pNode_0, "NODE_GENERAL"	, _TL("General Settings"), _TL(""));
+
+	pParameters->Add_Value	(pNode_1, "LON_0"		, _TL("Central Meridian")		, _TL(""), PARAMETER_TYPE_Double, 0.0);
+	pParameters->Add_Value	(pNode_1, "LAT_0"		, _TL("Central Parallel")		, _TL(""), PARAMETER_TYPE_Double, 0.0);
+	pParameters->Add_Value	(pNode_1, "X_0"			, _TL("False Easting")			, _TL(""), PARAMETER_TYPE_Double, 0.0);
+	pParameters->Add_Value	(pNode_1, "Y_0"			, _TL("False Northing")			, _TL(""), PARAMETER_TYPE_Double, 0.0);
+	pParameters->Add_Value	(pNode_1, "K_0"			, _TL("Scale Factor")			, _TL(""), PARAMETER_TYPE_Double, 1.0, 0.0, true);
+
+	pParameters->Add_Choice	(pNode_1, "UNIT"		, _TL("Unit")					, _TL(""), sUnits, 1);
+
+	pParameters->Add_Value	(pNode_1, "NO_DEFS"		, _TL("Ignore Defaults")		, _TL(""), PARAMETER_TYPE_Bool, true);
+
+	//-----------------------------------------------------
+	pParameters->Add_Parameters(
+		pNode_0, "OPTIONS"	, _TL("Projection Settings"),
+		_TL("")
+	);
+
+	pParameters->Get_Parameter("OPTIONS")->asParameters()->Assign(Get_Parameters(SG_STR_MBTOSG(pj_list[0].id)));
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+//---------------------------------------------------------
+#define PRM_ADD_BOL(key, name, val)	pParms->Add_Value(NULL, key, name, _TL(""), PARAMETER_TYPE_Bool  , val);
+#define PRM_ADD_INT(key, name, val)	pParms->Add_Value(NULL, key, name, _TL(""), PARAMETER_TYPE_Int   , val);
+#define PRM_ADD_FLT(key, name, val)	pParms->Add_Value(NULL, key, name, _TL(""), PARAMETER_TYPE_Double, val);
+
+//---------------------------------------------------------
+bool CCRS_Base::Add_User_Projection(const CSG_String &sID, const CSG_String &sName, const CSG_String &sArgs)
+{
+	if( sArgs.Length() == 0 )
+	{
+		return( false );
+	}
+
+	CSG_Parameters	*pParms	= Add_Parameters(sID, sName, sArgs);
+
+	//-----------------------------------------------------
+	// Cylindrical Projections...
+
+	if(	!sID.CmpNoCase(SG_T("cea"))			// Equal Area Cylindrical
+	||	!sID.CmpNoCase(SG_T("eqc"))			// Equidistant Cylindrical (Plate Caree) 
+	||	!sID.CmpNoCase(SG_T("merc")) )		// Mercator 
+	{
+		PRM_ADD_FLT("lat_ts"	, _TL("True Scale Latitude")	, 0.0);
+	}
+
+	if(	!sID.CmpNoCase(SG_T("utm")) )		// Universal Transverse Mercator (UTM)
+	{
+		PRM_ADD_INT("zone"		, _TL("Zone")					, 32);
+		PRM_ADD_BOL("south"		, _TL("South")					, false);
+	}
+
+	if(	!sID.CmpNoCase(SG_T("omerc")) )		// Oblique Mercator 
+	{
+		PRM_ADD_FLT("lat_1"		, _TL("Latitude 1")				, 40.0);
+		PRM_ADD_FLT("lon_1"		, _TL("Longitude 1"	)			,-20.0);
+		PRM_ADD_FLT("lat_2"		, _TL("Latitude 2")				, 50.0);
+		PRM_ADD_FLT("lon_2"		, _TL("Longitude 2"	)			, 20.0);
+	}
+
+	//-----------------------------------------------------
+	// Pseudocylindrical Projections...
+
+	if(	!sID.CmpNoCase(SG_T("gn_sinu")) )	// General Sinusoidal Series
+	{
+		PRM_ADD_FLT("m"			, SG_T("m")						, 0.5);
+		PRM_ADD_FLT("n"			, SG_T("n")						, 1.0 + M_PI_045);
+	}
+
+	if(	!sID.CmpNoCase(SG_T("loxim")) )		// Loximuthal
+	{
+		PRM_ADD_FLT("lat_1"		, _TL("Latitude 1")				, 40.0);
+	}
+
+	if(	!sID.CmpNoCase(SG_T("urmfps")) )	// Urmaev Flat-Polar Sinusoidal
+	{
+		PRM_ADD_FLT("n"			, SG_T("n")						, 1.0);
+	}
+
+	if(	!sID.CmpNoCase(SG_T("urm5")) )		// Urmaev V
+	{
+		PRM_ADD_FLT("n"			, SG_T("n")						, 1.0);
+		PRM_ADD_FLT("q"			, SG_T("q")						, 1.0);
+		PRM_ADD_FLT("alphi"		, SG_T("alphi")					, 45.0);
+	}
+
+	if(	!sID.CmpNoCase(SG_T("wink1"))		// Winkel I
+	||	!sID.CmpNoCase(SG_T("wag3")) )		// Wagner III
+	{
+		PRM_ADD_FLT("lat_ts"	, _TL("True Scale Latitude")	, 45.0);
+	}
+
+	if(	!sID.CmpNoCase(SG_T("wink2")) )		// Winkel II
+	{
+		PRM_ADD_FLT("lat_1"		, _TL("Latitude 1")				, 40.0);
+	}
+
+
+	//-----------------------------------------------------
+	// Conic Projections...
+
+	if(	!sID.CmpNoCase(SG_T("aea"))			// Albers Equal Area
+	||	!sID.CmpNoCase(SG_T("eqdc"))		// Equidistant Conic
+	||	!sID.CmpNoCase(SG_T("euler"))		// Euler 
+	||	!sID.CmpNoCase(SG_T("imw_p"))		// International Map of the World Polyconic 
+	||	!sID.CmpNoCase(SG_T("murd1"))		// Murdoch I 
+	||	!sID.CmpNoCase(SG_T("murd2"))		// Murdoch II 
+	||	!sID.CmpNoCase(SG_T("murd3"))		// Murdoch III 
+	||	!sID.CmpNoCase(SG_T("pconic"))		// Perspective Conic 
+	||	!sID.CmpNoCase(SG_T("tissot"))		// Tissot 
+	||	!sID.CmpNoCase(SG_T("vitk1")) )		// Vitkovsky I 
+	{
+		PRM_ADD_FLT("lat_1"		, _TL("Latitude 1")				, 33.0);
+		PRM_ADD_FLT("lat_2"		, _TL("Latitude 2")				, 45.0);
+	}
+
+	if(	!sID.CmpNoCase(SG_T("lcc")) )		// Lambert Conformal Conic 
+	{
+		PRM_ADD_FLT("lat_1"		, _TL("Latitude 1")				, 33.0);
+		PRM_ADD_FLT("lat_2"		, _TL("Latitude 2")				, 45.0);
+	}
+
+	if( !sID.CmpNoCase(SG_T("leac")) )		// Lambert Equal Area Conic
+	{
+		PRM_ADD_FLT("lat_1"		, _TL("Latitude 1")				, 45.0);
+		PRM_ADD_BOL("south"		, _TL("South")					, false);
+	}
+
+	if(	!sID.CmpNoCase(SG_T("rpoly")) )		// Rectangular Polyconic
+	{
+		PRM_ADD_FLT("lat_ts"	, _TL("True Scale Latitude")	, 45.0);
+	}
+
+	if(	!sID.CmpNoCase(SG_T("mpoly")) )		// Modified Polyconic
+	{
+		PRM_ADD_FLT("lat_1"		, _TL("Latitude 1")				, 33.0);
+		PRM_ADD_FLT("lat_2"		, _TL("Latitude 2")				, 45.0);
+		PRM_ADD_BOL("lotsa"		, _TL("Lotsa")					, true);
+	}
+
+	if(	!sID.CmpNoCase(SG_T("bonne")) )		// Bonne
+	{
+		PRM_ADD_FLT("lat_1"		, _TL("Latitude 1")				, 45.0);
+	}
+
+
+	//-----------------------------------------------------
+	// Azimuthal Projections...
+
+	if(	!sID.CmpNoCase(SG_T("stere")) )		// Stereographic
+	{
+		PRM_ADD_FLT("lat_ts"	, _TL("True Scale Latitude")	, 45.0);
+	}
+
+	if(	!sID.CmpNoCase(SG_T("ups")) )		// Universal Polar Stereographic
+	{
+		PRM_ADD_BOL("south"		, _TL("South")					, true);
+	}
+
+	if(	!sID.CmpNoCase(SG_T("airy")) )		// Airy
+	{
+		PRM_ADD_FLT("lat_b"		, _TL("Latitude B")				, 45.0);
+		PRM_ADD_BOL("no_cut"	, _TL("No Cut")					, true);
+	}
+
+	if(	!sID.CmpNoCase(SG_T("nsper")) )		// Near-sided perspective
+	{
+		PRM_ADD_FLT("h"			, _TL("Height of view point")	, 1.0);
+	}
+
+	if(	!sID.CmpNoCase(SG_T("aeqd")) )		// Azimuthal Equidistant
+	{
+		PRM_ADD_BOL("guam"		, _TL("guam")					, true);
+	}
+
+	if(	!sID.CmpNoCase(SG_T("hammer")) )	// Hammer & Eckert-Greifendorff
+	{
+		PRM_ADD_FLT("W"			, _TL("W")						, 0.5);
+		PRM_ADD_FLT("M"			, _TL("M")						, 1.0);
+	}
+
+	if(	!sID.CmpNoCase(SG_T("wintri")) )	// Winkel Tripel 
+	{
+		PRM_ADD_FLT("lat_1"		, _TL("Latitude 1")				, 40.0);
+	}
+
+
+	//-----------------------------------------------------
+	// Miscellaneous Projections...
+
+	if(	!sID.CmpNoCase(SG_T("ocea"))		// Oblique Cylindrical Equal Area
+	||	!sID.CmpNoCase(SG_T("tpeqd")) )		// Two Point Equidistant 
+	{
+		PRM_ADD_FLT("lat_1"		, _TL("Latitude 1")				, 40.0);
+		PRM_ADD_FLT("lon_1"		, _TL("Longitude 1")			,-20.0);
+		PRM_ADD_FLT("lat_2"		, _TL("Latitude 2")				, 50.0);
+		PRM_ADD_FLT("lon_2"		, _TL("Longitude 2"	)			, 20.0);
+	}
+
+	if(	!sID.CmpNoCase(SG_T("lsat")) )		// Space oblique for LANDSAT
+	{
+		PRM_ADD_INT("lsat"		, _TL("Landsat")				, 1.0);
+		PRM_ADD_INT("path"		, _TL("Path")					, 1.0);
+	}
+
+	if(	!sID.CmpNoCase(SG_T("labrd")) )		// Laborde
+	{
+		PRM_ADD_FLT("azi"		, _TL("Azimuth"	)				, 19.0);
+	}
+
+	if(	!sID.CmpNoCase(SG_T("lagrng")) )	// Lagrange
+	{
+		PRM_ADD_FLT("lat_1"		, _TL("Latitude 1")				, 0.0);
+		PRM_ADD_FLT("W"			, _TL("W")						, 2.0);
+	}
+
+	if(	!sID.CmpNoCase(SG_T("chamb")) )		// Chamberlin Trimetric
+	{
+		PRM_ADD_FLT("lat_1"		, _TL("Latitude 1")				, 30.0);
+		PRM_ADD_FLT("lon_1"		, _TL("Longitude 1"	)			,-20.0);
+		PRM_ADD_FLT("lat_2"		, _TL("Latitude 2")				, 40.0);
+		PRM_ADD_FLT("lon_2"		, _TL("Longitude 2")			, 00.0);
+		PRM_ADD_FLT("lat_3"		, _TL("Latitude 3")				, 50.0);
+		PRM_ADD_FLT("lon_3"		, _TL("Longitude 3"	)			, 20.0);
+	}
+
+	if(	!sID.CmpNoCase(SG_T("oea")) )		// Oblated Equal Area
+	{
+		PRM_ADD_FLT("m"			, _TL("m")						, 1.0);
+		PRM_ADD_FLT("n"			, _TL("n")						, 1.0);
+		PRM_ADD_FLT("theta"		, _TL("theta")					, 45.0);
+	}
+
+	if(	!sID.CmpNoCase(SG_T("tpers")) )		// Tilted perspective
+	{
+		PRM_ADD_FLT("tilt"		, _TL("Tilt")					, 45.0);
+		PRM_ADD_FLT("azi"		, _TL("Azimuth")				, 45.0);
+		PRM_ADD_FLT("h"			, _TL("h")						, 1000.0);
+	}
+
+	if(	!sID.CmpNoCase(SG_T("ob_tran")) )	// General Oblique Transformation
+	{
+		PRM_ADD_FLT("o_lat_p"	, _TL("Latitude Pole")			, 40.0);
+		PRM_ADD_FLT("o_lon_p"	, _TL("Longitude Pole")			, 40.0);
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define STR_ADD_BOL(key, val)		(val ? CSG_String::Format(SG_T("+%s "), key) : SG_T(""))
+#define STR_ADD_INT(key, val)		CSG_String::Format(SG_T("+%s=%d "), key, val)
+#define STR_ADD_FLT(key, val)		CSG_String::Format(SG_T("+%s=%f "), key, val)
+#define STR_ADD_STR(key, val)		CSG_String::Format(SG_T("+%s=%s "), key, val)
+
+//---------------------------------------------------------
+CSG_String CCRS_Base::Get_User_Definition(CSG_Parameters &P)
+{
+	CSG_String	Proj4;
+
+	//-----------------------------------------------------
+	Proj4	+= STR_ADD_STR(SG_T("proj")	, SG_STR_MBTOSG(pj_list[P("PROJ_TYPE")->asInt()].id));
+
+	if( P("LON_0")->asDouble() )	Proj4	+= STR_ADD_FLT(SG_T("lon_0")	, P("LON_0")->asDouble());
+	if( P("LAT_0")->asDouble() )	Proj4	+= STR_ADD_FLT(SG_T("lat_0")	, P("LAT_0")->asDouble());
+
+	if( P("X_0"  )->asDouble() )	Proj4	+= STR_ADD_FLT(SG_T("x_0")		, P("X_0"  )->asDouble());
+	if( P("Y_0"  )->asDouble() )	Proj4	+= STR_ADD_FLT(SG_T("y_0")		, P("Y_0"  )->asDouble());
+
+	if( P("K_0")->asDouble() != 1.0 && P("K_0")->asDouble() > 0.0 )
+	{
+		Proj4	+= STR_ADD_FLT(SG_T("k_0")	, P("K_0"  )->asDouble());
+	}
+
+	Proj4	+= STR_ADD_STR(SG_T("units")	, SG_STR_MBTOSG(pj_units[P("UNIT")->asInt()].id));
+
+	//-----------------------------------------------------
+	switch( P("DATUM_DEF")->asInt() )
+	{
+	case 0:	// predefined datum
+
+		Proj4	+= STR_ADD_STR(SG_T("datum")	, SG_STR_MBTOSG(pj_datums[P("DATUM")->asInt()].id));
+
+		break;
+
+	//-----------------------------------------------------
+	case 1:	// user defined datum
+
+		switch( P("ELLIPSOID")->asInt() )
+		{
+		case 0:	// Predefined Ellipsoid
+			Proj4	+= STR_ADD_STR(SG_T("ellps")	, SG_STR_MBTOSG(pj_ellps[P("ELLPS_PREDEF")->asInt()].id));
+			break;
+
+		case 1:	// Semiminor axis
+			Proj4	+= STR_ADD_FLT(SG_T("a")		, P("ELLPS_A" )->asDouble());
+			Proj4	+= STR_ADD_FLT(SG_T("b")		, P("ELLPS_B" )->asDouble());
+			break;
+
+		case 2:	// Flattening
+			Proj4	+= STR_ADD_FLT(SG_T("a")		, P("ELLPS_A" )->asDouble());
+			Proj4	+= STR_ADD_FLT(SG_T("f")		, P("ELLPS_F" )->asDouble());
+			break;
+
+		case 3:	// Reciprocal Flattening
+			Proj4	+= STR_ADD_FLT(SG_T("a")		, P("ELLPS_A" )->asDouble());
+			Proj4	+= STR_ADD_FLT(SG_T("rf")		, P("ELLPS_RF")->asDouble());
+			break;
+
+		case 4:	// Eccentricity
+			Proj4	+= STR_ADD_FLT(SG_T("a")		, P("ELLPS_A" )->asDouble());
+			Proj4	+= STR_ADD_FLT(SG_T("e")		, P("ELLPS_E" )->asDouble());
+			break;
+
+		case 5:	// Eccentricity Squared
+			Proj4	+= STR_ADD_FLT(SG_T("a")		, P("ELLPS_A" )->asDouble());
+			Proj4	+= STR_ADD_FLT(SG_T("es")		, P("ELLPS_ES")->asDouble());
+			break;
+		}
+
+		switch( P("DATUM_SHIFT")->asInt() )
+		{
+		case 1:	// 3 parameters
+			Proj4	+= CSG_String::Format(SG_T("+towgs84=%f,%f,%f "),
+				P("DS_DX")->asDouble(),
+				P("DS_DY")->asDouble(),
+				P("DS_DZ")->asDouble()
+			);
+			break;
+
+		case 2:	// 7 parameters
+			Proj4	+= CSG_String::Format(SG_T("+towgs84=%f,%f,%f,%f,%f,%f,%f "),
+				P("DS_DX")->asDouble(),
+				P("DS_DY")->asDouble(),
+				P("DS_DZ")->asDouble(),
+				P("DS_RX")->asDouble(),
+				P("DS_RY")->asDouble(),
+				P("DS_RZ")->asDouble(),
+				P("DS_SC")->asDouble()
+			);
+			break;
+		}
+
+		break;
+	}
+
+	// datum shift grid...
+	if( SG_File_Exists(P("DATUM_GRID")->asString()) )
+	{
+		Proj4	+= STR_ADD_STR(SG_T("nadgrids"), P("DATUM_GRID")->asString());
+	}
+
+	//-----------------------------------------------------
+	for(int i=0; i<P("OPTIONS")->asParameters()->Get_Count(); i++)
+	{
+		CSG_Parameter	*p	= P("OPTIONS")->asParameters()->Get_Parameter(i);
+
+		switch( p->Get_Type() )
+		{
+		case PARAMETER_TYPE_Bool:	Proj4	+= STR_ADD_BOL(p->Get_Identifier(), p->asBool());	break;
+		case PARAMETER_TYPE_Int:	Proj4	+= STR_ADD_INT(p->Get_Identifier(), p->asInt());	break;
+		case PARAMETER_TYPE_Double:	Proj4	+= STR_ADD_FLT(p->Get_Identifier(), p->asDouble());	break;
+		}
+	}
+
+	//-----------------------------------------------------
+	if( P("NO_DEFS")->asBool() )
+	{
+		Proj4	+= SG_T("+no_defs");
+	}
+
+	return( Proj4 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CCRS_Base::Set_User_Definition(CSG_Parameters &P, const CSG_String &Proj4)
+{
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

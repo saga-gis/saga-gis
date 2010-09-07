@@ -94,6 +94,10 @@ const SG_Char * Get_Info(int i)
 //---------------------------------------------------------
 // 3. Include the headers of your modules here...
 
+#include "crs_assign.h"
+#include "crs_transform_shapes.h"
+#include "crs_transform_grid.h"
+
 #include "PROJ4_Shapes.h"
 #include "PROJ4_Grid.h"
 
@@ -105,14 +109,20 @@ CSG_Module *		Create_Module(int i)
 {
 	switch( i )
 	{
-	case 0:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_SIMPLE, false) );
-	case 1:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_DIALOG, false) );
-	case 2:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_SIMPLE, false) );
-	case 3:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_DIALOG, false) );
-	case 4:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_SIMPLE, true) );
-	case 5:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_DIALOG, true) );
-	case 6:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_SIMPLE, true) );
-	case 7:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_DIALOG, true) );
+	case  0:	return( new CCRS_Assign() );
+	case  1:	return( new CCRS_Transform_Shapes(true ) );
+	case  2:	return( new CCRS_Transform_Shapes(false) );
+	case  3:	return( new CCRS_Transform_Grid  (true ) );
+	case  4:	return( new CCRS_Transform_Grid  (false) );
+
+	case  5:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_SIMPLE, false) );
+	case  6:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_DIALOG, false) );
+	case  7:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_SIMPLE, false) );
+	case  8:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_DIALOG, false) );
+	case  9:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_SIMPLE, true) );
+	case 10:	return( new CPROJ4_Shapes	(PROJ4_INTERFACE_DIALOG, true) );
+	case 11:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_SIMPLE, true) );
+	case 12:	return( new CPROJ4_Grid		(PROJ4_INTERFACE_DIALOG, true) );
 	}
 
 	return( NULL );

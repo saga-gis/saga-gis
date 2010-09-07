@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                  Projection_GeoTRANS                  //
+//                   Projection_Proj4                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   GEOTRANS_Shapes.h                   //
+//                      crs_base.h                       //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2010 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -58,11 +56,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__GEOTRANS_Shapes_H
-#define HEADER_INCLUDED__GEOTRANS_Shapes_H
+#ifndef HEADER_INCLUDED__crs_base_H
+#define HEADER_INCLUDED__crs_base_H
 
 //---------------------------------------------------------
-#include "GEOTRANS_Base.h"
+#include "MLB_Interface.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -72,20 +70,37 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class pj_geotrans_EXPORT CGEOTRANS_Shapes : public CGEOTRANS_Base
+class pj_proj4_EXPORT CCRS_Base : public CSG_Module
 {
 public:
-	CGEOTRANS_Shapes(void);
-	virtual ~CGEOTRANS_Shapes(void);
+	CCRS_Base(void);
 
-	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Alternatives") );	}
+	virtual bool			do_Sync_Projections		(void)	{	return( false  );	}
 
 
 protected:
 
-	virtual bool				On_Execute_Conversion	(void);
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
+	bool					Get_Projection			(CSG_Projection &Projection);
+
+
+private:
+
+	bool					Set_User_Parameters		(CSG_Parameters *pParameters);
+	bool					Add_User_Projection		(const CSG_String &sID, const CSG_String &sName, const CSG_String &sArgs);
+
+	CSG_String				Get_User_Definition		(CSG_Parameters &pParameters);
+	bool					Set_User_Definition		(CSG_Parameters &pParameters, const CSG_String &Proj4);
 
 };
 
-#endif // #ifndef HEADER_INCLUDED__GEOTRANS_Shapes_H
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__crs_base_H

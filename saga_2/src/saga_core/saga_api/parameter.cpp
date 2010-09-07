@@ -766,6 +766,32 @@ CSG_Grid * CSG_Parameters_Grid_Target::Get_User(const CSG_String &Identifier, TS
 	return( pGrid );
 }
 
+//---------------------------------------------------------
+bool CSG_Parameters_Grid_Target::Get_System_User(CSG_Grid_System &System)
+{
+	if( m_pUser )
+	{
+		if( m_pUser->Get_Parameter("SIZE")->asDouble() > 0.0
+		&&	m_pUser->Get_Parameter("COLS")->asInt()    > 0
+		&&	m_pUser->Get_Parameter("ROWS")->asInt()    > 0	)
+		{
+			On_User_Changed(m_pUser, m_pUser->Get_Parameter("SIZE"));
+
+			System.Assign(
+				m_pUser->Get_Parameter("SIZE")->asDouble(),
+				m_pUser->Get_Parameter("XMIN")->asDouble(),
+				m_pUser->Get_Parameter("YMIN")->asDouble(),
+				m_pUser->Get_Parameter("COLS")->asInt(),
+				m_pUser->Get_Parameter("ROWS")->asInt()
+			);
+
+			return( System.is_Valid() );
+		}
+	}
+
+	return( false );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -853,6 +879,39 @@ CSG_Grid * CSG_Parameters_Grid_Target::Get_Grid(const CSG_String &Identifier, TS
 	}
 
 	return( pGrid );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Parameters_Grid_Target::Add_Parameters_System(CSG_Parameters *pParameters)
+{
+	if( pParameters == NULL )
+	{
+		return( false );
+	}
+
+	m_pSystem	= pParameters;
+
+	m_pSystem->Add_Grid_System(NULL, "SYSTEM", LNG("Grid System"), LNG(""));
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameters_Grid_Target::Get_System(CSG_Grid_System &System)
+{
+	if( m_pSystem && m_pSystem->Get_Parameter("SYSTEM") && m_pSystem->Get_Parameter("SYSTEM")->asGrid_System() )
+	{
+		System.Assign(*m_pSystem->Get_Parameter("SYSTEM")->asGrid_System());
+
+		return( System.is_Valid() );
+	}
+
+	return( false );
 }
 
 

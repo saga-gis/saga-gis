@@ -60,7 +60,7 @@
 #define HEADER_INCLUDED__crs_assign_H
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include "crs_base.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -70,24 +70,20 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class pj_proj4_EXPORT CCRS_Assign : public CSG_Module
+class pj_proj4_EXPORT CCRS_Assign : public CCRS_Base
 {
 public:
 	CCRS_Assign(void);
 
-	virtual bool		do_Sync_Projections			(void)	{	return( false  );	}
-
 
 protected:
-
-	virtual int			On_Parameter_Changed		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool		On_Execute					(void);
 
 
 private:
 
-	int					Set_Projections				(const CSG_Projection &Projection, CSG_Parameter_List *pList, int &nProjected, int &nFailed);
+	int					Set_Projections				(const CSG_Projection &Projection, CSG_Parameter_List *pList);
 
 };
 

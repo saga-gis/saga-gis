@@ -808,7 +808,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\crs_base.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\crs_transform.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\crs_transform_grid.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\crs_transform_shapes.cpp"
 				>
 			</File>
 			<File
@@ -1125,7 +1137,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\crs_base.h"
+				>
+			</File>
+			<File
 				RelativePath=".\crs_transform.h"
+				>
+			</File>
+			<File
+				RelativePath=".\crs_transform_grid.h"
+				>
+			</File>
+			<File
+				RelativePath=".\crs_transform_shapes.h"
 				>
 			</File>
 			<File

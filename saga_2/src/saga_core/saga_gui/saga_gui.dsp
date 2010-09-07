@@ -58,7 +58,7 @@ LINK32=link.exe
 # ADD LINK32 wxbase28_xml.lib wxmsw28_html.lib wxmsw28_aui.lib wxmsw28_adv.lib wxmsw28_core.lib wxbase28.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib wxregex.lib wxexpat.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib oleacc.lib odbc32.lib /nologo /subsystem:windows /machine:I386 /libpath:"$(WXWIN)/lib/vc6_dll"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy res\saga.lng.txt ..\..\..\bin\saga_vc\saga.lng	copy res\saga.ger.txt ..\..\..\bin\saga_vc\saga.ger	copy res\saga_tip.txt ..\..\..\bin\saga_vc\saga_gui.tip	copy res\saga_srs.txt ..\..\..\bin\saga_vc\saga.srs
+PostBuild_Cmds=copy res\saga.lng.txt ..\..\..\bin\saga_vc\saga.lng	copy res\saga.ger.txt ..\..\..\bin\saga_vc\saga.ger	copy res\saga_tip.txt ..\..\..\bin\saga_vc\saga_gui.tip	copy res\saga_srs.txt ..\..\..\bin\saga_vc\saga_prj.srs	copy res\saga_dic.txt ..\..\..\bin\saga_vc\saga_prj.dic
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "saga_gui - Win32 Debug"
@@ -88,7 +88,7 @@ LINK32=link.exe
 # ADD LINK32 wxbase28d_xml.lib wxmsw28d_html.lib wxmsw28d_aui.lib wxmsw28d_adv.lib wxmsw28d_core.lib wxbase28d.lib wxtiffd.lib wxjpegd.lib wxpngd.lib wxzlibd.lib wxregexd.lib wxexpatd.lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib oleacc.lib odbc32.lib /nologo /subsystem:windows /debug /machine:I386 /libpath:"$(WXWIN)/lib/vc6_dll"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy res\saga.lng.txt ..\..\..\bin\saga_vc_dbg\saga.lng.txt	copy res\saga.ger.txt ..\..\..\bin\saga_vc_dbg\saga.lng	copy res\saga_tip.txt ..\..\..\bin\saga_vc_dbg\saga_gui.tip	copy res\saga_srs.txt ..\..\..\bin\saga_vc_dbg\saga.srs
+PostBuild_Cmds=copy res\saga.lng.txt ..\..\..\bin\saga_vc_dbg\saga.lng.txt	copy res\saga.ger.txt ..\..\..\bin\saga_vc_dbg\saga.lng	copy res\saga_tip.txt ..\..\..\bin\saga_vc_dbg\saga_gui.tip	copy res\saga_srs.txt ..\..\..\bin\saga_vc_dbg\saga_prj.srs	copy res\saga_dic.txt ..\..\..\bin\saga_vc_dbg\saga_prj.dic
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "saga_gui - Win32 Unicode Debug"

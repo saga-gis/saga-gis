@@ -997,44 +997,48 @@ bool CSG_Parameters::Set_Parameter(const SG_Char *Identifier, int Type, const SG
 //---------------------------------------------------------
 int CSG_Parameters::Assign(CSG_Parameters *pSource)
 {
-	int				i;
-	CSG_Parameter	*pParameter;
-
-	if( pSource && pSource != this )
+	if( pSource != this )
 	{
 		Destroy();
 
-		m_pOwner	= pSource->Get_Owner();
-
-		Set_Identifier	(pSource->Get_Identifier());
-		Set_Name		(pSource->Get_Name());
-		Set_Description	(pSource->Get_Description());
-
-		m_Callback	= pSource->m_Callback;
-		m_bCallback	= pSource->m_bCallback;
-
-		if( pSource->Get_Count() > 0 )
+		if( pSource )
 		{
-			for(i=0; i<pSource->Get_Count(); i++)
-			{
-				_Add(pSource->Get_Parameter(i));
-			}
+			m_pOwner	= pSource->Get_Owner();
 
-			for(i=0; i<pSource->Get_Count(); i++)
+			Set_Identifier	(pSource->Get_Identifier());
+			Set_Name		(pSource->Get_Name());
+			Set_Description	(pSource->Get_Description());
+
+			m_Callback	= pSource->m_Callback;
+			m_bCallback	= pSource->m_bCallback;
+
+			if( pSource->Get_Count() > 0 )
 			{
-				if( Get_Parameter(i) && (pParameter = pSource->Get_Parameter(i)->Get_Parent()) != NULL )
+				int		i;
+
+				for(i=0; i<pSource->Get_Count(); i++)
 				{
-					Get_Parameter(i)->m_pParent	= Get_Parameter(pParameter->Get_Identifier());
+					_Add(pSource->Get_Parameter(i));
+				}
+
+				for(i=0; i<pSource->Get_Count(); i++)
+				{
+					CSG_Parameter	*pParameter;
+
+					if( Get_Parameter(i) && (pParameter = pSource->Get_Parameter(i)->Get_Parent()) != NULL )
+					{
+						Get_Parameter(i)->m_pParent	= Get_Parameter(pParameter->Get_Identifier());
+					}
+				}
+
+				if( pSource->m_pGrid_System )
+				{
+					m_pGrid_System	= Get_Parameter(pSource->m_pGrid_System->Get_Identifier());
 				}
 			}
 
-			if( pSource->m_pGrid_System )
-			{
-				m_pGrid_System	= Get_Parameter(pSource->m_pGrid_System->Get_Identifier());
-			}
+			return( m_nParameters );
 		}
-
-		return( m_nParameters );
 	}
 
 	return( -1 );

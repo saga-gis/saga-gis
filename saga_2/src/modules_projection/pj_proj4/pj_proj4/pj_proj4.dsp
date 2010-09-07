@@ -59,7 +59,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /debug
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy    *.lng.txt    ..\..\..\..\bin\saga_vc\modules\ 
+PostBuild_Cmds=copy     *.lng.txt     ..\..\..\..\bin\saga_vc\modules\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "pj_proj4 - Win32 Debug"
@@ -164,6 +164,22 @@ SOURCE=.\crs_assign.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\crs_base.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\crs_transform.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\crs_transform_grid.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\crs_transform_shapes.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\MLB_Interface.cpp
 # End Source File
 # Begin Source File
@@ -185,6 +201,22 @@ SOURCE=.\PROJ4_Shapes.cpp
 # Begin Source File
 
 SOURCE=.\crs_assign.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\crs_base.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\crs_transform.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\crs_transform_grid.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\crs_transform_shapes.h
 # End Source File
 # Begin Source File
 

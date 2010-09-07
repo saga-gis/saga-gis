@@ -134,7 +134,7 @@ bool CGrid_Values_AddTo_Shapes::On_Execute(void)
 	//-----------------------------------------------------
 	pGrids		= Parameters("GRIDS")->asGridList();
 
-	if( pGrids->Get_Count() > 0 && Parameters("SHAPES")->asShapes()->Get_Type() == SHAPE_TYPE_Point )
+	if( pGrids->Get_Count() > 0 )
 	{
 		pResult		= Parameters("RESULT")->asShapes();
 		Interpol	= Parameters("INTERPOL")->asInt();

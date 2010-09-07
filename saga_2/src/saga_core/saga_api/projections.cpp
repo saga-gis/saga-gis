@@ -853,21 +853,36 @@ bool CSG_Projections::WKT_to_Proj4(CSG_String &Proj4, const CSG_String &WKT) con
 	// ]
 	if( !m.Get_Name().Cmp(SG_T("PROJCS")) )
 	{
-		if( !m["PROJECTION"].is_Valid() || !m_WKT_to_Proj4.Get_Translation(m["PROJECTION"].Get_Content(), s)
-		||	!m["GEOGCS"].is_Valid()
+		if( !m["PROJECTION"].is_Valid() )
+		{
+			SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("WKT SRS: %s"), LNG("no projection specified")));
+
+			return( false );
+		}
+
+		if( !m_WKT_to_Proj4.Get_Translation(m["PROJECTION"].Get_Content(), s) )
+		{
+			SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("WKT SRS: %s [%s]"), LNG("unknown projection"), m["PROJECTION"].Get_Content().c_str()));
+
+			return( false );
+		}
+
+		if(	!m["GEOGCS"].is_Valid()
 		||	!m["GEOGCS"]["DATUM"].is_Valid()
 		||	!m["GEOGCS"]["DATUM"]["SPHEROID"].is_Valid()
 		||	 m["GEOGCS"]["DATUM"]["SPHEROID"].Get_Children_Count() != 2
 		||	!m["GEOGCS"]["DATUM"]["SPHEROID"][0].Get_Content().asDouble(a) || a <= 0.0
-		||	!m["GEOGCS"]["DATUM"]["SPHEROID"][1].Get_Content().asDouble(d) || d <= 0.0 )
+		||	!m["GEOGCS"]["DATUM"]["SPHEROID"][1].Get_Content().asDouble(d) || d <  0.0 )
 		{
+			SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("WKT SRS: %s"), LNG("invalid geographic coordinate system / datum")));
+
 			return( false );
 		}
 
 		Proj4	+= CSG_String::Format(SG_T( "+proj=%s"), s.c_str());
 
-		Proj4	+= CSG_String::Format(SG_T(" +a=%f"), a);			// Semimajor radius of the ellipsoid axis
-		Proj4	+= CSG_String::Format(SG_T(" +b=%f"), a - a / d);	// Semiminor radius of the ellipsoid axis
+		Proj4	+= CSG_String::Format(SG_T(" +a=%f"), a);
+		Proj4	+= CSG_String::Format(SG_T(" +b=%f"), d <= 0.0 ? a : a - a / d);	// Semiminor radius of the ellipsoid axis
 
 		if(	m["GEOGCS"]["DATUM"]["TOWGS84"].is_Valid() && m["GEOGCS"]["DATUM"]["TOWGS84"].Get_Children_Count() == 7 )
 		{
@@ -884,9 +899,16 @@ bool CSG_Projections::WKT_to_Proj4(CSG_String &Proj4, const CSG_String &WKT) con
 
 		for(i=0; i<m.Get_Children_Count(); i++)
 		{
-			if( !m[i].Get_Name().Cmp(SG_T("PARAMETER")) && m_WKT_to_Proj4.Get_Translation(m[i].Get_Property("name"), s) )
+			if( !m[i].Get_Name().Cmp(SG_T("PARAMETER")) )
 			{
-				Proj4	+= CSG_String::Format(SG_T(" +%s=%s"), s.c_str(), m[i].Get_Content().c_str());
+				if( !m_WKT_to_Proj4.Get_Translation(m[i].Get_Property("name"), s) )
+				{
+					SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("WKT SRS: %s [%s]"), LNG("unknown parameter"), m[i].Get_Property("name")));
+				}
+				else
+				{
+					Proj4	+= CSG_String::Format(SG_T(" +%s=%s"), s.c_str(), m[i].Get_Content().c_str());
+				}
 			}
 		}
 

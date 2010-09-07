@@ -60,9 +60,7 @@
 #define HEADER_INCLUDED__crs_transform_H
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
-
-#include <projects.h>
+#include "crs_base.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -72,62 +70,37 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class pj_proj4_EXPORT CCRS_Transform : public CSG_Module
+class pj_proj4_EXPORT CCRS_Transform : public CCRS_Base
 {
 public:
 	CCRS_Transform(void);
 
-	virtual bool			do_Sync_Projections		(void)	{	return( false  );	}
-
 
 protected:
 
-	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual bool			On_Execute					(void);
+	virtual bool			On_Execute_Transformation	(void)	= 0;
 
-	virtual bool			On_Execute				(void);
-	virtual bool			On_Execute_Conversion	(void)	= 0;
+	const CSG_Projection &	Get_Target					(void)	const		{	return( m_Target );	}
 
-	bool					Set_Source				(const CSG_Projection &Projection);
-	bool					Set_Inverse				(bool bOn = true);
+	bool					Set_Source					(const CSG_Projection &Projection);
 
-	bool					Get_Converted			(double &x, double &y);
-	bool					Get_Converted			(TSG_Point &Point)		{	return( Get_Converted(Point.x, Point.y) );	}
+	bool					Set_Inverse					(bool bOn = true);
+
+	bool					Get_Transformation			(double &x, double &y);
+	bool					Get_Transformation			(TSG_Point &Point)	{	return( Get_Transformation(Point.x, Point.y) );	}
 
 
 private:
 
 	bool					m_bInverse;
 
-	PJ						*m_pPrjSrc, *m_pPrjDst;
+	void					*m_Proj4_pSource, *m_Proj4_pTarget;
+
+	CSG_Projection			m_Target;
 
 
-	bool					_Set_Projection			(const CSG_Projection &Projection, PJ **ppPrj, bool bInverse);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class pj_proj4_EXPORT CCRS_Transform_Shapes : public CCRS_Transform
-{
-public:
-	CCRS_Transform_Shapes(void);
-
-	virtual const SG_Char *	Get_MenuPath			(void)	{	return( _TL("R:Shapes") );	}
-
-
-protected:
-
-	virtual bool			On_Execute_Conversion	(void);
-
-
-private:
-
-	bool					_Get_Conversion			(CSG_Shapes *pSource, CSG_Shapes *pTarget);
-
+	bool					_Set_Projection			(const CSG_Projection &Projection, void **ppProj4, bool bInverse);
 
 };
 

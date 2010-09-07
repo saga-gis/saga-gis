@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.6 2010-07-08 14:11:50 johanvdw Exp $
+# $Id: Makefile.am,v 1.7 2010-09-07 15:59:03 oconrad Exp $
 #
 DEP_LIBS = -lproj
 if DEBUG
@@ -15,10 +15,20 @@ AM_LDFLAGS         = -fPIC -shared -avoid-version $(DEP_LIBS)
 pkglib_LTLIBRARIES = libpj_proj4.la
 libpj_proj4_la_SOURCES =\
 MLB_Interface.cpp\
+crs_assign.cpp\
+crs_base.cpp\
+crs_transform.cpp\
+crs_transform_grid.cpp\
+crs_transform_shapes.cpp\
 PROJ4_Base.cpp\
 PROJ4_Grid.cpp\
 PROJ4_Shapes.cpp\
 MLB_Interface.h\
+crs_assign.h\
+crs_base.h\
+crs_transform.h\
+crs_transform_grid.h\
+crs_transform_shapes.h\
 PROJ4_Base.h\
 PROJ4_Grid.h\
 PROJ4_Shapes.h

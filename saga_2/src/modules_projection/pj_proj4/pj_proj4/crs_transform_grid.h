@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                  Projection_GeoTRANS                  //
+//                   Projection_Proj4                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   GEOTRANS_Shapes.h                   //
+//                  crs_transform_grid.h                 //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2010 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -58,11 +56,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__GEOTRANS_Shapes_H
-#define HEADER_INCLUDED__GEOTRANS_Shapes_H
+#ifndef HEADER_INCLUDED__crs_transform_grid_H
+#define HEADER_INCLUDED__crs_transform_grid_H
 
 //---------------------------------------------------------
-#include "GEOTRANS_Base.h"
+#include "crs_transform.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -72,20 +70,48 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class pj_geotrans_EXPORT CGEOTRANS_Shapes : public CGEOTRANS_Base
+class pj_proj4_EXPORT CCRS_Transform_Grid : public CCRS_Transform
 {
 public:
-	CGEOTRANS_Shapes(void);
-	virtual ~CGEOTRANS_Shapes(void);
-
-	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Alternatives") );	}
+	CCRS_Transform_Grid(bool bList);
 
 
 protected:
 
-	virtual bool				On_Execute_Conversion	(void);
+	virtual int					On_Parameter_Changed		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
+	virtual bool				On_Execute_Transformation	(void);
+
+
+private:
+
+	bool						m_bList;
+
+	int							m_Interpolation;
+
+	CSG_Parameters_Grid_Target	m_Grid_Target;
+
+
+	bool						Transform					(CSG_Grid                *pGrid );
+	bool						Transform					(CSG_Parameter_Grid_List *pGrids);
+
+	bool						Transform					(CSG_Grid                *pGrid , CSG_Grid                *pTarget );
+	bool						Transform					(CSG_Parameter_Grid_List *pGrids, CSG_Parameter_Grid_List *pTargets, const CSG_Grid_System &Target_System);
+
+	bool						Transform					(CSG_Grid                *pGrid , CSG_Shapes *pPoints);
+	bool						Transform					(CSG_Parameter_Grid_List *pGrids, CSG_Shapes *pPoints);
+
+	void						Get_MinMax					(TSG_Rect &r, double x, double y);
+	bool						Get_Target_System			(const CSG_Grid_System &System, bool bEdge);
 
 };
 
-#endif // #ifndef HEADER_INCLUDED__GEOTRANS_Shapes_H
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__crs_transform_grid_H

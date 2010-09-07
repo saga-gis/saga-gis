@@ -22,7 +22,7 @@ DEP_INCS = -I"$(PROJ4)"
 DEP_LIBS = -L"$(PROJ4)" -lproj4
 
 
-OBJ      = $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/PROJ4_Base.o $(MLB_TEMP)/PROJ4_Grid.o $(MLB_TEMP)/PROJ4_Shapes.o
+OBJ      = $(MLB_TEMP)/crs_assign.o $(MLB_TEMP)/crs_base.o $(MLB_TEMP)/crs_transform.o $(MLB_TEMP)/crs_transform_grid.o $(MLB_TEMP)/crs_transform_shapes.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/PROJ4_Base.o $(MLB_TEMP)/PROJ4_Grid.o $(MLB_TEMP)/PROJ4_Shapes.o
 
 CXXFLAGS = -I"$(MINGW)/include" -I"$(SAGA)/src/saga_core" -D$(PRJ_NAME)_EXPORTS -DBUILDING_DLL=1 -D_SAGA_MSW -D_SAGA_MINGW -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -fexpensive-optimizations -Os -O2 -O3 $(DEP_INCS) $(DEP_DEFS)
 
@@ -48,6 +48,21 @@ $(MLB_PATH):
 $(MLB_NAME): $(MLB_PATH) $(MLB_TEMP) $(OBJ)
 	$(LD) $(LDFLAGS) --implib $(LIB_NAME) $(OBJ) $(LIBS) -o $(MLB_NAME)
 
+
+$(MLB_TEMP)/crs_assign.o: ./crs_assign.cpp
+	$(CPP) -c ./crs_assign.cpp -o $(MLB_TEMP)/crs_assign.o $(CXXFLAGS)
+
+$(MLB_TEMP)/crs_base.o: ./crs_base.cpp
+	$(CPP) -c ./crs_base.cpp -o $(MLB_TEMP)/crs_base.o $(CXXFLAGS)
+
+$(MLB_TEMP)/crs_transform.o: ./crs_transform.cpp
+	$(CPP) -c ./crs_transform.cpp -o $(MLB_TEMP)/crs_transform.o $(CXXFLAGS)
+
+$(MLB_TEMP)/crs_transform_grid.o: ./crs_transform_grid.cpp
+	$(CPP) -c ./crs_transform_grid.cpp -o $(MLB_TEMP)/crs_transform_grid.o $(CXXFLAGS)
+
+$(MLB_TEMP)/crs_transform_shapes.o: ./crs_transform_shapes.cpp
+	$(CPP) -c ./crs_transform_shapes.cpp -o $(MLB_TEMP)/crs_transform_shapes.o $(CXXFLAGS)
 
 $(MLB_TEMP)/MLB_Interface.o: ./MLB_Interface.cpp
 	$(CPP) -c ./MLB_Interface.cpp -o $(MLB_TEMP)/MLB_Interface.o $(CXXFLAGS)

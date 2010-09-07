@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                  Projection_GeoTRANS                  //
+//                   Projection_Proj4                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   GEOTRANS_Shapes.h                   //
+//                 crs_transform_shapes.h                //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2010 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -58,11 +56,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__GEOTRANS_Shapes_H
-#define HEADER_INCLUDED__GEOTRANS_Shapes_H
+#ifndef HEADER_INCLUDED__crs_transform_shapes_H
+#define HEADER_INCLUDED__crs_transform_shapes_H
 
 //---------------------------------------------------------
-#include "GEOTRANS_Base.h"
+#include "crs_transform.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -72,20 +70,31 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class pj_geotrans_EXPORT CGEOTRANS_Shapes : public CGEOTRANS_Base
+class pj_proj4_EXPORT CCRS_Transform_Shapes : public CCRS_Transform
 {
 public:
-	CGEOTRANS_Shapes(void);
-	virtual ~CGEOTRANS_Shapes(void);
-
-	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Alternatives") );	}
+	CCRS_Transform_Shapes(bool bList);
 
 
 protected:
 
-	virtual bool				On_Execute_Conversion	(void);
+	virtual bool			On_Execute_Transformation	(void);
 
+	bool					Transform					(CSG_Shapes *pSource, CSG_Shapes *pTarget);
+
+
+private:
+
+	bool					m_bList;
 
 };
 
-#endif // #ifndef HEADER_INCLUDED__GEOTRANS_Shapes_H
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__crs_transform_shapes_H

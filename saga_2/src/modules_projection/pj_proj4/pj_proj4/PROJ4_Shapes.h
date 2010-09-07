@@ -77,7 +77,7 @@ class pj_proj4_EXPORT CPROJ4_Shapes : public CPROJ4_Base
 public:
 	CPROJ4_Shapes(int Interface, bool bInputList);
 
-	virtual const SG_Char *	Get_MenuPath			(void)	{	return( _TL("R:Shapes") );	}
+	virtual const SG_Char *		Get_MenuPath			(void)	{	return( _TL("R:Alternatives") );	}
 
 
 protected:

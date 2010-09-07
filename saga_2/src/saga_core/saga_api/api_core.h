@@ -1016,11 +1016,14 @@ class SAGA_API_DLL_EXPORT CSG_Translator
 {
 public:
 	CSG_Translator(void);
-	CSG_Translator(const CSG_String &File_Name, bool bSetExtension = true, int iText = 0, int iTranslation = 1, bool m_bCmpNoCase = false);
-
 	virtual ~CSG_Translator(void);
 
-	bool							Create					(const CSG_String &File_Name, bool bSetExtension = true, int iText = 0, int iTranslation = 1, bool m_bCmpNoCase = false);
+									CSG_Translator			(const CSG_String &File_Name, bool bSetExtension = true, int iText = 0, int iTranslation = 1, bool bCmpNoCase = false);
+	bool							Create					(const CSG_String &File_Name, bool bSetExtension = true, int iText = 0, int iTranslation = 1, bool bCmpNoCase = false);
+
+									CSG_Translator			(class CSG_Table *pTranslations, int iText = 0, int iTranslation = 1, bool bCmpNoCase = false);
+	bool							Create					(class CSG_Table *pTranslations, int iText = 0, int iTranslation = 1, bool bCmpNoCase = false);
+
 	void							Destroy					(void);
 
 	bool							is_CaseSensitive		(void)		const	{	return( !m_bCmpNoCase );	}

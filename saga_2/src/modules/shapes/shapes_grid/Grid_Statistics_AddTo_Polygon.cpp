@@ -140,8 +140,8 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 {
 	bool				bQuantiles;
 	int					x, y, iShape, nShapes, *Num,
-						field_CELLS, field_MEAN, field_VARI, field_QUANTILES, quantile_step;
-	double				*Sum, *Dif, d;
+						field_CELLS, field_MEAN, field_MIN, field_MAX, field_VARI, field_STDDEV, field_QUANTILES, quantile_step;
+	double				*Sum, *Dif, *Min, *Max, d;
 	CSG_Table_Record	*pRecord;
 	CSG_Grid			*pGrid, ShapeIDs;
 	CSG_Shapes			*pShapes;
@@ -173,6 +173,8 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 
 			Num		= (int    *)calloc(nShapes, sizeof(int   ));
 			Sum		= (double *)calloc(nShapes, sizeof(double));
+			Min		= (double *)calloc(nShapes, sizeof(double));
+			Max		= (double *)calloc(nShapes, sizeof(double));
 			Dif		= (double *)calloc(nShapes, sizeof(double));
 
 			std::vector<std::list<double> >ShapePixels(nShapes);
@@ -189,8 +191,23 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 						Dif[iShape]	+= d * d;
 						Num[iShape]	++;
 
+						if( Num[iShape] == 1 )
+						{
+							Min[iShape]	= Max[iShape]	= d;
+						}
+						else if( Min[iShape] > d )
+						{
+							Min[iShape]	= d;
+						}
+						else if( Max[iShape] < d )
+						{
+							Max[iShape]	= d;
+						}
+
 						if( bQuantiles )
+						{
 							ShapePixels[iShape].push_back(d);
+						}
 					}
 				}
 			}
@@ -199,14 +216,23 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 			pShapes	= Parameters("RESULT")->asShapes();
 			pShapes->Assign(Parameters("POLY")->asShapes());
 
-			field_CELLS	= pShapes->Get_Field_Count();
+			field_CELLS		= pShapes->Get_Field_Count();
 			pShapes->Add_Field(_TL("CELLS")		, SG_DATATYPE_Int);
 
-			field_MEAN	= pShapes->Get_Field_Count();
+			field_MEAN		= pShapes->Get_Field_Count();
+			pShapes->Add_Field(_TL("MIN")		, SG_DATATYPE_Double);
+
+			field_MEAN		= pShapes->Get_Field_Count();
+			pShapes->Add_Field(_TL("MAX")		, SG_DATATYPE_Double);
+
+			field_MEAN		= pShapes->Get_Field_Count();
 			pShapes->Add_Field(_TL("MEAN")		, SG_DATATYPE_Double);
 
-			field_VARI	= pShapes->Get_Field_Count();
+			field_VARI		= pShapes->Get_Field_Count();
 			pShapes->Add_Field(_TL("VARIANCE")	, SG_DATATYPE_Double);
+
+			field_STDDEV	= pShapes->Get_Field_Count();
+			pShapes->Add_Field(_TL("STDDEV")	, SG_DATATYPE_Double);
 
 			if( bQuantiles )
 			{
@@ -227,8 +253,11 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 					d		= Sum[iShape] / (double)Num[iShape];
 
 					pRecord->Set_Value(field_CELLS	, Num[iShape]);
+					pRecord->Set_Value(field_MIN	, Min[iShape]);
+					pRecord->Set_Value(field_MAX	, Max[iShape]);
 					pRecord->Set_Value(field_MEAN	, d);
-					pRecord->Set_Value(field_VARI	, Dif[iShape] / (double)Num[iShape] - d * d);
+					pRecord->Set_Value(field_VARI	, d = Dif[iShape] / (double)Num[iShape] - d * d);
+					pRecord->Set_Value(field_STDDEV	, sqrt(d));
 
 					if( bQuantiles )
 					{
@@ -257,13 +286,18 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 				else
 				{
 					pRecord->Set_NoData(field_CELLS);
+					pRecord->Set_NoData(field_MIN);
+					pRecord->Set_NoData(field_MAX);
 					pRecord->Set_NoData(field_MEAN);
 					pRecord->Set_NoData(field_VARI);
+					pRecord->Set_NoData(field_STDDEV);
 				}
 			}
 
 			//---------------------------------------------
 			free(Num);
+			free(Min);
+			free(Max);
 			free(Sum);
 			free(Dif);
 
