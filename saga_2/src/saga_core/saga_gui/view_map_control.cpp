@@ -889,6 +889,10 @@ void CVIEW_Map_Control::On_Mouse_MDown(wxMouseEvent &event)
 	{
 	//-----------------------------------------------------
 	case MAP_MODE_SELECT:
+		if( g_pModule )
+		{
+			g_pModule->Execute(_Get_World(event.GetPosition()), MODULE_INTERACTIVE_MDOWN, GET_KEYS(event));
+		}
 		break;
 
 	//-----------------------------------------------------
