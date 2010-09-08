@@ -146,7 +146,7 @@ wxString CWKSP_Grid::Get_Description(void)
 	DESC_ADD_FLT(LNG("[CAP] South")					, m_pGrid->Get_YMin());
 	DESC_ADD_FLT(LNG("[CAP] North")					, m_pGrid->Get_YMax());
 	DESC_ADD_FLT(LNG("[CAP] South-North")			, m_pGrid->Get_YRange());
-	DESC_ADD_INT(LNG("[CAP] Cell Size")				, m_pGrid->Get_Cellsize());
+	DESC_ADD_FLT(LNG("[CAP] Cell Size")				, m_pGrid->Get_Cellsize());
 	DESC_ADD_INT(LNG("[CAP] Number of Columns")		, m_pGrid->Get_NX());
 	DESC_ADD_INT(LNG("[CAP] Number of Rows")		, m_pGrid->Get_NY());
 	DESC_ADD_INT(LNG("[CAP] Number of Cells")		, m_pGrid->Get_NCells());

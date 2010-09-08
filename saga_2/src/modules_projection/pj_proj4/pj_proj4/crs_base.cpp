@@ -70,7 +70,7 @@
 //---------------------------------------------------------
 CCRS_Base::CCRS_Base(void)
 {
-	CSG_Parameter	*pNode;
+	CSG_Parameter	*pNode_0, *pNode_1;
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice(
@@ -85,8 +85,13 @@ CCRS_Base::CCRS_Base(void)
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Value(
-		NULL	, "CRS_EPSG"	, _TL("EPSG Code"),
+	pNode_0	= Parameters.Add_Node(
+		NULL	, "NODE_EPSG"	, _TL("EPSG"),
+		_TL("")
+	);
+
+	pNode_1	= Parameters.Add_Value(
+		pNode_0	, "CRS_EPSG"	, _TL("EPSG Code"),
 		_TL(""),
 		PARAMETER_TYPE_Int, 4326, 2000, true, 32766, true
 	);
@@ -94,21 +99,23 @@ CCRS_Base::CCRS_Base(void)
 	if( SG_UI_Get_Window_Main() )
 	{
 		Parameters.Add_Choice(
-			pNode	, "CRS_EPSG_GEOGCS"	, _TL("Geographic Coordinate Systems"),
+			pNode_1	, "CRS_EPSG_GEOGCS"	, _TL("Geographic Coordinate Systems"),
 			_TL(""),
 			SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Geographic)
 		);
 
 		Parameters.Add_Choice(
-			pNode	, "CRS_EPSG_PROJCS"	, _TL("Projected Coordinate Systems"),
+			pNode_1	, "CRS_EPSG_PROJCS"	, _TL("Projected Coordinate Systems"),
 			_TL(""),
 			SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Projected)
 		);
 	}
 
 	//-----------------------------------------------------
+	pNode_0	= Parameters.Add_Node(NULL, "NODE_FILE", _TL("Well Known Text File"), _TL(""));
+
 	Parameters.Add_FilePath(
-		NULL	, "CRS_FILE"		, _TL("Well Known Text File"),
+		pNode_0	, "CRS_FILE"		, _TL("Well Known Text File"),
 		_TL(""),
 		CSG_String::Format(
 			SG_T("%s|*.prj;*.wkt;*.txt|%s|*.prj|%s|*.wkt|%s|*.txt|%s|*.*"),
@@ -121,8 +128,10 @@ CCRS_Base::CCRS_Base(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_String(
-		NULL	, "CRS_PROJ4"		, _TL("Proj4 Parameters"),
+	pNode_0	= Parameters.Add_Node(NULL, "NODE_PROJ4", _TL("Proj4 Parameters"), _TL(""));
+
+	pNode_1	= Parameters.Add_String(
+		pNode_0	, "CRS_PROJ4"		, _TL("Proj4 Parameters"),
 		_TL(""),
 		SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"), true
 	);
@@ -130,11 +139,11 @@ CCRS_Base::CCRS_Base(void)
 	if( SG_UI_Get_Window_Main() )
 	{
 		Parameters.Add_Parameters(
-			NULL	, "CRS_USER"		, _TL("User Defined"),
+			pNode_1	, "CRS_DIALOG"		, _TL("Dialog"),
 			_TL("")
 		);
 
-		Set_User_Parameters(Parameters("CRS_USER")->asParameters());
+		Set_User_Parameters(Parameters("CRS_DIALOG")->asParameters());
 	}
 }
 
@@ -146,15 +155,15 @@ CCRS_Base::CCRS_Base(void)
 //---------------------------------------------------------
 int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	int				EPSG;
+	int				i;
 	CSG_Projection	Projection;
 
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_EPSG_GEOGCS"))
 	||	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_EPSG_PROJCS")) )
 	{
-		if( pParameter->asChoice()->Get_Data(EPSG) )
+		if( pParameter->asChoice()->Get_Data(i) && (i = SG_Get_Projections().Get_Projection(i).Get_EPSG()) >= 0 )
 		{
-			pParameters->Get_Parameter("CRS_EPSG")->Set_Value(EPSG);
+			pParameters->Get_Parameter("CRS_EPSG")->Set_Value(i);
 
 			On_Parameter_Changed(pParameters, pParameters->Get_Parameter("CRS_EPSG"));
 		}
@@ -181,13 +190,13 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 		}
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_USER")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_DIALOG")) )
 	{
 		pParameters->Get_Parameter("CRS_PROJ4")->Set_Value(Get_User_Definition(*pParameter->asParameters()));
 	}
 
-	if(	!SG_STR_CMP(pParameters->Get_Identifier(), SG_T("CRS_USER")) )
-	{		
+	if(	!SG_STR_CMP(pParameters->Get_Identifier(), SG_T("CRS_DIALOG")) )
+	{
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("PROJ_TYPE")) )
 		{
 			pParameters->Get_Parameter("OPTIONS")->asParameters()->Assign(Get_Parameters(SG_STR_MBTOSG(pj_list[pParameter->asInt()].id)));
@@ -263,26 +272,22 @@ bool CCRS_Base::Set_User_Parameters(CSG_Parameters *pParameters)
 	// Datums ---------------------------------------------
 	for(struct PJ_DATUMS *pDatum=pj_datums; pDatum->id; ++pDatum)
 	{
-		sDatums	+= CSG_String::Format(SG_T("[%s]"), SG_STR_MBTOSG(pDatum->id));
-
-		if( SG_STR_MBTOSG(pDatum->comments) != NULL && SG_STR_MBTOSG(*pDatum->comments) != NULL )
-		{
-			sDatums	+= CSG_String::Format(SG_T(" %s"), SG_STR_MBTOSG(pDatum->comments));
-		}
-
-		sDatums	+= '|';
+		sDatums	+= CSG_String::Format(SG_T("{%s}%s|"), SG_STR_MBTOSG(pDatum->id),
+			SG_STR_MBTOSG(pDatum->comments) && SG_STR_MBTOSG(*pDatum->comments) ?
+			SG_STR_MBTOSG(pDatum->comments) : SG_STR_MBTOSG(pDatum->id)
+		);
 	}
 
 	// Ellipsoids -----------------------------------------
 	for(struct PJ_ELLPS *pEllipse=pj_ellps; pEllipse->id; ++pEllipse)
 	{
-		sEllipsoids	+= CSG_String::Format(SG_T("[%s] %s (%s, %s)|"), SG_STR_MBTOSG(pEllipse->id), SG_STR_MBTOSG(pEllipse->name), SG_STR_MBTOSG(pEllipse->major), SG_STR_MBTOSG(pEllipse->ell));
+		sEllipsoids	+= CSG_String::Format(SG_T("{%s}%s (%s, %s)|"), SG_STR_MBTOSG(pEllipse->id), SG_STR_MBTOSG(pEllipse->name), SG_STR_MBTOSG(pEllipse->major), SG_STR_MBTOSG(pEllipse->ell));
 	}
 
 	// Units ----------------------------------------------
 	for(struct PJ_UNITS *pUnit=pj_units; pUnit->id; ++pUnit)
 	{
-		sUnits	+= CSG_String::Format(SG_T("%s (%s)|"), SG_STR_MBTOSG(pUnit->name), SG_STR_MBTOSG(pUnit->to_meter));
+		sUnits	+= CSG_String::Format(SG_T("{%s}%s (%s)|"), SG_STR_MBTOSG(pUnit->id), SG_STR_MBTOSG(pUnit->name), SG_STR_MBTOSG(pUnit->to_meter));
 	}
 
 
@@ -364,7 +369,7 @@ bool CCRS_Base::Set_User_Parameters(CSG_Parameters *pParameters)
 	pParameters->Add_Value	(pNode_2, "DS_RX"		, _TL("Rotation X")					, _TL(""), PARAMETER_TYPE_Double, 0.0);
 	pParameters->Add_Value	(pNode_2, "DS_RY"		, _TL("Rotation Y")					, _TL(""), PARAMETER_TYPE_Double, 0.0);
 	pParameters->Add_Value	(pNode_2, "DS_RZ"		, _TL("Rotation Z")					, _TL(""), PARAMETER_TYPE_Double, 0.0);
-	pParameters->Add_Value	(pNode_2, "DS_SC"		, _TL("Scaling")					, _TL(""), PARAMETER_TYPE_Double, 1.0);
+	pParameters->Add_Value	(pNode_2, "DS_SC"		, _TL("Scaling")					, _TL(""), PARAMETER_TYPE_Double, 0.0);
 
 	pParameters->Add_FilePath(
 		pNode_2, "DATUM_GRID"	, _TL("Datum Shift Grid File"),
@@ -417,6 +422,8 @@ bool CCRS_Base::Add_User_Projection(const CSG_String &sID, const CSG_String &sNa
 	}
 
 	CSG_Parameters	*pParms	= Add_Parameters(sID, sName, sArgs);
+
+	pParms->Add_Info_String(NULL, "DESC", _TL("Description"), _TL(""), sArgs.c_str(), true);
 
 	//-----------------------------------------------------
 	// Cylindrical Projections...

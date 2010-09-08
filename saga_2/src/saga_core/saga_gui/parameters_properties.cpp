@@ -94,7 +94,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_DATAOBJECT_LABEL(p)	(p->is_Option() ? wxString::Format(p->Get_Name()) : wxString::Format(wxT("%s %s"), p->is_Input() ? (p->is_Optional() ? wxT(">") : wxT(">>")) : (p->is_Optional() ? wxT("<") : wxT("<<")), p->Get_Name()))
+#define GET_DATAOBJECT_LABEL(p)	(!p->is_DataObject() ? wxString::Format(p->Get_Name()) : wxString::Format(wxT("%s %s"), p->is_Input() ? (p->is_Optional() ? wxT(">") : wxT(">>")) : (p->is_Optional() ? wxT("<") : wxT("<<")), p->Get_Name()))
 
 
 ///////////////////////////////////////////////////////////
@@ -602,7 +602,7 @@ bool CParameters_PG_Parameter_Value::Do_Dialog(void)
 		case PARAMETER_TYPE_Text:
 			bModified	= DLG_Text			(m_pParameter->Get_Name(), Text = m_pParameter->asString());
 
-			if( bModified )
+			if( bModified && !m_pParameter->is_Information() )
 			{
 				m_pParameter->Set_Value(Text.c_str());
 

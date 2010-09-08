@@ -124,6 +124,24 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 		LNG(""),
 		PARAMETER_TYPE_Int	, 0, 0, true
 	);
+
+	m_Parameters.Add_FilePath(
+		NULL	, "CRS_FILE_SRS", LNG("CRS Database"),
+		LNG("Database with Coordinate Reference System (CRS) definitions. You have to restart SAGA to make changes take affect!"),
+		CSG_String::Format(SG_T("%s|*.srs|%s|*.*"),
+			LNG("Spatial Reference System Files (*.srs)"),
+			LNG("All Files")
+		)
+	);
+
+	m_Parameters.Add_FilePath(
+		NULL	, "CRS_FILE_DIC", LNG("CRS Dictionary"),
+		LNG("Dictionary for Proj.4/OGC WKT translations. You have to restart SAGA to make changes take affect!"),
+		CSG_String::Format(SG_T("%s|*.dic|%s|*.*"),
+			LNG("Dictionary Files (*.dic)"),
+			LNG("All Files")
+		)
+	);
 }
 
 //---------------------------------------------------------
@@ -348,6 +366,16 @@ void CWKSP_Module_Manager::_Config_Read(void)
 		m_Parameters("PROC_FREQ")	->Set_Value((int)lValue);
 	}
 
+	if( CONFIG_Read(wxT("/MODULES"), wxT("CRS_FILE_SRS"), sValue) )
+	{
+		m_Parameters("CRS_FILE_SRS")->Set_Value(sValue);
+	}
+
+	if( CONFIG_Read(wxT("/MODULES"), wxT("CRS_FILE_DIC"), sValue) )
+	{
+		m_Parameters("CRS_FILE_DIC")->Set_Value(sValue);
+	}
+
 	for(int i=0; CONFIG_Read(CFG_LIBS, wxString::Format(CFG_LIBF, i), sValue); i++)
 	{
 		Open(sValue);
@@ -359,9 +387,11 @@ void CWKSP_Module_Manager::_Config_Read(void)
 //---------------------------------------------------------
 void CWKSP_Module_Manager::_Config_Write(void)
 {
-	CONFIG_Write(wxT("/MODULES")	, wxT("BEEP")		,		m_Parameters("BEEP")		->asBool());
-	CONFIG_Write(wxT("/MODULES")	, wxT("START_LOGO")	, (long)m_Parameters("START_LOGO")	->asInt());
-	CONFIG_Write(wxT("/MODULES")	, wxT("PROC_FREQ")	, (long)m_Parameters("PROC_FREQ")	->asInt());
+	CONFIG_Write(wxT("/MODULES"), wxT("BEEP")		 ,       m_Parameters("BEEP")        ->asBool());
+	CONFIG_Write(wxT("/MODULES"), wxT("START_LOGO")	 , (long)m_Parameters("START_LOGO")  ->asInt());
+	CONFIG_Write(wxT("/MODULES"), wxT("PROC_FREQ")	 , (long)m_Parameters("PROC_FREQ")   ->asInt());
+	CONFIG_Write(wxT("/MODULES"), wxT("CRS_FILE_SRS"),       m_Parameters("CRS_FILE_SRS")->asString());
+	CONFIG_Write(wxT("/MODULES"), wxT("CRS_FILE_DIC"),       m_Parameters("CRS_FILE_DIC")->asString());
 
 	CONFIG_Delete(CFG_LIBS);
 

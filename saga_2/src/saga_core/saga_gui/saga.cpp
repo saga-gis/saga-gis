@@ -199,9 +199,22 @@ bool CSAGA::OnInit(void)
 #endif // defined(_SAGA_MSW)
 
 	//-----------------------------------------------------
-	SG_Get_Translator() .Create(SG_File_Make_Path(Get_App_Path(), wxT("saga"    ), wxT("lng")), false);
-	SG_Get_Projections().Create(SG_File_Make_Path(Get_App_Path(), wxT("saga_prj"), wxT("srs")));
+	SG_Get_Translator() .Create(
+		SG_File_Make_Path(Get_App_Path(), wxT("saga"    ), wxT("lng")), false
+	);
 
+	//-----------------------------------------------------
+	wxString	fName;
+
+	SG_Get_Projections().Load_Dictionary(CONFIG_Read(wxT("/MODULES"), wxT("CRS_FILE_DIC"), fName)
+		? fName.c_str() : SG_File_Make_Path(Get_App_Path(), wxT("saga_prj"), wxT("dic")).c_str()
+	);
+
+	SG_Get_Projections().Load_DB        (CONFIG_Read(wxT("/MODULES"), wxT("CRS_FILE_SRS"), fName)
+		? fName.c_str() : SG_File_Make_Path(Get_App_Path(), wxT("saga_prj"), wxT("srs")).c_str()
+	);
+
+	//-----------------------------------------------------
 	SetTopWindow(new CSAGA_Frame());
 
 	//-----------------------------------------------------

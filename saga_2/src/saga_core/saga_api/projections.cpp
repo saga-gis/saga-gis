@@ -184,10 +184,10 @@ bool CSG_Projection::Assign(const CSG_String &Projection, TSG_Projection_Format 
 			return( false );
 		}
 
-		m		= gSG_Projections.WKT_to_MetaData(m_WKT);
-
 		m_WKT	= s;
 		m_Proj4	= Projection;
+
+		m		= gSG_Projections.WKT_to_MetaData(m_WKT);
 
 		break;
 
@@ -381,18 +381,20 @@ CSG_Projections::CSG_Projections(void)
 }
 
 //---------------------------------------------------------
-CSG_Projections::CSG_Projections(const CSG_String &File_Name)
+CSG_Projections::CSG_Projections(const CSG_String &File_Dictionary, const CSG_String &File_DB)
 {
 	_On_Construction();
 
-	Create(File_Name);
+	Create(File_Dictionary, File_DB);
 }
 
-bool CSG_Projections::Create(const CSG_String &File_Name)
+bool CSG_Projections::Create(const CSG_String &File_Dictionary, const CSG_String &File_DB)
 {
 	SG_UI_Msg_Lock(true);
 
-	bool	bResult	= Load(File_Name);
+	bool	bResult	= Load_Dictionary(File_Dictionary);
+
+	Load_DB(File_DB);
 
 	SG_UI_Msg_Lock(false);
 
@@ -434,41 +436,68 @@ void CSG_Projections::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Projections::Load(const CSG_String &File_Name)
+bool CSG_Projections::Load_Dictionary(const CSG_String &File_Name)
 {
-	Destroy();
+	CSG_Table	Table;
 
-	CSG_String	fName(File_Name);
-
-	//-----------------------------------------------------
-	SG_File_Set_Extension(fName, SG_T("srs"));
-
-	CSG_Table	Projections;
-
-	if( SG_File_Exists(fName) && Projections.Create(fName) )
+	if( SG_File_Exists(File_Name) && Table.Create(File_Name) && Table.Get_Field_Count() >= 3 )
 	{
-		Projections.Set_Index(PRJ_FIELD_SRTEXT, TABLE_INDEX_Ascending);
+		CSG_Table	Proj4_to_WKT(&Table), WKT_to_Proj4(&Table);
 
-		for(int i=0; i<Projections.Get_Count() && SG_UI_Process_Set_Progress(i, Projections.Get_Count()); i++)
+		for(int i=0; i<Table.Get_Count(); i++)
 		{
-			m_pProjections->Add_Record(Projections.Get_Record_byIndex(i));
+			switch( Table[i].asString(1)[0] )
+			{
+			case SG_T('<'):	// ignore proj4 to wkt translation
+				WKT_to_Proj4.Add_Record(Table.Get_Record(i));
+				break;
+
+			case SG_T('>'):	// ignore wkt to proj4 translation
+				Proj4_to_WKT.Add_Record(Table.Get_Record(i));
+				break;
+
+			default:
+				Proj4_to_WKT.Add_Record(Table.Get_Record(i));
+				WKT_to_Proj4.Add_Record(Table.Get_Record(i));
+			}
 		}
+
+		m_Proj4_to_WKT.Create(&Proj4_to_WKT, 0, 2, true);
+		m_WKT_to_Proj4.Create(&WKT_to_Proj4, 2, 0, true);
+
+		return( true );
 	}
 
-	//-----------------------------------------------------
-	SG_File_Set_Extension(fName, SG_T("dic"));
-
-	if( SG_File_Exists(fName) )
-	{
-		m_WKT_to_Proj4.Create(fName, false, 1, 0, true);
-		m_Proj4_to_WKT.Create(fName, false, 0, 1, true);
-	}
-
-	return( Get_Count() > 0 );
+	return( false );
 }
 
 //---------------------------------------------------------
-bool CSG_Projections::Save(const CSG_String &File_Name)
+bool CSG_Projections::Load_DB(const CSG_String &File_Name, bool bAppend)
+{
+	CSG_Table	Table;
+
+	if( SG_File_Exists(File_Name) && Table.Create(File_Name) )
+	{
+		if( !bAppend )
+		{
+			Destroy();
+		}
+
+		Table.Set_Index(PRJ_FIELD_SRTEXT, TABLE_INDEX_Ascending);
+
+		for(int i=0; i<Table.Get_Count() && SG_UI_Process_Set_Progress(i, Table.Get_Count()); i++)
+		{
+			m_pProjections->Add_Record(Table.Get_Record_byIndex(i));
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Projections::Save_DB(const CSG_String &File_Name)
 {
 	return( m_pProjections->Save(File_Name) );
 }
@@ -608,16 +637,14 @@ CSG_String CSG_Projections::Get_Names_List(TSG_Projection_Type Type) const
 
 		if( Type == SG_PROJ_TYPE_CS_Undefined )
 		{
-			Names	+= CSG_String::Format(SG_T("{%d}%s: %s|"),
-				pProjection->asInt(PRJ_FIELD_AUTH_SRID),
+			Names	+= CSG_String::Format(SG_T("{%d}%s: %s|"), i,
 				SG_Get_Projection_Type_Name(iType).c_str(),
 				iWKT.AfterFirst('\"').BeforeFirst('\"').c_str()
 			);
 		}
 		else if( Type == iType )
 		{
-			Names	+= CSG_String::Format(SG_T("{%d}%s|"),
-				pProjection->asInt(PRJ_FIELD_AUTH_SRID),
+			Names	+= CSG_String::Format(SG_T("{%d}%s|"), i,
 				iWKT.AfterFirst('\"').BeforeFirst('\"').c_str()
 			);
 		}
@@ -855,14 +882,14 @@ bool CSG_Projections::WKT_to_Proj4(CSG_String &Proj4, const CSG_String &WKT) con
 	{
 		if( !m["PROJECTION"].is_Valid() )
 		{
-			SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("WKT SRS: %s"), LNG("no projection specified")));
+			SG_UI_Msg_Add_Error(CSG_String::Format(SG_T(">> WKT: %s"), LNG("no projection specified")));
 
 			return( false );
 		}
 
 		if( !m_WKT_to_Proj4.Get_Translation(m["PROJECTION"].Get_Content(), s) )
 		{
-			SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("WKT SRS: %s [%s]"), LNG("unknown projection"), m["PROJECTION"].Get_Content().c_str()));
+			SG_UI_Msg_Add_Error(CSG_String::Format(SG_T(">> WKT: %s [%s]"), LNG("unknown projection"), m["PROJECTION"].Get_Content().c_str()));
 
 			return( false );
 		}
@@ -874,7 +901,7 @@ bool CSG_Projections::WKT_to_Proj4(CSG_String &Proj4, const CSG_String &WKT) con
 		||	!m["GEOGCS"]["DATUM"]["SPHEROID"][0].Get_Content().asDouble(a) || a <= 0.0
 		||	!m["GEOGCS"]["DATUM"]["SPHEROID"][1].Get_Content().asDouble(d) || d <  0.0 )
 		{
-			SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("WKT SRS: %s"), LNG("invalid geographic coordinate system / datum")));
+			SG_UI_Msg_Add_Error(CSG_String::Format(SG_T(">> WKT: %s"), LNG("invalid geographic coordinate system / datum")));
 
 			return( false );
 		}
@@ -903,7 +930,7 @@ bool CSG_Projections::WKT_to_Proj4(CSG_String &Proj4, const CSG_String &WKT) con
 			{
 				if( !m_WKT_to_Proj4.Get_Translation(m[i].Get_Property("name"), s) )
 				{
-					SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("WKT SRS: %s [%s]"), LNG("unknown parameter"), m[i].Get_Property("name")));
+					SG_UI_Msg_Add_Error(CSG_String::Format(SG_T(">> WKT: %s [%s]"), LNG("unknown parameter"), m[i].Get_Property("name")));
 				}
 				else
 				{
@@ -934,18 +961,22 @@ bool CSG_Projections::_Proj4_Read_Parameter(CSG_String &Value, const CSG_String 
 {
 	Value.Clear();
 
-	int		i	= Proj4.Find(CSG_String::Format(SG_T("+%s="), Key.c_str()));
+	int		l, i	= Proj4.Find(CSG_String::Format(SG_T("+%s="), Key.c_str()));
 
 	if( i >= 0 )
 	{
-		for(int l=0; l<2 && i<(int)Proj4.Length(); i++)
+		for(++i, l=0; l<2 && i<(int)Proj4.Length(); i++)
 		{
 			switch( Proj4[i] )
 			{
 			case SG_T('='):	l++;	break;
 			case SG_T('+'):	l=2;	break;
-			case SG_T(' '):			break;
-			default:	Value	+= Proj4[i];
+			case SG_T(' '):	l=2;	break;
+			default:
+				if( l == 1 )
+				{
+					Value	+= Proj4[i];
+				}
 			}
 		}
 	}
@@ -1194,11 +1225,13 @@ bool CSG_Projections::_Proj4_Get_Unit(CSG_String &Value, const CSG_String &Proj4
 //---------------------------------------------------------
 bool CSG_Projections::WKT_from_Proj4(CSG_String &WKT, const CSG_String &Proj4) const
 {
-	CSG_String	Value, GeogCS;
+	CSG_String	Value, GeogCS, ProjCS;
 
 	//-----------------------------------------------------
-	if( !_Proj4_Read_Parameter(Value, Proj4, "proj") )
+	if( !_Proj4_Read_Parameter(ProjCS, Proj4, "proj") )
 	{
+		SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("Proj4 >> WKT: %s"), LNG("no projection type defined")));
+
 		return( false );
 	}
 
@@ -1222,10 +1255,8 @@ bool CSG_Projections::WKT_from_Proj4(CSG_String &WKT, const CSG_String &Proj4) c
 	GeogCS	+= SG_T("UNIT[\"degree\",0.01745329251994328]]");
 
 	//-----------------------------------------------------
-	_Proj4_Read_Parameter(Value, Proj4, "proj");
-
-	if(	!Value.CmpNoCase("lonlat") || !Value.CmpNoCase("longlat")
-	||	!Value.CmpNoCase("latlon") || !Value.CmpNoCase("latlong") )
+	if(	!ProjCS.CmpNoCase("lonlat") || !ProjCS.CmpNoCase("longlat")
+	||	!ProjCS.CmpNoCase("latlon") || !ProjCS.CmpNoCase("latlong") )
 	{
 		WKT	= GeogCS;
 
@@ -1242,21 +1273,74 @@ bool CSG_Projections::WKT_from_Proj4(CSG_String &WKT, const CSG_String &Proj4) c
 	//    *AXIS      ["<name>", NORTH|SOUTH|EAST|WEST|UP|DOWN|OTHER]
 	// ]
 
-	if( !m_Proj4_to_WKT.Get_Translation(Value, Value) )
+	if( !m_Proj4_to_WKT.Get_Translation(ProjCS, Value) )
 	{
+		SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("Proj4 >> WKT: %s [%s]"), LNG("no translation available"), ProjCS.c_str()));
+
 		return( false );
 	}
 
-	WKT		 = CSG_String::Format(SG_T("PROJCS[\"%s\",%s,PROJECTION[%s],"), Value.c_str(), GeogCS.c_str(), Value.c_str());
+	WKT		 = CSG_String::Format(SG_T("PROJCS[\"%s\",%s,PROJECTION[%s]"), Value.c_str(), GeogCS.c_str(), Value.c_str());
+
+	//-----------------------------------------------------
+	// UTM ...
+
+	if( !ProjCS.CmpNoCase(SG_T("utm")) )
+	{
+		double	Zone, Northing;
+
+		if( !_Proj4_Read_Parameter(Value, Proj4, "zone") || !Value.asDouble(Zone) )
+		{
+			SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("Proj4 >> WKT: %s"), LNG("invalid utm zone")));
+
+			return( false );
+		}
+
+		Northing	= _Proj4_Read_Parameter(Value, Proj4, "south") ? 10000000 : 0;
+
+		WKT		+= CSG_String::Format(SG_T(",PARAMETER[\"%s\",%f]"), SG_T("latitude_of_origin"), 0);
+		WKT		+= CSG_String::Format(SG_T(",PARAMETER[\"%s\",%f]"), SG_T("central_meridian")  , Zone * 6.0 - 183);
+		WKT		+= CSG_String::Format(SG_T(",PARAMETER[\"%s\",%f]"), SG_T("scale_factor")      , 0.9996);
+		WKT		+= CSG_String::Format(SG_T(",PARAMETER[\"%s\",%f]"), SG_T("false_easting")     , 500000);
+		WKT		+= CSG_String::Format(SG_T(",PARAMETER[\"%s\",%f]"), SG_T("false_northing")    , Northing);
+		WKT		+= SG_T(",UNIT[\"metre\",1]]");
+
+		return( true );
+	}
 
 	//-----------------------------------------------------
 	// Parameters ...
 
+	ProjCS	= Proj4;
+
+	while( ProjCS.Find(SG_T('+')) >= 0 )
+	{
+		CSG_String	Key;
+
+		ProjCS	= ProjCS.AfterFirst (SG_T('+'));
+		Value	= ProjCS.BeforeFirst(SG_T('='));
+
+		if( m_Proj4_to_WKT.Get_Translation(Value, Key) )
+		{
+			Value	= ProjCS.AfterFirst(SG_T('='));
+
+			if( Value.Find(SG_T('+')) >= 0 )
+			{
+				Value	= Value.BeforeFirst(SG_T('+'));
+			}
+
+			WKT		+= CSG_String::Format(SG_T(",PARAMETER[\"%s\",%s]"), Key.c_str(), Value.c_str());
+		}
+	}
+
 	//-----------------------------------------------------
+	// Unit ...
+
 	_Proj4_Get_Unit(Value, Proj4);
 
-	WKT		+= SG_T("]");
+	WKT	+= CSG_String::Format(SG_T(",%s]"), Value.c_str());
 
+	//-----------------------------------------------------
 	return( true );
 }
 

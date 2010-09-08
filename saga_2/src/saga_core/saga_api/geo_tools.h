@@ -701,13 +701,15 @@ public:
 	CSG_Projections(void);
 	virtual ~CSG_Projections(void);
 
-									CSG_Projections			(const CSG_String &File_Name);
-	bool							Create					(const CSG_String &File_Name);
+									CSG_Projections			(const CSG_String &File_Dictionary, const CSG_String &File_DB);
+	bool							Create					(const CSG_String &File_Dictionary, const CSG_String &File_DB);
 
 	void							Destroy					(void);
 
-	bool							Load					(const CSG_String &File_Name);
-	bool							Save					(const CSG_String &File_Name);
+	bool							Load_Dictionary			(const CSG_String &File_Name);
+
+	bool							Load_DB					(const CSG_String &File_Name, bool bAppend = false);
+	bool							Save_DB					(const CSG_String &File_Name);
 
 	int								Get_Count				(void)	const;
 
