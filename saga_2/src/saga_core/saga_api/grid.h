@@ -151,7 +151,7 @@ const SG_Char	gSG_Grid_File_Key_Names[GRID_FILE_KEY_Count][32]	=
 
 //---------------------------------------------------------
 #define GRID_FILE_KEY_TRUE		SG_T("TRUE")
-#define GRID_FILE_KEY_FALSE		SG_T("FALSE")
+#define GRID_FILE_KEY_FALSE	SG_T("FALSE")
 
 
 ///////////////////////////////////////////////////////////
@@ -173,6 +173,7 @@ typedef enum ESG_Grid_Interpolation
 	GRID_INTERPOLATION_Mean_Cells,
 	GRID_INTERPOLATION_Minimum,
 	GRID_INTERPOLATION_Maximum,
+	GRID_INTERPOLATION_Majority,
 
 	GRID_INTERPOLATION_Undefined
 }
@@ -222,22 +223,22 @@ public:
 
 	const SG_Char *				Get_Name			(bool bShort = true);
 
-	double						Get_Cellsize		(void)	const	{	return( m_Cellsize );				}
-	double						Get_Cellarea		(void)	const	{	return( m_Cellarea );				}
-	const CSG_Rect &			Get_Extent			(void)	const	{	return( m_Extent );					}
-	const CSG_Rect &			Get_Extent_Cells	(void)	const	{	return( m_Extent_Cells );			}
+	double						Get_Cellsize		(void)	const	{	return( m_Cellsize );	}
+	double						Get_Cellarea		(void)	const	{	return( m_Cellarea );	}
 
-	int							Get_NX				(void)	const	{	return( m_NX );						}
-	int							Get_NY				(void)	const	{	return( m_NY );						}
-	long						Get_NCells			(void)	const	{	return( m_NCells );					}
+	int							Get_NX				(void)	const	{	return( m_NX );			}
+	int							Get_NY				(void)	const	{	return( m_NY );			}
+	long						Get_NCells			(void)	const	{	return( m_NCells );		}
 
-	double						Get_XMin			(void)	const	{	return( m_Extent.m_rect.xMin );		}
-	double						Get_XMax			(void)	const	{	return( m_Extent.m_rect.xMax );		}
-	double						Get_XRange			(void)	const	{	return( m_Extent.Get_XRange() );	}
+	const CSG_Rect &			Get_Extent			(bool bCells = false)	const	{	return( bCells ? m_Extent_Cells : m_Extent );	}
 
-	double						Get_YMin			(void)	const	{	return( m_Extent.m_rect.yMin );		}
-	double						Get_YMax			(void)	const	{	return( m_Extent.m_rect.yMax );		}
-	double						Get_YRange			(void)	const	{	return( m_Extent.Get_YRange() );	}
+	double						Get_XMin			(bool bCells = false)	const	{	return( bCells ? m_Extent_Cells.Get_XMin  () : m_Extent.Get_XMin  () );	}
+	double						Get_XMax			(bool bCells = false)	const	{	return( bCells ? m_Extent_Cells.Get_XMax  () : m_Extent.Get_XMax  () );	}
+	double						Get_XRange			(bool bCells = false)	const	{	return( bCells ? m_Extent_Cells.Get_XRange() : m_Extent.Get_XRange() );	}
+
+	double						Get_YMin			(bool bCells = false)	const	{	return( bCells ? m_Extent_Cells.Get_YMin  () : m_Extent.Get_YMin  () );	}
+	double						Get_YMax			(bool bCells = false)	const	{	return( bCells ? m_Extent_Cells.Get_YMax  () : m_Extent.Get_YMax  () );	}
+	double						Get_YRange			(bool bCells = false)	const	{	return( bCells ? m_Extent_Cells.Get_YRange() : m_Extent.Get_YRange() );	}
 
 
 	//-----------------------------------------------------
@@ -431,15 +432,15 @@ public:		///////////////////////////////////////////////
 	double						Get_Cellsize	(void)	const	{	return( m_System.Get_Cellsize() );	}
 	double						Get_Cellarea	(void)	const	{	return( m_System.Get_Cellarea() );	}
 
-	const CSG_Rect &			Get_Extent		(void)	const	{	return( m_System.Get_Extent() );	}
+	const CSG_Rect &			Get_Extent		(bool bCells = false)	const	{	return( m_System.Get_Extent(bCells) );	}
 
-	double						Get_XMin		(void)	const	{	return( m_System.Get_XMin() );		}
-	double						Get_XMax		(void)	const	{	return( m_System.Get_XMax() );		}
-	double						Get_XRange		(void)	const	{	return( m_System.Get_XRange() );	}
+	double						Get_XMin		(bool bCells = false)	const	{	return( m_System.Get_XMin  (bCells) );	}
+	double						Get_XMax		(bool bCells = false)	const	{	return( m_System.Get_XMax  (bCells) );	}
+	double						Get_XRange		(bool bCells = false)	const	{	return( m_System.Get_XRange(bCells) );	}
 
-	double						Get_YMin		(void)	const	{	return( m_System.Get_YMin() );		}
-	double						Get_YMax		(void)	const	{	return( m_System.Get_YMax() );		}
-	double						Get_YRange		(void)	const	{	return( m_System.Get_YRange() );	}
+	double						Get_YMin		(bool bCells = false)	const	{	return( m_System.Get_YMin  (bCells) );	}
+	double						Get_YMax		(bool bCells = false)	const	{	return( m_System.Get_YMax  (bCells) );	}
+	double						Get_YRange		(bool bCells = false)	const	{	return( m_System.Get_YRange(bCells) );	}
 
 	double						Get_ZMin		(bool bZFactor = false);
 	double						Get_ZMax		(bool bZFactor = false);
@@ -846,6 +847,7 @@ private:	///////////////////////////////////////////////
 	bool						_Assign_Interpolated	(CSG_Grid *pSource, TSG_Grid_Interpolation Interpolation);
 	bool						_Assign_MeanValue		(CSG_Grid *pSource, bool bAreaProportional);
 	bool						_Assign_ExtremeValue	(CSG_Grid *pSource, bool bMaximum);
+	bool						_Assign_Majority		(CSG_Grid *pSource);
 
 };
 

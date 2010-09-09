@@ -219,10 +219,10 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 			field_CELLS		= pShapes->Get_Field_Count();
 			pShapes->Add_Field(_TL("CELLS")		, SG_DATATYPE_Int);
 
-			field_MEAN		= pShapes->Get_Field_Count();
+			field_MIN		= pShapes->Get_Field_Count();
 			pShapes->Add_Field(_TL("MIN")		, SG_DATATYPE_Double);
 
-			field_MEAN		= pShapes->Get_Field_Count();
+			field_MAX		= pShapes->Get_Field_Count();
 			pShapes->Add_Field(_TL("MAX")		, SG_DATATYPE_Double);
 
 			field_MEAN		= pShapes->Get_Field_Count();

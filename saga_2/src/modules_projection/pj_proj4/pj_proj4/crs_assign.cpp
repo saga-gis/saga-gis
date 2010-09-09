@@ -112,6 +112,8 @@ bool CCRS_Assign::On_Execute(void)
 
 	if( nTotal <= 0 )
 	{
+		Message_Dlg(_TL("nothing to do: no data in selection"));
+
 		return( false );
 	}
 

@@ -259,39 +259,6 @@ bool CGDAL_Import::Load(CGDAL_System &System, const CSG_String &Name)
 	), false);
 
 	//-----------------------------------------------------
-	if( System.Get_Projection() && System.Get_Projection()[0] )
-	{
-		CSG_String	s(System.Get_Projection()), t;
-
-		for(int is=0, nt=0; is<(int)s.Length(); is++)
-		{
-			bool	bNewLine	= false, bPrevious	= true;
-
-			switch( s[is] )
-			{
-			case '[':	bNewLine	= true;	nt++;	break;
-			case ',':	bNewLine	= true;			break;
-			case ']':	nt--;	bPrevious	= false;	break;
-			}
-
-			if( bPrevious )
-				t	+= s[is];
-
-			if( bNewLine )
-			{
-				t	+= '\n';
-				for(int it=0; it<nt; it++)
-					t	+= '\t';
-			}
-
-			if( !bPrevious )
-				t	+= s[is];
-		}
-
-		Message_Add(CSG_String::Format(SG_T("\n%s:\n%s"), _TL("Projection"), t.c_str()), false);
-	}
-
-	//-----------------------------------------------------
 	int			i, n;
 	CSG_Grid	*pGrid;
 

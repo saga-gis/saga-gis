@@ -646,10 +646,10 @@ public:
 	bool							Assign					(const CSG_Projection &Projection);
 	CSG_Projection &				operator =				(const CSG_Projection &Projection)	{	Assign(Projection);	return( *this );	}
 
-									CSG_Projection			(int EPSG_SRID);
-	bool							Create					(int EPSG_SRID);
-	bool							Assign					(int EPSG_SRID);
-	CSG_Projection &				operator =				(int EPSG_SRID)						{	Assign(EPSG_SRID);	return( *this );	}
+									CSG_Projection			(int EPSG_ID);
+	bool							Create					(int EPSG_ID);
+	bool							Assign					(int EPSG_ID);
+	CSG_Projection &				operator =				(int EPSG_ID)						{	Assign(EPSG_ID);	return( *this );	}
 
 									CSG_Projection			(const CSG_String &Projection, TSG_Projection_Format Format = SG_PROJ_FMT_WKT);
 	bool							Create					(const CSG_String &Projection, TSG_Projection_Format Format = SG_PROJ_FMT_WKT);
@@ -667,10 +667,12 @@ public:
 	bool							Load					(const CSG_MetaData &Projection);
 	bool							Save					(      CSG_MetaData &Projection)	const;
 
-	const CSG_String &				Get_Name				(void)	const	{	return( m_Name  );	}
-	const CSG_String &				Get_WKT					(void)	const	{	return( m_WKT   );	}
-	const CSG_String &				Get_Proj4				(void)	const	{	return( m_Proj4 );	}
-	int								Get_EPSG				(void)	const	{	return( m_EPSG  );	}
+	const CSG_String &				Get_Name				(void)	const	{	return( m_Name          );	}
+	const CSG_String &				Get_WKT					(void)	const	{	return( m_WKT           );	}
+	const CSG_String &				Get_Proj4				(void)	const	{	return( m_Proj4         );	}
+	const CSG_String &				Get_Authority			(void)	const	{	return( m_Authority     );	}
+	int								Get_Authority_ID		(void)	const	{	return( m_Authority_ID  );	}
+	int								Get_EPSG				(void)	const	{	return( m_Authority.Cmp(SG_T("EPSG")) ? -1 : m_Authority_ID );	}
 
 	CSG_String						Get_Description			(void)	const;
 
@@ -681,11 +683,11 @@ public:
 
 private:
 
-	int								m_EPSG;
+	int								m_Authority_ID;
 
 	TSG_Projection_Type				m_Type;
 
-	CSG_String						m_Name, m_WKT, m_Proj4;
+	CSG_String						m_Name, m_WKT, m_Proj4, m_Authority;
 
 
 };
@@ -714,12 +716,13 @@ public:
 	int								Get_Count				(void)	const;
 
 	bool							Add						(const CSG_Projection &Projection);
-	bool							Add						(int SRID, const SG_Char *Authority, const SG_Char *WKT, const SG_Char *Proj4);
+	bool							Add						(const SG_Char *WKT, const SG_Char *Proj4, const SG_Char *Authority, int Authority_ID);
 
 	CSG_Projection					Get_Projection			(int Index)	const;
 	CSG_Projection					operator []				(int Index) const	{	return( Get_Projection(Index) );	}
 
-	bool							Get_Projection			(CSG_Projection &Projection, int EPSG_Code)	const;
+	bool							Get_Projection			(CSG_Projection &Projection, int EPSG_ID)									const;
+	bool							Get_Projection			(CSG_Projection &Projection, const CSG_String &Authority, int Authority_ID)	const;
 
 	CSG_String						Get_Names_List			(TSG_Projection_Type Type = SG_PROJ_TYPE_CS_Undefined)	const;
 

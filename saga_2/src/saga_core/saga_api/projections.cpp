@@ -122,11 +122,12 @@ bool CSG_Projection::Create(const CSG_Projection &Projection)
 
 bool CSG_Projection::Assign(const CSG_Projection &Projection)
 {
-	m_Name		= Projection.m_Name;
-	m_Type		= Projection.m_Type;
-	m_WKT		= Projection.m_WKT;
-	m_Proj4		= Projection.m_Proj4;
-	m_EPSG		= Projection.m_EPSG;
+	m_Name			= Projection.m_Name;
+	m_Type			= Projection.m_Type;
+	m_WKT			= Projection.m_WKT;
+	m_Proj4			= Projection.m_Proj4;
+	m_Authority		= Projection.m_Authority;
+	m_Authority_ID	= Projection.m_Authority_ID;
 
 	return( true );
 }
@@ -223,11 +224,12 @@ bool CSG_Projection::Assign(const CSG_String &Projection, TSG_Projection_Format 
 //---------------------------------------------------------
 void CSG_Projection::Destroy(void)
 {
-	m_Name		= LNG("undefined");
-	m_Type		= SG_PROJ_TYPE_CS_Undefined;
-	m_WKT		.Clear();
-	m_Proj4		.Clear();
-	m_EPSG		= -1;
+	m_Name			= LNG("undefined");
+	m_Type			= SG_PROJ_TYPE_CS_Undefined;
+	m_WKT			.Clear();
+	m_Proj4			.Clear();
+	m_Authority		.Clear();
+	m_Authority_ID	= -1;
 }
 
 
@@ -311,7 +313,7 @@ bool CSG_Projection::Save(CSG_MetaData &Projection) const
 {
 	Projection.Add_Child(SG_T("OGC_WKT"), m_WKT  );
 	Projection.Add_Child(SG_T("PROJ4")  , m_Proj4);
-	Projection.Add_Child(SG_T("EPSG")   , m_EPSG );
+	Projection.Add_Child(SG_T("EPSG")   , Get_EPSG() );
 
 	return( true );
 }
@@ -324,7 +326,9 @@ bool CSG_Projection::Save(CSG_MetaData &Projection) const
 //---------------------------------------------------------
 bool CSG_Projection::is_Equal(const CSG_Projection &Projection)	const
 {
-	return(	m_Proj4 == Projection.m_Proj4 );
+	return(	(!m_Authority.CmpNoCase(Projection.m_Authority) && m_Authority_ID == Projection.m_Authority_ID)
+		||	(!m_Proj4    .CmpNoCase(Projection.m_Proj4))
+	);
 }
 
 //---------------------------------------------------------
@@ -336,9 +340,9 @@ CSG_String CSG_Projection::Get_Description(void)	const
 
 	if( is_Okay() )
 	{
-		if( m_EPSG > 0 )
+		if( m_Authority.Length() > 0 && m_Authority_ID > 0 )
 		{
-			s	+= CSG_String::Format(SG_T(" [EPSG %d]"), m_EPSG);
+			s	+= CSG_String::Format(SG_T(" [%s %d]"), m_Authority.c_str(), m_Authority_ID);
 		}
 
 		s	+= SG_T(":\n") + m_Name;
@@ -520,13 +524,13 @@ bool CSG_Projections::Add(const CSG_Projection &Projection)
 }
 
 //---------------------------------------------------------
-bool CSG_Projections::Add(int SRID, const SG_Char *Authority, const SG_Char *WKT, const SG_Char *Proj4)
+bool CSG_Projections::Add(const SG_Char *WKT, const SG_Char *Proj4, const SG_Char *Authority, int Authority_ID)
 {
 	CSG_Table_Record	*pProjection	= m_pProjections->Add_Record();
 
-	pProjection->Set_Value(PRJ_FIELD_SRID     , SRID);
+	pProjection->Set_Value(PRJ_FIELD_SRID     , m_pProjections->Get_Count());
 	pProjection->Set_Value(PRJ_FIELD_AUTH_NAME, Authority);
-	pProjection->Set_Value(PRJ_FIELD_AUTH_SRID, SRID);
+	pProjection->Set_Value(PRJ_FIELD_AUTH_SRID, Authority_ID);
 	pProjection->Set_Value(PRJ_FIELD_SRTEXT   , WKT);
 	pProjection->Set_Value(PRJ_FIELD_PROJ4TEXT, Proj4);
 
@@ -542,9 +546,10 @@ CSG_Projection CSG_Projections::Get_Projection(int Index)	const
 	{
 		CSG_Table_Record	*pRecord	= m_pProjections->Get_Record(Index);
 
-		Projection.m_EPSG	= pRecord->asInt   (PRJ_FIELD_AUTH_SRID);
-		Projection.m_WKT	= pRecord->asString(PRJ_FIELD_SRTEXT   );
-		Projection.m_Proj4	= pRecord->asString(PRJ_FIELD_PROJ4TEXT);
+		Projection.m_Authority		= pRecord->asInt   (PRJ_FIELD_AUTH_NAME);
+		Projection.m_Authority_ID	= pRecord->asInt   (PRJ_FIELD_AUTH_SRID);
+		Projection.m_WKT			= pRecord->asString(PRJ_FIELD_SRTEXT   );
+		Projection.m_Proj4			= pRecord->asString(PRJ_FIELD_PROJ4TEXT);
 
 		CSG_MetaData	m	= WKT_to_MetaData(Projection.m_WKT);
 
@@ -559,11 +564,19 @@ CSG_Projection CSG_Projections::Get_Projection(int Index)	const
 }
 
 //---------------------------------------------------------
-bool CSG_Projections::Get_Projection(CSG_Projection &Projection, int EPSG_Code)	const
+bool CSG_Projections::Get_Projection(CSG_Projection &Projection, int EPSG_ID)	const
+{
+	return( Get_Projection(Projection, SG_T("EPSG"), EPSG_ID) );
+}
+
+bool CSG_Projections::Get_Projection(CSG_Projection &Projection, const CSG_String &Authority, int Authority_ID)	const
 {
 	for(int i=0; i<m_pProjections->Get_Count(); i++)
 	{
-		if( m_pProjections->Get_Record(i)->asInt(PRJ_FIELD_AUTH_SRID) == EPSG_Code )
+		CSG_Table_Record	*pProjection	= m_pProjections->Get_Record(i);
+
+		if( Authority.CmpNoCase(pProjection->asString(PRJ_FIELD_AUTH_NAME))
+		&&	Authority_ID ==     pProjection->asInt   (PRJ_FIELD_AUTH_SRID)	)
 		{
 			Projection	= Get_Projection(i);
 

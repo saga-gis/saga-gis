@@ -477,7 +477,7 @@ bool CSG_Grid::Get_Value(TSG_Point Position, double &Value, int Interpolation, b
 //---------------------------------------------------------
 bool CSG_Grid::Get_Value(double xPosition, double yPosition, double &Value, int Interpolation, bool bZFactor, bool bByteWise, bool bOnlyValidCells) const
 {
-	if(	m_System.Get_Extent_Cells().Contains(xPosition, yPosition) )
+	if(	m_System.Get_Extent(true).Contains(xPosition, yPosition) )
 	{
 		int		x	= (int)(xPosition	= (xPosition - Get_XMin()) / Get_Cellsize());
 		int		y	= (int)(yPosition	= (yPosition - Get_YMin()) / Get_Cellsize());

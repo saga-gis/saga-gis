@@ -208,7 +208,7 @@ bool CCRS_Transform_Grid::On_Execute_Transformation(void)
 			}
 			else
 			{
-				Message_Add(CSG_String::Format(SG_T("%s: %s\n"), _TL("unknown projection"), pSources->asGrid(i)->Get_Name()), false);
+				Error_Set(CSG_String::Format(SG_T("%s: %s\n"), _TL("unknown projection"), pSources->asGrid(i)->Get_Name()));
 			}
 		}
 

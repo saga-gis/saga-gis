@@ -76,10 +76,10 @@ CCRS_Base::CCRS_Base(void)
 	Parameters.Add_Choice(
 		NULL	, "CRS_METHOD"		, _TL("Get CRS Definition from..."),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
 			_TL("EPSG Code"),
-			_TL("Well Known Text File"),
 			_TL("Proj4 Parameters"),
+			_TL("Well Known Text File"),
 			_TL("Loaded Data Set")
 		), 0
 	);
@@ -112,22 +112,6 @@ CCRS_Base::CCRS_Base(void)
 	}
 
 	//-----------------------------------------------------
-	pNode_0	= Parameters.Add_Node(NULL, "NODE_FILE", _TL("Well Known Text File"), _TL(""));
-
-	Parameters.Add_FilePath(
-		pNode_0	, "CRS_FILE"		, _TL("Well Known Text File"),
-		_TL(""),
-		CSG_String::Format(
-			SG_T("%s|*.prj;*.wkt;*.txt|%s|*.prj|%s|*.wkt|%s|*.txt|%s|*.*"),
-			_TL("All Recognized Files"),
-			_TL("ESRI WKT Files (*.prj)"),
-			_TL("WKT Files (*.wkt)"),
-			_TL("Text Files (*.txt)"),
-			_TL("All Files")
-		)
-	);
-
-	//-----------------------------------------------------
 	pNode_0	= Parameters.Add_Node(NULL, "NODE_PROJ4", _TL("Proj4 Parameters"), _TL(""));
 
 	pNode_1	= Parameters.Add_String(
@@ -145,6 +129,54 @@ CCRS_Base::CCRS_Base(void)
 
 		Set_User_Parameters(Parameters("CRS_DIALOG")->asParameters());
 	}
+
+	//-----------------------------------------------------
+	pNode_0	= Parameters.Add_Node(NULL, "NODE_FILE", _TL("Well Known Text File"), _TL(""));
+
+	Parameters.Add_FilePath(
+		pNode_0	, "CRS_FILE"		, _TL("Well Known Text File"),
+		_TL(""),
+		CSG_String::Format(
+			SG_T("%s|*.prj;*.wkt;*.txt|%s|*.prj|%s|*.wkt|%s|*.txt|%s|*.*"),
+			_TL("All Recognized Files"),
+			_TL("ESRI WKT Files (*.prj)"),
+			_TL("WKT Files (*.wkt)"),
+			_TL("Text Files (*.txt)"),
+			_TL("All Files")
+		)
+	);
+
+	//-----------------------------------------------------
+	if( SG_UI_Get_Window_Main() )
+	{
+		pNode_0	= Parameters.Add_Node(NULL, "NODE_DATA", _TL("Loaded Data Set"), _TL(""));
+
+		pNode_1	= Parameters.Add_Parameters(
+			pNode_0	, "CRS_DATA"		, _TL("Select Loaded Data Set"),
+			_TL("")
+		);
+
+		pNode_1->asParameters()->Add_Choice(
+			NULL	, "TYPE"			, _TL("Select..."),
+			_TL(""),
+			CSG_String::Format(SG_T("%s|%s|"),
+				_TL("grid"),
+				_TL("shapes")
+			), 0
+		);
+
+		pNode_1->asParameters()->Add_Grid(
+			NULL	, "GRID"			, _TL("Grid"),
+			_TL(""),
+			PARAMETER_INPUT_OPTIONAL, false
+		);
+
+		pNode_1->asParameters()->Add_Shapes(
+			NULL	, "SHAPES"			, _TL("Shapes"),
+			_TL(""),
+			PARAMETER_INPUT_OPTIONAL
+		);
+	}
 }
 
 
@@ -158,6 +190,14 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	int				i;
 	CSG_Projection	Projection;
 
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_EPSG")) )
+	{
+		if( Projection.Create(pParameter->asInt()) )
+		{
+			pParameters->Get_Parameter("CRS_PROJ4")->Set_Value(Projection.Get_Proj4().c_str());
+		}
+	}
+
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_EPSG_GEOGCS"))
 	||	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_EPSG_PROJCS")) )
 	{
@@ -169,27 +209,7 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 		}
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_EPSG")) )
-	{
-		if( Projection.Create(pParameter->asInt()) )
-		{
-			pParameters->Get_Parameter("CRS_PROJ4")->Set_Value(Projection.Get_Proj4().c_str());
-		}
-	}
-
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_FILE")) )
-	{
-		if( Projection.Load(pParameters->Get_Parameter("CRS_FILE")->asString()) )
-		{
-			pParameters->Get_Parameter("CRS_PROJ4")->Set_Value(Projection.Get_Proj4().c_str());
-
-			if( Projection.Get_EPSG() > 0 )
-			{
-				pParameters->Get_Parameter("CRS_EPSG")->Set_Value(Projection.Get_EPSG());
-			}
-		}
-	}
-
+	//-----------------------------------------------------
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_DIALOG")) )
 	{
 		pParameters->Get_Parameter("CRS_PROJ4")->Set_Value(Get_User_Definition(*pParameter->asParameters()));
@@ -200,6 +220,52 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("PROJ_TYPE")) )
 		{
 			pParameters->Get_Parameter("OPTIONS")->asParameters()->Assign(Get_Parameters(SG_STR_MBTOSG(pj_list[pParameter->asInt()].id)));
+		}
+	}
+
+	//-----------------------------------------------------
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_FILE")) )
+	{
+		if( Projection.Load(pParameters->Get_Parameter("CRS_FILE")->asString()) )
+		{
+			if( Projection.Get_EPSG() > 0 )
+			{
+				pParameters->Get_Parameter("CRS_EPSG")->Set_Value(Projection.Get_EPSG());
+
+				On_Parameter_Changed(pParameters, pParameters->Get_Parameter("CRS_EPSG"));
+			}
+			else
+			{
+				pParameters->Get_Parameter("CRS_PROJ4")->Set_Value(Projection.Get_Proj4().c_str());
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_DATA")) )
+	{
+		if( pParameter->asParameters()->Get_Parameter("GRID")->asDataObject() )
+		{
+			Projection	= pParameter->asParameters()->Get_Parameter("GRID")->asDataObject()->Get_Projection();
+		}
+
+		if( pParameter->asParameters()->Get_Parameter("SHAPES")->asDataObject() )
+		{
+			Projection	= pParameter->asParameters()->Get_Parameter("SHAPES")->asDataObject()->Get_Projection();
+		}
+
+		if( Projection.is_Okay() )
+		{
+			if( Projection.Get_EPSG() > 0 )
+			{
+				pParameters->Get_Parameter("CRS_EPSG")->Set_Value(Projection.Get_EPSG());
+
+				On_Parameter_Changed(pParameters, pParameters->Get_Parameter("CRS_EPSG"));
+			}
+			else
+			{
+				pParameters->Get_Parameter("CRS_PROJ4")->Set_Value(Projection.Get_Proj4().c_str());
+			}
 		}
 	}
 
@@ -220,16 +286,31 @@ bool CCRS_Base::Get_Projection(CSG_Projection &Projection)
 		Projection.Create	(Parameters("CRS_EPSG")->asInt());
 		break;
 
-	case 1:				// Well Known Text File"),
-		Projection.Load		(Parameters("CRS_FILE")->asString());
-		break;
-
-	case 2:				// Proj4 Parameters"),
+	case 1:				// Proj4 Parameters"),
 		Projection.Create	(Parameters("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
 		break;
 
-	case 3:				// loaded data set")
+	case 2:				// Well Known Text File"),
+		Projection.Load		(Parameters("CRS_FILE")->asString());
 		break;
+
+	case 3:				// loaded data set")
+		switch( Parameters("CRS_DATA")->asParameters()->Get_Parameter("TYPE")->asInt() )
+		{
+		case 0:	// grid
+			if( Parameters("CRS_DATA")->asParameters()->Get_Parameter("GRID")->asDataObject() )
+			{
+				Projection.Create(Parameters("CRS_DATA")->asParameters()->Get_Parameter("GRID")->asDataObject()->Get_Projection());
+			}
+			break;
+
+		case 1:	// shapes
+			if( Parameters("CRS_DATA")->asParameters()->Get_Parameter("SHAPES")->asDataObject() )
+			{
+				Projection.Create(Parameters("CRS_DATA")->asParameters()->Get_Parameter("SHAPES")->asDataObject()->Get_Projection());
+			}
+			break;
+		}
 	}
 
 	return( Projection.is_Okay() );

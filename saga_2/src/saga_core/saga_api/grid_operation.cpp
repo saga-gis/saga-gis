@@ -406,6 +406,138 @@ bool CSG_Grid::_Assign_MeanValue(CSG_Grid *pGrid, bool bAreaProportional)
 
 ///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CSG_Majority
+{
+public:
+	 CSG_Majority(void)	{	m_nBuffer	= 0;	}
+	~CSG_Majority(void)	{	Destroy();			}
+
+	//-----------------------------------------------------
+	void			Create					(int nBuffer)
+	{
+		m_nValues	= 0;
+		m_nBuffer	= nBuffer;
+
+		if( m_nBuffer > 0 )
+		{
+			m_Values	= (double *)SG_Malloc(m_nBuffer * sizeof(double));
+			m_Count		= (int    *)SG_Malloc(m_nBuffer * sizeof(int));
+		}
+	}
+
+	//-----------------------------------------------------
+	void			Destroy					(void)
+	{
+		if( m_nBuffer > 0 )
+		{
+			SG_Free(m_Values);
+			SG_Free(m_Count);
+		}
+
+		m_nBuffer	= 0;
+		m_nValues	= 0;
+	}
+
+	//-----------------------------------------------------
+	void			Reset					(void)
+	{
+		m_nValues	= 0;
+	}
+
+	//-----------------------------------------------------
+	void			Add_Value				(double Value)
+	{
+		for(int i=0; i<m_nValues; i++)
+		{
+			if( m_Values[i] == Value )
+			{
+				m_Count[i]++;
+
+				return;
+			}
+		}
+
+		if( m_nValues < m_nBuffer )
+		{
+			m_Values[m_nValues]	= Value;
+			m_Count [m_nValues]	= 1;
+			m_nValues++;
+		}
+	}
+
+	//-----------------------------------------------------
+	bool			Get_Majority			(int &Count, double &Value)
+	{
+		if( m_nValues > 0 )
+		{
+			Value	= m_Values[0];
+			Count	= m_Count [0];
+
+			for(int i=1; i<m_nValues; i++)
+			{
+				if( m_Count[i] > Count )
+				{
+					Value	= m_Values[i];
+					Count	= m_Count [i];
+				}
+			}
+
+			return( true );
+		}
+
+		return( false );
+	}
+
+
+private:
+
+	int				m_nValues, m_nBuffer, *m_Count;
+
+	double			*m_Values;
+
+};
+
+//---------------------------------------------------------
+bool CSG_Grid::_Assign_Majority(CSG_Grid *pGrid)
+{
+	if( Get_Cellsize() < pGrid->Get_Cellsize() || is_Intersecting(pGrid->Get_Extent()) == INTERSECTION_None )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	int			x, y;
+	double		d;
+
+	d	= pGrid->Get_Cellsize() / Get_Cellsize();
+
+	Set_NoData_Value(pGrid->Get_NoData_Value());
+
+	Assign_NoData();
+
+	//-----------------------------------------------------
+	for(y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+	{
+		for(x=0; x<Get_NX(); x++)
+		{
+		}
+	}
+
+	//-----------------------------------------------------
+	Get_History()	= pGrid->Get_History();
+	Get_History().Add_Child(SG_T("GRID_OPERATION"), CSG_String::Format(SG_T("%f -> %f"), pGrid->Get_Cellsize(), Get_Cellsize()))->Add_Property(SG_T("NAME"), LNG("Resampling"));
+
+	SG_UI_Process_Set_Ready();
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //					Operatoren							 //
 //														 //
 ///////////////////////////////////////////////////////////

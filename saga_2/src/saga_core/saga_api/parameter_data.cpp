@@ -1498,7 +1498,7 @@ bool CSG_Parameter_Grid_System::Set_Value(void *Value)
 				case PARAMETER_TYPE_Grid:
 					pGrid	= pParameters->Get_Parameter(i)->asGrid();
 
-					if(	!SG_UI_DataObject_Check(pGrid, DATAOBJECT_TYPE_Grid) || (pGrid != DATAOBJECT_NOTSET && pGrid != DATAOBJECT_CREATE && !m_System.is_Equal(pGrid->Get_System())) )
+					if(	!m_System.is_Valid() || !SG_UI_DataObject_Check(pGrid, DATAOBJECT_TYPE_Grid) || (pGrid != DATAOBJECT_NOTSET && pGrid != DATAOBJECT_CREATE && !m_System.is_Equal(pGrid->Get_System())) )
 					{
 						pParameters->Get_Parameter(i)->Set_Value(DATAOBJECT_NOTSET);
 					}
@@ -1509,7 +1509,7 @@ bool CSG_Parameter_Grid_System::Set_Value(void *Value)
 
 					for(j=pGrids->Get_Count()-1; j>=0; j--)
 					{
-						if( !SG_UI_DataObject_Check(pGrids->asGrid(j), DATAOBJECT_TYPE_Grid) || m_System.is_Equal(pGrids->asGrid(j)->Get_System()) == false )
+						if( !m_System.is_Valid() || !SG_UI_DataObject_Check(pGrids->asGrid(j), DATAOBJECT_TYPE_Grid) || m_System.is_Equal(pGrids->asGrid(j)->Get_System()) == false )
 						{
 							pGrids->Del_Item(j);
 						}

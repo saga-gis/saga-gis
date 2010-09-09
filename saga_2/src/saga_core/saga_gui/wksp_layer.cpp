@@ -698,7 +698,7 @@ CSG_Rect CWKSP_Layer::Get_Extent(void)
 		switch( m_pObject->Get_ObjectType() )
 		{
 		case DATAOBJECT_TYPE_Grid:
-			return( ((CSG_Grid       *)m_pObject)->Get_System().Get_Extent_Cells() );
+			return( ((CSG_Grid       *)m_pObject)->Get_Extent(true) );
 
 		case DATAOBJECT_TYPE_Shapes:
 			return( ((CSG_Shapes     *)m_pObject)->Get_Extent() );
