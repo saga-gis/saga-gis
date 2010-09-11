@@ -23,9 +23,16 @@
 CCost_RectToPolar::CCost_RectToPolar(void){
 
 	Set_Name(_TL("Rect To Polar"));
-	Set_Author(_TL("Copyrights (c) 2004-2009 by Victor Olaya, Volker Wichmann"));
-	Set_Description	(_TW(
-		"(c) 2004 by Victor Olaya. Rect to Polar conversion for paired Vector data."));
+	Set_Author(_TL("Victor Olaya & Volker Wichmann (c) 2004-2010"));
+	Set_Description(_TW(
+					"Rect to polar conversion for paired vector data.\n"
+					"The module supports two conventions on how to measure and "
+					"output the angle of direction:\n"
+					"(a) mathematical: angle is output in radians, whereby "
+					"east is zero, and the angle increases counterclockwise\n"
+					"(b) geographical: angle is output in degrees, whereby "
+					"north is zero, and the angle increases clockwise\n\n")
+	);
 
 	Parameters.Add_Grid(NULL, 
 						"X", 
@@ -38,10 +45,19 @@ CCost_RectToPolar::CCost_RectToPolar(void){
 						_TL("Y Component"), 
 						_TL(""), 
 						PARAMETER_INPUT);
+
+	Parameters.Add_Choice(
+		NULL	, "METHOD_ANGLE"	, _TL("Method Angle"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("mathematical"),
+			_TL("geographical")
+		), 0
+	);
 	
 	Parameters.Add_Grid(NULL, 
 						"ANGLE", 
-						_TL("Angle. In radians"), 
+						_TL("Angle"), 
 						_TL(""), 
 						PARAMETER_OUTPUT, 
 						true, 
@@ -63,15 +79,16 @@ CCost_RectToPolar::~CCost_RectToPolar(void)
 
 bool CCost_RectToPolar::On_Execute(void){
 	
-	double dX,dY;
-	double dMagnitude, dAngle;
-	double PI = 3.141592;
+	int		method;
+	double	dX,dY;
+	double	dMagnitude, dAngle;
 	
 	CSG_Grid* pAngle = Parameters("ANGLE")->asGrid(); 
 	CSG_Grid* pMagnitude = Parameters("MAGNITUDE")->asGrid(); 
 	CSG_Grid* pX = Parameters("X")->asGrid(); 
 	CSG_Grid* pY = Parameters("Y")->asGrid(); 
-	
+	method = Parameters("METHOD_ANGLE")->asInt();
+
     for(int y=0; y<Get_NY() && Set_Progress(y); y++){		
 		for(int x=0; x<Get_NX(); x++){
 			if (pX->is_NoData(x, y) || pY->is_NoData(x, y))
@@ -84,28 +101,35 @@ bool CCost_RectToPolar::On_Execute(void){
 			dX = pX->asDouble(x,y);
 			dY = pY->asDouble(x,y);
 
-			if (dX == 0.0)
+			dMagnitude =sqrt(dX*dX+dY*dY);
+
+			if( dX > 0.0 && dY < 0.0 )
 			{
-				pMagnitude->Set_NoData(x, y);
-				pAngle->Set_NoData(x, y);
-				continue;
+				dAngle = atan(dY/dX) + M_PI_360;
+			}
+			else if( dX > 0.0 && y >= 0.0 )
+			{
+				dAngle = atan((double)dY/dX);
+			}
+			else if( dX == 0.0 && dY > 0.0 )
+			{
+				dAngle = M_PI_090;
+			}
+			else if( dX == 0.0 && dY == 0.0 )
+			{
+				dAngle = pMagnitude->Get_NoData_Value();
+			}
+			else if( dX == 0.0 && dY < 0.0 )
+			{
+				dAngle = M_PI_270;
+			}
+			else if( dX < 0.0 )
+			{
+				dAngle = atan((double)dY/dX) + M_PI;
 			}
 
-			dMagnitude =sqrt(dX*dX+dY*dY);
-			dAngle = atan((double)dY/dX);	
-			if (dX*dY>0){
-				if (dY<0 && dX<0){
-					dAngle+=PI;
-				}//if
-			}//if
-			else {
-				if (dY<0){
-					dAngle = 2*PI-dAngle;
-				}//if
-				else{
-					dAngle = PI-dAngle;
-				}//else
-			}//else
+			if( method == 1 && dX != 0.0 && dY != 0.0 )
+				dAngle = fmod((450.0 - dAngle * M_RAD_TO_DEG), 360);
 
 			pMagnitude->Set_Value(x,y,dMagnitude);
 			pAngle->Set_Value(x,y,dAngle);

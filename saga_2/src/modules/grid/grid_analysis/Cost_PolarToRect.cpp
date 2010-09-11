@@ -71,11 +71,15 @@ bool CCost_PolarToRect::On_Execute(void){
 	CSG_Grid* pX = Parameters("X")->asGrid(); 
 	CSG_Grid* pY = Parameters("Y")->asGrid(); 
 
-	pX->Assign(0.0);
-	pY->Assign(0.0);
 	
     for(int y=0; y<Get_NY() && Set_Progress(y); y++){		
 		for(int x=0; x<Get_NX(); x++){
+			if( pAngle->is_NoData(x, y) || pMagnitude->is_NoData(x, y) )
+			{
+				pX->Set_NoData(x, y);
+				pY->Set_NoData(x, y);
+				continue;
+			}
 			dAngle = pAngle->asDouble(x,y);
 			dMagnitude = pMagnitude->asDouble(x,y);
 			dX = cos(dAngle)*dMagnitude;
