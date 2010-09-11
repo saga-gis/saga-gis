@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.9 2010-07-08 14:11:49 johanvdw Exp $
+# $Id: Makefile.am,v 1.10 2010-09-11 00:07:46 reklov_w Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -34,6 +34,7 @@ Grid_Pattern.cpp\
 Image_VI_Distance.cpp\
 Image_VI_Slope.cpp\
 LeastCostPathProfile.cpp\
+LeastCostPathProfile_Points.cpp\
 MLB_Interface.cpp\
 owa.cpp\
 PointsEx.cpp\
@@ -59,6 +60,7 @@ Grid_Pattern.h\
 Image_VI_Distance.h\
 Image_VI_Slope.h\
 LeastCostPathProfile.h\
+LeastCostPathProfile_Points.h\
 MLB_Interface.h\
 owa.h\
 PointsEx.h\

@@ -241,6 +241,10 @@ SOURCE=.\LeastCostPathProfile.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\LeastCostPathProfile_Points.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\MLB_Interface.cpp
 # End Source File
 # Begin Source File
@@ -342,6 +346,10 @@ SOURCE=.\Image_VI_Slope.h
 # Begin Source File
 
 SOURCE=.\LeastCostPathProfile.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\LeastCostPathProfile_Points.h
 # End Source File
 # Begin Source File
 

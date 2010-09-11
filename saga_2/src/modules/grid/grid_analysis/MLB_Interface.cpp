@@ -100,6 +100,7 @@ const SG_Char * Get_Info(int i)
 #include "Cost_PolarToRect.h"
 #include "Cost_RectToPolar.h"
 #include "LeastCostPathProfile.h"
+#include "LeastCostPathProfile_Points.h"
 
 #include "Image_VI_Distance.h"
 #include "Image_VI_Slope.h"
@@ -144,6 +145,7 @@ CSG_Module *		Create_Module(int i)
 	case 19:	return( new CFragmentation_Standard );
 	case 20:	return( new CFragmentation_Resampling );
 	case 21:	return( new CFragmentation_Classify );
+	case 22:	return( new CLeastCostPathProfile_Points );
 	}
 
 	return( NULL );
