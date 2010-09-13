@@ -122,18 +122,68 @@ CESRI_ArcInfo_Import::CESRI_ArcInfo_Import(void)
 			_TL("All Files")
 		)
 	);
+
+	CSG_Parameter	*pNode;
+
+	pNode = Parameters.Add_Node(
+		NULL	, "NODE_ASCII"	, _TL("ASCII Grid Options"),
+		_TL("")
+	);
+
+	Parameters.Add_Choice(
+		pNode	, "GRID_TYPE"	, _TL("Target Grid Type"),
+		_TL(""),
+
+		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+			_TL("Integer (2 byte)"),
+			_TL("Integer (4 byte)"),
+			_TL("Floating Point (4 byte)"),
+			_TL("Floating Point (8 byte)")
+		), 2
+	);
+
+	Parameters.Add_Choice(
+		pNode	, "NODATA"	, _TL("NoData Value"),
+		_TL("Choose whether the input file's NoData value or a user specified NoData value is written"),
+
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("Input File's NoData Value"),
+			_TL("User Defined NoData Value")
+		), 0
+	);
+
+	Parameters.Add_Value(
+		pNode	, "NODATA_VAL"	, _TL("User Defined NoData Value"),
+		_TL(""),
+		PARAMETER_TYPE_Double	, -99999.0
+	);
 }
 
 //---------------------------------------------------------
 bool CESRI_ArcInfo_Import::On_Execute(void)
 {
-	CSG_File	Stream;
-	CSG_String	fName;
-	CSG_Grid	*pGrid;
+	CSG_File		Stream;
+	CSG_String		fName;
+	CSG_Grid		*pGrid;
+	TSG_Data_Type	Datatype;
+	int				iNoData;
+	double			dNoData;
 
 	//-----------------------------------------------------
-	pGrid	= NULL;
-	fName	= Parameters("FILE")->asString();
+	pGrid		= NULL;
+	fName		= Parameters("FILE")->asString();
+	iNoData		= Parameters("NODATA")->asInt();
+	dNoData		= Parameters("NODATA_VAL")->asDouble();
+
+	switch( Parameters("GRID_TYPE")->asInt() )
+	{
+	case 0:		Datatype = SG_DATATYPE_Short;	break;
+	case 1:		Datatype = SG_DATATYPE_Int;		break;
+	case 2:
+	default:	Datatype = SG_DATATYPE_Float;	break;
+	case 3:		Datatype = SG_DATATYPE_Double;	break;
+	}
+
 
 	//-------------------------------------------------
 	// Binary...
@@ -167,15 +217,25 @@ bool CESRI_ArcInfo_Import::On_Execute(void)
 	//-------------------------------------------------
 	// ASCII...
 
-	else if( Stream.Open(fName, SG_FILE_R, false) && (pGrid = Read_Header(Stream)) != NULL )
+	else if( Stream.Open(fName, SG_FILE_R, false) && (pGrid = Read_Header(Stream, Datatype)) != NULL )
 	{
+		double	dValue;
+
 		for(int iy=0, y=pGrid->Get_NY()-1; iy<pGrid->Get_NY() && !Stream.is_EOF() && Set_Progress(iy, pGrid->Get_NY()); iy++, y--)
 		{
 			for(int x=0; x<pGrid->Get_NX(); x++)
 			{
-				pGrid->Set_Value(x, y, Read_Value(Stream));
+				dValue	= Read_Value(Stream);
+
+				if( iNoData == 1 && dValue == pGrid->Get_NoData_Value() )
+					dValue	= dNoData;
+
+				pGrid->Set_Value(x, y, dValue);
 			}
 		}
+
+		if( iNoData == 1 )
+			pGrid->Set_NoData_Value(dNoData);
 	}
 
 	//-------------------------------------------------
@@ -295,7 +355,7 @@ bool CESRI_ArcInfo_Import::Read_Header_Value(const CSG_String &sKey, CSG_String 
 }
 
 //---------------------------------------------------------
-CSG_Grid * CESRI_ArcInfo_Import::Read_Header(CSG_File &Stream)
+CSG_Grid * CESRI_ArcInfo_Import::Read_Header(CSG_File &Stream, TSG_Data_Type Datatype)
 {
 	bool		bCorner_X, bCorner_Y;
 	int			NX, NY;
@@ -359,7 +419,7 @@ CSG_Grid * CESRI_ArcInfo_Import::Read_Header(CSG_File &Stream)
 			yMin	+= CellSize / 2.0;
 
 		//-------------------------------------------------
-		if( (pGrid = SG_Create_Grid(SG_DATATYPE_Float, NX, NY, CellSize, xMin, yMin)) != NULL )
+		if( (pGrid = SG_Create_Grid(Datatype, NX, NY, CellSize, xMin, yMin)) != NULL )
 		{
 			pGrid->Set_NoData_Value(NoData);
 

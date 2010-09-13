@@ -92,7 +92,7 @@ private:
 	bool					Read_Header_Value	(const CSG_String &sKey, CSG_String &sLine, int    &Value);
 	bool					Read_Header_Value	(const CSG_String &sKey, CSG_String &sLine, double &Value);
 	bool					Read_Header_Line	(CSG_File &Stream, CSG_String &sLine);
-	CSG_Grid *				Read_Header			(CSG_File &Stream);
+	CSG_Grid *				Read_Header			(CSG_File &Stream, TSG_Data_Type Datatype = SG_DATATYPE_Float);
 
 };
 
