@@ -891,7 +891,7 @@ int				SG_Get_Significant_Decimals(double Value, int maxDecimals)
 
 	for(Decimals=0; Decimals<maxDecimals; Decimals++)
 	{
-		Reminder	= Value - (int)(Value);
+		Reminder	= Value - floor(Value);
 
 		if( Reminder == 0.0 )
 		{
