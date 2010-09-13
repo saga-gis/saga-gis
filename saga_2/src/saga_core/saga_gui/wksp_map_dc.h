@@ -114,10 +114,32 @@ public:
 
 
 	//-----------------------------------------------------
-	double						xWorld2DC				(double x)		{	return(                     (int)(0.5 + (x - m_rWorld.Get_XMin()) * m_World2DC) );	}
-	double						yWorld2DC				(double y)		{	return( m_rDC.GetHeight() - (int)(0.5 + (y - m_rWorld.Get_YMin()) * m_World2DC) );	}
+	double						xWorld2DC				(double x, bool bRound = true)
+	{
+		x	=  (x - m_rWorld.Get_XMin()) * m_World2DC;
+
+		return( bRound ? (int)(0.5 + x) : x );
+	}
+
+	double						yWorld2DC				(double y, bool bRound = true)
+	{
+		y	= -(y - m_rWorld.Get_YMin()) * m_World2DC + (m_rDC.GetHeight());
+
+		return( bRound ? (int)(0.5 + y) : y );
+	}
 
 	TSG_Point_Int				World2DC				(TSG_Point p)	{	TSG_Point_Int _p; _p.x = (int)xWorld2DC(p.x), _p.y = (int)yWorld2DC(p.y); return( _p );	}
+
+	//-----------------------------------------------------
+	double						xDC2World				(double x)
+	{
+		return( m_rWorld.Get_XMin() + x * m_DC2World );
+	}
+
+	double						yDC2World				(double y)
+	{
+		return( m_rWorld.Get_YMin() + (m_rDC.GetHeight() - y) * m_DC2World );
+	}
 
 	//-----------------------------------------------------
 	void						Set_Font				(wxFont &Font);

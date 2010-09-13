@@ -155,6 +155,7 @@ wxString CWKSP_Grid::Get_Description(void)
 	DESC_ADD_FLT(LNG("[CAP] Value Minimum")			, m_pGrid->Get_ZMin());
 	DESC_ADD_FLT(LNG("[CAP] Value Maximum")			, m_pGrid->Get_ZMax());
 	DESC_ADD_FLT(LNG("[CAP] Value Range")			, m_pGrid->Get_ZRange());
+	DESC_ADD_STR(LNG("[CAP] No Data Value")			, m_pGrid->Get_NoData_Value() < m_pGrid->Get_NoData_hiValue() ? CSG_String::Format(SG_T("%f - %f"), m_pGrid->Get_NoData_Value(), m_pGrid->Get_NoData_hiValue()).c_str() : SG_Get_String(m_pGrid->Get_NoData_Value(), -2).c_str());
 	DESC_ADD_FLT(LNG("[CAP] Arithmetic Mean")		, m_pGrid->Get_ArithMean(true));
 	DESC_ADD_FLT(LNG("[CAP] Standard Deviation")	, m_pGrid->Get_StdDev(true));
 	DESC_ADD_FLT(LNG("[CAP] Memory Size [MB]")		, (double)(m_pGrid->Get_NCells() * m_pGrid->Get_nValueBytes()) / N_MEGABYTE_BYTES);
@@ -1114,8 +1115,8 @@ void CWKSP_Grid::_Draw_Grid_Points(CWKSP_Map_DC &dc_Map, int Interpolation)
 {
 	bool		bByteWise	= m_pClassify->Get_Mode() == CLASSIFY_RGB;
 	int			xDC, yDC, axDC, ayDC, bxDC, byDC, Color, r, g, b;
-	double		x, y, z;
-	CSG_Rect	rGrid(m_pGrid->Get_Extent());
+	double		x, y, z, axMap, ayMap;
+	CSG_Rect	rMap(dc_Map.m_rWorld);
 
 	switch( m_Parameters("OVERLAY_MODE")->asInt() )
 	{
@@ -1131,17 +1132,19 @@ void CWKSP_Grid::_Draw_Grid_Points(CWKSP_Map_DC &dc_Map, int Interpolation)
 	m_pOverlay[0]	= g_pData->Get_Grids()->Get_Grid(m_Parameters("OVERLAY_1")->asGrid());
 	m_pOverlay[1]	= g_pData->Get_Grids()->Get_Grid(m_Parameters("OVERLAY_2")->asGrid());
 
-	rGrid.Inflate(m_pGrid->Get_Cellsize() / 2.0, false);
-	rGrid.Intersect(dc_Map.m_rWorld);
+	rMap.Intersect(m_pGrid->Get_Extent(true));
 
-	axDC	= (int)dc_Map.xWorld2DC(rGrid.Get_XMin());	if( axDC < 0 )	axDC	= 0;
-	bxDC	= (int)dc_Map.xWorld2DC(rGrid.Get_XMax());	if( bxDC > dc_Map.m_rDC.GetWidth() )	bxDC	= dc_Map.m_rDC.GetWidth();
-	ayDC	= (int)dc_Map.yWorld2DC(rGrid.Get_YMin());	if( ayDC > dc_Map.m_rDC.GetHeight() )	ayDC	= dc_Map.m_rDC.GetHeight();
-	byDC	= (int)dc_Map.yWorld2DC(rGrid.Get_YMax());	if( byDC < 0 )	byDC	= 0;
+	axDC	= (int)dc_Map.xWorld2DC(rMap.Get_XMin());	if( axDC < 0 )	axDC	= 0;
+	bxDC	= (int)dc_Map.xWorld2DC(rMap.Get_XMax());	if( bxDC >= dc_Map.m_rDC.GetWidth () )	bxDC	= dc_Map.m_rDC.GetWidth () - 1;
+	ayDC	= (int)dc_Map.yWorld2DC(rMap.Get_YMin());	if( ayDC >= dc_Map.m_rDC.GetHeight() )	ayDC	= dc_Map.m_rDC.GetHeight() - 1;
+	byDC	= (int)dc_Map.yWorld2DC(rMap.Get_YMax());	if( byDC < 0 )	byDC	= 0;
+	axMap	=      dc_Map.xDC2World(axDC);
+	ayMap	=      dc_Map.yDC2World(ayDC);
+	ayMap	= dc_Map.m_rWorld.Get_YMin() + ((dc_Map.m_rDC.GetHeight()) - ayDC) * dc_Map.m_DC2World;
 
-	for(y=rGrid.Get_YMin(), yDC=ayDC-1; yDC>=byDC; y+=dc_Map.m_DC2World, yDC--)
+	for(y=ayMap, yDC=ayDC; yDC>=byDC; y+=dc_Map.m_DC2World, yDC--)
 	{
-		for(x=rGrid.Get_XMin(), xDC=axDC; xDC<bxDC; x+=dc_Map.m_DC2World, xDC++)
+		for(x=axMap, xDC=axDC; xDC<bxDC; x+=dc_Map.m_DC2World, xDC++)
 		{
 			if( m_pGrid->Get_Value(x, y, z, Interpolation, false, bByteWise, true) )
 			{
