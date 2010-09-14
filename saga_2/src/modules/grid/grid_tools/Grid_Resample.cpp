@@ -101,7 +101,7 @@ CGrid_Resample::CGrid_Resample(void)
 	pNode	= pParameters->Add_Choice(
 		NULL	, "METHOD"		, _TL("Interpolation Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
 			_TL("Nearest Neighbor"),
 			_TL("Bilinear Interpolation"),
 			_TL("Inverse Distance Interpolation"),
@@ -110,7 +110,8 @@ CGrid_Resample::CGrid_Resample(void)
 			_TL("Mean Value"),
 			_TL("Mean Value (cell area weighted)"),
 			_TL("Minimum Value"),
-			_TL("Maximum Value")
+			_TL("Maximum Value"),
+			_TL("Majority")
 		), 6
 	);
 
@@ -182,7 +183,7 @@ bool CGrid_Resample::On_Execute(void)
 	switch( Parameters("TARGET")->asInt() )
 	{
 	case 0:	// user defined...
-		if( m_Grid_Target.Init_User(pInput->Get_Extent()) && Dlg_Parameters("USER") )
+		if( m_Grid_Target.Init_User(pInput->Get_Extent(true)) && Dlg_Parameters("USER") )
 		{
 			pOutput	= m_Grid_Target.Get_User(Parameters("KEEP_TYPE")->asBool() ? pInput->Get_Type() : SG_DATATYPE_Undefined);
 		}
@@ -222,6 +223,7 @@ bool CGrid_Resample::On_Execute(void)
 			case 6:	Interpolation	= GRID_INTERPOLATION_Mean_Cells;		break;
 			case 7:	Interpolation	= GRID_INTERPOLATION_Minimum;			break;
 			case 8:	Interpolation	= GRID_INTERPOLATION_Maximum;			break;
+			case 9:	Interpolation	= GRID_INTERPOLATION_Majority;			break;
 			}
 
 			pParameters	= Get_Parameters("SCALE_UP");

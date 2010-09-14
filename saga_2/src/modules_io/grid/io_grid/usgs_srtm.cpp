@@ -180,7 +180,7 @@ CSG_Grid * CUSGS_SRTM_Import::Load(CSG_String File, int N, double D)
 	int			x, y;
 	short		*sLine;
 	double		xMin, yMin;
-	FILE		*Stream;
+	CSG_File	Stream;
 	CSG_String	fName;
 	CSG_Grid	*pGrid;
 
@@ -198,19 +198,20 @@ CSG_Grid * CUSGS_SRTM_Import::Load(CSG_String File, int N, double D)
 		xMin	= (fName[3] == 'W' ? -1.0 :  1.0) * fName.Right(3).asInt();
 
 		//-------------------------------------------------
-		if( (Stream = fopen(File.b_str(), "rb")) != NULL )
+		if( Stream.Open(File, SG_FILE_R, true) )
 		{
-			if( (pGrid = SG_Create_Grid(SG_DATATYPE_Float, N, N, D, xMin, yMin)) != NULL )
+			if( (pGrid = SG_Create_Grid(SG_DATATYPE_Short, N, N, D, xMin, yMin)) != NULL )
 			{
 				pGrid->Set_Name			(fName);
+				pGrid->Get_Projection().Create(SG_T("GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],TOWGS84[0,0,0,0,0,0,0],AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.01745329251994328,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4326\"]]"));
 				pGrid->Set_NoData_Value	(-32768);
 
 				//-----------------------------------------
 				sLine	= (short *)SG_Malloc(N * sizeof(short));
 
-				for(y=0; y<N && !feof(Stream) && Set_Progress(y, N); y++)
+				for(y=0; y<N && !Stream.is_EOF() && Set_Progress(y, N); y++)
 				{
-					fread(sLine, N, sizeof(short), Stream);
+					Stream.Read(sLine, sizeof(short), N);
 
 					for(x=0; x<N; x++)
 					{
@@ -222,8 +223,6 @@ CSG_Grid * CUSGS_SRTM_Import::Load(CSG_String File, int N, double D)
 
 				SG_Free(sLine);
 			}
-
-			fclose(Stream);
 		}
 	}
 

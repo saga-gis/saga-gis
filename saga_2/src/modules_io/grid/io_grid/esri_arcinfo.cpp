@@ -235,7 +235,9 @@ bool CESRI_ArcInfo_Import::On_Execute(void)
 		}
 
 		if( iNoData == 1 )
+		{
 			pGrid->Set_NoData_Value(dNoData);
+		}
 	}
 
 	//-------------------------------------------------
@@ -244,7 +246,10 @@ bool CESRI_ArcInfo_Import::On_Execute(void)
 		return( false );
 	}
 
+	//-------------------------------------------------
 	pGrid->Set_Name(SG_File_Get_Name(fName, false));
+
+	pGrid->Get_Projection().Load(SG_File_Make_Path(NULL, fName, SG_T("prj")));
 
 	Parameters("GRID")->Set_Value(pGrid);
 
@@ -568,6 +573,8 @@ bool CESRI_ArcInfo_Export::On_Execute(void)
 
 			SG_Free(Line);
 
+			pGrid->Get_Projection().Save(SG_File_Make_Path(NULL, fName, SG_T("prj")));
+
 			return( true );
 		}
 	}
@@ -592,6 +599,8 @@ bool CESRI_ArcInfo_Export::On_Execute(void)
 
 			fprintf(Stream.Get_Stream(), "\n");
 		}
+
+		pGrid->Get_Projection().Save(SG_File_Make_Path(NULL, fName, SG_T("prj")));
 
 		return( true );
 	}

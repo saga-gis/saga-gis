@@ -177,9 +177,14 @@ bool CBMP_Export::On_Execute(void)
 
 		SG_Free(Line);
 
-		//-------------------------------------------------
 		fclose(Stream);
 
+		//-------------------------------------------------
+		FileName	= SG_File_Make_Path(SG_File_Get_Path(FileName), SG_File_Get_Name(FileName, false), SG_T("prj"));
+
+		pGrid->Get_Projection().Save(FileName);
+
+		//-------------------------------------------------
 		FileName	= SG_File_Make_Path(SG_File_Get_Path(FileName), SG_File_Get_Name(FileName, false), SG_T("bpw"));
 
 		if( (Stream = fopen(FileName.b_str(), "w")) != NULL )

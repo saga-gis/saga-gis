@@ -397,8 +397,14 @@ public:
 	void *				Get_Array		(void)	const		{	return( m_Values );		}
 	void *				Get_Array		(size_t nValues)	{	Set_Array(nValues);	return( m_Values );	}
 
-	bool				Set_Array		(size_t nValues);
-	bool				Set_Array		(size_t nValues, void **pArray);
+	bool				Set_Array		(size_t nValues, bool bShrink = true);
+	bool				Set_Array		(size_t nValues, void **pArray, bool bShrink = true);
+
+	bool				Inc_Array		(void);
+	bool				Inc_Array		(void **pArray);
+
+	bool				Dec_Array		(bool bShrink = true);
+	bool				Dec_Array		(void **pArray, bool bShrink = true);
 
 
 private:

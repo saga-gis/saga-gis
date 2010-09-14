@@ -1140,7 +1140,6 @@ void CWKSP_Grid::_Draw_Grid_Points(CWKSP_Map_DC &dc_Map, int Interpolation)
 	byDC	= (int)dc_Map.yWorld2DC(rMap.Get_YMax());	if( byDC < 0 )	byDC	= 0;
 	axMap	=      dc_Map.xDC2World(axDC);
 	ayMap	=      dc_Map.yDC2World(ayDC);
-	ayMap	= dc_Map.m_rWorld.Get_YMin() + ((dc_Map.m_rDC.GetHeight()) - ayDC) * dc_Map.m_DC2World;
 
 	for(y=ayMap, yDC=ayDC; yDC>=byDC; y+=dc_Map.m_DC2World, yDC--)
 	{

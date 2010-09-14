@@ -490,6 +490,86 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Class_Statistics
+{
+private:
+
+	typedef struct SClass
+	{
+		int		Count;
+
+		double	Value;
+	}
+	TClass;
+
+
+public:
+	 CSG_Class_Statistics(void);
+	~CSG_Class_Statistics(void);
+
+	void			Create					(void);
+	void			Destroy					(void);
+
+	void			Reset					(void)	{	m_Array.Set_Array(0, (void **)&m_Classes, false);	}
+
+	int				Get_Count				(void)	{	return( m_Array.Get_Size() );	}
+
+	int				Get_Class_Count			(int i)	{	return( i >= 0 && i < Get_Count() ? m_Classes[i].Count : 0 );	}
+	double			Get_Class_Value			(int i)	{	return( i >= 0 && i < Get_Count() ? m_Classes[i].Value : 0 );	}
+
+	bool			Get_Class				(int i, double &Value, int &Count)
+	{
+		if( i >= 0 && i < Get_Count() )
+		{
+			Count	= m_Classes[i].Count;
+			Value	= m_Classes[i].Value;
+
+			return( true );
+		}
+
+		return( false );
+	}
+
+	bool			Get_Class				(int i, int &Value, int &Count)
+	{
+		if( i >= 0 && i < Get_Count() )
+		{
+			Count	=      m_Classes[i].Count;
+			Value	= (int)m_Classes[i].Value;
+
+			return( true );
+		}
+
+		return( false );
+	}
+
+	void			Add_Value				(double Value);
+
+	int				Get_Majority			(void);
+	bool			Get_Majority			(double &Value);
+	bool			Get_Majority			(double &Value, int &Count);
+
+	int				Get_Minority			(void);
+	bool			Get_Minority			(double &Value);
+	bool			Get_Minority			(double &Value, int &Count);
+
+
+private:
+
+	CSG_Array		m_Array;
+
+	TClass			*m_Classes;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Spline
 {
 public:

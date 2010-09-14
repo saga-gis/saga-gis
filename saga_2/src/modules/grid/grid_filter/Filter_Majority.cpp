@@ -66,83 +66,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CMajority::Create(int nBuffer)
-{
-	m_nValues	= 0;
-	m_nBuffer	= nBuffer;
-
-	if( m_nBuffer > 0 )
-	{
-		m_Values	= (double *)SG_Malloc(m_nBuffer * sizeof(double));
-		m_Count		= (int    *)SG_Malloc(m_nBuffer * sizeof(int));
-	}
-}
-
-//---------------------------------------------------------
-void CMajority::Destroy(void)
-{
-	if( m_nBuffer > 0 )
-	{
-		SG_Free(m_Values);
-		SG_Free(m_Count);
-	}
-
-	m_nBuffer	= 0;
-	m_nValues	= 0;
-}
-
-//---------------------------------------------------------
-void CMajority::Add_Value(double Value)
-{
-	for(int i=0; i<m_nValues; i++)
-	{
-		if( m_Values[i] == Value )
-		{
-			m_Count[i]++;
-
-			return;
-		}
-	}
-
-	if( m_nValues < m_nBuffer )
-	{
-		m_Values[m_nValues]	= Value;
-		m_Count [m_nValues]	= 1;
-		m_nValues++;
-	}
-}
-
-//---------------------------------------------------------
-bool CMajority::Get_Majority(int &Count, double &Value)
-{
-	if( m_nValues > 0 )
-	{
-		Value	= m_Values[0];
-		Count	= m_Count [0];
-
-		for(int i=1; i<m_nValues; i++)
-		{
-			if( m_Count[i] > Count )
-			{
-				Value	= m_Values[i];
-				Count	= m_Count [i];
-			}
-		}
-
-		return( true );
-	}
-
-	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 CFilter_Majority::CFilter_Majority(void)
 {
 	//-----------------------------------------------------
@@ -242,7 +165,7 @@ bool CFilter_Majority::On_Execute(void)
 		}
 	}
 
-	m_Majority.Create(m_Kernel.Get_NCells());
+	m_Majority.Create();
 
 	m_Threshold	= m_Kernel.Get_NoData_Count();
 
@@ -310,7 +233,7 @@ double CFilter_Majority::Get_Majority(int x, int y)
 	int		Count;
 	double	Value;
 
-	m_Majority.Get_Majority(Count, Value);
+	m_Majority.Get_Majority(Value, Count);
 
 	return( Count > m_Threshold ? Value : m_pInput->asDouble(x, y) );
 }

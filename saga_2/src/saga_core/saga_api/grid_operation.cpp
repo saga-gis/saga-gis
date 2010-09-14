@@ -163,6 +163,10 @@ bool CSG_Grid::Assign(CSG_Grid *pGrid, TSG_Grid_Interpolation Interpolation)
 				bResult	= _Assign_ExtremeValue	(pGrid, Interpolation == GRID_INTERPOLATION_Maximum);
 				break;
 
+			case GRID_INTERPOLATION_Majority:
+				bResult	= _Assign_Majority		(pGrid);
+				break;
+
 			default:
 				if( Get_Cellsize() < pGrid->Get_Cellsize() )	// Down-Scaling...
 				{
@@ -409,98 +413,6 @@ bool CSG_Grid::_Assign_MeanValue(CSG_Grid *pGrid, bool bAreaProportional)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSG_Majority
-{
-public:
-	 CSG_Majority(void)	{	m_nBuffer	= 0;	}
-	~CSG_Majority(void)	{	Destroy();			}
-
-	//-----------------------------------------------------
-	void			Create					(int nBuffer)
-	{
-		m_nValues	= 0;
-		m_nBuffer	= nBuffer;
-
-		if( m_nBuffer > 0 )
-		{
-			m_Values	= (double *)SG_Malloc(m_nBuffer * sizeof(double));
-			m_Count		= (int    *)SG_Malloc(m_nBuffer * sizeof(int));
-		}
-	}
-
-	//-----------------------------------------------------
-	void			Destroy					(void)
-	{
-		if( m_nBuffer > 0 )
-		{
-			SG_Free(m_Values);
-			SG_Free(m_Count);
-		}
-
-		m_nBuffer	= 0;
-		m_nValues	= 0;
-	}
-
-	//-----------------------------------------------------
-	void			Reset					(void)
-	{
-		m_nValues	= 0;
-	}
-
-	//-----------------------------------------------------
-	void			Add_Value				(double Value)
-	{
-		for(int i=0; i<m_nValues; i++)
-		{
-			if( m_Values[i] == Value )
-			{
-				m_Count[i]++;
-
-				return;
-			}
-		}
-
-		if( m_nValues < m_nBuffer )
-		{
-			m_Values[m_nValues]	= Value;
-			m_Count [m_nValues]	= 1;
-			m_nValues++;
-		}
-	}
-
-	//-----------------------------------------------------
-	bool			Get_Majority			(int &Count, double &Value)
-	{
-		if( m_nValues > 0 )
-		{
-			Value	= m_Values[0];
-			Count	= m_Count [0];
-
-			for(int i=1; i<m_nValues; i++)
-			{
-				if( m_Count[i] > Count )
-				{
-					Value	= m_Values[i];
-					Count	= m_Count [i];
-				}
-			}
-
-			return( true );
-		}
-
-		return( false );
-	}
-
-
-private:
-
-	int				m_nValues, m_nBuffer, *m_Count;
-
-	double			*m_Values;
-
-};
-
-//---------------------------------------------------------
 bool CSG_Grid::_Assign_Majority(CSG_Grid *pGrid)
 {
 	if( Get_Cellsize() < pGrid->Get_Cellsize() || is_Intersecting(pGrid->Get_Extent()) == INTERSECTION_None )
@@ -509,20 +421,69 @@ bool CSG_Grid::_Assign_Majority(CSG_Grid *pGrid)
 	}
 
 	//-----------------------------------------------------
-	int			x, y;
-	double		d;
-
-	d	= pGrid->Get_Cellsize() / Get_Cellsize();
+	CSG_Class_Statistics	m;
 
 	Set_NoData_Value(pGrid->Get_NoData_Value());
 
 	Assign_NoData();
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		int	ay	= (int)(0.5 + (((y - 0.5) * Get_Cellsize() + Get_YMin()) - pGrid->Get_YMin()) / pGrid->Get_Cellsize());
+		int	by	= (int)(0.5 + (((y + 0.5) * Get_Cellsize() + Get_YMin()) - pGrid->Get_YMin()) / pGrid->Get_Cellsize());
+
+		if( ay < pGrid->Get_NY() && by >= 0 )
 		{
+			if( ay < 0 )
+			{
+				ay	= 0;
+			}
+
+			if( by >= pGrid->Get_NY() )
+			{
+				by	= pGrid->Get_NY() - 1;
+			}
+
+			for(int x=0; x<Get_NX(); x++)
+			{
+				int	ax	= (int)(0.5 + (((x - 0.5) * Get_Cellsize() + Get_XMin()) - pGrid->Get_XMin()) / pGrid->Get_Cellsize());
+				int	bx	= (int)(0.5 + (((x + 0.5) * Get_Cellsize() + Get_XMin()) - pGrid->Get_XMin()) / pGrid->Get_Cellsize());
+
+				if( ax < pGrid->Get_NX() && bx >= 0 )
+				{
+					m.Reset();
+
+					if( ax < 0 )
+					{
+						ax	= 0;
+					}
+
+					if( bx >= pGrid->Get_NX() )
+					{
+						bx	= pGrid->Get_NX() - 1;
+					}
+
+					for(int iy=ay; iy<by; iy++)
+					{
+						for(int ix=ax; ix<bx; ix++)
+						{
+							if( !pGrid->is_NoData(ix, iy) )
+							{
+								m.Add_Value(pGrid->asDouble(ix, iy));
+							}
+						}
+					}
+
+					int		n;
+					double	z;
+
+					if( m.Get_Majority(z, n) )//&& n > 1 )
+					{
+						Set_Value(x, y, z);
+					}
+				}
+			}
 		}
 	}
 

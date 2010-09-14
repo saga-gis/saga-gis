@@ -77,36 +77,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CMajority
-{
-public:
-	CMajority(void)		{	m_nBuffer	= 0;	}
-	~CMajority(void)	{	Destroy();	}
-
-	void			Create					(int nBuffer);
-	void			Destroy					(void);
-
-	void			Reset					(void)	{	m_nValues	= 0;	}
-
-	void			Add_Value				(double Value);
-
-	bool			Get_Majority			(int &Count, double &Value);
-
-
-private:
-
-	int				m_nValues, m_nBuffer, *m_Count;
-
-	double			*m_Values;
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 class CFilter_Majority : public CSG_Module_Grid
 {
 public:
@@ -124,7 +94,7 @@ private:
 
 	CSG_Grid				m_Kernel, *m_pInput;
 
-	CMajority				m_Majority;
+	CSG_Class_Statistics	m_Majority;
 
 
 	double					Get_Majority	(int x, int y);

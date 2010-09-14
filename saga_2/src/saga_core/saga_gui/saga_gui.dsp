@@ -45,7 +45,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W4 /GR /O2 /I ".\..\..\include" /I ".\..\..\lib\vc_lib\msw" /I "." /I ".\..\..\samples" /D "WIN32" /D "__WXMSW__" /D "_WINDOWS" /D "NOPCH" /Fd"vc_msw\saga_gui.pdb" /FD /EHsc /c
-# ADD CPP /nologo /MD /W3 /GR /O2 /I "." /I "./.." /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc_dll/msw" /D "__WXMSW__" /D "_WINDOWS" /D "NOPCH" /D "WIN32" /D "WXUSINGDLL" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /Fr /Fd"./../../../bin/tmp/saga_vc/saga_gui/saga_gui.pdb" /FD /EHsc /c
+# ADD CPP /nologo /MD /W3 /GR /O2 /I "." /I "./.." /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc6_dll/msw" /D "__WXMSW__" /D "_WINDOWS" /D "NOPCH" /D "WIN32" /D "WXUSINGDLL" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /Fr /Fd"./../../../bin/tmp/saga_vc/saga_gui/saga_gui.pdb" /FD /EHsc /c
 # ADD BASE MTL /nologo /D "WIN32" /D "__WXMSW__" /D "_WINDOWS" /D "NOPCH" /mktyplib203 /win32
 # ADD MTL /nologo /D "WIN32" /D "__WXMSW__" /D "_WINDOWS" /D "NOPCH" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /i ".\..\..\include" /i ".\..\..\lib\vc_lib\msw" /i "." /i ".\..\..\samples" /d "__WXMSW__" /d "_WINDOWS" /d "NOPCH"
@@ -75,7 +75,7 @@ PostBuild_Cmds=copy res\saga.lng.txt ..\..\..\bin\saga_vc\saga.lng	copy res\saga
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MDd /W4 /Gm /GR /Zi /Od /I ".\..\..\include" /I ".\..\..\lib\vc_lib\mswd" /I "." /I ".\..\..\samples" /D "WIN32" /D "_DEBUG" /D "__WXMSW__" /D "__WXDEBUG__" /D "_WINDOWS" /D "NOPCH" /Fd"vc_mswd\saga_gui.pdb" /FD /GZ /EHsc /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /ZI /Od /I "." /I "./.." /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc_dll/mswd" /D "__WXMSW__" /D "_WINDOWS" /D "NOPCH" /D "WIN32" /D "_DEBUG" /D "__WXDEBUG__" /D "WXUSINGDLL" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /Fr /Fd"./../../../bin/tmp/saga_vc_dbg/saga_gui/saga_gui.pdb" /FD /GZ /EHsc /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /ZI /Od /I "." /I "./.." /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc6_dll/mswd" /D "__WXMSW__" /D "_WINDOWS" /D "NOPCH" /D "WIN32" /D "_DEBUG" /D "__WXDEBUG__" /D "WXUSINGDLL" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /Fr /Fd"./../../../bin/tmp/saga_vc_dbg/saga_gui/saga_gui.pdb" /FD /GZ /EHsc /c
 # ADD BASE MTL /nologo /D "WIN32" /D "_DEBUG" /D "__WXMSW__" /D "__WXDEBUG__" /D "_WINDOWS" /D "NOPCH" /mktyplib203 /win32
 # ADD MTL /nologo /D "WIN32" /D "_DEBUG" /D "__WXMSW__" /D "__WXDEBUG__" /D "_WINDOWS" /D "NOPCH" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /i ".\..\..\include" /i ".\..\..\lib\vc_lib\mswd" /i "." /i ".\..\..\samples" /d "_DEBUG" /d "__WXMSW__" /d "__WXDEBUG__" /d "_WINDOWS" /d "NOPCH"
@@ -106,7 +106,7 @@ PostBuild_Cmds=copy res\saga.lng.txt ..\..\..\bin\saga_vc_dbg\saga.lng.txt	copy 
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MDd /W3 /Gm /GR /ZI /Od /I "$(SAGA)/src/saga_core" /I "." /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc_lib/mswd" /D "WIN32" /D "_DEBUG" /D "__WXMSW__" /D "__WXDEBUG__" /D "_WINDOWS" /D "NOPCH" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /Fr /Fd"./../../../bin/tmp/saga_vc_dbg/saga_gui/saga_gui.pdb" /FD /GZ /EHsc /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /ZI /Od /I "./.." /I "." /I "$(WXWIN)/lib/vc_lib/mswud" /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc_dll/mswud" /D "_WINDOWS" /D "NOPCH" /D "__WXMSW__" /D "__WXDEBUG__" /D "WXUSINGDLL" /D "_DEBUG" /D "WIN32" /D "_UNICODE" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_UNICODE" /Fr /Fd"./../../../bin/tmp/saga_vc_dbg/saga_gui/saga_gui.pdb" /FD /GZ /EHsc /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /ZI /Od /I "./.." /I "." /I "$(WXWIN)/lib/vc_lib/mswud" /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc6_dll/mswud" /D "_WINDOWS" /D "NOPCH" /D "__WXMSW__" /D "__WXDEBUG__" /D "WXUSINGDLL" /D "_DEBUG" /D "WIN32" /D "_UNICODE" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_UNICODE" /Fr /Fd"./../../../bin/tmp/saga_vc_dbg/saga_gui/saga_gui.pdb" /FD /GZ /EHsc /c
 # ADD BASE MTL /nologo /D "WIN32" /D "_DEBUG" /D "__WXMSW__" /D "__WXDEBUG__" /D "_WINDOWS" /D "NOPCH" /mktyplib203 /win32
 # ADD MTL /nologo /D "WIN32" /D "_DEBUG" /D "__WXMSW__" /D "__WXDEBUG__" /D "_WINDOWS" /D "NOPCH" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /i "./../../../wxWidgets/include" /i "./../../../wxWidgets/lib/vc_lib/mswd" /d "_DEBUG" /d "__WXMSW__" /d "__WXDEBUG__" /d "_WINDOWS" /d "NOPCH"
@@ -133,7 +133,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /GR /O2 /I "$(SAGA)/src/saga_core" /I "." /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc_lib/msw" /D "WIN32" /D "__WXMSW__" /D "_WINDOWS" /D "NOPCH" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /Fr /Fd"./../../../bin/tmp/saga_vc/saga_gui/saga_gui.pdb" /FD /EHsc /c
-# ADD CPP /nologo /MD /W3 /GR /O2 /I "./.." /I "." /I "$(WXWIN)/lib/vc_lib/mswu" /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc_dll/mswu" /D "_WINDOWS" /D "NOPCH" /D "__WXMSW__" /D "WIN32" /D "WXUSINGDLL" /D "_UNICODE" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_UNICODE" /Fr /Fd"./../../../bin/tmp/saga_vc/saga_gui/saga_gui.pdb" /FD /EHsc /c
+# ADD CPP /nologo /MD /W3 /GR /O2 /I "./.." /I "." /I "$(WXWIN)/lib/vc_lib/mswu" /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc6_dll/mswu" /D "_WINDOWS" /D "NOPCH" /D "__WXMSW__" /D "WIN32" /D "WXUSINGDLL" /D "_UNICODE" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_UNICODE" /Fr /Fd"./../../../bin/tmp/saga_vc/saga_gui/saga_gui.pdb" /FD /EHsc /c
 # ADD BASE MTL /nologo /D "WIN32" /D "__WXMSW__" /D "_WINDOWS" /D "NOPCH" /mktyplib203 /win32
 # ADD MTL /nologo /D "WIN32" /D "__WXMSW__" /D "_WINDOWS" /D "NOPCH" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /i "./../../../wxWidgets/include" /i "./../../../wxWidgets/lib/vc_lib/msw" /d "__WXMSW__" /d "_WINDOWS" /d "NOPCH"

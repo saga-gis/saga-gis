@@ -291,7 +291,7 @@ bool CGrid_Export::On_Execute(void)
 	//-------------------------------------------------
 	if( img.SaveFile(fName.c_str()) )
 	{
-		pGrid->Get_Projection().Save(fName, SG_PROJ_FMT_WKT);
+		pGrid->Get_Projection().Save(SG_File_Make_Path(NULL, fName, SG_T("prj")), SG_PROJ_FMT_WKT);
 
 		if( Stream.Open(SG_File_Make_Path(NULL, fName, fExt), SG_FILE_W, false) )
 		{

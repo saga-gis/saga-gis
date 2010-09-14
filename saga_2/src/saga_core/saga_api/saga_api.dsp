@@ -45,7 +45,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "saga_api_EXPORTS" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "$(WXWIN)/lib/vc_dll/msw" /I "$(HARU)/include" /I "$(WXWIN)/include" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_SAGA_API_EXPORTS" /D "__WXMSW__" /D "WIN32" /D "WXUSINGDLL" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_VC" /FR /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "$(HARU)/include" /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc6_dll/msw" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_SAGA_API_EXPORTS" /D "__WXMSW__" /D "WIN32" /D "WXUSINGDLL" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_VC" /FR /FD /c
 # SUBTRACT CPP /YX /Yc /Yu
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
@@ -72,7 +72,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "saga_api_EXPORTS" /Yu"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "$(WXWIN)/lib/vc_dll/mswd" /I "$(HARU)/include" /I "$(WXWIN)/include" /D "_DEBUG" /D "__WXDEBUG__" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_SAGA_API_EXPORTS" /D "__WXMSW__" /D "WIN32" /D "WXUSINGDLL" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_VC" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "$(HARU)/include" /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc6_dll/mswd" /D "_DEBUG" /D "__WXDEBUG__" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_SAGA_API_EXPORTS" /D "__WXMSW__" /D "WIN32" /D "WXUSINGDLL" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_VC" /FD /GZ /c
 # SUBTRACT CPP /YX /Yc /Yu
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
@@ -101,7 +101,7 @@ LINK32=link.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc_lib/mswd" /I "$(HARU)" /I "$(HARU)/msvc" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "__WXMSW__" /D "__WXDEBUG__" /D "_SAGA_API_EXPORTS" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /FD /GZ /c
 # SUBTRACT BASE CPP /YX /Yc /Yu
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "$(WXWIN)/lib/vc_lib/mswud" /I "$(WXWIN)/lib/vc_dll/mswud" /I "$(HARU)/include" /I "$(WXWIN)/include" /D "__WXDEBUG__" /D "_DEBUG" /D "_UNICODE" /D "_SAGA_UNICODE" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_SAGA_API_EXPORTS" /D "__WXMSW__" /D "WIN32" /D "WXUSINGDLL" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_VC" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "$(HARU)/include" /I "$(WXWIN)/lib/vc_lib/mswud" /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc6_dll/mswud" /D "__WXDEBUG__" /D "_DEBUG" /D "_UNICODE" /D "_SAGA_UNICODE" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_SAGA_API_EXPORTS" /D "__WXMSW__" /D "WIN32" /D "WXUSINGDLL" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_VC" /FD /GZ /c
 # SUBTRACT CPP /YX /Yc /Yu
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
@@ -130,7 +130,7 @@ LINK32=link.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /GX /O2 /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc_lib/msw" /I "$(HARU)" /I "$(HARU)/msvc" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "__WXMSW__" /D "_SAGA_API_EXPORTS" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /FR /FD /c
 # SUBTRACT BASE CPP /YX /Yc /Yu
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "$(WXWIN)/lib/vc_lib/mswu" /I "$(WXWIN)/lib/vc_dll/mswu" /I "$(HARU)/include" /I "$(WXWIN)/include" /D "NDEBUG" /D "_UNICODE" /D "_SAGA_UNICODE" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_SAGA_API_EXPORTS" /D "__WXMSW__" /D "WIN32" /D "WXUSINGDLL" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_VC" /FR /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "$(HARU)/include" /I "$(WXWIN)/lib/vc_lib/mswu" /I "$(WXWIN)/include" /I "$(WXWIN)/lib/vc6_dll/mswu" /D "NDEBUG" /D "_UNICODE" /D "_SAGA_UNICODE" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "_SAGA_API_EXPORTS" /D "__WXMSW__" /D "WIN32" /D "WXUSINGDLL" /D "_TYPEDEF_BYTE" /D "_TYPEDEF_WORD" /D "_SAGA_MSW" /D "_SAGA_VC" /FR /FD /c
 # SUBTRACT CPP /YX /Yc /Yu
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32

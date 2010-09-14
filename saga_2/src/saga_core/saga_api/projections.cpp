@@ -546,7 +546,7 @@ CSG_Projection CSG_Projections::Get_Projection(int Index)	const
 	{
 		CSG_Table_Record	*pRecord	= m_pProjections->Get_Record(Index);
 
-		Projection.m_Authority		= pRecord->asInt   (PRJ_FIELD_AUTH_NAME);
+		Projection.m_Authority		= pRecord->asString(PRJ_FIELD_AUTH_NAME);
 		Projection.m_Authority_ID	= pRecord->asInt   (PRJ_FIELD_AUTH_SRID);
 		Projection.m_WKT			= pRecord->asString(PRJ_FIELD_SRTEXT   );
 		Projection.m_Proj4			= pRecord->asString(PRJ_FIELD_PROJ4TEXT);
@@ -575,7 +575,7 @@ bool CSG_Projections::Get_Projection(CSG_Projection &Projection, const CSG_Strin
 	{
 		CSG_Table_Record	*pProjection	= m_pProjections->Get_Record(i);
 
-		if( Authority.CmpNoCase(pProjection->asString(PRJ_FIELD_AUTH_NAME))
+		if( Authority.CmpNoCase(pProjection->asString(PRJ_FIELD_AUTH_NAME)) == 0
 		&&	Authority_ID ==     pProjection->asInt   (PRJ_FIELD_AUTH_SRID)	)
 		{
 			Projection	= Get_Projection(i);

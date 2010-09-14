@@ -155,3 +155,112 @@ void CSG_Simple_Statistics::_Evaluate(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_Class_Statistics::CSG_Class_Statistics(void)
+{
+	Create();
+}
+
+//---------------------------------------------------------
+CSG_Class_Statistics::~CSG_Class_Statistics(void)
+{
+	Destroy();
+}
+
+//---------------------------------------------------------
+void CSG_Class_Statistics::Create(void)
+{
+	m_Array.Create(sizeof(TClass), 0, SG_ARRAY_GROWTH_1);
+
+	m_Classes	= NULL;
+}
+
+//---------------------------------------------------------
+void CSG_Class_Statistics::Destroy(void)
+{
+	m_Array.Set_Array(0, (void **)&m_Classes);
+}
+
+//---------------------------------------------------------
+void CSG_Class_Statistics::Add_Value(double Value)
+{
+	for(size_t i=0; i<m_Array.Get_Size(); i++)
+	{
+		if( m_Classes[i].Value == Value )
+		{
+			m_Classes[i].Count++;
+
+			return;
+		}
+	}
+
+	if( m_Array.Inc_Array((void **)&m_Classes) )
+	{
+		m_Classes[Get_Count() - 1].Count	= 1;
+		m_Classes[Get_Count() - 1].Value	= Value;
+	}
+}
+
+//---------------------------------------------------------
+int CSG_Class_Statistics::Get_Majority(void)
+{
+	int		Index	= 0;
+
+	for(int i=1; i<Get_Count(); i++)
+	{
+		if( m_Classes[i].Count > m_Classes[Index].Count )
+		{
+			Index	= i;
+		}
+	}
+
+	return( Index );
+}
+
+bool CSG_Class_Statistics::Get_Majority(double &Value)
+{
+	int		Count;
+
+	return( Get_Class(Get_Majority(), Value, Count) );
+}
+
+bool CSG_Class_Statistics::Get_Majority(double &Value, int &Count)
+{
+	return( Get_Class(Get_Majority(), Value, Count) );
+}
+
+//---------------------------------------------------------
+int CSG_Class_Statistics::Get_Minority(void)
+{
+	int		Index	= 0;
+
+	for(int i=1; i<Get_Count(); i++)
+	{
+		if( m_Classes[i].Count > m_Classes[Index].Count )
+		{
+			Index	= i;
+		}
+	}
+
+	return( Index );
+}
+
+bool CSG_Class_Statistics::Get_Minority(double &Value)
+{
+	int		Count;
+
+	return( Get_Class(Get_Minority(), Value, Count) );
+}
+
+bool CSG_Class_Statistics::Get_Minority(double &Value, int &Count)
+{
+	return( Get_Class(Get_Minority(), Value, Count) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

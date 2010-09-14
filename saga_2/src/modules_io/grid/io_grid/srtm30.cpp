@@ -179,7 +179,7 @@ bool CSRTM30_Import::On_Execute(void)
 	double		xMin, xMax, yMin, yMax;
 	TSG_Rect	rOut, rTile;
 	CSG_String	sTile;
-	CSG_Grid		*pOut;
+	CSG_Grid	*pOut;
 
 	//-----------------------------------------------------
 	xMin		= Parameters("XMIN")->asInt();
@@ -204,6 +204,7 @@ bool CSRTM30_Import::On_Execute(void)
 	pOut->Set_NoData_Value(-9999);
 	pOut->Assign_NoData();
 	pOut->Set_Name(SG_T("SRTM30"));
+	pOut->Get_Projection().Create(SG_T("GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],TOWGS84[0,0,0,0,0,0,0],AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.01745329251994328,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4326\"]]"));
 
 	//-----------------------------------------------------
 	for(yTile=0, rTile.yMin=0, rTile.yMax=Y_WIDTH; yTile<3; yTile++, rTile.yMin+=Y_WIDTH, rTile.yMax+=Y_WIDTH)
