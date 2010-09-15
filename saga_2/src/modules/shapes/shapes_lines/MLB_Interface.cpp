@@ -94,6 +94,7 @@ const SG_Char * Get_Info(int i)
 #include "Lines_From_Polygons.h"
 #include "Lines_From_Points.h"
 #include "line_properties.h"
+#include "line_polygon_intersection.h"
 
 
 //---------------------------------------------------------
@@ -103,9 +104,10 @@ CSG_Module *		Create_Module(int i)
 {
 	switch( i )
 	{
-	case 0:		return( new CLines_From_Polygons );
-	case 1:		return( new CLines_From_Points );
-	case 2:		return( new CLine_Properties );
+	case  0:	return( new CLines_From_Polygons );
+	case  1:	return( new CLines_From_Points );
+	case  2:	return( new CLine_Properties );
+	case  3:	return( new CLine_Polygon_Intersection );
 	}
 
 	return( NULL );

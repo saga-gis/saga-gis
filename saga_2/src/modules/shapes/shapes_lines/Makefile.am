@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.8 2010-07-08 14:11:49 johanvdw Exp $
+# $Id: Makefile.am,v 1.9 2010-09-15 17:07:36 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -15,10 +15,12 @@ pkglib_LTLIBRARIES = libshapes_lines.la
 libshapes_lines_la_SOURCES =\
 Lines_From_Points.cpp\
 Lines_From_Polygons.cpp\
+line_polygon_intersection.cpp\
 line_properties.cpp\
 MLB_Interface.cpp\
 Lines_From_Points.h\
 Lines_From_Polygons.h\
+line_polygon_intersection.h\
 line_properties.h\
 MLB_Interface.h
 

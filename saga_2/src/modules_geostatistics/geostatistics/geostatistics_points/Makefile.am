@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.8 2010-07-08 14:11:50 johanvdw Exp $
+# $Id: Makefile.am,v 1.9 2010-09-15 17:07:33 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -14,11 +14,13 @@ AM_LDFLAGS         = -fPIC -shared -avoid-version
 pkglib_LTLIBRARIES = libgeostatistics_points.la
 libgeostatistics_points_la_SOURCES =\
 GSPoints_Distances.cpp\
+GSPoints_Pattern_Analysis.cpp\
 GSPoints_Semi_Variances.cpp\
 GSPoints_Variogram_Cloud.cpp\
 GSPoints_Variogram_Surface.cpp\
 MLB_Interface.cpp\
 GSPoints_Distances.h\
+GSPoints_Pattern_Analysis.h\
 GSPoints_Semi_Variances.h\
 GSPoints_Variogram_Cloud.h\
 GSPoints_Variogram_Surface.h\

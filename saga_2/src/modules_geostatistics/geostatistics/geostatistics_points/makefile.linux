@@ -19,7 +19,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/GSPoints_Distances.o $(MLB_TEMP)/GSPoints_Semi_Variances.o $(MLB_TEMP)/GSPoints_Variogram_Cloud.o $(MLB_TEMP)/GSPoints_Variogram_Surface.o $(MLB_TEMP)/MLB_Interface.o
+OBJ      = $(MLB_TEMP)/GSPoints_Distances.o $(MLB_TEMP)/GSPoints_Semi_Variances.o $(MLB_TEMP)/GSPoints_Pattern_Analysis.o $(MLB_TEMP)/GSPoints_Variogram_Cloud.o $(MLB_TEMP)/GSPoints_Variogram_Surface.o $(MLB_TEMP)/MLB_Interface.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS =
@@ -52,6 +52,9 @@ $(MLB_NAME): $(MLB_TEMP) $(MLB_PATH) $(OBJ)
 
 $(MLB_TEMP)/GSPoints_Distances.o: ./GSPoints_Distances.cpp
 	$(CPP) -c ./GSPoints_Distances.cpp -o $(MLB_TEMP)/GSPoints_Distances.o $(CXXFLAGS)
+
+$(MLB_TEMP)/GSPoints_Pattern_Analysis.o: ./GSPoints_Pattern_Analysis.cpp
+	$(CPP) -c ./GSPoints_Pattern_Analysis.cpp -o $(MLB_TEMP)/GSPoints_Pattern_Analysis.o $(CXXFLAGS)
 
 $(MLB_TEMP)/GSPoints_Semi_Variances.o: ./GSPoints_Semi_Variances.cpp
 	$(CPP) -c ./GSPoints_Semi_Variances.cpp -o $(MLB_TEMP)/GSPoints_Semi_Variances.o $(CXXFLAGS)

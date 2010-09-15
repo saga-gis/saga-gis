@@ -808,6 +808,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GSPoints_Pattern_Analysis.cpp"
+				>
+			</File>
+			<File
 				RelativePath="GSPoints_Semi_Variances.cpp"
 				>
 				<FileConfiguration
@@ -974,6 +978,10 @@
 			>
 			<File
 				RelativePath=".\GSPoints_Distances.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GSPoints_Pattern_Analysis.h"
 				>
 			</File>
 			<File

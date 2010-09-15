@@ -88,9 +88,7 @@ CWKSP_Map_DC::CWKSP_Map_DC(const CSG_Rect &rWorld, const wxRect &rDC, double Sca
 	//-----------------------------------------------------
 	if( m_rWorld.Get_XRange() == 0.0 || m_rWorld.Get_YRange() == 0.0 )
 	{
-		m_World2DC	= m_DC2World	= 1.0;
-
-		return;
+		m_rWorld.Inflate(m_rWorld.Get_XRange() ? 0.0 : 1.0, m_rWorld.Get_YRange() ? 0.0 : 1.0, false);
 	}
 
 	//-----------------------------------------------------

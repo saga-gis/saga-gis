@@ -428,29 +428,33 @@ bool CSG_Grid::_Assign_Majority(CSG_Grid *pGrid)
 	Assign_NoData();
 
 	//-----------------------------------------------------
+	int	ay, by	= (int)(1.0 + (((0 - 0.5) * Get_Cellsize() + Get_YMin()) - pGrid->Get_YMin()) / pGrid->Get_Cellsize());
+
 	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 	{
-		int	ay	= (int)(0.5 + (((y - 0.5) * Get_Cellsize() + Get_YMin()) - pGrid->Get_YMin()) / pGrid->Get_Cellsize());
-		int	by	= (int)(0.5 + (((y + 0.5) * Get_Cellsize() + Get_YMin()) - pGrid->Get_YMin()) / pGrid->Get_Cellsize());
+		ay	= by;
+		by	= (int)(1.0 + (((y + 0.5) * Get_Cellsize() + Get_YMin()) - pGrid->Get_YMin()) / pGrid->Get_Cellsize());
 
-		if( ay < pGrid->Get_NY() && by >= 0 )
+		if( ay < pGrid->Get_NY() && by > 0 )
 		{
 			if( ay < 0 )
 			{
 				ay	= 0;
 			}
 
-			if( by >= pGrid->Get_NY() )
+			if( by > pGrid->Get_NY() )
 			{
-				by	= pGrid->Get_NY() - 1;
+				by	= pGrid->Get_NY();
 			}
+
+			int	ax, bx	= (int)(1.0 + (((0 - 0.5) * Get_Cellsize() + Get_XMin()) - pGrid->Get_XMin()) / pGrid->Get_Cellsize());
 
 			for(int x=0; x<Get_NX(); x++)
 			{
-				int	ax	= (int)(0.5 + (((x - 0.5) * Get_Cellsize() + Get_XMin()) - pGrid->Get_XMin()) / pGrid->Get_Cellsize());
-				int	bx	= (int)(0.5 + (((x + 0.5) * Get_Cellsize() + Get_XMin()) - pGrid->Get_XMin()) / pGrid->Get_Cellsize());
+				ax	= bx;
+				bx	= (int)(1.0 + (((x + 0.5) * Get_Cellsize() + Get_XMin()) - pGrid->Get_XMin()) / pGrid->Get_Cellsize());
 
-				if( ax < pGrid->Get_NX() && bx >= 0 )
+				if( ax < pGrid->Get_NX() && bx > 0 )
 				{
 					m.Reset();
 
@@ -459,9 +463,9 @@ bool CSG_Grid::_Assign_Majority(CSG_Grid *pGrid)
 						ax	= 0;
 					}
 
-					if( bx >= pGrid->Get_NX() )
+					if( bx > pGrid->Get_NX() )
 					{
-						bx	= pGrid->Get_NX() - 1;
+						bx	= pGrid->Get_NX();
 					}
 
 					for(int iy=ay; iy<by; iy++)

@@ -95,6 +95,7 @@ const SG_Char * Get_Info(int i)
 #include "GSPoints_Variogram_Cloud.h"
 #include "GSPoints_Variogram_Surface.h"
 #include "GSPoints_Distances.h"
+#include "GSPoints_Pattern_Analysis.h"
 
 
 //---------------------------------------------------------
@@ -108,6 +109,7 @@ CSG_Module *		Create_Module(int i)
 	case  1:	return( new CGSPoints_Variogram_Cloud );
 	case  2:	return( new CGSPoints_Variogram_Surface );
 	case  3:	return( new CGSPoints_Distances );
+	case  4:	return( new CGSPoints_Pattern_Analysis );
 	}
 
 	return( NULL );
