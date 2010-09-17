@@ -577,7 +577,7 @@ void CSG_MetaData::_Save(wxXmlNode *pNode) const
 	//-----------------------------------------------------
 	for(i=Get_Children_Count()-1; i>=0; i--)
 	{
-		if( Get_Child(i)->Get_Content().Length() > 0 || Get_Child(i)->Get_Children_Count() > 0 )
+		if( Get_Property_Count() > 0 || Get_Child(i)->Get_Content().Length() > 0 || Get_Child(i)->Get_Children_Count() > 0 )
 		{
 			wxXmlNode	*pChild	= new wxXmlNode(pNode, wxXML_ELEMENT_NODE, SG_String_To_UTF8(Get_Child(i)->Get_Name()).c_str());
 
