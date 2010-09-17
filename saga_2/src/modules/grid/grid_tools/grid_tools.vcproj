@@ -2040,6 +2040,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Grid_Tiling.cpp"
+				>
+			</File>
+			<File
 				RelativePath="Grid_Value_Reclassify.cpp"
 				>
 				<FileConfiguration
@@ -2658,6 +2662,10 @@
 			</File>
 			<File
 				RelativePath="Grid_ThresholdBuffer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Grid_Tiling.h"
 				>
 			</File>
 			<File

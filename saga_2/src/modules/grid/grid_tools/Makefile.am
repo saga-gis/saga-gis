@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.10 2010-07-08 14:11:49 johanvdw Exp $
+# $Id: Makefile.am,v 1.11 2010-09-17 16:23:23 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -34,6 +34,7 @@ Grid_Proximity.cpp\
 Grid_Resample.cpp\
 Grid_SortRaster.cpp\
 Grid_ThresholdBuffer.cpp\
+Grid_Tiling.cpp\
 Grid_Value_Reclassify.cpp\
 Grid_Value_Replace.cpp\
 Grid_Value_Replace_Interactive.cpp\
@@ -62,6 +63,7 @@ Grid_Proximity.h\
 Grid_Resample.h\
 Grid_SortRaster.h\
 Grid_ThresholdBuffer.h\
+Grid_Tiling.h\
 Grid_Value_Reclassify.h\
 Grid_Value_Replace.h\
 Grid_Value_Replace_Interactive.h\

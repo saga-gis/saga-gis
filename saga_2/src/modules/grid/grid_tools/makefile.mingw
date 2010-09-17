@@ -18,7 +18,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/CreateGridSystem.o $(MLB_TEMP)/Grid_Aggregate.o $(MLB_TEMP)/Grid_Buffer.o $(MLB_TEMP)/Grid_Buffer_Proximity.o $(MLB_TEMP)/Grid_CombineGrids.o $(MLB_TEMP)/Grid_Completion.o $(MLB_TEMP)/Grid_ConstantGrid.o $(MLB_TEMP)/Grid_CropToData.o $(MLB_TEMP)/Grid_Cut.o $(MLB_TEMP)/Grid_Fill.o $(MLB_TEMP)/Grid_Gaps.o $(MLB_TEMP)/Grid_Gaps_OneCell.o $(MLB_TEMP)/Grid_Gaps_Spline_Fill.o $(MLB_TEMP)/Grid_InvertNoData.o $(MLB_TEMP)/Grid_Mask.o $(MLB_TEMP)/Grid_Merge.o $(MLB_TEMP)/Grid_Orientation.o $(MLB_TEMP)/Grid_Proximity.o $(MLB_TEMP)/Grid_Resample.o $(MLB_TEMP)/Grid_SortRaster.o $(MLB_TEMP)/Grid_ThresholdBuffer.o $(MLB_TEMP)/Grid_Value_Reclassify.o $(MLB_TEMP)/Grid_Value_Replace.o $(MLB_TEMP)/Grid_Value_Replace_Interactive.o $(MLB_TEMP)/Grid_Value_Request.o $(MLB_TEMP)/Grid_Value_Type.o $(MLB_TEMP)/GridsFromTableAndGrid.o $(MLB_TEMP)/MLB_Interface.o
+OBJ      = $(MLB_TEMP)/CreateGridSystem.o $(MLB_TEMP)/Grid_Aggregate.o $(MLB_TEMP)/Grid_Buffer.o $(MLB_TEMP)/Grid_Buffer_Proximity.o $(MLB_TEMP)/Grid_CombineGrids.o $(MLB_TEMP)/Grid_Completion.o $(MLB_TEMP)/Grid_ConstantGrid.o $(MLB_TEMP)/Grid_CropToData.o $(MLB_TEMP)/Grid_Cut.o $(MLB_TEMP)/Grid_Fill.o $(MLB_TEMP)/Grid_Gaps.o $(MLB_TEMP)/Grid_Gaps_OneCell.o $(MLB_TEMP)/Grid_Gaps_Spline_Fill.o $(MLB_TEMP)/Grid_InvertNoData.o $(MLB_TEMP)/Grid_Mask.o $(MLB_TEMP)/Grid_Merge.o $(MLB_TEMP)/Grid_Orientation.o $(MLB_TEMP)/Grid_Proximity.o $(MLB_TEMP)/Grid_Resample.o $(MLB_TEMP)/Grid_SortRaster.o $(MLB_TEMP)/Grid_ThresholdBuffer.o $(MLB_TEMP)/Grid_Tiling.o $(MLB_TEMP)/Grid_Value_Reclassify.o $(MLB_TEMP)/Grid_Value_Replace.o $(MLB_TEMP)/Grid_Value_Replace_Interactive.o $(MLB_TEMP)/Grid_Value_Request.o $(MLB_TEMP)/Grid_Value_Type.o $(MLB_TEMP)/GridsFromTableAndGrid.o $(MLB_TEMP)/MLB_Interface.o
 
 CXXFLAGS = -I"$(MINGW)/include" -I"$(SAGA)/src/saga_core" -D$(PRJ_NAME)_EXPORTS -DBUILDING_DLL=1 -D_SAGA_MSW -D_SAGA_MINGW -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -fexpensive-optimizations -Os -O2 -O3 $(DEP_INCS) $(DEP_DEFS)
 
@@ -107,6 +107,9 @@ $(MLB_TEMP)/Grid_SortRaster.o: ./Grid_SortRaster.cpp
 
 $(MLB_TEMP)/Grid_ThresholdBuffer.o: ./Grid_ThresholdBuffer.cpp
 	$(CPP) -c ./Grid_ThresholdBuffer.cpp -o $(MLB_TEMP)/Grid_ThresholdBuffer.o $(CXXFLAGS)
+
+$(MLB_TEMP)/Grid_Tiling.o: ./Grid_Tiling.cpp
+	$(CPP) -c ./Grid_Tiling.cpp -o $(MLB_TEMP)/Grid_Tiling.o $(CXXFLAGS)
 
 $(MLB_TEMP)/Grid_Value_Reclassify.o: ./Grid_Value_Reclassify.cpp
 	$(CPP) -c ./Grid_Value_Reclassify.cpp -o $(MLB_TEMP)/Grid_Value_Reclassify.o $(CXXFLAGS)

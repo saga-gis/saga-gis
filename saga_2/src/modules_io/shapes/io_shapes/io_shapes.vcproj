@@ -1201,6 +1201,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\svg.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\wasp_map.cpp"
 				>
 			</File>
@@ -1319,6 +1323,10 @@
 			</File>
 			<File
 				RelativePath="surfer_bln.h"
+				>
+			</File>
+			<File
+				RelativePath=".\svg.h"
 				>
 			</File>
 			<File

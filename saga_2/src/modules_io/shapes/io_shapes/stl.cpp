@@ -117,10 +117,25 @@ CSTL_Import::CSTL_Import(void)
 		), 3
 	);
 
+	pNode	= Parameters.Add_Choice(
+		NULL	, "METHOD_RASTER", _TL("Raster Dimension"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("Raster Resolution (Pixels X)"),
+			_TL("Raster Resolution (Pixel Size)")
+		), 0
+	);
+
 	Parameters.Add_Value(
-		NULL	, "GRID_RES"	, _TL("Raster Resolution (Pixels X)"),
+		pNode	, "GRID_NX"		, _TL("Raster Resolution (Pixels X)"),
 		_TL(""),
 		PARAMETER_TYPE_Int		, 2000, 10, true
+	);
+
+	Parameters.Add_Value(
+		pNode	, "GRID_CELL"	, _TL("Raster Resolution (Pixels Size)"),
+		_TL(""),
+		PARAMETER_TYPE_Double	, 1.0, 0.0, true
 	);
 
 	pNode	= Parameters.Add_Node(
@@ -280,9 +295,24 @@ bool CSTL_Import::On_Execute(void)
 			int		nx, ny;
 			double	d;
 
-			nx		= Parameters("GRID_RES")->asInt();
-			d		= Extent.Get_XRange() / nx;
-			ny		= 1 + (int)(Extent.Get_YRange() / d);
+			switch( Parameters("METHOD_RASTER")->asInt() )
+			{
+			case 1:				// Pixel Size
+				d		= Parameters("GRID_CELL")->asDouble();
+
+				if( d > 0.0 )
+				{
+					nx		= 1 + (int)(Extent.Get_XRange() / d);;
+					ny		= 1 + (int)(Extent.Get_YRange() / d);
+					break;
+				}
+
+			case 0: default:	// Pixels in X Direction
+				nx		= Parameters("GRID_NX")->asInt();
+				d		= Extent.Get_XRange() / nx;
+				ny		= 1 + (int)(Extent.Get_YRange() / d);
+				break;
+			}
 
 			m_pGrid	= SG_Create_Grid(SG_DATATYPE_Float, nx, ny, d, Extent.Get_XMin(), Extent.Get_YMin());
 			m_pGrid->Set_Name(SG_File_Get_Name(sFile, false));
