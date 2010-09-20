@@ -19,7 +19,7 @@ DEP_DEFS =
 DEP_LIBS = 
 DEP_LFLG = 
 
-OBJ      = $(MLB_TEMP)/atlas_bna.o $(MLB_TEMP)/generate.o $(MLB_TEMP)/gpx.o $(MLB_TEMP)/gstat.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/pointcloud_from_file.o $(MLB_TEMP)/pointcloud_from_text_file.o $(MLB_TEMP)/stl.o $(MLB_TEMP)/surfer_bln.o $(MLB_TEMP)/wasp_map.o $(MLB_TEMP)/xyz.o
+OBJ      = $(MLB_TEMP)/atlas_bna.o $(MLB_TEMP)/generate.o $(MLB_TEMP)/gpx.o $(MLB_TEMP)/gstat.o $(MLB_TEMP)/MLB_Interface.o $(MLB_TEMP)/pointcloud_from_file.o $(MLB_TEMP)/pointcloud_from_text_file.o $(MLB_TEMP)/stl.o $(MLB_TEMP)/surfer_bln.o $(MLB_TEMP)/svg.o $(MLB_TEMP)/wasp_map.o $(MLB_TEMP)/xyz.o
 
 DEF_SAGA = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS =
@@ -76,6 +76,9 @@ $(MLB_TEMP)/stl.o: ./stl.cpp
 
 $(MLB_TEMP)/surfer_bln.o: ./surfer_bln.cpp
 	$(CPP) -c ./surfer_bln.cpp -o $(MLB_TEMP)/surfer_bln.o $(CXXFLAGS)
+
+$(MLB_TEMP)/svg.o: ./svg.cpp
+	$(CPP) -c ./svg.cpp -o $(MLB_TEMP)/svg.o $(CXXFLAGS)
 
 $(MLB_TEMP)/wasp_map.o: ./wasp_map.cpp
 	$(CPP) -c ./wasp_map.cpp -o $(MLB_TEMP)/wasp_map.o $(CXXFLAGS)
