@@ -703,12 +703,14 @@ public:
 	CSG_Projections(void);
 	virtual ~CSG_Projections(void);
 
-									CSG_Projections			(const CSG_String &File_Dictionary, const CSG_String &File_DB);
-	bool							Create					(const CSG_String &File_Dictionary, const CSG_String &File_DB);
+									CSG_Projections			(const CSG_String &File_DB);
+	bool							Create					(const CSG_String &File_DB);
 
 	void							Destroy					(void);
 
+	bool							Reset_Dictionary		(void);
 	bool							Load_Dictionary			(const CSG_String &File_Name);
+	bool							Save_Dictionary			(const CSG_String &File_Name);
 
 	bool							Load_DB					(const CSG_String &File_Name, bool bAppend = false);
 	bool							Save_DB					(const CSG_String &File_Name);
@@ -751,6 +753,9 @@ private:
 	bool							_Proj4_Get_Datum			(CSG_String &Value, const CSG_String &Proj4)	const;
 	bool							_Proj4_Get_Prime_Meridian	(CSG_String &Value, const CSG_String &Proj4)	const;
 	bool							_Proj4_Get_Unit				(CSG_String &Value, const CSG_String &Proj4)	const;
+
+	bool							_Set_Dictionary				(CSG_Table      &Dictionary, int Direction);
+	bool							_Set_Dictionary				(CSG_Translator &Dictionary, int Direction);
 
 };
 

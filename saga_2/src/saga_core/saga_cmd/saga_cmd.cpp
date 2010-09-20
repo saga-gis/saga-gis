@@ -198,10 +198,7 @@ _try
 
 	if( Flags.Find(FLAG_PROJ) > 0 )
 	{
-		SG_Get_Projections().Create(
-			SG_File_Make_Path(CMD_Path, SG_T("saga_prj"), SG_T("dic")),
-			SG_File_Make_Path(CMD_Path, SG_T("saga_prj"), SG_T("srs"))
-		);
+		SG_Get_Projections().Create(SG_File_Make_Path(CMD_Path, SG_T("saga_prj"), SG_T("srs")));
 	}
 
 	//-----------------------------------------------------

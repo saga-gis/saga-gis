@@ -504,7 +504,7 @@ bool CCRS_Base::Add_User_Projection(const CSG_String &sID, const CSG_String &sNa
 
 	CSG_Parameters	*pParms	= Add_Parameters(sID, sName, sArgs);
 
-	pParms->Add_Info_String(NULL, "DESC", _TL("Description"), _TL(""), sArgs.c_str(), true);
+//	pParms->Add_Info_String(NULL, "DESC", _TL("Description"), _TL(""), sArgs.c_str(), true);
 
 	//-----------------------------------------------------
 	// Cylindrical Projections...
