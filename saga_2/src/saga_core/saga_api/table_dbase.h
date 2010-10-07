@@ -160,7 +160,7 @@ public:
 	//-----------------------------------------------------
 	int							asInt				(int iField);
 	double						asDouble			(int iField);
-	char *						asString			(int iField);
+        const char *						asString			(int iField);
 
 	//-----------------------------------------------------
 	bool						Set_Value			(int iField, double Value);

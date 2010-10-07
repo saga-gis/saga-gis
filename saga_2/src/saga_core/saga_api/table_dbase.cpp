@@ -612,7 +612,7 @@ double CSG_Table_DBase::asDouble(int iField)
 }
 
 //---------------------------------------------------------
-char * CSG_Table_DBase::asString(int iField)
+const char * CSG_Table_DBase::asString(int iField)
 {
 	if( bOpen && iField >= 0 && iField < nFields )
 	{
