@@ -134,7 +134,6 @@ public:
 	QTopNode	*			Parent;			
 	QTopNode	*			Child;			
 	TBottomNode *			BottomNode;		
-
 	QTopNode()
 	{ 
 		Child =NULL; SubNodesNum = 0;
@@ -143,7 +142,7 @@ public:
 	
 	virtual ~QTopNode()
 	{ 
-		if (Prev || Next || Parent || Child) Remove();
+		if (this->Prev || this->Next || Parent || Child) Remove();
 	}
 
 	TBottomNode *	GetInsertionPoint(TBottomNode * node,QTopNode ** parent,TBottomNode ** insert_after,QSL_SortTypes sorttype);
@@ -204,7 +203,7 @@ inline bool	QTTopNode::SubNodeInserted(void * node)
 	if (SubNodesNum >= max_num)
 	{
 		QTopNode * new_node = new QTopNode;
-		new_node->InsertThisBetween(this,Next);
+		new_node->InsertThisBetween(this,this->Next);
 	}
 	return true;
 };
@@ -223,20 +222,20 @@ inline 	bool QTTopNode::SubNodeRemoved(void * node)
 	} 
 	DW min_num = Child ? QTOPNODES_MIN : QBOTTOMNODES_MIN;
 	
-	bool top_node = !Prev && !Parent;
+	bool top_node = !this->Prev && !Parent;
 	
 	if ((!top_node && SubNodesNum < min_num )
 	|| (top_node && SubNodesNum == 1 && Child))
 	{
-		if (!Prev)
+		if (!this->Prev)
 		{ 
-			if (Next)
+			if (this->Next)
 			{
 				QTTopNode * parent = GetParent();
 				if (parent) 
-					parent->SubNodeRemoved(Next);
+					parent->SubNodeRemoved(this->Next);
 				
-				Next->Remove();
+				this->Next->Remove();
 			}
 			else
 			{
@@ -257,9 +256,9 @@ inline 	bool QTTopNode::SubNodeRemoved(void * node)
 template <class TBottomNode>
 inline bool	QTTopNode::Remove()
 {
-	if (Prev)
+	if (this->Prev)
 	{
-		Prev->SubNodesNum += SubNodesNum;
+		this->Prev->SubNodesNum += SubNodesNum;
 	}
 
 	SetChild(NULL);
@@ -280,27 +279,27 @@ inline bool	QTTopNode::InsertThisBetween(QTTopNode * before,QTTopNode * after)
 		return false;
 
 
-	SubNodesNum=Prev->SubNodesNum/2;
-	Prev->SubNodesNum -= SubNodesNum;
-	if (Prev->Child)
+	SubNodesNum=this->Prev->SubNodesNum/2;
+	this->Prev->SubNodesNum -= SubNodesNum;
+	if (this->Prev->Child)
 	{
-		SetChild(Prev->GetChild(Prev->SubNodesNum));
+		SetChild(this->Prev->GetChild(this->Prev->SubNodesNum));
 		BottomNode = Child->BottomNode;
 	}
 	else
 	{
-		BottomNode = Prev->GetBottomNode(Prev->SubNodesNum);
+		BottomNode = this->Prev->GetBottomNode(this->Prev->SubNodesNum);
 	}
 
 	QTTopNode * parent = GetParent();
 	if (!parent)
 	{ 
-		if (!Prev && !Next)	
+		if (!this->Prev && !this->Next)	
 			return true;
 	
 		parent = new QTTopNode;
 		parent->SubNodesNum++;
-		parent->SetChild(Prev);
+		parent->SetChild(this->Prev);
 	}
 	parent->SubNodeInserted(this);
 
@@ -369,7 +368,7 @@ template <class TBottomNode>
 inline QTTopNode *	QTTopNode::GetTopNode()
 {
 	QTopNode * cur = this;
-	if (!Prev)
+	if (!this->Prev)
 	{
 		while(cur->Parent) cur = cur->Parent;
 	}
@@ -458,8 +457,8 @@ inline TBottomNode *	QTTopNode::GetBottomInsertionPoint(TBottomNode * start,TBot
 	}			
 #undef FIND_ALGORITHM
 	*insert_after = prev;
-	if (Next && Next->BottomNode==cur)
-		*parent=Next;
+	if (this->Next && this->Next->BottomNode==cur)
+		*parent=this->Next;
 	
 	return cur;
 };
@@ -499,7 +498,7 @@ template <class T> class SortList
 };
 
 template <class T>
-inline	SortList<T>::SortList<T>(bool autodelete)
+inline	SortList<T>::SortList(bool autodelete)
 {
 	AutoDelete = autodelete;
 	TopNode = new QTopNode<T>;
@@ -706,7 +705,7 @@ public:
 	
 	CData * Data;
 	
-	CBounderyNode::CBounderyNode(CData * _Data)
+	CBounderyNode(CData * _Data)
 	{
 		Data = _Data;
 	}
