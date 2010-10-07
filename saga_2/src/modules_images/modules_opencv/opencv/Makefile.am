@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.4 2010-07-08 14:11:50 johanvdw Exp $
+# $Id: Makefile.am,v 1.5 2010-10-07 19:53:18 johanvdw Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -25,4 +25,3 @@ opencv_morphology.h\
 opencv_svd.h
 
 libopencv_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
-
