@@ -1,5 +1,5 @@
 /* XPM */
-static char *saga_splash_xpm[] = {
+static const char *saga_splash_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "520 286 12 1",
 "# c Black",

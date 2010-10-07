@@ -1,5 +1,5 @@
 /* XPM */
-static char *tb_map3d_central_more_xpm[] = {
+static const char *tb_map3d_central_more_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "18 16 2 1",
 ". c Black",

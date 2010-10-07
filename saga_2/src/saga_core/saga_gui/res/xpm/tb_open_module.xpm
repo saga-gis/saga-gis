@@ -1,5 +1,5 @@
 /* XPM */
-static char *tb_open_module_xpm[] = {
+static const char *tb_open_module_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "16 16 6 1",
 "o c #0039FF",

@@ -1,5 +1,5 @@
 /* XPM */
-static char *tb_layout_print_preview_xpm[] = {
+static const char *tb_layout_print_preview_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "16 16 5 1",
 "O c Black",

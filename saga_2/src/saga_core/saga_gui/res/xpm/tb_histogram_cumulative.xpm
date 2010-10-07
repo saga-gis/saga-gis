@@ -1,5 +1,5 @@
 /* XPM */
-static char *tb_histogram_cumulative_xpm[] = {
+static const char *tb_histogram_cumulative_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "16 16 7 1",
 ". c Black",

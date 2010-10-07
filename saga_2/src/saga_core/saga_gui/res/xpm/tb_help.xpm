@@ -1,5 +1,5 @@
 /* XPM */
-static char *tb_help_xpm[] = {
+static const char *tb_help_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "16 16 3 1",
 ". c #000080",

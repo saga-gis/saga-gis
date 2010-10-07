@@ -1,5 +1,5 @@
 /* XPM */
-static char *wksp_noitems_xpm[] = {
+static const char *wksp_noitems_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "16 16 3 1",
 ". c Black",

@@ -1,5 +1,5 @@
 /* XPM */
-static char *tb_open_shapes_xpm[] = {
+static const char *tb_open_shapes_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "16 16 7 1",
 "O c Black",

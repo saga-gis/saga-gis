@@ -1,5 +1,5 @@
 /* XPM */
-static char *nb_wksp_data_xpm[] = {
+static const char *nb_wksp_data_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "16 16 5 1",
 ". c Black",

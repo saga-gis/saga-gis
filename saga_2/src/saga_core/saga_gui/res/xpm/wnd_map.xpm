@@ -1,5 +1,5 @@
 /* XPM */
-static char *wnd_map_xpm[] = {
+static const char *wnd_map_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "16 16 8 1",
 ". c Black",

@@ -1,5 +1,5 @@
 /* XPM */
-static char *wksp_tin_manager_xpm[] = {
+static const char *wksp_tin_manager_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "16 16 4 1",
 "X c Black",

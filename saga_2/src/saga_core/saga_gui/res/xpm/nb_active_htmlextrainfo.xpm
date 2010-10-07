@@ -1,5 +1,5 @@
 /* XPM */
-static char *nb_active_htmlextrainfo_xpm[] = {
+static const char *nb_active_htmlextrainfo_xpm[] = {
 "22 22 158 2",
 "  	c None",
 ". 	c #FFFFFF",

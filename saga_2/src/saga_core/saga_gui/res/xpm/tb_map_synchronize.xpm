@@ -1,5 +1,5 @@
 /* XPM */
-static char *tb_map_synchronize_xpm[] = {
+static const char *tb_map_synchronize_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "16 16 8 1",
 "  c Black",

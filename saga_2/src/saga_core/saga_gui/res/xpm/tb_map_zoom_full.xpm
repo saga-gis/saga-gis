@@ -1,5 +1,5 @@
 /* XPM */
-static char *tb_map_zoom_full_xpm[] = {
+static const char *tb_map_zoom_full_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "18 16 5 1",
 "o c Black",

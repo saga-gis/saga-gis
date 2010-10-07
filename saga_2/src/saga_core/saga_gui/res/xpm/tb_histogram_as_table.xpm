@@ -1,5 +1,5 @@
 /* XPM */
-static char *tb_histogram_as_table_xpm[] = {
+static const char *tb_histogram_as_table_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "16 16 6 1",
 "X c Black",

@@ -1,5 +1,5 @@
 /* XPM */
-static char *tb_map_mode_pan_xpm[] = {
+static const char *tb_map_mode_pan_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "18 16 3 1",
 ". c Black",

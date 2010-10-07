@@ -1,5 +1,5 @@
 /* XPM */
-static char *tb_edit_shape_del_point_xpm[] = {
+static const char *tb_edit_shape_del_point_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "16 16 6 1",
 ". c Black",

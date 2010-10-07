@@ -1,5 +1,5 @@
 /* XPM */
-static char *crs_edit_point_move_xpm[] = {
+static const char *crs_edit_point_move_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "32 32 4 1",
 ". c Black",

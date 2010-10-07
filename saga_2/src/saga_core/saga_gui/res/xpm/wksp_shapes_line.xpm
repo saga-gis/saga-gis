@@ -1,5 +1,5 @@
 /* XPM */
-static char *wksp_shapes_line_xpm[] = {
+static const char *wksp_shapes_line_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "16 16 4 1",
 "o c Black",

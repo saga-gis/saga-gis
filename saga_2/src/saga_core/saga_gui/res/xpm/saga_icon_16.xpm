@@ -1,5 +1,5 @@
 /* XPM */
-static char *saga_icon_16_xpm[] = {
+static const char *saga_icon_16_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "16 16 3 1",
 ". c #00FFFF",
