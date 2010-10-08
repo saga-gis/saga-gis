@@ -214,40 +214,40 @@ bool CLine_Polygon_Intersection::Get_Intersection(CSG_Shape_Polygon *pPolygon, C
 
 		for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
 		{
-			TSG_Point	Point	= pLine->Get_Point(0, iPart);
+			TSG_Point	B, A	= pLine->Get_Point(0, iPart);
 
-			if( pPolygon->is_Containing(Point) )
+			if( pPolygon->is_Containing(A) )
 			{
 				pNew_Line	= New_Lines.Add_Shape(pLine, SHAPE_COPY_ATTR);
-				pNew_Line	->Add_Point(Point, iPart);
+				pNew_Line	->Add_Point(A);
 			}
 			else
 			{
 				pNew_Line	= NULL;
 			}
 
-			for(int iPoint=1; iPoint<pLine->Get_Point_Count(); iPoint++)
+			for(int iPoint=1; iPoint<pLine->Get_Point_Count(iPart); iPoint++)
 			{
-				Point	= pLine->Get_Point(iPoint, iPart);
+				B	= A;
+				A	= pLine->Get_Point(iPoint, iPart);
 
 				if( pNew_Line )
 				{
-					if( pPolygon->is_Containing(Point) )
+					if( pPolygon->is_Containing(A) )
 					{
-						pNew_Line	->Add_Point(Point, iPart);
+						pNew_Line	->Add_Point(A);
 					}
 					else
 					{
-						Point		= Get_Intersection(pPolygon, Point, pLine->Get_Point(iPoint - 1, iPart));
-						pNew_Line	->Add_Point(Point, iPart);
+						pNew_Line	->Add_Point(Get_Intersection(pPolygon, A, B));
 						pNew_Line	= NULL;
 					}
 				}
-				else if( pPolygon->is_Containing(Point) )
+				else if( pPolygon->is_Containing(A) )
 				{
-					Point		= Get_Intersection(pPolygon, Point, pLine->Get_Point(iPoint - 1, iPart));
 					pNew_Line	= New_Lines.Add_Shape(pLine, SHAPE_COPY_ATTR);
-					pNew_Line	->Add_Point(Point, iPart);
+					pNew_Line	->Add_Point(Get_Intersection(pPolygon, A, B));
+					pNew_Line	->Add_Point(A);
 				}
 			}
 		}
