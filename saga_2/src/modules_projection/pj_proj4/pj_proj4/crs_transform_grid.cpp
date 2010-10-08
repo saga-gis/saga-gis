@@ -280,7 +280,7 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid)
 
 				if( pPoints == DATAOBJECT_NOTSET || pPoints == DATAOBJECT_CREATE )
 				{
-					Get_Parameters("POINTS")->Get_Parameter("POINTS")->Set_Value(pPoints = SG_Create_Shapes());
+					Get_Parameters("POINTS")->Get_Parameter("POINTS")->Set_Value(pPoints = SG_Create_Shapes(SHAPE_TYPE_Point));
 				}
 
 				return( Transform(pGrid, pPoints) );
