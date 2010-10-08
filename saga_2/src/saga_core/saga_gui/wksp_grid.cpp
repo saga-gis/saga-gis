@@ -117,12 +117,6 @@ CWKSP_Grid::~CWKSP_Grid(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxString CWKSP_Grid::Get_Name(void)
-{
-	return( wxString::Format(wxT("%02d. %s"), 1 + Get_ID(), m_pGrid->Get_Name()) );
-}
-
-//---------------------------------------------------------
 #define DESC_ADD_STR(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%s</td></tr>"), label, value))
 #define DESC_ADD_INT(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%d</td></tr>"), label, value))
 #define DESC_ADD_FLT(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%s</td></tr>"), label, SG_Get_String(value, -2).c_str()))
@@ -138,6 +132,7 @@ wxString CWKSP_Grid::Get_Description(void)
 	s	+= wxT("<table border=\"0\">");
 
 	DESC_ADD_STR(LNG("[CAP] Name")					, m_pGrid->Get_Name());
+	DESC_ADD_STR(LNG("[CAP] Description")			, m_pGrid->Get_Description());
 	DESC_ADD_STR(LNG("[CAP] File")					, m_pGrid->Get_File_Name());
 	DESC_ADD_STR(LNG("[CAP] Projection")			, m_pGrid->Get_Projection().Get_Description().c_str());
 	DESC_ADD_FLT(LNG("[CAP] West")					, m_pGrid->Get_XMin());
@@ -300,6 +295,12 @@ void CWKSP_Grid::On_Create_Parameters(void)
 {
 	//-----------------------------------------------------
 	// General...
+
+	m_Parameters.Add_String(
+		m_Parameters("NODE_GENERAL")	, "OBJECT_DESC"				, LNG("[CAP] Description"),
+		LNG(""),
+		m_pGrid->Get_Description(), true
+	);
 
 	m_Parameters.Add_String(
 		m_Parameters("NODE_GENERAL")	, "GENERAL_Z_UNIT"			, LNG("[CAP] Unit"),

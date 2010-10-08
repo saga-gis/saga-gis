@@ -90,6 +90,8 @@ public:
 	virtual bool					On_Command				(int Cmd_ID);
 	virtual bool					On_Command_UI			(wxUpdateUIEvent &event);
 
+	virtual wxString				Get_Name				(void);
+
 	virtual CSG_Parameters *		Get_Parameters			(void)	{	return( &m_Parameters );	}
 
 	virtual void					Parameters_Changed		(void);

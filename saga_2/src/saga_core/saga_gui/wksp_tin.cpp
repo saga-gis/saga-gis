@@ -106,12 +106,6 @@ CWKSP_TIN::~CWKSP_TIN(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxString CWKSP_TIN::Get_Name(void)
-{
-	return( wxString::Format(wxT("%02d. %s"), 1 + Get_ID(), m_pTIN->Get_Name()) );
-}
-
-//---------------------------------------------------------
 #define DESC_ADD_STR(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%s</td></tr>"), label, value))
 #define DESC_ADD_INT(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\">%s</td><td valign=\"top\">%d</td></tr>"), label, value))
 

@@ -90,7 +90,6 @@ public:
 
 	virtual TWKSP_Item			Get_Type				(void)	{	return( WKSP_ITEM_Grid );	}
 
-	virtual wxString			Get_Name				(void);
 	virtual wxString			Get_Description			(void);
 
 	virtual wxMenu *			Get_Menu				(void);

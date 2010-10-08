@@ -258,6 +258,19 @@ bool CWKSP_Layer::On_Command_UI(wxUpdateUIEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+wxString CWKSP_Layer::Get_Name(void)
+{
+	return( wxString::Format(wxT("%04d. %s"), 1 + Get_ID(), m_pObject->Get_Name()) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 void CWKSP_Layer::Create_Parameters(void)
 {
 	m_Parameters.Create(this, LNG(""), LNG(""));
