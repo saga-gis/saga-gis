@@ -262,7 +262,7 @@ bool CGDAL_Import::Load(CGDAL_System &System, const CSG_String &Name)
 	int			i, n;
 	CSG_Grid	*pGrid;
 
-	for(i=0, n=0; i<System.Get_Count(); i++)
+	for(i=0, n=0; i<System.Get_Count() && Process_Get_Okay(); i++)
 	{
 		if( (pGrid = System.Read_Band(i)) != NULL )
 		{
@@ -274,7 +274,7 @@ bool CGDAL_Import::Load(CGDAL_System &System, const CSG_String &Name)
 			}
 
 			pGrid->Set_Name(System.Get_Count() > 1
-				? CSG_String::Format(SG_T("%s [%02d]"), Name.c_str(), i + 1).c_str()
+				? CSG_String::Format(SG_T("%s [%s]"), Name.c_str(), pGrid->Get_Name()).c_str()
 				: Name.c_str()
 			);
 

@@ -297,12 +297,42 @@ CSG_Grid * CGDAL_System::Read_Band(int i)
 
 	if( is_Reading() && (pBand = m_pDataSet->GetRasterBand(i + 1)) != NULL )
 	{
+		CSG_String	Name, Description;
+
 		CSG_Grid	*pGrid	= SG_Create_Grid(g_GDAL_Driver.Get_Grid_Type(pBand->GetRasterDataType()),
 			Get_NX(), Get_NY(), Get_Cellsize(), Get_xMin(), Get_yMin()
 		);
 
-		pGrid->Set_Name			(SG_STR_MBTOSG(pBand->GetMetadataItem(GDAL_DMD_LONGNAME)));
-		pGrid->Set_Description	(SG_STR_MBTOSG(pBand->GetMetadataItem(GDAL_DMD_LONGNAME)));
+		//-------------------------------------------------
+		char	**pMetaData	= pBand->GetMetadata() + 0;
+
+		while( *pMetaData )
+		{
+			Description	+= SG_STR_MBTOSG(*pMetaData);
+			Description	+= SG_T("\n");
+
+			pMetaData++;
+		}
+
+		//-------------------------------------------------
+		const char	*s;
+
+		if( (s = pBand->GetMetadataItem("GRIB_COMMENT")) != NULL && *s )
+		{
+			Name	= SG_STR_MBTOSG(s);
+		}
+		else if( (s = pBand->GetMetadataItem(GDAL_DMD_LONGNAME)) != NULL && *s )
+		{
+			Name	= SG_STR_MBTOSG(s);
+		}
+		else
+		{
+			Name.Printf(SG_T("%d"), i + 1);
+		}
+
+		//-------------------------------------------------
+		pGrid->Set_Name			(Name);
+		pGrid->Set_Description	(Description);
 		pGrid->Set_Unit			(SG_STR_MBTOSG(pBand->GetUnitType()));
 		pGrid->Set_NoData_Value	(pBand->GetNoDataValue());
 		pGrid->Set_ZFactor		(pBand->GetScale());
