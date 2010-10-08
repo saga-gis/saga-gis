@@ -60,8 +60,6 @@
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
-#include <gdal_priv.h>
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -76,28 +74,33 @@ public:
 	CGDAL_Driver(void);
 	virtual ~CGDAL_Driver(void);
 
-	int						Get_Count		(void)				{	return( pManager->GetDriverCount() );	}
-	const char *			Get_Name		(int Index)			{	return( Get_Driver(Index)->GetMetadataItem(GDAL_DMD_LONGNAME) );	}
-	const char *			Get_Description	(int Index)			{	return( Get_Driver(Index)->GetDescription() );	}
-	GDALDriver *			Get_Driver		(int Index)			{	return( (GDALDriver *)GDALGetDriver(Index) );	}
-	GDALDriver *			Get_Driver		(const char *Name)	{	return( (GDALDriver *)GDALGetDriverByName(Name) );	}
+	int							Get_Count			(void);
+	const char *				Get_Name			(int Index);
+	const char *				Get_Description		(int Index);
+	class GDALDriver *			Get_Driver			(int Index);
+	class GDALDriver *			Get_Driver			(const char *Name);
 
+	bool						is_ReadOnly			(int Index);
 
-	static TSG_Data_Type	Get_Grid_Type	(GDALDataType  Type);
-	static GDALDataType		Get_GDAL_Type	(TSG_Data_Type Type);
-	static GDALDataType		Get_GDAL_Type	(CSG_Parameter_Grid_List *pGrids);
-	static bool				Set_Transform	(GDALDataset *pDataset, CSG_Grid_System *pSystem);
+	static int					Get_GDAL_Type		(TSG_Data_Type Type);
+	static TSG_Data_Type		Get_Grid_Type		(int           Type);
+	static TSG_Data_Type		Get_Grid_Type		(CSG_Parameter_Grid_List *pGrids);
 
 
 private:
 
-	GDALDriverManager		*pManager;
+	class GDALDriverManager		*pManager;
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #define IO_CLOSED		0x00
-#define IO_READ		0x01
+#define IO_READ			0x01
 #define IO_WRITE		0x02
 #define IO_READWRITE	(IO_READ|IO_WRITE)
 
@@ -109,49 +112,53 @@ public:
 	CGDAL_System(const CSG_String &File_Name, int ioAccess = IO_READ);
 	virtual ~CGDAL_System(void);
 
-	bool					Create			(const CSG_String &File_Name, int ioAccess = IO_READ);
-	bool					Destroy			(void);
+	bool						Open_Read			(const CSG_String &File_Name);
+	bool						Open_Write			(const CSG_String &File_Name, const CSG_String &Driver, TSG_Data_Type Type, int NBands, const CSG_Grid_System &System, const CSG_Projection &Projection);
+	bool						Close				(void);
 
-	bool					is_Okay			(void)	const	{	return( m_pDataSet != NULL );	}
-	bool					is_Reading		(void)	const	{	return( m_pDataSet != NULL && m_Access & IO_READ );	 }
-	bool					is_Writing		(void)	const	{	return( m_pDataSet != NULL && m_Access & IO_WRITE );	}
+	bool						is_Okay				(void)	const	{	return( m_pDataSet != NULL );	}
+	bool						is_Reading			(void)	const	{	return( m_pDataSet != NULL && m_Access & IO_READ );	 }
+	bool						is_Writing			(void)	const	{	return( m_pDataSet != NULL && m_Access & IO_WRITE );	}
 
-	int						Get_NX			(void)	const	{	return( m_NX );			}
-	int						Get_NY			(void)	const	{	return( m_NY );			}
-	double					Get_xMin		(void)	const	{	return( m_xMin );		}
-	double					Get_yMin		(void)	const	{	return( m_yMin );		}
-	double					Get_Cellsize	(void)	const	{	return( m_Cellsize );	}
+	int							Get_NX				(void)	const	{	return( m_NX );			}
+	int							Get_NY				(void)	const	{	return( m_NY );			}
+	double						Get_xMin			(void)	const	{	return( m_xMin );		}
+	double						Get_yMin			(void)	const	{	return( m_yMin );		}
+	double						Get_Cellsize		(void)	const	{	return( m_Cellsize );	}
 
-	bool					Needs_Transform	(void)	const	{	return( m_bTransform );	}
-	void					Get_Transform	(CSG_Vector &A, CSG_Matrix &B)	const	{	A	= m_TF_A;	B	= m_TF_B;	}
+	bool						Needs_Transform		(void)	const	{	return( m_bTransform );	}
+	void						Get_Transform		(CSG_Vector &A, CSG_Matrix &B)	const	{	A	= m_TF_A;	B	= m_TF_B;	}
 
-	GDALDriver *			Get_Driver		(void)	const	{	return( m_pDataSet ? m_pDataSet->GetDriver() : NULL );	}
-	const char *			Get_Projection	(void)	const	{	return( m_pDataSet && m_pDataSet->GetProjectionRef() ? m_pDataSet->GetProjectionRef() : "" );	}
+	class GDALDriver *			Get_Driver			(void)	const;
+	const char *				Get_Name			(void)	const;
+	const char *				Get_Description		(void)	const;
+	const char *				Get_Projection		(void)	const;
+	const char **				Get_MetaData		(const char *pszDomain = "")	const;
+	const char *				Get_MetaData_Item	(const char *pszName, const char *pszDomain = "")	const;
 
-	int						Get_Count		(void)	const	{	return( m_pDataSet ? m_pDataSet->GetRasterCount() : 0    );	}
-	CSG_Grid *				Read_Band		(int i);
-
-	GDALDataset *			Get_DataSet		(void)	{	return( m_pDataSet );	}
+	int							Get_Count			(void)	const;
+	CSG_Grid *					Read_Band			(int i);
+	bool						Write_Band			(int i, CSG_Grid *pGrid);
 
 
 private:
 
-	bool					m_bTransform;
+	bool						m_bTransform;
 
-	int						m_Access, m_NX, m_NY;
+	int							m_Access, m_NX, m_NY;
 
-	double					m_xMin, m_yMin, m_Cellsize;
+	double						m_xMin, m_yMin, m_Cellsize;
 
-	CSG_Vector				m_TF_A;
+	CSG_Vector					m_TF_A;
 
-	CSG_Matrix				m_TF_B, m_TF_BInv;
+	CSG_Matrix					m_TF_B, m_TF_BInv;
 
-	GDALDataset				*m_pDataSet;
+	class GDALDataset			*m_pDataSet;
 
 
 public:
 
-	bool					to_World		(double x, double y, double &xWorld, double &yWorld)
+	bool						to_World			(double x, double y, double &xWorld, double &yWorld)
 	{
 		if( m_pDataSet )
 		{
@@ -164,7 +171,7 @@ public:
 		return( false );
 	}
 
-	bool					from_World		(double xWorld, double yWorld, double &x, double &y)
+	bool						from_World			(double xWorld, double yWorld, double &x, double &y)
 	{
 		if( m_pDataSet )
 		{

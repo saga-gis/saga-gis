@@ -134,9 +134,9 @@ bool CGDAL_Import::On_Execute(void)
 
 	for(int i=0; i<Files.Get_Count(); i++)
 	{
-		Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("loading"), Files[i].c_str()));
+		Message_Add(CSG_String::Format(SG_T("\n%s: %s"), _TL("loading"), Files[i].c_str()), false);
 
-		if( System.Create(Files[i], IO_READ) == false )
+		if( System.Open_Read(Files[i]) == false )
 		{
 			Message_Add(_TL("failed: could not find a suitable import driver"));
 		}
@@ -168,9 +168,9 @@ bool CGDAL_Import::Load_Sub(CGDAL_System &System, const CSG_String &Name)
 {
 	if( System.is_Reading() )
 	{
-		char	**pMetaData	= System.Get_DataSet()->GetMetadata("SUBDATASETS");
+		const char	**pMetaData	= System.Get_MetaData("SUBDATASETS");
 
-		if( CSLCount(pMetaData) > 0 )
+		if( pMetaData && pMetaData[0] )
 		{
 			int				i, n;
 			CSG_String		s, sID, sName, sDesc;
@@ -206,7 +206,7 @@ bool CGDAL_Import::Load_Sub(CGDAL_System &System, const CSG_String &Name)
 			{
 				for(i=0, n=0; i<P.Get_Count() && Process_Get_Okay(false); i++)
 				{
-					if( P(i)->asBool() && System.Create(P(i)->Get_Identifier(), IO_READ) && Load(System, P(i)->Get_Name()) )
+					if( P(i)->asBool() && System.Open_Read(P(i)->Get_Identifier()) && Load(System, P(i)->Get_Name()) )
 					{
 						n++;
 					}
@@ -246,8 +246,8 @@ bool CGDAL_Import::Load(CGDAL_System &System, const CSG_String &Name)
 	Message_Add(CSG_String::Format(
 		SG_T("\n%s: %s/%s\n"),
 		_TL("Driver"),
-		System.Get_Driver()->GetDescription(), 
-		System.Get_Driver()->GetMetadataItem(GDAL_DMD_LONGNAME)
+		System.Get_Description(), 
+		System.Get_Name()
 	), false);
 
 	Message_Add(CSG_String::Format(

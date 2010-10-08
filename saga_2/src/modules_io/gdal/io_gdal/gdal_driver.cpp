@@ -56,6 +56,8 @@
 //---------------------------------------------------------
 #include "gdal_driver.h"
 
+#include <gdal_priv.h>
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -79,11 +81,6 @@ CGDAL_Driver::CGDAL_Driver(void)
 	GDALAllRegister();
 
 	pManager	= GetGDALDriverManager();
-
-	//-----------------------------------------------------
-	for(int i=0; i<Get_Count(); i++)
-    {
-    }
 }
 
 //---------------------------------------------------------
@@ -92,8 +89,73 @@ CGDAL_Driver::~CGDAL_Driver(void)
 	GDALDestroyDriverManager();	
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-TSG_Data_Type CGDAL_Driver::Get_Grid_Type(GDALDataType Type)
+int CGDAL_Driver::Get_Count(void)
+{
+	return( pManager->GetDriverCount() );
+}
+
+//---------------------------------------------------------
+const char * CGDAL_Driver::Get_Name(int Index)
+{
+	return( Get_Driver(Index)->GetMetadataItem(GDAL_DMD_LONGNAME) );
+}
+
+//---------------------------------------------------------
+const char * CGDAL_Driver::Get_Description(int Index)
+{
+	return( Get_Driver(Index)->GetDescription() );
+}
+
+//---------------------------------------------------------
+bool CGDAL_Driver::is_ReadOnly(int Index)
+{
+	return( Index >= 0 && Index < Get_Count() ? CSLFetchBoolean(Get_Driver(Index)->GetMetadata(), GDAL_DCAP_CREATE, false) == 0 : false );
+}
+
+//---------------------------------------------------------
+GDALDriver * CGDAL_Driver::Get_Driver(int Index)
+{
+	return( (GDALDriver *)GDALGetDriver(Index) );
+}
+
+//---------------------------------------------------------
+GDALDriver * CGDAL_Driver::Get_Driver(const char *Name)
+{
+	return( (GDALDriver *)GDALGetDriverByName(Name) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGDAL_Driver::Get_GDAL_Type(TSG_Data_Type Type)
+{
+	switch( Type )
+	{
+	case SG_DATATYPE_Bit: 		return( GDT_Byte );			// Eight bit unsigned integer
+	case SG_DATATYPE_Byte: 		return( GDT_Byte );			// Eight bit unsigned integer
+	case SG_DATATYPE_Char: 		return( GDT_Byte );			// Eight bit unsigned integer
+	case SG_DATATYPE_Word:		return( GDT_UInt16 );		// Sixteen bit unsigned integer
+	case SG_DATATYPE_Short:		return( GDT_Int16 );		// Sixteen bit signed integer
+	case SG_DATATYPE_DWord:		return( GDT_UInt32 );		// Thirty two bit unsigned integer
+	case SG_DATATYPE_Int: 		return( GDT_Int32 );		// Thirty two bit signed integer
+	case SG_DATATYPE_Float: 	return( GDT_Float32 );		// Thirty two bit floating point
+	case SG_DATATYPE_Double: 	return( GDT_Float64 );		// Sixty four bit floating point
+
+	default:					return( GDT_Float64 );
+	}
+}
+
+//---------------------------------------------------------
+TSG_Data_Type CGDAL_Driver::Get_Grid_Type(int Type)
 {
 	switch( Type )
 	{
@@ -115,26 +177,7 @@ TSG_Data_Type CGDAL_Driver::Get_Grid_Type(GDALDataType Type)
 }
 
 //---------------------------------------------------------
-GDALDataType CGDAL_Driver::Get_GDAL_Type(TSG_Data_Type Type)
-{
-	switch( Type )
-	{
-	case SG_DATATYPE_Bit: 		return( GDT_Byte );			// Eight bit unsigned integer
-	case SG_DATATYPE_Byte: 		return( GDT_Byte );			// Eight bit unsigned integer
-	case SG_DATATYPE_Char: 		return( GDT_Byte );			// Eight bit unsigned integer
-	case SG_DATATYPE_Word:		return( GDT_UInt16 );		// Sixteen bit unsigned integer
-	case SG_DATATYPE_Short:		return( GDT_Int16 );		// Sixteen bit signed integer
-	case SG_DATATYPE_DWord:		return( GDT_UInt32 );		// Thirty two bit unsigned integer
-	case SG_DATATYPE_Int: 		return( GDT_Int32 );		// Thirty two bit signed integer
-	case SG_DATATYPE_Float: 	return( GDT_Float32 );		// Thirty two bit floating point
-	case SG_DATATYPE_Double: 	return( GDT_Float64 );		// Sixty four bit floating point
-
-	default:					return( GDT_Float64 );
-	}
-}
-
-//---------------------------------------------------------
-GDALDataType CGDAL_Driver::Get_GDAL_Type(CSG_Parameter_Grid_List *pGrids)
+TSG_Data_Type CGDAL_Driver::Get_Grid_Type(CSG_Parameter_Grid_List *pGrids)
 {
 	TSG_Data_Type	Type	= SG_DATATYPE_Byte;
 
@@ -149,26 +192,7 @@ GDALDataType CGDAL_Driver::Get_GDAL_Type(CSG_Parameter_Grid_List *pGrids)
 		}
 	}
 
-	return( Get_GDAL_Type(Type) );
-}
-
-//---------------------------------------------------------
-bool CGDAL_Driver::Set_Transform(GDALDataset *pDataset, CSG_Grid_System *pSystem)
-{
-	if( pDataset && pSystem )
-	{
-		double	Transform[6]	=
-		{
-			pSystem->Get_XMin() - 0.5 * pSystem->Get_Cellsize(), pSystem->Get_Cellsize(), 0.0,
-			pSystem->Get_YMax() + 0.5 * pSystem->Get_Cellsize(), 0.0, -pSystem->Get_Cellsize()
-		};
-
-		pDataset->SetGeoTransform(Transform);
-
-		return( true );
-	}
-
-	return( false );
+	return( Type );
 }
 
 
@@ -195,13 +219,13 @@ CGDAL_System::CGDAL_System(const CSG_String &File_Name, int ioAccess)
 	m_TF_A.Create(2);
 	m_TF_B.Create(2, 2);
 
-	Create(File_Name, ioAccess);
+	Open_Read(File_Name);
 }
 
 //---------------------------------------------------------
 CGDAL_System::~CGDAL_System(void)
 {
-	Destroy();
+	Close();
 }
 
 
@@ -210,68 +234,115 @@ CGDAL_System::~CGDAL_System(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGDAL_System::Create(const CSG_String &File_Name, int ioAccess)
+bool CGDAL_System::Open_Read(const CSG_String &File_Name)
 {
-	Destroy();
+	Close();
 
-	//-----------------------------------------------------
-	if( ioAccess == IO_READ )
+	if( (m_pDataSet = (GDALDataset *)GDALOpen(SG_STR_SGTOMB(File_Name), GA_ReadOnly)) == NULL )
 	{
-		if( (m_pDataSet = (GDALDataset *)GDALOpen(SG_STR_SGTOMB(File_Name), GA_ReadOnly)) != NULL )
-		{
-			double	Transform[6];
-
-			m_Access	= IO_READ;
-
-			m_NX		= m_pDataSet->GetRasterXSize();
-			m_NY		= m_pDataSet->GetRasterYSize();
-
-			if( m_pDataSet->GetGeoTransform(Transform) != CE_None )
-			{
-				m_bTransform	= false;
-				m_Cellsize		= 1.0;
-				m_xMin			= 0.5;
-				m_yMin			= 0.5;
-			}
-			else if( Transform[1] == -Transform[5] && Transform[2] == 0.0 && Transform[4] == 0.0 )	// nothing to transform
-			{
-				m_bTransform	= false;
-				m_Cellsize		= Transform[1];								// pixel width (== pixel height)
-				m_xMin			= Transform[0] + m_Cellsize *  0.5;			// center (x) of left edge pixels
-				m_yMin			= Transform[3] + m_Cellsize * (0.5 - m_NY);	// center (y) of lower edge pixels
-			}
-			else
-			{
-				m_bTransform	= true;
-				m_Cellsize		= 1.0;
-				m_xMin			= 0.5;
-				m_yMin			= 0.5;
-			}
-
-			m_TF_A[0]		= Transform[0];
-			m_TF_A[1]		= Transform[3];
-			m_TF_B[0][0]	= Transform[1];
-			m_TF_B[0][1]	= Transform[2];
-			m_TF_B[1][0]	= Transform[4];
-			m_TF_B[1][1]	= Transform[5];
-			m_TF_BInv		= m_TF_B.Get_Inverse();
-
-			return( true );
-		}
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	else if( ioAccess == IO_WRITE )
+	double	Transform[6];
+
+	m_Access	= IO_READ;
+
+	m_NX		= m_pDataSet->GetRasterXSize();
+	m_NY		= m_pDataSet->GetRasterYSize();
+
+	if( m_pDataSet->GetGeoTransform(Transform) != CE_None )
 	{
+		m_bTransform	= false;
+		m_Cellsize		= 1.0;
+		m_xMin			= 0.5;
+		m_yMin			= 0.5;
+	}
+	else if( Transform[1] == -Transform[5] && Transform[2] == 0.0 && Transform[4] == 0.0 )	// nothing to transform
+	{
+		m_bTransform	= false;
+		m_Cellsize		= Transform[1];								// pixel width (== pixel height)
+		m_xMin			= Transform[0] + m_Cellsize *  0.5;			// center (x) of left edge pixels
+		m_yMin			= Transform[3] + m_Cellsize * (0.5 - m_NY);	// center (y) of lower edge pixels
+	}
+	else
+	{
+		m_bTransform	= true;
+		m_Cellsize		= 1.0;
+		m_xMin			= 0.5;
+		m_yMin			= 0.5;
 	}
 
-	Destroy();
+	m_TF_A[0]		= Transform[0];
+	m_TF_A[1]		= Transform[3];
+	m_TF_B[0][0]	= Transform[1];
+	m_TF_B[0][1]	= Transform[2];
+	m_TF_B[1][0]	= Transform[4];
+	m_TF_B[1][1]	= Transform[5];
+	m_TF_BInv		= m_TF_B.Get_Inverse();
 
-	return( false );
+	return( true );
 }
 
 //---------------------------------------------------------
-bool CGDAL_System::Destroy(void)
+bool CGDAL_System::Open_Write(const CSG_String &File_Name, const CSG_String &Driver, TSG_Data_Type Type, int NBands, const CSG_Grid_System &System, const CSG_Projection &Projection)
+{
+	char		**pOptions	= NULL;
+	GDALDriver	*pDriver;
+
+	Close();
+
+	//--------------------------------------------------------
+	if( (pDriver = g_GDAL_Driver.Get_Driver(SG_STR_SGTOMB(Driver))) == NULL )
+	{
+		SG_UI_Msg_Add_Error(_TL("GeoTIFF driver not found."));
+
+		return( false );
+	}
+
+	if( CSLFetchBoolean(pDriver->GetMetadata(), GDAL_DCAP_CREATE, false) == false )
+	{
+		SG_UI_Msg_Add_Error(_TL("Driver does not support file creation."));
+
+		return( false );
+	}
+
+	if( (m_pDataSet = pDriver->Create(SG_STR_SGTOMB(File_Name), System.Get_NX(), System.Get_NY(), NBands, (GDALDataType)g_GDAL_Driver.Get_GDAL_Type(Type), pOptions)) == NULL )
+	{
+		SG_UI_Msg_Add_Error(_TL("Could not create dataset."));
+
+		return( false );
+	}
+
+	//--------------------------------------------------------
+	m_Access	= IO_WRITE;
+
+	if( Projection.is_Okay() )
+	{
+		m_pDataSet->SetProjection(SG_STR_SGTOMB(Projection.Get_WKT()));
+	}
+
+	double	Transform[6]	=
+	{
+		System.Get_XMin() - 0.5 * System.Get_Cellsize(), System.Get_Cellsize(), 0.0,
+		System.Get_YMax() + 0.5 * System.Get_Cellsize(), 0.0, -System.Get_Cellsize()
+	};
+
+	m_pDataSet->SetGeoTransform(Transform);
+
+	m_NX			= m_pDataSet->GetRasterXSize();
+	m_NY			= m_pDataSet->GetRasterYSize();
+
+	m_bTransform	= false;
+	m_Cellsize		= 1.0;
+	m_xMin			= 0.5;
+	m_yMin			= 0.5;
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CGDAL_System::Close(void)
 {
 	if( m_pDataSet )
 	{
@@ -291,6 +362,53 @@ bool CGDAL_System::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+GDALDriver * CGDAL_System::Get_Driver(void)	const
+{
+	return( m_pDataSet ? m_pDataSet->GetDriver() : NULL );
+}
+
+//---------------------------------------------------------
+const char * CGDAL_System::Get_Projection(void)	const
+{
+	return( m_pDataSet && m_pDataSet->GetProjectionRef() ? m_pDataSet->GetProjectionRef() : "" );
+}
+
+//---------------------------------------------------------
+const char * CGDAL_System::Get_Name(void)	const
+{
+	return( m_pDataSet ? m_pDataSet->GetMetadataItem(GDAL_DMD_LONGNAME) : "" );
+}
+
+//---------------------------------------------------------
+const char * CGDAL_System::Get_Description(void)	const
+{
+	return( m_pDataSet ? m_pDataSet->GetDescription() : "" );
+}
+
+//---------------------------------------------------------
+const char ** CGDAL_System::Get_MetaData(const char *pszDomain)	const
+{
+	return( m_pDataSet ? (const char **)m_pDataSet->GetMetadata(pszDomain) : NULL );
+}
+
+//---------------------------------------------------------
+const char * CGDAL_System::Get_MetaData_Item(const char *pszName, const char *pszDomain)	const
+{
+	return( m_pDataSet ? m_pDataSet->GetMetadataItem(pszName, pszDomain) : "" );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGDAL_System::Get_Count(void)	const
+{
+	return( m_pDataSet ? m_pDataSet->GetRasterCount() : 0 );
+}
+
+//---------------------------------------------------------
 CSG_Grid * CGDAL_System::Read_Band(int i)
 {
 	GDALRasterBand	*pBand;
@@ -306,12 +424,15 @@ CSG_Grid * CGDAL_System::Read_Band(int i)
 		//-------------------------------------------------
 		char	**pMetaData	= pBand->GetMetadata() + 0;
 
-		while( *pMetaData )
+		if( pMetaData )
 		{
-			Description	+= SG_STR_MBTOSG(*pMetaData);
-			Description	+= SG_T("\n");
+			while( *pMetaData )
+			{
+				Description	+= SG_STR_MBTOSG(*pMetaData);
+				Description	+= SG_T("\n");
 
-			pMetaData++;
+				pMetaData++;
+			}
 		}
 
 		//-------------------------------------------------
@@ -364,6 +485,33 @@ CSG_Grid * CGDAL_System::Read_Band(int i)
 	}
 
 	return( NULL );
+}
+
+//---------------------------------------------------------
+bool CGDAL_System::Write_Band(int i, CSG_Grid *pGrid)
+{
+	if( !m_pDataSet || !pGrid || pGrid->Get_NX() != Get_NX() || pGrid->Get_NY() != Get_NY() || i < 0 || i >= Get_Count() )
+	{
+		return( false );
+	}
+
+	GDALRasterBand	*pBand	= m_pDataSet->GetRasterBand(i + 1);
+
+	double	*zLine	= (double *)SG_Malloc(Get_NX() * sizeof(double));
+
+	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
+		{
+			zLine[x]	= pGrid->asDouble(x, Get_NY() - 1 - y);
+		}
+
+		pBand->RasterIO(GF_Write, 0, y, Get_NX(), 1, zLine, Get_NX(), 1, GDT_Float64, 0, 0);
+	}
+
+	SG_Free(zLine);
+
+	return( true );
 }
 
 

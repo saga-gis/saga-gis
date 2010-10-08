@@ -113,77 +113,32 @@ CGDAL_Export_GeoTIFF::~CGDAL_Export_GeoTIFF(void)
 //---------------------------------------------------------
 bool CGDAL_Export_GeoTIFF::On_Execute(void)
 {
-	char					**pOptions	= NULL;
-	int						x, y, n;
-	double					*zLine;
 	CSG_String				File_Name;
 	CSG_Projection			Projection;
 	CSG_Parameter_Grid_List	*pGrids;
-	CSG_Grid				*pGrid;
-	GDALDataType			gdal_Type;
-	GDALDriver				*pDriver;
-	GDALDataset				*pDataset;
-	GDALRasterBand			*pBand;
+	CGDAL_System			System;
 
 	//-----------------------------------------------------
 	pGrids		= Parameters("GRIDS")	->asGridList();
 	File_Name	= Parameters("FILE")	->asString();
 
-	//-----------------------------------------------------
-	gdal_Type	= g_GDAL_Driver.Get_GDAL_Type(pGrids);
+	Get_Projection(Projection);
 
 	//-----------------------------------------------------
-	if( (pDriver = g_GDAL_Driver.Get_Driver("GTiff")) == NULL )
+	if( !System.Open_Write(File_Name, SG_T("GTiff"), g_GDAL_Driver.Get_Grid_Type(pGrids), pGrids->Get_Count(), *Get_System(), Projection) )
 	{
-		Message_Add(_TL("GeoTIFF driver not found."));
-	}
-	else if( CSLFetchBoolean(pDriver->GetMetadata(), GDAL_DCAP_CREATE, false) == false )
-	{
-		Message_Add(_TL("Driver does not support file creation."));
-	}
-	else if( (pDataset = pDriver->Create(File_Name.b_str(), Get_NX(), Get_NY(), pGrids->Get_Count(), gdal_Type, pOptions)) == NULL )
-	{
-		Message_Add(_TL("Could not create dataset."));
-	}
-	else
-	{
-		g_GDAL_Driver.Set_Transform(pDataset, Get_System());
-
-		if( Get_Projection(Projection) )
-		{
-			pDataset->SetProjection(SG_STR_SGTOMB(Projection.Get_WKT()));
-		}
-
-		zLine	= (double *)SG_Malloc(Get_NX() * sizeof(double));
-
-		for(n=0; n<pGrids->Get_Count(); n++)
-		{
-			Process_Set_Text(CSG_String::Format(SG_T("%s %d"), _TL("Band"), n + 1));
-
-			pGrid	= pGrids->asGrid(n);
-			pBand	= pDataset->GetRasterBand(n + 1);
-
-			for(y=0; y<Get_NY() && Set_Progress(y, Get_NY()); y++)
-			{
-				for(x=0; x<Get_NX(); x++)
-				{
-					zLine[x]	= pGrid->asDouble(x, Get_NY() - 1 - y);
-				}
-
-				pBand->RasterIO(GF_Write, 0, y, Get_NX(), 1, zLine, Get_NX(), 1, GDT_Float64, 0, 0);
-			}
-		}
-
-		//-------------------------------------------------
-		SG_Free(zLine);
-
-		GDALClose(pDataset);
-
-		return( true );
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	return( false );
+	for(int i=0; i<pGrids->Get_Count(); i++)
+	{
+		Process_Set_Text(CSG_String::Format(SG_T("%s %d"), _TL("Band"), i + 1));
+
+		System.Write_Band(i, pGrids->asGrid(i));
+	}
+
+	return( true );
 }
 
 

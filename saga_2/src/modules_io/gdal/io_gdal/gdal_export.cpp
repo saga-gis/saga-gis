@@ -87,7 +87,7 @@ CGDAL_Export::CGDAL_Export(void)
 
 	for(int i=0; i<g_GDAL_Driver.Get_Count(); i++)
     {
-		if( CSLFetchBoolean(g_GDAL_Driver.Get_Driver(i)->GetMetadata(), GDAL_DCAP_CREATE, false) )
+		if( !g_GDAL_Driver.is_ReadOnly(i) )
 		{
 			Description	+= CSG_String::Format(SG_T("<tr><td>%s</td><td>%s</td></tr>\n"),
 				SG_STR_MBTOSG(g_GDAL_Driver.Get_Description(i)),
@@ -154,17 +154,11 @@ CGDAL_Export::~CGDAL_Export(void)
 //---------------------------------------------------------
 bool CGDAL_Export::On_Execute(void)
 {
-	char					**pOptions	= NULL;
-	int						x, y, n;
-	double					*zLine;
+	TSG_Data_Type			Type;
 	CSG_String				File_Name;
 	CSG_Projection			Projection;
 	CSG_Parameter_Grid_List	*pGrids;
-	CSG_Grid				*pGrid;
-	GDALDataType			gdal_Type;
-	GDALDriver				*pDriver;
-	GDALDataset				*pDataset;
-	GDALRasterBand			*pBand;
+	CGDAL_System			System;
 
 	//-----------------------------------------------------
 	pGrids		= Parameters("GRIDS")	->asGridList();
@@ -174,68 +168,31 @@ bool CGDAL_Export::On_Execute(void)
 	switch( Parameters("TYPE")->asInt() )
 	{
 	default:
-	case 0:	gdal_Type	= g_GDAL_Driver.Get_GDAL_Type(pGrids);	break;	// match input data
-	case 1:	gdal_Type	= GDT_Byte;		break;	// Eight bit unsigned integer
-	case 2:	gdal_Type	= GDT_UInt16;	break;	// Sixteen bit unsigned integer
-	case 3:	gdal_Type	= GDT_Int16;	break;	// Sixteen bit signed integer
-	case 4:	gdal_Type	= GDT_UInt32;	break;	// Thirty two bit unsigned integer
-	case 5:	gdal_Type	= GDT_Int32;	break;	// Thirty two bit signed integer
-	case 6:	gdal_Type	= GDT_Float32;	break;	// Thirty two bit floating point
-	case 7:	gdal_Type	= GDT_Float64;	break;	// Sixty four bit floating point
+	case 0:	Type	= g_GDAL_Driver.Get_Grid_Type(pGrids);	break;	// match input data
+	case 1:	Type	= SG_DATATYPE_Byte;		break;	// Eight bit unsigned integer
+	case 2:	Type	= SG_DATATYPE_Word;		break;	// Sixteen bit unsigned integer
+	case 3:	Type	= SG_DATATYPE_Short;	break;	// Sixteen bit signed integer
+	case 4:	Type	= SG_DATATYPE_DWord;	break;	// Thirty two bit unsigned integer
+	case 5:	Type	= SG_DATATYPE_Int;		break;	// Thirty two bit signed integer
+	case 6:	Type	= SG_DATATYPE_Float;	break;	// Thirty two bit floating point
+	case 7:	Type	= SG_DATATYPE_Double;	break;	// Sixty four bit floating point
 	}
 
 	//-----------------------------------------------------
-	if( (pDriver = g_GDAL_Driver.Get_Driver(SG_STR_SGTOMB(m_DriverNames[Parameters("FORMAT")->asInt()]))) == NULL )
+	if( !System.Open_Write(File_Name, m_DriverNames[Parameters("FORMAT")->asInt()], Type, pGrids->Get_Count(), *Get_System(), Projection) )
 	{
-		Message_Add(_TL("Driver not found."));
-	}
-	else if( CSLFetchBoolean(pDriver->GetMetadata(), GDAL_DCAP_CREATE, false) == false )
-	{
-		Message_Add(_TL("Driver does not support file creation."));
-	}
-	else if( (pDataset = pDriver->Create(File_Name.b_str(), Get_NX(), Get_NY(), pGrids->Get_Count(), gdal_Type, pOptions)) == NULL )
-	{
-		Message_Add(_TL("Could not create dataset."));
-	}
-	else
-	{
-		g_GDAL_Driver.Set_Transform(pDataset, Get_System());
-
-		if( Get_Projection(Projection) )
-		{
-			pDataset->SetProjection(SG_STR_SGTOMB(Projection.Get_WKT()));
-		}
-
-		zLine	= (double *)SG_Malloc(Get_NX() * sizeof(double));
-
-		for(n=0; n<pGrids->Get_Count(); n++)
-		{
-			Process_Set_Text(CSG_String::Format(SG_T("%s %d"), _TL("Band"), n + 1));
-
-			pGrid	= pGrids->asGrid(n);
-			pBand	= pDataset->GetRasterBand(n + 1);
-
-			for(y=0; y<Get_NY() && Set_Progress(y, Get_NY()); y++)
-			{
-				for(x=0; x<Get_NX(); x++)
-				{
-					zLine[x]	= pGrid->asDouble(x, Get_NY() - 1 - y);
-				}
-
-				pBand->RasterIO(GF_Write, 0, y, Get_NX(), 1, zLine, Get_NX(), 1, GDT_Float64, 0, 0);
-			}
-		}
-
-		//-------------------------------------------------
-		SG_Free(zLine);
-
-		GDALClose(pDataset);
-
-		return( true );
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	return( false );
+	for(int i=0; i<pGrids->Get_Count(); i++)
+	{
+		Process_Set_Text(CSG_String::Format(SG_T("%s %d"), _TL("Band"), i + 1));
+
+		System.Write_Band(i, pGrids->asGrid(i));
+	}
+
+	return( true );
 }
 
 
