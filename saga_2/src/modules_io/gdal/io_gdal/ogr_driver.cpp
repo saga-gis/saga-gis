@@ -56,6 +56,8 @@
 //---------------------------------------------------------
 #include "ogr_driver.h"
 
+#include <gdal_priv.h>
+#include <ogrsf_frmts.h>
 #include <ogr_core.h>
 
 
@@ -66,7 +68,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-COGR_Driver		g_OGR_Driver;
+CSG_OGR_Drivers		gSG_OGR_Drivers;
+
+const CSG_OGR_Drivers &	SG_Get_OGR_Drivers	(void)
+{
+	return( gSG_OGR_Drivers );
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -76,40 +83,52 @@ COGR_Driver		g_OGR_Driver;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-COGR_Driver::COGR_Driver(void)
+CSG_OGR_Drivers::CSG_OGR_Drivers(void)
 {
 	OGRRegisterAll();
 
-	m_pManager	= OGRSFDriverRegistrar::GetRegistrar();
+	m_pDrivers	= OGRSFDriverRegistrar::GetRegistrar();
 }
 
 //---------------------------------------------------------
-COGR_Driver::~COGR_Driver(void)
+CSG_OGR_Drivers::~CSG_OGR_Drivers(void)
 {
 //	OGRCleanupAll();	
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-OGRSFDriver * COGR_Driver::Get_Driver(const CSG_String &Name)
+int CSG_OGR_Drivers::Get_Count(void) const
 {
-	return( m_pManager ? m_pManager->GetDriverByName(SG_STR_SGTOMB(Name)) : NULL );
+	return( m_pDrivers->GetDriverCount() );
 }
 
 //---------------------------------------------------------
-bool COGR_Driver::Can_Read(int iDriver)
+OGRSFDriver * CSG_OGR_Drivers::Get_Driver(int Index) const
 {
-	return( Get_Driver(iDriver) != NULL );
-}
-
-bool COGR_Driver::Can_Write(int iDriver)
-{
-	return( Get_Driver(iDriver) != NULL );//&& Get_Driver(iDriver)->TestCapability(ODrCCreateDataSource) );
+	return( m_pDrivers->GetDriver(Index) );
 }
 
 //---------------------------------------------------------
-CSG_String COGR_Driver::Get_Description(int iDriver)
+OGRSFDriver * CSG_OGR_Drivers::Get_Driver(const CSG_String &Name) const
 {
-	OGRSFDriver	*pDriver	= m_pManager->GetDriver(iDriver);
+	return( m_pDrivers ? m_pDrivers->GetDriverByName(SG_STR_SGTOMB(Name)) : NULL );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_OGR_Drivers::Get_Name(int Index) const
+{
+	return( SG_STR_MBTOSG(m_pDrivers->GetDriver(Index)->GetName()) );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_OGR_Drivers::Get_Description(int Index) const
+{
+	OGRSFDriver	*pDriver	= m_pDrivers->GetDriver(Index);
 	CSG_String	s;
 
 	s	+= pDriver->TestCapability(ODrCCreateDataSource)	? SG_T("\n[x] ") : SG_T("\n[ ] ");
@@ -141,7 +160,24 @@ CSG_String COGR_Driver::Get_Description(int iDriver)
 }
 
 //---------------------------------------------------------
-TSG_Shape_Type COGR_Driver::Get_Type(OGRwkbGeometryType Type)
+bool CSG_OGR_Drivers::Can_Read(int Index) const
+{
+	return( Get_Driver(Index) != NULL );
+}
+
+//---------------------------------------------------------
+bool CSG_OGR_Drivers::Can_Write(int Index) const
+{
+	return( Get_Driver(Index) != NULL );//&& Get_Driver(Index)->TestCapability(ODrCCreateDataSource) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+TSG_Shape_Type CSG_OGR_Drivers::Get_Shape_Type(int Type)
 {
 	switch( Type )
 	{
@@ -176,7 +212,7 @@ TSG_Shape_Type COGR_Driver::Get_Type(OGRwkbGeometryType Type)
 }
 
 //---------------------------------------------------------
-OGRwkbGeometryType COGR_Driver::Get_Type(TSG_Shape_Type Type)
+int CSG_OGR_Drivers::Get_Shape_Type(TSG_Shape_Type Type)
 {
 	switch( Type )
 	{
@@ -190,7 +226,7 @@ OGRwkbGeometryType COGR_Driver::Get_Type(TSG_Shape_Type Type)
 }
 
 //---------------------------------------------------------
-TSG_Data_Type COGR_Driver::Get_Type(OGRFieldType Type)
+TSG_Data_Type CSG_OGR_Drivers::Get_Data_Type(int Type)
 {
 	switch( Type )
 	{
@@ -220,7 +256,7 @@ TSG_Data_Type COGR_Driver::Get_Type(OGRFieldType Type)
 }
 
 //---------------------------------------------------------
-OGRFieldType COGR_Driver::Get_Type(TSG_Data_Type Type)
+int CSG_OGR_Drivers::Get_Data_Type(TSG_Data_Type Type)
 {
 	switch( Type )
 	{
@@ -254,12 +290,12 @@ OGRFieldType COGR_Driver::Get_Type(TSG_Data_Type Type)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-COGR_DataSource::COGR_DataSource(void)
+CSG_OGR_DataSource::CSG_OGR_DataSource(void)
 {
 	m_pDataSource	= NULL;
 }
 
-COGR_DataSource::COGR_DataSource(const CSG_String &File)
+CSG_OGR_DataSource::CSG_OGR_DataSource(const CSG_String &File)
 {
 	m_pDataSource	= NULL;
 
@@ -267,13 +303,13 @@ COGR_DataSource::COGR_DataSource(const CSG_String &File)
 }
 
 //---------------------------------------------------------
-COGR_DataSource::~COGR_DataSource(void)
+CSG_OGR_DataSource::~CSG_OGR_DataSource(void)
 {
 	Destroy();
 }
 
 //---------------------------------------------------------
-bool COGR_DataSource::Create(const CSG_String &File)
+bool CSG_OGR_DataSource::Create(const CSG_String &File)
 {
 	Destroy();
 
@@ -282,13 +318,13 @@ bool COGR_DataSource::Create(const CSG_String &File)
 	return( m_pDataSource != NULL );
 }
 
-bool COGR_DataSource::Create(const CSG_String &File, const CSG_String &DriverName)
+bool CSG_OGR_DataSource::Create(const CSG_String &File, const CSG_String &DriverName)
 {
 	OGRSFDriver	*pDriver;
 
 	Destroy();
 
-	if( (pDriver = g_OGR_Driver.Get_Driver(DriverName)) != NULL )
+	if( (pDriver = gSG_OGR_Drivers.Get_Driver(DriverName)) != NULL )
 	{
 		m_pDataSource	= pDriver->CreateDataSource(SG_STR_SGTOMB(File), NULL);
 	}
@@ -297,7 +333,7 @@ bool COGR_DataSource::Create(const CSG_String &File, const CSG_String &DriverNam
 }
 
 //---------------------------------------------------------
-bool COGR_DataSource::Destroy(void)
+bool CSG_OGR_DataSource::Destroy(void)
 {
 	if( m_pDataSource )
 	{
@@ -317,7 +353,7 @@ bool COGR_DataSource::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int COGR_DataSource::Get_Count(void)
+int CSG_OGR_DataSource::Get_Count(void)
 {
 	if( m_pDataSource )
 	{
@@ -328,7 +364,7 @@ int COGR_DataSource::Get_Count(void)
 }
 
 //---------------------------------------------------------
-OGRLayer * COGR_DataSource::Get_Layer(int iLayer)
+OGRLayer * CSG_OGR_DataSource::Get_Layer(int iLayer)
 {
 	if( m_pDataSource && iLayer >= 0 && iLayer < m_pDataSource->GetLayerCount() )
 	{
@@ -339,11 +375,11 @@ OGRLayer * COGR_DataSource::Get_Layer(int iLayer)
 }
 
 //---------------------------------------------------------
-TSG_Shape_Type COGR_DataSource::Get_Type(int iLayer)
+TSG_Shape_Type CSG_OGR_DataSource::Get_Type(int iLayer)
 {
 	if( m_pDataSource && iLayer >= 0 && iLayer < m_pDataSource->GetLayerCount() )
 	{
-		return( COGR_Driver::Get_Type(m_pDataSource->GetLayer(iLayer)->GetLayerDefn()->GetGeomType()) );
+		return( CSG_OGR_Drivers::Get_Shape_Type(m_pDataSource->GetLayer(iLayer)->GetLayerDefn()->GetGeomType()) );
 	}
 
 	return( SHAPE_TYPE_Undefined );
@@ -357,7 +393,7 @@ TSG_Shape_Type COGR_DataSource::Get_Type(int iLayer)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Shapes * COGR_DataSource::Read_Shapes(int iLayer)
+CSG_Shapes * CSG_OGR_DataSource::Read(int iLayer)
 {
 	OGRLayer	*pLayer	= Get_Layer(iLayer);
 
@@ -373,7 +409,7 @@ CSG_Shapes * COGR_DataSource::Read_Shapes(int iLayer)
 		{
 			OGRFieldDefn	*pDefField	= pDef->GetFieldDefn(iField);
 
-			pShapes->Add_Field(pDefField->GetNameRef(), COGR_Driver::Get_Type(pDefField->GetType()));
+			pShapes->Add_Field(pDefField->GetNameRef(), CSG_OGR_Drivers::Get_Data_Type(pDefField->GetType()));
 		}
 
 		pLayer->ResetReading();
@@ -418,7 +454,7 @@ CSG_Shapes * COGR_DataSource::Read_Shapes(int iLayer)
 }
 
 //---------------------------------------------------------
-bool COGR_DataSource::_Read_Geometry(CSG_Shape *pShape, OGRGeometry *pGeometry)
+bool CSG_OGR_DataSource::_Read_Geometry(CSG_Shape *pShape, OGRGeometry *pGeometry)
 {
 	if( pShape && pGeometry )
 	{
@@ -463,7 +499,7 @@ bool COGR_DataSource::_Read_Geometry(CSG_Shape *pShape, OGRGeometry *pGeometry)
 }
 
 //---------------------------------------------------------
-bool COGR_DataSource::_Read_Line(CSG_Shape *pShape, OGRLineString *pLine)
+bool CSG_OGR_DataSource::_Read_Line(CSG_Shape *pShape, OGRLineString *pLine)
 {
 	if( pShape && pLine && pLine->getNumPoints() > 0 )
 	{
@@ -481,7 +517,7 @@ bool COGR_DataSource::_Read_Line(CSG_Shape *pShape, OGRLineString *pLine)
 }
 
 //---------------------------------------------------------
-bool COGR_DataSource::_Read_Polygon(CSG_Shape *pShape, OGRPolygon *pPolygon)
+bool CSG_OGR_DataSource::_Read_Polygon(CSG_Shape *pShape, OGRPolygon *pPolygon)
 {
 	if( pShape && pPolygon )
 	{
@@ -506,12 +542,12 @@ bool COGR_DataSource::_Read_Polygon(CSG_Shape *pShape, OGRPolygon *pPolygon)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool COGR_DataSource::Write_Shapes(CSG_Shapes *pShapes)
+bool CSG_OGR_DataSource::Write(CSG_Shapes *pShapes)
 {
 	OGRLayer	*pLayer;
 
 	//-----------------------------------------------------
-	if( m_pDataSource && pShapes && pShapes->is_Valid() && (pLayer = m_pDataSource->CreateLayer(SG_STR_SGTOMB(pShapes->Get_Name()), NULL, g_OGR_Driver.Get_Type(pShapes->Get_Type()))) != NULL )
+	if( m_pDataSource && pShapes && pShapes->is_Valid() && (pLayer = m_pDataSource->CreateLayer(SG_STR_SGTOMB(pShapes->Get_Name()), NULL, (OGRwkbGeometryType)gSG_OGR_Drivers.Get_Shape_Type(pShapes->Get_Type()))) != NULL )
 	{
 		bool			bResult	= true;
 		int				iField;
@@ -519,7 +555,7 @@ bool COGR_DataSource::Write_Shapes(CSG_Shapes *pShapes)
 		//-------------------------------------------------
 		for(iField=0; iField<pShapes->Get_Field_Count() && bResult; iField++)
 		{
-			OGRFieldDefn	DefField(SG_STR_SGTOMB(pShapes->Get_Field_Name(iField)), g_OGR_Driver.Get_Type(pShapes->Get_Field_Type(iField)));
+			OGRFieldDefn	DefField(SG_STR_SGTOMB(pShapes->Get_Field_Name(iField)), (OGRFieldType)gSG_OGR_Drivers.Get_Data_Type(pShapes->Get_Field_Type(iField)));
 
 			//	DefField.SetWidth(32);
 
@@ -576,7 +612,7 @@ bool COGR_DataSource::Write_Shapes(CSG_Shapes *pShapes)
 }
 
 //---------------------------------------------------------
-bool COGR_DataSource::_Write_Geometry(CSG_Shape *pShape, OGRFeature *pFeature)
+bool CSG_OGR_DataSource::_Write_Geometry(CSG_Shape *pShape, OGRFeature *pFeature)
 {
 	if( pShape && pFeature )
 	{
@@ -658,7 +694,7 @@ bool COGR_DataSource::_Write_Geometry(CSG_Shape *pShape, OGRFeature *pFeature)
 }
 
 //---------------------------------------------------------
-bool COGR_DataSource::_Write_Line(CSG_Shape *pShape, OGRLineString *pLine, int iPart)
+bool CSG_OGR_DataSource::_Write_Line(CSG_Shape *pShape, OGRLineString *pLine, int iPart)
 {
 	if( pLine && pShape && iPart >= 0 && iPart < pShape->Get_Part_Count() )
 	{

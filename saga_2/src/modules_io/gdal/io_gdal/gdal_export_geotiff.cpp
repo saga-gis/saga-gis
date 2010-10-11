@@ -70,7 +70,7 @@ CGDAL_Export_GeoTIFF::CGDAL_Export_GeoTIFF(void)
 {
 	Set_Name		(_TL("GDAL: Export Raster to GeoTIFF"));
 
-	Set_Author		(SG_T("(c) 2007 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2007"));
 
 	Set_Description	(_TW(
 		"The \"GDAL GeoTIFF Export\" module exports one or more grids to a Geocoded Tagged Image File Format using the "
@@ -90,7 +90,6 @@ CGDAL_Export_GeoTIFF::CGDAL_Export_GeoTIFF(void)
 	Parameters.Add_FilePath(
 		NULL, "FILE"	, _TL("File"),
 		_TL(""),
-
 		CSG_String::Format(
 			SG_T("%s|*.tif;*.tiff|%s|*.*"),
 			_TL("TIFF files (*.tif)"),
@@ -98,10 +97,6 @@ CGDAL_Export_GeoTIFF::CGDAL_Export_GeoTIFF(void)
 		), NULL, true
 	);
 }
-
-//---------------------------------------------------------
-CGDAL_Export_GeoTIFF::~CGDAL_Export_GeoTIFF(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
@@ -116,7 +111,7 @@ bool CGDAL_Export_GeoTIFF::On_Execute(void)
 	CSG_String				File_Name;
 	CSG_Projection			Projection;
 	CSG_Parameter_Grid_List	*pGrids;
-	CGDAL_System			System;
+	CSG_GDAL_DataSet		DataSet;
 
 	//-----------------------------------------------------
 	pGrids		= Parameters("GRIDS")	->asGridList();
@@ -125,7 +120,7 @@ bool CGDAL_Export_GeoTIFF::On_Execute(void)
 	Get_Projection(Projection);
 
 	//-----------------------------------------------------
-	if( !System.Open_Write(File_Name, SG_T("GTiff"), g_GDAL_Driver.Get_Grid_Type(pGrids), pGrids->Get_Count(), *Get_System(), Projection) )
+	if( !DataSet.Open_Write(File_Name, SG_T("GTiff"), SG_Get_Grid_Type(pGrids), pGrids->Get_Count(), *Get_System(), Projection) )
 	{
 		return( false );
 	}
@@ -135,7 +130,7 @@ bool CGDAL_Export_GeoTIFF::On_Execute(void)
 	{
 		Process_Set_Text(CSG_String::Format(SG_T("%s %d"), _TL("Band"), i + 1));
 
-		System.Write_Band(i, pGrids->asGrid(i));
+		DataSet.Write(i, pGrids->asGrid(i));
 	}
 
 	return( true );

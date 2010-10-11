@@ -157,6 +157,58 @@ bool CWKSP_Grid_Manager::On_Command(int Cmd_ID)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <wx/filename.h>
+
+#include "wksp_module_manager.h"
+#include "wksp_module_library.h"
+#include "wksp_module.h"
+
+//---------------------------------------------------------
+bool CWKSP_Grid_Manager::Open_GDAL(const wxChar *File_Name)
+{
+	CSG_Module	*pImport	= NULL;
+
+	for(int i=0; i<g_pModules->Get_Count() && !pImport; i++)
+	{
+		wxFileName	fName(g_pModules->Get_Library(i)->Get_File_Name());
+
+		if( !fName.GetName().Cmp(SG_T("io_gdal")) )
+		{
+			pImport	= g_pModules->Get_Library(i)->Get_Module(0)->Get_Module();	// GDAL_Import
+		}
+	}
+
+	SG_UI_Progress_Lock(true);
+
+	if( !pImport
+	||	!pImport->Get_Parameters()->Set_Parameter(SG_T("FILES"), PARAMETER_TYPE_FilePath, File_Name)
+	||	!pImport->Execute() )
+	{
+		SG_UI_Progress_Lock(false);
+
+		return( false );
+	}
+
+	SG_UI_Progress_Lock(false);
+
+	CSG_Parameter_Grid_List	*pGrids	= pImport->Get_Parameters()->Get_Parameter(SG_T("GRIDS"))->asGridList();
+
+	for(int i=0; i<pGrids->Get_Count(); i++)
+	{
+		SG_UI_DataObject_Add(pGrids->asGrid(i), SG_UI_DATAOBJECT_UPDATE_ONLY);
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CWKSP_Grid_System * CWKSP_Grid_Manager::Get_System(CSG_Grid_System *pSystem)
 {
 	if( pSystem != NULL )

@@ -60,9 +60,6 @@
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
-#include <gdal_priv.h>
-#include <ogrsf_frmts.h>
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -71,70 +68,78 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class COGR_Driver
+class io_gdal_EXPORT CSG_OGR_Drivers
 {
 public:
-	COGR_Driver(void);
-	virtual ~COGR_Driver(void);
+	CSG_OGR_Drivers(void);
+	virtual ~CSG_OGR_Drivers(void);
 
-	int							Get_Count		(void)				{	return( m_pManager->GetDriverCount() );	}
-	CSG_String					Get_Name		(int iDriver)		{	return( SG_STR_MBTOSG(m_pManager->GetDriver(iDriver)->GetName()) );	}
-	CSG_String					Get_Description	(int iDriver);
-	OGRSFDriver *				Get_Driver		(int iDriver)		{	return( m_pManager->GetDriver(iDriver) );			}
-	OGRSFDriver *				Get_Driver		(const CSG_String &Name);
+	int							Get_Count			(void)						const;
 
-	bool						Can_Read		(int iDriver);
-	bool						Can_Write		(int iDriver);
+	class OGRSFDriver *			Get_Driver			(const CSG_String &Name)	const;
+	class OGRSFDriver *			Get_Driver			(int Index)					const;
 
-	static TSG_Shape_Type		Get_Type		(OGRwkbGeometryType   Type);
-	static OGRwkbGeometryType	Get_Type		(TSG_Shape_Type       Type);
-	static TSG_Data_Type	Get_Type		(OGRFieldType         Type);
-	static OGRFieldType			Get_Type		(TSG_Data_Type Type);
+	CSG_String					Get_Name			(int Index)					const;
+	CSG_String					Get_Description		(int Index)					const;
+
+	bool						Can_Read			(int Index)					const;
+	bool						Can_Write			(int Index)					const;
+
+	static TSG_Shape_Type		Get_Shape_Type		(int            Type);
+	static int					Get_Shape_Type		(TSG_Shape_Type Type);
+
+	static TSG_Data_Type		Get_Data_Type		(int            Type);
+	static int					Get_Data_Type		(TSG_Data_Type  Type);
 
 
 private:
 
-	OGRSFDriverRegistrar		*m_pManager;
+	class OGRSFDriverRegistrar	*m_pDrivers;
 
 };
 
 //---------------------------------------------------------
-class COGR_DataSource
+io_gdal_EXPORT const CSG_OGR_Drivers &	SG_Get_OGR_Drivers	(void);
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class io_gdal_EXPORT CSG_OGR_DataSource
 {
 public:
-	COGR_DataSource(void);
-	COGR_DataSource(const CSG_String &File);
-	COGR_DataSource(const CSG_String &File, const CSG_String &DriverName);
-	virtual ~COGR_DataSource(void);
+	CSG_OGR_DataSource(void);
+	CSG_OGR_DataSource(const CSG_String &File);
+	CSG_OGR_DataSource(const CSG_String &File, const CSG_String &DriverName);
+	virtual ~CSG_OGR_DataSource(void);
 
-	bool						Create			(const CSG_String &File);
-	bool						Create			(const CSG_String &File, const CSG_String &DriverName);
-	bool						Destroy			(void);
+	bool						Create				(const CSG_String &File);
+	bool						Create				(const CSG_String &File, const CSG_String &DriverName);
+	bool						Destroy				(void);
 
-	int							Get_Count		(void);
-	OGRLayer *					Get_Layer		(int iLayer);
-	TSG_Shape_Type				Get_Type		(int iLayer);
+	int							Get_Count			(void);
+	class OGRLayer *			Get_Layer			(int iLayer);
+	TSG_Shape_Type				Get_Type			(int iLayer);
 
-	CSG_Shapes *				Read_Shapes		(int iLayer);
-	bool						Write_Shapes	(CSG_Shapes *pShapes);
+	CSG_Shapes *				Read				(int iLayer);
+	bool						Write				(CSG_Shapes *pShapes);
 
 
 private:
 
-	OGRDataSource				*m_pDataSource;
+	class OGRDataSource			*m_pDataSource;
 
 
-	bool						_Read_Geometry	(CSG_Shape *pShape, OGRGeometry *pGeometry);
-	bool						_Read_Line		(CSG_Shape *pShape, OGRLineString *pLine);
-	bool						_Read_Polygon	(CSG_Shape *pShape, OGRPolygon *pPolygon);
+	bool						_Read_Geometry		(CSG_Shape *pShape, class OGRGeometry *pGeometry);
+	bool						_Read_Line			(CSG_Shape *pShape, class OGRLineString *pLine);
+	bool						_Read_Polygon		(CSG_Shape *pShape, class OGRPolygon *pPolygon);
 
-	bool						_Write_Geometry	(CSG_Shape *pShape, OGRFeature *pFeature);
-	bool						_Write_Line		(CSG_Shape *pShape, OGRLineString *pLine, int iPart);
+	bool						_Write_Geometry		(CSG_Shape *pShape, class OGRFeature *pFeature);
+	bool						_Write_Line			(CSG_Shape *pShape, class OGRLineString *pLine, int iPart);
 
 };
-
-//---------------------------------------------------------
-extern COGR_Driver	g_OGR_Driver;
 
 
 ///////////////////////////////////////////////////////////

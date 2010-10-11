@@ -5,15 +5,15 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
-//                   Library Grid_IO_GDAL                    //
+//                    Module Library                     //
+//                                                       //
+//                       io_gdal                         //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    MLB_Interface.h                    //
+//                   MLB_Interface.h                     //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                        Author                         //
+//            Copyright (C) 2007 O. Conrad               //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,14 +37,15 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     author@email.de                        //
+//    e-mail:     oconrad@saga-gis.de                    //
 //                                                       //
-//    contact:    Author                                 //
-//                Sesame Street. 7                       //
-//                12345 Metropolis                       //
-//                Nirwana                                //
+//    contact:    Olaf Conrad                            //
+//                Bundesstr. 55                          //
+//                D-20146 Hamburg                        //
+//                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
+
 
 
 ///////////////////////////////////////////////////////////
@@ -54,17 +55,17 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__io_grid_gdal_H
-#define HEADER_INCLUDED__io_grid_gdal_H
+#ifndef HEADER_INCLUDED__io_gdal_H
+#define HEADER_INCLUDED__io_gdal_H
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 //---------------------------------------------------------
-#ifdef io_grid_gdal_EXPORTS
-	#define	io_grid_gdal_EXPORT	_SAGA_DLL_EXPORT
+#ifdef io_gdal_EXPORTS
+	#define	io_gdal_EXPORT	_SAGA_DLL_EXPORT
 #else
-	#define	io_grid_gdal_EXPORT	_SAGA_DLL_IMPORT
+	#define	io_gdal_EXPORT	_SAGA_DLL_IMPORT
 #endif
 
 
@@ -75,4 +76,4 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__io_grid_gdal_H
+#endif // #ifndef HEADER_INCLUDED__io_gdal_H

@@ -72,12 +72,11 @@ class COGR_Export : public CSG_Module
 {
 public:
 	COGR_Export(void);
-	virtual ~COGR_Export(void);
 
 
 protected:
 
-	virtual bool				On_Execute		(void);
+	virtual bool		On_Execute		(void);
 
 };
 

@@ -70,7 +70,7 @@ CGDAL_Export::CGDAL_Export(void)
 {
 	Set_Name	(_TL("GDAL: Export Raster"));
 
-	Set_Author	(SG_T("(c) 2007 by O.Conrad"));
+	Set_Author	(SG_T("O.Conrad (c) 2007"));
 
 	CSG_String	Description, Formats;
 
@@ -85,18 +85,19 @@ CGDAL_Export::CGDAL_Export(void)
 		"<table border=\"1\"><tr><th>ID</th><th>Name</th></tr>\n"
 	);
 
-	for(int i=0; i<g_GDAL_Driver.Get_Count(); i++)
+	for(int i=0; i<SG_Get_GDAL_Drivers().Get_Count(); i++)
     {
-		if( !g_GDAL_Driver.is_ReadOnly(i) )
+		if( SG_Get_GDAL_Drivers().Can_Write(i) )
 		{
 			Description	+= CSG_String::Format(SG_T("<tr><td>%s</td><td>%s</td></tr>\n"),
-				SG_STR_MBTOSG(g_GDAL_Driver.Get_Description(i)),
-				SG_STR_MBTOSG(g_GDAL_Driver.Get_Name(i))
+				SG_STR_MBTOSG(SG_Get_GDAL_Drivers().Get_Description(i)),
+				SG_STR_MBTOSG(SG_Get_GDAL_Drivers().Get_Name(i))
 			);
 
-			Formats		+= CSG_String::Format(SG_T("%s|"), SG_STR_MBTOSG(g_GDAL_Driver.Get_Name(i)));
-
-			m_DriverNames.Add(SG_STR_MBTOSG(g_GDAL_Driver.Get_Description(i)));
+			Formats		+= CSG_String::Format(SG_T("{%s}%s|"),
+				SG_STR_MBTOSG(SG_Get_GDAL_Drivers().Get_Description(i)),
+				SG_STR_MBTOSG(SG_Get_GDAL_Drivers().Get_Name(i))
+			);
 		}
     }
 
@@ -140,10 +141,6 @@ CGDAL_Export::CGDAL_Export(void)
 	);
 }
 
-//---------------------------------------------------------
-CGDAL_Export::~CGDAL_Export(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -155,31 +152,39 @@ CGDAL_Export::~CGDAL_Export(void)
 bool CGDAL_Export::On_Execute(void)
 {
 	TSG_Data_Type			Type;
-	CSG_String				File_Name;
+	CSG_String				File_Name, Driver;
 	CSG_Projection			Projection;
 	CSG_Parameter_Grid_List	*pGrids;
-	CGDAL_System			System;
+	CSG_GDAL_DataSet		DataSet;
 
 	//-----------------------------------------------------
 	pGrids		= Parameters("GRIDS")	->asGridList();
 	File_Name	= Parameters("FILE")	->asString();
 
+	Get_Projection(Projection);
+
 	//-----------------------------------------------------
 	switch( Parameters("TYPE")->asInt() )
 	{
 	default:
-	case 0:	Type	= g_GDAL_Driver.Get_Grid_Type(pGrids);	break;	// match input data
-	case 1:	Type	= SG_DATATYPE_Byte;		break;	// Eight bit unsigned integer
-	case 2:	Type	= SG_DATATYPE_Word;		break;	// Sixteen bit unsigned integer
-	case 3:	Type	= SG_DATATYPE_Short;	break;	// Sixteen bit signed integer
-	case 4:	Type	= SG_DATATYPE_DWord;	break;	// Thirty two bit unsigned integer
-	case 5:	Type	= SG_DATATYPE_Int;		break;	// Thirty two bit signed integer
-	case 6:	Type	= SG_DATATYPE_Float;	break;	// Thirty two bit floating point
-	case 7:	Type	= SG_DATATYPE_Double;	break;	// Sixty four bit floating point
+	case 0:	Type	= SG_Get_Grid_Type(pGrids);	break;	// match input data
+	case 1:	Type	= SG_DATATYPE_Byte;			break;	// Eight bit unsigned integer
+	case 2:	Type	= SG_DATATYPE_Word;			break;	// Sixteen bit unsigned integer
+	case 3:	Type	= SG_DATATYPE_Short;		break;	// Sixteen bit signed integer
+	case 4:	Type	= SG_DATATYPE_DWord;		break;	// Thirty two bit unsigned integer
+	case 5:	Type	= SG_DATATYPE_Int;			break;	// Thirty two bit signed integer
+	case 6:	Type	= SG_DATATYPE_Float;		break;	// Thirty two bit floating point
+	case 7:	Type	= SG_DATATYPE_Double;		break;	// Sixty four bit floating point
 	}
 
 	//-----------------------------------------------------
-	if( !System.Open_Write(File_Name, m_DriverNames[Parameters("FORMAT")->asInt()], Type, pGrids->Get_Count(), *Get_System(), Projection) )
+	if( !Parameters("FORMAT")->asChoice()->Get_Data(Driver) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( !DataSet.Open_Write(File_Name, Driver, Type, pGrids->Get_Count(), *Get_System(), Projection) )
 	{
 		return( false );
 	}
@@ -189,7 +194,7 @@ bool CGDAL_Export::On_Execute(void)
 	{
 		Process_Set_Text(CSG_String::Format(SG_T("%s %d"), _TL("Band"), i + 1));
 
-		System.Write_Band(i, pGrids->asGrid(i));
+		DataSet.Write(i, pGrids->asGrid(i));
 	}
 
 	return( true );

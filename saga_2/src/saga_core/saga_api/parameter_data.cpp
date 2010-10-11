@@ -874,11 +874,13 @@ bool CSG_Parameter_Choice::Get_Data(CSG_String &Value)
 
 		if( *Item == SG_T('{') )
 		{
+			Item++;
+
 			Value.Clear();
 
 			do
 			{
-				Value	+= *(++Item);
+				Value	+= *(Item++);
 			}
 			while( *Item && *Item != SG_T('}') );
 

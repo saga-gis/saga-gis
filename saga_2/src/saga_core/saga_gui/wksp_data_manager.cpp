@@ -653,6 +653,11 @@ bool CWKSP_Data_Manager::Open(const wxChar *File_Name)
 		return( m_pProject->Load(File_Name, false, true) );
 	}
 
+	if(	m_pGrids->Open_GDAL(File_Name) || m_pShapes->Open_OGR(File_Name) )
+	{
+		return( true );
+	}
+
 	return( false );
 }
 

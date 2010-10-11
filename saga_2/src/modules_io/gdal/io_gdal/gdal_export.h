@@ -68,21 +68,16 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGDAL_Export : public CSG_Module_Grid
+class io_gdal_EXPORT CGDAL_Export : public CSG_Module_Grid
 {
 public:
 	CGDAL_Export(void);
-	virtual ~CGDAL_Export(void);
 
 
 protected:
 
-	virtual bool				On_Execute		(void);
+	virtual bool		On_Execute		(void);
 
-
-private:
-
-	CSG_Strings					m_DriverNames;
 
 };
 

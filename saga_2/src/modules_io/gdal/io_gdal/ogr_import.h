@@ -72,14 +72,21 @@ class COGR_Import : public CSG_Module
 {
 public:
 	COGR_Import(void);
-	virtual ~COGR_Import(void);
 
 
 protected:
 
-	virtual bool				On_Execute		(void);
+	virtual bool		On_Execute		(void);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+io_gdal_EXPORT	bool	SG_OGR_Import	(const CSG_String &File_Name);
 
 
 ///////////////////////////////////////////////////////////

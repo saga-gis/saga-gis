@@ -68,30 +68,36 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGDAL_Driver
+class io_gdal_EXPORT CSG_GDAL_Drivers
 {
 public:
-	CGDAL_Driver(void);
-	virtual ~CGDAL_Driver(void);
+	CSG_GDAL_Drivers(void);
+	virtual ~CSG_GDAL_Drivers(void);
 
-	int							Get_Count			(void);
-	const char *				Get_Name			(int Index);
-	const char *				Get_Description		(int Index);
-	class GDALDriver *			Get_Driver			(int Index);
-	class GDALDriver *			Get_Driver			(const char *Name);
+	int							Get_Count			(void)						const;
 
-	bool						is_ReadOnly			(int Index);
+	class GDALDriver *			Get_Driver			(const CSG_String &Name)	const;
+	class GDALDriver *			Get_Driver			(int Index)					const;
+
+	CSG_String					Get_Name			(int Index)					const;
+	CSG_String					Get_Description		(int Index)					const;
+	CSG_String					Get_Extension		(int Index)					const;
+
+	bool						Can_Read			(int Index)					const;
+	bool						Can_Write			(int Index)					const;
 
 	static int					Get_GDAL_Type		(TSG_Data_Type Type);
-	static TSG_Data_Type		Get_Grid_Type		(int           Type);
-	static TSG_Data_Type		Get_Grid_Type		(CSG_Parameter_Grid_List *pGrids);
+	static TSG_Data_Type		Get_SAGA_Type		(int           Type);
 
 
 private:
 
-	class GDALDriverManager		*pManager;
+	class GDALDriverManager		*m_pDrivers;
 
 };
+
+//---------------------------------------------------------
+io_gdal_EXPORT const CSG_GDAL_Drivers &	SG_Get_GDAL_Drivers	(void);
 
 
 ///////////////////////////////////////////////////////////
@@ -99,26 +105,26 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define IO_CLOSED		0x00
-#define IO_READ			0x01
-#define IO_WRITE		0x02
-#define IO_READWRITE	(IO_READ|IO_WRITE)
+#define SG_GDAL_IO_CLOSED		0x00
+#define SG_GDAL_IO_READ			0x01
+#define SG_GDAL_IO_WRITE		0x02
+#define SG_GDAL_IO_READWRITE	(SG_GDAL_IO_READ|IO_WRITE)
 
 //---------------------------------------------------------
-class CGDAL_System
+class io_gdal_EXPORT CSG_GDAL_DataSet
 {
 public:
-	CGDAL_System(void);
-	CGDAL_System(const CSG_String &File_Name, int ioAccess = IO_READ);
-	virtual ~CGDAL_System(void);
+	CSG_GDAL_DataSet(void);
+	CSG_GDAL_DataSet(const CSG_String &File_Name);
+	virtual ~CSG_GDAL_DataSet(void);
 
 	bool						Open_Read			(const CSG_String &File_Name);
 	bool						Open_Write			(const CSG_String &File_Name, const CSG_String &Driver, TSG_Data_Type Type, int NBands, const CSG_Grid_System &System, const CSG_Projection &Projection);
 	bool						Close				(void);
 
 	bool						is_Okay				(void)	const	{	return( m_pDataSet != NULL );	}
-	bool						is_Reading			(void)	const	{	return( m_pDataSet != NULL && m_Access & IO_READ );	 }
-	bool						is_Writing			(void)	const	{	return( m_pDataSet != NULL && m_Access & IO_WRITE );	}
+	bool						is_Reading			(void)	const	{	return( m_pDataSet != NULL && m_Access & SG_GDAL_IO_READ  );	}
+	bool						is_Writing			(void)	const	{	return( m_pDataSet != NULL && m_Access & SG_GDAL_IO_WRITE );	}
 
 	int							Get_NX				(void)	const	{	return( m_NX );			}
 	int							Get_NY				(void)	const	{	return( m_NY );			}
@@ -137,8 +143,8 @@ public:
 	const char *				Get_MetaData_Item	(const char *pszName, const char *pszDomain = "")	const;
 
 	int							Get_Count			(void)	const;
-	CSG_Grid *					Read_Band			(int i);
-	bool						Write_Band			(int i, CSG_Grid *pGrid);
+	CSG_Grid *					Read				(int i);
+	bool						Write				(int i, CSG_Grid *pGrid);
 
 
 private:
@@ -189,8 +195,15 @@ public:
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-extern CGDAL_Driver	g_GDAL_Driver;
+io_gdal_EXPORT TSG_Data_Type			SG_Get_Grid_Type	(CSG_Parameter_Grid_List *pGrids);
 
 
 ///////////////////////////////////////////////////////////

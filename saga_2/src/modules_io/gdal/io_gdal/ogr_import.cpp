@@ -68,7 +68,7 @@ COGR_Import::COGR_Import(void)
 {
 	Set_Name	(_TL("OGR: Import Vector Data"));
 
-	Set_Author	(SG_T("(c) 2008 by O.Conrad"));
+	Set_Author	(SG_T("O.Conrad (c) 2008"));
 
 	CSG_String	Description;
 
@@ -83,13 +83,13 @@ COGR_Import::COGR_Import(void)
 		"<table border=\"1\"><tr><th>Name</th><th>Description</th></tr>\n"
 	);
 
-	for(int i=0; i<g_OGR_Driver.Get_Count(); i++)
+	for(int i=0; i<SG_Get_OGR_Drivers().Get_Count(); i++)
     {
-		if( g_OGR_Driver.Can_Read(i) )
+		if( SG_Get_OGR_Drivers().Can_Read(i) )
 		{
 			Description	+= CSG_String::Format(SG_T("<tr><td>%s</td><td>%s</td></tr>\n"),
-				g_OGR_Driver.Get_Name(i).c_str(),
-				g_OGR_Driver.Get_Description(i).c_str()
+				SG_Get_OGR_Drivers().Get_Name(i).c_str(),
+				SG_Get_OGR_Drivers().Get_Description(i).c_str()
 			);
 		}
     }
@@ -112,22 +112,16 @@ COGR_Import::COGR_Import(void)
 	);
 }
 
-//---------------------------------------------------------
-COGR_Import::~COGR_Import(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool COGR_Import::On_Execute(void)
 {
-	CSG_Strings		Files;
-	COGR_DataSource	ds;
+	CSG_Strings			Files;
+	CSG_OGR_DataSource	DataSource;
 
 	//-----------------------------------------------------
 	if( !Parameters("FILES")->asFilePath()->Get_FilePaths(Files) )
@@ -138,23 +132,23 @@ bool COGR_Import::On_Execute(void)
 	//-----------------------------------------------------
 	Parameters("SHAPES")->asShapesList()->Del_Items();
 
-	for(int i=0; i<Files.Get_Count(); i++)
+	for(int iFile=0; iFile<Files.Get_Count(); iFile++)
 	{
-		Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("loading"), Files[i].c_str()));
+		Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("loading"), Files[iFile].c_str()));
 
-		if( !ds.Create(Files[i]) )
+		if( !DataSource.Create(Files[iFile]) )
 		{
 			Message_Add(_TL("could not open data source"));
 		}
-		else if( ds.Get_Count() <= 0 )
+		else if( DataSource.Get_Count() <= 0 )
 		{
 			Message_Add(_TL("no layers in data source"));
 		}
 		else
 		{
-			for(int iLayer=0; iLayer<ds.Get_Count(); iLayer++)
+			for(int iLayer=0; iLayer<DataSource.Get_Count(); iLayer++)
 			{
-				CSG_Shapes	*pShapes	= ds.Read_Shapes(iLayer);
+				CSG_Shapes	*pShapes	= DataSource.Read(iLayer);
 
 				if( pShapes )
 				{
@@ -165,6 +159,38 @@ bool COGR_Import::On_Execute(void)
 	}
 
 	return( Parameters("SHAPES")->asShapesList()->Get_Count() > 0 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool	SG_OGR_Import	(const CSG_String &File_Name)
+{
+	COGR_Import	Import;
+
+	if(	!Import.Get_Parameters()->Set_Parameter(SG_T("FILES"), PARAMETER_TYPE_FilePath, File_Name) )
+	{
+		return( false );
+	}
+
+	if(	!Import.Execute() )
+	{
+		return( false );
+	}
+
+	CSG_Parameter_Shapes_List	*pShapes	= Import.Get_Parameters()->Get_Parameter(SG_T("SHAPES"))->asShapesList();
+
+	for(int i=0; i<pShapes->Get_Count(); i++)
+	{
+		SG_UI_DataObject_Add(pShapes->asShapes(i), SG_UI_DATAOBJECT_UPDATE_ONLY);
+	}
+
+	return( true );
 }
 
 

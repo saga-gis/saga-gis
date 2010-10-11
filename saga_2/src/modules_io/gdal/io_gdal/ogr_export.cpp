@@ -68,7 +68,7 @@ COGR_Export::COGR_Export(void)
 {
 	Set_Name		(_TL("OGR: Export Vector Data"));
 
-	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2008"));
 
 	CSG_String	Description, Formats;
 
@@ -83,16 +83,16 @@ COGR_Export::COGR_Export(void)
 		"<table border=\"1\"><tr><th>Name</th><th>Description</th></tr>\n"
 	);
 
-	for(int i=0; i<g_OGR_Driver.Get_Count(); i++)
+	for(int i=0; i<SG_Get_OGR_Drivers().Get_Count(); i++)
     {
-		if( g_OGR_Driver.Can_Write(i) )
+		if( SG_Get_OGR_Drivers().Can_Write(i) )
 		{
 			Description	+= CSG_String::Format(SG_T("<tr><td>%s</td><td>%s</td></tr>\n"),
-				g_OGR_Driver.Get_Name(i).c_str(),
-				g_OGR_Driver.Get_Description(i).c_str()
+				SG_Get_OGR_Drivers().Get_Name(i).c_str(),
+				SG_Get_OGR_Drivers().Get_Description(i).c_str()
 			);
 
-			Formats		+= CSG_String::Format(SG_T("%s|"), g_OGR_Driver.Get_Name(i).c_str());
+			Formats		+= CSG_String::Format(SG_T("%s|"), SG_Get_OGR_Drivers().Get_Name(i).c_str());
 		}
     }
 
@@ -120,10 +120,6 @@ COGR_Export::COGR_Export(void)
 	);
 }
 
-//---------------------------------------------------------
-COGR_Export::~COGR_Export(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -134,20 +130,20 @@ COGR_Export::~COGR_Export(void)
 //---------------------------------------------------------
 bool COGR_Export::On_Execute(void)
 {
-	CSG_String		File_Name;
-	CSG_Shapes		*pShapes;
-	COGR_DataSource	ds;
+	CSG_String			File_Name;
+	CSG_Shapes			*pShapes;
+	CSG_OGR_DataSource	DataSource;
 
 	//-----------------------------------------------------
 	pShapes		= Parameters("SHAPES")	->asShapes();
 	File_Name	= Parameters("FILE")	->asString();
 
 	//-----------------------------------------------------
-	if( ds.Create(File_Name, Parameters("FORMAT")->asString()) == false )
+	if( DataSource.Create(File_Name, Parameters("FORMAT")->asString()) == false )
 	{
 		Message_Add(_TL("Could not create data source."));
 	}
-	else if( ds.Write_Shapes(pShapes) )
+	else if( DataSource.Write(pShapes) )
 	{
 		return( true );
 	}

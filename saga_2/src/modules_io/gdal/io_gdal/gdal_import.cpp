@@ -83,11 +83,11 @@ CGDAL_Import::CGDAL_Import(void)
 		"<table border=\"1\"><tr><th>ID</th><th>Name</th></tr>\n"
 	);
 
-	for(int i=0; i<g_GDAL_Driver.Get_Count(); i++)
+	for(int i=0; i<SG_Get_GDAL_Drivers().Get_Count(); i++)
     {
 		Description	+= CSG_String::Format(SG_T("<tr><td>%s</td><td>%s</td></tr>\n"),
-			SG_STR_MBTOSG(g_GDAL_Driver.Get_Description(i)),
-			SG_STR_MBTOSG(g_GDAL_Driver.Get_Name(i))
+			SG_STR_MBTOSG(SG_Get_GDAL_Drivers().Get_Description(i)),
+			SG_STR_MBTOSG(SG_Get_GDAL_Drivers().Get_Name(i))
 		);
     }
 
@@ -119,8 +119,8 @@ CGDAL_Import::CGDAL_Import(void)
 //---------------------------------------------------------
 bool CGDAL_Import::On_Execute(void)
 {
-	CSG_Strings		Files;
-	CGDAL_System	System;
+	CSG_Strings			Files;
+	CSG_GDAL_DataSet	DataSet;
 
 	//-----------------------------------------------------
 	if( !Parameters("FILES")->asFilePath()->Get_FilePaths(Files) )
@@ -136,19 +136,19 @@ bool CGDAL_Import::On_Execute(void)
 	{
 		Message_Add(CSG_String::Format(SG_T("\n%s: %s"), _TL("loading"), Files[i].c_str()), false);
 
-		if( System.Open_Read(Files[i]) == false )
+		if( DataSet.Open_Read(Files[i]) == false )
 		{
 			Message_Add(_TL("failed: could not find a suitable import driver"));
 		}
 		else
 		{
-			if( System.Get_Count() <= 0 )
+			if( DataSet.Get_Count() <= 0 )
 			{
-				Load_Sub(System, SG_File_Get_Name(Files[i], false));
+				Load_Sub(DataSet, SG_File_Get_Name(Files[i], false));
 			}
 			else
 			{
-				Load(System, SG_File_Get_Name(Files[i], false));
+				Load(DataSet, SG_File_Get_Name(Files[i], false));
 			}
 		}
 	}
@@ -159,16 +159,14 @@ bool CGDAL_Import::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGDAL_Import::Load_Sub(CGDAL_System &System, const CSG_String &Name)
+bool CGDAL_Import::Load_Sub(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 {
-	if( System.is_Reading() )
+	if( DataSet.is_Reading() )
 	{
-		const char	**pMetaData	= System.Get_MetaData("SUBDATASETS");
+		const char	**pMetaData	= DataSet.Get_MetaData("SUBDATASETS");
 
 		if( pMetaData && pMetaData[0] )
 		{
@@ -206,7 +204,7 @@ bool CGDAL_Import::Load_Sub(CGDAL_System &System, const CSG_String &Name)
 			{
 				for(i=0, n=0; i<P.Get_Count() && Process_Get_Okay(false); i++)
 				{
-					if( P(i)->asBool() && System.Open_Read(P(i)->Get_Identifier()) && Load(System, P(i)->Get_Name()) )
+					if( P(i)->asBool() && DataSet.Open_Read(P(i)->Get_Identifier()) && Load(DataSet, P(i)->Get_Name()) )
 					{
 						n++;
 					}
@@ -223,15 +221,13 @@ bool CGDAL_Import::Load_Sub(CGDAL_System &System, const CSG_String &Name)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGDAL_Import::Load(CGDAL_System &System, const CSG_String &Name)
+bool CGDAL_Import::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name)
 {
 	//-----------------------------------------------------
-	if( !System.is_Reading() )
+	if( !DataSet.is_Reading() )
 	{
 		return( false );
 	}
@@ -240,20 +236,25 @@ bool CGDAL_Import::Load(CGDAL_System &System, const CSG_String &Name)
 	CSG_Vector	A;
 	CSG_Matrix	B;
 
-	System.Get_Transform(A, B);
+	DataSet.Get_Transform(A, B);
 
 	//-----------------------------------------------------
 	Message_Add(CSG_String::Format(
 		SG_T("\n%s: %s/%s\n"),
 		_TL("Driver"),
-		System.Get_Description(), 
-		System.Get_Name()
+		DataSet.Get_Description(), 
+		DataSet.Get_Name()
 	), false);
+
+	if( DataSet.Get_Count() > 1 )
+	{
+		Message_Add(CSG_String::Format(SG_T("%d %s\n"), DataSet.Get_Count(), _TL("Bands")), false);
+	}
 
 	Message_Add(CSG_String::Format(
 		SG_T("%s: x %d, y %d\n%s: %d\n%s x' = %.6f + x * %.6f + y * %.6f\n%s y' = %.6f + x * %.6f + y * %.6f"),
-		_TL("Cells")			, System.Get_NX(), System.Get_NY(),
-		_TL("Bands")			, System.Get_Count(),
+		_TL("Cells")			, DataSet.Get_NX(), DataSet.Get_NY(),
+		_TL("Bands")			, DataSet.Get_Count(),
 		_TL("Transformation")	, A[0], B[0][0], B[0][1],
 		_TL("Transformation")	, A[1], B[1][0], B[1][1]
 	), false);
@@ -262,23 +263,22 @@ bool CGDAL_Import::Load(CGDAL_System &System, const CSG_String &Name)
 	int			i, n;
 	CSG_Grid	*pGrid;
 
-	for(i=0, n=0; i<System.Get_Count() && Process_Get_Okay(); i++)
+	for(i=0, n=0; i<DataSet.Get_Count() && Process_Get_Okay(); i++)
 	{
-		if( (pGrid = System.Read_Band(i)) != NULL )
+		if( (pGrid = DataSet.Read(i)) != NULL )
 		{
 			n++;
 
-			if( System.Needs_Transform() )
+			if( DataSet.Needs_Transform() )
 			{
 				Set_Transformation(&pGrid, A, B);
 			}
 
-			pGrid->Set_Name(System.Get_Count() > 1
+			pGrid->Set_Name(DataSet.Get_Count() > 1
 				? CSG_String::Format(SG_T("%s [%s]"), Name.c_str(), pGrid->Get_Name()).c_str()
 				: Name.c_str()
 			);
 
-			pGrid->Get_Projection().Create(System.Get_Projection(), SG_PROJ_FMT_WKT);
 			m_pGrids->Add_Item(pGrid);
 
 			DataObject_Add			(pGrid);
@@ -292,8 +292,6 @@ bool CGDAL_Import::Load(CGDAL_System &System, const CSG_String &Name)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -353,6 +351,38 @@ void CGDAL_Import::Set_Transformation(CSG_Grid **ppGrid, const CSG_Vector &A, co
 	}
 
 	delete(pImage);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool	SG_GDAL_Import	(const CSG_String &File_Name)
+{
+	CGDAL_Import	Import;
+
+	if(	!Import.Get_Parameters()->Set_Parameter(SG_T("FILES"), PARAMETER_TYPE_FilePath, File_Name) )
+	{
+		return( false );
+	}
+
+	if(	!Import.Execute() )
+	{
+		return( false );
+	}
+
+	CSG_Parameter_Grid_List	*pGrids	= Import.Get_Parameters()->Get_Parameter(SG_T("GRIDS"))->asGridList();
+
+	for(int i=0; i<pGrids->Get_Count(); i++)
+	{
+		SG_UI_DataObject_Add(pGrids->asGrid(i), SG_UI_DATAOBJECT_UPDATE_ONLY);
+	}
+
+	return( true );
 }
 
 
