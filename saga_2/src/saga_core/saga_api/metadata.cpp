@@ -412,6 +412,11 @@ int CSG_MetaData::_Get_Property(const CSG_String &Name) const
 //---------------------------------------------------------
 bool CSG_MetaData::Assign(const CSG_MetaData &MetaData, bool bAppend)
 {
+	if( &MetaData == this )
+	{
+		return( true );
+	}
+
 	int		i;
 
 	if( !bAppend )

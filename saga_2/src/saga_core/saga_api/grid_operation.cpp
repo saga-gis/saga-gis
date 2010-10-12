@@ -122,9 +122,14 @@ bool CSG_Grid::Assign(double Value)
 //---------------------------------------------------------
 bool CSG_Grid::Assign(CSG_Data_Object *pObject)
 {
-	if( pObject && pObject->is_Valid() && pObject->Get_ObjectType() == Get_ObjectType() )
+	if( pObject && pObject->is_Valid() && pObject->Get_ObjectType() == Get_ObjectType() && Assign((CSG_Grid *)pObject, GRID_INTERPOLATION_Undefined) )
 	{
-		return( Assign((CSG_Grid *)pObject, GRID_INTERPOLATION_Undefined) );
+		if( pObject->Get_Projection().is_Okay() )
+		{
+			Get_Projection()	= pObject->Get_Projection();
+		}
+
+		return( true );
 	}
 
 	return( false );

@@ -109,16 +109,14 @@ const SG_Char *	SG_Get_DataObject_Name(TSG_Data_Object_Type Type)
 //---------------------------------------------------------
 CSG_Data_Object::CSG_Data_Object(void)
 {
-	CSG_MetaData	*pSource;
-
 	m_MetaData.Set_Name(SG_T("SAGA_METADATA"));
 
 	m_pHistory			= m_MetaData.	Add_Child(SG_META_HST);
 
-	pSource				= m_MetaData.	Add_Child(SG_META_SRC);
-	m_pFile				= pSource->		Add_Child(SG_META_SRC_FILE);
-	m_pMetaData_DB		= pSource->		Add_Child(SG_META_SRC_DB);
-	m_pProjection		= pSource->		Add_Child(SG_META_SRC_PROJ);
+	m_pMetaData			= m_MetaData  .Add_Child(SG_META_SRC);
+	m_pFile				= m_pMetaData->Add_Child(SG_META_SRC_FILE);
+	m_pMetaData_DB		= m_pMetaData->Add_Child(SG_META_SRC_DB);
+	m_pProjection		= m_pMetaData->Add_Child(SG_META_SRC_PROJ);
 
 	//-----------------------------------------------------
 	m_File_Type			= 0;
