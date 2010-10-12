@@ -183,18 +183,12 @@ bool CWKSP_Shapes_Manager::Open_OGR(const wxChar *File_Name)
 		}
 	}
 
-	SG_UI_Progress_Lock(true);
-
 	if( !pImport
 	||	!pImport->Get_Parameters()->Set_Parameter(SG_T("FILES"), PARAMETER_TYPE_FilePath, File_Name)
 	||	!pImport->Execute() )
 	{
-		SG_UI_Progress_Lock(false);
-
 		return( false );
 	}
-
-	SG_UI_Progress_Lock(false);
 
 	CSG_Parameter_Shapes_List	*pShapes	= pImport->Get_Parameters()->Get_Parameter(SG_T("SHAPES"))->asShapesList();
 

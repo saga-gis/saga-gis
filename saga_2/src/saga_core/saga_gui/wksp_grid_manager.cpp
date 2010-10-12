@@ -178,18 +178,12 @@ bool CWKSP_Grid_Manager::Open_GDAL(const wxChar *File_Name)
 		}
 	}
 
-	SG_UI_Progress_Lock(true);
-
 	if( !pImport
 	||	!pImport->Get_Parameters()->Set_Parameter(SG_T("FILES"), PARAMETER_TYPE_FilePath, File_Name)
 	||	!pImport->Execute() )
 	{
-		SG_UI_Progress_Lock(false);
-
 		return( false );
 	}
-
-	SG_UI_Progress_Lock(false);
 
 	CSG_Parameter_Grid_List	*pGrids	= pImport->Get_Parameters()->Get_Parameter(SG_T("GRIDS"))->asGridList();
 

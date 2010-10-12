@@ -426,8 +426,10 @@ CSG_Grid * CSG_GDAL_DataSet::Read(int i)
 		{
 			while( *pMetaData )
 			{
-				Description	+= SG_STR_MBTOSG(*pMetaData);
-				Description	+= SG_T("\n");
+				CSG_String	s(*pMetaData);
+
+				pGrid->Get_MetaData().Add_Child(s.BeforeFirst(SG_T('=')), s.AfterFirst(SG_T('=')));
+				Description	+= s + SG_T("\n");
 
 				pMetaData++;
 			}
