@@ -1207,6 +1207,23 @@ bool CSG_Parameters::DataObjects_Create(void)
 					}
 				}
 			}
+			else if( p->is_DataObject_List() && p->is_Output() )
+			{
+				TSG_Data_Object_Type	Type
+					= p->Get_Type() == PARAMETER_TYPE_Grid_List       ? DATAOBJECT_TYPE_Grid
+					: p->Get_Type() == PARAMETER_TYPE_Table_List      ? DATAOBJECT_TYPE_Table
+					: p->Get_Type() == PARAMETER_TYPE_Shapes_List     ? DATAOBJECT_TYPE_Shapes
+					: p->Get_Type() == PARAMETER_TYPE_TIN_List        ? DATAOBJECT_TYPE_TIN
+					: p->Get_Type() == PARAMETER_TYPE_PointCloud_List ? DATAOBJECT_TYPE_PointCloud : DATAOBJECT_TYPE_Undefined;
+
+				for(int j=p->asList()->Get_Count()-1; j>=0; j--)
+				{
+					if( !SG_UI_DataObject_Check(p->asList()->asDataObject(j), Type) )
+					{
+						p->asList()->Del_Item(j);
+					}
+				}
+			}
 		}
 	}
 
