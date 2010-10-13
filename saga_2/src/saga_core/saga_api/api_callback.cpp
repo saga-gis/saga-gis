@@ -180,7 +180,10 @@ bool		SG_UI_Process_Set_Ready(void)
 	{
 		SG_UI_Process_Set_Text(LNG("ready"));
 
-		return( gSG_UI_Callback(CALLBACK_PROCESS_SET_READY, 0, 0) != 0 );
+		if( gSG_UI_Progress_Lock == 0 )
+		{
+			return( gSG_UI_Callback(CALLBACK_PROCESS_SET_READY, 0, 0) != 0 );
+		}
 	}
 
 	return( true );
