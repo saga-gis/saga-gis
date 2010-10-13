@@ -871,15 +871,15 @@ bool CSG_Projections::WKT_to_Proj4(CSG_String &Proj4, const CSG_String &WKT) con
 		||	!m["DATUM"]["SPHEROID"].is_Valid()
 		||	 m["DATUM"]["SPHEROID"].Get_Children_Count() != 2
 		||	!m["DATUM"]["SPHEROID"][0].Get_Content().asDouble(a) || a <= 0.0
-		||	!m["DATUM"]["SPHEROID"][1].Get_Content().asDouble(d) || d <= 0.0 )
+		||	!m["DATUM"]["SPHEROID"][1].Get_Content().asDouble(d) || d <  0.0 )
 		{
 			return( false );
 		}
 
 		Proj4	+= CSG_String::Format(SG_T( "+proj=longlat"));
 
-		Proj4	+= CSG_String::Format(SG_T(" +a=%f"), a);			// Semimajor radius of the ellipsoid axis
-		Proj4	+= CSG_String::Format(SG_T(" +b=%f"), a - a / d);	// Semiminor radius of the ellipsoid axis
+		Proj4	+= CSG_String::Format(SG_T(" +a=%f"), a);						// Semimajor radius of the ellipsoid axis
+		Proj4	+= CSG_String::Format(SG_T(" +b=%f"), d > 0.0 ? a - a / d : a);	// Semiminor radius of the ellipsoid axis
 
 		if(	m["DATUM"]["TOWGS84"].is_Valid() && m["DATUM"]["TOWGS84"].Get_Children_Count() == 7 )
 		{

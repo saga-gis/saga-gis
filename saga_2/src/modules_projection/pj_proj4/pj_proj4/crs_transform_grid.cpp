@@ -347,23 +347,22 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid, CSG_Grid *pTarget)
 		return( false );
 	}
 
-	if( !Set_Source(pGrid->Get_Projection()) )
-	{
-		return( false );
-	}
+	//-----------------------------------------------------
+	bool			bGeogCS_Adjust	= pGrid->Get_Projection().Get_Type() == SG_PROJ_TYPE_CS_Geographic && pGrid->Get_XMax() > 180.0;
+	int				x, y;
+	double			z;
+	TSG_Point		Pt_Source, Pt_Target;
+	CSG_Grid		*pX, *pY;
+
+	//-----------------------------------------------------
+	Set_Target_Area(pGrid->Get_System(), pGrid->Get_Projection().Get_Type() == SG_PROJ_TYPE_CS_Geographic);
 
 	if( !Set_Inverse(true) )
 	{
 		return( false );
 	}
 
-	//-------------------------------------------------
-	int				x, y;
-	double			z;
-	TSG_Point		Pt_Source, Pt_Target;
-	CSG_Grid		*pX, *pY;
-
-	//-------------------------------------------------
+	//-----------------------------------------------------
 	if( Parameters("CREATE_XY")->asBool() )
 	{
 		Parameters("OUT_X")->Set_Value(pX	= SG_Create_Grid(pTarget->Get_System(), SG_DATATYPE_Float));
@@ -389,17 +388,20 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid, CSG_Grid *pTarget)
 	pTarget->Assign_NoData();
 	pTarget->Get_Projection().Create(Get_Target());
 
-	//-------------------------------------------------
+	//-----------------------------------------------------
 	for(y=0, Pt_Target.y=pTarget->Get_YMin(); y<pTarget->Get_NY() && Set_Progress(y, pTarget->Get_NY()); y++, Pt_Target.y+=pTarget->Get_Cellsize())
 	{
 		for(x=0, Pt_Target.x=pTarget->Get_XMin(); x<pTarget->Get_NX(); x++, Pt_Target.x+=pTarget->Get_Cellsize())
 		{
-			Pt_Source	= Pt_Target;
-
-			if( Get_Transformation(Pt_Source) )
+			if( is_In_Target_Area(Pt_Target) && Get_Transformation(Pt_Source = Pt_Target) )
 			{
 				if( pX )	pX->Set_Value(x, y, Pt_Source.x);
 				if( pY )	pY->Set_Value(x, y, Pt_Source.y);
+
+				if( bGeogCS_Adjust && Pt_Source.x < 0.0 )
+				{
+					Pt_Source.x	+= 360.0;
+				}
 
 				if( pGrid->Get_Value(Pt_Source, z, m_Interpolation) )
 				{
@@ -408,6 +410,9 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid, CSG_Grid *pTarget)
 			}
 		}
 	}
+
+	//-----------------------------------------------------
+	m_Target_Area.Destroy();
 
 	return( true );
 }
@@ -420,23 +425,22 @@ bool CCRS_Transform_Grid::Transform(CSG_Parameter_Grid_List *pSources, CSG_Param
 		return( false );
 	}
 
-	if( !Set_Source(pSources->asGrid(0)->Get_Projection()) )
-	{
-		return( false );
-	}
+	//-----------------------------------------------------
+	bool			bGeogCS_Adjust	= pSources->asGrid(0)->Get_Projection().Get_Type() == SG_PROJ_TYPE_CS_Geographic && pSources->asGrid(0)->Get_XMax() > 180.0;
+	int				x, y, i, n;
+	double			z;
+	TSG_Point		Pt_Source, Pt_Target;
+	CSG_Grid		*pX, *pY;
+
+	//-----------------------------------------------------
+	Set_Target_Area(pSources->asGrid(0)->Get_System(), pSources->asGrid(0)->Get_Projection().Get_Type() == SG_PROJ_TYPE_CS_Geographic);
 
 	if( !Set_Inverse(true) )
 	{
 		return( false );
 	}
 
-	//-------------------------------------------------
-	int				x, y, i, n;
-	double			z;
-	TSG_Point		Pt_Source, Pt_Target;
-	CSG_Grid		*pX, *pY;
-
-	//-------------------------------------------------
+	//-----------------------------------------------------
 	if( Parameters("CREATE_XY")->asBool() )
 	{
 		Parameters("OUT_X")->Set_Value(pX	= SG_Create_Grid(Target_System, SG_DATATYPE_Float));
@@ -454,7 +458,7 @@ bool CCRS_Transform_Grid::Transform(CSG_Parameter_Grid_List *pSources, CSG_Param
 		pX	= pY	= NULL;
 	}
 
-	//-------------------------------------------------
+	//-----------------------------------------------------
 	n	= pTargets->Get_Count();
 
 	for(i=0; i<pSources->Get_Count(); i++)
@@ -477,12 +481,15 @@ bool CCRS_Transform_Grid::Transform(CSG_Parameter_Grid_List *pSources, CSG_Param
 	{
 		for(x=0, Pt_Target.x=Target_System.Get_XMin(); x<Target_System.Get_NX(); x++, Pt_Target.x+=Target_System.Get_Cellsize())
 		{
-			Pt_Source	= Pt_Target;
-
-			if( Get_Transformation(Pt_Source) )
+			if( is_In_Target_Area(Pt_Target) && Get_Transformation(Pt_Source = Pt_Target) )
 			{
 				if( pX )	pX->Set_Value(x, y, Pt_Source.x);
 				if( pY )	pY->Set_Value(x, y, Pt_Source.y);
+
+				if( bGeogCS_Adjust && Pt_Source.x < 0.0 )
+				{
+					Pt_Source.x	+= 360.0;
+				}
 
 				for(i=0; i<pSources->Get_Count(); i++)
 				{
@@ -494,6 +501,9 @@ bool CCRS_Transform_Grid::Transform(CSG_Parameter_Grid_List *pSources, CSG_Param
 			}
 		}
 	}
+
+	//-----------------------------------------------------
+	m_Target_Area.Destroy();
 
 	return( true );
 }
@@ -646,7 +656,7 @@ bool CCRS_Transform_Grid::Get_Target_System(const CSG_Grid_System &System, bool 
 	Extent.xMin	= Extent.yMin	= 1.0;
 	Extent.xMax	= Extent.yMax	= 0.0;
 
-	if( bEdge )
+	if( !bEdge )
 	{
 		double		d;
 
@@ -684,6 +694,61 @@ bool CCRS_Transform_Grid::Get_Target_System(const CSG_Grid_System &System, bool 
 		&&	m_Grid_Target.Init_User(Extent, System.Get_NY())
 		&&	Dlg_Parameters("GET_USER")
 	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CCRS_Transform_Grid::Set_Target_Area(const CSG_Grid_System &System, bool bGeogCS)
+{
+	m_Target_Area.Create(SHAPE_TYPE_Polygon);
+
+	CSG_Shape	*pArea	= m_Target_Area.Add_Shape();
+	CSG_Rect	r		= System.Get_Extent();
+	TSG_Point	p, q;
+
+	if( bGeogCS )
+	{
+		if( r.Get_XMax() > 180.0 )	r.Move(-180.0, 0.0);
+		if( r.Get_YMin() < -90.0 )	r.m_rect.yMin	= -90.0;
+		if( r.Get_YMax() <  90.0 )	r.m_rect.yMax	=  90.0;
+	}
+
+	for(p.x=r.Get_XMin(), p.y=r.Get_YMin(); p.y<r.Get_YMax(); p.y+=System.Get_Cellsize())
+	{
+		Get_Transformation(q = p);	pArea->Add_Point(q);
+	}
+
+	for(p.x=r.Get_XMin(), p.y=r.Get_YMax(); p.x<r.Get_XMax(); p.x+=System.Get_Cellsize())
+	{
+		Get_Transformation(q = p);	pArea->Add_Point(q);
+	}
+
+	for(p.x=r.Get_XMax(), p.y=r.Get_YMax(); p.y>r.Get_YMin(); p.y-=System.Get_Cellsize())
+	{
+		Get_Transformation(q = p);	pArea->Add_Point(q);
+	}
+
+	for(p.x=r.Get_XMax(), p.y=r.Get_YMin(); p.x>r.Get_XMin(); p.x-=System.Get_Cellsize())
+	{
+		Get_Transformation(q = p);	pArea->Add_Point(q);
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CCRS_Transform_Grid::is_In_Target_Area(const TSG_Point &Point)
+{
+	if( m_Target_Area.Get_Count() == 1 )
+	{
+		return( ((CSG_Shape_Polygon *)m_Target_Area.Get_Shape(0))->is_Containing(Point) );
+	}
+
+	return( true );
 }
 
 

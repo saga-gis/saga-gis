@@ -77,11 +77,30 @@ CCRS_Base::CCRS_Base(void)
 		NULL	, "CRS_METHOD"		, _TL("Get CRS Definition from..."),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("EPSG Code"),
 			_TL("Proj4 Parameters"),
+			_TL("EPSG Code"),
 			_TL("Well Known Text File")
 		), 0
 	);
+
+	//-----------------------------------------------------
+	pNode_0	= Parameters.Add_Node(NULL, "NODE_PROJ4", _TL("Proj4 Parameters"), _TL(""));
+
+	pNode_1	= Parameters.Add_String(
+		pNode_0	, "CRS_PROJ4"		, _TL("Proj4 Parameters"),
+		_TL(""),
+		SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"), true
+	);
+
+	if( SG_UI_Get_Window_Main() )
+	{
+		Parameters.Add_Parameters(
+			pNode_1	, "CRS_DIALOG"		, _TL("Dialog"),
+			_TL("")
+		);
+
+		Set_User_Parameters(Parameters("CRS_DIALOG")->asParameters());
+	}
 
 	//-----------------------------------------------------
 	pNode_0	= Parameters.Add_Node(
@@ -108,25 +127,6 @@ CCRS_Base::CCRS_Base(void)
 			_TL(""),
 			SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Projected)
 		);
-	}
-
-	//-----------------------------------------------------
-	pNode_0	= Parameters.Add_Node(NULL, "NODE_PROJ4", _TL("Proj4 Parameters"), _TL(""));
-
-	pNode_1	= Parameters.Add_String(
-		pNode_0	, "CRS_PROJ4"		, _TL("Proj4 Parameters"),
-		_TL(""),
-		SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"), true
-	);
-
-	if( SG_UI_Get_Window_Main() )
-	{
-		Parameters.Add_Parameters(
-			pNode_1	, "CRS_DIALOG"		, _TL("Dialog"),
-			_TL("")
-		);
-
-		Set_User_Parameters(Parameters("CRS_DIALOG")->asParameters());
 	}
 
 	//-----------------------------------------------------
@@ -260,35 +260,17 @@ bool CCRS_Base::Get_Projection(CSG_Projection &Projection)
 {
 	switch( Parameters("CRS_METHOD")->asInt() )
 	{
-	case 0:	default:	// EPSG Code
-		Projection.Create	(Parameters("CRS_EPSG")->asInt());
+	case 0:	default:	// Proj4 Parameters"),
+		Projection.Create	(Parameters("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
 		break;
 
-	case 1:				// Proj4 Parameters"),
-		Projection.Create	(Parameters("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+	case 1:				// EPSG Code
+		Projection.Create	(Parameters("CRS_EPSG")->asInt());
 		break;
 
 	case 2:				// Well Known Text File"),
 		Projection.Load		(Parameters("CRS_FILE")->asString());
 		break;
-
-	case 3:				// loaded data set")
-		switch( Parameters("CRS_DATA")->asParameters()->Get_Parameter("TYPE")->asInt() )
-		{
-		case 0:	// grid
-			if( Parameters("CRS_DATA")->asParameters()->Get_Parameter("GRID")->asDataObject() )
-			{
-				Projection.Create(Parameters("CRS_DATA")->asParameters()->Get_Parameter("GRID")->asDataObject()->Get_Projection());
-			}
-			break;
-
-		case 1:	// shapes
-			if( Parameters("CRS_DATA")->asParameters()->Get_Parameter("SHAPES")->asDataObject() )
-			{
-				Projection.Create(Parameters("CRS_DATA")->asParameters()->Get_Parameter("SHAPES")->asDataObject()->Get_Projection());
-			}
-			break;
-		}
 	}
 
 	return( Projection.is_Okay() );
@@ -453,7 +435,9 @@ bool CCRS_Base::Set_User_Parameters(CSG_Parameters *pParameters)
 
 	pParameters->Add_Choice	(pNode_1, "UNIT"		, _TL("Unit")					, _TL(""), sUnits, 1);
 
-	pParameters->Add_Value	(pNode_1, "NO_DEFS"		, _TL("Ignore Defaults")		, _TL(""), PARAMETER_TYPE_Bool, true);
+	pParameters->Add_Value	(pNode_1, "NO_DEFS"		, _TL("Ignore Defaults")		, _TL(""), PARAMETER_TYPE_Bool, false);
+
+	pParameters->Add_Value	(pNode_1, "OVER"		, _TL("Allow longitudes outside -180 to 180 Range")	, _TL(""), PARAMETER_TYPE_Bool, false);
 
 	//-----------------------------------------------------
 	pParameters->Add_Parameters(
@@ -822,6 +806,11 @@ CSG_String CCRS_Base::Get_User_Definition(CSG_Parameters &P)
 	if( P("NO_DEFS")->asBool() )
 	{
 		Proj4	+= SG_T("+no_defs");
+	}
+
+	if( P("OVER")->asBool() )
+	{
+		Proj4	+= SG_T("+over");
 	}
 
 	return( Proj4 );
