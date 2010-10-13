@@ -486,8 +486,8 @@ bool CSG_MetaData::Load(CSG_File &File)
 //---------------------------------------------------------
 void CSG_MetaData::_Load(wxXmlNode *pNode)
 {
-	Set_Name	(SG_UTF8_To_String(pNode->GetName       ()).c_str());
-	Set_Content	(SG_UTF8_To_String(pNode->GetNodeContent()).c_str());
+	m_Name		= SG_UTF8_To_String(pNode->GetName       ());
+	m_Content	= SG_UTF8_To_String(pNode->GetNodeContent());
 
 	//-----------------------------------------------------
 	wxXmlProperty	*pProperty	= pNode->GetProperties();
