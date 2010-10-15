@@ -805,7 +805,7 @@ bool CModule_Library::_Destroy_DataObjects(bool bSave, CSG_Parameters *pParamete
 					}
 					else
 					{
-						pParameter->asList()->asDataObject(i)->Save(CSG_String::Format(SG_T("%s_%02d"), FileName.c_str(), i + 1));
+						pParameter->asList()->asDataObject(i)->Save(CSG_String::Format(SG_T("%s_%04d"), FileName.c_str(), i + 1));
 					}
 				}
 			}
