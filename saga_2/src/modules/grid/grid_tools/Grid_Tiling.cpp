@@ -103,7 +103,7 @@ CGrid_Tiling::CGrid_Tiling(void)
 		pNode	, "OVERLAP_SYM"		, _TL("Add Cells"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("symetric"),
+			_TL("symmetric"),
 			_TL("bottom / left"),
 			_TL("top / right")
 		), 0
