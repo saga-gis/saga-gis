@@ -196,14 +196,26 @@ wxString CDLG_About::_Get_Version(void)
 		wxT("http://www.saga-gis.org\n")
 	);
 
-#ifdef _SAGA_UNICODE
-	s.Append(wxT("_______________________\n\n"));
+	//-----------------------------------------------------
+	// Target
 
-	s.Append(
-		wxT("UNICODE\n")
-	);
+	s	+= wxT("_______________________\n\n");
+
+#ifdef _SAGA_MSW
+	#ifdef _WIN64
+		s	+= wxT("64 bit\n");
+	#else
+		s	+= wxT("32 bit\n");
+	#endif
 #endif
 
+#ifdef _SAGA_UNICODE
+	s	+= wxT("unicode\n");
+#else
+	s	+= wxT("single byte characters\n");
+#endif
+
+	//-----------------------------------------------------
 	s.Append(wxT("_______________________\n\n"));
 
 	s.Append(wxString::Format(
