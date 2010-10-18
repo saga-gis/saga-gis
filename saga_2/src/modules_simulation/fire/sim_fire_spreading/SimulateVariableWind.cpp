@@ -17,7 +17,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/ 
 
-#include "../../Terrain_Analysis/Terrain_Analysis_Morphometry/Morphometry.h"
 //#include "../../GRID/Grid_Shapes/Grid2Contour.h"
 #include "SimulateVariableWind.h"
 #include <string>
@@ -61,8 +60,7 @@ CSimulateVariableWind::CSimulateVariableWind(void){
 	Parameters.Add_Grid_List(NULL, 
 							"WINDSPD", 
 							"Velocidad del viento",
-							"Velocidad del viento (km/h)"
-							_TL(""), 
+							"Velocidad del viento (km/h)",
 							PARAMETER_INPUT);
 	
 	Parameters.Add_Grid_List(NULL, 
@@ -204,8 +202,8 @@ void CSimulateVariableWind::DeleteObjects(){
 	delete m_pEffectiveWindGrid;
 	delete m_pHeatPerUnitAreaGrid;
 
-	delete m_CentralPoints;
-	delete m_AdjPoints;
+	m_CentralPoints	.Clear();
+	m_AdjPoints		.Clear();
 
 	if (m_bDeleteWindSpdGrid){
 		delete m_pWindSpdGrids[0];
@@ -299,22 +297,34 @@ bool CSimulateVariableWind::AssignParameters(){
 		}//for
 	}//for
 
-	m_pReactionIntensityGrid = SG_Create_Grid(m_pDEM, SG_DATATYPE_Double);
-	m_pEffectiveWindGrid = SG_Create_Grid(m_pDEM, SG_DATATYPE_Double);
-	m_pHeatPerUnitAreaGrid = SG_Create_Grid(m_pDEM, SG_DATATYPE_Double);
+	m_pReactionIntensityGrid	= SG_Create_Grid(m_pDEM, SG_DATATYPE_Double);
+	m_pEffectiveWindGrid		= SG_Create_Grid(m_pDEM, SG_DATATYPE_Double);
+	m_pHeatPerUnitAreaGrid		= SG_Create_Grid(m_pDEM, SG_DATATYPE_Double);
 
-	m_pSlopeGrid = SG_Create_Grid(m_pDEM, SG_DATATYPE_Double);
-	m_pAspectGrid = SG_Create_Grid(m_pDEM, SG_DATATYPE_Double);
+	//-----------------------------------------------------
+	m_pSlopeGrid	= SG_Create_Grid(m_pDEM, SG_DATATYPE_Float);
+	m_pAspectGrid	= SG_Create_Grid(m_pDEM, SG_DATATYPE_Float);
 
-	CMorphometry Morphometry;
-	if(	!Morphometry.Get_Parameters()->Set_Parameter("ELEVATION", PARAMETER_TYPE_Grid, m_pDEM)
-	||	!Morphometry.Get_Parameters()->Set_Parameter("SLOPE", PARAMETER_TYPE_Grid, m_pSlopeGrid)
-	||	!Morphometry.Get_Parameters()->Set_Parameter("ASPECT", PARAMETER_TYPE_Grid, m_pAspectGrid)
-	||	!Morphometry.Execute() )
+	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		return( false );
+		for(x=0; x<Get_NX(); x++)
+		{
+			double	Slope, Aspect;
+
+			if( m_pDEM->Get_Gradient(x, y, Slope, Aspect) )
+			{
+				m_pSlopeGrid ->Set_Value(x, y, Slope);
+				m_pAspectGrid->Set_Value(x, y, Aspect);
+			}
+			else
+			{
+				m_pSlopeGrid ->Set_NoData(x, y);
+				m_pAspectGrid->Set_NoData(x, y);
+			}
+		}
 	}
 
+	//-----------------------------------------------------
 	m_pTimeGrid->Assign((double)0);
 
 	return true;
