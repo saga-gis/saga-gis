@@ -72,7 +72,7 @@ const SG_Char * Get_Info(int i)
 		return( _TL("Module Library Template") );
 
 	case MLB_INFO_Author:
-		return( _TL("(c) 1984 by George Orwell") );
+		return( SG_T("George Orwell (c) 1984") );
 
 	case MLB_INFO_Description:
 		return( _TL("I am a module library template.") );
