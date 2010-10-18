@@ -120,19 +120,19 @@ GDALDriver * CSG_GDAL_Drivers::Get_Driver(int Index) const
 //---------------------------------------------------------
 CSG_String CSG_GDAL_Drivers::Get_Name(int Index) const
 {
-	return( Get_Driver(Index)->GetMetadataItem(GDAL_DMD_LONGNAME) );
+	return( SG_STR_MBTOSG(Get_Driver(Index)->GetMetadataItem(GDAL_DMD_LONGNAME)) );
 }
 
 //---------------------------------------------------------
 CSG_String CSG_GDAL_Drivers::Get_Description(int Index) const
 {
-	return( Get_Driver(Index)->GetDescription() );
+	return( SG_STR_MBTOSG(Get_Driver(Index)->GetDescription()) );
 }
 
 //---------------------------------------------------------
 CSG_String CSG_GDAL_Drivers::Get_Extension(int Index) const
 {
-	return( Get_Driver(Index)->GetMetadataItem(GDAL_DMD_EXTENSION) );
+	return( SG_STR_MBTOSG(Get_Driver(Index)->GetMetadataItem(GDAL_DMD_EXTENSION)) );
 }
 
 //---------------------------------------------------------
