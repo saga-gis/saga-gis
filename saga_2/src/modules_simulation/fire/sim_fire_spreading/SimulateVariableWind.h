@@ -54,8 +54,8 @@ private:
 	int m_iWindDirGrids;
 	int m_iWindSpdGrids;
 
-	float m_fIgnTime;
-	float m_fInterval;
+	double m_fIgnTime;
+	double m_fInterval;
 
 	bool m_bDeleteWindSpdGrid;
 	bool m_bDeleteWindDirGrid;
@@ -70,35 +70,35 @@ private:
 	int *m_pLength; 
 	int m_fTimeLimit; //in min
 
-	float m_fWorldX, m_fWorldY;
+	double m_fWorldX, m_fWorldY;
 	int m_iGridX, m_iGridY;
 
-	float m_fDeadFuelMoisture;
-	float *m_pMeanWindSpd;
-	float *m_pMeanWindDir;
-	float m_fSlope;
-	float m_fAspect;
-	float m_fMeanSpeed;
-	float m_fHeatPerUnitArea;
-	float m_fReactionIntensity;
-	float m_fEffectiveWind;
-	float m_fIntensity;
-	float m_fFlameHeight;
-	float m_fMaxSpreadDir;
-	float m_fArea;
-	float *m_pAreaByFuelModel;
-	float m_fPerimeter;
-	float m_fFrontDistance;
-	float m_fRearDistance;
+	double m_fDeadFuelMoisture;
+	double *m_pMeanWindSpd;
+	double *m_pMeanWindDir;
+	double m_fSlope;
+	double m_fAspect;
+	double m_fMeanSpeed;
+	double m_fHeatPerUnitArea;
+	double m_fReactionIntensity;
+	double m_fEffectiveWind;
+	double m_fIntensity;
+	double m_fFlameHeight;
+	double m_fMaxSpreadDir;
+	double m_fArea;
+	double *m_pAreaByFuelModel;
+	double m_fPerimeter;
+	double m_fFrontDistance;
+	double m_fRearDistance;
 
 	bool AssignParameters();
 	void CalculateFire();
-	int CalculateFireSpreading(float);
+	int CalculateFireSpreading(double);
 	void DeleteObjects();
 
-	float getWindSpeed(int,int,float);
-	float getWindDirection(int,int,float);
-	float getAzimuth(float,float);
+	double getWindSpeed(int,int,double);
+	double getWindDirection(int,int,double);
+	double getAzimuth(double,double);
 
 	void CreateReport();
 	void CalculateReportParameters();

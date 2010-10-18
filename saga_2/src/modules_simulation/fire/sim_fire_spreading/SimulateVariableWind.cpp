@@ -41,85 +41,87 @@
 
 CSimulateVariableWind::CSimulateVariableWind(void){
 	
-	Parameters.Set_Name("Simulación (Viento variable)");
-	Parameters.Set_Description(
-		"(c) 2004 by Victor Olaya. Simulación con viento variable.");
+	Set_Name		(_TL("Simulación (Viento variable)"));
+
+	Set_Description	(_TW(
+		"(c) 2004 by Victor Olaya. Simulación con viento variable."
+	));
 
 	Parameters.Add_Grid(NULL, 
 						"DEM", 
-						"MDE", 
+						_TL("MDE"), 
 						_TL(""), 
 						PARAMETER_INPUT);
 	
 	Parameters.Add_Grid(NULL, 
 						"FUEL", 
-						"Modelo de combustible", 
+						_TL("Modelo de combustible"), 
 						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid_List(NULL, 
 							"WINDSPD", 
-							"Velocidad del viento",
-							"Velocidad del viento (km/h)",
+							_TL("Velocidad del viento"),
+							_TL("Velocidad del viento (km/h)"),
 							PARAMETER_INPUT);
 	
 	Parameters.Add_Grid_List(NULL, 
 							"WINDDIR", 
-							"Dirección del viento", 
-							"Dirección del viento (grados desde el norte en sentido antihorario)",
+							_TL("Dirección del viento"), 
+							_TL("Dirección del viento (grados desde el norte en sentido antihorario)"),
 							PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"M1H", 
-						"Humedad del combustible muerto en 1-hora", 
+						_TL("Humedad del combustible muerto en 1-hora"), 
 						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"M10H", 
-						"Humedad del combustible muerto en 10-horas", 
+						_TL("Humedad del combustible muerto en 10-horas"), 
 						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"M100H", 
-						"Humedad del combustible muerto en 100-horas", 
+						_TL("Humedad del combustible muerto en 100-horas"), 
 						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"MHERB", 
-						"Humedad del combustible herbáceo vivo", 
+						_TL("Humedad del combustible herbáceo vivo"), 
 						_TL(""), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"MWOOD", 
-						"Humedad del combustible leñoso vivo", 
+						_TL("Humedad del combustible leñoso vivo"), 
 						_TL(""), 
 						PARAMETER_INPUT);
 	
 	Parameters.Add_Grid(NULL, 
 						"TIME", 
-						"Tiempo", 
+						_TL("Tiempo"), 
 						_TL(""), 
 						PARAMETER_OUTPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"FLAME", 
-						"Altura de llama", 
-						"Altura de llama (m)", 
+						_TL("Altura de llama"), 
+						_TL("Altura de llama (m)"), 
 						PARAMETER_OUTPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"INTENSITY", 
-						"Intensidad", 
-						"Intensidad (Kcal/m)", 
+						_TL("Intensidad"), 
+						_TL("Intensidad (Kcal/m)"), 
 						PARAMETER_OUTPUT);
 
 	Parameters.Add_Value(NULL, 
 						"IGNTIME", 
-						"Tiempo de inicio (min)", 
+						_TL("Tiempo de inicio (min)"), 
 						_TL(""), 
 						PARAMETER_TYPE_Double, 
 						0, 
@@ -128,7 +130,7 @@ CSimulateVariableWind::CSimulateVariableWind(void){
 
 	Parameters.Add_Value(NULL, 
 						"INTERVAL", 
-						"Intervalo de tiempo entre capas (min)", 
+						_TL("Intervalo de tiempo entre capas (min)"), 
 						_TL(""), 
 						PARAMETER_TYPE_Double, 
 						30, 
@@ -137,7 +139,7 @@ CSimulateVariableWind::CSimulateVariableWind(void){
 
 	Parameters.Add_Value(NULL, 
 						"SIMULATIONTIME", 
-						"Tiempo de simulacion (min)", 
+						_TL("Tiempo de simulacion (min)"), 
 						_TL(""), 
 						PARAMETER_TYPE_Double, 
 						180, 
@@ -146,36 +148,36 @@ CSimulateVariableWind::CSimulateVariableWind(void){
 
 	Parameters.Add_Value(NULL, 
 						"DEFAULTWINDDIR", 
-						"Dirección del viento", 
-						"Dirección del viento (grados desde el norte)",
+						_TL("Dirección del viento"), 
+						_TL("Dirección del viento (grados desde el norte)"),
 						PARAMETER_TYPE_Double, 
 						0);
 
 	Parameters.Add_Value(NULL, 
 						"DEFAULTWINDSPD", 
-						"Velocidad del viento",
-						"Velocidad del viento (km/h)",
+						_TL("Velocidad del viento"),
+						_TL("Velocidad del viento (km/h)"),
 						PARAMETER_TYPE_Double, 
 						0);
 	
 	Parameters.Add_Value(NULL, 
 						"COORDX", 
-						"Coordenada X", 
-						"Coordenada X del punto de ignición (sólo si no se usa grid de puntos de ignición)", 
+						_TL("Coordenada X"), 
+						_TL("Coordenada X del punto de ignición (sólo si no se usa grid de puntos de ignición)"), 
 						PARAMETER_TYPE_Double, 
 						0);
 
 	Parameters.Add_Value(NULL, 
 						"COORDY", 
-						"Coordenada Y", 
-						"Coordenada Y del punto de ignición (sólo si no se usa grid de puntos de ignición)", 
+						_TL("Coordenada Y"), 
+						_TL("Coordenada Y del punto de ignición (sólo si no se usa grid de puntos de ignición)"), 
 						PARAMETER_TYPE_Double, 
 						0);
 
 	Parameters.Add_FilePath(NULL,
 							"REPORTFILE",
-							"Informe",
-							"Informe",
+							_TL("Informe"),
+							_TL("Informe"),
 							_TL(""),
 							_TL(""),
 							true);
@@ -235,7 +237,7 @@ bool CSimulateVariableWind::AssignParameters(){
 	m_pFlameGrid = Parameters("FLAME")->asGrid();
 	m_pIntensityGrid = Parameters("INTENSITY")->asGrid();
 
-	m_fTimeLimit = Parameters("SIMULATIONTIME")->asDouble();
+	m_fTimeLimit = Parameters("SIMULATIONTIME")->asInt();
 
 	m_fIgnTime = Parameters("IGNTIME")->asDouble();
 	m_fInterval = Parameters("INTERVAL")->asDouble();
@@ -333,7 +335,7 @@ bool CSimulateVariableWind::AssignParameters(){
 
 void CSimulateVariableWind::CalculateFire(){
 		
-	Process_Set_Text("Simulando...");
+	Process_Set_Text(_TL("Simulando..."));
 
 	m_CentralPoints	.Clear();
 	m_AdjPoints		.Clear();
@@ -352,7 +354,7 @@ void CSimulateVariableWind::CalculateFire(){
 }//method
 
 
-int CSimulateVariableWind::CalculateFireSpreading(float fTimeLimit){
+int CSimulateVariableWind::CalculateFireSpreading(double fTimeLimit){
 
 	int x,y;
 	int x2,y2;
@@ -361,8 +363,8 @@ int CSimulateVariableWind::CalculateFireSpreading(float fTimeLimit){
 	/* neighbor's address*/   /* N  NE   E  SE   S  SW   W  NW */
 	static int nX[8] =        {  0,  1,  1,  1,  0, -1, -1, -1};
     static int nY[8] =        {  1,  1,  0, -1, -1, -1,  0,  1};
-	float fDist;			  /* distance to neighbor */
-    float fAz;				  /* compass azimuth to neighbor (0=N) */	
+	double fDist;			  /* distance to neighbor */
+    double fAz;				  /* compass azimuth to neighbor (0=N) */	
 	size_t modelNumber;       /* fuel model number at current cell */
     double moisture[6];       /* fuel moisture content at current cell */
     double dSpreadRate;       /* spread rate in direction of neighbor */
@@ -382,18 +384,18 @@ int CSimulateVariableWind::CalculateFireSpreading(float fTimeLimit){
 			if (!m_pDEM->is_NoData(x,y) && !m_pFuelGrid->is_NoData(x,y)){
 
 				modelNumber = (size_t) m_pFuelGrid->asInt(x, y);
-				moisture[0] = m_pM1Grid->asFloat(x, y) / 100.;
-				moisture[1] = m_pM10Grid->asFloat(x, y) / 100.;
-				moisture[2] = m_pM100Grid->asFloat(x, y) / 100.;
-				moisture[3] = m_pM100Grid->asFloat(x, y) / 100.;
-				moisture[4] = m_pMHerbGrid->asFloat(x, y) / 100.;
-				moisture[5] = m_pMWoodGrid->asFloat(x, y) / 100.;
-				dWindSpd = getWindSpeed(x, y, m_pTimeGrid->asFloat(x,y)) * KMH2FTMIN; 
-				dWindDir = 360. - getWindDirection(x, y, m_pTimeGrid->asFloat(x,y));
+				moisture[0] = m_pM1Grid->asDouble(x, y) / 100.;
+				moisture[1] = m_pM10Grid->asDouble(x, y) / 100.;
+				moisture[2] = m_pM100Grid->asDouble(x, y) / 100.;
+				moisture[3] = m_pM100Grid->asDouble(x, y) / 100.;
+				moisture[4] = m_pMHerbGrid->asDouble(x, y) / 100.;
+				moisture[5] = m_pMWoodGrid->asDouble(x, y) / 100.;
+				dWindSpd = getWindSpeed(x, y, m_pTimeGrid->asDouble(x,y)) * KMH2FTMIN; 
+				dWindDir = 360. - getWindDirection(x, y, m_pTimeGrid->asDouble(x,y));
 				Fire_SpreadNoWindNoSlope(m_Catalog, modelNumber, moisture);
 				Fire_SpreadWindSlopeMax(m_Catalog, modelNumber, dWindSpd,
-										 dWindDir, tan(m_pSlopeGrid->asFloat(x,y)),
-										 m_pAspectGrid->asFloat(x,y, true));
+										 dWindDir, tan(m_pSlopeGrid->asDouble(x,y)),
+										 m_pAspectGrid->asDouble(x,y, true));
 
 				for (i = -2; i < 3 ; i++){
 					for (j = -2; j < 3; j++){						
@@ -451,60 +453,60 @@ int CSimulateVariableWind::CalculateFireSpreading(float fTimeLimit){
 
 }//method
 
-float CSimulateVariableWind::getWindSpeed(int iX, 
+double CSimulateVariableWind::getWindSpeed(int iX, 
 										  int iY,
-										  float fTime /*in mins*/){
+										  double fTime /*in mins*/){
 
 	if (fTime <= 0){
-		return m_pWindSpdGrids[0]->asFloat(iX,iY);
+		return m_pWindSpdGrids[0]->asDouble(iX,iY);
 	}//if
 
 	if (fTime >= (m_iWindSpdGrids - 1) * m_fInterval){
-		return m_pWindSpdGrids[m_iWindSpdGrids - 1]->asFloat(iX,iY);
+		return m_pWindSpdGrids[m_iWindSpdGrids - 1]->asDouble(iX,iY);
 	}//if
 
-	float fClass = fTime / ((m_iWindSpdGrids - 1) * m_fInterval);
+	double fClass = fTime / ((m_iWindSpdGrids - 1) * m_fInterval);
 
 	int iClass1 = (int)floor(fClass);
 	int iClass2 = (int)ceil(fClass);
 
-	float fValue1 = m_pWindSpdGrids[iClass1]->asFloat(iX,iY);
-	float fValue2 = m_pWindSpdGrids[iClass2]->asFloat(iX,iY);
+	double fValue1 = m_pWindSpdGrids[iClass1]->asDouble(iX,iY);
+	double fValue2 = m_pWindSpdGrids[iClass2]->asDouble(iX,iY);
 
-	float fSpeed = fValue1 + (fValue2 - fValue1) * (fClass - iClass1);
+	double fSpeed = fValue1 + (fValue2 - fValue1) * (fClass - iClass1);
 
 	return fSpeed;
 
 }//
 
-float CSimulateVariableWind::getWindDirection(int iX, 
+double CSimulateVariableWind::getWindDirection(int iX, 
 											int iY,
-											float fTime /*in mins*/){
+											double fTime /*in mins*/){
 
 	if (fTime <= 0){
-		return m_pWindDirGrids[0]->asFloat(iX,iY);
+		return m_pWindDirGrids[0]->asDouble(iX,iY);
 	}//if
 
 	if (fTime >= (m_iWindDirGrids - 1) * m_fInterval){
-		return m_pWindDirGrids[m_iWindDirGrids - 1]->asFloat(iX,iY);
+		return m_pWindDirGrids[m_iWindDirGrids - 1]->asDouble(iX,iY);
 	}//if
 
-	float fClass = fTime / ((m_iWindDirGrids - 1) * m_fInterval);
+	double fClass = fTime / ((m_iWindDirGrids - 1) * m_fInterval);
 
 	int iClass1 = (int)floor(fClass);
 	int iClass2 = (int)ceil(fClass);
 
-	float fValue1 = m_pWindDirGrids[iClass1]->asFloat(iX,iY);
+	double fValue1 = m_pWindDirGrids[iClass1]->asDouble(iX,iY);
 	if (fValue1 > 180){
 		fValue1 = - (fValue1 - 180.);
 	}//if
 
-	float fValue2 = m_pWindDirGrids[iClass2]->asFloat(iX,iY);
+	double fValue2 = m_pWindDirGrids[iClass2]->asDouble(iX,iY);
 	if (fValue2 > 180){
 		fValue2 = - (fValue2 - 180.);
 	}//if
 
-	float fDir = fValue1 + (fValue2 - fValue1) * (fClass - iClass1);
+	double fDir = fValue1 + (fValue2 - fValue1) * (fClass - iClass1);
 
 	if (fDir < 0){
 		fDir += 360;
@@ -516,8 +518,7 @@ float CSimulateVariableWind::getWindDirection(int iX,
 
 void CSimulateVariableWind::CreateReport(){
 
-	CSG_String sReportFile;
-	std::ofstream file;
+	CSG_String sReportFile, sFile;
 	int i;
 
 	if (Parameters("REPORTFILE")->asString() != NULL){
@@ -525,8 +526,6 @@ void CSimulateVariableWind::CreateReport(){
 		sReportFile = Parameters("REPORTFILE")->asString();
 		
 		CalculateReportParameters();
-
-		file.open(sReportFile.c_str());
 
 		char cDate[81];
 		time_t curTime;
@@ -538,52 +537,60 @@ void CSimulateVariableWind::CreateReport(){
 	//	std::locale::global(spanish);
 		strftime(cDate, 80, "%#x", timeinfo);
 
-		file << "\t\t\t SIMULACIÓN realizada el ";
-		file << cDate;
-		file << "\n\t\t ==============================================================================";
-		file << "\n\n\t Parámetros de entrada\n";
-		file << "\t --------------------------------\n\n";
-		file << "\t\t Modelos de combustible (por area) \n:  ";
+		sFile += "\t\t\t SIMULACIÓN realizada el ";
+		sFile += cDate;
+		sFile += "\n\t\t ==============================================================================";
+		sFile += "\n\n\t Parámetros de entrada\n";
+		sFile += "\t --------------------------------\n\n";
+		sFile += "\t\t Modelos de combustible (por area) \n:  ";
 		for (i = 0; i < 12; i++){
 			if (m_pAreaByFuelModel[i]){
-				file << "\t\t\t * " + SG_Get_String(i + 1, 0) + " : " + SG_Get_String(m_pAreaByFuelModel[i]) + " ha\n";
+				sFile += "\t\t\t * ";
+				sFile += SG_Get_String(i + 1, 0) + " : " + SG_Get_String(m_pAreaByFuelModel[i]) + " ha\n";
 			}//if
 		}//for		
-		file << "\t\t Humedad de los combustibles muertos (1 h): " + SG_Get_String(m_fDeadFuelMoisture) + " %\n";
-		file << "\t\t Velocidad del viento a media llama: \n" ;
+		sFile += "\t\t Humedad de los combustibles muertos (1 h): ";
+		sFile += SG_Get_String(m_fDeadFuelMoisture) + " %\n";
+		sFile += "\t\t Velocidad del viento a media llama: \n" ;
 		for(i = 0; i < m_iWindSpdGrids; i++){
-			file << "\t\t\t * " + SG_Get_String(i * m_fInterval, 0) + " min: " 
-					+ SG_Get_String(m_pMeanWindSpd[i]) + "Km/h\n";
+			sFile	+= "\t\t\t * ";
+			sFile	+= SG_Get_String(i * m_fInterval, 0) + " min: " 
+					 + SG_Get_String(m_pMeanWindSpd[i]) + "Km/h\n";
 		}//for
-		file << "\t\t Dirección del vector viento, desde el norte geográfico: \n";
+		sFile += "\t\t Dirección del vector viento, desde el norte geográfico: \n";
 		for(i = 0; i < m_iWindDirGrids; i++){
-			file << "\t\t\t * " + SG_Get_String(i * m_fInterval, 0) + " min: " 
+			sFile += "\t\t\t * ";
+			sFile += SG_Get_String(i * m_fInterval, 0) + " min: " 
 					+ SG_Get_String(m_pMeanWindDir[i]) + "º\n";
 		}//for
 
-		file << "\t\t Pendiente del terreno media: " + SG_Get_String(m_fSlope) + " %\n";       
-		file << "\t\t Orientación del terreno: " + SG_Get_String(m_fAspect) + "º\n";
-		file << "\t\t Foco de partida: X = " + SG_Get_String(Parameters("COORDX")->asDouble(), 0) + " / Y = "
+		sFile += "\t\t Pendiente del terreno media: ";	sFile += SG_Get_String(m_fSlope) + " %\n";       
+		sFile += "\t\t Orientación del terreno: ";	sFile += SG_Get_String(m_fAspect) + "º\n";
+		sFile += "\t\t Foco de partida: X = ";	sFile += SG_Get_String(Parameters("COORDX")->asDouble(), 0) + " / Y = "
 				+ SG_Get_String(Parameters("COORDY")->asDouble(), 0) + "\n";
-		file << "\t\t Tiempo de simulación: 3.0 h";
+		sFile += "\t\t Tiempo de simulación: 3.0 h";
 
-		file << "\n\n\t Resultado de la simulación\n";
-		file << "\t --------------------------------\n\n";	
-		file << "\t\t Velocidad de propagación: " + SG_Get_String(m_fMeanSpeed) + " m/min\n";
-		file << "\t\t Calor por unidad de area: " + SG_Get_String(m_fHeatPerUnitArea) + " kJ/m^2\n"; //revisar unidades!!
-		file << "\t\t Intensidad de la línea de fuego: " + SG_Get_String(m_fIntensity) + " kCal/m\n";
-		file << "\t\t Longitud de la llama: " + SG_Get_String(m_fFlameHeight) + " m\n";
-		file << "\t\t Intensidad de reacción: " + SG_Get_String(m_fReactionIntensity) + " kCal/m2\n";
-		file << "\t\t Velocidad efectiva del viento: " + SG_Get_String(m_fEffectiveWind / KMH2FTMIN) + " Km/h\n";
-		file << "\t\t Dirección de máxima propagación, desde el norte geográfico: " + SG_Get_String(m_fMaxSpreadDir) + "º\n";
-		file << "\t\t Area: " + SG_Get_String(m_fArea / 10000) + " ha\n";
-		file << "\t\t Perímetro: " + SG_Get_String(m_fPerimeter) + "m\n";
+		sFile += "\n\n\t Resultado de la simulación\n";
+		sFile += "\t --------------------------------\n\n";	
+		sFile += "\t\t Velocidad de propagación: ";					sFile += SG_Get_String(m_fMeanSpeed) + " m/min\n";
+		sFile += "\t\t Calor por unidad de area: ";					sFile += SG_Get_String(m_fHeatPerUnitArea) + " kJ/m^2\n"; //revisar unidades!!
+		sFile += "\t\t Intensidad de la línea de fuego: ";			sFile += SG_Get_String(m_fIntensity) + " kCal/m\n";
+		sFile += "\t\t Longitud de la llama: ";						sFile += SG_Get_String(m_fFlameHeight) + " m\n";
+		sFile += "\t\t Intensidad de reacción: ";					sFile += SG_Get_String(m_fReactionIntensity) + " kCal/m2\n";
+		sFile += "\t\t Velocidad efectiva del viento: ";			sFile += SG_Get_String(m_fEffectiveWind / KMH2FTMIN) + " Km/h\n";
+		sFile += "\t\t Dirección de máxima propagación, desde el norte geográfico: ";	sFile += SG_Get_String(m_fMaxSpreadDir) + "º\n";
+		sFile += "\t\t Area: ";										sFile += SG_Get_String(m_fArea / 10000) + " ha\n";
+		sFile += "\t\t Perímetro: ";								sFile += SG_Get_String(m_fPerimeter) + "m\n";
 		//Razón Longitud/Ancho:                   1.9
-		file << "\t\t Distancia de propagación hacia delante: " + SG_Get_String(m_fFrontDistance) + " m\n";
-		file << "\t\t Distancia de propagación hacia atrás: " +  SG_Get_String(m_fRearDistance) + " m\n";
+		sFile += "\t\t Distancia de propagación hacia delante: ";	sFile += SG_Get_String(m_fFrontDistance) + " m\n";
+		sFile += "\t\t Distancia de propagación hacia atrás: ";		sFile +=  SG_Get_String(m_fRearDistance) + " m\n";
 
-		file.close();
+		CSG_File	file;
 
+		if( file.Open(sReportFile, SG_FILE_W, false) )
+		{
+			file.Write(sFile);
+		}
 	}//if
 
 }//method
@@ -600,8 +607,8 @@ void CSimulateVariableWind::CalculateReportParameters(){
     int iDirection;
     int iDir = 1;
     int iNewDirection[] = {5, 6, 7, 0, 1, 2, 3, 4};
-	float fAspect;
-	float fDist;
+	double fAspect;
+	double fDist;
 	
 	m_fFrontDistance = -1;
 	m_fRearDistance = 999999999999999999.f;
@@ -610,16 +617,16 @@ void CSimulateVariableWind::CalculateReportParameters(){
 	m_fPerimeter = m_fArea = 0;
 	m_fDeadFuelMoisture	= m_fHeatPerUnitArea = m_fEffectiveWind = m_fReactionIntensity = 0;
 
-	m_pMeanWindDir = new float[m_iWindDirGrids];
+	m_pMeanWindDir = new double[m_iWindDirGrids];
 	for (i = 0; i < m_iWindDirGrids; i++){
 		m_pMeanWindDir[i] = 0;
 	}//for
-	m_pMeanWindSpd = new float[m_iWindSpdGrids];
+	m_pMeanWindSpd = new double[m_iWindSpdGrids];
 	for (i = 0; i < m_iWindSpdGrids; i++){
 		m_pMeanWindSpd[i] = 0;
 	}//for
 
-	m_pAreaByFuelModel = new float[12];
+	m_pAreaByFuelModel = new double[12];
 	for (i = 0; i < 12; i++){
 		m_pAreaByFuelModel[i] = 0;
 	}//for
@@ -632,51 +639,51 @@ void CSimulateVariableWind::CalculateReportParameters(){
 					iFuelModel = m_pFuelGrid->asInt(x,y) - 1;
 					m_pAreaByFuelModel[iFuelModel] += m_pFuelGrid->Get_Cellarea();
 				}//if
-				m_fSlope += m_pSlopeGrid->asFloat(x,y, true);
+				m_fSlope += m_pSlopeGrid->asDouble(x,y, true);
 				if (!m_pAspectGrid->is_NoData(x,y)){
-					fAspect = m_pAspectGrid->asFloat(x,y, true);
+					fAspect = m_pAspectGrid->asDouble(x,y, true);
 					if (fAspect > 180){
 						fAspect = 360 - fAspect;
 					}//if
 					m_fAspect += fAspect;
 				}//if
 				for (i = 0; i < m_iWindDirGrids; i++){
-					fAspect = m_pWindDirGrids[i]->asFloat(x,y);
+					fAspect = m_pWindDirGrids[i]->asDouble(x,y);
 					if (fAspect > 180){
 						fAspect = 360 - fAspect;
 					}//if					
 					m_pMeanWindDir[i] += fAspect;
 				}//for
 				for (i = 0; i < m_iWindSpdGrids; i++){
-					m_pMeanWindSpd[i] += m_pWindSpdGrids[i]->asFloat(x,y);
+					m_pMeanWindSpd[i] += m_pWindSpdGrids[i]->asDouble(x,y);
 				}//for
-				m_fFlameHeight += m_pFlameGrid->asFloat(x,y);
-				m_fIntensity += m_pIntensityGrid->asFloat(x,y);
-				if (m_pM1Grid->asFloat(x,y) > 0){
-					m_fDeadFuelMoisture += m_pM1Grid->asFloat(x,y);
+				m_fFlameHeight += m_pFlameGrid->asDouble(x,y);
+				m_fIntensity += m_pIntensityGrid->asDouble(x,y);
+				if (m_pM1Grid->asDouble(x,y) > 0){
+					m_fDeadFuelMoisture += m_pM1Grid->asDouble(x,y);
 				}//if				
-				m_fHeatPerUnitArea += m_pHeatPerUnitAreaGrid->asFloat(x,y);
-				m_fEffectiveWind += m_pEffectiveWindGrid->asFloat(x,y);
-				m_fReactionIntensity += m_pReactionIntensityGrid->asFloat(x,y);
+				m_fHeatPerUnitArea += m_pHeatPerUnitAreaGrid->asDouble(x,y);
+				m_fEffectiveWind += m_pEffectiveWindGrid->asDouble(x,y);
+				m_fReactionIntensity += m_pReactionIntensityGrid->asDouble(x,y);
 				iCells++;
 			}//if
 		}//for
 	}//for
 
-	m_fSlope /= (float)iCells;
-	m_fAspect /= (float)iCells;
-	m_fFlameHeight /= (float)iCells;
-	m_fIntensity /= (float)iCells;
-	m_fDeadFuelMoisture /= (float)iCells;
-	m_fHeatPerUnitArea /= (float)iCells;
+	m_fSlope /= (double)iCells;
+	m_fAspect /= (double)iCells;
+	m_fFlameHeight /= (double)iCells;
+	m_fIntensity /= (double)iCells;
+	m_fDeadFuelMoisture /= (double)iCells;
+	m_fHeatPerUnitArea /= (double)iCells;
 	m_fHeatPerUnitArea *= (BTU2KCAL * FT2M * FT2M);
-	m_fEffectiveWind /= (float)iCells;
-	m_fReactionIntensity /= (float)iCells;
+	m_fEffectiveWind /= (double)iCells;
+	m_fReactionIntensity /= (double)iCells;
 	for (i = 0; i < m_iWindSpdGrids; i++){
-		m_pMeanWindSpd[i] /= (float)iCells;
+		m_pMeanWindSpd[i] /= (double)iCells;
 	}//for
 	for (i = 0; i < m_iWindDirGrids; i++){
-		m_pMeanWindDir[i] /= (float)iCells;
+		m_pMeanWindDir[i] /= (double)iCells;
 	}//for
 
 	for (x = 0; x < Get_NX(); x++) {
@@ -732,15 +739,15 @@ out:
 
 	}while ((iY != iYOrig) || (iX != iXOrig));		
 
-	m_fMeanSpeed /= (float)iCells; 
+	m_fMeanSpeed /= (double)iCells; 
 	m_fPerimeter *=  m_pTimeGrid->Get_Cellsize();
 
 }//method
 
-float CSimulateVariableWind::getAzimuth(float x, float y){
+double CSimulateVariableWind::getAzimuth(double x, double y){
 
 
-	float fAz;
+	double fAz;
 
 	fAz = atan(fabs(y)/fabs(x)) * M_RAD_TO_DEG;
 
