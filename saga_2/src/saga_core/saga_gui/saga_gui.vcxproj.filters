@@ -1,0 +1,959 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{c7b670bd-84b4-4a52-9d49-17c1b470e55b}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{c25952d3-c1ff-4b36-8a99-00b9525c41e3}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{0ba8af5e-d49f-4afa-a889-c7412bfbc91a}</UniqueIdentifier>
+      <Extensions>rc;xpm</Extensions>
+    </Filter>
+    <Filter Include="Resource Files\XPM">
+      <UniqueIdentifier>{426f6d53-b0f8-4078-b644-42e63cd94713}</UniqueIdentifier>
+      <Extensions>xpm</Extensions>
+    </Filter>
+    <Filter Include="Control Extension Files">
+      <UniqueIdentifier>{eda29a37-2506-4429-870e-e371c73c6206}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Control Extension Files\propgrid">
+      <UniqueIdentifier>{084df330-482d-4c87-9e38-2f62e393955b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="active.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="active_attributes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="active_description.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="active_history.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ACTIVE_HTMLExtraInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="active_legend.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="active_parameters.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="callback.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dc_helper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dlg_about.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dlg_about_logo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dlg_base.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dlg_colors.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dlg_colors_control.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dlg_list_base.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dlg_list_grid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dlg_list_pointcloud.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dlg_list_shapes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dlg_list_table.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dlg_list_tin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dlg_parameters.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dlg_table.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dlg_text.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="helper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="info.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="info_messages.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="parameters_control.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="parameters_properties.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="project.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="res_commands.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="res_controls.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="res_dialogs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="res_images.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="saga.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="saga_frame.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="saga_frame_droptarget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SVG_Interactive_Map.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="view_base.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="view_histogram.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="view_layout.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="view_layout_control.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="view_layout_info.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="view_layout_printout.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="view_map.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="view_map_3d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="view_map_3d_image.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="view_map_control.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="view_ruler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="view_scatterplot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="view_table.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="view_table_control.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="view_table_diagram.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_base_control.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_base_item.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_base_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_data_control.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_data_layers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_data_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_data_menu_file.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_data_menu_files.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_grid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_grid_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_grid_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_layer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_layer_classify.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_layer_legend.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_map.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_map_buttons.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_map_control.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_map_dc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_map_layer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_map_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_module.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_module_control.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_module_library.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_module_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_module_menu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_pointcloud.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_pointcloud_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_shapes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_shapes_edit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_shapes_line.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_shapes_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_shapes_point.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_shapes_points.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_shapes_polygon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_shapes_type.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_table.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_table_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_tin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_tin_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wx\propgrid\advprops.cpp">
+      <Filter>Control Extension Files\propgrid</Filter>
+    </ClCompile>
+    <ClCompile Include="wx\propgrid\editors.cpp">
+      <Filter>Control Extension Files\propgrid</Filter>
+    </ClCompile>
+    <ClCompile Include="wx\propgrid\extras.cpp">
+      <Filter>Control Extension Files\propgrid</Filter>
+    </ClCompile>
+    <ClCompile Include="wx\propgrid\manager.cpp">
+      <Filter>Control Extension Files\propgrid</Filter>
+    </ClCompile>
+    <ClCompile Include="wx\propgrid\odcombo.cpp">
+      <Filter>Control Extension Files\propgrid</Filter>
+    </ClCompile>
+    <ClCompile Include="wx\propgrid\propgrid.cpp">
+      <Filter>Control Extension Files\propgrid</Filter>
+    </ClCompile>
+    <ClCompile Include="wx\propgrid\props.cpp">
+      <Filter>Control Extension Files\propgrid</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ACTIVE.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ACTIVE_Attributes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ACTIVE_Description.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="active_history.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ACTIVE_HTMLExtraInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="active_legend.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ACTIVE_Parameters.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Callback.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DC_Helper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dlg_about.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dlg_about_logo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DLG_Base.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DLG_Colors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DLG_Colors_Control.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DLG_List_Base.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DLG_List_Grid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dlg_list_pointcloud.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DLG_List_Shapes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DLG_List_Table.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DLG_List_TIN.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DLG_Parameters.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DLG_Table.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DLG_Text.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Helper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="INFO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="INFO_Messages.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Parameters_Control.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Parameters_Properties.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Project.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RES_Commands.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RES_Controls.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RES_Dialogs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RES_Images.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SAGA.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SAGA_Frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SAGA_Frame_DropTarget.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SVG_Interactive_Map.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VIEW_Base.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VIEW_Histogram.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VIEW_Layout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VIEW_Layout_Control.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VIEW_Layout_Info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VIEW_Layout_Printout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VIEW_Map.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VIEW_Map_3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="view_map_3d_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VIEW_Map_Control.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VIEW_Ruler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VIEW_ScatterPlot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VIEW_Table.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VIEW_Table_Control.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VIEW_Table_Diagram.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Base_Control.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Base_Item.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Base_Manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Data_Control.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wksp_data_layers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Data_Manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Data_Menu_File.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Data_Menu_Files.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Grid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Grid_Manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Grid_System.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Layer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Layer_Classify.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Layer_Legend.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Map.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wksp_map_buttons.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Map_Control.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Map_DC.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Map_Layer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Map_Manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Module.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Module_Control.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Module_Library.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Module_Manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Module_Menu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wksp_pointcloud.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wksp_pointcloud_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Shapes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Shapes_Line.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Shapes_Manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Shapes_Point.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Shapes_Points.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Shapes_Polygon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Shapes_Type.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Table.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_Table_Manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_TIN.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WKSP_TIN_Manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RES\resource.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="RES\colours.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="RES\SAGA.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\saga_dic.txt">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="RES\saga_eng.txt">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="RES\saga_ger.txt">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="RES\XPM\CRS_EDIT_POINT_ADD.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\CRS_EDIT_POINT_MOVE.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\CRS_HAND.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\CRS_HAND_GRAP.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\CRS_INFO.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="res\xpm\crs_magnifier.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\CRS_SELECT.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\DEFAULT.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\NB_ACTIVE_ATTRIBUTES.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\NB_ACTIVE_DESCRIPTION.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="res\xpm\nb_active_htmlextrainfo.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="res\xpm\NB_ACTIVE_LEGEND.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\NB_ACTIVE_PARAMETERS.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\NB_INFO_ERROR.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\NB_INFO_EXECUTION.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\NB_INFO_MESSAGES.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\NB_WKSP_DATA.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\NB_WKSP_MAPS.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\NB_WKSP_MODULES.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\SAGA_ICON_16.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\SAGA_ICON_32.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\SAGA_SPLASH.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_ACTIVE.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_DELETE.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_DIAGRAM_PARAMETERS.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_EDIT_SHAPE_ADD.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_EDIT_SHAPE_ADD_PART.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_EDIT_SHAPE_DEL.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_EDIT_SHAPE_DEL_PART.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_EDIT_SHAPE_DEL_POINT.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_EDIT_SHAPE_SELECT.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_HELP.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_HISTOGRAM_AS_TABLE.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_HISTOGRAM_CUMULATIVE.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_INFO.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_LAYOUT_PAGE_SETUP.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_LAYOUT_PRINT.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_LAYOUT_PRINT_PREVIEW.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_LAYOUT_PRINT_SETUP.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP3D_CENTRAL_LESS.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP3D_CENTRAL_MORE.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP3D_EXAGGERATE_LESS.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP3D_EXAGGERATE_MORE.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP3D_INTERPOLATED.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP3D_PROPERTIES.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP3D_ROTATE_X_LESS.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP3D_ROTATE_X_MORE.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP3D_ROTATE_Z_LESS.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP3D_ROTATE_Z_MORE.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP3D_SHIFT_X_LESS.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP3D_SHIFT_X_MORE.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP3D_SHIFT_Y_LESS.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP3D_SHIFT_Y_MORE.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP3D_SHIFT_Z_LESS.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP3D_SHIFT_Z_MORE.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP3D_STEREO.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP_3D_SHOW.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP_LAYOUT_SHOW.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP_LEGEND_HORIZONTAL.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP_LEGEND_VERTICAL.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP_MODE_DISTANCE.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP_MODE_PAN.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP_MODE_SELECT.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP_MODE_ZOOM.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP_SYNCHRONIZE.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP_ZOOM_ACTIVE.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP_ZOOM_FULL.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP_ZOOM_LAST.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_MAP_ZOOM_SELECTION.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_OPEN.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_OPEN_GRID.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_OPEN_MODULE.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_OPEN_SHAPES.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_OPEN_TABLE.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_OPEN_TIN.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_SAVE.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_SCATTERPLOT_PARAMETERS.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_SHOW.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="res\xpm\tb_table_col_add.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="res\xpm\tb_table_col_del.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_TABLE_ROW_ADD.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_TABLE_ROW_DEL.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="res\xpm\tb_table_row_del_all.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_TABLE_ROW_INS.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\TB_WKSP.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\WKSP_DATA_MANAGER.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\WKSP_GRID.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\WKSP_GRID_MANAGER.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\WKSP_GRID_SYSTEM.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\WKSP_MAP.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\WKSP_MAP_MANAGER.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\WKSP_MODULE.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\WKSP_MODULE_LIBRARY.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\WKSP_MODULE_MANAGER.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\WKSP_NOITEMS.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\WKSP_SHAPES_LINE.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\WKSP_SHAPES_MANAGER.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\WKSP_SHAPES_POINT.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\WKSP_SHAPES_POINTS.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\WKSP_SHAPES_POLYGON.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\WKSP_TABLE.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\WKSP_TABLE_MANAGER.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\WKSP_TIN.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\WKSP_TIN_MANAGER.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\WND_DIAGRAM.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\WND_HISTOGRAM.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\WND_LAYOUT.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\WND_MAP.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\WND_MAP3D.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\WND_SCATTERPLOT.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="RES\XPM\WND_TABLE.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="res\saga_gui.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
