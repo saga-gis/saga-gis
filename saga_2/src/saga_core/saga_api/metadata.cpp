@@ -563,10 +563,11 @@ void CSG_MetaData::_Save(wxXmlNode *pNode) const
 {
 	int		i;
 
+	//-----------------------------------------------------
 	pNode->SetName	 (Get_Name().Length() ? SG_String_To_UTF8(Get_Name()).c_str() : SG_T("NODE"));
 	pNode->SetContent(SG_String_To_UTF8(Get_Content()).c_str());
 
-	if( Get_Content().Length() > 0 )
+	if( Get_Content().Length() > 0 || (Get_Property_Count() == 0 && Get_Children_Count() == 0) )
 	{
 		wxXmlNode	*pChild	= new wxXmlNode(pNode, wxXML_TEXT_NODE, SG_T("TEXT"));// SG_String_To_UTF8(Get_Name()).c_str());
 
@@ -582,12 +583,7 @@ void CSG_MetaData::_Save(wxXmlNode *pNode) const
 	//-----------------------------------------------------
 	for(i=Get_Children_Count()-1; i>=0; i--)
 	{
-		if( Get_Property_Count() > 0 || Get_Child(i)->Get_Content().Length() > 0 || Get_Child(i)->Get_Children_Count() > 0 )
-		{
-			wxXmlNode	*pChild	= new wxXmlNode(pNode, wxXML_ELEMENT_NODE, SG_String_To_UTF8(Get_Child(i)->Get_Name()).c_str());
-
-			Get_Child(i)->_Save(pChild);
-		}
+		Get_Child(i)->_Save(new wxXmlNode(pNode, wxXML_ELEMENT_NODE, SG_String_To_UTF8(Get_Child(i)->Get_Name()).c_str()));
 	}
 }
 
