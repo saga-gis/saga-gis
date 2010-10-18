@@ -512,7 +512,7 @@ public:
 
 	void			Reset					(void)	{	m_Array.Set_Array(0, (void **)&m_Classes, false);	}
 
-	int				Get_Count				(void)	{	return( m_Array.Get_Size() );	}
+	int				Get_Count				(void)	{	return( (int)m_Array.Get_Size() );	}
 
 	int				Get_Class_Count			(int i)	{	return( i >= 0 && i < Get_Count() ? m_Classes[i].Count : 0 );	}
 	double			Get_Class_Value			(int i)	{	return( i >= 0 && i < Get_Count() ? m_Classes[i].Value : 0 );	}

@@ -414,8 +414,8 @@ public:		///////////////////////////////////////////////
 
 	TSG_Data_Type				Get_Type		(void)	const	{	return( m_Type );					}
 
-	int							Get_nValueBytes	(void)	const	{	return( SG_Data_Type_Get_Size(m_Type) );	}
-	int							Get_nLineBytes	(void)	const	{	return( m_Type != SG_DATATYPE_Bit ? SG_Data_Type_Get_Size(m_Type) * Get_NX() : 1 + Get_NX() / 8 );	}
+	int							Get_nValueBytes	(void)	const	{	return( (int)SG_Data_Type_Get_Size(m_Type) );	}
+	int							Get_nLineBytes	(void)	const	{	return( m_Type != SG_DATATYPE_Bit ? (int)SG_Data_Type_Get_Size(m_Type) * Get_NX() : 1 + Get_NX() / 8 );	}
 
 	void						Set_Description	(const SG_Char *String);
 	const SG_Char *				Get_Description	(void)	const;

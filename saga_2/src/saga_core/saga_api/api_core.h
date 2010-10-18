@@ -447,11 +447,11 @@ public:
 	char *				Get_Data		(int Offset = 0)	const	{	return( m_pData + Offset );		}
 	char				operator []		(int Position)		const	{	return( m_pData[Position] );	}
 
-	void				Add_Value		(char   Value, bool bBigEndian = false)	{	if( Inc_Size(sizeof(Value)) ) Set_Value(m_Size - sizeof(Value), Value, bBigEndian);	}
-	void				Add_Value		(short  Value, bool bBigEndian = false)	{	if( Inc_Size(sizeof(Value)) ) Set_Value(m_Size - sizeof(Value), Value, bBigEndian);	}
-	void				Add_Value		(int    Value, bool bBigEndian = false)	{	if( Inc_Size(sizeof(Value)) ) Set_Value(m_Size - sizeof(Value), Value, bBigEndian);	}
-	void				Add_Value		(float  Value, bool bBigEndian = false)	{	if( Inc_Size(sizeof(Value)) ) Set_Value(m_Size - sizeof(Value), Value, bBigEndian);	}
-	void				Add_Value		(double Value, bool bBigEndian = false)	{	if( Inc_Size(sizeof(Value)) ) Set_Value(m_Size - sizeof(Value), Value, bBigEndian);	}
+	void				Add_Value		(char   Value, bool bBigEndian = false)	{	if( Inc_Size(sizeof(Value)) ) Set_Value((int)m_Size - sizeof(Value), Value, bBigEndian);	}
+	void				Add_Value		(short  Value, bool bBigEndian = false)	{	if( Inc_Size(sizeof(Value)) ) Set_Value((int)m_Size - sizeof(Value), Value, bBigEndian);	}
+	void				Add_Value		(int    Value, bool bBigEndian = false)	{	if( Inc_Size(sizeof(Value)) ) Set_Value((int)m_Size - sizeof(Value), Value, bBigEndian);	}
+	void				Add_Value		(float  Value, bool bBigEndian = false)	{	if( Inc_Size(sizeof(Value)) ) Set_Value((int)m_Size - sizeof(Value), Value, bBigEndian);	}
+	void				Add_Value		(double Value, bool bBigEndian = false)	{	if( Inc_Size(sizeof(Value)) ) Set_Value((int)m_Size - sizeof(Value), Value, bBigEndian);	}
 
 	CSG_Buffer &		operator +=		(char   Value)				{	Add_Value(Value);	return( *this );	}
 	CSG_Buffer &		operator +=		(short  Value)				{	Add_Value(Value);	return( *this );	}
