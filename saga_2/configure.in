@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.32 2010-10-15 14:14:04 johanvdw Exp $
+# $Id: configure.in,v 1.33 2010-10-19 08:05:05 johanvdw Exp $
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
@@ -135,6 +135,8 @@ AC_OUTPUT(Makefile \
 	src/modules_geostatistics/geostatistics/geostatistics_kriging/Makefile \
 	src/modules_geostatistics/geostatistics/geostatistics_regression/Makefile \
     src/modules_images/Makefile \
+    src/modules_images/modules_imagery/imagery_segmentation/Makefile \
+    src/modules_images/modules_imagery/Makefile \
     src/modules_images/modules_opencv/Makefile \
     src/modules_images/modules_opencv/opencv/Makefile \
     src/modules_images/modules_vigra/Makefile \
