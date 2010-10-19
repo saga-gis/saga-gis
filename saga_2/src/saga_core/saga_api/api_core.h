@@ -1155,7 +1155,26 @@ typedef enum ESG_UI_Callback_ID
 TSG_UI_Callback_ID;
 
 //---------------------------------------------------------
-typedef int (* TSG_PFNC_UI_Callback) (TSG_UI_Callback_ID ID, long pParam_1, long pParam_2);
+class SAGA_API_DLL_EXPORT CSG_UI_Parameter
+{
+public:
+	CSG_UI_Parameter(void)				: True(false), Number( 0.0 ), Pointer(NULL)				{}
+	CSG_UI_Parameter(bool        Value)	: True(Value), Number( 0.0 ), Pointer(NULL)				{}
+	CSG_UI_Parameter(int         Value)	: True(false), Number(Value), Pointer(NULL)				{}
+	CSG_UI_Parameter(double      Value)	: True(false), Number(Value), Pointer(NULL)				{}
+	CSG_UI_Parameter(const char *Value)	: True(false), Number( 0.0 ), Pointer((void *)Value)	{}
+	CSG_UI_Parameter(void       *Value)	: True(false), Number( 0.0 ), Pointer(        Value)	{}
+	CSG_UI_Parameter(const CSG_UI_Parameter &Copy);
+
+	bool	True;
+
+	double	Number;
+
+	void	*Pointer;
+};
+
+//---------------------------------------------------------
+typedef int (* TSG_PFNC_UI_Callback) (TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter &Param_2);
 
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT bool					SG_Set_UI_Callback			(TSG_PFNC_UI_Callback Function);

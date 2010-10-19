@@ -74,7 +74,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
+int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter &Param_2)
 {
 	int		Result, *iArray;
 
@@ -99,7 +99,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_GET_OKAY:
 
-		Result	= PROCESS_Get_Okay(Param_1 != 0);
+		Result	= PROCESS_Get_Okay(Param_1.True);
 
 		break;
 
@@ -107,7 +107,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_SET_OKAY:
 
-		Result	= PROCESS_Set_Okay(Param_1 != 0);
+		Result	= PROCESS_Set_Okay(Param_1.True);
 
 		break;
 
@@ -115,7 +115,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_SET_PROGRESS:
 
-		Result	= PROGRESSBAR_Set_Position(*((double *)Param_1), *((double *)Param_2));
+		Result	= PROGRESSBAR_Set_Position(Param_1.Number, Param_2.Number);
 
 		break;
 
@@ -130,7 +130,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_SET_TEXT:
 
-		STATUSBAR_Set_Text((wxChar *)Param_1);
+		STATUSBAR_Set_Text((wxChar *)Param_1.Pointer);
 
 		break;
 
@@ -146,7 +146,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 
 		if( g_pModule && g_pModule->is_Executing() )
 		{
-			Result	= g_pModule->Execute(Param_1 == 1) ? 1 : 0;
+			Result	= g_pModule->Execute(Param_1.True) ? 1 : 0;
 		}
 
 		break;
@@ -161,9 +161,9 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_MESSAGE_ADD:
 
-		iArray	= (int *)Param_2;
+		iArray	= (int *)Param_2.Pointer;
 
-		MSG_General_Add		((wxChar *)Param_1, iArray[0] != 0, iArray[0] != 0, (TSG_UI_MSG_STYLE)iArray[1]);
+		MSG_General_Add		((wxChar *)Param_1.Pointer, iArray[0] != 0, iArray[0] != 0, (TSG_UI_MSG_STYLE)iArray[1]);
 
 		break;
 
@@ -171,7 +171,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_MESSAGE_ADD_ERROR:
 
-		MSG_Error_Add		((wxChar *)Param_1, true);
+		MSG_Error_Add		((wxChar *)Param_1.Pointer, true);
 
 		break;
 
@@ -179,9 +179,9 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_MESSAGE_ADD_EXECUTION:
 
-		iArray	= (int *)Param_2;
+		iArray	= (int *)Param_2.Pointer;
 
-		MSG_Execution_Add	((wxChar *)Param_1, iArray[0] != 0, iArray[0] != 0, (TSG_UI_MSG_STYLE)iArray[1]);
+		MSG_Execution_Add	((wxChar *)Param_1.Pointer, iArray[0] != 0, iArray[0] != 0, (TSG_UI_MSG_STYLE)iArray[1]);
 
 		break;
 
@@ -195,7 +195,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DLG_MESSAGE:
 
-		DLG_Message_Show((wxChar *)Param_1, (wxChar *)Param_2);
+		DLG_Message_Show((wxChar *)Param_1.Pointer, (wxChar *)Param_2.Pointer);
 
 		break;
 
@@ -203,7 +203,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DLG_CONTINUE:
 
-		Result	= DLG_Message_Confirm((wxChar *)Param_1, (wxChar *)Param_2);
+		Result	= DLG_Message_Confirm((wxChar *)Param_1.Pointer, (wxChar *)Param_2.Pointer);
 
 		break;
 
@@ -211,7 +211,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DLG_ERROR:
 
-		Result	= DLG_Message_Show_Error((wxChar *)Param_1, (wxChar *)Param_2);
+		Result	= DLG_Message_Show_Error((wxChar *)Param_1.Pointer, (wxChar *)Param_2.Pointer);
 
 		break;
 
@@ -225,7 +225,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DLG_PARAMETERS:
 
-		Result	= DLG_Parameters((CSG_Parameters *)Param_1) ? 1 : 0;
+		Result	= DLG_Parameters((CSG_Parameters *)Param_1.Pointer) ? 1 : 0;
 
 		break;
 
@@ -239,7 +239,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_FIND_BY_FILE:
 
-		Result	= (long)g_pData->Get_byFileName((const wxChar *)Param_1, Param_2);
+		Result	= (long)g_pData->Get_byFileName((const wxChar *)Param_1.Pointer, (int)Param_2.Number);
 
 		break;
 
@@ -247,7 +247,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_CHECK:
 
-		Result	= g_pData->Exists((CSG_Data_Object *)Param_1, Param_2) ? 1 : 0;
+		Result	= g_pData->Exists((CSG_Data_Object *)Param_1.Pointer, (int)Param_2.Number) ? 1 : 0;
 
 		break;
 
@@ -255,11 +255,11 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_ADD:
 
-		Result	= g_pData->Add((CSG_Data_Object *)Param_1) ? 1 : 0;
+		Result	= g_pData->Add((CSG_Data_Object *)Param_1.Pointer) ? 1 : 0;
 
-		if( Result && Param_2 )
+		if( Result && Param_2.True )
 		{
-			g_pData->Show((CSG_Data_Object *)Param_1, false);
+			g_pData->Show((CSG_Data_Object *)Param_1.Pointer, false);
 		}
 
 		break;
@@ -268,7 +268,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_UPDATE:
 
-		Result	= g_pData->Update((CSG_Data_Object *)Param_1, (CSG_Parameters *)Param_2) ? 1 : 0;
+		Result	= g_pData->Update((CSG_Data_Object *)Param_1.Pointer, (CSG_Parameters *)Param_2.Pointer) ? 1 : 0;
 
 		break;
 
@@ -276,7 +276,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_SHOW:
 
-		Result	= g_pData->Show((CSG_Data_Object *)Param_1, Param_2) ? 1 : 0;
+		Result	= g_pData->Show((CSG_Data_Object *)Param_1.Pointer, (int)Param_2.Number) ? 1 : 0;
 
 		break;
 
@@ -284,7 +284,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_ASIMAGE:
 
-		Result	= g_pData->asImage((CSG_Data_Object *)Param_1, (CSG_Grid *)Param_2) ? 1 : 0;
+		Result	= g_pData->asImage((CSG_Data_Object *)Param_1.Pointer, (CSG_Grid *)Param_2.Pointer) ? 1 : 0;
 
 		break;
 
@@ -292,7 +292,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_COLORS_GET:
 
-		Result	= g_pData->Get_Colors((CSG_Data_Object *)Param_1, (CSG_Colors *)Param_2) ? 1 : 0;
+		Result	= g_pData->Get_Colors((CSG_Data_Object *)Param_1.Pointer, (CSG_Colors *)Param_2.Pointer) ? 1 : 0;
 
 		break;
 
@@ -300,7 +300,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_COLORS_SET:
 
-		Result	= g_pData->Set_Colors((CSG_Data_Object *)Param_1, (CSG_Colors *)Param_2) ? 1 : 0;
+		Result	= g_pData->Set_Colors((CSG_Data_Object *)Param_1.Pointer, (CSG_Colors *)Param_2.Pointer) ? 1 : 0;
 
 		break;
 
@@ -308,7 +308,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_PARAMS_GET:
 
-		Result	= g_pData->Get_Parameters((CSG_Data_Object *)Param_1, (CSG_Parameters *)Param_2) ? 1 : 0;
+		Result	= g_pData->Get_Parameters((CSG_Data_Object *)Param_1.Pointer, (CSG_Parameters *)Param_2.Pointer) ? 1 : 0;
 
 		break;
 
@@ -316,7 +316,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_PARAMS_SET:
 
-		Result	= g_pData->Set_Parameters((CSG_Data_Object *)Param_1, (CSG_Parameters *)Param_2) ? 1 : 0;
+		Result	= g_pData->Set_Parameters((CSG_Data_Object *)Param_1.Pointer, (CSG_Parameters *)Param_2.Pointer) ? 1 : 0;
 
 		break;
 
@@ -324,7 +324,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_GET_ALL:
 
-		Result	= g_pData->Get_DataObject_List((CSG_Parameters *)Param_1) ? 1 : 0;
+		Result	= g_pData->Get_DataObject_List((CSG_Parameters *)Param_1.Pointer) ? 1 : 0;
 
 		break;
 

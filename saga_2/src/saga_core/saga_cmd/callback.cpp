@@ -184,15 +184,12 @@ bool			Get_YesNo		(const SG_Char *caption, const SG_Char *message)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
+int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter &Param_2)
 {
 	static int		iBuisy		= 0;
 	const SG_Char	Buisy[4]	= {	'|', '/', '-', '\\'	};
 
-	int		Result;
-	double	d1, d2;
-
-	Result	= 1;
+	int		Result	= 1;
 
 	//-----------------------------------------------------
 	switch( ID )
@@ -211,7 +208,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_GET_OKAY:
 
-		if( !g_bSilent && Param_1 != 0 )
+		if( !g_bSilent && Param_1.True )
 		{
 			SG_PRINTF(SG_T("\r%c   "), Buisy[iBuisy++]);
 
@@ -232,10 +229,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 
 		if( !g_bSilent )
 		{
-			d1	= *((double *)Param_1);
-			d2	= *((double *)Param_2);
-
-			SG_PRINTF(SG_T("\r%3d%%"), d2 != 0.0 ? 1 + (int)(100.0 * d1 / d2) : 100);
+			SG_PRINTF(SG_T("\r%3d%%"), Param_2.Number != 0.0 ? 1 + (int)(100.0 * Param_1.Number / Param_2.Number) : 100);
 		}
 
 		break;
@@ -251,7 +245,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 
 		if( !g_bSilent )
 		{
-			SG_PRINTF(SG_T("\n%s\n"), (SG_Char *)Param_1);
+			SG_PRINTF(SG_T("\n%s\n"), (SG_Char *)Param_1.Pointer);
 		}
 
 		break;
@@ -266,7 +260,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 
 		if( !g_bSilent )
 		{
-			SG_PRINTF(SG_T("\n%s\n"), (SG_Char *)Param_1);
+			SG_PRINTF(SG_T("\n%s\n"), (SG_Char *)Param_1.Pointer);
 		}
 
 		break;
@@ -275,7 +269,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_MESSAGE_ADD_ERROR:
 
-		Print_Error((SG_Char *)Param_1);
+		Print_Error((SG_Char *)Param_1.Pointer);
 
 		break;
 
@@ -285,7 +279,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 
 		if( !g_bSilent )
 		{
-			SG_PRINTF(SG_T("\n%s\n"), (SG_Char *)Param_1);
+			SG_PRINTF(SG_T("\n%s\n"), (SG_Char *)Param_1.Pointer);
 		}
 
 		break;
@@ -300,7 +294,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 
 		if( !g_bSilent )
 		{
-			SG_PRINTF(SG_T("\n%s: %s\n"), (const SG_Char *)Param_2, (const SG_Char *)Param_1);
+			SG_PRINTF(SG_T("\n%s: %s\n"), (const SG_Char *)Param_2.Pointer, (const SG_Char *)Param_1.Pointer);
 		}
 
 		break;
@@ -309,7 +303,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DLG_CONTINUE:
 
-		Result	= Get_YesNo((const SG_Char *)Param_2, (const SG_Char *)Param_1);
+		Result	= Get_YesNo((const SG_Char *)Param_2.Pointer, (const SG_Char *)Param_1.Pointer);
 
 		break;
 
@@ -317,7 +311,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 	//-----------------------------------------------------
 	case CALLBACK_DLG_ERROR:
 
-		Result	= Get_YesNo((const SG_Char *)Param_2, (const SG_Char *)Param_1);
+		Result	= Get_YesNo((const SG_Char *)Param_2.Pointer, (const SG_Char *)Param_1.Pointer);
 
 		break;
 
@@ -339,7 +333,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 
 		if( g_pLibrary )
 		{
-			Result	= g_pLibrary->Add_DataObject((CSG_Data_Object *)Param_1) ? 1 : 0;
+			Result	= g_pLibrary->Add_DataObject((CSG_Data_Object *)Param_1.Pointer) ? 1 : 0;
 		}
 
 		break;
@@ -392,7 +386,7 @@ int		Callback(TSG_UI_Callback_ID ID, long Param_1, long Param_2)
 
 		if( g_pLibrary )
 		{
-			Result	= g_pLibrary->Get_Parameters((CSG_Parameters *)Param_1) ? 1 : 0;
+			Result	= g_pLibrary->Get_Parameters((CSG_Parameters *)Param_1.Pointer) ? 1 : 0;
 		}
 
 		break;
