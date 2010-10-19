@@ -153,6 +153,12 @@ CCRS_Transform_Grid::CCRS_Transform_Grid(bool bList)
 		), 0
 	);
 
+	Parameters.Add_Value(
+		pNode	, "TARGET_AREA"	, _TL("Use Target Area Polygon"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, false
+	);
+
 	//-----------------------------------------------------
 	CSG_Parameters	*pParameters	= Add_Parameters("POINTS", _TL("Points"), _TL(""));
 
@@ -704,6 +710,13 @@ bool CCRS_Transform_Grid::Get_Target_System(const CSG_Grid_System &System, bool 
 //---------------------------------------------------------
 bool CCRS_Transform_Grid::Set_Target_Area(const CSG_Grid_System &System, bool bGeogCS)
 {
+	if( Parameters("TARGET_AREA")->asBool() == false )
+	{
+		m_Target_Area.Destroy();
+
+		return( true );
+	}
+
 	m_Target_Area.Create(SHAPE_TYPE_Polygon);
 
 	CSG_Shape	*pArea	= m_Target_Area.Add_Shape();
