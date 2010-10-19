@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.6 2010-07-08 14:11:50 johanvdw Exp $
+# $Id: Makefile.am,v 1.7 2010-10-19 07:55:21 johanvdw Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -7,6 +7,7 @@ endif
 if SAGA_UNICODE
 UC_DEFS = -D_SAGA_UNICODE
 endif
+if HAVE_LLAS
 DEP_LIBS           = -llas
 DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS           = -I$(top_srcdir)/src/saga_core
@@ -22,4 +23,4 @@ las_import.h\
 MLB_Interface.h
 
 libio_shapes_las_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(ADD_MLBS)
-
+endif
