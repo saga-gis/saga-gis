@@ -172,7 +172,7 @@ bool CWKSP_Grid_Manager::Open_GDAL(const wxChar *File_Name)
 	{
 		wxFileName	fName(g_pModules->Get_Library(i)->Get_File_Name());
 
-		if( !fName.GetName().Cmp(SG_T("io_gdal")) )
+		if( !fName.GetName().Cmp(SG_T("io_gdal")) || !fName.GetName().Cmp(SG_T("libio_gdal")) )
 		{
 			pImport	= g_pModules->Get_Library(i)->Get_Module(0)->Get_Module();	// GDAL_Import
 		}

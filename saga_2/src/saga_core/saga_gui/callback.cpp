@@ -239,7 +239,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DATAOBJECT_FIND_BY_FILE:
 
-		Result	= (long)g_pData->Get_byFileName((const wxChar *)Param_1.Pointer, (int)Param_2.Number);
+		Param_1.Pointer	= g_pData->Get_byFileName((const wxChar *)Param_1.Pointer, (int)Param_2.Number);
 
 		break;
 
@@ -338,7 +338,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_GUI_GET_WINDOW:
 
-		Result	= (long)MDI_Get_Frame();
+		Param_1.Pointer	= MDI_Get_Frame();
 
 		break;
 
