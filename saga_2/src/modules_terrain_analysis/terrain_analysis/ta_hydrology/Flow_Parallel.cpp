@@ -72,7 +72,7 @@ CFlow_Parallel::CFlow_Parallel(void)
 {
 	Set_Name		(_TL("Parallel Processing"));
 
-	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2001-2010, T.Grabs portions (c) 2010"));
 
 	Set_Description	(_TW(
 		"Parallel processing of cells for calculation of flow accumulation and related parameters. "
@@ -115,7 +115,7 @@ CFlow_Parallel::CFlow_Parallel(void)
 		"    'A new triangular multiple flow direction algorithm for computing upslope areas from gridded digital elevation models',\n"
 		"    Water Ressources Research, Vol. 43, W04501\n"
 		"    C++ Implementation into SAGA by Thomas Grabs, Copyrights (c) 2007\n"
-		"    Contact: thomas.grabs@natgeo.su.se, jan.seibert@natgeo.su.se \n\n"
+		"    Contact: thomas.grabs@natgeo.su.se, jan.seibert@natgeo.su.se \n"
 	));
 
 
@@ -148,7 +148,7 @@ CFlow_Parallel::CFlow_Parallel(void)
 			_TL("Deterministic Infinity"),
 			_TL("Multiple Flow Direction"),
 			_TL("Multiple Triangular Flow Directon")
-		), 4
+		), 5
 	);
 
 
@@ -167,10 +167,24 @@ CFlow_Parallel::CFlow_Parallel(void)
 		PARAMETER_TYPE_Double	,	500
 	);
 
+	Parameters.Add_Grid(
+		NULL	, "LINEARTHRS_GRID"		, _TL("Linear Flow Threshold Grid"),
+		_TL("(optional) Linear Flow Threshold Grid"),
+		PARAMETER_INPUT_OPTIONAL
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "CHDIR_GRID"			, _TL("Channel Direction"),
+		_TW(	"(optional) Channel Direction Grid. Must contain direction values. "
+				"For all non-missing grid cells all flow will be routed to the prescribed direction."
+		),
+		PARAMETER_INPUT_OPTIONAL
+	);
+	
 	Parameters.Add_Value(
 		NULL	, "CONVERGENCE"	, _TL("Convergence"),
-		_TL("Convergence factor for Multiple Flow Direction Algorithm after Freeman (1991) and Multiple Triangular Flow Directon Algorithm after Seibert/Glynn (2007)."),
-		PARAMETER_TYPE_Double	, 1.1, 0.0, true
+		_TL("Convergence factor for Multiple Flow Direction Algorithm (Freeman 1991).\nApplies also to the Multiple Triangular Flow Directon Algorithm."),
+		PARAMETER_TYPE_Double	, 1.0, 0.0, true
 	);
 }
 
@@ -195,6 +209,10 @@ void CFlow_Parallel::On_Initialize(void)
 					? Parameters("LINEARTHRS")->asDouble() // (pDTM->Get_NX() * pDTM->Get_NY())
 					: -1.0;
 
+	pTH_LinearFlow  = Parameters("LINEARTHRS_GRID")		->asGrid();
+
+	pD8_Direction   = Parameters("CHDIR_GRID")		    ->asGrid();
+
 	MFD_Converge	= Parameters("CONVERGENCE")->asDouble();
 }
 
@@ -208,9 +226,11 @@ void CFlow_Parallel::On_Initialize(void)
 //---------------------------------------------------------
 bool CFlow_Parallel::Calculate(void)
 {
-	for(int y=0; y<Get_NY() && Set_Progress(y); y+=Step)
+	int		x, y;
+
+	for(y=0; y<Get_NY() && Set_Progress(y); y+=Step)
 	{
-		for(int x=0; x<Get_NX(); x+=Step)
+		for(x=0; x<Get_NX(); x+=Step)
 		{
 			Init_Cell(x, y);
 		}
@@ -239,14 +259,20 @@ bool CFlow_Parallel::Set_Flow(void)
 {
 	int		n, x, y;
 
+
+	double  THRS = 0.0;
+	
+	int		DIR  = -1;
+	
 	//-----------------------------------------------------
 	if( !pDTM->Get_Sorted(0, x, y, true, false) )
 	{
 		return( false );
 	}
 
+
 	//-----------------------------------------------------
-	int	Method	= Parameters("Method")->asInt();
+	int Method	= Parameters("Method")->asInt();
 
 	if( Method == 2 )
 	{
@@ -256,20 +282,69 @@ bool CFlow_Parallel::Set_Flow(void)
 	//-----------------------------------------------------
 	for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
-		if( pDTM->Get_Sorted(n, x, y, true, false) )
-		{	//if( !(n%(4*Get_NX())) )DataObject_Update(pFlow);
-			if( TH_LinearFlow > 0.0 && pCatch->asDouble(x, y) >= TH_LinearFlow )
+		pDTM->Get_Sorted(n,x,y);
+
+		//if( !(n%(4*Get_NX())) )DataObject_Update(pFlow);
+
+		if( pTH_LinearFlow && TH_LinearFlow > 0.0)
+		{
+			if( pTH_LinearFlow->is_NoData(x, y) )
 			{
-				Set_D8(x, y);
+				THRS = 0.0;
 			}
-			else switch( Method )
+			else
 			{
-			case 0:		Set_D8		(x, y);		break;
-			case 1:		Set_Rho8	(x, y);		break;
-			case 3:		Set_DInf	(x, y);		break;
-			case 4:		Set_MFD		(x, y);		break;
-			case 5:		Set_MDInf	(x, y);		break;				
-			case 2:		Set_BRM		(x, y);		break;
+				THRS = pTH_LinearFlow->asDouble(x, y);
+			}
+		}
+		else
+		{
+			THRS = pCatch->asDouble(x, y);
+		}
+
+		if( pD8_Direction )
+		{
+			if( pD8_Direction->is_NoData(x, y) )
+			{
+				DIR = -1;
+			}
+			else
+			{
+				DIR = pD8_Direction->asInt(x, y);
+			}
+		}
+
+		if( TH_LinearFlow > 0.0 && THRS >= TH_LinearFlow || DIR > 0)
+		{
+			Set_D8(x, y, DIR);
+		}
+		else
+		{
+			switch( Method )
+			{
+			case 0:
+				Set_D8(x, y);
+				break;
+
+			case 1:
+				Set_Rho8(x, y);
+				break;
+
+			case 3:
+				Set_DInf(x, y);
+				break;
+
+			case 4:
+				Set_MFD(x, y);
+				break;
+
+			case 5:
+				Set_MDInf(x, y);
+				break;				
+
+			case 2:
+				Set_BRM(x, y);
+				break;
 			}
 		}
 	}
@@ -279,13 +354,11 @@ bool CFlow_Parallel::Set_Flow(void)
 	{
 		for(n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 		{
-			if( pDTM->Get_Sorted(n, x, y, false) )
-			{
-				Check_Route(x, y);
-			}
+			pDTM->Get_Sorted(n, x, y, false);
+
+			Check_Route(x, y);
 		}
 	}
-
 	//-----------------------------------------------------
 	return( true );
 }
@@ -323,7 +396,7 @@ void CFlow_Parallel::Check_Route(int x, int y)
 			//---------------------------------------------
 			while( is_InGrid(ix, iy) )
 			{
-				Add_Portion(x, y, ix, iy);
+				Add_Portion(x, y, ix, iy, i);
 
 				i	= pRoute->asChar(ix, iy);
 
@@ -359,11 +432,18 @@ void CFlow_Parallel::Check_Route(int x, int y)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CFlow_Parallel::Set_D8(		int x, int y )
+void CFlow_Parallel::Set_D8(		int x, int y, int dir)
 {
 	int		Direction;
 
-	Direction	= pDTM->Get_Gradient_NeighborDir(x, y);
+	if( dir > 0.0)
+	{
+		Direction	= dir;
+	}
+	else
+	{
+		Direction = pDTM->Get_Gradient_NeighborDir(x, y);
+	}
 
 	if( Direction >= 0 )
 	{
@@ -491,73 +571,9 @@ void CFlow_Parallel::Set_DInf(	int x, int y )
 	}
 }
 
-
 ///////////////////////////////////////////////////////////
 //														 //
-//				Multiple Flow Direction					 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CFlow_Parallel::Set_MFD(	int x, int y )
-{
-	int		i, ix, iy;
-
-	double	z, d, dzSum, dz[8];
-
-	z		= pDTM->asDouble(x, y);
-	dzSum	= 0.0;
-
-	for(i=0; i<8; i++)
-	{
-		ix		= Get_xTo(i, x);
-		iy		= Get_yTo(i, y);
-
-		if( pDTM->is_InGrid(ix, iy) )
-		{
-			d		= z - pDTM->asDouble(ix, iy);
-		}
-		else
-		{
-			ix		= Get_xTo(i + 4, x);
-			iy		= Get_yTo(i + 4, y);
-
-			if( pDTM->is_InGrid(ix, iy) )
-			{
-				d		= pDTM->asDouble(ix, iy) - z;
-			}
-			else
-			{
-				d		= 0.0;
-			}
-		}
-
-		if( d > 0.0 )
-		{
-			dzSum	+= (dz[i]	= pow(d / Get_Length(i), MFD_Converge));
-		}
-		else
-		{
-			dz[i]	= 0.0;
-		}
-	}
-
-	if( dzSum )
-	{
-		for(i=0; i<8; i++)
-		{
-			if( dz[i] )
-			{
-				Add_Fraction(x, y, i, dz[i] / dzSum );
-			}
-		}
-	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//			Multiple Triangular Flow Directon			 //
+//				Multiple Triangular Flow Directon		 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -565,6 +581,7 @@ void CFlow_Parallel::Set_MFD(	int x, int y )
 void CFlow_Parallel::Set_MDInf(	int x, int y )
 {
 	int		i, ii, ix, iy;
+
 	double	z, dzSum, dz[8];
 	double	hs, hr, s_facet[8], r_facet[8];
 	double	valley[8], portion[8];
@@ -581,43 +598,57 @@ void CFlow_Parallel::Set_MDInf(	int x, int y )
 		ix		= Get_xTo(i, x);
 		iy		= Get_yTo(i, y);
 		
-//	???
-//		if( x == 6 && y == 7 )
-//		{
-//			int k = 1;
-//		}
-//	???
+		Dir_inGrid[i] = true;
+		if( x == 6 && y == 7 )
+		{
+			int k = 1;
+		}
 
 		s_facet[i] = r_facet[i] = -999.0;
 
 		if( pDTM->is_InGrid(ix, iy) )
 		{
-			dz[i]			= z - pDTM->asDouble(ix, iy);
-			Dir_inGrid[i]	= true;
+			dz[i]		= z - pDTM->asDouble(ix, iy);
 		}
 		else
 		{
-			dz[i]			= 0.0;
-			Dir_inGrid[i]	= false;
+			dz[i]		= 0.0;
+			Dir_inGrid[i] = false;
 		}
 	}
-
 	for(i=0; i<8; i++)
 	{
 		hr = hs = -999.0;
-
+		
 		if( Dir_inGrid[i] )
 		{
-			ii = (i < 7) ? i+1 : 0;
-
+			ii = ( i < 7)? i+1 : 0;
+			
 			if( Dir_inGrid[ii] )
 			{
-				nx = ( dz[ii] * Get_yTo( i  ) - dz[i ] * Get_yTo( ii )) * cellsize;
-				ny = ( dz[i ] * Get_xTo( ii ) - dz[ii] * Get_xTo( i  )) * cellsize;
-
+				// vb-code:  nx = (z1 * yd(ii) - z2 * yd(i)) * gridsize
+				nx = ( dz[ii] * Get_yTo( i ) - dz[i] * Get_yTo( ii )) * cellsize;
+				//vb-code:  ny = (z1 * xd(ii) - z2 * xd(i)) * gridsize
+/*ERROR?*/		ny = ( dz[i] * Get_xTo( ii ) - dz[ii] * Get_xTo( i ) ) * cellsize;
+				//vb-code:  nz = (xd(ii) * yd(i) - xd(i) * yd(ii)) * gridsize ^ 2
 				nz = ( Get_xTo( i ) * Get_yTo( ii ) - Get_xTo( ii ) * Get_yTo( i )) * cellarea;
-
+				
 				n_norm = sqrt( nx*nx + ny*ny +nz*nz );
+				/*
+				if( nx == 0.0 )
+				{
+					hr = (ny >= 0.0)? 0.0 : M_PI;
+				} 
+				else if( nx > 0.0 )
+				{
+					hr = M_PI_090 - atan(ny / nx);
+
+				} 
+				else
+				{
+					hr = M_PI_270 - atan(ny / nx);
+				}
+				*/
 
 				if( nx == 0.0 )
 				{
@@ -631,9 +662,11 @@ void CFlow_Parallel::Set_MDInf(	int x, int y )
 				{
 					hr = M_PI_090 - atan(ny / nx);
 				}
-
+				//vb-code:  hs = -Tan(arccos(nz / betrag_n))
 				hs = -tan( acos( nz/n_norm ) );
-
+				
+				// vb-code: If hr <= (i - 1) * PI / 4 Or hr >= i * PI / 4 Then
+				//SHOULD IT BE LIKE THIS: (( hr <= i * M_PI_045 || hr >= ii * M_PI_045 )  OR AS BELOW???
 				if( hr < i * M_PI_045 || hr > (i+1) * M_PI_045 )
 				{
 					if( dz[i] > dz[ii] )
@@ -684,7 +717,6 @@ void CFlow_Parallel::Set_MDInf(	int x, int y )
 			else
 			{
 				ii = (i > 0)? i-1 : 7;
-
 				if( s_facet[ii] == -999.0 && r_facet[i] == i * M_PI_045 )
 				{
 					valley[i] = s_facet[i];
@@ -696,7 +728,9 @@ void CFlow_Parallel::Set_MDInf(	int x, int y )
 		} 
 		
 		portion[i] = 0.0;
+
 	}
+
 
 	if( dzSum )
 	{
@@ -709,26 +743,85 @@ void CFlow_Parallel::Set_MDInf(	int x, int y )
 			else
 			{
 				ii = 0;
-
-				if( r_facet[i] == 0.0)
-				{
-					r_facet[i] = M_PI_360;
-				}
+				if( r_facet[i] == 0.0) r_facet[i] = M_PI_360;
 			}
-
 			if( valley[i] )
 			{
 				valley[i] /= dzSum;
-
+				//vb-code: portion(i) = portion(i) + valley(i) * (i * PI / 4 - r_facet(i)) / (PI / 4)
 				portion[i] += valley[i] * ((i+1) * M_PI_045 - r_facet[i]) / M_PI_045;
-
+				//vb-code: portion(ii) = portion(ii) + valley(i) * (r_facet(i) - (i - 1) * PI / 4) / (PI / 4)
 				portion[ii] += valley[i] * (r_facet[i] - i * M_PI_045) / M_PI_045;
 			}
 		}
-
 		for(i=0; i<8; i++)
 		{
-			Add_Fraction(x, y, i, portion[i]);
+			Add_Fraction(x, y, i, portion[i] );
+		}
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//				Multiple Flow Direction					 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CFlow_Parallel::Set_MFD(	int x, int y )
+{
+	int		i, ix, iy;
+
+	double	z, d, dzSum, dz[8];
+
+	z		= pDTM->asDouble(x, y);
+	dzSum	= 0.0;
+
+	for(i=0; i<8; i++)
+	{
+		ix		= Get_xTo(i, x);
+		iy		= Get_yTo(i, y);
+
+		if( pDTM->is_InGrid(ix, iy) )
+		{
+			d		= z - pDTM->asDouble(ix, iy);
+		}
+		else
+		{
+			ix		= Get_xTo(i + 4, x);
+			iy		= Get_yTo(i + 4, y);
+
+			if( pDTM->is_InGrid(ix, iy) )
+			{
+				d		= pDTM->asDouble(ix, iy) - z;
+			}
+			else
+			{
+				d		= 0.0;
+			}
+		}
+
+		if( d > 0.0 )
+		{
+			//previously: dzSum	+= (dz[i]	= pow(d / Get_Length(i), MFD_Converge));
+			dz[i]	= pow(d / Get_Length(i), MFD_Converge);
+			dzSum	+= dz[i];
+		}
+		else
+		{
+			dz[i]	= 0.0;
+		}
+	}
+
+	if( dzSum )
+	{
+		for(i=0; i<8; i++)
+		{
+			if( dz[i] )
+			{
+				Add_Fraction(x, y, i, dz[i] / dzSum );
+			}
 		}
 	}
 }

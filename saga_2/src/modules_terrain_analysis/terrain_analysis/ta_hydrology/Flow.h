@@ -123,7 +123,12 @@ protected:
 							*pCatch_Height,
 							*pCatch_Aspect,
 							*pFlowPath,
-							*pCatch_AspectY;
+							*pCatch_AspectY,
+							*pMaterial,
+							*pTarget,
+							*pAccu_Tot,
+							*pAccu_Left,
+							*pAccu_Right;
 
 
 	virtual bool			On_Execute(void);
@@ -139,12 +144,13 @@ protected:
 	void					Get_Gradient	(int x, int y, double &Slope, double &Aspect);
 
 	void					Add_Fraction	(int x, int y, int Direction, double Fraction = 1);
-	void					Add_Portion		(int x, int y, int ix, int iy);
+	void					Add_Portion		(int x, int y, int ix, int iy, int Direction);
+	void					Find_Sides		(int x, int y, int Direction, bool &left, bool &right);
 
 
 private:
 
-	bool					bPoint;
+	bool					bPoint, delete_pMaterial;
 
 	int						xPoint, yPoint;
 
