@@ -127,6 +127,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "docs_html", "modules_io\doc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "docs_pdf", "modules_io\docs\docs_pdf\docs_pdf.vcxproj", "{D32A5075-9393-4541-9631-4DE087FAABAC}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shapes_tools", "modules\shapes\shapes_tools\shapes_tools.vcxproj", "{8952050D-158C-4AE7-A5D4-98E0F60A6186}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -1147,6 +1149,22 @@ Global
 		{D32A5075-9393-4541-9631-4DE087FAABAC}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
 		{D32A5075-9393-4541-9631-4DE087FAABAC}.Unicode Release|x64.ActiveCfg = Unicode Release|x64
 		{D32A5075-9393-4541-9631-4DE087FAABAC}.Unicode Release|x64.Build.0 = Unicode Release|x64
+		{8952050D-158C-4AE7-A5D4-98E0F60A6186}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8952050D-158C-4AE7-A5D4-98E0F60A6186}.Debug|Win32.Build.0 = Debug|Win32
+		{8952050D-158C-4AE7-A5D4-98E0F60A6186}.Debug|x64.ActiveCfg = Debug|x64
+		{8952050D-158C-4AE7-A5D4-98E0F60A6186}.Debug|x64.Build.0 = Debug|x64
+		{8952050D-158C-4AE7-A5D4-98E0F60A6186}.Release|Win32.ActiveCfg = Release|Win32
+		{8952050D-158C-4AE7-A5D4-98E0F60A6186}.Release|Win32.Build.0 = Release|Win32
+		{8952050D-158C-4AE7-A5D4-98E0F60A6186}.Release|x64.ActiveCfg = Release|x64
+		{8952050D-158C-4AE7-A5D4-98E0F60A6186}.Release|x64.Build.0 = Release|x64
+		{8952050D-158C-4AE7-A5D4-98E0F60A6186}.Unicode Debug|Win32.ActiveCfg = Unicode Debug|Win32
+		{8952050D-158C-4AE7-A5D4-98E0F60A6186}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
+		{8952050D-158C-4AE7-A5D4-98E0F60A6186}.Unicode Debug|x64.ActiveCfg = Unicode Debug|x64
+		{8952050D-158C-4AE7-A5D4-98E0F60A6186}.Unicode Debug|x64.Build.0 = Unicode Debug|x64
+		{8952050D-158C-4AE7-A5D4-98E0F60A6186}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
+		{8952050D-158C-4AE7-A5D4-98E0F60A6186}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
+		{8952050D-158C-4AE7-A5D4-98E0F60A6186}.Unicode Release|x64.ActiveCfg = Unicode Release|x64
+		{8952050D-158C-4AE7-A5D4-98E0F60A6186}.Unicode Release|x64.Build.0 = Unicode Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
