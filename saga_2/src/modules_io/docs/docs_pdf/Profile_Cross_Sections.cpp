@@ -1105,7 +1105,7 @@ CProfile_Cross_Sections::CProfile_Cross_Sections(void){
 
 	CSG_Parameter *pNode;
 
-	Parameters.Set_Name(_TL("Cross Sections"));
+	Parameters.Set_Name(_TL("Terrain Path Cross Sections"));
 	Parameters.Set_Description(_TW("(c) 2004 Victor Olaya. Cross Sections"));
 
 	Parameters.Add_Grid(NULL,

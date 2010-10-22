@@ -277,7 +277,7 @@ CShapes_Summary::CShapes_Summary(void){
 	CSG_Parameter *pNode;
 	CSG_String sName;
 
-	Parameters.Set_Name(_TL("Summary"));
+	Parameters.Set_Name(_TL("Shapes Summary Report"));
 	Parameters.Set_Description(_TW("(c) 2004 by Victor Olaya. summary."));
 
 	pNode = Parameters.Add_Shapes(NULL,
@@ -345,7 +345,8 @@ bool CShapes_Summary::On_Execute(void){
 
 	for (i = 0; i < pShapesTable->Get_Field_Count(); i++){
 		for (j = 0; j < 5; j++){
-			if (pShapesTable->Get_Field_Type(i) > 1 && pShapesTable->Get_Field_Type(i) < 7){ //is numeric field
+			if( SG_Data_Type_is_Numeric(pShapesTable->Get_Field_Type(i)) )
+			{ //is numeric field
 				sName = pShapesTable->Get_Field_Name(i);
 				sName.Append(sParam[j]);
 				pExtraParameter[i * 5 + j] = m_pExtraParameters->Add_Value(NULL,

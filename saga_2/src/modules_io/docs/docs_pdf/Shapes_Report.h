@@ -78,8 +78,6 @@ public:
 	CShapes_Report(void);
 	virtual ~CShapes_Report(void);
 
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("A:Shapes|Reports") );	}
-
 
 protected:
 
