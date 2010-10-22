@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.33 2010-10-19 08:05:05 johanvdw Exp $
+# $Id: configure.in,v 1.34 2010-10-22 12:00:12 oconrad Exp $
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
@@ -117,7 +117,7 @@ AC_OUTPUT(Makefile \
 	src/modules/shapes/shapes_points/Makefile \
 	src/modules/shapes/shapes_polygons/Makefile \
 	src/modules/shapes/shapes_tools/Makefile \
-        src/modules/shapes/shapes_transect/Makefile \
+	src/modules/shapes/shapes_transect/Makefile \
 	src/modules/table/Makefile \
 	src/modules/table/table_calculus/Makefile \
 	src/modules/table/table_tools/Makefile \
@@ -146,6 +146,9 @@ AC_OUTPUT(Makefile \
 	src/modules_io/esri_e00/io_esri_e00/Makefile \
 	src/modules_io/db/Makefile \
 	src/modules_io/db/io_odbc/Makefile \
+	src/modules_io/docs/Makefile \
+	src/modules_io/docs/docs_html/Makefile \
+	src/modules_io/docs/docs_pdf/Makefile \
 	src/modules_io/gdal/Makefile \
 	src/modules_io/gdal/io_gdal/Makefile \
 	src/modules_io/grid/Makefile \
