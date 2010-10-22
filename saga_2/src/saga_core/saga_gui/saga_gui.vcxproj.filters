@@ -133,9 +133,6 @@
     <ClCompile Include="saga_frame_droptarget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SVG_Interactive_Map.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="view_base.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -430,9 +427,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SAGA_Frame_DropTarget.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SVG_Interactive_Map.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VIEW_Base.h">

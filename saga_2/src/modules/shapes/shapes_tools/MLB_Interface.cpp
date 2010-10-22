@@ -94,8 +94,6 @@ const SG_Char * Get_Info(int i)
 #include "Shapes_Create_Empty.h"
 #include "Shapes_Assign_Table.h"
 #include "Shapes_Merge.h"
-#include "Shapes_Report.h"
-#include "CreateWebContent.h"
 
 #include "QueryBuilder.h"
 #include "SearchInTable.h"
@@ -105,8 +103,6 @@ const SG_Char * Get_Info(int i)
 #include "CreateChartLayer.h"
 #include "NewLayerFromSelectedShapes.h"
 #include "GraticuleBuilder.h"
-
-#include "Summarize.h"
 
 #include "shapes_cut.h"
 #include "shapes_cut_interactive.h"
@@ -137,17 +133,14 @@ CSG_Module *		Create_Module(int i)
 	case  8:	return( new CTransformShapes );
 	case  9:	return( new CCreateChartLayer );
 	case 10:	return( new CGraticuleBuilder );
-	case 11:	return( new CShapes_Report );
-	case 12:	return( new CSummarize );
-	case 13:	return( new CCreateWebContent );
-	case 14:	return( new CShapes_Cut );
-	case 15:	return( new CShapes_Cut_Interactive );
-	case 16:	return( new CShapes_Split );
-	case 17:	return( new CShapes_Split_Randomly );
-	case 18:	return( new CShapes_Split_by_Attribute );
-	case 19:	return( new CShapes_Buffer );
-	case 20:	return( new CShapes_Extents );
-	case 21:	return( new CQuadTree_Structure );
+	case 11:	return( new CShapes_Cut );
+	case 12:	return( new CShapes_Cut_Interactive );
+	case 13:	return( new CShapes_Split );
+	case 14:	return( new CShapes_Split_Randomly );
+	case 15:	return( new CShapes_Split_by_Attribute );
+	case 16:	return( new CShapes_Buffer );
+	case 17:	return( new CShapes_Extents );
+	case 18:	return( new CQuadTree_Structure );
 	}
 
 	return( NULL );

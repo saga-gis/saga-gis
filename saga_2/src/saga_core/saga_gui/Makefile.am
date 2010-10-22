@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.20 2010-07-22 12:47:13 johanvdw Exp $
+# $Id: Makefile.am,v 1.21 2010-10-22 09:15:15 oconrad Exp $
 #
 INCS = -I.. -I.
 if DEBUG
@@ -56,7 +56,6 @@ res_images.cpp\
 saga.cpp\
 saga_frame.cpp\
 saga_frame_droptarget.cpp\
-svg_interactive_map.cpp\
 view_base.cpp\
 view_histogram.cpp\
 view_layout.cpp\
@@ -148,7 +147,6 @@ res_images.h\
 saga.h\
 saga_frame.h\
 saga_frame_droptarget.h\
-svg_interactive_map.h\
 view_base.h\
 view_histogram.h\
 view_layout.h\

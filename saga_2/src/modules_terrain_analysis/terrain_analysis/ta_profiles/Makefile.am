@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.10 2010-07-08 14:11:49 johanvdw Exp $
+# $Id: Makefile.am,v 1.11 2010-10-22 09:15:15 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -14,26 +14,19 @@ AM_LDFLAGS         = -fPIC -shared -avoid-version
 pkglib_LTLIBRARIES = libta_profiles.la
 libta_profiles_la_SOURCES =\
 Grid_Cross_Profiles.cpp\
-Grid_CrossSections.cpp\
 Grid_Flow_Profile.cpp\
 Grid_Profile.cpp\
 Grid_ProfileFromPoints.cpp\
 Grid_Profile_From_Lines.cpp\
 Grid_Swath_Profile.cpp\
-Polygon_Clipper.cpp\
 MLB_Interface.cpp\
-PDFDocEngine_CrossSections.cpp\
-Geometry.h\
 Grid_Cross_Profiles.h\
-Grid_CrossSections.h\
 Grid_Flow_Profile.h\
 Grid_Profile.h\
 Grid_ProfileFromPoints.h\
 Grid_Profile_From_Lines.h\
 Grid_Swath_Profile.h\
-Polygon_Clipper.h\
-MLB_Interface.h\
-PDFDocEngine_CrossSections.h
+MLB_Interface.h
 
 libta_profiles_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(ADD_MLBS)
 

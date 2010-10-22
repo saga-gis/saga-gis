@@ -20,9 +20,6 @@
     <ClCompile Include="Grid_Cross_Profiles.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Grid_CrossSections.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Grid_Flow_Profile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -36,12 +33,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Grid_Swath_Profile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PDFDocEngine_CrossSections.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Polygon_Clipper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -100,13 +91,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="Geometry.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Grid_Cross_Profiles.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Grid_CrossSections.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Grid_Flow_Profile.h">
@@ -122,12 +107,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Grid_Swath_Profile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PDFDocEngine_CrossSections.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Polygon_Clipper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

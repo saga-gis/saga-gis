@@ -88,7 +88,6 @@ const SG_Char * Get_Info(int i)
 #include "Grid_Profile.h"
 #include "Grid_Flow_Profile.h"
 #include "Grid_Swath_Profile.h"
-#include "Grid_CrossSections.h"
 #include "Grid_Cross_Profiles.h"
 #include "Grid_Profile_From_Lines.h"
 #include "Grid_ProfileFromPoints.h"
@@ -102,10 +101,9 @@ CSG_Module *		Create_Module(int i)
 	case 0:	return( new CGrid_Profile );
 	case 1:	return( new CGrid_Flow_Profile );
 	case 2:	return( new CGrid_Swath_Profile );
-	case 3:	return( new CGrid_CrossSections );
-	case 4:	return( new CGrid_Cross_Profiles );
-	case 5:	return( new CGrid_Profile_From_Lines );
-	case 6:	return( new CProfileFromPoints );
+	case 3:	return( new CGrid_Cross_Profiles );
+	case 4:	return( new CGrid_Profile_From_Lines );
+	case 5:	return( new CProfileFromPoints );
 	}
 
 	return( NULL );

@@ -184,10 +184,6 @@ public:
 	void						SaveAs_Image_Clipboard	(int nx, int ny, int frame);
 	void						SaveAs_Image_Clipboard	(bool bLegend = false);
 	void						SaveAs_Image_On_Change	(void);
-	void						SaveAs_PDF_Indexed		(void);
-	void						SaveAs_Interactive_SVG	(void);
-
-	void						Draw_PDF				(class CSG_Doc_PDF *pPDF, const wxChar *FilePath_Maps, int Image_ID, const wxChar *Icon_File, const wxChar *sTitle, CSG_Rect rWorld, bool bRoundScale, int iField, CSG_Shapes *m_pDivisions);
 
 	void						Draw_Map				(wxDC &dc, double Zoom, const wxRect &rClient, bool bEdit, int Background = SG_COLOR_WHITE);
 	void						Draw_Map				(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wxRect &rClient, bool bEdit, int Background = SG_COLOR_WHITE);

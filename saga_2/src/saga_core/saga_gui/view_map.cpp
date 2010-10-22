@@ -92,8 +92,6 @@ BEGIN_EVENT_TABLE(CVIEW_Map, CVIEW_Base)
 	EVT_MENU			(ID_CMD_MAP_LAYOUT_SHOW			, CVIEW_Map::On_Map_Layout_Show)
 	EVT_MENU			(ID_CMD_MAP_SAVE_IMAGE			, CVIEW_Map::On_Map_Save_Image)
 	EVT_MENU			(ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE, CVIEW_Map::On_Map_Save_Image_On_Change)
-	EVT_MENU			(ID_CMD_MAP_SAVE_PDF_INDEXED	, CVIEW_Map::On_Map_Save_PDF_Indexed)
-	EVT_MENU			(ID_CMD_MAP_SAVE_INTERACTIVE_SVG, CVIEW_Map::On_Map_Save_Interactive_SVG)
 
 	EVT_MENU			(ID_CMD_MAP_ZOOM_FULL			, CVIEW_Map::On_Map_Zoom_Full)
 	EVT_MENU			(ID_CMD_MAP_ZOOM_BACK			, CVIEW_Map::On_Map_Zoom_Back)
@@ -163,11 +161,6 @@ wxMenu * CVIEW_Map::_Create_Menu(void)
 //	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_SAVE_IMAGE_ON_CHANGE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SAVE_TO_CLIPBOARD);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND);
-	if( CSG_Doc_PDF::Get_Version() != NULL )
-	{
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_SAVE_PDF_INDEXED);
-	}
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_SAVE_INTERACTIVE_SVG);
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_BACK);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_FORWARD);
@@ -441,18 +434,6 @@ void CVIEW_Map::On_Map_Save_Image(wxCommandEvent &event)
 void CVIEW_Map::On_Map_Save_Image_On_Change(wxCommandEvent &event)
 {
 	m_pMap->SaveAs_Image_On_Change();
-}
-
-//---------------------------------------------------------
-void CVIEW_Map::On_Map_Save_PDF_Indexed(wxCommandEvent &event)
-{
-	m_pMap->SaveAs_PDF_Indexed();
-}
-
-//---------------------------------------------------------
-void CVIEW_Map::On_Map_Save_Interactive_SVG(wxCommandEvent &event)
-{
-	m_pMap->SaveAs_Interactive_SVG();
 }
 
 

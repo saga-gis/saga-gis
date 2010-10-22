@@ -181,10 +181,6 @@ const wxChar * CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAPS_SAVE_IMAGE:		return( LNG("[CMD] Save As Image...") );
 	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD:	return( LNG("[CMD] Save to Clipboard [Ctrl+C]") );
 	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND:	return( LNG("[CMD] Save Legend to Clipboard [Ctrl+L]") );
-	case ID_CMD_MAP_SAVE_PDF_INDEXED:
-	case ID_CMD_MAPS_SAVE_PDF_INDEXED:	return( LNG("[CMD] Save As PDF") );
-	case ID_CMD_MAP_SAVE_INTERACTIVE_SVG:
-	case ID_CMD_MAPS_SAVE_INTERACTIVE_SVG:	return( LNG("[CMD] Save as Interactive SVG") );
 	case ID_CMD_MAP_SYNCHRONIZE:
 	case ID_CMD_MAPS_SYNCHRONIZE:		return( LNG("[CMD] Synchronise Map Extents") );
 

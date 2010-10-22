@@ -35,15 +35,6 @@
     <ClCompile Include="dataobject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="doc_html.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="doc_pdf.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="doc_svg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="geo_classes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -203,15 +194,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DataObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="doc_html.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="doc_pdf.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="doc_svg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GEO_Tools.h">

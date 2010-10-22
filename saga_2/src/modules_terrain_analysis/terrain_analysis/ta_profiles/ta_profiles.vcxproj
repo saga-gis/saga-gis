@@ -556,7 +556,6 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Grid_CrossSections.cpp" />
     <ClCompile Include="Grid_Cross_Profiles.cpp" />
     <ClCompile Include="Grid_Flow_Profile.cpp" />
     <ClCompile Include="Grid_Profile.cpp" />
@@ -581,8 +580,6 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Unicode Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Unicode Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="PDFDocEngine_CrossSections.cpp" />
-    <ClCompile Include="Polygon_Clipper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\grid_pyramid.h" />
@@ -591,8 +588,6 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\pointcloud.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
-    <ClInclude Include="Geometry.h" />
-    <ClInclude Include="Grid_CrossSections.h" />
     <ClInclude Include="Grid_Cross_Profiles.h" />
     <ClInclude Include="Grid_Flow_Profile.h" />
     <ClInclude Include="Grid_Profile.h" />
@@ -611,8 +606,6 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\shapes.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
-    <ClInclude Include="PDFDocEngine_CrossSections.h" />
-    <ClInclude Include="Polygon_Clipper.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

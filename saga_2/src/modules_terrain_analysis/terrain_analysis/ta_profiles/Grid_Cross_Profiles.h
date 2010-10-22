@@ -76,7 +76,6 @@ class CGrid_Cross_Profiles : public CSG_Module_Grid
 {
 public:
 	CGrid_Cross_Profiles(void);
-	virtual ~CGrid_Cross_Profiles(void);
 
 
 protected:
@@ -86,12 +85,10 @@ protected:
 
 private:
 
-	CSG_Grid						*m_pDEM;
+	CSG_Grid					*m_pDEM;
 
 
 	bool						Get_Profile			(CSG_Shape *pProfile, TSG_Point A, TSG_Point B, int nSamples);
-
-	void						Make_Report			(const SG_Char *FileName, CSG_Grid *pDEM, CSG_Shapes *pLines, CSG_Shapes *pProfiles, double Distance);
 
 };
 

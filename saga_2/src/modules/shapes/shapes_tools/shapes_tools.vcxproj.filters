@@ -20,9 +20,6 @@
     <ClCompile Include="CreateChartLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CreateWebContent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GraticuleBuilder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -71,9 +68,6 @@
     <ClCompile Include="Shapes_Merge.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Shapes_Report.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="shapes_split.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -81,12 +75,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="shapes_split_randomly.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Summarize.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SummaryPDFDocEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TransformShapes.cpp">
@@ -151,9 +139,6 @@
     <ClInclude Include="CreateChartLayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CreateWebContent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GraticuleBuilder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -202,9 +187,6 @@
     <ClInclude Include="Shapes_Merge.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Shapes_Report.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="shapes_split.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -212,12 +194,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="shapes_split_randomly.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Summarize.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SummaryPDFDocEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TransformShapes.h">

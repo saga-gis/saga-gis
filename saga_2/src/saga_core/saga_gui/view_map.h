@@ -98,8 +98,6 @@ public:
 	void							On_Map_Layout_Show			(wxCommandEvent  &event);
 	void							On_Map_Save_Image			(wxCommandEvent  &event);
 	void							On_Map_Save_Image_On_Change	(wxCommandEvent  &event);
-	void							On_Map_Save_PDF_Indexed		(wxCommandEvent  &event);
-	void							On_Map_Save_Interactive_SVG (wxCommandEvent	 &event);
 
 	void							On_Map_Zoom_Full			(wxCommandEvent  &event);
 	void							On_Map_Zoom_Back			(wxCommandEvent  &event);

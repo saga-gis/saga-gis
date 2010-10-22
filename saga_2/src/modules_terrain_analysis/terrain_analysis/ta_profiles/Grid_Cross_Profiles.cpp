@@ -58,8 +58,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <saga_api/doc_pdf.h>
-
 #include "Grid_Cross_Profiles.h"
 
 
@@ -82,9 +80,9 @@
 //---------------------------------------------------------
 CGrid_Cross_Profiles::CGrid_Cross_Profiles(void)
 {
-	Set_Name(_TL("Cross Profiles"));
+	Set_Name		(_TL("Cross Profiles"));
 
-	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2006"));
 
 	Set_Description	(_TW(
 		"Create cross profiles from a grid based DEM for given lines.\n"
@@ -125,17 +123,7 @@ CGrid_Cross_Profiles::CGrid_Cross_Profiles(void)
 		_TL(""),
 		PARAMETER_TYPE_Int	, 10.0, 3.0, true
 	);
-
-	Parameters.Add_FilePath(
-		NULL, "DOCUMENT"	, _TL("Report"),
-		_TL(""),
-		_TL("Portable Document Format (*.pdf)|*.pdf|All Files|*.*"), NULL, true
-	);
 }
-
-//---------------------------------------------------------
-CGrid_Cross_Profiles::~CGrid_Cross_Profiles(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
@@ -150,8 +138,8 @@ bool CGrid_Cross_Profiles::On_Execute(void)
 	int			iLine, iPart, iPoint, nSamples;
 	double		Distance, Length, dLine, dist, dx, dy;
 	TSG_Point	iPt, jPt, dPt, aPt, bPt;
-	CSG_Shapes		*pLines, *pProfiles;
-	CSG_Shape		*pLine, *pProfile;
+	CSG_Shapes	*pLines, *pProfiles;
+	CSG_Shape	*pLine, *pProfile;
 
 	//-----------------------------------------------------
 	m_pDEM		= Parameters("DEM")			->asGrid();
@@ -226,17 +214,7 @@ bool CGrid_Cross_Profiles::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( pProfiles->Get_Count() > 0 )
-	{
-		if( Parameters("DOCUMENT")->asString() )
-		{
-			Make_Report(Parameters("DOCUMENT")->asString(), m_pDEM, pLines, pProfiles, Distance);
-		}
-
-		return( true );
-	}
-
-	return( false );
+	return( pProfiles->Get_Count() > 0 );
 }
 
 
@@ -287,6 +265,9 @@ bool CGrid_Cross_Profiles::Get_Profile(CSG_Shape *pProfile, TSG_Point A, TSG_Poi
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+/*/---------------------------------------------------------
+#include <saga_api/doc_pdf.h>
 
 //---------------------------------------------------------
 #define NBOXES	4
@@ -350,7 +331,7 @@ void CGrid_Cross_Profiles::Make_Report(const SG_Char *FileName, CSG_Grid *pDEM, 
 
 		pdf.Save(Parameters("DOCUMENT")->asString());
 	}
-}
+}/**/
 
 
 ///////////////////////////////////////////////////////////

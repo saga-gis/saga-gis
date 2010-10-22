@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.20 2010-06-28 23:22:27 johanvdw Exp $
+# $Id: Makefile.am,v 1.21 2010-10-22 09:15:15 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -23,9 +23,6 @@ api_memory.cpp\
 api_string.cpp\
 api_translator.cpp\
 dataobject.cpp\
-doc_html.cpp\
-doc_pdf.cpp\
-doc_svg.cpp\
 geo_classes.cpp\
 geo_functions.cpp\
 grid.cpp\
@@ -79,9 +76,6 @@ tin_elements.cpp\
 tin_triangulation.cpp\
 api_core.h\
 dataobject.h\
-doc_html.h\
-doc_pdf.h\
-doc_svg.h\
 geo_tools.h\
 grid.h\
 grid_pyramid.h\

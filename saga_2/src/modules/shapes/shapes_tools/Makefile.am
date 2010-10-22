@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.15 2010-07-08 14:11:49 johanvdw Exp $
+# $Id: Makefile.am,v 1.16 2010-10-22 09:15:15 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -14,7 +14,6 @@ AM_LDFLAGS         = -fPIC -shared -avoid-version
 pkglib_LTLIBRARIES = libshapes_tools.la
 libshapes_tools_la_SOURCES =\
 CreateChartLayer.cpp\
-CreateWebContent.cpp\
 GraticuleBuilder.cpp\
 Polygon_Clipper.cpp\
 MLB_Interface.cpp\
@@ -28,9 +27,6 @@ SeparateShapes.cpp\
 Shapes_Assign_Table.cpp\
 Shapes_Create_Empty.cpp\
 Shapes_Merge.cpp\
-Shapes_Report.cpp\
-Summarize.cpp\
-SummaryPDFDocEngine.cpp\
 TransformShapes.cpp\
 shapes_buffer.cpp\
 shapes_cut.cpp\
@@ -40,7 +36,6 @@ shapes_split.cpp\
 shapes_split_by_attribute.cpp\
 shapes_split_randomly.cpp\
 CreateChartLayer.h\
-CreateWebContent.h\
 GraticuleBuilder.h\
 Polygon_Clipper.h\
 MLB_Interface.h\
@@ -54,9 +49,6 @@ SeparateShapes.h\
 Shapes_Assign_Table.h\
 Shapes_Create_Empty.h\
 Shapes_Merge.h\
-Shapes_Report.h\
-Summarize.h\
-SummaryPDFDocEngine.h\
 TransformShapes.h\
 shapes_buffer.h\
 shapes_cut.h\
