@@ -10,10 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//              SVG_Interactive_map.cpp                  //
 //                                                       //
-//                 Copyright (C) 2010 by                 //
-//                      Olaf Conrad                      //
+//          Copyright (C) 2005 by Victor Olaya           //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,12 +36,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    contact:    Victor Olaya                           //
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Hamburg                  //
-//                Germany                                //
+//    e-mail:     volaya@saga-gis.org                    //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -51,55 +47,81 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#ifndef _HEADER_INCLUDED__SAGA_GUI__svg_interactive_map_H
+#define _HEADER_INCLUDED__SAGA_GUI__svg_interactive_map_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const SG_Char * Get_Info(int i)
+#include "doc_svg.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CSVG_Interactive_Map : public CSG_Doc_SVG, public CSG_Module
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Reports - HTML") );
+public:
+	CSVG_Interactive_Map(void);
+	virtual ~CSVG_Interactive_Map(void);
 
-	case MLB_INFO_Author:
-		return( SG_T("SAGA User Group (c) 2010") );
+protected:
 
-	case MLB_INFO_Description:
-		return( _TW(
-			"Reports and document creation in Hypertext Mark Up Language (HTML) format."
-		));
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("File|Reports") );
-	}
-}
+	virtual bool		On_Execute(void);
 
 
-//---------------------------------------------------------
-#include "CreateWebContent.h"
-#include "svg_interactive_map.h"
+private:
+
+	CSG_String			m_Directory;
+	double				m_dWidth;
 
 
-//---------------------------------------------------------
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CCreateWebContent );
-	case  1:	return( new CSVG_Interactive_Map );
-	}
+	bool				Create_From_Map				(CSG_Parameter_Shapes_List *pList, CSG_Shapes *pIndexLayer, const SG_Char *Filename);
 
-	return( NULL );
-}
+	void				_Write_Code					(const SG_Char *FileName, const SG_Char *Code);
+
+	void				_Add_Opening				(CSG_Rect r);
+	const SG_Char *		_Get_Opening_Code_1			(void);
+	const SG_Char *		_Get_Opening_Code_2			(void);
+
+	void				_Add_CheckBoxes				(CSG_Parameter_Shapes_List *pList);
+	void				_Add_Shapes					(CSG_Shapes *pLayer);
+	bool				_Add_Shape					(CSG_Shape *pShape, int Fill_Color, int Line_Color, double Line_Width, double Point_Width);
+	void				_Add_Grid					(CSG_Grid *pLayer);
+	void				_Add_ReferenceMap			(CSG_Shapes *pIndexLayer, CSG_Rect r);
+	void				_Add_Label					(const SG_Char* Label, CSG_Shape *pShape, double dSize, const SG_Char* Unit);
+
+	const SG_Char *		_Get_Code_1					(void);
+	const SG_Char *		_Get_Code_2					(void);
+	const SG_Char *		_Get_Code_3					(void);
+	const SG_Char *		_Get_Code_4					(void);
+	const SG_Char *		_Get_Code_5					(void);
+	const SG_Char *		_Get_Code_Closing_1			(void);
+
+	const SG_Char *		_Get_Code_CheckBox			(void);
+	const SG_Char *		_Get_Code_MapApp			(void);
+	const SG_Char *		_Get_Code_Timer				(void);
+	const SG_Char *		_Get_Code_Slider			(void);
+	const SG_Char *		_Get_Code_Helper			(void);
+	const SG_Char *		_Get_Code_Buttons			(void);
+	const SG_Char *		_Get_Code_Navigation_1		(void);
+	const SG_Char *		_Get_Code_Navigation_2		(void);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -109,8 +131,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__svg_interactive_map_H

@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.1 2010-10-22 11:59:52 oconrad Exp $
+# $Id: Makefile.am,v 1.2 2010-10-22 14:46:20 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -17,10 +17,12 @@ CreateWebContent.cpp\
 doc_html.cpp\
 doc_svg.cpp\
 MLB_Interface.cpp\
-CreateWebContent.cpp\
-doc_html.cpp\
-doc_svg.cpp\
-MLB_Interface.cpp
+svg_interactive_map.cpp\
+CreateWebContent.h\
+doc_html.h\
+doc_svg.h\
+MLB_Interface.h\
+svg_interactive_map.cpp
 
 libdocs_html_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 

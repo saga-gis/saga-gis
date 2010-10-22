@@ -26,6 +26,9 @@
     <ClCompile Include="doc_svg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="svg_interactive_map.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -89,6 +92,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="doc_svg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="svg_interactive_map.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

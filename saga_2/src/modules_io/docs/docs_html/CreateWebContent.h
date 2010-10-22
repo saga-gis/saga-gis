@@ -30,8 +30,6 @@ public:
 	CCreateWebContent(void);
 	virtual ~CCreateWebContent(void);
 
-	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("A:Shapes|Reports") );	}
-
 protected:
 
 	virtual bool				On_Execute(void);
