@@ -166,9 +166,10 @@ bool CWKSP_Grid_Manager::On_Command(int Cmd_ID)
 //---------------------------------------------------------
 bool CWKSP_Grid_Manager::Open_GDAL(const wxChar *File_Name)
 {
+	int			i;
 	CSG_Module	*pImport	= NULL;
 
-	for(int i=0; i<g_pModules->Get_Count() && !pImport; i++)
+	for(i=0; i<g_pModules->Get_Count() && !pImport; i++)
 	{
 		wxFileName	fName(g_pModules->Get_Library(i)->Get_File_Name());
 
@@ -187,7 +188,7 @@ bool CWKSP_Grid_Manager::Open_GDAL(const wxChar *File_Name)
 
 	CSG_Parameter_Grid_List	*pGrids	= pImport->Get_Parameters()->Get_Parameter(SG_T("GRIDS"))->asGridList();
 
-	for(int i=0; i<pGrids->Get_Count(); i++)
+	for(i=0; i<pGrids->Get_Count(); i++)
 	{
 		SG_UI_DataObject_Add(pGrids->asGrid(i), SG_UI_DATAOBJECT_UPDATE_ONLY);
 	}

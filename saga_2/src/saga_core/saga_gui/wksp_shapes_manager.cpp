@@ -171,9 +171,10 @@ bool CWKSP_Shapes_Manager::On_Command(int Cmd_ID)
 //---------------------------------------------------------
 bool CWKSP_Shapes_Manager::Open_OGR(const wxChar *File_Name)
 {
+	int			i;
 	CSG_Module	*pImport	= NULL;
 
-	for(int i=0; i<g_pModules->Get_Count() && !pImport; i++)
+	for(i=0; i<g_pModules->Get_Count() && !pImport; i++)
 	{
 		wxFileName	fName(g_pModules->Get_Library(i)->Get_File_Name());
 
@@ -192,7 +193,7 @@ bool CWKSP_Shapes_Manager::Open_OGR(const wxChar *File_Name)
 
 	CSG_Parameter_Shapes_List	*pShapes	= pImport->Get_Parameters()->Get_Parameter(SG_T("SHAPES"))->asShapesList();
 
-	for(int i=0; i<pShapes->Get_Count(); i++)
+	for(i=0; i<pShapes->Get_Count(); i++)
 	{
 		SG_UI_DataObject_Add(pShapes->asShapes(i), SG_UI_DATAOBJECT_UPDATE_ONLY);
 	}

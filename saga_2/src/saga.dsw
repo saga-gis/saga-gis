@@ -33,6 +33,30 @@ Package=<4>
 
 ###############################################################################
 
+Project: "docs_html"=.\modules_io\docs\docs_html\docs_html.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "docs_pdf"=.\modules_io\docs\docs_pdf\docs_pdf.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "geostatistics_grid"=.\modules_geostatistics\geostatistics\geostatistics_grid\geostatistics_grid.dsp - Package Owner=<4>
 
 Package=<5>

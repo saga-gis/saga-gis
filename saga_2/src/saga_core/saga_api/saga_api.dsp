@@ -188,18 +188,6 @@ SOURCE=.\dataobject.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\doc_html.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\doc_pdf.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\doc_svg.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\geo_classes.cpp
 # End Source File
 # Begin Source File
@@ -413,18 +401,6 @@ SOURCE=.\API_Core.h
 # Begin Source File
 
 SOURCE=.\DataObject.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\doc_html.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\doc_pdf.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\doc_svg.h
 # End Source File
 # Begin Source File
 

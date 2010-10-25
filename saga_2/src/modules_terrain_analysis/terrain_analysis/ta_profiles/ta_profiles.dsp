@@ -59,7 +59,7 @@ LINK32=link.exe
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib saga_api.lib /nologo /subsystem:windows /dll /machine:I386 /libpath:"$(SAGA)/bin/saga_vc"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy    *.lng.txt    ..\..\..\..\bin\saga_vc\modules\ 
+PostBuild_Cmds=copy     *.lng.txt     ..\..\..\..\bin\saga_vc\modules\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "ta_profiles - Win32 Debug"
@@ -164,10 +164,6 @@ SOURCE=.\Grid_Cross_Profiles.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Grid_CrossSections.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Grid_Flow_Profile.cpp
 # End Source File
 # Begin Source File
@@ -190,29 +186,13 @@ SOURCE=.\Grid_Swath_Profile.cpp
 
 SOURCE=.\MLB_Interface.cpp
 # End Source File
-# Begin Source File
-
-SOURCE=.\PDFDocEngine_CrossSections.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\Polygon_Clipper.cpp
-# End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\Geometry.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\Grid_Cross_Profiles.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\Grid_CrossSections.h
 # End Source File
 # Begin Source File
 
@@ -237,14 +217,6 @@ SOURCE=.\Grid_Swath_Profile.h
 # Begin Source File
 
 SOURCE=.\MLB_Interface.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\PDFDocEngine_CrossSections.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\Polygon_Clipper.h
 # End Source File
 # End Group
 # Begin Group "Include"

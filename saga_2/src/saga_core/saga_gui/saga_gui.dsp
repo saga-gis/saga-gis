@@ -302,10 +302,6 @@ SOURCE=.\saga_frame_droptarget.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\SVG_Interactive_Map.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\view_base.cpp
 # End Source File
 # Begin Source File
@@ -671,10 +667,6 @@ SOURCE=.\SAGA_Frame.h
 # Begin Source File
 
 SOURCE=.\SAGA_Frame_DropTarget.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SVG_Interactive_Map.h
 # End Source File
 # Begin Source File
 
