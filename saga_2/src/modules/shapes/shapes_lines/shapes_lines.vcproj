@@ -812,6 +812,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\line_simplification.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Lines_From_Points.cpp"
 				>
 			</File>
@@ -978,6 +982,10 @@
 			</File>
 			<File
 				RelativePath=".\line_properties.h"
+				>
+			</File>
+			<File
+				RelativePath=".\line_simplification.h"
 				>
 			</File>
 			<File
