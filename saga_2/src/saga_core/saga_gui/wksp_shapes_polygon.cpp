@@ -204,7 +204,7 @@ bool CWKSP_Shapes_Polygon::Get_Style(wxPen &Pen, wxBrush &Brush, bool &bOutline,
 		}
 		else
 		{
-			pName->Printf(m_pShapes->Get_Field_Name(m_iColor));
+			*pName	= m_pShapes->Get_Field_Name(m_iColor);
 		}
 	}
 
