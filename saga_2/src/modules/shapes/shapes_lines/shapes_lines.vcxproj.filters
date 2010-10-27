@@ -29,6 +29,9 @@
     <ClCompile Include="Lines_From_Polygons.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="line_simplification.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -95,6 +98,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Lines_From_Polygons.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="line_simplification.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
