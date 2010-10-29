@@ -562,6 +562,7 @@
     <ClCompile Include="Interpolation_NearestNeighbour.cpp" />
     <ClCompile Include="Interpolation_Shepard.cpp" />
     <ClCompile Include="Interpolation_Triangulation.cpp" />
+    <ClCompile Include="kernel_density.cpp" />
     <ClCompile Include="MLB_Interface.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -604,6 +605,7 @@
     <ClInclude Include="Interpolation_NearestNeighbour.h" />
     <ClInclude Include="Interpolation_Shepard.h" />
     <ClInclude Include="Interpolation_Triangulation.h" />
+    <ClInclude Include="kernel_density.h" />
     <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h" />

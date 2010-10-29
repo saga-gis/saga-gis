@@ -1188,6 +1188,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\kernel_density.cpp"
+				>
+			</File>
+			<File
 				RelativePath="MLB_Interface.cpp"
 				>
 				<FileConfiguration
@@ -1442,6 +1446,10 @@
 			</File>
 			<File
 				RelativePath="Interpolation_Triangulation.h"
+				>
+			</File>
+			<File
+				RelativePath=".\kernel_density.h"
 				>
 			</File>
 			<File

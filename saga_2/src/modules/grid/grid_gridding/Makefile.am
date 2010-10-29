@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.7 2010-07-08 14:11:48 johanvdw Exp $
+# $Id: Makefile.am,v 1.8 2010-10-29 15:43:25 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -22,6 +22,7 @@ Interpolation_NaturalNeighbour.cpp\
 Interpolation_NearestNeighbour.cpp\
 Interpolation_Shepard.cpp\
 Interpolation_Triangulation.cpp\
+kernel_density.cpp\
 MLB_Interface.cpp\
 Shapes2Grid.cpp\
 Shepard.cpp\
@@ -39,6 +40,7 @@ Interpolation_NaturalNeighbour.h\
 Interpolation_NearestNeighbour.h\
 Interpolation_Shepard.h\
 Interpolation_Triangulation.h\
+kernel_density.h\
 MLB_Interface.h\
 Shapes2Grid.h\
 Shepard.h\

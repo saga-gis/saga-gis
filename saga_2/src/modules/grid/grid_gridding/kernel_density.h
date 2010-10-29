@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                    kernel_density.h                   //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2010 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -41,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -53,71 +51,61 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__kernel_density_H
+#define HEADER_INCLUDED__kernel_density_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-const SG_Char * Get_Info(int i)
+//---------------------------------------------------------
+class CKernel_Density : public CSG_Module  
 {
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Grid - Gridding") );
-
-	case MLB_INFO_Author:
-		return( _TL("O. Conrad (c) 2002-10") );
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for the gridding of points and other vector data.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Grid|Gridding") );
-	}
-}
+public:
+	CKernel_Density(void);
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
+protected:
 
-#include "Interpolation_InverseDistance.h"
-#include "Interpolation_NearestNeighbour.h"
-#include "Interpolation_NaturalNeighbour.h"
-#include "Interpolation_Shepard.h"
-#include "Interpolation_Triangulation.h"
-#include "Shapes2Grid.h"
-#include "kernel_density.h"
+	virtual bool				On_Execute				(void);
+
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
+private:
 
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case 0:	return( new CShapes2Grid );
-	case 1:	return( new CInterpolation_InverseDistance );
-	case 2:	return( new CInterpolation_NearestNeighbour );
-	case 3:	return( new CInterpolation_NaturalNeighbour );
-	case 4:	return( new CInterpolation_Shepard );
-	case 5:	return( new CInterpolation_Triangulation );
-	case 6:	return( new CKernel_Density );
-	}
+	int							m_iRadius, m_Kernel;
 
-	return( NULL );
-}
+	double						m_dRadius;
+
+	CSG_Parameters_Grid_Target	m_Grid_Target;
+
+	CSG_Grid					*m_pGrid;
+
+
+	void						Set_Kernel				(const TSG_Point &Point, double Population);
+
+	double						Get_Kernel				(double dx, double dy);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -127,8 +115,4 @@ CSG_Module *		Create_Module(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	MLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__kernel_density_H

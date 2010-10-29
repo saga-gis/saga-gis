@@ -12,6 +12,9 @@
     <Filter Include="Include">
       <UniqueIdentifier>{23a72118-c13b-4fb0-ad55-5ad5ddd772ea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="nn">
+      <UniqueIdentifier>{ae17cc0f-f8dd-433d-924e-0a4db8253232}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MLB_Interface.cpp">
@@ -41,29 +44,32 @@
     <ClCompile Include="Shepard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="nn\delaunay.c">
+    <ClCompile Include="kernel_density.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nn\delaunay.c">
+      <Filter>nn</Filter>
     </ClCompile>
     <ClCompile Include="nn\hash.c">
-      <Filter>Source Files</Filter>
+      <Filter>nn</Filter>
     </ClCompile>
     <ClCompile Include="nn\istack.c">
-      <Filter>Source Files</Filter>
+      <Filter>nn</Filter>
     </ClCompile>
     <ClCompile Include="nn\lpi.c">
-      <Filter>Source Files</Filter>
+      <Filter>nn</Filter>
     </ClCompile>
     <ClCompile Include="nn\nnai.c">
-      <Filter>Source Files</Filter>
+      <Filter>nn</Filter>
     </ClCompile>
     <ClCompile Include="nn\nncommon.c">
-      <Filter>Source Files</Filter>
+      <Filter>nn</Filter>
     </ClCompile>
     <ClCompile Include="nn\nnpi.c">
-      <Filter>Source Files</Filter>
+      <Filter>nn</Filter>
     </ClCompile>
     <ClCompile Include="nn\triangle.c">
-      <Filter>Source Files</Filter>
+      <Filter>nn</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -145,26 +151,29 @@
     <ClInclude Include="Shepard.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="nn\delaunay.h">
+    <ClInclude Include="kernel_density.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nn\delaunay.h">
+      <Filter>nn</Filter>
     </ClInclude>
     <ClInclude Include="nn\hash.h">
-      <Filter>Header Files</Filter>
+      <Filter>nn</Filter>
     </ClInclude>
     <ClInclude Include="nn\istack.h">
-      <Filter>Header Files</Filter>
+      <Filter>nn</Filter>
     </ClInclude>
     <ClInclude Include="nn\nan.h">
-      <Filter>Header Files</Filter>
+      <Filter>nn</Filter>
     </ClInclude>
     <ClInclude Include="nn\nn.h">
-      <Filter>Header Files</Filter>
+      <Filter>nn</Filter>
     </ClInclude>
     <ClInclude Include="nn\triangle.h">
-      <Filter>Header Files</Filter>
+      <Filter>nn</Filter>
     </ClInclude>
     <ClInclude Include="nn\version.h">
-      <Filter>Header Files</Filter>
+      <Filter>nn</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
