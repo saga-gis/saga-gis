@@ -937,6 +937,8 @@ bool CSG_PointCloud::_Stats_Update(int iField) const
 //---------------------------------------------------------
 CSG_Shape * CSG_PointCloud::_Set_Shape(int iPoint)
 {
+	SG_UI_Progress_Lock(true);
+
 	CSG_Shape	*pShape	= m_Shapes.Get_Shape(0);
 
 	if( pShape->is_Modified() && m_Shapes_Index >= 0 && m_Shapes_Index < Get_Count() )
@@ -967,10 +969,14 @@ CSG_Shape * CSG_PointCloud::_Set_Shape(int iPoint)
 
 		m_Shapes_Index	= iPoint;
 
+		SG_UI_Progress_Lock(false);
+
 		return( pShape );
 	}
 
 	m_Shapes_Index	= -1;
+
+	SG_UI_Progress_Lock(false);
 
 	return( NULL );
 }
