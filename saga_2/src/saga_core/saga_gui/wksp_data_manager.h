@@ -144,8 +144,12 @@ public:
 	bool							Get_Parameters		(class CSG_Data_Object *pObject, class CSG_Parameters *pParameters);
 	bool							Set_Parameters		(class CSG_Data_Object *pObject, class CSG_Parameters *pParameters);
 
+	int								Get_Numbering		(void)	const	{	return( m_Numbering );	}
+
 
 private:
+
+	int								m_Numbering;
 
 	CSG_Parameters					m_Parameters;
 

@@ -260,7 +260,12 @@ bool CWKSP_Layer::On_Command_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 wxString CWKSP_Layer::Get_Name(void)
 {
-	return( wxString::Format(wxT("%04d. %s"), 1 + Get_ID(), m_pObject ? m_pObject->Get_Name() : SG_T("-")) );
+	if( g_pData->Get_Numbering() < 0 )
+	{
+		return( m_pObject ? m_pObject->Get_Name() : SG_T("-") );
+	}
+
+	return( wxString::Format(wxT("%0*d. %s"), g_pData->Get_Numbering(), 1 + Get_ID(), m_pObject ? m_pObject->Get_Name() : SG_T("-")) );
 }
 
 
