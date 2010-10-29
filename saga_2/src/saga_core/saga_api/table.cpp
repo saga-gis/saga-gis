@@ -79,7 +79,18 @@ CSG_Table * SG_Create_Table(void)
 //---------------------------------------------------------
 CSG_Table * SG_Create_Table(const CSG_Table &Table)
 {
-	return( new CSG_Table(Table) );
+	switch( Table.Get_ObjectType() )
+	{
+	case DATAOBJECT_TYPE_Table:
+		return( new CSG_Table(Table) );
+
+	case DATAOBJECT_TYPE_Shapes:
+	case DATAOBJECT_TYPE_PointCloud:
+		return( SG_Create_Shapes(*((CSG_Shapes *)&Table)) );
+
+	default:
+		return( NULL );
+	}
 }
 
 //---------------------------------------------------------
@@ -89,9 +100,25 @@ CSG_Table * SG_Create_Table(const CSG_String &File_Name)
 }
 
 //---------------------------------------------------------
-CSG_Table * SG_Create_Table(CSG_Table *pStructure)
+CSG_Table * SG_Create_Table(CSG_Table *pTemplate)
 {
-	return( new CSG_Table(pStructure) );
+	if( pTemplate )
+	{
+		switch( pTemplate->Get_ObjectType() )
+		{
+		case DATAOBJECT_TYPE_Table:
+			return( new CSG_Table(pTemplate) );
+
+		case DATAOBJECT_TYPE_Shapes:
+		case DATAOBJECT_TYPE_PointCloud:
+			return( SG_Create_Shapes((CSG_Shapes *)pTemplate) );
+
+		default:
+			break;
+		}
+	}
+
+	return( new CSG_Table() );
 }
 
 
@@ -167,28 +194,28 @@ bool CSG_Table::_Create(const CSG_String &File_Name, TSG_Table_File_Type Format,
 }
 
 //---------------------------------------------------------
-CSG_Table::CSG_Table(CSG_Table *pStructure)
+CSG_Table::CSG_Table(CSG_Table *pTemplate)
 	: CSG_Data_Object()
 {
 	_On_Construction();
 
-	Create(pStructure);
+	Create(pTemplate);
 }
 
-bool CSG_Table::Create(CSG_Table *pStructure)
+bool CSG_Table::Create(CSG_Table *pTemplate)
 {
-	return( is_Private() ? false : _Create(pStructure) );
+	return( is_Private() ? false : _Create(pTemplate) );
 }
 
-bool CSG_Table::_Create(CSG_Table *pStructure)
+bool CSG_Table::_Create(CSG_Table *pTemplate)
 {
 	_Destroy();
 
-	if( pStructure && pStructure->Get_Field_Count() > 0 )
+	if( pTemplate && pTemplate->Get_Field_Count() > 0 )
 	{
-		for(int i=0; i<pStructure->Get_Field_Count(); i++)
+		for(int i=0; i<pTemplate->Get_Field_Count(); i++)
 		{
-			Add_Field(pStructure->Get_Field_Name(i), pStructure->Get_Field_Type(i));
+			Add_Field(pTemplate->Get_Field_Name(i), pTemplate->Get_Field_Type(i));
 		}
 
 		return( true );

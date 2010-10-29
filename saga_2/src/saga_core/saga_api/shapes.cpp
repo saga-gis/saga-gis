@@ -61,6 +61,7 @@
 
 //---------------------------------------------------------
 #include "shapes.h"
+#include "pointcloud.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -100,7 +101,17 @@ CSG_Shapes *		SG_Create_Shapes(void)
 //---------------------------------------------------------
 CSG_Shapes *		SG_Create_Shapes(const CSG_Shapes &Shapes)
 {
-	return( new CSG_Shapes(Shapes) );
+	switch( Shapes.Get_ObjectType() )
+	{
+	case DATAOBJECT_TYPE_Shapes:
+		return( new CSG_Shapes(Shapes) );
+
+	case DATAOBJECT_TYPE_PointCloud:
+		return( SG_Create_PointCloud(*((CSG_PointCloud *)&Shapes)) );
+
+	default:
+		return( NULL );
+	}
 }
 
 //---------------------------------------------------------
@@ -113,6 +124,27 @@ CSG_Shapes *		SG_Create_Shapes(const CSG_String &File_Name)
 CSG_Shapes *		SG_Create_Shapes(TSG_Shape_Type Type, const SG_Char *Name, CSG_Table *pStructure, TSG_Vertex_Type Vertex_Type)
 {
 	return( new CSG_Shapes(Type, Name, pStructure, Vertex_Type) );
+}
+
+//---------------------------------------------------------
+CSG_Shapes *		SG_Create_Shapes(CSG_Shapes *pTemplate)
+{
+	if( pTemplate )
+	{
+		switch( pTemplate->Get_ObjectType() )
+		{
+		case DATAOBJECT_TYPE_Shapes:
+			return( new CSG_Shapes(pTemplate->Get_Type(), pTemplate->Get_Name(), pTemplate, pTemplate->Get_Vertex_Type()) );
+
+		case DATAOBJECT_TYPE_PointCloud:
+			return( SG_Create_PointCloud((CSG_PointCloud *)pTemplate) );
+
+		default:
+			break;
+		}
+	}
+
+	return( new CSG_Shapes() );
 }
 
 

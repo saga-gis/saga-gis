@@ -138,7 +138,7 @@ bool CCRS_Transform_Shapes::On_Execute_Transformation(void)
 		for(int i=0; i<pSources->Get_Count() && Process_Get_Okay(false); i++)
 		{
 			CSG_Shapes	*pSource	= pSources->asShapes(i);
-			CSG_Shapes	*pTarget	= SG_Create_Shapes();
+			CSG_Shapes	*pTarget	= SG_Create_Shapes(pSource);
 
 			if( Transform(pSource, pTarget) )
 			{
@@ -159,7 +159,7 @@ bool CCRS_Transform_Shapes::On_Execute_Transformation(void)
 
 		if( pSource == pTarget )
 		{
-			pTarget	= SG_Create_Shapes();
+			pTarget	= SG_Create_Shapes(pSource);
 
 			if( Transform(pSource, pTarget) )
 			{
@@ -173,6 +173,10 @@ bool CCRS_Transform_Shapes::On_Execute_Transformation(void)
 
 				return( false );
 			}
+		}
+		else
+		{
+			pTarget->Create(pSource->Get_Type(), pSource->Get_Name(), pSource, pSource->Get_Vertex_Type());
 		}
 
 		return( Transform(pSource, pTarget) );
@@ -200,8 +204,6 @@ bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pSource, CSG_Shapes *pTarget)
 	int		nDropped	= 0;
 
 	Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), _TL("Processing"), pSource->Get_Name()));
-
-	pTarget->Create(pSource->Get_Type(), pSource->Get_Name(), pSource);
 
 	for(int iShape=0; iShape<pSource->Get_Count() && Set_Progress(iShape, pSource->Get_Count()); iShape++)
 	{

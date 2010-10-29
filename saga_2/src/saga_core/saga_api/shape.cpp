@@ -154,6 +154,8 @@ int CSG_Shape::Set_Point(TSG_Point Point, int iPoint, int iPart)
 inline void CSG_Shape::_Invalidate(void)
 {
 	((CSG_Shapes *)m_pTable)->Set_Update_Flag();
+	
+	Set_Modified();
 }
 
 

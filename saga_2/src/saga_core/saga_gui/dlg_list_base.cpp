@@ -200,9 +200,16 @@ void CDLG_List_Base::Save_Changes(void)
 		{
 		case PARAMETER_TYPE_Grid_List:			m_pList->Add_Item(((CWKSP_Grid       *)m_pAdd->GetClientData(i))->Get_Grid      ());	break;
 		case PARAMETER_TYPE_Table_List:			m_pList->Add_Item(((CWKSP_Table      *)m_pAdd->GetClientData(i))->Get_Table     ());	break;
-		case PARAMETER_TYPE_Shapes_List:		m_pList->Add_Item(((CWKSP_Shapes     *)m_pAdd->GetClientData(i))->Get_Shapes    ());	break;
 		case PARAMETER_TYPE_TIN_List:			m_pList->Add_Item(((CWKSP_TIN        *)m_pAdd->GetClientData(i))->Get_TIN       ());	break;
 		case PARAMETER_TYPE_PointCloud_List:	m_pList->Add_Item(((CWKSP_PointCloud *)m_pAdd->GetClientData(i))->Get_PointCloud());	break;
+		case PARAMETER_TYPE_Shapes_List:
+			switch( ((CWKSP_Base_Item *)m_pAdd->GetClientData(i))->Get_Type() )
+			{
+			case WKSP_ITEM_Shapes:				m_pList->Add_Item(((CWKSP_Shapes     *)m_pAdd->GetClientData(i))->Get_Shapes    ());	break;
+			case WKSP_ITEM_PointCloud:			m_pList->Add_Item(((CWKSP_PointCloud *)m_pAdd->GetClientData(i))->Get_PointCloud());	break;
+			default:	break;
+			}
+			break;
 		default:	return;
 		}
 	}

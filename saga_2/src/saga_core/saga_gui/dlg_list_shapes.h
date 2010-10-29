@@ -95,7 +95,7 @@ protected:
 
 	virtual void				_Set_Objects(void);
 
-	void						_Set_Shapes(class CWKSP_Shapes_Type *pType);
+	void						_Set_Shapes(class CWKSP_Base_Manager *pType);
 
 
 //---------------------------------------------------------

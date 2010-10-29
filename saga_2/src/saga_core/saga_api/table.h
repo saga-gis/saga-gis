@@ -222,8 +222,8 @@ public:
 									CSG_Table			(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char *Separator);
 	bool							Create				(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char *Separator);
 
-									CSG_Table			(CSG_Table *pStructure);
-	bool							Create				(CSG_Table *pStructure);
+									CSG_Table			(CSG_Table *pTemplate);
+	bool							Create				(CSG_Table *pTemplate);
 
 	virtual ~CSG_Table(void);
 
@@ -343,7 +343,7 @@ protected:
 
 	bool							_Create				(const CSG_Table &Table);
 	bool							_Create				(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char *Separator);
-	bool							_Create				(CSG_Table *pStructure);
+	bool							_Create				(CSG_Table *pTemplate);
 
 	bool							_Stats_Invalidate	(void)			const;
 	bool							_Stats_Invalidate	(int iField)	const;
@@ -405,7 +405,7 @@ SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(const CSG_Table &Table);
 SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(const CSG_String &File_Name);
 
 /** Safe table construction */
-SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(CSG_Table *pStructure);
+SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(CSG_Table *pTemplate);
 
 
 ///////////////////////////////////////////////////////////

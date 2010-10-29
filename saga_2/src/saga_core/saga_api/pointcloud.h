@@ -176,9 +176,9 @@ public:
 	virtual bool					Del_Records			(void)			{	return( Del_Points() );			}
 	virtual bool					Del_Shapes			(void)			{	return( Del_Points() );			}
 
-	virtual CSG_Table_Record *		Ins_Record			(int iRecord, CSG_Table_Record *pCopy = NULL)	{	return( NULL );	}
-	virtual CSG_Table_Record *		Add_Record			(             CSG_Table_Record *pCopy = NULL)	{	return( NULL );	}
-	virtual CSG_Shape *				Add_Shape			(             CSG_Table_Record *pCopy = NULL, TSG_ADD_Shape_Copy_Mode mCopy = SHAPE_COPY)	{	return( NULL );	}
+	virtual CSG_Table_Record *		Ins_Record			(int iRecord, CSG_Table_Record *pCopy = NULL);
+	virtual CSG_Table_Record *		Add_Record			(             CSG_Table_Record *pCopy = NULL);
+	virtual CSG_Shape *				Add_Shape			(             CSG_Table_Record *pCopy = NULL, TSG_ADD_Shape_Copy_Mode mCopy = SHAPE_COPY);
 	virtual bool					Del_Shape			(CSG_Shape *pShape)	{	return( false );	}
 
 	virtual bool					Select				(int iRecord             , bool bInvert = false);

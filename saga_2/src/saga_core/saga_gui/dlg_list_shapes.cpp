@@ -64,6 +64,8 @@
 #include "wksp_shapes_manager.h"
 #include "wksp_shapes_type.h"
 #include "wksp_shapes.h"
+#include "wksp_pointcloud_manager.h"
+#include "wksp_pointcloud.h"
 
 #include "dlg_list_shapes.h"
 
@@ -112,46 +114,59 @@ CDLG_List_Shapes::~CDLG_List_Shapes(void)
 //---------------------------------------------------------
 void CDLG_List_Shapes::_Set_Objects(void)
 {
-	int						i;
-	CWKSP_Shapes_Manager	*pManager;
+	int					i;
+	CWKSP_Base_Item		*pItem;
+	CWKSP_Base_Manager	*pManager;
 
 	//-----------------------------------------------------
-	if( (pManager = g_pData->Get_Shapes()) != NULL )
+	for(i=0; i<m_pList->Get_Count(); i++)
 	{
-		for(i=0; i<m_pList->Get_Count(); i++)
+		if(	(pItem = g_pData->Get_Shapes     ()->Get_Shapes    (m_pList->asDataObject(i)->asShapes    ())) != NULL
+		||	(pItem = g_pData->Get_PointClouds()->Get_PointCloud(m_pList->asDataObject(i)->asPointCloud())) != NULL )
 		{
-			CWKSP_Base_Item	*pItem	= g_pData->Get_Shapes()->Get_Shapes(m_pList->asDataObject(i)->asShapes());
-
-			if( pItem )
-			{
-				m_pAdd->Append(pItem->Get_Name(), (void *)pItem);
-			}
+			m_pAdd->Append(pItem->Get_Name(), (void *)pItem);
 		}
+	}
 
-		//-------------------------------------------------
-		if( m_Shape_Type == SHAPE_TYPE_Undefined )
+	//-----------------------------------------------------
+	if( m_Shape_Type == SHAPE_TYPE_Undefined )
+	{
+		if( (pManager = g_pData->Get_Shapes()) != NULL )
 		{
 			for(i=0; i<pManager->Get_Count(); i++)
 			{
 				_Set_Shapes((CWKSP_Shapes_Type *)pManager->Get_Item(i));
 			}
 		}
-		else
+
+		if( (pManager = g_pData->Get_PointClouds()) != NULL )
 		{
-			_Set_Shapes(pManager->Get_Shapes_Type(m_Shape_Type));
+			_Set_Shapes(pManager);
+		}
+	}
+	else
+	{
+		if( (pManager = g_pData->Get_Shapes()) != NULL )
+		{
+			_Set_Shapes(((CWKSP_Shapes_Manager *)pManager)->Get_Shapes_Type(m_Shape_Type));
+		}
+
+		if( m_Shape_Type == SHAPE_TYPE_Point && (pManager = g_pData->Get_PointClouds()) != NULL )
+		{
+			_Set_Shapes(pManager);
 		}
 	}
 }
 
 //---------------------------------------------------------
-void CDLG_List_Shapes::_Set_Shapes(CWKSP_Shapes_Type *pType)
+void CDLG_List_Shapes::_Set_Shapes(CWKSP_Base_Manager *pType)
 {
 	if( pType )
 	{
 		for(int i=0; i<pType->Get_Count(); i++)
 		{
 			bool			bList		= true;
-			CWKSP_Shapes	*pShapes	= pType->Get_Shapes(i);
+			CWKSP_Base_Item	*pShapes	= pType->Get_Item(i);
 
 			for(int j=0; j<(int)m_pAdd->GetCount() && bList; j++)
 			{

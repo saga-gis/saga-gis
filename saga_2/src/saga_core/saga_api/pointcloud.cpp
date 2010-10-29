@@ -887,6 +887,8 @@ bool CSG_PointCloud::On_Update(void)
 {
 	if( m_nFields >= 2 )
 	{
+		_Set_Shape(m_Shapes_Index);
+
 		_Stats_Update(0);
 		_Stats_Update(1);
 
@@ -945,6 +947,9 @@ CSG_Shape * CSG_PointCloud::_Set_Shape(int iPoint)
 		{
 			Set_Value(i, pShape->asDouble(i));
 		}
+
+		Set_Value(0, pShape->Get_Point(0).x);
+		Set_Value(1, pShape->Get_Point(0).y);
 	}
 
 	if( iPoint != m_Shapes_Index && iPoint >= 0 && iPoint < Get_Count() )
@@ -1014,6 +1019,37 @@ CSG_Shape * CSG_PointCloud::Get_Shape(TSG_Point Point, double Epsilon)
 	}
 
 	return( NULL );
+}
+
+//---------------------------------------------------------
+CSG_Table_Record * CSG_PointCloud::Ins_Record(int iRecord, CSG_Table_Record *pCopy)
+{
+	return( NULL );
+}
+
+//---------------------------------------------------------
+CSG_Table_Record * CSG_PointCloud::Add_Record(CSG_Table_Record *pCopy)
+{
+	return( NULL );
+}
+
+//---------------------------------------------------------
+CSG_Shape * CSG_PointCloud::Add_Shape(CSG_Table_Record *pCopy, TSG_ADD_Shape_Copy_Mode mCopy)
+{
+	Add_Point(0.0, 0.0, 0.0);
+
+	if( pCopy && (mCopy == SHAPE_COPY_ATTR || mCopy == SHAPE_COPY) )
+	{
+		for(int iField=0; iField<Get_Field_Count() && iField<pCopy->Get_Table()->Get_Field_Count(); iField++)
+		{
+			if( Get_Field_Type(iField) == pCopy->Get_Table()->Get_Field_Type(iField) )
+			{
+				Set_Value(iField, pCopy->asDouble(iField));
+			}
+		}
+	}
+
+	return( _Set_Shape(Get_Count() - 1) );
 }
 
 
