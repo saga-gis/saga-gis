@@ -808,6 +808,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\grid_autocorrelation.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\GSGrid_Directional_Statistics.cpp"
 				>
 			</File>
@@ -1274,6 +1278,10 @@
 			>
 			<File
 				RelativePath=".\fast_representativeness.h"
+				>
+			</File>
+			<File
+				RelativePath=".\grid_autocorrelation.h"
 				>
 			</File>
 			<File
