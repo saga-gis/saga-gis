@@ -1263,7 +1263,7 @@ int CSG_PointCloud::Inv_Selection(void)
 	{
 		for(i=0, m_nSelected=0, pPoint=m_Points; i<m_nRecords; i++, pPoint++)
 		{
-			if( ((*pPoint)[0] & SG_TABLE_REC_FLAG_Selected) != 0 && m_nSelected < n )
+			if( ((*pPoint)[0] & SG_TABLE_REC_FLAG_Selected) == 0 && m_nSelected < n )
 			{
 				m_Selected[m_nSelected++]	= i;
 
