@@ -75,7 +75,7 @@
 #include<deque>
 #include"Profiler.h"
 #include<limits>
-const int DBL_MAX= numeric_limits<double>::max();
+//const int DBL_MAX= numeric_limits<double>::max();
 
 //#include <boost/shared_ptr.hpp>
 
