@@ -249,17 +249,14 @@ bool CKernel_Density::On_Execute(void)
 //---------------------------------------------------------
 void CKernel_Density::Set_Kernel(const TSG_Point &Point, double Population)
 {
-	int		ix, iy, x, y;
-	double	dy, dx;
+	double	x	= (Point.x - m_pGrid->Get_XMin()) / m_pGrid->Get_Cellsize();
+	double	y	= (Point.y - m_pGrid->Get_YMin()) / m_pGrid->Get_Cellsize();
 
-	x	= (Point.x - m_pGrid->Get_XMin()) / m_pGrid->Get_Cellsize();
-	y	= (Point.y - m_pGrid->Get_YMin()) / m_pGrid->Get_Cellsize();
-
-	for(iy=y-m_iRadius; iy<=y+m_iRadius; iy++)
+	for(int iy=(int)y-m_iRadius; iy<=y+m_iRadius; iy++)
 	{
 		if( iy >= 0 && iy < m_pGrid->Get_NY() )
 		{
-			for(ix=x-m_iRadius; ix<=x+m_iRadius; ix++)
+			for(int ix=(int)x-m_iRadius; ix<=x+m_iRadius; ix++)
 			{
 				if( ix >= 0 && ix < m_pGrid->Get_NX() )
 				{
