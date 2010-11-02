@@ -1,9 +1,9 @@
-# $Id: configure.in,v 1.34 2010-10-22 12:00:12 oconrad Exp $
+# $Id: configure.in,v 1.35 2010-11-02 12:26:16 oconrad Exp $
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT(saga, 2.0.5, BUG-REPORT-ADDRESS)
+AC_INIT(saga, 2.0.6, BUG-REPORT-ADDRESS)
 AC_CONFIG_SRCDIR([src/saga_core/saga_gui/wksp_data_menu_files.cpp])
 #AC_CONFIG_HEADER([config.h])
 #AM_INIT_AUTOMAKE(saga, 2.0beta)
