@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.7 2010-10-19 07:55:21 johanvdw Exp $
+# $Id: Makefile.am,v 1.8 2010-11-02 11:03:26 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -18,7 +18,7 @@ libio_shapes_las_la_SOURCES =\
 las_export.cpp\
 las_import.cpp\
 MLB_Interface.cpp\
-las_import.h\
+las_export.h\
 las_import.h\
 MLB_Interface.h
 
