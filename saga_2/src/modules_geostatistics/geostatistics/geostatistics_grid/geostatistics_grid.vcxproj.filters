@@ -38,6 +38,9 @@
     <ClCompile Include="GSGrid_Zonal_Statistics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="grid_autocorrelation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -113,6 +116,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GSGrid_Zonal_Statistics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grid_autocorrelation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

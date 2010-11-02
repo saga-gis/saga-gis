@@ -557,6 +557,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="fast_representativeness.cpp" />
+    <ClCompile Include="grid_autocorrelation.cpp" />
     <ClCompile Include="GSGrid_Directional_Statistics.cpp" />
     <ClCompile Include="GSGrid_Residuals.cpp" />
     <ClCompile Include="GSGrid_Statistics.cpp" />
@@ -590,6 +591,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
     <ClInclude Include="fast_representativeness.h" />
+    <ClInclude Include="grid_autocorrelation.h" />
     <ClInclude Include="GSGrid_Directional_Statistics.h" />
     <ClInclude Include="GSGrid_Residuals.h" />
     <ClInclude Include="GSGrid_Statistics.h" />

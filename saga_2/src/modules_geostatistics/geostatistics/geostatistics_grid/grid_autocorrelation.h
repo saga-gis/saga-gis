@@ -10,10 +10,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                grid_autocorrelation.h                 //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                      Olaf Conrad                      //
+//                 Copyright (C) 2010 by                 //
+//                     Jan Papmeier                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -37,100 +37,52 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
-//                Germany                                //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//			The Module Link Library Interface			 //
-//														 //
-///////////////////////////////////////////////////////////
+#ifndef HEADER_INCLUDED__grid_autocorrelation_H
+#define HEADER_INCLUDED__grid_autocorrelation_H
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
 #include "MLB_Interface.h"
 
 
-//---------------------------------------------------------
-// 2. Place general module library informations here...
-
-const SG_Char * Get_Info(int i)
-{
-	switch( i )
-	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Geostatistics - Grids") );
-
-	case MLB_INFO_Author:
-		return( _TL("O.Conrad, V.Wichmann (c) 2002-10" ));
-
-	case MLB_INFO_Description:
-		return( _TL("Tools for (geo)statistical analyses.") );
-
-	case MLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case MLB_INFO_Menu_Path:
-		return( _TL("Geostatistics|Grids") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your modules here...
-
-#include "fast_representativeness.h"
-#include "GSGrid_Residuals.h"
-#include "GSGrid_Variance.h"
-#include "GSGrid_Variance_Radius.h"
-#include "GSGrid_Statistics.h"
-#include "GSGrid_Zonal_Statistics.h"
-#include "GSGrid_Directional_Statistics.h"
-#include "grid_autocorrelation.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your modules to be created here...
-
-CSG_Module *		Create_Module(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CFast_Representativeness );
-	case  1:	return( new CGSGrid_Residuals );
-	case  2:	return( new CGSGrid_Variance );
-	case  3:	return( new CGSGrid_Variance_Radius );
-	case  4:	return( new CGSGrid_Statistics );
-	case  5:	return( new CGSGrid_Zonal_Statistics );
-	case  6:	return( new CGSGrid_Directional_Statistics );
-	case  7:	return( new CGrid_Autocorrelation );
-	}
-
-	return( NULL );
-}
-
-
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CGrid_Autocorrelation : public CSG_Module_Grid
+{
+public:
+	CGrid_Autocorrelation(void);
 
-	MLB_INTERFACE
 
-//}}AFX_SAGA
+protected:
+
+	virtual bool		On_Execute		(void);
+
+
+private:
+
+};
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__grid_autocorrelation_H
