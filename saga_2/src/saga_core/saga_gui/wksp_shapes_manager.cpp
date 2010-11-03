@@ -162,53 +162,6 @@ bool CWKSP_Shapes_Manager::On_Command(int Cmd_ID)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <wx/filename.h>
-
-#include "wksp_module_manager.h"
-#include "wksp_module_library.h"
-#include "wksp_module.h"
-
-//---------------------------------------------------------
-bool CWKSP_Shapes_Manager::Open_OGR(const wxChar *File_Name)
-{
-	int			i;
-	CSG_Module	*pImport	= NULL;
-
-	for(i=0; i<g_pModules->Get_Count() && !pImport; i++)
-	{
-		wxFileName	fName(g_pModules->Get_Library(i)->Get_File_Name());
-
-		if( !fName.GetName().Cmp(SG_T("io_gdal")) || !fName.GetName().Cmp(SG_T("libio_gdal")) )
-		{
-			pImport	= g_pModules->Get_Library(i)->Get_Module(3)->Get_Module();	// OGR_Import
-		}
-	}
-
-	if( !pImport
-	||	!pImport->Get_Parameters()->Set_Parameter(SG_T("FILES"), PARAMETER_TYPE_FilePath, File_Name)
-	||	!pImport->Execute() )
-	{
-		return( false );
-	}
-
-	CSG_Parameter_Shapes_List	*pShapes	= pImport->Get_Parameters()->Get_Parameter(SG_T("SHAPES"))->asShapesList();
-
-	for(i=0; i<pShapes->Get_Count(); i++)
-	{
-		SG_UI_DataObject_Add(pShapes->asShapes(i), SG_UI_DATAOBJECT_UPDATE_ONLY);
-	}
-
-	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 CWKSP_Shapes_Type * CWKSP_Shapes_Manager::Get_Shapes_Type(int Shape_Type)
 {
 	for(int i=0; i<Get_Count(); i++)

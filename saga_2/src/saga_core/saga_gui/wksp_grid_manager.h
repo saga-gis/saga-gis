@@ -94,8 +94,6 @@ public:
 
 	virtual bool					On_Command			(int Cmd_ID);
 
-	bool							Open_GDAL			(const wxChar *File_Name);
-
 	class CWKSP_Grid_System *		Get_System			(int i)		{	return( (class CWKSP_Grid_System *)Get_Item(i) );	}
 	class CWKSP_Grid_System *		Get_System			(class CSG_Grid_System *pSystem);
 	bool							Exists				(class CSG_Grid_System *pSystem);

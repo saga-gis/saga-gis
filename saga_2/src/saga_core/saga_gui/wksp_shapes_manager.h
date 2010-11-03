@@ -94,8 +94,6 @@ public:
 
 	virtual bool				On_Command		(int Cmd_ID);
 
-	bool						Open_OGR		(const wxChar *File_Name);
-
 	class CWKSP_Shapes_Type *	Get_Shapes_Type	(int Shape_Type);
 	class CWKSP_Shapes *		Get_Shapes		(class CSG_Shapes *pShapes);
 

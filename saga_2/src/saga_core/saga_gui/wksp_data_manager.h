@@ -123,6 +123,7 @@ public:
 	bool							Open				(const wxChar *FileName);
 	bool							Open				(int DataType);
 	CWKSP_Base_Item *				Open				(int DataType, const wxChar *FileName);
+	bool							Open_GDAL			(const wxChar *File_Name);
 
 	bool							Exists				(class CSG_Grid_System *pSystem);
 	bool							Exists				(class CSG_Data_Object *pObject, int DataType = -1);
