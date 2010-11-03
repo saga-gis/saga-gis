@@ -570,6 +570,65 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+enum ESG_Cluster_Analysis_Method
+{
+	SG_CLUSTERANALYSIS_Minimum_Distance	= 0,
+	SG_CLUSTERANALYSIS_Hill_Climbing,
+	SG_CLUSTERANALYSIS_Combined
+};
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Cluster_Analysis
+{
+public:
+	CSG_Cluster_Analysis(void);
+	~CSG_Cluster_Analysis(void);
+	
+	bool					Create				(int nFeatures);
+	bool					Destroy				(void);
+
+	bool					Add_Element			(void);
+	bool					Set_Feature			(int iElement, int iFeature, double Value);
+
+	int						Get_Cluster			(int iElement)	{	return( iElement >= 0 && iElement < Get_nElements() ? m_Cluster[iElement] : -1 );	}
+
+	bool					Execute				(int Method, int nClusters);
+
+	int						Get_nElements		(void)	{	return( (int)m_Features.Get_Size() );	}
+	int						Get_nFeatures		(void)	{	return( m_nFeatures );	}
+	int						Get_nClusters		(void)	{	return( m_nClusters );	}
+
+	int						Get_Iteration		(void)	{	return( m_Iteration );	}
+
+	double					Get_SP				(void)	{	return( m_SP );			}
+
+	int						Get_nMembers		(int iCluster)					{	return( m_nMembers[iCluster] );	}
+	double					Get_Variance		(int iCluster)					{	return( m_Variance[iCluster] );	}
+	double					Get_Centroid		(int iCluster, int iFeature)	{	return( m_Centroid[iCluster][iFeature] );	}
+
+
+private:
+
+	int						*m_Cluster, m_Iteration, m_nFeatures, m_nClusters, *m_nMembers;
+
+	double					*m_Variance, **m_Centroid, m_SP;
+
+	CSG_Array				m_Features;
+
+
+	bool					Minimum_Distance	(bool bInitialize);
+	bool					Hill_Climbing		(bool bInitialize);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Spline
 {
 public:

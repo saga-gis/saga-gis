@@ -171,6 +171,9 @@ SAGA_API_DLL_EXPORT void *			SG_Calloc			(size_t num, size_t size);
 SAGA_API_DLL_EXPORT void *			SG_Realloc			(void *memblock, size_t size);
 SAGA_API_DLL_EXPORT void			SG_Free				(void *memblock);
 
+#define SG_FREE_SAFE(PTR)			{ if( PTR ) { SG_Free(PTR); PTR = NULL; } }
+
+//---------------------------------------------------------
 SAGA_API_DLL_EXPORT void			SG_Swap_Bytes		(void *Buffer, int nBytes);
 
 SAGA_API_DLL_EXPORT int				SG_Mem_Get_Int		(const char *Buffer			, bool bSwapBytes);
@@ -390,12 +393,14 @@ public:
 	void				Destroy			(void);
 
 	bool				Set_Growth		(TSG_Array_Growth Growth);
-	int					Get_Growth		(void)	const		{	return( m_Growth );		}
+	int					Get_Growth		(void)	const			{	return( m_Growth );		}
 
-	size_t				Get_Size		(void)	const		{	return( m_nValues );	}
+	size_t				Get_Size		(void)	const			{	return( m_nValues );	}
 
-	void *				Get_Array		(void)	const		{	return( m_Values );		}
-	void *				Get_Array		(size_t nValues)	{	Set_Array(nValues);	return( m_Values );	}
+	void *				Get_Entry		(size_t Index)	const	{	return( Index >= 0 && Index < m_nValues ? (char *)m_Values + Index * m_Value_Size : NULL );		}
+
+	void *				Get_Array		(void)	const			{	return( m_Values );		}
+	void *				Get_Array		(size_t nValues)		{	Set_Array(nValues);	return( m_Values );	}
 
 	bool				Set_Array		(size_t nValues, bool bShrink = true);
 	bool				Set_Array		(size_t nValues, void **pArray, bool bShrink = true);
