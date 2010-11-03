@@ -76,30 +76,33 @@ class CGrid_Cluster_Analysis : public CSG_Module_Grid
 {
 public:
 	CGrid_Cluster_Analysis(void);
-	virtual ~CGrid_Cluster_Analysis(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Classification") );	}
+	virtual const SG_Char *	Get_MenuPath		(void)	{	return( _TL("R:Classification") );	}
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual bool			On_Execute			(void);
 
 
 private:
 
-	int						nGrids, *nMembers;
-
-	double					**Centroids, *Variances;
-
-	CSG_Grid					**Grids, *pCluster;
+	void					Save_Statistics		(CSG_Parameter_Grid_List *pGrids, bool bNormalize, const CSG_Cluster_Analysis &Analysis);
+	void					Save_LUT			(CSG_Grid *pCluster, int nClusters);
 
 
-	void					Write_Result	(CSG_Table *pTable, long nElements, int nCluster, double SP);
-
-	double					MinimumDistance	(long &nElements, int nCluster);
-	double					HillClimbing	(long &nElements, int nCluster);
+	bool					_On_Execute			(void);
+	double					_MinimumDistance	(CSG_Grid **Grids, int nGrids, CSG_Grid *pCluster, int nCluster, int *nMembers, double *Variances, double **Centroids, int &nElements);
+	double					_HillClimbing		(CSG_Grid **Grids, int nGrids, CSG_Grid *pCluster, int nCluster, int *nMembers, double *Variances, double **Centroids, int &nElements);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Grid_Cluster_Analysis_H

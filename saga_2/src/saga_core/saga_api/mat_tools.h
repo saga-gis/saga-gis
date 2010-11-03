@@ -590,21 +590,21 @@ public:
 	bool					Add_Element			(void);
 	bool					Set_Feature			(int iElement, int iFeature, double Value);
 
-	int						Get_Cluster			(int iElement)	{	return( iElement >= 0 && iElement < Get_nElements() ? m_Cluster[iElement] : -1 );	}
+	int						Get_Cluster			(int iElement)	const	{	return( iElement >= 0 && iElement < Get_nElements() ? m_Cluster[iElement] : -1 );	}
 
 	bool					Execute				(int Method, int nClusters);
 
-	int						Get_nElements		(void)	{	return( (int)m_Features.Get_Size() );	}
-	int						Get_nFeatures		(void)	{	return( m_nFeatures );	}
-	int						Get_nClusters		(void)	{	return( m_nClusters );	}
+	int						Get_nElements		(void)	const	{	return( (int)m_Features.Get_Size() );	}
+	int						Get_nFeatures		(void)	const	{	return( m_nFeatures );	}
+	int						Get_nClusters		(void)	const	{	return( m_nClusters );	}
 
-	int						Get_Iteration		(void)	{	return( m_Iteration );	}
+	int						Get_Iteration		(void)	const	{	return( m_Iteration );	}
 
-	double					Get_SP				(void)	{	return( m_SP );			}
+	double					Get_SP				(void)	const	{	return( m_SP );			}
 
-	int						Get_nMembers		(int iCluster)					{	return( m_nMembers[iCluster] );	}
-	double					Get_Variance		(int iCluster)					{	return( m_Variance[iCluster] );	}
-	double					Get_Centroid		(int iCluster, int iFeature)	{	return( m_Centroid[iCluster][iFeature] );	}
+	int						Get_nMembers		(int iCluster)					const	{	return( m_nMembers[iCluster] );	}
+	double					Get_Variance		(int iCluster)					const	{	return( m_Variance[iCluster] );	}
+	double					Get_Centroid		(int iCluster, int iFeature)	const	{	return( m_Centroid[iCluster][iFeature] );	}
 
 
 private:

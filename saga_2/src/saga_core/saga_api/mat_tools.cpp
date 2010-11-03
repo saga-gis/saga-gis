@@ -313,7 +313,7 @@ bool CSG_Cluster_Analysis::Create(int nFeatures)
 	{
 		m_nFeatures	= nFeatures;
 
-		m_Features.Create(m_nFeatures * sizeof(double), 0, SG_ARRAY_GROWTH_1);
+		m_Features.Create(m_nFeatures * sizeof(double), 0, SG_ARRAY_GROWTH_3);
 
 		return( true );
 	}
