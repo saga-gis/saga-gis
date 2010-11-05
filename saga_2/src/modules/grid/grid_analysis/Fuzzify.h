@@ -17,23 +17,55 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/ 
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
 
+//---------------------------------------------------------
+#ifndef HEADER_INCLUDED__Fuzzify_H
+#define HEADER_INCLUDED__Fuzzify_H
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
-class CFuzzify : public CSG_Module_Grid {
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CFuzzify : public CSG_Module_Grid
+{
 public:
 	CFuzzify(void);
-	virtual ~CFuzzify(void);
 
-	virtual const SG_Char *	Get_MenuPath	(void)	{	return( _TL("R:Fuzzy Logic") );	}
-
-private:
+	virtual const SG_Char *	Get_MenuPath			(void)	{	return( _TL("R:Fuzzy Logic") );	}
 
 protected:
-	virtual bool On_Execute(void);
+
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // HEADER_INCLUDED__Fuzzify_H

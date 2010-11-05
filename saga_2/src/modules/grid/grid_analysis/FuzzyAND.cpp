@@ -70,9 +70,9 @@
 //---------------------------------------------------------
 CFuzzyAND::CFuzzyAND(void)
 {
-	Set_Name		(_TL("Fuzzy intersection grid"));
+	Set_Name		(_TL("Fuzzy Intersection"));
 
-	Set_Author		(_TL("Copyrights (c) 2004 by Antonio Boggia and Gianluca Massei"));
+	Set_Author		(SG_T("Antonio Boggia and Gianluca Massei (c) 2004"));
 
 	Set_Description	(_TW(
 		"Calculates the intersection (min operator) for each grid cell of the selected grids.\n "
@@ -93,10 +93,6 @@ CFuzzyAND::CFuzzyAND(void)
 	);
 }
 
-//---------------------------------------------------------
-CFuzzyAND::~CFuzzyAND(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -107,50 +103,53 @@ CFuzzyAND::~CFuzzyAND(void)
 //---------------------------------------------------------
 bool CFuzzyAND::On_Execute(void)
 {
-	int				iGrid, nGrids, x, y;//id Grid, cellsnumber , ,
-	double			zMin, ValTemp; // variabile per costrire il grid, variabile temp di confronto
-	CSG_Grid			*pAND;
-	CSG_Parameter_Grid_List	*pParm_Grids;
+	CSG_Grid				*pAND;
+	CSG_Parameter_Grid_List	*pGrids;
 
 	//-----------------------------------------------------
-	// Get user inputs from the 'Parameters' object...
-
-	pParm_Grids	= Parameters("GRIDS")	->asGridList();
-	pAND		= Parameters("AND")		->asGrid();
-	nGrids		= pParm_Grids			->Get_Count();
+	pGrids	= Parameters("GRIDS")	->asGridList();
+	pAND	= Parameters("AND")		->asGrid();
 
 	//-----------------------------------------------------
-	if( nGrids > 1 )
+	if( pGrids->Get_Count() < 1 )
 	{
-		for(y=0; y<Get_NY() && Set_Progress(y); y++)
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
 		{
-			for(x=0; x<Get_NX(); x++)
+			bool	bNoData	= pGrids->asGrid(0)->is_NoData(x, y);
+			double	zMin	= pGrids->asGrid(0)->asDouble (x, y);
+
+			for(int i=1; i<pGrids->Get_Count() && !bNoData; i++)
 			{
-				//zMin = ValTemp	=  0;
-				zMin	= pParm_Grids->asGrid(0)->asDouble(0, 0);// set initial value of zMin
-
-				for(iGrid=0; iGrid<nGrids; iGrid++)
+				if( !(bNoData = pGrids->asGrid(i)->is_NoData(x, y)) )
 				{
-					ValTemp	= pParm_Grids->asGrid(iGrid)->asDouble(x, y);
+					double	iz	= pGrids->asGrid(i)->asDouble(x, y);
 					
-					if  (zMin > ValTemp)
+					if( zMin > iz )
 					{
-						zMin = ValTemp; //intersection loop
+						zMin	= iz;
 					}
-					else zMin=zMin ;
 				}
+			}
 
+			if( bNoData )
+			{
+				pAND->Set_NoData(x, y);
+			}
+			else
+			{
 				pAND->Set_Value(x, y, zMin); 
 			}
 		}
 	}
-	else if( nGrids > 0 )
-	{
-		pAND->Assign(pParm_Grids->asGrid(0));
-	}
 
 	//-----------------------------------------------------
-	return( nGrids > 0 );
+	return( true );
 }
 
 

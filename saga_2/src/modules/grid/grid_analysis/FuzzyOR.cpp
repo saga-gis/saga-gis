@@ -72,7 +72,7 @@ CFuzzyOR::CFuzzyOR(void)
 {
 	Set_Name		(_TL("Fuzzy union grid"));
 
-	Set_Author		(_TL("Copyrights (c) 2004 by Antonio Boggia and Gianluca Massei"));
+	Set_Author		(SG_T("Antonio Boggia and Gianluca Massei (c) 2004"));
 
 	Set_Description	(_TW(
 		"Calculates the union (max operator) for each grid cell of the selected grids.\n "
@@ -93,10 +93,6 @@ CFuzzyOR::CFuzzyOR(void)
 	);
 }
 
-//---------------------------------------------------------
-CFuzzyOR::~CFuzzyOR(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -107,50 +103,53 @@ CFuzzyOR::~CFuzzyOR(void)
 //---------------------------------------------------------
 bool CFuzzyOR::On_Execute(void)
 {
-	int				iGrid, nGrids, x, y;//id Grid, cellsnumber , ,
-	double			zMax, ValTemp; // variabile per costrire il grid, variabile temp di confronto
-	CSG_Grid			*pOR;
-	CSG_Parameter_Grid_List	*pParm_Grids;
+	CSG_Grid				*pOR;
+	CSG_Parameter_Grid_List	*pGrids;
 
 	//-----------------------------------------------------
-	// Get user inputs from the 'Parameters' object...
-
-	pParm_Grids	= (CSG_Parameter_Grid_List *)Parameters("GRIDS")->Get_Data();
-	pOR			= Parameters("OR")->asGrid();
-	nGrids		= pParm_Grids->Get_Count();
+	pGrids	= Parameters("GRIDS")	->asGridList();
+	pOR		= Parameters("OR")		->asGrid();
 
 	//-----------------------------------------------------
-	if( nGrids > 1 )
+	if( pGrids->Get_Count() < 1 )
 	{
-		for(y=0; y<Get_NY() && Set_Progress(y); y++)
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
 		{
-			for(x=0; x<Get_NX(); x++)
+			bool	bNoData	= pGrids->asGrid(0)->is_NoData(x, y);
+			double	zMax	= pGrids->asGrid(0)->asDouble (x, y);
+
+			for(int i=1; i<pGrids->Get_Count() && !bNoData; i++)
 			{
-				//zMax = ValTemp	=  0;
-				zMax	= pParm_Grids->asGrid(0)->asDouble(0, 0);// set initial value of zMax
-
-				for(iGrid=0; iGrid<nGrids; iGrid++)
+				if( !(bNoData = pGrids->asGrid(i)->is_NoData(x, y)) )
 				{
-					ValTemp	= pParm_Grids->asGrid(iGrid)->asDouble(x, y);
+					double	iz	= pGrids->asGrid(i)->asDouble(x, y);
 					
-					if  (zMax < ValTemp)
+					if( zMax < iz )
 					{
-						zMax = ValTemp; //union loop
+						zMax	= iz;
 					}
-					else zMax=zMax ;
 				}
+			}
 
-				pOR->Set_Value(x, y, zMax);
+			if( bNoData )
+			{
+				pOR->Set_NoData(x, y);
+			}
+			else
+			{
+				pOR->Set_Value(x, y, zMax); 
 			}
 		}
 	}
-	else if( nGrids > 0 )
-	{
-		pOR->Assign(pParm_Grids->asGrid(0));
-	}
 
 	//-----------------------------------------------------
-	return( nGrids > 0 );
+	return( true );
 }
 
 
