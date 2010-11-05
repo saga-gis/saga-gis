@@ -136,7 +136,7 @@ CFilter_Gauss::~CFilter_Gauss(void)
 //---------------------------------------------------------
 bool CFilter_Gauss::On_Execute(void)
 {
-	int			x, y, Mode, Radius;
+	int			Mode, Radius;
 	double		Sigma;
 	CSG_Grid	*pResult;
 
@@ -147,31 +147,38 @@ bool CFilter_Gauss::On_Execute(void)
 	Mode		= Parameters("MODE")	->asInt();
 	Sigma		= Parameters("SIGMA")	->asDouble();
 
-	if( !pResult || pResult == m_pInput )
-	{
-		pResult	= SG_Create_Grid(m_pInput);
-
-		Parameters("RESULT")->Set_Value(m_pInput);
-	}
-
-	pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
-
 	//-----------------------------------------------------
 	if( Initialise(Radius, Sigma, Mode) )
 	{
-		for(y=0; y<Get_NY() && Set_Progress(y); y++)
+		if( !pResult || pResult == m_pInput )
 		{
-			for(x=0; x<Get_NX(); x++)
+			pResult	= SG_Create_Grid(m_pInput);
+		}
+		else
+		{
+			pResult->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pInput->Get_Name(), _TL("Gaussian Filter")));
+
+			pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
+		}
+
+		//-------------------------------------------------
+		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		{
+			for(int x=0; x<Get_NX(); x++)
 			{
 				if( m_pInput->is_InGrid(x, y) )
 				{
 					pResult->Set_Value(x, y, Get_Mean(x, y));
 				}
+				else
+				{
+					pResult->Set_NoData(x, y);
+				}
 			}
 		}
 
 		//-------------------------------------------------
-		if( m_pInput == Parameters("RESULT")->asGrid() )
+		if( !Parameters("RESULT")->asGrid() || Parameters("RESULT")->asGrid() == m_pInput )
 		{
 			m_pInput->Assign(pResult);
 

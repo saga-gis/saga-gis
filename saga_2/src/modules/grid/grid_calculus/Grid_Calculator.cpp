@@ -104,21 +104,55 @@ CGrid_Calculator::CGrid_Calculator(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List(
-		NULL, "GRIDS"	, _TL("Grids"),
+		NULL	, "GRIDS"	, _TL("Grids"),
 		_TL(""), PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL, "RESULT"	, _TL("Result"),
+		NULL	, "RESULT"	, _TL("Result"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 	
 	Parameters.Add_String(
-		NULL, "FORMULA"	, _TL("Formula"),
+		NULL	, "FORMULA"	, _TL("Formula"),
 		_TL(""),
 		SG_T("(a - b) / (a + b)")
 	);
+
+	CSG_Parameter	*pNode	= Parameters.Add_String(
+		NULL	, "NAME"	, _TL("Name"),
+		_TL(""),
+		_TL("Calculation")
+	);
+
+	Parameters.Add_Value(
+		pNode	, "FNAME"	, _TL("Take Formula"),
+		_TL(""),
+		PARAMETER_TYPE_Bool, true
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGrid_Calculator::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FORMULA"))
+	||	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FNAME")) )
+	{
+		if( pParameters->Get_Parameter("FNAME")->asBool() )
+		{
+			pParameters->Get_Parameter("NAME")->Set_Value(CSG_String::Format(SG_T("%s [%s]"), _TL("Calculation"), pParameters->Get_Parameter("FORMULA")->asString()));
+		}
+	}
+
+	return( 0 );
 }
 
 
@@ -143,7 +177,7 @@ bool CGrid_Calculator::On_Execute(void)
 	//-----------------------------------------------------
 	if( pGrids->Get_Count() <= 0 )
 	{
-		Message_Add(_TL("No grid in list"));
+		Error_Set(_TL("no grid in list"));
 
 		return( false );
 	}
@@ -171,13 +205,13 @@ bool CGrid_Calculator::On_Execute(void)
 			}
 		}
 
-		Message_Add(s, false);
+		Error_Set(s);
 
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	pResult->Set_Name(Formula.Get_Formula());
+	pResult->Set_Name(Parameters("NAME")->asString());
 
 	Values	= new double[pGrids->Get_Count()];
 

@@ -71,25 +71,32 @@
 CFilter_3x3::CFilter_3x3(void)
 {
 	//-----------------------------------------------------
-	Set_Name		(_TL("User Defined Filter (3x3)"));
+	Set_Name		(_TL("User Defined Filter"));
 
-	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2001"));
 
 	Set_Description	(_TW(
-		"User defined 3x3 sub-window filter. The filter is entered as a table with 3 rows and 3 columns."
+		"User defined filter matrix. The filter can be chosen from loaded tables. "
+		"If not specified a fixed table with 3 rows (and 3 columns) will be used. "
 	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL, "INPUT"	, _TL("Grid"),
+		NULL, "INPUT"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL, "RESULT"	, _TL("Filtered Grid"),
+		NULL, "RESULT"		, _TL("Filtered Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Table(
+		NULL, "FILTER"		, _TL("Filter Matrix"),
+		_TL(""),
+		PARAMETER_INPUT_OPTIONAL
 	);
 
 	//-----------------------------------------------------
@@ -100,30 +107,19 @@ CFilter_3x3::CFilter_3x3(void)
 	Filter.Add_Field("3", SG_DATATYPE_Double);
 
 	Filter.Add_Record();
-	Filter[0][0]	= 0.25;
-	Filter[0][1]	= 0.5;
-	Filter[0][2]	= 0.25;
-
 	Filter.Add_Record();
-	Filter[1][0]	= 0.5;
-	Filter[1][1]	=-1.0;
-	Filter[1][2]	= 0.5;
-
 	Filter.Add_Record();
-	Filter[2][0]	= 0.25;
-	Filter[2][1]	= 0.5;
-	Filter[2][2]	= 0.25;
+
+	Filter[0][0]	= 0.25;	Filter[0][1]	= 0.5;	Filter[0][2]	= 0.25;
+	Filter[1][0]	= 0.50;	Filter[1][1]	=-1.0;	Filter[1][2]	= 0.50;
+	Filter[2][0]	= 0.25;	Filter[2][1]	= 0.5;	Filter[2][2]	= 0.25;
 
 	Parameters.Add_FixedTable(
-		NULL, "FILTER"	, _TL("Filter Matrix"),
+		NULL, "FILTER_3X3"	, _TL("Default Filter Matrix (3x3)"),
 		_TL(""),
 		&Filter
 	);
 }
-
-//---------------------------------------------------------
-CFilter_3x3::~CFilter_3x3(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
@@ -135,37 +131,53 @@ CFilter_3x3::~CFilter_3x3(void)
 //---------------------------------------------------------
 bool CFilter_3x3::On_Execute(void)
 {
-	int				x, y, ix, iy, dx, dy, fx, fy, fdx, fdy;
-	double			Sum, nSum, **f;
-	CSG_Grid			*pInput, *pResult;
-	CSG_Table			*pFilter;
-	CSG_Table_Record	*pRecord;
+	int			x, y, ix, iy, jx, jy, dx, dy;
+	double		Sum, nSum;
+	CSG_Matrix	Filter;
+	CSG_Grid	*pInput, *pResult;
+	CSG_Table	*pFilter;
 
 	//-----------------------------------------------------
-	pInput	= Parameters("INPUT")->asGrid();
-	pResult	= Parameters("RESULT")->asGrid();
+	pInput	= Parameters("INPUT")		->asGrid();
+	pResult	= Parameters("RESULT")		->asGrid();
 
-	//-----------------------------------------------------
-	pFilter	= Parameters("FILTER")->asTable();
+	pFilter	= Parameters("FILTER")		->asTable()
+			? Parameters("FILTER")		->asTable()
+			: Parameters("FILTER_3X3")	->asTable();
 
-	fdx		= pFilter->Get_Field_Count();
-	fdy		= pFilter->Get_Record_Count();
-	dx		= (fdx - 1) / 2;
-	dy		= (fdy - 1) / 2;
-
-	f		= (double **)SG_Malloc(fdy * sizeof(double *));
-	f[0]	= (double  *)SG_Malloc(fdy * fdx * sizeof(double));
-
-	for(fy=0; fy<fdy; fy++)
+	if( pFilter->Get_Count() < 1 || pFilter->Get_Field_Count() < 1 )
 	{
-		f[fy]	= f[0] + fy * fdx;
+		Error_Set(_TL("invalid filter matrix"));
 
-		pRecord	= pFilter->Get_Record(fy);
+		return( false );
+	}
 
-		for(fx=0; fx<fdx; fx++)
+	//-----------------------------------------------------
+	Filter.Create(pFilter->Get_Field_Count(), pFilter->Get_Count());
+
+	for(iy=0; iy<Filter.Get_NY(); iy++)
+	{
+		CSG_Table_Record	*pRecord	= pFilter->Get_Record(iy);
+
+		for(ix=0; ix<Filter.Get_NX(); ix++)
 		{
-			f[fy][fx]	= pRecord->asDouble(fx);
+			Filter[iy][ix]	= pRecord->asDouble(ix);
 		}
+	}
+
+	dx		= Filter.Get_NX() / 2;
+	dy		= Filter.Get_NY() / 2;
+
+	//-----------------------------------------------------
+	if( !pResult || pResult == pInput )
+	{
+		pResult	= SG_Create_Grid(pInput);
+	}
+	else
+	{
+		pResult->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pInput->Get_Name(), _TL("Filter")));
+
+		pResult->Set_NoData_Value(pInput->Get_NoData_Value());
 	}
 
 	//-----------------------------------------------------
@@ -173,16 +185,19 @@ bool CFilter_3x3::On_Execute(void)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
-			Sum		= nSum	= 0.0;
+			Sum	= nSum	= 0.0;
 
-			for(fy=0, iy=y-dy; fy<fdy; fy++, iy++)
+			if( pInput->is_InGrid(x, y) )
 			{
-				for(fx=0, ix=x-dx; fx<fdx; fx++, ix++)
+				for(iy=0, jy=y-dy; iy<Filter.Get_NY(); iy++, jy++)
 				{
-					if( pInput->is_InGrid(ix, iy) )
+					for(ix=0, jx=x-dx; ix<Filter.Get_NX(); ix++, jx++)
 					{
-						Sum		+= f[fy][fx] * pInput->asDouble(ix, iy);
-						nSum	+= fabs(f[fy][fx]);
+						if( pInput->is_InGrid(jx, jy) )
+						{
+							Sum		+= Filter[iy][ix] * pInput->asDouble(jx, jy);
+							nSum	+= fabs(Filter[iy][ix]);
+						}
 					}
 				}
 			}
@@ -199,8 +214,12 @@ bool CFilter_3x3::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	SG_Free(f[0]);
-	SG_Free(f);
+	if( !Parameters("RESULT")->asGrid() || Parameters("RESULT")->asGrid() == pInput )
+	{
+		pInput->Assign(pResult);
+
+		delete(pResult);
+	}
 
 	return( true );
 }

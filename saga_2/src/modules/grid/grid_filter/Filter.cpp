@@ -75,10 +75,10 @@ CFilter::CFilter(void)
 
 	Set_Name		(_TL("Simple Filter"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2003"));
 
 	Set_Description	(_TW(
-		"Filter for Grids"
+		"Simple standard filters for grids."
 	));
 
 
@@ -123,10 +123,6 @@ CFilter::CFilter(void)
 	);
 }
 
-//---------------------------------------------------------
-CFilter::~CFilter(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -137,7 +133,7 @@ CFilter::~CFilter(void)
 //---------------------------------------------------------
 bool CFilter::On_Execute(void)
 {
-	int			x, y, Mode, Radius, Method;
+	int			Mode, Radius, Method;
 	double		Mean;
 	CSG_Grid	*pResult;
 
@@ -148,15 +144,6 @@ bool CFilter::On_Execute(void)
 	Mode		= Parameters("MODE")	->asInt();
 	Method		= Parameters("METHOD")	->asInt();
 
-	if( !pResult || pResult == m_pInput )
-	{
-		pResult	= SG_Create_Grid(m_pInput);
-
-		Parameters("RESULT")->Set_Value(m_pInput);
-	}
-
-	pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
-
 	switch( Mode )
 	{
 	case 0:								break;
@@ -164,15 +151,23 @@ bool CFilter::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	if( !pResult || pResult == m_pInput )
 	{
-		for(x=0; x<Get_NX(); x++)
+		pResult	= SG_Create_Grid(m_pInput);
+	}
+	else
+	{
+		pResult->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pInput->Get_Name(), _TL("Filter")));
+
+		pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
+	}
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
 		{
-			if( !m_pInput->is_InGrid(x, y) )
-			{
-				pResult->Set_NoData(x, y);
-			}
-			else
+			if( m_pInput->is_InGrid(x, y) )
 			{
 				switch( Mode )
 				{
@@ -195,11 +190,15 @@ bool CFilter::On_Execute(void)
 					break;
 				}
 			}
+			else
+			{
+				pResult->Set_NoData(x, y);
+			}
 		}
 	}
 
 	//-----------------------------------------------------
-	if( m_pInput == Parameters("RESULT")->asGrid() )
+	if( !Parameters("RESULT")->asGrid() || Parameters("RESULT")->asGrid() == m_pInput )
 	{
 		m_pInput->Assign(pResult);
 

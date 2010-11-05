@@ -76,7 +76,6 @@ class CFilter_3x3 : public CSG_Module_Grid
 {
 public:
 	CFilter_3x3(void);
-	virtual ~CFilter_3x3(void);
 
 
 protected:

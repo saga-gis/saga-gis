@@ -177,8 +177,12 @@ bool CFilter_LoG::On_Execute(void)
 		{
 			pResult	= SG_Create_Grid(m_pInput);
 		}
+		else
+		{
+			pResult->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pInput->Get_Name(), _TL("Laplace Filter")));
 
-		DataObject_Set_Colors(pResult, 100, SG_COLORS_BLACK_WHITE);
+			pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
+		}
 
 		//-------------------------------------------------
 		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -202,7 +206,11 @@ bool CFilter_LoG::On_Execute(void)
 			m_pInput->Assign(pResult);
 
 			delete(pResult);
+
+			pResult	= m_pInput;
 		}
+
+		DataObject_Set_Colors(pResult, 100, SG_COLORS_BLACK_WHITE);
 
 		m_Kernel.Destroy();
 

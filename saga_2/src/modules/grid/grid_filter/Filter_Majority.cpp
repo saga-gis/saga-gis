@@ -136,16 +136,6 @@ bool CFilter_Majority::On_Execute(void)
 	m_Radius	= Parameters("RADIUS")	->asInt();
 
 	//-----------------------------------------------------
-	if( !pResult || pResult == m_pInput )
-	{
-		pResult	= SG_Create_Grid(m_pInput);
-
-		Parameters("RESULT")->Set_Value(m_pInput);
-	}
-
-	pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
-
-	//-----------------------------------------------------
 	m_Kernel.Create(SG_DATATYPE_Byte, 1 + 2 * m_Radius, 1 + 2 * m_Radius);
 	m_Kernel.Set_NoData_Value(0.0);
 	m_Kernel.Assign(1.0);
@@ -172,31 +162,39 @@ bool CFilter_Majority::On_Execute(void)
 	m_Threshold	= 1 + (int)(0.01 * Parameters("THRESHOLD")->asDouble() * (1 + m_Kernel.Get_NCells() - m_Kernel.Get_NoData_Count()));
 
 	//-----------------------------------------------------
+	if( !pResult || pResult == m_pInput )
+	{
+		pResult	= SG_Create_Grid(m_pInput);
+	}
+	else
+	{
+		pResult->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pInput->Get_Name(), _TL("Majority Filter")));
+
+		pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
+	}
+
+	//-----------------------------------------------------
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
-			if( m_pInput->is_NoData(x, y) )
+			if( m_pInput->is_InGrid(x, y) )
 			{
-				pResult->Set_NoData(x, y);
+				pResult->Set_Value(x, y, Get_Majority(x, y));
 			}
 			else
 			{
-				pResult->Set_Value(x, y, Get_Majority(x, y));
+				pResult->Set_NoData(x, y);
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	if( m_pInput == Parameters("RESULT")->asGrid() )
+	if( !Parameters("RESULT")->asGrid() || Parameters("RESULT")->asGrid() == m_pInput )
 	{
 		m_pInput->Assign(pResult);
 
 		delete(pResult);
-	}
-	else
-	{
-		pResult->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pInput->Get_Name(), _TL("Majority Filtered")));
 	}
 
 	m_Kernel	.Destroy();
