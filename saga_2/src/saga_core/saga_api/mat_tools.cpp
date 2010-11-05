@@ -309,7 +309,7 @@ bool CSG_Cluster_Analysis::Create(int nFeatures)
 {
 	Destroy();
 
-	if( nFeatures > 1 )
+	if( nFeatures > 0 )
 	{
 		m_nFeatures	= nFeatures;
 
@@ -324,7 +324,7 @@ bool CSG_Cluster_Analysis::Create(int nFeatures)
 //---------------------------------------------------------
 bool CSG_Cluster_Analysis::Add_Element(void)
 {
-	return( m_nFeatures > 1 && m_Features.Inc_Array() );
+	return( m_nFeatures > 0 && m_Features.Inc_Array() );
 }
 
 //---------------------------------------------------------
