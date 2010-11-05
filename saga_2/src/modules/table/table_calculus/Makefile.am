@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.7 2010-07-08 14:11:48 johanvdw Exp $
+# $Id: Makefile.am,v 1.8 2010-11-05 14:51:46 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -18,6 +18,7 @@ LMFit.cpp\
 MLB_Interface.cpp\
 Table_Calculator.cpp\
 Table_CalculatorShapes.cpp\
+table_cluster_analysis.cpp\
 table_running_average.cpp\
 Table_Trend.cpp\
 Fit.h\
@@ -25,6 +26,7 @@ LMFit.h\
 MLB_Interface.h\
 Table_Calculator.h\
 Table_CalculatorShapes.h\
+table_cluster_analysis.h\
 table_running_average.h\
 Table_Trend.h
 
