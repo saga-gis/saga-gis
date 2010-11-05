@@ -98,8 +98,6 @@ CGrid_Difference::CGrid_Difference(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -126,6 +124,184 @@ bool CGrid_Difference::On_Execute(void)
 			else
 			{
 				pC->Set_Value(x, y, pA->asDouble(x, y) - pB->asDouble(x, y));
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CGrids_Sum::CGrids_Sum(void)
+{
+	Set_Name		(_TL("Grids Sum"));
+
+	Set_Author		(SG_T("O. Conrad (c) 2010"));
+
+	Set_Description	(_TW(
+		"Cellwise addition of grid values."
+	));
+
+	Parameters.Add_Grid_List(
+		NULL	, "GRIDS"	, _TL("Grids"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "RESULT"	, _TL("Product"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrids_Sum::On_Execute(void)
+{
+	CSG_Grid				*pResult;
+	CSG_Parameter_Grid_List	*pGrids;
+
+	//-----------------------------------------------------
+	pGrids	= Parameters("GRIDS")	->asGridList();
+	pResult	= Parameters("RESULT")	->asGrid();
+
+	//-----------------------------------------------------
+	if( pGrids->Get_Count() < 1 )
+	{
+		Error_Set(_TL("no grid in list"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
+		{
+			int		n	= 0;
+			double	d	= 0.0;
+
+			for(int i=0; i<pGrids->Get_Count(); i++)
+			{
+				if( pGrids->asGrid(i)->is_InGrid(x, y) )
+				{
+					n	++;
+					d	+= pGrids->asGrid(i)->asDouble(x, y);
+				}
+			}
+
+			if( n > 0 )
+			{
+				pResult->Set_Value(x, y, d);
+			}
+			else
+			{
+				pResult->Set_NoData(x, y);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CGrids_Product::CGrids_Product(void)
+{
+	Set_Name		(_TL("Grids Product"));
+
+	Set_Author		(SG_T("O. Conrad (c) 2010"));
+
+	Set_Description	(_TW(
+		"Cellwise multiplication of grid values."
+	));
+
+	Parameters.Add_Grid_List(
+		NULL	, "GRIDS"	, _TL("Grids"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "RESULT"	, _TL("Product"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrids_Product::On_Execute(void)
+{
+	CSG_Grid				*pResult;
+	CSG_Parameter_Grid_List	*pGrids;
+
+	//-----------------------------------------------------
+	pGrids	= Parameters("GRIDS")	->asGridList();
+	pResult	= Parameters("RESULT")	->asGrid();
+
+	//-----------------------------------------------------
+	if( pGrids->Get_Count() < 1 )
+	{
+		Error_Set(_TL("no grid in list"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
+		{
+			int		n	= 0;
+			double	d	= 0.0;
+
+			for(int i=0; i<pGrids->Get_Count(); i++)
+			{
+				if( pGrids->asGrid(i)->is_InGrid(x, y) )
+				{
+					if( n++ < 1 )
+					{
+						d 	 = pGrids->asGrid(i)->asDouble(x, y);
+					}
+					else
+					{
+						d	*= pGrids->asGrid(i)->asDouble(x, y);
+					}
+				}
+			}
+
+			if( n > 0 )
+			{
+				pResult->Set_Value(x, y, d);
+			}
+			else
+			{
+				pResult->Set_NoData(x, y);
 			}
 		}
 	}

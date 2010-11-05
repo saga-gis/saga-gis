@@ -116,6 +116,8 @@ CSG_Module *		Create_Module(int i)
 	case 5:		return( new CGrid_Geometric_Figures );
 	case 6:		return( new CGrid_Random_Terrain );
 	case 7:		return( new CGrid_Random_Field );
+	case 8:		return( new CGrids_Sum );
+	case 9:		return( new CGrids_Product );
 	}
 
 	return( NULL );
