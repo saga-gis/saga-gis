@@ -90,11 +90,11 @@ double CProtectionIndex::getProtectionIndex(int x, int y){
 	double dDist;
 	double dAngle;
 	double dProtectionIndex = 0;
-	double *pAngle = new double[8];
+	double aAngle[8];
 
 	for (i = 0; i < 8; i++){
 		j = 1;
-		pAngle[i] = 0;
+		aAngle[i] = 0;
 		dDist = M_GET_LENGTH(iDifX[i], iDifY[i]) * j * m_pDEM->Get_Cellsize();
 		while (dDist < m_dRadius){
 			if (m_pDEM->is_InGrid(x + iDifX[i] * j, y + iDifY[i] * j)){
@@ -106,16 +106,15 @@ double CProtectionIndex::getProtectionIndex(int x, int y){
 			dDifHeight = m_pDEM->asDouble(x + iDifX[i] * j, y + iDifY[i] * j) 
 						 - m_pDEM->asDouble(x,y);
 			dAngle = atan (dDifHeight / dDist);
-			if (dAngle > pAngle[i]){
-				pAngle[i] = dAngle;
+			if (dAngle > aAngle[i]){
+				aAngle[i] = dAngle;
 			}//if
 			j++;
 			dDist = M_GET_LENGTH(iDifX[i], iDifY[i]) * j * m_pDEM->Get_Cellsize();
 		}//while
-		dProtectionIndex+=pAngle[i];
+		dProtectionIndex+=aAngle[i];
 	}//while
 
-	delete [] pAngle;
 	return (dProtectionIndex / 8.);
 
 }//method

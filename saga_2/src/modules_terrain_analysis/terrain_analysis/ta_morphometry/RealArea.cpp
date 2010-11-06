@@ -24,7 +24,7 @@ CRealArea::CRealArea(void){
 
 	Parameters.Set_Name(_TL("Real Area Calculation"));
 	Parameters.Set_Description(_TW(
-		"(c) 2004 by Victor Olaya. Calculates real (not proyected) cell area"));
+		"(c) 2004 by Victor Olaya. Calculates real (not projected) cell area"));
 
 	Parameters.Add_Grid(NULL, 
 						"DEM",
@@ -49,27 +49,26 @@ bool CRealArea::On_Execute(void){
 	
 	CSG_Grid* pDEM = Parameters("DEM")->asGrid(); 
 	CSG_Grid* pArea = Parameters("AREA")->asGrid();
-	CSG_Grid* pSlope = new CSG_Grid(pDEM);
-	CSG_Grid* pAspect = new CSG_Grid(pDEM);
+	CSG_Grid pSlope(pDEM);
+	CSG_Grid pAspect(pDEM);
 	double fArea;
 	double fCellArea = pDEM->Get_Cellsize() * pDEM->Get_Cellsize();
 
 	CMorphometry	Morphometry;
 
 	if(	!Morphometry.Get_Parameters()->Set_Parameter(SG_T("ELEVATION")	, PARAMETER_TYPE_Grid, pDEM)
-	||	!Morphometry.Get_Parameters()->Set_Parameter(SG_T("SLOPE")		, PARAMETER_TYPE_Grid, pSlope)
-	||	!Morphometry.Get_Parameters()->Set_Parameter(SG_T("ASPECT")		, PARAMETER_TYPE_Grid, pAspect)
+	||	!Morphometry.Get_Parameters()->Set_Parameter(SG_T("SLOPE")		, PARAMETER_TYPE_Grid, &pSlope)
+	||	!Morphometry.Get_Parameters()->Set_Parameter(SG_T("ASPECT")		, PARAMETER_TYPE_Grid, &pAspect)
 	||	!Morphometry.Execute() )
 	{
 		return( false );
 	}
 	
-	delete pAspect;
 
     for(int y=0; y<Get_NY() && Set_Progress(y); y++){		
 		for(int x=0; x<Get_NX(); x++){			
-			if (!pSlope->is_NoData(x,y)){
-				fArea = fCellArea / cos(pSlope->asFloat(x,y,false));
+			if (!pSlope.is_NoData(x,y)){
+				fArea = fCellArea / cos(pSlope.asFloat(x,y,false));
 				pArea->Set_Value(x,y,fArea);
 			}//if
 			else{
@@ -79,7 +78,5 @@ bool CRealArea::On_Execute(void){
 	}//for	
 	
 	return true;
-
-	delete pSlope;
 
 }//method
