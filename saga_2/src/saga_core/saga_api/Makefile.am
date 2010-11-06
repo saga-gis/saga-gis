@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.21 2010-10-22 09:15:15 oconrad Exp $
+# $Id: Makefile.am,v 1.22 2010-11-06 11:59:03 johanvdw Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -14,6 +14,7 @@ endif
 libsaga_api_la_LDFLAGS =$(AM_LDFLAGS) -release $(VERSION)
 
 lib_LTLIBRARIES = libsaga_api.la
+
 libsaga_api_la_SOURCES =\
 api_callback.cpp\
 api_colors.cpp\
@@ -94,3 +95,20 @@ tin.h
 
 install-exec-hook:
 	-ldconfig
+
+if SAGA_UNICODE
+SWIGUNICODEFLAGS = -D_SWIG_WCHAR -D_SAGA_UNICODE
+endif
+
+if SAGA_PYTHON
+_saga_api_la_CPPFLAGS = $(PYTHON_CPPFLAGS) $(SWIGUNICODEFLAGS) 
+_saga_api_la_LDFLAGS = -module -release $(VERSION) $(SWIG_LIB)
+_saga_api_la_SOURCES = saga_api_wrap.cxx
+_saga_api_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
+
+python_LTLIBRARIES = _saga_api.la
+python_PYTHON = saga_api.py
+
+saga_api_wrap.cxx:
+	$(SWIG) -includeall -python $(SWIGUNICODEFLAGS) ./saga_api.h 
+endif
