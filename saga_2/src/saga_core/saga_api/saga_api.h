@@ -63,6 +63,11 @@
 #ifdef SWIG
 
 //---------------------------------------------------------
+#ifdef _SAGA_UNICODE
+%include <typemaps.i>
+%include <python/cwstring.i>
+#endif
+
 %module saga_api
 %{
 #include "api_core.h"
