@@ -307,6 +307,7 @@ void CWKSP::On_Command(wxCommandEvent &event)
 	case ID_CMD_DATA_PROJECT_SAVE_AS:
 	case ID_CMD_TABLES_OPEN:
 	case ID_CMD_SHAPES_OPEN:
+	case ID_CMD_TIN_OPEN:
 	case ID_CMD_POINTCLOUD_OPEN:
 	case ID_CMD_GRIDS_OPEN:
 		m_pData   ->On_Command(event);
