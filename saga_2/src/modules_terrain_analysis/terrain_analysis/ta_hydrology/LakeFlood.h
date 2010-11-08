@@ -42,9 +42,9 @@
 //    contact:    Volker Wichmann                        //
 //                Research Associate                     //
 //                Chair of Physical Geography		     //
-//				  KU Eichstätt-Ingolstadt				 //
+//				  KU Eichstï¿½tt-Ingolstadt				 //
 //                Ostenstr. 18                           //
-//                85072 Eichstätt                        //
+//                85072 Eichstï¿½tt                        //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -68,6 +68,7 @@
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
+#include <list>
 
 
 ///////////////////////////////////////////////////////////
@@ -115,6 +116,12 @@ protected:
 
 	virtual bool			On_Execute			(void);
 
+	typedef struct
+	{
+		int		x;			// grid x
+		int		y;			// grid y
+		double	z;			// absolute water level
+	}SEED;
 
 private:
 
@@ -138,9 +145,10 @@ protected:
 	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
 
 private:
-	CSG_Grid				*pElev, *pOdepth;
+	CSG_Grid				*pElev, *pOdepth, *pOlevel;
 	CTraceOrder				*newCell, *firstCell, *iterCell, *lastCell;
-	double					wzSeed;
+	bool					m_bLevel;
+	double					m_water;
 
 
 };

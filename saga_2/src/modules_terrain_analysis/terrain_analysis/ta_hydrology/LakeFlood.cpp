@@ -58,28 +58,37 @@
 
 CLakeFlood::CLakeFlood(void)
 {
-	// Parameter Settings for input dialog of the module
 
-	Parameters.Set_Name(_TL("Lake Flood"));
-	Set_Author(_TL("Copyrights (c) 2005 by Volker Wichmann"));
-	Parameters.Set_Description(_TW(
-		"This module can be used to simulate the extent and volume of a lake for a specified water depth in a seed cell.\r\n"
+	Set_Name		(_TL("Lake Flood"));
+	Set_Author		(_TL("Volker Wichmann (c) 2005-2010"));
+	Set_Description	(_TW("This module can be used to flood a digital elevation model from seed points. "
+						"Seed points have to be coded either with local water depth or absolute water level.\r\n"
 	));
 
 
 	Parameters.Add_Grid(	
 		NULL, "ELEV", _TL("DEM"), 
-		_TL("digital elevation model [m]"),
+		_TL("digital elevation model"),
 		PARAMETER_INPUT
 	);
 	Parameters.Add_Grid(	
-		NULL, "INDEPTH", _TL("Water Depth"),
-		_TL("seed cell coded with local water depth [m], all other cells NoData"),
+		NULL, "SEEDS", _TL("Seeds"),
+		_TL("seed cells coded with local water depth or absolute water level, all other cells NoData"),
 		PARAMETER_INPUT
+	);
+	Parameters.Add_Value(
+		NULL, "LEVEL", _TL("Absolute Water Levels"),
+		_TL("check this in case seed cells are coded with absolute water level"),
+		PARAMETER_TYPE_Bool, false
 	);
 	Parameters.Add_Grid(	
 		NULL, "OUTDEPTH", _TL("Lake"), 
-		_TL("extent of lake, coded with water depth [m]"),
+		_TL("extent of lake, coded with water depth"),
+		PARAMETER_OUTPUT
+	);
+	Parameters.Add_Grid(	
+		NULL, "OUTLEVEL", _TL("Surface"), 
+		_TL("Flooded digital elevation model"),
 		PARAMETER_OUTPUT
 	);
 
@@ -96,70 +105,85 @@ CLakeFlood::~CLakeFlood(void)
 //														 //
 ///////////////////////////////////////////////////////////
 
-
+//---------------------------------------------------------
 bool CLakeFlood::On_Execute(void)		
 {
-	CSG_Grid	*pElev, *pIdepth, *pOdepth;
+	CSG_Grid	*pElev, *pSeeds, *pOdepth, *pOlevel;
 	CTraceOrder	*newCell, *firstCell, *iterCell, *lastCell;
 	int			x, y, ix, iy, i;
-	double		wzSeed, z, d;
+	bool		bLevel;
+	SEED		thisSeed;
+	std::list<SEED>				seeds;
+	std::list<SEED>::iterator	it;
 
+
+	//---------------------------------------------------------
 	pElev		= Parameters("ELEV")->asGrid();
-	pIdepth		= Parameters("INDEPTH")->asGrid();
+	pSeeds		= Parameters("SEEDS")->asGrid();
+	bLevel		= Parameters("LEVEL")->asBool();
 	pOdepth		= Parameters("OUTDEPTH")->asGrid();
+	pOlevel		= Parameters("OUTLEVEL")->asGrid();
 
 
-	// Initialize Grids
+
+	//---------------------------------------------------------
+	// Initialize
+
 	pOdepth->Assign(0.0);
+	pOlevel->Assign(pElev);
 
-	
-	// Get seed cell and water depth
-	for(y=0; y<Get_NY(); y++)									
+	for( y=0; y<Get_NY(); y++ )									
 	{
-		for(x=0; x<Get_NX(); x++)
+		for( x=0; x<Get_NX(); x++ )
 		{
-			if( !pIdepth->is_NoData(x, y) )
+			if( !pSeeds->is_NoData(x, y) && !pElev->is_NoData(x, y) )
 			{
-				if( !pElev->is_NoData(x, y) )
-				{
-					newCell = new CTraceOrder();
-					newCell->x = x;
-					newCell->y = y;
-					firstCell = newCell;
-					wzSeed = pIdepth->asDouble(x, y);
-					pOdepth->Set_Value(x, y, wzSeed);
-					wzSeed +=  pElev->asDouble(x, y);
-					// terminate search
-				}
+				thisSeed.x	= x;
+				thisSeed.y	= y;
+				if( bLevel )
+					thisSeed.z	= pSeeds->asDouble(x, y);
 				else
-					firstCell = NULL;
+					thisSeed.z	= pSeeds->asDouble(x, y) + pElev->asDouble(x, y);
+				seeds.push_back(thisSeed);
 			}
 		}
 	}
 
-	// main
+
 	//-----------------------------------------------------
-	iterCell = firstCell;
-	lastCell = firstCell;
+	// Flood
 
-	while( iterCell != NULL ) 
+	for( it=seeds.begin(); it!=seeds.end(); it++ )
 	{
-		x	= iterCell->x;
-		y	= iterCell->y;
+		if( it->z <= pOlevel->asDouble(it->x, it->y) )
+			continue;
 
-		z		= pElev->asDouble(x, y);
+		newCell		= new CTraceOrder();
+		newCell->x	= it->x;
+		newCell->y	= it->y;
+		firstCell	= newCell;
 
-		for(i=0; i<8; i++)												
+		pOdepth->Set_Value(it->x, it->y, it->z - pElev->asDouble(it->x, it->y));
+		pOlevel->Set_Value(it->x, it->y, it->z);
+
+
+		iterCell = firstCell;
+		lastCell = firstCell;
+
+		while( iterCell != NULL ) 
 		{
-			ix	= Get_xTo(i, x);			
-			iy	= Get_yTo(i, y);			
-						
-			if(	is_InGrid(ix, iy) && !pElev->is_NoData(ix, iy) && pOdepth->asDouble(ix, iy) == 0.0 )
-			{ 
-				d	= pElev->asDouble(ix, iy);
-				if( d < wzSeed )
-				{
-					pOdepth->Set_Value(ix, iy, (wzSeed - d));
+			x	= iterCell->x;
+			y	= iterCell->y;
+
+			for( i=0; i<8; i++ )												
+			{
+				ix	= Get_xTo(i, x);			
+				iy	= Get_yTo(i, y);			
+							
+				if(	is_InGrid(ix, iy) && !pElev->is_NoData(ix, iy) && pOlevel->asDouble(ix, iy) < it->z )
+				{ 
+					pOdepth->Set_Value(ix, iy, it->z - pElev->asDouble(ix, iy));
+					pOlevel->Set_Value(ix, iy, it->z);
 					newCell = new CTraceOrder();
 					newCell->x = ix;
 					newCell->y = iy;
@@ -168,28 +192,30 @@ bool CLakeFlood::On_Execute(void)
 					lastCell = newCell;
 				}
 			}
-		}
-	
-		newCell = firstCell;
+		
+			newCell = firstCell;
 
-		if( newCell->next == NULL )
-		{
-			firstCell = NULL;
-			delete (newCell);
-		}
-		else
-		{
-			newCell->next->prev = NULL;
-			firstCell = newCell->next;
-			newCell->next = NULL;
-			delete (newCell);
-		}
+			if( newCell->next == NULL )
+			{
+				firstCell = lastCell = NULL;
+				delete (newCell);
+				newCell = NULL;
+			}
+			else
+			{
+				newCell->next->prev = NULL;
+				firstCell = newCell->next;
+				newCell->next = NULL;
+				delete (newCell);
+				newCell = NULL;
+			}
 
-		iterCell = firstCell;
+			iterCell = firstCell;
+		}
 	}
 
-	//-----------------------------------------------------
 
+	//-----------------------------------------------------
 	return( true );
 }
 
