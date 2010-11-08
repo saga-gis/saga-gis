@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.22 2010-11-06 11:59:03 johanvdw Exp $
+# $Id: Makefile.am,v 1.23 2010-11-08 09:19:06 johanvdw Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -112,3 +112,5 @@ python_PYTHON = saga_api.py
 saga_api_wrap.cxx:
 	$(SWIG) -includeall -python $(SWIGUNICODEFLAGS) ./saga_api.h 
 endif
+
+CLEANFILES = saga_api_wrap.cxx
