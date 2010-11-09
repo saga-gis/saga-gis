@@ -139,7 +139,7 @@ static void csa_quit(char* format, ...)
     vfprintf(stderr, format, args);
     va_end(args);
 
-    exit(1);
+//    exit(1);
 }
 
 /* Allocates n1xn2 matrix of something. Note that it will be accessed as 
@@ -1856,12 +1856,12 @@ static void usage()
     printf("  C1-continuous bivariate cubic spline. The calculated values are written to\n");
     printf("  standard output.\n");
 
-    exit(0);
+//    exit(0);
 }
 
 static void version()
 {
-    exit(0);
+//    exit(0);
 }
 
 static void parse_commandline(int argc, char* argv[], char** fdata, char** fpoints, int* invariant, int* square, int* generate_points, int* nx, int* ny, int* nppc, int* k, double* zoom)
