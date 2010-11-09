@@ -138,7 +138,7 @@ bool CGrid_Pattern::On_Execute(void){
 
 int CGrid_Pattern::getNumberOfClasses(int iX, int iY){
 
-	int *iValues = new int[9];
+	int iValues[9];
 	int iNumClasses =0;
 	int i,j,k;
 	int iValue;
