@@ -71,7 +71,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <stdio.h>
+#include "api_core.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -158,13 +158,14 @@ public:
 	void						Flush_Record		(void);
 
 	//-----------------------------------------------------
-	int							asInt				(int iField);
-	double						asDouble			(int iField);
-        const char *						asString			(int iField);
+	bool						asInt				(int iField, int    &Value);
+	bool						asDouble			(int iField, double &Value);
+	CSG_String					asString			(int iField);
 
 	//-----------------------------------------------------
-	bool						Set_Value			(int iField, double Value);
+	bool						Set_Value			(int iField, double      Value);
 	bool						Set_Value			(int iField, const char *Value);
+	bool						Set_NoData			(int iField);
 
 
 protected:

@@ -340,15 +340,36 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 					break;
 
 				case SG_DATATYPE_Date:
-					pShape->Set_Value(iField, fDBF.asDouble(iField) );
+					{
+						int		Value;
+
+						if( fDBF.asInt(iField, Value) )
+							pShape->Set_Value(iField, Value);
+						else
+							pShape->Set_NoData(iField);
+					}
 					break;
 
 				case SG_DATATYPE_Long:
-					pShape->Set_Value(iField, fDBF.asInt(iField) );
+					{
+						int		Value;
+
+						if( fDBF.asInt(iField, Value) )
+							pShape->Set_Value(iField, Value);
+						else
+							pShape->Set_NoData(iField);
+					}
 					break;
 
 				case SG_DATATYPE_Double:
-					pShape->Set_Value(iField, fDBF.asDouble(iField) );
+					{
+						double	Value;
+
+						if( fDBF.asDouble(iField, Value) )
+							pShape->Set_Value(iField, Value);
+						else
+							pShape->Set_NoData(iField);
+					}
 					break;
 				}
 			}
@@ -677,7 +698,14 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 				break;
 
 			case DBF_FT_NUMERIC:
-				fDBF.Set_Value(iField, pShape->asDouble(iField));
+				if( pShape->is_NoData(iField) )
+				{
+					fDBF.Set_NoData(iField);
+				}
+				else
+				{
+					fDBF.Set_Value(iField, pShape->asDouble(iField));
+				}
 				break;
 			}
 		}

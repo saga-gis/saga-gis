@@ -449,15 +449,36 @@ bool CSG_Table::_Load_DBase(const CSG_String &File_Name)
 						break;
 
 					case SG_DATATYPE_Date:
-						pRecord->Set_Value(iField, dbf.asDouble(iField) );
+						{
+							int		Value;
+
+							if( dbf.asInt(iField, Value) )
+								pRecord->Set_Value(iField, Value);
+							else
+								pRecord->Set_NoData(iField);
+						}
 						break;
 
 					case SG_DATATYPE_Long:
-						pRecord->Set_Value(iField, dbf.asInt(iField) );
+						{
+							int		Value;
+
+							if( dbf.asInt(iField, Value) )
+								pRecord->Set_Value(iField, Value);
+							else
+								pRecord->Set_NoData(iField);
+						}
 						break;
 
 					case SG_DATATYPE_Double:
-						pRecord->Set_Value(iField, dbf.asDouble(iField) );
+						{
+							double	Value;
+
+							if( dbf.asDouble(iField, Value) )
+								pRecord->Set_Value(iField, Value);
+							else
+								pRecord->Set_NoData(iField);
+						}
 						break;
 					}
 				}
@@ -557,7 +578,14 @@ bool CSG_Table::_Save_DBase(const CSG_String &File_Name)
 				break;
 
 			case DBF_FT_NUMERIC:
-				dbf.Set_Value(iField, pRecord->asDouble(iField));
+				if( pRecord->is_NoData(iField) )
+				{
+					dbf.Set_NoData(iField);
+				}
+				else
+				{
+					dbf.Set_Value(iField, pRecord->asDouble(iField));
+				}
 				break;
 			}
 		}

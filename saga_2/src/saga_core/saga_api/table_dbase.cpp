@@ -557,101 +557,109 @@ void CSG_Table_DBase::Flush_Record(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSG_Table_DBase::asInt(int iField)
+bool CSG_Table_DBase::asInt(int iField, int &Value)
 {
-	char	*s;
-	int		Result	= 0;
-
 	if( bOpen && iField >= 0 && iField < nFields )
 	{
+		char		*c;
+		int			i;
+		CSG_String	s;
+
+		for(i=0, c=Record+FieldOffset[iField]; i<FieldDesc[iField].Width && *c; i++, c++)
+		{
+			s	+= *c;
+		}
+
 		if( FieldDesc[iField].Type == DBF_FT_NUMERIC )
 		{
-			s		= (char *)SG_Calloc(FieldDesc[iField].Width + 1, sizeof(char));
-			memcpy(s, Record + FieldOffset[iField], FieldDesc[iField].Width);
-			Result	= atoi(s);
-			SG_Free(s);
+			return( s.asInt(Value) );
+		}
+
+		else if( FieldDesc[iField].Type == DBF_FT_DATE && s.Length() >= 8 )
+		{
+			int	d	= s.Mid(6, 2).asInt();	if( d < 1 )	d	= 1;	else if( d > 31 )	d	= 31;
+			int	m	= s.Mid(4, 2).asInt();	if( m < 1 )	m	= 1;	else if( m > 12 )	m	= 12;
+			int	y	= s.Mid(0, 4).asInt();
+
+			Value	= 10000 * y + 100 * m + d;
+
+			return( true );
 		}
 	}
 
-	return( Result );
+	return( false );
 }
 
 //---------------------------------------------------------
-double CSG_Table_DBase::asDouble(int iField)
+bool CSG_Table_DBase::asDouble(int iField, double &Value)
 {
-	char	*s;
-	double	Result	= 0;
-
 	if( bOpen && iField >= 0 && iField < nFields )
 	{
+		char		*c;
+		int			i;
+		CSG_String	s;
+
+		for(i=0, c=Record+FieldOffset[iField]; i<FieldDesc[iField].Width && *c; i++, c++)
+		{
+			s	+= *c;
+		}
+
 		if( FieldDesc[iField].Type == DBF_FT_NUMERIC )
 		{
-			s		= (char *)SG_Calloc(FieldDesc[iField].Width + 1, sizeof(char));
-			memcpy(s, Record + FieldOffset[iField], FieldDesc[iField].Width);
-
-			Result	= atof(s);
-
-			SG_Free(s);
+			return( s.asDouble(Value) );
 		}
-		else if( FieldDesc[iField].Type == DBF_FT_DATE )
+
+		else if( FieldDesc[iField].Type == DBF_FT_DATE && s.Length() >= 8 )
 		{
-			s		= (char *)SG_Calloc(FieldDesc[iField].Width + 1, sizeof(char));
-			memcpy(s, Record + FieldOffset[iField], FieldDesc[iField].Width);
+			int	d	= s.Mid(6, 2).asInt();	if( d < 1 )	d	= 1;	else if( d > 31 )	d	= 31;
+			int	m	= s.Mid(4, 2).asInt();	if( m < 1 )	m	= 1;	else if( m > 12 )	m	= 12;
+			int	y	= s.Mid(0, 4).asInt();
 
-			int	d	= atoi(s + 6);	s[6]	= '\0';	if( d < 1 )	d	= 1;	else if( d > 31 )	d	= 31;
-			int	m	= atoi(s + 4);	s[4]	= '\0';	if( m < 1 )	m	= 1;	else if( m > 12 )	m	= 12;
-			int	y	= atoi(s);		
+			Value	= 10000 * y + 100 * m + d;
 
-			Result	= 10000 * y + 100 * m + 1 * d;
-
-			SG_Free(s);
+			return( true );
 		}
 	}
 
-	return( Result );
+	return( false );
 }
 
 //---------------------------------------------------------
-const char * CSG_Table_DBase::asString(int iField)
+CSG_String CSG_Table_DBase::asString(int iField)
 {
+	CSG_String	Value;
+
 	if( bOpen && iField >= 0 && iField < nFields )
 	{
 		if( FieldDesc[iField].Type != DBF_FT_DATE )
 		{
-			int		i			= FieldDesc[iField].Width;
-			Result_String		= (char *)SG_Realloc(Result_String, (i + 1) * sizeof(char));
-			memcpy(Result_String, Record + FieldOffset[iField], FieldDesc[iField].Width);
+			char	*c;
+			int		i;
 
-			Result_String[i--]	= '\0';
-
-			while( i >= 0 && Result_String[i] == ' ' )
+			for(i=0, c=Record+FieldOffset[iField]; i<FieldDesc[iField].Width && *c; i++, c++)
 			{
-				Result_String[i--]	= '\0';
+				Value	+= *c;
 			}
 		}
+
 		else // if( FieldDesc[iField].Type == DBF_FT_DATE )	// SAGA(DD.MM.YYYY) from DBASE(YYYYMMDD)
 		{
 			char	*s	= Record + FieldOffset[iField];
 
-			Result_String		= (char *)SG_Realloc(Result_String, (10 + 1) * sizeof(char));
-
-			Result_String[0]	= s[6];	// D1
-			Result_String[1]	= s[7];	// D2
-			Result_String[2]	= '.';
-			Result_String[3]	= s[4];	// M1
-			Result_String[4]	= s[5];	// M2
-			Result_String[5]	= '.';
-			Result_String[6]	= s[0];	// Y1
-			Result_String[7]	= s[1];	// Y2
-			Result_String[8]	= s[2];	// Y3
-			Result_String[9]	= s[3];	// Y4
-			Result_String[2]	= '\0';
+			Value	+= s[6];	// D1
+			Value	+= s[7];	// D2
+			Value	+= '.';
+			Value	+= s[4];	// M1
+			Value	+= s[5];	// M2
+			Value	+= '.';
+			Value	+= s[0];	// Y1
+			Value	+= s[1];	// Y2
+			Value	+= s[2];	// Y3
+			Value	+= s[3];	// Y4
 		}
-
-		return( Result_String );
 	}
 
-	return( "" );
+	return( Value );
 }
 
 
@@ -761,6 +769,17 @@ bool CSG_Table_DBase::Set_Value(int iField, const char *Value)
 	}
 
 	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Table_DBase::Set_NoData(int iField)
+{
+	if( bOpen && iField >= 0 && iField < nFields && FieldDesc[iField].Width > 0 )
+	{
+		memset(Record + FieldOffset[iField], ' ', FieldDesc[iField].Width);
+	}
+
+	return( true );
 }
 
 
