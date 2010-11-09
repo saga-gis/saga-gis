@@ -780,12 +780,18 @@ bool CModule_Library::_Destroy_DataObjects(bool bSave, CSG_Parameters *pParamete
 		//-------------------------------------------------
 		if( pParameter->is_DataObject() && pParameter->asDataObject() )
 		{
-			m_Data_Objects.Add(pParameter->asDataObject());
+			CSG_Data_Object	*pObject	= pParameter->asDataObject();
 
-			if( FileName.Length() > 0 )
+			if( pParameter->is_Input() && pObject->is_Modified() )
 			{
-				pParameter->asDataObject()->Save(FileName.c_str());
+				pObject->Save(pObject->Get_File_Name());
 			}
+			else if( FileName.Length() > 0 )
+			{
+				pObject->Save(FileName.c_str());
+			}
+
+			m_Data_Objects.Add(pObject);
 
 			pParameter->Set_Value(DATAOBJECT_NOTSET);
 		}
@@ -795,19 +801,25 @@ bool CModule_Library::_Destroy_DataObjects(bool bSave, CSG_Parameters *pParamete
 		{
 			for(int i=0; i<pParameter->asList()->Get_Count(); i++)
 			{
-				m_Data_Objects.Add(pParameter->asList()->asDataObject(i));
+				CSG_Data_Object	*pObject	= pParameter->asList()->asDataObject(i);
 
-				if( FileName.Length() > 0 )
+				if( pParameter->is_Input() && pObject->is_Modified() )
+				{
+					pObject->Save(pObject->Get_File_Name());
+				}
+				else if( FileName.Length() > 0 )
 				{
 					if( pParameter->asList()->Get_Count() == 1 )
 					{
-						pParameter->asList()->asDataObject(i)->Save(FileName.c_str());
+						pObject->Save(FileName.c_str());
 					}
 					else
 					{
-						pParameter->asList()->asDataObject(i)->Save(CSG_String::Format(SG_T("%s_%04d"), FileName.c_str(), i + 1));
+						pObject->Save(CSG_String::Format(SG_T("%s_%04d"), FileName.c_str(), i + 1));
 					}
 				}
+
+				m_Data_Objects.Add(pObject);
 			}
 
 			pParameter->asList()->Del_Items();
