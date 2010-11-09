@@ -946,7 +946,7 @@ CSG_String		SG_Get_String(double Value, int Precision, bool bScientific)
 	}
 	else // if( Precision == -2 )
 	{
-		s.Printf(SG_T("%.*f"), SG_Get_Significant_Decimals(Value, 10), Value);
+		s.Printf(SG_T("%.*f"), SG_Get_Significant_Decimals(Value, abs(Precision)), Value);
 	}
 
 	s.Replace(SG_T(","), SG_T("."));

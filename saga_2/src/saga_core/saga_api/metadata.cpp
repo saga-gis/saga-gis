@@ -199,7 +199,7 @@ CSG_MetaData * CSG_MetaData::Add_Child(void)
 
 CSG_MetaData * CSG_MetaData::Add_Child(const CSG_String &Name, double Content)
 {
-	return( Add_Child(Name, CSG_String::Format(SG_T("%f"), Content)) );
+	return( Add_Child(Name, SG_Get_String(Content, -16)) );
 }
 
 CSG_MetaData * CSG_MetaData::Add_Child(const CSG_String &Name, int Content)
