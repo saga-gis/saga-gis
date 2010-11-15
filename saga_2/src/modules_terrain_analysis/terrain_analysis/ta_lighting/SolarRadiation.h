@@ -83,31 +83,43 @@ class ta_lighting_EXPORT CSolarRadiation : public CSG_Module_Grid
 {
 public:
 	CSolarRadiation(void);
-	virtual ~CSolarRadiation(void);
 
 
 protected:
 
-	virtual bool		On_Execute				(void);
+	virtual bool			On_Execute				(void);
 
 
 private:
 
-	int					m_Method;
+	bool					m_bLocalSVF, m_bBending, m_bUpdate;
 
-	double				m_SolarConstant, m_Transmittance, m_Pressure, m_Water, m_Dust;
+	int						m_Time, m_Method, m_Day_A, m_Day_B, m_dDays;
 
-	CSG_Grid			*m_pDTM, *m_pSum, *m_pRadiation, *m_pDuration, *m_pSunrise, *m_pSunset;
+	double					m_Solar_Const, m_Hour_A, m_Hour_B, m_dHour, m_Latitude, m_Atmosphere, m_Vapour, m_Transmittance, m_Pressure, m_Water, m_Dust;
+
+	CSG_Grid				*m_pDEM, *m_pVapour, *m_pSVF, *m_pDirect, *m_pDiffus, *m_pTotal, *m_pRatio, *m_pDuration, *m_pSunrise, *m_pSunset,
+							m_Slope, m_Aspect, m_Shade, m_Lat, m_Lon, m_Sol_Height, m_Sol_Azimuth;
 
 
-	void				Execute_DailySum		(double Latitude_RAD, double Hour_Step, double Hour_Start, double Hour_Stop, int Day);
-	void				Execute_SumOfDays		(double Latitude_RAD, double Hour_Step, double Hour_Start, double Hour_Stop, int Day_Step, int Day_Start, int Day_Stop);
+	bool					Finalise				(void);
 
-	void				Get_DailySum			(double Latitude_RAD, double Hour_Step, double Hour_Start, double Hour_Stop, int Day, bool bProgressBar = true);
+	bool					Get_Insolation			(void);
+	bool					Get_Insolation			(int Day);
+	bool					Get_Insolation			(int Day, double Hour);
+	bool					Get_Insolation			(double Sol_Height, double Sol_Azimuth, double Hour);
 
-	void				Get_SolarCorrection		(double ZenithAngle, double Elevation, double &RDIRN, double &RDIFN);
+	double					Get_Air_Mass			(double Sol_Height);
 
-	bool				Get_SolarPosition		(int Day, double Time, double LAT, double LON, double &Azimuth, double &Declination, bool bDegree = true);
+	bool					Get_Irradiance			(int x, int y, double Sol_Height, double Sol_Azimuth, double &Direct, double &Diffus);
+
+	bool					Get_Shade				(double Sol_Height, double Sol_Azimuth);
+	void					Set_Shade				(int x, int y, double dx, double dy, double dz);
+	void					Set_Shade_Bended		(int x, int y, char iLock);
+	bool					Get_Shade_Complete		(int x, int y);
+	void					Get_Shade_Params		(double Sol_Height, double Sol_Azimuth, double &dx, double &dy, double &dz);
+
+	bool					Get_Solar_Position		(int Day, double Hour, double Lat, double Lon, double &Sol_Height, double &Sol_Azimuth);
 
 };
 
