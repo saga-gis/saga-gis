@@ -759,15 +759,24 @@ CSG_Grid & CSG_Grid::_Operation_Arithmetic(double Value, TSG_Grid_Operation Oper
 	switch( Operation )
 	{
 	case GRID_OPERATION_Addition:
+		if( Value == 0.0 )
+			return( *this );
+
 		Get_History().Add_Child(SG_T("GRID_OPERATION"), Value)->Add_Property(SG_T("NAME"), LNG("Addition"));
 		break;
 
 	case GRID_OPERATION_Subtraction:
+		if( Value == 0.0 )
+			return( *this );
+
 		Get_History().Add_Child(SG_T("GRID_OPERATION"), Value)->Add_Property(SG_T("NAME"), LNG("Subtraction"));
 		Value	= -Value;
 		break;
 
 	case GRID_OPERATION_Multiplication:
+		if( Value == 1.0 )
+			return( *this );
+
 		Get_History().Add_Child(SG_T("GRID_OPERATION"), Value)->Add_Property(SG_T("NAME"), LNG("Multiplication"));
 		break;
 
