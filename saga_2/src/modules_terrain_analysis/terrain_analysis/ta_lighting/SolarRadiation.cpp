@@ -79,15 +79,14 @@ CSolarRadiation::CSolarRadiation(void)
 
 	Set_Description	(_TW(
 		"Calculation of potential incoming solar radiation (insolation).\n"
-		"Most options should do well, but a few settings may need further revision: "
-		"- output unit [Wmin / m\xb2] is included for comparability with SADO, but seems to be incorrect\n"
-		"- TAPES-G based diffuse irradiances show wrong gradient with height\n"
 		"\n"
-		"References:\n"
-		"- Boehner, J., Antonic, O. (2009): Land Surface Parameters Specific to Topo-Climatology."
-		" in Hengl, T. & Reuter, H.I. [Eds.]: Geomorphometry - Concepts, Software, Applications.\n"
-		"- Oke, T.R. (1988): Boundary Layer Climates. London, Taylor & Francis.\n"
-		"- Wilson, J.P., Gallant, J.C. [Eds.] (2000): Terrain Analysis - Principles and Applications. New York, John Wiley & Sons, Inc.\n"
+		"References:\n<ul>"
+		"<li>Boehner, J., Antonic, O. (2009): Land Surface Parameters Specific to Topo-Climatology. in Hengl, T. & Reuter, H.I. [Eds.]: Geomorphometry - Concepts, Software, Applications.</li>"
+		"<li>Oke, T.R. (1988): Boundary Layer Climates. London, Taylor & Francis.</li>"
+		"<li>Wilson, J.P., Gallant, J.C. [Eds.] (2000): Terrain Analysis - Principles and Applications. New York, John Wiley & Sons, Inc.</li>"
+		"</ul>\n"
+
+		"\n*) Most options should do well, but TAPES-G based diffuse irradiance calculation ('Atmospheric Effects' methods 2 and 3) needs further revision!"
 	));
 
 	//-----------------------------------------------------
@@ -182,14 +181,18 @@ CSolarRadiation::CSolarRadiation(void)
 		CSG_String::Format(SG_T("%s|%s|%s|"),
 			SG_T("kWh / m\xb2"),
 			SG_T("kJ / m\xb2"),
-			SG_T("Wmin / cm\xb2")
+			SG_T("J / cm\xb2")
 		), 0
 	);
 
-	Parameters.Add_Value(
+	Parameters.Add_Choice(
 		NULL	, "UPDATE"			, _TL("Update"),
-		_TL("Show each time step during calculation."),
-		PARAMETER_TYPE_Bool			, false
+		_TL("show direct insolation for each time step."),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("do not update"),
+			_TL("update, colour stretch for each time step"),
+			_TL("update, fixed colour stretch")
+		), 0
 	);
 
 	//-----------------------------------------------------
@@ -411,8 +414,6 @@ CSolarRadiation::CSolarRadiation(void)
 //---------------------------------------------------------
 bool CSolarRadiation::On_Execute(void)
 {
-	static const int	Month2Day[12]	= {	0, 31, 49, 80, 109, 140, 170, 201, 232, 272, 303, 333 };
-
 	int		x, y;
 
 	//-----------------------------------------------------
@@ -428,7 +429,7 @@ bool CSolarRadiation::On_Execute(void)
 	m_pSunrise		= Parameters("SUNRISE")		->asGrid();
 	m_pSunset		= Parameters("SUNSET")		->asGrid();
 
-	m_bUpdate		= Parameters("UPDATE")		->asBool();
+	m_bUpdate		= Parameters("UPDATE")		->asInt();
 
 	m_Solar_Const	= Parameters("SOLARCONST")	->asDouble() / 1000.0;	// >> [kW / m²]
 	m_bLocalSVF		= Parameters("LOCALSVF")	->asBool();
@@ -453,21 +454,21 @@ bool CSolarRadiation::On_Execute(void)
 	{
 	case 0:	// moment
 		m_Hour_A		= Parameters("MOMENT")->asDouble();
-		m_Day_A			= Parameters("DAY_A")->asInt() + 1 + Month2Day[Parameters("MON_A")->asInt()];
+		m_Day_A			= Parameters("DAY_A")->asInt() + 1 + Get_Day_of_Year(Parameters("MON_A")->asInt());
 		break;
 
 	case 1:	// day
 		m_Hour_A		= Parameters("HOUR_RANGE")->asRange()->Get_LoVal();
 		m_Hour_B		= Parameters("HOUR_RANGE")->asRange()->Get_HiVal();
-		m_Day_A			= Parameters("DAY_A")->asInt() + 1 + Month2Day[Parameters("MON_A")->asInt()];
+		m_Day_A			= Parameters("DAY_A")->asInt() + 1 + Get_Day_of_Year(Parameters("MON_A")->asInt());
 		m_Day_B			= m_Day_A;
 		break;
 
 	case 2:	// range of days
 		m_Hour_A		= Parameters("HOUR_RANGE")->asRange()->Get_LoVal();
 		m_Hour_B		= Parameters("HOUR_RANGE")->asRange()->Get_HiVal();
-		m_Day_A			= Parameters("DAY_A")->asInt() + 1 + Month2Day[Parameters("MON_A")->asInt()];
-		m_Day_B			= Parameters("DAY_B")->asInt() + 1 + Month2Day[Parameters("MON_B")->asInt()];
+		m_Day_A			= Parameters("DAY_A")->asInt() + 1 + Get_Day_of_Year(Parameters("MON_A")->asInt());
+		m_Day_B			= Parameters("DAY_B")->asInt() + 1 + Get_Day_of_Year(Parameters("MON_B")->asInt());
 
 		if( m_Day_B < m_Day_A )
 		{
@@ -633,8 +634,8 @@ bool CSolarRadiation::Finalise(void)
 		dUnit	= 3.6;
 		break;
 
-	case 2:				// [W min / cm2]
-		Unit	= SG_T("W min / cm\xb2");
+	case 2:				// [Ws / cm2] = [J / cm2]
+		Unit	= SG_T("J / cm\xb2");
 		dUnit	= 360.0;
 		break;
 	}
@@ -699,6 +700,9 @@ bool CSolarRadiation::Get_Insolation(void)
 	//-----------------------------------------------------
 	if( m_Time == 0 )						// Moment
 	{
+		m_pDirect->Assign(0.0);
+		m_pDiffus->Assign(0.0);
+
 		Get_Insolation(m_Day_A, m_Hour_A);
 	}
 
@@ -760,11 +764,19 @@ bool CSolarRadiation::Get_Insolation(void)
 bool CSolarRadiation::Get_Insolation(int Day)
 {
 	//-----------------------------------------------------
+	double		Range	= 0.000001 + cos(M_DEG_TO_RAD * fabs(m_Latitude)) * sin(M_PI * ((80 + Day) % 365) / 365.0);
 	CSG_Grid	Direct;
 
 	if( m_bUpdate )
 	{
-		DataObject_Update(m_pDirect, true);
+		if( m_bUpdate == 2 )
+		{
+			DataObject_Update(m_pDirect, 0.0, Range, SG_UI_DATAOBJECT_SHOW);
+		}
+		else
+		{
+			DataObject_Update(m_pDirect, SG_UI_DATAOBJECT_SHOW);
+		}
 
 		Direct.Create(*Get_System(), SG_DATATYPE_Float);
 	}
@@ -787,7 +799,14 @@ bool CSolarRadiation::Get_Insolation(int Day)
 		{
 			bWasDay	= bDay;
 
-			DataObject_Update(m_pDirect);
+			if( m_bUpdate == 2 )
+			{
+				DataObject_Update(m_pDirect, 0.0, Range, SG_UI_DATAOBJECT_SHOW);
+			}
+			else
+			{
+				DataObject_Update(m_pDirect, SG_UI_DATAOBJECT_SHOW);
+			}
 
 			if( bDay )
 			{
@@ -971,7 +990,7 @@ inline bool CSolarRadiation::Get_Irradiance(int x, int y, double Sol_Height, dou
 	{
 		double	A, E, Vapour;
 
-		Vapour	= m_pVapour ? m_pVapour->asDouble(x, y) : m_Vapour;
+		Vapour	= m_pVapour && !m_pVapour->is_NoData(x, y) ? m_pVapour->asDouble(x, y) : m_Vapour;
 		Vapour	= Vapour > 0.0 ? sqrt(Vapour) : 0.0;
 		E		= 0.9160 - 0.05125 * Vapour;
 		A		= 0.4158 + 0.03990 * Vapour;
@@ -1230,10 +1249,16 @@ inline void CSolarRadiation::Get_Shade_Params(double Sol_Height, double Sol_Azim
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+inline int CSolarRadiation::Get_Day_of_Year(int Month)
+{
+	static const int	Day[13]	= {	0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 };
+
+	return( Month < 0 ? 0 : Month > 12 ? Day[12] : Day[Month] );
+}
+
+//---------------------------------------------------------
 inline bool CSolarRadiation::Get_Solar_Position(int Day, double Hour, double LAT, double LON, double &Sol_Height, double &Sol_Azimuth)
 {
-	static const int	Day2Month[13]	= {	0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 366 };
-
 	static const double	ECLIPTIC_OBL	= M_DEG_TO_RAD * 23.43999;	// obliquity of ecliptic
 
 	int		i;
@@ -1247,10 +1272,10 @@ inline bool CSolarRadiation::Get_Solar_Position(int Day, double Hour, double LAT
 
 	for(Month=1, i=0; i<=12; i++)
 	{
-		if( Day < Day2Month[i] )
+		if( Day < Get_Day_of_Year(i) )
 		{
 			Month	= i;
-			Day		-= Day2Month[i - 1];
+			Day		-= Get_Day_of_Year(i - 1);
 			break;
 		}
 	}

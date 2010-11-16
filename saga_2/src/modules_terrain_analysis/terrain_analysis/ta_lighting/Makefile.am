@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.am,v 1.10 2010-07-08 14:11:49 johanvdw Exp $
+# $Id: Makefile.am,v 1.11 2010-11-16 10:37:50 oconrad Exp $
 #
 if DEBUG
 DBGFLAGS = -g -DDEBUG
@@ -15,14 +15,12 @@ pkglib_LTLIBRARIES = libta_lighting.la
 libta_lighting_la_SOURCES =\
 HillShade.cpp\
 MLB_Interface.cpp\
-SADO_SolarRadiation.cpp\
 SolarRadiation.cpp\
 topographic_correction.cpp\
 view_shed.cpp\
 Visibility_Point.cpp\
 HillShade.h\
 MLB_Interface.h\
-SADO_SolarRadiation.h\
 SolarRadiation.h\
 topographic_correction.h\
 view_shed.h\

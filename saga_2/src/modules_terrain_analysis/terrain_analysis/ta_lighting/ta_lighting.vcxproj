@@ -575,7 +575,6 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Unicode Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Unicode Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="SADO_SolarRadiation.cpp" />
     <ClCompile Include="SolarRadiation.cpp" />
     <ClCompile Include="topographic_correction.cpp" />
     <ClCompile Include="view_shed.cpp" />
@@ -601,7 +600,6 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\shapes.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
-    <ClInclude Include="SADO_SolarRadiation.h" />
     <ClInclude Include="SolarRadiation.h" />
     <ClInclude Include="topographic_correction.h" />
     <ClInclude Include="view_shed.h" />

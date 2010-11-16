@@ -20,9 +20,6 @@
     <ClCompile Include="HillShade.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SADO_SolarRadiation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SolarRadiation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -92,9 +89,6 @@
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="HillShade.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SADO_SolarRadiation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SolarRadiation.h">
