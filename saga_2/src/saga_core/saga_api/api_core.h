@@ -96,7 +96,7 @@
 //---------------------------------------------------------
 #ifndef SWIG
 
-#if !defined(__APPLE__)
+#if !defined(__APPLE__) && !defined(__BSD__)
 #include <malloc.h>
 #endif
 

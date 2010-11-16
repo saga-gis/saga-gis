@@ -1,6 +1,6 @@
 /* lmdif0.c -- driver for lmdif */
 #include <math.h>
-#if !defined(__APPLE__)
+#if !defined(__APPLE__) && !defined(__BSD__)
 #include <malloc.h>
 #endif
 #include <stdlib.h>
