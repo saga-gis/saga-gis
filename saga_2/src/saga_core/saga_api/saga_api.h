@@ -72,9 +72,6 @@
 %{
 #include "api_core.h"
 #include "dataobject.h"
-#include "doc_html.h"
-#include "doc_pdf.h"
-#include "doc_svg.h"
 #include "geo_tools.h"
 #include "grid.h"
 #include "grid_pyramid.h"
