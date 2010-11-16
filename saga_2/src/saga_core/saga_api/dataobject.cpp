@@ -211,13 +211,13 @@ int CSG_Data_Object::Get_File_Type(void) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Data_Object::Set_NoData_Value(double Value)
+bool CSG_Data_Object::Set_NoData_Value(double Value)
 {
-	Set_NoData_Value_Range(Value, Value);
+	return( Set_NoData_Value_Range(Value, Value) );
 }
 
 //---------------------------------------------------------
-void CSG_Data_Object::Set_NoData_Value_Range(double loValue, double hiValue)
+bool CSG_Data_Object::Set_NoData_Value_Range(double loValue, double hiValue)
 {
 	if( loValue > hiValue )
 	{
@@ -235,7 +235,13 @@ void CSG_Data_Object::Set_NoData_Value_Range(double loValue, double hiValue)
 
 		m_NoData_Value		= loValue;
 		m_NoData_hiValue	= hiValue;
+
+		On_NoData_Changed();
+
+		return( true );
 	}
+
+	return( false );
 }
 
 

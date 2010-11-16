@@ -199,8 +199,8 @@ public:
 	class CSG_PointCloud *			asPointCloud	(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_PointCloud ? (class CSG_PointCloud *)this : NULL );	}
 	class CSG_Grid *				asGrid			(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Grid       ? (class CSG_Grid       *)this : NULL );	}
 
-	void							Set_NoData_Value		(double Value);
-	void							Set_NoData_Value_Range	(double loValue, double hiValue);
+	bool							Set_NoData_Value		(double Value);
+	bool							Set_NoData_Value_Range	(double loValue, double hiValue);
 	double							Get_NoData_Value		(void)	const	{	return( m_NoData_Value );	}
 	double							Get_NoData_hiValue		(void)	const	{	return( m_NoData_hiValue );	}
 
@@ -212,15 +212,16 @@ public:
 
 protected:
 
-	void							Set_File_Name	(const SG_Char *File_Name);
-	void							Set_File_Type	(int File_Type);
+	void							Set_File_Name		(const SG_Char *File_Name);
+	void							Set_File_Type		(int File_Type);
 
-	bool							Load_MetaData	(const SG_Char *File_Name);
-	bool							Save_MetaData	(const SG_Char *File_Name);
+	bool							Load_MetaData		(const SG_Char *File_Name);
+	bool							Save_MetaData		(const SG_Char *File_Name);
 
-	void							Set_Update_Flag	(bool bOn = true)	{	m_bUpdate	= bOn;		}
-	bool							Get_Update_Flag	(void)				{	return( m_bUpdate );	}
-	virtual bool					On_Update		(void)				{	return( true );			}
+	void							Set_Update_Flag		(bool bOn = true)	{	m_bUpdate	= bOn;		}
+	bool							Get_Update_Flag		(void)				{	return( m_bUpdate );	}
+	virtual bool					On_Update			(void)				{	return( true );			}
+	virtual bool					On_NoData_Changed	(void)				{	return( true );			}
 
 
 private:

@@ -139,8 +139,8 @@ public:
 	double							Get_Z				(void)			const		{	return( _Get_Field_Value(m_Cursor, 2) );				}
 	bool							Set_Attribute		(int iField, double Value)	{	return( Set_Value(iField + 3, Value) );					}
 	double							Get_Attribute		(int iField)	const		{	return( Get_Value(iField + 3) );						}
-	bool							Set_NoData			(int iField)				{	return( Set_Attribute(iField, m_NoData_Value) );		}
-	bool							is_NoData			(int iField)	const		{	return( Get_Attribute(iField) == m_NoData_Value );		}
+	bool							Set_NoData			(int iField)				{	return( Set_Attribute(iField, Get_NoData_Value()) );	}
+	bool							is_NoData			(int iField)	const		{	return( is_NoData_Value(Get_Attribute(iField)) );		}
 
 	virtual bool					Set_Value			(int iPoint, int iField, double Value)	{	return( _Set_Field_Value(iPoint >= 0 && iPoint < m_nRecords ? m_Points[iPoint] : NULL, iField, Value) );	}
 	virtual double					Get_Value			(int iPoint, int iField)	const		{	return( _Get_Field_Value(iPoint >= 0 && iPoint < m_nRecords ? m_Points[iPoint] : NULL, iField) );		}
@@ -149,17 +149,14 @@ public:
 	double							Get_Z				(int iPoint)				const		{	return( _Get_Field_Value(iPoint >= 0 && iPoint < m_nRecords ? m_Points[iPoint] : NULL, 2) );				}
 	bool							Set_Attribute		(int iPoint, int iField, double Value)	{	return( Set_Value(iPoint, iField + 3, Value) );				}
 	double							Get_Attribute		(int iPoint, int iField)	const		{	return( Get_Value(iPoint, iField + 3) );					}
-	bool							Set_NoData			(int iPoint, int iField)				{	return( Set_Attribute(iPoint, iField, m_NoData_Value) );	}
-	bool							is_NoData			(int iPoint, int iField)	const		{	return( Get_Attribute(iPoint, iField) == m_NoData_Value );	}
+	bool							Set_NoData			(int iPoint, int iField)				{	return( Set_Attribute(iPoint, iField, Get_NoData_Value()) );}
+	bool							is_NoData			(int iPoint, int iField)	const		{	return( is_NoData_Value(Get_Attribute(iPoint, iField)) );	}
 
 	virtual bool					Set_Value			(int iPoint, int iField, const SG_Char *Value);
 	virtual bool					Get_Value			(int iPoint, int iField, CSG_String    &Value)	const;
 
 	TSG_Point_Z						Get_Point			(void)			const;
 	TSG_Point_Z						Get_Point			(int iPoint)	const;
-
-	double							Get_NoData_Value	(void)			const		{	return( m_NoData_Value );	}
-	bool							Set_NoData_Value	(double NoData_Value);
 
 	virtual void					Set_Modified		(bool bModified = true)		{	CSG_Data_Object::Set_Modified(bModified);	}
 
@@ -198,6 +195,8 @@ protected:
 
 	virtual bool					On_Update			(void);
 
+	virtual bool					On_NoData_Changed	(void);
+
 	virtual void					_On_Construction	(void);
 
 	virtual bool					_Stats_Update		(int iField)	const;
@@ -210,8 +209,6 @@ private:
 	char							**m_Points, *m_Cursor;
 
 	int								m_nPointBytes, *m_Field_Offset, m_Shapes_Index, *m_Selected;
-
-	double							m_NoData_Value;
 
 	CSG_Array						m_Array_Points, m_Array_Selected;
 

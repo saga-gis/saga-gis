@@ -202,10 +202,11 @@ void CSG_PointCloud::_On_Construction(void)
 
 	m_Cursor		= NULL;
 	m_bXYZPrecDbl	= true;
-	m_NoData_Value	= -999999;
 
 	m_Selected		= NULL;
 	m_nSelected		= 0;
+
+	Set_NoData_Value(-999999);
 
 	Set_Update_Flag();
 
@@ -743,19 +744,14 @@ TSG_Point_Z CSG_PointCloud::Get_Point(int iPoint)	const
 }
 
 //---------------------------------------------------------
-bool CSG_PointCloud::Set_NoData_Value(double NoData_Value)
+bool CSG_PointCloud::On_NoData_Changed(void)
 {
-	if( NoData_Value != m_NoData_Value )
+	for(int i=3; i<m_nFields; i++)
 	{
-		for(int i=3; i<m_nFields; i++)
-		{
-			m_Field_Stats[i]->Invalidate();
-		}
-
-		return( true );
+		m_Field_Stats[i]->Invalidate();
 	}
 
-	return( false );
+	return( true );
 }
 
 
@@ -914,7 +910,7 @@ bool CSG_PointCloud::_Stats_Update(int iField) const
 			{
 				double	Value	= _Get_Field_Value(*pPoint, iField);
 
-				if( iField < 3 || Value != m_NoData_Value )
+				if( iField < 3 || is_NoData_Value(Value) == false )
 				{
 					m_Field_Stats[iField]->Add_Value(Value);
 				}
