@@ -492,7 +492,7 @@ bool CSolarRadiation::On_Execute(void)
 	DataObject_Set_Colors(m_pSunset  , 100, SG_COLORS_YELLOW_RED	, true);
 
 	//-----------------------------------------------------
-	if( m_pDuration )	m_pDuration->Assign(0.0);
+	if( m_pDuration )	m_pDuration->Assign_NoData();
 	if( m_pSunrise  )	m_pSunrise ->Assign_NoData();
 	if( m_pSunset   )	m_pSunset  ->Assign_NoData();
 
@@ -917,10 +917,17 @@ bool CSolarRadiation::Get_Insolation(double Sol_Height, double Sol_Azimuth, doub
 					{
 						if( m_pDuration )
 						{
-							m_pDuration	->Add_Value(x, y, m_dHour);
+							if( m_pDuration->is_NoData(x, y) )
+							{
+								m_pDuration	->Set_Value(x, y, m_dHour);
+							}
+							else
+							{
+								m_pDuration	->Add_Value(x, y, m_dHour);
+							}
 						}
 
-						if( m_pSunrise && m_pSunrise->is_NoData(x, y) == true )
+						if( m_pSunrise && (m_pSunrise->is_NoData(x, y) || m_pSunrise->asDouble(x, y) > Hour) )
 						{
 							m_pSunrise	->Set_Value(x, y, Hour);
 						}
