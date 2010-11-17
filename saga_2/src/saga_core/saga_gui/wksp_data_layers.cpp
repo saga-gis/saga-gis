@@ -58,6 +58,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <wx/tooltip.h>
+
 #include <saga_api/saga_api.h>
 
 #include "res_controls.h"
@@ -158,7 +160,10 @@ void CWKSP_Data_Button::On_Paint(wxPaintEvent &event)
 	{
 		if( g_pData->Exists(m_pObject) )
 		{
-			SetToolTip(m_pLayer->Get_Name());
+			if( !GetToolTip() || GetToolTip()->GetTip().Cmp(m_pLayer->Get_Name()) )
+			{
+				SetToolTip(m_pLayer->Get_Name());
+			}
 
 			dc.DrawBitmap(m_pLayer->Get_Thumbnail(r.GetWidth() - 1, r.GetHeight() - 1), r.GetLeft(), r.GetTop(), true);
 
