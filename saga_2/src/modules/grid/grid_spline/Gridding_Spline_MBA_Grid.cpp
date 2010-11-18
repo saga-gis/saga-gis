@@ -122,6 +122,15 @@ CGridding_Spline_MBA_Grid::CGridding_Spline_MBA_Grid(void)
 		_TL(""),
 		PARAMETER_TYPE_Bool		, false
 	);
+
+	Parameters.Add_Choice(
+		Parameters("TARGET")	, "DATATYPE"	, _TL("Data Type"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("same as input grid"),
+			_TL("floating point")
+		), 1
+	);
 }
 
 //---------------------------------------------------------
@@ -142,7 +151,15 @@ bool CGridding_Spline_MBA_Grid::On_Execute(void)
 
 	if( Initialise() )
 	{
-		m_Points.Create(*Parameters("GRIDPOINTS")->asGrid());
+		if( Parameters("DATATYPE")->asInt() == 0 )
+		{
+			m_Points.Create(*Parameters("GRIDPOINTS")->asGrid());
+		}
+		else
+		{
+			m_Points.Create(Parameters("GRIDPOINTS")->asGrid());
+			m_Points.Assign(Parameters("GRIDPOINTS")->asGrid());
+		}
 
 		m_Epsilon	= Parameters("EPSILON")		->asDouble();
 		m_Level_Max	= Parameters("LEVEL_MAX")	->asInt();
