@@ -254,6 +254,8 @@ bool CSG_Grid::Create(CSG_Grid *pGrid, TSG_Data_Type Type, TSG_Grid_Memory_Type 
 	if( pGrid && Create(Type, pGrid->Get_NX(), pGrid->Get_NY(), pGrid->Get_Cellsize(), pGrid->Get_XMin(), pGrid->Get_YMin(), Memory_Type) )
 	{
 		Get_Projection()	= pGrid->Get_Projection();
+
+		return( true );
 	}
 
 	return( false );
