@@ -1,3 +1,213 @@
+2010-11-18 13:12  oconrad
+
+	* src/modules_projection/:
+	  pj_geotrans/pj_geotrans/lib/lib_src_geotrans2.2.6.zip,
+	  pj_proj4/pj_proj4/lib/lib_src_proj-4.6.1.zip: proj4 and geotrans
+	  lib sources removed (geotrans sources are now integrated and
+	  proj4 works well with the official distribution)
+
+2010-11-18 13:08  oconrad
+
+	* src/modules/grid/grid_spline/Gridding_Spline_MBA_Grid.cpp:
+	  interpolation target grid needs to be of floating pointt type
+	  (optional)
+
+2010-11-18 12:54  oconrad
+
+	* src/saga_core/saga_api/grid.cpp: bug fix: missing 'return( true
+	  )' on csg_grid::create(csg_grid *p, ...)
+
+2010-11-17 18:21  oconrad
+
+	*
+	  src/modules_terrain_analysis/terrain_analysis/ta_lighting/SolarRadiation.cpp:
+	  no data set for duration
+
+2010-11-17 17:43  oconrad
+
+	* src/saga_core/saga_gui/: wksp_data_layers.cpp,
+	  wksp_map_buttons.cpp: removed  tooltip flickering (windows7)
+
+2010-11-16 17:29  oconrad
+
+	* src/saga_core/saga_gui/wksp_base_control.cpp: first fix for msw
+	  vista/7 problems with wxTreeCtrl (multi-select deletion), but
+	  there might be more to be done...
+
+2010-11-16 17:27  oconrad
+
+	* src/saga_core/saga_api/: dataobject.cpp, dataobject.h,
+	  pointcloud.cpp, pointcloud.h: Set_NoData_Value(double) now only
+	  implemented in CSG_Data_Object, avoids swig/java conflicts
+
+2010-11-16 12:47  oconrad
+
+	* src/: saga_core/saga_api/api_core.h,
+	  modules_projection/pj_georeference/pj_georeference/lmdif0.c: BSD
+	  portability: <malloc.h> not included if __BSD__ is defined
+
+2010-11-16 12:26  oconrad
+
+	* src/modules_terrain_analysis/terrain_analysis/ta_lighting/:
+	  ta_lighting.dsp, ta_lighting.vcproj: sado_solarradiation removed
+
+2010-11-16 12:25  oconrad
+
+	* src/modules/table/table_calculus/table_calculus.dsp:
+	  cluster_analysis added
+
+2010-11-16 12:25  oconrad
+
+	* src/saga_core/saga_api/saga_api.h: doc_html.h, doc_pdf.h,
+	  doc_svg.h removed from swig includes
+
+2010-11-16 11:37  oconrad
+
+	* src/modules_terrain_analysis/terrain_analysis/ta_lighting/:
+	  MLB_Interface.cpp, Makefile.am, SADO_SolarRadiation.cpp,
+	  SADO_SolarRadiation.h, SolarRadiation.cpp, SolarRadiation.h,
+	  ta_lighting.vcxproj, ta_lighting.vcxproj.filters:
+	  sado_solarradiation removed. bug fixes in solarradiation
+
+2010-11-15 18:20  oconrad
+
+	* src/modules_terrain_analysis/terrain_analysis/ta_lighting/:
+	  SolarRadiation.cpp, SolarRadiation.h: completely overworked
+	  insolation module (sado_solarradiation is now obsolete)
+
+2010-11-15 18:19  oconrad
+
+	* src/saga_core/saga_api/grid_operation.cpp: removed unnecassary
+	  processing on addition/multiplication
+
+2010-11-09 23:12  johanvdw
+
+	* configure.in: Only check for python/swig on --enable-python
+
+2010-11-09 23:01  johanvdw
+
+	* src/modules/grid/grid_analysis/Grid_Pattern.cpp: Fix minor memory
+	  leak (Grid Pattern)
+
+2010-11-09 11:26  oconrad
+
+	* src/:
+	  modules_contrib/contrib_a_perego/contrib_a_perego/contrib_a_perego.vcxproj,
+	  modules/grid/grid_analysis/grid_analysis.vcxproj,
+	  modules/grid/grid_calculus/grid_calculus.vcxproj,
+	  modules/grid/grid_calculus_bsl/grid_calculus_bsl.vcxproj,
+	  modules/grid/grid_discretisation/grid_discretisation.vcxproj,
+	  modules/grid/grid_filter/grid_filter.vcxproj,
+	  modules/grid/grid_gridding/grid_gridding.vcxproj,
+	  modules/grid/grid_spline/grid_spline.vcxproj,
+	  modules/grid/grid_tools/grid_tools.vcxproj,
+	  modules/grid/grid_visualisation/grid_visualisation.vcxproj,
+	  modules_geostatistics/geostatistics/geostatistics_grid/geostatistics_grid.vcxproj,
+	  modules_geostatistics/geostatistics/geostatistics_kriging/geostatistics_kriging.vcxproj,
+	  modules_geostatistics/geostatistics/geostatistics_points/geostatistics_points.vcxproj,
+	  modules_geostatistics/geostatistics/geostatistics_regression/geostatistics_regression.vcxproj,
+	  modules_io/docs/docs_html/docs_html.vcxproj,
+	  modules_io/docs/docs_pdf/docs_pdf.vcxproj,
+	  modules_contrib/contrib_s_liersch/ihacres/ihacres.vcxproj,
+	  modules_images/modules_imagery/imagery_segmentation/imagery_segmentation.vcxproj,
+	  modules_io/db/io_odbc/io_odbc.vcxproj,
+	  modules_io/esri_e00/io_esri_e00/io_esri_e00.vcxproj,
+	  modules_io/gdal/io_gdal/io_gdal.vcxproj,
+	  modules_io/gps/io_gps/io_gps.vcxproj,
+	  modules_io/grid/io_grid/io_grid.vcxproj,
+	  modules_io/grid/io_grid_grib2/io_grid_grib2.vcxproj,
+	  modules_io/grid/io_grid_image/io_grid_image.vcxproj,
+	  modules_io/shapes/io_shapes/io_shapes.vcxproj,
+	  modules_io/shapes/io_shapes_dxf/io_shapes_dxf.vcxproj,
+	  modules_io/shapes/io_shapes_las/io_shapes_las.vcxproj,
+	  modules_io/table/io_table/io_table.vcxproj,
+	  modules/pointcloud/pointcloud_tools/pointcloud_tools.vcxproj,
+	  modules/pointcloud/pointcloud_viewer/pointcloud_viewer.vcxproj,
+	  modules_images/modules_opencv/opencv/opencv.vcxproj,
+	  modules_lectures/lectures/lectures_introduction/lectures_introduction.vcxproj,
+	  modules_projection/pj_georeference/pj_georeference/pj_georeference.vcxproj,
+	  modules_projection/pj_geotrans/pj_geotrans/pj_geotrans.vcxproj,
+	  modules_projection/pj_proj4/pj_proj4/pj_proj4.vcxproj,
+	  modules_recreations/recreations/recreations_fractals/recreations_fractals.vcxproj,
+	  modules_recreations/recreations/recreations_games/recreations_games.vcxproj,
+	  saga_core/saga_api/saga_api.vcxproj,
+	  saga_core/saga_cmd/saga_cmd.vcxproj,
+	  saga_core/saga_gdi/saga_gdi.vcxproj,
+	  saga_core/saga_gui/saga_gui.vcxproj,
+	  saga_core/saga_odbc/saga_odbc.vcxproj,
+	  modules/shapes/shapes_grid/shapes_grid.vcxproj,
+	  modules/shapes/shapes_lines/shapes_lines.vcxproj,
+	  modules/shapes/shapes_points/shapes_points.vcxproj,
+	  modules/shapes/shapes_polygons/shapes_polygons.vcxproj,
+	  modules/shapes/shapes_tools/shapes_tools.vcxproj,
+	  modules/shapes/shapes_transect/shapes_transect.vcxproj,
+	  modules_simulation/cellular_automata/sim_cellular_automata/sim_cellular_automata.vcxproj,
+	  modules_simulation/ecosystems/sim_ecosystems_hugget/sim_ecosystems_hugget.vcxproj,
+	  modules_simulation/fire/sim_fire_spreading/sim_fire_spreading.vcxproj,
+	  modules_simulation/hydrology/sim_hydrology/sim_hydrology.vcxproj,
+	  modules_terrain_analysis/terrain_analysis/ta_channels/ta_channels.vcxproj,
+	  modules_terrain_analysis/terrain_analysis/ta_compound/ta_compound.vcxproj,
+	  modules_terrain_analysis/terrain_analysis/ta_hydrology/ta_hydrology.vcxproj,
+	  modules_terrain_analysis/terrain_analysis/ta_lighting/ta_lighting.vcxproj,
+	  modules_terrain_analysis/terrain_analysis/ta_morphometry/ta_morphometry.vcxproj,
+	  modules/table/table_calculus/table_calculus.vcxproj,
+	  modules/table/table_tools/table_tools.vcxproj,
+	  modules/tin/tin_tools/tin_tools.vcxproj,
+	  modules_images/modules_vigra/vigra/vigra.vcxproj,
+	  modules_terrain_analysis/terrain_analysis/ta_preprocessor/ta_preprocessor.vcxproj,
+	  modules_terrain_analysis/terrain_analysis/ta_profiles/ta_profiles.vcxproj:
+	  msvc10 x64 unicode build targets
+
+2010-11-09 11:24  oconrad
+
+	* src/: modules/grid/grid_spline/csa.c,
+	  modules/shapes/shapes_polygons/Polygon_Clipper.cpp,
+	  modules_io/docs/docs_pdf/Polygon_Clipper.cpp: C exit() removed
+
+2010-11-09 11:21  oconrad
+
+	* src/saga_core/saga_cmd/module_library.cpp: input data will now be
+	  saved automatically if modified by module
+
+2010-11-09 11:19  oconrad
+
+	* src/saga_core/saga_api/: shapes_io.cpp, table_dbase.cpp,
+	  table_dbase.h, table_io.cpp: no data support for dbase files
+	  (read/write)
+
+2010-11-09 11:19  oconrad
+
+	* src/saga_core/saga_api/: api_string.cpp, metadata.cpp: floating
+	  point precision fitted to value (currently up to 16 decimals)
+
+2010-11-08 12:34  reklov_w
+
+	* src/modules_terrain_analysis/terrain_analysis/ta_hydrology/:
+	  LakeFlood.cpp, LakeFlood.h, LakeFloodInteractive.cpp: bug fix for
+	  memory leak in case of multiple seed cells in non-interactive
+	  version; enhancements: allow multiple seed cells, allow seeds to
+	  be local water depth or absolute water level, output water depth
+	  and surface, incremetal flooding with interactive version
+
+2010-11-08 10:20  johanvdw
+
+	* src/saga_core/saga_api/Makefile.am: Disable libharu in python
+	  (when not available)
+
+2010-11-08 10:19  johanvdw
+
+	* src/saga_core/saga_api/Makefile.am: Remove saga_api_wrap.cxx on
+	  make clean
+
+2010-11-08 09:45  oconrad
+
+	* src/saga_core/saga_gui/wksp.cpp: 'load tin' via file menu now
+	  enabled (loads any shapefile and converts it to tin)
+
+2010-11-06 23:34  reklov_w
+
+	* ChangeLog: updated to current cvs
+
 2010-11-06 16:50  reklov_w
 
 	* src/modules_io/docs/: docs_html/docs_html.vcproj,
@@ -16,8 +226,10 @@
 
 2010-11-06 12:59  johanvdw
 
-	* Makefile.am, configure.in, src/saga_core/saga_api/Makefile.am:
-	  Update autotools to build python bindings
+	* Makefile.am, configure.in, m4/ax_pkg_swig.m4,
+	  m4/ax_python_devel.m4, m4/ax_swig_enable_cxx.m4,
+	  m4/ax_swig_python.m4, src/saga_core/saga_api/Makefile.am: Update
+	  autotools to build python bindings
 
 2010-11-06 12:55  johanvdw
 
