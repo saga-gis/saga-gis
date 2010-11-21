@@ -222,8 +222,10 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 		if( Dlg_Parameters(&P, _TL("Field Properties")) )
 		{
 			pPoints	= SG_Create_PointCloud();
+			pPoints->Create();
 			pPoints->Set_Name(SG_File_Get_Name(fileName, false));
 			Parameters("POINTS")->Set_Value(pPoints);
+			DataObject_Add(pPoints);
 
 			for(iField=0; iField<nAttribs; iField++)
 			{
@@ -254,6 +256,7 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 		pPoints->Create();
 		pPoints->Set_Name(SG_File_Get_Name(fileName, false));
 		Parameters("POINTS")->Set_Value(pPoints);
+		DataObject_Add(pPoints);
 	}
 
 	max_iField = M_GET_MAX(xField, yField);
