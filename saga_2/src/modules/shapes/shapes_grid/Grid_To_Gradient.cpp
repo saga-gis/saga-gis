@@ -71,9 +71,9 @@
 CGrid_To_Gradient::CGrid_To_Gradient(void)
 {
 	//-----------------------------------------------------
-	Set_Name		(_TL("Gradient from Grid"));
+	Set_Name		(_TL("Gradient Vectors from Grid(s)"));
 
-	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
+	Set_Author		(SG_T("O.Conrad (c) 2006"));
 
 	Set_Description	(_TW(
 		"Create lines indicating the gradient. "
@@ -82,130 +82,236 @@ CGrid_To_Gradient::CGrid_To_Gradient(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL, "GRID"		, _TL("Grid"),
+		NULL	, "GRID_A"		, _TL("Grid A"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
+	Parameters.Add_Grid(
+		NULL	, "GRID_B"		, _TL("Grid B"),
+		_TL(""),
+		PARAMETER_INPUT_OPTIONAL
+	);
+
 	Parameters.Add_Shapes(
-		NULL, "SHAPES"		, _TL("Gradient"),
+		NULL	, "VECTORS"		, _TL("Gradient Vectors"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL, "STEP"		, _TL("Skip"),
+	Parameters.Add_Choice(
+		NULL	, "METHOD"		, _TL("Input"),
 		_TL(""),
-		PARAMETER_TYPE_Int	, 1.0, 0.0, true
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("surface (A)"),
+			_TL("slope (A) and aspect (B)"),
+			_TL("directional components (A = x, B = y)")
+		), 0
 	);
 
 	Parameters.Add_Value(
-		NULL, "SIZE_MIN"	, _TL("Minimum Size"),
+		NULL	, "STEP"		, _TL("Step"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true
+		PARAMETER_TYPE_Int	, 1.0, 1.0, true
 	);
 
 	Parameters.Add_Value(
-		NULL, "SIZE_MAX"	, _TL("Maximum Size"),
+		NULL	, "SIZE_MIN"	, _TL("Minimum Size (Cells)"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 10.0
+		PARAMETER_TYPE_Double, 0.1, 0.0, true
+	);
+
+	Parameters.Add_Value(
+		NULL	, "SIZE_MAX"	, _TL("Maximum Size (Cells)"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 1.0
 	);
 
 	Parameters.Add_Choice(
-		NULL, "STYLE"		, _TL("Style"),
+		NULL	, "STYLE"		, _TL("Style"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|"),
-			_TL("Line"),
-			_TL("Arrow")
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("simple line"),
+			_TL("arrow"),
+			_TL("arrow (centered to cell)")
 		), 0
 	);
 }
 
-//---------------------------------------------------------
-CGrid_To_Gradient::~CGrid_To_Gradient(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_To_Gradient::On_Execute(void)
 {
-	bool	bTangens	= false;
-	int		Style, Step, x, y;
-	double	sMin, sRange, Min, Max, dStep, Slope, Aspect, xPt, yPt;
-	CSG_Grid	*pGrid;
-	CSG_Shapes	*pShapes;
-	CSG_Shape	*pShape;
+	int			x, y, Step, Method;
+	double		sMin, sRange, dStep, ex, ey, d;
+	TSG_Point	p;
+	CSG_Grid	*pGrid_A, *pGrid_B, EX, EY, D;
+	CSG_Shapes	*pVectors;
 
 	//-----------------------------------------------------
-	pGrid	= Parameters("GRID")		->asGrid();
-	pShapes	= Parameters("SHAPES")		->asShapes();
-	Step	= Parameters("STEP")		->asInt();
-	Style	= Parameters("STYLE")		->asInt();
-	sMin	= Parameters("SIZE_MIN")	->asDouble();
-	sRange	= Parameters("SIZE_MAX")	->asDouble() - sMin;
-	dStep	= Step * Get_Cellsize();
+	pGrid_A		= Parameters("GRID_A")		->asGrid();
+	pGrid_B		= Parameters("GRID_B")		->asGrid();
 
-	pShapes->Create(SHAPE_TYPE_Line, CSG_String::Format(SG_T("%s [%s]"), pGrid->Get_Name(), _TL("Gradient")));
-	pShapes->Add_Field("X"	, SG_DATATYPE_Double);
-	pShapes->Add_Field("Y"	, SG_DATATYPE_Double);
-	pShapes->Add_Field("S"	, SG_DATATYPE_Double);
-	pShapes->Add_Field("A"	, SG_DATATYPE_Double);
+	pVectors	= Parameters("VECTORS")		->asShapes();
+	Method		= Parameters("METHOD")		->asInt();
+	Step		= Parameters("STEP")		->asInt();
+	m_Style		= Parameters("STYLE")		->asInt();
+	sMin		= Parameters("SIZE_MIN")	->asDouble() * Get_Cellsize();
+	sRange		= Parameters("SIZE_MAX")	->asDouble() * Get_Cellsize() - sMin;
+	dStep		= Step * Get_Cellsize();
 
 	//-----------------------------------------------------
-	for(y=0, Min=0.0, Max=-1.0; y<Get_NY() && Set_Progress(y); y+=Step)
+	if( Method != 0 && pGrid_B == NULL )
 	{
-		for(x=0; x<Get_NX(); x+=Step)
+		Error_Set(_TL("second input grid (B) needed to perform desired operation"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	EX.Create(*Get_System());
+	EY.Create(*Get_System());
+	D .Create(*Get_System());
+	D .Assign_NoData();
+
+	switch( Method )
+	{
+	//-----------------------------------------------------
+	case 0:	// surface (A)
+		pVectors->Create(SHAPE_TYPE_Line, CSG_String::Format(SG_T("%s [%s]"), pGrid_A->Get_Name(), _TL("Gradient")));
+
+		for(y=0; y<Get_NY() && Set_Progress(y); y+=Step)
 		{
-			if( pGrid->Get_Gradient(x, y, Slope, Aspect) )
+			for(x=0; x<Get_NX(); x+=Step)
 			{
-				if( Min > Max )
-					Min	= Max	= Slope;
-				else if( Min > Slope )
-					Min	= Slope;
-				else if( Max < Slope )
-					Max	= Slope;
+				if( pGrid_A->Get_Gradient(x, y, d, ey) )
+				{
+					EX.Set_Value(x, y, sin(ey));
+					EY.Set_Value(x, y, cos(ey));
+					D .Set_Value(x, y, tan(d));
+				}
 			}
 		}
-	}
+		break;
 
-	if( Min < Max )
-	{
-		sRange	= sRange / (Max - Min);
+	//-----------------------------------------------------
+	case 1:	// slope (A) and aspect (B)
+		pVectors->Create(SHAPE_TYPE_Line, CSG_String::Format(SG_T("%s [%s|%s]"), _TL("Gradient"), pGrid_A->Get_Name(), pGrid_B->Get_Name()));
+
+		for(y=0; y<Get_NY() && Set_Progress(y); y+=Step)
+		{
+			for(x=0; x<Get_NX(); x+=Step)
+			{
+				if( !pGrid_B->is_NoData(x, y) && !pGrid_B->is_NoData(x, y) )
+				{
+					EX.Set_Value(x, y, sin(pGrid_B->asDouble(x, y)));
+					EY.Set_Value(x, y, cos(pGrid_B->asDouble(x, y)));
+					D .Set_Value(x, y, tan(pGrid_A->asDouble(x, y)));
+				}
+			}
+		}
+		break;
+
+	//-----------------------------------------------------
+	case 2:	// directional components (A = x, B = y)
+		pVectors->Create(SHAPE_TYPE_Line, CSG_String::Format(SG_T("%s [%s|%s]"), _TL("Gradient"), pGrid_A->Get_Name(), pGrid_B->Get_Name()));
+
+		for(y=0; y<Get_NY() && Set_Progress(y); y+=Step)
+		{
+			for(x=0; x<Get_NX(); x+=Step)
+			{
+				if( !pGrid_B->is_NoData(x, y) && !pGrid_B->is_NoData(x, y) && (d = SG_Get_Length(pGrid_A->asDouble(x, y), pGrid_B->asDouble(x, y))) > 0.0 )
+				{
+					EX.Set_Value(x, y, pGrid_A->asDouble(x, y) / d);
+					EY.Set_Value(x, y, pGrid_B->asDouble(x, y) / d);
+					D .Set_Value(x, y, d);
+				}
+			}
+		}
+		break;
 	}
 
 	//-----------------------------------------------------
-	for(y=0, yPt=Get_YMin(); y<Get_NY() && Set_Progress(y); y+=Step, yPt+=dStep)
+	pVectors->Add_Field("EX"	, SG_DATATYPE_Double);
+	pVectors->Add_Field("EY"	, SG_DATATYPE_Double);
+	pVectors->Add_Field("LEN"	, SG_DATATYPE_Double);
+	pVectors->Add_Field("DIR"	, SG_DATATYPE_Double);
+
+	if( D.Get_ZRange() > 0.0 )
 	{
-		for(x=0, xPt=Get_XMin(); x<Get_NX(); x+=Step, xPt+=dStep)
+		sRange	= sRange / D.Get_ZRange();
+	}
+
+	//-----------------------------------------------------
+	for(y=0, p.y=Get_YMin(); y<Get_NY() && Set_Progress(y); y+=Step, p.y+=dStep)
+	{
+		for(x=0, p.x=Get_XMin(); x<Get_NX(); x+=Step, p.x+=dStep)
 		{
-			if( pGrid->Get_Gradient(x, y, Slope, Aspect) )
+			if( !D.is_NoData(x, y) )
 			{
-				pShape	= pShapes->Add_Shape();
-				pShape->Set_Value(0, xPt);
-				pShape->Set_Value(1, yPt);
-				pShape->Set_Value(2, Slope);
-				pShape->Set_Value(3, Aspect);
-				pShape->Add_Point(xPt, yPt);
+				CSG_Shape	*pVector	= pVectors->Add_Shape();
 
-		//		Slope	= sMin + sRange * (bTangens ? tan(Slope) : Slope / M_PI_090);
-				Slope	= sMin + sRange * (Slope - Min);
+				ex	= EX.asDouble(x, y);
+				ey	= EY.asDouble(x, y);
+				d	= D .asDouble(x, y);
 
-				pShape->Add_Point(
-					xPt + sin(Aspect) * Slope,
-					yPt + cos(Aspect) * Slope
-				);
+				pVector->Set_Value(0, ex);
+				pVector->Set_Value(1, ey);
+				pVector->Set_Value(2, d);
+				pVector->Set_Value(3, atan2(ex, ey) * M_RAD_TO_DEG);
+
+				if( (d = sMin + sRange * (d - D.Get_ZMin())) > 0.0 )
+				{
+					Set_Vector(pVector, p, d * ex, d * ey);
+				}
 			}
 		}
 	}
 
 	//-----------------------------------------------------
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define ADD_TO_VECTOR(I, X, Y)	(pVector->Add_Point(Point.x + ((X) * dy + (Y) * dx), Point.y + ((Y) * dy - (X) * dx), I))
+
+//---------------------------------------------------------
+inline void CGrid_To_Gradient::Set_Vector(CSG_Shape *pVector, const TSG_Point &Point, double dx, double dy)
+{
+	switch( m_Style )
+	{
+	case 0:
+		ADD_TO_VECTOR(0,  0.00,  0.00);
+		ADD_TO_VECTOR(0,  0.00,  1.00);
+		break;
+
+	case 1:
+		ADD_TO_VECTOR(0,  0.00,  0.00);
+		ADD_TO_VECTOR(0,  0.00,  1.00);
+
+		ADD_TO_VECTOR(1,  0.20,  0.75);
+		ADD_TO_VECTOR(1,  0.00,  1.00);
+		ADD_TO_VECTOR(1, -0.20,  0.75);
+		break;
+
+	case 2:
+		ADD_TO_VECTOR(0,  0.00, -0.50);
+		ADD_TO_VECTOR(0,  0.00,  0.50);
+
+		ADD_TO_VECTOR(1,  0.20,  0.25);
+		ADD_TO_VECTOR(1,  0.00,  0.50);
+		ADD_TO_VECTOR(1, -0.20,  0.25);
+		break;
+	}
 }
 
 

@@ -77,7 +77,6 @@ class CGrid_To_Gradient : public CSG_Module_Grid
 {
 public:
 	CGrid_To_Gradient(void);
-	virtual ~CGrid_To_Gradient(void);
 
 
 protected:
@@ -85,7 +84,15 @@ protected:
 	virtual bool		On_Execute			(void);
 
 
+	bool				Initialize			(void);
+
+
 private:
+
+	int					m_Style;
+
+
+	void				Set_Vector			(CSG_Shape *pVector, const TSG_Point &Point, double dx, double dy);
 
 };
 
