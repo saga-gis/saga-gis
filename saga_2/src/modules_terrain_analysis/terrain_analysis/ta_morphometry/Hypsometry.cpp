@@ -275,10 +275,10 @@ bool CHypsometry::Calculate_A(CSG_Grid *pDEM, CSG_Table *pTable, bool bDown, int
 
 		SG_Free(Cells_Count);
 
-		return( false );
+		return( true );
 	}
 
-	return( true );
+	return( false );
 }
 
 
