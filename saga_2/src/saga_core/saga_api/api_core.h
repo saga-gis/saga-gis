@@ -96,10 +96,6 @@
 //---------------------------------------------------------
 #ifndef SWIG
 
-#if !defined(__APPLE__) && !defined(__BSD__)
-#include <malloc.h>
-#endif
-
 #include <math.h>
 #include <memory.h>
 #include <stdlib.h>
@@ -1082,8 +1078,12 @@ SAGA_API_DLL_EXPORT const SG_Char *		SG_Translate		(const SG_Char *Text);
 
 #ifndef _SAGA_UNICODE
 	#define LNG(s)	SG_Translate(s)
+	#define _TL(s)	SG_Translate(s)
+	#define _TW(s)	SG_Translate(s)
 #else
 	#define LNG(s)	SG_Translate(SG_T(s))
+	#define _TL(s)	SG_Translate(SG_T(s))
+	#define _TW(s)	SG_Translate(CSG_String(s))
 #endif
 
 

@@ -540,7 +540,7 @@ private:
 #define SYMBOL_MLB_Initialize			SG_T("MLB_Initialize")
 typedef bool							(* TSG_PFNC_MLB_Initialize)		(const SG_Char *);
 
-#define SYMBOL_MLB_Finalize			SG_T("MLB_Finalize")
+#define SYMBOL_MLB_Finalize				SG_T("MLB_Finalize")
 typedef bool							(* TSG_PFNC_MLB_Finalize)		(void);
 
 #define SYMBOL_MLB_Get_Interface		SG_T("MLB_Get_Interface")
@@ -591,15 +591,6 @@ extern "C" _SAGA_DLL_EXPORT const SG_Char *					Get_API_Version		(void)\
 extern CSG_Module_Library_Interface	MLB_Interface;
 
 #endif	// #ifdef SWIG
-
-//---------------------------------------------------------
-#ifndef _SAGA_UNICODE
-	#define _TL			MLB_Interface.Get_Translation
-	#define _TW			MLB_Interface.Get_Translation
-#else
-	#define _TL(s)		MLB_Interface.Get_Translation(SG_T(s))
-	#define _TW(s)		CSG_String(MLB_Interface.Get_Translation(CSG_String(s))).c_str()
-#endif
 
 
 ///////////////////////////////////////////////////////////
