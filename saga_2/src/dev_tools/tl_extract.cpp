@@ -97,6 +97,12 @@ CTL_Extract::CTL_Extract(void)
 		SG_T(""),
 		PARAMETER_TYPE_Bool, false
 	);
+
+	Parameters.Add_Value(
+		NULL	, "LONG"		, SG_T("Long Texts"),
+		SG_T(""),
+		PARAMETER_TYPE_Bool, false
+	);
 }
 
 
@@ -238,12 +244,15 @@ bool CTL_Extract::Read_File(const CSG_String &File, CSG_Table &Elements)
 	//-----------------------------------------------------
 	const SG_Char	Function[3][4]	= {	SG_T("LNG"), SG_T("_TL"), SG_T("_TW") };
 
-	const SG_Char	*p	= String;
+	const SG_Char	*p		= String;
+
+	bool			bLong	= Parameters("LONG")->asBool();
 
 	while( *p != '\0' )
 	{
 		if(	!(p[0] == Function[0][0] && p[1] == Function[0][1] && p[2] == Function[0][2])
-		&&	!(p[0] == Function[1][0] && p[1] == Function[1][1] && p[2] == Function[1][2]) )
+		&&	!(p[0] == Function[1][0] && p[1] == Function[1][1] && p[2] == Function[1][2])
+		&&	!(p[0] == Function[2][0] && p[1] == Function[2][1] && p[2] == Function[2][2] && bLong) )
 		{
 			p	++;
 		}
