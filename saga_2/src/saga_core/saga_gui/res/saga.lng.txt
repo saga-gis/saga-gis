@@ -1,179 +1,2394 @@
-ORIGINAL	TRANSLATION
+TEXT	TRANSLATION
+(0.0 < x < 1.0)	
+(Selected)	
+(Tw) wetness decline time constant	
+(Tw) wetness decline time constant [lower bound]	
+(Tw) wetness decline time constant [upper bound]	
+(a)	
+(a) [lower bound]	
+(a) [upper bound]	
+(b)	
+(b) [lower bound]	
+(b) [upper bound]	
+(c) Parameter [lower bound]	
+(c) Parameter [upper bound]	
+(f) Temperature Modulation Factor [lower bound]	
+(f) Temperature Modulation Factor [upper bound]	
+(optional) Linear Flow Threshold Grid	
+)	
+*	
+** Error : Wrong outlet point selected **	
+** Warning : Number of events might not be representative.\nMinimum number recommended: 	
+** Warning : Outlet point was modified **	
+,	
+--- no table available ---	
+--- not available ---	
+0	
+0 - 1	
+0 - 1.0	
+0 - 255	
+0 is horizontal, 90 is vertical.	
+0.1	
+01: A Simple Litter System	
+01: My first module	
+02: Carbon Cycle Simulation for Terrestrial Biomes	
+02: Pixel by pixel operations with two grids	
+03: Direct neighbours	
+03: Spatially Distributed Simulation of Soil Nitrogen Dynamics	
+04: Direct neighbours - more...	
+05: Direct neighbours - slope and aspect	
+06: Extended neighbourhoods	
+07: Extended neighbourhoods - catchment areas (trace flow)	
+08: Extended neighbourhoods - catchment areas (parallel)	
+09: Extended neighbourhoods - catchment areas (recursive)	
+1	
+1 / cell size (specific catchment area)	
+1 arc-second	
+1 bit	
 1 byte integer	
+1 byte signed integer	
+1 byte unsigned integer	
+1.0	
 1.5 * Standard Deviation	
+10: Dynamic Simulation - Life	
+11: Dynamic Simulation - Soil Nitrogen Dynamics	
+12: First steps with shapes	
+13: Reprojecting a shapes layer	
+14: Vectorising channel lines	
+16 bit signed integer	
+16 bit unsigned integer	
+1st Std. Parallel	
+2	
 2 byte integer	
+2 byte integer|4 byte floating point|	
+2 byte signed integer	
+2 byte unsigned integer	
+2.0	
 2.0 * Standard Deviation	
 20 seconds	
+2nd Std. Parallel	
+3	
+3 X 3	
+3 arc-second	
+3 parameters (translation only)	
+32 bit floating point	
+32 bit signed integer	
+32 bit unsigned integer	
+3306	
+3D Image	
+3D Image Height	
+3D Image Width	
+3D View	
+4 (von Neumann)	
+4 byte float	
 4 byte floating point	
 4 byte floating point number	
 4 byte integer	
+4 byte signed integer	
+4 byte unsigned integer	
+5 X 5	
+64 bit floating point	
+7 X 7	
+7 parameters	
+8 (Moore)	
+8 bit unsigned integer	
+8 byte float	
 8 byte floating point	
 8 byte floating point number	
+:-( :-( you are a loser :-( :-(	
+:-) :-) you are a winner :-) :-) Time:%ds\n	
+;	
+<	
+<=	
+=	
+>	
+>=	
+A	
+A / tan(\xc3\x9f)	
+A SAGA module to create transects through polygon files.	
+A Simple Litter System	
+A grid that contains elevation data.	
+A set of basic SAGA module programming lectures.	
 A3 Landscape	
 A3 Portrait	
 A4 Landscape	
 A4 Portrait	
+A:Geostatistics|Points	
+A:Grid|Construction	
+A:Shapes|Construction	
+ADDR	
+AFAC(	
+AFAC()	
+AOI Shape	
+AQ(	
 AREA	
+AS(	
+ASCII	
+ASCII Decimal Separator	
+ASCII Grid Options	
+ASCII Precision	
+AWM1 Grid	
+AWM2 Grid	
+AWT Grid	
+AZIMUTH	
 About SAGA	
+Above Elevation	
+Above this threshold snow will start to melt	
+Absolute	
+Absolute Area	
+Absolute Height	
+Absolute Water Level	
+Absolute Water Levels	
+Acc. Area	
+Accumulated Cost	
+Accumulated Cost (Anisotropic)	
+Accumulated Cost (Isotropic)	
+Accumulated Material from _left_ side	
+Accumulated Material from _right_ side	
+Accumulated cost	
+Accumulated cost surface	
 Acknowledgements	
 Activate Grid File Cache?	
 Activate file caching automatically, if memory size exceeds the threshold value.	
+Add Attribute to Clipped Points	
+Add Border	
+Add Cells	
+Add Coordinates to points	
 Add Field	
+Add Frame	
+Add Grid Values to Points	
+Add Link to Files	
+Add Polygon Attributes to Points	
+Add Volumes Below Base Level	
+Add to current selection	
 Addition	
+Additional Cuts	
+Additional Grids	
+Additional Layers	
+Additional Parameters	
+Additional Values	
+Additional values that shall be saved to the output table.	
+Addition|	
+Adjust	
+Adjust to Grid	
+Advanced Settings	
+Aggregate	
+Aggregation	
+Aggregation Index	
+Aggregation Size	
+Air Humidity (2pm) [%%]	
+Air Pressure, Water and Dust Content	
+Albers Equal Area Conic	
+Alessandro Perego	
+Algorithm for the detection of Surface Specific Points	
+All	
 All Files	
+All Files|*.*|	
 All Recognised Files	
+All Recognized File Types	
+All Recognized Files	
+Allocation	
+Allocation Grid	
+Allow longitudes outside -180 to 180 Range	
+Allows to write cell values from additional grids to the output	
+Alpha Max (Degree)	
+Altitude above Channel Network	
+Altura de llama	
+Altura de llama (m)	
+Anaglyph	
+Analytical Hierarchy Process	
+Analytical Hillshading	
+Analytical hillshading calculation.	
+Anchor Point	
+Angle	
+Angle (in degrees)	
+Angle [Degree]	
+Angle in degrees, counting clockwise from north	
+Angle. In radians	
+Applies also to the binary format header file.	
+Apply Move	
+Apply offset?	
+Approx. Terrain Slope	
+Approximate Terrain Slope [%]	
+April	
+Arcs	
+Arcs to polygons	
+Are completely within	
 Area	
+Area (ha)	
+Area +	
+Area -	
+Area [km2]	
+Area [km2] Subbasin(	
+Area of the Watershed in [km2]	
+Area of the Watershed in [km2] used for unit conversion	
+Area to Length Conversion	
+Area[%]	
+Areal average of ln(T0) = ln(Te) [ln(m^2/h)]	
+Arithmetic Mean	
+Arithmetic mean (version 1)	
+Arithmetic mean (version 2)	
+Aspect	
+Aspect grid, in radians.	
 Assign	
+Assign attributes to shapes...	
+At least two polygons have to be given for intersection	
+At the moment the reclass table is limited to 128 categories!\n	
+Atlas Boundary Files (*.bna)|*.bna|All Files|*.*	
+Atmospheric Effects	
+Atmospheric Pressure [mbar]	
 Attribute	
+Attribute A	
+Attribute B	
+Attribute Field Properties	
+Attribute Fields	
+Attribute Table	
+Attribute is Column ...	
+Attribute to add. Select none to add all	
+Attribute to drop	
+Attribute to drop.	
+Attribute to process.	
+Attributes	
+Attributes to import besides x,y,z ...	
+August	
 Automatic mode	
+Automatically adjust control points to grid's data range	
+Automatically fits the grid to the shapes layers extent.	
+Automatically normalise attributes by standard deviation before clustering.	
+Automatically normalise grids by standard deviation before clustering.	
 Available Choices	
 Available Connections	
+Available Projections:	
+Average	
+Average 2 With Thereshold for Grids calculates average in X and Y distances unsing only the values that differ form central pixel less than a specified threshold. Each value has a weight which is inversely proportional to the distance (method 1).	
+Average 3 With Thereshold for Grids calculates average in X and Y distances unsing only the values that differ form central pixel less than a specified threshold. Each value has a weight which is inversely proportional to the distance (method 2).	
+Average With Mask 1	
+Average With Mask 1 calculates average for cells specified by a mask grid. Cell excluded by the mask grid are NOT used in the average calculation.	
+Average With Mask 2	
+Average With Mask 2 calculates average for cells specified by a mask grid. However cell excluded by the mask grid are used in the average calculation for right pixels.	
+Average With Thereshold 1	
+Average With Thereshold 2	
+Average With Thereshold 3	
+Average With Thereshold for Grids calculates average in X and Y distances unsing only the values that differ form central pixel less than a specified threshold. It's useful to remove noise whit a known maximum reducing the loss of informations	
+Avg. Curve Number	
+Avg. Manning's N	
+Avg. Rainfall Intensity (mm/h)	
+Azimuth	
+Azimuth [Degree]	
+Azimuth []	
+Azimuthal Equidistant	
+B	
+B-Spline Approximation	
+B-Spline Interpolation	
+BFAC(	
+BLACK_BLUE	
+BLACK_GREEN	
+BLACK_RED	
+BLACK_WHITE	
+BQ(	
+BSL	
+BSL Files (*.bsl)	
+BSL Script	
+BSL from File	
+Background Color	
 Backward diagonal hatch	
+Band	
+Bands	
+Bandwidth (Cells)	
+Bare Earth	
 Bars	
+Base Grid	
+Base Level	
+Base Probability	
+Basic Morphometry	
+Basic measures for spatial point patterns.	
+Basin Code	
+Basin Type (Gravelius)	
+Basin subdivision	
+Below this threshold precipitation will fall as snow	
+Bicubic Spline Interpolation	
+Bifurcation	
+Big Endian (Motorola)	
+Bilinear Interpolation	
+Binary Byte Order	
+Binary Encoding	
+Birth Rate of Fishes	
+Birth Rate of Sharks	
+Block Kriging	
+Block Size	
+Blocks	
+Blue	
+Board	
+Boehner & Selige 2006	
+Boehner's Simple Language (BSL) is a macro script language for grid based calculations.	
+Bonne	
+Borders	
 Bottom	
+Bottom to Top	
+Boundaries	
+Boundary	
+Bounding Box	
+Branches	
+Branches to Litter	
+Braunschweiger Reliefmodell	
+Breaks	
+Buffer	
+Buffer Distance	
+Buffer Distance (Attribute)	
+Buffer Distance (Fixed)	
+Buffer Grid	
 Buffer Size [MB]	
+Buffer distance	
+Buffer distance (grid units).	
+By number	
+Byte Order	
+Byte order when writing floating point values in binary format	
+C	
+C Correction	
+C Factor	
+CELLS	
 CENTER	
+CFAC(	
+CFit\n(created by SAGA Wizard).	
 CLASS	
+CLUSTER	
 COLOR	
+CONTIGUITY	
 COUNT	
+CRS Database	
+CRS Dictionary	
+CSV Files (*.csv)	
+Calculate distribution Quantiles	
+Calculate the volume under the grid's surface. This is mainly useful for Digital Elevation Models (DEM).	
+Calculates the gradient based on the values of each triangle's points.\n\n	
+Calculates weights for distance plus one, avoiding division by zero for zero distances	
+Calculating Catchment Area...	
+Calculating Subbasins...	
+Calculating danger...	
+Calculation	
+Cancel	
+Canny	
+Carbon Cycle Simulation	
+Carbonization Factor	
+Case Sensitive	
+Case of contiguity	
+Cassini	
+Catchment Area	
+Catchment Aspect	
+Catchment Height	
+Catchment Slope	
+Catchment area	
+Catchment area calculation...	
+Catchment slope	
+Categorial Grids	
+Cell Balance	
+Cell Count	
+Cell Count (X)	
+Cell Count (Y)	
+Cell Height	
+Cell Size	
+Cell Size Specification	
+Cell Sizes	
+CellSize to S-N Extent	
+CellSize to W-E Extent	
+Cells	
 Cellsize	
+Cellular Automata	
+Center Versus Neighbours	
+Center of Triangles	
+Centered	
+Central Meridian	
+Central Parallel	
+Central Projection	
+Centre	
+Centroid X	
+Centroid Y	
+Centroids	
+Centroids for each part	
+Change Cell Values	
+Change Grid Values	
+Change Grid Values - Flood Fill	
+Change Vector Analysis	
+Changed Grid	
+Channel Definition Threshold (ha)	
+Channel Direction	
+Channel Network	
+Channel Network Base Level	
+Channel Network: Pass 1	
+Channel Network: Pass 2	
+Channel Network: Pass 3	
+Channel Network: Pass 4	
+Channel Network: Pass 5	
+Channel Network: Pass 6	
+Channel Skeleton	
+Channel definition threshold	
+Channel side slope(m/m)	
+Channels	
+Channels (Raster)	
+Channels (Vector)	
+Charcoal to Environment	
+Chart (bars):	
+Chart (sectors):	
 Chart Type	
+Check Point Validity	
+Chessboard	
 Choose Attribute	
+Choose Cut from ...	
 Choose Documentation Folder	
+Choose Grid	
+Choose Grid Project	
+Choose Grid System	
 Choose ODBC Connection	
+Choose Shapes	
+Choose Time Range	
+Choose a flow routing algorithm that shall be used for the overland flow distance calculation:\n- D8\n- MFD	
+Choose a method	
+Choose case: Rook's case contiguity compares only cell wich share an edge. Queen's case contiguity compares also cells which share just corners.	
+Choose if you want to segmentate either on minima or on maxima.	
+Choose method how to adjust input values.	
+Choose the Point Data Record Format you like to use	
+Choose the attributes to use for clustering:	
+Choose whether the input file's NoData value or a user specified NoData value is written	
+Choose whether to reclassify a Point Cloud or to extract a subset from a Point Cloud.	
+Choose which quantiles you would like to calculate	
+Circle	
+Circle Point Distance [Degree]	
+Circles	
+Circular	
+Class	
 Class 1	
 Class 2	
+Class Identifier	
+Class Information	
+Class Selection	
+Classes	
+Classification	
+Classification Constant	
+Classification Quality	
+Classification and segmentation tools for metric gridded data.	
+Classify	
+Clay	
+Clay-Loam	
 Clear	
+Clear Fast Representativeness	
+Clear Generalisation	
+Clear RGA	
+Climate Data	
+Climate Data (P, EP)	
+Clip Grid with Polygon	
+Clip Points with Polygons	
+Clipped Points	
+Clipping Options	
+Close	
+Close Gaps	
+Close Gaps with Spline	
+Close One Cell Gaps	
+Closed Gaps Grid	
+Closest Point	
+Closing Gaps...	
+Closing Pt. X	
+Closing Pt. Y	
+Cluster	
+Cluster Analysis	
+Cluster Analysis PC	
+Cluster Analysis for Grids	
+Cluster Analysis for Point Clouds	
+ClusterID	
+Clusters	
+Coefficient of Determination	
+Collect values	
+Color	
+Color Attribute	
+Color Blending	
+Color Palette	
+Color Palette Rotation	
+Color Stretch	
+Color Triangle Composite	
 Colors	
+Colors Value Range	
 Colors file could not be exported.	
 Colors file could not be imported.	
+Cols	
 Columns	
+Combination A	
+Combination B	
+Combine Grids	
+Combined Minimum Distance / Hillclimbing	
+Combined Shading	
+Command Line Arguments	
+Comment	
+Commit	
 Compare with...	
+Complete Intersection	
+CompleteLinkage	
+Completed Grid	
+Completely contain	
+Composite	
+Compound Probability	
 CompuServe Graphics Interchange	
+CompuServe Graphics Interchange (*.gif)	
+Computed flow directions, 0=N, 1=NE, 2=E, ... 7=NW	
+Concentration time (h)	
+Condition	
+Cone (Down)	
+Cone (Up)	
+Cone (down)	
+Cone (up)	
 Confirm file caching	
+Connectivity Index (Pff).	
+Connectivity Weighting	
+Connectivity [Percent]	
+Constant Variation Range [Degree]	
+Constant variation range	
 Constraints	
+Contain the center of	
+Contour Lines	
+Contour Lines from Grid	
+Contributions - A. Perego	
+Contributions - T. Wutzler	
+Contributions from Alessandro Perego.	
+Contributions from Thomas Wutzler.	
+Contributions|A. Perego	
+Contributions|T. Wutzler	
+Control Points	
+Convergence	
+Convergence (FD8)	
+Convergence Index	
+Convergence Index (Search Radius)	
+Convergence factor for Multiple Flow Direction Algorithm (Freeman 1991)	
+Convergence factor for Multiple Flow Direction Algorithm (Freeman 1991).\nApplies also to the Multiple Triangular Flow Directon Algorithm.	
+Convergence factor for Multiple Flow Direction algorithm	
+Convergence factor for the \'Multiple Flow Direction\' algorithm (after Freeman 1991)	
+Convergence_Radius Index	
+Convert Data Storage Type	
+Convert Lines to Polygons	
+Convert Points to Line	
+Convert Polygon/Line Vertices to Points	
+Convert Polygons to Lines	
+Convert a Table to Points	
+Convert a shapes layer to a TIN\n\n	
+Convert routes	
+Convert track points	
+Convert way points	
+Converted Grid	
+Converts a TIN data set to shapes layers.\n\n	
+Conway's Life	
+Coordenada X	
+Coordenada X del punto de ignición (sólo si no se usa grid de puntos de ignición)	
+Coordenada Y	
+Coordenada Y del punto de ignición (sólo si no se usa grid de puntos de ignición)	
+Coordinate Transformation (Grid List)	
+Coordinate Transformation (Grid)	
+Coordinate Transformation (Shapes List)	
+Coordinate Transformation (Shapes)	
+Coordinate Transformations based on the GeoTRANS-Engine of the National Imagery and Mapping Agency (NIMA).	
+Coordinates	
 Copy	
+Copy Rule	
 Copy Settings from...	
+Copying original data...	
+Copyright (c) 2007 by Thomas Schorr	
+Copyrights (c) 2003 by Andre Ringeler	
+Copyrights (c) 2003 by Olaf Conrad	
+Copyrights (c) 2003 by Volker Wichmann	
+Copyrights (c) 2004 by Thomas Wutzler	
+Copyrights (c) 2004 by Victor Olaya	
+Copyrights (c) 2005 by Victor Olaya	
+Copyrights (c) 2005 by Volker Wichmann	
+Copyrights (c) 2006 by Victor Olaya	
+Copyrights (c) 2006 by Volker Wichmann	
+Copyrights (c) 2007 by Gianluca Massei	
+Copyrights (c) 2007 by Volker Wichmann	
+Copyrights (c) 2008 by Olaf Conrad	
+Copyrights (c) 2009 Johan Van de Wauw	
+Core	
+Corrected Image	
+Corrected Transformed Vegetation Index	
+Correlation	
+Correlation Matrix of the Fit Parameters:\n	
+Cosine Correction (Civco 1989)	
+Cosine Correction (Teillet et al. 1982)	
+Cost Grid	
+Could not create data source.	
+Could not create dataset.	
+Count	
+Count Only Above Base Level	
+Count Only Below Base Level	
+Count Points in Polygons	
+Covariance	
+Covariance Surface	
+Covered Distance	
+Create 3D Image	
+Create Chart Layer (bars/sectors)	
+Create Constant Grid	
+Create Empty Table	
+Create Grid System	
 Create HTML Documentation	
+Create KML File	
 Create Lookup Table	
+Create New Shapes Layer	
+Create Output of Quarter Cell Grids	
+Create PDF Docs	
+Create PDF Documents	
+Create Point Grid	
+Create Quality Grid	
+Create Reference Points	
+Create Variance Grid	
+Create Web Content	
+Create X/Y Grids	
+Create a grid with pseudo-random numbers as grid cell values. 	
+Create graticule	
 Create index	
+Creates a color animation based on the values of selected grids.\n	
 Creating module documentation files	
+Croke et al. (2005)	
+Croke et al. (2005) !!! not yet implemented !!!	
+Crop Coefficients	
+Crop to Data	
+Cross Profiles	
+Cross Sections	
 Cross hatch	
+Cross-Classification Grid	
+Cross-Classification and Tabulation	
+Cross-Tabulation	
+Cross-Tabulation Table	
 Cross-diagonal hatch	
+Cubic Spline Approximation	
+Cubic: a + b * x + c * x^2 + d * x^3	
+Cum.Covar.	
+Cum.Var.	
+Cumulative Variance	
 Currently no help files exist for SAGA.\nIt depends on your support, if you will find any help at this place in future!\nThanks a lot...	
+Curvature	
+Curvature Classification	
+Curve Number	
+Cut	
+Cut Shapes Layer	
+Cuts	
+Cutting	
+Cycles	
+Cylindrical Equal Area	
+D	
+D/A	
+D/sqrt(A)	
+D8	
+D8 Flow Analysis	
+D8 Flow Network	
 DBase	
+DD_FAC(	
+DECLINE	
+DEFAULT	
+DEFAULT_BRIGHT	
+DELAY(	
+DEM	
+DEMON	
+DEMON - Min. DQV	
+DEMON - Minium Drainage Quota Volume (DQV) for traced flow tubes	
 DESCRIPTION	
+DIFF_MEAN	
 DSN	
+DTM Filter (slope-based)	
+DXF Files (*.dxf)|*.dxf|All Files|*.*	
+Danger	
 Data	
+Data Manager	
+Data Offset (Bytes)	
 Data Source Name	
 Data Table	
+Data Type	
+Data completion...	
+Data storage type	
+Database	
+Database (ODBC)	
+Database Connection Error	
+Database access through the libmysql.lib interface.	
+Database with Coordinate Reference System (CRS) definitions. You have to restart SAGA to make changes take affect!	
+Date Column	
+Datum Definition	
+Datum Shift	
+Datum Shift Grid	
+Datum Shift Grid File	
+Datums (3 Parameters)	
+Datums (7 Parameters)	
+Day of Month	
+Day of Year	
+Day of Year (End of Range)	
+Day-Degree Factor	
+Day-Degree Factor (lower bound)	
+Day-Degree Factor (upper bound)	
+Day-Degree Factor depends on catchment characteristics	
+Dead Fuel Moisture 100H	
+Dead Fuel Moisture 10H	
+Dead Fuel Moisture 1H	
+Dead after	
+December	
+Declination [Degree]	
+Declination []	
+Declination of the light source, measured in degree above the horizon.	
+Deepen Drainage Routes	
+Default	
+Default Filter Matrix (3x3)	
+Default Weight	
+Define AOI by ...	
+Degree	
 Delete Fields	
+Delineated watershed basins	
 Denormalisation	
+Density Index (Pf).	
+Density [Percent]	
+Density from Neighbourhood	
+Dependent Variable	
+Dependent on chosen method, these are distances or probabilities.	
+Dependent on the chosen 'Initiation Grid' and 'Initiation Type' this value controls under which condition a channel is initiated.	
+Depression-free digital elevation model	
+Derivation of slope lengths from catchment areas. These are rough approximations! Applies not to Desmot & Govers' method.	
 Description	
 Descriptive name for the grid system	
+Desmot & Govers	
+Desmot & Govers 1996	
+Destination Points	
+Destriped Grid	
+Destriping 1	
+Destriping 2	
+Details	
+Detector type	
+Deterministic 8	
+Deterministic 8 (D8)	
+Deterministic Infinity	
+Deviation from Arithmetic Mean	
+Deviation from Mean Value	
+Dialog	
+Dictionary Files (*.dic)	
+Dictionary Files (*.lng)	
+Dictionary for Proj.4/OGC WKT translations. You have to restart SAGA to make changes take affect!	
+Dictionary for translations from built-in (English) to local language (editable text table)	
+Difference	
+Difference (A - B)	
+Difference (B - A)	
+Difference A - B	
+Difference from Arithmetic Mean	
+Difference from Mean Value	
+Difference from all neighbour's mean	
+Difference to left neighbour	
+Difference to left neighbour (using a while loop)	
+Difference to local gradient.	
+Diffuse Insolation	
+Digital Elevation Model that has to be processed	
+Digital Terrain Model	
+Digital elevation model	
+Dilation	
+Dim01	
+Dim02	
+Dirección del viento	
+Dirección del viento (grados desde el norte en sentido antihorario)	
+Dirección del viento (grados desde el norte)	
+Direct Insolation	
+Direct to Diffuse Ratio	
 Direction	
-Directory	
-Directory (DBase, Excel)	
+Direction [Degree]	
+Direction of Minimum Standard Deviation	
+Direction of Plane [Degree]	
+Direction of max cost	
+Direction of max cost for each cell. In degrees	
+Direction of the light source, measured in degree clockwise from the north direction.	
+Directional Average 1	
+Directional Statistics	
+Directional Statistics for Points	
+Directional Statistics for Single Grid	
 Directory, where temporary cache files shall be saved.	
 Display Range	
+Dist.	
+Distance	
+Distance (Grid Units).	
+Distance Grid	
+Distance Matrix	
+Distance Matrix Table	
+Distance Overland	
+Distance Threshold	
+Distance Weighted (Inverse)	
+Distance Weighted (Linear)	
+Distance Weighted (inverse distance)	
+Distance Weighting	
+Distance X	
+Distance Y	
+Distance between points (grid units).	
+Distinct	
+Diurnal Anisotropic Heating	
+Divergence	
+Diversity	
 Division	
+Division by zero is not allowed !!!	
+Dominance	
 Dot and dash style	
 Dotted style	
+Down	
+Down sort	
+Down-Scaling	
+Downslope Area	
+Downslope Distance Gradient	
+Downslope basins	
+Drainage Network	
+Draw a section each n points	
+Driver	
+Driver does not support file creation.	
+Drop Point Cloud Attribute	
+Dummy Grid	
+Duplicates	
+Duration of Insolation	
+Dust [ppm]	
+Dust factor: 100 ppm (standard)	
+ENUM_ID	
+EPSG	
+EPSG Code	
+ERDAS files other than version 7.4 are not supported.	
+ESRI Arc/Info ASCII Grids (*.asc)	
+ESRI Arc/Info Binary Grids (*.flt)	
+ESRI Arc/Info Grids	
+ESRI E00 Files|*.e00;*.e0*|All Files|*.*	
 ESRI Shape Files	
+ESRI Shapefiles	
+ESRI WKT Files (*.prj)	
+Each Line as new Profile	
+East []	
+Eccentricity (e)	
+Eckert IV/VI	
+Edge	
+Edge Contamination	
+Edge threshold for nonlinear smoothing	
+Edges	
+Efective friction = stated friction ^f , where f = cos(DifAngle)^k.	
+Effective Air Flow Heights	
+Element Shape	
+Elements	
+Elevation	
+Elevation Grid	
+Elevation [m]	
+Elevation at Reference Station [m]	
+Elevation grid	
+Ellipsoid Definition	
+Ellipsoid Height [m]	
+Ellipsoids	
+Enforce True Color	
+Enumerate a Table Attribute	
+Enumerate attribute of a table, i.e. assign to identical values of choosen attribute field unique identifiers.\n	
+Epsilon	
+Equals	
+Equation	
+Equidistance	
+Equidistant Cylindrical	
+Equivalent Moisture	
+Equivalente Rectangle (Side 1)(m)	
+Equivalente Rectangle (Side 2)(m)	
+Erdas LAN/GIS files (*.lan, *.gis)|*.lan;*.gis|All Files|*.*	
+Erosion	
 Error	
+Error : Wrong table. Check table dimensions	
+Error : Wrong weights table. Check table dimensions	
+Error at character #%d of the function: \n%s\n	
+Error at character #%d of the function: \n%s\n%s\n	
+Error in Formula	
 Error in Trend Calculation	
 Error in formula	
+Error parsing attribute fields: can't convert to number	
+Error parsing attribute fields: field index out of range	
+Error: invalid source and target references.	
+Error: not enough reference points. The transformation requires at least 3 reference points.	
+Error: source and target references differ in number of points.	
+Estimated Noise (absolute)	
+Estimated Noise (relative)	
+Estimated noise in units of input data	
+Estimated noise relative to mean standard deviation	
+Euclidean	
+Exaggeration	
+Exclude NoData Cells	
 Exit SAGA	
+Exponent	
+Exponential Model	
+Exponential Regression	
+Exponential and Gaussian Weighting Bandwidth	
+Export Atlas Boundary File	
+Export ESRI Arc/Info Grid	
+Export GPX	
+Export GStat Shapes	
+Export Grid to XYZ	
+Export Image (bmp, jpg, png)	
+Export LAS Files	
+Export Scalable Vector Graphics (SVG) File	
+Export Shapes to Generate	
+Export Shapes to XYZ	
+Export Surfer Blanking File	
+Export Surfer Grid	
+Export TIN to Stereo Lithography File (STL)	
+Export Text Table	
+Export True Color Bitmap	
+Export WASP terrain map file	
+Export descriptions	
+Export names	
+Export z values	
+Expression	
+Extended Neighourhood	
+Extent	
+Extent [Cut]	
+Extent to CellSize	
+Extents	
+Extraction of...	
+Eye Distance	
+FLOW	
+Factor	
+Fade Color Count	
+Failed to initialise search engine.	
+False Easting	
+False Easting [m]	
+False Northing	
+False Northing [m]	
+Fast Region Growing Algorithm	
+Fast Representativeness	
+Feature Aggregation	
+Feature Space Options	
+Features	
+Features Grid	
+Features are all pixels different not representing no-data.	
+February	
+Feigenbaum's Bifurcation	
+Ferhat Bingöl (c) 2009	
 Field	
+Field (ID)	
+Field (Name)	
+Field Capacity [mm]	
+Field Definition	
+Field Description	
+Field Name	
+Field Properties	
+Field Separator	
 Field Type	
+Field for File Naming	
+Field for Summary	
 Fields	
+Fields for diagram	
+Figure	
+File	
+File Name	
+File Naming	
+File contains headline	
+File does not exist:	
+File error	
+Files	
+File|ESRI E00	
+File|GDAL/OGR	
+File|GPS Import	
+File|Grid	
+File|Reports	
+File|Shapes	
+File|Table	
+File|Tables	
+Fill Color	
+Fill NoData	
+Fill Sinks	
+Fill Sinks (Planchon/Darboux, 2001)	
+Fill Sinks (Wang & Liu)	
+Fill Sinks XXL (Wang & Liu)	
+Fill Value	
+Filled DEM	
+Filter	
+Filter Clumps	
+Filter Matrix	
+Filtered DTM	
+Filtered Grid	
+Final Parameters	
+Final processing...	
+Finalize	
+Find Outlets	
+Find Pits	
+Fire Length	
+Fire Length (min)	
+Fire Risk Analysis	
 First Class	
+First Day	
+First input grid	
+Fit	
+Fit 2.Degree Polynom (Bauer, Rohdenburg, Bork 1985)	
+Fit 2.Degree Polynom (Heerdegen & Beran 1982)	
+Fit 2.Degree Polynom (Zevenbergen & Thorne 1987)	
+Fit 3.Degree Polynom (Haralick 1983)	
+Fit Color Palette to Grid Values	
+Fit Extent	
+Fit N Points to shape	
+Fitting range	
+Fixed angle	
+Fixed value to be replaced	
+Fixed|Cell value|	
+Flame Length	
+Flame Length (m)	
+Flat Area Values	
+Flat Areas	
+Flat Detection	
+Flats	
+Flattening	
+Flattening (f)	
+Flip	
+Floating Point (4 byte)	
+Floating Point (8 byte)	
+Flooded digital elevation model	
+Flow Accumulation	
+Flow Accumulation (Parallel)	
+Flow Accumulation (Trace)	
+Flow Accumulation, Mass-Flux Method	
+Flow Algorithm	
+Flow Connectivity	
+Flow Correction	
+Flow Depth	
+Flow Depth Grid (m)	
+Flow Direction	
+Flow Direction (up and down)	
+Flow Directions	
+Flow Lines	
+Flow Network	
+Flow Path Length	
+Flow Path Profile	
+Flow Routing Algorithm	
+Flow Sinuosity	
+Flow Split Method	
+Flow Tracing	
+Flow Width	
+Flow at Gauges	
+Folder	
+Folder for PDF Files	
+Format	
+Formula	
+Formula String	
 Forward diagonal hatch	
+Fourier Transformation (Imaginary)	
+Fourier Transformation (Real)	
+Fractal Dimension	
+Fractal Dimension of Grid Surface	
+Fractal Type	
+Fractals	
+Fragmentation	
+Fragmentation (Alternative)	
+Fragmentation (Standard)	
+Fragmentation Classes from Density and Connectivity	
+Fragmentation Index	
+Frequency	
+Fuel Model	
+Function	
+Function Fit	
+Function Fitting Range	
+Function Parameters	
 Function failed because no attributes are available	
+Fuzzified	
+Fuzzified Grid	
+Fuzzify	
+Fuzzy Intersection	
+Fuzzy union grid	
+GDAL: Export Raster	
+GDAL: Export Raster to GeoTIFF	
+GDAL: Import Raster	
+GPS Exchange Format (*.gpx)	
+GPSBabel	
+GPSBabel path	
+GPX Import	
+GPX file	
+GPX files (*.gpx)|*.gpx|All Files|*.*	
+GPX to shapefile	
+GREEN_BLUE	
+GREEN_GREY_BLUE	
+GREEN_RED_BLUE	
+GRID	
+GStat Files (*.gstat)	
+GStat shapes format export.	
+GStat shapes format import.	
+GWR Intercept	
+GWR Quality	
+GWR Regression	
+GWR Slope	
+Game Level	
+Games	
+Gauges	
+Gaussian	
+Gaussian Filter	
+Gaussian Landscape	
+Gaussian Landscapes	
+Gaussian Model	
+Gaussian and Exponential Weighting Bandwidth	
 General	
+General Settings	
+Generalisation	
+Geo-Reference	
+GeoTRANS (Shapes)	
+GeoTRANS engine initializing error!\n\nPlease check your data path settings!	
+GeoTrans (Grid)	
 Geocentric Coordinate System	
+Geodetic	
 Geographic Coordinate System	
+Geographic Coordinate Systems	
+Geographically Weighted Multiple Regression	
+Geographically Weighted Multiple Regression (Points/Grids)	
+Geographically Weighted Regression	
+Geographically Weighted Regression (Points/Grid)	
+Geoid	
+Geometric Figures	
+Geometrical Properties of Polygons	
+Georeferencing - Grids	
+Georeferencing - Move Grid	
+Georeferencing - Shapes	
+Geostatistics - Grids	
+Geostatistics - Kriging	
+Geostatistics - Points	
+Geostatistics - Regression	
+Geostatistics|Grids	
+Geostatistics|Kriging	
+Geostatistics|Points	
+Geostatistics|Regression	
+Get CRS Definition from...	
+Get Grid Data for Shapes	
+Get Shapes Extents	
+Get table from MySQL server.\n	
+Global Moran's I for Grids	
+Gnomonic	
+Gpx2shp path	
+Gradient	
+Gradient Difference	
+Gradient Vectors	
+Gradient Vectors from Grid(s)	
+Gradient threshold	
+Graticule	
+Graticule type	
+Greater than	
+Green	
+Green-Ampt Infiltration	
 Grid	
+Grid - Analysis	
+Grid - Calculus	
+Grid - Calculus BSL	
+Grid - Filter	
+Grid - Gridding	
+Grid - Spline Interpolation	
+Grid - Tools	
+Grid - Visualisation	
+Grid 1	
+Grid 2	
+Grid A	
+Grid A. Final	
+Grid A. Init	
+Grid B	
+Grid B. Final	
+Grid B. Init	
+Grid Buffer	
+Grid Calculator	
+Grid Difference	
 Grid Display Defaults	
 Grid File Caching	
+Grid Interpolation	
+Grid Manager	
+Grid Masking	
+Grid Normalisation	
+Grid Orientation	
+Grid Project	
+Grid Properties	
+Grid Proximity Buffer	
+Grid Segmentation	
+Grid Segmentation (b)	
+Grid Size	
+Grid Skeletonization	
+Grid Statistics for Polygons	
+Grid System	
+Grid System Extent	
+Grid Type	
+Grid Value Request	
+Grid Values	
+Grid Values [Cells]	
+Grid Values [Nodes]	
+Grid Values to Points (randomly)	
+Grid Values to Shapes	
+Grid Volume	
+Grid based or related calculations.	
+Grid defining the zones to analyse. This grid also acts as a mask. Coding: no-data / categorial values.	
+Grid range	
+Grid to TIN	
+Grid to TIN (Surface Specific Points)	
+Grid to filter	
+Grid to reclassify	
+Grid value equals low value	
+Grid with category of nearest source cell [Category]	
+Grid with euclidian distance to nearest source cell [grid units]	
+Grid with features to be buffered [Category/NoData]	
+Grid(s)	
+Grid(s) to fit extent to	
+Grid_Normalised	
 Grids	
+Grids Product	
+Grids Sum	
+Grids from classified grid and table	
+Grids to Merge	
+Grids to analyse	
+Grids to request	
+Grids used to delineate the UCUs. Coding: no-data / categorial values.	
+Grids with continuous data, statistics are calculated for each grid. Coding: no-data / continuous values.	
+Grid|Analysis	
+Grid|Calculus	
+Grid|Filter	
+Grid|Gridding	
+Grid|Tools	
+Grid|Visualisation	
+Group A	
+Group B	
+Group by	
+Hafer	
+Has Field Names	
+Have their center in	
+Having	
+Headers	
 Height	
+Height (Cells)	
+Height Threshold	
+Height of Atmosphere [m]	
+Height of Atmosphere and Vapour Pressure	
+Height of the light source above ground.	
+Height of view point	
+Height threshold for optimal profile calculation	
+Hello by G. Massei	
+Hemisphere	
+Herbaceous Fuel Moisture	
+High Value	
+High variation for low sizes	
+Hilditch's Algorithm	
+Hill-Climbing (Rubin 1967)	
+Histogram	
+Histogram Surface	
+Homogenous	
+Horizontal Overland Flow Distance	
+Horizontal Range	
 Horizontal hatch	
 Horizontally mirrored	
+Humedad del combustible herbáceo vivo	
+Humedad del combustible leñoso vivo	
+Humedad del combustible muerto en 1-hora	
+Humedad del combustible muerto en 10-horas	
+Humedad del combustible muerto en 100-horas	
+Humification Factor	
+Humus to Charcoal	
+Hypsometric Curve	
+Hypsometry	
+I am a module library template.	
+I'm diggin'...	
+I'm fillin'...	
 I1: unrecognizable operator	
 I2: too many parameters	
 I3: corrupted buffer	
 I4: size estimate too small	
+ID	
+IHACRES Basin	
+IHACRES Basin (Dialog 2)	
+IHACRES Calibration (2)	
+IHACRES Distributed Input Dialog 2	
+IHACRES Elevation Bands	
+IHACRES Elevation Bands (Dialog 2)	
+IHACRES Elevation Bands Calibration	
+IHACRES Input Table	
+IHACRES Model Parameters	
+IHACRES Model Parameters (Calibration)	
+IHACRES Version	
+IHACRES Version 1.0	
+IHACRES_Basin_output	
 Identifier	
+If checked the snow module is active	
+If checked, it means there is no external inflow to the subbasin	
+If checked, snow-melt module is used.	
+If checked, then a second output table with all Time Series data is created.	
+If checked, then temperature data are used.	
+If grid is not set, a new one will be created using chosen width and height.	
+If not set points will be removed from the orignal lines layer.	
+If not set property attributes will be added to the orignal lines layer.	
+If table exists...	
+Ignition Points	
+Ignore Defaults	
+Ignores specified attribute ('Save Attribute') and saves all attributes.	
+Image	
+Image (Blue Channel)	
+Image (Green Channel)	
+Image (Red Channel)	
+Image File	
 Image Files	
+Image Grid	
+Image Import/Export.	
 Image Resolution	
+Image Rotation [Degree]	
+Image segmentation algorithms.	
+Imagery	
+Imagery - Classification	
+Imagery - OpenCV	
+Imagery - Segmentation	
+Imagery - ViGrA	
+Imagery|OpenCV	
+Imagery|Segmentation	
+Imagery|ViGrA	
+Images|*.bmp;*.jpg;*.png;*.tif|HTML Files|*.htm|All Files|*.*	
+Imaginary	
+Import	
+Import Atlas Boundary File	
+Import Binary Raw Data	
+Import DB Table from MySQL	
+Import DXF Files	
+Import ESRI Arc/Info Grid	
+Import ESRI E00 File	
+Import Erdas LAN/GIS	
+Import Filter	
+Import GPS Data	
+Import GPX	
+Import GRIB2 record	
+Import GStat Shapes	
+Import Grid from Table	
+Import Grid from XYZ	
+Import Image (bmp, jpg, png, tif, gif, pnm, xpm)	
+Import LAS Files	
+Import MOLA Grid (MEGDR)	
+Import Point Cloud from File	
+Import Point Cloud from Text File	
+Import SRTM30 DEM	
+Import Scalable Vector Graphics (SVG) File	
+Import Shapes from XYZ	
+Import Stereo Lithography File (STL)	
+Import Surfer Blanking Files	
+Import Surfer Grid	
+Import Text Table	
+Import Text Table (Fixed Column Sizes)	
+Import Text Table with Numbers only	
+Import USGS SRTM Grid	
+Import WASP terrain map file	
+Import and export filter for ESRI's E00 file exchange format.	
+Import/Export - DXF	
+Import/Export - ESRI E00	
+Import/Export - GDAL/OGR	
+Import/Export - GRIB Files	
+Import/Export - Grids	
+Import/Export - Images	
+Import/Export - LAS	
+Import/Export - ODBC/OTL	
+Import/Export - Shapes	
+Import/Export - Tables	
+Import/Export - Tables using MySQL native driver	
+Importing	
+Importing data ...	
 In/Out	
+Include Coordinates	
+Include diagonal neighbour relations	
+Infiltration excess runoff [m/dt]	
+Infiltration rate [m/dt]	
+Informe	
+Init Fast Representativeness	
+Init Generalisation	
+Init RGA	
+Initial Litter Storage [g/m\xc2\xb2]	
+Initial Nitrogen Content [kg/ha]	
+Initial Number of Distance Classes	
+Initial Number of Fishes [%]	
+Initial Number of Sharks [%]	
+Initial Threshold for Slope	
+Initial root zone storage deficit [m]	
+Initial subsurface flow per unit area [m/h]	
+Initialisation	
+Initialization Value	
+Initializing ...	
+Initializing direction matrix...	
+Initiation Grid	
+Initiation Threshold	
+Initiation Type	
 Input	
+Input File	
+Input File's NoData Value	
+Input Grid	
+Input Grid 1	
+Input Grid 2	
+Input Grids	
+Input Specification	
+Input file	
+Input for module calculations.	
+Input format	
+Input grid	
+Insert Additional Points	
+Insert Distance	
 Insert Method	
 Insert Position	
+Integer (1 byte)	
+Integer (2 byte)	
+Integer (4 byte)	
+Intensidad	
+Intensidad (Kcal/m)	
+Intensity	
+Intensity (Kcal/m)	
+Interactive version (left mouse clicks will trigger the calculation for the selected cell).	
+Intercept	
+Intercept of the soil line	
+Interior	
+Internal subcatchment routing velocity [m/h]	
+Interpolation	
+Interpolation Method	
+Interpolation Steps	
+Intersect	
+Intersection	
+Interval	
+Interval between points (in grid units).	
+Intervalo de tiempo entre capas (min)	
+Invalid Buffer Distance	
+Invalid File Format.	
+Invalid Shapes	
+Invalid X/Y fields.	
+Invalid points layer.	
+Invalid polygon layer.	
+Invalid shapes layer.	
+Inverse	
+Inverse Distance Interpolation	
+Inverse Distance Offset	
+Inverse Distance Power	
+Inverse Distance Weighted	
+Inverse Distance Weighting Power	
+Inverse transformation not available for selected projection type.	
 Inversion	
+Invert	
+Invert Data/No-Data	
+Invert selection.	
+Is the subbasin upstream (no external inflow)	
+Isochrones Constant Speed	
+Isochrones Variable Speed	
+Iteration	
+Iterationen	
+Iterations	
+Iterative Minimum Distance (Forgy 1965)	
 JPEG - JFIF Compliant	
+JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)	
 JPG Files	
+Jakeman & Hornberger (1993)	
+January	
+Johan Van de Wauw (c) 2009	
+Join Table	
+Join a Table	
+Julia	
+Julia - X	
+Julia - Y	
+Julia Set	
+July	
+June	
+Kartoffeln	
+Keep Base Level below Surface	
+Keep the borders between segments as special values.	
+Kernel	
+Kernel Density	
+Kernel Density Estimation	
+Kind of initializing Precipitation Event	
+Kinematic Routing Algorithm	
+Kriging - geostatistical procedures for the gridding of irregular distributed point data.	
+LAS Files (*.las)|*.las|All Files|*.*	
+LENGTH	
+LFAC(	
+LNG_FILE_DIC	
+LS-Factor	
+Labels	
+Lag Subbasin(	
+Lag coefficient	
+Lake	
+Lake Flood	
+Lambert Conformal Conic (1 parallel)	
+Lambert Conformal Conic (2 parallel)	
+Land Surface Temperature	
+Land Surface Temperature [Deg.Celsius]	
+Land Use	
+Land Use ID	
+Landsat	
+Language Translations	
+Laplace Filter	
+Laplacian Filter	
+Last Day	
+Lat. of True Scale	
+Latitude	
+Latitude (user defined reference)	
+Latitude 1	
+Latitude 2	
+Latitude 3	
+Latitude B	
+Latitude Pole	
+Latitude [degree]	
+Latitude relates to grid's...	
+Layer A	
+Layer B	
+Layer of extreme value	
 Layers	
+Layers to merge with main layer	
+Layout	
+Leading zeros for data set numbering. Set to -1 for not using numbers at all.	
+Leaf Area Index	
+Leaf Size (for Speed Optimisation)	
+Least Cost Path	
+Least Cost Paths	
+Least Squares Fitted Plane (Horn 1981, Costa-Cabral & Burgess 1996)	
+Least cost path profile line	
+Least cost path profile points	
+Leaves	
+Leaves to Litter	
+Lectures - Introducing Module Programming	
+Lectures|Introducing Module Programming	
+Lee Factor	
+Lee Filter	
+Lee Filter - Direction	
+Lee Filter - Standard Deviation	
 Left	
+Left Border (X)	
+Left Half	
 Left/Right	
 Legend: Save	
 Legend: Zoom	
 Length	
+Less than	
+Let pixel stay unclassified, if maximum likelihood probability is less than threshold.	
+Let pixel stay unclassified, if minimum or mahalanobis distance is greater than threshold.	
+Let pixel stay unclassified, if spectral angle distance is greater than threshold.	
+Level	
+Level Aggregation	
+Level of Detail	
+Level of Generalisation	
 Library Overview	
+Life	
+Life Cycle	
+Life Cycles	
+Lighting and visibility calculations for digital terrain models.	
+Line Color	
+Line Endset (Bytes)	
+Line Offset (Bytes)	
+Line Order	
+Line Properties	
+Line Simplification	
+Line Transect(s)	
+Line-Polygon Intersection	
+Linear Flow	
+Linear Flow Threshold	
+Linear Flow Threshold Grid	
+Linear Module	
+Linear Regression	
+Linear: a + b * x	
 Lines	
 Lines and Points	
+Lines with Property Attributes added	
+List of Grids	
+List of Shapes Layers	
+Litter to Humus	
+Litterfall Rate [g/m\xc2\xb2/a]	
+Little Endian (Intel)	
+Ln(Area)	
 Load Colors	
 Load Parameters	
+Load shapefile	
+Load shapefile after conversion	
+Loading GSTAT-File	
+Loam	
+Loamy Sand	
+Local Cartesian	
+Local Maxima	
+Local Minima	
+Local Minima and Maxima	
+Local Morphometry	
+Local Rotation Base Level	
+Local Rotation [Degree]	
+Local Sky View Factor	
+Local Time (user defined reference)	
+Local time relates to grid's...	
+Locate STRM30 Data File	
+Locate...	
+Location	
+Location settings to be used, if no latitude/longitude grids are given.	
+Logarithmic Transformation	
+Logarithmic: a + b * ln(x)	
 Logo	
+Lon. Down	
 Long dashed style	
+Longitude 1	
+Longitude 2	
+Longitude 3	
+Longitude Pole	
+Longitude [degree]	
+Longitudinal Profile	
+Look up table (Points)	
+LookUp Table	
+Lookup Table	
+Lookup table used in method \"table\"	
+Lookup table used in method \"user supplied table\"	
+Lotsa	
+Low Value	
+Low value < grid value < high value	
+Low value <= grid value < high value	
+Low variation for low sizes	
+Low-pass 1	
+Low-pass 2	
+Lower Border (Y)	
+Lower Limit of real data	
+Lower Tolerance	
+LowerLimit	
+Lumped Atmospheric Transmittance	
+Lumped Atmospheric Transmittance [Percent]	
+Luv Factor	
+M	
 MAX	
 MAXIMUM	
+MDE	
+MEAN	
+MFD	
 MIN	
 MINIMUM	
+MOLA Grids (*.img)|*.img|All Files|*.*	
+MORAN_I	
+MRRTF	
+MRVBF	
+MS Windows Bitmap (*.bmp)|*.bmp|All Files|*.*	
+MSL Height [m]	
+Maehweide	
+Magnitude	
+Mahalanobis Distance	
+Main Layer	
+Main Layer. Output layer will have the same field in the attributes table as this layer	
+Main Radius	
+Main channel routing velocity [m/h]	
+Majority	
+Majority Filter	
+Make sure that the files\n	
+Mandelbrot	
+Mandelbrot Set	
+Manhattan	
+Manning's N	
+Manning's Roughness	
 Map	
+Map File	
+Map Layer	
+Map Manager	
+Map Units	
+Map/Table Size Ratio [%]	
 Maps	
+March	
+Mark Highest Neighbour	
+Mask	
+Mask Grid	
+Mask Max	
+Mask Min	
+Mask value	
+Masked Grid	
+Mass Balance Index	
+Massivity coef.	
+Material	
+Matrix signular\n	
+Max	
+Max Iterations	
+Max Lamda	
+Max. Distance [km]	
+Max. Iterations	
+Max. Number of Classes	
+Max. Starvation Time for Sharks	
+Max.Distance	
+Maxima	
+Maximal Number of Points	
 Maximum	
+Maximum Cells (C Correction Analysis)	
+Maximum Contour Value	
+Maximum Deviation between estimated excess rainfall and observed streamflow volumes	
+Maximum Deviation: ExcessRain-Streamflow [%]	
+Maximum Distance	
+Maximum Distance (km)	
+Maximum Distance [Cells]	
+Maximum Iterations	
+Maximum Level	
+Maximum Likelihood	
+Maximum Number of Observations	
+Maximum Number of Points	
+Maximum Overestimation of ExcessRain [%]	
+Maximum Points	
+Maximum Resolution (Percentage)	
+Maximum Search Radius	
+Maximum Search Radius (cells)	
+Maximum Search Radius (map units)	
+Maximum Size (Cells)	
+Maximum Slope (Travis et al. 1975)	
+Maximum Sum of overestimated ExcessRain to total ExcessRain in [%]	
+Maximum Triangle Slope (Tarboton 1997)	
+Maximum Value	
+Maximum distance parameter is ignored if set to zero (default).	
+Maximum flow distance(m)	
+Maximum number of classes in entire grid.	
+Maximum number of classes in the entire grid.	
+Maximum number of grid cells used for trend analysis as required by C correction.	
+Maximum resolution as percentage of the diameter of the DEM.	
+Maximum root zone storage deficit [m]	
+Maximum size	
+Maximum value of the range to be reclassified.	
+May	
+Mean	
+Mean Average	
+Mean Centre	
+Mean Elevation	
+Mean Elevation [m.a.s.l]	
+Mean Value	
+Mean Value (cell area weighted)	
+Mean less Standard Deviation	
+Mean plus Standard Deviation	
+Mean saturation deficit (in watershed) [m]	
+Median	
+Membership Function Type	
+Memberships	
 Menu	
+Mercator	
+Merge Shapes Layers	
+Merged Grid	
+Merged Layer	
+Merging	
+Method	
+Method (LS)	
+Method (TWI)	
+Method Angle	
+Method for Lines	
+Method range	
+Method simple table	
+Method single	
+Method user supplied table	
+Mid-Slope Positon	
+Miller Cylindrical	
+Min	
+Min. Flow Speed (m/s)	
+Min. Segment Length	
+Min. Size	
+Min. Size (Cells)	
+Min./Max. Number of m_Points	
+MinDist	
+MinDist Region	
+MinDistDir	
+Mine Sweeper	
+Minima	
+Minimal Number of Points	
 Minimum	
+Minimum Connectivity	
+Minimum Contour Value	
+Minimum Density [Percent]	
+Minimum Density for Interior Forest [Percent]	
+Minimum Distance	
+Minimum Distance Analysis	
+Minimum Exaggeration [%]	
+Minimum Nash-Sutcliffe Efficiency	
+Minimum Nash-Sutcliffe Efficiency required to print simulation to calibration table	
+Minimum Number of Observations	
+Minimum Segment Length (Cells)	
+Minimum Size (Cells)	
+Minimum Size [%]	
+Minimum Slope [Degree]	
+Minimum Standard Deviation	
+Minimum Value	
+Minimum size	
+Minimum size of basin (cells)	
+Minimum slope gradient to preserve from cell to cell; with a value of zero sinks are filled up to the spill elevation (which results in flat areas). Unit [Degree]	
+Minimum value of the range to be reclassified.	
 Minimum/Maximum	
+Minnaert Correction	
+Minnaert Correction with Slope (Law & Nichol 2004)	
+Minnaert Correction with Slope (Riano et al. 2003)	
+Mirror	
+Mixed Flow Threshold (ha)	
+Mode of operation	
+Model	
+Model Parameters:	
+Model parameter [m]	
+Modelling hydrological processes.	
+Modelo de combustible	
+Modifed Quadratic Shepard	
+Modified catchment area	
+Modify: post-processing...	
+Modify: pre-processing...	
 Module	
+Module Library	
 Module Library Descriptions	
+Module Library Template	
+Module Manager	
+Module Template	
+Modules for GPS data handling.	
+Mollweide	
+Moment [h]	
+Month	
+Moore	
+Moore et al. 1991	
+Moran's I	
+Morphometric Protection Index	
+Move	
+Move Grid	
+Moving window size = 1 + 2 * Neighborhood.	
+Multi Direction Lee Filter	
+Multi Scale Factor	
+Multilevel B-Spline Interpolation	
+Multilevel B-Spline Interpolation (from Grid)	
+Multiple Flow Direction	
+Multiple Flow Direction (FD8)	
+Multiple Flow Direction (Quinn et al. 1991)	
+Multiple Regression Analysis	
+Multiple Regression Analysis (Points/Grids)	
+Multiple Triangular Flow Directon	
 Multiplication	
+Multipoint	
+Multiresolution Index of Valley Bottom Flatness (MRVBF)	
+MySQL Data	
 NAME	
+NCELLS	
+NEIGHBORS	
+NEON	
+NR	
+NSE|NSE high flow|NSE low flow	
+NTv2 Grid Shift Binary (*.gsb)	
+NX	
+NY	
+N\xc3\xbamero of Monte-Carlo events	
 Name	
+Name Field	
+Natural Neighbour	
+Navaladi, Schoeller, Conrad (c) 2009	
+Near Infrared Band	
+Nearest Neigbhor	
+Nearest Neighbor	
+Nearest Neighbour	
+Needs less memory, but is slow	
+Needs more memory, but is quicker	
+Neighborhood	
+Neighborhood Type	
+Neighbourhood	
 Neon	
+Net Primary Production [Gt Carbon / a]	
+Network Density [%]	
+Neumann	
+New Grid Dimensions	
+New Shapes Layer	
+New Value	
+New grid filtered with the A1WiTh module	
+New grid filtered with the A2WiTh module	
+New grid filtered with the A3WiTh module	
+New grid filtered with the AvWiMa1 module	
+New grid filtered with the AvWiMa2 module	
+New grid filtered with the destriping1 module	
+New grid filtered with the destriping2 module	
+New grid filtered with the directional1 module	
+New layer from selected shapes	
+New selection	
+New table	
+New value.	
+Newton [A]	
+Newton [B]	
+Newton-Raphson	
+Neys (Modified Lambert Conformal Conic)	
+Nitrogen in Rainfall [kg/ha/a]	
+No Cut	
+No Data Value	
+No Flats	
+No Height	
 No ODBC connection available!	
+No duplicates found.	
+No grids selected	
 No history available	
 No pen is used	
+No records selected.	
+No shapes in selection	
+No sinks have been detected.	
+No tables available in database!	
+No translation set by user	
+NoData Value	
+NoData value(s) in statistic grid(s)!	
+NoDataValue	
+Node	
+Non-Linear Module	
+None	
 Normalisation	
+Normalise	
+Normalised Grid	
+Normalized	
+Normalized Difference Vegetation Index	
+Normalized Height	
+Normalized Ratio Vegetation Index	
+North []	
+North|South|	
+Not Null	
+Not a PostgreSQL database!	
+Not a valid PostGIS database!	
+Nothing to do: there is no intersection with additonal grid.	
+November	
+No|Yes|	
+Nugget	
+Number of Attributes	
+Number of Buffer Zones	
+Number of Classes	
+Number of Clusters	
+Number of Colors	
+Number of Column Cells	
+Number of Different Classes	
+Number of Directions	
+Number of Distance Classes	
+Number of Elements	
+Number of Events	
+Number of Facettes	
+Number of Fields	
+Number of Grid Cells	
+Number of Pairs	
+Number of Points	
+Number of Points for Local Interpolation	
+Number of Points in Cell	
+Number of Records	
+Number of Row Cells	
+Number of Sectors	
+Number of Simulations	
+Number of Simulations for Calibration	
+Number of Steps	
+Number of Variables	
+Number of additional attributes to import.	
+Number of atttribute table columns.	
+Number of clusters	
+Number of decimals when writing floating point values in ASCII format.	
+Number of horizontal tiles	
+Number of iterations, starts with search radius and increments with one cell by iteration.	
+Number of points	
+Number of points in the simplified line	
+Number of points on each side of the section	
+Number of points per return:	
+Number of sub-basins	
+Number of the last x Iteration to be plotted.	
+Number of vertical tiles	
+Numbering of Data Sets	
+Numerical Values	
+Numver of Fields	
+O. Conrad (c) 2009	
+O.Conrad (c) 2010	
+ODBC Commit/Rollback Transaction	
+ODBC Connect	
 ODBC Database Connection Error	
+ODBC Disconnect	
+ODBC Execute SQL	
+ODBC source connected	
+OGR: Export Vector Data	
+OGR: Import Vector Data	
+Objective Function	
+Objects removed from input grid	
+Oblique Mercator	
+October	
+Offset X	
+Offset Y	
+Offset Z	
+Offset and Range (X)	
+Offset and Range (Y)	
+Ok	
+Old Version	
+One per x	
+Only Process Gaps with Less Cells	
+Only closing points on main stream	
+OpenCV - Basic Morphological Operations	
+OpenCV - Fourier Transformation	
+OpenCV - Single Value Decomposition	
+Operation	
+Operator scale	
+Opposite Neighbours	
 Option	
 Options	
 Options for Data Thumbnails	
 Options for Map Thumbnails	
+Options:\n - Less than\n - Equals\n - Greater than\nControls under which condition a channel is initiated.	
+Order by	
+Order by...	
+Ordered Weighted Averaging (OWA)	
+Ordinary Kriging	
+Ordinary Kriging (Global)	
+Ordinary Kriging (VF)	
+Ordinary Kriging (VF, Global)	
+Orientation	
+Origin Height	
+Origin Latitude	
+Original Image	
+Orographic coef.	
+Orthographic	
+Ouput	
+Outlet Hydrographs	
 Output	
+Output (imaginary)	
+Output (real)	
+Output Field Name	
+Output File	
+Output Grid	
+Output Lod	
+Output Seeds	
+Output Type	
+Output Unit	
+Output file	
+Output format	
+Output grid	
+Output of Regression Parameters	
+Output of module calculations.	
+Overland Flow - Kinematic Wave D8	
+Overland Flow Distance	
+Overland Flow Distance to Channel Network	
+Overlapping Cells	
+Overlay Image	
+Override	
+Overview	
+P/A	
+P/sqrt(A)	
+PCP Column: Subbasin: 	
+PDF Docs	
+PDF Documents	
+PDF File	
 PDF Files	
+PDF Files (*.pdf)|*.pdf|All Files|*.*	
+PERCENTILE	
+PFAC(	
 PNG Files	
+PVI (Perry & Lautenschlager)	
+PVI (Qi, et al) 	
+PVI (Richardson and Wiegand)	
+PVI (Walther & Shabaani)	
+Pairwise Comparisons Table 	
+Panorama	
+Panorama Break [%]	
+Paper Format	
+Parallel Processing	
+Parallelepiped	
+Parameter	
+Parameter (a)	
+Parameter (b)	
+Parameter (c)	
+Parameter (c) to fit streamflow volume	
+Parameter (l)	
+Parameter (l) [lower bound]	
+Parameter (l) [upper bound]	
+Parameter (p)	
+Parameter (p) [lower bound]	
+Parameter (p) [upper bound]	
+Parameter A for Power Function Regression:\n   y = A * x ^ B	
+Parameter B for Exponential Regression:\n   y = Nugget * e ^ (B * x)	
+Parameter B for Linear Regression:\n   y = Nugget + B * x	
+Parameter B for Power Function Regression:\n   y = A * x ^ B	
+Parameter settings for No-Data and all other values.	
+Parameter settings for method range.	
+Parameter settings for method simple table.	
+Parameter settings for method single.	
+Parameter settings for method user supplied table.	
 Parameters	
 Parameters file could not be exported.	
 Parameters file could not be imported.	
+Partial D.	
+Partition Coefficients	
 Parts	
+Pass 1	
+Pass 2	
 Password	
+Patch	
+Patch Grid	
+Patching	
+Path	
+Path for HTML Files	
+Pattern Analysis	
+Peak Flow (m3/s)	
+Peak Flow (m3/s) at selected outlet cell	
+Percentage of points	
+Percentage of points remaining in the simplified line	
+Percentage of standard deviation	
+Percentile	
+Percentiles	
+Perforated	
+Perimenter	
 Perimeter	
+Perimeter (m)	
+Permanent Wilting Point [mm]	
+Permeability	
+Peucker & Douglas	
+Pick CRS from loaded data set	
+Plan Curvature	
+Plane	
+Plane (%.2fDegree)	
+Planetary Radius	
+Planetery Bending	
+Please choose a method of module operation.	
 Please stop module execution before exiting SAGA.	
+Plot Holes	
+Point	
+Point Cloud	
+Point Cloud Attribute Calculator	
+Point Cloud Cutter	
+Point Cloud Manager	
+Point Cloud Reclassifier / Subset Extractor	
+Point Cloud Thinning (simple)	
+Point Cloud Viewer	
+Point Cloud Viewer Settings	
+Point Cloud from Grid Points	
+Point Cloud from Shapes	
+Point Cloud to Grid	
+Point Cloud to Shapes	
+Point Cloud to drop attribute from.	
+Point Cloud to reclassify/extract	
 Point Clouds	
+Point Data Record Format	
+Point Grid	
+Point Position	
+Point Size: Default	
+Point Size: Scaling	
+Point Statistics for Polygons	
+Point clouds viewer.	
+Point shapefile with source point(s)	
+Point shapes import from text formated XYZ-table.	
 Points	
+Points Export	
+Points Import	
+Points Selection	
+Points from Lines	
+Points per Cell	
+Points per Square	
+Polar Stereographic	
+Polar To Rect	
+Polyconic	
+Polygon	
+Polygon Centroids	
+Polygon Intersection	
+Polygon Layers	
+Polygon Shape Indices	
+Polygon Union	
+Polygons	
+Polylines	
+Population	
+Port	
 Portable Network Graphics	
+Portable Network Graphics (*.png)	
 Position	
+Positive values result in a shift in E direction.	
+Positive values result in a shift in N direction.	
+Possible error	
+PostGIS Shapes Export	
+PostGIS Shapes Import	
+Potential Incoming Solar Radiation	
+Power	
+Power Function - A	
+Power Function - B	
+Power Function Regression	
+Power on soil (p)	
+Power on soil (p) [lower bound]	
+Power on soil (p) [upper bound]	
+Power on soil moisture	
+Power on soil moisture (p), lower bound	
+Power on soil moisture (p), upper bound	
+Power: a + b * x^c	
+Pre-Processing	
+Pre-defined Formulas	
+Precipitation	
+Precipitation Column	
+Precipitation [mm]	
+Predefined Datum	
+Predefined Ellipsoids	
+Predefined Functions	
+Predefined Standard Ellipsoids	
+Predictor	
+Predictors	
+Preferred Target Grid Type	
+Preferred data storage type	
+Preprocessed DEM	
+Preprocessed DEM. If this is not set changes will be stored in the original DEM grid.	
+Preserve Data Type	
+Primary Name	
+Primary key)	
+Priority Index	
+Probability Reference	
+Probability Threshold (Percent)	
 Process Update Frequency [milliseconds]	
+Processing	
+Product	
+Profile	
+Profile (lines)	
+Profile (points)	
+Profile Curvature	
+Profile Distance	
+Profile Length	
+Profile Line	
+Profile Points	
+Profile Samples	
+Profile [%s]	
+Profile from points	
+Profile_Line_[%s]_%d	
+Profile_Points_[%s]_%d	
+Profiles	
+Profiles from Lines	
+Proj.4	
+Proj4 Parameters	
+Project \'%s\'	
 Projected Coordinate System	
+Projected Coordinate Systems	
+Projected Height	
+Projection	
+Projection - GeoTRANS	
+Projection - Georeferencing	
+Projection - Proj.4	
+Projection Parameters	
+Projection Settings	
+Projection Type	
+Projection_GeoTRANS_Datum_3.dat,\n	
+Projection_GeoTRANS_Datum_7.dat,\n\n	
+Projection_GeoTRANS_Ellipsoid.dat,\n	
+Projection_GeoTRANS_Geoid_EGM96.dat,\n	
+Projection|Georeferencing	
+Protection Index	
+Proximity	
+Proximity Grid	
+Pythagoras' Tree	
+QuadTree - Lines	
+QuadTree - Squares	
+QuadTree Structure to Shapes	
+Quadratic	
+Quadratic Neighbors	
+Quadric: a + b * x + c * x^2	
+Quality	
+Quality Measure	
+Quantile Step	
+Quantiles	
+Queen	
+Queen's case	
+Query builder for shapes	
+R2	
+R:Alternatives	
+R:Buffers	
+R:Catchment Area	
+R:Classification	
+R:Conversion	
+R:Cost Analysis	
+R:Export	
+R:Filter for Grids	
+R:Fourier Analysis	
+R:Fragmentation Analysis	
+R:Fuzzy Logic	
+R:Grid Generation	
+R:Image Analysis	
+R:Import	
+R:Indices	
+R:Interpolation from Points	
+R:Lakes	
+R:Segmentation	
+R:Soil Analysis	
+R:Spline Interpolation	
+R:Terrain Analysis	
+R:Tools	
+R:Values	
+R:Without Variogram Fit	
+RAINBOW	
+RANGE	
+RED_BLUE	
+RED_BLUE_GREEN	
+RED_GREEN	
+RED_GREEN_BLUE	
+RED_GREY_BLUE	
+RED_GREY_GREEN	
+RGA	
+RGB Composite	
+RGB coded data	
+RGBOverlay	
+ROI_N	
+Radians	
+Radius	
+Radius (Cells)	
+Radius (cells)	
+Radius X	
+Radius Y	
+Radius is too small	
+Radius is too small for your Standard Deviation	
+Radius of Variance (Grid)	
+Radius with Variance	
 Rainbow	
+Random Field	
+Random Terrain Generation	
+Range	
+Raster Dimension	
+Raster Resolution (Pixel Size)	
+Raster Resolution (Pixels Size)	
+Raster Resolution (Pixels X)	
+Rate Constant for Litter Loss [1/a]	
+Ratio Vegetation Index	
+Raw Data File	
+Ray Tracing	
+Real	
+Real Area Calculation	
+Real Area Grid	
+Recalculating all Regions Minimum Distances\n	
+Reciprocal Flattening (rf)	
+Reclassifed grid.	
+Reclassifed or extracted Point Cloud.	
+Reclassification of distance grid to buffer zones with a width equal to the equidistance value.	
+Reclassified Grid	
+Reclassify Grid Values	
+Reclassify buffer distance to intervals of euqidistance ...	
+Reclassify|Extract Subset|	
+Recreations - Fractals	
+Recreations - Games	
+Recreations|Fractals	
+Recreations|Games	
+Rect To Polar	
+Recursive Upward Processing	
+Red	
+Red Band	
+Reduction	
+Reference Points (Origin)	
+Reference Points (Projection)	
+Refresh	
+Regions Count of No-DataValue-Pixels	
+Regions MinPixel	
+Regression	
+Regression Analysis (Points/Grid)	
+Regression Function	
+Regression Parameters	
+Regularisation	
+Relation B / A	
+Relative Area	
+Relative Height	
+Relative Heights and Slope Positions	
+Relative Richness	
+Relative from cell value	
+Relative heights calculation...	
+Relaxation	
+Remove Duplicate Points	
+Remove every i-th point.	
+Removed Objects	
 Rename Fields	
+Replace Condition	
+Replace with	
+Reports - HTML	
+Reports - PDF	
+Representativeness	
+Representativeness (Grid)	
 Resampling	
+Rescale Range	
+Rescale Values (0-255)	
+Rescale to 0 - 1	
+Rescale to 0 - 1.0	
+Rescale to 0 - 255	
+Residual Analysis (Grid)	
+Residuals	
 Resolution	
+Result	
+Result table	
+Resulting Point Cloud.	
+Resulting Shapes	
+Resulting Value	
+Resulting shapes	
+Results	
+Revert Palette	
+Rho 8	
 Right	
+Rill/Interrill Erosivity	
+River Headers	
+Road Width	
+Rook	
+Rook's case	
+Roots	
+Roots to Humus	
+Rotate	
+Rotate Table	
+Rotate a table, i.e. swap rows and columns.\n	
+Rotation	
+Rotation X	
+Rotation Y	
+Rotation Z	
+Rotation angle [Degree]	
+Roughness/Smoothness	
+Routing	
+Routing Error	
 Rows	
+Running Average	
+Runoff	
 SAGA Colors	
 SAGA Help	
 SAGA Module Libraries	
@@ -181,65 +2396,919 @@ SAGA Parameter Files
 SAGA Point Clouds	
 SAGA Project	
 SAGA Projects	
+SAGA RGB color	
+SAGA User Group Associaton (c) 2002	
+SAGA User Group Associaton (c) 2008	
+SAGA Wetness Index	
+SAGA interface to Frank Warmerdam's Geospatial Data Abstraction Library (GDAL).	
 SAGA: Print Map	
+SECTIONS	
+SPECIFIC	
+SQL Statement	
+SQL Statment	
+SRTM30 DEM Tiles (*.dem)|*.dem|All Files|*.*	
+STDDEV	
+STDDEV_HI	
+STDDEV_LO	
+STDDEV_MEAN	
+STL Files	
+SUM	
 SVG - Scalable Vector Graphics Files (*.svg)	
+SVG Interactive Map	
+Sample Variogram	
+Samples in range	
+Sand	
+Sandy Clay	
+Sandy Clay-Loam	
+Sandy Loam	
+Saturation overland flow [m/dt]	
 Save 3D Image Options	
+Save All Attributes	
 Save Colors	
 Save Georeference	
+Save Headline	
 Save Parameters	
+Save Shapefile	
+Save Table Header	
 Save all	
+Save the results to the input shapefile.	
+Scalable Vector Graphics Files (*.svg)	
 Scale	
+Scale Factor	
+Scale Factor X	
+Scale Factor Y	
+Scale Point Size	
+Scale X	
+Scale Y	
+Scale Z	
+Scale factors	
+Scaling	
+Scaling Factor for Attribute Value	
 Scatterplot	
+Search Distance Increment	
+Search Mode	
+Search Radius	
+Search Range	
+Search Text	
+Search for...	
+Search in attributes table	
+Search radius of kernel in cells.	
+Search text not found	
 Second Class	
+Second input grid	
+Secondary Name	
+Section	
+Sections	
+Seed Generation	
+Seed Value	
+Seeds	
+Seeds Grid	
+Seeds Only	
+Segment ID	
+Segmentation	
+Segmente	
+Segments	
+Select * FROM test	
+Select Grid	
+Select Grid System	
+Select Precipitation Column	
+Select Temperature Column	
+Select by theme	
+Select features in Shapes 1 that fulfil this condition	
+Select file	
+Select from Subdatasets...	
+Select from current selection	
+Select operator: eg. min < value < max.	
+Select the Column containing Discharge Values	
+Select the Column containing Temperature Values	
+Select the Column containing precipitation Values	
+Select the column containing inflow data to the subbasin	
+Select the column containing the Date	
+Select the column containing the observed streamflow time series	
+Select the desired method: 1. a single value or a range defined by a single value is reclassified, 2. a range of values is reclassified, 3. the lookup table is used to reclassify the grid.	
+Select the desired operator (<;.;=; >;.); it is possible to define a range above or below the old value.	
+Select the desired operator (min < value < max; min . value < max; min .value . max; min < value . max).	
 Selection Color	
+Semi-Variances	
+Semi-Variogram	
+Semimajor Axis (a)	
+Semimajor Axis and Eccentricity	
+Semimajor Axis and Eccentricity Squared	
+Semimajor Axis and Flattening	
+Semimajor Axis and Reciprocal Flattening	
+Semimajor Axis and Semiminor Axis	
+Semimajor axis or equatorial radius.	
+Semiminor Axis (b)	
+Semiminor axis or polar radius.	
+Semivariance	
+Semivariogram	
+Separate Line/Polygon Points	
+Separate Shapes	
+Separate points by direction	
+Separator	
+Separator (other)	
+September	
+Server	
+Set Coordinate Reference System	
+Set \'false\' to execute the calculation for each point in grid. Set \'true\' tu calculate the flow of one single cell.	
+Set extent by	
+Set true if you want multipart polygons to become separate polygons.	
+Shade	
+Shading Method	
 Shall I activate file caching for new grid.	
+Shape Index	
+Shape Parameter for Elevation Percentile	
+Shape Parameter for Slope	
+Shape Type	
+Shape Type Manager	
+Shape(s)	
+Shape(s) to fit extent to	
+Shapes	
+Shapes (Grid Information)	
+Shapes - Grid	
+Shapes - Lines	
+Shapes - Lines (extended)	
+Shapes - Point Clouds	
+Shapes - Point Clouds Viewer	
+Shapes - Points	
+Shapes - Polygons	
+Shapes - Tools	
+Shapes - Transects	
+Shapes 2	
+Shapes Buffer	
+Shapes Extent	
+Shapes Layers	
+Shapes Manager	
+Shapes Report	
+Shapes Summary Report	
+Shapes to Grid	
+Shapes to TIN	
+Shapes to project	
+Shapes_Merge	
+Shapes|Grid	
+Shapes|Lines	
+Shapes|Lines|Transects	
+Shapes|Point Clouds	
+Shapes|Point Clouds|Visualisation	
+Shapes|Points	
+Shapes|Polygons	
+Shapes|Tools	
+Sharpen	
+Shear factors	
+Shearing	
+Shen-Castan	
+Short Field Names	
+Short Wave Radiation [kW/m2]	
 Short dashed style	
 Show Categories	
 Show Logo at Start Up	
+Show Progress	
+Show Result in Dialog	
+Sibson	
+Side Slope	
+Sill	
+Silt	
+Silt-Loam	
+Silty Clay	
+Silty Clay-Loam	
+Similarity	
+Simple	
+Simple Filter	
+Simple Region Growing	
+Simple, flow path and swath profiles.	
+Simplified Lines	
+Simplify Lines	
+Simulación (Viento variable)	
+Simulando...	
+Simulating...	
+Simulation	
+Simulation - Cellular Automata	
+Simulation - Fire Spreading Analysis	
+Simulation - Hydrology	
+Simulation - Hydrology: IHACRES	
+Simulation - Modelling the Human Impact on Nature	
+Simulation Output	
+Simulation Time	
+Simulation Time Step [h]	
+Simulation Time [h]	
+Simulation|Cellular Automata	
+Simulation|Ecology|Modelling the Human Impact on Nature	
+Simulation|Fire Spreading	
+Simulation|Hydrology	
+Simulation|Hydrology|IHACRES	
+Single Cell	
+Single Flow Direction	
+Single Storage	
+Single value	
+Sink Drainage Route Detection	
+Sink Removal	
+Sink Route	
+Sink Routes	
+Sinuosity	
+Sinusoidal	
+Sites	
+Size	
+Size field	
+Size of Analysis Window	
+Size of smoothing filter	
+Skeleton	
+Skip Number	
+Skip cells (step value).	
+Skip first line	
+Skip first line as it contains column names.	
+Sky View Factor	
+Sky View Factor (Simplified)	
+Slope	
+Slope Height	
+Slope Length	
+Slope gradient to left neighbour [%%]	
+Slope gradient to left neighbour [Degree]	
+Slope of the soil line	
+Smooth	
+Smooth Rep	
+Snow Module Parameters	
+Snow Module on/off	
+Soil Losses	
+Soil Moisture	
+Soil Moisture Content	
+Soil Moisture Deficit	
+Soil Moisture Power Eq.	
+Soil Nitrogen	
+Soil Texture	
+Soil Texture Classification	
+Soil losses (t/ha\xc2\xb7year)	
+Soil moisture index (l)	
+Soil moisture index (l) [lower bound]	
+Soil moisture index (l) [upper bound]	
+Soil moisture index threshold	
+Soil moisture index threshold (l), lower bound	
+Soil moisture index threshold (l), upper bound	
+Soil texture	
+Solar Constant [W / m\xb2]	
+Solar Position	
 Solid style	
+Some Grid Analysis Tools.	
+Sommergerste	
+Sort	
+Sort Grid	
 Sort Table	
 Sort first by	
 Sort second by	
 Sort third by	
+Sorted Grid	
+Source	
+Source Coordinate System Error	
+Source Coordinate System Type Error	
+Source Datum	
+Source Datum Error	
+Source Grid	
+Source Parameter List Initialisation Error	
+Source Parameters	
+Source Point(s)	
+Source Projection	
+Source Projection Error	
+Source Projection Parameters	
+South	
+South []	
 South-North	
+Spatial Point Pattern Analysis	
+Spatial Reference	
+Spatial Reference System Files (*.srs)	
+Spatial and geostatistical analyses of point data.	
+Special cases	
+Special visualisation functions for grids.	
+Specific Catchment Area	
+Specific Catchment Area (SCA)	
+Specify a threshold value as minimum difference between neighboured segments.	
+Spectral Angle Mapping	
+Spectral Angle Threshold (Degree)	
+Spectral Information Divergence	
+Speed (m/s)	
+Spherical Model	
+Spline sensitivity, reduce to get smoother results, recommended: 80 < Tolerance < 200	
+Split Channels	
+Split Parts	
+Split Shapes Layer	
+Split Shapes Layer Randomly	
+Split Table/Shapes by Attribute	
+Square	
+Squared Eccentricity (es)	
+Stability	
+Standard	
+Standard (max. 90Degree)	
+Standard Deviation	
+Standard Deviation (Percent of Radius)	
+Standard Distance	
+Standard Parallel	
+Standard Terrain Analysis	
+Standard deviation	
+Standard kernel 3	
+Standardized Height	
 Start Project	
+Start Value	
+Start Values	
+Starting flood fill...	
+Statistics	
+Statistics for Grids	
+Std.Dev.	
+Steepest gradient (first version)	
+Steepest gradient (second version)	
+Stems	
+Stems to Litter	
+Step	
+Step 1: low-pass of stripe	
+Step 2: low-pass between stripe and its surruondings	
+Stepwidth	
+Stereo Eye Distance [Degree]	
+Stereographic	
+Stop on Error	
+Storage	
+Storage Configuration	
+Strahler Order	
+Stream Power	
+Stream Power Index	
+Streamflow (obs.) Column	
+Streamflow Column	
+Strings in Quota	
+Stripes distance	
+Style	
+Subbasin 	
+Subbasin Inflow	
+Subbasins	
+Subsurface flow [m/dt]	
+Subtitle	
+Subtract Volumes Below Base Level	
 Subtraction	
+Sudoku	
+Summary	
+Summary Table	
+Summary table.	
+Summary:\n	
+Summary_	
+Sum|Min|Max|	
+Sunrise	
+Sunset	
+Supervised Classification	
+Surface	
+Surface Specific Points	
+Surface hydraulic conductivity [m/h]	
+Surfer Blanking Files (*.bln)|*.bln|All Files|*.*	
+Surfer Grid (*.grd)|*.grd|All Files|*.*	
+Surfer's No Data Value	
+Swath Profile	
+Swath Width	
+Swath width measured in map units.	
+Syntax error at position #%d: \n%s\n	
+System	
+T Curvature	
+T Slope	
+T Vertical Distance to Channel Network	
+TFAC(	
+TIFF files (*.tif)	
+TIN	
+TIN - Tools	
+TIN Centroids	
+TIN Edges	
+TIN Manager	
+TIN Triangles	
+TIN Voronoi	
+TIN to Shapes	
+TIN_Gradient	
+TINs	
+TMP Column: Subbasin: 	
+TOPMODEL	
+TOPMODEL - Simulation Output	
+TOT_N	
+TYPE	
+T_MELT(	
+T_RAIN(	
 Table	
+Table (with Trend)	
+Table - Calculus	
+Table - Tools	
+Table / Shapes	
+Table Deletion	
+Table Export	
+Table Field Description	
+Table Import	
+Table Manager	
+Table Name	
+Table calculator	
+Table calculator for shapes	
+Table could not be opened.	
+Table does not contain any data.	
+Table from Query	
+Table from SQL Query	
 Tables	
+Table|Calculus	
+Table|Tools	
 Tagged Image File Format	
+Tagged Image File Format (*.tif, *.tiff)	
+Take Formula	
+Target	
+Target Area	
+Target Areas	
+Target Cellsize	
+Target Coordinate System Error	
+Target Coordinate System Type Error	
+Target Datum	
+Target Datum Error	
+Target Dimensions	
+Target Grid	
+Target Grid Type	
+Target Grids	
+Target Parameter List Initialisation Error	
+Target Parameters	
+Target Projection	
+Target Projection Error	
+Target Projection Parameters	
+Temperature (2pm) [DegreeC]	
+Temperature Column	
+Temperature Gradient [Deg.Celsius/km]	
+Temperature Modulation Factor (f)	
+Temperature Modulation Factor f	
+Temperature Threshold for Melting	
+Temperature Threshold for Melting (lower bound)	
+Temperature Threshold for Melting (upper bound)	
+Temperature Threshold for Rainfall	
+Temperature Threshold for Rainfall (lower bound)	
+Temperature Threshold for Rainfall (upper bound)	
+Temperature at Reference Station [Deg.Celsius]	
+Template Menu|Template Sub Menu	
+Template Module Sub Menu	
 Temporary files	
+Tension Threshold	
+Tension Threshold [m]	
+Terrain Analysis	
+Terrain Analysis - Channels	
+Terrain Analysis - Compound Analyses	
+Terrain Analysis - Hydrology	
+Terrain Analysis - Lighting, Visibility	
+Terrain Analysis - Morphometry	
+Terrain Analysis - Preprocessing	
+Terrain Analysis - Profiles	
+Terrain Analysis: Compound Analyses.\nThis library depends on the following SAGA module libraries:\n- ta_channels\n- ta_flow\n- ta_indices\n- ta_lighting\n- ta_morphometry\n- ta_preproc\n	
+Terrain Analysis|Channels	
+Terrain Analysis|Hydrology	
+Terrain Analysis|Lighting	
+Terrain Analysis|Morphometry	
+Terrain Analysis|Preprocessing	
+Terrain Analysis|Profiles	
+Terrain Path Cross Sections	
+Terrain Ruggedness Index (TRI)	
+Terrain View Factor	
 Text	
+Text File	
 Text Files	
+Text Files (*.txt)	
+Text Table (*.txt)	
+Text files (*.txt)	
+The GeoTRANS engine could not be initialized !!\n\n	
+The LAS output file.	
+The Topographic Wetness Index: ln( Area / tan(Slope) )	
+The angle between the surface and the incoming light beams, measured in radians.	
+The column holding the X-coordinate.	
+The column holding the Y-coordinate.	
+The column holding the Z-coordinate.	
+The delay after the start of rainfall, before the discharge starts to rise.	
+The grid to filter.	
+The grids geo-reference must be related either to the center or the corner of its lower left grid cell.	
+The inverse selection is not implemented for input shapefiles with more than one polygon!	
+The method used to identify surface specific points.	
+The numbers (starting from 1) of the fields to use for clustering, separated by semicolon, e.g. \"4;5;7\"	
+The point cloud to export.	
+The resulting grid gives the altitude above the channel network in the same units as the elevation data.	
+The terrain exaggeration factor allows to increase the shading contrasts in flat areas.	
+The transmittance of the atmosphere, usually between 60 and 80 percent.	
+The unobstructed hemisphere given as percentage.	
+The values in the specified radius is used in the average calculation only if its difference with the central value is lesser or equal to this threshold.	
+The values of the resultant grid can be either the seed value (e.g. the local maximum) or the enumerated segment id.	
+Theme	
+Theme Field	
+There is no grid to request.	
+There is nothing to merge, because less than 2 grids have been selected.	
+Thiam's Transformed Vegetation Index	
+Thin Plate Spline (Global)	
+Thin Plate Spline (Local)	
+Thin Plate Spline (TIN)	
 Thin Plate Spline: solving matrix	
+This grid indicates the cells you want calculate the average.	
+This grid is used to select cells.	
 This is a Test!!!	
+This is a floating point value parameter with double precision (8 bytes).	
+This is the horizontal component of the overland flow	
+This is the vertical component of the overland flow	
+This must be your input data of type grid.	
+This must be your input data of type shapes.	
+This optional grid output contains the interpolated channel network base level elevations.	
+This shapes layer will contain the resulting channel network in vector format (lines).	
+This value is ignored if set to zero.	
+This value is used as constant if no vapour pressure grid is given.	
+This version uses all valid cells (not \'no data\' values) of given target grid to determine the contributing area.	
+This will contain your output data of type grid.	
+This will contain your output data of type shapes.	
+Thomas Schorr (c) 2007	
+Thomas Wutzler (c) 2004	
+Threshold	
+Threshold (Grid Units)	
+Threshold (Init.)	
+Threshold - Similarity	
+Threshold Buffer	
+Threshold Elevation	
+Threshold Error	
+Threshold Grid	
+Threshold Height	
+Threshold Type	
+Threshold [Percent]	
+Threshold for Elevation Percentile (Lowness)	
+Threshold for Elevation Percentile (Upness)	
+Threshold for Peucker & Douglas Algorithm	
 Threshold for automatic mode [MB]	
+Threshold for different route	
+Threshold for plane	
+Thresholds	
 Thumbnail Size	
 Thumbnails	
+Tick Points	
+Tiempo	
+Tiempo de inicio (min)	
+Tiempo de simulacion (min)	
+Tile Size (X)	
+Tile Size (Y)	
+Tile Size Definition	
+Tiles	
+Tiling	
+Tilt	
+Time	
+Time Delay (Rain-Runoff)	
+Time Delay after Start of Rainfall (INTEGER)	
+Time Interval [a]	
+Time Out (h)	
+Time Out(h)	
+Time Period	
+Time Range	
+Time Resolution [d]: Range of Days	
+Time Resolution [h]: Day	
+Time Span	
+Time Span [a]	
+Time Span [h]	
+Time Stamp without date	
+Time Step [h]	
+Time [a]	
+Time interval is to large for a stable solution.	
+Time span used for the calculation of daily radiation sums.	
+Time step size for a day's calculation given in hours.	
+Time step size for a range of days calculation given in days.	
+Tolerance	
+Tolerance (Degree)	
+Tolerance [Degree]	
+Tools for (geo)statistical analyses.	
+Tools for (grid based) digital terrain analysis.	
+Tools for Triangulated Irregular Network (TIN) processing.	
+Tools for digital terrain analysis.	
+Tools for lines.	
+Tools for point clouds.	
+Tools for polygons.	
+Tools for the georeferencing of spatial data (grids/shapes).	
+Tools for the gridding of points and other vector data.	
+Tools for the import and export of ASPRS LAS files.	
+Tools for the import and export of DXF files.	
+Tools for the import and export of gridded data.	
+Tools for the import and export of tables.	
+Tools for the import and export of vector data.	
+Tools for the manipulation of gridded data.	
+Tools for the manipulation of point vector data.	
+Tools for the manipulation of vector data.	
+Tools for the preprocessing of digital terrain models.	
+Tools related to gridded and vector data (conversions, combinations, etc.).	
 Top	
+Top to Bottom	
+Topgraphic Wetness Index	
+Topographic Correction	
+Topographic Indices	
+Topographic Wetness Index	
+Total	
+Total Catchment Area (TCA)	
+Total Catchment Area [km2]	
+Total Insolation	
+Total accumulated Material	
+Total flow (in watershed) [m\xc2\xb3/dt]	
+Total flow [m/dt]	
+Total insolation, the sum of direct and diffuse incoming solar radiation.	
 Total memory size	
+Tracing: Convergence	
+Tracing: Max. Divergence	
+Tracing: Stop after x cells with divergent flow	
+Tracing: Weight	
+Training Areas	
+Transactions	
+Transect through polygon shapefile	
+Transfer Coefficients	
+Transform Point Cloud	
+Transform Shapes	
+Transformation	
+Transformed	
+Transformed Vegetation Index	
+Transitional	
+Translation	
+Translation X	
+Translation Y	
+Translation Z	
+Translation: X	
+Translation: Y	
+Transmissivity	
+Transparency	
+Transversal radius	
+Transverse Cylindrical Equal Area	
+Transverse Mercator	
 Tree	
+Trend	
+Trend Surface	
+Trend Surface Analysis	
+Trend Surface Type	
+Trend for Shapes Data	
+Trend for Table Data	
+Triangles	
+Triangulation	
+True Scale Latitude	
+TwFAC(	
+Two Parallel Storages	
+Two Storages in Series	
+Two Storages in Series !!! not yet implemented !!!	
 Type	
+Type in a value that shall be used for the chosen mathematical operation.	
+Type of Output	
+Type of Quality Measure	
+Type of Surface	
+Type of distance calculation	
+Type of smoothing	
+USGS SRTM Grids (*.hgt)|*.hgt|All Files|*.*	
+Unable to open LAS file!	
+Unable to open input file!	
 Undefined Coordinate System	
+Undetermined	
+Uniform	
+Union	
+Union of	
+Unique	
+Unit	
+Unit Name	
+Units	
+Units for output radiation values.	
+Universal Kriging	
+Universal Kriging (Global)	
+Universal Kriging (VF)	
+Universal Kriging (VF, Global)	
+Universal Transvers Mercator (UTM)	
+Unknown	
+Unsaturated zone time delay per unit storage deficit [h]	
+Up-Scaling	
 Up/Down	
+Update	
+Update View	
+Update Views	
+Update cluster view while clustering.	
+Update view during simulation.	
+Upper Tolerance	
+Upslope Area	
+Upslope Basins	
+Use 5 percent confidence interval	
+Use Confidence Interval	
+Use D8 if catchment area becomes higher than specified threshold (Cells).	
+Use D8 if catchment area becomes higher than specified threshold.	
+Use Offset	
+Use Surfer's No-Data Value	
+Use Target Area Polygon	
+Use Z-Range	
+Use field content	
+Use only seed cells as starting points.	
+Use sky view factor based on local slope (after Oke 1988), if no sky viev factor grid is given.	
 Use the stipple bitmap	
 Use the user dashes	
+Use this option to reclassify No-Data values independently of the method settings.	
+Use this option to reclassify all other values that are not specified in the options above.	
+Use x -Values	
 User	
+User Defined	
+User Defined Datum	
+User Defined Extent	
+User Defined Filter	
+User Defined Grid	
+User Defined Grid System	
+User Defined Kernel	
+User Defined No Data Value	
+User Defined NoData Value	
 User Name	
+User defined	
+User defined grid	
+User defined range	
+User defined rank	
+User defined rescale	
+Username	
+Using temperature data?	
+Using the snow-melt module?	
+VALUE	
+VARIANCE	
+VARIATION	
+Valley Depth	
+Value	
+Value Count	
+Value Grid	
+Value Preparation	
 Value Range	
+Value as RGB Code	
+Value for 'no data'	
+Value in Grid 1	
+Value in Grid 2	
+Value of Target Function	
+Value of right cells in the Mask Grid	
+Value to be replaced	
+Value to reclassify.	
+Value which is assigned to the dummy grid.	
+Values	
+Values between A and B increase from 0 to 1, values between B and C will be set to 1.	
+Values between B and C will be set to 1, values between C and D decrease from 1 to 0.	
+Values greater than D will be set to 0.	
+Values lower than A will be set to 0.	
+Van der Grinten	
+Variance	
+Variance (version 1)	
+Variance (version 2)	
+Variance Radius	
+Variance in Feature Space	
+Variance in Position Space	
+Variogram	
+Variogram (Dialog))	
+Variogram Cloud	
+Variogram Model	
+Variogram Surface	
+Various Authors	
+Various authors.	
+Vector Ruggedness Measure (VRM)	
+Vector Terrain Ruggedness (VRM)	
+Vectorised class as...	
+Vectorising Grid Classes	
+Vectorizing headers...	
+Vectorizing subbasins...	
+Vegetation Index[distance based]	
+Vegetation Index[slope based]	
+Velocidad del viento	
+Velocidad del viento (km/h)	
 Version	
+Vertex Distance [Degree]	
+Vertical (drainage) flux [m/dt]	
+Vertical Distance	
+Vertical Distance to Channel Network	
+Vertical Overland Flow Distance	
+Vertical Range	
 Vertical hatch	
 Vertically mirrored	
+ViGrA - Basic Morphological Operations	
+ViGrA - Distance	
+ViGrA - Edge Detection	
+ViGrA - Fourier Filter	
+ViGrA - Fourier Transform	
+ViGrA - Fourier Transform (Real)	
+ViGrA - Fourier Transform Inverse	
+ViGrA - Smoothing	
+ViGrA - Watershed Segmentation	
+Victor Olaya (c) 2005	
+Visibility	
+Visibility (single point)	
+Visible Sky	
+Vol. +	
+Vol. -	
+Volker Wichmann (c) 2010, LASERDATA GmbH	
+Volume: %f	
+Volumes	
+W	
+WARNING	
+WARNING: %d invalid points skipped!	
+WARNING: Skipping misformatted line (%.0f)!	
+WARNING: selected attribute is not numeric; generating unique identifiers instead.	
+WASP Map Files (*.map)	
+WHITE_BLUE	
+WHITE_GREEN	
+WHITE_RED	
+WKT Files (*.wkt)	
+Wa-Tor	
+Water	
+Water Content [cm]	
+Water Retention Capacity	
+Water Vapour Pressure [mbar]	
+Water content change across the wetting front	
+Water content of a vertical slice of atmosphere in cm: 1.5 to 1.7, average=1.68	
+Watershed Basins	
+Watershed Basins (extended)	
+Watershed Subbasins	
+We must keep the coordinates, please choose another field than x,y,z!	
+Weight	
+Weight for Red Grid out of range (0..100) - Cannot execute module	
+Weight for grid 	
+Weighted	
+Weighting	
+Weighting Neighbors	
+Weights	
+Well Known Text File	
+West	
+West []	
 West-East	
+Wetness Index	
+Wetness decline time constant (Tw)	
+Wetness index	
+Wetness index calculation...	
+Wetting front suction [m]	
+Where	
 Width	
+Width (Cells)	
+Width of gradient filter	
+Wind Direction	
+Wind Direction (Degree)	
+Wind Direction (degrees clockwise from north)	
+Wind Effect	
+Wind Effect (Windward/Leeward Index)	
+Wind Speed	
+Wind Speed (m/s)	
+Wind direction (degrees clockwise from north)	
+Wind speed (m/s)	
 Windows or OS/2 Bitmap	
+Windows or OS/2 Bitmap (*.bmp)	
+Wintergerste	
+Winterraps	
+Winterroggen	
+Winterweizen	
+Wood Fuel Moisture	
+Write Field Names	
+Write all calculated Time Series in a table?	
 X	
+X Axis	
+X Column	
+X Component	
+X Coordinates	
+X Position	
+X Values	
+X is Column ...	
+X offset	
+X-Coordinate	
+X-Extent	
+X-Range	
+X-Rotation	
 X11 Pixel Map	
+XYZ Files (*.xyz)	
+XYZ export filter for shapes. 	
+XYZ files (*.xyz)	
 Y	
+Y = a * X^b (power)	
+Y = a + b * X (linear)	
+Y = a + b * ln(X) (logarithmic)	
+Y = a + b / X	
+Y = a / (b - X)	
+Y = a e^(b * X) (exponential)	
+Y Axis	
+Y Column	
+Y Component	
+Y Coordinates	
+Y Position	
+Y Values	
+Y is Column ...	
+Y offset	
+Y-Coordinate	
+Y-Extent	
+Y-Range	
+Y-Rotation	
+YELLOW_BLUE	
+YELLOW_GREEN	
+YELLOW_RED	
 You have to choose a grid for comparison	
 You have to choose a shapes layer for comparison	
+You must specify a reclass table with a minimium (field 1), a maximum (field 2) and a code value (field 3)!\n	
+You must specify a reclass table with a minimium of one record!\n	
 Z	
+Z Attribute	
+Z Axis	
+Z Multiplier	
+Z Value	
+Z Values	
+Z [max]	
+Z [max_sd]	
+Z [mean]	
+Z [min]	
+Z [min_sd]	
+Z is Column ...	
+Z-Range	
+Z-Rotation	
+ZONE	
+Zero	
+Zevenbergen & Thorne	
+Zonal Statistics	
+Zone	
+Zone Grid	
+Zoom View	
 Zsoft Paintbrush	
+Zsoft Paintbrush (*.pcx)	
+Zuckerrueben	
 [BTN] Add	
+[BTN] Add All	
 [BTN] Apply	
 [BTN] Button	
 [BTN] Cancel	
@@ -265,13 +3334,13 @@ Zsoft Paintbrush
 [CAP] Arithmetic Mean	
 [CAP] Attribute	
 [CAP] Attribute (Size)	
+[CAP] Attribute Values	
 [CAP] Attributes	
 [CAP] Author	
 [CAP] Background Color	
 [CAP] Beep when finished	
 [CAP] Buffer Size MB	
 [CAP] Cell Size	
-[CAP] Cell size	
 [CAP] Chart	
 [CAP] Chart Properties	
 [CAP] Choose Directory	
@@ -300,7 +3369,9 @@ Zsoft Paintbrush
 [CAP] Display: Label	
 [CAP] Display: Size	
 [CAP] Display: Visibility	
+[CAP] East	
 [CAP] Edit	
+[CAP] Edit Point Cloud	
 [CAP] Edit Shapes	
 [CAP] Elevation	
 [CAP] Errors	
@@ -312,7 +3383,7 @@ Zsoft Paintbrush
 [CAP] Fields	
 [CAP] Figure	
 [CAP] File	
-[CAP] File cache activated	
+[CAP] File Cache [MB]	
 [CAP] Fill Color	
 [CAP] Fill Style	
 [CAP] Fit Map Scale	
@@ -369,7 +3440,7 @@ Zsoft Paintbrush
 [CAP] Memory	
 [CAP] Memory Compression	
 [CAP] Memory Handling	
-[CAP] Memory Size	
+[CAP] Memory Size [MB]	
 [CAP] Messages	
 [CAP] Minimum	
 [CAP] Minimum Value	
@@ -381,11 +3452,17 @@ Zsoft Paintbrush
 [CAP] Modules	
 [CAP] Name	
 [CAP] No Data	
+[CAP] No Data Cells	
+[CAP] No Data Value	
+[CAP] North	
 [CAP] Number Of Cells	
 [CAP] Number Of Grids	
 [CAP] Number Of Shapes	
+[CAP] Number of Cells	
+[CAP] Number of Columns	
 [CAP] Number of Points	
-[CAP] Number of cells	
+[CAP] Number of Rows	
+[CAP] Numerical Precision	
 [CAP] Object Properties	
 [CAP] Open	
 [CAP] Options	
@@ -416,7 +3493,6 @@ Zsoft Paintbrush
 [CAP] Rotation by Attribute	
 [CAP] Save	
 [CAP] Save As Image	
-[CAP] Save As Interactive SVG	
 [CAP] Save Colors	
 [CAP] Save Grid	
 [CAP] Save Grid as Image...	
@@ -453,6 +3529,7 @@ Zsoft Paintbrush
 [CAP] Size relates to...	
 [CAP] Snap Distance	
 [CAP] Snap to...	
+[CAP] South	
 [CAP] South-North	
 [CAP] Standard	
 [CAP] Standard Deviation	
@@ -469,12 +3546,15 @@ Zsoft Paintbrush
 [CAP] Unit	
 [CAP] Value	
 [CAP] Value Aggregation	
+[CAP] Value Maximum	
+[CAP] Value Minimum	
 [CAP] Value Range	
 [CAP] Value Type	
 [CAP] Values	
 [CAP] Version	
 [CAP] Vertical Align	
 [CAP] Weight	
+[CAP] West	
 [CAP] West-East	
 [CAP] Width	
 [CAP] Workspace	
@@ -573,7 +3653,6 @@ Zsoft Paintbrush
 [CMD] Right [F4]	
 [CMD] Save As Image when changed	
 [CMD] Save As Image...	
-[CMD] Save As PDF	
 [CMD] Save Grid	
 [CMD] Save Grid As Image...	
 [CMD] Save Grid As...	
@@ -588,8 +3667,8 @@ Zsoft Paintbrush
 [CMD] Save TIN As...	
 [CMD] Save Table	
 [CMD] Save Table As...	
-[CMD] Save as Interactive SVG	
 [CMD] Save to Clipboard [Ctrl+C]	
+[CMD] Search for...	
 [CMD] Set Range to Minmum/Maximum	
 [CMD] Set Range to Standard Deviation (1.5)	
 [CMD] Set Range to Standard Deviation (2.0)	
@@ -644,6 +3723,7 @@ Zsoft Paintbrush
 [DAT] [not set]	
 [DAT] new	
 [DLG] Add layer to selected map	
+[DLG] Delete selected point(s).	
 [DLG] Delete selected shape(s).	
 [DLG] Invalid parameters!	
 [DLG] Please enter a numeric value:	
@@ -856,34 +3936,97 @@ Zsoft Paintbrush
 [VAL] [none]	
 [VAL] [not set]	
 [VAL] no	
+[VAL] no scaling	
 [VAL] object	
 [VAL] objects	
 [VAL] ready	
+[VAL] scale to size range	
 [VAL] yes	
+[not set]|	
+\n** Error : Invalid parameters **\n	
+\nError: Please verify your xMin, yMin, xMax, yMax settings!\n	
+\nError: the method Extent by Grid(s) requires grid(s) as input!\n	
+\nError: the method Extent by Shape(s) requires shape(s) as input!\n	
+\nNumber of Clusters	
+\nNumber of Variables	
+\nRMS  of Residuals (stdfit):\t%f\n	
+\nValue of Target Function	
+\n\n ** Error : Could not close PDF engine ** \n\n	
+\n\n ** Error : Could not save PDF file ** \n\n	
+a + b * (1 - exp(-(x / c)^2))	
+a + b * (1 - exp(-x / c))	
+a + b / x	
+a(q)	
+a(q) [lower bound]	
+a(q) [upper bound]	
+a(s)	
+a(s) [lower bound]	
+a(s) [upper bound]	
+abort export	
+absolute	
 access violation	
+additive	
 after	
+aggregating inside regions\n	
+aggregating over all the grid\n	
+all attributes	
+all classes	
+all directions	
+all entities	
+all points	
+all points in search radius	
+all polygons	
+all shapes	
+analysing training areas	
 another grid	
+append	
+append records, if table structure allows	
+appending to existing table	
+approximating points...	
+are in the specified directory.\n	
+area	
+arrow	
+arrow (centered to cell)	
 ascending	
+attribute field	
 author      	
 automatically save and load	
 available module libraries	
 available modules	
+average	
+b(q)	
+b(q) [lower bound]	
+b(q) [upper bound]	
 ball	
 bar	
 bar (not outlined)	
 before	
 binary	
+binary encoding	
 bit	
 black > blue	
 black > green	
 black > red	
+black hat	
+blue channel color	
 bottom	
+bottom / left	
 bright - dark	
-buffer size	
+calculate averages	
+calculate gradient magnitude	
+calculate gradients	
+calculating initial distances\n	
+calculating splines...	
 cannot execute interactive module	
+cell area	
+cells	
 center	
+center cell's aspect direcion	
 central	
+change	
 character string	
+check this in case parameter 'water' is absolute water level	
+check this in case seed cells are coded with absolute water level	
 circle	
 circle in rhombus	
 circle in square	
@@ -893,120 +4036,475 @@ circle with rhombus
 circle with square	
 circle with triangle (down)	
 circle with triangle (up)	
+classification	
+clay content	
+clean up temporary data structures\n	
+closing	
 color	
 color (rgb)	
 colors	
 columns	
+comma	
+comma (,)	
+commit	
+completely contained	
 confirm	
 confirm with options	
 continue	
+coordinates (offset, range, cell size, tile size)	
+copyrights (c) 2006 Stefan Liersch	
+corner	
+could not commit/rollback transactions.	
+could not connect ODBC source	
+could not create geometry field	
 could not create index: insufficient memory	
+could not initialize point search engine	
+could not open data source	
+create data source	
+create layer	
 creating batch file example	
+creating interpolator	
+cross	
 cyan - white	
 cylinder	
+dX	
+dX (Map Units)	
+dX(GridUnits)	
+dY	
+dY (Map Units)	
+dY(GridUnits)	
 dark - bright	
 database table does not exist	
 date	
 date (dd.mm.yyyy)	
+day	
 default	
 default (same brightness)	
+delete data source	
+delete feature	
+delete layer	
 descending	
+destriping1 filter for Grids	
+destriping2 filter for values in a specified range (min-max)	
+digital elevation model	
+digital elevation model [m]	
+digitzing a polygon	
+dilation	
+direction of scan flag	
+direction to the center cell	
+directional components (A = x, B = y)	
+directional1 average for Grids	
+distance	
 do not confirm	
 do not show	
+do not update	
+down	
+dragging a box	
+driver not found.	
+dropping table	
+duplicates have been identified.	
+e	
+each island as separated polygon	
+edge of flight line flag	
+elevation	
+elevation and roughness	
+ellipse	
 empty	
 empty coded function	
 empty input list	
+empty or corrupted file	
+enumeration	
+erosion	
 error	
+exclude range	
 executing module	
+existing grid system	
+exponential	
+exponential weighting scheme	
+extent of lake, coded with local water depth	
+extent of lake, coded with water depth	
 failed	
+failed to create index for grid	
+failed to create index for table	
+failed: could not find a suitable import driver	
+feature space	
+feature space and position	
 field cannot be mapped to binary object	
+file could not be opened	
+file could not be opened.	
+file not found	
+find local minima	
+first	
+first order polynom	
 first value	
+first value in order of grid list	
+fit to each grid	
+fit to overall 1.5 standard deviation	
+fit to overall 2.0 standard deviation	
+fit to overall range	
+fit to page	
+fit to value	
+fixed cell height	
+fixed value	
+floating point	
+flow width (original)	
+function evaluations	
+function fitting failed !	
+function norm	
 function not found	
 function table full	
+fvec	
+gaussian	
+gaussian kernel	
+gaussian weighting	
+gaussian weighting scheme	
+geographical	
+gps-time	
+gradient (degree)	
+gradient (tangens)	
 green > blue	
 green > grey > blue	
 green > red > blue	
+green channel color	
 greyscale	
+grid	
+grid project	
+grid system	
+guam	
+h	
+height	
 highest z	
+horizontal	
+if empty shapes layers's name is used as table name	
+if less than 100, it is distinguished between interior and core forest	
 image	
+immediate	
 improper function syntax	
+incidence calculation	
+include range	
 index out of bounds	
+initialising gradient...	
+initialising planetary bending...	
+initialization	
 input	
 input file	
+instable (thawing)	
+intensity	
 interactive	
 interactive execution	
+interpolating	
+interpolating grid: 	
+intersects	
+invalid E00 file	
+invalid control points	
+invalid filter matrix	
+invalid formula !	
+invalid geographic coordinate system / datum	
+invalid input	
 invalid module libraries path	
 invalid number of parameters	
+invalid or empty shapes layer	
+invalid points have been skipped	
+invalid utm zone	
+inverse distance to a power	
+inverse transformation not available	
+is ignored if set to zero	
+j-shaped	
+k factor	
+keep original line attributes	
+label minima	
+last	
 last opened	
 last value	
+least significant first	
 left	
+level	
+level 1	
+level 2	
 library name	
 library path	
+line simplification can only be applied to lines and polygons	
+linear	
+linearly decreasing within search radius	
+lines	
+loading	
+local time	
+local water depth or absolute water level at the user specified cell	
+localhost	
 lowest z	
+m	
+m2	
+m2/h	
 magenta - white	
+mahalanobis distance	
+mark breaks in first line	
+masking...	
+match input data	
+mathematical	
+max	
+max. change	
+max_sd	
+maxima	
+maximum	
+maximum likelihood	
+maximum number of observations	
+maximum number of points	
+maximum value	
+maximum x value	
+maximum y value	
+mean	
+mean value	
+median|quartiles|deciles|5% interval|	
+merging grid	
+min	
+min < value < max	
+min < value <= max	
+min <= value < max	
+min <= value <= max	
+min_sd	
+minima	
+minima and maxima	
+minimum	
+minimum distance	
+minimum slope angle preserved from one cell to the next, zero results in flat areas [Degree]	
+minimum value	
+minimum x value	
+minimum y value	
 missing operand	
 module	
 module library	
 module library not found	
 module name 	
 module not found	
+moment	
 more than one field in selection	
+morpological gradient	
+most significant first	
+multi scale	
+multiplicative	
+n	
+new	
+new value	
 no	
+no 'get extents' support for single point layers	
 no attributes in table	
+no conversion (areas already given as specific catchment area)	
+no data values	
+no data values >> value	
 no database connection	
+no description available	
+no distance weighting	
+no features to buffer.	
 no fields in selection	
+no gaps	
+no grid in list	
 no histogram for unclassified data	
+no intersection with mask grid.	
+no layers in data source	
 no memory	
+no projection specified	
+no projection type defined	
+no search radius (global)	
+no shapes for intersection found	
+no target specified	
+no translation available	
 no valid module library found in path	
+no variation in point pattern	
+nodes	
+noise variance given as absolute value	
+noise variance given relative to mean standard deviation	
+non-linear response term	
+none	
+nonlinear	
+normal|down under|	
+not enough neighbours	
+not enough observations	
+not enough points for interpolation	
+not enough points to perform pattern analysis	
+nothing to do: no data in selection	
+number of cells in S-N direction	
+number of cells in W-E direction	
+number of dropped shapes	
+number of grid cells per tile	
+number of pits above threshold level	
+number of points	
+number of processed sinks	
+number of returns of given pulse	
+number of the return	
 okay	
+old value	
+one layer for all points	
+one multi-line per polygon	
+one single (multi-)polygon object	
+one single class specified by class identifier	
 only during start up phase	
+only entities with layer definition	
+only entities without layer definition	
+only shapes with table entry	
+only z	
+open transactions committed	
+open transactions rollbacked	
+opening	
+operator	
 optional	
 optional input	
 optional output	
+original calculation (Ringeler)	
 original functions may not be deleted	
+other	
+other values	
+other values >> value	
 output	
 panorama	
 parallel	
+parallelepiped	
 parameters	
+pass	
+pdf	
+perform region growing	
+performing distance calculation...	
 pie	
 pie (not outlined)	
 plain	
+point (.)	
+point cloud	
+point cloud (centered)	
+point cloud viewer can only be run from graphical user interface	
+point cloud viewer will not be started, because point cloud has no points	
+point source ID	
+points	
+points have been imported with success	
+points read	
+points written	
+polygons	
+polygons with same attribute value	
+power of distance	
+preparing distance calculation...	
 press any key	
+processed DEM	
+projection initialization failure	
+quadrants	
+quartic kernel	
+random read	
+random write	
+range of days	
+raster	
 ready	
+ready ...	
+rectangle	
 red > blue	
 red > blue > green	
 red > green	
 red > green > blue	
 red > grey > blue	
 red > grey > green	
+red channel color	
 red=1, green=2, blue=this	
 red=1, green=this, blue=2	
 red=2, green=1, blue=this	
 red=2, green=this, blue=1	
 red=this, green=1, blue=2	
 red=this, green=2, blue=1	
+regression analysis	
+relative	
+removing orphants\n	
+renaming classes\n	
+replace	
+replace existing table	
+replacements	
+resolution	
+return	
+rgb color	
 rhombus	
 right	
+rollback	
+root	
+rotated	
+roughness	
 rows	
+running classification	
+same as input grid	
+sand content	
+scan angle	
+search radius (local)	
+second input grid (B) needed to perform desired operation	
+second order polynom	
+sectors	
+seed cells coded with local water depth or absolute water level, all other cells NoData	
+segments identified	
+selected shapes	
+selected table contains no valid records	
+selected table does not have numeric attributes	
+separate layer for each polygon	
+sequential write	
+shape in process	
 shapes	
+shapes have been dropped	
+shapes layer extent	
+show direct insolation for each time step.	
+shp files folder	
+sigmoidal	
 signed 1 byte integer	
 signed 2 byte integer	
 signed 4 byte integer	
 signed 8 byte integer	
+simple line	
+sin(x*x + y*y)	
+single|range|simple table|user supplied table|	
+slope (A) and aspect (B)	
+slower but memory saving	
+smoothed surface	
+space	
+specify fields with type	
+spectral angle mapping	
+spectral information divergence	
 sql excution error	
 square	
+square root (catchment length)	
+stable	
+standard	
+standard deviation	
+standard kernel 1	
+standard kernel 2	
+step	
 string	
+surface (A)	
+symmetric	
 syntax error	
+syntax error in formula at position	
+syntax error, position	
+t	
+table already exists	
+table could not be opened.	
+tabulator	
+text	
+theta	
+thick	
+thin	
+threshold slope	
+time of sunrise/sunset is only calculated if time span is set to single day	
+tolerance as absolute values	
+tomaschTool	
 too few parameters	
 too many constants	
 too many parameters	
 top	
+top / right	
+top hat	
+topographic correction	
 triangle (down)	
 triangle (up)	
+triangulating	
+trying to drop table	
 type -h or --help for further information	
 undeclared parameter	
 undefined	
+unknown error: execution	
+unknown error: user break	
+unknown parameter	
+unknown projection	
 unknown type	
+unkown	
 unmatched parentheses	
 unsigned 1 byte integer	
 unsigned 2 byte integer	
@@ -1014,14 +4512,47 @@ unsigned 4 byte integer
 unsigned 8 byte integer	
 unsorted	
 until user closes it	
+up	
+update, colour stretch for each time step	
+update, fixed colour stretch	
+user data	
+user defined	
+user defined grid system	
+user defined kernel	
+user defined reference	
+value at mouse position	
+variance	
+variance (a)	
+variance (b)	
+vectorising class	
+vertical	
+w	
 white - cyan	
 white - magenta	
 white - yellow	
 white > blue	
 white > green	
 white > red	
+with B-spline refinement	
+without B-spline refinement	
+x - Values	
+x Position	
+xMax	
+xMin	
+xMin, yMin, NX, NY	
+xMin, yMin, xMax, yMax	
+xmax	
+xmin	
+y - Values	
+y Position	
+yMax	
+yMin	
 yellow - white	
 yellow > blue	
 yellow > green	
 yellow > red	
 yes	
+ymax	
+ymin	
+z values	
+{STATZONAL_NAME} Zonal Grid Statistics	
