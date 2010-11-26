@@ -126,6 +126,16 @@ CWKSP_Module_Manager::CWKSP_Module_Manager(void)
 	);
 
 	m_Parameters.Add_FilePath(
+		NULL	, "LNG_FILE_DIC", LNG("Language Translations"),
+		LNG("Dictionary for translations from built-in (English) to local language (editable text table)"),
+		CSG_String::Format(SG_T("%s|*.lng|%s|*.txt|%s|*.*"),
+			LNG("Dictionary Files (*.lng)"),
+			LNG("Text Table (*.txt)"),
+			LNG("All Files")
+		)
+	);
+
+	m_Parameters.Add_FilePath(
 		NULL	, "CRS_FILE_SRS", LNG("CRS Database"),
 		LNG("Database with Coordinate Reference System (CRS) definitions. You have to restart SAGA to make changes take affect!"),
 		CSG_String::Format(SG_T("%s|*.srs|%s|*.*"),
@@ -366,6 +376,11 @@ void CWKSP_Module_Manager::_Config_Read(void)
 		m_Parameters("PROC_FREQ")	->Set_Value((int)lValue);
 	}
 
+	if( CONFIG_Read(wxT("/MODULES"), wxT("LNG_FILE_DIC"), sValue) )
+	{
+		m_Parameters("LNG_FILE_DIC")->Set_Value(sValue);
+	}
+
 	if( CONFIG_Read(wxT("/MODULES"), wxT("CRS_FILE_SRS"), sValue) )
 	{
 		m_Parameters("CRS_FILE_SRS")->Set_Value(sValue);
@@ -390,6 +405,7 @@ void CWKSP_Module_Manager::_Config_Write(void)
 	CONFIG_Write(wxT("/MODULES"), wxT("BEEP")		 ,       m_Parameters("BEEP")        ->asBool());
 	CONFIG_Write(wxT("/MODULES"), wxT("START_LOGO")	 , (long)m_Parameters("START_LOGO")  ->asInt());
 	CONFIG_Write(wxT("/MODULES"), wxT("PROC_FREQ")	 , (long)m_Parameters("PROC_FREQ")   ->asInt());
+	CONFIG_Write(wxT("/MODULES"), wxT("LNG_FILE_DIC"),       m_Parameters("LNG_FILE_DIC")->asString());
 	CONFIG_Write(wxT("/MODULES"), wxT("CRS_FILE_SRS"),       m_Parameters("CRS_FILE_SRS")->asString());
 	CONFIG_Write(wxT("/MODULES"), wxT("CRS_FILE_DIC"),       m_Parameters("CRS_FILE_DIC")->asString());
 

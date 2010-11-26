@@ -199,20 +199,31 @@ bool CSAGA::OnInit(void)
 #endif // defined(_SAGA_MSW)
 
 	//-----------------------------------------------------
-	SG_Get_Translator() .Create(
-		SG_File_Make_Path(Get_App_Path(), wxT("saga"    ), wxT("lng")), false
-	);
+	wxString	File;
 
 	//-----------------------------------------------------
-	wxString	fName;
+	if( !CONFIG_Read(wxT("/MODULES"), wxT("LNG_FILE_DIC"), File) || !SG_File_Exists(File) )
+	{
+		File	= SG_File_Make_Path(Get_App_Path(), wxT("saga"), wxT("lng")).c_str();
+	}
 
-	SG_Get_Projections().Load_Dictionary(CONFIG_Read(wxT("/MODULES"), wxT("CRS_FILE_DIC"), fName) && SG_File_Exists(fName)
-		? fName.c_str() : SG_File_Make_Path(Get_App_Path(), wxT("saga_prj"), wxT("dic")).c_str()
-	);
+	SG_Get_Translator().Create(File.c_str(), false);
 
-	SG_Get_Projections().Load_DB        (CONFIG_Read(wxT("/MODULES"), wxT("CRS_FILE_SRS"), fName) && SG_File_Exists(fName)
-		? fName.c_str() : SG_File_Make_Path(Get_App_Path(), wxT("saga_prj"), wxT("srs")).c_str()
-	);
+	//-----------------------------------------------------
+	if( !CONFIG_Read(wxT("/MODULES"), wxT("CRS_FILE_DIC"), File) || !SG_File_Exists(File) )
+	{
+		File	= SG_File_Make_Path(Get_App_Path(), wxT("saga_prj"), wxT("dic")).c_str();
+	}
+
+	SG_Get_Projections().Load_Dictionary(File.c_str());
+
+	//-----------------------------------------------------
+	if( !CONFIG_Read(wxT("/MODULES"), wxT("CRS_FILE_SRS"), File) || !SG_File_Exists(File) )
+	{
+		File	= SG_File_Make_Path(Get_App_Path(), wxT("saga_prj"), wxT("srs")).c_str();
+	}
+
+	SG_Get_Projections().Load_DB(File.c_str());
 
 	//-----------------------------------------------------
 	SetTopWindow(new CSAGA_Frame());
