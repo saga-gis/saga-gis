@@ -113,7 +113,7 @@ A3 Landscape	A3 Querformat
 A3 Portrait	A3 Hochformat
 A4 Landscape	A4 Querformat
 A4 Portrait	A4 Hochformat
-A:Geostatistics|Points	
+A:Geostatistics|Points	A:Geostatistik|Punktdaten
 A:Grid|Construction	A:Raster|Konstruktion
 A:Shapes|Construction	A:Vektoren|Konstruktion
 ADDR	
@@ -462,10 +462,10 @@ Class Identifier	Klassenidentifizierer
 Class Information	Klassen Information
 Class Selection	Klassenauswahl
 Classes	Klassen
-Classification	Einteilung
+Classification	Klassifizierung
 Classification Constant	
-Classification Quality	Aufteilungsqualität
-Classification and segmentation tools for metric gridded data.	Einteilungs- und Aufteilungswerkzeuge für metrische gerasterte Daten
+Classification Quality	Klassifizierungsqualität
+Classification and segmentation tools for metric gridded data.	Klassifizierungs- und Segmentierungswerkzeuge für Rasterdaten
 Classify	
 Clay	Kleie
 Clay-Loam	Kleie-Lehm
@@ -489,9 +489,9 @@ Closing Gaps...
 Closing Pt. X	
 Closing Pt. Y	
 Cluster	Gruppe
-Cluster Analysis	Gruppenanalyse
+Cluster Analysis	Clusteranalyse
 Cluster Analysis PC	
-Cluster Analysis for Grids	Gruppenanalyse für Raster
+Cluster Analysis for Grids	Clusteranalyse für Raster
 Cluster Analysis for Point Clouds	
 ClusterID	GruppenID
 Clusters	Gruppen
@@ -686,21 +686,21 @@ DEMON - Min. DQV
 DEMON - Minium Drainage Quota Volume (DQV) for traced flow tubes	
 DESCRIPTION	BESCHREIBUNG
 DIFF_MEAN	
-DSN	
+DSN	Datenbank Server Name (DSN)
 DTM Filter (slope-based)	DGM Filter (Neigungsbasiert)
 DXF Files (*.dxf)|*.dxf|All Files|*.*	
-Danger	
+Danger	Gefahr
 Data	Daten
-Data Manager	
+Data Manager	Datenverwaltung
 Data Offset (Bytes)	
 Data Source Name	Name Datenquelle
 Data Table	Datentabelle
-Data Type	
+Data Type	Datentyp
 Data completion...	Daten ausführen…
 Data storage type	Datenspeichertyp
-Database	
-Database (ODBC)	
-Database Connection Error	
+Database	Datenbank
+Database (ODBC)	Datenbank (ODBC)
+Database Connection Error	Datenbank Verbindungs Fehler
 Database access through the libmysql.lib interface.	
 Database with Coordinate Reference System (CRS) definitions. You have to restart SAGA to make changes take affect!	
 Date Column	
@@ -966,21 +966,21 @@ Field for Summary	Feld für Zusammenfassung
 Fields	Felder
 Fields for diagram	Feld für Diagramm
 Figure	Bild
-File	
-File Name	
+File	Datei
+File Name	Dateiname
 File Naming	Dateibenennung
 File contains headline	
 File does not exist:	
 File error	
 Files	Dateien
-File|ESRI E00	
-File|GDAL/OGR	
-File|GPS Import	
-File|Grid	
-File|Reports	
-File|Shapes	
-File|Table	
-File|Tables	
+File|ESRI E00	Datei|ESRI E00
+File|GDAL/OGR	Datei|GDAL/OGR
+File|GPS Import	Datei|GPS Import
+File|Grid	Datei|Raster
+File|Reports	Datei|Berichte
+File|Shapes	Datei|Vektordaten
+File|Table	Datei|Tabelle
+File|Tables	Datei|Tabellen
 Fill Color	Füllfarbe
 Fill NoData	Füllen der NoData-Zellen
 Fill Sinks	
@@ -1063,11 +1063,11 @@ Fractal Dimension
 Fractal Dimension of Grid Surface	
 Fractal Type	
 Fractals	
-Fragmentation	Aufteilung
-Fragmentation (Alternative)	Aufteilung (Alternative)
-Fragmentation (Standard)	Aufteilung (Standard)
-Fragmentation Classes from Density and Connectivity	Aufteilungsklassen aus Dichte und Konnektivität
-Fragmentation Index	Aufteilungsindex
+Fragmentation	Fragmentierung
+Fragmentation (Alternative)	Fragmentierung (Alternative)
+Fragmentation (Standard)	Fragmentierung (Standard)
+Fragmentation Classes from Density and Connectivity	Fragmentierungsklassen aus Dichte und Konnektivität
+Fragmentation Index	Fragmentierungsindex
 Frequency	Frequenz
 Fuel Model	
 Function	Funktion
@@ -1111,8 +1111,8 @@ Gaussian Landscapes
 Gaussian Model	
 Gaussian and Exponential Weighting Bandwidth	
 General	Allgemein
-General Settings	
-Generalisation	
+General Settings	Allgemeine Einstellungen
+Generalisation	Generalisierung
 Geo-Reference	
 GeoTRANS (Shapes)	
 GeoTRANS engine initializing error!\n\nPlease check your data path settings!	
@@ -1131,14 +1131,14 @@ Geometrical Properties of Polygons	Geometrische Eigenschaften der Polygone
 Georeferencing - Grids	
 Georeferencing - Move Grid	
 Georeferencing - Shapes	
-Geostatistics - Grids	
-Geostatistics - Kriging	
-Geostatistics - Points	
-Geostatistics - Regression	
-Geostatistics|Grids	
-Geostatistics|Kriging	
-Geostatistics|Points	
-Geostatistics|Regression	
+Geostatistics - Grids	Geostatistik - Raster
+Geostatistics - Kriging	Geostatistik - Kriging
+Geostatistics - Points	Geostatistik - Punktdaten
+Geostatistics - Regression	Geostatistik - Regression
+Geostatistics|Grids	Geostatistik|Raster
+Geostatistics|Kriging	Geostatistik|Kriging
+Geostatistics|Points	Geostatistik|Punktdaten
+Geostatistics|Regression	Geostatistik|Regression
 Get CRS Definition from...	
 Get Grid Data for Shapes	Erhalte Rasterdaten für Vektoren
 Get Shapes Extents	Nimm Vektorumfang
@@ -1167,10 +1167,10 @@ Grid - Tools	Raster - Werkzeuge
 Grid - Visualisation	Raster - Visualisierung
 Grid 1	Raster 1
 Grid 2	Raster 2
-Grid A	
+Grid A	Raster A
 Grid A. Final	Raster A. endgültig
 Grid A. Init	Raster A. anfänglich
-Grid B	
+Grid B	Raster B
 Grid B. Final	Raster B. endgültig
 Grid B. Init	Raster B. anfänglich
 Grid Buffer	Rasterpuffer
@@ -1178,22 +1178,22 @@ Grid Calculator	Raster Rechner
 Grid Difference	Raster Differenz
 Grid Display Defaults	Voreinstellungen Rasterdarstellung
 Grid File Caching	Dateipufferung für Raster
-Grid Interpolation	
-Grid Manager	
+Grid Interpolation	Raster Interpolation
+Grid Manager	Rasterverwaltung
 Grid Masking	Raster Abdeckung
 Grid Normalisation	Raster Normierung
 Grid Orientation	Raster Ausrichtung
 Grid Project	Raster Projekt
 Grid Properties	Raster Eigenschaften
 Grid Proximity Buffer	Raster Nachbarschaftspuffer
-Grid Segmentation	Raster Aufteilung
-Grid Segmentation (b)	Raster Aufteilung (b)
+Grid Segmentation	Raster Segmentierung
+Grid Segmentation (b)	Raster Segmentierung (b)
 Grid Size	Raster Größe
 Grid Skeletonization	Raster Gerüst
 Grid Statistics for Polygons	Rasterstatistik für Polygone
 Grid System	Rastersystem
-Grid System Extent	Gridsystem Ausmaß
-Grid Type	
+Grid System Extent	Raster Ausdehnung
+Grid Type	Rastertyp
 Grid Value Request	Rasterwertabfrage
 Grid Values	Rasterwerte
 Grid Values [Cells]	
@@ -1303,27 +1303,27 @@ If table exists...
 Ignition Points	
 Ignore Defaults	
 Ignores specified attribute ('Save Attribute') and saves all attributes.	
-Image	
+Image	Bild
 Image (Blue Channel)	
 Image (Green Channel)	
 Image (Red Channel)	
-Image File	
+Image File	Bilddatei
 Image Files	Bilddateien
-Image Grid	
+Image Grid	Bildraster
 Image Import/Export.	
 Image Resolution	Bildauflösung
 Image Rotation [Degree]	Bilddrehung [Grad]
 Image segmentation algorithms.	
-Imagery	Symbolik
-Imagery - Classification	Symbolik - Einteilung
-Imagery - OpenCV	
-Imagery - Segmentation	
-Imagery - ViGrA	
-Imagery|OpenCV	
-Imagery|Segmentation	
-Imagery|ViGrA	
+Imagery	Bildverarbeitung
+Imagery - Classification	Bildverarbeitung - Klassifizierung
+Imagery - OpenCV	Bildverarbeitung - OpenCV
+Imagery - Segmentation	Bildverarbeitung - Segmentierung
+Imagery - ViGrA	Bildverarbeitung - ViGrA
+Imagery|OpenCV	Bildverarbeitung|OpenCV
+Imagery|Segmentation	Bildverarbeitung|Segmentierung
+Imagery|ViGrA	Bildverarbeitung|ViGrA
 Images|*.bmp;*.jpg;*.png;*.tif|HTML Files|*.htm|All Files|*.*	Bilder|*.bmp;*.jpg;*.png;*.tif|HTML Dateien|*.htm|Alle Dateien|*.*
-Imaginary	
+Imaginary	Imaginär
 Import	
 Import Atlas Boundary File	
 Import Binary Raw Data	
@@ -1524,8 +1524,8 @@ Least cost path profile line
 Least cost path profile points	
 Leaves	
 Leaves to Litter	
-Lectures - Introducing Module Programming	
-Lectures|Introducing Module Programming	
+Lectures - Introducing Module Programming	Kurse - Einführung in die SAGA Modulprogrammierung
+Lectures|Introducing Module Programming	Kurse|Einführung in die SAGA Modulprogrammierung
 Lee Factor	
 Lee Filter	
 Lee Filter - Direction	Lee Filter - Richtung
@@ -2208,21 +2208,21 @@ Profiles from Lines
 Proj.4	
 Proj4 Parameters	
 Project \'%s\'	Projekt \'%s\'
-Projected Coordinate System	Projektkoordinatensystem
-Projected Coordinate Systems	
-Projected Height	Projektierte Höhe
+Projected Coordinate System	Projeziertes Koordinatensystem
+Projected Coordinate Systems	Projezierte Koordinatensysteme
+Projected Height	Projezierte Höhe
 Projection	Projektion
-Projection - GeoTRANS	
-Projection - Georeferencing	
-Projection - Proj.4	
-Projection Parameters	
-Projection Settings	
-Projection Type	
+Projection - GeoTRANS	Projektion - GeoTrans
+Projection - Georeferencing	Projektion - Georeferenzierung
+Projection - Proj.4	Projektion - Proj.4
+Projection Parameters	Projektionsparameter
+Projection Settings	Projektionseinstellungen
+Projection Type	Projektionstyp
 Projection_GeoTRANS_Datum_3.dat,\n	
 Projection_GeoTRANS_Datum_7.dat,\n\n	
 Projection_GeoTRANS_Ellipsoid.dat,\n	
 Projection_GeoTRANS_Geoid_EGM96.dat,\n	
-Projection|Georeferencing	
+Projection|Georeferencing	Projektion|Georeferenzierung
 Protection Index	
 Proximity	Nähe
 Proximity Grid	Nachbarschaftsraster
@@ -2234,37 +2234,37 @@ Quadratic
 Quadratic Neighbors	Quadratische Nachbarn-Methode
 Quadric: a + b * x + c * x^2	Quadratisch: a + b * x + c * x^2
 Quality	Qualität
-Quality Measure	
-Quantile Step	Quantile Schrittweite
+Quality Measure	Qualitätsmaß
+Quantile Step	Quantil-Schrittweite
 Quantiles	Quantile
 Queen	
 Queen's case	
 Query builder for shapes	Suchabfrage für Vektordaten
-R2	
-R:Alternatives	
+R2	Bestimmtheitsmaß
+R:Alternatives	R:Alternativen
 R:Buffers	R:Puffer
-R:Catchment Area	
-R:Classification	R:Einteilung
+R:Catchment Area	R:Einzugsgebietsgrößen
+R:Classification	R:Klassifizierung
 R:Conversion	R:Umwandlung
 R:Cost Analysis	R:Kostenauswertung
 R:Export	
-R:Filter for Grids	
-R:Fourier Analysis	
-R:Fragmentation Analysis	R:Aufteilungsauswertung
-R:Fuzzy Logic	R:unscharfe Logik
+R:Filter for Grids	R:Filter für Raster
+R:Fourier Analysis	R:Fourier Analyse
+R:Fragmentation Analysis	R:Fragmentierungsanalyse
+R:Fuzzy Logic	R:Unscharfe Mengen
 R:Grid Generation	R:Raster Erstellung
 R:Image Analysis	R:Bildauswertung
 R:Import	
 R:Indices	
 R:Interpolation from Points	R:Interpolation von Punkten
-R:Lakes	
-R:Segmentation	R:Aufteilung
+R:Lakes	R:Seen
+R:Segmentation	R:Segmentierung
 R:Soil Analysis	R:Bodenauswertung
-R:Spline Interpolation	
-R:Terrain Analysis	R:Geländeauswertung
+R:Spline Interpolation	R:Spline Interpolation
+R:Terrain Analysis	R:Reliefanalyse
 R:Tools	R:Werkzeuge
 R:Values	R:Werte
-R:Without Variogram Fit	
+R:Without Variogram Fit	R:Ohne Variogrammanpassung
 RAINBOW	
 RANGE	
 RED_BLUE	
@@ -2312,10 +2312,10 @@ Reclassified Grid	Neueingeteiltes Raster
 Reclassify Grid Values	Teile Rasterwerte neu ein
 Reclassify buffer distance to intervals of euqidistance ...	Wandle Pufferentfernungen in Intervalle von Äquidistanzen ein... 
 Reclassify|Extract Subset|	Reklassifizieren|Extrakt Teilmenge|
-Recreations - Fractals	
-Recreations - Games	
-Recreations|Fractals	
-Recreations|Games	
+Recreations - Fractals	Unterhaltsames - Fraktale
+Recreations - Games	Unterhaltsames - Spiele
+Recreations|Fractals	Unterhaltsames|Fraktale
+Recreations|Games	Unterhaltsames|Spiele
 Rect To Polar	Rect zu Polar
 Recursive Upward Processing	
 Red	Rot
@@ -2465,7 +2465,7 @@ Seeds	Keime
 Seeds Grid	
 Seeds Only	
 Segment ID	
-Segmentation	
+Segmentation	Segmentierung
 Segmente	
 Segments	Segmente
 Select * FROM test	
@@ -2517,8 +2517,8 @@ Shade
 Shading Method	
 Shall I activate file caching for new grid.	Soll der Dateipuffer für die neuen Rasterdaten aktiviert werden?
 Shape Index	Vektor Index
-Shape Parameter for Elevation Percentile	
-Shape Parameter for Slope	
+Shape Parameter for Elevation Percentile	Formparameter für Höhenperzentil
+Shape Parameter for Slope	Formparameter für Neigung
 Shape Type	Vektortyp
 Shape Type Manager	
 Shape(s)	Vektoren
@@ -2533,12 +2533,12 @@ Shapes - Point Clouds Viewer	Vektoren - Punktwolkenbetrachter
 Shapes - Points	Vektoren - Punkte
 Shapes - Polygons	Vektoren - Polygone
 Shapes - Tools	Vektoren - Werkzeuge
-Shapes - Transects	
+Shapes - Transects	Vektoren - Transekte
 Shapes 2	Vektoren 2
 Shapes Buffer	Vektorenpuffer
 Shapes Extent	Vektoren Auszug
-Shapes Layers	
-Shapes Manager	
+Shapes Layers	Vektordatensätze
+Shapes Manager	Vektordatenverwaltung
 Shapes Report	
 Shapes Summary Report	
 Shapes to Grid	Vektoren zu Raster umwandeln
@@ -2547,7 +2547,7 @@ Shapes to project	abzubildende Vektoren
 Shapes_Merge	Verbundene Vektoren
 Shapes|Grid	Vektoren|Raster
 Shapes|Lines	Vektoren|Linien
-Shapes|Lines|Transects	
+Shapes|Lines|Transects	Vektoren|Linien|Transekte
 Shapes|Point Clouds	Vektoren|Punktwolken
 Shapes|Point Clouds|Visualisation	Vektoren|Punktwolken|Visualisierung
 Shapes|Points	Vektoren|Punkte
@@ -2574,7 +2574,7 @@ Silty Clay-Loam	schluffiger Kleielehm
 Similarity	Ähnlichkeiten
 Simple	
 Simple Filter	Einfache Filter
-Simple Region Growing	einfache Anbaugebiete
+Simple Region Growing	Einfaches Region Growing
 Simple, flow path and swath profiles.	
 Simplified Lines	vereinfachte Linien
 Simplify Lines	Linien vereinfachen
@@ -2748,7 +2748,7 @@ Summary_	Zusammenfassung_
 Sum|Min|Max|	
 Sunrise	
 Sunset	
-Supervised Classification	beaufsichtigte Klassifizierung
+Supervised Classification	Überwachte Klassifizierung
 Surface	
 Surface Specific Points	
 Surface hydraulic conductivity [m/h]	
@@ -2839,7 +2839,7 @@ Template Module Sub Menu
 Temporary files	temporäre Dateien
 Tension Threshold	Spannungsschwellenwert
 Tension Threshold [m]	
-Terrain Analysis	
+Terrain Analysis	Reliefanalyse
 Terrain Analysis - Channels	
 Terrain Analysis - Compound Analyses	
 Terrain Analysis - Hydrology	
@@ -2848,12 +2848,12 @@ Terrain Analysis - Morphometry
 Terrain Analysis - Preprocessing	
 Terrain Analysis - Profiles	
 Terrain Analysis: Compound Analyses.\nThis library depends on the following SAGA module libraries:\n- ta_channels\n- ta_flow\n- ta_indices\n- ta_lighting\n- ta_morphometry\n- ta_preproc\n	
-Terrain Analysis|Channels	
-Terrain Analysis|Hydrology	
-Terrain Analysis|Lighting	
-Terrain Analysis|Morphometry	
-Terrain Analysis|Preprocessing	
-Terrain Analysis|Profiles	
+Terrain Analysis|Channels	Reliefanalyse|Gerinne
+Terrain Analysis|Hydrology	Reliefanalyse|Hydrologie
+Terrain Analysis|Lighting	Reliefanalyse|Beleuchtung
+Terrain Analysis|Morphometry	Reliefanalyse|Morphometrie
+Terrain Analysis|Preprocessing	Reliefanalyse|Präprozessierung
+Terrain Analysis|Profiles	Reliefanalyse|Profile
 Terrain Path Cross Sections	
 Terrain Ruggedness Index (TRI)	
 Terrain View Factor	
@@ -3573,7 +3573,7 @@ Zuckerrueben
 [CMD] Add Record	Datensatz hinzufügen
 [CMD] Add Shape	Objekt hinzufügen
 [CMD] Anaglyph [S]	
-[CMD] Arrange Icons	Ikonen anordnen
+[CMD] Arrange Icons	Symbole anordnen
 [CMD] Backward	Zurück
 [CMD] Cascade	Überlappend
 [CMD] Central Projection	Zentralprojektion
