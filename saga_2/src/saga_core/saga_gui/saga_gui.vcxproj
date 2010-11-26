@@ -215,8 +215,8 @@
       <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy res\saga.lng.txt $(OutDir)saga.lng
-copy res\saga.ger.txt $(OutDir)saga.ger
+      <Command>copy res\saga.lng.txt $(OutDir)saga.lng.txt
+copy res\saga.ger.txt $(OutDir)saga.ger.txt
 copy res\saga_tip.txt $(OutDir)saga_gui.tip
 copy res\saga_srs.txt $(OutDir)saga_prj.srs
 copy res\saga_dic.txt $(OutDir)saga_prj.dic
@@ -277,8 +277,8 @@ copy res\saga_dic.txt $(OutDir)saga_prj.dic
       <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy res\saga.lng.txt $(OutDir)saga.lng
-copy res\saga.ger.txt $(OutDir)saga.ger
+      <Command>copy res\saga.lng.txt $(OutDir)saga.lng.txt
+copy res\saga.ger.txt $(OutDir)saga.ger.txt
 copy res\saga_tip.txt $(OutDir)saga_gui.tip
 copy res\saga_srs.txt $(OutDir)saga_prj.srs
 copy res\saga_dic.txt $(OutDir)saga_prj.dic
@@ -340,8 +340,8 @@ copy res\saga_dic.txt $(OutDir)saga_prj.dic
       <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy res\saga.lng.txt $(OutDir)saga.lng
-copy res\saga.ger.txt $(OutDir)saga.ger
+      <Command>copy res\saga.lng.txt $(OutDir)saga.lng.txt
+copy res\saga.ger.txt $(OutDir)saga.ger.txt
 copy res\saga_tip.txt $(OutDir)saga_gui.tip
 copy res\saga_srs.txt $(OutDir)saga_prj.srs
 copy res\saga_dic.txt $(OutDir)saga_prj.dic
@@ -401,8 +401,8 @@ copy res\saga_dic.txt $(OutDir)saga_prj.dic
       <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy res\saga.lng.txt $(OutDir)saga.lng
-copy res\saga.ger.txt $(OutDir)saga.ger
+      <Command>copy res\saga.lng.txt $(OutDir)saga.lng.txt
+copy res\saga.ger.txt $(OutDir)saga.ger.txt
 copy res\saga_tip.txt $(OutDir)saga_gui.tip
 copy res\saga_srs.txt $(OutDir)saga_prj.srs
 copy res\saga_dic.txt $(OutDir)saga_prj.dic
@@ -463,8 +463,8 @@ copy res\saga_dic.txt $(OutDir)saga_prj.dic
       <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy res\saga.lng.txt $(OutDir)saga.lng
-copy res\saga.ger.txt $(OutDir)saga.ger
+      <Command>copy res\saga.lng.txt $(OutDir)saga.lng.txt
+copy res\saga.ger.txt $(OutDir)saga.ger.txt
 copy res\saga_tip.txt $(OutDir)saga_gui.tip
 copy res\saga_srs.txt $(OutDir)saga_prj.srs
 copy res\saga_dic.txt $(OutDir)saga_prj.dic
@@ -525,8 +525,8 @@ copy res\saga_dic.txt $(OutDir)saga_prj.dic
       <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy res\saga.lng.txt $(OutDir)saga.lng
-copy res\saga.ger.txt $(OutDir)saga.ger
+      <Command>copy res\saga.lng.txt $(OutDir)saga.lng.txt
+copy res\saga.ger.txt $(OutDir)saga.ger.txt
 copy res\saga_tip.txt $(OutDir)saga_gui.tip
 copy res\saga_srs.txt $(OutDir)saga_prj.srs
 copy res\saga_dic.txt $(OutDir)saga_prj.dic
@@ -588,8 +588,8 @@ copy res\saga_dic.txt $(OutDir)saga_prj.dic
       <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy res\saga.lng.txt $(OutDir)saga.lng
-copy res\saga.ger.txt $(OutDir)saga.ger
+      <Command>copy res\saga.lng.txt $(OutDir)saga.lng.txt
+copy res\saga.ger.txt $(OutDir)saga.ger.txt
 copy res\saga_tip.txt $(OutDir)saga_gui.tip
 copy res\saga_srs.txt $(OutDir)saga_prj.srs
 copy res\saga_dic.txt $(OutDir)saga_prj.dic
@@ -649,8 +649,8 @@ copy res\saga_dic.txt $(OutDir)saga_prj.dic
       <OutputFile>$(OutDir)$(ProjectName).bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy res\saga.lng.txt $(OutDir)saga.lng
-copy res\saga.ger.txt $(OutDir)saga.ger
+      <Command>copy res\saga.lng.txt $(OutDir)saga.lng.txt
+copy res\saga.ger.txt $(OutDir)saga.ger.txt
 copy res\saga_tip.txt $(OutDir)saga_gui.tip
 copy res\saga_srs.txt $(OutDir)saga_prj.srs
 copy res\saga_dic.txt $(OutDir)saga_prj.dic
